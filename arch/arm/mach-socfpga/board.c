@@ -6,14 +6,17 @@
  */
 
 #include <common.h>
-#include <errno.h>
-#include <fdtdec.h>
-#include <init.h>
-#include <asm/arch/reset_manager.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/misc.h>
+#include <asm/arch/reset_manager.h>
+#include <asm/arch/secure_vab.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <errno.h>
+#include <fdtdec.h>
+#include <hang.h>
+#include <image.h>
+#include <init.h>
 #include <log.h>
 #include <usb.h>
 #include <usb/dwc2_udc.h>
@@ -96,5 +99,39 @@ __weak int board_fit_config_name_match(const char *name)
 	debug("%s: %s\n", __func__, name);
 
 	return 0;
+}
+#endif
+
+#if IS_ENABLED(CONFIG_FIT_IMAGE_POST_PROCESS)
+void board_fit_image_post_process(void **p_image, size_t *p_size)
+{
+	if (IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH)) {
+		if (socfpga_vendor_authentication(p_image, p_size))
+			hang();
+	}
+}
+#endif
+
+#if !IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_FIT)
+void board_prep_linux(bootm_headers_t *images)
+{
+	if (!IS_ENABLED(CONFIG_SECURE_VAB_AUTH_ALLOW_NON_FIT_IMAGE)) {
+		/*
+		 * Ensure the OS is always booted from FIT and with
+		 * VAB signed certificate
+		 */
+		if (!images->fit_uname_cfg) {
+			printf("Please use FIT with VAB signed images!\n");
+			hang();
+		}
+
+		env_set_hex("fdt_addr", (ulong)images->ft_addr);
+		debug("images->ft_addr = 0x%08lx\n", (ulong)images->ft_addr);
+	}
+
+	if (IS_ENABLED(CONFIG_CADENCE_QSPI)) {
+		if (env_get("linux_qspi_enable"))
+			run_command(env_get("linux_qspi_enable"), 0);
+	}
 }
 #endif

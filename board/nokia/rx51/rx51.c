@@ -40,8 +40,23 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 
-#include "rx51.h"
 #include "tag_omap.h"
+
+/* Needed for ROM SMC call */
+struct emu_hal_params_rx51 {
+	u32 num_params;
+	u32 param1;
+	u32 param2;
+	u32 param3;
+	u32 param4;
+};
+
+#define ONENAND_GPMC_CONFIG1_RX51	0xfb001202
+#define ONENAND_GPMC_CONFIG2_RX51	0x00111100
+#define ONENAND_GPMC_CONFIG3_RX51	0x00020200
+#define ONENAND_GPMC_CONFIG4_RX51	0x11001102
+#define ONENAND_GPMC_CONFIG5_RX51	0x03101616
+#define ONENAND_GPMC_CONFIG6_RX51	0x90060000
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -466,17 +481,6 @@ int misc_init_r(void)
 		omap3_update_aux_cr_secure_rx51(1 << 6, 0);
 
 	return 0;
-}
-
-/*
- * Routine: set_muxconf_regs
- * Description: Setting up the configuration Mux registers specific to the
- *		hardware. Many pins need to be moved from protect to primary
- *		mode.
- */
-void set_muxconf_regs(void)
-{
-	MUX_RX51();
 }
 
 static unsigned long int twl_wd_time; /* last time of watchdog reset */

@@ -77,9 +77,6 @@ int ddr3_init(void)
 		return status;
 	}
 
-#if defined(CONFIG_PHY_STATIC_PRINT)
-	mv_ddr_phy_static_print();
-#endif
 
 	/* Post MC/PHY initializations */
 	mv_ddr_post_training_soc_config(ddr_type);

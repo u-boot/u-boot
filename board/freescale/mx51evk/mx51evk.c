@@ -27,13 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_FSL_ESDHC_IMX
-struct fsl_esdhc_cfg esdhc_cfg[2] = {
-	{MMC_SDHC1_BASE_ADDR},
-	{MMC_SDHC2_BASE_ADDR},
-};
-#endif
-
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
@@ -64,34 +57,6 @@ static void setup_iomux_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
 }
 
-static void setup_iomux_fec(void)
-{
-	static const iomux_v3_cfg_t fec_pads[] = {
-		NEW_PAD_CTRL(MX51_PAD_EIM_EB2__FEC_MDIO, PAD_CTL_HYS |
-				PAD_CTL_PUS_22K_UP | PAD_CTL_ODE |
-				PAD_CTL_DSE_HIGH | PAD_CTL_SRE_FAST),
-		MX51_PAD_NANDF_CS3__FEC_MDC,
-		NEW_PAD_CTRL(MX51_PAD_EIM_CS3__FEC_RDATA3, MX51_PAD_CTRL_2),
-		NEW_PAD_CTRL(MX51_PAD_EIM_CS2__FEC_RDATA2, MX51_PAD_CTRL_2),
-		NEW_PAD_CTRL(MX51_PAD_EIM_EB3__FEC_RDATA1, MX51_PAD_CTRL_2),
-		MX51_PAD_NANDF_D9__FEC_RDATA0,
-		MX51_PAD_NANDF_CS6__FEC_TDATA3,
-		MX51_PAD_NANDF_CS5__FEC_TDATA2,
-		MX51_PAD_NANDF_CS4__FEC_TDATA1,
-		MX51_PAD_NANDF_D8__FEC_TDATA0,
-		MX51_PAD_NANDF_CS7__FEC_TX_EN,
-		MX51_PAD_NANDF_CS2__FEC_TX_ER,
-		MX51_PAD_NANDF_RDY_INT__FEC_TX_CLK,
-		NEW_PAD_CTRL(MX51_PAD_NANDF_RB2__FEC_COL, MX51_PAD_CTRL_4),
-		NEW_PAD_CTRL(MX51_PAD_NANDF_RB3__FEC_RX_CLK, MX51_PAD_CTRL_4),
-		MX51_PAD_EIM_CS5__FEC_CRS,
-		MX51_PAD_EIM_CS4__FEC_RX_ER,
-		NEW_PAD_CTRL(MX51_PAD_NANDF_D11__FEC_RX_DV, MX51_PAD_CTRL_4),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
-}
-
 #ifdef CONFIG_MXC_SPI
 static void setup_iomux_spi(void)
 {
@@ -109,64 +74,6 @@ static void setup_iomux_spi(void)
 	};
 
 	imx_iomux_v3_setup_multiple_pads(spi_pads, ARRAY_SIZE(spi_pads));
-}
-#endif
-
-#ifdef CONFIG_USB_EHCI_MX5
-#define MX51EVK_USBH1_HUB_RST	IMX_GPIO_NR(1, 7)
-#define MX51EVK_USBH1_STP	IMX_GPIO_NR(1, 27)
-#define MX51EVK_USB_CLK_EN_B	IMX_GPIO_NR(2, 1)
-#define MX51EVK_USB_PHY_RESET	IMX_GPIO_NR(2, 5)
-
-static void setup_usb_h1(void)
-{
-	static const iomux_v3_cfg_t usb_h1_pads[] = {
-		MX51_PAD_USBH1_CLK__USBH1_CLK,
-		MX51_PAD_USBH1_DIR__USBH1_DIR,
-		MX51_PAD_USBH1_STP__USBH1_STP,
-		MX51_PAD_USBH1_NXT__USBH1_NXT,
-		MX51_PAD_USBH1_DATA0__USBH1_DATA0,
-		MX51_PAD_USBH1_DATA1__USBH1_DATA1,
-		MX51_PAD_USBH1_DATA2__USBH1_DATA2,
-		MX51_PAD_USBH1_DATA3__USBH1_DATA3,
-		MX51_PAD_USBH1_DATA4__USBH1_DATA4,
-		MX51_PAD_USBH1_DATA5__USBH1_DATA5,
-		MX51_PAD_USBH1_DATA6__USBH1_DATA6,
-		MX51_PAD_USBH1_DATA7__USBH1_DATA7,
-
-		NEW_PAD_CTRL(MX51_PAD_GPIO1_7__GPIO1_7, 0), /* H1 hub reset */
-		MX51_PAD_EIM_D17__GPIO2_1,
-		MX51_PAD_EIM_D21__GPIO2_5, /* PHY reset */
-	};
-
-	imx_iomux_v3_setup_multiple_pads(usb_h1_pads, ARRAY_SIZE(usb_h1_pads));
-}
-
-int board_ehci_hcd_init(int port)
-{
-	/* Set USBH1_STP to GPIO and toggle it */
-	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_USBH1_STP__GPIO1_27,
-						MX51_USBH_PAD_CTRL));
-
-	gpio_direction_output(MX51EVK_USBH1_STP, 0);
-	gpio_direction_output(MX51EVK_USB_PHY_RESET, 0);
-	mdelay(10);
-	gpio_set_value(MX51EVK_USBH1_STP, 1);
-
-	/* Set back USBH1_STP to be function */
-	imx_iomux_v3_setup_pad(MX51_PAD_USBH1_STP__USBH1_STP);
-
-	/* De-assert USB PHY RESETB */
-	gpio_set_value(MX51EVK_USB_PHY_RESET, 1);
-
-	/* Drive USB_CLK_EN_B line low */
-	gpio_direction_output(MX51EVK_USB_CLK_EN_B, 0);
-
-	/* Reset USB hub */
-	gpio_direction_output(MX51EVK_USBH1_HUB_RST, 0);
-	mdelay(2);
-	gpio_set_value(MX51EVK_USBH1_HUB_RST, 1);
-	return 0;
 }
 #endif
 
@@ -258,6 +165,7 @@ static void power_init(void)
 
 	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_EIM_A20__GPIO2_14,
 						NO_PAD_CTRL));
+	gpio_request(IMX_GPIO_NR(2, 14), "gpio2_14");
 	gpio_direction_output(IMX_GPIO_NR(2, 14), 0);
 
 	udelay(500);
@@ -265,101 +173,9 @@ static void power_init(void)
 	gpio_set_value(IMX_GPIO_NR(2, 14), 1);
 }
 
-#ifdef CONFIG_FSL_ESDHC_IMX
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int ret;
-
-	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_GPIO1_0__GPIO1_0,
-						NO_PAD_CTRL));
-	gpio_direction_input(IMX_GPIO_NR(1, 0));
-	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_GPIO1_6__GPIO1_6,
-						NO_PAD_CTRL));
-	gpio_direction_input(IMX_GPIO_NR(1, 6));
-
-	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		ret = !gpio_get_value(IMX_GPIO_NR(1, 0));
-	else
-		ret = !gpio_get_value(IMX_GPIO_NR(1, 6));
-
-	return ret;
-}
-
-int board_mmc_init(struct bd_info *bis)
-{
-	static const iomux_v3_cfg_t sd1_pads[] = {
-		NEW_PAD_CTRL(MX51_PAD_SD1_CMD__SD1_CMD, PAD_CTL_DSE_MAX |
-			PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD1_CLK__SD1_CLK, PAD_CTL_DSE_MAX |
-			PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD1_DATA0__SD1_DATA0, PAD_CTL_DSE_MAX |
-			PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD1_DATA1__SD1_DATA1, PAD_CTL_DSE_MAX |
-			PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD1_DATA2__SD1_DATA2, PAD_CTL_DSE_MAX |
-			PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD1_DATA3__SD1_DATA3, PAD_CTL_DSE_MAX |
-			PAD_CTL_HYS | PAD_CTL_PUS_100K_DOWN | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_GPIO1_0__SD1_CD, PAD_CTL_HYS),
-		NEW_PAD_CTRL(MX51_PAD_GPIO1_1__SD1_WP, PAD_CTL_HYS),
-	};
-
-	static const iomux_v3_cfg_t sd2_pads[] = {
-		NEW_PAD_CTRL(MX51_PAD_SD2_CMD__SD2_CMD,
-				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD2_CLK__SD2_CLK,
-				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD2_DATA0__SD2_DATA0,
-				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD2_DATA1__SD2_DATA1,
-				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD2_DATA2__SD2_DATA2,
-				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_SD2_DATA3__SD2_DATA3,
-				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
-		NEW_PAD_CTRL(MX51_PAD_GPIO1_6__GPIO1_6, PAD_CTL_HYS),
-		NEW_PAD_CTRL(MX51_PAD_GPIO1_5__GPIO1_5, PAD_CTL_HYS),
-	};
-
-	u32 index;
-	int ret;
-
-	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-	esdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-
-	for (index = 0; index < CONFIG_SYS_FSL_ESDHC_NUM;
-			index++) {
-		switch (index) {
-		case 0:
-			imx_iomux_v3_setup_multiple_pads(sd1_pads,
-							 ARRAY_SIZE(sd1_pads));
-			break;
-		case 1:
-			imx_iomux_v3_setup_multiple_pads(sd2_pads,
-							 ARRAY_SIZE(sd2_pads));
-			break;
-		default:
-			printf("Warning: you configured more ESDHC controller"
-				"(%d) as supported by the board(2)\n",
-				CONFIG_SYS_FSL_ESDHC_NUM);
-			return -EINVAL;
-		}
-		ret = fsl_esdhc_initialize(bis, &esdhc_cfg[index]);
-		if (ret)
-			return ret;
-	}
-	return 0;
-}
-#endif
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-	setup_iomux_fec();
-#ifdef CONFIG_USB_EHCI_MX5
-	setup_usb_h1();
-#endif
 	setup_iomux_lcd();
 
 	return 0;

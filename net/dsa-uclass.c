@@ -28,8 +28,8 @@ int dsa_set_tagging(struct udevice *dev, ushort headroom, ushort tailroom)
 {
 	struct dsa_priv *priv;
 
-	if (!dev || !dev_get_uclass_priv(dev))
-		return -ENODEV;
+	if (!dev)
+		return -EINVAL;
 
 	if (headroom + tailroom > DSA_MAX_OVR)
 		return -EINVAL;
@@ -47,10 +47,12 @@ int dsa_set_tagging(struct udevice *dev, ushort headroom, ushort tailroom)
 /* returns the DSA master Ethernet device */
 struct udevice *dsa_get_master(struct udevice *dev)
 {
-	struct dsa_priv *priv = dev_get_uclass_priv(dev);
+	struct dsa_priv *priv;
 
-	if (!priv)
+	if (!dev)
 		return NULL;
+
+	priv = dev_get_uclass_priv(dev);
 
 	return priv->master_dev;
 }
@@ -66,14 +68,6 @@ static int dsa_port_start(struct udevice *pdev)
 	struct udevice *master = dsa_get_master(dev);
 	struct dsa_ops *ops = dsa_get_ops(dev);
 	int err;
-
-	if (!priv)
-		return -ENODEV;
-
-	if (!master) {
-		dev_err(pdev, "DSA master Ethernet device not found!\n");
-		return -EINVAL;
-	}
 
 	if (ops->port_enable) {
 		struct dsa_port_pdata *port_pdata;
@@ -101,9 +95,6 @@ static void dsa_port_stop(struct udevice *pdev)
 	struct udevice *master = dsa_get_master(dev);
 	struct dsa_ops *ops = dsa_get_ops(dev);
 
-	if (!priv)
-		return;
-
 	if (ops->port_disable) {
 		struct dsa_port_pdata *port_pdata;
 
@@ -112,13 +103,7 @@ static void dsa_port_stop(struct udevice *pdev)
 		ops->port_disable(dev, priv->cpu_port, NULL);
 	}
 
-	/*
-	 * stop master only if it's active, don't probe it otherwise.
-	 * Under normal usage it would be active because we're using it, but
-	 * during tear-down it may have been removed ahead of us.
-	 */
-	if (master && device_active(master))
-		eth_get_ops(master)->stop(master);
+	eth_get_ops(master)->stop(master);
 }
 
 /*
@@ -136,9 +121,6 @@ static int dsa_port_send(struct udevice *pdev, void *packet, int length)
 	uchar dsa_packet_tmp[PKTSIZE_ALIGN];
 	struct dsa_port_pdata *port_pdata;
 	int err;
-
-	if (!master)
-		return -EINVAL;
 
 	if (length + head + tail > PKTSIZE_ALIGN)
 		return -EINVAL;
@@ -168,9 +150,6 @@ static int dsa_port_recv(struct udevice *pdev, int flags, uchar **packetp)
 	struct dsa_ops *ops = dsa_get_ops(dev);
 	struct dsa_port_pdata *port_pdata;
 	int length, port_index, err;
-
-	if (!master)
-		return -EINVAL;
 
 	length = eth_get_ops(master)->recv(master, flags, packetp);
 	if (length <= 0)
@@ -204,9 +183,6 @@ static int dsa_port_free_pkt(struct udevice *pdev, uchar *packet, int length)
 	struct udevice *dev = dev_get_parent(pdev);
 	struct udevice *master = dsa_get_master(dev);
 	struct dsa_priv *priv;
-
-	if (!master)
-		return -EINVAL;
 
 	priv = dev_get_uclass_priv(dev);
 	if (eth_get_ops(master)->free_pkt) {
@@ -272,6 +248,7 @@ static int dsa_port_probe(struct udevice *pdev)
 	struct dsa_port_pdata *port_pdata;
 	struct dsa_priv *dsa_priv;
 	struct udevice *master;
+	int ret;
 
 	port_pdata = dev_get_parent_plat(pdev);
 	dsa_priv = dev_get_uclass_priv(dev);
@@ -280,16 +257,27 @@ static int dsa_port_probe(struct udevice *pdev)
 	if (!port_pdata->phy)
 		return -ENODEV;
 
+	master = dsa_get_master(dev);
+	if (!master)
+		return -ENODEV;
+
+	/*
+	 * Probe the master device. We depend on the master device for proper
+	 * operation and we also need it for MAC inheritance below.
+	 *
+	 * TODO: we assume the master device is always there and doesn't get
+	 * removed during runtime.
+	 */
+	ret = device_probe(master);
+	if (ret)
+		return ret;
+
 	/*
 	 * Inherit port's hwaddr from the DSA master, unless the port already
 	 * has a unique MAC address specified in the environment.
 	 */
 	eth_env_get_enetaddr_by_index("eth", dev_seq(pdev), env_enetaddr);
 	if (!is_zero_ethaddr(env_enetaddr))
-		return 0;
-
-	master = dsa_get_master(dev);
-	if (!master)
 		return 0;
 
 	master_pdata = dev_get_plat(master);
@@ -338,7 +326,7 @@ static int dsa_post_bind(struct udevice *dev)
 	ofnode node = dev_ofnode(dev), pnode;
 	int i, err, first_err = 0;
 
-	if (!pdata || !ofnode_valid(node))
+	if (!ofnode_valid(node))
 		return -ENODEV;
 
 	pdata->master_node = ofnode_null();
@@ -449,9 +437,6 @@ static int dsa_pre_probe(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct dsa_priv *priv = dev_get_uclass_priv(dev);
-
-	if (!pdata || !priv)
-		return -ENODEV;
 
 	priv->num_ports = pdata->num_ports;
 	priv->cpu_port = pdata->cpu_port;

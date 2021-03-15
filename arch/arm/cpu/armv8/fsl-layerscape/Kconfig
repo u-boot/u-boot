@@ -640,3 +640,13 @@ config HAS_FSL_XHCI_USB
 	help
 	  For some SoC(such as LS1043A and LS1046A), USB and QE-HDLC multiplex use
 	  pins, select it when the pins are assigned to USB.
+
+config SYS_FSL_BOOTROM_BASE
+	hex
+	depends on FSL_LSCH2
+	default 0
+
+config SYS_FSL_BOOTROM_SIZE
+	hex
+	depends on FSL_LSCH2
+	default 0x1000000

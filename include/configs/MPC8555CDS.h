@@ -18,8 +18,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
-#define CONFIG_FSL_VIA
-
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
 #endif

@@ -33,6 +33,12 @@ config TPL_SYSRESET
 
 if SYSRESET
 
+config SYSRESET_CMD_RESET
+	bool "sysreset implementation of the reset command"
+	default y
+	help
+	  Enable sysreset implementation of the reset command.
+
 if CMD_POWEROFF
 
 config SYSRESET_CMD_POWEROFF
@@ -88,7 +94,7 @@ config SYSRESET_SOCFPGA
 
 config SYSRESET_SOCFPGA_SOC64
 	bool "Enable support for Intel SOCFPGA SoC64 family (Stratix10/Agilex)"
-	depends on ARCH_SOCFPGA && (TARGET_SOCFPGA_STRATIX10 || TARGET_SOCFPGA_AGILEX)
+	depends on ARCH_SOCFPGA && TARGET_SOCFPGA_SOC64
 	help
 	  This enables the system reset driver support for Intel SOCFPGA
 	  SoC64 SoCs.

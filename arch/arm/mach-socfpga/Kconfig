@@ -6,6 +6,21 @@ config ERR_PTR_OFFSET
 config NR_DRAM_BANKS
 	default 1
 
+config SOCFPGA_SECURE_VAB_AUTH
+	bool "Enable boot image authentication with Secure Device Manager"
+	depends on TARGET_SOCFPGA_AGILEX
+	select FIT_IMAGE_POST_PROCESS
+	select SHA384
+	select SHA512_ALGO
+	select SPL_FIT_IMAGE_POST_PROCESS
+	help
+	 All images loaded from FIT will be authenticated by Secure Device
+	 Manager.
+
+config SOCFPGA_SECURE_VAB_AUTH_ALLOW_NON_FIT_IMAGE
+	bool "Allow non-FIT VAB signed images"
+	depends on SOCFPGA_SECURE_VAB_AUTH
+
 config SPL_SIZE_LIMIT
 	default 0x10000 if TARGET_SOCFPGA_GEN5
 
@@ -38,6 +53,7 @@ config TARGET_SOCFPGA_AGILEX
 	select FPGA_INTEL_SDM_MAILBOX
 	select NCORE_CACHE
 	select SPL_CLK if SPL
+	select TARGET_SOCFPGA_SOC64
 
 config TARGET_SOCFPGA_ARRIA5
 	bool
@@ -75,12 +91,16 @@ config TARGET_SOCFPGA_GEN5
 	imply SPL_SYS_MALLOC_SIMPLE
 	imply SPL_USE_TINY_PRINTF
 
+config TARGET_SOCFPGA_SOC64
+	bool
+
 config TARGET_SOCFPGA_STRATIX10
 	bool
 	select ARMV8_MULTIENTRY
 	select ARMV8_SET_SMPEN
 	select BINMAN if SPL_ATF
 	select FPGA_INTEL_SDM_MAILBOX
+	select TARGET_SOCFPGA_SOC64
 
 choice
 	prompt "Altera SOCFPGA board select"

@@ -63,6 +63,7 @@
 #define DDR_CSD1_BASE_ADDR	0x40000000
 
 #define IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_MASK 0x70000
+#define FEC_QUIRK_ENET_MAC
 
 #if !defined(__ASSEMBLY__)
 #include <asm/types.h>

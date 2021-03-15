@@ -862,8 +862,14 @@ const char *env_ext4_get_dev_part(void)
 
 int mmc_get_env_dev(void)
 {
-	u32 bootmode = get_bootmode();
+	u32 bootmode;
 
+	if (CONFIG_SYS_MMC_ENV_DEV >= 0)
+		return CONFIG_SYS_MMC_ENV_DEV;
+
+	bootmode = get_bootmode();
+
+	/* use boot instance to select the correct mmc device identifier */
 	return (bootmode & TAMP_BOOT_INSTANCE_MASK) - 1;
 }
 

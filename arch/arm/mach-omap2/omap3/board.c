@@ -179,6 +179,8 @@ void early_system_init(void)
 	hw_data_init();
 }
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
+	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
 /******************************************************************************
  * Routine: s_init
  * Description: Does early system init of muxing and clocks.
@@ -207,6 +209,7 @@ void s_init(void)
 	ehci_clocks_enable();
 #endif
 }
+#endif
 
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)

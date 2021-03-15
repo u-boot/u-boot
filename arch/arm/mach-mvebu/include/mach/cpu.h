@@ -164,7 +164,7 @@ int serdes_phy_config(void);
 int ddr3_init(void);
 
 /* Auto Voltage Scaling */
-#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
+#if defined(CONFIG_ARMADA_38X)
 void mv_avs_init(void);
 void mv_rtc_config(void);
 #else

@@ -648,10 +648,17 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-pcm052.dtb \
 	vf610-bk4r1.dtb
 
+dtb-$(CONFIG_MX23) += \
+	imx23-evk.dtb
+
 dtb-$(CONFIG_MX28) += \
 	imx28-xea.dtb
 
+dtb-$(CONFIG_MX51) += \
+	imx51-babbage.dtb
+
 dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
+	imx53-qsb.dtb \
 	imx53-kp.dtb \
 	imx53-m53menlo.dtb
 
@@ -783,6 +790,10 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 
 dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-evk.dtb \
+	imx8mm-venice.dtb \
+	imx8mm-venice-gw71xx-0x.dtb \
+	imx8mm-venice-gw72xx-0x.dtb \
+	imx8mm-venice-gw73xx-0x.dtb \
 	imx8mm-verdin.dtb \
 	phycore-imx8mm.dtb \
 	imx8mn-ddr4-evk.dtb \

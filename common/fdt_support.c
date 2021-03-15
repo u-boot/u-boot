@@ -1668,22 +1668,36 @@ u64 fdt_get_base_address(const void *fdt, int node)
 }
 
 /*
- * Read a property of size <prop_len>. Currently only supports 1 or 2 cells.
+ * Read a property of size <prop_len>. Currently only supports 1 or 2 cells,
+ * or 3 cells specially for a PCI address.
  */
 static int fdt_read_prop(const fdt32_t *prop, int prop_len, int cell_off,
 			 uint64_t *val, int cells)
 {
-	const fdt32_t *prop32 = &prop[cell_off];
-	const unaligned_fdt64_t *prop64 = (const fdt64_t *)&prop[cell_off];
+	const fdt32_t *prop32;
+	const unaligned_fdt64_t *prop64;
 
 	if ((cell_off + cells) > prop_len)
 		return -FDT_ERR_NOSPACE;
+
+	prop32 = &prop[cell_off];
+
+	/*
+	 * Special handling for PCI address in PCI bus <ranges>
+	 *
+	 * PCI child address is made up of 3 cells. Advance the cell offset
+	 * by 1 so that the PCI child address can be correctly read.
+	 */
+	if (cells == 3)
+		cell_off += 1;
+	prop64 = (const fdt64_t *)&prop[cell_off];
 
 	switch (cells) {
 	case 1:
 		*val = fdt32_to_cpu(*prop32);
 		break;
 	case 2:
+	case 3:
 		*val = fdt64_to_cpu(*prop64);
 		break;
 	default:

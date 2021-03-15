@@ -160,7 +160,7 @@ F:	drivers/clk/aspeed/
 F:	drivers/pinctrl/aspeed/
 N:	aspeed
 
-ARM BROADCOM BCM283X
+ARM BROADCOM BCM283X / BCM27XX
 M:	Matthias Brugger <mbrugger@suse.com>
 S:	Maintained
 F:	arch/arm/dts/bcm283*
@@ -175,6 +175,8 @@ F:	drivers/video/bcm2835.c
 F:	include/dm/platform_data/serial_bcm283x_mu.h
 F:	include/dt-bindings/pinctrl/bcm2835.h
 F:	drivers/pinctrl/broadcom/
+F:	configs/rpi_*
+T:	git https://source.denx.de/u-boot/custodians/u-boot-arm.git
 
 ARM BROADCOM BCMSTB
 M:	Thomas Fitzsimmons <fitzsim@fitzsim.org>

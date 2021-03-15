@@ -6,6 +6,8 @@ config ADDR_MAP
 	  Enables helper code for implementing non-identity virtual-physical
 	  memory mappings for 32bit CPUs.
 
+	  This library only works in the post-relocation phase.
+
 config SYS_NUM_ADDR_MAP
 	int "Size of the address-map table"
 	depends on ADDR_MAP
@@ -22,7 +24,7 @@ config BCH
 
 config BINMAN_FDT
 	bool "Allow access to binman information in the device tree"
-	depends on BINMAN && OF_CONTROL
+	depends on BINMAN && DM && OF_CONTROL
 	default y
 	help
 	  This enables U-Boot to access information about binman entries,

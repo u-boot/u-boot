@@ -16,6 +16,7 @@
 #include <reset.h>
 #include <spi.h>
 #include <spi-mem.h>
+#include <watchdog.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -171,6 +172,7 @@ static int _stm32_qspi_wait_cmd(struct stm32_qspi_priv *priv,
 static void _stm32_qspi_read_fifo(u8 *val, void __iomem *addr)
 {
 	*val = readb(addr);
+	WATCHDOG_RESET();
 }
 
 static void _stm32_qspi_write_fifo(u8 *val, void __iomem *addr)

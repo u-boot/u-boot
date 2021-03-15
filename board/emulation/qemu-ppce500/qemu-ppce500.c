@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2007,2009-2014 Freescale Semiconductor, Inc.
+ * Copyright (C) 2021, Bin Meng <bmeng.cn@gmail.com>
  */
 
 #include <common.h>
 #include <command.h>
 #include <cpu_func.h>
+#include <dm.h>
 #include <env.h>
 #include <init.h>
 #include <log.h>
@@ -23,12 +25,17 @@
 #include <fdtdec.h>
 #include <errno.h>
 #include <malloc.h>
+#include <virtio_types.h>
+#include <virtio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static void *get_fdt_virt(void)
 {
-	return (void *)CONFIG_SYS_TMPVIRT;
+	if (gd->flags & GD_FLG_RELOC)
+		return (void *)gd->fdt_blob;
+	else
+		return (void *)CONFIG_SYS_TMPVIRT;
 }
 
 static uint64_t get_fdt_phys(void)
@@ -74,33 +81,14 @@ uint64_t get_phys_ccsrbar_addr_early(void)
 	return r;
 }
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int checkboard(void)
 {
 	return 0;
 }
 
-static int pci_map_region(void *fdt, int pci_node, int range_id,
-			  phys_size_t *ppaddr, pci_addr_t *pvaddr,
-			  pci_size_t *psize, ulong *pmap_addr)
+static int pci_map_region(phys_addr_t paddr, phys_size_t size, ulong *pmap_addr)
 {
-	uint64_t addr;
-	uint64_t size;
 	ulong map_addr;
-	int r;
-
-	r = fdt_read_range(fdt, pci_node, range_id, NULL, &addr, &size);
-	if (r)
-		return r;
-
-	if (ppaddr)
-		*ppaddr = addr;
-	if (psize)
-		*psize = size;
 
 	if (!pmap_addr)
 		return 0;
@@ -115,90 +103,52 @@ static int pci_map_region(void *fdt, int pci_node, int range_id,
 		return -1;
 
 	/* Map virtual memory for range */
-	assert(!tlb_map_range(map_addr, addr, size, TLB_MAP_IO));
+	assert(!tlb_map_range(map_addr, paddr, size, TLB_MAP_IO));
 	*pmap_addr = map_addr + size;
-
-	if (pvaddr)
-		*pvaddr = map_addr;
 
 	return 0;
 }
 
-void pci_init_board(void)
+int misc_init_r(void)
 {
-	struct pci_controller *pci_hoses;
-	void *fdt = get_fdt_virt();
-	int pci_node = -1;
-	int pci_num = 0;
-	int pci_count = 0;
+	struct udevice *dev;
+	struct pci_region *io;
+	struct pci_region *mem;
+	struct pci_region *pre;
 	ulong map_addr;
+	int ret;
 
-	puts("\n");
+	/* Ensure PCI is probed */
+	uclass_first_device(UCLASS_PCI, &dev);
+
+	pci_get_regions(dev, &io, &mem, &pre);
 
 	/* Start MMIO and PIO range maps above RAM */
 	map_addr = CONFIG_SYS_PCI_MAP_START;
 
-	/* Count and allocate PCI buses */
-	pci_node = fdt_node_offset_by_prop_value(fdt, pci_node,
-			"device_type", "pci", 4);
-	while (pci_node != -FDT_ERR_NOTFOUND) {
-		pci_node = fdt_node_offset_by_prop_value(fdt, pci_node,
-				"device_type", "pci", 4);
-		pci_count++;
-	}
+	/* Map MMIO range */
+	ret = pci_map_region(mem->phys_start, mem->size, &map_addr);
+	if (ret)
+		return ret;
 
-	if (pci_count) {
-		pci_hoses = malloc(sizeof(struct pci_controller) * pci_count);
-	} else {
-		printf("PCI: disabled\n\n");
-		return;
-	}
+	/* Map PIO range */
+	ret = pci_map_region(io->phys_start, io->size, &map_addr);
+	if (ret)
+		return ret;
 
-	/* Spawn PCI buses based on device tree */
-	pci_node = fdt_node_offset_by_prop_value(fdt, pci_node,
-			"device_type", "pci", 4);
-	while (pci_node != -FDT_ERR_NOTFOUND) {
-		struct fsl_pci_info pci_info = { };
-		const fdt32_t *reg;
-		int r;
+	/*
+	 * Make sure virtio bus is enumerated so that peripherals
+	 * on the virtio bus can be discovered by their drivers.
+	 */
+	virtio_init();
 
-		reg = fdt_getprop(fdt, pci_node, "reg", NULL);
-		pci_info.regs = fdt_translate_address(fdt, pci_node, reg);
+	/*
+	 * U-Boot is relocated to RAM already, let's delete the temporary FDT
+	 * virtual-physical mapping that was used in the pre-relocation phase.
+	 */
+	disable_tlb(find_tlb_idx((void *)CONFIG_SYS_TMPVIRT, 1));
 
-		/* Map MMIO range */
-		r = pci_map_region(fdt, pci_node, 0, &pci_info.mem_phys, NULL,
-				   &pci_info.mem_size, &map_addr);
-		if (r)
-			break;
-
-		/* Map PIO range */
-		r = pci_map_region(fdt, pci_node, 1, &pci_info.io_phys, NULL,
-				   &pci_info.io_size, &map_addr);
-		if (r)
-			break;
-
-		/*
-		 * The PCI framework finds virtual addresses for the buses
-		 * through our address map, so tell it the physical addresses.
-		 */
-		pci_info.mem_bus = pci_info.mem_phys;
-		pci_info.io_bus = pci_info.io_phys;
-
-		/* Instantiate */
-		pci_info.pci_num = pci_num + 1;
-
-		fsl_setup_hose(&pci_hoses[pci_num], pci_info.regs);
-		printf("PCI: base address %lx\n", pci_info.regs);
-
-		fsl_pci_init_port(&pci_info, &pci_hoses[pci_num], pci_num);
-
-		/* Jump to next PCI node */
-		pci_node = fdt_node_offset_by_prop_value(fdt, pci_node,
-				"device_type", "pci", 4);
-		pci_num++;
-	}
-
-	puts("\n");
+	return 0;
 }
 
 int last_stage_init(void)
@@ -219,9 +169,6 @@ int last_stage_init(void)
 	if (prop && (len >= 8))
 		env_set_hex("qemu_kernel_addr", *prop);
 
-	/* Give the user a variable for the host fdt */
-	env_set_hex("fdt_addr_r", (ulong)fdt);
-
 	return 0;
 }
 
@@ -239,30 +186,6 @@ static uint64_t get_linear_ram_size(void)
 		return *(uint64_t *)(prop+8);
 
 	panic("Couldn't determine RAM size");
-}
-
-int board_eth_init(struct bd_info *bis)
-{
-	return pci_eth_init(bis);
-}
-
-#if defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, struct bd_info *bd)
-{
-	FT_FSL_PCI_SETUP;
-
-	return 0;
-}
-#endif
-
-void print_laws(void)
-{
-	/* We don't emulate LAWs yet */
-}
-
-phys_size_t fixed_sdram(void)
-{
-	return get_linear_ram_size();
 }
 
 phys_size_t fsl_ddr_sdram_size(void)
@@ -301,11 +224,6 @@ void init_tlbs(void)
 	/* Create a map for the TLB */
 	assert(!tlb_map_range((ulong)get_fdt_virt(), get_fdt_phys(),
 			      1024 * 1024, TLB_MAP_RAM));
-}
-
-void init_laws(void)
-{
-	/* We don't emulate LAWs yet */
 }
 
 static uint32_t get_cpu_freq(void)
@@ -379,4 +297,20 @@ int cpu_numcores(void)
 u32 cpu_mask(void)
 {
 	return (1 << cpu_numcores()) - 1;
+}
+
+/**
+ * Return the virtual address of FDT that was passed by QEMU
+ *
+ * @return virtual address of FDT received from QEMU in r3 register
+ */
+void *board_fdt_blob_setup(void)
+{
+	return get_fdt_virt();
+}
+
+/* See CONFIG_SYS_NS16550_CLK in arch/powerpc/include/asm/config.h */
+int get_serial_clock(void)
+{
+	return get_bus_freq(0);
 }

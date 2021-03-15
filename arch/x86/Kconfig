@@ -1001,6 +1001,28 @@ config PCIEX_LENGTH_128MB
 config PCIEX_LENGTH_64MB
 	bool
 
+config INTEL_SOC
+	bool
+	help
+	  This is enabled on Intel SoCs that can support various advanced
+	  features such as power management (requiring asm/arch/pm.h), system
+	  agent (asm/arch/systemagent.h) and an I/O map for ACPI
+	  (asm/arch/iomap.h).
+
+	  This cannot be selected in a defconfig file. It must be enabled by a
+	  'select' in the SoC's Kconfig.
+
+if INTEL_SOC
+
+config INTEL_ACPIGEN
+	bool "Support ACPI table generation for Intel SoCs"
+	depends on ACPIGEN
+	help
+	  This option adds some functions used for programmatic generation of
+	  ACPI tables on Intel SoCs. This provides features for writing CPU
+	  information such as P states and T stages. Also included is a way
+	  to create a GNVS table and set it up.
+
 config INTEL_GMA_ACPI
 	bool "Generate ACPI table for Intel GMA graphics"
 	help
@@ -1022,5 +1044,7 @@ config INTEL_GMA_SWSMISCI
 	help
 	  Select this option for Atom-based platforms which use the SWSMISCI
 	  register (0xe0) rather than the SWSCI register (0xe8).
+
+endif # INTEL_SOC
 
 endmenu

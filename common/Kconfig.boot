@@ -138,7 +138,7 @@ config FIT_BEST_MATCH
 
 config FIT_IMAGE_POST_PROCESS
 	bool "Enable post-processing of FIT artifacts after loading by U-Boot"
-	depends on TI_SECURE_DEVICE
+	depends on TI_SECURE_DEVICE || SOCFPGA_SECURE_VAB_AUTH
 	help
 	  Allows doing any sort of manipulation to blobs after they got extracted
 	  from FIT images like stripping off headers or modifying the size of the
@@ -449,6 +449,7 @@ config BOOTSTAGE_REPORT
 
 config BOOTSTAGE_RECORD_COUNT
 	int "Number of boot stage records to store"
+	depends on BOOTSTAGE
 	default 30
 	help
 	  This is the size of the bootstage record list and is the maximum
@@ -456,6 +457,7 @@ config BOOTSTAGE_RECORD_COUNT
 
 config SPL_BOOTSTAGE_RECORD_COUNT
 	int "Number of boot stage records to store for SPL"
+	depends on SPL_BOOTSTAGE
 	default 5
 	help
 	  This is the size of the bootstage record list and is the maximum
@@ -463,6 +465,7 @@ config SPL_BOOTSTAGE_RECORD_COUNT
 
 config TPL_BOOTSTAGE_RECORD_COUNT
 	int "Number of boot stage records to store for TPL"
+	depends on TPL_BOOTSTAGE
 	default 5
 	help
 	  This is the size of the bootstage record list and is the maximum

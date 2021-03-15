@@ -20,7 +20,7 @@ struct mpc8xxx_gpio_data {
 	/* The bank's register base in memory */
 	struct ccsr_gpio __iomem *base;
 	/* The address of the registers; used to identify the bank */
-	ulong addr;
+	phys_addr_t addr;
 	/* The GPIO count of the bank */
 	uint gpio_count;
 	/* The GPDAT register cannot be used to determine the value of output
@@ -181,7 +181,7 @@ static int mpc8xxx_gpio_of_to_plat(struct udevice *dev)
 	if (dev_read_bool(dev, "little-endian"))
 		data->little_endian = true;
 
-	plat->addr = (ulong)dev_read_addr_size_index(dev, 0, (fdt_size_t *)&plat->size);
+	plat->addr = dev_read_addr_size_index(dev, 0, (fdt_size_t *)&plat->size);
 	plat->ngpios = dev_read_u32_default(dev, "ngpios", 32);
 
 	return 0;
@@ -220,7 +220,8 @@ static int mpc8xxx_gpio_probe(struct udevice *dev)
 
 	mpc8xxx_gpio_plat_to_priv(dev);
 
-	snprintf(name, sizeof(name), "MPC@%lx_", data->addr);
+	snprintf(name, sizeof(name), "MPC@%.8llx",
+		 (unsigned long long)data->addr);
 	str = strdup(name);
 
 	if (!str)

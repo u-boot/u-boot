@@ -23,7 +23,7 @@ static const char illegal[] = "+,<=>:;\"/\\|?*[]\x7f";
 static const u16 codepage[] = CP1250;
 #else
 /* Unicode code points for code page 437 characters 0x80 - 0xff */
-static const u16 codepage[] = CP437;
+static const u16 *codepage = codepage_437;
 #endif
 
 /* GUID of the EFI_UNICODE_COLLATION_PROTOCOL2 */
@@ -300,23 +300,10 @@ static bool EFIAPI efi_str_to_fat(struct efi_unicode_collation_protocol *this,
 			break;
 		}
 		c = utf_to_upper(c);
-		if (c >= 0x80) {
-			int j;
-
-			/* Look for codepage translation */
-			for (j = 0; j < 0x80; ++j) {
-				if (c == codepage[j]) {
-					c = j + 0x80;
-					break;
-				}
-			}
-			if (j >= 0x80) {
-				c = '_';
-				ret = true;
-			}
-		} else if (c && (c < 0x20 || strchr(illegal, c))) {
-			c = '_';
+		if (utf_to_cp(&c, codepage) ||
+		    (c && (c < 0x20 || strchr(illegal, c)))) {
 			ret = true;
+			c = '_';
 		}
 
 		fat[i] = c;

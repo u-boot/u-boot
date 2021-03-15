@@ -21,18 +21,37 @@ config CMD_ESBC_VALIDATE
 	    esbc_validate - validate signature using RSA verification
 	    esbc_halt - put the core in spin loop (Secure Boot Only)
 
+config VID
+	depends on DM_I2C
+	bool "Enable Freescale VID"
+	help
+	 This option enables setting core voltage based on individual
+	 values saved in SoC fuses.
+
 config VOL_MONITOR_LTC3882_READ
 	depends on VID
 	bool "Enable the LTC3882 voltage monitor read"
-	default n
 	help
 	 This option enables LTC3882 voltage monitor read
-	 functionality. It is used by common VID driver.
+	 functionality. It is used by the common VID driver.
 
 config VOL_MONITOR_LTC3882_SET
 	depends on VID
 	bool "Enable the LTC3882 voltage monitor set"
-	default n
 	help
 	 This option enables LTC3882 voltage monitor set
-	 functionality. It is used by common VID driver.
+	 functionality. It is used by the common VID driver.
+
+config VOL_MONITOR_ISL68233_READ
+	depends on VID
+	bool "Enable the ISL68233 voltage monitor read"
+	help
+	 This option enables ISL68233 voltage monitor read
+	 functionality. It is used by the common VID driver.
+
+config VOL_MONITOR_ISL68233_SET
+	depends on VID
+	bool "Enable the ISL68233 voltage monitor set"
+	help
+	 This option enables ISL68233 voltage monitor set
+	 functionality. It is used by the common VID driver.

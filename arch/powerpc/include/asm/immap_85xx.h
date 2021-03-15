@@ -272,6 +272,7 @@ typedef struct ccsr_gpio {
 	u32	gpier;
 	u32	gpimr;
 	u32	gpicr;
+	u32	gpibe;
 } ccsr_gpio_t;
 #endif
 

@@ -97,6 +97,13 @@ config CMD_ACPI
 	  between the firmware and OS, and is particularly useful when you
 	  want to make hardware changes without the OS needing to be adjusted.
 
+config CMD_ADDRMAP
+	bool "addrmap"
+	depends on ADDR_MAP
+	default y
+	help
+	  List non-identity virtual-physical memory mappings for 32-bit CPUs.
+
 config CMD_BDI
 	bool "bdinfo"
 	default y
@@ -1338,6 +1345,7 @@ config CMD_PVBLOCK
 config CMD_VIRTIO
 	bool "virtio"
 	depends on VIRTIO
+	depends on HAVE_BLOCK_DEVICE
 	default y if VIRTIO
 	help
 	  VirtIO block device support

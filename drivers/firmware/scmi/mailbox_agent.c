@@ -3,13 +3,15 @@
  * Copyright (C) 2020 Linaro Limited.
  */
 
+#define LOG_CATEGORY UCLASS_SCMI_AGENT
+
 #include <common.h>
 #include <dm.h>
-#include <dm/device_compat.h>
 #include <errno.h>
 #include <mailbox.h>
 #include <scmi_agent.h>
 #include <scmi_agent-uclass.h>
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/compat.h>
 

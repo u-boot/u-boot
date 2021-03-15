@@ -34,12 +34,12 @@
 #define RNG_FIFO_COUNT_RNG_FIFO_COUNT_MASK		0x000000FF
 
 struct iproc_rng200_plat {
-	fdt_addr_t base;
+	void __iomem *base;
 };
 
 static void iproc_rng200_enable(struct iproc_rng200_plat *pdata, bool enable)
 {
-	fdt_addr_t rng_base = pdata->base;
+	void __iomem *rng_base = pdata->base;
 	u32 val;
 
 	val = readl(rng_base + RNG_CTRL_OFFSET);
@@ -54,7 +54,7 @@ static void iproc_rng200_enable(struct iproc_rng200_plat *pdata, bool enable)
 
 static void iproc_rng200_restart(struct iproc_rng200_plat *pdata)
 {
-	fdt_addr_t rng_base = pdata->base;
+	void __iomem *rng_base = pdata->base;
 	u32 val;
 
 	iproc_rng200_enable(pdata, false);
@@ -156,7 +156,7 @@ static int iproc_rng200_of_to_plat(struct udevice *dev)
 {
 	struct iproc_rng200_plat *pdata = dev_get_plat(dev);
 
-	pdata->base = dev_read_addr(dev);
+	pdata->base = devfdt_map_physmem(dev, sizeof(void *));
 	if (!pdata->base)
 		return -ENODEV;
 

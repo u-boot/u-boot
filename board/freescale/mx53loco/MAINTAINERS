@@ -1,4 +1,5 @@
 MX53LOCO BOARD
+M:	Fabio Estevam <festevam@gmail.com>
 M:	Jason Liu <jason.hui.liu@nxp.com>
 S:	Maintained
 F:	board/freescale/mx53loco/
