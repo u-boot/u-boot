@@ -148,8 +148,11 @@ int uclass_get(enum uclass_id id, struct uclass **ucp)
 
 	*ucp = NULL;
 	uc = uclass_find(id);
-	if (!uc)
+	if (!uc) {
+		if (CONFIG_IS_ENABLED(OF_PLATDATA_INST))
+			return -ENOENT;
 		return uclass_add(id, ucp);
+	}
 	*ucp = uc;
 
 	return 0;
