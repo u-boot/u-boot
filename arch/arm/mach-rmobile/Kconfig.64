@@ -113,6 +113,12 @@ config TARGET_HIHOPE_RZG2
 	help
           Support for RZG2 HiHope platform
 
+config TARGET_SILINUX_EK874
+	bool "Silicon Linux EK874 board"
+	imply R8A774C0
+	help
+          Support for Silicon Linux EK874 platform
+
 config TARGET_SALVATOR_X
 	bool "Salvator-X board"
 	imply R8A7795
@@ -148,6 +154,7 @@ source "board/renesas/salvator-x/Kconfig"
 source "board/renesas/ulcb/Kconfig"
 source "board/beacon/beacon-rzg2m/Kconfig"
 source "board/hoperun/hihope-rzg2/Kconfig"
+source "board/silinux/ek874/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	default 0x80000 if TARGET_HIHOPE_RZG2
