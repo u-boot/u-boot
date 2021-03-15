@@ -100,7 +100,7 @@
 	clk: clock {
 		compatible = "intel,apl-clk";
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 	};
 
 	cpus {
@@ -141,7 +141,7 @@
 	};
 
 	acpi_gpe: general-purpose-events {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 		reg = <IOMAP_ACPI_BASE IOMAP_ACPI_SIZE>;
 		compatible = "intel,acpi-gpe";
 		interrupt-controller;
@@ -423,7 +423,7 @@
 			compatible = "intel,apl-i2c", "snps,designware-i2c-pci";
 			reg = <0x0200b210 0 0 0 0>;
 			early-regs = <IOMAP_I2C2_BASE 0x1000>;
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			clock-frequency = <400000>;
@@ -434,7 +434,7 @@
 			tpm: tpm@50 {
 				reg = <0x50>;
 				compatible = "google,cr50";
-				u-boot,dm-pre-reloc;
+				u-boot,dm-pre-proper;
 				u-boot,i2c-offset-len = <0>;
 				ready-gpios = <&gpio_n 28 GPIO_ACTIVE_LOW>;
 				interrupts-extended = <&acpi_gpe GPIO_28_IRQ
@@ -1233,5 +1233,5 @@
 &rtc {
 	#address-cells = <1>;
 	#size-cells = <0>;
-	u-boot,dm-pre-reloc;
+	u-boot,dm-pre-proper;
 };
