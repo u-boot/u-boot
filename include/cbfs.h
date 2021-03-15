@@ -68,6 +68,43 @@ struct cbfs_fileheader {
 	/* offset to struct cbfs_file_attribute or 0 */
 	u32 attributes_offset;
 	u32 offset;
+	char filename[];
+} __packed;
+
+/*
+ * Depending on how the header was initialized, it may be backed with 0x00 or
+ * 0xff, so support both
+ */
+#define CBFS_FILE_ATTR_TAG_UNUSED 0
+#define CBFS_FILE_ATTR_TAG_UNUSED2 0xffffffff
+#define CBFS_FILE_ATTR_TAG_COMPRESSION 0x42435a4c
+#define CBFS_FILE_ATTR_TAG_HASH 0x68736148
+
+/*
+ * The common fields of extended cbfs file attributes. Attributes are expected
+ * to start with tag/len, then append their specific fields
+ */
+struct cbfs_file_attribute {
+	u32 tag;
+	/* len covers the whole structure, incl. tag and len */
+	u32 len;
+	u8 data[0];
+} __packed;
+
+struct cbfs_file_attr_compression {
+	u32 tag;
+	u32 len;
+	/* whole file compression format. 0 if no compression. */
+	u32 compression;
+	u32 decompressed_size;
+} __packed;
+
+struct cbfs_file_attr_hash {
+	u32 tag;
+	u32 len;
+	u32 hash_type;
+	/* hash_data is len - sizeof(struct) bytes */
+	u8  hash_data[];
 } __packed;
 
 struct cbfs_cachenode {
@@ -77,7 +114,7 @@ struct cbfs_cachenode {
 	u32 type;
 	u32 data_length;
 	u32 name_length;
-	u32 attributes_offset;
+	u32 attr_offset;
 };
 
 /**

@@ -129,7 +129,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 		new_node->name = (char *)file_header +
 				sizeof(struct cbfs_fileheader);
 		new_node->name_length = name_len;
-		new_node->attributes_offset = header.attributes_offset;
+		new_node->attr_offset = header.attributes_offset;
 
 		step = header.len;
 		if (step % align)
