@@ -133,7 +133,6 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 
 	while (size >= align) {
 		const struct cbfs_fileheader *file_header = start;
-		u32 step;
 		int ret;
 
 		/* Check if there's a file here. */
@@ -152,11 +151,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 			return log_msg_ret("fill", ret);
 		}
 
-		step = header.len;
-		if (step % align)
-			step = step + align - step % align;
-
-		*used += step;
+		*used += ALIGN(header.len, align);
 		return 0;
 	}
 
