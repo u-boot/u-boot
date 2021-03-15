@@ -129,6 +129,13 @@ void fix_devices(void)
 	}
 }
 
+static int dm_setup_inst(void)
+{
+	DM_ROOT_NON_CONST = DM_DEVICE_GET(root);
+
+	return 0;
+}
+
 int dm_init(bool of_live)
 {
 	int ret;
@@ -153,14 +160,23 @@ int dm_init(bool of_live)
 		fix_devices();
 	}
 
-	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
-	if (ret)
-		return ret;
-	if (CONFIG_IS_ENABLED(OF_CONTROL))
-		dev_set_ofnode(DM_ROOT_NON_CONST, ofnode_root());
-	ret = device_probe(DM_ROOT_NON_CONST);
-	if (ret)
-		return ret;
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_INST)) {
+		ret = dm_setup_inst();
+		if (ret) {
+			log_debug("dm_setup_inst() failed: %d\n", ret);
+			return ret;
+		}
+	} else {
+		ret = device_bind_by_name(NULL, false, &root_info,
+					  &DM_ROOT_NON_CONST);
+		if (ret)
+			return ret;
+		if (CONFIG_IS_ENABLED(OF_CONTROL))
+			dev_set_ofnode(DM_ROOT_NON_CONST, ofnode_root());
+		ret = device_probe(DM_ROOT_NON_CONST);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -351,10 +367,12 @@ int dm_init_and_scan(bool pre_reloc_only)
 		debug("dm_init() failed: %d\n", ret);
 		return ret;
 	}
-	ret = dm_scan(pre_reloc_only);
-	if (ret) {
-		log_debug("dm_scan() failed: %d\n", ret);
-		return ret;
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA_INST)) {
+		ret = dm_scan(pre_reloc_only);
+		if (ret) {
+			log_debug("dm_scan() failed: %d\n", ret);
+			return ret;
+		}
 	}
 
 	return 0;
