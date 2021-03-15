@@ -149,6 +149,11 @@
 		#interrupt-cells = <2>;
 	};
 
+	coreboot-video {
+		/* This will only activate when booted from coreboot */
+		compatible = "coreboot-fb";
+	};
+
 	keyboard {
 		intel,duplicate-por;
 	};
