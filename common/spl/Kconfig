@@ -500,7 +500,7 @@ config SPL_CACHE_SUPPORT
 	  future requests for that data can be served faster. Enable this option
 	  to build the drivers in drivers/cache as part of an SPL build.
 
-config SPL_CPU_SUPPORT
+config SPL_CPU
 	bool "Support CPU drivers"
 	help
 	  Enable this to support CPU drivers in SPL. These drivers can set
