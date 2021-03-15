@@ -241,52 +241,52 @@ class TestDtoc(unittest.TestCase):
 #include <dm/uclass-internal.h>
 
 /* driver declarations - these allow DM_DRIVER_GET() to be used */
-DM_DRIVER_DECL(sandbox_i2c);
-DM_DRIVER_DECL(sandbox_pmic);
-DM_DRIVER_DECL(sandbox_spl_test);
-DM_DRIVER_DECL(sandbox_spl_test);
-DM_DRIVER_DECL(sandbox_spl_test);
+extern U_BOOT_DRIVER(sandbox_i2c);
+extern U_BOOT_DRIVER(sandbox_pmic);
+extern U_BOOT_DRIVER(sandbox_spl_test);
+extern U_BOOT_DRIVER(sandbox_spl_test);
+extern U_BOOT_DRIVER(sandbox_spl_test);
 
 /* uclass driver declarations - needed for DM_UCLASS_DRIVER_REF() */
-DM_UCLASS_DRIVER_DECL(i2c);
-DM_UCLASS_DRIVER_DECL(misc);
-DM_UCLASS_DRIVER_DECL(pmic);
+extern UCLASS_DRIVER(i2c);
+extern UCLASS_DRIVER(misc);
+extern UCLASS_DRIVER(pmic);
 '''
     decl_text_inst = DECL_HEADER + '''
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
 /* driver declarations - these allow DM_DRIVER_GET() to be used */
-DM_DRIVER_DECL(sandbox_i2c);
-DM_DRIVER_DECL(root_driver);
-DM_DRIVER_DECL(denx_u_boot_test_bus);
-DM_DRIVER_DECL(sandbox_spl_test);
-DM_DRIVER_DECL(sandbox_spl_test);
-DM_DRIVER_DECL(denx_u_boot_fdt_test);
-DM_DRIVER_DECL(denx_u_boot_fdt_test);
+extern U_BOOT_DRIVER(sandbox_i2c);
+extern U_BOOT_DRIVER(root_driver);
+extern U_BOOT_DRIVER(denx_u_boot_test_bus);
+extern U_BOOT_DRIVER(sandbox_spl_test);
+extern U_BOOT_DRIVER(sandbox_spl_test);
+extern U_BOOT_DRIVER(denx_u_boot_fdt_test);
+extern U_BOOT_DRIVER(denx_u_boot_fdt_test);
 
 /* device declarations - these allow DM_DEVICE_REF() to be used */
-DM_DEVICE_DECL(i2c);
-DM_DEVICE_DECL(root);
-DM_DEVICE_DECL(some_bus);
-DM_DEVICE_DECL(spl_test);
-DM_DEVICE_DECL(spl_test3);
-DM_DEVICE_DECL(test);
-DM_DEVICE_DECL(test0);
+extern DM_DEVICE_INST(i2c);
+extern DM_DEVICE_INST(root);
+extern DM_DEVICE_INST(some_bus);
+extern DM_DEVICE_INST(spl_test);
+extern DM_DEVICE_INST(spl_test3);
+extern DM_DEVICE_INST(test);
+extern DM_DEVICE_INST(test0);
 
 /* uclass driver declarations - needed for DM_UCLASS_DRIVER_REF() */
-DM_UCLASS_DRIVER_DECL(i2c);
-DM_UCLASS_DRIVER_DECL(misc);
-DM_UCLASS_DRIVER_DECL(root);
-DM_UCLASS_DRIVER_DECL(testbus);
-DM_UCLASS_DRIVER_DECL(testfdt);
+extern UCLASS_DRIVER(i2c);
+extern UCLASS_DRIVER(misc);
+extern UCLASS_DRIVER(root);
+extern UCLASS_DRIVER(testbus);
+extern UCLASS_DRIVER(testfdt);
 
 /* uclass declarations - needed for DM_UCLASS_REF() */
-DM_UCLASS_DECL(i2c);
-DM_UCLASS_DECL(misc);
-DM_UCLASS_DECL(root);
-DM_UCLASS_DECL(testbus);
-DM_UCLASS_DECL(testfdt);
+extern DM_UCLASS_INST(i2c);
+extern DM_UCLASS_INST(misc);
+extern DM_UCLASS_INST(root);
+extern DM_UCLASS_INST(testbus);
+extern DM_UCLASS_INST(testfdt);
 '''
     struct_text = HEADER + '''
 struct dtd_sandbox_i2c {

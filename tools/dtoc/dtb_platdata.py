@@ -902,14 +902,14 @@ class DtbPlatdata():
         self.buf(
             '/* driver declarations - these allow DM_DRIVER_GET() to be used */\n')
         for node in nodes_to_output:
-            self.buf('DM_DRIVER_DECL(%s);\n' % node.struct_name);
+            self.buf('extern U_BOOT_DRIVER(%s);\n' % node.struct_name);
         self.buf('\n')
 
         if self._instantiate:
             self.buf(
                 '/* device declarations - these allow DM_DEVICE_REF() to be used */\n')
             for node in nodes_to_output:
-                self.buf('DM_DEVICE_DECL(%s);\n' % node.var_name)
+                self.buf('extern DM_DEVICE_INST(%s);\n' % node.var_name)
             self.buf('\n')
 
         uclass_list = self._valid_uclasses
@@ -917,13 +917,13 @@ class DtbPlatdata():
         self.buf(
             '/* uclass driver declarations - needed for DM_UCLASS_DRIVER_REF() */\n')
         for uclass in uclass_list:
-            self.buf('DM_UCLASS_DRIVER_DECL(%s);\n' % uclass.name)
+            self.buf('extern UCLASS_DRIVER(%s);\n' % uclass.name)
 
         if self._instantiate:
             self.buf('\n')
             self.buf('/* uclass declarations - needed for DM_UCLASS_REF() */\n')
             for uclass in uclass_list:
-                self.buf('DM_UCLASS_DECL(%s);\n' % uclass.name)
+                self.buf('extern DM_UCLASS_INST(%s);\n' % uclass.name)
         self.out(''.join(self.get_buf()))
 
     def assign_seqs(self):
