@@ -41,16 +41,21 @@ static int do_host_save(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
+	const char *dev_str;
+	char *file;
+	char *ep;
+	int dev;
+
 	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
-	char *ep;
-	char *dev_str = argv[1];
-	char *file = argc >= 3 ? argv[2] : NULL;
-	int dev = simple_strtoul(dev_str, &ep, 16);
+	dev_str = argv[1];
+	dev = simple_strtoul(dev_str, &ep, 16);
 	if (*ep) {
 		printf("** Bad device specification %s **\n", dev_str);
 		return CMD_RET_USAGE;
 	}
+	file = argc >= 3 ? argv[2] : NULL;
+
 	return !!host_dev_bind(dev, file);
 }
 
