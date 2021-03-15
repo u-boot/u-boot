@@ -31,14 +31,27 @@ struct udevice *i2c_emul_get_device(struct udevice *emul)
 	return uc_plat->dev;
 }
 
+void i2c_emul_set_idx(struct udevice *dev, int emul_idx)
+{
+	struct dm_i2c_chip *plat = dev_get_parent_plat(dev);
+
+	plat->emul_idx = emul_idx;
+}
+
 int i2c_emul_find(struct udevice *dev, struct udevice **emulp)
 {
 	struct i2c_emul_uc_plat *uc_plat;
 	struct udevice *emul;
 	int ret;
 
-	ret = uclass_find_device_by_phandle(UCLASS_I2C_EMUL, dev,
-					    "sandbox,emul", &emul);
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA)) {
+		ret = uclass_find_device_by_phandle(UCLASS_I2C_EMUL, dev,
+						    "sandbox,emul", &emul);
+	} else {
+		struct dm_i2c_chip *plat = dev_get_parent_plat(dev);
+
+		ret = device_get_by_ofplat_idx(plat->emul_idx, &emul);
+	}
 	if (ret) {
 		log_err("No emulators for device '%s'\n", dev->name);
 		return ret;
