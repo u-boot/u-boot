@@ -45,6 +45,9 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	bool auto_seq = true;
 	void *ptr;
 
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_NO_BIND))
+		return -ENOSYS;
+
 	if (devp)
 		*devp = NULL;
 	if (!name)
@@ -395,26 +398,31 @@ int device_of_to_plat(struct udevice *dev)
 	if (dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID)
 		return 0;
 
-	/* Ensure all parents have ofdata */
-	if (dev->parent) {
-		ret = device_of_to_plat(dev->parent);
+	/*
+	 * This is not needed if binding is disabled, since data is allocated
+	 * at build time.
+	 */
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA_NO_BIND)) {
+		/* Ensure all parents have ofdata */
+		if (dev->parent) {
+			ret = device_of_to_plat(dev->parent);
+			if (ret)
+				goto fail;
+
+			/*
+			 * The device might have already been probed during
+			 * the call to device_probe() on its parent device
+			 * (e.g. PCI bridge devices). Test the flags again
+			 * so that we don't mess up the device.
+			 */
+			if (dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID)
+				return 0;
+		}
+
+		ret = device_alloc_priv(dev);
 		if (ret)
 			goto fail;
-
-		/*
-		 * The device might have already been probed during
-		 * the call to device_probe() on its parent device
-		 * (e.g. PCI bridge devices). Test the flags again
-		 * so that we don't mess up the device.
-		 */
-		if (dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID)
-			return 0;
 	}
-
-	ret = device_alloc_priv(dev);
-	if (ret)
-		goto fail;
-
 	drv = dev->driver;
 	assert(drv);
 

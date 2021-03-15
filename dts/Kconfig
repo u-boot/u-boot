@@ -371,6 +371,15 @@ config SPL_OF_PLATDATA_INST
 	  Declare devices as udevice instances so that they do not need to be
 	  bound when U-Boot starts. This can save time and code space.
 
+config SPL_OF_PLATDATA_NO_BIND
+	bool "Don't allow run-time binding of devices"
+	depends on SPL_OF_PLATDATA_INST
+	default y
+	help
+	  This removes the ability to bind devices at run time, thus saving
+	  some code space in U-Boot. This can be disabled if binding is needed,
+	  at the code of some code size increase.
+
 endif
 
 config TPL_OF_PLATDATA
@@ -410,6 +419,15 @@ config TPL_OF_PLATDATA_INST
 	help
 	  Declare devices as udevice instances so that they do not need to be
 	  bound when U-Boot starts. This can save time and code space.
+
+config TPL_OF_PLATDATA_NO_BIND
+	bool "Don't allow run-time binding of devices"
+	depends on TPL_OF_PLATDATA_INST
+	default y
+	help
+	  This removes the ability to bind devices at run time, thus saving
+	  some code space in U-Boot. This can be disabled if binding is needed,
+	  at the code of some code size increase.
 
 endif
 
