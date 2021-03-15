@@ -9,6 +9,8 @@
 #include <compiler.h>
 #include <linux/compiler.h>
 
+struct cbfs_priv;
+
 enum cbfs_result {
 	CBFS_SUCCESS = 0,
 	CBFS_NOT_INITIALIZED,
@@ -150,6 +152,21 @@ int file_cbfs_init(ulong end_of_rom);
 const struct cbfs_header *file_cbfs_get_header(void);
 
 /**
+ * cbfs_get_first() - Get the first file in a CBFS
+ *
+ * @return pointer to first file, or NULL if it is empty
+ */
+const struct cbfs_cachenode *cbfs_get_first(const struct cbfs_priv *priv);
+
+/**
+ * cbfs_get_next() - Get the next file in a CBFS
+ *
+ * @filep: Pointer to current file; updated to point to the next file, if any,
+ *	else NULL
+ */
+void cbfs_get_next(const struct cbfs_cachenode **filep);
+
+/**
  * file_cbfs_get_first() - Get a handle for the first file in CBFS.
  *
  * @return A handle for the first file in CBFS, NULL on error.
@@ -171,8 +188,6 @@ void file_cbfs_get_next(const struct cbfs_cachenode **file);
  * @return A handle to the file, or NULL on error.
  */
 const struct cbfs_cachenode *file_cbfs_find(const char *name);
-
-struct cbfs_priv;
 
 /**
  * cbfs_find_file() - Find a file in a given CBFS

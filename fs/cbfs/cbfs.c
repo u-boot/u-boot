@@ -325,6 +325,17 @@ const struct cbfs_header *file_cbfs_get_header(void)
 	}
 }
 
+const struct cbfs_cachenode *cbfs_get_first(const struct cbfs_priv *priv)
+{
+	return priv->file_cache;
+}
+
+void cbfs_get_next(const struct cbfs_cachenode **filep)
+{
+	if (*filep)
+		*filep = (*filep)->next;
+}
+
 const struct cbfs_cachenode *file_cbfs_get_first(void)
 {
 	struct cbfs_priv *priv = &cbfs_s;
