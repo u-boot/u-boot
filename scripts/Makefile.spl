@@ -120,7 +120,8 @@ endif
 u-boot-spl-init := $(head-y)
 u-boot-spl-main := $(libs-y)
 ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA
-u-boot-spl-platdata := $(obj)/dts/dt-plat.o
+u-boot-spl-platdata := $(obj)/dts/dt-plat.o $(obj)/dts/dt-uclass.o \
+	$(obj)/dts/dt-device.o
 u-boot-spl-platdata_c := $(patsubst %.o,%.c,$(u-boot-spl-platdata))
 endif
 
