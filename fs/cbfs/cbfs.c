@@ -202,8 +202,7 @@ static int file_cbfs_fill_cache(struct cbfs_priv *priv, int size, int align)
 		int used;
 		int ret;
 
-		node = (struct cbfs_cachenode *)
-				malloc(sizeof(struct cbfs_cachenode));
+		node = malloc(sizeof(struct cbfs_cachenode));
 		if (!node)
 			return -ENOMEM;
 		ret = file_cbfs_next_file(priv, start, size, align, node,
