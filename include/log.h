@@ -316,11 +316,39 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 		    __ret); \
 	__ret; \
 	})
+
+/*
+ * Similar to the above, but any non-zero value is consider an error, not just
+ * values less than 0.
+ */
+#define log_retz(_ret) ({ \
+	int __ret = (_ret); \
+	if (__ret) \
+		log(LOG_CATEGORY, LOGL_ERR, "returning err=%d\n", __ret); \
+	__ret; \
+	})
+#define log_msg_retz(_msg, _ret) ({ \
+	int __ret = (_ret); \
+	if (__ret) \
+		log(LOG_CATEGORY, LOGL_ERR, "%s: returning err=%d\n", _msg, \
+		    __ret); \
+	__ret; \
+	})
 #else
 /* Non-logging versions of the above which just return the error code */
 #define log_ret(_ret) (_ret)
 #define log_msg_ret(_msg, _ret) ((void)(_msg), _ret)
+#define log_retz(_ret) (_ret)
+#define log_msg_retz(_msg, _ret) ((void)(_msg), _ret)
 #endif
+
+/** * enum log_rec_flags - Flags for a log record */
+enum log_rec_flags {
+	/** @LOGRECF_FORCE_DEBUG: Force output of debug record */
+	LOGRECF_FORCE_DEBUG	= BIT(0),
+	/** @LOGRECF_CONT: Continuation of previous log record */
+	LOGRECF_CONT		= BIT(1),
+};
 
 /**
  * struct log_rec - a single log record
@@ -337,18 +365,18 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
  *
  * @cat: Category, representing a uclass or part of U-Boot
  * @level: Severity level, less severe is higher
- * @force_debug: Force output of debug
- * @file: Name of file where the log record was generated (not allocated)
  * @line: Line number where the log record was generated
+ * @flags: Flags for log record (enum log_rec_flags)
+ * @file: Name of file where the log record was generated (not allocated)
  * @func: Function where the log record was generated (not allocated)
  * @msg: Log message (allocated)
  */
 struct log_rec {
 	enum log_category_t cat;
 	enum log_level_t level;
-	bool force_debug;
+	u16 line;
+	u8 flags;
 	const char *file;
-	int line;
 	const char *func;
 	const char *msg;
 };

@@ -588,6 +588,14 @@ config AVB_BUF_SIZE
 
 endif # AVB_VERIFY
 
+config SCP03
+	bool "Build SCP03 - Secure Channel Protocol O3 - controls"
+	depends on OPTEE || SANDBOX
+	depends on TEE
+	help
+	  This option allows U-Boot to enable and or provision SCP03 on an OPTEE
+	  controlled Secured Element.
+
 config SPL_HASH
 	bool # "Support hashing API (SHA1, SHA256, etc.)"
 	help

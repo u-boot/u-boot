@@ -33,3 +33,4 @@ Shell commands
    qfw
    sbi
    true
+   scp03

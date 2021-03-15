@@ -82,7 +82,7 @@ console::
 You can issue commands as your would normally. If the command you want is
 not supported you can add it to include/configs/sandbox.h.
 
-To exit, type 'reset' or press Ctrl-C.
+To exit, type 'poweroff' or press Ctrl-C.
 
 
 Console / LCD support

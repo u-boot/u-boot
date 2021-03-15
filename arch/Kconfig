@@ -142,6 +142,8 @@ config SANDBOX
 	imply AVB_VERIFY
 	imply LIBAVB
 	imply CMD_AVB
+	imply SCP03
+	imply CMD_SCP03
 	imply UDP_FUNCTION_FASTBOOT
 	imply VIRTIO_MMIO
 	imply VIRTIO_PCI
