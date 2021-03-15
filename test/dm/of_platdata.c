@@ -185,7 +185,7 @@ static int dm_test_of_plat_phandle(struct unit_test_state *uts)
 	plat = dev_get_plat(dev);
 
 	ut_assertok(device_get_by_driver_info_idx(plat->clocks[0].idx, &clk));
-	ut_asserteq_str("fixed_clock", clk->name);
+	ut_asserteq_str("sandbox_fixed_clock", clk->name);
 
 	ut_assertok(device_get_by_driver_info_idx(plat->clocks[1].idx, &clk));
 	ut_asserteq_str("sandbox_clk", clk->name);

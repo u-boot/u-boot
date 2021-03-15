@@ -61,6 +61,14 @@ struct sandbox_clk_test {
 	struct clk_bulk bulk;
 };
 
+/* Platform data for the sandbox fixed-rate clock driver */
+struct sandbox_clk_fixed_rate_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_sandbox_fixed_clock dtplat;
+#endif
+	struct clk_fixed_rate fixed;
+};
+
 /**
  * sandbox_clk_query_rate - Query the current rate of a sandbox clock.
  *

@@ -31,7 +31,7 @@
 
 	clk_fixed: clk-fixed {
 		u-boot,dm-pre-reloc;
-		compatible = "fixed-clock";
+		compatible = "sandbox,fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <1234>;
 	};
