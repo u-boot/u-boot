@@ -22,6 +22,7 @@
 #else
 #include <common.h>
 #include <errno.h>
+#include <watchdog.h>
 #include <spi.h>
 #include <spi-mem.h>
 #include <dm/device_compat.h>
@@ -578,6 +579,7 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 #endif
 
 	nanddev_io_for_each_page(nand, from, ops, &iter) {
+		WATCHDOG_RESET();
 		ret = spinand_select_target(spinand, iter.req.pos.target);
 		if (ret)
 			break;
@@ -629,6 +631,7 @@ static int spinand_mtd_write(struct mtd_info *mtd, loff_t to,
 #endif
 
 	nanddev_io_for_each_page(nand, to, ops, &iter) {
+		WATCHDOG_RESET();
 		ret = spinand_select_target(spinand, iter.req.pos.target);
 		if (ret)
 			break;

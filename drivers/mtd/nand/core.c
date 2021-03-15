@@ -10,6 +10,7 @@
 #define pr_fmt(fmt)	"nand: " fmt
 
 #include <common.h>
+#include <watchdog.h>
 #ifndef __UBOOT__
 #include <linux/compat.h>
 #include <linux/module.h>
@@ -172,6 +173,7 @@ int nanddev_mtd_erase(struct mtd_info *mtd, struct erase_info *einfo)
 	nanddev_offs_to_pos(nand, einfo->addr, &pos);
 	nanddev_offs_to_pos(nand, einfo->addr + einfo->len - 1, &last);
 	while (nanddev_pos_cmp(&pos, &last) <= 0) {
+		WATCHDOG_RESET();
 		ret = nanddev_erase(nand, &pos);
 		if (ret) {
 			einfo->fail_addr = nanddev_pos_to_offs(nand, &pos);
