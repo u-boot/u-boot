@@ -177,7 +177,9 @@ struct udevice {
 	struct list_head uclass_node;
 	struct list_head child_head;
 	struct list_head sibling_node;
+#if !CONFIG_IS_ENABLED(OF_PLATDATA_RT)
 	u32 flags_;
+#endif
 	int seq_;
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	ofnode node_;
@@ -211,6 +213,11 @@ struct udevice_rt {
 /* Returns the operations for a device */
 #define device_get_ops(dev)	(dev->driver->ops)
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA_RT)
+u32 dev_get_flags(const struct udevice *dev);
+void dev_or_flags(const struct udevice *dev, u32 or);
+void dev_bic_flags(const struct udevice *dev, u32 bic);
+#else
 static inline u32 dev_get_flags(const struct udevice *dev)
 {
 	return dev->flags_;
@@ -225,6 +232,7 @@ static inline void dev_bic_flags(struct udevice *dev, u32 bic)
 {
 	dev->flags_ &= ~bic;
 }
+#endif /* OF_PLATDATA_RT */
 
 /**
  * dev_ofnode() - get the DT node reference associated with a udevice
