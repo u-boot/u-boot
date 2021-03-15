@@ -572,7 +572,7 @@
 		sdmmc: sdmmc@1b,0 {
 			reg = <0x0000d800 0 0 0 0>;
 			compatible = "intel,apl-sd";
-			cd-gpios = <&gpio_n GPIO_177 GPIO_ACTIVE_LOW>;
+			cd-gpios = <&gpio_sw GPIO_177 GPIO_ACTIVE_LOW>;
 			acpi,name = "SDCD";
 		};
 
