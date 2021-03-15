@@ -522,7 +522,7 @@
 	status = "okay";
 	/* usb3, dp */
 	clocks = <&si5335_0>, <&si5335_1>;
-	clock-names = "ref1", "ref2";
+	clock-names = "ref0", "ref1";
 };
 
 &spi0 { /* Low Speed connector */
