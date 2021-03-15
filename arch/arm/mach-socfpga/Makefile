@@ -70,10 +70,12 @@ endif
 ifdef CONFIG_TARGET_SOCFPGA_STRATIX10
 obj-y	+= firewall.o
 obj-y	+= spl_s10.o
+obj-y	+= spl_soc64.o
 endif
 ifdef CONFIG_TARGET_SOCFPGA_AGILEX
 obj-y	+= firewall.o
 obj-y	+= spl_agilex.o
+obj-y	+= spl_soc64.o
 endif
 else
 obj-$(CONFIG_SPL_ATF) += secure_reg_helper.o

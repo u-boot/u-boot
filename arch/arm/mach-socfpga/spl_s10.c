@@ -26,23 +26,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-u32 spl_boot_device(void)
-{
-	/* TODO: Get from SDM or handoff */
-	return BOOT_DEVICE_MMC1;
-}
-
-#ifdef CONFIG_SPL_MMC_SUPPORT
-u32 spl_mmc_boot_mode(const u32 boot_device)
-{
-#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
-	return MMCSD_MODE_FS;
-#else
-	return MMCSD_MODE_RAW;
-#endif
-}
-#endif
-
 void board_init_f(ulong dummy)
 {
 	const struct cm_config *cm_default_cfg = cm_get_default_config();
