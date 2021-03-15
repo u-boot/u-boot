@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>
+#include <asm/i2c.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
@@ -22,18 +23,6 @@
  * The 'emul' node is in the UCLASS_I2C_EMUL_PARENT uclass. We use a separate
  * uclass so avoid having strange devices on the I2C bus.
  */
-
-/**
- * struct i2c_emul_uc_plat - information about the emulator for this device
- *
- * This is used by devices in UCLASS_I2C_EMUL to record information about the
- * device being emulated. It is accessible with dev_get_uclass_plat()
- *
- * @dev: Device being emulated
- */
-struct i2c_emul_uc_plat {
-	struct udevice *dev;
-};
 
 struct udevice *i2c_emul_get_device(struct udevice *emul)
 {
