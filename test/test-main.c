@@ -62,17 +62,25 @@ static int dm_test_post_run(struct unit_test_state *uts)
 {
 	int id;
 
-	for (id = 0; id < UCLASS_COUNT; id++) {
-		struct uclass *uc;
+	/*
+	 * With of-platdata-inst the uclasses are created at build time. If we
+	 * destroy them we cannot get them back since uclass_add() is not
+	 * supported. So skip this.
+	 */
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA_INST)) {
+		for (id = 0; id < UCLASS_COUNT; id++) {
+			struct uclass *uc;
 
-		/*
-		 * If the uclass doesn't exist we don't want to create it. So
-		 * check that here before we call uclass_find_device().
-		 */
-		uc = uclass_find(id);
-		if (!uc)
-			continue;
-		ut_assertok(uclass_destroy(uc));
+			/*
+			 * If the uclass doesn't exist we don't want to create
+			 * it. So check that here before we call
+			 * uclass_find_device().
+			 */
+			uc = uclass_find(id);
+			if (!uc)
+				continue;
+			ut_assertok(uclass_destroy(uc));
+		}
 	}
 
 	return 0;
