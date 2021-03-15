@@ -190,6 +190,21 @@ struct udevice {
 #endif
 };
 
+/**
+ * udevice_rt - runtime information set up by U-Boot
+ *
+ * This is only used with OF_PLATDATA_RT
+ *
+ * There is one of these for every udevice in the linker list, indexed by
+ * the udevice_info idx value.
+ *
+ * @flags_: Flags for this device DM_FLAG_... (do not access outside driver
+ *	model)
+ */
+struct udevice_rt {
+	u32 flags_;
+};
+
 /* Maximum sequence number supported */
 #define DM_MAX_SEQ	999
 

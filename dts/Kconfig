@@ -338,6 +338,7 @@ config SPL_OF_PLATDATA
 	bool "Generate platform data for use in SPL"
 	depends on SPL_OF_CONTROL
 	select DTOC
+	select SPL_OF_PLATDATA_DRIVER_RT if !SPL_OF_PLATDATA_INST
 	help
 	  For very constrained SPL environments the overhead of decoding
 	  device tree nodes and converting their contents into platform data
@@ -391,12 +392,22 @@ config SPL_OF_PLATDATA_RT
 	  struct udevice (at present just the flags) into a separate struct,
 	  which is allocated at runtime.
 
+config SPL_OF_PLATDATA_DRIVER_RT
+	bool
+	help
+	  Use a separate struct for driver runtime data.
+
+	  This enables the driver_rt information, used with of-platdata when
+	  of-platdata-inst is not used. It allows finding devices by their
+	  driver data.
+
 endif
 
 config TPL_OF_PLATDATA
 	bool "Generate platform data for use in TPL"
 	depends on TPL_OF_CONTROL
 	select DTOC
+	select TPL_OF_PLATDATA_DRIVER_RT if !TPL_OF_PLATDATA_INST
 	help
 	  For very constrained SPL environments the overhead of decoding
 	  device tree nodes and converting their contents into platform data
@@ -450,6 +461,15 @@ config TPL_OF_PLATDATA_RT
 	  to be copied before being used. This moves the read-write parts of
 	  struct udevice (at present just the flags) into a separate struct,
 	  which is allocated at runtime.
+
+config TPL_OF_PLATDATA_DRIVER_RT
+	bool
+	help
+	  Use a separate struct for driver runtime data.
+
+	  This enables the driver_rt information, used with of-platdata when
+	  of-platdata-inst is not used. It allows finding devices by their
+	  driver data.
 
 endif
 

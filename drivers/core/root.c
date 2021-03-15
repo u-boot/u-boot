@@ -133,6 +133,18 @@ static int dm_setup_inst(void)
 {
 	DM_ROOT_NON_CONST = DM_DEVICE_GET(root);
 
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_RT)) {
+		struct udevice_rt *urt;
+		int n_ents;
+
+		/* Allocate the udevice_rt table */
+		n_ents = ll_entry_count(struct udevice, udevice);
+		urt = calloc(n_ents, sizeof(struct udevice_rt));
+		if (!urt)
+			return log_msg_ret("urt", -ENOMEM);
+		gd_set_dm_udevice_rt(urt);
+	}
+
 	return 0;
 }
 
@@ -205,7 +217,7 @@ int dm_scan_plat(bool pre_reloc_only)
 {
 	int ret;
 
-	if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_DRIVER_RT)) {
 		struct driver_rt *dyn;
 		int n_ents;
 
