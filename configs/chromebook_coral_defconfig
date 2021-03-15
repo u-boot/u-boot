@@ -73,6 +73,7 @@ CONFIG_MAC_PARTITION=y
 CONFIG_ISO_PARTITION=y
 CONFIG_EFI_PARTITION=y
 # CONFIG_SPL_EFI_PARTITION is not set
+CONFIG_OF_SPL_REMOVE_PROPS="clocks clock-names interrupt-parent interrupts linux-name acpi,name acpi,path u-boot,acpi-dsdt-order u-boot,acpi-ssdt-order"
 CONFIG_ENV_OVERWRITE=y
 CONFIG_REGMAP=y
 CONFIG_SYSCON=y
