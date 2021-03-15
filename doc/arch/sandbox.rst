@@ -389,6 +389,8 @@ the contents of the root directory on the second partion of the image
    =>host bind 0 ./disk.raw
    =>ls host 0:2
 
+The device can be marked removeable with 'host bind -r'.
+
 A disk image can be created using the following commands::
 
    $> truncate -s 1200M ./disk.raw
