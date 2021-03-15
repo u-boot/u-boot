@@ -46,15 +46,18 @@ static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
 	char *ep;
 	int dev;
 
-	if (argc < 2 || argc > 3)
+	/* Skip 'bind' */
+	argc--;
+	argv++;
+	if (argc < 1 || argv > 2)
 		return CMD_RET_USAGE;
-	dev_str = argv[1];
+	dev_str = argv[0];
 	dev = simple_strtoul(dev_str, &ep, 16);
 	if (*ep) {
 		printf("** Bad device specification %s **\n", dev_str);
 		return CMD_RET_USAGE;
 	}
-	file = argc >= 3 ? argv[2] : NULL;
+	file = argc > 1 ? argv[1] : NULL;
 
 	return !!host_dev_bind(dev, file);
 }
