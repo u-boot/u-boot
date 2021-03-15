@@ -642,7 +642,7 @@ menu "System tables"
 
 config BLOBLIST_TABLES
 	bool "Put tables in a bloblist"
-	depends on X86
+	depends on X86 && BLOBLIST
 	help
 	  Normally tables are placed at address 0xf0000 and can be up to 64KB
 	  long. With this option, tables are instead placed in the bloblist
