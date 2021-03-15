@@ -10,13 +10,6 @@
 #include <malloc.h>
 #include <asm/clk.h>
 
-struct sandbox_clk_priv {
-	bool probed;
-	ulong rate[SANDBOX_CLK_ID_COUNT];
-	bool enabled[SANDBOX_CLK_ID_COUNT];
-	bool requested[SANDBOX_CLK_ID_COUNT];
-};
-
 static ulong sandbox_clk_get_rate(struct clk *clk)
 {
 	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
