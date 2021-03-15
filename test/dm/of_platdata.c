@@ -146,6 +146,10 @@ static int dm_test_of_plat_dev(struct unit_test_state *uts)
 	bool found[n_ents];
 	uint i;
 
+	/* Skip this test if there is no platform data */
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_INST))
+		return 0;
+
 	/* Record the indexes that are found */
 	memset(found, '\0', sizeof(found));
 	ut_assertok(find_driver_info(uts, gd->dm_root, found));
