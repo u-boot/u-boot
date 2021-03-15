@@ -42,6 +42,8 @@ enum cbfs_filetype {
 
 enum {
 	CBFS_HEADER_MAGIC	= 0x4f524243,
+	CBFS_SIZE_UNKNOWN	= 0xffffffff,
+	CBFS_ALIGN_SIZE		= 0x40,
 };
 
 /**
@@ -186,11 +188,13 @@ const struct cbfs_cachenode *cbfs_find_file(struct cbfs_priv *cbfs,
  * cbfs_init_mem() - Set up a new CBFS
  *
  * @base: Base address of CBFS
+ * @size: Size of CBFS if known, else CBFS_SIZE_UNKNOWN
+ * @require_header: true to read a header at the start, false to not require one
  * @cbfsp: Returns a pointer to CBFS on success
  * @return 0 if OK, -ve on error
  */
-int cbfs_init_mem(ulong base, struct cbfs_priv **privp);
-
+int cbfs_init_mem(ulong base, ulong size, bool require_hdr,
+		  struct cbfs_priv **privp);
 
 /***************************************************************************/
 /* All of the functions below can be used without first initializing CBFS. */
