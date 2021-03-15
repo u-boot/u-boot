@@ -276,6 +276,19 @@ config SPL_SEPARATE_BSS
 	  location is used. Normally we put the device tree at the end of BSS
 	  but with this option enabled, it goes at _image_binary_end.
 
+config SPL_READ_ONLY
+	bool
+	depends on SPL_OF_PLATDATA
+	# Bind cannot be supported because the udevice structs are in read-only
+	# memory so we cannot update the linked lists.
+	select SPL_OF_PLATDATA_NO_BIND
+	select SPL_OF_PLATDATA_RT
+	help
+	  Some platforms (e.g. x86 Apollo Lake) load SPL into a read-only
+	  section of memory. This means that of-platdata must make a copy (in
+	  writeable memory) of anything it wants to modify, such as
+	  device-private data.
+
 config SPL_BANNER_PRINT
 	bool "Enable output of the SPL banner 'U-Boot SPL ...'"
 	default y
@@ -1439,6 +1452,17 @@ config TPL_STACK
 	help
 	  The address of the initial stack-pointer for the TPL stage.
 	  Usually this will be the (aligned) top-of-stack.
+
+config TPL_READ_ONLY
+	bool
+	depends on TPL_OF_PLATDATA
+	select TPL_OF_PLATDATA_NO_BIND
+	select TPL_OF_PLATDATA_RT
+	help
+	  Some platforms (e.g. x86 Apollo Lake) load SPL into a read-only
+	  section of memory. This means that of-platdata must make a copy (in
+	  writeable memory) of anything it wants to modify, such as
+	  device-private data.
 
 config TPL_BOOTROM_SUPPORT
         bool "Support returning to the BOOTROM (from TPL)"

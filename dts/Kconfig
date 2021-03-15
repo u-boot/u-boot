@@ -380,6 +380,17 @@ config SPL_OF_PLATDATA_NO_BIND
 	  some code space in U-Boot. This can be disabled if binding is needed,
 	  at the code of some code size increase.
 
+config SPL_OF_PLATDATA_RT
+	bool "Use a separate struct for device runtime data"
+	depends on SPL_OF_PLATDATA_INST
+	default y
+	help
+	  For systems running SPL from read-only memory it is convenient to
+	  separate out the runtime information, so that the devices don't need
+	  to be copied before being used. This moves the read-write parts of
+	  struct udevice (at present just the flags) into a separate struct,
+	  which is allocated at runtime.
+
 endif
 
 config TPL_OF_PLATDATA
@@ -428,6 +439,17 @@ config TPL_OF_PLATDATA_NO_BIND
 	  This removes the ability to bind devices at run time, thus saving
 	  some code space in U-Boot. This can be disabled if binding is needed,
 	  at the code of some code size increase.
+
+config TPL_OF_PLATDATA_RT
+	bool "Use a separate struct for device runtime data"
+	depends on TPL_OF_PLATDATA_INST
+	default y
+	help
+	  For systems running TPL from read-only memory it is convenient to
+	  separate out the runtime information, so that the devices don't need
+	  to be copied before being used. This moves the read-write parts of
+	  struct udevice (at present just the flags) into a separate struct,
+	  which is allocated at runtime.
 
 endif
 
