@@ -7,8 +7,10 @@
  */
 
 #include <common.h>
-#include <net.h>
 #include <asm/cb_sysinfo.h>
+#include <init.h>
+#include <mapmem.h>
+#include <net.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -29,7 +31,7 @@ struct sysinfo_t lib_sysinfo __attribute__((section(".data")));
  */
 
 /* === Parsing code === */
-/* This is the generic parsing code. */
+/* This is the generic parsing code */
 
 static void cb_parse_memory(unsigned char *ptr, struct sysinfo_t *info)
 {
@@ -61,15 +63,24 @@ static void cb_parse_memory(unsigned char *ptr, struct sysinfo_t *info)
 static void cb_parse_serial(unsigned char *ptr, struct sysinfo_t *info)
 {
 	struct cb_serial *ser = (struct cb_serial *)ptr;
+
 	info->serial = ser;
+}
+
+static void cb_parse_vboot_handoff(unsigned char *ptr, struct sysinfo_t *info)
+{
+	struct lb_range *vbho = (struct lb_range *)ptr;
+
+	info->vboot_handoff = (void *)(uintptr_t)vbho->range_start;
+	info->vboot_handoff_size = vbho->range_size;
 }
 
 static void cb_parse_vbnv(unsigned char *ptr, struct sysinfo_t *info)
 {
-	struct cb_vbnv *vbnv = (struct cb_vbnv *)ptr;
+	struct lb_range *vbnv = (struct lb_range *)ptr;
 
-	info->vbnv_start = vbnv->vbnv_start;
-	info->vbnv_size = vbnv->vbnv_size;
+	info->vbnv_start = vbnv->range_start;
+	info->vbnv_size = vbnv->range_size;
 }
 
 static void cb_parse_cbmem_entry(unsigned char *ptr, struct sysinfo_t *info)
@@ -97,30 +108,160 @@ static void cb_parse_gpios(unsigned char *ptr, struct sysinfo_t *info)
 
 static void cb_parse_vdat(unsigned char *ptr, struct sysinfo_t *info)
 {
-	struct cb_vdat *vdat = (struct cb_vdat *) ptr;
+	struct lb_range *vdat = (struct lb_range *)ptr;
 
-	info->vdat_addr = vdat->vdat_addr;
-	info->vdat_size = vdat->vdat_size;
+	info->vdat_addr = map_sysmem(vdat->range_start, vdat->range_size);
+	info->vdat_size = vdat->range_size;
 }
 
-static void cb_parse_tstamp(unsigned char *ptr, struct sysinfo_t *info)
+static void cb_parse_mac_addresses(unsigned char *ptr,
+				   struct sysinfo_t *info)
 {
-	info->tstamp_table = ((struct cb_cbmem_tab *)ptr)->cbmem_tab;
+	struct cb_macs *macs = (struct cb_macs *)ptr;
+	int i;
+
+	info->num_macs = (macs->count < ARRAY_SIZE(info->macs)) ?
+		macs->count : ARRAY_SIZE(info->macs);
+
+	for (i = 0; i < info->num_macs; i++)
+		info->macs[i] = macs->mac_addrs[i];
 }
 
-static void cb_parse_cbmem_cons(unsigned char *ptr, struct sysinfo_t *info)
+static void cb_parse_tstamp(void *ptr, struct sysinfo_t *info)
 {
-	info->cbmem_cons = ((struct cb_cbmem_tab *)ptr)->cbmem_tab;
+	struct cb_cbmem_tab *const cbmem = ptr;
+
+	info->tstamp_table = map_sysmem(cbmem->cbmem_tab, 0);
 }
 
-static void cb_parse_framebuffer(unsigned char *ptr, struct sysinfo_t *info)
+static void cb_parse_cbmem_cons(void *ptr, struct sysinfo_t *info)
 {
-	info->framebuffer = (struct cb_framebuffer *)ptr;
+	struct cb_cbmem_tab *const cbmem = ptr;
+
+	info->cbmem_cons = map_sysmem(cbmem->cbmem_tab, 0);
+}
+
+static void cb_parse_acpi_gnvs(unsigned char *ptr, struct sysinfo_t *info)
+{
+	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
+
+	info->acpi_gnvs = map_sysmem(cbmem->cbmem_tab, 0);
+}
+
+static void cb_parse_board_id(unsigned char *ptr, struct sysinfo_t *info)
+{
+	struct cb_board_id *const cbbid = (struct cb_board_id *)ptr;
+
+	info->board_id = cbbid->board_id;
+}
+
+static void cb_parse_ram_code(unsigned char *ptr, struct sysinfo_t *info)
+{
+	struct cb_ram_code *const ram_code = (struct cb_ram_code *)ptr;
+
+	info->ram_code = ram_code->ram_code;
+}
+
+static void cb_parse_optiontable(void *ptr, struct sysinfo_t *info)
+{
+	/* ptr points to a coreboot table entry and is already virtual */
+	info->option_table = ptr;
+}
+
+static void cb_parse_checksum(void *ptr, struct sysinfo_t *info)
+{
+	struct cb_cmos_checksum *cmos_cksum = ptr;
+
+	info->cmos_range_start = cmos_cksum->range_start;
+	info->cmos_range_end = cmos_cksum->range_end;
+	info->cmos_checksum_location = cmos_cksum->location;
+}
+
+static void cb_parse_framebuffer(void *ptr, struct sysinfo_t *info)
+{
+	/* ptr points to a coreboot table entry and is already virtual */
+	info->framebuffer = ptr;
 }
 
 static void cb_parse_string(unsigned char *ptr, char **info)
 {
 	*info = (char *)((struct cb_string *)ptr)->string;
+}
+
+static void cb_parse_wifi_calibration(void *ptr, struct sysinfo_t *info)
+{
+	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
+
+	info->wifi_calibration = map_sysmem(cbmem->cbmem_tab, 0);
+}
+
+static void cb_parse_ramoops(void *ptr, struct sysinfo_t *info)
+{
+	struct lb_range *ramoops = (struct lb_range *)ptr;
+
+	info->ramoops_buffer = ramoops->range_start;
+	info->ramoops_buffer_size = ramoops->range_size;
+}
+
+static void cb_parse_mtc(void *ptr, struct sysinfo_t *info)
+{
+	struct lb_range *mtc = (struct lb_range *)ptr;
+
+	info->mtc_start = mtc->range_start;
+	info->mtc_size = mtc->range_size;
+}
+
+static void cb_parse_spi_flash(void *ptr, struct sysinfo_t *info)
+{
+	struct cb_spi_flash *flash = (struct cb_spi_flash *)ptr;
+
+	info->spi_flash.size = flash->flash_size;
+	info->spi_flash.sector_size = flash->sector_size;
+	info->spi_flash.erase_cmd = flash->erase_cmd;
+}
+
+static void cb_parse_boot_media_params(unsigned char *ptr,
+				       struct sysinfo_t *info)
+{
+	struct cb_boot_media_params *const bmp =
+			(struct cb_boot_media_params *)ptr;
+
+	info->fmap_offset = bmp->fmap_offset;
+	info->cbfs_offset = bmp->cbfs_offset;
+	info->cbfs_size = bmp->cbfs_size;
+	info->boot_media_size = bmp->boot_media_size;
+}
+
+static void cb_parse_vpd(void *ptr, struct sysinfo_t *info)
+{
+	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
+
+	info->chromeos_vpd = map_sysmem(cbmem->cbmem_tab, 0);
+}
+
+static void cb_parse_tsc_info(void *ptr, struct sysinfo_t *info)
+{
+	const struct cb_tsc_info *tsc_info = ptr;
+
+	if (tsc_info->freq_khz == 0)
+		return;
+
+	/* Honor the TSC frequency passed to the payload */
+	info->cpu_khz = tsc_info->freq_khz;
+}
+
+static void cb_parse_x86_rom_var_mtrr(void *ptr, struct sysinfo_t *info)
+{
+	struct cb_x86_rom_mtrr *rom_mtrr = ptr;
+
+	info->x86_rom_var_mtrr_index = rom_mtrr->index;
+}
+
+static void cb_parse_mrc_cache(void *ptr, struct sysinfo_t *info)
+{
+	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
+
+	info->mrc_cache = map_sysmem(cbmem->cbmem_tab, 0);
 }
 
 __weak void cb_parse_unhandled(u32 tag, unsigned char *ptr)
@@ -137,7 +278,7 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 	if (!header->table_bytes)
 		return 0;
 
-	/* Make sure the checksums match. */
+	/* Make sure the checksums match */
 	if (!ip_checksum_ok(header, sizeof(*header)))
 		return -1;
 
@@ -145,16 +286,26 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 	    header->table_checksum)
 		return -1;
 
-	/* Now, walk the tables. */
+	info->header = header;
+
+	/*
+	 * Board straps represented by numerical values are small numbers.
+	 * Preset them to an invalid value in case the firmware does not
+	 * supply the info.
+	 */
+	info->board_id = ~0;
+	info->ram_code = ~0;
+
+	/* Now, walk the tables */
 	ptr += header->header_bytes;
 
-	/* Inintialize some fields to sentinel values. */
+	/* Inintialize some fields to sentinel values */
 	info->vbnv_start = info->vbnv_size = (uint32_t)(-1);
 
 	for (i = 0; i < header->table_entries; i++) {
 		struct cb_record *rec = (struct cb_record *)ptr;
 
-		/* We only care about a few tags here (maybe more later). */
+		/* We only care about a few tags here (maybe more later) */
 		switch (rec->tag) {
 		case CB_TAG_FORWARD:
 			return cb_parse_header(
@@ -169,7 +320,7 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 			cb_parse_serial(ptr, info);
 			break;
 		case CB_TAG_VERSION:
-			cb_parse_string(ptr, &info->version);
+			cb_parse_string(ptr, &info->cb_version);
 			break;
 		case CB_TAG_EXTRA_VERSION:
 			cb_parse_string(ptr, &info->extra_version);
@@ -198,6 +349,12 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 		case CB_TAG_ASSEMBLER:
 			cb_parse_string(ptr, &info->assembler);
 			break;
+		case CB_TAG_CMOS_OPTION_TABLE:
+			cb_parse_optiontable(ptr, info);
+			break;
+		case CB_TAG_OPTION_CHECKSUM:
+			cb_parse_checksum(ptr, info);
+			break;
 		/*
 		 * FIXME we should warn on serial if coreboot set up a
 		 * framebuffer buf the payload does not know about it.
@@ -205,11 +362,26 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 		case CB_TAG_FRAMEBUFFER:
 			cb_parse_framebuffer(ptr, info);
 			break;
+		case CB_TAG_MAINBOARD:
+			info->mainboard = (struct cb_mainboard *)ptr;
+			break;
 		case CB_TAG_GPIO:
 			cb_parse_gpios(ptr, info);
 			break;
 		case CB_TAG_VDAT:
 			cb_parse_vdat(ptr, info);
+			break;
+		case CB_TAG_VBNV:
+			cb_parse_vbnv(ptr, info);
+			break;
+		case CB_TAG_VBOOT_HANDOFF:
+			cb_parse_vboot_handoff(ptr, info);
+			break;
+		case CB_TAG_MAC_ADDRS:
+			cb_parse_mac_addresses(ptr, info);
+			break;
+		case CB_TAG_SERIALNO:
+			cb_parse_string(ptr, &info->serialno);
 			break;
 		case CB_TAG_TIMESTAMPS:
 			cb_parse_tstamp(ptr, info);
@@ -217,11 +389,44 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 		case CB_TAG_CBMEM_CONSOLE:
 			cb_parse_cbmem_cons(ptr, info);
 			break;
-		case CB_TAG_VBNV:
-			cb_parse_vbnv(ptr, info);
+		case CB_TAG_ACPI_GNVS:
+			cb_parse_acpi_gnvs(ptr, info);
 			break;
 		case CB_TAG_CBMEM_ENTRY:
 			cb_parse_cbmem_entry(ptr, info);
+			break;
+		case CB_TAG_BOARD_ID:
+			cb_parse_board_id(ptr, info);
+			break;
+		case CB_TAG_RAM_CODE:
+			cb_parse_ram_code(ptr, info);
+			break;
+		case CB_TAG_WIFI_CALIBRATION:
+			cb_parse_wifi_calibration(ptr, info);
+			break;
+		case CB_TAG_RAM_OOPS:
+			cb_parse_ramoops(ptr, info);
+			break;
+		case CB_TAG_SPI_FLASH:
+			cb_parse_spi_flash(ptr, info);
+			break;
+		case CB_TAG_MTC:
+			cb_parse_mtc(ptr, info);
+			break;
+		case CB_TAG_BOOT_MEDIA_PARAMS:
+			cb_parse_boot_media_params(ptr, info);
+			break;
+		case CB_TAG_TSC_INFO:
+			cb_parse_tsc_info(ptr, info);
+			break;
+		case CB_TAG_VPD:
+			cb_parse_vpd(ptr, info);
+			break;
+		case CB_TAG_X86_ROM_MTRR:
+			cb_parse_x86_rom_var_mtrr(rec, info);
+			break;
+		case CB_TAG_MRC_CACHE:
+			cb_parse_mrc_cache(rec, info);
 			break;
 		default:
 			cb_parse_unhandled(rec->tag, ptr);
@@ -235,7 +440,7 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 }
 
 /* == Architecture specific == */
-/* This is the x86 specific stuff. */
+/* This is the x86 specific stuff */
 
 int get_coreboot_info(struct sysinfo_t *info)
 {
@@ -252,4 +457,12 @@ int get_coreboot_info(struct sysinfo_t *info)
 	gd->flags |= GD_FLG_SKIP_LL_INIT;
 
 	return 0;
+}
+
+const struct sysinfo_t *cb_get_sysinfo(void)
+{
+	if (!ll_boot_init())
+		return &lib_sysinfo;
+
+	return NULL;
 }

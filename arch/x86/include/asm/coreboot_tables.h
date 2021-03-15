@@ -262,13 +262,14 @@ struct cb_framebuffer {
 };
 
 #define CB_TAG_GPIO			0x0013
-#define GPIO_MAX_NAME_LENGTH		16
-
+#define CB_GPIO_ACTIVE_LOW		0
+#define CB_GPIO_ACTIVE_HIGH		1
+#define CB_GPIO_MAX_NAME_LENGTH		16
 struct cb_gpio {
 	u32 port;
 	u32 polarity;
 	u32 value;
-	u8 name[GPIO_MAX_NAME_LENGTH];
+	u8 name[CB_GPIO_MAX_NAME_LENGTH];
 };
 
 struct cb_gpios {
@@ -281,49 +282,145 @@ struct cb_gpios {
 #define CB_TAG_FDT			0x0014
 
 struct cb_fdt {
-	uint32_t tag;
-	uint32_t size;	/* size of the entire entry */
+	u32 tag;
+	u32 size;	/* size of the entire entry */
 	/* the actual FDT gets placed here */
 };
 
 #define CB_TAG_VDAT			0x0015
 
 struct cb_vdat {
-	uint32_t tag;
-	uint32_t size;	/* size of the entire entry */
+	u32 tag;
+	u32 size;	/* size of the entire entry */
 	void *vdat_addr;
-	uint32_t vdat_size;
+	u32 vdat_size;
 };
 
 #define CB_TAG_TIMESTAMPS		0x0016
 #define CB_TAG_CBMEM_CONSOLE		0x0017
+
+struct cbmem_console {
+	u32 size;
+	u32 cursor;
+	char body[0];
+} __packed;
+
 #define CB_TAG_MRC_CACHE		0x0018
 
 struct cb_cbmem_tab {
-	uint32_t tag;
-	uint32_t size;
-	void *cbmem_tab;
+	u32 tag;
+	u32 size;
+	u64 cbmem_tab;
 };
 
 #define CB_TAG_VBNV			0x0019
 
 struct cb_vbnv {
-	uint32_t tag;
-	uint32_t size;
-	uint32_t vbnv_start;
-	uint32_t vbnv_size;
+	u32 tag;
+	u32 size;
+	u32 vbnv_start;
+	u32 vbnv_size;
 };
 
-#define CB_TAG_CBMEM_ENTRY 0x0031
-#define CBMEM_ID_SMBIOS    0x534d4254
+#define CB_TAG_VBOOT_HANDOFF		0x0020
+
+#define CB_TAG_X86_ROM_MTRR		0x0021
+struct cb_x86_rom_mtrr {
+	u32 tag;
+	u32 size;
+	/*
+	 * The variable range MTRR index covering the ROM. If one wants to
+	 * enable caching the ROM, the variable MTRR needs to be set to
+	 * write-protect. To disable the caching after enabling set the
+	 * type to uncacheable
+	 */
+	u32 index;
+};
+
+#define CB_TAG_DMA			0x0022
+#define CB_TAG_RAM_OOPS			0x0023
+#define CB_TAG_ACPI_GNVS		0x0024
+
+#define CB_TAG_BOARD_ID			0x0025
+struct cb_board_id {
+	u32 tag;
+	u32 size;
+	/* Board ID as retrieved from the board revision GPIOs. */
+	u32 board_id;
+};
+
+#define CB_TAG_MAC_ADDRS		0x0026
+struct mac_address {
+	u8 mac_addr[6];
+	u8 pad[2];         /* Pad it to 8 bytes to keep it simple. */
+};
+
+struct cb_macs {
+	u32 tag;
+	u32 size;
+	u32 count;
+	struct mac_address mac_addrs[0];
+};
+
+#define CB_TAG_WIFI_CALIBRATION		0x0027
+
+#define CB_TAG_RAM_CODE			0x0028
+struct cb_ram_code {
+	u32 tag;
+	u32 size;
+	u32 ram_code;
+};
+
+#define CB_TAG_SPI_FLASH		0x0029
+struct cb_spi_flash {
+	u32 tag;
+	u32 size;
+	u32 flash_size;
+	u32 sector_size;
+	u32 erase_cmd;
+};
+
+#define CB_TAG_MTC			0x002b
+#define CB_TAG_VPD			0x002c
+struct lb_range {
+	u32 tag;
+	u32 size;
+	u64 range_start;
+	u32 range_size;
+};
+
+#define CB_TAG_BOOT_MEDIA_PARAMS	0x0030
+struct cb_boot_media_params {
+	u32 tag;
+	u32 size;
+	/* offsets are relative to start of boot media */
+	u64 fmap_offset;
+	u64 cbfs_offset;
+	u64 cbfs_size;
+	u64 boot_media_size;
+};
+
+#define CB_TAG_CBMEM_ENTRY		0x0031
+#define CBMEM_ID_SMBIOS			0x534d4254
 
 struct cb_cbmem_entry {
-	uint32_t tag;
-	uint32_t size;
-	uint64_t address;
-	uint32_t entry_size;
-	uint32_t id;
+	u32 tag;
+	u32 size;
+	u64 address;
+	u32 entry_size;
+	u32 id;
 };
+
+#define CB_TAG_TSC_INFO			0x0032
+struct cb_tsc_info {
+	u32 tag;
+	u32 size;
+
+	u32 freq_khz;
+};
+
+#define CB_TAG_SERIALNO			0x002a
+#define CB_MAX_SERIALNO_LENGTH		32
 
 #define CB_TAG_CMOS_OPTION_TABLE	0x00c8
 
@@ -331,11 +428,12 @@ struct cb_cmos_option_table {
 	u32 tag;
 	u32 size;
 	u32 header_length;
+	/* entries follow after this header */
 };
 
 #define CB_TAG_OPTION			0x00c9
 
-#define CMOS_MAX_NAME_LENGTH		32
+#define CB_CMOS_MAX_NAME_LENGTH		32
 
 struct cb_cmos_entries {
 	u32 tag;
@@ -344,34 +442,33 @@ struct cb_cmos_entries {
 	u32 length;
 	u32 config;
 	u32 config_id;
-	u8 name[CMOS_MAX_NAME_LENGTH];
+	u8 name[CB_CMOS_MAX_NAME_LENGTH];
 };
 
 #define CB_TAG_OPTION_ENUM		0x00ca
-#define CMOS_MAX_TEXT_LENGTH		32
-
+#define CB_CMOS_MAX_TEXT_LENGTH		32
 struct cb_cmos_enums {
 	u32 tag;
 	u32 size;
 	u32 config_id;
 	u32 value;
-	u8 text[CMOS_MAX_TEXT_LENGTH];
+	u8 text[CB_CMOS_MAX_TEXT_LENGTH];
 };
 
 #define CB_TAG_OPTION_DEFAULTS		0x00cb
-#define CMOS_IMAGE_BUFFER_SIZE		128
+#define CB_CMOS_IMAGE_BUFFER_SIZE	128
 
 struct cb_cmos_defaults {
 	u32 tag;
 	u32 size;
 	u32 name_length;
-	u8 name[CMOS_MAX_NAME_LENGTH];
-	u8 default_set[CMOS_IMAGE_BUFFER_SIZE];
+	u8 name[CB_CMOS_MAX_NAME_LENGTH];
+	u8 default_set[CB_CMOS_IMAGE_BUFFER_SIZE];
 };
 
 #define CB_TAG_OPTION_CHECKSUM		0x00cc
-#define CHECKSUM_NONE			0
-#define CHECKSUM_PCBIOS			1
+#define CB_CHECKSUM_NONE		0
+#define CB_CHECKSUM_PCBIOS		1
 
 struct	cb_cmos_checksum {
 	u32 tag;
