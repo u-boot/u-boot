@@ -667,21 +667,6 @@ int device_find_global_by_ofnode(ofnode node, struct udevice **devp);
 int device_get_global_by_ofnode(ofnode node, struct udevice **devp);
 
 /**
- * device_get_by_driver_info() - Get a device based on driver_info
- *
- * Locates a device by its struct driver_info, by using its reference which
- * is updated during the bind process.
- *
- * The device is probed to activate it ready for use.
- *
- * @info: Struct driver_info
- * @devp: Returns pointer to device if found, otherwise this is set to NULL
- * @return 0 if OK, -ve on error
- */
-int device_get_by_driver_info(const struct driver_info *info,
-			      struct udevice **devp);
-
-/**
  * device_get_by_driver_info_idx() - Get a device based on driver_info index
  *
  * Locates a device by its struct driver_info, by using its index number which

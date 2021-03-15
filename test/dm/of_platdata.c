@@ -142,8 +142,6 @@ static int find_driver_info(struct unit_test_state *uts, struct udevice *parent,
 /* Check that every device is recorded in its driver_info struct */
 static int dm_test_of_plat_dev(struct unit_test_state *uts)
 {
-	const struct driver_info *info =
-		ll_entry_start(struct driver_info, driver_info);
 	const int n_ents = ll_entry_count(struct driver_info, driver_info);
 	bool found[n_ents];
 	uint i;
@@ -155,18 +153,17 @@ static int dm_test_of_plat_dev(struct unit_test_state *uts)
 	/* Make sure that the driver entries without devices have no ->dev */
 	for (i = 0; i < n_ents; i++) {
 		const struct driver_rt *drt = gd_dm_driver_rt() + i;
-		const struct driver_info *entry = info + i;
 		struct udevice *dev;
 
 		if (found[i]) {
 			/* Make sure we can find it */
 			ut_assertnonnull(drt->dev);
-			ut_assertok(device_get_by_driver_info(entry, &dev));
+			ut_assertok(device_get_by_driver_info_idx(i, &dev));
 			ut_asserteq_ptr(dev, drt->dev);
 		} else {
 			ut_assertnull(drt->dev);
 			ut_asserteq(-ENOENT,
-				    device_get_by_driver_info(entry, &dev));
+				    device_get_by_driver_info_idx(i, &dev));
 		}
 	}
 

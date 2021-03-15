@@ -811,21 +811,6 @@ int device_get_global_by_ofnode(ofnode ofnode, struct udevice **devp)
 }
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-int device_get_by_driver_info(const struct driver_info *info,
-			      struct udevice **devp)
-{
-	struct driver_info *info_base =
-		ll_entry_start(struct driver_info, driver_info);
-	int idx = info - info_base;
-	struct driver_rt *drt = gd_dm_driver_rt() + idx;
-	struct udevice *dev;
-
-	dev = drt->dev;
-	*devp = NULL;
-
-	return device_get_device_tail(dev, dev ? 0 : -ENOENT, devp);
-}
-
 int device_get_by_driver_info_idx(uint idx, struct udevice **devp)
 {
 	struct driver_rt *drt = gd_dm_driver_rt() + idx;
