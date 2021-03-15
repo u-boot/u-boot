@@ -21,7 +21,7 @@
 /* Simple test of sandbox SPI flash */
 static int dm_test_spi_flash(struct unit_test_state *uts)
 {
-	struct udevice *dev;
+	struct udevice *dev, *emul;
 	int full_size = 0x200000;
 	int size = 0x10000;
 	u8 *src, *dst;
@@ -50,6 +50,14 @@ static int dm_test_spi_flash(struct unit_test_state *uts)
 	ut_assertok(spi_flash_write_dm(dev, 0, size, src));
 	ut_assertok(spi_flash_read_dm(dev, 0, size, dst));
 	ut_asserteq_mem(src, dst, size);
+
+	/* Try the write-protect stuff */
+	ut_assertok(uclass_first_device_err(UCLASS_SPI_EMUL, &emul));
+	ut_asserteq(0, spl_flash_get_sw_write_prot(dev));
+	sandbox_sf_set_block_protect(emul, 1);
+	ut_asserteq(1, spl_flash_get_sw_write_prot(dev));
+	sandbox_sf_set_block_protect(emul, 0);
+	ut_asserteq(0, spl_flash_get_sw_write_prot(dev));
 
 	/* Check mapping */
 	ut_assertok(dm_spi_get_mmap(dev, &map_base, &map_size, &offset));
