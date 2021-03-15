@@ -79,6 +79,35 @@ static void swap_file_header(struct cbfs_fileheader *dest,
 	dest->offset = be32_to_cpu(src->offset);
 }
 
+/**
+ * fill_node() - Fill a node struct with information from the CBFS
+ *
+ * @node: Node to fill
+ * @start: Pointer to the start of the CBFS file in memory
+ * @header: Pointer to the header information (in our enddianess)
+ * @return 0 if OK, -EBADF if the header is too small
+ */
+static int fill_node(struct cbfs_cachenode *node, void *start,
+		     struct cbfs_fileheader *header)
+{
+	uint name_len;
+
+	/* Check the header is large enough */
+	if (header->offset < sizeof(struct cbfs_fileheader))
+		return -EBADF;
+
+	node->next = NULL;
+	node->type = header->type;
+	node->data = start + header->offset;
+	node->data_length = header->len;
+	name_len = header->offset - sizeof(struct cbfs_fileheader);
+	node->name = start + sizeof(struct cbfs_fileheader);
+	node->name_length = name_len;
+	node->attr_offset = header->attributes_offset;
+
+	return 0;
+}
+
 /*
  * Given a starting position in memory, scan forward, bounded by a size, and
  * find the next valid CBFS file. No memory is allocated by this function. The
@@ -104,8 +133,8 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 
 	while (size >= align) {
 		const struct cbfs_fileheader *file_header = start;
-		u32 name_len;
 		u32 step;
+		int ret;
 
 		/* Check if there's a file here. */
 		if (memcmp(good_file_magic, &file_header->magic,
@@ -117,19 +146,11 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 		}
 
 		swap_file_header(&header, file_header);
-		if (header.offset < sizeof(struct cbfs_fileheader)) {
+		ret = fill_node(node, start, &header);
+		if (ret) {
 			priv->result = CBFS_BAD_FILE;
-			return -EBADF;
+			return log_msg_ret("fill", ret);
 		}
-		node->next = NULL;
-		node->type = header.type;
-		node->data = start + header.offset;
-		node->data_length = header.len;
-		name_len = header.offset - sizeof(struct cbfs_fileheader);
-		node->name = (char *)file_header +
-				sizeof(struct cbfs_fileheader);
-		node->name_length = name_len;
-		node->attr_offset = header.attributes_offset;
 
 		step = header.len;
 		if (step % align)
