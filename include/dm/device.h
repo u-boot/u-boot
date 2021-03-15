@@ -363,6 +363,28 @@ struct driver {
 	ll_entry_get(struct driver, __name, driver)
 
 /**
+ * DM_DRIVER_REF() - Get a reference to a driver
+ *
+ * This is useful in data structures and code for referencing a driver at
+ * build time. Before this is used, an extern U_BOOT_DRIVER() must have been
+ * declared.
+ *
+ * For example:
+ *
+ * extern U_BOOT_DRIVER(sandbox_fixed_clock);
+ *
+ * struct driver *drvs[] = {
+ *	DM_DRIVER_REF(sandbox_fixed_clock),
+ * };
+ *
+ * @_name: Name of the driver. This must be a valid C identifier, used by the
+ *	linker_list
+ * @returns struct driver * for the driver
+ */
+#define DM_DRIVER_REF(_name)					\
+	ll_entry_ref(struct driver, _name, driver)
+
+/**
  * Declare a macro to state a alias for a driver name. This macro will
  * produce no code but its information will be parsed by tools like
  * dtoc

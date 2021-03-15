@@ -214,8 +214,8 @@
 /**
  * ll_entry_ref() - Get a reference to a linker-generated array entry
  *
- * Once ll_entry_decl() has been used to declare the reference, this macro
- * allows the entry to be accessed.
+ * Once an extern ll_entry_declare() has been used to declare the reference,
+ * this macro allows the entry to be accessed.
  *
  * This is like ll_entry_get(), but without the extra code, so it is suitable
  * for putting into data structures.
