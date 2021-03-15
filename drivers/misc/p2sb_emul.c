@@ -7,7 +7,6 @@
  */
 
 #define LOG_CATEGORY UCLASS_MISC
-#define LOG_DEBUG
 
 #include <common.h>
 #include <axi.h>
