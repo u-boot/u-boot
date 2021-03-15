@@ -69,6 +69,9 @@
  * Use this function to override normal operation for special situations, such
  * as needing to allocate a variable amount of data.
  *
+ * If OF_PLATDATA_RT is enabled, this function cannot be used out of core driver
+ * model code, since the pointer must be within the gd->dm_priv_base region.
+ *
  * @uc		Uclass to update
  * @priv	New private-data pointer
  */

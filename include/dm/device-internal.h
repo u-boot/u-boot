@@ -284,6 +284,9 @@ static inline int device_chld_remove(struct udevice *dev, struct driver *drv,
  * Use this function to override normal operation for special situations, such
  * as needing to allocate a variable amount of data.
  *
+ * If OF_PLATDATA_RT is enabled, this function cannot be used out of core driver
+ * model code, since the pointer must be within the gd->dm_priv_base region.
+ *
  * @dev		Device to check
  * @priv	New private-data pointer
  */
@@ -297,6 +300,9 @@ void dev_set_priv(struct udevice *dev, void *priv);
  *
  * Use this function to override normal operation for special situations, such
  * as needing to allocate a variable amount of data.
+ *
+ * If OF_PLATDATA_RT is enabled, this function cannot be used out of core driver
+ * model code, since the pointer must be within the gd->dm_priv_base region.
  *
  * @dev:	Device to update
  * @parent_priv: New parent-private data
@@ -312,6 +318,9 @@ void dev_set_parent_priv(struct udevice *dev, void *parent_priv);
  * Use this function to override normal operation for special situations, such
  * as needing to allocate a variable amount of data.
  *
+ * If OF_PLATDATA_RT is enabled, this function cannot be used out of core driver
+ * model code, since the pointer must be within the gd->dm_priv_base region.
+ *
  * @dev:	Device to update
  * @uclass_priv: New uclass private data
  */
@@ -325,6 +334,9 @@ void dev_set_uclass_priv(struct udevice *dev, void *uclass_priv);
  *
  * Use this function to override normal operation for special situations, such
  * as needing to allocate a variable amount of data.
+ *
+ * If OF_PLATDATA_RT is enabled, this function cannot be used out of core driver
+ * model code, since the pointer must be within the gd->dm_priv_base region.
  *
  * @dev		Device to check
  * @plat	New platform-data pointer
@@ -340,6 +352,9 @@ void dev_set_plat(struct udevice *dev, void *priv);
  * Use this function to override normal operation for special situations, such
  * as needing to allocate a variable amount of data.
  *
+ * If OF_PLATDATA_RT is enabled, this function cannot be used out of core driver
+ * model code, since the pointer must be within the gd->dm_priv_base region.
+ *
  * @dev:	Device to update
  * @parent_plat: New parent platform data
  */
@@ -353,6 +368,9 @@ void dev_set_parent_plat(struct udevice *dev, void *parent_plat);
  *
  * Use this function to override normal operation for special situations, such
  * as needing to allocate a variable amount of data.
+ *
+ * If OF_PLATDATA_RT is enabled, this function cannot be used out of core driver
+ * model code, since the pointer must be within the gd->dm_priv_base region.
  *
  * @dev:	Device to update
  * @uclass_plat: New uclass platform data
