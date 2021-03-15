@@ -75,6 +75,15 @@ struct cbfs_fileheader {
 	char filename[];
 } __packed;
 
+/**
+ * These are standard values for the known compression alogrithms that coreboot
+ * knows about for stages and payloads.  Of course, other CBFS users can use
+ * whatever values they want, as long as they understand them.
+ */
+#define CBFS_COMPRESS_NONE  0
+#define CBFS_COMPRESS_LZMA  1
+#define CBFS_COMPRESS_LZ4   2
+
 /*
  * Depending on how the header was initialized, it may be backed with 0x00 or
  * 0xff, so support both
@@ -119,6 +128,8 @@ struct cbfs_cachenode {
 	u32 data_length;
 	u32 name_length;
 	u32 attr_offset;
+	u32 comp_algo;
+	u32 decomp_size;
 };
 
 /**

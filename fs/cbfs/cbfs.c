@@ -91,6 +91,7 @@ static int fill_node(struct cbfs_cachenode *node, void *start,
 		     struct cbfs_fileheader *header)
 {
 	uint name_len;
+	uint offset;
 
 	/* Check the header is large enough */
 	if (header->offset < sizeof(struct cbfs_fileheader))
@@ -104,6 +105,27 @@ static int fill_node(struct cbfs_cachenode *node, void *start,
 	node->name = start + sizeof(struct cbfs_fileheader);
 	node->name_length = name_len;
 	node->attr_offset = header->attributes_offset;
+	node->comp_algo = CBFS_COMPRESS_NONE;
+	node->decomp_size = 0;
+
+	for (offset = node->attr_offset; offset < header->offset;) {
+		const struct cbfs_file_attribute *attr;
+		uint tag, len;
+
+		attr = start + offset;
+		tag = be32_to_cpu(attr->tag);
+		len = be32_to_cpu(attr->len);
+		if (tag == CBFS_FILE_ATTR_TAG_COMPRESSION) {
+			struct cbfs_file_attr_compression *comp;
+
+			comp = start + offset;
+			node->comp_algo = be32_to_cpu(comp->compression);
+			node->decomp_size =
+				be32_to_cpu(comp->decompressed_size);
+		}
+
+		offset += len;
+	}
 
 	return 0;
 }
