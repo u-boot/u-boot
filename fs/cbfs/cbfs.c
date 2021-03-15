@@ -87,7 +87,7 @@ static void swap_file_header(struct cbfs_fileheader *dest,
  * @param start		The location in memory to start from.
  * @param size		The size of the memory region to search.
  * @param align		The alignment boundaries to check on.
- * @param new_node	A pointer to the file structure to load.
+ * @param node	A pointer to the file structure to load.
  * @param used		A pointer to the count of of bytes scanned through,
  *			including the file if one is found.
  *
@@ -95,7 +95,7 @@ static void swap_file_header(struct cbfs_fileheader *dest,
  *	is found.
  */
 static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
-			       int align, struct cbfs_cachenode *new_node,
+			       int align, struct cbfs_cachenode *node,
 			       int *used)
 {
 	struct cbfs_fileheader header;
@@ -121,15 +121,15 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 			priv->result = CBFS_BAD_FILE;
 			return -EBADF;
 		}
-		new_node->next = NULL;
-		new_node->type = header.type;
-		new_node->data = start + header.offset;
-		new_node->data_length = header.len;
+		node->next = NULL;
+		node->type = header.type;
+		node->data = start + header.offset;
+		node->data_length = header.len;
 		name_len = header.offset - sizeof(struct cbfs_fileheader);
-		new_node->name = (char *)file_header +
+		node->name = (char *)file_header +
 				sizeof(struct cbfs_fileheader);
-		new_node->name_length = name_len;
-		new_node->attr_offset = header.attributes_offset;
+		node->name_length = name_len;
+		node->attr_offset = header.attributes_offset;
 
 		step = header.len;
 		if (step % align)
@@ -146,7 +146,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 static int file_cbfs_fill_cache(struct cbfs_priv *priv, int size, int align)
 {
 	struct cbfs_cachenode *cache_node;
-	struct cbfs_cachenode *new_node;
+	struct cbfs_cachenode *node;
 	struct cbfs_cachenode **cache_tail = &priv->file_cache;
 	void *start;
 
@@ -164,21 +164,21 @@ static int file_cbfs_fill_cache(struct cbfs_priv *priv, int size, int align)
 		int used;
 		int ret;
 
-		new_node = (struct cbfs_cachenode *)
+		node = (struct cbfs_cachenode *)
 				malloc(sizeof(struct cbfs_cachenode));
-		if (!new_node)
+		if (!node)
 			return -ENOMEM;
-		ret = file_cbfs_next_file(priv, start, size, align, new_node,
+		ret = file_cbfs_next_file(priv, start, size, align, node,
 					  &used);
 
 		if (ret < 0) {
-			free(new_node);
+			free(node);
 			if (ret == -ENOENT)
 				break;
 			return ret;
 		}
-		*cache_tail = new_node;
-		cache_tail = &new_node->next;
+		*cache_tail = node;
+		cache_tail = &node->next;
 
 		size -= used;
 		start += used;
