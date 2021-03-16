@@ -107,11 +107,13 @@
 		compatible = "xlnx,versal-fpga";
 	};
 
-	amba_apu: amba_apu {
+	amba: axi {
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+		interrupt-parent = <&gic>;
+		u-boot,dm-pre-reloc;
 
 		gic: interrupt-controller@f9000000 {
 			compatible = "arm,gic-v3";
@@ -133,15 +135,6 @@
 				reg = <0 0xf9020000 0 0x20000>;
 			};
 		};
-	};
-
-	amba: amba {
-		compatible = "simple-bus";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-		interrupt-parent = <&gic>;
-		u-boot,dm-pre-reloc;
 
 		apm: performance-monitor@f0920000 {
 			compatible = "xlnx,flexnoc-pm-2.7";
