@@ -1,3 +1,10 @@
+MicroGEA-STM32MP1-MICRODEV2.0
+M:	Jagan Teki <jagan@amarulasolutions.com>
+M:	Matteo Lisi <matteo.lisi@engicam.com>
+S:	Maintained
+F:	arch/arm/dts/stm32mp15*microgea*
+F:	configs/stm32mp15-microgea-stm32mp1-microdev2_defconfig
+
 i.Core-STM32MP1-CTOUCH2.0
 M:	Jagan Teki <jagan@amarulasolutions.com>
 M:	Matteo Lisi <matteo.lisi@engicam.com>

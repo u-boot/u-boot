@@ -77,6 +77,26 @@ config TARGET_ST_STM32MP15x
 		Evalulation board (EV1) or Discovery board (DK1 and DK2).
 		The difference between board are managed with devicetree
 
+config TARGET_MICROGEA_STM32MP1
+	bool "Engicam MicroGEA STM32MP1 SOM"
+	select STM32MP15x
+	imply BOOTCOUNT_LIMIT
+	imply BOOTSTAGE
+	imply CMD_BOOTCOUNT
+	imply CMD_BOOTSTAGE
+	imply CMD_CLS if CMD_BMP
+	imply DISABLE_CONSOLE
+	imply PRE_CONSOLE_BUFFER
+	imply SILENT_CONSOLE
+	help
+	  MicroGEA STM32MP1 is a STM32MP157A based Micro SOM.
+
+	  MicroGEA STM32MP1 MicroDev 2.0:
+	  * MicroDev 2.0 is a general purpose miniature carrier board with CAN,
+	    LTE and LVDS panel interfaces.
+	  * MicroGEA STM32MP1 needs to mount on top of this MicroDev 2.0 board
+	    for creating complete MicroGEA STM32MP1 MicroDev 2.0 Carrier board.
+
 config TARGET_ICORE_STM32MP1
 	bool "Engicam i.Core STM32MP1 SOM"
 	select STM32MP15x
