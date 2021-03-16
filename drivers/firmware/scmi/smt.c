@@ -56,8 +56,10 @@ int scmi_dt_get_smt_buffer(struct udevice *dev, struct scmi_smt *smt)
 
 #ifdef CONFIG_ARM
 	if (dcache_status())
-		mmu_set_region_dcache_behaviour((uintptr_t)smt->buf,
-						smt->size, DCACHE_OFF);
+		mmu_set_region_dcache_behaviour(ALIGN_DOWN((uintptr_t)smt->buf, MMU_SECTION_SIZE),
+						ALIGN(smt->size, MMU_SECTION_SIZE),
+						DCACHE_OFF);
+
 #endif
 
 	return 0;
