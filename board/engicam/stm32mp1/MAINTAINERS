@@ -1,0 +1,7 @@
+i.Core-STM32MP1-EDIMM2.2
+M:	Jagan Teki <jagan@amarulasolutions.com>
+M:	Matteo Lisi <matteo.lisi@engicam.com>
+S:	Maintained
+F:	arch/arm/dts/stm32mp15*icore*
+F:	board/engicam/stm32mp1
+F:	configs/stm32mp15-icore-stm32mp1-edimm2.2_defconfig
