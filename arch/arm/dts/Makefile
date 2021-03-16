@@ -236,7 +236,9 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
-	armada-xp-theadorable.dtb
+	armada-xp-theadorable.dtb		\
+	cn9130-crb-A.dtb			\
+	cn9130-crb-B.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-global.dtb \
