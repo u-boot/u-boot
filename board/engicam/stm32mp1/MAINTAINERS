@@ -1,3 +1,9 @@
+i.Core-STM32MP1-CTOUCH2.0
+M:	Jagan Teki <jagan@amarulasolutions.com>
+M:	Matteo Lisi <matteo.lisi@engicam.com>
+S:	Maintained
+F:	configs/stm32mp15-icore-stm32mp1-ctouch2_defconfig
+
 i.Core-STM32MP1-EDIMM2.2
 M:	Jagan Teki <jagan@amarulasolutions.com>
 M:	Matteo Lisi <matteo.lisi@engicam.com>
