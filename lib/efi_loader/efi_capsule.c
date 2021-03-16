@@ -449,7 +449,7 @@ efi_status_t EFIAPI efi_update_capsule(
 	unsigned int i;
 	efi_status_t ret;
 
-	EFI_ENTRY("%p, %lu, %llu\n", capsule_header_array, capsule_count,
+	EFI_ENTRY("%p, %zu, %llu\n", capsule_header_array, capsule_count,
 		  scatter_gather_list);
 
 	if (!capsule_count) {
@@ -509,7 +509,7 @@ efi_status_t EFIAPI efi_query_capsule_caps(
 	unsigned int i;
 	efi_status_t ret;
 
-	EFI_ENTRY("%p, %lu, %p, %p\n", capsule_header_array, capsule_count,
+	EFI_ENTRY("%p, %zu, %p, %p\n", capsule_header_array, capsule_count,
 		  maximum_capsule_size, reset_type);
 
 	if (!maximum_capsule_size) {

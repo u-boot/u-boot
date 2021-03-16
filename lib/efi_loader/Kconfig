@@ -281,7 +281,7 @@ config EFI_HAVE_RUNTIME_RESET
 
 config EFI_GRUB_ARM32_WORKAROUND
 	bool "Workaround for GRUB on 32bit ARM"
-	default n if ARCH_QEMU
+	default n if ARCH_BCM283X || ARCH_SUNXI || ARCH_QEMU
 	default y
 	depends on ARM && !ARM64
 	help
