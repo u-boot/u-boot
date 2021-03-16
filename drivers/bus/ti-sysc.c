@@ -148,12 +148,6 @@ clocks_err:
 	return err;
 }
 
-UCLASS_DRIVER(ti_sysc) = {
-	.id = UCLASS_SIMPLE_BUS,
-	.name = "ti_sysc",
-	.post_bind = dm_scan_fdt_dev
-};
-
 U_BOOT_DRIVER(ti_sysc) = {
 	.name = "ti_sysc",
 	.id = UCLASS_SIMPLE_BUS,
