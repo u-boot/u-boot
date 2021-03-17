@@ -6,4 +6,4 @@ SiFive
 .. toctree::
    :maxdepth: 2
 
-   fu540
+   unleashed

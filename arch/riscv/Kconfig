@@ -17,8 +17,8 @@ config TARGET_MICROCHIP_ICICLE
 config TARGET_QEMU_VIRT
 	bool "Support QEMU Virt Board"
 
-config TARGET_SIFIVE_FU540
-	bool "Support SiFive FU540 Board"
+config TARGET_SIFIVE_UNLEASHED
+	bool "Support SiFive Unleashed Board"
 
 config TARGET_SIPEED_MAIX
 	bool "Support Sipeed Maix Board"
@@ -55,7 +55,7 @@ config SPL_SYS_DCACHE_OFF
 source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
-source "board/sifive/fu540/Kconfig"
+source "board/sifive/unleashed/Kconfig"
 source "board/sipeed/maix/Kconfig"
 
 # platform-specific options below
