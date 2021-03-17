@@ -11,9 +11,18 @@
 #include <linux/types.h>
 #include <asm/unaligned.h>
 
-static u16 LZ4_readLE16(const void *src) { return le16_to_cpu(*(u16 *)src); }
-static void LZ4_copy4(void *dst, const void *src) { *(u32 *)dst = *(u32 *)src; }
-static void LZ4_copy8(void *dst, const void *src) { *(u64 *)dst = *(u64 *)src; }
+static u16 LZ4_readLE16(const void *src)
+{
+	return get_unaligned_le16(src);
+}
+static void LZ4_copy4(void *dst, const void *src)
+{
+	put_unaligned(get_unaligned((const u32 *)src), (u32 *)dst);
+}
+static void LZ4_copy8(void *dst, const void *src)
+{
+	put_unaligned(get_unaligned((const u64 *)src), (u64 *)dst);
+}
 
 typedef  uint8_t BYTE;
 typedef uint16_t U16;
