@@ -71,7 +71,8 @@ struct fsl_esdhc {
 	uint	sdtimingctl;	/* SD timing control register */
 	char    reserved8[20];	/* reserved */
 	uint	dllcfg0;	/* DLL config 0 register */
-	char	reserved9[12];	/* reserved */
+	uint	dllcfg1;	/* DLL config 1 register */
+	char	reserved9[8];	/* reserved */
 	uint	dllstat0;	/* DLL status 0 register */
 	char    reserved10[664];/* reserved */
 	uint    esdhcctl;	/* eSDHC control register */
@@ -766,6 +767,9 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 
 	/* Set timout to the maximum value */
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, 14 << 16);
+
+	if (IS_ENABLED(CONFIG_SYS_FSL_ESDHC_UNRELIABLE_PULSE_DETECTION_WORKAROUND))
+		esdhc_clrbits32(&regs->dllcfg1, DLL_PD_PULSE_STRETCH_SEL);
 
 	return 0;
 }
