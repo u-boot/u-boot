@@ -28,7 +28,7 @@ class TestEfiSignedImage(object):
             # Test Case 1a, run signed image if no PK
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
-                'efidebug boot add 1 HELLO1 host 0:1 /helloworld.efi.signed ""',
+                'efidebug boot add -b 1 HELLO1 host 0:1 /helloworld.efi.signed ""',
                 'efidebug boot next 1',
                 'bootefi bootmgr'])
             assert 'Hello, world!' in ''.join(output)
@@ -36,7 +36,7 @@ class TestEfiSignedImage(object):
         with u_boot_console.log.section('Test Case 1b'):
             # Test Case 1b, run unsigned image if no PK
             output = u_boot_console.run_command_list([
-                'efidebug boot add 2 HELLO2 host 0:1 /helloworld.efi ""',
+                'efidebug boot add -b 2 HELLO2 host 0:1 /helloworld.efi ""',
                 'efidebug boot next 2',
                 'bootefi bootmgr'])
             assert 'Hello, world!' in ''.join(output)
@@ -58,13 +58,13 @@ class TestEfiSignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK'])
             assert 'Failed to set EFI variable' not in ''.join(output)
             output = u_boot_console.run_command_list([
-                'efidebug boot add 1 HELLO1 host 0:1 /helloworld.efi.signed ""',
+                'efidebug boot add -b 1 HELLO1 host 0:1 /helloworld.efi.signed ""',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert('\'HELLO1\' failed' in ''.join(output))
             assert('efi_start_image() returned: 26' in ''.join(output))
             output = u_boot_console.run_command_list([
-                'efidebug boot add 2 HELLO2 host 0:1 /helloworld.efi ""',
+                'efidebug boot add -b 2 HELLO2 host 0:1 /helloworld.efi ""',
                 'efidebug boot next 2',
                 'efidebug test bootmgr'])
             assert '\'HELLO2\' failed' in ''.join(output)
@@ -104,7 +104,7 @@ class TestEfiSignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK'])
             assert 'Failed to set EFI variable' not in ''.join(output)
             output = u_boot_console.run_command_list([
-                'efidebug boot add 1 HELLO host 0:1 /helloworld.efi.signed ""',
+                'efidebug boot add -b 1 HELLO host 0:1 /helloworld.efi.signed ""',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO\' failed' in ''.join(output)
@@ -142,7 +142,7 @@ class TestEfiSignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK'])
             assert 'Failed to set EFI variable' not in ''.join(output)
             output = u_boot_console.run_command_list([
-                'efidebug boot add 1 HELLO host 0:1 /helloworld.efi.signed ""',
+                'efidebug boot add -b 1 HELLO host 0:1 /helloworld.efi.signed ""',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO\' failed' in ''.join(output)
@@ -169,7 +169,7 @@ class TestEfiSignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK'])
             assert 'Failed to set EFI variable' not in ''.join(output)
             output = u_boot_console.run_command_list([
-                'efidebug boot add 1 HELLO host 0:1 /helloworld.efi.signed_2sigs ""',
+                'efidebug boot add -b 1 HELLO host 0:1 /helloworld.efi.signed_2sigs ""',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert 'Hello, world!' in ''.join(output)
@@ -227,7 +227,7 @@ class TestEfiSignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK'])
             assert 'Failed to set EFI variable' not in ''.join(output)
             output = u_boot_console.run_command_list([
-                'efidebug boot add 1 HELLO host 0:1 /helloworld.efi.signed ""',
+                'efidebug boot add -b 1 HELLO host 0:1 /helloworld.efi.signed ""',
                 'efidebug boot next 1',
                 'bootefi bootmgr'])
             assert 'Hello, world!' in ''.join(output)
