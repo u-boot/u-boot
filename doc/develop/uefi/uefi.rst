@@ -180,6 +180,12 @@ Set up boot parameters on your board::
 
     efidebug boot add -b 1 HELLO mmc 0:1 /helloworld.efi.signed ""
 
+Since kernel 5.7 there's an alternative way of loading an initrd using
+LoadFile2 protocol if CONFIG_EFI_LOAD_FILE2_INITRD is enabled.
+The initrd path can be specified with::
+
+    efidebug boot add -b ABE0 'kernel' mmc 0:1 Image -i mmc 0:1 initrd
+
 Now your board can run the signed image via the boot manager (see below).
 You can also try this sequence by running Pytest, test_efi_secboot,
 on the sandbox
@@ -484,7 +490,21 @@ The load file 2 protocol can be used by the Linux kernel to load the initial
 RAM disk. U-Boot can be configured to provide an implementation with::
 
     EFI_LOAD_FILE2_INITRD=y
-    EFI_INITRD_FILESPEC=interface dev:part path_to_initrd
+
+When the option is enabled the user can add the initrd path with the efidebug
+command.
+
+Load options Boot#### have a FilePathList[] member.  The first element of
+the array (FilePathList[0]) is the EFI binary to execute.  When an initrd
+is specified the Device Path for the initrd is denoted by a VenMedia node
+with the EFI_INITRD_MEDIA_GUID. Each entry of the array is terminated by the
+'end of entire device path' subtype (0xff). If a user wants to define multiple
+initrds, those must by separated by the 'end of this instance' identifier of
+the end node (0x01).
+
+So our final format of the FilePathList[] is::
+
+    Loaded image - end node (0xff) - VenMedia - initrd_1 - [end node (0x01) - initrd_n ...] - end node (0xff)
 
 Links
 -----
