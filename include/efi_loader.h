@@ -744,6 +744,10 @@ struct efi_load_option {
 	const u8 *optional_data;
 };
 
+struct efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
+				       efi_uintn_t *size, efi_guid_t guid);
+struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
+				      const struct efi_device_path *dp2);
 efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
 					 efi_uintn_t *size);
 unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
