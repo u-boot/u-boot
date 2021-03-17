@@ -558,6 +558,11 @@ struct efi_simple_file_system_protocol *efi_simple_file_system(
 /* open file from device-path: */
 struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
 
+efi_status_t efi_file_size(struct efi_file_handle *fh, efi_uintn_t *size);
+
+/* get a device path from a Boot#### option */
+struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid);
+
 /**
  * efi_size_in_pages() - convert size in bytes to size in pages
  *
@@ -722,6 +727,8 @@ efi_status_t EFIAPI efi_query_variable_info(
 			u32 attributes, u64 *maximum_variable_storage_size,
 			u64 *remaining_variable_storage_size,
 			u64 *maximum_variable_size);
+
+void *efi_get_var(u16 *name, const efi_guid_t *vendor, efi_uintn_t *size);
 
 /*
  * See section 3.1.3 in the v2.7 UEFI spec for more details on
