@@ -33,7 +33,7 @@ config MVEBU_SPI_BOOT
 
 config MVEBU_MMC_BOOT
 	bool "eMMC flash boot"
-	depends on MVEBU_MMC
+	depends on MVEBU_MMC || MMC_SDHCI_XENON
 	help
 	  Enable boot from eMMC boot partition
 	  Allow usage of eMMC/SD device as a target for "bubt" command
