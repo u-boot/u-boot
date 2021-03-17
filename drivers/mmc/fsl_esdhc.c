@@ -518,6 +518,24 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	while (sdhc_clk / (div * pre_div) > clock && div < 16)
 		div++;
 
+	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_A011334) &&
+	    clock == 200000000 && mmc->selected_mode == MMC_HS_400) {
+		u32 div_ratio = pre_div * div;
+
+		if (div_ratio <= 4) {
+			pre_div = 4;
+			div = 1;
+		} else if (div_ratio <= 8) {
+			pre_div = 4;
+			div = 2;
+		} else if (div_ratio <= 12) {
+			pre_div = 4;
+			div = 3;
+		} else {
+			printf("unsupported clock division.\n");
+		}
+	}
+
 	mmc->clock = sdhc_clk / pre_div / div;
 	priv->clock = mmc->clock;
 
@@ -1063,8 +1081,13 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	struct fsl_esdhc *regs = priv->esdhc_regs;
+	struct mmc *mmc = &plat->mmc;
 	u32 val, irqstaten;
 	int i;
+
+	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_A011334) &&
+	    plat->mmc.hs400_tuning)
+		set_sysctl(priv, mmc, mmc->clock);
 
 	esdhc_tuning_block_enable(priv, true);
 	esdhc_setbits32(&regs->autoc12err, EXECUTE_TUNING);
@@ -1073,7 +1096,7 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 	esdhc_write32(&regs->irqstaten, IRQSTATEN_BRR);
 
 	for (i = 0; i < MAX_TUNING_LOOP; i++) {
-		mmc_send_tuning(&plat->mmc, opcode, NULL);
+		mmc_send_tuning(mmc, opcode, NULL);
 		mdelay(1);
 
 		val = esdhc_read32(&regs->autoc12err);
