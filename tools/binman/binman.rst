@@ -2,7 +2,7 @@
 .. Copyright (c) 2016 Google, Inc
 
 Introduction
-------------
+============
 
 Firmware often consists of several components which must be packaged together.
 For example, we may have SPL, U-Boot, a device tree and an environment area
@@ -137,6 +137,9 @@ the boundaries between building input files (mkimage) and packaging then
 into a final image (binman).
 
 
+Using binman
+============
+
 Example use of binman in U-Boot
 -------------------------------
 
@@ -230,8 +233,111 @@ You can use other, more specific CONFIG options - see 'Automatic .dtsi
 inclusion' below.
 
 
+Access to binman entry offsets at run time (symbols)
+----------------------------------------------------
+
+Binman assembles images and determines where each entry is placed in the image.
+This information may be useful to U-Boot at run time. For example, in SPL it
+is useful to be able to find the location of U-Boot so that it can be executed
+when SPL is finished.
+
+Binman allows you to declare symbols in the SPL image which are filled in
+with their correct values during the build. For example::
+
+    binman_sym_declare(ulong, u_boot_any, image_pos);
+
+declares a ulong value which will be assigned to the image-pos of any U-Boot
+image (u-boot.bin, u-boot.img, u-boot-nodtb.bin) that is present in the image.
+You can access this value with something like::
+
+    ulong u_boot_offset = binman_sym(ulong, u_boot_any, image_pos);
+
+Thus u_boot_offset will be set to the image-pos of U-Boot in memory, assuming
+that the whole image has been loaded, or is available in flash. You can then
+jump to that address to start U-Boot.
+
+At present this feature is only supported in SPL and TPL. In principle it is
+possible to fill in such symbols in U-Boot proper, as well, but a future C
+library is planned for this instead, to read from the device tree.
+
+As well as image-pos, it is possible to read the size of an entry and its
+offset (which is the start position of the entry within its parent).
+
+A small technical note: Binman automatically adds the base address of the image
+(i.e. __image_copy_start) to the value of the image-pos symbol, so that when the
+image is loaded to its linked address, the value will be correct and actually
+point into the image.
+
+For example, say SPL is at the start of the image and linked to start at address
+80108000. If U-Boot's image-pos is 0x8000 then binman will write an image-pos
+for U-Boot of 80110000 into the SPL binary, since it assumes the image is loaded
+to 80108000, with SPL at 80108000 and U-Boot at 80110000.
+
+For x86 devices (with the end-at-4gb property) this base address is not added
+since it is assumed that images are XIP and the offsets already include the
+address.
+
+
+Access to binman entry offsets at run time (fdt)
+------------------------------------------------
+
+Binman can update the U-Boot FDT to include the final position and size of
+each entry in the images it processes. The option to enable this is -u and it
+causes binman to make sure that the 'offset', 'image-pos' and 'size' properties
+are set correctly for every entry. Since it is not necessary to specify these in
+the image definition, binman calculates the final values and writes these to
+the device tree. These can be used by U-Boot at run-time to find the location
+of each entry.
+
+Alternatively, an FDT map entry can be used to add a special FDT containing
+just the information about the image. This is preceded by a magic string so can
+be located anywhere in the image. An image header (typically at the start or end
+of the image) can be used to point to the FDT map. See fdtmap and image-header
+entries for more information.
+
+
+Map files
+---------
+
+The -m option causes binman to output a .map file for each image that it
+generates. This shows the offset and size of each entry. For example::
+
+      Offset      Size  Name
+    00000000  00000028  main-section
+     00000000  00000010  section@0
+      00000000  00000004  u-boot
+     00000010  00000010  section@1
+      00000000  00000004  u-boot
+
+This shows a hierarchical image with two sections, each with a single entry. The
+offsets of the sections are absolute hex byte offsets within the image. The
+offsets of the entries are relative to their respective sections. The size of
+each entry is also shown, in bytes (hex). The indentation shows the entries
+nested inside their sections.
+
+
+Passing command-line arguments to entries
+-----------------------------------------
+
+Sometimes it is useful to pass binman the value of an entry property from the
+command line. For example some entries need access to files and it is not
+always convenient to put these filenames in the image definition (device tree).
+
+The-a option supports this::
+
+    -a<prop>=<value>
+
+where::
+
+    <prop> is the property to set
+    <value> is the value to set it to
+
+Not all properties can be provided this way. Only some entries support it,
+typically for filenames.
+
+
 Image description format
-------------------------
+========================
 
 The binman node is called 'binman'. An example image description is shown
 below::
@@ -528,6 +634,157 @@ allow-repack:
     image description to be stored in the FDT and fdtmap.
 
 
+Hashing Entries
+---------------
+
+It is possible to ask binman to hash the contents of an entry and write that
+value back to the device-tree node. For example::
+
+    binman {
+        u-boot {
+            hash {
+                algo = "sha256";
+            };
+        };
+    };
+
+Here, a new 'value' property will be written to the 'hash' node containing
+the hash of the 'u-boot' entry. Only SHA256 is supported at present. Whole
+sections can be hased if desired, by adding the 'hash' node to the section.
+
+The has value can be chcked at runtime by hashing the data actually read and
+comparing this has to the value in the device tree.
+
+
+Expanded entries
+----------------
+
+Binman automatically replaces 'u-boot' with an expanded version of that, i.e.
+'u-boot-expanded'. This means that when you write::
+
+    u-boot {
+    };
+
+you actually get::
+
+    u-boot {
+        type = "u-boot-expanded';
+    };
+
+which in turn expands to::
+
+    u-boot {
+        type = "section";
+
+        u-boot-nodtb {
+        };
+
+        u-boot-dtb {
+        };
+    };
+
+U-Boot's various phase binaries actually comprise two or three pieces.
+For example, u-boot.bin has the executable followed by a devicetree.
+
+With binman we want to be able to update that devicetree with full image
+information so that it is accessible to the executable. This is tricky
+if it is not clear where the devicetree starts.
+
+The above feature ensures that the devicetree is clearly separated from the
+U-Boot executable and can be updated separately by binman as needed. It can be
+disabled with the --no-expanded flag if required.
+
+The same applies for u-boot-spl and u-boot-spl. In those cases, the expansion
+includes the BSS padding, so for example::
+
+    spl {
+        type = "u-boot-spl"
+    };
+
+you actually get::
+
+    spl {
+        type = "u-boot-expanded';
+    };
+
+which in turn expands to::
+
+    spl {
+        type = "section";
+
+        u-boot-spl-nodtb {
+        };
+
+        u-boot-spl-bss-pad {
+        };
+
+        u-boot-spl-dtb {
+        };
+    };
+
+Of course we should not expand SPL if it has no devicetree. Also if the BSS
+padding is not needed (because BSS is in RAM as with CONFIG_SPL_SEPARATE_BSS),
+the 'u-boot-spl-bss-pad' subnode should not be created. The use of the expaned
+entry type is controlled by the UseExpanded() method. In the SPL case it checks
+the 'spl-dtb' entry arg, which is 'y' or '1' if SPL has a devicetree.
+
+For the BSS case, a 'spl-bss-pad' entry arg controls whether it is present. All
+entry args are provided by the U-Boot Makefile.
+
+
+Compression
+-----------
+
+Binman support compression for 'blob' entries (those of type 'blob' and
+derivatives). To enable this for an entry, add a 'compress' property::
+
+    blob {
+        filename = "datafile";
+        compress = "lz4";
+    };
+
+The entry will then contain the compressed data, using the 'lz4' compression
+algorithm. Currently this is the only one that is supported. The uncompressed
+size is written to the node in an 'uncomp-size' property, if -u is used.
+
+Compression is also supported for sections. In that case the entire section is
+compressed in one block, including all its contents. This means that accessing
+an entry from the section required decompressing the entire section. Also, the
+size of a section indicates the space that it consumes in its parent section
+(and typically the image). With compression, the section may contain more data,
+and the uncomp-size property indicates that, as above. The contents of the
+section is compressed first, before any padding is added. This ensures that the
+padding itself is not compressed, which would be a waste of time.
+
+
+Automatic .dtsi inclusion
+-------------------------
+
+It is sometimes inconvenient to add a 'binman' node to the .dts file for each
+board. This can be done by using #include to bring in a common file. Another
+approach supported by the U-Boot build system is to automatically include
+a common header. You can then put the binman node (and anything else that is
+specific to U-Boot, such as u-boot,dm-pre-reloc properies) in that header
+file.
+
+Binman will search for the following files in arch/<arch>/dts::
+
+   <dts>-u-boot.dtsi where <dts> is the base name of the .dts file
+   <CONFIG_SYS_SOC>-u-boot.dtsi
+   <CONFIG_SYS_CPU>-u-boot.dtsi
+   <CONFIG_SYS_VENDOR>-u-boot.dtsi
+   u-boot.dtsi
+
+U-Boot will only use the first one that it finds. If you need to include a
+more general file you can do that from the more specific file using #include.
+If you are having trouble figuring out what is going on, you can uncomment
+the 'warning' line in scripts/Makefile.lib to see what it has found::
+
+   # Uncomment for debugging
+   # This shows all the files that were considered and the one that we chose.
+   # u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
+
+
 Entry Documentation
 -------------------
 
@@ -536,6 +793,9 @@ see README.entries. This is generated from the source code using:
 
     binman entry-docs >tools/binman/README.entries
 
+
+Managing images
+===============
 
 Listing images
 --------------
@@ -653,27 +913,9 @@ by increasing the -v/--verbosity from the default of 1:
 
 You can use BINMAN_VERBOSE=5 (for example) when building to select this.
 
-Hashing Entries
----------------
 
-It is possible to ask binman to hash the contents of an entry and write that
-value back to the device-tree node. For example::
-
-    binman {
-        u-boot {
-            hash {
-                algo = "sha256";
-            };
-        };
-    };
-
-Here, a new 'value' property will be written to the 'hash' node containing
-the hash of the 'u-boot' entry. Only SHA256 is supported at present. Whole
-sections can be hased if desired, by adding the 'hash' node to the section.
-
-The has value can be chcked at runtime by hashing the data actually read and
-comparing this has to the value in the device tree.
-
+Technical details
+=================
 
 Order of image creation
 -----------------------
@@ -750,239 +992,6 @@ what happens in this stage.
 final step.
 
 
-Automatic .dtsi inclusion
--------------------------
-
-It is sometimes inconvenient to add a 'binman' node to the .dts file for each
-board. This can be done by using #include to bring in a common file. Another
-approach supported by the U-Boot build system is to automatically include
-a common header. You can then put the binman node (and anything else that is
-specific to U-Boot, such as u-boot,dm-pre-reloc properies) in that header
-file.
-
-Binman will search for the following files in arch/<arch>/dts::
-
-   <dts>-u-boot.dtsi where <dts> is the base name of the .dts file
-   <CONFIG_SYS_SOC>-u-boot.dtsi
-   <CONFIG_SYS_CPU>-u-boot.dtsi
-   <CONFIG_SYS_VENDOR>-u-boot.dtsi
-   u-boot.dtsi
-
-U-Boot will only use the first one that it finds. If you need to include a
-more general file you can do that from the more specific file using #include.
-If you are having trouble figuring out what is going on, you can uncomment
-the 'warning' line in scripts/Makefile.lib to see what it has found::
-
-   # Uncomment for debugging
-   # This shows all the files that were considered and the one that we chose.
-   # u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
-
-
-Access to binman entry offsets at run time (symbols)
-----------------------------------------------------
-
-Binman assembles images and determines where each entry is placed in the image.
-This information may be useful to U-Boot at run time. For example, in SPL it
-is useful to be able to find the location of U-Boot so that it can be executed
-when SPL is finished.
-
-Binman allows you to declare symbols in the SPL image which are filled in
-with their correct values during the build. For example::
-
-    binman_sym_declare(ulong, u_boot_any, image_pos);
-
-declares a ulong value which will be assigned to the image-pos of any U-Boot
-image (u-boot.bin, u-boot.img, u-boot-nodtb.bin) that is present in the image.
-You can access this value with something like::
-
-    ulong u_boot_offset = binman_sym(ulong, u_boot_any, image_pos);
-
-Thus u_boot_offset will be set to the image-pos of U-Boot in memory, assuming
-that the whole image has been loaded, or is available in flash. You can then
-jump to that address to start U-Boot.
-
-At present this feature is only supported in SPL and TPL. In principle it is
-possible to fill in such symbols in U-Boot proper, as well, but a future C
-library is planned for this instead, to read from the device tree.
-
-As well as image-pos, it is possible to read the size of an entry and its
-offset (which is the start position of the entry within its parent).
-
-A small technical note: Binman automatically adds the base address of the image
-(i.e. __image_copy_start) to the value of the image-pos symbol, so that when the
-image is loaded to its linked address, the value will be correct and actually
-point into the image.
-
-For example, say SPL is at the start of the image and linked to start at address
-80108000. If U-Boot's image-pos is 0x8000 then binman will write an image-pos
-for U-Boot of 80110000 into the SPL binary, since it assumes the image is loaded
-to 80108000, with SPL at 80108000 and U-Boot at 80110000.
-
-For x86 devices (with the end-at-4gb property) this base address is not added
-since it is assumed that images are XIP and the offsets already include the
-address.
-
-
-Access to binman entry offsets at run time (fdt)
-------------------------------------------------
-
-Binman can update the U-Boot FDT to include the final position and size of
-each entry in the images it processes. The option to enable this is -u and it
-causes binman to make sure that the 'offset', 'image-pos' and 'size' properties
-are set correctly for every entry. Since it is not necessary to specify these in
-the image definition, binman calculates the final values and writes these to
-the device tree. These can be used by U-Boot at run-time to find the location
-of each entry.
-
-Alternatively, an FDT map entry can be used to add a special FDT containing
-just the information about the image. This is preceded by a magic string so can
-be located anywhere in the image. An image header (typically at the start or end
-of the image) can be used to point to the FDT map. See fdtmap and image-header
-entries for more information.
-
-
-Expanded entries
-----------------
-
-Binman automatically replaces 'u-boot' with an expanded version of that, i.e.
-'u-boot-expanded'. This means that when you write::
-
-    u-boot {
-    };
-
-you actually get::
-
-    u-boot {
-        type = "u-boot-expanded';
-    };
-
-which in turn expands to::
-
-    u-boot {
-        type = "section";
-
-        u-boot-nodtb {
-        };
-
-        u-boot-dtb {
-        };
-    };
-
-U-Boot's various phase binaries actually comprise two or three pieces.
-For example, u-boot.bin has the executable followed by a devicetree.
-
-With binman we want to be able to update that devicetree with full image
-information so that it is accessible to the executable. This is tricky
-if it is not clear where the devicetree starts.
-
-The above feature ensures that the devicetree is clearly separated from the
-U-Boot executable and can be updated separately by binman as needed. It can be
-disabled with the --no-expanded flag if required.
-
-The same applies for u-boot-spl and u-boot-spl. In those cases, the expansion
-includes the BSS padding, so for example::
-
-    spl {
-        type = "u-boot-spl"
-    };
-
-you actually get::
-
-    spl {
-        type = "u-boot-expanded';
-    };
-
-which in turn expands to::
-
-    spl {
-        type = "section";
-
-        u-boot-spl-nodtb {
-        };
-
-        u-boot-spl-bss-pad {
-        };
-
-        u-boot-spl-dtb {
-        };
-    };
-
-
-Of course we should not expand SPL if it has no devicetree. Also if the BSS
-padding is not needed (because BSS is in RAM as with CONFIG_SPL_SEPARATE_BSS),
-the 'u-boot-spl-bss-pad' subnode should not be created. The use of the expaned
-entry type is controlled by the UseExpanded() method. In the SPL case it checks
-the 'spl-dtb' entry arg, which is 'y' or '1' if SPL has a devicetree.
-
-For the BSS case, a 'spl-bss-pad' entry arg controls whether it is present. All
-entry args are provided by the U-Boot Makefile.
-
-
-Compression
------------
-
-Binman support compression for 'blob' entries (those of type 'blob' and
-derivatives). To enable this for an entry, add a 'compress' property::
-
-    blob {
-        filename = "datafile";
-        compress = "lz4";
-    };
-
-The entry will then contain the compressed data, using the 'lz4' compression
-algorithm. Currently this is the only one that is supported. The uncompressed
-size is written to the node in an 'uncomp-size' property, if -u is used.
-
-Compression is also supported for sections. In that case the entire section is
-compressed in one block, including all its contents. This means that accessing
-an entry from the section required decompressing the entire section. Also, the
-size of a section indicates the space that it consumes in its parent section
-(and typically the image). With compression, the section may contain more data,
-and the uncomp-size property indicates that, as above. The contents of the
-section is compressed first, before any padding is added. This ensures that the
-padding itself is not compressed, which would be a waste of time.
-
-
-Map files
----------
-
-The -m option causes binman to output a .map file for each image that it
-generates. This shows the offset and size of each entry. For example::
-
-      Offset      Size  Name
-    00000000  00000028  main-section
-     00000000  00000010  section@0
-      00000000  00000004  u-boot
-     00000010  00000010  section@1
-      00000000  00000004  u-boot
-
-This shows a hierarchical image with two sections, each with a single entry. The
-offsets of the sections are absolute hex byte offsets within the image. The
-offsets of the entries are relative to their respective sections. The size of
-each entry is also shown, in bytes (hex). The indentation shows the entries
-nested inside their sections.
-
-
-Passing command-line arguments to entries
------------------------------------------
-
-Sometimes it is useful to pass binman the value of an entry property from the
-command line. For example some entries need access to files and it is not
-always convenient to put these filenames in the image definition (device tree).
-
-The-a option supports this::
-
-    -a<prop>=<value>
-
-where::
-
-    <prop> is the property to set
-    <value> is the value to set it to
-
-Not all properties can be provided this way. Only some entries support it,
-typically for filenames.
-
-
 External tools
 --------------
 
@@ -1050,8 +1059,8 @@ Then, you can run the tests under cross-compilation::
 You can also use gcc-i686-linux-gnu similar to the above.
 
 
-Advanced Features / Technical docs
-----------------------------------
+Writing new entries and debugging
+---------------------------------
 
 The behaviour of entries is defined by the Entry class. All other entries are
 a subclass of this. An important subclass is Entry_blob which takes binary
