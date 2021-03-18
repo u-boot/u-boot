@@ -9,39 +9,43 @@ For example, we may have SPL, U-Boot, a device tree and an environment area
 grouped together and placed in MMC flash. When the system starts, it must be
 able to find these pieces.
 
-So far U-Boot has not provided a way to handle creating such images in a
-general way. Each SoC does what it needs to build an image, often packing or
-concatenating images in the U-Boot build system.
-
-Binman aims to provide a mechanism for building images, from simple
-SPL + U-Boot combinations, to more complex arrangements with many parts.
+Building firmware should be separate from packaging it. Many of the complexities
+of modern firmware build systems come from trying to do both at once. With
+binman, you build all the pieces that are needed, using whatever assortment of
+projects and build systems are needed, then use binman to stitch everything
+together.
 
 
 What it does
 ------------
 
 Binman reads your board's device tree and finds a node which describes the
-required image layout. It uses this to work out what to place where. The
-output file normally contains the device tree, so it is in principle possible
-to read an image and extract its constituent parts.
+required image layout. It uses this to work out what to place where.
+
+Binman provides a mechanism for building images, from simple SPL + U-Boot
+combinations, to more complex arrangements with many parts. It also allows
+users to inspect images, extract and replace binaries within them, repacking if
+needed.
 
 
 Features
 --------
 
-So far binman is pretty simple. It supports binary blobs, such as 'u-boot',
-'spl' and 'fdt'. It supports empty entries (such as setting to 0xff). It can
-place entries at a fixed location in the image, or fit them together with
-suitable padding and alignment. It provides a way to process binaries before
-they are included, by adding a Python plug-in. The device tree is available
-to U-Boot at run-time so that the images can be interpreted.
+Apart from basic padding, alignment and positioning features, Binman supports
+hierarchical images, compression, hashing and dealing with the binary blobs
+which are a sad trend in open-source firmware at present.
 
-Binman can update the device tree with the final location of everything when it
-is done. Entry positions can be provided to U-Boot SPL as run-time symbols,
-avoiding device-tree code overhead.
+Executable binaries can access the location of other binaries in an image by
+using special linker symbols (zero-overhead but somewhat limited) or by reading
+the devicetree description of the image.
 
-Binman can also support incorporating filesystems in the image if required.
-For example x86 platforms may use CBFS in some cases.
+Binman is designed primarily for use with U-Boot and associated binaries such
+as ARM Trusted Firmware, but it is suitable for use with other projects, such
+as Zephyr. Binman also provides facilities useful in Chromium OS, such as CBFS,
+vblocks and and the like.
+
+Binman provides a way to process binaries before they are included, by adding a
+Python plug-in.
 
 Binman is intended for use with U-Boot but is designed to be general enough
 to be useful in other image-packaging situations.
@@ -50,11 +54,11 @@ to be useful in other image-packaging situations.
 Motivation
 ----------
 
-Packaging of firmware is quite a different task from building the various
-parts. In many cases the various binaries which go into the image come from
-separate build systems. For example, ARM Trusted Firmware is used on ARMv8
-devices but is not built in the U-Boot tree. If a Linux kernel is included
-in the firmware image, it is built elsewhere.
+As mentioned above, packaging of firmware is quite a different task from
+building the various parts. In many cases the various binaries which go into
+the image come from separate build systems. For example, ARM Trusted Firmware
+is used on ARMv8 devices but is not built in the U-Boot tree. If a Linux kernel
+is included in the firmware image, it is built elsewhere.
 
 It is of course possible to add more and more build rules to the U-Boot
 build system to cover these cases. It can shell out to other Makefiles and
@@ -215,17 +219,12 @@ Binman has a few other options which you can see by running 'binman -h'.
 Enabling binman for a board
 ---------------------------
 
-At present binman is invoked from a rule in the main Makefile. Typically you
-will have a rule like::
+At present binman is invoked from a rule in the main Makefile. You should be
+able to enable CONFIG_BINMAN to enable this rule.
 
-    ifneq ($(CONFIG_ARCH_<something>),)
-    u-boot-<your_suffix>.bin: <input_file_1> <input_file_2> checkbinman FORCE
-        $(call if_changed,binman)
-    endif
-
-This assumes that u-boot-<your_suffix>.bin is a target, and is the final file
-that you need to produce. You can make it a target by adding it to INPUTS-y
-either in the main Makefile or in a config.mk file in your arch subdirectory.
+The output file is typically named image.bin and is located in the output
+directory. If input files are needed to you add these to INPUTS-y either in the
+main Makefile or in a config.mk file in your arch subdirectory.
 
 Once binman is executed it will pick up its instructions from a device-tree
 file, typically <soc>-u-boot.dtsi, where <soc> is your CONFIG_SYS_SOC value.
@@ -786,12 +785,17 @@ the 'warning' line in scripts/Makefile.lib to see what it has found::
 
 
 Entry Documentation
--------------------
+===================
 
 For details on the various entry types supported by binman and how to use them,
-see README.entries. This is generated from the source code using:
+see entries.rst which is generated from the source code using:
 
-    binman entry-docs >tools/binman/README.entries
+    binman entry-docs >tools/binman/entries.rst
+
+.. toctree::
+   :maxdepth: 2
+
+   entries
 
 
 Managing images
@@ -1136,7 +1140,8 @@ To do
 Some ideas:
 
 - Use of-platdata to make the information available to code that is unable
-  to use device tree (such as a very small SPL image)
+  to use device tree (such as a very small SPL image). For now, limited info is
+  available via linker symbols
 - Allow easy building of images by specifying just the board name
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
