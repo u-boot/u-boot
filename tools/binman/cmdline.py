@@ -56,6 +56,9 @@ controlled by a description in the board device tree.'''
         default=False, help='Output a map file for each image')
     build_parser.add_argument('-M', '--allow-missing', action='store_true',
         default=False, help='Allow external blobs to be missing')
+    build_parser.add_argument('-n', '--no-expanded', action='store_true',
+            help="Don't use 'expanded' versions of entries where available; "
+                 "normally 'u-boot' becomes 'u-boot-expanded', for example")
     build_parser.add_argument('-O', '--outdir', type=str,
         action='store', help='Path to directory to use for intermediate and '
         'output files')

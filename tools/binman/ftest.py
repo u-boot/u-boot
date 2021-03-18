@@ -305,7 +305,8 @@ class TestFunctional(unittest.TestCase):
 
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
                     entry_args=None, images=None, use_real_dtb=False,
-                    verbosity=None, allow_missing=False, extra_indirs=None):
+                    use_expanded=False, verbosity=None, allow_missing=False,
+                    extra_indirs=None):
         """Run binman with a given test file
 
         Args:
@@ -322,6 +323,8 @@ class TestFunctional(unittest.TestCase):
                 the u-boot-dtb entry. Normally this is not needed and the
                 test contents (the U_BOOT_DTB_DATA string) can be used.
                 But in some test we need the real contents.
+            use_expanded: True to use expanded entries where available, e.g.
+                'u-boot-expanded' instead of 'u-boot'
             verbosity: Verbosity level to use (0-3, None=don't set it)
             allow_missing: Set the '--allow-missing' flag so that missing
                 external binaries just produce a warning instead of an error
@@ -344,6 +347,8 @@ class TestFunctional(unittest.TestCase):
             args.append('-u')
         if not use_real_dtb:
             args.append('--fake-dtb')
+        if not use_expanded:
+            args.append('--no-expanded')
         if entry_args:
             for arg, value in entry_args.items():
                 args.append('-a%s=%s' % (arg, value))
@@ -403,9 +408,9 @@ class TestFunctional(unittest.TestCase):
         dtb.Pack()
         return dtb.GetContents()
 
-    def _DoReadFileDtb(self, fname, use_real_dtb=False, map=False,
-                       update_dtb=False, entry_args=None, reset_dtbs=True,
-                       extra_indirs=None):
+    def _DoReadFileDtb(self, fname, use_real_dtb=False, use_expanded=False,
+                       map=False, update_dtb=False, entry_args=None,
+                       reset_dtbs=True, extra_indirs=None):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -420,6 +425,8 @@ class TestFunctional(unittest.TestCase):
                 the u-boot-dtb entry. Normally this is not needed and the
                 test contents (the U_BOOT_DTB_DATA string) can be used.
                 But in some test we need the real contents.
+            use_expanded: True to use expanded entries where available, e.g.
+                'u-boot-expanded' instead of 'u-boot'
             map: True to output map files for the images
             update_dtb: Update the offset and size of each entry in the device
                 tree before packing it into the image
@@ -454,7 +461,7 @@ class TestFunctional(unittest.TestCase):
         try:
             retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
                     entry_args=entry_args, use_real_dtb=use_real_dtb,
-                    extra_indirs=extra_indirs)
+                    use_expanded=use_expanded, extra_indirs=extra_indirs)
             self.assertEqual(0, retcode)
             out_dtb_fname = tools.GetOutputFilename('u-boot.dtb.out')
 
@@ -652,7 +659,7 @@ class TestFunctional(unittest.TestCase):
         """Test that we can run it with a specific board"""
         self._SetupDtb('005_simple.dts', 'sandbox/u-boot.dtb')
         TestFunctional._MakeInputFile('sandbox/u-boot.bin', U_BOOT_DATA)
-        result = self._DoBinman('build', '-b', 'sandbox')
+        result = self._DoBinman('build', '-n', '-b', 'sandbox')
         self.assertEqual(0, result)
 
     def testNeedBoard(self):
