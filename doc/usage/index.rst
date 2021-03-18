@@ -5,6 +5,7 @@ Use U-Boot
    :maxdepth: 1
 
    fdt_overlays
+   fit
    netconsole
    partitions
 

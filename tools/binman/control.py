@@ -569,7 +569,7 @@ def Binman(args):
         if not pager:
             pager = 'more'
         fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                            'README')
+                            'README.rst')
         command.Run(pager, fname)
         return 0
 

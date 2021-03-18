@@ -7,6 +7,6 @@ setup(name='binman',
       scripts=['binman'],
       packages=['binman', 'binman.etype'],
       package_dir={'binman': ''},
-      package_data={'binman': ['README', 'README.entries']},
+      package_data={'binman': ['README.rst', 'README.entries']},
       classifiers=['Environment :: Console',
                    'Topic :: Software Development :: Embedded Systems'])

@@ -631,7 +631,7 @@ class TestFunctional(unittest.TestCase):
     def testFullHelp(self):
         """Test that the full help is displayed with -H"""
         result = self._RunBinman('-H')
-        help_file = os.path.join(self._binman_dir, 'README')
+        help_file = os.path.join(self._binman_dir, 'README.rst')
         # Remove possible extraneous strings
         extra = '::::::::::::::\n' + help_file + '\n::::::::::::::\n'
         gothelp = result.stdout.replace(extra, '')
@@ -644,7 +644,7 @@ class TestFunctional(unittest.TestCase):
         try:
             command.test_result = command.CommandResult()
             result = self._DoBinman('-H')
-            help_file = os.path.join(self._binman_dir, 'README')
+            help_file = os.path.join(self._binman_dir, 'README.rst')
         finally:
             command.test_result = None
 

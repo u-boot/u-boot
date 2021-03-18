@@ -26,6 +26,14 @@ Debugging
    crash_dumps
    trace
 
+Packaging
+---------
+
+.. toctree::
+   :maxdepth: 1
+
+   package/index
+
 Testing
 -------
 
