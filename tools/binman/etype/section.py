@@ -126,12 +126,6 @@ class Entry_section(Entry):
         return True
 
     def ExpandEntries(self):
-        """Expand out any entries which have calculated sub-entries
-
-        Some entries are expanded out at runtime, e.g. 'files', which produces
-        a section containing a list of files. Process these entries so that
-        this information is added to the device tree.
-        """
         super().ExpandEntries()
         for entry in self._entries.values():
             entry.ExpandEntries()
