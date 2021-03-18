@@ -13,6 +13,7 @@ Implementation
    global_data
    logging
    menus
+   uefi/index
    version
 
 Debugging
