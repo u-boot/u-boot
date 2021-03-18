@@ -302,6 +302,7 @@ Properties / Entry arguments:
     - files-compress: Compression algorithm to use:
         none: No compression
         lz4: Use lz4 compression (via 'lz4' command-line utility)
+    - files-align: Align each file to the given alignment
 
 This entry reads a number of files and places each in a separate sub-entry
 within this entry. To access these you need to enable device-tree updates
