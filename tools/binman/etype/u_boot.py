@@ -16,7 +16,7 @@ class Entry_u_boot(Entry_blob):
 
     This is the U-Boot binary, containing relocation information to allow it
     to relocate itself at runtime. The binary typically includes a device tree
-    blob at the end of it. Use u_boot_nodtb if you want to package the device
+    blob at the end of it. Use u-boot-nodtb if you want to package the device
     tree separately.
 
     U-Boot can access binman symbols at runtime. See:
