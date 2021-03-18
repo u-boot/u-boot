@@ -4256,6 +4256,12 @@ class TestFunctional(unittest.TestCase):
 
         self.assertEquals(U_BOOT_DATA, u_boot.ReadData())
 
+    def testTplNoDtb(self):
+        """Test that an image with tpl/u-boot-tpl-nodtb.bin can be created"""
+        data = self._DoReadFile('192_u_boot_tpl_nodtb.dts')
+        self.assertEqual(U_BOOT_TPL_NODTB_DATA,
+                         data[:len(U_BOOT_TPL_NODTB_DATA)])
+
 
 if __name__ == "__main__":
     unittest.main()
