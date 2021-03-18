@@ -188,17 +188,16 @@ def Prepare(images, dtb):
             output_fdt_info[etype] = [dtb, fname]
     else:
         fdt_set = {}
-        for image in images.values():
-            fdt_set.update(image.GetFdts())
-        for etype, other in fdt_set.items():
-            entry, fname = other
-            infile = tools.GetInputFilename(fname)
-            fname_dtb = fdt_util.EnsureCompiled(infile)
-            out_fname = tools.GetOutputFilename('%s.out' %
-                    os.path.split(fname)[1])
-            tools.WriteFile(out_fname, tools.ReadFile(fname_dtb))
-            other_dtb = fdt.FdtScan(out_fname)
-            output_fdt_info[etype] = [other_dtb, out_fname]
+        for etype, fname in DTB_TYPE_FNAME.items():
+            infile = tools.GetInputFilename(fname, allow_missing=True)
+            if infile and os.path.exists(infile):
+                fname_dtb = fdt_util.EnsureCompiled(infile)
+                out_fname = tools.GetOutputFilename('%s.out' %
+                        os.path.split(fname)[1])
+                tools.WriteFile(out_fname, tools.ReadFile(fname_dtb))
+                other_dtb = fdt.FdtScan(out_fname)
+                output_fdt_info[etype] = [other_dtb, out_fname]
+
 
 def PrepareFromLoadedData(image):
     """Get device tree files ready for use with a loaded image

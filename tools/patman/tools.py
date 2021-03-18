@@ -130,8 +130,12 @@ def GetInputFilename(fname, allow_missing=False):
         allow_missing: True if the filename can be missing
 
     Returns:
-        The full path of the filename, within the input directory, or
-        None on error
+        fname, if indir is None;
+        full path of the filename, within the input directory;
+        None, if file is missing and allow_missing is True
+
+    Raises:
+        ValueError if file is missing and allow_missing is False
     """
     if not indir or fname[:1] == '/':
         return fname
