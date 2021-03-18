@@ -50,6 +50,14 @@
 	ps-clk-frequency = <33333333>;
 };
 
+&nand0 {
+	status = "okay";
+};
+
+&smcc {
+	status = "okay";
+};
+
 &gem0 {
 	status = "okay";
 	phy-mode = "rgmii-id";
