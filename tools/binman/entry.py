@@ -205,7 +205,7 @@ class Entry(object):
             Dict:
                 key: Filename from this entry (without the path)
                 value: Tuple:
-                    Fdt object for this dtb, or None if not available
+                    Entry object for this dtb
                     Filename of file containing this dtb
         """
         return {}
