@@ -241,7 +241,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
         # If this entry has children, create a directory for it and put its
         # data in a file called 'root' in that directory
         if entry.GetEntries():
-            if not os.path.exists(fname):
+            if fname and not os.path.exists(fname):
                 os.makedirs(fname)
             fname = os.path.join(fname, 'root')
         tout.Notice("Write entry '%s' size %x to '%s'" %
