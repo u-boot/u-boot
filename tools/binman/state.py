@@ -23,11 +23,10 @@ DTB_TYPE_FNAME = {
 # 'u-boot-spl-dtb'). These are the output FDT files, which can be updated by
 # binman. They have been copied to <xxx>.out files.
 #
-#   key: entry type
+#   key: entry type (e.g. 'u-boot-dtb)
 #   value: tuple:
 #       Fdt object
 #       Filename
-#       Entry object, or None if not known
 output_fdt_info = {}
 
 # Prefix to add to an fdtmap path to turn it into a path to the /binman node
@@ -124,11 +123,11 @@ def UpdateFdtContents(etype, data):
         etype: Entry type (e.g. 'u-boot-dtb')
         data: Data to replace the DTB with
     """
-    dtb, fname, entry = output_fdt_info[etype]
+    dtb, fname = output_fdt_info[etype]
     dtb_fname = dtb.GetFilename()
     tools.WriteFile(dtb_fname, data)
     dtb = fdt.FdtScan(dtb_fname)
-    output_fdt_info[etype] = [dtb, fname, entry]
+    output_fdt_info[etype] = [dtb, fname]
 
 def SetEntryArgs(args):
     """Set the value of the entry args
@@ -183,10 +182,10 @@ def Prepare(images, dtb):
     main_dtb = dtb
     output_fdt_info.clear()
     fdt_path_prefix = ''
-    output_fdt_info['u-boot-dtb'] = [dtb, 'u-boot.dtb', None]
+    output_fdt_info['u-boot-dtb'] = [dtb, 'u-boot.dtb']
     if use_fake_dtb:
         for etype, fname in DTB_TYPE_FNAME.items():
-            output_fdt_info[etype] = [dtb, fname, None]
+            output_fdt_info[etype] = [dtb, fname]
     else:
         fdt_set = {}
         for image in images.values():
@@ -199,7 +198,7 @@ def Prepare(images, dtb):
                     os.path.split(fname)[1])
             tools.WriteFile(out_fname, tools.ReadFile(fname_dtb))
             other_dtb = fdt.FdtScan(out_fname)
-            output_fdt_info[etype] = [other_dtb, out_fname, entry]
+            output_fdt_info[etype] = [other_dtb, out_fname]
 
 def PrepareFromLoadedData(image):
     """Get device tree files ready for use with a loaded image
@@ -222,7 +221,7 @@ def PrepareFromLoadedData(image):
     tout.Info('Preparing device trees')
     output_fdt_info.clear()
     fdt_path_prefix = ''
-    output_fdt_info['fdtmap'] = [image.fdtmap_dtb, 'u-boot.dtb', None]
+    output_fdt_info['fdtmap'] = [image.fdtmap_dtb, 'u-boot.dtb']
     main_dtb = None
     tout.Info("   Found device tree type 'fdtmap' '%s'" % image.fdtmap_dtb.name)
     for etype, value in image.GetFdts().items():
@@ -240,7 +239,7 @@ def PrepareFromLoadedData(image):
         if 'multiple-images' in image_node.props:
             image_node = dtb.GetNode('/binman/%s' % image.image_node)
         fdt_path_prefix = image_node.path
-        output_fdt_info[etype] = [dtb, None, entry]
+        output_fdt_info[etype] = [dtb, None]
     tout.Info("   FDT path prefix '%s'" % fdt_path_prefix)
 
 
@@ -275,12 +274,11 @@ def GetUpdateNodes(node, for_repack=False):
             is node, SPL and TPL)
     """
     yield node
-    for dtb, fname, entry in output_fdt_info.values():
+    for entry_type, (dtb, fname) in output_fdt_info.items():
         if dtb != node.GetFdt():
-            if for_repack and entry.etype != 'u-boot-dtb':
+            if for_repack and entry_type != 'u-boot-dtb':
                 continue
             other_node = dtb.GetNode(fdt_path_prefix + node.path)
-            #print('   try', fdt_path_prefix + node.path, other_node)
             if other_node:
                 yield other_node
 
