@@ -13,6 +13,12 @@ import os
 from patman import tools
 from patman import tout
 
+# Map an dtb etype to its expected filename
+DTB_TYPE_FNAME = {
+    'u-boot-spl-dtb': 'spl/u-boot-spl.dtb',
+    'u-boot-tpl-dtb': 'tpl/u-boot-tpl.dtb',
+    }
+
 # Records the device-tree files known to binman, keyed by entry type (e.g.
 # 'u-boot-spl-dtb'). These are the output FDT files, which can be updated by
 # binman. They have been copied to <xxx>.out files.
@@ -178,19 +184,20 @@ def Prepare(images, dtb):
     output_fdt_info.clear()
     fdt_path_prefix = ''
     output_fdt_info['u-boot-dtb'] = [dtb, 'u-boot.dtb', None]
-    output_fdt_info['u-boot-spl-dtb'] = [dtb, 'spl/u-boot-spl.dtb', None]
-    output_fdt_info['u-boot-tpl-dtb'] = [dtb, 'tpl/u-boot-tpl.dtb', None]
-    if not use_fake_dtb:
+    if use_fake_dtb:
+        for etype, fname in DTB_TYPE_FNAME.items():
+            output_fdt_info[etype] = [dtb, fname, None]
+    else:
         fdt_set = {}
         for image in images.values():
             fdt_set.update(image.GetFdts())
         for etype, other in fdt_set.items():
-            entry, other_fname = other
-            infile = tools.GetInputFilename(other_fname)
-            other_fname_dtb = fdt_util.EnsureCompiled(infile)
+            entry, fname = other
+            infile = tools.GetInputFilename(fname)
+            fname_dtb = fdt_util.EnsureCompiled(infile)
             out_fname = tools.GetOutputFilename('%s.out' %
-                    os.path.split(other_fname)[1])
-            tools.WriteFile(out_fname, tools.ReadFile(other_fname_dtb))
+                    os.path.split(fname)[1])
+            tools.WriteFile(out_fname, tools.ReadFile(fname_dtb))
             other_dtb = fdt.FdtScan(out_fname)
             output_fdt_info[etype] = [other_dtb, out_fname, entry]
 
