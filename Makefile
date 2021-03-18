@@ -1332,6 +1332,11 @@ u-boot.ldr:	u-boot
 # Use 'make BINMAN_DEBUG=1' to enable debugging
 # Use 'make BINMAN_VERBOSE=3' to set vebosity level
 default_dt := $(if $(DEVICE_TREE),$(DEVICE_TREE),$(CONFIG_DEFAULT_DEVICE_TREE))
+
+# Tell binman whether we have a devicetree for SPL and TPL
+have_spl_dt := $(if $(CONFIG_SPL_OF_PLATDATA),,$(CONFIG_SPL_OF_CONTROL))
+have_tpl_dt := $(if $(CONFIG_TPL_OF_PLATDATA),,$(CONFIG_TPL_OF_CONTROL))
+
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
                 --toolpath $(objtree)/tools \
@@ -1342,6 +1347,9 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-a atf-bl31-path=${BL31} \
 		-a default-dt=$(default_dt) \
 		-a scp-path=$(SCP) \
+		-a spl-bss-pad=$(if $(CONFIG_SPL_SEPARATE_BSS),,1) \
+		-a tpl-bss-pad=$(if $(CONFIG_TPL_SEPARATE_BSS),,1) \
+		-a spl-dtb=$(have_spl_dt) -a tpl-dtb=$(have_tpl_dt) \
 		$(BINMAN_$(@F))
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
