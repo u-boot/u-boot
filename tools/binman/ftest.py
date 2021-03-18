@@ -1337,20 +1337,42 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('052_u_boot_spl_nodtb.dts')
         self.assertEqual(U_BOOT_SPL_NODTB_DATA, data[:len(U_BOOT_SPL_NODTB_DATA)])
 
-    def testSymbols(self):
-        """Test binman can assign symbols embedded in U-Boot"""
+    def checkSymbols(self, dts, base_data, u_boot_offset):
+        """Check the image contains the expected symbol values
+
+        Args:
+            dts: Device tree file to use for test
+            base_data: Data before and after 'u-boot' section
+            u_boot_offset: Offset of 'u-boot' section in image
+        """
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
         syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
         addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
-        self.assertEqual(syms['_binman_u_boot_spl_prop_offset'].address, addr)
+        self.assertEqual(syms['_binman_u_boot_spl_any_prop_offset'].address,
+                         addr)
 
         self._SetupSplElf('u_boot_binman_syms')
-        data = self._DoReadFile('053_symbols.dts')
-        sym_values = struct.pack('<LQLL', 0x00, 0x1c, 0x28, 0x04)
-        expected = (sym_values + U_BOOT_SPL_DATA[20:] +
+        data = self._DoReadFile(dts)
+        # The image should contain the symbols from u_boot_binman_syms.c
+        # Note that image_pos is adjusted by the base address of the image,
+        # which is 0x10 in our test image
+        sym_values = struct.pack('<LQLL', 0x00,
+                                 u_boot_offset + len(U_BOOT_DATA),
+                                 0x10 + u_boot_offset, 0x04)
+        expected = (sym_values + base_data[20:] +
                     tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
-                    U_BOOT_SPL_DATA[20:])
+                    base_data[20:])
         self.assertEqual(expected, data)
+
+    def testSymbols(self):
+        """Test binman can assign symbols embedded in U-Boot"""
+        self.checkSymbols('053_symbols.dts', U_BOOT_SPL_DATA, 0x18)
+
+    def testSymbolsNoDtb(self):
+        """Test binman can assign symbols embedded in U-Boot SPL"""
+        self.checkSymbols('192_symbols_nodtb.dts',
+                          U_BOOT_SPL_NODTB_DATA + U_BOOT_SPL_DTB_DATA,
+                          0x38)
 
     def testPackUnitAddress(self):
         """Test that we support multiple binaries with the same name"""
@@ -4186,18 +4208,7 @@ class TestFunctional(unittest.TestCase):
 
     def testSymbolsSubsection(self):
         """Test binman can assign symbols from a subsection"""
-        elf_fname = self.ElfTestFile('u_boot_binman_syms')
-        syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
-        addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
-        self.assertEqual(syms['_binman_u_boot_spl_prop_offset'].address, addr)
-
-        self._SetupSplElf('u_boot_binman_syms')
-        data = self._DoReadFile('187_symbols_sub.dts')
-        sym_values = struct.pack('<LQLL', 0x00, 0x1c, 0x28, 0x04)
-        expected = (sym_values + U_BOOT_SPL_DATA[20:] +
-                    tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
-                    U_BOOT_SPL_DATA[20:])
-        self.assertEqual(expected, data)
+        self.checkSymbols('187_symbols_sub.dts', U_BOOT_SPL_DATA, 0x18)
 
     def testReadImageEntryArg(self):
         """Test reading an image that would need an entry arg to generate"""

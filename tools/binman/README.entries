@@ -1011,6 +1011,15 @@ a device tree to operate on your platform. You can add a u-boot-spl-dtb
 entry after this one, or use a u-boot-spl entry instead (which contains
 both SPL and the device tree).
 
+SPL can access binman symbols at runtime. See:
+
+    'Access to binman entry offsets at run time (symbols)'
+
+in the binman README for more information.
+
+The ELF file 'spl/u-boot-spl' must also be available for this to work, since
+binman uses that to look up symbols to write into the SPL binary.
+
 
 
 Entry: u-boot-spl-with-ucode-ptr: U-Boot SPL with embedded microcode pointer
