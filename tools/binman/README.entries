@@ -1056,6 +1056,28 @@ binman uses that to look up symbols to write into the TPL binary.
 
 
 
+Entry: u-boot-tpl-bss-pad: U-Boot TPL binary padded with a BSS region
+---------------------------------------------------------------------
+
+Properties / Entry arguments:
+    None
+
+This holds the padding added after the TPL binary to cover the BSS (Block
+Started by Symbol) region. This region holds the various variables used by
+TPL. It is set to 0 by TPL when it starts up. If you want to append data to
+the TPL image (such as a device tree file), you must pad out the BSS region
+to avoid the data overlapping with U-Boot variables. This entry is useful in
+that case. It automatically pads out the entry size to cover both the code,
+data and BSS.
+
+The contents of this entry will a certain number of zero bytes, determined
+by __bss_size
+
+The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
+binman uses that to look up the BSS address.
+
+
+
 Entry: u-boot-tpl-dtb: U-Boot TPL device tree
 ---------------------------------------------
 

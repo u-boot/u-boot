@@ -4262,6 +4262,22 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(U_BOOT_TPL_NODTB_DATA,
                          data[:len(U_BOOT_TPL_NODTB_DATA)])
 
+    def testTplBssPad(self):
+        """Test that we can pad TPL's BSS with zeros"""
+        # ELF file with a '__bss_size' symbol
+        self._SetupTplElf()
+        data = self._DoReadFile('193_tpl_bss_pad.dts')
+        self.assertEqual(U_BOOT_TPL_DATA + tools.GetBytes(0, 10) + U_BOOT_DATA,
+                         data)
+
+    def testTplBssPadMissing(self):
+        """Test that a missing symbol is detected"""
+        self._SetupTplElf('u_boot_ucode_ptr')
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('193_tpl_bss_pad.dts')
+        self.assertIn('Expected __bss_size symbol in tpl/u-boot-tpl',
+                      str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
