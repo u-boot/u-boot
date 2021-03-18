@@ -38,17 +38,6 @@ want to contribute to U-Boot.
 
    develop/index
 
-Driver-Model documentation
---------------------------
-
-The following holds information on the U-Boot device driver framework:
-driver-model, including the design details of itself and several driver
-subsystems.
-
-.. toctree::
-   :maxdepth: 2
-
-   driver-model/index
 
 U-Boot API documentation
 ------------------------

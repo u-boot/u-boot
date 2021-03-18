@@ -10,6 +10,7 @@ Implementation
    :maxdepth: 1
 
    commands
+   driver-model/index
    global_data
    logging
    menus
