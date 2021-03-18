@@ -4285,6 +4285,180 @@ class TestFunctional(unittest.TestCase):
         self.assertIn('Expected __bss_size symbol in tpl/u-boot-tpl',
                       str(e.exception))
 
+    def checkDtbSizes(self, data, pad_len, start):
+        """Check the size arguments in a dtb embedded in an image
+
+        Args:
+            data: The image data
+            pad_len: Length of the pad section in the image, in bytes
+            start: Start offset of the devicetree to examine, within the image
+
+        Returns:
+            Size of the devicetree in bytes
+        """
+        dtb_data = data[start:]
+        dtb = fdt.Fdt.FromData(dtb_data)
+        fdt_size = dtb.GetFdtObj().totalsize()
+        dtb.Scan()
+        props = self._GetPropTree(dtb, 'size')
+        self.assertEqual({
+            'size': len(data),
+            'u-boot-spl/u-boot-spl-bss-pad:size': pad_len,
+            'u-boot-spl/u-boot-spl-dtb:size': 801,
+            'u-boot-spl/u-boot-spl-nodtb:size': len(U_BOOT_SPL_NODTB_DATA),
+            'u-boot-spl:size': 860,
+            'u-boot-tpl:size': len(U_BOOT_TPL_DATA),
+            'u-boot/u-boot-dtb:size': 781,
+            'u-boot/u-boot-nodtb:size': len(U_BOOT_NODTB_DATA),
+            'u-boot:size': 827,
+            }, props)
+        return fdt_size
+
+    def testExpanded(self):
+        """Test that an expanded entry type is selected when needed"""
+        self._SetupSplElf()
+        self._SetupTplElf()
+
+        # SPL has a devicetree, TPL does not
+        entry_args = {
+            'spl-dtb': '1',
+            'spl-bss-pad': 'y',
+            'tpl-dtb': '',
+        }
+        self._DoReadFileDtb('194_fdt_incl.dts', use_expanded=True,
+                            entry_args=entry_args)
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(3, len(entries))
+
+        # First, u-boot, which should be expanded into u-boot-nodtb and dtb
+        self.assertIn('u-boot', entries)
+        entry = entries['u-boot']
+        self.assertEqual('u-boot-expanded', entry.etype)
+        subent = entry.GetEntries()
+        self.assertEqual(2, len(subent))
+        self.assertIn('u-boot-nodtb', subent)
+        self.assertIn('u-boot-dtb', subent)
+
+        # Second, u-boot-spl, which should be expanded into three parts
+        self.assertIn('u-boot-spl', entries)
+        entry = entries['u-boot-spl']
+        self.assertEqual('u-boot-spl-expanded', entry.etype)
+        subent = entry.GetEntries()
+        self.assertEqual(3, len(subent))
+        self.assertIn('u-boot-spl-nodtb', subent)
+        self.assertIn('u-boot-spl-bss-pad', subent)
+        self.assertIn('u-boot-spl-dtb', subent)
+
+        # Third, u-boot-tpl, which should be not be expanded, since TPL has no
+        # devicetree
+        self.assertIn('u-boot-tpl', entries)
+        entry = entries['u-boot-tpl']
+        self.assertEqual('u-boot-tpl', entry.etype)
+        self.assertEqual(None, entry.GetEntries())
+
+    def testExpandedTpl(self):
+        """Test that an expanded entry type is selected for TPL when needed"""
+        self._SetupTplElf()
+
+        entry_args = {
+            'tpl-bss-pad': 'y',
+            'tpl-dtb': 'y',
+        }
+        self._DoReadFileDtb('195_fdt_incl_tpl.dts', use_expanded=True,
+                            entry_args=entry_args)
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(1, len(entries))
+
+        # We only have u-boot-tpl, which be expanded
+        self.assertIn('u-boot-tpl', entries)
+        entry = entries['u-boot-tpl']
+        self.assertEqual('u-boot-tpl-expanded', entry.etype)
+        subent = entry.GetEntries()
+        self.assertEqual(3, len(subent))
+        self.assertIn('u-boot-tpl-nodtb', subent)
+        self.assertIn('u-boot-tpl-bss-pad', subent)
+        self.assertIn('u-boot-tpl-dtb', subent)
+
+    def testExpandedNoPad(self):
+        """Test an expanded entry without BSS pad enabled"""
+        self._SetupSplElf()
+        self._SetupTplElf()
+
+        # SPL has a devicetree, TPL does not
+        entry_args = {
+            'spl-dtb': 'something',
+            'spl-bss-pad': 'n',
+            'tpl-dtb': '',
+        }
+        self._DoReadFileDtb('194_fdt_incl.dts', use_expanded=True,
+                            entry_args=entry_args)
+        image = control.images['image']
+        entries = image.GetEntries()
+
+        # Just check u-boot-spl, which should be expanded into two parts
+        self.assertIn('u-boot-spl', entries)
+        entry = entries['u-boot-spl']
+        self.assertEqual('u-boot-spl-expanded', entry.etype)
+        subent = entry.GetEntries()
+        self.assertEqual(2, len(subent))
+        self.assertIn('u-boot-spl-nodtb', subent)
+        self.assertIn('u-boot-spl-dtb', subent)
+
+    def testExpandedTplNoPad(self):
+        """Test that an expanded entry type with padding disabled in TPL"""
+        self._SetupTplElf()
+
+        entry_args = {
+            'tpl-bss-pad': '',
+            'tpl-dtb': 'y',
+        }
+        self._DoReadFileDtb('195_fdt_incl_tpl.dts', use_expanded=True,
+                            entry_args=entry_args)
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(1, len(entries))
+
+        # We only have u-boot-tpl, which be expanded
+        self.assertIn('u-boot-tpl', entries)
+        entry = entries['u-boot-tpl']
+        self.assertEqual('u-boot-tpl-expanded', entry.etype)
+        subent = entry.GetEntries()
+        self.assertEqual(2, len(subent))
+        self.assertIn('u-boot-tpl-nodtb', subent)
+        self.assertIn('u-boot-tpl-dtb', subent)
+
+    def testFdtInclude(self):
+        """Test that an Fdt is update within all binaries"""
+        self._SetupSplElf()
+        self._SetupTplElf()
+
+        # SPL has a devicetree, TPL does not
+        self.maxDiff = None
+        entry_args = {
+            'spl-dtb': '1',
+            'spl-bss-pad': 'y',
+            'tpl-dtb': '',
+        }
+        # Build the image. It includes two separate devicetree binaries, each
+        # with their own contents, but all contain the binman definition.
+        data = self._DoReadFileDtb(
+            '194_fdt_incl.dts', use_real_dtb=True, use_expanded=True,
+            update_dtb=True, entry_args=entry_args)[0]
+        pad_len = 10
+
+        # Check the U-Boot dtb
+        start = len(U_BOOT_NODTB_DATA)
+        fdt_size = self.checkDtbSizes(data, pad_len, start)
+
+        # Now check SPL
+        start += fdt_size + len(U_BOOT_SPL_NODTB_DATA) + pad_len
+        fdt_size = self.checkDtbSizes(data, pad_len, start)
+
+        # TPL has no devicetree
+        start += fdt_size + len(U_BOOT_TPL_DATA)
+        self.assertEqual(len(data), start)
 
 if __name__ == "__main__":
     unittest.main()

@@ -30,6 +30,9 @@ class Entry_u_boot_spl(Entry_blob):
 
     The ELF file 'spl/u-boot-spl' must also be available for this to work, since
     binman uses that to look up symbols to write into the SPL binary.
+
+    Note that this entry is automatically replaced with u-boot-spl-expanded
+    unless --no-expanded is used.
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)

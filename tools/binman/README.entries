@@ -87,6 +87,15 @@ See cros_ec_rw for an example of this.
 
 
 
+Entry: blob-phase: Section that holds a phase binary
+----------------------------------------------------
+
+This is a base class that should not normally be used directly. It is used
+when converting a 'u-boot' entry automatically into a 'u-boot-expanded'
+entry; similarly for SPL.
+
+
+
 Entry: cbfs: Entry containing a Coreboot Filesystem (CBFS)
 ----------------------------------------------------------
 
@@ -840,14 +849,16 @@ Properties / Entry arguments:
 
 This is the U-Boot binary, containing relocation information to allow it
 to relocate itself at runtime. The binary typically includes a device tree
-blob at the end of it. Use u-boot-nodtb if you want to package the device
-tree separately.
+blob at the end of it.
 
 U-Boot can access binman symbols at runtime. See:
 
     'Access to binman entry offsets at run time (fdt)'
 
 in the binman README for more information.
+
+Note that this entry is automatically replaced with u-boot-expanded unless
+--no-expanded is used.
 
 
 
@@ -902,6 +913,21 @@ Properties / Entry arguments:
 
 
 
+Entry: u-boot-expanded: U-Boot flat binary broken out into its component parts
+------------------------------------------------------------------------------
+
+This is a section containing the U-Boot binary and a devicetree. Using this
+entry type automatically creates this section, with the following entries
+in it:
+
+   u-boot-nodtb
+   u-boot-dtb
+
+Having the devicetree separate allows binman to update it in the final
+image, so that the entries positions are provided to the running U-Boot.
+
+
+
 Entry: u-boot-img: U-Boot legacy image
 --------------------------------------
 
@@ -925,8 +951,8 @@ Properties / Entry arguments:
 This is the U-Boot binary, containing relocation information to allow it
 to relocate itself at runtime. It does not include a device tree blob at
 the end of it so normally cannot work without it. You can add a u-boot-dtb
-entry after this one, or use a u-boot entry instead (which contains both
-U-Boot and the device tree).
+entry after this one, or use a u-boot entry instead, normally expands to a
+section containing u-boot and u-boot-dtb
 
 
 
@@ -951,6 +977,9 @@ in the binman README for more information.
 
 The ELF file 'spl/u-boot-spl' must also be available for this to work, since
 binman uses that to look up symbols to write into the SPL binary.
+
+Note that this entry is automatically replaced with u-boot-spl-expanded
+unless --no-expanded is used.
 
 
 
@@ -999,6 +1028,29 @@ be relocated to any address for execution.
 
 
 
+Entry: u-boot-spl-expanded: U-Boot SPL flat binary broken out into its component parts
+--------------------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - spl-dtb: Controls whether this entry is selected (set to 'y' or '1' to
+        select)
+
+This is a section containing the U-Boot binary, BSS padding if needed and a
+devicetree. Using this entry type automatically creates this section, with
+the following entries in it:
+
+   u-boot-spl-nodtb
+   u-boot-spl-bss-pad
+   u-boot-dtb
+
+Having the devicetree separate allows binman to update it in the final
+image, so that the entries positions are provided to the running U-Boot.
+
+This entry is selected based on the value of the 'spl-dtb' entryarg. If
+this is non-empty (and not 'n' or '0') then this expanded entry is selected.
+
+
+
 Entry: u-boot-spl-nodtb: SPL binary without device tree appended
 ----------------------------------------------------------------
 
@@ -1008,8 +1060,9 @@ Properties / Entry arguments:
 This is the U-Boot SPL binary, It does not include a device tree blob at
 the end of it so may not be able to work without it, assuming SPL needs
 a device tree to operate on your platform. You can add a u-boot-spl-dtb
-entry after this one, or use a u-boot-spl entry instead (which contains
-both SPL and the device tree).
+entry after this one, or use a u-boot-spl entry instead' which normally
+expands to a section containing u-boot-spl-dtb, u-boot-spl-bss-pad and
+u-boot-spl-dtb
 
 SPL can access binman symbols at runtime. See:
 
@@ -1053,6 +1106,9 @@ in the binman README for more information.
 
 The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
 binman uses that to look up symbols to write into the TPL binary.
+
+Note that this entry is automatically replaced with u-boot-tpl-expanded
+unless --no-expanded is used.
 
 
 
@@ -1111,6 +1167,29 @@ be relocated to any address for execution.
 
 
 
+Entry: u-boot-tpl-expanded: U-Boot TPL flat binary broken out into its component parts
+--------------------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - tpl-dtb: Controls whether this entry is selected (set to 'y' or '1' to
+        select)
+
+This is a section containing the U-Boot binary, BSS padding if needed and a
+devicetree. Using this entry type automatically creates this section, with
+the following entries in it:
+
+   u-boot-tpl-nodtb
+   u-boot-tpl-bss-pad
+   u-boot-dtb
+
+Having the devicetree separate allows binman to update it in the final
+image, so that the entries positions are provided to the running U-Boot.
+
+This entry is selected based on the value of the 'tpl-dtb' entryarg. If
+this is non-empty (and not 'n' or '0') then this expanded entry is selected.
+
+
+
 Entry: u-boot-tpl-nodtb: TPL binary without device tree appended
 ----------------------------------------------------------------
 
@@ -1120,8 +1199,9 @@ Properties / Entry arguments:
 This is the U-Boot TPL binary, It does not include a device tree blob at
 the end of it so may not be able to work without it, assuming TPL needs
 a device tree to operate on your platform. You can add a u-boot-tpl-dtb
-entry after this one, or use a u-boot-tpl entry instead (which contains
-both TPL and the device tree).
+entry after this one, or use a u-boot-tpl entry instead, which normally
+expands to a section containing u-boot-tpl-dtb, u-boot-tpl-bss-pad and
+u-boot-tpl-dtb
 
 TPL can access binman symbols at runtime. See:
 

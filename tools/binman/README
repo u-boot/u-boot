@@ -840,6 +840,83 @@ of the image) can be used to point to the FDT map. See fdtmap and image-header
 entries for more information.
 
 
+Expanded entries
+----------------
+
+Binman automatically replaces 'u-boot' with an expanded version of that, i.e.
+'u-boot-expanded'. This means that when you write:
+
+    u-boot {
+    };
+
+you actually get:
+
+    u-boot {
+        type = "u-boot-expanded';
+    };
+
+which in turn expands to:
+
+    u-boot {
+        type = "section";
+
+        u-boot-nodtb {
+        };
+
+        u-boot-dtb {
+        };
+    };
+
+U-Boot's various phase binaries actually comprise two or three pieces.
+For example, u-boot.bin has the executable followed by a devicetree.
+
+With binman we want to be able to update that devicetree with full image
+information so that it is accessible to the executable. This is tricky
+if it is not clear where the devicetree starts.
+
+The above feature ensures that the devicetree is clearly separated from the
+U-Boot executable and can be updated separately by binman as needed. It can be
+disabled with the --no-expanded flag if required.
+
+The same applies for u-boot-spl and u-boot-spl. In those cases, the expansion
+includes the BSS padding, so for example:
+
+    spl {
+        type = "u-boot-spl"
+    };
+
+you actually get:
+
+    spl {
+        type = "u-boot-expanded';
+    };
+
+which in turn expands to:
+
+    spl {
+        type = "section";
+
+        u-boot-spl-nodtb {
+        };
+
+        u-boot-spl-bss-pad {
+        };
+
+        u-boot-spl-dtb {
+        };
+    };
+
+
+Of course we should not expand SPL if it has no devicetree. Also if the BSS
+padding is not needed (because BSS is in RAM as with CONFIG_SPL_SEPARATE_BSS),
+the 'u-boot-spl-bss-pad' subnode should not be created. The use of the expaned
+entry type is controlled by the UseExpanded() method. In the SPL case it checks
+the 'spl-dtb' entry arg, which is 'y' or '1' if SPL has a devicetree.
+
+For the BSS case, a 'spl-bss-pad' entry arg controls whether it is present. All
+entry args are provided by the U-Boot Makefile.
+
+
 Compression
 -----------
 

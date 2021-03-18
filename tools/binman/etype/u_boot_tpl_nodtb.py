@@ -18,8 +18,9 @@ class Entry_u_boot_tpl_nodtb(Entry_blob):
     This is the U-Boot TPL binary, It does not include a device tree blob at
     the end of it so may not be able to work without it, assuming TPL needs
     a device tree to operate on your platform. You can add a u-boot-tpl-dtb
-    entry after this one, or use a u-boot-tpl entry instead (which contains
-    both TPL and the device tree).
+    entry after this one, or use a u-boot-tpl entry instead, which normally
+    expands to a section containing u-boot-tpl-dtb, u-boot-tpl-bss-pad and
+    u-boot-tpl-dtb
 
     TPL can access binman symbols at runtime. See:
 

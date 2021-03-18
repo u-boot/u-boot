@@ -17,8 +17,8 @@ class Entry_u_boot_nodtb(Entry_blob):
     This is the U-Boot binary, containing relocation information to allow it
     to relocate itself at runtime. It does not include a device tree blob at
     the end of it so normally cannot work without it. You can add a u-boot-dtb
-    entry after this one, or use a u-boot entry instead (which contains both
-    U-Boot and the device tree).
+    entry after this one, or use a u-boot entry instead, normally expands to a
+    section containing u-boot and u-boot-dtb
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)

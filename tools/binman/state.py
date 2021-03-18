@@ -141,12 +141,16 @@ def SetEntryArgs(args):
     global entry_args
 
     entry_args = {}
+    tout.Debug('Processing entry args:')
     if args:
         for arg in args:
             m = re.match('([^=]*)=(.*)', arg)
             if not m:
                 raise ValueError("Invalid entry arguemnt '%s'" % arg)
-            entry_args[m.group(1)] = m.group(2)
+            name, value = m.groups()
+            tout.Debug('   %20s = %s' % (name, value))
+            entry_args[name] = value
+    tout.Debug('Processing entry args done')
 
 def GetEntryArg(name):
     """Get the value of an entry argument
@@ -158,6 +162,19 @@ def GetEntryArg(name):
         String value of argument
     """
     return entry_args.get(name)
+
+def GetEntryArgBool(name):
+    """Get the value of an entry argument as a boolean
+
+    Args:
+        name: Name of argument to retrieve
+
+    Returns:
+        False if the entry argument is consider False (empty, '0' or 'n'), else
+            True
+    """
+    val = GetEntryArg(name)
+    return val and val not in ['n', '0']
 
 def Prepare(images, dtb):
     """Get device tree files ready for use

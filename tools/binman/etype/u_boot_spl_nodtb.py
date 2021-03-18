@@ -18,8 +18,9 @@ class Entry_u_boot_spl_nodtb(Entry_blob):
     This is the U-Boot SPL binary, It does not include a device tree blob at
     the end of it so may not be able to work without it, assuming SPL needs
     a device tree to operate on your platform. You can add a u-boot-spl-dtb
-    entry after this one, or use a u-boot-spl entry instead (which contains
-    both SPL and the device tree).
+    entry after this one, or use a u-boot-spl entry instead' which normally
+    expands to a section containing u-boot-spl-dtb, u-boot-spl-bss-pad and
+    u-boot-spl-dtb
 
     SPL can access binman symbols at runtime. See:
 
