@@ -13,7 +13,7 @@ from dtoc import fdt_util
 from patman import tools
 
 class Entry_intel_ifwi(Entry_blob_ext):
-    """Entry containing an Intel Integrated Firmware Image (IFWI) file
+    """Intel Integrated Firmware Image (IFWI) file
 
     Properties / Entry arguments:
         - filename: Filename of file to read into entry. This is either the

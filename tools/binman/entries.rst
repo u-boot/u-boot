@@ -11,8 +11,8 @@ features to produce new behaviours.
 
 
 
-Entry: atf-bl31: Entry containing an ARM Trusted Firmware (ATF) BL31 blob
--------------------------------------------------------------------------
+Entry: atf-bl31: ARM Trusted Firmware (ATF) BL31 blob
+-----------------------------------------------------
 
 Properties / Entry arguments:
     - atf-bl31-path: Filename of file to read into entry. This is typically
@@ -25,8 +25,8 @@ about ATF.
 
 
 
-Entry: blob: Entry containing an arbitrary binary blob
-------------------------------------------------------
+Entry: blob: Arbitrary binary blob
+----------------------------------
 
 Note: This should not be used by itself. It is normally used as a parent
 class by other entry types.
@@ -56,8 +56,8 @@ obtained from the list of available device-tree files, managed by the
 
 
 
-Entry: blob-ext: Entry containing an externally built binary blob
------------------------------------------------------------------
+Entry: blob-ext: Externally built binary blob
+---------------------------------------------
 
 Note: This should not be used by itself. It is normally used as a parent
 class by other entry types.
@@ -96,8 +96,8 @@ entry; similarly for SPL.
 
 
 
-Entry: cbfs: Entry containing a Coreboot Filesystem (CBFS)
-----------------------------------------------------------
+Entry: cbfs: Coreboot Filesystem (CBFS)
+---------------------------------------
 
 A CBFS provides a way to group files into a group. It has a simple directory
 structure and allows the position of individual files to be set, since it is
@@ -303,8 +303,8 @@ added as necessary. See the binman README.
 
 
 
-Entry: files: Entry containing a set of files
----------------------------------------------
+Entry: files: A set of files arranged in a section
+--------------------------------------------------
 
 Properties / Entry arguments:
     - pattern: Filename pattern to match the files to include
@@ -335,8 +335,8 @@ byte value of a region.
 
 
 
-Entry: fit: Entry containing a FIT
-----------------------------------
+Entry: fit: Flat Image Tree (FIT)
+---------------------------------
 
 This calls mkimage to create a FIT (U-Boot Flat Image Tree) based on the
 input provided.
@@ -491,8 +491,8 @@ first/last in the entry list.
 
 
 
-Entry: intel-cmc: Entry containing an Intel Chipset Micro Code (CMC) file
--------------------------------------------------------------------------
+Entry: intel-cmc: Intel Chipset Micro Code (CMC) file
+-----------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -544,8 +544,8 @@ This entry contains a pointer to the FIT. It is required to be at address
 
 
 
-Entry: intel-fsp: Entry containing an Intel Firmware Support Package (FSP) file
--------------------------------------------------------------------------------
+Entry: intel-fsp: Intel Firmware Support Package (FSP) file
+-----------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -561,8 +561,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-fsp-m: Entry containing Intel Firmware Support Package (FSP) memory init
--------------------------------------------------------------------------------------
+Entry: intel-fsp-m: Intel Firmware Support Package (FSP) memory init
+--------------------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -578,8 +578,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-fsp-s: Entry containing Intel Firmware Support Package (FSP) silicon init
---------------------------------------------------------------------------------------
+Entry: intel-fsp-s: Intel Firmware Support Package (FSP) silicon init
+---------------------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -595,8 +595,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-fsp-t: Entry containing Intel Firmware Support Package (FSP) temp ram init
----------------------------------------------------------------------------------------
+Entry: intel-fsp-t: Intel Firmware Support Package (FSP) temp ram init
+----------------------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -611,8 +611,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-ifwi: Entry containing an Intel Integrated Firmware Image (IFWI) file
-----------------------------------------------------------------------------------
+Entry: intel-ifwi: Intel Integrated Firmware Image (IFWI) file
+--------------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry. This is either the
@@ -645,8 +645,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-me: Entry containing an Intel Management Engine (ME) file
-----------------------------------------------------------------------
+Entry: intel-me: Intel Management Engine (ME) file
+--------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -665,8 +665,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-mrc: Entry containing an Intel Memory Reference Code (MRC) file
-----------------------------------------------------------------------------
+Entry: intel-mrc: Intel Memory Reference Code (MRC) file
+--------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -679,8 +679,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-refcode: Entry containing an Intel Reference Code file
--------------------------------------------------------------------
+Entry: intel-refcode: Intel Reference Code file
+-----------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -693,8 +693,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-vbt: Entry containing an Intel Video BIOS Table (VBT) file
------------------------------------------------------------------------
+Entry: intel-vbt: Intel Video BIOS Table (VBT) file
+---------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -706,8 +706,8 @@ See README.x86 for information about Intel binary blobs.
 
 
 
-Entry: intel-vga: Entry containing an Intel Video Graphics Adaptor (VGA) file
------------------------------------------------------------------------------
+Entry: intel-vga: Intel Video Graphics Adaptor (VGA) file
+---------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -721,8 +721,8 @@ See README.x86 for information about Intel binary blobs.
 
 
 
-Entry: mkimage: Entry containing a binary produced by mkimage
--------------------------------------------------------------
+Entry: mkimage: Binary produced by mkimage
+------------------------------------------
 
 Properties / Entry arguments:
     - datafile: Filename for -d argument
@@ -756,8 +756,8 @@ placed at offset 'RESET_VECTOR_ADDRESS - 0xffc'.
 
 
 
-Entry: scp: Entry containing a System Control Processor (SCP) firmware blob
----------------------------------------------------------------------------
+Entry: scp: System Control Processor (SCP) firmware blob
+--------------------------------------------------------
 
 Properties / Entry arguments:
     - scp-path: Filename of file to read into the entry, typically scp.bin

@@ -11,7 +11,7 @@ from patman import tools
 from patman import tout
 
 class Entry_blob(Entry):
-    """Entry containing an arbitrary binary blob
+    """Arbitrary binary blob
 
     Note: This should not be used by itself. It is normally used as a parent
     class by other entry types.

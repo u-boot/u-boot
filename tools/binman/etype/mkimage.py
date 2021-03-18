@@ -12,7 +12,7 @@ from dtoc import fdt_util
 from patman import tools
 
 class Entry_mkimage(Entry):
-    """Entry containing a binary produced by mkimage
+    """Binary produced by mkimage
 
     Properties / Entry arguments:
         - datafile: Filename for -d argument

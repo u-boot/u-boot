@@ -13,7 +13,7 @@ from binman.entry import Entry
 from dtoc import fdt_util
 
 class Entry_cbfs(Entry):
-    """Entry containing a Coreboot Filesystem (CBFS)
+    """Coreboot Filesystem (CBFS)
 
     A CBFS provides a way to group files into a group. It has a simple directory
     structure and allows the position of individual files to be set, since it is

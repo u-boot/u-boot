@@ -14,7 +14,7 @@ from dtoc.fdt import Fdt
 from patman import tools
 
 class Entry_fit(Entry):
-    """Entry containing a FIT
+    """Flat Image Tree (FIT)
 
     This calls mkimage to create a FIT (U-Boot Flat Image Tree) based on the
     input provided.
