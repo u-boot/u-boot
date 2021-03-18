@@ -37,10 +37,10 @@ class Entry_intel_ifwi(Entry_blob_ext):
     sub-partition (and optional entry name).
 
     Properties for subnodes:
-        ifwi-subpart - sub-parition to put this entry into, e.g. "IBBP"
-        ifwi-entry - entry name t use, e.g. "IBBL"
-        ifwi-replace - if present, indicates that the item should be replaced
-            in the IFWI. Otherwise it is added.
+        - ifwi-subpart: sub-parition to put this entry into, e.g. "IBBP"
+        - ifwi-entry: entry name t use, e.g. "IBBL"
+        - ifwi-replace: if present, indicates that the item should be replaced
+          in the IFWI. Otherwise it is added.
 
     See README.x86 for information about x86 binary blobs.
     """

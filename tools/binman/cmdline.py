@@ -69,7 +69,7 @@ controlled by a description in the board device tree.'''
         default=False, help='Update the binman node with offset/size info')
 
     entry_parser = subparsers.add_parser('entry-docs',
-        help='Write out entry documentation (see README.entries)')
+        help='Write out entry documentation (see entries.rst)')
 
     list_parser = subparsers.add_parser('ls', help='List files in an image')
     list_parser.add_argument('-i', '--image', type=str, required=True,

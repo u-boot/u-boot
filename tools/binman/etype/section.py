@@ -22,11 +22,13 @@ from patman.tools import ToHexSize
 class Entry_section(Entry):
     """Entry that contains other entries
 
-    Properties / Entry arguments: (see binman README for more information)
+    Properties / Entry arguments: (see binman README for more information):
         pad-byte: Pad byte to use when padding
         sort-by-offset: True if entries should be sorted by offset, False if
-            they must be in-order in the device tree description
+        they must be in-order in the device tree description
+
         end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+
         skip-at-start: Number of bytes before the first entry starts. These
             effectively adjust the starting offset of entries. For example,
             if this is 16, then the first entry would start at 16. An entry

@@ -22,7 +22,7 @@ class Entry_fit(Entry):
     Nodes for the FIT should be written out in the binman configuration just as
     they would be in a file passed to mkimage.
 
-    For example, this creates an image containing a FIT with U-Boot SPL:
+    For example, this creates an image containing a FIT with U-Boot SPL::
 
         binman {
             fit {
@@ -52,7 +52,7 @@ class Entry_fit(Entry):
     The fit,fdt-list property (see above) indicates that of-list should be used.
     If the property is missing you will get an error.
 
-    Then add a 'generator node', a node with a name starting with '@':
+    Then add a 'generator node', a node with a name starting with '@'::
 
         images {
             @fdt-SEQ {
@@ -67,7 +67,7 @@ class Entry_fit(Entry):
     node acts like a template to generate the nodes. The generator node itself
     does not appear in the output - it is replaced with what binman generates.
 
-    You can create config nodes in a similar way:
+    You can create config nodes in a similar way::
 
         configurations {
             default = "@config-DEFAULT-SEQ";
@@ -84,8 +84,10 @@ class Entry_fit(Entry):
 
     Available substitutions for '@' nodes are:
 
-        SEQ    Sequence number of the generated fdt (1, 2, ...)
-        NAME   Name of the dtb as provided (i.e. without adding '.dtb')
+    SEQ:
+        Sequence number of the generated fdt (1, 2, ...)
+    NAME
+        Name of the dtb as provided (i.e. without adding '.dtb')
 
     Note that if no devicetree files are provided (with '-a of-list' as above)
     then no nodes will be generated.
@@ -94,10 +96,11 @@ class Entry_fit(Entry):
     if of configuration whose devicetree matches the 'default-dt' entry
     argument, e.g. with '-a default-dt=sun50i-a64-pine64-lts'.
 
-    Available substitutions for '@' property values are:
+    Available substitutions for '@' property values are
 
-        DEFAULT-SEQ  Sequence number of the default fdt,as provided by the
-                     'default-dt' entry argument
+    DEFAULT-SEQ:
+        Sequence number of the default fdt,as provided by the 'default-dt' entry
+        argument
 
     Properties (in the 'fit' node itself):
         fit,external-offset: Indicates that the contents of the FIT are external

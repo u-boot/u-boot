@@ -106,7 +106,7 @@ is not used, it supports compression and storing ELF files.
 
 CBFS is used by coreboot as its way of orgnanising SPI-flash contents.
 
-The contents of the CBFS are defined by subnodes of the cbfs entry, e.g.:
+The contents of the CBFS are defined by subnodes of the cbfs entry, e.g.::
 
     cbfs {
         size = <0x100000>;
@@ -122,7 +122,7 @@ This creates a CBFS 1MB in size two files in it: u-boot.bin and u-boot.dtb.
 Note that the size is required since binman does not support calculating it.
 The contents of each entry is just what binman would normally provide if it
 were not a CBFS node. A blob type can be used to import arbitrary files as
-with the second subnode below:
+with the second subnode below::
 
     cbfs {
         size = <0x100000>;
@@ -168,7 +168,7 @@ cbfs-type:
         This is an ELF file that has been loaded (i.e. mapped to memory), so
         appears in the CBFS as a flat binary. The input file must be an ELF
         image, for example this puts "u-boot" (the ELF image) into a 'stage'
-        entry:
+        entry::
 
             cbfs {
                 size = <0x100000>;
@@ -178,7 +178,7 @@ cbfs-type:
                 };
             };
 
-        You can use your own ELF file with something like:
+        You can use your own ELF file with something like::
 
             cbfs {
                 size = <0x100000>;
@@ -211,7 +211,7 @@ not support other file types (e.g. payload), adding multiple files (like the
 particular offset in the CBFS and a few other things.
 
 Of course binman can create images containing multiple CBFSs, simply by
-defining these in the binman config:
+defining these in the binman config::
 
 
     binman {
@@ -279,24 +279,24 @@ sizes are included.
 Note that the -u option must be provided to ensure that binman updates the
 FDT with the position of each entry.
 
-Example output for a simple image with U-Boot and an FDT map:
+Example output for a simple image with U-Boot and an FDT map::
 
-/ {
-    image-name = "binman";
-    size = <0x00000112>;
-    image-pos = <0x00000000>;
-    offset = <0x00000000>;
-    u-boot {
-        size = <0x00000004>;
+    / {
+        image-name = "binman";
+        size = <0x00000112>;
         image-pos = <0x00000000>;
         offset = <0x00000000>;
+        u-boot {
+            size = <0x00000004>;
+            image-pos = <0x00000000>;
+            offset = <0x00000000>;
+        };
+        fdtmap {
+            size = <0x0000010e>;
+            image-pos = <0x00000004>;
+            offset = <0x00000004>;
+        };
     };
-    fdtmap {
-        size = <0x0000010e>;
-        image-pos = <0x00000004>;
-        offset = <0x00000004>;
-    };
-};
 
 If allow-repack is used then 'orig-offset' and 'orig-size' properties are
 added as necessary. See the binman README.
@@ -344,7 +344,7 @@ input provided.
 Nodes for the FIT should be written out in the binman configuration just as
 they would be in a file passed to mkimage.
 
-For example, this creates an image containing a FIT with U-Boot SPL:
+For example, this creates an image containing a FIT with U-Boot SPL::
 
     binman {
         fit {
@@ -374,7 +374,7 @@ that you want to generates nodes for two files: file1.dtb and file2.dtb
 The fit,fdt-list property (see above) indicates that of-list should be used.
 If the property is missing you will get an error.
 
-Then add a 'generator node', a node with a name starting with '@':
+Then add a 'generator node', a node with a name starting with '@'::
 
     images {
         @fdt-SEQ {
@@ -389,7 +389,7 @@ files. All the properties you specify will be included in the node. This
 node acts like a template to generate the nodes. The generator node itself
 does not appear in the output - it is replaced with what binman generates.
 
-You can create config nodes in a similar way:
+You can create config nodes in a similar way::
 
     configurations {
         default = "@config-DEFAULT-SEQ";
@@ -406,8 +406,10 @@ each of your two files.
 
 Available substitutions for '@' nodes are:
 
-    SEQ    Sequence number of the generated fdt (1, 2, ...)
-    NAME   Name of the dtb as provided (i.e. without adding '.dtb')
+SEQ:
+    Sequence number of the generated fdt (1, 2, ...)
+NAME
+    Name of the dtb as provided (i.e. without adding '.dtb')
 
 Note that if no devicetree files are provided (with '-a of-list' as above)
 then no nodes will be generated.
@@ -416,10 +418,11 @@ The 'default' property, if present, will be automatically set to the name
 if of configuration whose devicetree matches the 'default-dt' entry
 argument, e.g. with '-a default-dt=sun50i-a64-pine64-lts'.
 
-Available substitutions for '@' property values are:
+Available substitutions for '@' property values are
 
-    DEFAULT-SEQ  Sequence number of the default fdt,as provided by the
-                 'default-dt' entry argument
+DEFAULT-SEQ:
+    Sequence number of the default fdt,as provided by the 'default-dt' entry
+    argument
 
 Properties (in the 'fit' node itself):
     fit,external-offset: Indicates that the contents of the FIT are external
@@ -633,10 +636,10 @@ Each subnode describes an entry which is placed into the IFWFI with a given
 sub-partition (and optional entry name).
 
 Properties for subnodes:
-    ifwi-subpart - sub-parition to put this entry into, e.g. "IBBP"
-    ifwi-entry - entry name t use, e.g. "IBBL"
-    ifwi-replace - if present, indicates that the item should be replaced
-        in the IFWI. Otherwise it is added.
+    - ifwi-subpart: sub-parition to put this entry into, e.g. "IBBP"
+    - ifwi-entry: entry name t use, e.g. "IBBL"
+    - ifwi-replace: if present, indicates that the item should be replaced
+      in the IFWI. Otherwise it is added.
 
 See README.x86 for information about x86 binary blobs.
 
@@ -726,7 +729,7 @@ Properties / Entry arguments:
     - args: Other arguments to pass
 
 The data passed to mkimage is collected from subnodes of the mkimage node,
-e.g.:
+e.g.::
 
     mkimage {
         args = "-n test -T imximage";
@@ -766,11 +769,13 @@ This entry holds firmware for an external platform-specific coprocessor.
 Entry: section: Entry that contains other entries
 -------------------------------------------------
 
-Properties / Entry arguments: (see binman README for more information)
+Properties / Entry arguments: (see binman README for more information):
     pad-byte: Pad byte to use when padding
     sort-by-offset: True if entries should be sorted by offset, False if
-        they must be in-order in the device tree description
+    they must be in-order in the device tree description
+
     end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+
     skip-at-start: Number of bytes before the first entry starts. These
         effectively adjust the starting offset of entries. For example,
         if this is 16, then the first entry would start at 16. An entry
@@ -808,7 +813,7 @@ Properties / Entry arguments:
     <text>: The text to place in the entry (overrides the above mechanism).
         This is useful when the text is constant.
 
-Example node:
+Example node::
 
     text {
         size = <50>;
@@ -821,7 +826,7 @@ You can then use:
 
 and binman will insert that string into the entry.
 
-It is also possible to put the string directly in the node:
+It is also possible to put the string directly in the node::
 
     text {
         size = <8>;
@@ -829,7 +834,7 @@ It is also possible to put the string directly in the node:
         message = "a message directly in the node"
     };
 
-or just:
+or just::
 
     text {
         size = <8>;

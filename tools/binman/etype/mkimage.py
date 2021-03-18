@@ -19,7 +19,7 @@ class Entry_mkimage(Entry):
         - args: Other arguments to pass
 
     The data passed to mkimage is collected from subnodes of the mkimage node,
-    e.g.:
+    e.g.::
 
         mkimage {
             args = "-n test -T imximage";

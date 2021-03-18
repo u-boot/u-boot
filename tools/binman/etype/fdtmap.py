@@ -53,24 +53,24 @@ class Entry_fdtmap(Entry):
     Note that the -u option must be provided to ensure that binman updates the
     FDT with the position of each entry.
 
-    Example output for a simple image with U-Boot and an FDT map:
+    Example output for a simple image with U-Boot and an FDT map::
 
-    / {
-        image-name = "binman";
-        size = <0x00000112>;
-        image-pos = <0x00000000>;
-        offset = <0x00000000>;
-        u-boot {
-            size = <0x00000004>;
+        / {
+            image-name = "binman";
+            size = <0x00000112>;
             image-pos = <0x00000000>;
             offset = <0x00000000>;
+            u-boot {
+                size = <0x00000004>;
+                image-pos = <0x00000000>;
+                offset = <0x00000000>;
+            };
+            fdtmap {
+                size = <0x0000010e>;
+                image-pos = <0x00000004>;
+                offset = <0x00000004>;
+            };
         };
-        fdtmap {
-            size = <0x0000010e>;
-            image-pos = <0x00000004>;
-            offset = <0x00000004>;
-        };
-    };
 
     If allow-repack is used then 'orig-offset' and 'orig-size' properties are
     added as necessary. See the binman README.
