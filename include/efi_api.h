@@ -523,6 +523,7 @@ struct efi_device_path_acpi_path {
 #  define DEVICE_PATH_SUB_TYPE_MSG_SCSI		0x02
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB		0x05
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
+#  define DEVICE_PATH_SUB_TYPE_MSG_UART		0x0e
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
 #  define DEVICE_PATH_SUB_TYPE_MSG_SATA		0x12
 #  define DEVICE_PATH_SUB_TYPE_MSG_NVME		0x17
@@ -540,6 +541,15 @@ struct efi_device_path_scsi {
 	struct efi_device_path dp;
 	u16 target_id;
 	u16 logical_unit_number;
+} __packed;
+
+struct efi_device_path_uart {
+	struct efi_device_path dp;
+	u32 reserved;
+	u64 baud_rate;
+	u8 data_bits;
+	u8 parity;
+	u8 stop_bits;
 } __packed;
 
 struct efi_device_path_usb {

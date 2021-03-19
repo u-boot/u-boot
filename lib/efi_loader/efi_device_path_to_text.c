@@ -118,6 +118,19 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 			     ide->logical_unit_number);
 		break;
 	}
+	case DEVICE_PATH_SUB_TYPE_MSG_UART: {
+		struct efi_device_path_uart *uart =
+			(struct efi_device_path_uart *)dp;
+		s += sprintf(s, "Uart(%lld,%d,%d,", uart->baud_rate,
+			     uart->data_bits, uart->parity);
+		switch (uart->stop_bits) {
+		case 2:
+			s += sprintf(s, "1.5)");
+		default:
+			s += sprintf(s, "%d)", uart->stop_bits);
+		}
+		break;
+	}
 	case DEVICE_PATH_SUB_TYPE_MSG_USB: {
 		struct efi_device_path_usb *udp =
 			(struct efi_device_path_usb *)dp;
