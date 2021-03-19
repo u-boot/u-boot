@@ -726,6 +726,41 @@ int disable_vpu_nodes(void *blob)
 		return -EPERM;
 }
 
+#ifdef CONFIG_IMX8MN_LOW_DRIVE_MODE
+static int low_drive_gpu_freq(void *blob)
+{
+	static const char *nodes_path_8mn[] = {
+		"/gpu@38000000",
+		"/soc@0/gpu@38000000"
+	};
+
+	int nodeoff, cnt, i;
+	u32 assignedclks[7];
+
+	nodeoff = fdt_path_offset(blob, nodes_path_8mn[0]);
+	if (nodeoff < 0)
+		return nodeoff;
+
+	cnt = fdtdec_get_int_array_count(blob, nodeoff, "assigned-clock-rates", assignedclks, 7);
+	if (cnt < 0)
+		return cnt;
+
+	if (cnt != 7)
+		printf("Warning: %s, assigned-clock-rates count %d\n", nodes_path_8mn[0], cnt);
+
+	assignedclks[cnt - 1] = 200000000;
+	assignedclks[cnt - 2] = 200000000;
+
+	for (i = 0; i < cnt; i++) {
+		debug("<%u>, ", assignedclks[i]);
+		assignedclks[i] = cpu_to_fdt32(assignedclks[i]);
+	}
+	debug("\n");
+
+	return fdt_setprop(blob, nodeoff, "assigned-clock-rates", &assignedclks, sizeof(assignedclks));
+}
+#endif
+
 int disable_gpu_nodes(void *blob)
 {
 	static const char * const nodes_path_8mn[] = {
@@ -895,6 +930,16 @@ usb_modify_speed:
 #elif defined(CONFIG_IMX8MN)
 	if (is_imx8mnl() || is_imx8mndl() ||  is_imx8mnsl())
 		disable_gpu_nodes(blob);
+#ifdef CONFIG_IMX8MN_LOW_DRIVE_MODE
+	else {
+		int ldm_gpu = low_drive_gpu_freq(blob);
+
+		if (ldm_gpu < 0)
+			printf("Update GPU node assigned-clock-rates failed\n");
+		else
+			printf("Update GPU node assigned-clock-rates ok\n");
+	}
+#endif
 
 	if (is_imx8mnd() || is_imx8mndl())
 		disable_cpu_nodes(blob, 2);

@@ -75,10 +75,15 @@ int power_init_board(void)
 	/* BUCKxOUT_DVS0/1 control BUCK123 output */
 	pmic_reg_write(dev, PCA9450_BUCK123_DVS, 0x29);
 
+#ifdef CONFIG_IMX8MN_LOW_DRIVE_MODE
+	/* Set VDD_SOC/VDD_DRAM to 0.8v for low drive mode */
+	pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS0, 0x10);
+#else
 	/* increase VDD_SOC/VDD_DRAM to typical value 0.95V before first DRAM access */
+	pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS0, 0x1C);
+#endif
 	/* Set DVS1 to 0.85v for suspend */
 	/* Enable DVS control through PMIC_STBY_REQ and set B1_ENMODE=1 (ON by PMIC_ON_REQ=H) */
-	pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS0, 0x1C);
 	pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS1, 0x14);
 	pmic_reg_write(dev, PCA9450_BUCK1CTRL, 0x59);
 
