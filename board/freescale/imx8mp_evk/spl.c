@@ -84,7 +84,12 @@ int power_init_board(void)
 	 * Enable DVS control through PMIC_STBY_REQ and
 	 * set B1_ENMODE=1 (ON by PMIC_ON_REQ=H)
 	 */
+#ifdef CONFIG_IMX8M_VDD_SOC_850MV
+	/* set DVS0 to 0.85v for special case*/
+	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS0, 0x14);
+#else
 	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS0, 0x1C);
+#endif
 	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS1, 0x14);
 	pmic_reg_write(p, PCA9450_BUCK1CTRL, 0x59);
 
