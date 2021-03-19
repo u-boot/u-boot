@@ -4,6 +4,8 @@ menu "Select Target SoC"
 
 config R8A774A1
 	bool "Renesas SoC R8A774A1"
+	imply CLK_R8A774A1
+	imply PINCTRL_PFC_R8A774A1
 
 config R8A774B1
 	bool "Renesas SoC R8A774B1"
@@ -13,6 +15,7 @@ config R8A774B1
 config R8A774C0
 	bool "Renesas SoC R8A774C0"
 	imply CLK_R8A774C0
+	imply PINCTRL_PFC_R8A774C0
 
 config R8A774E1
 	bool "Renesas SoC R8A774E1"
@@ -99,6 +102,23 @@ config TARGET_EBISU
 	help
           Support for Renesas R-Car Gen3 Ebisu platform
 
+config TARGET_HIHOPE_RZG2
+	bool "HiHope RZ/G2 board"
+	imply R8A774A1
+	imply R8A774B1
+	imply R8A774E1
+	imply SYS_MALLOC_F
+	imply MULTI_DTB_FIT
+	imply MULTI_DTB_FIT_USER_DEFINED_AREA
+	help
+          Support for RZG2 HiHope platform
+
+config TARGET_SILINUX_EK874
+	bool "Silicon Linux EK874 board"
+	imply R8A774C0
+	help
+          Support for Silicon Linux EK874 platform
+
 config TARGET_SALVATOR_X
 	bool "Salvator-X board"
 	imply R8A7795
@@ -133,12 +153,16 @@ source "board/renesas/ebisu/Kconfig"
 source "board/renesas/salvator-x/Kconfig"
 source "board/renesas/ulcb/Kconfig"
 source "board/beacon/beacon-rzg2m/Kconfig"
+source "board/hoperun/hihope-rzg2/Kconfig"
+source "board/silinux/ek874/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
+	default 0x80000 if TARGET_HIHOPE_RZG2
 	default 0x80000 if TARGET_SALVATOR_X
 	default 0x80000 if TARGET_ULCB
 
 config MULTI_DTB_FIT_USER_DEF_ADDR
+	default 0x49000000 if TARGET_HIHOPE_RZG2
 	default 0x49000000 if TARGET_SALVATOR_X
 	default 0x49000000 if TARGET_ULCB
 

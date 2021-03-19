@@ -822,6 +822,10 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a774a1-beacon-rzg2m-kit.dtb \
 	r8a774b1-beacon-rzg2n-kit.dtb \
 	r8a774e1-beacon-rzg2h-kit.dtb \
+	r8a774a1-hihope-rzg2m-u-boot.dtb \
+	r8a774b1-hihope-rzg2n-u-boot.dtb \
+	r8a774c0-ek874-u-boot.dtb \
+	r8a774e1-hihope-rzg2h-u-boot.dtb \
 	r8a77950-ulcb-u-boot.dtb \
 	r8a77950-salvator-x-u-boot.dtb \
 	r8a77960-ulcb-u-boot.dtb \
