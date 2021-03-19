@@ -218,6 +218,12 @@ __weak int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
 	return 0;
 }
 
+__weak bool efi_capsule_auth_enabled(void)
+{
+	return env_get("capsule_authentication_enabled") ?
+		true : false;
+}
+
 efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
 				      void **image, efi_uintn_t *image_size)
 {
