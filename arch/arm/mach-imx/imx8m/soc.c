@@ -628,7 +628,8 @@ static int disable_mipi_dsi_nodes(void *blob)
 		"/mipi_dsi_bridge@30A00000",
 		"/dsi_phy@30A00300",
 		"/soc@0/bus@30800000/mipi_dsi@30a00000",
-		"/soc@0/bus@30800000/dphy@30a00300"
+		"/soc@0/bus@30800000/dphy@30a00300",
+		"/soc@0/bus@30800000/mipi-dsi@30a00000",
 	};
 
 	return disable_fdt_nodes(blob, nodes_path, ARRAY_SIZE(nodes_path));
@@ -656,7 +657,8 @@ static int check_mipi_dsi_nodes(void *blob)
 {
 	static const char * const lcdif_path[] = {
 		"/lcdif@30320000",
-		"/soc@0/bus@30000000/lcdif@30320000"
+		"/soc@0/bus@30000000/lcdif@30320000",
+		"/soc@0/bus@30000000/lcd-controller@30320000"
 	};
 	static const char * const mipi_dsi_path[] = {
 		"/mipi_dsi@30A00000",
@@ -664,11 +666,13 @@ static int check_mipi_dsi_nodes(void *blob)
 	};
 	static const char * const lcdif_ep_path[] = {
 		"/lcdif@30320000/port@0/mipi-dsi-endpoint",
-		"/soc@0/bus@30000000/lcdif@30320000/port@0/endpoint"
+		"/soc@0/bus@30000000/lcdif@30320000/port@0/endpoint",
+		"/soc@0/bus@30000000/lcd-controller@30320000/port@0/endpoint"
 	};
 	static const char * const mipi_dsi_ep_path[] = {
 		"/mipi_dsi@30A00000/port@1/endpoint",
-		"/soc@0/bus@30800000/mipi_dsi@30a00000/ports/port@0/endpoint"
+		"/soc@0/bus@30800000/mipi_dsi@30a00000/ports/port@0/endpoint",
+		"/soc@0/bus@30800000/mipi-dsi@30a00000/ports/port@0/endpoint@0"
 	};
 
 	int lookup_node;
@@ -776,7 +780,8 @@ static int low_drive_gpu_freq(void *blob)
 int disable_gpu_nodes(void *blob)
 {
 	static const char * const nodes_path_8mn[] = {
-		"/gpu@38000000"
+		"/gpu@38000000",
+		"/soc@/gpu@38000000"
 	};
 
 	return disable_fdt_nodes(blob, nodes_path_8mn, ARRAY_SIZE(nodes_path_8mn));
