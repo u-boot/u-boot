@@ -120,6 +120,16 @@ struct ocotp_regs {
 	} bank[0];
 };
 
+#ifdef CONFIG_IMX8MP
+struct fuse_bank0_regs {
+	u32 lock;
+	u32 rsvd0[7];
+	u32 uid_low;
+	u32 rsvd1[3];
+	u32 uid_high;
+	u32 rsvd2[3];
+};
+#else
 struct fuse_bank0_regs {
 	u32 lock;
 	u32 rsvd0[3];
@@ -128,6 +138,7 @@ struct fuse_bank0_regs {
 	u32 uid_high;
 	u32 rsvd2[7];
 };
+#endif
 
 struct fuse_bank1_regs {
 	u32 tester3;
