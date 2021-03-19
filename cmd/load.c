@@ -11,12 +11,14 @@
 #include <command.h>
 #include <console.h>
 #include <cpu_func.h>
+#include <efi_loader.h>
 #include <env.h>
+#include <exports.h>
 #include <flash.h>
 #include <image.h>
-#include <s_record.h>
+#include <mapmem.h>
 #include <net.h>
-#include <exports.h>
+#include <s_record.h>
 #include <serial.h>
 #include <xyzModem.h>
 #include <asm/cache.h>
@@ -996,6 +998,10 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 			}
 
 		}
+		if (IS_ENABLED(CONFIG_CMD_BOOTEFI))
+			efi_set_bootdev("Uart", "", "",
+					map_sysmem(offset, 0), size);
+
 	} else {
 		printf("%s\n", xyzModem_error(err));
 	}
