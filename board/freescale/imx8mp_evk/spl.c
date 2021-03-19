@@ -35,6 +35,16 @@ void spl_dram_init(void)
 
 void spl_board_init(void)
 {
+	/*
+	 * Set GIC clock to 500Mhz for OD VDD_SOC. Kernel driver does
+	 * not allow to change it. Should set the clock after PMIC
+	 * setting done. Default is 400Mhz (system_pll1_800m with div = 2)
+	 * set by ROM for ND VDD_SOC
+	 */
+	clock_enable(CCGR_GIC, 0);
+	clock_set_target_val(GIC_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(5));
+	clock_enable(CCGR_GIC, 1);
+
 	puts("Normal Boot\n");
 }
 
@@ -83,6 +93,10 @@ int power_init_board(void)
 #endif
 	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS1, 0x14);
 	pmic_reg_write(p, PCA9450_BUCK1CTRL, 0x59);
+
+	/* Kernel uses OD/OD freq for SOC */
+	/* To avoid timing risk from SOC to ARM,increase VDD_ARM to OD voltage 0.95v */
+	pmic_reg_write(p, PCA9450_BUCK2OUT_DVS0, 0x1C);
 
 	/* set WDOG_B_CFG to cold reset */
 	pmic_reg_write(p, PCA9450_RESET_CTRL, 0xA1);
