@@ -173,6 +173,7 @@ config EFI_CAPSULE_AUTHENTICATE
 	select X509_CERTIFICATE_PARSER
 	select PKCS7_MESSAGE_PARSER
 	select PKCS7_VERIFY
+	select IMAGE_SIGN_INFO
 	default n
 	help
 	  Select this option if you want to enable capsule
