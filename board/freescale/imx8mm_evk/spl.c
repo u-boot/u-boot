@@ -26,7 +26,7 @@
 #include <dm/device-internal.h>
 
 #include <power/pmic.h>
-#include <power/bd71837.h>
+#include <power/pca9450.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -94,7 +94,7 @@ static int power_init_board(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = pmic_get("pmic@4b", &dev);
+	ret = pmic_get("pca9450@25", &dev);
 	if (ret == -ENODEV) {
 		puts("No pmic\n");
 		return 0;
@@ -102,25 +102,26 @@ static int power_init_board(void)
 	if (ret != 0)
 		return ret;
 
-	/* decrease RESET key long push time from the default 10s to 10ms */
-	pmic_reg_write(dev, BD718XX_PWRONCONFIG1, 0x0);
+	/* BUCKxOUT_DVS0/1 control BUCK123 output */
+	pmic_reg_write(dev, PCA9450_BUCK123_DVS, 0x29);
 
-	/* unlock the PMIC regs */
-	pmic_reg_write(dev, BD718XX_REGLOCK, 0x1);
+	/* Buck 1 DVS control through PMIC_STBY_REQ */
+	pmic_reg_write(dev, PCA9450_BUCK1CTRL, 0x59);
 
-	/* increase VDD_SOC to typical value 0.85v before first DRAM access */
-	pmic_reg_write(dev, BD718XX_BUCK1_VOLT_RUN, 0x0f);
+	/* Set DVS1 to 0.8v for suspend */
+	pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS1, 0x10);
 
-	/* increase VDD_DRAM to 0.975v for 3Ghz DDR */
-	pmic_reg_write(dev, BD718XX_1ST_NODVS_BUCK_VOLT, 0x83);
+	/* increase VDD_DRAM to 0.95v for 3Ghz DDR */
+	pmic_reg_write(dev, PCA9450_BUCK3OUT_DVS0, 0x1C);
 
-#ifndef CONFIG_IMX8M_LPDDR4
-	/* increase NVCC_DRAM_1V2 to 1.2v for DDR4 */
-	pmic_reg_write(dev, BD718XX_4TH_NODVS_BUCK_VOLT, 0x28);
-#endif
+	/* VDD_DRAM needs off in suspend, set B1_ENMODE=10 (ON by PMIC_ON_REQ = H && PMIC_STBY_REQ = L) */
+	pmic_reg_write(dev, PCA9450_BUCK3CTRL, 0x4a);
 
-	/* lock the PMIC regs */
-	pmic_reg_write(dev, BD718XX_REGLOCK, 0x11);
+	/* set VDD_SNVS_0V8 from default 0.85V */
+	pmic_reg_write(dev, PCA9450_LDO2CTRL, 0xC0);
+
+	/* set WDOG_B_CFG to cold reset */
+	pmic_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
 
 	return 0;
 }
