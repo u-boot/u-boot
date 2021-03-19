@@ -368,8 +368,15 @@ config WINBOND_W83627
 config QFW
 	bool
 	help
-	  Hidden option to enable QEMU fw_cfg interface. This will be selected by
-	  either CONFIG_CMD_QFW or CONFIG_GENERATE_ACPI_TABLE.
+	  Hidden option to enable QEMU fw_cfg interface and uclass. This will
+	  be selected by either CONFIG_CMD_QFW or CONFIG_GENERATE_ACPI_TABLE.
+
+config QFW_PIO
+	bool
+	depends on QFW
+	help
+	  Hidden option to enable PIO QEMU fw_cfg interface. This will be
+	  selected by the appropriate QEMU board.
 
 config I2C_EEPROM
 	bool "Enable driver for generic I2C-attached EEPROMs"
