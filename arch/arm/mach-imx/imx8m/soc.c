@@ -410,7 +410,16 @@ u32 get_cpu_rev(void)
 			 * 0xff0055aa is magic number for B1.
 			 */
 			if (readl((void __iomem *)(OCOTP_BASE_ADDR + 0x40)) == 0xff0055aa) {
-				reg = CHIP_REV_2_1;
+				/*
+				 * B2 uses same DIGPROG and OCOTP_READ_FUSE_DATA value with B1,
+				 * so have to check ROM to distinguish them
+				 */
+				rom_version = readl((void __iomem *)ROM_VERSION_B0);
+				rom_version &= 0xff;
+				if (rom_version == CHIP_REV_2_2)
+					reg = CHIP_REV_2_2;
+				else
+					reg = CHIP_REV_2_1;
 			} else {
 				rom_version =
 					readl((void __iomem *)ROM_VERSION_A0);
