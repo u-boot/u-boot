@@ -14,6 +14,9 @@ struct dram_cfg_param ddr_ddrc_cfg[] = {
 	{ 0x3d400020, 0x1323 },
 	{ 0x3d400024, 0x1e84800 },
 	{ 0x3d400064, 0x7a0118 },
+#ifdef CONFIG_IMX8M_DRAM_INLINE_ECC
+	{ 0x3d400070, 0x01027f44 },
+#endif
 	{ 0x3d4000d0, 0xc00307a3 },
 	{ 0x3d4000d4, 0xc50000 },
 	{ 0x3d4000dc, 0xf4003f },
@@ -45,12 +48,21 @@ struct dram_cfg_param ddr_ddrc_cfg[] = {
 	{ 0x3d4001c4, 0x1 },
 	{ 0x3d4000f4, 0xc99 },
 	{ 0x3d400108, 0x9121c1c },
+#ifdef CONFIG_IMX8M_DRAM_INLINE_ECC
+	{ 0x3d400200, 0x13 },
+	{ 0x3d40020c, 0x13131300 },
+	{ 0x3d400210, 0x1f1f },
+	{ 0x3d400204, 0x50505 },
+	{ 0x3d400214, 0x4040404 },
+	{ 0x3d400218, 0x68040404 },
+#else
 	{ 0x3d400200, 0x16 },
 	{ 0x3d40020c, 0x0 },
 	{ 0x3d400210, 0x1f1f },
 	{ 0x3d400204, 0x80808 },
 	{ 0x3d400214, 0x7070707 },
 	{ 0x3d400218, 0x68070707 },
+#endif
 	{ 0x3d40021c, 0xf08 },
 	{ 0x3d400250, 0x00001705 },
 	{ 0x3d400254, 0x2c },
@@ -1846,3 +1858,18 @@ struct dram_timing_info dram_timing = {
 	.ddrphy_pie_num = ARRAY_SIZE(ddr_phy_pie),
 	.fsp_table = { 4000, 400, 100, },
 };
+
+#ifdef CONFIG_IMX8M_DRAM_INLINE_ECC
+void board_dram_ecc_scrub(void)
+{
+	/* add inline scrb function MPlus spcific */
+	/* scrub 0-1.75G */
+	ddrc_inline_ecc_scrub(0x0, 0x1bffffff);
+	/* scrub 2-3.75G */
+	ddrc_inline_ecc_scrub(0x20000000, 0x3bffffff);
+	/* scrub 4-5.75G */
+	ddrc_inline_ecc_scrub(0x40000000, 0x5bffffff);
+	/* set scruber read range 0-6G */
+	ddrc_inline_ecc_scrub_end(0x0, 0x5fffffff);
+}
+#endif
