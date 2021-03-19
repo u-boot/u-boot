@@ -960,6 +960,28 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 	return start;
 }
 
+struct efi_device_path *efi_dp_from_uart(void)
+{
+	void *buf, *pos;
+	struct efi_device_path_uart *uart;
+	size_t dpsize = sizeof(ROOT) + sizeof(*uart) + sizeof(END);
+
+	buf = dp_alloc(dpsize);
+	if (!buf)
+		return NULL;
+	pos = buf;
+	memcpy(pos, &ROOT, sizeof(ROOT));
+	pos += sizeof(ROOT);
+	uart = pos;
+	uart->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+	uart->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_UART;
+	uart->dp.length = sizeof(*uart);
+	pos += sizeof(*uart);
+	memcpy(pos, &END, sizeof(END));
+
+	return buf;
+}
+
 #ifdef CONFIG_NET
 struct efi_device_path *efi_dp_from_eth(void)
 {
@@ -1086,7 +1108,6 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      struct efi_device_path **device,
 			      struct efi_device_path **file)
 {
-	int is_net;
 	struct blk_desc *desc = NULL;
 	struct disk_partition fs_partition;
 	int part = 0;
@@ -1096,8 +1117,15 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (path && !file)
 		return EFI_INVALID_PARAMETER;
 
-	is_net = !strcmp(dev, "Net");
-	if (!is_net) {
+	if (!strcmp(dev, "Net")) {
+#ifdef CONFIG_NET
+		if (device)
+			*device = efi_dp_from_eth();
+#endif
+	} else if (!strcmp(dev, "Uart")) {
+		if (device)
+			*device = efi_dp_from_uart();
+	} else {
 		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
 					       1);
 		if (part < 0 || !desc)
@@ -1105,11 +1133,6 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 
 		if (device)
 			*device = efi_dp_from_part(desc, part);
-	} else {
-#ifdef CONFIG_NET
-		if (device)
-			*device = efi_dp_from_eth();
-#endif
 	}
 
 	if (!path)
@@ -1120,7 +1143,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	s = filename;
 	while ((s = strchr(s, '/')))
 		*s++ = '\\';
-	*file = efi_dp_from_file(is_net ? NULL : desc, part, filename);
+	*file = efi_dp_from_file(desc, part, filename);
 
 	if (!*file)
 		return EFI_INVALID_PARAMETER;
