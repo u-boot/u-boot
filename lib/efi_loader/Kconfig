@@ -179,6 +179,21 @@ config EFI_CAPSULE_AUTHENTICATE
 	  Select this option if you want to enable capsule
 	  authentication
 
+config EFI_PKEY_DTB_EMBED
+	bool "Embed the public key in the Device Tree"
+	depends on EFI_CAPSULE_AUTHENTICATE
+	help
+	  Select this option if the public key used for capsule
+	  authentication is to be embedded into the platform's
+	  device tree.
+
+config EFI_PKEY_FILE
+	string "Public Key esl file to be embedded into the Device Tree"
+	default "eficapsule.esl"
+	help
+	  Specify the absolute path of the public key esl file that is
+	  to be embedded in the platform's device tree.
+
 config EFI_CAPSULE_FIRMWARE_FIT
 	bool "FMP driver for FIT image"
 	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
