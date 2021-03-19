@@ -378,6 +378,13 @@ config QFW_PIO
 	  Hidden option to enable PIO QEMU fw_cfg interface. This will be
 	  selected by the appropriate QEMU board.
 
+config QFW_MMIO
+	bool
+	depends on QFW
+	help
+	  Hidden option to enable MMIO QEMU fw_cfg interface. This will be
+	  selected by the appropriate QEMU board.
+
 config I2C_EEPROM
 	bool "Enable driver for generic I2C-attached EEPROMs"
 	depends on MISC
