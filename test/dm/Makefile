@@ -98,5 +98,6 @@ endif
 ifneq ($(CONFIG_EFI_PARTITION),)
 obj-$(CONFIG_FASTBOOT_FLASH_MMC) += fastboot.o
 endif
+obj-$(CONFIG_QFW) += qfw.o
 endif
 endif # !SPL
