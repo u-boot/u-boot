@@ -36,11 +36,19 @@ config TARGET_MT7629
 	bool "MediaTek MT7629 SoC"
 	select CPU_V7A
 	select SPL
-	select BINMAN
 	help
 	  The MediaTek MT7629 is a ARM-based SoC with a dual-core Cortex-A7
 	  including DDR3, crypto engine, 3x3 11n/ac Wi-Fi, Gigabit Ethernet,
 	  switch, USB3.0, PCIe, UART, SPI, I2C and PWM.
+
+config TARGET_MT8183
+	bool "MediaTek MT8183 SoC"
+	select ARM64
+	help
+	  The MediaTek MT8183 is a ARM64-based SoC with a quad-core Cortex-A73 and
+	  a quad-core Cortex-A53. It is including UART, SPI, USB3.0 dual role,
+	  SD and MMC cards, UFS, PWM, I2C, I2S, S/PDIF, and several LPDDR3
+	  and LPDDR4 options.
 
 config TARGET_MT8512
         bool "MediaTek MT8512 M1 Board"
@@ -75,8 +83,9 @@ endchoice
 source "board/mediatek/mt7622/Kconfig"
 source "board/mediatek/mt7623/Kconfig"
 source "board/mediatek/mt7629/Kconfig"
+source "board/mediatek/mt8183/Kconfig"
 source "board/mediatek/mt8512/Kconfig"
+source "board/mediatek/mt8516/Kconfig"
 source "board/mediatek/mt8518/Kconfig"
-source "board/mediatek/pumpkin/Kconfig"
 
 endif

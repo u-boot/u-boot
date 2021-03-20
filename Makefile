@@ -1728,6 +1728,9 @@ u-boot-elf.lds: arch/u-boot-elf.lds prepare FORCE
 
 ifeq ($(CONFIG_SPL),y)
 spl/u-boot-spl-mtk.bin: spl/u-boot-spl
+
+u-boot-mtk.bin: u-boot-with-spl.bin
+	$(call if_changed,copy)
 else
 MKIMAGEFLAGS_u-boot-mtk.bin = -T mtk_image \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) \
