@@ -482,8 +482,12 @@ class Entry(object):
         """
         return self._node.path
 
-    def GetData(self):
+    def GetData(self, required=True):
         """Get the contents of an entry
+
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
 
         Returns:
             bytes content of the entry, excluding any padding. If the entry is

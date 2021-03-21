@@ -47,15 +47,19 @@ class Entry_vblock(Entry_collection):
             EntryArg('kernelkey', str),
             EntryArg('preamble-flags', int)])
 
-    def GetVblock(self):
+    def GetVblock(self, required):
         """Get the contents of this entry
+
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
 
         Returns:
             bytes content of the entry, which is the signed vblock for the
                 provided data
         """
         # Join up the data files to be signed
-        input_data = self.GetContents()
+        input_data = self.GetContents(required)
         if input_data is None:
             return None
 
@@ -79,7 +83,7 @@ class Entry_vblock(Entry_collection):
         return tools.ReadFile(output_fname)
 
     def ObtainContents(self):
-        data = self.GetVblock()
+        data = self.GetVblock(False)
         if data is None:
             return False
         self.SetContents(data)
@@ -87,5 +91,5 @@ class Entry_vblock(Entry_collection):
 
     def ProcessContents(self):
         # The blob may have changed due to WriteSymbols()
-        data = self.GetVblock()
+        data = self.GetVblock(True)
         return self.ProcessContentsUpdate(data)

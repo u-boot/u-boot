@@ -28,18 +28,24 @@ class Entry_collection(Entry):
         if not self.content:
             self.Raise("Collection must have a 'content' property")
 
-    def GetContents(self):
+    def GetContents(self, required):
         """Get the contents of this entry
+
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
 
         Returns:
             bytes content of the entry
         """
         # Join up all the data
-        self.Info('Getting content')
+        self.Info('Getting contents, required=%s' % required)
         data = b''
         for entry_phandle in self.content:
-            entry_data = self.section.GetContentsByPhandle(entry_phandle, self)
-            if entry_data is None:
+            entry_data = self.section.GetContentsByPhandle(entry_phandle, self,
+                                                           required)
+            if not required and entry_data is None:
+                self.Info('Contents not available yet')
                 # Data not available yet
                 return None
             data += entry_data
@@ -49,7 +55,7 @@ class Entry_collection(Entry):
         return data
 
     def ObtainContents(self):
-        data = self.GetContents()
+        data = self.GetContents(False)
         if data is None:
             return False
         self.SetContents(data)
@@ -57,5 +63,5 @@ class Entry_collection(Entry):
 
     def ProcessContents(self):
         # The blob may have changed due to WriteSymbols()
-        data = self.GetContents()
+        data = self.GetContents(True)
         return self.ProcessContentsUpdate(data)

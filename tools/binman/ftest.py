@@ -4484,5 +4484,18 @@ class TestFunctional(unittest.TestCase):
                          tools.GetBytes(0xfe, 3) + U_BOOT_DTB_DATA,
                          data)
 
+    def testCollectionSection(self):
+        """Test a collection where a section must be built first"""
+        # Sections never have their contents when GetData() is called, but when
+        # _BuildSectionData() is called with required=True, a section will force
+        # building the contents, producing an error is anything is still
+        # missing.
+        data = self._DoReadFile('199_collection_section.dts')
+        section = U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA
+        self.assertEqual(section + U_BOOT_DATA + tools.GetBytes(0xff, 2) +
+                         section + tools.GetBytes(0xfe, 3) + U_BOOT_DATA,
+                         data)
+
+
 if __name__ == "__main__":
     unittest.main()

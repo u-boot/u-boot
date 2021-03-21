@@ -180,7 +180,7 @@ class Entry_section(Entry):
 
         return data
 
-    def _BuildSectionData(self):
+    def _BuildSectionData(self, required):
         """Build the contents of a section
 
         This places all entries at the right place, dealing with padding before
@@ -188,13 +188,20 @@ class Entry_section(Entry):
         pad-before and pad-after properties in the section items) since that is
         handled by the parent section.
 
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
+
         Returns:
             Contents of the section (bytes)
         """
         section_data = b''
 
         for entry in self._entries.values():
-            data = self.GetPaddedDataForEntry(entry, entry.GetData())
+            entry_data = entry.GetData(required)
+            if not required and entry_data is None:
+                return None
+            data = self.GetPaddedDataForEntry(entry, entry_data)
             # Handle empty space before the entry
             pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
@@ -226,18 +233,24 @@ class Entry_section(Entry):
             data = self.GetData()
         return section.GetPaddedDataForEntry(self, data)
 
-    def GetData(self):
+    def GetData(self, required=True):
         """Get the contents of an entry
 
         This builds the contents of the section, stores this as the contents of
         the section and returns it
+
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
 
         Returns:
             bytes content of the section, made up for all all of its subentries.
             This excludes any padding. If the section is compressed, the
             compressed data is returned
         """
-        data = self._BuildSectionData()
+        data = self._BuildSectionData(required)
+        if data is None:
+            return None
         self.SetContents(data)
         return data
 
@@ -263,7 +276,7 @@ class Entry_section(Entry):
             self._SortEntries()
         self._ExpandEntries()
 
-        data = self._BuildSectionData()
+        data = self._BuildSectionData(True)
         self.SetContents(data)
 
         self.CheckSize()
@@ -360,16 +373,20 @@ class Entry_section(Entry):
     def GetEntries(self):
         return self._entries
 
-    def GetContentsByPhandle(self, phandle, source_entry):
+    def GetContentsByPhandle(self, phandle, source_entry, required):
         """Get the data contents of an entry specified by a phandle
 
         This uses a phandle to look up a node and and find the entry
-        associated with it. Then it returnst he contents of that entry.
+        associated with it. Then it returns the contents of that entry.
+
+        The node must be a direct subnode of this section.
 
         Args:
             phandle: Phandle to look up (integer)
             source_entry: Entry containing that phandle (used for error
                 reporting)
+            required: True if the data must be present, False if it is OK to
+                return None
 
         Returns:
             data from associated entry (as a string), or None if not found
@@ -379,7 +396,7 @@ class Entry_section(Entry):
             source_entry.Raise("Cannot find node for phandle %d" % phandle)
         for entry in self._entries.values():
             if entry._node == node:
-                return entry.GetData()
+                return entry.GetData(required)
         source_entry.Raise("Cannot find entry for node '%s'" % node.name)
 
     def LookupSymbol(self, sym_name, optional, msg, base_addr, entries=None):
