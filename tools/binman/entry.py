@@ -164,7 +164,8 @@ class Entry(object):
         if obj and expanded:
             # Check whether to use the expanded entry
             new_etype = etype + '-expanded'
-            if obj.UseExpanded(node, etype, new_etype):
+            can_expand = not fdt_util.GetBool(node, 'no-expanded')
+            if can_expand and obj.UseExpanded(node, etype, new_etype):
                 etype = new_etype
             else:
                 obj = None

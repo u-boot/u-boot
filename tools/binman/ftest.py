@@ -1344,13 +1344,19 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('052_u_boot_spl_nodtb.dts')
         self.assertEqual(U_BOOT_SPL_NODTB_DATA, data[:len(U_BOOT_SPL_NODTB_DATA)])
 
-    def checkSymbols(self, dts, base_data, u_boot_offset):
+    def checkSymbols(self, dts, base_data, u_boot_offset, entry_args=None,
+                     use_expanded=False):
         """Check the image contains the expected symbol values
 
         Args:
             dts: Device tree file to use for test
             base_data: Data before and after 'u-boot' section
             u_boot_offset: Offset of 'u-boot' section in image
+            entry_args: Dict of entry args to supply to binman
+                key: arg name
+                value: value of that arg
+            use_expanded: True to use expanded entries where available, e.g.
+                'u-boot-expanded' instead of 'u-boot'
         """
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
         syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
@@ -1359,7 +1365,8 @@ class TestFunctional(unittest.TestCase):
                          addr)
 
         self._SetupSplElf('u_boot_binman_syms')
-        data = self._DoReadFile(dts)
+        data = self._DoReadFileDtb(dts, entry_args=entry_args,
+                                   use_expanded=use_expanded)[0]
         # The image should contain the symbols from u_boot_binman_syms.c
         # Note that image_pos is adjusted by the base address of the image,
         # which is 0x10 in our test image
@@ -4459,6 +4466,15 @@ class TestFunctional(unittest.TestCase):
         # TPL has no devicetree
         start += fdt_size + len(U_BOOT_TPL_DATA)
         self.assertEqual(len(data), start)
+
+    def testSymbolsExpanded(self):
+        """Test binman can assign symbols in expanded entries"""
+        entry_args = {
+            'spl-dtb': '1',
+        }
+        self.checkSymbols('197_symbols_expand.dts', U_BOOT_SPL_NODTB_DATA +
+                          U_BOOT_SPL_DTB_DATA, 0x38,
+                          entry_args=entry_args, use_expanded=True)
 
 if __name__ == "__main__":
     unittest.main()

@@ -25,7 +25,7 @@ class Entry_u_boot(Entry_blob):
     in the binman README for more information.
 
     Note that this entry is automatically replaced with u-boot-expanded unless
-    --no-expanded is used.
+    --no-expanded is used or the node has a 'no-expanded' property.
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)

@@ -472,6 +472,13 @@ missing-msg:
     information about what needs to be fixed. See missing-blob-help for the
     message for each tag.
 
+no-expanded:
+    By default binman substitutes entries with expanded versions if available,
+    so that a `u-boot` entry type turns into `u-boot-expanded`, for example. The
+    `--no-expanded` command-line option disables this globally. The
+    `no-expanded` property disables this just for a single entry. Put the
+    `no-expanded` boolean property in the node to select this behaviour.
+
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
 

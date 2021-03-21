@@ -32,7 +32,7 @@ class Entry_u_boot_spl(Entry_blob):
     binman uses that to look up symbols to write into the SPL binary.
 
     Note that this entry is automatically replaced with u-boot-spl-expanded
-    unless --no-expanded is used.
+    unless --no-expanded is used or the node has a 'no-expanded' property.
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)

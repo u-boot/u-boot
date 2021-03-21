@@ -863,7 +863,7 @@ U-Boot can access binman symbols at runtime. See:
 in the binman README for more information.
 
 Note that this entry is automatically replaced with u-boot-expanded unless
---no-expanded is used.
+--no-expanded is used or the node has a 'no-expanded' property.
 
 
 
@@ -984,7 +984,7 @@ The ELF file 'spl/u-boot-spl' must also be available for this to work, since
 binman uses that to look up symbols to write into the SPL binary.
 
 Note that this entry is automatically replaced with u-boot-spl-expanded
-unless --no-expanded is used.
+unless --no-expanded is used or the node has a 'no-expanded' property.
 
 
 
@@ -1113,7 +1113,7 @@ The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
 binman uses that to look up symbols to write into the TPL binary.
 
 Note that this entry is automatically replaced with u-boot-tpl-expanded
-unless --no-expanded is used.
+unless --no-expanded is used or the node has a 'no-expanded' property.
 
 
 
