@@ -103,6 +103,8 @@ class Prop:
     """A device tree property
 
     Properties:
+        node: Node containing this property
+        offset: Offset of the property (None if still to be synced)
         name: Property name (as per the device tree)
         value: Property value as a string of bytes, or a list of strings of
             bytes
@@ -114,7 +116,7 @@ class Prop:
         self.name = name
         self.value = None
         self.bytes = bytes(data)
-        self.dirty = False
+        self.dirty = offset is None
         if not data:
             self.type = Type.BOOL
             self.value = True
@@ -228,7 +230,7 @@ class Prop:
         Raises:
             FdtException if auto_resize is False and there is not enough space
         """
-        if self._offset is None or self.dirty:
+        if self.dirty:
             node = self._node
             fdt_obj = node._fdt._fdt_obj
             if auto_resize:
@@ -239,13 +241,15 @@ class Prop:
                     fdt_obj.setprop(node.Offset(), self.name, self.bytes)
             else:
                 fdt_obj.setprop(node.Offset(), self.name, self.bytes)
+            self.dirty = False
 
 
 class Node:
     """A device tree node
 
     Properties:
-        offset: Integer offset in the device tree
+        parent: Parent Node
+        offset: Integer offset in the device tree (None if to be synced)
         name: Device tree node tname
         path: Full path to node, along with the node name itself
         _fdt: Device tree object
