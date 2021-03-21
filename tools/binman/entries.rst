@@ -248,6 +248,19 @@ both of size 1MB.
 
 
 
+Entry: collection: An entry which contains a collection of other entries
+------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - content: List of phandles to entries to include
+
+This allows reusing the contents of other entries. The contents of the
+listed entries are combined to form this entry. This serves as a useful
+base class for entry types which need to process data from elsewhere in
+the image, not necessarily child entries.
+
+
+
 Entry: cros-ec-rw: A blob entry which contains a Chromium OS read-write EC image
 --------------------------------------------------------------------------------
 

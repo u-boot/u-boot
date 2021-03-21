@@ -438,6 +438,11 @@ class Entry(object):
         """Convenience function to raise an error referencing a node"""
         raise ValueError("Node '%s': %s" % (self._node.path, msg))
 
+    def Info(self, msg):
+        """Convenience function to log info referencing a node"""
+        tag = "Info '%s'" % self._node.path
+        tout.Detail('%30s: %s' % (tag, msg))
+
     def Detail(self, msg):
         """Convenience function to log detail referencing a node"""
         tag = "Node '%s'" % self._node.path

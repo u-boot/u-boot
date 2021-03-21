@@ -1718,7 +1718,7 @@ class TestFunctional(unittest.TestCase):
         """Test we detect a vblock which has no content to sign"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('075_vblock_no_content.dts')
-        self.assertIn("Node '/binman/vblock': Vblock must have a 'content' "
+        self.assertIn("Node '/binman/vblock': Collection must have a 'content' "
                       'property', str(e.exception))
 
     def testVblockBadPhandle(self):
@@ -4475,6 +4475,14 @@ class TestFunctional(unittest.TestCase):
         self.checkSymbols('197_symbols_expand.dts', U_BOOT_SPL_NODTB_DATA +
                           U_BOOT_SPL_DTB_DATA, 0x38,
                           entry_args=entry_args, use_expanded=True)
+
+    def testCollection(self):
+        """Test a collection"""
+        data = self._DoReadFile('198_collection.dts')
+        self.assertEqual(U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA +
+                         tools.GetBytes(0xff, 2) + U_BOOT_NODTB_DATA +
+                         tools.GetBytes(0xfe, 3) + U_BOOT_DTB_DATA,
+                         data)
 
 if __name__ == "__main__":
     unittest.main()
