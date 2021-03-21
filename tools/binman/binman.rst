@@ -562,6 +562,13 @@ skip-at-start:
     'end-at-4gb' property is not applicable where CONFIG_SYS_TEXT_BASE +
     Image size != 4gb.
 
+align-default:
+    Specifies the default alignment for entries in this section, if they do
+    not specify an alignment. Note that this only applies to top-level entries
+    in the section (direct subentries), not any subentries of those entries.
+    This means that each section must specify its own default alignment, if
+    required.
+
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
 

@@ -36,6 +36,8 @@ class Entry_section(Entry):
             file, since the first 16 bytes are skipped when writing.
         name-prefix: Adds a prefix to the name of every entry in the section
             when writing out the map
+        align_default: Default alignment for this section, if no alignment is
+            given in the entry
 
     Properties:
         allow_missing: True if this section permits external blobs to be
@@ -76,6 +78,7 @@ class Entry_section(Entry):
             if self._skip_at_start is None:
                 self._skip_at_start = 0
         self._name_prefix = fdt_util.GetString(self._node, 'name-prefix')
+        self.align_default = fdt_util.GetInt(self._node, 'align-default', 0)
         filename = fdt_util.GetString(self._node, 'filename')
         if filename:
             self._filename = filename

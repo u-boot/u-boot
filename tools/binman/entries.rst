@@ -796,6 +796,8 @@ Properties / Entry arguments: (see binman README for more information):
         file, since the first 16 bytes are skipped when writing.
     name-prefix: Adds a prefix to the name of every entry in the section
         when writing out the map
+    align_default: Default alignment for this section, if no alignment is
+        given in the entry
 
 Properties:
     allow_missing: True if this section permits external blobs to be

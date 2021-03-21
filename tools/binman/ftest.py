@@ -4496,6 +4496,18 @@ class TestFunctional(unittest.TestCase):
                          section + tools.GetBytes(0xfe, 3) + U_BOOT_DATA,
                          data)
 
+    def testAlignDefault(self):
+        """Test that default alignment works on sections"""
+        data = self._DoReadFile('200_align_default.dts')
+        expected = (U_BOOT_DATA + tools.GetBytes(0, 8 - len(U_BOOT_DATA)) +
+                    U_BOOT_DATA)
+        # Special alignment for section
+        expected += tools.GetBytes(0, 32 - len(expected))
+        # No alignment within the nested section
+        expected += U_BOOT_DATA + U_BOOT_NODTB_DATA;
+        # Now the final piece, which should be default-aligned
+        expected += tools.GetBytes(0, 88 - len(expected)) + U_BOOT_NODTB_DATA
+        self.assertEqual(expected, data)
 
 if __name__ == "__main__":
     unittest.main()
