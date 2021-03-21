@@ -237,6 +237,22 @@ class TestNode(unittest.TestCase):
         """Test adding various subnode and properies"""
         node = self.dtb.GetNode('/i2c@0')
 
+        # Add one more node next to the pmic one
+        sn1 = node.AddSubnode('node-one')
+        sn1.AddInt('integer-a', 12)
+        sn1.AddInt('integer-b', 23)
+
+        # Sync so that everything is clean
+        self.dtb.Sync(auto_resize=True)
+
+        # Add two subnodes next to pmic and node-one
+        sn2 = node.AddSubnode('node-two')
+        sn2.AddInt('integer-2a', 34)
+        sn2.AddInt('integer-2b', 45)
+
+        sn3 = node.AddSubnode('node-three')
+        sn3.AddInt('integer-3', 123)
+
         # Add a property to the node after i2c@0 to check that this is not
         # disturbed by adding a subnode to i2c@0
         orig_node = self.dtb.GetNode('/orig-node')

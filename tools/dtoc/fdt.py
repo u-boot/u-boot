@@ -503,9 +503,13 @@ class Node:
             auto_resize: Resize the device tree automatically if it does not
                 have enough space for the update
 
+        Returns:
+            True if the node had to be added, False if it already existed
+
         Raises:
             FdtException if auto_resize is False and there is not enough space
         """
+        added = False
         if self._offset is None:
             # The subnode doesn't exist yet, so add it
             fdt_obj = self._fdt._fdt_obj
@@ -519,23 +523,45 @@ class Node:
             else:
                 offset = fdt_obj.add_subnode(self.parent._offset, self.name)
             self._offset = offset
+            added = True
 
-        # Sync subnodes in reverse so that we don't disturb node offsets for
-        # nodes that are earlier in the DT. This avoids an O(n^2) rescan of
-        # node offsets.
+        # Sync the existing subnodes first, so that we can rely on the offsets
+        # being correct. As soon as we add new subnodes, it pushes all the
+        # existing subnodes up.
         for node in reversed(self.subnodes):
-            node.Sync(auto_resize)
+            if node._offset is not None:
+                node.Sync(auto_resize)
 
-        # Sync properties now, whose offsets should not have been disturbed.
-        # We do this after subnodes, since this disturbs the offsets of these
-        # properties. Note that new properties will have an offset of None here,
-        # which Python 3 cannot sort against int. So use a large value instead
-        # to ensure that the new properties are added first.
+        # Sync subnodes in reverse so that we get the expected order. Each
+        # new node goes at the start of the subnode list. This avoids an O(n^2)
+        # rescan of node offsets.
+        num_added = 0
+        for node in reversed(self.subnodes):
+            if node.Sync(auto_resize):
+                num_added += 1
+        if num_added:
+            # Reorder our list of nodes to put the new ones first, since that's
+            # what libfdt does
+            old_count = len(self.subnodes) - num_added
+            subnodes = self.subnodes[old_count:] + self.subnodes[:old_count]
+            self.subnodes = subnodes
+
+        # Sync properties now, whose offsets should not have been disturbed,
+        # since properties come before subnodes. This is done after all the
+        # subnode processing above, since updating properties can disturb the
+        # offsets of those subnodes.
+        # Properties are synced in reverse order, with new properties added
+        # before existing properties are synced. This ensures that the offsets
+        # of earlier properties are not disturbed.
+        # Note that new properties will have an offset of None here, which
+        # Python cannot sort against int. So use a large value instead so that
+        # new properties are added first.
         prop_list = sorted(self.props.values(),
                            key=lambda prop: prop._offset or 1 << 31,
                            reverse=True)
         for prop in prop_list:
             prop.Sync(auto_resize)
+        return added
 
 
 class Fdt:
