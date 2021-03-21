@@ -56,6 +56,17 @@
 		recovery-gpios = <&gpio_nw (-1) GPIO_ACTIVE_LOW>;
 		write-protect-gpios = <&gpio_nw GPIO_75 GPIO_ACTIVE_HIGH>;
 		phase-enforce-gpios = <&gpio_n GPIO_10 GPIO_ACTIVE_HIGH>;
+		memconfig-gpios = <&gpio_nw GPIO_101 GPIO_ACTIVE_HIGH
+			&gpio_nw GPIO_102 GPIO_ACTIVE_HIGH
+			&gpio_n GPIO_38 GPIO_ACTIVE_HIGH
+			&gpio_n GPIO_45 GPIO_ACTIVE_HIGH>;
+
+		/*
+		 * This is used for reef only:
+		 *
+		 * skuconfig-gpios = <&gpio_nw GPIO_16 GPIO_ACTIVE_HIGH
+		 *	&gpio_nw GPIO_17 GPIO_ACTIVE_HIGH>;
+		 */
 		smbios {
 			/* Type 1 table */
 			system {
