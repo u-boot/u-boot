@@ -339,8 +339,8 @@ class Node:
             p = fdt_obj.get_property_by_offset(poffset)
             prop = self.props.get(p.name)
             if not prop:
-                raise ValueError("Internal error, property '%s' missing, "
-                                 'offset %d' % (p.name, poffset))
+                raise ValueError("Internal error, node '%s' property '%s' missing, "
+                                 'offset %d' % (self.path, p.name, poffset))
             prop.RefreshOffset(poffset)
             poffset = fdt_obj.next_property_offset(poffset, QUIET_NOTFOUND)
 

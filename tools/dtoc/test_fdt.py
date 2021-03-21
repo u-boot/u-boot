@@ -209,7 +209,7 @@ class TestNode(unittest.TestCase):
         del self.node.props['notstring']
         with self.assertRaises(ValueError) as e:
             self.dtb.Refresh()
-        self.assertIn("Internal error, property 'notstring' missing, offset ",
+        self.assertIn("Internal error, node '/spl-test' property 'notstring' missing, offset ",
                       str(e.exception))
 
     def testLookupPhandle(self):
