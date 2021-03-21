@@ -1377,7 +1377,7 @@ class TestFunctional(unittest.TestCase):
 
     def testSymbolsNoDtb(self):
         """Test binman can assign symbols embedded in U-Boot SPL"""
-        self.checkSymbols('192_symbols_nodtb.dts',
+        self.checkSymbols('196_symbols_nodtb.dts',
                           U_BOOT_SPL_NODTB_DATA + U_BOOT_SPL_DTB_DATA,
                           0x38)
 
