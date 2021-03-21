@@ -265,6 +265,22 @@ class TestNode(unittest.TestCase):
 
         self.dtb.Sync(auto_resize=True)
 
+    def testRefreshNameMismatch(self):
+        """Test name mismatch when syncing nodes and properties"""
+        prop = self.node.AddInt('integer-a', 12)
+
+        wrong_offset = self.dtb.GetNode('/i2c@0')._offset
+        self.node._offset = wrong_offset
+        with self.assertRaises(ValueError) as e:
+            self.dtb.Sync()
+        self.assertIn("Internal error, node '/spl-test' name mismatch 'i2c@0'",
+                      str(e.exception))
+
+        with self.assertRaises(ValueError) as e:
+            self.node.Refresh(wrong_offset)
+        self.assertIn("Internal error, node '/spl-test' name mismatch 'i2c@0'",
+                      str(e.exception))
+
 
 class TestProp(unittest.TestCase):
     """Test operation of the Prop class"""

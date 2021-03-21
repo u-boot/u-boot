@@ -233,6 +233,11 @@ class Prop:
         if self.dirty:
             node = self._node
             fdt_obj = node._fdt._fdt_obj
+            node_name = fdt_obj.get_name(node._offset)
+            if node_name and node_name != node.name:
+                raise ValueError("Internal error, node '%s' name mismatch '%s'" %
+                                 (node.path, node_name))
+
             if auto_resize:
                 while fdt_obj.setprop(node.Offset(), self.name, self.bytes,
                                     (libfdt.NOSPACE,)) == -libfdt.NOSPACE:
@@ -328,6 +333,11 @@ class Node:
         fdt_obj = self._fdt._fdt_obj
         if self._offset != my_offset:
             self._offset = my_offset
+        name = fdt_obj.get_name(self._offset)
+        if name and self.name != name:
+            raise ValueError("Internal error, node '%s' name mismatch '%s'" %
+                             (self.path, name))
+
         offset = fdt_obj.first_subnode(self._offset, QUIET_NOTFOUND)
         for subnode in self.subnodes:
             if subnode.name != fdt_obj.get_name(offset):
@@ -451,8 +461,13 @@ class Node:
         Args:
             prop_name: Name of property to add
             val: Bytes value of property
+
+        Returns:
+            Prop added
         """
-        self.props[prop_name] = Prop(self, None, prop_name, val)
+        prop = Prop(self, None, prop_name, val)
+        self.props[prop_name] = prop
+        return prop
 
     def AddString(self, prop_name, val):
         """Add a new string property to a node
@@ -463,9 +478,12 @@ class Node:
         Args:
             prop_name: Name of property to add
             val: String value of property
+
+        Returns:
+            Prop added
         """
         val = bytes(val, 'utf-8')
-        self.AddData(prop_name, val + b'\0')
+        return self.AddData(prop_name, val + b'\0')
 
     def AddInt(self, prop_name, val):
         """Add a new integer property to a node
@@ -476,8 +494,11 @@ class Node:
         Args:
             prop_name: Name of property to add
             val: Integer value of property
+
+        Returns:
+            Prop added
         """
-        self.AddData(prop_name, struct.pack('>I', val))
+        return self.AddData(prop_name, struct.pack('>I', val))
 
     def AddSubnode(self, name):
         """Add a new subnode to the node
