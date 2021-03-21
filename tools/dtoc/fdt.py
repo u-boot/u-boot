@@ -646,8 +646,9 @@ class Fdt:
         Raises:
             FdtException if auto_resize is False and there is not enough space
         """
+        self.CheckCache()
         self._root.Sync(auto_resize)
-        self.Invalidate()
+        self.Refresh()
 
     def Pack(self):
         """Pack the device tree down to its minimum size
@@ -656,7 +657,7 @@ class Fdt:
         build up in the device tree binary.
         """
         CheckErr(self._fdt_obj.pack(), 'pack')
-        self.Invalidate()
+        self.Refresh()
 
     def GetContents(self):
         """Get the contents of the FDT
@@ -708,11 +709,11 @@ class Fdt:
         if self._cached_offsets:
             return
         self.Refresh()
-        self._cached_offsets = True
 
     def Refresh(self):
         """Refresh the offset cache"""
         self._root.Refresh(0)
+        self._cached_offsets = True
 
     def GetStructOffset(self, offset):
         """Get the file offset of a given struct offset
