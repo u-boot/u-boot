@@ -207,18 +207,18 @@
 	scl-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio 25 GPIO_ACTIVE_HIGH>;
 
-	eeprom: eeprom@50 { /* u46 */
+	eeprom: eeprom@50 { /* u46 - also at address 0x58 */
 		compatible = "atmel,24c64";
 		reg = <0x50>;
 		/* WP pin EE_WP_EN connected to slg7x644092@68 */
 	};
 
-	eeprom_cc: eeprom@51 { /* required by spec */
+	eeprom_cc: eeprom@51 { /* required by spec - also at address 0x59 */
 		compatible = "atmel,24c64";
 		reg = <0x51>;
 	};
 
-	/* da9062@60 - u170 - also at address 0x62 */
+	/* da9062@30 - u170 - also at address 0x31 */
 	/* da9131@33 - u167 */
 	da9131: pmic@33 {
 		compatible = "dlg,da9131";
@@ -246,7 +246,14 @@
 			};
 		};
 	};
-	/* slg7x644091@70 - u168 */
+
+	/* slg7x644091@70 - u168 NOT accessible due to address conflict with stdp4320 */
+	/*
+	 * stdp4320 - u27 FW has below two issues.
+	 * Device acknowledging to addresses 0x5C, 0x5D, 0x70, 0x72, 0x76.
+	 * Address conflict with slg7x644091@70 making both the devices NOT accessible.
+	 * With the FW fix, stdp4320 should respond to address 0x73 only.
+	 */
 	/* slg7x644092@68 - u169 */
 	/* Also connected via JA1C as C23/C24 */
 };
