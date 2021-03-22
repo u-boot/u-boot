@@ -653,6 +653,9 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 dtb-$(CONFIG_MX23) += \
 	imx23-evk.dtb
 
+dtb-$(CONFIG_TARGET_MX23_OLINUXINO) += \
+	imx23-olinuxino.dtb
+
 dtb-$(CONFIG_MX28) += \
 	imx28-xea.dtb
 
