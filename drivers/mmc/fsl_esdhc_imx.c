@@ -521,15 +521,6 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		goto out;
 	}
 
-	/* Switch voltage to 1.8V if CMD11 succeeded */
-	if (cmd->cmdidx == SD_CMD_SWITCH_UHS18V) {
-		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
-
-		printf("Run CMD11 1.8V switch\n");
-		/* Sleep for 5 ms - max time for card to switch to 1.8V */
-		udelay(5000);
-	}
-
 	/* Workaround for ESDHC errata ENGcm03648 */
 	if (!data && (cmd->resp_type & MMC_RSP_BUSY)) {
 		int timeout = 50000;
