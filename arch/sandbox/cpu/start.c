@@ -390,6 +390,16 @@ static int sandbox_cmdline_cb_select_unittests(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT_SHORT(select_unittests, 'k', 1, "Select unit tests to run");
 
+static int sandbox_cmdline_cb_signals(struct sandbox_state *state,
+				      const char *arg)
+{
+	state->handle_signals = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(signals, 'S', 0,
+			  "Handle signals (such as SIGSEGV) in sandbox");
+
 static void setup_ram_buf(struct sandbox_state *state)
 {
 	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */
@@ -476,9 +486,11 @@ int main(int argc, char *argv[])
 	if (ret)
 		goto err;
 
-	ret = os_setup_signal_handlers();
-	if (ret)
-		goto err;
+	if (state->handle_signals) {
+		ret = os_setup_signal_handlers();
+		if (ret)
+			goto err;
+	}
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
