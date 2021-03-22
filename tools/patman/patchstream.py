@@ -133,8 +133,8 @@ class PatchStream:
             ValueError: Warning is generated with no commit associated
         """
         if not self.commit:
-            raise ValueError('Warning outside commit: %s' % warn)
-        if warn not in self.commit.warn:
+            print('Warning outside commit: %s' % warn)
+        elif warn not in self.commit.warn:
             self.commit.warn.append(warn)
 
     def _add_to_series(self, line, name, value):
