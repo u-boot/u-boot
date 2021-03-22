@@ -146,6 +146,7 @@ struct esdhc_soc_data {
  * @start_tuning_tap: the start point for tuning in tuning_ctrl register
  * @strobe_dll_delay_target: settings in strobe_dllctrl
  * @signal_voltage: indicating the current voltage
+ * @signal_voltage_switch_extra_delay_ms: extra delay for IO voltage switch
  * @cd_gpio: gpio for card detection
  * @wp_gpio: gpio for write protection
  */
@@ -170,6 +171,7 @@ struct fsl_esdhc_priv {
 	u32 tuning_start_tap;
 	u32 strobe_dll_delay_target;
 	u32 signal_voltage;
+	u32 signal_voltage_switch_extra_delay_ms;
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	struct udevice *vqmmc_dev;
 	struct udevice *vmmc_dev;
@@ -836,6 +838,14 @@ static int esdhc_set_voltage(struct mmc *mmc)
 		}
 #endif
 		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
+		/*
+		 * some board like imx8mm-evk need about 18ms to switch
+		 * the IO voltage from 3.3v to 1.8v, common code only
+		 * delay 10ms, so need to delay extra time to make sure
+		 * the IO voltage change to 1.8v.
+		 */
+		if (priv->signal_voltage_switch_extra_delay_ms)
+			mdelay(priv->signal_voltage_switch_extra_delay_ms);
 		if (esdhc_read32(&regs->vendorspec) & ESDHC_VENDORSPEC_VSELECT)
 			return 0;
 
@@ -1450,6 +1460,8 @@ static int fsl_esdhc_of_to_plat(struct udevice *dev)
 	val = fdtdec_get_int(fdt, node, "fsl,strobe-dll-delay-target",
 			     ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_DEFAULT);
 	priv->strobe_dll_delay_target = val;
+	val = fdtdec_get_int(fdt, node, "fsl,signal-voltage-switch-extra-delay-ms", 0);
+	priv->signal_voltage_switch_extra_delay_ms = val;
 
 	if (dev_read_bool(dev, "broken-cd"))
 		priv->broken_cd = 1;

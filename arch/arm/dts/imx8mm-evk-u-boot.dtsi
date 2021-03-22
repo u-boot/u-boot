@@ -113,6 +113,7 @@
 	u-boot,dm-spl;
 	sd-uhs-sdr104;
 	sd-uhs-ddr50;
+	fsl,signal-voltage-switch-extra-delay-ms = <8>;
 };
 
 &usdhc3 {
