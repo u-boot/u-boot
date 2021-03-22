@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx Versal a2197 RevA System Controller
  *
- * (C) Copyright 2019 - 2020, Xilinx, Inc.
+ * (C) Copyright 2019 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -547,6 +547,7 @@
 				factory-fout = <200000000>;
 				clock-frequency = <200000000>;
 				clock-output-names = "si570_ddrdimm1_clk";
+				silabs,skip-recall;
 			};
 		};
 		i2c@4 { /* LPDDR4_SI570_CLK2 */
