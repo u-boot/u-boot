@@ -84,6 +84,7 @@ struct chip_serdes_phy_config {
 	struct comphy_mux_data *mux_data;
 	int (*ptr_comphy_chip_init)(struct chip_serdes_phy_config *,
 				    struct comphy_map *);
+	int (*rx_training)(struct chip_serdes_phy_config *, u32);
 	void __iomem *comphy_base_addr;
 	void __iomem *hpipe3_base_addr;
 	u32 comphy_lanes_count;
@@ -151,9 +152,22 @@ static inline int comphy_a3700_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 #ifdef CONFIG_ARMADA_8K
 int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		      struct comphy_map *serdes_map);
+int comphy_cp110_sfi_rx_training(struct chip_serdes_phy_config *ptr_chip_cfg,
+				 u32 lane);
 #else
 static inline int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		      struct comphy_map *serdes_map)
+{
+	/*
+	 * This function should never be called in this configuration, so
+	 * lets return an error here.
+	 */
+	return -1;
+}
+
+static inline int comphy_cp110_sfi_rx_training(
+	struct chip_serdes_phy_config *ptr_chip_cfg,
+	u32 lane)
 {
 	/*
 	 * This function should never be called in this configuration, so

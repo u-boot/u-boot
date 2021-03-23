@@ -49,4 +49,11 @@ config MVEBU_UBOOT_DFLT_NAME
 	  This option should contain a default file name to be used with
 	  MVEBU "bubt" command if the source file name is omitted
 
+config CMD_MVEBU_RX_TRAINING
+	bool "rx_training"
+	depends on TARGET_MVEBU_ARMADA_8K
+	default n
+	help
+	  Perform RX training sequence
+
 endmenu

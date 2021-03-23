@@ -71,6 +71,16 @@ void comphy_print(struct chip_serdes_phy_config *chip_cfg,
 	}
 }
 
+int comphy_rx_training(struct udevice *dev, u32 lane)
+{
+	struct chip_serdes_phy_config *chip_cfg = dev_get_priv(dev);
+
+	if (chip_cfg->rx_training)
+		return chip_cfg->rx_training(chip_cfg, lane);
+
+	return 0;
+}
+
 __weak int comphy_update_map(struct comphy_map *serdes_map, int count)
 {
 	return 0;
@@ -114,11 +124,15 @@ static int comphy_probe(struct udevice *dev)
 		fdtdec_locate_array(blob, node, "mux-lane-order",
 				    chip_cfg->comphy_lanes_count);
 
-	if (device_is_compatible(dev, "marvell,comphy-armada-3700"))
+	if (device_is_compatible(dev, "marvell,comphy-armada-3700")) {
 		chip_cfg->ptr_comphy_chip_init = comphy_a3700_init;
+		chip_cfg->rx_training = NULL;
+	}
 
-	if (device_is_compatible(dev, "marvell,comphy-cp110"))
+	if (device_is_compatible(dev, "marvell,comphy-cp110")) {
 		chip_cfg->ptr_comphy_chip_init = comphy_cp110_init;
+		chip_cfg->rx_training = comphy_cp110_sfi_rx_training;
+	}
 
 	/*
 	 * Bail out if no chip_init function is defined, e.g. no
