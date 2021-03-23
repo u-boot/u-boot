@@ -713,17 +713,6 @@ int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 	return dm_gpio_clrset_flags(desc, GPIOD_MASK_DIR, flags);
 }
 
-int dm_gpio_set_dir(struct gpio_desc *desc)
-{
-	int ret;
-
-	ret = check_reserved(desc, "set_dir");
-	if (ret)
-		return ret;
-
-	return _dm_gpio_set_flags(desc, desc->flags);
-}
-
 int dm_gpios_clrset_flags(struct gpio_desc *desc, int count, ulong clr,
 			  ulong set)
 {
