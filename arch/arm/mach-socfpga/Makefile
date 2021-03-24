@@ -37,7 +37,7 @@ obj-y	+= mmu-arm64_s10.o
 obj-y	+= reset_manager_s10.o
 obj-y	+= system_manager_soc64.o
 obj-y	+= timer_s10.o
-obj-y	+= wrap_pinmux_config_s10.o
+obj-y	+= wrap_handoff_soc64.o
 obj-y	+= wrap_pll_config_soc64.o
 endif
 
@@ -52,7 +52,7 @@ obj-$(CONFIG_SOCFPGA_SECURE_VAB_AUTH)	+= secure_vab.o
 obj-y	+= system_manager_soc64.o
 obj-y	+= timer_s10.o
 obj-$(CONFIG_SOCFPGA_SECURE_VAB_AUTH)	+= vab.o
-obj-y	+= wrap_pinmux_config_s10.o
+obj-y	+= wrap_handoff_soc64.o
 obj-y	+= wrap_pll_config_soc64.o
 endif
 

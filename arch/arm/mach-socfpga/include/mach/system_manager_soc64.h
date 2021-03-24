@@ -10,10 +10,6 @@
 void sysmgr_pinmux_init(void);
 void populate_sysmgr_fpgaintf_module(void);
 void populate_sysmgr_pinmux(void);
-void sysmgr_pinmux_table_sel(const u32 **table, unsigned int *table_len);
-void sysmgr_pinmux_table_ctrl(const u32 **table, unsigned int *table_len);
-void sysmgr_pinmux_table_fpga(const u32 **table, unsigned int *table_len);
-void sysmgr_pinmux_table_delay(const u32 **table, unsigned int *table_len);
 
 #define SYSMGR_SOC64_WDDBG			0x08
 #define SYSMGR_SOC64_DMA			0x20
