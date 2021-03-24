@@ -120,13 +120,14 @@ endif
 u-boot-spl-init := $(head-y)
 u-boot-spl-main := $(libs-y)
 ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA
+platdata-hdr := include/generated/dt-structs-gen.h include/generated/dt-decl.h
 ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA_INST
 u-boot-spl-platdata := $(obj)/dts/dt-uclass.o $(obj)/dts/dt-device.o
 else
 u-boot-spl-platdata := $(obj)/dts/dt-plat.o
 endif
 u-boot-spl-platdata_c := $(patsubst %.o,%.c,$(u-boot-spl-platdata))
-endif
+endif  # OF_PLATDATA
 
 # Linker Script
 # First test whether there's a linker-script for the specific stage defined...
@@ -327,15 +328,11 @@ cmd_dtoc = $(DTOC_ARGS) -c $(obj)/dts -C include/generated all
 quiet_cmd_plat = PLAT    $@
 cmd_plat = $(CC) $(c_flags) -c $< -o $(filter-out $(PHONY),$@)
 
-targets += $(u-boot-spl-platdata)
-
-$(obj)/dts/dt-%.o: $(obj)/dts/dt-%.c \
-		include/generated/dt-structs-gen.h prepare FORCE
+$(obj)/dts/dt-%.o: $(obj)/dts/dt-%.c $(platdata-hdr)
 	$(call if_changed,plat)
 
 # Don't use dts_dir here, since it forces running this expensive rule every time
-include/generated/dt-structs-gen.h $(u-boot-spl-platdata_c) &: \
-		$(obj)/$(SPL_BIN).dtb
+$(platdata-hdr) $(u-boot-spl-platdata_c) &: $(obj)/$(SPL_BIN).dtb
 	@[ -d $(obj)/dts ] || mkdir -p $(obj)/dts
 	$(call if_changed,dtoc)
 
