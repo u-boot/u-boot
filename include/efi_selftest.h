@@ -66,11 +66,10 @@ enum efi_test_phase {
 	 */
 	EFI_SETUP_BEFORE_BOOTTIME_EXIT,
 	/**
-	 * @EFI_SETUP_AFTER_BOOTTIME_EXIT: - setup after ExitBootServices
-	 *
-	 * Setup, execute, and teardown are executed after ExitBootServices().
+	 * @EFI_SETTING_VIRTUAL_ADDRESS_MAP - calls SetVirtualAddressMap()
+	 * Execute calls SetVirtualAddressMap().
 	 */
-	EFI_SETUP_AFTER_BOOTTIME_EXIT,
+	EFI_SETTING_VIRTUAL_ADDRESS_MAP,
 };
 
 extern struct efi_simple_text_output_protocol *con_out;
