@@ -1554,7 +1554,7 @@ U_BOOT_DRVINFO(spl_test2) = {
         with self.assertRaises(ValueError) as exc:
             self.run_test(['invalid-cmd'], dtb_file, output)
         self.assertIn(
-            "Unknown command 'invalid-cmd': (use: decl, device, platdata, struct, uclass)",
+            "Unknown command 'invalid-cmd': (use: decl, platdata, struct)",
             str(exc.exception))
 
     def test_output_conflict(self):

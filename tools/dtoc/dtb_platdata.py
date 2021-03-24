@@ -1128,7 +1128,7 @@ class DtbPlatdata():
 # Types of output file we understand
 # key: Command used to generate this file
 # value: OutputFile for this command
-OUTPUT_FILES = {
+OUTPUT_FILES_COMMON = {
     'decl':
         OutputFile(Ftype.HEADER, 'dt-decl.h', DtbPlatdata.generate_decl,
                    'Declares externs for all device/uclass instances'),
@@ -1136,9 +1136,17 @@ OUTPUT_FILES = {
         OutputFile(Ftype.HEADER, 'dt-structs-gen.h',
                    DtbPlatdata.generate_structs,
                    'Defines the structs used to hold devicetree data'),
+    }
+
+# File generated without instantiate
+OUTPUT_FILES_NOINST = {
     'platdata':
         OutputFile(Ftype.SOURCE, 'dt-plat.c', DtbPlatdata.generate_plat,
                    'Declares the U_BOOT_DRIVER() records and platform data'),
+    }
+
+# File generated with instantiate
+OUTPUT_FILES_INST = {
     'device':
         OutputFile(Ftype.SOURCE, 'dt-device.c', DtbPlatdata.generate_device,
                    'Declares the DM_DEVICE_INST() records'),
@@ -1204,14 +1212,21 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
     plat.read_aliases()
     plat.assign_seqs()
 
+    # Figure out what output files we plan to generate
+    output_files = OUTPUT_FILES_COMMON
+    if instantiate:
+        output_files.update(OUTPUT_FILES_INST)
+    else:
+        output_files.update(OUTPUT_FILES_NOINST)
+
     cmds = args[0].split(',')
     if 'all' in cmds:
-        cmds = sorted(OUTPUT_FILES.keys())
+        cmds = sorted(output_files.keys())
     for cmd in cmds:
-        outfile = OUTPUT_FILES.get(cmd)
+        outfile = output_files.get(cmd)
         if not outfile:
             raise ValueError("Unknown command '%s': (use: %s)" %
-                             (cmd, ', '.join(sorted(OUTPUT_FILES.keys()))))
+                             (cmd, ', '.join(sorted(output_files.keys()))))
         plat.setup_output(outfile.ftype,
                           outfile.fname if output_dirs else output)
         plat.out_header(outfile)
