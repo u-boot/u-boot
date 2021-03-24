@@ -124,4 +124,13 @@ enum {
  */
 struct udevice *testbus_get_clear_removed(void);
 
+static inline void arch_reset_for_test(void)
+{
+#ifdef CONFIG_SANDBOX
+#include <asm/state.h>
+
+	state_reset_for_test(state_get_current());
+#endif
+}
+
 #endif /* __TEST_TEST_H */
