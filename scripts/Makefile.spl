@@ -330,12 +330,10 @@ $(obj)/dts/dt-%.o: $(obj)/dts/dt-%.c \
 		include/generated/dt-structs-gen.h prepare FORCE
 	$(call if_changed,plat)
 
-PHONY += dts_dir
-dts_dir:
-	$(shell [ -d $(obj)/dts ] || mkdir -p $(obj)/dts)
-
+# Don't use dts_dir here, since it forces running this expensive rule every time
 include/generated/dt-structs-gen.h $(u-boot-spl-platdata_c) &: \
-		$(obj)/$(SPL_BIN).dtb dts_dir FORCE
+		$(obj)/$(SPL_BIN).dtb
+	@[ -d $(obj)/dts ] || mkdir -p $(obj)/dts
 	$(call if_changed,dtoc)
 
 ifdef CONFIG_SAMSUNG
@@ -475,6 +473,10 @@ FORCE:
 
 $(obj)/dts/dt-$(SPL_NAME).dtb: dts/dt.dtb
 	$(Q)$(MAKE) $(build)=$(obj)/dts spl_dtbs
+
+PHONY += dts_dir
+dts_dir:
+	$(shell [ -d $(obj)/dts ] || mkdir -p $(obj)/dts)
 
 # Declare the contents of the .PHONY variable as phony.  We keep that
 # information in a variable so we can use it in if_changed and friends.
