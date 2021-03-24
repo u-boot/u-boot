@@ -91,7 +91,7 @@ int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen)
 	path = dev_read_string(dev, "acpi,path");
 	if (path) {
 		if (strlen(path) >= maxlen)
-			return -E2BIG;
+			return -ENOSPC;
 		strcpy(out_path, path);
 		return 0;
 	}
