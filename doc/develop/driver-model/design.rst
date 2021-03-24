@@ -900,6 +900,139 @@ Some special flags are used to determine whether to remove the device:
 The dm_remove_devices_flags() function can be used to remove devices based on
 their driver flags.
 
+
+Error codes
+-----------
+
+Driver model tries to use errors codes in a consistent way, as follows:
+
+\-EAGAIN
+   Try later, e.g. dependencies not ready
+
+\-EINVAL
+   Invalid argument, such as `dev_read_...()` failed or any other
+   devicetree-related access. Also used when a driver method is passed an
+   argument it considers invalid or does not support.
+
+\-EIO
+   Failed to perform an I/O operation. This is used when a local device
+   (i.e. part of the SOC) does not work as expected. Use -EREMOTEIO for
+   failures to talk to a separate device, e.g. over an I2C or SPI
+   channel.
+
+\-ENODEV
+   Do not bind the device. This should not be used to indicate an
+   error probing the device or for any other purpose, lest driver model get
+   confused. Using `-ENODEV` inside a driver method makes no sense, since
+   clearly there is a device.
+
+\-ENOENT
+   Entry or object not found. This is used when a device, file or directory
+   cannot be found (e.g. when looked up by name), It can also indicate a
+   missing devicetree subnode.
+
+\-ENOMEM
+   Out of memory
+
+\-ENOSPC
+   Ran out of space (e.g. in a buffer or limited-size array)
+
+\-ENOSYS
+   Function not implemented. This is returned by uclasses where the driver does
+   not implement a particular method. It can also be returned by drivers when
+   a particular sub-method is not implemented. This is widely checked in the
+   wider code base, where a feature may or may not be compiled into U-Boot. It
+   indicates that the feature is not available, but this is often just normal
+   operation. Please do not use -ENOSUPP. If an incorrect or unknown argument
+   is provided to a method (e.g. an unknown clock ID), return -EINVAL.
+
+\-ENXIO
+   Couldn't find device/address. This is used when a device or address
+   could not be obtained or is not valid. It is often used to indicate a
+   different type of problem, if -ENOENT is already used for something else in
+   the driver.
+
+\-EPERM
+   This is -1 so some older code may use it as a generic error. This indicates
+   that an operation is not permitted, e.g. a security violation or policy
+   constraint. It is returned internally when binding devices before relocation,
+   if the device is not marked for pre-relocation use.
+
+\-EPFNOSUPPORT
+   Missing uclass. This is deliberately an uncommon error code so that it can
+   easily be distinguished. If you see this very early in U-Boot, it means that
+   a device exists with a particular uclass but the uclass does not (mostly
+   likely because it is not compiled in). Enable DEBUG in uclass.c or lists.c
+   to see which uclass ID or driver is causing the problem.
+
+\-EREMOTEIO
+   This indicates an error in talking to a peripheral over a comms link, such
+   as I2C or SPI. It might indicate that the device is not present or is not
+   responding as expected.
+
+\-ETIMEDOUT
+   Hardware access or some other operation has timed out. This is used where
+   there is an expected time of response and that was exceeded by enough of
+   a margin that there is probably something wrong.
+
+
+Less common ones:
+
+\-ECOMM
+   Not widely used, but similar to -EREMOTEIO. Can be useful as a secondary
+   error to distinguish the problem from -EREMOTEIO.
+
+\-EKEYREJECTED
+   Attempt to remove a device which does not match the removal flags. See
+   device_remove().
+
+\-EILSEQ
+   Devicetree read failure, specifically trying to read a string index which
+   does not exist, in a string-listg property
+
+\-ENOEXEC
+   Attempt to use a uclass method on a device not in that uclass. This is
+   seldom checked at present, since it is generally a programming error and a
+   waste of code space. A DEBUG-only check would be useful here.
+
+\-ENODATA
+   Devicetree read error, where a property exists but has no data associated
+   with it
+
+\-EOVERFLOW
+   Devicetree read error, where the property is longer than expected
+
+\-EPROBE_DEFER
+   Attempt to remove a non-vital device when the removal flags indicate that
+   only vital devices should be removed
+
+\-ERANGE
+   Returned by regmap functions when arguments are out of range. This can be
+   useful for disinguishing regmap errors from other errors obtained while
+   probing devices.
+
+Drivers should use the same conventions so that things function as expected.
+In particular, if a driver fails to probe, or a uclass operation fails, the
+error code is the primary way to indicate what actually happened.
+
+Printing error messages in drivers is discouraged due to code size bloat and
+since it can result in messages appearing in normal operation. For example, if
+a command tries two different devices and uses whichever one probes correctly,
+we don't want an error message displayed, even if the command itself might show
+a warning or informational message. Ideally, messages in drivers should only be
+displayed when debugging, e.g. by using log_debug() although in extreme cases
+log_warning() or log_error() may be used.
+
+Error messages can be logged using `log_msg_ret()`, so that enabling
+`CONFIG_LOG` and `CONFIG_LOG_ERROR_RETURN` shows a trace of error codes returned
+through the call stack. That can be a handy way of quickly figuring out where
+an error occurred. Get into the habit of return errors with
+`return log_msg_ret("here", ret)` instead of just `return ret`. The string
+just needs to be long enough to find in a single function, since a log record
+stores (and can print with `CONFIG_LOGF_FUNC`) the function where it was
+generated.
+
+
 Data Structures
 ---------------
 
