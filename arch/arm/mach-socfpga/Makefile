@@ -38,7 +38,7 @@ obj-y	+= reset_manager_s10.o
 obj-y	+= system_manager_s10.o
 obj-y	+= timer_s10.o
 obj-y	+= wrap_pinmux_config_s10.o
-obj-y	+= wrap_pll_config_s10.o
+obj-y	+= wrap_pll_config_soc64.o
 endif
 
 ifdef CONFIG_TARGET_SOCFPGA_AGILEX
@@ -53,7 +53,7 @@ obj-y	+= system_manager_s10.o
 obj-y	+= timer_s10.o
 obj-$(CONFIG_SOCFPGA_SECURE_VAB_AUTH)	+= vab.o
 obj-y	+= wrap_pinmux_config_s10.o
-obj-y	+= wrap_pll_config_s10.o
+obj-y	+= wrap_pll_config_soc64.o
 endif
 
 ifdef CONFIG_SPL_BUILD
