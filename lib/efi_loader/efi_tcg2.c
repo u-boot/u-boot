@@ -13,6 +13,7 @@
 #include <efi_loader.h>
 #include <efi_tcg2.h>
 #include <log.h>
+#include <version.h>
 #include <tpm-v2.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
@@ -1064,6 +1065,36 @@ out:
 }
 
 /**
+ * efi_append_scrtm_version - Append an S-CRTM EV_S_CRTM_VERSION event on the
+ *			      eventlog and extend the PCRs
+ *
+ * @dev:	TPM device
+ *
+ * @Return:	status code
+ */
+static efi_status_t efi_append_scrtm_version(struct udevice *dev)
+{
+	struct tpml_digest_values digest_list;
+	u8 ver[] = U_BOOT_VERSION_STRING;
+	const int pcr_index = 0;
+	efi_status_t ret;
+
+	ret = tcg2_create_digest(ver, sizeof(ver), &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_pcr_extend(dev, pcr_index, &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_agile_log_append(pcr_index, EV_S_CRTM_VERSION, &digest_list,
+				    sizeof(ver), ver);
+
+out:
+	return ret;
+}
+
+/**
  * efi_tcg2_register() - register EFI_TCG2_PROTOCOL
  *
  * If a TPM2 device is available, the TPM TCG2 Protocol is registered
@@ -1085,6 +1116,10 @@ efi_status_t efi_tcg2_register(void)
 	ret = efi_init_event_log();
 	if (ret != EFI_SUCCESS)
 		goto fail;
+
+	ret = efi_append_scrtm_version(dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
