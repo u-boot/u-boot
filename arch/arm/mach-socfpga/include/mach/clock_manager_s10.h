@@ -15,7 +15,6 @@ unsigned long cm_get_mpu_clk_hz(void);
 unsigned long cm_get_sdram_clk_hz(void);
 unsigned int cm_get_l4_sp_clk_hz(void);
 unsigned int cm_get_mmc_controller_clk_hz(void);
-unsigned int cm_get_qspi_controller_clk_hz(void);
 unsigned int cm_get_spi_controller_clk_hz(void);
 
 struct cm_config {

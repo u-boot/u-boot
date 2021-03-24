@@ -65,12 +65,6 @@ unsigned int cm_get_l4_sys_free_clk_hz(void)
 	return cm_get_rate_dm(AGILEX_L4_SYS_FREE_CLK);
 }
 
-u32 cm_get_qspi_controller_clk_hz(void)
-{
-	return readl(socfpga_get_sysmgr_addr() +
-		     SYSMGR_SOC64_BOOT_SCRATCH_COLD0);
-}
-
 void cm_print_clock_quick_summary(void)
 {
 	printf("MPU       %10d kHz\n",

@@ -384,12 +384,6 @@ unsigned int cm_get_l4_sp_clk_hz(void)
 	return clock;
 }
 
-unsigned int cm_get_qspi_controller_clk_hz(void)
-{
-	return readl(socfpga_get_sysmgr_addr() +
-		     SYSMGR_SOC64_BOOT_SCRATCH_COLD0);
-}
-
 unsigned int cm_get_spi_controller_clk_hz(void)
 {
 	u32 clock = cm_get_l3_main_clk_hz();
