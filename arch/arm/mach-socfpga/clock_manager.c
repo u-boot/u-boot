@@ -65,10 +65,38 @@ int set_cpu_clk_info(void)
 }
 
 #if IS_ENABLED(CONFIG_TARGET_SOCFPGA_SOC64)
+int cm_set_qspi_controller_clk_hz(u32 clk_hz)
+{
+	u32 reg;
+	u32 clk_khz;
+
+	/*
+	 * Store QSPI ref clock and set into sysmgr boot register.
+	 * Only clock freq in kHz degree is accepted due to limited bits[27:0]
+	 * is reserved for storing the QSPI clock freq into boot scratch cold0
+	 * register.
+	 */
+	if (clk_hz < 1000)
+		return -EINVAL;
+
+	clk_khz = clk_hz / 1000;
+	printf("QSPI: Reference clock at %d kHz\n", clk_khz);
+
+	reg = (readl(socfpga_get_sysmgr_addr() +
+		     SYSMGR_SOC64_BOOT_SCRATCH_COLD0)) &
+		     ~(SYSMGR_SCRATCH_REG_0_QSPI_REFCLK_MASK);
+
+	writel((clk_khz & SYSMGR_SCRATCH_REG_0_QSPI_REFCLK_MASK) | reg,
+	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_BOOT_SCRATCH_COLD0);
+
+	return 0;
+}
+
 unsigned int cm_get_qspi_controller_clk_hz(void)
 {
-	return readl(socfpga_get_sysmgr_addr() +
-		     SYSMGR_SOC64_BOOT_SCRATCH_COLD0);
+	return (readl(socfpga_get_sysmgr_addr() +
+		     SYSMGR_SOC64_BOOT_SCRATCH_COLD0) &
+		     SYSMGR_SCRATCH_REG_0_QSPI_REFCLK_MASK) * 1000;
 }
 #endif
 
