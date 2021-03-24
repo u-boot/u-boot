@@ -290,7 +290,7 @@ struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 		break;
 	default:
 		kfree(pll);
-		return ERR_PTR(-ENOTSUPP);
+		return ERR_PTR(-EINVAL);
 	}
 
 	pll->base = base;

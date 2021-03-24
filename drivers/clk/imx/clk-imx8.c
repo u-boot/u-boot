@@ -29,7 +29,7 @@ __weak ulong imx8_clk_set_rate(struct clk *clk, unsigned long rate)
 
 __weak int __imx8_clk_enable(struct clk *clk, bool enable)
 {
-	return -ENOTSUPP;
+	return -EINVAL;
 }
 
 static int imx8_clk_disable(struct clk *clk)
@@ -70,7 +70,7 @@ int soc_clk_dump(void)
 
 		clk_free(&clk);
 
-		if (ret == -ENOTSUPP) {
+		if (ret == -EINVAL) {
 			printf("clk ID %lu not supported yet\n",
 			       imx8_clk_names[i].id);
 			continue;

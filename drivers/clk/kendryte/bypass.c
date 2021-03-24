@@ -157,7 +157,7 @@ static int k210_bypass_set_parent(struct clk *clk, struct clk *parent)
 	if (ops->set_parent)
 		return ops->set_parent(bypass->bypassee, parent);
 	else
-		return -ENOTSUPP;
+		return -EINVAL;
 }
 
 /*
