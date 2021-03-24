@@ -34,6 +34,11 @@ T2080 includes the following functions and features:
  - Support for hardware virtualization and partitioning enforcement
  - QorIQ Platform's Trust Architecture 2.0
 
+User Guide
+----------
+The T2080RDB User Guide is available on the web at
+https://www.nxp.com/docs/en/user-guide/T2080RDBPCUG.pdf
+
 Differences between T2080 and T2081
 -----------------------------------
   Feature		T2080	 T2081

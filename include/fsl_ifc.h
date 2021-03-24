@@ -140,7 +140,7 @@
 #define CSOR_NOR_ADM_SHIFT_SHIFT	13
 #define CSOR_NOR_ADM_SHIFT(n)	((n) << CSOR_NOR_ADM_SHIFT_SHIFT)
 /* Type of the NOR device hooked */
-#define CSOR_NOR_NOR_MODE_AYSNC_NOR	0x00000000
+#define CSOR_NOR_NOR_MODE_ASYNC_NOR	0x00000000
 #define CSOR_NOR_NOR_MODE_AVD_NOR	0x00000020
 /* Time for Read Enable High to Output High Impedance */
 #define CSOR_NOR_TRHZ_MASK		0x0000001C
