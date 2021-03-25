@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
- * Copyright 2018 NXP
  *
  */
 
@@ -9,6 +8,7 @@
 #define __JR_H
 
 #include <linux/compiler.h>
+#include "type.h"
 
 #define JR_SIZE 4
 /* Timeout currently defined as 10 sec */
@@ -42,13 +42,13 @@
 #define RNG4_MAX_HANDLES	2
 
 struct op_ring {
-	u32 desc;
-	u32 status;
+	caam_dma_addr_t desc;
+	uint32_t status;
 } __packed;
 
 struct jr_info {
 	void (*callback)(uint32_t status, void *arg);
-	phys_addr_t desc_phys_addr;
+	caam_dma_addr_t desc_phys_addr;
 	uint32_t desc_len;
 	uint32_t op_done;
 	void *arg;
@@ -84,7 +84,7 @@ struct jobring {
 	 * by SEC
 	 */
 	/*Circular  Ring of i/p descriptors */
-	u32 *input_ring;
+	caam_dma_addr_t *input_ring;
 	/* Circular Ring of o/p descriptors */
 	/* Circula Ring containing info regarding descriptors in i/p
 	 * and o/p ring
