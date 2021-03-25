@@ -340,6 +340,10 @@ struct sg_entry {
 
 #endif
 
+#define FSL_CAAM_MP_PUBK_BYTES		    64
+#define FSL_CAAM_MP_PRVK_BYTES		    32
+#define FSL_CAAM_MP_MES_DGST_BYTES	    32
+
 /* blob_dek:
  * Encapsulates the src in a secure blob and stores it dst
  * @src: reference to the plaintext
@@ -348,6 +352,10 @@ struct sg_entry {
  * @return: 0 on success, error otherwise
  */
 int blob_dek(const u8 *src, u8 *dst, u8 len);
+
+int gen_mppubk(u8 *dst);
+
+int sign_mppubk(const u8 *m, int data_size, u8 *dgst, u8 *c, u8 *d);
 
 #if defined(CONFIG_ARCH_C29X)
 int sec_init_idx(uint8_t);

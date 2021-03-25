@@ -740,6 +740,7 @@ struct __packed pdb_mp_sign {
 };
 
 #define PDB_MP_CSEL_SHIFT	17
+#define PDB_MP_CSEL_WIDTH	4
 #define PDB_MP_CSEL_P256	0x3 << PDB_MP_CSEL_SHIFT	/* P-256 */
 #define PDB_MP_CSEL_P384	0x4 << PDB_MP_CSEL_SHIFT	/* P-384 */
 #define PDB_MP_CSEL_P521	0x5 << PDB_MP_CSEL_SHIFT	/* P-521 */
