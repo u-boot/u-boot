@@ -41,14 +41,12 @@ static int do_mfgprot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	sel = argv[1];
 
 	/* Enable HAB clock */
-	u32 jr_size = 4;
-
 	hab_caam_clock_enable(1);
 
 	u32 out_jr_size = sec_in32(CONFIG_SYS_FSL_JR0_ADDR +
 				   FSL_CAAM_ORSR_JRa_OFFSET);
 
-	if (out_jr_size != jr_size)
+	if (out_jr_size != FSL_CAAM_MAX_JR_SIZE)
 		sec_init();
 
 	if (strcmp(sel, pubk) == 0) {

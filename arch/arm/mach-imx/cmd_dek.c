@@ -26,13 +26,12 @@
 static int blob_encap_dek(const u8 *src, u8 *dst, u32 len)
 {
 	int ret = 0;
-	u32 jr_size = 4;
 
 	hab_caam_clock_enable(1);
 
 	u32 out_jr_size = sec_in32(CONFIG_SYS_FSL_JR0_ADDR +
 				   FSL_CAAM_ORSR_JRa_OFFSET);
-	if (out_jr_size != jr_size)
+	if (out_jr_size != FSL_CAAM_MAX_JR_SIZE)
 		sec_init();
 
 	if (!((len == 128) | (len == 192) | (len == 256))) {
