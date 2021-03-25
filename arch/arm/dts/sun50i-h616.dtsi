@@ -51,18 +51,6 @@
 		};
 	};
 
-	reserved-memory {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		/* 512KiB reserved for ARM Trusted Firmware (BL31) */
-		secmon_reserved: secmon@40000000 {
-			reg = <0x0 0x40000000 0x0 0x80000>;
-			no-map;
-		};
-	};
-
 	osc24M: osc24M_clk {
 		#clock-cells = <0>;
 		compatible = "fixed-clock";
