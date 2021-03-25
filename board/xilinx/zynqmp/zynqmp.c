@@ -596,7 +596,7 @@ int board_late_init(void)
 	switch (bootmode) {
 	case USB_MODE:
 		puts("USB_MODE\n");
-		mode = "usb";
+		mode = "usb_dfu0 usb_dfu1";
 		env_set("modeboot", "usb_dfu_spl");
 		break;
 	case JTAG_MODE:
