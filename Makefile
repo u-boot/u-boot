@@ -1017,6 +1017,33 @@ quiet_cmd_cfgcheck = CFGCHK  $2
 cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 		$(srctree)/scripts/config_whitelist.txt $(srctree)
 
+# Concat the value of all the CONFIGs (result is 'y' or 'yy', etc. )
+got = $(foreach cfg,$(1),$($(cfg)))
+
+# expected value 'y for each one
+expect = $(foreach cfg,$(1),y)
+
+# Show a deprecation message
+# Args:
+# 1: List of CONFIG_DM_... to migrate to (e.g. "CONFIG_DM_MMC CONFIG_BLK")
+# 2: Name of component (e.g . "Ethernet drivers")
+# 3: Release deadline (e.g. "v202.07")
+# 4: Condition to require before checking (e.g. "$(CONFIG_NET)")
+# Note: Script avoids bash construct, hence the strange double 'if'
+# (patches welcome!)
+define deprecated
+	if [ -n "$(strip $(4))" ]; then if [ "$(got)" != "$(expect)" ]; then \
+		echo >&2 "===================== WARNING ======================"; \
+		echo >&2 "This board does not use $(firstword $(1)) (Driver Model"; \
+		echo >&2 "for $(2)). Please update the board to use"; \
+		echo >&2 "$(firstword $(1)) before the $(3) release. Failure to"; \
+		echo >&2 "update by the deadline may result in board removal."; \
+		echo >&2 "See doc/driver-model/migration.rst for more info."; \
+		echo >&2 "===================================================="; \
+	fi; fi
+
+endef
+
 PHONY += inputs
 inputs: $(INPUTS-y)
 
