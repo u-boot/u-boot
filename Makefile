@@ -1098,17 +1098,8 @@ endif
 		$(CONFIG_LCD)$(CONFIG_VIDEO))
 	$(call deprecated,CONFIG_DM_SPI_FLASH,SPI flash,v2019.07,\
 		$(CONFIG_SPI_FLASH))
-ifneq ($(CONFIG_WATCHDOG)$(CONFIG_HW_WATCHDOG),)
-ifneq ($(CONFIG_WDT),y)
-	@echo >&2 "===================== WARNING ======================"
-	@echo >&2 "This board does not use CONFIG_WDT (DM watchdog support)."
-	@echo >&2 "Please update the board to use CONFIG_WDT before the"
-	@echo >&2 "v2019.10 release."
-	@echo >&2 "Failure to update by the deadline may result in board removal."
-	@echo >&2 "See doc/driver-model/migration.rst for more info."
-	@echo >&2 "===================================================="
-endif
-endif
+	$(call deprecated,CONFIG_WDT,DM watchdog,v2019.10,\
+		$(CONFIG_WATCHDOG)$(CONFIG_HW_WATCHDOG))
 ifneq ($(CONFIG_NET),)
 ifneq ($(CONFIG_DM_ETH),y)
 	@echo >&2 "===================== WARNING ======================"
