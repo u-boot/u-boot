@@ -145,8 +145,8 @@ static int spi_check_buswidth_req(struct spi_slave *slave, u8 buswidth, bool tx)
 	return -ENOTSUPP;
 }
 
-bool spi_mem_default_supports_op(struct spi_slave *slave,
-				 const struct spi_mem_op *op)
+static bool spi_mem_check_buswidth(struct spi_slave *slave,
+				   const struct spi_mem_op *op)
 {
 	if (spi_check_buswidth_req(slave, op->cmd.buswidth, true))
 		return false;
@@ -164,13 +164,39 @@ bool spi_mem_default_supports_op(struct spi_slave *slave,
 				   op->data.dir == SPI_MEM_DATA_OUT))
 		return false;
 
+	return true;
+}
+
+bool spi_mem_dtr_supports_op(struct spi_slave *slave,
+			     const struct spi_mem_op *op)
+{
+	if (op->cmd.buswidth == 8 && op->cmd.nbytes % 2)
+		return false;
+
+	if (op->addr.nbytes && op->addr.buswidth == 8 && op->addr.nbytes % 2)
+		return false;
+
+	if (op->dummy.nbytes && op->dummy.buswidth == 8 && op->dummy.nbytes % 2)
+		return false;
+
+	if (op->data.dir != SPI_MEM_NO_DATA &&
+	    op->dummy.buswidth == 8 && op->data.nbytes % 2)
+		return false;
+
+	return spi_mem_check_buswidth(slave, op);
+}
+EXPORT_SYMBOL_GPL(spi_mem_dtr_supports_op);
+
+bool spi_mem_default_supports_op(struct spi_slave *slave,
+				 const struct spi_mem_op *op)
+{
 	if (op->cmd.dtr || op->addr.dtr || op->dummy.dtr || op->data.dtr)
 		return false;
 
 	if (op->cmd.nbytes != 1)
 		return false;
 
-	return true;
+	return spi_mem_check_buswidth(slave, op);
 }
 EXPORT_SYMBOL_GPL(spi_mem_default_supports_op);
 
