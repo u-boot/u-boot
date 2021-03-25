@@ -1093,16 +1093,7 @@ endif
 	$(call deprecated,CONFIG_AHCI,AHCI instead of CONFIG_MVSATA_IDE,v2019.07, \
 		$(CONFIG_MVSATA_IDE))
 	$(call deprecated,CONFIG_AHCI,AHCI,v2019.07, $(CONFIG_LIBATA))
-ifeq ($(CONFIG_PCI),y)
-ifneq ($(CONFIG_DM_PCI),y)
-	@echo >&2 "===================== WARNING ======================"
-	@echo >&2 "This board does not use CONFIG_DM_PCI Please update"
-	@echo >&2 "the board to use CONFIG_DM_PCI before the v2019.07 release."
-	@echo >&2 "Failure to update by the deadline may result in board removal."
-	@echo >&2 "See doc/driver-model/migration.rst for more info."
-	@echo >&2 "===================================================="
-endif
-endif
+	$(call deprecated,CONFIG_DM_PCI,PCI,v2019.07,$(CONFIG_PCI))
 ifneq ($(CONFIG_LCD)$(CONFIG_VIDEO),)
 ifneq ($(CONFIG_DM_VIDEO),y)
 	@echo >&2 "===================== WARNING ======================"
