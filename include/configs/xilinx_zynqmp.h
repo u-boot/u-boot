@@ -179,11 +179,41 @@
 #define BOOTENV_DEV_NAME_JTAG(devtypeu, devtypel, instance) \
 	"jtag "
 
+#define BOOT_TARGET_DEVICES_USB_DFU(func) \
+	func(USB_DFU, usb_dfu, 0) func(USB_DFU, usb_dfu, 1)
+
+#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
+	"$scriptaddr $script_size_f && " \
+	"dfu " #instance " ram " #instance " 60 && " \
+	"echo DFU" #instance ": Trying to boot script at ${scriptaddr} && " \
+	"source ${scriptaddr}; " \
+	"echo DFU" #instance ": SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance) \
+	""
+
+#define BOOT_TARGET_DEVICES_USB_THOR(func) \
+	func(USB_THOR, usb_thor, 0) func(USB_THOR, usb_thor, 1)
+
+#define BOOTENV_DEV_USB_THOR(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
+	"$scriptaddr $script_size_f && " \
+	"thordown " #instance " ram " #instance " && " \
+	"echo THOR" #instance ": Trying to boot script at ${scriptaddr} && " \
+	"source ${scriptaddr}; " \
+	"echo THOR" #instance ": SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_USB_THOR(devtypeu, devtypel, instance) \
+	""
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_JTAG(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_QSPI(func) \
 	BOOT_TARGET_DEVICES_NAND(func) \
+	BOOT_TARGET_DEVICES_USB_DFU(func) \
+	BOOT_TARGET_DEVICES_USB_THOR(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_SCSI(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
