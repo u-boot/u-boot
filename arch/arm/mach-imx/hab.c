@@ -923,11 +923,11 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	status = hab_rvt_check_target(HAB_TGT_MEMORY, (void *)(ulong)ddr_start, bytes);
 	if (status != HAB_SUCCESS) {
 		printf("HAB check target 0x%08x-0x%08lx fail\n",
-		       ddr_start, ddr_start + bytes);
+		       ddr_start, ddr_start + (ulong)bytes);
 		goto hab_exit_failure_print_status;
 	}
 #ifdef DEBUG
-	printf("\nivt_offset = 0x%x, ivt addr = 0x%x\n", ivt_offset, ivt_addr);
+	printf("\nivt_offset = 0x%x, ivt addr = 0x%lx\n", ivt_offset, ivt_addr);
 	printf("ivt entry = 0x%08x, dcd = 0x%08x, csf = 0x%08x\n", ivt->entry,
 	       ivt->dcd, ivt->csf);
 	puts("Dumping IVT\n");
