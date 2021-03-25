@@ -958,6 +958,23 @@ out:
 }
 
 /**
+ * tcg2_uninit - remove the final event table and free efi memory on failures
+ */
+void tcg2_uninit(void)
+{
+	efi_status_t ret;
+
+	ret = efi_install_configuration_table(&efi_guid_final_events, NULL);
+	if (ret != EFI_SUCCESS)
+		log_err("Failed to delete final events config table\n");
+
+	efi_free_pool(event_log.buffer);
+	event_log.buffer = NULL;
+	efi_free_pool(event_log.final_buffer);
+	event_log.final_buffer = NULL;
+}
+
+/**
  * create_final_event() - Create the final event and install the config
  *			defined by the TCG EFI spec
  */
@@ -983,10 +1000,6 @@ static efi_status_t create_final_event(void)
 	event_log.final_pos = sizeof(*final_event);
 	ret = efi_install_configuration_table(&efi_guid_final_events,
 					      final_event);
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	return EFI_SUCCESS;
 out:
 	return ret;
 }
@@ -1041,8 +1054,12 @@ static efi_status_t efi_init_event_log(void)
 	event_log.last_event_size = event_log.pos;
 
 	ret = create_final_event();
+	if (ret != EFI_SUCCESS)
+		goto out;
 
+	return EFI_SUCCESS;
 out:
+	tcg2_uninit();
 	return ret;
 }
 
@@ -1055,23 +1072,30 @@ out:
  */
 efi_status_t efi_tcg2_register(void)
 {
-	efi_status_t ret;
+	efi_status_t ret = EFI_SUCCESS;
 	struct udevice *dev;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
 		log_warning("Unable to find TPMv2 device\n");
-		return EFI_SUCCESS;
+		ret = EFI_SUCCESS;
+		goto out;
 	}
 
 	ret = efi_init_event_log();
 	if (ret != EFI_SUCCESS)
-		return ret;
+		goto fail;
 
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS) {
 		log_err("Cannot install EFI_TCG2_PROTOCOL\n");
+		goto fail;
+	}
 
+out:
+	return ret;
+fail:
+	tcg2_uninit();
 	return ret;
 }
