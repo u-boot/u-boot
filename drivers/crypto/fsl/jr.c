@@ -87,13 +87,13 @@ static void jr_initregs(uint8_t sec_idx)
 	phys_addr_t ip_base = virt_to_phys((void *)jr->input_ring);
 	phys_addr_t op_base = virt_to_phys((void *)jr->output_ring);
 
-#ifdef CONFIG_PHYS_64BIT
+#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_IMX8M)
 	sec_out32(&regs->irba_h, ip_base >> 32);
 #else
 	sec_out32(&regs->irba_h, 0x0);
 #endif
 	sec_out32(&regs->irba_l, (uint32_t)ip_base);
-#ifdef CONFIG_PHYS_64BIT
+#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_IMX8M)
 	sec_out32(&regs->orba_h, op_base >> 32);
 #else
 	sec_out32(&regs->orba_h, 0x0);
@@ -119,7 +119,7 @@ static int jr_init(uint8_t sec_idx)
 	jr->liodn = DEFAULT_JR_LIODN;
 #endif
 	jr->size = JR_SIZE;
-	jr->input_ring = (dma_addr_t *)memalign(ARCH_DMA_MINALIGN,
+	jr->input_ring = (uint32_t *)memalign(ARCH_DMA_MINALIGN,
 				JR_SIZE * sizeof(dma_addr_t));
 	if (!jr->input_ring)
 		return -1;
@@ -196,7 +196,7 @@ static int jr_enqueue(uint32_t *desc_addr,
 	uint32_t desc_word;
 	int length = desc_len(desc_addr);
 	int i;
-#ifdef CONFIG_PHYS_64BIT
+#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_IMX8M)
 	uint32_t *addr_hi, *addr_lo;
 #endif
 
@@ -223,7 +223,7 @@ static int jr_enqueue(uint32_t *desc_addr,
 				  sizeof(struct jr_info), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
-#ifdef CONFIG_PHYS_64BIT
+#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_IMX8M)
 	/* Write the 64 bit Descriptor address on Input Ring.
 	 * The 32 bit hign and low part of the address will
 	 * depend on endianness of SEC block.
@@ -272,7 +272,7 @@ static int jr_dequeue(int sec_idx)
 	int idx, i, found;
 	void (*callback)(uint32_t status, void *arg);
 	void *arg = NULL;
-#ifdef CONFIG_PHYS_64BIT
+#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_IMX8M)
 	uint32_t *addr_hi, *addr_lo;
 #else
 	uint32_t *addr;
@@ -284,7 +284,7 @@ static int jr_dequeue(int sec_idx)
 		found = 0;
 
 		phys_addr_t op_desc;
-	#ifdef CONFIG_PHYS_64BIT
+	#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_IMX8M)
 		/* Read the 64 bit Descriptor address from Output Ring.
 		 * The 32 bit hign and low part of the address will
 		 * depend on endianness of SEC block.
@@ -678,7 +678,7 @@ int sec_init_idx(uint8_t sec_idx)
 	mcr = (mcr & ~MCFGR_AWCACHE_MASK) | (0x2 << MCFGR_AWCACHE_SHIFT);
 #endif
 
-#ifdef CONFIG_PHYS_64BIT
+#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_IMX8M)
 	mcr |= (1 << MCFGR_PS_SHIFT);
 #endif
 	sec_out32(&sec->mcfgr, mcr);

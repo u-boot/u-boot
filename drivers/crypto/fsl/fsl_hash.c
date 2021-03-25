@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  */
 
@@ -95,7 +96,7 @@ static int caam_hash_update(void *hash_ctx, const void *buf,
 		return -EINVAL;
 	}
 
-#ifdef CONFIG_PHYS_64BIT
+#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_IMX8M)
 	sec_out32(&ctx->sg_tbl[ctx->sg_num].addr_hi, (uint32_t)(addr >> 32));
 #else
 	sec_out32(&ctx->sg_tbl[ctx->sg_num].addr_hi, 0x0);

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  */
 
@@ -41,8 +42,8 @@
 #define RNG4_MAX_HANDLES	2
 
 struct op_ring {
-	phys_addr_t desc;
-	uint32_t status;
+	u32 desc;
+	u32 status;
 } __packed;
 
 struct jr_info {
@@ -83,7 +84,7 @@ struct jobring {
 	 * by SEC
 	 */
 	/*Circular  Ring of i/p descriptors */
-	dma_addr_t *input_ring;
+	u32 *input_ring;
 	/* Circular Ring of o/p descriptors */
 	/* Circula Ring containing info regarding descriptors in i/p
 	 * and o/p ring

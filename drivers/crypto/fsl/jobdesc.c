@@ -165,9 +165,10 @@ int inline_cnstr_jobdesc_blob_dek(uint32_t *desc, const uint8_t *plain_txt,
 
 	append_u32(desc, aad_w2);
 
-	append_cmd_ptr(desc, (dma_addr_t)SEC_MEM_PAGE1, in_sz, CMD_SEQ_IN_PTR);
+	append_cmd_ptr(desc, (uint32_t)SEC_MEM_PAGE1, in_sz, CMD_SEQ_IN_PTR);
 
-	append_cmd_ptr(desc, (dma_addr_t)dek_blob + 8, out_sz, CMD_SEQ_OUT_PTR);
+	append_cmd_ptr(desc, (uint32_t)((ulong)dek_blob + 8),
+		       out_sz, CMD_SEQ_OUT_PTR);
 
 	append_operation(desc, OP_TYPE_ENCAP_PROTOCOL | OP_PCLID_BLOB |
 						OP_PCLID_SECMEM);
@@ -183,7 +184,7 @@ void inline_cnstr_jobdesc_hash(uint32_t *desc,
 	/* SHA 256 , output is of length 32 words */
 	uint32_t storelen = alg_size;
 	u32 options;
-	dma_addr_t dma_addr_in, dma_addr_out;
+	u32 dma_addr_in, dma_addr_out;
 
 	dma_addr_in = virt_to_phys((void *)msg);
 	dma_addr_out = virt_to_phys((void *)digest);
@@ -212,7 +213,7 @@ void inline_cnstr_jobdesc_blob_encap(uint32_t *desc, uint8_t *key_idnfr,
 				     uint8_t *plain_txt, uint8_t *enc_blob,
 				     uint32_t in_sz)
 {
-	dma_addr_t dma_addr_key_idnfr, dma_addr_in, dma_addr_out;
+	u32 dma_addr_key_idnfr, dma_addr_in, dma_addr_out;
 	uint32_t key_sz = KEY_IDNFR_SZ_BYTES;
 	/* output blob will have 32 bytes key blob in beginning and
 	 * 16 byte HMAC identifier at end of data blob */
@@ -237,7 +238,7 @@ void inline_cnstr_jobdesc_blob_decap(uint32_t *desc, uint8_t *key_idnfr,
 				     uint8_t *enc_blob, uint8_t *plain_txt,
 				     uint32_t out_sz)
 {
-	dma_addr_t dma_addr_key_idnfr, dma_addr_in, dma_addr_out;
+	u32 dma_addr_key_idnfr, dma_addr_in, dma_addr_out;
 	uint32_t key_sz = KEY_IDNFR_SZ_BYTES;
 	uint32_t in_sz = out_sz + KEY_BLOB_SIZE + MAC_SIZE;
 
@@ -313,7 +314,7 @@ void inline_cnstr_jobdesc_pkha_rsaexp(uint32_t *desc,
 				      struct pk_in_params *pkin, uint8_t *out,
 				      uint32_t out_siz)
 {
-	dma_addr_t dma_addr_e, dma_addr_a, dma_addr_n, dma_addr_out;
+	u32 dma_addr_e, dma_addr_a, dma_addr_n, dma_addr_out;
 
 	dma_addr_e = virt_to_phys((void *)pkin->e);
 	dma_addr_a = virt_to_phys((void *)pkin->a);
