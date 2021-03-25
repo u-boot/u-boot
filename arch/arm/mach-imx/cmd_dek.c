@@ -15,6 +15,11 @@
 #include <asm/arch/clock.h>
 #include <mapmem.h>
 #include <tee.h>
+#ifdef CONFIG_IMX_SECO_DEK_ENCAP
+#include <asm/arch/sci/sci.h>
+#include <asm/arch/image.h>
+#endif
+#include <cpu_func.h>
 
 /**
 * blob_dek() - Encapsulate the DEK as a blob using CAM's Key
@@ -129,6 +134,153 @@ error:
 	return ret;
 }
 #endif /* CONFIG_IMX_OPTEE_DEK_ENCAP */
+#ifdef CONFIG_IMX_SECO_DEK_ENCAP
+
+#define DEK_BLOB_KEY_ID				0x0
+
+#define AHAB_PRIVATE_KEY			0x81
+#define AHAB_VERSION				0x00
+#define AHAB_MODE_CBC				0x67
+#define AHAB_ALG_AES				0x55
+#define AHAB_128_AES_KEY			0x10
+#define AHAB_192_AES_KEY			0x18
+#define AHAB_256_AES_KEY			0x20
+#define AHAB_FLAG_KEK				0x80
+#define AHAB_DEK_BLOB				0x01
+
+#define DEK_BLOB_HDR_SIZE			8
+#define SECO_PT					2U
+
+static int blob_encap_dek(u32 src_addr, u32 dst_addr, u32 len)
+{
+	sc_err_t err;
+	sc_rm_mr_t mr_input, mr_output;
+	struct generate_key_blob_hdr hdr;
+	u8 in_size, out_size;
+	u8 *src_ptr, *dst_ptr;
+	int ret = 0;
+	int i;
+
+	/* Set sizes */
+	in_size = sizeof(struct generate_key_blob_hdr) + len / 8;
+	out_size = BLOB_SIZE(len / 8) + DEK_BLOB_HDR_SIZE;
+
+	/* Get src and dst virtual addresses */
+	src_ptr = map_sysmem(src_addr, in_size);
+	dst_ptr = map_sysmem(dst_addr, out_size);
+
+	/* Check addr input */
+	if (!(src_ptr && dst_ptr)) {
+		debug("src_addr or dst_addr invalid\n");
+		return -1;
+	}
+
+	/* Build key header */
+	hdr.version = AHAB_VERSION;
+	hdr.length_lsb = sizeof(struct generate_key_blob_hdr) + len / 8;
+	hdr.length_msb = 0x00;
+	hdr.tag = AHAB_PRIVATE_KEY;
+	hdr.flags = AHAB_DEK_BLOB;
+	hdr.algorithm = AHAB_ALG_AES;
+	hdr.mode = AHAB_MODE_CBC;
+
+	switch (len) {
+	case 128:
+		hdr.size = AHAB_128_AES_KEY;
+		break;
+	case 192:
+		hdr.size = AHAB_192_AES_KEY;
+		break;
+	case 256:
+		hdr.size = AHAB_256_AES_KEY;
+		break;
+	default:
+		/* Not supported */
+		debug("Invalid DEK size. Valid sizes are 128, 192 and 256b\n");
+		return -1;
+	}
+
+	/* Build input message */
+	memmove((void *)(src_ptr + sizeof(struct generate_key_blob_hdr)),
+		(void *)src_ptr, len / 8);
+	memcpy((void *)src_ptr, (void *)&hdr,
+	       sizeof(struct generate_key_blob_hdr));
+
+	/* Flush the cache before triggering the CAAM DMA */
+	flush_dcache_range(src_addr, src_addr + in_size);
+
+	/* Find input memory region */
+	err = sc_rm_find_memreg((-1), &mr_input, src_addr & ~(CONFIG_SYS_CACHELINE_SIZE - 1),
+				ALIGN(src_addr + in_size, CONFIG_SYS_CACHELINE_SIZE));
+	if (err) {
+		printf("Error: find memory region 0x%X\n", src_addr);
+		return -ENOMEM;
+	}
+
+	/* Find output memory region */
+	err = sc_rm_find_memreg((-1), &mr_output, dst_addr & ~(CONFIG_SYS_CACHELINE_SIZE - 1),
+				ALIGN(dst_addr + out_size, CONFIG_SYS_CACHELINE_SIZE));
+	if (err) {
+		printf("Error: find memory region 0x%X\n", dst_addr);
+		return -ENOMEM;
+	}
+
+	/* Set memory region permissions for SECO */
+	err = sc_rm_set_memreg_permissions(-1, mr_input, SECO_PT,
+					   SC_RM_PERM_FULL);
+	if (err) {
+		printf("Set permission failed for input memory region\n");
+		ret = -EPERM;
+		goto error;
+	}
+
+	err = sc_rm_set_memreg_permissions(-1, mr_output, SECO_PT,
+					   SC_RM_PERM_FULL);
+	if (err) {
+		printf("Set permission failed for output memory region\n");
+		ret = -EPERM;
+		goto error;
+	}
+
+	/* Flush output data before SECO operation */
+	flush_dcache_range((ulong)dst_ptr, (ulong)(dst_ptr +
+			roundup(out_size, ARCH_DMA_MINALIGN)));
+
+	/* Generate DEK blob */
+	err = sc_seco_gen_key_blob((-1), 0x0, src_addr, dst_addr, out_size);
+	if (err) {
+		ret = -EPERM;
+		goto error;
+	}
+
+	/* Invalidate output buffer */
+	invalidate_dcache_range((ulong)dst_ptr, (ulong)(dst_ptr +
+			roundup(out_size, ARCH_DMA_MINALIGN)));
+
+	printf("DEK Blob\n");
+	for (i = 0; i < DEK_BLOB_HDR_SIZE + BLOB_SIZE(len / 8); i++)
+		printf("%02X", dst_ptr[i]);
+	printf("\n");
+
+error:
+	/* Remove memory region permission to SECO */
+	err = sc_rm_set_memreg_permissions(-1, mr_input, SECO_PT,
+					   SC_RM_PERM_NONE);
+	if (err) {
+		printf("Error: remove permission failed for input\n");
+		ret = -EPERM;
+	}
+
+	err = sc_rm_set_memreg_permissions(-1, mr_output, SECO_PT,
+					   SC_RM_PERM_NONE);
+	if (err) {
+		printf("Error: remove permission failed for output\n");
+		ret = -EPERM;
+	}
+
+	return ret;
+}
+#endif /* CONFIG_IMX_SECO_DEK_ENCAP */
 
 /**
  * do_dek_blob() - Handle the "dek_blob" command-line command

@@ -77,6 +77,7 @@ config CMD_DEKBLOB
 	bool "Support the 'dek_blob' command"
 	select IMX_CAAM_DEK_ENCAP if ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP
 	select IMX_OPTEE_DEK_ENCAP if ARCH_IMX8M
+	select IMX_SECO_DEK_ENCAP if ARCH_IMX8
 	help
 	  This enables the 'dek_blob' command which is used with the
 	  Freescale secure boot mechanism. This command encapsulates and
@@ -97,6 +98,12 @@ config IMX_OPTEE_DEK_ENCAP
 	  This enabled the DEK blob encapsulation with OP-TEE. The communication
 	  with OP-TEE is done through a SMC call and OP-TEE shared memory. This
 	  option is available on imx8mm.
+
+config IMX_SECO_DEK_ENCAP
+	bool "Support the DEK blob encapsulation with SECO"
+	help
+	  This enabled the DEK blob encapsulation with the SECO API. This option
+	  is only available on imx8.
 
 config CMD_PRIBLOB
 	bool "Support the set_priblob_bitfield command"
