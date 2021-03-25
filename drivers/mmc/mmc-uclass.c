@@ -383,18 +383,16 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 {
 	struct blk_desc *bdesc;
 	struct udevice *bdev;
-	int ret, devnum = -1;
+	int ret;
 
 	if (!mmc_get_ops(dev))
 		return -ENOSYS;
-#ifndef CONFIG_SPL_BUILD
-	/* Use the fixed index with aliase node's index */
-	ret = dev_read_alias_seq(dev, &devnum);
-	debug("%s: alias ret=%d, devnum=%d\n", __func__, ret, devnum);
-#endif
+
+	/* Use the fixed index with aliases node's index */
+	debug("%s: alias devnum=%d\n", __func__, dev_seq(dev));
 
 	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC,
-			devnum, 512, 0, &bdev);
+			dev_seq(dev), 512, 0, &bdev);
 	if (ret) {
 		debug("Cannot create block device\n");
 		return ret;
