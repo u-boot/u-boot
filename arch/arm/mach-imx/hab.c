@@ -728,6 +728,48 @@ static bool csf_is_valid(struct ivt *ivt, ulong start_addr, size_t bytes)
 	return true;
 }
 
+/*
+ * Validate IVT structure of the image being authenticated
+ */
+static int validate_ivt(struct ivt *ivt_initial)
+{
+	struct ivt_header *ivt_hdr = &ivt_initial->hdr;
+
+	if ((ulong)ivt_initial & 0x3) {
+		puts("Error: Image's start address is not 4 byte aligned\n");
+		return 0;
+	}
+
+	/* Check IVT fields before allowing authentication */
+	if ((!verify_ivt_header(ivt_hdr)) && \
+	    (ivt_initial->entry != 0x0) && \
+	    (ivt_initial->reserved1 == 0x0) && \
+	    (ivt_initial->self == \
+		   (uint32_t)((ulong)ivt_initial & 0xffffffff)) && \
+	    (ivt_initial->csf != 0x0) && \
+	    (ivt_initial->reserved2 == 0x0)) {
+		/* Report boot failure if DCD pointer is found in IVT */
+		if (ivt_initial->dcd != 0x0)
+			puts("Error: DCD pointer must be 0\n");
+		else
+			return 1;
+	}
+
+	puts("Error: Invalid IVT structure\n");
+	debug("\nAllowed IVT structure:\n");
+	debug("IVT HDR       = 0x4X2000D1\n");
+	debug("IVT ENTRY     = 0xXXXXXXXX\n");
+	debug("IVT RSV1      = 0x0\n");
+	debug("IVT DCD       = 0x0\n");		/* Recommended */
+	debug("IVT BOOT_DATA = 0xXXXXXXXX\n");	/* Commonly 0x0 */
+	debug("IVT SELF      = 0xXXXXXXXX\n");	/* = ddr_start + ivt_offset */
+	debug("IVT CSF       = 0xXXXXXXXX\n");
+	debug("IVT RSV2      = 0x0\n");
+
+	/* Invalid IVT structure */
+	return 0;
+}
+
 bool imx_hab_is_enabled(void)
 {
 	struct imx_sec_config_fuse_t *fuse =
@@ -753,7 +795,6 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	int result = 1;
 	ulong start;
 	struct ivt *ivt;
-	struct ivt_header *ivt_hdr;
 	enum hab_status status;
 
 	if (!imx_hab_is_enabled()) {
@@ -769,24 +810,10 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	/* Calculate IVT address header */
 	ivt_addr = (ulong) (ddr_start + ivt_offset);
 	ivt = (struct ivt *)ivt_addr;
-	ivt_hdr = &ivt->hdr;
 
 	/* Verify IVT header bugging out on error */
-	if (verify_ivt_header(ivt_hdr))
+	if (!validate_ivt(ivt))
 		goto hab_authentication_exit;
-
-	/* Verify IVT body */
-	if (ivt->self != ivt_addr) {
-		printf("ivt->self 0x%08x pointer is 0x%08lx\n",
-		       ivt->self, ivt_addr);
-		goto hab_authentication_exit;
-	}
-
-	/* Verify if IVT DCD pointer is NULL */
-	if (ivt->dcd) {
-		puts("Error: DCD pointer must be NULL\n");
-		goto hab_authentication_exit;
-	}
 
 	start = ddr_start;
 	bytes = image_size;
