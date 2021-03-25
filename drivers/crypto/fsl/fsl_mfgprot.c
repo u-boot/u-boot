@@ -138,7 +138,7 @@ int sign_mppubk(const u8 *m, int data_size, u8 *dgst, u8 *c, u8 *d)
 	flush_dcache_range((unsigned long)d, (unsigned long)d + size);
 
 	/* Execute Job Descriptor */
-	puts("\nSigning message with Manufacturing Protection Public Key\n");
+	puts("\nSigning message with Manufacturing Protection Private Key\n");
 
 	ret = run_descriptor_jr(dsc);
 	if (ret) {
