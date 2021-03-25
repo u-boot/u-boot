@@ -10,8 +10,8 @@
 #include <linux/compiler.h>
 
 #define JR_SIZE 4
-/* Timeout currently defined as 90 sec */
-#define CONFIG_SEC_DEQ_TIMEOUT	90000000U
+/* Timeout currently defined as 10 sec */
+#define CONFIG_USEC_DEQ_TIMEOUT	10000000U
 
 #define DEFAULT_JR_ID		0
 #define DEFAULT_JR_LIODN	0
