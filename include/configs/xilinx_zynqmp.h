@@ -55,18 +55,6 @@
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x1800000
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define CONFIG_THOR_RESET_OFF
-#define DFU_ALT_INFO_RAM \
-	"dfu_ram_info=" \
-	"setenv dfu_alt_info " \
-	"Image ram 80000 $kernel_size_r\\\\;" \
-	"system.dtb ram $fdt_addr_r $fdt_size_r\0" \
-	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
-	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0" \
-	"dfu_ram_tftp=run dfu_ram_info && setenv updatefile boot && " \
-	"setenv loadaddr 10000000 && dfu tftp ram 0\0"
-
-#define DFU_ALT_INFO  \
-		DFU_ALT_INFO_RAM
 
 #ifndef CONFIG_SPL_BUILD
 # define PARTS_DEFAULT \
@@ -74,10 +62,6 @@
 	"name=""boot"",size=16M,uuid=${uuid_gpt_boot};" \
 	"name=""Linux"",size=-M,uuid=${uuid_gpt_Linux}\0"
 #endif
-#endif
-
-#if !defined(DFU_ALT_INFO)
-# define DFU_ALT_INFO
 #endif
 
 #if !defined(PARTS_DEFAULT)
@@ -225,8 +209,7 @@
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
-	BOOTENV \
-	DFU_ALT_INFO
+	BOOTENV
 #endif
 
 /* SPL can't handle all huge variables - define just DFU */
