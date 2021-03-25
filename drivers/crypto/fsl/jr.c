@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * Based on CAAM driver in drivers/crypto/caam in Linux
  */
@@ -35,10 +36,10 @@ uint32_t sec_offset[CONFIG_SYS_FSL_MAX_NUM_OF_SEC] = {
 };
 
 #define SEC_ADDR(idx)	\
-	((CONFIG_SYS_FSL_SEC_ADDR + sec_offset[idx]))
+	(ulong)((CONFIG_SYS_FSL_SEC_ADDR + sec_offset[idx]))
 
 #define SEC_JR0_ADDR(idx)	\
-	(SEC_ADDR(idx) +	\
+	(ulong)(SEC_ADDR(idx) +	\
 	 (CONFIG_SYS_FSL_JR0_OFFSET - CONFIG_SYS_FSL_SEC_OFFSET))
 
 struct jobring jr0[CONFIG_SYS_FSL_MAX_NUM_OF_SEC];
