@@ -276,7 +276,8 @@ struct sg_entry {
 #define SM_V2_OFFSET 0xa00
 /*Secure Memory Versioning */
 #define SMVID_V2 0x20105
-#define SM_VERSION(x)  (x < SMVID_V2 ? 1 : 2)
+#define SM_VERSION(x)  ({typeof(x) _x = x; \
+		_x < SMVID_V2 ? 1 : (_x < 0x20300 ? 2 : 3); })
 #define SM_OFFSET(x)  (x == 1 ? SM_V1_OFFSET : SM_V2_OFFSET)
 /* CAAM Job Ring 0 Registers */
 /* Secure Memory Partition Owner register */
@@ -303,8 +304,10 @@ struct sg_entry {
 #define SM_CMD(v)		(v == 1 ? 0x0 : 0x1E4)
 #define SM_STATUS(v)		(v == 1 ? 0x8 : 0x1EC)
 #define SM_PERM(v)		(v == 1 ?  0x10 : 0x4)
-#define SM_GROUP2(v)		(v == 1 ? 0x14 : 0x8)
-#define SM_GROUP1(v)		(v == 1 ? 0x18 : 0xC)
+#define SM_GROUP2(v)		({typeof(v) _v = v; \
+		_v == 1 ? 0x14 : (_v == 2 ? 0x8 : 0xC); })
+#define SM_GROUP1(v)		({typeof(v) _v = v; \
+		_v == 1 ? 0x18 : (_v == 2 ? 0xC : 0x8); })
 #define CMD_PAGE_ALLOC		0x1
 #define CMD_PAGE_DEALLOC	0x2
 #define CMD_PART_DEALLOC	0x3
@@ -322,10 +325,15 @@ struct sg_entry {
 #define SEC_MEM_PAGE2		(CAAM_ARB_BASE_ADDR + 0x2000)
 #define SEC_MEM_PAGE3		(CAAM_ARB_BASE_ADDR + 0x3000)
 
-#define JR_MID			2               /* Matches ROM configuration */
-#define KS_G1			(1 << JR_MID)   /* CAAM only */
-#define PERM			0x0000B008      /* Clear on release, lock SMAP
-						 * lock SMAG group 1 Blob */
+#ifdef CONFIG_IMX8M
+#define JR_MID    (1)         /* Matches ATF configuration */
+#define KS_G1     (0x10000 << JR_MID) /* CAAM only */
+#define PERM      (0xB080)    /* CSP, SMAP_LCK, SMAG_LCK, G1_BLOB */
+#else
+#define JR_MID    (2)         /* Matches ROM configuration */
+#define KS_G1     BIT(JR_MID) /* CAAM only */
+#define PERM      (0xB008)    /* CSP, SMAP_LCK, SMAG_LCK, G1_BLOB */
+#endif /* CONFIG_IMX8M */
 
 /* HAB WRAPPED KEY header */
 #define WRP_HDR_SIZE		0x08
