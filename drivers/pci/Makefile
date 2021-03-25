@@ -50,5 +50,6 @@ obj-$(CONFIG_PCI_KEYSTONE) += pcie_dw_ti.o
 obj-$(CONFIG_PCIE_MEDIATEK) += pcie_mediatek.o
 obj-$(CONFIG_PCIE_ROCKCHIP) += pcie_rockchip.o
 obj-$(CONFIG_PCIE_DW_ROCKCHIP) += pcie_dw_rockchip.o
+obj-$(CONFIG_PCIE_DW_MESON) += pcie_dw_meson.o
 obj-$(CONFIG_PCI_BRCMSTB) += pcie_brcmstb.o
 obj-$(CONFIG_PCI_OCTEONTX) += pci_octeontx.o
