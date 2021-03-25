@@ -165,6 +165,18 @@ typedef void hapi_clock_init_t(void);
 #define HAB_ENG_RTL		0x77   /* RTL simulation engine */
 #define HAB_ENG_SW		0xff   /* Software engine */
 
+#ifdef CONFIG_ARM64
+#define HAB_RVT_BASE                   0x00000880
+
+#define HAB_RVT_ENTRY			(*(ulong *)(HAB_RVT_BASE + 0x08))
+#define HAB_RVT_EXIT			(*(ulong *)(HAB_RVT_BASE + 0x10))
+#define HAB_RVT_CHECK_TARGET		(*(ulong *)(HAB_RVT_BASE + 0x18))
+#define HAB_RVT_AUTHENTICATE_IMAGE	(*(ulong *)(HAB_RVT_BASE + 0x20))
+#define HAB_RVT_REPORT_EVENT		(*(ulong *)(HAB_RVT_BASE + 0x40))
+#define HAB_RVT_REPORT_STATUS		(*(ulong *)(HAB_RVT_BASE + 0x48))
+#define HAB_RVT_FAILSAFE		(*(ulong *)(HAB_RVT_BASE + 0x50))
+#else
+
 #ifdef CONFIG_ROM_UNIFIED_SECTIONS
 #define HAB_RVT_BASE			0x00000100
 #else
@@ -185,6 +197,8 @@ typedef void hapi_clock_init_t(void);
 #define HAB_RVT_REPORT_EVENT		(*(uint32_t *)(HAB_RVT_BASE + 0x20))
 #define HAB_RVT_REPORT_STATUS		(*(uint32_t *)(HAB_RVT_BASE + 0x24))
 #define HAB_RVT_FAILSAFE		(*(uint32_t *)(HAB_RVT_BASE + 0x28))
+
+#endif /*CONFIG_ARM64*/
 
 #define HAB_CID_ROM 0 /**< ROM Caller ID */
 #define HAB_CID_UBOOT 1 /**< UBOOT Caller ID*/
