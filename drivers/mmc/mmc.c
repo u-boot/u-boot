@@ -3052,9 +3052,11 @@ int mmc_init_device(int num)
 	struct mmc *m;
 	int ret;
 
-	ret = uclass_get_device(UCLASS_MMC, num, &dev);
-	if (ret)
-		return ret;
+	if (uclass_get_device_by_seq(UCLASS_MMC, num, &dev)) {
+		ret = uclass_get_device(UCLASS_MMC, num, &dev);
+		if (ret)
+			return ret;
+	}
 
 	m = mmc_get_mmc_dev(dev);
 	if (!m)
