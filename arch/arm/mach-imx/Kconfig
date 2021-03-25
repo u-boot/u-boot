@@ -81,6 +81,13 @@ config CMD_DEKBLOB
 	  creates a blob of data. See also CMD_BLOB and doc/imx/habv4/* for
 	  more information.
 
+config CMD_PRIBLOB
+	bool "Support the set_priblob_bitfield command"
+	depends on HAS_CAAM && IMX_HAB
+	help
+	  This option enables the priblob command which can be used
+		to set the priblob setting to 0x3.
+
 config CMD_HDMIDETECT
 	bool "Support the 'hdmidet' command"
 	help
