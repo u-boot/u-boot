@@ -45,7 +45,7 @@ config IMX_HAB
 	bool "Support i.MX HAB features"
 	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5 || ARCH_IMX8M
 	select FSL_CAAM if HAS_CAAM
-	imply CMD_DEKBLOB
+	imply CMD_DEKBLOB if HAS_CAAM
 	help
 	  This option enables the support for secure boot (HAB).
 	  See doc/imx/habv4/* for more details.
