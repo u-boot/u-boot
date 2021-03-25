@@ -99,3 +99,11 @@ Deadline: 2020.07
 The network subsystem has supported the driver model since early 2015.
 Maintainers should submit patches switching over to using CONFIG_DM_ETH and
 other base driver model options in time for inclusion in the 2020.07 release.
+
+CONFIG_DM_I2C
+-------------
+Deadline: 2021.10
+
+The I2C subsystem has supported the driver model since early 2015.
+Maintainers should submit patches switching over to using CONFIG_DM_I2C and
+other base driver model options in time for inclusion in the 2021.10 release.
