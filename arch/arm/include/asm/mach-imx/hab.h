@@ -173,7 +173,11 @@ typedef void hapi_clock_init_t(void);
 #define HAB_ENG_SW		0xff   /* Software engine */
 
 #ifdef CONFIG_ARM64
+#ifdef CONFIG_IMX8MQ
 #define HAB_RVT_BASE                   0x00000880
+#else
+#define HAB_RVT_BASE                   0x00000900
+#endif
 
 #define HAB_RVT_ENTRY			(*(ulong *)(HAB_RVT_BASE + 0x08))
 #define HAB_RVT_EXIT			(*(ulong *)(HAB_RVT_BASE + 0x10))
