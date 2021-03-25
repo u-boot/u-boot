@@ -456,8 +456,8 @@ static int get_hab_status(void)
 		printf("\nHAB Configuration: 0x%02x, HAB State: 0x%02x\n",
 		       config, state);
 
-		/* Display HAB Error events */
-		while (hab_rvt_report_event(HAB_FAILURE, index, event_data,
+		/* Display HAB events */
+		while (hab_rvt_report_event(HAB_STS_ANY, index, event_data,
 					&bytes) == HAB_SUCCESS) {
 			puts("\n");
 			printf("--------- HAB Event %d -----------------\n",
