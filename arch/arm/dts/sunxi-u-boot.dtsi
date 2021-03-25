@@ -4,7 +4,7 @@
 #define BL31_ADDR 0x104000
 #define  SCP_ADDR 0x114000
 #elif defined(CONFIG_MACH_SUN50I_H616)
-#define BL31_ADDR 0x40004000
+#define BL31_ADDR 0x40000000
 #else
 #define BL31_ADDR  0x44000
 #define  SCP_ADDR  0x50000
