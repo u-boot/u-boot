@@ -18,8 +18,6 @@
  */
 #define IVT_HEADER_MAGIC	0xD1
 #define IVT_TOTAL_LENGTH	0x20
-#define IVT_HEADER_V1		0x40
-#define IVT_HEADER_V2		0x41
 
 struct __packed ivt_header {
 	uint8_t		magic;

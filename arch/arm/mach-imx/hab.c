@@ -45,8 +45,7 @@ static int verify_ivt_header(struct ivt_header *ivt_hdr)
 	if (be16_to_cpu(ivt_hdr->length) != IVT_TOTAL_LENGTH)
 		result = ivt_header_error("bad length", ivt_hdr);
 
-	if (ivt_hdr->version != IVT_HEADER_V1 &&
-	    ivt_hdr->version != IVT_HEADER_V2)
+	if ((ivt_hdr->version & HAB_MAJ_MASK) != HAB_MAJ_VER)
 		result = ivt_header_error("bad version", ivt_hdr);
 
 	return result;
