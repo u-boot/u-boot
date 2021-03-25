@@ -27,6 +27,12 @@ DECLARE_GLOBAL_DATA_PTR;
 	(is_soc_type(MXC_SOC_MX7ULP) ? 0x80000000 :	\
 	 ((is_soc_type(MXC_SOC_MX7) || is_soc_type(MXC_SOC_IMX8M)) ? 0x2000000 : 0x2))
 
+#ifdef CONFIG_MX7ULP
+#define HAB_M4_PERSISTENT_START	((soc_rev() >= CHIP_REV_2_0) ? 0x20008040 : \
+				  0x20008180)
+#define HAB_M4_PERSISTENT_BYTES		0xB80
+#endif
+
 static int ivt_header_error(const char *err_str, struct ivt_header *ivt_hdr)
 {
 	printf("%s magic=0x%x length=0x%02x version=0x%x\n", err_str,
@@ -477,15 +483,99 @@ static int get_hab_status(void)
 	return 0;
 }
 
+#ifdef CONFIG_MX7ULP
+
+static int get_record_len(struct record *rec)
+{
+	return (size_t)((rec->len[0] << 8) + (rec->len[1]));
+}
+
+static int get_hab_status_m4(void)
+{
+	unsigned int index = 0;
+	uint8_t event_data[128];
+	size_t record_len, offset = 0;
+	enum hab_config config = 0;
+	enum hab_state state = 0;
+
+	if (imx_hab_is_enabled())
+		puts("\nSecure boot enabled\n");
+	else
+		puts("\nSecure boot disabled\n");
+
+	/*
+	 * HAB in both A7 and M4 gather the security state
+	 * and configuration of the chip from
+	 * shared SNVS module
+	 */
+	hab_rvt_report_status(&config, &state);
+	printf("\nHAB Configuration: 0x%02x, HAB State: 0x%02x\n",
+	       config, state);
+
+	struct record *rec = (struct record *)(HAB_M4_PERSISTENT_START);
+
+	record_len = get_record_len(rec);
+
+	/* Check if HAB persistent memory is valid */
+	if (rec->tag != HAB_TAG_EVT_DEF ||
+	    record_len != sizeof(struct evt_def) ||
+	    (rec->par & HAB_MAJ_MASK) != HAB_MAJ_VER) {
+		puts("\nERROR: Invalid HAB persistent memory\n");
+		return 1;
+	}
+
+	/* Parse events in HAB M4 persistent memory region */
+	while (offset < HAB_M4_PERSISTENT_BYTES) {
+		rec = (struct record *)(HAB_M4_PERSISTENT_START + offset);
+
+		record_len = get_record_len(rec);
+
+		if (rec->tag == HAB_TAG_EVT) {
+			memcpy(&event_data, rec, record_len);
+			puts("\n");
+			printf("--------- HAB Event %d -----------------\n",
+			       index + 1);
+			puts("event data:\n");
+			display_event(event_data, record_len);
+			puts("\n");
+			index++;
+		}
+
+		offset += record_len;
+
+		/* Ensure all records start on a word boundary */
+		if ((offset % 4) != 0)
+			offset =  offset + (4 - (offset % 4));
+	}
+
+	if (!index)
+		puts("No HAB Events Found!\n\n");
+
+	return 0;
+}
+#endif
+
 static int do_hab_status(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
+#ifdef CONFIG_MX7ULP
+	if ((argc > 2)) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	if (strcmp("m4", argv[1]) == 0)
+		get_hab_status_m4();
+	else
+		get_hab_status();
+#else
 	if ((argc != 1)) {
 		cmd_usage(cmdtp);
 		return 1;
 	}
 
 	get_hab_status();
+#endif
 
 	return 0;
 }
@@ -588,11 +678,20 @@ error:
 	return ret;
 }
 
+#ifdef CONFIG_MX7ULP
+U_BOOT_CMD(
+		hab_status, CONFIG_SYS_MAXARGS, 2, do_hab_status,
+		"display HAB status and events",
+		"hab_status - A7 HAB event and status\n"
+		"hab_status m4 - M4 HAB event and status"
+	  );
+#else
 U_BOOT_CMD(
 		hab_status, CONFIG_SYS_MAXARGS, 1, do_hab_status,
 		"display HAB status",
 		""
 	  );
+#endif
 
 U_BOOT_CMD(
 		hab_auth_img, 4, 0, do_authenticate_image,

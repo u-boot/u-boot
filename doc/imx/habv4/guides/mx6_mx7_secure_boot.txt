@@ -213,6 +213,30 @@ the example below:
   HAB Configuration: 0xf0, HAB State: 0x66
   No HAB Events Found!
 
+1.6.1 Verifying HAB events in i.MX7ULP
+---------------------------------------
+
+When booting i.MX7ULP in low power or dual boot modes the M4 binary is
+authenticated by an independent HAB in M4 ROM code using a
+different SRK key set.
+
+The U-Boot provides a M4 option in hab_status command so users can retrieve
+M4 HAB failure and warning events.
+
+- Verify HAB M4 events:
+
+  => hab_status m4
+
+  Secure boot disabled
+
+  HAB Configuration: 0xf0, HAB State: 0x66
+  No HAB Events Found!
+
+As HAB M4 API cannot be called from A7 core the command is parsing the M4 HAB
+persistent memory region, M4 software should not modify this reserved region.
+
+Details about HAB persistent memory region can be found in AN12263[2].
+
 1.7 Closing the device
 -----------------------
 
@@ -400,3 +424,4 @@ If no HAB events were found the zImage is successfully signed.
 References:
 [1] AN4581: "Secure Boot on i.MX 50, i.MX 53, i.MX 6 and i.MX 7 Series using
  HABv4" - Rev 2.
+[2] AN12263: "HABv4 RVT Guidelines and Recommendations" - Rev 0.

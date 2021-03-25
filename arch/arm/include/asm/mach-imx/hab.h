@@ -42,6 +42,15 @@ struct __packed hab_hdr {
 	u8 par;              /* Parameters field */
 };
 
+/* Default event structure */
+struct __packed evt_def {
+	struct hab_hdr hdr;		/* Header */
+	uint32_t sts;			/* Status */
+	uint32_t ctx;			/* Default context */
+	uint8_t *data;			/* Default data location */
+	size_t bytes;			/* Size of default data */
+};
+
 /* -------- start of HAB API updates ------------*/
 /* The following are taken from HAB4 SIS */
 
@@ -210,6 +219,12 @@ typedef void hapi_clock_init_t(void);
 
 #define IVT_SIZE			0x20
 #define CSF_PAD_SIZE			0x2000
+
+#define HAB_TAG_EVT		0xDB
+#define HAB_TAG_EVT_DEF		0x0C
+
+#define HAB_MAJ_VER		0x40
+#define HAB_MAJ_MASK		0xF0
 
 /* ----------- end of HAB API updates ------------*/
 
