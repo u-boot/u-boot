@@ -344,6 +344,9 @@ struct sg_entry {
 #define FSL_CAAM_MP_PRVK_BYTES		    32
 #define FSL_CAAM_MP_MES_DGST_BYTES	    32
 
+#define FSL_CAAM_ORSR_JRa_OFFSET	0x102c
+#define FSL_CAAM_MAX_JR_SIZE		4
+
 /* blob_dek:
  * Encapsulates the src in a secure blob and stores it dst
  * @src: reference to the plaintext
