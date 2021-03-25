@@ -64,6 +64,17 @@ implementation.
 
    arch/index
 
+Machine-specific doc
+--------------------
+
+These books provide programming details about machine-specific
+implementation.
+
+.. toctree::
+   :maxdepth: 2
+
+   imx/index
+
 Board-specific doc
 ------------------
 
