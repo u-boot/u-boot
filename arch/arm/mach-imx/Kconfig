@@ -43,7 +43,7 @@ config USE_IMXIMG_PLUGIN
 
 config IMX_HAB
 	bool "Support i.MX HAB features"
-	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
+	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5 || ARCH_IMX8M
 	select FSL_CAAM if HAS_CAAM
 	imply CMD_DEKBLOB
 	help
