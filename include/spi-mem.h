@@ -250,6 +250,9 @@ int spi_mem_adjust_op_size(struct spi_slave *slave, struct spi_mem_op *op);
 
 bool spi_mem_supports_op(struct spi_slave *slave, const struct spi_mem_op *op);
 
+bool spi_mem_default_supports_op(struct spi_slave *slave,
+				 const struct spi_mem_op *op);
+
 int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op);
 
 bool spi_mem_default_supports_op(struct spi_slave *mem,
