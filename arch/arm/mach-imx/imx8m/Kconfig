@@ -2,6 +2,7 @@ if ARCH_IMX8M
 
 config IMX8M
 	bool
+	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 
 config IMX8MQ
