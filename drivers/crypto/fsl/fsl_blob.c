@@ -65,6 +65,9 @@ int blob_decap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
 	flush_dcache_range((unsigned long)desc,
 			   (unsigned long)desc + size);
 
+	flush_dcache_range((unsigned long)dst,
+			   (unsigned long)dst + size);
+
 	ret = run_descriptor_jr(desc);
 
 	if (ret) {
@@ -129,6 +132,9 @@ int blob_encap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
 	size = ALIGN(sizeof(int) * MAX_CAAM_DESCSIZE, ARCH_DMA_MINALIGN);
 	flush_dcache_range((unsigned long)desc,
 			   (unsigned long)desc + size);
+
+	flush_dcache_range((unsigned long)dst,
+			   (unsigned long)dst + size);
 
 	ret = run_descriptor_jr(desc);
 
