@@ -195,7 +195,7 @@ typedef void hapi_clock_init_t(void);
 #define HAB_RVT_BASE_OLD		0x00000094
 #define HAB_RVT_BASE ((is_mx6dqp()) ?					\
 			HAB_RVT_BASE_NEW :				\
-			(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?	\
+			(is_mx6dq() && (soc_rev() >= CHIP_REV_1_3)) ?	\
 			HAB_RVT_BASE_NEW :				\
 			(is_mx6sdl() && (soc_rev() >= CHIP_REV_1_2)) ?	\
 			HAB_RVT_BASE_NEW : HAB_RVT_BASE_OLD)
