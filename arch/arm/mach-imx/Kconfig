@@ -75,11 +75,28 @@ config CMD_BMODE
 
 config CMD_DEKBLOB
 	bool "Support the 'dek_blob' command"
+	select IMX_CAAM_DEK_ENCAP if ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP
+	select IMX_OPTEE_DEK_ENCAP if ARCH_IMX8M
 	help
 	  This enables the 'dek_blob' command which is used with the
 	  Freescale secure boot mechanism. This command encapsulates and
 	  creates a blob of data. See also CMD_BLOB and doc/imx/habv4/* for
 	  more information.
+
+config IMX_CAAM_DEK_ENCAP
+	bool "Support the DEK blob encapsulation with CAAM U-Boot driver"
+	help
+	  This enables the DEK blob encapsulation with the U-Boot CAAM driver.
+	  This option is only available on imx6, imx7 and imx7ulp.
+
+config IMX_OPTEE_DEK_ENCAP
+	select TEE
+	select OPTEE
+	bool "Support the DEK blob encapsulation with OP-TEE"
+	help
+	  This enabled the DEK blob encapsulation with OP-TEE. The communication
+	  with OP-TEE is done through a SMC call and OP-TEE shared memory. This
+	  option is available on imx8mm.
 
 config CMD_PRIBLOB
 	bool "Support the set_priblob_bitfield command"

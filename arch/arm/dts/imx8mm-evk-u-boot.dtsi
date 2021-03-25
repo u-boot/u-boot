@@ -9,6 +9,13 @@
 		wdt = <&wdog1>;
 		u-boot,dm-spl;
 	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
 };
 
 &{/soc@0} {

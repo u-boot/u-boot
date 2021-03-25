@@ -28,6 +28,8 @@
 #error Neither CONFIG_SYS_FSL_SEC_LE nor CONFIG_SYS_FSL_SEC_BE is defined
 #endif
 
+#define BLOB_SIZE(x)		((x) + 32 + 16) /* Blob buffer size */
+
 /* Security Engine Block (MS = Most Sig., LS = Least Sig.) */
 #if CONFIG_SYS_FSL_SEC_COMPAT >= 4
 /* RNG4 TRNG test registers */
@@ -264,8 +266,6 @@ struct sg_entry {
 #define SG_ENTRY_OFFSET_MASK	0x00001FFF
 #define SG_ENTRY_OFFSET_SHIFT	0
 };
-
-#define BLOB_SIZE(x)		((x) + 32 + 16) /* Blob buffer size */
 
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7) || \
 	defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8M)
