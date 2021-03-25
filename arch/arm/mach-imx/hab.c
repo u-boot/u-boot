@@ -794,10 +794,8 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	struct ivt *ivt;
 	enum hab_status status;
 
-	if (!imx_hab_is_enabled()) {
+	if (!imx_hab_is_enabled())
 		puts("hab fuse not enabled\n");
-		return 0;
-	}
 
 	printf("\nAuthenticate image from DDR location 0x%x...\n",
 	       ddr_start);
@@ -896,7 +894,7 @@ hab_exit_failure_print_status:
 
 hab_authentication_exit:
 
-	if (load_addr != 0)
+	if (load_addr != 0 || !imx_hab_is_enabled())
 		result = 0;
 
 	return result;
