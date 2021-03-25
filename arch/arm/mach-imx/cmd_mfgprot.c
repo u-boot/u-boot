@@ -42,7 +42,8 @@ static int do_mfgprot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	/* Enable HAB clock */
 	u32 jr_size = 4;
-	u32 out_jr_size = sec_in32(CONFIG_SYS_FSL_JR0_ADDR + 0x102c);
+	u32 out_jr_size = sec_in32(CONFIG_SYS_FSL_JR0_ADDR +
+				   FSL_CAAM_ORSR_JRa_OFFSET);
 
 	if (out_jr_size != jr_size) {
 		hab_caam_clock_enable(1);
