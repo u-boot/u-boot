@@ -1090,16 +1090,8 @@ endif
 	$(call deprecated,CONFIG_DM_MMC CONFIG_BLK,MMC,v2019.04,$(CONFIG_MMC))
 	$(call deprecated,CONFIG_DM_USB CONFIG_OF_CONTROL CONFIG_BLK,\
 		USB,v2019.07,$(CONFIG_USB))
-ifeq ($(CONFIG_MVSATA_IDE),y)
-	@echo >&2 "===================== WARNING ======================"
-	@echo >&2 "This board does use CONFIG_MVSATA_IDE which is not"
-	@echo >&2 "ported to driver-model (DM) yet. Please update the storage"
-	@echo >&2 "controller driver to use CONFIG_AHCI before the v2019.07"
-	@echo >&2 "release."
-	@echo >&2 "Failure to update by the deadline may result in board removal."
-	@echo >&2 "See doc/driver-model/migration.rst for more info."
-	@echo >&2 "===================================================="
-endif
+	$(call deprecated,CONFIG_AHCI,AHCI instead of CONFIG_MVSATA_IDE,v2019.07, \
+		$(CONFIG_MVSATA_IDE))
 ifeq ($(CONFIG_LIBATA),y)
 ifneq ($(CONFIG_AHCI),y)
 	@echo >&2 "===================== WARNING ======================"
