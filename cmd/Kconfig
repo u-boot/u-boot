@@ -1960,8 +1960,8 @@ config CMD_AES
 
 config CMD_BLOB
 	bool "Enable the 'blob' command"
-	depends on !MX6ULL && !MX6SLL && !MX6SL && !IMX8M && !MX7ULP
-	select IMX_HAB if ARCH_MX6 || ARCH_MX7
+	depends on !MX6ULL && !MX6SLL && !MX6SL && !IMX8M
+	select IMX_HAB if ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP
 	help
 	  This is used with the Freescale secure boot mechanism.
 
