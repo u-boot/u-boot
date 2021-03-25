@@ -1096,16 +1096,8 @@ endif
 	$(call deprecated,CONFIG_DM_PCI,PCI,v2019.07,$(CONFIG_PCI))
 	$(call deprecated,CONFIG_DM_VIDEO,video,v2019.07,\
 		$(CONFIG_LCD)$(CONFIG_VIDEO))
-ifeq ($(CONFIG_SPI_FLASH),y)
-ifneq ($(CONFIG_DM_SPI_FLASH)$(CONFIG_OF_CONTROL),yy)
-	@echo >&2 "===================== WARNING ======================"
-	@echo >&2 "This board does not use CONFIG_DM_SPI_FLASH. Please update"
-	@echo >&2 "the board to use CONFIG_SPI_FLASH before the v2019.07 release."
-	@echo >&2 "Failure to update by the deadline may result in board removal."
-	@echo >&2 "See doc/driver-model/migration.rst for more info."
-	@echo >&2 "===================================================="
-endif
-endif
+	$(call deprecated,CONFIG_DM_SPI_FLASH,SPI flash,v2019.07,\
+		$(CONFIG_SPI_FLASH))
 ifneq ($(CONFIG_WATCHDOG)$(CONFIG_HW_WATCHDOG),)
 ifneq ($(CONFIG_WDT),y)
 	@echo >&2 "===================== WARNING ======================"
