@@ -133,6 +133,14 @@
 	};
 };
 
+#ifdef CONFIG_SL28_ENABLE_SER0_CONSOLE
+/ {
+	chosen {
+		stdout-path = "serial2:115200n8";
+	};
+};
+#endif
+
 #ifdef CONFIG_SL28_SPL_LOADS_ATF_BL31
 &binman {
 	fit {
@@ -247,6 +255,10 @@
 };
 
 &esdhc1 {
+	u-boot,dm-pre-reloc;
+};
+
+&lpuart1 {
 	u-boot,dm-pre-reloc;
 };
 
