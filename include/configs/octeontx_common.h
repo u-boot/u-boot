@@ -8,8 +8,6 @@
 #ifndef __OCTEONTX_COMMON_H__
 #define __OCTEONTX_COMMON_H__
 
-#define CONFIG_SUPPORT_RAW_INITRD
-
 /** Maximum size of image supported for bootm (and bootable FIT images) */
 #define CONFIG_SYS_BOOTM_LEN		(256 << 20)
 
