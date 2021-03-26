@@ -467,6 +467,8 @@ class DtbPlatdata():
             if reg.type != fdt.Type.INT:
                 raise ValueError("Node '%s' reg property is not an int" %
                                  node.name)
+            if not isinstance(reg.value, list):
+                reg.value = [reg.value]
             if len(reg.value) % total:
                 raise ValueError(
                     "Node '%s' reg property has %d cells "
@@ -474,13 +476,11 @@ class DtbPlatdata():
                     (node.name, len(reg.value), num_addr, num_size))
             reg.num_addr = num_addr
             reg.num_size = num_size
-            if num_addr != 1 or num_size != 1:
+            if num_addr > 1 or num_size > 1:
                 reg.type = fdt.Type.INT64
                 i = 0
                 new_value = []
                 val = reg.value
-                if not isinstance(val, list):
-                    val = [val]
                 while i < len(val):
                     addr = fdt_util.fdt_cells_to_cpu(val[i:], reg.num_addr)
                     i += num_addr

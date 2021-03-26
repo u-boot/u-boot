@@ -293,7 +293,7 @@ struct dtd_sandbox_i2c {
 };
 struct dtd_sandbox_pmic {
 \tbool\t\tlow_power;
-\tfdt64_t\t\treg[2];
+\tfdt32_t\t\treg[1];
 };
 struct dtd_sandbox_spl_test {
 \tconst char *	acpi_name;
@@ -341,7 +341,7 @@ U_BOOT_DRVINFO(i2c_at_0) = {
  */
 static struct dtd_sandbox_pmic dtv_pmic_at_9 = {
 \t.low_power\t\t= true,
-\t.reg\t\t\t= {0x9, 0x0},
+\t.reg\t\t\t= {0x9},
 };
 U_BOOT_DRVINFO(pmic_at_9) = {
 \t.name\t\t= "sandbox_pmic",
@@ -721,7 +721,7 @@ struct dm_test_pdata __attribute__ ((section (".priv_data")))
 \t.dtplat = {
 \t\t.ping_add\t\t= 0x5,
 \t\t.ping_expect\t\t= 0x5,
-\t\t.reg\t\t\t= {0x5, 0x0},
+\t\t.reg\t\t\t= {0x5},
 \t},
 };
 #include <dm/test.h>
