@@ -1462,7 +1462,7 @@ U_BOOT_DRVINFO(test3) = {
         with self.assertRaises(ValueError) as exc:
             self.run_test(['struct'], dtb_file, output)
         self.assertIn(
-            "Node 'spl-test' reg property has 3 cells which is not a multiple of na + ns = 1 + 1)",
+            "Node 'spl-test' (parent '/') reg property has 3 cells which is not a multiple of na + ns = 1 + 1)",
             str(exc.exception))
 
     def test_add_prop(self):
@@ -1824,3 +1824,18 @@ U_BOOT_DRVINFO(spl_test2) = {
         self.assertEqual(
             'Warning: Cannot find header file for struct dm_test_uc_priv',
             stdout.getvalue().strip())
+
+    def test_missing_props(self):
+        """Test detection of a parent node with no properties"""
+        dtb_file = get_dtb_file('dtoc_test_noprops.dts', capture_stderr=True)
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as exc:
+            self.run_test(['struct'], dtb_file, output)
+        self.assertIn("Parent node '/i2c@0' has no properties - do you need",
+                      str(exc.exception))
+
+    def test_single_reg(self):
+        """Test detection of a parent node with no properties"""
+        dtb_file = get_dtb_file('dtoc_test_single_reg.dts')
+        output = tools.GetOutputFilename('output')
+        self.run_test(['struct'], dtb_file, output)
