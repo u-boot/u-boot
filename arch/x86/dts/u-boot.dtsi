@@ -38,20 +38,11 @@
 	};
 #endif
 	spl {
-		type = "section";
+		type = "u-boot-spl";
 		offset = <CONFIG_X86_OFFSET_SPL>;
-		u-boot-spl {
-		};
-		u-boot-spl-dtb {
-		};
 	};
 	u-boot {
-		type = "section";
 		offset = <CONFIG_X86_OFFSET_U_BOOT>;
-		u-boot-nodtb {
-		};
-		u-boot-dtb {
-		};
 	};
 #elif defined(CONFIG_SPL)
 	u-boot-spl-with-ucode-ptr {
@@ -64,11 +55,7 @@
 		offset = <CONFIG_X86_OFFSET_U_BOOT>;
 	};
 #else
-# ifdef CONFIG_SPL
-	u-boot {
-		offset = <CONFIG_SYS_TEXT_BASE>;
-	};
-# elif defined(CONFIG_HAVE_MICROCODE)
+# ifdef CONFIG_HAVE_MICROCODE
 	/* If there is no SPL then we need to put microcode in U-Boot */
 	u-boot-with-ucode-ptr {
 		offset = <CONFIG_X86_OFFSET_U_BOOT>;

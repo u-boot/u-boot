@@ -125,6 +125,7 @@ emulator driver. For example::
 		compatible = "sandbox,pci-emul-parent";
 		emul_1f: emul@1f,0 {
 			compatible = "sandbox,swap-case";
+			#emul-cells = <0>;
 		};
 	};
 

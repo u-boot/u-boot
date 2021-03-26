@@ -120,9 +120,24 @@ endif
 u-boot-spl-init := $(head-y)
 u-boot-spl-main := $(libs-y)
 ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA
-u-boot-spl-platdata := $(obj)/dts/dt-plat.o
-u-boot-spl-platdata_c := $(patsubst %.o,%.c,$(u-boot-spl-platdata))
+platdata-hdr := include/generated/dt-structs-gen.h include/generated/dt-decl.h
+platdata-inst := $(obj)/dts/dt-uclass.o $(obj)/dts/dt-device.o
+platdata-noinst := $(obj)/dts/dt-plat.o
+
+ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA_INST
+u-boot-spl-platdata := $(platdata-inst)
+u-boot-spl-old-platdata := $(platdata-noinst)
+else
+u-boot-spl-platdata := $(platdata-noinst)
+u-boot-spl-old-platdata := $(platdata-inst)
 endif
+
+# Files we need to generate
+u-boot-spl-platdata_c := $(patsubst %.o,%.c,$(u-boot-spl-platdata))
+
+# Files we won't generate and should remove
+u-boot-spl-old-platdata_c := $(patsubst %.o,%.c,$(u-boot-spl-old-platdata))
+endif  # OF_PLATDATA
 
 # Linker Script
 # First test whether there's a linker-script for the specific stage defined...
@@ -311,7 +326,11 @@ $(obj)/$(SPL_BIN).dtb: $(obj)/dts/dt-$(SPL_NAME).dtb FORCE
 pythonpath = PYTHONPATH=scripts/dtc/pylibfdt
 
 DTOC_ARGS := $(pythonpath) $(srctree)/tools/dtoc/dtoc \
-	-d $(obj)/$(SPL_BIN).dtb
+	-d $(obj)/$(SPL_BIN).dtb -p $(SPL_NAME)
+
+ifneq ($(CONFIG_$(SPL_TPL_)OF_PLATDATA_INST),)
+DTOC_ARGS += -i
+endif
 
 quiet_cmd_dtoc = DTOC    $@
 cmd_dtoc = $(DTOC_ARGS) -c $(obj)/dts -C include/generated all
@@ -319,18 +338,17 @@ cmd_dtoc = $(DTOC_ARGS) -c $(obj)/dts -C include/generated all
 quiet_cmd_plat = PLAT    $@
 cmd_plat = $(CC) $(c_flags) -c $< -o $(filter-out $(PHONY),$@)
 
-targets += $(u-boot-spl-platdata)
-
-$(obj)/dts/dt-%.o: $(obj)/dts/dt-%.c \
-		include/generated/dt-structs-gen.h prepare FORCE
+$(obj)/dts/dt-%.o: $(obj)/dts/dt-%.c $(platdata-hdr)
 	$(call if_changed,plat)
 
-PHONY += dts_dir
-dts_dir:
-	$(shell [ -d $(obj)/dts ] || mkdir -p $(obj)/dts)
-
-include/generated/dt-structs-gen.h $(u-boot-spl-platdata_c) &: \
-		$(obj)/$(SPL_BIN).dtb dts_dir FORCE
+# Don't use dts_dir here, since it forces running this expensive rule every time
+$(platdata-hdr) $(u-boot-spl-platdata_c) &: $(obj)/$(SPL_BIN).dtb
+	@[ -d $(obj)/dts ] || mkdir -p $(obj)/dts
+	@# Remove old files since which ones we generate depends on the setting
+	@# of OF_PLATDATA_INST and this might change between builds. Leaving old
+	@# ones around is confusing and it is possible that switching the
+	@# setting again will use the old one instead of regenerating it.
+	@rm -f $(u-boot-spl-all-platdata_c) $(u-boot-spl-all-platdata)
 	$(call if_changed,dtoc)
 
 ifdef CONFIG_SAMSUNG
@@ -470,6 +488,10 @@ FORCE:
 
 $(obj)/dts/dt-$(SPL_NAME).dtb: dts/dt.dtb
 	$(Q)$(MAKE) $(build)=$(obj)/dts spl_dtbs
+
+PHONY += dts_dir
+dts_dir:
+	$(shell [ -d $(obj)/dts ] || mkdir -p $(obj)/dts)
 
 # Declare the contents of the .PHONY variable as phony.  We keep that
 # information in a variable so we can use it in if_changed and friends.

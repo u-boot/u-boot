@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>
+#include <asm/i2c.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
@@ -23,23 +24,18 @@
  * uclass so avoid having strange devices on the I2C bus.
  */
 
-/**
- * struct i2c_emul_uc_plat - information about the emulator for this device
- *
- * This is used by devices in UCLASS_I2C_EMUL to record information about the
- * device being emulated. It is accessible with dev_get_uclass_plat()
- *
- * @dev: Device being emulated
- */
-struct i2c_emul_uc_plat {
-	struct udevice *dev;
-};
-
 struct udevice *i2c_emul_get_device(struct udevice *emul)
 {
 	struct i2c_emul_uc_plat *uc_plat = dev_get_uclass_plat(emul);
 
 	return uc_plat->dev;
+}
+
+void i2c_emul_set_idx(struct udevice *dev, int emul_idx)
+{
+	struct dm_i2c_chip *plat = dev_get_parent_plat(dev);
+
+	plat->emul_idx = emul_idx;
 }
 
 int i2c_emul_find(struct udevice *dev, struct udevice **emulp)
@@ -48,8 +44,14 @@ int i2c_emul_find(struct udevice *dev, struct udevice **emulp)
 	struct udevice *emul;
 	int ret;
 
-	ret = uclass_find_device_by_phandle(UCLASS_I2C_EMUL, dev,
-					    "sandbox,emul", &emul);
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA)) {
+		ret = uclass_find_device_by_phandle(UCLASS_I2C_EMUL, dev,
+						    "sandbox,emul", &emul);
+	} else {
+		struct dm_i2c_chip *plat = dev_get_parent_plat(dev);
+
+		ret = device_get_by_ofplat_idx(plat->emul_idx, &emul);
+	}
 	if (ret) {
 		log_err("No emulators for device '%s'\n", dev->name);
 		return ret;
@@ -85,8 +87,8 @@ static const struct udevice_id i2c_emul_parent_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(i2c_emul_parent_drv) = {
-	.name		= "i2c_emul_parent_drv",
+U_BOOT_DRIVER(sandbox_i2c_emul_parent) = {
+	.name		= "sandbox_i2c_emul_parent",
 	.id		= UCLASS_I2C_EMUL_PARENT,
 	.of_match	= i2c_emul_parent_ids,
 };

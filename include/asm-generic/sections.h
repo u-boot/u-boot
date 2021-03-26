@@ -28,6 +28,9 @@ extern char __efi_helloworld_end[];
 extern char __efi_var_file_begin[];
 extern char __efi_var_file_end[];
 
+/* Private data used by of-platdata devices/uclasses */
+extern char __priv_data_start[], __priv_data_end[];
+
 /* Start and end of .ctors section - used for constructor calls. */
 extern char __ctors_start[], __ctors_end[];
 

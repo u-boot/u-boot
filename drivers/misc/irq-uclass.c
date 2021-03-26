@@ -69,7 +69,7 @@ int irq_get_by_driver_info(struct udevice *dev,
 {
 	int ret;
 
-	ret = device_get_by_driver_info_idx(cells->idx, &irq->dev);
+	ret = device_get_by_ofplat_idx(cells->idx, &irq->dev);
 	if (ret)
 		return ret;
 	irq->id = cells->arg[0];

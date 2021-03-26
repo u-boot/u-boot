@@ -71,6 +71,11 @@ struct dm_test_priv {
 	int uclass_postp;
 };
 
+/* struct dm_test_uc_priv - private data for the testdrv uclass */
+struct dm_test_uc_priv {
+	int dummy;
+};
+
 /**
  * struct dm_test_perdev_class_priv - private per-device data for test uclass
  */

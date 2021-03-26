@@ -11,6 +11,9 @@
 
 struct udevice;
 
+/* Head of the uclass list if CONFIG_OF_PLATDATA_INST is enabled */
+extern struct list_head uclass_head;
+
 /**
  * dm_root() - Return pointer to the top of the driver tree
  *

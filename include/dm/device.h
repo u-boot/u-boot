@@ -177,7 +177,9 @@ struct udevice {
 	struct list_head uclass_node;
 	struct list_head child_head;
 	struct list_head sibling_node;
+#if !CONFIG_IS_ENABLED(OF_PLATDATA_RT)
 	u32 flags_;
+#endif
 	int seq_;
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	ofnode node_;
@@ -190,12 +192,32 @@ struct udevice {
 #endif
 };
 
+/**
+ * udevice_rt - runtime information set up by U-Boot
+ *
+ * This is only used with OF_PLATDATA_RT
+ *
+ * There is one of these for every udevice in the linker list, indexed by
+ * the udevice_info idx value.
+ *
+ * @flags_: Flags for this device DM_FLAG_... (do not access outside driver
+ *	model)
+ */
+struct udevice_rt {
+	u32 flags_;
+};
+
 /* Maximum sequence number supported */
 #define DM_MAX_SEQ	999
 
 /* Returns the operations for a device */
 #define device_get_ops(dev)	(dev->driver->ops)
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA_RT)
+u32 dev_get_flags(const struct udevice *dev);
+void dev_or_flags(const struct udevice *dev, u32 or);
+void dev_bic_flags(const struct udevice *dev, u32 bic);
+#else
 static inline u32 dev_get_flags(const struct udevice *dev)
 {
 	return dev->flags_;
@@ -210,6 +232,7 @@ static inline void dev_bic_flags(struct udevice *dev, u32 bic)
 {
 	dev->flags_ &= ~bic;
 }
+#endif /* OF_PLATDATA_RT */
 
 /**
  * dev_ofnode() - get the DT node reference associated with a udevice
@@ -363,11 +386,67 @@ struct driver {
 	ll_entry_get(struct driver, __name, driver)
 
 /**
+ * DM_DRIVER_REF() - Get a reference to a driver
+ *
+ * This is useful in data structures and code for referencing a driver at
+ * build time. Before this is used, an extern U_BOOT_DRIVER() must have been
+ * declared.
+ *
+ * For example:
+ *
+ * extern U_BOOT_DRIVER(sandbox_fixed_clock);
+ *
+ * struct driver *drvs[] = {
+ *	DM_DRIVER_REF(sandbox_fixed_clock),
+ * };
+ *
+ * @_name: Name of the driver. This must be a valid C identifier, used by the
+ *	linker_list
+ * @returns struct driver * for the driver
+ */
+#define DM_DRIVER_REF(_name)					\
+	ll_entry_ref(struct driver, _name, driver)
+
+/**
  * Declare a macro to state a alias for a driver name. This macro will
  * produce no code but its information will be parsed by tools like
  * dtoc
  */
 #define DM_DRIVER_ALIAS(__name, __alias)
+
+/**
+ * Declare a macro to indicate which phase of U-Boot this driver is fore.
+ *
+ *
+ * This macro produces no code but its information will be parsed by dtoc. The
+ * macro can be only be used once in a driver. Put it within the U_BOOT_DRIVER()
+ * declaration, e.g.:
+ *
+ * U_BOOT_DRIVER(cpu) = {
+ *	.name = ...
+ *	...
+ *	DM_PHASE(tpl)
+ * };
+ */
+#define DM_PHASE(_phase)
+
+/**
+ * Declare a macro to declare a header needed for a driver. Often the correct
+ * header can be found automatically, but only for struct declarations. For
+ * enums and #defines used in the driver declaration and declared in a different
+ * header from the structs, this macro must be used.
+ *
+ * This macro produces no code but its information will be parsed by dtoc. The
+ * macro can be used multiple times with different headers, for the same driver.
+ * Put it within the U_BOOT_DRIVER() declaration, e.g.:
+ *
+ * U_BOOT_DRIVER(cpu) = {
+ *	.name = ...
+ *	...
+ *	DM_HEADER(<asm/cpu.h>)
+ * };
+ */
+#define DM_HEADER(_hdr)
 
 /**
  * dev_get_plat() - Get the platform data for a device
@@ -611,33 +690,24 @@ int device_find_global_by_ofnode(ofnode node, struct udevice **devp);
 int device_get_global_by_ofnode(ofnode node, struct udevice **devp);
 
 /**
- * device_get_by_driver_info() - Get a device based on driver_info
+ * device_get_by_ofplat_idx() - Get a device based on of-platdata index
  *
- * Locates a device by its struct driver_info, by using its reference which
- * is updated during the bind process.
+ * Locates a device by either its struct driver_info index, or its
+ * struct udevice index. The latter is used with OF_PLATDATA_INST, since we have
+ * a list of build-time instantiated struct udevice records, The former is used
+ * with !OF_PLATDATA_INST since in that case we have a list of
+ * struct driver_info records.
  *
- * The device is probed to activate it ready for use.
- *
- * @info: Struct driver_info
- * @devp: Returns pointer to device if found, otherwise this is set to NULL
- * @return 0 if OK, -ve on error
- */
-int device_get_by_driver_info(const struct driver_info *info,
-			      struct udevice **devp);
-
-/**
- * device_get_by_driver_info_idx() - Get a device based on driver_info index
- *
- * Locates a device by its struct driver_info, by using its index number which
- * is written into the idx field of struct phandle_1_arg, etc.
+ * The index number is written into the idx field of struct phandle_1_arg, etc.
+ * It is the position of this driver_info/udevice in its linker list.
  *
  * The device is probed to activate it ready for use.
  *
- * @idx: Index number of the driver_info structure (0=first)
+ * @idx: Index number of the driver_info/udevice structure (0=first)
  * @devp: Returns pointer to device if found, otherwise this is set to NULL
  * @return 0 if OK, -ve on error
  */
-int device_get_by_driver_info_idx(uint idx, struct udevice **devp);
+int device_get_by_ofplat_idx(uint idx, struct udevice **devp);
 
 /**
  * device_find_first_child() - Find the first child of a device

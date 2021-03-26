@@ -15,7 +15,7 @@ from patman import tools
 
 
 class Entry_files(Entry_section):
-    """Entry containing a set of files
+    """A set of files arranged in a section
 
     Properties / Entry arguments:
         - pattern: Filename pattern to match the files to include

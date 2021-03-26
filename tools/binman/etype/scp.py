@@ -7,7 +7,7 @@
 from binman.etype.blob_named_by_arg import Entry_blob_named_by_arg
 
 class Entry_scp(Entry_blob_named_by_arg):
-    """Entry containing a System Control Processor (SCP) firmware blob
+    """System Control Processor (SCP) firmware blob
 
     Properties / Entry arguments:
         - scp-path: Filename of file to read into the entry, typically scp.bin

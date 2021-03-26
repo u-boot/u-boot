@@ -338,6 +338,7 @@ config SPL_OF_PLATDATA
 	bool "Generate platform data for use in SPL"
 	depends on SPL_OF_CONTROL
 	select DTOC
+	select SPL_OF_PLATDATA_DRIVER_RT if !SPL_OF_PLATDATA_INST
 	help
 	  For very constrained SPL environments the overhead of decoding
 	  device tree nodes and converting their contents into platform data
@@ -355,19 +356,58 @@ config SPL_OF_PLATDATA
 	  compatible string, then adding platform data and U_BOOT_DRVINFO
 	  declarations for each node. See of-plat.txt for more information.
 
+if SPL_OF_PLATDATA
+
 config SPL_OF_PLATDATA_PARENT
 	bool "Support parent information in devices"
-	depends on SPL_OF_PLATDATA
 	default y
 	help
 	  Generally it is useful to be able to access the parent of a device
 	  with of-platdata. To save space this can be disabled, but in that
 	  case dev_get_parent() will always return NULL;
+
+config SPL_OF_PLATDATA_INST
+	bool "Declare devices at build time"
+	help
+	  Declare devices as udevice instances so that they do not need to be
+	  bound when U-Boot starts. This can save time and code space.
+
+config SPL_OF_PLATDATA_NO_BIND
+	bool "Don't allow run-time binding of devices"
+	depends on SPL_OF_PLATDATA_INST
+	default y
+	help
+	  This removes the ability to bind devices at run time, thus saving
+	  some code space in U-Boot. This can be disabled if binding is needed,
+	  at the code of some code size increase.
+
+config SPL_OF_PLATDATA_RT
+	bool "Use a separate struct for device runtime data"
+	depends on SPL_OF_PLATDATA_INST
+	default y
+	help
+	  For systems running SPL from read-only memory it is convenient to
+	  separate out the runtime information, so that the devices don't need
+	  to be copied before being used. This moves the read-write parts of
+	  struct udevice (at present just the flags) into a separate struct,
+	  which is allocated at runtime.
+
+config SPL_OF_PLATDATA_DRIVER_RT
+	bool
+	help
+	  Use a separate struct for driver runtime data.
+
+	  This enables the driver_rt information, used with of-platdata when
+	  of-platdata-inst is not used. It allows finding devices by their
+	  driver data.
+
+endif
 
 config TPL_OF_PLATDATA
 	bool "Generate platform data for use in TPL"
 	depends on TPL_OF_CONTROL
 	select DTOC
+	select TPL_OF_PLATDATA_DRIVER_RT if !TPL_OF_PLATDATA_INST
 	help
 	  For very constrained SPL environments the overhead of decoding
 	  device tree nodes and converting their contents into platform data
@@ -385,13 +425,52 @@ config TPL_OF_PLATDATA
 	  compatible string, then adding platform data and U_BOOT_DRVINFO
 	  declarations for each node. See of-plat.txt for more information.
 
+if TPL_OF_PLATDATA
+
 config TPL_OF_PLATDATA_PARENT
 	bool "Support parent information in devices"
-	depends on TPL_OF_PLATDATA
 	default y
 	help
 	  Generally it is useful to be able to access the parent of a device
 	  with of-platdata. To save space this can be disabled, but in that
 	  case dev_get_parent() will always return NULL;
+
+config TPL_OF_PLATDATA_INST
+	bool "Declare devices at build time"
+
+	help
+	  Declare devices as udevice instances so that they do not need to be
+	  bound when U-Boot starts. This can save time and code space.
+
+config TPL_OF_PLATDATA_NO_BIND
+	bool "Don't allow run-time binding of devices"
+	depends on TPL_OF_PLATDATA_INST
+	default y
+	help
+	  This removes the ability to bind devices at run time, thus saving
+	  some code space in U-Boot. This can be disabled if binding is needed,
+	  at the code of some code size increase.
+
+config TPL_OF_PLATDATA_RT
+	bool "Use a separate struct for device runtime data"
+	depends on TPL_OF_PLATDATA_INST
+	default y
+	help
+	  For systems running TPL from read-only memory it is convenient to
+	  separate out the runtime information, so that the devices don't need
+	  to be copied before being used. This moves the read-write parts of
+	  struct udevice (at present just the flags) into a separate struct,
+	  which is allocated at runtime.
+
+config TPL_OF_PLATDATA_DRIVER_RT
+	bool
+	help
+	  Use a separate struct for driver runtime data.
+
+	  This enables the driver_rt information, used with of-platdata when
+	  of-platdata-inst is not used. It allows finding devices by their
+	  driver data.
+
+endif
 
 endmenu

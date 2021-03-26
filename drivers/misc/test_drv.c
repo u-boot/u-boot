@@ -86,7 +86,7 @@ static const struct udevice_id testbus_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(testbus_drv) = {
+U_BOOT_DRIVER(denx_u_boot_test_bus) = {
 	.name	= "testbus_drv",
 	.of_match	= testbus_ids,
 	.id	= UCLASS_TEST_BUS,
@@ -98,6 +98,7 @@ U_BOOT_DRIVER(testbus_drv) = {
 	.per_child_plat_auto	= sizeof(struct dm_test_parent_plat),
 	.child_pre_probe = testbus_child_pre_probe,
 	.child_post_remove = testbus_child_post_remove,
+	DM_HEADER(<test.h>)
 };
 
 UCLASS_DRIVER(testbus) = {
@@ -106,6 +107,9 @@ UCLASS_DRIVER(testbus) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.child_pre_probe = testbus_child_pre_probe_uclass,
 	.child_post_probe = testbus_child_post_probe_uclass,
+
+	/* This is for dtoc testing only */
+	.per_device_plat_auto   = sizeof(struct dm_test_uclass_priv),
 };
 
 static int testfdt_drv_ping(struct udevice *dev, int pingval, int *pingret)
@@ -160,7 +164,9 @@ static const struct udevice_id testfdt_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(testfdt_drv) = {
+DM_DRIVER_ALIAS(denx_u_boot_fdt_test, google_another_fdt_test)
+
+U_BOOT_DRIVER(denx_u_boot_fdt_test) = {
 	.name	= "testfdt_drv",
 	.of_match	= testfdt_ids,
 	.id	= UCLASS_TEST_FDT,
@@ -203,6 +209,7 @@ UCLASS_DRIVER(testfdt) = {
 	.name		= "testfdt",
 	.id		= UCLASS_TEST_FDT,
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+	.priv_auto	= sizeof(struct dm_test_uc_priv),
 };
 
 static const struct udevice_id testfdtm_ids[] = {

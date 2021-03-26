@@ -372,7 +372,7 @@ int of_get_dma_range(const struct device_node *dev, phys_addr_t *cpu,
 	bus_node->count_cells(dev, &na, &ns);
 	if (!OF_CHECK_COUNTS(na, ns)) {
 		printf("Bad cell count for %s\n", of_node_full_name(dev));
-		return -EINVAL;
+		ret = -EINVAL;
 		goto out_parent;
 	}
 
@@ -380,7 +380,7 @@ int of_get_dma_range(const struct device_node *dev, phys_addr_t *cpu,
 	bus_node->count_cells(parent, &pna, &pns);
 	if (!OF_CHECK_COUNTS(pna, pns)) {
 		printf("Bad cell count for %s\n", of_node_full_name(parent));
-		return -EINVAL;
+		ret = -EINVAL;
 		goto out_parent;
 	}
 

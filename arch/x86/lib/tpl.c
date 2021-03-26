@@ -150,5 +150,6 @@ U_BOOT_DRIVER(pci_x86) = {
 	.name	= "pci_x86",
 	.id	= UCLASS_SIMPLE_BUS,
 	.of_match = of_match_ptr(tpl_fake_pci_ids),
+	DM_PHASE(tpl)
 };
 #endif

@@ -48,6 +48,17 @@ def _GetPropertyValue(dtb, node, prop_name):
     data = dtb.GetContents()[offset:offset + len(prop.value)]
     return prop, [chr(x) for x in data]
 
+def find_dtb_file(dts_fname):
+    """Locate a test file in the test/ directory
+
+    Args:
+        dts_fname (str): Filename to find, e.g. 'dtoc_test_simple.dts]
+
+    Returns:
+        str: Path to the test filename
+    """
+    return os.path.join('tools/dtoc/test', dts_fname)
+
 
 class TestFdt(unittest.TestCase):
     """Tests for the Fdt module
@@ -64,7 +75,7 @@ class TestFdt(unittest.TestCase):
         tools.FinaliseOutputDir()
 
     def setUp(self):
-        self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
+        self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))
 
     def testFdt(self):
         """Test that we can open an Fdt"""
@@ -141,7 +152,7 @@ class TestNode(unittest.TestCase):
         tools.FinaliseOutputDir()
 
     def setUp(self):
-        self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
+        self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))
         self.node = self.dtb.GetNode('/spl-test')
 
     def testOffset(self):
@@ -203,7 +214,7 @@ class TestNode(unittest.TestCase):
 
     def testLookupPhandle(self):
         """Test looking up a single phandle"""
-        dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
+        dtb = fdt.FdtScan(find_dtb_file('dtoc_test_phandle.dts'))
         node = dtb.GetNode('/phandle-source2')
         prop = node.props['clocks']
         target = dtb.GetNode('/phandle-target')
@@ -222,7 +233,7 @@ class TestProp(unittest.TestCase):
         tools.FinaliseOutputDir()
 
     def setUp(self):
-        self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
+        self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))
         self.node = self.dtb.GetNode('/spl-test')
         self.fdt = self.dtb.GetFdtObj()
 
@@ -230,7 +241,7 @@ class TestProp(unittest.TestCase):
         self.assertEqual(None, self.dtb.GetNode('missing'))
 
     def testPhandle(self):
-        dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
+        dtb = fdt.FdtScan(find_dtb_file('dtoc_test_phandle.dts'))
         node = dtb.GetNode('/phandle-source2')
         prop = node.props['clocks']
         self.assertTrue(fdt32_to_cpu(prop.value) > 0)
@@ -488,7 +499,7 @@ class TestFdtUtil(unittest.TestCase):
         tools.FinaliseOutputDir()
 
     def setUp(self):
-        self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
+        self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))
         self.node = self.dtb.GetNode('/spl-test')
 
     def testGetInt(self):
@@ -531,7 +542,7 @@ class TestFdtUtil(unittest.TestCase):
                       str(e.exception))
 
     def testGetPhandleList(self):
-        dtb = fdt.FdtScan('tools/dtoc/dtoc_test_phandle.dts')
+        dtb = fdt.FdtScan(find_dtb_file('dtoc_test_phandle.dts'))
         node = dtb.GetNode('/phandle-source2')
         self.assertEqual([1], fdt_util.GetPhandleList(node, 'clocks'))
         node = dtb.GetNode('/phandle-source')
@@ -551,7 +562,7 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(0, fdt_util.fdt_cells_to_cpu(val, 0))
         self.assertEqual(2, fdt_util.fdt_cells_to_cpu(val, 1))
 
-        dtb2 = fdt.FdtScan('tools/dtoc/dtoc_test_addr64.dts')
+        dtb2 = fdt.FdtScan(find_dtb_file('dtoc_test_addr64.dts'))
         node1 = dtb2.GetNode('/test1')
         val = node1.props['reg'].value
         self.assertEqual(0x1234, fdt_util.fdt_cells_to_cpu(val, 2))
@@ -565,7 +576,7 @@ class TestFdtUtil(unittest.TestCase):
 
     def testEnsureCompiled(self):
         """Test a degenerate case of this function (file already compiled)"""
-        dtb = fdt_util.EnsureCompiled('tools/dtoc/dtoc_test_simple.dts')
+        dtb = fdt_util.EnsureCompiled(find_dtb_file('dtoc_test_simple.dts'))
         self.assertEqual(dtb, fdt_util.EnsureCompiled(dtb))
 
     def testEnsureCompiledTmpdir(self):
@@ -574,7 +585,7 @@ class TestFdtUtil(unittest.TestCase):
             old_outdir = tools.outdir
             tools.outdir= None
             tmpdir = tempfile.mkdtemp(prefix='test_fdt.')
-            dtb = fdt_util.EnsureCompiled('tools/dtoc/dtoc_test_simple.dts',
+            dtb = fdt_util.EnsureCompiled(find_dtb_file('dtoc_test_simple.dts'),
                                           tmpdir)
             self.assertEqual(tmpdir, os.path.dirname(dtb))
             shutil.rmtree(tmpdir)

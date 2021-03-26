@@ -330,7 +330,7 @@ static int dm_test_fdt_uclass_seq_more(struct unit_test_state *uts)
 
 	/* Check creating a device with an alias */
 	node = ofnode_path("/some-bus/c-test@1");
-	ut_assertok(device_bind(dm_root(), DM_DRIVER_GET(testfdt_drv),
+	ut_assertok(device_bind(dm_root(), DM_DRIVER_GET(denx_u_boot_fdt_test),
 				"c-test@1", NULL, node, &dev));
 	ut_asserteq(12, dev_seq(dev));
 	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 12, &dev));
@@ -350,11 +350,11 @@ static int dm_test_fdt_uclass_seq_more(struct unit_test_state *uts)
 	 *
 	 * So next available is 19
 	 */
-	ut_assertok(device_bind(dm_root(), DM_DRIVER_GET(testfdt_drv),
+	ut_assertok(device_bind(dm_root(), DM_DRIVER_GET(denx_u_boot_fdt_test),
 				"fred", NULL, ofnode_null(), &dev));
 	ut_asserteq(19, dev_seq(dev));
 
-	ut_assertok(device_bind(dm_root(), DM_DRIVER_GET(testfdt_drv),
+	ut_assertok(device_bind(dm_root(), DM_DRIVER_GET(denx_u_boot_fdt_test),
 				"fred2", NULL, ofnode_null(), &dev));
 	ut_asserteq(20, dev_seq(dev));
 

@@ -28,25 +28,6 @@
 #define debug_buffer(x, ...)
 #endif
 
-/**
- * struct sandbox_i2c_rtc_plat_data - platform data for the RTC
- *
- * @base_time:		Base system time when RTC device was bound
- * @offset:		RTC offset from current system time
- * @use_system_time:	true to use system time, false to use @base_time
- * @reg:		Register values
- */
-struct sandbox_i2c_rtc_plat_data {
-	long base_time;
-	long offset;
-	bool use_system_time;
-	u8 reg[REG_COUNT];
-};
-
-struct sandbox_i2c_rtc {
-	unsigned int offset_secs;
-};
-
 long sandbox_i2c_rtc_set_offset(struct udevice *dev, bool use_system_time,
 				int offset)
 {
@@ -223,7 +204,7 @@ static int sandbox_i2c_rtc_bind(struct udevice *dev)
 }
 
 static const struct udevice_id sandbox_i2c_rtc_ids[] = {
-	{ .compatible = "sandbox,i2c-rtc" },
+	{ .compatible = "sandbox,i2c-rtc-emul" },
 	{ }
 };
 

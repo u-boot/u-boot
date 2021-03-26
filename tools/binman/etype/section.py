@@ -22,11 +22,13 @@ from patman.tools import ToHexSize
 class Entry_section(Entry):
     """Entry that contains other entries
 
-    Properties / Entry arguments: (see binman README for more information)
+    Properties / Entry arguments: (see binman README for more information):
         pad-byte: Pad byte to use when padding
         sort-by-offset: True if entries should be sorted by offset, False if
-            they must be in-order in the device tree description
+        they must be in-order in the device tree description
+
         end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+
         skip-at-start: Number of bytes before the first entry starts. These
             effectively adjust the starting offset of entries. For example,
             if this is 16, then the first entry would start at 16. An entry
@@ -84,7 +86,8 @@ class Entry_section(Entry):
         for node in self._node.subnodes:
             if node.name.startswith('hash') or node.name.startswith('signature'):
                 continue
-            entry = Entry.Create(self, node)
+            entry = Entry.Create(self, node,
+                                 expanded=self.GetImage().use_expanded)
             entry.ReadNode()
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
@@ -126,12 +129,6 @@ class Entry_section(Entry):
         return True
 
     def ExpandEntries(self):
-        """Expand out any entries which have calculated sub-entries
-
-        Some entries are expanded out at runtime, e.g. 'files', which produces
-        a section containing a list of files. Process these entries so that
-        this information is added to the device tree.
-        """
         super().ExpandEntries()
         for entry in self._entries.values():
             entry.ExpandEntries()

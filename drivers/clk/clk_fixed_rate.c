@@ -25,18 +25,24 @@ const struct clk_ops clk_fixed_rate_ops = {
 	.enable = dummy_enable,
 };
 
-static int clk_fixed_rate_of_to_plat(struct udevice *dev)
+void clk_fixed_rate_ofdata_to_plat_(struct udevice *dev,
+				    struct clk_fixed_rate *plat)
 {
-	struct clk *clk = &to_clk_fixed_rate(dev)->clk;
+	struct clk *clk = &plat->clk;
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	to_clk_fixed_rate(dev)->fixed_rate =
-		dev_read_u32_default(dev, "clock-frequency", 0);
+	plat->fixed_rate = dev_read_u32_default(dev, "clock-frequency", 0);
 #endif
 	/* Make fixed rate clock accessible from higher level struct clk */
 	/* FIXME: This is not allowed */
 	dev_set_uclass_priv(dev, clk);
+
 	clk->dev = dev;
 	clk->enable_count = 0;
+}
+
+static int clk_fixed_rate_of_to_plat(struct udevice *dev)
+{
+	clk_fixed_rate_ofdata_to_plat_(dev, to_clk_fixed_rate(dev));
 
 	return 0;
 }

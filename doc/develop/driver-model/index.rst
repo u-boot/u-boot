@@ -3,6 +3,10 @@
 Driver Model
 ============
 
+The following holds information on the U-Boot device driver framework:
+driver-model, including the design details of itself and several driver
+subsystems
+
 .. toctree::
    :maxdepth: 2
 

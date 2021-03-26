@@ -8,7 +8,7 @@
 from binman.etype.blob_ext import Entry_blob_ext
 
 class Entry_intel_fsp_m(Entry_blob_ext):
-    """Entry containing Intel Firmware Support Package (FSP) memory init
+    """Intel Firmware Support Package (FSP) memory init
 
     Properties / Entry arguments:
         - filename: Filename of file to read into entry

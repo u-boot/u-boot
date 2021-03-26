@@ -49,3 +49,12 @@ void dm_dump_driver_compat(void);
 void dm_dump_static_driver_info(void);
 
 #endif
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA_INST) && CONFIG_IS_ENABLED(READ_ONLY)
+void *dm_priv_to_rw(void *priv);
+#else
+static inline void *dm_priv_to_rw(void *priv)
+{
+	return priv;
+}
+#endif

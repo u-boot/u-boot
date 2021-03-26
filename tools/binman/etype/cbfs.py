@@ -13,7 +13,7 @@ from binman.entry import Entry
 from dtoc import fdt_util
 
 class Entry_cbfs(Entry):
-    """Entry containing a Coreboot Filesystem (CBFS)
+    """Coreboot Filesystem (CBFS)
 
     A CBFS provides a way to group files into a group. It has a simple directory
     structure and allows the position of individual files to be set, since it is
@@ -22,7 +22,7 @@ class Entry_cbfs(Entry):
 
     CBFS is used by coreboot as its way of orgnanising SPI-flash contents.
 
-    The contents of the CBFS are defined by subnodes of the cbfs entry, e.g.:
+    The contents of the CBFS are defined by subnodes of the cbfs entry, e.g.::
 
         cbfs {
             size = <0x100000>;
@@ -38,7 +38,7 @@ class Entry_cbfs(Entry):
     Note that the size is required since binman does not support calculating it.
     The contents of each entry is just what binman would normally provide if it
     were not a CBFS node. A blob type can be used to import arbitrary files as
-    with the second subnode below:
+    with the second subnode below::
 
         cbfs {
             size = <0x100000>;
@@ -84,7 +84,7 @@ class Entry_cbfs(Entry):
             This is an ELF file that has been loaded (i.e. mapped to memory), so
             appears in the CBFS as a flat binary. The input file must be an ELF
             image, for example this puts "u-boot" (the ELF image) into a 'stage'
-            entry:
+            entry::
 
                 cbfs {
                     size = <0x100000>;
@@ -94,7 +94,7 @@ class Entry_cbfs(Entry):
                     };
                 };
 
-            You can use your own ELF file with something like:
+            You can use your own ELF file with something like::
 
                 cbfs {
                     size = <0x100000>;
@@ -127,7 +127,7 @@ class Entry_cbfs(Entry):
     particular offset in the CBFS and a few other things.
 
     Of course binman can create images containing multiple CBFSs, simply by
-    defining these in the binman config:
+    defining these in the binman config::
 
 
         binman {

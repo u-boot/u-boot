@@ -15,7 +15,7 @@
 
 #define BUF_SIZE	0x100
 
-/* Declare a new mem test */
+/* Declare a new setexpr test */
 #define SETEXPR_TEST(_name, _flags)	UNIT_TEST(_name, _flags, setexpr_test)
 
 /* Test 'setexpr' command with simply setting integers */

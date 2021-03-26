@@ -8,7 +8,7 @@
 from binman.etype.blob_ext import Entry_blob_ext
 
 class Entry_intel_mrc(Entry_blob_ext):
-    """Entry containing an Intel Memory Reference Code (MRC) file
+    """Intel Memory Reference Code (MRC) file
 
     Properties / Entry arguments:
         - filename: Filename of file to read into entry

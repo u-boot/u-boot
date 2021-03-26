@@ -11,8 +11,8 @@ features to produce new behaviours.
 
 
 
-Entry: atf-bl31: Entry containing an ARM Trusted Firmware (ATF) BL31 blob
--------------------------------------------------------------------------
+Entry: atf-bl31: ARM Trusted Firmware (ATF) BL31 blob
+-----------------------------------------------------
 
 Properties / Entry arguments:
     - atf-bl31-path: Filename of file to read into entry. This is typically
@@ -25,8 +25,8 @@ about ATF.
 
 
 
-Entry: blob: Entry containing an arbitrary binary blob
-------------------------------------------------------
+Entry: blob: Arbitrary binary blob
+----------------------------------
 
 Note: This should not be used by itself. It is normally used as a parent
 class by other entry types.
@@ -39,7 +39,7 @@ Properties / Entry arguments:
 
 This entry reads data from a file and places it in the entry. The
 default filename is often specified specified by the subclass. See for
-example the 'u_boot' entry which provides the filename 'u-boot.bin'.
+example the 'u-boot' entry which provides the filename 'u-boot.bin'.
 
 If compression is enabled, an extra 'uncomp-size' property is written to
 the node (if enabled with -u) which provides the uncompressed size of the
@@ -56,8 +56,8 @@ obtained from the list of available device-tree files, managed by the
 
 
 
-Entry: blob-ext: Entry containing an externally built binary blob
------------------------------------------------------------------
+Entry: blob-ext: Externally built binary blob
+---------------------------------------------
 
 Note: This should not be used by itself. It is normally used as a parent
 class by other entry types.
@@ -87,8 +87,17 @@ See cros_ec_rw for an example of this.
 
 
 
-Entry: cbfs: Entry containing a Coreboot Filesystem (CBFS)
-----------------------------------------------------------
+Entry: blob-phase: Section that holds a phase binary
+----------------------------------------------------
+
+This is a base class that should not normally be used directly. It is used
+when converting a 'u-boot' entry automatically into a 'u-boot-expanded'
+entry; similarly for SPL.
+
+
+
+Entry: cbfs: Coreboot Filesystem (CBFS)
+---------------------------------------
 
 A CBFS provides a way to group files into a group. It has a simple directory
 structure and allows the position of individual files to be set, since it is
@@ -97,7 +106,7 @@ is not used, it supports compression and storing ELF files.
 
 CBFS is used by coreboot as its way of orgnanising SPI-flash contents.
 
-The contents of the CBFS are defined by subnodes of the cbfs entry, e.g.:
+The contents of the CBFS are defined by subnodes of the cbfs entry, e.g.::
 
     cbfs {
         size = <0x100000>;
@@ -113,7 +122,7 @@ This creates a CBFS 1MB in size two files in it: u-boot.bin and u-boot.dtb.
 Note that the size is required since binman does not support calculating it.
 The contents of each entry is just what binman would normally provide if it
 were not a CBFS node. A blob type can be used to import arbitrary files as
-with the second subnode below:
+with the second subnode below::
 
     cbfs {
         size = <0x100000>;
@@ -159,7 +168,7 @@ cbfs-type:
         This is an ELF file that has been loaded (i.e. mapped to memory), so
         appears in the CBFS as a flat binary. The input file must be an ELF
         image, for example this puts "u-boot" (the ELF image) into a 'stage'
-        entry:
+        entry::
 
             cbfs {
                 size = <0x100000>;
@@ -169,7 +178,7 @@ cbfs-type:
                 };
             };
 
-        You can use your own ELF file with something like:
+        You can use your own ELF file with something like::
 
             cbfs {
                 size = <0x100000>;
@@ -202,7 +211,7 @@ not support other file types (e.g. payload), adding multiple files (like the
 particular offset in the CBFS and a few other things.
 
 Of course binman can create images containing multiple CBFSs, simply by
-defining these in the binman config:
+defining these in the binman config::
 
 
     binman {
@@ -270,38 +279,39 @@ sizes are included.
 Note that the -u option must be provided to ensure that binman updates the
 FDT with the position of each entry.
 
-Example output for a simple image with U-Boot and an FDT map:
+Example output for a simple image with U-Boot and an FDT map::
 
-/ {
-    image-name = "binman";
-    size = <0x00000112>;
-    image-pos = <0x00000000>;
-    offset = <0x00000000>;
-    u-boot {
-        size = <0x00000004>;
+    / {
+        image-name = "binman";
+        size = <0x00000112>;
         image-pos = <0x00000000>;
         offset = <0x00000000>;
+        u-boot {
+            size = <0x00000004>;
+            image-pos = <0x00000000>;
+            offset = <0x00000000>;
+        };
+        fdtmap {
+            size = <0x0000010e>;
+            image-pos = <0x00000004>;
+            offset = <0x00000004>;
+        };
     };
-    fdtmap {
-        size = <0x0000010e>;
-        image-pos = <0x00000004>;
-        offset = <0x00000004>;
-    };
-};
 
 If allow-repack is used then 'orig-offset' and 'orig-size' properties are
 added as necessary. See the binman README.
 
 
 
-Entry: files: Entry containing a set of files
----------------------------------------------
+Entry: files: A set of files arranged in a section
+--------------------------------------------------
 
 Properties / Entry arguments:
     - pattern: Filename pattern to match the files to include
     - files-compress: Compression algorithm to use:
         none: No compression
         lz4: Use lz4 compression (via 'lz4' command-line utility)
+    - files-align: Align each file to the given alignment
 
 This entry reads a number of files and places each in a separate sub-entry
 within this entry. To access these you need to enable device-tree updates
@@ -325,8 +335,8 @@ byte value of a region.
 
 
 
-Entry: fit: Entry containing a FIT
-----------------------------------
+Entry: fit: Flat Image Tree (FIT)
+---------------------------------
 
 This calls mkimage to create a FIT (U-Boot Flat Image Tree) based on the
 input provided.
@@ -334,7 +344,7 @@ input provided.
 Nodes for the FIT should be written out in the binman configuration just as
 they would be in a file passed to mkimage.
 
-For example, this creates an image containing a FIT with U-Boot SPL:
+For example, this creates an image containing a FIT with U-Boot SPL::
 
     binman {
         fit {
@@ -364,7 +374,7 @@ that you want to generates nodes for two files: file1.dtb and file2.dtb
 The fit,fdt-list property (see above) indicates that of-list should be used.
 If the property is missing you will get an error.
 
-Then add a 'generator node', a node with a name starting with '@':
+Then add a 'generator node', a node with a name starting with '@'::
 
     images {
         @fdt-SEQ {
@@ -379,7 +389,7 @@ files. All the properties you specify will be included in the node. This
 node acts like a template to generate the nodes. The generator node itself
 does not appear in the output - it is replaced with what binman generates.
 
-You can create config nodes in a similar way:
+You can create config nodes in a similar way::
 
     configurations {
         default = "@config-DEFAULT-SEQ";
@@ -396,8 +406,10 @@ each of your two files.
 
 Available substitutions for '@' nodes are:
 
-    SEQ    Sequence number of the generated fdt (1, 2, ...)
-    NAME   Name of the dtb as provided (i.e. without adding '.dtb')
+SEQ:
+    Sequence number of the generated fdt (1, 2, ...)
+NAME
+    Name of the dtb as provided (i.e. without adding '.dtb')
 
 Note that if no devicetree files are provided (with '-a of-list' as above)
 then no nodes will be generated.
@@ -406,10 +418,11 @@ The 'default' property, if present, will be automatically set to the name
 if of configuration whose devicetree matches the 'default-dt' entry
 argument, e.g. with '-a default-dt=sun50i-a64-pine64-lts'.
 
-Available substitutions for '@' property values are:
+Available substitutions for '@' property values are
 
-    DEFAULT-SEQ  Sequence number of the default fdt,as provided by the
-                 'default-dt' entry argument
+DEFAULT-SEQ:
+    Sequence number of the default fdt,as provided by the 'default-dt' entry
+    argument
 
 Properties (in the 'fit' node itself):
     fit,external-offset: Indicates that the contents of the FIT are external
@@ -478,8 +491,8 @@ first/last in the entry list.
 
 
 
-Entry: intel-cmc: Entry containing an Intel Chipset Micro Code (CMC) file
--------------------------------------------------------------------------
+Entry: intel-cmc: Intel Chipset Micro Code (CMC) file
+-----------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -531,8 +544,8 @@ This entry contains a pointer to the FIT. It is required to be at address
 
 
 
-Entry: intel-fsp: Entry containing an Intel Firmware Support Package (FSP) file
--------------------------------------------------------------------------------
+Entry: intel-fsp: Intel Firmware Support Package (FSP) file
+-----------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -548,8 +561,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-fsp-m: Entry containing Intel Firmware Support Package (FSP) memory init
--------------------------------------------------------------------------------------
+Entry: intel-fsp-m: Intel Firmware Support Package (FSP) memory init
+--------------------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -565,8 +578,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-fsp-s: Entry containing Intel Firmware Support Package (FSP) silicon init
---------------------------------------------------------------------------------------
+Entry: intel-fsp-s: Intel Firmware Support Package (FSP) silicon init
+---------------------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -582,8 +595,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-fsp-t: Entry containing Intel Firmware Support Package (FSP) temp ram init
----------------------------------------------------------------------------------------
+Entry: intel-fsp-t: Intel Firmware Support Package (FSP) temp ram init
+----------------------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -598,8 +611,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-ifwi: Entry containing an Intel Integrated Firmware Image (IFWI) file
-----------------------------------------------------------------------------------
+Entry: intel-ifwi: Intel Integrated Firmware Image (IFWI) file
+--------------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry. This is either the
@@ -623,17 +636,17 @@ Each subnode describes an entry which is placed into the IFWFI with a given
 sub-partition (and optional entry name).
 
 Properties for subnodes:
-    ifwi-subpart - sub-parition to put this entry into, e.g. "IBBP"
-    ifwi-entry - entry name t use, e.g. "IBBL"
-    ifwi-replace - if present, indicates that the item should be replaced
-        in the IFWI. Otherwise it is added.
+    - ifwi-subpart: sub-parition to put this entry into, e.g. "IBBP"
+    - ifwi-entry: entry name t use, e.g. "IBBL"
+    - ifwi-replace: if present, indicates that the item should be replaced
+      in the IFWI. Otherwise it is added.
 
 See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-me: Entry containing an Intel Management Engine (ME) file
-----------------------------------------------------------------------
+Entry: intel-me: Intel Management Engine (ME) file
+--------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -652,8 +665,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-mrc: Entry containing an Intel Memory Reference Code (MRC) file
-----------------------------------------------------------------------------
+Entry: intel-mrc: Intel Memory Reference Code (MRC) file
+--------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -666,8 +679,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-refcode: Entry containing an Intel Reference Code file
--------------------------------------------------------------------
+Entry: intel-refcode: Intel Reference Code file
+-----------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -680,8 +693,8 @@ See README.x86 for information about x86 binary blobs.
 
 
 
-Entry: intel-vbt: Entry containing an Intel Video BIOS Table (VBT) file
------------------------------------------------------------------------
+Entry: intel-vbt: Intel Video BIOS Table (VBT) file
+---------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -693,8 +706,8 @@ See README.x86 for information about Intel binary blobs.
 
 
 
-Entry: intel-vga: Entry containing an Intel Video Graphics Adaptor (VGA) file
------------------------------------------------------------------------------
+Entry: intel-vga: Intel Video Graphics Adaptor (VGA) file
+---------------------------------------------------------
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
@@ -708,15 +721,15 @@ See README.x86 for information about Intel binary blobs.
 
 
 
-Entry: mkimage: Entry containing a binary produced by mkimage
--------------------------------------------------------------
+Entry: mkimage: Binary produced by mkimage
+------------------------------------------
 
 Properties / Entry arguments:
     - datafile: Filename for -d argument
     - args: Other arguments to pass
 
 The data passed to mkimage is collected from subnodes of the mkimage node,
-e.g.:
+e.g.::
 
     mkimage {
         args = "-n test -T imximage";
@@ -743,8 +756,8 @@ placed at offset 'RESET_VECTOR_ADDRESS - 0xffc'.
 
 
 
-Entry: scp: Entry containing a System Control Processor (SCP) firmware blob
----------------------------------------------------------------------------
+Entry: scp: System Control Processor (SCP) firmware blob
+--------------------------------------------------------
 
 Properties / Entry arguments:
     - scp-path: Filename of file to read into the entry, typically scp.bin
@@ -756,11 +769,13 @@ This entry holds firmware for an external platform-specific coprocessor.
 Entry: section: Entry that contains other entries
 -------------------------------------------------
 
-Properties / Entry arguments: (see binman README for more information)
+Properties / Entry arguments: (see binman README for more information):
     pad-byte: Pad byte to use when padding
     sort-by-offset: True if entries should be sorted by offset, False if
-        they must be in-order in the device tree description
+    they must be in-order in the device tree description
+
     end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+
     skip-at-start: Number of bytes before the first entry starts. These
         effectively adjust the starting offset of entries. For example,
         if this is 16, then the first entry would start at 16. An entry
@@ -798,7 +813,7 @@ Properties / Entry arguments:
     <text>: The text to place in the entry (overrides the above mechanism).
         This is useful when the text is constant.
 
-Example node:
+Example node::
 
     text {
         size = <50>;
@@ -811,7 +826,7 @@ You can then use:
 
 and binman will insert that string into the entry.
 
-It is also possible to put the string directly in the node:
+It is also possible to put the string directly in the node::
 
     text {
         size = <8>;
@@ -819,7 +834,7 @@ It is also possible to put the string directly in the node:
         message = "a message directly in the node"
     };
 
-or just:
+or just::
 
     text {
         size = <8>;
@@ -839,14 +854,16 @@ Properties / Entry arguments:
 
 This is the U-Boot binary, containing relocation information to allow it
 to relocate itself at runtime. The binary typically includes a device tree
-blob at the end of it. Use u_boot_nodtb if you want to package the device
-tree separately.
+blob at the end of it.
 
 U-Boot can access binman symbols at runtime. See:
 
     'Access to binman entry offsets at run time (fdt)'
 
 in the binman README for more information.
+
+Note that this entry is automatically replaced with u-boot-expanded unless
+--no-expanded is used.
 
 
 
@@ -875,9 +892,9 @@ See Entry_u_boot_ucode for full details of the three entries involved in
 this process. This entry provides the U-Boot device-tree file, which
 contains the microcode. If the microcode is not being collated into one
 place then the offset and size of the microcode is recorded by this entry,
-for use by u_boot_with_ucode_ptr. If it is being collated, then this
+for use by u-boot-with-ucode_ptr. If it is being collated, then this
 entry deletes the microcode from the device tree (to save space) and makes
-it available to u_boot_ucode.
+it available to u-boot-ucode.
 
 
 
@@ -901,6 +918,21 @@ Properties / Entry arguments:
 
 
 
+Entry: u-boot-expanded: U-Boot flat binary broken out into its component parts
+------------------------------------------------------------------------------
+
+This is a section containing the U-Boot binary and a devicetree. Using this
+entry type automatically creates this section, with the following entries
+in it:
+
+   u-boot-nodtb
+   u-boot-dtb
+
+Having the devicetree separate allows binman to update it in the final
+image, so that the entries positions are provided to the running U-Boot.
+
+
+
 Entry: u-boot-img: U-Boot legacy image
 --------------------------------------
 
@@ -919,13 +951,13 @@ Entry: u-boot-nodtb: U-Boot flat binary without device tree appended
 --------------------------------------------------------------------
 
 Properties / Entry arguments:
-    - filename: Filename of u-boot.bin (default 'u-boot-nodtb.bin')
+    - filename: Filename to include (default 'u-boot-nodtb.bin')
 
 This is the U-Boot binary, containing relocation information to allow it
 to relocate itself at runtime. It does not include a device tree blob at
-the end of it so normally cannot work without it. You can add a u_boot_dtb
-entry after this one, or use a u_boot entry instead (which contains both
-U-Boot and the device tree).
+the end of it so normally cannot work without it. You can add a u-boot-dtb
+entry after this one, or use a u-boot entry instead, normally expands to a
+section containing u-boot and u-boot-dtb
 
 
 
@@ -951,6 +983,9 @@ in the binman README for more information.
 The ELF file 'spl/u-boot-spl' must also be available for this to work, since
 binman uses that to look up symbols to write into the SPL binary.
 
+Note that this entry is automatically replaced with u-boot-spl-expanded
+unless --no-expanded is used.
+
 
 
 Entry: u-boot-spl-bss-pad: U-Boot SPL binary padded with a BSS region
@@ -959,13 +994,16 @@ Entry: u-boot-spl-bss-pad: U-Boot SPL binary padded with a BSS region
 Properties / Entry arguments:
     None
 
-This is similar to u_boot_spl except that padding is added after the SPL
-binary to cover the BSS (Block Started by Symbol) region. This region holds
-the various used by SPL. It is set to 0 by SPL when it starts up. If you
-want to append data to the SPL image (such as a device tree file), you must
-pad out the BSS region to avoid the data overlapping with U-Boot variables.
-This entry is useful in that case. It automatically pads out the entry size
-to cover both the code, data and BSS.
+This holds the padding added after the SPL binary to cover the BSS (Block
+Started by Symbol) region. This region holds the various variables used by
+SPL. It is set to 0 by SPL when it starts up. If you want to append data to
+the SPL image (such as a device tree file), you must pad out the BSS region
+to avoid the data overlapping with U-Boot variables. This entry is useful in
+that case. It automatically pads out the entry size to cover both the code,
+data and BSS.
+
+The contents of this entry will a certain number of zero bytes, determined
+by __bss_size
 
 The ELF file 'spl/u-boot-spl' must also be available for this to work, since
 binman uses that to look up the BSS address.
@@ -995,18 +1033,50 @@ be relocated to any address for execution.
 
 
 
+Entry: u-boot-spl-expanded: U-Boot SPL flat binary broken out into its component parts
+--------------------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - spl-dtb: Controls whether this entry is selected (set to 'y' or '1' to
+        select)
+
+This is a section containing the U-Boot binary, BSS padding if needed and a
+devicetree. Using this entry type automatically creates this section, with
+the following entries in it:
+
+   u-boot-spl-nodtb
+   u-boot-spl-bss-pad
+   u-boot-dtb
+
+Having the devicetree separate allows binman to update it in the final
+image, so that the entries positions are provided to the running U-Boot.
+
+This entry is selected based on the value of the 'spl-dtb' entryarg. If
+this is non-empty (and not 'n' or '0') then this expanded entry is selected.
+
+
+
 Entry: u-boot-spl-nodtb: SPL binary without device tree appended
 ----------------------------------------------------------------
 
 Properties / Entry arguments:
-    - filename: Filename of spl/u-boot-spl-nodtb.bin (default
-        'spl/u-boot-spl-nodtb.bin')
+    - filename: Filename to include (default 'spl/u-boot-spl-nodtb.bin')
 
 This is the U-Boot SPL binary, It does not include a device tree blob at
 the end of it so may not be able to work without it, assuming SPL needs
-a device tree to operation on your platform. You can add a u_boot_spl_dtb
-entry after this one, or use a u_boot_spl entry instead (which contains
-both SPL and the device tree).
+a device tree to operate on your platform. You can add a u-boot-spl-dtb
+entry after this one, or use a u-boot-spl entry instead' which normally
+expands to a section containing u-boot-spl-dtb, u-boot-spl-bss-pad and
+u-boot-spl-dtb
+
+SPL can access binman symbols at runtime. See:
+
+    'Access to binman entry offsets at run time (symbols)'
+
+in the binman README for more information.
+
+The ELF file 'spl/u-boot-spl' must also be available for this to work, since
+binman uses that to look up symbols to write into the SPL binary.
 
 
 
@@ -1042,6 +1112,31 @@ in the binman README for more information.
 The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
 binman uses that to look up symbols to write into the TPL binary.
 
+Note that this entry is automatically replaced with u-boot-tpl-expanded
+unless --no-expanded is used.
+
+
+
+Entry: u-boot-tpl-bss-pad: U-Boot TPL binary padded with a BSS region
+---------------------------------------------------------------------
+
+Properties / Entry arguments:
+    None
+
+This holds the padding added after the TPL binary to cover the BSS (Block
+Started by Symbol) region. This region holds the various variables used by
+TPL. It is set to 0 by TPL when it starts up. If you want to append data to
+the TPL image (such as a device tree file), you must pad out the BSS region
+to avoid the data overlapping with U-Boot variables. This entry is useful in
+that case. It automatically pads out the entry size to cover both the code,
+data and BSS.
+
+The contents of this entry will a certain number of zero bytes, determined
+by __bss_size
+
+The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
+binman uses that to look up the BSS address.
+
 
 
 Entry: u-boot-tpl-dtb: U-Boot TPL device tree
@@ -1074,6 +1169,53 @@ Properties / Entry arguments:
 
 This is the U-Boot TPL ELF image. It does not include a device tree but can
 be relocated to any address for execution.
+
+
+
+Entry: u-boot-tpl-expanded: U-Boot TPL flat binary broken out into its component parts
+--------------------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - tpl-dtb: Controls whether this entry is selected (set to 'y' or '1' to
+        select)
+
+This is a section containing the U-Boot binary, BSS padding if needed and a
+devicetree. Using this entry type automatically creates this section, with
+the following entries in it:
+
+   u-boot-tpl-nodtb
+   u-boot-tpl-bss-pad
+   u-boot-dtb
+
+Having the devicetree separate allows binman to update it in the final
+image, so that the entries positions are provided to the running U-Boot.
+
+This entry is selected based on the value of the 'tpl-dtb' entryarg. If
+this is non-empty (and not 'n' or '0') then this expanded entry is selected.
+
+
+
+Entry: u-boot-tpl-nodtb: TPL binary without device tree appended
+----------------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename to include (default 'tpl/u-boot-tpl-nodtb.bin')
+
+This is the U-Boot TPL binary, It does not include a device tree blob at
+the end of it so may not be able to work without it, assuming TPL needs
+a device tree to operate on your platform. You can add a u-boot-tpl-dtb
+entry after this one, or use a u-boot-tpl entry instead, which normally
+expands to a section containing u-boot-tpl-dtb, u-boot-tpl-bss-pad and
+u-boot-tpl-dtb
+
+TPL can access binman symbols at runtime. See:
+
+    'Access to binman entry offsets at run time (symbols)'
+
+in the binman README for more information.
+
+The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
+binman uses that to look up symbols to write into the TPL binary.
 
 
 
@@ -1147,7 +1289,7 @@ Properties / Entry arguments:
 See Entry_u_boot_ucode for full details of the three entries involved in
 this process. This entry updates U-Boot with the offset and size of the
 microcode, to allow early x86 boot code to find it without doing anything
-complicated. Otherwise it is the same as the u_boot entry.
+complicated. Otherwise it is the same as the u-boot entry.
 
 
 

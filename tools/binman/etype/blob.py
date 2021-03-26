@@ -11,7 +11,7 @@ from patman import tools
 from patman import tout
 
 class Entry_blob(Entry):
-    """Entry containing an arbitrary binary blob
+    """Arbitrary binary blob
 
     Note: This should not be used by itself. It is normally used as a parent
     class by other entry types.
@@ -24,7 +24,7 @@ class Entry_blob(Entry):
 
     This entry reads data from a file and places it in the entry. The
     default filename is often specified specified by the subclass. See for
-    example the 'u_boot' entry which provides the filename 'u-boot.bin'.
+    example the 'u-boot' entry which provides the filename 'u-boot.bin'.
 
     If compression is enabled, an extra 'uncomp-size' property is written to
     the node (if enabled with -u) which provides the uncompressed size of the
