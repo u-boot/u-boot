@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clock_legacy.h>
 #include <cpu_func.h>
+#include <debug_uart.h>
 #include <env.h>
 #include <image.h>
 #include <init.h>
@@ -70,6 +71,8 @@ void board_init_f(ulong dummy)
 	icache_enable();
 	/* Clear global data */
 	memset((void *)gd, 0, sizeof(gd_t));
+	if (IS_ENABLED(CONFIG_DEBUG_UART))
+		debug_uart_init();
 	board_early_init_f();
 	timer_init();
 #ifdef CONFIG_ARCH_LS2080A
