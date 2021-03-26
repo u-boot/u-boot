@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <env.h>
+#include <hang.h>
 #include <image.h>
 #include <init.h>
 #include <log.h>
@@ -68,12 +69,19 @@ void spl_board_init(void)
 
 void board_init_f(ulong dummy)
 {
+	int ret;
+
 	icache_enable();
 	/* Clear global data */
 	memset((void *)gd, 0, sizeof(gd_t));
 	if (IS_ENABLED(CONFIG_DEBUG_UART))
 		debug_uart_init();
 	board_early_init_f();
+	ret = spl_early_init();
+	if (ret) {
+		debug("spl_early_init() failed: %d\n", ret);
+		hang();
+	}
 	timer_init();
 #ifdef CONFIG_ARCH_LS2080A
 	env_init();
