@@ -61,6 +61,7 @@ List of mainline supported rockchip boards:
      - Firefly ROC-RK3399-PC
      - FriendlyElec NanoPC-T4 (nanopc-t4-rk3399)
      - FriendlyElec NanoPi M4 (nanopi-m4-rk3399)
+     - FriendlyElec NanoPi M4B (nanopi-m4b-rk3399)
      - FriendlyARM NanoPi NEO4 (nanopi-neo4-rk3399)
      - Google Bob (chromebook_bob)
      - Khadas Edge (khadas-edge-rk3399)
