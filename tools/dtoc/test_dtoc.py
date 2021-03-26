@@ -104,7 +104,7 @@ def setup():
 
     # Disable warnings so that calls to get_normalized_compat_name() will not
     # output things.
-    saved_scan = src_scan.Scanner(None, True, False)
+    saved_scan = src_scan.Scanner(None, False)
     saved_scan.scan_drivers()
 
 def copy_scan():

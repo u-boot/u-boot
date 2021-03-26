@@ -48,7 +48,7 @@ class TestSrcScan(unittest.TestCase):
 
     def test_simple(self):
         """Simple test of scanning drivers"""
-        scan = src_scan.Scanner(None, True, None)
+        scan = src_scan.Scanner(None, None)
         scan.scan_drivers()
         self.assertIn('sandbox_gpio', scan._drivers)
         self.assertIn('sandbox_gpio_alias', scan._driver_aliases)
@@ -59,8 +59,7 @@ class TestSrcScan(unittest.TestCase):
     def test_additional(self):
         """Test with additional drivers to scan"""
         scan = src_scan.Scanner(
-            None, True,
-            [None, '', 'tools/dtoc/test/dtoc_test_scan_drivers.cxx'])
+            None, [None, '', 'tools/dtoc/test/dtoc_test_scan_drivers.cxx'])
         scan.scan_drivers()
         self.assertIn('sandbox_gpio_alias2', scan._driver_aliases)
         self.assertEqual('sandbox_gpio',
@@ -77,7 +76,7 @@ class TestSrcScan(unittest.TestCase):
         with open(driver_fn, 'wb+') as fout:
             fout.write(b'\x81')
 
-        scan = src_scan.Scanner(None, True, [driver_fn])
+        scan = src_scan.Scanner(None, [driver_fn])
         with test_util.capture_sys_output() as (stdout, _):
             scan.scan_drivers()
         self.assertRegex(stdout.getvalue(),
@@ -126,7 +125,7 @@ class TestSrcScan(unittest.TestCase):
             # Mock out scan_driver and check that it is called with the
             # expected files
             with mock.patch.object(src_scan.Scanner, "scan_driver")  as mocked:
-                scan = src_scan.Scanner(indir, True, None)
+                scan = src_scan.Scanner(indir, None)
                 scan.scan_drivers()
             self.assertEqual(2, len(mocked.mock_calls))
             self.assertEqual(mock.call(fname_list[0]),
@@ -141,7 +140,7 @@ class TestSrcScan(unittest.TestCase):
         """Test scanning of a driver"""
         fname = os.path.join(OUR_PATH, '..', '..', 'drivers/i2c/tegra_i2c.c')
         buff = tools.ReadFile(fname, False)
-        scan = src_scan.Scanner(None, False, None)
+        scan = src_scan.Scanner(None, None)
         scan._parse_driver(fname, buff)
         self.assertIn('i2c_tegra', scan._drivers)
         drv = scan._drivers['i2c_tegra']
@@ -165,14 +164,15 @@ class TestSrcScan(unittest.TestCase):
         # get_normalized_compat_name() uses this to check for root node
         node.parent = FakeNode()
 
-        scan = src_scan.Scanner(None, False, None)
+        scan = src_scan.Scanner(None, None)
         with test_util.capture_sys_output() as (stdout, _):
             name, aliases = scan.get_normalized_compat_name(node)
         self.assertEqual('rockchip_rk3288_grf', name)
         self.assertEqual([], aliases)
-        self.assertEqual(
-            'WARNING: the driver rockchip_rk3288_grf was not found in the driver list',
-            stdout.getvalue().strip())
+        self.assertEqual(1, len(scan._missing_drivers))
+        self.assertEqual({'rockchip_rk3288_grf'}, scan._missing_drivers)
+            #'WARNING: the driver rockchip_rk3288_grf was not found in the driver list',
+            #stdout.getvalue().strip())
 
         i2c = 'I2C_UCLASS'
         compat = {'rockchip,rk3288-grf': 'ROCKCHIP_SYSCON_GRF',
@@ -211,7 +211,7 @@ U_BOOT_DRIVER(i2c_tegra) = {
 	.of_match = tegra_i2c_ids,
 };
 '''
-        scan = src_scan.Scanner(None, False, None)
+        scan = src_scan.Scanner(None, None)
         with self.assertRaises(ValueError) as exc:
             scan._parse_driver('file.c', buff)
         self.assertIn(
@@ -232,7 +232,7 @@ U_BOOT_DRIVER(i2c_tegra) = {
 	.of_match = of_match_ptr(tegra_i2c_ids),
 };
 '''
-        scan = src_scan.Scanner(None, False, None)
+        scan = src_scan.Scanner(None, None)
         scan._parse_driver('file.c', buff)
         self.assertIn('i2c_tegra', scan._drivers)
         drv = scan._drivers['i2c_tegra']
@@ -261,7 +261,7 @@ U_BOOT_DRIVER(testing) = {
 	DM_HEADER(<asm/clk.h>)
 };
 '''
-        scan = src_scan.Scanner(None, False, None)
+        scan = src_scan.Scanner(None, None)
         scan._parse_driver('file.c', buff)
         self.assertIn('testing', scan._drivers)
         drv = scan._drivers['testing']
@@ -293,7 +293,7 @@ UCLASS_DRIVER(i2c) = {
 };
 
 '''
-        scan = src_scan.Scanner(None, False, None)
+        scan = src_scan.Scanner(None, None)
         scan._parse_uclass_driver('file.c', buff)
         self.assertIn('UCLASS_I2C', scan._uclass)
         drv = scan._uclass['UCLASS_I2C']
@@ -325,7 +325,7 @@ UCLASS_DRIVER(i2c) = {
 };
 
 '''
-        scan = src_scan.Scanner(None, False, None)
+        scan = src_scan.Scanner(None, None)
         with self.assertRaises(ValueError) as exc:
             scan._parse_uclass_driver('file.c', buff)
         self.assertIn("file.c: Cannot parse uclass ID in driver 'i2c'",
@@ -340,7 +340,7 @@ struct some_struct1 {
 	uint nmsgs;
 };
 '''
-        scan = src_scan.Scanner(None, False, None)
+        scan = src_scan.Scanner(None, None)
         scan._basedir = os.path.join(OUR_PATH, '..', '..')
         scan._parse_structs('arch/arm/include/asm/file.h', buff)
         self.assertIn('some_struct1', scan._structs)
@@ -371,7 +371,7 @@ struct another_struct {
         output = tools.GetOutputFilename('output.h')
         tools.WriteFile(output, b'struct this is a test \x81 of bad unicode')
 
-        scan = src_scan.Scanner(None, False, None)
+        scan = src_scan.Scanner(None, None)
         with test_util.capture_sys_output() as (stdout, _):
             scan.scan_header(output)
         self.assertIn('due to unicode error', stdout.getvalue())
@@ -411,7 +411,7 @@ U_BOOT_DRIVER(%s) = {
 	.of_match = test_ids,
 };
 ''' % name
-        scan = src_scan.Scanner(None, False, None, phase)
+        scan = src_scan.Scanner(None, None, phase)
         scan._parse_driver('file1.c', driver1)
         self.assertIn(name, scan._drivers)
         drv1 = scan._drivers[name]
@@ -476,7 +476,7 @@ U_BOOT_DRIVER(%s) = {
 
     def test_sequence(self):
         """Test assignment of sequence numnbers"""
-        scan = src_scan.Scanner(None, False, None, '')
+        scan = src_scan.Scanner(None, None, '')
         node = FakeNode()
         uc = src_scan.UclassDriver('UCLASS_I2C')
         node.uclass = uc
