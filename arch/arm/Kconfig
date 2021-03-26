@@ -1616,6 +1616,7 @@ config TARGET_SL28
 	select DM_RNG
 	select DM_RTC
 	select DM_SCSI
+	select DM_SERIAL
 	select DM_SPI
 	select DM_USB
 	select SPL_DM if SPL
