@@ -130,6 +130,4 @@
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 
-#define CONFIG_MISC_INIT_F
-
 #endif
