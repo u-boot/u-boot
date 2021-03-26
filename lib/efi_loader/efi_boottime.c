@@ -1406,10 +1406,9 @@ out:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_register_protocol_notify(
-						const efi_guid_t *protocol,
-						struct efi_event *event,
-						void **registration)
+efi_status_t EFIAPI efi_register_protocol_notify(const efi_guid_t *protocol,
+						 struct efi_event *event,
+						 void **registration)
 {
 	struct efi_register_notify_event *item;
 	efi_status_t ret = EFI_SUCCESS;
@@ -1877,7 +1876,6 @@ static
 efi_status_t efi_load_image_from_file(struct efi_device_path *file_path,
 				      void **buffer, efi_uintn_t *size)
 {
-	struct efi_file_info *info = NULL;
 	struct efi_file_handle *f;
 	efi_status_t ret;
 	u64 addr;
@@ -1888,18 +1886,7 @@ efi_status_t efi_load_image_from_file(struct efi_device_path *file_path,
 	if (!f)
 		return EFI_NOT_FOUND;
 
-	/* Get file size */
-	bs = 0;
-	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid,
-				  &bs, info));
-	if (ret != EFI_BUFFER_TOO_SMALL) {
-		ret =  EFI_DEVICE_ERROR;
-		goto error;
-	}
-
-	info = malloc(bs);
-	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid, &bs,
-				  info));
+	ret = efi_file_size(f, &bs);
 	if (ret != EFI_SUCCESS)
 		goto error;
 
@@ -1909,7 +1896,6 @@ efi_status_t efi_load_image_from_file(struct efi_device_path *file_path,
 	 * allocate a buffer as EFI_BOOT_SERVICES_DATA. The caller has to
 	 * update the reservation according to the image type.
 	 */
-	bs = info->file_size;
 	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
 				 EFI_BOOT_SERVICES_DATA,
 				 efi_size_in_pages(bs), &addr);
@@ -1926,7 +1912,6 @@ efi_status_t efi_load_image_from_file(struct efi_device_path *file_path,
 	*size = bs;
 error:
 	EFI_CALL(f->close(f));
-	free(info);
 	return ret;
 }
 

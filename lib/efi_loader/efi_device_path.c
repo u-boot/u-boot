@@ -282,11 +282,31 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 	return ndp;
 }
 
-struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
-				      const struct efi_device_path *dp2)
+/**
+ * efi_dp_append_or_concatenate() - Append or concatenate two device paths.
+ *				    Concatenated device path will be separated
+ *				    by a sub-type 0xff end node
+ *
+ * @dp1:	First device path
+ * @dp2:	Second device path
+ * @concat:	If true the two device paths will be concatenated and separated
+ *		by an end of entrire device path sub-type 0xff end node.
+ *		If true the second device path will be appended to the first and
+ *		terminated by an end node
+ *
+ * Return:
+ * concatenated device path or NULL. Caller must free the returned value
+ */
+static struct
+efi_device_path *efi_dp_append_or_concatenate(const struct efi_device_path *dp1,
+					      const struct efi_device_path *dp2,
+					      bool concat)
 {
 	struct efi_device_path *ret;
+	size_t end_size = sizeof(END);
 
+	if (concat)
+		end_size = 2 * sizeof(END);
 	if (!dp1 && !dp2) {
 		/* return an end node */
 		ret = efi_dp_dup(&END);
@@ -298,16 +318,56 @@ struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
 		/* both dp1 and dp2 are non-null */
 		unsigned sz1 = efi_dp_size(dp1);
 		unsigned sz2 = efi_dp_size(dp2);
-		void *p = dp_alloc(sz1 + sz2 + sizeof(END));
+		void *p = dp_alloc(sz1 + sz2 + end_size);
 		if (!p)
 			return NULL;
-		memcpy(p, dp1, sz1);
-		/* the end node of the second device path has to be retained */
-		memcpy(p + sz1, dp2, sz2 + sizeof(END));
 		ret = p;
+		memcpy(p, dp1, sz1);
+		p += sz1;
+
+		if (concat) {
+			memcpy(p, &END, sizeof(END));
+			p += sizeof(END);
+		}
+
+		/* the end node of the second device path has to be retained */
+		memcpy(p, dp2, sz2);
+		p += sz2;
+		memcpy(p, &END, sizeof(END));
 	}
 
 	return ret;
+}
+
+/**
+ * efi_dp_append() - Append a device to an existing device path.
+ *
+ * @dp1:	First device path
+ * @dp2:	Second device path
+ *
+ * Return:
+ * concatenated device path or NULL. Caller must free the returned value
+ */
+struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
+				      const struct efi_device_path *dp2)
+{
+	return efi_dp_append_or_concatenate(dp1, dp2, false);
+}
+
+/**
+ * efi_dp_concat() - Concatenate 2 device paths. The final device path will
+ *                   contain two device paths separated by and end node (0xff).
+ *
+ * @dp1:	First device path
+ * @dp2:	Second device path
+ *
+ * Return:
+ * concatenated device path or NULL. Caller must free the returned value
+ */
+struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
+				      const struct efi_device_path *dp2)
+{
+	return efi_dp_append_or_concatenate(dp1, dp2, true);
 }
 
 struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
@@ -960,6 +1020,28 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 	return start;
 }
 
+struct efi_device_path *efi_dp_from_uart(void)
+{
+	void *buf, *pos;
+	struct efi_device_path_uart *uart;
+	size_t dpsize = sizeof(ROOT) + sizeof(*uart) + sizeof(END);
+
+	buf = dp_alloc(dpsize);
+	if (!buf)
+		return NULL;
+	pos = buf;
+	memcpy(pos, &ROOT, sizeof(ROOT));
+	pos += sizeof(ROOT);
+	uart = pos;
+	uart->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+	uart->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_UART;
+	uart->dp.length = sizeof(*uart);
+	pos += sizeof(*uart);
+	memcpy(pos, &END, sizeof(END));
+
+	return buf;
+}
+
 #ifdef CONFIG_NET
 struct efi_device_path *efi_dp_from_eth(void)
 {
@@ -1086,7 +1168,6 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      struct efi_device_path **device,
 			      struct efi_device_path **file)
 {
-	int is_net;
 	struct blk_desc *desc = NULL;
 	struct disk_partition fs_partition;
 	int part = 0;
@@ -1096,8 +1177,15 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (path && !file)
 		return EFI_INVALID_PARAMETER;
 
-	is_net = !strcmp(dev, "Net");
-	if (!is_net) {
+	if (!strcmp(dev, "Net")) {
+#ifdef CONFIG_NET
+		if (device)
+			*device = efi_dp_from_eth();
+#endif
+	} else if (!strcmp(dev, "Uart")) {
+		if (device)
+			*device = efi_dp_from_uart();
+	} else {
 		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
 					       1);
 		if (part < 0 || !desc)
@@ -1105,11 +1193,6 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 
 		if (device)
 			*device = efi_dp_from_part(desc, part);
-	} else {
-#ifdef CONFIG_NET
-		if (device)
-			*device = efi_dp_from_eth();
-#endif
 	}
 
 	if (!path)
@@ -1120,7 +1203,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	s = filename;
 	while ((s = strchr(s, '/')))
 		*s++ = '\\';
-	*file = efi_dp_from_file(is_net ? NULL : desc, part, filename);
+	*file = efi_dp_from_file(desc, part, filename);
 
 	if (!*file)
 		return EFI_INVALID_PARAMETER;
@@ -1159,4 +1242,44 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 			return ret;
 		dp = (const struct efi_device_path *)((const u8 *)dp + len);
 	}
+}
+
+/**
+ * efi_dp_from_lo() - Get the instance of a VenMedia node in a
+ *                    multi-instance device path that matches
+ *                    a specific GUID. This kind of device paths
+ *                    is found in Boot#### options describing an
+ *                    initrd location
+ *
+ * @lo:		EFI_LOAD_OPTION containing a valid device path
+ * @size:	size of the discovered device path
+ * @guid:	guid to search for
+ *
+ * Return:
+ * device path including the VenMedia node or NULL.
+ * Caller must free the returned value.
+ */
+struct
+efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
+				efi_uintn_t *size, efi_guid_t guid)
+{
+	struct efi_device_path *fp = lo->file_path;
+	struct efi_device_path_vendor *vendor;
+	int lo_len = lo->file_path_length;
+
+	for (; lo_len >=  sizeof(struct efi_device_path);
+	     lo_len -= fp->length, fp = (void *)fp + fp->length) {
+		if (lo_len < 0 || efi_dp_check_length(fp, lo_len) < 0)
+			break;
+		if (fp->type != DEVICE_PATH_TYPE_MEDIA_DEVICE ||
+		    fp->sub_type != DEVICE_PATH_SUB_TYPE_VENDOR_PATH)
+			continue;
+
+		vendor = (struct efi_device_path_vendor *)fp;
+		if (!guidcmp(&vendor->guid, &guid))
+			return efi_dp_dup(fp);
+	}
+	log_debug("VenMedia(%pUl) not found in %ls\n", &guid, lo->label);
+
+	return NULL;
 }

@@ -118,11 +118,13 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 		ret = efi_set_variable_int(L"BootCurrent",
 					   &efi_global_variable_guid,
 					   attributes, sizeof(n), &n, false);
-		if (ret != EFI_SUCCESS) {
-			if (EFI_CALL(efi_unload_image(*handle))
-			    != EFI_SUCCESS)
-				log_err("Unloading image failed\n");
-			goto error;
+		if (ret != EFI_SUCCESS)
+			goto unload;
+		/* try to register load file2 for initrd's */
+		if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
+			ret = efi_initrd_register();
+			if (ret != EFI_SUCCESS)
+				goto unload;
 		}
 
 		log_info("Booting: %ls\n", lo.label);
@@ -144,6 +146,13 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 	}
 
 error:
+	free(load_option);
+
+	return ret;
+
+unload:
+	if (EFI_CALL(efi_unload_image(*handle)) != EFI_SUCCESS)
+		log_err("Unloading image failed\n");
 	free(load_option);
 
 	return ret;

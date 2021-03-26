@@ -178,7 +178,7 @@ Now in U-Boot install the keys on your board::
 
 Set up boot parameters on your board::
 
-    efidebug boot add 1 HELLO mmc 0:1 /helloworld.efi.signed ""
+    efidebug boot add -b 1 HELLO mmc 0:1 /helloworld.efi.signed ""
 
 Now your board can run the signed image via the boot manager (see below).
 You can also try this sequence by running Pytest, test_efi_secboot,

@@ -523,6 +523,7 @@ struct efi_device_path_acpi_path {
 #  define DEVICE_PATH_SUB_TYPE_MSG_SCSI		0x02
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB		0x05
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
+#  define DEVICE_PATH_SUB_TYPE_MSG_UART		0x0e
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
 #  define DEVICE_PATH_SUB_TYPE_MSG_SATA		0x12
 #  define DEVICE_PATH_SUB_TYPE_MSG_NVME		0x17
@@ -540,6 +541,15 @@ struct efi_device_path_scsi {
 	struct efi_device_path dp;
 	u16 target_id;
 	u16 logical_unit_number;
+} __packed;
+
+struct efi_device_path_uart {
+	struct efi_device_path dp;
+	u32 reserved;
+	u64 baud_rate;
+	u8 data_bits;
+	u8 parity;
+	u8 stop_bits;
 } __packed;
 
 struct efi_device_path_usb {
@@ -1722,6 +1732,23 @@ struct efi_load_file_protocol {
 					 void *buffer);
 };
 
+struct efi_system_resource_entry {
+	efi_guid_t fw_class;
+	u32 fw_type;
+	u32 fw_version;
+	u32 lowest_supported_fw_version;
+	u32 capsule_flags;
+	u32 last_attempt_version;
+	u32 last_attempt_status;
+} __packed;
+
+struct efi_system_resource_table {
+	u32 fw_resource_count;
+	u32 fw_resource_count_max;
+	u64 fw_resource_version;
+	struct efi_system_resource_entry entries[];
+} __packed;
+
 /* Boot manager load options */
 #define LOAD_OPTION_ACTIVE		0x00000001
 #define LOAD_OPTION_FORCE_RECONNECT	0x00000002
@@ -1739,6 +1766,10 @@ struct efi_load_file_protocol {
 #define ESRT_FW_TYPE_SYSTEMFIRMWARE	0x00000001
 #define ESRT_FW_TYPE_DEVICEFIRMWARE	0x00000002
 #define ESRT_FW_TYPE_UEFIDRIVER		0x00000003
+
+#define EFI_SYSTEM_RESOURCE_TABLE_GUID\
+	EFI_GUID(0xb122a263, 0x3661, 0x4f68,\
+		0x99, 0x29, 0x78, 0xf8, 0xb0, 0xd6, 0x21, 0x80)
 
 /* Last Attempt Status Values */
 #define LAST_ATTEMPT_STATUS_SUCCESS			0x00000000
