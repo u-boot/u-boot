@@ -325,6 +325,8 @@ int octeontx_smi_probe(struct udevice *dev)
 		return -1;
 	}
 
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
+					     "cavium,thunder-8890-mdio-nexus");
 	fdt_for_each_subnode(subnode, gd->fdt_blob, node) {
 		ret = fdt_node_check_compatible(gd->fdt_blob, subnode,
 						"cavium,thunder-8890-mdio");
