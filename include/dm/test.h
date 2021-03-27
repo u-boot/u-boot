@@ -6,6 +6,8 @@
 #ifndef __DM_TEST_H
 #define __DM_TEST_H
 
+struct udevice;
+
 /**
  * struct dm_test_cdata - configuration data for test instance
  *
