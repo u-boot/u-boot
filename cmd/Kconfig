@@ -1067,6 +1067,7 @@ config CMD_MISC
 
 config CMD_MMC
 	bool "mmc"
+	depends on MMC
 	help
 	  MMC memory mapped support.
 
