@@ -219,6 +219,10 @@
  *
  * This is like ll_entry_get(), but without the extra code, so it is suitable
  * for putting into data structures.
+ *
+ * @_type: C type of the list entry, e.g. 'struct foo'
+ * @_name: name of the entry
+ * @_list: name of the list
  */
 #define ll_entry_ref(_type, _name, _list)				\
 	((_type *)&_u_boot_list_2_##_list##_2_##_name)
