@@ -6,10 +6,8 @@
 #define DEBUG
 
 #include <common.h>
-#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
 #include <command.h>
 #include <efi_api.h>
-#endif
 #include <display_options.h>
 #include <log.h>
 #include <version.h>

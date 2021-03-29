@@ -324,11 +324,6 @@ HOSTCC       = $(call os_x_before, 10, 5, "cc", "gcc")
 KBUILD_HOSTCFLAGS  += $(call os_x_before, 10, 4, "-traditional-cpp")
 KBUILD_HOSTLDFLAGS += $(call os_x_before, 10, 5, "-multiply_defined suppress")
 
-# since Lion (10.7) ASLR is on by default, but we use linker generated lists
-# in some host tools which is a problem then ... so disable ASLR for these
-# tools
-KBUILD_HOSTLDFLAGS += $(call os_x_before, 10, 7, "", "-Xlinker -no_pie")
-
 # macOS Mojave (10.14.X) 
 # Undefined symbols for architecture x86_64: "_PyArg_ParseTuple"
 KBUILD_HOSTLDFLAGS += $(call os_x_after, 10, 14, "-lpython -dynamclib", "")

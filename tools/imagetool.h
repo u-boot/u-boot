@@ -273,14 +273,14 @@ int rockchip_copy_image(int fd, struct image_tool_params *mparams);
 
 #define INIT_SECTION(name)  do {					\
 		unsigned long name ## _len;				\
-		char *__cat(pstart_, name) = getsectdata("__TEXT",	\
+		char *__cat(pstart_, name) = getsectdata("__DATA",	\
 			#name, &__cat(name, _len));			\
 		char *__cat(pstop_, name) = __cat(pstart_, name) +	\
 			__cat(name, _len);				\
 		__cat(__start_, name) = (void *)__cat(pstart_, name);	\
 		__cat(__stop_, name) = (void *)__cat(pstop_, name);	\
 	} while (0)
-#define SECTION(name)   __attribute__((section("__TEXT, " #name)))
+#define SECTION(name)   __attribute__((section("__DATA, " #name)))
 
 struct image_type_params **__start_image_type, **__stop_image_type;
 #else
