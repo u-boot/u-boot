@@ -529,6 +529,12 @@ __weak bool spl_load_simple_fit_skip_processing(void)
 	return false;
 }
 
+static void warn_deprecated(const char *msg)
+{
+	printf("DEPRECATED: %s\n", msg);
+	printf("\tSee doc/uImage.FIT/source_file_format.txt\n");
+}
+
 static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,
 			       struct spl_image_info *fpga_image)
 {
@@ -561,6 +567,8 @@ static int spl_fit_load_fpga(struct spl_fit_info *ctx,
 	node = spl_fit_get_image_node(ctx, "fpga", 0);
 	if (node < 0)
 		return node;
+
+	warn_deprecated("'fpga' property in config node. Use 'loadables'");
 
 	/* Load the image and set up the fpga_image structure */
 	ret = spl_load_fit_image(info, sector, ctx, node, &fpga_image);
