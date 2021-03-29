@@ -70,12 +70,25 @@ struct sys_info {
 	int			mr_no;	/* number of memory regions */
 };
 
-#undef CONFIG_SYS_64BIT_LBA
-#ifdef CONFIG_SYS_64BIT_LBA
-typedef	u_int64_t lbasize_t;
-#else
+/*
+ * FIXME: Previously this code was:
+ *
+ *   #undef CONFIG_SYS_64BIT_LBA
+ *   #ifdef CONFIG_SYS_64BIT_LBA
+ *   typedef u_int64_t lbasize_t;
+ *   #else
+ *   typedef unsigned long lbasize_t;
+ *   #endif
+ *
+ * But we cannot just undefine CONFIG_SYS_64BIT_LBA, because then in
+ * api/api_storage.c the type signature of lbaint_t will be different if
+ * CONFIG_SYS_64BIT_LBA is enabled for the board, which can result in various
+ * bugs.
+ * So simply define lbasize_t as an unsigned long, since this was what was done
+ * anyway for at least 13 years, but don't undefine CONFIG_SYS_64BIT_LBA.
+ */
 typedef unsigned long lbasize_t;
-#endif
+
 typedef unsigned long lbastart_t;
 
 #define DEV_TYP_NONE	0x0000

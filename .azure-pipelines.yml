@@ -23,7 +23,7 @@ jobs:
           %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Syyuu"
         displayName: 'Update MSYS2'
       - script: |
-          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -S make gcc bison flex diffutils openssl-devel"
+          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -Sy make gcc bison flex diffutils openssl-devel"
         displayName: 'Install Toolchain'
       - script: |
           echo make tools-only_defconfig tools-only NO_SDL=1 > build-tools.sh

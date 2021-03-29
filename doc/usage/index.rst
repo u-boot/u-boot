@@ -4,6 +4,7 @@ Use U-Boot
 .. toctree::
    :maxdepth: 1
 
+   dfu
    fdt_overlays
    fit
    netconsole

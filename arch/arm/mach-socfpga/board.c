@@ -115,7 +115,8 @@ void board_fit_image_post_process(void **p_image, size_t *p_size)
 #if !IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_FIT)
 void board_prep_linux(bootm_headers_t *images)
 {
-	if (!IS_ENABLED(CONFIG_SECURE_VAB_AUTH_ALLOW_NON_FIT_IMAGE)) {
+	if (IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH) &&
+	    !IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH_ALLOW_NON_FIT_IMAGE)) {
 		/*
 		 * Ensure the OS is always booted from FIT and with
 		 * VAB signed certificate

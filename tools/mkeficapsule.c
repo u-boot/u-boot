@@ -278,7 +278,7 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	}
 	data = malloc(bin_stat.st_size);
 	if (!data) {
-		printf("cannot allocate memory: %lx\n", bin_stat.st_size);
+		printf("cannot allocate memory: %zx\n", (size_t)bin_stat.st_size);
 		goto err_1;
 	}
 	f = fopen(path, "w");
@@ -297,7 +297,7 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 
 	size = fwrite(&header, 1, sizeof(header), f);
 	if (size < sizeof(header)) {
-		printf("write failed (%lx)\n", size);
+		printf("write failed (%zx)\n", size);
 		goto err_3;
 	}
 
@@ -306,13 +306,13 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	capsule.payload_item_count = 1;
 	size = fwrite(&capsule, 1, sizeof(capsule), f);
 	if (size < (sizeof(capsule))) {
-		printf("write failed (%lx)\n", size);
+		printf("write failed (%zx)\n", size);
 		goto err_3;
 	}
 	offset = sizeof(capsule) + sizeof(u64);
 	size = fwrite(&offset, 1, sizeof(offset), f);
 	if (size < sizeof(offset)) {
-		printf("write failed (%lx)\n", size);
+		printf("write failed (%zx)\n", size);
 		goto err_3;
 	}
 
@@ -329,17 +329,17 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 
 	size = fwrite(&image, 1, sizeof(image), f);
 	if (size < sizeof(image)) {
-		printf("write failed (%lx)\n", size);
+		printf("write failed (%zx)\n", size);
 		goto err_3;
 	}
 	size = fread(data, 1, bin_stat.st_size, g);
 	if (size < bin_stat.st_size) {
-		printf("read failed (%lx)\n", size);
+		printf("read failed (%zx)\n", size);
 		goto err_3;
 	}
 	size = fwrite(data, 1, bin_stat.st_size, f);
 	if (size < bin_stat.st_size) {
-		printf("write failed (%lx)\n", size);
+		printf("write failed (%zx)\n", size);
 		goto err_3;
 	}
 

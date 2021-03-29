@@ -22,6 +22,8 @@
 #define NVME_AQ_DEPTH		2
 #define NVME_SQ_SIZE(depth)	(depth * sizeof(struct nvme_command))
 #define NVME_CQ_SIZE(depth)	(depth * sizeof(struct nvme_completion))
+#define NVME_CQ_ALLOCATION	ALIGN(NVME_CQ_SIZE(NVME_Q_DEPTH), \
+				      ARCH_DMA_MINALIGN)
 #define ADMIN_TIMEOUT		60
 #define IO_TIMEOUT		30
 #define MAX_PRP_POOL		512
@@ -144,8 +146,14 @@ static __le16 nvme_get_cmd_id(void)
 
 static u16 nvme_read_completion_status(struct nvme_queue *nvmeq, u16 index)
 {
-	u64 start = (ulong)&nvmeq->cqes[index];
-	u64 stop = start + sizeof(struct nvme_completion);
+	/*
+	 * Single CQ entries are always smaller than a cache line, so we
+	 * can't invalidate them individually. However CQ entries are
+	 * read only by the CPU, so it's safe to always invalidate all of them,
+	 * as the cache line should never become dirty.
+	 */
+	ulong start = (ulong)&nvmeq->cqes[0];
+	ulong stop = start + NVME_CQ_ALLOCATION;
 
 	invalidate_dcache_range(start, stop);
 
@@ -241,7 +249,7 @@ static struct nvme_queue *nvme_alloc_queue(struct nvme_dev *dev,
 		return NULL;
 	memset(nvmeq, 0, sizeof(*nvmeq));
 
-	nvmeq->cqes = (void *)memalign(4096, NVME_CQ_SIZE(depth));
+	nvmeq->cqes = (void *)memalign(4096, NVME_CQ_ALLOCATION);
 	if (!nvmeq->cqes)
 		goto free_nvmeq;
 	memset((void *)nvmeq->cqes, 0, NVME_CQ_SIZE(depth));
@@ -339,7 +347,7 @@ static void nvme_init_queue(struct nvme_queue *nvmeq, u16 qid)
 	nvmeq->q_db = &dev->dbs[qid * 2 * dev->db_stride];
 	memset((void *)nvmeq->cqes, 0, NVME_CQ_SIZE(nvmeq->q_depth));
 	flush_dcache_range((ulong)nvmeq->cqes,
-			   (ulong)nvmeq->cqes + NVME_CQ_SIZE(nvmeq->q_depth));
+			   (ulong)nvmeq->cqes + NVME_CQ_ALLOCATION);
 	dev->online_queues++;
 }
 
@@ -481,6 +489,7 @@ int nvme_get_features(struct nvme_dev *dev, unsigned fid, unsigned nsid,
 		      dma_addr_t dma_addr, u32 *result)
 {
 	struct nvme_command c;
+	int ret;
 
 	memset(&c, 0, sizeof(c));
 	c.features.opcode = nvme_admin_get_features;
@@ -488,12 +497,20 @@ int nvme_get_features(struct nvme_dev *dev, unsigned fid, unsigned nsid,
 	c.features.prp1 = cpu_to_le64(dma_addr);
 	c.features.fid = cpu_to_le32(fid);
 
+	ret = nvme_submit_admin_cmd(dev, &c, result);
+
 	/*
-	 * TODO: add cache invalidate operation when the size of
-	 * the DMA buffer is known
+	 * TODO: Add some cache invalidation when a DMA buffer is involved
+	 * in the request, here and before the command gets submitted. The
+	 * buffer size varies by feature, also some features use a different
+	 * field in the command packet to hold the buffer address.
+	 * Section 5.21.1 (Set Features command) in the NVMe specification
+	 * details the buffer requirements for each feature.
+	 *
+	 * At the moment there is no user of this function.
 	 */
 
-	return nvme_submit_admin_cmd(dev, &c, result);
+	return ret;
 }
 
 int nvme_set_features(struct nvme_dev *dev, unsigned fid, unsigned dword11,
@@ -508,8 +525,14 @@ int nvme_set_features(struct nvme_dev *dev, unsigned fid, unsigned dword11,
 	c.features.dword11 = cpu_to_le32(dword11);
 
 	/*
-	 * TODO: add cache flush operation when the size of
-	 * the DMA buffer is known
+	 * TODO: Add a cache clean (aka flush) operation when a DMA buffer is
+	 * involved in the request. The buffer size varies by feature, also
+	 * some features use a different field in the command packet to hold
+	 * the buffer address. Section 5.21.1 (Set Features command) in the
+	 * NVMe specification details the buffer requirements for each
+	 * feature.
+	 * At the moment the only user of this function is not using
+	 * any DMA buffer at all.
 	 */
 
 	return nvme_submit_admin_cmd(dev, &c, result);

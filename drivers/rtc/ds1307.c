@@ -23,6 +23,7 @@
 enum ds_type {
 	ds_1307,
 	ds_1337,
+	ds_1339,
 	ds_1340,
 	m41t11,
 	mcp794xx,
@@ -344,6 +345,7 @@ static const struct rtc_ops ds1307_rtc_ops = {
 static const struct udevice_id ds1307_rtc_ids[] = {
 	{ .compatible = "dallas,ds1307", .data = ds_1307 },
 	{ .compatible = "dallas,ds1337", .data = ds_1337 },
+	{ .compatible = "dallas,ds1339", .data = ds_1339 },
 	{ .compatible = "dallas,ds1340", .data = ds_1340 },
 	{ .compatible = "microchip,mcp7941x", .data = mcp794xx },
 	{ .compatible = "st,m41t11", .data = m41t11 },

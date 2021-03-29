@@ -21,6 +21,7 @@
 #include <sata.h>
 #include <scsi.h>
 #include <syscon.h>
+#include <dm/device_compat.h>
 
 #define SYS_CFG			0x14
 #define SYS_CFG_SATA_MSK	GENMASK(31, 30)
