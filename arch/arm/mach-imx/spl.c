@@ -18,6 +18,7 @@
 #include <spl.h>
 #include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <linux/bitfield.h>
 #include <g_dnl.h>
 #include <linux/libfdt.h>
 
@@ -55,11 +56,11 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_BOARD;
 
 	/* BOOT_CFG1[7:4] - see IMX6DQRM Table 8-8 */
-	switch ((reg & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT) {
+	switch (FIELD_GET(IMX6_BMODE_MASK, reg)) {
 	 /* EIM: See 8.5.1, Table 8-9 */
 	case IMX6_BMODE_EMI:
 		/* BOOT_CFG1[3]: NOR/OneNAND Selection */
-		switch ((reg & IMX6_BMODE_EMI_MASK) >> IMX6_BMODE_EMI_SHIFT) {
+		switch (FIELD_GET(IMX6_BMODE_EMI_MASK, reg)) {
 		case IMX6_BMODE_ONENAND:
 			return BOOT_DEVICE_ONENAND;
 		case IMX6_BMODE_NOR:
@@ -77,8 +78,7 @@ u32 spl_boot_device(void)
 	/* Serial ROM: See 8.5.5.1, Table 8-22 */
 	case IMX6_BMODE_SERIAL_ROM:
 		/* BOOT_CFG4[2:0] */
-		switch ((reg & IMX6_BMODE_SERIAL_ROM_MASK) >>
-			IMX6_BMODE_SERIAL_ROM_SHIFT) {
+		switch (FIELD_GET(IMX6_BMODE_SERIAL_ROM_MASK, reg)) {
 		case IMX6_BMODE_ECSPI1:
 		case IMX6_BMODE_ECSPI2:
 		case IMX6_BMODE_ECSPI3:
