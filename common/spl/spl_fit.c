@@ -529,6 +529,49 @@ __weak bool spl_load_simple_fit_skip_processing(void)
 	return false;
 }
 
+static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,
+			       struct spl_image_info *fpga_image)
+{
+	int ret;
+
+	debug("FPGA bitstream at: %x, size: %x\n",
+	      (u32)fpga_image->load_addr, fpga_image->size);
+
+	ret = fpga_load(0, (void *)fpga_image->load_addr, fpga_image->size,
+			BIT_FULL);
+	if (ret) {
+		printf("%s: Cannot load the image to the FPGA\n", __func__);
+		return ret;
+	}
+
+	puts("FPGA image loaded from FIT\n");
+
+	return 0;
+}
+
+static int spl_fit_load_fpga(struct spl_fit_info *ctx,
+			     struct spl_load_info *info, ulong sector)
+{
+	int node, ret;
+
+	struct spl_image_info fpga_image = {
+		.load_addr = 0,
+	};
+
+	node = spl_fit_get_image_node(ctx, "fpga", 0);
+	if (node < 0)
+		return node;
+
+	/* Load the image and set up the fpga_image structure */
+	ret = spl_load_fit_image(info, sector, ctx, node, &fpga_image);
+	if (ret) {
+		printf("%s: Cannot load the FPGA: %i\n", __func__, ret);
+		return ret;
+	}
+
+	return spl_fit_upload_fpga(ctx, node, &fpga_image);
+}
+
 static int spl_simple_fit_read(struct spl_fit_info *ctx,
 			       struct spl_load_info *info, ulong sector,
 			       const void *fit_header)
@@ -612,31 +655,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	if (ret < 0)
 		return ret;
 
-#ifdef CONFIG_SPL_FPGA
-	node = spl_fit_get_image_node(&ctx, "fpga", 0);
-	if (node >= 0) {
-		/* Load the image and set up the spl_image structure */
-		ret = spl_load_fit_image(info, sector, &ctx, node, spl_image);
-		if (ret) {
-			printf("%s: Cannot load the FPGA: %i\n", __func__, ret);
-			return ret;
-		}
-
-		debug("FPGA bitstream at: %x, size: %x\n",
-		      (u32)spl_image->load_addr, spl_image->size);
-
-		ret = fpga_load(0, (const void *)spl_image->load_addr,
-				spl_image->size, BIT_FULL);
-		if (ret) {
-			printf("%s: Cannot load the image to the FPGA\n",
-			       __func__);
-			return ret;
-		}
-
-		puts("FPGA image loaded from FIT\n");
-		node = -1;
-	}
-#endif
+	if (IS_ENABLED(CONFIG_SPL_FPGA))
+		spl_fit_load_fpga(&ctx, info, sector);
 
 	/*
 	 * Find the U-Boot image using the following search order:
