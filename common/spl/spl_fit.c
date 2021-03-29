@@ -224,7 +224,7 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
  * @image_info:	will be filled with information about the loaded image
  *		If the FIT node does not contain a "load" (address) property,
  *		the image gets loaded to the address pointed to by the
- *		load_addr member in this struct.
+ *		load_addr member in this struct, if load_addr is not 0
  *
  * Return:	0 on success or a negative error number.
  */
@@ -259,8 +259,14 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		debug("%s ", genimg_get_comp_name(image_comp));
 	}
 
-	if (fit_image_get_load(fit, node, &load_addr))
+	if (fit_image_get_load(fit, node, &load_addr)) {
+		if (!image_info->load_addr) {
+			printf("Can't load %s: No load address and no buffer\n",
+			       fit_get_name(fit, node, NULL));
+			return -ENOBUFS;
+		}
 		load_addr = image_info->load_addr;
+	}
 
 	if (!fit_image_get_data_position(fit, node, &offset)) {
 		external_data = true;
@@ -700,6 +706,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		if (firmware_node == node)
 			continue;
 
+		image_info.load_addr = 0;
 		ret = spl_load_fit_image(info, sector, &ctx, node, &image_info);
 		if (ret < 0) {
 			printf("%s: can't load image loadables index %d (ret = %d)\n",
