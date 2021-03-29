@@ -164,7 +164,8 @@ class Entry(object):
         if obj and expanded:
             # Check whether to use the expanded entry
             new_etype = etype + '-expanded'
-            if obj.UseExpanded(node, etype, new_etype):
+            can_expand = not fdt_util.GetBool(node, 'no-expanded')
+            if can_expand and obj.UseExpanded(node, etype, new_etype):
                 etype = new_etype
             else:
                 obj = None
@@ -200,6 +201,8 @@ class Entry(object):
         if tools.NotPowerOfTwo(self.align):
             raise ValueError("Node '%s': Alignment %s must be a power of two" %
                              (self._node.path, self.align))
+        if self.section and self.align is None:
+            self.align = self.section.align_default
         self.pad_before = fdt_util.GetInt(self._node, 'pad-before', 0)
         self.pad_after = fdt_util.GetInt(self._node, 'pad-after', 0)
         self.align_size = fdt_util.GetInt(self._node, 'align-size')
@@ -437,6 +440,11 @@ class Entry(object):
         """Convenience function to raise an error referencing a node"""
         raise ValueError("Node '%s': %s" % (self._node.path, msg))
 
+    def Info(self, msg):
+        """Convenience function to log info referencing a node"""
+        tag = "Info '%s'" % self._node.path
+        tout.Detail('%30s: %s' % (tag, msg))
+
     def Detail(self, msg):
         """Convenience function to log detail referencing a node"""
         tag = "Node '%s'" % self._node.path
@@ -476,8 +484,12 @@ class Entry(object):
         """
         return self._node.path
 
-    def GetData(self):
+    def GetData(self, required=True):
         """Get the contents of an entry
+
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
 
         Returns:
             bytes content of the entry, excluding any padding. If the entry is

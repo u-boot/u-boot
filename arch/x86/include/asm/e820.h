@@ -22,9 +22,23 @@ struct e820_entry {
 #define ISA_START_ADDRESS	0xa0000
 #define ISA_END_ADDRESS		0x100000
 
-/* Implementation defined function to install an e820 map */
+/* Implementation-defined function to install an e820 map */
 unsigned int install_e820_map(unsigned int max_entries,
 			      struct e820_entry *);
+
+/**
+ * cb_install_e820_map() - Install e820 map provided by coreboot sysinfo
+ *
+ * This should be used when booting from coreboot, since in that case the
+ * memory areas are provided by coreboot in its sysinfo.
+ *
+ * @max_entries: Maximum number of entries to write
+ * @entries: Place to put entires
+ * @return number of entries written
+ */
+unsigned int cb_install_e820_map(unsigned int max_entries,
+				 struct e820_entry *entries);
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* _ASM_X86_E820_H */

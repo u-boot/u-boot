@@ -200,6 +200,10 @@
 		compatible = "sandbox,reset";
 	};
 
+	rng {
+		compatible = "sandbox,sandbox-rng";
+	};
+
 	sound {
 		compatible = "sandbox,sound";
 		cpu {

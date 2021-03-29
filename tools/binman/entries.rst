@@ -248,6 +248,19 @@ both of size 1MB.
 
 
 
+Entry: collection: An entry which contains a collection of other entries
+------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - content: List of phandles to entries to include
+
+This allows reusing the contents of other entries. The contents of the
+listed entries are combined to form this entry. This serves as a useful
+base class for entry types which need to process data from elsewhere in
+the image, not necessarily child entries.
+
+
+
 Entry: cros-ec-rw: A blob entry which contains a Chromium OS read-write EC image
 --------------------------------------------------------------------------------
 
@@ -783,6 +796,8 @@ Properties / Entry arguments: (see binman README for more information):
         file, since the first 16 bytes are skipped when writing.
     name-prefix: Adds a prefix to the name of every entry in the section
         when writing out the map
+    align_default: Default alignment for this section, if no alignment is
+        given in the entry
 
 Properties:
     allow_missing: True if this section permits external blobs to be
@@ -863,7 +878,7 @@ U-Boot can access binman symbols at runtime. See:
 in the binman README for more information.
 
 Note that this entry is automatically replaced with u-boot-expanded unless
---no-expanded is used.
+--no-expanded is used or the node has a 'no-expanded' property.
 
 
 
@@ -984,7 +999,7 @@ The ELF file 'spl/u-boot-spl' must also be available for this to work, since
 binman uses that to look up symbols to write into the SPL binary.
 
 Note that this entry is automatically replaced with u-boot-spl-expanded
-unless --no-expanded is used.
+unless --no-expanded is used or the node has a 'no-expanded' property.
 
 
 
@@ -1113,7 +1128,7 @@ The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
 binman uses that to look up symbols to write into the TPL binary.
 
 Note that this entry is automatically replaced with u-boot-tpl-expanded
-unless --no-expanded is used.
+unless --no-expanded is used or the node has a 'no-expanded' property.
 
 
 

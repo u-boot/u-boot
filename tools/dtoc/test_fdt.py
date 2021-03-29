@@ -154,6 +154,7 @@ class TestNode(unittest.TestCase):
     def setUp(self):
         self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))
         self.node = self.dtb.GetNode('/spl-test')
+        self.fdt = self.dtb.GetFdtObj()
 
     def testOffset(self):
         """Tests that we can obtain the offset of a node"""
@@ -197,7 +198,7 @@ class TestNode(unittest.TestCase):
     def testRefreshExtraNode(self):
         """Test refreshing offsets when an expected node is missing"""
         # Delete it from the device tre, not our tables
-        self.dtb.GetFdtObj().del_node(self.node.Offset())
+        self.fdt.del_node(self.node.Offset())
         with self.assertRaises(ValueError) as e:
             self.dtb.Refresh()
         self.assertIn('Internal error, node name mismatch '
@@ -209,7 +210,7 @@ class TestNode(unittest.TestCase):
         del self.node.props['notstring']
         with self.assertRaises(ValueError) as e:
             self.dtb.Refresh()
-        self.assertIn("Internal error, property 'notstring' missing, offset ",
+        self.assertIn("Internal error, node '/spl-test' property 'notstring' missing, offset ",
                       str(e.exception))
 
     def testLookupPhandle(self):
@@ -219,6 +220,66 @@ class TestNode(unittest.TestCase):
         prop = node.props['clocks']
         target = dtb.GetNode('/phandle-target')
         self.assertEqual(target, dtb.LookupPhandle(fdt32_to_cpu(prop.value)))
+
+    def testAddNodeSpace(self):
+        """Test adding a single node when out of space"""
+        self.fdt.pack()
+        self.node.AddSubnode('subnode')
+        with self.assertRaises(libfdt.FdtException) as e:
+            self.dtb.Sync(auto_resize=False)
+        self.assertIn('FDT_ERR_NOSPACE', str(e.exception))
+
+        self.dtb.Sync(auto_resize=True)
+        offset = self.fdt.path_offset('/spl-test/subnode')
+        self.assertTrue(offset > 0)
+
+    def testAddNodes(self):
+        """Test adding various subnode and properies"""
+        node = self.dtb.GetNode('/i2c@0')
+
+        # Add one more node next to the pmic one
+        sn1 = node.AddSubnode('node-one')
+        sn1.AddInt('integer-a', 12)
+        sn1.AddInt('integer-b', 23)
+
+        # Sync so that everything is clean
+        self.dtb.Sync(auto_resize=True)
+
+        # Add two subnodes next to pmic and node-one
+        sn2 = node.AddSubnode('node-two')
+        sn2.AddInt('integer-2a', 34)
+        sn2.AddInt('integer-2b', 45)
+
+        sn3 = node.AddSubnode('node-three')
+        sn3.AddInt('integer-3', 123)
+
+        # Add a property to the node after i2c@0 to check that this is not
+        # disturbed by adding a subnode to i2c@0
+        orig_node = self.dtb.GetNode('/orig-node')
+        orig_node.AddInt('integer-4', 456)
+
+        # Add a property to the pmic node to check that pmic properties are not
+        # disturbed
+        pmic = self.dtb.GetNode('/i2c@0/pmic@9')
+        pmic.AddInt('integer-5', 567)
+
+        self.dtb.Sync(auto_resize=True)
+
+    def testRefreshNameMismatch(self):
+        """Test name mismatch when syncing nodes and properties"""
+        prop = self.node.AddInt('integer-a', 12)
+
+        wrong_offset = self.dtb.GetNode('/i2c@0')._offset
+        self.node._offset = wrong_offset
+        with self.assertRaises(ValueError) as e:
+            self.dtb.Sync()
+        self.assertIn("Internal error, node '/spl-test' name mismatch 'i2c@0'",
+                      str(e.exception))
+
+        with self.assertRaises(ValueError) as e:
+            self.node.Refresh(wrong_offset)
+        self.assertIn("Internal error, node '/spl-test' name mismatch 'i2c@0'",
+                      str(e.exception))
 
 
 class TestProp(unittest.TestCase):
@@ -384,17 +445,6 @@ class TestProp(unittest.TestCase):
             self.dtb.Sync(auto_resize=False)
         self.assertIn('FDT_ERR_NOSPACE', str(e.exception))
         self.dtb.Sync(auto_resize=True)
-
-    def testAddNode(self):
-        self.fdt.pack()
-        self.node.AddSubnode('subnode')
-        with self.assertRaises(libfdt.FdtException) as e:
-            self.dtb.Sync(auto_resize=False)
-        self.assertIn('FDT_ERR_NOSPACE', str(e.exception))
-
-        self.dtb.Sync(auto_resize=True)
-        offset = self.fdt.path_offset('/spl-test/subnode')
-        self.assertTrue(offset > 0)
 
     def testAddMore(self):
         """Test various other methods for adding and setting properties"""

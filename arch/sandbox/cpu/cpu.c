@@ -6,7 +6,6 @@
 #include <common.h>
 #include <bootstage.h>
 #include <cpu_func.h>
-#include <dm.h>
 #include <errno.h>
 #include <log.h>
 #include <asm/global_data.h>
@@ -17,7 +16,6 @@
 #include <asm/malloc.h>
 #include <asm/setjmp.h>
 #include <asm/state.h>
-#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -34,10 +32,8 @@ void sandbox_exit(void)
 {
 	/* Do this here while it still has an effect */
 	os_fd_restore();
-	if (state_uninit())
-		os_exit(2);
 
-	if (dm_uninit())
+	if (state_uninit())
 		os_exit(2);
 
 	/* This is considered normal termination for now */

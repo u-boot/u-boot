@@ -53,6 +53,7 @@ static int pci_mmc_probe(struct udevice *dev)
 	host->ioaddr = (void *)dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
 					      PCI_REGION_MEM);
 	host->name = dev->name;
+	host->cd_gpio = priv->cd_gpio;
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;
 	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
@@ -68,8 +69,11 @@ static int pci_mmc_of_to_plat(struct udevice *dev)
 {
 	if (CONFIG_IS_ENABLED(DM_GPIO)) {
 		struct pci_mmc_priv *priv = dev_get_priv(dev);
+		int ret;
 
-		gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio, GPIOD_IS_IN);
+		ret = gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
+					   GPIOD_IS_IN);
+		log_debug("cd-gpio %s done, ret=%d\n", dev->name, ret);
 	}
 
 	return 0;

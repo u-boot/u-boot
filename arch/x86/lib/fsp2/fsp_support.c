@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <log.h>
 #include <spi_flash.h>
 #include <asm/fsp/fsp_support.h>
@@ -113,6 +114,9 @@ u32 fsp_notify(struct fsp_header *fsp_hdr, u32 phase)
 	struct fsp_notify_params params;
 	struct fsp_notify_params *params_ptr;
 	u32 status;
+
+	if (!ll_boot_init())
+		return 0;
 
 	if (!fsp_hdr)
 		fsp_hdr = gd->arch.fsp_s_hdr;

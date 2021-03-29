@@ -89,7 +89,7 @@ static unsigned long host_block_write(struct blk_desc *block_dev,
 }
 
 #ifdef CONFIG_BLK
-int host_dev_bind(int devnum, char *filename)
+int host_dev_bind(int devnum, char *filename, bool removable)
 {
 	struct host_block_dev *host_dev;
 	struct udevice *dev;
@@ -146,7 +146,7 @@ int host_dev_bind(int devnum, char *filename)
 	}
 
 	desc = blk_get_devnum_by_type(IF_TYPE_HOST, devnum);
-	desc->removable = 1;
+	desc->removable = removable;
 	snprintf(desc->vendor, BLK_VEN_SIZE, "U-Boot");
 	snprintf(desc->product, BLK_PRD_SIZE, "hostfile");
 	snprintf(desc->revision, BLK_REV_SIZE, "1.0");
@@ -160,7 +160,7 @@ err:
 	return ret;
 }
 #else
-int host_dev_bind(int dev, char *filename)
+int host_dev_bind(int dev, char *filename, bool removable)
 {
 	struct host_block_dev *host_dev = find_host_device(dev);
 
@@ -195,7 +195,7 @@ int host_dev_bind(int dev, char *filename)
 	blk_dev->block_write = host_block_write;
 	blk_dev->devnum = dev;
 	blk_dev->part_type = PART_TYPE_UNKNOWN;
-	blk_dev->removable = 1;
+	blk_dev->removable = removable;
 	snprintf(blk_dev->vendor, BLK_VEN_SIZE, "U-Boot");
 	snprintf(blk_dev->product, BLK_PRD_SIZE, "hostfile");
 	snprintf(blk_dev->revision, BLK_REV_SIZE, "1.0");

@@ -9,6 +9,8 @@
 #include <compiler.h>
 #include <linux/compiler.h>
 
+struct cbfs_priv;
+
 enum cbfs_result {
 	CBFS_SUCCESS = 0,
 	CBFS_NOT_INITIALIZED,
@@ -42,6 +44,8 @@ enum cbfs_filetype {
 
 enum {
 	CBFS_HEADER_MAGIC	= 0x4f524243,
+	CBFS_SIZE_UNKNOWN	= 0xffffffff,
+	CBFS_ALIGN_SIZE		= 0x40,
 };
 
 /**
@@ -68,6 +72,52 @@ struct cbfs_fileheader {
 	/* offset to struct cbfs_file_attribute or 0 */
 	u32 attributes_offset;
 	u32 offset;
+	char filename[];
+} __packed;
+
+/**
+ * These are standard values for the known compression alogrithms that coreboot
+ * knows about for stages and payloads.  Of course, other CBFS users can use
+ * whatever values they want, as long as they understand them.
+ */
+#define CBFS_COMPRESS_NONE  0
+#define CBFS_COMPRESS_LZMA  1
+#define CBFS_COMPRESS_LZ4   2
+
+/*
+ * Depending on how the header was initialized, it may be backed with 0x00 or
+ * 0xff, so support both
+ */
+#define CBFS_FILE_ATTR_TAG_UNUSED 0
+#define CBFS_FILE_ATTR_TAG_UNUSED2 0xffffffff
+#define CBFS_FILE_ATTR_TAG_COMPRESSION 0x42435a4c
+#define CBFS_FILE_ATTR_TAG_HASH 0x68736148
+
+/*
+ * The common fields of extended cbfs file attributes. Attributes are expected
+ * to start with tag/len, then append their specific fields
+ */
+struct cbfs_file_attribute {
+	u32 tag;
+	/* len covers the whole structure, incl. tag and len */
+	u32 len;
+	u8 data[0];
+} __packed;
+
+struct cbfs_file_attr_compression {
+	u32 tag;
+	u32 len;
+	/* whole file compression format. 0 if no compression. */
+	u32 compression;
+	u32 decompressed_size;
+} __packed;
+
+struct cbfs_file_attr_hash {
+	u32 tag;
+	u32 len;
+	u32 hash_type;
+	/* hash_data is len - sizeof(struct) bytes */
+	u8  hash_data[];
 } __packed;
 
 struct cbfs_cachenode {
@@ -77,7 +127,9 @@ struct cbfs_cachenode {
 	u32 type;
 	u32 data_length;
 	u32 name_length;
-	u32 attributes_offset;
+	u32 attr_offset;
+	u32 comp_algo;
+	u32 decomp_size;
 };
 
 /**
@@ -111,6 +163,21 @@ int file_cbfs_init(ulong end_of_rom);
 const struct cbfs_header *file_cbfs_get_header(void);
 
 /**
+ * cbfs_get_first() - Get the first file in a CBFS
+ *
+ * @return pointer to first file, or NULL if it is empty
+ */
+const struct cbfs_cachenode *cbfs_get_first(const struct cbfs_priv *priv);
+
+/**
+ * cbfs_get_next() - Get the next file in a CBFS
+ *
+ * @filep: Pointer to current file; updated to point to the next file, if any,
+ *	else NULL
+ */
+void cbfs_get_next(const struct cbfs_cachenode **filep);
+
+/**
  * file_cbfs_get_first() - Get a handle for the first file in CBFS.
  *
  * @return A handle for the first file in CBFS, NULL on error.
@@ -133,8 +200,6 @@ void file_cbfs_get_next(const struct cbfs_cachenode **file);
  */
 const struct cbfs_cachenode *file_cbfs_find(const char *name);
 
-struct cbfs_priv;
-
 /**
  * cbfs_find_file() - Find a file in a given CBFS
  *
@@ -149,11 +214,13 @@ const struct cbfs_cachenode *cbfs_find_file(struct cbfs_priv *cbfs,
  * cbfs_init_mem() - Set up a new CBFS
  *
  * @base: Base address of CBFS
+ * @size: Size of CBFS if known, else CBFS_SIZE_UNKNOWN
+ * @require_header: true to read a header at the start, false to not require one
  * @cbfsp: Returns a pointer to CBFS on success
  * @return 0 if OK, -ve on error
  */
-int cbfs_init_mem(ulong base, struct cbfs_priv **privp);
-
+int cbfs_init_mem(ulong base, ulong size, bool require_hdr,
+		  struct cbfs_priv **privp);
 
 /***************************************************************************/
 /* All of the functions below can be used without first initializing CBFS. */

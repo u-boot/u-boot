@@ -169,6 +169,7 @@ class Entry_cbfs(Entry):
 
         super().__init__(section, etype, node)
         self._cbfs_arg = fdt_util.GetString(node, 'cbfs-arch', 'x86')
+        self.align_default = None
         self._cbfs_entries = OrderedDict()
         self._ReadSubnodes()
         self.reader = None

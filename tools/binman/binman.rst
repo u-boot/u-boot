@@ -472,6 +472,13 @@ missing-msg:
     information about what needs to be fixed. See missing-blob-help for the
     message for each tag.
 
+no-expanded:
+    By default binman substitutes entries with expanded versions if available,
+    so that a `u-boot` entry type turns into `u-boot-expanded`, for example. The
+    `--no-expanded` command-line option disables this globally. The
+    `no-expanded` property disables this just for a single entry. Put the
+    `no-expanded` boolean property in the node to select this behaviour.
+
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
 
@@ -554,6 +561,13 @@ skip-at-start:
 
     'end-at-4gb' property is not applicable where CONFIG_SYS_TEXT_BASE +
     Image size != 4gb.
+
+align-default:
+    Specifies the default alignment for entries in this section, if they do
+    not specify an alignment. Note that this only applies to top-level entries
+    in the section (direct subentries), not any subentries of those entries.
+    This means that each section must specify its own default alignment, if
+    required.
 
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.

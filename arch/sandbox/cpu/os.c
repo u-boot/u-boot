@@ -711,7 +711,7 @@ static int add_args(char ***argvp, char *add_args[], int count)
  * @fname: Filename to exec
  * @return does not return on success, any return value is an error
  */
-static int os_jump_to_file(const char *fname)
+static int os_jump_to_file(const char *fname, bool delete_it)
 {
 	struct sandbox_state *state = state_get_current();
 	char mem_fname[30];
@@ -734,11 +734,13 @@ static int os_jump_to_file(const char *fname)
 
 	os_fd_restore();
 
-	extra_args[0] = "-j";
-	extra_args[1] = (char *)fname;
-	extra_args[2] = "-m";
-	extra_args[3] = mem_fname;
-	argc = 4;
+	argc = 0;
+	if (delete_it) {
+		extra_args[argc++] = "-j";
+		extra_args[argc++] = (char *)fname;
+	}
+	extra_args[argc++] = "-m";
+	extra_args[argc++] = mem_fname;
 	if (state->ram_buf_rm)
 		extra_args[argc++] = "--rm_memory";
 	err = add_args(&argv, extra_args, argc);
@@ -762,7 +764,10 @@ static int os_jump_to_file(const char *fname)
 		return err;
 	}
 
-	return unlink(fname);
+	if (delete_it)
+		return unlink(fname);
+
+	return -EFAULT;
 }
 
 int os_jump_to_image(const void *dest, int size)
@@ -774,7 +779,7 @@ int os_jump_to_image(const void *dest, int size)
 	if (err)
 		return err;
 
-	return os_jump_to_file(fname);
+	return os_jump_to_file(fname, true);
 }
 
 int os_find_u_boot(char *fname, int maxlen, bool use_img)
@@ -847,7 +852,8 @@ int os_spl_to_uboot(const char *fname)
 
 	/* U-Boot will delete ram buffer after read: "--rm_memory"*/
 	state->ram_buf_rm = true;
-	return os_jump_to_file(fname);
+
+	return os_jump_to_file(fname, false);
 }
 
 long os_get_time_offset(void)

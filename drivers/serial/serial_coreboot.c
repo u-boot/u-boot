@@ -9,7 +9,7 @@
 #include <dm.h>
 #include <ns16550.h>
 #include <serial.h>
-#include <asm/arch/sysinfo.h>
+#include <asm/cb_sysinfo.h>
 
 static int coreboot_of_to_plat(struct udevice *dev)
 {

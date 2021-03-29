@@ -96,7 +96,7 @@ static int x86_spl_init(void)
 	}
 #endif
 	preloader_console_init();
-#ifndef CONFIG_TPL
+#if !defined(CONFIG_TPL) && !CONFIG_IS_ENABLED(CPU)
 	ret = print_cpuinfo();
 	if (ret) {
 		debug("%s: print_cpuinfo() failed\n", __func__);

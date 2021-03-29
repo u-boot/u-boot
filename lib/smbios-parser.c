@@ -3,6 +3,8 @@
  * Copyright (C) 2020, Bachmann electronic GmbH
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <common.h>
 #include <smbios.h>
 
@@ -93,4 +95,40 @@ const char *smbios_string(const struct smbios_header *header, int index)
 		return NULL;
 
 	return string_from_smbios_table(header, index);
+}
+
+int smbios_update_version_full(void *smbios_tab, const char *version)
+{
+	const struct smbios_header *hdr;
+	struct smbios_type0 *bios;
+	uint old_len, len;
+	char *ptr;
+
+	log_info("Updating SMBIOS table at %p\n", smbios_tab);
+	hdr = smbios_header(smbios_tab, SMBIOS_BIOS_INFORMATION);
+	if (!hdr)
+		return log_msg_ret("tab", -ENOENT);
+	bios = (struct smbios_type0 *)hdr;
+	ptr = (char *)smbios_string(hdr, bios->bios_ver);
+	if (!ptr)
+		return log_msg_ret("str", -ENOMEDIUM);
+
+	/*
+	 * This string is supposed to have at least enough bytes and is
+	 * padded with spaces. Update it, taking care not to move the
+	 * \0 terminator, so that other strings in the string table
+	 * are not disturbed. See smbios_add_string()
+	 */
+	old_len = strnlen(ptr, SMBIOS_STR_MAX);
+	len = strnlen(version, SMBIOS_STR_MAX);
+	if (len > old_len)
+		return log_ret(-ENOSPC);
+
+	log_debug("Replacing SMBIOS type 0 version string '%s'\n", ptr);
+	memcpy(ptr, version, len);
+#ifdef LOG_DEBUG
+	print_buffer((ulong)ptr, ptr, 1, old_len + 1, 0);
+#endif
+
+	return 0;
 }

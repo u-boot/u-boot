@@ -6,6 +6,7 @@
 #ifndef _ASM_ARCH_UART_H
 #define _ASM_ARCH_UART_H
 
+#include <dt-structs.h>
 #include <ns16550.h>
 
 /**

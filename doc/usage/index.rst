@@ -21,6 +21,7 @@ Shell commands
    booti
    bootmenu
    button
+   x86/cbsysinfo
    conitrace
    echo
    exception

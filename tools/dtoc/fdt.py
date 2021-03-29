@@ -103,6 +103,8 @@ class Prop:
     """A device tree property
 
     Properties:
+        node: Node containing this property
+        offset: Offset of the property (None if still to be synced)
         name: Property name (as per the device tree)
         value: Property value as a string of bytes, or a list of strings of
             bytes
@@ -114,7 +116,7 @@ class Prop:
         self.name = name
         self.value = None
         self.bytes = bytes(data)
-        self.dirty = False
+        self.dirty = offset is None
         if not data:
             self.type = Type.BOOL
             self.value = True
@@ -228,9 +230,14 @@ class Prop:
         Raises:
             FdtException if auto_resize is False and there is not enough space
         """
-        if self._offset is None or self.dirty:
+        if self.dirty:
             node = self._node
             fdt_obj = node._fdt._fdt_obj
+            node_name = fdt_obj.get_name(node._offset)
+            if node_name and node_name != node.name:
+                raise ValueError("Internal error, node '%s' name mismatch '%s'" %
+                                 (node.path, node_name))
+
             if auto_resize:
                 while fdt_obj.setprop(node.Offset(), self.name, self.bytes,
                                     (libfdt.NOSPACE,)) == -libfdt.NOSPACE:
@@ -239,13 +246,15 @@ class Prop:
                     fdt_obj.setprop(node.Offset(), self.name, self.bytes)
             else:
                 fdt_obj.setprop(node.Offset(), self.name, self.bytes)
+            self.dirty = False
 
 
 class Node:
     """A device tree node
 
     Properties:
-        offset: Integer offset in the device tree
+        parent: Parent Node
+        offset: Integer offset in the device tree (None if to be synced)
         name: Device tree node tname
         path: Full path to node, along with the node name itself
         _fdt: Device tree object
@@ -324,6 +333,11 @@ class Node:
         fdt_obj = self._fdt._fdt_obj
         if self._offset != my_offset:
             self._offset = my_offset
+        name = fdt_obj.get_name(self._offset)
+        if name and self.name != name:
+            raise ValueError("Internal error, node '%s' name mismatch '%s'" %
+                             (self.path, name))
+
         offset = fdt_obj.first_subnode(self._offset, QUIET_NOTFOUND)
         for subnode in self.subnodes:
             if subnode.name != fdt_obj.get_name(offset):
@@ -339,8 +353,8 @@ class Node:
             p = fdt_obj.get_property_by_offset(poffset)
             prop = self.props.get(p.name)
             if not prop:
-                raise ValueError("Internal error, property '%s' missing, "
-                                 'offset %d' % (p.name, poffset))
+                raise ValueError("Internal error, node '%s' property '%s' missing, "
+                                 'offset %d' % (self.path, p.name, poffset))
             prop.RefreshOffset(poffset)
             poffset = fdt_obj.next_property_offset(poffset, QUIET_NOTFOUND)
 
@@ -447,8 +461,13 @@ class Node:
         Args:
             prop_name: Name of property to add
             val: Bytes value of property
+
+        Returns:
+            Prop added
         """
-        self.props[prop_name] = Prop(self, None, prop_name, val)
+        prop = Prop(self, None, prop_name, val)
+        self.props[prop_name] = prop
+        return prop
 
     def AddString(self, prop_name, val):
         """Add a new string property to a node
@@ -459,9 +478,12 @@ class Node:
         Args:
             prop_name: Name of property to add
             val: String value of property
+
+        Returns:
+            Prop added
         """
         val = bytes(val, 'utf-8')
-        self.AddData(prop_name, val + b'\0')
+        return self.AddData(prop_name, val + b'\0')
 
     def AddInt(self, prop_name, val):
         """Add a new integer property to a node
@@ -472,8 +494,11 @@ class Node:
         Args:
             prop_name: Name of property to add
             val: Integer value of property
+
+        Returns:
+            Prop added
         """
-        self.AddData(prop_name, struct.pack('>I', val))
+        return self.AddData(prop_name, struct.pack('>I', val))
 
     def AddSubnode(self, name):
         """Add a new subnode to the node
@@ -499,9 +524,13 @@ class Node:
             auto_resize: Resize the device tree automatically if it does not
                 have enough space for the update
 
+        Returns:
+            True if the node had to be added, False if it already existed
+
         Raises:
             FdtException if auto_resize is False and there is not enough space
         """
+        added = False
         if self._offset is None:
             # The subnode doesn't exist yet, so add it
             fdt_obj = self._fdt._fdt_obj
@@ -515,23 +544,45 @@ class Node:
             else:
                 offset = fdt_obj.add_subnode(self.parent._offset, self.name)
             self._offset = offset
+            added = True
 
-        # Sync subnodes in reverse so that we don't disturb node offsets for
-        # nodes that are earlier in the DT. This avoids an O(n^2) rescan of
-        # node offsets.
+        # Sync the existing subnodes first, so that we can rely on the offsets
+        # being correct. As soon as we add new subnodes, it pushes all the
+        # existing subnodes up.
         for node in reversed(self.subnodes):
-            node.Sync(auto_resize)
+            if node._offset is not None:
+                node.Sync(auto_resize)
 
-        # Sync properties now, whose offsets should not have been disturbed.
-        # We do this after subnodes, since this disturbs the offsets of these
-        # properties. Note that new properties will have an offset of None here,
-        # which Python 3 cannot sort against int. So use a large value instead
-        # to ensure that the new properties are added first.
+        # Sync subnodes in reverse so that we get the expected order. Each
+        # new node goes at the start of the subnode list. This avoids an O(n^2)
+        # rescan of node offsets.
+        num_added = 0
+        for node in reversed(self.subnodes):
+            if node.Sync(auto_resize):
+                num_added += 1
+        if num_added:
+            # Reorder our list of nodes to put the new ones first, since that's
+            # what libfdt does
+            old_count = len(self.subnodes) - num_added
+            subnodes = self.subnodes[old_count:] + self.subnodes[:old_count]
+            self.subnodes = subnodes
+
+        # Sync properties now, whose offsets should not have been disturbed,
+        # since properties come before subnodes. This is done after all the
+        # subnode processing above, since updating properties can disturb the
+        # offsets of those subnodes.
+        # Properties are synced in reverse order, with new properties added
+        # before existing properties are synced. This ensures that the offsets
+        # of earlier properties are not disturbed.
+        # Note that new properties will have an offset of None here, which
+        # Python cannot sort against int. So use a large value instead so that
+        # new properties are added first.
         prop_list = sorted(self.props.values(),
                            key=lambda prop: prop._offset or 1 << 31,
                            reverse=True)
         for prop in prop_list:
             prop.Sync(auto_resize)
+        return added
 
 
 class Fdt:
@@ -642,8 +693,9 @@ class Fdt:
         Raises:
             FdtException if auto_resize is False and there is not enough space
         """
+        self.CheckCache()
         self._root.Sync(auto_resize)
-        self.Invalidate()
+        self.Refresh()
 
     def Pack(self):
         """Pack the device tree down to its minimum size
@@ -652,7 +704,7 @@ class Fdt:
         build up in the device tree binary.
         """
         CheckErr(self._fdt_obj.pack(), 'pack')
-        self.Invalidate()
+        self.Refresh()
 
     def GetContents(self):
         """Get the contents of the FDT
@@ -704,11 +756,11 @@ class Fdt:
         if self._cached_offsets:
             return
         self.Refresh()
-        self._cached_offsets = True
 
     def Refresh(self):
         """Refresh the offset cache"""
         self._root.Refresh(0)
+        self._cached_offsets = True
 
     def GetStructOffset(self, offset):
         """Get the file offset of a given struct offset

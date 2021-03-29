@@ -2251,6 +2251,15 @@ config CMD_BEDBUG
 	  for some PowerPC processors. For details please see the
 	  documentation in doc/README.bedbug.
 
+config CMD_CBSYSINFO
+	bool "cbsysinfo"
+	depends on X86
+	default y if SYS_COREBOOT
+	help
+	  This provides information about the coreboot sysinfo table stored in
+	  memory by coreboot before jumping to U-Boot. It can be useful for
+	  debugging the beaaviour of coreboot or U-Boot.
+
 config CMD_DIAG
 	bool "diag - Board diagnostics"
 	help

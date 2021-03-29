@@ -880,6 +880,8 @@ extern Void_t*     sbrk();
 
 #else
 
+void malloc_simple_info(void);
+
 #if CONFIG_IS_ENABLED(SYS_MALLOC_SIMPLE)
 #define malloc malloc_simple
 #define realloc realloc_simple
@@ -887,7 +889,6 @@ extern Void_t*     sbrk();
 static inline void free(void *ptr) {}
 void *calloc(size_t nmemb, size_t size);
 void *realloc_simple(void *ptr, size_t size);
-void malloc_simple_info(void);
 #else
 
 # ifdef USE_DL_PREFIX

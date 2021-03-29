@@ -20,10 +20,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-enum {
-	SMBIOS_STR_MAX	= 64,	/* Maximum length allowed for a string */
-};
-
 /**
  * struct smbios_ctx - context for writing SMBIOS tables
  *

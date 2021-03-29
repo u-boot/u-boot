@@ -23,6 +23,7 @@
 #include <asm/pci.h>
 #include <asm/arch/gpio.h>
 #include <dm/acpi.h>
+#include <dm/device-internal.h>
 #include <dt-bindings/gpio/x86-gpio.h>
 
 static int intel_gpio_get_value(struct udevice *dev, uint offset)
@@ -85,7 +86,7 @@ static int intel_gpio_xlate(struct udevice *orig_dev, struct gpio_desc *desc,
 
 	/*
 	 * GPIO numbers are global in the device tree so it doesn't matter
-	 * which one is used
+	 * which @orig_dev is used
 	 */
 	gpio = args->args[0];
 	ret = intel_pinctrl_get_pad(gpio, &pinctrl, &desc->offset);
@@ -96,6 +97,17 @@ static int intel_gpio_xlate(struct udevice *orig_dev, struct gpio_desc *desc,
 		return log_msg_ret("no child", -ENOENT);
 	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
 	desc->dev = dev;
+
+	/*
+	 * Handle the case where the wrong GPIO device was provided, since this
+	 * will not have been probed by the GPIO uclass before calling here
+	 * (see gpio_request_tail()).
+	 */
+	if (orig_dev != dev) {
+		ret = device_probe(dev);
+		if (ret)
+			return log_msg_ret("probe", ret);
+	}
 
 	return 0;
 }

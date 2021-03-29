@@ -20,5 +20,4 @@ else
 obj-y += sdram.o
 endif
 obj-y += coreboot.o
-obj-y += tables.o
 obj-y += timestamp.o

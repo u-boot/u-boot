@@ -36,6 +36,7 @@ class Entry_mkimage(Entry):
         super().__init__(section, etype, node)
         self._args = fdt_util.GetString(self._node, 'args').split(' ')
         self._mkimage_entries = OrderedDict()
+        self.align_default = None
         self._ReadSubnodes()
 
     def ObtainContents(self):

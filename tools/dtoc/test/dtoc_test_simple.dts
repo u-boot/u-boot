@@ -56,4 +56,8 @@
 			low-power;
 		};
 	};
+
+	orig-node {
+		orig = <1 23 4>;
+	};
 };

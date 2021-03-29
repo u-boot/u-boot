@@ -11,6 +11,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <spi.h>
+#include <spi-mem.h>
 #include <dm/device_compat.h>
 #include <asm/global_data.h>
 #include <dm/device-internal.h>
@@ -199,6 +200,16 @@ static int spi_post_probe(struct udevice *bus)
 			ops->set_mode += gd->reloc_off;
 		if (ops->cs_info)
 			ops->cs_info += gd->reloc_off;
+		if (ops->mem_ops) {
+			struct spi_controller_mem_ops *mem_ops =
+				(struct spi_controller_mem_ops *)ops->mem_ops;
+			if (mem_ops->adjust_op_size)
+				mem_ops->adjust_op_size += gd->reloc_off;
+			if (mem_ops->supports_op)
+				mem_ops->supports_op += gd->reloc_off;
+			if (mem_ops->exec_op)
+				mem_ops->exec_op += gd->reloc_off;
+		}
 		reloc_done++;
 	}
 #endif
