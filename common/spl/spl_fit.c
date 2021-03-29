@@ -480,6 +480,20 @@ static int spl_fit_record_loadable(const struct spl_fit_info *ctx, int index,
 	return ret;
 }
 
+static int spl_fit_image_is_fpga(const void *fit, int node)
+{
+	const char *type;
+
+	if (!IS_ENABLED(CONFIG_SPL_FPGA))
+		return 0;
+
+	type = fdt_getprop(fit, node, FIT_TYPE_PROP, NULL);
+	if (!type)
+		return 0;
+
+	return !strcmp(type, "fpga");
+}
+
 static int spl_fit_image_get_os(const void *fit, int noffset, uint8_t *os)
 {
 	if (!CONFIG_IS_ENABLED(FIT_IMAGE_TINY) || CONFIG_IS_ENABLED(OS_BOOT))
@@ -538,10 +552,17 @@ static void warn_deprecated(const char *msg)
 static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,
 			       struct spl_image_info *fpga_image)
 {
+	const char *compatible;
 	int ret;
 
 	debug("FPGA bitstream at: %x, size: %x\n",
 	      (u32)fpga_image->load_addr, fpga_image->size);
+
+	compatible = fdt_getprop(ctx->fit, node, "compatible", NULL);
+	if (!compatible)
+		warn_deprecated("'fpga' image without 'compatible' property");
+	else if (strcmp(compatible, "u-boot,fpga-legacy"))
+		printf("Ignoring compatible = %s property\n", compatible);
 
 	ret = fpga_load(0, (void *)fpga_image->load_addr, fpga_image->size,
 			BIT_FULL);
@@ -741,6 +762,9 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			       __func__, index, ret);
 			return ret;
 		}
+
+		if (spl_fit_image_is_fpga(ctx.fit, node))
+			spl_fit_upload_fpga(&ctx, node, &image_info);
 
 		if (!spl_fit_image_get_os(ctx.fit, node, &os_type))
 			debug("Loadable is %s\n", genimg_get_os_name(os_type));
