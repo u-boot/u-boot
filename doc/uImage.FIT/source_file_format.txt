@@ -184,6 +184,7 @@ the '/images' node should have the following layout:
     Mandatory for types: "firmware", and "kernel".
   - compatible : compatible method for loading image.
     Mandatory for types: "fpga", and images that do not specify a load address.
+    To use the generic fpga loading routine, use "u-boot,fpga-legacy".
 
   Optional nodes:
   - hash-1 : Each hash sub-node represents separate hash or checksum
