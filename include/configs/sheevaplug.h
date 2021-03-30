@@ -51,14 +51,6 @@
 #endif /* CONFIG_CMD_NET */
 
 /*
- * SDIO/MMC Card Configuration
- */
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_MVEBU_MMC
-#define CONFIG_SYS_MMC_BASE KW_SDIO_BASE
-#endif /* CONFIG_CMD_MMC */
-
-/*
  * SATA driver configuration
  */
 #ifdef CONFIG_IDE
