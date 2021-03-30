@@ -279,10 +279,3 @@ int cpu_eth_init(struct bd_info *bis)
 }
 #endif
 
-#ifdef CONFIG_MVEBU_MMC
-int board_mmc_init(struct bd_info *bis)
-{
-	mvebu_mmc_init(bis);
-	return 0;
-}
-#endif /* CONFIG_MVEBU_MMC */
