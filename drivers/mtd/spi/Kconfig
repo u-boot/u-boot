@@ -95,12 +95,6 @@ config SPI_FLASH_BAR
 	  Bank/Extended address registers are used to access the flash
 	  which has size > 16MiB in 3-byte addressing.
 
-config SF_DUAL_FLASH
-	bool "SPI DUAL flash memory support"
-	help
-	  Enable this option to support two flash memories connected to a single
-	  controller. Currently Xilinx Zynq qspi supports this.
-
 config SPI_FLASH_ATMEL
 	bool "Atmel SPI flash support"
 	help
