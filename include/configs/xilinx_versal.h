@@ -50,20 +50,6 @@
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x1800000
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define CONFIG_THOR_RESET_OFF
-#define DFU_ALT_INFO_RAM \
-	"dfu_ram_info=" \
-	"setenv dfu_alt_info " \
-	"Image ram 80000 $kernel_size_r\\\\;" \
-	"system.dtb ram $fdt_addr_r $fdt_size_r\0" \
-	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
-	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
-
-#define DFU_ALT_INFO  \
-		DFU_ALT_INFO_RAM
-#endif
-
-#if !defined(DFU_ALT_INFO)
-# define DFU_ALT_INFO
 #endif
 
 /* Ethernet driver */
@@ -129,23 +115,40 @@
 #define BOOTENV_DEV_NAME_JTAG(devtypeu, devtypel, instance) \
 	"jtag "
 
-#define BOOT_TARGET_DEVICES_DFU_USB(func)  func(DFU_USB, dfu_usb, 0)
+#define BOOT_TARGET_DEVICES_USB_DFU(func) \
+	func(USB_DFU, usb_dfu, 0) func(USB_DFU, usb_dfu, 1)
 
-#define BOOTENV_DEV_DFU_USB(devtypeu, devtypel, instance) \
-	"bootcmd_dfu_usb=setenv dfu_alt_info boot.scr ram $scriptaddr " \
-	"$script_size_f; dfu 0 ram 0 && " \
-	"echo DFU: Trying to boot script at ${scriptaddr} && " \
+#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
+	"$scriptaddr $script_size_f && " \
+	"dfu " #instance " ram " #instance " 60 && " \
+	"echo DFU" #instance ": Trying to boot script at ${scriptaddr} && " \
 	"source ${scriptaddr}; " \
-	"echo DFU: SCRIPT FAILED: continuing...;\0"
+	"echo DFU" #instance ": SCRIPT FAILED: continuing...;\0"
 
-#define BOOTENV_DEV_NAME_DFU_USB(devtypeu, devtypel, instance) \
-	"dfu_usb "
+#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance) \
+	""
+
+#define BOOT_TARGET_DEVICES_USB_THOR(func) \
+	func(USB_THOR, usb_thor, 0) func(USB_THOR, usb_thor, 1)
+
+#define BOOTENV_DEV_USB_THOR(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
+	"$scriptaddr $script_size_f && " \
+	"thordown " #instance " ram " #instance " && " \
+	"echo THOR" #instance ": Trying to boot script at ${scriptaddr} && " \
+	"source ${scriptaddr}; " \
+	"echo THOR" #instance ": SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_USB_THOR(devtypeu, devtypel, instance) \
+	""
 
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_JTAG(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_XSPI(func) \
-	BOOT_TARGET_DEVICES_DFU_USB(func) \
+	BOOT_TARGET_DEVICES_USB_DFU(func) \
+	BOOT_TARGET_DEVICES_USB_THOR(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
 	BOOT_TARGET_DEVICES_DHCP(func)
 
@@ -155,8 +158,7 @@
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
-	BOOTENV \
-	DFU_ALT_INFO
+	BOOTENV
 #endif
 
 #endif /* __XILINX_VERSAL_H */
