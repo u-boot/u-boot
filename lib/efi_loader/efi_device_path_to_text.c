@@ -126,8 +126,10 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		switch (uart->stop_bits) {
 		case 2:
 			s += sprintf(s, "1.5)");
+			break;
 		default:
 			s += sprintf(s, "%d)", uart->stop_bits);
+			break;
 		}
 		break;
 	}
