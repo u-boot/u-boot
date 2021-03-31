@@ -94,14 +94,8 @@ static const unsigned phy_bases[] = {
 #endif
 };
 
-static void usb_internal_phy_clock_gate(int index, int on)
+static void usb_internal_phy_clock_gate(void __iomem *phy_reg, int on)
 {
-	void __iomem *phy_reg;
-
-	if (index >= ARRAY_SIZE(phy_bases))
-		return;
-
-	phy_reg = (void __iomem *)phy_bases[index];
 	phy_reg += on ? USBPHY_CTRL_CLR : USBPHY_CTRL_SET;
 	writel(USBPHY_CTRL_CLKGATE, phy_reg);
 }
@@ -166,17 +160,12 @@ static void usb_power_config(int index)
 }
 
 /* Return 0 : host node, <>0 : device mode */
-static int usb_phy_enable(int index, struct usb_ehci *ehci)
+static int usb_phy_enable(struct usb_ehci *ehci, void __iomem *phy_reg)
 {
-	void __iomem *phy_reg;
 	void __iomem *phy_ctrl;
 	void __iomem *usb_cmd;
 	int ret;
 
-	if (index >= ARRAY_SIZE(phy_bases))
-		return 0;
-
-	phy_reg = (void __iomem *)phy_bases[index];
 	phy_ctrl = (void __iomem *)(phy_reg + USBPHY_CTRL);
 	usb_cmd = (void __iomem *)&ehci->usbcmd;
 
@@ -368,8 +357,10 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	usb_oc_config(index);
 
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
-	usb_internal_phy_clock_gate(index, 1);
-	usb_phy_enable(index, ehci);
+	if (index < ARRAY_SIZE(phy_bases)) {
+		usb_internal_phy_clock_gate((void __iomem *)phy_bases[index], 1);
+		usb_phy_enable(ehci, (void __iomem *)phy_bases[index]);
+	}
 #endif
 
 	type = board_usb_phy_mode(index);
@@ -423,8 +414,8 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 	usb_oc_config(priv->portnr);
 
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
-	usb_internal_phy_clock_gate(priv->portnr, 1);
-	usb_phy_enable(priv->portnr, ehci);
+	usb_internal_phy_clock_gate(priv->phy_addr, 1);
+	usb_phy_enable(ehci, priv->phy_addr);
 #endif
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
@@ -668,8 +659,8 @@ static int ehci_usb_probe(struct udevice *dev)
 	usb_oc_config(priv->portnr);
 
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
-	usb_internal_phy_clock_gate(priv->portnr, 1);
-	usb_phy_enable(priv->portnr, ehci);
+	usb_internal_phy_clock_gate(priv->phy_addr, 1);
+	usb_phy_enable(ehci, priv->phy_addr);
 #endif
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
