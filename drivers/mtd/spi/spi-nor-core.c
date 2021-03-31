@@ -806,7 +806,8 @@ static int read_bar(struct spi_nor *nor, const struct flash_info *info)
 #endif
 
 /*
- * Initiate the erasure of a single sector
+ * Initiate the erasure of a single sector. Returns the number of bytes erased
+ * on success, a negative error code on error.
  */
 static int spi_nor_erase_sector(struct spi_nor *nor, u32 addr)
 {
@@ -815,6 +816,7 @@ static int spi_nor_erase_sector(struct spi_nor *nor, u32 addr)
 			   SPI_MEM_OP_ADDR(nor->addr_width, addr, 0),
 			   SPI_MEM_OP_NO_DUMMY,
 			   SPI_MEM_OP_NO_DATA);
+	int ret;
 
 	spi_nor_setup_op(nor, &op, nor->write_proto);
 
@@ -825,7 +827,11 @@ static int spi_nor_erase_sector(struct spi_nor *nor, u32 addr)
 	 * Default implementation, if driver doesn't have a specialized HW
 	 * control
 	 */
-	return spi_mem_exec_op(nor->spi, &op);
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		return ret;
+
+	return nor->mtd.erasesize;
 }
 
 /*
@@ -861,11 +867,11 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 		write_enable(nor);
 
 		ret = spi_nor_erase_sector(nor, addr);
-		if (ret)
+		if (ret < 0)
 			goto erase_err;
 
-		addr += mtd->erasesize;
-		len -= mtd->erasesize;
+		addr += ret;
+		len -= ret;
 
 		ret = spi_nor_wait_till_ready(nor);
 		if (ret)
