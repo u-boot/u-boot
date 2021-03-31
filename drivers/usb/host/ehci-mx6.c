@@ -68,6 +68,24 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UCMD_RUN_STOP           (1 << 0) /* controller run/stop */
 #define UCMD_RESET		(1 << 1) /* controller reset */
 
+/* Base address for this IP block is 0x02184800 */
+struct usbnc_regs {
+	u32 ctrl[4]; /* otg/host1-3 */
+	u32 uh2_hsic_ctrl;
+	u32 uh3_hsic_ctrl;
+	u32 otg_phy_ctrl_0;
+	u32 uh1_phy_ctrl_0;
+	u32 reserve1[4];
+	u32 phy_cfg1;
+	u32 phy_cfg2;
+	u32 reserve2;
+	u32 phy_status;
+	u32 reserve3[4];
+	u32 adp_cfg1;
+	u32 adp_cfg2;
+	u32 adp_status;
+};
+
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
 static const unsigned phy_bases[] = {
 	USB_PHY0_BASE_ADDR,
@@ -207,39 +225,7 @@ int usb_phy_mode(int port)
 		return USB_INIT_HOST;
 }
 
-#if defined(CONFIG_MX7ULP)
-struct usbnc_regs {
-	u32 ctrl1;
-	u32 ctrl2;
-	u32 reserve0[2];
-	u32 hsic_ctrl;
-};
-#else
-/* Base address for this IP block is 0x02184800 */
-struct usbnc_regs {
-	u32	ctrl[4];	/* otg/host1-3 */
-	u32	uh2_hsic_ctrl;
-	u32	uh3_hsic_ctrl;
-	u32	otg_phy_ctrl_0;
-	u32	uh1_phy_ctrl_0;
-};
-#endif
-
 #elif defined(CONFIG_MX7)
-struct usbnc_regs {
-	u32 ctrl1;
-	u32 ctrl2;
-	u32 reserve1[10];
-	u32 phy_cfg1;
-	u32 phy_cfg2;
-	u32 reserve2;
-	u32 phy_status;
-	u32 reserve3[4];
-	u32 adp_cfg1;
-	u32 adp_cfg2;
-	u32 adp_status;
-};
-
 static void usb_power_config(int index)
 {
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
@@ -274,12 +260,11 @@ static void usb_oc_config(int index)
 #if defined(CONFIG_MX6)
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
 			USB_OTHERREGS_OFFSET);
-	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
 #elif defined(CONFIG_MX7) || defined(CONFIG_MX7ULP)
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
 			(0x10000 * index) + USBNC_OFFSET);
-	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl1);
 #endif
+	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
 
 #if CONFIG_MACH_TYPE == MACH_TYPE_MX6Q_ARM2
 	/* mx6qarm2 seems to required a different setting*/
