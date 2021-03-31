@@ -86,43 +86,18 @@ struct usbnc_regs {
 	u32 adp_status;
 };
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
-static const unsigned phy_bases[] = {
-	USB_PHY0_BASE_ADDR,
-#if defined(USB_PHY1_BASE_ADDR)
-	USB_PHY1_BASE_ADDR,
-#endif
-};
-
-static void usb_internal_phy_clock_gate(void __iomem *phy_reg, int on)
+#if defined(CONFIG_MX6) && !defined(CONFIG_PHY)
+static void usb_power_config_mx6(struct anatop_regs __iomem *anatop,
+				 int anatop_bits_index)
 {
-	phy_reg += on ? USBPHY_CTRL_CLR : USBPHY_CTRL_SET;
-	writel(USBPHY_CTRL_CLKGATE, phy_reg);
-}
-
-static void usb_power_config(int index)
-{
-#if defined(CONFIG_MX7ULP)
-	struct usbphy_regs __iomem *usbphy =
-		(struct usbphy_regs __iomem *)USB_PHY0_BASE_ADDR;
-
-	if (index > 0)
-		return;
-
-	writel(ANADIG_USB2_CHRG_DETECT_EN_B |
-		   ANADIG_USB2_CHRG_DETECT_CHK_CHRG_B,
-		   &usbphy->usb1_chrg_detect);
-
-	scg_enable_usb_pll(true);
-
-#else
-	struct anatop_regs __iomem *anatop =
-		(struct anatop_regs __iomem *)ANATOP_BASE_ADDR;
 	void __iomem *chrg_detect;
 	void __iomem *pll_480_ctrl_clr;
 	void __iomem *pll_480_ctrl_set;
 
-	switch (index) {
+	if (!is_mx6())
+		return;
+
+	switch (anatop_bits_index) {
 	case 0:
 		chrg_detect = &anatop->usb1_chrg_detect;
 		pll_480_ctrl_clr = &anatop->usb1_pll_480_ctrl_clr;
@@ -155,8 +130,61 @@ static void usb_power_config(int index)
 		     ANADIG_USB2_PLL_480_CTRL_POWER |
 		     ANADIG_USB2_PLL_480_CTRL_EN_USB_CLKS,
 		     pll_480_ctrl_set);
-
+}
+#else
+static void __maybe_unused
+usb_power_config_mx6(void *anatop, int anatop_bits_index) { }
 #endif
+
+#if defined(CONFIG_MX7) && !defined(CONFIG_PHY)
+static void usb_power_config_mx7(struct usbnc_regs *usbnc)
+{
+	void __iomem *phy_cfg2 = (void __iomem *)(&usbnc->phy_cfg2);
+
+	if (!is_mx7())
+		return;
+
+	/*
+	 * Clear the ACAENB to enable usb_otg_id detection,
+	 * otherwise it is the ACA detection enabled.
+	 */
+	clrbits_le32(phy_cfg2, USBNC_PHYCFG2_ACAENB);
+}
+#else
+static void __maybe_unused
+usb_power_config_mx7(void *usbnc) { }
+#endif
+
+#if defined(CONFIG_MX7ULP) && !defined(CONFIG_PHY)
+static void usb_power_config_mx7ulp(struct usbphy_regs __iomem *usbphy)
+{
+	if (!is_mx7ulp())
+		return;
+
+	writel(ANADIG_USB2_CHRG_DETECT_EN_B |
+	       ANADIG_USB2_CHRG_DETECT_CHK_CHRG_B,
+	       &usbphy->usb1_chrg_detect);
+
+	scg_enable_usb_pll(true);
+}
+#else
+static void __maybe_unused
+usb_power_config_mx7ulp(void *usbphy) { }
+#endif
+
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+static const unsigned phy_bases[] = {
+	USB_PHY0_BASE_ADDR,
+#if defined(USB_PHY1_BASE_ADDR)
+	USB_PHY1_BASE_ADDR,
+#endif
+};
+
+#if !defined(CONFIG_PHY)
+static void usb_internal_phy_clock_gate(void __iomem *phy_reg, int on)
+{
+	phy_reg += on ? USBPHY_CTRL_CLR : USBPHY_CTRL_SET;
+	writel(USBPHY_CTRL_CLKGATE, phy_reg);
 }
 
 /* Return 0 : host node, <>0 : device mode */
@@ -196,6 +224,7 @@ static int usb_phy_enable(struct usb_ehci *ehci, void __iomem *phy_reg)
 
 	return 0;
 }
+#endif
 
 int usb_phy_mode(int port)
 {
@@ -215,19 +244,6 @@ int usb_phy_mode(int port)
 }
 
 #elif defined(CONFIG_MX7)
-static void usb_power_config(int index)
-{
-	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
-			(0x10000 * index) + USBNC_OFFSET);
-	void __iomem *phy_cfg2 = (void __iomem *)(&usbnc->phy_cfg2);
-
-	/*
-	 * Clear the ACAENB to enable usb_otg_id detection,
-	 * otherwise it is the ACA detection enabled.
-	 */
-	clrbits_le32(phy_cfg2, USBNC_PHYCFG2_ACAENB);
-}
-
 int usb_phy_mode(int port)
 {
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
@@ -325,8 +341,16 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	enum usb_init_type type;
 #if defined(CONFIG_MX6)
 	u32 controller_spacing = 0x200;
-#elif defined(CONFIG_MX7) || defined(CONFIG_MX7ULP)
+	struct anatop_regs __iomem *anatop =
+		(struct anatop_regs __iomem *)ANATOP_BASE_ADDR;
+#elif defined(CONFIG_MX7)
 	u32 controller_spacing = 0x10000;
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+			(0x10000 * index) + USBNC_OFFSET);
+#elif defined(CONFIG_MX7ULP)
+	u32 controller_spacing = 0x10000;
+	struct usbphy_regs __iomem *usbphy =
+		(struct usbphy_regs __iomem *)USB_PHY0_BASE_ADDR;
 #endif
 	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
 		(controller_spacing * index));
@@ -353,7 +377,14 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		return ret;
 	}
 
-	usb_power_config(index);
+#if defined(CONFIG_MX6)
+	usb_power_config_mx6(anatop, index);
+#elif defined (CONFIG_MX7)
+	usb_power_config_mx7(usbnc);
+#elif defined (CONFIG_MX7ULP)
+	usb_power_config_mx7ulp(usbphy);
+#endif
+
 	usb_oc_config(index);
 
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
@@ -410,10 +441,15 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 	enum usb_init_type type = priv->init_type;
 	struct usb_ehci *ehci = priv->ehci;
 
-	usb_power_config(priv->portnr);
+#if !defined(CONFIG_PHY)
+	usb_power_config_mx6(priv->anatop_addr, priv->portnr);
+	usb_power_config_mx7(priv->misc_addr);
+	usb_power_config_mx7ulp(priv->phy_addr);
+#endif
+
 	usb_oc_config(priv->portnr);
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+#if !defined(CONFIG_PHY) && (defined(CONFIG_MX6) || defined(CONFIG_MX7ULP))
 	usb_internal_phy_clock_gate(priv->phy_addr, 1);
 	usb_phy_enable(ehci, priv->phy_addr);
 #endif
@@ -655,10 +691,15 @@ static int ehci_usb_probe(struct udevice *dev)
 		debug("%s: No vbus supply\n", dev->name);
 #endif
 
-	usb_power_config(priv->portnr);
+#if !defined(CONFIG_PHY)
+	usb_power_config_mx6(priv->anatop_addr, priv->portnr);
+	usb_power_config_mx7(priv->misc_addr);
+	usb_power_config_mx7ulp(priv->phy_addr);
+#endif
+
 	usb_oc_config(priv->portnr);
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+#if !defined(CONFIG_PHY) && (defined(CONFIG_MX6) || defined(CONFIG_MX7ULP))
 	usb_internal_phy_clock_gate(priv->phy_addr, 1);
 	usb_phy_enable(ehci, priv->phy_addr);
 #endif
