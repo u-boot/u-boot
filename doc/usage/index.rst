@@ -40,3 +40,4 @@ Shell commands
    sbi
    true
    scp03
+   reset
