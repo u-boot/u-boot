@@ -417,6 +417,9 @@ struct ehci_mx6_priv_data {
 	struct clk clk;
 	enum usb_init_type init_type;
 	int portnr;
+	void __iomem *phy_addr;
+	void __iomem *misc_addr;
+	void __iomem *anatop_addr;
 };
 
 static int mx6_init_after_reset(struct ehci_ctrl *dev)
@@ -571,6 +574,54 @@ static int ehci_usb_bind(struct udevice *dev)
 	return 0;
 }
 
+static int mx6_parse_dt_addrs(struct udevice *dev)
+{
+	struct ehci_mx6_priv_data *priv = dev_get_priv(dev);
+	int phy_off, misc_off;
+	const void *blob = gd->fdt_blob;
+	int offset = dev_of_offset(dev);
+	void *__iomem addr;
+
+	phy_off = fdtdec_lookup_phandle(blob, offset, "fsl,usbphy");
+	if (phy_off < 0) {
+		phy_off = fdtdec_lookup_phandle(blob, offset, "phys");
+		if (phy_off < 0)
+			return -EINVAL;
+	}
+
+	misc_off = fdtdec_lookup_phandle(blob, offset, "fsl,usbmisc");
+	if (misc_off < 0)
+		return -EINVAL;
+
+	addr = (void __iomem *)fdtdec_get_addr(blob, phy_off, "reg");
+	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	priv->phy_addr = addr;
+
+	addr = (void __iomem *)fdtdec_get_addr(blob, misc_off, "reg");
+	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	priv->misc_addr = addr;
+
+#if !defined(CONFIG_PHY) && defined(CONFIG_MX6)
+	int anatop_off;
+
+	/* Resolve ANATOP offset through USB PHY node */
+	anatop_off = fdtdec_lookup_phandle(blob, phy_off, "fsl,anatop");
+	if (anatop_off < 0)
+		return -EINVAL;
+
+	addr = (void __iomem *)fdtdec_get_addr(blob, anatop_off, "reg");
+	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	priv->anatop_addr = addr;
+#endif
+	return 0;
+}
+
 static int ehci_usb_probe(struct udevice *dev)
 {
 	struct usb_plat *plat = dev_get_plat(dev);
@@ -588,6 +639,10 @@ static int ehci_usb_probe(struct udevice *dev)
 			return -ENODEV;
 		}
 	}
+
+	ret = mx6_parse_dt_addrs(dev);
+	if (ret)
+		return ret;
 
 	priv->ehci = ehci;
 	priv->portnr = dev_seq(dev);
