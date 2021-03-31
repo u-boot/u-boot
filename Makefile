@@ -1027,7 +1027,7 @@ expect = $(foreach cfg,$(1),y)
 # Note: Script avoids bash construct, hence the strange double 'if'
 # (patches welcome!)
 define deprecated
-	if [ -n "$(strip $(4))" ]; then if [ "$(got)" != "$(expect)" ]; then \
+	@if [ -n "$(strip $(4))" ]; then if [ "$(got)" != "$(expect)" ]; then \
 		echo >&2 "===================== WARNING ======================"; \
 		echo >&2 "This board does not use $(firstword $(1)) (Driver Model"; \
 		echo >&2 "for $(2)). Please update the board to use"; \
