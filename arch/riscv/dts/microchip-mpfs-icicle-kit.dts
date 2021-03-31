@@ -232,7 +232,6 @@
 			reg-shift = <2>;
 			interrupt-parent = <&plic>;
 			interrupts = <90>;
-			clock-frequency = <150000000>;
 			clocks = <&clkcfg CLK_MMUART0>;
 			status = "okay";
 		};
@@ -294,7 +293,6 @@
 			reg-shift = <2>;
 			interrupt-parent = <&plic>;
 			interrupts = <91>;
-			clock-frequency = <150000000>;
 			clocks = <&clkcfg CLK_MMUART1>;
 			status = "okay";
 		};
@@ -305,7 +303,6 @@
 			reg-shift = <2>;
 			interrupt-parent = <&plic>;
 			interrupts = <92>;
-			clock-frequency = <150000000>;
 			clocks = <&clkcfg CLK_MMUART2>;
 			status = "okay";
 		};
@@ -316,7 +313,6 @@
 			reg-shift = <2>;
 			interrupt-parent = <&plic>;
 			interrupts = <93>;
-			clock-frequency = <150000000>;
 			clocks = <&clkcfg CLK_MMUART3>;
 			status = "okay";
 		};
