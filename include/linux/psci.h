@@ -118,6 +118,9 @@
 #ifdef CONFIG_ARM_PSCI_FW
 unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
 			     unsigned long a2, unsigned long a3);
+void psci_sys_reset(u32 type);
+void psci_sys_poweroff(void);
+
 #else
 static inline unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
 					   unsigned long a2, unsigned long a3)
