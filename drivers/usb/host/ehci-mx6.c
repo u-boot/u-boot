@@ -640,7 +640,32 @@ static int ehci_usb_probe(struct udevice *dev)
 	hcor = (struct ehci_hcor *)((uint32_t)hccr +
 			HC_LENGTH(ehci_readl(&(hccr)->cr_capbase)));
 
-	return ehci_register(dev, hccr, hcor, &mx6_ehci_ops, 0, priv->init_type);
+	ret = ehci_register(dev, hccr, hcor, &mx6_ehci_ops, 0, priv->init_type);
+	if (ret)
+		goto err_regulator;
+
+	return ret;
+
+err_regulator:
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+	if (priv->vbus_supply)
+		regulator_set_enable(priv->vbus_supply, false);
+#endif
+	return ret;
+}
+
+int ehci_usb_remove(struct udevice *dev)
+{
+	struct ehci_mx6_priv_data *priv __maybe_unused = dev_get_priv(dev);
+
+	ehci_deregister(dev);
+
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+	if (priv->vbus_supply)
+		regulator_set_enable(priv->vbus_supply, false);
+#endif
+
+	return 0;
 }
 
 static const struct udevice_id mx6_usb_ids[] = {
@@ -655,7 +680,7 @@ U_BOOT_DRIVER(usb_mx6) = {
 	.of_to_plat = ehci_usb_of_to_plat,
 	.bind	= ehci_usb_bind,
 	.probe	= ehci_usb_probe,
-	.remove = ehci_deregister,
+	.remove = ehci_usb_remove,
 	.ops	= &ehci_usb_ops,
 	.plat_auto	= sizeof(struct usb_plat),
 	.priv_auto	= sizeof(struct ehci_mx6_priv_data),
