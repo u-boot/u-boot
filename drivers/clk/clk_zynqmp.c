@@ -97,8 +97,7 @@ static const resource_size_t zynqmp_crl_apb_clkc_base = 0xff5e0020;
 #define CLK_CTRL_DIV1_MASK	(ZYNQ_CLK_MAXDIV << CLK_CTRL_DIV1_SHIFT)
 #define CLK_CTRL_DIV0_SHIFT	8
 #define CLK_CTRL_DIV0_MASK	(ZYNQ_CLK_MAXDIV << CLK_CTRL_DIV0_SHIFT)
-#define CLK_CTRL_SRCSEL_SHIFT	0
-#define CLK_CTRL_SRCSEL_MASK	(0x3 << CLK_CTRL_SRCSEL_SHIFT)
+#define CLK_CTRL_SRCSEL_MASK	0x7
 #define PLLCTRL_FBDIV_MASK	0x7f00
 #define PLLCTRL_FBDIV_SHIFT	8
 #define PLLCTRL_RESET_MASK	1
@@ -132,7 +131,7 @@ enum zynqmp_clk {
 	iou_switch,
 	gem_tsu_ref, gem_tsu,
 	gem0_ref, gem1_ref, gem2_ref, gem3_ref,
-	gem0_rx, gem1_rx, gem2_rx, gem3_rx,
+	gem0_tx, gem1_tx, gem2_tx, gem3_tx,
 	qspi_ref,
 	sdio0_ref, sdio1_ref,
 	uart0_ref, uart1_ref,
@@ -152,7 +151,7 @@ static const char * const clk_names[clk_max] = {
 	"iopll", "rpll", "apll", "dpll",
 	"vpll", "iopll_to_fpd", "rpll_to_fpd",
 	"apll_to_lpd", "dpll_to_lpd", "vpll_to_lpd",
-	"acpu", "acpu_half", "dbf_fpd", "dbf_lpd",
+	"acpu", "acpu_half", "dbg_fpd", "dbg_lpd",
 	"dbg_trace", "dbg_tstmp", "dp_video_ref",
 	"dp_audio_ref", "dp_stc_ref", "gdma_ref",
 	"dpdma_ref", "ddr_ref", "sata_ref", "pcie_ref",
@@ -170,6 +169,38 @@ static const char * const clk_names[clk_max] = {
 	"can0_ref", "can1_ref", "can0", "can1",
 	"dll_ref", "adma_ref", "timestamp_ref",
 	"ams_ref", "pl0", "pl1", "pl2", "pl3", "wdt"
+};
+
+static const u32 pll_src[][4] = {
+	{apll, 0xff, dpll, vpll},		/* acpu */
+	{dpll, vpll, 0xff, 0xff},		/* ddr_ref */
+	{rpll, iopll, 0xff, 0xff},		/* dll_ref */
+	{iopll, 0xff, rpll, dpll_to_lpd},	/* gem_tsu_ref */
+	{iopll, 0xff, rpll, dpll},		/* peripheral */
+	{apll, 0xff, iopll_to_fpd, dpll},	/* wdt */
+	{iopll_to_fpd, 0xff, dpll, apll},	/* dbg_fpd */
+	{iopll, 0xff, rpll, dpll_to_lpd},	/* timestamp_ref */
+	{iopll_to_fpd, 0xff, apll, dpll},	/* sata_ref */
+	{iopll_to_fpd, 0xff, rpll_to_fpd, dpll},/* pcie_ref */
+	{iopll_to_fpd, 0xff, vpll, dpll},	/* gpu_ref */
+	{apll, 0xff, vpll, dpll},		/* topsw_main_ref */
+	{rpll, 0xff, iopll, dpll_to_lpd},	/* cpu_r5_ref */
+};
+
+enum zynqmp_clk_pll_src {
+	ACPU_CLK_SRC = 0,
+	DDR_CLK_SRC,
+	DLL_CLK_SRC,
+	GEM_TSU_CLK_SRC,
+	PERI_CLK_SRC,
+	WDT_CLK_SRC,
+	DBG_FPD_CLK_SRC,
+	TIMESTAMP_CLK_SRC,
+	SATA_CLK_SRC,
+	PCIE_CLK_SRC,
+	GPU_CLK_SRC,
+	TOPSW_MAIN_CLK_SRC,
+	CPU_R5_CLK_SRC
 };
 
 struct zynqmp_clk_priv {
@@ -195,12 +226,38 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		return CRF_APB_VPLL_CTRL;
 	case acpu:
 		return CRF_APB_ACPU_CTRL;
+	case dbg_fpd:
+		return CRF_APB_DBG_FPD_CTRL;
+	case dbg_trace:
+		return CRF_APB_DBG_TRACE_CTRL;
+	case dbg_tstmp:
+		return CRF_APB_DBG_TSTMP_CTRL;
+	case gpu_ref ...  gpu_pp1_ref:
+		return CRF_APB_GPU_REF_CTRL;
 	case ddr_ref:
 		return CRF_APB_DDR_CTRL;
+	case sata_ref:
+		return CRF_APB_SATA_REF_CTRL;
+	case pcie_ref:
+		return CRF_APB_PCIE_REF_CTRL;
+	case gdma_ref:
+		return CRF_APB_GDMA_REF_CTRL;
+	case dpdma_ref:
+		return CRF_APB_DPDMA_REF_CTRL;
+	case topsw_main:
+		return CRF_APB_TOPSW_MAIN_CTRL;
+	case topsw_lsbus:
+		return CRF_APB_TOPSW_LSBUS_CTRL;
+	case lpd_switch:
+		return CRL_APB_LPD_SWITCH_CTRL;
+	case lpd_lsbus:
+		return CRL_APB_LPD_LSBUS_CTRL;
 	case qspi_ref:
 		return CRL_APB_QSPI_REF_CTRL;
 	case usb3_dual_ref:
 		return CRL_APB_USB3_DUAL_REF_CTRL;
+	case gem_tsu_ref:
+		return CRL_APB_GEM_TSU_REF_CTRL;
 	case gem0_ref:
 		return CRL_APB_GEM0_REF_CTRL;
 	case gem1_ref:
@@ -213,6 +270,8 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		return CRL_APB_USB0_BUS_REF_CTRL;
 	case usb1_bus_ref:
 		return CRL_APB_USB1_BUS_REF_CTRL;
+	case cpu_r5:
+		return CRL_APB_CPU_R5_CTRL;
 	case uart0_ref:
 		return CRL_APB_UART0_REF_CTRL;
 	case uart1_ref:
@@ -235,6 +294,14 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		return CRL_APB_CAN0_REF_CTRL;
 	case can1_ref:
 		return CRL_APB_CAN1_REF_CTRL;
+	case dll_ref:
+		return CRL_APB_DLL_REF_CTRL;
+	case adma_ref:
+		return CRL_APB_ADMA_REF_CTRL;
+	case timestamp_ref:
+		return CRL_APB_TIMESTAMP_REF_CTRL;
+	case ams_ref:
+		return CRL_APB_AMS_REF_CTRL;
 	case pl0:
 		return CRL_APB_PL0_REF_CTRL;
 	case pl1:
@@ -251,68 +318,6 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		debug("Invalid clk id%d\n", id);
 	}
 	return 0;
-}
-
-static enum zynqmp_clk zynqmp_clk_get_cpu_pll(u32 clk_ctrl)
-{
-	u32 srcsel = (clk_ctrl & CLK_CTRL_SRCSEL_MASK) >>
-		      CLK_CTRL_SRCSEL_SHIFT;
-
-	switch (srcsel) {
-	case 2:
-		return dpll;
-	case 3:
-		return vpll;
-	case 0 ... 1:
-	default:
-		return apll;
-	}
-}
-
-static enum zynqmp_clk zynqmp_clk_get_ddr_pll(u32 clk_ctrl)
-{
-	u32 srcsel = (clk_ctrl & CLK_CTRL_SRCSEL_MASK) >>
-		      CLK_CTRL_SRCSEL_SHIFT;
-
-	switch (srcsel) {
-	case 1:
-		return vpll;
-	case 0:
-	default:
-		return dpll;
-	}
-}
-
-static enum zynqmp_clk zynqmp_clk_get_peripheral_pll(u32 clk_ctrl)
-{
-	u32 srcsel = (clk_ctrl & CLK_CTRL_SRCSEL_MASK) >>
-		      CLK_CTRL_SRCSEL_SHIFT;
-
-	switch (srcsel) {
-	case 2:
-		return rpll;
-	case 3:
-		return dpll;
-	case 0 ... 1:
-	default:
-		return iopll;
-	}
-}
-
-static enum zynqmp_clk zynqmp_clk_get_wdt_pll(u32 clk_ctrl)
-{
-	u32 srcsel = (clk_ctrl & CLK_CTRL_SRCSEL_MASK) >>
-		      CLK_CTRL_SRCSEL_SHIFT;
-
-	switch (srcsel) {
-	case 2:
-		return iopll_to_fpd;
-	case 3:
-		return dpll;
-	case 0 ... 1:
-	default:
-		return apll;
-	}
 }
 
 static ulong zynqmp_clk_get_pll_src(ulong clk_ctrl,
@@ -378,7 +383,7 @@ static ulong zynqmp_clk_get_pll_rate(struct zynqmp_clk_priv *priv,
 static ulong zynqmp_clk_get_cpu_rate(struct zynqmp_clk_priv *priv,
 				     enum zynqmp_clk id)
 {
-	u32 clk_ctrl, div;
+	u32 clk_ctrl, div, srcsel;
 	enum zynqmp_clk pll;
 	int ret;
 	unsigned long pllrate;
@@ -391,7 +396,8 @@ static ulong zynqmp_clk_get_cpu_rate(struct zynqmp_clk_priv *priv,
 
 	div = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
 
-	pll = zynqmp_clk_get_cpu_pll(clk_ctrl);
+	srcsel = clk_ctrl & CLK_CTRL_SRCSEL_MASK;
+	pll = pll_src[ACPU_CLK_SRC][srcsel];
 	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
 	if (IS_ERR_VALUE(pllrate))
 		return pllrate;
@@ -401,7 +407,7 @@ static ulong zynqmp_clk_get_cpu_rate(struct zynqmp_clk_priv *priv,
 
 static ulong zynqmp_clk_get_ddr_rate(struct zynqmp_clk_priv *priv)
 {
-	u32 clk_ctrl, div;
+	u32 clk_ctrl, div, srcsel;
 	enum zynqmp_clk pll;
 	int ret;
 	ulong pllrate;
@@ -414,7 +420,8 @@ static ulong zynqmp_clk_get_ddr_rate(struct zynqmp_clk_priv *priv)
 
 	div = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
 
-	pll = zynqmp_clk_get_ddr_pll(clk_ctrl);
+	srcsel = clk_ctrl & CLK_CTRL_SRCSEL_MASK;
+	pll = pll_src[DDR_CLK_SRC][srcsel];
 	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
 	if (IS_ERR_VALUE(pllrate))
 		return pllrate;
@@ -422,11 +429,33 @@ static ulong zynqmp_clk_get_ddr_rate(struct zynqmp_clk_priv *priv)
 	return DIV_ROUND_CLOSEST(pllrate, div);
 }
 
+static ulong zynqmp_clk_get_dll_rate(struct zynqmp_clk_priv *priv)
+{
+	u32 clk_ctrl, srcsel;
+	enum zynqmp_clk pll;
+	ulong pllrate;
+	int ret;
+
+	ret = zynqmp_mmio_read(CRL_APB_DLL_REF_CTRL, &clk_ctrl);
+	if (ret) {
+		printf("%s mio read fail\n", __func__);
+		return -EIO;
+	}
+
+	srcsel = clk_ctrl & CLK_CTRL_SRCSEL_MASK;
+	pll = pll_src[DLL_CLK_SRC][srcsel];
+	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
+	if (IS_ERR_VALUE(pllrate))
+		return pllrate;
+
+	return pllrate;
+}
+
 static ulong zynqmp_clk_get_peripheral_rate(struct zynqmp_clk_priv *priv,
-					  enum zynqmp_clk id, bool two_divs)
+					    enum zynqmp_clk id, bool two_divs)
 {
 	enum zynqmp_clk pll;
-	u32 clk_ctrl, div0;
+	u32 clk_ctrl, div0, srcsel;
 	u32 div1 = 1;
 	int ret;
 	ulong pllrate;
@@ -446,8 +475,13 @@ static ulong zynqmp_clk_get_peripheral_rate(struct zynqmp_clk_priv *priv,
 		if (!div1)
 			div1 = 1;
 	}
+	srcsel = clk_ctrl & CLK_CTRL_SRCSEL_MASK;
 
-	pll = zynqmp_clk_get_peripheral_pll(clk_ctrl);
+	if (id == gem_tsu_ref)
+		pll = pll_src[GEM_TSU_CLK_SRC][srcsel];
+	else
+		pll = pll_src[PERI_CLK_SRC][srcsel];
+
 	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
 	if (IS_ERR_VALUE(pllrate))
 		return pllrate;
@@ -457,11 +491,11 @@ static ulong zynqmp_clk_get_peripheral_rate(struct zynqmp_clk_priv *priv,
 			DIV_ROUND_CLOSEST(pllrate, div0), div1);
 }
 
-static ulong zynqmp_clk_get_wdt_rate(struct zynqmp_clk_priv *priv,
-				     enum zynqmp_clk id, bool two_divs)
+static ulong zynqmp_clk_get_crf_crl_rate(struct zynqmp_clk_priv *priv,
+					 enum zynqmp_clk id, bool two_divs)
 {
 	enum zynqmp_clk pll;
-	u32 clk_ctrl, div0;
+	u32 clk_ctrl, div0, srcsel;
 	u32 div1 = 1;
 	int ret;
 	ulong pllrate;
@@ -475,8 +509,45 @@ static ulong zynqmp_clk_get_wdt_rate(struct zynqmp_clk_priv *priv,
 	div0 = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
 	if (!div0)
 		div0 = 1;
+	srcsel = clk_ctrl & CLK_CTRL_SRCSEL_MASK;
 
-	pll = zynqmp_clk_get_wdt_pll(clk_ctrl);
+	switch (id) {
+	case wdt:
+	case dbg_trace:
+	case topsw_lsbus:
+		pll = pll_src[WDT_CLK_SRC][srcsel];
+		break;
+	case dbg_fpd:
+	case dbg_tstmp:
+		pll = pll_src[DBG_FPD_CLK_SRC][srcsel];
+		break;
+	case timestamp_ref:
+		pll = pll_src[TIMESTAMP_CLK_SRC][srcsel];
+		break;
+	case sata_ref:
+		pll = pll_src[SATA_CLK_SRC][srcsel];
+		break;
+	case pcie_ref:
+		pll = pll_src[PCIE_CLK_SRC][srcsel];
+		break;
+	case gpu_ref ... gpu_pp1_ref:
+		pll = pll_src[GPU_CLK_SRC][srcsel];
+		break;
+	case gdma_ref:
+	case dpdma_ref:
+	case topsw_main:
+		pll = pll_src[TOPSW_MAIN_CLK_SRC][srcsel];
+		break;
+	case cpu_r5:
+	case ams_ref:
+	case adma_ref:
+	case lpd_lsbus:
+	case lpd_switch:
+		pll = pll_src[CPU_R5_CLK_SRC][srcsel];
+		break;
+	default:
+		return -ENXIO;
+	}
 	if (two_divs) {
 		ret = zynqmp_mmio_read(zynqmp_clk_get_register(pll), &clk_ctrl);
 		if (ret) {
@@ -533,7 +604,7 @@ static ulong zynqmp_clk_set_peripheral_rate(struct zynqmp_clk_priv *priv,
 	enum zynqmp_clk pll;
 	u32 clk_ctrl, div0 = 0, div1 = 0;
 	ulong pll_rate, new_rate;
-	u32 reg;
+	u32 reg, srcsel;
 	int ret;
 	u32 mask;
 
@@ -544,7 +615,8 @@ static ulong zynqmp_clk_set_peripheral_rate(struct zynqmp_clk_priv *priv,
 		return -EIO;
 	}
 
-	pll = zynqmp_clk_get_peripheral_pll(clk_ctrl);
+	srcsel = clk_ctrl & CLK_CTRL_SRCSEL_MASK;
+	pll = pll_src[PERI_CLK_SRC][srcsel];
 	pll_rate = zynqmp_clk_get_pll_rate(priv, pll);
 	if (IS_ERR_VALUE(pll_rate))
 		return pll_rate;
@@ -588,14 +660,31 @@ static ulong zynqmp_clk_get_rate(struct clk *clk)
 		return zynqmp_clk_get_cpu_rate(priv, id);
 	case ddr_ref:
 		return zynqmp_clk_get_ddr_rate(priv);
+	case dll_ref:
+		return zynqmp_clk_get_dll_rate(priv);
+	case gem_tsu_ref:
+	case pl0 ... pl3:
 	case gem0_ref ... gem3_ref:
 	case qspi_ref ... can1_ref:
-	case pl0 ... pl3:
+	case usb0_bus_ref ... usb3_dual_ref:
 		two_divs = true;
 		return zynqmp_clk_get_peripheral_rate(priv, id, two_divs);
 	case wdt:
+	case topsw_lsbus:
+	case sata_ref ... gpu_pp1_ref:
 		two_divs = true;
-		return zynqmp_clk_get_wdt_rate(priv, id, two_divs);
+	case cpu_r5:
+	case dbg_fpd:
+	case ams_ref:
+	case adma_ref:
+	case lpd_lsbus:
+	case dbg_trace:
+	case dbg_tstmp:
+	case lpd_switch:
+	case topsw_main:
+	case timestamp_ref:
+	case gdma_ref ... dpdma_ref:
+		return zynqmp_clk_get_crf_crl_rate(priv, id, two_divs);
 	default:
 		return -ENXIO;
 	}

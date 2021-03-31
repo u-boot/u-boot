@@ -78,8 +78,6 @@
 	ceva,p1-comwake-params = /bits/ 8 <0x06 0x14 0x08 0x0E>;
 	ceva,p1-burst-params = /bits/ 8 <0x13 0x08 0x4A 0x06>;
 	ceva,p1-retry-params = /bits/ 16 <0x96A4 0x3FFC>;
-	phy-names = "sata-phy";
-	phys = <&lane0 PHY_TYPE_SATA 0 0 125000000>, <&lane1 PHY_TYPE_SATA 1 1 125000000>;
 };
 
 &uart0 {

@@ -454,14 +454,6 @@ static int zynq_gem_init(struct udevice *dev)
 	    priv->int_pcs) {
 		nwconfig |= ZYNQ_GEM_NWCFG_SGMII_ENBL |
 			    ZYNQ_GEM_NWCFG_PCS_SEL;
-#ifdef CONFIG_ARM64
-	if (priv->phydev->phy_id != PHY_FIXED_ID)
-		writel(readl(&regs->pcscntrl) | ZYNQ_GEM_PCS_CTL_ANEG_ENBL,
-		       &regs->pcscntrl);
-	else
-		writel(readl(&regs->pcscntrl) & ~ZYNQ_GEM_PCS_CTL_ANEG_ENBL,
-		       &regs->pcscntrl);
-#endif
 	}
 
 	switch (priv->phydev->speed) {
@@ -479,6 +471,23 @@ static int zynq_gem_init(struct udevice *dev)
 		clk_rate = ZYNQ_GEM_FREQUENCY_10;
 		break;
 	}
+
+#ifdef CONFIG_ARM64
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII &&
+	    priv->int_pcs) {
+		/*
+		 * Disable AN for fixed link configuration, enable otherwise.
+		 * Must be written after PCS_SEL is set in nwconfig,
+		 * otherwise writes will not take effect.
+		 */
+		if (priv->phydev->phy_id != PHY_FIXED_ID)
+			writel(readl(&regs->pcscntrl) | ZYNQ_GEM_PCS_CTL_ANEG_ENBL,
+			       &regs->pcscntrl);
+		else
+			writel(readl(&regs->pcscntrl) & ~ZYNQ_GEM_PCS_CTL_ANEG_ENBL,
+			       &regs->pcscntrl);
+	}
+#endif
 
 	ret = clk_set_rate(&priv->tx_clk, clk_rate);
 	if (IS_ERR_VALUE(ret)) {

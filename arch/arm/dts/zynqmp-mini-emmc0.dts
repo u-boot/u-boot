@@ -51,6 +51,8 @@
 			u-boot,dm-pre-reloc;
 			compatible = "xlnx,zynqmp-8.9a", "arasan,sdhci-8.9a";
 			status = "disabled";
+			non-removable;
+			bus-width = <8>;
 			reg = <0x0 0xff160000 0x0 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
 			clocks = <&clk_xin &clk_xin>;
