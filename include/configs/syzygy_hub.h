@@ -58,7 +58,6 @@
 	"jtagboot=echo TFTPing FIT to RAM... && " \
 		"tftpboot ${load_addr} ${fit_image} && " \
 		"bootm ${load_addr}\0" \
-		DFU_ALT_INFO \
 		BOOTENV
 
 #include <configs/zynq-common.h>

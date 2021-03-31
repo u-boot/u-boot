@@ -49,7 +49,6 @@
 			"${devicetree_addr}; " \
 	"fi\0"
   /* Note that addresses here should match the addresses in the env */
-# undef DFU_ALT_INFO
 # define DFU_ALT_INFO \
 	"dfu_alt_info=" \
 	"uImage ram 0x2080000 0x500000;" \
