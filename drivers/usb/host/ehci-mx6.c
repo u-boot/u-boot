@@ -283,6 +283,7 @@ static void usb_oc_config(int index)
 #endif
 }
 
+#if !CONFIG_IS_ENABLED(DM_USB)
 /**
  * board_usb_phy_mode - override usb phy mode
  * @port:	usb host/otg port
@@ -329,27 +330,6 @@ int __weak board_ehci_power(int port, int on)
 	return 0;
 }
 
-int ehci_mx6_common_init(struct usb_ehci *ehci, int index)
-{
-	int ret;
-
-	/* Do board specific initialization */
-	ret = board_ehci_hcd_init(index);
-	if (ret)
-		return ret;
-
-	usb_power_config(index);
-	usb_oc_config(index);
-
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
-	usb_internal_phy_clock_gate(index, 1);
-	usb_phy_enable(index, ehci);
-#endif
-
-	return 0;
-}
-
-#if !CONFIG_IS_ENABLED(DM_USB)
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
@@ -377,9 +357,20 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	enable_usboh3_clk(1);
 	mdelay(1);
 
-	ret = ehci_mx6_common_init(ehci, index);
-	if (ret)
+	/* Do board specific initialization */
+	ret = board_ehci_hcd_init(index);
+	if (ret) {
+		enable_usboh3_clk(0);
 		return ret;
+	}
+
+	usb_power_config(index);
+	usb_oc_config(index);
+
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+	usb_internal_phy_clock_gate(index, 1);
+	usb_phy_enable(index, ehci);
+#endif
 
 	type = board_usb_phy_mode(index);
 
@@ -427,14 +418,18 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 	struct ehci_mx6_priv_data *priv = dev->priv;
 	enum usb_init_type type = priv->init_type;
 	struct usb_ehci *ehci = priv->ehci;
-	int ret;
 
-	ret = ehci_mx6_common_init(priv->ehci, priv->portnr);
-	if (ret)
-		return ret;
+	usb_power_config(priv->portnr);
+	usb_oc_config(priv->portnr);
+
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+	usb_internal_phy_clock_gate(priv->portnr, 1);
+	usb_phy_enable(priv->portnr, ehci);
+#endif
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (priv->vbus_supply) {
+		int ret;
 		ret = regulator_set_enable(priv->vbus_supply,
 					   (type == USB_INIT_DEVICE) ?
 					   false : true);
@@ -668,9 +663,14 @@ static int ehci_usb_probe(struct udevice *dev)
 	if (ret)
 		debug("%s: No vbus supply\n", dev->name);
 #endif
-	ret = ehci_mx6_common_init(ehci, priv->portnr);
-	if (ret)
-		goto err_clk;
+
+	usb_power_config(priv->portnr);
+	usb_oc_config(priv->portnr);
+
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+	usb_internal_phy_clock_gate(priv->portnr, 1);
+	usb_phy_enable(priv->portnr, ehci);
+#endif
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (priv->vbus_supply) {
