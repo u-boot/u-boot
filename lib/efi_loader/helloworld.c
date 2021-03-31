@@ -181,7 +181,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 					(void **)&device_path);
 	if (ret != EFI_SUCCESS) {
 		con_out->output_string
-			(con_out, L"Missing devide path for device handle\r\n");
+			(con_out, L"Missing device path for device handle\r\n");
 		goto out;
 	}
 	con_out->output_string(con_out, L"Boot device: ");
