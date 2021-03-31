@@ -68,7 +68,7 @@ static int do_dfu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	int controller_index = simple_strtoul(usb_controller, NULL, 0);
 	bool retry = false;
 	do {
-		run_usb_dnl_gadget(controller_index, "usb_dnl_dfu");
+		ret = run_usb_dnl_gadget(controller_index, "usb_dnl_dfu");
 
 		if (dfu_reinit_needed) {
 			dfu_free_entities();
