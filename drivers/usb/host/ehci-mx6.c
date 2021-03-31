@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <log.h>
 #include <usb.h>
 #include <errno.h>
@@ -347,9 +348,6 @@ int ehci_mx6_common_init(struct usb_ehci *ehci, int index)
 {
 	int ret;
 
-	enable_usboh3_clk(1);
-	mdelay(1);
-
 	/* Do board specific initialization */
 	ret = board_ehci_hcd_init(index);
 	if (ret)
@@ -391,6 +389,9 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		}
 	}
 
+	enable_usboh3_clk(1);
+	mdelay(1);
+
 	ret = ehci_mx6_common_init(ehci, index);
 	if (ret)
 		return ret;
@@ -428,6 +429,7 @@ struct ehci_mx6_priv_data {
 	struct ehci_ctrl ctrl;
 	struct usb_ehci *ehci;
 	struct udevice *vbus_supply;
+	struct clk clk;
 	enum usb_init_type init_type;
 	int portnr;
 };
@@ -606,6 +608,20 @@ static int ehci_usb_probe(struct udevice *dev)
 	priv->portnr = dev_seq(dev);
 	priv->init_type = type;
 
+#if CONFIG_IS_ENABLED(CLK)
+	ret = clk_get_by_index(dev, 0, &priv->clk);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_enable(&priv->clk);
+	if (ret)
+		return ret;
+#else
+	/* Compatibility with DM_USB and !CLK */
+	enable_usboh3_clk(1);
+	mdelay(1);
+#endif
+
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	ret = device_get_supply_regulator(dev, "vbus-supply",
 					  &priv->vbus_supply);
@@ -614,7 +630,7 @@ static int ehci_usb_probe(struct udevice *dev)
 #endif
 	ret = ehci_mx6_common_init(ehci, priv->portnr);
 	if (ret)
-		return ret;
+		goto err_clk;
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (priv->vbus_supply) {
@@ -623,7 +639,7 @@ static int ehci_usb_probe(struct udevice *dev)
 					   false : true);
 		if (ret && ret != -ENOSYS) {
 			printf("Error enabling VBUS supply (ret=%i)\n", ret);
-			return ret;
+			goto err_clk;
 		}
 	}
 #endif
@@ -651,6 +667,13 @@ err_regulator:
 	if (priv->vbus_supply)
 		regulator_set_enable(priv->vbus_supply, false);
 #endif
+err_clk:
+#if CONFIG_IS_ENABLED(CLK)
+	clk_disable(&priv->clk);
+#else
+	/* Compatibility with DM_USB and !CLK */
+	enable_usboh3_clk(0);
+#endif
 	return ret;
 }
 
@@ -663,6 +686,10 @@ int ehci_usb_remove(struct udevice *dev)
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (priv->vbus_supply)
 		regulator_set_enable(priv->vbus_supply, false);
+#endif
+
+#if CONFIG_IS_ENABLED(CLK)
+	clk_disable(&priv->clk);
 #endif
 
 	return 0;
