@@ -61,36 +61,6 @@
 # define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x600000
 # define DFU_DEFAULT_POLL_TIMEOUT	300
 # define CONFIG_THOR_RESET_OFF
-# define DFU_ALT_INFO_RAM \
-	"dfu_ram_info=" \
-	"setenv dfu_alt_info " \
-	"${kernel_image} ram 0x3000000 0x500000\\\\;" \
-	"${devicetree_image} ram 0x2A00000 0x20000\\\\;" \
-	"${ramdisk_image} ram 0x2000000 0x600000\0" \
-	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
-	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
-
-# if defined(CONFIG_MMC_SDHCI_ZYNQ)
-#  define DFU_ALT_INFO_MMC \
-	"dfu_mmc_info=" \
-	"setenv dfu_alt_info " \
-	"${kernel_image} fat 0 1\\\\;" \
-	"${devicetree_image} fat 0 1\\\\;" \
-	"${ramdisk_image} fat 0 1\0" \
-	"dfu_mmc=run dfu_mmc_info && dfu 0 mmc 0\0" \
-	"thor_mmc=run dfu_mmc_info && thordown 0 mmc 0\0"
-
-#  define DFU_ALT_INFO	\
-	DFU_ALT_INFO_RAM \
-	DFU_ALT_INFO_MMC
-# else
-#  define DFU_ALT_INFO	\
-	DFU_ALT_INFO_RAM
-# endif
-#endif
-
-#if !defined(DFU_ALT_INFO)
-# define DFU_ALT_INFO
 #endif
 
 /* enable preboot to be loaded before CONFIG_BOOTDELAY */
@@ -180,12 +150,42 @@
 #define BOOTENV_DEV_NAME_JTAG(devtypeu, devtypel, instance) \
 	"jtag "
 
+#define BOOT_TARGET_DEVICES_USB_DFU(func) \
+	func(USB_DFU, usb_dfu, 0) func(USB_DFU, usb_dfu, 1)
+
+#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
+	"$scriptaddr $script_size_f && " \
+	"dfu " #instance " ram " #instance " 60 && " \
+	"echo DFU" #instance ": Trying to boot script at ${scriptaddr} && " \
+	"source ${scriptaddr}; " \
+	"echo DFU" #instance ": SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance) \
+	""
+
+#define BOOT_TARGET_DEVICES_USB_THOR(func) \
+	func(USB_THOR, usb_thor, 0) func(USB_THOR, usb_thor, 1)
+
+#define BOOTENV_DEV_USB_THOR(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
+	"$scriptaddr $script_size_f && " \
+	"thordown " #instance " ram " #instance " && " \
+	"echo THOR" #instance ": Trying to boot script at ${scriptaddr} && " \
+	"source ${scriptaddr}; " \
+	"echo THOR" #instance ": SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_USB_THOR(devtypeu, devtypel, instance) \
+	""
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_JTAG(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_QSPI(func) \
 	BOOT_TARGET_DEVICES_NAND(func) \
 	BOOT_TARGET_DEVICES_NOR(func) \
+	BOOT_TARGET_DEVICES_USB_DFU(func) \
+	BOOT_TARGET_DEVICES_USB_THOR(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
 	BOOT_TARGET_DEVICES_DHCP(func)
@@ -203,7 +203,6 @@
 	"kernel_addr_r=0x2000000\0"     \
 	"scriptaddr=0x3000000\0"        \
 	"ramdisk_addr_r=0x3100000\0"    \
-	DFU_ALT_INFO \
 	BOOTENV
 #endif
 
