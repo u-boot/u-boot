@@ -260,15 +260,8 @@ int usb_phy_mode(int port)
 }
 #endif
 
-static void usb_oc_config(int index)
+static void usb_oc_config(struct usbnc_regs *usbnc, int index)
 {
-#if defined(CONFIG_MX6)
-	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
-			USB_OTHERREGS_OFFSET);
-#elif defined(CONFIG_MX7) || defined(CONFIG_MX7ULP)
-	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
-			(0x10000 * index) + USBNC_OFFSET);
-#endif
 	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
 
 #if CONFIG_MACH_TYPE == MACH_TYPE_MX6Q_ARM2
@@ -343,6 +336,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	u32 controller_spacing = 0x200;
 	struct anatop_regs __iomem *anatop =
 		(struct anatop_regs __iomem *)ANATOP_BASE_ADDR;
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+			USB_OTHERREGS_OFFSET);
 #elif defined(CONFIG_MX7)
 	u32 controller_spacing = 0x10000;
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
@@ -351,6 +346,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	u32 controller_spacing = 0x10000;
 	struct usbphy_regs __iomem *usbphy =
 		(struct usbphy_regs __iomem *)USB_PHY0_BASE_ADDR;
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+			(0x10000 * index) + USBNC_OFFSET);
 #endif
 	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
 		(controller_spacing * index));
@@ -385,7 +382,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	usb_power_config_mx7ulp(usbphy);
 #endif
 
-	usb_oc_config(index);
+	usb_oc_config(usbnc, index);
 
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
 	if (index < ARRAY_SIZE(phy_bases)) {
@@ -447,7 +444,7 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 	usb_power_config_mx7ulp(priv->phy_addr);
 #endif
 
-	usb_oc_config(priv->portnr);
+	usb_oc_config(priv->misc_addr, priv->portnr);
 
 #if !defined(CONFIG_PHY) && (defined(CONFIG_MX6) || defined(CONFIG_MX7ULP))
 	usb_internal_phy_clock_gate(priv->phy_addr, 1);
@@ -697,7 +694,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	usb_power_config_mx7ulp(priv->phy_addr);
 #endif
 
-	usb_oc_config(priv->portnr);
+	usb_oc_config(priv->misc_addr, priv->portnr);
 
 #if !defined(CONFIG_PHY) && (defined(CONFIG_MX6) || defined(CONFIG_MX7ULP))
 	usb_internal_phy_clock_gate(priv->phy_addr, 1);
