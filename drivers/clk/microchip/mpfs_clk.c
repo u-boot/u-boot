@@ -120,4 +120,5 @@ U_BOOT_DRIVER(mpfs_clk) = {
 	.ops = &mpfs_clk_ops,
 	.probe = mpfs_clk_probe,
 	.priv_auto = sizeof(struct clk),
+	.flags = DM_FLAG_PRE_RELOC,
 };
