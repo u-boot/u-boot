@@ -19,8 +19,6 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <env.h>
-#include <mmc.h>
-#include <fsl_esdhc_imx.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
 #include <asm/mach-imx/mxc_i2c.h>
@@ -218,19 +216,6 @@ static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_GPIO1_IO05__UART1_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const usdhc2_pads[] = {
-	MX6_PAD_SD2_CLK__USDHC2_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_CMD__USDHC2_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA0__USDHC2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA1__USDHC2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA2__USDHC2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA3__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	/* CD pin */
-	MX6_PAD_SD1_DATA0__GPIO6_IO_2 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* Power */
-	MX6_PAD_SD1_CMD__GPIO6_IO_1 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
 static iomux_v3_cfg_t const fec1_pads[] = {
 	MX6_PAD_ENET1_MDC__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_ENET1_MDIO__ENET1_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -391,30 +376,6 @@ int board_early_init_f(void)
 	setup_iomux_uart();
 
 	return 0;
-}
-
-static struct fsl_esdhc_cfg usdhc_cfg[1] = {
-	{USDHC2_BASE_ADDR, 0, 4},
-};
-
-#define USDHC2_PWR_GPIO IMX_GPIO_NR(6, 1)
-#define USDHC2_CD_GPIO	IMX_GPIO_NR(6, 2)
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	return !gpio_get_value(USDHC2_CD_GPIO);
-}
-
-int board_mmc_init(struct bd_info *bis)
-{
-	imx_iomux_v3_setup_multiple_pads(usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-	usdhc_cfg[0].esdhc_base = USDHC2_BASE_ADDR;
-	gpio_direction_input(USDHC2_CD_GPIO);
-	gpio_direction_output(USDHC2_PWR_GPIO, 1);
-
-	gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 
 static char *board_string(void)
