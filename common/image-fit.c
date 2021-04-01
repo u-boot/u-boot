@@ -1959,6 +1959,8 @@ static const char *fit_get_image_type_property(int type)
 		return FIT_FDT_PROP;
 	case IH_TYPE_KERNEL:
 		return FIT_KERNEL_PROP;
+	case IH_TYPE_FIRMWARE:
+		return FIT_FIRMWARE_PROP;
 	case IH_TYPE_RAMDISK:
 		return FIT_RAMDISK_PROP;
 	case IH_TYPE_X86_SETUP:
