@@ -202,7 +202,6 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 {
 	bootm_headers_t images;
 	const char *fit_uname_config = NULL;
-	const char *fit_uname_fdt = FIT_FDT_PROP;
 	const char *uname;
 	ulong fw_data = 0, dt_data = 0, img_data = 0;
 	ulong fw_len = 0, dt_len = 0, img_len = 0;
@@ -231,8 +230,7 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_FIT_SIGNATURE
 	images.verify = 1;
 #endif
-	ret = fit_image_load(&images, (ulong)header,
-		       &fit_uname_fdt, &fit_uname_config,
+	ret = fit_image_load(&images, (ulong)header, NULL, &fit_uname_config,
 		       IH_ARCH_DEFAULT, IH_TYPE_FLATDT, -1,
 		       FIT_LOAD_OPTIONAL, &dt_data, &dt_len);
 	if (ret >= 0)
