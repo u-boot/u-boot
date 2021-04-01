@@ -11,6 +11,7 @@
 #include <time.h>
 #include <u-boot/fdt-libcrypto.h>
 #include <openssl/bn.h>
+#include <openssl/ec.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
@@ -52,19 +53,21 @@ static int rsa_err(const char *msg)
  *
  * @keydir:	Directory containins the key
  * @name	Name of key file (will have a .crt extension)
- * @rsap	Returns RSA object, or NULL on failure
- * @return 0 if ok, -ve on error (in which case *rsap will be set to NULL)
+ * @evpp	Returns EVP_PKEY object, or NULL on failure
+ * @return 0 if ok, -ve on error (in which case *evpp will be set to NULL)
  */
-static int rsa_pem_get_pub_key(const char *keydir, const char *name, RSA **rsap)
+static int rsa_pem_get_pub_key(const char *keydir, const char *name, EVP_PKEY **evpp)
 {
 	char path[1024];
-	EVP_PKEY *key;
+	EVP_PKEY *key = NULL;
 	X509 *cert;
-	RSA *rsa;
 	FILE *f;
 	int ret;
 
-	*rsap = NULL;
+	if (!evpp)
+		return -EINVAL;
+
+	*evpp = NULL;
 	snprintf(path, sizeof(path), "%s/%s.crt", keydir, name);
 	f = fopen(path, "r");
 	if (!f) {
@@ -89,22 +92,12 @@ static int rsa_pem_get_pub_key(const char *keydir, const char *name, RSA **rsap)
 		goto err_pubkey;
 	}
 
-	/* Convert to a RSA_style key. */
-	rsa = EVP_PKEY_get1_RSA(key);
-	if (!rsa) {
-		rsa_err("Couldn't convert to a RSA style key");
-		ret = -EINVAL;
-		goto err_rsa;
-	}
 	fclose(f);
-	EVP_PKEY_free(key);
+	*evpp = key;
 	X509_free(cert);
-	*rsap = rsa;
 
 	return 0;
 
-err_rsa:
-	EVP_PKEY_free(key);
 err_pubkey:
 	X509_free(cert);
 err_cert:
@@ -118,19 +111,20 @@ err_cert:
  * @keydir:	Key prefix
  * @name	Name of key
  * @engine	Engine to use
- * @rsap	Returns RSA object, or NULL on failure
- * @return 0 if ok, -ve on error (in which case *rsap will be set to NULL)
+ * @evpp	Returns EVP_PKEY object, or NULL on failure
+ * @return 0 if ok, -ve on error (in which case *evpp will be set to NULL)
  */
 static int rsa_engine_get_pub_key(const char *keydir, const char *name,
-				  ENGINE *engine, RSA **rsap)
+				  ENGINE *engine, EVP_PKEY **evpp)
 {
 	const char *engine_id;
 	char key_id[1024];
-	EVP_PKEY *key;
-	RSA *rsa;
-	int ret;
+	EVP_PKEY *key = NULL;
 
-	*rsap = NULL;
+	if (!evpp)
+		return -EINVAL;
+
+	*evpp = NULL;
 
 	engine_id = ENGINE_get_id(engine);
 
@@ -166,22 +160,9 @@ static int rsa_engine_get_pub_key(const char *keydir, const char *name,
 	if (!key)
 		return rsa_err("Failure loading public key from engine");
 
-	/* Convert to a RSA_style key. */
-	rsa = EVP_PKEY_get1_RSA(key);
-	if (!rsa) {
-		rsa_err("Couldn't convert to a RSA style key");
-		ret = -EINVAL;
-		goto err_rsa;
-	}
-
-	EVP_PKEY_free(key);
-	*rsap = rsa;
+	*evpp = key;
 
 	return 0;
-
-err_rsa:
-	EVP_PKEY_free(key);
-	return ret;
 }
 
 /**
@@ -190,15 +171,15 @@ err_rsa:
  * @keydir:	Directory containing the key (PEM file) or key prefix (engine)
  * @name	Name of key file (will have a .crt extension)
  * @engine	Engine to use
- * @rsap	Returns RSA object, or NULL on failure
- * @return 0 if ok, -ve on error (in which case *rsap will be set to NULL)
+ * @evpp	Returns EVP_PKEY object, or NULL on failure
+ * @return 0 if ok, -ve on error (in which case *evpp will be set to NULL)
  */
 static int rsa_get_pub_key(const char *keydir, const char *name,
-			   ENGINE *engine, RSA **rsap)
+			   ENGINE *engine, EVP_PKEY **evpp)
 {
 	if (engine)
-		return rsa_engine_get_pub_key(keydir, name, engine, rsap);
-	return rsa_pem_get_pub_key(keydir, name, rsap);
+		return rsa_engine_get_pub_key(keydir, name, engine, evpp);
+	return rsa_pem_get_pub_key(keydir, name, evpp);
 }
 
 /**
@@ -206,17 +187,19 @@ static int rsa_get_pub_key(const char *keydir, const char *name,
  *
  * @keydir:	Directory containing the key
  * @name	Name of key file (will have a .key extension)
- * @rsap	Returns RSA object, or NULL on failure
- * @return 0 if ok, -ve on error (in which case *rsap will be set to NULL)
+ * @evpp	Returns EVP_PKEY object, or NULL on failure
+ * @return 0 if ok, -ve on error (in which case *evpp will be set to NULL)
  */
 static int rsa_pem_get_priv_key(const char *keydir, const char *name,
-				const char *keyfile, RSA **rsap)
+				const char *keyfile, EVP_PKEY **evpp)
 {
-	char path[1024];
-	RSA *rsa;
-	FILE *f;
+	char path[1024] = {0};
+	FILE *f = NULL;
 
-	*rsap = NULL;
+	if (!evpp)
+		return -EINVAL;
+
+	*evpp = NULL;
 	if (keydir && name)
 		snprintf(path, sizeof(path), "%s/%s.key", keydir, name);
 	else if (keyfile)
@@ -231,14 +214,12 @@ static int rsa_pem_get_priv_key(const char *keydir, const char *name,
 		return -ENOENT;
 	}
 
-	rsa = PEM_read_RSAPrivateKey(f, 0, NULL, path);
-	if (!rsa) {
+	if (!PEM_read_PrivateKey(f, evpp, NULL, path)) {
 		rsa_err("Failure reading private key");
 		fclose(f);
 		return -EPROTO;
 	}
 	fclose(f);
-	*rsap = rsa;
 
 	return 0;
 }
@@ -249,20 +230,19 @@ static int rsa_pem_get_priv_key(const char *keydir, const char *name,
  * @keydir:	Key prefix
  * @name	Name of key
  * @engine	Engine to use
- * @rsap	Returns RSA object, or NULL on failure
- * @return 0 if ok, -ve on error (in which case *rsap will be set to NULL)
+ * @evpp	Returns EVP_PKEY object, or NULL on failure
+ * @return 0 if ok, -ve on error (in which case *evpp will be set to NULL)
  */
 static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 				   const char *keyfile,
-				   ENGINE *engine, RSA **rsap)
+				   ENGINE *engine, EVP_PKEY **evpp)
 {
 	const char *engine_id;
 	char key_id[1024];
-	EVP_PKEY *key;
-	RSA *rsa;
-	int ret;
+	EVP_PKEY *key = NULL;
 
-	*rsap = NULL;
+	if (!evpp)
+		return -EINVAL;
 
 	engine_id = ENGINE_get_id(engine);
 
@@ -307,22 +287,9 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 	if (!key)
 		return rsa_err("Failure loading private key from engine");
 
-	/* Convert to a RSA_style key. */
-	rsa = EVP_PKEY_get1_RSA(key);
-	if (!rsa) {
-		rsa_err("Couldn't convert to a RSA style key");
-		ret = -EINVAL;
-		goto err_rsa;
-	}
-
-	EVP_PKEY_free(key);
-	*rsap = rsa;
+	*evpp = key;
 
 	return 0;
-
-err_rsa:
-	EVP_PKEY_free(key);
-	return ret;
 }
 
 /**
@@ -331,16 +298,16 @@ err_rsa:
  * @keydir:	Directory containing the key (PEM file) or key prefix (engine)
  * @name	Name of key
  * @engine	Engine to use for signing
- * @rsap	Returns RSA object, or NULL on failure
- * @return 0 if ok, -ve on error (in which case *rsap will be set to NULL)
+ * @evpp	Returns EVP_PKEY object, or NULL on failure
+ * @return 0 if ok, -ve on error (in which case *evpp will be set to NULL)
  */
 static int rsa_get_priv_key(const char *keydir, const char *name,
-			    const char *keyfile, ENGINE *engine, RSA **rsap)
+			    const char *keyfile, ENGINE *engine, EVP_PKEY **evpp)
 {
 	if (engine)
 		return rsa_engine_get_priv_key(keydir, name, keyfile, engine,
-					       rsap);
-	return rsa_pem_get_priv_key(keydir, name, keyfile, rsap);
+					       evpp);
+	return rsa_pem_get_priv_key(keydir, name, keyfile, evpp);
 }
 
 static int rsa_init(void)
@@ -434,12 +401,11 @@ static void rsa_engine_remove(ENGINE *e)
 	}
 }
 
-static int rsa_sign_with_key(RSA *rsa, struct padding_algo *padding_algo,
+static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 			     struct checksum_algo *checksum_algo,
 		const struct image_region region[], int region_count,
 		uint8_t **sigp, uint *sig_size)
 {
-	EVP_PKEY *key;
 	EVP_PKEY_CTX *ckey;
 	EVP_MD_CTX *context;
 	int ret = 0;
@@ -447,16 +413,7 @@ static int rsa_sign_with_key(RSA *rsa, struct padding_algo *padding_algo,
 	uint8_t *sig;
 	int i;
 
-	key = EVP_PKEY_new();
-	if (!key)
-		return rsa_err("EVP_PKEY object creation failed");
-
-	if (!EVP_PKEY_set1_RSA(key, rsa)) {
-		ret = rsa_err("EVP key setup failed");
-		goto err_set;
-	}
-
-	size = EVP_PKEY_size(key);
+	size = EVP_PKEY_size(pkey);
 	sig = malloc(size);
 	if (!sig) {
 		fprintf(stderr, "Out of memory for signature (%zu bytes)\n",
@@ -472,7 +429,7 @@ static int rsa_sign_with_key(RSA *rsa, struct padding_algo *padding_algo,
 	}
 	EVP_MD_CTX_init(context);
 
-	ckey = EVP_PKEY_CTX_new(key, NULL);
+	ckey = EVP_PKEY_CTX_new(pkey, NULL);
 	if (!ckey) {
 		ret = rsa_err("EVP key context creation failed");
 		goto err_create;
@@ -480,7 +437,7 @@ static int rsa_sign_with_key(RSA *rsa, struct padding_algo *padding_algo,
 
 	if (EVP_DigestSignInit(context, &ckey,
 			       checksum_algo->calculate_sign(),
-			       NULL, key) <= 0) {
+			       NULL, pkey) <= 0) {
 		ret = rsa_err("Signer setup failed");
 		goto err_sign;
 	}
@@ -515,7 +472,6 @@ static int rsa_sign_with_key(RSA *rsa, struct padding_algo *padding_algo,
 		EVP_MD_CTX_reset(context);
 	#endif
 	EVP_MD_CTX_destroy(context);
-	EVP_PKEY_free(key);
 
 	debug("Got signature: %d bytes, expected %zu\n", *sig_size, size);
 	*sigp = sig;
@@ -528,8 +484,6 @@ err_sign:
 err_create:
 	free(sig);
 err_alloc:
-err_set:
-	EVP_PKEY_free(key);
 	return ret;
 }
 
@@ -537,7 +491,7 @@ int rsa_sign(struct image_sign_info *info,
 	     const struct image_region region[], int region_count,
 	     uint8_t **sigp, uint *sig_len)
 {
-	RSA *rsa;
+	EVP_PKEY *pkey = NULL;
 	ENGINE *e = NULL;
 	int ret;
 
@@ -552,15 +506,15 @@ int rsa_sign(struct image_sign_info *info,
 	}
 
 	ret = rsa_get_priv_key(info->keydir, info->keyname, info->keyfile,
-			       e, &rsa);
+			       e, &pkey);
 	if (ret)
 		goto err_priv;
-	ret = rsa_sign_with_key(rsa, info->padding, info->checksum, region,
+	ret = rsa_sign_with_key(pkey, info->padding, info->checksum, region,
 				region_count, sigp, sig_len);
 	if (ret)
 		goto err_sign;
 
-	RSA_free(rsa);
+	EVP_PKEY_free(pkey);
 	if (info->engine_id)
 		rsa_engine_remove(e);
 	rsa_remove();
@@ -568,7 +522,7 @@ int rsa_sign(struct image_sign_info *info,
 	return ret;
 
 err_sign:
-	RSA_free(rsa);
+	EVP_PKEY_free(pkey);
 err_priv:
 	if (info->engine_id)
 		rsa_engine_remove(e);
@@ -709,6 +663,7 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 	int ret;
 	int bits;
 	RSA *rsa;
+	EVP_PKEY *pkey = NULL;
 	ENGINE *e = NULL;
 
 	debug("%s: Getting verification data\n", __func__);
@@ -717,9 +672,15 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 		if (ret)
 			return ret;
 	}
-	ret = rsa_get_pub_key(info->keydir, info->keyname, e, &rsa);
+	ret = rsa_get_pub_key(info->keydir, info->keyname, e, &pkey);
 	if (ret)
 		goto err_get_pub_key;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
+	rsa = EVP_PKEY_get1_RSA(pkey);
+#else
+	rsa = EVP_PKEY_get0_RSA(pkey);
+#endif
 	ret = rsa_get_params(rsa, &exponent, &n0_inv, &modulus, &r_squared);
 	if (ret)
 		goto err_get_params;
@@ -789,7 +750,11 @@ done:
 	if (ret)
 		ret = ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
 err_get_params:
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
 	RSA_free(rsa);
+#endif
+	EVP_PKEY_free(pkey);
 err_get_pub_key:
 	if (info->engine_id)
 		rsa_engine_remove(e);
