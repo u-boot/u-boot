@@ -662,7 +662,8 @@ dtb-$(CONFIG_MX51) += \
 dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 	imx53-qsb.dtb \
 	imx53-kp.dtb \
-	imx53-m53menlo.dtb
+	imx53-m53menlo.dtb \
+	imx53-usbarmory.dtb
 
 ifneq ($(CONFIG_MX6DL)$(CONFIG_MX6QDL)$(CONFIG_MX6S),)
 dtb-y += \
