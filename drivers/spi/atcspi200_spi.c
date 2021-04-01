@@ -201,7 +201,7 @@ static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 		size_t cmd_len = ns->cmd_len;
 		unsigned long data_len = bitlen / 8;
 		int rf_cnt;
-		int ret = 0;
+		int ret = 0, timeout = 0;
 
 		max_tran_len = ns->max_transfer_length;
 		switch (flags) {
@@ -243,11 +243,12 @@ static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 			ns->tran_len = tran_len;
 			num_blks = DIV_ROUND_UP(tran_len , CHUNK_SIZE);
 			num_bytes = (tran_len) % CHUNK_SIZE;
+			timeout = SPI_TIMEOUT;
 			if(num_bytes == 0)
 				num_bytes = CHUNK_SIZE;
 			__atcspi200_spi_start(ns);
 
-			while (num_blks) {
+			while (num_blks && (timeout--)) {
 				event = in_le32(&ns->regs->status);
 				if ((event & TXEPTY) && (data_out)) {
 					__nspi_espi_tx(ns, dout);
@@ -268,6 +269,11 @@ static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 						num_blks -= CHUNK_SIZE;
 						din = (unsigned char *)din + rx_bytes;
 					}
+				}
+
+				if (!timeout) {
+					debug("spi_xfer: %s() timeout\n", __func__);
+					break;
 				}
 			}
 
