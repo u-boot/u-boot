@@ -202,6 +202,7 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 {
 	bootm_headers_t images;
 	const char *fit_uname_config = NULL;
+	uintptr_t fdt_hack;
 	const char *uname;
 	ulong fw_data = 0, dt_data = 0, img_data = 0;
 	ulong fw_len = 0, dt_len = 0, img_len = 0;
@@ -234,8 +235,17 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 	ret = fit_image_load(&images, (ulong)header, NULL, &fit_uname_config,
 		       IH_ARCH_DEFAULT, IH_TYPE_FLATDT, -1,
 		       FIT_LOAD_OPTIONAL, &dt_data, &dt_len);
-	if (ret >= 0)
+	if (ret >= 0) {
 		spl_image->fdt_addr = (void *)dt_data;
+
+		if (spl_image->os == IH_OS_U_BOOT) {
+			/* HACK: U-boot expects FDT at a specific address */
+			fdt_hack = spl_image->load_addr + spl_image->size;
+			fdt_hack = (fdt_hack + 3) & ~3;
+			debug("Relocating FDT to %p\n", spl_image->fdt_addr);
+			memcpy((void *)fdt_hack, spl_image->fdt_addr, dt_len);
+		}
+	}
 
 	conf_noffset = fit_conf_get_node((const void *)header,
 					 fit_uname_config);
