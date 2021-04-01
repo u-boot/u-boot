@@ -221,8 +221,9 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 	spl_image->size = fw_len;
 	spl_image->entry_point = fw_data;
 	spl_image->load_addr = fw_data;
-	spl_image->os = IH_OS_U_BOOT;
-	spl_image->name = "U-Boot";
+	if (fit_image_get_os(header, ret, &spl_image->os))
+		spl_image->os = IH_OS_INVALID;
+	spl_image->name = genimg_get_os_name(spl_image->os);
 
 	debug(SPL_TPL_PROMPT "payload image: %32s load addr: 0x%lx size: %d\n",
 	      spl_image->name, spl_image->load_addr, spl_image->size);
