@@ -42,7 +42,7 @@
 		cdns,tsd2d-ns = <0x0>;
 		cdns,tchsh-ns = <0x1>;
 		cdns,tslch-ns = <0x1>;
-		spi-tx-bus-width = <1>;
+		spi-tx-bus-width = <8>;
 		spi-rx-bus-width = <8>;
 		spi-max-frequency = <20000000>;
 		partition@0 {
