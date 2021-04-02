@@ -378,14 +378,12 @@ int board_late_init_xilinx(void)
 	int i, id, macid = 0;
 	struct xilinx_board_description *desc;
 	phys_size_t bootm_size = gd->ram_size;
-	struct bd_info *bd = gd->bd;
 
-	if (!CONFIG_IS_ENABLED(MICROBLAZE) && bd->bi_dram[0].start) {
+	if (!CONFIG_IS_ENABLED(MICROBLAZE)) {
 		ulong scriptaddr;
 
 		scriptaddr = env_get_hex("scriptaddr", 0);
-		ret |= env_set_hex("scriptaddr",
-				   bd->bi_dram[0].start + scriptaddr);
+		ret |= env_set_hex("scriptaddr", gd->ram_base + scriptaddr);
 	}
 
 	if (CONFIG_IS_ENABLED(ARCH_ZYNQ) || CONFIG_IS_ENABLED(MICROBLAZE))
