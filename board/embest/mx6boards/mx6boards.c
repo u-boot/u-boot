@@ -91,24 +91,6 @@ static void setup_iomux_uart(void)
 }
 
 iomux_v3_cfg_t const enet_pads[] = {
-	MX6_PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	/* GPIO16 -> AR8035 25MHz */
-	MX6_PAD_GPIO_16__ENET_REF_CLK | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	/* AR8035 CLK_25M --> ENET_REF_CLK (V22) */
-	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL_CLK),
-	MX6_PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD),
-	MX6_PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD),
-	MX6_PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL_PD),
 	/* AR8035 PHY Reset */
 	MX6_PAD_EIM_D31__GPIO3_IO31 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD),
 	/* AR8035 PHY Interrupt */
@@ -376,13 +358,6 @@ int overwrite_console(void)
 	return 1;
 }
 
-int board_eth_init(struct bd_info *bis)
-{
-	setup_iomux_enet();
-
-	return cpu_eth_init(bis);
-}
-
 int board_early_init_f(void)
 {
 	u32 cputype = cpu_type(get_cpu_rev());
@@ -460,6 +435,7 @@ int board_late_init(void)
 	else if (board_type == BOARD_IS_RIOTBOARD)
 		add_board_boot_modes(marsboard_boot_modes);
 #endif
+	setup_iomux_enet();
 
 	return 0;
 }
