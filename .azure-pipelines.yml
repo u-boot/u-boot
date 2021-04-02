@@ -304,12 +304,12 @@ jobs:
           grub-mkimage --prefix=\"\" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
           grub-mkimage --prefix=\"\" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
           if [[ "${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
-              wget -O - https://github.com/riscv/opensbi/releases/download/v0.8/opensbi-0.8-rv-bin.tar.xz | tar -C /tmp -xJ;
-              export OPENSBI=/tmp/opensbi-0.8-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin;
+              wget -O - https://github.com/riscv/opensbi/releases/download/v0.9/opensbi-0.9-rv-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-0.9-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin;
           fi
           if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]]; then
-              wget -O - https://github.com/riscv/opensbi/releases/download/v0.8/opensbi-0.8-rv-bin.tar.xz | tar -C /tmp -xJ;
-              export OPENSBI=/tmp/opensbi-0.8-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
+              wget -O - https://github.com/riscv/opensbi/releases/download/v0.9/opensbi-0.9-rv-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-0.9-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
           fi
           # the below corresponds to .gitlab-ci.yml "script"
           cd ${WORK_DIR}
