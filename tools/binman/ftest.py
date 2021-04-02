@@ -1595,26 +1595,29 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(1, fhdr.ver_major)
         self.assertEqual(0, fhdr.ver_minor)
         self.assertEqual(0, fhdr.base)
-        self.assertEqual(16 + 16 +
-                         fmap_util.FMAP_HEADER_LEN +
-                         fmap_util.FMAP_AREA_LEN * 3, fhdr.image_size)
+        expect_size = fmap_util.FMAP_HEADER_LEN + fmap_util.FMAP_AREA_LEN * 3
+        self.assertEqual(16 + 16 + expect_size, fhdr.image_size)
         self.assertEqual(b'FMAP', fhdr.name)
         self.assertEqual(3, fhdr.nareas)
-        for fentry in fentries:
-            self.assertEqual(0, fentry.flags)
+        fiter = iter(fentries)
 
-        self.assertEqual(0, fentries[0].offset)
-        self.assertEqual(4, fentries[0].size)
-        self.assertEqual(b'RO_U_BOOT', fentries[0].name)
+        fentry = next(fiter)
+        self.assertEqual(b'RO_U_BOOT', fentry.name)
+        self.assertEqual(0, fentry.offset)
+        self.assertEqual(4, fentry.size)
+        self.assertEqual(0, fentry.flags)
 
-        self.assertEqual(16, fentries[1].offset)
-        self.assertEqual(4, fentries[1].size)
-        self.assertEqual(b'RW_U_BOOT', fentries[1].name)
+        fentry = next(fiter)
+        self.assertEqual(b'RW_U_BOOT', fentry.name)
+        self.assertEqual(16, fentry.offset)
+        self.assertEqual(4, fentry.size)
+        self.assertEqual(0, fentry.flags)
 
-        self.assertEqual(32, fentries[2].offset)
-        self.assertEqual(fmap_util.FMAP_HEADER_LEN +
-                         fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
-        self.assertEqual(b'FMAP', fentries[2].name)
+        fentry = next(fiter)
+        self.assertEqual(b'FMAP', fentry.name)
+        self.assertEqual(32, fentry.offset)
+        self.assertEqual(expect_size, fentry.size)
+        self.assertEqual(0, fentry.flags)
 
     def testBlobNamedByArg(self):
         """Test we can add a blob with the filename coming from an entry arg"""
@@ -2065,19 +2068,23 @@ class TestFunctional(unittest.TestCase):
         fhdr, fentries = fmap_util.DecodeFmap(data[36:])
 
         self.assertEqual(0x100, fhdr.image_size)
+        expect_size = fmap_util.FMAP_HEADER_LEN + fmap_util.FMAP_AREA_LEN * 3
+        fiter = iter(fentries)
 
-        self.assertEqual(0, fentries[0].offset)
-        self.assertEqual(4, fentries[0].size)
-        self.assertEqual(b'U_BOOT', fentries[0].name)
+        fentry = next(fiter)
+        self.assertEqual(b'U_BOOT', fentry.name)
+        self.assertEqual(0, fentry.offset)
+        self.assertEqual(4, fentry.size)
 
-        self.assertEqual(4, fentries[1].offset)
-        self.assertEqual(3, fentries[1].size)
-        self.assertEqual(b'INTEL_MRC', fentries[1].name)
+        fentry = next(fiter)
+        self.assertEqual(b'INTEL_MRC', fentry.name)
+        self.assertEqual(4, fentry.offset)
+        self.assertEqual(3, fentry.size)
 
-        self.assertEqual(36, fentries[2].offset)
-        self.assertEqual(fmap_util.FMAP_HEADER_LEN +
-                         fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
-        self.assertEqual(b'FMAP', fentries[2].name)
+        fentry = next(fiter)
+        self.assertEqual(b'FMAP', fentry.name)
+        self.assertEqual(36, fentry.offset)
+        self.assertEqual(expect_size, fentry.size)
 
     def testElf(self):
         """Basic test of ELF entries"""
