@@ -550,49 +550,6 @@ static int ehci_usb_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
-static int ehci_usb_bind(struct udevice *dev)
-{
-	/*
-	 * TODO:
-	 * This driver is only partly converted to DT probing and still uses
-	 * a tremendous amount of hard-coded addresses. To make things worse,
-	 * the driver depends on specific sequential indexing of controllers,
-	 * from which it derives offsets in the PHY and ANATOP register sets.
-	 *
-	 * Here we attempt to calculate these indexes from DT information as
-	 * well as we can. The USB controllers on all existing iMX6 SoCs
-	 * are placed next to each other, at addresses incremented by 0x200,
-	 * and iMX7 their addresses are shifted by 0x10000.
-	 * Thus, the index is derived from the multiple of 0x200 (0x10000 for
-	 * iMX7) offset from the first controller address.
-	 *
-	 * However, to complete conversion of this driver to DT probing, the
-	 * following has to be done:
-	 * - DM clock framework support for iMX must be implemented
-	 * - usb_power_config() has to be converted to clock framework
-	 *   -> Thus, the ad-hoc "index" variable goes away.
-	 * - USB PHY handling has to be factored out into separate driver
-	 *   -> Thus, the ad-hoc "index" variable goes away from the PHY
-	 *      code, the PHY driver must parse it's address from DT. This
-	 *      USB driver must find the PHY driver via DT phandle.
-	 *   -> usb_power_config() shall be moved to PHY driver
-	 * With these changes in place, the ad-hoc indexing goes away and
-	 * the driver is fully converted to DT probing.
-	 */
-
-	/*
-	 * FIXME: This cannot work with the new sequence numbers.
-	 * Please complete the DM conversion.
-	 *
-	 * u32 controller_spacing = is_mx7() ? 0x10000 : 0x200;
-	 * fdt_addr_t addr = devfdt_get_addr_index(dev, 0);
-	 *
-	 * dev->req_seq = (addr - USB_BASE_ADDR) / controller_spacing;
-	 */
-
-	return 0;
-}
-
 static int mx6_parse_dt_addrs(struct udevice *dev)
 {
 	struct ehci_mx6_priv_data *priv = dev_get_priv(dev);
@@ -600,6 +557,7 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int offset = dev_of_offset(dev);
 	void *__iomem addr;
+	int ret, devnump;
 
 	phy_off = fdtdec_lookup_phandle(blob, offset, "fsl,usbphy");
 	if (phy_off < 0) {
@@ -607,6 +565,11 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 		if (phy_off < 0)
 			return -EINVAL;
 	}
+
+	ret = fdtdec_get_alias_seq(blob, dev->uclass->uc_drv->name,
+				   phy_off, &devnump);
+	if (ret < 0)
+		return ret;
 
 	misc_off = fdtdec_lookup_phandle(blob, offset, "fsl,usbmisc");
 	if (misc_off < 0)
@@ -617,6 +580,7 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 		return -EINVAL;
 
 	priv->phy_addr = addr;
+	priv->portnr = devnump;
 
 	addr = (void __iomem *)fdtdec_get_addr(blob, misc_off, "reg");
 	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
@@ -664,7 +628,6 @@ static int ehci_usb_probe(struct udevice *dev)
 		return ret;
 
 	priv->ehci = ehci;
-	priv->portnr = dev_seq(dev);
 	priv->init_type = type;
 
 #if CONFIG_IS_ENABLED(CLK)
@@ -774,7 +737,6 @@ U_BOOT_DRIVER(usb_mx6) = {
 	.id	= UCLASS_USB,
 	.of_match = mx6_usb_ids,
 	.of_to_plat = ehci_usb_of_to_plat,
-	.bind	= ehci_usb_bind,
 	.probe	= ehci_usb_probe,
 	.remove = ehci_usb_remove,
 	.ops	= &ehci_usb_ops,
