@@ -19,8 +19,6 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/sata.h>
-#include <mmc.h>
-#include <fsl_esdhc_imx.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
@@ -54,15 +52,6 @@ int dram_init(void)
 static iomux_v3_cfg_t const uart2_pads[] = {
 	IOMUX_PADS(PAD_EIM_D26__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_EIM_D27__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
-};
-
-static iomux_v3_cfg_t const usdhc3_pads[] = {
-	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const wdog_pads[] = {
@@ -176,13 +165,6 @@ static void setup_iomux_wdog(void)
 	gpio_direction_input(WDT_TRG);
 }
 
-static struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	return 1; /* Always present */
-}
-
 int board_eth_init(struct bd_info *bis)
 {
 	uint32_t base = IMX_FEC_BASE;
@@ -217,15 +199,6 @@ free_bus:
 	return ret;
 }
 
-int board_mmc_init(struct bd_info *bis)
-{
-	SETUP_IOMUX_PADS(usdhc3_pads);
-	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	usdhc_cfg.max_bus_width = 4;
-
-	return fsl_esdhc_initialize(bis, &usdhc_cfg);
-}
-
 int board_early_init_f(void)
 {
 	setup_iomux_wdog();
@@ -248,9 +221,6 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#ifdef CONFIG_SATA
-	setup_sata();
-#endif
 	return 0;
 }
 
