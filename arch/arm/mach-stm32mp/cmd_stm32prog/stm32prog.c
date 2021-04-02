@@ -60,8 +60,6 @@ static const efi_guid_t uuid_mmc[3] = {
 	ROOTFS_MMC2_UUID
 };
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* order of column in flash layout file */
 enum stm32prog_col_t {
 	COL_OPTION,
@@ -72,6 +70,16 @@ enum stm32prog_col_t {
 	COL_OFFSET,
 	COL_NB_STM32
 };
+
+#define FIP_TOC_HEADER_NAME	0xAA640001
+
+struct fip_toc_header {
+	u32	name;
+	u32	serial_number;
+	u64	flags;
+};
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* partition handling routines : CONFIG_CMD_MTDPARTS */
 int mtdparts_init(void);
@@ -88,46 +96,57 @@ char *stm32prog_get_error(struct stm32prog_data *data)
 	return data->error;
 }
 
-u8 stm32prog_header_check(struct raw_header_s *raw_header,
-			  struct image_header_s *header)
+static bool stm32prog_is_fip_header(struct fip_toc_header *header)
+{
+	return (header->name == FIP_TOC_HEADER_NAME) && header->serial_number;
+}
+
+void stm32prog_header_check(struct raw_header_s *raw_header,
+			    struct image_header_s *header)
 {
 	unsigned int i;
 
-	header->present = 0;
+	if (!raw_header || !header) {
+		log_debug("%s:no header data\n", __func__);
+		return;
+	}
+
+	header->type = HEADER_NONE;
 	header->image_checksum = 0x0;
 	header->image_length = 0x0;
 
-	if (!raw_header || !header) {
-		log_debug("%s:no header data\n", __func__);
-		return -1;
+	if (stm32prog_is_fip_header((struct fip_toc_header *)raw_header)) {
+		header->type = HEADER_FIP;
+		return;
 	}
+
 	if (raw_header->magic_number !=
 		(('S' << 0) | ('T' << 8) | ('M' << 16) | (0x32 << 24))) {
 		log_debug("%s:invalid magic number : 0x%x\n",
 			  __func__, raw_header->magic_number);
-		return -2;
+		return;
 	}
 	/* only header v1.0 supported */
 	if (raw_header->header_version != 0x00010000) {
 		log_debug("%s:invalid header version : 0x%x\n",
 			  __func__, raw_header->header_version);
-		return -3;
+		return;
 	}
 	if (raw_header->reserved1 != 0x0 || raw_header->reserved2) {
 		log_debug("%s:invalid reserved field\n", __func__);
-		return -4;
+		return;
 	}
 	for (i = 0; i < (sizeof(raw_header->padding) / 4); i++) {
 		if (raw_header->padding[i] != 0) {
 			log_debug("%s:invalid padding field\n", __func__);
-			return -5;
+			return;
 		}
 	}
-	header->present = 1;
+	header->type = HEADER_STM32IMAGE;
 	header->image_checksum = le32_to_cpu(raw_header->image_checksum);
 	header->image_length = le32_to_cpu(raw_header->image_length);
 
-	return 0;
+	return;
 }
 
 static u32 stm32prog_header_checksum(u32 addr, struct image_header_s *header)
@@ -356,8 +375,8 @@ static int parse_flash_layout(struct stm32prog_data *data,
 	data->part_nb = 0;
 
 	/* check if STM32image is detected */
-	if (!stm32prog_header_check((struct raw_header_s *)addr,
-				    &data->header)) {
+	stm32prog_header_check((struct raw_header_s *)addr, &data->header);
+	if (data->header.type == HEADER_STM32IMAGE) {
 		u32 checksum;
 
 		addr = addr + BL_HEADER_SIZE;
@@ -1410,7 +1429,7 @@ static int stm32prog_copy_fsbl(struct stm32prog_part_t *part)
 
 	if (part->target != STM32PROG_NAND &&
 	    part->target != STM32PROG_SPI_NAND)
-		return -1;
+		return -EINVAL;
 
 	dfu = dfu_get_entity(part->alt_id);
 
@@ -1420,8 +1439,10 @@ static int stm32prog_copy_fsbl(struct stm32prog_part_t *part)
 	ret = dfu->read_medium(dfu, 0, (void *)&raw_header, &size);
 	if (ret)
 		return ret;
-	if (stm32prog_header_check(&raw_header, &header))
-		return -1;
+
+	stm32prog_header_check(&raw_header, &header);
+	if (header.type != HEADER_STM32IMAGE)
+		return -ENOENT;
 
 	/* read header + payload */
 	size = header.image_length + BL_HEADER_SIZE;
