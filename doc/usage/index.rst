@@ -32,6 +32,7 @@ Shell commands
    load
    loady
    mbr
+   mmc
    md
    pstore
    qfw
