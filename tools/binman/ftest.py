@@ -1595,16 +1595,28 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(1, fhdr.ver_major)
         self.assertEqual(0, fhdr.ver_minor)
         self.assertEqual(0, fhdr.base)
-        expect_size = fmap_util.FMAP_HEADER_LEN + fmap_util.FMAP_AREA_LEN * 3
+        expect_size = fmap_util.FMAP_HEADER_LEN + fmap_util.FMAP_AREA_LEN * 5
         self.assertEqual(16 + 16 + expect_size, fhdr.image_size)
         self.assertEqual(b'FMAP', fhdr.name)
-        self.assertEqual(3, fhdr.nareas)
+        self.assertEqual(5, fhdr.nareas)
         fiter = iter(fentries)
+
+        fentry = next(fiter)
+        self.assertEqual(b'SECTION0', fentry.name)
+        self.assertEqual(0, fentry.offset)
+        self.assertEqual(16, fentry.size)
+        self.assertEqual(0, fentry.flags)
 
         fentry = next(fiter)
         self.assertEqual(b'RO_U_BOOT', fentry.name)
         self.assertEqual(0, fentry.offset)
         self.assertEqual(4, fentry.size)
+        self.assertEqual(0, fentry.flags)
+
+        fentry = next(fiter)
+        self.assertEqual(b'SECTION1', fentry.name)
+        self.assertEqual(16, fentry.offset)
+        self.assertEqual(16, fentry.size)
         self.assertEqual(0, fentry.flags)
 
         fentry = next(fiter)
@@ -2067,14 +2079,19 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(expected, data[:32])
         fhdr, fentries = fmap_util.DecodeFmap(data[36:])
 
-        self.assertEqual(0x100, fhdr.image_size)
-        expect_size = fmap_util.FMAP_HEADER_LEN + fmap_util.FMAP_AREA_LEN * 3
+        self.assertEqual(0x180, fhdr.image_size)
+        expect_size = fmap_util.FMAP_HEADER_LEN + fmap_util.FMAP_AREA_LEN * 4
         fiter = iter(fentries)
 
         fentry = next(fiter)
         self.assertEqual(b'U_BOOT', fentry.name)
         self.assertEqual(0, fentry.offset)
         self.assertEqual(4, fentry.size)
+
+        fentry = next(fiter)
+        self.assertEqual(b'SECTION', fentry.name)
+        self.assertEqual(4, fentry.offset)
+        self.assertEqual(0x20 + expect_size, fentry.size)
 
         fentry = next(fiter)
         self.assertEqual(b'INTEL_MRC', fentry.name)
