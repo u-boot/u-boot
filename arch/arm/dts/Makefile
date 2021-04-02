@@ -702,6 +702,7 @@ dtb-y += \
 	imx6dl-mamoj.dtb \
 	imx6dl-nitrogen6x.dtb \
 	imx6dl-pico.dtb \
+	imx6dl-riotboard.dtb \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
 	imx6dl-wandboard-revd1.dtb \
@@ -742,6 +743,7 @@ dtb-y += \
 	imx6q-icore-rqs.dtb \
 	imx6q-kp.dtb \
 	imx6q-logicpd.dtb \
+	imx6q-marsboard.dtb \
 	imx6q-mba6a.dtb \
 	imx6q-mba6b.dtb \
 	imx6q-mccmon6.dtb\
