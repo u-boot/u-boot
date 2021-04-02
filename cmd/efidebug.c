@@ -341,27 +341,27 @@ static int do_efi_capsule(struct cmd_tbl *cmdtp, int flag,
 #endif /* CONFIG_EFI_HAVE_CAPSULE_SUPPORT */
 
 /**
- * efi_get_device_handle_info() - get information of UEFI device
+ * efi_get_device_path_text() - get device path text
  *
- * @handle:		Handle of UEFI device
- * @dev_path_text:	Pointer to text of device path
- * Return:		0 on success, -1 on failure
+ * Return the text representation of the device path of a handle.
  *
- * Currently return a formatted text of device path.
+ * @handle:	handle of UEFI device
+ * Return:
+ * Pointer to the device path text or NULL.
+ * The caller is responsible for calling FreePool().
  */
-static int efi_get_device_handle_info(efi_handle_t handle, u16 **dev_path_text)
+static u16 *efi_get_device_path_text(efi_handle_t handle)
 {
-	struct efi_device_path *dp;
+	struct efi_handler *handler;
 	efi_status_t ret;
 
-	ret = EFI_CALL(BS->open_protocol(handle, &efi_guid_device_path,
-					 (void **)&dp, NULL /* FIXME */, NULL,
-					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
-	if (ret == EFI_SUCCESS) {
-		*dev_path_text = efi_dp_str(dp);
-		return 0;
+	ret = efi_search_protocol(handle, &efi_guid_device_path, &handler);
+	if (ret == EFI_SUCCESS && handler->protocol_interface) {
+		struct efi_device_path *dp = handler->protocol_interface;
+
+		return efi_dp_str(dp);
 	} else {
-		return -1;
+		return NULL;
 	}
 }
 
@@ -401,7 +401,8 @@ static int do_efi_show_devices(struct cmd_tbl *cmdtp, int flag,
 	printf("Device%.*s Device Path\n", EFI_HANDLE_WIDTH - 6, spc);
 	printf("%.*s ====================\n", EFI_HANDLE_WIDTH, sep);
 	for (i = 0; i < num; i++) {
-		if (!efi_get_device_handle_info(handles[i], &dev_path_text)) {
+		dev_path_text = efi_get_device_path_text(handles[i]);
+		if (dev_path_text) {
 			printf("%p %ls\n", handles[i], dev_path_text);
 			efi_free_pool(dev_path_text);
 		}
