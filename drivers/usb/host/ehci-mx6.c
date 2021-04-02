@@ -425,6 +425,7 @@ struct ehci_mx6_priv_data {
 	struct usb_ehci *ehci;
 	struct udevice *vbus_supply;
 	struct clk clk;
+	struct phy phy;
 	enum usb_init_type init_type;
 	int portnr;
 	void __iomem *phy_addr;
@@ -684,22 +685,32 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	mdelay(10);
 
+#if defined(CONFIG_PHY)
+	ret = ehci_setup_phy(dev, &priv->phy, 0);
+	if (ret)
+		goto err_regulator;
+#endif
+
 	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
 	hcor = (struct ehci_hcor *)((uint32_t)hccr +
 			HC_LENGTH(ehci_readl(&(hccr)->cr_capbase)));
 
 	ret = ehci_register(dev, hccr, hcor, &mx6_ehci_ops, 0, priv->init_type);
 	if (ret)
-		goto err_regulator;
+		goto err_phy;
 
 	return ret;
 
+err_phy:
+#if defined(CONFIG_PHY)
+	ehci_shutdown_phy(dev, &priv->phy);
 err_regulator:
+#endif
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (priv->vbus_supply)
 		regulator_set_enable(priv->vbus_supply, false);
-#endif
 err_clk:
+#endif
 #if CONFIG_IS_ENABLED(CLK)
 	clk_disable(&priv->clk);
 #else
@@ -714,6 +725,10 @@ int ehci_usb_remove(struct udevice *dev)
 	struct ehci_mx6_priv_data *priv __maybe_unused = dev_get_priv(dev);
 
 	ehci_deregister(dev);
+
+#if defined(CONFIG_PHY)
+	ehci_shutdown_phy(dev, &priv->phy);
+#endif
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (priv->vbus_supply)
