@@ -1309,6 +1309,7 @@ config CMD_UNIVERSE
 
 config CMD_USB
 	bool "usb"
+	depends on USB
 	select HAVE_BLOCK_DEVICE
 	help
 	  USB support.
