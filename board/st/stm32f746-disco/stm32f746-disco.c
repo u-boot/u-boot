@@ -69,8 +69,8 @@ int spl_dram_init(void)
 }
 void spl_board_init(void)
 {
-	spl_dram_init();
 	preloader_console_init();
+	spl_dram_init();
 	arch_cpu_init(); /* to configure mpu for sdram rw permissions */
 }
 u32 spl_boot_device(void)
