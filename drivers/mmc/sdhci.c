@@ -507,6 +507,9 @@ void sdhci_set_uhs_timing(struct sdhci_host *host)
 	case MMC_HS_200:
 		reg |= SDHCI_CTRL_UHS_SDR104;
 		break;
+	case MMC_HS_400:
+		reg |= SDHCI_CTRL_HS400;
+		break;
 	default:
 		reg |= SDHCI_CTRL_UHS_SDR12;
 	}
