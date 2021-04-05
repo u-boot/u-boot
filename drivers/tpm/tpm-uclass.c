@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_TPM
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>
@@ -87,15 +89,15 @@ int tpm_xfer(struct udevice *dev, const uint8_t *sendbuf, size_t send_size,
 	ordinal = get_unaligned_be32(sendbuf + TPM_CMD_ORDINAL_BYTE);
 
 	if (count == 0) {
-		debug("no data\n");
+		log_debug("no data\n");
 		return -ENODATA;
 	}
 	if (count > send_size) {
-		debug("invalid count value %x %zx\n", count, send_size);
+		log_debug("invalid count value %x %zx\n", count, send_size);
 		return -E2BIG;
 	}
 
-	debug("%s: Calling send\n", __func__);
+	log_debug("%s: Calling send\n", __func__);
 	ret = ops->send(dev, sendbuf, send_size);
 	if (ret < 0)
 		return ret;

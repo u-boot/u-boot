@@ -17,8 +17,6 @@
 #include <test/test.h>
 #include <test/ut.h>
 
-static struct unit_test_state *uts = &global_dm_test_state;
-
 int test_ping(struct udevice *dev, int pingval, int *pingret)
 {
 	const struct test_ops *ops = device_get_ops(dev);
@@ -31,6 +29,7 @@ int test_ping(struct udevice *dev, int pingval, int *pingret)
 
 static int test_post_bind(struct udevice *dev)
 {
+	struct unit_test_state *uts = test_get_state();
 	struct dm_test_perdev_uc_pdata *uc_pdata;
 
 	dm_testdrv_op_count[DM_TEST_OP_POST_BIND]++;
@@ -56,6 +55,7 @@ static int test_pre_unbind(struct udevice *dev)
 static int test_pre_probe(struct udevice *dev)
 {
 	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
+	struct unit_test_state *uts = test_get_state();
 
 	dm_testdrv_op_count[DM_TEST_OP_PRE_PROBE]++;
 	ut_assert(priv);
@@ -66,18 +66,18 @@ static int test_pre_probe(struct udevice *dev)
 
 static int test_post_probe(struct udevice *dev)
 {
+	struct unit_test_state *uts = test_get_state();
 	struct udevice *prev = list_entry(dev->uclass_node.prev,
 					    struct udevice, uclass_node);
 
 	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
 	struct uclass *uc = dev->uclass;
-	struct dm_test_state *dms = uts->priv;
 
 	dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]++;
 	ut_assert(priv);
 	ut_assert(device_active(dev));
 	priv->base_add = 0;
-	if (dms->skip_post_probe)
+	if (uts->skip_post_probe)
 		return 0;
 	if (&prev->uclass_node != &uc->dev_head) {
 		struct dm_test_uclass_perdev_priv *prev_uc_priv
@@ -101,6 +101,8 @@ static int test_pre_remove(struct udevice *dev)
 
 static int test_init(struct uclass *uc)
 {
+	struct unit_test_state *uts = test_get_state();
+
 	dm_testdrv_op_count[DM_TEST_OP_INIT]++;
 	ut_assert(uclass_get_priv(uc));
 

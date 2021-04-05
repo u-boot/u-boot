@@ -69,14 +69,14 @@ static void sandbox_sdl_poll_events(void)
 	 * We don't want to include common.h in this file since it uses
 	 * system headers. So add a declation here.
 	 */
-	extern void reset_cpu(unsigned long addr);
+	extern void reset_cpu(void);
 	SDL_Event event;
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_QUIT:
 			puts("LCD window closed - quitting\n");
-			reset_cpu(1);
+			reset_cpu();
 			break;
 		}
 	}

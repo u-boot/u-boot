@@ -5,9 +5,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <vbe.h>
 #include <video.h>
-#include <asm/arch/sysinfo.h>
+#include <asm/cb_sysinfo.h>
 
 static int save_vesa_mode(struct cb_framebuffer *fb,
 			  struct vesa_mode_info *vesa)
@@ -17,7 +18,7 @@ static int save_vesa_mode(struct cb_framebuffer *fb,
 	 * running on the serial console.
 	 */
 	if (!fb)
-		return -ENXIO;
+		return log_msg_ret("save", -ENXIO);
 
 	vesa->x_resolution = fb->x_resolution;
 	vesa->y_resolution = fb->y_resolution;
@@ -44,16 +45,23 @@ static int coreboot_video_probe(struct udevice *dev)
 	struct vesa_mode_info *vesa = &mode_info.vesa;
 	int ret;
 
+	if (ll_boot_init())
+		return log_msg_ret("ll", -ENODEV);
+
 	printf("Video: ");
 
 	/* Initialize vesa_mode_info structure */
 	ret = save_vesa_mode(fb, vesa);
-	if (ret)
+	if (ret) {
+		ret = log_msg_ret("save", ret);
 		goto err;
+	}
 
 	ret = vbe_setup_video_priv(vesa, uc_priv, plat);
-	if (ret)
+	if (ret) {
+		ret = log_msg_ret("setup", ret);
 		goto err;
+	}
 
 	printf("%dx%dx%d\n", uc_priv->xsize, uc_priv->ysize,
 	       vesa->bits_per_pixel);
@@ -61,7 +69,7 @@ static int coreboot_video_probe(struct udevice *dev)
 	return 0;
 
 err:
-	printf("No video mode configured in coreboot!\n");
+	printf("No video mode configured in coreboot (err=%d)\n", ret);
 	return ret;
 }
 

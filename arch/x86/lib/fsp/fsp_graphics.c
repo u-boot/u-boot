@@ -87,7 +87,7 @@ static int fsp_video_probe(struct udevice *dev)
 	int ret;
 
 	if (!ll_boot_init())
-		return 0;
+		return -ENODEV;
 
 	printf("Video: ");
 

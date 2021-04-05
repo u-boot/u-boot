@@ -6,6 +6,7 @@ Use U-Boot
 
    dfu
    fdt_overlays
+   fit
    netconsole
    partitions
 
@@ -21,6 +22,7 @@ Shell commands
    booti
    bootmenu
    button
+   x86/cbsysinfo
    conitrace
    echo
    exception
@@ -30,7 +32,9 @@ Shell commands
    load
    loady
    mbr
+   md
    pstore
    qfw
    sbi
    true
+   scp03

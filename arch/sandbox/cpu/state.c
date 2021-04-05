@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <bloblist.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <log.h>
@@ -29,17 +30,17 @@ static int state_ensure_space(int extra_size)
 		return 0;
 
 	size = used + extra_size;
-	buf = malloc(size);
+	buf = os_malloc(size);
 	if (!buf)
 		return -ENOMEM;
 
 	ret = fdt_open_into(blob, buf, size);
 	if (ret) {
-		free(buf);
+		os_free(buf);
 		return -EIO;
 	}
 
-	free(blob);
+	os_free(blob);
 	state->state_fdt = buf;
 	return 0;
 }
@@ -55,7 +56,7 @@ static int state_read_file(struct sandbox_state *state, const char *fname)
 		printf("Cannot find sandbox state file '%s'\n", fname);
 		return -ENOENT;
 	}
-	state->state_fdt = malloc(size);
+	state->state_fdt = os_malloc(size);
 	if (!state->state_fdt) {
 		puts("No memory to read sandbox state\n");
 		return -ENOMEM;
@@ -77,7 +78,7 @@ static int state_read_file(struct sandbox_state *state, const char *fname)
 err_read:
 	os_close(fd);
 err_open:
-	free(state->state_fdt);
+	os_free(state->state_fdt);
 	state->state_fdt = NULL;
 
 	return ret;
@@ -244,7 +245,7 @@ int sandbox_write_state(struct sandbox_state *state, const char *fname)
 	/* Create a state FDT if we don't have one */
 	if (!state->state_fdt) {
 		size = 0x4000;
-		state->state_fdt = malloc(size);
+		state->state_fdt = os_malloc(size);
 		if (!state->state_fdt) {
 			puts("No memory to create FDT\n");
 			return -ENOMEM;
@@ -302,7 +303,7 @@ int sandbox_write_state(struct sandbox_state *state, const char *fname)
 err_write:
 	os_close(fd);
 err_create:
-	free(state->state_fdt);
+	os_free(state->state_fdt);
 
 	return ret;
 }
@@ -398,7 +399,11 @@ int state_uninit(void)
 {
 	int err;
 
+	log_info("Writing sandbox state\n");
 	state = &main_state;
+
+	/* Finish the bloblist, so that it is correct before writing memory */
+	bloblist_finish();
 
 	if (state->write_ram_buf) {
 		err = os_write_ram_buf(state->ram_buf_fname);
@@ -419,8 +424,8 @@ int state_uninit(void)
 	if (state->jumped_fname)
 		os_unlink(state->jumped_fname);
 
-	if (state->state_fdt)
-		free(state->state_fdt);
+	os_free(state->state_fdt);
+	os_free(state->ram_buf);
 	memset(state, '\0', sizeof(*state));
 
 	return 0;

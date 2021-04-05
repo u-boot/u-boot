@@ -482,6 +482,14 @@ efi_status_t EFIAPI efi_update_capsule(
 			goto out;
 	}
 out:
+
+	if (IS_ENABLED(CONFIG_EFI_ESRT)) {
+		/* Rebuild the ESRT to reflect any updated FW images. */
+		ret = efi_esrt_populate();
+		if (ret != EFI_SUCCESS)
+			log_warning("EFI Capsule: failed to update ESRT\n");
+	}
+
 	return EFI_EXIT(ret);
 }
 

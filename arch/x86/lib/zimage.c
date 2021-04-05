@@ -18,6 +18,7 @@
 #include <bootm.h>
 #include <command.h>
 #include <env.h>
+#include <init.h>
 #include <irq_func.h>
 #include <log.h>
 #include <malloc.h>
@@ -28,12 +29,15 @@
 #include <asm/byteorder.h>
 #include <asm/bootm.h>
 #include <asm/bootparam.h>
+#include <asm/global_data.h>
 #ifdef CONFIG_SYS_COREBOOT
 #include <asm/arch/timestamp.h>
 #endif
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 #include <linux/libfdt.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Memory lay-out:
@@ -309,8 +313,13 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	int bootproto = get_boot_protocol(hdr, false);
 
 	log_debug("Setup E820 entries\n");
-	setup_base->e820_entries = install_e820_map(
-		ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
+	if (ll_boot_init()) {
+		setup_base->e820_entries = install_e820_map(
+			ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
+	} else if (IS_ENABLED(CONFIG_COREBOOT_SYSINFO)) {
+		setup_base->e820_entries = cb_install_e820_map(
+			ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
+	}
 
 	if (bootproto == 0x0100) {
 		setup_base->screen_info.cl_magic = COMMAND_LINE_MAGIC;

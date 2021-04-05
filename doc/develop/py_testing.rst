@@ -13,7 +13,8 @@ results. Advantages of this approach are:
   U-Boot; there can be no disconnect.
 - There is no need to write or embed test-related code into U-Boot itself.
   It is asserted that writing test-related code in Python is simpler and more
-  flexible than writing it all in C.
+  flexible than writing it all in C. But see :doc:`tests_writing` for caveats
+  and more discussion / analysis.
 - It is reasonably simple to interact with U-Boot in this way.
 
 Requirements

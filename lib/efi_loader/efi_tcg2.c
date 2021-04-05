@@ -13,6 +13,7 @@
 #include <efi_loader.h>
 #include <efi_tcg2.h>
 #include <log.h>
+#include <version.h>
 #include <tpm-v2.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
@@ -958,6 +959,23 @@ out:
 }
 
 /**
+ * tcg2_uninit - remove the final event table and free efi memory on failures
+ */
+void tcg2_uninit(void)
+{
+	efi_status_t ret;
+
+	ret = efi_install_configuration_table(&efi_guid_final_events, NULL);
+	if (ret != EFI_SUCCESS)
+		log_err("Failed to delete final events config table\n");
+
+	efi_free_pool(event_log.buffer);
+	event_log.buffer = NULL;
+	efi_free_pool(event_log.final_buffer);
+	event_log.final_buffer = NULL;
+}
+
+/**
  * create_final_event() - Create the final event and install the config
  *			defined by the TCG EFI spec
  */
@@ -983,10 +1001,6 @@ static efi_status_t create_final_event(void)
 	event_log.final_pos = sizeof(*final_event);
 	ret = efi_install_configuration_table(&efi_guid_final_events,
 					      final_event);
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	return EFI_SUCCESS;
 out:
 	return ret;
 }
@@ -1041,6 +1055,40 @@ static efi_status_t efi_init_event_log(void)
 	event_log.last_event_size = event_log.pos;
 
 	ret = create_final_event();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	return EFI_SUCCESS;
+out:
+	tcg2_uninit();
+	return ret;
+}
+
+/**
+ * efi_append_scrtm_version - Append an S-CRTM EV_S_CRTM_VERSION event on the
+ *			      eventlog and extend the PCRs
+ *
+ * @dev:	TPM device
+ *
+ * @Return:	status code
+ */
+static efi_status_t efi_append_scrtm_version(struct udevice *dev)
+{
+	struct tpml_digest_values digest_list;
+	u8 ver[] = U_BOOT_VERSION_STRING;
+	const int pcr_index = 0;
+	efi_status_t ret;
+
+	ret = tcg2_create_digest(ver, sizeof(ver), &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_pcr_extend(dev, pcr_index, &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_agile_log_append(pcr_index, EV_S_CRTM_VERSION, &digest_list,
+				    sizeof(ver), ver);
 
 out:
 	return ret;
@@ -1055,23 +1103,34 @@ out:
  */
 efi_status_t efi_tcg2_register(void)
 {
-	efi_status_t ret;
+	efi_status_t ret = EFI_SUCCESS;
 	struct udevice *dev;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
 		log_warning("Unable to find TPMv2 device\n");
-		return EFI_SUCCESS;
+		ret = EFI_SUCCESS;
+		goto out;
 	}
 
 	ret = efi_init_event_log();
 	if (ret != EFI_SUCCESS)
-		return ret;
+		goto fail;
+
+	ret = efi_append_scrtm_version(dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS) {
 		log_err("Cannot install EFI_TCG2_PROTOCOL\n");
+		goto fail;
+	}
 
+out:
+	return ret;
+fail:
+	tcg2_uninit();
 	return ret;
 }

@@ -153,8 +153,9 @@ static int route_pmc_gpio_gpe(struct udevice *dev, uint pmc_gpe_num)
 
 static int itss_bind(struct udevice *dev)
 {
-	/* This is not set with of-platdata, so set it manually */
-	if (CONFIG_IS_ENABLED(OF_PLATDATA))
+	/* This is not set with basic of-platdata, so set it manually */
+	if (CONFIG_IS_ENABLED(OF_PLATDATA) &&
+	    !CONFIG_IS_ENABLED(OF_PLATDATA_INST))
 		dev->driver_data = X86_IRQT_ITSS;
 
 	return 0;

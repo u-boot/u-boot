@@ -143,7 +143,7 @@ int checkcpu(void)
 
 		/* System is not happy after keyboard reset... */
 		debug("Issuing CF9 warm reset\n");
-		reset_cpu(0);
+		reset_cpu();
 	}
 
 	ret = cpu_common_init();

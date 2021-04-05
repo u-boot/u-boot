@@ -1,0 +1,13 @@
+if TARGET_MT8516
+
+config SYS_BOARD
+	default "mt8516"
+
+config SYS_CONFIG_NAME
+	default "mt8516"
+
+config MTK_BROM_HEADER_INFO
+	string
+	default "media=emmc"
+
+endif

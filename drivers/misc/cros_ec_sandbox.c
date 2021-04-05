@@ -153,10 +153,14 @@ static int cros_ec_write_state(void *blob, int node)
 {
 	struct ec_state *ec = g_state;
 
+	if (!g_state)
+		return 0;
+
 	/* We are guaranteed enough space to write basic properties */
 	fdt_setprop_u32(blob, node, "current-image", ec->current_image);
 	fdt_setprop(blob, node, "vbnv-context", ec->vbnv_context,
 		    sizeof(ec->vbnv_context));
+
 	return state_setprop(node, "flash-data", ec->flash_data,
 			     ec->ec_config.flash.length);
 }

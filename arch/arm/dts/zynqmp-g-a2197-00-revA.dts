@@ -88,9 +88,6 @@
 		reset-gpios = <&gpio 42 GPIO_ACTIVE_LOW>;
 /*		xlnx,phy-type = <PHY_TYPE_SGMII>; */
 	};
-/*	phy-names = "...";
-	phys = <&lane0 PHY_TYPE_SGMII ... >
-	Note: lane0 sgmii/lane1 usb3 */
 };
 
 &gpio {

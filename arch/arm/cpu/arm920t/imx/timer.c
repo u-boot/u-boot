@@ -81,7 +81,7 @@ ulong get_tbclk(void)
 /*
  * Reset the cpu by setting up the watchdog timer and let him time out
  */
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	/* Disable watchdog and set Time-Out field to 0 */
 	WCR = 0x00000000;

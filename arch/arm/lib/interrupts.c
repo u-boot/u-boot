@@ -53,7 +53,7 @@ int disable_interrupts(void)
 void bad_mode (void)
 {
 	panic ("Resetting CPU ...\n");
-	reset_cpu(0);
+	reset_cpu();
 }
 
 static void show_efi_loaded_images(struct pt_regs *regs)

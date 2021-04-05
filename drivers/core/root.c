@@ -11,6 +11,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm-generic/sections.h>
 #include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <dm/acpi.h>
@@ -129,6 +130,36 @@ void fix_devices(void)
 	}
 }
 
+static int dm_setup_inst(void)
+{
+	DM_ROOT_NON_CONST = DM_DEVICE_GET(root);
+
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_RT)) {
+		struct udevice_rt *urt;
+		void *base;
+		int n_ents;
+		uint size;
+
+		/* Allocate the udevice_rt table */
+		n_ents = ll_entry_count(struct udevice, udevice);
+		urt = calloc(n_ents, sizeof(struct udevice_rt));
+		if (!urt)
+			return log_msg_ret("urt", -ENOMEM);
+		gd_set_dm_udevice_rt(urt);
+
+		/* Now allocate space for the priv/plat data, and copy it in */
+		size = __priv_data_end - __priv_data_start;
+
+		base = calloc(1, size);
+		if (!base)
+			return log_msg_ret("priv", -ENOMEM);
+		memcpy(base, __priv_data_start, size);
+		gd_set_dm_priv_base(base);
+	}
+
+	return 0;
+}
+
 int dm_init(bool of_live)
 {
 	int ret;
@@ -140,8 +171,12 @@ int dm_init(bool of_live)
 		dm_warn("Virtual root driver already exists!\n");
 		return -EINVAL;
 	}
-	gd->uclass_root = &DM_UCLASS_ROOT_S_NON_CONST;
-	INIT_LIST_HEAD(DM_UCLASS_ROOT_NON_CONST);
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_INST)) {
+		gd->uclass_root = &uclass_head;
+	} else {
+		gd->uclass_root = &DM_UCLASS_ROOT_S_NON_CONST;
+		INIT_LIST_HEAD(DM_UCLASS_ROOT_NON_CONST);
+	}
 
 	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
 		fix_drivers();
@@ -149,14 +184,23 @@ int dm_init(bool of_live)
 		fix_devices();
 	}
 
-	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
-	if (ret)
-		return ret;
-	if (CONFIG_IS_ENABLED(OF_CONTROL))
-		dev_set_ofnode(DM_ROOT_NON_CONST, ofnode_root());
-	ret = device_probe(DM_ROOT_NON_CONST);
-	if (ret)
-		return ret;
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_INST)) {
+		ret = dm_setup_inst();
+		if (ret) {
+			log_debug("dm_setup_inst() failed: %d\n", ret);
+			return ret;
+		}
+	} else {
+		ret = device_bind_by_name(NULL, false, &root_info,
+					  &DM_ROOT_NON_CONST);
+		if (ret)
+			return ret;
+		if (CONFIG_IS_ENABLED(OF_CONTROL))
+			dev_set_ofnode(DM_ROOT_NON_CONST, ofnode_root());
+		ret = device_probe(DM_ROOT_NON_CONST);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -185,7 +229,7 @@ int dm_scan_plat(bool pre_reloc_only)
 {
 	int ret;
 
-	if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_DRIVER_RT)) {
 		struct driver_rt *dyn;
 		int n_ents;
 
@@ -303,6 +347,15 @@ __weak int dm_scan_other(bool pre_reloc_only)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA_INST) && CONFIG_IS_ENABLED(READ_ONLY)
+void *dm_priv_to_rw(void *priv)
+{
+	long offset = priv - (void *)__priv_data_start;
+
+	return gd_dm_priv_base() + offset;
+}
+#endif
+
 /**
  * dm_scan() - Scan tables to bind devices
  *
@@ -347,10 +400,12 @@ int dm_init_and_scan(bool pre_reloc_only)
 		debug("dm_init() failed: %d\n", ret);
 		return ret;
 	}
-	ret = dm_scan(pre_reloc_only);
-	if (ret) {
-		log_debug("dm_scan() failed: %d\n", ret);
-		return ret;
+	if (!CONFIG_IS_ENABLED(OF_PLATDATA_INST)) {
+		ret = dm_scan(pre_reloc_only);
+		if (ret) {
+			log_debug("dm_scan() failed: %d\n", ret);
+			return ret;
+		}
 	}
 
 	return 0;

@@ -9,8 +9,8 @@
 #define LOG_CATEGORY UCLASS_ACPI_PMC
 
 #include <common.h>
-#include <dt-structs.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <log.h>
 #include <spl.h>
 #include <acpi/acpi_s3.h>

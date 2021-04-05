@@ -136,17 +136,17 @@ How to run it
 
 First do a dry run:
 
-$ ./tools/patman/patman -n
+$ ./tools/patman/patman send -n
 
 If it can't detect the upstream branch, try telling it how many patches
 there are in your series:
 
-$ ./tools/patman/patman -n -c5
+$ ./tools/patman/patman -c5 send -n
 
 This will create patch files in your current directory and tell you who
 it is thinking of sending them to. Take a look at the patch files.
 
-$ ./tools/patman/patman -n -c5 -s1
+$ ./tools/patman/patman -c5 -s1 send -n
 
 Similar to the above, but skip the first commit and take the next 5. This
 is useful if your top commit is for setting up testing.
@@ -433,12 +433,12 @@ but that you don't want to submit because there is an existing patch for it
 on the list. So you can tell patman to create and check some patches
 (skipping the first patch) with:
 
-    patman -s1 -n
+    patman -s1 send -n
 
 If you want to do all of them including the work-in-progress one, then
 (if you are tracking an upstream branch):
 
-    patman -n
+    patman send -n
 
 Let's say that patman reports an error in the second patch. Then:
 
@@ -450,7 +450,7 @@ Let's say that patman reports an error in the second patch. Then:
 
 Now you have an updated patch series. To check it:
 
-    patman -s1 -n
+    patman -s1 send -n
 
 Let's say it is now clean and you want to send it. Now you need to set up
 the destination. So amend the top commit with:
@@ -485,7 +485,7 @@ mmc and sparc, and the last one to sandbox.
 
 Now to send the patches, take off the -n flag:
 
-   patman -s1
+   patman -s1 send
 
 The patches will be created, shown in your editor, and then sent along with
 the cover letter. Note that patman's tags are automatically removed so that

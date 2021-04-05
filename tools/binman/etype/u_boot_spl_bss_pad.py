@@ -18,13 +18,16 @@ class Entry_u_boot_spl_bss_pad(Entry_blob):
     Properties / Entry arguments:
         None
 
-    This is similar to u_boot_spl except that padding is added after the SPL
-    binary to cover the BSS (Block Started by Symbol) region. This region holds
-    the various used by SPL. It is set to 0 by SPL when it starts up. If you
-    want to append data to the SPL image (such as a device tree file), you must
-    pad out the BSS region to avoid the data overlapping with U-Boot variables.
-    This entry is useful in that case. It automatically pads out the entry size
-    to cover both the code, data and BSS.
+    This holds the padding added after the SPL binary to cover the BSS (Block
+    Started by Symbol) region. This region holds the various variables used by
+    SPL. It is set to 0 by SPL when it starts up. If you want to append data to
+    the SPL image (such as a device tree file), you must pad out the BSS region
+    to avoid the data overlapping with U-Boot variables. This entry is useful in
+    that case. It automatically pads out the entry size to cover both the code,
+    data and BSS.
+
+    The contents of this entry will a certain number of zero bytes, determined
+    by __bss_size
 
     The ELF file 'spl/u-boot-spl' must also be available for this to work, since
     binman uses that to look up the BSS address.

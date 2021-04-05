@@ -79,6 +79,57 @@ static void swap_file_header(struct cbfs_fileheader *dest,
 	dest->offset = be32_to_cpu(src->offset);
 }
 
+/**
+ * fill_node() - Fill a node struct with information from the CBFS
+ *
+ * @node: Node to fill
+ * @start: Pointer to the start of the CBFS file in memory
+ * @header: Pointer to the header information (in our enddianess)
+ * @return 0 if OK, -EBADF if the header is too small
+ */
+static int fill_node(struct cbfs_cachenode *node, void *start,
+		     struct cbfs_fileheader *header)
+{
+	uint name_len;
+	uint offset;
+
+	/* Check the header is large enough */
+	if (header->offset < sizeof(struct cbfs_fileheader))
+		return -EBADF;
+
+	node->next = NULL;
+	node->type = header->type;
+	node->data = start + header->offset;
+	node->data_length = header->len;
+	name_len = header->offset - sizeof(struct cbfs_fileheader);
+	node->name = start + sizeof(struct cbfs_fileheader);
+	node->name_length = name_len;
+	node->attr_offset = header->attributes_offset;
+	node->comp_algo = CBFS_COMPRESS_NONE;
+	node->decomp_size = 0;
+
+	for (offset = node->attr_offset; offset < header->offset;) {
+		const struct cbfs_file_attribute *attr;
+		uint tag, len;
+
+		attr = start + offset;
+		tag = be32_to_cpu(attr->tag);
+		len = be32_to_cpu(attr->len);
+		if (tag == CBFS_FILE_ATTR_TAG_COMPRESSION) {
+			struct cbfs_file_attr_compression *comp;
+
+			comp = start + offset;
+			node->comp_algo = be32_to_cpu(comp->compression);
+			node->decomp_size =
+				be32_to_cpu(comp->decompressed_size);
+		}
+
+		offset += len;
+	}
+
+	return 0;
+}
+
 /*
  * Given a starting position in memory, scan forward, bounded by a size, and
  * find the next valid CBFS file. No memory is allocated by this function. The
@@ -87,7 +138,7 @@ static void swap_file_header(struct cbfs_fileheader *dest,
  * @param start		The location in memory to start from.
  * @param size		The size of the memory region to search.
  * @param align		The alignment boundaries to check on.
- * @param new_node	A pointer to the file structure to load.
+ * @param node	A pointer to the file structure to load.
  * @param used		A pointer to the count of of bytes scanned through,
  *			including the file if one is found.
  *
@@ -95,7 +146,7 @@ static void swap_file_header(struct cbfs_fileheader *dest,
  *	is found.
  */
 static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
-			       int align, struct cbfs_cachenode *new_node,
+			       int align, struct cbfs_cachenode *node,
 			       int *used)
 {
 	struct cbfs_fileheader header;
@@ -104,8 +155,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 
 	while (size >= align) {
 		const struct cbfs_fileheader *file_header = start;
-		u32 name_len;
-		u32 step;
+		int ret;
 
 		/* Check if there's a file here. */
 		if (memcmp(good_file_magic, &file_header->magic,
@@ -117,25 +167,13 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 		}
 
 		swap_file_header(&header, file_header);
-		if (header.offset < sizeof(struct cbfs_fileheader)) {
+		ret = fill_node(node, start, &header);
+		if (ret) {
 			priv->result = CBFS_BAD_FILE;
-			return -EBADF;
+			return log_msg_ret("fill", ret);
 		}
-		new_node->next = NULL;
-		new_node->type = header.type;
-		new_node->data = start + header.offset;
-		new_node->data_length = header.len;
-		name_len = header.offset - sizeof(struct cbfs_fileheader);
-		new_node->name = (char *)file_header +
-				sizeof(struct cbfs_fileheader);
-		new_node->name_length = name_len;
-		new_node->attributes_offset = header.attributes_offset;
 
-		step = header.len;
-		if (step % align)
-			step = step + align - step % align;
-
-		*used += step;
+		*used += ALIGN(header.len, align);
 		return 0;
 	}
 
@@ -146,7 +184,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 static int file_cbfs_fill_cache(struct cbfs_priv *priv, int size, int align)
 {
 	struct cbfs_cachenode *cache_node;
-	struct cbfs_cachenode *new_node;
+	struct cbfs_cachenode *node;
 	struct cbfs_cachenode **cache_tail = &priv->file_cache;
 	void *start;
 
@@ -164,21 +202,20 @@ static int file_cbfs_fill_cache(struct cbfs_priv *priv, int size, int align)
 		int used;
 		int ret;
 
-		new_node = (struct cbfs_cachenode *)
-				malloc(sizeof(struct cbfs_cachenode));
-		if (!new_node)
+		node = malloc(sizeof(struct cbfs_cachenode));
+		if (!node)
 			return -ENOMEM;
-		ret = file_cbfs_next_file(priv, start, size, align, new_node,
+		ret = file_cbfs_next_file(priv, start, size, align, node,
 					  &used);
 
 		if (ret < 0) {
-			free(new_node);
+			free(node);
 			if (ret == -ENOENT)
 				break;
 			return ret;
 		}
-		*cache_tail = new_node;
-		cache_tail = &new_node->next;
+		*cache_tail = node;
+		cache_tail = &node->next;
 
 		size -= used;
 		start += used;
@@ -276,18 +313,26 @@ int file_cbfs_init(ulong end_of_rom)
 	return cbfs_init(&cbfs_s, end_of_rom);
 }
 
-int cbfs_init_mem(ulong base, struct cbfs_priv **privp)
+int cbfs_init_mem(ulong base, ulong size, bool require_hdr,
+		  struct cbfs_priv **privp)
 {
 	struct cbfs_priv priv_s, *priv = &priv_s;
 	int ret;
 
 	/*
-	 * Use a local variable to start with until we know that the CBFS is
-	 * valid.
+	 * Use a local variable to start with until we know that the * CBFS is
+	 * valid. Note that size is detected from the header, if present,
+	 * meaning the parameter is ignored.
 	 */
 	ret = cbfs_load_header_ptr(priv, base);
-	if (ret)
-		return ret;
+	if (ret) {
+		if (require_hdr || size == CBFS_SIZE_UNKNOWN)
+			return ret;
+		memset(priv, '\0', sizeof(struct cbfs_priv));
+		priv->header.rom_size = size;
+		priv->header.align = CBFS_ALIGN_SIZE;
+		priv->start = (void *)base;
+	}
 
 	ret = file_cbfs_fill_cache(priv, priv->header.rom_size,
 				   priv->header.align);
@@ -315,6 +360,17 @@ const struct cbfs_header *file_cbfs_get_header(void)
 		priv->result = CBFS_NOT_INITIALIZED;
 		return NULL;
 	}
+}
+
+const struct cbfs_cachenode *cbfs_get_first(const struct cbfs_priv *priv)
+{
+	return priv->file_cache;
+}
+
+void cbfs_get_next(const struct cbfs_cachenode **filep)
+{
+	if (*filep)
+		*filep = (*filep)->next;
 }
 
 const struct cbfs_cachenode *file_cbfs_get_first(void)

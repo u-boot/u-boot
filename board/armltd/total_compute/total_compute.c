@@ -63,6 +63,6 @@ int dram_init_banksize(void)
 }
 
 /* Nothing to be done here as handled by PSCI interface */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }

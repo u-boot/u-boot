@@ -9,13 +9,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <asm/clk.h>
-
-struct sandbox_clk_priv {
-	bool probed;
-	ulong rate[SANDBOX_CLK_ID_COUNT];
-	bool enabled[SANDBOX_CLK_ID_COUNT];
-	bool requested[SANDBOX_CLK_ID_COUNT];
-};
+#include <linux/clk-provider.h>
 
 static ulong sandbox_clk_get_rate(struct clk *clk)
 {
@@ -178,3 +172,35 @@ int sandbox_clk_query_requested(struct udevice *dev, int id)
 		return -EINVAL;
 	return priv->requested[id];
 }
+
+int clk_fixed_rate_of_to_plat(struct udevice *dev)
+{
+	struct clk_fixed_rate *cplat;
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct sandbox_clk_fixed_rate_plat *plat = dev_get_plat(dev);
+
+	cplat = &plat->fixed;
+	cplat->fixed_rate = plat->dtplat.clock_frequency;
+#else
+	cplat = to_clk_fixed_rate(dev);
+#endif
+	clk_fixed_rate_ofdata_to_plat_(dev, cplat);
+
+	return 0;
+}
+
+static const struct udevice_id sandbox_clk_fixed_rate_match[] = {
+	{ .compatible = "sandbox,fixed-clock" },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(sandbox_fixed_clock) = {
+	.name = "sandbox_fixed_clock",
+	.id = UCLASS_CLK,
+	.of_match = sandbox_clk_fixed_rate_match,
+	.of_to_plat = clk_fixed_rate_of_to_plat,
+	.plat_auto = sizeof(struct sandbox_clk_fixed_rate_plat),
+	.ops = &clk_fixed_rate_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};

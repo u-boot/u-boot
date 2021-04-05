@@ -73,6 +73,11 @@ struct dm_test_priv {
 	int uclass_postp;
 };
 
+/* struct dm_test_uc_priv - private data for the testdrv uclass */
+struct dm_test_uc_priv {
+	int dummy;
+};
+
 /**
  * struct dm_test_perdev_class_priv - private per-device data for test uclass
  */
@@ -127,25 +132,9 @@ extern int dm_testdrv_op_count[DM_TEST_OP_COUNT];
 
 extern struct unit_test_state global_dm_test_state;
 
-/*
- * struct dm_test_state - Entire state of dm test system
- *
- * This is often abreviated to dms.
- *
- * @root: Root device
- * @testdev: Test device
- * @force_fail_alloc: Force all memory allocs to fail
- * @skip_post_probe: Skip uclass post-probe processing
- */
-struct dm_test_state {
-	struct udevice *root;
-	struct udevice *testdev;
-	int force_fail_alloc;
-	int skip_post_probe;
-};
-
 /* Declare a new driver model test */
-#define DM_TEST(_name, _flags)	UNIT_TEST(_name, _flags, dm_test)
+#define DM_TEST(_name, _flags) \
+	UNIT_TEST(_name, UT_TESTF_DM | UT_TESTF_CONSOLE_REC | (_flags), dm_test)
 
 /*
  * struct sandbox_sdl_plat - Platform data for the SDL video driver

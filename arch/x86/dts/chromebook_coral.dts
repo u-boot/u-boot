@@ -47,6 +47,7 @@
 		i2c5 = &i2c_5;
 		i2c6 = &i2c_6;
 		i2c7 = &i2c_7;
+		mmc0 = &emmc;
 		mmc1 = &sdmmc;
 	};
 
@@ -55,6 +56,17 @@
 		recovery-gpios = <&gpio_nw (-1) GPIO_ACTIVE_LOW>;
 		write-protect-gpios = <&gpio_nw GPIO_75 GPIO_ACTIVE_HIGH>;
 		phase-enforce-gpios = <&gpio_n GPIO_10 GPIO_ACTIVE_HIGH>;
+		memconfig-gpios = <&gpio_nw GPIO_101 GPIO_ACTIVE_HIGH
+			&gpio_nw GPIO_102 GPIO_ACTIVE_HIGH
+			&gpio_n GPIO_38 GPIO_ACTIVE_HIGH
+			&gpio_n GPIO_45 GPIO_ACTIVE_HIGH>;
+
+		/*
+		 * This is used for reef only:
+		 *
+		 * skuconfig-gpios = <&gpio_nw GPIO_16 GPIO_ACTIVE_HIGH
+		 *	&gpio_nw GPIO_17 GPIO_ACTIVE_HIGH>;
+		 */
 		smbios {
 			/* Type 1 table */
 			system {
@@ -100,7 +112,7 @@
 	clk: clock {
 		compatible = "intel,apl-clk";
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 	};
 
 	cpus {
@@ -141,11 +153,16 @@
 	};
 
 	acpi_gpe: general-purpose-events {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 		reg = <IOMAP_ACPI_BASE IOMAP_ACPI_SIZE>;
 		compatible = "intel,acpi-gpe";
 		interrupt-controller;
 		#interrupt-cells = <2>;
+	};
+
+	coreboot-video {
+		/* This will only activate when booted from coreboot */
+		compatible = "coreboot-fb";
 	};
 
 	keyboard {
@@ -423,7 +440,7 @@
 			compatible = "intel,apl-i2c", "snps,designware-i2c-pci";
 			reg = <0x0200b210 0 0 0 0>;
 			early-regs = <IOMAP_I2C2_BASE 0x1000>;
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			clock-frequency = <400000>;
@@ -434,7 +451,7 @@
 			tpm: tpm@50 {
 				reg = <0x50>;
 				compatible = "google,cr50";
-				u-boot,dm-pre-reloc;
+				u-boot,dm-pre-proper;
 				u-boot,i2c-offset-len = <0>;
 				ready-gpios = <&gpio_n 28 GPIO_ACTIVE_LOW>;
 				interrupts-extended = <&acpi_gpe GPIO_28_IRQ
@@ -571,7 +588,7 @@
 		sdmmc: sdmmc@1b,0 {
 			reg = <0x0000d800 0 0 0 0>;
 			compatible = "intel,apl-sd";
-			cd-gpios = <&gpio_n GPIO_177 GPIO_ACTIVE_LOW>;
+			cd-gpios = <&gpio_sw GPIO_177 GPIO_ACTIVE_LOW>;
 			acpi,name = "SDCD";
 		};
 
@@ -1233,5 +1250,5 @@
 &rtc {
 	#address-cells = <1>;
 	#size-cells = <0>;
-	u-boot,dm-pre-reloc;
+	u-boot,dm-pre-proper;
 };

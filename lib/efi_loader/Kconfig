@@ -315,18 +315,13 @@ config EFI_TCG2_PROTOCOL_EVENTLOG_SIZE
 
 config EFI_LOAD_FILE2_INITRD
 	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"
-	default n
+	default y
 	help
-	  Expose a EFI_FILE_LOAD2_PROTOCOL that the Linux UEFI stub can
-	  use to load the initial ramdisk. Once this is enabled using
-	  initrd=<ramdisk> will stop working.
-
-config EFI_INITRD_FILESPEC
-	string "initramfs path"
-	default "host 0:1 initrd"
-	depends on EFI_LOAD_FILE2_INITRD
-	help
-	  Full path of the initramfs file, e.g. mmc 0:2 initramfs.cpio.gz.
+	  Linux v5.7 and later can make use of this option. If the boot option
+	  selected by the UEFI boot manager specifies an existing file to be used
+	  as initial RAM disk, a Linux specific Load File2 protocol will be
+	  installed and Linux 5.7+ will ignore any initrd=<ramdisk> command line
+	  argument.
 
 config EFI_SECURE_BOOT
 	bool "Enable EFI secure boot support"
@@ -346,5 +341,12 @@ config EFI_SECURE_BOOT
 	  Once SecureBoot mode is enforced, any EFI binary can run only if
 	  it is signed with a trusted key. To do that, you need to install,
 	  at least, PK, KEK and db.
+
+config EFI_ESRT
+	bool "Enable the UEFI ESRT generation"
+	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	default y
+	help
+	  Enabling this option creates the ESRT UEFI system table.
 
 endif

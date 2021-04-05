@@ -4,7 +4,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 #define LOG_CATEGORY UCLASS_I2S
-#define LOG_DEBUG
 
 #include <common.h>
 #include <dm.h>

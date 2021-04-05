@@ -409,6 +409,45 @@ static efi_status_t efi_get_file_size(struct file_handle *fh,
 	return EFI_SUCCESS;
 }
 
+/**
+ * efi_file_size() - Get the size of a file using an EFI file handle
+ *
+ * @fh:		EFI file handle
+ * @size:	buffer to fill in the discovered size
+ *
+ * Return:	size of the file
+ */
+efi_status_t efi_file_size(struct efi_file_handle *fh, efi_uintn_t *size)
+{
+	struct efi_file_info *info = NULL;
+	efi_uintn_t bs = 0;
+	efi_status_t ret;
+
+	*size = 0;
+	ret = EFI_CALL(fh->getinfo(fh, (efi_guid_t *)&efi_file_info_guid, &bs,
+				   info));
+	if (ret != EFI_BUFFER_TOO_SMALL) {
+		ret = EFI_DEVICE_ERROR;
+		goto out;
+	}
+
+	info = malloc(bs);
+	if (!info) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+	ret = EFI_CALL(fh->getinfo(fh, (efi_guid_t *)&efi_file_info_guid, &bs,
+				   info));
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	*size = info->file_size;
+
+out:
+	free(info);
+	return ret;
+}
+
 static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
 		void *buffer)
 {

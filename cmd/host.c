@@ -41,17 +41,35 @@ static int do_host_save(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
-	if (argc < 2 || argc > 3)
-		return CMD_RET_USAGE;
+	bool removable = false;
+	const char *dev_str;
+	char *file;
 	char *ep;
-	char *dev_str = argv[1];
-	char *file = argc >= 3 ? argv[2] : NULL;
-	int dev = simple_strtoul(dev_str, &ep, 16);
+	int dev;
+
+	/* Skip 'bind' */
+	argc--;
+	argv++;
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	if (!strcmp(argv[0], "-r")) {
+		removable = true;
+		argc--;
+		argv++;
+	}
+
+	if (argc > 2)
+		return CMD_RET_USAGE;
+	dev_str = argv[0];
+	dev = simple_strtoul(dev_str, &ep, 16);
 	if (*ep) {
 		printf("** Bad device specification %s **\n", dev_str);
 		return CMD_RET_USAGE;
 	}
-	return !!host_dev_bind(dev, file);
+	file = argc > 1 ? argv[1] : NULL;
+
+	return !!host_dev_bind(dev, file, removable);
 }
 
 static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -146,7 +164,7 @@ static struct cmd_tbl cmd_host_sub[] = {
 	U_BOOT_CMD_MKENT(ls, 3, 0, do_host_ls, "", ""),
 	U_BOOT_CMD_MKENT(save, 6, 0, do_host_save, "", ""),
 	U_BOOT_CMD_MKENT(size, 3, 0, do_host_size, "", ""),
-	U_BOOT_CMD_MKENT(bind, 3, 0, do_host_bind, "", ""),
+	U_BOOT_CMD_MKENT(bind, 4, 0, do_host_bind, "", ""),
 	U_BOOT_CMD_MKENT(info, 3, 0, do_host_info, "", ""),
 	U_BOOT_CMD_MKENT(dev, 0, 1, do_host_dev, "", ""),
 };
@@ -178,7 +196,8 @@ U_BOOT_CMD(
 	"host save hostfs - <addr> <filename> <bytes> [<offset>] - "
 		"save a file to host\n"
 	"host size hostfs - <filename> - determine size of file on host\n"
-	"host bind <dev> [<filename>] - bind \"host\" device to file\n"
+	"host bind [-r] <dev> [<filename>] - bind \"host\" device to file\n"
+	"     -r = mark as removable\n"
 	"host info [<dev>]            - show device binding & info\n"
 	"host dev [<dev>] - Set or retrieve the current host device\n"
 	"host commands use the \"hostfs\" device. The \"host\" device is used\n"

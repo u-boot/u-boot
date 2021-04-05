@@ -322,6 +322,6 @@ int board_late_init(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }

@@ -17,9 +17,13 @@ NAME =
 # o Look for make include files relative to root of kernel src
 MAKEFLAGS += -rR --include-dir=$(CURDIR)
 
-# Determine host architecture
+# Determine target architecture for the sandbox
 include include/host_arch.h
-MK_ARCH="${shell uname -m}"
+ifeq ("", "$(CROSS_COMPILE)")
+  MK_ARCH="${shell uname -m}"
+else
+  MK_ARCH="${shell echo $(CROSS_COMPILE) | sed -n 's/^\s*\([^\/]*\/\)*\([^-]*\)-\S*/\2/p'}"
+endif
 unexport HOST_ARCH
 ifeq ("x86_64", $(MK_ARCH))
   export HOST_ARCH=$(HOST_ARCH_X86_64)
@@ -27,7 +31,7 @@ else ifneq (,$(findstring $(MK_ARCH), "i386" "i486" "i586" "i686"))
   export HOST_ARCH=$(HOST_ARCH_X86)
 else ifneq (,$(findstring $(MK_ARCH), "aarch64" "armv8l"))
   export HOST_ARCH=$(HOST_ARCH_AARCH64)
-else ifeq ("armv7l", $(MK_ARCH))
+else ifneq (,$(findstring $(MK_ARCH), "arm" "armv7" "armv7l"))
   export HOST_ARCH=$(HOST_ARCH_ARM)
 else ifeq ("riscv32", $(MK_ARCH))
   export HOST_ARCH=$(HOST_ARCH_RISCV32)
@@ -1265,7 +1269,13 @@ u-boot.ldr:	u-boot
 # binman
 # ---------------------------------------------------------------------------
 # Use 'make BINMAN_DEBUG=1' to enable debugging
+# Use 'make BINMAN_VERBOSE=3' to set vebosity level
 default_dt := $(if $(DEVICE_TREE),$(DEVICE_TREE),$(CONFIG_DEFAULT_DEVICE_TREE))
+
+# Tell binman whether we have a devicetree for SPL and TPL
+have_spl_dt := $(if $(CONFIG_SPL_OF_PLATDATA),,$(CONFIG_SPL_OF_CONTROL))
+have_tpl_dt := $(if $(CONFIG_TPL_OF_PLATDATA),,$(CONFIG_TPL_OF_CONTROL))
+
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
                 --toolpath $(objtree)/tools \
@@ -1276,6 +1286,9 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-a atf-bl31-path=${BL31} \
 		-a default-dt=$(default_dt) \
 		-a scp-path=$(SCP) \
+		-a spl-bss-pad=$(if $(CONFIG_SPL_SEPARATE_BSS),,1) \
+		-a tpl-bss-pad=$(if $(CONFIG_TPL_SEPARATE_BSS),,1) \
+		-a spl-dtb=$(have_spl_dt) -a tpl-dtb=$(have_tpl_dt) \
 		$(BINMAN_$(@F))
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
@@ -1666,6 +1679,9 @@ u-boot-elf.lds: arch/u-boot-elf.lds prepare FORCE
 
 ifeq ($(CONFIG_SPL),y)
 spl/u-boot-spl-mtk.bin: spl/u-boot-spl
+
+u-boot-mtk.bin: u-boot-with-spl.bin
+	$(call if_changed,copy)
 else
 MKIMAGEFLAGS_u-boot-mtk.bin = -T mtk_image \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) \

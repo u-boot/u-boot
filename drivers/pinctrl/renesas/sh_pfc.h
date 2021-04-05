@@ -295,6 +295,7 @@ sh_pfc_pin_to_bias_reg(const struct sh_pfc *pfc, unsigned int pin,
 
 extern const struct sh_pfc_soc_info r8a774a1_pinmux_info;
 extern const struct sh_pfc_soc_info r8a774b1_pinmux_info;
+extern const struct sh_pfc_soc_info r8a774c0_pinmux_info;
 extern const struct sh_pfc_soc_info r8a774e1_pinmux_info;
 extern const struct sh_pfc_soc_info r8a7790_pinmux_info;
 extern const struct sh_pfc_soc_info r8a7791_pinmux_info;

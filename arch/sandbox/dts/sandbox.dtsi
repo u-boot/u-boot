@@ -31,7 +31,7 @@
 
 	clk_fixed: clk-fixed {
 		u-boot,dm-pre-reloc;
-		compatible = "fixed-clock";
+		compatible = "sandbox,fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <1234>;
 	};
@@ -101,15 +101,19 @@
 		};
 
 		i2c_emul: emul {
+			u-boot,dm-pre-reloc;
 			reg = <0xff>;
 			compatible = "sandbox,i2c-emul-parent";
 			emul_eeprom: emul-eeprom {
 				compatible = "sandbox,i2c-eeprom";
 				sandbox,filename = "i2c.bin";
 				sandbox,size = <256>;
+				#emul-cells = <0>;
 			};
 			emul0: emul0 {
-				compatible = "sandbox,i2c-rtc";
+				u-boot,dm-pre-reloc;
+				compatible = "sandbox,i2c-rtc-emul";
+				#emul-cells = <0>;
 			};
 		};
 	};
@@ -196,6 +200,10 @@
 		compatible = "sandbox,reset";
 	};
 
+	rng {
+		compatible = "sandbox,sandbox-rng";
+	};
+
 	sound {
 		compatible = "sandbox,sound";
 		cpu {
@@ -260,14 +268,10 @@
 		stringarray = "pre-proper";
 	};
 
-	test-bus {
-		compatible = "simple-bus";
+	spl-test7 {
 		u-boot,dm-spl;
-		spl-test7 {
-			u-boot,dm-spl;
-			compatible = "sandbox,spl-test";
-			stringarray = "spl";
-		};
+		compatible = "sandbox,spl-test";
+		stringarray = "spl";
 	};
 
 	square {

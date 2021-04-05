@@ -16,6 +16,7 @@
 #include <init.h>
 #include <irq_func.h>
 #include <log.h>
+#include <mapmem.h>
 #include <serial.h>
 #include <spl.h>
 #include <asm/global_data.h>
@@ -168,7 +169,7 @@ __weak void spl_board_prepare_for_boot(void)
 
 __weak struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
 {
-	return (struct image_header *)(CONFIG_SYS_TEXT_BASE + offset);
+	return map_sysmem(CONFIG_SYS_TEXT_BASE + offset, 0);
 }
 
 void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
@@ -386,6 +387,22 @@ static inline int write_spl_handoff(void) { return 0; }
 
 #endif /* HANDOFF */
 
+/**
+ * get_bootstage_id() - Get the bootstage ID to emit
+ *
+ * @start: true if this is for starting SPL, false for ending it
+ * @return bootstage ID to use
+ */
+static enum bootstage_id get_bootstage_id(bool start)
+{
+	enum u_boot_phase phase = spl_phase();
+
+	if (IS_ENABLED(CONFIG_TPL_BUILD) && phase == PHASE_TPL)
+		return start ? BOOTSTAGE_ID_START_TPL : BOOTSTAGE_ID_END_TPL;
+	else
+		return start ? BOOTSTAGE_ID_START_SPL : BOOTSTAGE_ID_END_SPL;
+}
+
 static int spl_common_init(bool setup_malloc)
 {
 	int ret;
@@ -416,8 +433,8 @@ static int spl_common_init(bool setup_malloc)
 			      __func__, ret);
 	}
 #endif /* CONFIG_BOOTSTAGE_STASH */
-	bootstage_mark_name(spl_phase() == PHASE_TPL ? BOOTSTAGE_ID_START_TPL :
-			    BOOTSTAGE_ID_START_SPL, SPL_TPL_NAME);
+	bootstage_mark_name(get_bootstage_id(true),
+			    spl_phase_name(spl_phase()));
 #if CONFIG_IS_ENABLED(LOG)
 	ret = log_init();
 	if (ret) {
@@ -694,7 +711,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #endif
 	switch (spl_image.os) {
 	case IH_OS_U_BOOT:
-		debug("Jumping to U-Boot\n");
+		debug("Jumping to %s...\n", spl_phase_name(spl_next_phase()));
 		break;
 #if CONFIG_IS_ENABLED(ATF)
 	case IH_OS_ARM_TRUSTED_FIRMWARE:
@@ -732,8 +749,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	debug("SPL malloc() used 0x%lx bytes (%ld KB)\n", gd->malloc_ptr,
 	      gd->malloc_ptr / 1024);
 #endif
-	bootstage_mark_name(spl_phase() == PHASE_TPL ? BOOTSTAGE_ID_END_TPL :
-			    BOOTSTAGE_ID_END_SPL, "end " SPL_TPL_NAME);
+	bootstage_mark_name(get_bootstage_id(false), "end phase");
 #ifdef CONFIG_BOOTSTAGE_STASH
 	ret = bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			      CONFIG_BOOTSTAGE_STASH_SIZE);
@@ -741,7 +757,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		debug("Failed to stash bootstage: err=%d\n", ret);
 #endif
 
-	debug("loaded - jumping to %s...\n", spl_phase_name(spl_next_phase()));
 	spl_board_prepare_for_boot();
 	jump_to_image_no_args(&spl_image);
 }

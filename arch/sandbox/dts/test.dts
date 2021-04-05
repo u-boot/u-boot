@@ -604,10 +604,10 @@
 				sandbox,size = <256>;
 			};
 			emul0: emul0 {
-				compatible = "sandbox,i2c-rtc";
+				compatible = "sandbox,i2c-rtc-emul";
 			};
 			emul1: emull {
-				compatible = "sandbox,i2c-rtc";
+				compatible = "sandbox,i2c-rtc-emul";
 			};
 		};
 
@@ -1402,3 +1402,4 @@
 };
 
 #include "sandbox_pmic.dtsi"
+#include "cros-ec-keyboard.dtsi"

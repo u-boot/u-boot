@@ -152,6 +152,12 @@
 		compatible = "mediatek,mt7629-pinctrl";
 		reg = <0x10217000 0x8000>;
 
+		pinctrl-names = "default";
+		pinctrl-0 = <&state_default>;
+
+		state_default: pinmux_conf {
+		};
+
 		gpio: gpio-controller {
 			gpio-controller;
 			#gpio-cells = <2>;

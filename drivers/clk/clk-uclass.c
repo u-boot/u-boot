@@ -39,7 +39,7 @@ int clk_get_by_driver_info(struct udevice *dev, struct phandle_1_arg *cells,
 {
 	int ret;
 
-	ret = device_get_by_driver_info_idx(cells->idx, &clk->dev);
+	ret = device_get_by_ofplat_idx(cells->idx, &clk->dev);
 	if (ret)
 		return ret;
 	clk->id = cells->arg[0];

@@ -107,8 +107,8 @@ static int get_tpm_nv_size(struct udevice *tpm, uint32_t index, uint32_t *size)
 	uint8_t *ptr;
 	uint16_t v16;
 
-	err = tpm_get_capability(tpm, TPM_CAP_NV_INDEX, index,
-				 info, sizeof(info));
+	err = tpm1_get_capability(tpm, TPM_CAP_NV_INDEX, index, info,
+				  sizeof(info));
 	if (err) {
 		printf("tpm_get_capability(CAP_NV_INDEX, %08x) failed: %u\n",
 		       index, err);
@@ -150,8 +150,8 @@ static int find_key(struct udevice *tpm, const uint8_t auth[20],
 	unsigned int i;
 
 	/* fetch list of already loaded keys in the TPM */
-	err = tpm_get_capability(tpm, TPM_CAP_HANDLE, TPM_RT_KEY, buf,
-				 sizeof(buf));
+	err = tpm1_get_capability(tpm, TPM_CAP_HANDLE, TPM_RT_KEY, buf,
+				  sizeof(buf));
 	if (err)
 		return -1;
 	key_count = get_unaligned_be16(buf);
@@ -162,8 +162,8 @@ static int find_key(struct udevice *tpm, const uint8_t auth[20],
 	/* now search a(/ the) key which we can access with the given auth */
 	for (i = 0; i < key_count; ++i) {
 		buf_len = sizeof(buf);
-		err = tpm_get_pub_key_oiap(tpm, key_handles[i], auth, buf,
-					   &buf_len);
+		err = tpm1_get_pub_key_oiap(tpm, key_handles[i], auth, buf,
+					    &buf_len);
 		if (err && err != TPM_AUTHFAIL)
 			return -1;
 		if (err)
@@ -192,8 +192,8 @@ static int read_common_data(struct udevice *tpm)
 	if (get_tpm_nv_size(tpm, NV_COMMON_DATA_INDEX, &size) ||
 	    size < NV_COMMON_DATA_MIN_SIZE)
 		return 1;
-	err = tpm_nv_read_value(tpm, NV_COMMON_DATA_INDEX,
-				buf, min(sizeof(buf), size));
+	err = tpm1_nv_read_value(tpm, NV_COMMON_DATA_INDEX, buf,
+				 min(sizeof(buf), size));
 	if (err) {
 		printf("tpm_nv_read_value() failed: %u\n", err);
 		return 1;
@@ -270,8 +270,8 @@ static struct h_reg *access_hreg(struct udevice *tpm, uint8_t spec,
 	if (mode & HREG_RD) {
 		if (!result->valid) {
 			if (IS_PCR_HREG(spec)) {
-				hre_tpm_err = tpm_pcr_read(tpm, HREG_IDX(spec),
-					result->digest, 20);
+				hre_tpm_err = tpm1_pcr_read(tpm, HREG_IDX(spec),
+							    result->digest, 20);
 				result->valid = (hre_tpm_err == TPM_SUCCESS);
 			} else if (IS_FIX_HREG(spec)) {
 				switch (HREG_IDX(spec)) {
@@ -357,8 +357,8 @@ static int hre_op_loadkey(struct udevice *tpm, struct h_reg *src_reg,
 		return -1;
 	if (find_key(tpm, src_reg->digest, dst_reg->digest, &parent_handle))
 		return -1;
-	hre_tpm_err = tpm_load_key2_oiap(tpm, parent_handle, key, key_size,
-					 src_reg->digest, &key_handle);
+	hre_tpm_err = tpm1_load_key2_oiap(tpm, parent_handle, key, key_size,
+					  src_reg->digest, &key_handle);
 	if (hre_tpm_err) {
 		hre_err = HRE_E_TPM_FAILURE;
 		return -1;
@@ -474,8 +474,8 @@ do_bin_func:
 	}
 
 	if (dst_reg && dst_modified && IS_PCR_HREG(dst_spec)) {
-		hre_tpm_err = tpm_extend(tpm, HREG_IDX(dst_spec),
-					 dst_reg->digest, dst_reg->digest);
+		hre_tpm_err = tpm1_extend(tpm, HREG_IDX(dst_spec),
+					  dst_reg->digest, dst_reg->digest);
 		if (hre_tpm_err) {
 			hre_err = HRE_E_TPM_FAILURE;
 			return NULL;

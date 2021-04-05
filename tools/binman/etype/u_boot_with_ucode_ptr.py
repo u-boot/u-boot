@@ -26,7 +26,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
     See Entry_u_boot_ucode for full details of the three entries involved in
     this process. This entry updates U-Boot with the offset and size of the
     microcode, to allow early x86 boot code to find it without doing anything
-    complicated. Otherwise it is the same as the u_boot entry.
+    complicated. Otherwise it is the same as the u-boot entry.
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)

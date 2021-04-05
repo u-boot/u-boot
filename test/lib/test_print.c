@@ -18,12 +18,14 @@ DECLARE_GLOBAL_DATA_PTR;
 static int test_print_freq(struct unit_test_state *uts,
 			   uint64_t freq, char *expected)
 {
+	ut_silence_console(uts);
 	console_record_reset_enable();
 	print_freq(freq, ";\n");
-	gd->flags &= ~GD_FLG_RECORD;
+	ut_unsilence_console(uts);
 	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
 	ut_asserteq_str(expected, uts->actual_str);
 	ut_assertok(ut_check_console_end(uts));
+
 	return 0;
 }
 
@@ -46,12 +48,14 @@ LIB_TEST(lib_test_print_freq, 0);
 static int test_print_size(struct unit_test_state *uts,
 			   uint64_t freq, char *expected)
 {
+	ut_silence_console(uts);
 	console_record_reset_enable();
 	print_size(freq, ";\n");
-	gd->flags &= ~GD_FLG_RECORD;
+	ut_unsilence_console(uts);
 	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
 	ut_asserteq_str(expected, uts->actual_str);
 	ut_assertok(ut_check_console_end(uts));
+
 	return 0;
 }
 

@@ -8,7 +8,7 @@
 
 phys_addr_t socfpga_get_rstmgr_addr(void);
 
-void reset_cpu(ulong addr);
+void reset_cpu(void);
 
 void socfpga_per_reset(u32 reset, int set);
 void socfpga_per_reset_all(void);

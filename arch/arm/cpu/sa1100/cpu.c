@@ -55,7 +55,7 @@ static void cache_flush (void)
 #define RSRR	0x00
 #define RCSR	0x04
 
-__attribute__((noreturn)) void reset_cpu(ulong addr __attribute__((unused)))
+__attribute__((noreturn)) void reset_cpu(void)
 {
 	/* repeat endlessly */
 	while (1) {

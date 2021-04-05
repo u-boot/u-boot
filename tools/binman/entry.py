@@ -102,22 +102,30 @@ class Entry(object):
         self.allow_missing = False
 
     @staticmethod
-    def Lookup(node_path, etype):
+    def Lookup(node_path, etype, expanded):
         """Look up the entry class for a node.
 
         Args:
             node_node: Path name of Node object containing information about
                        the entry to create (used for errors)
             etype:   Entry type to use
+            expanded: Use the expanded version of etype
 
         Returns:
-            The entry class object if found, else None
+            The entry class object if found, else None if not found and expanded
+                is True
+
+        Raise:
+            ValueError if expanded is False and the class is not found
         """
         # Convert something like 'u-boot@0' to 'u_boot' since we are only
         # interested in the type.
         module_name = etype.replace('-', '_')
+
         if '@' in module_name:
             module_name = module_name.split('@')[0]
+        if expanded:
+            module_name += '_expanded'
         module = modules.get(module_name)
 
         # Also allow entry-type modules to be brought in from the etype directory.
@@ -127,6 +135,8 @@ class Entry(object):
             try:
                 module = importlib.import_module('binman.etype.' + module_name)
             except ImportError as e:
+                if expanded:
+                    return None
                 raise ValueError("Unknown entry type '%s' in node '%s' (expected etype/%s.py, error '%s'" %
                                  (etype, node_path, module_name, e))
             modules[module_name] = module
@@ -135,21 +145,32 @@ class Entry(object):
         return getattr(module, 'Entry_%s' % module_name)
 
     @staticmethod
-    def Create(section, node, etype=None):
+    def Create(section, node, etype=None, expanded=False):
         """Create a new entry for a node.
 
         Args:
-            section: Section object containing this node
-            node:    Node object containing information about the entry to
-                     create
-            etype:   Entry type to use, or None to work it out (used for tests)
+            section:  Section object containing this node
+            node:     Node object containing information about the entry to
+                      create
+            etype:    Entry type to use, or None to work it out (used for tests)
+            expanded: True to use expanded versions of entries, where available
 
         Returns:
             A new Entry object of the correct type (a subclass of Entry)
         """
         if not etype:
             etype = fdt_util.GetString(node, 'type', node.name)
-        obj = Entry.Lookup(node.path, etype)
+        obj = Entry.Lookup(node.path, etype, expanded)
+        if obj and expanded:
+            # Check whether to use the expanded entry
+            new_etype = etype + '-expanded'
+            can_expand = not fdt_util.GetBool(node, 'no-expanded')
+            if can_expand and obj.UseExpanded(node, etype, new_etype):
+                etype = new_etype
+            else:
+                obj = None
+        if not obj:
+            obj = Entry.Lookup(node.path, etype, False)
 
         # Call its constructor to get the object we want.
         return obj(section, etype, node)
@@ -180,6 +201,8 @@ class Entry(object):
         if tools.NotPowerOfTwo(self.align):
             raise ValueError("Node '%s': Alignment %s must be a power of two" %
                              (self._node.path, self.align))
+        if self.section and self.align is None:
+            self.align = self.section.align_default
         self.pad_before = fdt_util.GetInt(self._node, 'pad-before', 0)
         self.pad_after = fdt_util.GetInt(self._node, 'pad-after', 0)
         self.align_size = fdt_util.GetInt(self._node, 'align-size')
@@ -205,12 +228,23 @@ class Entry(object):
             Dict:
                 key: Filename from this entry (without the path)
                 value: Tuple:
-                    Fdt object for this dtb, or None if not available
+                    Entry object for this dtb
                     Filename of file containing this dtb
         """
         return {}
 
     def ExpandEntries(self):
+        """Expand out entries which produce other entries
+
+        Some entries generate subnodes automatically, from which sub-entries
+        are then created. This method allows those to be added to the binman
+        definition for the current image. An entry which implements this method
+        should call state.AddSubnode() to add a subnode and can add properties
+        with state.AddString(), etc.
+
+        An example is 'files', which produces a section containing a list of
+        files.
+        """
         pass
 
     def AddMissingProperties(self, have_image_pos):
@@ -406,6 +440,11 @@ class Entry(object):
         """Convenience function to raise an error referencing a node"""
         raise ValueError("Node '%s': %s" % (self._node.path, msg))
 
+    def Info(self, msg):
+        """Convenience function to log info referencing a node"""
+        tag = "Info '%s'" % self._node.path
+        tout.Detail('%30s: %s' % (tag, msg))
+
     def Detail(self, msg):
         """Convenience function to log detail referencing a node"""
         tag = "Node '%s'" % self._node.path
@@ -445,8 +484,12 @@ class Entry(object):
         """
         return self._node.path
 
-    def GetData(self):
+    def GetData(self, required=True):
         """Get the contents of an entry
+
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
 
         Returns:
             bytes content of the entry, excluding any padding. If the entry is
@@ -637,7 +680,7 @@ features to produce new behaviours.
             modules.remove('_testing')
         missing = []
         for name in modules:
-            module = Entry.Lookup('WriteDocs', name)
+            module = Entry.Lookup('WriteDocs', name, False)
             docs = getattr(module, '__doc__')
             if test_missing == name:
                 docs = None
@@ -896,3 +939,25 @@ features to produce new behaviours.
             self.uncomp_size = len(indata)
         data = tools.Compress(indata, self.compress)
         return data
+
+    @classmethod
+    def UseExpanded(cls, node, etype, new_etype):
+        """Check whether to use an expanded entry type
+
+        This is called by Entry.Create() when it finds an expanded version of
+        an entry type (e.g. 'u-boot-expanded'). If this method returns True then
+        it will be used (e.g. in place of 'u-boot'). If it returns False, it is
+        ignored.
+
+        Args:
+            node:     Node object containing information about the entry to
+                      create
+            etype:    Original entry type being used
+            new_etype: New entry type proposed
+
+        Returns:
+            True to use this entry type, False to use the original one
+        """
+        tout.Info("Node '%s': etype '%s': %s selected" %
+                  (node.path, etype, new_etype))
+        return True

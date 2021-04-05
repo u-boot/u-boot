@@ -8,7 +8,7 @@
 from binman.etype.blob_ext import Entry_blob_ext
 
 class Entry_intel_refcode(Entry_blob_ext):
-    """Entry containing an Intel Reference Code file
+    """Intel Reference Code file
 
     Properties / Entry arguments:
         - filename: Filename of file to read into entry

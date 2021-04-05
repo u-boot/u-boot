@@ -212,6 +212,35 @@ u32 get_bootmode(void)
 }
 
 /*
+ * weak function overidde: set the DDR/SYSRAM executable before to enable the
+ * MMU and configure DACR, for early early_enable_caches (SPL or pre-reloc)
+ */
+void dram_bank_mmu_setup(int bank)
+{
+	struct bd_info *bd = gd->bd;
+	int	i;
+	phys_addr_t start;
+	phys_size_t size;
+
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		start = ALIGN_DOWN(STM32_SYSRAM_BASE, MMU_SECTION_SIZE);
+		size = ALIGN(STM32_SYSRAM_SIZE, MMU_SECTION_SIZE);
+	} else if (gd->flags & GD_FLG_RELOC) {
+		/* bd->bi_dram is available only after relocation */
+		start = bd->bi_dram[bank].start;
+		size =  bd->bi_dram[bank].size;
+	} else {
+		/* mark cacheable and executable the beggining of the DDR */
+		start = STM32_DDR_BASE;
+		size = CONFIG_DDR_CACHEABLE_SIZE;
+	}
+
+	for (i = start >> MMU_SECTION_SHIFT;
+	     i < (start >> MMU_SECTION_SHIFT) + (size >> MMU_SECTION_SHIFT);
+	     i++)
+		set_section_dcache(i, DCACHE_DEFAULT_OPTION);
+}
+/*
  * initialize the MMU and activate cache in SPL or in U-Boot pre-reloc stage
  * MMU/TLB is updated in enable_caches() for U-Boot after relocation
  * or is deactivated in U-Boot entry function start.S::cpu_init_cp15
@@ -228,17 +257,8 @@ static void early_enable_caches(void)
 		gd->arch.tlb_addr = (unsigned long)&early_tlb;
 	}
 
+	/* enable MMU (default configuration) */
 	dcache_enable();
-
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
-		mmu_set_region_dcache_behaviour(
-			ALIGN_DOWN(STM32_SYSRAM_BASE, MMU_SECTION_SIZE),
-			ALIGN(STM32_SYSRAM_SIZE, MMU_SECTION_SIZE),
-			DCACHE_DEFAULT_OPTION);
-	else
-		mmu_set_region_dcache_behaviour(STM32_DDR_BASE,
-						CONFIG_DDR_CACHEABLE_SIZE,
-						DCACHE_DEFAULT_OPTION);
 }
 
 /*

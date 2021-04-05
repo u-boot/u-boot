@@ -110,7 +110,7 @@ int dram_init(void)
 /*
  * Board specific reset that is system reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }
 

@@ -42,7 +42,7 @@ int board_init(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	struct arm_smccc_res res;
 

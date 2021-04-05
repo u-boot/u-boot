@@ -36,6 +36,16 @@
 };
 
 &pinctrl {
+	state_default: pinmux_conf {
+		u-boot,dm-pre-reloc;
+
+		mux {
+			function = "jtag";
+			groups = "ephy_leds_jtag";
+			u-boot,dm-pre-reloc;
+		};
+	};
+
 	snfi_pins: snfi-pins {
 		mux {
 			function = "flash";

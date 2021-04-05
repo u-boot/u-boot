@@ -214,6 +214,8 @@ extern const efi_guid_t efi_guid_rng_protocol;
 extern const efi_guid_t efi_guid_capsule_report;
 /* GUID of firmware management protocol */
 extern const efi_guid_t efi_guid_firmware_management_protocol;
+/* GUID for the ESRT */
+extern const efi_guid_t efi_esrt_guid;
 
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
@@ -437,6 +439,7 @@ efi_status_t efi_net_register(void);
 /* Called by bootefi to make the watchdog available */
 efi_status_t efi_watchdog_register(void);
 efi_status_t efi_initrd_register(void);
+void efi_initrd_deregister(void);
 /* Called by bootefi to make SMBIOS tables available */
 /**
  * efi_acpi_register() - write out ACPI tables
@@ -557,6 +560,15 @@ struct efi_simple_file_system_protocol *efi_simple_file_system(
 
 /* open file from device-path: */
 struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
+
+/* Registers a callback function for a notification event. */
+efi_status_t EFIAPI efi_register_protocol_notify(const efi_guid_t *protocol,
+						 struct efi_event *event,
+						 void **registration);
+efi_status_t efi_file_size(struct efi_file_handle *fh, efi_uintn_t *size);
+
+/* get a device path from a Boot#### option */
+struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid);
 
 /**
  * efi_size_in_pages() - convert size in bytes to size in pages
@@ -723,6 +735,8 @@ efi_status_t EFIAPI efi_query_variable_info(
 			u64 *remaining_variable_storage_size,
 			u64 *maximum_variable_size);
 
+void *efi_get_var(u16 *name, const efi_guid_t *vendor, efi_uintn_t *size);
+
 /*
  * See section 3.1.3 in the v2.7 UEFI spec for more details on
  * the layout of EFI_LOAD_OPTION.  In short it is:
@@ -744,6 +758,10 @@ struct efi_load_option {
 	const u8 *optional_data;
 };
 
+struct efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
+				       efi_uintn_t *size, efi_guid_t guid);
+struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
+				      const struct efi_device_path *dp2);
 efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
 					 efi_uintn_t *size);
 unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
@@ -890,4 +908,22 @@ static inline efi_status_t efi_launch_capsules(void)
 
 #endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
+/**
+ * Install the ESRT system table.
+ *
+ * @return	status code
+ */
+efi_status_t efi_esrt_register(void);
+
+/**
+ * efi_esrt_populate() - Populates the ESRT entries from the FMP instances
+ * present in the system.
+ * If an ESRT already exists, the old ESRT is replaced in the system table.
+ * The memory of the old ESRT is deallocated.
+ *
+ * Return:
+ * - EFI_SUCCESS if the ESRT is correctly created
+ * - error code otherwise.
+ */
+efi_status_t efi_esrt_populate(void);
 #endif /* _EFI_LOADER_H */

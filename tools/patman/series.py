@@ -234,7 +234,7 @@ class Series(dict):
             str = 'Change log exists, but no version is set'
             print(col.Color(col.RED, str))
 
-    def MakeCcFile(self, process_tags, cover_fname, raise_on_error,
+    def MakeCcFile(self, process_tags, cover_fname, warn_on_error,
                    add_maintainers, limit):
         """Make a cc file for us to use for per-commit Cc automation
 
@@ -243,8 +243,8 @@ class Series(dict):
         Args:
             process_tags: Process tags as if they were aliases
             cover_fname: If non-None the name of the cover letter.
-            raise_on_error: True to raise an error when an alias fails to match,
-                False to just print a message.
+            warn_on_error: True to print a warning when an alias fails to match,
+                False to ignore it.
             add_maintainers: Either:
                 True/False to call the get_maintainers to CC maintainers
                 List of maintainers to include (for testing)
@@ -261,9 +261,9 @@ class Series(dict):
             cc = []
             if process_tags:
                 cc += gitutil.BuildEmailList(commit.tags,
-                                               raise_on_error=raise_on_error)
+                                               warn_on_error=warn_on_error)
             cc += gitutil.BuildEmailList(commit.cc_list,
-                                           raise_on_error=raise_on_error)
+                                           warn_on_error=warn_on_error)
             if type(add_maintainers) == type(cc):
                 cc += add_maintainers
             elif add_maintainers:

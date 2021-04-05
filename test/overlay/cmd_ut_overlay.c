@@ -213,9 +213,8 @@ OVERLAY_TEST(fdt_overlay_stacked, 0);
 
 int do_ut_overlay(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = ll_entry_start(struct unit_test,
-						 overlay_test);
-	const int n_ents = ll_entry_count(struct unit_test, overlay_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(overlay_test);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(overlay_test);
 	struct unit_test_state *uts;
 	void *fdt_base = &__dtb_test_fdt_base_begin;
 	void *fdt_overlay = &__dtb_test_fdt_overlay_begin;

@@ -11,7 +11,11 @@
 
 enum fmap_compress_t {
 	FMAP_COMPRESS_NONE,
+	FMAP_COMPRESS_LZMA,
 	FMAP_COMPRESS_LZ4,
+
+	FMAP_COMPRESS_COUNT,
+	FMAP_COMPRESS_UNKNOWN,
 };
 
 enum fmap_hash_t {
@@ -30,6 +34,10 @@ struct fmap_entry {
 	enum fmap_hash_t hash_algo;		/* Hash algorithm */
 	const uint8_t *hash;			/* Hash value */
 	int hash_size;				/* Hash size */
+	/* Node pointer if CBFS, else NULL */
+	const struct cbfs_cachenode *cbfs_node;
+	/* Hash node pointer if CBFS, else NULL */
+	const struct cbfs_cachenode *cbfs_hash_node;
 };
 
 /**

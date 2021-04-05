@@ -3,6 +3,8 @@
  * Copyright 2019 Google LLC
  */
 
+#define LOG_CATEGORY	UCLASS_GPIO
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -21,39 +23,8 @@
 #include <asm/pci.h>
 #include <asm/arch/gpio.h>
 #include <dm/acpi.h>
+#include <dm/device-internal.h>
 #include <dt-bindings/gpio/x86-gpio.h>
-
-static int intel_gpio_direction_input(struct udevice *dev, uint offset)
-{
-	struct udevice *pinctrl = dev_get_parent(dev);
-	uint config_offset;
-
-	config_offset = intel_pinctrl_get_config_reg_offset(pinctrl, offset);
-
-	pcr_clrsetbits32(pinctrl, config_offset,
-			 PAD_CFG0_MODE_MASK | PAD_CFG0_TX_STATE |
-				  PAD_CFG0_RX_DISABLE,
-			 PAD_CFG0_MODE_GPIO | PAD_CFG0_TX_DISABLE);
-
-	return 0;
-}
-
-static int intel_gpio_direction_output(struct udevice *dev, uint offset,
-				       int value)
-{
-	struct udevice *pinctrl = dev_get_parent(dev);
-	uint config_offset;
-
-	config_offset = intel_pinctrl_get_config_reg_offset(pinctrl, offset);
-
-	pcr_clrsetbits32(pinctrl, config_offset,
-			 PAD_CFG0_MODE_MASK | PAD_CFG0_RX_STATE |
-				  PAD_CFG0_TX_DISABLE | PAD_CFG0_TX_STATE,
-			 PAD_CFG0_MODE_GPIO | PAD_CFG0_RX_DISABLE |
-				  (value ? PAD_CFG0_TX_STATE : 0));
-
-	return 0;
-}
 
 static int intel_gpio_get_value(struct udevice *dev, uint offset)
 {
@@ -115,7 +86,7 @@ static int intel_gpio_xlate(struct udevice *orig_dev, struct gpio_desc *desc,
 
 	/*
 	 * GPIO numbers are global in the device tree so it doesn't matter
-	 * which one is used
+	 * which @orig_dev is used
 	 */
 	gpio = args->args[0];
 	ret = intel_pinctrl_get_pad(gpio, &pinctrl, &desc->offset);
@@ -126,6 +97,52 @@ static int intel_gpio_xlate(struct udevice *orig_dev, struct gpio_desc *desc,
 		return log_msg_ret("no child", -ENOENT);
 	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
 	desc->dev = dev;
+
+	/*
+	 * Handle the case where the wrong GPIO device was provided, since this
+	 * will not have been probed by the GPIO uclass before calling here
+	 * (see gpio_request_tail()).
+	 */
+	if (orig_dev != dev) {
+		ret = device_probe(dev);
+		if (ret)
+			return log_msg_ret("probe", ret);
+	}
+
+	return 0;
+}
+
+static int intel_gpio_set_flags(struct udevice *dev, unsigned int offset,
+				ulong flags)
+{
+	struct udevice *pinctrl = dev_get_parent(dev);
+	u32 bic0 = 0, bic1 = 0;
+	u32 or0, or1;
+	uint config_offset;
+
+	config_offset = intel_pinctrl_get_config_reg_offset(pinctrl, offset);
+
+	if (flags & GPIOD_IS_OUT) {
+		bic0 |= PAD_CFG0_MODE_MASK | PAD_CFG0_RX_STATE |
+			PAD_CFG0_TX_DISABLE;
+		or0 |= PAD_CFG0_MODE_GPIO | PAD_CFG0_RX_DISABLE;
+	} else if (flags & GPIOD_IS_IN) {
+		bic0 |= PAD_CFG0_MODE_MASK | PAD_CFG0_TX_STATE |
+			PAD_CFG0_RX_DISABLE;
+		or0 |= PAD_CFG0_MODE_GPIO | PAD_CFG0_TX_DISABLE;
+	}
+	if (flags & GPIOD_PULL_UP) {
+		bic1 |= PAD_CFG1_PULL_MASK;
+		or1 |= PAD_CFG1_PULL_UP_20K;
+	} else if (flags & GPIOD_PULL_DOWN) {
+		bic1 |= PAD_CFG1_PULL_MASK;
+		or1 |= PAD_CFG1_PULL_DN_20K;
+	}
+
+	pcr_clrsetbits32(pinctrl, PAD_CFG0_OFFSET(config_offset), bic0, or0);
+	pcr_clrsetbits32(pinctrl, PAD_CFG1_OFFSET(config_offset), bic1, or1);
+	log_debug("%s: flags=%lx, offset=%x, config_offset=%x, %x/%x %x/%x\n",
+		  dev->name, flags, offset, config_offset, bic0, or0, bic1, or1);
 
 	return 0;
 }
@@ -177,12 +194,11 @@ static int intel_gpio_of_to_plat(struct udevice *dev)
 }
 
 static const struct dm_gpio_ops gpio_intel_ops = {
-	.direction_input	= intel_gpio_direction_input,
-	.direction_output	= intel_gpio_direction_output,
 	.get_value		= intel_gpio_get_value,
 	.set_value		= intel_gpio_set_value,
 	.get_function		= intel_gpio_get_function,
 	.xlate			= intel_gpio_xlate,
+	.set_flags		= intel_gpio_set_flags,
 #if CONFIG_IS_ENABLED(ACPIGEN)
 	.get_acpi		= intel_gpio_get_acpi,
 #endif

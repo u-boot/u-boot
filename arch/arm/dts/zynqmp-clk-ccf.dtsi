@@ -284,18 +284,16 @@
 	clocks = <&zynqmp_clk AMS_REF>;
 };
 
-&zynqmp_dpsub {
-	clocks = <&dp_aclk>, <&zynqmp_clk DP_AUDIO_REF>, <&zynqmp_clk DP_VIDEO_REF>;
+&zynqmp_pcap {
+	clocks = <&zynqmp_clk PCAP>;
 };
 
-&xlnx_dpdma {
+&zynqmp_dpdma {
 	clocks = <&zynqmp_clk DPDMA_REF>;
 };
 
-&zynqmp_dp_snd_codec0 {
-	clocks = <&zynqmp_clk DP_AUDIO_REF>;
-};
-
-&zynqmp_pcap {
-	clocks = <&zynqmp_clk PCAP>;
+&zynqmp_dpsub {
+	clocks = <&zynqmp_clk TOPSW_LSBUS>,
+		 <&zynqmp_clk DP_AUDIO_REF>,
+		 <&zynqmp_clk DP_VIDEO_REF>;
 };

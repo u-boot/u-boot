@@ -44,6 +44,7 @@ struct atmel_pio4_port {
 #define ATMEL_PIO_DIR_MASK		BIT(8)
 #define ATMEL_PIO_PUEN_MASK		BIT(9)
 #define ATMEL_PIO_PDEN_MASK		BIT(10)
+#define ATMEL_PIO_SR			BIT(11)
 #define ATMEL_PIO_IFEN_MASK		BIT(12)
 #define ATMEL_PIO_IFSCEN_MASK		BIT(13)
 #define ATMEL_PIO_OPD_MASK		BIT(14)

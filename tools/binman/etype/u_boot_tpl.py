@@ -30,6 +30,9 @@ class Entry_u_boot_tpl(Entry_blob):
 
     The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
     binman uses that to look up symbols to write into the TPL binary.
+
+    Note that this entry is automatically replaced with u-boot-tpl-expanded
+    unless --no-expanded is used or the node has a 'no-expanded' property.
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)

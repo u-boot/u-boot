@@ -71,19 +71,4 @@ struct driver_rt {
 #define U_BOOT_DRVINFOS(__name)						\
 	ll_entry_declare_list(struct driver_info, __name, driver_info)
 
-/**
- * Get a pointer to a given device info given its name
- *
- * With the declaration U_BOOT_DRVINFO(name), DM_DRVINFO_GET(name) will return a
- * pointer to the struct driver_info created by that declaration.
- *
- * if OF_PLATDATA is enabled, from this it is possible to use the @dev member of
- * struct driver_info to find the device pointer itself.
- *
- * @__name: Driver name (C identifier, not a string. E.g. gpio7_at_ff7e0000)
- * @return struct driver_info * to the driver that created the device
- */
-#define DM_DRVINFO_GET(__name)						\
-	ll_entry_get(struct driver_info, __name, driver_info)
-
 #endif

@@ -389,6 +389,14 @@ int run_command_list(const char *cmd, int len, int flag);
 		return 0;						\
 	}
 
+#define _CMD_REMOVE_REP(_name, _cmd)					\
+	int __remove_ ## _name(void)					\
+	{								\
+		if (0)							\
+			_cmd(NULL, 0, 0, NULL, NULL);			\
+		return 0;						\
+	}
+
 #define U_BOOT_CMDREP_MKENT_COMPLETE(_name, _maxargs, _cmd_rep,		\
 				     _usage, _help, _comp)		\
 		{ #_name, _maxargs, 0 ? _cmd_rep : NULL, NULL, _usage,	\
@@ -405,7 +413,7 @@ int run_command_list(const char *cmd, int len, int flag);
 
 #define U_BOOT_CMDREP_COMPLETE(_name, _maxargs, _cmd_rep, _usage,	\
 			       _help, _comp)				\
-	_CMD_REMOVE(sub_ ## _name, _cmd_rep)
+	_CMD_REMOVE_REP(sub_ ## _name, _cmd_rep)
 
 #endif /* CONFIG_CMDLINE */
 

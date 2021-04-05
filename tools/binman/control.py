@@ -28,7 +28,7 @@ images = OrderedDict()
 #    value: Text for the help
 missing_blob_help = {}
 
-def _ReadImageDesc(binman_node):
+def _ReadImageDesc(binman_node, use_expanded):
     """Read the image descriptions from the /binman node
 
     This normally produces a single Image object called 'image'. But if
@@ -36,15 +36,17 @@ def _ReadImageDesc(binman_node):
 
     Args:
         binman_node: Node object of the /binman node
+        use_expanded: True if the FDT will be updated with the entry information
     Returns:
         OrderedDict of Image objects, each of which describes an image
     """
     images = OrderedDict()
     if 'multiple-images' in binman_node.props:
         for node in binman_node.subnodes:
-            images[node.name] = Image(node.name, node)
+            images[node.name] = Image(node.name, node,
+                                      use_expanded=use_expanded)
     else:
-        images['image'] = Image('image', binman_node)
+        images['image'] = Image('image', binman_node, use_expanded=use_expanded)
     return images
 
 def _FindBinmanNode(dtb):
@@ -241,7 +243,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
         # If this entry has children, create a directory for it and put its
         # data in a file called 'root' in that directory
         if entry.GetEntries():
-            if not os.path.exists(fname):
+            if fname and not os.path.exists(fname):
                 os.makedirs(fname)
             fname = os.path.join(fname, 'root')
         tout.Notice("Write entry '%s' size %x to '%s'" %
@@ -399,7 +401,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
     return image
 
 
-def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
+def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     """Prepare the images to be processed and select the device tree
 
     This function:
@@ -413,6 +415,9 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
         dtb_fname: Filename of the device tree file to use (.dts or .dtb)
         selected_images: List of images to output, or None for all
         update_fdt: True to update the FDT wth entry offsets, etc.
+        use_expanded: True to use expanded versions of entries, if available.
+            So if 'u-boot' is called for, we use 'u-boot-expanded' instead. This
+            is needed if update_fdt is True (although tests may disable it)
 
     Returns:
         OrderedDict of images:
@@ -438,7 +443,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
         raise ValueError("Device tree '%s' does not have a 'binman' "
                             "node" % dtb_fname)
 
-    images = _ReadImageDesc(node)
+    images = _ReadImageDesc(node, use_expanded)
 
     if select_images:
         skip = []
@@ -564,7 +569,7 @@ def Binman(args):
         if not pager:
             pager = 'more'
         fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                            'README')
+                            'README.rst')
         command.Run(pager, fname)
         return 0
 
@@ -611,6 +616,13 @@ def Binman(args):
         elf.debug = args.debug
         cbfs_util.VERBOSE = args.verbosity > 2
         state.use_fake_dtb = args.fake_dtb
+
+        # Normally we replace the 'u-boot' etype with 'u-boot-expanded', etc.
+        # When running tests this can be disabled using this flag. When not
+        # updating the FDT in image, it is not needed by binman, but we use it
+        # for consistency, so that the images look the same to U-Boot at
+        # runtime.
+        use_expanded = not args.no_expanded
         try:
             tools.SetInputDirs(args.indir)
             tools.PrepareOutputDir(args.outdir, args.preserve)
@@ -618,7 +630,7 @@ def Binman(args):
             state.SetEntryArgs(args.entry_arg)
 
             images = PrepareImagesAndDtbs(dtb_fname, args.image,
-                                          args.update_fdt)
+                                          args.update_fdt, use_expanded)
             missing = False
             for image in images.values():
                 missing |= ProcessImage(image, args.update_fdt, args.map,

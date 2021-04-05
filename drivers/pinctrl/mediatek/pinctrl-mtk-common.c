@@ -219,7 +219,7 @@ static const char *mtk_get_pin_name(struct udevice *dev,
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
 
-	if (!priv->soc->grps[selector].name)
+	if (!priv->soc->pins[selector].name)
 		return mtk_pinctrl_dummy_name;
 
 	return priv->soc->pins[selector].name;
@@ -230,6 +230,19 @@ static int mtk_get_pins_count(struct udevice *dev)
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
 
 	return priv->soc->npins;
+}
+
+static int mtk_get_pin_muxing(struct udevice *dev, unsigned int selector,
+			      char *buf, int size)
+{
+	int val, err;
+
+	err = mtk_hw_get_value(dev, selector, PINCTRL_PIN_REG_MODE, &val);
+	if (err)
+		return err;
+
+	snprintf(buf, size, "Aux Func.%d", val);
+	return 0;
 }
 
 static const char *mtk_get_group_name(struct udevice *dev,
@@ -512,6 +525,7 @@ static int mtk_pinconf_group_set(struct udevice *dev,
 const struct pinctrl_ops mtk_pinctrl_ops = {
 	.get_pins_count = mtk_get_pins_count,
 	.get_pin_name = mtk_get_pin_name,
+	.get_pin_muxing = mtk_get_pin_muxing,
 	.get_groups_count = mtk_get_groups_count,
 	.get_group_name = mtk_get_group_name,
 	.get_functions_count = mtk_get_functions_count,
@@ -526,6 +540,8 @@ const struct pinctrl_ops mtk_pinctrl_ops = {
 	.set_state = pinctrl_generic_set_state,
 };
 
+#if CONFIG_IS_ENABLED(DM_GPIO) || \
+    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
 static int mtk_gpio_get(struct udevice *dev, unsigned int off)
 {
 	int val, err;
@@ -633,12 +649,13 @@ static int mtk_gpiochip_register(struct udevice *parent)
 
 	return 0;
 }
+#endif
 
 int mtk_pinctrl_common_probe(struct udevice *dev,
 			     struct mtk_pinctrl_soc *soc)
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
-	int ret;
+	int ret = 0;
 
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
@@ -646,9 +663,10 @@ int mtk_pinctrl_common_probe(struct udevice *dev,
 
 	priv->soc = soc;
 
+#if CONFIG_IS_ENABLED(DM_GPIO) || \
+    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
 	ret = mtk_gpiochip_register(dev);
-	if (ret)
-		return ret;
+#endif
 
-	return 0;
+	return ret;
 }

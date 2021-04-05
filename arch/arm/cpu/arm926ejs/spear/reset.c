@@ -11,7 +11,7 @@
 #include <asm/arch/spr_syscntl.h>
 #include <linux/delay.h>
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	struct syscntl_regs *syscntl_regs_p =
 	    (struct syscntl_regs *)CONFIG_SPEAR_SYSCNTLBASE;

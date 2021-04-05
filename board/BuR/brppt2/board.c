@@ -540,7 +540,7 @@ void board_init_f(ulong dummy)
 	spl_dram_init();
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }
 #endif /* CONFIG_SPL_BUILD */

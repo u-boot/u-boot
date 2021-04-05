@@ -10,4 +10,3 @@ obj-y				+= nx_gpio.o
 obj-y				+= tieoff.o
 obj-$(CONFIG_ARCH_S5P4418)	+= reg-call.o
 obj-$(CONFIG_ARCH_S5P4418)	+= nx_sec_reg.o
-obj-$(CONFIG_CMD_BOOTL)		+= cmd_boot_linux.o

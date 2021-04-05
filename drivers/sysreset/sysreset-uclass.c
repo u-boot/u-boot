@@ -113,7 +113,7 @@ void sysreset_walk_halt(enum sysreset_t type)
 /**
  * reset_cpu() - calls sysreset_walk(SYSRESET_WARM)
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	sysreset_walk_halt(SYSRESET_WARM);
 }

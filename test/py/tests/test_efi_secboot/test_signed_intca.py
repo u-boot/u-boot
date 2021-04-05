@@ -39,7 +39,7 @@ class TestEfiSignedImageIntca(object):
             assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
-                'efidebug boot add 1 HELLO_a host 0:1 /helloworld.efi.signed_a ""',
+                'efidebug boot add -b 1 HELLO_a host 0:1 /helloworld.efi.signed_a ""',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO_a\' failed' in ''.join(output)
@@ -48,7 +48,7 @@ class TestEfiSignedImageIntca(object):
         with u_boot_console.log.section('Test Case 1b'):
             # Test Case 1b, signed and authenticated by root CA
             output = u_boot_console.run_command_list([
-                'efidebug boot add 2 HELLO_ab host 0:1 /helloworld.efi.signed_ab ""',
+                'efidebug boot add -b 2 HELLO_ab host 0:1 /helloworld.efi.signed_ab ""',
                 'efidebug boot next 2',
                 'bootefi bootmgr'])
             assert 'Hello, world!' in ''.join(output)
@@ -70,7 +70,7 @@ class TestEfiSignedImageIntca(object):
             assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
-                'efidebug boot add 1 HELLO_abc host 0:1 /helloworld.efi.signed_abc ""',
+                'efidebug boot add -b 1 HELLO_abc host 0:1 /helloworld.efi.signed_abc ""',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO_abc\' failed' in ''.join(output)
@@ -116,7 +116,7 @@ class TestEfiSignedImageIntca(object):
             assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
-                'efidebug boot add 1 HELLO_abc host 0:1 /helloworld.efi.signed_abc ""',
+                'efidebug boot add -b 1 HELLO_abc host 0:1 /helloworld.efi.signed_abc ""',
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
             assert 'Hello, world!' in ''.join(output)

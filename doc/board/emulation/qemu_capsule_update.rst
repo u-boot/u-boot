@@ -60,7 +60,7 @@ to be pointing to the EFI System Partition which contains the capsule
 file. The BootNext, BootXXXX and OsIndications variables can be set
 using the following commands::
 
-    => efidebug boot add 0 Boot0000 virtio 0:1 <capsule_file_name>
+    => efidebug boot add -b 0 Boot0000 virtio 0:1 <capsule_file_name>
     => efidebug boot next 0
     => setenv -e -nv -bs -rt -v OsIndications =0x04
     => saveenv
@@ -198,7 +198,7 @@ command line::
     3. Set the following environment and UEFI boot variables
 
         => setenv -e -nv -bs -rt -v OsIndications =0x04
-        => efidebug boot add 0 Boot0000 virtio 0:1 <capsule_file_name>
+        => efidebug boot add -b 0 Boot0000 virtio 0:1 <capsule_file_name>
         => efidebug boot next 0
         => saveenv
 

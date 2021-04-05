@@ -192,6 +192,8 @@ struct clk_fixed_factor {
 	unsigned int	div;
 };
 
+extern const struct clk_ops clk_fixed_rate_ops;
+
 #define to_clk_fixed_factor(_clk) container_of(_clk, struct clk_fixed_factor,\
 					       clk)
 
@@ -201,6 +203,9 @@ struct clk_fixed_rate {
 };
 
 #define to_clk_fixed_rate(dev)	((struct clk_fixed_rate *)dev_get_plat(dev))
+
+void clk_fixed_rate_ofdata_to_plat_(struct udevice *dev,
+				    struct clk_fixed_rate *plat);
 
 struct clk_composite {
 	struct clk	clk;

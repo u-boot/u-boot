@@ -2647,3 +2647,14 @@ int spi_nor_scan(struct spi_nor *nor)
 
 	return 0;
 }
+
+/* U-Boot specific functions, need to extend MTD to support these */
+int spi_flash_cmd_get_sw_write_prot(struct spi_nor *nor)
+{
+	int sr = read_sr(nor);
+
+	if (sr < 0)
+		return sr;
+
+	return (sr >> 2) & 7;
+}

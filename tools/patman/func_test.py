@@ -186,7 +186,7 @@ class TestFunctional(unittest.TestCase):
             - Commit-notes
         """
         process_tags = True
-        ignore_bad_tags = True
+        ignore_bad_tags = False
         stefan = b'Stefan Br\xc3\xbcns <stefan.bruens@rwth-aachen.de>'.decode('utf-8')
         rick = 'Richard III <richard@palace.gov>'
         mel = b'Lord M\xc3\xablchett <clergy@palace.gov>'.decode('utf-8')

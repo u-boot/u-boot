@@ -288,8 +288,8 @@ int last_stage_init(void)
 	ccdc_eth_init();
 #endif
 	ret = get_tpm(&tpm);
-	if (ret || tpm_init(tpm) || tpm_startup(tpm, TPM_ST_CLEAR) ||
-	    tpm_continue_self_test(tpm)) {
+	if (ret || tpm_init(tpm) || tpm1_startup(tpm, TPM_ST_CLEAR) ||
+	    tpm1_continue_self_test(tpm)) {
 		return 1;
 	}
 

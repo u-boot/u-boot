@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <efi_dt_fixup.h>
+#include <efi_load_initrd.h>
 #include <efi_loader.h>
 #include <efi_rng.h>
 #include <exports.h>
@@ -19,6 +20,7 @@
 #include <part.h>
 #include <search.h>
 #include <linux/ctype.h>
+#include <linux/err.h>
 
 #define BS systab.boottime
 #define RT systab.runtime
@@ -129,6 +131,82 @@ static int do_efi_capsule_show(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+#ifdef CONFIG_EFI_ESRT
+
+#define EFI_ESRT_FW_TYPE_NUM 4
+char *efi_fw_type_str[EFI_ESRT_FW_TYPE_NUM] = {"unknown", "system FW", "device FW",
+	 "UEFI driver"};
+
+#define EFI_ESRT_UPDATE_STATUS_NUM 9
+char *efi_update_status_str[EFI_ESRT_UPDATE_STATUS_NUM] = {"success", "unsuccessful",
+	"insufficient resources", "incorrect version", "invalid format",
+	"auth error", "power event (AC)", "power event (batt)",
+	"unsatisfied dependencies"};
+
+#define EFI_FW_TYPE_STR_GET(idx) (\
+EFI_ESRT_FW_TYPE_NUM > (idx) ? efi_fw_type_str[(idx)] : "error"\
+)
+
+#define EFI_FW_STATUS_STR_GET(idx) (\
+EFI_ESRT_UPDATE_STATUS_NUM  > (idx) ? efi_update_status_str[(idx)] : "error"\
+)
+
+/**
+ * do_efi_capsule_esrt() - manage UEFI capsules
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success,
+ *		CMD_RET_USAGE or CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "capsule esrt" sub-command.
+ * The prints the current ESRT table.
+ *
+ *     efidebug capsule esrt
+ */
+static int do_efi_capsule_esrt(struct cmd_tbl *cmdtp, int flag,
+			       int argc, char * const argv[])
+{
+	struct efi_system_resource_table *esrt = NULL;
+
+	if (argc != 1)
+		return CMD_RET_USAGE;
+
+	for (int idx = 0; idx < systab.nr_tables; idx++)
+		if (!guidcmp(&efi_esrt_guid, &systab.tables[idx].guid))
+			esrt = (struct efi_system_resource_table *)systab.tables[idx].table;
+
+	if (!esrt) {
+		log_info("ESRT: table not present\n");
+		return CMD_RET_SUCCESS;
+	}
+
+	printf("========================================\n");
+	printf("ESRT: fw_resource_count=%d\n", esrt->fw_resource_count);
+	printf("ESRT: fw_resource_count_max=%d\n", esrt->fw_resource_count_max);
+	printf("ESRT: fw_resource_version=%lld\n", esrt->fw_resource_version);
+
+	for (int idx = 0; idx < esrt->fw_resource_count; idx++) {
+		printf("[entry %d]==============================\n", idx);
+		printf("ESRT: fw_class=%pUL\n", &esrt->entries[idx].fw_class);
+		printf("ESRT: fw_type=%s\n", EFI_FW_TYPE_STR_GET(esrt->entries[idx].fw_type));
+		printf("ESRT: fw_version=%d\n", esrt->entries[idx].fw_version);
+		printf("ESRT: lowest_supported_fw_version=%d\n",
+		       esrt->entries[idx].lowest_supported_fw_version);
+		printf("ESRT: capsule_flags=%d\n",
+		       esrt->entries[idx].capsule_flags);
+		printf("ESRT: last_attempt_version=%d\n",
+		       esrt->entries[idx].last_attempt_version);
+		printf("ESRT: last_attempt_status=%s\n",
+		       EFI_FW_STATUS_STR_GET(esrt->entries[idx].last_attempt_status));
+	}
+	printf("========================================\n");
+
+	return CMD_RET_SUCCESS;
+}
+#endif /*  CONFIG_EFI_ESRT */
 /**
  * do_efi_capsule_res() - show a capsule update result
  *
@@ -221,6 +299,10 @@ static struct cmd_tbl cmd_efidebug_capsule_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(show, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_show,
 			 "", ""),
+#ifdef CONFIG_EFI_ESRT
+	U_BOOT_CMD_MKENT(esrt, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_esrt,
+			 "", ""),
+#endif
 	U_BOOT_CMD_MKENT(disk-update, 0, 0, do_efi_capsule_on_disk_update,
 			 "", ""),
 	U_BOOT_CMD_MKENT(result, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_res,
@@ -517,6 +599,10 @@ static const struct {
 		EFI_ACPI_TABLE_GUID,
 	},
 	{
+		"EFI System Resource Table",
+		EFI_SYSTEM_RESOURCE_TABLE_GUID,
+	},
+	{
 		"device tree",
 		EFI_FDT_GUID,
 	},
@@ -799,6 +885,54 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
 }
 
 /**
+ * create_initrd_dp() - Create a special device for our Boot### option
+ *
+ * @dev:	Device
+ * @part:	Disk partition
+ * @file:	Filename
+ * Return:	Pointer to the device path or ERR_PTR
+ *
+ */
+static
+struct efi_device_path *create_initrd_dp(const char *dev, const char *part,
+					 const char *file)
+
+{
+	struct efi_device_path *tmp_dp = NULL, *tmp_fp = NULL;
+	struct efi_device_path *initrd_dp = NULL;
+	efi_status_t ret;
+	const struct efi_initrd_dp id_dp = {
+		.vendor = {
+			{
+			DEVICE_PATH_TYPE_MEDIA_DEVICE,
+			DEVICE_PATH_SUB_TYPE_VENDOR_PATH,
+			sizeof(id_dp.vendor),
+			},
+			EFI_INITRD_MEDIA_GUID,
+		},
+		.end = {
+			DEVICE_PATH_TYPE_END,
+			DEVICE_PATH_SUB_TYPE_END,
+			sizeof(id_dp.end),
+		}
+	};
+
+	ret = efi_dp_from_name(dev, part, file, &tmp_dp, &tmp_fp);
+	if (ret != EFI_SUCCESS) {
+		printf("Cannot create device path for \"%s %s\"\n", part, file);
+		goto out;
+	}
+
+	initrd_dp = efi_dp_append((const struct efi_device_path *)&id_dp,
+				  tmp_fp);
+
+out:
+	efi_free_pool(tmp_dp);
+	efi_free_pool(tmp_fp);
+	return initrd_dp;
+}
+
+/**
  * do_efi_boot_add() - set UEFI load option
  *
  * @cmdtp:	Command table
@@ -810,7 +944,9 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
  *
  * Implement efidebug "boot add" sub-command. Create or change UEFI load option.
  *
- *     efidebug boot add <id> <label> <interface> <devnum>[:<part>] <file> <options>
+ * efidebug boot add -b <id> <label> <interface> <devnum>[:<part>] <file>
+ *                   -i <file> <interface2> <devnum2>[:<part>] <initrd>
+ *                   -s '<options>'
  */
 static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 			   int argc, char *const argv[])
@@ -823,55 +959,105 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 	size_t label_len, label_len16;
 	u16 *label;
 	struct efi_device_path *device_path = NULL, *file_path = NULL;
+	struct efi_device_path *final_fp = NULL;
+	struct efi_device_path *initrd_dp = NULL;
 	struct efi_load_option lo;
 	void *data = NULL;
 	efi_uintn_t size;
+	efi_uintn_t fp_size = 0;
 	efi_status_t ret;
 	int r = CMD_RET_SUCCESS;
-
-	if (argc < 6 || argc > 7)
-		return CMD_RET_USAGE;
-
-	id = (int)simple_strtoul(argv[1], &endp, 16);
-	if (*endp != '\0' || id > 0xffff)
-		return CMD_RET_USAGE;
-
-	sprintf(var_name, "Boot%04X", id);
-	p = var_name16;
-	utf8_utf16_strncpy(&p, var_name, 9);
 
 	guid = efi_global_variable_guid;
 
 	/* attributes */
 	lo.attributes = LOAD_OPTION_ACTIVE; /* always ACTIVE */
+	lo.optional_data = NULL;
+	lo.label = NULL;
 
-	/* label */
-	label_len = strlen(argv[2]);
-	label_len16 = utf8_utf16_strnlen(argv[2], label_len);
-	label = malloc((label_len16 + 1) * sizeof(u16));
-	if (!label)
-		return CMD_RET_FAILURE;
-	lo.label = label; /* label will be changed below */
-	utf8_utf16_strncpy(&label, argv[2], label_len);
+	argc--;
+	argv++; /* 'add' */
+	for (; argc > 0; argc--, argv++) {
+		if (!strcmp(argv[0], "-b")) {
+			if (argc <  5 || lo.label) {
+				r = CMD_RET_USAGE;
+				goto out;
+			}
+			id = (int)simple_strtoul(argv[1], &endp, 16);
+			if (*endp != '\0' || id > 0xffff)
+				return CMD_RET_USAGE;
 
-	/* file path */
-	ret = efi_dp_from_name(argv[3], argv[4], argv[5], &device_path,
-			       &file_path);
-	if (ret != EFI_SUCCESS) {
-		printf("Cannot create device path for \"%s %s\"\n",
-		       argv[3], argv[4]);
+			sprintf(var_name, "Boot%04X", id);
+			p = var_name16;
+			utf8_utf16_strncpy(&p, var_name, 9);
+
+			/* label */
+			label_len = strlen(argv[2]);
+			label_len16 = utf8_utf16_strnlen(argv[2], label_len);
+			label = malloc((label_len16 + 1) * sizeof(u16));
+			if (!label)
+				return CMD_RET_FAILURE;
+			lo.label = label; /* label will be changed below */
+			utf8_utf16_strncpy(&label, argv[2], label_len);
+
+			/* file path */
+			ret = efi_dp_from_name(argv[3], argv[4], argv[5],
+					       &device_path, &file_path);
+			if (ret != EFI_SUCCESS) {
+				printf("Cannot create device path for \"%s %s\"\n",
+				       argv[3], argv[4]);
+				r = CMD_RET_FAILURE;
+				goto out;
+			}
+			fp_size += efi_dp_size(file_path) +
+				sizeof(struct efi_device_path);
+			argc -= 5;
+			argv += 5;
+		} else if (!strcmp(argv[0], "-i")) {
+			if (argc < 3 || initrd_dp) {
+				r = CMD_RET_USAGE;
+				goto out;
+			}
+
+			initrd_dp = create_initrd_dp(argv[1], argv[2], argv[3]);
+			if (!initrd_dp) {
+				printf("Cannot add an initrd\n");
+				r = CMD_RET_FAILURE;
+				goto out;
+			}
+			argc -= 3;
+			argv += 3;
+			fp_size += efi_dp_size(initrd_dp) +
+				sizeof(struct efi_device_path);
+		} else if (!strcmp(argv[0], "-s")) {
+			if (argc < 1 || lo.optional_data) {
+				r = CMD_RET_USAGE;
+				goto out;
+			}
+			lo.optional_data = (const u8 *)argv[1];
+			argc -= 1;
+			argv += 1;
+		} else {
+			r = CMD_RET_USAGE;
+			goto out;
+		}
+	}
+
+	if (!file_path) {
+		printf("Missing binary\n");
+		r = CMD_RET_USAGE;
+		goto out;
+	}
+
+	final_fp = efi_dp_concat(file_path, initrd_dp);
+	if (!final_fp) {
+		printf("Cannot create final device path\n");
 		r = CMD_RET_FAILURE;
 		goto out;
 	}
-	lo.file_path = file_path;
-	lo.file_path_length = efi_dp_size(file_path)
-				+ sizeof(struct efi_device_path); /* for END */
 
-	/* optional data */
-	if (argc == 6)
-		lo.optional_data = NULL;
-	else
-		lo.optional_data = (const u8 *)argv[6];
+	lo.file_path = final_fp;
+	lo.file_path_length = fp_size;
 
 	size = efi_serialize_load_option(&lo, (u8 **)&data);
 	if (!size) {
@@ -888,8 +1074,11 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 		printf("Cannot set %ls\n", var_name16);
 		r = CMD_RET_FAILURE;
 	}
+
 out:
 	free(data);
+	efi_free_pool(final_fp);
+	efi_free_pool(initrd_dp);
 	efi_free_pool(device_path);
 	efi_free_pool(file_path);
 	free(lo.label);
@@ -955,11 +1144,14 @@ static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
  */
 static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 {
+	struct efi_device_path *initrd_path = NULL;
 	struct efi_load_option lo;
 	char *label, *p;
 	size_t label_len16, label_len;
 	u16 *dp_str;
 	efi_status_t ret;
+	efi_uintn_t initrd_dp_size;
+	const efi_guid_t lf2_initrd_guid = EFI_INITRD_MEDIA_GUID;
 
 	ret = efi_deserialize_load_option(&lo, data, size);
 	if (ret != EFI_SUCCESS) {
@@ -989,6 +1181,14 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 	dp_str = efi_dp_str(lo.file_path);
 	printf("  file_path: %ls\n", dp_str);
 	efi_free_pool(dp_str);
+
+	initrd_path = efi_dp_from_lo(&lo, &initrd_dp_size, lf2_initrd_guid);
+	if (initrd_path) {
+		dp_str = efi_dp_str(initrd_path);
+		printf("  initrd_path: %ls\n", dp_str);
+		efi_free_pool(dp_str);
+		efi_free_pool(initrd_path);
+	}
 
 	printf("  data:\n");
 	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
@@ -1559,7 +1759,10 @@ static int do_efidebug(struct cmd_tbl *cmdtp, int flag,
 static char efidebug_help_text[] =
 	"  - UEFI Shell-like interface to configure UEFI environment\n"
 	"\n"
-	"efidebug boot add <bootid> <label> <interface> <devnum>[:<part>] <file path> [<load options>]\n"
+	"efidebug boot add "
+	"-b <bootid> <label> <interface> <devnum>[:<part>] <file path> "
+	"-i <interface> <devnum>[:<part>] <initrd file path> "
+	"-s '<optional data>'\n"
 	"  - set UEFI BootXXXX variable\n"
 	"    <load options> will be passed to UEFI application\n"
 	"efidebug boot rm <bootid#1> [<bootid#2> [<bootid#3> [...]]]\n"
@@ -1580,6 +1783,10 @@ static char efidebug_help_text[] =
 	"  - show capsule information\n"
 	"efidebug capsule result [<capsule result var>]\n"
 	"  - show a capsule update result\n"
+#ifdef CONFIG_EFI_ESRT
+	"efidebug capsule esrt\n"
+	"  - print the ESRT\n"
+#endif
 	"\n"
 #endif
 	"efidebug devices\n"
@@ -1603,7 +1810,7 @@ static char efidebug_help_text[] =
 #endif
 
 U_BOOT_CMD(
-	efidebug, 10, 0, do_efidebug,
+	efidebug, CONFIG_SYS_MAXARGS, 0, do_efidebug,
 	"Configure UEFI environment",
 	efidebug_help_text
 );

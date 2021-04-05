@@ -285,7 +285,7 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 	length = get_unaligned_be32(sent);
 	sent += sizeof(length);
 	if (length != send_size) {
-		printf("TPM2: Unmatching length, received: %ld, expected: %d\n",
+		printf("TPM2: Unmatching length, received: %zd, expected: %d\n",
 		       send_size, length);
 		rc = TPM2_RC_SIZE;
 		sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);

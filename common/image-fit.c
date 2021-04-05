@@ -1512,6 +1512,10 @@ int fit_image_check_arch(const void *fit, int noffset, uint8_t arch)
 	uint8_t image_arch;
 	int aarch32_support = 0;
 
+	/* Let's assume that sandbox can load any architecture */
+	if (IS_ENABLED(CONFIG_SANDBOX))
+		return true;
+
 	if (IS_ENABLED(CONFIG_ARM64_SUPPORT_AARCH32))
 		aarch32_support = 1;
 
