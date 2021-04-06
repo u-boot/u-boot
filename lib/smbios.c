@@ -312,6 +312,10 @@ int smbios_update_version(const char *version)
  */
 static int smbios_string_table_len(const struct smbios_ctx *ctx)
 {
+	/* In case no string is defined we have to return two \0 */
+	if (ctx->next_ptr == ctx->eos)
+		return 2;
+
 	/* Allow for the final \0 after all strings */
 	return (ctx->next_ptr + 1) - ctx->eos;
 }
