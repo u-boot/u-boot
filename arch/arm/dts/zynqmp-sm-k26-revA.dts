@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * dts file for Xilinx ZynqMP K26 revA
+ * dts file for Xilinx ZynqMP SM-K26/SMK-K26 rev1/B/A
  *
  * (C) Copyright 2020, Xilinx, Inc.
  *
@@ -16,8 +16,12 @@
 #include <dt-bindings/phy/phy.h>
 
 / {
-	model = "ZynqMP K26 RevA";
-	compatible = "xlnx,zynqmp-sm-k26-revA", "xlnx,zynqmp-sm-k26", "xlnx,zynqmp";
+	model = "ZynqMP SM-K26/SMK-K26 Rev1/B/A";
+	compatible = "xlnx,zynqmp-sm-k26-rev1", "xlnx,zynqmp-sm-k26-revB",
+		     "xlnx,zynqmp-sm-k26-revA", "xlnx,zynqmp-sm-k26",
+		     "xlnx,zynqmp-smk-k26-rev1", "xlnx,zynqmp-smk-k26-revB",
+		     "xlnx,zynqmp-smk-k26-revA", "xlnx,zynqmp-smk-k26",
+		     "xlnx,zynqmp";
 
 	aliases {
 		gpio0 = &gpio;
@@ -249,7 +253,7 @@
 
 	/* slg7x644091@70 - u168 NOT accessible due to address conflict with stdp4320 */
 	/*
-	 * stdp4320 - u27 FW has below two issues.
+	 * stdp4320 - u27 FW has below two issues to be fixed in next board revision.
 	 * Device acknowledging to addresses 0x5C, 0x5D, 0x70, 0x72, 0x76.
 	 * Address conflict with slg7x644091@70 making both the devices NOT accessible.
 	 * With the FW fix, stdp4320 should respond to address 0x73 only.
