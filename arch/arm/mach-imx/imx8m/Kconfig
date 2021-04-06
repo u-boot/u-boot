@@ -53,6 +53,7 @@ config TARGET_IMX8MM_VENICE
 
 config TARGET_IMX8MN_EVK
 	bool "imx8mn LPDDR4 EVK board"
+	select BINMAN
 	select IMX8MN
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
