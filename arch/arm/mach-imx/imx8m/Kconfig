@@ -40,6 +40,7 @@ config TARGET_IMX8MQ_PHANBELL
 
 config TARGET_IMX8MM_EVK
 	bool "imx8mm LPDDR4 EVK board"
+	select BINMAN
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
