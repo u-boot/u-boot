@@ -495,7 +495,7 @@ static int k210_clk_probe(struct udevice *dev)
 	 * could fix this, but it's Probably Not Worth It (TM).
 	 */
 	if (probed)
-		return -ENOTSUPP;
+		return -EINVAL;
 
 	base = dev_read_addr_ptr(dev_get_parent(dev));
 	if (!base)

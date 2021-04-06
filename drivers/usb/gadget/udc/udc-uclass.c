@@ -45,7 +45,7 @@ int usb_gadget_release(int index)
 		dev_array[index] = NULL;
 	return ret;
 #else
-	return -ENOTSUPP;
+	return -ENOSYS;
 #endif
 }
 

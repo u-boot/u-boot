@@ -12,6 +12,10 @@ config options from headers to Kconfig (defconfig).
 
 This tool intends to help this tremendous work.
 
+Installing
+----------
+
+You may need to install 'python3-asteval' for the 'asteval' module.
 
 Usage
 -----
@@ -573,7 +577,11 @@ def cleanup_empty_blocks(header_path, options):
     """
     pattern = re.compile(r'^\s*#\s*if.*$\n^\s*#\s*endif.*$\n*', flags=re.M)
     with open(header_path) as f:
-        data = f.read()
+        try:
+            data = f.read()
+        except UnicodeDecodeError as e:
+            print("Failed on file %s': %s" % (header_path, e))
+            return
 
     new_data = pattern.sub('\n', data)
 
@@ -596,7 +604,11 @@ def cleanup_one_header(header_path, patterns, options):
       options: option flags.
     """
     with open(header_path) as f:
-        lines = f.readlines()
+        try:
+            lines = f.readlines()
+        except UnicodeDecodeError as e:
+            print("Failed on file %s': %s" % (header_path, e))
+            return
 
     matched = []
     for i, line in enumerate(lines):

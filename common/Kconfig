@@ -527,6 +527,12 @@ config LAST_STAGE_INIT
 	  U-Boot calls last_stage_init() before the command-line interpreter is
 	  started.
 
+config MISC_INIT_F
+	bool "Execute pre-relocation misc init"
+	help
+	  Enabling this option calls the 'misc_init_f' function in the init
+	  sequence just before DRAM is inited.
+
 config MISC_INIT_R
 	bool "Execute Misc Init"
 	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx

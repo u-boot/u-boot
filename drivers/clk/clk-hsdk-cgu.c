@@ -718,7 +718,7 @@ static ulong hsdk_cgu_set_rate(struct clk *sclk, ulong rate)
 	if (clk->map[sclk->id].set_rate)
 		return clk->map[sclk->id].set_rate(sclk, rate);
 
-	return -ENOTSUPP;
+	return -EINVAL;
 }
 
 static int hsdk_cgu_disable(struct clk *sclk)
@@ -731,7 +731,7 @@ static int hsdk_cgu_disable(struct clk *sclk)
 	if (clk->map[sclk->id].disable)
 		return clk->map[sclk->id].disable(sclk);
 
-	return -ENOTSUPP;
+	return -EINVAL;
 }
 
 static const struct clk_ops hsdk_cgu_ops = {

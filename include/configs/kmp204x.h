@@ -177,8 +177,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_BR1_PRELIM  CONFIG_SYS_QRIO_BR_PRELIM /* QRIO Base Address */
 #define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_QRIO_OR_PRELIM /* QRIO Options */
 
-#define CONFIG_MISC_INIT_F
-
 #define CONFIG_HWCONFIG
 
 /* define to use L1 as initial stack */

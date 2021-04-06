@@ -344,7 +344,8 @@ class BuilderThread(threading.Thread):
 
             # Write out the image and function size information and an objdump
             env = result.toolchain.MakeEnvironment(self.builder.full_path)
-            with open(os.path.join(build_dir, 'out-env'), 'w') as fd:
+            with open(os.path.join(build_dir, 'out-env'), 'w',
+                      encoding='utf-8') as fd:
                 for var in sorted(env.keys()):
                     print('%s="%s"' % (var, env[var]), file=fd)
             lines = []

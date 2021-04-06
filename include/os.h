@@ -134,7 +134,9 @@ void os_free(void *ptr);
  * This follows the semantics of realloc(), so can perform an os_malloc() or
  * os_free() depending on @ptr and @length.
  *
- * Return:	Pointer to reallocated memory or NULL if @length is 0
+ * @ptr:	pointer to previously allocated memory of NULL
+ * @length:	number of bytes to allocate
+ * Return:	pointer to reallocated memory or NULL if @length is 0
  */
 void *os_realloc(void *ptr, size_t length);
 

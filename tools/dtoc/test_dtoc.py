@@ -104,7 +104,7 @@ def setup():
 
     # Disable warnings so that calls to get_normalized_compat_name() will not
     # output things.
-    saved_scan = src_scan.Scanner(None, True, False)
+    saved_scan = src_scan.Scanner(None, False)
     saved_scan.scan_drivers()
 
 def copy_scan():
@@ -293,7 +293,7 @@ struct dtd_sandbox_i2c {
 };
 struct dtd_sandbox_pmic {
 \tbool\t\tlow_power;
-\tfdt64_t\t\treg[2];
+\tfdt32_t\t\treg[1];
 };
 struct dtd_sandbox_spl_test {
 \tconst char *	acpi_name;
@@ -341,7 +341,7 @@ U_BOOT_DRVINFO(i2c_at_0) = {
  */
 static struct dtd_sandbox_pmic dtv_pmic_at_9 = {
 \t.low_power\t\t= true,
-\t.reg\t\t\t= {0x9, 0x0},
+\t.reg\t\t\t= {0x9},
 };
 U_BOOT_DRVINFO(pmic_at_9) = {
 \t.name\t\t= "sandbox_pmic",
@@ -721,7 +721,7 @@ struct dm_test_pdata __attribute__ ((section (".priv_data")))
 \t.dtplat = {
 \t\t.ping_add\t\t= 0x5,
 \t\t.ping_expect\t\t= 0x5,
-\t\t.reg\t\t\t= {0x5, 0x0},
+\t\t.reg\t\t\t= {0x5},
 \t},
 };
 #include <dm/test.h>
@@ -1462,7 +1462,7 @@ U_BOOT_DRVINFO(test3) = {
         with self.assertRaises(ValueError) as exc:
             self.run_test(['struct'], dtb_file, output)
         self.assertIn(
-            "Node 'spl-test' reg property has 3 cells which is not a multiple of na + ns = 1 + 1)",
+            "Node 'spl-test' (parent '/') reg property has 3 cells which is not a multiple of na + ns = 1 + 1)",
             str(exc.exception))
 
     def test_add_prop(self):
@@ -1824,3 +1824,18 @@ U_BOOT_DRVINFO(spl_test2) = {
         self.assertEqual(
             'Warning: Cannot find header file for struct dm_test_uc_priv',
             stdout.getvalue().strip())
+
+    def test_missing_props(self):
+        """Test detection of a parent node with no properties"""
+        dtb_file = get_dtb_file('dtoc_test_noprops.dts', capture_stderr=True)
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as exc:
+            self.run_test(['struct'], dtb_file, output)
+        self.assertIn("Parent node '/i2c@0' has no properties - do you need",
+                      str(exc.exception))
+
+    def test_single_reg(self):
+        """Test detection of a parent node with no properties"""
+        dtb_file = get_dtb_file('dtoc_test_single_reg.dts')
+        output = tools.GetOutputFilename('output')
+        self.run_test(['struct'], dtb_file, output)

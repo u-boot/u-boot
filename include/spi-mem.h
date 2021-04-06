@@ -222,7 +222,7 @@ spi_controller_dma_map_mem_op_data(struct spi_controller *ctlr,
 				   const struct spi_mem_op *op,
 				   struct sg_table *sg)
 {
-	return -ENOTSUPP;
+	return -ENOSYS;
 }
 
 static inline void

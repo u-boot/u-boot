@@ -34,6 +34,7 @@ rebuild: $(src)/setup.py $(PYLIBFDT_srcs)
 	fi
 
 $(obj)/_libfdt.so $(obj)/libfdt.py &: rebuild
+	@:
 
 always += _libfdt.so libfdt.py
 

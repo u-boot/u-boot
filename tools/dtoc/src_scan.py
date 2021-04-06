@@ -188,7 +188,6 @@ class Scanner:
             key: Driver alias declared with
                 DM_DRIVER_ALIAS(driver_alias, driver_name)
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
-        _warning_disabled: true to disable warnings about driver names not found
         _drivers_additional (list or str): List of additional drivers to use
             during scanning
         _of_match: Dict holding information about compatible strings
@@ -206,7 +205,7 @@ class Scanner:
         _phase: The phase of U-Boot that we are generating data for, e.g. 'spl'
              or 'tpl'. None if not known
     """
-    def __init__(self, basedir, warning_disabled, drivers_additional, phase=''):
+    def __init__(self, basedir, drivers_additional, phase=''):
         """Set up a new Scanner
         """
         if not basedir:
@@ -217,7 +216,7 @@ class Scanner:
         self._drivers = {}
         self._driver_aliases = {}
         self._drivers_additional = drivers_additional or []
-        self._warning_disabled = warning_disabled
+        self._missing_drivers = set()
         self._of_match = {}
         self._compat_to_driver = {}
         self._uclass = {}
@@ -268,9 +267,7 @@ class Scanner:
                 aliases_c.remove(compat_c)
             return compat_c, aliases_c
 
-        if not self._warning_disabled:
-            print('WARNING: the driver %s was not found in the driver list'
-                  % (compat_list_c[0]))
+        self._missing_drivers.add(compat_list_c[0])
 
         return compat_list_c[0], compat_list_c[1:]
 
@@ -577,6 +574,12 @@ class Scanner:
                 driver.dups.append(orig)
             self._drivers[driver.name] = driver
         self._of_match.update(of_match)
+
+    def show_warnings(self):
+        """Show any warnings that have been collected"""
+        for name in sorted(list(self._missing_drivers)):
+            print('WARNING: the driver %s was not found in the driver list'
+                  % name)
 
     def scan_driver(self, fname):
         """Scan a driver file to build a list of driver names and aliases

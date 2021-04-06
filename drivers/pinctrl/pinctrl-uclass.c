@@ -235,8 +235,9 @@ int pinctrl_gpio_request(struct udevice *dev, unsigned offset)
 		return ret;
 
 	ops = pinctrl_get_ops(pctldev);
-	if (!ops || !ops->gpio_request_enable)
-		return -ENOTSUPP;
+	assert(ops);
+	if (!ops->gpio_request_enable)
+		return -ENOSYS;
 
 	return ops->gpio_request_enable(pctldev, pin_selector);
 }
@@ -261,8 +262,9 @@ int pinctrl_gpio_free(struct udevice *dev, unsigned offset)
 		return ret;
 
 	ops = pinctrl_get_ops(pctldev);
-	if (!ops || !ops->gpio_disable_free)
-		return -ENOTSUPP;
+	assert(ops);
+	if (!ops->gpio_disable_free)
+		return -ENOSYS;
 
 	return ops->gpio_disable_free(pctldev, pin_selector);
 }

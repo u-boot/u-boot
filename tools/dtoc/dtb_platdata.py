@@ -440,6 +440,9 @@ class DtbPlatdata():
                 Number of size cells for this node
         """
         parent = node.parent
+        if parent and not parent.props:
+            raise ValueError("Parent node '%s' has no properties - do you need u-boot,dm-spl or similar?" %
+                             parent.path)
         num_addr, num_size = 2, 2
         if parent:
             addr_prop = parent.props.get('#address-cells')
@@ -467,20 +470,21 @@ class DtbPlatdata():
             if reg.type != fdt.Type.INT:
                 raise ValueError("Node '%s' reg property is not an int" %
                                  node.name)
+            if not isinstance(reg.value, list):
+                reg.value = [reg.value]
             if len(reg.value) % total:
                 raise ValueError(
-                    "Node '%s' reg property has %d cells "
+                    "Node '%s' (parent '%s') reg property has %d cells "
                     'which is not a multiple of na + ns = %d + %d)' %
-                    (node.name, len(reg.value), num_addr, num_size))
+                    (node.name, node.parent.name, len(reg.value), num_addr,
+                     num_size))
             reg.num_addr = num_addr
             reg.num_size = num_size
-            if num_addr != 1 or num_size != 1:
+            if num_addr > 1 or num_size > 1:
                 reg.type = fdt.Type.INT64
                 i = 0
                 new_value = []
                 val = reg.value
-                if not isinstance(val, list):
-                    val = [val]
                 while i < len(val):
                     addr = fdt_util.fdt_cells_to_cpu(val[i:], reg.num_addr)
                     i += num_addr
@@ -1194,8 +1198,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
         raise ValueError('Must specify either output or output_dirs, not both')
 
     if not scan:
-        scan = src_scan.Scanner(basedir, warning_disabled, drivers_additional,
-                                phase)
+        scan = src_scan.Scanner(basedir, drivers_additional, phase)
         scan.scan_drivers()
         do_process = True
     else:
@@ -1232,4 +1235,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
         plat.out_header(outfile)
         outfile.method(plat)
     plat.finish_output()
+
+    if not warning_disabled:
+        scan.show_warnings()
     return plat

@@ -1140,7 +1140,7 @@ int soc_clk_dump(void)
 
 		clk_free(&clk);
 
-		if (ret == -ENOTSUPP) {
+		if (ret == -EINVAL) {
 			printf("clk ID %lu not supported yet\n",
 			       aspeed_clk_names[i].id);
 			continue;
