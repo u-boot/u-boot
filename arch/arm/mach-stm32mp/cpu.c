@@ -482,8 +482,8 @@ static void setup_boot_mode(void)
 			if (IS_ENABLED(CONFIG_CMD_STM32PROG_SERIAL))
 				gd->flags &= ~(GD_FLG_SILENT |
 					       GD_FLG_DISABLE_CONSOLE);
-			printf("uart%d = %s not found in device tree!\n",
-			       instance + 1, cmd);
+			log_err("uart%d = %s not found in device tree!\n",
+				instance + 1, cmd);
 			break;
 		}
 		sprintf(cmd, "%d", dev_seq(dev));
@@ -494,7 +494,7 @@ static void setup_boot_mode(void)
 		if (IS_ENABLED(CONFIG_CMD_STM32PROG_SERIAL) && gd->cur_serial_dev != dev) {
 			gd->flags &= ~(GD_FLG_SILENT |
 				       GD_FLG_DISABLE_CONSOLE);
-			printf("serial boot with console enabled!\n");
+			log_info("serial boot with console enabled!\n");
 		}
 		break;
 	case BOOT_SERIAL_USB:
@@ -526,7 +526,7 @@ static void setup_boot_mode(void)
 
 	switch (forced_mode) {
 	case BOOT_FASTBOOT:
-		printf("Enter fastboot!\n");
+		log_info("Enter fastboot!\n");
 		env_set("preboot", "env set preboot; fastboot 0");
 		break;
 	case BOOT_STM32PROG:
@@ -536,7 +536,7 @@ static void setup_boot_mode(void)
 	case BOOT_UMS_MMC0:
 	case BOOT_UMS_MMC1:
 	case BOOT_UMS_MMC2:
-		printf("Enter UMS!\n");
+		log_info("Enter UMS!\n");
 		instance = forced_mode - BOOT_UMS_MMC0;
 		sprintf(cmd, "env set preboot; ums 0 mmc %d", instance);
 		env_set("preboot", cmd);
