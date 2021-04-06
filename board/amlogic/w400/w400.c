@@ -14,7 +14,7 @@
 
 int misc_init_r(void)
 {
-	meson_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
+	meson_generate_serial_ethaddr();
 
 	return 0;
 }

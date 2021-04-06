@@ -149,8 +149,6 @@ int misc_init_r(void)
 	char efuse_mac_addr[EFUSE_MAC_SIZE], tmp[3];
 	ssize_t len;
 
-	meson_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
-
 	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
 					  efuse_mac_addr, EFUSE_MAC_SIZE);

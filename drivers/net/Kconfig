@@ -271,6 +271,14 @@ config ETH_DESIGNWARE
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
 	  provide the PHY (physical media interface).
 
+config ETH_DESIGNWARE_MESON8B
+	bool "Amlogic Meson8b and later glue driver for Synopsys Designware Ethernet MAC"
+	depends on DM_ETH
+	select ETH_DESIGNWARE
+	help
+	  This provides glue layer to use Synopsys Designware Ethernet MAC
+	  present on the Amlogic Meson8b, GX, AXG & G12A SoCs.
+
 config ETH_DESIGNWARE_SOCFPGA
 	select REGMAP
 	select SYSCON
@@ -789,5 +797,19 @@ config FSL_LS_MDIO
 	help
 	  This driver supports the MDIO bus found on the Fman 10G Ethernet MACs and
 	  on the mEMAC (which supports both Clauses 22 and 45).
+
+config MDIO_MUX_MMIOREG
+	bool "MDIO MUX accessed as a MMIO register access"
+	depends on DM_MDIO_MUX
+	help
+	  This driver is used for MDIO muxes driven by writing to a register in
+	  the MMIO physical memory.
+
+config MDIO_MUX_MESON_G12A
+	bool "MDIO MUX for Amlogic Meson G12A SoCs"
+	depends on DM_MDIO_MUX
+	help
+	  This driver is used for the MDIO mux found on the Amlogic G12A & compatible
+	  SoCs.
 
 endif # NETDEVICES
