@@ -67,6 +67,7 @@ config TARGET_IMX8MN_DDR4_EVK
 
 config TARGET_IMX8MP_EVK
 	bool "imx8mp LPDDR4 EVK board"
+	select BINMAN
 	select IMX8MP
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
