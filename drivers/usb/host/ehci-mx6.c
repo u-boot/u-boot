@@ -399,8 +399,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	type = board_usb_phy_mode(index);
 
 	if (hccr && hcor) {
-		*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-		*hcor = (struct ehci_hcor *)((uint32_t)*hccr +
+		*hccr = (struct ehci_hccr *)((uintptr_t)&ehci->caplength);
+		*hcor = (struct ehci_hcor *)((uintptr_t)*hccr +
 				HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 	}
 
@@ -696,8 +696,8 @@ static int ehci_usb_probe(struct udevice *dev)
 		goto err_regulator;
 #endif
 
-	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-	hcor = (struct ehci_hcor *)((uint32_t)hccr +
+	hccr = (struct ehci_hccr *)((uintptr_t)&ehci->caplength);
+	hcor = (struct ehci_hcor *)((uintptr_t)hccr +
 			HC_LENGTH(ehci_readl(&(hccr)->cr_capbase)));
 
 	ret = ehci_register(dev, hccr, hcor, &mx6_ehci_ops, 0, priv->init_type);
