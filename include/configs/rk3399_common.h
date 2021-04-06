@@ -75,6 +75,4 @@
 
 #endif
 
-/* enable usb config for usb ether */
-
 #endif

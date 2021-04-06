@@ -114,7 +114,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3328) += \
 	rk3328-rock-pi-e.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK3368) += \
-	rk3368-lion.dtb \
+	rk3368-lion-haikou.dtb \
 	rk3368-sheep.dtb \
 	rk3368-geekbox.dtb \
 	rk3368-px5-evb.dtb \
@@ -131,7 +131,9 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-nanopc-t4.dtb \
 	rk3399-nanopi-m4.dtb \
 	rk3399-nanopi-m4-2gb.dtb \
+	rk3399-nanopi-m4b.dtb \
 	rk3399-nanopi-neo4.dtb \
+	rk3399-nanopi-r4s.dtb \
 	rk3399-orangepi.dtb \
 	rk3399-pinebook-pro.dtb \
 	rk3399-puma-haikou.dtb \
