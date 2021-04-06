@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * dts file for Xilinx ZynqMP Z2-VSOM
+ * dts file for Xilinx ZynqMP K26/KV260 SD wiring
  *
  * (C) Copyright 2020, Xilinx, Inc.
  *
@@ -8,7 +8,7 @@
  */
 
 /* SD0 only supports 3.3V, no level shifter */
-&sdhci1 { /* FIXME - on CC - MIO 39 - 51 */
+&sdhci1 { /* on CC - MIO 39 - 51 */
 	status = "okay";
 	no-1-8-v;
 	disable-wp;
