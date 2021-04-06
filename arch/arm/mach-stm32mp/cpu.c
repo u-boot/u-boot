@@ -483,7 +483,7 @@ static void setup_boot_mode(void)
 				gd->flags &= ~(GD_FLG_SILENT |
 					       GD_FLG_DISABLE_CONSOLE);
 			printf("uart%d = %s not found in device tree!\n",
-			       instance, cmd);
+			       instance + 1, cmd);
 			break;
 		}
 		sprintf(cmd, "%d", dev_seq(dev));
