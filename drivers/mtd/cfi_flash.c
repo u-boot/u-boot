@@ -218,7 +218,7 @@ flash_map(flash_info_t *info, flash_sect_t sect, uint offset)
 {
 	unsigned int byte_offset = offset * info->portwidth;
 
-	return (void *)(info->start[sect] + byte_offset);
+	return (void *)(info->start[sect] + (byte_offset << info->chip_lsb));
 }
 
 static inline void flash_unmap(flash_info_t *info, flash_sect_t sect,
@@ -1918,12 +1918,27 @@ static int __flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 			flash_read_cfi(info, qry, FLASH_OFFSET_CFI_RESP,
 				       sizeof(struct cfi_qry));
 			info->interface	= le16_to_cpu(qry->interface_desc);
+			/* Some flash chips can support multiple bus widths.
+			 * In this case, override the interface width and
+			 * limit it to the port width.
+			 */
+			if ((info->interface == FLASH_CFI_X8X16) &&
+					(info->portwidth == FLASH_CFI_8BIT)) {
+				debug("Overriding 16-bit interface width to"
+						" 8-bit port width\n");
+				info->interface = FLASH_CFI_X8;
+			} else if ((info->interface == FLASH_CFI_X16X32) &&
+					(info->portwidth == FLASH_CFI_16BIT)) {
+				debug("Overriding 16-bit interface width to"
+						" 16-bit port width\n");
+				info->interface = FLASH_CFI_X16;
+			}
 
 			info->cfi_offset = flash_offset_cfi[cfi_offset];
 			debug("device interface is %d\n",
 			      info->interface);
-			debug("found port %d chip %d ",
-			      info->portwidth, info->chipwidth);
+			debug("found port %d chip %d chip_lsb %d ",
+			      info->portwidth, info->chipwidth, info->chip_lsb);
 			debug("port %d bits chip %d bits\n",
 			      info->portwidth << CFI_FLASH_SHIFT_WIDTH,
 			      info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
@@ -1962,9 +1977,23 @@ static int flash_detect_cfi(flash_info_t *info, struct cfi_qry *qry)
 	     info->portwidth <= FLASH_CFI_64BIT; info->portwidth <<= 1) {
 		for (info->chipwidth = FLASH_CFI_BY8;
 		     info->chipwidth <= info->portwidth;
-		     info->chipwidth <<= 1)
+		     info->chipwidth <<= 1) {
+			/*
+			 * First, try detection without shifting the addresses
+			 * for 8bit devices (16bit wide connection)
+			 */
+			info->chip_lsb = 0;
 			if (__flash_detect_cfi(info, qry))
 				return 1;
+
+			/*
+			 * Not detected, so let's try with shifting
+			 * for 8bit devices
+			 */
+			info->chip_lsb = 1;
+			if (__flash_detect_cfi(info, qry))
+				return 1;
+		}
 	}
 	debug("not found\n");
 	return 0;
