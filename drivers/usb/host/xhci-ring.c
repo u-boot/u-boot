@@ -849,12 +849,9 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 		}
 	}
 
-	debug("req->requesttype = %d, req->request = %d,"
-		"le16_to_cpu(req->value) = %d,"
-		"le16_to_cpu(req->index) = %d,"
-		"le16_to_cpu(req->length) = %d\n",
-		req->requesttype, req->request, le16_to_cpu(req->value),
-		le16_to_cpu(req->index), le16_to_cpu(req->length));
+	debug("req->requesttype = %d, req->request = %d, req->value = %d, req->index = %d, req->length = %d\n",
+	      req->requesttype, req->request, le16_to_cpu(req->value),
+	      le16_to_cpu(req->index), le16_to_cpu(req->length));
 
 	trb_fields[0] = req->requesttype | req->request << 8 |
 				le16_to_cpu(req->value) << 16;
