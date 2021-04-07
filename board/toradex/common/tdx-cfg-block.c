@@ -556,6 +556,8 @@ static int get_cfgblock_interactive(void)
 static int get_cfgblock_barcode(char *barcode, struct toradex_hw *tag,
 				u32 *serial)
 {
+	char revision[3] = {barcode[6], barcode[7], '\0'};
+
 	if (strlen(barcode) < 16) {
 		printf("Argument too short, barcode is 16 chars long\n");
 		return -1;
@@ -564,7 +566,7 @@ static int get_cfgblock_barcode(char *barcode, struct toradex_hw *tag,
 	/* Get hardware information from the first 8 digits */
 	tag->ver_major = barcode[4] - '0';
 	tag->ver_minor = barcode[5] - '0';
-	tag->ver_assembly = barcode[7] - '0';
+	tag->ver_assembly = simple_strtoul(revision, NULL, 10);
 
 	barcode[4] = '\0';
 	tag->prodid = simple_strtoul(barcode, NULL, 10);
