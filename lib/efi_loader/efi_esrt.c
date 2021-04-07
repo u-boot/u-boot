@@ -341,7 +341,7 @@ efi_status_t efi_esrt_populate(void)
 		return EFI_SUCCESS;
 	}
 
-	EFI_PRINT("ESRT populate esrt from (%ld) available FMP handles\n",
+	EFI_PRINT("ESRT populate esrt from (%zd) available FMP handles\n",
 		  no_handles);
 
 	/*
