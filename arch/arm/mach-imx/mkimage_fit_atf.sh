@@ -16,7 +16,7 @@ if [ ! -f $BL31 ]; then
 	exit 0
 else
 	echo "$BL31 size: " >&2
-	ls -lct $BL31 | awk '{print $5}' >&2
+	stat -c %s $BL31 >&2
 fi
 
 BL32="tee.bin"
@@ -26,7 +26,7 @@ if [ ! -f $BL32 ]; then
 else
 	echo "Building with TEE support, make sure your $BL31 is compiled with spd. If you do not want tee, please delete $BL31" >&2
 	echo "$BL32 size: " >&2
-	ls -lct $BL32 | awk '{print $5}' >&2
+	stat -c %s $BL32 >&2
 fi
 
 BL33="u-boot-nodtb.bin"
@@ -36,13 +36,13 @@ if [ ! -f $BL33 ]; then
 	exit 0
 else
 	echo "u-boot-nodtb.bin size: " >&2
-	ls -lct u-boot-nodtb.bin | awk '{print $5}' >&2
+	stat -c %s u-boot-nodtb.bin >&2
 fi
 
 for dtname in $*
 do
 	echo "$dtname size: " >&2
-	ls -lct $dtname | awk '{print $5}' >&2
+	stat -c %s $dtname >&2
 done
 
 
