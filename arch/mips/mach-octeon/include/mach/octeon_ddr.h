@@ -120,8 +120,6 @@ static inline int ddr_verbose(void)
 #define CVMX_TMP_STR(x) CVMX_TMP_STR2(x)
 #define CVMX_TMP_STR2(x) #x
 
-#define CVMX_SYNC asm volatile ("sync" : : : "memory")
-
 #define CVMX_CACHE(op, address, offset)					\
 	asm volatile ("cache " CVMX_TMP_STR(op) ", "			\
 		      CVMX_TMP_STR(offset) "(%[rbase])"			\

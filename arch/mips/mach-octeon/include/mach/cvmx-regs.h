@@ -68,6 +68,7 @@
 #define CVMX_POP(result, input)						\
 	asm("pop %[rd],%[rs]" : [rd] "=d"(result) : [rs] "d"(input))
 
+#define CVMX_SYNC   asm volatile("sync\n" : : : "memory")
 #define CVMX_SYNCW  asm volatile("syncw\nsyncw\n" : : : "memory")
 #define CVMX_SYNCS  asm volatile("syncs\n" : : : "memory")
 #define CVMX_SYNCWS asm volatile("syncws\n" : : : "memory")
