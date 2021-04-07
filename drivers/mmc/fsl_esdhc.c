@@ -71,7 +71,8 @@ struct fsl_esdhc {
 	uint	sdtimingctl;	/* SD timing control register */
 	char    reserved8[20];	/* reserved */
 	uint	dllcfg0;	/* DLL config 0 register */
-	char	reserved9[12];	/* reserved */
+	uint	dllcfg1;	/* DLL config 1 register */
+	char	reserved9[8];	/* reserved */
 	uint	dllstat0;	/* DLL status 0 register */
 	char    reserved10[664];/* reserved */
 	uint    esdhcctl;	/* eSDHC control register */
@@ -518,6 +519,24 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	while (sdhc_clk / (div * pre_div) > clock && div < 16)
 		div++;
 
+	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_A011334) &&
+	    clock == 200000000 && mmc->selected_mode == MMC_HS_400) {
+		u32 div_ratio = pre_div * div;
+
+		if (div_ratio <= 4) {
+			pre_div = 4;
+			div = 1;
+		} else if (div_ratio <= 8) {
+			pre_div = 4;
+			div = 2;
+		} else if (div_ratio <= 12) {
+			pre_div = 4;
+			div = 3;
+		} else {
+			printf("unsupported clock division.\n");
+		}
+	}
+
 	mmc->clock = sdhc_clk / pre_div / div;
 	priv->clock = mmc->clock;
 
@@ -748,6 +767,9 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 
 	/* Set timout to the maximum value */
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, 14 << 16);
+
+	if (IS_ENABLED(CONFIG_SYS_FSL_ESDHC_UNRELIABLE_PULSE_DETECTION_WORKAROUND))
+		esdhc_clrbits32(&regs->dllcfg1, DLL_PD_PULSE_STRETCH_SEL);
 
 	return 0;
 }
@@ -1063,8 +1085,13 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	struct fsl_esdhc *regs = priv->esdhc_regs;
+	struct mmc *mmc = &plat->mmc;
 	u32 val, irqstaten;
 	int i;
+
+	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_A011334) &&
+	    plat->mmc.hs400_tuning)
+		set_sysctl(priv, mmc, mmc->clock);
 
 	esdhc_tuning_block_enable(priv, true);
 	esdhc_setbits32(&regs->autoc12err, EXECUTE_TUNING);
@@ -1073,7 +1100,7 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 	esdhc_write32(&regs->irqstaten, IRQSTATEN_BRR);
 
 	for (i = 0; i < MAX_TUNING_LOOP; i++) {
-		mmc_send_tuning(&plat->mmc, opcode, NULL);
+		mmc_send_tuning(mmc, opcode, NULL);
 		mdelay(1);
 
 		val = esdhc_read32(&regs->autoc12err);
