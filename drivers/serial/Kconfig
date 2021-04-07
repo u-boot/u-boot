@@ -788,6 +788,17 @@ config MSM_SERIAL
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
 
+config OCTEON_SERIAL_BOOTCMD
+	bool "MIPS Octeon PCI remote bootcmd input"
+	depends on ARCH_OCTEON
+	depends on DM_SERIAL
+	select SYS_IS_IN_ENV
+	select CONSOLE_MUX
+	help
+	 This driver supports remote input over the PCIe bus from a host
+	 to U-Boot for entering commands.  It is utilized by the host
+	 commands 'oct-remote-load' and 'oct-remote-bootcmd'.
+
 config OCTEON_SERIAL_PCIE_CONSOLE
 	bool "MIPS Octeon PCIe remote console"
 	depends on ARCH_OCTEON
