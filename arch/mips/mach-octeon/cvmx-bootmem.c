@@ -283,8 +283,8 @@ static int __cvmx_bootmem_check_version(int exact_match)
 	int major_version;
 
 	major_version = CVMX_BOOTMEM_DESC_GET_FIELD(major_version);
-	if (major_version > 3 ||
-	    (exact_match && major_version) != exact_match) {
+	if ((major_version > 3) ||
+	    (exact_match && major_version != exact_match)) {
 		debug("ERROR: Incompatible bootmem descriptor version: %d.%d at addr: 0x%llx\n",
 		      major_version,
 		      (int)CVMX_BOOTMEM_DESC_GET_FIELD(minor_version),
