@@ -63,7 +63,7 @@
 			#size-cells = <1>;
 
 			pioA: pinctrl@e0014000 {
-				compatible = "atmel,sama5d2-gpio";
+				compatible = "microchip,sama7g5-gpio";
 				reg = <0xe0014000 0x800>;
 				gpio-controller;
 				#gpio-cells = <2>;
