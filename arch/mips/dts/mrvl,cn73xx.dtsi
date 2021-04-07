@@ -97,6 +97,7 @@
 		uart0: serial@1180000000800 {
 			compatible = "cavium,octeon-3860-uart","ns16550";
 			reg = <0x11800 0x00000800 0x0 0x400>;
+			clocks = <&clk OCTEON_CLK_IO>;
 			clock-frequency = <0>;
 			current-speed = <115200>;
 			reg-shift = <3>;
@@ -106,6 +107,7 @@
 		uart1: serial@1180000000c00 {
 			compatible = "cavium,octeon-3860-uart","ns16550";
 			reg = <0x11800 0x00000c00 0x0 0x400>;
+			clocks = <&clk OCTEON_CLK_IO>;
 			clock-frequency = <0>;
 			current-speed = <115200>;
 			reg-shift = <3>;
