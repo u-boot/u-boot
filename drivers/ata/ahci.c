@@ -500,6 +500,7 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 {
 	struct ahci_ioports *pp = &(uc_priv->port[port]);
 	struct ahci_sg *ahci_sg = pp->cmd_tbl_sg;
+	phys_addr_t pa = virt_to_phys(buf);
 	u32 sg_count;
 	int i;
 
@@ -510,9 +511,6 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 	}
 
 	for (i = 0; i < sg_count; i++) {
-		/* We assume virt=phys */
-		phys_addr_t pa = (unsigned long)buf + i * MAX_DATA_BYTE_COUNT;
-
 		ahci_sg->addr = cpu_to_le32(lower_32_bits(pa));
 		ahci_sg->addr_hi = cpu_to_le32(upper_32_bits(pa));
 		if (ahci_sg->addr_hi && !(uc_priv->cap & AHCI_CAP_S64A)) {
@@ -520,25 +518,26 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 			return -1;
 		}
 		ahci_sg->flags_size = cpu_to_le32(0x3fffff &
-					  (buf_len < MAX_DATA_BYTE_COUNT
-					   ? (buf_len - 1)
-					   : (MAX_DATA_BYTE_COUNT - 1)));
+					  (buf_len < MAX_DATA_BYTE_COUNT ?
+					   (buf_len - 1) :
+					   (MAX_DATA_BYTE_COUNT - 1)));
 		ahci_sg++;
 		buf_len -= MAX_DATA_BYTE_COUNT;
+		pa += MAX_DATA_BYTE_COUNT;
 	}
 
 	return sg_count;
 }
 
-
 static void ahci_fill_cmd_slot(struct ahci_ioports *pp, u32 opts)
 {
+	phys_addr_t pa = virt_to_phys((void *)pp->cmd_tbl);
+
 	pp->cmd_slot->opts = cpu_to_le32(opts);
 	pp->cmd_slot->status = 0;
-	pp->cmd_slot->tbl_addr = cpu_to_le32((u32)pp->cmd_tbl & 0xffffffff);
+	pp->cmd_slot->tbl_addr = cpu_to_le32(lower_32_bits(pa));
 #ifdef CONFIG_PHYS_64BIT
-	pp->cmd_slot->tbl_addr_hi =
-	    cpu_to_le32((u32)(((pp->cmd_tbl) >> 16) >> 16));
+	pp->cmd_slot->tbl_addr_hi = cpu_to_le32(upper_32_bits(pa));
 #endif
 }
 
@@ -674,11 +673,11 @@ static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
 
 	ahci_dcache_invalidate_range((unsigned long)buf,
 				     (unsigned long)buf_len);
-	debug("%s: %d byte transferred.\n", __func__, pp->cmd_slot->status);
+	debug("%s: %d byte transferred.\n", __func__,
+	      le32_to_cpu(pp->cmd_slot->status));
 
 	return 0;
 }
-
 
 static char *ata_id_strcpy(u16 *target, u16 *src, int len)
 {
