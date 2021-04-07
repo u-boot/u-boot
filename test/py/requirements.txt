@@ -11,7 +11,7 @@ pbr==5.4.3
 pluggy==0.13.0
 py==1.8.0
 pyelftools==0.27
-pygit2==1.4.0
+pygit2==0.28.2
 pyparsing==2.4.2
 pytest==5.2.1
 python-mimeparse==1.6.0
