@@ -15,6 +15,8 @@
 #include <mach/clock.h>
 #include <mach/cavm-reg.h>
 #include <mach/cvmx-bootmem.h>
+#include <mach/cvmx-regs.h>
+#include <mach/cvmx-sata-defs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -49,7 +51,6 @@ const bool octeon_should_swizzle_table[256] = {
 	[0x1e] = true,	/* PCI mmio window */
 	[0x68] = true,	/* OCTEON III USB */
 	[0x69] = true,	/* OCTEON III USB */
-	[0x6c] = true,	/* OCTEON III SATA */
 	[0x6f] = true,	/* OCTEON II USB */
 };
 
@@ -409,6 +410,24 @@ int arch_misc_init(void)
 
 	if (CONFIG_IS_ENABLED(OCTEON_SERIAL_BOOTCMD))
 		init_bootcmd_console();
+
+	return 0;
+}
+
+int board_ahci_enable(void)
+{
+	cvmx_sata_uctl_shim_cfg_t shim_cfg;
+
+	/*
+	 * Configure proper endian swapping for the AHCI port so that the
+	 * common AHCI code can be used
+	 */
+	shim_cfg.u64 = csr_rd(CVMX_SATA_UCTL_SHIM_CFG);
+	shim_cfg.s.dma_endian_mode = 1;
+	/* Use 1 for LE mode when running BE, or 3 for BE mode running BE */
+	shim_cfg.s.csr_endian_mode = 3;	/* Don't byte swap */
+	shim_cfg.s.dma_read_cmd = 1; /* No allocate L2C */
+	csr_wr(CVMX_SATA_UCTL_SHIM_CFG, shim_cfg.u64);
 
 	return 0;
 }
