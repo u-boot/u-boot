@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * dts file for Xilinx ZynqMP SM-K26/SMK-K26 rev1/B/A
+ * dts file for Xilinx ZynqMP SM-K26 rev1/B/A
  *
  * (C) Copyright 2020, Xilinx, Inc.
  *
@@ -16,11 +16,9 @@
 #include <dt-bindings/phy/phy.h>
 
 / {
-	model = "ZynqMP SM-K26/SMK-K26 Rev1/B/A";
+	model = "ZynqMP SM-K26 Rev1/B/A";
 	compatible = "xlnx,zynqmp-sm-k26-rev1", "xlnx,zynqmp-sm-k26-revB",
 		     "xlnx,zynqmp-sm-k26-revA", "xlnx,zynqmp-sm-k26",
-		     "xlnx,zynqmp-smk-k26-rev1", "xlnx,zynqmp-smk-k26-revB",
-		     "xlnx,zynqmp-smk-k26-revA", "xlnx,zynqmp-smk-k26",
 		     "xlnx,zynqmp";
 
 	aliases {

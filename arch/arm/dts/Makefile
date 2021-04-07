@@ -317,6 +317,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-qspi-x2-single.dtb		\
 	zynqmp-mini-qspi-x2-stacked.dtb		\
 	zynqmp-sm-k26-revA.dtb			\
+	zynqmp-smk-k26-revA.dtb			\
 	zynqmp-sck-kv-g-dp.dtbo			\
 	zynqmp-sck-kv-g-revA.dtbo		\
 	zynqmp-sck-kv-g-revB.dtbo		\
