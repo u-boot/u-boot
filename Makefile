@@ -1010,6 +1010,10 @@ cmd_pad_cat = $(cmd_objcopy) && $(append) || { rm -f $@; false; }
 quiet_cmd_lzma = LZMA    $@
 cmd_lzma = lzma -c -z -k -9 $< > $@
 
+quiet_cmd_mkeficapsule = MKEFICAPSULE     $@
+cmd_mkeficapsule = $(objtree)/tools/mkeficapsule -K $(CONFIG_EFI_PKEY_FILE) \
+	-D $@
+
 cfg: u-boot.cfg
 
 quiet_cmd_cfgcheck = CFGCHK  $2
@@ -1104,8 +1108,14 @@ endif
 PHONY += dtbs
 dtbs: dts/dt.dtb
 	@:
+ifeq ($(CONFIG_EFI_CAPSULE_AUTHENTICATE)$(CONFIG_EFI_PKEY_DTB_EMBED),yy)
+dts/dt.dtb: u-boot tools
+	$(Q)$(MAKE) $(build)=dts dtbs
+	$(call cmd,mkeficapsule)
+else
 dts/dt.dtb: u-boot
 	$(Q)$(MAKE) $(build)=dts dtbs
+endif
 
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@

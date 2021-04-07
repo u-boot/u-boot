@@ -9,5 +9,12 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "stm32mp1"
 
+config BOARD_SPECIFIC_OPTIONS
+	def_bool y
+	imply EFI_PKEY_DTB_EMBED
+
+config EFI_PKEY_FILE
+	default "board/st/stm32mp1/capsule_auth_pub_key.esl"
+
 source "board/st/common/Kconfig"
 endif
