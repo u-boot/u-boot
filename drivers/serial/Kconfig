@@ -788,6 +788,19 @@ config MSM_SERIAL
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
 
+config OCTEON_SERIAL_PCIE_CONSOLE
+	bool "MIPS Octeon PCIe remote console"
+	depends on ARCH_OCTEON
+	depends on (DM_SERIAL && DM_STDIO)
+	select SYS_STDIO_DEREGISTER
+	select SYS_CONSOLE_IS_IN_ENV
+	select CONSOLE_MUX
+	help
+	  This driver supports remote console over the PCIe bus when the
+	  Octeon is running in PCIe target mode. The host program
+	  'oct-remote-console' can be used to connect to this console.
+	  The console number will likely be 0 or 1.
+
 config OMAP_SERIAL
 	bool "Support for OMAP specific UART"
 	depends on DM_SERIAL
