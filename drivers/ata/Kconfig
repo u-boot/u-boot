@@ -116,7 +116,7 @@ config SUNXI_AHCI
 
 config AHCI_MVEBU
 	bool "Marvell EBU AHCI SATA support"
-	depends on ARCH_MVEBU
+	depends on ARCH_MVEBU || ARCH_OCTEON
 	depends on AHCI
 	select SCSI_AHCI
 	select DM_SCSI

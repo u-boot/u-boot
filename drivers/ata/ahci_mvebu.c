@@ -39,7 +39,7 @@ static int mvebu_ahci_probe(struct udevice *dev)
 	 */
 	board_ahci_enable();
 
-	ahci_probe_scsi(dev, dev_read_addr(dev));
+	ahci_probe_scsi(dev, (ulong)dev_remap_addr(dev));
 
 	return 0;
 }
@@ -48,6 +48,7 @@ static const struct udevice_id mvebu_ahci_ids[] = {
 	{ .compatible = "marvell,armada-380-ahci" },
 	{ .compatible = "marvell,armada-3700-ahci" },
 	{ .compatible = "marvell,armada-8k-ahci" },
+	{ .compatible = "cavium,octeon-7130-ahci" },
 	{ }
 };
 
