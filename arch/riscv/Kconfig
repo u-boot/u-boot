@@ -17,8 +17,8 @@ config TARGET_MICROCHIP_ICICLE
 config TARGET_QEMU_VIRT
 	bool "Support QEMU Virt Board"
 
-config TARGET_SIFIVE_FU540
-	bool "Support SiFive FU540 Board"
+config TARGET_SIFIVE_UNLEASHED
+	bool "Support SiFive Unleashed Board"
 
 config TARGET_SIPEED_MAIX
 	bool "Support Sipeed Maix Board"
@@ -55,7 +55,7 @@ config SPL_SYS_DCACHE_OFF
 source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
-source "board/sifive/fu540/Kconfig"
+source "board/sifive/unleashed/Kconfig"
 source "board/sipeed/maix/Kconfig"
 
 # platform-specific options below
@@ -270,5 +270,83 @@ config STACK_SIZE_SHIFT
 
 config OF_BOARD_FIXUP
 	default y if OF_SEPARATE && RISCV_SMODE
+
+config USE_ARCH_MEMCPY
+	bool "Use an assembly optimized implementation of memcpy"
+	default y
+	help
+	  Enable the generation of an optimized version of memcpy.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config SPL_USE_ARCH_MEMCPY
+	bool "Use an assembly optimized implementation of memcpy for SPL"
+	default y if USE_ARCH_MEMCPY
+	depends on SPL
+	help
+	  Enable the generation of an optimized version of memcpy.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config TPL_USE_ARCH_MEMCPY
+	bool "Use an assembly optimized implementation of memcpy for TPL"
+	default y if USE_ARCH_MEMCPY
+	depends on TPL
+	help
+	  Enable the generation of an optimized version of memcpy.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove"
+	default y
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config SPL_USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove for SPL"
+	default y if USE_ARCH_MEMCPY
+	depends on SPL
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config TPL_USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove for TPL"
+	default y if USE_ARCH_MEMCPY
+	depends on TPL
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config USE_ARCH_MEMSET
+	bool "Use an assembly optimized implementation of memset"
+	default y
+	help
+	  Enable the generation of an optimized version of memset.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config SPL_USE_ARCH_MEMSET
+	bool "Use an assembly optimized implementation of memset for SPL"
+	default y if USE_ARCH_MEMSET
+	depends on SPL
+	help
+	  Enable the generation of an optimized version of memset.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config TPL_USE_ARCH_MEMSET
+	bool "Use an assembly optimized implementation of memset for TPL"
+	default y if USE_ARCH_MEMSET
+	depends on TPL
+	help
+	  Enable the generation of an optimized version of memset.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
 
 endmenu

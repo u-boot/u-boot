@@ -54,6 +54,7 @@ static int sifive_clint_probe(struct udevice *dev)
 
 static const struct udevice_id sifive_clint_ids[] = {
 	{ .compatible = "riscv,clint0" },
+	{ .compatible = "sifive,clint0" },
 	{ }
 };
 

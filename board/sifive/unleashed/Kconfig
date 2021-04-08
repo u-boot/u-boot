@@ -1,7 +1,7 @@
-if TARGET_SIFIVE_FU540
+if TARGET_SIFIVE_UNLEASHED
 
 config SYS_BOARD
-	default "fu540"
+	default "unleashed"
 
 config SYS_VENDOR
 	default "sifive"
@@ -10,7 +10,7 @@ config SYS_CPU
 	default "fu540"
 
 config SYS_CONFIG_NAME
-	default "sifive-fu540"
+	default "sifive-unleashed"
 
 config SYS_TEXT_BASE
 	default 0x80200000 if SPL
