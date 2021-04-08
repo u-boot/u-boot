@@ -20,11 +20,6 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /*
- * SDIO/MMC Card Configuration
- */
-#define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
-
-/*
  * SATA/SCSI/AHCI configuration
  */
 #define CONFIG_SCSI_AHCI_PLAT

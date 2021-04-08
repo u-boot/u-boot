@@ -327,6 +327,15 @@ config MMC_OCTEONTX
 
 	  If unsure, say N.
 
+config MVEBU_MMC
+	bool "Kirkwood MMC controller support"
+	depends on DM_MMC && BLK && ARCH_KIRKWOOD
+	help
+	  Support for MMC host controller on Kirkwood SoCs.
+	  If you are on a Kirkwood architecture, say Y here.
+
+	  If unsure, say N.
+
 config PXA_MMC_GENERIC
 	bool "Support for MMC controllers on PXA"
 	help

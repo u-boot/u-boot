@@ -19,11 +19,6 @@
  */
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
-/*
- * SDIO/MMC Card Configuration
- */
-#define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 

@@ -258,17 +258,10 @@
 /* Hardware reset */
 #define MMC_CAP_HW_RESET			(1 << 31)
 
-struct mvebu_mmc_cfg {
-	u32	mvebu_mmc_base;
-	u32	mvebu_mmc_clk;
-	u8	max_bus_width;
+struct mvebu_mmc_plat {
+	void *iobase;
 	struct mmc_config cfg;
+	struct mmc mmc;
 };
-
-/*
- * Functions prototypes
- */
-
-int mvebu_mmc_init(struct bd_info *bis);
 
 #endif /* __MVEBU_MMC_H__ */

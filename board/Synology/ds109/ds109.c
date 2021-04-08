@@ -114,38 +114,6 @@ void reset_misc(void)
 		     SOFTWARE_REBOOT);
 }
 
-/* Support old kernels */
-void setup_board_tags(struct tag **in_params)
-{
-	unsigned int boardId;
-	struct tag *params;
-	struct tag_mv_uboot *t;
-	int i;
-
-	printf("Synology board tags...");
-	params = *in_params;
-	t = (struct tag_mv_uboot *)&params->u;
-
-	t->uboot_version = VER_NUM;
-
-	boardId = SYNO_DS109_ID;
-	t->uboot_version |= boardId;
-
-	t->tclk = CONFIG_SYS_TCLK;
-	t->sysclk = CONFIG_SYS_TCLK*2;
-
-	t->isusbhost = 1;
-	for (i = 0; i < 4; i++)	{
-		memset(t->macaddr[i], 0, sizeof(t->macaddr[i]));
-		t->mtu[i] = 0;
-	}
-
-	params->hdr.tag = ATAG_MV_UBOOT;
-	params->hdr.size = tag_size(tag_mv_uboot);
-	params = tag_next(params);
-	*in_params = params;
-}
-
 #ifdef CONFIG_RESET_PHY_R
 /* Configure and enable MV88E1116 PHY */
 void reset_phy(void)
