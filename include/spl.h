@@ -357,15 +357,7 @@ u32 spl_mmc_boot_mode(const u32 boot_device);
  * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
  */
 int spl_mmc_boot_partition(const u32 boot_device);
-
-/**
- * spl_alloc_bd() - Allocate space for bd_info
- *
- * This sets up the gd->bd pointer by allocating memory for it
- *
- * @return 0 if OK, -ENOMEM if out of memory
- */
-int spl_alloc_bd(void);
+void spl_set_bd(void);
 
 /**
  * spl_set_header_raw_uboot() - Set up a standard SPL image structure

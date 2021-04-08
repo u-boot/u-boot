@@ -55,6 +55,9 @@ binman_sym_declare(ulong, spl, image_pos);
 binman_sym_declare(ulong, spl, size);
 #endif
 
+/* Define board data structure */
+static struct bd_info bdata __attribute__ ((section(".data")));
+
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */
@@ -490,19 +493,14 @@ static int spl_common_init(bool setup_malloc)
 	return 0;
 }
 
-int spl_alloc_bd(void)
+void spl_set_bd(void)
 {
 	/*
 	 * NOTE: On some platforms (e.g. x86) bdata may be in flash and not
 	 * writeable.
 	 */
-	if (!gd->bd) {
-		gd->bd = malloc(sizeof(*gd->bd));
-		if (!gd->bd)
-			return -ENOMEM;
-	}
-
-	return 0;
+	if (!gd->bd)
+		gd->bd = &bdata;
 }
 
 int spl_early_init(void)
@@ -652,6 +650,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 
 	debug(">>" SPL_TPL_PROMPT "board_init_r()\n");
 
+	spl_set_bd();
+
 #if defined(CONFIG_SYS_SPL_MALLOC_START)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
 			CONFIG_SYS_SPL_MALLOC_SIZE);
@@ -660,10 +660,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	if (!(gd->flags & GD_FLG_SPL_INIT)) {
 		if (spl_init())
 			hang();
-	}
-	if (IS_ENABLED(CONFIG_SPL_ALLOC_BD) && spl_alloc_bd()) {
-		puts("Cannot alloc bd\n");
-		hang();
 	}
 #if !defined(CONFIG_PPC) && !defined(CONFIG_ARCH_MX6)
 	/*
