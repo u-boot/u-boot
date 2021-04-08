@@ -120,8 +120,8 @@ efi_status_t efi_esrt_allocate_install(u32 num_entries)
 				(void **)&new_esrt);
 
 	if (ret != EFI_SUCCESS) {
-		EFI_PRINT("ESRT cannot allocate memory for %d entries (%d bytes)\n",
-			  num_entries, efi_esrt_entries_to_size(num_entries));
+		EFI_PRINT("ESRT cannot allocate memory for %u entries (%u bytes)\n",
+			  num_entries, size);
 
 		return ret;
 	}
@@ -180,7 +180,7 @@ struct efi_system_resource_entry *esrt_find_entry(efi_guid_t *img_fw_class)
 	/* Check if the image with img_fw_class is already in the ESRT. */
 	for (u32 idx = 0; idx < filled_entries; idx++) {
 		if (!guidcmp(&entry[idx].fw_class, img_fw_class)) {
-			EFI_PRINT("ESRT found entry for image %pUl at index %d\n",
+			EFI_PRINT("ESRT found entry for image %pUl at index %u\n",
 				  img_fw_class, idx);
 			return &entry[idx];
 		}
@@ -202,7 +202,7 @@ struct efi_system_resource_entry *esrt_find_entry(efi_guid_t *img_fw_class)
 	 */
 	esrt->fw_resource_count++;
 	entry[filled_entries].fw_class = *img_fw_class;
-	EFI_PRINT("ESRT allocated new entry for image %pUl at index %d\n",
+	EFI_PRINT("ESRT allocated new entry for image %pUl at index %u\n",
 		  img_fw_class, filled_entries);
 
 	return &entry[filled_entries];
@@ -363,7 +363,7 @@ efi_status_t efi_esrt_populate(void)
 					  &handler);
 
 		if (ret != EFI_SUCCESS) {
-			EFI_PRINT("ESRT Unable to find FMP handle (%d)\n",
+			EFI_PRINT("ESRT Unable to find FMP handle (%u)\n",
 				  idx);
 			goto out;
 		}
@@ -414,7 +414,7 @@ efi_status_t efi_esrt_populate(void)
 		EFI_CALL(efi_free_pool(img_info));
 	}
 
-	EFI_PRINT("ESRT create table with %d entries\n", num_entries);
+	EFI_PRINT("ESRT create table with %u entries\n", num_entries);
 	/*
 	 * Allocate an ESRT with the sufficient number of entries to accommodate
 	 * all the FMPs in the system.
@@ -435,7 +435,7 @@ efi_status_t efi_esrt_populate(void)
 						   &handler));
 
 		if (ret != EFI_SUCCESS) {
-			EFI_PRINT("ESRT unable to find FMP handle (%d)\n",
+			EFI_PRINT("ESRT unable to find FMP handle (%u)\n",
 				  idx);
 			break;
 		}
