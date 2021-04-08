@@ -316,7 +316,7 @@ efi_status_t efi_esrt_populate(void)
 {
 	efi_handle_t *base_handle = NULL;
 	efi_handle_t *it_handle;
-	size_t no_handles = 0;
+	efi_uintn_t no_handles = 0;
 	struct efi_firmware_management_protocol *fmp;
 	efi_status_t ret;
 	u32 num_entries = 0;
