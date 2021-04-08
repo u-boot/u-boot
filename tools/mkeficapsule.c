@@ -64,14 +64,14 @@ static void print_usage(void)
 	printf("Usage: %s [options] <output file>\n"
 	       "Options:\n"
 
-	       "\t--fit <fit image>       new FIT image file\n"
-	       "\t--raw <raw image>       new raw image file\n"
-	       "\t--index <index>         update image index\n"
-	       "\t--instance <instance>   update hardware instance\n"
-	       "\t--public-key <key file> public key esl file\n"
-	       "\t--dtb <dtb file>        dtb file\n"
-	       "\t--overlay               the dtb file is an overlay\n"
-	       "\t--help                  print a help message\n",
+	       "\t-f, --fit <fit image>       new FIT image file\n"
+	       "\t-r, --raw <raw image>       new raw image file\n"
+	       "\t-i, --index <index>         update image index\n"
+	       "\t-I, --instance <instance>   update hardware instance\n"
+	       "\t-K, --public-key <key file> public key esl file\n"
+	       "\t-D, --dtb <dtb file>        dtb file\n"
+	       "\t-O, --overlay               the dtb file is an overlay\n"
+	       "\t-h, --help                  print a help message\n",
 	       tool_name);
 }
 
