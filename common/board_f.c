@@ -394,7 +394,7 @@ static int reserve_video(void)
 	if (ret)
 		return ret;
 	debug("Reserving %luk for video at: %08lx\n",
-	      (unsigned long)gd->relocaddr - addr, addr);
+	      ((unsigned long)gd->relocaddr - addr) >> 10, addr);
 	gd->relocaddr = addr;
 #elif defined(CONFIG_LCD)
 #  ifdef CONFIG_FB_ADDR
