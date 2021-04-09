@@ -91,6 +91,7 @@
 			 <&sysclk K210_CLK_SRAM1>,
 			 <&sysclk K210_CLK_PLL1>;
 		clock-names = "sram0", "sram1", "airam";
+		u-boot,dm-pre-reloc;
 	};
 
 	reserved-memory {
@@ -109,6 +110,7 @@
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <26000000>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 
@@ -505,11 +507,13 @@
 					     "syscon", "simple-mfd";
 				reg = <0x50440000 0x100>;
 				reg-io-width = <4>;
+				u-boot,dm-pre-reloc;
 
 				sysclk: clock-controller {
 					#clock-cells = <1>;
 					compatible = "kendryte,k210-clk";
 					clocks = <&in0>;
+					u-boot,dm-pre-reloc;
 				};
 
 				sysrst: reset-controller {
