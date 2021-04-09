@@ -1,5 +1,5 @@
 UDOO BOARD
-M:	Fabio Estevam <fabio.estevam@nxp.com>
+M:	Fabio Estevam <festevam@gmail.com>
 S:	Maintained
 F:	board/udoo/
 F:	include/configs/udoo.h

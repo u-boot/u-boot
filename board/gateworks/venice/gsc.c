@@ -125,29 +125,18 @@ enum {
 
 static struct udevice *gsc_get_dev(int busno, int slave)
 {
-	struct udevice *dev;
+	static const char * const i2c[] = { "i2c@30a20000", "i2c@30a30000" };
+	struct udevice *dev, *bus;
 	int ret;
 
-#if (IS_ENABLED(CONFIG_SPL_BUILD))
-	ret = i2c_get_chip_for_busnum(busno + 1, slave, 1, &dev);
+	ret = uclass_get_device_by_name(UCLASS_I2C, i2c[busno - 1], &bus);
+	if (ret) {
+		printf("GSC     : failed I2C%d probe: %d\n", busno, ret);
+		return NULL;
+	}
+	ret = dm_i2c_probe(bus, slave, 0, &dev);
 	if (ret)
 		return NULL;
-#else
-	struct udevice *bus;
-
-	busno--;
-
-	ret = uclass_get_device_by_seq(UCLASS_I2C, busno, &bus);
-	if (ret) {
-		printf("i2c%d: no bus %d\n", busno + 1, ret);
-		return NULL;
-	}
-	ret = i2c_get_chip(bus, slave, 1, &dev);
-	if (ret) {
-		printf("i2c%d@0x%02x: no chip %d\n", busno + 1, slave, ret);
-		return NULL;
-	}
-#endif
 
 	return dev;
 }

@@ -110,7 +110,7 @@
 		"ubi.fm_autoconvert=1\0" \
 	"ubiboot=run setup; " \
 		"setenv bootargs ${defargs} ${ubiargs} " \
-		"${setupargs} ${vidargs}; echo Booting from NAND...; " \
+		"${setupargs} ${vidargs} ${tdxargs}; echo Booting from NAND...; " \
 		"ubi part ubi && run m4boot && " \
 		"ubi read ${kernel_addr_r} kernel && " \
 		"ubi read ${fdt_addr_r} dtb && " \

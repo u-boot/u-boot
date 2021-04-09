@@ -43,13 +43,14 @@ Build U-Boot
    $ export CROSS_COMPILE=aarch64-poky-linux-
    $ make imx8mn_ddr4_evk_defconfig
    $ export ATF_LOAD_ADDR=0x960000
-   $ make flash.bin
+   $ make
 
 Burn the flash.bin to MicroSD card offset 32KB:
 
 .. code-block:: bash
 
    $sudo dd if=flash.bin of=/dev/sd[x] bs=1024 seek=32 conv=notrunc
+   $sudo dd if=u-boot.itb of=/dev/sd[x] bs=1024 seek=384 conv=notrunc
 
 Boot
 ----

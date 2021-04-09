@@ -21,21 +21,7 @@
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
 /* SATA Configs */
-
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_SYS_SATA_MAX_DEVICE	1
-#define CONFIG_DWC_AHSATA_PORT_ID	0
-#define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
-#endif
-
-/* Network support */
-
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE                    ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE             RGMII
-#define CONFIG_ETHPRIME                 "FEC"
-#define CONFIG_FEC_MXC_PHYADDR          6
 
 /* MMC Configuration */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

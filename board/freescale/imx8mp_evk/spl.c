@@ -5,30 +5,21 @@
  */
 
 #include <common.h>
-#include <command.h>
-#include <cpu_func.h>
 #include <hang.h>
-#include <image.h>
 #include <init.h>
 #include <log.h>
 #include <spl.h>
 #include <asm/global_data.h>
-#include <asm/io.h>
-#include <errno.h>
-#include <asm/io.h>
-#include <asm/mach-imx/iomux-v3.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
-#include <power/pmic.h>
-
-#include <power/pca9450.h>
-#include <asm/arch/clock.h>
 #include <asm/mach-imx/gpio.h>
+#include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
-#include <fsl_esdhc.h>
-#include <mmc.h>
 #include <asm/arch/ddr.h>
+#include <power/pmic.h>
+#include <power/pca9450.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -44,6 +35,16 @@ void spl_dram_init(void)
 
 void spl_board_init(void)
 {
+	/*
+	 * Set GIC clock to 500Mhz for OD VDD_SOC. Kernel driver does
+	 * not allow to change it. Should set the clock after PMIC
+	 * setting done. Default is 400Mhz (system_pll1_800m with div = 2)
+	 * set by ROM for ND VDD_SOC
+	 */
+	clock_enable(CCGR_GIC, 0);
+	clock_set_target_val(GIC_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(5));
+	clock_enable(CCGR_GIC, 1);
+
 	puts("Normal Boot\n");
 }
 
@@ -69,7 +70,7 @@ int power_init_board(void)
 	struct pmic *p;
 	int ret;
 
-	ret = power_pca9450_init(I2C_PMIC);
+	ret = power_pca9450_init(I2C_PMIC, 0x25);
 	if (ret)
 		printf("power init failed");
 	p = pmic_get("PCA9450");
@@ -84,9 +85,18 @@ int power_init_board(void)
 	 * Enable DVS control through PMIC_STBY_REQ and
 	 * set B1_ENMODE=1 (ON by PMIC_ON_REQ=H)
 	 */
+#ifdef CONFIG_IMX8M_VDD_SOC_850MV
+	/* set DVS0 to 0.85v for special case*/
+	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS0, 0x14);
+#else
 	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS0, 0x1C);
+#endif
 	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS1, 0x14);
 	pmic_reg_write(p, PCA9450_BUCK1CTRL, 0x59);
+
+	/* Kernel uses OD/OD freq for SOC */
+	/* To avoid timing risk from SOC to ARM,increase VDD_ARM to OD voltage 0.95v */
+	pmic_reg_write(p, PCA9450_BUCK2OUT_DVS0, 0x1C);
 
 	/* set WDOG_B_CFG to cold reset */
 	pmic_reg_write(p, PCA9450_RESET_CTRL, 0xA1);

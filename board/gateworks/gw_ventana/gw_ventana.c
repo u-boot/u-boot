@@ -19,17 +19,14 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/sata.h>
-#include <asm/mach-imx/spi.h>
 #include <asm/mach-imx/video.h>
 #include <asm/io.h>
 #include <asm/setup.h>
 #include <dm.h>
-#include <dm/platform_data/serial_mxc.h>
 #include <env.h>
 #include <hwconfig.h>
 #include <i2c.h>
 #include <fdt_support.h>
-#include <fsl_esdhc_imx.h>
 #include <jffs2/load_kernel.h>
 #include <linux/ctype.h>
 #include <miiphy.h>
@@ -43,7 +40,6 @@
 #include <power/pfuze100_pmic.h>
 #include <fdt_support.h>
 #include <jffs2/load_kernel.h>
-#include <spi_flash.h>
 
 #include "gsc.h"
 #include "common.h"
@@ -56,7 +52,6 @@ DECLARE_GLOBAL_DATA_PTR;
  * read it once.
  */
 struct ventana_board_info ventana_info;
-
 static int board_type;
 
 /* ENET */
@@ -83,54 +78,6 @@ static iomux_v3_cfg_t const enet_pads[] = {
 	IOMUX_PADS(PAD_ENET_TXD0__GPIO1_IO30 | DIO_PAD_CFG),
 };
 
-#ifdef CONFIG_CMD_NAND
-static iomux_v3_cfg_t const nfc_pads[] = {
-	IOMUX_PADS(PAD_NANDF_CLE__NAND_CLE     | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_ALE__NAND_ALE     | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_WP_B__NAND_WP_B   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_RB0__NAND_READY_B | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_CS0__NAND_CE0_B   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_CMD__NAND_RE_B      | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_CLK__NAND_WE_B      | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_D0__NAND_DATA00   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_D1__NAND_DATA01   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_D2__NAND_DATA02   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_D3__NAND_DATA03   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_D4__NAND_DATA04   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_D5__NAND_DATA05   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_D6__NAND_DATA06   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_D7__NAND_DATA07   | MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
-
-static void setup_gpmi_nand(void)
-{
-	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-
-	/* config gpmi nand iomux */
-	SETUP_IOMUX_PADS(nfc_pads);
-
-	/* config gpmi and bch clock to 100 MHz */
-	clrsetbits_le32(&mxc_ccm->cs2cdr,
-			MXC_CCM_CS2CDR_ENFC_CLK_PODF_MASK |
-			MXC_CCM_CS2CDR_ENFC_CLK_PRED_MASK |
-			MXC_CCM_CS2CDR_ENFC_CLK_SEL_MASK,
-			MXC_CCM_CS2CDR_ENFC_CLK_PODF(0) |
-			MXC_CCM_CS2CDR_ENFC_CLK_PRED(3) |
-			MXC_CCM_CS2CDR_ENFC_CLK_SEL(3));
-
-	/* enable gpmi and bch clock gating */
-	setbits_le32(&mxc_ccm->CCGR4,
-		     MXC_CCM_CCGR4_RAWNAND_U_BCH_INPUT_APB_MASK |
-		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_BCH_MASK |
-		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_GPMI_IO_MASK |
-		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_INPUT_APB_MASK |
-		     MXC_CCM_CCGR4_PL301_MX6QPER1_BCH_OFFSET);
-
-	/* enable apbh clock gating */
-	setbits_le32(&mxc_ccm->CCGR0, MXC_CCM_CCGR0_APBHDMA_MASK);
-}
-#endif
-
 static void setup_iomux_enet(int gpio)
 {
 	SETUP_IOMUX_PADS(enet_pads);
@@ -144,18 +91,14 @@ static void setup_iomux_enet(int gpio)
 }
 
 #ifdef CONFIG_USB_EHCI_MX6
-static iomux_v3_cfg_t const usb_pads[] = {
-	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID   | DIO_PAD_CFG),
-	IOMUX_PADS(PAD_KEY_COL4__USB_OTG_OC | DIO_PAD_CFG),
-	/* OTG PWR */
-	IOMUX_PADS(PAD_EIM_D22__GPIO3_IO22  | DIO_PAD_CFG),
-};
-
+/* toggle USB_HUB_RST# for boards that have it; it is not defined in dt */
 int board_ehci_hcd_init(int port)
 {
 	int gpio;
 
-	SETUP_IOMUX_PADS(usb_pads);
+	/* USB HUB is always on P1 */
+	if (port == 0)
+		return 0;
 
 	/* Reset USB HUB */
 	switch (board_type) {
@@ -180,39 +123,7 @@ int board_ehci_hcd_init(int port)
 
 	return 0;
 }
-
-int board_ehci_power(int port, int on)
-{
-	/* enable OTG VBUS */
-	if (!port && board_type < GW_UNKNOWN) {
-		if (gpio_cfg[board_type].otgpwr_en)
-			gpio_set_value(gpio_cfg[board_type].otgpwr_en, on);
-	}
-	return 0;
-}
 #endif /* CONFIG_USB_EHCI_MX6 */
-
-#ifdef CONFIG_MXC_SPI
-iomux_v3_cfg_t const ecspi1_pads[] = {
-	/* SS1 */
-	IOMUX_PADS(PAD_EIM_D19__GPIO3_IO19  | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-	IOMUX_PADS(PAD_EIM_D17__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-	IOMUX_PADS(PAD_EIM_D18__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-	IOMUX_PADS(PAD_EIM_D16__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-};
-
-int board_spi_cs_gpio(unsigned bus, unsigned cs)
-{
-	return (bus == 0 && cs == 0) ? (IMX_GPIO_NR(3, 19)) : -1;
-}
-
-static void setup_spi(void)
-{
-	gpio_request(IMX_GPIO_NR(3, 19), "spi_cs");
-	gpio_direction_output(IMX_GPIO_NR(3, 19), 1);
-	SETUP_IOMUX_PADS(ecspi1_pads);
-}
-#endif
 
 /* configure eth0 PHY board-specific LED behavior */
 int board_phy_config(struct phy_device *phydev)
@@ -629,8 +540,6 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 int board_early_init_f(void)
 {
-	setup_iomux_uart();
-
 #if defined(CONFIG_VIDEO_IPUV3)
 	setup_display();
 #endif
@@ -658,23 +567,31 @@ int board_init(void)
 	setup_ventana_i2c(0);
 	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 
-#ifdef CONFIG_CMD_NAND
-	if (gpio_cfg[board_type].nand)
-		setup_gpmi_nand();
-#endif
-#ifdef CONFIG_MXC_SPI
-	setup_spi();
-#endif
 	setup_ventana_i2c(1);
 	setup_ventana_i2c(2);
-
-#ifdef CONFIG_SATA
-	setup_sata();
-#endif
 
 	setup_iomux_gpio(board_type, &ventana_info);
 
 	return 0;
+}
+
+int board_fit_config_name_match(const char *name)
+{
+	static char init;
+	const char *dtb;
+	char buf[32];
+	int i = 0;
+
+	do {
+		dtb = gsc_get_dtb_name(i++, buf, sizeof(buf));
+		if (dtb && !strcmp(dtb, name)) {
+			if (!init++)
+				printf("DTB:   %s\n", name);
+			return 0;
+		}
+	} while (dtb);
+
+	return -1;
 }
 
 #if defined(CONFIG_DISPLAY_BOARDINFO_LATE)
@@ -1371,12 +1288,3 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
-
-static struct mxc_serial_plat ventana_mxc_serial_plat = {
-	.reg = (struct mxc_uart *)UART2_BASE,
-};
-
-U_BOOT_DRVINFO(ventana_serial) = {
-	.name   = "serial_mxc",
-	.plat = &ventana_mxc_serial_plat,
-};

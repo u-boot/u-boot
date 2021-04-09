@@ -282,6 +282,11 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *buf)
 	return 0;
 }
 
+struct mtd_info *nand_get_mtd(void)
+{
+	return mtd;
+}
+
 int nand_default_bbt(struct mtd_info *mtd)
 {
 	return 0;

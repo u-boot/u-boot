@@ -60,12 +60,16 @@ struct bd_info;
 #define is_imx8mmsl() (is_cpu_type(MXC_CPU_IMX8MMSL))
 #define is_imx8mn() (is_cpu_type(MXC_CPU_IMX8MN) || is_cpu_type(MXC_CPU_IMX8MND) || \
 	is_cpu_type(MXC_CPU_IMX8MNS) || is_cpu_type(MXC_CPU_IMX8MNL) || \
-	is_cpu_type(MXC_CPU_IMX8MNDL) || is_cpu_type(MXC_CPU_IMX8MNSL))
+	is_cpu_type(MXC_CPU_IMX8MNDL) || is_cpu_type(MXC_CPU_IMX8MNSL) || \
+	is_cpu_type(MXC_CPU_IMX8MNUD) || is_cpu_type(MXC_CPU_IMX8MNUS) || is_cpu_type(MXC_CPU_IMX8MNUQ))
 #define is_imx8mnd() (is_cpu_type(MXC_CPU_IMX8MND))
 #define is_imx8mns() (is_cpu_type(MXC_CPU_IMX8MNS))
 #define is_imx8mnl() (is_cpu_type(MXC_CPU_IMX8MNL))
 #define is_imx8mndl() (is_cpu_type(MXC_CPU_IMX8MNDL))
 #define is_imx8mnsl() (is_cpu_type(MXC_CPU_IMX8MNSL))
+#define is_imx8mnuq() (is_cpu_type(MXC_CPU_IMX8MNUQ))
+#define is_imx8mnud() (is_cpu_type(MXC_CPU_IMX8MNUD))
+#define is_imx8mnus() (is_cpu_type(MXC_CPU_IMX8MNUS))
 #define is_imx8mp() (is_cpu_type(MXC_CPU_IMX8MP)  || is_cpu_type(MXC_CPU_IMX8MPD) || \
 	is_cpu_type(MXC_CPU_IMX8MPL) || is_cpu_type(MXC_CPU_IMX8MP6))
 #define is_imx8mpd() (is_cpu_type(MXC_CPU_IMX8MPD))

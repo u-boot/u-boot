@@ -7,6 +7,12 @@ config FSL_CAAM
 	  Module (CAAM), also known as the SEC version 4 (SEC4). The driver uses
 	  Job Ring as interface to communicate with CAAM.
 
+config CAAM_64BIT
+	bool
+	default y if PHYS_64BIT && !ARCH_IMX8M
+	help
+	  Select Crypto driver for 64 bits CAAM version
+
 config SYS_FSL_HAS_SEC
 	bool
 	help

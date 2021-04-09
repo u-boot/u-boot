@@ -4,10 +4,20 @@
  */
 
 / {
+	binman: binman {
+		multiple-images;
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
 		u-boot,dm-spl;
+	};
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
 	};
 };
 
@@ -144,4 +154,106 @@
 	phy-reset-gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
 	phy-reset-duration = <15>;
 	phy-reset-post-delay = <100>;
+};
+
+&binman {
+	 u-boot-spl-ddr {
+		filename = "u-boot-spl-ddr.bin";
+		pad-byte = <0xff>;
+		align-size = <4>;
+		align = <4>;
+
+		u-boot-spl {
+			align-end = <4>;
+		};
+
+		blob_1: blob-ext@1 {
+			filename = "lpddr4_pmu_train_1d_imem_202006.bin";
+			size = <0x8000>;
+		};
+
+		blob_2: blob-ext@2 {
+			filename = "lpddr4_pmu_train_1d_dmem_202006.bin";
+			size = <0x4000>;
+		};
+
+		blob_3: blob-ext@3 {
+			filename = "lpddr4_pmu_train_2d_imem_202006.bin";
+			size = <0x8000>;
+		};
+
+		blob_4: blob-ext@4 {
+			filename = "lpddr4_pmu_train_2d_dmem_202006.bin";
+			size = <0x4000>;
+		};
+	};
+
+
+       flash {
+		mkimage {
+			args = "-n spl/u-boot-spl.cfgout -T imx8mimage -e 0x920000";
+
+			blob {
+				filename = "u-boot-spl-ddr.bin";
+			};
+		};
+	};
+
+	itb {
+		filename = "u-boot.itb";
+
+		fit {
+			description = "Configuration to load ATF before U-Boot";
+			#address-cells = <1>;
+			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+
+			images {
+				uboot {
+					description = "U-Boot (64-bit)";
+					type = "standalone";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SYS_TEXT_BASE>;
+
+					uboot_blob: blob-ext {
+						filename = "u-boot-nodtb.bin";
+					};
+				};
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					load = <0x970000>;
+					entry = <0x970000>;
+
+					atf_blob: blob-ext {
+						filename = "bl31.bin";
+					};
+				};
+
+				fdt {
+					description = "NAME";
+					type = "flat_dt";
+					compression = "none";
+
+					uboot_fdt_blob: blob-ext {
+						filename = "u-boot.dtb";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf";
+
+				conf {
+					description = "NAME";
+					firmware = "uboot";
+					loadables = "atf";
+					fdt = "fdt";
+				};
+			};
+		};
+	};
 };

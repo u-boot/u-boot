@@ -14,6 +14,8 @@
 #include <i2c.h>
 #include <linux/ctype.h>
 
+#include <asm/arch/sys_proto.h>
+
 #include "ventana_eeprom.h"
 #include "gsc.h"
 
@@ -177,6 +179,92 @@ int gsc_boot_wd_disable(void)
 	}
 	puts("Error: could not disable GSC Watchdog\n");
 	return 1;
+}
+
+/* determine BOM revision from model */
+int get_bom_rev(const char *str)
+{
+	int  rev_bom = 0;
+	int i;
+
+	for (i = strlen(str) - 1; i > 0; i--) {
+		if (str[i] == '-')
+			break;
+		if (str[i] >= '1' && str[i] <= '9') {
+			rev_bom = str[i] - '0';
+			break;
+		}
+	}
+	return rev_bom;
+}
+
+/* determine PCB revision from model */
+char get_pcb_rev(const char *str)
+{
+	char rev_pcb = 'A';
+	int i;
+
+	for (i = strlen(str) - 1; i > 0; i--) {
+		if (str[i] == '-')
+			break;
+		if (str[i] >= 'A') {
+			rev_pcb = str[i];
+			break;
+		}
+	}
+	return rev_pcb;
+}
+
+/*
+ * get dt name based on model and detail level:
+ */
+const char *gsc_get_dtb_name(int level, char *buf, int sz)
+{
+	const char *model = (const char *)ventana_info.model;
+	const char *pre = is_mx6dq() ? "imx6q-" : "imx6dl-";
+	int modelno, rev_pcb, rev_bom;
+
+	/* a few board models are dt equivalents to other models */
+	if (strncasecmp(model, "gw5906", 6) == 0)
+		model = "gw552x-d";
+	else if (strncasecmp(model, "gw5908", 6) == 0)
+		model = "gw53xx-f";
+	else if (strncasecmp(model, "gw5905", 6) == 0)
+		model = "gw5904-a";
+
+	modelno = ((model[2] - '0') * 1000)
+		  + ((model[3] - '0') * 100)
+		  + ((model[4] - '0') * 10)
+		  + (model[5] - '0');
+	rev_pcb = tolower(get_pcb_rev(model));
+	rev_bom = get_bom_rev(model);
+
+	/* compare model/rev/bom in order of most specific to least */
+	snprintf(buf, sz, "%s%04d", pre, modelno);
+	switch (level) {
+	case 0: /* full model first (ie gw5400-a1) */
+		if (rev_bom) {
+			snprintf(buf, sz, "%sgw%04d-%c%d", pre, modelno, rev_pcb, rev_bom);
+			break;
+		}
+		fallthrough;
+	case 1: /* don't care about bom rev (ie gw5400-a) */
+		snprintf(buf, sz, "%sgw%04d-%c", pre, modelno, rev_pcb);
+		break;
+	case 2: /* don't care about the pcb rev (ie gw5400) */
+		snprintf(buf, sz, "%sgw%04d", pre, modelno);
+		break;
+	case 3: /* look for generic model (ie gw540x) */
+		snprintf(buf, sz, "%sgw%03dx", pre, modelno / 10);
+		break;
+	case 4: /* look for more generic model (ie gw54xx) */
+		snprintf(buf, sz, "%sgw%02dxx", pre, modelno / 100);
+		break;
+	default: /* give up */
+		return NULL;
+	}
+
+	return buf;
 }
 
 #if defined(CONFIG_CMD_GSC) && !defined(CONFIG_SPL_BUILD)

@@ -53,4 +53,15 @@ struct signature_block_hdr {
 	u16 signature_offset;
 	u32 reserved;
 } __packed;
+
+struct generate_key_blob_hdr {
+	u8 version;
+	u8 length_lsb;
+	u8 length_msb;
+	u8 tag;
+	u8 flags;
+	u8 size;
+	u8 algorithm;
+	u8 mode;
+} __packed;
 #endif

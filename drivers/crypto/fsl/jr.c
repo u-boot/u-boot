@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * Based on CAAM driver in drivers/crypto/caam in Linux
  */
@@ -21,6 +22,7 @@
 #include <asm/fsl_pamu.h>
 #endif
 #include <dm/lists.h>
+#include <linux/delay.h>
 
 #define CIRC_CNT(head, tail, size)	(((head) - (tail)) & (size - 1))
 #define CIRC_SPACE(head, tail, size)	CIRC_CNT((tail), (head) + 1, (size))
@@ -34,10 +36,10 @@ uint32_t sec_offset[CONFIG_SYS_FSL_MAX_NUM_OF_SEC] = {
 };
 
 #define SEC_ADDR(idx)	\
-	((CONFIG_SYS_FSL_SEC_ADDR + sec_offset[idx]))
+	(ulong)((CONFIG_SYS_FSL_SEC_ADDR + sec_offset[idx]))
 
 #define SEC_JR0_ADDR(idx)	\
-	(SEC_ADDR(idx) +	\
+	(ulong)(SEC_ADDR(idx) +	\
 	 (CONFIG_SYS_FSL_JR0_OFFSET - CONFIG_SYS_FSL_SEC_OFFSET))
 
 struct jobring jr0[CONFIG_SYS_FSL_MAX_NUM_OF_SEC];
@@ -82,16 +84,16 @@ static void jr_initregs(uint8_t sec_idx)
 {
 	struct jr_regs *regs = (struct jr_regs *)SEC_JR0_ADDR(sec_idx);
 	struct jobring *jr = &jr0[sec_idx];
-	phys_addr_t ip_base = virt_to_phys((void *)jr->input_ring);
-	phys_addr_t op_base = virt_to_phys((void *)jr->output_ring);
+	caam_dma_addr_t ip_base = virt_to_phys((void *)jr->input_ring);
+	caam_dma_addr_t op_base = virt_to_phys((void *)jr->output_ring);
 
-#ifdef CONFIG_PHYS_64BIT
+#ifdef CONFIG_CAAM_64BIT
 	sec_out32(&regs->irba_h, ip_base >> 32);
 #else
 	sec_out32(&regs->irba_h, 0x0);
 #endif
 	sec_out32(&regs->irba_l, (uint32_t)ip_base);
-#ifdef CONFIG_PHYS_64BIT
+#ifdef CONFIG_CAAM_64BIT
 	sec_out32(&regs->orba_h, op_base >> 32);
 #else
 	sec_out32(&regs->orba_h, 0x0);
@@ -117,8 +119,8 @@ static int jr_init(uint8_t sec_idx)
 	jr->liodn = DEFAULT_JR_LIODN;
 #endif
 	jr->size = JR_SIZE;
-	jr->input_ring = (dma_addr_t *)memalign(ARCH_DMA_MINALIGN,
-				JR_SIZE * sizeof(dma_addr_t));
+	jr->input_ring = (caam_dma_addr_t *)memalign(ARCH_DMA_MINALIGN,
+				JR_SIZE * sizeof(caam_dma_addr_t));
 	if (!jr->input_ring)
 		return -1;
 
@@ -129,7 +131,7 @@ static int jr_init(uint8_t sec_idx)
 	if (!jr->output_ring)
 		return -1;
 
-	memset(jr->input_ring, 0, JR_SIZE * sizeof(dma_addr_t));
+	memset(jr->input_ring, 0, JR_SIZE * sizeof(caam_dma_addr_t));
 	memset(jr->output_ring, 0, jr->op_size);
 
 	start_jr0(sec_idx);
@@ -148,7 +150,7 @@ static int jr_sw_cleanup(uint8_t sec_idx)
 	jr->read_idx = 0;
 	jr->write_idx = 0;
 	memset(jr->info, 0, sizeof(jr->info));
-	memset(jr->input_ring, 0, jr->size * sizeof(dma_addr_t));
+	memset(jr->input_ring, 0, jr->size * sizeof(caam_dma_addr_t));
 	memset(jr->output_ring, 0, jr->size * sizeof(struct op_ring));
 
 	return 0;
@@ -194,7 +196,7 @@ static int jr_enqueue(uint32_t *desc_addr,
 	uint32_t desc_word;
 	int length = desc_len(desc_addr);
 	int i;
-#ifdef CONFIG_PHYS_64BIT
+#ifdef CONFIG_CAAM_64BIT
 	uint32_t *addr_hi, *addr_lo;
 #endif
 
@@ -208,7 +210,7 @@ static int jr_enqueue(uint32_t *desc_addr,
 		sec_out32((uint32_t *)&desc_addr[i], desc_word);
 	}
 
-	phys_addr_t desc_phys_addr = virt_to_phys(desc_addr);
+	caam_dma_addr_t desc_phys_addr = virt_to_phys(desc_addr);
 
 	jr->info[head].desc_phys_addr = desc_phys_addr;
 	jr->info[head].callback = (void *)callback;
@@ -221,7 +223,7 @@ static int jr_enqueue(uint32_t *desc_addr,
 				  sizeof(struct jr_info), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
-#ifdef CONFIG_PHYS_64BIT
+#ifdef CONFIG_CAAM_64BIT
 	/* Write the 64 bit Descriptor address on Input Ring.
 	 * The 32 bit hign and low part of the address will
 	 * depend on endianness of SEC block.
@@ -240,11 +242,11 @@ static int jr_enqueue(uint32_t *desc_addr,
 #else
 	/* Write the 32 bit Descriptor address on Input Ring. */
 	sec_out32(&jr->input_ring[head], desc_phys_addr);
-#endif /* ifdef CONFIG_PHYS_64BIT */
+#endif /* ifdef CONFIG_CAAM_64BIT */
 
 	start = (unsigned long)&jr->input_ring[head] & ~(ARCH_DMA_MINALIGN - 1);
 	end = ALIGN((unsigned long)&jr->input_ring[head] +
-		     sizeof(dma_addr_t), ARCH_DMA_MINALIGN);
+		     sizeof(caam_dma_addr_t), ARCH_DMA_MINALIGN);
 	flush_dcache_range(start, end);
 
 	jr->head = (head + 1) & (jr->size - 1);
@@ -270,7 +272,7 @@ static int jr_dequeue(int sec_idx)
 	int idx, i, found;
 	void (*callback)(uint32_t status, void *arg);
 	void *arg = NULL;
-#ifdef CONFIG_PHYS_64BIT
+#ifdef CONFIG_CAAM_64BIT
 	uint32_t *addr_hi, *addr_lo;
 #else
 	uint32_t *addr;
@@ -281,8 +283,8 @@ static int jr_dequeue(int sec_idx)
 
 		found = 0;
 
-		phys_addr_t op_desc;
-	#ifdef CONFIG_PHYS_64BIT
+		caam_dma_addr_t op_desc;
+	#ifdef CONFIG_CAAM_64BIT
 		/* Read the 64 bit Descriptor address from Output Ring.
 		 * The 32 bit hign and low part of the address will
 		 * depend on endianness of SEC block.
@@ -302,7 +304,7 @@ static int jr_dequeue(int sec_idx)
 		/* Read the 32 bit Descriptor address from Output Ring. */
 		addr = (uint32_t *)&jr->output_ring[jr->tail].desc;
 		op_desc = sec_in32(addr);
-	#endif /* ifdef CONFIG_PHYS_64BIT */
+	#endif /* ifdef CONFIG_CAAM_64BIT */
 
 		uint32_t status = sec_in32(&jr->output_ring[jr->tail].status);
 
@@ -355,8 +357,8 @@ static void desc_done(uint32_t status, void *arg)
 
 static inline int run_descriptor_jr_idx(uint32_t *desc, uint8_t sec_idx)
 {
-	unsigned long long timeval = get_ticks();
-	unsigned long long timeout = usec2ticks(CONFIG_SEC_DEQ_TIMEOUT);
+	unsigned long long timeval = 0;
+	unsigned long long timeout = CONFIG_USEC_DEQ_TIMEOUT;
 	struct result op;
 	int ret = 0;
 
@@ -369,9 +371,10 @@ static inline int run_descriptor_jr_idx(uint32_t *desc, uint8_t sec_idx)
 		goto out;
 	}
 
-	timeval = get_ticks();
-	timeout = usec2ticks(CONFIG_SEC_DEQ_TIMEOUT);
 	while (op.done != 1) {
+		udelay(1);
+		timeval += 1;
+
 		ret = jr_dequeue(sec_idx);
 		if (ret) {
 			debug("Error in SEC deq\n");
@@ -379,7 +382,7 @@ static inline int run_descriptor_jr_idx(uint32_t *desc, uint8_t sec_idx)
 			goto out;
 		}
 
-		if ((get_ticks() - timeval) > timeout) {
+		if (timeval > timeout) {
 			debug("SEC Dequeue timed out\n");
 			ret = JQ_DEQ_TO_ERR;
 			goto out;
@@ -675,7 +678,7 @@ int sec_init_idx(uint8_t sec_idx)
 	mcr = (mcr & ~MCFGR_AWCACHE_MASK) | (0x2 << MCFGR_AWCACHE_SHIFT);
 #endif
 
-#ifdef CONFIG_PHYS_64BIT
+#ifdef CONFIG_CAAM_64BIT
 	mcr |= (1 << MCFGR_PS_SHIFT);
 #endif
 	sec_out32(&sec->mcfgr, mcr);

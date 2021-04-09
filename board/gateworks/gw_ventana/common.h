@@ -75,7 +75,6 @@ struct ventana {
 	int wdis;
 	int msata_en;
 	int rs232_en;
-	int otgpwr_en;
 	int vsel_pin;
 	int mmc_cd;
 	/* various features */

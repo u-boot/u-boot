@@ -2,6 +2,7 @@ if ARCH_IMX8M
 
 config IMX8M
 	bool
+	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 
 config IMX8MQ
@@ -39,6 +40,7 @@ config TARGET_IMX8MQ_PHANBELL
 
 config TARGET_IMX8MM_EVK
 	bool "imx8mm LPDDR4 EVK board"
+	select BINMAN
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
@@ -49,14 +51,23 @@ config TARGET_IMX8MM_VENICE
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
+config TARGET_IMX8MN_EVK
+	bool "imx8mn LPDDR4 EVK board"
+	select BINMAN
+	select IMX8MN
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 config TARGET_IMX8MN_DDR4_EVK
 	bool "imx8mn DDR4 EVK board"
+	select BINMAN
 	select IMX8MN
 	select SUPPORT_SPL
 	select IMX8M_DDR4
 
 config TARGET_IMX8MP_EVK
 	bool "imx8mp LPDDR4 EVK board"
+	select BINMAN
 	select IMX8MP
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4

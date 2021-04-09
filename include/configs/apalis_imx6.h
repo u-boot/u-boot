@@ -163,10 +163,7 @@
 		"source ${loadaddr}\0" \
 	"splashpos=m,m\0" \
 	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
-	"vidargs=mxc_hdmi.only_cea=1 " \
-		"video=mxcfb0:dev=hdmi,1920x1080M@60,if=RGB24 " \
-		"video=mxcfb1:off video=mxcfb2:off video=mxcfb3:off " \
-		"fbmem=32M\0 "
+	"vidargs=mxc_hdmi.only_cea=1 fbmem=32M\0"
 
 /* Miscellaneous configurable options */
 #undef CONFIG_SYS_CBSIZE

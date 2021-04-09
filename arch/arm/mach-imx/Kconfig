@@ -43,9 +43,9 @@ config USE_IMXIMG_PLUGIN
 
 config IMX_HAB
 	bool "Support i.MX HAB features"
-	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
+	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5 || ARCH_IMX8M
 	select FSL_CAAM if HAS_CAAM
-	imply CMD_DEKBLOB
+	imply CMD_DEKBLOB if HAS_CAAM
 	help
 	  This option enables the support for secure boot (HAB).
 	  See doc/imx/habv4/* for more details.
@@ -75,11 +75,42 @@ config CMD_BMODE
 
 config CMD_DEKBLOB
 	bool "Support the 'dek_blob' command"
+	select IMX_CAAM_DEK_ENCAP if ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP
+	select IMX_OPTEE_DEK_ENCAP if ARCH_IMX8M
+	select IMX_SECO_DEK_ENCAP if ARCH_IMX8
 	help
 	  This enables the 'dek_blob' command which is used with the
 	  Freescale secure boot mechanism. This command encapsulates and
 	  creates a blob of data. See also CMD_BLOB and doc/imx/habv4/* for
 	  more information.
+
+config IMX_CAAM_DEK_ENCAP
+	bool "Support the DEK blob encapsulation with CAAM U-Boot driver"
+	help
+	  This enables the DEK blob encapsulation with the U-Boot CAAM driver.
+	  This option is only available on imx6, imx7 and imx7ulp.
+
+config IMX_OPTEE_DEK_ENCAP
+	select TEE
+	select OPTEE
+	bool "Support the DEK blob encapsulation with OP-TEE"
+	help
+	  This enabled the DEK blob encapsulation with OP-TEE. The communication
+	  with OP-TEE is done through a SMC call and OP-TEE shared memory. This
+	  option is available on imx8mm.
+
+config IMX_SECO_DEK_ENCAP
+	bool "Support the DEK blob encapsulation with SECO"
+	help
+	  This enabled the DEK blob encapsulation with the SECO API. This option
+	  is only available on imx8.
+
+config CMD_PRIBLOB
+	bool "Support the set_priblob_bitfield command"
+	depends on HAS_CAAM && IMX_HAB
+	help
+	  This option enables the priblob command which can be used
+		to set the priblob setting to 0x3.
 
 config CMD_HDMIDETECT
 	bool "Support the 'hdmidet' command"
@@ -98,6 +129,15 @@ config CMD_NANDBCB
 
 	  This is similar to kobs-ng, which is used in Linux as separate
 	  rootfs package.
+
+config FSL_MFGPROT
+	bool "Support the 'mfgprot' command"
+	depends on IMX_HAB && ARCH_MX7
+	help
+	  This option enables the manufacturing protection command
+	  which can be used has a protection feature for Manufacturing
+	  process. With this tool is possible to authenticate the
+	  chip to the OEM's server.
 
 config NXP_BOARD_REVISION
 	bool "Read NXP board revision from fuses"

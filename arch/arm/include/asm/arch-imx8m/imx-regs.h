@@ -65,6 +65,16 @@
 #define IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_MASK 0x70000
 #define FEC_QUIRK_ENET_MAC
 
+#define CAAM_ARB_BASE_ADDR              (0x00100000)
+#define CAAM_ARB_END_ADDR               (0x00107FFF)
+#define CAAM_IPS_BASE_ADDR              (0x30900000)
+#define CONFIG_SYS_FSL_SEC_OFFSET       (0)
+#define CONFIG_SYS_FSL_SEC_ADDR         (CAAM_IPS_BASE_ADDR + \
+					 CONFIG_SYS_FSL_SEC_OFFSET)
+#define CONFIG_SYS_FSL_JR0_OFFSET       (0x1000)
+#define CONFIG_SYS_FSL_JR0_ADDR         (CONFIG_SYS_FSL_SEC_ADDR + \
+					 CONFIG_SYS_FSL_JR0_OFFSET)
+#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC   1
 #if !defined(__ASSEMBLY__)
 #include <asm/types.h>
 #include <linux/bitops.h>
@@ -120,6 +130,16 @@ struct ocotp_regs {
 	} bank[0];
 };
 
+#ifdef CONFIG_IMX8MP
+struct fuse_bank0_regs {
+	u32 lock;
+	u32 rsvd0[7];
+	u32 uid_low;
+	u32 rsvd1[3];
+	u32 uid_high;
+	u32 rsvd2[3];
+};
+#else
 struct fuse_bank0_regs {
 	u32 lock;
 	u32 rsvd0[3];
@@ -128,6 +148,7 @@ struct fuse_bank0_regs {
 	u32 uid_high;
 	u32 rsvd2[7];
 };
+#endif
 
 struct fuse_bank1_regs {
 	u32 tester3;

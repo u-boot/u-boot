@@ -653,6 +653,9 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 dtb-$(CONFIG_MX23) += \
 	imx23-evk.dtb
 
+dtb-$(CONFIG_TARGET_MX23_OLINUXINO) += \
+	imx23-olinuxino.dtb
+
 dtb-$(CONFIG_MX28) += \
 	imx28-xea.dtb
 
@@ -662,7 +665,8 @@ dtb-$(CONFIG_MX51) += \
 dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 	imx53-qsb.dtb \
 	imx53-kp.dtb \
-	imx53-m53menlo.dtb
+	imx53-m53menlo.dtb \
+	imx53-usbarmory.dtb
 
 ifneq ($(CONFIG_MX6DL)$(CONFIG_MX6QDL)$(CONFIG_MX6S),)
 dtb-y += \
@@ -673,6 +677,20 @@ dtb-y += \
 	imx6dl-cubox-i-emmc-som-v15.dtb \
 	imx6dl-cubox-i-som-v15.dtb \
 	imx6dl-dhcom-pdk2.dtb \
+	imx6dl-gw51xx.dtb \
+	imx6dl-gw52xx.dtb \
+	imx6dl-gw53xx.dtb \
+	imx6dl-gw54xx.dtb \
+	imx6dl-gw551x.dtb \
+	imx6dl-gw552x.dtb \
+	imx6dl-gw553x.dtb \
+	imx6dl-gw560x.dtb \
+	imx6dl-gw5903.dtb \
+	imx6dl-gw5904.dtb \
+	imx6dl-gw5907.dtb \
+	imx6dl-gw5910.dtb \
+	imx6dl-gw5912.dtb \
+	imx6dl-gw5913.dtb \
 	imx6dl-hummingboard2.dtb \
 	imx6dl-hummingboard2-emmc-som-v15.dtb \
 	imx6dl-hummingboard2-som-v15.dtb \
@@ -687,6 +705,8 @@ dtb-y += \
 	imx6dl-mamoj.dtb \
 	imx6dl-nitrogen6x.dtb \
 	imx6dl-pico.dtb \
+	imx6dl-udoo.dtb \
+	imx6dl-riotboard.dtb \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
 	imx6dl-wandboard-revd1.dtb \
@@ -702,6 +722,20 @@ dtb-y += \
 	imx6q-cubox-i-som-v15.dtb \
 	imx6q-dhcom-pdk2.dtb \
 	imx6q-display5.dtb \
+	imx6q-gw51xx.dtb \
+	imx6q-gw52xx.dtb \
+	imx6q-gw53xx.dtb \
+	imx6q-gw54xx.dtb \
+	imx6q-gw551x.dtb \
+	imx6q-gw552x.dtb \
+	imx6q-gw553x.dtb \
+	imx6q-gw560x.dtb \
+	imx6q-gw5903.dtb \
+	imx6q-gw5904.dtb \
+	imx6q-gw5907.dtb \
+	imx6q-gw5910.dtb \
+	imx6q-gw5912.dtb \
+	imx6q-gw5913.dtb \
 	imx6q-hummingboard2.dtb \
 	imx6q-hummingboard2-emmc-som-v15.dtb \
 	imx6q-hummingboard2-som-v15.dtb \
@@ -713,6 +747,7 @@ dtb-y += \
 	imx6q-icore-rqs.dtb \
 	imx6q-kp.dtb \
 	imx6q-logicpd.dtb \
+	imx6q-marsboard.dtb \
 	imx6q-mba6a.dtb \
 	imx6q-mba6b.dtb \
 	imx6q-mccmon6.dtb\
@@ -720,6 +755,7 @@ dtb-y += \
 	imx6q-novena.dtb \
 	imx6q-pico.dtb \
 	imx6q-phytec-mira-rdk-nand.dtb \
+	imx6q-udoo.dtb \
 	imx6q-sabreauto.dtb \
 	imx6q-sabrelite.dtb \
 	imx6q-sabresd.dtb \
@@ -799,6 +835,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-verdin.dtb \
 	phycore-imx8mm.dtb \
 	imx8mn-ddr4-evk.dtb \
+	imx8mn-evk.dtb \
 	imx8mq-evk.dtb \
 	imx8mm-beacon-kit.dtb \
 	imx8mn-beacon-kit.dtb \

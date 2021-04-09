@@ -3,6 +3,7 @@
  * Common internal memory map for some Freescale SoCs
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  */
 
 #ifndef __FSL_SEC_H
@@ -12,8 +13,8 @@
 #include <asm/io.h>
 
 #ifdef CONFIG_SYS_FSL_SEC_LE
-#define sec_in32(a)       in_le32(a)
-#define sec_out32(a, v)   out_le32(a, v)
+#define sec_in32(a)       in_le32((ulong *)(ulong)a)
+#define sec_out32(a, v)   out_le32((ulong *)(ulong)a, v)
 #define sec_in16(a)       in_le16(a)
 #define sec_clrbits32     clrbits_le32
 #define sec_setbits32     setbits_le32
@@ -26,6 +27,8 @@
 #elif defined(CONFIG_SYS_FSL_HAS_SEC)
 #error Neither CONFIG_SYS_FSL_SEC_LE nor CONFIG_SYS_FSL_SEC_BE is defined
 #endif
+
+#define BLOB_SIZE(x)		((x) + 32 + 16) /* Blob buffer size */
 
 /* Security Engine Block (MS = Most Sig., LS = Least Sig.) */
 #if CONFIG_SYS_FSL_SEC_COMPAT >= 4
@@ -195,7 +198,8 @@ typedef struct ccsr_sec {
 
 struct jr_regs {
 #if defined(CONFIG_SYS_FSL_SEC_LE) && \
-	!(defined(CONFIG_MX6) || defined(CONFIG_MX7))
+	!(defined(CONFIG_MX6) || defined(CONFIG_MX7) || \
+	  defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8M))
 	u32 irba_l;
 	u32 irba_h;
 #else
@@ -209,7 +213,8 @@ struct jr_regs {
 	u32 rsvd3;
 	u32 irja;
 #if defined(CONFIG_SYS_FSL_SEC_LE) && \
-	!(defined(CONFIG_MX6) || defined(CONFIG_MX7))
+	!(defined(CONFIG_MX6) || defined(CONFIG_MX7) || \
+	  defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8M))
 	u32 orba_l;
 	u32 orba_h;
 #else
@@ -242,7 +247,8 @@ struct jr_regs {
  */
 struct sg_entry {
 #if defined(CONFIG_SYS_FSL_SEC_LE) && \
-	!(defined(CONFIG_MX6) || defined(CONFIG_MX7))
+	!(defined(CONFIG_MX6) || defined(CONFIG_MX7) || \
+	  defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8M))
 	uint32_t addr_lo;	/* Memory Address - lo */
 	uint32_t addr_hi;	/* Memory Address of start of buffer - hi */
 #else
@@ -261,9 +267,8 @@ struct sg_entry {
 #define SG_ENTRY_OFFSET_SHIFT	0
 };
 
-#define BLOB_SIZE(x)		((x) + 32 + 16) /* Blob buffer size */
-
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7)
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7) || \
+	defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8M)
 /* Job Ring Base Address */
 #define JR_BASE_ADDR(x) (CONFIG_SYS_FSL_SEC_ADDR + 0x1000 * (x + 1))
 /* Secure Memory Offset varies accross versions */
@@ -271,7 +276,8 @@ struct sg_entry {
 #define SM_V2_OFFSET 0xa00
 /*Secure Memory Versioning */
 #define SMVID_V2 0x20105
-#define SM_VERSION(x)  (x < SMVID_V2 ? 1 : 2)
+#define SM_VERSION(x)  ({typeof(x) _x = x; \
+		_x < SMVID_V2 ? 1 : (_x < 0x20300 ? 2 : 3); })
 #define SM_OFFSET(x)  (x == 1 ? SM_V1_OFFSET : SM_V2_OFFSET)
 /* CAAM Job Ring 0 Registers */
 /* Secure Memory Partition Owner register */
@@ -298,8 +304,10 @@ struct sg_entry {
 #define SM_CMD(v)		(v == 1 ? 0x0 : 0x1E4)
 #define SM_STATUS(v)		(v == 1 ? 0x8 : 0x1EC)
 #define SM_PERM(v)		(v == 1 ?  0x10 : 0x4)
-#define SM_GROUP2(v)		(v == 1 ? 0x14 : 0x8)
-#define SM_GROUP1(v)		(v == 1 ? 0x18 : 0xC)
+#define SM_GROUP2(v)		({typeof(v) _v = v; \
+		_v == 1 ? 0x14 : (_v == 2 ? 0x8 : 0xC); })
+#define SM_GROUP1(v)		({typeof(v) _v = v; \
+		_v == 1 ? 0x18 : (_v == 2 ? 0xC : 0x8); })
 #define CMD_PAGE_ALLOC		0x1
 #define CMD_PAGE_DEALLOC	0x2
 #define CMD_PART_DEALLOC	0x3
@@ -317,10 +325,15 @@ struct sg_entry {
 #define SEC_MEM_PAGE2		(CAAM_ARB_BASE_ADDR + 0x2000)
 #define SEC_MEM_PAGE3		(CAAM_ARB_BASE_ADDR + 0x3000)
 
-#define JR_MID			2               /* Matches ROM configuration */
-#define KS_G1			(1 << JR_MID)   /* CAAM only */
-#define PERM			0x0000B008      /* Clear on release, lock SMAP
-						 * lock SMAG group 1 Blob */
+#ifdef CONFIG_IMX8M
+#define JR_MID    (1)         /* Matches ATF configuration */
+#define KS_G1     (0x10000 << JR_MID) /* CAAM only */
+#define PERM      (0xB080)    /* CSP, SMAP_LCK, SMAG_LCK, G1_BLOB */
+#else
+#define JR_MID    (2)         /* Matches ROM configuration */
+#define KS_G1     BIT(JR_MID) /* CAAM only */
+#define PERM      (0xB008)    /* CSP, SMAP_LCK, SMAG_LCK, G1_BLOB */
+#endif /* CONFIG_IMX8M */
 
 /* HAB WRAPPED KEY header */
 #define WRP_HDR_SIZE		0x08
@@ -340,6 +353,13 @@ struct sg_entry {
 
 #endif
 
+#define FSL_CAAM_MP_PUBK_BYTES		    64
+#define FSL_CAAM_MP_PRVK_BYTES		    32
+#define FSL_CAAM_MP_MES_DGST_BYTES	    32
+
+#define FSL_CAAM_ORSR_JRa_OFFSET	0x102c
+#define FSL_CAAM_MAX_JR_SIZE		4
+
 /* blob_dek:
  * Encapsulates the src in a secure blob and stores it dst
  * @src: reference to the plaintext
@@ -348,6 +368,10 @@ struct sg_entry {
  * @return: 0 on success, error otherwise
  */
 int blob_dek(const u8 *src, u8 *dst, u8 len);
+
+int gen_mppubk(u8 *dst);
+
+int sign_mppubk(const u8 *m, int data_size, u8 *dgst, u8 *c, u8 *d);
 
 #if defined(CONFIG_ARCH_C29X)
 int sec_init_idx(uint8_t);

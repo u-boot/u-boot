@@ -25,6 +25,12 @@
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
+#include <power/pmic.h>
+#include <power/pca9450.h>
+#include <asm/mach-imx/gpio.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <fsl_esdhc_imx.h>
+#include <mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,6 +57,48 @@ void spl_board_init(void)
 	if (ret < 0)
 		printf("Failed to find clock node. Check device tree\n");
 }
+
+#if CONFIG_IS_ENABLED(DM_PMIC_PCA9450)
+int power_init_board(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = pmic_get("pca9450@25", &dev);
+	if (ret == -ENODEV) {
+		puts("No pca9450@25\n");
+		return 0;
+	}
+	if (ret != 0)
+		return ret;
+
+	/* BUCKxOUT_DVS0/1 control BUCK123 output */
+	pmic_reg_write(dev, PCA9450_BUCK123_DVS, 0x29);
+
+#ifdef CONFIG_IMX8MN_LOW_DRIVE_MODE
+	/* Set VDD_SOC/VDD_DRAM to 0.8v for low drive mode */
+	pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS0, 0x10);
+#else
+	/* increase VDD_SOC/VDD_DRAM to typical value 0.95V before first DRAM access */
+	pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS0, 0x1C);
+#endif
+	/* Set DVS1 to 0.85v for suspend */
+	/* Enable DVS control through PMIC_STBY_REQ and set B1_ENMODE=1 (ON by PMIC_ON_REQ=H) */
+	pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS1, 0x14);
+	pmic_reg_write(dev, PCA9450_BUCK1CTRL, 0x59);
+
+	/* set VDD_SNVS_0V8 from default 0.85V */
+	pmic_reg_write(dev, PCA9450_LDO2CTRL, 0xC0);
+
+	/* enable LDO4 to 1.2v */
+	pmic_reg_write(dev, PCA9450_LDO4CTRL, 0x44);
+
+	/* set WDOG_B_CFG to cold reset */
+	pmic_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
@@ -83,8 +131,6 @@ int board_early_init_f(void)
 	set_wdog_reset(wdog);
 
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
-
-	init_uart_clk(1);
 
 	return 0;
 }

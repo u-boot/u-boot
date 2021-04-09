@@ -53,7 +53,7 @@ int power_init_board(void)
 	struct pmic *p;
 	int ret;
 
-	ret = power_pca9450_init(0);
+	ret = power_pca9450_init(0, 0x25);
 	if (ret)
 		printf("power init failed");
 	p = pmic_get("PCA9450");

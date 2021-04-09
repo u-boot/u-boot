@@ -72,7 +72,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
@@ -144,8 +143,7 @@
 		"source ${loadaddr}\0" \
 	"splashpos=m,m\0" \
 	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
-	"vidargs=video=mxcfb0:dev=lcd,640x480M@60,if=RGB666 " \
-		"video=mxcfb1:off fbmem=8M\0 "
+	"vidargs=fbmem=8M\0"
 
 /* Miscellaneous configurable options */
 #undef CONFIG_SYS_CBSIZE
