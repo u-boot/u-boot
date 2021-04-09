@@ -17,7 +17,7 @@ phys_size_t get_effective_memsize(void)
 static int sram_init(void)
 {
 	int ret, i;
-	const char * const banks[] = { "sram0", "sram1", "airam" };
+	const char * const banks[] = { "sram0", "sram1", "aisram" };
 	ofnode memory;
 	struct clk clk;
 

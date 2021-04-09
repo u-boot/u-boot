@@ -86,11 +86,11 @@
 		reg = <0x80000000 0x400000>,
 		      <0x80400000 0x200000>,
 		      <0x80600000 0x200000>;
-		reg-names = "sram0", "sram1", "airam";
+		reg-names = "sram0", "sram1", "aisram";
 		clocks = <&sysclk K210_CLK_SRAM0>,
 			 <&sysclk K210_CLK_SRAM1>,
 			 <&sysclk K210_CLK_PLL1>;
-		clock-names = "sram0", "sram1", "airam";
+		clock-names = "sram0", "sram1", "aisram";
 		u-boot,dm-pre-reloc;
 	};
 
