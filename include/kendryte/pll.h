@@ -55,8 +55,4 @@ extern const struct clk_ops k210_pll_ops;
 
 struct clk *k210_register_pll_struct(const char *name, const char *parent_name,
 				     struct k210_pll *pll);
-struct clk *k210_register_pll(const char *name, const char *parent_name,
-			      void __iomem *reg, void __iomem *lock, u8 shift,
-			      u8 width);
-
 #endif /* K210_PLL_H */

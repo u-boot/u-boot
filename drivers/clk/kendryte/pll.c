@@ -578,27 +578,6 @@ struct clk *k210_register_pll_struct(const char *name, const char *parent_name,
 	return clk;
 }
 
-struct clk *k210_register_pll(const char *name, const char *parent_name,
-			      void __iomem *reg, void __iomem *lock, u8 shift,
-			      u8 width)
-{
-	struct clk *clk;
-	struct k210_pll *pll;
-
-	pll = kzalloc(sizeof(*pll), GFP_KERNEL);
-	if (!pll)
-		return ERR_PTR(-ENOMEM);
-	pll->reg = reg;
-	pll->lock = lock;
-	pll->shift = shift;
-	pll->width = width;
-
-	clk = k210_register_pll_struct(name, parent_name, pll);
-	if (IS_ERR(clk))
-		kfree(pll);
-	return clk;
-}
-
 U_BOOT_DRIVER(k210_pll) = {
 	.name	= CLK_K210_PLL,
 	.id	= UCLASS_CLK,
