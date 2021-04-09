@@ -89,7 +89,7 @@
 		reg-names = "sram0", "sram1", "aisram";
 		clocks = <&sysclk K210_CLK_SRAM0>,
 			 <&sysclk K210_CLK_SRAM1>,
-			 <&sysclk K210_CLK_PLL1>;
+			 <&sysclk K210_CLK_AI>;
 		clock-names = "sram0", "sram1", "aisram";
 		u-boot,dm-pre-reloc;
 	};
