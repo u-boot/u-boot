@@ -531,6 +531,7 @@ static int k210_pll_enable(struct clk *clk)
 	k210_pll_waitfor_lock(pll);
 
 	reg &= ~K210_PLL_BYPASS;
+	reg |= K210_PLL_EN;
 	writel(reg, pll->reg);
 
 	return 0;
@@ -550,6 +551,7 @@ static int k210_pll_disable(struct clk *clk)
 	writel(reg, pll->reg);
 
 	reg &= ~K210_PLL_PWRD;
+	reg &= ~K210_PLL_EN;
 	writel(reg, pll->reg);
 	return 0;
 }
