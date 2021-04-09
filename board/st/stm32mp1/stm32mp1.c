@@ -347,6 +347,9 @@ static int board_check_usb_power(void)
 	u32 nb_blink;
 	u8 i;
 
+	if (!IS_ENABLED(CONFIG_ADC))
+		return -ENODEV;
+
 	node = ofnode_path("/config");
 	if (!ofnode_valid(node)) {
 		log_debug("no /config node?\n");
@@ -370,11 +373,7 @@ static int board_check_usb_power(void)
 
 	/* perform maximum of 2 ADC measurements to detect power supply current */
 	for (i = 0; i < 2; i++) {
-		if (IS_ENABLED(CONFIG_ADC))
-			ret = adc_measurement(node, adc_count, &min_uV, &max_uV);
-		else
-			ret = -ENODEV;
-
+		ret = adc_measurement(node, adc_count, &min_uV, &max_uV);
 		if (ret)
 			return ret;
 

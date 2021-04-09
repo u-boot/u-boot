@@ -3,29 +3,28 @@
 #include <stm32h7-u-boot.dtsi>
 
 &fmc {
-
 	/*
-	 * Memory configuration from sdram datasheet IS42S32800G-6BLI
+	 * Memory configuration from sdram datasheet W9825G6KH
 	 * first bank is bank@0
 	 * second bank is bank@1
 	 */
-	bank1: bank@1 {
+	bank1: bank@0 {
 		st,sdram-control = /bits/ 8 <NO_COL_9
-					     NO_ROW_12
-					     MWIDTH_32
+					     NO_ROW_13
+					     MWIDTH_16
 					     BANKS_4
 					     CAS_2
 					     SDCLK_3
 					     RD_BURST_EN
 					     RD_PIPE_DL_0>;
-		st,sdram-timing = /bits/ 8 <TMRD_1
-					    TXSR_1
-					    TRAS_1
+		st,sdram-timing = /bits/ 8 <TMRD_2
+					    TXSR_6
+					    TRAS_6
 					    TRC_6
 					    TRP_2
-					    TWR_1
-					    TRCD_1>;
-		st,sdram-refcount = <1539>;
+					    TWR_2
+					    TRCD_2>;
+		st,sdram-refcount = <677>;
 	};
 };
 
@@ -73,27 +72,8 @@
 				 <STM32_PINMUX('G',15, AF12)>,
 
 				 <STM32_PINMUX('H', 5, AF12)>,
-				 <STM32_PINMUX('H', 6, AF12)>,
-				 <STM32_PINMUX('H', 7, AF12)>,
-				 <STM32_PINMUX('H', 8, AF12)>,
-				 <STM32_PINMUX('H', 9, AF12)>,
-				 <STM32_PINMUX('H',10, AF12)>,
-				 <STM32_PINMUX('H',11, AF12)>,
-				 <STM32_PINMUX('H',12, AF12)>,
-				 <STM32_PINMUX('H',13, AF12)>,
-				 <STM32_PINMUX('H',14, AF12)>,
-				 <STM32_PINMUX('H',15, AF12)>,
-
-				 <STM32_PINMUX('I', 0, AF12)>,
-				 <STM32_PINMUX('I', 1, AF12)>,
-				 <STM32_PINMUX('I', 2, AF12)>,
-				 <STM32_PINMUX('I', 3, AF12)>,
-				 <STM32_PINMUX('I', 4, AF12)>,
-				 <STM32_PINMUX('I', 5, AF12)>,
-				 <STM32_PINMUX('I', 6, AF12)>,
-				 <STM32_PINMUX('I', 7, AF12)>,
-				 <STM32_PINMUX('I', 9, AF12)>,
-				 <STM32_PINMUX('I',10, AF12)>;
+				 <STM32_PINMUX('C', 2, AF12)>,
+				 <STM32_PINMUX('C', 3, AF12)>;
 
 			slew-rate = <3>;
 		};

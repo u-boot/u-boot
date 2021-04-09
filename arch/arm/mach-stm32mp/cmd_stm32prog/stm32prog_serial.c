@@ -309,11 +309,10 @@ static u8 stm32prog_header(struct stm32prog_data *data)
 	/* force cleanup to avoid issue with previous read */
 	dfu_transaction_cleanup(dfu_entity);
 
-	ret = stm32prog_header_check(data->header_data,
-				     &data->header);
+	stm32prog_header_check(data->header_data, &data->header);
 
-	/* no header : max size is partition size */
-	if (ret) {
+	/* no stm32 image header : max size is partition size */
+	if (data->header.type != HEADER_STM32IMAGE) {
 		dfu_entity->get_medium_size(dfu_entity, &size);
 		data->header.image_length = size;
 	}
@@ -389,7 +388,7 @@ static u8 stm32prog_start(struct stm32prog_data *data, u32 address)
 		data->dfu_seq = 0;
 
 		printf("\n  received length = 0x%x\n", data->cursor);
-		if (data->header.present) {
+		if (data->header.type == HEADER_STM32IMAGE) {
 			if (data->cursor !=
 			    (data->header.image_length + BL_HEADER_SIZE)) {
 				stm32prog_err("transmission interrupted (length=0x%x expected=0x%x)",
@@ -789,7 +788,7 @@ static void download_command(struct stm32prog_data *data)
 		}
 	}
 
-	if (image_header->present) {
+	if (data->header.type == HEADER_STM32IMAGE) {
 		if (data->cursor <= BL_HEADER_SIZE)
 			goto end;
 		/* compute checksum on payload */

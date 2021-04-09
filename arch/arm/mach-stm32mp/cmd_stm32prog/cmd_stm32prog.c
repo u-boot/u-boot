@@ -73,15 +73,16 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		size = simple_strtoul(argv[4], NULL, 16);
 
 	/* check STM32IMAGE presence */
-	if (size == 0 &&
-	    !stm32prog_header_check((struct raw_header_s *)addr, &header)) {
-		size = header.image_length + BL_HEADER_SIZE;
+	if (size == 0) {
+		stm32prog_header_check((struct raw_header_s *)addr, &header);
+		if (header.type == HEADER_STM32IMAGE) {
+			size = header.image_length + BL_HEADER_SIZE;
 
-		/* uImage detected in STM32IMAGE, execute the script */
-		if (IMAGE_FORMAT_LEGACY ==
-		    genimg_get_format((void *)(addr + BL_HEADER_SIZE)))
-			return image_source_script(addr + BL_HEADER_SIZE,
-						   "script@1");
+			/* uImage detected in STM32IMAGE, execute the script */
+			if (IMAGE_FORMAT_LEGACY ==
+			    genimg_get_format((void *)(addr + BL_HEADER_SIZE)))
+				return image_source_script(addr + BL_HEADER_SIZE, "script@1");
+		}
 	}
 
 	if (IS_ENABLED(CONFIG_DM_VIDEO))
