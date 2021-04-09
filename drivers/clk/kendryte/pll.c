@@ -512,7 +512,8 @@ static int k210_pll_enable(struct clk *clk)
 	struct k210_pll *pll = to_k210_pll(clk);
 	u32 reg = readl(pll->reg);
 
-	if ((reg | K210_PLL_PWRD) && !(reg | K210_PLL_RESET))
+	if ((reg & K210_PLL_PWRD) && (reg & K210_PLL_EN) &&
+	    !(reg & K210_PLL_RESET))
 		return 0;
 
 	reg |= K210_PLL_PWRD;
