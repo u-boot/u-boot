@@ -94,17 +94,6 @@
 		u-boot,dm-pre-reloc;
 	};
 
-	reserved-memory {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges;
-
-		ai_reserved: ai@80600000 {
-			reg = <0x80600000 0x200000>;
-			reusable;
-		};
-	};
-
 	clocks {
 		in0: osc {
 			compatible = "fixed-clock";
@@ -179,7 +168,6 @@
 			reg = <0x40800000 0xc00000>;
 			interrupts = <25>;
 			clocks = <&sysclk K210_CLK_AI>;
-			memory-region = <&ai_reserved>;
 			status = "disabled";
 		};
 
