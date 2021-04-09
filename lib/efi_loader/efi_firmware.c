@@ -190,7 +190,7 @@ static efi_status_t efi_get_dfu_info(
 				IMAGE_ATTRIBUTE_IMAGE_UPDATABLE;
 
 		/* Check if the capsule authentication is enabled */
-		if (env_get("capsule_authentication_enabled"))
+		if (IS_ENABLED(CONFIG_EFI_CAPSULE_AUTHENTICATE))
 			image_info[0].attributes_setting |=
 				IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED;
 
@@ -421,8 +421,7 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
 	/* Authenticate the capsule if authentication enabled */
-	if (IS_ENABLED(CONFIG_EFI_CAPSULE_AUTHENTICATE) &&
-	    env_get("capsule_authentication_enabled")) {
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_AUTHENTICATE)) {
 		capsule_payload = NULL;
 		capsule_payload_size = 0;
 		status = efi_capsule_authenticate(image, image_size,
