@@ -519,55 +519,21 @@ INTEL_SIP_SMC_FAST_CALL_VAL(INTEL_SIP_SMC_FUNCID_FPGA_CONFIG_COMPLETED_WRITE)
 	INTEL_SIP_SMC_FAST_CALL_VAL(INTEL_SIP_SMC_FUNCID_MBOX_SEND_CMD)
 
 /*
- * Request INTEL_SIP_SMC_HPS_SET_PHYINTF
+ * Request INTEL_SIP_SMC_GET_USERCODE
  *
- * Select EMACx PHY interface
+ * Send mailbox command to get usercode from SDM
  *
  * Call register usage:
- * a0 INTEL_SIP_SMC_HPS_SET_PHYINTF
- * a1 EMAC number:
- *      0 - EMAC0
- *      1 - EMAC1
- *      2 - EMAC2
- * a2 Type of PHY interface:
- *      0 - GMII_MII
- *      1 - RGMII
- *      2 - RMII
- *      3 - RESET
- * a3-7 not used
+ * a0 INTEL_SIP_SMC_GET_USERCODE
+ * a1-7 not used.
  *
  * Return status
  * a0 INTEL_SIP_SMC_STATUS_OK or INTEL_SIP_SMC_STATUS_ERROR
+ * a1 User code
+ * a2-3 not used.
  */
-#define INTEL_SIP_SMC_FUNCID_HPS_SET_PHYINTF	61
-#define INTEL_SIP_SMC_HPS_SET_PHYINTF \
-	INTEL_SIP_SMC_FAST_CALL_VAL(INTEL_SIP_SMC_FUNCID_HPS_SET_PHYINTF)
-
-/*
- * Request INTEL_SIP_SMC_HPS_SET_SDMMC_CCLK
- *
- * Select which phase shift of the clocks (drvsel & smplsel) for SDMMC
- *
- * Call register usage:
- * a0 INTEL_SIP_SMC_HPS_SET_SDMMC_CCLK
- * a1 Select which phase shift of the clock for cclk_in_drv (drvsel):
- *      0 - 0 degree
- *      1 - 45 degrees
- *      2 - 90 degrees
- *      3 - 135 degrees
- *      4 - 180 degrees
- *      5 - 225 degrees
- *      6 - 270 degrees
- *      7 - 315 degrees
- * a2 Select which phase shift of the clock for cclk_in_sample (smplsel):
- *      (Same as above)
- * a3-7 not used
- *
- * Return status
- * a0 INTEL_SIP_SMC_STATUS_OK
- */
-#define INTEL_SIP_SMC_FUNCID_HPS_SET_SDMMC_CCLK	62
-#define INTEL_SIP_SMC_HPS_SET_SDMMC_CCLK \
-	INTEL_SIP_SMC_FAST_CALL_VAL(INTEL_SIP_SMC_FUNCID_HPS_SET_SDMMC_CCLK)
+#define INTEL_SIP_SMC_FUNCID_GET_USERCODE	61
+#define INTEL_SIP_SMC_GET_USERCODE \
+	INTEL_SIP_SMC_FAST_CALL_VAL(INTEL_SIP_SMC_FUNCID_GET_USERCODE)
 
 #endif

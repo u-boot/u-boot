@@ -29,9 +29,11 @@
 					arch = "arm64";
 					compression = "none";
 					load = <0x00200000>;
-
 					uboot_blob: blob-ext {
 						filename = "u-boot-nodtb.bin";
+					};
+					hash {
+						algo = "crc32";
 					};
 				};
 
@@ -43,9 +45,11 @@
 					compression = "none";
 					load = <0x00001000>;
 					entry = <0x00001000>;
-
 					atf_blob: blob-ext {
 						filename = "bl31.bin";
+					};
+					hash {
+						algo = "crc32";
 					};
 				};
 
@@ -53,9 +57,11 @@
 					description = "U-Boot SoC64 flat device-tree";
 					type = "flat_dt";
 					compression = "none";
-
 					uboot_fdt_blob: blob-ext {
 						filename = "u-boot.dtb";
+					};
+					hash {
+						algo = "crc32";
 					};
 				};
 			};
@@ -67,6 +73,11 @@
 					firmware = "atf";
 					loadables = "uboot";
 					fdt = "fdt";
+					signature {
+						algo = "crc32";
+						key-name-hint = "dev";
+						sign-images = "atf", "fdt", "uboot";
+					};
 				};
 			};
 		};
@@ -87,9 +98,11 @@
 					compression = "none";
 					load = <0x4080000>;
 					entry = <0x4080000>;
-
 					kernel_blob: blob-ext {
 						filename = "Image";
+					};
+					hash {
+						algo = "crc32";
 					};
 				};
 
@@ -98,9 +111,11 @@
 					type = "flat_dt";
 					arch = "arm64";
 					compression = "none";
-
 					kernel_fdt_blob: blob-ext {
 						filename = "linux.dtb";
+					};
+					hash {
+						algo = "crc32";
 					};
 				};
 			};
@@ -111,6 +126,11 @@
 					description = "Intel SoC64 FPGA";
 					kernel = "kernel";
 					fdt = "fdt";
+					signature {
+						algo = "crc32";
+						key-name-hint = "dev";
+						sign-images = "fdt", "kernel";
+					};
 				};
 			};
 		};

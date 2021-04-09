@@ -8,7 +8,7 @@
 #define __CONFIG_SOCFPGA_SOC64_COMMON_H__
 
 #include <asm/arch/base_addr_s10.h>
-#include <asm/arch/handoff_s10.h>
+#include <asm/arch/handoff_soc64.h>
 #include <linux/stringify.h>
 
 /*
@@ -43,7 +43,7 @@
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR  \
 					+ CONFIG_SYS_INIT_RAM_SIZE \
-					- S10_HANDOFF_SIZE)
+					- SOC64_HANDOFF_SIZE)
 #else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE \
 					+ 0x100000)

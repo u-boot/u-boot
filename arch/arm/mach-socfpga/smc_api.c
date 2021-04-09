@@ -54,3 +54,20 @@ int smc_send_mailbox(u32 cmd, u32 len, u32 *arg, u8 urgent, u32 *resp_buf_len,
 
 	return (int)resp[0];
 }
+
+int smc_get_usercode(u32 *usercode)
+{
+	int ret;
+	u64 resp;
+
+	if (!usercode)
+		return -EINVAL;
+
+	ret = invoke_smc(INTEL_SIP_SMC_GET_USERCODE, NULL, 0,
+			 &resp, 1);
+
+	if (ret == INTEL_SIP_SMC_STATUS_OK)
+		*usercode = (u32)resp;
+
+	return ret;
+}

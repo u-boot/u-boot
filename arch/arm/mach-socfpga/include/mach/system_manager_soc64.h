@@ -10,10 +10,6 @@
 void sysmgr_pinmux_init(void);
 void populate_sysmgr_fpgaintf_module(void);
 void populate_sysmgr_pinmux(void);
-void sysmgr_pinmux_table_sel(const u32 **table, unsigned int *table_len);
-void sysmgr_pinmux_table_ctrl(const u32 **table, unsigned int *table_len);
-void sysmgr_pinmux_table_fpga(const u32 **table, unsigned int *table_len);
-void sysmgr_pinmux_table_delay(const u32 **table, unsigned int *table_len);
 
 #define SYSMGR_SOC64_WDDBG			0x08
 #define SYSMGR_SOC64_DMA			0x20
@@ -46,7 +42,10 @@ void sysmgr_pinmux_table_delay(const u32 **table, unsigned int *table_len);
 #define SYSMGR_SOC64_GPO			0xe4
 #define SYSMGR_SOC64_GPI			0xe8
 #define SYSMGR_SOC64_MPU			0xf0
-/* store qspi ref clock */
+/*
+ * Bits[31:28] reserved for N5X DDR retention, bits[27:0] reserved for SOC 64-bit
+ * storing qspi ref clock (kHz)
+ */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD0		0x200
 /* store osc1 clock freq */
 #define SYSMGR_SOC64_BOOT_SCRATCH_COLD1		0x204
@@ -88,6 +87,17 @@ void sysmgr_pinmux_table_delay(const u32 **table, unsigned int *table_len);
 #define SYSMGR_SOC64_SDMMC_USEFPGA		0x1354
 #define SYSMGR_SOC64_HPS_OSC_CLK		0x1358
 #define SYSMGR_SOC64_IODELAY0			0x1400
+
+/*
+ * Bits for SYSMGR_SOC64_BOOT_SCRATCH_COLD0
+ * Bits[31:28] reserved for DM DDR retention, bits[27:0] reserved for SOC 64-bit
+ * storing qspi ref clock (kHz)
+ */
+#define SYSMGR_SCRATCH_REG_0_QSPI_REFCLK_MASK		GENMASK(27, 0)
+#define ALT_SYSMGR_SCRATCH_REG_0_DDR_RETENTION_MASK	BIT(31)
+#define ALT_SYSMGR_SCRATCH_REG_0_DDR_SHA_MASK		BIT(30)
+#define ALT_SYSMGR_SCRATCH_REG_0_DDR_RESET_TYPE_MASK	(BIT(29) | BIT(28))
+#define ALT_SYSMGR_SCRATCH_REG_0_DDR_RESET_TYPE_SHIFT	28
 
 #define SYSMGR_SDMMC				SYSMGR_SOC64_SDMMC
 

@@ -4,10 +4,11 @@
  *
  */
 
-#include <common.h>
+#include <asm/arch/handoff_soc64.h>
+#include <asm/arch/system_manager.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
-#include <asm/arch/system_manager.h>
+#include <common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -64,39 +65,55 @@ void populate_sysmgr_fpgaintf_module(void)
  */
 void populate_sysmgr_pinmux(void)
 {
-	const u32 *sys_mgr_table_u32;
-	unsigned int len, i;
+	u32 len, i;
+	u32 len_mux = socfpga_get_handoff_size((void *)SOC64_HANDOFF_MUX, BIG_ENDIAN);
+	u32 len_ioctl = socfpga_get_handoff_size((void *)SOC64_HANDOFF_IOCTL, BIG_ENDIAN);
+	u32 len_fpga = socfpga_get_handoff_size((void *)SOC64_HANDOFF_FPGA, BIG_ENDIAN);
+	u32 len_delay = socfpga_get_handoff_size((void *)SOC64_HANDOFF_DELAY, BIG_ENDIAN);
+
+	len = (len_mux > len_ioctl) ? len_mux : len_ioctl;
+	len = (len > len_fpga) ? len : len_fpga;
+	len = (len > len_delay) ? len : len_delay;
+
+	u32 handoff_table[len];
 
 	/* setup the pin sel */
-	sysmgr_pinmux_table_sel(&sys_mgr_table_u32, &len);
+	len = (len_mux < SOC64_HANDOFF_MUX_LEN) ? len_mux : SOC64_HANDOFF_MUX_LEN;
+	socfpga_handoff_read((void *)SOC64_HANDOFF_MUX, handoff_table, len, BIG_ENDIAN);
 	for (i = 0; i < len; i = i + 2) {
-		writel(sys_mgr_table_u32[i + 1],
-		       sys_mgr_table_u32[i] +
-		       (u8 *)socfpga_get_sysmgr_addr() + SYSMGR_SOC64_PINSEL0);
+		writel(handoff_table[i + 1],
+		       handoff_table[i] +
+		       (u8 *)socfpga_get_sysmgr_addr() +
+		       SYSMGR_SOC64_PINSEL0);
 	}
 
 	/* setup the pin ctrl */
-	sysmgr_pinmux_table_ctrl(&sys_mgr_table_u32, &len);
+	len = (len_ioctl < SOC64_HANDOFF_IOCTL_LEN) ? len_ioctl : SOC64_HANDOFF_IOCTL_LEN;
+	socfpga_handoff_read((void *)SOC64_HANDOFF_IOCTL, handoff_table, len, BIG_ENDIAN);
 	for (i = 0; i < len; i = i + 2) {
-		writel(sys_mgr_table_u32[i + 1],
-		       sys_mgr_table_u32[i] +
-		       (u8 *)socfpga_get_sysmgr_addr() + SYSMGR_SOC64_IOCTRL0);
+		writel(handoff_table[i + 1],
+		       handoff_table[i] +
+		       (u8 *)socfpga_get_sysmgr_addr() +
+		       SYSMGR_SOC64_IOCTRL0);
 	}
 
 	/* setup the fpga use */
-	sysmgr_pinmux_table_fpga(&sys_mgr_table_u32, &len);
+	len = (len_fpga < SOC64_HANDOFF_FPGA_LEN) ? len_fpga : SOC64_HANDOFF_FPGA_LEN;
+	socfpga_handoff_read((void *)SOC64_HANDOFF_FPGA, handoff_table, len, BIG_ENDIAN);
 	for (i = 0; i < len; i = i + 2) {
-		writel(sys_mgr_table_u32[i + 1],
-		       sys_mgr_table_u32[i] +
+		writel(handoff_table[i + 1],
+		       handoff_table[i] +
 		       (u8 *)socfpga_get_sysmgr_addr() +
 		       SYSMGR_SOC64_EMAC0_USEFPGA);
 	}
 
 	/* setup the IO delay */
-	sysmgr_pinmux_table_delay(&sys_mgr_table_u32, &len);
+	len = (len_delay < SOC64_HANDOFF_DELAY_LEN) ? len_delay : SOC64_HANDOFF_DELAY_LEN;
+	socfpga_handoff_read((void *)SOC64_HANDOFF_DELAY, handoff_table, len, BIG_ENDIAN);
 	for (i = 0; i < len; i = i + 2) {
-		writel(sys_mgr_table_u32[i + 1],
-		       sys_mgr_table_u32[i] +
-		       (u8 *)socfpga_get_sysmgr_addr() + SYSMGR_SOC64_IODELAY0);
+		writel(handoff_table[i + 1],
+		       handoff_table[i] +
+		       (u8 *)socfpga_get_sysmgr_addr() +
+		       SYSMGR_SOC64_IODELAY0);
 	}
 }
