@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/devres.h>
 #include <dm/read.h>
@@ -309,8 +310,9 @@ static int clk_set_default_rates(struct udevice *dev, int stage)
 		ret = clk_get_by_indexed_prop(dev, "assigned-clocks",
 					      index, &clk);
 		if (ret) {
-			debug("%s: could not get assigned clock %d for %s\n",
-			      __func__, index, dev_read_name(dev));
+			dev_dbg(dev,
+				"could not get assigned clock %d (err = %d)\n",
+				index, ret);
 			continue;
 		}
 
@@ -332,8 +334,9 @@ static int clk_set_default_rates(struct udevice *dev, int stage)
 		ret = clk_set_rate(c, rates[index]);
 
 		if (ret < 0) {
-			debug("%s: failed to set rate on clock index %d (%ld) for %s\n",
-			      __func__, index, clk.id, dev_read_name(dev));
+			dev_warn(dev,
+				 "failed to set rate on clock index %d (%ld) (error = %d)\n",
+				 index, clk.id, ret);
 			break;
 		}
 	}
