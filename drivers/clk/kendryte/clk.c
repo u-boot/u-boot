@@ -347,9 +347,7 @@ static const struct k210_comp_params k210_comps[] = {
 #undef COMP_NOMUX_ID
 #undef COMP_LIST
 
-static struct clk *k210_bypass_children = {
-	NULL,
-};
+static struct clk *k210_bypass_children __section(.data);
 
 /* Helper functions to create sub-clocks */
 static struct clk_mux *k210_create_mux(const struct k210_mux_params *params,
@@ -475,7 +473,14 @@ cleanup_mux:
 	return comp;
 }
 
-static bool probed;
+static bool __section(.data) probed;
+
+/* reset probed so we will probe again post-relocation */
+static int k210_clk_bind(struct udevice *dev)
+{
+	probed = false;
+	return 0;
+}
 
 static int k210_clk_probe(struct udevice *dev)
 {
@@ -658,5 +663,6 @@ U_BOOT_DRIVER(k210_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = k210_clk_ids,
 	.ops = &k210_clk_ops,
+	.bind = k210_clk_bind,
 	.probe = k210_clk_probe,
 };
