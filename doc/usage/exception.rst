@@ -31,6 +31,9 @@ type
 
   **RISC-V:**
 
+  ebreak
+    breakpoint exception
+
   unaligned
     load address misaligned
 
