@@ -180,6 +180,12 @@ Set up boot parameters on your board::
 
     efidebug boot add -b 1 HELLO mmc 0:1 /helloworld.efi.signed ""
 
+Since kernel 5.7 there's an alternative way of loading an initrd using
+LoadFile2 protocol if CONFIG_EFI_LOAD_FILE2_INITRD is enabled.
+The initrd path can be specified with::
+
+    efidebug boot add -b ABE0 'kernel' mmc 0:1 Image -i mmc 0:1 initrd
+
 Now your board can run the signed image via the boot manager (see below).
 You can also try this sequence by running Pytest, test_efi_secboot,
 on the sandbox
@@ -213,7 +219,63 @@ non-volatile variables. When calling the variable services via the
 OP-TEE API U-Boot's OP-TEE supplicant relays calls to the RPMB driver
 which has to be enabled via CONFIG_SUPPORT_EMMC_RPMB=y.
 
-[1] https://optee.readthedocs.io/ - OP-TEE documentation
+EDK2 Build instructions
+***********************
+
+.. code-block:: bash
+
+    $ git clone https://github.com/tianocore/edk2.git
+    $ git clone https://github.com/tianocore/edk2-platforms.git
+    $ cd edk2
+    $ git submodule init && git submodule update --init --recursive
+    $ cd ..
+    $ export WORKSPACE=$(pwd)
+    $ export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-platforms
+    $ export ACTIVE_PLATFORM="Platform/StandaloneMm/PlatformStandaloneMmPkg/PlatformStandaloneMmRpmb.dsc"
+    $ export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
+    $ source edk2/edksetup.sh
+    $ make -C edk2/BaseTools
+    $ build -p $ACTIVE_PLATFORM -b RELEASE -a AARCH64 -t GCC5 -n `nproc`
+
+OP-TEE Build instructions
+*************************
+
+.. code-block:: bash
+
+    $ git clone https://github.com/OP-TEE/optee_os.git
+    $ cd optee_os
+    $ ln -s ../Build/MmStandaloneRpmb/RELEASE_GCC5/FV/BL32_AP_MM.fd
+    $ export ARCH=arm
+    $ CROSS_COMPILE32=arm-linux-gnueabihf- make -j32 CFG_ARM64_core=y \
+        PLATFORM=<myboard> CFG_STMM_PATH=BL32_AP_MM.fd CFG_RPMB_FS=y \
+        CFG_RPMB_FS_DEV_ID=0 CFG_CORE_HEAP_SIZE=524288 CFG_RPMB_WRITE_KEY=1 \
+        CFG_CORE_HEAP_SIZE=524288 CFG_CORE_DYN_SHM=y CFG_RPMB_TESTKEY=y \
+        CFG_REE_FS=n CFG_CORE_ARM64_PA_BITS=48  CFG_TEE_CORE_LOG_LEVEL=1 \
+        CFG_TEE_TA_LOG_LEVEL=1 CFG_SCTLR_ALIGNMENT_CHECK=n
+
+U-Boot Build instructions
+*************************
+
+Although the StandAloneMM binary comes from EDK2, using and storing the
+variables is currently available in U-Boot only.
+
+.. code-block:: bash
+
+    $ git clone https://github.com/u-boot/u-boot.git
+    $ cd u-boot
+    $ export CROSS_COMPILE=aarch64-linux-gnu-
+    $ export ARCH=<arch>
+    $ make <myboard>_defconfig
+    $ make menuconfig
+
+Enable ``CONFIG_OPTEE``, ``CONFIG_CMD_OPTEE_RPMB`` and ``CONFIG_EFI_MM_COMM_TEE``
+
+.. warning::
+
+    - Your OP-TEE platform port must support Dynamic shared memory, since that's
+      the only kind of memory U-Boot supports for now.
+
+[1] https://optee.readthedocs.io/en/latest/building/efi_vars/stmm.html
 
 Executing the boot manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -484,7 +546,21 @@ The load file 2 protocol can be used by the Linux kernel to load the initial
 RAM disk. U-Boot can be configured to provide an implementation with::
 
     EFI_LOAD_FILE2_INITRD=y
-    EFI_INITRD_FILESPEC=interface dev:part path_to_initrd
+
+When the option is enabled the user can add the initrd path with the efidebug
+command.
+
+Load options Boot#### have a FilePathList[] member.  The first element of
+the array (FilePathList[0]) is the EFI binary to execute.  When an initrd
+is specified the Device Path for the initrd is denoted by a VenMedia node
+with the EFI_INITRD_MEDIA_GUID. Each entry of the array is terminated by the
+'end of entire device path' subtype (0xff). If a user wants to define multiple
+initrds, those must by separated by the 'end of this instance' identifier of
+the end node (0x01).
+
+So our final format of the FilePathList[] is::
+
+    Loaded image - end node (0xff) - VenMedia - initrd_1 - [end node (0x01) - initrd_n ...] - end node (0xff)
 
 Links
 -----

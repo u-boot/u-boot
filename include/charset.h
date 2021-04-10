@@ -13,7 +13,7 @@
 
 #define MAX_UTF8_PER_UTF16 3
 
-/**
+/*
  * codepage_437 - Unicode to codepage 437 translation table
  */
 extern const u16 codepage_437[128];

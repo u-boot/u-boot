@@ -176,13 +176,14 @@ static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
 					  struct tpml_digest_values *digest_list,
 					  u32 size, u8 event[])
 {
-	void *log = event_log.buffer + event_log.pos;
+	void *log = (void *)((uintptr_t)event_log.buffer + event_log.pos);
 	size_t pos;
 	int i;
 	u32 event_size;
 
 	if (event_log.get_event_called)
-		log = event_log.final_buffer + event_log.final_pos;
+		log = (void *)((uintptr_t)event_log.final_buffer +
+			       event_log.final_pos);
 
 	/*
 	 * size refers to the length of event[] only, we need to check against
@@ -197,24 +198,24 @@ static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
 
 	put_unaligned_le32(pcr_index, log);
 	pos = offsetof(struct tcg_pcr_event2, event_type);
-	put_unaligned_le32(event_type, log + pos);
+	put_unaligned_le32(event_type, (void *)((uintptr_t)log + pos));
 	pos = offsetof(struct tcg_pcr_event2, digests); /* count */
-	put_unaligned_le32(digest_list->count, log + pos);
+	put_unaligned_le32(digest_list->count, (void *)((uintptr_t)log + pos));
 
 	pos += offsetof(struct tpml_digest_values, digests);
 	for (i = 0; i < digest_list->count; i++) {
 		u16 hash_alg = digest_list->digests[i].hash_alg;
 		u8 *digest = (u8 *)&digest_list->digests[i].digest;
 
-		put_unaligned_le16(hash_alg, log + pos);
+		put_unaligned_le16(hash_alg, (void *)((uintptr_t)log + pos));
 		pos += offsetof(struct tpmt_ha, digest);
-		memcpy(log + pos, digest, alg_to_len(hash_alg));
+		memcpy((void *)((uintptr_t)log + pos), digest, alg_to_len(hash_alg));
 		pos += alg_to_len(hash_alg);
 	}
 
-	put_unaligned_le32(size, log + pos);
+	put_unaligned_le32(size, (void *)((uintptr_t)log + pos));
 	pos += sizeof(u32); /* tcg_pcr_event2 event_size*/
-	memcpy(log + pos, event, size);
+	memcpy((void *)((uintptr_t)log + pos), event, size);
 	pos += size;
 
 	/* make sure the calculated buffer is what we checked against */
@@ -1046,7 +1047,7 @@ static efi_status_t efi_init_event_log(void)
 	put_unaligned_le32(0, &event_header->pcr_index);
 	put_unaligned_le32(EV_NO_ACTION, &event_header->event_type);
 	memset(&event_header->digest, 0, sizeof(event_header->digest));
-	ret = create_specid_event(dev, event_log.buffer + sizeof(*event_header),
+	ret = create_specid_event(dev, (void *)((uintptr_t)event_log.buffer + sizeof(*event_header)),
 				  &spec_event_size);
 	if (ret != EFI_SUCCESS)
 		goto out;
