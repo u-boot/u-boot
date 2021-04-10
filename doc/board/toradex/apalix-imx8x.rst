@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
 Apalis iMX8X V1.1A Module (SoC NXP i.MX8QXP RevB)
-==========================
+=================================================
 
 Quick Start
 -----------
