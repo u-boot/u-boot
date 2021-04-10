@@ -68,6 +68,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UCMD_RUN_STOP           (1 << 0) /* controller run/stop */
 #define UCMD_RESET		(1 << 1) /* controller reset */
 
+/* If this is not defined, assume MX6/MX7/MX8M SoC default */
+#ifndef CONFIG_MXC_USB_PORTSC
+#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#endif
+
 /* Base address for this IP block is 0x02184800 */
 struct usbnc_regs {
 	u32 ctrl[4]; /* otg/host1-3 */
