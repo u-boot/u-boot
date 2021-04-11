@@ -101,7 +101,7 @@ static int single_configure_pins(struct udevice *dev,
 				 pdata->width);
 			continue;
 		}
-		dev_dbg(dev, "  reg/val 0x%pa/0x%08x\n", &reg, val);
+		dev_dbg(dev, "  reg/val %pa/0x%08x\n", &reg, val);
 	}
 	return 0;
 }
@@ -140,7 +140,7 @@ static int single_configure_bits(struct udevice *dev,
 				 pdata->width);
 			continue;
 		}
-		dev_dbg(dev, "  reg/val 0x%pa/0x%08x\n", &reg, val);
+		dev_dbg(dev, "  reg/val %pa/0x%08x\n", &reg, val);
 	}
 	return 0;
 }
