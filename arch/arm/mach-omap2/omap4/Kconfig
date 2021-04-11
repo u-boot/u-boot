@@ -10,9 +10,6 @@ config TARGET_OMAP4_PANDA
 config TARGET_OMAP4_SDP4430
 	bool "TI OMAP4 SDP4430"
 
-config TARGET_KC1
-	bool "Amazon Kindle Fire (first generation)"
-
 endchoice
 
 config SYS_SOC
@@ -20,6 +17,5 @@ config SYS_SOC
 
 source "board/ti/panda/Kconfig"
 source "board/ti/sdp4430/Kconfig"
-source "board/amazon/kc1/Kconfig"
 
 endif

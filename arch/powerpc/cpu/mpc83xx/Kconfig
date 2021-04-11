@@ -28,11 +28,6 @@ config TARGET_CADDY2
 	bool "Support caddy2"
 	select ARCH_MPC8349
 
-config TARGET_MPC8308RDB
-	bool "Support MPC8308RDB"
-	select ARCH_MPC8308
-	select SYS_FSL_ERRATUM_ESDHC111
-
 config TARGET_MPC8313ERDB_NOR
 	bool "Support MPC8313ERDB_NOR"
 	select ARCH_MPC8313
@@ -74,18 +69,6 @@ config TARGET_MPC8349EMDS_SDRAM
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_HAS_DDR2
-
-config TARGET_MPC8349ITX
-	bool "Support MPC8349ITX"
-	select ARCH_MPC8349
-	imply CMD_IRQ
-
-config TARGET_MPC837XEMDS
-	bool "Support MPC837XEMDS"
-	select ARCH_MPC837X
-	select BOARD_EARLY_INIT_F
-	imply CMD_SATA
-	imply FSL_SATA
 
 config TARGET_MPC837XERDB
 	bool "Support MPC837XERDB"
@@ -142,16 +125,6 @@ config TARGET_TQM834X
 	bool "Support TQM834x"
 	select ARCH_MPC8349
 
-config TARGET_HRCON
-	bool "Support hrcon"
-	select ARCH_MPC8308
-	select SYS_FSL_ERRATUM_ESDHC111
-
-config TARGET_STRIDER
-	bool "Support strider"
-	select ARCH_MPC8308
-	select SYS_FSL_ERRATUM_ESDHC111
-	imply CMD_PCA953X
 
 config TARGET_GAZERBEAM
 	bool "Support gazerbeam"
@@ -330,14 +303,11 @@ config FSL_ELBC
 	bool
 
 source "board/esd/vme8349/Kconfig"
-source "board/freescale/mpc8308rdb/Kconfig"
 source "board/freescale/mpc8313erdb/Kconfig"
 source "board/freescale/mpc8315erdb/Kconfig"
 source "board/freescale/mpc8323erdb/Kconfig"
 source "board/freescale/mpc832xemds/Kconfig"
 source "board/freescale/mpc8349emds/Kconfig"
-source "board/freescale/mpc8349itx/Kconfig"
-source "board/freescale/mpc837xemds/Kconfig"
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
 source "board/keymile/Kconfig"

@@ -25,7 +25,6 @@
 	defined(CONFIG_TARGET_T4240QDS) || \
 	defined(CONFIG_TARGET_T2080QDS) || \
 	defined(CONFIG_TARGET_T2080RDB) || \
-	defined(CONFIG_TARGET_T1040QDS) || \
 	defined(CONFIG_TARGET_T1040RDB) || \
 	defined(CONFIG_TARGET_T1040D4RDB) || \
 	defined(CONFIG_TARGET_T1042RDB) || \
@@ -58,7 +57,6 @@
 
 #if defined(CONFIG_ARCH_P3041)	||	\
 	defined(CONFIG_ARCH_P4080) ||	\
-	defined(CONFIG_ARCH_P5020) ||	\
 	defined(CONFIG_ARCH_P5040) ||	\
 	defined(CONFIG_ARCH_P2041)
 	#define	CONFIG_FSL_TRUST_ARCH_v1

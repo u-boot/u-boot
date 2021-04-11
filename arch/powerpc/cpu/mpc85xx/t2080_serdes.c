@@ -160,7 +160,6 @@ static const struct serdes_config serdes1_cfg_tbl[] = {
 	{}
 };
 
-#ifndef CONFIG_ARCH_T2081
 static const struct serdes_config serdes2_cfg_tbl[] = {
 	/* SerDes 2 */
 	{0x1F, {PCIE1, PCIE1, PCIE1, PCIE1, PCIE2, PCIE2, PCIE2, PCIE2} },
@@ -176,13 +175,10 @@ static const struct serdes_config serdes2_cfg_tbl[] = {
 	{0x36, {SRIO2, SRIO2, SRIO2, SRIO2, AURORA, AURORA, SATA1, SATA2} },
 	{}
 };
-#endif
 
 static const struct serdes_config *serdes_cfg_tbl[] = {
 	serdes1_cfg_tbl,
-#ifndef CONFIG_ARCH_T2081
 	serdes2_cfg_tbl,
-#endif
 };
 
 enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane)

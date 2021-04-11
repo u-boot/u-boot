@@ -19,7 +19,6 @@
 #define CONFIG_SYS_SRIO		/* Enable Serial RapidIO Support */
 #define CONFIG_SRIO1		/* SRIO port 1 */
 #define CONFIG_SRIO2		/* SRIO port 2 */
-#elif defined(CONFIG_ARCH_T2081)
 #endif
 
 /* High Level Configuration Options */
@@ -50,8 +49,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #if defined(CONFIG_ARCH_T2080)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_nand_rcw.cfg
-#elif defined(CONFIG_ARCH_T2081)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_nand_rcw.cfg
 #endif
 #endif
 
@@ -67,8 +64,6 @@
 #endif
 #if defined(CONFIG_ARCH_T2080)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_spi_rcw.cfg
-#elif defined(CONFIG_ARCH_T2081)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_spi_rcw.cfg
 #endif
 #endif
 
@@ -83,8 +78,6 @@
 #endif
 #if defined(CONFIG_ARCH_T2080)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_sd_rcw.cfg
-#elif defined(CONFIG_ARCH_T2081)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_sd_rcw.cfg
 #endif
 #endif
 

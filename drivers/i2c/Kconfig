@@ -479,7 +479,7 @@ config SYS_I2C_UNIPHIER_F
 
 config SYS_I2C_VERSATILE
 	bool "Arm Ltd Versatile I2C bus driver"
-	depends on DM_I2C && (TARGET_VEXPRESS_CA15_TC2 || TARGET_VEXPRESS64_JUNO)
+	depends on DM_I2C && TARGET_VEXPRESS64_JUNO
 	help
 	  Add support for the Arm Ltd Versatile Express I2C driver. The I2C host
 	  controller is present in the development boards manufactured by Arm Ltd.

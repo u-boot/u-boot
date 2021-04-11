@@ -210,14 +210,6 @@ config TARGET_T2080RDB
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_T2081QDS
-	bool "Support T2081QDS"
-	select ARCH_T2081
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
-	select FSL_DDR_INTERACTIVE
-
 config TARGET_T4160RDB
 	bool "Support T4160RDB"
 	select ARCH_T4160
@@ -233,10 +225,6 @@ config TARGET_T4240RDB
 	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	imply CMD_SATA
 	imply PANIC_HANG
-
-config TARGET_CONTROLCENTERD
-	bool "Support controlcenterd"
-	select ARCH_P1022
 
 config TARGET_KMP204X
 	bool "Support kmp204x"
@@ -264,18 +252,6 @@ config TARGET_UCP1020
 	bool "Support uCP1020"
 	select ARCH_P1020
 	imply CMD_SATA
-	imply PANIC_HANG
-
-config TARGET_CYRUS_P5020
-	bool "Support Varisys Cyrus P5020"
-	select ARCH_P5020
-	select PHYS_64BIT
-	imply PANIC_HANG
-
-config TARGET_CYRUS_P5040
-	 bool "Support Varisys Cyrus P5040"
-	select ARCH_P5040
-	select PHYS_64BIT
 	imply PANIC_HANG
 
 endchoice
@@ -576,23 +552,6 @@ config ARCH_P1021
 	imply CMD_REGINFO
 	imply SATA_SIL
 
-config ARCH_P1022
-	bool
-	select FSL_LAW
-	select SYS_FSL_ERRATUM_A004477
-	select SYS_FSL_ERRATUM_A004508
-	select SYS_FSL_ERRATUM_A005125
-	select SYS_FSL_ERRATUM_ELBC_A001
-	select SYS_FSL_ERRATUM_ESDHC111
-	select SYS_FSL_ERRATUM_SATA_A001
-	select FSL_PCIE_RESET
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_2
-	select SYS_PPC_E500_USE_DEBUG_TLB
-	select FSL_ELBC
-
 config ARCH_P1023
 	bool
 	select FSL_LAW
@@ -756,31 +715,6 @@ config ARCH_P4080
 	imply CMD_REGINFO
 	imply SATA_SIL
 
-config ARCH_P5020
-	bool
-	select E500MC
-	select FSL_LAW
-	select SYS_FSL_DDR_VER_44
-	select SYS_FSL_ERRATUM_A004510
-	select SYS_FSL_ERRATUM_A005275
-	select SYS_FSL_ERRATUM_A006261
-	select SYS_FSL_ERRATUM_DDR_A003
-	select SYS_FSL_ERRATUM_DDR_A003474
-	select SYS_FSL_ERRATUM_ESDHC111
-	select SYS_FSL_ERRATUM_I2C_A004447
-	select SYS_FSL_ERRATUM_SRIO_A004034
-	select SYS_FSL_ERRATUM_USB14
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_QORIQ_CHASSIS1
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_4
-	select SYS_PPC64
-	select FSL_ELBC
-	imply CMD_SATA
-	imply CMD_REGINFO
-	imply FSL_SATA
-
 config ARCH_P5040
 	bool
 	select E500MC
@@ -928,29 +862,6 @@ config ARCH_T2080
 	imply CMD_REGINFO
 	imply FSL_SATA
 
-config ARCH_T2081
-	bool
-	select E500MC
-	select E6500
-	select FSL_LAW
-	select SYS_FSL_DDR_VER_47
-	select SYS_FSL_ERRATUM_A006379
-	select SYS_FSL_ERRATUM_A006593
-	select SYS_FSL_ERRATUM_A007186
-	select SYS_FSL_ERRATUM_A007212
-	select SYS_FSL_ERRATUM_A009942
-	select SYS_FSL_ERRATUM_ESDHC111
-	select FSL_PCIE_RESET
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_QORIQ_CHASSIS2
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_4
-	select SYS_PPC64
-	select FSL_IFC
-	imply CMD_NAND
-	imply CMD_REGINFO
-
 config ARCH_T4160
 	bool
 	select E500MC
@@ -1052,19 +963,16 @@ config MAX_CPUS
 		     ARCH_P5040 || \
 		     ARCH_T1040 || \
 		     ARCH_T1042 || \
-		     ARCH_T2080 || \
-		     ARCH_T2081
+		     ARCH_T2080
 	default 2 if ARCH_B4420 || \
 		     ARCH_BSC9132 || \
 		     ARCH_MPC8572 || \
 		     ARCH_P1020 || \
 		     ARCH_P1021 || \
-		     ARCH_P1022 || \
 		     ARCH_P1023 || \
 		     ARCH_P1024 || \
 		     ARCH_P1025 || \
 		     ARCH_P2020 || \
-		     ARCH_P5020 || \
 		     ARCH_T1023 || \
 		     ARCH_T1024
 	default 1
@@ -1093,7 +1001,6 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_P1011	|| \
 				ARCH_P1020	|| \
 				ARCH_P1021	|| \
-				ARCH_P1022	|| \
 				ARCH_P1024	|| \
 				ARCH_P1025	|| \
 				ARCH_P2020
@@ -1103,14 +1010,12 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_P2041	|| \
 				ARCH_P3041	|| \
 				ARCH_P4080	|| \
-				ARCH_P5020	|| \
 				ARCH_P5040	|| \
 				ARCH_T1023	|| \
 				ARCH_T1024	|| \
 				ARCH_T1040	|| \
 				ARCH_T1042	|| \
 				ARCH_T2080	|| \
-				ARCH_T2081	|| \
 				ARCH_T4160	|| \
 				ARCH_T4240
 	default 0xe0000000 if ARCH_QEMU_E500
@@ -1224,7 +1129,7 @@ config SYS_FSL_A004447_SVR_REV
 	default 0x00 if ARCH_MPC8548
 	default 0x10 if ARCH_P1010
 	default 0x11 if ARCH_P1023 || ARCH_P2041 || ARCH_BSC9132
-	default 0x20 if ARCH_P3041 || ARCH_P4080 || ARCH_P5020
+	default 0x20 if ARCH_P3041 || ARCH_P4080
 
 config SYS_FSL_ERRATUM_IFC_A002769
 	bool
@@ -1294,10 +1199,8 @@ config SYS_FSL_NUM_LAWS
 			ARCH_P2041	|| \
 			ARCH_P3041	|| \
 			ARCH_P4080	|| \
-			ARCH_P5020	|| \
 			ARCH_P5040	|| \
 			ARCH_T2080	|| \
-			ARCH_T2081	|| \
 			ARCH_T4160	|| \
 			ARCH_T4240
 	default 16 if	ARCH_T1023	|| \
@@ -1313,7 +1216,6 @@ config SYS_FSL_NUM_LAWS
 			ARCH_P1011	|| \
 			ARCH_P1020	|| \
 			ARCH_P1021	|| \
-			ARCH_P1022	|| \
 			ARCH_P1023	|| \
 			ARCH_P1024	|| \
 			ARCH_P1025	|| \
@@ -1363,7 +1265,6 @@ config SYS_PPC_E500_DEBUG_TLB
 			ARCH_P1011	|| \
 			ARCH_P1020	|| \
 			ARCH_P1021	|| \
-			ARCH_P1022	|| \
 			ARCH_P1024	|| \
 			ARCH_P1025	|| \
 			ARCH_P2020
@@ -1404,7 +1305,6 @@ config SYS_FSL_LBC_CLK_DIV
 	default 2 if	ARCH_P2041	|| \
 			ARCH_P3041	|| \
 			ARCH_P4080	|| \
-			ARCH_P5020	|| \
 			ARCH_P5040
 	default 1
 
@@ -1429,11 +1329,9 @@ source "board/freescale/t104xrdb/Kconfig"
 source "board/freescale/t208xqds/Kconfig"
 source "board/freescale/t208xrdb/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
-source "board/gdsys/p1022/Kconfig"
 source "board/keymile/Kconfig"
 source "board/sbc8548/Kconfig"
 source "board/socrates/Kconfig"
-source "board/varisys/cyrus/Kconfig"
 source "board/xes/xpedite520x/Kconfig"
 source "board/xes/xpedite537x/Kconfig"
 source "board/xes/xpedite550x/Kconfig"
