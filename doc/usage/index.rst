@@ -28,6 +28,7 @@ Shell commands
    exception
    exit
    false
+   fatinfo
    for
    load
    loady
