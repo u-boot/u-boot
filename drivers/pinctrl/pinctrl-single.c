@@ -182,17 +182,19 @@ static int single_set_state(struct udevice *dev,
 static int single_of_to_plat(struct udevice *dev)
 {
 	fdt_addr_t addr;
-	u32 of_reg[2];
-	int res;
+	fdt_size_t size;
 	struct single_pdata *pdata = dev_get_plat(dev);
 
 	pdata->width =
 		dev_read_u32_default(dev, "pinctrl-single,register-width", 0);
 
-	res = dev_read_u32_array(dev, "reg", of_reg, 2);
-	if (res)
-		return res;
-	pdata->offset = of_reg[1] - pdata->width / 8;
+	addr = dev_read_addr_size(dev, "reg", &size);
+	if (addr == FDT_ADDR_T_NONE) {
+		dev_err(dev, "failed to get base register size\n");
+		return -EINVAL;
+	}
+
+	pdata->offset = size - pdata->width / BITS_PER_BYTE;
 
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE) {
