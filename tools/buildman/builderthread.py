@@ -89,10 +89,14 @@ class BuilderThread(threading.Thread):
     Members:
         builder: The builder which contains information we might need
         thread_num: Our thread number (0-n-1), used to decide on a
-                temporary directory. If this is -1 then there are no threads
-                and we are the (only) main process
+            temporary directory. If this is -1 then there are no threads
+            and we are the (only) main process
+        mrproper: Use 'make mrproper' before each reconfigure
+        per_board_out_dir: True to build in a separate persistent directory per
+            board rather than a thread-specific directory
+        test_exception: Used for testing; True to raise an exception instead of
+            reporting the build result
     """
-    def __init__(self, builder, thread_num, mrproper, per_board_out_dir):
         """Set up a new builder thread"""
         threading.Thread.__init__(self)
         self.builder = builder

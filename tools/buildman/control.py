@@ -124,6 +124,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
                 arguments. This setting is useful for tests.
         board: Boards() object to use, containing a list of available
                 boards. If this is None it will be created and scanned.
+        clean_dir: Used for tests only, indicates that the existing output_dir
+            should be removed before starting the build
     """
     global builder
 

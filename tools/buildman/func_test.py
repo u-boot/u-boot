@@ -219,12 +219,21 @@ class TestFunctional(unittest.TestCase):
         return command.RunPipe([[self._buildman_pathname] + list(args)],
                 capture=True, capture_stderr=True)
 
-    def _RunControl(self, *args, clean_dir=False, boards=None):
+        """Run buildman
+
+        Args:
+            args: List of arguments to pass
+            boards:
+            clean_dir: Used for tests only, indicates that the existing output_dir
+                should be removed before starting the build
+
+        Returns:
+            result code from buildman
+        """
         sys.argv = [sys.argv[0]] + list(args)
         options, args = cmdline.ParseArgs()
         result = control.DoBuildman(options, args, toolchains=self._toolchains,
                 make_func=self._HandleMake, boards=boards or self._boards,
-                clean_dir=clean_dir)
         self._builder = control.builder
         return result
 
