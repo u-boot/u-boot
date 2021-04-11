@@ -10,23 +10,50 @@
 #include <linux/libfdt.h>
 #include <asm/io.h>
 
+/**
+ * struct single_pdata - platform data
+ * @base: first configuration register
+ * @offset: index of last configuration register
+ * @mask: configuration-value mask bits
+ * @width: configuration register bit width
+ * @bits_per_mux: true if one register controls more than one pin
+ */
 struct single_pdata {
-	fdt_addr_t base;	/* first configuration register */
-	int offset;		/* index of last configuration register */
-	u32 mask;		/* configuration-value mask bits */
-	int width;		/* configuration register bit width */
+	fdt_addr_t base;
+	int offset;
+	u32 mask;
+	int width;
 	bool bits_per_mux;
 };
 
+/**
+ * struct single_fdt_pin_cfg - pin configuration
+ *
+ * This structure is used for the pin configuration parameters in case
+ * the register controls only one pin.
+ *
+ * @reg: configuration register offset
+ * @val: configuration register value
+ */
 struct single_fdt_pin_cfg {
-	fdt32_t reg;		/* configuration register offset */
-	fdt32_t val;		/* configuration register value */
+	fdt32_t reg;
+	fdt32_t val;
 };
 
+/**
+ * struct single_fdt_bits_cfg - pin configuration
+ *
+ * This structure is used for the pin configuration parameters in case
+ * the register controls more than one pin.
+ *
+ * @reg: configuration register offset
+ * @val: configuration register value
+ * @mask: configuration register mask
+ */
 struct single_fdt_bits_cfg {
-	fdt32_t reg;		/* configuration register offset */
-	fdt32_t val;		/* configuration register value */
-	fdt32_t mask;		/* configuration register mask */
+	fdt32_t reg;
+	fdt32_t val;
+	fdt32_t mask;
 };
 
 /**
