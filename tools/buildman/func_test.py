@@ -572,6 +572,18 @@ class TestFunctional(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(board0_dir, 'done')))
         self.assertTrue(os.path.exists(os.path.join(board0_dir, 'out-env')))
 
+    def testEnvironmentUnicode(self):
+        """Test there are no unicode errors when the env has non-ASCII chars"""
+        try:
+            varname = b'buildman_test_var'
+            os.environb[varname] = b'strange\x80chars'
+            self.assertEqual(0, self._RunControl('-o', self._output_dir))
+            board0_dir = os.path.join(self._output_dir, 'current', 'board0')
+            self.assertTrue(os.path.exists(os.path.join(board0_dir, 'done')))
+            self.assertTrue(os.path.exists(os.path.join(board0_dir, 'out-env')))
+        finally:
+            del os.environb[varname]
+
     def testWorkInOutput(self):
         """Test the -w option which should write directly to the output dir"""
         board_list = board.Boards()
