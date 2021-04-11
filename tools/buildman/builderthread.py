@@ -444,6 +444,17 @@ class BuilderThread(threading.Thread):
                         target = '%s-%s%s' % (base, dirname, ext)
                 shutil.copy(fname, os.path.join(build_dir, target))
 
+    def _SendResult(self, result):
+        """Send a result to the builder for processing
+
+        Args:
+            result: CommandResult object containing the results of the build
+        """
+        if self.thread_num != -1:
+            self.builder.out_queue.put(result)
+        else:
+            self.builder.ProcessResult(result)
+
     def RunJob(self, job):
         """Run a single job
 
@@ -517,10 +528,7 @@ class BuilderThread(threading.Thread):
 
                 # We have the build results, so output the result
                 self._WriteResult(result, job.keep_outputs, job.work_in_output)
-                if self.thread_num != -1:
-                    self.builder.out_queue.put(result)
-                else:
-                    self.builder.ProcessResult(result)
+                self._SendResult(result)
         else:
             # Just build the currently checked-out build
             result, request_config = self.RunCommit(None, brd, work_dir, True,
@@ -529,10 +537,7 @@ class BuilderThread(threading.Thread):
                         work_in_output=job.work_in_output)
             result.commit_upto = 0
             self._WriteResult(result, job.keep_outputs, job.work_in_output)
-            if self.thread_num != -1:
-                self.builder.out_queue.put(result)
-            else:
-                self.builder.ProcessResult(result)
+            self._SendResult(result)
 
     def run(self):
         """Our thread's run function
