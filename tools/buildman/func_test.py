@@ -16,6 +16,7 @@ from buildman import toolchain
 from patman import command
 from patman import gitutil
 from patman import terminal
+from patman import test_util
 from patman import tools
 
 settings_data = '''
@@ -219,6 +220,8 @@ class TestFunctional(unittest.TestCase):
         return command.RunPipe([[self._buildman_pathname] + list(args)],
                 capture=True, capture_stderr=True)
 
+    def _RunControl(self, *args, boards=None, clean_dir=False,
+                    test_thread_exceptions=False):
         """Run buildman
 
         Args:
@@ -226,6 +229,9 @@ class TestFunctional(unittest.TestCase):
             boards:
             clean_dir: Used for tests only, indicates that the existing output_dir
                 should be removed before starting the build
+            test_thread_exceptions: Uses for tests only, True to make the threads
+                raise an exception instead of reporting their result. This simulates
+                a failure in the code somewhere
 
         Returns:
             result code from buildman
@@ -234,6 +240,8 @@ class TestFunctional(unittest.TestCase):
         options, args = cmdline.ParseArgs()
         result = control.DoBuildman(options, args, toolchains=self._toolchains,
                 make_func=self._HandleMake, boards=boards or self._boards,
+                clean_dir=clean_dir,
+                test_thread_exceptions=test_thread_exceptions)
         self._builder = control.builder
         return result
 
@@ -597,3 +605,10 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(SystemExit) as e:
             self._RunControl('-w', clean_dir=False)
         self.assertIn("specify -o", str(e.exception))
+
+    def testThreadExceptions(self):
+        """Test that exceptions in threads are reported"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self.assertEqual(102, self._RunControl('-o', self._output_dir,
+                                                   test_thread_exceptions=True))
+        self.assertIn('Thread exception: test exception', stdout.getvalue())

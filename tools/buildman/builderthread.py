@@ -97,12 +97,15 @@ class BuilderThread(threading.Thread):
         test_exception: Used for testing; True to raise an exception instead of
             reporting the build result
     """
+    def __init__(self, builder, thread_num, mrproper, per_board_out_dir,
+                 test_exception=False):
         """Set up a new builder thread"""
         threading.Thread.__init__(self)
         self.builder = builder
         self.thread_num = thread_num
         self.mrproper = mrproper
         self.per_board_out_dir = per_board_out_dir
+        self.test_exception = test_exception
 
     def Make(self, commit, brd, stage, cwd, *args, **kwargs):
         """Run 'make' on a particular commit and board.
@@ -449,7 +452,12 @@ class BuilderThread(threading.Thread):
 
         Args:
             result: CommandResult object containing the results of the build
+
+        Raises:
+            ValueError if self.test_exception is true (for testing)
         """
+        if self.test_exception:
+            raise ValueError('test exception')
         if self.thread_num != -1:
             self.builder.out_queue.put(result)
         else:
@@ -547,5 +555,9 @@ class BuilderThread(threading.Thread):
         """
         while True:
             job = self.builder.queue.get()
-            self.RunJob(job)
+            try:
+                self.RunJob(job)
+            except Exception as e:
+                print('Thread exception:', e)
+                self.builder.thread_exceptions.append(e)
             self.builder.queue.task_done()
