@@ -22,7 +22,7 @@ struct single_pdata {
 	fdt_addr_t base;
 	int offset;
 	u32 mask;
-	int width;
+	u32 width;
 	bool bits_per_mux;
 };
 
@@ -184,9 +184,13 @@ static int single_of_to_plat(struct udevice *dev)
 	fdt_addr_t addr;
 	fdt_size_t size;
 	struct single_pdata *pdata = dev_get_plat(dev);
+	int ret;
 
-	pdata->width =
-		dev_read_u32_default(dev, "pinctrl-single,register-width", 0);
+	ret = dev_read_u32(dev, "pinctrl-single,register-width", &pdata->width);
+	if (ret) {
+		dev_err(dev, "missing register width\n");
+		return ret;
+	}
 
 	addr = dev_read_addr_size(dev, "reg", &size);
 	if (addr == FDT_ADDR_T_NONE) {
