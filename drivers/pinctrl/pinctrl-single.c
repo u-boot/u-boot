@@ -27,6 +27,16 @@ struct single_pdata {
 };
 
 /**
+ * struct single_priv - private data
+ * @bits_per_pin: number of bits per pin
+ * @npins: number of selectable pins
+ */
+struct single_priv {
+	unsigned int bits_per_pin;
+	unsigned int npins;
+};
+
+/**
  * struct single_fdt_pin_cfg - pin configuration
  *
  * This structure is used for the pin configuration parameters in case
@@ -194,6 +204,30 @@ static int single_set_state(struct udevice *dev,
 	return len;
 }
 
+static int single_get_pins_count(struct udevice *dev)
+{
+	struct single_priv *priv = dev_get_priv(dev);
+
+	return priv->npins;
+}
+
+static int single_probe(struct udevice *dev)
+{
+	struct single_pdata *pdata = dev_get_plat(dev);
+	struct single_priv *priv = dev_get_priv(dev);
+	u32 size;
+
+	size = pdata->offset + pdata->width / BITS_PER_BYTE;
+	priv->npins = size / (pdata->width / BITS_PER_BYTE);
+	if (pdata->bits_per_mux) {
+		priv->bits_per_pin = fls(pdata->mask);
+		priv->npins *= (pdata->width / priv->bits_per_pin);
+	}
+
+	dev_dbg(dev, "%d pins\n", priv->npins);
+	return 0;
+}
+
 static int single_of_to_plat(struct udevice *dev)
 {
 	fdt_addr_t addr;
@@ -244,6 +278,7 @@ static int single_of_to_plat(struct udevice *dev)
 }
 
 const struct pinctrl_ops single_pinctrl_ops = {
+	.get_pins_count	= single_get_pins_count,
 	.set_state = single_set_state,
 };
 
@@ -258,5 +293,7 @@ U_BOOT_DRIVER(single_pinctrl) = {
 	.of_match = single_pinctrl_match,
 	.ops = &single_pinctrl_ops,
 	.plat_auto	= sizeof(struct single_pdata),
+	.priv_auto = sizeof(struct single_priv),
 	.of_to_plat = single_of_to_plat,
+	.probe = single_probe,
 };
