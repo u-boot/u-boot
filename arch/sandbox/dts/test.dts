@@ -569,6 +569,9 @@
 		reg = <0 1>;
 		compatible = "sandbox,i2c";
 		clock-frequency = <100000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_i2c0_pins>;
+
 		eeprom@2c {
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
@@ -649,6 +652,8 @@
 	lcd {
 		u-boot,dm-pre-reloc;
 		compatible = "sandbox,lcd-sdl";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_lcd_pins>;
 		xres = <1366>;
 		yres = <768>;
 	};
@@ -899,6 +904,8 @@
 	pwm: pwm {
 		compatible = "sandbox,pwm";
 		#pwm-cells = <2>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_pwm_pins>;
 	};
 
 	pwm2 {
@@ -970,6 +977,9 @@
 		reg = <0 1>;
 		compatible = "sandbox,spi";
 		cs-gpios = <0>, <0>, <&gpio_a 0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_spi0_pins>;
+
 		spi.bin@0 {
 			reg = <0>;
 			compatible = "spansion,m25p16", "jedec,spi-nor";
@@ -1059,6 +1069,8 @@
 	uart0: serial {
 		compatible = "sandbox,serial";
 		u-boot,dm-pre-reloc;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_uart0_pins>;
 	};
 
 	usb_0: usb@0 {
@@ -1322,6 +1334,66 @@
 				pinmux = <SANDBOX_PINMUX(5, SANDBOX_PINMUX_CS)>,
 					 <SANDBOX_PINMUX(6, SANDBOX_PINMUX_CS)>;
 			};
+		};
+	};
+
+	pinctrl-single-no-width {
+		compatible = "pinctrl-single";
+		reg = <0x0000 0x238>;
+		#pinctrl-cells = <1>;
+		pinctrl-single,function-mask = <0x7f>;
+	};
+
+	pinctrl-single-pins {
+		compatible = "pinctrl-single";
+		reg = <0x0000 0x238>;
+		#pinctrl-cells = <1>;
+		pinctrl-single,register-width = <32>;
+		pinctrl-single,function-mask = <0x7f>;
+
+		pinmux_pwm_pins: pinmux_pwm_pins {
+			pinctrl-single,pins = < 0x48 0x06 >;
+		};
+
+		pinmux_spi0_pins: pinmux_spi0_pins {
+			pinctrl-single,pins = <
+				0x190 0x0c
+				0x194 0x0c
+				0x198 0x23
+				0x19c 0x0c
+			>;
+		};
+
+		pinmux_uart0_pins: pinmux_uart0_pins {
+			pinctrl-single,pins = <
+				0x70 0x30
+				0x74 0x00
+			>;
+		};
+	};
+
+	pinctrl-single-bits {
+		compatible = "pinctrl-single";
+		reg = <0x0000 0x50>;
+		#pinctrl-cells = <2>;
+		pinctrl-single,bit-per-mux;
+		pinctrl-single,register-width = <32>;
+		pinctrl-single,function-mask = <0xf>;
+
+		pinmux_i2c0_pins: pinmux_i2c0_pins {
+			pinctrl-single,bits = <
+				0x10 0x00002200 0x0000ff00
+			>;
+		};
+
+		pinmux_lcd_pins: pinmux_lcd_pins {
+			pinctrl-single,bits = <
+				0x40 0x22222200 0xffffff00
+				0x44 0x22222222 0xffffffff
+				0x48 0x00000022 0x000000ff
+				0x48 0x02000000 0x0f000000
+				0x4c 0x02000022 0x0f0000ff
+			>;
 		};
 	};
 
