@@ -77,15 +77,17 @@ static int single_configure_pins(struct udevice *dev,
 	struct single_pdata *pdata = dev_get_plat(dev);
 	int n, count = size / sizeof(struct single_fdt_pin_cfg);
 	phys_addr_t reg;
-	u32 val;
+	u32 offset, val;
 
 	for (n = 0; n < count; n++, pins++) {
-		reg = fdt32_to_cpu(pins->reg);
-		if ((reg < 0) || (reg > pdata->offset)) {
-			dev_dbg(dev, "  invalid register offset 0x%pa\n", &reg);
+		offset = fdt32_to_cpu(pins->reg);
+		if (offset < 0 || offset > pdata->offset) {
+			dev_dbg(dev, "  invalid register offset 0x%x\n",
+				offset);
 			continue;
 		}
-		reg += pdata->base;
+
+		reg = pdata->base + offset;
 		val = fdt32_to_cpu(pins->val) & pdata->mask;
 		switch (pdata->width) {
 		case 16:
@@ -111,15 +113,17 @@ static int single_configure_bits(struct udevice *dev,
 	struct single_pdata *pdata = dev_get_plat(dev);
 	int n, count = size / sizeof(struct single_fdt_bits_cfg);
 	phys_addr_t reg;
-	u32 val, mask;
+	u32 offset, val, mask;
 
 	for (n = 0; n < count; n++, pins++) {
-		reg = fdt32_to_cpu(pins->reg);
-		if ((reg < 0) || (reg > pdata->offset)) {
-			dev_dbg(dev, "  invalid register offset 0x%pa\n", &reg);
+		offset = fdt32_to_cpu(pins->reg);
+		if (offset < 0 || offset > pdata->offset) {
+			dev_dbg(dev, "  invalid register offset 0x%x\n",
+				offset);
 			continue;
 		}
-		reg += pdata->base;
+
+		reg = pdata->base + offset;
 
 		mask = fdt32_to_cpu(pins->mask);
 		val = fdt32_to_cpu(pins->val) & mask;
