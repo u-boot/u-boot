@@ -56,6 +56,38 @@ struct single_fdt_bits_cfg {
 	fdt32_t mask;
 };
 
+static unsigned int single_read(struct udevice *dev, fdt_addr_t reg)
+{
+	struct single_pdata *pdata = dev_get_plat(dev);
+
+	switch (pdata->width) {
+	case 8:
+		return readb(reg);
+	case 16:
+		return readw(reg);
+	default: /* 32 bits */
+		return readl(reg);
+	}
+
+	return readb(reg);
+}
+
+static void single_write(struct udevice *dev, unsigned int val, fdt_addr_t reg)
+{
+	struct single_pdata *pdata = dev_get_plat(dev);
+
+	switch (pdata->width) {
+	case 8:
+		writeb(val, reg);
+		break;
+	case 16:
+		writew(val, reg);
+		break;
+	default: /* 32 bits */
+		writel(val, reg);
+	}
+}
+
 /**
  * single_configure_pins() - Configure pins based on FDT data
  *
@@ -93,19 +125,10 @@ static int single_configure_pins(struct udevice *dev,
 
 		reg = pdata->base + offset;
 		val = fdt32_to_cpu(pins->val) & pdata->mask;
-		switch (pdata->width) {
-		case 16:
-			writew((readw(reg) & ~pdata->mask) | val, reg);
-			break;
-		case 32:
-			writel((readl(reg) & ~pdata->mask) | val, reg);
-			break;
-		default:
-			dev_warn(dev, "unsupported register width %i\n",
-				 pdata->width);
-			continue;
-		}
+		single_write(dev, (single_read(dev, reg) & ~pdata->mask) | val,
+			     reg);
 		dev_dbg(dev, "  reg/val %pa/0x%08x\n", &reg, val);
+
 	}
 	return 0;
 }
@@ -131,19 +154,7 @@ static int single_configure_bits(struct udevice *dev,
 
 		mask = fdt32_to_cpu(pins->mask);
 		val = fdt32_to_cpu(pins->val) & mask;
-
-		switch (pdata->width) {
-		case 16:
-			writew((readw(reg) & ~mask) | val, reg);
-			break;
-		case 32:
-			writel((readl(reg) & ~mask) | val, reg);
-			break;
-		default:
-			dev_warn(dev, "unsupported register width %i\n",
-				 pdata->width);
-			continue;
-		}
+		single_write(dev, (single_read(dev, reg) & ~mask) | val, reg);
 		dev_dbg(dev, "  reg/val %pa/0x%08x\n", &reg, val);
 	}
 	return 0;
@@ -194,6 +205,16 @@ static int single_of_to_plat(struct udevice *dev)
 	if (ret) {
 		dev_err(dev, "missing register width\n");
 		return ret;
+	}
+
+	switch (pdata->width) {
+	case 8:
+	case 16:
+	case 32:
+		break;
+	default:
+		dev_err(dev, "wrong register width\n");
+		return -EINVAL;
 	}
 
 	addr = dev_read_addr_size(dev, "reg", &size);
