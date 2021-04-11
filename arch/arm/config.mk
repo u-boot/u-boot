@@ -11,7 +11,8 @@ CONFIG_STANDALONE_LOAD_ADDR = 0xc100000
 endif
 endif
 
-CFLAGS_NON_EFI := -fno-pic -ffixed-r9 -ffunction-sections -fdata-sections
+CFLAGS_NON_EFI := -fno-pic -ffixed-r9 -ffunction-sections -fdata-sections \
+		  -fstack-protector-strong
 CFLAGS_EFI := -fpic -fshort-wchar
 
 LDFLAGS_FINAL += --gc-sections

@@ -2325,6 +2325,15 @@ config CMD_AVB
 	    avb read_part_hex - read data from partition and output to stdout
 	    avb write_part - write data to partition
 	    avb verify - run full verification chain
+
+config CMD_STACKPROTECTOR_TEST
+	bool "Test command for stack protector"
+	depends on STACKPROTECTOR
+	help
+	  Enable stackprot_test command
+	  The stackprot_test command will force a stack overrun to test
+	  the stack smashing detection mechanisms.
+
 endmenu
 
 config CMD_UBI

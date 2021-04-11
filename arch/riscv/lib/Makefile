@@ -27,6 +27,7 @@ obj-$(CONFIG_SPL_BUILD)	+= spl.o
 obj-y   += fdt_fixup.o
 
 # For building EFI apps
+CFLAGS_NON_EFI := -fstack-protector-strong
 CFLAGS_$(EFI_CRT0) := $(CFLAGS_EFI)
 CFLAGS_REMOVE_$(EFI_CRT0) := $(CFLAGS_NON_EFI)
 

@@ -42,7 +42,7 @@ OBJCOPYFLAGS_EFI := -j .text -j .sdata -j .data -j .dynamic -j .dynsym \
 # Compiler flags to be added when building UEFI applications
 CFLAGS_EFI := -fpic -fshort-wchar
 # Compiler flags to be removed when building UEFI applications
-CFLAGS_NON_EFI := -mregparm=3
+CFLAGS_NON_EFI := -mregparm=3 -fstack-protector-strong
 
 ifeq ($(CONFIG_EFI_STUB_64BIT),)
 CFLAGS_EFI += $(call cc-option, -mno-red-zone)

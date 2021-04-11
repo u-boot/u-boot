@@ -676,7 +676,12 @@ else
 KBUILD_CFLAGS	+= -O2
 endif
 
+ifeq ($(CONFIG_STACKPROTECTOR),y)
+KBUILD_CFLAGS += $(call cc-option,-fstack-protector-strong)
+CFLAGS_EFI += $(call cc-option,-fno-stack-protector)
+else
 KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+endif
 KBUILD_CFLAGS += $(call cc-option,-fno-delete-null-pointer-checks)
 
 # disable stringop warnings in gcc 8+
