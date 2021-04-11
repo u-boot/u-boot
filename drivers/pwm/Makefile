@@ -10,6 +10,7 @@
 
 obj-$(CONFIG_DM_PWM)		+= pwm-uclass.o
 
+obj-$(CONFIG_PWM_CROS_EC)	+= cros_ec_pwm.o
 obj-$(CONFIG_PWM_EXYNOS)	+= exynos_pwm.o
 obj-$(CONFIG_PWM_IMX)		+= pwm-imx.o pwm-imx-util.o
 obj-$(CONFIG_PWM_MESON)		+= pwm-meson.o

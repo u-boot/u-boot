@@ -82,20 +82,6 @@
 #endif
 
 /*
- * Defines for the MB862xx driver
- */
-#ifdef CONFIG_VIDEO_MB862xx
-
-#ifdef CONFIG_VIDEO_CORALP
-#define VIDEO_FB_LITTLE_ENDIAN
-#endif
-#ifdef CONFIG_VIDEO_MB862xx_ACCEL
-#define VIDEO_HW_RECTFILL
-#define VIDEO_HW_BITBLT
-#endif
-#endif
-
-/*
  * Defines for the i.MX31 driver (mx3fb.c)
  */
 #if defined(CONFIG_VIDEO_MX3) || defined(CONFIG_VIDEO_IPUV3)

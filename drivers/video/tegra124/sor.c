@@ -671,8 +671,8 @@ static void tegra_dc_sor_config_panel(struct tegra_dc_sor_data *sor,
 			      CSTM_ROTCLK_DEFAULT_MASK |
 			      CSTM_LVDS_EN_ENABLE,
 			      2 << CSTM_ROTCLK_SHIFT |
-			      is_lvds ? CSTM_LVDS_EN_ENABLE :
-			      CSTM_LVDS_EN_DISABLE);
+			      (is_lvds ? CSTM_LVDS_EN_ENABLE :
+			      CSTM_LVDS_EN_DISABLE));
 
 	 tegra_dc_sor_config_pwm(sor, 1024, 1024);
 }
