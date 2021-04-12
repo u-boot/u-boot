@@ -230,7 +230,7 @@ int part_get_info_by_name(struct blk_desc *dev_desc,
  * @param[in] allow_whole_dev true to allow the user to select partition 0
  *		(which means the whole device), false to require a valid
  *		partition number >= 1
- * @return 0 on success, or a negative on error
+ * @return the partition number on success, or negative errno on error
  */
 int part_get_info_by_dev_and_name_or_num(const char *dev_iface,
 					 const char *dev_part_str,
@@ -275,6 +275,16 @@ static inline int blk_get_device_part_str(const char *ifname,
 					  struct disk_partition *info,
 					  int allow_whole_dev)
 { *dev_desc = NULL; return -1; }
+static inline int
+part_get_info_by_dev_and_name_or_num(const char *dev_iface,
+				     const char *dev_part_str,
+				     struct blk_desc **dev_desc,
+				     struct disk_partition *part_info,
+				     int allow_whole_dev)
+{
+	*dev_desc = NULL;
+	return -ENOSYS;
+}
 #endif
 
 /*
