@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <fdtdec.h>
 #include <init.h>
 #include <net.h>
 #include <scsi.h>
@@ -84,8 +85,12 @@ int misc_init_r(void)
 
 int dram_init(void)
 {
-	gd->ram_size = SZ_512M;
-	return 0;
+	return fdtdec_setup_mem_size_base();
+}
+
+int dram_init_banksize(void)
+{
+	return fdtdec_setup_memory_banksize();
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)

@@ -720,6 +720,7 @@ config ARCH_HIGHBANK
 	select CLK_CCF
 	select AHCI
 	select DM_ETH
+	select PHYS_64BIT
 
 config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"
