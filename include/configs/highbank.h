@@ -57,4 +57,8 @@
 #define CONFIG_SYS_INIT_SP_ADDR		0x01000000
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
+#define CONFIG_EXTRA_ENV_SETTINGS				\
+	"fdt_high=0x20000000\0"					\
+	"initrd_high=0x20000000\0"
+
 #endif
