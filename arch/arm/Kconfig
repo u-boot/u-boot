@@ -711,7 +711,14 @@ config ARCH_S5PC1XX
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
 	select CPU_V7A
-	select PL011_SERIAL
+	select PL01X_SERIAL
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+	select OF_BOARD
+	select CLK
+	select CLK_CCF
+	select AHCI
 
 config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"

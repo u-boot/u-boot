@@ -18,7 +18,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024)
 
 #define CONFIG_PL011_CLOCK		150000000
-#define CONFIG_PL01x_PORTS		{ (void *)(0xFFF36000) }
 
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
 
