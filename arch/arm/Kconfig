@@ -719,6 +719,7 @@ config ARCH_HIGHBANK
 	select CLK
 	select CLK_CCF
 	select AHCI
+	select DM_ETH
 
 config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"

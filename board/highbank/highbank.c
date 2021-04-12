@@ -10,7 +10,6 @@
 #include <fdt_support.h>
 #include <init.h>
 #include <net.h>
-#include <netdev.h>
 #include <scsi.h>
 #include <asm/global_data.h>
 
@@ -50,18 +49,6 @@ int board_init(void)
 	icache_enable();
 
 	return 0;
-}
-
-/* We know all the init functions have been run now */
-int board_eth_init(struct bd_info *bis)
-{
-	int rc = 0;
-
-#ifdef CONFIG_CALXEDA_XGMAC
-	rc += calxedaxgmac_initialize(0, 0xfff50000);
-	rc += calxedaxgmac_initialize(1, 0xfff51000);
-#endif
-	return rc;
 }
 
 #ifdef CONFIG_SCSI_AHCI_PLAT
