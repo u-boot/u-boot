@@ -725,7 +725,7 @@ static int part_get_info_by_dev_and_name(const char *dev_iface,
 	}
 
 	ret = blk_get_device_by_str(dev_iface, dev_str, dev_desc);
-	if (ret)
+	if (ret < 0)
 		goto cleanup;
 
 	ret = part_get_info_by_name(*dev_desc, part_str, part_info);
