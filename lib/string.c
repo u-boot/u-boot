@@ -114,17 +114,21 @@ char * strncpy(char * dest,const char *src,size_t count)
  * NUL-terminated string that fits in the buffer (unless,
  * of course, the buffer size is zero). It does not pad
  * out the result like strncpy() does.
+ *
+ * Return: the number of bytes copied
  */
 size_t strlcpy(char *dest, const char *src, size_t size)
 {
-	size_t ret = strlen(src);
-
 	if (size) {
-		size_t len = (ret >= size) ? size - 1 : ret;
+		size_t srclen = strlen(src);
+		size_t len = (srclen >= size) ? size - 1 : srclen;
+
 		memcpy(dest, src, len);
 		dest[len] = '\0';
+		return len + 1;
 	}
-	return ret;
+
+	return 0;
 }
 #endif
 
@@ -173,6 +177,25 @@ char * strncat(char *dest, const char *src, size_t count)
 	}
 
 	return tmp;
+}
+#endif
+
+#ifndef __HAVE_ARCH_STRLCAT
+/**
+ * strlcat - Append a length-limited, %NUL-terminated string to another
+ * @dest: The string to be appended to
+ * @src: The string to append to it
+ * @size: The size of @dest
+ *
+ * Compatible with *BSD: the result is always a valid NUL-terminated string that
+ * fits in the buffer (unless, of course, the buffer size is zero). It does not
+ * write past @size like strncat() does.
+ */
+size_t strlcat(char *dest, const char *src, size_t size)
+{
+	size_t len = strnlen(dest, size);
+
+	return len + strlcpy(dest + len, src, size - len);
 }
 #endif
 

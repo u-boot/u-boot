@@ -22,7 +22,14 @@ int cpu_qemu_get_desc(const struct udevice *dev, char *buf, int size)
 
 static int cpu_qemu_get_count(const struct udevice *dev)
 {
-	return qemu_fwcfg_online_cpus();
+	int ret;
+	struct udevice *qfw_dev;
+
+	ret = qfw_get_dev(&qfw_dev);
+	if (ret)
+		return ret;
+
+	return qfw_online_cpus(qfw_dev);
 }
 
 static const struct cpu_ops cpu_qemu_ops = {

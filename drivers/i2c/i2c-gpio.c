@@ -48,12 +48,13 @@ static int i2c_gpio_sda_get(struct i2c_gpio_bus *bus)
 static void i2c_gpio_sda_set(struct i2c_gpio_bus *bus, int bit)
 {
 	struct gpio_desc *sda = &bus->gpios[PIN_SDA];
+	ulong flags;
 
 	if (bit)
-		sda->flags = (sda->flags & ~GPIOD_IS_OUT) | GPIOD_IS_IN;
+		flags = GPIOD_IS_IN;
 	else
-		sda->flags = (sda->flags & (~GPIOD_IS_IN & ~GPIOD_IS_OUT_ACTIVE)) | GPIOD_IS_OUT;
-	dm_gpio_set_dir(sda);
+		flags = GPIOD_IS_OUT;
+	dm_gpio_clrset_flags(sda, GPIOD_MASK_DIR, flags);
 }
 
 static void i2c_gpio_scl_set(struct i2c_gpio_bus *bus, int bit)
@@ -62,16 +63,14 @@ static void i2c_gpio_scl_set(struct i2c_gpio_bus *bus, int bit)
 	int count = 0;
 
 	if (bit) {
-		scl->flags = (scl->flags & ~GPIOD_IS_OUT) | GPIOD_IS_IN;
-		dm_gpio_set_dir(scl);
+		dm_gpio_clrset_flags(scl, GPIOD_MASK_DIR, GPIOD_IS_IN);
 		while (!dm_gpio_get_value(scl) && count++ < 100000)
 			udelay(1);
 
 		if (!dm_gpio_get_value(scl))
 			pr_err("timeout waiting on slave to release scl\n");
 	} else {
-		scl->flags = (scl->flags & (~GPIOD_IS_IN & ~GPIOD_IS_OUT_ACTIVE)) | GPIOD_IS_OUT;
-		dm_gpio_set_dir(scl);
+		dm_gpio_clrset_flags(scl, GPIOD_MASK_DIR, GPIOD_IS_OUT);
 	}
 }
 
@@ -79,11 +78,11 @@ static void i2c_gpio_scl_set(struct i2c_gpio_bus *bus, int bit)
 static void i2c_gpio_scl_set_output_only(struct i2c_gpio_bus *bus, int bit)
 {
 	struct gpio_desc *scl = &bus->gpios[PIN_SCL];
-	scl->flags = (scl->flags & (~GPIOD_IS_IN & ~GPIOD_IS_OUT_ACTIVE)) | GPIOD_IS_OUT;
+	ulong flags = GPIOD_IS_OUT;
 
 	if (bit)
-		scl->flags |= GPIOD_IS_OUT_ACTIVE;
-	dm_gpio_set_dir(scl);
+		flags |= GPIOD_IS_OUT_ACTIVE;
+	dm_gpio_clrset_flags(scl, GPIOD_MASK_DIR, flags);
 }
 
 static void i2c_gpio_write_bit(struct i2c_gpio_bus *bus, int delay, uchar bit)

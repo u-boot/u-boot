@@ -3559,6 +3559,8 @@ int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 			pr_warn("%s: attempt to erase a bad block at page 0x%08x\n",
 				    __func__, page);
 			instr->state = MTD_ERASE_FAILED;
+			instr->fail_addr =
+				((loff_t)page << chip->page_shift);
 			goto erase_exit;
 		}
 

@@ -63,7 +63,6 @@
 /* PMIC */
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
-#define CONFIG_POWER_MAX77696
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \

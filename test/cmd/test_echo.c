@@ -34,6 +34,8 @@ static struct test_data echo_data[] = {
 	 */
 	{"setenv jQx X; echo \"a)\" ${jQx} 'b)' '${jQx}' c) ${jQx}; setenv jQx",
 	 "a) X b) ${jQx} c) X"},
+	/* Test shell variable assignments without substitutions */
+	{"foo=bar echo baz", "baz"},
 	/* Test handling of shell variables. */
 	{"setenv jQx; for jQx in 1 2 3; do echo -n \"${jQx}, \"; done; echo;",
 	 "1, 2, 3, "},

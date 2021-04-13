@@ -20,6 +20,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select X86_RESET_VECTOR
 	select QEMU
+	select QFW_PIO
 	select BOARD_ROMSIZE_KB_1024
 	imply VIRTIO_PCI
 	imply VIRTIO_NET

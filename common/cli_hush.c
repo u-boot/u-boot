@@ -1673,7 +1673,7 @@ static int run_pipe_real(struct pipe *pi)
 			return -1;
 		}
 		/* Process the command */
-		return cmd_process(flag, child->argc, child->argv,
+		return cmd_process(flag, child->argc - i, child->argv + i,
 				   &flag_repeat, NULL);
 #endif
 	}

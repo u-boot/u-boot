@@ -353,3 +353,11 @@ config DM_REGULATOR_TPS65941
 	TPS65941 series of PMICs have 5 single phase BUCKs that can also
 	be configured in multi phase modes & 4 LDOs. The driver implements
 	get/set api for value and enable.
+
+config DM_REGULATOR_SCMI
+	bool "Enable driver for SCMI voltage domain regulators"
+	depends on DM_REGULATOR
+	select SCMI_AGENT
+        help
+          Enable this option if you want to support regulators exposed through
+	  the SCMI voltage domain protocol by a SCMI server.

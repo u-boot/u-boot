@@ -2365,6 +2365,12 @@ sub u_boot_line {
 		     "Use 'if (IS_ENABLED(CONFIG...))' instead of '#if or #ifdef' where possible\n" . $herecurr);
 	}
 
+	# prefer strl(cpy|cat) over strn(cpy|cat)
+	if ($line =~ /\bstrn(cpy|cat)\s*\(/) {
+		WARN("STRL",
+		     "strl$1 is preferred over strn$1 because it always produces a nul-terminated string\n" . $herecurr);
+	}
+
 	# use defconfig to manage CONFIG_CMD options
 	if ($line =~ /\+\s*#\s*(define|undef)\s+(CONFIG_CMD\w*)\b/) {
 		ERROR("DEFINE_CONFIG_CMD",

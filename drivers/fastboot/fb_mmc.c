@@ -40,7 +40,7 @@ static int raw_part_get_info_by_name(struct blk_desc *dev_desc,
 
 	/* check for raw partition descriptor */
 	strcpy(env_desc_name, "fastboot_raw_partition_");
-	strncat(env_desc_name, name, PART_NAME_LEN);
+	strlcat(env_desc_name, name, PART_NAME_LEN);
 	raw_part_desc = strdup(env_get(env_desc_name));
 	if (raw_part_desc == NULL)
 		return -ENODEV;
@@ -61,7 +61,7 @@ static int raw_part_get_info_by_name(struct blk_desc *dev_desc,
 	info->start = simple_strtoul(argv[0], NULL, 0);
 	info->size = simple_strtoul(argv[1], NULL, 0);
 	info->blksz = dev_desc->blksz;
-	strncpy((char *)info->name, name, PART_NAME_LEN);
+	strlcpy((char *)info->name, name, PART_NAME_LEN);
 
 	if (raw_part_desc) {
 		if (strcmp(strsep(&raw_part_desc, " "), "mmcpart") == 0) {
@@ -114,7 +114,7 @@ static int part_get_info_by_name_or_alias(struct blk_desc **dev_desc,
 
 		/* check for alias */
 		strcpy(env_alias_name, "fastboot_partition_alias_");
-		strncat(env_alias_name, name, PART_NAME_LEN);
+		strlcat(env_alias_name, name, PART_NAME_LEN);
 		aliased_part_name = env_get(env_alias_name);
 		if (aliased_part_name != NULL)
 			ret = do_get_part_info(dev_desc, aliased_part_name,

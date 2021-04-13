@@ -41,8 +41,13 @@ int scmi_dt_get_smt_buffer(struct udevice *dev, struct scmi_smt *smt)
 	if (ret)
 		return ret;
 
-	faddr = cpu_to_fdt32(resource.start);
-	paddr = ofnode_translate_address(args.node, &faddr);
+	/* TEMP workaround for ofnode_read_resource translation issue */
+	if (of_live_active()) {
+		paddr = resource.start;
+	} else {
+		faddr = cpu_to_fdt32(resource.start);
+		paddr = ofnode_translate_address(args.node, &faddr);
+	}
 
 	smt->size = resource_size(&resource);
 	if (smt->size < sizeof(struct scmi_smt_header)) {
@@ -56,8 +61,10 @@ int scmi_dt_get_smt_buffer(struct udevice *dev, struct scmi_smt *smt)
 
 #ifdef CONFIG_ARM
 	if (dcache_status())
-		mmu_set_region_dcache_behaviour((uintptr_t)smt->buf,
-						smt->size, DCACHE_OFF);
+		mmu_set_region_dcache_behaviour(ALIGN_DOWN((uintptr_t)smt->buf, MMU_SECTION_SIZE),
+						ALIGN(smt->size, MMU_SECTION_SIZE),
+						DCACHE_OFF);
+
 #endif
 
 	return 0;

@@ -8,7 +8,12 @@
 
 #include <linux/list.h>
 
-enum qemu_fwcfg_items {
+/*
+ * List of firmware configuration item selectors. The official source of truth
+ * for these is the QEMU source itself; see
+ * https://github.com/qemu/qemu/blob/master/hw/nvram/fw_cfg.c
+ */
+enum {
 	FW_CFG_SIGNATURE	= 0x00,
 	FW_CFG_ID		= 0x01,
 	FW_CFG_UUID		= 0x02,
@@ -66,8 +71,10 @@ enum {
 #define FW_CFG_DMA_SKIP	(1 << 2)
 #define FW_CFG_DMA_SELECT	(1 << 3)
 
+/* Bit set in FW_CFG_ID response to indicate DMA interface availability. */
 #define FW_CFG_DMA_ENABLED	(1 << 1)
 
+/* Structs read from FW_CFG_FILE_DIR. */
 struct fw_cfg_file {
 	__be32 size;
 	__be16 select;
@@ -82,19 +89,7 @@ struct fw_file {
 };
 
 struct fw_cfg_file_iter {
-	struct list_head *entry; /* structure to iterate file list */
-};
-
-struct fw_cfg_dma_access {
-	__be32 control;
-	__be32 length;
-	__be64 address;
-};
-
-struct fw_cfg_arch_ops {
-	void (*arch_read_pio)(uint16_t selector, uint32_t size,
-			void *address);
-	void (*arch_read_dma)(struct fw_cfg_dma_access *dma);
+	struct list_head *entry, *end; /* structures to iterate file list */
 };
 
 struct bios_linker_entry {
@@ -146,37 +141,178 @@ struct bios_linker_entry {
 	};
 } __packed;
 
+/* DMA transfer control data between UCLASS_QFW and QEMU. */
+struct qfw_dma {
+	__be32 control;
+	__be32 length;
+	__be64 address;
+};
+
+/* uclass per-device configuration information */
+struct qfw_dev {
+	struct udevice *dev;		/* Transport device */
+	bool dma_present;		/* DMA interface usable? */
+	struct list_head fw_list;	/* Cached firmware file list */
+};
+
+/* Ops used internally between UCLASS_QFW and its driver implementations. */
+struct dm_qfw_ops {
+	/**
+	 * read_entry_io() - Read a firmware config entry using the regular
+	 * IO interface for the platform (either PIO or MMIO)
+	 *
+	 * Supply %FW_CFG_INVALID as the entry to continue a previous read.  In
+	 * this case, no selector will be issued before reading.
+	 *
+	 * @dev: Device to use
+	 * @entry: Firmware config entry number (e.g. %FW_CFG_SIGNATURE)
+	 * @size: Number of bytes to read
+	 * @address: Target location for read
+	 */
+	void (*read_entry_io)(struct udevice *dev, u16 entry, u32 size,
+			      void *address);
+
+	/**
+	 * read_entry_dma() - Read a firmware config entry using the DMA
+	 * interface
+	 *
+	 * Supply FW_CFG_INVALID as the entry to continue a previous read.  In
+	 * this case, no selector will be issued before reading.
+	 *
+	 * This method assumes DMA availability has already been confirmed.
+	 *
+	 * @dev: Device to use
+	 * @dma: DMA transfer control struct
+	 */
+	void (*read_entry_dma)(struct udevice *dev, struct qfw_dma *dma);
+};
+
+#define dm_qfw_get_ops(dev) \
+		((struct dm_qfw_ops *)(dev)->driver->ops)
+
 /**
- * Initialize QEMU fw_cfg interface
+ * qfw_register() - Called by a qfw driver after successful probe.
+ * @dev: Device registering itself with the uclass.
  *
- * @ops: arch specific read operations
+ * Used internally by driver implementations on successful probe.
+ *
+ * Return: 0 on success, negative otherwise.
  */
-void qemu_fwcfg_init(struct fw_cfg_arch_ops *ops);
+int qfw_register(struct udevice *dev);
 
-void qemu_fwcfg_read_entry(uint16_t entry, uint32_t length, void *address);
-int qemu_fwcfg_read_firmware_list(void);
-struct fw_file *qemu_fwcfg_find_file(const char *name);
+struct udevice;
 
 /**
- * Get system cpu number
+ * qfw_get_dev() - Get QEMU firmware config device.
+ * @devp: Pointer to be filled with address of the qfw device.
  *
- * @return:   cpu number in system
+ * Gets the active QEMU firmware config device, for use with qfw_read_entry()
+ * and others.
+ *
+ * Return: 0 on success, -ENODEV if the device is not available.
  */
-int qemu_fwcfg_online_cpus(void);
-
-/* helper functions to iterate firmware file list */
-struct fw_file *qemu_fwcfg_file_iter_init(struct fw_cfg_file_iter *iter);
-struct fw_file *qemu_fwcfg_file_iter_next(struct fw_cfg_file_iter *iter);
-bool qemu_fwcfg_file_iter_end(struct fw_cfg_file_iter *iter);
-
-bool qemu_fwcfg_present(void);
-bool qemu_fwcfg_dma_present(void);
+int qfw_get_dev(struct udevice **devp);
 
 /**
- * qemu_cpu_fixup() - Fix up the CPUs for QEMU
+ * qfw_read_entry() - Read a QEMU firmware config entry
+ * @dev: QFW device to use.
+ * @entry: Firmware config entry number (e.g. %FW_CFG_SIGNATURE).
+ * @size: Number of bytes to read.
+ * @address: Target location for read.
  *
- * @return 0 if OK, -ENODEV if no CPUs, -ENOMEM if out of memory, other -ve on
- *	on other error
+ * Reads a QEMU firmware config entry using @dev.  DMA will be used if the QEMU
+ * machine supports it, otherwise PIO/MMIO.
+ */
+void qfw_read_entry(struct udevice *dev, u16 entry, u32 size, void *address);
+
+/**
+ * qfw_read_firmware_list() - Read and cache the QEMU firmware config file
+ * list.
+ * @dev: QFW device to use.
+ *
+ * Reads the QEMU firmware config file list, caching it against @dev for later
+ * use with qfw_find_file().
+ *
+ * If the list has already been read, does nothing and returns 0 (success).
+ *
+ * Return: 0 on success, -ENOMEM if unable to allocate.
+ */
+int qfw_read_firmware_list(struct udevice *dev);
+
+/**
+ * qfw_find_file() - Find a file by name in the QEMU firmware config file
+ * list.
+ * @dev: QFW device to use.
+ * @name: Name of file to locate (e.g. "etc/table-loader").
+ *
+ * Finds a file by name in the QEMU firmware config file list cached against
+ * @dev.  You must call qfw_read_firmware_list() successfully first for this to
+ * succeed.
+ *
+ * Return: Pointer to &struct fw_file if found, %NULL if not present.
+ */
+struct fw_file *qfw_find_file(struct udevice *dev, const char *name);
+
+/**
+ * qfw_online_cpus() - Get number of CPUs in system from QEMU firmware config.
+ * @dev: QFW device to use.
+ *
+ * Asks QEMU to report how many CPUs it is emulating for the machine.
+ *
+ * Return: Number of CPUs in the system.
+ */
+int qfw_online_cpus(struct udevice *dev);
+
+/**
+ * qfw_file_iter_init() - Start iterating cached firmware file list.
+ * @dev: QFW device to use.
+ * @iter: Iterator to be initialised.
+ *
+ * Starts iterating the cached firmware file list in @dev.  You must call
+ * qfw_read_firmware_list() successfully first, otherwise you will always get
+ * an empty list.
+ *
+ * qfw_file_iter_init() returns the first &struct fw_file, but it may be
+ * invalid if the list is empty.  Check that ``!qfw_file_iter_end(&iter)``
+ * first.
+ *
+ * Return: The first &struct fw_file item in the firmware file list, if any.
+ * Only valid when qfw_file_iter_end() is not true after the call.
+ */
+struct fw_file *qfw_file_iter_init(struct udevice *dev,
+				   struct fw_cfg_file_iter *iter);
+
+/**
+ * qfw_file_iter_next() - Iterate cached firmware file list.
+ * @iter: Iterator to use.
+ *
+ * Continues iterating the cached firmware file list in @dev.  You must call
+ * qfw_file_iter_init() first to initialise it.  Check that
+ * ``!qfw_file_iter_end(&iter)`` before using the return value of this
+ * function.
+ *
+ * Return: The next &struct fw_file item in the firmware file list.  Only valid
+ * when qfw_file_iter_end() is not true after the call.
+ */
+struct fw_file *qfw_file_iter_next(struct fw_cfg_file_iter *iter);
+
+/**
+ * qfw_file_iter_end() - Check if iter is at end of list.
+ * @iter: Iterator to use.
+ *
+ * Checks whether or not the iterator is at its end position.  If so, the
+ * qfw_file_iter_init() or qfw_file_iter_next() call that immediately preceded
+ * returned invalid data.
+ *
+ * Return: True if the iterator is at its end; false otherwise.
+ */
+bool qfw_file_iter_end(struct fw_cfg_file_iter *iter);
+
+/**
+ * qemu_cpu_fixup() - Fix up the CPUs for QEMU.
+ *
+ * Return: 0 on success, -ENODEV if no CPUs, -ENOMEM if out of memory, other <
+ * 0 on on other error.
  */
 int qemu_cpu_fixup(void);
 

@@ -65,7 +65,7 @@ config SYS_PROMPT_HUSH_PS2
 	  to complete a command. Usually "> ".
 
 config SYS_XTRACE
-	string "Command execution tracer"
+	bool "Command execution tracer"
 	depends on CMDLINE
 	default y if CMDLINE
 	help

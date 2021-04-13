@@ -9,6 +9,8 @@
 #include <image.h>
 #include <log.h>
 #include <malloc.h>
+#include <dm/ofnode.h>
+#include <linux/ioport.h>
 #include <linux/libfdt.h>
 #include <tee/optee.h>
 
@@ -70,16 +72,10 @@ error:
 }
 
 #if defined(CONFIG_OF_LIBFDT)
-static int optee_copy_firmware_node(const void *old_blob, void *fdt_blob)
+static int optee_copy_firmware_node(ofnode node, void *fdt_blob)
 {
-	int old_offs, offs, ret, len;
+	int offs, ret, len;
 	const void *prop;
-
-	old_offs = fdt_path_offset(old_blob, "/firmware/optee");
-	if (old_offs < 0) {
-		debug("Original OP-TEE Device Tree node not found");
-		return old_offs;
-	}
 
 	offs = fdt_path_offset(fdt_blob, "/firmware");
 	if (offs < 0) {
@@ -97,7 +93,7 @@ static int optee_copy_firmware_node(const void *old_blob, void *fdt_blob)
 		return offs;
 
 	/* copy the compatible property */
-	prop = fdt_getprop(old_blob, old_offs, "compatible", &len);
+	prop = ofnode_get_property(node, "compatible", &len);
 	if (!prop) {
 		debug("missing OP-TEE compatible property");
 		return -EINVAL;
@@ -108,7 +104,7 @@ static int optee_copy_firmware_node(const void *old_blob, void *fdt_blob)
 		return ret;
 
 	/* copy the method property */
-	prop = fdt_getprop(old_blob, old_offs, "method", &len);
+	prop = ofnode_get_property(node, "method", &len);
 	if (!prop) {
 		debug("missing OP-TEE method property");
 		return -EINVAL;
@@ -121,19 +117,18 @@ static int optee_copy_firmware_node(const void *old_blob, void *fdt_blob)
 	return 0;
 }
 
-int optee_copy_fdt_nodes(const void *old_blob, void *new_blob)
+int optee_copy_fdt_nodes(void *new_blob)
 {
-	int nodeoffset, subnode, ret;
-	struct fdt_resource res;
-
-	if (fdt_check_header(old_blob))
-		return -EINVAL;
+	ofnode node, subnode;
+	int ret;
+	struct resource res;
 
 	if (fdt_check_header(new_blob))
 		return -EINVAL;
 
 	/* only proceed if there is an /firmware/optee node */
-	if (fdt_path_offset(old_blob, "/firmware/optee") < 0) {
+	node = ofnode_path("/firmware/optee");
+	if (!ofnode_valid(node)) {
 		debug("No OP-TEE firmware node in old fdt, nothing to do");
 		return 0;
 	}
@@ -148,20 +143,17 @@ int optee_copy_fdt_nodes(const void *old_blob, void *new_blob)
 		return 0;
 	}
 
-	ret = optee_copy_firmware_node(old_blob, new_blob);
+	ret = optee_copy_firmware_node(node, new_blob);
 	if (ret < 0) {
 		printf("Failed to add OP-TEE firmware node\n");
 		return ret;
 	}
 
 	/* optee inserts its memory regions as reserved-memory nodes */
-	nodeoffset = fdt_subnode_offset(old_blob, 0, "reserved-memory");
-	if (nodeoffset >= 0) {
-		for (subnode = fdt_first_subnode(old_blob, nodeoffset);
-		     subnode >= 0;
-		     subnode = fdt_next_subnode(old_blob, subnode)) {
-			const char *name = fdt_get_name(old_blob,
-							subnode, NULL);
+	node = ofnode_path("/reserved-memory");
+	if (ofnode_valid(node)) {
+		ofnode_for_each_subnode(subnode, node) {
+			const char *name = ofnode_get_name(subnode);
 			if (!name)
 				return -EINVAL;
 
@@ -170,8 +162,7 @@ int optee_copy_fdt_nodes(const void *old_blob, void *new_blob)
 				continue;
 
 			/* check if this subnode has a reg property */
-			ret = fdt_get_resource(old_blob, subnode, "reg", 0,
-					       &res);
+			ret = ofnode_read_resource(subnode, 0, &res);
 			if (!ret) {
 				struct fdt_memory carveout = {
 					.start = res.start,
