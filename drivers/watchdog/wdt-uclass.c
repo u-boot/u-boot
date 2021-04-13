@@ -148,7 +148,7 @@ void watchdog_reset(void)
 
 	/* Do not reset the watchdog too often */
 	now = get_timer(0);
-	if (time_after(now, next_reset)) {
+	if (time_after_eq(now, next_reset)) {
 		next_reset = now + reset_period;
 		wdt_reset(gd->watchdog_dev);
 	}
