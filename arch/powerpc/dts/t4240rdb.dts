@@ -100,7 +100,7 @@
 			phy-connection-type = "xgmii";
 		};
 
-		mdio@fc000 {
+		mdio@5fc000 {
 			sgmiiphy21: ethernet-phy@0 {
 				reg = <0x0>;
 			};
@@ -134,7 +134,7 @@
 			};
 		};
 
-		mdio@fd000 {
+		mdio@5fd000 {
 			xfiphy1: ethernet-phy@10 {
 				compatible = "ethernet-phy-id13e5.1002";
 				reg = <0x10>;

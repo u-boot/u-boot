@@ -90,11 +90,11 @@
 		enet15: ethernet@f2000 {
 		};
 
-		mdio@fc000 {
+		mdio@5fc000 {
 			interrupts = <100 1 0 0>;
 		};
 
-		mdio@fd000 {
+		mdio@5fd000 {
 			interrupts = <101 1 0 0>;
 		};
 	};

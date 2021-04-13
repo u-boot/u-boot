@@ -29,7 +29,7 @@ fman@500000 {
 		pcsphy-handle = <&pcsphy11>;
 	};
 
-	mdio@e7000 {
+	mdio@5e7000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
