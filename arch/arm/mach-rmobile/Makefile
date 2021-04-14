@@ -13,6 +13,7 @@ obj-$(CONFIG_SH73A0) += lowlevel_init.o cpu_info-sh73a0.o pfc-sh73a0.o
 obj-$(CONFIG_R8A7740) += lowlevel_init.o cpu_info-r8a7740.o pfc-r8a7740.o
 obj-$(CONFIG_RCAR_GEN2) += lowlevel_init_ca15.o cpu_info-rcar.o
 obj-$(CONFIG_RCAR_GEN3) += lowlevel_init_gen3.o cpu_info-rcar.o memmap-gen3.o
+obj-$(CONFIG_RZ_G2) += cpu_info-rzg.o
 
 OBJCOPYFLAGS_u-boot-spl.srec := -O srec
 quiet_cmd_objcopy = OBJCOPY $@

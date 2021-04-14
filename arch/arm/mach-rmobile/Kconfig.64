@@ -57,6 +57,9 @@ config R8A77995
 	imply CLK_R8A77995
 	imply PINCTRL_PFC_R8A77995
 
+config RZ_G2
+	bool "Renesas ARM SoCs RZ/G2 (64bit)"
+
 endmenu
 
 choice
@@ -107,6 +110,7 @@ config TARGET_HIHOPE_RZG2
 	imply R8A774A1
 	imply R8A774B1
 	imply R8A774E1
+	imply RZ_G2
 	imply SYS_MALLOC_F
 	imply MULTI_DTB_FIT
 	imply MULTI_DTB_FIT_USER_DEFINED_AREA
@@ -116,6 +120,7 @@ config TARGET_HIHOPE_RZG2
 config TARGET_SILINUX_EK874
 	bool "Silicon Linux EK874 board"
 	imply R8A774C0
+	imply RZ_G2
 	help
           Support for Silicon Linux EK874 platform
 
