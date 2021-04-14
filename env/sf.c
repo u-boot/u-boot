@@ -73,6 +73,7 @@ static int env_sf_save(void)
 	env_t	env_new;
 	char	*saved_buffer = NULL, flag = ENV_REDUND_OBSOLETE;
 	u32	saved_size, saved_offset, sector;
+	u32	sect_size = CONFIG_ENV_SECT_SIZE;
 	int	ret;
 
 	ret = setup_flash_device();
@@ -93,8 +94,8 @@ static int env_sf_save(void)
 	}
 
 	/* Is the sector larger than the env (i.e. embedded) */
-	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
-		saved_size = CONFIG_ENV_SECT_SIZE - CONFIG_ENV_SIZE;
+	if (sect_size > CONFIG_ENV_SIZE) {
+		saved_size = sect_size - CONFIG_ENV_SIZE;
 		saved_offset = env_new_offset + CONFIG_ENV_SIZE;
 		saved_buffer = memalign(ARCH_DMA_MINALIGN, saved_size);
 		if (!saved_buffer) {
@@ -107,11 +108,11 @@ static int env_sf_save(void)
 			goto done;
 	}
 
-	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, CONFIG_ENV_SECT_SIZE);
+	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, sect_size);
 
 	puts("Erasing SPI flash...");
 	ret = spi_flash_erase(env_flash, env_new_offset,
-				sector * CONFIG_ENV_SECT_SIZE);
+				sector * sect_size);
 	if (ret)
 		goto done;
 
@@ -122,7 +123,7 @@ static int env_sf_save(void)
 	if (ret)
 		goto done;
 
-	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
+	if (sect_size > CONFIG_ENV_SIZE) {
 		ret = spi_flash_write(env_flash, saved_offset,
 					saved_size, saved_buffer);
 		if (ret)
@@ -187,6 +188,7 @@ out:
 static int env_sf_save(void)
 {
 	u32	saved_size, saved_offset, sector;
+	u32	sect_size = CONFIG_ENV_SECT_SIZE;
 	char	*saved_buffer = NULL;
 	int	ret = 1;
 	env_t	env_new;
@@ -196,8 +198,8 @@ static int env_sf_save(void)
 		return ret;
 
 	/* Is the sector larger than the env (i.e. embedded) */
-	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
-		saved_size = CONFIG_ENV_SECT_SIZE - CONFIG_ENV_SIZE;
+	if (sect_size > CONFIG_ENV_SIZE) {
+		saved_size = sect_size - CONFIG_ENV_SIZE;
 		saved_offset = CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE;
 		saved_buffer = malloc(saved_size);
 		if (!saved_buffer)
@@ -213,11 +215,11 @@ static int env_sf_save(void)
 	if (ret)
 		goto done;
 
-	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, CONFIG_ENV_SECT_SIZE);
+	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, sect_size);
 
 	puts("Erasing SPI flash...");
 	ret = spi_flash_erase(env_flash, CONFIG_ENV_OFFSET,
-		sector * CONFIG_ENV_SECT_SIZE);
+		sector * sect_size);
 	if (ret)
 		goto done;
 
@@ -227,7 +229,7 @@ static int env_sf_save(void)
 	if (ret)
 		goto done;
 
-	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
+	if (sect_size > CONFIG_ENV_SIZE) {
 		ret = spi_flash_write(env_flash, saved_offset,
 			saved_size, saved_buffer);
 		if (ret)
