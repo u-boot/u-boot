@@ -71,7 +71,7 @@ void dtimer_interrupt(void *not_used)
 		timestamp++;
 
 		#if defined(CONFIG_WATCHDOG) || defined (CONFIG_HW_WATCHDOG)
-		if ((timestamp % (CONFIG_SYS_WATCHDOG_FREQ)) == 0) {
+		if (CONFIG_SYS_WATCHDOG_FREQ && (timestamp % (CONFIG_SYS_WATCHDOG_FREQ)) == 0) {
 			WATCHDOG_RESET ();
 		}
 		#endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
