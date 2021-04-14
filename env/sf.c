@@ -72,13 +72,16 @@ static int env_sf_save(void)
 {
 	env_t	env_new;
 	char	*saved_buffer = NULL, flag = ENV_REDUND_OBSOLETE;
-	u32	saved_size, saved_offset, sector;
+	u32	saved_size = 0, saved_offset = 0, sector;
 	u32	sect_size = CONFIG_ENV_SECT_SIZE;
 	int	ret;
 
 	ret = setup_flash_device();
 	if (ret)
 		return ret;
+
+	if (IS_ENABLED(CONFIG_ENV_SECT_SIZE_AUTO))
+		sect_size = env_flash->mtd.erasesize;
 
 	ret = env_export(&env_new);
 	if (ret)
@@ -187,7 +190,7 @@ out:
 #else
 static int env_sf_save(void)
 {
-	u32	saved_size, saved_offset, sector;
+	u32	saved_size = 0, saved_offset = 0, sector;
 	u32	sect_size = CONFIG_ENV_SECT_SIZE;
 	char	*saved_buffer = NULL;
 	int	ret = 1;
@@ -196,6 +199,9 @@ static int env_sf_save(void)
 	ret = setup_flash_device();
 	if (ret)
 		return ret;
+
+	if (IS_ENABLED(CONFIG_ENV_SECT_SIZE_AUTO))
+		sect_size = env_flash->mtd.erasesize;
 
 	/* Is the sector larger than the env (i.e. embedded) */
 	if (sect_size > CONFIG_ENV_SIZE) {

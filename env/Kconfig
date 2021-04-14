@@ -324,6 +324,20 @@ config ENV_IS_IN_SPI_FLASH
 	  during a "saveenv" operation. CONFIG_ENV_OFFSET_REDUND must be
 	  aligned to an erase sector boundary.
 
+config ENV_SECT_SIZE_AUTO
+	bool "Use automatically detected sector size"
+	depends on ENV_IS_IN_SPI_FLASH
+	help
+	  Some boards exist in multiple variants, with different
+	  flashes having different sector sizes. In such cases, you
+	  can select this option to make U-Boot use the actual sector
+	  size when figuring out how much to erase, which can thus be
+	  more efficient on the flashes with smaller erase size. Since
+	  the environment must always be aligned on a sector boundary,
+	  CONFIG_ENV_OFFSET must be aligned to the largest of the
+	  different sector sizes, and CONFIG_ENV_SECT_SIZE should be
+	  set to that value.
+
 config USE_ENV_SPI_BUS
 	bool "SPI flash bus for environment"
 	depends on ENV_IS_IN_SPI_FLASH
