@@ -89,7 +89,7 @@
 			"env exists secureboot "	\
 			"&& esbc_validate ${scripthdraddr};"    \
 		"source ${scriptaddr}\0"	  \
-	"sd_bootcmd=pfe stop; echo Trying load from sd card..;"		\
+	"sd_bootcmd=echo Trying load from sd card..;"		\
 		"mmcinfo; mmc read $load_addr "			\
 		"$kernel_addr_sd $kernel_size_sd ;"		\
 		"env exists secureboot && mmc read $kernelheader_addr_r "\
@@ -100,10 +100,10 @@
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #undef QSPI_NOR_BOOTCOMMAND
-#define QSPI_NOR_BOOTCOMMAND "pfe stop; run distro_bootcmd; run sd_bootcmd; "\
+#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "\
 			     "env exists secureboot && esbc_halt;"
 #else
-#define CONFIG_BOOTCOMMAND "pfe stop; run distro_bootcmd; run sd_bootcmd; "\
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "\
 			   "env exists secureboot && esbc_halt;"
 #endif
 

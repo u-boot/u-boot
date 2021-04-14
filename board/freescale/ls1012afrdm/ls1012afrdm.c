@@ -23,6 +23,7 @@
 #include <fsl_mmdc.h>
 #include <netdev.h>
 #include <fsl_sec.h>
+#include <net/pfe_eth/pfe/pfe_hw.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -184,6 +185,13 @@ int board_init(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_FSL_PFE
+void board_quiesce_devices(void)
+{
+	pfe_command_stop(0, NULL);
+}
+#endif
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {

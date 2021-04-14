@@ -418,7 +418,7 @@ static void send_dummy_pkt_to_hif(void)
 	writel(buf, TMU_PHY_INQ_PKTINFO);
 }
 
-static void pfe_command_stop(int argc, char *const argv[])
+void pfe_command_stop(int argc, char *const argv[])
 {
 	int pfe_pe_id, hif_stop_loop = 10;
 	u32 rx_status;

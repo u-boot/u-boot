@@ -140,7 +140,7 @@
 			"env exists secureboot "	\
 			"&& esbc_validate ${scripthdraddr};"    \
 		"source ${scriptaddr}\0"	  \
-	"qspi_bootcmd=pfe stop; echo Trying load from qspi..;"	\
+	"qspi_bootcmd=echo Trying load from qspi..;"	\
 		"sf probe 0:0 && sf read $load_addr "	\
 		"$kernel_addr $kernel_size; env exists secureboot "	\
 		"&& sf read $kernelheader_addr_r $kernelheader_addr "	\
@@ -150,10 +150,10 @@
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #undef QSPI_NOR_BOOTCOMMAND
-#define QSPI_NOR_BOOTCOMMAND "pfe stop; run distro_bootcmd; run qspi_bootcmd; "\
+#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "\
 			     "env exists secureboot && esbc_halt;"
 #else
-#define CONFIG_BOOTCOMMAND "pfe stop; run distro_bootcmd; run qspi_bootcmd; "\
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "\
 			   "env exists secureboot && esbc_halt;"
 #endif
 

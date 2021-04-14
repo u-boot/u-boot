@@ -91,7 +91,7 @@
 	"installer=load mmc 0:2 $load_addr "	\
 		   "/flex_installer_arm64.itb; "	\
 		   "bootm $load_addr#$board\0"	\
-	"qspi_bootcmd=pfe stop; echo Trying load from qspi..;"	\
+	"qspi_bootcmd=echo Trying load from qspi..;"	\
 		"sf probe && sf read $load_addr "	\
 		"$kernel_addr $kernel_size; env exists secureboot "	\
 		"&& sf read $kernelheader_addr_r $kernelheader_addr "	\
@@ -101,10 +101,10 @@
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #undef QSPI_NOR_BOOTCOMMAND
-#define QSPI_NOR_BOOTCOMMAND "pfe stop; run distro_bootcmd; run qspi_bootcmd; "\
+#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "\
 			     "env exists secureboot && esbc_halt;"
 #else
-#define CONFIG_BOOTCOMMAND "pfe stop; run distro_bootcmd; run qspi_bootcmd; "\
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "\
 			   "env exists secureboot && esbc_halt;"
 #endif
 
