@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2009-2013 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -137,6 +138,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #ifdef CONFIG_SYS_DPAA_FMAN
 #ifndef CONFIG_DM_ETH
 	fdt_fixup_fman_ethernet(blob);
+#else
+	fdt_fixup_board_fman_ethernet(blob);
 #endif
 	fdt_fixup_board_enet(blob);
 #endif

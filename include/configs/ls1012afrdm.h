@@ -47,13 +47,6 @@
 		      "run scan_dev_for_boot; "	\
 		  "fi; "			\
 	      "done\0"				\
-	"scan_dev_for_boot="				  \
-		"echo Scanning ${devtype} "		  \
-				"${devnum}:${distro_bootpart}...; "  \
-		"for prefix in ${boot_prefixes}; do "	  \
-			"run scan_dev_for_scripts; "	  \
-		"done;"					  \
-		"\0"					  \
 	"installer=load usb 0:2 $load_addr "	\
 		   "/flex_installer_arm64.itb; "	\
 		   "bootm $load_addr#$board\0"	\

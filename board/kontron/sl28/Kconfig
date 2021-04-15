@@ -48,4 +48,14 @@ config SL28_BL32_ENTRY_ADDR
 
 endif
 
+config SL28_ENABLE_SER0_CONSOLE
+	bool "Enable console output on SER0"
+	select DM_SERIAL
+	select SPL_DM_SERIAL
+	select FSL_LPUART
+	help
+	  By default the console output of this board is on the second serial
+	  line (SER1). Sometimes it is desirable to enable output on the first
+	  serial line (SER0). For example, if you have a carrier which only
+	  supports the first serial port.
 endif

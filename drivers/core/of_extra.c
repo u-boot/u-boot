@@ -130,3 +130,26 @@ int ofnode_decode_memory_region(ofnode config_node, const char *mem_type,
 
 	return 0;
 }
+
+bool ofnode_phy_is_fixed_link(ofnode eth_node, ofnode *phy_node)
+{
+	ofnode node, subnode;
+	int len;
+
+	subnode = ofnode_find_subnode(eth_node, "fixed-link");
+	if (ofnode_valid(subnode)) {
+		/* new binding */
+		node = subnode;
+	} else if (ofnode_get_property(eth_node, "fixed-link", &len) &&
+		   len == (5 * sizeof(__be32))) {
+		/* old binding */
+		node = eth_node;
+	} else {
+		return false;
+	}
+
+	if (phy_node)
+		*phy_node = node;
+
+	return true;
+}

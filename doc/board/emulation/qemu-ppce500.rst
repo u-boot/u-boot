@@ -70,6 +70,11 @@ interface at PCI address 0.1.0, but we can switch that to an e1000 NIC by::
     $ qemu-system-ppc -nographic -machine ppce500 -bios u-boot \
                       -nic tap,ifname=tap0,script=no,downscript=no,model=e1000
 
+The QEMU ppce500 machine can also dynamically instantiate an eTSEC device if
+"-device eTSEC" is given to QEMU::
+
+    -netdev tap,ifname=tap0,script=no,downscript=no,id=net0 -device eTSEC,netdev=net0
+
 VirtIO BLK driver is also enabled to support booting from a disk image where
 a kernel image is stored. Append the following to QEMU::
 

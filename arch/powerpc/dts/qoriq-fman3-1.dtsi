@@ -61,14 +61,14 @@ fman1: fman@500000 {
 		reg = <0x87000 0x1000>;
 	};
 
-	mdio1: mdio@fc000 {
+	mdio1: mdio@5fc000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
 		reg = <0xfc000 0x1000>;
 	};
 
-	mdio@fd000 {
+	mdio@5fd000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";

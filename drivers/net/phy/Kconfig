@@ -292,6 +292,7 @@ config PHY_XILINX
 
 config PHY_XILINX_GMII2RGMII
 	bool "Xilinx GMII to RGMII Ethernet PHYs support"
+	depends on DM_ETH
 	help
 	  This adds support for Xilinx GMII to RGMII IP core. This IP acts
 	  as bridge between MAC connected over GMII and external phy that

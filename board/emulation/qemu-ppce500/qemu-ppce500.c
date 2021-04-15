@@ -14,6 +14,8 @@
 #include <net.h>
 #include <pci.h>
 #include <time.h>
+#include <dm/simple_bus.h>
+#include <dm/uclass-internal.h>
 #include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
@@ -109,6 +111,17 @@ static int pci_map_region(phys_addr_t paddr, phys_size_t size, ulong *pmap_addr)
 	return 0;
 }
 
+static void platform_bus_map_region(ulong map_addr, phys_addr_t paddr,
+				    phys_size_t size)
+{
+	/* Align map_addr */
+	map_addr += size - 1;
+	map_addr &= ~(size - 1);
+
+	/* Map virtual memory for range */
+	assert(!tlb_map_range(map_addr, paddr, size, TLB_MAP_IO));
+}
+
 int misc_init_r(void)
 {
 	struct udevice *dev;
@@ -147,6 +160,22 @@ int misc_init_r(void)
 	 * virtual-physical mapping that was used in the pre-relocation phase.
 	 */
 	disable_tlb(find_tlb_idx((void *)CONFIG_SYS_TMPVIRT, 1));
+
+	/*
+	 * Detect the presence of the platform bus node, and
+	 * create a virtual memory mapping for it.
+	 */
+	for (ret = uclass_find_first_device(UCLASS_SIMPLE_BUS, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		if (device_is_compatible(dev, "qemu,platform")) {
+			struct simple_bus_plat *plat = dev_get_uclass_plat(dev);
+
+			platform_bus_map_region(CONFIG_PLATFORM_BUS_MAP_ADDR,
+						plat->target, plat->size);
+			break;
+		}
+	}
 
 	return 0;
 }

@@ -124,6 +124,13 @@ config WDT_BCM6345
 	  The watchdog timer is stopped when initialized.
 	  It performs full SoC reset.
 
+config WDT_BOOKE
+	bool "PowerPC Book-E watchdog driver"
+	depends on WDT && MPC85xx
+	help
+	  Watchdog driver for PowerPC Book-E chips, such as the Freescale
+	  MPC85xx SOCs and the IBM PowerPC 440.
+
 config WDT_CDNS
 	bool "Cadence watchdog timer support"
 	depends on WDT

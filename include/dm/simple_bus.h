@@ -7,9 +7,9 @@
 #define __DM_SIMPLE_BUS_H
 
 struct simple_bus_plat {
-	u32 base;
-	u32 size;
-	u32 target;
+	fdt_addr_t base;
+	fdt_size_t size;
+	fdt_addr_t target;
 };
 
 #endif

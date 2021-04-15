@@ -258,3 +258,6 @@
 &mdio0 {
 	status = "okay";
 };
+
+#include "fsl-ls1028a-qds-8xxx-sch-24801.dtsi"
+#include "fsl-ls1028a-qds-x5xx-sch-28021-LBRW.dtsi"

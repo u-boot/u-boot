@@ -36,3 +36,21 @@ static int dm_test_ofnode_read_fmap_entry(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_read_fmap_entry, 0);
+
+static int dm_test_ofnode_phy_is_fixed_link(struct unit_test_state *uts)
+{
+	ofnode eth_node, phy_node, node;
+
+	eth_node = ofnode_path("/dsa-test/ports/port@0");
+	ut_assert(ofnode_phy_is_fixed_link(eth_node, &phy_node));
+	node = ofnode_path("/dsa-test/ports/port@0/fixed-link");
+	ut_asserteq_mem(&phy_node, &node, sizeof(ofnode));
+
+	eth_node = ofnode_path("/dsa-test/ports/port@1");
+	ut_assert(ofnode_phy_is_fixed_link(eth_node, &phy_node));
+	node = eth_node;
+	ut_asserteq_mem(&phy_node, &node, sizeof(ofnode));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_phy_is_fixed_link, 0);

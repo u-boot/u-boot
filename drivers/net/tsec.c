@@ -707,11 +707,7 @@ static int init_phy(struct tsec_private *priv)
 		tsec_configure_serdes(priv);
 
 #if defined(CONFIG_DM_ETH) && defined(CONFIG_DM_MDIO)
-	if (ofnode_valid(ofnode_find_subnode(dev_ofnode(priv->dev),
-					     "fixed-link")))
-		phydev = phy_connect(NULL, 0, priv->dev, priv->interface);
-	else
-		phydev = dm_eth_phy_connect(priv->dev);
+	phydev = dm_eth_phy_connect(priv->dev);
 #else
 	phydev = phy_connect(priv->bus, priv->phyaddr, priv->dev,
 			     priv->interface);
@@ -830,14 +826,40 @@ int tsec_probe(struct udevice *dev)
 	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;
 	struct tsec_data *data;
 	const char *phy_mode;
+	ofnode parent, child;
 	fdt_addr_t reg;
-	ofnode parent;
 	int ret;
 
 	data = (struct tsec_data *)dev_get_driver_data(dev);
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
-	priv->regs = dev_remap_addr(dev);
+	if (pdata->iobase == FDT_ADDR_T_NONE) {
+		ofnode_for_each_subnode(child, dev_ofnode(dev)) {
+			if (strncmp(ofnode_get_name(child), "queue-group",
+				    strlen("queue-group")))
+				continue;
+
+			reg = ofnode_get_addr(child);
+			if (reg == FDT_ADDR_T_NONE) {
+				printf("No 'reg' property of <queue-group>\n");
+				return -ENOENT;
+			}
+			pdata->iobase = reg;
+
+			/*
+			 * if there are multiple queue groups,
+			 * only the first one is used.
+			 */
+			break;
+		}
+
+		if (!ofnode_valid(child)) {
+			printf("No child node for <queue-group>?\n");
+			return -ENOENT;
+		}
+	}
+
+	priv->regs = map_physmem(pdata->iobase, 0, MAP_NOCACHE);
 
 	ret = dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
 					 &phandle_args);
