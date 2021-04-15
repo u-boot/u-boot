@@ -1299,16 +1299,19 @@ static const struct eth_ops fecmxc_ops = {
 static int device_get_phy_addr(struct fec_priv *priv, struct udevice *dev)
 {
 	struct ofnode_phandle_args phandle_args;
-	int reg;
+	int reg, ret;
 
-	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
-				       &phandle_args)) {
-		debug("Failed to find phy-handle");
-		return -ENODEV;
+	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+					 &phandle_args);
+	if (ret) {
+		debug("Failed to find phy-handle (err = %d\n)", ret);
+		return ret;
 	}
 
-	priv->phy_of_node = phandle_args.node;
+	if (!ofnode_is_available(phandle_args.node))
+		return -ENOENT;
 
+	priv->phy_of_node = phandle_args.node;
 	reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
 
 	return reg;
