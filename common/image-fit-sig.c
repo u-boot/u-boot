@@ -16,7 +16,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <fdt_region.h>
 #include <image.h>
 #include <u-boot/rsa.h>
-#include <u-boot/rsa-checksum.h>
+#include <u-boot/hash-checksum.h>
 
 #define IMAGE_MAX_HASHED_NODES		100
 

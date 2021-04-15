@@ -29,6 +29,7 @@
 			arch = "arm";
 			compression = "none";
 			load = <0x30000000>;
+			compatible = "u-boot,fpga-legacy"
 			hash-1 {
 				algo = "md5";
 			};
@@ -61,7 +62,7 @@
 			description = "Linux with fpga";
 			kernel = "linux_kernel";
 			fdt = "fdt-1";
-			fpga = "fpga";
+			loadables = "fpga";
 		};
 	};
 };

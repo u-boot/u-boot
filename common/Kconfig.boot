@@ -202,6 +202,16 @@ config SPL_LOAD_FIT
 	  particular it can handle selecting from multiple device tree
 	  and passing the correct one to U-Boot.
 
+	  This path has the following limitations:
+
+	  1. "loadables" images, other than FTDs, which do not have a "load"
+	     property will not be loaded. This limitation also applies to FPGA
+	     images with the correct "compatible" string.
+	  2. For FPGA images, only the "compatible" = "u-boot,fpga-legacy"
+	     loading method is supported.
+	  3. FDTs are only loaded for images with an "os" property of "u-boot".
+	     "linux" images are also supported with Falcon boot mode.
+
 config SPL_LOAD_FIT_ADDRESS
 	hex "load address of fit image"
 	depends on SPL_LOAD_FIT

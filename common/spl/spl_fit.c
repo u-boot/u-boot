@@ -224,7 +224,7 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
  * @image_info:	will be filled with information about the loaded image
  *		If the FIT node does not contain a "load" (address) property,
  *		the image gets loaded to the address pointed to by the
- *		load_addr member in this struct.
+ *		load_addr member in this struct, if load_addr is not 0
  *
  * Return:	0 on success or a negative error number.
  */
@@ -259,8 +259,14 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		debug("%s ", genimg_get_comp_name(image_comp));
 	}
 
-	if (fit_image_get_load(fit, node, &load_addr))
+	if (fit_image_get_load(fit, node, &load_addr)) {
+		if (!image_info->load_addr) {
+			printf("Can't load %s: No load address and no buffer\n",
+			       fit_get_name(fit, node, NULL));
+			return -ENOBUFS;
+		}
 		load_addr = image_info->load_addr;
+	}
 
 	if (!fit_image_get_data_position(fit, node, &offset)) {
 		external_data = true;
@@ -474,6 +480,20 @@ static int spl_fit_record_loadable(const struct spl_fit_info *ctx, int index,
 	return ret;
 }
 
+static int spl_fit_image_is_fpga(const void *fit, int node)
+{
+	const char *type;
+
+	if (!IS_ENABLED(CONFIG_SPL_FPGA))
+		return 0;
+
+	type = fdt_getprop(fit, node, FIT_TYPE_PROP, NULL);
+	if (!type)
+		return 0;
+
+	return !strcmp(type, "fpga");
+}
+
 static int spl_fit_image_get_os(const void *fit, int noffset, uint8_t *os)
 {
 	if (!CONFIG_IS_ENABLED(FIT_IMAGE_TINY) || CONFIG_IS_ENABLED(OS_BOOT))
@@ -521,6 +541,64 @@ static void *spl_get_fit_load_buffer(size_t size)
 __weak bool spl_load_simple_fit_skip_processing(void)
 {
 	return false;
+}
+
+static void warn_deprecated(const char *msg)
+{
+	printf("DEPRECATED: %s\n", msg);
+	printf("\tSee doc/uImage.FIT/source_file_format.txt\n");
+}
+
+static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,
+			       struct spl_image_info *fpga_image)
+{
+	const char *compatible;
+	int ret;
+
+	debug("FPGA bitstream at: %x, size: %x\n",
+	      (u32)fpga_image->load_addr, fpga_image->size);
+
+	compatible = fdt_getprop(ctx->fit, node, "compatible", NULL);
+	if (!compatible)
+		warn_deprecated("'fpga' image without 'compatible' property");
+	else if (strcmp(compatible, "u-boot,fpga-legacy"))
+		printf("Ignoring compatible = %s property\n", compatible);
+
+	ret = fpga_load(0, (void *)fpga_image->load_addr, fpga_image->size,
+			BIT_FULL);
+	if (ret) {
+		printf("%s: Cannot load the image to the FPGA\n", __func__);
+		return ret;
+	}
+
+	puts("FPGA image loaded from FIT\n");
+
+	return 0;
+}
+
+static int spl_fit_load_fpga(struct spl_fit_info *ctx,
+			     struct spl_load_info *info, ulong sector)
+{
+	int node, ret;
+
+	struct spl_image_info fpga_image = {
+		.load_addr = 0,
+	};
+
+	node = spl_fit_get_image_node(ctx, "fpga", 0);
+	if (node < 0)
+		return node;
+
+	warn_deprecated("'fpga' property in config node. Use 'loadables'");
+
+	/* Load the image and set up the fpga_image structure */
+	ret = spl_load_fit_image(info, sector, ctx, node, &fpga_image);
+	if (ret) {
+		printf("%s: Cannot load the FPGA: %i\n", __func__, ret);
+		return ret;
+	}
+
+	return spl_fit_upload_fpga(ctx, node, &fpga_image);
 }
 
 static int spl_simple_fit_read(struct spl_fit_info *ctx,
@@ -606,31 +684,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	if (ret < 0)
 		return ret;
 
-#ifdef CONFIG_SPL_FPGA
-	node = spl_fit_get_image_node(&ctx, "fpga", 0);
-	if (node >= 0) {
-		/* Load the image and set up the spl_image structure */
-		ret = spl_load_fit_image(info, sector, &ctx, node, spl_image);
-		if (ret) {
-			printf("%s: Cannot load the FPGA: %i\n", __func__, ret);
-			return ret;
-		}
-
-		debug("FPGA bitstream at: %x, size: %x\n",
-		      (u32)spl_image->load_addr, spl_image->size);
-
-		ret = fpga_load(0, (const void *)spl_image->load_addr,
-				spl_image->size, BIT_FULL);
-		if (ret) {
-			printf("%s: Cannot load the image to the FPGA\n",
-			       __func__);
-			return ret;
-		}
-
-		puts("FPGA image loaded from FIT\n");
-		node = -1;
-	}
-#endif
+	if (IS_ENABLED(CONFIG_SPL_FPGA))
+		spl_fit_load_fpga(&ctx, info, sector);
 
 	/*
 	 * Find the U-Boot image using the following search order:
@@ -700,12 +755,16 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		if (firmware_node == node)
 			continue;
 
+		image_info.load_addr = 0;
 		ret = spl_load_fit_image(info, sector, &ctx, node, &image_info);
 		if (ret < 0) {
 			printf("%s: can't load image loadables index %d (ret = %d)\n",
 			       __func__, index, ret);
 			return ret;
 		}
+
+		if (spl_fit_image_is_fpga(ctx.fit, node))
+			spl_fit_upload_fpga(&ctx, node, &image_info);
 
 		if (!spl_fit_image_get_os(ctx.fit, node, &os_type))
 			debug("Loadable is %s\n", genimg_get_os_name(os_type));

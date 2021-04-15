@@ -22,6 +22,11 @@ ulong fdt_getprop_u32(const void *fdt, int node, const char *prop)
 	return fdt32_to_cpu(*cell);
 }
 
+__weak int board_fit_config_name_match(const char *name)
+{
+	return -EINVAL;
+}
+
 /*
  * Iterate over all /configurations subnodes and call a platform specific
  * function to find the matching configuration.

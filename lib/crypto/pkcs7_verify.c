@@ -15,7 +15,7 @@
 #include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/asn1.h>
-#include <u-boot/rsa-checksum.h>
+#include <u-boot/hash-checksum.h>
 #include <crypto/public_key.h>
 #include <crypto/pkcs7_parser.h>
 #else

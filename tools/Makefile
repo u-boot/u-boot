@@ -67,11 +67,17 @@ LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
 		fdt_strerror.o fdt_empty_tree.o fdt_addresses.o fdt_overlay.o)
 
 RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
-					rsa-sign.o rsa-verify.o rsa-checksum.o \
+					rsa-sign.o rsa-verify.o \
 					rsa-mod-exp.o)
+
+ECDSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/ecdsa/, ecdsa-libcrypto.o)
 
 AES_OBJS-$(CONFIG_FIT_CIPHER) := $(addprefix lib/aes/, \
 					aes-encrypt.o aes-decrypt.o)
+
+# Cryptographic helpers that depend on openssl/libcrypto
+LIBCRYPTO_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/, \
+					fdt-libcrypto.o)
 
 ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 
@@ -106,6 +112,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			socfpgaimage.o \
 			sunxi_egon.o \
 			lib/crc16.o \
+			lib/hash-checksum.o \
 			lib/sha1.o \
 			lib/sha256.o \
 			lib/sha512.o \
@@ -114,10 +121,12 @@ dumpimage-mkimage-objs := aisimage.o \
 			zynqimage.o \
 			zynqmpimage.o \
 			zynqmpbif.o \
+			$(LIBCRYPTO_OBJS-y) \
 			$(LIBFDT_OBJS) \
 			gpimage.o \
 			gpimage-common.o \
 			mtk_image.o \
+			$(ECDSA_OBJS-y) \
 			$(RSA_OBJS-y) \
 			$(AES_OBJS-y)
 
