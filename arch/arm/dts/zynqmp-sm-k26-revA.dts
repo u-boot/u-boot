@@ -229,10 +229,12 @@
 			da9131_buck1: buck1 {
 				regulator-name = "da9131_buck1";
 				regulator-boot-on;
+				regulator-always-on;
 			};
 			da9131_buck2: buck2 {
 				regulator-name = "da9131_buck2";
 				regulator-boot-on;
+				regulator-always-on;
 			};
 		};
 	};
@@ -245,6 +247,7 @@
 			da9130_buck1: buck1 {
 				regulator-name = "da9130_buck1";
 				regulator-boot-on;
+				regulator-always-on;
 			};
 		};
 	};
