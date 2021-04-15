@@ -1355,6 +1355,7 @@ static void fec_gpio_reset(struct fec_priv *priv)
 
 static int fecmxc_probe(struct udevice *dev)
 {
+	bool dm_mii_bus = true;
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct fec_priv *priv = dev_get_priv(dev);
 	struct mii_dev *bus = NULL;
@@ -1462,6 +1463,7 @@ static int fecmxc_probe(struct udevice *dev)
 #endif
 
 	if (!bus) {
+		dm_mii_bus = false;
 #ifdef CONFIG_FEC_MXC_MDIO_BASE
 		bus = fec_get_miibus((ulong)CONFIG_FEC_MXC_MDIO_BASE,
 				     dev_seq(dev));
@@ -1507,8 +1509,10 @@ static int fecmxc_probe(struct udevice *dev)
 	return 0;
 
 err_phy:
-	mdio_unregister(bus);
-	free(bus);
+	if (!dm_mii_bus) {
+		mdio_unregister(bus);
+		free(bus);
+	}
 err_mii:
 err_timeout:
 	fec_free_descs(priv);
