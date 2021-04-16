@@ -646,6 +646,9 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 		return log_msg_ret("probe", ret);
 	}
 
+	if (!ea_pos)
+		sub_bus = pci_get_bus_max();
+
 	dm_pciauto_postscan_setup_bridge(bus, sub_bus);
 
 	return sub_bus;
