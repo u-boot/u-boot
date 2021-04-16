@@ -126,7 +126,6 @@ struct esdhc_soc_data {
  *
  * @esdhc_regs: registers of the sdhc controller
  * @sdhc_clk: Current clk of the sdhc controller
- * @bus_width: bus width, 1bit, 4bit or 8bit
  * @cfg: mmc config
  * @mmc: mmc
  * Following is used when Driver Model is enabled for MMC
@@ -151,7 +150,6 @@ struct fsl_esdhc_priv {
 	struct clk per_clk;
 	unsigned int clock;
 	unsigned int mode;
-	unsigned int bus_width;
 #if !CONFIG_IS_ENABLED(DM_MMC)
 	struct mmc *mmc;
 #endif
@@ -1232,30 +1230,12 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 #if !CONFIG_IS_ENABLED(DM_MMC)
 	cfg->ops = &esdhc_ops;
 #endif
-	if (priv->bus_width == 8)
-		cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
-	else if (priv->bus_width == 4)
-		cfg->host_caps = MMC_MODE_4BIT;
-
-	cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
 #ifdef CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 	cfg->host_caps |= MMC_MODE_DDR_52MHz;
 #endif
 
-	if (priv->bus_width > 0) {
-		if (priv->bus_width < 8)
-			cfg->host_caps &= ~MMC_MODE_8BIT;
-		if (priv->bus_width < 4)
-			cfg->host_caps &= ~MMC_MODE_4BIT;
-	}
-
 	if (caps & HOSTCAPBLT_HSS)
 		cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-
-#ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
-	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
-		cfg->host_caps &= ~MMC_MODE_8BIT;
-#endif
 
 	cfg->host_caps |= priv->caps;
 
@@ -1294,25 +1274,11 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 }
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
-static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
-				 struct fsl_esdhc_priv *priv)
-{
-	if (!cfg || !priv)
-		return -EINVAL;
-
-	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
-	priv->bus_width = cfg->max_bus_width;
-	priv->sdhc_clk = cfg->sdhc_clk;
-	priv->wp_enable  = cfg->wp_enable;
-	priv->vs18_enable  = cfg->vs18_enable;
-
-	return 0;
-};
-
 int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
 {
 	struct fsl_esdhc_plat *plat;
 	struct fsl_esdhc_priv *priv;
+	struct mmc_config *mmc_cfg;
 	struct mmc *mmc;
 	int ret;
 
@@ -1328,13 +1294,32 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
 		return -ENOMEM;
 	}
 
-	ret = fsl_esdhc_cfg_to_priv(cfg, priv);
-	if (ret) {
-		debug("%s xlate failure\n", __func__);
-		free(plat);
-		free(priv);
-		return ret;
+	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
+	priv->sdhc_clk = cfg->sdhc_clk;
+	priv->wp_enable  = cfg->wp_enable;
+
+	mmc_cfg = &plat->cfg;
+
+	switch (cfg->max_bus_width) {
+	case 0: /* Not set in config; assume everything is supported */
+	case 8:
+		mmc_cfg->host_caps |= MMC_MODE_8BIT;
+		fallthrough;
+	case 4:
+		mmc_cfg->host_caps |= MMC_MODE_4BIT;
+		fallthrough;
+	case 1:
+		mmc_cfg->host_caps |= MMC_MODE_1BIT;
+		break;
+	default:
+		printf("invalid max bus width %u\n", cfg->max_bus_width);
+		return -EINVAL;
 	}
+
+#ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
+	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
+		mmc_cfg->host_caps &= ~MMC_MODE_8BIT;
+#endif
 
 	ret = fsl_esdhc_init(priv, plat);
 	if (ret) {
@@ -1416,14 +1401,6 @@ static int fsl_esdhc_of_to_plat(struct udevice *dev)
 	priv->dev = dev;
 	priv->mode = -1;
 
-	val = dev_read_u32_default(dev, "bus-width", -1);
-	if (val == 8)
-		priv->bus_width = 8;
-	else if (val == 4)
-		priv->bus_width = 4;
-	else
-		priv->bus_width = 1;
-
 	val = fdtdec_get_int(fdt, node, "fsl,tuning-step", 1);
 	priv->tuning_step = val;
 	val = fdtdec_get_int(fdt, node, "fsl,tuning-start-tap",
@@ -1496,16 +1473,8 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_fsl_esdhc *dtplat = &plat->dtplat;
-	unsigned int val;
 
 	priv->esdhc_regs = map_sysmem(dtplat->reg[0], dtplat->reg[1]);
-	val = plat->dtplat.bus_width;
-	if (val == 8)
-		priv->bus_width = 8;
-	else if (val == 4)
-		priv->bus_width = 4;
-	else
-		priv->bus_width = 1;
 
 	if (dtplat->non_removable)
 		priv->non_removable = 1;
