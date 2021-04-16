@@ -35,6 +35,15 @@ config TARGET_CL_SOM_IMX7
 	select SUPPORT_SPL
 	imply CMD_DM
 
+config TARGET_IMX7_CM
+	bool "Ronetix iMX7-CM"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select MX7D
+	select SUPPORT_SPL
+	imply CMD_DM
+
 config TARGET_MEERKAT96
 	bool "NovTech Meerkat96 board"
 	select BOARD_LATE_INIT
@@ -82,6 +91,7 @@ config SYS_SOC
 	default "mx7"
 
 source "board/compulab/cl-som-imx7/Kconfig"
+source "board/ronetix/imx7-cm/Kconfig"
 source "board/freescale/mx7dsabresd/Kconfig"
 source "board/novtech/meerkat96/Kconfig"
 source "board/technexion/pico-imx7d/Kconfig"

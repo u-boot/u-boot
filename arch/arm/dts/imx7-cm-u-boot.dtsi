@@ -1,0 +1,17 @@
+/{
+    aliases {
+        mmc0 = &usdhc1;
+    };
+};
+
+&usdhc1 {
+	u-boot,dm-spl;
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_i2c1 {
+	u-boot,dm-spl;
+};
