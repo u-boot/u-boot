@@ -42,6 +42,7 @@ read_eeprom(int bus, struct ventana_board_info *info)
 	}
 
 	/* read eeprom config section */
+	mdelay(10);
 	if (gsc_i2c_read(GSC_EEPROM_ADDR, 0x00, 1, buf, sizeof(*info))) {
 		puts("EEPROM: Failed to read EEPROM\n");
 		return GW_UNKNOWN;
