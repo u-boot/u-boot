@@ -148,6 +148,7 @@ static int dwmac_meson8b_probe(struct udevice *dev)
 
 static const struct udevice_id dwmac_meson8b_ids[] = {
 	{ .compatible = "amlogic,meson-gxbb-dwmac", .data = (ulong)dwmac_setup_gx },
+	{ .compatible = "amlogic,meson-g12a-dwmac", .data = (ulong)dwmac_setup_axg },
 	{ .compatible = "amlogic,meson-axg-dwmac", .data = (ulong)dwmac_setup_axg },
 	{ }
 };
