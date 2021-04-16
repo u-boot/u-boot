@@ -973,6 +973,7 @@ config VIDEO_DE2
 	depends on SUNXI_DE2
 	select DM_VIDEO
 	select DISPLAY
+	select VIDEO_DW_HDMI
 	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---

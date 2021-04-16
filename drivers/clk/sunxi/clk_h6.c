@@ -43,6 +43,7 @@ static struct ccu_clk_gate h6_gates[] = {
 	[CLK_BUS_OHCI0]		= GATE(0xa8c, BIT(0)),
 	[CLK_BUS_OHCI3]		= GATE(0xa8c, BIT(3)),
 	[CLK_BUS_EHCI0]		= GATE(0xa8c, BIT(4)),
+	[CLK_BUS_XHCI]		= GATE(0xa8c, BIT(5)),
 	[CLK_BUS_EHCI3]		= GATE(0xa8c, BIT(7)),
 	[CLK_BUS_OTG]		= GATE(0xa8c, BIT(8)),
 };
@@ -71,6 +72,7 @@ static struct ccu_reset h6_resets[] = {
 	[RST_BUS_OHCI0]		= RESET(0xa8c, BIT(16)),
 	[RST_BUS_OHCI3]		= RESET(0xa8c, BIT(19)),
 	[RST_BUS_EHCI0]		= RESET(0xa8c, BIT(20)),
+	[RST_BUS_XHCI]		= RESET(0xa8c, BIT(21)),
 	[RST_BUS_EHCI3]		= RESET(0xa8c, BIT(23)),
 	[RST_BUS_OTG]		= RESET(0xa8c, BIT(24)),
 };

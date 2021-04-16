@@ -62,7 +62,7 @@
 #define SDRAM_OFFSET(x) 0x2##x
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* default load address */
-/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
+/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
 #define CONFIG_SPL_STACK_R_ADDR		0x2fe00000
@@ -72,7 +72,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 /* V3s do not have enough memory to place code at 0x4a000000 */
-/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
+/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
 #define CONFIG_SPL_STACK_R_ADDR		0x4fe00000
@@ -240,40 +240,44 @@ extern int soft_i2c_gpio_scl;
  * There is no compression for arm64 kernels (yet), so leave some space
  * for really big kernels, say 256MB for now.
  * Scripts, PXE and DTBs should go afterwards, leaving the rest for the initrd.
- * Align the initrd to a 2MB page.
  */
-#define BOOTM_SIZE	__stringify(0xa000000)
-#define KERNEL_ADDR_R	__stringify(SDRAM_OFFSET(0080000))
-#define FDT_ADDR_R	__stringify(SDRAM_OFFSET(FA00000))
-#define SCRIPT_ADDR_R	__stringify(SDRAM_OFFSET(FC00000))
-#define PXEFILE_ADDR_R	__stringify(SDRAM_OFFSET(FD00000))
-#define RAMDISK_ADDR_R	__stringify(SDRAM_OFFSET(FE00000))
+#define BOOTM_SIZE        __stringify(0xa000000)
+#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(0080000))
+#define KERNEL_COMP_ADDR_R __stringify(SDRAM_OFFSET(4000000))
+#define KERNEL_COMP_SIZE  __stringify(0xb000000)
+#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(FA00000))
+#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(FC00000))
+#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(FD00000))
+#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(FE00000))
+#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(FF00000))
 
 #else
 /*
  * 160M RAM (256M minimum minus 64MB heap + 32MB for u-boot, stack, fb, etc.
  * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
- * 1M script, 1M pxe and the ramdisk at the end.
+ * 1M script, 1M pxe, 1M dt overlay and the ramdisk at the end.
  */
 #ifndef CONFIG_MACH_SUN8I_V3S
-#define BOOTM_SIZE     __stringify(0xa000000)
-#define KERNEL_ADDR_R  __stringify(SDRAM_OFFSET(2000000))
-#define FDT_ADDR_R     __stringify(SDRAM_OFFSET(3000000))
-#define SCRIPT_ADDR_R  __stringify(SDRAM_OFFSET(3100000))
-#define PXEFILE_ADDR_R __stringify(SDRAM_OFFSET(3200000))
-#define RAMDISK_ADDR_R __stringify(SDRAM_OFFSET(3300000))
+#define BOOTM_SIZE        __stringify(0xa000000)
+#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(2000000))
+#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(3000000))
+#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(3100000))
+#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(3200000))
+#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(3300000))
+#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(3400000))
 #else
 /*
  * 64M RAM minus 2MB heap + 16MB for u-boot, stack, fb, etc.
  * 16M uncompressed kernel, 8M compressed kernel, 1M fdt,
- * 1M script, 1M pxe and the ramdisk at the end.
+ * 1M script, 1M pxe, 1M dt overlay and the ramdisk at the end.
  */
-#define BOOTM_SIZE     __stringify(0x2e00000)
-#define KERNEL_ADDR_R  __stringify(SDRAM_OFFSET(1000000))
-#define FDT_ADDR_R     __stringify(SDRAM_OFFSET(1800000))
-#define SCRIPT_ADDR_R  __stringify(SDRAM_OFFSET(1900000))
-#define PXEFILE_ADDR_R __stringify(SDRAM_OFFSET(1A00000))
-#define RAMDISK_ADDR_R __stringify(SDRAM_OFFSET(1B00000))
+#define BOOTM_SIZE        __stringify(0x2e00000)
+#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(1000000))
+#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(1800000))
+#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(1900000))
+#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(1A00000))
+#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(1B00000))
+#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(1C00000))
 #endif
 #endif
 
@@ -283,7 +287,20 @@ extern int soft_i2c_gpio_scl;
 	"fdt_addr_r=" FDT_ADDR_R "\0" \
 	"scriptaddr=" SCRIPT_ADDR_R "\0" \
 	"pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
+	"fdtoverlay_addr_r=" FDTOVERLAY_ADDR_R "\0" \
 	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0"
+
+#ifdef CONFIG_ARM64
+
+#define MEM_LAYOUT_ENV_EXTRA_SETTINGS \
+	"kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
+	"kernel_comp_size=" KERNEL_COMP_SIZE "\0"
+
+#else
+
+#define MEM_LAYOUT_ENV_EXTRA_SETTINGS ""
+
+#endif
 
 #define DFU_ALT_INFO_RAM \
 	"dfu_alt_info_ram=" \
@@ -435,6 +452,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
+	MEM_LAYOUT_ENV_EXTRA_SETTINGS \
 	DFU_ALT_INFO_RAM \
 	"fdtfile=" FDTFILE "\0" \
 	"console=ttyS0,115200\0" \

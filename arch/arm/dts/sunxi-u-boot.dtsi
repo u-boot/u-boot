@@ -42,7 +42,7 @@
 					os = "u-boot";
 					arch = "arm64";
 					compression = "none";
-					load = <0x4a000000>;
+					load = <CONFIG_SYS_TEXT_BASE>;
 
 					u-boot-nodtb {
 					};
@@ -86,7 +86,7 @@
 			};
 
 			configurations {
-				default = "config-1";
+				default = "@config-DEFAULT-SEQ";
 
 				@config-SEQ {
 					description = "NAME";
