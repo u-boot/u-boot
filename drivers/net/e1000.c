@@ -5673,6 +5673,10 @@ static int e1000_write_hwaddr(struct eth_device *dev)
 
 	DEBUGOUT("%s: mac=%pM\n", __func__, mac);
 
+	if ((hw->eeprom.type == e1000_eeprom_invm) &&
+	    !(E1000_READ_REG(hw, EECD) & E1000_EECD_FLASH_DETECTED_I210))
+		return -ENOSYS;
+
 	memset(current_mac, 0, 6);
 
 	/* Read from EEPROM, not from registers, to make sure
