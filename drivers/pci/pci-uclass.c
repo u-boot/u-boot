@@ -790,6 +790,10 @@ error:
 	return ret;
 }
 
+__weak extern void board_pci_fixup_dev(struct udevice *bus, struct udevice *dev)
+{
+}
+
 int pci_bind_bus_devices(struct udevice *bus)
 {
 	ulong vendor, device;
@@ -895,6 +899,8 @@ int pci_bind_bus_devices(struct udevice *bus)
 				}
 			}
 		}
+
+		board_pci_fixup_dev(bus, dev);
 	}
 
 	return 0;
