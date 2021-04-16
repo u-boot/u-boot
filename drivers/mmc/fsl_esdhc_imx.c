@@ -1605,7 +1605,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	return esdhc_init_common(priv, mmc);
 }
 
-#if CONFIG_IS_ENABLED(DM_MMC)
 static int fsl_esdhc_get_cd(struct udevice *dev)
 {
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
@@ -1671,7 +1670,6 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 #endif
 	.wait_dat0 = fsl_esdhc_wait_dat0,
 };
-#endif
 
 static struct esdhc_soc_data usdhc_imx7d_data = {
 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
