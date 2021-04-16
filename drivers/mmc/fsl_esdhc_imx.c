@@ -665,6 +665,7 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
 #endif
 
+	mmc->clock = sdhc_clk / pre_div / div;
 	priv->clock = clock;
 }
 
