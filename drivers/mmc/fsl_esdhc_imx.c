@@ -39,10 +39,6 @@
 #include <dm/ofnode.h>
 #include <linux/iopoll.h>
 
-#if !CONFIG_IS_ENABLED(BLK)
-#include "mmc_private.h"
-#endif
-
 #ifndef ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
 #ifdef CONFIG_FSL_USDHC
 #define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE	1
@@ -58,7 +54,6 @@ DECLARE_GLOBAL_DATA_PTR;
 				IRQSTATEN_DEBE | IRQSTATEN_BRR | IRQSTATEN_BWR | \
 				IRQSTATEN_DINT)
 #define MAX_TUNING_LOOP 40
-#define ESDHC_DRIVER_STAGE_VALUE 0xffffffff
 
 struct fsl_esdhc {
 	uint    dsaddr;		/* SDMA system address register */
@@ -157,7 +152,7 @@ struct fsl_esdhc_priv {
 	unsigned int clock;
 	unsigned int mode;
 	unsigned int bus_width;
-#if !CONFIG_IS_ENABLED(BLK)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 	struct mmc *mmc;
 #endif
 	struct udevice *dev;
@@ -1506,9 +1501,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	struct esdhc_soc_data *data =
 		(struct esdhc_soc_data *)dev_get_driver_data(dev);
 	struct mmc *mmc;
-#if !CONFIG_IS_ENABLED(BLK)
-	struct blk_desc *bdesc;
-#endif
 	int ret;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -1607,25 +1599,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	mmc = &plat->mmc;
 	mmc->cfg = &plat->cfg;
 	mmc->dev = dev;
-#if !CONFIG_IS_ENABLED(BLK)
-	mmc->priv = priv;
-
-	/* Setup dsr related values */
-	mmc->dsr_imp = 0;
-	mmc->dsr = ESDHC_DRIVER_STAGE_VALUE;
-	/* Setup the universal parts of the block interface just once */
-	bdesc = mmc_get_blk_desc(mmc);
-	bdesc->if_type = IF_TYPE_MMC;
-	bdesc->removable = 1;
-	bdesc->devnum = mmc_get_next_devnum();
-	bdesc->block_read = mmc_bread;
-	bdesc->block_write = mmc_bwrite;
-	bdesc->block_erase = mmc_berase;
-
-	/* setup initial part type */
-	bdesc->part_type = mmc->cfg->part_type;
-	mmc_list_add(mmc);
-#endif
 
 	upriv->mmc = mmc;
 
@@ -1730,14 +1703,12 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ /* sentinel */ }
 };
 
-#if CONFIG_IS_ENABLED(BLK)
 static int fsl_esdhc_bind(struct udevice *dev)
 {
 	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
-#endif
 
 U_BOOT_DRIVER(fsl_esdhc) = {
 	.name	= "fsl_esdhc",
@@ -1745,9 +1716,7 @@ U_BOOT_DRIVER(fsl_esdhc) = {
 	.of_match = fsl_esdhc_ids,
 	.of_to_plat = fsl_esdhc_of_to_plat,
 	.ops	= &fsl_esdhc_ops,
-#if CONFIG_IS_ENABLED(BLK)
 	.bind	= fsl_esdhc_bind,
-#endif
 	.probe	= fsl_esdhc_probe,
 	.plat_auto	= sizeof(struct fsl_esdhc_plat),
 	.priv_auto	= sizeof(struct fsl_esdhc_priv),

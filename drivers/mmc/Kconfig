@@ -790,6 +790,7 @@ endif
 
 config FSL_ESDHC
 	bool "Freescale/NXP eSDHC controller support"
+	depends on BLK
 	help
 	  This selects support for the eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
@@ -826,6 +827,7 @@ config FSL_ESDHC_VS33_NOT_SUPPORT
 
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
+	depends on BLK
 	help
 	  This selects support for the i.MX eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
