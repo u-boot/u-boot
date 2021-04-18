@@ -43,6 +43,7 @@ static int nop_phy_probe(struct udevice *dev)
 
 static const struct udevice_id nop_phy_ids[] = {
 	{ .compatible = "nop-phy" },
+	{ .compatible = "usb-nop-xceiv" },
 	{ }
 };
 

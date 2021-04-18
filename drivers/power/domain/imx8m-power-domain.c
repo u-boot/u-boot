@@ -120,6 +120,8 @@ static int imx8m_power_domain_of_to_plat(struct udevice *dev)
 
 static const struct udevice_id imx8m_power_domain_ids[] = {
 	{ .compatible = "fsl,imx8mq-gpc" },
+	{ .compatible = "fsl,imx8mm-gpc" },
+	{ .compatible = "fsl,imx8mn-gpc" },
 	{ }
 };
 
