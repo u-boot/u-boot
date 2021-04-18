@@ -233,7 +233,6 @@ fini:
 	return ret;
 }
 
-#if defined(CONFIG_CMD_ERASEENV)
 static inline int erase_env(struct mmc *mmc, unsigned long size,
 			    unsigned long offset)
 {
@@ -279,7 +278,6 @@ static int env_mmc_erase(void)
 
 	return ret;
 }
-#endif /* CONFIG_CMD_ERASEENV */
 #endif /* CONFIG_CMD_SAVEENV && !CONFIG_SPL_BUILD */
 
 static inline int read_env(struct mmc *mmc, unsigned long size,
@@ -394,8 +392,6 @@ U_BOOT_ENV_LOCATION(mmc) = {
 	.load		= env_mmc_load,
 #ifndef CONFIG_SPL_BUILD
 	.save		= env_save_ptr(env_mmc_save),
-#if defined(CONFIG_CMD_ERASEENV)
-	.erase		= env_mmc_erase,
-#endif
+	.erase		= ENV_ERASE_PTR(env_mmc_erase)
 #endif
 };

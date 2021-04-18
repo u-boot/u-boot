@@ -145,7 +145,7 @@ static unsigned char env_flags;
 int env_check_redund(const char *buf1, int buf1_read_fail,
 		     const char *buf2, int buf2_read_fail)
 {
-	int crc1_ok, crc2_ok;
+	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
 
 	tmp_env1 = (env_t *)buf1;
@@ -153,25 +153,18 @@ int env_check_redund(const char *buf1, int buf1_read_fail,
 
 	if (buf1_read_fail && buf2_read_fail) {
 		puts("*** Error - No Valid Environment Area found\n");
+		return -EIO;
 	} else if (buf1_read_fail || buf2_read_fail) {
 		puts("*** Warning - some problems detected ");
 		puts("reading environment; recovered successfully\n");
 	}
 
-	if (buf1_read_fail && buf2_read_fail) {
-		return -EIO;
-	} else if (!buf1_read_fail && buf2_read_fail) {
-		gd->env_valid = ENV_VALID;
-		return -EINVAL;
-	} else if (buf1_read_fail && !buf2_read_fail) {
-		gd->env_valid = ENV_REDUND;
-		return -ENOENT;
-	}
-
-	crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) ==
-			tmp_env1->crc;
-	crc2_ok = crc32(0, tmp_env2->data, ENV_SIZE) ==
-			tmp_env2->crc;
+	if (!buf1_read_fail)
+		crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) ==
+				tmp_env1->crc;
+	if (!buf2_read_fail)
+		crc2_ok = crc32(0, tmp_env2->data, ENV_SIZE) ==
+				tmp_env2->crc;
 
 	if (!crc1_ok && !crc2_ok) {
 		return -ENOMSG; /* needed for env_load() */
@@ -208,10 +201,6 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 	if (ret == -EIO) {
 		env_set_default("bad env area", 0);
 		return -EIO;
-	} else if (ret == -EINVAL) {
-		return env_import((char *)buf1, 1, flags);
-	} else if (ret == -ENOENT) {
-		return env_import((char *)buf2, 1, flags);
 	} else if (ret == -ENOMSG) {
 		env_set_default("bad CRC", 0);
 		return -ENOMSG;

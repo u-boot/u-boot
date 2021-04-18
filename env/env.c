@@ -335,6 +335,9 @@ int env_init(void)
 
 		debug("%s: Environment %s init done (ret=%d)\n", __func__,
 		      drv->name, ret);
+
+		if (gd->env_valid == ENV_INVALID)
+			ret = -ENOENT;
 	}
 
 	if (!prio)
