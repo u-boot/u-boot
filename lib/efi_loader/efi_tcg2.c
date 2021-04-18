@@ -515,7 +515,7 @@ static efi_status_t tcg2_create_digest(const u8 *input, u32 length,
 	sha1_context ctx;
 	sha256_context ctx_256;
 	sha512_context ctx_512;
-	u8 final[TPM2_ALG_SHA512];
+	u8 final[TPM2_SHA512_DIGEST_SIZE];
 	efi_status_t ret;
 	u32 active;
 	int i;

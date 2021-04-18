@@ -756,8 +756,11 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
 		tmp_size = dirent_size;
 		ret = EFI_CALL((*dirh->read)(dirh, &tmp_size, dirent));
 		if (ret == EFI_BUFFER_TOO_SMALL) {
+			struct efi_file_info *old_dirent = dirent;
+
 			dirent = realloc(dirent, tmp_size);
 			if (!dirent) {
+				dirent = old_dirent;
 				ret = EFI_OUT_OF_RESOURCES;
 				goto err;
 			}
