@@ -58,6 +58,12 @@
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
+#ifdef CONFIG_CMD_NVME
+	#define BOOT_TARGET_NVME(func) func(NVME, nvme, 0)
+#else
+	#define BOOT_TARGET_NVME(func)
+#endif
+
 #ifndef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
 	func(ROMUSB, romusb, na)  \
@@ -65,6 +71,7 @@
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
 	BOOT_TARGET_DEVICES_USB(func) \
+	BOOT_TARGET_NVME(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 #endif
