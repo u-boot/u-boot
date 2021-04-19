@@ -4,6 +4,9 @@
  * Mario Six,  Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
+#ifndef __SYSINFO_H__
+#define __SYSINFO_H__
+
 struct udevice;
 
 /*
@@ -227,4 +230,5 @@ static inline int sysinfo_get_fit_loadable(struct udevice *dev, int index,
 	return -ENOSYS;
 }
 
+#endif
 #endif
