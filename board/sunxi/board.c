@@ -636,6 +636,20 @@ int board_mmc_init(struct bd_info *bis)
 
 	return 0;
 }
+
+#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
+int mmc_get_env_dev(void)
+{
+	switch (sunxi_get_boot_device()) {
+	case BOOT_DEVICE_MMC1:
+		return 0;
+	case BOOT_DEVICE_MMC2:
+		return 1;
+	default:
+		return CONFIG_SYS_MMC_ENV_DEV;
+	}
+}
+#endif
 #endif
 
 #ifdef CONFIG_SPL_BUILD
