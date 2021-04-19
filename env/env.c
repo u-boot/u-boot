@@ -340,15 +340,15 @@ int env_init(void)
 			ret = -ENOENT;
 	}
 
-	if (!prio)
-		return -ENODEV;
-
 	if (ret == -ENOENT) {
 		gd->env_addr = (ulong)&default_environment[0];
 		gd->env_valid = ENV_VALID;
 
 		return 0;
 	}
+
+	if (!prio)
+		return -ENODEV;
 
 	return ret;
 }
