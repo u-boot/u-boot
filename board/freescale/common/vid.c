@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2020 NXP
+ * Copyright 2020-21 NXP
  * Copyright 2020 Stephen Carlson <stcarlso@linux.microsoft.com>
  */
 
@@ -793,13 +793,16 @@ static int do_vdd_override(struct cmd_tbl *cmdtp,
 			   char *const argv[])
 {
 	ulong override;
+	int ret = 0;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	if (!strict_strtoul(argv[1], 10, &override))
-		adjust_vdd(override);   /* the value is checked by callee */
-	else
+	if (!strict_strtoul(argv[1], 10, &override)) {
+		ret = adjust_vdd(override);
+		if (ret < 0)
+			return CMD_RET_FAILURE;
+	} else
 		return CMD_RET_USAGE;
 	return 0;
 }
