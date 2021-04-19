@@ -12,6 +12,16 @@
  * A23 specific configuration
  */
 
+#ifdef SUNXI_SRAM_A2_SIZE
+/*
+ * If the SoC has enough SRAM A2, use that for the secure monitor.
+ * Skip the first 16 KiB of SRAM A2, which is not usable, as only certain bytes
+ * are writable. Reserve the last 17 KiB for the resume shim and SCP firmware.
+ */
+#define CONFIG_ARMV7_SECURE_BASE	(SUNXI_SRAM_A2_BASE + 16 * 1024)
+#define CONFIG_ARMV7_SECURE_MAX_SIZE	(SUNXI_SRAM_A2_SIZE - 33 * 1024)
+#endif
+
 /*
  * Include common sunxi configuration where most the settings are
  */
