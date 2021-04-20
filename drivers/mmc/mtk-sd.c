@@ -232,6 +232,8 @@
 
 #define SCLK_CYCLES_SHIFT		20
 
+#define MIN_BUS_CLK			200000
+
 #define CMD_INTS_MASK	\
 	(MSDC_INT_CMDRDY | MSDC_INT_RSPCRCERR | MSDC_INT_CMDTMO)
 
@@ -1638,6 +1640,9 @@ static int msdc_drv_probe(struct udevice *dev)
 		cfg->f_min = host->src_clk_freq / (4 * 255);
 	else
 		cfg->f_min = host->src_clk_freq / (4 * 4095);
+
+	if (cfg->f_min < MIN_BUS_CLK)
+		cfg->f_min = MIN_BUS_CLK;
 
 	if (cfg->f_max < cfg->f_min || cfg->f_max > host->src_clk_freq)
 		cfg->f_max = host->src_clk_freq;
