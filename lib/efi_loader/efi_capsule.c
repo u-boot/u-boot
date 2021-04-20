@@ -685,7 +685,6 @@ skip:
 		efi_free_pool(boot_dev);
 		boot_dev = NULL;
 	}
-out:
 	if (boot_dev) {
 		u16 *path_str;
 
@@ -703,6 +702,7 @@ out:
 	} else {
 		ret = EFI_NOT_FOUND;
 	}
+out:
 	free(boot_order);
 
 	return ret;
