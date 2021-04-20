@@ -122,10 +122,19 @@ void reset_cpu(void)
 #if IS_ENABLED(CONFIG_SYSRESET_CMD_RESET)
 int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	enum sysreset_t reset_type = SYSRESET_COLD;
+
+	if (argc > 2)
+		return CMD_RET_USAGE;
+
+	if (argc == 2 && argv[1][0] == '-' && argv[1][1] == 'w') {
+		reset_type = SYSRESET_WARM;
+	}
+
 	printf("resetting ...\n");
 	mdelay(100);
 
-	sysreset_walk_halt(SYSRESET_COLD);
+	sysreset_walk_halt(reset_type);
 
 	return 0;
 }

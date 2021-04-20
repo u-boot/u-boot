@@ -36,7 +36,6 @@ struct lmac {
 	int			dmac;
 	u8			mac[6];
 	bool			link_up;
-	bool			init_pend;
 	int			lmacid; /* ID within BGX */
 	int			phy_addr; /* ID on board */
 	struct udevice		*dev;
@@ -849,6 +848,7 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
 	u64 cfg;
 
 	lmac = &bgx->lmac[lmacid];
+	lmac->bgx = bgx;
 
 	debug("%s: lmac: %p, lmacid = %d\n", __func__, lmac, lmacid);
 
@@ -895,16 +895,6 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
 	debug("%s: %d, lmac: %d/%d/%d %p\n",
 	      __FILE__, __LINE__,
 	      node, bgx_idx, lmacid, lmac);
-	if (lmac->init_pend) {
-		ret = bgx_lmac_enable(lmac->bgx, lmacid);
-		if (ret < 0) {
-			printf("BGX%d LMAC%d lmac_enable failed\n", bgx_idx,
-			       lmacid);
-			return ret;
-		}
-		lmac->init_pend = 0;
-		mdelay(100);
-	}
 	if (lmac->qlm_mode == QLM_MODE_SGMII ||
 	    lmac->qlm_mode == QLM_MODE_RGMII ||
 	    lmac->qlm_mode == QLM_MODE_QSGMII) {
@@ -1461,6 +1451,7 @@ int octeontx_bgx_remove(struct udevice *dev)
 
 int octeontx_bgx_probe(struct udevice *dev)
 {
+	int err;
 	struct bgx *bgx = dev_get_priv(dev);
 	u8 lmac = 0;
 	int qlm[4] = {-1, -1, -1, -1};
@@ -1540,8 +1531,11 @@ skip_qlm_config:
 		struct lmac *tlmac = &bgx->lmac[lmac];
 
 		tlmac->dev = dev;
-		tlmac->init_pend = 1;
-		tlmac->bgx = bgx;
+		err = bgx_lmac_enable(bgx, lmac);
+		if (err) {
+			printf("BGX%d failed to enable lmac%d\n",
+			       bgx->bgx_id, lmac);
+		}
 	}
 
 	return 0;

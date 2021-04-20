@@ -1190,6 +1190,9 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 	 */
 	uc_plat->max_id = max_t(unsigned long, uc_priv->n_ports,
 				uc_plat->max_id);
+	/* If port count is less than max_id, update max_id */
+	if (uc_priv->n_ports < uc_plat->max_id)
+		uc_plat->max_id = uc_priv->n_ports;
 
 	return 0;
 }

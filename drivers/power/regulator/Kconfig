@@ -312,6 +312,16 @@ config DM_REGULATOR_STPMIC1
 	by the PMIC device. This driver is controlled by a device tree node
 	which includes voltage limits.
 
+config DM_REGULATOR_ANATOP
+	bool "Enable driver for ANATOP regulators"
+	depends on DM_REGULATOR
+	select REGMAP
+	select SYSCON
+	help
+	Enable support for the Freescale i.MX on-chip ANATOP LDO
+	regulators. It is recommended that this option be enabled on
+	i.MX6 platform.
+
 config SPL_DM_REGULATOR_STPMIC1
 	bool "Enable driver for STPMIC1 regulators in SPL"
 	depends on SPL_DM_REGULATOR && PMIC_STPMIC1

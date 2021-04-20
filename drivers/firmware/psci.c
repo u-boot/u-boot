@@ -13,6 +13,7 @@
 #include <log.h>
 #include <dm/lists.h>
 #include <efi_loader.h>
+#include <sysreset.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <linux/arm-smccc.h>
@@ -25,6 +26,18 @@
 
 #define PSCI_METHOD_HVC 1
 #define PSCI_METHOD_SMC 2
+
+/*
+ * While a 64-bit OS can make calls with SMC32 calling conventions, for some
+ * calls it is necessary to use SMC64 to pass or return 64-bit values.
+ * For such calls PSCI_FN_NATIVE(version, name) will choose the appropriate
+ * (native-width) function ID.
+ */
+#if defined(CONFIG_ARM64)
+#define PSCI_FN_NATIVE(version, name)	PSCI_##version##_FN64_##name
+#else
+#define PSCI_FN_NATIVE(version, name)	PSCI_##version##_FN_##name
+#endif
 
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 int __efi_runtime_data psci_method;
@@ -51,6 +64,34 @@ unsigned long __efi_runtime invoke_psci_fn
 	else
 		res.a0 = PSCI_RET_DISABLED;
 	return res.a0;
+}
+
+static int psci_features(u32 psci_func_id)
+{
+	return invoke_psci_fn(PSCI_1_0_FN_PSCI_FEATURES,
+			      psci_func_id, 0, 0);
+}
+
+static u32 psci_0_2_get_version(void)
+{
+	return invoke_psci_fn(PSCI_0_2_FN_PSCI_VERSION, 0, 0, 0);
+}
+
+static bool psci_is_system_reset2_supported(void)
+{
+	int ret;
+	u32 ver;
+
+	ver = psci_0_2_get_version();
+
+	if (PSCI_VERSION_MAJOR(ver) >= 1) {
+		ret = psci_features(PSCI_FN_NATIVE(1_1, SYSTEM_RESET2));
+
+		if (ret != PSCI_RET_NOT_SUPPORTED)
+			return true;
+	}
+
+	return false;
 }
 
 static int psci_bind(struct udevice *dev)
@@ -140,6 +181,33 @@ void reset_misc(void)
 	invoke_psci_fn(PSCI_0_2_FN_SYSTEM_RESET, 0, 0, 0);
 }
 #endif /* CONFIG_PSCI_RESET */
+
+void psci_sys_reset(u32 type)
+{
+	bool reset2_supported;
+
+	do_psci_probe();
+
+	reset2_supported = psci_is_system_reset2_supported();
+
+	if (type == SYSRESET_WARM && reset2_supported) {
+		/*
+		 * reset_type[31] = 0 (architectural)
+		 * reset_type[30:0] = 0 (SYSTEM_WARM_RESET)
+		 * cookie = 0 (ignored by the implementation)
+		 */
+		invoke_psci_fn(PSCI_FN_NATIVE(1_1, SYSTEM_RESET2), 0, 0, 0);
+	} else {
+		invoke_psci_fn(PSCI_0_2_FN_SYSTEM_RESET, 0, 0, 0);
+	}
+}
+
+void psci_sys_poweroff(void)
+{
+	do_psci_probe();
+
+	invoke_psci_fn(PSCI_0_2_FN_SYSTEM_OFF, 0, 0, 0);
+}
 
 #ifdef CONFIG_CMD_POWEROFF
 int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])

@@ -10,6 +10,8 @@
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <asm/io.h>
+#include <dm.h>
+#include <dm/device-internal.h>	/* for dev_set_priv() */
 
 #define TX_NUM_DESC			1
 #define RX_NUM_DESC			32
@@ -212,6 +214,18 @@ struct xgmac_dma_desc {
 	__le32 res[3];
 };
 
+static struct xgmac_regs *xgmac_get_regs(struct eth_pdata *pdata)
+{
+	/*
+	 * We use PHYS_64BIT on Highbank, so phys_addr_t is bigger than
+	 * a pointer. U-Boot doesn't use LPAE (not even the MMU on highbank),
+	 * so we can't access anything above 4GB.
+	 * We have a check in the probe function below the ensure this,
+	 * so casting to a 32-bit pointer type is fine here.
+	 */
+	return (struct xgmac_regs *)(uintptr_t)pdata->iobase;
+}
+
 /* XGMAC Descriptor Access Helpers */
 static inline void desc_set_buf_len(struct xgmac_dma_desc *p, u32 buf_sz)
 {
@@ -304,8 +318,6 @@ struct calxeda_eth_dev {
 
 	u32 tx_currdesc;
 	u32 rx_currdesc;
-
-	struct eth_device *dev;
 } __aligned(32);
 
 /*
@@ -313,10 +325,10 @@ struct calxeda_eth_dev {
  * advanced descriptors.
  */
 
-static void init_rx_desc(struct calxeda_eth_dev *priv)
+static void init_rx_desc(struct eth_pdata *pdata, struct calxeda_eth_dev *priv)
 {
 	struct xgmac_dma_desc *rxdesc = priv->rx_chain;
-	struct xgmac_regs *regs = (struct xgmac_regs *)priv->dev->iobase;
+	struct xgmac_regs *regs = xgmac_get_regs(pdata);
 	void *rxbuffer = priv->rxbuffer;
 	int i;
 
@@ -330,17 +342,16 @@ static void init_rx_desc(struct calxeda_eth_dev *priv)
 	}
 }
 
-static void init_tx_desc(struct calxeda_eth_dev *priv)
+static void init_tx_desc(struct eth_pdata *pdata, struct calxeda_eth_dev *priv)
 {
-	struct xgmac_regs *regs = (struct xgmac_regs *)priv->dev->iobase;
+	struct xgmac_regs *regs = xgmac_get_regs(pdata);
 
 	desc_init_tx_desc(priv->tx_chain, TX_NUM_DESC);
 	writel((ulong)priv->tx_chain, &regs->txdesclist);
 }
 
-static int xgmac_reset(struct eth_device *dev)
+static int xgmac_reset(struct xgmac_regs *regs)
 {
-	struct xgmac_regs *regs = (struct xgmac_regs *)dev->iobase;
 	int timeout = MAC_TIMEOUT;
 	u32 value;
 
@@ -356,27 +367,28 @@ static int xgmac_reset(struct eth_device *dev)
 	return timeout;
 }
 
-static void xgmac_hwmacaddr(struct eth_device *dev)
+static void xgmac_hwmacaddr(struct eth_pdata *pdata)
 {
-	struct xgmac_regs *regs = (struct xgmac_regs *)dev->iobase;
+	struct xgmac_regs *regs = xgmac_get_regs(pdata);
 	u32 macaddr[2];
 
-	memcpy(macaddr, dev->enetaddr, 6);
+	memcpy(macaddr, pdata->enetaddr, ARP_HLEN);
 	writel(macaddr[1], &regs->macaddr[0].hi);
 	writel(macaddr[0], &regs->macaddr[0].lo);
 }
 
-static int xgmac_init(struct eth_device *dev, struct bd_info * bis)
+static int xgmac_eth_start(struct udevice *dev)
 {
-	struct xgmac_regs *regs = (struct xgmac_regs *)dev->iobase;
-	struct calxeda_eth_dev *priv = dev->priv;
-	int value;
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct xgmac_regs *regs = xgmac_get_regs(pdata);
+	struct calxeda_eth_dev *priv = dev_get_priv(dev);
+	u32 value;
 
-	if (xgmac_reset(dev) < 0)
-		return -1;
+	if (xgmac_reset(regs) < 0)
+		return -ETIMEDOUT;
 
 	/* set the hardware MAC address */
-	xgmac_hwmacaddr(dev);
+	xgmac_hwmacaddr(pdata);
 
 	/* set the AXI bus modes */
 	value = XGMAC_DMA_BUSMODE_ATDS |
@@ -401,8 +413,8 @@ static int xgmac_init(struct eth_device *dev, struct bd_info * bis)
 	writel(value, &regs->flow_control);
 
 	/* Initialize the descriptor chains */
-	init_rx_desc(priv);
-	init_tx_desc(priv);
+	init_rx_desc(pdata, priv);
+	init_tx_desc(pdata, priv);
 
 	/* must set to 0, or when started up will cause issues */
 	priv->tx_currdesc = 0;
@@ -425,10 +437,11 @@ static int xgmac_init(struct eth_device *dev, struct bd_info * bis)
 	return 0;
 }
 
-static int xgmac_tx(struct eth_device *dev, void *packet, int length)
+static int xgmac_tx(struct udevice *dev, void *packet, int length)
 {
-	struct xgmac_regs *regs = (struct xgmac_regs *)dev->iobase;
-	struct calxeda_eth_dev *priv = dev->priv;
+	struct calxeda_eth_dev *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct xgmac_regs *regs = xgmac_get_regs(pdata);
 	u32 currdesc = priv->tx_currdesc;
 	struct xgmac_dma_desc *txdesc = &priv->tx_chain[currdesc];
 	int timeout;
@@ -453,35 +466,45 @@ static int xgmac_tx(struct eth_device *dev, void *packet, int length)
 	return 0;
 }
 
-static int xgmac_rx(struct eth_device *dev)
+static int xgmac_rx(struct udevice *dev, int flags, uchar **packetp)
 {
-	struct xgmac_regs *regs = (struct xgmac_regs *)dev->iobase;
-	struct calxeda_eth_dev *priv = dev->priv;
+	struct calxeda_eth_dev *priv = dev_get_priv(dev);
 	u32 currdesc = priv->rx_currdesc;
 	struct xgmac_dma_desc *rxdesc = &priv->rx_chain[currdesc];
 	int length = 0;
 
 	/* check if the host has the desc */
 	if (desc_get_owner(rxdesc))
-		return -1; /* something bad happened */
+		return -EAGAIN; /* the MAC is still chewing on it */
 
 	length = desc_get_rx_frame_len(rxdesc);
-
-	net_process_received_packet(desc_get_buf_addr(rxdesc), length);
-
-	/* set descriptor back to owned by XGMAC */
-	desc_set_rx_owner(rxdesc);
-	writel(1, &regs->rxpoll);
+	*packetp = desc_get_buf_addr(rxdesc);
 
 	priv->rx_currdesc = (currdesc + 1) & (RX_NUM_DESC - 1);
 
 	return length;
 }
 
-static void xgmac_halt(struct eth_device *dev)
+static int xgmac_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
-	struct xgmac_regs *regs = (struct xgmac_regs *)dev->iobase;
-	struct calxeda_eth_dev *priv = dev->priv;
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct xgmac_regs *regs = xgmac_get_regs(pdata);
+	struct calxeda_eth_dev *priv = dev_get_priv(dev);
+	u32 rxdesc = ((char *)packet - priv->rxbuffer) / ETH_BUF_SZ;
+	struct xgmac_dma_desc *p = &priv->rx_chain[rxdesc];
+
+	/* set descriptor back to owned by XGMAC */
+	desc_set_rx_owner(p);
+	writel(1, &regs->rxpoll);
+
+	return 0;
+}
+
+static void xgmac_eth_stop(struct udevice *dev)
+{
+	struct calxeda_eth_dev *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct xgmac_regs *regs = xgmac_get_regs(pdata);
 	int value;
 
 	/* Disable TX/RX */
@@ -499,47 +522,88 @@ static void xgmac_halt(struct eth_device *dev)
 	priv->rx_currdesc = 0;
 }
 
-int calxedaxgmac_initialize(u32 id, ulong base_addr)
+/*
+ * Changing the MAC address is not a good idea, as the fabric would
+ * need to know about this as well (it does not learn MAC addresses).
+ */
+static int xgmac_eth_write_hwaddr(struct udevice *dev)
 {
-	struct eth_device *dev;
-	struct calxeda_eth_dev *priv;
-	struct xgmac_regs *regs;
+	return -ENOSYS;
+}
+
+static int xgmac_eth_read_rom_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct xgmac_regs *regs = xgmac_get_regs(pdata);
 	u32 macaddr[2];
-
-	regs = (struct xgmac_regs *)base_addr;
-
-	/* check hardware version */
-	if (readl(&regs->version) != 0x1012)
-		return -1;
-
-	dev = malloc(sizeof(*dev));
-	if (!dev)
-		return 0;
-	memset(dev, 0, sizeof(*dev));
-
-	/* Structure must be aligned, because it contains the descriptors */
-	priv = memalign(32, sizeof(*priv));
-	if (!priv) {
-		free(dev);
-		return 0;
-	}
-
-	dev->iobase = (int)base_addr;
-	dev->priv = priv;
-	priv->dev = dev;
-	sprintf(dev->name, "xgmac%d", id);
 
 	/* The MAC address is already configured, so read it from registers. */
 	macaddr[1] = readl(&regs->macaddr[0].hi);
 	macaddr[0] = readl(&regs->macaddr[0].lo);
-	memcpy(dev->enetaddr, macaddr, 6);
+	memcpy(pdata->enetaddr, macaddr, ARP_HLEN);
 
-	dev->init = xgmac_init;
-	dev->send = xgmac_tx;
-	dev->recv = xgmac_rx;
-	dev->halt = xgmac_halt;
-
-	eth_register(dev);
-
-	return 1;
+	return 0;
 }
+
+static int xgmac_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct calxeda_eth_dev *priv;
+
+	/* Structure must be aligned, because it contains the descriptors */
+	priv = memalign(32, sizeof(*priv));
+	if (!priv)
+		return -ENOMEM;
+	dev_set_priv(dev, priv);
+
+	pdata->iobase = devfdt_get_addr(dev);
+	if (pdata->iobase == FDT_ADDR_T_NONE) {
+		printf("%s: Cannot find XGMAC base address\n", __func__);
+		return -EINVAL;
+	}
+	if (pdata->iobase >= (1ULL << 32)) {
+		printf("%s: MMIO base address cannot be above 4GB\n", __func__);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int xgmac_eth_probe(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct xgmac_regs *regs = xgmac_get_regs(pdata);
+
+	/* check hardware version */
+	if (readl(&regs->version) != 0x1012)
+		return -ENODEV;
+
+	xgmac_eth_read_rom_hwaddr(dev);
+
+	return 0;
+}
+
+static const struct eth_ops xgmac_eth_ops = {
+	.start		= xgmac_eth_start,
+	.send		= xgmac_tx,
+	.recv		= xgmac_rx,
+	.free_pkt 	= xgmac_free_pkt,
+	.stop		= xgmac_eth_stop,
+	.write_hwaddr	= xgmac_eth_write_hwaddr,
+	.read_rom_hwaddr = xgmac_eth_read_rom_hwaddr,
+};
+
+static const struct udevice_id xgmac_eth_ids[] = {
+	{ .compatible = "calxeda,hb-xgmac" },
+	{ }
+};
+
+U_BOOT_DRIVER(eth_xgmac) = {
+	.name		= "eth_xgmac",
+	.id		= UCLASS_ETH,
+	.of_match	= xgmac_eth_ids,
+	.of_to_plat	= xgmac_ofdata_to_platdata,
+	.probe		= xgmac_eth_probe,
+	.ops		= &xgmac_eth_ops,
+	.plat_auto	= sizeof(struct eth_pdata),
+};

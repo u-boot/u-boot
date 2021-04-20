@@ -67,6 +67,7 @@ config GIC_V3_ITS
 	bool "ARM GICV3 ITS"
 	select REGMAP
 	select SYSCON
+	select IRQ
 	help
 	  ARM GICV3 Interrupt translation service (ITS).
 	  Basic support for programming locality specific peripheral
@@ -710,7 +711,16 @@ config ARCH_S5PC1XX
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
 	select CPU_V7A
-	select PL011_SERIAL
+	select PL01X_SERIAL
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+	select OF_BOARD
+	select CLK
+	select CLK_CCF
+	select AHCI
+	select DM_ETH
+	select PHYS_64BIT
 
 config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"

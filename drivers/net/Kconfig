@@ -180,6 +180,13 @@ config CORTINA_NI_ENET
 	  This driver supports the Cortina-Access Ethernet MAC for
 	  all supported CAxxxx SoCs.
 
+config CALXEDA_XGMAC
+	bool "Calxeda XGMAC support"
+	depends on DM_ETH
+	help
+	  This driver supports the XGMAC in Calxeda Highbank and Midway
+	  machines.
+
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
 	depends on DM_ETH

@@ -18,7 +18,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024)
 
 #define CONFIG_PL011_CLOCK		150000000
-#define CONFIG_PL01x_PORTS		{ (void *)(0xFFF36000) }
 
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
 
@@ -27,8 +26,6 @@
 #define CONFIG_SYS_SCSI_MAX_LUN		1
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 					CONFIG_SYS_SCSI_MAX_LUN)
-
-#define CONFIG_CALXEDA_XGMAC
 
 #define CONFIG_BOOT_RETRY_TIME		-1
 #define CONFIG_RESET_TO_RETRY
@@ -42,12 +39,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x800000
 #define CONFIG_SYS_64BIT_LBA
 
-/*-----------------------------------------------------------------------
- * Physical Memory Map
- * The DRAM is already setup, so do not touch the DT node later.
- */
-#define PHYS_SDRAM_1_SIZE		(4089 << 20)
-
 /* Environment data setup
 */
 #define CONFIG_SYS_NVRAM_BASE_ADDR	0xfff88000	/* NVRAM base address */
@@ -56,5 +47,9 @@
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_INIT_SP_ADDR		0x01000000
 #define CONFIG_SKIP_LOWLEVEL_INIT
+
+#define CONFIG_EXTRA_ENV_SETTINGS				\
+	"fdt_high=0x20000000\0"					\
+	"initrd_high=0x20000000\0"
 
 #endif

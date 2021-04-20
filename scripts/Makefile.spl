@@ -67,6 +67,12 @@ include $(srctree)/scripts/Makefile.lib
 KBUILD_CFLAGS += -ffunction-sections -fdata-sections
 LDFLAGS_FINAL += --gc-sections
 
+ifeq ($(CONFIG_$(SPL_TPL_)STACKPROTECTOR),y)
+KBUILD_CFLAGS += -fstack-protector-strong
+else
+KBUILD_CFLAGS += -fno-stack-protector
+endif
+
 # FIX ME
 cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
 							$(NOSTDINC_FLAGS)

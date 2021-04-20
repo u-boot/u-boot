@@ -618,6 +618,23 @@ config TPL_HASH
 	  and the algorithms it supports are defined in common/hash.c. See
 	  also CMD_HASH for command-line access.
 
+config STACKPROTECTOR
+	bool "Stack Protector buffer overflow detection"
+	default n
+	help
+	  Enable stack smash detection through compiler's stack-protector
+	  canary logic
+
+config SPL_STACKPROTECTOR
+	bool "Stack Protector buffer overflow detection for SPL"
+	depends on STACKPROTECTOR && SPL
+	default n
+
+config TPL_STACKPROTECTOR
+	bool "Stack Protector buffer overflow detection for TPL"
+	depends on STACKPROTECTOR && TPL
+	default n
+
 endmenu
 
 menu "Update support"
