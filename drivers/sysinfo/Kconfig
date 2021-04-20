@@ -30,4 +30,12 @@ config SYSINFO_SMBIOS
 	  one which provides a way to specify this SMBIOS information in the
 	  devicetree, without needing any board-specific functionality.
 
+config SYSINFO_GPIO
+	bool "Enable gpio sysinfo driver"
+	help
+	  Support querying gpios to determine board revision. This uses gpios to
+	  form a ternary number (when they are pulled-up, -down, or floating).
+	  This ternary number is then mapped to a board revision name using
+	  device tree properties.
+
 endif
