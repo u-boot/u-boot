@@ -1526,6 +1526,13 @@
 		compatible = "sandbox,sysinfo-sandbox";
 	};
 
+	sysinfo-gpio {
+		compatible = "gpio-sysinfo";
+		gpios = <&gpio_a 15>, <&gpio_a 16>, <&gpio_a 17>;
+		revisions = <19>, <5>;
+		names = "rev_a", "foo";
+	};
+
 	some_regmapped-bus {
 		#address-cells = <0x1>;
 		#size-cells = <0x1>;
