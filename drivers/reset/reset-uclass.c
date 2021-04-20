@@ -95,7 +95,7 @@ int reset_get_by_index_nodev(ofnode node, int index,
 	int ret;
 
 	ret = ofnode_parse_phandle_with_args(node, "resets", "#reset-cells", 0,
-					     index > 0, &args);
+					     index, &args);
 
 	return reset_get_by_index_tail(ret, node, &args, "resets",
 				       index > 0, reset_ctl);
