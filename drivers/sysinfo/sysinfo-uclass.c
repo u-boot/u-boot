@@ -8,6 +8,10 @@
 #include <dm.h>
 #include <sysinfo.h>
 
+struct sysinfo_priv {
+	bool detected;
+};
+
 int sysinfo_get(struct udevice **devp)
 {
 	return uclass_first_device_err(UCLASS_SYSINFO, devp);
@@ -15,18 +19,28 @@ int sysinfo_get(struct udevice **devp)
 
 int sysinfo_detect(struct udevice *dev)
 {
+	int ret;
+	struct sysinfo_priv *priv = dev_get_uclass_priv(dev);
 	struct sysinfo_ops *ops = sysinfo_get_ops(dev);
 
 	if (!ops->detect)
 		return -ENOSYS;
 
-	return ops->detect(dev);
+	ret = ops->detect(dev);
+	if (!ret)
+		priv->detected = true;
+
+	return ret;
 }
 
 int sysinfo_get_fit_loadable(struct udevice *dev, int index, const char *type,
 			     const char **strp)
 {
+	struct sysinfo_priv *priv = dev_get_uclass_priv(dev);
 	struct sysinfo_ops *ops = sysinfo_get_ops(dev);
+
+	if (!priv->detected)
+		return -EPERM;
 
 	if (!ops->get_fit_loadable)
 		return -ENOSYS;
@@ -36,7 +50,11 @@ int sysinfo_get_fit_loadable(struct udevice *dev, int index, const char *type,
 
 int sysinfo_get_bool(struct udevice *dev, int id, bool *val)
 {
+	struct sysinfo_priv *priv = dev_get_uclass_priv(dev);
 	struct sysinfo_ops *ops = sysinfo_get_ops(dev);
+
+	if (!priv->detected)
+		return -EPERM;
 
 	if (!ops->get_bool)
 		return -ENOSYS;
@@ -46,7 +64,11 @@ int sysinfo_get_bool(struct udevice *dev, int id, bool *val)
 
 int sysinfo_get_int(struct udevice *dev, int id, int *val)
 {
+	struct sysinfo_priv *priv = dev_get_uclass_priv(dev);
 	struct sysinfo_ops *ops = sysinfo_get_ops(dev);
+
+	if (!priv->detected)
+		return -EPERM;
 
 	if (!ops->get_int)
 		return -ENOSYS;
@@ -56,7 +78,11 @@ int sysinfo_get_int(struct udevice *dev, int id, int *val)
 
 int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val)
 {
+	struct sysinfo_priv *priv = dev_get_uclass_priv(dev);
 	struct sysinfo_ops *ops = sysinfo_get_ops(dev);
+
+	if (!priv->detected)
+		return -EPERM;
 
 	if (!ops->get_str)
 		return -ENOSYS;
@@ -68,4 +94,5 @@ UCLASS_DRIVER(sysinfo) = {
 	.id		= UCLASS_SYSINFO,
 	.name		= "sysinfo",
 	.post_bind	= dm_scan_fdt_dev,
+	.per_device_auto	= sizeof(bool),
 };
