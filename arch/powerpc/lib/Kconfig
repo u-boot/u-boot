@@ -1,0 +1,9 @@
+config CACHE_FLUSH_WATCHDOG_THRESHOLD
+	int "Bytes to flush between WATCHDOG_RESET calls"
+	default 0
+	help
+	  The flush_cache() function periodically, and by default for
+	  every cache line, calls WATCHDOG_RESET(). When flushing a
+	  large area, that may add a significant amount of
+	  overhead. This option allows you to set a threshold for how
+	  many bytes to flush between each WATCHDOG_RESET call.
