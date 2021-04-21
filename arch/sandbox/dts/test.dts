@@ -53,6 +53,13 @@
 		osd0 = "/osd";
 	};
 
+	config {
+		environment {
+			from_fdt = "yes";
+			fdt_env_path = "";
+		};
+	};
+
 	audio: audio-codec {
 		compatible = "sandbox,audio-codec";
 		#sound-dai-cells = <1>;
