@@ -587,6 +587,14 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 				f2 = "-";
 				f3 = env_get("board");
 				f4 = ".dtb";
+				if (!f1) {
+					f1 = "";
+					f2 = "";
+				}
+				if (!f3) {
+					f2 = "";
+					f3 = "";
+				}
 			}
 
 			len = strlen(label->fdtdir);
