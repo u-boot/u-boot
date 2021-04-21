@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <charset.h>
+#include <efi_loader.h>
 
 /**
  * efi_create_indexed_name - create a string name with an index
