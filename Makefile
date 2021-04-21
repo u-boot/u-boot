@@ -1086,7 +1086,6 @@ ifneq ($(CONFIG_DM),y)
 	@echo >&2 "See doc/driver-model/migration.rst for more info."
 	@echo >&2 "===================================================="
 endif
-	$(call deprecated,CONFIG_DM_MMC CONFIG_BLK,MMC,v2019.04,$(CONFIG_MMC))
 	$(call deprecated,CONFIG_DM_USB CONFIG_OF_CONTROL CONFIG_BLK,\
 		USB,v2019.07,$(CONFIG_USB))
 	$(call deprecated,CONFIG_DM_PCI,PCI,v2019.07,$(CONFIG_PCI))
