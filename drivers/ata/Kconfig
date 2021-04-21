@@ -77,8 +77,9 @@ config DWC_AHSATA_AHCI
 
 config FSL_SATA
 	bool "Enable Freescale SATA controller driver support"
+	select AHCI
 	select LIBATA
-	select AHCI if BLK
+	depends on BLK
 	help
 	  Enable this driver to support the SATA controller found in
 	  some Freescale PowerPC SoCs.
@@ -94,8 +95,9 @@ config SATA_MV
 
 config SATA_SIL
 	bool "Enable Silicon Image SIL3131 / SIL3132 / SIL3124 SATA driver support"
+	select AHCI
 	select LIBATA
-	select AHCI if BLK
+	depends on BLK
 	help
 	  Enable this driver to support the SIL3131, SIL3132 and SIL3124
 	  SATA controllers.

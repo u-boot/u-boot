@@ -1089,7 +1089,6 @@ endif
 	$(call deprecated,CONFIG_DM_MMC CONFIG_BLK,MMC,v2019.04,$(CONFIG_MMC))
 	$(call deprecated,CONFIG_DM_USB CONFIG_OF_CONTROL CONFIG_BLK,\
 		USB,v2019.07,$(CONFIG_USB))
-	$(call deprecated,CONFIG_AHCI,AHCI,v2019.07, $(CONFIG_LIBATA))
 	$(call deprecated,CONFIG_DM_PCI,PCI,v2019.07,$(CONFIG_PCI))
 	$(call deprecated,CONFIG_DM_VIDEO,video,v2019.07,\
 		$(CONFIG_LCD)$(CONFIG_VIDEO))
