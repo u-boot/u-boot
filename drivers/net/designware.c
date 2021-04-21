@@ -91,9 +91,8 @@ static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 }
 
 #if defined(CONFIG_DM_ETH) && CONFIG_IS_ENABLED(DM_GPIO)
-static int dw_mdio_reset(struct mii_dev *bus)
+static int __dw_mdio_reset(struct udevice *dev)
 {
-	struct udevice *dev = bus->priv;
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 	struct dw_eth_pdata *pdata = dev_get_plat(dev);
 	int ret;
@@ -122,6 +121,13 @@ static int dw_mdio_reset(struct mii_dev *bus)
 
 	return 0;
 }
+
+static int dw_mdio_reset(struct mii_dev *bus)
+{
+	struct udevice *dev = bus->priv;
+
+	return __dw_mdio_reset(dev);
+}
 #endif
 
 #if IS_ENABLED(CONFIG_DM_MDIO)
@@ -142,9 +148,10 @@ int designware_eth_mdio_write(struct udevice *mdio_dev, int addr, int devad, int
 #if CONFIG_IS_ENABLED(DM_GPIO)
 int designware_eth_mdio_reset(struct udevice *mdio_dev)
 {
-	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(mdio_dev);
+	struct mdio_perdev_priv *mdio_pdata = dev_get_uclass_priv(mdio_dev);
+	struct udevice *dev = mdio_pdata->mii_bus->priv;
 
-	return dw_mdio_reset(pdata->mii_bus);
+	return __dw_mdio_reset(dev->parent);
 }
 #endif
 
