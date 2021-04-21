@@ -37,7 +37,6 @@ struct sunxi_mmc_priv {
 	uint32_t *mclkreg;
 	unsigned fatal_err;
 	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
-	int cd_inverted;		/* Inverted Card Detect */
 	struct sunxi_mmc *reg;
 	struct mmc_config cfg;
 };
@@ -612,12 +611,21 @@ static int sunxi_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 
 static int sunxi_mmc_getcd(struct udevice *dev)
 {
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	struct sunxi_mmc_priv *priv = dev_get_priv(dev);
+
+	/* If polling, assume that the card is always present. */
+	if ((mmc->cfg->host_caps & MMC_CAP_NONREMOVABLE) ||
+	    (mmc->cfg->host_caps & MMC_CAP_NEEDS_POLL))
+		return 1;
 
 	if (dm_gpio_is_valid(&priv->cd_gpio)) {
 		int cd_state = dm_gpio_get_value(&priv->cd_gpio);
 
-		return cd_state ^ priv->cd_inverted;
+		if (mmc->cfg->host_caps & MMC_CAP_CD_ACTIVE_HIGH)
+			return !cd_state;
+		else
+			return cd_state;
 	}
 	return 1;
 }
@@ -649,22 +657,20 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	struct mmc_config *cfg = &plat->cfg;
 	struct ofnode_phandle_args args;
 	u32 *ccu_reg;
-	int bus_width, ret;
+	int ret;
 
 	cfg->name = dev->name;
-	bus_width = dev_read_u32_default(dev, "bus-width", 1);
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
-	cfg->host_caps = 0;
-	if (bus_width == 8)
-		cfg->host_caps |= MMC_MODE_8BIT;
-	if (bus_width >= 4)
-		cfg->host_caps |= MMC_MODE_4BIT;
-	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
+	cfg->host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	cfg->f_min = 400000;
 	cfg->f_max = 52000000;
+
+	ret = mmc_of_parse(dev, cfg);
+	if (ret)
+		return ret;
 
 	priv->reg = dev_read_addr_ptr(dev);
 
@@ -691,16 +697,12 @@ static int sunxi_mmc_probe(struct udevice *dev)
 		return ret;
 
 	/* This GPIO is optional */
-	if (!dev_read_bool(dev, "non-removable") &&
-	    !gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
+	if (!gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
 				  GPIOD_IS_IN)) {
 		int cd_pin = gpio_get_number(&priv->cd_gpio);
 
 		sunxi_gpio_set_pull(cd_pin, SUNXI_GPIO_PULL_UP);
 	}
-
-	/* Check if card detect is inverted */
-	priv->cd_inverted = dev_read_bool(dev, "cd-inverted");
 
 	upriv->mmc = &plat->mmc;
 
