@@ -124,6 +124,13 @@ config TARGET_PHYCORE_IMX8MP
 	select IMX8MP
         select SUPPORT_SPL
 	select IMX8M_LPDDR4
+
+config TARGET_IMX8MM_CL_IOT_GATE
+	bool "CompuLab iot-gate-imx8"
+	select BINMAN
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
 endchoice
 
 source "board/engicam/imx8mm/Kconfig"
@@ -139,5 +146,6 @@ source "board/beacon/imx8mm/Kconfig"
 source "board/beacon/imx8mn/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
+source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
 
 endif
