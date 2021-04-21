@@ -459,6 +459,8 @@ static int initr_env(void)
 	else
 		env_set_default(NULL, 0);
 
+	env_import_fdt();
+
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
 		env_set_hex("fdtcontroladdr",
 			    (unsigned long)map_to_sysmem(gd->fdt_blob));

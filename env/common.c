@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <u-boot/crc.h>
+#include <dm/ofnode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -332,5 +333,34 @@ int env_complete(char *var, int maxv, char *cmdv[], int bufsz, char *buf,
 
 	cmdv[found] = NULL;
 	return found;
+}
+#endif
+
+#ifdef CONFIG_ENV_IMPORT_FDT
+void env_import_fdt(void)
+{
+	const char *path;
+	struct ofprop prop;
+	ofnode node;
+	int res;
+
+	path = env_get("env_fdt_path");
+	if (!path || !path[0])
+		return;
+
+	node = ofnode_path(path);
+	if (!ofnode_valid(node)) {
+		printf("Warning: device tree node '%s' not found\n", path);
+		return;
+	}
+
+	for (res = ofnode_get_first_property(node, &prop);
+	     !res;
+	     res = ofnode_get_next_property(&prop)) {
+		const char *name, *val;
+
+		val = ofnode_get_property_by_prop(&prop, &name, NULL);
+		env_set(name, val);
+	}
 }
 #endif
