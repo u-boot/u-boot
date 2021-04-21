@@ -53,14 +53,22 @@ struct udevice;
 #define TPM2_PT_MAX_COMMAND_SIZE	(u32)(TPM2_PT_FIXED + 30)
 #define TPM2_PT_MAX_RESPONSE_SIZE	(u32)(TPM2_PT_FIXED + 31)
 
-/* event types */
-#define EV_POST_CODE		((u32)0x00000001)
-#define EV_NO_ACTION		((u32)0x00000003)
-#define EV_SEPARATOR		((u32)0x00000004)
-#define EV_S_CRTM_CONTENTS	((u32)0x00000007)
-#define EV_S_CRTM_VERSION	((u32)0x00000008)
-#define EV_CPU_MICROCODE	((u32)0x00000009)
-#define EV_TABLE_OF_DEVICES	((u32)0x0000000B)
+/*
+ * event types, cf.
+ * "TCG Server Management Domain Firmware Profile Specification",
+ * rev 1.00, 2020-05-01
+ */
+#define EV_POST_CODE			((u32)0x00000001)
+#define EV_NO_ACTION			((u32)0x00000003)
+#define EV_SEPARATOR			((u32)0x00000004)
+#define EV_ACTION			((u32)0x00000005)
+#define EV_TAG				((u32)0x00000006)
+#define EV_S_CRTM_CONTENTS		((u32)0x00000007)
+#define EV_S_CRTM_VERSION		((u32)0x00000008)
+#define EV_CPU_MICROCODE		((u32)0x00000009)
+#define EV_PLATFORM_CONFIG_FLAGS	((u32)0x0000000A)
+#define EV_TABLE_OF_DEVICES		((u32)0x0000000B)
+#define EV_COMPACT_HASH			((u32)0x0000000C)
 
 /* TPMS_TAGGED_PROPERTY Structure */
 struct tpms_tagged_property {
