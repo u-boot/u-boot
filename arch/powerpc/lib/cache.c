@@ -11,7 +11,6 @@
 
 void flush_cache(ulong start_addr, ulong size)
 {
-#ifndef CONFIG_5xx
 	ulong addr, start, end;
 
 	start = start_addr & ~(CONFIG_SYS_CACHELINE_SIZE - 1);
@@ -33,5 +32,4 @@ void flush_cache(ulong start_addr, ulong size)
 	asm volatile("sync" : : : "memory");
 	/* flush prefetch queue */
 	asm volatile("isync" : : : "memory");
-#endif
 }
