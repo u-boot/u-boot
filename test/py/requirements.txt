@@ -9,7 +9,7 @@ more-itertools==7.2.0
 packaging==19.2
 pbr==5.4.3
 pluggy==0.13.0
-py==1.8.0
+py==1.10.0
 pycryptodomex==3.9.8
 pyelftools==0.27
 pygit2==0.28.2
