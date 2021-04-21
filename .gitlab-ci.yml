@@ -225,30 +225,6 @@ qemu_arm64 test.py:
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
-qemu_mips test.py:
-  variables:
-    TEST_PY_BD: "qemu_mips"
-    TEST_PY_TEST_SPEC: "not sleep"
-  <<: *buildman_and_testpy_dfn
-
-qemu_mipsel test.py:
-  variables:
-    TEST_PY_BD: "qemu_mipsel"
-    TEST_PY_TEST_SPEC: "not sleep"
-  <<: *buildman_and_testpy_dfn
-
-qemu_mips64 test.py:
-  variables:
-    TEST_PY_BD: "qemu_mips64"
-    TEST_PY_TEST_SPEC: "not sleep"
-  <<: *buildman_and_testpy_dfn
-
-qemu_mips64el test.py:
-  variables:
-    TEST_PY_BD: "qemu_mips64el"
-    TEST_PY_TEST_SPEC: "not sleep"
-  <<: *buildman_and_testpy_dfn
-
 qemu_malta test.py:
   variables:
     TEST_PY_BD: "malta"
