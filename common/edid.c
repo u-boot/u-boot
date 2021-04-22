@@ -185,6 +185,11 @@ int edid_get_timing_validate(u8 *buf, int buf_size,
 		return -EINVAL;
 	}
 
+	if (!EDID1_INFO_VIDEO_INPUT_DIGITAL(*edid)) {
+		debug("%s: Not a digital display\n", __func__);
+		return -ENOSYS;
+	}
+
 	if (!EDID1_INFO_FEATURE_PREFERRED_TIMING_MODE(*edid)) {
 		debug("%s: No preferred timing\n", __func__);
 		return -ENOENT;
@@ -211,10 +216,6 @@ int edid_get_timing_validate(u8 *buf, int buf_size,
 	if (!timing_done)
 		return -EINVAL;
 
-	if (!EDID1_INFO_VIDEO_INPUT_DIGITAL(*edid)) {
-		debug("%s: Not a digital display\n", __func__);
-		return -ENOSYS;
-	}
 	if (edid->version != 1 || edid->revision < 4) {
 		debug("%s: EDID version %d.%d does not have required info\n",
 		      __func__, edid->version, edid->revision);
