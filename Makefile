@@ -1854,11 +1854,10 @@ define filechk_timestamp.h
 endef
 
 define filechk_defaultenv.h
-	(grep -v '^#' | \
-	 grep -v '^$$' | \
+	( { grep -v '^#' | grep -v '^$$' || true ; echo '' ; } | \
 	 tr '\n' '\0' | \
 	 sed -e 's/\\\x0\s*//g' | \
-	 xxd -i ; echo ", 0x00" ; )
+	 xxd -i ; )
 endef
 
 define filechk_dt.h
