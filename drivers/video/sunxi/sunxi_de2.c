@@ -281,20 +281,7 @@ static int sunxi_de2_probe(struct udevice *dev)
 
 	debug("%s: hdmi display not found (ret=%d)\n", __func__, ret);
 
-	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
-					"sunxi_tve", &disp);
-	if (ret) {
-		debug("%s: tv not found (ret=%d)\n", __func__, ret);
-		return ret;
-	}
-
-	ret = sunxi_de2_init(dev, plat->base, VIDEO_BPP32, disp, 1, true);
-	if (ret)
-		return ret;
-
-	video_set_flush_dcache(dev, 1);
-
-	return 0;
+	return -ENODEV;
 }
 
 static int sunxi_de2_bind(struct udevice *dev)
