@@ -20,7 +20,6 @@
 
 struct sunxi_dw_hdmi_priv {
 	struct dw_hdmi hdmi;
-	int mux;
 };
 
 struct sunxi_hdmi_phy {
@@ -294,6 +293,7 @@ static int sunxi_dw_hdmi_enable(struct udevice *dev, int panel_bpp,
 {
 	struct sunxi_hdmi_phy * const phy =
 		(struct sunxi_hdmi_phy *)(SUNXI_HDMI_BASE + HDMI_PHY_OFFS);
+	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct sunxi_dw_hdmi_priv *priv = dev_get_priv(dev);
 	int ret;
 
@@ -301,7 +301,7 @@ static int sunxi_dw_hdmi_enable(struct udevice *dev, int panel_bpp,
 	if (ret)
 		return ret;
 
-	sunxi_dw_hdmi_lcdc_init(priv->mux, edid, panel_bpp);
+	sunxi_dw_hdmi_lcdc_init(uc_plat->source_id, edid, panel_bpp);
 
 	if (edid->flags & DISPLAY_FLAGS_VSYNC_LOW)
 		setbits_le32(&phy->pol, 0x200);
@@ -324,7 +324,6 @@ static int sunxi_dw_hdmi_enable(struct udevice *dev, int panel_bpp,
 
 static int sunxi_dw_hdmi_probe(struct udevice *dev)
 {
-	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct sunxi_dw_hdmi_priv *priv = dev_get_priv(dev);
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
@@ -353,7 +352,6 @@ static int sunxi_dw_hdmi_probe(struct udevice *dev)
 	priv->hdmi.i2c_clk_low = 0xfe;
 	priv->hdmi.reg_io_width = 1;
 	priv->hdmi.phy_set = sunxi_dw_hdmi_phy_cfg;
-	priv->mux = uc_plat->source_id;
 
 	ret = dw_hdmi_phy_wait_for_hpd(&priv->hdmi);
 	if (ret < 0) {
