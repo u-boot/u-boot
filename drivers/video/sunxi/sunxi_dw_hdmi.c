@@ -305,6 +305,12 @@ static int sunxi_dw_hdmi_read_edid(struct udevice *dev, u8 *buf, int buf_size)
 	return dw_hdmi_read_edid(&priv->hdmi, buf, buf_size);
 }
 
+static bool sunxi_dw_hdmi_mode_valid(struct udevice *dev,
+				     const struct display_timing *timing)
+{
+	return timing->pixelclock.typ <= 297000000;
+}
+
 static int sunxi_dw_hdmi_enable(struct udevice *dev, int panel_bpp,
 				const struct display_timing *edid)
 {
@@ -388,6 +394,7 @@ static int sunxi_dw_hdmi_probe(struct udevice *dev)
 static const struct dm_display_ops sunxi_dw_hdmi_ops = {
 	.read_edid = sunxi_dw_hdmi_read_edid,
 	.enable = sunxi_dw_hdmi_enable,
+	.mode_valid = sunxi_dw_hdmi_mode_valid,
 };
 
 U_BOOT_DRIVER(sunxi_dw_hdmi) = {
