@@ -132,8 +132,9 @@
 	 PCIE_CONF_FUNC(PCI_FUNC(devfn)) | PCIE_CONF_REG(where))
 
 /* PCIe Retries & Timeout definitions */
-#define MAX_RETRIES				10
-#define PIO_WAIT_TIMEOUT			100
+#define PIO_MAX_RETRIES				1500
+#define PIO_WAIT_TIMEOUT			1000
+#define LINK_MAX_RETRIES			10
 #define LINK_WAIT_TIMEOUT			100000
 
 #define CFG_RD_UR_VAL			0xFFFFFFFF
@@ -192,7 +193,7 @@ static int pcie_advk_addr_valid(pci_dev_t bdf, int first_busno)
  *
  * @pcie: The PCI device to access
  *
- * Wait up to 1 micro second for PIO access to be accomplished.
+ * Wait up to 1.5 seconds for PIO access to be accomplished.
  *
  * Return 1 (true) if PIO access is accomplished.
  * Return 0 (false) if PIO access is timed out.
@@ -202,7 +203,7 @@ static int pcie_advk_wait_pio(struct pcie_advk *pcie)
 	uint start, isr;
 	uint count;
 
-	for (count = 0; count < MAX_RETRIES; count++) {
+	for (count = 0; count < PIO_MAX_RETRIES; count++) {
 		start = advk_readl(pcie, PIO_START);
 		isr = advk_readl(pcie, PIO_ISR);
 		if (!start && isr)
@@ -214,7 +215,7 @@ static int pcie_advk_wait_pio(struct pcie_advk *pcie)
 		udelay(PIO_WAIT_TIMEOUT);
 	}
 
-	dev_err(pcie->dev, "config read/write timed out\n");
+	dev_err(pcie->dev, "PIO read/write transfer time out\n");
 	return 0;
 }
 
@@ -323,9 +324,14 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 		return 0;
 	}
 
-	/* Start PIO */
-	advk_writel(pcie, 0, PIO_START);
-	advk_writel(pcie, 1, PIO_ISR);
+	if (advk_readl(pcie, PIO_START)) {
+		dev_err(pcie->dev,
+			"Previous PIO read/write transfer is still running\n");
+		if (offset != PCI_VENDOR_ID)
+			return -EINVAL;
+		*valuep = CFG_RD_CRS_VAL;
+		return 0;
+	}
 
 	/* Program the control register */
 	reg = advk_readl(pcie, PIO_CTRL);
@@ -342,10 +348,15 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 	advk_writel(pcie, 0, PIO_ADDR_MS);
 
 	/* Start the transfer */
+	advk_writel(pcie, 1, PIO_ISR);
 	advk_writel(pcie, 1, PIO_START);
 
-	if (!pcie_advk_wait_pio(pcie))
-		return -EINVAL;
+	if (!pcie_advk_wait_pio(pcie)) {
+		if (offset != PCI_VENDOR_ID)
+			return -EINVAL;
+		*valuep = CFG_RD_CRS_VAL;
+		return 0;
+	}
 
 	/* Check PIO status and get the read result */
 	ret = pcie_advk_check_pio_status(pcie, true, &reg);
@@ -420,9 +431,11 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 		return 0;
 	}
 
-	/* Start PIO */
-	advk_writel(pcie, 0, PIO_START);
-	advk_writel(pcie, 1, PIO_ISR);
+	if (advk_readl(pcie, PIO_START)) {
+		dev_err(pcie->dev,
+			"Previous PIO read/write transfer is still running\n");
+		return -EINVAL;
+	}
 
 	/* Program the control register */
 	reg = advk_readl(pcie, PIO_CTRL);
@@ -450,6 +463,7 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 	dev_dbg(pcie->dev, "\tPIO req. - strb = 0x%02x\n", reg);
 
 	/* Start the transfer */
+	advk_writel(pcie, 1, PIO_ISR);
 	advk_writel(pcie, 1, PIO_START);
 
 	if (!pcie_advk_wait_pio(pcie)) {
@@ -494,7 +508,7 @@ static int pcie_advk_wait_for_link(struct pcie_advk *pcie)
 	int retries;
 
 	/* check if the link is up or not */
-	for (retries = 0; retries < MAX_RETRIES; retries++) {
+	for (retries = 0; retries < LINK_MAX_RETRIES; retries++) {
 		if (pcie_advk_link_up(pcie)) {
 			printf("PCIE-%d: Link up\n", pcie->first_busno);
 			return 0;
