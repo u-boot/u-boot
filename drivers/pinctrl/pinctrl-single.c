@@ -295,7 +295,7 @@ static int single_configure_pins(struct udevice *dev,
 	func->npins = 0;
 	for (n = 0; n < count; n++, pins++) {
 		offset = fdt32_to_cpu(pins->reg);
-		if (offset < 0 || offset > pdata->offset) {
+		if (offset > pdata->offset) {
 			dev_err(dev, "  invalid register offset 0x%x\n",
 				offset);
 			continue;
@@ -348,7 +348,7 @@ static int single_configure_bits(struct udevice *dev,
 	func->npins = 0;
 	for (n = 0; n < count; n++, pins++) {
 		offset = fdt32_to_cpu(pins->reg);
-		if (offset < 0 || offset > pdata->offset) {
+		if (offset > pdata->offset) {
 			dev_dbg(dev, "  invalid register offset 0x%x\n",
 				offset);
 			continue;
