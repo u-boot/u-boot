@@ -114,28 +114,6 @@ static void sunxi_dw_hdmi_phy_init(void)
 	writel(0x42494E47, &phy->unscramble);
 }
 
-static int sunxi_dw_hdmi_get_plug_in_status(void)
-{
-	struct sunxi_hdmi_phy * const phy =
-		(struct sunxi_hdmi_phy *)(SUNXI_HDMI_BASE + HDMI_PHY_OFFS);
-
-	return !!(readl(&phy->status) & (1 << 19));
-}
-
-static int sunxi_dw_hdmi_wait_for_hpd(void)
-{
-	ulong start;
-
-	start = get_timer(0);
-	do {
-		if (sunxi_dw_hdmi_get_plug_in_status())
-			return 0;
-		udelay(100);
-	} while (get_timer(start) < 300);
-
-	return -1;
-}
-
 static void sunxi_dw_hdmi_phy_set(uint clock, int phy_div)
 {
 	struct sunxi_hdmi_phy * const phy =
@@ -370,18 +348,18 @@ static int sunxi_dw_hdmi_probe(struct udevice *dev)
 
 	sunxi_dw_hdmi_phy_init();
 
-	ret = sunxi_dw_hdmi_wait_for_hpd();
-	if (ret < 0) {
-		debug("hdmi can not get hpd signal\n");
-		return -1;
-	}
-
 	priv->hdmi.ioaddr = SUNXI_HDMI_BASE;
 	priv->hdmi.i2c_clk_high = 0xd8;
 	priv->hdmi.i2c_clk_low = 0xfe;
 	priv->hdmi.reg_io_width = 1;
 	priv->hdmi.phy_set = sunxi_dw_hdmi_phy_cfg;
 	priv->mux = uc_plat->source_id;
+
+	ret = dw_hdmi_phy_wait_for_hpd(&priv->hdmi);
+	if (ret < 0) {
+		debug("hdmi can not get hpd signal\n");
+		return -1;
+	}
 
 	uclass_get_device_by_phandle(UCLASS_I2C, dev, "ddc-i2c-bus",
 				     &priv->hdmi.ddc_bus);
