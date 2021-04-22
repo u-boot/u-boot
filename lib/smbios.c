@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <linux/stringify.h>
 #include <mapmem.h>
 #include <smbios.h>
 #include <sysinfo.h>
@@ -17,6 +18,28 @@
 #include <cpu.h>
 #include <dm/uclass-internal.h>
 #endif
+
+/* Safeguard for checking that U_BOOT_VERSION_NUM macros are compatible with U_BOOT_DMI */
+#if U_BOOT_VERSION_NUM < 2000 || U_BOOT_VERSION_NUM > 2099 || \
+    U_BOOT_VERSION_NUM_PATCH < 1 || U_BOOT_VERSION_NUM_PATCH > 12
+#error U_BOOT_VERSION_NUM macros are not compatible with DMI, fix U_BOOT_DMI macros
+#endif
+
+/*
+ * U_BOOT_DMI_DATE contains BIOS Release Date in format mm/dd/yyyy.
+ * BIOS Release Date is calculated from U-Boot version and fixed day 01.
+ * So for U-Boot version 2021.04 it is calculated as "04/01/2021".
+ * BIOS Release Date should contain date when code was released
+ * and not when it was built or compiled.
+ */
+#if U_BOOT_VERSION_NUM_PATCH < 10
+#define U_BOOT_DMI_MONTH "0" __stringify(U_BOOT_VERSION_NUM_PATCH)
+#else
+#define U_BOOT_DMI_MONTH __stringify(U_BOOT_VERSION_NUM_PATCH)
+#endif
+#define U_BOOT_DMI_DAY "01"
+#define U_BOOT_DMI_YEAR __stringify(U_BOOT_VERSION_NUM)
+#define U_BOOT_DMI_DATE U_BOOT_DMI_MONTH "/" U_BOOT_DMI_DAY "/" U_BOOT_DMI_YEAR
 
 DECLARE_GLOBAL_DATA_PTR;
 
