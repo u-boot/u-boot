@@ -11,7 +11,14 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sysfw-loader.h>
+#include <asm/arch/sys_proto.h>
 #include "common.h"
+#include <asm/arch/sys_proto.h>
+#include <linux/soc/ti/ti_sci_protocol.h>
+#include <dm.h>
+#include <dm/uclass-internal.h>
+#include <dm/pinctrl.h>
 
 #if defined(CONFIG_SPL_BUILD)
 
@@ -46,6 +53,11 @@ static void store_boot_info_from_rom(void)
 
 void board_init_f(ulong dummy)
 {
+#if defined(CONFIG_K3_LOAD_SYSFW)
+	struct udevice *dev;
+	int ret;
+#endif
+
 #if defined(CONFIG_CPU_V7R)
 	setup_k3_mpu_regions();
 #endif
@@ -62,6 +74,31 @@ void board_init_f(ulong dummy)
 	spl_early_init();
 
 	preloader_console_init();
+
+#if defined(CONFIG_K3_LOAD_SYSFW)
+	/*
+	 * Process pinctrl for serial3 a.k.a. MAIN UART1 module and continue
+	 * regardless of the result of pinctrl. Do this without probing the
+	 * device, but instead by searching the device that would request the
+	 * given sequence number if probed. The UART will be used by the system
+	 * firmware (SYSFW) image for various purposes and SYSFW depends on us
+	 * to initialize its pin settings.
+	 */
+	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 3, &dev);
+	if (!ret)
+		pinctrl_select_state(dev, "default");
+
+	/*
+	 * Load, start up, and configure system controller firmware.
+	 * This will determine whether or not ROM has already loaded
+	 * system firmware and if so, will only perform needed config
+	 * and not attempt to load firmware again.
+	 */
+	k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata), NULL, NULL);
+#endif
+
+	/* Output System Firmware version info */
+	k3_sysfw_print_ver();
 }
 
 u32 spl_boot_mode(const u32 boot_device)
