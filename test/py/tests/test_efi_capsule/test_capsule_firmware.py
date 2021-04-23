@@ -39,7 +39,7 @@ class TestEfiCapsuleFirmwareFit(object):
         with u_boot_console.log.section('Test Case 1-a, before reboot'):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
-                'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi ""',
+                'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi -s ""',
                 'efidebug boot order 1',
                 'env set -e OsIndications',
                 'env set dfu_alt_info "sf 0:0=u-boot-bin raw 0x100000 0x50000;u-boot-env raw 0x150000 0x200000"',
@@ -114,7 +114,7 @@ class TestEfiCapsuleFirmwareFit(object):
         with u_boot_console.log.section('Test Case 2-a, before reboot'):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
-                'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi ""',
+                'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi -s ""',
                 'efidebug boot order 1',
                 'env set -e -nv -bs -rt OsIndications =0x0000000000000004',
                 'env set dfu_alt_info "sf 0:0=u-boot-bin raw 0x100000 0x50000;u-boot-env raw 0x150000 0x200000"',
@@ -188,7 +188,7 @@ class TestEfiCapsuleFirmwareFit(object):
         with u_boot_console.log.section('Test Case 3-a, before reboot'):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
-                'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi ""',
+                'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi -s ""',
                 'efidebug boot order 1',
                 'env set -e -nv -bs -rt OsIndications =0x0000000000000004',
                 'env set dfu_alt_info "sf 0:0=u-boot-bin raw 0x100000 0x50000;u-boot-env raw 0x150000 0x200000"',
