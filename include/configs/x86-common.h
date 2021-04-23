@@ -16,8 +16,6 @@
  */
 #define CONFIG_PHYSMEM
 
-#define CONFIG_LMB
-
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
 /* SATA AHCI storage */

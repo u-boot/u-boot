@@ -9,8 +9,6 @@
 
 #include <asm/arch/core.h>
 
-#define CONFIG_LMB
-
 /*
  * Make boot parameters available in the MMUv2 virtual memory layout by
  * restricting used physical memory to the first 128MB.

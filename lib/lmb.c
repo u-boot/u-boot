@@ -20,8 +20,6 @@ void lmb_dump_all_force(struct lmb *lmb)
 
 	printf("lmb_dump_all:\n");
 	printf("    memory.cnt		   = 0x%lx\n", lmb->memory.cnt);
-	printf("    memory.size		   = 0x%llx\n",
-	       (unsigned long long)lmb->memory.size);
 	for (i = 0; i < lmb->memory.cnt; i++) {
 		printf("    memory.reg[0x%lx].base   = 0x%llx\n", i,
 		       (unsigned long long)lmb->memory.region[i].base);
@@ -30,8 +28,6 @@ void lmb_dump_all_force(struct lmb *lmb)
 	}
 
 	printf("\n    reserved.cnt	   = 0x%lx\n", lmb->reserved.cnt);
-	printf("    reserved.size	   = 0x%llx\n",
-	       (unsigned long long)lmb->reserved.size);
 	for (i = 0; i < lmb->reserved.cnt; i++) {
 		printf("    reserved.reg[0x%lx].base = 0x%llx\n", i,
 		       (unsigned long long)lmb->reserved.region[i].base);
@@ -99,10 +95,17 @@ static void lmb_coalesce_regions(struct lmb_region *rgn, unsigned long r1,
 
 void lmb_init(struct lmb *lmb)
 {
+#if IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
+	lmb->memory.max = CONFIG_LMB_MAX_REGIONS;
+	lmb->reserved.max = CONFIG_LMB_MAX_REGIONS;
+#else
+	lmb->memory.max = CONFIG_LMB_MEMORY_REGIONS;
+	lmb->reserved.max = CONFIG_LMB_RESERVED_REGIONS;
+	lmb->memory.region = lmb->memory_regions;
+	lmb->reserved.region = lmb->reserved_regions;
+#endif
 	lmb->memory.cnt = 0;
-	lmb->memory.size = 0;
 	lmb->reserved.cnt = 0;
-	lmb->reserved.size = 0;
 }
 
 static void lmb_reserve_common(struct lmb *lmb, void *fdt_blob)
@@ -185,7 +188,7 @@ static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base, phys_size_t
 
 	if (coalesced)
 		return coalesced;
-	if (rgn->cnt >= MAX_LMB_REGIONS)
+	if (rgn->cnt >= rgn->max)
 		return -1;
 
 	/* Couldn't coalesce the LMB, so add it to the sorted table. */

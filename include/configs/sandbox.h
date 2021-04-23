@@ -22,8 +22,6 @@
 #define CONFIG_SYS_TIMER_RATE		1000000
 #endif
 
-#define CONFIG_LMB
-
 #define CONFIG_HOST_MAX_DEVICES 4
 
 /*
