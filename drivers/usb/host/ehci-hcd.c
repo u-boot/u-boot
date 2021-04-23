@@ -346,6 +346,28 @@ static int ehci_disable_async(struct ehci_ctrl *ctrl)
 	return ret;
 }
 
+static int ehci_iaa_cycle(struct ehci_ctrl *ctrl)
+{
+	u32 cmd, status;
+	int ret;
+
+	/* Enable Interrupt on Async Advance Doorbell. */
+	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
+	cmd |= CMD_IAAD;
+	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
+
+	ret = handshake(&ctrl->hcor->or_usbsts, STS_IAA, STS_IAA,
+			10 * 1000); /* 10ms timeout */
+	if (ret < 0)
+		printf("EHCI fail timeout STS_IAA set\n");
+
+	status = ehci_readl(&ctrl->hcor->or_usbsts);
+	if (status & STS_IAA)
+		ehci_writel(&ctrl->hcor->or_usbsts, STS_IAA);
+
+	return ret;
+}
+
 static int
 ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int length, struct devrequest *req)
@@ -630,6 +652,11 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	ctrl->qh_list.qh_link = cpu_to_hc32(virt_to_phys(&ctrl->qh_list) | QH_LINK_TYPE_QH);
 	flush_dcache_range((unsigned long)&ctrl->qh_list,
 		ALIGN_END_ADDR(struct QH, &ctrl->qh_list, 1));
+
+	/* Set IAAD, poll IAA */
+	ret = ehci_iaa_cycle(ctrl);
+	if (ret)
+		goto fail;
 
 	/*
 	 * Invalidate the memory area occupied by buffer
