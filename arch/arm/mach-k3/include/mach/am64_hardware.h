@@ -12,6 +12,8 @@
 #define CTRL_MMR0_BASE					0x43000000
 #define CTRLMMR_MAIN_DEVSTAT				(CTRL_MMR0_BASE + 0x30)
 
+#define PADCFG_MMR1_BASE				0xf0000
+
 #define MAIN_DEVSTAT_PRIMARY_BOOTMODE_MASK		0x00000078
 #define MAIN_DEVSTAT_PRIMARY_BOOTMODE_SHIFT		3
 
@@ -29,14 +31,14 @@
 #define MAIN_DEVSTAT_PRIMARY_MMC_PORT_MASK		0x04
 
 /*
- * The CTRL_MMR memory space is divided into several equally-spaced
- * partitions, so defining the partition size allows us to determine
- * register addresses common to those partitions.
+ * The CTRL_MMR and PADCFG_MMR memory space is divided into several
+ * equally-spaced partitions, so defining the partition size allows us to
+ * determine register addresses common to those partitions.
  */
 #define CTRL_MMR0_PARTITION_SIZE			0x4000
 
 /*
- * CTRL_MMR lock/kick-mechanism shared register definitions.
+ * CTRL_MMR and PADCFG_MMR lock/kick-mechanism shared register definitions.
  */
 #define CTRLMMR_LOCK_KICK0				0x01008
 #define CTRLMMR_LOCK_KICK0_UNLOCK_VAL			0x68ef3490

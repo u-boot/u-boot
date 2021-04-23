@@ -15,11 +15,27 @@
 
 #if defined(CONFIG_SPL_BUILD)
 
+static void ctrl_mmr_unlock(void)
+{
+	/* Unlock all PADCFG_MMR1 module registers */
+	mmr_unlock(PADCFG_MMR1_BASE, 1);
+
+	/* Unlock all CTRL_MMR0 module registers */
+	mmr_unlock(CTRL_MMR0_BASE, 0);
+	mmr_unlock(CTRL_MMR0_BASE, 1);
+	mmr_unlock(CTRL_MMR0_BASE, 2);
+	mmr_unlock(CTRL_MMR0_BASE, 3);
+	mmr_unlock(CTRL_MMR0_BASE, 5);
+	mmr_unlock(CTRL_MMR0_BASE, 6);
+}
+
 void board_init_f(ulong dummy)
 {
 #if defined(CONFIG_CPU_V7R)
 	setup_k3_mpu_regions();
 #endif
+
+	ctrl_mmr_unlock();
 
 	/* Init DM early */
 	spl_early_init();
