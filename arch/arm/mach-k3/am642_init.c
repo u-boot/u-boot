@@ -19,6 +19,7 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
+#include <mmc.h>
 
 #if defined(CONFIG_SPL_BUILD)
 
@@ -50,6 +51,36 @@ static void store_boot_info_from_rom(void)
 	memcpy(&bootdata, (uintptr_t *)ROM_ENTENDED_BOOT_DATA_INFO,
 	       sizeof(struct rom_extended_boot_data));
 }
+
+#if defined(CONFIG_K3_LOAD_SYSFW) && CONFIG_IS_ENABLED(DM_MMC)
+void k3_mmc_stop_clock(void)
+{
+	if (spl_boot_device() == BOOT_DEVICE_MMC1) {
+		struct mmc *mmc = find_mmc_device(0);
+
+		if (!mmc)
+			return;
+
+		mmc->saved_clock = mmc->clock;
+		mmc_set_clock(mmc, 0, true);
+	}
+}
+
+void k3_mmc_restart_clock(void)
+{
+	if (spl_boot_device() == BOOT_DEVICE_MMC1) {
+		struct mmc *mmc = find_mmc_device(0);
+
+		if (!mmc)
+			return;
+
+		mmc_set_clock(mmc, mmc->saved_clock, false);
+	}
+}
+#else
+void k3_mmc_stop_clock(void) {}
+void k3_mmc_restart_clock(void) {}
+#endif
 
 void board_init_f(ulong dummy)
 {
@@ -94,7 +125,8 @@ void board_init_f(ulong dummy)
 	 * system firmware and if so, will only perform needed config
 	 * and not attempt to load firmware again.
 	 */
-	k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata), NULL, NULL);
+	k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata), k3_mmc_stop_clock,
+			k3_mmc_restart_clock);
 #endif
 
 	/* Output System Firmware version info */
