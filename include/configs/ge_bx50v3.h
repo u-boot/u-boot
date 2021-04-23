@@ -92,7 +92,6 @@
 	"swappartitions=" \
 		"setexpr partnum 3 - ${partnum}\0" \
 	"failbootcmd=" \
-		"echo reached failbootcmd; " \
 		"cls; " \
 		"setcurs 5 4; " \
 		"lcdputs \"Monitor failed to start. " \
@@ -115,15 +114,13 @@
 	"tryboot=" \
 		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
 		"run loadimage || run swappartitions && run loadimage || " \
-		"setenv partnum 0 && echo MISSING IMAGE;" \
+			"setenv partnum 0 && echo MISSING IMAGE;" \
 		"run doboot; " \
 		"run failbootcmd\0" \
 
 #define CONFIG_MMCBOOTCOMMAND \
-	"if mmc dev ${devnum}; then " \
-		"run doquiet; " \
-		"run tryboot; " \
-	"fi; " \
+	"run doquiet; " \
+	"run tryboot; " \
 
 #ifdef CONFIG_CMD_NFS
 #define CONFIG_BOOTCOMMAND CONFIG_NETWORKBOOTCOMMAND
