@@ -96,7 +96,8 @@
 		"setcurs 5 4; " \
 		"lcdputs \"Monitor failed to start. " \
 		"Try again, or contact GE Service for support.\"; " \
-		"bootcount reset; \0" \
+		"bootcount reset; " \
+		"while true; do sleep 1; done; \0" \
 	"altbootcmd=" \
 		"run doquiet; " \
 		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
