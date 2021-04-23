@@ -19,10 +19,6 @@
 #include <asm/arch/at91_matrix.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
-#if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
-#include <net.h>
-#endif
-#include <netdev.h>
 #include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -70,41 +66,6 @@ static void pm9263_nand_hw_init(void)
 
 	/* Enable NandFlash */
 	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
-}
-#endif
-
-#ifdef CONFIG_MACB
-static void pm9263_macb_hw_init(void)
-{
-	/*
-	 * PB27 enables the 50MHz oscillator for Ethernet PHY
-	 * 1 - enable
-	 * 0 - disable
-	 */
-	at91_set_pio_output(AT91_PIO_PORTB, 27, 1);
-	at91_set_pio_value(AT91_PIO_PORTB, 27, 1); /* 1- enable, 0 - disable */
-
-	at91_periph_clk_enable(ATMEL_ID_EMAC);
-
-	/*
-	 * Disable pull-up on:
-	 *	RXDV (PC25) => PHY normal mode (not Test mode)
-	 *	ERX0 (PE25) => PHY ADDR0
-	 *	ERX1 (PE26) => PHY ADDR1 => PHYADDR = 0x0
-	 *
-	 * PHY has internal pull-down
-	 */
-
-	at91_set_pio_pullup(AT91_PIO_PORTC, 25, 0);
-	at91_set_pio_pullup(AT91_PIO_PORTE, 25, 0);
-	at91_set_pio_pullup(AT91_PIO_PORTE, 26, 0);
-
-	/* Re-enable pull-up */
-	at91_set_pio_pullup(AT91_PIO_PORTC, 25, 1);
-	at91_set_pio_pullup(AT91_PIO_PORTE, 25, 1);
-	at91_set_pio_pullup(AT91_PIO_PORTE, 26, 1);
-
-	at91_macb_hw_init();
 }
 #endif
 
@@ -233,9 +194,6 @@ int board_init(void)
 #ifdef CONFIG_CMD_NAND
 	pm9263_nand_hw_init();
 #endif
-#ifdef CONFIG_MACB
-	pm9263_macb_hw_init();
-#endif
 #ifdef CONFIG_USB_OHCI_NEW
 	at91_uhp_hw_init();
 #endif
@@ -259,21 +217,6 @@ int dram_init_banksize(void)
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
 
 	return 0;
-}
-
-#ifdef CONFIG_RESET_PHY_R
-void reset_phy(void)
-{
-}
-#endif
-
-int board_eth_init(struct bd_info *bis)
-{
-	int rc = 0;
-#ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x01);
-#endif
-	return rc;
 }
 
 #ifdef CONFIG_DISPLAY_BOARDINFO
