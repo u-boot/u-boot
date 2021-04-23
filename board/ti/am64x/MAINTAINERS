@@ -5,3 +5,4 @@ S:	Maintained
 F:	board/ti/am64x/
 F:	include/configs/am64x_evm.h
 F:	configs/am64x_evm_r5_defconfig
+F:	configs/am64x_evm_a53_defconfig
