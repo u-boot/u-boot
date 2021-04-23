@@ -205,7 +205,7 @@ static void show_table(struct sysinfo_t *info, bool verbose)
 		print_hex(">type", ser->type);
 		print_addr(">base", ser->baseaddr);
 		print_dec(">baud", ser->baud);
-		print_hex(">baud", ser->regwidth);
+		print_hex(">regwidth", ser->regwidth);
 		print_dec(">input_hz", ser->input_hertz);
 		print_addr(">PCI addr", ser->uart_pci_addr);
 	}
