@@ -317,13 +317,13 @@ config MMC_PCI
 	  If you have an MMC controller on a PCI bus, say Y here.
 
 config MMC_OCTEONTX
-	bool "Marvell OcteonTX Multimedia Card Interface support"
-	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	bool "Marvell Octeon Multimedia Card Interface support"
+	depends on (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	depends on DM_MMC
 	help
-	  This selects the OcteonTX Multimedia card Interface.
-	  If you have an OcteonTX/TX2 board with a Multimedia Card slot,
-	  say Y here.
+	  This selects the Octeon Multimedia card Interface.
+	  If you have an OcteonTX/TX2 or MIPS Octeon board with a
+	  Multimedia Card slot, say Y here.
 
 	  If unsure, say N.
 

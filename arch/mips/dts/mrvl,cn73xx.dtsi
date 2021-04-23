@@ -134,6 +134,33 @@
 			clocks = <&clk OCTEON_CLK_IO>;
 		};
 
+		mmc: mmc@1180000002000 {
+			compatible = "cavium,octeon-7890-mmc",
+				     "cavium,octeon-7360-mmc";
+			reg = <0x11800 0x00000000 0x0 0x2100>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			/* EMM_INT_BUF_DONE,
+			   EMM_INT_CMD_DONE,
+			   EMM_INT_DMA_DONE,
+			   EMM_INT_CMD_ERR,
+			   EMM_INT_DMA_ERR,
+			   EMM_INT_SWITCH_DONE,
+			   EMM_INT_SWITCH_ERR,
+			   EMM_DMA_DONE,
+			   EMM_DMA_FIFO*/
+			interrupts = <0x09040 1>,
+				     <0x09041 1>,
+				     <0x09042 1>,
+				     <0x09043 1>,
+				     <0x09044 1>,
+				     <0x09045 1>,
+				     <0x09046 1>,
+				     <0x09000 1>,
+				     <0x09001 1>;
+			clocks = <&clk OCTEON_CLK_IO>;
+		};
+
 		spi: spi@1070000001000 {
 			compatible = "cavium,octeon-3010-spi";
 			reg = <0x10700 0x00001000 0x0 0x100>;
