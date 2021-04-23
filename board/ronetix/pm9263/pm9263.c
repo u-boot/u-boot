@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* ------------------------------------------------------------------------- */
 /*
- * Miscelaneous platform dependent initialisations
+ * Miscellaneous platform dependent initializations
  */
 
 #ifdef CONFIG_CMD_NAND
@@ -166,7 +166,7 @@ static void pm9263_lcd_hw_init(void)
 	at91_set_pio_value(AT91_PIO_PORTA, 22, 0);	/* power down */
 
 #ifdef CONFIG_LCD_IN_PSRAM
-	/* initialize te PSRAM */
+	/* initialize the PSRAM */
 	int stat = pm9263_lcd_hw_psram_init();
 
 	gd->fb_base = (stat == 0) ? PHYS_PSRAM : ATMEL_BASE_SRAM0;
@@ -185,10 +185,10 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	/* arch number of AT91SAM9263EK-Board */
+	/* arch number of PM9263 Board */
 	gd->bd->bi_arch_number = MACH_TYPE_PM9263;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 #ifdef CONFIG_CMD_NAND
@@ -205,7 +205,7 @@ int board_init(void)
 
 int dram_init(void)
 {
-	/* dram_init must store complete ramsize in gd->ram_size */
+	/* dram_init must store complete RAM size in gd->ram_size */
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM,
 				PHYS_SDRAM_SIZE);
 	return 0;

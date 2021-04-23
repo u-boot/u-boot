@@ -5,7 +5,7 @@
  * Lead Tech Design <www.leadtechdesign.com>
  * Ilko Iliev <www.ronetix.at>
  *
- * Configuation settings for the RONETIX PM9263 board.
+ * Configuration settings for the RONETIX PM9263 board.
  */
 
 #ifndef __CONFIG_H
