@@ -1,10 +1,14 @@
+// SPDX-License-Identifier: CC0-1.0
+/* Based on libxcrypt v4.4.17-0-g6b110bc */
 /* One way encryption based on the SHA256-based Unix crypt implementation.
  *
  * Written by Ulrich Drepper <drepper at redhat.com> in 2007 [1].
  * Modified by Zack Weinberg <zackw at panix.com> in 2017, 2018.
  * Composed by Björn Esser <besser82 at fedoraproject.org> in 2018.
  * Modified by Björn Esser <besser82 at fedoraproject.org> in 2020.
- * Modified by Steffen Jaeckel <jaeckel-floss at eyet-services.de> in 2020.
+ * Modified by Steffen Jaeckel <jaeckel-floss at eyet-services.de> in 2021
+ * for U-Boot, instead of using the global errno to use a static one
+ * inside this file.
  * To the extent possible under law, the named authors have waived all
  * copyright and related or neighboring rights to this work.
  *
@@ -20,7 +24,7 @@
 #include "crypt-port.h"
 #include "alg-sha256.h"
 
-#include <errno.h>
+#include <linux/errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -68,6 +72,25 @@ struct sha256_buffer
 static_assert (sizeof (struct sha256_buffer) <= ALG_SPECIFIC_SIZE,
                "ALG_SPECIFIC_SIZE is too small for SHA256");
 
+
+/* Use this instead of including errno.h */
+static int errno;
+
+void crypt_sha256crypt_rn(const char *phrase, size_t phr_size,
+			  const char *setting, size_t ARG_UNUSED(set_size),
+			  uint8_t *output, size_t out_size, void *scratch,
+			  size_t scr_size);
+
+int crypt_sha256crypt_rn_wrapped(const char *phrase, size_t phr_size,
+				 const char *setting, size_t set_size,
+				 u8 *output, size_t out_size, void *scratch,
+				 size_t scr_size)
+{
+	errno = 0;
+	crypt_sha256crypt_rn(phrase, phr_size, setting, set_size, output,
+			     out_size, scratch, scr_size);
+	return -errno;
+}
 
 /* Feed CTX with LEN bytes of a virtual byte sequence consisting of
    BLOCK repeated over and over indefinitely.  */
