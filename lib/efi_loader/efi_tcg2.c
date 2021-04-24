@@ -535,30 +535,27 @@ static efi_status_t tcg2_create_digest(const u8 *input, u32 length,
 			sha1_starts(&ctx);
 			sha1_update(&ctx, input, length);
 			sha1_finish(&ctx, final);
-			digest_list->count++;
 			break;
 		case TPM2_ALG_SHA256:
 			sha256_starts(&ctx_256);
 			sha256_update(&ctx_256, input, length);
 			sha256_finish(&ctx_256, final);
-			digest_list->count++;
 			break;
 		case TPM2_ALG_SHA384:
 			sha384_starts(&ctx_512);
 			sha384_update(&ctx_512, input, length);
 			sha384_finish(&ctx_512, final);
-			digest_list->count++;
 			break;
 		case TPM2_ALG_SHA512:
 			sha512_starts(&ctx_512);
 			sha512_update(&ctx_512, input, length);
 			sha512_finish(&ctx_512, final);
-			digest_list->count++;
 			break;
 		default:
 			EFI_PRINT("Unsupported algorithm %x\n", hash_alg);
 			return EFI_INVALID_PARAMETER;
 		}
+		digest_list->count++;
 		digest_list->digests[i].hash_alg = hash_alg;
 		memcpy(&digest_list->digests[i].digest, final, (u32)alg_to_len(hash_alg));
 	}

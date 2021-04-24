@@ -150,7 +150,7 @@ Examples of writing SIT and two copies of bootloader to SD or eMMC:
     => mmc write ${loadaddr} 0x41 0x1
 
     => dhcp ${loadaddr} flash.bin
-    => setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt
+    => setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt ${blkcnt} / 0x200
     => mmc dev 1
     => mmc write ${loadaddr} 0x42   ${blkcnt}
     => mmc write ${loadaddr} 0x1042 ${blkcnt}
