@@ -112,13 +112,20 @@
 	};
 };
 
-&uart0 {
-	clock-frequency = <1200000000>;
-};
-
 &i2c0 {
 	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
 	clock-frequency = <100000>;
+
+	rtc@68 {
+		compatible = "dallas,ds1337";
+		reg = <0x68>;
+	};
+
+	tlv-eeprom@56 {
+		compatible = "atmel,24c256", "microchip,24lc256";
+		reg = <0x56>;
+		pagesize = <64>;
+	};
 };
 
 &i2c1 {

@@ -158,6 +158,12 @@ config PCI_OCTEONTX
 	  These controllers provide PCI configuration access to all on-board
 	  peripherals so it should only be disabled for testing purposes
 
+config PCIE_OCTEON
+	bool "MIPS Octeon PCIe support"
+	depends on ARCH_OCTEON
+	help
+	  Enable support for the MIPS Octeon SoC family PCIe controllers.
+
 config PCI_XILINX
 	bool "Xilinx AXI Bridge for PCI Express"
 	depends on DM_PCI

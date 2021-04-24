@@ -9,6 +9,7 @@
 #include <bootstage.h>
 #include <dm.h>
 #include <env.h>
+#include <libata.h>
 #include <log.h>
 #include <part.h>
 #include <pci.h>
@@ -594,6 +595,11 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	memcpy(&bdesc->vendor, &bd.vendor, sizeof(bd.vendor));
 	memcpy(&bdesc->product, &bd.product, sizeof(bd.product));
 	memcpy(&bdesc->revision, &bd.revision,	sizeof(bd.revision));
+	if (IS_ENABLED(CONFIG_SYS_BIG_ENDIAN)) {
+		ata_swap_buf_le16((u16 *)&bdesc->vendor, sizeof(bd.vendor) / 2);
+		ata_swap_buf_le16((u16 *)&bdesc->product, sizeof(bd.product) / 2);
+		ata_swap_buf_le16((u16 *)&bdesc->revision, sizeof(bd.revision) / 2);
+	}
 
 	if (verbose) {
 		printf("  Device %d: ", bdesc->devnum);

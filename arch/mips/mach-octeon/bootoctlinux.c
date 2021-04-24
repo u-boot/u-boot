@@ -25,6 +25,7 @@
 #include <mach/octeon-model.h>
 #include <mach/octeon-feature.h>
 #include <mach/bootoct_cmd.h>
+#include <mach/cvmx-ciu-defs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

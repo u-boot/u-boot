@@ -21,12 +21,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CVMX_MIPS32_SPACE_KSEG0		1L
-#define CVMX_MIPS_SPACE_XKPHYS		2LL
-
-#define CVMX_ADD_SEG(seg, add)		((((u64)(seg)) << 62) | (add))
-#define CVMX_ADD_SEG32(seg, add)	(((u32)(seg) << 31) | (u32)(add))
-
 /**
  * This is the physical location of a struct cvmx_bootmem_desc
  * structure in Octeon's memory. Note that dues to addressing
@@ -289,8 +283,8 @@ static int __cvmx_bootmem_check_version(int exact_match)
 	int major_version;
 
 	major_version = CVMX_BOOTMEM_DESC_GET_FIELD(major_version);
-	if (major_version > 3 ||
-	    (exact_match && major_version) != exact_match) {
+	if ((major_version > 3) ||
+	    (exact_match && major_version != exact_match)) {
 		debug("ERROR: Incompatible bootmem descriptor version: %d.%d at addr: 0x%llx\n",
 		      major_version,
 		      (int)CVMX_BOOTMEM_DESC_GET_FIELD(minor_version),

@@ -14,6 +14,7 @@
 #include <mach/cvmx-fuse.h>
 #include <mach/octeon-model.h>
 #include <mach/octeon-feature.h>
+#include <mach/cvmx-ciu-defs.h>
 
 struct cvmx_coremask *get_coremask_override(struct cvmx_coremask *pcm)
 {
