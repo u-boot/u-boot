@@ -19,8 +19,6 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/display2.h>
-#include <dm/device-internal.h>
-#include <dm/uclass-internal.h>
 #include <linux/bitops.h>
 #include "simplefb_common.h"
 
@@ -198,13 +196,6 @@ static int sunxi_de2_init(struct udevice *dev, ulong fbbase,
 
 	disp_uc_plat->source_id = mux;
 
-	ret = device_probe(disp);
-	if (ret) {
-		debug("%s: device '%s' display won't probe (ret=%d)\n",
-		      __func__, dev->name, ret);
-		return ret;
-	}
-
 	ret = display_read_timing(disp, &timing);
 	if (ret) {
 		debug("%s: Failed to read timings\n", __func__);
@@ -245,8 +236,8 @@ static int sunxi_de2_probe(struct udevice *dev)
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
 
-	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
-					 "sunxi_lcd", &disp);
+	ret = uclass_get_device_by_driver(UCLASS_DISPLAY,
+					  DM_DRIVER_GET(sunxi_lcd), &disp);
 	if (!ret) {
 		int mux;
 
@@ -262,8 +253,8 @@ static int sunxi_de2_probe(struct udevice *dev)
 
 	debug("%s: lcd display not found (ret=%d)\n", __func__, ret);
 
-	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
-					 "sunxi_dw_hdmi", &disp);
+	ret = uclass_get_device_by_driver(UCLASS_DISPLAY,
+					  DM_DRIVER_GET(sunxi_dw_hdmi), &disp);
 	if (!ret) {
 		int mux;
 		if (IS_ENABLED(CONFIG_MACH_SUNXI_H3_H5))
@@ -281,20 +272,7 @@ static int sunxi_de2_probe(struct udevice *dev)
 
 	debug("%s: hdmi display not found (ret=%d)\n", __func__, ret);
 
-	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
-					"sunxi_tve", &disp);
-	if (ret) {
-		debug("%s: tv not found (ret=%d)\n", __func__, ret);
-		return ret;
-	}
-
-	ret = sunxi_de2_init(dev, plat->base, VIDEO_BPP32, disp, 1, true);
-	if (ret)
-		return ret;
-
-	video_set_flush_dcache(dev, 1);
-
-	return 0;
+	return -ENODEV;
 }
 
 static int sunxi_de2_bind(struct udevice *dev)
@@ -345,8 +323,8 @@ int sunxi_simplefb_setup(void *blob)
 		mux = 1;
 
 	/* Skip simplefb setting if DE2 / HDMI is not present */
-	ret = uclass_find_device_by_name(UCLASS_VIDEO,
-					 "sunxi_de2", &de2);
+	ret = uclass_get_device_by_driver(UCLASS_VIDEO,
+					  DM_DRIVER_GET(sunxi_de2), &de2);
 	if (ret) {
 		debug("DE2 not present\n");
 		return 0;
@@ -355,8 +333,8 @@ int sunxi_simplefb_setup(void *blob)
 		return 0;
 	}
 
-	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
-					 "sunxi_dw_hdmi", &hdmi);
+	ret = uclass_get_device_by_driver(UCLASS_DISPLAY,
+					  DM_DRIVER_GET(sunxi_dw_hdmi), &hdmi);
 	if (ret) {
 		debug("HDMI not present\n");
 	} else if (device_active(hdmi)) {
@@ -368,8 +346,8 @@ int sunxi_simplefb_setup(void *blob)
 		debug("HDMI present but not probed\n");
 	}
 
-	ret = uclass_find_device_by_name(UCLASS_DISPLAY,
-					 "sunxi_lcd", &lcd);
+	ret = uclass_get_device_by_driver(UCLASS_DISPLAY,
+					  DM_DRIVER_GET(sunxi_lcd), &lcd);
 	if (ret)
 		debug("LCD not present\n");
 	else if (device_active(lcd))
