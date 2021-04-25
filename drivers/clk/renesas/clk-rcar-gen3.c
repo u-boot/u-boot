@@ -25,8 +25,6 @@
 #include "renesas-cpg-mssr.h"
 #include "rcar-gen3-cpg.h"
 
-#define CPG_RST_MODEMR		0x0060
-
 #define CPG_PLL0CR		0x00d8
 #define CPG_PLL2CR		0x002c
 #define CPG_PLL4CR		0x01f4
@@ -382,7 +380,7 @@ int gen3_clk_probe(struct udevice *dev)
 	if (rst_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	cpg_mode = readl(rst_base + CPG_RST_MODEMR);
+	cpg_mode = readl(rst_base + info->reset_modemr_offset);
 
 	priv->cpg_pll_config =
 		(struct rcar_gen3_cpg_pll_config *)info->get_pll_config(cpg_mode);

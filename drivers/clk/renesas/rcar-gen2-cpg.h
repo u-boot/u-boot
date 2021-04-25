@@ -30,6 +30,8 @@ struct rcar_gen2_cpg_pll_config {
 	unsigned int pll0_mult;		/* leave as zero if PLL0CR exists */
 };
 
+#define CPG_RST_MODEMR		0x060
+
 struct gen2_clk_priv {
 	void __iomem		*base;
 	struct cpg_mssr_info	*info;

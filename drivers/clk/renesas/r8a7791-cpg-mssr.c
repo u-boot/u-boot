@@ -265,6 +265,7 @@ static const struct cpg_mssr_info r8a7791_cpg_mssr_info = {
 	.mstp_table		= r8a7791_mstp_table,
 	.mstp_table_size	= ARRAY_SIZE(r8a7791_mstp_table),
 	.reset_node		= "renesas,r8a7791-rst",
+	.reset_modemr_offset	= CPG_RST_MODEMR,
 	.extal_usb_node		= "usb_extal",
 	.mod_clk_base		= MOD_CLK_BASE,
 	.clk_extal_id		= CLK_EXTAL,

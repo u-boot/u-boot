@@ -22,6 +22,7 @@ struct cpg_mssr_info {
 	const struct mstp_stop_table	*mstp_table;
 	unsigned int			mstp_table_size;
 	const char			*reset_node;
+	unsigned int			reset_modemr_offset;
 	const char			*extalr_node;
 	const char			*extal_usb_node;
 	unsigned int			mod_clk_base;
