@@ -10,7 +10,6 @@
 #include <log.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/cache.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>
@@ -155,8 +154,6 @@ struct zynqmp_qspi_dma_regs {
 	u32 dmactrl2;	/* 0x24 */
 	u32 dmadstmsb;	/* 0x28 */
 };
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct zynqmp_qspi_plat {
 	struct zynqmp_qspi_regs *regs;
