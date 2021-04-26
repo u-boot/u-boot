@@ -554,7 +554,7 @@ static int parse_phy_pins(struct udevice *dev)
 	 * The GPIO pinmux value is an integration choice, so depends on the
 	 * SoC, not the EMAC variant.
 	 */
-	if (IS_ENABLED(CONFIG_MACH_SUN8I_H3))
+	if (IS_ENABLED(CONFIG_MACH_SUNXI_H3_H5))
 		iomux = SUN8I_IOMUX_H3;
 	else if (IS_ENABLED(CONFIG_MACH_SUN8I_R40))
 		iomux = SUN8I_IOMUX_R40;
@@ -562,8 +562,12 @@ static int parse_phy_pins(struct udevice *dev)
 		iomux = SUN8I_IOMUX_H6;
 	else if (IS_ENABLED(CONFIG_MACH_SUN50I_H616))
 		iomux = SUN8I_IOMUX_H616;
-	else
+	else if (IS_ENABLED(CONFIG_MACH_SUN8I_A83T))
 		iomux = SUN8I_IOMUX;
+	else if (IS_ENABLED(CONFIG_MACH_SUN50I))
+		iomux = SUN8I_IOMUX;
+	else
+		BUILD_BUG_ON_MSG(1, "missing pinmux value for Ethernet pins");
 
 	for (i = 0; ; i++) {
 		int pin;
