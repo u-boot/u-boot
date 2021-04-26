@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2020 Engicam srl
+ * Copyright (c) 2020 Amarula Solutions(India)
+ */
+
+#include "imx8mm-icore-mx8mm-u-boot.dtsi"
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_uart2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc1_gpio {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc1 {
+	u-boot,dm-spl;
+};
+
+&uart2 {
+	u-boot,dm-spl;
+};
+
+&usdhc1 {
+	u-boot,dm-spl;
+};
