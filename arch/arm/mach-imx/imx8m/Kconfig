@@ -58,6 +58,11 @@ config TARGET_IMX8MM_ICORE_MX8MM
 	  * i.Core MX8M Mini needs to mount on top of EDIMM2.2 for
 	    creating complete i.Core MX8M Mini EDIMM2.2 Starter Kit.
 
+	  i.Core MX8M Mini C.TOUCH 2.0
+	  * C.TOUCH 2.0 is a general purpose Carrier board.
+	  * i.Core MX8M Mini needs to mount on top of this Carrier board
+	    for creating complete i.Core MX8M Mini C.TOUCH 2.0 board.
+
 config TARGET_IMX8MM_VENICE
 	bool "Support Gateworks Venice iMX8M Mini module"
 	select IMX8MM
