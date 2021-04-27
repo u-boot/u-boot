@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_BLK
+
 #include <common.h>
 #include <blk.h>
 #include <dm.h>

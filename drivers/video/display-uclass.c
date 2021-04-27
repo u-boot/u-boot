@@ -3,6 +3,8 @@
  * Copyright 2014 Google Inc.
  */
 
+#define LOG_CATEGORY UCLASS_DISPLAY
+
 #include <common.h>
 #include <dm.h>
 #include <display.h>

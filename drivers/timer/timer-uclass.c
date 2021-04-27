@@ -3,6 +3,8 @@
  * Copyright (C) 2015 Thomas Chou <thomas@wytron.com.tw>
  */
 
+#define LOG_CATEGORY UCLASS_TIMER
+
 #include <common.h>
 #include <clk.h>
 #include <cpu.h>

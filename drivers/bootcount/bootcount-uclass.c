@@ -3,6 +3,8 @@
  * (C) Copyright 2018 Theobroma Systems Design und Consulting GmbH
  */
 
+#define LOG_CATEGORY UCLASS_BOOTCOUNT
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>

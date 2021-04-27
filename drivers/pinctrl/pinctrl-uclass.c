@@ -3,6 +3,8 @@
  * Copyright (C) 2015  Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
+#define LOG_CATEGORY UCLASS_PINCTRL
+
 #include <common.h>
 #include <malloc.h>
 #include <asm/global_data.h>

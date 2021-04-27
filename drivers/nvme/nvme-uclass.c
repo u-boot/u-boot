@@ -4,6 +4,8 @@
  * Copyright (C) 2017 Bin Meng <bmeng.cn@gmail.com>
  */
 
+#define LOG_CATEGORY UCLASS_NVME
+
 #include <common.h>
 #include <dm.h>
 

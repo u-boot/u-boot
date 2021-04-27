@@ -3,6 +3,8 @@
  * Copyright 2017 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_WDT
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>

@@ -4,6 +4,8 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#define LOG_CATEGORY UCLASS_IDE
+
 #include <common.h>
 #include <ata.h>
 #include <blk.h>

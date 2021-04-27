@@ -11,6 +11,8 @@
  * Jean-Jacques Hiblot <jjhiblot@ti.com>
  */
 
+#define LOG_CATEGORY UCLASS_MUX
+
 #include <common.h>
 #include <dm.h>
 #include <mux-internal.h>

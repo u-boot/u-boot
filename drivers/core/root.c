@@ -6,6 +6,8 @@
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  */
 
+#define LOG_CATEGORY UCLASS_ROOT
+
 #include <common.h>
 #include <errno.h>
 #include <fdtdec.h>

@@ -15,6 +15,8 @@
  * the VirtIO specification v1.0.
  */
 
+#define LOG_CATEGORY UCLASS_VIRTIO
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>
