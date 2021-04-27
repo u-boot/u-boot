@@ -295,7 +295,7 @@ static int single_configure_pins(struct udevice *dev,
 	func->npins = 0;
 	for (n = 0; n < count; n++, pins++) {
 		offset = fdt32_to_cpu(pins->reg);
-		if (offset < 0 || offset > pdata->offset) {
+		if (offset > pdata->offset) {
 			dev_err(dev, "  invalid register offset 0x%x\n",
 				offset);
 			continue;
@@ -335,6 +335,10 @@ static int single_configure_bits(struct udevice *dev,
 	phys_addr_t reg;
 	u32 offset, val, mask, bit_pos, val_pos, mask_pos, submask;
 
+	/* If function mask is null, needn't enable it. */
+	if (!pdata->mask)
+		return 0;
+
 	npins_in_reg = pdata->width / priv->bits_per_pin;
 	func = single_allocate_function(dev, count * npins_in_reg);
 	if (IS_ERR(func))
@@ -344,7 +348,7 @@ static int single_configure_bits(struct udevice *dev,
 	func->npins = 0;
 	for (n = 0; n < count; n++, pins++) {
 		offset = fdt32_to_cpu(pins->reg);
-		if (offset < 0 || offset > pdata->offset) {
+		if (offset > pdata->offset) {
 			dev_dbg(dev, "  invalid register offset 0x%x\n",
 				offset);
 			continue;
@@ -469,6 +473,11 @@ static int single_probe(struct udevice *dev)
 
 	priv->npins = size / (pdata->width / BITS_PER_BYTE);
 	if (pdata->bits_per_mux) {
+		if (!pdata->mask) {
+			dev_err(dev, "function mask needs to be non-zero\n");
+			return -EINVAL;
+		}
+
 		priv->bits_per_pin = fls(pdata->mask);
 		priv->npins *= (pdata->width / priv->bits_per_pin);
 	}

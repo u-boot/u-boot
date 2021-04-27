@@ -390,10 +390,16 @@ int btrfs_read_extent_inline(struct btrfs_path *path,
 			   csize);
 	ret = btrfs_decompress(btrfs_file_extent_compression(leaf, fi),
 			       cbuf, csize, dbuf, dsize);
-	if (ret < 0 || ret != dsize) {
+	if (ret == (u32)-1) {
 		ret = -EIO;
 		goto out;
 	}
+	/*
+	 * The compressed part ends before sector boundary, the remaining needs
+	 * to be zeroed out.
+	 */
+	if (ret < dsize)
+		memset(dbuf + ret, 0, dsize - ret);
 	memcpy(dest, dbuf, dsize);
 	ret = dsize;
 out:
@@ -494,10 +500,16 @@ int btrfs_read_extent_reg(struct btrfs_path *path,
 
 	ret = btrfs_decompress(btrfs_file_extent_compression(leaf, fi), cbuf,
 			       csize, dbuf, dsize);
-	if (ret != dsize) {
+	if (ret == (u32)-1) {
 		ret = -EIO;
 		goto out;
 	}
+	/*
+	 * The compressed part ends before sector boundary, the remaining needs
+	 * to be zeroed out.
+	 */
+	if (ret < dsize)
+		memset(dbuf + ret, 0, dsize - ret);
 	/* Then copy the needed part */
 	memcpy(dest, dbuf + btrfs_file_extent_offset(leaf, fi), len);
 	ret = len;

@@ -997,8 +997,8 @@
 
 	reset-ctl-test {
 		compatible = "sandbox,reset-ctl-test";
-		resets = <&resetc 100>, <&resetc 2>;
-		reset-names = "other", "test";
+		resets = <&resetc 100>, <&resetc 2>, <&resetc 20>, <&resetc 40>;
+		reset-names = "other", "test", "test2", "test3";
 	};
 
 	rng {
