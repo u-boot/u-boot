@@ -66,9 +66,12 @@ static int rcar_gpio_set_value(struct udevice *dev, unsigned offset,
 	return 0;
 }
 
-static void rcar_gpio_set_direction(void __iomem *regs, unsigned offset,
+static void rcar_gpio_set_direction(struct udevice *dev, unsigned offset,
 				    bool output)
 {
+	struct rcar_gpio_priv *priv = dev_get_priv(dev);
+	void __iomem *regs = priv->regs;
+
 	/*
 	 * follow steps in the GPIO documentation for
 	 * "Setting General Output Mode" and
@@ -90,9 +93,7 @@ static void rcar_gpio_set_direction(void __iomem *regs, unsigned offset,
 
 static int rcar_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
-	struct rcar_gpio_priv *priv = dev_get_priv(dev);
-
-	rcar_gpio_set_direction(priv->regs, offset, false);
+	rcar_gpio_set_direction(dev, offset, false);
 
 	return 0;
 }
@@ -100,11 +101,9 @@ static int rcar_gpio_direction_input(struct udevice *dev, unsigned offset)
 static int rcar_gpio_direction_output(struct udevice *dev, unsigned offset,
 				      int value)
 {
-	struct rcar_gpio_priv *priv = dev_get_priv(dev);
-
 	/* write GPIO value to output before selecting output mode of pin */
 	rcar_gpio_set_value(dev, offset, value);
-	rcar_gpio_set_direction(priv->regs, offset, true);
+	rcar_gpio_set_direction(dev, offset, true);
 
 	return 0;
 }
