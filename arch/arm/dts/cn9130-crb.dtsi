@@ -238,7 +238,6 @@
 };
 
 &cp0_eth0 {
-	/* Disable it for now, as mainline does not support this IF yet */
 	status = "okay";
 	phy-mode = "sfi";
 };
@@ -253,7 +252,6 @@
 
 &cp0_eth2 {
 	/* Disable it for now, as mainline does not support this IF yet */
-	status = "okay";
+	status = "disabled";
 	phy = <&nbaset_phy0>;
-	phy-mode = "sgmii-2500";
 };
