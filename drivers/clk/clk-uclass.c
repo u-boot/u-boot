@@ -160,7 +160,7 @@ int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk)
 int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)
 {
 	int i, ret, err, count;
-	
+
 	bulk->count = 0;
 
 	count = dev_count_phandle_with_args(dev, "clocks", "#clock-cells", 0);
