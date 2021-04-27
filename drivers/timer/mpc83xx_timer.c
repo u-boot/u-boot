@@ -20,6 +20,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_SYS_WATCHDOG_FREQ
+#define CONFIG_SYS_WATCHDOG_FREQ (CONFIG_SYS_HZ / 2)
+#endif
+
 /**
  * struct mpc83xx_timer_priv - Private data structure for MPC83xx timer driver
  * @decrementer_count: Value to which the decrementer register should be re-set
@@ -171,7 +175,7 @@ void timer_interrupt(struct pt_regs *regs)
 	priv->timestamp++;
 
 #if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
-	if ((timestamp % (CONFIG_SYS_WATCHDOG_FREQ)) == 0)
+	if (CONFIG_SYS_WATCHDOG_FREQ && (priv->timestamp % (CONFIG_SYS_WATCHDOG_FREQ)) == 0)
 		WATCHDOG_RESET();
 #endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 

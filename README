@@ -747,6 +747,15 @@ The following options need to be configured:
 		SoC, then define this variable and provide board
 		specific code for the "hw_watchdog_reset" function.
 
+		CONFIG_SYS_WATCHDOG_FREQ
+		Some platforms automatically call WATCHDOG_RESET()
+		from the timer interrupt handler every
+		CONFIG_SYS_WATCHDOG_FREQ interrupts. If not set by the
+		board configuration file, a default of CONFIG_SYS_HZ/2
+		(i.e. 500) is used. Setting CONFIG_SYS_WATCHDOG_FREQ
+		to 0 disables calling WATCHDOG_RESET() from the timer
+		interrupt.
+
 - Real-Time Clock:
 
 		When CONFIG_CMD_DATE is selected, the type of the RTC
