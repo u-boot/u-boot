@@ -153,6 +153,30 @@ static int gen3_clk_disable(struct clk *clk)
 	return renesas_clk_endisable(clk, priv->base, priv->info, false);
 }
 
+static u64 gen3_clk_get_rate64(struct clk *clk);
+
+static u64 gen3_clk_get_rate64_pll_mul_reg(struct gen3_clk_priv *priv,
+					   struct clk *parent,
+					   const struct cpg_core_clk *core,
+					   u32 mul_reg, u32 mult, u32 div,
+					   char *name)
+{
+	u32 value;
+	u64 rate;
+
+	if (mul_reg) {
+		value = readl(priv->base + mul_reg);
+		mult = (((value >> 24) & 0x7f) + 1) * 2;
+		div = 1;
+	}
+
+	rate = (gen3_clk_get_rate64(parent) * mult) / div;
+
+	debug("%s[%i] %s clk: parent=%i mult=%u div=%u => rate=%llu\n",
+	      __func__, __LINE__, name, core->parent, mult, div, rate);
+	return rate;
+}
+
 static u64 gen3_clk_get_rate64(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
@@ -161,7 +185,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	const struct cpg_core_clk *core;
 	const struct rcar_gen3_cpg_pll_config *pll_config =
 					priv->cpg_pll_config;
-	u32 value, mult, div, prediv, postdiv;
+	u32 value, div, prediv, postdiv;
 	u64 rate = 0;
 	int i, ret;
 
@@ -203,60 +227,36 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return -EINVAL;
 
 	case CLK_TYPE_GEN3_MAIN:
-		rate = gen3_clk_get_rate64(&parent) / pll_config->extal_div;
-		debug("%s[%i] MAIN clk: parent=%i extal_div=%i => rate=%llu\n",
-		      __func__, __LINE__,
-		      core->parent, pll_config->extal_div, rate);
-		return rate;
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						0, 1, pll_config->extal_div,
+						"MAIN");
 
 	case CLK_TYPE_GEN3_PLL0:
-		value = readl(priv->base + CPG_PLL0CR);
-		mult = (((value >> 24) & 0x7f) + 1) * 2;
-		rate = gen3_clk_get_rate64(&parent) * mult;
-		debug("%s[%i] PLL0 clk: parent=%i mult=%u => rate=%llu\n",
-		      __func__, __LINE__, core->parent, mult, rate);
-		return rate;
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						CPG_PLL0CR, 0, 0, "PLL0");
 
 	case CLK_TYPE_GEN3_PLL1:
-		rate = gen3_clk_get_rate64(&parent) * pll_config->pll1_mult;
-		rate /= pll_config->pll1_div;
-		debug("%s[%i] PLL1 clk: parent=%i mul=%i div=%i => rate=%llu\n",
-		      __func__, __LINE__,
-		      core->parent, pll_config->pll1_mult,
-		      pll_config->pll1_div, rate);
-		return rate;
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						0, pll_config->pll1_mult,
+						pll_config->pll1_div, "PLL1");
 
 	case CLK_TYPE_GEN3_PLL2:
-		value = readl(priv->base + CPG_PLL2CR);
-		mult = (((value >> 24) & 0x7f) + 1) * 2;
-		rate = gen3_clk_get_rate64(&parent) * mult;
-		debug("%s[%i] PLL2 clk: parent=%i mult=%u => rate=%llu\n",
-		      __func__, __LINE__, core->parent, mult, rate);
-		return rate;
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						CPG_PLL2CR, 0, 0, "PLL2");
 
 	case CLK_TYPE_GEN3_PLL3:
-		rate = gen3_clk_get_rate64(&parent) * pll_config->pll3_mult;
-		rate /= pll_config->pll3_div;
-		debug("%s[%i] PLL3 clk: parent=%i mul=%i div=%i => rate=%llu\n",
-		      __func__, __LINE__,
-		      core->parent, pll_config->pll3_mult,
-		      pll_config->pll3_div, rate);
-		return rate;
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						0, pll_config->pll3_mult,
+						pll_config->pll3_div, "PLL3");
 
 	case CLK_TYPE_GEN3_PLL4:
-		value = readl(priv->base + CPG_PLL4CR);
-		mult = (((value >> 24) & 0x7f) + 1) * 2;
-		rate = gen3_clk_get_rate64(&parent) * mult;
-		debug("%s[%i] PLL4 clk: parent=%i mult=%u => rate=%llu\n",
-		      __func__, __LINE__, core->parent, mult, rate);
-		return rate;
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						CPG_PLL4CR, 0, 0, "PLL4");
 
 	case CLK_TYPE_FF:
-		rate = (gen3_clk_get_rate64(&parent) * core->mult) / core->div;
-		debug("%s[%i] FIXED clk: parent=%i mul=%i div=%i => rate=%llu\n",
-		      __func__, __LINE__,
-		      core->parent, core->mult, core->div, rate);
-		return rate;
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						0, core->mult, core->div,
+						"FIXED");
 
 	case CLK_TYPE_GEN3_MDSEL:
 		div = (core->div >> (priv->sscg ? 16 : 0)) & 0xffff;
