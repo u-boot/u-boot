@@ -265,6 +265,8 @@ int usb_phy_mode(int port)
 }
 #endif
 
+#if !defined(CONFIG_PHY)
+/* Should be done in the MXS PHY driver */
 static void usb_oc_config(struct usbnc_regs *usbnc, int index)
 {
 	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
@@ -285,6 +287,7 @@ static void usb_oc_config(struct usbnc_regs *usbnc, int index)
 	clrbits_le32(ctrl, UCTRL_PWR_POL);
 #endif
 }
+#endif
 
 #if !CONFIG_IS_ENABLED(DM_USB)
 /**
@@ -432,10 +435,12 @@ struct ehci_mx6_priv_data {
 	struct clk clk;
 	struct phy phy;
 	enum usb_init_type init_type;
+#if !defined(CONFIG_PHY)
 	int portnr;
 	void __iomem *phy_addr;
 	void __iomem *misc_addr;
 	void __iomem *anatop_addr;
+#endif
 };
 
 static int mx6_init_after_reset(struct ehci_ctrl *dev)
@@ -448,13 +453,13 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 	usb_power_config_mx6(priv->anatop_addr, priv->portnr);
 	usb_power_config_mx7(priv->misc_addr);
 	usb_power_config_mx7ulp(priv->phy_addr);
-#endif
 
 	usb_oc_config(priv->misc_addr, priv->portnr);
 
-#if !defined(CONFIG_PHY) && (defined(CONFIG_MX6) || defined(CONFIG_MX7ULP))
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
 	usb_internal_phy_clock_gate(priv->phy_addr, 1);
 	usb_phy_enable(ehci, priv->phy_addr);
+#endif
 #endif
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
@@ -558,6 +563,7 @@ static int ehci_usb_of_to_plat(struct udevice *dev)
 
 static int mx6_parse_dt_addrs(struct udevice *dev)
 {
+#if !defined(CONFIG_PHY)
 	struct ehci_mx6_priv_data *priv = dev_get_priv(dev);
 	int phy_off, misc_off;
 	const void *blob = gd->fdt_blob;
@@ -594,7 +600,7 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 
 	priv->misc_addr = addr;
 
-#if !defined(CONFIG_PHY) && defined(CONFIG_MX6)
+#if defined(CONFIG_MX6)
 	int anatop_off;
 
 	/* Resolve ANATOP offset through USB PHY node */
@@ -607,6 +613,7 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 		return -EINVAL;
 
 	priv->anatop_addr = addr;
+#endif
 #endif
 	return 0;
 }
@@ -661,13 +668,13 @@ static int ehci_usb_probe(struct udevice *dev)
 	usb_power_config_mx6(priv->anatop_addr, priv->portnr);
 	usb_power_config_mx7(priv->misc_addr);
 	usb_power_config_mx7ulp(priv->phy_addr);
-#endif
 
 	usb_oc_config(priv->misc_addr, priv->portnr);
 
-#if !defined(CONFIG_PHY) && (defined(CONFIG_MX6) || defined(CONFIG_MX7ULP))
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
 	usb_internal_phy_clock_gate(priv->phy_addr, 1);
 	usb_phy_enable(ehci, priv->phy_addr);
+#endif
 #endif
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
