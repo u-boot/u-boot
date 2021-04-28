@@ -56,7 +56,7 @@ static struct mm_region sunxi_mem_map[] = {
 		/* RAM */
 		.virt = 0x40000000UL,
 		.phys = 0x40000000UL,
-		.size = 0xC0000000UL,
+		.size = CONFIG_SUNXI_DRAM_MAX_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
@@ -65,6 +65,15 @@ static struct mm_region sunxi_mem_map[] = {
 	}
 };
 struct mm_region *mem_map = sunxi_mem_map;
+
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	/* Some devices (like the EMAC) have a 32-bit DMA limit. */
+	if (gd->ram_top > (1ULL << 32))
+		return 1ULL << 32;
+
+	return gd->ram_top;
+}
 #endif
 
 static int gpio_init(void)
