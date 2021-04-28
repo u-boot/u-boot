@@ -40,8 +40,8 @@ static int stm32_reset_free(struct reset_ctl *reset_ctl)
 static int stm32_reset_assert(struct reset_ctl *reset_ctl)
 {
 	struct stm32_reset_priv *priv = dev_get_priv(reset_ctl->dev);
-	int bank = (reset_ctl->id / BITS_PER_LONG) * 4;
-	int offset = reset_ctl->id % BITS_PER_LONG;
+	int bank = (reset_ctl->id / (sizeof(u32) * BITS_PER_BYTE)) * 4;
+	int offset = reset_ctl->id % (sizeof(u32) * BITS_PER_BYTE);
 
 	dev_dbg(reset_ctl->dev, "reset id = %ld bank = %d offset = %d)\n",
 		reset_ctl->id, bank, offset);
@@ -61,8 +61,8 @@ static int stm32_reset_assert(struct reset_ctl *reset_ctl)
 static int stm32_reset_deassert(struct reset_ctl *reset_ctl)
 {
 	struct stm32_reset_priv *priv = dev_get_priv(reset_ctl->dev);
-	int bank = (reset_ctl->id / BITS_PER_LONG) * 4;
-	int offset = reset_ctl->id % BITS_PER_LONG;
+	int bank = (reset_ctl->id / (sizeof(u32) * BITS_PER_BYTE)) * 4;
+	int offset = reset_ctl->id % (sizeof(u32) * BITS_PER_BYTE);
 
 	dev_dbg(reset_ctl->dev, "reset id = %ld bank = %d offset = %d)\n",
 		reset_ctl->id, bank, offset);
