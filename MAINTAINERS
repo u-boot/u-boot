@@ -1171,6 +1171,18 @@ F:	common/lcd*.c
 F:	include/lcd*.h
 F:	include/video*.h
 
+VirtIO
+M:	Bin Meng <bmeng.cn@gmail.com>
+S:	Maintained
+F:	drivers/virtio/
+F:	cmd/virtio.c
+F:	include/config/virtio/
+F:	include/config/virtio.h
+F:	include/config/cmd/virtio.h
+F:	include/virtio*.h
+F:	test/dm/virtio.c
+F:	doc/develop/driver-model/virtio.rst
+
 X86
 M:	Simon Glass <sjg@chromium.org>
 M:	Bin Meng <bmeng.cn@gmail.com>
