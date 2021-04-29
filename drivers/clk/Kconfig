@@ -125,7 +125,7 @@ config CLK_ZYNQ
 	depends on CLK && ARCH_ZYNQ
 	default y
 	help
-	  This clock driver adds support for clock realted settings for
+	  This clock driver adds support for clock related settings for
 	  Zynq platform.
 
 config CLK_ZYNQMP

@@ -5,12 +5,9 @@
  */
 
 #include <common.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define HALT		0
 #define RELEASE		1

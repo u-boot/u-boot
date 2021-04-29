@@ -9,6 +9,7 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <init.h>
+#include <env_internal.h>
 #include <log.h>
 #include <malloc.h>
 #include <time.h>
@@ -129,7 +130,7 @@ int board_late_init(void)
 	switch (bootmode) {
 	case USB_MODE:
 		puts("USB_MODE\n");
-		mode = "dfu_usb";
+		mode = "usb_dfu0 usb_dfu1";
 		break;
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
@@ -244,4 +245,33 @@ int dram_init(void)
 
 void reset_cpu(void)
 {
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bootmode = versal_get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode) {
+	case EMMC_MODE:
+	case SD_MODE:
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
+			return ENVL_FAT;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
+			return ENVL_EXT4;
+		return ENVL_UNKNOWN;
+	case OSPI_MODE:
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		return ENVL_UNKNOWN;
+	case JTAG_MODE:
+	default:
+		return ENVL_NOWHERE;
+	}
 }
