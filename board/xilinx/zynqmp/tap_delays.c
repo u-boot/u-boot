@@ -10,92 +10,17 @@
 #include <asm/arch/sys_proto.h>
 #include <linux/delay.h>
 #include <mmc.h>
+#include <zynqmp_firmware.h>
 
-#define SD_DLL_CTRL			0xFF180358
-#define SD_ITAP_DLY			0xFF180314
-#define SD_OTAP_DLY			0xFF180318
-#define SD0_DLL_RST_MASK		0x00000004
-#define SD0_DLL_RST			0x00000004
-#define SD1_DLL_RST_MASK		0x00040000
-#define SD1_DLL_RST			0x00040000
-#define SD0_ITAPCHGWIN_MASK		0x00000200
-#define SD0_ITAPCHGWIN			0x00000200
-#define SD1_ITAPCHGWIN_MASK		0x02000000
-#define SD1_ITAPCHGWIN			0x02000000
-#define SD0_ITAPDLYENA_MASK		0x00000100
-#define SD0_ITAPDLYENA			0x00000100
-#define SD1_ITAPDLYENA_MASK		0x01000000
-#define SD1_ITAPDLYENA			0x01000000
-#define SD0_ITAPDLYSEL_MASK		0x000000FF
-#define SD1_ITAPDLYSEL_MASK		0x00FF0000
-#define SD0_OTAPDLYSEL_MASK		0x0000003F
-#define SD1_OTAPDLYSEL_MASK		0x003F0000
-
-void zynqmp_dll_reset(u8 deviceid)
+int arasan_zynqmp_set_in_tapdelay(u8 deviceid, u32 type, u32 itap_delay)
 {
-	/* Issue DLL Reset */
-	if (deviceid == 0)
-		zynqmp_mmio_write(SD_DLL_CTRL, SD0_DLL_RST_MASK,
-				  SD0_DLL_RST);
-	else
-		zynqmp_mmio_write(SD_DLL_CTRL, SD1_DLL_RST_MASK,
-				  SD1_DLL_RST);
 
-	mdelay(1);
-
-	/* Release DLL Reset */
-	if (deviceid == 0)
-		zynqmp_mmio_write(SD_DLL_CTRL, SD0_DLL_RST_MASK, 0x0);
-	else
-		zynqmp_mmio_write(SD_DLL_CTRL, SD1_DLL_RST_MASK, 0x0);
+	return xilinx_pm_request(PM_IOCTL, (u32)deviceid, IOCTL_SET_SD_TAPDELAY,
+			  type, itap_delay, NULL);
 }
 
-void arasan_zynqmp_set_in_tapdelay(u8 deviceid, u32 itap_delay)
+int arasan_zynqmp_set_out_tapdelay(u8 deviceid, u32 type, u32 otap_delay)
 {
-	if (deviceid == 0) {
-		zynqmp_mmio_write(SD_DLL_CTRL, SD0_DLL_RST_MASK, SD0_DLL_RST);
-
-		/* Program ITAP delay */
-		zynqmp_mmio_write(SD_ITAP_DLY, SD0_ITAPCHGWIN_MASK,
-				  SD0_ITAPCHGWIN);
-		zynqmp_mmio_write(SD_ITAP_DLY, SD0_ITAPDLYENA_MASK,
-				  SD0_ITAPDLYENA);
-		zynqmp_mmio_write(SD_ITAP_DLY, SD0_ITAPDLYSEL_MASK, itap_delay);
-		zynqmp_mmio_write(SD_ITAP_DLY, SD0_ITAPCHGWIN_MASK, 0x0);
-
-		zynqmp_mmio_write(SD_DLL_CTRL, SD0_DLL_RST_MASK, 0x0);
-	} else {
-		zynqmp_mmio_write(SD_DLL_CTRL, SD1_DLL_RST_MASK, SD1_DLL_RST);
-
-		/* Program ITAP delay */
-		zynqmp_mmio_write(SD_ITAP_DLY, SD1_ITAPCHGWIN_MASK,
-				  SD1_ITAPCHGWIN);
-		zynqmp_mmio_write(SD_ITAP_DLY, SD1_ITAPDLYENA_MASK,
-				  SD1_ITAPDLYENA);
-		zynqmp_mmio_write(SD_ITAP_DLY, SD1_ITAPDLYSEL_MASK,
-				  (itap_delay << 16));
-		zynqmp_mmio_write(SD_ITAP_DLY, SD1_ITAPCHGWIN_MASK, 0x0);
-
-		zynqmp_mmio_write(SD_DLL_CTRL, SD1_DLL_RST_MASK, 0x0);
-	}
-}
-
-void arasan_zynqmp_set_out_tapdelay(u8 deviceid, u32 otap_delay)
-{
-	if (deviceid == 0) {
-		zynqmp_mmio_write(SD_DLL_CTRL, SD0_DLL_RST_MASK, SD0_DLL_RST);
-
-		/* Program OTAP delay */
-		zynqmp_mmio_write(SD_OTAP_DLY, SD0_OTAPDLYSEL_MASK, otap_delay);
-
-		zynqmp_mmio_write(SD_DLL_CTRL, SD0_DLL_RST_MASK, 0x0);
-	} else {
-		zynqmp_mmio_write(SD_DLL_CTRL, SD1_DLL_RST_MASK, SD1_DLL_RST);
-
-		/* Program OTAP delay */
-		zynqmp_mmio_write(SD_OTAP_DLY, SD1_OTAPDLYSEL_MASK,
-				  (otap_delay << 16));
-
-		zynqmp_mmio_write(SD_DLL_CTRL, SD1_DLL_RST_MASK, 0x0);
-	}
+	return xilinx_pm_request(PM_IOCTL, (u32)deviceid, IOCTL_SET_SD_TAPDELAY,
+			  type, otap_delay, NULL);
 }
