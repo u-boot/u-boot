@@ -151,6 +151,7 @@ enum regulator_flag {
  * @max_uA*    - maximum amperage (micro Amps)
  * @always_on* - bool type, true or false
  * @boot_on*   - bool type, true or false
+ * @force_off* - bool type, true or false
  * TODO(sjg@chromium.org): Consider putting the above two into @flags
  * @ramp_delay - Time to settle down after voltage change (unit: uV/us)
  * @flags:     - flags value (see REGULATOR_FLAG_...)
@@ -176,6 +177,7 @@ struct dm_regulator_uclass_plat {
 	unsigned int ramp_delay;
 	bool always_on;
 	bool boot_on;
+	bool force_off;
 	const char *name;
 	int flags;
 	u8 ctrl_reg;
@@ -421,6 +423,15 @@ int regulator_set_mode(struct udevice *dev, int mode_id);
 int regulators_enable_boot_on(bool verbose);
 
 /**
+ * regulators_enable_boot_off() - disable regulators needed for boot
+ *
+ * This disables all regulators which are marked to be off at boot time.
+ *
+ * This effectively calls regulator_unset() for every regulator.
+ */
+int regulators_enable_boot_off(bool verbose);
+
+/**
  * regulator_autoset: setup the voltage/current on a regulator
  *
  * The setup depends on constraints found in device's uclass's platform data
@@ -438,6 +449,18 @@ int regulators_enable_boot_on(bool verbose);
  * @return: 0 on success or negative value of errno.
  */
 int regulator_autoset(struct udevice *dev);
+
+/**
+ * regulator_unset: turn off a regulator
+ *
+ * The setup depends on constraints found in device's uclass's platform data
+ * (struct dm_regulator_uclass_platdata):
+ *
+ * - Disable - will set - if  'force_off' is set to true,
+ *
+ * The function returns on the first-encountered error.
+ */
+int regulator_unset(struct udevice *dev);
 
 /**
  * regulator_autoset_by_name: setup the regulator given by its uclass's

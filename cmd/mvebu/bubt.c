@@ -798,7 +798,7 @@ struct bubt_dev *find_bubt_dev(char *dev_name)
 #define DEFAULT_BUBT_DST "nand"
 #elif defined(CONFIG_MVEBU_MMC_BOOT)
 #define DEFAULT_BUBT_DST "mmc"
-else
+#else
 #define DEFAULT_BUBT_DST "error"
 #endif
 #endif /* DEFAULT_BUBT_DST */

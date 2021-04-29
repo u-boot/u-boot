@@ -17,58 +17,8 @@
 #define debug_exit()
 #endif
 
-/* COMPHY registers */
-#define COMMON_PHY_CFG1_REG			0x0
-#define COMMON_PHY_CFG1_PWR_UP_OFFSET		1
-#define COMMON_PHY_CFG1_PWR_UP_MASK		\
-	(0x1 << COMMON_PHY_CFG1_PWR_UP_OFFSET)
-#define COMMON_PHY_CFG1_PIPE_SELECT_OFFSET	2
-#define COMMON_PHY_CFG1_PIPE_SELECT_MASK	\
-	(0x1 << COMMON_PHY_CFG1_PIPE_SELECT_OFFSET)
-#define COMMON_PHY_CFG1_PWR_ON_RESET_OFFSET	13
-#define COMMON_PHY_CFG1_PWR_ON_RESET_MASK	\
-	(0x1 << COMMON_PHY_CFG1_PWR_ON_RESET_OFFSET)
-#define COMMON_PHY_CFG1_CORE_RSTN_OFFSET	14
-#define COMMON_PHY_CFG1_CORE_RSTN_MASK		\
-	(0x1 << COMMON_PHY_CFG1_CORE_RSTN_OFFSET)
-#define COMMON_PHY_PHY_MODE_OFFSET		15
-#define COMMON_PHY_PHY_MODE_MASK		\
-	(0x1 << COMMON_PHY_PHY_MODE_OFFSET)
-
-#define COMMON_PHY_CFG6_REG			0x14
-#define COMMON_PHY_CFG6_IF_40_SEL_OFFSET	18
-#define COMMON_PHY_CFG6_IF_40_SEL_MASK		\
-	(0x1 << COMMON_PHY_CFG6_IF_40_SEL_OFFSET)
-
-#define COMMON_SELECTOR_PHY_OFFSET		0x140
-#define COMMON_SELECTOR_PIPE_OFFSET		0x144
-
-#define COMMON_PHY_SD_CTRL1			0x148
-#define COMMON_PHY_SD_CTRL1_COMPHY_0_4_PORT_OFFSET	0
-#define COMMON_PHY_SD_CTRL1_COMPHY_0_4_PORT_MASK	0xFFFF
-#define COMMON_PHY_SD_CTRL1_PCIE_X4_EN_OFFSET	24
-#define COMMON_PHY_SD_CTRL1_PCIE_X4_EN_MASK	\
-	(0x1 << COMMON_PHY_SD_CTRL1_PCIE_X4_EN_OFFSET)
-#define COMMON_PHY_SD_CTRL1_PCIE_X2_EN_OFFSET	25
-#define COMMON_PHY_SD_CTRL1_PCIE_X2_EN_MASK	\
-	(0x1 << COMMON_PHY_SD_CTRL1_PCIE_X2_EN_OFFSET)
-#define COMMON_PHY_SD_CTRL1_RXAUI1_OFFSET	26
-#define COMMON_PHY_SD_CTRL1_RXAUI1_MASK		\
-	(0x1 << COMMON_PHY_SD_CTRL1_RXAUI1_OFFSET)
-#define COMMON_PHY_SD_CTRL1_RXAUI0_OFFSET	27
-#define COMMON_PHY_SD_CTRL1_RXAUI0_MASK		\
-	(0x1 << COMMON_PHY_SD_CTRL1_RXAUI0_OFFSET)
-
-/* ToDo: Get this address via DT */
-#define MVEBU_CP0_REGS_BASE			0xF2000000UL
-
-#define DFX_DEV_GEN_CTRL12			(MVEBU_CP0_REGS_BASE + 0x400280)
-#define DFX_DEV_GEN_PCIE_CLK_SRC_OFFSET		7
-#define DFX_DEV_GEN_PCIE_CLK_SRC_MASK		\
-	(0x3 << DFX_DEV_GEN_PCIE_CLK_SRC_OFFSET)
-
 #define MAX_LANE_OPTIONS			10
-#define MAX_UTMI_PHY_COUNT			3
+#define MAX_UTMI_PHY_COUNT			6
 
 struct comphy_mux_options {
 	u32 type;
@@ -84,12 +34,14 @@ struct chip_serdes_phy_config {
 	struct comphy_mux_data *mux_data;
 	int (*ptr_comphy_chip_init)(struct chip_serdes_phy_config *,
 				    struct comphy_map *);
+	int (*rx_training)(struct chip_serdes_phy_config *, u32);
 	void __iomem *comphy_base_addr;
 	void __iomem *hpipe3_base_addr;
 	u32 comphy_lanes_count;
 	u32 comphy_mux_bitcount;
 	const fdt32_t *comphy_mux_lane_order;
 	u32 cp_index;
+	struct comphy_map comphy_map_data[MAX_LANE_OPTIONS];
 };
 
 /* Register helper functions */
@@ -150,9 +102,22 @@ static inline int comphy_a3700_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 #ifdef CONFIG_ARMADA_8K
 int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		      struct comphy_map *serdes_map);
+int comphy_cp110_sfi_rx_training(struct chip_serdes_phy_config *ptr_chip_cfg,
+				 u32 lane);
 #else
 static inline int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		      struct comphy_map *serdes_map)
+{
+	/*
+	 * This function should never be called in this configuration, so
+	 * lets return an error here.
+	 */
+	return -1;
+}
+
+static inline int comphy_cp110_sfi_rx_training(
+	struct chip_serdes_phy_config *ptr_chip_cfg,
+	u32 lane)
 {
 	/*
 	 * This function should never be called in this configuration, so

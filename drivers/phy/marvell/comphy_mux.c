@@ -8,14 +8,13 @@
 #include <asm/io.h>
 
 #include "comphy_core.h"
-#include "comphy_hpipe.h"
 
 /*
  * comphy_mux_check_config()
  * description: this function passes over the COMPHY lanes and check if the type
  *              is valid for specific lane. If the type is not valid,
  *              the function update the struct and set the type of the lane as
- *              PHY_TYPE_UNCONNECTED
+ *              COMPHY_TYPE_UNCONNECTED
  */
 static void comphy_mux_check_config(struct comphy_mux_data *mux_data,
 		struct comphy_map *comphy_map_data, int comphy_max_lanes)
@@ -28,7 +27,7 @@ static void comphy_mux_check_config(struct comphy_mux_data *mux_data,
 	for (lane = 0; lane < comphy_max_lanes;
 	     lane++, comphy_map_data++, mux_data++) {
 		/* Don't check ignored COMPHYs */
-		if (comphy_map_data->type == PHY_TYPE_IGNORE)
+		if (comphy_map_data->type == COMPHY_TYPE_IGNORE)
 			continue;
 
 		mux_opt = mux_data->mux_values;
@@ -43,8 +42,8 @@ static void comphy_mux_check_config(struct comphy_mux_data *mux_data,
 			debug("lane number %d, had invalid type %d\n",
 			      lane, comphy_map_data->type);
 			debug("set lane %d as type %d\n", lane,
-			      PHY_TYPE_UNCONNECTED);
-			comphy_map_data->type = PHY_TYPE_UNCONNECTED;
+			      COMPHY_TYPE_UNCONNECTED);
+			comphy_map_data->type = COMPHY_TYPE_UNCONNECTED;
 		} else {
 			debug("lane number %d, has type %d\n",
 			      lane, comphy_map_data->type);
@@ -88,7 +87,7 @@ static void comphy_mux_reg_write(struct comphy_mux_data *mux_data,
 
 	for (lane = 0; lane < comphy_max_lanes;
 	     lane++, comphy_map_data++, mux_data++) {
-		if (comphy_map_data->type == PHY_TYPE_IGNORE)
+		if (comphy_map_data->type == COMPHY_TYPE_IGNORE)
 			continue;
 
 		/*

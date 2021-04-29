@@ -73,18 +73,18 @@
 &comphy {
 	max-lanes = <3>;
 	phy0 {
-		phy-type = <PHY_TYPE_SGMII1>;
-		phy-speed = <PHY_SPEED_3_125G>;
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_3_125G>;
 	};
 
 	phy1 {
-		phy-type = <PHY_TYPE_PEX0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_PEX0>;
+		phy-speed = <COMPHY_SPEED_5G>;
 	};
 
 	phy2 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+		phy-speed = <COMPHY_SPEED_5G>;
 	};
 };
 
