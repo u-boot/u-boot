@@ -631,14 +631,14 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	cfg->f_min = 400000;
 	cfg->f_max = 52000000;
 
-	priv->reg = (void *)dev_read_addr(dev);
+	priv->reg = dev_read_addr_ptr(dev);
 
 	/* We don't have a sunxi clock driver so find the clock address here */
 	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
 					  1, &args);
 	if (ret)
 		return ret;
-	ccu_reg = (u32 *)ofnode_get_addr(args.node);
+	ccu_reg = (u32 *)(uintptr_t)ofnode_get_addr(args.node);
 
 	priv->mmc_no = ((uintptr_t)priv->reg - SUNXI_MMC0_BASE) / 0x1000;
 	priv->mclkreg = (void *)ccu_reg + get_mclk_offset() + priv->mmc_no * 4;
