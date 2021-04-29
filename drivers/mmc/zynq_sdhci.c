@@ -422,7 +422,7 @@ static int sdhci_versal_sampleclk_set_phase(struct sdhci_host *host,
 	return 0;
 }
 
-static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
+static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 {
 	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct arasan_sdhci_clk_data *clk_data = &priv->clk_data;
@@ -443,6 +443,8 @@ static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 		sdhci_versal_sampleclk_set_phase(host, iclk_phase);
 		sdhci_versal_sdcardclk_set_phase(host, oclk_phase);
 	}
+
+	return 0;
 }
 
 static void arasan_dt_read_clk_phase(struct udevice *dev, unsigned char timing,

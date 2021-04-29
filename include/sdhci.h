@@ -268,7 +268,7 @@ struct sdhci_ops {
 	int	(*set_ios_post)(struct sdhci_host *host);
 	void	(*set_clock)(struct sdhci_host *host, u32 div);
 	int (*platform_execute_tuning)(struct mmc *host, u8 opcode);
-	void (*set_delay)(struct sdhci_host *host);
+	int (*set_delay)(struct sdhci_host *host);
 	int	(*deferred_probe)(struct sdhci_host *host);
 };
 
