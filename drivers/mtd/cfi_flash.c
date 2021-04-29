@@ -2276,12 +2276,12 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 					flash_unlock_seq(info, 0);
 					flash_write_cmd(info, 0,
 							info->addr_unlock1,
-							FLASH_CMD_READ_ID);
+							AMD_CMD_SET_PPB_ENTRY);
 					info->protect[sect_cnt] =
-						flash_isset(
-							info, sect_cnt,
-							FLASH_OFFSET_PROTECT,
-							FLASH_STATUS_PROTECT);
+						!flash_isset(info, sect_cnt,
+							     0, 0x01);
+					flash_write_cmd(info, 0, 0,
+							info->cmd_reset);
 					break;
 				default:
 					/* default: not protected */
