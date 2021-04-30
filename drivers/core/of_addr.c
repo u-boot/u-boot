@@ -118,11 +118,6 @@ static struct of_bus *of_match_bus(struct device_node *np)
 	return NULL;
 }
 
-static void dev_count_cells(const struct device_node *np, int *nap, int *nsp)
-{
-	of_bus_default_count_cells(np, nap, nsp);
-}
-
 const __be32 *of_get_address(const struct device_node *dev, int index,
 			     u64 *size, unsigned int *flags)
 {
@@ -136,7 +131,6 @@ const __be32 *of_get_address(const struct device_node *dev, int index,
 	parent = of_get_parent(dev);
 	if (parent == NULL)
 		return NULL;
-	dev_count_cells(dev, &na, &ns);
 	bus = of_match_bus(parent);
 	bus->count_cells(dev, &na, &ns);
 	of_node_put(parent);
