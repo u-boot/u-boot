@@ -182,6 +182,7 @@ class Builder:
             only useful for testing in-tree builds.
         work_in_output: Use the output directory as the work directory and
             don't write to a separate output directory.
+        thread_exceptions: List of exceptions raised by thread jobs
 
     Private members:
         _base_board_dict: Last-summarised Dict of boards
@@ -235,7 +236,8 @@ class Builder:
                  no_subdirs=False, full_path=False, verbose_build=False,
                  mrproper=False, per_board_out_dir=False,
                  config_only=False, squash_config_y=False,
-                 warnings_as_errors=False, work_in_output=False):
+                 warnings_as_errors=False, work_in_output=False,
+                 test_thread_exceptions=False):
         """Create a new Builder object
 
         Args:
@@ -262,6 +264,9 @@ class Builder:
             warnings_as_errors: Treat all compiler warnings as errors
             work_in_output: Use the output directory as the work directory and
                 don't write to a separate output directory.
+            test_thread_exceptions: Uses for tests only, True to make the
+                threads raise an exception instead of reporting their result.
+                This simulates a failure in the code somewhere
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -311,13 +316,16 @@ class Builder:
         self._re_migration_warning = re.compile(r'^={21} WARNING ={22}\n.*\n=+\n',
                                                 re.MULTILINE | re.DOTALL)
 
+        self.thread_exceptions = []
+        self.test_thread_exceptions = test_thread_exceptions
         if self.num_threads:
             self._single_builder = None
             self.queue = queue.Queue()
             self.out_queue = queue.Queue()
             for i in range(self.num_threads):
-                t = builderthread.BuilderThread(self, i, mrproper,
-                        per_board_out_dir)
+                t = builderthread.BuilderThread(
+                        self, i, mrproper, per_board_out_dir,
+                        test_exception=test_thread_exceptions)
                 t.setDaemon(True)
                 t.start()
                 self.threads.append(t)
@@ -1676,6 +1684,7 @@ class Builder:
             Tuple containing:
                 - number of boards that failed to build
                 - number of boards that issued warnings
+                - list of thread exceptions raised
         """
         self.commit_count = len(commits) if commits else 1
         self.commits = commits
@@ -1689,7 +1698,7 @@ class Builder:
         Print('\rStarting build...', newline=False)
         self.SetupBuild(board_selected, commits)
         self.ProcessResult(None)
-
+        self.thread_exceptions = []
         # Create jobs to build all commits for each board
         for brd in board_selected.values():
             job = builderthread.BuilderJob()
@@ -1728,5 +1737,8 @@ class Builder:
             rate = float(self.count) / duration.total_seconds()
             msg += ', duration %s, rate %1.2f' % (duration, rate)
         Print(msg)
+        if self.thread_exceptions:
+            Print('Failed: %d thread exceptions' % len(self.thread_exceptions),
+                  colour=self.col.RED)
 
-        return (self.fail, self.warned)
+        return (self.fail, self.warned, self.thread_exceptions)

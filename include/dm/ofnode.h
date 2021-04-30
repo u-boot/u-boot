@@ -511,6 +511,16 @@ phys_addr_t ofnode_get_addr_index(ofnode node, int index);
 phys_addr_t ofnode_get_addr(ofnode node);
 
 /**
+ * ofnode_get_size() - get size from a node
+ *
+ * This reads the register size from a node
+ *
+ * @node: node to read from
+ * @return size of the address, or FDT_SIZE_T_NONE if not present or invalid
+ */
+fdt_size_t ofnode_get_size(ofnode node);
+
+/**
  * ofnode_stringlist_search() - find a string in a string list and return index
  *
  * Note that it is possible for this function to succeed on property values

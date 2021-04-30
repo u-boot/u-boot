@@ -265,7 +265,7 @@ int dm_scan_plat(bool pre_reloc_only)
 static int dm_scan_fdt_node(struct udevice *parent, ofnode parent_node,
 			    bool pre_reloc_only)
 {
-	int ret = 0, err;
+	int ret = 0, err = 0;
 	ofnode node;
 
 	if (!ofnode_valid(parent_node))

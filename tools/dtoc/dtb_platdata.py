@@ -824,8 +824,6 @@ class DtbPlatdata():
         self.buf('\t},\n')
 
     def generate_uclasses(self):
-        if not self.check_instantiate(True):
-            return
         self.out('\n')
         self.out('#include <common.h>\n')
         self.out('#include <dm.h>\n')
@@ -1038,22 +1036,6 @@ class DtbPlatdata():
 
         self.out(''.join(self.get_buf()))
 
-    def check_instantiate(self, require):
-        """Check if self._instantiate is set to the required value
-
-        If not, this outputs a message into the current file
-
-        Args:
-            require: True to require --instantiate, False to require that it not
-                be enabled
-        """
-        if require != self._instantiate:
-            self.out(
-                '/* This file is not used: --instantiate was %senabled */\n' %
-                ('not ' if require else ''))
-            return False
-        return True
-
     def generate_plat(self):
         """Generate device defintions for the platform data
 
@@ -1064,8 +1046,6 @@ class DtbPlatdata():
         See the documentation in doc/driver-model/of-plat.rst for more
         information.
         """
-        if not self.check_instantiate(False):
-            return
         self.out('/* Allow use of U_BOOT_DRVINFO() in this file */\n')
         self.out('#define DT_PLAT_C\n')
         self.out('\n')
@@ -1102,8 +1082,6 @@ class DtbPlatdata():
         See the documentation in doc/driver-model/of-plat.rst for more
         information.
         """
-        if not self.check_instantiate(True):
-            return
         self.out('#include <common.h>\n')
         self.out('#include <dm.h>\n')
         self.out('#include <dt-structs.h>\n')
@@ -1216,7 +1194,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
     plat.assign_seqs()
 
     # Figure out what output files we plan to generate
-    output_files = OUTPUT_FILES_COMMON
+    output_files = dict(OUTPUT_FILES_COMMON)
     if instantiate:
         output_files.update(OUTPUT_FILES_INST)
     else:

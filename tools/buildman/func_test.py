@@ -16,6 +16,7 @@ from buildman import toolchain
 from patman import command
 from patman import gitutil
 from patman import terminal
+from patman import test_util
 from patman import tools
 
 settings_data = '''
@@ -219,12 +220,28 @@ class TestFunctional(unittest.TestCase):
         return command.RunPipe([[self._buildman_pathname] + list(args)],
                 capture=True, capture_stderr=True)
 
-    def _RunControl(self, *args, clean_dir=False, boards=None):
+    def _RunControl(self, *args, boards=None, clean_dir=False,
+                    test_thread_exceptions=False):
+        """Run buildman
+
+        Args:
+            args: List of arguments to pass
+            boards:
+            clean_dir: Used for tests only, indicates that the existing output_dir
+                should be removed before starting the build
+            test_thread_exceptions: Uses for tests only, True to make the threads
+                raise an exception instead of reporting their result. This simulates
+                a failure in the code somewhere
+
+        Returns:
+            result code from buildman
+        """
         sys.argv = [sys.argv[0]] + list(args)
         options, args = cmdline.ParseArgs()
         result = control.DoBuildman(options, args, toolchains=self._toolchains,
                 make_func=self._HandleMake, boards=boards or self._boards,
-                clean_dir=clean_dir)
+                clean_dir=clean_dir,
+                test_thread_exceptions=test_thread_exceptions)
         self._builder = control.builder
         return result
 
@@ -555,6 +572,18 @@ class TestFunctional(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(board0_dir, 'done')))
         self.assertTrue(os.path.exists(os.path.join(board0_dir, 'out-env')))
 
+    def testEnvironmentUnicode(self):
+        """Test there are no unicode errors when the env has non-ASCII chars"""
+        try:
+            varname = b'buildman_test_var'
+            os.environb[varname] = b'strange\x80chars'
+            self.assertEqual(0, self._RunControl('-o', self._output_dir))
+            board0_dir = os.path.join(self._output_dir, 'current', 'board0')
+            self.assertTrue(os.path.exists(os.path.join(board0_dir, 'done')))
+            self.assertTrue(os.path.exists(os.path.join(board0_dir, 'out-env')))
+        finally:
+            del os.environb[varname]
+
     def testWorkInOutput(self):
         """Test the -w option which should write directly to the output dir"""
         board_list = board.Boards()
@@ -588,3 +617,10 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(SystemExit) as e:
             self._RunControl('-w', clean_dir=False)
         self.assertIn("specify -o", str(e.exception))
+
+    def testThreadExceptions(self):
+        """Test that exceptions in threads are reported"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self.assertEqual(102, self._RunControl('-o', self._output_dir,
+                                                   test_thread_exceptions=True))
+        self.assertIn('Thread exception: test exception', stdout.getvalue())

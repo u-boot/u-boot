@@ -25,13 +25,8 @@ from patman import terminal
 from patman import tools
 from patman.test_util import capture_sys_output
 
-try:
-    import pygit2
-    HAVE_PYGIT2 = True
-    from patman import status
-except ModuleNotFoundError:
-    HAVE_PYGIT2 = False
-
+import pygit2
+from patman import status
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for checking that patman behaves correctly"""
@@ -458,7 +453,6 @@ complicated as possible''')
         repo.branches.local.create('base', base_target)
         return repo
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testBranch(self):
         """Test creating patches from a branch"""
         repo = self.make_git_tree()
@@ -604,7 +598,6 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             ["Found possible blank line(s) at end of file 'lib/fdtdec.c'"],
             pstrm.commit.warn)
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testNoUpstream(self):
         """Test CountCommitsToBranch when there is no upstream"""
         repo = self.make_git_tree()
@@ -642,7 +635,6 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
                     {'id': '1', 'name': 'Some patch'}]}
         raise ValueError('Fake Patchwork does not understand: %s' % subpath)
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testStatusMismatch(self):
         """Test Patchwork patches not matching the series"""
         series = Series()
@@ -652,7 +644,6 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertIn('Warning: Patchwork reports 1 patches, series has 0',
                       err.getvalue())
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testStatusReadPatch(self):
         """Test handling a single patch in Patchwork"""
         series = Series()
@@ -665,7 +656,6 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual('1', patch.id)
         self.assertEqual('Some patch', patch.raw_subject)
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testParseSubject(self):
         """Test parsing of the patch subject"""
         patch = status.Patch('1')
@@ -728,7 +718,6 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual('RESEND', patch.prefix)
         self.assertEqual(None, patch.version)
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testCompareSeries(self):
         """Test operation of compare_with_series()"""
         commit1 = Commit('abcd')
@@ -831,7 +820,6 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             return patch.comments
         raise ValueError('Fake Patchwork does not understand: %s' % subpath)
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testFindNewResponses(self):
         """Test operation of find_new_responses()"""
         commit1 = Commit('abcd')
@@ -970,7 +958,6 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             return patch.comments
         raise ValueError('Fake Patchwork does not understand: %s' % subpath)
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testCreateBranch(self):
         """Test operation of create_branch()"""
         repo = self.make_git_tree()
@@ -1058,7 +1045,6 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual('Reviewed-by: %s' % self.mary, next(lines))
         self.assertEqual('Tested-by: %s' % self.leb, next(lines))
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testParseSnippets(self):
         """Test parsing of review snippets"""
         text = '''Hi Fred,
@@ -1142,7 +1128,6 @@ line8
               'line2', 'line3', 'line4', 'line5', 'line6', 'line7', 'line8']],
             pstrm.snippets)
 
-    @unittest.skipIf(not HAVE_PYGIT2, 'Missing python3-pygit2')
     def testReviewSnippets(self):
         """Test showing of review snippets"""
         def _to_submitter(who):

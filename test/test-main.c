@@ -135,25 +135,32 @@ static bool ut_test_run_on_flattree(struct unit_test *test)
 static bool test_matches(const char *prefix, const char *test_name,
 			 const char *select_name)
 {
+	size_t len;
+
 	if (!select_name)
 		return true;
 
-	if (!strcmp(test_name, select_name))
+	/* Allow glob expansion in the test name */
+	len = select_name[strlen(select_name) - 1] == '*' ? strlen(select_name) : 0;
+	if (len-- == 1)
 		return true;
 
-	if (!prefix) {
+	if (!strncmp(test_name, select_name, len))
+		return true;
+
+	if (prefix) {
+		/* All tests have this prefix */
+		if (!strncmp(test_name, prefix, strlen(prefix)))
+			test_name += strlen(prefix);
+	} else {
 		const char *p = strstr(test_name, "_test_");
 
 		/* convert xxx_test_yyy to yyy, i.e. remove the suite name */
 		if (p)
-			test_name = p + 6;
-	} else {
-		/* All tests have this prefix */
-		if (!strncmp(test_name, prefix, strlen(prefix)))
-			test_name += strlen(prefix);
+			test_name = p + strlen("_test_");
 	}
 
-	if (!strcmp(test_name, select_name))
+	if (!strncmp(test_name, select_name, len))
 		return true;
 
 	return false;

@@ -2326,13 +2326,15 @@ sub get_raw_comment {
 #   suffix: Suffix to expect on member, e.g. "_priv"
 #   warning: Warning name, e.g. "PRIV_AUTO"
 sub u_boot_struct_name {
-	my ($line, $auto, $suffix, $warning) = @_;
+	my ($line, $auto, $suffix, $warning, $herecurr) = @_;
 
 	# Use _priv as a suffix for the device-private data struct
 	if ($line =~ /^\+\s*\.${auto}\s*=\s*sizeof\(struct\((\w+)\).*/) {
 		my $struct_name = $1;
 		if ($struct_name !~ /^\w+${suffix}/) {
-			WARN($warning, "struct \'$struct_name\' should have a ${suffix} suffix");
+			WARN($warning,
+				 "struct \'$struct_name\' should have a ${suffix} suffix\n"
+				 . $herecurr);
 		}
 	}
 }
@@ -2410,17 +2412,17 @@ sub u_boot_line {
 	}
 
 	# Check struct names for the 'auto' members of struct driver
-	u_boot_struct_name($line, "priv_auto", "_priv", "PRIV_AUTO");
-	u_boot_struct_name($line, "plat_auto", "_plat", "PLAT_AUTO");
-	u_boot_struct_name($line, "per_child_auto", "_priv", "CHILD_PRIV_AUTO");
+	u_boot_struct_name($line, "priv_auto", "_priv", "PRIV_AUTO", $herecurr);
+	u_boot_struct_name($line, "plat_auto", "_plat", "PLAT_AUTO", $herecurr);
+	u_boot_struct_name($line, "per_child_auto", "_priv", "CHILD_PRIV_AUTO", $herecurr);
 	u_boot_struct_name($line, "per_child_plat_auto", "_plat",
-		"CHILD_PLAT_AUTO");
+		"CHILD_PLAT_AUTO", $herecurr);
 
 	# Now the ones for struct uclass, skipping those in common with above
 	u_boot_struct_name($line, "per_device_auto", "_priv",
-		"DEVICE_PRIV_AUTO");
+		"DEVICE_PRIV_AUTO", $herecurr);
 	u_boot_struct_name($line, "per_device_plat_auto", "_plat",
-		"DEVICE_PLAT_AUTO");
+		"DEVICE_PLAT_AUTO", $herecurr);
 }
 
 sub process {

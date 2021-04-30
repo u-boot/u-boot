@@ -89,16 +89,23 @@ class BuilderThread(threading.Thread):
     Members:
         builder: The builder which contains information we might need
         thread_num: Our thread number (0-n-1), used to decide on a
-                temporary directory. If this is -1 then there are no threads
-                and we are the (only) main process
+            temporary directory. If this is -1 then there are no threads
+            and we are the (only) main process
+        mrproper: Use 'make mrproper' before each reconfigure
+        per_board_out_dir: True to build in a separate persistent directory per
+            board rather than a thread-specific directory
+        test_exception: Used for testing; True to raise an exception instead of
+            reporting the build result
     """
-    def __init__(self, builder, thread_num, mrproper, per_board_out_dir):
+    def __init__(self, builder, thread_num, mrproper, per_board_out_dir,
+                 test_exception=False):
         """Set up a new builder thread"""
         threading.Thread.__init__(self)
         self.builder = builder
         self.thread_num = thread_num
         self.mrproper = mrproper
         self.per_board_out_dir = per_board_out_dir
+        self.test_exception = test_exception
 
     def Make(self, commit, brd, stage, cwd, *args, **kwargs):
         """Run 'make' on a particular commit and board.
@@ -344,10 +351,9 @@ class BuilderThread(threading.Thread):
 
             # Write out the image and function size information and an objdump
             env = result.toolchain.MakeEnvironment(self.builder.full_path)
-            with open(os.path.join(build_dir, 'out-env'), 'w',
-                      encoding='utf-8') as fd:
+            with open(os.path.join(build_dir, 'out-env'), 'wb') as fd:
                 for var in sorted(env.keys()):
-                    print('%s="%s"' % (var, env[var]), file=fd)
+                    fd.write(b'%s="%s"' % (var, env[var]))
             lines = []
             for fname in BASE_ELF_FILENAMES:
                 cmd = ['%snm' % self.toolchain.cross, '--size-sort', fname]
@@ -440,6 +446,22 @@ class BuilderThread(threading.Thread):
                         target = '%s-%s%s' % (base, dirname, ext)
                 shutil.copy(fname, os.path.join(build_dir, target))
 
+    def _SendResult(self, result):
+        """Send a result to the builder for processing
+
+        Args:
+            result: CommandResult object containing the results of the build
+
+        Raises:
+            ValueError if self.test_exception is true (for testing)
+        """
+        if self.test_exception:
+            raise ValueError('test exception')
+        if self.thread_num != -1:
+            self.builder.out_queue.put(result)
+        else:
+            self.builder.ProcessResult(result)
+
     def RunJob(self, job):
         """Run a single job
 
@@ -513,10 +535,7 @@ class BuilderThread(threading.Thread):
 
                 # We have the build results, so output the result
                 self._WriteResult(result, job.keep_outputs, job.work_in_output)
-                if self.thread_num != -1:
-                    self.builder.out_queue.put(result)
-                else:
-                    self.builder.ProcessResult(result)
+                self._SendResult(result)
         else:
             # Just build the currently checked-out build
             result, request_config = self.RunCommit(None, brd, work_dir, True,
@@ -525,10 +544,7 @@ class BuilderThread(threading.Thread):
                         work_in_output=job.work_in_output)
             result.commit_upto = 0
             self._WriteResult(result, job.keep_outputs, job.work_in_output)
-            if self.thread_num != -1:
-                self.builder.out_queue.put(result)
-            else:
-                self.builder.ProcessResult(result)
+            self._SendResult(result)
 
     def run(self):
         """Our thread's run function
@@ -538,5 +554,9 @@ class BuilderThread(threading.Thread):
         """
         while True:
             job = self.builder.queue.get()
-            self.RunJob(job)
+            try:
+                self.RunJob(job)
+            except Exception as e:
+                print('Thread exception:', e)
+                self.builder.thread_exceptions.append(e)
             self.builder.queue.task_done()
