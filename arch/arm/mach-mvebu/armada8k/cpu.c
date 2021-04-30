@@ -46,8 +46,8 @@ static struct mm_region mvebu_mem_map[] = {
 	},
 	{
 		/* MMIO regions */
-		.phys = SOC_REGS_PHY_BASE,
-		.virt = SOC_REGS_PHY_BASE,
+		.phys = MMIO_REGS_PHY_BASE,
+		.virt = MMIO_REGS_PHY_BASE,
 		.size = SZ_1G,
 
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |

@@ -13,4 +13,6 @@
 /* Firmware related definition used for SMC calls */
 #define MV_SIP_DRAM_SIZE		0x82000010
 
+#define MMIO_REGS_PHY_BASE		0xc0000000
+
 #endif /* _FW_INFO_H_ */
