@@ -115,6 +115,7 @@ struct pcie_dw_mvebu {
 	int first_busno;
 
 	/* IO and MEM PCI regions */
+	int region_count;
 	struct pci_region io;
 	struct pci_region mem;
 };
@@ -267,9 +268,10 @@ static int pcie_dw_mvebu_read_config(const struct udevice *bus, pci_dev_t bdf,
 	debug("(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
 	*valuep = pci_conv_32_to_size(value, offset, size);
 
-	pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX0,
-				  PCIE_ATU_TYPE_IO, pcie->io.phys_start,
-				  pcie->io.bus_start, pcie->io.size);
+	if (pcie->region_count > 1)
+		pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX0,
+					  PCIE_ATU_TYPE_IO, pcie->io.phys_start,
+					  pcie->io.bus_start, pcie->io.size);
 
 	return 0;
 }
@@ -312,9 +314,10 @@ static int pcie_dw_mvebu_write_config(struct udevice *bus, pci_dev_t bdf,
 	value = pci_conv_size_to_32(old, value, offset, size);
 	writel(value, va_address);
 
-	pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX0,
-				  PCIE_ATU_TYPE_IO, pcie->io.phys_start,
-				  pcie->io.bus_start, pcie->io.size);
+	if (pcie->region_count > 1)
+		pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX0,
+					  PCIE_ATU_TYPE_IO, pcie->io.phys_start,
+					  pcie->io.bus_start, pcie->io.size);
 
 	return 0;
 }
@@ -513,14 +516,24 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
 		       hose->first_busno);
 	}
 
-	/* Store the IO and MEM windows settings for future use by the ATU */
-	pcie->io.phys_start = hose->regions[0].phys_start; /* IO base */
-	pcie->io.bus_start  = hose->regions[0].bus_start;  /* IO_bus_addr */
-	pcie->io.size	    = hose->regions[0].size;	   /* IO size */
+	pcie->region_count = hose->region_count - CONFIG_NR_DRAM_BANKS;
 
-	pcie->mem.phys_start = hose->regions[1].phys_start; /* MEM base */
-	pcie->mem.bus_start  = hose->regions[1].bus_start;  /* MEM_bus_addr */
-	pcie->mem.size	     = hose->regions[1].size;	    /* MEM size */
+	/* Store the IO and MEM windows settings for future use by the ATU */
+	if (pcie->region_count > 1) {
+		/* IO base */
+		pcie->io.phys_start = hose->regions[0].phys_start;
+		/* IO_bus_addr */
+		pcie->io.bus_start  = hose->regions[0].bus_start;
+		/* IO size */
+		pcie->io.size       = hose->regions[0].size;
+	}
+
+	/* MEM base */
+	pcie->mem.phys_start = hose->regions[pcie->region_count - 1].phys_start;
+	/* MEM_bus_addr */
+	pcie->mem.bus_start  = hose->regions[pcie->region_count - 1].bus_start;
+	/* MEM size */
+	pcie->mem.size       = hose->regions[pcie->region_count - 1].size;
 
 	pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX1,
 				  PCIE_ATU_TYPE_MEM, pcie->mem.phys_start,
