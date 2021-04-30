@@ -110,9 +110,16 @@ static int _spi_xfer(struct kwspi_registers *reg, unsigned int bitlen,
 static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 {
 	struct mvebu_spi_plat *plat = dev_get_plat(bus);
+	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 	struct kwspi_registers *reg = plat->spireg;
 	u32 data, divider;
 	unsigned int spr, sppr;
+
+	if (hz > spi->max_hz) {
+		debug("%s: limit speed to the max_hz of the bus %d\n",
+		      __func__, spi->max_hz);
+		hz = spi->max_hz;
+	}
 
 	/*
 	 * Calculate spi clock prescaller using max_hz.
