@@ -5,7 +5,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <dm/device_compat.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <log.h>
@@ -551,64 +550,6 @@ U_BOOT_DRIVER(fdt_dummy_drv) = {
 	.id	= UCLASS_TEST_DUMMY,
 };
 
-static int zero_size_cells_bus_bind(struct udevice *dev)
-{
-	ofnode child;
-	int err;
-
-	ofnode_for_each_subnode(child, dev_ofnode(dev)) {
-		if (ofnode_get_property(child, "compatible", NULL))
-			continue;
-
-		err = device_bind_driver_to_node(dev,
-						 "zero_size_cells_bus_child_drv",
-						 "zero_size_cells_bus_child",
-						 child, NULL);
-		if (err) {
-			dev_err(dev, "%s: failed to bind %s\n", __func__,
-				ofnode_get_name(child));
-			return err;
-		}
-	}
-
-	return 0;
-}
-
-static const struct udevice_id zero_size_cells_bus_ids[] = {
-	{ .compatible = "sandbox,zero-size-cells-bus" },
-	{ }
-};
-
-U_BOOT_DRIVER(zero_size_cells_bus) = {
-	.name = "zero_size_cells_bus_drv",
-	.id = UCLASS_TEST_DUMMY,
-	.of_match = zero_size_cells_bus_ids,
-	.bind = zero_size_cells_bus_bind,
-};
-
-static int zero_size_cells_bus_child_bind(struct udevice *dev)
-{
-	ofnode child;
-	int err;
-
-	ofnode_for_each_subnode(child, dev_ofnode(dev)) {
-		err = lists_bind_fdt(dev, child, NULL, false);
-		if (err) {
-			dev_err(dev, "%s: lists_bind_fdt, err=%d\n",
-				__func__, err);
-			return err;
-		}
-	}
-
-	return 0;
-}
-
-U_BOOT_DRIVER(zero_size_cells_bus_child_drv) = {
-	.name = "zero_size_cells_bus_child_drv",
-	.id = UCLASS_TEST_DUMMY,
-	.bind = zero_size_cells_bus_child_bind,
-};
-
 static int dm_test_fdt_translation(struct unit_test_state *uts)
 {
 	struct udevice *dev;
@@ -630,16 +571,7 @@ static int dm_test_fdt_translation(struct unit_test_state *uts)
 	/* No translation for busses with #size-cells == 0 */
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 3, &dev));
 	ut_asserteq_str("dev@42", dev->name);
-	/* No translation for busses with #size-cells == 0 */
 	ut_asserteq(0x42, dev_read_addr(dev));
-
-	/* Translation for busses with #size-cells == 0 */
-	gd->dm_flags |= GD_DM_FLG_SIZE_CELLS_0;
-	ut_asserteq(0x8042, dev_read_addr(dev));
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 4, &dev));
-	ut_asserteq_str("dev@19", dev->name);
-	ut_asserteq(0xc019, dev_read_addr(dev));
-	gd->dm_flags &= ~GD_DM_FLG_SIZE_CELLS_0;
 
 	/* dma address translation */
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));

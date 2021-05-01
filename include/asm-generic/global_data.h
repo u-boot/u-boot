@@ -184,12 +184,6 @@ struct global_data {
 
 #ifdef CONFIG_DM
 	/**
-	 * @dm_flags: additional flags for Driver Model
-	 *
-	 * See &enum gd_dm_flags
-	 */
-	unsigned long dm_flags;
-	/**
 	 * @dm_root: root instance for Driver Model
 	 */
 	struct udevice *dm_root;
@@ -519,12 +513,6 @@ struct global_data {
 #define gd_acpi_ctx()		NULL
 #endif
 
-#if CONFIG_IS_ENABLED(DM)
-#define gd_size_cells_0()	(gd->dm_flags & GD_DM_FLG_SIZE_CELLS_0)
-#else
-#define gd_size_cells_0()	(0)
-#endif
-
 /**
  * enum gd_flags - global data flags
  *
@@ -607,18 +595,6 @@ enum gd_flags {
 	 * @GD_FLG_SMP_READY: SMP initialization is complete
 	 */
 	GD_FLG_SMP_READY = 0x40000,
-};
-
-/**
- * enum gd_dm_flags - global data flags for Driver Model
- *
- * See field dm_flags of &struct global_data.
- */
-enum gd_dm_flags {
-	/**
-	 * @GD_DM_FLG_SIZE_CELLS_0: Enable #size-cells=<0> translation
-	 */
-	GD_DM_FLG_SIZE_CELLS_0 = 0x00001,
 };
 
 #endif /* __ASSEMBLY__ */
