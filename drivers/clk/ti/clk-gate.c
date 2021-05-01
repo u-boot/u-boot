@@ -13,9 +13,10 @@
 #include <clk-uclass.h>
 #include <asm/io.h>
 #include <linux/clk-provider.h>
+#include "clk.h"
 
 struct clk_ti_gate_priv {
-	fdt_addr_t reg;
+	struct clk_ti_reg reg;
 	u8 enable_bit;
 	u32 flags;
 	bool invert_enable;
@@ -26,13 +27,13 @@ static int clk_ti_gate_disable(struct clk *clk)
 	struct clk_ti_gate_priv *priv = dev_get_priv(clk->dev);
 	u32 v;
 
-	v = readl(priv->reg);
+	v = clk_ti_readl(&priv->reg);
 	if (priv->invert_enable)
 		v |= (1 << priv->enable_bit);
 	else
 		v &= ~(1 << priv->enable_bit);
 
-	writel(v, priv->reg);
+	clk_ti_writel(v, &priv->reg);
 	/* No OCP barrier needed here since it is a disable operation */
 	return 0;
 }
@@ -42,29 +43,29 @@ static int clk_ti_gate_enable(struct clk *clk)
 	struct clk_ti_gate_priv *priv = dev_get_priv(clk->dev);
 	u32 v;
 
-	v = readl(priv->reg);
+	v = clk_ti_readl(&priv->reg);
 	if (priv->invert_enable)
 		v &= ~(1 << priv->enable_bit);
 	else
 		v |= (1 << priv->enable_bit);
 
-	writel(v, priv->reg);
+	clk_ti_writel(v, &priv->reg);
 	/* OCP barrier */
-	v = readl(priv->reg);
+	v = clk_ti_readl(&priv->reg);
 	return 0;
 }
 
 static int clk_ti_gate_of_to_plat(struct udevice *dev)
 {
 	struct clk_ti_gate_priv *priv = dev_get_priv(dev);
+	int err;
 
-	priv->reg = dev_read_addr(dev);
-	if (priv->reg == FDT_ADDR_T_NONE) {
-		dev_err(dev, "failed to get control register\n");
-		return -EINVAL;
+	err = clk_ti_get_reg_addr(dev, 0, &priv->reg);
+	if (err) {
+		dev_err(dev, "failed to get control register address\n");
+		return err;
 	}
 
-	dev_dbg(dev, "reg=0x%08lx\n", priv->reg);
 	priv->enable_bit = dev_read_u32_default(dev, "ti,bit-shift", 0);
 	if (dev_read_bool(dev, "ti,set-rate-parent"))
 		priv->flags |= CLK_SET_RATE_PARENT;
