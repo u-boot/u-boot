@@ -17,15 +17,16 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include "clk.h"
 
 struct clk_ti_am3_dpll_drv_data {
 	ulong max_rate;
 };
 
 struct clk_ti_am3_dpll_priv {
-	fdt_addr_t clkmode_reg;
-	fdt_addr_t idlest_reg;
-	fdt_addr_t clksel_reg;
+	struct clk_ti_reg clkmode_reg;
+	struct clk_ti_reg idlest_reg;
+	struct clk_ti_reg clksel_reg;
 	struct clk clk_bypass;
 	struct clk clk_ref;
 	u16 last_rounded_mult;
@@ -75,6 +76,37 @@ static ulong clk_ti_am3_dpll_round_rate(struct clk *clk, ulong rate)
 	return ret;
 }
 
+static void clk_ti_am3_dpll_clken(struct clk_ti_am3_dpll_priv *priv,
+				  u8 clken_bits)
+{
+	u32 v;
+
+	v = clk_ti_readl(&priv->clkmode_reg);
+	v &= ~CM_CLKMODE_DPLL_DPLL_EN_MASK;
+	v |= clken_bits << CM_CLKMODE_DPLL_EN_SHIFT;
+	clk_ti_writel(v, &priv->clkmode_reg);
+}
+
+static int clk_ti_am3_dpll_state(struct clk *clk, u8 state)
+{
+	struct clk_ti_am3_dpll_priv *priv = dev_get_priv(clk->dev);
+	u32 i = 0, v;
+
+	do {
+		v = clk_ti_readl(&priv->idlest_reg) & ST_DPLL_CLK_MASK;
+		if (v == state) {
+			dev_dbg(clk->dev, "transition to '%s' in %d loops\n",
+				state ? "locked" : "bypassed", i);
+			return 1;
+		}
+
+	} while (++i < LDELAY);
+
+	dev_err(clk->dev, "failed transition to '%s'\n",
+		state ? "locked" : "bypassed");
+	return 0;
+}
+
 static ulong clk_ti_am3_dpll_set_rate(struct clk *clk, ulong rate)
 {
 	struct clk_ti_am3_dpll_priv *priv = dev_get_priv(clk->dev);
@@ -85,16 +117,13 @@ static ulong clk_ti_am3_dpll_set_rate(struct clk *clk, ulong rate)
 	if (IS_ERR_VALUE(round_rate))
 		return round_rate;
 
-	v = readl(priv->clksel_reg);
+	v = clk_ti_readl(&priv->clksel_reg);
 
 	/* enter bypass mode */
-	clrsetbits_le32(priv->clkmode_reg, CM_CLKMODE_DPLL_DPLL_EN_MASK,
-			DPLL_EN_MN_BYPASS << CM_CLKMODE_DPLL_EN_SHIFT);
+	clk_ti_am3_dpll_clken(priv, DPLL_EN_MN_BYPASS);
 
 	/* wait for bypass mode */
-	if (!wait_on_value(ST_DPLL_CLK_MASK, 0,
-			   (void *)priv->idlest_reg, LDELAY))
-		dev_err(clk->dev, "failed bypassing dpll\n");
+	clk_ti_am3_dpll_state(clk, 0);
 
 	/* set M & N */
 	v &= ~CM_CLKSEL_DPLL_M_MASK;
@@ -105,18 +134,14 @@ static ulong clk_ti_am3_dpll_set_rate(struct clk *clk, ulong rate)
 	v |= ((priv->last_rounded_div - 1) << CM_CLKSEL_DPLL_N_SHIFT) &
 		CM_CLKSEL_DPLL_N_MASK;
 
-	writel(v, priv->clksel_reg);
+	clk_ti_writel(v, &priv->clksel_reg);
 
 	/* lock dpll */
-	clrsetbits_le32(priv->clkmode_reg, CM_CLKMODE_DPLL_DPLL_EN_MASK,
-			DPLL_EN_LOCK << CM_CLKMODE_DPLL_EN_SHIFT);
+	clk_ti_am3_dpll_clken(priv, DPLL_EN_LOCK);
 
 	/* wait till the dpll locks */
-	if (!wait_on_value(ST_DPLL_CLK_MASK, ST_DPLL_CLK_MASK,
-			   (void *)priv->idlest_reg, LDELAY)) {
-		dev_err(clk->dev, "failed locking dpll\n");
+	if (!clk_ti_am3_dpll_state(clk, ST_DPLL_CLK_MASK))
 		hang();
-	}
 
 	return round_rate;
 }
@@ -128,7 +153,7 @@ static ulong clk_ti_am3_dpll_get_rate(struct clk *clk)
 	u32 m, n, v;
 
 	/* Return bypass rate if DPLL is bypassed */
-	v = readl(priv->clkmode_reg);
+	v = clk_ti_readl(&priv->clkmode_reg);
 	v &= CM_CLKMODE_DPLL_EN_MASK;
 	v >>= CM_CLKMODE_DPLL_EN_SHIFT;
 
@@ -141,7 +166,7 @@ static ulong clk_ti_am3_dpll_get_rate(struct clk *clk)
 		return rate;
 	}
 
-	v = readl(priv->clksel_reg);
+	v = clk_ti_readl(&priv->clksel_reg);
 	m = v & CM_CLKSEL_DPLL_M_MASK;
 	m >>= CM_CLKSEL_DPLL_M_SHIFT;
 	n = v & CM_CLKSEL_DPLL_N_MASK;
@@ -204,32 +229,27 @@ static int clk_ti_am3_dpll_of_to_plat(struct udevice *dev)
 	struct clk_ti_am3_dpll_priv *priv = dev_get_priv(dev);
 	struct clk_ti_am3_dpll_drv_data *data =
 		(struct clk_ti_am3_dpll_drv_data *)dev_get_driver_data(dev);
+	int err;
 
 	priv->max_rate = data->max_rate;
 
-	priv->clkmode_reg = dev_read_addr_index(dev, 0);
-	if (priv->clkmode_reg == FDT_ADDR_T_NONE) {
-		dev_err(dev, "failed to get clkmode register\n");
-		return -EINVAL;
+	err = clk_ti_get_reg_addr(dev, 0, &priv->clkmode_reg);
+	if (err) {
+		dev_err(dev, "failed to get clkmode register address\n");
+		return err;
 	}
 
-	dev_dbg(dev, "clkmode_reg=0x%08lx\n", priv->clkmode_reg);
-
-	priv->idlest_reg = dev_read_addr_index(dev, 1);
-	if (priv->idlest_reg == FDT_ADDR_T_NONE) {
+	err = clk_ti_get_reg_addr(dev, 1, &priv->idlest_reg);
+	if (err) {
 		dev_err(dev, "failed to get idlest register\n");
 		return -EINVAL;
 	}
 
-	dev_dbg(dev, "idlest_reg=0x%08lx\n", priv->idlest_reg);
-
-	priv->clksel_reg = dev_read_addr_index(dev, 2);
-	if (priv->clksel_reg == FDT_ADDR_T_NONE) {
+	err = clk_ti_get_reg_addr(dev, 2, &priv->clksel_reg);
+	if (err) {
 		dev_err(dev, "failed to get clksel register\n");
-		return -EINVAL;
+		return err;
 	}
-
-	dev_dbg(dev, "clksel_reg=0x%08lx\n", priv->clksel_reg);
 
 	return 0;
 }
