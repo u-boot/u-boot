@@ -408,7 +408,7 @@ AWK		= awk
 PERL		= perl
 PYTHON		?= python
 PYTHON2		= python2
-PYTHON3		= python3
+PYTHON3		?= python3
 DTC		?= $(objtree)/scripts/dtc/dtc
 CHECK		= sparse
 
