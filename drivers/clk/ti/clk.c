@@ -23,17 +23,17 @@ struct clk_iomap {
 static unsigned int clk_memmaps_num;
 static struct clk_iomap clk_memmaps[CLK_MAX_MEMMAPS];
 
-static void clk_ti_rmw(u32 val, u32 mask, fdt_addr_t reg)
+static void clk_ti_rmw(u32 val, u32 mask, struct clk_ti_reg *reg)
 {
 	u32 v;
 
-	v = readl(reg);
+	v = clk_ti_readl(reg);
 	v &= ~mask;
 	v |= val;
-	writel(v, reg);
+	clk_ti_writel(v, reg);
 }
 
-void clk_ti_latch(fdt_addr_t reg, s8 shift)
+void clk_ti_latch(struct clk_ti_reg *reg, s8 shift)
 {
 	u32 latch;
 
@@ -44,7 +44,7 @@ void clk_ti_latch(fdt_addr_t reg, s8 shift)
 
 	clk_ti_rmw(latch, latch, reg);
 	clk_ti_rmw(0, latch, reg);
-	readl(reg);		/* OCP barrier */
+	clk_ti_readl(reg);		/* OCP barrier */
 }
 
 void clk_ti_writel(u32 val, struct clk_ti_reg *reg)

@@ -17,7 +17,7 @@
 
 struct clk_ti_mux_priv {
 	struct clk_bulk parents;
-	fdt_addr_t reg;
+	struct clk_ti_reg reg;
 	u32 flags;
 	u32 mux_flags;
 	u32 mask;
@@ -58,7 +58,7 @@ static int clk_ti_mux_get_index(struct clk *clk)
 	struct clk_ti_mux_priv *priv = dev_get_priv(clk->dev);
 	u32 val;
 
-	val = readl(priv->reg);
+	val = clk_ti_readl(&priv->reg);
 	val >>= priv->shift;
 	val &= priv->mask;
 
@@ -91,13 +91,13 @@ static int clk_ti_mux_set_parent(struct clk *clk, struct clk *parent)
 	if (priv->flags & CLK_MUX_HIWORD_MASK) {
 		val = priv->mask << (priv->shift + 16);
 	} else {
-		val = readl(priv->reg);
+		val = clk_ti_readl(&priv->reg);
 		val &= ~(priv->mask << priv->shift);
 	}
 
 	val |= index << priv->shift;
-	writel(val, priv->reg);
-	clk_ti_latch(priv->reg, priv->latch);
+	clk_ti_writel(val, &priv->reg);
+	clk_ti_latch(&priv->reg, priv->latch);
 	return 0;
 }
 
@@ -215,14 +215,14 @@ static int clk_ti_mux_probe(struct udevice *dev)
 static int clk_ti_mux_of_to_plat(struct udevice *dev)
 {
 	struct clk_ti_mux_priv *priv = dev_get_priv(dev);
+	int err;
 
-	priv->reg = dev_read_addr(dev);
-	if (priv->reg == FDT_ADDR_T_NONE) {
-		dev_err(dev, "failed to get register\n");
-		return -EINVAL;
+	err = clk_ti_get_reg_addr(dev, 0, &priv->reg);
+	if (err) {
+		dev_err(dev, "failed to get register address\n");
+		return err;
 	}
 
-	dev_dbg(dev, "reg=0x%08lx\n", priv->reg);
 	priv->shift = dev_read_u32_default(dev, "ti,bit-shift", 0);
 	priv->latch = dev_read_s32_default(dev, "ti,latch-bit", -EINVAL);
 
