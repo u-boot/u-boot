@@ -39,16 +39,18 @@ static int setup_fec_clock(void)
 		if (ret)
 			return ret;
 
-		/*
-		 * Use 50M anatop loopback REF_CLK2 for ENET2,
-		 * clear gpr1[14], set gpr1[18].
-		 */
-		clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC2_MASK,
-				IOMUX_GPR1_FEC2_CLOCK_MUX1_SEL_MASK);
+		if (!IS_ENABLED(CONFIG_EV_IMX280_NANO_X_MB)) {
+			/*
+			 * Use 50M anatop loopback REF_CLK2 for ENET2,
+			 * clear gpr1[14], set gpr1[18].
+			 */
+			clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC2_MASK,
+					IOMUX_GPR1_FEC2_CLOCK_MUX1_SEL_MASK);
 
-		ret = enable_fec_anatop_clock(1, ENET_50MHZ);
-		if (ret)
-			return ret;
+			ret = enable_fec_anatop_clock(1, ENET_50MHZ);
+			if (ret)
+				return ret;
+		}
 
 		enable_enet_clk(1);
 	}

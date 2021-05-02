@@ -920,9 +920,11 @@ OUT4-IMX6ULL-NANO BOARD
 M:	Oleh Kravchenko <oleg@kaa.org.ua>
 S:	Maintained
 T:	git https://github.com/Oleh-Kravchenko/u-boot-out4.git
+F:	arch/arm/dts/ev-imx280-nano-x-mb.dts
 F:	arch/arm/dts/o4-imx-nano.dts
 F:	arch/arm/dts/o4-imx6ull-nano.dtsi
 F:	board/out4
+F:	configs/ev-imx280-nano-x-mb_defconfig
 F:	configs/o4-imx6ull-nano_defconfig
 F:	include/configs/o4-imx6ull-nano.h
 

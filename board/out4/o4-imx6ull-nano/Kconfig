@@ -45,6 +45,12 @@ config O4_IMX_NANO
 	    A baseboard for EV-iMX280-NANO module:
 	    https://out4.ru/products/board/18-o4-imx-nano.html
 
+config EV_IMX280_NANO_X_MB
+	bool "EV-IMX280-NANO-X-MB"
+	help
+	    A simple baseboard for EV-iMX280-NANO module:
+	    http://evodbg.net/products/mx28-eval-kits/14-ev-imx280-nano-x-mb.html
+
 endchoice
 
 config IMX_CONFIG
@@ -53,5 +59,6 @@ config IMX_CONFIG
 
 config DEFAULT_DEVICE_TREE
 	default "o4-imx-nano" if O4_IMX_NANO
+	default "ev-imx280-nano-x-mb" if EV_IMX280_NANO_X_MB
 
 endif
