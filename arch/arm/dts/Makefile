@@ -809,6 +809,9 @@ dtb-$(CONFIG_ARCH_MX6) += \
 	imx6-apalis.dtb \
 	imx6-colibri.dtb
 
+dtb-$(CONFIG_O4_IMX_NANO) += \
+	o4-imx-nano.dtb
+
 dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7d-sdb-qspi.dtb \
 	imx7-cm.dtb \
