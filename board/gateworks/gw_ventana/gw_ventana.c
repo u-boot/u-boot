@@ -31,7 +31,6 @@
 #include <linux/ctype.h>
 #include <miiphy.h>
 #include <mtd_node.h>
-#include <netdev.h>
 #include <pci.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
@@ -53,42 +52,6 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 struct ventana_board_info ventana_info;
 static int board_type;
-
-/* ENET */
-static iomux_v3_cfg_t const enet_pads[] = {
-	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC    | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD0__RGMII_TD0  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD1__RGMII_TD1  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD2__RGMII_TD2  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD3__RGMII_TD3  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TX_CTL__RGMII_TX_CTL |
-		   MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK |
-		   MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RXC__RGMII_RXC  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD0__RGMII_RD0  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD1__RGMII_RD1  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD2__RGMII_RD2  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL |
-		   MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	/* PHY nRST */
-	IOMUX_PADS(PAD_ENET_TXD0__GPIO1_IO30 | DIO_PAD_CFG),
-};
-
-static void setup_iomux_enet(int gpio)
-{
-	SETUP_IOMUX_PADS(enet_pads);
-
-	/* toggle PHY_RST# */
-	gpio_request(gpio, "phy_rst#");
-	gpio_direction_output(gpio, 0);
-	mdelay(10);
-	gpio_set_value(gpio, 1);
-	mdelay(100);
-}
 
 #ifdef CONFIG_USB_EHCI_MX6
 /* toggle USB_HUB_RST# for boards that have it; it is not defined in dt */
@@ -195,40 +158,7 @@ int mv88e61xx_hw_reset(struct phy_device *phydev)
 }
 #endif // CONFIG_MV88E61XX_SWITCH
 
-int board_eth_init(struct bd_info *bis)
-{
-#ifdef CONFIG_FEC_MXC
-	struct ventana_board_info *info = &ventana_info;
-
-	if (test_bit(EECONFIG_ETH0, info->config)) {
-		setup_iomux_enet(GP_PHY_RST);
-		cpu_eth_init(bis);
-	}
-#endif
-
-#ifdef CONFIG_E1000
-	e1000_initialize(bis);
-#endif
-
-#ifdef CONFIG_CI_UDC
-	/* For otg ethernet*/
-	usb_eth_initialize(bis);
-#endif
-
-	/* default to the first detected enet dev */
-	if (!env_get("ethprime")) {
-		struct eth_device *dev = eth_get_dev_by_index(0);
-		if (dev) {
-			env_set("ethprime", dev->name);
-			printf("set ethprime to %s\n", env_get("ethprime"));
-		}
-	}
-
-	return 0;
-}
-
 #if defined(CONFIG_VIDEO_IPUV3)
-
 static void enable_hdmi(struct display_info_t const *dev)
 {
 	imx_enable_hdmi_phy();
@@ -427,7 +357,6 @@ int power_init_board(void)
 	return 0;
 }
 
-#if defined(CONFIG_CMD_PCI)
 int imx6_pcie_toggle_reset(void)
 {
 	if (board_type < GW_UNKNOWN) {
@@ -448,6 +377,7 @@ int imx6_pcie_toggle_reset(void)
 #define MAX_PCI_DEVS	32
 struct pci_dev {
 	pci_dev_t devfn;
+	struct udevice *dev;
 	unsigned short vendor;
 	unsigned short device;
 	unsigned short class;
@@ -458,18 +388,21 @@ struct pci_dev pci_devs[MAX_PCI_DEVS];
 int pci_devno;
 int pci_bridgeno;
 
-void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
-			 unsigned short vendor, unsigned short device,
-			 unsigned short class)
+void board_pci_fixup_dev(struct udevice *bus, struct udevice *udev)
 {
-	int i;
-	u32 dw;
+	struct pci_child_plat *pdata = dev_get_parent_plat(udev);
 	struct pci_dev *pdev = &pci_devs[pci_devno++];
+	unsigned short vendor = pdata->vendor;
+	unsigned short device = pdata->device;
+	unsigned int class = pdata->class;
+	pci_dev_t dev = dm_pci_get_bdf(udev);
+	int i;
 
 	debug("%s: %02d:%02d.%02d: %04x:%04x\n", __func__,
 	      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev), vendor, device);
 
 	/* store array of devs for later use in device-tree fixup */
+	pdev->dev = udev;
 	pdev->devfn = dev;
 	pdev->vendor = vendor;
 	pdev->device = device;
@@ -496,19 +429,19 @@ void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
 	if (vendor == PCI_VENDOR_ID_PLX &&
 	    (device & 0xfff0) == 0x8600 &&
 	    PCI_DEV(dev) == 0 && PCI_FUNC(dev) == 0) {
+		ulong val;
 		debug("configuring PLX 860X downstream PERST#\n");
-		pci_hose_read_config_dword(hose, dev, 0x62c, &dw);
-		dw |= 0xaaa8; /* GPIO1-7 outputs */
-		pci_hose_write_config_dword(hose, dev, 0x62c, dw);
+		pci_bus_read_config(bus, dev, 0x62c, &val, PCI_SIZE_32);
+		val |= 0xaaa8; /* GPIO1-7 outputs */
+		pci_bus_write_config(bus, dev, 0x62c, val, PCI_SIZE_32);
 
-		pci_hose_read_config_dword(hose, dev, 0x644, &dw);
-		dw |= 0xfe;   /* GPIO1-7 output high */
-		pci_hose_write_config_dword(hose, dev, 0x644, dw);
+		pci_bus_read_config(bus, dev, 0x644, &val, PCI_SIZE_32);
+		val |= 0xfe;   /* GPIO1-7 output high */
+		pci_bus_write_config(bus, dev, 0x644, val, PCI_SIZE_32);
 
 		mdelay(100);
 	}
 }
-#endif /* CONFIG_CMD_PCI */
 
 #ifdef CONFIG_SERIAL_TAG
 /*
