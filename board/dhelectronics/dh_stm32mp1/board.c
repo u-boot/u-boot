@@ -86,6 +86,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define KS_CCR_EEPROM	BIT(9)
 #define KS_BE0		BIT(12)
 #define KS_BE1		BIT(13)
+#define KS_CIDER	0xC0
+#define CIDER_ID	0x8870
 
 int setup_mac_address(void)
 {
@@ -123,10 +125,17 @@ int setup_mac_address(void)
 	 * is present. If EEPROM is present, it must contain valid
 	 * MAC address.
 	 */
-	u32 reg, ccr;
+	u32 reg, cider, ccr;
 	reg = fdt_get_base_address(gd->fdt_blob, off);
 	if (!reg)
 		goto out_set_ethaddr;
+
+	writew(KS_BE0 | KS_BE1 | KS_CIDER, reg + 2);
+	cider = readw(reg);
+	if ((cider & 0xfff0) != CIDER_ID) {
+		skip_eth1 = true;
+		goto out_set_ethaddr;
+	}
 
 	writew(KS_BE0 | KS_BE1 | KS_CCR, reg + 2);
 	ccr = readw(reg);
