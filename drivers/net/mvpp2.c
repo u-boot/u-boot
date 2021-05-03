@@ -3247,9 +3247,11 @@ static int gop_gmac_mode_cfg(struct mvpp2_port *port)
 
 	case PHY_INTERFACE_MODE_1000BASEX:
 		gop_gmac_1000basex_cfg(port);
+		break;
 
 	case PHY_INTERFACE_MODE_2500BASEX:
 		gop_gmac_2500basex_cfg(port);
+		break;
 
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
