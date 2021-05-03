@@ -4445,7 +4445,8 @@ static void mvpp2_link_event(struct mvpp2_port *port)
 			if (phydev->duplex)
 				val |= MVPP2_GMAC_CONFIG_FULL_DUPLEX;
 
-			if (phydev->speed == SPEED_1000)
+			if (phydev->speed == SPEED_1000 ||
+			    phydev->speed == 2500)
 				val |= MVPP2_GMAC_CONFIG_GMII_SPEED;
 			else if (phydev->speed == SPEED_100)
 				val |= MVPP2_GMAC_CONFIG_MII_SPEED;
