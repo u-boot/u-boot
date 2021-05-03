@@ -72,7 +72,7 @@ static int fracpll_configure(enum pll_clocks pll, u32 freq)
 	}
 
 	if (i == ARRAY_SIZE(imx8mm_fracpll_tbl)) {
-		printf("No matched freq table %u\n", freq);
+		printf("%s: No matched freq table %u\n", __func__, freq);
 		return -EINVAL;
 	}
 
@@ -148,7 +148,7 @@ void dram_enable_bypass(ulong clk_val)
 	}
 
 	if (i == ARRAY_SIZE(imx8mm_dram_bypass_tbl)) {
-		printf("No matched freq table %lu\n", clk_val);
+		printf("%s: No matched freq table %lu\n", __func__, clk_val);
 		return;
 	}
 
@@ -646,7 +646,7 @@ static u32 decode_fracpll(enum clk_root_src frac_pll)
 		pll_fdiv_ctl1 = readl(&ana_pll->video_pll1_fdiv_ctl1);
 		break;
 	default:
-		printf("Not supported\n");
+		printf("Unsupported clk_root_src %d\n", frac_pll);
 		return 0;
 	}
 
