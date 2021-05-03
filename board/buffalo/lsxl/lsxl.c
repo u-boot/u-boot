@@ -271,7 +271,7 @@ int misc_init_r(void)
 }
 #endif
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
 void show_boot_progress(int progress)
 {
 	if (progress > 0)

@@ -37,7 +37,7 @@ U_BOOT_DRVINFO(stv09911_serials) = {
 };
 #endif
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
 void show_boot_progress(int progress)
 {
 	printf("%i\n", progress);
