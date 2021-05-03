@@ -4787,16 +4787,25 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	u32 id;
 	u32 phyaddr = 0;
 	int phy_mode = -1;
+	int fixed_link = 0;
 	int ret;
 
 	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
+	fixed_link = fdt_subnode_offset(gd->fdt_blob, port_node, "fixed-link");
 
 	if (phy_node > 0) {
 		int parent;
-		phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
-		if (phyaddr < 0) {
-			dev_err(dev, "could not find phy address\n");
-			return -1;
+
+		if (fixed_link != -FDT_ERR_NOTFOUND) {
+			/* phy_addr is set to invalid value for fixed links */
+			phyaddr = PHY_MAX_ADDR;
+		} else {
+			phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node,
+						 "reg", 0);
+			if (phyaddr < 0) {
+				dev_err(dev, "could not find phy address\n");
+				return -1;
+			}
 		}
 		parent = fdt_parent_offset(gd->fdt_blob, phy_node);
 		ret = uclass_get_device_by_of_offset(UCLASS_MDIO, parent,
