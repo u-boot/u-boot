@@ -5292,14 +5292,6 @@ static int mvpp2_write_hwaddr(struct udevice *dev)
 	return mvpp2_prs_update_mac_da(port, port->dev_addr);
 }
 
-static int mvpp22_smi_phy_addr_cfg(struct mvpp2_port *port)
-{
-	writel(port->phyaddr, port->priv->iface_base +
-	       MVPP22_SMI_PHY_ADDR_REG(port->gop_id));
-
-	return 0;
-}
-
 static int mvpp2_base_probe(struct udevice *dev)
 {
 	struct mvpp2 *priv = dev_get_priv(dev);
@@ -5421,10 +5413,6 @@ static int mvpp2_probe(struct udevice *dev)
 
 		port->base = priv->iface_base + MVPP22_PORT_BASE +
 			port->gop_id * MVPP22_PORT_OFFSET;
-
-		/* Set phy address of the port */
-		if (port->phyaddr < PHY_MAX_ADDR)
-			mvpp22_smi_phy_addr_cfg(port);
 
 		/* GoP Init */
 		gop_port_init(port);
