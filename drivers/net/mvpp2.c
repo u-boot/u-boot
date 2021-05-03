@@ -976,8 +976,6 @@ struct mvpp2_port {
 	unsigned int duplex;
 	unsigned int speed;
 
-	unsigned int phy_speed;		/* SGMII 1Gbps vs 2.5Gbps */
-
 	struct mvpp2_bm_pool *pool_long;
 	struct mvpp2_bm_pool *pool_short;
 
@@ -2875,6 +2873,7 @@ static void mvpp2_port_mii_set(struct mvpp2_port *port)
 
 	switch (port->phy_interface) {
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
 		val |= MVPP2_GMAC_INBAND_AN_MASK;
 		break;
 	case PHY_INTERFACE_MODE_1000BASEX:
@@ -2942,6 +2941,7 @@ static void mvpp2_port_loopback_set(struct mvpp2_port *port)
 		val &= ~MVPP2_GMAC_GMII_LB_EN_MASK;
 
 	if (port->phy_interface == PHY_INTERFACE_MODE_SGMII ||
+	    port->phy_interface == PHY_INTERFACE_MODE_SGMII_2500 ||
 	    port->phy_interface == PHY_INTERFACE_MODE_1000BASEX ||
 	    port->phy_interface == PHY_INTERFACE_MODE_2500BASEX)
 		val |= MVPP2_GMAC_PCS_LB_EN_MASK;
@@ -3239,12 +3239,11 @@ static int gop_gmac_mode_cfg(struct mvpp2_port *port)
 	/* Set TX FIFO thresholds */
 	switch (port->phy_interface) {
 	case PHY_INTERFACE_MODE_SGMII:
-		if (port->phy_speed == 2500)
-			gop_gmac_sgmii2_5_cfg(port);
-		else
-			gop_gmac_sgmii_cfg(port);
+		gop_gmac_sgmii_cfg(port);
 		break;
-
+	case PHY_INTERFACE_MODE_SGMII_2500:
+		gop_gmac_sgmii2_5_cfg(port);
+		break;
 	case PHY_INTERFACE_MODE_1000BASEX:
 		gop_gmac_1000basex_cfg(port);
 		break;
@@ -3425,6 +3424,7 @@ static int gop_port_init(struct mvpp2_port *port)
 		break;
 
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
 	case PHY_INTERFACE_MODE_1000BASEX:
 	case PHY_INTERFACE_MODE_2500BASEX:
 		/* configure PCS */
@@ -3484,6 +3484,7 @@ static void gop_port_enable(struct mvpp2_port *port, int enable)
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
 	case PHY_INTERFACE_MODE_1000BASEX:
 	case PHY_INTERFACE_MODE_2500BASEX:
 		if (enable)
@@ -3520,6 +3521,7 @@ static u32 mvpp2_netc_cfg_create(int gop_id, phy_interface_t phy_type)
 
 	if (gop_id == 2) {
 		if (phy_type == PHY_INTERFACE_MODE_SGMII ||
+		    phy_type == PHY_INTERFACE_MODE_SGMII_2500 ||
 		    phy_type == PHY_INTERFACE_MODE_1000BASEX ||
 		    phy_type == PHY_INTERFACE_MODE_2500BASEX)
 			val |= MV_NETC_GE_MAC2_SGMII;
@@ -3530,6 +3532,7 @@ static u32 mvpp2_netc_cfg_create(int gop_id, phy_interface_t phy_type)
 
 	if (gop_id == 3) {
 		if (phy_type == PHY_INTERFACE_MODE_SGMII ||
+		    phy_type == PHY_INTERFACE_MODE_SGMII_2500 ||
 		    phy_type == PHY_INTERFACE_MODE_1000BASEX ||
 		    phy_type == PHY_INTERFACE_MODE_2500BASEX)
 			val |= MV_NETC_GE_MAC3_SGMII;
@@ -4528,6 +4531,7 @@ static void mvpp2_start_dev(struct mvpp2_port *port)
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
 	case PHY_INTERFACE_MODE_1000BASEX:
 	case PHY_INTERFACE_MODE_2500BASEX:
 		mvpp2_gmac_max_rx_size_set(port);
@@ -4837,15 +4841,6 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	gpio_request_by_name(dev, "marvell,sfp-tx-disable-gpio", 0,
 			     &port->phy_tx_disable_gpio, GPIOD_IS_OUT);
 #endif
-
-	/*
-	 * ToDo:
-	 * Not sure if this DT property "phy-speed" will get accepted, so
-	 * this might change later
-	 */
-	/* Get phy-speed for SGMII 2.5Gbps vs 1Gbps setup */
-	port->phy_speed = fdtdec_get_int(gd->fdt_blob, port_node,
-					 "phy-speed", 1000);
 
 	port->id = id;
 	if (port->priv->hw_version == MVPP21)
@@ -5275,6 +5270,7 @@ static int mvpp2_start(struct udevice *dev)
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
 	case PHY_INTERFACE_MODE_1000BASEX:
 	case PHY_INTERFACE_MODE_2500BASEX:
 		mvpp2_port_power_up(port);
