@@ -490,9 +490,6 @@ do {									\
 #define MVPP22_SMI_MISC_CFG_REG			(MVPP22_SMI + 0x04)
 #define      MVPP22_SMI_POLLING_EN		BIT(10)
 
-#define MVPP22_SMI_PHY_ADDR_REG(port)		(MVPP22_SMI + 0x04 + \
-						 (0x4 * (port)))
-
 #define MVPP2_CAUSE_TXQ_SENT_DESC_ALL_MASK	0xff
 
 /* Descriptor ring Macros */
