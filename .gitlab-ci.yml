@@ -7,8 +7,8 @@ image: trini/u-boot-gitlab-ci-runner:bionic-20200807-02Sep2020
 # We run some tests in different order, to catch some failures quicker.
 stages:
   - testsuites
-  - test.py
   - world build
+  - test.py
 
 .buildman_and_testpy_template: &buildman_and_testpy_dfn
   stage: test.py
