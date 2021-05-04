@@ -402,4 +402,48 @@
 		ti,otap-del-sel-ddr50 = <0x9>;
 		ti,clkbuf-sel = <0x7>;
 	};
+
+	main_gpio0: gpio@600000 {
+		compatible = "ti,j721e-gpio", "ti,keystone-gpio";
+		reg = <0x00 0x00600000 0x00 0x100>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupts = <77 0 IRQ_TYPE_EDGE_RISING>,
+			     <77 1 IRQ_TYPE_EDGE_RISING>,
+			     <77 2 IRQ_TYPE_EDGE_RISING>,
+			     <77 3 IRQ_TYPE_EDGE_RISING>,
+			     <77 4 IRQ_TYPE_EDGE_RISING>,
+			     <77 5 IRQ_TYPE_EDGE_RISING>,
+			     <77 6 IRQ_TYPE_EDGE_RISING>,
+			     <77 7 IRQ_TYPE_EDGE_RISING>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		ti,ngpio = <69>;
+		ti,davinci-gpio-unbanked = <0>;
+		power-domains = <&k3_pds 77 TI_SCI_PD_EXCLUSIVE>;
+		clocks = <&k3_clks 77 0>;
+		clock-names = "gpio";
+	};
+
+	main_gpio1: gpio@601000 {
+		compatible = "ti,j721e-gpio", "ti,keystone-gpio";
+		reg = <0x00 0x00601000 0x00 0x100>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupts = <78 0 IRQ_TYPE_EDGE_RISING>,
+			     <78 1 IRQ_TYPE_EDGE_RISING>,
+			     <78 2 IRQ_TYPE_EDGE_RISING>,
+			     <78 3 IRQ_TYPE_EDGE_RISING>,
+			     <78 4 IRQ_TYPE_EDGE_RISING>,
+			     <78 5 IRQ_TYPE_EDGE_RISING>,
+			     <78 6 IRQ_TYPE_EDGE_RISING>,
+			     <78 7 IRQ_TYPE_EDGE_RISING>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		ti,ngpio = <69>;
+		ti,davinci-gpio-unbanked = <0>;
+		power-domains = <&k3_pds 78 TI_SCI_PD_EXCLUSIVE>;
+		clocks = <&k3_clks 78 0>;
+		clock-names = "gpio";
+	};
 };
