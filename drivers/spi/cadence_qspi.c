@@ -124,7 +124,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 
 	/* just to ensure we do once only when speed or chip select change */
 	priv->qspi_calibrated_hz = hz;
-	priv->qspi_calibrated_cs = spi_chip_select(bus);
+	priv->qspi_calibrated_cs = priv->cs;
 
 	return 0;
 }
@@ -147,7 +147,7 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 	 */
 	if (priv->previous_hz != hz ||
 	    priv->qspi_calibrated_hz != hz ||
-	    priv->qspi_calibrated_cs != spi_chip_select(bus)) {
+	    priv->qspi_calibrated_cs != priv->cs) {
 		err = spi_calibration(bus, hz);
 		if (err)
 			return err;
@@ -167,8 +167,10 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 static int cadence_spi_child_pre_probe(struct udevice *bus)
 {
 	struct spi_slave *slave = dev_get_parent_priv(bus);
+	struct cadence_spi_priv *priv = dev_get_priv(bus->parent);
 
 	slave->bytemode = SPI_4BYTE_MODE;
+	slave->option = priv->is_dual;
 
 	return 0;
 }
@@ -187,6 +189,7 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	priv->regbase = plat->regbase;
 	priv->ahbbase = plat->ahbbase;
+	priv->is_dual = plat->is_dual;
 
 	xilinx_pm_request(PM_REQUEST_NODE, DEV_OSPI, PM_CAPABILITY_ACCESS,
 			  PM_MAX_QOS, PM_REQUEST_ACK_NO, NULL);
@@ -260,9 +263,13 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 	int err = 0;
 	u32 mode;
 
+	if (spi->flags & SPI_XFER_U_PAGE)
+		priv->cs = CQSPI_CS1;
+	else
+		priv->cs = CQSPI_CS0;
+
 	/* Set Chip select */
-	cadence_qspi_apb_chipselect(base, spi_chip_select(spi->dev),
-				    plat->is_decoded_cs);
+	cadence_qspi_apb_chipselect(base, priv->cs, plat->is_decoded_cs);
 
 	if (op->data.dir == SPI_MEM_DATA_IN && op->data.buf.in) {
 		if (!op->addr.nbytes)
@@ -337,6 +344,11 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	/* Use 500 KHz as a suitable default */
 	plat->max_hz = ofnode_read_u32_default(subnode, "spi-max-frequency",
 					       500000);
+
+	if (dev_read_u32_default(bus, "is-stacked", -1) == 1)
+		plat->is_dual = CQSPI_DUAL_STACKED_FLASH;
+	else
+		plat->is_dual = CQSPI_SINGLE_FLASH;
 
 	/* Read other parameters from DT */
 	plat->page_size = ofnode_read_u32_default(subnode, "page-size", 256);
