@@ -43,6 +43,7 @@
 #include <hang.h>
 
 #include "../common/board_detect.h"
+#include "../common/cape_detect.h"
 #include "mux_data.h"
 
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
