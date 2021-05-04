@@ -44,6 +44,7 @@
 #include <env_internal.h>
 #include <watchdog.h>
 #include "../common/board_detect.h"
+#include "../common/cape_detect.h"
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
