@@ -3325,7 +3325,7 @@ static void *xmalloc(size_t size)
 	void *p = NULL;
 
 	if (!(p = malloc(size))) {
-	    printf("ERROR : memory not allocated\n");
+	    printf("ERROR : xmalloc failed\n");
 	    for(;;);
 	}
 	return p;
@@ -3336,7 +3336,7 @@ static void *xrealloc(void *ptr, size_t size)
 	void *p = NULL;
 
 	if (!(p = realloc(ptr, size))) {
-	    printf("ERROR : memory not allocated\n");
+	    printf("ERROR : xrealloc failed\n");
 	    for(;;);
 	}
 	return p;
