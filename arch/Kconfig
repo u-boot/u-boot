@@ -121,6 +121,7 @@ config SANDBOX
 	select SUPPORT_OF_CONTROL
 	select SYSRESET_CMD_POWEROFF
 	select IRQ
+	select SUPPORT_EXTENSION_SCAN
 	imply BITREVERSE
 	select BLOBLIST
 	imply CMD_DM
@@ -165,6 +166,7 @@ config SANDBOX
 	imply BOOTARGS_SUBST
 	imply PHY_FIXED
 	imply DM_DSA
+	imply CMD_EXTENSION
 
 config SH
 	bool "SuperH architecture"

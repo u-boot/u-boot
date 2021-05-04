@@ -14,6 +14,9 @@
 #include <asm/global_data.h>
 #include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
+#include <malloc.h>
+
+#include <extension_board.h>
 
 /*
  * Pointer to initial global data area
@@ -78,6 +81,26 @@ int ft_board_setup(void *fdt, struct bd_info *bd)
 	/* Create an arbitrary reservation to allow testing OF_BOARD_SETUP.*/
 	return fdt_add_mem_rsv(fdt, 0x00d02000, 0x4000);
 }
+
+#ifdef CONFIG_CMD_EXTENSION
+int extension_board_scan(struct list_head *extension_list)
+{
+	struct extension *extension;
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		extension = calloc(1, sizeof(struct extension));
+		snprintf(extension->overlay, sizeof(extension->overlay), "overlay%d.dtbo", i);
+		snprintf(extension->name, sizeof(extension->name), "extension board %d", i);
+		snprintf(extension->owner, sizeof(extension->owner), "sandbox");
+		snprintf(extension->version, sizeof(extension->version), "1.1");
+		snprintf(extension->other, sizeof(extension->other), "Fictionnal extension board");
+		list_add_tail(&extension->list, extension_list);
+	}
+
+	return i;
+}
+#endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)

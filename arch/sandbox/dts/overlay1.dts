@@ -1,0 +1,9 @@
+/dts-v1/;
+/plugin/;
+
+&{/buttons} {
+	btn4 {
+		gpios = <&gpio_a 5 0>;
+		label = "button4";
+	};
+};
