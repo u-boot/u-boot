@@ -131,6 +131,12 @@ void board_init_f(ulong dummy)
 
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
+
+#if defined(CONFIG_K3_AM64_DDRSS)
+	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (ret)
+		panic("DRAM init failed: %d\n", ret);
+#endif
 }
 
 u32 spl_boot_mode(const u32 boot_device)
