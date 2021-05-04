@@ -4,9 +4,11 @@
  * Copyright (c) 2015 Free Electrons
  * Copyright (c) 2015 NextThing Co.
  * Copyright (c) 2018 Microchip Technology, Inc.
+ * Copyright (c) 2021 Bootlin
  *
  * Maxime Ripard <maxime.ripard@free-electrons.com>
  * Eugen Hristev <eugen.hristev@microchip.com>
+ * Kory Maincent <kory.maincent@bootlin.com>
  *
  */
 
@@ -25,6 +27,76 @@
 struct w1_bus {
 	u64	search_id;
 };
+
+int w1_bus_find_dev(const struct udevice *bus, u64 id, struct udevice
+**devp)
+{
+	struct udevice *dev;
+	u8 family = id & 0xff;
+	int ret;
+
+	for (ret = uclass_first_device(UCLASS_W1_EEPROM, &dev);
+		!ret && dev;
+		uclass_next_device(&dev)) {
+		if (ret || !dev) {
+			debug("cannot find w1 eeprom dev\n");
+			return -ENODEV;
+		}
+
+		if (dev_get_driver_data(dev) == family) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
+int w1_register_new_device(u64 id, struct udevice *bus)
+{
+	u8 family = id & 0xff;
+	int n_ents, ret = 0;
+	struct udevice *dev;
+
+	struct w1_driver_entry *start, *entry;
+
+	start = ll_entry_start(struct w1_driver_entry, w1_driver_entry);
+	n_ents = ll_entry_count(struct w1_driver_entry, w1_driver_entry);
+
+	for (entry = start; entry != start + n_ents; entry++) {
+		const u8 *match_family;
+		const struct driver *drv;
+		struct w1_device *w1;
+
+		for (match_family = entry->family; match_family;
+		     match_family++) {
+			if (*match_family != family)
+				continue;
+
+			ret = w1_bus_find_dev(bus, id, &dev);
+
+			/* If nothing in the device tree, bind a device */
+			if (ret == -ENODEV) {
+				drv = entry->driver;
+				ret = device_bind(bus, drv, drv->name,
+						  NULL, ofnode_null(), &dev);
+				if (ret)
+					return ret;
+			}
+
+			device_probe(dev);
+
+			w1 = dev_get_parent_plat(dev);
+			w1->id = id;
+
+			return 0;
+		}
+	}
+
+	debug("%s: No matches found: error %d\n", __func__, ret);
+
+	return ret;
+}
 
 static int w1_enumerate(struct udevice *bus)
 {
@@ -97,8 +169,8 @@ static int w1_enumerate(struct udevice *bus)
 			debug("%s: Detected new device 0x%llx (family 0x%x)\n",
 			      bus->name, rn, (u8)(rn & 0xff));
 
-			/* attempt to register as w1-eeprom device */
-			w1_eeprom_register_new_device(rn);
+			/* attempt to register as w1 device */
+			w1_register_new_device(rn, bus);
 		}
 	}
 
