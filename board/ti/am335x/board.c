@@ -77,8 +77,10 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 void do_board_detect(void)
 {
 	enable_i2c0_pin_mux();
+	enable_i2c2_pin_mux();
 #if !CONFIG_IS_ENABLED(DM_I2C)
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED2, CONFIG_SYS_OMAP24_I2C_SLAVE2);
 #endif
 	if (ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
 				 CONFIG_EEPROM_CHIP_ADDRESS))

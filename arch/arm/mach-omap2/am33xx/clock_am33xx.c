@@ -220,6 +220,7 @@ void enable_basic_clocks(void)
 		&cmper->gpio2clkctrl,
 		&cmper->gpio3clkctrl,
 		&cmper->i2c1clkctrl,
+		&cmper->i2c2clkctrl,
 		&cmper->cpgmac0clkctrl,
 		&cmper->spi0clkctrl,
 		&cmrtc->rtcclkctrl,
