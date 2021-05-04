@@ -27,7 +27,6 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
-static int fdt_valid(struct fdt_header **blobp);
 static int fdt_parse_prop(char *const*newval, int count, char *data, int *len);
 static int fdt_print(const char *pathp, char *prop, int depth);
 static int is_printable_string(const void *data, int len);
@@ -728,54 +727,6 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	return 0;
-}
-
-/****************************************************************************/
-
-/**
- * fdt_valid() - Check if an FDT is valid. If not, change it to NULL
- *
- * @blobp: Pointer to FDT pointer
- * @return 1 if OK, 0 if bad (in which case *blobp is set to NULL)
- */
-static int fdt_valid(struct fdt_header **blobp)
-{
-	const void *blob = *blobp;
-	int err;
-
-	if (blob == NULL) {
-		printf ("The address of the fdt is invalid (NULL).\n");
-		return 0;
-	}
-
-	err = fdt_check_header(blob);
-	if (err == 0)
-		return 1;	/* valid */
-
-	if (err < 0) {
-		printf("libfdt fdt_check_header(): %s", fdt_strerror(err));
-		/*
-		 * Be more informative on bad version.
-		 */
-		if (err == -FDT_ERR_BADVERSION) {
-			if (fdt_version(blob) <
-			    FDT_FIRST_SUPPORTED_VERSION) {
-				printf (" - too old, fdt %d < %d",
-					fdt_version(blob),
-					FDT_FIRST_SUPPORTED_VERSION);
-			}
-			if (fdt_last_comp_version(blob) >
-			    FDT_LAST_SUPPORTED_VERSION) {
-				printf (" - too new, fdt %d > %d",
-					fdt_version(blob),
-					FDT_LAST_SUPPORTED_VERSION);
-			}
-		}
-		printf("\n");
-		*blobp = NULL;
-		return 0;
-	}
-	return 1;
 }
 
 /****************************************************************************/

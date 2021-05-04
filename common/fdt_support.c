@@ -1904,3 +1904,49 @@ int fdt_overlay_apply_verbose(void *fdt, void *fdto)
 	return err;
 }
 #endif
+
+/**
+ * fdt_valid() - Check if an FDT is valid. If not, change it to NULL
+ *
+ * @blobp: Pointer to FDT pointer
+ * @return 1 if OK, 0 if bad (in which case *blobp is set to NULL)
+ */
+int fdt_valid(struct fdt_header **blobp)
+{
+	const void *blob = *blobp;
+	int err;
+
+	if (!blob) {
+		printf("The address of the fdt is invalid (NULL).\n");
+		return 0;
+	}
+
+	err = fdt_check_header(blob);
+	if (err == 0)
+		return 1;	/* valid */
+
+	if (err < 0) {
+		printf("libfdt fdt_check_header(): %s", fdt_strerror(err));
+		/*
+		 * Be more informative on bad version.
+		 */
+		if (err == -FDT_ERR_BADVERSION) {
+			if (fdt_version(blob) <
+			    FDT_FIRST_SUPPORTED_VERSION) {
+				printf(" - too old, fdt %d < %d",
+				       fdt_version(blob),
+				       FDT_FIRST_SUPPORTED_VERSION);
+			}
+			if (fdt_last_comp_version(blob) >
+			    FDT_LAST_SUPPORTED_VERSION) {
+				printf(" - too new, fdt %d > %d",
+				       fdt_version(blob),
+				       FDT_LAST_SUPPORTED_VERSION);
+			}
+		}
+		printf("\n");
+		*blobp = NULL;
+		return 0;
+	}
+	return 1;
+}
