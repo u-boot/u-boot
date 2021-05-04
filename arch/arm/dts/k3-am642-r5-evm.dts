@@ -61,6 +61,16 @@
 		clock-frequency = <200000000>;
 		u-boot,dm-spl;
 	};
+
+	vtt_supply: vtt-supply {
+		compatible = "regulator-gpio";
+		regulator-name = "vtt";
+		regulator-min-microvolt = <0>;
+		regulator-max-microvolt = <3300000>;
+		gpios = <&main_gpio0 12 GPIO_ACTIVE_HIGH>;
+		states = <0 0x0 3300000 0x1>;
+		u-boot,dm-spl;
+	};
 };
 
 &cbass_main {
@@ -124,6 +134,13 @@
 			AM64X_IOPAD(0x029c, PIN_INPUT_PULLUP, 0)	/* (C20) MMC1_SDWP */
 		>;
 	};
+
+	ddr_vtt_pins_default: ddr-vtt-pins-default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			AM64X_IOPAD(0x0030, PIN_OUTPUT_PULLUP, 7)	/* (L18) OSPI0_CSN1.GPIO0_12 */
+		>;
+	};
 };
 
 &dmsc {
@@ -150,6 +167,12 @@
 	pinctrl-0 = <&main_uart1_pins_default>;
 };
 
+&memorycontroller {
+	vtt-supply = <&vtt_supply>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&ddr_vtt_pins_default>;
+};
+
 &sdhci0 {
 	/delete-property/ power-domains;
 	clocks = <&clk_200mhz>;
@@ -166,6 +189,11 @@
 	ti,driver-strength-ohm = <50>;
 	disable-wp;
 	pinctrl-0 = <&main_mmc1_pins_default>;
+};
+
+&main_gpio0 {
+	u-boot,dm-spl;
+	/delete-property/ power-domains;
 };
 
 #include "k3-am642-evm-u-boot.dtsi"
