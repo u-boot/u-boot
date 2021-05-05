@@ -326,7 +326,7 @@ struct sunxi_ccm_reg {
 #define CCM_MMC_CTRL_M(x)		((x) - 1)
 #define CCM_MMC_CTRL_N(x)		((x) << 8)
 #define CCM_MMC_CTRL_OSCM24		(0x0 << 24)
-#define CCM_MMC_CTRL_PLL6X2		(0x1 << 24)
+#define CCM_MMC_CTRL_PLL6		(0x1 << 24)
 #define CCM_MMC_CTRL_PLL_PERIPH2X2	(0x2 << 24)
 #define CCM_MMC_CTRL_ENABLE		(0x1 << 31)
 /* H6 doesn't have these delays */

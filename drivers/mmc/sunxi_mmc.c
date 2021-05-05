@@ -124,10 +124,14 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 #ifdef CONFIG_MACH_SUN9I
 		pll = CCM_MMC_CTRL_PLL_PERIPH0;
 		pll_hz = clock_get_pll4_periph0();
-#elif defined(CONFIG_SUN50I_GEN_H6)
-		pll = CCM_MMC_CTRL_PLL6X2;
-		pll_hz = clock_get_pll6() * 2;
 #else
+		/*
+		 * SoCs since the A64 (H5, H6, H616) actually use the doubled
+		 * rate of PLL6/PERIPH0 as an input clock, but compensate for
+		 * that with a fixed post-divider of 2 in the mod clock.
+		 * This cancels each other out, so for simplicity we just
+		 * pretend it's always PLL6 without a post divider here.
+		 */
 		pll = CCM_MMC_CTRL_PLL6;
 		pll_hz = clock_get_pll6();
 #endif
