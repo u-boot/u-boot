@@ -89,3 +89,13 @@ config USB_MUSB_PIO_ONLY
 	help
 	  All data is copied between memory and FIFO by the CPU.
 	  DMA controllers are ignored.
+
+config USB_MUSB_FIXED_CONFIGDATA
+	bool "Hardcode MUSB CONFIGDATA register"
+	depends on USB_MUSB_SUNXI
+	default n if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN7I || MACH_SUN8I_A23
+	default y
+	help
+	  Newer Allwinner SoCs do not implement the MUSB_CONFIGDATA register,
+	  so it always reads 0. Select this option to override this and
+	  return a hardcoded value instead.
