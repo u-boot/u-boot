@@ -298,7 +298,7 @@ static int dwc3_meson_g12a_get_phys(struct dwc3_meson_g12a *priv)
 	for (i = 0 ; i < PHY_COUNT ; ++i) {
 		ret = generic_phy_get_by_name(priv->dev, phy_names[i],
 					      &priv->phys[i]);
-		if (ret == -ENOENT)
+		if (ret == -ENOENT || ret == -ENODATA)
 			continue;
 
 		if (ret)
