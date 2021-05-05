@@ -233,14 +233,14 @@ struct sunxi_ccm_reg {
 #define CCM_PLL1_OUT_EN			BIT(27)
 #define CCM_PLL1_CLOCK_TIME_2		(2 << 24)
 #define CCM_PLL1_CTRL_P(p)		((p) << 16)
-#define CCM_PLL1_CTRL_N(n)		((n) << 8)
+#define CCM_PLL1_CTRL_N(n)		(((n) - 1) << 8)
 
 /* pll5 bit field */
 #define CCM_PLL5_CTRL_EN		BIT(31)
 #define CCM_PLL5_LOCK_EN		BIT(29)
 #define CCM_PLL5_LOCK			BIT(28)
 #define CCM_PLL5_OUT_EN			BIT(27)
-#define CCM_PLL5_CTRL_N(n)		((n) << 8)
+#define CCM_PLL5_CTRL_N(n)		(((n) - 1) << 8)
 #define CCM_PLL5_CTRL_DIV1(div1)	((div1) << 0)
 #define CCM_PLL5_CTRL_DIV2(div0)	((div0) << 1)
 
