@@ -103,20 +103,28 @@ static int mmc_resource_init(int sdc_no)
 }
 #endif
 
+/*
+ * All A64 and later MMC controllers feature auto-calibration. This would
+ * normally be detected via the compatible string, but we need something
+ * which works in the SPL as well.
+ */
+static bool sunxi_mmc_can_calibrate(void)
+{
+	return IS_ENABLED(CONFIG_MACH_SUN50I) ||
+	       IS_ENABLED(CONFIG_MACH_SUN50I_H5) ||
+	       IS_ENABLED(CONFIG_SUN50I_GEN_H6) ||
+	       IS_ENABLED(CONFIG_MACH_SUN8I_R40);
+}
+
 static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 {
 	unsigned int pll, pll_hz, div, n, oclk_dly, sclk_dly;
 	bool new_mode = IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE);
-	bool calibrate = false;
 	u32 val = 0;
 
 	/* A83T support new mode only on eMMC */
 	if (IS_ENABLED(CONFIG_MACH_SUN8I_A83T) && priv->mmc_no != 2)
 		new_mode = false;
-
-#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_SUN50I_GEN_H6)
-	calibrate = true;
-#endif
 
 	if (hz <= 24000000) {
 		pll = CCM_MMC_CTRL_OSCM24;
@@ -179,7 +187,9 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 	if (new_mode) {
 		val |= CCM_MMC_CTRL_MODE_SEL_NEW;
 		setbits_le32(&priv->reg->ntsr, SUNXI_MMC_NTSR_MODE_SEL_NEW);
-	} else if (!calibrate) {
+	}
+
+	if (!sunxi_mmc_can_calibrate()) {
 		/*
 		 * Use hardcoded delay values if controller doesn't support
 		 * calibration
@@ -237,14 +247,15 @@ static int mmc_config_clock(struct sunxi_mmc_priv *priv, struct mmc *mmc)
 	rval &= ~SUNXI_MMC_CLK_DIVIDER_MASK;
 	writel(rval, &priv->reg->clkcr);
 
-#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_SUN50I_GEN_H6)
+#if defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_SUN50I_GEN_H6)
 	/* A64 supports calibration of delays on MMC controller and we
 	 * have to set delay of zero before starting calibration.
 	 * Allwinner BSP driver sets a delay only in the case of
 	 * using HS400 which is not supported by mainline U-Boot or
 	 * Linux at the moment
 	 */
-	writel(SUNXI_MMC_CAL_DL_SW_EN, &priv->reg->samp_dl);
+	if (sunxi_mmc_can_calibrate())
+		writel(SUNXI_MMC_CAL_DL_SW_EN, &priv->reg->samp_dl);
 #endif
 
 	/* Re-enable Clock */
