@@ -1104,7 +1104,7 @@
 			power-domains = <&zynqmp_firmware PD_DP>;
 			dma-channels = <6>;
 			#stream-id-cells = <1>;
-			/* iommus = <&smmu 0xce4>; */
+			iommus = <&smmu 0xce4>;
 			#dma-cells = <1>;
 		};
 
@@ -1119,7 +1119,7 @@
 			interrupts = <0 119 4>;
 			interrupt-parent = <&gic>;
 			#stream-id-cells = <1>;
-			/* iommus = <&smmu 0xce3>; */
+			iommus = <&smmu 0xce3>;
 
 			clock-names = "dp_apb_clk", "dp_aud_clk",
 				      "dp_vtc_pixel_clk_in";
