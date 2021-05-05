@@ -311,8 +311,9 @@ static int mmc_trans_data_by_cpu(struct sunxi_mmc_priv *priv, struct mmc *mmc,
 					      SUNXI_MMC_STATUS_FIFO_FULL;
 	unsigned i;
 	unsigned *buff = (unsigned int *)(reading ? data->dest : data->src);
-	unsigned byte_cnt = data->blocksize * data->blocks;
-	unsigned timeout_msecs = byte_cnt >> 8;
+	unsigned word_cnt = (data->blocksize * data->blocks) >> 2;
+	unsigned timeout_msecs = word_cnt >> 6;
+	uint32_t status;
 	unsigned long  start;
 
 	if (timeout_msecs < 2000)
@@ -323,16 +324,38 @@ static int mmc_trans_data_by_cpu(struct sunxi_mmc_priv *priv, struct mmc *mmc,
 
 	start = get_timer(0);
 
-	for (i = 0; i < (byte_cnt >> 2); i++) {
-		while (readl(&priv->reg->status) & status_bit) {
+	for (i = 0; i < word_cnt;) {
+		unsigned int in_fifo;
+
+		while ((status = readl(&priv->reg->status)) & status_bit) {
 			if (get_timer(start) > timeout_msecs)
 				return -1;
 		}
 
-		if (reading)
-			buff[i] = readl(&priv->reg->fifo);
-		else
-			writel(buff[i], &priv->reg->fifo);
+		/*
+		 * For writing we do not easily know the FIFO size, so have
+		 * to check the FIFO status after every word written.
+		 * TODO: For optimisation we could work out a minimum FIFO
+		 * size across all SoCs, and use that together with the current
+		 * fill level to write chunks of words.
+		 */
+		if (!reading) {
+			writel(buff[i++], &priv->reg->fifo);
+			continue;
+		}
+
+		/*
+		 * The status register holds the current FIFO level, so we
+		 * can be sure to collect as many words from the FIFO
+		 * register without checking the status register after every
+		 * read. That saves half of the costly MMIO reads, effectively
+		 * doubling the read performance.
+		 */
+		for (in_fifo = SUNXI_MMC_STATUS_FIFO_LEVEL(status);
+		     in_fifo > 0;
+		     in_fifo--)
+			buff[i++] = readl_relaxed(&priv->reg->fifo);
+		dmb();
 	}
 
 	return 0;
