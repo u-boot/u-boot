@@ -23,6 +23,10 @@
 #include <asm-generic/gpio.h>
 #include <linux/delay.h>
 
+#ifndef CCM_MMC_CTRL_MODE_SEL_NEW
+#define CCM_MMC_CTRL_MODE_SEL_NEW	0
+#endif
+
 struct sunxi_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -102,12 +106,9 @@ static int mmc_resource_init(int sdc_no)
 static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 {
 	unsigned int pll, pll_hz, div, n, oclk_dly, sclk_dly;
-	bool new_mode = true;
+	bool new_mode = IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE);
 	bool calibrate = false;
 	u32 val = 0;
-
-	if (!IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE))
-		new_mode = false;
 
 	/* A83T support new mode only on eMMC */
 	if (IS_ENABLED(CONFIG_MACH_SUN8I_A83T) && priv->mmc_no != 2)
@@ -176,12 +177,8 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 	}
 
 	if (new_mode) {
-#ifdef CONFIG_MMC_SUNXI_HAS_NEW_MODE
-#ifdef CONFIG_MMC_SUNXI_HAS_MODE_SWITCH
-		val = CCM_MMC_CTRL_MODE_SEL_NEW;
-#endif
+		val |= CCM_MMC_CTRL_MODE_SEL_NEW;
 		setbits_le32(&priv->reg->ntsr, SUNXI_MMC_NTSR_MODE_SEL_NEW);
-#endif
 	} else if (!calibrate) {
 		/*
 		 * Use hardcoded delay values if controller doesn't support
