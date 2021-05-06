@@ -196,4 +196,9 @@
 	/delete-property/ power-domains;
 };
 
+/* EEPROM might be read before SYSFW is available */
+&main_i2c0 {
+	/delete-property/ power-domains;
+};
+
 #include "k3-am642-evm-u-boot.dtsi"
