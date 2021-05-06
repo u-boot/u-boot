@@ -23,6 +23,7 @@ config TARGET_AM642_R5_EVM
 	select SPL_RAM
 	select K3_DDRSS
 	imply SYS_K3_SPL_ATF
+	imply TI_I2C_BOARD_DETECT
 
 endchoice
 
@@ -52,5 +53,7 @@ config SYS_CONFIG_NAME
 
 config SPL_LDSCRIPT
 	default "arch/arm/mach-omap2/u-boot-spl.lds"
+
+source "board/ti/common/Kconfig"
 
 endif
