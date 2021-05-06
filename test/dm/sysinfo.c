@@ -17,40 +17,45 @@
 static int dm_test_sysinfo(struct unit_test_state *uts)
 {
 	struct udevice *sysinfo;
-	bool called_detect;
+	bool called_detect = false;
 	char str[64];
 	int i;
 
 	ut_assertok(sysinfo_get(&sysinfo));
 	ut_assert(sysinfo);
 
-	sysinfo_get_bool(sysinfo, BOOL_CALLED_DETECT, &called_detect);
+	ut_asserteq(-EPERM, sysinfo_get_bool(sysinfo, BOOL_CALLED_DETECT,
+					     &called_detect));
 	ut_assert(!called_detect);
 
 	sysinfo_detect(sysinfo);
 
-	sysinfo_get_bool(sysinfo, BOOL_CALLED_DETECT, &called_detect);
+	ut_assertok(sysinfo_get_bool(sysinfo, BOOL_CALLED_DETECT,
+				     &called_detect));
 	ut_assert(called_detect);
 
-	sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str), str);
+	ut_assertok(sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str),
+				    str));
 	ut_assertok(strcmp(str, "R'lyeh"));
 
-	sysinfo_get_int(sysinfo, INT_TEST1, &i);
+	ut_assertok(sysinfo_get_int(sysinfo, INT_TEST1, &i));
 	ut_asserteq(0, i);
 
-	sysinfo_get_int(sysinfo, INT_TEST2, &i);
+	ut_assertok(sysinfo_get_int(sysinfo, INT_TEST2, &i));
 	ut_asserteq(100, i);
 
-	sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str), str);
+	ut_assertok(sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str),
+				    str));
 	ut_assertok(strcmp(str, "Carcosa"));
 
-	sysinfo_get_int(sysinfo, INT_TEST1, &i);
+	ut_assertok(sysinfo_get_int(sysinfo, INT_TEST1, &i));
 	ut_asserteq(1, i);
 
-	sysinfo_get_int(sysinfo, INT_TEST2, &i);
+	ut_assertok(sysinfo_get_int(sysinfo, INT_TEST2, &i));
 	ut_asserteq(99, i);
 
-	sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str), str);
+	ut_assertok(sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str),
+				    str));
 	ut_assertok(strcmp(str, "Yuggoth"));
 
 	return 0;

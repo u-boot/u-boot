@@ -375,4 +375,19 @@ int env_get_char(int index);
  * This is used for those unfortunate archs with crappy toolchains
  */
 void env_reloc(void);
+
+
+/**
+ * env_import_fdt() - Import environment values from device tree blob
+ *
+ * This uses the value of the environment variable "env_fdt_path" as a
+ * path to an fdt node, whose property/value pairs are added to the
+ * environment.
+ */
+#ifdef CONFIG_ENV_IMPORT_FDT
+void env_import_fdt(void);
+#else
+static inline void env_import_fdt(void) {}
+#endif
+
 #endif

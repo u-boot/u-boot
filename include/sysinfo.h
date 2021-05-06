@@ -60,7 +60,8 @@ struct sysinfo_ops {
 	 * This operation might take a long time (e.g. read from EEPROM,
 	 * check the presence of a device on a bus etc.), hence this is not
 	 * done in the probe() method, but later during operation in this
-	 * dedicated method.
+	 * dedicated method. This method will be called before any other
+	 * methods.
 	 *
 	 * Return: 0 if OK, -ve on error.
 	 */
@@ -104,7 +105,7 @@ struct sysinfo_ops {
 	 * get_fit_loadable - Get the name of an image to load from FIT
 	 * This function can be used to provide the image names based on runtime
 	 * detection. A classic use-case would when DTBOs are used to describe
-	 * additionnal daughter cards.
+	 * additional daughter cards.
 	 *
 	 * @dev:	The sysinfo instance to gather the data.
 	 * @index:	Index of the image. Starts at 0 and gets incremented
@@ -127,6 +128,9 @@ struct sysinfo_ops {
  *
  * @dev:	The device containing the information
  *
+ * This function must be called before any other accessor function for this
+ * device.
+ *
  * Return: 0 if OK, -ve on error.
  */
 int sysinfo_detect(struct udevice *dev);
@@ -138,7 +142,8 @@ int sysinfo_detect(struct udevice *dev);
  * @id:		A unique identifier for the bool value to be read.
  * @val:	Pointer to a buffer that receives the value read.
  *
- * Return: 0 if OK, -ve on error.
+ * Return: 0 if OK, -EPERM if called before sysinfo_detect(), else -ve on
+ * error.
  */
 int sysinfo_get_bool(struct udevice *dev, int id, bool *val);
 
@@ -149,7 +154,8 @@ int sysinfo_get_bool(struct udevice *dev, int id, bool *val);
  * @id:		A unique identifier for the int value to be read.
  * @val:	Pointer to a buffer that receives the value read.
  *
- * Return: 0 if OK, -ve on error.
+ * Return: 0 if OK, -EPERM if called before sysinfo_detect(), else -ve on
+ * error.
  */
 int sysinfo_get_int(struct udevice *dev, int id, int *val);
 
@@ -161,7 +167,8 @@ int sysinfo_get_int(struct udevice *dev, int id, int *val);
  * @size:	The size of the buffer to receive the string data.
  * @val:	Pointer to a buffer that receives the value read.
  *
- * Return: 0 if OK, -ve on error.
+ * Return: 0 if OK, -EPERM if called before sysinfo_detect(), else -ve on
+ * error.
  */
 int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val);
 
@@ -173,7 +180,8 @@ int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val);
  * function that returns the unique device. This is especially useful for use
  * in sysinfo files.
  *
- * Return: 0 if OK, -ve on error.
+ * Return: 0 if OK, -EPERM if called before sysinfo_detect(), else -ve on
+ * error.
  */
 int sysinfo_get(struct udevice **devp);
 
@@ -181,7 +189,7 @@ int sysinfo_get(struct udevice **devp);
  * sysinfo_get_fit_loadable - Get the name of an image to load from FIT
  * This function can be used to provide the image names based on runtime
  * detection. A classic use-case would when DTBOs are used to describe
- * additionnal daughter cards.
+ * additional daughter cards.
  *
  * @dev:	The sysinfo instance to gather the data.
  * @index:	Index of the image. Starts at 0 and gets incremented
@@ -190,8 +198,8 @@ int sysinfo_get(struct udevice **devp);
  * @strp:	A pointer to string. Untouched if the function fails
  *
  *
- * Return: 0 if OK, -ENOENT if no loadable is available else -ve on
- * error.
+ * Return: 0 if OK, -EPERM if called before sysinfo_detect(), -ENOENT if no
+ * loadable is available else -ve on error.
  */
 int sysinfo_get_fit_loadable(struct udevice *dev, int index, const char *type,
 			     const char **strp);

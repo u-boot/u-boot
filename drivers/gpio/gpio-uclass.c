@@ -1215,9 +1215,9 @@ int gpio_get_list_count(struct udevice *dev, const char *list_name)
 {
 	int ret;
 
-	ret = dev_read_phandle_with_args(dev, list_name, "#gpio-cells", 0, -1,
-					 NULL);
-	if (ret) {
+	ret = dev_count_phandle_with_args(dev, list_name, "#gpio-cells",
+					  -ENOENT);
+	if (ret < 0) {
 		debug("%s: Node '%s', property '%s', GPIO count failed: %d\n",
 		      __func__, dev->name, list_name, ret);
 	}

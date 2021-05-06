@@ -670,6 +670,24 @@ config DELAY_ENVIRONMENT
 	  later by U-Boot code. With CONFIG_OF_CONTROL this is instead
 	  controlled by the value of /config/load-environment.
 
+config ENV_IMPORT_FDT
+	bool "Amend environment by FDT properties"
+	depends on OF_CONTROL
+	help
+	  If selected, after the environment has been loaded from its
+	  persistent location, the "env_fdt_path" variable is looked
+	  up and used as a path to a node in the control DTB. The
+	  property/value pairs in that node is then used to update the
+	  run-time environment. This can be useful to use the same
+	  U-Boot binary with different board variants.
+
+config ENV_FDT_PATH
+	string "Default value for env_fdt_path variable"
+	depends on ENV_IMPORT_FDT
+	default "/config/environment"
+	help
+	  The initial value of the env_fdt_path variable.
+
 config ENV_APPEND
 	bool "Always append the environment with new data"
 	default n

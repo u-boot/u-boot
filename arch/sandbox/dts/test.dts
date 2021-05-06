@@ -53,6 +53,13 @@
 		osd0 = "/osd";
 	};
 
+	config {
+		environment {
+			from_fdt = "yes";
+			fdt_env_path = "";
+		};
+	};
+
 	audio: audio-codec {
 		compatible = "sandbox,audio-codec";
 		#sound-dai-cells = <1>;
@@ -1524,6 +1531,13 @@
 
 	sysinfo {
 		compatible = "sandbox,sysinfo-sandbox";
+	};
+
+	sysinfo-gpio {
+		compatible = "gpio-sysinfo";
+		gpios = <&gpio_a 15>, <&gpio_a 16>, <&gpio_a 17>;
+		revisions = <19>, <5>;
+		names = "rev_a", "foo";
 	};
 
 	some_regmapped-bus {

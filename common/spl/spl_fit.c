@@ -110,6 +110,10 @@ static int spl_fit_get_image_name(const struct spl_fit_info *ctx,
 		 * no string in the property for this index. Check if the
 		 * sysinfo-level code can supply one.
 		 */
+		rc = sysinfo_detect(sysinfo);
+		if (rc)
+			return rc;
+
 		rc = sysinfo_get_fit_loadable(sysinfo, index - i - 1, type,
 					      &str);
 		if (rc && rc != -ENOENT)
