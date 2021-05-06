@@ -58,10 +58,13 @@
 
 /* U-Boot general configuration */
 #define EXTRA_ENV_AM642_BOARD_SETTINGS					\
-	"default_device_tree=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"	\
 	"findfdt="							\
-		"setenv name_fdt ${default_device_tree};"		\
-		"setenv fdtfile ${name_fdt}\0"				\
+		"if test $board_name = am64x_gpevm; then " \
+			"setenv fdtfile k3-am642-evm.dtb; fi; " \
+		"if test $board_name = am64x_skevm; then " \
+			"setenv fdtfile k3-am642-sk.dtb; fi;" \
+		"if test $fdtfile = undefined; then " \
+			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
 	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000 "	\
@@ -76,7 +79,7 @@
 	"bootdir=/boot\0"						\
 	"rd_spec=-\0"							\
 	"init_mmc=run args_all args_mmc\0"				\
-	"get_fdt_mmc=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${name_fdt}\0" \
+	"get_fdt_mmc=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"get_overlay_mmc="						\
 		"fdt address ${fdtaddr};"				\
 		"fdt resize 0x100000;"					\
