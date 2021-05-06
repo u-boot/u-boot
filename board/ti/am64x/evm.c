@@ -46,10 +46,15 @@ int dram_init_banksize(void)
 #if defined(CONFIG_SPL_LOAD_FIT)
 int board_fit_config_name_match(const char *name)
 {
-#if defined(CONFIG_TARGET_AM642_A53_EVM)
-	if (!strcmp(name, "k3-am642-evm"))
-		return 0;
-#endif
+	bool eeprom_read = board_ti_was_eeprom_read();
+
+	if (!eeprom_read || board_is_am64x_gpevm()) {
+		if (!strcmp(name, "k3-am642-r5-evm") || !strcmp(name, "k3-am642-evm"))
+			return 0;
+	} else if (board_is_am64x_skevm()) {
+		if (!strcmp(name, "k3-am642-r5-sk") || !strcmp(name, "k3-am642-sk"))
+			return 0;
+	}
 
 	return -1;
 }
