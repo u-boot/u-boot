@@ -20,6 +20,7 @@
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
 #include <mmc.h>
+#include <dm/root.h>
 
 #if defined(CONFIG_SPL_BUILD)
 
@@ -82,6 +83,29 @@ void k3_mmc_stop_clock(void) {}
 void k3_mmc_restart_clock(void) {}
 #endif
 
+#ifdef CONFIG_SPL_OF_LIST
+void do_dt_magic(void)
+{
+	int ret, rescan;
+
+	if (IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT))
+		do_board_detect();
+
+	/*
+	 * Board detection has been done.
+	 * Let us see if another dtb wouldn't be a better match
+	 * for our board
+	 */
+	if (IS_ENABLED(CONFIG_CPU_V7R)) {
+		ret = fdtdec_resetup(&rescan);
+		if (!ret && rescan) {
+			dm_uninit();
+			dm_init_and_scan(true);
+		}
+	}
+}
+#endif
+
 void board_init_f(ulong dummy)
 {
 #if defined(CONFIG_K3_LOAD_SYSFW)
@@ -105,6 +129,8 @@ void board_init_f(ulong dummy)
 	spl_early_init();
 
 	preloader_console_init();
+
+	do_dt_magic();
 
 #if defined(CONFIG_K3_LOAD_SYSFW)
 	/*
