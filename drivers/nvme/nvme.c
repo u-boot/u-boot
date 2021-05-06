@@ -157,7 +157,7 @@ static u16 nvme_read_completion_status(struct nvme_queue *nvmeq, u16 index)
 
 	invalidate_dcache_range(start, stop);
 
-	return le16_to_cpu(readw(&(nvmeq->cqes[index].status)));
+	return readw(&(nvmeq->cqes[index].status));
 }
 
 /**
@@ -221,7 +221,7 @@ static int nvme_submit_sync_cmd(struct nvme_queue *nvmeq,
 	}
 
 	if (result)
-		*result = le32_to_cpu(readl(&(nvmeq->cqes[head].result)));
+		*result = readl(&(nvmeq->cqes[head].result));
 
 	if (++head == nvmeq->q_depth) {
 		head = 0;
@@ -304,7 +304,7 @@ static int nvme_enable_ctrl(struct nvme_dev *dev)
 {
 	dev->ctrl_config &= ~NVME_CC_SHN_MASK;
 	dev->ctrl_config |= NVME_CC_ENABLE;
-	writel(cpu_to_le32(dev->ctrl_config), &dev->bar->cc);
+	writel(dev->ctrl_config, &dev->bar->cc);
 
 	return nvme_wait_ready(dev, true);
 }
@@ -313,7 +313,7 @@ static int nvme_disable_ctrl(struct nvme_dev *dev)
 {
 	dev->ctrl_config &= ~NVME_CC_SHN_MASK;
 	dev->ctrl_config &= ~NVME_CC_ENABLE;
-	writel(cpu_to_le32(dev->ctrl_config), &dev->bar->cc);
+	writel(dev->ctrl_config, &dev->bar->cc);
 
 	return nvme_wait_ready(dev, false);
 }
