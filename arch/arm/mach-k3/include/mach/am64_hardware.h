@@ -49,4 +49,7 @@
 
 #define ROM_ENTENDED_BOOT_DATA_INFO			0x701beb00
 
+/* Use Last 1K as Scratch pad */
+#define TI_SRAM_SCRATCH_BOARD_EEPROM_START		0x701bfc00
+
 #endif /* __ASM_ARCH_DRA8_HARDWARE_H */
