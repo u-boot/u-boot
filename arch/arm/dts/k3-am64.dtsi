@@ -28,6 +28,8 @@
 		serial6 = &main_uart4;
 		serial7 = &main_uart5;
 		serial8 = &main_uart6;
+		i2c0 = &main_i2c0;
+		i2c1 = &main_i2c1;
 	};
 
 	chosen { };
