@@ -66,7 +66,7 @@ unsigned long __efi_runtime invoke_psci_fn
 	return res.a0;
 }
 
-static int psci_features(u32 psci_func_id)
+static int request_psci_features(u32 psci_func_id)
 {
 	return invoke_psci_fn(PSCI_1_0_FN_PSCI_FEATURES,
 			      psci_func_id, 0, 0);
@@ -85,7 +85,8 @@ static bool psci_is_system_reset2_supported(void)
 	ver = psci_0_2_get_version();
 
 	if (PSCI_VERSION_MAJOR(ver) >= 1) {
-		ret = psci_features(PSCI_FN_NATIVE(1_1, SYSTEM_RESET2));
+		ret = request_psci_features(PSCI_FN_NATIVE(1_1,
+							   SYSTEM_RESET2));
 
 		if (ret != PSCI_RET_NOT_SUPPORTED)
 			return true;
