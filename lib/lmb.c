@@ -14,30 +14,30 @@
 
 #define LMB_ALLOC_ANYWHERE	0
 
+static void lmb_dump_region(struct lmb_region *rgn, char *name)
+{
+	unsigned long long base, size, end;
+	enum lmb_flags flags;
+	int i;
+
+	printf(" %s.cnt  = 0x%lx\n", name, rgn->cnt);
+
+	for (i = 0; i < rgn->cnt; i++) {
+		base = rgn->region[i].base;
+		size = rgn->region[i].size;
+		end = base + size - 1;
+		flags = rgn->region[i].flags;
+
+		printf(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: %x\n",
+		       name, i, base, end, size, flags);
+	}
+}
+
 void lmb_dump_all_force(struct lmb *lmb)
 {
-	unsigned long i;
-
 	printf("lmb_dump_all:\n");
-	printf("    memory.cnt		   = 0x%lx\n", lmb->memory.cnt);
-	for (i = 0; i < lmb->memory.cnt; i++) {
-		printf("    memory.reg[0x%lx].base   = 0x%llx\n", i,
-		       (unsigned long long)lmb->memory.region[i].base);
-		printf("		   .size   = 0x%llx\n",
-		       (unsigned long long)lmb->memory.region[i].size);
-		printf("		   .flags   = 0x%x\n",
-		       lmb->memory.region[i].flags);
-	}
-
-	printf("\n    reserved.cnt	   = 0x%lx\n", lmb->reserved.cnt);
-	for (i = 0; i < lmb->reserved.cnt; i++) {
-		printf("    reserved.reg[0x%lx].base = 0x%llx\n", i,
-		       (unsigned long long)lmb->reserved.region[i].base);
-		printf("		     .size = 0x%llx\n",
-		       (unsigned long long)lmb->reserved.region[i].size);
-		printf("		     .flags = 0x%x\n",
-		       lmb->reserved.region[i].flags);
-	}
+	lmb_dump_region(&lmb->memory, "memory");
+	lmb_dump_region(&lmb->reserved, "reserved");
 }
 
 void lmb_dump_all(struct lmb *lmb)
