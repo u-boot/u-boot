@@ -6,6 +6,9 @@
 
 #include <dm.h>
 #include <log.h>
+#include <asm/csr.h>
+
+#define CSR_U74_FEATURE_DISABLE	0x7c1
 
 int spl_soc_init(void)
 {
@@ -20,4 +23,16 @@ int spl_soc_init(void)
 	}
 
 	return 0;
+}
+
+void harts_early_init(void)
+{
+	/*
+	 * Feature Disable CSR
+	 *
+	 * Clear feature disable CSR to '0' to turn on all features for
+	 * each core. This operation must be in M-mode.
+	 */
+	if (CONFIG_IS_ENABLED(RISCV_MMODE))
+		csr_write(CSR_U74_FEATURE_DISABLE, 0);
 }

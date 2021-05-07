@@ -117,6 +117,10 @@ call_board_init_f_0:
 	mv	sp, a0
 #endif
 
+	/* Configure proprietary settings and customized CSRs of harts */
+call_harts_early_init:
+	jal	harts_early_init
+
 #ifndef CONFIG_XIP
 	/*
 	 * Pick hart to initialize global data and run U-Boot. The other harts

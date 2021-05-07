@@ -140,3 +140,14 @@ int arch_early_init_r(void)
 {
 	return riscv_cpu_probe();
 }
+
+/**
+ * harts_early_init() - A callback function called by start.S to configure
+ * feature settings of each hart.
+ *
+ * In a multi-core system, memory access shall be careful here, it shall
+ * take care of race conditions.
+ */
+__weak void harts_early_init(void)
+{
+}
