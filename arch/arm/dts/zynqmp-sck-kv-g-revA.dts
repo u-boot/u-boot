@@ -219,7 +219,7 @@
 				conf {
 					groups = "uart1_9_grp";
 					slew-rate = <SLEW_RATE_SLOW>;
-					io-standard = <IO_STANDARD_LVCMOS18>;
+					power-source = <IO_STANDARD_LVCMOS18>;
 					drive-strength = <12>;
 				};
 
@@ -244,7 +244,7 @@
 					groups = "i2c1_6_grp";
 					bias-pull-up;
 					slew-rate = <SLEW_RATE_SLOW>;
-					io-standard = <IO_STANDARD_LVCMOS18>;
+					power-source = <IO_STANDARD_LVCMOS18>;
 				};
 
 				mux {
@@ -257,7 +257,7 @@
 				conf {
 					groups = "gpio0_24_grp", "gpio0_25_grp";
 					slew-rate = <SLEW_RATE_SLOW>;
-					io-standard = <IO_STANDARD_LVCMOS18>;
+					power-source = <IO_STANDARD_LVCMOS18>;
 				};
 
 				mux {
@@ -270,7 +270,7 @@
 				conf {
 					groups = "ethernet3_0_grp";
 					slew-rate = <SLEW_RATE_SLOW>;
-					io-standard = <IO_STANDARD_LVCMOS18>;
+					power-source = <IO_STANDARD_LVCMOS18>;
 				};
 
 				conf-rx {
@@ -295,7 +295,7 @@
 				conf-mdio {
 					groups = "mdio3_0_grp";
 					slew-rate = <SLEW_RATE_SLOW>;
-					io-standard = <IO_STANDARD_LVCMOS18>;
+					power-source = <IO_STANDARD_LVCMOS18>;
 					bias-disable;
 				};
 
@@ -314,7 +314,7 @@
 				conf {
 					groups = "usb0_0_grp";
 					slew-rate = <SLEW_RATE_SLOW>;
-					io-standard = <IO_STANDARD_LVCMOS18>;
+					power-source = <IO_STANDARD_LVCMOS18>;
 				};
 
 				conf-rx {
@@ -338,7 +338,7 @@
 				conf {
 					groups = "sdio1_0_grp";
 					slew-rate = <SLEW_RATE_SLOW>;
-					io-standard = <IO_STANDARD_LVCMOS18>;
+					power-source = <IO_STANDARD_LVCMOS18>;
 					bias-disable;
 				};
 
@@ -347,7 +347,7 @@
 					bias-high-impedance;
 					bias-pull-up;
 					slew-rate = <SLEW_RATE_SLOW>;
-					io-standard = <IO_STANDARD_LVCMOS18>;
+					power-source = <IO_STANDARD_LVCMOS18>;
 				};
 
 				mux-cd {

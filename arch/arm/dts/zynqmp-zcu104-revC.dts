@@ -250,7 +250,7 @@
 		conf {
 			groups = "can1_6_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 			drive-strength = <12>;
 		};
 
@@ -275,7 +275,7 @@
 			groups = "i2c1_4_grp";
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 			drive-strength = <12>;
 		};
 	};
@@ -289,7 +289,7 @@
 		conf {
 			groups = "gpio0_16_grp", "gpio0_17_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 			drive-strength = <12>;
 		};
 	};
@@ -303,7 +303,7 @@
 		conf {
 			groups = "ethernet3_0_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 			drive-strength = <12>;
 		};
 
@@ -329,7 +329,7 @@
 		conf-mdio {
 			groups = "mdio3_0_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 			bias-disable;
 		};
 	};
@@ -343,7 +343,7 @@
 		conf {
 			groups = "sdio1_0_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 			bias-disable;
 			drive-strength = <12>;
 		};
@@ -358,7 +358,7 @@
 			bias-high-impedance;
 			bias-pull-up;
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 		};
 	};
 
@@ -371,7 +371,7 @@
 		conf {
 			groups = "uart0_4_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 			drive-strength = <12>;
 		};
 
@@ -395,7 +395,7 @@
 		conf {
 			groups = "uart1_5_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 			drive-strength = <12>;
 		};
 
@@ -419,7 +419,7 @@
 		conf {
 			groups = "usb0_0_grp";
 			slew-rate = <SLEW_RATE_SLOW>;
-			io-standard = <IO_STANDARD_LVCMOS18>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 			drive-strength = <12>;
 		};
 
