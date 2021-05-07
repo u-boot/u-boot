@@ -509,19 +509,13 @@ static int single_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	addr = dev_read_addr_size(dev, "reg", &size);
+	addr = dev_read_addr_size_index(dev, 0, &size);
 	if (addr == FDT_ADDR_T_NONE) {
-		dev_err(dev, "failed to get base register size\n");
+		dev_err(dev, "failed to get base register address\n");
 		return -EINVAL;
 	}
 
 	pdata->offset = size - pdata->width / BITS_PER_BYTE;
-
-	addr = dev_read_addr(dev);
-	if (addr == FDT_ADDR_T_NONE) {
-		dev_dbg(dev, "no valid base register address\n");
-		return -EINVAL;
-	}
 	pdata->base = addr;
 
 	ret = dev_read_u32(dev, "pinctrl-single,function-mask", &pdata->mask);
