@@ -20,6 +20,7 @@ obj-$(CONFIG_CONSOLE_RECORD) += cont_test.o
 obj-y += pr_cont_test.o
 else
 obj-$(CONFIG_CONSOLE_RECORD) += nolog_test.o
+obj-$(CONFIG_CONSOLE_RECORD) += nolog_ndebug.o
 endif
 
 endif # CONFIG_UT_LOG
