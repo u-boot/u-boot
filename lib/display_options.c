@@ -131,10 +131,11 @@ void print_size(uint64_t size, const char *s)
 	printf (" %ciB%s", c, s);
 }
 
-#define MAX_LINE_LENGTH_BYTES (64)
-#define DEFAULT_LINE_LENGTH_BYTES (16)
-int print_buffer(ulong addr, const void *data, uint width, uint count,
-		 uint linelen)
+#define MAX_LINE_LENGTH_BYTES		64
+#define DEFAULT_LINE_LENGTH_BYTES	16
+
+int hexdump_line(ulong addr, const void *data, uint width, uint count,
+		 uint linelen, char *out, int size)
 {
 	/* linebuf as a union causes proper alignment */
 	union linebuf {
@@ -143,62 +144,86 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		uint16_t us[MAX_LINE_LENGTH_BYTES/sizeof(uint16_t) + 1];
 		uint8_t  uc[MAX_LINE_LENGTH_BYTES/sizeof(uint8_t) + 1];
 	} lb;
+	uint thislinelen;
 	int i;
 	ulong x;
 
+	if (linelen * width > MAX_LINE_LENGTH_BYTES)
+		linelen = MAX_LINE_LENGTH_BYTES / width;
+	if (linelen < 1)
+		linelen = DEFAULT_LINE_LENGTH_BYTES / width;
+
+	/*
+	 * Check the size here so that we don't need to use snprintf(). This
+	 * helps to reduce code size
+	 */
+	if (size < HEXDUMP_MAX_BUF_LENGTH(linelen * width))
+		return -ENOSPC;
+
+	thislinelen = linelen;
+	out += sprintf(out, "%08lx:", addr);
+
+	/* check for overflow condition */
+	if (count < thislinelen)
+		thislinelen = count;
+
+	/* Copy from memory into linebuf and print hex values */
+	for (i = 0; i < thislinelen; i++) {
+		if (width == 4)
+			x = lb.ui[i] = *(volatile uint32_t *)data;
+		else if (MEM_SUPPORT_64BIT_DATA && width == 8)
+			x = lb.uq[i] = *(volatile ulong *)data;
+		else if (width == 2)
+			x = lb.us[i] = *(volatile uint16_t *)data;
+		else
+			x = lb.uc[i] = *(volatile uint8_t *)data;
+		if (CONFIG_IS_ENABLED(USE_TINY_PRINTF))
+			out += sprintf(out, " %x", (uint)x);
+		else
+			out += sprintf(out, " %0*lx", width * 2, x);
+		data += width;
+	}
+
+	/* fill line with whitespace for nice ASCII print */
+	for (i = 0; i < (linelen - thislinelen) * (width * 2 + 1); i++)
+		*out++ = ' ';
+
+	/* Print data in ASCII characters */
+	for (i = 0; i < thislinelen * width; i++) {
+		if (!isprint(lb.uc[i]) || lb.uc[i] >= 0x80)
+			lb.uc[i] = '.';
+	}
+	lb.uc[i] = '\0';
+	out += sprintf(out, "  %s", lb.uc);
+
+	return thislinelen;
+}
+
+int print_buffer(ulong addr, const void *data, uint width, uint count,
+		 uint linelen)
+{
 	if (linelen*width > MAX_LINE_LENGTH_BYTES)
 		linelen = MAX_LINE_LENGTH_BYTES / width;
 	if (linelen < 1)
 		linelen = DEFAULT_LINE_LENGTH_BYTES / width;
 
 	while (count) {
-		uint thislinelen = linelen;
-		printf("%08lx:", addr);
+		uint thislinelen;
+		char buf[HEXDUMP_MAX_BUF_LENGTH(width * linelen)];
 
-		/* check for overflow condition */
-		if (count < thislinelen)
-			thislinelen = count;
-
-		/* Copy from memory into linebuf and print hex values */
-		for (i = 0; i < thislinelen; i++) {
-			if (width == 4)
-				x = lb.ui[i] = *(volatile uint32_t *)data;
-			else if (MEM_SUPPORT_64BIT_DATA && width == 8)
-				x = lb.uq[i] = *(volatile ulong *)data;
-			else if (width == 2)
-				x = lb.us[i] = *(volatile uint16_t *)data;
-			else
-				x = lb.uc[i] = *(volatile uint8_t *)data;
-			if (CONFIG_IS_ENABLED(USE_TINY_PRINTF))
-				printf(" %x", (uint)x);
-			else
-				printf(" %0*lx", width * 2, x);
-			data += width;
-		}
-
-		while (thislinelen < linelen) {
-			/* fill line with whitespace for nice ASCII print */
-			for (i=0; i<width*2+1; i++)
-				puts(" ");
-			linelen--;
-		}
-
-		/* Print data in ASCII characters */
-		for (i = 0; i < thislinelen * width; i++) {
-			if (!isprint(lb.uc[i]) || lb.uc[i] >= 0x80)
-				lb.uc[i] = '.';
-		}
-		lb.uc[i] = '\0';
-		printf("  %s\n", lb.uc);
+		thislinelen = hexdump_line(addr, data, width, count, linelen,
+					   buf, sizeof(buf));
+		assert(thislinelen >= 0);
+		puts(buf);
+		putc('\n');
 
 		/* update references */
+		data += thislinelen * width;
 		addr += thislinelen * width;
 		count -= thislinelen;
 
-#ifndef CONFIG_SPL_BUILD
-		if (ctrlc())
-			return -1;
-#endif
+		if (!IS_ENABLED(CONFIG_SPL_BUILD) && ctrlc())
+			return -EINTR;
 	}
 
 	return 0;

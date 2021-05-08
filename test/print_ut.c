@@ -227,6 +227,32 @@ static int print_display_buffer(struct unit_test_state *uts)
 }
 PRINT_TEST(print_display_buffer, UT_TESTF_CONSOLE_REC);
 
+static int print_hexdump_line(struct unit_test_state *uts)
+{
+	char *linebuf;
+	u8 *buf;
+	int i;
+
+	buf = map_sysmem(0, BUF_SIZE);
+	memset(buf, '\0', BUF_SIZE);
+	for (i = 0; i < 0x11; i++)
+		buf[i] = i * 0x11;
+
+	/* Check buffer size calculations */
+	linebuf = map_sysmem(0x400, BUF_SIZE);
+	memset(linebuf, '\xff', BUF_SIZE);
+	ut_asserteq(-ENOSPC, hexdump_line(0, buf, 1, 0x10, 0, linebuf, 75));
+	ut_asserteq(-1, linebuf[0]);
+	ut_asserteq(0x10, hexdump_line(0, buf, 1, 0x10, 0, linebuf, 76));
+	ut_asserteq(0, linebuf[75]);
+	ut_asserteq(-1, linebuf[76]);
+
+	unmap_sysmem(buf);
+
+	return 0;
+}
+PRINT_TEST(print_hexdump_line, UT_TESTF_CONSOLE_REC);
+
 static int print_do_hex_dump(struct unit_test_state *uts)
 {
 	u8 *buf;
