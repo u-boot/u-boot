@@ -161,52 +161,52 @@ static int print_display_buffer(struct unit_test_state *uts)
 	/* bytes */
 	console_record_reset();
 	print_buffer(0, buf, 1, 0x12, 0);
-	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff    ..\"3DUfw........");
-	ut_assert_nextline("00000010: 10 00                                              ..");
+	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 10 00                                            ..");
 	ut_assert_console_end();
 
 	/* line length */
 	console_record_reset();
 	print_buffer(0, buf, 1, 0x12, 8);
-	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77    ..\"3DUfw");
-	ut_assert_nextline("00000008: 88 99 aa bb cc dd ee ff    ........");
-	ut_assert_nextline("00000010: 10 00                      ..");
+	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77  ..\"3DUfw");
+	ut_assert_nextline("00000008: 88 99 aa bb cc dd ee ff  ........");
+	ut_assert_nextline("00000010: 10 00                    ..");
 	ut_assert_console_end();
 
 	/* long line */
 	console_record_reset();
 	buf[0x41] = 0x41;
 	print_buffer(0, buf, 1, 0x42, 0x40);
-	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ..\"3DUfw........................................................");
-	ut_assert_nextline("00000040: 00 41                                                                                                                                                                                              .A");
+	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ..\"3DUfw........................................................");
+	ut_assert_nextline("00000040: 00 41                                                                                                                                                                                            .A");
 	ut_assert_console_end();
 
 	/* address */
 	console_record_reset();
 	print_buffer(0x12345678, buf, 1, 0x12, 0);
-	ut_assert_nextline("12345678: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff    ..\"3DUfw........");
-	ut_assert_nextline("12345688: 10 00                                              ..");
+	ut_assert_nextline("12345678: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........");
+	ut_assert_nextline("12345688: 10 00                                            ..");
 	ut_assert_console_end();
 
 	/* 16-bit */
 	console_record_reset();
 	print_buffer(0, buf, 2, 9, 0);
-	ut_assert_nextline("00000000: 1100 3322 5544 7766 9988 bbaa ddcc ffee    ..\"3DUfw........");
-	ut_assert_nextline("00000010: 0010                                       ..");
+	ut_assert_nextline("00000000: 1100 3322 5544 7766 9988 bbaa ddcc ffee  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 0010                                     ..");
 	ut_assert_console_end();
 
 	/* 32-bit */
 	console_record_reset();
 	print_buffer(0, buf, 4, 5, 0);
-	ut_assert_nextline("00000000: 33221100 77665544 bbaa9988 ffeeddcc    ..\"3DUfw........");
-	ut_assert_nextline("00000010: 00000010                               ....");
+	ut_assert_nextline("00000000: 33221100 77665544 bbaa9988 ffeeddcc  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 00000010                             ....");
 	ut_assert_console_end();
 
 	/* 64-bit */
 	console_record_reset();
 	print_buffer(0, buf, 8, 3, 0);
-	ut_assert_nextline("00000000: 7766554433221100 ffeeddccbbaa9988    ..\"3DUfw........");
-	ut_assert_nextline("00000010: 0000000000000010                     ........");
+	ut_assert_nextline("00000000: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 0000000000000010                   ........");
 	ut_assert_console_end();
 
 	/* ASCII */
@@ -218,7 +218,7 @@ static int print_display_buffer(struct unit_test_state *uts)
 		buf[4 + i] = 126 + i;
 	buf[8] = 255;
 	print_buffer(0, buf, 1, 10, 0);
-	ut_assert_nextline("00000000: 00 1f 20 21 7e 7f 80 81 ff 99                      .. !~.....");
+	ut_assert_nextline("00000000: 00 1f 20 21 7e 7f 80 81 ff 99                    .. !~.....");
 	ut_assert_console_end();
 
 	unmap_sysmem(buf);

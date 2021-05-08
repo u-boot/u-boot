@@ -151,7 +151,7 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes)
 		if (str[8] != ':' || str[9] != ' ')
 			return 1;
 
-		bytes = len - 8 - 2 - 3 * 16 - 4;
+		bytes = len - 8 - 2 - 3 * 16 - 2;
 		upto += bytes;
 	}
 

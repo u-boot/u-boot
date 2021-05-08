@@ -189,7 +189,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 				lb.uc[i] = '.';
 		}
 		lb.uc[i] = '\0';
-		printf("    %s\n", lb.uc);
+		printf("  %s\n", lb.uc);
 
 		/* update references */
 		addr += thislinelen * width;
