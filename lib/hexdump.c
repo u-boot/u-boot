@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <hexdump.h>
+#include <mapmem.h>
 #include <linux/ctype.h>
 #include <linux/compat.h>
 #include <linux/log2.h>
@@ -139,7 +140,9 @@ void print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
 
 		switch (prefix_type) {
 		case DUMP_PREFIX_ADDRESS:
-			printf("%s%p: %s\n", prefix_str, ptr + i, linebuf);
+			printf("%s%0*lx: %s\n", prefix_str,
+			       IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
+			       (ulong)map_to_sysmem(ptr) + i, linebuf);
 			break;
 		case DUMP_PREFIX_OFFSET:
 			printf("%s%.8x: %s\n", prefix_str, i, linebuf);

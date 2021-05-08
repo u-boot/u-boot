@@ -227,6 +227,64 @@ static int print_display_buffer(struct unit_test_state *uts)
 }
 PRINT_TEST(print_display_buffer, UT_TESTF_CONSOLE_REC);
 
+static int print_do_hex_dump(struct unit_test_state *uts)
+{
+	u8 *buf;
+	int i;
+
+	buf = map_sysmem(0, BUF_SIZE);
+	memset(buf, '\0', BUF_SIZE);
+	for (i = 0; i < 0x11; i++)
+		buf[i] = i * 0x11;
+
+	/* bytes */
+	console_record_reset();
+	print_hex_dump_bytes("", DUMP_PREFIX_ADDRESS, buf, 0x12);
+	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 10 00                                            ..");
+	ut_assert_console_end();
+
+	/* 16-bit */
+	console_record_reset();
+	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 2, buf, 0x12, true);
+	ut_assert_nextline("00000000: 1100 3322 5544 7766 9988 bbaa ddcc ffee  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 0010                                     ..");
+	ut_assert_console_end();
+	unmap_sysmem(buf);
+
+	/* 32-bit */
+	console_record_reset();
+	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 4, buf, 0x14, true);
+	ut_assert_nextline("00000000: 33221100 77665544 bbaa9988 ffeeddcc  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 00000010                             ....");
+	ut_assert_console_end();
+	unmap_sysmem(buf);
+
+	/* 64-bit */
+	console_record_reset();
+	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 8, buf, 0x18, true);
+	ut_assert_nextline("00000000: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 0000000000000010                   ........");
+	ut_assert_console_end();
+	unmap_sysmem(buf);
+
+	/* ASCII */
+	console_record_reset();
+	buf[1] = 31;
+	buf[2] = 32;
+	buf[3] = 33;
+	for (i = 0; i < 4; i++)
+		buf[4 + i] = 126 + i;
+	buf[8] = 255;
+	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 1, buf, 10, true);
+	ut_assert_nextline("00000000: 00 1f 20 21 7e 7f 80 81 ff 99                    .. !~.....");
+	ut_assert_console_end();
+	unmap_sysmem(buf);
+
+	return 0;
+}
+PRINT_TEST(print_do_hex_dump, UT_TESTF_CONSOLE_REC);
+
 int do_ut_print(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(print_test);
