@@ -244,9 +244,26 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	ut_assert_nextline("00000010: 10 00                                            ..");
 	ut_assert_console_end();
 
+	/* line length */
+	console_record_reset();
+	print_hex_dump("", DUMP_PREFIX_ADDRESS, 8, 1, buf, 0x12, true);
+	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77  ..\"3DUfw");
+	ut_assert_nextline("00000008: 88 99 aa bb cc dd ee ff  ........");
+	ut_assert_nextline("00000010: 10 00                    ..");
+	ut_assert_console_end();
+	unmap_sysmem(buf);
+
+	/* long line */
+	console_record_reset();
+	buf[0x41] = 0x41;
+	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0x40, 1, buf, 0x42, true);
+	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ..\"3DUfw........................................................");
+	ut_assert_nextline("00000040: 00 41                                                                                                                                                                                            .A");
+	ut_assert_console_end();
+
 	/* 16-bit */
 	console_record_reset();
-	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 2, buf, 0x12, true);
+	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 2, buf, 0x12, true);
 	ut_assert_nextline("00000000: 1100 3322 5544 7766 9988 bbaa ddcc ffee  ..\"3DUfw........");
 	ut_assert_nextline("00000010: 0010                                     ..");
 	ut_assert_console_end();
@@ -254,7 +271,7 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 
 	/* 32-bit */
 	console_record_reset();
-	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 4, buf, 0x14, true);
+	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 4, buf, 0x14, true);
 	ut_assert_nextline("00000000: 33221100 77665544 bbaa9988 ffeeddcc  ..\"3DUfw........");
 	ut_assert_nextline("00000010: 00000010                             ....");
 	ut_assert_console_end();
@@ -276,7 +293,7 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	for (i = 0; i < 4; i++)
 		buf[4 + i] = 126 + i;
 	buf[8] = 255;
-	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 1, buf, 10, true);
+	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 1, buf, 10, true);
 	ut_assert_nextline("00000000: 00 1f 20 21 7e 7f 80 81 ff 99                    .. !~.....");
 	ut_assert_console_end();
 	unmap_sysmem(buf);

@@ -16,6 +16,8 @@
 #include <linux/log2.h>
 #include <asm/unaligned.h>
 
+#define MAX_LINE_LENGTH_BYTES	64
+
 const char hex_asc[] = "0123456789abcdef";
 const char hex_asc_upper[] = "0123456789ABCDEF";
 
@@ -30,8 +32,10 @@ int hex_dump_to_buffer(const void *buf, size_t len, int rowsize, int groupsize,
 	int ascii_column;
 	int ret;
 
-	if (rowsize != 16 && rowsize != 32)
+	if (!rowsize)
 		rowsize = 16;
+	else
+		rowsize = min(rowsize, MAX_LINE_LENGTH_BYTES);
 
 	if (len > rowsize)		/* limit to one line at a time */
 		len = rowsize;
@@ -126,10 +130,12 @@ void print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
 {
 	const u8 *ptr = buf;
 	int i, linelen, remaining = len;
-	char linebuf[32 * 3 + 2 + 32 + 1];
+	char linebuf[MAX_LINE_LENGTH_BYTES * 3 + 2 + MAX_LINE_LENGTH_BYTES + 1];
 
-	if (rowsize != 16 && rowsize != 32)
+	if (!rowsize)
 		rowsize = 16;
+	else
+		rowsize = min(rowsize, MAX_LINE_LENGTH_BYTES);
 
 	for (i = 0; i < len; i += rowsize) {
 		linelen = min(remaining, rowsize);

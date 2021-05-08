@@ -85,7 +85,7 @@ static inline char *bin2hex(char *dst, const void *src, size_t count)
  * hex_dump_to_buffer - convert a blob of data to "hex ASCII" in memory
  * @buf: data blob to dump
  * @len: number of bytes in the @buf
- * @rowsize: number of bytes to print per line; must be 16 or 32
+ * @rowsize: number of bytes to print per line; max 64
  * @groupsize: number of bytes to print at a time (1, 2, 4, 8; default = 1)
  * @linebuf: where to put the converted data
  * @linebuflen: total size of @linebuf, including space for terminating NUL
@@ -120,7 +120,7 @@ int hex_dump_to_buffer(const void *buf, size_t len, int rowsize, int groupsize,
  *  caller supplies trailing spaces for alignment if desired
  * @prefix_type: controls whether prefix of an offset, address, or none
  *  is printed (see enum dump_prefix_t)
- * @rowsize: number of bytes to print per line; must be 16 or 32
+ * @rowsize: number of bytes to print per line; max 64
  * @groupsize: number of bytes to print at a time (1, 2, 4, 8; default = 1)
  * @buf: data blob to dump
  * @len: number of bytes in the @buf
