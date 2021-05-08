@@ -140,6 +140,24 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 	return 0;
 }
 
+/**
+ * _log_buffer - Internal function to print data buffer in hex and ascii form
+ *
+ * @cat: Category of log record (indicating which subsystem generated it)
+ * @level: Level of log record (indicating its severity)
+ * @file: File name of file where log record was generated
+ * @line: Line number in file where log record was generated
+ * @func: Function where log record was generated
+ * @addr:	Starting address to display at start of line
+ * @data:	pointer to data buffer
+ * @width:	data value width.  May be 1, 2, or 4.
+ * @count:	number of values to display
+ * @linelen:	Number of values to print per line; specify 0 for default length
+ */
+int _log_buffer(enum log_category_t cat, enum log_level_t level,
+		const char *file, int line, const char *func, ulong addr,
+		const void *data, uint width, uint count, uint linelen);
+
 /* Define this at the top of a file to add a prefix to debug messages */
 #ifndef pr_fmt
 #define pr_fmt(fmt) fmt
@@ -200,8 +218,25 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 		     __LINE__, __func__, \
 		      pr_fmt(_fmt), ##_args); \
 	})
+
+/* Emit a dump if the level is less that the maximum */
+#define log_buffer(_cat, _level, _addr, _data, _width, _count, _linelen)  ({ \
+	int _l = _level; \
+	if (_LOG_DEBUG != 0 || _l <= _LOG_MAX_LEVEL) \
+		_log_buffer((enum log_category_t)(_cat), \
+			    (enum log_level_t)(_l | _LOG_DEBUG), __FILE__, \
+			    __LINE__, __func__, _addr, _data, \
+			    _width, _count, _linelen); \
+	})
 #else
 #define log(_cat, _level, _fmt, _args...)
+
+#define log_buffer(_cat, _level, _addr, _data, _width, _count, _linelen)  ({ \
+	int _l = _level; \
+	if (_LOG_DEBUG != 0 || _l <= LOGL_INFO || \
+	    (_DEBUG && _l == LOGL_DEBUG)) \
+		print_buffer(_addr, _data, _width, _count, _linelen); \
+	})
 #endif
 
 #define log_nop(_cat, _level, _fmt, _args...) ({ \
