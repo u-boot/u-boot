@@ -68,11 +68,17 @@ static int readline_check(struct unit_test_state *uts)
 int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
 {
 	va_list args;
+	int len;
 	int ret;
 
 	va_start(args, fmt);
-	vsnprintf(uts->expect_str, sizeof(uts->expect_str), fmt, args);
+	len = vsnprintf(uts->expect_str, sizeof(uts->expect_str), fmt, args);
 	va_end(args);
+	if (len >= sizeof(uts->expect_str)) {
+		ut_fail(uts, __FILE__, __LINE__, __func__,
+			"unit_test_state->expect_str too small");
+		return -EOVERFLOW;
+	}
 	ret = readline_check(uts);
 	if (ret < 0)
 		return ret;
@@ -83,11 +89,17 @@ int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
 int ut_check_console_linen(struct unit_test_state *uts, const char *fmt, ...)
 {
 	va_list args;
+	int len;
 	int ret;
 
 	va_start(args, fmt);
-	vsnprintf(uts->expect_str, sizeof(uts->expect_str), fmt, args);
+	len = vsnprintf(uts->expect_str, sizeof(uts->expect_str), fmt, args);
 	va_end(args);
+	if (len >= sizeof(uts->expect_str)) {
+		ut_fail(uts, __FILE__, __LINE__, __func__,
+			"unit_test_state->expect_str too small");
+		return -EOVERFLOW;
+	}
 	ret = readline_check(uts);
 	if (ret < 0)
 		return ret;
