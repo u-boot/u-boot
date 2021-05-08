@@ -125,8 +125,8 @@ overflow1:
 	return ascii ? ascii_column + len : (groupsize * 2 + 1) * ngroups - 1;
 }
 
-void print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
-		    int groupsize, const void *buf, size_t len, bool ascii)
+int print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
+		   int groupsize, const void *buf, size_t len, bool ascii)
 {
 	const u8 *ptr = buf;
 	int i, linelen, remaining = len;
@@ -157,7 +157,11 @@ void print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
 			printf("%s%s\n", prefix_str, linebuf);
 			break;
 		}
+		if (!IS_ENABLED(CONFIG_SPL_BUILD) && ctrlc())
+			return -EINTR;
 	}
+
+	return 0;
 }
 
 void print_hex_dump_bytes(const char *prefix_str, int prefix_type,
@@ -170,9 +174,10 @@ void print_hex_dump_bytes(const char *prefix_str, int prefix_type,
  * Some code in U-Boot copy-pasted from Linux kernel uses both
  * functions below so to keep stuff compilable we keep these stubs here.
  */
-void print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
-		    int groupsize, const void *buf, size_t len, bool ascii)
+int print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
+		   int groupsize, const void *buf, size_t len, bool ascii)
 {
+	return -ENOSYS;
 }
 
 void print_hex_dump_bytes(const char *prefix_str, int prefix_type,

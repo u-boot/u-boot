@@ -125,6 +125,8 @@ int hex_dump_to_buffer(const void *buf, size_t len, int rowsize, int groupsize,
  * @buf: data blob to dump
  * @len: number of bytes in the @buf
  * @ascii: include ASCII after the hex output
+ * Returns: 0 if finished normally, -EINTR if Ctrl-C was pressed, -ENOSYS if not
+ * supported
  *
  * Given a buffer of u8 data, print_hex_dump() prints a hex + ASCII dump
  * to the stdio, with an optional leading prefix.
@@ -143,8 +145,8 @@ int hex_dump_to_buffer(const void *buf, size_t len, int rowsize, int groupsize,
  * Example output using %DUMP_PREFIX_ADDRESS and 4-byte mode:
  * ffffffff88089af0: 73727170 77767574 7b7a7978 7f7e7d7c  pqrstuvwxyz{|}~.
  */
-void print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
-		    int groupsize, const void *buf, size_t len, bool ascii);
+int print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
+		   int groupsize, const void *buf, size_t len, bool ascii);
 
 /**
  * print_hex_dump_bytes - shorthand form of print_hex_dump() with default params
