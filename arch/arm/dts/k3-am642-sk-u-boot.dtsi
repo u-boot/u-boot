@@ -85,3 +85,19 @@
 &main_mmc1_pins_default {
 	u-boot,dm-spl;
 };
+
+&cpsw3g {
+	reg = <0x0 0x8000000 0x0 0x200000>,
+	      <0x0 0x43000200 0x0 0x8>;
+	reg-names = "cpsw_nuss", "mac_efuse";
+	/delete-property/ ranges;
+
+	cpsw-phy-sel@04044 {
+		compatible = "ti,am64-phy-gmii-sel";
+		reg = <0x0 0x43004044 0x0 0x8>;
+	};
+};
+
+&cpsw_port2 {
+	status = "disabled";
+};
