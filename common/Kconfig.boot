@@ -205,7 +205,7 @@ config SPL_LOAD_FIT
 
 	  This path has the following limitations:
 
-	  1. "loadables" images, other than FTDs, which do not have a "load"
+	  1. "loadables" images, other than FDTs, which do not have a "load"
 	     property will not be loaded. This limitation also applies to FPGA
 	     images with the correct "compatible" string.
 	  2. For FPGA images, only the "compatible" = "u-boot,fpga-legacy"
