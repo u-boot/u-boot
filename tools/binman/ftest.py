@@ -76,6 +76,7 @@ FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
+OPENSBI_DATA          = b'opensbi'
 SCP_DATA              = b'scp'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
@@ -178,6 +179,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
         TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
+        TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
 
         # Add a few .dtb files for testing
@@ -4534,6 +4536,11 @@ class TestFunctional(unittest.TestCase):
         # Now the final piece, which should be default-aligned
         expected += tools.GetBytes(0, 88 - len(expected)) + U_BOOT_NODTB_DATA
         self.assertEqual(expected, data)
+
+    def testPackOpenSBI(self):
+        """Test that an image with an OpenSBI binary can be created"""
+        data = self._DoReadFile('201_opensbi.dts')
+        self.assertEqual(OPENSBI_DATA, data[:len(OPENSBI_DATA)])
 
 if __name__ == "__main__":
     unittest.main()
