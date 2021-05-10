@@ -322,9 +322,9 @@ Sometimes it is useful to pass binman the value of an entry property from the
 command line. For example some entries need access to files and it is not
 always convenient to put these filenames in the image definition (device tree).
 
-The-a option supports this::
+The -a option supports this::
 
-    -a<prop>=<value>
+    -a <prop>=<value>
 
 where::
 
