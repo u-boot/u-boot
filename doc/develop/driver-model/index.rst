@@ -27,3 +27,4 @@ subsystems
    soc-framework
    spi-howto
    usb-info
+   virtio
