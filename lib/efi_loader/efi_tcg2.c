@@ -1053,12 +1053,8 @@ static efi_status_t efi_init_event_log(void)
 	event_log.last_event_size = event_log.pos;
 
 	ret = create_final_event();
-	if (ret != EFI_SUCCESS)
-		goto out;
 
-	return EFI_SUCCESS;
 out:
-	tcg2_uninit();
 	return ret;
 }
 
