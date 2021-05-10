@@ -719,11 +719,11 @@ static int am65_cpsw_probe_cpsw(struct udevice *dev)
 		if (!port_id)
 			continue;
 
-		priv->port_id = port_id;
 		cpsw_common->ports[port_id].disabled = disabled;
 		if (disabled)
 			continue;
 
+		priv->port_id = port_id;
 		ret = am65_cpsw_ofdata_parse_phy(dev, node);
 		if (ret)
 			goto out;
