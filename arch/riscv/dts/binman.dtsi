@@ -48,21 +48,29 @@
 					};
 				};
 
+#ifndef CONFIG_OF_PRIOR_STAGE
 				@fdt-SEQ {
 					description = "NAME";
 					type = "flat_dt";
 					compression = "none";
 				};
+#endif
 			};
 
 			configurations {
 				default = "conf-1";
 
+#ifndef CONFIG_OF_PRIOR_STAGE
 				@conf-SEQ {
+#else
+				conf-1 {
+#endif
 					description = "NAME";
 					firmware = "opensbi";
 					loadables = "uboot";
+#ifndef CONFIG_OF_PRIOR_STAGE
 					fdt = "fdt-SEQ";
+#endif
 				};
 			};
 		};
