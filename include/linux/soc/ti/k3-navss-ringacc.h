@@ -238,4 +238,19 @@ int k3_nav_ringacc_ring_push_head(struct k3_nav_ring *ring, void *elem);
  */
 int k3_nav_ringacc_ring_pop_tail(struct k3_nav_ring *ring, void *elem);
 
+/* DMA ring support */
+struct ti_sci_handle;
+
+/**
+ * struct struct k3_ringacc_init_data - Initialization data for DMA rings
+ */
+struct k3_ringacc_init_data {
+	const struct ti_sci_handle *tisci;
+	u32 tisci_dev_id;
+	u32 num_rings;
+};
+
+struct k3_nav_ringacc *k3_ringacc_dmarings_init(struct udevice *dev,
+						struct k3_ringacc_init_data *data);
+
 #endif /* __SOC_TI_K3_NAVSS_RINGACC_API_H_ */
