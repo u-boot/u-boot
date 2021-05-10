@@ -40,7 +40,7 @@ The 'mmc write' command writes raw data to MMC device from memory address with b
     cnt
         block count
 
-The 'mmc erase' command erases MMC device from block offset until count.
+The 'mmc erase' command erases *cnt* blocks on the MMC device starting at block *blk#*.
 
     blk#
         start block offset
@@ -110,6 +110,7 @@ The 'mmc partconf' command shows or changes PARTITION_CONFIG field.
         partitions to access
 
 The 'mmc bootpart-resize' command changes sizes of boot and RPMB partitions.
+
     dev
         device number
     boot part size MB
