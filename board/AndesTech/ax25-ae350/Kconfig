@@ -31,6 +31,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select RISCV_NDS
 	select SUPPORT_SPL
+	select BINMAN if SPL
 	imply SMP
 	imply SPL_RAM_SUPPORT
 	imply SPL_RAM_DEVICE

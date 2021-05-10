@@ -1,5 +1,7 @@
 /dts-v1/;
 
+#include "binman.dtsi"
+
 / {
 	#address-cells = <2>;
 	#size-cells = <2>;
