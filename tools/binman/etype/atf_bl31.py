@@ -2,7 +2,7 @@
 # Copyright 2020 Google LLC
 # Written by Simon Glass <sjg@chromium.org>
 #
-# Entry-type module for Intel Management Engine binary blob
+# Entry-type module for ARM Trusted Firmware binary blob
 #
 
 from binman.etype.blob_named_by_arg import Entry_blob_named_by_arg
