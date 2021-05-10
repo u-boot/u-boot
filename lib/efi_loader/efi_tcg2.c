@@ -1103,8 +1103,7 @@ efi_status_t efi_tcg2_register(void)
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
 		log_warning("Unable to find TPMv2 device\n");
-		ret = EFI_SUCCESS;
-		goto out;
+		return EFI_SUCCESS;
 	}
 
 	ret = efi_init_event_log();
@@ -1113,7 +1112,7 @@ efi_status_t efi_tcg2_register(void)
 
 	ret = efi_append_scrtm_version(dev);
 	if (ret != EFI_SUCCESS)
-		goto out;
+		goto fail;
 
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
@@ -1121,9 +1120,8 @@ efi_status_t efi_tcg2_register(void)
 		log_err("Cannot install EFI_TCG2_PROTOCOL\n");
 		goto fail;
 	}
-
-out:
 	return ret;
+
 fail:
 	tcg2_uninit();
 	return ret;
