@@ -26,7 +26,7 @@
 
 #include "cpsw_mdio.h"
 
-#define AM65_CPSW_CPSWNU_MAX_PORTS 2
+#define AM65_CPSW_CPSWNU_MAX_PORTS 9
 
 #define AM65_CPSW_SS_BASE		0x0
 #define AM65_CPSW_SGMII_BASE	0x100
