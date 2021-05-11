@@ -120,7 +120,6 @@
 		regulator-name = "5P0V";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
-		regulator-always-on;
 	};
 };
 

@@ -473,7 +473,7 @@ static int imx6_pcie_assert_core_reset(struct imx_pcie_priv *priv,
 	 * If both LTSSM_ENABLE and REF_SSP_ENABLE are active we have a strong
 	 * indication that the bootloader activated the link.
 	 */
-	if (is_mx6dq() && prepare_for_boot) {
+	if ((is_mx6dq() || is_mx6sdl()) && prepare_for_boot) {
 		u32 val, gpr1, gpr12;
 
 		gpr1 = readl(&iomuxc_regs->gpr[1]);

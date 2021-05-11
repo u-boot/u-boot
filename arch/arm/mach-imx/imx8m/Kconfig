@@ -28,6 +28,12 @@ choice
 	prompt  "NXP i.MX8M board select"
 	optional
 
+config TARGET_IMX8MQ_CM
+        bool "Ronetix iMX8MQ-CM SoM"
+		select BINMAN
+        select IMX8MQ
+        select IMX8M_LPDDR4
+
 config TARGET_IMX8MQ_EVK
 	bool "imx8mq_evk"
 	select IMX8MQ
@@ -44,6 +50,24 @@ config TARGET_IMX8MM_EVK
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+
+config TARGET_IMX8MM_ICORE_MX8MM
+	bool "Engicam i.Core MX8M Mini SOM"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	help
+	  i.Core MX8M Mini is an EDIMM SOM based on NXP i.MX8MM.
+
+	  i.Core MX8M Mini EDIMM2.2:
+	  * EDIMM2.2 is a Form Factor Capacitive Evaluation Board.
+	  * i.Core MX8M Mini needs to mount on top of EDIMM2.2 for
+	    creating complete i.Core MX8M Mini EDIMM2.2 Starter Kit.
+
+	  i.Core MX8M Mini C.TOUCH 2.0
+	  * C.TOUCH 2.0 is a general purpose Carrier board.
+	  * i.Core MX8M Mini needs to mount on top of this Carrier board
+	    for creating complete i.Core MX8M Mini C.TOUCH 2.0 board.
 
 config TARGET_IMX8MM_VENICE
 	bool "Support Gateworks Venice iMX8M Mini module"
@@ -106,19 +130,29 @@ config TARGET_PHYCORE_IMX8MP
 	select IMX8MP
         select SUPPORT_SPL
 	select IMX8M_LPDDR4
+
+config TARGET_IMX8MM_CL_IOT_GATE
+	bool "CompuLab iot-gate-imx8"
+	select BINMAN
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
 endchoice
 
+source "board/beacon/imx8mm/Kconfig"
+source "board/beacon/imx8mn/Kconfig"
+source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
+source "board/engicam/imx8mm/Kconfig"
 source "board/freescale/imx8mq_evk/Kconfig"
 source "board/freescale/imx8mm_evk/Kconfig"
 source "board/freescale/imx8mn_evk/Kconfig"
 source "board/freescale/imx8mp_evk/Kconfig"
 source "board/gateworks/venice/Kconfig"
 source "board/google/imx8mq_phanbell/Kconfig"
-source "board/technexion/pico-imx8mq/Kconfig"
-source "board/toradex/verdin-imx8mm/Kconfig"
-source "board/beacon/imx8mm/Kconfig"
-source "board/beacon/imx8mn/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
+source "board/ronetix/imx8mq-cm/Kconfig"
+source "board/technexion/pico-imx8mq/Kconfig"
+source "board/toradex/verdin-imx8mm/Kconfig"
 
 endif

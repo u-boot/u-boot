@@ -31,6 +31,7 @@
 #include <asm/arch/sys_proto.h>
 #include <power/regulator.h>
 #include <power/da9063_pmic.h>
+#include <power/pmic.h>
 #include <input.h>
 #include <pwm.h>
 #include <version.h>
@@ -432,6 +433,29 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
+
+/*
+ * The SoM used by these boards has XTAL not connected despite datasheet
+ * suggesting connecting unused XTAL pins to ground. Without explicitly
+ * clearing the CRYSTAL bit the system runs unstable and sometimes reboots
+ * unexpectedly.
+ */
+static void pmic_crystal_fix(void)
+{
+	struct udevice *pmic;
+	static const uint EN_32K_CRYSTAL = (1 << 3);
+
+	if (pmic_get("pmic@58", &pmic)) {
+		puts("failed to get device for PMIC\n");
+		return;
+	}
+
+	if (pmic_clrsetbits(pmic, DA9063_REG_EN_32K, EN_32K_CRYSTAL, 0) < 0) {
+		puts("failed to clear CRYSTAL bit\n");
+		return;
+	}
+}
+
 void pmic_init(void)
 {
 	struct udevice *reg;
@@ -444,6 +468,8 @@ void pmic_init(void)
 		"bio",
 		"bperi",
 	};
+
+	pmic_crystal_fix();
 
 	for (i = 0; i < ARRAY_SIZE(bucks); i++) {
 		ret = regulator_get_by_devname(bucks[i], &reg);

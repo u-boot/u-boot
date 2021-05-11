@@ -1690,6 +1690,14 @@ int sandbox_pci_get_emul(const struct udevice *bus, pci_dev_t find_devfn,
  */
 int sandbox_pci_get_client(struct udevice *emul, struct udevice **devp);
 
+/**
+ * board_pci_fixup_dev() - Board callback for PCI device fixups
+ *
+ * @bus:	PCI bus
+ * @dev:	PCI device
+ */
+extern void board_pci_fixup_dev(struct udevice *bus, struct udevice *dev);
+
 #endif /* CONFIG_DM_PCI */
 
 /**
