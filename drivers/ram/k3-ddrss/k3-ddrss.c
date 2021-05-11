@@ -26,6 +26,9 @@
 #define CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS	0x80
 #define CTRLMMR_DDR4_FSP_CLKCHNG_ACK_OFFS	0xc0
 
+#define DDRSS_V2A_R1_MAT_REG 			0x0020
+#define DDRSS_ECC_CTRL_REG 			0x0120
+
 struct k3_ddrss_desc {
 	struct udevice *dev;
 	void __iomem *ddrss_ss_cfg;
@@ -416,6 +419,12 @@ static int k3_ddrss_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_K3_AM64_DDRSS
+
+	writel(0x000001EF, ddrss->ddrss_ss_cfg + DDRSS_V2A_R1_MAT_REG);
+	writel(0x0, ddrss->ddrss_ss_cfg + DDRSS_ECC_CTRL_REG);
+#endif
+
 	driverdt = lpddr4_getinstance();
 	k3_lpddr4_probe();
 	k3_lpddr4_init();
@@ -440,6 +449,7 @@ static struct ram_ops k3_ddrss_ops = {
 };
 
 static const struct udevice_id k3_ddrss_ids[] = {
+	{.compatible = "ti,am64-ddrss"},
 	{.compatible = "ti,j721e-ddrss"},
 	{}
 };
