@@ -191,8 +191,10 @@ static int cadence_spi_probe(struct udevice *bus)
 	priv->ahbbase = plat->ahbbase;
 	priv->is_dual = plat->is_dual;
 
-	xilinx_pm_request(PM_REQUEST_NODE, DEV_OSPI, PM_CAPABILITY_ACCESS,
-			  PM_MAX_QOS, PM_REQUEST_ACK_NO, NULL);
+	if (CONFIG_IS_ENABLED(ZYNQMP_FIRMWARE))
+		xilinx_pm_request(PM_REQUEST_NODE, DEV_OSPI,
+				  PM_CAPABILITY_ACCESS, PM_MAX_QOS,
+				  PM_REQUEST_ACK_NO, NULL);
 
 	if (plat->ref_clk_hz == 0) {
 		ret = clk_get_by_index(bus, 0, &clk);

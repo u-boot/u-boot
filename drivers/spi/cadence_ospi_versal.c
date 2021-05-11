@@ -14,6 +14,7 @@
 #include <asm/cache.h>
 #include <cpu_func.h>
 #include <zynqmp_firmware.h>
+#include <asm/arch/hardware.h>
 #include "cadence_qspi.h"
 
 #define CMD_4BYTE_READ  0x13
@@ -21,14 +22,25 @@
 
 void cadence_qspi_apb_enable_linear_mode(bool enable)
 {
-	if (enable)
-		/* ahb read mode */
-		xilinx_pm_request(PM_IOCTL, DEV_OSPI, IOCTL_OSPI_MUX_SELECT,
-				  PM_OSPI_MUX_SEL_LINEAR, 0, NULL);
-	else
-		/* DMA mode */
-		xilinx_pm_request(PM_IOCTL, DEV_OSPI, IOCTL_OSPI_MUX_SELECT,
-				  PM_OSPI_MUX_SEL_DMA, 0, NULL);
+	if (CONFIG_IS_ENABLED(ZYNQMP_FIRMWARE)) {
+		if (enable)
+			/* ahb read mode */
+			xilinx_pm_request(PM_IOCTL, DEV_OSPI,
+					  IOCTL_OSPI_MUX_SELECT,
+					  PM_OSPI_MUX_SEL_LINEAR, 0, NULL);
+		else
+			/* DMA mode */
+			xilinx_pm_request(PM_IOCTL, DEV_OSPI,
+					  IOCTL_OSPI_MUX_SELECT,
+					  PM_OSPI_MUX_SEL_DMA, 0, NULL);
+	} else {
+		if (enable)
+			writel(readl(VERSAL_AXI_MUX_SEL) |
+			       VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
+		else
+			writel(readl(VERSAL_AXI_MUX_SEL) &
+			       ~VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
+	}
 }
 
 int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,

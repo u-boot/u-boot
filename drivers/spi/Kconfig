@@ -123,7 +123,7 @@ config CADENCE_QSPI
 
 config CADENCE_OSPI_VERSAL
 	bool "Configure Versal OSPI"
-	depends on ARCH_VERSAL && CADENCE_QSPI && ZYNQMP_FIRMWARE
+	depends on ARCH_VERSAL && CADENCE_QSPI
 	imply DM_GPIO
 	help
 	  This option is used to enable Versal OSPI DMA operations which
