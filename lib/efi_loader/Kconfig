@@ -300,7 +300,13 @@ config EFI_RNG_PROTOCOL
 
 config EFI_TCG2_PROTOCOL
 	bool "EFI_TCG2_PROTOCOL support"
+	default y
 	depends on TPM_V2
+	select SHA1
+	select SHA256
+	select SHA512_ALGO
+	select SHA384
+	select SHA512
 	help
 	  Provide a EFI_TCG2_PROTOCOL implementation using the TPM hardware
 	  of the platform.
