@@ -245,6 +245,10 @@
 	};
 };
 
+&gpio {
+	status = "okay";
+};
+
 &qspi {
 	status = "okay";
 	flash@0 {
