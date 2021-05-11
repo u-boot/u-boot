@@ -27,6 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct pci_controller pci_hose[MAX_BUSES];
 static int pci_num_buses;
 
+#if !defined(CONFIG_DM_PCI)
 static void pci_init_bus(int bus, struct pci_region *reg)
 {
 	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
@@ -184,6 +185,7 @@ void mpc83xx_pcislave_unlock(int bus)
 	hose->last_busno = pci_hose_scan(hose);
 }
 #endif
+#endif /* CONFIG_DM_PCI */
 
 #if defined(CONFIG_OF_LIBFDT)
 void ft_pci_setup(void *blob, struct bd_info *bd)

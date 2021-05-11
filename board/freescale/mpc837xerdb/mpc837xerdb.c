@@ -176,7 +176,7 @@ int board_early_init_f(void)
 }
 
 #ifdef CONFIG_FSL_ESDHC
-#if !(CONFIG_IS_ENABLED(DM_MMC))
+#if !(CONFIG_IS_ENABLED(DM_MMC) || CONFIG_IS_ENABLED(DM_USB))
 int board_mmc_init(struct bd_info *bd)
 {
 	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
@@ -215,6 +215,15 @@ int misc_init_r(void)
 #endif
 
 	return rc;
+}
+
+int board_late_init(void)
+{
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+#ifdef CONFIG_USB
+	clrsetbits_be32(&immap->sysconf.sicrl, SICRL_USB_A, 0x40000000);
+#endif
+	return 0;
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
