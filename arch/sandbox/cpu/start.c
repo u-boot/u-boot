@@ -454,6 +454,14 @@ int main(int argc, char *argv[])
 	text_base = os_find_text_base();
 
 	/*
+	 * This must be the first invocation of os_malloc() to have
+	 * state->ram_buf in the low 4 GiB.
+	 */
+	ret = state_init();
+	if (ret)
+		goto err;
+
+	/*
 	 * Copy argv[] so that we can pass the arguments in the original
 	 * sequence when resetting the sandbox.
 	 */
@@ -466,10 +474,6 @@ int main(int argc, char *argv[])
 	memset(&data, '\0', sizeof(data));
 	gd = &data;
 	gd->arch.text_base = text_base;
-
-	ret = state_init();
-	if (ret)
-		goto err;
 
 	state = state_get_current();
 	if (os_parse_args(state, argc, argv))
