@@ -54,9 +54,16 @@ config K3_AM654_DDRSS
 	  config add support for the initialization of the external
 	  SDRAM devices connected to DDR subsystem.
 
+config K3_DDRSS
+	bool "Enable K3 DDRSS support"
+	depends on RAM
+
+choice
+	depends on K3_DDRSS
+	prompt "K3 DDRSS Arch Support"
+
 config K3_J721E_DDRSS
 	bool "Enable J721E DDRSS support"
-	depends on RAM
 	help
 	  The J721E DDR subsystem comprises DDR controller, DDR PHY and
 	  wrapper logic to integrate these blocks in the device. The DDR
@@ -64,6 +71,8 @@ config K3_J721E_DDRSS
 	  devices which can be utilized for storing program or data.
 	  Enabling this config adds support for the DDR memory controller
 	  on J721E family of SoCs.
+
+endchoice
 
 config IMXRT_SDRAM
 	bool "Enable i.MXRT SDRAM support"
