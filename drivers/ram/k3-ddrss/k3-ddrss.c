@@ -15,6 +15,7 @@
 #include <asm/io.h>
 #include <power-domain.h>
 #include <wait_bit.h>
+#include <power/regulator.h>
 
 #include "lpddr4_obj_if.h"
 #include "lpddr4_if.h"
@@ -40,6 +41,7 @@ struct k3_ddrss_desc {
 	u32 ddr_freq1;
 	u32 ddr_freq2;
 	u32 ddr_fhs_cnt;
+	struct udevice *vtt_supply;
 };
 
 static lpddr4_obj *driverdt;
@@ -213,6 +215,18 @@ static int k3_ddrss_power_on(struct k3_ddrss_desc *ddrss)
 	if (ret) {
 		dev_err(ddrss->dev, "power_domain_on() failed: %d\n", ret);
 		return ret;
+	}
+
+	ret = device_get_supply_regulator(ddrss->dev, "vtt-supply",
+					  &ddrss->vtt_supply);
+	if (ret) {
+		dev_dbg(ddrss->dev, "vtt-supply not found.\n");
+	} else {
+		ret = regulator_set_value(ddrss->vtt_supply, 3300000);
+		if (ret)
+			return ret;
+		dev_dbg(ddrss->dev, "VTT regulator enabled, volt = %d\n",
+			regulator_get_value(ddrss->vtt_supply));
 	}
 
 	return 0;
