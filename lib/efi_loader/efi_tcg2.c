@@ -999,6 +999,11 @@ static efi_status_t create_final_event(void)
 	event_log.final_pos = sizeof(*final_event);
 	ret = efi_install_configuration_table(&efi_guid_final_events,
 					      final_event);
+	if (ret != EFI_SUCCESS) {
+		efi_free_pool(event_log.final_buffer);
+		event_log.final_buffer = NULL;
+	}
+
 out:
 	return ret;
 }
@@ -1047,14 +1052,21 @@ static efi_status_t efi_init_event_log(void)
 	ret = create_specid_event(dev, (void *)((uintptr_t)event_log.buffer + sizeof(*event_header)),
 				  &spec_event_size);
 	if (ret != EFI_SUCCESS)
-		goto out;
+		goto free_pool;
 	put_unaligned_le32(spec_event_size, &event_header->event_size);
 	event_log.pos = spec_event_size + sizeof(*event_header);
 	event_log.last_event_size = event_log.pos;
 
 	ret = create_final_event();
+	if (ret != EFI_SUCCESS)
+		goto free_pool;
 
 out:
+	return ret;
+
+free_pool:
+	efi_free_pool(event_log.buffer);
+	event_log.buffer = NULL;
 	return ret;
 }
 
@@ -1111,18 +1123,29 @@ efi_status_t efi_tcg2_register(void)
 		goto fail;
 
 	ret = efi_append_scrtm_version(dev);
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS) {
+		tcg2_uninit();
 		goto fail;
+	}
 
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
 	if (ret != EFI_SUCCESS) {
-		log_err("Cannot install EFI_TCG2_PROTOCOL\n");
+		tcg2_uninit();
 		goto fail;
 	}
 	return ret;
 
 fail:
-	tcg2_uninit();
-	return ret;
+	log_err("Cannot install EFI_TCG2_PROTOCOL\n");
+	/*
+	 * Return EFI_SUCCESS and don't stop the EFI subsystem.
+	 * That's done for 2 reasons
+	 * - If the protocol is not installed the PCRs won't be extended.  So
+	 *   someone later in the boot flow will notice that and take the
+	 *   necessary actions.
+	 * - The TPM sandbox is limited and we won't be able to run any efi
+	 *   related tests with TCG2 enabled
+	 */
+	return EFI_SUCCESS;
 }
