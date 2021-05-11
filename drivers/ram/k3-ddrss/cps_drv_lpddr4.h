@@ -1,119 +1,102 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
-/******************************************************************************
+/*
+ * Cadence DDR Driver
  *
- * Copyright (C) 2017-2018 Cadence Design Systems, Inc.
- * Copyright (C) 2019 Texas Instruments Incorporated - http://www.ti.com/
- *
- * cps_drv_lpddr4.h
- * Interface for the Register Accaess Layer of Cadence Platform Service (CPS)
- *****************************************************************************
+ * Copyright (C) 2012-2021 Cadence Design Systems, Inc.
+ * Copyright (C) 2018-2021 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef CPS_DRV_H_
 #define CPS_DRV_H_
 
-#include <stddef.h>
-#include <inttypes.h>
+#ifdef DEMO_TB
+#include <cdn_demo.h>
+#else
 #include <asm/io.h>
+#endif
 
-/**
- *  \brief    Read a 32-bit value from memory.
- *  \param    reg   address of the memory mapped hardware register
- *  \return   the value at the given address
- */
-#define CPS_REG_READ(reg) (readl((volatile uint32_t*)(reg)))
+#define CPS_REG_READ(reg) (cps_regread((volatile u32 *)(reg)))
 
-/**
- *  \brief   Write a 32-bit address value to memory.
- *  \param   reg     address of the memory mapped hardware register
- *  \param   value   unsigned 32-bit value to write
- */
-#define CPS_REG_WRITE(reg, value) (writel((uint32_t)(value), (volatile uint32_t*)(reg)))
+#define CPS_REG_WRITE(reg, value) (cps_regwrite((volatile u32 *)(reg), (u32)(value)))
 
-/**
- *  \brief    Subtitue the value of fld macro and concatinate with required string
- *  \param    fld         field name
- */
 #define CPS_FLD_MASK(fld)  (fld ## _MASK)
 #define CPS_FLD_SHIFT(fld) (fld ## _SHIFT)
 #define CPS_FLD_WIDTH(fld) (fld ## _WIDTH)
 #define CPS_FLD_WOCLR(fld) (fld ## _WOCLR)
 #define CPS_FLD_WOSET(fld) (fld ## _WOSET)
 
-/**
- *  \brief    Read a value of bit-field from the register value.
- *  \param    reg         register name
- *  \param    fld         field name
- *  \param    reg_value   register value
- *  \return   bit-field value
- */
-#define CPS_FLD_READ(fld, reg_value) (cps_fldread((uint32_t)(CPS_FLD_MASK(fld)),  \
-						(uint32_t)(CPS_FLD_SHIFT(fld)), \
-						(uint32_t)(reg_value)))
+#define CPS_FLD_READ(fld, reg_value) (cps_fldread((u32)(CPS_FLD_MASK(fld)),  \
+						  (u32)(CPS_FLD_SHIFT(fld)), \
+						  (u32)(reg_value)))
 
-/**
- *  \brief    Write a value of the bit-field into the register value.
- *  \param    reg         register name
- *  \param    fld         field name
- *  \param    reg_value   register value
- *  \param    value       value to be written to bit-field
- *  \return   modified register value
- */
-#define CPS_FLD_WRITE(fld, reg_value, value) (cps_fldwrite((uint32_t)(CPS_FLD_MASK(fld)),  \
-						(uint32_t)(CPS_FLD_SHIFT(fld)), \
-						(uint32_t)(reg_value), (uint32_t)(value)))
+#define CPS_FLD_WRITE(fld, reg_value, value) (cps_fldwrite((u32)(CPS_FLD_MASK(fld)),  \
+							   (u32)(CPS_FLD_SHIFT(fld)), \
+							   (u32)(reg_value), (u32)(value)))
 
-/**
- *  \brief    Set bit within the register value.
- *  \param    reg         register name
- *  \param    fld         field name
- *  \param    reg_value   register value
- *  \return   modified register value
- */
-#define CPS_FLD_SET(fld, reg_value) (cps_fldset((uint32_t)(CPS_FLD_WIDTH(fld)), \
-					(uint32_t)(CPS_FLD_MASK(fld)),  \
-					(uint32_t)(CPS_FLD_WOCLR(fld)), \
-					(uint32_t)(reg_value)))
+#define CPS_FLD_SET(fld, reg_value) (cps_fldset((u32)(CPS_FLD_WIDTH(fld)), \
+						(u32)(CPS_FLD_MASK(fld)),  \
+						(u32)(CPS_FLD_WOCLR(fld)), \
+						(u32)(reg_value)))
 
-static inline uint32_t cps_fldread(uint32_t mask, uint32_t shift, uint32_t reg_value)
+#ifdef CLR_USED
+#define CPS_FLD_CLEAR(reg, fld, reg_value) (cps_fldclear((u32)(CPS_FLD_WIDTH(fld)), \
+							 (u32)(CPS_FLD_MASK(fld)),  \
+							 (u32)(CPS_FLD_WOSET(fld)), \
+							 (u32)(CPS_FLD_WOCLR(fld)), \
+							 (u32)(reg_value)))
+
+#endif
+static inline u32 cps_regread(volatile u32 *reg);
+static inline u32 cps_regread(volatile u32 *reg)
 {
-	uint32_t result = (reg_value & mask) >> shift;
-
-	return (result);
+	return readl(reg);
 }
 
-/**
- *  \brief    Write a value of the bit-field into the register value.
- *  \param    mask        mask for the bit-field
- *  \param    shift       bit-field shift from LSB
- *  \param    reg_value   register value
- *  \param    value       value to be written to bit-field
- *  \return   modified register value
- */
-static inline uint32_t cps_fldwrite(uint32_t mask, uint32_t shift, uint32_t reg_value, uint32_t value)
+static inline void cps_regwrite(volatile u32 *reg, u32 value);
+static inline void cps_regwrite(volatile u32 *reg, u32 value)
 {
-	uint32_t new_value = (value << shift) & mask;
+	writel(value, reg);
+}
+
+static inline u32 cps_fldread(u32 mask, u32 shift, u32 reg_value);
+static inline u32 cps_fldread(u32 mask, u32 shift, u32 reg_value)
+{
+	u32 result = (reg_value & mask) >> shift;
+
+	return result;
+}
+
+static inline u32 cps_fldwrite(u32 mask, u32 shift, u32 reg_value, u32 value);
+static inline u32 cps_fldwrite(u32 mask, u32 shift, u32 reg_value, u32 value)
+{
+	u32 new_value = (value << shift) & mask;
 
 	new_value = (reg_value & ~mask) | new_value;
-	return (new_value);
+	return new_value;
 }
 
-/**
- *  \brief    Set bit within the register value.
- *  \param    width       width of the bit-field
- *  \param    mask        mask for the bit-field
- *  \param    is_woclr    is bit-field has 'write one to clear' flag set
- *  \param    reg_value   register value
- *  \return   modified register value
- */
-static inline uint32_t cps_fldset(uint32_t width, uint32_t mask, uint32_t is_woclr, uint32_t reg_value)
+static inline u32 cps_fldset(u32 width, u32 mask, u32 is_woclr, u32 reg_value);
+static inline u32 cps_fldset(u32 width, u32 mask, u32 is_woclr, u32 reg_value)
 {
-	uint32_t new_value = reg_value;
-	/* Confirm the field to be bit and not write to clear type */
-	if ((width == 1U) && (is_woclr == 0U)) {
-		new_value |= mask;
-	}
+	u32 new_value = reg_value;
 
-	return (new_value);
+	if ((width == 1U) && (is_woclr == 0U))
+		new_value |= mask;
+
+	return new_value;
 }
+
+#ifdef CLR_USED
+static inline u32 cps_fldclear(u32 width, u32 mask, u32 is_woset, u32 is_woclr, u32 reg_value);
+static inline u32 cps_fldclear(u32 width, u32 mask, u32 is_woset, u32 is_woclr, u32 reg_value)
+{
+	u32 new_value = reg_value;
+
+	if ((width == 1U) && (is_woset == 0U))
+		new_value = (new_value & ~mask) | ((is_woclr != 0U) ? mask : 0U);
+
+	return new_value;
+}
+#endif /* CLR_USED */
+
 #endif /* CPS_DRV_H_ */
