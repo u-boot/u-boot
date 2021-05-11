@@ -9,7 +9,8 @@ DDRSS device node:
 ==================
 Required properties:
 --------------------
-- compatible:		Shall be: "ti,j721e-ddrss"
+- compatible:		Shall be: "ti,j721e-ddrss" for j721e, j7200
+				  "ti,am64-ddrss" for am642
 - reg-names 		cfg - Map the controller configuration region
 			ctrl_mmr_lp4 - Map LP4 register region in ctrl mmr
 - reg:			Contains the register map per reg-names.
