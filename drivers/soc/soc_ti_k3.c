@@ -13,6 +13,7 @@
 #define AM65X			0xbb5a
 #define J721E			0xbb64
 #define J7200			0xbb6d
+#define AM64X			0xbb38
 
 #define REV_SR1_0		0
 #define REV_SR2_0		1
@@ -43,6 +44,9 @@ static const char *get_family_string(u32 idreg)
 		break;
 	case J7200:
 		family = "J7200";
+		break;
+	case AM64X:
+		family = "AM64X";
 		break;
 	default:
 		family = "Unknown Silicon";

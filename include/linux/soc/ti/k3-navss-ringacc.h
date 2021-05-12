@@ -83,22 +83,17 @@ struct k3_nav_ring_cfg {
 };
 
 #define K3_NAV_RINGACC_RING_ID_ANY (-1)
-#define K3_NAV_RINGACC_RING_USE_PROXY BIT(1)
 
 /**
  * k3_nav_ringacc_request_ring - request ring from ringacc
  * @ringacc: pointer on ringacc
  * @id: ring id or K3_NAV_RINGACC_RING_ID_ANY for any general purpose ring
- * @flags:
- *	@K3_NAV_RINGACC_RING_USE_PROXY: if set - proxy will be allocated and
- *		used to access ring memory. Sopported only for rings in
- *		Message/Credentials/Queue mode.
  *
  * Returns pointer on the Ring - struct k3_nav_ring
  * or NULL in case of failure.
  */
 struct k3_nav_ring *k3_nav_ringacc_request_ring(struct k3_nav_ringacc *ringacc,
-						int id, u32 flags);
+						int id);
 
 int k3_nav_ringacc_request_rings_pair(struct k3_nav_ringacc *ringacc,
 				      int fwd_id, int compl_id,
@@ -237,5 +232,20 @@ int k3_nav_ringacc_ring_push_head(struct k3_nav_ring *ring, void *elem);
  * Not Supported by ring modes: K3_NAV_RINGACC_RING_MODE_RING
  */
 int k3_nav_ringacc_ring_pop_tail(struct k3_nav_ring *ring, void *elem);
+
+/* DMA ring support */
+struct ti_sci_handle;
+
+/**
+ * struct struct k3_ringacc_init_data - Initialization data for DMA rings
+ */
+struct k3_ringacc_init_data {
+	const struct ti_sci_handle *tisci;
+	u32 tisci_dev_id;
+	u32 num_rings;
+};
+
+struct k3_nav_ringacc *k3_ringacc_dmarings_init(struct udevice *dev,
+						struct k3_ringacc_init_data *data);
 
 #endif /* __SOC_TI_K3_NAVSS_RINGACC_API_H_ */

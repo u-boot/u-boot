@@ -26,7 +26,7 @@
 
 #include "cpsw_mdio.h"
 
-#define AM65_CPSW_CPSWNU_MAX_PORTS 2
+#define AM65_CPSW_CPSWNU_MAX_PORTS 9
 
 #define AM65_CPSW_SS_BASE		0x0
 #define AM65_CPSW_SGMII_BASE	0x100
@@ -719,11 +719,11 @@ static int am65_cpsw_probe_cpsw(struct udevice *dev)
 		if (!port_id)
 			continue;
 
-		priv->port_id = port_id;
 		cpsw_common->ports[port_id].disabled = disabled;
 		if (disabled)
 			continue;
 
+		priv->port_id = port_id;
 		ret = am65_cpsw_ofdata_parse_phy(dev, node);
 		if (ret)
 			goto out;
@@ -782,6 +782,7 @@ out:
 static const struct udevice_id am65_cpsw_nuss_ids[] = {
 	{ .compatible = "ti,am654-cpsw-nuss" },
 	{ .compatible = "ti,j721e-cpsw-nuss" },
+	{ .compatible = "ti,am642-cpsw-nuss" },
 	{ }
 };
 

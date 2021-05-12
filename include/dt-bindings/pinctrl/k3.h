@@ -2,7 +2,7 @@
 /*
  * This header provides constants for TI K3-AM65 pinctrl bindings.
  *
- * Copyright (C) 2018 Texas Instruments
+ * Copyright (C) 2018-2021 Texas Instruments
  */
 #ifndef _DT_BINDINGS_PINCTRL_TI_K3_AM65_H
 #define _DT_BINDINGS_PINCTRL_TI_K3_AM65_H
@@ -37,5 +37,8 @@
 
 #define J721E_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
 #define J721E_WKUP_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
+
+#define AM64X_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
+#define AM64X_MCU_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
 
 #endif

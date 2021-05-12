@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (C) 2020-2021 Texas Instruments Incorporated - https://www.ti.com/
+
+choice
+	prompt "K3 AM64 based boards"
+	optional
+
+config TARGET_AM642_A53_EVM
+	bool "TI K3 based AM642 EVM running on A53"
+	select ARM64
+	select SOC_K3_AM642
+	imply BOARD
+	imply SPL_BOARD
+	imply TI_I2C_BOARD_DETECT
+
+config TARGET_AM642_R5_EVM
+	bool "TI K3 based AM642 EVM running on R5"
+	select CPU_V7R
+	select SYS_THUMB_BUILD
+	select K3_LOAD_SYSFW
+	select SOC_K3_AM642
+	select RAM
+	select SPL_RAM
+	select K3_DDRSS
+	imply SYS_K3_SPL_ATF
+	imply TI_I2C_BOARD_DETECT
+
+endchoice
+
+if TARGET_AM642_A53_EVM
+
+config SYS_BOARD
+       default "am64x"
+
+config SYS_VENDOR
+       default "ti"
+
+config SYS_CONFIG_NAME
+       default "am64x_evm"
+
+source "board/ti/common/Kconfig"
+
+endif
+
+if TARGET_AM642_R5_EVM
+
+config SYS_BOARD
+       default "am64x"
+
+config SYS_VENDOR
+       default "ti"
+
+config SYS_CONFIG_NAME
+       default "am64x_evm"
+
+config SPL_LDSCRIPT
+	default "arch/arm/mach-omap2/u-boot-spl.lds"
+
+source "board/ti/common/Kconfig"
+
+endif

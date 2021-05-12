@@ -1060,6 +1060,10 @@ dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
 			      k3-j721e-r5-common-proc-board.dtb \
 			      k3-j7200-common-proc-board.dtb \
 			      k3-j7200-r5-common-proc-board.dtb
+dtb-$(CONFIG_SOC_K3_AM642) += k3-am642-evm.dtb \
+			      k3-am642-r5-evm.dtb \
+			      k3-am642-sk.dtb \
+			      k3-am642-r5-sk.dtb
 
 dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7622-rfb.dtb \

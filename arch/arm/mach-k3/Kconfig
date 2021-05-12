@@ -10,6 +10,9 @@ config SOC_K3_AM6
 config SOC_K3_J721E
 	bool "TI's K3 based J721E SoC Family Support"
 
+config SOC_K3_AM642
+	bool "TI's K3 based AM642 SoC Family Support"
+
 endchoice
 
 config SYS_SOC
@@ -19,16 +22,18 @@ config SYS_K3_NON_SECURE_MSRAM_SIZE
 	hex
 	default 0x80000 if SOC_K3_AM6
 	default 0x100000 if SOC_K3_J721E
+	default 0x1c0000 if SOC_K3_AM642
 	help
-	  Describes the total size of the MCU MSRAM. This doesn't
-	  specify the total size of SPL as ROM can use some part
-	  of this RAM. Once ROM gives control to SPL then this
-	  complete size can be usable.
+	  Describes the total size of the MCU or OCMC MSRAM present on
+	  the SoC in use. This doesn't specify the total size of SPL as
+	  ROM can use some part of this RAM. Once ROM gives control to
+	  SPL then this complete size can be usable.
 
 config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 	hex
 	default 0x58000 if SOC_K3_AM6
 	default 0xc0000 if SOC_K3_J721E
+	default 0x180000 if SOC_K3_AM642
 	help
 	  Describes the maximum size of the image that ROM can download
 	  from any boot media.
@@ -51,6 +56,7 @@ config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	hex
 	default 0x41c7fbfc if SOC_K3_AM6
 	default 0x41cffbfc if SOC_K3_J721E
+	default 0x701bebfc if SOC_K3_AM642
 	help
 	  Address at which ROM stores the value which determines if SPL
 	  is booted up by primary boot media or secondary boot media.
@@ -142,5 +148,6 @@ config SYS_K3_SPL_ATF
 	  after SPL from R5.
 
 source "board/ti/am65x/Kconfig"
+source "board/ti/am64x/Kconfig"
 source "board/ti/j721e/Kconfig"
 endif

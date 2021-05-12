@@ -50,7 +50,7 @@ fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index)
 
 		reg += index * (na + ns);
 
-		if (ns || gd_size_cells_0()) {
+		if (ns) {
 			/*
 			 * Use the full-fledged translate function for complex
 			 * bus setups.

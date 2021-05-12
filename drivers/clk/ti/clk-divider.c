@@ -27,7 +27,7 @@
 
 struct clk_ti_divider_priv {
 	struct clk parent;
-	fdt_addr_t reg;
+	struct clk_ti_reg reg;
 	const struct clk_div_table *table;
 	u8 shift;
 	u8 flags;
@@ -200,11 +200,11 @@ static ulong clk_ti_divider_set_rate(struct clk *clk, ulong rate)
 
 	val = _get_val(priv->table, priv->div_flags, div);
 
-	v = readl(priv->reg);
+	v = clk_ti_readl(&priv->reg);
 	v &= ~(priv->mask << priv->shift);
 	v |= val << priv->shift;
-	writel(v, priv->reg);
-	clk_ti_latch(priv->reg, priv->latch);
+	clk_ti_writel(v, &priv->reg);
+	clk_ti_latch(&priv->reg, priv->latch);
 
 	return clk_get_rate(clk);
 }
@@ -220,7 +220,7 @@ static ulong clk_ti_divider_get_rate(struct clk *clk)
 	if (IS_ERR_VALUE(parent_rate))
 		return parent_rate;
 
-	v = readl(priv->reg) >> priv->shift;
+	v = clk_ti_readl(&priv->reg) >> priv->shift;
 	v &= priv->mask;
 
 	div = _get_div(priv->table, priv->div_flags, v);
@@ -287,10 +287,14 @@ static int clk_ti_divider_of_to_plat(struct udevice *dev)
 	u32 min_div = 0;
 	u32 max_val, max_div = 0;
 	u16 mask;
-	int i, div_num;
+	int i, div_num, err;
 
-	priv->reg = dev_read_addr(dev);
-	dev_dbg(dev, "reg=0x%08lx\n", priv->reg);
+	err = clk_ti_get_reg_addr(dev, 0, &priv->reg);
+	if (err) {
+		dev_err(dev, "failed to get register address\n");
+		return err;
+	}
+
 	priv->shift = dev_read_u32_default(dev, "ti,bit-shift", 0);
 	priv->latch = dev_read_s32_default(dev, "ti,latch-bit", -EINVAL);
 	if (dev_read_bool(dev, "ti,index-starts-at-one"))

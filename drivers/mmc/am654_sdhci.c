@@ -470,6 +470,16 @@ const struct am654_driver_data j721e_4bit_drv_data = {
 	.flags = IOMUX_PRESENT,
 };
 
+static const struct am654_driver_data sdhci_am64_8bit_drvdata = {
+	.ops = &am654_sdhci_ops,
+	.flags = DLL_PRESENT | DLL_CALIB,
+};
+
+static const struct am654_driver_data sdhci_am64_4bit_drvdata = {
+	.ops = &j721e_4bit_sdhci_ops,
+	.flags = IOMUX_PRESENT,
+};
+
 const struct soc_attr am654_sdhci_soc_attr[] = {
 	{ .family = "AM65X", .revision = "SR1.0", .data = &am654_sr1_drv_data},
 	{/* sentinel */}
@@ -650,6 +660,14 @@ static const struct udevice_id am654_sdhci_ids[] = {
 	{
 		.compatible = "ti,j721e-sdhci-4bit",
 		.data = (ulong)&j721e_4bit_drv_data,
+	},
+	{
+		.compatible = "ti,am64-sdhci-8bit",
+		.data = (ulong)&sdhci_am64_8bit_drvdata,
+	},
+	{
+		.compatible = "ti,am64-sdhci-4bit",
+		.data = (ulong)&sdhci_am64_4bit_drvdata,
 	},
 	{ }
 };

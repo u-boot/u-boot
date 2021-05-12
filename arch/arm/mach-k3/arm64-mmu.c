@@ -180,3 +180,44 @@ struct mm_region *mem_map = j7200_mem_map;
 #endif /* CONFIG_TARGET_J7200_A72_EVM */
 
 #endif /* CONFIG_SOC_K3_J721E */
+
+#ifdef CONFIG_SOC_K3_AM642
+/* NR_DRAM_BANKS + 32bit IO + 64bit IO + terminator */
+#define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 3)
+
+/* ToDo: Add 64bit IO */
+struct mm_region am64_mem_map[NR_MMU_REGIONS] = {
+	{
+		.virt = 0x0UL,
+		.phys = 0x0UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x880000000UL,
+		.phys = 0x880000000UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x500000000UL,
+		.phys = 0x500000000UL,
+		.size = 0x400000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = am64_mem_map;
+#endif /* CONFIG_SOC_K3_AM642 */
