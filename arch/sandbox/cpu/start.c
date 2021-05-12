@@ -436,9 +436,6 @@ void sandbox_reset(void)
 	if (state_uninit())
 		os_exit(2);
 
-	if (dm_uninit())
-		os_exit(2);
-
 	/* Restart U-Boot */
 	os_relaunch(os_argv);
 }
