@@ -771,8 +771,8 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
 	pcr_index = efi_tcg_event->header.pcr_index;
 	event_type = efi_tcg_event->header.event_type;
 
-	ret = tcg2_create_digest((u8 *)data_to_hash, data_to_hash_len,
-				 &digest_list);
+	ret = tcg2_create_digest((u8 *)(uintptr_t)data_to_hash,
+				 data_to_hash_len, &digest_list);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
