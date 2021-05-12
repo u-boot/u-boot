@@ -359,9 +359,6 @@ static void set_fdtfile(void)
  */
 static void set_fdt_addr(void)
 {
-	if (env_get("fdt_addr"))
-		return;
-
 	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC)
 		return;
 
