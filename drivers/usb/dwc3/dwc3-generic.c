@@ -163,7 +163,8 @@ U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 };
 #endif
 
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || \
+	!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST)
 static int dwc3_generic_host_probe(struct udevice *dev)
 {
 	struct xhci_hcor *hcor;
