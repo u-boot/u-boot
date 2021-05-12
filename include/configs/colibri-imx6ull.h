@@ -18,9 +18,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-/* Network */
-#define CONFIG_TFTP_TSIZE
-
 /* ENET1 */
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 

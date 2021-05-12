@@ -74,6 +74,17 @@ config TFTP_WINDOWSIZE
 	  before an ack response is required.
 	  The default TFTP implementation implies a window size of 1.
 
+config TFTP_TSIZE
+	bool "Track TFTP transfers based on file size option"
+	depends on CMD_TFTPBOOT
+	default y if (ARCH_OMAP2PLUS || ARCH_K3)
+	help
+	  By default, TFTP progress bar is increased for each received UDP
+	  frame, which can lead into long time being spent for sending
+	  data over the UART. Enabling this option, TFTP queries the file
+	  size from server, and if supported, limits the progress bar to
+	  50 characters total which fits on single line.
+
 config SERVERIP_FROM_PROXYDHCP
 	bool "Get serverip value from Proxy DHCP response"
 	help
