@@ -36,7 +36,7 @@
 			clock-frequency = <0>;
 		};
 
-		osc {
+		osc: osc {
 			u-boot,dm-spl;
 			compatible = "fsl,imx-osc", "fixed-clock";
 			#clock-cells = <0>;
