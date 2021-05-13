@@ -16,6 +16,7 @@
 	chosen {
 		bootargs = "root=/dev/ram";
 		stdout-path = "serial0:115200n8";
+		tick-timer = &gpt1;
 	};
 
 	memory {
