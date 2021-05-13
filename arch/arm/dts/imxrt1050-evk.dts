@@ -189,7 +189,6 @@
 		};
 
 		pinctrl_lcdif: lcdifgrp {
-			u-boot,dm-spl;
 			fsl,pins = <
 				MXRT1050_IOMUXC_GPIO_B0_00_LCD_CLK		0x1b0b1
 				MXRT1050_IOMUXC_GPIO_B0_01_LCD_ENABLE		0x1b0b1
