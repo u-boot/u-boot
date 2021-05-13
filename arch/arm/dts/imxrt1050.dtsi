@@ -152,6 +152,8 @@
 			interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clks IMXRT1050_CLK_LCDIF>;
 			clock-names = "per";
+			assigned-clocks = <&clks IMXRT1050_CLK_LCDIF_SEL>;
+			assigned-clock-parents = <&clks IMXRT1050_CLK_PLL5_VIDEO>;
 			status = "disabled";
 		};
 
