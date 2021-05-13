@@ -154,5 +154,13 @@
 			clock-names = "per";
 			status = "disabled";
 		};
+
+		gpt1: gpt1@401ec000 {
+			compatible = "fsl,imxrt-gpt";
+			reg = <0x401ec000 0x4000>;
+			interrupts = <100>;
+			clocks = <&osc>;
+			status = "disabled";
+		};
 	};
 };
