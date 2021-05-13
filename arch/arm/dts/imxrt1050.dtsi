@@ -150,8 +150,9 @@
 			compatible = "fsl,imxrt-lcdif";
 			reg = <0x402b8000 0x4000>;
 			interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&clks IMXRT1050_CLK_LCDIF>;
-			clock-names = "per";
+			clocks = <&clks IMXRT1050_CLK_LCDIF_PIX>,
+				 <&clks IMXRT1050_CLK_LCDIF_APB>;
+			clock-names = "pix", "axi";
 			assigned-clocks = <&clks IMXRT1050_CLK_LCDIF_SEL>;
 			assigned-clock-parents = <&clks IMXRT1050_CLK_PLL5_VIDEO>;
 			status = "disabled";
