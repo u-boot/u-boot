@@ -439,6 +439,9 @@ config CRC32C
 config XXHASH
 	bool
 
+config HASH_CALCULATE
+	bool
+
 endmenu
 
 menu "Compression Support"
