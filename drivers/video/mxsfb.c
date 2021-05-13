@@ -98,6 +98,17 @@ static void mxs_lcd_init(struct udevice *dev, u32 fb_addr,
 			return;
 		}
 	}
+
+	ret = clk_get_by_name(dev, "disp_axi", &clk);
+	if (!ret) {
+		debug("%s: Failed to get mxs disp_axi clk: %d\n", __func__, ret);
+	} else {
+		ret = clk_enable(&clk);
+		if (ret < 0) {
+			dev_err(dev, "Failed to enable mxs disp_axi clk: %d\n", ret);
+			return;
+		}
+	}
 #else
 	/* Kick in the LCDIF clock */
 	mxs_set_lcdclk(MXS_LCDIF_BASE, timings->pixelclock.typ / 1000);
