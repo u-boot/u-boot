@@ -10,6 +10,10 @@
 	};
 };
 
+&gpt1 {
+	u-boot,dm-spl;
+};
+
 &lpuart1 { /* console */
 	u-boot,dm-spl;
 };
