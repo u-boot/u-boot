@@ -6,6 +6,7 @@ else
 dtb-$(CONFIG_SANDBOX) += sandbox.dtb
 endif
 dtb-$(CONFIG_UT_DM) += test.dtb
+dtb-$(CONFIG_CMD_EXTENSION) += overlay0.dtbo overlay1.dtbo
 
 targets += $(dtb-y)
 

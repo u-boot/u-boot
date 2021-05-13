@@ -124,6 +124,14 @@ static struct module_pin_mux i2c1_pin_mux[] = {
 	{-1},
 };
 
+static struct module_pin_mux i2c2_pin_mux[] = {
+	{OFFSET(uart1_ctsn), (MODE(3) | RXACTIVE |
+			PULLUDEN | PULLUP_EN | SLEWCTRL)},	/* I2C_DATA */
+	{OFFSET(uart1_rtsn), (MODE(3) | RXACTIVE |
+			PULLUDEN | PULLUP_EN | SLEWCTRL)},	/* I2C_SCLK */
+	{-1},
+};
+
 static struct module_pin_mux spi0_pin_mux[] = {
 	{OFFSET(spi0_sclk), (MODE(0) | RXACTIVE | PULLUDEN)},	/* SPI0_SCLK */
 	{OFFSET(spi0_d0), (MODE(0) | RXACTIVE |
@@ -308,6 +316,11 @@ void enable_i2c0_pin_mux(void)
 	configure_module_pin_mux(i2c0_pin_mux);
 }
 
+void enable_i2c2_pin_mux(void)
+{
+	configure_module_pin_mux(i2c2_pin_mux);
+}
+
 /*
  * The AM335x GP EVM, if daughter card(s) are connected, can have 8
  * different profiles.  These profiles determine what peripherals are
@@ -367,6 +380,7 @@ void enable_board_pin_mux(void)
 #else
 		configure_module_pin_mux(mmc1_pin_mux);
 #endif
+		configure_module_pin_mux(i2c2_pin_mux);
 	} else if (board_is_gp_evm()) {
 		/* General Purpose EVM */
 		unsigned short profile = detect_daughter_board_profile();
@@ -411,6 +425,7 @@ void enable_board_pin_mux(void)
 #else
 		configure_module_pin_mux(mmc1_pin_mux);
 #endif
+		configure_module_pin_mux(i2c2_pin_mux);
 	} else if (board_is_pb()) {
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);

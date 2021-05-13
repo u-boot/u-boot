@@ -332,6 +332,18 @@ config CMD_FDT
 	help
 	  Do FDT related setup before booting into the Operating System.
 
+config SUPPORT_EXTENSION_SCAN
+	bool
+
+config CMD_EXTENSION
+	bool "Extension board management command"
+	select CMD_FDT
+	depends on SUPPORT_EXTENSION_SCAN
+	help
+	  Enables the "extension" command, which allows to detect
+	  extension boards connected to the system, and apply
+	  corresponding Device Tree overlays.
+
 config CMD_GO
 	bool "go"
 	default y

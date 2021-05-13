@@ -15,6 +15,23 @@ struct udevice;
 #define W1_FAMILY_DS2502	0x09
 #define W1_FAMILY_EEP_SANDBOX	0xfe
 
+struct w1_driver_entry {
+	struct driver	*driver;
+	u8		*family;
+};
+
+/* U_BOOT_W1_DEVICE() tells U-Boot to create a one-wire device.
+ *
+ * @__name: Device name (C identifier, not a string. E.g. gpio7_at_ff7e0000)
+ * @__driver: Driver name (C identifier, not a string. E.g. gpio7_at_ff7e0000)
+ * @__family: Family code number of the one-wire
+ */
+#define U_BOOT_W1_DEVICE(__name, __family)				\
+	ll_entry_declare(struct w1_driver_entry, __name, w1_driver_entry) = { \
+		.driver = llsym(struct driver, __name, driver),		\
+		.family = __family,					\
+	}
+
 struct w1_device {
 	u64	id;
 };

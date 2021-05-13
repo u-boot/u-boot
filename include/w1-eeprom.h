@@ -27,7 +27,5 @@ int w1_eeprom_read_buf(struct udevice *dev, unsigned int offset,
 
 int w1_eeprom_dm_init(void);
 
-int w1_eeprom_register_new_device(u64 id);
-
 int w1_eeprom_get_id(struct udevice *dev, u64 *id);
 #endif

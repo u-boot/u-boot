@@ -243,3 +243,9 @@ U_BOOT_DRIVER(ds2502) = {
 	.ops		= &ds2502_ops,
 	.probe		= ds2502_probe,
 };
+
+u8 family_supported[] = {
+	W1_FAMILY_DS2502,
+};
+
+U_BOOT_W1_DEVICE(ds2502, family_supported);
