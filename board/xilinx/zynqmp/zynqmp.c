@@ -182,6 +182,11 @@ static const struct {
 		.device = 49,
 		.variants = ZYNQMP_VARIANT_DR,
 	},
+	{
+		.id = 0x046d0093,
+		.device = 67,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
 };
 
 static const struct {
