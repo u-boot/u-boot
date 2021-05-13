@@ -14,7 +14,7 @@ int arch_cpu_init(void)
 {
 	int i;
 
-	struct mpu_region_config imxrt1050_region_config[] = {
+	struct mpu_region_config imxrt_region_config[] = {
 		{ 0x00000000, REGION_0, XN_DIS, PRIV_RW_USR_RW,
 		  STRONG_ORDER, REGION_4GB },
 		{ PHYS_SDRAM, REGION_1, XN_DIS, PRIV_RW_USR_RW,
@@ -29,8 +29,8 @@ int arch_cpu_init(void)
 	 * the whole 4GB address space.
 	 */
 	disable_mpu();
-	for (i = 0; i < ARRAY_SIZE(imxrt1050_region_config); i++)
-		mpu_config(&imxrt1050_region_config[i]);
+	for (i = 0; i < ARRAY_SIZE(imxrt_region_config); i++)
+		mpu_config(&imxrt_region_config[i]);
 	enable_mpu();
 
 	return 0;
