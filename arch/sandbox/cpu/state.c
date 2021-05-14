@@ -78,6 +78,10 @@ static int state_read_file(struct sandbox_state *state, const char *fname)
 err_read:
 	os_close(fd);
 err_open:
+	/*
+	 * tainted scalar, since size is obtained from the file. But we can rely
+	 * on os_malloc() to handle invalid values.
+	 */
 	os_free(state->state_fdt);
 	state->state_fdt = NULL;
 
