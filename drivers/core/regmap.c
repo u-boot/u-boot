@@ -293,6 +293,7 @@ struct regmap *devm_regmap_init(struct udevice *dev,
 	int rc;
 	struct regmap **mapp, *map;
 
+	/* this looks like a leak, but devres takes care of it */
 	mapp = devres_alloc(devm_regmap_release, sizeof(struct regmap *),
 			    __GFP_ZERO);
 	if (unlikely(!mapp))
