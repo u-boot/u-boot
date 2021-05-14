@@ -10,13 +10,13 @@ import pytest
 from capsule_defs import *
 
 #
-# Fixture for UEFI secure boot test
+# Fixture for UEFI capsule test
 #
-
 
 @pytest.fixture(scope='session')
 def efi_capsule_data(request, u_boot_config):
-    """Set up a file system to be used in UEFI capsule test.
+    """Set up a file system to be used in UEFI capsule and
+       authenticaion test.
 
     Args:
         request: Pytest request object.
@@ -40,6 +40,26 @@ def efi_capsule_data(request, u_boot_config):
         check_call('mkdir -p %s' % data_dir, shell=True)
         check_call('mkdir -p %s' % install_dir, shell=True)
 
+        capsule_auth_enabled = u_boot_config.buildconfig.get(
+                    'config_efi_capsule_authenticate')
+        if capsule_auth_enabled:
+            # Create private key (CRT.pem) and certificate (CRT.pub.pem)
+            check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_CRT/ -keyout CRT.key -out CRT.crt -nodes -days 365'
+                       % data_dir, shell=True)
+            check_call('cd %s; %scert-to-efi-sig-list CRT.crt CRT.esl'
+                       % (data_dir, EFITOOLS_PATH), shell=True)
+
+            # Update dtb adding capsule certificate
+            check_call('cd %s; cp %s/test/py/tests/test_efi_capsule/pubkey.dts .'
+                       % (data_dir, u_boot_config.source_dir), shell=True)
+            check_call('cd %s; dtc -@ -I dts -O dtb -o pubkey.dtbo pubkey.dts; fdtoverlay -i %s/arch/sandbox/dts/test.dtb -o test_pubkey.dtb pubkey.dtbo'
+                       % (data_dir, u_boot_config.build_dir), shell=True)
+
+            # Create *malicious* private key (CRT2.pem) and certificate
+            # (CRT2.pub.pem)
+            check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_CRT2/ -keyout CRT2.key -out CRT2.crt -nodes -days 365'
+                       % data_dir, shell=True)
+
         # Create capsule files
         # two regions: one for u-boot.bin and the other for u-boot.env
         check_call('cd %s; echo -n u-boot:Old > u-boot.bin.old; echo -n u-boot:New > u-boot.bin.new; echo -n u-boot-env:Old -> u-boot.env.old; echo -n u-boot-env:New > u-boot.env.new' % data_dir,
@@ -56,6 +76,15 @@ def efi_capsule_data(request, u_boot_config):
         check_call('cd %s; %s/tools/mkeficapsule --raw u-boot.bin.new --index 1 Test02' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
+        if capsule_auth_enabled:
+            # firmware signed with proper key
+            check_call('cd %s; %s/tools/mkeficapsule --raw u-boot.bin.new --index 1 --monotonic-count 1 --private-key CRT.key --certificate CRT.crt Test03' %
+                       (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            # firmware signed with *mal* key
+            check_call('cd %s; %s/tools/mkeficapsule --raw u-boot.bin.new --index 1 --monotonic-count 1 --private-key CRT2.key --certificate CRT2.crt Test04' %
+                       (data_dir, u_boot_config.build_dir),
+                       shell=True)
 
         # Create a disk image with EFI system partition
         check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat %s %s' %
@@ -69,6 +98,7 @@ def efi_capsule_data(request, u_boot_config):
     else:
         yield image_path
     finally:
-        call('rm -rf %s' % mnt_point, shell=True)
-        call('rm -f %s' % image_path, shell=True)
-        call('rm -f ./spi.bin', shell=True)
+        call('echo foo', shell= True);
+        # call('rm -rf %s' % mnt_point, shell=True)
+        # call('rm -f %s' % image_path, shell=True)
+        # call('rm -f ./spi.bin', shell=True)

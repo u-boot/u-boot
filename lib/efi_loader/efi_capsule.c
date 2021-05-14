@@ -14,9 +14,12 @@
 #include <mapmem.h>
 #include <sort.h>
 
+#include <asm/global_data.h>
 #include <crypto/pkcs7.h>
 #include <crypto/pkcs7_parser.h>
 #include <linux/err.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 const efi_guid_t efi_guid_capsule_report = EFI_CAPSULE_REPORT_GUID;
 static const efi_guid_t efi_guid_firmware_management_capsule_id =
@@ -208,15 +211,45 @@ skip:
 const efi_guid_t efi_guid_capsule_root_cert_guid =
 	EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
 
-__weak int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
+#if defined(CONFIG_EFI_PKEY_DTB_EMBED)
+int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
 {
-	/* The platform is supposed to provide
-	 * a method for getting the public key
-	 * stored in the form of efi signature
-	 * list
+	/*
+	 * This is a function for retrieving the public key from the
+	 * platform's device tree. The platform's device tree has been
+	 * concatenated with the u-boot binary.
+	 * If a platform has a different mechanism to get the public
+	 * key, it can define it's own kconfig symbol and define a
+	 * function to retrieve the public key
 	 */
+	const void *fdt_blob = gd->fdt_blob;
+	const void *blob;
+	const char *cnode_name = "capsule-key";
+	const char *snode_name = "signature";
+	int sig_node;
+	int len;
+
+	sig_node = fdt_subnode_offset(fdt_blob, 0, snode_name);
+	if (sig_node < 0) {
+		EFI_PRINT("Unable to get signature node offset\n");
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	blob = fdt_getprop(fdt_blob, sig_node, cnode_name, &len);
+
+	if (!blob || len < 0) {
+		EFI_PRINT("Unable to get capsule-key value\n");
+		*pkey = NULL;
+		*pkey_len = 0;
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	*pkey = (void *)blob;
+	*pkey_len = len;
+
 	return 0;
 }
+#endif /* CONFIG_EFI_PKEY_DTB_EMBED */
 
 efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
 				      void **image, efi_uintn_t *image_size)

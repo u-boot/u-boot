@@ -15,6 +15,7 @@
 #include <efi_api.h>
 #include <image.h>
 #include <pe.h>
+#include <asm/setjmp.h>
 
 struct blk_desc;
 

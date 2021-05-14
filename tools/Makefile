@@ -231,6 +231,10 @@ hostprogs-$(CONFIG_MIPS) += mips-relocs
 hostprogs-$(CONFIG_ASN1_COMPILER)	+= asn1_compiler
 HOSTCFLAGS_asn1_compiler.o = -idirafter $(srctree)/include
 
+ifneq ($(CONFIG_EFI_CAPSULE_AUTHENTICATE),)
+HOSTLDLIBS_mkeficapsule += \
+	$(shell pkg-config --libs libssl libcrypto 2> /dev/null || echo "-lssl -lcrypto")
+endif
 mkeficapsule-objs	:= mkeficapsule.o $(LIBFDT_OBJS)
 hostprogs-$(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) += mkeficapsule
 

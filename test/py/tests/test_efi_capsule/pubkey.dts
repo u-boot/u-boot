@@ -1,0 +1,8 @@
+/dts-v1/;
+/plugin/;
+
+&{/} {
+	signature {
+		capsule-key = /incbin/("CRT.esl");
+	};
+};

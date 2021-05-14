@@ -20,10 +20,6 @@
 #include <charset.h>
 #include <pe.h>
 
-#ifdef CONFIG_EFI_LOADER
-#include <asm/setjmp.h>
-#endif
-
 /* UEFI spec version 2.8 */
 #define EFI_SPECIFICATION_VERSION (2 << 16 | 80)
 
