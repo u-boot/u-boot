@@ -270,8 +270,6 @@ static int setexpr_test_backref(struct unit_test_state *uts)
 	ut_asserteq_str("us this is surely! a test is it? yes us this is indeed! a test",
 			buf);
 
-	/* The following checks fail at present due to a bug in setexpr */
-	return 0;
 	for (i = BUF_SIZE; i < 0x1000; i++) {
 		ut_assertf(buf[i] == (char)i,
 			   "buf byte at %x should be %02x, got %02x)\n",
