@@ -41,9 +41,3 @@ int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
 
 	return 0;
 }
-
-bool efi_capsule_auth_enabled(void)
-{
-	return env_get("capsule_authentication_enabled") != NULL ?
-		true : false;
-}
