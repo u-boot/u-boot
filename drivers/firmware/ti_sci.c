@@ -1588,6 +1588,7 @@ static int ti_sci_cmd_core_reboot(const struct ti_sci_handle *handle)
 		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
+	req.domain = 0;
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret) {
