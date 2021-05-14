@@ -211,7 +211,7 @@ int meson_axg_mipi_pcie_analog_probe(struct udevice *dev)
 {
 	struct phy_meson_axg_mipi_pcie_analog_priv *priv = dev_get_priv(dev);
 
-	priv->regmap = syscon_node_to_regmap(dev_get_parent(dev)->node);
+	priv->regmap = syscon_node_to_regmap(dev_ofnode(dev_get_parent(dev)));
 	if (IS_ERR(priv->regmap))
 		return PTR_ERR(priv->regmap);
 
