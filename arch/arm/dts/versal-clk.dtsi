@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx Versal with PM
  *
- * (C) Copyright 2017 - 2020, Xilinx, Inc.
+ * (C) Copyright 2017 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -44,6 +44,7 @@
 	firmware {
 		versal_firmware: versal-firmware {
 			compatible = "xlnx,versal-firmware";
+			interrupt-parent = <&gic>;
 			u-boot,dm-pre-reloc;
 			method = "smc";
 			#power-domain-cells = <1>;
