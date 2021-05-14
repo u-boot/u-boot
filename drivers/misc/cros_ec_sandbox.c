@@ -5,6 +5,8 @@
  * Copyright (c) 2013 The Chromium OS Authors.
  */
 
+#define LOG_CATEGORY UCLASS_CROS_EC
+
 #include <common.h>
 #include <cros_ec.h>
 #include <dm.h>
@@ -221,11 +223,12 @@ static int keyscan_read_fdt_matrix(struct ec_state *ec, ofnode node)
 	int len;
 
 	cell = ofnode_get_property(node, "linux,keymap", &len);
+	if (!cell)
+		return log_msg_ret("prop", -EINVAL);
 	ec->matrix_count = len / 4;
 	ec->matrix = calloc(ec->matrix_count, sizeof(*ec->matrix));
 	if (!ec->matrix) {
-		debug("%s: Out of memory for key matrix\n", __func__);
-		return -1;
+		return log_msg_ret("mem", -ENOMEM);
 	}
 
 	/* Now read the data */
@@ -243,13 +246,12 @@ static int keyscan_read_fdt_matrix(struct ec_state *ec, ofnode node)
 		    matrix->col >= KEYBOARD_COLS) {
 			debug("%s: Matrix pos out of range (%d,%d)\n",
 			      __func__, matrix->row, matrix->col);
-			return -1;
+			return log_msg_ret("matrix", -ERANGE);
 		}
 	}
 
 	if (upto != ec->matrix_count) {
-		debug("%s: Read mismatch from key matrix\n", __func__);
-		return -1;
+		return log_msg_ret("matrix", -E2BIG);
 	}
 
 	return 0;
