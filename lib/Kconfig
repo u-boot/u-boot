@@ -389,20 +389,31 @@ config SHA384
 	  (digest).
 
 config SHA_HW_ACCEL
-	bool "Enable hashing using hardware"
+	bool "Enable hardware acceleration for SHA hash functions"
 	help
-	  This option enables hardware acceleration for SHA hashing.
-	  This affects the 'hash' command and also the hash_lookup_algo()
-	  function.
+	  This option enables hardware acceleration for the SHA1 and SHA256
+	  hashing algorithms. This affects the 'hash' command and also the
+	  hash_lookup_algo() function.
+
+if SHA_HW_ACCEL
+
+config SHA512_HW_ACCEL
+	bool "Enable hardware acceleration for SHA512"
+	depends on SHA512_ALGO
+	help
+	  This option enables hardware acceleration for the SHA384 and SHA512
+	  hashing algorithms. This affects the 'hash' command and also the
+	  hash_lookup_algo() function.
 
 config SHA_PROG_HW_ACCEL
 	bool "Enable Progressive hashing support using hardware"
-	depends on SHA_HW_ACCEL
 	help
 	  This option enables hardware-acceleration for SHA progressive
 	  hashing.
 	  Data can be streamed in a block at a time and the hashing is
 	  performed in hardware.
+
+endif
 
 config MD5
 	bool "Support MD5 algorithm"
