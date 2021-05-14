@@ -161,7 +161,7 @@ static int sb_eth_raw_of_to_plat(struct udevice *dev)
 
 	ifname = dev_read_string(dev, "host-raw-interface");
 	if (ifname) {
-		strncpy(priv->host_ifname, ifname, IFNAMSIZ);
+		strlcpy(priv->host_ifname, ifname, IFNAMSIZ);
 		printf(": Using %s from DT\n", priv->host_ifname);
 	}
 	if (dev_read_u32(dev, "host-raw-interface-idx",
