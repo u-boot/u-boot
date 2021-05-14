@@ -619,6 +619,18 @@ config TARGET_BRPPT2
           Support
           B&R BRPPT2 platform
           based on Freescale's iMX6 SoC
+
+config TARGET_O4_IMX6ULL_NANO
+	bool "O4-iMX6ULL-NANO"
+	depends on MX6ULL
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	imply CMD_DM
+	help
+	  Support for www.out4.ru O4-iMX6UL-NANO platform
+	  based on Freescale's i.MX6UL/i.MX6ULL SoC.
+
 endchoice
 
 config SYS_SOC
@@ -668,5 +680,6 @@ source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"
 source "board/BuR/brppt2/Kconfig"
+source "board/out4/o4-imx6ull-nano/Kconfig"
 
 endif
