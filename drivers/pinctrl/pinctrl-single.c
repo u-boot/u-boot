@@ -471,6 +471,7 @@ static int single_probe(struct udevice *dev)
 		return -ENOMEM;
 	#endif
 
+	/* looks like a possible divide by 0, but data->width avoids this */
 	priv->npins = size / (pdata->width / BITS_PER_BYTE);
 	if (pdata->bits_per_mux) {
 		if (!pdata->mask) {
