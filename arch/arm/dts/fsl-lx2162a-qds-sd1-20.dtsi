@@ -6,7 +6,7 @@
  *    * Mezzanine card M8 is connected to IO SLOT1
  *        (xlaui4 for DPMAC 1)
  *
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  *
  */
 
@@ -23,4 +23,10 @@
 		compatible = "ethernet-phy-ieee802.3-c45";
 		reg = <0x0>;
 	};
+};
+
+&esdhc1 {
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+	bus-width = <8>;
 };
