@@ -389,5 +389,5 @@ U_BOOT_DRIVER(meson_axg_mipi_dphy) = {
 	.of_match = meson_axg_mipi_dphy_ids,
 	.probe = meson_axg_mipi_dphy_probe,
 	.ops = &meson_axg_mipi_dphy_ops,
-	.priv_auto_alloc_size = sizeof(struct phy_meson_axg_mipi_dphy_priv),
+	.priv_auto = sizeof(struct phy_meson_axg_mipi_dphy_priv),
 };

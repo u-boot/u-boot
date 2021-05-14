@@ -229,5 +229,5 @@ U_BOOT_DRIVER(meson_axg_mipi_pcie_analog) = {
 	.of_match = meson_axg_mipi_pcie_analog_ids,
 	.probe = meson_axg_mipi_pcie_analog_probe,
 	.ops = &meson_axg_mipi_pcie_analog_ops,
-	.priv_auto_alloc_size = sizeof(struct phy_meson_axg_mipi_pcie_analog_priv),
+	.priv_auto = sizeof(struct phy_meson_axg_mipi_pcie_analog_priv),
 };
