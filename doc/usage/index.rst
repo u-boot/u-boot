@@ -26,6 +26,7 @@ Shell commands
    conitrace
    echo
    exception
+   extension
    exit
    false
    fatinfo
