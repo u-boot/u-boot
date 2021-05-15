@@ -828,12 +828,6 @@ int pci_find_next_ext_capability(struct pci_controller *hose,
 int pci_hose_find_ext_capability(struct pci_controller *hose,
 				 pci_dev_t dev, int cap);
 
-#ifdef CONFIG_PCI_FIXUP_DEV
-extern void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
-				unsigned short vendor,
-				unsigned short device,
-				unsigned short class);
-#endif
 #endif /* !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT) */
 
 const char * pci_class_str(u8 class);
