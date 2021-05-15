@@ -1,21 +1,22 @@
 menuconfig PCI
 	bool "PCI support"
+	depends on DM
 	default y if PPC
+	select DM_PCI
 	help
 	  Enable support for PCI (Peripheral Interconnect Bus), a type of bus
 	  used on some devices to allow the CPU to communicate with its
 	  peripherals.
 
-if PCI
-
 config DM_PCI
-	bool "Enable driver model for PCI"
-	depends on DM
+	bool
 	help
 	  Use driver model for PCI. Driver model is the new method for
 	  orgnising devices in U-Boot. For PCI, driver model keeps track of
 	  available PCI devices, allows scanning of PCI buses and provides
 	  device configuration support.
+
+if PCI
 
 config DM_PCI_COMPAT
 	bool "Enable compatible functions for PCI"
