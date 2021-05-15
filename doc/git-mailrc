@@ -99,7 +99,6 @@ alias ppc            powerpc
 alias mpc8xx         uboot, wd, Christophe Leroy <christophe.leroy@c-s.fr>
 alias mpc83xx        uboot, mariosix
 alias mpc85xx        uboot, afleming, priyankajain
-alias mpc86xx        uboot, afleming, priyankajain
 
 alias sandbox        sjg
 alias sb             sandbox

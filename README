@@ -423,8 +423,7 @@ The following options need to be configured:
 
 		CONFIG_SYS_FSL_DDR
 		Freescale DDR driver in use. This type of DDR controller is
-		found in mpc83xx, mpc85xx, mpc86xx as well as some ARM core
-		SoCs.
+		found in mpc83xx, mpc85xx as well as some ARM core SoCs.
 
 		CONFIG_SYS_FSL_DDR_ADDR
 		Freescale DDR memory-mapped register base.
