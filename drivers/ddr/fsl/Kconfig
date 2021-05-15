@@ -41,7 +41,6 @@ config SYS_NUM_DDR_CTLRS
 			ARCH_T4240
 	default 2 if	ARCH_B4860	|| \
 			ARCH_BSC9132	|| \
-			ARCH_MPC8572	|| \
 			ARCH_MPC8641	|| \
 			ARCH_P4080	|| \
 			ARCH_P5040	|| \

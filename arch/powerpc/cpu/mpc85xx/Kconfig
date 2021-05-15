@@ -185,20 +185,6 @@ config TARGET_KMCENT2
 	bool "Support kmcent2"
 	select VENDOR_KM
 
-config TARGET_XPEDITE520X
-	bool "Support xpedite520x"
-	select ARCH_MPC8548
-
-config TARGET_XPEDITE537X
-	bool "Support xpedite537x"
-	select ARCH_MPC8572
-# Use DDR3 controller with DDR2 DIMMs on this board
-	select SYS_FSL_DDRC_GEN3
-
-config TARGET_XPEDITE550X
-	bool "Support xpedite550x"
-	select ARCH_P2020
-
 config TARGET_UCP1020
 	bool "Support uCP1020"
 	select ARCH_P1020
@@ -373,23 +359,6 @@ config ARCH_MPC8560
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_DDR1
-
-config ARCH_MPC8572
-	bool
-	select FSL_LAW
-	select SYS_FSL_ERRATUM_A004508
-	select SYS_FSL_ERRATUM_A005125
-	select SYS_FSL_ERRATUM_DDR_115
-	select SYS_FSL_ERRATUM_DDR111_DDR134
-	select FSL_PCIE_RESET
-	select SYS_FSL_HAS_DDR2
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_2
-	select SYS_PPC_E500_USE_DEBUG_TLB
-	select FSL_ELBC
-	imply CMD_NAND
 
 config ARCH_P1010
 	bool
@@ -865,7 +834,6 @@ config MAX_CPUS
 		     ARCH_T2080
 	default 2 if ARCH_B4420 || \
 		     ARCH_BSC9132 || \
-		     ARCH_MPC8572 || \
 		     ARCH_P1020 || \
 		     ARCH_P1021 || \
 		     ARCH_P1023 || \
@@ -891,7 +859,6 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_MPC8544	|| \
 				ARCH_MPC8548	|| \
 				ARCH_MPC8560	|| \
-				ARCH_MPC8572	|| \
 				ARCH_P1010	|| \
 				ARCH_P1011	|| \
 				ARCH_P1020	|| \
@@ -1104,7 +1071,6 @@ config SYS_FSL_NUM_LAWS
 			ARCH_BSC9132	|| \
 			ARCH_C29X	|| \
 			ARCH_MPC8536	|| \
-			ARCH_MPC8572	|| \
 			ARCH_P1010	|| \
 			ARCH_P1011	|| \
 			ARCH_P1020	|| \
@@ -1151,8 +1117,7 @@ config SYS_PPC_E500_DEBUG_TLB
 	depends on SYS_PPC_E500_USE_DEBUG_TLB
 	default 0 if	ARCH_MPC8544 || ARCH_MPC8548
 	default 1 if	ARCH_MPC8536
-	default 2 if	ARCH_MPC8572	|| \
-			ARCH_P1011	|| \
+	default 2 if	ARCH_P1011	|| \
 			ARCH_P1020	|| \
 			ARCH_P1021	|| \
 			ARCH_P1024	|| \
@@ -1216,9 +1181,6 @@ source "board/freescale/t208xrdb/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
 source "board/keymile/Kconfig"
 source "board/socrates/Kconfig"
-source "board/xes/xpedite520x/Kconfig"
-source "board/xes/xpedite537x/Kconfig"
-source "board/xes/xpedite550x/Kconfig"
 source "board/Arcturus/ucp1020/Kconfig"
 
 endmenu
