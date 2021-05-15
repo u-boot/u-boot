@@ -8,11 +8,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_MPC832XEMDS
-	bool "Support MPC832XEMDS"
-	select ARCH_MPC832X
-	select BOARD_EARLY_INIT_F
-
 config TARGET_MPC8349EMDS
 	bool "Support MPC8349EMDS"
 	select ARCH_MPC8349
@@ -248,7 +243,6 @@ endmenu
 config FSL_ELBC
 	bool
 
-source "board/freescale/mpc832xemds/Kconfig"
 source "board/freescale/mpc8349emds/Kconfig"
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
