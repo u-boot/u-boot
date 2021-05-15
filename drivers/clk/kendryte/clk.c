@@ -347,9 +347,7 @@ static const struct k210_comp_params k210_comps[] = {
 #undef COMP_NOMUX_ID
 #undef COMP_LIST
 
-static struct clk *k210_bypass_children = {
-	NULL,
-};
+static struct clk *k210_bypass_children __section(.data);
 
 /* Helper functions to create sub-clocks */
 static struct clk_mux *k210_create_mux(const struct k210_mux_params *params,
@@ -475,7 +473,14 @@ cleanup_mux:
 	return comp;
 }
 
-static bool probed;
+static bool __section(.data) probed;
+
+/* reset probed so we will probe again post-relocation */
+static int k210_clk_bind(struct udevice *dev)
+{
+	probed = false;
+	return 0;
+}
 
 static int k210_clk_probe(struct udevice *dev)
 {
@@ -528,14 +533,10 @@ static int k210_clk_probe(struct udevice *dev)
 		return -ENOMEM;
 	}
 
-	{
-		const struct k210_pll_params *params = &k210_plls[1];
-
+	pll = k210_create_pll(&k210_plls[1], base);
+	if (pll)
 		clk_dm(K210_CLK_PLL1,
-		       k210_register_pll("pll1", in0, base + params->off,
-					 base + params->lock_off, params->shift,
-					 params->width));
-	}
+		       k210_register_pll_struct("pll1", in0, pll));
 
 	/* PLL2 is muxed, so set up a composite clock */
 	mux = k210_create_mux(&k210_muxes[MUXIFY(K210_CLK_PLL2)], base);
@@ -647,7 +648,7 @@ static int k210_clk_probe(struct udevice *dev)
 
 	/* The MTIME register in CLINT runs at one 50th the CPU clock speed */
 	clk_dm(K210_CLK_CLINT,
-	       clk_register_fixed_factor(NULL, "clint", "cpu", 0, 1, 50));
+	       clk_register_fixed_factor(NULL, "clint", "aclk", 0, 1, 50));
 
 	return 0;
 }
@@ -662,5 +663,6 @@ U_BOOT_DRIVER(k210_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = k210_clk_ids,
 	.ops = &k210_clk_ops,
+	.bind = k210_clk_bind,
 	.probe = k210_clk_probe,
 };

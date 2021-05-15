@@ -86,22 +86,12 @@
 		reg = <0x80000000 0x400000>,
 		      <0x80400000 0x200000>,
 		      <0x80600000 0x200000>;
-		reg-names = "sram0", "sram1", "airam";
+		reg-names = "sram0", "sram1", "aisram";
 		clocks = <&sysclk K210_CLK_SRAM0>,
 			 <&sysclk K210_CLK_SRAM1>,
-			 <&sysclk K210_CLK_PLL1>;
-		clock-names = "sram0", "sram1", "airam";
-	};
-
-	reserved-memory {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges;
-
-		ai_reserved: ai@80600000 {
-			reg = <0x80600000 0x200000>;
-			reusable;
-		};
+			 <&sysclk K210_CLK_AI>;
+		clock-names = "sram0", "sram1", "aisram";
+		u-boot,dm-pre-reloc;
 	};
 
 	clocks {
@@ -109,6 +99,7 @@
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <26000000>;
+			u-boot,dm-pre-reloc;
 		};
 	};
 
@@ -177,7 +168,6 @@
 			reg = <0x40800000 0xc00000>;
 			interrupts = <25>;
 			clocks = <&sysclk K210_CLK_AI>;
-			memory-region = <&ai_reserved>;
 			status = "disabled";
 		};
 
@@ -505,11 +495,13 @@
 					     "syscon", "simple-mfd";
 				reg = <0x50440000 0x100>;
 				reg-io-width = <4>;
+				u-boot,dm-pre-reloc;
 
 				sysclk: clock-controller {
 					#clock-cells = <1>;
 					compatible = "kendryte,k210-clk";
 					clocks = <&in0>;
+					u-boot,dm-pre-reloc;
 				};
 
 				sysrst: reset-controller {

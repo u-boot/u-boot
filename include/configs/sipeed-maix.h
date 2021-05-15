@@ -15,8 +15,7 @@
 #define CONFIG_SYS_CACHELINE_SIZE 64
 
 #define CONFIG_SYS_SDRAM_BASE 0x80000000
-/* Don't relocate into AI ram since it isn't set up yet */
-#define CONFIG_SYS_SDRAM_SIZE (SZ_4M + SZ_2M)
+#define CONFIG_SYS_SDRAM_SIZE SZ_8M
 
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \

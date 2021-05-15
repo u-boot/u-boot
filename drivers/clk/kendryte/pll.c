@@ -512,7 +512,8 @@ static int k210_pll_enable(struct clk *clk)
 	struct k210_pll *pll = to_k210_pll(clk);
 	u32 reg = readl(pll->reg);
 
-	if ((reg | K210_PLL_PWRD) && !(reg | K210_PLL_RESET))
+	if ((reg & K210_PLL_PWRD) && (reg & K210_PLL_EN) &&
+	    !(reg & K210_PLL_RESET))
 		return 0;
 
 	reg |= K210_PLL_PWRD;
@@ -531,6 +532,7 @@ static int k210_pll_enable(struct clk *clk)
 	k210_pll_waitfor_lock(pll);
 
 	reg &= ~K210_PLL_BYPASS;
+	reg |= K210_PLL_EN;
 	writel(reg, pll->reg);
 
 	return 0;
@@ -550,6 +552,7 @@ static int k210_pll_disable(struct clk *clk)
 	writel(reg, pll->reg);
 
 	reg &= ~K210_PLL_PWRD;
+	reg &= ~K210_PLL_EN;
 	writel(reg, pll->reg);
 	return 0;
 }
@@ -572,27 +575,6 @@ struct clk *k210_register_pll_struct(const char *name, const char *parent_name,
 	ret = clk_register(clk, CLK_K210_PLL, name, parent_name);
 	if (ret)
 		return ERR_PTR(ret);
-	return clk;
-}
-
-struct clk *k210_register_pll(const char *name, const char *parent_name,
-			      void __iomem *reg, void __iomem *lock, u8 shift,
-			      u8 width)
-{
-	struct clk *clk;
-	struct k210_pll *pll;
-
-	pll = kzalloc(sizeof(*pll), GFP_KERNEL);
-	if (!pll)
-		return ERR_PTR(-ENOMEM);
-	pll->reg = reg;
-	pll->lock = lock;
-	pll->shift = shift;
-	pll->width = width;
-
-	clk = k210_register_pll_struct(name, parent_name, pll);
-	if (IS_ERR(clk))
-		kfree(pll);
 	return clk;
 }
 
