@@ -8,14 +8,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_VME8349
-	bool "Support vme8349"
-	select ARCH_MPC8349
-
-config TARGET_CADDY2
-	bool "Support caddy2"
-	select ARCH_MPC8349
-
 config TARGET_MPC8315ERDB
 	bool "Support MPC8315ERDB"
 	select ARCH_MPC8315
@@ -278,7 +270,6 @@ endmenu
 config FSL_ELBC
 	bool
 
-source "board/esd/vme8349/Kconfig"
 source "board/freescale/mpc8315erdb/Kconfig"
 source "board/freescale/mpc8323erdb/Kconfig"
 source "board/freescale/mpc832xemds/Kconfig"
