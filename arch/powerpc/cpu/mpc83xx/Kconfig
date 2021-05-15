@@ -8,11 +8,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_MPC8315ERDB
-	bool "Support MPC8315ERDB"
-	select ARCH_MPC8315
-	select BOARD_EARLY_INIT_F
-
 config TARGET_MPC8323ERDB
 	bool "Support MPC8323ERDB"
 	select ARCH_MPC832X
@@ -175,14 +170,6 @@ config ARCH_MPC8313
 	select MPC83XX_SECOND_I2C_SUPPORT
 	select FSL_ELBC
 
-config ARCH_MPC8315
-	bool
-	select ARCH_MPC831X
-	select MPC83XX_PCIE1_SUPPORT
-	select MPC83XX_PCIE2_SUPPORT
-	select MPC83XX_SATA_SUPPORT
-	select FSL_ELBC
-
 config ARCH_MPC832X
 	bool
 	select MPC83XX_QUICC_ENGINE
@@ -265,7 +252,6 @@ endmenu
 config FSL_ELBC
 	bool
 
-source "board/freescale/mpc8315erdb/Kconfig"
 source "board/freescale/mpc8323erdb/Kconfig"
 source "board/freescale/mpc832xemds/Kconfig"
 source "board/freescale/mpc8349emds/Kconfig"
