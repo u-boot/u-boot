@@ -49,11 +49,6 @@ config TARGET_MPC8548CDS
 	select ARCH_MPC8548
 	select FSL_VIA
 
-config TARGET_MPC8555CDS
-	bool "Support MPC8555CDS"
-	select ARCH_MPC8555
-	select FSL_VIA
-
 config TARGET_MPC8568MDS
 	bool "Support MPC8568MDS"
 	select ARCH_MPC8568
@@ -387,14 +382,6 @@ config ARCH_MPC8548
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	imply CMD_REGINFO
-
-config ARCH_MPC8555
-	bool
-	select FSL_LAW
-	select SYS_FSL_HAS_DDR1
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_2
 
 config ARCH_MPC8560
 	bool
@@ -948,7 +935,6 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_MPC8540	|| \
 				ARCH_MPC8544	|| \
 				ARCH_MPC8548	|| \
-				ARCH_MPC8555	|| \
 				ARCH_MPC8560	|| \
 				ARCH_MPC8568	|| \
 				ARCH_MPC8572	|| \
@@ -1179,7 +1165,6 @@ config SYS_FSL_NUM_LAWS
 			ARCH_MPC8548	|| \
 			ARCH_MPC8568
 	default 8 if	ARCH_MPC8540	|| \
-			ARCH_MPC8555	|| \
 			ARCH_MPC8560
 	help
 		Number of local access windows. This is fixed per SoC.
@@ -1253,7 +1238,7 @@ config SYS_FSL_LBC_CLK_DIV
 	int "Divider of platform clock"
 	depends on FSL_ELBC || ARCH_MPC8540 || \
 		ARCH_MPC8548 || \
-		ARCH_MPC8555 || ARCH_MPC8560 || \
+		ARCH_MPC8560 || \
 		ARCH_MPC8568
 
 	default 2 if	ARCH_P2041	|| \
@@ -1272,7 +1257,6 @@ config FSL_VIA
 source "board/emulation/qemu-ppce500/Kconfig"
 source "board/freescale/corenet_ds/Kconfig"
 source "board/freescale/mpc8548cds/Kconfig"
-source "board/freescale/mpc8555cds/Kconfig"
 source "board/freescale/mpc8568mds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"

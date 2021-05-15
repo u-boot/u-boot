@@ -120,29 +120,6 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 
 	pci_register_hose(hose);
 
-#if defined(CONFIG_TARGET_MPC8555CDS)
-	/*
-	 * This is a SW workaround for an apparent HW problem
-	 * in the PCI controller on the MPC85555/41 CDS boards.
-	 * The first config cycle must be to a valid, known
-	 * device on the PCI bus in order to trick the PCI
-	 * controller state machine into a known valid state.
-	 * Without this, the first config cycle has the chance
-	 * of hanging the controller permanently, just leaving
-	 * it in a semi-working state, or leaving it working.
-	 *
-	 * Pick on the Tundra, Device 17, to get it right.
-	 */
-	{
-		u8 header_type;
-
-		pci_hose_read_config_byte(hose,
-					  PCI_BDF(0,BRIDGE_ID,0),
-					  PCI_HEADER_TYPE,
-					  &header_type);
-	}
-#endif
-
 	hose->last_busno = pci_hose_scan(hose);
 
 #ifdef CONFIG_MPC85XX_PCI2
