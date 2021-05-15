@@ -59,11 +59,18 @@ static int dwmac_setup_axg(struct udevice *dev, struct eth_pdata *edata)
 	switch (edata->phy_interface) {
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
 		/* Set RGMII mode */
 		setbits_le32(plat->regs + ETH_REG_0, AXG_ETH_REG_0_PHY_INTF_RGMII |
 						     AXG_ETH_REG_0_TX_PHASE(1) |
+						     AXG_ETH_REG_0_TX_RATIO(4) |
+						     AXG_ETH_REG_0_PHY_CLK_EN |
+						     AXG_ETH_REG_0_CLK_EN);
+		break;
+
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		/* TOFIX: handle amlogic,tx-delay-ns & rx-internal-delay-ps from DT */
+		setbits_le32(plat->regs + ETH_REG_0, AXG_ETH_REG_0_PHY_INTF_RGMII |
 						     AXG_ETH_REG_0_TX_RATIO(4) |
 						     AXG_ETH_REG_0_PHY_CLK_EN |
 						     AXG_ETH_REG_0_CLK_EN);
@@ -90,11 +97,19 @@ static int dwmac_setup_gx(struct udevice *dev, struct eth_pdata *edata)
 	switch (edata->phy_interface) {
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
 		/* Set RGMII mode */
 		setbits_le32(plat->regs + ETH_REG_0, GX_ETH_REG_0_PHY_INTF |
 						     GX_ETH_REG_0_TX_PHASE(1) |
+						     GX_ETH_REG_0_TX_RATIO(4) |
+						     GX_ETH_REG_0_PHY_CLK_EN |
+						     GX_ETH_REG_0_CLK_EN);
+
+		break;
+
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		/* TOFIX: handle amlogic,tx-delay-ns & rx-internal-delay-ps from DT */
+		setbits_le32(plat->regs + ETH_REG_0, GX_ETH_REG_0_PHY_INTF |
 						     GX_ETH_REG_0_TX_RATIO(4) |
 						     GX_ETH_REG_0_PHY_CLK_EN |
 						     GX_ETH_REG_0_CLK_EN);
@@ -133,6 +148,7 @@ static int dwmac_meson8b_probe(struct udevice *dev)
 
 static const struct udevice_id dwmac_meson8b_ids[] = {
 	{ .compatible = "amlogic,meson-gxbb-dwmac", .data = (ulong)dwmac_setup_gx },
+	{ .compatible = "amlogic,meson-g12a-dwmac", .data = (ulong)dwmac_setup_axg },
 	{ .compatible = "amlogic,meson-axg-dwmac", .data = (ulong)dwmac_setup_axg },
 	{ }
 };
