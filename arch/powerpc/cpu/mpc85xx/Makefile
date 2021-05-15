@@ -47,7 +47,6 @@ obj-$(CONFIG_ARCH_B4420) += b4860_ids.o
 obj-$(CONFIG_ARCH_B4860) += b4860_ids.o
 obj-$(CONFIG_ARCH_T1040) += t1040_ids.o
 obj-$(CONFIG_ARCH_T1042)	+= t1040_ids.o
-obj-$(CONFIG_ARCH_T1023) += t1024_ids.o
 obj-$(CONFIG_ARCH_T1024) += t1024_ids.o
 obj-$(CONFIG_ARCH_T2080) += t2080_ids.o
 
@@ -83,7 +82,6 @@ obj-$(CONFIG_ARCH_B4860) += b4860_serdes.o
 obj-$(CONFIG_ARCH_BSC9132) += bsc9132_serdes.o
 obj-$(CONFIG_ARCH_T1040) += t1040_serdes.o
 obj-$(CONFIG_ARCH_T1042)	+= t1040_serdes.o
-obj-$(CONFIG_ARCH_T1023) += t1024_serdes.o
 obj-$(CONFIG_ARCH_T1024) += t1024_serdes.o
 obj-$(CONFIG_ARCH_T2080) += t2080_serdes.o
 

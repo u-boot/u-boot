@@ -313,7 +313,7 @@
 #define QE_NUM_OF_SNUM			28
 #define CONFIG_SYS_FSL_SFP_VER_3_0
 
-#elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
+#elif defined(CONFIG_ARCH_T1024)
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET	     /* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 1
