@@ -12,10 +12,6 @@ config TARGET_MPC8308_P1M
 	bool "Support mpc8308_p1m"
 	select ARCH_MPC8308
 
-config TARGET_SBC8349
-	bool "Support sbc8349"
-	select ARCH_MPC8349
-
 config TARGET_VE8313
 	bool "Support ve8313"
 	select ARCH_MPC8313
@@ -312,7 +308,6 @@ source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
 source "board/keymile/Kconfig"
 source "board/mpc8308_p1m/Kconfig"
-source "board/sbc8349/Kconfig"
 source "board/tqc/tqm834x/Kconfig"
 source "board/ve8313/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
