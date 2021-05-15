@@ -89,11 +89,6 @@ config TARGET_KMTEPR2
 	select VENDOR_KM
 	select KM_ENABLE_FULL_DM_DTS_SUPPORT
 
-config TARGET_TQM834X
-	bool "Support TQM834x"
-	select ARCH_MPC8349
-
-
 config TARGET_GAZERBEAM
 	bool "Support gazerbeam"
 	select ARCH_MPC8308
@@ -277,7 +272,6 @@ source "board/freescale/mpc8349emds/Kconfig"
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
 source "board/keymile/Kconfig"
-source "board/tqc/tqm834x/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
 
 endmenu
