@@ -16,10 +16,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_SBC8548
-	bool "Support sbc8548"
-	select ARCH_MPC8548
-
 config TARGET_SOCRATES
 	bool "Support socrates"
 	select ARCH_MPC8544
@@ -1303,7 +1299,6 @@ source "board/freescale/t208xqds/Kconfig"
 source "board/freescale/t208xrdb/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
 source "board/keymile/Kconfig"
-source "board/sbc8548/Kconfig"
 source "board/socrates/Kconfig"
 source "board/xes/xpedite520x/Kconfig"
 source "board/xes/xpedite537x/Kconfig"
