@@ -8,10 +8,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_VE8313
-	bool "Support ve8313"
-	select ARCH_MPC8313
-
 config TARGET_VME8349
 	bool "Support vme8349"
 	select ARCH_MPC8349
@@ -304,7 +300,6 @@ source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
 source "board/keymile/Kconfig"
 source "board/tqc/tqm834x/Kconfig"
-source "board/ve8313/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
 
 endmenu
