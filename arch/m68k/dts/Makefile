@@ -39,14 +39,6 @@ dtb-$(CONFIG_TARGET_M5475EVB) += M5475AFE.dtb \
 	M5475EFE.dtb \
 	M5475FFE.dtb \
 	M5475GFE.dtb
-dtb-$(CONFIG_TARGET_M5485EVB) += M5485AFE.dtb \
-	M5485BFE.dtb \
-	M5485CFE.dtb \
-	M5485DFE.dtb \
-	M5485EFE.dtb \
-	M5485FFE.dtb \
-	M5485GFE.dtb \
-	M5485HFE.dtb
 
 targets += $(dtb-y)
 

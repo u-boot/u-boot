@@ -141,10 +141,6 @@ config M547x
 	bool
 	select MCF547x_8x
 
-config M548x
-	bool
-	select MCF547x_8x
-
 choice
 	prompt "Target select"
 	optional
@@ -221,10 +217,6 @@ config TARGET_M5475EVB
 	bool "Support M5475EVB"
 	select M547x
 
-config TARGET_M5485EVB
-	bool "Support M5485EVB"
-	select M548x
-
 config TARGET_AMCORE
 	bool "Support AMCORE"
 	select M5307
@@ -253,7 +245,6 @@ source "board/freescale/m54418twr/Kconfig"
 source "board/freescale/m54451evb/Kconfig"
 source "board/freescale/m54455evb/Kconfig"
 source "board/freescale/m547xevb/Kconfig"
-source "board/freescale/m548xevb/Kconfig"
 source "board/sysam/amcore/Kconfig"
 source "board/sysam/stmark2/Kconfig"
 
