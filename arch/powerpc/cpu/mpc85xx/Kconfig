@@ -49,10 +49,6 @@ config TARGET_MPC8548CDS
 	select ARCH_MPC8548
 	select FSL_VIA
 
-config TARGET_MPC8568MDS
-	bool "Support MPC8568MDS"
-	select ARCH_MPC8568
-
 config TARGET_P1010RDB_PA
 	bool "Support P1010RDB_PA"
 	select ARCH_P1010
@@ -377,15 +373,6 @@ config ARCH_MPC8560
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_DDR1
-
-config ARCH_MPC8568
-	bool
-	select FSL_LAW
-	select FSL_PCIE_RESET
-	select SYS_FSL_HAS_DDR2
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_2
 
 config ARCH_MPC8572
 	bool
@@ -904,7 +891,6 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_MPC8544	|| \
 				ARCH_MPC8548	|| \
 				ARCH_MPC8560	|| \
-				ARCH_MPC8568	|| \
 				ARCH_MPC8572	|| \
 				ARCH_P1010	|| \
 				ARCH_P1011	|| \
@@ -1128,8 +1114,7 @@ config SYS_FSL_NUM_LAWS
 			ARCH_P1025	|| \
 			ARCH_P2020
 	default 10 if	ARCH_MPC8544	|| \
-			ARCH_MPC8548	|| \
-			ARCH_MPC8568
+			ARCH_MPC8548
 	default 8 if	ARCH_MPC8540	|| \
 			ARCH_MPC8560
 	help
@@ -1203,8 +1188,7 @@ config SYS_FSL_LBC_CLK_DIV
 	int "Divider of platform clock"
 	depends on FSL_ELBC || ARCH_MPC8540 || \
 		ARCH_MPC8548 || \
-		ARCH_MPC8560 || \
-		ARCH_MPC8568
+		ARCH_MPC8560
 
 	default 2 if	ARCH_P2041	|| \
 			ARCH_P3041	|| \
@@ -1222,7 +1206,6 @@ config FSL_VIA
 source "board/emulation/qemu-ppce500/Kconfig"
 source "board/freescale/corenet_ds/Kconfig"
 source "board/freescale/mpc8548cds/Kconfig"
-source "board/freescale/mpc8568mds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
