@@ -530,7 +530,8 @@ ulong write_smbios_table(ulong addr)
 		 */
 		printf("WARNING: SMBIOS table_address overflow %llx\n",
 		       (unsigned long long)table_addr);
-		table_addr = 0;
+		addr = 0;
+		goto out;
 	}
 	se->struct_table_address = table_addr;
 
@@ -541,6 +542,7 @@ ulong write_smbios_table(ulong addr)
 	isize = sizeof(struct smbios_entry) - SMBIOS_INTERMEDIATE_OFFSET;
 	se->intermediate_checksum = table_compute_checksum(istart, isize);
 	se->checksum = table_compute_checksum(se, sizeof(struct smbios_entry));
+out:
 	unmap_sysmem(se);
 
 	return addr;
