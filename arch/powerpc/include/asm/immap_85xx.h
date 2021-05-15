@@ -124,7 +124,6 @@ typedef struct ccsr_i2c {
 } ccsr_i2c_t;
 
 #if defined(CONFIG_ARCH_MPC8540) || \
-	defined(CONFIG_ARCH_MPC8541) || \
 	defined(CONFIG_ARCH_MPC8548) || \
 	defined(CONFIG_ARCH_MPC8555)
 /* DUART Registers */
