@@ -32,13 +32,6 @@ dtb-$(CONFIG_TARGET_M54455EVB) += M54455EVB.dtb \
 	M54455EVB_i66.dtb
 dtb-$(CONFIG_TARGET_AMCORE) += amcore.dtb
 dtb-$(CONFIG_TARGET_STMARK2) += stmark2.dtb
-dtb-$(CONFIG_TARGET_M5475EVB) += M5475AFE.dtb \
-	M5475BFE.dtb \
-	M5475CFE.dtb \
-	M5475DFE.dtb \
-	M5475EFE.dtb \
-	M5475FFE.dtb \
-	M5475GFE.dtb
 
 targets += $(dtb-y)
 

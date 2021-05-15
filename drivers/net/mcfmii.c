@@ -11,11 +11,7 @@
 #include <asm/global_data.h>
 #include <linux/delay.h>
 
-#ifdef CONFIG_MCF547x_8x
-#include <asm/fsl_mcdmafec.h>
-#else
 #include <asm/fec.h>
-#endif
 #include <asm/immap.h>
 #include <linux/mii.h>
 

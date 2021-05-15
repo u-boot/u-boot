@@ -337,13 +337,8 @@ typedef struct fec {
 #define	FEC_RESET_DELAY			100
 #define FEC_RX_TOUT			100
 
-#ifdef CONFIG_MCF547x_8x
-typedef struct fec_info_dma fec_info_t;
-#define FEC_T fecdma_t
-#else
 typedef struct fec_info_s fec_info_t;
 #define FEC_T fec_t
-#endif
 
 int fecpin_setclear(fec_info_t *info, int setclear);
 int mii_discover_phy(fec_info_t *info);
