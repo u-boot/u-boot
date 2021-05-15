@@ -147,22 +147,6 @@ config TARGET_T1024RDB
 	imply CMD_EEPROM
 	imply PANIC_HANG
 
-config TARGET_T1040RDB
-	bool "Support T1040RDB"
-	select ARCH_T1040
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	imply PANIC_HANG
-
-config TARGET_T1040D4RDB
-	bool "Support T1040D4RDB"
-	select ARCH_T1040
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	imply PANIC_HANG
-
 config TARGET_T1042RDB
 	bool "Support T1042RDB"
 	select ARCH_T1042
