@@ -714,7 +714,11 @@ static int part_get_info_by_dev_and_name(const char *dev_iface,
 	int ret;
 
 	/* Separate device and partition name specification */
-	part_str = strchr(dev_part_str, '#');
+	if (dev_part_str)
+		part_str = strchr(dev_part_str, '#');
+	else
+		part_str = NULL;
+
 	if (part_str) {
 		dup_str = strdup(dev_part_str);
 		dup_str[part_str - dev_part_str] = 0;

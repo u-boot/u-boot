@@ -11,11 +11,25 @@
 #include <dm/test.h>
 #include <test/ut.h>
 
-static int dm_test_part(struct unit_test_state *uts)
+static inline int do_test(struct unit_test_state *uts, int expected,
+			  const char *part_str, bool whole)
 {
-	char str_disk_guid[UUID_STR_LEN + 1];
 	struct blk_desc *mmc_dev_desc;
 	struct disk_partition part_info;
+
+	ut_asserteq(expected,
+		    part_get_info_by_dev_and_name_or_num("mmc", part_str,
+							 &mmc_dev_desc,
+							 &part_info, whole));
+	return 0;
+}
+
+static int dm_test_part(struct unit_test_state *uts)
+{
+	char *oldbootdevice;
+	char str_disk_guid[UUID_STR_LEN + 1];
+	int ret;
+	struct blk_desc *mmc_dev_desc;
 	struct disk_partition parts[2] = {
 		{
 			.start = 48, /* GPT data takes up the first 34 blocks or so */
@@ -38,16 +52,22 @@ static int dm_test_part(struct unit_test_state *uts)
 	ut_assertok(gpt_restore(mmc_dev_desc, str_disk_guid, parts,
 				ARRAY_SIZE(parts)));
 
-#define test(expected, part_str, whole) \
-	ut_asserteq(expected, \
-		    part_get_info_by_dev_and_name_or_num("mmc", part_str, \
-							 &mmc_dev_desc, \
-							 &part_info, whole))
+	oldbootdevice = env_get("bootdevice");
 
+#define test(expected, part_str, whole) do { \
+	ret = do_test(uts, expected, part_str, whole); \
+	if (ret) \
+		goto out; \
+} while (0)
+
+	env_set("bootdevice", NULL);
+	test(-ENODEV, NULL, true);
 	test(-ENODEV, "", true);
 	env_set("bootdevice", "0");
+	test(0, NULL, true);
 	test(0, "", true);
 	env_set("bootdevice", "1");
+	test(1, NULL, false);
 	test(1, "", false);
 	test(1, "-", false);
 	env_set("bootdevice", "");
@@ -70,7 +90,10 @@ static int dm_test_part(struct unit_test_state *uts)
 	test(-EINVAL, "1#bogus", false);
 	test(1, "1#test1", false);
 	test(2, "1#test2", false);
+	ret = 0;
 
-	return 0;
+out:
+	env_set("bootdevice", oldbootdevice);
+	return ret;
 }
 DM_TEST(dm_test_part, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
