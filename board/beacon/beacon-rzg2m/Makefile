@@ -6,4 +6,4 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 
-obj-y	:= beacon-rzg2m.o
+obj-y	:= beacon-rzg2m.o ../../renesas/rcar-common/common.o
