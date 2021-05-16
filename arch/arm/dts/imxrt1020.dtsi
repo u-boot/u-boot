@@ -120,6 +120,17 @@
 			#interrupt-cells = <2>;
 		};
 
+		gpio5: gpio@400c0000 {
+			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
+			reg = <0x400c0000 0x4000>;
+			interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
 		gpt1: gpt1@401ec000 {
 			compatible = "fsl,imxrt-gpt";
 			reg = <0x401ec000 0x4000>;
