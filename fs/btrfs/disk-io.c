@@ -291,7 +291,7 @@ error_out:
 int btrfs_read_dev_super(struct blk_desc *desc, struct disk_partition *part,
 			 struct btrfs_super_block *sb)
 {
-	char tmp[BTRFS_SUPER_INFO_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(char, tmp, BTRFS_SUPER_INFO_SIZE);
 	struct btrfs_super_block *buf = (struct btrfs_super_block *)tmp;
 	int ret;
 
