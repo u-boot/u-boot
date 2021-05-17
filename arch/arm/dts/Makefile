@@ -237,6 +237,12 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
 	armada-xp-theadorable.dtb		\
+	cn9130-db-A.dtb				\
+	cn9130-db-B.dtb				\
+	cn9131-db-A.dtb				\
+	cn9131-db-B.dtb				\
+	cn9132-db-A.dtb				\
+	cn9132-db-B.dtb				\
 	cn9130-crb-A.dtb			\
 	cn9130-crb-B.dtb
 

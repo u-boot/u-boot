@@ -13,8 +13,8 @@
 #include <dm/device-internal.h>
 #include <mvebu/comphy.h>
 
-int rx_training_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char * const argv[])
+int mvebu_comphy_rx_training_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+				 char * const argv[])
 {
 	struct udevice *dev;
 	struct uclass *uc;
@@ -51,7 +51,7 @@ int rx_training_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(
-	rx_training, 3, 0, rx_training_cmd,
-	"rx_training <cp id> <comphy id>\n",
-	"\n\tRun RX training sequence, the user must state CP index (0/1) and comphy ID (0/5)"
+	mvebu_comphy_rx_training, 3, 0, mvebu_comphy_rx_training_cmd,
+	"mvebu_comphy_rx_training <cp id> <comphy id>\n",
+	"\n\tRun COMPHY RX training sequence, the user must state CP index (0/1) and comphy ID (0/5)"
 );
