@@ -876,7 +876,7 @@ int sqfs_opendir(const char *filename, struct fs_dir_stream **dirsp)
 	char **token_list = NULL, *path = NULL;
 	u32 *pos_list = NULL;
 
-	dirs = malloc(sizeof(*dirs));
+	dirs = calloc(1, sizeof(*dirs));
 	if (!dirs)
 		return -EINVAL;
 
