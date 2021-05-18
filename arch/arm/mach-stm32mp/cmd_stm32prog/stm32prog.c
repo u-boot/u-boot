@@ -1783,3 +1783,17 @@ void dfu_initiated_callback(struct dfu_entity *dfu)
 		log_debug("dfu offset = 0x%llx\n", dfu->offset);
 	}
 }
+
+void dfu_error_callback(struct dfu_entity *dfu, const char *msg)
+{
+	struct stm32prog_data *data = stm32prog_data;
+
+	if (!stm32prog_data)
+		return;
+
+	if (!stm32prog_data->cur_part)
+		return;
+
+	if (dfu->alt == stm32prog_data->cur_part->alt_id)
+		stm32prog_err(msg);
+}
