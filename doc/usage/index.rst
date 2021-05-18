@@ -26,6 +26,7 @@ Shell commands
    conitrace
    echo
    exception
+   extension
    exit
    false
    fatinfo
@@ -38,6 +39,7 @@ Shell commands
    pstore
    qfw
    sbi
+   size
    true
    scp03
    reset

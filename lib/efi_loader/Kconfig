@@ -174,6 +174,7 @@ config EFI_CAPSULE_AUTHENTICATE
 	select PKCS7_MESSAGE_PARSER
 	select PKCS7_VERIFY
 	select IMAGE_SIGN_INFO
+	select HASH_CALCULATE
 	default n
 	help
 	  Select this option if you want to enable capsule
@@ -300,7 +301,13 @@ config EFI_RNG_PROTOCOL
 
 config EFI_TCG2_PROTOCOL
 	bool "EFI_TCG2_PROTOCOL support"
+	default y
 	depends on TPM_V2
+	select SHA1
+	select SHA256
+	select SHA512_ALGO
+	select SHA384
+	select SHA512
 	help
 	  Provide a EFI_TCG2_PROTOCOL implementation using the TPM hardware
 	  of the platform.
@@ -336,6 +343,7 @@ config EFI_SECURE_BOOT
 	select X509_CERTIFICATE_PARSER
 	select PKCS7_MESSAGE_PARSER
 	select PKCS7_VERIFY
+	select HASH_CALCULATE
 	default n
 	help
 	  Select this option to enable EFI secure boot support.

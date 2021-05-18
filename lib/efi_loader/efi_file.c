@@ -554,7 +554,7 @@ static efi_status_t efi_file_read_int(struct efi_file_handle *this,
 	efi_status_t ret = EFI_SUCCESS;
 	u64 bs;
 
-	if (!this || !buffer_size || !buffer)
+	if (!this || !buffer_size)
 		return EFI_INVALID_PARAMETER;
 
 	bs = *buffer_size;
