@@ -675,6 +675,23 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		return ret;
 	upriv->mmc = host->mmc;
 
+	/*
+	 * Wait for 1000msec till the card detect state gets stable
+	 * else host controller will set sd power bus voltage to 0.
+	 */
+	if (IS_ENABLED(CONFIG_ARCH_VERSAL)) {
+		u32 timeout = 1000;
+
+		while (((sdhci_readl(host, SDHCI_PRESENT_STATE) &
+			 SDHCI_CARD_STATE_STABLE) == 0) && timeout--) {
+			mdelay(1);
+		}
+		if (!timeout) {
+			dev_err(dev, "Sdhci card detect state not stable\n");
+			return -EIO;
+		}
+	}
+
 	return sdhci_probe(dev);
 }
 
