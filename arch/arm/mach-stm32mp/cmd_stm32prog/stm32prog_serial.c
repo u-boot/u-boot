@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <serial.h>
 #include <watchdog.h>
+#include <asm/arch/sys_proto.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <linux/delay.h>
@@ -19,8 +20,7 @@
 /* - configuration part -----------------------------*/
 #define USART_BL_VERSION	0x40	/* USART bootloader version V4.0*/
 #define UBOOT_BL_VERSION	0x03	/* bootloader version V0.3*/
-#define DEVICE_ID_BYTE1		0x05	/* MSB byte of device ID*/
-#define DEVICE_ID_BYTE2		0x00	/* LSB byte of device ID*/
+
 #define USART_RAM_BUFFER_SIZE	256	/* Size of USART_RAM_Buf buffer*/
 
 /* - Commands -----------------------------*/
@@ -436,10 +436,12 @@ static void get_version_command(struct stm32prog_data *data)
  */
 static void get_id_command(struct stm32prog_data *data)
 {
+	u32 cpu = get_cpu_dev();
+
 	/* Send Device IDCode */
 	stm32prog_serial_putc(0x1);
-	stm32prog_serial_putc(DEVICE_ID_BYTE1);
-	stm32prog_serial_putc(DEVICE_ID_BYTE2);
+	stm32prog_serial_putc((cpu >> 8) & 0xFF);
+	stm32prog_serial_putc(cpu & 0xFF);
 	stm32prog_serial_result(ACK_BYTE);
 }
 
