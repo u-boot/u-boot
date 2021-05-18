@@ -45,7 +45,6 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 	bool reset = false;
 	struct image_header_s header;
 	struct stm32prog_data *data;
-	u32 uimage, dtb;
 
 	if (argc < 3 ||  argc > 5)
 		return CMD_RET_USAGE;
@@ -119,21 +118,23 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		goto cleanup;
 	}
 
-	uimage = data->uimage;
-	dtb = data->dtb;
-
 	stm32prog_clean(data);
 	free(stm32prog_data);
 	stm32prog_data = NULL;
 
 	puts("Download done\n");
 
-	if (uimage) {
+	if (data->uimage) {
 		char boot_addr_start[20];
 		char dtb_addr[20];
+		char initrd_addr[40];
 		char *bootm_argv[5] = {
 			"bootm", boot_addr_start, "-", dtb_addr, NULL
 		};
+		u32 uimage = data->uimage;
+		u32 dtb = data->dtb;
+		u32 initrd = data->initrd;
+
 		if (!dtb)
 			bootm_argv[3] = env_get("fdtcontroladdr");
 		else
@@ -142,8 +143,15 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		snprintf(boot_addr_start, sizeof(boot_addr_start) - 1,
 			 "0x%x", uimage);
-		printf("Booting kernel at %s - %s...\n\n\n",
-		       boot_addr_start, bootm_argv[3]);
+
+		if (initrd) {
+			snprintf(initrd_addr, sizeof(initrd_addr) - 1, "0x%x:0x%x",
+				 initrd, data->initrd_size);
+			bootm_argv[2] = initrd_addr;
+		}
+
+		printf("Booting kernel at %s %s %s...\n\n\n",
+		       boot_addr_start, bootm_argv[2], bootm_argv[3]);
 		/* Try bootm for legacy and FIT format image */
 		if (genimg_get_format((void *)uimage) != IMAGE_FORMAT_INVALID)
 			do_bootm(cmdtp, 0, 4, bootm_argv);
