@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2021 Linumiz
+ * Author: Navin Sankar Velliangiri <navin@linumiz.com>
+ */
+
+&pinctrl_uart1 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpmi {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
+
+&usdhc1 {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
+
+&usdhc2 {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
