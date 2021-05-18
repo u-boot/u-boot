@@ -377,6 +377,17 @@ void dfu_initiated_callback(struct dfu_entity *dfu);
  */
 void dfu_flush_callback(struct dfu_entity *dfu);
 
+/**
+ * dfu_error_callback() - weak callback called at the DFU write error
+ *
+ * It is a callback function called by DFU stack after DFU write error.
+ * This function allows to manage some board specific behavior on DFU targets
+ *
+ * @dfu:	pointer to the dfu_entity which cause the error
+ * @msg:	the message of the error
+ */
+void dfu_error_callback(struct dfu_entity *dfu, const char *msg);
+
 int dfu_transaction_initiate(struct dfu_entity *dfu, bool read);
 void dfu_transaction_cleanup(struct dfu_entity *dfu);
 
