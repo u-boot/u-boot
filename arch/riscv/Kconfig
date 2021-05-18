@@ -158,7 +158,14 @@ config DMA_ADDR_T_64BIT
 
 config SIFIVE_CLINT
 	bool
-	depends on RISCV_MMODE || SPL_RISCV_MMODE
+	depends on RISCV_MMODE
+	help
+	  The SiFive CLINT block holds memory-mapped control and status registers
+	  associated with software and timer interrupts.
+
+config SPL_SIFIVE_CLINT
+	bool
+	depends on SPL_RISCV_MMODE
 	help
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
@@ -271,6 +278,8 @@ config STACK_SIZE_SHIFT
 config OF_BOARD_FIXUP
 	default y if OF_SEPARATE && RISCV_SMODE
 
+menu "Use assembly optimized implementation of memory routines"
+
 config USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy"
 	default y
@@ -348,5 +357,7 @@ config TPL_USE_ARCH_MEMSET
 	  Enable the generation of an optimized version of memset.
 	  Such an implementation may be faster under some conditions
 	  but may increase the binary size.
+
+endmenu
 
 endmenu

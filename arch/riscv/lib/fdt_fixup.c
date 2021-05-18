@@ -151,14 +151,17 @@ int arch_fixup_fdt(void *blob)
 	}
 	chosen_offset = fdt_path_offset(blob, "/chosen");
 	if (chosen_offset < 0) {
-		err = fdt_add_subnode(blob, 0, "chosen");
-		if (err < 0) {
+		chosen_offset = fdt_add_subnode(blob, 0, "chosen");
+		if (chosen_offset < 0) {
 			log_err("chosen node cannot be added\n");
-			return err;
+			return chosen_offset;
 		}
 	}
 	/* Overwrite the boot-hartid as U-Boot is the last stage BL */
-	fdt_setprop_u32(blob, chosen_offset, "boot-hartid", gd->arch.boot_hart);
+	err = fdt_setprop_u32(blob, chosen_offset, "boot-hartid",
+			      gd->arch.boot_hart);
+	if (err < 0)
+		return log_msg_ret("could not set boot-hartid", err);
 #endif
 
 	/* Copy the reserved-memory node to the DT used by OS */

@@ -343,7 +343,7 @@ cloned and build for AE350 as below:
         cd opensbi
         make PLATFORM=andes/ae350
 
-Copy OpenSBI FW_DYNAMIC image (build\platform\andes\ae350\firmware\fw_dynamic.bin)
+Copy OpenSBI FW_DYNAMIC image (build/platform/andes/ae350/firmware/fw_dynamic.bin)
 into U-Boot root directory
 
 
@@ -532,4 +532,4 @@ Messages of U-Boot SPL boots Kernel on AE350 board
     Sat Apr  6 23:33:53 CST 2019
     nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
 
-~ #
+    ~ #
