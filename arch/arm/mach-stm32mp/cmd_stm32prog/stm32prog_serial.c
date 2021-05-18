@@ -292,56 +292,6 @@ static void stm32prog_serial_putc(u8 w_byte)
 }
 
 /* Helper function ************************************************/
-
-static u8 stm32prog_header(struct stm32prog_data *data)
-{
-	u8 ret;
-	u8 boot = 0;
-	struct dfu_entity *dfu_entity;
-	u64 size = 0;
-
-	dfu_entity = stm32prog_get_entity(data);
-	if (!dfu_entity)
-		return -ENODEV;
-
-	printf("\nSTM32 download write %s\n", dfu_entity->name);
-
-	/* force cleanup to avoid issue with previous read */
-	dfu_transaction_cleanup(dfu_entity);
-
-	stm32prog_header_check(data->header_data, &data->header);
-
-	/* no stm32 image header : max size is partition size */
-	if (data->header.type != HEADER_STM32IMAGE) {
-		dfu_entity->get_medium_size(dfu_entity, &size);
-		data->header.image_length = size;
-	}
-
-	/**** Flash the header if necessary for boot partition */
-	if (data->phase < PHASE_FIRST_USER)
-		boot = 1;
-
-	/* write header if boot partition */
-	if (boot) {
-		if (ret) {
-			stm32prog_err("invalid header (error %d)", ret);
-		} else {
-			ret = stm32prog_write(data,
-					      (u8 *)data->header_data,
-					      BL_HEADER_SIZE);
-		}
-	} else {
-		if (ret)
-			printf("  partition without checksum\n");
-		ret = 0;
-	}
-
-	free(data->header_data);
-	data->header_data = NULL;
-
-	return ret;
-}
-
 static u8 stm32prog_start(struct stm32prog_data *data, u32 address)
 {
 	u8 ret = 0;
@@ -388,23 +338,6 @@ static u8 stm32prog_start(struct stm32prog_data *data, u32 address)
 		data->dfu_seq = 0;
 
 		printf("\n  received length = 0x%x\n", data->cursor);
-		if (data->header.type == HEADER_STM32IMAGE) {
-			if (data->cursor !=
-			    (data->header.image_length + BL_HEADER_SIZE)) {
-				stm32prog_err("transmission interrupted (length=0x%x expected=0x%x)",
-					      data->cursor,
-					      data->header.image_length +
-					      BL_HEADER_SIZE);
-				return -EIO;
-			}
-			if (data->header.image_checksum != data->checksum) {
-				stm32prog_err("invalid checksum received (0x%x expected 0x%x)",
-					      data->checksum,
-					      data->header.image_checksum);
-				return -EIO;
-			}
-			printf("\n  checksum OK (0x%x)\n", data->checksum);
-		}
 
 		/* update DFU with received flashlayout */
 		if (data->phase == PHASE_FLASHLAYOUT)
@@ -627,14 +560,12 @@ static void download_command(struct stm32prog_data *data)
 	u32 counter = 0x0, codesize = 0x0;
 	u8 *ramaddress = 0;
 	u8 rcv_data = 0x0;
-	struct image_header_s *image_header = &data->header;
 	u32 cursor = data->cursor;
 	long size = 0;
 	u8 operation;
 	u32 packet_number;
 	u32 result = ACK_BYTE;
 	u8 ret;
-	unsigned int i;
 	bool error;
 	int rcv;
 
@@ -668,13 +599,8 @@ static void download_command(struct stm32prog_data *data)
 	if (packet_number == 0) {
 		/* erase: re-initialize the image_header struct */
 		data->packet_number = 0;
-		if (data->header_data)
-			memset(data->header_data, 0, BL_HEADER_SIZE);
-		else
-			data->header_data = calloc(1, BL_HEADER_SIZE);
 		cursor = 0;
 		data->cursor = 0;
-		data->checksum = 0;
 		/*idx = cursor;*/
 	} else {
 		data->packet_number++;
@@ -746,74 +672,27 @@ static void download_command(struct stm32prog_data *data)
 		goto end;
 	}
 
-	/* Update current position in buffer */
-	data->cursor += codesize;
+	switch (operation) {
+	case PHASE_OTP:
+		size = codesize;
+		ret = stm32prog_otp_write(data, cursor, data->buffer, &size);
+		break;
 
-	if (operation == PHASE_OTP) {
-		size = data->cursor - cursor;
-		/* no header for OTP */
-		if (stm32prog_otp_write(data, cursor,
-					data->buffer, &size))
-			result = ABORT_BYTE;
-		goto end;
+	case PHASE_PMIC:
+		size = codesize;
+		ret = stm32prog_pmic_write(data, cursor, data->buffer, &size);
+		break;
+
+	default:
+		ret = stm32prog_write(data, data->buffer, codesize);
+		break;
 	}
 
-	if (operation == PHASE_PMIC) {
-		size = data->cursor - cursor;
-		/* no header for PMIC */
-		if (stm32prog_pmic_write(data, cursor,
-					 data->buffer, &size))
-			result = ABORT_BYTE;
-		goto end;
-	}
-
-	if (cursor < BL_HEADER_SIZE) {
-		/* size = portion of header in this chunck */
-		if (data->cursor >= BL_HEADER_SIZE)
-			size = BL_HEADER_SIZE - cursor;
-		else
-			size = data->cursor - cursor;
-		memcpy((void *)((u32)(data->header_data) + cursor),
-		       data->buffer, size);
-		cursor += size;
-
-		if (cursor == BL_HEADER_SIZE) {
-			/* Check and Write the header */
-			if (stm32prog_header(data)) {
-				result = ABORT_BYTE;
-				goto end;
-			}
-		} else {
-			goto end;
-		}
-	}
-
-	if (data->header.type == HEADER_STM32IMAGE) {
-		if (data->cursor <= BL_HEADER_SIZE)
-			goto end;
-		/* compute checksum on payload */
-		for (i = (unsigned long)size; i < codesize; i++)
-			data->checksum += data->buffer[i];
-
-		if (data->cursor >
-		    image_header->image_length + BL_HEADER_SIZE) {
-			log_err("expected size exceeded\n");
-			result = ABORT_BYTE;
-			goto end;
-		}
-
-		/* write data (payload) */
-		ret = stm32prog_write(data,
-				      &data->buffer[size],
-				      codesize - size);
-	} else {
-		/* write all */
-		ret = stm32prog_write(data,
-				      data->buffer,
-				      codesize);
-	}
 	if (ret)
 		result = ABORT_BYTE;
+	else
+		/* Update current position in buffer */
+		data->cursor += codesize;
 
 end:
 	stm32prog_serial_result(result);

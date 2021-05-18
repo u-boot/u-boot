@@ -369,23 +369,24 @@ static int parse_flash_layout(struct stm32prog_data *data,
 	bool end_of_line, eof;
 	char *p, *start, *last, *col;
 	struct stm32prog_part_t *part;
+	struct image_header_s header;
 	int part_list_size;
 	int i;
 
 	data->part_nb = 0;
 
 	/* check if STM32image is detected */
-	stm32prog_header_check((struct raw_header_s *)addr, &data->header);
-	if (data->header.type == HEADER_STM32IMAGE) {
+	stm32prog_header_check((struct raw_header_s *)addr, &header);
+	if (header.type == HEADER_STM32IMAGE) {
 		u32 checksum;
 
 		addr = addr + BL_HEADER_SIZE;
-		size = data->header.image_length;
+		size = header.image_length;
 
-		checksum = stm32prog_header_checksum(addr, &data->header);
-		if (checksum != data->header.image_checksum) {
+		checksum = stm32prog_header_checksum(addr, &header);
+		if (checksum != header.image_checksum) {
 			stm32prog_err("Layout: invalid checksum : 0x%x expected 0x%x",
-				      checksum, data->header.image_checksum);
+				      checksum, header.image_checksum);
 			return -EIO;
 		}
 	}
@@ -1727,7 +1728,6 @@ void stm32prog_clean(struct stm32prog_data *data)
 	free(data->part_array);
 	free(data->otp_part);
 	free(data->buffer);
-	free(data->header_data);
 }
 
 /* DFU callback: used after serial and direct DFU USB access */
