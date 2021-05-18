@@ -1150,7 +1150,10 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	struct dfu_entity *dfu;
 	int alt_nb;
 
-	alt_nb = 3; /* number of virtual = CMD, OTP, PMIC*/
+	alt_nb = 2; /* number of virtual = CMD, OTP*/
+	if (CONFIG_IS_ENABLED(DM_PMIC))
+		alt_nb++; /* PMIC NVMEM*/
+
 	if (data->part_nb == 0)
 		alt_nb++;  /* +1 for FlashLayout */
 	else
