@@ -99,7 +99,7 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	ret = stm32prog_init(data, addr, size);
 	if (ret)
-		printf("Invalid or missing layout file.");
+		log_debug("Invalid or missing layout file at 0x%lx.\n", addr);
 
 	/* prepare DFU for device read/write */
 	ret = stm32prog_dfu_init(data);
