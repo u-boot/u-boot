@@ -720,6 +720,41 @@ int checkboard(void)
 	return 0;
 }
 
+int mmc_get_env_dev(void)
+{
+	struct udevice *dev;
+	int bootseq = 0;
+
+	switch (zynqmp_get_bootmode()) {
+	case EMMC_MODE:
+	case SD_MODE:
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@ff160000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@ff160000", &dev)) {
+			return -1;
+		}
+		bootseq = dev_seq(dev);
+		break;
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@ff170000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@ff170000", &dev)) {
+			return -1;
+		}
+		bootseq = dev_seq(dev);
+		break;
+	default:
+		break;
+	}
+
+	debug("bootseq %d\n", bootseq);
+
+	return bootseq;
+}
+
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	u32 bootmode = zynqmp_get_bootmode();
