@@ -275,4 +275,14 @@ void sandbox_set_enable_memio(bool enable);
  */
 void sandbox_cros_ec_set_test_flags(struct udevice *dev, uint flags);
 
+/**
+ * sandbox_cros_ec_get_pwm_duty() - Get EC PWM config for testing purposes
+ *
+ * @dev: Device to check
+ * @index: PWM channel index
+ * @duty: Current duty cycle in 0..EC_PWM_MAX_DUTY range.
+ * @return 0 if OK, -ENOSPC if the PWM number is invalid
+ */
+int sandbox_cros_ec_get_pwm_duty(struct udevice *dev, uint index, uint *duty);
+
 #endif
