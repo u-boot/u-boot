@@ -11,6 +11,7 @@
 #include "zynqmp.dtsi"
 #include "zynqmp-clk-ccf.dtsi"
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/phy/phy.h>
 
 / {
 	model = "Versal System Controller on a2197 Processor Char board RevA"; /* Tenzing */
@@ -43,6 +44,18 @@
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>;
 	};
+
+	si5332_1: si5332_1 { /* clk0_sgmii - u142 */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <33333333>; /* FIXME */
+	};
+
+	si5332_2: si5332_2 { /* clk1_usb - u142 */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <27000000>;
+	};
 };
 
 &sdhci0 { /* emmc MIO 13-23 - with some settings  16GB */
@@ -68,6 +81,13 @@
 	no-1-8-v;
 	disable-wp;
 	xlnx,mio-bank = <1>;
+};
+
+&psgtr {
+	status = "okay";
+	/* sgmii, usb3 */
+	clocks = <&si5332_1>, <&si5332_2>;
+	clock-names = "ref0", "ref1";
 };
 
 &gem0 {
@@ -390,6 +410,7 @@
 				factory-fout = <33333333>;
 				clock-frequency = <33333333>;
 				clock-output-names = "ref_clk";
+				silabs,skip-recall;
 			};
 			/* Connection via Samtec J212D */
 			/* Use for storing information about X-PRC card */
@@ -536,6 +557,8 @@
 	snps,dis_u2_susphy_quirk;
 	snps,dis_u3_susphy_quirk;
 	maximum-speed = "super-speed";
+	phy-names = "usb3-phy";
+	phys = <&psgtr 1 PHY_TYPE_USB3 0 1>;
 };
 
 &usb1 {

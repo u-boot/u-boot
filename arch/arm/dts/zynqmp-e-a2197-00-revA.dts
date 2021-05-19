@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx Versal a2197 RevA System Controller
  *
- * (C) Copyright 2019 - 2020, Xilinx, Inc.
+ * (C) Copyright 2019 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -163,20 +163,20 @@
 		  "", "", "", "", "", /* 70 - 74 */
 		  "", "ETH_MDC", "ETH_MDIO", /* 75 - 77, MIO end and EMIO start */
 		  "SYSCTLR_VERSAL_MODE0", "SYSCTLR_VERSAL_MODE1", /* 78 - 79 */
-		  "SYSCTLR_VERSAL_MODE2", "SYSCTLR_VERSAL_MODE3", "SYSCTLR_POR_B_LS", "", "", /* 80 - 84 */
-		  "", "", "", "", "", /* 85 - 89 */
-		  "", "", "", "", "", /* 90 - 94 */
-		  "", "", "", "", "", /* 95 - 99 */
+		  "SYSCTLR_VERSAL_MODE2", "SYSCTLR_VERSAL_MODE3", "SYSCTLR_POR_B_LS", "DC_PRSNT", "", /* 80 - 84 */
+		  "SYSCTLR_JTAG_S0", "SYSCTLR_JTAG_S1", "SYSCTLR_IIC_MUX0_RESET_B", "SYSCTLR_IIC_MUX1_RESET_B", "", /* 85 - 89 */
+		  "SYSCTLR_GPIO0", "SYSCTLR_GPIO1", "SYSCTLR_GPIO2", "SYSCTLR_GPIO3", "SYSCTLR_GPIO4", /* 90 - 94 */
+		  "SYSCTLR_GPIO5", "", "", "", "", /* 95 - 99 */
 		  "", "", "", "", "", /* 100 - 104 */
 		  "", "", "", "", "", /* 105 - 109 */
 		  "", "", "", "", "", /* 110 - 114 */
 		  "", "", "", "", "", /* 115 - 119 */
 		  "", "", "", "", "", /* 120 - 124 */
 		  "", "", "", "", "", /* 125 - 129 */
-		  "", "", "", "", "", /* 130 - 134 */
+		  "PMBUS1_INA226_ALERT", "PMBUS2_INA226_ALERT", "", "", "", /* 130 - 134 */
 		  "", "", "", "", "", /* 135 - 139 */
-		  "", "", "", "", "", /* 140 - 144 */
-		  "", "", "", "", "", /* 145 - 149 */
+		  "PMBUS_ALERT", "", "SYSCTLR_ETH_RESET_B", "SYSCTLR_VCC0V85_TG", "MAX6643_OT_B", /* 140 - 144 */
+		  "MAX6643_FANFINAL_B", "MAX6643_FULLSPD", "", "", "", /* 145 - 149 */
 		  "", "", "", "", "", /* 150 - 154 */
 		  "", "", "", "", "", /* 155 - 159 */
 		  "", "", "", "", "", /* 160 - 164 */
@@ -457,6 +457,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x74>;
+		i2c-mux-idle-disconnect;
 		/* reset-gpios = <&gpio SYSCTLR_IIC_MUX1_RESET_B GPIO_ACTIVE_HIGH>; */
 		dc_i2c: i2c@0 { /* DC_I2C */
 			#address-cells = <1>;
@@ -475,6 +476,7 @@
 				factory-fout = <33333333>;
 				clock-frequency = <33333333>;
 				clock-output-names = "ref_clk";
+				silabs,skip-recall;
 			};
 			/* and connector J212D */
 		};
@@ -504,6 +506,7 @@
 				factory-fout = <200000000>;
 				clock-frequency = <200000000>;
 				clock-output-names = "si570_ddrdimm1_clk";
+				silabs,skip-recall;
 			};
 		};
 		i2c@4 { /* LPDDR4_SI570_CLK2 */
@@ -559,6 +562,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x75>;
+		i2c-mux-idle-disconnect;
 		i2c@0 { /* SFP0_IIC */
 			#address-cells = <1>;
 			#size-cells = <0>;

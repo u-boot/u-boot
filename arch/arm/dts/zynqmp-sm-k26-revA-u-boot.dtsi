@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx ZynqMP K26/KV260 SD wiring
+ *
+ * (C) Copyright 2020, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+/* SD0 only supports 3.3V, no level shifter */
+&sdhci1 { /* on CC - MIO 39 - 51 */
+	status = "okay";
+	no-1-8-v;
+	disable-wp;
+	broken-cd;
+	xlnx,mio-bank = <1>;
+	/* Do not run SD in HS mode from bootloader */
+	sdhci-caps-mask = <0 0x200000>;
+	sdhci-caps = <0 0>;
+	max-frequency = <19000000>;
+};

@@ -13,6 +13,7 @@
 #include "zynqmp-clk-ccf.dtsi"
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/pinctrl-zynqmp.h>
 #include <dt-bindings/phy/phy.h>
 
 / {
@@ -221,6 +222,11 @@
 &i2c0 {
 	status = "okay";
 	clock-frequency = <400000>;
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c0_default>;
+	pinctrl-1 = <&pinctrl_i2c0_gpio>;
+	scl-gpios = <&gpio 14 GPIO_ACTIVE_HIGH>;
+	sda-gpios = <&gpio 15 GPIO_ACTIVE_HIGH>;
 
 	tca6416_u15: gpio@20 { /* u15 */
 		compatible = "ti,tca6416";
@@ -382,12 +388,18 @@
 &i2c1 {
 	status = "okay";
 	clock-frequency = <400000>;
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c1_default>;
+	pinctrl-1 = <&pinctrl_i2c1_gpio>;
+	scl-gpios = <&gpio 16 GPIO_ACTIVE_HIGH>;
+	sda-gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;
 
 	i2c-mux@74 {
 		compatible = "nxp,pca9548"; /* u20 */
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x74>;
+		i2c-mux-idle-disconnect;
 		/* FIXME reset-gpios = <&tca6416_u15 SYSCTLR_IIC_MUX0_RESET_B GPIO_ACTIVE_HIGH>; */
 		i2c_eeprom: i2c@0 {
 			#address-cells = <1>;
@@ -423,27 +435,27 @@
 				si5341_2: out@2 {
 					/* refclk2 for PS-GT, used for USB3 */
 					reg = <2>;
-					always-on; /* assigned-clocks does not enable, so do it here */
+					always-on;
 				};
 				si5341_3: out@3 {
 					/* refclk3 for PS-GT, used for SATA */
 					reg = <3>;
-					always-on; /* assigned-clocks does not enable, so do it here */
+					always-on;
 				};
 				si5341_5: out@5 {
 					/* refclk5 PL CLK100 */
 					reg = <5>;
-					always-on; /* assigned-clocks does not enable, so do it here */
+					always-on;
 				};
 				si5341_6: out@6 {
 					/* refclk6 PL CLK125 */
 					reg = <6>;
-					always-on; /* assigned-clocks does not enable, so do it here */
+					always-on;
 				};
 				si5341_9: out@9 {
 					/* refclk9 used for PS_REF_CLK 33.3 MHz */
 					reg = <9>;
-					always-on; /* assigned-clocks does not enable, so do it here */
+					always-on;
 				};
 			};
 		};
@@ -504,6 +516,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x75>;
+		i2c-mux-idle-disconnect;
 		/* FIXME reset-gpios = <&tca6416_u15 SYSCTLR_IIC_MUX0_RESET_B GPIO_ACTIVE_HIGH>; */
 		i2c@0 {
 			#address-cells = <1>;
@@ -565,6 +578,63 @@
 	/* MSP430 */
 };
 
+&pinctrl0 {
+	status = "okay";
+	pinctrl_i2c0_default: i2c0-default {
+		mux {
+			groups = "i2c0_3_grp";
+			function = "i2c0";
+		};
+
+		conf {
+			groups = "i2c0_3_grp";
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			power-source = <IO_STANDARD_LVCMOS18>;
+		};
+	};
+
+	pinctrl_i2c0_gpio: i2c0-gpio {
+		mux {
+			groups = "gpio0_14_grp", "gpio0_15_grp";
+			function = "gpio0";
+		};
+
+		conf {
+			groups = "gpio0_14_grp", "gpio0_15_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			power-source = <IO_STANDARD_LVCMOS18>;
+		};
+	};
+
+	pinctrl_i2c1_default: i2c1-default {
+		mux {
+			groups = "i2c1_4_grp";
+			function = "i2c1";
+		};
+
+		conf {
+			groups = "i2c1_4_grp";
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			power-source = <IO_STANDARD_LVCMOS18>;
+		};
+	};
+
+	pinctrl_i2c1_gpio: i2c1-gpio {
+		mux {
+			groups = "gpio0_16_grp", "gpio0_17_grp";
+			function = "gpio0";
+		};
+
+		conf {
+			groups = "gpio0_16_grp", "gpio0_17_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			power-source = <IO_STANDARD_LVCMOS18>;
+		};
+	};
+};
+
 &qspi {
 	status = "okay";
 	is-dual = <1>;
@@ -601,6 +671,7 @@
 	ceva,p1-comwake-params = /bits/ 8 <0x06 0x14 0x08 0x0E>;
 	ceva,p1-burst-params = /bits/ 8 <0x13 0x08 0x4A 0x06>;
 	ceva,p1-retry-params = /bits/ 16 <0x96A4 0x3FFC>;
+	phy-names = "sata-phy";
 	phys = <&psgtr 3 PHY_TYPE_SATA 1 3>;
 };
 
@@ -628,4 +699,6 @@
 	status = "okay";
 	dr_mode = "host";
 	snps,usb3_lpm_capable;
+	phy-names = "usb3-phy";
+	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 };
