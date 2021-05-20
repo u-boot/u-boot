@@ -375,7 +375,8 @@ static struct option *long_opts;
 
 int os_parse_args(struct sandbox_state *state, int argc, char *argv[])
 {
-	struct sandbox_cmdline_option **sb_opt = __u_boot_sandbox_option_start;
+	struct sandbox_cmdline_option **sb_opt =
+		__u_boot_sandbox_option_start();
 	size_t num_options = __u_boot_sandbox_option_count();
 	size_t i;
 

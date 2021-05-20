@@ -13,12 +13,27 @@
 
 struct sandbox_cmdline_option;
 
-extern struct sandbox_cmdline_option *__u_boot_sandbox_option_start[],
-	*__u_boot_sandbox_option_end[];
+static inline struct sandbox_cmdline_option **
+__u_boot_sandbox_option_start(void)
+{
+	static char start[0] __aligned(4) __attribute__((unused))
+		__section(".u_boot_sandbox_getopt_start");
+
+	return (struct sandbox_cmdline_option **)&start;
+}
+
+static inline struct sandbox_cmdline_option **
+__u_boot_sandbox_option_end(void)
+{
+	static char end[0] __aligned(4) __attribute__((unused))
+		__section(".u_boot_sandbox_getopt_end");
+
+	return (struct sandbox_cmdline_option **)&end;
+}
 
 static inline size_t __u_boot_sandbox_option_count(void)
 {
-	return __u_boot_sandbox_option_end - __u_boot_sandbox_option_start;
+	return __u_boot_sandbox_option_end() - __u_boot_sandbox_option_start();
 }
 
 #endif

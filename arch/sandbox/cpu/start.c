@@ -58,7 +58,8 @@ static int h_compare_opt(const void *p1, const void *p2)
 int sandbox_early_getopt_check(void)
 {
 	struct sandbox_state *state = state_get_current();
-	struct sandbox_cmdline_option **sb_opt = __u_boot_sandbox_option_start;
+	struct sandbox_cmdline_option **sb_opt =
+		__u_boot_sandbox_option_start();
 	size_t num_options = __u_boot_sandbox_option_count();
 	size_t i;
 	int max_arg_len, max_noarg_len;
