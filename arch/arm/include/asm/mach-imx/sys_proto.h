@@ -31,6 +31,7 @@ struct bd_info;
 #define is_mx7() (is_soc_type(MXC_SOC_MX7))
 #define is_imx8m() (is_soc_type(MXC_SOC_IMX8M))
 #define is_imx8() (is_soc_type(MXC_SOC_IMX8))
+#define is_imxrt() (is_soc_type(MXC_SOC_IMXRT))
 
 #define is_mx6dqp() (is_cpu_type(MXC_CPU_MX6QP) || is_cpu_type(MXC_CPU_MX6DP))
 #define is_mx6dq() (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
@@ -77,6 +78,9 @@ struct bd_info;
 #define is_imx8mp6() (is_cpu_type(MXC_CPU_IMX8MP6))
 
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
+
+#define is_imxrt1020() (is_cpu_type(MXC_CPU_IMXRT1020))
+#define is_imxrt1050() (is_cpu_type(MXC_CPU_IMXRT1050))
 
 #ifdef CONFIG_MX6
 #define IMX6_SRC_GPR10_BMODE			BIT(28)

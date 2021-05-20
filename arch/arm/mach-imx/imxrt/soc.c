@@ -8,6 +8,7 @@
 #include <init.h>
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>
+#include <asm/mach-imx/sys_proto.h>
 #include <linux/bitops.h>
 
 int arch_cpu_init(void)
@@ -34,4 +35,15 @@ int arch_cpu_init(void)
 	enable_mpu();
 
 	return 0;
+}
+
+u32 get_cpu_rev(void)
+{
+#if defined(CONFIG_IMXRT1020)
+	return MXC_CPU_IMXRT1020 << 12;
+#elif defined(CONFIG_IMXRT1050)
+	return MXC_CPU_IMXRT1050 << 12;
+#else
+#error This IMXRT SoC is not supported
+#endif
 }
