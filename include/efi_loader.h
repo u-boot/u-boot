@@ -217,8 +217,8 @@ extern const efi_guid_t efi_guid_firmware_management_protocol;
 /* GUID for the ESRT */
 extern const efi_guid_t efi_esrt_guid;
 
-extern unsigned int __efi_runtime_start, __efi_runtime_stop;
-extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
+extern char __efi_runtime_start[], __efi_runtime_stop[];
+extern char __efi_runtime_rel_start[], __efi_runtime_rel_stop[];
 
 /**
  * struct efi_open_protocol_info_item - open protocol info item
