@@ -16,6 +16,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <asm/sections.h>
 #include <linux/compiler.h>
 
 #include "mxs_init.h"
@@ -100,7 +101,6 @@ static void mxs_spl_fixup_vectors(void)
 	 * thus this fixup. Our vectoring table is PIC, so copying is
 	 * fine.
 	 */
-	extern uint32_t _start;
 
 	/* cppcheck-suppress nullPointer */
 	memcpy(0x0, &_start, 0x60);
