@@ -205,7 +205,7 @@ config SPL_LOAD_FIT
 
 	  This path has the following limitations:
 
-	  1. "loadables" images, other than FTDs, which do not have a "load"
+	  1. "loadables" images, other than FDTs, which do not have a "load"
 	     property will not be loaded. This limitation also applies to FPGA
 	     images with the correct "compatible" string.
 	  2. For FPGA images, only the "compatible" = "u-boot,fpga-legacy"
@@ -274,14 +274,13 @@ config SPL_FIT_SOURCE
 
 config USE_SPL_FIT_GENERATOR
 	bool "Use a script to generate the .its script"
-	default y if SPL_FIT && !ARCH_SUNXI
+	default y if SPL_FIT && (!ARCH_SUNXI && !RISCV)
 
 config SPL_FIT_GENERATOR
 	string ".its file generator script for U-Boot FIT image"
 	depends on USE_SPL_FIT_GENERATOR
 	default "arch/arm/mach-rockchip/make_fit_atf.py" if SPL_LOAD_FIT && ARCH_ROCKCHIP
 	default "arch/arm/mach-zynqmp/mkimage_fit_atf.sh" if SPL_LOAD_FIT && ARCH_ZYNQMP
-	default "arch/riscv/lib/mkimage_fit_opensbi.sh" if SPL_LOAD_FIT && RISCV
 	help
 	  Specifies a (platform specific) script file to generate the FIT
 	  source file used to build the U-Boot FIT image file. This gets

@@ -27,6 +27,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select SIFIVE_FU540
 	select ENV_IS_IN_SPI_FLASH
+	select BINMAN
 	imply CMD_DHCP
 	imply CMD_EXT2
 	imply CMD_EXT4

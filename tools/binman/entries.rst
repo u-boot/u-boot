@@ -761,6 +761,19 @@ binman.
 
 
 
+Entry: opensbi: RISC-V OpenSBI fw_dynamic blob
+----------------------------------------------
+
+Properties / Entry arguments:
+    - opensbi-path: Filename of file to read into entry. This is typically
+        called fw_dynamic.bin
+
+This entry holds the run-time firmware, typically started by U-Boot SPL.
+See the U-Boot README for your architecture or board for how to use it. See
+https://github.com/riscv/opensbi for more information about OpenSBI.
+
+
+
 Entry: powerpc-mpc85xx-bootpg-resetvec: PowerPC mpc85xx bootpg + resetvec code for U-Boot
 -----------------------------------------------------------------------------------------
 
