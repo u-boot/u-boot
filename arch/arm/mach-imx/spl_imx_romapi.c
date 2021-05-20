@@ -45,7 +45,7 @@ static ulong spl_romapi_read_seekable(struct spl_load_info *load,
 
 	ret = g_rom_api->download_image(buf, offset, byte,
 					((uintptr_t)buf) ^ offset ^ byte);
-	gd = pgd;
+	set_gd(pgd);
 
 	if (ret == ROM_API_OKAY)
 		return count;
@@ -73,7 +73,7 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 	ret |= g_rom_api->query_boot_infor(QUERY_IMG_OFF, &image_offset,
 					   ((uintptr_t)&image_offset) ^ QUERY_IMG_OFF);
 
-	gd = pgd;
+	set_gd(pgd);
 
 	if (ret != ROM_API_OKAY) {
 		puts("ROMAPI: Failure query boot infor pagesize/offset\n");
@@ -94,7 +94,7 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 	size = ALIGN(sizeof(struct image_header), pagesize);
 	ret = g_rom_api->download_image((u8 *)header, offset, size,
 					((uintptr_t)header) ^ offset ^ size);
-	gd = pgd;
+	set_gd(pgd);
 
 	if (ret != ROM_API_OKAY) {
 		printf("ROMAPI: download failure offset 0x%x size 0x%x\n",
@@ -180,7 +180,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 
 	ret = g_rom_api->query_boot_infor(QUERY_PAGE_SZ, &pagesize,
 					  ((uintptr_t)&pagesize) ^ QUERY_PAGE_SZ);
-	gd = pgd;
+	set_gd(pgd);
 
 	if (ret != ROM_API_OKAY)
 		puts("failure at query_boot_info\n");
@@ -192,7 +192,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 	for (i = 0; i < 640; i++) {
 		ret = g_rom_api->download_image(p, 0, pg,
 						((uintptr_t)p) ^ pg);
-		gd = pgd;
+		set_gd(pgd);
 
 		if (ret != ROM_API_OKAY) {
 			puts("Steam(USB) download failure\n");
@@ -213,7 +213,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 
 	if (p - pfit < sizeof(struct fdt_header)) {
 		ret = g_rom_api->download_image(p, 0, pg,  ((uintptr_t)p) ^ pg);
-		gd = pgd;
+		set_gd(pgd);
 
 		if (ret != ROM_API_OKAY) {
 			puts("Steam(USB) download failure\n");
@@ -237,7 +237,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 
 		ret = g_rom_api->download_image(p, 0, imagesize,
 						((uintptr_t)p) ^ imagesize);
-		gd = pgd;
+		set_gd(pgd);
 
 		p += imagesize;
 
@@ -280,7 +280,7 @@ int board_return_to_bootrom(struct spl_image_info *spl_image,
 
 	ret = g_rom_api->query_boot_infor(QUERY_BT_DEV, &boot,
 					  ((uintptr_t)&boot) ^ QUERY_BT_DEV);
-	gd =  pgd;
+	set_gd(pgd);
 
 	if (ret != ROM_API_OKAY) {
 		puts("ROMAPI: failure at query_boot_info\n");

@@ -91,7 +91,7 @@ struct arch_global_data {
 
 #include <asm-generic/global_data.h>
 
-#ifdef __clang__
+#if defined(__clang__) || defined(CONFIG_LTO)
 
 #define DECLARE_GLOBAL_DATA_PTR
 #define gd	get_gd()
