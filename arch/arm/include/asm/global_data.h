@@ -122,8 +122,10 @@ static inline void set_gd(volatile gd_t *gd_ptr)
 {
 #ifdef CONFIG_ARM64
 	__asm__ volatile("ldr x18, %0\n" : : "m"(gd_ptr));
-#else
+#elif __ARM_ARCH >= 7
 	__asm__ volatile("ldr r9, %0\n" : : "m"(gd_ptr));
+#else
+	__asm__ volatile("mov r9, %0\n" : : "r"(gd_ptr));
 #endif
 }
 
