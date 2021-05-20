@@ -101,6 +101,7 @@ config RISCV
 
 config SANDBOX
 	bool "Sandbox"
+	select ARCH_SUPPORTS_LTO
 	select BOARD_LATE_INIT
 	select BZIP2
 	select CMD_POWEROFF
