@@ -64,6 +64,7 @@ endif
 
 obj-y	+= cache.o
 obj-$(CONFIG_SYS_ARM_CACHE_CP15)	+= cache-cp15.o
+CFLAGS_REMOVE_cache-cp15.o := $(LTO_CFLAGS)
 
 obj-y	+= psci-dt.o
 
