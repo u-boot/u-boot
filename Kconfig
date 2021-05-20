@@ -85,6 +85,30 @@ config SPL_OPTIMIZE_INLINING
 	  do what it thinks is best, which is desirable in some cases for size
 	  reasons.
 
+config ARCH_SUPPORTS_LTO
+	bool
+
+config LTO
+	bool "Enable Link Time Optimizations"
+	depends on ARCH_SUPPORTS_LTO
+	default n
+	help
+	  This option enables Link Time Optimization (LTO), a mechanism which
+	  allows the compiler to optimize between different compilation units.
+
+	  This can optimize away dead code paths, resulting in smaller binary
+	  size (if CC_OPTIMIZE_FOR_SIZE is enabled).
+
+	  This option is not available for every architecture and may
+	  introduce bugs.
+
+	  Currently, when compiling with GCC, due to a weird bug regarding
+	  jobserver, the final linking will not respect make's --jobs argument.
+	  Instead all available processors will be used (as reported by the
+	  nproc command).
+
+	  If unsure, say n.
+
 config TPL_OPTIMIZE_INLINING
 	bool "Allow compiler to uninline functions marked 'inline' in TPL"
 	depends on TPL

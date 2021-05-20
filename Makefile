@@ -676,6 +676,31 @@ else
 KBUILD_CFLAGS	+= -O2
 endif
 
+LTO_CFLAGS :=
+LTO_FINAL_LDFLAGS :=
+export LTO_CFLAGS LTO_FINAL_LDFLAGS
+ifdef CONFIG_LTO
+	ifeq ($(cc-name),clang)
+		LTO_CFLAGS		+= -flto
+		LTO_FINAL_LDFLAGS	+= -flto
+
+		AR			= $(shell $(CC) -print-prog-name=llvm-ar)
+		NM			= $(shell $(CC) -print-prog-name=llvm-nm)
+	else
+		NPROC			:= $(shell nproc 2>/dev/null || echo 1)
+		LTO_CFLAGS		+= -flto=$(NPROC)
+		LTO_FINAL_LDFLAGS	+= -fuse-linker-plugin -flto=$(NPROC)
+
+		# use plugin aware tools
+		AR			= $(CROSS_COMPILE)gcc-ar
+		NM			= $(CROSS_COMPILE)gcc-nm
+	endif
+
+	CFLAGS_NON_EFI			+= $(LTO_CFLAGS)
+
+	KBUILD_CFLAGS			+= $(LTO_CFLAGS)
+endif
+
 ifeq ($(CONFIG_STACKPROTECTOR),y)
 KBUILD_CFLAGS += $(call cc-option,-fstack-protector-strong)
 CFLAGS_EFI += $(call cc-option,-fno-stack-protector)
@@ -1708,8 +1733,45 @@ u-boot-swap.bin: u-boot.bin FORCE
 
 ARCH_POSTLINK := $(wildcard $(srctree)/arch/$(ARCH)/Makefile.postlink)
 
+# Generate linker list symbols references to force compiler to not optimize
+# them away when compiling with LTO
+ifdef CONFIG_LTO
+u-boot-keep-syms-lto := keep-syms-lto.o
+u-boot-keep-syms-lto_c := $(patsubst %.o,%.c,$(u-boot-keep-syms-lto))
+
+quiet_cmd_keep_syms_lto = KSL     $@
+      cmd_keep_syms_lto = \
+	NM=$(NM) $(srctree)/scripts/gen_ll_addressable_symbols.sh $^ >$@
+
+quiet_cmd_keep_syms_lto_cc = KSLCC   $@
+      cmd_keep_syms_lto_cc = \
+	$(CC) $(filter-out $(LTO_CFLAGS),$(c_flags)) -c -o $@ $<
+
+$(u-boot-keep-syms-lto_c): $(u-boot-main)
+	$(call if_changed,keep_syms_lto)
+$(u-boot-keep-syms-lto): $(u-boot-keep-syms-lto_c)
+	$(call if_changed,keep_syms_lto_cc)
+else
+u-boot-keep-syms-lto :=
+endif
+
 # Rule to link u-boot
 # May be overridden by arch/$(ARCH)/config.mk
+ifdef CONFIG_LTO
+quiet_cmd_u-boot__ ?= LTO     $@
+      cmd_u-boot__ ?= 								\
+		$(CC) -nostdlib -nostartfiles					\
+		$(LTO_FINAL_LDFLAGS) $(c_flags)					\
+		$(KBUILD_LDFLAGS:%=-Wl,%) $(LDFLAGS_u-boot:%=-Wl,%) -o $@	\
+		-T u-boot.lds $(u-boot-init)					\
+		-Wl,--whole-archive						\
+			$(u-boot-main)						\
+			$(u-boot-keep-syms-lto)					\
+			$(PLATFORM_LIBS)					\
+		-Wl,--no-whole-archive						\
+		-Wl,-Map,u-boot.map;						\
+		$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
+else
 quiet_cmd_u-boot__ ?= LD      $@
       cmd_u-boot__ ?= $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_u-boot) -o $@		\
 		-T u-boot.lds $(u-boot-init)					\
@@ -1718,6 +1780,7 @@ quiet_cmd_u-boot__ ?= LD      $@
 		--no-whole-archive						\
 		$(PLATFORM_LIBS) -Map u-boot.map;				\
 		$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
+endif
 
 quiet_cmd_smap = GEN     common/system_map.o
 cmd_smap = \
@@ -1726,7 +1789,7 @@ cmd_smap = \
 	$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
 		-c $(srctree)/common/system_map.c -o common/system_map.o
 
-u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds FORCE
+u-boot:	$(u-boot-init) $(u-boot-main) $(u-boot-keep-syms-lto) u-boot.lds FORCE
 	+$(call if_changed,u-boot__)
 ifeq ($(CONFIG_KALLSYMS),y)
 	$(call cmd,smap)
@@ -2009,7 +2072,7 @@ CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
 	       boot* u-boot* MLO* SPL System.map fit-dtb.blob* \
 	       u-boot-ivt.img.log u-boot-dtb.imx.log SPL.log u-boot.imx.log \
 	       lpc32xx-* bl31.c bl31.elf bl31_*.bin image.map tispl.bin* \
-	       idbloader.img flash.bin flash.log defconfig
+	       idbloader.img flash.bin flash.log defconfig keep-syms-lto.c
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
