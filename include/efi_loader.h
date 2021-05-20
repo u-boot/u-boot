@@ -695,6 +695,22 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 #define __efi_runtime_data __section(".data.efi_runtime")
 
 /**
+ * __efi_runtime_rodata - declares a read-only variable for EFI runtime section
+ *
+ * This macro indicates that a variable is read-only (const) and should go into
+ * the EFI runtime section, and thus still be available when the OS is running.
+ *
+ * Only use on variables also declared const.
+ *
+ * Example:
+ *
+ * ::
+ *
+ *   static const __efi_runtime_rodata my_const_table[] = { 1, 2, 3 };
+ */
+#define __efi_runtime_rodata __section(".rodata.efi_runtime")
+
+/**
  * __efi_runtime - declares a function for EFI runtime section
  *
  * This macro indicates that a function should go into the EFI runtime section,
@@ -911,6 +927,7 @@ efi_status_t efi_launch_capsules(void);
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 #define __efi_runtime_data
+#define __efi_runtime_rodata
 #define __efi_runtime
 static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 {
