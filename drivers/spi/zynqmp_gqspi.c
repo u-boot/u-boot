@@ -1048,7 +1048,6 @@ static const struct spi_controller_mem_ops zynqmp_qspi_mem_ops = {
 static const struct dm_spi_ops zynqmp_qspi_ops = {
 	.claim_bus      = zynqmp_qspi_claim_bus,
 	.release_bus    = zynqmp_qspi_release_bus,
-	.xfer           = zynqmp_qspi_xfer,
 	.set_speed      = zynqmp_qspi_set_speed,
 	.set_mode       = zynqmp_qspi_set_mode,
 	.mem_ops        = &zynqmp_qspi_mem_ops,
