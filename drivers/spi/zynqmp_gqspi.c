@@ -23,6 +23,7 @@
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
+#include <linux/sizes.h>
 #include <linux/mtd/spi-nor.h>
 #include "../mtd/spi/sf_internal.h"
 #include <zynqmp_firmware.h>
@@ -757,38 +758,53 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 	u32 addr;
 	u32 size;
 	u32 actuallen = priv->len;
+	u32 totallen = priv->len;
 	int ret = 0;
 	struct zynqmp_qspi_dma_regs *dma_regs = priv->dma_regs;
 
-	writel((unsigned long)buf, &dma_regs->dmadst);
-	writel(roundup(priv->len, GQSPI_DMA_ALIGN), &dma_regs->dmasize);
-	writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
-	addr = (unsigned long)buf;
-	size = roundup(priv->len, GQSPI_DMA_ALIGN);
-	flush_dcache_range(addr, addr + size);
+	while (totallen) {
+		if (totallen >= SZ_512M)
+			priv->len = SZ_256M;
+		else
+			priv->len = totallen;
 
-	while (priv->len) {
-		zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
-		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+		totallen -= priv->len; /* Save remaining bytes length to read */
+		actuallen = priv->len; /* Actual number of bytes reading */
 
-		debug("GFIFO_CMD_RX:0x%x\n", gen_fifo_cmd);
+		writel((unsigned long)buf, &dma_regs->dmadst);
+		writel(roundup(priv->len, GQSPI_DMA_ALIGN), &dma_regs->dmasize);
+		writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
+		addr = (unsigned long)buf;
+		size = roundup(priv->len, GQSPI_DMA_ALIGN);
+		flush_dcache_range(addr, addr + size);
+
+		while (priv->len) {
+			zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
+			zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+
+			debug("GFIFO_CMD_RX:0x%x\n", gen_fifo_cmd);
+		}
+
+		ret = wait_for_bit_le32(&dma_regs->dmaisr,
+					GQSPI_DMA_DST_I_STS_DONE, 1,
+					GQSPI_TIMEOUT, 1);
+		if (ret) {
+			printf("DMA Timeout:0x%x\n", readl(&dma_regs->dmaisr));
+			return -ETIMEDOUT;
+		}
+
+		writel(GQSPI_DMA_DST_I_STS_DONE, &dma_regs->dmaisr);
+
+		debug("buf:0x%lx, rxbuf:0x%lx, *buf:0x%x len: 0x%x\n",
+		      (unsigned long)buf, (unsigned long)priv->rx_buf, *buf,
+		      actuallen);
+
+		if (buf != priv->rx_buf)
+			memcpy(priv->rx_buf, buf, actuallen);
+
+		buf = (u32 *)((u8 *)buf + actuallen);
+		priv->rx_buf = (u8 *)priv->rx_buf + actuallen;
 	}
-
-	ret = wait_for_bit_le32(&dma_regs->dmaisr, GQSPI_DMA_DST_I_STS_DONE,
-				1, GQSPI_TIMEOUT, 1);
-	if (ret) {
-		printf("DMA Timeout:0x%x\n", readl(&dma_regs->dmaisr));
-		return -ETIMEDOUT;
-	}
-
-	writel(GQSPI_DMA_DST_I_STS_DONE, &dma_regs->dmaisr);
-
-	debug("buf:0x%lx, rxbuf:0x%lx, *buf:0x%x len: 0x%x\n",
-	      (unsigned long)buf, (unsigned long)priv->rx_buf, *buf,
-	      actuallen);
-
-	if (buf != priv->rx_buf)
-		memcpy(priv->rx_buf, buf, actuallen);
 
 	return 0;
 }
@@ -910,20 +926,20 @@ static int zynqmp_qspi_release_bus(struct udevice *dev)
 	return 0;
 }
 
-int zynqmp_qspi_xfer(struct udevice *dev, unsigned int bitlen, const void *dout,
-		     void *din, unsigned long flags)
+int zynqmp_qspi_xfer(struct udevice *dev, unsigned int len,
+		     const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 
-	debug("%s: priv: 0x%08lx bitlen: %d dout: 0x%08lx ", __func__,
-	      (unsigned long)priv, bitlen, (unsigned long)dout);
+	debug("%s: priv: 0x%08lx len: %d dout: 0x%08lx ", __func__,
+	      (unsigned long)priv, len, (unsigned long)dout);
 	debug("din: 0x%08lx flags: 0x%lx\n", (unsigned long)din, flags);
 
 	priv->tx_buf = dout;
 	priv->rx_buf = din;
-	priv->len = bitlen / 8;
+	priv->len = len;
 
 	/*
 	 * Festering sore.
@@ -1014,7 +1030,7 @@ static int zynqmp_qspi_exec_op(struct spi_slave *slave,
 	if (!tx_buf && !rx_buf)
 		flag |= SPI_XFER_END;
 
-	ret = zynqmp_qspi_xfer(slave->dev, op_len * 8, op_buf, NULL,
+	ret = zynqmp_qspi_xfer(slave->dev, op_len, op_buf, NULL,
 			       flag | SPI_XFER_BEGIN);
 	if (ret)
 		return ret;
@@ -1029,8 +1045,8 @@ static int zynqmp_qspi_exec_op(struct spi_slave *slave,
 	}
 	/* 2nd transfer: rx or tx data path */
 	if (tx_buf || rx_buf) {
-		ret = zynqmp_qspi_xfer(slave->dev, op->data.nbytes * 8,
-				       tx_buf, rx_buf, flag | SPI_XFER_END);
+		ret = zynqmp_qspi_xfer(slave->dev, op->data.nbytes, tx_buf,
+				       rx_buf, flag | SPI_XFER_END);
 		if (ret)
 			return ret;
 	}
