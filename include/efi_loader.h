@@ -678,11 +678,34 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
 
-/*
- * Use these to indicate that your code / data should go into the EFI runtime
- * section and thus still be available when the OS is running
+/**
+ * __efi_runtime_data - declares a non-const variable for EFI runtime section
+ *
+ * This macro indicates that a variable is non-const and should go into the
+ * EFI runtime section, and thus still be available when the OS is running.
+ *
+ * Only use on variables not declared const.
+ *
+ * Example:
+ *
+ * ::
+ *
+ *   static __efi_runtime_data my_computed_table[256];
  */
 #define __efi_runtime_data __section(".data.efi_runtime")
+
+/**
+ * __efi_runtime - declares a function for EFI runtime section
+ *
+ * This macro indicates that a function should go into the EFI runtime section,
+ * and thus still be available when the OS is running.
+ *
+ * Example:
+ *
+ * ::
+ *
+ *   static __efi_runtime compute_my_table(void);
+ */
 #define __efi_runtime __section(".text.efi_runtime")
 
 /* Indicate supported runtime services */
