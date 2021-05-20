@@ -44,7 +44,7 @@ static void ctrl_mmr_unlock(void)
  * it to the .data section.
  */
 u32 bootindex __section(".data");
-static struct rom_extended_boot_data bootdata __section(.data);
+static struct rom_extended_boot_data bootdata __section(".data");
 
 static void store_boot_info_from_rom(void)
 {

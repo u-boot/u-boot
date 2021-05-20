@@ -45,7 +45,7 @@ enum {
 	UART_COUNT = 5,
 };
 
-static bool from_spl __attribute__ ((section(".data")));
+static bool from_spl __section(".data");
 
 #ifndef CONFIG_SPL_BUILD
 void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,

@@ -11,7 +11,7 @@
 #include <power/tps62362.h>
 
 #if CONFIG_IS_ENABLED(DM_I2C)
-struct udevice *tps62362_dev __attribute__((section(".data"))) = NULL;
+struct udevice *tps62362_dev __section(".data") = NULL;
 #endif
 
 /**

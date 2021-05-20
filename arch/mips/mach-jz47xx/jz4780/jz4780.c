@@ -23,7 +23,7 @@
 #ifdef CONFIG_SPL_BUILD
 /* Pointer to the global data structure for SPL */
 DECLARE_GLOBAL_DATA_PTR;
-gd_t gdata __attribute__ ((section(".bss")));
+gd_t gdata __section(".bss");
 
 void board_init_f(ulong dummy)
 {

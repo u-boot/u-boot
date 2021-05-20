@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * with zeroes when transitioning from "ROM", which is really RAM, to other
  * RAM.
  */
-struct sysinfo_t lib_sysinfo __attribute__((section(".data")));
+struct sysinfo_t lib_sysinfo __section(".data");
 
 /*
  * Some of this is x86 specific, and the rest of it is generic. Right now,

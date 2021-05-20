@@ -11,7 +11,7 @@
 #include <asm/cb_sysinfo.h>
 #include <linux/compiler.h>
 
-static struct timestamp_table *ts_table  __attribute__((section(".data")));
+static struct timestamp_table *ts_table  __section(".data");
 
 void timestamp_init(void)
 {

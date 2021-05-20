@@ -13,8 +13,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static char trace_enabled __attribute__((section(".data")));
-static char trace_inited __attribute__((section(".data")));
+static char trace_enabled __section(".data");
+static char trace_inited __section(".data");
 
 /* The header block at the start of the trace memory area */
 struct trace_hdr {

@@ -14,7 +14,7 @@
 
 #include "fru.h"
 
-struct fru_table fru_data __section(.data);
+struct fru_table fru_data __section(".data");
 
 static u16 fru_cal_area_len(u8 len)
 {

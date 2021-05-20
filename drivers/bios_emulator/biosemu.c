@@ -50,7 +50,7 @@
 #include "biosemui.h"
 
 BE_sysEnv _BE_env = {{0}};
-static X86EMU_memFuncs _BE_mem __attribute__((section(GOT2_TYPE))) = {
+static X86EMU_memFuncs _BE_mem __section(GOT2_TYPE) = {
 	BE_rdb,
 	BE_rdw,
 	BE_rdl,
@@ -59,7 +59,7 @@ static X86EMU_memFuncs _BE_mem __attribute__((section(GOT2_TYPE))) = {
 	BE_wrl,
 	};
 
-static X86EMU_pioFuncs _BE_pio __attribute__((section(GOT2_TYPE))) = {
+static X86EMU_pioFuncs _BE_pio __section(GOT2_TYPE) = {
 	BE_inb,
 	BE_inw,
 	BE_inl,

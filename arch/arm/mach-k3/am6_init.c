@@ -77,7 +77,7 @@ static void ctrl_mmr_unlock(void)
  * but the .bss is cleared between writing and reading this variable, so move
  * it to the .data section.
  */
-u32 bootindex __attribute__((section(".data")));
+u32 bootindex __section(".data");
 
 static void store_boot_index_from_rom(void)
 {

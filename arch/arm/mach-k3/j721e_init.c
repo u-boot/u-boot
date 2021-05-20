@@ -125,8 +125,8 @@ void k3_mmc_restart_clock(void)
  * but the .bss is cleared between writing and reading this variable, so move
  * it to the .data section.
  */
-u32 bootindex __attribute__((section(".data")));
-static struct rom_extended_boot_data bootdata __section(.data);
+u32 bootindex __section(".data");
+static struct rom_extended_boot_data bootdata __section(".data");
 
 static void store_boot_info_from_rom(void)
 {
