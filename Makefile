@@ -1711,11 +1711,13 @@ ARCH_POSTLINK := $(wildcard $(srctree)/arch/$(ARCH)/Makefile.postlink)
 # Rule to link u-boot
 # May be overridden by arch/$(ARCH)/config.mk
 quiet_cmd_u-boot__ ?= LD      $@
-      cmd_u-boot__ ?= $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_u-boot) -o $@ \
-      -T u-boot.lds $(u-boot-init)                             \
-      --start-group $(u-boot-main) --end-group                 \
-      $(PLATFORM_LIBS) -Map u-boot.map;                        \
-      $(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
+      cmd_u-boot__ ?= $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_u-boot) -o $@		\
+		-T u-boot.lds $(u-boot-init)					\
+		--start-group							\
+			$(u-boot-main)						\
+		--end-group							\
+		$(PLATFORM_LIBS) -Map u-boot.map;				\
+		$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
 
 quiet_cmd_smap = GEN     common/system_map.o
 cmd_smap = \
