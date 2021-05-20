@@ -1713,9 +1713,9 @@ ARCH_POSTLINK := $(wildcard $(srctree)/arch/$(ARCH)/Makefile.postlink)
 quiet_cmd_u-boot__ ?= LD      $@
       cmd_u-boot__ ?= $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_u-boot) -o $@		\
 		-T u-boot.lds $(u-boot-init)					\
-		--start-group							\
+		--whole-archive							\
 			$(u-boot-main)						\
-		--end-group							\
+		--no-whole-archive						\
 		$(PLATFORM_LIBS) -Map u-boot.map;				\
 		$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
 

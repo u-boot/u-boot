@@ -456,10 +456,10 @@ quiet_cmd_u-boot-spl ?= LD      $@
 		cd $(obj) &&						\
 		$(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_$(@F))		\
 		$(patsubst $(obj)/%,%,$(u-boot-spl-init))		\
-		--start-group						\
+		--whole-archive						\
 			$(patsubst $(obj)/%,%,$(u-boot-spl-main))	\
 			$(patsubst $(obj)/%,%,$(u-boot-spl-platdata))	\
-		--end-group						\
+		--no-whole-archive					\
 		$(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN)	\
 	)
 
