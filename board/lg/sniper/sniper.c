@@ -43,6 +43,7 @@ U_BOOT_DRVINFO(sniper_serial) = {
 	.plat = &serial_omap_plat
 };
 
+#if defined(CONFIG_USB_MUSB_HOST) || defined(CONFIG_USB_MUSB_GADGET)
 static struct musb_hdrc_config musb_config = {
 	.multipoint = 1,
 	.dyn_fifo = 1,
@@ -61,6 +62,7 @@ static struct musb_hdrc_platform_data musb_platform_data = {
 	.platform_ops = &omap2430_ops,
 	.board_data = &musb_board_data,
 };
+#endif
 
 void set_muxconf_regs(void)
 {
@@ -147,8 +149,9 @@ int misc_init_r(void)
 	omap_die_id_serial();
 
 	/* MUSB */
-
+#if defined(CONFIG_USB_MUSB_HOST) || defined(CONFIG_USB_MUSB_GADGET)
 	musb_register(&musb_platform_data, &musb_board_data, (void *)MUSB_BASE);
+#endif
 
 	return 0;
 }
