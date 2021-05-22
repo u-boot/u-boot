@@ -525,12 +525,6 @@ config ARCH_AT91
 	select SPL_BOARD_INIT if SPL && !TARGET_SMARTWEB
 	select SPL_SEPARATE_BSS if SPL
 
-config TARGET_EDB93XX
-	bool "Support edb93xx"
-	select CPU_ARM920T
-	select GPIO_EXTRA_HEADER
-	select PL010_SERIAL
-
 config TARGET_ASPENITE
 	bool "Support aspenite"
 	select CPU_ARM926EJS
@@ -2106,7 +2100,6 @@ source "board/broadcom/bcm968360bg/Kconfig"
 source "board/broadcom/bcm968580xref/Kconfig"
 source "board/broadcom/bcmns3/Kconfig"
 source "board/cavium/thunderx/Kconfig"
-source "board/cirrus/edb93xx/Kconfig"
 source "board/eets/pdu001/Kconfig"
 source "board/emulation/qemu-arm/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"

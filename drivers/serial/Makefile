@@ -24,7 +24,6 @@ endif
 ifdef CONFIG_DM_SERIAL
 obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
 else
-obj-$(CONFIG_PL010_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
 endif
