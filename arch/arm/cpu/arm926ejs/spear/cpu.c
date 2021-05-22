@@ -19,9 +19,7 @@ int arch_cpu_init(void)
 
 	periph1_clken = readl(&misc_p->periph1_clken);
 
-#if defined(CONFIG_SPEAR3XX)
-	periph1_clken |= MISC_GPT2ENB;
-#elif defined(CONFIG_SPEAR600)
+#if defined(CONFIG_SPEAR600)
 	periph1_clken |= MISC_GPT3ENB;
 #endif
 
@@ -66,9 +64,7 @@ int arch_cpu_init(void)
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
-#if defined(CONFIG_SPEAR320)
-	printf("CPU:   SPEAr320\n");
-#elif defined(CONFIG_SPEAR600)
+#if defined(CONFIG_SPEAR600)
 	printf("CPU:   SPEAr600\n");
 #else
 #error CPU not supported in spear platform

@@ -566,14 +566,6 @@ config ARCH_ORION5X
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 
-config TARGET_SPEAR320
-	bool "Support spear320"
-	select BOARD_EARLY_INIT_F
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL
-	imply CMD_SAVES
-
 config TARGET_SPEAR600
 	bool "Support spear600"
 	select BOARD_EARLY_INIT_F
@@ -2106,7 +2098,6 @@ source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"
-source "board/spear/spear320/Kconfig"
 source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
 source "board/st/stv0991/Kconfig"

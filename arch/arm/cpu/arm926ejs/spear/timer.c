@@ -36,10 +36,7 @@ int timer_init(void)
 	u32 synth;
 
 	/* Prescaler setting */
-#if defined(CONFIG_SPEAR3XX)
-	writel(MISC_PRSC_CFG, &misc_regs_p->prsc2_clk_cfg);
-	synth = MISC_GPT4SYNTH;
-#elif defined(CONFIG_SPEAR600)
+#if defined(CONFIG_SPEAR600)
 	writel(MISC_PRSC_CFG, &misc_regs_p->prsc1_clk_cfg);
 	synth = MISC_GPT3SYNTH;
 #else

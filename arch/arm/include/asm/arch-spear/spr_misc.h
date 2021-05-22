@@ -88,10 +88,7 @@ struct misc_regs {
 #define SYNTH23			0x00020003
 
 /* PLLx_FRQ value */
-#if defined(CONFIG_SPEAR3XX)
-#define FREQ_332		0xA600010C
-#define FREQ_266		0x8500010C
-#elif defined(CONFIG_SPEAR600)
+#if defined(CONFIG_SPEAR600)
 #define FREQ_332		0xA600010F
 #define FREQ_266		0x8500010F
 #endif
