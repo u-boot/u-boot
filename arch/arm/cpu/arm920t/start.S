@@ -35,7 +35,7 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr, r0
 
-#if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK)
+#if	defined(CONFIG_AT91RM9200DK)
 	/*
 	 * relocate exception table
 	 */

@@ -69,10 +69,6 @@ choice
 	prompt "Atmel AT91 board select"
 	optional
 
-config TARGET_AT91RM9200EK
-	bool "Atmel AT91RM9200 evaluation kit"
-	select CPU_ARM920T
-
 config TARGET_AT91SAM9260EK
 	bool "Atmel at91sam9260 reference board"
 	select AT91SAM9260
@@ -307,7 +303,6 @@ config ATMEL_SFR
 config SYS_SOC
 	default "at91"
 
-source "board/atmel/at91rm9200ek/Kconfig"
 source "board/atmel/at91sam9260ek/Kconfig"
 source "board/atmel/at91sam9261ek/Kconfig"
 source "board/atmel/at91sam9263ek/Kconfig"
