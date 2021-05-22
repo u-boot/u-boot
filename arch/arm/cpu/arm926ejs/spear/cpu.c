@@ -66,9 +66,7 @@ int arch_cpu_init(void)
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
-#ifdef CONFIG_SPEAR300
-	printf("CPU:   SPEAr300\n");
-#elif defined(CONFIG_SPEAR310)
+#if defined(CONFIG_SPEAR310)
 	printf("CPU:   SPEAr310\n");
 #elif defined(CONFIG_SPEAR320)
 	printf("CPU:   SPEAr320\n");

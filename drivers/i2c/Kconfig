@@ -138,7 +138,7 @@ config SYS_I2C_DW
 
 config SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
 	bool "DW I2C Enable Status Register not supported"
-	depends on SYS_I2C_DW && (TARGET_SPEAR300 || TARGET_SPEAR310 || \
+	depends on SYS_I2C_DW && (TARGET_SPEAR310 || \
 		TARGET_SPEAR320 || TARGET_SPEAR600 || TARGET_X600)
 	default y
 	help

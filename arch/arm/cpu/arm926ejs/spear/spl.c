@@ -205,9 +205,7 @@ int get_socrev(void)
 		return SOC_SPEAR600_BA;
 	else
 		return SOC_SPEAR_NA;
-#elif defined(CONFIG_SPEAR300)
-	return SOC_SPEAR300;
-#elif defined(CONFIG_SPEAR310)
+#if defined(CONFIG_SPEAR310)
 	return SOC_SPEAR310;
 #elif defined(CONFIG_SPEAR320)
 	return SOC_SPEAR320;
