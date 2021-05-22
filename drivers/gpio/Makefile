@@ -33,7 +33,6 @@ obj-$(CONFIG_RCAR_GPIO)		+= gpio-rcar.o
 obj-$(CONFIG_RZA1_GPIO)		+= gpio-rza1.o
 obj-$(CONFIG_S5P)		+= s5p_gpio.o
 obj-$(CONFIG_SANDBOX_GPIO)	+= sandbox.o
-obj-$(CONFIG_SPEAR_GPIO)	+= spear_gpio.o
 obj-$(CONFIG_TEGRA_GPIO)	+= tegra_gpio.o
 obj-$(CONFIG_TEGRA186_GPIO)	+= tegra186_gpio.o
 obj-$(CONFIG_DA8XX_GPIO)	+= da8xx_gpio.o

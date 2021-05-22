@@ -566,14 +566,6 @@ config ARCH_ORION5X
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 
-config TARGET_SPEAR600
-	bool "Support spear600"
-	select BOARD_EARLY_INIT_F
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL
-	imply CMD_SAVES
-
 config TARGET_STV0991
 	bool "Support stv0991"
 	select CPU_V7A
@@ -586,14 +578,6 @@ config TARGET_STV0991
 	select SPI
 	select SPI_FLASH
 	imply CMD_DM
-
-config TARGET_X600
-	bool "Support x600"
-	select BOARD_LATE_INIT
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL
-	select SUPPORT_SPL
 
 config TARGET_FLEA3
 	bool "Support flea3"
@@ -2098,8 +2082,6 @@ source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"
-source "board/spear/spear600/Kconfig"
-source "board/spear/x600/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/tcl/sl50/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"

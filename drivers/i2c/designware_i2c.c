@@ -24,16 +24,6 @@
  */
 #define DW_I2C_COMP_TYPE	0x44570140
 
-#ifdef CONFIG_SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
-static int  dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
-{
-	u32 ena = enable ? IC_ENABLE_0B : 0;
-
-	writel(ena, &i2c_base->ic_enable);
-
-	return 0;
-}
-#else
 static int dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 {
 	u32 ena = enable ? IC_ENABLE_0B : 0;
@@ -55,7 +45,6 @@ static int dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 
 	return -ETIMEDOUT;
 }
-#endif
 
 /* High and low times in different speed modes (in ns) */
 enum {
