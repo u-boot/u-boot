@@ -126,8 +126,7 @@ void get_sys_info(sys_info_t *sys_info)
 	 * it uses 6.
 	 * T2080 rev 1.1 and later also use half mem_pll comparing with rev 1.0
 	 */
-#if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160) || \
-	defined(CONFIG_ARCH_T2080)
+#if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T2080)
 	svr = get_svr();
 	switch (SVR_SOC_VER(svr)) {
 	case SVR_T4240:

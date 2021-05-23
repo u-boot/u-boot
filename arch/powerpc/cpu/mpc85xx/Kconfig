@@ -161,13 +161,6 @@ config TARGET_T2080RDB
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_T4160RDB
-	bool "Support T4160RDB"
-	select ARCH_T4160
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	imply PANIC_HANG
-
 config TARGET_T4240RDB
 	bool "Support T4240RDB"
 	select ARCH_T4240
@@ -732,29 +725,6 @@ config ARCH_T2080
 	imply CMD_REGINFO
 	imply FSL_SATA
 
-config ARCH_T4160
-	bool
-	select E500MC
-	select E6500
-	select FSL_LAW
-	select SYS_FSL_DDR_VER_47
-	select SYS_FSL_ERRATUM_A004468
-	select SYS_FSL_ERRATUM_A005871
-	select SYS_FSL_ERRATUM_A006379
-	select SYS_FSL_ERRATUM_A006593
-	select SYS_FSL_ERRATUM_A007186
-	select SYS_FSL_ERRATUM_A007798
-	select SYS_FSL_ERRATUM_A009942
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_QORIQ_CHASSIS2
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_4
-	select SYS_PPC64
-	select FSL_IFC
-	imply CMD_NAND
-	imply CMD_REGINFO
-
 config ARCH_T4240
 	bool
 	select E500MC
@@ -823,8 +793,7 @@ config NXP_ESBC
 config MAX_CPUS
 	int "Maximum number of CPUs permitted for MPC85xx"
 	default 12 if ARCH_T4240
-	default 8 if ARCH_P4080 || \
-		     ARCH_T4160
+	default 8 if ARCH_P4080
 	default 4 if ARCH_B4860 || \
 		     ARCH_P2041 || \
 		     ARCH_P3041 || \
@@ -877,7 +846,6 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_T1040	|| \
 				ARCH_T1042	|| \
 				ARCH_T2080	|| \
-				ARCH_T4160	|| \
 				ARCH_T4240
 	default 0xe0000000 if ARCH_QEMU_E500
 	help
@@ -1062,7 +1030,6 @@ config SYS_FSL_NUM_LAWS
 			ARCH_P4080	|| \
 			ARCH_P5040	|| \
 			ARCH_T2080	|| \
-			ARCH_T4160	|| \
 			ARCH_T4240
 	default 16 if	ARCH_T1024	|| \
 			ARCH_T1040	|| \
@@ -1142,7 +1109,6 @@ config SYS_FSL_IFC_CLK_DIV
 			ARCH_T1024	|| \
 			ARCH_T1040	|| \
 			ARCH_T1042	|| \
-			ARCH_T4160	|| \
 			ARCH_T4240
 	default 1
 	help

@@ -44,8 +44,7 @@ config SYS_NUM_DDR_CTLRS
 			ARCH_P4080	|| \
 			ARCH_P5040	|| \
 			ARCH_LX2160A	|| \
-			ARCH_LX2162A	|| \
-			ARCH_T4160
+			ARCH_LX2162A
 	default 1
 
 config SYS_FSL_DDR_VER
