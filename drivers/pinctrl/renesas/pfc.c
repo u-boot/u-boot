@@ -131,14 +131,25 @@ u32 sh_pfc_read(struct sh_pfc *pfc, u32 reg)
 	return sh_pfc_read_raw_reg((void __iomem *)(uintptr_t)reg, 32);
 }
 
+static void sh_pfc_unlock_reg(struct sh_pfc *pfc, u32 reg, u32 data)
+{
+	u32 unlock;
+
+	if (!pfc->info->unlock_reg)
+		return;
+
+	if (pfc->info->unlock_reg >= 0x80000000UL)
+		unlock = pfc->info->unlock_reg;
+	else
+		/* unlock_reg is a mask */
+		unlock = reg & ~pfc->info->unlock_reg;
+
+	sh_pfc_write_raw_reg((void __iomem *)(uintptr_t)unlock, 32, ~data);
+}
+
 void sh_pfc_write(struct sh_pfc *pfc, u32 reg, u32 data)
 {
-	void __iomem *unlock_reg =
-		(void __iomem *)(uintptr_t)pfc->info->unlock_reg;
-
-	if (pfc->info->unlock_reg)
-		sh_pfc_write_raw_reg(unlock_reg, 32, ~data);
-
+	sh_pfc_unlock_reg(pfc, reg, data);
 	sh_pfc_write_raw_reg((void __iomem *)(uintptr_t)reg, 32, data);
 }
 
@@ -168,8 +179,6 @@ static void sh_pfc_write_config_reg(struct sh_pfc *pfc,
 				    unsigned int field, u32 value)
 {
 	void __iomem *mapped_reg;
-	void __iomem *unlock_reg =
-		(void __iomem *)(uintptr_t)pfc->info->unlock_reg;
 	unsigned int pos;
 	u32 mask, data;
 
@@ -186,9 +195,7 @@ static void sh_pfc_write_config_reg(struct sh_pfc *pfc,
 	data &= mask;
 	data |= value;
 
-	if (pfc->info->unlock_reg)
-		sh_pfc_write_raw_reg(unlock_reg, 32, ~data);
-
+	sh_pfc_unlock_reg(pfc, crp->reg, data);
 	sh_pfc_write_raw_reg(mapped_reg, crp->reg_width, data);
 }
 
@@ -679,8 +686,6 @@ static int sh_pfc_pinconf_set_drive_strength(struct sh_pfc *pfc,
 	unsigned int size;
 	unsigned int step;
 	void __iomem *reg;
-	void __iomem *unlock_reg =
-		(void __iomem *)(uintptr_t)pfc->info->unlock_reg;
 	u32 val;
 
 	reg = sh_pfc_pinconf_find_drive_strength_reg(pfc, pin, &offset, &size);
@@ -701,9 +706,7 @@ static int sh_pfc_pinconf_set_drive_strength(struct sh_pfc *pfc,
 	val &= ~GENMASK(offset + 4 - 1, offset);
 	val |= strength << offset;
 
-	if (unlock_reg)
-		sh_pfc_write_raw_reg(unlock_reg, 32, ~val);
-
+	sh_pfc_unlock_reg(pfc, (uintptr_t)reg, val);
 	sh_pfc_write_raw_reg(reg, 32, val);
 
 	return 0;
@@ -743,8 +746,6 @@ static int sh_pfc_pinconf_set(struct sh_pfc_pinctrl *pmx, unsigned _pin,
 {
 	struct sh_pfc *pfc = pmx->pfc;
 	void __iomem *pocctrl;
-	void __iomem *unlock_reg =
-		(void __iomem *)(uintptr_t)pfc->info->unlock_reg;
 	u32 addr, val;
 	int bit, ret;
 
@@ -790,9 +791,7 @@ static int sh_pfc_pinconf_set(struct sh_pfc_pinctrl *pmx, unsigned _pin,
 		else
 			val &= ~BIT(bit);
 
-		if (unlock_reg)
-			sh_pfc_write_raw_reg(unlock_reg, 32, ~val);
-
+		sh_pfc_unlock_reg(pfc, addr, val);
 		sh_pfc_write_raw_reg(pocctrl, 32, val);
 
 		break;
