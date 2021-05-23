@@ -148,23 +148,24 @@ static int _stm32_qspi_wait_cmd(struct stm32_qspi_priv *priv,
 				const struct spi_mem_op *op)
 {
 	u32 sr;
-	int ret;
+	int ret = 0;
 
-	if (!op->data.nbytes)
-		return _stm32_qspi_wait_for_not_busy(priv);
-
-	ret = readl_poll_timeout(&priv->regs->sr, sr,
-				 sr & STM32_QSPI_SR_TCF,
-				 STM32_QSPI_CMD_TIMEOUT_US);
-	if (ret) {
-		log_err("cmd timeout (stat:%#x)\n", sr);
-	} else if (readl(&priv->regs->sr) & STM32_QSPI_SR_TEF) {
-		log_err("transfer error (stat:%#x)\n", sr);
-		ret = -EIO;
+	if (op->data.nbytes) {
+		ret = readl_poll_timeout(&priv->regs->sr, sr,
+					 sr & STM32_QSPI_SR_TCF,
+					 STM32_QSPI_CMD_TIMEOUT_US);
+		if (ret) {
+			log_err("cmd timeout (stat:%#x)\n", sr);
+		} else if (readl(&priv->regs->sr) & STM32_QSPI_SR_TEF) {
+			log_err("transfer error (stat:%#x)\n", sr);
+			ret = -EIO;
+		}
+		/* clear flags */
+		writel(STM32_QSPI_FCR_CTCF | STM32_QSPI_FCR_CTEF, &priv->regs->fcr);
 	}
 
-	/* clear flags */
-	writel(STM32_QSPI_FCR_CTCF | STM32_QSPI_FCR_CTEF, &priv->regs->fcr);
+	if (!ret)
+		ret = _stm32_qspi_wait_for_not_busy(priv);
 
 	return ret;
 }
