@@ -1317,8 +1317,6 @@ static int show_efi_boot_order(void)
 	u16 var_name16[9], *p16;
 	void *data;
 	struct efi_load_option lo;
-	char *label, *p;
-	size_t label_len16, label_len;
 	efi_status_t ret;
 
 	size = 0;
@@ -1380,18 +1378,7 @@ static int show_efi_boot_order(void)
 			goto out;
 		}
 
-		label_len16 = u16_strlen(lo.label);
-		label_len = utf16_utf8_strnlen(lo.label, label_len16);
-		label = malloc(label_len + 1);
-		if (!label) {
-			free(data);
-			ret = CMD_RET_FAILURE;
-			goto out;
-		}
-		p = label;
-		utf16_utf8_strncpy(&p, lo.label, label_len16);
-		printf("%2d: %s: %s\n", i + 1, var_name, label);
-		free(label);
+		printf("%2d: %s: %ls\n", i + 1, var_name, lo.label);
 
 		free(data);
 	}
