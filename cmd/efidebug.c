@@ -227,8 +227,7 @@ static int do_efi_capsule_res(struct cmd_tbl *cmdtp, int flag,
 {
 	int capsule_id;
 	char *endp;
-	char var_name[12];
-	u16 var_name16[12], *p;
+	u16 var_name16[12];
 	efi_guid_t guid;
 	struct efi_capsule_result_variable_header *result = NULL;
 	efi_uintn_t size;
@@ -259,9 +258,8 @@ static int do_efi_capsule_res(struct cmd_tbl *cmdtp, int flag,
 		if (capsule_id < 0 || capsule_id > 0xffff)
 			return CMD_RET_USAGE;
 
-		sprintf(var_name, "Capsule%04X", capsule_id);
-		p = var_name16;
-		utf8_utf16_strncpy(&p, var_name, 9);
+		efi_create_indexed_name(var_name16, sizeof(var_name16),
+					"Capsule", capsule_id);
 	}
 
 	size = 0;
@@ -954,8 +952,7 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 {
 	int id;
 	char *endp;
-	char var_name[9];
-	u16 var_name16[9], *p;
+	u16 var_name16[9];
 	efi_guid_t guid;
 	size_t label_len, label_len16;
 	u16 *label;
@@ -988,9 +985,8 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 			if (*endp != '\0' || id > 0xffff)
 				return CMD_RET_USAGE;
 
-			sprintf(var_name, "Boot%04X", id);
-			p = var_name16;
-			utf8_utf16_strncpy(&p, var_name, 9);
+			efi_create_indexed_name(var_name16, sizeof(var_name16),
+						"Boot", id);
 
 			/* label */
 			label_len = strlen(argv[2]);
@@ -1107,8 +1103,7 @@ static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
 	efi_guid_t guid;
 	int id, i;
 	char *endp;
-	char var_name[9];
-	u16 var_name16[9], *p;
+	u16 var_name16[9];
 	efi_status_t ret;
 
 	if (argc == 1)
@@ -1120,10 +1115,8 @@ static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
 		if (*endp != '\0' || id > 0xffff)
 			return CMD_RET_FAILURE;
 
-		sprintf(var_name, "Boot%04X", id);
-		p = var_name16;
-		utf8_utf16_strncpy(&p, var_name, 9);
-
+		efi_create_indexed_name(var_name16, sizeof(var_name16),
+					"Boot", id);
 		ret = EFI_CALL(efi_set_variable(var_name16, &guid, 0, 0, NULL));
 		if (ret) {
 			printf("Cannot remove %ls\n", var_name16);
@@ -1313,8 +1306,7 @@ static int show_efi_boot_order(void)
 	u16 *bootorder;
 	efi_uintn_t size;
 	int num, i;
-	char var_name[9];
-	u16 var_name16[9], *p16;
+	u16 var_name16[9];
 	void *data;
 	struct efi_load_option lo;
 	efi_status_t ret;
@@ -1344,16 +1336,15 @@ static int show_efi_boot_order(void)
 
 	num = size / sizeof(u16);
 	for (i = 0; i < num; i++) {
-		sprintf(var_name, "Boot%04X", bootorder[i]);
-		p16 = var_name16;
-		utf8_utf16_strncpy(&p16, var_name, 9);
+		efi_create_indexed_name(var_name16, sizeof(var_name16),
+					"Boot", i);
 
 		size = 0;
 		ret = EFI_CALL(efi_get_variable(var_name16,
 						&efi_global_variable_guid, NULL,
 						&size, NULL));
 		if (ret != EFI_BUFFER_TOO_SMALL) {
-			printf("%2d: %s: (not defined)\n", i + 1, var_name);
+			printf("%2d: %ls: (not defined)\n", i + 1, var_name16);
 			continue;
 		}
 
@@ -1378,7 +1369,7 @@ static int show_efi_boot_order(void)
 			goto out;
 		}
 
-		printf("%2d: %s: %ls\n", i + 1, var_name, lo.label);
+		printf("%2d: %ls: %ls\n", i + 1, var_name16, lo.label);
 
 		free(data);
 	}
