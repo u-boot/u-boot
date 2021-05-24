@@ -846,7 +846,7 @@ int set_clk_eqos(enum enet_freq type)
 	return 0;
 }
 
-int imx_eqos_txclk_set_rate(u32 rate)
+int imx_eqos_txclk_set_rate(ulong rate)
 {
 	u32 val;
 	u32 eqos_post_div;

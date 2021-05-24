@@ -9,9 +9,16 @@
 static int do_test_stackprot_fail(struct cmd_tbl *cmdtp, int flag, int argc,
 				  char *const argv[])
 {
+	/*
+	 * In order to avoid having the compiler optimize away the stack smashing
+	 * we need to do a little something here.
+	 */
 	char a[128];
 
 	memset(a, 0xa5, 512);
+
+	printf("We have smashed our stack as this should not exceed 128: sizeof(a) = %ld\n", strlen(a));
+
 	return 0;
 }
 

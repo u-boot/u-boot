@@ -126,7 +126,7 @@ static struct dwc3_device dwc3_device_data = {
 	.index = 0,
 };
 
-int usb_gadget_handle_interrupts(void)
+int usb_gadget_handle_interrupts(int index)
 {
 	dwc3_uboot_handle_interrupt(0);
 	return 0;

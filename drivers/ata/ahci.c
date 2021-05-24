@@ -110,7 +110,7 @@ static int waiting_for_cmd_completed(void __iomem *offset,
 	return (i < timeout_msec) ? 0 : -1;
 }
 
-int __weak ahci_link_up(struct ahci_uc_priv *uc_priv, u8 port)
+int __weak ahci_link_up(struct ahci_uc_priv *uc_priv, int port)
 {
 	u32 tmp;
 	int j = 0;

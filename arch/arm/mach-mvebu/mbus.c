@@ -98,9 +98,9 @@ struct mvebu_mbus_soc_data {
 };
 
 struct mvebu_mbus_state mbus_state
-	__attribute__ ((section(".data")));
+	__section(".data");
 static struct mbus_dram_target_info mbus_dram_info
-	__attribute__ ((section(".data")));
+	__section(".data");
 
 /*
  * Functions to manipulate the address decoding windows

@@ -33,6 +33,7 @@ config ARC
 
 config ARM
 	bool "ARM architecture"
+	select ARCH_SUPPORTS_LTO
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC if !ARM64
 	select SUPPORT_OF_CONTROL
@@ -101,6 +102,7 @@ config RISCV
 
 config SANDBOX
 	bool "Sandbox"
+	select ARCH_SUPPORTS_LTO
 	select BOARD_LATE_INIT
 	select BZIP2
 	select CMD_POWEROFF
@@ -124,6 +126,7 @@ config SANDBOX
 	select SUPPORT_EXTENSION_SCAN
 	imply BITREVERSE
 	select BLOBLIST
+	imply LTO
 	imply CMD_DM
 	imply CMD_EXCEPTION
 	imply CMD_GETTIME

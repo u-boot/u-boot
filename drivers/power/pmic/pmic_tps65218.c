@@ -86,7 +86,7 @@ int tps65218_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 	return 0;
 }
 #else
-struct udevice *tps65218_dev __attribute__((section(".data"))) = NULL;
+struct udevice *tps65218_dev __section(".data") = NULL;
 
 int tps65218_reg_read(uchar dest_reg, uchar *dest_val)
 {

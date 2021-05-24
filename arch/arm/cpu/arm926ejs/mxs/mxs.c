@@ -25,6 +25,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/sections.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -98,7 +99,6 @@ int arch_cpu_init(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
-	extern uint32_t _start;
 
 	mx28_fixup_vt((uint32_t)&_start);
 

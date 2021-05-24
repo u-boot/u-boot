@@ -8,7 +8,7 @@
 #include <i2c.h>
 #include <power/tps65910.h>
 
-struct udevice *tps65910_dev __attribute__((section(".data"))) = NULL;
+struct udevice *tps65910_dev __section(".data") = NULL;
 
 static inline int tps65910_read_reg(int addr, uchar *buf)
 {

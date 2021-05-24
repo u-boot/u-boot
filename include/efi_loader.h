@@ -217,8 +217,8 @@ extern const efi_guid_t efi_guid_firmware_management_protocol;
 /* GUID for the ESRT */
 extern const efi_guid_t efi_esrt_guid;
 
-extern unsigned int __efi_runtime_start, __efi_runtime_stop;
-extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
+extern char __efi_runtime_start[], __efi_runtime_stop[];
+extern char __efi_runtime_rel_start[], __efi_runtime_rel_stop[];
 
 /**
  * struct efi_open_protocol_info_item - open protocol info item
@@ -678,12 +678,51 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
 
-/*
- * Use these to indicate that your code / data should go into the EFI runtime
- * section and thus still be available when the OS is running
+/**
+ * __efi_runtime_data - declares a non-const variable for EFI runtime section
+ *
+ * This macro indicates that a variable is non-const and should go into the
+ * EFI runtime section, and thus still be available when the OS is running.
+ *
+ * Only use on variables not declared const.
+ *
+ * Example:
+ *
+ * ::
+ *
+ *   static __efi_runtime_data my_computed_table[256];
  */
-#define __efi_runtime_data __attribute__ ((section (".data.efi_runtime")))
-#define __efi_runtime __attribute__ ((section (".text.efi_runtime")))
+#define __efi_runtime_data __section(".data.efi_runtime")
+
+/**
+ * __efi_runtime_rodata - declares a read-only variable for EFI runtime section
+ *
+ * This macro indicates that a variable is read-only (const) and should go into
+ * the EFI runtime section, and thus still be available when the OS is running.
+ *
+ * Only use on variables also declared const.
+ *
+ * Example:
+ *
+ * ::
+ *
+ *   static const __efi_runtime_rodata my_const_table[] = { 1, 2, 3 };
+ */
+#define __efi_runtime_rodata __section(".rodata.efi_runtime")
+
+/**
+ * __efi_runtime - declares a function for EFI runtime section
+ *
+ * This macro indicates that a function should go into the EFI runtime section,
+ * and thus still be available when the OS is running.
+ *
+ * Example:
+ *
+ * ::
+ *
+ *   static __efi_runtime compute_my_table(void);
+ */
+#define __efi_runtime __section(".text.efi_runtime")
 
 /* Indicate supported runtime services */
 efi_status_t efi_init_runtime_supported(void);
@@ -888,6 +927,7 @@ efi_status_t efi_launch_capsules(void);
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 #define __efi_runtime_data
+#define __efi_runtime_rodata
 #define __efi_runtime
 static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 {

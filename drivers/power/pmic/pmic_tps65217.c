@@ -8,7 +8,7 @@
 #include <i2c.h>
 #include <power/tps65217.h>
 
-struct udevice *tps65217_dev __attribute__((section(".data"))) = NULL;
+struct udevice *tps65217_dev __section(".data") = NULL;
 
 /**
  * tps65217_reg_read() - Generic function that can read a TPS65217 register

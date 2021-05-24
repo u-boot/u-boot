@@ -537,7 +537,7 @@ enum boot_device get_boot_device(void)
 
 	ret = g_rom_api->query_boot_infor(QUERY_BT_DEV, &boot,
 					  ((uintptr_t)&boot) ^ QUERY_BT_DEV);
-	gd = pgd;
+	set_gd(pgd);
 
 	if (ret != ROM_API_OKAY) {
 		puts("ROMAPI: failure at query_boot_info\n");

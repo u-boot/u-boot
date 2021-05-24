@@ -26,7 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * WARNING: This is going away very soon. Don't use it and don't submit
  * pafches that rely on it. The global_data area is set up in crt0.S.
  */
-gd_t gdata __attribute__ ((section(".data")));
+gd_t gdata __section(".data");
 #endif
 
 /*
