@@ -1147,8 +1147,6 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 {
 	struct efi_device_path *initrd_path = NULL;
 	struct efi_load_option lo;
-	char *label, *p;
-	size_t label_len16, label_len;
 	u16 *dp_str;
 	efi_status_t ret;
 	efi_uintn_t initrd_dp_size;
@@ -1160,14 +1158,6 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 		return;
 	}
 
-	label_len16 = u16_strlen(lo.label);
-	label_len = utf16_utf8_strnlen(lo.label, label_len16);
-	label = malloc(label_len + 1);
-	if (!label)
-		return;
-	p = label;
-	utf16_utf8_strncpy(&p, lo.label, label_len16);
-
 	printf("%ls:\nattributes: %c%c%c (0x%08x)\n",
 	       varname16,
 	       /* ACTIVE */
@@ -1177,7 +1167,7 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 	       /* HIDDEN */
 	       lo.attributes & LOAD_OPTION_HIDDEN ? 'H' : '-',
 	       lo.attributes);
-	printf("  label: %s\n", label);
+	printf("  label: %ls\n", lo.label);
 
 	dp_str = efi_dp_str(lo.file_path);
 	printf("  file_path: %ls\n", dp_str);
@@ -1194,7 +1184,6 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 	printf("  data:\n");
 	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
 		       lo.optional_data, *size, true);
-	free(label);
 }
 
 /**
