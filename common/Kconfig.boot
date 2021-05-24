@@ -80,7 +80,6 @@ config FIT_SIGNATURE
 	select RSA_VERIFY
 	select IMAGE_SIGN_INFO
 	select FIT_FULL_CHECK
-	select HASH_CALCULATE
 	help
 	  This option enables signature verification of FIT uImages,
 	  using a hash signed and verified using RSA. If
