@@ -12,6 +12,7 @@
 #include <efi_load_initrd.h>
 #include <efi_loader.h>
 #include <efi_rng.h>
+#include <efi_variable.h>
 #include <exports.h>
 #include <hexdump.h>
 #include <log.h>
@@ -239,8 +240,9 @@ static int do_efi_capsule_res(struct cmd_tbl *cmdtp, int flag,
 	guid = efi_guid_capsule_report;
 	if (argc == 1) {
 		size = sizeof(var_name16);
-		ret = EFI_CALL(RT->get_variable(L"CapsuleLast", &guid, NULL,
-						&size, var_name16));
+		ret = efi_get_variable_int(L"CapsuleLast", &guid, NULL,
+					   &size, var_name16, NULL);
+
 		if (ret != EFI_SUCCESS) {
 			if (ret == EFI_NOT_FOUND)
 				printf("CapsuleLast doesn't exist\n");
@@ -263,13 +265,13 @@ static int do_efi_capsule_res(struct cmd_tbl *cmdtp, int flag,
 	}
 
 	size = 0;
-	ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size, NULL));
+	ret = efi_get_variable_int(var_name16, &guid, NULL, &size, NULL, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		result = malloc(size);
 		if (!result)
 			return CMD_RET_FAILURE;
-		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
-						result));
+		ret = efi_get_variable_int(var_name16, &guid, NULL, &size,
+					   result, NULL);
 	}
 	if (ret != EFI_SUCCESS) {
 		free(result);
@@ -1062,11 +1064,11 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 		goto out;
 	}
 
-	ret = EFI_CALL(efi_set_variable(var_name16, &guid,
-					EFI_VARIABLE_NON_VOLATILE |
-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
-					EFI_VARIABLE_RUNTIME_ACCESS,
-					size, data));
+	ret = efi_set_variable_int(var_name16, &guid,
+				   EFI_VARIABLE_NON_VOLATILE |
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS,
+				   size, data, false);
 	if (ret != EFI_SUCCESS) {
 		printf("Cannot set %ls\n", var_name16);
 		r = CMD_RET_FAILURE;
@@ -1117,7 +1119,8 @@ static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
 
 		efi_create_indexed_name(var_name16, sizeof(var_name16),
 					"Boot", id);
-		ret = EFI_CALL(efi_set_variable(var_name16, &guid, 0, 0, NULL));
+		ret = efi_set_variable_int(var_name16, &guid, 0, 0, NULL,
+					   false);
 		if (ret) {
 			printf("Cannot remove %ls\n", var_name16);
 			return CMD_RET_FAILURE;
@@ -1416,11 +1419,11 @@ static int do_efi_boot_next(struct cmd_tbl *cmdtp, int flag,
 
 	guid = efi_global_variable_guid;
 	size = sizeof(u16);
-	ret = EFI_CALL(efi_set_variable(L"BootNext", &guid,
+	ret = efi_set_variable_int(L"BootNext", &guid,
 					EFI_VARIABLE_NON_VOLATILE |
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
-					size, &bootnext));
+					size, &bootnext, false);
 	if (ret != EFI_SUCCESS) {
 		printf("Cannot set BootNext\n");
 		r = CMD_RET_FAILURE;
@@ -1477,11 +1480,11 @@ static int do_efi_boot_order(struct cmd_tbl *cmdtp, int flag,
 	}
 
 	guid = efi_global_variable_guid;
-	ret = EFI_CALL(efi_set_variable(L"BootOrder", &guid,
+	ret = efi_set_variable_int(L"BootOrder", &guid,
 					EFI_VARIABLE_NON_VOLATILE |
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
-					size, bootorder));
+					size, bootorder, true);
 	if (ret != EFI_SUCCESS) {
 		printf("Cannot set BootOrder\n");
 		r = CMD_RET_FAILURE;
