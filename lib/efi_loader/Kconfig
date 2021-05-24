@@ -166,6 +166,7 @@ config EFI_CAPSULE_AUTHENTICATE
 	depends on EFI_CAPSULE_FIRMWARE
 	depends on EFI_CAPSULE_ON_DISK
 	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	select HASH
 	select SHA256
 	select RSA
 	select RSA_VERIFY
@@ -334,6 +335,7 @@ config EFI_LOAD_FILE2_INITRD
 config EFI_SECURE_BOOT
 	bool "Enable EFI secure boot support"
 	depends on EFI_LOADER
+	select HASH
 	select SHA256
 	select RSA
 	select RSA_VERIFY_WITH_PKEY
