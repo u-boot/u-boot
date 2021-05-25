@@ -24,6 +24,9 @@ struct efi_auth_var_name_type {
 	const enum efi_auth_var_type type;
 };
 
+const efi_guid_t efi_guid_image_security_database =
+		EFI_IMAGE_SECURITY_DATABASE_GUID;
+
 static const struct efi_auth_var_name_type name_type[] = {
 	{u"PK", &efi_global_variable_guid, EFI_AUTH_VAR_PK},
 	{u"KEK", &efi_global_variable_guid, EFI_AUTH_VAR_KEK},

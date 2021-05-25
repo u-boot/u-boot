@@ -1171,7 +1171,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	struct blk_desc *desc = NULL;
 	struct disk_partition fs_partition;
 	int part = 0;
-	char filename[32] = { 0 }; /* dp->str is u16[32] long */
+	char *filename;
 	char *s;
 
 	if (path && !file)
@@ -1198,12 +1198,17 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (!path)
 		return EFI_SUCCESS;
 
-	snprintf(filename, sizeof(filename), "%s", path);
+	filename = calloc(1, strlen(path) + 1);
+	if (!filename)
+		return EFI_OUT_OF_RESOURCES;
+
+	sprintf(filename, "%s", path);
 	/* DOS style file path: */
 	s = filename;
 	while ((s = strchr(s, '/')))
 		*s++ = '\\';
 	*file = efi_dp_from_file(desc, part, filename);
+	free(filename);
 
 	if (!*file)
 		return EFI_INVALID_PARAMETER;

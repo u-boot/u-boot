@@ -208,16 +208,6 @@ skip:
 const efi_guid_t efi_guid_capsule_root_cert_guid =
 	EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
 
-__weak int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
-{
-	/* The platform is supposed to provide
-	 * a method for getting the public key
-	 * stored in the form of efi signature
-	 * list
-	 */
-	return 0;
-}
-
 efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
 				      void **image, efi_uintn_t *image_size)
 {

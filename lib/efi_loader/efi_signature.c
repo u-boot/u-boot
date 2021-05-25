@@ -15,18 +15,16 @@
 #include <crypto/public_key.h>
 #include <linux/compat.h>
 #include <linux/oid_registry.h>
+#include <u-boot/hash-checksum.h>
 #include <u-boot/rsa.h>
 #include <u-boot/sha256.h>
 
-const efi_guid_t efi_guid_image_security_database =
-		EFI_IMAGE_SECURITY_DATABASE_GUID;
 const efi_guid_t efi_guid_sha256 = EFI_CERT_SHA256_GUID;
 const efi_guid_t efi_guid_cert_rsa2048 = EFI_CERT_RSA2048_GUID;
 const efi_guid_t efi_guid_cert_x509 = EFI_CERT_X509_GUID;
 const efi_guid_t efi_guid_cert_x509_sha256 = EFI_CERT_X509_SHA256_GUID;
 const efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
-#if defined(CONFIG_EFI_SECURE_BOOT) || defined(CONFIG_EFI_CAPSULE_AUTHENTICATE)
 static u8 pkcs7_hdr[] = {
 	/* SEQUENCE */
 	0x30, 0x82, 0x05, 0xc7,
@@ -540,68 +538,6 @@ out:
 }
 
 /**
- * efi_image_region_add() - add an entry of region
- * @regs:	Pointer to array of regions
- * @start:	Start address of region (included)
- * @end:	End address of region (excluded)
- * @nocheck:	flag against overlapped regions
- *
- * Take one entry of region [@start, @end[ and insert it into the list.
- *
- * * If @nocheck is false, the list will be sorted ascending by address.
- *   Overlapping entries will not be allowed.
- *
- * * If @nocheck is true, the list will be sorted ascending by sequence
- *   of adding the entries. Overlapping is allowed.
- *
- * Return:	status code
- */
-efi_status_t efi_image_region_add(struct efi_image_regions *regs,
-				  const void *start, const void *end,
-				  int nocheck)
-{
-	struct image_region *reg;
-	int i, j;
-
-	if (regs->num >= regs->max) {
-		EFI_PRINT("%s: no more room for regions\n", __func__);
-		return EFI_OUT_OF_RESOURCES;
-	}
-
-	if (end < start)
-		return EFI_INVALID_PARAMETER;
-
-	for (i = 0; i < regs->num; i++) {
-		reg = &regs->reg[i];
-		if (nocheck)
-			continue;
-
-		/* new data after registered region */
-		if (start >= reg->data + reg->size)
-			continue;
-
-		/* new data preceding registered region */
-		if (end <= reg->data) {
-			for (j = regs->num - 1; j >= i; j--)
-				memcpy(&regs->reg[j + 1], &regs->reg[j],
-				       sizeof(*reg));
-			break;
-		}
-
-		/* new data overlapping registered region */
-		EFI_PRINT("%s: new region already part of another\n", __func__);
-		return EFI_INVALID_PARAMETER;
-	}
-
-	reg = &regs->reg[i];
-	reg->data = start;
-	reg->size = end - start;
-	regs->num++;
-
-	return EFI_SUCCESS;
-}
-
-/**
  * efi_sigstore_free - free signature store
  * @sigstore:	Pointer to signature store structure
  *
@@ -846,4 +782,3 @@ struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name)
 
 	return efi_build_signature_store(db, db_size);
 }
-#endif /* CONFIG_EFI_SECURE_BOOT || CONFIG_EFI_CAPSULE_AUTHENTICATE */
