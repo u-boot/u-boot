@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <serial.h>
 #include <asm/io.h>
+#include <asm/arch/cpu.h>
 
 struct mvebu_plat {
 	void __iomem *base;
@@ -28,8 +29,6 @@ struct mvebu_plat {
 
 #define UART_CTRL_RXFIFO_RESET	0x4000
 #define UART_CTRL_TXFIFO_RESET	0x8000
-
-#define CONFIG_UART_BASE_CLOCK	25804800
 
 static int mvebu_serial_putc(struct udevice *dev, const char ch)
 {
@@ -75,12 +74,15 @@ static int mvebu_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct mvebu_plat *plat = dev_get_plat(dev);
 	void __iomem *base = plat->base;
+	u32 parent_rate, divider;
 
 	/*
 	 * Calculate divider
 	 * baudrate = clock / 16 / divider
 	 */
-	writel(CONFIG_UART_BASE_CLOCK / baudrate / 16, base + UART_BAUD_REG);
+	parent_rate = get_ref_clk() * 1000000;
+	divider = DIV_ROUND_CLOSEST(parent_rate, baudrate * 16);
+	writel(divider, base + UART_BAUD_REG);
 
 	/*
 	 * Set Programmable Oversampling Stack to 0,
@@ -144,6 +146,7 @@ U_BOOT_DRIVER(serial_mvebu) = {
 static inline void _debug_uart_init(void)
 {
 	void __iomem *base = (void __iomem *)CONFIG_DEBUG_UART_BASE;
+	u32 baudrate, parent_rate, divider;
 
 	/* reset FIFOs */
 	writel(UART_CTRL_RXFIFO_RESET | UART_CTRL_TXFIFO_RESET,
@@ -156,7 +159,10 @@ static inline void _debug_uart_init(void)
 	 * Calculate divider
 	 * baudrate = clock / 16 / divider
 	 */
-	writel(CONFIG_UART_BASE_CLOCK / 115200 / 16, base + UART_BAUD_REG);
+	baudrate = 115200;
+	parent_rate = get_ref_clk() * 1000000;
+	divider = DIV_ROUND_CLOSEST(parent_rate, baudrate * 16);
+	writel(divider, base + UART_BAUD_REG);
 
 	/*
 	 * Set Programmable Oversampling Stack to 0,
