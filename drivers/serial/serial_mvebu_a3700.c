@@ -204,6 +204,71 @@ static int mvebu_serial_probe(struct udevice *dev)
 	return 0;
 }
 
+static int mvebu_serial_remove(struct udevice *dev)
+{
+	struct mvebu_plat *plat = dev_get_plat(dev);
+	void __iomem *base = plat->base;
+	ulong new_parent_rate, parent_rate;
+	u32 new_divider, divider;
+	u32 new_oversampling;
+	u32 oversampling;
+	u32 d1, d2;
+
+	/*
+	 * Switch UART base clock back to XTAL because older Linux kernel
+	 * expects it. Otherwise it does not calculate UART divisor correctly
+	 * and therefore UART does not work in kernel.
+	 */
+	divider = readl(base + UART_BAUD_REG);
+	if (!(divider & BIT(19))) /* UART already uses XTAL */
+		return 0;
+
+	/* Read current divisors settings */
+	d1 = (divider >> 15) & 7;
+	d2 = (divider >> 12) & 7;
+	parent_rate = plat->tbg_rate;
+	divider &= 1023;
+	oversampling = readl(base + UART_POSSR_REG) & 63;
+	if (!oversampling)
+		oversampling = 16;
+
+	/* Calculate new divisor against XTAL clock without changing baudrate */
+	new_oversampling = 0;
+	new_parent_rate = get_ref_clk() * 1000000;
+	new_divider = DIV_ROUND_CLOSEST(new_parent_rate * divider * d1 * d2 *
+					oversampling, parent_rate * 16);
+
+	/*
+	 * UART does not work reliably when XTAL divisor is smaller than 4.
+	 * In this case we do not switch UART parent to XTAL. User either
+	 * configured unsupported settings or has newer kernel with patches
+	 * which allow usage of non-XTAL clock as a parent clock.
+	 */
+	if (new_divider < 4)
+		return 0;
+
+	/*
+	 * If new divisor is larger than maximal supported, try to switch
+	 * from default x16 scheme to oversampling with maximal factor 63.
+	 */
+	if (new_divider > 1023) {
+		new_oversampling = 63;
+		new_divider = DIV_ROUND_CLOSEST(new_parent_rate * divider * d1 *
+						d2 * oversampling,
+						parent_rate * new_oversampling);
+		if (new_divider < 4 || new_divider > 1023)
+			return 0;
+	}
+
+	while (!(readl(base + UART_STATUS_REG) & UART_STATUS_TX_EMPTY))
+		;
+
+	writel(new_divider, base + UART_BAUD_REG);
+	writel(new_oversampling, base + UART_POSSR_REG);
+
+	return 0;
+}
+
 static int mvebu_serial_of_to_plat(struct udevice *dev)
 {
 	struct mvebu_plat *plat = dev_get_plat(dev);
@@ -232,6 +297,8 @@ U_BOOT_DRIVER(serial_mvebu) = {
 	.of_to_plat = mvebu_serial_of_to_plat,
 	.plat_auto	= sizeof(struct mvebu_plat),
 	.probe	= mvebu_serial_probe,
+	.remove	= mvebu_serial_remove,
+	.flags	= DM_FLAG_OS_PREPARE,
 	.ops	= &mvebu_serial_ops,
 };
 
