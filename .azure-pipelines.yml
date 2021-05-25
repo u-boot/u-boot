@@ -205,18 +205,6 @@ jobs:
         qemu_arm64:
           TEST_PY_BD: "qemu_arm64"
           TEST_PY_TEST_SPEC: "not sleep"
-        qemu_mips:
-          TEST_PY_BD: "qemu_mips"
-          TEST_PY_TEST_SPEC: "not sleep"
-        qemu_mipsel:
-          TEST_PY_BD: "qemu_mipsel"
-          TEST_PY_TEST_SPEC: "not sleep"
-        qemu_mips64:
-          TEST_PY_BD: "qemu_mips64"
-          TEST_PY_TEST_SPEC: "not sleep"
-        qemu_mips64el:
-          TEST_PY_BD: "qemu_mips64el"
-          TEST_PY_TEST_SPEC: "not sleep"
         qemu_malta:
           TEST_PY_BD: "malta"
           TEST_PY_ID: "--id qemu"

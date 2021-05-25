@@ -12,16 +12,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_QEMU_MIPS
-	bool "Support qemu-mips"
-	select ROM_EXCEPTION_VECTORS
-	select SUPPORTS_BIG_ENDIAN
-	select SUPPORTS_CPU_MIPS32_R1
-	select SUPPORTS_CPU_MIPS32_R2
-	select SUPPORTS_CPU_MIPS64_R1
-	select SUPPORTS_CPU_MIPS64_R2
-	select SUPPORTS_LITTLE_ENDIAN
-
 config TARGET_MALTA
 	bool "Support malta"
 	select DM
@@ -174,7 +164,6 @@ endchoice
 source "board/imgtec/boston/Kconfig"
 source "board/imgtec/malta/Kconfig"
 source "board/imgtec/xilfpga/Kconfig"
-source "board/qemu-mips/Kconfig"
 source "arch/mips/mach-ath79/Kconfig"
 source "arch/mips/mach-mscc/Kconfig"
 source "arch/mips/mach-bmips/Kconfig"
