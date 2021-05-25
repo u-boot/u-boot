@@ -297,3 +297,24 @@ static int dm_test_ofnode_get_reg(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_get_reg, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_get_path(struct unit_test_state *uts)
+{
+	const char *path = "/translation-test@8000/noxlatebus@3,300/dev@42";
+	char buf[64];
+	ofnode node;
+	int res;
+
+	node = ofnode_path(path);
+	ut_assert(ofnode_valid(node));
+
+	res = ofnode_get_path(node, buf, 64);
+	ut_asserteq(0, res);
+	ut_asserteq_str(path, buf);
+
+	res = ofnode_get_path(node, buf, 32);
+	ut_asserteq(-ENOSPC, res);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_path, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

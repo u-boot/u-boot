@@ -459,6 +459,16 @@ ofnode ofnode_get_parent(ofnode node);
 const char *ofnode_get_name(ofnode node);
 
 /**
+ * ofnode_get_path() - get the full path of a node
+ *
+ * @node: valid node to look up
+ * @buf: buffer to write the node path into
+ * @buflen: buffer size
+ * @return 0 if OK, -ve on error
+ */
+int ofnode_get_path(ofnode node, char *buf, int buflen);
+
+/**
  * ofnode_get_by_phandle() - get ofnode from phandle
  *
  * @phandle:	phandle to look up
