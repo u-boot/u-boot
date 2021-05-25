@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <serial.h>
 #include <asm/io.h>
@@ -11,6 +12,8 @@
 
 struct mvebu_plat {
 	void __iomem *base;
+	ulong tbg_rate;
+	u8 tbg_idx;
 };
 
 /*
@@ -74,21 +77,70 @@ static int mvebu_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct mvebu_plat *plat = dev_get_plat(dev);
 	void __iomem *base = plat->base;
-	u32 parent_rate, divider;
+	u32 divider, d1, d2;
+	u32 oversampling;
 
 	/*
 	 * Calculate divider
 	 * baudrate = clock / 16 / divider
 	 */
-	parent_rate = get_ref_clk() * 1000000;
-	divider = DIV_ROUND_CLOSEST(parent_rate, baudrate * 16);
-	writel(divider, base + UART_BAUD_REG);
+	d1 = d2 = 1;
+	divider = DIV_ROUND_CLOSEST(plat->tbg_rate, baudrate * 16 * d1 * d2);
 
 	/*
 	 * Set Programmable Oversampling Stack to 0,
 	 * UART defaults to 16x scheme
 	 */
-	writel(0, base + UART_POSSR_REG);
+	oversampling = 0;
+
+	if (divider < 1)
+		divider = 1;
+	else if (divider > 1023) {
+		/*
+		 * If divider is too high for selected baudrate then set
+		 * divider d1 to the maximal value 6.
+		 */
+		d1 = 6;
+		divider = DIV_ROUND_CLOSEST(plat->tbg_rate,
+					    baudrate * 16 * d1 * d2);
+		if (divider < 1)
+			divider = 1;
+		else if (divider > 1023) {
+			/*
+			 * If divider is still too high then set also divider
+			 * d2 to the maximal value 6.
+			 */
+			d2 = 6;
+			divider = DIV_ROUND_CLOSEST(plat->tbg_rate,
+						    baudrate * 16 * d1 * d2);
+			if (divider < 1)
+				divider = 1;
+			else if (divider > 1023) {
+				/*
+				 * And if divider is still to high then
+				 * use oversampling with maximal factor 63.
+				 */
+				oversampling = (63 << 0) | (63 << 8) |
+					      (63 << 16) | (63 << 24);
+				divider = DIV_ROUND_CLOSEST(plat->tbg_rate,
+						baudrate * 63 * d1 * d2);
+				if (divider < 1)
+					divider = 1;
+				else if (divider > 1023)
+					divider = 1023;
+			}
+		}
+	}
+
+	divider |= BIT(19); /* Do not use XTAL as a base clock */
+	divider |= d1 << 15; /* Set d1 divider */
+	divider |= d2 << 12; /* Set d2 divider */
+	divider |= plat->tbg_idx << 10; /* Use selected TBG as a base clock */
+
+	while (!(readl(base + UART_STATUS_REG) & UART_STATUS_TX_EMPTY))
+		;
+	writel(divider, base + UART_BAUD_REG);
+	writel(oversampling, base + UART_POSSR_REG);
 
 	return 0;
 }
@@ -97,6 +149,50 @@ static int mvebu_serial_probe(struct udevice *dev)
 {
 	struct mvebu_plat *plat = dev_get_plat(dev);
 	void __iomem *base = plat->base;
+	struct udevice *nb_clk;
+	ofnode nb_clk_node;
+	int i, res;
+
+	nb_clk_node = ofnode_by_compatible(ofnode_null(),
+					   "marvell,armada-3700-periph-clock-nb");
+	if (!ofnode_valid(nb_clk_node)) {
+		printf("%s: NB periph clock node not available\n", __func__);
+		return -ENODEV;
+	}
+
+	res = device_get_global_by_ofnode(nb_clk_node, &nb_clk);
+	if (res) {
+		printf("%s: Cannot get NB periph clock\n", __func__);
+		return res;
+	}
+
+	/*
+	 * Choose the TBG clock with lowest frequency which allows to configure
+	 * UART also at lower baudrates.
+	 */
+	for (i = 0; i < 4; i++) {
+		struct clk clk;
+		ulong rate;
+
+		res = clk_get_by_index_nodev(nb_clk_node, i, &clk);
+		if (res) {
+			printf("%s: Cannot get TBG clock %i: %i\n", __func__,
+			       i, res);
+			return -ENODEV;
+		}
+
+		rate = clk_get_rate(&clk);
+		if (!rate || IS_ERR_VALUE(rate)) {
+			printf("%s: Cannot get rate for TBG clock %i\n",
+			       __func__, i);
+			return -EINVAL;
+		}
+
+		if (!i || plat->tbg_rate > rate) {
+			plat->tbg_rate = rate;
+			plat->tbg_idx = i;
+		}
+	}
 
 	/* reset FIFOs */
 	writel(UART_CTRL_RXFIFO_RESET | UART_CTRL_TXFIFO_RESET,
