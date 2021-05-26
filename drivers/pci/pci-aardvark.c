@@ -717,7 +717,7 @@ static const struct dm_pci_ops pcie_advk_ops = {
 };
 
 static const struct udevice_id pcie_advk_ids[] = {
-	{ .compatible = "marvell,armada-37xx-pcie" },
+	{ .compatible = "marvell,armada-3700-pcie" },
 	{ }
 };
 
