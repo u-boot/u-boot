@@ -403,6 +403,9 @@ static int tpm2_get_pcr_info(struct udevice *dev, u32 *supported_pcr,
 	size_t i;
 	int tpm_ret;
 
+	*supported_pcr = 0;
+	*active_pcr = 0;
+	*pcr_banks = 0;
 	memset(response, 0, sizeof(response));
 	ret = tpm2_get_capability(dev, TPM2_CAP_PCRS, 0, response, 1);
 	if (ret)
@@ -481,7 +484,7 @@ out:
 static efi_status_t __get_active_pcr_banks(u32 *active_pcr_banks)
 {
 	struct udevice *dev;
-	u32 active, supported, pcr_banks;
+	u32 active = 0, supported = 0, pcr_banks = 0;
 	efi_status_t ret;
 	int err;
 
@@ -900,7 +903,7 @@ static efi_status_t create_specid_event(struct udevice *dev, void *buffer,
 	struct tcg_efi_spec_id_event *spec_event;
 	size_t spec_event_size;
 	efi_status_t ret = EFI_DEVICE_ERROR;
-	u32 active, supported;
+	u32 active = 0, supported = 0;
 	int err;
 	size_t i;
 
