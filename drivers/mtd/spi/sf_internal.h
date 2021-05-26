@@ -81,14 +81,14 @@ int spi_flash_cmd_get_sw_write_prot(struct spi_flash *flash);
 
 #if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
 int spi_flash_mtd_register(struct spi_flash *flash);
-void spi_flash_mtd_unregister(void);
+void spi_flash_mtd_unregister(struct spi_flash *flash);
 #else
 static inline int spi_flash_mtd_register(struct spi_flash *flash)
 {
 	return 0;
 }
 
-static inline void spi_flash_mtd_unregister(void)
+static inline void spi_flash_mtd_unregister(struct spi_flash *flash)
 {
 }
 #endif
