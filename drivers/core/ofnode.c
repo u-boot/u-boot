@@ -286,6 +286,31 @@ const char *ofnode_get_name(ofnode node)
 	return fdt_get_name(gd->fdt_blob, ofnode_to_offset(node), NULL);
 }
 
+int ofnode_get_path(ofnode node, char *buf, int buflen)
+{
+	assert(ofnode_valid(node));
+
+	if (ofnode_is_np(node)) {
+		if (strlen(node.np->full_name) >= buflen)
+			return -ENOSPC;
+
+		strcpy(buf, node.np->full_name);
+
+		return 0;
+	} else {
+		int res;
+
+		res = fdt_get_path(gd->fdt_blob, ofnode_to_offset(node), buf,
+				   buflen);
+		if (!res)
+			return res;
+		else if (res == -FDT_ERR_NOSPACE)
+			return -ENOSPC;
+		else
+			return -EINVAL;
+	}
+}
+
 ofnode ofnode_get_by_phandle(uint phandle)
 {
 	ofnode node;
