@@ -289,6 +289,11 @@ static int dm_test_ofnode_get_reg(struct unit_test_state *uts)
 	ut_asserteq(FDT_ADDR_T_NONE, addr);
 	ut_asserteq(FDT_SIZE_T_NONE, size);
 
+	node = ofnode_path("/translation-test@8000/noxlatebus@3,300/dev@42");
+	ut_assert(ofnode_valid(node));
+	addr = ofnode_get_addr_size_index_notrans(node, 0, &size);
+	ut_asserteq_64(0x42, addr);
+
 	return 0;
 }
 DM_TEST(dm_test_ofnode_get_reg, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

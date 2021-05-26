@@ -490,6 +490,23 @@ phys_addr_t ofnode_get_addr_size_index(ofnode node, int index,
 				       fdt_size_t *size);
 
 /**
+ * ofnode_get_addr_size_index_notrans() - get an address/size from a node
+ *					  based on index, without address
+ *					  translation
+ *
+ * This reads the register address/size from a node based on index.
+ * The resulting address is not translated. Useful for example for on-disk
+ * addresses.
+ *
+ * @node: node to read from
+ * @index: Index of address to read (0 for first)
+ * @size: Pointer to size of the address
+ * @return address, or FDT_ADDR_T_NONE if not present or invalid
+ */
+phys_addr_t ofnode_get_addr_size_index_notrans(ofnode node, int index,
+					       fdt_size_t *size);
+
+/**
  * ofnode_get_addr_index() - get an address from a node
  *
  * This reads the register address from a node
