@@ -51,6 +51,7 @@
 	"script_size_f=0x2000\0" \
 	"pxefile_addr_r=0x00600000\0" \
 	"fdt_addr_r=0x01f00000\0" \
+	"fdtoverlay_addr_r=0x02000000\0" \
 	"kernel_addr_r=0x02080000\0" \
 	"ramdisk_addr_r=0x06000000\0" \
 	"kernel_comp_addr_r=0x08000000\0" \
