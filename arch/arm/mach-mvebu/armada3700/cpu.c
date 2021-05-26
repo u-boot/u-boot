@@ -53,8 +53,6 @@
 #define A3700_PTE_BLOCK_DEVICE \
 	(PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_NON_SHARE)
 
-#define PCIE_PATH			"/soc/pcie@d0070000"
-
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct mm_region mvebu_mem_map[MAX_MEM_MAP_REGIONS] = {
@@ -288,7 +286,7 @@ int a3700_fdt_fix_pcie_regions(void *blob)
 	const u32 *ranges;
 	int node, len;
 
-	node = fdt_path_offset(blob, PCIE_PATH);
+	node = fdt_node_offset_by_compatible(blob, -1, "marvell,armada-3700-pcie");
 	if (node < 0)
 		return node;
 
