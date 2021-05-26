@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
+#include <dm/uclass.h>
 #include <linux/err.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
@@ -106,13 +107,9 @@ int mtd_search_alternate_name(const char *mtdname, char *altname,
 static void mtd_probe_uclass_mtd_devs(void)
 {
 	struct udevice *dev;
-	int idx = 0;
 
-	/* Probe devices with DM compliant drivers */
-	while (!uclass_find_device(UCLASS_MTD, idx, &dev) && dev) {
-		mtd_probe(dev);
-		idx++;
-	}
+	uclass_foreach_dev_probe(UCLASS_MTD, dev)
+		;
 }
 #else
 static void mtd_probe_uclass_mtd_devs(void) { }
