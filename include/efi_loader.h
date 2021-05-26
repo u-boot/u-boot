@@ -426,6 +426,10 @@ efi_status_t efi_disk_register(void);
 efi_status_t efi_rng_register(void);
 /* Called by efi_init_obj_list() to install EFI_TCG2_PROTOCOL */
 efi_status_t efi_tcg2_register(void);
+/* measure the pe-coff image, extend PCR and add Event Log */
+efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
+				   struct efi_loaded_image_obj *handle,
+				   struct efi_loaded_image *loaded_image_info);
 /* Create handles and protocols for the partitions of a block device */
 int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			       const char *if_typename, int diskid,
@@ -885,6 +889,8 @@ struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name);
 bool efi_secure_boot_enabled(void);
 
 bool efi_capsule_auth_enabled(void);
+
+void *efi_prepare_aligned_image(void *efi, u64 *efi_size);
 
 bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		     WIN_CERTIFICATE **auth, size_t *auth_len);

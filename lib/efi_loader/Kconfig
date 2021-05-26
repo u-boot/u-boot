@@ -309,6 +309,7 @@ config EFI_TCG2_PROTOCOL
 	select SHA512_ALGO
 	select SHA384
 	select SHA512
+	select HASH
 	help
 	  Provide a EFI_TCG2_PROTOCOL implementation using the TPM hardware
 	  of the platform.

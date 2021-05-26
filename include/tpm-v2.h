@@ -70,6 +70,24 @@ struct udevice;
 #define EV_TABLE_OF_DEVICES		((u32)0x0000000B)
 #define EV_COMPACT_HASH			((u32)0x0000000C)
 
+/*
+ * event types, cf.
+ * "TCG PC Client Platform Firmware Profile Specification", Family "2.0"
+ * rev 1.04, June 3, 2019
+ */
+#define EV_EFI_EVENT_BASE			((u32)0x80000000)
+#define EV_EFI_VARIABLE_DRIVER_CONFIG		((u32)0x80000001)
+#define EV_EFI_VARIABLE_BOOT			((u32)0x80000002)
+#define EV_EFI_BOOT_SERVICES_APPLICATION	((u32)0x80000003)
+#define EV_EFI_BOOT_SERVICES_DRIVER		((u32)0x80000004)
+#define EV_EFI_RUNTIME_SERVICES_DRIVER		((u32)0x80000005)
+#define EV_EFI_GPT_EVENT			((u32)0x80000006)
+#define EV_EFI_ACTION				((u32)0x80000007)
+#define EV_EFI_PLATFORM_FIRMWARE_BLOB		((u32)0x80000008)
+#define EV_EFI_HANDOFF_TABLES			((u32)0x80000009)
+#define EV_EFI_HCRTM_EVENT			((u32)0x80000010)
+#define EV_EFI_VARIABLE_AUTHORITY		((u32)0x800000E0)
+
 /* TPMS_TAGGED_PROPERTY Structure */
 struct tpms_tagged_property {
 	u32 property;

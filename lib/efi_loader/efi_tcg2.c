@@ -13,8 +13,10 @@
 #include <efi_loader.h>
 #include <efi_tcg2.h>
 #include <log.h>
+#include <malloc.h>
 #include <version.h>
 #include <tpm-v2.h>
+#include <u-boot/hash-checksum.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
 #include <u-boot/sha512.h>
@@ -711,6 +713,183 @@ out:
 }
 
 /**
+ * tcg2_hash_pe_image() - calculate PE/COFF image hash
+ *
+ * @efi:		pointer to the EFI binary
+ * @efi_size:		size of @efi binary
+ * @digest_list:	list of digest algorithms to extend
+ *
+ * Return:	status code
+ */
+static efi_status_t tcg2_hash_pe_image(void *efi, u64 efi_size,
+				       struct tpml_digest_values *digest_list)
+{
+	WIN_CERTIFICATE *wincerts = NULL;
+	size_t wincerts_len;
+	struct efi_image_regions *regs = NULL;
+	void *new_efi = NULL;
+	u8 hash[TPM2_SHA512_DIGEST_SIZE];
+	efi_status_t ret;
+	u32 active;
+	int i;
+
+	new_efi = efi_prepare_aligned_image(efi, &efi_size);
+	if (!new_efi)
+		return EFI_OUT_OF_RESOURCES;
+
+	if (!efi_image_parse(new_efi, efi_size, &regs, &wincerts,
+			     &wincerts_len)) {
+		log_err("Parsing PE executable image failed\n");
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
+	ret = __get_active_pcr_banks(&active);
+	if (ret != EFI_SUCCESS) {
+		goto out;
+	}
+
+	digest_list->count = 0;
+	for (i = 0; i < MAX_HASH_COUNT; i++) {
+		u16 hash_alg = hash_algo_list[i].hash_alg;
+
+		if (!(active & alg_to_mask(hash_alg)))
+			continue;
+		switch (hash_alg) {
+		case TPM2_ALG_SHA1:
+			hash_calculate("sha1", regs->reg, regs->num, hash);
+			break;
+		case TPM2_ALG_SHA256:
+			hash_calculate("sha256", regs->reg, regs->num, hash);
+			break;
+		case TPM2_ALG_SHA384:
+			hash_calculate("sha384", regs->reg, regs->num, hash);
+			break;
+		case TPM2_ALG_SHA512:
+			hash_calculate("sha512", regs->reg, regs->num, hash);
+			break;
+		default:
+			EFI_PRINT("Unsupported algorithm %x\n", hash_alg);
+			return EFI_INVALID_PARAMETER;
+		}
+		digest_list->digests[i].hash_alg = hash_alg;
+		memcpy(&digest_list->digests[i].digest, hash, (u32)alg_to_len(hash_alg));
+		digest_list->count++;
+	}
+
+out:
+	if (new_efi != efi)
+		free(new_efi);
+	free(regs);
+
+	return ret;
+}
+
+/**
+ * tcg2_measure_pe_image() - measure PE/COFF image
+ *
+ * @efi:		pointer to the EFI binary
+ * @efi_size:		size of @efi binary
+ * @handle:		loaded image handle
+ * @loaded_image:	loaded image protocol
+ *
+ * Return:	status code
+ */
+efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
+				   struct efi_loaded_image_obj *handle,
+				   struct efi_loaded_image *loaded_image)
+{
+	struct tpml_digest_values digest_list;
+	efi_status_t ret;
+	struct udevice *dev;
+	u32 pcr_index, event_type, event_size;
+	struct uefi_image_load_event *image_load_event;
+	struct efi_device_path *device_path;
+	u32 device_path_length;
+	IMAGE_DOS_HEADER *dos;
+	IMAGE_NT_HEADERS32 *nt;
+	struct efi_handler *handler;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	switch (handle->image_type) {
+	case IMAGE_SUBSYSTEM_EFI_APPLICATION:
+		pcr_index = 4;
+		event_type = EV_EFI_BOOT_SERVICES_APPLICATION;
+		break;
+	case IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER:
+		pcr_index = 2;
+		event_type = EV_EFI_BOOT_SERVICES_DRIVER;
+		break;
+	case IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER:
+		pcr_index = 2;
+		event_type = EV_EFI_RUNTIME_SERVICES_DRIVER;
+		break;
+	default:
+		return EFI_UNSUPPORTED;
+	}
+
+	ret = tcg2_hash_pe_image(efi, efi_size, &digest_list);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = tcg2_pcr_extend(dev, pcr_index, &digest_list);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = EFI_CALL(efi_search_protocol(&handle->header,
+					   &efi_guid_loaded_image_device_path,
+					   &handler));
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	device_path = EFI_CALL(handler->protocol_interface);
+	device_path_length = efi_dp_size(device_path);
+	if (device_path_length > 0) {
+		/* add end node size */
+		device_path_length += sizeof(struct efi_device_path);
+	}
+	event_size = sizeof(struct uefi_image_load_event) + device_path_length;
+	image_load_event = (struct uefi_image_load_event *)malloc(event_size);
+	if (!image_load_event)
+		return EFI_OUT_OF_RESOURCES;
+
+	image_load_event->image_location_in_memory = (uintptr_t)efi;
+	image_load_event->image_length_in_memory = efi_size;
+	image_load_event->length_of_device_path = device_path_length;
+
+	dos = (IMAGE_DOS_HEADER *)efi;
+	nt = (IMAGE_NT_HEADERS32 *)(efi + dos->e_lfanew);
+	if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
+		IMAGE_NT_HEADERS64 *nt64 = (IMAGE_NT_HEADERS64 *)nt;
+
+		image_load_event->image_link_time_address =
+				nt64->OptionalHeader.ImageBase;
+	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
+		image_load_event->image_link_time_address =
+				nt->OptionalHeader.ImageBase;
+	} else {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	if (device_path_length > 0) {
+		memcpy(image_load_event->device_path, device_path,
+		       device_path_length);
+	}
+
+	ret = tcg2_agile_log_append(pcr_index, event_type, &digest_list,
+				    event_size, (u8 *)image_load_event);
+
+out:
+	free(image_load_event);
+
+	return ret;
+}
+
+/**
  * efi_tcg2_hash_log_extend_event() - extend and optionally log events
  *
  * @this:			TCG2 protocol instance
@@ -761,23 +940,31 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
 	/*
 	 * if PE_COFF_IMAGE is set we need to make sure the image is not
 	 * corrupted, verify it and hash the PE/COFF image in accordance with
-	 * the  procedure  specified  in  "Calculating  the  PE  Image  Hash"
-	 * section  of the "Windows Authenticode Portable Executable Signature
+	 * the procedure specified in "Calculating the PE Image Hash"
+	 * section of the "Windows Authenticode Portable Executable Signature
 	 * Format"
-	 * Not supported for now
 	 */
 	if (flags & PE_COFF_IMAGE) {
-		ret = EFI_UNSUPPORTED;
-		goto out;
+		IMAGE_NT_HEADERS32 *nt;
+
+		ret = efi_check_pe((void *)(uintptr_t)data_to_hash,
+				   data_to_hash_len, (void **)&nt);
+		if (ret != EFI_SUCCESS) {
+			log_err("Not a valid PE-COFF file\n");
+			goto out;
+		}
+		ret = tcg2_hash_pe_image((void *)(uintptr_t)data_to_hash,
+					 data_to_hash_len, &digest_list);
+	} else {
+		ret = tcg2_create_digest((u8 *)(uintptr_t)data_to_hash,
+					 data_to_hash_len, &digest_list);
 	}
+
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	pcr_index = efi_tcg_event->header.pcr_index;
 	event_type = efi_tcg_event->header.event_type;
-
-	ret = tcg2_create_digest((u8 *)(uintptr_t)data_to_hash,
-				 data_to_hash_len, &digest_list);
-	if (ret != EFI_SUCCESS)
-		goto out;
 
 	ret = tcg2_pcr_extend(dev, pcr_index, &digest_list);
 	if (ret != EFI_SUCCESS)
