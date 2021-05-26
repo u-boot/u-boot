@@ -675,6 +675,12 @@ static int pcie_advk_remove(struct udevice *dev)
 	struct pcie_advk *pcie = dev_get_priv(dev);
 	u32 reg;
 
+	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
+	reg &= ~(PCIE_CORE_CMD_MEM_ACCESS_EN |
+		 PCIE_CORE_CMD_IO_ACCESS_EN |
+		 PCIE_CORE_CMD_MEM_IO_REQ_EN);
+	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
+
 	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
 	reg &= ~LINK_TRAINING_EN;
 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
