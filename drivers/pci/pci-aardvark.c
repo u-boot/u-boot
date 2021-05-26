@@ -613,11 +613,6 @@ static int pcie_advk_setup_hw(struct pcie_advk *pcie)
 	reg |= PIO_CTRL_ADDR_WIN_DISABLE;
 	advk_writel(pcie, reg, PIO_CTRL);
 
-	/* Start link training */
-	reg = advk_readl(pcie, PCIE_CORE_LINK_CTRL_STAT_REG);
-	reg |= PCIE_CORE_LINK_TRAINING;
-	advk_writel(pcie, reg, PCIE_CORE_LINK_CTRL_STAT_REG);
-
 	/* Wait for PCIe link up */
 	if (pcie_advk_wait_for_link(pcie))
 		return -ENXIO;
