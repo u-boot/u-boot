@@ -20,6 +20,9 @@ config TARGET_QEMU_VIRT
 config TARGET_SIFIVE_UNLEASHED
 	bool "Support SiFive Unleashed Board"
 
+config TARGET_SIFIVE_UNMATCHED
+	bool "Support SiFive Unmatched Board"
+
 config TARGET_SIPEED_MAIX
 	bool "Support Sipeed Maix Board"
 
@@ -56,6 +59,7 @@ source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
 source "board/sifive/unleashed/Kconfig"
+source "board/sifive/unmatched/Kconfig"
 source "board/sipeed/maix/Kconfig"
 
 # platform-specific options below

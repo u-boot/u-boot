@@ -166,7 +166,7 @@ config RESET_IPQ419
 
 config RESET_SIFIVE
 	bool "Reset Driver for SiFive SoC's"
-	depends on DM_RESET && CLK_SIFIVE_PRCI && TARGET_SIFIVE_UNLEASHED
+	depends on DM_RESET && CLK_SIFIVE_PRCI && (TARGET_SIFIVE_UNLEASHED || TARGET_SIFIVE_UNMATCHED)
 	default y
 	help
 	  PRCI module within SiFive SoC's provides mechanism to reset
