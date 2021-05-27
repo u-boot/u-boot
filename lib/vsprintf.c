@@ -434,9 +434,6 @@ static char *uuid_string(char *buf, char *end, u8 *addr, int field_width,
  * - 'i' [46] for 'raw' IPv4/IPv6 addresses, IPv6 omits the colons, IPv4 is
  *       currently the same
  *
- * Note: The difference between 'S' and 'F' is that on ia64 and ppc64
- * function pointers are really function descriptors, which contain a
- * pointer to the real address.
  */
 static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		int field_width, int precision, int flags)
