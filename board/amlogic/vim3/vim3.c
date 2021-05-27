@@ -19,9 +19,15 @@
 
 int mmc_get_env_dev(void)
 {
-	if (meson_get_boot_device() == BOOT_DEVICE_EMMC)
+	switch (meson_get_boot_device()) {
+	case BOOT_DEVICE_EMMC:
 		return 2;
-	return 1;
+	case BOOT_DEVICE_SD:
+		return 1;
+	default:
+		/* boot device is not EMMC|SD */
+		return -1;
+	}
 }
 
 /*
