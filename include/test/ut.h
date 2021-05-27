@@ -177,23 +177,6 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 	}								\
 }
 
-/*
- * Assert that two string expressions are equal, up to length of the
- * first
- */
-#define ut_asserteq_strn(expr1, expr2) {				\
-	const char *_val1 = (expr1), *_val2 = (expr2);			\
-	int _len = strlen(_val1);					\
-									\
-	if (memcmp(_val1, _val2, _len)) {				\
-		ut_failf(uts, __FILE__, __LINE__, __func__,		\
-			 #expr1 " = " #expr2,				\
-			 "Expected \"%.*s\", got \"%.*s\"",		\
-			 _len, _val1, _len, _val2);			\
-		return CMD_RET_FAILURE;					\
-	}								\
-}
-
 /* Assert that two memory areas are equal */
 #define ut_asserteq_mem(expr1, expr2, len) {				\
 	const u8 *_val1 = (u8 *)(expr1), *_val2 = (u8 *)(expr2);	\
