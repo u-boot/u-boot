@@ -193,3 +193,11 @@
 &mcu_fss0_ospi1_pins_default {
 	u-boot,dm-spl;
 };
+
+&main_r5fss0 {
+	ti,cluster-mode = <0>;
+};
+
+&main_r5fss1 {
+	ti,cluster-mode = <0>;
+};
