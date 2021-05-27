@@ -18,7 +18,7 @@ config SIFIVE_FU540
 	imply SPL_LOAD_FIT
 	imply SMP
 	imply CLK_SIFIVE
-	imply CLK_SIFIVE_FU540_PRCI
+	imply CLK_SIFIVE_PRCI
 	imply SIFIVE_SERIAL
 	imply MACB
 	imply MII
