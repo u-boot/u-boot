@@ -434,6 +434,9 @@ static char *uuid_string(char *buf, char *end, u8 *addr, int field_width,
  * - 'i' [46] for 'raw' IPv4/IPv6 addresses, IPv6 omits the colons, IPv4 is
  *       currently the same
  *
+ * Note: IPv6 support is currently if(0)'ed out. If you ever need
+ * %pI6, please add an IPV6 Kconfig knob, make your code select or
+ * depend on that, and change the 0 below to CONFIG_IS_ENABLED(IPV6).
  */
 static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		int field_width, int precision, int flags)
@@ -478,7 +481,8 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		flags |= SPECIAL;
 		/* Fallthrough */
 	case 'I':
-		if (fmt[1] == '6')
+		/* %pI6 currently unused */
+		if (0 && fmt[1] == '6')
 			return ip6_addr_string(buf, end, ptr, field_width,
 					       precision, flags);
 		if (fmt[1] == '4')
