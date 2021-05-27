@@ -61,6 +61,7 @@ source "board/sipeed/maix/Kconfig"
 # platform-specific options below
 source "arch/riscv/cpu/ax25/Kconfig"
 source "arch/riscv/cpu/fu540/Kconfig"
+source "arch/riscv/cpu/fu740/Kconfig"
 source "arch/riscv/cpu/generic/Kconfig"
 
 # architecture-specific options below
