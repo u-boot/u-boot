@@ -303,6 +303,38 @@ static int cmp_pe_section(const void *arg1, const void *arg2)
 }
 
 /**
+ * efi_prepare_aligned_image() - prepare 8-byte aligned image
+ * @efi:		pointer to the EFI binary
+ * @efi_size:		size of @efi binary
+ *
+ * If @efi is not 8-byte aligned, this function newly allocates
+ * the image buffer.
+ *
+ * Return:	valid pointer to a image, return NULL if allocation fails.
+ */
+void *efi_prepare_aligned_image(void *efi, u64 *efi_size)
+{
+	size_t new_efi_size;
+	void *new_efi;
+
+	/*
+	 * Size must be 8-byte aligned and the trailing bytes must be
+	 * zero'ed. Otherwise hash value may be incorrect.
+	 */
+	if (!IS_ALIGNED(*efi_size, 8)) {
+		new_efi_size = ALIGN(*efi_size, 8);
+		new_efi = calloc(new_efi_size, 1);
+		if (!new_efi)
+			return NULL;
+		memcpy(new_efi, efi, *efi_size);
+		*efi_size = new_efi_size;
+		return new_efi;
+	} else {
+		return efi;
+	}
+}
+
+/**
  * efi_image_parse() - parse a PE image
  * @efi:	Pointer to image
  * @len:	Size of @efi
@@ -561,7 +593,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	struct efi_signature_store *db = NULL, *dbx = NULL;
 	void *new_efi = NULL;
 	u8 *auth, *wincerts_end;
-	size_t new_efi_size, auth_size;
+	size_t auth_size;
 	bool ret = false;
 
 	EFI_PRINT("%s: Enter, %d\n", __func__, ret);
@@ -569,21 +601,11 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	if (!efi_secure_boot_enabled())
 		return true;
 
-	/*
-	 * Size must be 8-byte aligned and the trailing bytes must be
-	 * zero'ed. Otherwise hash value may be incorrect.
-	 */
-	if (efi_size & 0x7) {
-		new_efi_size = (efi_size + 0x7) & ~0x7ULL;
-		new_efi = calloc(new_efi_size, 1);
-		if (!new_efi)
-			return false;
-		memcpy(new_efi, efi, efi_size);
-		efi = new_efi;
-		efi_size = new_efi_size;
-	}
+	new_efi = efi_prepare_aligned_image(efi, (u64 *)&efi_size);
+	if (!new_efi)
+		return false;
 
-	if (!efi_image_parse(efi, efi_size, &regs, &wincerts,
+	if (!efi_image_parse(new_efi, efi_size, &regs, &wincerts,
 			     &wincerts_len)) {
 		EFI_PRINT("Parsing PE executable image failed\n");
 		goto err;
@@ -725,7 +747,8 @@ err:
 	efi_sigstore_free(dbx);
 	pkcs7_free_message(msg);
 	free(regs);
-	free(new_efi);
+	if (new_efi != efi)
+		free(new_efi);
 
 	EFI_PRINT("%s: Exit, %d\n", __func__, ret);
 	return ret;
@@ -890,6 +913,13 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}
+
+#if CONFIG_IS_ENABLED(EFI_TCG2_PROTOCOL)
+	/* Measure an PE/COFF image */
+	if (tcg2_measure_pe_image(efi, efi_size, handle,
+				  loaded_image_info))
+		log_err("PE image measurement failed\n");
+#endif
 
 	/* Copy PE headers */
 	memcpy(efi_reloc, efi,

@@ -9,6 +9,7 @@
 #if !defined _EFI_TCG2_PROTOCOL_H_
 #define _EFI_TCG2_PROTOCOL_H_
 
+#include <efi_api.h>
 #include <tpm-v2.h>
 
 #define EFI_TCG2_PROTOCOL_GUID \
@@ -52,6 +53,14 @@ struct efi_tcg2_event {
 	struct efi_tcg2_event_header header;
 	u8 event[];
 } __packed;
+
+struct uefi_image_load_event {
+	efi_physical_addr_t image_location_in_memory;
+	u64 image_length_in_memory;
+	u64 image_link_time_address;
+	u64 length_of_device_path;
+	struct efi_device_path device_path[];
+};
 
 struct efi_tcg2_boot_service_capability {
 	u8 size;

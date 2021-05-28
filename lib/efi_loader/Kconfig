@@ -166,6 +166,7 @@ config EFI_CAPSULE_AUTHENTICATE
 	depends on EFI_CAPSULE_FIRMWARE
 	depends on EFI_CAPSULE_ON_DISK
 	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	select HASH
 	select SHA256
 	select RSA
 	select RSA_VERIFY
@@ -174,7 +175,6 @@ config EFI_CAPSULE_AUTHENTICATE
 	select PKCS7_MESSAGE_PARSER
 	select PKCS7_VERIFY
 	select IMAGE_SIGN_INFO
-	select HASH_CALCULATE
 	select EFI_SIGNATURE_SUPPORT
 	default n
 	help
@@ -309,6 +309,7 @@ config EFI_TCG2_PROTOCOL
 	select SHA512_ALGO
 	select SHA384
 	select SHA512
+	select HASH
 	help
 	  Provide a EFI_TCG2_PROTOCOL implementation using the TPM hardware
 	  of the platform.
@@ -335,6 +336,7 @@ config EFI_LOAD_FILE2_INITRD
 config EFI_SECURE_BOOT
 	bool "Enable EFI secure boot support"
 	depends on EFI_LOADER
+	select HASH
 	select SHA256
 	select RSA
 	select RSA_VERIFY_WITH_PKEY
@@ -344,7 +346,6 @@ config EFI_SECURE_BOOT
 	select X509_CERTIFICATE_PARSER
 	select PKCS7_MESSAGE_PARSER
 	select PKCS7_VERIFY
-	select HASH_CALCULATE
 	select EFI_SIGNATURE_SUPPORT
 	default n
 	help
