@@ -8,6 +8,7 @@ import inspect
 import os
 import os.path
 import pytest
+import signal
 import sys
 import time
 import re
@@ -339,3 +340,38 @@ def crc32(u_boot_console, address, count):
     assert m, 'CRC32 operation failed.'
 
     return m.group(1)
+
+def waitpid(pid, timeout=60, kill=False):
+    """Wait a process to terminate by its PID
+
+    This is an alternative to a os.waitpid(pid, 0) call that works on
+    processes that aren't children of the python process.
+
+    Args:
+        pid: PID of a running process.
+        timeout: Time in seconds to wait.
+        kill: Whether to forcibly kill the process after timeout.
+
+    Returns:
+        True, if the process ended on its own.
+        False, if the process was killed by this function.
+
+    Raises:
+        TimeoutError, if the process is still running after timeout.
+    """
+    try:
+        for _ in range(timeout):
+            os.kill(pid, 0)
+            time.sleep(1)
+
+        if kill:
+            os.kill(pid, signal.SIGKILL)
+            return False
+
+    except ProcessLookupError:
+        return True
+
+    raise TimeoutError(
+        "Process with PID {} did not terminate after {} seconds."
+        .format(pid, timeout)
+    )
