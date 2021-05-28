@@ -1,0 +1,12 @@
+if TARGET_SMEGW01
+
+config SYS_BOARD
+	default "smegw01"
+
+config SYS_VENDOR
+	default "storopack"
+
+config SYS_CONFIG_NAME
+	default "smegw01"
+
+endif
