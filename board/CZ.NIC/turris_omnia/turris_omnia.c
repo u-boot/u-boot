@@ -349,10 +349,15 @@ static int set_regdomain(void)
 	"mw.l 0x01000000 0x00ff000c; " \
 	"i2c write 0x01000000 0x2a.1 0x5 4 -s; " \
 	"setenv bootargs \"earlyprintk console=ttyS0,115200" \
-			" omniarescue=$omnia_reset\"; " \
+		" omniarescue=$omnia_reset rescue_mode=$omnia_reset\"; " \
 	"sf probe; " \
 	"sf read 0x1000000 0x100000 0x700000; " \
-	"bootm 0x1000000; " \
+	"lzmadec 0x1000000 0x1700000; " \
+	"if gpio input gpio@71_4; then " \
+		"bootm 0x1700000#sfp; " \
+	"else " \
+		"bootm 0x1700000; " \
+	"fi; " \
 	"bootz 0x1000000"
 
 static void handle_reset_button(void)
