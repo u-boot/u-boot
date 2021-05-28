@@ -33,7 +33,10 @@
 	.globl	ImageBase
 ImageBase:
 	.short	IMAGE_DOS_SIGNATURE		/* 'MZ' */
-	.skip	58				/* 'MZ' + pad + offset == 64 */
+	.skip	46				/* 'MZ' + pad + offset == 64 */
+	.long	0x43534952			/* Linux magic "RISCV */
+	.long	0x00000056
+	.long	0x05435352			/* Linux magic2 "RSC\x05*/
 	.long	pe_header - ImageBase		/* Offset to the PE header */
 pe_header:
 	.long	IMAGE_NT_SIGNATURE		/* 'PE' */
@@ -72,7 +75,7 @@ extra_header_fields:
 	.long	0x8				/* FileAlignment */
 	.short	0				/* MajorOperatingSystemVersion */
 	.short	0				/* MinorOperatingSystemVersion */
-	.short	0				/* MajorImageVersion */
+	.short	1				/* MajorImageVersion */
 	.short	0				/* MinorImageVersion */
 	.short	0				/* MajorSubsystemVersion */
 	.short	0				/* MinorSubsystemVersion */
