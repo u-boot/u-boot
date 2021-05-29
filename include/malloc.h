@@ -1,12 +1,13 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
-  A version of malloc/free/realloc written by Doug Lea and released to the
-  public domain.  Send questions/comments/complaints/performance data
-  to dl@cs.oswego.edu
+  This code is based on a version of malloc/free/realloc written by Doug Lea and
+  released to the public domain. Send questions/comments/complaints/performance
+  data to dl@cs.oswego.edu
 
 * VERSION 2.6.6  Sun Mar  5 19:10:03 2000  Doug Lea  (dl at gee)
 
    Note: There may be an updated version of this malloc obtainable at
-	   ftp://g.oswego.edu/pub/misc/malloc.c
+	   http://g.oswego.edu/pub/misc/malloc.c
 	 Check before installing!
 
 * Why use this malloc?
