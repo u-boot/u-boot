@@ -865,7 +865,7 @@ static void esdhc_stop_tuning(struct mmc *mmc)
 	cmd.cmdarg = 0;
 	cmd.resp_type = MMC_RSP_R1b;
 
-	dm_mmc_send_cmd(mmc->dev, &cmd, NULL);
+	mmc_send_cmd(mmc, &cmd, NULL);
 }
 
 static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)

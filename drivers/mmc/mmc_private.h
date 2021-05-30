@@ -12,7 +12,6 @@
 
 #include <mmc.h>
 
-int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data);
 int mmc_send_status(struct mmc *mmc, unsigned int *status);
 int mmc_poll_for_busy(struct mmc *mmc, int timeout);
 
