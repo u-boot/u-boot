@@ -165,7 +165,6 @@
 
 &uart0 { /* uart0 MIO38-39 */
 	status = "okay";
-	u-boot,dm-pre-reloc;
 };
 
 &sdhci1 { /* sd1 MIO45-51 cd in place */
