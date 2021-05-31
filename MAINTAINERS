@@ -478,6 +478,9 @@ F:	arch/arm/cpu/armv7/sunxi/
 F:	arch/arm/include/asm/arch-sunxi/
 F:	arch/arm/mach-sunxi/
 F:	board/sunxi/
+F:	drivers/clk/sunxi/
+F:	drivers/phy/allwinner/
+F:	drivers/video/sunxi/
 
 ARM TEGRA
 M:	Tom Warren <twarren@nvidia.com>
