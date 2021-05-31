@@ -132,9 +132,9 @@
 
 &psgtr {
 	status = "okay";
-	/* pcie, sata, usb3, dp */
-	clocks = <&si5341 0 5>, <&si5341 0 3>, <&si5341 0 2>, <&si5341 0 0>;
-	clock-names = "ref0", "ref1", "ref2", "ref3";
+	/* nc, nc, usb3, sata */
+	clocks = <&si5341 0 2>, <&si5341 0 3>;
+	clock-names = "ref2", "ref3";
 };
 
 &dcc {

@@ -773,13 +773,6 @@
 	};
 };
 
-&psgtr {
-	status = "okay";
-	/* nc, sata, usb3, dp */
-	clocks = <&si5341 0 3>, <&si5341 0 2>, <&si5341 0 0>;
-	clock-names = "ref1", "ref2", "ref3";
-};
-
 &qspi {
 	status = "okay";
 	is-dual = <1>;
@@ -808,6 +801,13 @@
 			reg = <0x620000 0x5E0000>;
 		};
 	};
+};
+
+&psgtr {
+	status = "okay";
+	/* nc, dp, usb3, sata */
+	clocks = <&si5341 0 0>, <&si5341 0 2>, <&si5341 0 3>;
+	clock-names = "ref1", "ref2", "ref3";
 };
 
 &rtc {
