@@ -71,6 +71,7 @@ struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
 					     uintptr_t fdt_addr)
 {
 	struct xfsbl_atf_handoff_params *atfhandoffparams;
+	u32 index = 0;
 
 	atfhandoffparams = (void *)CONFIG_SPL_TEXT_BASE;
 	atfhandoffparams->magic[0] = 'X';
@@ -78,13 +79,21 @@ struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
 	atfhandoffparams->magic[2] = 'N';
 	atfhandoffparams->magic[3] = 'X';
 
-	atfhandoffparams->num_entries = 0;
-	if (bl33_entry) {
-		atfhandoffparams->partition[0].entry_point = bl33_entry;
-		atfhandoffparams->partition[0].flags = FSBL_FLAGS_EL2 <<
-						       FSBL_FLAGS_EL_SHIFT;
-		atfhandoffparams->num_entries++;
+	if (bl32_entry) {
+		atfhandoffparams->partition[index].entry_point = bl32_entry;
+		atfhandoffparams->partition[index].flags = FSBL_FLAGS_EL1 << FSBL_FLAGS_EL_SHIFT |
+							   FSBL_FLAGS_SECURE << FSBL_FLAGS_TZ_SHIFT;
+		index++;
 	}
+
+	if (bl33_entry) {
+		atfhandoffparams->partition[index].entry_point = bl33_entry;
+		atfhandoffparams->partition[index].flags = FSBL_FLAGS_EL2 <<
+							   FSBL_FLAGS_EL_SHIFT;
+		index++;
+	}
+
+	atfhandoffparams->num_entries = index;
 
 	writel(CONFIG_SPL_TEXT_BASE, &pmu_base->gen_storage6);
 
