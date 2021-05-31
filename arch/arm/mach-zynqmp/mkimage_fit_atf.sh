@@ -8,8 +8,18 @@
 
 BL33="u-boot-nodtb.bin"
 [ -z "$BL31" ] && BL31="bl31.bin"
-# Can be also done as ${CROSS_COMPILE}readelf -l bl31.elf | awk '/Entry point/ { print $3 }'
+BL31_ELF="${BL31%.*}.elf"
+[ -f ${BL31_ELF} ] && ATF_LOAD_ADDR=`${CROSS_COMPILE}readelf -l "${BL31_ELF}" | \
+awk '/Entry point/ { print $3 }'`
+
 [ -z "$ATF_LOAD_ADDR" ] && ATF_LOAD_ADDR="0xfffea000"
+
+[ -z "$BL32" ] && BL32="tee.bin"
+BL32_ELF="${BL32%.*}.elf"
+[ -f ${BL32_ELF} ] && TEE_LOAD_ADDR=`${CROSS_COMPILE}readelf -l "${BL32_ELF}" | \
+awk '/Entry point/ { print $3 }'`
+
+[ -z "$TEE_LOAD_ADDR" ] && TEE_LOAD_ADDR="0x60000000"
 
 if [ -z "$BL33_LOAD_ADDR" ];then
 	BL33_LOAD_ADDR=`awk '/CONFIG_SYS_TEXT_BASE/ { print $3 }' include/generated/autoconf.h`
@@ -75,6 +85,24 @@ cat << __ATF
 __ATF
 fi
 
+if [ -f $BL32 ]; then
+cat << __TEE
+		tee {
+			description = "TEE firmware";
+			data = /incbin/("$BL32");
+			type = "firmware";
+			os = "tee";
+			arch = "arm64";
+			compression = "none";
+			load = <$TEE_LOAD_ADDR>;
+			entry = <$TEE_LOAD_ADDR>;
+			hash {
+				algo = "md5";
+			};
+		};
+__TEE
+fi
+
 DEFAULT=1
 cnt=1
 for dtname in $DT
@@ -117,6 +145,16 @@ cat << __CONF_SECTION1_EOF
 		};
 __CONF_SECTION1_EOF
 else
+if [ -f $BL32 ]; then
+cat << __CONF_SECTION1_EOF
+		config_$cnt {
+			description = "$(basename $dtname .dtb)";
+			firmware = "atf";
+			loadables = "uboot", "tee";
+			fdt = "fdt_$cnt";
+		};
+__CONF_SECTION1_EOF
+else
 cat << __CONF_SECTION1_EOF
 		config_$cnt {
 			description = "$(basename $dtname .dtb)";
@@ -125,6 +163,7 @@ cat << __CONF_SECTION1_EOF
 			fdt = "fdt_$cnt";
 		};
 __CONF_SECTION1_EOF
+fi
 fi
 
 cnt=$((cnt+1))
