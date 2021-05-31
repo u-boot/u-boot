@@ -7,3 +7,4 @@ SiFive
    :maxdepth: 2
 
    unleashed
+   unmatched

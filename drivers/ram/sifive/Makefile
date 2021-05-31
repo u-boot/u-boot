@@ -3,4 +3,4 @@
 # Copyright (c) 2020 SiFive, Inc
 #
 
-obj-$(CONFIG_SIFIVE_FU540_DDR) += fu540_ddr.o
+obj-$(CONFIG_SIFIVE_DDR) += sifive_ddr.o

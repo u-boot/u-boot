@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
-# Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
+# Copyright (C) 2020-2021 SiFive, Inc
+# Pragnesh Patel <pragnesh.patel@sifive.com>
 
-config SIFIVE_FU540
+config SIFIVE_FU740
 	bool
 	select ARCH_EARLY_INIT_R
-	select SUPPORT_SPL
 	select RAM
 	select SPL_RAM if SPL
 	imply CPU
@@ -35,18 +35,3 @@ config SIFIVE_FU540
 	imply SIFIVE_OTP
 	imply DM_PWM
 	imply PWM_SIFIVE
-	imply DM_I2C
-	imply SYS_I2C_OCORES
-
-if ENV_IS_IN_SPI_FLASH
-
-config ENV_OFFSET
-	default 0x505000
-
-config ENV_SIZE
-	default 0x20000
-
-config ENV_SECT_SIZE
-	default 0x10000
-
-endif # ENV_IS_IN_SPI_FLASH
