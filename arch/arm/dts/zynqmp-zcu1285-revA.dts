@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP ZCU1285 RevA
  *
- * (C) Copyright 2018 - 2020, Xilinx, Inc.
+ * (C) Copyright 2018 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  * Siva Durga Prasad Paladugu <sivadur@xilinx.com>
