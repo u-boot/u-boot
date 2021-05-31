@@ -420,6 +420,17 @@ enum data_process {
 	LOADING
 };
 
+bool is_ddr_dbe_triggered(void)
+{
+	u32 reg = readl(socfpga_get_sysmgr_addr() +
+			SYSMGR_SOC64_BOOT_SCRATCH_COLD8);
+
+	if (reg & ALT_SYSMGR_SCRATCH_REG_8_DDR_DBE_MASK)
+		return true;
+
+	return false;
+}
+
 void ddr_init_inprogress(bool start)
 {
 	if (start)
@@ -478,16 +489,19 @@ bool is_ddr_init_skipped(u32 reg)
 
 	reset_type_print(reset_t);
 
-	if (reset_t == WARM_RESET) {
-		debug("%s: DDR init is skipped\n", __func__);
-		return true;
-	}
-
-	if (reset_t == COLD_RESET) {
-		if (is_ddr_retention_enabled(reg)) {
-			debug("%s: DDR retention bit is set\n", __func__);
+	if (!is_ddr_dbe_triggered()) {
+		if (reset_t == WARM_RESET) {
 			debug("%s: DDR init is skipped\n", __func__);
 			return true;
+		}
+
+		if (reset_t == COLD_RESET) {
+			if (is_ddr_retention_enabled(reg)) {
+				debug("%s: DDR retention bit is set\n",
+				      __func__);
+				debug("%s: DDR init is skipped\n", __func__);
+				return true;
+			}
 		}
 	}
 
@@ -500,7 +514,8 @@ bool is_ddr_calibration_skipped(u32 reg)
 	enum reset_type reset_t = get_reset_type(reg);
 
 	if ((reset_t == NCONFIG || reset_t == JTAG_CONFIG ||
-	     reset_t == RSU_RECONFIG) && is_ddr_retention_enabled(reg)) {
+	     reset_t == RSU_RECONFIG) && is_ddr_retention_enabled(reg) &&
+	     !is_ddr_dbe_triggered()) {
 		debug("%s: DDR retention bit is set\n", __func__);
 		return true;
 	}
