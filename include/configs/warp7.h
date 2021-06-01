@@ -149,7 +149,6 @@
 #define CONFIG_USBD_HS
 
 /* USB Device Firmware Update support */
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
 #define CONFIG_USBNET_DEV_ADDR		"de:ad:be:af:00:01"

@@ -92,5 +92,25 @@ config SET_DFU_ALT_INFO
 	help
 	  This option allows to call the function set_dfu_alt_info to
 	  dynamically build dfu_alt_info in board.
+
+config SYS_DFU_DATA_BUF_SIZE
+	hex "Size of buffer to be allocated for transfer to raw storage device"
+	default 0x800000
+	help
+	  DFU transfer uses a buffer before writing data to the
+	  raw storage device. This value can be used for setting the
+	  size of this buffer. The size of the buffer is also configurable
+	  through the "dfu_bufsiz" environment variable. If both are
+	  given the size of the buffer is set to "dfu_bufsize".
+
+config SYS_DFU_MAX_FILE_SIZE
+	hex "Size of the buffer to be allocated for transferring files"
+	default SYS_DFU_DATA_BUF_SIZE
+	help
+	  When updating files rather than the raw storage device,
+	  we use a static buffer to copy the file into and then write
+	  the buffer once we've been given the whole file.  Define
+	  this to the maximum filesize (in bytes) for the buffer.
+	  If undefined it defaults to the CONFIG_SYS_DFU_DATA_BUF_SIZE.
 endif
 endmenu

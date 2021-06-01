@@ -100,12 +100,6 @@ struct virt_internal_data {
 };
 
 #define DFU_NAME_SIZE			32
-#ifndef CONFIG_SYS_DFU_DATA_BUF_SIZE
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE		(1024*1024*8)	/* 8 MiB */
-#endif
-#ifndef CONFIG_SYS_DFU_MAX_FILE_SIZE
-#define CONFIG_SYS_DFU_MAX_FILE_SIZE CONFIG_SYS_DFU_DATA_BUF_SIZE
-#endif
 #ifndef DFU_DEFAULT_POLL_TIMEOUT
 #define DFU_DEFAULT_POLL_TIMEOUT 0
 #endif

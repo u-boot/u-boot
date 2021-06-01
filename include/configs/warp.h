@@ -50,7 +50,6 @@
 
 #define CONFIG_USBD_HS
 
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
 /* I2C Configs */

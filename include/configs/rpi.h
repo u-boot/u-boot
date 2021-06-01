@@ -70,9 +70,6 @@
 
 /* DFU over USB/UDC */
 #ifdef CONFIG_CMD_DFU
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_1M
-#define CONFIG_SYS_DFU_MAX_FILE_SIZE	SZ_2M
-
 #ifdef CONFIG_ARM64
 #define KERNEL_FILENAME		"Image"
 #else

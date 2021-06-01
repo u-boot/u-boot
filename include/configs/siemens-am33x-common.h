@@ -143,7 +143,6 @@
 #define CONFIG_USBD_HS
 
 /* USB Device Firmware Update support */
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	(1 << 20)
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
 #endif /* CONFIG_SPL_BUILD */
