@@ -318,7 +318,15 @@ jobs:
           # as sandbox testing need create files like spi flash images, etc.
           # (TODO: clean up this in the future)
           chmod 777 .
-          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
+          # Some EFI tests need extra docker args to run
+          set --
+          if [[ "${TEST_PY_BD}" == "sandbox" ]]; then
+              # virt-make-fs needs the fuse device
+              if modprobe fuse; then
+                  set -- "$@" --device /dev/fuse:/dev/fuse
+              fi
+          fi
+          docker run "$@" -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
 
   - job: build_the_world
     displayName: 'Build the World'
