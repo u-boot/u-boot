@@ -482,6 +482,13 @@
 	};
 };
 
+&psgtr {
+	status = "okay";
+	/* usb3, dp */
+	clocks = <&si5335_0>, <&si5335_1>;
+	clock-names = "ref0", "ref1";
+};
+
 &rtc {
 	status = "okay";
 };
@@ -515,13 +522,6 @@
 		interrupt-parent = <&gpio>;
 		interrupts = <76 IRQ_TYPE_EDGE_RISING>; /* MIO76 WLAN_IRQ 1V8 */
 	};
-};
-
-&psgtr {
-	status = "okay";
-	/* usb3, dp */
-	clocks = <&si5335_0>, <&si5335_1>;
-	clock-names = "ref0", "ref1";
 };
 
 &spi0 { /* Low Speed connector */
