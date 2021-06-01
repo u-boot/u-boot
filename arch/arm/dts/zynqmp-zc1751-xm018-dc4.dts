@@ -112,14 +112,6 @@
 	status = "okay";
 };
 
-&zynqmp_dpsub {
-	status = "okay";
-};
-
-&zynqmp_dpdma {
-	status = "okay";
-};
-
 &gem0 {
 	status = "okay";
 	phy-mode = "rgmii-id";
@@ -216,5 +208,13 @@
 };
 
 &watchdog0 {
+	status = "okay";
+};
+
+&zynqmp_dpdma {
+	status = "okay";
+};
+
+&zynqmp_dpsub {
 	status = "okay";
 };
