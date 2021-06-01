@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP zc1751-xm018-dc4
  *
- * (C) Copyright 2015 - 2020, Xilinx, Inc.
+ * (C) Copyright 2015 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -115,14 +115,6 @@
 	status = "okay";
 };
 
-&zynqmp_dpsub {
-	status = "okay";
-};
-
-&zynqmp_dpdma {
-	status = "okay";
-};
-
 &gem0 {
 	status = "okay";
 	phy-mode = "rgmii-id";
@@ -219,5 +211,13 @@
 };
 
 &watchdog0 {
+	status = "okay";
+};
+
+&zynqmp_dpdma {
+	status = "okay";
+};
+
+&zynqmp_dpsub {
 	status = "okay";
 };
