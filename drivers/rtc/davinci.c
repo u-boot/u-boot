@@ -16,6 +16,18 @@
 #define RTC_BASE DAVINCI_RTC_BASE
 #endif
 
+static void davinci_rtc_lock(struct davinci_rtc *rtc)
+{
+	writel(0, &rtc->kick0r);
+	writel(0, &rtc->kick1r);
+}
+
+static void davinci_rtc_unlock(struct davinci_rtc *rtc)
+{
+	writel(RTC_KICK0R_WE, &rtc->kick0r);
+	writel(RTC_KICK1R_WE, &rtc->kick1r);
+}
+
 static int davinci_rtc_wait_not_busy(struct davinci_rtc *rtc)
 {
 	int count;
@@ -89,6 +101,7 @@ int rtc_set(struct rtc_time *tmp)
 	if (ret)
 		return ret;
 
+	davinci_rtc_unlock(rtc);
 	writeb(bin2bcd(tmp->tm_year % 100), &rtc->year);
 	writeb(bin2bcd(tmp->tm_mon), &rtc->month);
 
@@ -97,6 +110,7 @@ int rtc_set(struct rtc_time *tmp)
 	writeb(bin2bcd(tmp->tm_hour), &rtc->hours);
 	writeb(bin2bcd(tmp->tm_min), &rtc->minutes);
 	writeb(bin2bcd(tmp->tm_sec), &rtc->second);
+	davinci_rtc_lock(rtc);
 
 	debug("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	      tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
