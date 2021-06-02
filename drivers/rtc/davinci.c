@@ -22,7 +22,7 @@ int rtc_get(struct rtc_time *tmp)
 	unsigned long sec, min, hour, mday, wday, mon_cent, year;
 	unsigned long status;
 
-	status = readl(&rtc->status);
+	status = readb(&rtc->status);
 	if ((status & RTC_STATE_RUN) != RTC_STATE_RUN) {
 		printf("RTC doesn't run\n");
 		return -1;
@@ -30,13 +30,13 @@ int rtc_get(struct rtc_time *tmp)
 	if ((status & RTC_STATE_BUSY) == RTC_STATE_BUSY)
 		udelay(20);
 
-	sec	= readl(&rtc->second);
-	min	= readl(&rtc->minutes);
-	hour	= readl(&rtc->hours);
-	mday	= readl(&rtc->day);
-	wday	= readl(&rtc->dotw);
-	mon_cent = readl(&rtc->month);
-	year	= readl(&rtc->year);
+	sec	= readb(&rtc->second);
+	min	= readb(&rtc->minutes);
+	hour	= readb(&rtc->hours);
+	mday	= readb(&rtc->day);
+	wday	= readb(&rtc->dotw);
+	mon_cent = readb(&rtc->month);
+	year	= readb(&rtc->year);
 
 	debug("Get RTC year: %02lx mon/cent: %02lx mday: %02lx wday: %02lx "
 		"hr: %02lx min: %02lx sec: %02lx\n",
@@ -67,14 +67,14 @@ int rtc_set(struct rtc_time *tmp)
 	debug("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
-	writel(bin2bcd(tmp->tm_year % 100), &rtc->year);
-	writel(bin2bcd(tmp->tm_mon), &rtc->month);
+	writeb(bin2bcd(tmp->tm_year % 100), &rtc->year);
+	writeb(bin2bcd(tmp->tm_mon), &rtc->month);
 
-	writel(bin2bcd(tmp->tm_wday), &rtc->dotw);
-	writel(bin2bcd(tmp->tm_mday), &rtc->day);
-	writel(bin2bcd(tmp->tm_hour), &rtc->hours);
-	writel(bin2bcd(tmp->tm_min), &rtc->minutes);
-	writel(bin2bcd(tmp->tm_sec), &rtc->second);
+	writeb(bin2bcd(tmp->tm_wday), &rtc->dotw);
+	writeb(bin2bcd(tmp->tm_mday), &rtc->day);
+	writeb(bin2bcd(tmp->tm_hour), &rtc->hours);
+	writeb(bin2bcd(tmp->tm_min), &rtc->minutes);
+	writeb(bin2bcd(tmp->tm_sec), &rtc->second);
 	return 0;
 }
 
@@ -83,5 +83,5 @@ void rtc_reset(void)
 	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
 
 	/* run RTC counter */
-	writel(0x01, &rtc->ctrl);
+	writeb(0x01, &rtc->ctrl);
 }
