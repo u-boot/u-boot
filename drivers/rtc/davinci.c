@@ -290,6 +290,7 @@ static int omap_rtc_remove(struct udevice *dev)
 static int omap_rtc_probe(struct udevice *dev)
 {
 	struct omap_rtc_priv *priv = dev_get_priv(dev);
+	struct rtc_time tm;
 	u8 reg, mask, new_ctrl;
 
 	priv->dev = dev;
@@ -380,6 +381,15 @@ static int omap_rtc_probe(struct udevice *dev)
 	}
 
 	omap_rtc_lock(priv);
+
+	if (omap_rtc_get(dev, &tm)) {
+		dev_err(dev, "failed to get datetime\n");
+	} else if (tm.tm_year == 2000 && tm.tm_mon == 1 && tm.tm_mday == 1 &&
+		   tm.tm_wday == 0) {
+		tm.tm_wday = 6;
+		omap_rtc_set(dev, &tm);
+	}
+
 	return 0;
 }
 
