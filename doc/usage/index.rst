@@ -36,6 +36,7 @@ Shell commands
    mbr
    md
    mmc
+   pinmux
    pstore
    qfw
    reset
