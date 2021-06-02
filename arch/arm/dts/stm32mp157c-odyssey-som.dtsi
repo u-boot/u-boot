@@ -267,8 +267,9 @@
 	pinctrl-0 = <&sdmmc2_b4_pins_a>;
 	pinctrl-1 = <&sdmmc2_b4_od_pins_a>;
 	pinctrl-2 = <&sdmmc2_b4_sleep_pins_a>;
-	broken-cd;
-	disable-wp;
+	non-removable;
+	no-sd;
+	no-sdio;
 	st,neg-edge;
 	bus-width = <4>;
 	vmmc-supply = <&v3v3>;
