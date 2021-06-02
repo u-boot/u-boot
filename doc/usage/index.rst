@@ -34,12 +34,12 @@ Shell commands
    load
    loady
    mbr
-   mmc
    md
+   mmc
    pstore
    qfw
+   reset
    sbi
+   scp03
    size
    true
-   scp03
-   reset
