@@ -16,19 +16,39 @@
 #define RTC_BASE DAVINCI_RTC_BASE
 #endif
 
-int rtc_get(struct rtc_time *tmp)
+static int davinci_rtc_wait_not_busy(struct davinci_rtc *rtc)
 {
-	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
-	unsigned long sec, min, hour, mday, wday, mon_cent, year;
-	unsigned long status;
+	int count;
+	u8 status;
 
 	status = readb(&rtc->status);
 	if ((status & RTC_STATE_RUN) != RTC_STATE_RUN) {
 		printf("RTC doesn't run\n");
 		return -1;
 	}
-	if ((status & RTC_STATE_BUSY) == RTC_STATE_BUSY)
-		udelay(20);
+
+	/* BUSY may stay active for 1/32768 second (~30 usec) */
+	for (count = 0; count < 50; count++) {
+		if (!(status & RTC_STATE_BUSY))
+			break;
+
+		udelay(1);
+		status = readb(&rtc->status);
+	}
+
+	/* now we have ~15 usec to read/write various registers */
+	return 0;
+}
+
+int rtc_get(struct rtc_time *tmp)
+{
+	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
+	unsigned long sec, min, hour, mday, wday, mon_cent, year;
+	int ret;
+
+	ret = davinci_rtc_wait_not_busy(rtc);
+	if (ret)
+		return ret;
 
 	sec	= readb(&rtc->second);
 	min	= readb(&rtc->minutes);
@@ -63,10 +83,12 @@ int rtc_get(struct rtc_time *tmp)
 int rtc_set(struct rtc_time *tmp)
 {
 	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
+	int ret;
 
-	debug("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
-		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
-		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	ret = davinci_rtc_wait_not_busy(rtc);
+	if (ret)
+		return ret;
+
 	writeb(bin2bcd(tmp->tm_year % 100), &rtc->year);
 	writeb(bin2bcd(tmp->tm_mon), &rtc->month);
 
@@ -75,6 +97,11 @@ int rtc_set(struct rtc_time *tmp)
 	writeb(bin2bcd(tmp->tm_hour), &rtc->hours);
 	writeb(bin2bcd(tmp->tm_min), &rtc->minutes);
 	writeb(bin2bcd(tmp->tm_sec), &rtc->second);
+
+	debug("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	      tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
+	      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
 	return 0;
 }
 
