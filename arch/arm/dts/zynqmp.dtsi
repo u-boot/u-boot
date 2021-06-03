@@ -719,8 +719,6 @@
 			xlnx,device_id = <0>;
 			#stream-id-cells = <1>;
 			iommus = <&smmu 0x870>;
-			nvmem-cells = <&soc_revision>;
-			nvmem-cell-names = "soc_revision";
 			#clock-cells = <1>;
 			clock-output-names = "clk_out_sd0", "clk_in_sd0";
 			power-domains = <&zynqmp_firmware PD_SD_0>;
@@ -737,8 +735,6 @@
 			xlnx,device_id = <1>;
 			#stream-id-cells = <1>;
 			iommus = <&smmu 0x871>;
-			nvmem-cells = <&soc_revision>;
-			nvmem-cell-names = "soc_revision";
 			#clock-cells = <1>;
 			clock-output-names = "clk_out_sd1", "clk_in_sd1";
 			power-domains = <&zynqmp_firmware PD_SD_1>;
@@ -853,8 +849,6 @@
 			clock-names = "bus_clk", "ref_clk";
 			power-domains = <&zynqmp_firmware PD_USB_0>;
 			ranges;
-			nvmem-cells = <&soc_revision>;
-			nvmem-cell-names = "soc_revision";
 
 			dwc3_0: dwc3@fe200000 {
 				compatible = "snps,dwc3";
@@ -879,8 +873,6 @@
 			clock-names = "bus_clk", "ref_clk";
 			power-domains = <&zynqmp_firmware PD_USB_1>;
 			ranges;
-			nvmem-cells = <&soc_revision>;
-			nvmem-cell-names = "soc_revision";
 
 			dwc3_1: dwc3@fe300000 {
 				compatible = "snps,dwc3";
