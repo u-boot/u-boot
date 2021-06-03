@@ -23,7 +23,6 @@
 		ethernet1 = &gem1;
 		ethernet2 = &gem2;
 		ethernet3 = &gem3;
-		gpio0 = &gpio;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		rtc0 = &rtc;

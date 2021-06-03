@@ -23,7 +23,6 @@
 	compatible = "xlnx,zynqmp-zcu100-revC", "xlnx,zynqmp-zcu100", "xlnx,zynqmp";
 
 	aliases {
-		gpio0 = &gpio;
 		i2c0 = &i2c1;
 		rtc0 = &rtc;
 		serial0 = &uart1;

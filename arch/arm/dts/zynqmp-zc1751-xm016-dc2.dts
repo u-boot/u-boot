@@ -22,7 +22,6 @@
 		can0 = &can0;
 		can1 = &can1;
 		ethernet0 = &gem2;
-		gpio0 = &gpio;
 		i2c0 = &i2c0;
 		rtc0 = &rtc;
 		serial0 = &uart0;
