@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  * Copyright 2016 Freescale Semiconductor, Inc.
  */
 
@@ -37,12 +37,6 @@
 #define __PHY_MASK		0xF9
 #define __PHY_ETH2_MASK		0xFB
 #define __PHY_ETH1_MASK		0xFD
-
-/*  MMC  */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-#endif
-
 
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 

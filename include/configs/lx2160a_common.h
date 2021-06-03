@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  */
 
 #ifndef __LX2_COMMON_H
@@ -127,11 +127,6 @@
 #ifdef CONFIG_PCI
 #define CONFIG_SYS_PCI_64BIT
 #define CONFIG_PCI_SCAN_SHOW
-#endif
-
-/* MMC */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
 /* SATA */

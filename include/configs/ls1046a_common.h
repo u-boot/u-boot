@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Freescale Semiconductor
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2021 NXP
  */
 
 #ifndef __LS1046A_COMMON_H
@@ -163,13 +163,6 @@
 #define CONFIG_SYS_SCSI_MAX_LUN			1
 #define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 						CONFIG_SYS_SCSI_MAX_LUN)
-#endif
-
-/* MMC */
-#ifndef SPL_NO_MMC
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-#endif
 #endif
 
 /* FMan ucode */

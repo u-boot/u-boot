@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #ifndef __LS1012AQDS_H__
@@ -92,11 +93,6 @@
 				DSPI_CTAR_CSSCK(2) | DSPI_CTAR_ASC(0) | \
 				DSPI_CTAR_DT(0))
 #define CONFIG_SPI_FLASH_EON /* cs3 */
-
-/*  MMC  */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-#endif
 
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 

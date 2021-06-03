@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2017 NXP
+ * Copyright 2017, 2021 NXP
  */
 
 #ifndef __LS1012A2G5RDB_H__
@@ -12,11 +12,6 @@
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #define CONFIG_SYS_SDRAM_SIZE		0x40000000
-
-/*  MMC  */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-#endif
 
 /* SATA */
 #define CONFIG_LIBATA

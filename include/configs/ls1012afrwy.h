@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2021 NXP
  */
 
 #ifndef __LS1012AFRWY_H__
@@ -31,11 +31,6 @@
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
-#endif
-
-/*  MMC  */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
 #define CONFIG_PCIE1		/* PCIE controller 1 */
