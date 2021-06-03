@@ -22,6 +22,7 @@
 		gpio0 = &gpio;
 		i2c0 = &i2c0;
 		mmc0 = &sdhci0;
+		nvmem0 = &eeprom;
 		rtc0 = &rtc;
 		serial0 = &uart0;
 		serial1 = &dcc;
@@ -31,7 +32,6 @@
 	chosen {
 		bootargs = "earlycon";
 		stdout-path = "serial0:115200n8";
-		xlnx,eeprom = <&eeprom>;
 	};
 
 	memory@0 {
