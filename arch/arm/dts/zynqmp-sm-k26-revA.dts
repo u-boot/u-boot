@@ -26,6 +26,8 @@
 		i2c1 = &i2c1;
 		mmc0 = &sdhci0;
 		mmc1 = &sdhci1;
+		nvmem0 = &eeprom;
+		nvmem1 = &eeprom_cc;
 		rtc0 = &rtc;
 		serial0 = &uart0;
 		serial1 = &uart1;
@@ -35,8 +37,6 @@
 		spi2 = &spi1;
 		usb0 = &usb0;
 		usb1 = &usb1;
-		nvmem0 = &eeprom;
-		nvmem1 = &eeprom_cc;
 	};
 
 	chosen {

@@ -16,6 +16,7 @@
 		ethernet0 = &gem0;
 		serial0 = &uart0;
 		mmc0 = &sdhci0;
+		nvmem0 = &eeprom;
 		i2c0 = &i2c1;
 	};
 
@@ -27,7 +28,6 @@
 	chosen {
 		bootargs = "";
 		stdout-path = "serial0:115200n8";
-		xlnx,eeprom = &eeprom;
 	};
 
 	usb_phy0: phy0 {
