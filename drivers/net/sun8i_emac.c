@@ -211,7 +211,9 @@ static int sun8i_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 	 * The EMAC clock is either 200 or 300 MHz, so we need a divider
 	 * of 128 to get the MDIO frequency below the required 2.5 MHz.
 	 */
-	mii_cmd |= MDIO_CMD_MII_CLK_CSR_DIV_128 << MDIO_CMD_MII_CLK_CSR_SHIFT;
+	if (!priv->use_internal_phy)
+		mii_cmd |= MDIO_CMD_MII_CLK_CSR_DIV_128 <<
+			   MDIO_CMD_MII_CLK_CSR_SHIFT;
 
 	mii_cmd |= MDIO_CMD_MII_BUSY;
 
@@ -242,7 +244,9 @@ static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	 * The EMAC clock is either 200 or 300 MHz, so we need a divider
 	 * of 128 to get the MDIO frequency below the required 2.5 MHz.
 	 */
-	mii_cmd |= MDIO_CMD_MII_CLK_CSR_DIV_128 << MDIO_CMD_MII_CLK_CSR_SHIFT;
+	if (!priv->use_internal_phy)
+		mii_cmd |= MDIO_CMD_MII_CLK_CSR_DIV_128 <<
+			   MDIO_CMD_MII_CLK_CSR_SHIFT;
 
 	mii_cmd |= MDIO_CMD_MII_WRITE;
 	mii_cmd |= MDIO_CMD_MII_BUSY;
