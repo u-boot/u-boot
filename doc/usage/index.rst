@@ -44,3 +44,4 @@ Shell commands
    scp03
    size
    true
+   ums
