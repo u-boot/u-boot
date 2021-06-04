@@ -141,6 +141,12 @@
 			AM64X_IOPAD(0x0030, PIN_OUTPUT_PULLUP, 7)	/* (L18) OSPI0_CSN1.GPIO0_12 */
 		>;
 	};
+
+	main_usb0_pins_default: main-usb0-pins-default {
+		pinctrl-single,pins = <
+			AM64X_IOPAD(0x02a8, PIN_OUTPUT, 0) /* (E19) USB0_DRVVBUS */
+		>;
+	};
 };
 
 &dmsc {
@@ -199,6 +205,18 @@
 /* EEPROM might be read before SYSFW is available */
 &main_i2c0 {
 	/delete-property/ power-domains;
+};
+
+&usbss0 {
+	ti,vbus-divider;
+	ti,usb2-only;
+};
+
+&usb0 {
+	dr_mode = "otg";
+	maximum-speed = "high-speed";
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_usb0_pins_default>;
 };
 
 #include "k3-am642-evm-u-boot.dtsi"
