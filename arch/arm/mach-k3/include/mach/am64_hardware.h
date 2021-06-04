@@ -7,8 +7,6 @@
 #ifndef __ASM_ARCH_AM64_HARDWARE_H
 #define __ASM_ARCH_AM64_HARDWARE_H
 
-#include <config.h>
-
 #define CTRL_MMR0_BASE					0x43000000
 #define CTRLMMR_MAIN_DEVSTAT				(CTRL_MMR0_BASE + 0x30)
 
@@ -54,7 +52,7 @@
 
 #define ROM_ENTENDED_BOOT_DATA_INFO			0x701beb00
 
-/* Use Last 1K as Scratch pad */
-#define TI_SRAM_SCRATCH_BOARD_EEPROM_START		0x701bfc00
+/* Use Last 2K as Scratch pad */
+#define TI_SRAM_SCRATCH_BOARD_EEPROM_START		0x7019f800
 
 #endif /* __ASM_ARCH_DRA8_HARDWARE_H */
