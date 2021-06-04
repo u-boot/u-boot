@@ -220,4 +220,13 @@ config SANDBOX_CLK_CCF
 	  Enable this option if you want to test the Linux kernel's Common
 	  Clock Framework [CCF] code in U-Boot's Sandbox clock driver.
 
+config CLK_VERSACLOCK
+	tristate "Enable VersaClock 5/6 devices"
+	depends on CLK
+	depends on CLK_CCF
+	depends on OF_CONTROL
+	help
+	  This driver supports the IDT VersaClock 5 and VersaClock 6
+	  programmable clock generators.
+
 endmenu
