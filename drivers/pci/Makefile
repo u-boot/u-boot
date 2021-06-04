@@ -16,6 +16,7 @@ endif
 obj-$(CONFIG_PCI) += pci_auto_common.o pci_common.o
 
 obj-$(CONFIG_PCIE_ECAM_GENERIC) += pcie_ecam_generic.o
+obj-$(CONFIG_PCIE_ECAM_SYNQUACER) += pcie_ecam_synquacer.o
 obj-$(CONFIG_FSL_PCI_INIT) += fsl_pci_init.o
 obj-$(CONFIG_PCI_INDIRECT_BRIDGE) += pci_indirect.o
 obj-$(CONFIG_PCI_GT64120) += pci_gt64120.o

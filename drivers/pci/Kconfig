@@ -81,6 +81,18 @@ config PCIE_ECAM_GENERIC
 	  Say Y here if you want to enable support for generic ECAM-based
 	  PCIe host controllers, such as the one emulated by QEMU.
 
+config PCIE_ECAM_SYNQUACER
+	bool "SynQuacer ECAM-based PCI host controller support"
+	default n
+	depends on DM_PCI
+	select PCI_INIT_R
+	select PCI_REGION_MULTI_ENTRY
+	help
+	  Say Y here if you want to enable support for Socionext
+	  SynQuacer SoC's ECAM-based PCIe host controllers.
+	  Note that this must be configured when boot because Linux driver
+	  expects the PCIe RC has been configured in the bootloader.
+
 config PCI_PHYTIUM
 	bool "Phytium PCIe support"
 	depends on DM_PCI
