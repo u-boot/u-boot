@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+
 /dts-v1/;
 
 #include "binman.dtsi"
