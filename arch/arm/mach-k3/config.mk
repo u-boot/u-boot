@@ -67,6 +67,7 @@ endif
 quiet_cmd_k3_mkits = MKITS   $@
 cmd_k3_mkits = \
 	$(srctree)/tools/k3_fit_atf.sh \
+	$(CONFIG_K3_ATF_LOAD_ADDR) \
 	$(patsubst %,$(obj)/dts/%.dtb,$(subst ",,$(LIST_OF_DTB))) > $@
 
 $(SPL_ITS): FORCE

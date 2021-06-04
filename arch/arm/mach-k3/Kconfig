@@ -147,6 +147,13 @@ config SYS_K3_SPL_ATF
 	  Enabling this will try to start Cortex-A (typically with ATF)
 	  after SPL from R5.
 
+config K3_ATF_LOAD_ADDR
+	hex "Load address of ATF image"
+	default 0x70000000
+	help
+	  The load address for the ATF image. This value defaults to 0x70000000
+	  if not provided in the board defconfig file.
+
 source "board/ti/am65x/Kconfig"
 source "board/ti/am64x/Kconfig"
 source "board/ti/j721e/Kconfig"

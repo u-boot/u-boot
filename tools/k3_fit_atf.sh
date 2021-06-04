@@ -5,7 +5,7 @@
 # ATF, OPTEE, SPL and multiple device trees (given on the command line).
 # Inspired from board/sunxi/mksunxi_fit_atf.sh
 #
-# usage: $0 <dt_name> [<dt_name> [<dt_name] ...]
+# usage: $0 <atf_load_addr> <dt_name> [<dt_name> [<dt_name] ...]
 
 [ -z "$ATF" ] && ATF="bl31.bin"
 
@@ -40,8 +40,8 @@ cat << __HEADER_EOF
 			arch = "arm64";
 			compression = "none";
 			os = "arm-trusted-firmware";
-			load = <0x70000000>;
-			entry = <0x70000000>;
+			load = <$1>;
+			entry = <$1>;
 		};
 		tee {
 			description = "OPTEE";
@@ -64,6 +64,9 @@ cat << __HEADER_EOF
 			entry = <0x80080000>;
 		};
 __HEADER_EOF
+
+# shift through ATF load address in the command line arguments
+shift
 
 for dtname in $*
 do
