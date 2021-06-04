@@ -30,6 +30,11 @@
 #define MAIN_DEVSTAT_PRIMARY_MMC_PORT_SHIFT		2
 #define MAIN_DEVSTAT_PRIMARY_MMC_PORT_MASK		0x04
 
+#define MAIN_DEVSTAT_PRIMARY_USB_MODE_SHIFT		1
+#define MAIN_DEVSTAT_PRIMARY_USB_MODE_MASK		0x02
+
+#define MAIN_DEVSTAT_BACKUP_USB_MODE_MASK		0x01
+
 /*
  * The CTRL_MMR and PADCFG_MMR memory space is divided into several
  * equally-spaced partitions, so defining the partition size allows us to

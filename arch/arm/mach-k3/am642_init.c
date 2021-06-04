@@ -192,8 +192,11 @@ static u32 __get_backup_bootmedia(u32 main_devstat)
 	case BACKUP_BOOT_DEVICE_UART:
 		return BOOT_DEVICE_UART;
 
-	case BACKUP_BOOT_DEVICE_USB:
-		return BOOT_DEVICE_USB;
+	case BACKUP_BOOT_DEVICE_DFU:
+		if (bkup_bootmode_cfg & MAIN_DEVSTAT_BACKUP_USB_MODE_MASK)
+			return BOOT_DEVICE_USB;
+		return BOOT_DEVICE_DFU;
+
 
 	case BACKUP_BOOT_DEVICE_ETHERNET:
 		return BOOT_DEVICE_ETHERNET;
@@ -244,6 +247,12 @@ static u32 __get_primary_bootmedia(u32 main_devstat)
 		     MAIN_DEVSTAT_PRIMARY_MMC_PORT_SHIFT)
 			return BOOT_DEVICE_MMC2;
 		return BOOT_DEVICE_MMC1;
+
+	case BOOT_DEVICE_DFU:
+		if ((bootmode_cfg & MAIN_DEVSTAT_PRIMARY_USB_MODE_MASK) >>
+		    MAIN_DEVSTAT_PRIMARY_USB_MODE_SHIFT)
+			return BOOT_DEVICE_USB;
+		return BOOT_DEVICE_DFU;
 
 	case BOOT_DEVICE_NOBOOT:
 		return BOOT_DEVICE_RAM;
