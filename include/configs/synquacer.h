@@ -61,6 +61,11 @@
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 /* #define CONFIG_SYS_PCI_64BIT		1 */
 
+#define DEFAULT_DFU_ALT_INFO "dfu_alt_info="				\
+			"mtd nor1=u-boot.bin raw 200000 100000;"	\
+			"fip.bin raw 180000 78000;"			\
+			"optee.bin raw 500000 100000\0"
+
 /* Distro boot settings */
 #ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_CMD_USB
@@ -104,6 +109,7 @@
 	"ramdisk_addr_r=0xa0000000\0"		\
 	"scriptaddr=0x88000000\0"		\
 	"pxefile_addr_r=0x88100000\0"		\
+	DEFAULT_DFU_ALT_INFO			\
 	BOOTENV
 
 #endif /* __CONFIG_H */
