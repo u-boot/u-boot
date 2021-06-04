@@ -828,6 +828,7 @@ int tsec_probe(struct udevice *dev)
 	const char *phy_mode;
 	ofnode parent, child;
 	fdt_addr_t reg;
+	u32 max_speed;
 	int ret;
 
 	data = (struct tsec_data *)dev_get_driver_data(dev);
@@ -893,8 +894,12 @@ int tsec_probe(struct udevice *dev)
 	}
 	priv->interface = pdata->phy_interface;
 
+	/* Check for speed limit, default is 1000Mbps */
+	max_speed = dev_read_u32_default(dev, "max-speed", 1000);
+
 	/* Initialize flags */
-	priv->flags = TSEC_GIGABIT;
+	if (max_speed == 1000)
+		priv->flags = TSEC_GIGABIT;
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII)
 		priv->flags |= TSEC_SGMII;
 
