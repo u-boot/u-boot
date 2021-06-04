@@ -27,6 +27,11 @@ stages:
         wget -O - https://github.com/riscv/opensbi/releases/download/v0.9/opensbi-0.9-rv-bin.tar.xz | tar -C /tmp -xJ;
         export OPENSBI=/tmp/opensbi-0.9-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
       fi
+    - if [[ "${TEST_PY_BD}" == "sandbox" ]]; then
+        sudo apt update;
+        sudo apt install -y linux-image-kvm;
+        sudo chmod +r /boot/vmlinu* /lib/modules/*/vmlinu* || true;
+      fi
 
   after_script:
     - rm -rf /tmp/uboot-test-hooks /tmp/venv
