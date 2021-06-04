@@ -209,24 +209,23 @@ def mount_fs(fs_type, device, mount_point):
     """
     global fuse_mounted
 
-    fuse_mounted = False
     try:
-        if tool_is_in_path('guestmount'):
-            fuse_mounted = True
-            check_call('guestmount -a %s -m /dev/sda %s'
-                % (device, mount_point), shell=True)
-        else:
-            mount_opt = 'loop,rw'
-            if re.match('fat', fs_type):
-                mount_opt += ',umask=0000'
-
-            check_call('sudo mount -o %s %s %s'
-                % (mount_opt, device, mount_point), shell=True)
-
-            # may not be effective for some file systems
-            check_call('sudo chmod a+rw %s' % mount_point, shell=True)
+        check_call('guestmount -a %s -m /dev/sda %s'
+            % (device, mount_point), shell=True)
+        fuse_mounted = True
+        return
     except CalledProcessError:
-        raise
+        fuse_mounted = False
+
+    mount_opt = 'loop,rw'
+    if re.match('fat', fs_type):
+        mount_opt += ',umask=0000'
+
+    check_call('sudo mount -o %s %s %s'
+        % (mount_opt, device, mount_point), shell=True)
+
+    # may not be effective for some file systems
+    check_call('sudo chmod a+rw %s' % mount_point, shell=True)
 
 def umount_fs(mount_point):
     """Unmount a volume.
