@@ -323,7 +323,7 @@
 		};
 
 		pcie0: pcie@d0070000 {
-			compatible = "marvell,armada-37xx-pcie";
+			compatible = "marvell,armada-3700-pcie";
 			reg = <0 0xd0070000 0 0x20000>;
 			#address-cells = <3>;
 			#size-cells = <2>;
@@ -332,10 +332,17 @@
 			status = "disabled";
 
 			bus-range = <0 0xff>;
+			/*
+			 * The 128 MiB address range [0xe8000000-0xf0000000] is
+			 * dedicated for PCIe and can be assigned to 8 windows
+			 * with size a power of two. Use one 64 KiB window for
+			 * IO at the end and the remaining seven windows
+			 * (totaling 127 MiB) for MEM.
+			 */
 			ranges = <0x82000000 0 0xe8000000
-				 0 0xe8000000 0 0x1000000 /* Port 0 MEM */
-				 0x81000000 0 0xe9000000
-				 0 0xe9000000 0 0x10000>; /* Port 0 IO*/
+				 0 0xe8000000 0 0x7f00000 /* Port 0 MEM */
+				 0x81000000 0 0xefff0000
+				 0 0xefff0000 0 0x10000>; /* Port 0 IO*/
 		};
 	};
 };
