@@ -550,6 +550,9 @@ int pci_auto_config_devices(struct udevice *bus)
 		max_bus = ret;
 		sub_bus = max(sub_bus, max_bus);
 
+		if (dev_get_parent(dev) == bus)
+			continue;
+
 		pplat = dev_get_parent_plat(dev);
 		if (pplat->class == (PCI_CLASS_DISPLAY_VGA << 8))
 			set_vga_bridge_bits(dev);
