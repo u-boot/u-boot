@@ -3,6 +3,7 @@
 /dts-v1/;
 
 #include "binman.dtsi"
+#include "ae350-u-boot.dtsi"
 
 / {
 	#address-cells = <2>;
