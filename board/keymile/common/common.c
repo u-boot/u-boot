@@ -46,12 +46,14 @@ int set_km_env(void)
 	unsigned int pram;
 	unsigned int varaddr;
 	unsigned int kernelmem;
-	char *p;
 	unsigned long rootfssize = 0;
+	char envval[16];
+	char *p;
 
 	pnvramaddr = CONFIG_SYS_SDRAM_BASE + gd->ram_size -
 		CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM - CONFIG_KM_PNVRAM;
-	env_set_hex("pnvramaddr", pnvramaddr);
+	sprintf(envval, "0x%x", pnvramaddr);
+	env_set("pnvramaddr", envval);
 
 	/* try to read rootfssize (ram image) from environment */
 	p = env_get("rootfssize");
@@ -64,9 +66,12 @@ int set_km_env(void)
 	varaddr = CONFIG_SYS_SDRAM_BASE + gd->ram_size -
 		CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM;
 	env_set_hex("varaddr", varaddr);
+	sprintf(envval, "0x%x", varaddr);
+	env_set("varaddr", envval);
 
 	kernelmem = gd->ram_size - 0x400 * pram;
-	env_set_hex("kernelmem", kernelmem);
+	sprintf(envval, "0x%x", kernelmem);
+	env_set("kernelmem", envval);
 
 	return 0;
 }
