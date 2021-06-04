@@ -1778,6 +1778,19 @@ config ARCH_UNIPHIER
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)
 
+config ARCH_SYNQUACER
+	bool "Socionext SynQuacer SoCs"
+	select ARM64
+	select DM
+	select GIC_V3
+	select PSCI_RESET
+	select SYSRESET
+	select SYSRESET_PSCI
+	select OF_CONTROL
+	help
+	  Support for SynQuacer SoC family developed by Socionext Inc.
+	  This SoC is used on 96boards EE DeveloperBox.
+
 config ARCH_STM32
 	bool "Support STMicroelectronics STM32 MCU with cortex M"
 	select CPU_V7M
@@ -2121,6 +2134,7 @@ source "board/isee/igep003x/Kconfig"
 source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
+source "board/socionext/developerbox/Kconfig"
 source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"
 source "board/spear/spear320/Kconfig"
