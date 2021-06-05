@@ -67,7 +67,7 @@ static int rk_pcie_read(void __iomem *addr, int size, u32 *val)
 {
 	if ((uintptr_t)addr & (size - 1)) {
 		*val = 0;
-		return PCIBIOS_UNSUPPORTED;
+		return -EOPNOTSUPP;
 	}
 
 	if (size == 4) {
@@ -87,7 +87,7 @@ static int rk_pcie_read(void __iomem *addr, int size, u32 *val)
 static int rk_pcie_write(void __iomem *addr, int size, u32 val)
 {
 	if ((uintptr_t)addr & (size - 1))
-		return PCIBIOS_UNSUPPORTED;
+		return -EOPNOTSUPP;
 
 	if (size == 4)
 		writel(val, addr);
