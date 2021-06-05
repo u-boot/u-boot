@@ -61,7 +61,7 @@ struct rk_pcie {
 #define PCIE_CLIENT_DBF_EN		0xffff0003
 
 /* Parameters for the waiting for #perst signal */
-#define PERST_WAIT_MS			1000
+#define MACRO_US			1000
 
 static int rk_pcie_read(void __iomem *addr, int size, u32 *val)
 {
@@ -249,7 +249,7 @@ static int rk_pcie_link_up(struct rk_pcie *priv, u32 cap_speed)
 		 * some wired devices need much more, such as 600ms.
 		 * Add a enough delay to cover all cases.
 		 */
-		msleep(PERST_WAIT_MS);
+		udelay(MACRO_US * 1000);
 		dm_gpio_set_value(&priv->rst_gpio, 1);
 	}
 
@@ -271,12 +271,12 @@ static int rk_pcie_link_up(struct rk_pcie *priv, u32 cap_speed)
 		dev_info(priv->dw.dev, "PCIe Linking... LTSSM is 0x%x\n",
 			 rk_pcie_readl_apb(priv, PCIE_CLIENT_LTSSM_STATUS));
 		rk_pcie_debug_dump(priv);
-		msleep(1000);
+		udelay(MACRO_US * 1000);
 	}
 
 	dev_err(priv->dw.dev, "PCIe-%d Link Fail\n", dev_seq(priv->dw.dev));
 	/* Link maybe in Gen switch recovery but we need to wait more 1s */
-	msleep(1000);
+	udelay(MACRO_US * 1000);
 	return -EIO;
 }
 
@@ -296,7 +296,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 		}
 	}
 
-	msleep(1000);
+	udelay(MACRO_US * 1000);
 
 	ret = generic_phy_init(&priv->phy);
 	if (ret) {
