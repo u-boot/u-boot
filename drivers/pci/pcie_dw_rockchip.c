@@ -158,8 +158,6 @@ static inline void rk_pcie_writel_apb(struct rk_pcie *rk_pcie, u32 reg,
  */
 static void rk_pcie_configure(struct rk_pcie *pci, u32 cap_speed)
 {
-	u32 val;
-
 	dw_pcie_dbi_write_enable(&pci->dw, true);
 
 	clrsetbits_le32(pci->dw.dbi_base + PCIE_LINK_CAPABILITY,
