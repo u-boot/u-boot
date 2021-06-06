@@ -436,9 +436,12 @@ void sandbox_reset(void)
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
+	void * text_base;
 	gd_t data;
 	int size;
 	int ret;
+
+	text_base = os_find_text_base();
 
 	/*
 	 * Copy argv[] so that we can pass the arguments in the original
@@ -452,7 +455,7 @@ int main(int argc, char *argv[])
 
 	memset(&data, '\0', sizeof(data));
 	gd = &data;
-	gd->arch.text_base = os_find_text_base();
+	gd->arch.text_base = text_base;
 
 	ret = state_init();
 	if (ret)

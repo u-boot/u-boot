@@ -118,11 +118,6 @@ static struct of_bus *of_match_bus(struct device_node *np)
 	return NULL;
 }
 
-static void dev_count_cells(const struct device_node *np, int *nap, int *nsp)
-{
-	of_bus_default_count_cells(np, nap, nsp);
-}
-
 const __be32 *of_get_address(const struct device_node *dev, int index,
 			     u64 *size, unsigned int *flags)
 {
@@ -136,7 +131,6 @@ const __be32 *of_get_address(const struct device_node *dev, int index,
 	parent = of_get_parent(dev);
 	if (parent == NULL)
 		return NULL;
-	dev_count_cells(dev, &na, &ns);
 	bus = of_match_bus(parent);
 	bus->count_cells(dev, &na, &ns);
 	of_node_put(parent);
@@ -192,9 +186,13 @@ static int of_translate_one(const struct device_node *parent,
 	 *
 	 * As far as we know, this damage only exists on Apple machines, so
 	 * This code is only enabled on powerpc. --gcl
+	 *
+	 * This quirk also applies for 'dma-ranges' which frequently exist in
+	 * child nodes without 'dma-ranges' in the parent nodes. --RobH
 	 */
 	ranges = of_get_property(parent, rprop, &rlen);
-	if (ranges == NULL && !of_empty_ranges_quirk(parent)) {
+	if (ranges == NULL && !of_empty_ranges_quirk(parent) &&
+	    strcmp(rprop, "dma-ranges")) {
 		debug("no ranges; cannot translate\n");
 		return 1;
 	}

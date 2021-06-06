@@ -19,6 +19,7 @@
 #include <dm/util.h>
 #include <dm/lists.h>
 #include <dm/of_access.h>
+#include <linux/ioport.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -1165,3 +1166,35 @@ static int dm_test_decode_display_timing(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_decode_display_timing, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test read_resourcee() */
+static int dm_test_read_resource(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct resource res;
+
+	/* test resource without translation */
+	ut_assertok(uclass_find_device_by_name(UCLASS_SIMPLE_BUS, "syscon@2", &dev));
+	ut_assertok(dev_read_resource(dev, 0, &res));
+	ut_asserteq(0x40, res.start);
+	ut_asserteq(0x44, res.end);
+	ut_assertok(dev_read_resource(dev, 1, &res));
+	ut_asserteq(0x48, res.start);
+	ut_asserteq(0x4d, res.end);
+
+	/* test resource with translation */
+	ut_assertok(uclass_find_device_by_name(UCLASS_TEST_DUMMY, "dev@1,100", &dev));
+	ut_assertok(dev_read_resource(dev, 0, &res));
+	ut_asserteq(0x9000, res.start);
+	ut_asserteq(0x9fff, res.end);
+
+	/* test named resource */
+	ut_assertok(uclass_find_device_by_name(UCLASS_TEST_DUMMY, "dev@0,0", &dev));
+	ut_assertok(dev_read_resource_byname(dev, "sandbox-dummy-0", &res));
+	ut_asserteq(0x8000, res.start);
+	ut_asserteq(0x8fff, res.end);
+
+	return 0;
+}
+
+DM_TEST(dm_test_read_resource, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

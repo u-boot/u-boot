@@ -80,5 +80,5 @@ U_BOOT_DRIVER(cros_ec_pwm) = {
 	.id	= UCLASS_PWM,
 	.of_match = cros_ec_pwm_ids,
 	.ops	= &cros_ec_pwm_ops,
-	.priv_auto_alloc_size	= sizeof(struct cros_ec_pwm_priv),
+	.priv_auto = sizeof(struct cros_ec_pwm_priv),
 };
