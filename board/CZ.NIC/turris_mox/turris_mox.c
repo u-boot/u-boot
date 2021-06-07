@@ -377,6 +377,38 @@ int misc_init_r(void)
 	return 0;
 }
 
+static void mox_phy_modify(struct phy_device *phydev, int page, int reg,
+			   u16 mask, u16 set)
+{
+	int val;
+
+	val = phydev->drv->readext(phydev, MDIO_DEVAD_NONE, page, reg);
+	val &= ~mask;
+	val |= set;
+	phydev->drv->writeext(phydev, MDIO_DEVAD_NONE, page, reg, val);
+}
+
+static void mox_phy_leds_start_blinking(void)
+{
+	struct phy_device *phydev;
+	struct mii_dev *bus;
+
+	bus = miiphy_get_dev_by_name("neta@30000");
+	if (!bus) {
+		printf("Cannot get MDIO bus device!\n");
+		return;
+	}
+
+	phydev = phy_find_by_mask(bus, BIT(1), PHY_INTERFACE_MODE_RGMII);
+	if (!phydev) {
+		printf("Cannot get ethernet PHY!\n");
+		return;
+	}
+
+	mox_phy_modify(phydev, 3, 0x12, 0x700, 0x400);
+	mox_phy_modify(phydev, 3, 0x10, 0xff, 0xbb);
+}
+
 static bool read_reset_button(void)
 {
 	struct udevice *button, *led;
@@ -423,6 +455,9 @@ static void handle_reset_button(void)
 
 		/* Ensure bootcmd_rescue is used by distroboot */
 		env_set("boot_targets", "rescue");
+
+		/* start blinking PHY LEDs */
+		mox_phy_leds_start_blinking();
 
 		printf("RESET button was pressed, overwriting boot_targets!\n");
 	} else {
