@@ -292,8 +292,6 @@ def GetTargetCompileTool(name, cross_compile=None):
 
     if cross_compile is None:
         cross_compile = env.get('CROSS_COMPILE', '')
-    if not cross_compile:
-        return name, []
 
     if name in ('as', 'ar', 'nm', 'ldr', 'strip', 'objcopy', 'objdump'):
         target_name = cross_compile + name
