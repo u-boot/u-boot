@@ -164,6 +164,37 @@
 		reg = <0>;
 		spi-max-frequency = <20000000>;
 		m25p,fast-read;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "secure-firmware";
+				reg = <0x0 0x20000>;
+			};
+
+			partition@20000 {
+				label = "a53-firmware";
+				reg = <0x20000 0x160000>;
+			};
+
+			partition@180000 {
+				label = "u-boot-env";
+				reg = <0x180000 0x10000>;
+			};
+
+			partition@190000 {
+				label = "Rescue system";
+				reg = <0x190000 0x660000>;
+			};
+
+			partition@7f0000 {
+				label = "dtb";
+				reg = <0x7f0000 0x10000>;
+			};
+		};
 	};
 
 	moxtet@1 {
