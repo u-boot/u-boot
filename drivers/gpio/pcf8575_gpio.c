@@ -34,8 +34,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct pcf8575_chip {
-	int gpio_count;		/* No. GPIOs supported by the chip */
-
 	/* NOTE:  these chips have strange "quasi-bidirectional" I/O pins.
 	 * We can't actually know whether a pin is configured (a) as output
 	 * and driving the signal low, or (b) as input and reporting a low
@@ -49,7 +47,6 @@ struct pcf8575_chip {
 	 * reset state.  Otherwise it flags pins to be driven low.
 	 */
 	unsigned int out;	/* software latch */
-	const char *bank_name;	/* Name of the expander bank */
 };
 
 /* Read/Write to 16-bit I/O expander */
