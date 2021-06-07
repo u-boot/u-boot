@@ -653,10 +653,7 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	clk = (pre_div << 8) | (div << 4);
 
 #ifdef CONFIG_FSL_USDHC
-	esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
-	ret = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp, tmp & PRSSTAT_SDOFF, 100);
-	if (ret)
-		pr_warn("fsl_esdhc_imx: Internal clock never gate off.\n");
+	esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_CKEN);
 #else
 	esdhc_clrbits32(&regs->sysctl, SYSCTL_CKEN);
 #endif
@@ -668,7 +665,7 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 		pr_warn("fsl_esdhc_imx: Internal clock never stabilised.\n");
 
 #ifdef CONFIG_FSL_USDHC
-	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_PEREN | VENDORSPEC_CKEN);
 #else
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
 #endif
@@ -723,14 +720,8 @@ static void esdhc_set_strobe_dll(struct mmc *mmc)
 	struct fsl_esdhc_priv *priv = dev_get_priv(mmc->dev);
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	u32 val;
-	u32 tmp;
-	int ret;
 
 	if (priv->clock > ESDHC_STROBE_DLL_CLK_FREQ) {
-		esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
-		ret = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp, tmp & PRSSTAT_SDOFF, 100);
-		if (ret)
-			pr_warn("fsl_esdhc_imx: Internal clock never gate off.\n");
 		esdhc_write32(&regs->strobe_dllctrl, ESDHC_STROBE_DLL_CTRL_RESET);
 
 		/*
@@ -748,7 +739,6 @@ static void esdhc_set_strobe_dll(struct mmc *mmc)
 			pr_warn("HS400 strobe DLL status REF not lock!\n");
 		if (!(val & ESDHC_STROBE_DLL_STS_SLV_LOCK))
 			pr_warn("HS400 strobe DLL status SLV not lock!\n");
-		esdhc_setbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
 	}
 }
 
@@ -980,18 +970,14 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 #ifdef MMC_SUPPORTS_TUNING
 	if (mmc->clk_disable) {
 #ifdef CONFIG_FSL_USDHC
-		u32 tmp;
-
-		esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
-		ret = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp, tmp & PRSSTAT_SDOFF, 100);
-		if (ret)
-			pr_warn("fsl_esdhc_imx: Internal clock never gate off.\n");
+		esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_CKEN);
 #else
 		esdhc_clrbits32(&regs->sysctl, SYSCTL_CKEN);
 #endif
 	} else {
 #ifdef CONFIG_FSL_USDHC
-		esdhc_setbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
+		esdhc_setbits32(&regs->vendorspec, VENDORSPEC_PEREN |
+				VENDORSPEC_CKEN);
 #else
 		esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
 #endif
@@ -1067,7 +1053,7 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 #ifndef CONFIG_FSL_USDHC
 	esdhc_setbits32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 #else
-	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_HCKEN | VENDORSPEC_IPGEN);
 #endif
 
 	/* Set the initial clock speed */
@@ -1205,7 +1191,8 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 	esdhc_write32(&regs->autoc12err, 0);
 	esdhc_write32(&regs->clktunectrlstatus, 0);
 #else
-	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_PEREN |
+			VENDORSPEC_HCKEN | VENDORSPEC_IPGEN | VENDORSPEC_CKEN);
 #endif
 
 	if (priv->vs18_enable)
