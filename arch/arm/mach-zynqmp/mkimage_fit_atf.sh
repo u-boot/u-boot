@@ -13,6 +13,8 @@ BL31_ELF="${BL31%.*}.elf"
 awk '/Entry point/ { print $3 }'`
 
 [ -z "$ATF_LOAD_ADDR" ] && ATF_LOAD_ADDR="0xfffea000"
+ATF_LOAD_ADDR_LOW=`printf 0x%x $((ATF_LOAD_ADDR & 0xffffffff))`
+ATF_LOAD_ADDR_HIGH=`printf 0x%x $((ATF_LOAD_ADDR >> 32))`
 
 [ -z "$BL32" ] && BL32="tee.bin"
 BL32_ELF="${BL32%.*}.elf"
@@ -20,14 +22,20 @@ BL32_ELF="${BL32%.*}.elf"
 awk '/Entry point/ { print $3 }'`
 
 [ -z "$TEE_LOAD_ADDR" ] && TEE_LOAD_ADDR="0x60000000"
+TEE_LOAD_ADDR_LOW=`printf 0x%x $((TEE_LOAD_ADDR & 0xffffffff))`
+TEE_LOAD_ADDR_HIGH=`printf 0x%x $((TEE_LOAD_ADDR >> 32))`
 
 if [ -z "$BL33_LOAD_ADDR" ];then
 	BL33_LOAD_ADDR=`awk '/CONFIG_SYS_TEXT_BASE/ { print $3 }' include/generated/autoconf.h`
 fi
+BL33_LOAD_ADDR_LOW=`printf 0x%x $((BL33_LOAD_ADDR & 0xffffffff))`
+BL33_LOAD_ADDR_HIGH=`printf 0x%x $((BL33_LOAD_ADDR >> 32))`
 
 DTB_LOAD_ADDR=`awk '/CONFIG_XILINX_OF_BOARD_DTB_ADDR/ { print $3 }' include/generated/autoconf.h`
 if [ ! -z "$DTB_LOAD_ADDR" ]; then
-	DTB_LOAD="load = <$DTB_LOAD_ADDR>;"
+	DTB_LOAD_ADDR_LOW=`printf 0x%x $((DTB_LOAD_ADDR & 0xffffffff))`
+	DTB_LOAD_ADDR_HIGH=`printf 0x%x $((DTB_LOAD_ADDR >> 32))`
+	DTB_LOAD="load = <$DTB_LOAD_ADDR_HIGH $DTB_LOAD_ADDR_LOW>;"
 else
 	DTB_LOAD=""
 fi
@@ -59,8 +67,8 @@ cat << __HEADER_EOF
 			os = "u-boot";
 			arch = "arm64";
 			compression = "none";
-			load = <$BL33_LOAD_ADDR>;
-			entry = <$BL33_LOAD_ADDR>;
+			load = <$BL33_LOAD_ADDR_HIGH $BL33_LOAD_ADDR_LOW>;
+			entry = <$BL33_LOAD_ADDR_HIGH $BL33_LOAD_ADDR_LOW>;
 			hash {
 				algo = "md5";
 			};
@@ -76,8 +84,8 @@ cat << __ATF
 			os = "arm-trusted-firmware";
 			arch = "arm64";
 			compression = "none";
-			load = <$ATF_LOAD_ADDR>;
-			entry = <$ATF_LOAD_ADDR>;
+			load = <$ATF_LOAD_ADDR_HIGH $ATF_LOAD_ADDR_LOW>;
+			entry = <$ATF_LOAD_ADDR_HIGH $ATF_LOAD_ADDR_LOW>;
 			hash {
 				algo = "md5";
 			};
@@ -94,8 +102,8 @@ cat << __TEE
 			os = "tee";
 			arch = "arm64";
 			compression = "none";
-			load = <$TEE_LOAD_ADDR>;
-			entry = <$TEE_LOAD_ADDR>;
+			load = <$TEE_LOAD_ADDR_HIGH $TEE_LOAD_ADDR_LOW>;
+			entry = <$TEE_LOAD_ADDR_HIGH $TEE_LOAD_ADDR_LOW>;
 			hash {
 				algo = "md5";
 			};
