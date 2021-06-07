@@ -48,6 +48,9 @@ enum udma_mmr {
 	MMR_BCHANRT,
 	MMR_RCHANRT,
 	MMR_TCHANRT,
+	MMR_RCHAN,
+	MMR_TCHAN,
+	MMR_RFLOW,
 	MMR_LAST,
 };
 
@@ -56,9 +59,13 @@ static const char * const mmr_names[] = {
 	[MMR_BCHANRT] = "bchanrt",
 	[MMR_RCHANRT] = "rchanrt",
 	[MMR_TCHANRT] = "tchanrt",
+	[MMR_RCHAN] = "rchan",
+	[MMR_TCHAN] = "tchan",
+	[MMR_RFLOW] = "rflow",
 };
 
 struct udma_tchan {
+	void __iomem *reg_chan;
 	void __iomem *reg_rt;
 
 	int id;
@@ -71,12 +78,14 @@ struct udma_tchan {
 #define udma_bchan udma_tchan
 
 struct udma_rflow {
+	void __iomem *reg_rflow;
 	int id;
 	struct k3_nav_ring *fd_ring; /* Free Descriptor ring */
 	struct k3_nav_ring *r_ring; /* Receive ring */
 };
 
 struct udma_rchan {
+	void __iomem *reg_chan;
 	void __iomem *reg_rt;
 
 	int id;
@@ -334,6 +343,8 @@ static inline char *udma_get_dir_text(enum dma_direction dir)
 
 	return "invalid";
 }
+
+#include "k3-udma-u-boot.c"
 
 static void udma_reset_uchan(struct udma_chan *uc)
 {
@@ -1014,10 +1025,20 @@ static int udma_alloc_tchan_sci_req(struct udma_chan *uc)
 	req.txcq_qnum = tc_ring;
 
 	ret = tisci_rm->tisci_udmap_ops->tx_ch_cfg(tisci_rm->tisci, &req);
-	if (ret)
+	if (ret) {
 		dev_err(ud->dev, "tisci tx alloc failed %d\n", ret);
+		return ret;
+	}
 
-	return ret;
+	/*
+	 * Above TI SCI call handles firewall configuration, cfg
+	 * register configuration still has to be done locally in
+	 * absence of RM services.
+	 */
+	if (IS_ENABLED(CONFIG_K3_DM_FW))
+		udma_alloc_tchan_raw(uc);
+
+	return 0;
 }
 
 static int udma_alloc_rchan_sci_req(struct udma_chan *uc)
@@ -1114,11 +1135,21 @@ static int udma_alloc_rchan_sci_req(struct udma_chan *uc)
 
 	ret = tisci_rm->tisci_udmap_ops->rx_flow_cfg(tisci_rm->tisci,
 						     &flow_req);
-	if (ret)
+	if (ret) {
 		dev_err(ud->dev, "tisci rx %u flow %u cfg failed %d\n",
 			uc->rchan->id, uc->rflow->id, ret);
+		return ret;
+	}
 
-	return ret;
+	/*
+	 * Above TI SCI call handles firewall configuration, cfg
+	 * register configuration still has to be done locally in
+	 * absence of RM services.
+	 */
+	if (IS_ENABLED(CONFIG_K3_DM_FW))
+		udma_alloc_rchan_raw(uc);
+
+	return 0;
 }
 
 static int udma_alloc_chan_resources(struct udma_chan *uc)
@@ -1751,6 +1782,7 @@ static int udma_probe(struct udevice *dev)
 		struct udma_tchan *tchan = &ud->tchans[i];
 
 		tchan->id = i;
+		tchan->reg_chan = ud->mmrs[MMR_TCHAN] + UDMA_CH_100(i);
 		tchan->reg_rt = ud->mmrs[MMR_TCHANRT] + UDMA_CH_1000(i);
 	}
 
@@ -1758,6 +1790,7 @@ static int udma_probe(struct udevice *dev)
 		struct udma_rchan *rchan = &ud->rchans[i];
 
 		rchan->id = i;
+		rchan->reg_chan = ud->mmrs[MMR_RCHAN] + UDMA_CH_100(i);
 		rchan->reg_rt = ud->mmrs[MMR_RCHANRT] + UDMA_CH_1000(i);
 	}
 
@@ -1765,6 +1798,7 @@ static int udma_probe(struct udevice *dev)
 		struct udma_rflow *rflow = &ud->rflows[i];
 
 		rflow->id = i;
+		rflow->reg_rflow = ud->mmrs[MMR_RFLOW] + UDMA_CH_40(i);
 	}
 
 	for (i = 0; i < ud->ch_count; i++) {
