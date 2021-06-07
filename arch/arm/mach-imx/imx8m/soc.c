@@ -296,6 +296,20 @@ phys_size_t get_effective_memsize(void)
 #endif
 }
 
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	/*
+	 * Some IPs have their accessible address space restricted by
+	 * the interconnect. Let's make sure U-Boot only ever uses the
+	 * space below the 4G address boundary (which is 3GiB big),
+	 * even when the effective available memory is bigger.
+	 */
+	if (PHYS_SDRAM + gd->ram_size > 0x80000000)
+		return 0x80000000;
+
+	return PHYS_SDRAM + gd->ram_size;
+}
+
 static u32 get_cpu_variant_type(u32 type)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
