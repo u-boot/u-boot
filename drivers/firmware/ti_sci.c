@@ -23,6 +23,7 @@
 #include <linux/soc/ti/ti_sci_protocol.h>
 
 #include "ti_sci.h"
+#include "ti_sci_static_data.h"
 
 /* List of all TI SCI devices active in system */
 static LIST_HEAD(ti_sci_list);
@@ -1668,6 +1669,33 @@ fail:
 	return ret;
 }
 
+static int __maybe_unused
+ti_sci_get_resource_range_static(u32 dev_id, u8 subtype, u16 *range_start,
+				 u16 *range_num)
+{
+	struct ti_sci_resource_static_data *data;
+	int i = 0;
+
+	while (1) {
+		data = &rm_static_data[i];
+
+		if (!data->dev_id)
+			return -EINVAL;
+
+		if (data->dev_id != dev_id || data->subtype != subtype) {
+			i++;
+			continue;
+		}
+
+		*range_start = data->range_start;
+		*range_num = data->range_num;
+
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
 /**
  * ti_sci_cmd_get_resource_range - Get a range of resources assigned to host
  *				   that is same as ti sci interface host.
@@ -1684,6 +1712,11 @@ static int ti_sci_cmd_get_resource_range(const struct ti_sci_handle *handle,
 					 u32 dev_id, u8 subtype,
 					 u16 *range_start, u16 *range_num)
 {
+	if (CONFIG_IS_ENABLED(TI_K3_RAW_RM))
+		return ti_sci_get_resource_range_static(dev_id, subtype,
+							range_start,
+							range_num);
+
 	return ti_sci_get_resource_range(handle, dev_id, subtype,
 					 TI_SCI_IRQ_SECONDARY_HOST_INVALID,
 					 range_start, range_num);
@@ -1707,6 +1740,9 @@ int ti_sci_cmd_get_resource_range_from_shost(const struct ti_sci_handle *handle,
 					     u32 dev_id, u8 subtype, u8 s_host,
 					     u16 *range_start, u16 *range_num)
 {
+	if (CONFIG_IS_ENABLED(TI_K3_RAW_RM))
+		return -EINVAL;
+
 	return ti_sci_get_resource_range(handle, dev_id, subtype, s_host,
 					 range_start, range_num);
 }
