@@ -75,12 +75,21 @@
 
 #include <config_distro_bootcmd.h>
 
+#define TURRIS_MOX_BOOTCMD_RESCUE \
+	"setenv bootargs \"console=ttyMV0,115200 " \
+			  "earlycon=ar3700_uart,0xd0012000\" && " \
+	"sf probe && " \
+	"sf read 0x5000000 0x190000 && " \
+	"lzmadec 0x5000000 0x5800000 && " \
+	"bootm 0x5800000"
+
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"scriptaddr=0x4d00000\0"	\
 	"pxefile_addr_r=0x4e00000\0"	\
 	"fdt_addr_r=0x4f00000\0"	\
 	"kernel_addr_r=0x5000000\0"	\
 	"ramdisk_addr_r=0x8000000\0"	\
+	"bootcmd_rescue=" TURRIS_MOX_BOOTCMD_RESCUE "\0" \
 	BOOTENV
 
 #endif /* _CONFIG_TURRIS_MOX_H */

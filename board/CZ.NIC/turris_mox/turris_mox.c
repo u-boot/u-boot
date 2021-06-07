@@ -10,11 +10,13 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
+#include <button.h>
 #include <clk.h>
 #include <dm.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <led.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <linux/string.h>
@@ -44,6 +46,8 @@
 #define SFP_GPIO_PATH	"/soc/internal-regs@d0000000/spi@10600/moxtet@1/gpio@0"
 #define PCIE_PATH	"/soc/pcie@d0070000"
 #define SFP_PATH	"/sfp"
+#define LED_PATH	"/leds/led"
+#define BUTTON_PATH	"/gpio-keys/reset"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -373,6 +377,71 @@ int misc_init_r(void)
 	return 0;
 }
 
+static bool read_reset_button(void)
+{
+	struct udevice *button, *led;
+	int i;
+
+	if (device_get_global_by_ofnode(ofnode_path(BUTTON_PATH), &button)) {
+		printf("Cannot find reset button!\n");
+		return false;
+	}
+
+	if (device_get_global_by_ofnode(ofnode_path(LED_PATH), &led)) {
+		printf("Cannot find status LED!\n");
+		return false;
+	}
+
+	led_set_state(led, LEDST_ON);
+
+	for (i = 0; i < 21; ++i) {
+		if (button_get_state(button) != BUTTON_ON)
+			return false;
+		if (i < 20)
+			mdelay(50);
+	}
+
+	led_set_state(led, LEDST_OFF);
+
+	return true;
+}
+
+static void handle_reset_button(void)
+{
+	if (read_reset_button()) {
+		const char * const vars[3] = {
+			"bootcmd",
+			"bootcmd_rescue",
+			"distro_bootcmd",
+		};
+
+		/*
+		 * Set the above envs to their default values, in case the user
+		 * managed to break them.
+		 */
+		env_set_default_vars(3, (char * const *)vars, 0);
+
+		/* Ensure bootcmd_rescue is used by distroboot */
+		env_set("boot_targets", "rescue");
+
+		printf("RESET button was pressed, overwriting boot_targets!\n");
+	} else {
+		/*
+		 * In case the user somehow managed to save environment with
+		 * boot_targets=rescue, reset boot_targets to default value.
+		 * This could happen in subsequent commands if bootcmd_rescue
+		 * failed.
+		 */
+		if (!strcmp(env_get("boot_targets"), "rescue")) {
+			const char * const vars[1] = {
+				"boot_targets",
+			};
+
+			env_set_default_vars(1, (char * const *)vars, 0);
+		}
+	}
+}
+
 static void mox_print_info(void)
 {
 	int ret, board_version, ram_size;
@@ -542,6 +611,8 @@ int last_stage_init(void)
 	}
 
 	printf("\n");
+
+	handle_reset_button();
 
 	return 0;
 }
