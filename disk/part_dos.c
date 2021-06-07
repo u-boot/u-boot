@@ -424,7 +424,7 @@ int write_mbr_partitions(struct blk_desc *dev,
 	}
 
 	/* Update the partition table entries*/
-	part_init(dev_desc);
+	part_init(dev);
 
 	return 0;
 }
