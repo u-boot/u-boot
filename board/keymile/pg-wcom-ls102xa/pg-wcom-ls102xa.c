@@ -70,16 +70,29 @@ int board_early_init_f(void)
 	/* QRIO Configuration */
 	qrio_uprstreq(UPREQ_CORE_RST);
 
-	if (IS_ENABLED(CONFIG_TARGET_PG_WCOM_SELI8)) {
-		qrio_prstcfg(KM_LIU_RST, PRSTCFG_POWUP_UNIT_RST);
-		qrio_wdmask(KM_LIU_RST, true);
+#if CONFIG_IS_ENABLED(TARGET_PG_WCOM_SELI8)
+	qrio_prstcfg(KM_LIU_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_wdmask(KM_LIU_RST, true);
 
-		qrio_prstcfg(KM_PAXK_RST, PRSTCFG_POWUP_UNIT_RST);
-		qrio_wdmask(KM_PAXK_RST, true);
+	qrio_prstcfg(KM_PAXK_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_wdmask(KM_PAXK_RST, true);
+#endif
 
-		qrio_prstcfg(KM_DBG_ETH_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
-		qrio_prst(KM_DBG_ETH_RST, false, false);
-	}
+#if CONFIG_IS_ENABLED(TARGET_PG_WCOM_EXPU1)
+	qrio_prstcfg(WCOM_TMG_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_wdmask(WCOM_TMG_RST, true);
+
+	qrio_prstcfg(WCOM_PHY_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_prst(WCOM_PHY_RST, false, false);
+
+	qrio_prstcfg(WCOM_QSFP_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_wdmask(WCOM_QSFP_RST, true);
+
+	qrio_prstcfg(WCOM_CLIPS_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_prst(WCOM_CLIPS_RST, false, false);
+#endif
+	qrio_prstcfg(KM_DBG_ETH_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
+	qrio_prst(KM_DBG_ETH_RST, false, false);
 
 	i2c_deblock_gpio_cfg();
 
