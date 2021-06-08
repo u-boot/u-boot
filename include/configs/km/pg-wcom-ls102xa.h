@@ -21,6 +21,10 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
+#define CONFIG_PRAM			((CONFIG_KM_PNVRAM + \
+					  CONFIG_KM_PHRAM + \
+					  CONFIG_KM_RESERVED_PRAM) >> 10)
+
 #define CONFIG_SYS_CLK_FREQ		66666666
 /*
  * Take into account default implementation where DDR_FDBK_MULTI is consider as
