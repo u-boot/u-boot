@@ -96,6 +96,12 @@ int board_early_init_f(void)
 
 	i2c_deblock_gpio_cfg();
 
+	/* enable the Unit LED (red) & Boot LED (on) */
+	qrio_set_leds();
+
+	/* enable Application Buffer */
+	qrio_enable_app_buffer();
+
 	arch_soc_init();
 
 	return 0;
