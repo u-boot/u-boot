@@ -429,3 +429,30 @@ int log_test_dropped(struct unit_test_state *uts)
 	return 0;
 }
 LOG_TEST_FLAGS(log_test_dropped, UT_TESTF_CONSOLE_REC);
+
+/* Check log_buffer() */
+int log_test_buffer(struct unit_test_state *uts)
+{
+	u8 *buf;
+	int i;
+
+	buf = malloc(0x20);
+	ut_assertnonnull(buf);
+	memset(buf, '\0', 0x20);
+	for (i = 0; i < 0x11; i++)
+		buf[i] = i * 0x11;
+
+	ut_assertok(console_record_reset_enable());
+	log_buffer(LOGC_BOOT, LOGL_INFO, 0, buf, 1, 0x12, 0);
+
+	/* This one should product no output due to the debug level */
+	log_buffer(LOGC_BOOT, LOGL_DEBUG, 0, buf, 1, 0x12, 0);
+
+	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 10 00                                            ..");
+	ut_assert_console_end();
+	free(buf);
+
+	return 0;
+}
+LOG_TEST_FLAGS(log_test_buffer, UT_TESTF_CONSOLE_REC);

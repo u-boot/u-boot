@@ -51,14 +51,37 @@ long ut_check_delta(ulong last)
 	return ut_check_free() - last;
 }
 
+static int readline_check(struct unit_test_state *uts)
+{
+	int ret;
+
+	ret = console_record_readline(uts->actual_str, sizeof(uts->actual_str));
+	if (ret == -ENOSPC) {
+		ut_fail(uts, __FILE__, __LINE__, __func__,
+			"Console record buffer too small - increase CONFIG_CONSOLE_RECORD_OUT_SIZE");
+		return ret;
+	}
+
+	return 0;
+}
+
 int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
 {
 	va_list args;
+	int len;
+	int ret;
 
 	va_start(args, fmt);
-	vsnprintf(uts->expect_str, sizeof(uts->expect_str), fmt, args);
+	len = vsnprintf(uts->expect_str, sizeof(uts->expect_str), fmt, args);
 	va_end(args);
-	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
+	if (len >= sizeof(uts->expect_str)) {
+		ut_fail(uts, __FILE__, __LINE__, __func__,
+			"unit_test_state->expect_str too small");
+		return -EOVERFLOW;
+	}
+	ret = readline_check(uts);
+	if (ret < 0)
+		return ret;
 
 	return strcmp(uts->expect_str, uts->actual_str);
 }
@@ -66,11 +89,20 @@ int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
 int ut_check_console_linen(struct unit_test_state *uts, const char *fmt, ...)
 {
 	va_list args;
+	int len;
+	int ret;
 
 	va_start(args, fmt);
-	vsnprintf(uts->expect_str, sizeof(uts->expect_str), fmt, args);
+	len = vsnprintf(uts->expect_str, sizeof(uts->expect_str), fmt, args);
 	va_end(args);
-	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
+	if (len >= sizeof(uts->expect_str)) {
+		ut_fail(uts, __FILE__, __LINE__, __func__,
+			"unit_test_state->expect_str too small");
+		return -EOVERFLOW;
+	}
+	ret = readline_check(uts);
+	if (ret < 0)
+		return ret;
 
 	return strncmp(uts->expect_str, uts->actual_str,
 		       strlen(uts->expect_str));
@@ -78,19 +110,26 @@ int ut_check_console_linen(struct unit_test_state *uts, const char *fmt, ...)
 
 int ut_check_skipline(struct unit_test_state *uts)
 {
+	int ret;
+
 	if (!console_record_avail())
 		return -ENFILE;
-	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
+	ret = readline_check(uts);
+	if (ret < 0)
+		return ret;
 
 	return 0;
 }
 
 int ut_check_console_end(struct unit_test_state *uts)
 {
+	int ret;
+
 	if (!console_record_avail())
 		return 0;
-
-	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
+	ret = readline_check(uts);
+	if (ret < 0)
+		return ret;
 
 	return 1;
 }
@@ -112,7 +151,7 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes)
 		if (str[8] != ':' || str[9] != ' ')
 			return 1;
 
-		bytes = len - 8 - 2 - 3 * 16 - 4;
+		bytes = len - 8 - 2 - 3 * 16 - 2;
 		upto += bytes;
 	}
 
