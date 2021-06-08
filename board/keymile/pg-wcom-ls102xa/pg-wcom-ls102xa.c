@@ -141,6 +141,40 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 
+#if defined(CONFIG_POST)
+int post_hotkeys_pressed(void)
+{
+	/* DIC26_SELFTEST: GPRTA0, GPA0 */
+	qrio_gpio_direction_input(QRIO_GPIO_A, 0);
+	return qrio_get_gpio(QRIO_GPIO_A, 0);
+}
+
+ulong post_word_load(void)
+{
+	/* POST word is located at the beginning of reserved physical RAM */
+	void *addr = (void *)(CONFIG_SYS_SDRAM_BASE +
+				gd->ram_size - CONFIG_KM_RESERVED_PRAM + 8);
+	return in_le32(addr);
+}
+
+void post_word_store(ulong value)
+{
+	/* POST word is located at the beginning of reserved physical RAM */
+	void *addr = (void *)(CONFIG_SYS_SDRAM_BASE +
+				gd->ram_size - CONFIG_KM_RESERVED_PRAM + 8);
+	out_le32(addr, value);
+}
+
+int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+{
+	/* Define only 1MiB range for mem_regions at the middle of the RAM */
+	/* For 1GiB range mem_regions takes approx. 4min */
+	*vstart = CONFIG_SYS_SDRAM_BASE + (gd->ram_size >> 1);
+	*size = 1 << 20;
+	return 0;
+}
+#endif
+
 u8 flash_read8(void *addr)
 {
 	return __raw_readb(addr + 1);

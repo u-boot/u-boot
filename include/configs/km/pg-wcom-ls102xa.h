@@ -43,6 +43,10 @@
 #define CONFIG_SYS_SPD_BUS_NUM		0
 #define SPD_EEPROM_ADDRESS		0x54
 
+/* POST memory regions test */
+#define CONFIG_POST			(CONFIG_SYS_POST_MEM_REGIONS)
+#define CONFIG_POST_EXTERNAL_WORD_FUNCS
+
 /*
  * IFC Definitions
  */
