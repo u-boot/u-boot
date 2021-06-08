@@ -288,9 +288,15 @@
 		"protect on " __stringify(ENV_DEL_ADDR)			\
 		" +" __stringify(CONFIG_ENV_TOTAL_SIZE) "\0"
 
+#define CONFIG_HW_ENV_SETTINGS						\
+	"hwconfig=devdis:esdhc,usb3,usb2,sata,sec,dcu,duart2,qspi,"	\
+			"can1,can2_4,ftm2_8,i2c2_3,sai1_4,lpuart2_6,"	\
+			"asrc,spdif,lpuart1,ftm1\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_KM_NEW_ENV						\
 	CONFIG_KM_DEF_ENV						\
+	CONFIG_HW_ENV_SETTINGS						\
 	"EEprom_ivm=pca9547:70:9\0"					\
 	"ethrotate=no\0"						\
 	""
