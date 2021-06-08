@@ -292,6 +292,7 @@
 	CONFIG_KM_NEW_ENV						\
 	CONFIG_KM_DEF_ENV						\
 	"EEprom_ivm=pca9547:70:9\0"					\
+	"ethrotate=no\0"						\
 	""
 
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */
