@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2017 Renesas Electronics Corp.
  *
- * This file is based on the drivers/pinctrl/sh-pfc/pfc-r8a7796.c
+ * This file is based on the drivers/pinctrl/renesas/pfc-r8a7796.c
  *
  * R-Car Gen3 processor support - PFC hardware block.
  *
@@ -19,7 +19,7 @@
 
 #include "sh_pfc.h"
 
-#define CPU_ALL_PORT(fn, sfx)			\
+#define CPU_ALL_GP(fn, sfx)			\
 		PORT_GP_9(0,  fn, sfx),		\
 		PORT_GP_32(1, fn, sfx),		\
 		PORT_GP_32(2, fn, sfx),		\

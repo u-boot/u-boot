@@ -14,7 +14,7 @@
 
 #include "sh_pfc.h"
 
-#define CPU_ALL_PORT(fn, sfx)						\
+#define CPU_ALL_GP(fn, sfx)						\
 	PORT_GP_29(0, fn, sfx),						\
 	PORT_GP_23(1, fn, sfx),						\
 	PORT_GP_32(2, fn, sfx),						\
