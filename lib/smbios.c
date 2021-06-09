@@ -229,9 +229,9 @@ static int smbios_write_type0(ulong *current, int handle,
 	t->bios_characteristics_ext1 = BIOS_CHARACTERISTICS_EXT1_ACPI;
 #endif
 #ifdef CONFIG_EFI_LOADER
-	t->bios_characteristics_ext1 |= BIOS_CHARACTERISTICS_EXT1_UEFI;
+	t->bios_characteristics_ext2 |= BIOS_CHARACTERISTICS_EXT2_UEFI;
 #endif
-	t->bios_characteristics_ext2 = BIOS_CHARACTERISTICS_EXT2_TARGET;
+	t->bios_characteristics_ext2 |= BIOS_CHARACTERISTICS_EXT2_TARGET;
 
 	/* bios_major_release has only one byte, so drop century */
 	t->bios_major_release = U_BOOT_VERSION_NUM % 100;
