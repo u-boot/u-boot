@@ -101,7 +101,7 @@ static int cdns_ti_probe(struct udevice *dev)
 	if (!data->usbss)
 		return -EINVAL;
 
-	ret = clk_get_by_name(dev, "usb2_refclk", &usb2_refclk);
+	ret = clk_get_by_name(dev, "ref", &usb2_refclk);
 	if (ret) {
 		dev_err(dev, "Failed to get usb2_refclk\n");
 		return ret;
