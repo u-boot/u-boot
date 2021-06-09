@@ -26,9 +26,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_COLIBRI_T30
 
-/* General networking support */
-#define CONFIG_TFTP_TSIZE
-
 /* Increase console I/O buffer size */
 #undef CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_CBSIZE		1024
