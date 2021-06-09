@@ -220,7 +220,7 @@ static void efi_set_code_and_data_type(
  * @end:	End address of region (excluded)
  * @nocheck:	flag against overlapped regions
  *
- * Take one entry of region [@start, @end[ and insert it into the list.
+ * Take one entry of region \[@start, @end\[ and insert it into the list.
  *
  * * If @nocheck is false, the list will be sorted ascending by address.
  *   Overlapping entries will not be allowed.
