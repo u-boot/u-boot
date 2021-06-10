@@ -67,6 +67,16 @@
 		mode-download = <0x03>;
 	};
 
+	reboot_mode1: reboot-mode@14 {
+		compatible = "reboot-mode-rtc";
+		rtc = <&rtc_0>;
+		reg = <0x30 4>;
+		u-boot,env-variable = "bootstatus";
+		big-endian;
+		mode-test = <0x21969147>;
+		mode-download = <0x51939147>;
+	};
+
 	audio: audio-codec {
 		compatible = "sandbox,audio-codec";
 		#sound-dai-cells = <1>;

@@ -24,4 +24,13 @@ config DM_REBOOT_MODE_GPIO
 		a device in a specific mode by using a GPIO that can be controlled
 		outside U-Boot.
 
+config DM_REBOOT_MODE_RTC
+	bool "Use RTC as reboot mode backend"
+	depends on DM_REBOOT_MODE
+	default n
+	help
+		Use RTC non volatile memory to control the reboot mode. This will allow users to boot
+		a device in a specific mode by using a register(s) that can be controlled
+		outside U-Boot (e.g. Kernel).
+
 endmenu
