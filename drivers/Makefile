@@ -95,6 +95,7 @@ obj-y += dfu/
 obj-$(CONFIG_PCH) += pch/
 obj-y += phy/allwinner/
 obj-y += phy/marvell/
+obj-$(CONFIG_DM_REBOOT_MODE) += reboot-mode/
 obj-y += phy/rockchip/
 obj-y += phy/socionext/
 obj-y += rtc/
