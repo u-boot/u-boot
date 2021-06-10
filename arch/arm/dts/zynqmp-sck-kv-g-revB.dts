@@ -17,7 +17,7 @@
 
 &{/} {
 	compatible = "xlnx,zynqmp-sk-kv260-rev1",
-		     "xlnx,zynqmp-sk-kv260-revB", "xlnx,zynqmp-sk-kv260-revA",
+		     "xlnx,zynqmp-sk-kv260-revB",
 		     "xlnx,zynqmp-sk-kv260", "xlnx,zynqmp";
 };
 
