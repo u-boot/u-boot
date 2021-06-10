@@ -391,6 +391,8 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 	} else if (ret) {
 		dev_err(bus, "Invalid chip select %d:%d (err=%d)\n", busnum, cs, ret);
 		return ret;
+	} else if (dev) {
+		plat = dev_get_parent_plat(dev);
 	}
 
 	if (!device_active(dev)) {
@@ -416,12 +418,22 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 			goto err;
 	}
 
+	/* In case bus frequency or mode changed, update it. */
+	if ((speed && bus_data->speed && bus_data->speed != speed) ||
+	    (plat && plat->mode != mode)) {
+		ret = spi_set_speed_mode(bus, speed, mode);
+		if (ret)
+			goto err_speed_mode;
+	}
+
 	*busp = bus;
 	*devp = slave;
 	log_debug("%s: bus=%p, slave=%p\n", __func__, bus, *devp);
 
 	return 0;
 
+err_speed_mode:
+	spi_release_bus(slave);
 err:
 	log_debug("%s: Error path, created=%d, device '%s'\n", __func__,
 		  created, dev->name);
