@@ -144,6 +144,18 @@ config BOOTCOUNT_MEM
 	  is not cleared on softreset.
 	  compatible = "u-boot,bootcount";
 
+config DM_BOOTCOUNT_SYSCON
+	bool "Support SYSCON devices as a backing store for bootcount"
+	select REGMAP
+	select SYSCON
+	help
+	  Enable reading/writing the bootcount value in a DM SYSCON device.
+	  The driver supports a fixed 32 bits size register using the native
+	  endianness. However, this can be controlled from the SYSCON DT node
+	  configuration.
+
+	  Accessing the backend is done using the regmap interface.
+
 endmenu
 
 endif

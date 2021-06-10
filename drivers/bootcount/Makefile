@@ -14,3 +14,4 @@ obj-$(CONFIG_DM_BOOTCOUNT)      += bootcount-uclass.o
 obj-$(CONFIG_DM_BOOTCOUNT_RTC)  += rtc.o
 obj-$(CONFIG_DM_BOOTCOUNT_I2C_EEPROM)	+= i2c-eeprom.o
 obj-$(CONFIG_DM_BOOTCOUNT_SPI_FLASH)	+= spi-flash.o
+obj-$(CONFIG_DM_BOOTCOUNT_SYSCON) += bootcount_syscon.o
