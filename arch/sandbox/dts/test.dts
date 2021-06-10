@@ -59,6 +59,14 @@
 		};
 	};
 
+	reboot-mode0 {
+		compatible = "reboot-mode-gpio";
+		gpios = <&gpio_c 0 GPIO_ACTIVE_HIGH>, <&gpio_c 1 GPIO_ACTIVE_HIGH>;
+		u-boot,env-variable = "bootstatus";
+		mode-test = <0x01>;
+		mode-download = <0x03>;
+	};
+
 	audio: audio-codec {
 		compatible = "sandbox,audio-codec";
 		#sound-dai-cells = <1>;
