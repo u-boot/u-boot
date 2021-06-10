@@ -47,7 +47,7 @@ struct smbios_ctx {
  * @addr:	start address to write the structure
  * @handle:	the structure's handle, a unique 16-bit number
  * @ctx:	context for writing the tables
- * @return:	size of the structure
+ * Return:	size of the structure
  */
 typedef int (*smbios_write_type)(ulong *addr, int handle,
 				 struct smbios_ctx *ctx);
@@ -72,7 +72,7 @@ struct smbios_write_method {
  *
  * @ctx:	SMBIOS context
  * @str:	string to add
- * @return:	string number in the string area (1 or more)
+ * Return:	string number in the string area (1 or more)
  */
 static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 {
@@ -111,7 +111,7 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
  *
  * @ctx:	context for writing the tables
  * @prop:	property to write
- * @return 0 if not found, else SMBIOS string number (1 or more)
+ * Return:	0 if not found, else SMBIOS string number (1 or more)
  */
 static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 			      int sysinfo_id)
@@ -139,7 +139,7 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
  * smbios_add_prop() - Add a property from the devicetree
  *
  * @prop:	property to write
- * @return 0 if not found, else SMBIOS string number (1 or more)
+ * Return:	0 if not found, else SMBIOS string number (1 or more)
  */
 static int smbios_add_prop(struct smbios_ctx *ctx, const char *prop)
 {
@@ -187,7 +187,7 @@ int smbios_update_version(const char *version)
  * This computes the size of the string area including the string terminator.
  *
  * @ctx:	SMBIOS context
- * @return:	string area size
+ * Return:	string area size
  */
 static int smbios_string_table_len(const struct smbios_ctx *ctx)
 {
