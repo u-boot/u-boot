@@ -56,7 +56,7 @@ if ! test -f qemu-system-arm; then
 	test -d qemu-linaro || git clone https://git.linaro.org/qemu/qemu-linaro.git
 	cd qemu-linaro
 	git checkout 8f8d8e0796efe1a6f34cdd83fb798f3c41217ec1
-	./configure --enable-system --target-list=arm-softmmu --disable-sdl --disable-gtk --disable-curses --audio-drv-list= --audio-card-list= --disable-werror --disable-xen --disable-xen-pci-passthrough --disable-brlapi --disable-vnc --disable-curl --disable-slirp --disable-kvm --disable-user --disable-linux-user --disable-bsd-user --disable-guest-base --disable-uuid --disable-vde --disable-linux-aio --disable-cap-ng --disable-attr --disable-blobs --disable-docs --disable-spice --disable-libiscsi --disable-smartcard-nss --disable-usb-redir --disable-guest-agent --disable-seccomp --disable-glusterfs --disable-nptl --disable-fdt
+	./configure --enable-system --target-list=arm-softmmu --python=/usr/bin/python2.7 --disable-sdl --disable-gtk --disable-curses --audio-drv-list= --audio-card-list= --disable-werror --disable-xen --disable-xen-pci-passthrough --disable-brlapi --disable-vnc --disable-curl --disable-slirp --disable-kvm --disable-user --disable-linux-user --disable-bsd-user --disable-guest-base --disable-uuid --disable-vde --disable-linux-aio --disable-cap-ng --disable-attr --disable-blobs --disable-docs --disable-spice --disable-libiscsi --disable-smartcard-nss --disable-usb-redir --disable-guest-agent --disable-seccomp --disable-glusterfs --disable-nptl --disable-fdt
 	make -j4
 	cd ..
 	ln -s qemu-linaro/arm-softmmu/qemu-system-arm .

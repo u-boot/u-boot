@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:bionic-20200807
+FROM ubuntu:focal-20210609
 MAINTAINER Tom Rini <trini@konsulko.com>
 LABEL Description=" This image is for building U-Boot inside a container"
 
@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Add LLVM repository
 RUN apt-get update && apt-get install -y gnupg2 wget xz-utils && rm -rf /var/lib/apt/lists/*
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN echo deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main | tee /etc/apt/sources.list.d/llvm.list
+RUN echo deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main | tee /etc/apt/sources.list.d/llvm.list
 
 # Manually install the kernel.org "Crosstool" based toolchains for gcc-7.3
 RUN wget -O - https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/9.2.0/x86_64-gcc-9.2.0-nolibc-aarch64-linux.tar.xz | tar -C /opt -xJ
@@ -61,11 +61,11 @@ RUN apt-get update && apt-get install -y \
 	iasl \
 	imagemagick \
 	iputils-ping \
+	libgit2-dev \
 	libguestfs-tools \
-	libisl15 \
 	liblz4-tool \
 	libpixman-1-dev \
-	libpython-dev \
+	libpython3-dev \
 	libsdl1.2-dev \
 	libsdl2-dev \
 	libssl-dev \
@@ -81,12 +81,13 @@ RUN apt-get update && apt-get install -y \
 	picocom \
 	parted \
 	pkg-config \
-	python \
-	python-dev \
-	python-pip \
-	python-virtualenv \
+	python-is-python3 \
+	python2.7 \
+	python3 \
+	python3-dev \
 	python3-pip \
 	python3-sphinx \
+	python3-virtualenv \
 	rpm2cpio \
 	sbsigntool \
 	sloccount \
@@ -105,9 +106,6 @@ RUN chmod +r /boot/vmlinu*
 
 # Manually install libmpfr4 for the toolchains
 RUN wget http://mirrors.kernel.org/ubuntu/pool/main/m/mpfr4/libmpfr4_3.1.4-1_amd64.deb && dpkg -i libmpfr4_3.1.4-1_amd64.deb && rm libmpfr4_3.1.4-1_amd64.deb
-
-# Manually install a new enough version of efitools (must be v1.5.2 or later)
-RUN wget http://mirrors.kernel.org/ubuntu/pool/universe/e/efitools/efitools_1.8.1-0ubuntu2_amd64.deb && sudo dpkg -i efitools_1.8.1-0ubuntu2_amd64.deb && rm efitools_1.8.1-0ubuntu2_amd64.deb
 
 # Manually install a new enough version of sbsigntools (must be v0.9.4 or later)
 RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git /tmp/sbsigntools && \
