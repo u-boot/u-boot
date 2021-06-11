@@ -225,12 +225,38 @@ err:
 	env_set("swi_status", "err");
 }
 
+void lcdbacklight_en(void)
+{
+	unsigned long brightness = env_get_ulong("backlight_brightness", 10, 50);
+
+	if (brightness > 99 || brightness == 0)
+		brightness = 99;
+
+	/*
+	 * Brightness range:
+	 * WLEDCTRL2 DUTY[6:0]
+	 *
+	 * 000 0000b = 1%
+	 * 000 0001b = 2%
+	 * ...
+	 * 110 0010b = 99%
+	 * 110 0011b = 100%
+	 *
+	 */
+
+	tps65217_reg_write(TPS65217_PROT_LEVEL_NONE, TPS65217_WLEDCTRL2,
+			   brightness, 0xFF);
+	tps65217_reg_write(TPS65217_PROT_LEVEL_NONE, TPS65217_WLEDCTRL1,
+			   brightness != 0 ? 0x0A : 0x02, 0xFF);
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_LED_GPIO
 	led_default_state();
 #endif
 	set_bootmode_env();
+	lcdbacklight_en();
 	return 0;
 }
 #endif /* CONFIG_BOARD_LATE_INIT */

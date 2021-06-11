@@ -59,6 +59,7 @@
 	BOOTENV \
 	GUARDIAN_DEFAULT_PROD_ENV \
 	"autoload=no\0" \
+	"backlight_brightness=50\0" \
 	"bootubivol=rootfs\0" \
 	"distro_bootcmd=" \
 		"setenv rootflags \"bulk_read,chk_data_crc\"; " \
