@@ -58,9 +58,9 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
 	GUARDIAN_DEFAULT_PROD_ENV \
+	"autoload=no\0" \
 	"bootubivol=rootfs\0" \
 	"distro_bootcmd=" \
-		"setenv autoload no; " \
 		"setenv rootflags \"bulk_read,chk_data_crc\"; " \
 		"setenv ethact usb_ether; " \
 		"if test \"${swi_status}\" -eq 1; then " \
