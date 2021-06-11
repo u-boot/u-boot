@@ -1,1 +1,1 @@
-obj-y += bypass.o clk.o
+obj-y += clk.o
