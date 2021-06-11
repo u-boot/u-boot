@@ -502,6 +502,8 @@ struct clk *clk_get_parent(struct clk *clk)
 		return NULL;
 
 	pdev = dev_get_parent(clk->dev);
+	if (!pdev)
+		return ERR_PTR(-ENODEV);
 	pclk = dev_get_clk_ptr(pdev);
 	if (!pclk)
 		return ERR_PTR(-ENODEV);
