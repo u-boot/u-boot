@@ -111,10 +111,12 @@ static ulong ti_sci_clk_set_rate(struct clk *clk, ulong rate)
 #endif
 
 	ret = cops->set_freq(sci, clk->id, clk->data, 0, rate, ULONG_MAX);
-	if (ret)
+	if (ret) {
 		dev_err(clk->dev, "%s: set_freq failed (%d)\n", __func__, ret);
+		return ret;
+	}
 
-	return ret;
+	return rate;
 }
 
 static int ti_sci_clk_set_parent(struct clk *clk, struct clk *parent)
