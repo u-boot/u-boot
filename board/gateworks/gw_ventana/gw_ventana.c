@@ -96,6 +96,12 @@ int board_phy_config(struct phy_device *phydev)
 
 	/* TI DP83867 */
 	else if (phydev->phy_id == 0x2000a231) {
+		/* LED configuration */
+		val = 0;
+		val |= 0x5 << 4; /* LED1(Amber;Speed)   : 1000BT link */
+		val |= 0xb << 8; /* LED2(Green;Link/Act): blink for TX/RX act */
+		phy_write(phydev, MDIO_DEVAD_NONE, 24, val);
+
 		/* configure register 0x170 for ref CLKOUT */
 		phy_write(phydev, MDIO_DEVAD_NONE, 13, 0x001f);
 		phy_write(phydev, MDIO_DEVAD_NONE, 14, 0x0170);
