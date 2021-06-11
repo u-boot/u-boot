@@ -501,6 +501,8 @@
 					#clock-cells = <1>;
 					compatible = "kendryte,k210-clk";
 					clocks = <&in0>;
+					assigned-clocks = <&sysclk K210_CLK_PLL1>;
+					assigned-clock-rates = <390000000>;
 					u-boot,dm-pre-reloc;
 				};
 
