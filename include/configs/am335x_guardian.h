@@ -29,6 +29,7 @@
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=0x80000000\0" \
 	"pxefile_addr_r=0x80100000\0" \
+	"tftp_load_addr=0x82000000\0" \
 	"kernel_addr_r=0x82000000\0" \
 	"fdt_addr_r=0x88000000\0" \
 	"ramdisk_addr_r=0x88080000\0" \
