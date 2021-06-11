@@ -38,6 +38,9 @@
 /* NAND */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
+#undef CONFIG_SYS_BOOTM_LEN
+#define CONFIG_SYS_BOOTM_LEN		(64 << 20)
+
 /* I2C Configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
