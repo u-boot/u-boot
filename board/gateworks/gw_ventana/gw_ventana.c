@@ -246,6 +246,27 @@ struct display_info_t const displays[] = {{
 		.sync           = FB_SYNC_EXT,
 		.vmode          = FB_VMODE_NONINTERLACED
 } }, {
+	/* DLC0700XDP21LF-C-1 */
+	.bus	= 0,
+	.addr	= 0,
+	.detect	= NULL,
+	.enable	= enable_lvds,
+	.pixfmt	= IPU_PIX_FMT_LVDS666,
+	.mode	= {
+		.name           = "DLC0700XDP21LF",
+		.refresh        = 60,
+		.xres           = 1024,		/* 1024x600active pixels */
+		.yres           = 600,
+		.pixclock       = 15385,	/* 64MHz */
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
 	/* DLC800FIG-T-3 */
 	.bus	= 2,
 	.addr	= 0x14,
