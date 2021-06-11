@@ -17,6 +17,7 @@ Shell commands
    :maxdepth: 1
 
    addrmap
+   askenv
    base
    bootefi
    booti
