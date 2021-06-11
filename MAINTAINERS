@@ -999,8 +999,8 @@ M:	Sean Anderson <seanga2@gmail.com>
 S:	Maintained
 F:	doc/device-tree-bindings/mfd/kendryte,k210-sysctl.txt
 F:	doc/device-tree-bindings/pinctrl/kendryte,k210-fpioa.txt
-F:	drivers/clk/kendryte/
-F:	drivers/pinctrl/kendryte/
+F:	drivers/clk/clk_kendryte.c
+F:	drivers/pinctrl/pinctrl-kendryte.c
 F:	include/kendryte/
 
 RNG
