@@ -7,4 +7,12 @@ config CMD_DDR3
 	   supports memory verification, memory comapre and ecc
 	   verification if supported.
 
+config CMD_PD
+	bool "command for verifying power domains"
+	depends on TI_POWER_DOMAIN
+	help
+	   Debug command for K3 power domains. For this to work, the
+	   K3 power domain driver must be enabled for the u-boot; by
+	   default it is only enabled for SPL.
+
 endmenu

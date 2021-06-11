@@ -22,6 +22,11 @@
 #define PSC_PD_ALWAYSON         BIT(1)
 #define PSC_PD_DEPENDS          BIT(2)
 
+#define MDSTAT_STATE_MASK		0x3f
+#define MDSTAT_BUSY_MASK		0x30
+#define MDSTAT_STATE_SWRSTDISABLE	0x0
+#define MDSTAT_STATE_ENABLE		0x3
+
 struct ti_psc {
 	int id;
 	void __iomem *base;
@@ -72,5 +77,9 @@ struct ti_k3_pd_platdata {
 
 extern const struct ti_k3_pd_platdata j721e_pd_platdata;
 extern const struct ti_k3_pd_platdata j7200_pd_platdata;
+
+u8 ti_pd_state(struct ti_pd *pd);
+u8 lpsc_get_state(struct ti_lpsc *lpsc);
+int ti_lpsc_transition(struct ti_lpsc *lpsc, u8 state);
 
 #endif
