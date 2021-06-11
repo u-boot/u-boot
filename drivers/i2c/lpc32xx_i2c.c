@@ -282,11 +282,7 @@ static int lpc32xx_i2c_probe(struct udevice *bus)
 {
 	struct lpc32xx_i2c_dev *dev = dev_get_plat(bus);
 
-	/*
-	 * FIXME: This is not permitted
-	 *	dev_seq(bus) = dev->index;
-	 */
-
+	dev->base = dev_read_addr_ptr(bus);
 	__i2c_init(dev->base, dev->speed, 0, dev->index);
 	return 0;
 }
