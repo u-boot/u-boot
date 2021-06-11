@@ -87,7 +87,7 @@
 			ac-bias           = <255>;
 			ac-bias-intrpt    = <0>;
 			dma-burst-sz      = <16>;
-			bpp               = <24>;
+			bpp               = <16>;
 			bus-width         = <16>;
 			fdd               = <0x80>;
 			sync-edge         = <0>;
@@ -247,6 +247,12 @@
 &lcdc {
 	blue-and-red-wiring = "crossed";
 	status = "okay";
+
+	port {
+		lcdc_0: endpoint@0 {
+			remote-endpoint = <0>;
+		};
+	};
 };
 
 &mmc1 {
