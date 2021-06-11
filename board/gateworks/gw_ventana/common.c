@@ -1758,6 +1758,7 @@ int board_mmc_init(struct bd_info *bis)
 		return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 	default:
 		/* doesn't have MMC */
+		printf("None");
 		return -1;
 	}
 }
