@@ -15,6 +15,7 @@
 #include <i2c.h>
 #include <led.h>
 #include <panel.h>
+#include <linux/delay.h>
 #include <asm/global_data.h>
 #include <power/tps65217.h>
 #include <spl.h>
@@ -205,8 +206,19 @@ static void set_bootmode_env(void)
 		goto err;
 	}
 
-	value = dm_gpio_get_value(&boot_mode_desc);
-	value ? env_set("swi_status", "0") : env_set("swi_status", "1");
+	dm_gpio_set_dir_flags(&boot_mode_desc, GPIOD_IS_IN);
+	udelay(10);
+
+	ret = dm_gpio_get_value(&boot_mode_desc);
+	if (ret == 0) {
+		env_set("swi_status", "1");
+	} else if (ret == 1) {
+		env_set("swi_status", "0");
+	} else {
+		printf("swi status gpio error\n");
+		goto err;
+	}
+
 	return;
 
 err:

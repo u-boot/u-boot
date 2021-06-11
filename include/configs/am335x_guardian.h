@@ -64,13 +64,13 @@
 		"setenv rootflags \"bulk_read,chk_data_crc\"; " \
 		"setenv ethact usb_ether; " \
 		"if test \"${swi_status}\" -eq 1; then " \
-		  "setenv extrabootargs \"swi_attached\"; " \
 		  "if dhcp; then " \
 		    "sleep 1; " \
 		    "if tftp \"${tftp_load_addr}\" \"bootscript.scr\"; then " \
 		      "source \"${tftp_load_addr}\"; " \
 		    "fi; " \
 		  "fi; " \
+		  "setenv extrabootargs $extrabootargs \"swi_attached\"; " \
 		"fi;" \
 		"run bootcmd_ubifs0;\0" \
 	"altbootcmd=" \
