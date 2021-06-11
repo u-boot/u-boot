@@ -287,6 +287,17 @@ int board_early_init_f(void)
 	if (ret)
 		return ret;
 
+	/*
+	 * PS_SYSMON_ANALOG_BUS register determines mapping between SysMon
+	 * supply sense channel to SysMon supply registers inside the IP.
+	 * This register must be programmed to complete SysMon IP
+	 * configuration. The default register configuration after
+	 * power-up is incorrect. Hence, fix this by writing the
+	 * correct value - 0x3210.
+	 */
+	writel(ZYNQMP_PS_SYSMON_ANALOG_BUS_VAL,
+	       ZYNQMP_AMS_PS_SYSMON_ANALOG_BUS);
+
 	/* Delay is required for clocks to be propagated */
 	udelay(1000000);
 #endif
