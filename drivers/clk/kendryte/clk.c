@@ -847,21 +847,22 @@ static ulong k210_pll_set_rate(struct k210_clk_priv *priv, int id, ulong rate,
 	const struct k210_pll_params *pll = &k210_plls[id];
 	struct k210_pll_config config = {};
 	u32 reg;
+	ulong calc_rate;
 
 	if (rate_in < 0)
 		return rate_in;
 
-	log_debug("Calculating parameters with rate=%lu and rate_in=%lu\n",
-		  rate, rate_in);
 	err = k210_pll_calc_config(rate, rate_in, &config);
 	if (err)
 		return err;
 	log_debug("Got r=%u f=%u od=%u\n", config.r, config.f, config.od);
 
-	/*
-	 * Don't use clk_disable as it might not actually disable the pll due to
-	 * refcounting
-	 */
+	/* Don't bother setting the rate if we're already at that rate */
+	calc_rate = DIV_ROUND_DOWN_ULL(((u64)rate_in) * config.f,
+				       config.r * config.od);
+	if (calc_rate == k210_pll_get_rate(priv, id, rate))
+		return calc_rate;
+
 	k210_pll_disable(priv, id);
 
 	reg = readl(priv->base + pll->off);
@@ -875,7 +876,7 @@ static ulong k210_pll_set_rate(struct k210_clk_priv *priv, int id, ulong rate,
 	    |  FIELD_PREP(K210_PLL_BWADJ, config.f - 1);
 	writel(reg, priv->base + pll->off);
 
-	err = k210_pll_enable(priv, id);
+	k210_pll_enable(priv, id);
 
 	serial_setbrg();
 	return k210_pll_get_rate(priv, id, rate);
