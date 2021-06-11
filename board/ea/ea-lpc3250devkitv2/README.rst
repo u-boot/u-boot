@@ -4,6 +4,7 @@ ToC:
 - Introduction
 - Booting
 - Debugging
+- i2c
 
 
 Introduction
@@ -130,3 +131,56 @@ dongle from Olimex successfully as follows:
 	# openocd \
 		-f interface/ftdi/olimex-arm-usb-ocd-h.cfg \
 		-f board/phytec_lpc3250.cfg
+
+
+i2c
+===
+Some of the LEDs on the board are connected via an I/O Expander (PCA9532) that
+is attached to the i2c1 bus. Here is a sample session of toggling some of
+these LEDs via i2c in U-Boot:
+
+show the existing i2c busses:
+	EA-LPC3250v2=> i2c bus
+	Bus 0:  i2c@300
+	Bus 1:  i2c@400a0000
+	Bus 2:  i2c@400a8000
+
+set i2c1 as the current bus:
+	EA-LPC3250v2=> i2c dev 1
+	Setting bus to 1
+
+see what potential devices are found with rudimentary probing on i2c1:
+	EA-LPC3250v2=> i2c probe
+	Valid chip addresses: 1A 1D 48 50 57 60 66 6E
+
+According to the schematics the i2c slave address of the PCA9532 is 0x60.
+
+dump all of the 10 registers from the I/O Expander; NOTE that the 0x10 in the
+command specifies the self-incrementing mode of the PCA9532; also NOTE that
+the values repeat themseves to fill out a full 16 bytes:
+	EA-LPC3250v2=> i2c md 0x60 0x10 10
+	0010: 00 ff 00 80 00 80 00 00 00 00 4f ff 00 80 00 80    ..........O.....
+
+turn on LEDs 23, 25, 27, and 29 (green):
+	EA-LPC3250v2=> i2c mw 0x60 9 0x55
+
+turn on LEDs 22, 24, 26, and 28 (red):
+	EA-LPC3250v2=> i2c mw 0x60 8 0x55
+
+dim the green LEDs (23, 25, 27, 29):
+	EA-LPC3250v2=> i2c mw 0x60 3 0x20
+	EA-LPC3250v2=> i2c mw 0x60 9 0xaa
+
+turn off all LEDs (23-29):
+	EA-LPC3250v2=> i2c mw 0x60 8 0
+	EA-LPC3250v2=> i2c mw 0x60 9 0
+
+read value of switches (input):
+	EA-LPC3250v2=> i2c md 0x60 0 1
+	0000: 4f    O
+[none are pressed]
+
+press and hold SW2 while running the following:
+	EA-LPC3250v2=> i2c md 0x60 0 1
+	0000: 4e    N
+[SW2 is pressed]

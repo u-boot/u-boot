@@ -19,6 +19,10 @@ int
 board_early_init_f(void)
 {
 	lpc32xx_uart_init(CONFIG_CONS_INDEX);
+	if (IS_ENABLED(CONFIG_SYS_I2C_LPC32XX)) {
+		lpc32xx_i2c_init(1);
+		lpc32xx_i2c_init(2);
+	}
 	return 0;
 }
 
