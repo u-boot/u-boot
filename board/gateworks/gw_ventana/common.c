@@ -1596,6 +1596,32 @@ void setup_pmic(void)
 				pmic_reg_write(p, PFUZE100_VGEN6VOL, reg);
 			}
 		}
+
+		/* put all switchers in continuous mode */
+		pmic_reg_read(p, PFUZE100_SW1ABMODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW1ABMODE, reg);
+
+		pmic_reg_read(p, PFUZE100_SW2MODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW2MODE, reg);
+
+		pmic_reg_read(p, PFUZE100_SW3AMODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW3AMODE, reg);
+
+		pmic_reg_read(p, PFUZE100_SW3BMODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW3BMODE, reg);
+
+		pmic_reg_read(p, PFUZE100_SW4MODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW4MODE, reg);
 	}
 
 	/* configure LTC3676 PMIC */
