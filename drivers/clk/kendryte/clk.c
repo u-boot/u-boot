@@ -17,6 +17,8 @@
 #include <kendryte/pll.h>
 #include <linux/bitfield.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /**
  * struct k210_clk_priv - K210 clock driver private data
  * @base: The base address of the sysctl device
@@ -1059,11 +1061,6 @@ static ulong k210_clk_get_rate(struct clk *clk)
 	return do_k210_clk_get_rate(dev_get_priv(clk->dev), clk->id);
 }
 
-static ulong k210_clk_set_rate(struct clk *clk, unsigned long rate)
-{
-	return -ENOSYS;
-}
-
 static int do_k210_clk_set_parent(struct k210_clk_priv *priv, int id, int new)
 {
 	int i;
@@ -1087,6 +1084,81 @@ static int k210_clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	return do_k210_clk_set_parent(dev_get_priv(clk->dev), clk->id,
 				      parent->id);
+}
+
+static ulong k210_clk_set_rate(struct clk *clk, unsigned long rate)
+{
+	int parent, ret, err;
+	ulong rate_in, val;
+	const struct k210_div_params *div;
+	struct k210_clk_priv *priv = dev_get_priv(clk->dev);
+
+	if (clk->id == K210_CLK_IN0)
+		return clk_set_rate(&priv->in0, rate);
+
+	parent = k210_clk_get_parent(priv, clk->id);
+	rate_in = do_k210_clk_get_rate(priv, parent);
+
+	log_debug("id=%ld rate=%lu rate_in=%lu\n", clk->id, rate, rate_in);
+
+	if (clk->id == K210_CLK_PLL0) {
+		/* Bypass ACLK so the CPU keeps going */
+		ret = do_k210_clk_set_parent(priv, K210_CLK_ACLK, K210_CLK_IN0);
+		if (ret)
+			return ret;
+	} else if (clk->id == K210_CLK_PLL1 && gd->flags & GD_FLG_RELOC) {
+		/*
+		 * We can't bypass the AI clock like we can ACLK, and after
+		 * relocation we are using the AI ram.
+		 */
+		return -EPERM;
+	}
+
+	if (k210_clks[clk->id].flags & K210_CLKF_PLL) {
+		ret = k210_pll_set_rate(priv, k210_clks[clk->id].pll, rate,
+					rate_in);
+		if (!IS_ERR_VALUE(ret) && clk->id == K210_CLK_PLL0) {
+			/*
+			 * This may have the side effect of reparenting ACLK,
+			 * but I don't really want to keep track of what the old
+			 * parent was.
+			 */
+			err = do_k210_clk_set_parent(priv, K210_CLK_ACLK,
+						     K210_CLK_PLL0);
+			if (err)
+				return err;
+		}
+		return ret;
+	}
+
+	if (k210_clks[clk->id].div == K210_CLK_DIV_NONE)
+		return -ENOSYS;
+	div = &k210_divs[k210_clks[clk->id].div];
+
+	switch (div->type) {
+	case K210_DIV_ONE:
+		val = DIV_ROUND_CLOSEST_ULL((u64)rate_in, rate);
+		val = val ? val - 1 : 0;
+		break;
+	case K210_DIV_EVEN:
+		val = DIV_ROUND_CLOSEST_ULL((u64)rate_in, 2 * rate);
+		break;
+	case K210_DIV_POWER:
+		/* This is ACLK, which has no divider on IN0 */
+		if (parent == K210_CLK_IN0)
+			return -ENOSYS;
+
+		val = DIV_ROUND_CLOSEST_ULL((u64)rate_in, rate);
+		val = __ffs(val);
+		break;
+	default:
+		assert(false);
+		return -EINVAL;
+	};
+
+	val = val ? val - 1 : 0;
+	k210_clk_writel(priv, div->off, div->shift, div->width, val);
+	return do_k210_clk_get_rate(priv, clk->id);
 }
 
 static int k210_clk_endisable(struct k210_clk_priv *priv, int id, bool enable)
@@ -1162,6 +1234,13 @@ static int k210_clk_probe(struct udevice *dev)
 	ret = clk_get_by_index(dev, 0, &priv->in0);
 	if (ret)
 		return ret;
+
+	/*
+	 * Force setting defaults, even before relocation. This is so we can
+	 * set the clock rate for PLL1 before we relocate into aisram.
+	 */
+	if (!(gd->flags & GD_FLG_RELOC))
+		clk_set_defaults(dev, CLK_DEFAULTS_POST_FORCE);
 
 	return 0;
 }
