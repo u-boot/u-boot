@@ -159,11 +159,13 @@ static void k3_sysfw_configure_using_fit(void *fit,
 		      ret);
 
 	/* Apply power/clock (PM) specific configuration to SYSFW */
+#if !CONFIG_IS_ENABLED(K3_DM_FW)
 	ret = board_ops->board_config_pm(ti_sci,
 					 (u64)(u32)cfg_fragment_addr,
 					 (u32)cfg_fragment_size);
 	if (ret)
 		panic("Failed to set board PM configuration (%d)\n", ret);
+#endif
 
 	/* Extract resource management (RM) specific configuration from FIT */
 	ret = fit_get_data_by_name(fit, images, SYSFW_CFG_RM,
