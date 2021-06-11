@@ -4,7 +4,7 @@
  */
 #include <kendryte/clk.h>
 
-#include <asm/io.h>
+#include <common.h>
 #include <dt-bindings/clock/k210-sysctl.h>
 #include <dt-bindings/mfd/k210-sysctl.h>
 #include <dm.h>
@@ -13,77 +13,6 @@
 
 #include <kendryte/bypass.h>
 #include <kendryte/pll.h>
-
-/* All methods are delegated to CCF clocks */
-
-static ulong k210_clk_get_rate(struct clk *clk)
-{
-	struct clk *c;
-	int err = clk_get_by_id(clk->id, &c);
-
-	if (err)
-		return err;
-	return clk_get_rate(c);
-}
-
-static ulong k210_clk_set_rate(struct clk *clk, unsigned long rate)
-{
-	struct clk *c;
-	int err = clk_get_by_id(clk->id, &c);
-
-	if (err)
-		return err;
-	return clk_set_rate(c, rate);
-}
-
-static int k210_clk_set_parent(struct clk *clk, struct clk *parent)
-{
-	struct clk *c, *p;
-	int err = clk_get_by_id(clk->id, &c);
-
-	if (err)
-		return err;
-
-	err = clk_get_by_id(parent->id, &p);
-	if (err)
-		return err;
-
-	return clk_set_parent(c, p);
-}
-
-static int k210_clk_endisable(struct clk *clk, bool enable)
-{
-	struct clk *c;
-	int err = clk_get_by_id(clk->id, &c);
-
-	if (err)
-		return err;
-	return enable ? clk_enable(c) : clk_disable(c);
-}
-
-static int k210_clk_enable(struct clk *clk)
-{
-	return k210_clk_endisable(clk, true);
-}
-
-static int k210_clk_disable(struct clk *clk)
-{
-	return k210_clk_endisable(clk, false);
-}
-
-static const struct clk_ops k210_clk_ops = {
-	.set_rate = k210_clk_set_rate,
-	.get_rate = k210_clk_get_rate,
-	.set_parent = k210_clk_set_parent,
-	.enable = k210_clk_enable,
-	.disable = k210_clk_disable,
-};
-
-/* Parents for muxed clocks */
-static const char * const generic_sels[] = { "in0_half", "pll0_half" };
-/* The first clock is in0, which is filled in by k210_clk_probe */
-static const char *aclk_sels[] = { NULL, "pll0_half" };
-static const char *pll2_sels[] = { NULL, "pll0", "pll1" };
 
 /*
  * All parameters for different sub-clocks are collected into parameter arrays.
@@ -97,67 +26,112 @@ static const char *pll2_sels[] = { NULL, "pll0", "pll1" };
  * easy to find bugs in the code.
  */
 
-#define DIV(id, off, shift, width) DIV_FLAGS(id, off, shift, width, 0)
+/**
+ * enum k210_clk_div_type - The type of divider
+ * @K210_DIV_ONE: freq = parent / (reg + 1)
+ * @K210_DIV_EVEN: freq = parent / 2 / (reg + 1)
+ * @K210_DIV_POWER: freq = parent / (2 << reg)
+ * @K210_DIV_FIXED: freq = parent / factor
+ */
+enum k210_clk_div_type {
+	K210_DIV_ONE,
+	K210_DIV_EVEN,
+	K210_DIV_POWER,
+	K210_DIV_FIXED,
+};
+
+/**
+ * struct k210_div_params - Parameters for dividing clocks
+ * @type: An &enum k210_clk_div_type specifying the dividing formula
+ * @off: The offset of the divider from the sysctl base address
+ * @shift: The offset of the LSB of the divider
+ * @width: The number of bits in the divider
+ * @div: The fixed divisor for this divider
+ */
+struct k210_div_params {
+	u8 type;
+	union {
+		struct {
+			u8 off;
+			u8 shift;
+			u8 width;
+		};
+		u8 div;
+	};
+};
+
 #define DIV_LIST \
-	DIV_FLAGS(K210_CLK_ACLK, K210_SYSCTL_SEL0, 1, 2, \
-		  CLK_DIVIDER_POWER_OF_TWO) \
-	DIV(K210_CLK_APB0,   K210_SYSCTL_SEL0,  3,  3) \
-	DIV(K210_CLK_APB1,   K210_SYSCTL_SEL0,  6,  3) \
-	DIV(K210_CLK_APB2,   K210_SYSCTL_SEL0,  9,  3) \
-	DIV(K210_CLK_SRAM0,  K210_SYSCTL_THR0,  0,  4) \
-	DIV(K210_CLK_SRAM1,  K210_SYSCTL_THR0,  4,  4) \
-	DIV(K210_CLK_AI,     K210_SYSCTL_THR0,  8,  4) \
-	DIV(K210_CLK_DVP,    K210_SYSCTL_THR0, 12,  4) \
-	DIV(K210_CLK_ROM,    K210_SYSCTL_THR0, 16,  4) \
-	DIV(K210_CLK_SPI0,   K210_SYSCTL_THR1,  0,  8) \
-	DIV(K210_CLK_SPI1,   K210_SYSCTL_THR1,  8,  8) \
-	DIV(K210_CLK_SPI2,   K210_SYSCTL_THR1, 16,  8) \
-	DIV(K210_CLK_SPI3,   K210_SYSCTL_THR1, 24,  8) \
-	DIV(K210_CLK_TIMER0, K210_SYSCTL_THR2,  0,  8) \
-	DIV(K210_CLK_TIMER1, K210_SYSCTL_THR2,  8,  8) \
-	DIV(K210_CLK_TIMER2, K210_SYSCTL_THR2, 16,  8) \
-	DIV(K210_CLK_I2S0,   K210_SYSCTL_THR3,  0, 16) \
-	DIV(K210_CLK_I2S1,   K210_SYSCTL_THR3, 16, 16) \
-	DIV(K210_CLK_I2S2,   K210_SYSCTL_THR4,  0, 16) \
-	DIV(K210_CLK_I2S0_M, K210_SYSCTL_THR4, 16,  8) \
-	DIV(K210_CLK_I2S1_M, K210_SYSCTL_THR4, 24,  8) \
-	DIV(K210_CLK_I2S2_M, K210_SYSCTL_THR4,  0,  8) \
-	DIV(K210_CLK_I2C0,   K210_SYSCTL_THR5,  8,  8) \
-	DIV(K210_CLK_I2C1,   K210_SYSCTL_THR5, 16,  8) \
-	DIV(K210_CLK_I2C2,   K210_SYSCTL_THR5, 24,  8) \
-	DIV(K210_CLK_WDT0,   K210_SYSCTL_THR6,  0,  8) \
-	DIV(K210_CLK_WDT1,   K210_SYSCTL_THR6,  8,  8)
+	DIV(K210_CLK_ACLK,   K210_SYSCTL_SEL0,  1,  2, K210_DIV_POWER) \
+	DIV(K210_CLK_APB0,   K210_SYSCTL_SEL0,  3,  3, K210_DIV_ONE) \
+	DIV(K210_CLK_APB1,   K210_SYSCTL_SEL0,  6,  3, K210_DIV_ONE) \
+	DIV(K210_CLK_APB2,   K210_SYSCTL_SEL0,  9,  3, K210_DIV_ONE) \
+	DIV(K210_CLK_SRAM0,  K210_SYSCTL_THR0,  0,  4, K210_DIV_ONE) \
+	DIV(K210_CLK_SRAM1,  K210_SYSCTL_THR0,  4,  4, K210_DIV_ONE) \
+	DIV(K210_CLK_AI,     K210_SYSCTL_THR0,  8,  4, K210_DIV_ONE) \
+	DIV(K210_CLK_DVP,    K210_SYSCTL_THR0, 12,  4, K210_DIV_ONE) \
+	DIV(K210_CLK_ROM,    K210_SYSCTL_THR0, 16,  4, K210_DIV_ONE) \
+	DIV(K210_CLK_SPI0,   K210_SYSCTL_THR1,  0,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_SPI1,   K210_SYSCTL_THR1,  8,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_SPI2,   K210_SYSCTL_THR1, 16,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_SPI3,   K210_SYSCTL_THR1, 24,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_TIMER0, K210_SYSCTL_THR2,  0,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_TIMER1, K210_SYSCTL_THR2,  8,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_TIMER2, K210_SYSCTL_THR2, 16,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_I2S0,   K210_SYSCTL_THR3,  0, 16, K210_DIV_EVEN) \
+	DIV(K210_CLK_I2S1,   K210_SYSCTL_THR3, 16, 16, K210_DIV_EVEN) \
+	DIV(K210_CLK_I2S2,   K210_SYSCTL_THR4,  0, 16, K210_DIV_EVEN) \
+	DIV(K210_CLK_I2S0_M, K210_SYSCTL_THR4, 16,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_I2S1_M, K210_SYSCTL_THR4, 24,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_I2S2_M, K210_SYSCTL_THR4,  0,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_I2C0,   K210_SYSCTL_THR5,  8,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_I2C1,   K210_SYSCTL_THR5, 16,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_I2C2,   K210_SYSCTL_THR5, 24,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_WDT0,   K210_SYSCTL_THR6,  0,  8, K210_DIV_EVEN) \
+	DIV(K210_CLK_WDT1,   K210_SYSCTL_THR6,  8,  8, K210_DIV_EVEN) \
+	DIV_FIXED(K210_CLK_CLINT, 50) \
 
 #define _DIVIFY(id) K210_CLK_DIV_##id
 #define DIVIFY(id) _DIVIFY(id)
 
-enum k210_div_ids {
-#define DIV_FLAGS(id, ...) DIVIFY(id),
+enum k210_div_id {
+#define DIV(id, ...) DIVIFY(id),
+#define DIV_FIXED DIV
 	DIV_LIST
-#undef DIV_FLAGS
-};
-
-struct k210_div_params {
-	u8 off;
-	u8 shift;
-	u8 width;
-	u8 flags;
+#undef DIV
+#undef DIV_FIXED
+	K210_CLK_DIV_NONE,
 };
 
 static const struct k210_div_params k210_divs[] = {
-#define DIV_FLAGS(id, _off, _shift, _width, _flags) \
+#define DIV(id, _off, _shift, _width, _type) \
 	[DIVIFY(id)] = { \
+		.type = (_type), \
 		.off = (_off), \
 		.shift = (_shift), \
 		.width = (_width), \
-		.flags = (_flags), \
+	},
+#define DIV_FIXED(id, _div) \
+	[DIVIFY(id)] = { \
+		.type = K210_DIV_FIXED, \
+		.div = (_div) \
 	},
 	DIV_LIST
-#undef DIV_FLAGS
+#undef DIV
+#undef DIV_FIXED
 };
 
 #undef DIV
 #undef DIV_LIST
+
+/**
+ * struct k210_gate_params - Parameters for gated clocks
+ * @off: The offset of the gate from the sysctl base address
+ * @bit_idx: The index of the bit within the register
+ */
+struct k210_gate_params {
+	u8 off;
+	u8 bit_idx;
+};
 
 #define GATE_LIST \
 	GATE(K210_CLK_CPU,    K210_SYSCTL_EN_CENT,  0) \
@@ -199,15 +173,11 @@ static const struct k210_div_params k210_divs[] = {
 #define _GATEIFY(id) K210_CLK_GATE_##id
 #define GATEIFY(id) _GATEIFY(id)
 
-enum k210_gate_ids {
+enum k210_gate_id {
 #define GATE(id, ...) GATEIFY(id),
 	GATE_LIST
 #undef GATE
-};
-
-struct k210_gate_params {
-	u8 off;
-	u8 bit_idx;
+	K210_CLK_GATE_NONE,
 };
 
 static const struct k210_gate_params k210_gates[] = {
@@ -222,11 +192,31 @@ static const struct k210_gate_params k210_gates[] = {
 
 #undef GATE_LIST
 
+/* The most parents is PLL2 */
+#define K210_CLK_MAX_PARENTS 3
+
+/**
+ * struct k210_mux_params - Parameters for muxed clocks
+ * @parents: A list of parent clock ids
+ * @num_parents: The number of parent clocks
+ * @off: The offset of the mux from the base sysctl address
+ * @shift: The offset of the LSB of the mux selector
+ * @width: The number of bits in the mux selector
+ */
+struct k210_mux_params {
+	u8 parents[K210_CLK_MAX_PARENTS];
+	u8 num_parents;
+	u8 off;
+	u8 shift;
+	u8 width;
+};
+
 #define MUX(id, reg, shift, width) \
-	MUX_PARENTS(id, generic_sels, reg, shift, width)
+	MUX_PARENTS(id, reg, shift, width, K210_CLK_IN0, K210_CLK_PLL0)
 #define MUX_LIST \
-	MUX_PARENTS(K210_CLK_PLL2, pll2_sels, K210_SYSCTL_PLL2, 26, 2) \
-	MUX_PARENTS(K210_CLK_ACLK, aclk_sels, K210_SYSCTL_SEL0,  0, 1) \
+	MUX_PARENTS(K210_CLK_PLL2, K210_SYSCTL_PLL2, 26, 2, \
+		    K210_CLK_IN0, K210_CLK_PLL0, K210_CLK_PLL1) \
+	MUX(K210_CLK_ACLK, K210_SYSCTL_SEL0, 0, 1) \
 	MUX(K210_CLK_SPI3,   K210_SYSCTL_SEL0, 12, 1) \
 	MUX(K210_CLK_TIMER0, K210_SYSCTL_SEL0, 13, 1) \
 	MUX(K210_CLK_TIMER1, K210_SYSCTL_SEL0, 14, 1) \
@@ -235,26 +225,18 @@ static const struct k210_gate_params k210_gates[] = {
 #define _MUXIFY(id) K210_CLK_MUX_##id
 #define MUXIFY(id) _MUXIFY(id)
 
-enum k210_mux_ids {
+enum k210_mux_id {
 #define MUX_PARENTS(id, ...) MUXIFY(id),
 	MUX_LIST
 #undef MUX_PARENTS
 	K210_CLK_MUX_NONE,
 };
 
-struct k210_mux_params {
-	const char *const *parent_names;
-	u8 num_parents;
-	u8 off;
-	u8 shift;
-	u8 width;
-};
-
 static const struct k210_mux_params k210_muxes[] = {
-#define MUX_PARENTS(id, parents, _off, _shift, _width) \
+#define MUX_PARENTS(id, _off, _shift, _width, ...) \
 	[MUXIFY(id)] = { \
-		.parent_names = (const char * const *)(parents), \
-		.num_parents = ARRAY_SIZE(parents), \
+		.parents = { __VA_ARGS__ }, \
+		.num_parents = __count_args(__VA_ARGS__), \
 		.off = (_off), \
 		.shift = (_shift), \
 		.width = (_width), \
@@ -266,389 +248,321 @@ static const struct k210_mux_params k210_muxes[] = {
 #undef MUX
 #undef MUX_LIST
 
-struct k210_pll_params {
-	u8 off;
-	u8 lock_off;
-	u8 shift;
-	u8 width;
+/**
+ * enum k210_clk_flags - The type of a K210 clock
+ * @K210_CLKF_MUX: This clock has a mux and not a static parent
+ * @K210_CLKF_PLL: This clock is a PLL
+ */
+enum k210_clk_flags {
+	K210_CLKF_MUX = BIT(0),
+	K210_CLKF_PLL = BIT(1),
 };
 
-static const struct k210_pll_params k210_plls[] = {
-#define PLL(_off, _shift, _width) { \
-	.off = (_off), \
-	.lock_off = K210_SYSCTL_PLL_LOCK, \
-	.shift = (_shift), \
-	.width = (_width), \
-}
-	[0] = PLL(K210_SYSCTL_PLL0,  0, 2),
-	[1] = PLL(K210_SYSCTL_PLL1,  8, 1),
-	[2] = PLL(K210_SYSCTL_PLL2, 16, 1),
-#undef PLL
+/**
+ * struct k210_clk_params - The parameters defining a K210 clock
+ * @name: The name of the clock
+ * @flags: A set of &enum k210_clk_flags defining which fields are valid
+ * @mux: An &enum k210_mux_id of this clock's mux
+ * @parent: The clock id of this clock's parent
+ * @pll: The id of the PLL (if this clock is a PLL)
+ * @div: An &enum k210_div_id of this clock's divider
+ * @gate: An &enum k210_gate_id of this clock's gate
+ */
+struct k210_clk_params {
+#if CONFIG_IS_ENABLED(CMD_CLK)
+	const char *name;
+#endif
+	u8 flags;
+	union {
+		u8 parent;
+		u8 mux;
+	};
+	union {
+		u8 pll;
+		struct {
+			u8 div;
+			u8 gate;
+		};
+	};
 };
 
-#define COMP(id) \
-	COMP_FULL(id, MUXIFY(id), DIVIFY(id), GATEIFY(id))
-#define COMP_NOMUX(id) \
-	COMP_FULL(id, K210_CLK_MUX_NONE, DIVIFY(id), GATEIFY(id))
-#define COMP_LIST \
-	COMP(K210_CLK_SPI3) \
-	COMP(K210_CLK_TIMER0) \
-	COMP(K210_CLK_TIMER1) \
-	COMP(K210_CLK_TIMER2) \
-	COMP_NOMUX(K210_CLK_SRAM0) \
-	COMP_NOMUX(K210_CLK_SRAM1) \
-	COMP_NOMUX(K210_CLK_ROM) \
-	COMP_NOMUX(K210_CLK_DVP) \
-	COMP_NOMUX(K210_CLK_APB0) \
-	COMP_NOMUX(K210_CLK_APB1) \
-	COMP_NOMUX(K210_CLK_APB2) \
-	COMP_NOMUX(K210_CLK_AI) \
-	COMP_NOMUX(K210_CLK_I2S0) \
-	COMP_NOMUX(K210_CLK_I2S1) \
-	COMP_NOMUX(K210_CLK_I2S2) \
-	COMP_NOMUX(K210_CLK_WDT0) \
-	COMP_NOMUX(K210_CLK_WDT1) \
-	COMP_NOMUX(K210_CLK_SPI0) \
-	COMP_NOMUX(K210_CLK_SPI1) \
-	COMP_NOMUX(K210_CLK_SPI2) \
-	COMP_NOMUX(K210_CLK_I2C0) \
-	COMP_NOMUX(K210_CLK_I2C1) \
-	COMP_NOMUX(K210_CLK_I2C2)
 
-#define _COMPIFY(id) K210_CLK_COMP_##id
-#define COMPIFY(id) _COMPIFY(id)
-
-enum k210_comp_ids {
-#define COMP_FULL(id, ...) COMPIFY(id),
-	COMP_LIST
-#undef COMP_FULL
-};
-
-struct k210_comp_params {
-	u8 mux;
-	u8 div;
-	u8 gate;
-};
-
-static const struct k210_comp_params k210_comps[] = {
-#define COMP_FULL(id, _mux, _div, _gate) \
-	[COMPIFY(id)] = { \
+static const struct k210_clk_params k210_clks[] = {
+#if CONFIG_IS_ENABLED(CMD_CLK)
+#define NAME(_name) .name = (_name),
+#else
+#define NAME(name)
+#endif
+#define CLK(id, _name, _parent, _div, _gate) \
+	[id] = { \
+		NAME(_name) \
+		.parent = (_parent), \
+		.div = (_div), \
+		.gate = (_gate), \
+	}
+#define CLK_MUX(id, _name, _mux, _div, _gate) \
+	[id] = { \
+		NAME(_name) \
+		.flags = K210_CLKF_MUX, \
 		.mux = (_mux), \
 		.div = (_div), \
 		.gate = (_gate), \
+	}
+#define CLK_PLL(id, _pll, _parent) \
+	[id] = { \
+		NAME("pll" #_pll) \
+		.flags = K210_CLKF_PLL, \
+		.parent = (_parent), \
+		.pll = (_pll), \
+	}
+#define CLK_FULL(id, name) \
+	CLK_MUX(id, name, MUXIFY(id), DIVIFY(id), GATEIFY(id))
+#define CLK_NOMUX(id, name, parent) \
+	CLK(id, name, parent, DIVIFY(id), GATEIFY(id))
+#define CLK_DIV(id, name, parent) \
+	CLK(id, name, parent, DIVIFY(id), K210_CLK_GATE_NONE)
+#define CLK_GATE(id, name, parent) \
+	CLK(id, name, parent, K210_CLK_DIV_NONE, GATEIFY(id))
+	CLK_PLL(K210_CLK_PLL0, 0, K210_CLK_IN0),
+	CLK_PLL(K210_CLK_PLL1, 1, K210_CLK_IN0),
+	[K210_CLK_PLL2] = {
+		NAME("pll2")
+		.flags = K210_CLKF_MUX | K210_CLKF_PLL,
+		.mux = MUXIFY(K210_CLK_PLL2),
+		.pll = 2,
 	},
-	COMP_LIST
-#undef COMP_FULL
+	CLK_MUX(K210_CLK_ACLK, "aclk", MUXIFY(K210_CLK_ACLK),
+		DIVIFY(K210_CLK_ACLK), K210_CLK_GATE_NONE),
+	CLK_FULL(K210_CLK_SPI3,   "spi3"),
+	CLK_FULL(K210_CLK_TIMER0, "timer0"),
+	CLK_FULL(K210_CLK_TIMER1, "timer1"),
+	CLK_FULL(K210_CLK_TIMER2, "timer2"),
+	CLK_NOMUX(K210_CLK_SRAM0, "sram0",  K210_CLK_ACLK),
+	CLK_NOMUX(K210_CLK_SRAM1, "sram1",  K210_CLK_ACLK),
+	CLK_NOMUX(K210_CLK_ROM,   "rom",    K210_CLK_ACLK),
+	CLK_NOMUX(K210_CLK_DVP,   "dvp",    K210_CLK_ACLK),
+	CLK_NOMUX(K210_CLK_APB0,  "apb0",   K210_CLK_ACLK),
+	CLK_NOMUX(K210_CLK_APB1,  "apb1",   K210_CLK_ACLK),
+	CLK_NOMUX(K210_CLK_APB2,  "apb2",   K210_CLK_ACLK),
+	CLK_NOMUX(K210_CLK_AI,    "ai",     K210_CLK_PLL1),
+	CLK_NOMUX(K210_CLK_I2S0,  "i2s0",   K210_CLK_PLL2),
+	CLK_NOMUX(K210_CLK_I2S1,  "i2s1",   K210_CLK_PLL2),
+	CLK_NOMUX(K210_CLK_I2S2,  "i2s2",   K210_CLK_PLL2),
+	CLK_NOMUX(K210_CLK_WDT0,  "wdt0",   K210_CLK_IN0),
+	CLK_NOMUX(K210_CLK_WDT1,  "wdt1",   K210_CLK_IN0),
+	CLK_NOMUX(K210_CLK_SPI0,  "spi0",   K210_CLK_PLL0),
+	CLK_NOMUX(K210_CLK_SPI1,  "spi1",   K210_CLK_PLL0),
+	CLK_NOMUX(K210_CLK_SPI2,  "spi2",   K210_CLK_PLL0),
+	CLK_NOMUX(K210_CLK_I2C0,  "i2c0",   K210_CLK_PLL0),
+	CLK_NOMUX(K210_CLK_I2C1,  "i2c1",   K210_CLK_PLL0),
+	CLK_NOMUX(K210_CLK_I2C2,  "i2c2",   K210_CLK_PLL0),
+	CLK_DIV(K210_CLK_I2S0_M,  "i2s0_m", K210_CLK_PLL2),
+	CLK_DIV(K210_CLK_I2S1_M,  "i2s1_m", K210_CLK_PLL2),
+	CLK_DIV(K210_CLK_I2S2_M,  "i2s2_m", K210_CLK_PLL2),
+	CLK_DIV(K210_CLK_CLINT,   "clint",  K210_CLK_ACLK),
+	CLK_GATE(K210_CLK_CPU,    "cpu",    K210_CLK_ACLK),
+	CLK_GATE(K210_CLK_DMA,    "dma",    K210_CLK_ACLK),
+	CLK_GATE(K210_CLK_FFT,    "fft",    K210_CLK_ACLK),
+	CLK_GATE(K210_CLK_GPIO,   "gpio",   K210_CLK_APB0),
+	CLK_GATE(K210_CLK_UART1,  "uart1",  K210_CLK_APB0),
+	CLK_GATE(K210_CLK_UART2,  "uart2",  K210_CLK_APB0),
+	CLK_GATE(K210_CLK_UART3,  "uart3",  K210_CLK_APB0),
+	CLK_GATE(K210_CLK_FPIOA,  "fpioa",  K210_CLK_APB0),
+	CLK_GATE(K210_CLK_SHA,    "sha",    K210_CLK_APB0),
+	CLK_GATE(K210_CLK_AES,    "aes",    K210_CLK_APB1),
+	CLK_GATE(K210_CLK_OTP,    "otp",    K210_CLK_APB1),
+	CLK_GATE(K210_CLK_RTC,    "rtc",    K210_CLK_IN0),
+#undef NAME
+#undef CLK_PLL
+#undef CLK
+#undef CLK_FULL
+#undef CLK_NOMUX
+#undef CLK_DIV
+#undef CLK_GATE
+#undef CLK_LIST
 };
 
-#undef COMP
-#undef COMP_ID
-#undef COMP_NOMUX
-#undef COMP_NOMUX_ID
-#undef COMP_LIST
-
-static struct clk *k210_bypass_children __section(".data");
-
-/* Helper functions to create sub-clocks */
-static struct clk_mux *k210_create_mux(const struct k210_mux_params *params,
-				       void *base)
+static u32 k210_clk_readl(struct k210_clk_priv *priv, u8 off, u8 shift,
+			  u8 width)
 {
-	struct clk_mux *mux = kzalloc(sizeof(*mux), GFP_KERNEL);
+	u32 reg = readl(priv->base + off);
 
-	if (!mux)
-		return mux;
-
-	mux->reg = base + params->off;
-	mux->mask = BIT(params->width) - 1;
-	mux->shift = params->shift;
-	mux->parent_names = params->parent_names;
-	mux->num_parents = params->num_parents;
-
-	return mux;
+	return (reg >> shift) & (BIT(width) - 1);
 }
 
-static struct clk_divider *k210_create_div(const struct k210_div_params *params,
-					   void *base)
+static void k210_clk_writel(struct k210_clk_priv *priv, u8 off, u8 shift,
+			    u8 width, u32 val)
 {
-	struct clk_divider *div = kzalloc(sizeof(*div), GFP_KERNEL);
+	u32 reg = readl(priv->base + off);
+	u32 mask = (BIT(width) - 1) << shift;
 
-	if (!div)
-		return div;
-
-	div->reg = base + params->off;
-	div->shift = params->shift;
-	div->width = params->width;
-	div->flags = params->flags;
-
-	return div;
+	reg &= ~mask;
+	reg |= mask & (val << shift);
+	writel(reg, priv->base + off);
 }
 
-static struct clk_gate *k210_create_gate(const struct k210_gate_params *params,
-					 void *base)
+static int k210_clk_get_parent(struct k210_clk_priv *priv, int id)
 {
-	struct clk_gate *gate = kzalloc(sizeof(*gate), GFP_KERNEL);
+	u32 sel;
+	const struct k210_mux_params *mux;
 
-	if (!gate)
-		return gate;
+	if (!(k210_clks[id].flags & K210_CLKF_MUX))
+		return k210_clks[id].parent;
+	mux = &k210_muxes[k210_clks[id].mux];
 
-	gate->reg = base + params->off;
-	gate->bit_idx = params->bit_idx;
-
-	return gate;
+	sel = k210_clk_readl(priv, mux->off, mux->shift, mux->width);
+	assert(sel < mux->num_parents);
+	return mux->parents[sel];
 }
 
-static struct k210_pll *k210_create_pll(const struct k210_pll_params *params,
-					void *base)
+static ulong do_k210_clk_get_rate(struct k210_clk_priv *priv, int id)
 {
-	struct k210_pll *pll = kzalloc(sizeof(*pll), GFP_KERNEL);
+	int parent;
+	u32 val;
+	ulong parent_rate;
+	const struct k210_div_params *div;
 
-	if (!pll)
-		return pll;
+	if (id == K210_CLK_IN0)
+		return clk_get_rate(&priv->in0);
 
-	pll->reg = base + params->off;
-	pll->lock = base + params->lock_off;
-	pll->shift = params->shift;
-	pll->width = params->width;
+	parent = k210_clk_get_parent(priv, id);
+	parent_rate = do_k210_clk_get_rate(priv, parent);
 
-	return pll;
+	if (k210_clks[id].flags & K210_CLKF_PLL)
+		return k210_pll_get_rate(priv, k210_clks[id].pll, parent_rate);
+
+	if (k210_clks[id].div == K210_CLK_DIV_NONE)
+		return parent_rate;
+	div = &k210_divs[k210_clks[id].div];
+
+	if (div->type == K210_DIV_FIXED)
+		return parent_rate / div->div;
+
+	val = k210_clk_readl(priv, div->off, div->shift, div->width);
+	switch (div->type) {
+	case K210_DIV_ONE:
+		return parent_rate / (val + 1);
+	case K210_DIV_EVEN:
+		return parent_rate / 2 / (val + 1);
+	case K210_DIV_POWER:
+		/* This is ACLK, which has no divider on IN0 */
+		if (parent == K210_CLK_IN0)
+			return parent_rate;
+		return parent_rate / (2 << val);
+	default:
+		assert(false);
+		return -EINVAL;
+	};
 }
 
-/* Create all sub-clocks, and then register the composite clock */
-static struct clk *k210_register_comp(const struct k210_comp_params *params,
-				      void *base, const char *name,
-				      const char *parent)
+static ulong k210_clk_get_rate(struct clk *clk)
 {
-	const char *const *parent_names;
-	int num_parents;
-	struct clk *comp;
-	const struct clk_ops *mux_ops;
-	struct clk_mux *mux;
-	struct clk_divider *div;
-	struct clk_gate *gate;
+	return do_k210_clk_get_rate(dev_get_priv(clk->dev), clk->id);
+}
 
-	if (params->mux == K210_CLK_MUX_NONE) {
-		if (!parent)
-			return ERR_PTR(-EINVAL);
+static ulong k210_clk_set_rate(struct clk *clk, unsigned long rate)
+{
+	return -ENOSYS;
+}
 
-		mux_ops = NULL;
-		mux = NULL;
-		parent_names = &parent;
-		num_parents = 1;
-	} else {
-		mux_ops = &clk_mux_ops;
-		mux = k210_create_mux(&k210_muxes[params->mux], base);
-		if (!mux)
-			return ERR_PTR(-ENOMEM);
+static int do_k210_clk_set_parent(struct k210_clk_priv *priv, int id, int new)
+{
+	int i;
+	const struct k210_mux_params *mux;
 
-		parent_names = mux->parent_names;
-		num_parents = mux->num_parents;
+	if (!(k210_clks[id].flags & K210_CLKF_MUX))
+		return -ENOSYS;
+	mux = &k210_muxes[k210_clks[id].mux];
+
+	for (i = 0; i < mux->num_parents; i++) {
+		if (mux->parents[i] == new) {
+			k210_clk_writel(priv, mux->off, mux->shift, mux->width,
+					i);
+			return 0;
+		}
+	}
+	return -EINVAL;
+}
+
+static int k210_clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	return do_k210_clk_set_parent(dev_get_priv(clk->dev), clk->id,
+				      parent->id);
+}
+
+static int k210_clk_endisable(struct k210_clk_priv *priv, int id, bool enable)
+{
+	int parent = k210_clk_get_parent(priv, id);
+	const struct k210_gate_params *gate;
+
+	if (id == K210_CLK_IN0) {
+		if (enable)
+			return clk_enable(&priv->in0);
+		else
+			return clk_disable(&priv->in0);
 	}
 
-	div = k210_create_div(&k210_divs[params->div], base);
-	if (!div) {
-		comp = ERR_PTR(-ENOMEM);
-		goto cleanup_mux;
+	/* Only recursively enable clocks since we don't track refcounts */
+	if (enable) {
+		int ret = k210_clk_endisable(priv, parent, true);
+
+		if (ret && ret != -ENOSYS)
+			return ret;
 	}
 
-	gate = k210_create_gate(&k210_gates[params->gate], base);
-	if (!gate) {
-		comp = ERR_PTR(-ENOMEM);
-		goto cleanup_div;
+	if (k210_clks[id].flags & K210_CLKF_PLL) {
+		if (enable)
+			return k210_pll_enable(priv, k210_clks[id].pll);
+		else
+			return k210_pll_disable(priv, k210_clks[id].pll);
 	}
 
-	comp = clk_register_composite(NULL, name, parent_names, num_parents,
-				      &mux->clk, mux_ops,
-				      &div->clk, &clk_divider_ops,
-				      &gate->clk, &clk_gate_ops, 0);
-	if (IS_ERR(comp))
-		goto cleanup_gate;
-	return comp;
+	if (k210_clks[id].gate == K210_CLK_GATE_NONE)
+		return -ENOSYS;
+	gate = &k210_gates[k210_clks[id].gate];
 
-cleanup_gate:
-	free(gate);
-cleanup_div:
-	free(div);
-cleanup_mux:
-	free(mux);
-	return comp;
-}
-
-static bool __section(".data") probed;
-
-/* reset probed so we will probe again post-relocation */
-static int k210_clk_bind(struct udevice *dev)
-{
-	probed = false;
+	k210_clk_writel(priv, gate->off, gate->bit_idx, 1, enable);
 	return 0;
 }
+
+static int k210_clk_enable(struct clk *clk)
+{
+	return k210_clk_endisable(dev_get_priv(clk->dev), clk->id, true);
+}
+
+static int k210_clk_disable(struct clk *clk)
+{
+	return k210_clk_endisable(dev_get_priv(clk->dev), clk->id, false);
+}
+
+static int k210_clk_request(struct clk *clk)
+{
+	if (clk->id >= ARRAY_SIZE(k210_clks))
+		return -EINVAL;
+	return 0;
+}
+
+static const struct clk_ops k210_clk_ops = {
+	.request = k210_clk_request,
+	.set_rate = k210_clk_set_rate,
+	.get_rate = k210_clk_get_rate,
+	.set_parent = k210_clk_set_parent,
+	.enable = k210_clk_enable,
+	.disable = k210_clk_disable,
+};
 
 static int k210_clk_probe(struct udevice *dev)
 {
 	int ret;
-	const char *in0;
-	struct clk *in0_clk, *bypass;
-	struct clk_mux *mux;
-	struct clk_divider *div;
-	struct k210_pll *pll;
-	void *base;
+	struct k210_clk_priv *priv = dev_get_priv(dev);
 
-	/*
-	 * Only one instance of this driver allowed. This prevents weird bugs
-	 * when the driver fails part-way through probing. Some clocks will
-	 * already have been registered, and re-probing will register them
-	 * again, creating a bunch of duplicates. Better error-handling/cleanup
-	 * could fix this, but it's Probably Not Worth It (TM).
-	 */
-	if (probed)
+	priv->base = dev_read_addr_ptr(dev_get_parent(dev));
+	if (!priv->base)
 		return -EINVAL;
 
-	base = dev_read_addr_ptr(dev_get_parent(dev));
-	if (!base)
-		return -EINVAL;
-
-	in0_clk = kzalloc(sizeof(*in0_clk), GFP_KERNEL);
-	if (!in0_clk)
-		return -ENOMEM;
-
-	ret = clk_get_by_index(dev, 0, in0_clk);
+	ret = clk_get_by_index(dev, 0, &priv->in0);
 	if (ret)
 		return ret;
-	in0 = in0_clk->dev->name;
-
-	probed = true;
-
-	aclk_sels[0] = in0;
-	pll2_sels[0] = in0;
-
-	/*
-	 * All PLLs have a broken bypass, but pll0 has the CPU downstream, so we
-	 * need to manually reparent it whenever we configure pll0
-	 */
-	pll = k210_create_pll(&k210_plls[0], base);
-	if (pll) {
-		bypass = k210_register_bypass("pll0", in0, &pll->clk,
-					      &k210_pll_ops, in0_clk);
-		clk_dm(K210_CLK_PLL0, bypass);
-	} else {
-		return -ENOMEM;
-	}
-
-	pll = k210_create_pll(&k210_plls[1], base);
-	if (pll)
-		clk_dm(K210_CLK_PLL1,
-		       k210_register_pll_struct("pll1", in0, pll));
-
-	/* PLL2 is muxed, so set up a composite clock */
-	mux = k210_create_mux(&k210_muxes[MUXIFY(K210_CLK_PLL2)], base);
-	pll = k210_create_pll(&k210_plls[2], base);
-	if (!mux || !pll) {
-		free(mux);
-		free(pll);
-	} else {
-		clk_dm(K210_CLK_PLL2,
-		       clk_register_composite(NULL, "pll2", pll2_sels,
-					      ARRAY_SIZE(pll2_sels),
-					      &mux->clk, &clk_mux_ops,
-					      &pll->clk, &k210_pll_ops,
-					      &pll->clk, &k210_pll_ops, 0));
-	}
-
-	/* Half-frequency clocks for "even" dividers */
-	clk_dm(K210_CLK_IN0_H,  k210_clk_half("in0_half", in0));
-	clk_dm(K210_CLK_PLL0_H, k210_clk_half("pll0_half", "pll0"));
-	clk_dm(K210_CLK_PLL2_H, k210_clk_half("pll2_half", "pll2"));
-
-	/* ACLK has no gate */
-	mux = k210_create_mux(&k210_muxes[MUXIFY(K210_CLK_ACLK)], base);
-	div = k210_create_div(&k210_divs[DIVIFY(K210_CLK_ACLK)], base);
-	if (!mux || !div) {
-		free(mux);
-		free(div);
-	} else {
-		struct clk *aclk =
-			clk_register_composite(NULL, "aclk", aclk_sels,
-					       ARRAY_SIZE(aclk_sels),
-					       &mux->clk, &clk_mux_ops,
-					       &div->clk, &clk_divider_ops,
-					       NULL, NULL, 0);
-		clk_dm(K210_CLK_ACLK, aclk);
-		if (!IS_ERR(aclk)) {
-			k210_bypass_children = aclk;
-			k210_bypass_set_children(bypass,
-						 &k210_bypass_children, 1);
-		}
-	}
-
-#define REGISTER_COMP(id, name) \
-	clk_dm(id, \
-	       k210_register_comp(&k210_comps[COMPIFY(id)], base, name, NULL))
-	REGISTER_COMP(K210_CLK_SPI3,   "spi3");
-	REGISTER_COMP(K210_CLK_TIMER0, "timer0");
-	REGISTER_COMP(K210_CLK_TIMER1, "timer1");
-	REGISTER_COMP(K210_CLK_TIMER2, "timer2");
-#undef REGISTER_COMP
-
-	/* Dividing clocks, no mux */
-#define REGISTER_COMP_NOMUX(id, name, parent) \
-	clk_dm(id, \
-	       k210_register_comp(&k210_comps[COMPIFY(id)], base, name, parent))
-	REGISTER_COMP_NOMUX(K210_CLK_SRAM0, "sram0", "aclk");
-	REGISTER_COMP_NOMUX(K210_CLK_SRAM1, "sram1", "aclk");
-	REGISTER_COMP_NOMUX(K210_CLK_ROM,   "rom",   "aclk");
-	REGISTER_COMP_NOMUX(K210_CLK_DVP,   "dvp",   "aclk");
-	REGISTER_COMP_NOMUX(K210_CLK_APB0,  "apb0",  "aclk");
-	REGISTER_COMP_NOMUX(K210_CLK_APB1,  "apb1",  "aclk");
-	REGISTER_COMP_NOMUX(K210_CLK_APB2,  "apb2",  "aclk");
-	REGISTER_COMP_NOMUX(K210_CLK_AI,    "ai",    "pll1");
-	REGISTER_COMP_NOMUX(K210_CLK_I2S0,  "i2s0",  "pll2_half");
-	REGISTER_COMP_NOMUX(K210_CLK_I2S1,  "i2s1",  "pll2_half");
-	REGISTER_COMP_NOMUX(K210_CLK_I2S2,  "i2s2",  "pll2_half");
-	REGISTER_COMP_NOMUX(K210_CLK_WDT0,  "wdt0",  "in0_half");
-	REGISTER_COMP_NOMUX(K210_CLK_WDT1,  "wdt1",  "in0_half");
-	REGISTER_COMP_NOMUX(K210_CLK_SPI0,  "spi0",  "pll0_half");
-	REGISTER_COMP_NOMUX(K210_CLK_SPI1,  "spi1",  "pll0_half");
-	REGISTER_COMP_NOMUX(K210_CLK_SPI2,  "spi2",  "pll0_half");
-	REGISTER_COMP_NOMUX(K210_CLK_I2C0,  "i2c0",  "pll0_half");
-	REGISTER_COMP_NOMUX(K210_CLK_I2C1,  "i2c1",  "pll0_half");
-	REGISTER_COMP_NOMUX(K210_CLK_I2C2,  "i2c2",  "pll0_half");
-#undef REGISTER_COMP_NOMUX
-
-	/* Dividing clocks */
-#define REGISTER_DIV(id, name, parent) do {\
-	const struct k210_div_params *params = &k210_divs[DIVIFY(id)]; \
-	clk_dm(id, \
-	       clk_register_divider(NULL, name, parent, 0, base + params->off, \
-				    params->shift, params->width, 0)); \
-} while (false)
-	REGISTER_DIV(K210_CLK_I2S0_M, "i2s0_m", "pll2_half");
-	REGISTER_DIV(K210_CLK_I2S1_M, "i2s1_m", "pll2_half");
-	REGISTER_DIV(K210_CLK_I2S2_M, "i2s2_m", "pll2_half");
-#undef REGISTER_DIV
-
-	/* Gated clocks */
-#define REGISTER_GATE(id, name, parent) do { \
-	const struct k210_gate_params *params = &k210_gates[GATEIFY(id)]; \
-	clk_dm(id, \
-	       clk_register_gate(NULL, name, parent, 0, base + params->off, \
-				 params->bit_idx, 0, NULL)); \
-} while (false)
-	REGISTER_GATE(K210_CLK_CPU,   "cpu",   "aclk");
-	REGISTER_GATE(K210_CLK_DMA,   "dma",   "aclk");
-	REGISTER_GATE(K210_CLK_FFT,   "fft",   "aclk");
-	REGISTER_GATE(K210_CLK_GPIO,  "gpio",  "apb0");
-	REGISTER_GATE(K210_CLK_UART1, "uart1", "apb0");
-	REGISTER_GATE(K210_CLK_UART2, "uart2", "apb0");
-	REGISTER_GATE(K210_CLK_UART3, "uart3", "apb0");
-	REGISTER_GATE(K210_CLK_FPIOA, "fpioa", "apb0");
-	REGISTER_GATE(K210_CLK_SHA,   "sha",   "apb0");
-	REGISTER_GATE(K210_CLK_AES,   "aes",   "apb1");
-	REGISTER_GATE(K210_CLK_OTP,   "otp",   "apb1");
-	REGISTER_GATE(K210_CLK_RTC,   "rtc",   in0);
-#undef REGISTER_GATE
-
-	/* The MTIME register in CLINT runs at one 50th the CPU clock speed */
-	clk_dm(K210_CLK_CLINT,
-	       clk_register_fixed_factor(NULL, "clint", "aclk", 0, 1, 50));
 
 	return 0;
 }
@@ -663,6 +577,6 @@ U_BOOT_DRIVER(k210_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = k210_clk_ids,
 	.ops = &k210_clk_ops,
-	.bind = k210_clk_bind,
 	.probe = k210_clk_probe,
+	.priv_auto = sizeof(struct k210_clk_priv),
 };

@@ -12,17 +12,41 @@
 #include <serial.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/k210-sysctl.h>
+#include <dt-bindings/mfd/k210-sysctl.h>
 #include <kendryte/pll.h>
 #include <linux/bitfield.h>
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 
-#define CLK_K210_PLL "k210_clk_pll"
+/**
+ * struct k210_pll_params - K210 PLL parameters
+ * @off: The offset of the PLL from the base sysctl address
+ * @shift: The offset of the LSB of the lock status
+ * @width: The number of bits in the lock status
+ */
+struct k210_pll_params {
+	u8 off;
+	u8 shift;
+	u8 width;
+};
+
+static const struct k210_pll_params k210_plls[] = {
+#define PLL(_off, _shift, _width) { \
+	.off = (_off), \
+	.shift = (_shift), \
+	.width = (_width), \
+}
+	[0] = PLL(K210_SYSCTL_PLL0,  0, 2),
+	[1] = PLL(K210_SYSCTL_PLL1,  8, 1),
+	[2] = PLL(K210_SYSCTL_PLL2, 16, 1),
+#undef PLL
+};
 
 #ifdef CONFIG_CLK_K210_SET_RATE
-static int k210_pll_enable(struct clk *clk);
-static int k210_pll_disable(struct clk *clk);
+int k210_pll_enable(struct k210_clk_priv *priv, int id);
+int k210_pll_disable(struct k210_clk_priv *priv, int id);
+ulong k210_pll_get_rate(struct k210_clk_priv *priv, int id, ulong rate_in);
 
 /*
  * The PLL included with the Kendryte K210 appears to be a True Circuits, Inc.
@@ -423,12 +447,12 @@ TEST_STATIC int k210_pll_calc_config(u32 rate, u32 rate_in,
 	return 0;
 }
 
-static ulong k210_pll_set_rate(struct clk *clk, ulong rate)
+static ulong k210_pll_set_rate(struct k210_clk_priv *priv, int id, ulong rate,
+			       ulong rate_in)
 {
 	int err;
-	long long rate_in = clk_get_parent_rate(clk);
+	const struct k210_pll_params *pll = &k210_plls[id];
 	struct k210_pll_config config = {};
-	struct k210_pll *pll = to_k210_pll(clk);
 	u32 reg;
 
 	if (rate_in < 0)
@@ -447,7 +471,7 @@ static ulong k210_pll_set_rate(struct clk *clk, ulong rate)
 	 */
 	k210_pll_disable(clk);
 
-	reg = readl(pll->reg);
+	reg = readl(priv->base + pll->off);
 	reg &= ~K210_PLL_CLKR
 	    &  ~K210_PLL_CLKF
 	    &  ~K210_PLL_CLKOD
@@ -456,7 +480,7 @@ static ulong k210_pll_set_rate(struct clk *clk, ulong rate)
 	    |  FIELD_PREP(K210_PLL_CLKF, config.f - 1)
 	    |  FIELD_PREP(K210_PLL_CLKOD, config.od - 1)
 	    |  FIELD_PREP(K210_PLL_BWADJ, config.f - 1);
-	writel(reg, pll->reg);
+	writel(reg, priv->base + pll->off);
 
 	err = k210_pll_enable(clk);
 	if (err)
@@ -465,14 +489,18 @@ static ulong k210_pll_set_rate(struct clk *clk, ulong rate)
 	serial_setbrg();
 	return clk_get_rate(clk);
 }
+#else
+ulong k210_pll_set_rate(struct k210_clk_priv *priv, int id, ulong rate,
+			ulong rate_in)
+{
+	return -ENOSYS;
+}
 #endif /* CONFIG_CLK_K210_SET_RATE */
 
-static ulong k210_pll_get_rate(struct clk *clk)
+ulong k210_pll_get_rate(struct k210_clk_priv *priv, int id, ulong rate_in)
 {
-	long long rate_in = clk_get_parent_rate(clk);
-	struct k210_pll *pll = to_k210_pll(clk);
 	u64 r, f, od;
-	u32 reg = readl(pll->reg);
+	u32 reg = readl(priv->base + k210_plls[id].off);
 
 	if (rate_in < 0 || (reg & K210_PLL_BYPASS))
 		return rate_in;
@@ -491,57 +519,58 @@ static ulong k210_pll_get_rate(struct clk *clk)
  * Wait for the PLL to be locked. If the PLL is not locked, try clearing the
  * slip before retrying
  */
-static void k210_pll_waitfor_lock(struct k210_pll *pll)
+void k210_pll_waitfor_lock(struct k210_clk_priv *priv, int id)
 {
+	const struct k210_pll_params *pll = &k210_plls[id];
 	u32 mask = GENMASK(pll->width - 1, 0) << pll->shift;
 
 	while (true) {
-		u32 reg = readl(pll->lock);
+		u32 reg = readl(priv->base + K210_SYSCTL_PLL_LOCK);
 
 		if ((reg & mask) == mask)
 			break;
 
 		reg |= BIT(pll->shift + K210_PLL_CLEAR_SLIP);
-		writel(reg, pll->lock);
+		writel(reg, priv->base + K210_SYSCTL_PLL_LOCK);
 	}
 }
 
 /* Adapted from sysctl_pll_enable */
-static int k210_pll_enable(struct clk *clk)
+int k210_pll_enable(struct k210_clk_priv *priv, int id)
 {
-	struct k210_pll *pll = to_k210_pll(clk);
-	u32 reg = readl(pll->reg);
+	const struct k210_pll_params *pll = &k210_plls[id];
+	u32 reg = readl(priv->base + pll->off);
 
 	if ((reg & K210_PLL_PWRD) && (reg & K210_PLL_EN) &&
 	    !(reg & K210_PLL_RESET))
 		return 0;
 
 	reg |= K210_PLL_PWRD;
-	writel(reg, pll->reg);
+	writel(reg, priv->base + pll->off);
 
 	/* Ensure reset is low before asserting it */
 	reg &= ~K210_PLL_RESET;
-	writel(reg, pll->reg);
+	writel(reg, priv->base + pll->off);
 	reg |= K210_PLL_RESET;
-	writel(reg, pll->reg);
+	writel(reg, priv->base + pll->off);
 	nop();
 	nop();
 	reg &= ~K210_PLL_RESET;
-	writel(reg, pll->reg);
+	writel(reg, priv->base + pll->off);
 
-	k210_pll_waitfor_lock(pll);
+	k210_pll_waitfor_lock(priv, id);
 
 	reg &= ~K210_PLL_BYPASS;
 	reg |= K210_PLL_EN;
-	writel(reg, pll->reg);
+	writel(reg, priv->base + pll->off);
 
 	return 0;
 }
 
-static int k210_pll_disable(struct clk *clk)
+int k210_pll_disable(struct k210_clk_priv *priv, int id)
 {
-	struct k210_pll *pll = to_k210_pll(clk);
-	u32 reg = readl(pll->reg);
+	const struct k210_pll_params *pll = &k210_plls[id];
+	u32 reg = readl(priv->base + pll->off);
 
 	/*
 	 * Bypassing before powering off is important so child clocks don't stop
@@ -549,37 +578,10 @@ static int k210_pll_disable(struct clk *clk)
 	 * of the cpu clock.
 	 */
 	reg |= K210_PLL_BYPASS;
-	writel(reg, pll->reg);
+	writel(reg, priv->base + pll->off);
 
 	reg &= ~K210_PLL_PWRD;
 	reg &= ~K210_PLL_EN;
-	writel(reg, pll->reg);
+	writel(reg, priv->base + pll->off);
 	return 0;
 }
-
-const struct clk_ops k210_pll_ops = {
-	.get_rate = k210_pll_get_rate,
-#ifdef CONFIG_CLK_K210_SET_RATE
-	.set_rate = k210_pll_set_rate,
-#endif
-	.enable = k210_pll_enable,
-	.disable = k210_pll_disable,
-};
-
-struct clk *k210_register_pll_struct(const char *name, const char *parent_name,
-				     struct k210_pll *pll)
-{
-	int ret;
-	struct clk *clk = &pll->clk;
-
-	ret = clk_register(clk, CLK_K210_PLL, name, parent_name);
-	if (ret)
-		return ERR_PTR(ret);
-	return clk;
-}
-
-U_BOOT_DRIVER(k210_pll) = {
-	.name	= CLK_K210_PLL,
-	.id	= UCLASS_CLK,
-	.ops	= &k210_pll_ops,
-};

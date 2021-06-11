@@ -25,16 +25,6 @@
 #define K210_PLL_CLEAR_SLIP 2
 #define K210_PLL_TEST_OUT 3
 
-struct k210_pll {
-	struct clk clk;
-	void __iomem *reg; /* Base PLL register */
-	void __iomem *lock; /* Common PLL lock register */
-	u8 shift; /* Offset of bits in lock register */
-	u8 width; /* Width of lock bits to test against */
-};
-
-#define to_k210_pll(_clk) container_of(_clk, struct k210_pll, clk)
-
 struct k210_pll_config {
 	u8 r;
 	u8 f;
@@ -51,8 +41,18 @@ TEST_STATIC int k210_pll_calc_config(u32 rate, u32 rate_in,
 
 #endif
 
-extern const struct clk_ops k210_pll_ops;
+/**
+ * struct k210_clk_priv - K210 clock driver private data
+ * @base: The base address of the sysctl device
+ * @in0: The "in0" external oscillator
+ */
+struct k210_clk_priv {
+	void __iomem *base;
+	struct clk in0;
+};
 
-struct clk *k210_register_pll_struct(const char *name, const char *parent_name,
-				     struct k210_pll *pll);
+ulong k210_pll_set_rate(struct k210_clk_priv *priv, int id, ulong rate, ulong rate_in);
+ulong k210_pll_get_rate(struct k210_clk_priv *priv, int id, ulong rate_in);
+int k210_pll_enable(struct k210_clk_priv *priv, int id);
+int k210_pll_disable(struct k210_clk_priv *priv, int id);
 #endif /* K210_PLL_H */
