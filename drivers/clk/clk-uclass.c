@@ -241,6 +241,15 @@ static int clk_set_default_parents(struct udevice *dev, int stage)
 
 		ret = clk_get_by_indexed_prop(dev, "assigned-clocks",
 					      index, &clk);
+		/*
+		 * If the clock provider is not ready yet, let it handle
+		 * the re-programming later.
+		 */
+		if (ret == -EPROBE_DEFER) {
+			ret = 0;
+			continue;
+		}
+
 		if (ret) {
 			debug("%s: could not get assigned clock %d for %s\n",
 			      __func__, index, dev_read_name(dev));
@@ -309,6 +318,15 @@ static int clk_set_default_rates(struct udevice *dev, int stage)
 
 		ret = clk_get_by_indexed_prop(dev, "assigned-clocks",
 					      index, &clk);
+		/*
+		 * If the clock provider is not ready yet, let it handle
+		 * the re-programming later.
+		 */
+		if (ret == -EPROBE_DEFER) {
+			ret = 0;
+			continue;
+		}
+
 		if (ret) {
 			dev_dbg(dev,
 				"could not get assigned clock %d (err = %d)\n",
