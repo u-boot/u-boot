@@ -1340,7 +1340,7 @@ static int show_efi_boot_order(void)
 	num = size / sizeof(u16);
 	for (i = 0; i < num; i++) {
 		efi_create_indexed_name(var_name16, sizeof(var_name16),
-					"Boot", i);
+					"Boot", bootorder[i]);
 
 		size = 0;
 		ret = EFI_CALL(efi_get_variable(var_name16,
