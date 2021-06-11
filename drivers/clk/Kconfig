@@ -128,6 +128,17 @@ config CLK_ZYNQ
 	  This clock driver adds support for clock related settings for
 	  Zynq platform.
 
+config CLK_XLNX_CLKWZRD
+	bool "Xilinx Clocking Wizard"
+	depends on CLK
+	help
+	  Support for the Xilinx Clocking Wizard IP core clock generator.
+	  The wizard support for dynamically reconfiguring the clocking
+	  primitives for Multiply, Divide, Phase Shift/Offset, or Duty
+	  Cycle. Limited by U-Boot clk uclass without set_phase API and
+	  set_duty_cycle API, this driver only supports set_rate to modify
+	  the frequency.
+
 config CLK_ZYNQMP
 	bool "Enable clock driver support for ZynqMP"
 	depends on ARCH_ZYNQMP
