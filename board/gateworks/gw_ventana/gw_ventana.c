@@ -6,37 +6,23 @@
  */
 
 #include <common.h>
-#include <init.h>
-#include <log.h>
-#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
-#include <asm/io.h>
 #include <asm/setup.h>
-#include <dm.h>
 #include <env.h>
 #include <hwconfig.h>
-#include <i2c.h>
-#include <fdt_support.h>
-#include <jffs2/load_kernel.h>
 #include <linux/ctype.h>
 #include <miiphy.h>
 #include <mtd_node.h>
-#include <pci.h>
 #include <linux/delay.h>
-#include <linux/libfdt.h>
 #include <power/pmic.h>
-#include <power/ltc3676_pmic.h>
-#include <power/pfuze100_pmic.h>
 #include <fdt_support.h>
 #include <jffs2/load_kernel.h>
 
