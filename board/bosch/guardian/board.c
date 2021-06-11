@@ -9,19 +9,14 @@
  */
 
 #include <common.h>
-#include <cpsw.h>
 #include <dm.h>
-#include <env.h>
 #include <env_internal.h>
 #include <errno.h>
 #include <i2c.h>
-#include <init.h>
 #include <led.h>
-#include <miiphy.h>
 #include <panel.h>
 #include <asm/global_data.h>
 #include <power/tps65217.h>
-#include <power/tps65910.h>
 #include <spl.h>
 #include <watchdog.h>
 #include <asm/arch/clock.h>
@@ -193,26 +188,10 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 static void set_bootmode_env(void)
 {
-	char *boot_device_name = NULL;
 	char *boot_mode_gpio = "gpio@44e07000_14";
 	int   ret;
-	int   value;
 
 	struct gpio_desc boot_mode_desc;
-
-	switch (gd->arch.omap_boot_device) {
-	case BOOT_DEVICE_NAND:
-		boot_device_name = "nand";
-		break;
-	case BOOT_DEVICE_USBETH:
-		boot_device_name = "usbeth";
-		break;
-	default:
-		break;
-	}
-
-	if (boot_device_name)
-		env_set("boot_device", boot_device_name);
 
 	ret = dm_gpio_lookup_name(boot_mode_gpio, &boot_mode_desc);
 	if (ret) {
