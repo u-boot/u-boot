@@ -1550,6 +1550,17 @@ void setup_pmic(void)
 	int board = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 	const int i2c_pmic = 1;
 	u32 reg;
+	char rev;
+	int i;
+
+	/* determine board revision */
+	rev = 'A';
+	for (i = sizeof(ventana_info.model) - 1; i > 0; i--) {
+		if (ventana_info.model[i] >= 'A') {
+			rev = ventana_info.model[i];
+			break;
+		}
+	}
 
 	i2c_set_bus_num(i2c_pmic);
 
@@ -1573,6 +1584,17 @@ void setup_pmic(void)
 			reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
 			reg |= (SWBST_5_00V | (SWBST_MODE_AUTO << SWBST_MODE_SHIFT));
 			pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
+
+			if (board == GW54xx && (rev == 'G')) {
+				/* Disable VGEN5 */
+				pmic_reg_write(p, PFUZE100_VGEN5VOL, 0);
+
+				/* Set VGEN6 to 2.5V and enable */
+				pmic_reg_read(p, PFUZE100_VGEN6VOL, &reg);
+				reg &= ~(LDO_VOL_MASK);
+				reg |= (LDOB_2_50V | LDO_EN);
+				pmic_reg_write(p, PFUZE100_VGEN6VOL, reg);
+			}
 		}
 	}
 
