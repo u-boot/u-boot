@@ -18,11 +18,14 @@ static void show_clks(struct udevice *dev, int depth, int last_flag)
 {
 	int i, is_last;
 	struct udevice *child;
-	struct clk *clkp;
+	struct clk *clkp, *parent;
 	u32 rate;
 
 	clkp = dev_get_clk_ptr(dev);
 	if (device_get_uclass_id(dev) == UCLASS_CLK && clkp) {
+		parent = clk_get_parent(clkp);
+		if (!IS_ERR(parent) && depth == -1)
+			return;
 		depth++;
 		rate = clk_get_rate(clkp);
 
@@ -47,6 +50,9 @@ static void show_clks(struct udevice *dev, int depth, int last_flag)
 	}
 
 	list_for_each_entry(child, &dev->child_head, sibling_node) {
+		if (child == dev)
+			continue;
+
 		is_last = list_is_last(&child->sibling_node, &dev->child_head);
 		show_clks(child, depth, (last_flag << 1) | is_last);
 	}
@@ -54,14 +60,19 @@ static void show_clks(struct udevice *dev, int depth, int last_flag)
 
 int __weak soc_clk_dump(void)
 {
-	struct udevice *root;
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
 
-	root = dm_root();
-	if (root) {
-		printf(" Rate               Usecnt      Name\n");
-		printf("------------------------------------------\n");
-		show_clks(root, -1, 0);
-	}
+	ret = uclass_get(UCLASS_CLK, &uc);
+	if (ret)
+		return ret;
+
+	printf(" Rate               Usecnt      Name\n");
+	printf("------------------------------------------\n");
+
+	uclass_foreach_dev(dev, uc)
+		show_clks(dev, -1, 0);
 
 	return 0;
 }
