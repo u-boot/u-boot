@@ -348,9 +348,15 @@ static const struct dm_i2c_ops lpc32xx_i2c_ops = {
 	.set_bus_speed = lpc32xx_i2c_set_bus_speed,
 };
 
+static const struct udevice_id lpc32xx_i2c_ids[] = {
+	{ .compatible = "nxp,pnx-i2c" },
+	{ }
+};
+
 U_BOOT_DRIVER(i2c_lpc32xx) = {
-	.id                   = UCLASS_I2C,
 	.name                 = "i2c_lpc32xx",
+	.id                   = UCLASS_I2C,
+	.of_match             = lpc32xx_i2c_ids,
 	.probe                = lpc32xx_i2c_probe,
 	.ops                  = &lpc32xx_i2c_ops,
 };
