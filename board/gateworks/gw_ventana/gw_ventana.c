@@ -81,6 +81,7 @@ int board_phy_config(struct phy_device *phydev)
 
 	/* Marvel 88E1510 */
 	if (phydev->phy_id == 0x1410dd1) {
+		puts("MV88E1510");
 		/*
 		 * Page 3, Register 16: LED[2:0] Function Control Register
 		 * LED[0] (SPD:Amber) R16_3.3:0 to 0111: on-GbE link
@@ -96,6 +97,7 @@ int board_phy_config(struct phy_device *phydev)
 
 	/* TI DP83867 */
 	else if (phydev->phy_id == 0x2000a231) {
+		puts("TIDP83867 ");
 		/* LED configuration */
 		val = 0;
 		val |= 0x5 << 4; /* LED1(Amber;Speed)   : 1000BT link */
