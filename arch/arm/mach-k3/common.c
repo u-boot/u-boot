@@ -212,11 +212,12 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 		panic("rproc failed to be initialized (%d)\n", ret);
 
 	init_env();
-	start_non_linux_remote_cores();
-	if (!fit_image_info[IMAGE_ID_DM_FW].image_start)
+
+	if (!fit_image_info[IMAGE_ID_DM_FW].image_start) {
+		start_non_linux_remote_cores();
 		size = load_firmware("name_mcur5f0_0fw", "addr_mcur5f0_0load",
 				     &loadaddr);
-
+	}
 
 	/*
 	 * It is assumed that remoteproc device 1 is the corresponding
