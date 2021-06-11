@@ -36,11 +36,6 @@
 					 - GENERATED_GBL_DATA_SIZE)
 
 /*
- * Serial Driver
- */
-#define CONFIG_SYS_LPC32XX_UART		5   /* UART5 - NS16550 */
-
-/*
  * Ethernet Driver
  */
 
