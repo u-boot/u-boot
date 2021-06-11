@@ -29,7 +29,7 @@
 #include <asm/arch/ddr_defs.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/mem.h>
+#include <asm/arch/mem-guardian.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>

@@ -23,7 +23,11 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/i2c.h>
+#if IS_ENABLED(CONFIG_TARGET_AM335X_GUARDIAN)
+#include <asm/arch/mem-guardian.h>
+#else
 #include <asm/arch/mem.h>
+#endif
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
