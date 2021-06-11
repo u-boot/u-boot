@@ -561,7 +561,7 @@ int device_probe(struct udevice *dev)
 		 * Process 'assigned-{clocks/clock-parents/clock-rates}'
 		 * properties
 		 */
-		ret = clk_set_defaults(dev, 0);
+		ret = clk_set_defaults(dev, CLK_DEFAULTS_PRE);
 		if (ret)
 			goto fail;
 	}

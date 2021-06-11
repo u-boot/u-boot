@@ -277,19 +277,41 @@ static inline int clk_release_all(struct clk *clk, int count)
 }
 #endif
 
+/**
+ * enum clk_defaults_stage - What stage clk_set_defaults() is called at
+ * @CLK_DEFAULTS_PRE: Called before probe. Setting of defaults for clocks owned
+ *                    by this clock driver will be defered until after probing.
+ * @CLK_DEFAULTS_POST: Called after probe. Only defaults for clocks owned by
+ *                     this clock driver will be set.
+ * @CLK_DEFAULTS_POST_FORCE: Called after probe, and always set defaults, even
+ *                           before relocation. Usually, defaults are not set
+ *                           pre-relocation to avoid setting them twice (when
+ *                           the device is probed again post-relocation). This
+ *                           may incur a performance cost as device tree
+ *                           properties must be parsed for a second time.
+ *                           However, when not using SPL, pre-relocation may be
+ *                           the only time we can set defaults for some clocks
+ *                           (such as those used for the RAM we will relocate
+ *                           into).
+ */
+enum clk_defaults_stage {
+	CLK_DEFAULTS_PRE = 0,
+	CLK_DEFAULTS_POST = 1,
+	CLK_DEFAULTS_POST_FORCE,
+};
+
 #if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) && \
 	CONFIG_IS_ENABLED(CLK)
+
 /**
  * clk_set_defaults - Process 'assigned-{clocks/clock-parents/clock-rates}'
  *                    properties to configure clocks
  *
  * @dev:        A device to process (the ofnode associated with this device
  *              will be processed).
- * @stage:	A integer. 0 indicates that this is called before the device
- *		is probed. 1 indicates that this is called just after the
- *		device has been probed
+ * @stage:	The stage of the probing process this function is called during.
  */
-int clk_set_defaults(struct udevice *dev, int stage);
+int clk_set_defaults(struct udevice *dev, enum clk_defaults_stage stage);
 #else
 static inline int clk_set_defaults(struct udevice *dev, int stage)
 {
