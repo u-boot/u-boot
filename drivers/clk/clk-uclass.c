@@ -568,6 +568,22 @@ ulong clk_round_rate(struct clk *clk, ulong rate)
 	return ops->round_rate(clk, rate);
 }
 
+static void clk_clean_rate_cache(struct clk *clk)
+{
+	struct udevice *child_dev;
+	struct clk *clkp;
+
+	if (!clk)
+		return;
+
+	clk->rate = 0;
+
+	list_for_each_entry(child_dev, &clk->dev->child_head, sibling_node) {
+		clkp = dev_get_clk_ptr(child_dev);
+		clk_clean_rate_cache(clkp);
+	}
+}
+
 ulong clk_set_rate(struct clk *clk, ulong rate)
 {
 	const struct clk_ops *ops;
@@ -579,6 +595,9 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 
 	if (!ops->set_rate)
 		return -ENOSYS;
+
+	/* Clean up cached rates for us and all child clocks */
+	clk_clean_rate_cache(clk);
 
 	return ops->set_rate(clk, rate);
 }
