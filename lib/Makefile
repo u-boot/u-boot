@@ -135,6 +135,7 @@ obj-$(CONFIG_SSCANF) += sscanf.o
 endif
 
 obj-y += date.o
+obj-y += rtc-lib.o
 obj-$(CONFIG_LIB_ELF) += elf.o
 
 #
