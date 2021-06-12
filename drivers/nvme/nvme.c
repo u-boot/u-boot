@@ -379,7 +379,6 @@ static int nvme_configure_admin_queue(struct nvme_dev *dev)
 
 	aqa = nvmeq->q_depth - 1;
 	aqa |= aqa << 16;
-	aqa |= aqa << 16;
 
 	dev->page_size = 1 << page_shift;
 
