@@ -76,6 +76,16 @@
 		power-domains = <&k3_pds 154 TI_SCI_PD_EXCLUSIVE>;
 		#thermal-sensor-cells = <1>;
 	};
+
+	dm_tifs: dm-tifs {
+		compatible = "ti,j721e-dm-sci";
+		ti,host-id = <3>;
+		ti,secure-host;
+		mbox-names = "rx", "tx";
+		mboxes= <&mcu_secproxy 21>,
+			<&mcu_secproxy 23>;
+		u-boot,dm-spl;
+	};
 };
 
 &cbass_main {
@@ -344,4 +354,12 @@
 		#size-cells = <1>;
 		u-boot,dm-spl;
 	};
+};
+
+&mcu_ringacc {
+	ti,sci = <&dm_tifs>;
+};
+
+&mcu_udmap {
+	ti,sci = <&dm_tifs>;
 };

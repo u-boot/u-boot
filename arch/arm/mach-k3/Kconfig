@@ -147,6 +147,24 @@ config SYS_K3_SPL_ATF
 	  Enabling this will try to start Cortex-A (typically with ATF)
 	  after SPL from R5.
 
+config K3_ATF_LOAD_ADDR
+	hex "Load address of ATF image"
+	default 0x70000000
+	help
+	  The load address for the ATF image. This value defaults to 0x70000000
+	  if not provided in the board defconfig file.
+
+config K3_DM_FW
+	bool "Separate DM firmware image"
+	depends on SPL && CPU_V7R && SOC_K3_J721E && !CLK_TI_SCI && !TI_SCI_POWER_DOMAIN
+	default y
+	help
+	  Enabling this will indicate that the system has separate DM
+	  and TIFS firmware images in place, instead of a single SYSFW
+	  firmware. Due to DM being executed on the same core as R5 SPL
+	  bootloader, it makes RM and PM services not being available
+	  during R5 SPL execution time.
+
 source "board/ti/am65x/Kconfig"
 source "board/ti/am64x/Kconfig"
 source "board/ti/j721e/Kconfig"

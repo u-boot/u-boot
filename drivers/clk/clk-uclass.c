@@ -241,6 +241,15 @@ static int clk_set_default_parents(struct udevice *dev, int stage)
 
 		ret = clk_get_by_indexed_prop(dev, "assigned-clocks",
 					      index, &clk);
+		/*
+		 * If the clock provider is not ready yet, let it handle
+		 * the re-programming later.
+		 */
+		if (ret == -EPROBE_DEFER) {
+			ret = 0;
+			continue;
+		}
+
 		if (ret) {
 			debug("%s: could not get assigned clock %d for %s\n",
 			      __func__, index, dev_read_name(dev));
@@ -309,6 +318,15 @@ static int clk_set_default_rates(struct udevice *dev, int stage)
 
 		ret = clk_get_by_indexed_prop(dev, "assigned-clocks",
 					      index, &clk);
+		/*
+		 * If the clock provider is not ready yet, let it handle
+		 * the re-programming later.
+		 */
+		if (ret == -EPROBE_DEFER) {
+			ret = 0;
+			continue;
+		}
+
 		if (ret) {
 			dev_dbg(dev,
 				"could not get assigned clock %d (err = %d)\n",
@@ -502,6 +520,8 @@ struct clk *clk_get_parent(struct clk *clk)
 		return NULL;
 
 	pdev = dev_get_parent(clk->dev);
+	if (!pdev)
+		return ERR_PTR(-ENODEV);
 	pclk = dev_get_clk_ptr(pdev);
 	if (!pclk)
 		return ERR_PTR(-ENODEV);
@@ -548,6 +568,22 @@ ulong clk_round_rate(struct clk *clk, ulong rate)
 	return ops->round_rate(clk, rate);
 }
 
+static void clk_clean_rate_cache(struct clk *clk)
+{
+	struct udevice *child_dev;
+	struct clk *clkp;
+
+	if (!clk)
+		return;
+
+	clk->rate = 0;
+
+	list_for_each_entry(child_dev, &clk->dev->child_head, sibling_node) {
+		clkp = dev_get_clk_ptr(child_dev);
+		clk_clean_rate_cache(clkp);
+	}
+}
+
 ulong clk_set_rate(struct clk *clk, ulong rate)
 {
 	const struct clk_ops *ops;
@@ -559,6 +595,9 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 
 	if (!ops->set_rate)
 		return -ENOSYS;
+
+	/* Clean up cached rates for us and all child clocks */
+	clk_clean_rate_cache(clk);
 
 	return ops->set_rate(clk, rate);
 }

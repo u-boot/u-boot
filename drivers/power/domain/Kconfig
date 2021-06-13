@@ -72,4 +72,11 @@ config TI_SCI_POWER_DOMAIN
 	help
 	  Generic power domain implementation for TI devices implementing the
 	  TI SCI protocol.
+
+config TI_POWER_DOMAIN
+	bool "Enable the TI K3 Power domain driver"
+	depends on POWER_DOMAIN && ARCH_K3
+	help
+	  Generic power domain implementation for TI K3 devices.
+
 endmenu

@@ -103,7 +103,8 @@ __weak int board_fit_config_name_match(const char *name)
 #endif
 
 #if IS_ENABLED(CONFIG_FIT_IMAGE_POST_PROCESS)
-void board_fit_image_post_process(void **p_image, size_t *p_size)
+void board_fit_image_post_process(const void *fit, int node, void **p_image,
+				  size_t *p_size)
 {
 	if (IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH)) {
 		if (socfpga_vendor_authentication(p_image, p_size))

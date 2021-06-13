@@ -188,4 +188,11 @@ config RTC_ABX80X
 	  families of ultra-low-power  battery- and capacitor-backed real-time
 	  clock chips.
 
+config RTC_DAVINCI
+	bool "Enable TI OMAP RTC driver"
+	depends on ARCH_DAVINCI || ARCH_OMAP2PLUS
+	help
+	  Say "yes" here to support the on chip real time clock
+	  present on TI OMAP1, AM33xx, DA8xx/OMAP-L13x, AM43xx and DRA7xx.
+
 endmenu
