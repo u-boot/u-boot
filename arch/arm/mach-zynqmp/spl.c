@@ -15,6 +15,7 @@
 #include <asm/io.h>
 #include <asm/spl.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/ecc_spl_init.h>
 #include <asm/arch/psu_init_gpl.h>
 #include <asm/arch/sys_proto.h>
 
@@ -22,6 +23,9 @@ void board_init_f(ulong dummy)
 {
 	board_early_init_f();
 	board_early_init_r();
+#ifdef CONFIG_SPL_ZYNQMP_DRAM_ECC_INIT
+	zynqmp_ecc_init();
+#endif
 }
 
 static void ps_mode_reset(ulong mode)
