@@ -44,8 +44,7 @@ Boot from SD or eMMC in this order:
    * 1.2 find uImage on first fat partition
    * 1.3 find zImage on first fat partition
    * 1.4 same order for 2. - 4. fat partition
- * 2. same as 1. but for ext2/3 partition
- * 3. same as 1. but for ext4 partition
+ * 2. same as 1. but for ext2/3/4 partition
 
 
 Available additional commands/variables:
@@ -70,7 +69,7 @@ Additional variables for loading files from mmc:
 
  * mmc ${mmcnum} (0 - external, 1 - internal)
  * partition number ${mmcpart} (1 - 4)
- * parition type ${mmctype} (fat, ext2, ext4)
+ * partition type ${mmctype} (fat, ext2, ext4; ext2 is just alias for ext4)
 
 Additional variables for booting kernel:
 
