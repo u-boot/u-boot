@@ -421,6 +421,17 @@ enum data_process {
 	LOADING
 };
 
+bool is_ddr_init_hang(void)
+{
+	u32 reg = readl(socfpga_get_sysmgr_addr() +
+			SYSMGR_SOC64_BOOT_SCRATCH_COLD8);
+
+	if (reg & ALT_SYSMGR_SCRATCH_REG_8_DDR_PROGRESS_MASK)
+		return true;
+
+	return false;
+}
+
 bool is_ddr_dbe_triggered(void)
 {
 	u32 reg = readl(socfpga_get_sysmgr_addr() +
@@ -484,13 +495,13 @@ void reset_type_print(enum reset_type reset_t)
 	}
 }
 
-bool is_ddr_init_skipped(u32 reg)
+bool is_ddr_init_skipped(u32 reg, bool is_ddr_hang_be4_rst)
 {
 	enum reset_type reset_t = get_reset_type(reg);
 
 	reset_type_print(reset_t);
 
-	if (!is_ddr_dbe_triggered()) {
+	if (!is_ddr_dbe_triggered() && !is_ddr_hang_be4_rst) {
 		if (reset_t == WARM_RESET) {
 			debug("%s: DDR init is skipped\n", __func__);
 			return true;
@@ -510,13 +521,13 @@ bool is_ddr_init_skipped(u32 reg)
 	return false;
 }
 
-bool is_ddr_calibration_skipped(u32 reg)
+bool is_ddr_calibration_skipped(u32 reg, bool is_ddr_hang_be4_rst)
 {
 	enum reset_type reset_t = get_reset_type(reg);
 
 	if ((reset_t == NCONFIG || reset_t == JTAG_CONFIG ||
 	     reset_t == RSU_RECONFIG) && is_ddr_retention_enabled(reg) &&
-	     !is_ddr_dbe_triggered()) {
+	     !is_ddr_dbe_triggered() && !is_ddr_hang_be4_rst) {
 		debug("%s: DDR retention bit is set\n", __func__);
 		return true;
 	}
@@ -1593,7 +1604,7 @@ static bool is_cal_bak_data_valid(void)
 }
 
 static int init_phy(struct ddr_handoff *ddr_handoff_info,
-		    bool *need_calibrate)
+		    bool *need_calibrate, bool is_ddr_hang_be4_rst)
 {
 	u32 reg = readl(socfpga_get_sysmgr_addr() +
 			SYSMGR_SOC64_BOOT_SCRATCH_COLD0);
@@ -1622,7 +1633,7 @@ static int init_phy(struct ddr_handoff *ddr_handoff_info,
 			ddr_handoff_info->phy_handoff_length,
 			ddr_handoff_info->phy_base);
 
-	if (is_ddr_calibration_skipped(reg)) {
+	if (is_ddr_calibration_skipped(reg, is_ddr_hang_be4_rst)) {
 		if (is_cal_bak_data_valid())
 			*need_calibrate = false;
 		else
@@ -2815,6 +2826,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 	u32 reg = readl(socfpga_get_sysmgr_addr() +
 			SYSMGR_SOC64_BOOT_SCRATCH_COLD0);
 	int ret;
+	bool is_ddr_hang_be4_rst = is_ddr_init_hang();
 	bool need_calibrate = true;
 	ulong ddr_offset;
 	char *endptr;
@@ -2840,7 +2852,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 	 */
 	writel(SOC64_CRAM_PHY_BACKUP_SKIP_MAGIC, SOC64_OCRAM_PHY_BACKUP_BASE);
 
-	if (!is_ddr_init_skipped(reg)) {
+	if (!is_ddr_init_skipped(reg, is_ddr_hang_be4_rst)) {
 		printf("SDRAM init in progress ...\n");
 		ddr_init_inprogress(true);
 
@@ -2882,7 +2894,8 @@ int sdram_mmr_init_full(struct udevice *dev)
 		printf("DDR controller configuration is completed\n");
 
 		/* Initialize DDR PHY */
-		ret = init_phy(&ddr_handoff_info, &need_calibrate);
+		ret = init_phy(&ddr_handoff_info, &need_calibrate,
+			       is_ddr_hang_be4_rst);
 		if (ret) {
 			debug("%s: Failed to inilialize DDR PHY\n", __func__);
 			return ret;
