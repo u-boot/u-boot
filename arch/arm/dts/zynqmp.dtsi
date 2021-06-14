@@ -157,8 +157,7 @@
 				compatible = "xlnx,zynqmp-power";
 				interrupt-parent = <&gic>;
 				interrupts = <0 35 4>;
-				mboxes = <&ipi_mailbox_pmu1 0>,
-					 <&ipi_mailbox_pmu1 1>;
+				mboxes = <&ipi_mailbox_pmu1 0>, <&ipi_mailbox_pmu1 1>;
 				mbox-names = "tx", "rx";
 			};
 
