@@ -43,6 +43,8 @@
 
 	mcu-navss{
 		u-boot,dm-spl;
+		#address-cells = <2>;
+		#size-cells = <2>;
 
 		ringacc@2b800000 {
 			reg =	<0x0 0x2b800000 0x0 0x400000>,
