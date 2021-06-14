@@ -339,8 +339,16 @@ static int set_regdomain(void)
 
 static void handle_reset_button(void)
 {
+	const char * const vars[1] = { "bootcmd_rescue", };
 	int ret;
 	u8 reset_status;
+
+	/*
+	 * Ensure that bootcmd_rescue has always stock value, so that running
+	 *   run bootcmd_rescue
+	 * always works correctly.
+	 */
+	env_set_default_vars(1, (char * const *)vars, 0);
 
 	ret = omnia_mcu_read(CMD_GET_RESET, &reset_status, 1);
 	if (ret) {
@@ -352,9 +360,8 @@ static void handle_reset_button(void)
 	env_set_ulong("omnia_reset", reset_status);
 
 	if (reset_status) {
-		const char * const vars[3] = {
+		const char * const vars[2] = {
 			"bootcmd",
-			"bootcmd_rescue",
 			"distro_bootcmd",
 		};
 
@@ -362,7 +369,7 @@ static void handle_reset_button(void)
 		 * Set the above envs to their default values, in case the user
 		 * managed to break them.
 		 */
-		env_set_default_vars(3, (char * const *)vars, 0);
+		env_set_default_vars(2, (char * const *)vars, 0);
 
 		/* Ensure bootcmd_rescue is used by distroboot */
 		env_set("boot_targets", "rescue");
