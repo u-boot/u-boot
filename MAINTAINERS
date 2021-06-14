@@ -882,6 +882,7 @@ F:	arch/mips/dts/mrvl,cn73xx.dtsi
 
 MMC
 M:	Peng Fan <peng.fan@nxp.com>
+M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mmc.git
 F:	drivers/mmc/
