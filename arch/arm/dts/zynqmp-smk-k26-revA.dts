@@ -7,7 +7,6 @@
  * Michal Simek <michal.simek@xilinx.com>
  */
 
-
 #include "zynqmp-sm-k26-revA.dts"
 
 / {
