@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP K26/KV260 SD wiring
  *
- * (C) Copyright 2020, Xilinx, Inc.
+ * (C) Copyright 2020 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */

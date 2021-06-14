@@ -2,7 +2,7 @@
 /*
  * dts file for KV260 revA Carrier Card
  *
- * (C) Copyright 2020, Xilinx, Inc.
+ * (C) Copyright 2020 - 2021, Xilinx, Inc.
  *
  * SD level shifter:
  * "A" – A01 board un-modified (NXP)
