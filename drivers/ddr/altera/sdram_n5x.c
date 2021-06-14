@@ -2869,9 +2869,9 @@ int sdram_mmr_init_full(struct udevice *dev)
 		 * subsystem in complete reset state before init DDR clock
 		 * and DDR controller
 		 */
-		ret = wait_for_bit_le32((const void *)((uintptr_t)(readl
+		ret = wait_for_bit_le32((const void *)((uintptr_t)readl
 					(ddr_handoff_info.mem_reset_base) +
-					MEM_RST_MGR_STATUS)),
+					MEM_RST_MGR_STATUS),
 					MEM_RST_MGR_STATUS_RESET_COMPLETE,
 					true, TIMEOUT_200MS, false);
 		if (ret) {
@@ -2894,8 +2894,8 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 		/* Release the controller from reset */
 		setbits_le32((uintptr_t)
-			     (readl(ddr_handoff_info.mem_reset_base) +
-			     MEM_RST_MGR_STATUS), MEM_RST_MGR_STATUS_AXI_RST |
+			     readl(ddr_handoff_info.mem_reset_base) +
+			     MEM_RST_MGR_STATUS, MEM_RST_MGR_STATUS_AXI_RST |
 			     MEM_RST_MGR_STATUS_CONTROLLER_RST |
 			     MEM_RST_MGR_STATUS_RESET_COMPLETE);
 
