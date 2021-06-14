@@ -421,6 +421,18 @@ enum data_process {
 	LOADING
 };
 
+void ddr_init_inprogress(bool start)
+{
+	if (start)
+		setbits_le32(socfpga_get_sysmgr_addr() +
+			     SYSMGR_SOC64_BOOT_SCRATCH_COLD8,
+			     ALT_SYSMGR_SCRATCH_REG_8_DDR_PROGRESS_MASK);
+	else
+		clrbits_le32(socfpga_get_sysmgr_addr() +
+			     SYSMGR_SOC64_BOOT_SCRATCH_COLD8,
+			     ALT_SYSMGR_SCRATCH_REG_8_DDR_PROGRESS_MASK);
+}
+
 bool is_ddr_retention_enabled(u32 reg)
 {
 	if (reg & ALT_SYSMGR_SCRATCH_REG_0_DDR_RETENTION_MASK)
@@ -2815,6 +2827,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	if (!is_ddr_init_skipped(reg)) {
 		printf("SDRAM init in progress ...\n");
+		ddr_init_inprogress(true);
 
 		/*
 		 * Polling reset complete, must be high to ensure DDR
@@ -2964,6 +2977,9 @@ int sdram_mmr_init_full(struct udevice *dev)
 	priv->info.size = gd->ram_size;
 
 	sdram_size_check(&bd);
+
+	/* Marking end of ddr init with passing basic memory test */
+	ddr_init_inprogress(false);
 
 	sdram_set_firewall(&bd);
 
