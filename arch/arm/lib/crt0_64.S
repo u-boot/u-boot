@@ -112,6 +112,11 @@ ENTRY(_main)
 	ldr	x9, _TEXT_BASE		/* x9 <- Linked value of _start */
 	sub	x9, x9, x0		/* x9 <- Run-vs-link offset */
 	add	lr, lr, x9
+#if defined(CONFIG_SYS_RELOC_GD_ENV_ADDR)
+	ldr	x0, [x18, #GD_ENV_ADDR]	/* x0 <- gd->env_addr */
+	add	x0, x0, x9
+	str	x0, [x18, #GD_ENV_ADDR]
+#endif
 #endif
 	/* Add in link-vs-relocation offset */
 	ldr	x9, [x18, #GD_RELOC_OFF]	/* x9 <- gd->reloc_off */
