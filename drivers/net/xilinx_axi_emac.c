@@ -86,6 +86,16 @@ struct axidma_reg {
 	u32 tail_hi; /* TAILDESC high 32 bit */
 };
 
+/* Platform data structures */
+struct axidma_plat {
+	struct eth_pdata eth_pdata;
+	struct axidma_reg *dmatx;
+	struct axidma_reg *dmarx;
+	int phyaddr;
+	u8 eth_hasnobuf;
+	int phy_of_handle;
+};
+
 /* Private driver structures */
 struct axidma_priv {
 	struct axidma_reg *dmatx;
@@ -689,8 +699,19 @@ static int axiemac_miiphy_write(struct mii_dev *bus, int addr, int devad,
 
 static int axi_emac_probe(struct udevice *dev)
 {
+	struct axidma_plat *plat = dev_get_platdata(dev);
+	struct eth_pdata *pdata = &plat->eth_pdata;
 	struct axidma_priv *priv = dev_get_priv(dev);
 	int ret;
+
+	priv->iobase = (struct axi_regs *)pdata->iobase;
+	priv->dmatx = plat->dmatx;
+	/* RX channel offset is 0x30 */
+	priv->dmarx = (struct axidma_reg *)((phys_addr_t)priv->dmatx + 0x30);
+	priv->eth_hasnobuf = plat->eth_hasnobuf;
+	priv->phyaddr = plat->phyaddr;
+	priv->phy_of_handle = plat->phy_of_handle;
+	priv->interface = pdata->phy_interface;
 
 	priv->bus = mdio_alloc();
 	priv->bus->read = axiemac_miiphy_read;
@@ -728,14 +749,13 @@ static const struct eth_ops axi_emac_ops = {
 
 static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
-	struct axidma_priv *priv = dev_get_priv(dev);
+	struct axidma_plat *plat = dev_get_platdata(dev);
+	struct eth_pdata *pdata = &plat->eth_pdata;
 	int node = dev_of_offset(dev);
 	int offset = 0;
 	const char *phy_mode;
 
 	pdata->iobase = dev_read_addr(dev);
-	priv->iobase = (struct axi_regs *)pdata->iobase;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
 				       "axistream-connected");
@@ -743,21 +763,19 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 		printf("%s: axistream is not found\n", __func__);
 		return -EINVAL;
 	}
-	priv->dmatx = (struct axidma_reg *)fdtdec_get_addr(gd->fdt_blob,
+	plat->dmatx = (struct axidma_reg *)fdtdec_get_addr(gd->fdt_blob,
 							  offset, "reg");
-	if (!priv->dmatx) {
+	if (!plat->dmatx) {
 		printf("%s: axi_dma register space not found\n", __func__);
 		return -EINVAL;
 	}
-	/* RX channel offset is 0x30 */
-	priv->dmarx = (struct axidma_reg *)((phys_addr_t)priv->dmatx + 0x30);
 
-	priv->phyaddr = -1;
+	plat->phyaddr = -1;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "phy-handle");
 	if (offset > 0) {
-		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
-		priv->phy_of_handle = offset;
+		plat->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
+		plat->phy_of_handle = offset;
 	}
 
 	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
@@ -767,13 +785,12 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 		printf("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
-	priv->interface = pdata->phy_interface;
 
-	priv->eth_hasnobuf = fdtdec_get_bool(gd->fdt_blob, node,
+	plat->eth_hasnobuf = fdtdec_get_bool(gd->fdt_blob, node,
 					     "xlnx,eth-hasnobuf");
 
-	printf("AXI EMAC: %lx, phyaddr %d, interface %s\n", (ulong)priv->iobase,
-	       priv->phyaddr, phy_string_for_interface(priv->interface));
+	printf("AXI EMAC: %lx, phyaddr %d, interface %s\n", (ulong)pdata->iobase,
+	       plat->phyaddr, phy_string_for_interface(pdata->phy_interface));
 
 	return 0;
 }
@@ -792,5 +809,5 @@ U_BOOT_DRIVER(axi_emac) = {
 	.remove	= axi_emac_remove,
 	.ops	= &axi_emac_ops,
 	.priv_auto_alloc_size = sizeof(struct axidma_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.platdata_auto_alloc_size = sizeof(struct axidma_plat),
 };
