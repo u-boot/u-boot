@@ -20,7 +20,7 @@ If the eMMC has already a U-Boot flashed then the user can
 go to step 2 below in order to update U-Boot.
 
 Put pico board in USB download mode (Refer to the following link for details:
-https://www.technexion.com/support/knowledgebase/boot-configuration-settings-for-pico-baseboards/).
+https://developer.technexion.com/docs/pico-evaluation-kit-boot-mode-settings )
 
 Connect a USB to serial adapter between the host PC and pico.
 

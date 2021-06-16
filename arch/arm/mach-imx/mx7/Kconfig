@@ -70,6 +70,14 @@ config TARGET_PICO_IMX7D
 	select SUPPORT_SPL
 	imply CMD_DM
 
+config TARGET_SMEGW01
+	bool "smegw01"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select MX7D
+	imply CMD_DM
+
 config TARGET_WARP7
 	bool "warp7"
 	select BOARD_LATE_INIT
@@ -94,6 +102,7 @@ source "board/compulab/cl-som-imx7/Kconfig"
 source "board/ronetix/imx7-cm/Kconfig"
 source "board/freescale/mx7dsabresd/Kconfig"
 source "board/novtech/meerkat96/Kconfig"
+source "board/storopack/smegw01/Kconfig"
 source "board/technexion/pico-imx7d/Kconfig"
 source "board/toradex/colibri_imx7/Kconfig"
 source "board/warp7/Kconfig"

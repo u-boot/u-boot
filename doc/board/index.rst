@@ -11,6 +11,7 @@ Board-specific doc
    AndesTech/index
    amlogic/index
    atmel/index
+   congatec/index
    coreboot/index
    emulation/index
    freescale/index

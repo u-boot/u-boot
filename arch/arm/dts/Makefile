@@ -810,6 +810,7 @@ dtb-$(CONFIG_MX6ULL) += \
 	imx6ull-14x14-evk.dtb \
 	imx6ull-colibri.dtb \
 	imx6ull-myir-mys-6ulx-eval.dtb \
+	imx6ull-seeed-npi-imx6ull-dev-board.dtb \
 	imx6ull-phytec-segin-ff-rdk-emmc.dtb \
 	imx6ull-dart-6ul.dtb \
 	imx6ull-somlabs-visionsom.dtb \
@@ -819,6 +820,12 @@ dtb-$(CONFIG_ARCH_MX6) += \
 	imx6-apalis.dtb \
 	imx6-colibri.dtb
 
+dtb-$(CONFIG_O4_IMX_NANO) += \
+	o4-imx-nano.dtb
+
+dtb-$(CONFIG_EV_IMX280_NANO_X_MB) += \
+	ev-imx280-nano-x-mb.dtb
+
 dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7d-sdb-qspi.dtb \
 	imx7-cm.dtb \
@@ -827,8 +834,8 @@ dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7s-warp.dtb \
 	imx7d-meerkat96.dtb \
 	imx7d-pico-pi.dtb \
-	imx7d-pico-hobbit.dtb
-
+	imx7d-pico-hobbit.dtb \
+	imx7d-smegw01.dtb
 
 dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-com.dtb \
 	imx7ulp-evk.dtb
@@ -836,6 +843,7 @@ dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-com.dtb \
 dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8qm-apalis.dtb \
 	fsl-imx8qm-mek.dtb \
+	imx8qm-cgtqmx8.dtb \
 	imx8qm-rom7720-a1.dtb \
 	fsl-imx8qxp-ai_ml.dtb \
 	fsl-imx8qxp-colibri.dtb \
