@@ -26,6 +26,8 @@
 #include <fsl_dtsec.h>
 #include <asm/fsl_serdes.h>
 
+extern u8 get_hw_revision(void);
+
 /* Disable the MAC5 and MAC6 "fsl,fman-memac" nodes and the two
  * "fsl,dpa-ethernet" nodes that reference them.
  */
@@ -58,6 +60,39 @@ void fdt_fixup_board_fman_ethernet(void *fdt)
 		if (eth_off >= 0)
 			fdt_status_disabled(fdt, eth_off);
 	}
+}
+
+/* Update the address of the second Aquantia PHY on boards revision D and up.
+ * Also rename the PHY node to align with the address change.
+ */
+void fdt_fixup_board_phy(void *fdt)
+{
+	const char phy_path[] =
+		"/soc@ffe000000/fman@400000/mdio@fd000/ethernet-phy@1";
+	int ret, offset, new_addr = AQR113C_PHY_ADDR2;
+	char new_name[] = "ethernet-phy@00";
+
+	if (get_hw_revision() == 'C')
+		return;
+
+	offset = fdt_path_offset(fdt, phy_path);
+	if (offset < 0) {
+		printf("ethernet-phy@1 node not found in the dts\n");
+		return;
+	}
+
+	ret = fdt_setprop(fdt, offset, "reg", &new_addr, sizeof(new_addr));
+	if (ret < 0) {
+		printf("Unable to set 'reg' for node ethernet-phy@1: %s\n",
+		       fdt_strerror(ret));
+		return;
+	}
+
+	sprintf(new_name, "ethernet-phy@%x", new_addr);
+	ret = fdt_set_name(fdt, offset, new_name);
+	if (ret < 0)
+		printf("Unable to rename node ethernet-phy@1: %s\n",
+		       fdt_strerror(ret));
 }
 
 void fdt_fixup_board_enet(void *fdt)

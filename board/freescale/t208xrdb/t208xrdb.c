@@ -153,6 +153,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #ifdef CONFIG_SYS_DPAA_FMAN
 	fdt_fixup_board_fman_ethernet(blob);
 	fdt_fixup_board_enet(blob);
+	fdt_fixup_board_phy(blob);
 #endif
 
 	return 0;
