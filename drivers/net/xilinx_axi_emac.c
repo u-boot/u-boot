@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2021 Waymo LLC
  * Copyright (C) 2011 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2011 PetaLogix
  * Copyright (C) 2010 Xilinx, Inc. All rights reserved.
@@ -72,9 +73,22 @@ DECLARE_GLOBAL_DATA_PTR;
 #define XAXIDMA_BD_CTRL_TXSOF_MASK	0x08000000 /* First tx packet */
 #define XAXIDMA_BD_CTRL_TXEOF_MASK	0x04000000 /* Last tx packet */
 
-#define DMAALIGN	128
+/* Bitmasks for XXV Ethernet MAC */
+#define XXV_TC_TX_MASK		0x00000001
+#define XXV_TC_FCS_MASK		0x00000002
+#define XXV_RCW1_RX_MASK	0x00000001
+#define XXV_RCW1_FCS_MASK	0x00000002
+
+#define DMAALIGN		128
+#define XXV_MIN_PKT_SIZE	60
 
 static u8 rxframe[PKTSIZE_ALIGN] __attribute((aligned(DMAALIGN)));
+static u8 txminframe[XXV_MIN_PKT_SIZE] __attribute((aligned(DMAALIGN)));
+
+enum emac_variant {
+	EMAC_1G = 0,
+	EMAC_10G_25G = 1,
+};
 
 /* Reflect dma offsets */
 struct axidma_reg {
@@ -94,6 +108,7 @@ struct axidma_plat {
 	int phyaddr;
 	u8 eth_hasnobuf;
 	int phy_of_handle;
+	enum emac_variant mactype;
 };
 
 /* Private driver structures */
@@ -107,6 +122,7 @@ struct axidma_priv {
 	struct mii_dev *bus;
 	u8 eth_hasnobuf;
 	int phy_of_handle;
+	enum emac_variant mactype;
 };
 
 /* BD descriptors */
@@ -151,6 +167,14 @@ struct axi_regs {
 	u32 reserved6[124];
 	u32 uaw0; /* 0x700: Unicast address word 0 */
 	u32 uaw1; /* 0x704: Unicast address word 1 */
+};
+
+struct xxv_axi_regs {
+	u32 gt_reset;	/* 0x0 */
+	u32 reserved[2];
+	u32 tc;		/* 0xC: Tx Configuration */
+	u32 reserved2;
+	u32 rcw1;	/* 0x14: Rx Configuration Word 1 */
 };
 
 /* Use MII register 1 (MII status register) to detect PHY */
@@ -384,6 +408,18 @@ static void axiemac_stop(struct udevice *dev)
 	debug("axiemac: Halted\n");
 }
 
+static int xxv_axi_ethernet_init(struct axidma_priv *priv)
+{
+	struct xxv_axi_regs *regs = (struct xxv_axi_regs *)priv->iobase;
+
+	writel(readl(&regs->rcw1) | XXV_RCW1_FCS_MASK, &regs->rcw1);
+	writel(readl(&regs->tc) | XXV_TC_FCS_MASK, &regs->tc);
+	writel(readl(&regs->tc) | XXV_TC_TX_MASK, &regs->tc);
+	writel(readl(&regs->rcw1) | XXV_RCW1_RX_MASK, &regs->rcw1);
+
+	return 0;
+}
+
 static int axi_ethernet_init(struct axidma_priv *priv)
 {
 	struct axi_regs *regs = priv->iobase;
@@ -439,6 +475,9 @@ static int axiemac_write_hwaddr(struct udevice *dev)
 	struct axidma_priv *priv = dev_get_priv(dev);
 	struct axi_regs *regs = priv->iobase;
 
+	if (priv->mactype != EMAC_1G)
+		return 0;
+
 	/* Set the MAC address */
 	int val = ((pdata->enetaddr[3] << 24) | (pdata->enetaddr[2] << 16) |
 		(pdata->enetaddr[1] << 8) | (pdata->enetaddr[0]));
@@ -476,7 +515,6 @@ static void axi_dma_init(struct axidma_priv *priv)
 static int axiemac_start(struct udevice *dev)
 {
 	struct axidma_priv *priv = dev_get_priv(dev);
-	struct axi_regs *regs = priv->iobase;
 	u32 temp;
 
 	debug("axiemac: Init started\n");
@@ -489,8 +527,13 @@ static int axiemac_start(struct udevice *dev)
 	axi_dma_init(priv);
 
 	/* Initialize AxiEthernet hardware. */
-	if (axi_ethernet_init(priv))
-		return -1;
+	if (priv->mactype == EMAC_1G) {
+		if (axi_ethernet_init(priv))
+			return -1;
+	} else {
+		if (xxv_axi_ethernet_init(priv))
+			return -1;
+	}
 
 	/* Disable all RX interrupts before RxBD space setup */
 	temp = readl(&priv->dmarx->control);
@@ -524,15 +567,25 @@ static int axiemac_start(struct udevice *dev)
 	/* Rx BD is ready - start */
 	axienet_dma_write(&rx_bd, &priv->dmarx->tail);
 
-	/* Enable TX */
-	writel(XAE_TC_TX_MASK, &regs->tc);
-	/* Enable RX */
-	writel(XAE_RCW1_RX_MASK, &regs->rcw1);
+	if (priv->mactype == EMAC_1G) {
+		struct axi_regs *regs = priv->iobase;
+		/* Enable TX */
+		writel(XAE_TC_TX_MASK, &regs->tc);
+		/* Enable RX */
+		writel(XAE_RCW1_RX_MASK, &regs->rcw1);
 
-	/* PHY setup */
-	if (!setup_phy(dev)) {
-		axiemac_stop(dev);
-		return -1;
+		/* PHY setup */
+		if (!setup_phy(dev)) {
+			axiemac_stop(dev);
+			return -1;
+		}
+	} else {
+		struct xxv_axi_regs *regs = (struct xxv_axi_regs *)priv->iobase;
+		/* Enable TX */
+		writel(readl(&regs->tc) | XXV_TC_TX_MASK, &regs->tc);
+
+		/* Enable RX */
+		writel(readl(&regs->rcw1) | XXV_RCW1_RX_MASK, &regs->rcw1);
 	}
 
 	debug("axiemac: Init complete\n");
@@ -546,6 +599,14 @@ static int axiemac_send(struct udevice *dev, void *ptr, int len)
 
 	if (len > PKTSIZE_ALIGN)
 		len = PKTSIZE_ALIGN;
+
+	/* If size is less than min packet size, pad to min size */
+	if (priv->mactype == EMAC_10G_25G && len < XXV_MIN_PKT_SIZE) {
+		memset(txminframe, 0, XXV_MIN_PKT_SIZE);
+		memcpy(txminframe, ptr, len);
+		len = XXV_MIN_PKT_SIZE;
+		ptr = txminframe;
+	}
 
 	/* Flush packet to main memory to be trasfered by DMA */
 	flush_cache((phys_addr_t)ptr, len);
@@ -631,7 +692,7 @@ static int axiemac_recv(struct udevice *dev, int flags, uchar **packetp)
 	temp = readl(&priv->dmarx->control);
 	temp &= ~XAXIDMA_IRQ_ALL_MASK;
 	writel(temp, &priv->dmarx->control);
-	if (!priv->eth_hasnobuf)
+	if (!priv->eth_hasnobuf  && priv->mactype == EMAC_1G)
 		length = rx_bd.app4 & 0xFFFF; /* max length mask */
 	else
 		length = rx_bd.status & XAXIDMA_BD_STS_ACTUAL_LEN_MASK;
@@ -708,21 +769,25 @@ static int axi_emac_probe(struct udevice *dev)
 	priv->dmatx = plat->dmatx;
 	/* RX channel offset is 0x30 */
 	priv->dmarx = (struct axidma_reg *)((phys_addr_t)priv->dmatx + 0x30);
-	priv->eth_hasnobuf = plat->eth_hasnobuf;
-	priv->phyaddr = plat->phyaddr;
-	priv->phy_of_handle = plat->phy_of_handle;
-	priv->interface = pdata->phy_interface;
+	priv->mactype = plat->mactype;
 
-	priv->bus = mdio_alloc();
-	priv->bus->read = axiemac_miiphy_read;
-	priv->bus->write = axiemac_miiphy_write;
-	priv->bus->priv = priv;
+	if (priv->mactype == EMAC_1G) {
+		priv->eth_hasnobuf = plat->eth_hasnobuf;
+		priv->phyaddr = plat->phyaddr;
+		priv->phy_of_handle = plat->phy_of_handle;
+		priv->interface = pdata->phy_interface;
 
-	ret = mdio_register_seq(priv->bus, dev->seq);
-	if (ret)
-		return ret;
+		priv->bus = mdio_alloc();
+		priv->bus->read = axiemac_miiphy_read;
+		priv->bus->write = axiemac_miiphy_write;
+		priv->bus->priv = priv;
 
-	axiemac_phy_init(dev);
+		ret = mdio_register_seq(priv->bus, dev->seq);
+		if (ret)
+			return ret;
+
+		axiemac_phy_init(dev);
+	}
 
 	return 0;
 }
@@ -731,9 +796,11 @@ static int axi_emac_remove(struct udevice *dev)
 {
 	struct axidma_priv *priv = dev_get_priv(dev);
 
-	free(priv->phydev);
-	mdio_unregister(priv->bus);
-	mdio_free(priv->bus);
+	if (priv->mactype == EMAC_1G) {
+		free(priv->phydev);
+		mdio_unregister(priv->bus);
+		mdio_free(priv->bus);
+	}
 
 	return 0;
 }
@@ -756,6 +823,7 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 	const char *phy_mode;
 
 	pdata->iobase = dev_read_addr(dev);
+	plat->mactype = dev_get_driver_data(dev);
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
 				       "axistream-connected");
@@ -770,24 +838,29 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	plat->phyaddr = -1;
+	if (plat->mactype == EMAC_1G) {
+		plat->phyaddr = -1;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "phy-handle");
-	if (offset > 0) {
-		plat->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
-		plat->phy_of_handle = offset;
+		offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
+					       "phy-handle");
+		if (offset > 0) {
+			plat->phyaddr = fdtdec_get_int(gd->fdt_blob, offset,
+						       "reg", -1);
+			plat->phy_of_handle = offset;
+		}
+
+		phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
+		if (phy_mode)
+			pdata->phy_interface = phy_get_interface_by_name(phy_mode);
+		if (pdata->phy_interface == -1) {
+			printf("%s: Invalid PHY interface '%s'\n", __func__,
+			       phy_mode);
+			return -EINVAL;
+		}
+
+		plat->eth_hasnobuf = fdtdec_get_bool(gd->fdt_blob, node,
+						     "xlnx,eth-hasnobuf");
 	}
-
-	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
-	if (phy_mode)
-		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
-	if (pdata->phy_interface == -1) {
-		printf("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
-		return -EINVAL;
-	}
-
-	plat->eth_hasnobuf = fdtdec_get_bool(gd->fdt_blob, node,
-					     "xlnx,eth-hasnobuf");
 
 	printf("AXI EMAC: %lx, phyaddr %d, interface %s\n", (ulong)pdata->iobase,
 	       plat->phyaddr, phy_string_for_interface(pdata->phy_interface));
@@ -796,7 +869,8 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id axi_emac_ids[] = {
-	{ .compatible = "xlnx,axi-ethernet-1.00.a" },
+	{ .compatible = "xlnx,axi-ethernet-1.00.a", .data = (uintptr_t)EMAC_1G },
+	{ .compatible = "xlnx,xxv-ethernet-1.0", .data = (uintptr_t)EMAC_10G_25G },
 	{ }
 };
 
