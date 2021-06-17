@@ -269,6 +269,10 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 	pcie->idx = ((unsigned long)pcie->dbi - PCIE_SYS_BASE_ADDR) /
 		    PCIE_CCSR_SIZE;
 
+	/* This controller is disabled by RCW */
+	if (!is_serdes_configured(PCIE_SRDS_PRTCL(pcie->idx)))
+		return 0;
+
 	pcie->big_endian = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 					   "big-endian");
 

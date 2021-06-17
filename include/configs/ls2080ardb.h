@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2017, 2019-2020 NXP
+ * Copyright 2017, 2019-2021 NXP
  * Copyright 2015 Freescale Semiconductor
  */
 
@@ -298,11 +298,6 @@ unsigned long get_board_sys_clk(void);
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_SCAN_SHOW
-#endif
-
-/*  MMC  */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
 #define BOOT_TARGET_DEVICES(func) \

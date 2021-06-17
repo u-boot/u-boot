@@ -21,6 +21,10 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
+#define CONFIG_PRAM			((CONFIG_KM_PNVRAM + \
+					  CONFIG_KM_PHRAM + \
+					  CONFIG_KM_RESERVED_PRAM) >> 10)
+
 #define CONFIG_SYS_CLK_FREQ		66666666
 /*
  * Take into account default implementation where DDR_FDBK_MULTI is consider as
@@ -42,6 +46,10 @@
 
 #define CONFIG_SYS_SPD_BUS_NUM		0
 #define SPD_EEPROM_ADDRESS		0x54
+
+/* POST memory regions test */
+#define CONFIG_POST			(CONFIG_SYS_POST_MEM_REGIONS)
+#define CONFIG_POST_EXTERNAL_WORD_FUNCS
 
 /*
  * IFC Definitions
@@ -206,7 +214,7 @@
 
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
-#define COUNTER_FREQUENCY		12500000
+#define COUNTER_FREQUENCY		8333333
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256
@@ -280,10 +288,17 @@
 		"protect on " __stringify(ENV_DEL_ADDR)			\
 		" +" __stringify(CONFIG_ENV_TOTAL_SIZE) "\0"
 
+#define CONFIG_HW_ENV_SETTINGS						\
+	"hwconfig=devdis:esdhc,usb3,usb2,sata,sec,dcu,duart2,qspi,"	\
+			"can1,can2_4,ftm2_8,i2c2_3,sai1_4,lpuart2_6,"	\
+			"asrc,spdif,lpuart1,ftm1\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_KM_NEW_ENV						\
 	CONFIG_KM_DEF_ENV						\
+	CONFIG_HW_ENV_SETTINGS						\
 	"EEprom_ivm=pca9547:70:9\0"					\
+	"ethrotate=no\0"						\
 	""
 
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */

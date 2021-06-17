@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  */
 
 /*
@@ -537,8 +537,12 @@ unsigned long get_board_ddr_clk(void);
 #define RGMII_PHY2_ADDR		0x02
 #define CORTINA_PHY_ADDR1	0x0c  /* Cortina CS4315 */
 #define CORTINA_PHY_ADDR2	0x0d
-#define FM1_10GEC3_PHY_ADDR	0x00  /* Aquantia AQ1202 10G Base-T */
+/* Aquantia AQ1202 10G Base-T used by board revisions up to C */
+#define FM1_10GEC3_PHY_ADDR	0x00
 #define FM1_10GEC4_PHY_ADDR	0x01
+/* Aquantia AQR113C 10G Base-T used by board revisions D and up */
+#define AQR113C_PHY_ADDR1	0x00
+#define AQR113C_PHY_ADDR2	0x08
 #endif
 
 #ifdef CONFIG_FMAN_ENET
@@ -574,7 +578,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
 /*

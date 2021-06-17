@@ -64,6 +64,13 @@ config SYS_PAX_BASE
 	help
 	  IFC Base Address for PAXx FPGA.
 
+config SYS_CLIPS_BASE
+	hex "CLIPS IFC Base Address"
+	default 0x78000000
+	depends on ARCH_LS1021A
+	help
+	  IFC Base Address for CLIPS FPGA.
+
 config KM_CONSOLE_TTY
 	string "KM Console"
 	default "ttyS0"

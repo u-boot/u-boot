@@ -2,7 +2,7 @@
 /*
  * NXP LX2162AQDS device tree source
  *
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  *
  */
 
@@ -134,4 +134,10 @@
 		spi-cpha;
 		reg = <2>;
 	};
+};
+
+&esdhc1 {
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+	bus-width = <8>;
 };

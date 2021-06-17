@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2007, 2010-2011 Freescale Semiconductor, Inc
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2021 NXP
  * Andy Fleming
  *
  * Based vaguely on the pxa mmc code:
@@ -795,10 +795,21 @@ static void fsl_esdhc_get_cfg_common(struct fsl_esdhc_priv *priv,
 	u32 caps;
 
 	caps = esdhc_read32(&regs->hostcapblt);
+
+	/*
+	 * For eSDHC, power supply is through peripheral circuit. Some eSDHC
+	 * versions have value 0 of the bit but that does not reflect the
+	 * truth. 3.3V is common for SD/MMC, and is supported for all boards
+	 * with eSDHC in current u-boot. So, make 3.3V is supported in
+	 * default in code. CONFIG_FSL_ESDHC_VS33_NOT_SUPPORT can be enabled
+	 * if future board does not support 3.3V.
+	 */
+	caps |= HOSTCAPBLT_VS33;
+	if (IS_ENABLED(CONFIG_FSL_ESDHC_VS33_NOT_SUPPORT))
+		caps &= ~HOSTCAPBLT_VS33;
+
 	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_ESDHC135))
 		caps &= ~(HOSTCAPBLT_SRS | HOSTCAPBLT_VS18 | HOSTCAPBLT_VS30);
-	if (IS_ENABLED(CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33))
-		caps |= HOSTCAPBLT_VS33;
 	if (caps & HOSTCAPBLT_VS18)
 		cfg->voltages |= MMC_VDD_165_195;
 	if (caps & HOSTCAPBLT_VS30)

@@ -1063,7 +1063,7 @@ int cpu_eth_init(struct bd_info *bis)
 	return error;
 }
 
-static inline int check_psci(void)
+int check_psci(void)
 {
 	unsigned int psci_ver;
 

@@ -10,10 +10,12 @@
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <asm/ptrace.h>
 #include <asm/system.h>
 #include <asm/arch/mp.h>
 #include <asm/arch/soc.h>
 #include <linux/delay.h>
+#include <linux/psci.h>
 #include "cpu.h"
 #include <asm/arch-fsl-layerscape/soc.h>
 #include <efi_loader.h>
@@ -301,24 +303,41 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 	u64 *table = get_spin_tbl_addr();
 	int pos;
 
-	pos = core_to_pos(nr);
-	if (pos <= 0)
-		return -1;
-
-	table += pos * WORDS_PER_SPIN_TABLE_ENTRY;
 	boot_addr = simple_strtoull(argv[0], NULL, 16);
-	table[SPIN_TABLE_ELEM_ENTRY_ADDR_IDX] = boot_addr;
-	flush_dcache_range((unsigned long)table,
-			   (unsigned long)table + SPIN_TABLE_ELEM_SIZE);
-	asm volatile("dsb st");
 
-	/*
-	 * The secondary CPUs polling the spin-table above for a non-zero
-	 * value. To save power "wfe" is called. Thus call "sev" here to
-	 * wake the CPUs and let them check the spin-table again (see
-	 * slave_cpu loop in lowlevel.S)
-	 */
-	asm volatile("sev");
+	if (check_psci()) {
+		/* SPIN Table is used */
+		pos = core_to_pos(nr);
+		if (pos <= 0)
+			return -1;
+
+		table += pos * WORDS_PER_SPIN_TABLE_ENTRY;
+		table[SPIN_TABLE_ELEM_ENTRY_ADDR_IDX] = boot_addr;
+		flush_dcache_range((unsigned long)table,
+			   (unsigned long)table + SPIN_TABLE_ELEM_SIZE);
+		asm volatile("dsb st");
+
+		/*
+		 * The secondary CPUs polling the spin-table above for a non-zero
+		 * value. To save power "wfe" is called. Thus call "sev" here to
+		 * wake the CPUs and let them check the spin-table again (see
+		 * slave_cpu loop in lowlevel.S)
+		 */
+		asm volatile("sev");
+	} else {
+		/* Use PSCI to kick the core */
+		struct pt_regs regs;
+
+		printf("begin to kick cpu core #%d to address %llx\n",
+		       nr, boot_addr);
+		regs.regs[0] = PSCI_0_2_FN64_CPU_ON;
+		regs.regs[1] = nr;
+		regs.regs[2] = boot_addr;
+		regs.regs[3] = 0;
+		smc_call(&regs);
+		if (regs.regs[0])
+			return -1;
+	}
 
 	return 0;
 }
