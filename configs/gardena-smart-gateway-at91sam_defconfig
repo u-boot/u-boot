@@ -21,7 +21,7 @@ CONFIG_DEFAULT_DEVICE_TREE="at91sam9g25-gardena-smart-gateway"
 CONFIG_DEBUG_UART=y
 CONFIG_FIT=y
 CONFIG_NAND_BOOT=y
-CONFIG_BOOTDELAY=3
+CONFIG_BOOTDELAY=0
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk mtdparts=atmel_nand:256k(bootstrap)ro,768k(uboot)ro,256k(env_redundant),256k(env),512k(dtb),6M(kernel)ro,-(rootfs) rootfstype=ubifs ubi.mtd=6 root=ubi0:rootfs rw"
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
@@ -46,8 +46,8 @@ CONFIG_CMD_CACHE=y
 CONFIG_CMD_TIME=y
 CONFIG_CMD_FAT=y
 CONFIG_CMD_MTDPARTS=y
-CONFIG_MTDIDS_DEFAULT="nand0=nand0"
-CONFIG_MTDPARTS_DEFAULT="nand0:1536k(uboot),1024k(unused),512k(dtb_old),4608k(kernel_old),86528k(ubi),-(rootfs_old)"
+CONFIG_MTDIDS_DEFAULT="nand0=atmel_nand"
+CONFIG_MTDPARTS_DEFAULT="atmel_nand:1536k(uboot),10752k(unused),-(ubi)"
 CONFIG_CMD_UBI=y
 CONFIG_OF_CONTROL=y
 CONFIG_SPL_OF_CONTROL=y
@@ -55,8 +55,8 @@ CONFIG_OF_SPL_REMOVE_PROPS="pinctrl-0 pinctrl-names clocks clock-names interrupt
 CONFIG_ENV_IS_IN_UBI=y
 CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
 CONFIG_ENV_UBI_PART="ubi"
-CONFIG_ENV_UBI_VOLUME="env"
-CONFIG_ENV_UBI_VOLUME_REDUND="env_r"
+CONFIG_ENV_UBI_VOLUME="uboot_env0"
+CONFIG_ENV_UBI_VOLUME_REDUND="uboot_env1"
 CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 CONFIG_NET_RANDOM_ETHADDR=y
 CONFIG_DM=y
