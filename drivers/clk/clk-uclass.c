@@ -207,7 +207,8 @@ static struct clk *clk_set_default_get_by_id(struct clk *clk)
 	return c;
 }
 
-static int clk_set_default_parents(struct udevice *dev, int stage)
+static int clk_set_default_parents(struct udevice *dev,
+				   enum clk_defaults_stage stage)
 {
 	struct clk clk, parent_clk, *c, *p;
 	int index;
@@ -260,10 +261,10 @@ static int clk_set_default_parents(struct udevice *dev, int stage)
 		 * It cannot be done right now but need to wait after the
 		 * device is probed
 		 */
-		if (stage == 0 && clk.dev == dev)
+		if (stage == CLK_DEFAULTS_PRE && clk.dev == dev)
 			continue;
 
-		if (stage > 0 && clk.dev != dev)
+		if (stage != CLK_DEFAULTS_PRE && clk.dev != dev)
 			/* do not setup twice the parent clocks */
 			continue;
 
@@ -289,7 +290,8 @@ static int clk_set_default_parents(struct udevice *dev, int stage)
 	return 0;
 }
 
-static int clk_set_default_rates(struct udevice *dev, int stage)
+static int clk_set_default_rates(struct udevice *dev,
+				 enum clk_defaults_stage stage)
 {
 	struct clk clk, *c;
 	int index;
@@ -338,10 +340,10 @@ static int clk_set_default_rates(struct udevice *dev, int stage)
 		 * It cannot be done right now but need to wait after the
 		 * device is probed
 		 */
-		if (stage == 0 && clk.dev == dev)
+		if (stage == CLK_DEFAULTS_PRE && clk.dev == dev)
 			continue;
 
-		if (stage > 0 && clk.dev != dev)
+		if (stage != CLK_DEFAULTS_PRE && clk.dev != dev)
 			/* do not setup twice the parent clocks */
 			continue;
 
@@ -364,16 +366,21 @@ fail:
 	return ret;
 }
 
-int clk_set_defaults(struct udevice *dev, int stage)
+int clk_set_defaults(struct udevice *dev, enum clk_defaults_stage stage)
 {
 	int ret;
 
 	if (!dev_has_ofnode(dev))
 		return 0;
 
-	/* If this not in SPL and pre-reloc state, don't take any action. */
+	/*
+	 * To avoid setting defaults twice, don't set them before relocation.
+	 * However, still set them for SPL. And still set them if explicitly
+	 * asked.
+	 */
 	if (!(IS_ENABLED(CONFIG_SPL_BUILD) || (gd->flags & GD_FLG_RELOC)))
-		return 0;
+		if (stage != CLK_DEFAULTS_POST_FORCE)
+			return 0;
 
 	debug("%s(%s)\n", __func__, dev_read_name(dev));
 
@@ -844,7 +851,7 @@ int clk_uclass_post_probe(struct udevice *dev)
 	 * where the DT is used to setup default parents and rates
 	 * using assigned-clocks
 	 */
-	clk_set_defaults(dev, 1);
+	clk_set_defaults(dev, CLK_DEFAULTS_POST);
 
 	return 0;
 }
