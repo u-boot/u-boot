@@ -24,40 +24,34 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led@0 {
+		led0 {
 			color = <LED_COLOR_ID_RED>;
 			gpios = <&pcf8574a 0 GPIO_ACTIVE_LOW>;
-			reg = <0>;
 		};
 
-		led@1 {
+		led1{
 			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&pcf8574a 1 GPIO_ACTIVE_LOW>;
-			reg = <1>;
 		};
 
-		led@2 {
+		led2 {
 			gpios = <&pcf8574a 2 GPIO_ACTIVE_LOW>;
 			color = <LED_COLOR_ID_BLUE>;
-			reg = <2>;
 		};
 
-		led@3 {
+		led3 {
 			color = <LED_COLOR_ID_RED>;
 			gpios = <&pcf8574a 3 GPIO_ACTIVE_LOW>;
-			reg = <3>;
 		};
 
-		led@4 {
+		led4{
 			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&pcf8574a 4 GPIO_ACTIVE_LOW>;
-			reg = <4>;
 		};
 
-		led@5 {
+		led5 {
 			color = <LED_COLOR_ID_BLUE>;
 			gpios = <&pcf8574a 5 GPIO_ACTIVE_LOW>;
-			reg = <5>;
 		};
 	};
 
