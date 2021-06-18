@@ -129,12 +129,14 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"scriptboot=echo Running ${mmcscriptfile} from mmc " \
 		"${mmcnum}:${mmcpart} ...; source ${scriptaddr}\0" \
 	"kernboot=echo Booting ${mmckernfile} from mmc " \
-		"${mmcnum}:${mmcpart} ...; bootm ${kernaddr}\0" \
+		"${mmcnum}:${mmcpart} ...; bootm ${kernaddr} || " \
+			"bootz ${kernaddr}\0" \
 	"kerninitrdboot=echo Booting ${mmckernfile} ${mmcinitrdfile} from mmc "\
-		"${mmcnum}:${mmcpart} ...; bootm ${kernaddr} ${initrdaddr}\0" \
+		"${mmcnum}:${mmcpart} ...; bootm ${kernaddr} ${initrdaddr} || " \
+			"bootz ${kernaddr} ${initrdaddr}\0" \
 	"attachboot=echo Booting attached kernel image ...;" \
 		"setenv setup_omap_atag 1;" \
-		"bootm ${attkernaddr};" \
+		"bootm ${attkernaddr} || bootz ${attkernaddr};" \
 		"setenv setup_omap_atag\0" \
 	"trymmcscriptboot=if run switchmmc; then " \
 			"if run scriptload; then " \
@@ -154,7 +156,8 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 			"fi; " \
 		"fi\0" \
 	"trymmcpartboot=setenv mmcscriptfile boot.scr; run trymmcscriptboot;" \
-		"setenv mmckernfile uImage; run trymmckernboot\0" \
+		"setenv mmckernfile uImage; run trymmckernboot;" \
+		"setenv mmckernfile zImage; run trymmckernboot\0" \
 	"trymmcallpartboot=setenv mmcpart 1; run trymmcpartboot;" \
 		"setenv mmcpart 2; run trymmcpartboot;" \
 		"setenv mmcpart 3; run trymmcpartboot;" \
