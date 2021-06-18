@@ -172,8 +172,6 @@ struct eqos_mtl_regs {
 #define EQOS_MTL_RXQ0_OPERATION_MODE_RFA_MASK		0x3f
 #define EQOS_MTL_RXQ0_OPERATION_MODE_EHFC		BIT(7)
 #define EQOS_MTL_RXQ0_OPERATION_MODE_RSF		BIT(5)
-#define EQOS_MTL_RXQ0_OPERATION_MODE_FEP		BIT(4)
-#define EQOS_MTL_RXQ0_OPERATION_MODE_FUP		BIT(3)
 
 #define EQOS_MTL_RXQ0_DEBUG_PRXQ_SHIFT			16
 #define EQOS_MTL_RXQ0_DEBUG_PRXQ_MASK			0x7fff
@@ -321,6 +319,7 @@ struct eqos_priv {
 	void *rx_pkt;
 	bool started;
 	bool reg_access_ok;
+	bool clk_ck_enabled;
 };
 
 /*
@@ -591,12 +590,13 @@ static int eqos_start_clks_stm32(struct udevice *dev)
 		goto err_disable_clk_rx;
 	}
 
-	if (clk_valid(&eqos->clk_ck)) {
+	if (clk_valid(&eqos->clk_ck) && !eqos->clk_ck_enabled) {
 		ret = clk_enable(&eqos->clk_ck);
 		if (ret < 0) {
 			pr_err("clk_enable(clk_ck) failed: %d", ret);
 			goto err_disable_clk_tx;
 		}
+		eqos->clk_ck_enabled = true;
 	}
 #endif
 
@@ -648,8 +648,6 @@ static void eqos_stop_clks_stm32(struct udevice *dev)
 	clk_disable(&eqos->clk_tx);
 	clk_disable(&eqos->clk_rx);
 	clk_disable(&eqos->clk_master_bus);
-	if (clk_valid(&eqos->clk_ck))
-		clk_disable(&eqos->clk_ck);
 #endif
 
 	debug("%s: OK\n", __func__);
@@ -1222,7 +1220,6 @@ static int eqos_start(struct udevice *dev)
 	}
 
 	/* Configure MTL */
-	writel(0x60, &eqos->mtl_regs->txq0_quantum_weight - 0x100);
 
 	/* Enable Store and Forward mode for TX */
 	/* Program Tx operating mode */
@@ -1236,9 +1233,7 @@ static int eqos_start(struct udevice *dev)
 
 	/* Enable Store and Forward mode for RX, since no jumbo frame */
 	setbits_le32(&eqos->mtl_regs->rxq0_operation_mode,
-		     EQOS_MTL_RXQ0_OPERATION_MODE_RSF |
-		     EQOS_MTL_RXQ0_OPERATION_MODE_FEP |
-		     EQOS_MTL_RXQ0_OPERATION_MODE_FUP);
+		     EQOS_MTL_RXQ0_OPERATION_MODE_RSF);
 
 	/* Transmit/Receive queue fifo size; use all RAM for 1 queue */
 	val = readl(&eqos->mac_regs->hw_feature1);
@@ -1312,12 +1307,6 @@ static int eqos_start(struct udevice *dev)
 			EQOS_MAC_RXQ_CTRL0_RXQ0EN_MASK <<
 			EQOS_MAC_RXQ_CTRL0_RXQ0EN_SHIFT,
 			eqos->config->config_mac <<
-			EQOS_MAC_RXQ_CTRL0_RXQ0EN_SHIFT);
-
-	clrsetbits_le32(&eqos->mac_regs->rxq_ctrl0,
-			EQOS_MAC_RXQ_CTRL0_RXQ0EN_MASK <<
-			EQOS_MAC_RXQ_CTRL0_RXQ0EN_SHIFT,
-			0x2 <<
 			EQOS_MAC_RXQ_CTRL0_RXQ0EN_SHIFT);
 
 	/* Multicast and Broadcast Queue Enable */

@@ -15,12 +15,12 @@
 	compatible = "fsl,ls1028a-rdb", "fsl,ls1028a";
 	aliases {
 		spi0 = &fspi;
-		eth0 = &enetc0;
-		eth1 = &enetc2;
-		eth2 = &mscc_felix_port0;
-		eth3 = &mscc_felix_port1;
-		eth4 = &mscc_felix_port2;
-		eth5 = &mscc_felix_port3;
+		ethernet0 = &enetc0;
+		ethernet1 = &enetc2;
+		ethernet2 = &mscc_felix_port0;
+		ethernet3 = &mscc_felix_port1;
+		ethernet4 = &mscc_felix_port2;
+		ethernet5 = &mscc_felix_port3;
 	};
 };
 

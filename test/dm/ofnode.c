@@ -213,7 +213,7 @@ static int dm_test_ofnode_read_aliases(struct unit_test_state *uts)
 	ofnode node;
 	int size;
 
-	node = ofnode_get_aliases_node("eth3");
+	node = ofnode_get_aliases_node("ethernet3");
 	ut_assert(ofnode_valid(node));
 	ut_asserteq_str("sbe5", ofnode_get_name(node));
 

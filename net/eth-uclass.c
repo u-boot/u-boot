@@ -69,8 +69,11 @@ void eth_set_current_to_next(void)
 /*
  * Typically this will simply return the active device.
  * In the case where the most recent active device was unset, this will attempt
- * to return the first device. If that device doesn't exist or fails to probe,
- * this function will return NULL.
+ * to return the device with sequence id 0 (which can be configured by the
+ * device tree). If this fails, fall back to just getting the first device.
+ * The latter is non-deterministic and depends on the order of the probing.
+ * If that device doesn't exist or fails to probe, this function will return
+ * NULL.
  */
 struct udevice *eth_get_dev(void)
 {
@@ -80,9 +83,13 @@ struct udevice *eth_get_dev(void)
 	if (!uc_priv)
 		return NULL;
 
-	if (!uc_priv->current)
-		eth_errno = uclass_first_device(UCLASS_ETH,
-				    &uc_priv->current);
+	if (!uc_priv->current) {
+		eth_errno = uclass_get_device_by_seq(UCLASS_ETH, 0,
+						     &uc_priv->current);
+		if (eth_errno)
+			eth_errno = uclass_first_device(UCLASS_ETH,
+							&uc_priv->current);
+	}
 	return uc_priv->current;
 }
 
@@ -598,8 +605,8 @@ static int eth_pre_remove(struct udevice *dev)
 	return 0;
 }
 
-UCLASS_DRIVER(eth) = {
-	.name		= "eth",
+UCLASS_DRIVER(ethernet) = {
+	.name		= "ethernet",
 	.id		= UCLASS_ETH,
 	.post_bind	= eth_post_bind,
 	.pre_unbind	= eth_pre_unbind,

@@ -288,8 +288,10 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 
 	/* alloc Rx buffer from main memory */
 	rx_buf_pool = malloc(MAX_RXBUF_LEN * RX_BD_RING_SIZE);
-	if (!rx_buf_pool)
+	if (!rx_buf_pool) {
+		free(rx_bd_ring_base);
 		return -ENOMEM;
+	}
 
 	memset(rx_buf_pool, 0, MAX_RXBUF_LEN * RX_BD_RING_SIZE);
 	debug("%s: rx_buf_pool = %p\n", __func__, rx_buf_pool);
