@@ -33,9 +33,15 @@ menuconfig USB
 
 if USB
 
+config OF_NODE
+	bool
+	default n
+
 config DM_USB
 	bool "Enable driver model for USB"
 	depends on USB && DM
+	select OF_LIBFDT if !OF_CONTROL
+	select OF_NODE if !OF_CONTROL
 	help
 	  Enable driver model for USB. The USB interface is then implemented
 	  by the USB uclass. Multiple USB controllers of different types

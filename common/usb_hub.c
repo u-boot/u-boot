@@ -956,7 +956,9 @@ U_BOOT_DRIVER(usb_generic_hub) = {
 UCLASS_DRIVER(usb_hub) = {
 	.id		= UCLASS_USB_HUB,
 	.name		= "usb_hub",
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.post_bind	= dm_scan_fdt_dev,
+#endif
 	.post_probe	= usb_hub_post_probe,
 	.child_pre_probe	= usb_child_pre_probe,
 	.per_child_auto	= sizeof(struct usb_device),

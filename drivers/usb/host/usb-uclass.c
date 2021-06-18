@@ -770,6 +770,7 @@ int usb_detect_change(void)
 
 static int usb_child_post_bind(struct udevice *dev)
 {
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct usb_dev_plat *plat = dev_get_parent_plat(dev);
 	int val;
 
@@ -787,7 +788,7 @@ static int usb_child_post_bind(struct udevice *dev)
 		plat->id.match_flags |= USB_DEVICE_ID_MATCH_INT_CLASS;
 		plat->id.bInterfaceClass = val;
 	}
-
+#endif
 	return 0;
 }
 
@@ -848,7 +849,9 @@ UCLASS_DRIVER(usb) = {
 	.id		= UCLASS_USB,
 	.name		= "usb",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.post_bind	= dm_scan_fdt_dev,
+#endif
 	.priv_auto	= sizeof(struct usb_uclass_priv),
 	.per_child_auto	= sizeof(struct usb_device),
 	.per_device_auto	= sizeof(struct usb_bus_priv),
