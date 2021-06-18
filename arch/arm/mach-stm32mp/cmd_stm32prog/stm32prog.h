@@ -132,14 +132,9 @@ struct stm32prog_data {
 	u32			*otp_part;
 	u8			pmic_part[PMIC_SIZE];
 
-	/* STM32 header information */
-	struct raw_header_s	*header_data;
-	struct image_header_s	header;
-
 	/* SERIAL information */
 	u32	cursor;
 	u32	packet_number;
-	u32	checksum;
 	u8	*buffer; /* size = USART_RAM_BUFFER_SIZE*/
 	int	dfu_seq;
 	u8	read_phase;
@@ -147,6 +142,8 @@ struct stm32prog_data {
 	/* bootm information */
 	u32	uimage;
 	u32	dtb;
+	u32	initrd;
+	u32	initrd_size;
 };
 
 extern struct stm32prog_data *stm32prog_data;

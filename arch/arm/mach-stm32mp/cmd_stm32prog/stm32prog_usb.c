@@ -207,13 +207,10 @@ bool stm32prog_usb_loop(struct stm32prog_data *data, int dev)
 
 	if (stm32prog_data->phase == PHASE_FLASHLAYOUT) {
 		ret = run_usb_dnl_gadget(dev, "usb_dnl_dfu");
-		if (ret || stm32prog_data->phase == PHASE_DO_RESET)
+		if (ret || stm32prog_data->phase != PHASE_FLASHLAYOUT)
 			return ret;
 		/* prepare the second enumeration with the FlashLayout */
-		if (stm32prog_data->phase == PHASE_FLASHLAYOUT)
-			stm32prog_dfu_init(data);
-		/* found next selected partition */
-		stm32prog_next_phase(data);
+		stm32prog_dfu_init(data);
 	}
 
 	ret = run_usb_dnl_gadget(dev, "usb_dnl_dfu");
