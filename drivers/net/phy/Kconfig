@@ -197,6 +197,12 @@ config PHY_MSCC
 config PHY_NATSEMI
 	bool "National Semiconductor Ethernet PHYs support"
 
+config PHY_NXP_C45_TJA11XX
+	tristate "NXP C45 TJA11XX PHYs"
+	help
+	  Enable support for NXP C45 TJA11XX PHYs.
+	  Currently supports only the TJA1103 PHY.
+
 config PHY_REALTEK
 	bool "Realtek Ethernet PHYs support"
 
