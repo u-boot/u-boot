@@ -151,8 +151,9 @@ static ssize_t spi_nor_write_data(struct spi_nor *nor, loff_t to, size_t len,
 }
 
 /*
- * Read the status register, returning its value in the location
- * Return the status register value.
+ * Return the status register value. If the chip is parallel, then the
+ * read will be striped, so we should read 2 bytes to get the sr
+ * register value from both of the parallel chips.
  * Returns negative if error occurred.
  */
 static int read_sr(struct spi_nor *nor)
@@ -228,7 +229,11 @@ static int read_cr(struct spi_nor *nor)
 #endif
 
 /*
- * Write status register 1 byte
+ * Write status register 1 byte. If the flash is parallel (and
+ * striped) then the write_reg function will notice that this is
+ * a WRSR and MIRROR (instead of STRIPE) the data to the register.
+ * So we don't have to worry about that here.
+ *
  * Returns negative if error occurred.
  */
 static int write_sr(struct spi_nor *nor, u8 val)
@@ -563,6 +568,9 @@ static int read_bar(struct spi_nor *nor, const struct flash_info *info)
 		nor->bank_write_cmd = SPINOR_OP_WREAR;
 	}
 
+	if (nor->isparallel)
+		nor->spi->flags |= SPI_XFER_LOWER;
+
 	ret = nor->read_reg(nor, nor->bank_read_cmd,
 			    &curr_bank, 1);
 	if (ret) {
@@ -570,6 +578,14 @@ static int read_bar(struct spi_nor *nor, const struct flash_info *info)
 		return ret;
 	}
 	nor->bank_curr = curr_bank;
+
+	// Make sure both chips use the same BAR
+	if (nor->isparallel) {
+		write_enable(nor);
+		ret = nor->write_reg(nor, nor->bank_write_cmd, &curr_bank, 1);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -620,9 +636,6 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 	len = instr->len;
 
 	if (nor->flash_is_locked) {
-		if (nor->isparallel)
-			nor->spi->flags |= SPI_XFER_STRIPE;
-
 		write_disable(nor);
 
 		if (nor->flash_is_locked(nor, addr, len) > 0) {
@@ -635,10 +648,8 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 	while (len) {
 		write_enable(nor);
 		offset = addr;
-		if (nor->isparallel) {
+		if (nor->isparallel)
 			offset /= 2;
-			nor->spi->flags |= SPI_XFER_STRIPE;
-		}
 
 		if (nor->isstacked) {
 			if (offset >= (mtd->size / 2)) {
@@ -1074,10 +1085,8 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 			}
 		}
 
-		if (nor->isparallel) {
+		if (nor->isparallel)
 			offset /= 2;
-			nor->spi->flags = SPI_XFER_STRIPE;
-		}
 
 		if (nor->addr_width == 3) {
 #ifdef CONFIG_SPI_FLASH_BAR
@@ -1450,10 +1459,8 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 		}
 
 		offset = (to + i);
-		if (nor->isparallel) {
+		if (nor->isparallel)
 			offset /= 2;
-			nor->spi->flags |= SPI_XFER_STRIPE;
-		}
 
 		if (nor->isstacked) {
 			if (offset >= (mtd->size / 2)) {
@@ -1518,9 +1525,6 @@ write_err:
 static int macronix_quad_enable(struct spi_nor *nor)
 {
 	int ret, val;
-
-	if (nor->isparallel)
-		nor->spi->flags |= SPI_XFER_STRIPE;
 
 	val = read_sr(nor);
 	if (val < 0)
@@ -1593,9 +1597,6 @@ static int spansion_read_cr_quad_enable(struct spi_nor *nor)
 {
 	u8 sr_cr[2];
 	int ret;
-
-	if (nor->isparallel)
-		nor->spi->flags |= SPI_XFER_STRIPE;
 
 	/* Check current Quad Enable bit value. */
 	ret = read_cr(nor);
@@ -2666,6 +2667,9 @@ static int spi_nor_init(struct spi_nor *nor)
 {
 	int err;
 
+	if (nor->isparallel)
+		nor->spi->flags |= SPI_XFER_STRIPE;
+
 	/*
 	 * Atmel, SST, Intel/Numonyx, and others serial NOR tend to power up
 	 * with the software protection bits set
@@ -2674,8 +2678,6 @@ static int spi_nor_init(struct spi_nor *nor)
 	    JEDEC_MFR(nor->info) == SNOR_MFR_INTEL ||
 	    JEDEC_MFR(nor->info) == SNOR_MFR_SST ||
 	    nor->info->flags & SPI_NOR_HAS_LOCK) {
-		if (nor->isparallel)
-			nor->spi->flags |= SPI_XFER_STRIPE;
 		write_enable(nor);
 		write_sr(nor, 0);
 		spi_nor_wait_till_ready(nor);
