@@ -18,6 +18,7 @@ echo '
 	mformat			(from mtools, homepage http://www.gnu.org/software/mtools/)
 	/usr/sbin/mkfs.ubifs	(from mtd-utils, homepage http://www.linux-mtd.infradead.org/)
 	/usr/sbin/ubinize	(from mtd-utils, homepage http://www.linux-mtd.infradead.org/)
+	/lib/ld-linux.so.2	(32-bit x86 version of LD loader, needed for qflasher)
 ' | while read tool info; do
 	if test -z "$tool"; then continue; fi
 	if ! which $tool 1>/dev/null 2>&1; then
