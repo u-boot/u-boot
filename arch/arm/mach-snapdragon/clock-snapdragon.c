@@ -56,15 +56,15 @@ void clk_enable_vote_clk(phys_addr_t base, const struct vote_clk *vclk)
 	} while ((val != BRANCH_ON_VAL) && (val != BRANCH_NOC_FSM_ON_VAL));
 }
 
-#define APPS_CMD_RGCR_UPDATE BIT(0)
+#define APPS_CMD_RCGR_UPDATE BIT(0)
 
-/* Update clock command via CMD_RGCR */
-void clk_bcr_update(phys_addr_t apps_cmd_rgcr)
+/* Update clock command via CMD_RCGR */
+void clk_bcr_update(phys_addr_t apps_cmd_rcgr)
 {
-	setbits_le32(apps_cmd_rgcr, APPS_CMD_RGCR_UPDATE);
+	setbits_le32(apps_cmd_rcgr, APPS_CMD_RCGR_UPDATE);
 
 	/* Wait for frequency to be updated. */
-	while (readl(apps_cmd_rgcr) & APPS_CMD_RGCR_UPDATE)
+	while (readl(apps_cmd_rcgr) & APPS_CMD_RCGR_UPDATE)
 		;
 }
 
