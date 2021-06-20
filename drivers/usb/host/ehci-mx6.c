@@ -583,7 +583,7 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 
 	addr = (void __iomem *)fdtdec_get_addr(blob, phy_off, "reg");
 	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
-		return -EINVAL;
+		addr = NULL;
 
 	priv->phy_addr = addr;
 
