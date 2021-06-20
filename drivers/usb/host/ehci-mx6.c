@@ -569,7 +569,6 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int offset = dev_of_offset(dev);
 	void *__iomem addr;
-	int ret, devnump;
 
 	phy_off = fdtdec_lookup_phandle(blob, offset, "fsl,usbphy");
 	if (phy_off < 0) {
@@ -577,11 +576,6 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 		if (phy_off < 0)
 			return -EINVAL;
 	}
-
-	ret = fdtdec_get_alias_seq(blob, dev->uclass->uc_drv->name,
-				   phy_off, &devnump);
-	if (ret < 0)
-		return ret;
 
 	misc_off = fdtdec_lookup_phandle(blob, offset, "fsl,usbmisc");
 	if (misc_off < 0)
@@ -592,7 +586,6 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 		return -EINVAL;
 
 	priv->phy_addr = addr;
-	priv->portnr = devnump;
 
 	addr = (void __iomem *)fdtdec_get_addr(blob, misc_off, "reg");
 	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
@@ -601,7 +594,13 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 	priv->misc_addr = addr;
 
 #if defined(CONFIG_MX6)
-	int anatop_off;
+	int anatop_off, ret, devnump;
+
+	ret = fdtdec_get_alias_seq(blob, dev->uclass->uc_drv->name,
+				   phy_off, &devnump);
+	if (ret < 0)
+		return ret;
+	priv->portnr = devnump;
 
 	/* Resolve ANATOP offset through USB PHY node */
 	anatop_off = fdtdec_lookup_phandle(blob, phy_off, "fsl,anatop");
