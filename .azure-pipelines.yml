@@ -318,8 +318,22 @@ jobs:
           # as sandbox testing need create files like spi flash images, etc.
           # (TODO: clean up this in the future)
           chmod 777 .
+          # Filesystem tests need extra docker args to run
+          set --
+          if [[ "${TEST_PY_BD}" == "sandbox" ]]; then
+              # mount -o loop needs the loop devices
+              if modprobe loop; then
+                  for d in $(find /dev -maxdepth 1 -name 'loop*'); do
+                      set -- "$@" --device $d:$d
+                  done
+              fi
+              # Needed for mount syscall (for guestmount as well)
+              set -- "$@" --cap-add SYS_ADMIN
+              # Default apparmor profile denies mounts
+              set -- "$@" --security-opt apparmor=unconfined
+          fi
           # Some tests using libguestfs-tools need the fuse device to run
-          docker run --device /dev/fuse:/dev/fuse -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
+          docker run "$@" --device /dev/fuse:/dev/fuse -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
 
   - job: build_the_world
     displayName: 'Build the World'
