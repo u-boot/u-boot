@@ -72,17 +72,19 @@ You will end up with one of these files depending on what you build for:
 Trying it out
 -------------
 QEMU is an emulator and it can emulate an x86 machine. Please make sure your
-QEMU version is 2.3.0 or above to test this. You can run the payload with
+QEMU version is 6.0.0 or above to test this. You can run the payload with
 something like this::
 
    mkdir /tmp/efi
    cp /path/to/u-boot*.efi /tmp/efi
-   qemu-system-x86_64 -bios bios.bin -hda fat:/tmp/efi/
+   qemu-system-x86_64 -pflash edk2-x86_64-code.fd -hda fat:rw:/tmp/efi/
 
 Add -nographic if you want to use the terminal for output. Once it starts
 type 'fs0:u-boot-payload.efi' to run the payload or 'fs0:u-boot-app.efi' to
-run the application. 'bios.bin' is the EFI 'BIOS'. Check [2] to obtain a
-prebuilt EFI BIOS for QEMU or you can build one from source as well.
+run the application. 'edk2-x86_64-code.fd' is the EFI 'BIOS'. QEMU already
+ships both 32-bit and 64-bit EFI BIOS images. For 32-bit EFI 'BIOS' image,
+use 'edk2-i386-code.fd'.
+
 
 To try it on real hardware, put u-boot-app.efi on a suitable boot medium,
 such as a USB stick. Then you can type something like this to start it::
@@ -232,4 +234,4 @@ Google, Inc
 July 2015
 
 * [1] http://www.qemu.org
-* [2] http://www.tianocore.org/ovmf/
+* [2] https://github.com/tianocore/tianocore.github.io/wiki/OVMF
