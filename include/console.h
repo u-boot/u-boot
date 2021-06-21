@@ -83,6 +83,17 @@ int console_record_readline(char *str, int maxlen);
  * @return available bytes (0 if empty)
  */
 int console_record_avail(void);
+
+/**
+ * console_in_puts() - Write a string to the console input buffer
+ *
+ * This writes the given string to the console_in buffer which will then be
+ * returned if a function calls e.g. `getc()`
+ *
+ * @str: the string to write
+ * @return  the number of bytes added
+ */
+int console_in_puts(const char *str);
 #else
 static inline int console_record_init(void)
 {
@@ -111,6 +122,12 @@ static inline int console_record_readline(char *str, int maxlen)
 static inline int console_record_avail(void)
 {
 	/* There is never anything available */
+	return 0;
+}
+
+static inline int console_in_puts(const char *str)
+{
+	/* There is never anything written */
 	return 0;
 }
 

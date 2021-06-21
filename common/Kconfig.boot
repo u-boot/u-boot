@@ -906,7 +906,7 @@ config AUTOBOOT_STOP_STR_CRYPT
 	  and saved in the environment variable "bootstopkeycrypt".
 
 config AUTOBOOT_STOP_STR_SHA256
-	string "Stop autobooting via SHA256 encrypted password"
+	string "Stop autobooting via SHA256 hashed password"
 	depends on AUTOBOOT_STOP_STR_ENABLE
 	help
 	  This option adds the feature to only stop the autobooting,
