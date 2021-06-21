@@ -318,7 +318,8 @@ jobs:
           # as sandbox testing need create files like spi flash images, etc.
           # (TODO: clean up this in the future)
           chmod 777 .
-          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
+          # Some tests using libguestfs-tools need the fuse device to run
+          docker run --device /dev/fuse:/dev/fuse -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
 
   - job: build_the_world
     displayName: 'Build the World'
