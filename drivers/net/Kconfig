@@ -559,6 +559,15 @@ config XILINX_AXIEMAC
 	help
 	  This MAC is present in Xilinx Microblaze, Zynq and ZynqMP SoCs.
 
+config XILINX_AXIMRMAC
+	depends on DM_ETH && ARCH_VERSAL
+	bool "Xilinx AXI MRMAC"
+	help
+	  MRMAC is a high performance, low latency, adaptable Ethernet
+	  integrated hard IP. This can be configured up to four ports with MAC
+	  rates from 10GE to 100GE. This could be present in some of the Xilinx
+	  Versal designs.
+
 config XILINX_EMACLITE
 	depends on DM_ETH
 	select PHYLIB
