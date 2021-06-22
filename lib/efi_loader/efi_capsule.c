@@ -940,7 +940,7 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
 	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_RAW)) {
 		handle = NULL;
 		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
-				&efi_root,
+				&handle,
 				&efi_guid_firmware_management_protocol,
 				&efi_fmp_raw, NULL));
 	}
