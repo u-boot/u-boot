@@ -20,7 +20,12 @@
 #include <asm/immap_85xx.h>
 #endif
 #include <linux/delay.h>
+#include "i2c_common.h"
 #include "vid.h"
+
+#ifndef I2C_VOL_MONITOR_BUS
+#define I2C_VOL_MONITOR_BUS                    0
+#endif
 
 /* Voltages are generally handled in mV to keep them as integers */
 #define MV_PER_V 1000
@@ -95,44 +100,6 @@ u16 __weak soc_get_fuse_vid(int vid_index)
 #define I2C_VOL_MONITOR_ADDR                    0
 #endif
 
-#if CONFIG_IS_ENABLED(DM_I2C)
-#define DEVICE_HANDLE_T struct udevice *
-
-#ifndef I2C_VOL_MONITOR_BUS
-#define I2C_VOL_MONITOR_BUS			0
-#endif
-
-/* If DM is in use, retrieve the udevice chip for the specified bus number */
-static int vid_get_device(int address, DEVICE_HANDLE_T *dev)
-{
-	int ret = i2c_get_chip_for_busnum(I2C_VOL_MONITOR_BUS, address, 1, dev);
-
-	if (ret)
-		printf("VID: Bus %d has no device with address 0x%02X\n",
-		       I2C_VOL_MONITOR_BUS, address);
-	return ret;
-}
-
-#define I2C_READ(dev, register, data, length) \
-	dm_i2c_read(dev, register, data, length)
-#define I2C_WRITE(dev, register, data, length) \
-	dm_i2c_write(dev, register, data, length)
-#else
-#define DEVICE_HANDLE_T int
-
-/* If DM is not in use, I2C addresses are passed directly */
-static int vid_get_device(int address, DEVICE_HANDLE_T *dev)
-{
-	*dev = address;
-	return 0;
-}
-
-#define I2C_READ(dev, register, data, length) \
-	i2c_read(dev, register, 1, data, length)
-#define I2C_WRITE(dev, register, data, length) \
-	i2c_write(dev, register, 1, data, length)
-#endif
-
 #if defined(CONFIG_VOL_MONITOR_IR36021_SET) || \
 	defined(CONFIG_VOL_MONITOR_IR36021_READ)
 /*
@@ -158,7 +125,7 @@ static int find_ir_chip_on_i2c(void)
 	/* Check all the address */
 	for (i = 0; i < (sizeof(ir_i2c_addr)/sizeof(ir_i2c_addr[0])); i++) {
 		i2caddress = ir_i2c_addr[i];
-		ret = vid_get_device(i2caddress, &dev);
+		ret = fsl_i2c_get_device(i2caddress, I2C_VOL_MONITOR_BUS, &dev);
 		if (!ret) {
 			ret = I2C_READ(dev, IR36021_MFR_ID_OFFSET,
 				       (void *)&mfrID, sizeof(mfrID));
@@ -202,7 +169,7 @@ static int read_voltage_from_INA220(int i2caddress)
 	DEVICE_HANDLE_T dev;
 
 	/* Open device handle */
-	ret = vid_get_device(i2caddress, &dev);
+	ret = fsl_i2c_get_device(i2caddress, I2C_VOL_MONITOR_BUS, &dev);
 	if (ret)
 		return ret;
 
@@ -243,7 +210,7 @@ static int read_voltage_from_IR(int i2caddress)
 	DEVICE_HANDLE_T dev;
 
 	/* Open device handle */
-	ret = vid_get_device(i2caddress, &dev);
+	ret = fsl_i2c_get_device(i2caddress, I2C_VOL_MONITOR_BUS, &dev);
 	if (ret)
 		return ret;
 
@@ -344,7 +311,7 @@ static int read_voltage_from_pmbus(int i2caddress)
 	DEVICE_HANDLE_T dev;
 
 	/* Open device handle */
-	ret = vid_get_device(i2caddress, &dev);
+	ret = fsl_i2c_get_device(i2caddress, I2C_VOL_MONITOR_BUS, &dev);
 	if (ret)
 		return ret;
 
@@ -457,7 +424,7 @@ static int set_voltage_to_IR(int i2caddress, int vdd)
 	DEVICE_HANDLE_T dev;
 
 	/* Open device handle */
-	ret = vid_get_device(i2caddress, &dev);
+	ret = fsl_i2c_get_device(i2caddress, I2C_VOL_MONITOR_BUS, &dev);
 	if (ret)
 		return ret;
 
@@ -503,7 +470,7 @@ static int set_voltage_to_pmbus(int i2caddress, int vdd)
 	DEVICE_HANDLE_T dev;
 
 	/* Open device handle */
-	ret = vid_get_device(i2caddress, &dev);
+	ret = fsl_i2c_get_device(i2caddress, I2C_VOL_MONITOR_BUS, &dev);
 	if (ret)
 		return ret;
 
@@ -653,7 +620,7 @@ int adjust_vdd(ulong vdd_override)
 		debug("VID: IR Chip found on I2C address 0x%02x\n", i2caddress);
 	}
 
-	ret = vid_get_device(i2caddress, &dev);
+	ret = fsl_i2c_get_device(i2caddress, I2C_VOL_MONITOR_BUS, &dev);
 	if (ret)
 		return ret;
 
@@ -785,7 +752,6 @@ exit:
 	i2c_multiplexer_select_vid_channel(I2C_MUX_CH_DEFAULT);
 
 	return ret < 0 ? -1 : 0;
-
 }
 
 static int do_vdd_override(struct cmd_tbl *cmdtp,

@@ -21,6 +21,12 @@ config CMD_ESBC_VALIDATE
 	    esbc_validate - validate signature using RSA verification
 	    esbc_halt - put the core in spin loop (Secure Boot Only)
 
+config FSL_USE_PCA9547_MUX
+	bool "Enable PCA9547 I2C Mux on Freescale boards"
+	default n
+	help
+	 This option enables the PCA9547 I2C mux on Freescale boards.
+
 config VID
 	depends on DM_I2C
 	bool "Enable Freescale VID"
