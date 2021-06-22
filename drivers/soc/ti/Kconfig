@@ -23,4 +23,15 @@ config TI_KEYSTONE_SERDES
 	 SerDes driver for Keystone SoC used for ethernet support on TI
 	 K2 platforms.
 
+config TI_PRUSS
+	bool "Support for TI's K3 based Pruss driver"
+	depends on DM
+	depends on ARCH_K3
+	depends on OF_CONTROL
+	depends on SYSCON
+	help
+	  Support for TI PRU-ICSSG subsystem.
+	  Currently supported on AM65xx SoCs Say Y here to support the
+	  Programmable Realtime Unit (PRU).
+
 endif # SOC_TI
