@@ -4,3 +4,75 @@
  */
 
 #include "k3-am654-r5-base-board-u-boot.dtsi"
+
+&pru0_0 {
+	remoteproc-name = "pru0_0";
+};
+
+&rtu0_0 {
+	remoteproc-name = "rtu0_0";
+};
+
+&tx_pru0_0 {
+	remoteproc-name = "tx_pru0_0";
+};
+
+&pru0_1 {
+	remoteproc-name = "pru0_1";
+};
+
+&rtu0_1 {
+	remoteproc-name = "rtu0_1";
+};
+
+&tx_pru0_1 {
+	remoteproc-name = "tx_pru0_1";
+};
+
+&pru1_0 {
+	remoteproc-name = "pru1_0";
+};
+
+&rtu1_0 {
+	remoteproc-name = "rtu1_0";
+};
+
+&tx_pru1_0 {
+	remoteproc-name = "tx_pru1_0";
+};
+
+&pru1_1 {
+	remoteproc-name = "pru1_1";
+};
+
+&rtu1_1 {
+	remoteproc-name = "rtu1_1";
+};
+
+&tx_pru1_1 {
+	remoteproc-name = "tx_pru1_1";
+};
+
+&pru2_0 {
+	remoteproc-name = "pru2_0";
+};
+
+&rtu2_0 {
+	remoteproc-name = "rtu2_0";
+};
+
+&tx_pru2_0 {
+	remoteproc-name = "tx_pru2_0";
+};
+
+&pru2_1 {
+	remoteproc-name = "pru2_1";
+};
+
+&rtu2_1 {
+	remoteproc-name = "rtu2_1";
+};
+
+&tx_pru2_1 {
+	remoteproc-name = "tx_pru2_1";
+};
