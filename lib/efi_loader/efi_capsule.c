@@ -919,13 +919,13 @@ static void efi_capsule_scan_done(void)
 }
 
 /**
- * arch_efi_load_capsule_drivers - initialize capsule drivers
+ * efi_load_capsule_drivers - initialize capsule drivers
  *
- * Architecture or board specific initialization routine
+ * Generic FMP drivers backed by DFU
  *
  * Return:	status code
  */
-efi_status_t __weak arch_efi_load_capsule_drivers(void)
+efi_status_t __weak efi_load_capsule_drivers(void)
 {
 	__maybe_unused efi_handle_t handle;
 	efi_status_t ret = EFI_SUCCESS;
@@ -975,11 +975,6 @@ efi_status_t efi_launch_capsules(void)
 		return EFI_SUCCESS;
 
 	index = get_last_capsule();
-
-	/* Load capsule drivers */
-	ret = arch_efi_load_capsule_drivers();
-	if (ret != EFI_SUCCESS)
-		return ret;
 
 	/*
 	 * Find capsules on disk.

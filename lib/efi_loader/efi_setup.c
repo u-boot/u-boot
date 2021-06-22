@@ -254,6 +254,12 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)) {
+		ret = efi_load_capsule_drivers();
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
+
 #if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
 	ret = efi_gop_register();
 	if (ret != EFI_SUCCESS)

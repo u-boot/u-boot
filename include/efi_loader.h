@@ -972,4 +972,5 @@ efi_status_t efi_esrt_register(void);
  * - error code otherwise.
  */
 efi_status_t efi_esrt_populate(void);
+efi_status_t efi_load_capsule_drivers(void);
 #endif /* _EFI_LOADER_H */
