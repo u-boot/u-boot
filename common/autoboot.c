@@ -44,8 +44,8 @@ static int menukey;
 #define AUTOBOOT_STOP_STR_SHA256 ""
 #endif
 
-#ifdef CONFIG_USE_AUTOBOOT_MENUKEY
-#define AUTOBOOT_MENUKEY CONFIG_USE_AUTOBOOT_MENUKEY
+#ifdef CONFIG_AUTOBOOT_USE_MENUKEY
+#define AUTOBOOT_MENUKEY CONFIG_AUTOBOOT_USE_MENUKEY
 #else
 #define AUTOBOOT_MENUKEY 0
 #endif
@@ -282,7 +282,7 @@ static int abortboot_single_key(int bootdelay)
 				abort  = 1;	/* don't auto boot	*/
 				bootdelay = 0;	/* no more delay	*/
 				key = getchar();/* consume input	*/
-				if (IS_ENABLED(CONFIG_USE_AUTOBOOT_MENUKEY))
+				if (IS_ENABLED(CONFIG_AUTOBOOT_USE_MENUKEY))
 					menukey = key;
 				break;
 			}
@@ -388,7 +388,7 @@ void autoboot_command(const char *s)
 			disable_ctrlc(prev);	/* restore Ctrl-C checking */
 	}
 
-	if (IS_ENABLED(CONFIG_USE_AUTOBOOT_MENUKEY) &&
+	if (IS_ENABLED(CONFIG_AUTOBOOT_USE_MENUKEY) &&
 	    menukey == AUTOBOOT_MENUKEY) {
 		s = env_get("menucmd");
 		if (s)
