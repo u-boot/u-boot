@@ -29,6 +29,8 @@
 #include <asm/arch/config.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
+#include "../common/i2c_mux.h"
+
 #include "../common/qixis.h"
 #include "../common/vid.h"
 #include <fsl_immap.h>
@@ -79,27 +81,6 @@ U_BOOT_DRVINFO(nxp_serial1) = {
 	.plat = &serial1,
 };
 
-int select_i2c_ch_pca9547(u8 ch)
-{
-	int ret;
-
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
-#else
-	struct udevice *dev;
-
-	ret = i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev);
-	if (!ret)
-		ret = dm_i2c_write(dev, 0, &ch, 1);
-#endif
-	if (ret) {
-		puts("PCA: failed to select proper channel\n");
-		return ret;
-	}
-
-	return 0;
-}
-
 static void uart_get_clock(void)
 {
 	serial0.clock = get_serial_clock();
@@ -115,10 +96,10 @@ int board_early_init_f(void)
 	uart_get_clock();
 
 #ifdef CONFIG_EMC2305
-	select_i2c_ch_pca9547(I2C_MUX_CH_EMC2305);
+	select_i2c_ch_pca9547(I2C_MUX_CH_EMC2305, 0);
 	emc2305_init(I2C_EMC2305_ADDR);
 	set_fan_speed(I2C_EMC2305_PWM, I2C_EMC2305_ADDR);
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 #endif
 
 	fsl_lsch3_early_init_f();
@@ -275,7 +256,7 @@ int esdhc_status_fixup(void *blob, const char *compat)
 #if defined(CONFIG_VID)
 int i2c_multiplexer_select_vid_channel(u8 channel)
 {
-	return select_i2c_ch_pca9547(channel);
+	return select_i2c_ch_pca9547(channel, 0);
 }
 
 int init_func_vid(void)
@@ -611,7 +592,7 @@ int board_init(void)
 	gd->env_addr = (ulong)&default_environment[0];
 #endif
 
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 
 #if defined(CONFIG_FSL_MC_ENET) && defined(CONFIG_TARGET_LX2160ARDB)
 	/* invert AQR107 IRQ pins polarity */
