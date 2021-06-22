@@ -705,7 +705,6 @@ static int nvme_blk_probe(struct udevice *udev)
 	if (!id)
 		return -ENOMEM;
 
-	memset(ns, 0, sizeof(*ns));
 	ns->dev = ndev;
 	/* extract the namespace id from the block device name */
 	ns->ns_id = trailing_strtol(udev->name);
