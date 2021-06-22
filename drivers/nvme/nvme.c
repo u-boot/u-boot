@@ -878,6 +878,24 @@ static int nvme_probe(struct udevice *udev)
 
 	nvme_get_info_from_identify(ndev);
 
+	/* Create a blk device for each namespace */
+	for (int i = 0; i < ndev->nn; i++) {
+		struct udevice *ns_udev;
+		char name[20];
+
+		/*
+		 * Encode the namespace id to the device name so that
+		 * we can extract it when doing the probe.
+		 */
+		sprintf(name, "blk#%d", i);
+
+		/* The real blksz and size will be set by nvme_blk_probe() */
+		ret = blk_create_devicef(udev, "nvme-blk", name, IF_TYPE_NVME,
+					 -1, 512, 0, &ns_udev);
+		if (ret)
+			goto free_queue;
+	}
+
 	return 0;
 
 free_queue:
