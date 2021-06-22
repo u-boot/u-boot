@@ -2445,6 +2445,9 @@ static int set_cal_res_to_umctl2(struct ddr_handoff *handoff,
 
 		upd_val = GET_LOWB_DATA(readw((uintptr_t)(handoff->phy_base +
 					DMEM_MB_CDD_CHB_WW_0_1_OFFSET)));
+	} else {
+		debug("%s: Invalid DDR controller type\n", __func__);
+		return -ENXIO;
 	}
 
 	upd_val = max(val, upd_val);
