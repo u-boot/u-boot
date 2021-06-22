@@ -81,7 +81,7 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 	u64 *prp_pool;
 	int length = total_len;
 	int i, nprps;
-	u32 prps_per_page = (page_size >> 3) - 1;
+	u32 prps_per_page = page_size >> 3;
 	u32 num_pages;
 
 	length -= (page_size - offset);
