@@ -834,6 +834,7 @@ static int nvme_probe(struct udevice *udev)
 {
 	int ret;
 	struct nvme_dev *ndev = dev_get_priv(udev);
+	struct nvme_id_ns *id;
 
 	ndev->instance = trailing_strtol(udev->name);
 
@@ -879,9 +880,26 @@ static int nvme_probe(struct udevice *udev)
 	nvme_get_info_from_identify(ndev);
 
 	/* Create a blk device for each namespace */
+
+	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));
+	if (!id) {
+		ret = -ENOMEM;
+		goto free_queue;
+	}
+
 	for (int i = 0; i < ndev->nn; i++) {
 		struct udevice *ns_udev;
 		char name[20];
+
+		memset(id, 0, sizeof(*id));
+		if (nvme_identify(ndev, i + 1, 0, (dma_addr_t)(long)id)) {
+			ret = -EIO;
+			goto free_id;
+		}
+
+		/* skip inactive namespace */
+		if (!id->nsze)
+			continue;
 
 		/*
 		 * Encode the namespace id to the device name so that
@@ -893,11 +911,14 @@ static int nvme_probe(struct udevice *udev)
 		ret = blk_create_devicef(udev, "nvme-blk", name, IF_TYPE_NVME,
 					 -1, 512, 0, &ns_udev);
 		if (ret)
-			goto free_queue;
+			goto free_id;
 	}
 
+	free(id);
 	return 0;
 
+free_id:
+	free(id);
 free_queue:
 	free((void *)ndev->queues);
 free_nvme:
