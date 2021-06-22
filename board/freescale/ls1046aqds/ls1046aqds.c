@@ -29,6 +29,7 @@
 #include <fsl_ifc.h>
 #include <fsl_sec.h>
 #include <spl.h>
+#include "../common/i2c_mux.h"
 
 #include "../common/vid.h"
 #include "../common/qixis.h"
@@ -275,31 +276,6 @@ u32 get_lpuart_clk(void)
 	return gd->bus_clk;
 }
 #endif
-
-int select_i2c_ch_pca9547(u8 ch, int bus_num)
-{
-	int ret;
-#if CONFIG_IS_ENABLED(DM_I2C)
-	struct udevice *dev;
-
-	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_PCA_ADDR_PRI,
-				      1, &dev);
-	if (ret) {
-		printf("%s: Cannot find udev for a bus %d\n", __func__,
-		       bus_num);
-		return ret;
-	}
-	ret = dm_i2c_write(dev, 0, &ch, 1);
-#else
-	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
-#endif
-	if (ret) {
-		puts("PCA: failed to select proper channel\n");
-		return ret;
-	}
-
-	return 0;
-}
 
 int dram_init(void)
 {
