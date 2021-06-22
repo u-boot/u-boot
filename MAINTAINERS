@@ -913,6 +913,14 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-nios.git
 F:	arch/nios2/
 
+NVMe
+M:	Bin Meng <bmeng.cn@gmail.com>
+S:	Maintained
+F:	drivers/nvme/
+F:	cmd/nvme.c
+F:	include/nvme.h
+F:	doc/develop/driver-model/nvme.rst
+
 ONENAND
 #M:	Lukasz Majewski <l.majewski@majess.pl>
 S:	Orphaned (Since 2017-01)
