@@ -513,6 +513,7 @@ F:	drivers/phy/phy-ti-am654.c
 F:	drivers/phy/ti-pipe3-phy.c
 F:	drivers/ram/k3*
 F:	drivers/remoteproc/k3_system_controller.c
+F:	drivers/remoteproc/pruc_rpoc.c
 F:	drivers/remoteproc/ti*
 F:	drivers/reset/reset-ti-sci.c
 F:	drivers/rtc/davinci.c
