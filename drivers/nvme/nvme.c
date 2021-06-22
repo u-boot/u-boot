@@ -708,7 +708,7 @@ static int nvme_blk_probe(struct udevice *udev)
 	memset(ns, 0, sizeof(*ns));
 	ns->dev = ndev;
 	/* extract the namespace id from the block device name */
-	ns->ns_id = trailing_strtol(udev->name) + 1;
+	ns->ns_id = trailing_strtol(udev->name);
 	if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)(long)id)) {
 		free(id);
 		return -EIO;
@@ -887,12 +887,12 @@ static int nvme_probe(struct udevice *udev)
 		goto free_queue;
 	}
 
-	for (int i = 0; i < ndev->nn; i++) {
+	for (int i = 1; i <= ndev->nn; i++) {
 		struct udevice *ns_udev;
 		char name[20];
 
 		memset(id, 0, sizeof(*id));
-		if (nvme_identify(ndev, i + 1, 0, (dma_addr_t)(long)id)) {
+		if (nvme_identify(ndev, i, 0, (dma_addr_t)(long)id)) {
 			ret = -EIO;
 			goto free_id;
 		}
