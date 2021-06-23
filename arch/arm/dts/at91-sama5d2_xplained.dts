@@ -1,4 +1,5 @@
 /dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
 #include "sama5d2.dtsi"
 #include "sama5d2-pinfunc.h"
 
@@ -12,7 +13,7 @@
 	};
 
 	onewire_tm: onewire {
-		gpios = <&pioA PIN_PB0 0>;
+		gpios = <&pioA PIN_PB0 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_onewire_tm_default>;
 		status = "okay";
