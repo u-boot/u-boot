@@ -81,7 +81,7 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 	u64 *prp_pool;
 	int length = total_len;
 	int i, nprps;
-	u32 prps_per_page = (page_size >> 3) - 1;
+	u32 prps_per_page = page_size >> 3;
 	u32 num_pages;
 
 	length -= (page_size - offset);
@@ -157,7 +157,7 @@ static u16 nvme_read_completion_status(struct nvme_queue *nvmeq, u16 index)
 
 	invalidate_dcache_range(start, stop);
 
-	return le16_to_cpu(readw(&(nvmeq->cqes[index].status)));
+	return readw(&(nvmeq->cqes[index].status));
 }
 
 /**
@@ -221,7 +221,7 @@ static int nvme_submit_sync_cmd(struct nvme_queue *nvmeq,
 	}
 
 	if (result)
-		*result = le32_to_cpu(readl(&(nvmeq->cqes[head].result)));
+		*result = readl(&(nvmeq->cqes[head].result));
 
 	if (++head == nvmeq->q_depth) {
 		head = 0;
@@ -304,7 +304,7 @@ static int nvme_enable_ctrl(struct nvme_dev *dev)
 {
 	dev->ctrl_config &= ~NVME_CC_SHN_MASK;
 	dev->ctrl_config |= NVME_CC_ENABLE;
-	writel(cpu_to_le32(dev->ctrl_config), &dev->bar->cc);
+	writel(dev->ctrl_config, &dev->bar->cc);
 
 	return nvme_wait_ready(dev, true);
 }
@@ -313,7 +313,7 @@ static int nvme_disable_ctrl(struct nvme_dev *dev)
 {
 	dev->ctrl_config &= ~NVME_CC_SHN_MASK;
 	dev->ctrl_config &= ~NVME_CC_ENABLE;
-	writel(cpu_to_le32(dev->ctrl_config), &dev->bar->cc);
+	writel(dev->ctrl_config, &dev->bar->cc);
 
 	return nvme_wait_ready(dev, false);
 }
@@ -386,7 +386,6 @@ static int nvme_configure_admin_queue(struct nvme_dev *dev)
 	}
 
 	aqa = nvmeq->q_depth - 1;
-	aqa |= aqa << 16;
 	aqa |= aqa << 16;
 
 	dev->page_size = 1 << page_shift;
@@ -706,10 +705,9 @@ static int nvme_blk_probe(struct udevice *udev)
 	if (!id)
 		return -ENOMEM;
 
-	memset(ns, 0, sizeof(*ns));
 	ns->dev = ndev;
 	/* extract the namespace id from the block device name */
-	ns->ns_id = trailing_strtol(udev->name) + 1;
+	ns->ns_id = trailing_strtol(udev->name);
 	if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)(long)id)) {
 		free(id);
 		return -EIO;
@@ -719,11 +717,9 @@ static int nvme_blk_probe(struct udevice *udev)
 	flbas = id->flbas & NVME_NS_FLBAS_LBA_MASK;
 	ns->flbas = flbas;
 	ns->lba_shift = id->lbaf[flbas].ds;
-	ns->mode_select_num_blocks = le64_to_cpu(id->nsze);
-	ns->mode_select_block_len = 1 << ns->lba_shift;
 	list_add(&ns->list, &ndev->namespaces);
 
-	desc->lba = ns->mode_select_num_blocks;
+	desc->lba = le64_to_cpu(id->nsze);
 	desc->log2blksz = ns->lba_shift;
 	desc->blksz = 1 << ns->lba_shift;
 	desc->bdev = udev;
@@ -835,6 +831,7 @@ static int nvme_probe(struct udevice *udev)
 {
 	int ret;
 	struct nvme_dev *ndev = dev_get_priv(udev);
+	struct nvme_id_ns *id;
 
 	ndev->instance = trailing_strtol(udev->name);
 
@@ -879,8 +876,46 @@ static int nvme_probe(struct udevice *udev)
 
 	nvme_get_info_from_identify(ndev);
 
+	/* Create a blk device for each namespace */
+
+	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));
+	if (!id) {
+		ret = -ENOMEM;
+		goto free_queue;
+	}
+
+	for (int i = 1; i <= ndev->nn; i++) {
+		struct udevice *ns_udev;
+		char name[20];
+
+		memset(id, 0, sizeof(*id));
+		if (nvme_identify(ndev, i, 0, (dma_addr_t)(long)id)) {
+			ret = -EIO;
+			goto free_id;
+		}
+
+		/* skip inactive namespace */
+		if (!id->nsze)
+			continue;
+
+		/*
+		 * Encode the namespace id to the device name so that
+		 * we can extract it when doing the probe.
+		 */
+		sprintf(name, "blk#%d", i);
+
+		/* The real blksz and size will be set by nvme_blk_probe() */
+		ret = blk_create_devicef(udev, "nvme-blk", name, IF_TYPE_NVME,
+					 -1, 512, 0, &ns_udev);
+		if (ret)
+			goto free_id;
+	}
+
+	free(id);
 	return 0;
 
+free_id:
+	free(id);
 free_queue:
 	free((void *)ndev->queues);
 free_nvme:

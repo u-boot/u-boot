@@ -1,10 +1,12 @@
-# SPDX-License-Identifier: GPL-2.0+
-#
-# Copyright (C) 2017 NXP Semiconductors
-# Copyright (C) 2017 Bin Meng <bmeng.cn@gmail.com>
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (C) 2017 NXP Semiconductors
+.. Copyright (C) 2017 Bin Meng <bmeng.cn@gmail.com>
+
+NVMe Support
+============
 
 What is NVMe
-============
+------------
 
 NVM Express (NVMe) is a register level interface that allows host software to
 communicate with a non-volatile memory subsystem. This interface is optimized
@@ -48,6 +50,8 @@ identified.
 
 To list all of the NVMe hard disks, try:
 
+.. code-block:: none
+
   => nvme info
   Device 0: Vendor: 0x8086 Rev: 8DV10131 Prod: CVFT535600LS400BGN
 	    Type: Hard Disk
@@ -55,9 +59,13 @@ To list all of the NVMe hard disks, try:
 
 and print out detailed information for controller and namespaces via:
 
+.. code-block:: none
+
   => nvme detail
 
 Raw block read/write to can be done via the 'nvme read/write' commands:
+
+.. code-block:: none
 
   => nvme read a0000000 0 11000
 
@@ -65,6 +73,8 @@ Raw block read/write to can be done via the 'nvme read/write' commands:
   => nvme write 80000000 0 11000
 
 Of course, file system command can be used on the NVMe hard disk as well:
+
+.. code-block:: none
 
   => fatls nvme 0:1
 	32376967   kernel.itb
@@ -81,4 +91,7 @@ QEMU supports NVMe emulation and we can test NVMe driver with QEMU x86 running
 U-Boot. Please see README.x86 for how to build u-boot.rom image for QEMU x86.
 
 Example command line to call QEMU x86 below with emulated NVMe device:
-$ ./qemu-system-i386 -drive file=nvme.img,if=none,id=drv0 -device nvme,drive=drv0,serial=QEMUNVME0001 -bios u-boot.rom
+
+.. code-block:: bash
+
+  $ ./qemu-system-i386 -drive file=nvme.img,if=none,id=drv0 -device nvme,drive=drv0,serial=QEMUNVME0001 -bios u-boot.rom
