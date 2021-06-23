@@ -144,6 +144,8 @@ static int socfpga_dwmmc_of_to_plat(struct udevice *dev)
 					"smplsel", 0);
 	host->priv = priv;
 
+	host->fifo_mode = dev_read_bool(dev, "fifo-mode");
+
 	return 0;
 }
 
