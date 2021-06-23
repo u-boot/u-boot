@@ -9,6 +9,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <config.h>
+
 #include <asm/types.h>
 #include <linux/types.h>
 

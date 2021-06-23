@@ -159,6 +159,10 @@ def mk_fs(config, fs_type, size, id):
 
     count = (size + 1048576 - 1) / 1048576
 
+    # Some distributions do not add /sbin to the default PATH, where mkfs lives
+    if '/sbin' not in os.environ["PATH"].split(os.pathsep):
+        os.environ["PATH"] += os.pathsep + '/sbin'
+
     try:
         check_call('rm -f %s' % fs_img, shell=True)
         check_call('dd if=/dev/zero of=%s bs=1M count=%d'

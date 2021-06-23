@@ -1,3 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * This code is based on a version (aka dlmalloc) of malloc/free/realloc written
+ * by Doug Lea and released to the public domain, as explained at
+ * http://creativecommons.org/publicdomain/zero/1.0/-
+ *
+ * The original code is available at http://gee.cs.oswego.edu/pub/misc/
+ * as file malloc-2.6.6.c.
+ */
+
 #include <common.h>
 #include <log.h>
 #include <asm/global_data.h>
