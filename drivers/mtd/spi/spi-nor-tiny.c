@@ -751,6 +751,7 @@ int spi_nor_scan(struct spi_nor *nor)
 		return ret;
 
 	mtd->name = "spi-flash";
+	mtd->dev = nor->dev;
 	mtd->priv = nor;
 	mtd->type = MTD_NORFLASH;
 	mtd->writesize = 1;

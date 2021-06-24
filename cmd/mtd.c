@@ -126,6 +126,13 @@ static void mtd_show_device(struct mtd_info *mtd)
 		printf("  - driver: %s\n", mtd->dev->driver->name);
 	}
 #endif
+	if (IS_ENABLED(CONFIG_OF_CONTROL) && mtd->dev) {
+		char buf[256];
+		int res;
+
+		res = ofnode_get_path(mtd_get_ofnode(mtd), buf, 256);
+		printf("  - path: %s\n", res == 0 ? buf : "unavailable");
+	}
 
 	/* MTD device information */
 	printf("  - type: ");
@@ -535,7 +542,7 @@ static char mtd_help_text[] =
 	"mtd bad                               <name>\n"
 	"\n"
 	"With:\n"
-	"\t<name>: NAND partition/chip name\n"
+	"\t<name>: NAND partition/chip name (or corresponding DM device name or OF path)\n"
 	"\t<addr>: user address from/to which data will be retrieved/stored\n"
 	"\t<off>: offset in <name> in bytes (default: start of the part)\n"
 	"\t\t* must be block-aligned for erase\n"

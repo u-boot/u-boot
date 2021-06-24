@@ -768,6 +768,32 @@ int __get_mtd_device(struct mtd_info *mtd)
 }
 EXPORT_SYMBOL_GPL(__get_mtd_device);
 
+#if CONFIG_IS_ENABLED(DM) && CONFIG_IS_ENABLED(OF_CONTROL)
+static bool mtd_device_matches_name(struct mtd_info *mtd, const char *name)
+{
+	struct udevice *dev = NULL;
+	bool is_part;
+
+	/*
+	 * If the first character of mtd name is '/', try interpreting as OF
+	 * path. Otherwise try comparing by mtd->name and mtd->dev->name.
+	 */
+	if (*name == '/')
+		device_get_global_by_ofnode(ofnode_path(name), &dev);
+
+	is_part = mtd_is_partition(mtd);
+
+	return (!is_part && dev && mtd->dev == dev) ||
+	       !strcmp(name, mtd->name) ||
+	       (is_part && mtd->dev && !strcmp(name, mtd->dev->name));
+}
+#else
+static bool mtd_device_matches_name(struct mtd_info *mtd, const char *name)
+{
+	return !strcmp(name, mtd->name);
+}
+#endif
+
 /**
  *	get_mtd_device_nm - obtain a validated handle for an MTD device by
  *	device name
@@ -784,10 +810,19 @@ struct mtd_info *get_mtd_device_nm(const char *name)
 	mutex_lock(&mtd_table_mutex);
 
 	mtd_for_each_device(other) {
+#ifdef __UBOOT__
+		if (mtd_device_matches_name(other, name)) {
+			if (mtd)
+				printf("\nWarning: MTD name \"%s\" is not unique!\n\n",
+				       name);
+			mtd = other;
+		}
+#else /* !__UBOOT__ */
 		if (!strcmp(name, other->name)) {
 			mtd = other;
 			break;
 		}
+#endif /* !__UBOOT__ */
 	}
 
 	if (!mtd)
