@@ -141,7 +141,7 @@ int fdtdec_board_setup(const void *fdt_blob)
 
 void board_init_f(ulong dummy)
 {
-#if defined(CONFIG_K3_LOAD_SYSFW)
+#if defined(CONFIG_K3_LOAD_SYSFW) || defined(CONFIG_K3_AM64_DDRSS)
 	struct udevice *dev;
 	int ret;
 #endif
