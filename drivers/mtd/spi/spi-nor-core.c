@@ -153,6 +153,8 @@ struct sfdp_header {
 #define BFPT_DWORD15_QER_SR2_BIT1_NO_RD		(0x4UL << 20)
 #define BFPT_DWORD15_QER_SR2_BIT1		(0x5UL << 20) /* Spansion */
 
+#define BFPT_DWORD16_SOFT_RST			BIT(12)
+
 #define BFPT_DWORD18_CMD_EXT_MASK		GENMASK(30, 29)
 #define BFPT_DWORD18_CMD_EXT_REP		(0x0UL << 29) /* Repeat */
 #define BFPT_DWORD18_CMD_EXT_INV		(0x1UL << 29) /* Invert */
@@ -2103,6 +2105,10 @@ static int spi_nor_parse_bfpt(struct spi_nor *nor,
 		dev_dbg(nor->dev, "BFPT QER reserved value used\n");
 		break;
 	}
+
+	/* Soft Reset support. */
+	if (bfpt.dwords[BFPT_DWORD(16)] & BFPT_DWORD16_SOFT_RST)
+		nor->flags |= SNOR_F_SOFT_RESET;
 
 	/* Stop here if JESD216 rev B. */
 	if (bfpt_header->length == BFPT_DWORD_MAX_JESD216B)
