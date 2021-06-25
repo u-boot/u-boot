@@ -67,6 +67,8 @@
 #define SPINOR_OP_CLFSR		0x50	/* Clear flag status register */
 #define SPINOR_OP_RDEAR		0xc8	/* Read Extended Address Register */
 #define SPINOR_OP_WREAR		0xc5	/* Write Extended Address Register */
+#define SPINOR_OP_SRSTEN	0x66	/* Software Reset Enable */
+#define SPINOR_OP_SRST		0x99	/* Software Reset */
 
 /* 4-byte address opcodes - used on Spansion and some Macronix flashes. */
 #define SPINOR_OP_READ_4B	0x13	/* Read data bytes (low frequency) */
@@ -561,5 +563,20 @@ device_node *spi_nor_get_flash_node(struct spi_nor *nor)
  * Return: 0 for success, others for failure.
  */
 int spi_nor_scan(struct spi_nor *nor);
+
+#if CONFIG_IS_ENABLED(SPI_FLASH_TINY)
+static inline int spi_nor_remove(struct spi_nor *nor)
+{
+	return 0;
+}
+#else
+/**
+ * spi_nor_remove() - perform cleanup before booting to the next stage
+ * @nor:	the spi_nor structure
+ *
+ * Return: 0 for success, -errno for failure.
+ */
+int spi_nor_remove(struct spi_nor *nor);
+#endif
 
 #endif

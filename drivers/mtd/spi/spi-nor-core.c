@@ -22,6 +22,7 @@
 #include <linux/math64.h>
 #include <linux/sizes.h>
 #include <linux/bitfield.h>
+#include <linux/delay.h>
 
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/spi-nor.h>
@@ -199,6 +200,8 @@ struct spi_nor_fixups {
 	void (*post_sfdp)(struct spi_nor *nor,
 			  struct spi_nor_flash_parameter *params);
 };
+
+#define SPI_NOR_SRST_SLEEP_LEN			200
 
 /**
  * spi_nor_get_cmd_ext() - Get the command opcode extension based on the
@@ -2967,6 +2970,71 @@ static int spi_nor_init(struct spi_nor *nor)
 			debug("enabling reset hack; may not recover from unexpected reboots\n");
 		set_4byte(nor, nor->info, 1);
 	}
+
+	return 0;
+}
+
+#ifdef CONFIG_SPI_FLASH_SOFT_RESET
+/**
+ * spi_nor_soft_reset() - perform the JEDEC Software Reset sequence
+ * @nor:	the spi_nor structure
+ *
+ * This function can be used to switch from Octal DTR mode to legacy mode on a
+ * flash that supports it. The soft reset is executed in Octal DTR mode.
+ *
+ * Return: 0 for success, -errno for failure.
+ */
+static int spi_nor_soft_reset(struct spi_nor *nor)
+{
+	struct spi_mem_op op;
+	int ret;
+	enum spi_nor_cmd_ext ext;
+
+	ext = nor->cmd_ext_type;
+	nor->cmd_ext_type = SPI_NOR_EXT_REPEAT;
+
+	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_SRSTEN, 0),
+			SPI_MEM_OP_NO_DUMMY,
+			SPI_MEM_OP_NO_ADDR,
+			SPI_MEM_OP_NO_DATA);
+	spi_nor_setup_op(nor, &op, SNOR_PROTO_8_8_8_DTR);
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret) {
+		dev_warn(nor->dev, "Software reset enable failed: %d\n", ret);
+		goto out;
+	}
+
+	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_SRST, 0),
+			SPI_MEM_OP_NO_DUMMY,
+			SPI_MEM_OP_NO_ADDR,
+			SPI_MEM_OP_NO_DATA);
+	spi_nor_setup_op(nor, &op, SNOR_PROTO_8_8_8_DTR);
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret) {
+		dev_warn(nor->dev, "Software reset failed: %d\n", ret);
+		goto out;
+	}
+
+	/*
+	 * Software Reset is not instant, and the delay varies from flash to
+	 * flash. Looking at a few flashes, most range somewhere below 100
+	 * microseconds. So, wait for 200ms just to be sure.
+	 */
+	udelay(SPI_NOR_SRST_SLEEP_LEN);
+
+out:
+	nor->cmd_ext_type = ext;
+	return ret;
+}
+#endif /* CONFIG_SPI_FLASH_SOFT_RESET */
+
+int spi_nor_remove(struct spi_nor *nor)
+{
+#ifdef CONFIG_SPI_FLASH_SOFT_RESET
+	if (nor->info->flags & SPI_NOR_OCTAL_DTR_READ &&
+	    nor->flags & SNOR_F_SOFT_RESET)
+		return spi_nor_soft_reset(nor);
+#endif
 
 	return 0;
 }

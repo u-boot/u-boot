@@ -97,6 +97,13 @@ config SPI_FLASH_SMART_HWCAPS
 	 can support a type of operation in a much more refined way compared
 	 to using flags like SPI_RX_DUAL, SPI_TX_QUAD, etc.
 
+config SPI_FLASH_SOFT_RESET
+	bool "Software Reset support for SPI NOR flashes"
+	default n
+	help
+	 Enable support for xSPI Software Reset. It will be used to switch from
+	 Octal DTR mode to legacy mode on shutdown and boot (if enabled).
+
 config SPI_FLASH_BAR
 	bool "SPI flash Bank/Extended address register support"
 	help
