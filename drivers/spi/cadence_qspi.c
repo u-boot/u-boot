@@ -141,12 +141,20 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 	cadence_qspi_apb_controller_disable(priv->regbase);
 
 	/*
-	 * Calibration required for different current SCLK speed, requested
-	 * SCLK speed or chip select
+	 * If the device tree already provides a read delay value, use that
+	 * instead of calibrating.
 	 */
-	if (priv->previous_hz != hz ||
-	    priv->qspi_calibrated_hz != hz ||
-	    priv->qspi_calibrated_cs != spi_chip_select(bus)) {
+	if (plat->read_delay >= 0) {
+		cadence_spi_write_speed(bus, hz);
+		cadence_qspi_apb_readdata_capture(priv->regbase, 1,
+						  plat->read_delay);
+	} else if (priv->previous_hz != hz ||
+		   priv->qspi_calibrated_hz != hz ||
+		   priv->qspi_calibrated_cs != spi_chip_select(bus)) {
+		/*
+		 * Calibration required for different current SCLK speed,
+		 * requested SCLK speed or chip select
+		 */
 		err = spi_calibration(bus, hz);
 		if (err)
 			return err;
@@ -320,6 +328,14 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 						 255);
 	plat->tchsh_ns = ofnode_read_u32_default(subnode, "cdns,tchsh-ns", 20);
 	plat->tslch_ns = ofnode_read_u32_default(subnode, "cdns,tslch-ns", 20);
+	/*
+	 * Read delay should be an unsigned value but we use a signed integer
+	 * so that negative values can indicate that the device tree did not
+	 * specify any signed values and we need to perform the calibration
+	 * sequence to find it out.
+	 */
+	plat->read_delay = ofnode_read_s32_default(subnode, "cdns,read-delay",
+						   -1);
 
 	debug("%s: regbase=%p ahbbase=%p max-frequency=%d page-size=%d\n",
 	      __func__, plat->regbase, plat->ahbbase, plat->max_hz,
