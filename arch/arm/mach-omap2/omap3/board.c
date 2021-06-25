@@ -114,7 +114,7 @@ void secure_unlock_mem(void)
  *		configure secure registers and exit secure world
  *              general use.
  *****************************************************************************/
-void secureworld_exit(void)
+static void secureworld_exit(void)
 {
 	unsigned long i;
 
