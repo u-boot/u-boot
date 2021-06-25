@@ -209,6 +209,9 @@ static int spi_nor_write_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
 					  SPI_MEM_OP_NO_DUMMY,
 					  SPI_MEM_OP_DATA_OUT(len, NULL, 1));
 
+	if (len == 0)
+		op.data.dir = SPI_MEM_NO_DATA;
+
 	return spi_nor_read_write_reg(nor, &op, buf);
 }
 
