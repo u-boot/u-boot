@@ -2965,6 +2965,189 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 	return nor->setup(nor, info, params);
 }
 
+#ifdef CONFIG_SPI_FLASH_S28HS512T
+/**
+ * spi_nor_cypress_octal_dtr_enable() - Enable octal DTR on Cypress flashes.
+ * @nor:		pointer to a 'struct spi_nor'
+ *
+ * This also sets the memory access latency cycles to 24 to allow the flash to
+ * run at up to 200MHz.
+ *
+ * Return: 0 on success, -errno otherwise.
+ */
+static int spi_nor_cypress_octal_dtr_enable(struct spi_nor *nor)
+{
+	struct spi_mem_op op;
+	u8 buf;
+	u8 addr_width = 3;
+	int ret;
+
+	/* Use 24 dummy cycles for memory array reads. */
+	ret = write_enable(nor);
+	if (ret)
+		return ret;
+
+	buf = SPINOR_REG_CYPRESS_CFR2V_MEMLAT_11_24;
+	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_ANY_REG, 1),
+			SPI_MEM_OP_ADDR(addr_width, SPINOR_REG_CYPRESS_CFR2V, 1),
+			SPI_MEM_OP_NO_DUMMY,
+			SPI_MEM_OP_DATA_OUT(1, &buf, 1));
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret) {
+		dev_warn(nor->dev,
+			 "failed to set default memory latency value: %d\n",
+			 ret);
+		return ret;
+	}
+	ret = spi_nor_wait_till_ready(nor);
+	if (ret)
+		return ret;
+
+	nor->read_dummy = 24;
+
+	/* Set the octal and DTR enable bits. */
+	ret = write_enable(nor);
+	if (ret)
+		return ret;
+
+	buf = SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN;
+	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_ANY_REG, 1),
+			SPI_MEM_OP_ADDR(addr_width, SPINOR_REG_CYPRESS_CFR5V, 1),
+			SPI_MEM_OP_NO_DUMMY,
+			SPI_MEM_OP_DATA_OUT(1, &buf, 1));
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret) {
+		dev_warn(nor->dev, "Failed to enable octal DTR mode\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+static int s28hs512t_erase_non_uniform(struct spi_nor *nor, loff_t addr)
+{
+	/* Factory default configuration: 32 x 4 KiB sectors at bottom. */
+	return spansion_erase_non_uniform(nor, addr, SPINOR_OP_S28_SE_4K,
+					  0, SZ_128K);
+}
+
+static int s28hs512t_setup(struct spi_nor *nor, const struct flash_info *info,
+			   const struct spi_nor_flash_parameter *params)
+{
+	struct spi_mem_op op;
+	u8 buf;
+	u8 addr_width = 3;
+	int ret;
+
+	ret = spi_nor_wait_till_ready(nor);
+	if (ret)
+		return ret;
+
+	/*
+	 * Check CFR3V to check if non-uniform sector mode is selected. If it
+	 * is, set the erase hook to the non-uniform erase procedure.
+	 */
+	op = (struct spi_mem_op)
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_RD_ANY_REG, 1),
+			   SPI_MEM_OP_ADDR(addr_width,
+					   SPINOR_REG_CYPRESS_CFR3V, 1),
+			   SPI_MEM_OP_NO_DUMMY,
+			   SPI_MEM_OP_DATA_IN(1, &buf, 1));
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		return ret;
+
+	if (!(buf & SPINOR_REG_CYPRESS_CFR3V_UNISECT))
+		nor->erase = s28hs512t_erase_non_uniform;
+
+	return spi_nor_default_setup(nor, info, params);
+}
+
+static void s28hs512t_default_init(struct spi_nor *nor)
+{
+	nor->octal_dtr_enable = spi_nor_cypress_octal_dtr_enable;
+	nor->setup = s28hs512t_setup;
+}
+
+static void s28hs512t_post_sfdp_fixup(struct spi_nor *nor,
+				      struct spi_nor_flash_parameter *params)
+{
+	/*
+	 * On older versions of the flash the xSPI Profile 1.0 table has the
+	 * 8D-8D-8D Fast Read opcode as 0x00. But it actually should be 0xEE.
+	 */
+	if (params->reads[SNOR_CMD_READ_8_8_8_DTR].opcode == 0)
+		params->reads[SNOR_CMD_READ_8_8_8_DTR].opcode =
+			SPINOR_OP_CYPRESS_RD_FAST;
+
+	params->hwcaps.mask |= SNOR_HWCAPS_PP_8_8_8_DTR;
+
+	/* This flash is also missing the 4-byte Page Program opcode bit. */
+	spi_nor_set_pp_settings(&params->page_programs[SNOR_CMD_PP],
+				SPINOR_OP_PP_4B, SNOR_PROTO_1_1_1);
+	/*
+	 * Since xSPI Page Program opcode is backward compatible with
+	 * Legacy SPI, use Legacy SPI opcode there as well.
+	 */
+	spi_nor_set_pp_settings(&params->page_programs[SNOR_CMD_PP_8_8_8_DTR],
+				SPINOR_OP_PP_4B, SNOR_PROTO_8_8_8_DTR);
+
+	/*
+	 * The xSPI Profile 1.0 table advertises the number of additional
+	 * address bytes needed for Read Status Register command as 0 but the
+	 * actual value for that is 4.
+	 */
+	params->rdsr_addr_nbytes = 4;
+}
+
+static int s28hs512t_post_bfpt_fixup(struct spi_nor *nor,
+				     const struct sfdp_parameter_header *bfpt_header,
+				     const struct sfdp_bfpt *bfpt,
+				     struct spi_nor_flash_parameter *params)
+{
+	struct spi_mem_op op;
+	u8 buf;
+	u8 addr_width = 3;
+	int ret;
+
+	/*
+	 * The BFPT table advertises a 512B page size but the page size is
+	 * actually configurable (with the default being 256B). Read from
+	 * CFR3V[4] and set the correct size.
+	 */
+	op = (struct spi_mem_op)
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_RD_ANY_REG, 1),
+			   SPI_MEM_OP_ADDR(addr_width, SPINOR_REG_CYPRESS_CFR3V, 1),
+			   SPI_MEM_OP_NO_DUMMY,
+			   SPI_MEM_OP_DATA_IN(1, &buf, 1));
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		return ret;
+
+	if (buf & SPINOR_REG_CYPRESS_CFR3V_PGSZ)
+		params->page_size = 512;
+	else
+		params->page_size = 256;
+
+	/*
+	 * The BFPT advertises that it supports 4k erases, and the datasheet
+	 * says the same. But 4k erases did not work when testing. So, use 256k
+	 * erases for now.
+	 */
+	nor->erase_opcode = SPINOR_OP_SE_4B;
+	nor->mtd.erasesize = 0x40000;
+
+	return 0;
+}
+
+static struct spi_nor_fixups s28hs512t_fixups = {
+	.default_init = s28hs512t_default_init,
+	.post_sfdp = s28hs512t_post_sfdp_fixup,
+	.post_bfpt = s28hs512t_post_bfpt_fixup,
+};
+#endif /* CONFIG_SPI_FLASH_S28HS512T */
+
 /** spi_nor_octal_dtr_enable() - enable Octal DTR I/O if needed
  * @nor:                 pointer to a 'struct spi_nor'
  *
@@ -3108,6 +3291,10 @@ int spi_nor_remove(struct spi_nor *nor)
 
 void spi_nor_set_fixups(struct spi_nor *nor)
 {
+#ifdef CONFIG_SPI_FLASH_S28HS512T
+	if (!strcmp(nor->info->name, "s28hs512t"))
+		nor->fixups = &s28hs512t_fixups;
+#endif
 }
 
 int spi_nor_scan(struct spi_nor *nor)

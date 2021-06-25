@@ -167,6 +167,14 @@ config SPI_FLASH_SPANSION
 	help
 	  Add support for various Spansion SPI flash chips (S25FLxxx)
 
+config SPI_FLASH_S28HS512T
+	bool "Cypress S28HS512T chip support"
+	depends on SPI_FLASH_SPANSION
+	help
+	 Add support for the Cypress S28HS512T chip. This is a separate config
+	 because the fixup hooks for this flash add extra size overhead. Boards
+	 that don't use the flash can disable this to save space.
+
 config SPI_FLASH_STMICRO
 	bool "STMicro SPI flash support"
 	help
