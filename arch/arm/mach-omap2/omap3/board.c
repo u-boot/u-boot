@@ -140,12 +140,20 @@ void secureworld_exit(void)
 	__asm__ __volatile__("mcr p15, 0, %0, c1, c1, 0":"=r"(i));
 }
 
+void early_system_init(void)
+{
+	hw_data_init();
+}
+
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
+	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
+
 /******************************************************************************
  * Routine: try_unlock_sram()
  * Description: If chip is GP/EMU(special) type, unlock the SRAM for
  *              general use.
  *****************************************************************************/
-void try_unlock_memory(void)
+static void try_unlock_memory(void)
 {
 	int mode;
 	int in_sdram = is_running_in_sdram();
@@ -174,13 +182,6 @@ void try_unlock_memory(void)
 	return;
 }
 
-void early_system_init(void)
-{
-	hw_data_init();
-}
-
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
-	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
 /******************************************************************************
  * Routine: s_init
  * Description: Does early system init of muxing and clocks.
