@@ -8,6 +8,7 @@
 #include <dt-bindings/pinctrl/rockchip.h>
 #include <dt-bindings/clock/rk3188-cru.h>
 #include "rk3xxx.dtsi"
+#include "rk3xxx-u-boot.dtsi"
 
 / {
 	compatible = "rockchip,rk3188";

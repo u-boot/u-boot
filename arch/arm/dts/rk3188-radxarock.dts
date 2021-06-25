@@ -12,6 +12,10 @@
 	model = "Radxa Rock";
 	compatible = "radxa,rock", "rockchip,rk3188";
 
+	aliases {
+		mmc0 = &mmc0;
+	};
+
 	chosen {
 /*		stdout-path = &uart2; */
 		stdout-path = "serial2:115200n8";
