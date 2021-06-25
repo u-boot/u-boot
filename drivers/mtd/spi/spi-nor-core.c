@@ -887,6 +887,67 @@ erase_err:
 	return ret;
 }
 
+#ifdef CONFIG_SPI_FLASH_S28HS512T
+/**
+ * spansion_erase_non_uniform() - erase non-uniform sectors for Spansion/Cypress
+ *                                chips
+ * @nor:	pointer to a 'struct spi_nor'
+ * @addr:	address of the sector to erase
+ * @opcode_4k:	opcode for 4K sector erase
+ * @ovlsz_top:	size of overlaid portion at the top address
+ * @ovlsz_btm:	size of overlaid portion at the bottom address
+ *
+ * Erase an address range on the nor chip that can contain 4KB sectors overlaid
+ * on top and/or bottom. The appropriate erase opcode and size are chosen by
+ * address to erase and size of overlaid portion.
+ *
+ * Return: number of bytes erased on success, -errno otherwise.
+ */
+static int spansion_erase_non_uniform(struct spi_nor *nor, u32 addr,
+				      u8 opcode_4k, u32 ovlsz_top,
+				      u32 ovlsz_btm)
+{
+	struct spi_mem_op op =
+		SPI_MEM_OP(SPI_MEM_OP_CMD(nor->erase_opcode, 0),
+			   SPI_MEM_OP_ADDR(nor->addr_width, addr, 0),
+			   SPI_MEM_OP_NO_DUMMY,
+			   SPI_MEM_OP_NO_DATA);
+	struct mtd_info *mtd = &nor->mtd;
+	u32 erasesize;
+	int ret;
+
+	/* 4KB sectors */
+	if (op.addr.val < ovlsz_btm ||
+	    op.addr.val >= mtd->size - ovlsz_top) {
+		op.cmd.opcode = opcode_4k;
+		erasesize = SZ_4K;
+
+	/* Non-overlaid portion in the normal sector at the bottom */
+	} else if (op.addr.val == ovlsz_btm) {
+		op.cmd.opcode = nor->erase_opcode;
+		erasesize = mtd->erasesize - ovlsz_btm;
+
+	/* Non-overlaid portion in the normal sector at the top */
+	} else if (op.addr.val == mtd->size - mtd->erasesize) {
+		op.cmd.opcode = nor->erase_opcode;
+		erasesize = mtd->erasesize - ovlsz_top;
+
+	/* Normal sectors */
+	} else {
+		op.cmd.opcode = nor->erase_opcode;
+		erasesize = mtd->erasesize;
+	}
+
+	spi_nor_setup_op(nor, &op, nor->write_proto);
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		return ret;
+
+	return erasesize;
+}
+#endif
+
 #if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
 /* Write status register and ensure bits in mask match written values */
 static int write_sr_and_check(struct spi_nor *nor, u8 status_new, u8 mask)
