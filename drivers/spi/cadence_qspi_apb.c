@@ -730,6 +730,12 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_plat *plat,
 	writel(CQSPI_REG_INDIRECTWR_START,
 	       plat->regbase + CQSPI_REG_INDIRECTWR);
 
+	/*
+	 * Some delay is required for the above bit to be internally
+	 * synchronized by the QSPI module.
+	 */
+	ndelay(plat->wr_delay);
+
 	while (remaining > 0) {
 		write_bytes = remaining > page_size ? page_size : remaining;
 		writesl(plat->ahbbase, bb_txbuf, write_bytes >> 2);

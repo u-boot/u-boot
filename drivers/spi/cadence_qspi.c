@@ -20,6 +20,8 @@
 #include <linux/sizes.h>
 #include "cadence_qspi.h"
 
+#define NSEC_PER_SEC			1000000000L
+
 #define CQSPI_STIG_READ			0
 #define CQSPI_STIG_WRITE		1
 #define CQSPI_READ			2
@@ -207,6 +209,8 @@ static int cadence_spi_probe(struct udevice *bus)
 		cadence_qspi_apb_controller_init(plat);
 		priv->qspi_is_init = 1;
 	}
+
+	plat->wr_delay = 50 * DIV_ROUND_UP(NSEC_PER_SEC, plat->ref_clk_hz);
 
 	return 0;
 }
