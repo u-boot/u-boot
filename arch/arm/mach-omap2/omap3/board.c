@@ -71,12 +71,20 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_34xx;
 
 #endif
 
+void early_system_init(void)
+{
+	hw_data_init();
+}
+
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
+	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
+
 /******************************************************************************
  * Routine: secure_unlock
  * Description: Setup security registers for access
  *              (GP Device only)
  *****************************************************************************/
-void secure_unlock_mem(void)
+static void secure_unlock_mem(void)
 {
 	struct pm *pm_rt_ape_base = (struct pm *)PM_RT_APE_BASE_ADDR_ARM;
 	struct pm *pm_gpmc_base = (struct pm *)PM_GPMC_BASE_ADDR_ARM;
@@ -139,14 +147,6 @@ static void secureworld_exit(void)
 	__asm__ __volatile__("orr %0, %0, #0x31":"=r"(i));
 	__asm__ __volatile__("mcr p15, 0, %0, c1, c1, 0":"=r"(i));
 }
-
-void early_system_init(void)
-{
-	hw_data_init();
-}
-
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
-	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
 
 /******************************************************************************
  * Routine: try_unlock_sram()
