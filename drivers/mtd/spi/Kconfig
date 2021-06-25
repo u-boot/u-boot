@@ -88,6 +88,15 @@ config SPI_FLASH_SFDP_SUPPORT
 	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
 	 tables as per JESD216 standard.
 
+config SPI_FLASH_SMART_HWCAPS
+	bool "Smart hardware capability detection based on SPI MEM supports_op() hook"
+	default y
+	help
+	 Enable support for smart hardware capability detection based on SPI
+	 MEM supports_op() hook that lets controllers express whether they
+	 can support a type of operation in a much more refined way compared
+	 to using flags like SPI_RX_DUAL, SPI_TX_QUAD, etc.
+
 config SPI_FLASH_BAR
 	bool "SPI flash Bank/Extended address register support"
 	help

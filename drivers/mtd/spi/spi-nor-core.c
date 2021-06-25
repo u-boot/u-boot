@@ -2299,6 +2299,194 @@ static int spi_nor_hwcaps_pp2cmd(u32 hwcaps)
 				  ARRAY_SIZE(hwcaps_pp2cmd));
 }
 
+#ifdef CONFIG_SPI_FLASH_SMART_HWCAPS
+/**
+ * spi_nor_check_op - check if the operation is supported by controller
+ * @nor:        pointer to a 'struct spi_nor'
+ * @op:         pointer to op template to be checked
+ *
+ * Returns 0 if operation is supported, -ENOTSUPP otherwise.
+ */
+static int spi_nor_check_op(struct spi_nor *nor,
+			    struct spi_mem_op *op)
+{
+	/*
+	 * First test with 4 address bytes. The opcode itself might be a 3B
+	 * addressing opcode but we don't care, because SPI controller
+	 * implementation should not check the opcode, but just the sequence.
+	 */
+	op->addr.nbytes = 4;
+	if (!spi_mem_supports_op(nor->spi, op)) {
+		if (nor->mtd.size > SZ_16M)
+			return -ENOTSUPP;
+
+		/* If flash size <= 16MB, 3 address bytes are sufficient */
+		op->addr.nbytes = 3;
+		if (!spi_mem_supports_op(nor->spi, op))
+			return -ENOTSUPP;
+	}
+
+	return 0;
+}
+
+/**
+ * spi_nor_check_readop - check if the read op is supported by controller
+ * @nor:         pointer to a 'struct spi_nor'
+ * @read:        pointer to op template to be checked
+ *
+ * Returns 0 if operation is supported, -ENOTSUPP otherwise.
+ */
+static int spi_nor_check_readop(struct spi_nor *nor,
+				const struct spi_nor_read_command *read)
+{
+	struct spi_mem_op op = SPI_MEM_OP(SPI_MEM_OP_CMD(read->opcode, 1),
+					  SPI_MEM_OP_ADDR(3, 0, 1),
+					  SPI_MEM_OP_DUMMY(0, 1),
+					  SPI_MEM_OP_DATA_IN(0, NULL, 1));
+
+	op.cmd.buswidth = spi_nor_get_protocol_inst_nbits(read->proto);
+	op.addr.buswidth = spi_nor_get_protocol_addr_nbits(read->proto);
+	op.data.buswidth = spi_nor_get_protocol_data_nbits(read->proto);
+	op.dummy.buswidth = op.addr.buswidth;
+	op.dummy.nbytes = (read->num_mode_clocks + read->num_wait_states) *
+			  op.dummy.buswidth / 8;
+
+	return spi_nor_check_op(nor, &op);
+}
+
+/**
+ * spi_nor_check_pp - check if the page program op is supported by controller
+ * @nor:         pointer to a 'struct spi_nor'
+ * @pp:          pointer to op template to be checked
+ *
+ * Returns 0 if operation is supported, -ENOTSUPP otherwise.
+ */
+static int spi_nor_check_pp(struct spi_nor *nor,
+			    const struct spi_nor_pp_command *pp)
+{
+	struct spi_mem_op op = SPI_MEM_OP(SPI_MEM_OP_CMD(pp->opcode, 1),
+					  SPI_MEM_OP_ADDR(3, 0, 1),
+					  SPI_MEM_OP_NO_DUMMY,
+					  SPI_MEM_OP_DATA_OUT(0, NULL, 1));
+
+	op.cmd.buswidth = spi_nor_get_protocol_inst_nbits(pp->proto);
+	op.addr.buswidth = spi_nor_get_protocol_addr_nbits(pp->proto);
+	op.data.buswidth = spi_nor_get_protocol_data_nbits(pp->proto);
+
+	return spi_nor_check_op(nor, &op);
+}
+
+/**
+ * spi_nor_adjust_hwcaps - Find optimal Read/Write protocol based on SPI
+ *                         controller capabilities
+ * @nor:        pointer to a 'struct spi_nor'
+ * @params:     pointer to the 'struct spi_nor_flash_parameter'
+ *              representing SPI NOR flash capabilities
+ * @hwcaps:     pointer to resulting capabilities after adjusting
+ *              according to controller and flash's capability
+ *
+ * Discard caps based on what the SPI controller actually supports (using
+ * spi_mem_supports_op()).
+ */
+static void
+spi_nor_adjust_hwcaps(struct spi_nor *nor,
+		      const struct spi_nor_flash_parameter *params,
+		      u32 *hwcaps)
+{
+	unsigned int cap;
+
+	/*
+	 * Enable all caps by default. We will mask them after checking what's
+	 * really supported using spi_mem_supports_op().
+	 */
+	*hwcaps = SNOR_HWCAPS_ALL;
+
+	/* DTR modes are not supported yet, mask them all. */
+	*hwcaps &= ~SNOR_HWCAPS_DTR;
+
+	/* X-X-X modes are not supported yet, mask them all. */
+	*hwcaps &= ~SNOR_HWCAPS_X_X_X;
+
+	for (cap = 0; cap < sizeof(*hwcaps) * BITS_PER_BYTE; cap++) {
+		int rdidx, ppidx;
+
+		if (!(*hwcaps & BIT(cap)))
+			continue;
+
+		rdidx = spi_nor_hwcaps_read2cmd(BIT(cap));
+		if (rdidx >= 0 &&
+		    spi_nor_check_readop(nor, &params->reads[rdidx]))
+			*hwcaps &= ~BIT(cap);
+
+		ppidx = spi_nor_hwcaps_pp2cmd(BIT(cap));
+		if (ppidx < 0)
+			continue;
+
+		if (spi_nor_check_pp(nor, &params->page_programs[ppidx]))
+			*hwcaps &= ~BIT(cap);
+	}
+}
+#else
+/**
+ * spi_nor_adjust_hwcaps - Find optimal Read/Write protocol based on SPI
+ *                         controller capabilities
+ * @nor:        pointer to a 'struct spi_nor'
+ * @params:     pointer to the 'struct spi_nor_flash_parameter'
+ *              representing SPI NOR flash capabilities
+ * @hwcaps:     pointer to resulting capabilities after adjusting
+ *              according to controller and flash's capability
+ *
+ * Select caps based on what the SPI controller and SPI flash both support.
+ */
+static void
+spi_nor_adjust_hwcaps(struct spi_nor *nor,
+		      const struct spi_nor_flash_parameter *params,
+		      u32 *hwcaps)
+{
+	struct spi_slave *spi = nor->spi;
+	u32 ignored_mask = (SNOR_HWCAPS_READ_2_2_2 |
+			    SNOR_HWCAPS_READ_4_4_4 |
+			    SNOR_HWCAPS_READ_8_8_8 |
+			    SNOR_HWCAPS_PP_4_4_4   |
+			    SNOR_HWCAPS_PP_8_8_8);
+	u32 spi_hwcaps = (SNOR_HWCAPS_READ | SNOR_HWCAPS_READ_FAST |
+			  SNOR_HWCAPS_PP);
+
+	/* Get the hardware capabilities the SPI controller supports. */
+	if (spi->mode & SPI_RX_OCTAL) {
+		spi_hwcaps |= SNOR_HWCAPS_READ_1_1_8;
+
+		if (spi->mode & SPI_TX_OCTAL)
+			spi_hwcaps |= (SNOR_HWCAPS_READ_1_8_8 |
+					SNOR_HWCAPS_PP_1_1_8 |
+					SNOR_HWCAPS_PP_1_8_8);
+	} else if (spi->mode & SPI_RX_QUAD) {
+		spi_hwcaps |= SNOR_HWCAPS_READ_1_1_4;
+
+		if (spi->mode & SPI_TX_QUAD)
+			spi_hwcaps |= (SNOR_HWCAPS_READ_1_4_4 |
+					SNOR_HWCAPS_PP_1_1_4 |
+					SNOR_HWCAPS_PP_1_4_4);
+	} else if (spi->mode & SPI_RX_DUAL) {
+		spi_hwcaps |= SNOR_HWCAPS_READ_1_1_2;
+
+		if (spi->mode & SPI_TX_DUAL)
+			spi_hwcaps |= SNOR_HWCAPS_READ_1_2_2;
+	}
+
+	/*
+	 * Keep only the hardware capabilities supported by both the SPI
+	 * controller and the SPI flash memory.
+	 */
+	*hwcaps = spi_hwcaps & params->hwcaps.mask;
+	if (*hwcaps & ignored_mask) {
+		dev_dbg(nor->dev,
+			"SPI n-n-n protocols are not supported yet.\n");
+		*hwcaps &= ~ignored_mask;
+	}
+}
+#endif /* CONFIG_SPI_FLASH_SMART_HWCAPS */
+
 static int spi_nor_select_read(struct spi_nor *nor,
 			       const struct spi_nor_flash_parameter *params,
 			       u32 shared_hwcaps)
@@ -2379,30 +2567,13 @@ static int spi_nor_select_erase(struct spi_nor *nor,
 
 static int spi_nor_default_setup(struct spi_nor *nor,
 				 const struct flash_info *info,
-				 const struct spi_nor_flash_parameter *params,
-				 const struct spi_nor_hwcaps *hwcaps)
+				 const struct spi_nor_flash_parameter *params)
 {
-	u32 ignored_mask, shared_mask;
+	u32 shared_mask;
 	bool enable_quad_io;
 	int err;
 
-	/*
-	 * Keep only the hardware capabilities supported by both the SPI
-	 * controller and the SPI flash memory.
-	 */
-	shared_mask = hwcaps->mask & params->hwcaps.mask;
-
-	/* SPI n-n-n protocols are not supported yet. */
-	ignored_mask = (SNOR_HWCAPS_READ_2_2_2 |
-			SNOR_HWCAPS_READ_4_4_4 |
-			SNOR_HWCAPS_READ_8_8_8 |
-			SNOR_HWCAPS_PP_4_4_4 |
-			SNOR_HWCAPS_PP_8_8_8);
-	if (shared_mask & ignored_mask) {
-		dev_dbg(nor->dev,
-			"SPI n-n-n protocols are not supported yet.\n");
-		shared_mask &= ~ignored_mask;
-	}
+	spi_nor_adjust_hwcaps(nor, params, &shared_mask);
 
 	/* Select the (Fast) Read command. */
 	err = spi_nor_select_read(nor, params, shared_mask);
@@ -2440,13 +2611,12 @@ static int spi_nor_default_setup(struct spi_nor *nor,
 }
 
 static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
-			 const struct spi_nor_flash_parameter *params,
-			 const struct spi_nor_hwcaps *hwcaps)
+			 const struct spi_nor_flash_parameter *params)
 {
 	if (!nor->setup)
 		return 0;
 
-	return nor->setup(nor, info, params, hwcaps);
+	return nor->setup(nor, info, params);
 }
 
 static int spi_nor_init(struct spi_nor *nor)
@@ -2502,11 +2672,6 @@ int spi_nor_scan(struct spi_nor *nor)
 	struct spi_nor_flash_parameter params;
 	const struct flash_info *info = NULL;
 	struct mtd_info *mtd = &nor->mtd;
-	struct spi_nor_hwcaps hwcaps = {
-		.mask = SNOR_HWCAPS_READ |
-			SNOR_HWCAPS_READ_FAST |
-			SNOR_HWCAPS_PP,
-	};
 	struct spi_slave *spi = nor->spi;
 	int ret;
 
@@ -2520,27 +2685,6 @@ int spi_nor_scan(struct spi_nor *nor)
 	nor->write_reg = spi_nor_write_reg;
 
 	nor->setup = spi_nor_default_setup;
-
-	if (spi->mode & SPI_RX_OCTAL) {
-		hwcaps.mask |= SNOR_HWCAPS_READ_1_1_8;
-
-		if (spi->mode & SPI_TX_OCTAL)
-			hwcaps.mask |= (SNOR_HWCAPS_READ_1_8_8 |
-					SNOR_HWCAPS_PP_1_1_8 |
-					SNOR_HWCAPS_PP_1_8_8);
-	} else if (spi->mode & SPI_RX_QUAD) {
-		hwcaps.mask |= SNOR_HWCAPS_READ_1_1_4;
-
-		if (spi->mode & SPI_TX_QUAD)
-			hwcaps.mask |= (SNOR_HWCAPS_READ_1_4_4 |
-					SNOR_HWCAPS_PP_1_1_4 |
-					SNOR_HWCAPS_PP_1_4_4);
-	} else if (spi->mode & SPI_RX_DUAL) {
-		hwcaps.mask |= SNOR_HWCAPS_READ_1_1_2;
-
-		if (spi->mode & SPI_TX_DUAL)
-			hwcaps.mask |= SNOR_HWCAPS_READ_1_2_2;
-	}
 
 	info = spi_nor_read_id(nor);
 	if (IS_ERR_OR_NULL(info))
@@ -2616,7 +2760,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	 * - set the SPI protocols for register and memory accesses.
 	 * - set the Quad Enable bit if needed (required by SPI x-y-4 protos).
 	 */
-	ret = spi_nor_setup(nor, info, &params, &hwcaps);
+	ret = spi_nor_setup(nor, info, &params);
 	if (ret)
 		return ret;
 

@@ -105,3 +105,65 @@ int spi_mem_adjust_op_size(struct spi_slave *slave,
 
 	return 0;
 }
+
+static int spi_check_buswidth_req(struct spi_slave *slave, u8 buswidth, bool tx)
+{
+	u32 mode = slave->mode;
+
+	switch (buswidth) {
+	case 1:
+		return 0;
+
+	case 2:
+		if ((tx && (mode & (SPI_TX_DUAL | SPI_TX_QUAD))) ||
+		    (!tx && (mode & (SPI_RX_DUAL | SPI_RX_QUAD))))
+			return 0;
+
+		break;
+
+	case 4:
+		if ((tx && (mode & SPI_TX_QUAD)) ||
+		    (!tx && (mode & SPI_RX_QUAD)))
+			return 0;
+
+		break;
+	case 8:
+		if ((tx && (mode & SPI_TX_OCTAL)) ||
+		    (!tx && (mode & SPI_RX_OCTAL)))
+			return 0;
+
+		break;
+
+	default:
+		break;
+	}
+
+	return -ENOTSUPP;
+}
+
+bool spi_mem_supports_op(struct spi_slave *slave, const struct spi_mem_op *op)
+{
+	if (spi_check_buswidth_req(slave, op->cmd.buswidth, true))
+		return false;
+
+	if (op->addr.nbytes &&
+	    spi_check_buswidth_req(slave, op->addr.buswidth, true))
+		return false;
+
+	if (op->dummy.nbytes &&
+	    spi_check_buswidth_req(slave, op->dummy.buswidth, true))
+		return false;
+
+	if (op->data.nbytes &&
+	    spi_check_buswidth_req(slave, op->data.buswidth,
+				   op->data.dir == SPI_MEM_DATA_OUT))
+		return false;
+
+	if (op->cmd.dtr || op->addr.dtr || op->dummy.dtr || op->data.dtr)
+		return false;
+
+	if (op->cmd.nbytes != 1)
+		return false;
+
+	return true;
+}
