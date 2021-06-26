@@ -581,6 +581,16 @@ static inline int del_mtd_partitions(struct mtd_info *mtd)
 }
 #endif
 
+#if defined(CONFIG_MTD_PARTITIONS) && CONFIG_IS_ENABLED(DM) && \
+    CONFIG_IS_ENABLED(OF_CONTROL)
+int add_mtd_partitions_of(struct mtd_info *master);
+#else
+static inline int add_mtd_partitions_of(struct mtd_info *master)
+{
+	return 0;
+}
+#endif
+
 struct mtd_info *__mtd_next_device(int i);
 #define mtd_for_each_device(mtd)			\
 	for ((mtd) = __mtd_next_device(0);		\

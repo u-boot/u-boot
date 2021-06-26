@@ -8,7 +8,6 @@
 
 #include <linux/mtd/mtd.h>
 
-int mtd_probe(struct udevice *dev);
 int mtd_probe_devices(void);
 
 void board_mtdparts_default(const char **mtdids, const char **mtdparts);
