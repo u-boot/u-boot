@@ -21,6 +21,7 @@
 #if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
 #include <asm/fsp/fsp_support.h>
 #endif
+#include <dt-bindings/pci/pci.h>
 #include <linux/delay.h>
 #include "pci_internal.h"
 
@@ -682,6 +683,34 @@ static bool pci_match_one_id(const struct pci_device_id *id,
 }
 
 /**
+ * pci_need_device_pre_reloc() - Check if a device should be bound
+ *
+ * This checks a list of vendor/device-ID values indicating devices that should
+ * be bound before relocation.
+ *
+ * @bus: Bus to check
+ * @vendor: Vendor ID to check
+ * @device: Device ID to check
+ * @return true if the vendor/device is in the list, false if not
+ */
+static bool pci_need_device_pre_reloc(struct udevice *bus, uint vendor,
+				      uint device)
+{
+	u32 vendev;
+	int index;
+
+	for (index = 0;
+	     !dev_read_u32_index(bus, "u-boot,pci-pre-reloc", index,
+				 &vendev);
+	     index++) {
+		if (vendev == PCI_VENDEV(vendor, device))
+			return true;
+	}
+
+	return false;
+}
+
+/**
  * pci_find_and_bind_driver() - Find and bind the right PCI driver
  *
  * This only looks at certain fields in the descriptor.
@@ -769,7 +798,9 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	 * precious memory space as on some platforms as that space is pretty
 	 * limited (ie: using Cache As RAM).
 	 */
-	if (!(gd->flags & GD_FLG_RELOC) && !bridge)
+	if (!(gd->flags & GD_FLG_RELOC) && !bridge &&
+	    !pci_need_device_pre_reloc(parent, find_id->vendor,
+				       find_id->device))
 		return log_msg_ret("notbr", -EPERM);
 
 	/* Bind a generic driver so that the device can be used */
