@@ -164,7 +164,7 @@ int dm_pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp)
 }
 
 static int pci_device_matches_ids(struct udevice *dev,
-				  struct pci_device_id *ids)
+				  const struct pci_device_id *ids)
 {
 	struct pci_child_plat *pplat;
 	int i;
@@ -181,7 +181,7 @@ static int pci_device_matches_ids(struct udevice *dev,
 	return -EINVAL;
 }
 
-int pci_bus_find_devices(struct udevice *bus, struct pci_device_id *ids,
+int pci_bus_find_devices(struct udevice *bus, const struct pci_device_id *ids,
 			 int *indexp, struct udevice **devp)
 {
 	struct udevice *dev;
@@ -201,7 +201,7 @@ int pci_bus_find_devices(struct udevice *bus, struct pci_device_id *ids,
 	return -ENODEV;
 }
 
-int pci_find_device_id(struct pci_device_id *ids, int index,
+int pci_find_device_id(const struct pci_device_id *ids, int index,
 		       struct udevice **devp)
 {
 	struct udevice *bus;

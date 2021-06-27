@@ -1064,7 +1064,7 @@ int pci_get_ff(enum pci_size_t size);
  * @devp:	Returns matching device if found
  * @return 0 if found, -ENODEV if not
  */
-int pci_bus_find_devices(struct udevice *bus, struct pci_device_id *ids,
+int pci_bus_find_devices(struct udevice *bus, const struct pci_device_id *ids,
 			 int *indexp, struct udevice **devp);
 
 /**
@@ -1076,7 +1076,7 @@ int pci_bus_find_devices(struct udevice *bus, struct pci_device_id *ids,
  * @devp:	Returns matching device if found
  * @return 0 if found, -ENODEV if not
  */
-int pci_find_device_id(struct pci_device_id *ids, int index,
+int pci_find_device_id(const struct pci_device_id *ids, int index,
 		       struct udevice **devp);
 
 /**
