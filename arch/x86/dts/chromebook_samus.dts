@@ -11,7 +11,7 @@
 
 #include "smbios.dtsi"
 
-#ifdef CONFIG_CHROMEOS_VBOOT
+#if defined(CONFIG_CHROMEOS_VBOOT) && defined(CONFIG_ROM_SIZE)
 #include "chromeos-x86.dtsi"
 #include "flashmap-x86-ro.dtsi"
 #include "flashmap-8mb-rw.dtsi"
