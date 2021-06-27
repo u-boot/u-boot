@@ -215,6 +215,22 @@ struct sysinfo_t {
 
 extern struct sysinfo_t lib_sysinfo;
 
+/**
+ * get_coreboot_info() - parse the coreboot sysinfo table
+ *
+ * Parses the coreboot table if found, setting the GD_FLG_SKIP_LL_INIT flag if
+ * so.
+ *
+ * @info: Place to put the parsed information
+ * @return 0 if OK, -ENOENT if no table found
+ */
 int get_coreboot_info(struct sysinfo_t *info);
+
+/**
+ * cb_get_sysinfo() - get a pointer to the parsed coreboot sysinfo
+ *
+ * @return pointer to sysinfo, or NULL if not available
+ */
+const struct sysinfo_t *cb_get_sysinfo(void);
 
 #endif
