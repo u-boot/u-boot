@@ -18,8 +18,6 @@
 #include <acpi/acpi_device.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/iomap.h>
-#include <asm/arch/pm.h>
 #include <linux/delay.h>
 #include <dm/acpi.h>
 
