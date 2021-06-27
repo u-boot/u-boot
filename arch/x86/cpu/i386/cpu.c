@@ -423,7 +423,7 @@ static void setup_mtrr(void)
 	u64 mtrr_cap;
 
 	/* Configure fixed range MTRRs for some legacy regions */
-	if (!gd->arch.has_mtrr)
+	if (!gd->arch.has_mtrr || !ll_boot_init())
 		return;
 
 	mtrr_cap = native_read_msr(MTRR_CAP_MSR);
