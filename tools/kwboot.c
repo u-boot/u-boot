@@ -634,7 +634,7 @@ kwboot_img_patch_hdr(void *img, size_t size)
 	}
 
 	image_ver = image_version(img);
-	if (image_ver < 0) {
+	if (image_ver != 0 && image_ver != 1) {
 		fprintf(stderr, "Invalid image header version\n");
 		errno = EINVAL;
 		goto out;
