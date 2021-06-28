@@ -67,36 +67,53 @@ static int confirm_prog(void)
 	return 0;
 }
 
-static int do_stm32key(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[])
+static int do_stm32key_read(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	u32 addr;
-	const char *op = argc >= 2 ? argv[1] : NULL;
-	int confirmed = argc > 3 && !strcmp(argv[2], "-y");
 
-	argc -= 2 + confirmed;
-	argv += 2 + confirmed;
-
-	if (argc < 1)
+	if (argc == 1)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[0], NULL, 16);
+	addr = simple_strtoul(argv[1], NULL, 16);
 	if (!addr)
 		return CMD_RET_USAGE;
 
-	if (!strcmp(op, "read"))
-		read_hash_value(addr);
-
-	if (!strcmp(op, "fuse")) {
-		if (!confirmed && !confirm_prog())
-			return CMD_RET_FAILURE;
-		fuse_hash_value(addr, !confirmed);
-	}
+	read_hash_value(addr);
 
 	return CMD_RET_SUCCESS;
 }
 
-U_BOOT_CMD(stm32key, 4, 1, do_stm32key,
-	   "Fuse ST Hash key",
-	   "read <addr>: Read the hash store at addr in memory\n"
-	   "stm32key fuse [-y] <addr> : Fuse hash store at addr in otp\n");
+static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	u32 addr;
+	bool yes = false;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	if (argc == 3) {
+		if (strcmp(argv[1], "-y"))
+			return CMD_RET_USAGE;
+		yes = true;
+	}
+
+	addr = simple_strtoul(argv[argc - 1], NULL, 16);
+	if (!addr)
+		return CMD_RET_USAGE;
+
+	if (!yes && !confirm_prog())
+		return CMD_RET_FAILURE;
+
+	fuse_hash_value(addr, !yes);
+	printf("Hash key updated !\n");
+
+	return CMD_RET_SUCCESS;
+}
+
+static char stm32key_help_text[] =
+	"read <addr>: Read the hash stored at addr in memory\n"
+	"stm32key fuse [-y] <addr> : Fuse hash stored at addr in OTP\n";
+
+U_BOOT_CMD_WITH_SUBCMDS(stm32key, "Fuse ST Hash key", stm32key_help_text,
+	U_BOOT_SUBCMD_MKENT(read, 2, 0, do_stm32key_read),
+	U_BOOT_SUBCMD_MKENT(fuse, 3, 0, do_stm32key_fuse));
