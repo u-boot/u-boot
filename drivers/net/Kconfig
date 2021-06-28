@@ -673,6 +673,14 @@ config SNI_AVE
 	  This driver implements support for the Socionext AVE Ethernet
 	  controller, as found on the Socionext UniPhier family.
 
+config SNI_NETSEC
+	bool "Socionext NETSEC Ethernet support"
+	depends on DM_ETH && SYNQUACER_SPI
+	select PHYLIB
+	help
+	  This driver implements support for the Socionext SynQuacer NETSEC
+	  ethernet controller, as found on the Socionext SynQuacer family.
+
 source "drivers/net/mscc_eswitch/Kconfig"
 
 config ETHER_ON_FEC1

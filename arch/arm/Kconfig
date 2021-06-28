@@ -1491,6 +1491,24 @@ config TARGET_PG_WCOM_SELI8
 	 SELI8 is a QorIQ LS1021a based service unit card used
 	 in XMC20 and FOX615 product families.
 
+config TARGET_PG_WCOM_EXPU1
+	bool "Support Hitachi-Powergrids EXPU1 service unit card"
+	select ARCH_LS1021A
+	select ARCH_SUPPORT_PSCI
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select CPU_V7A
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select SYS_FSL_DDR
+	select FSL_DDR_INTERACTIVE
+	select VENDOR_KM
+	imply SCSI
+	help
+	 Support for Hitachi-Powergrids EXPU1 service unit card.
+	 EXPU1 is a QorIQ LS1021a based service unit card used
+	 in XMC20 and FOX615 product families.
+
 config TARGET_LS1021ATSN
 	bool "Support ls1021atsn"
 	select ARCH_LS1021A
@@ -2008,6 +2026,7 @@ source "board/hisilicon/poplar/Kconfig"
 source "board/isee/igep003x/Kconfig"
 source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
+source "board/seeed/npi_imx6ull/Kconfig"
 source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"
 source "board/spear/spear320/Kconfig"

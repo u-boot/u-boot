@@ -177,7 +177,7 @@ static void __maybe_unused
 usb_power_config_mx7ulp(void *usbphy) { }
 #endif
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMXRT)
 static const unsigned phy_bases[] = {
 	USB_PHY0_BASE_ADDR,
 #if defined(USB_PHY1_BASE_ADDR)
@@ -340,7 +340,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	enum usb_init_type type;
-#if defined(CONFIG_MX6)
+#if defined(CONFIG_MX6) || defined(CONFIG_IMXRT)
 	u32 controller_spacing = 0x200;
 	struct anatop_regs __iomem *anatop =
 		(struct anatop_regs __iomem *)ANATOP_BASE_ADDR;
@@ -382,7 +382,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		return ret;
 	}
 
-#if defined(CONFIG_MX6)
+#if defined(CONFIG_MX6) || defined(CONFIG_IMXRT)
 	usb_power_config_mx6(anatop, index);
 #elif defined (CONFIG_MX7)
 	usb_power_config_mx7(usbnc);
@@ -392,7 +392,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	usb_oc_config(usbnc, index);
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMXRT)
 	if (index < ARRAY_SIZE(phy_bases)) {
 		usb_internal_phy_clock_gate((void __iomem *)phy_bases[index], 1);
 		usb_phy_enable(ehci, (void __iomem *)phy_bases[index]);
@@ -504,7 +504,7 @@ static int ehci_usb_phy_mode(struct udevice *dev)
 	 * About fsl,usbphy, Refer to
 	 * Documentation/devicetree/bindings/usb/ci-hdrc-usb2.txt.
 	 */
-	if (is_mx6() || is_mx7ulp()) {
+	if (is_mx6() || is_mx7ulp() || is_imxrt()) {
 		phy_off = fdtdec_lookup_phandle(blob,
 						offset,
 						"fsl,usbphy");
@@ -569,7 +569,6 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int offset = dev_of_offset(dev);
 	void *__iomem addr;
-	int ret, devnump;
 
 	phy_off = fdtdec_lookup_phandle(blob, offset, "fsl,usbphy");
 	if (phy_off < 0) {
@@ -578,21 +577,15 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 			return -EINVAL;
 	}
 
-	ret = fdtdec_get_alias_seq(blob, dev->uclass->uc_drv->name,
-				   phy_off, &devnump);
-	if (ret < 0)
-		return ret;
-
 	misc_off = fdtdec_lookup_phandle(blob, offset, "fsl,usbmisc");
 	if (misc_off < 0)
 		return -EINVAL;
 
 	addr = (void __iomem *)fdtdec_get_addr(blob, phy_off, "reg");
 	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
-		return -EINVAL;
+		addr = NULL;
 
 	priv->phy_addr = addr;
-	priv->portnr = devnump;
 
 	addr = (void __iomem *)fdtdec_get_addr(blob, misc_off, "reg");
 	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
@@ -601,7 +594,13 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 	priv->misc_addr = addr;
 
 #if defined(CONFIG_MX6)
-	int anatop_off;
+	int anatop_off, ret, devnump;
+
+	ret = fdtdec_get_alias_seq(blob, dev->uclass->uc_drv->name,
+				   phy_off, &devnump);
+	if (ret < 0)
+		return ret;
+	priv->portnr = devnump;
 
 	/* Resolve ANATOP offset through USB PHY node */
 	anatop_off = fdtdec_lookup_phandle(blob, phy_off, "fsl,anatop");
@@ -671,7 +670,7 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	usb_oc_config(priv->misc_addr, priv->portnr);
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMXRT)
 	usb_internal_phy_clock_gate(priv->phy_addr, 1);
 	usb_phy_enable(ehci, priv->phy_addr);
 #endif
@@ -757,6 +756,7 @@ int ehci_usb_remove(struct udevice *dev)
 static const struct udevice_id mx6_usb_ids[] = {
 	{ .compatible = "fsl,imx27-usb" },
 	{ .compatible = "fsl,imx7d-usb" },
+	{ .compatible = "fsl,imxrt-usb" },
 	{ }
 };
 

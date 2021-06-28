@@ -808,7 +808,7 @@ static int do_mmc_boot_resize(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
-static int mmc_partconf_print(struct mmc *mmc)
+static int mmc_partconf_print(struct mmc *mmc, const char *varname)
 {
 	u8 ack, access, part;
 
@@ -820,6 +820,9 @@ static int mmc_partconf_print(struct mmc *mmc)
 	access = EXT_CSD_EXTRACT_PARTITION_ACCESS(mmc->part_config);
 	ack = EXT_CSD_EXTRACT_BOOT_ACK(mmc->part_config);
 	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
+
+	if(varname)
+		env_set_hex(varname, part);
 
 	printf("EXT_CSD[179], PARTITION_CONFIG:\n"
 		"BOOT_ACK: 0x%x\n"
@@ -836,7 +839,7 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 	struct mmc *mmc;
 	u8 ack, part_num, access;
 
-	if (argc != 2 && argc != 5)
+	if (argc != 2 && argc != 3 && argc != 5)
 		return CMD_RET_USAGE;
 
 	dev = simple_strtoul(argv[1], NULL, 10);
@@ -850,8 +853,8 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	if (argc == 2)
-		return mmc_partconf_print(mmc);
+	if (argc == 2 || argc == 3)
+		return mmc_partconf_print(mmc, argc == 3 ? argv[2] : NULL);
 
 	ack = simple_strtoul(argv[2], NULL, 10);
 	part_num = simple_strtoul(argv[3], NULL, 10);
@@ -1061,8 +1064,9 @@ U_BOOT_CMD(
 	" - Set the BOOT_BUS_WIDTH field of the specified device\n"
 	"mmc bootpart-resize <dev> <boot part size MB> <RPMB part size MB>\n"
 	" - Change sizes of boot and RPMB partitions of specified device\n"
-	"mmc partconf <dev> [boot_ack boot_partition partition_access]\n"
+	"mmc partconf <dev> [[varname] | [<boot_ack> <boot_partition> <partition_access>]]\n"
 	" - Show or change the bits of the PARTITION_CONFIG field of the specified device\n"
+	"   If showing the bits, optionally store the boot_partition field into varname\n"
 	"mmc rst-function <dev> <value>\n"
 	" - Change the RST_n_FUNCTION field of the specified device\n"
 	"   WARNING: This is a write-once field and 0 / 1 / 2 are the only valid values.\n"

@@ -15,7 +15,7 @@
 #include <linux/compat.h>
 #include "mmc_private.h"
 
-int dm_mmc_get_b_max(struct udevice *dev, void *dst, lbaint_t blkcnt)
+static int dm_mmc_get_b_max(struct udevice *dev, void *dst, lbaint_t blkcnt)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -31,7 +31,7 @@ int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt)
 	return dm_mmc_get_b_max(mmc->dev, dst, blkcnt);
 }
 
-int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+static int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		    struct mmc_data *data)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
@@ -53,7 +53,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	return dm_mmc_send_cmd(mmc->dev, cmd, data);
 }
 
-int dm_mmc_set_ios(struct udevice *dev)
+static int dm_mmc_set_ios(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
@@ -67,7 +67,7 @@ int mmc_set_ios(struct mmc *mmc)
 	return dm_mmc_set_ios(mmc->dev);
 }
 
-int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout_us)
+static int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout_us)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
@@ -81,7 +81,7 @@ int mmc_wait_dat0(struct mmc *mmc, int state, int timeout_us)
 	return dm_mmc_wait_dat0(mmc->dev, state, timeout_us);
 }
 
-int dm_mmc_get_wp(struct udevice *dev)
+static int dm_mmc_get_wp(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
@@ -95,7 +95,7 @@ int mmc_getwp(struct mmc *mmc)
 	return dm_mmc_get_wp(mmc->dev);
 }
 
-int dm_mmc_get_cd(struct udevice *dev)
+static int dm_mmc_get_cd(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
@@ -110,7 +110,7 @@ int mmc_getcd(struct mmc *mmc)
 }
 
 #ifdef MMC_SUPPORTS_TUNING
-int dm_mmc_execute_tuning(struct udevice *dev, uint opcode)
+static int dm_mmc_execute_tuning(struct udevice *dev, uint opcode)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
@@ -126,7 +126,7 @@ int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 #endif
 
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
-int dm_mmc_set_enhanced_strobe(struct udevice *dev)
+static int dm_mmc_set_enhanced_strobe(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
@@ -142,7 +142,7 @@ int mmc_set_enhanced_strobe(struct mmc *mmc)
 }
 #endif
 
-int dm_mmc_hs400_prepare_ddr(struct udevice *dev)
+static int dm_mmc_hs400_prepare_ddr(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
@@ -157,7 +157,7 @@ int mmc_hs400_prepare_ddr(struct mmc *mmc)
 	return dm_mmc_hs400_prepare_ddr(mmc->dev);
 }
 
-int dm_mmc_host_power_cycle(struct udevice *dev)
+static int dm_mmc_host_power_cycle(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
@@ -171,7 +171,7 @@ int mmc_host_power_cycle(struct mmc *mmc)
 	return dm_mmc_host_power_cycle(mmc->dev);
 }
 
-int dm_mmc_deferred_probe(struct udevice *dev)
+static int dm_mmc_deferred_probe(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
@@ -186,7 +186,7 @@ int mmc_deferred_probe(struct mmc *mmc)
 	return dm_mmc_deferred_probe(mmc->dev);
 }
 
-int dm_mmc_reinit(struct udevice *dev)
+static int dm_mmc_reinit(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 

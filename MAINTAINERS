@@ -882,6 +882,7 @@ F:	arch/mips/dts/mrvl,cn73xx.dtsi
 
 MMC
 M:	Peng Fan <peng.fan@nxp.com>
+M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mmc.git
 F:	drivers/mmc/
@@ -913,11 +914,31 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-nios.git
 F:	arch/nios2/
 
+NVMe
+M:	Bin Meng <bmeng.cn@gmail.com>
+S:	Maintained
+F:	drivers/nvme/
+F:	cmd/nvme.c
+F:	include/nvme.h
+F:	doc/develop/driver-model/nvme.rst
+
 ONENAND
 #M:	Lukasz Majewski <l.majewski@majess.pl>
 S:	Orphaned (Since 2017-01)
 T:	git https://source.denx.de/u-boot/custodians/u-boot-onenand.git
 F:	drivers/mtd/onenand/
+
+OUT4-IMX6ULL-NANO BOARD
+M:	Oleh Kravchenko <oleg@kaa.org.ua>
+S:	Maintained
+T:	git https://github.com/Oleh-Kravchenko/u-boot-out4.git
+F:	arch/arm/dts/ev-imx280-nano-x-mb.dts
+F:	arch/arm/dts/o4-imx-nano.dts
+F:	arch/arm/dts/o4-imx6ull-nano.dtsi
+F:	board/out4
+F:	configs/ev-imx280-nano-x-mb_defconfig
+F:	configs/o4-imx6ull-nano_defconfig
+F:	include/configs/o4-imx6ull-nano.h
 
 PATMAN
 M:	Simon Glass <sjg@chromium.org>

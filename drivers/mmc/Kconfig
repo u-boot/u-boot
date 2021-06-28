@@ -798,6 +798,13 @@ config FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
 	  This option assumes no hotplug, and u-boot has to make all the way to
 	  to linux to use 1.8v UHS-I speed mode if has card.
 
+config FSL_ESDHC_VS33_NOT_SUPPORT
+	bool "3.3V power supply not supported"
+	depends on FSL_ESDHC
+	help
+	  For eSDHC, power supply is through peripheral circuit. 3.3V support is
+	  common. Select this if 3.3V power supply not supported.
+
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
 	help

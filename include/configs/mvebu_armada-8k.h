@@ -91,11 +91,11 @@
 #include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"scriptaddr=0x4d00000\0"	\
-	"pxefile_addr_r=0x4e00000\0"	\
-	"fdt_addr_r=0x4f00000\0"	\
-	"kernel_addr_r=0x5000000\0"	\
-	"ramdisk_addr_r=0x8000000\0"	\
+	"scriptaddr=0x6d00000\0"	\
+	"pxefile_addr_r=0x6e00000\0"	\
+	"fdt_addr_r=0x6f00000\0"	\
+	"kernel_addr_r=0x7000000\0"	\
+	"ramdisk_addr_r=0xa000000\0"	\
 	"fdtfile=marvell/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	BOOTENV
 

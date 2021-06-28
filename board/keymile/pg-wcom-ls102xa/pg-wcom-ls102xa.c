@@ -70,18 +70,37 @@ int board_early_init_f(void)
 	/* QRIO Configuration */
 	qrio_uprstreq(UPREQ_CORE_RST);
 
-	if (IS_ENABLED(CONFIG_TARGET_PG_WCOM_SELI8)) {
-		qrio_prstcfg(KM_LIU_RST, PRSTCFG_POWUP_UNIT_RST);
-		qrio_wdmask(KM_LIU_RST, true);
+#if CONFIG_IS_ENABLED(TARGET_PG_WCOM_SELI8)
+	qrio_prstcfg(KM_LIU_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_wdmask(KM_LIU_RST, true);
 
-		qrio_prstcfg(KM_PAXK_RST, PRSTCFG_POWUP_UNIT_RST);
-		qrio_wdmask(KM_PAXK_RST, true);
+	qrio_prstcfg(KM_PAXK_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_wdmask(KM_PAXK_RST, true);
+#endif
 
-		qrio_prstcfg(KM_DBG_ETH_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
-		qrio_prst(KM_DBG_ETH_RST, false, false);
-	}
+#if CONFIG_IS_ENABLED(TARGET_PG_WCOM_EXPU1)
+	qrio_prstcfg(WCOM_TMG_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_wdmask(WCOM_TMG_RST, true);
+
+	qrio_prstcfg(WCOM_PHY_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_prst(WCOM_PHY_RST, false, false);
+
+	qrio_prstcfg(WCOM_QSFP_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_wdmask(WCOM_QSFP_RST, true);
+
+	qrio_prstcfg(WCOM_CLIPS_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_prst(WCOM_CLIPS_RST, false, false);
+#endif
+	qrio_prstcfg(KM_DBG_ETH_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
+	qrio_prst(KM_DBG_ETH_RST, false, false);
 
 	i2c_deblock_gpio_cfg();
+
+	/* enable the Unit LED (red) & Boot LED (on) */
+	qrio_set_leds();
+
+	/* enable Application Buffer */
+	qrio_enable_app_buffer();
 
 	arch_soc_init();
 
@@ -127,6 +146,40 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
+
+#if defined(CONFIG_POST)
+int post_hotkeys_pressed(void)
+{
+	/* DIC26_SELFTEST: GPRTA0, GPA0 */
+	qrio_gpio_direction_input(QRIO_GPIO_A, 0);
+	return qrio_get_gpio(QRIO_GPIO_A, 0);
+}
+
+ulong post_word_load(void)
+{
+	/* POST word is located at the beginning of reserved physical RAM */
+	void *addr = (void *)(CONFIG_SYS_SDRAM_BASE +
+				gd->ram_size - CONFIG_KM_RESERVED_PRAM + 8);
+	return in_le32(addr);
+}
+
+void post_word_store(ulong value)
+{
+	/* POST word is located at the beginning of reserved physical RAM */
+	void *addr = (void *)(CONFIG_SYS_SDRAM_BASE +
+				gd->ram_size - CONFIG_KM_RESERVED_PRAM + 8);
+	out_le32(addr, value);
+}
+
+int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+{
+	/* Define only 1MiB range for mem_regions at the middle of the RAM */
+	/* For 1GiB range mem_regions takes approx. 4min */
+	*vstart = CONFIG_SYS_SDRAM_BASE + (gd->ram_size >> 1);
+	*size = 1 << 20;
+	return 0;
+}
+#endif
 
 u8 flash_read8(void *addr)
 {

@@ -16,9 +16,11 @@
 	chosen {
 		bootargs = "root=/dev/ram";
 		stdout-path = "serial0:115200n8";
+		tick-timer = &gpt1;
 	};
 
 	memory {
+		device_type = "memory";
 		reg = <0x80000000 0x2000000>;
 	};
 };
@@ -184,6 +186,10 @@
 			>;
 		};
 	};
+};
+
+&gpt1 {
+	status = "okay";
 };
 
 &usdhc1 {

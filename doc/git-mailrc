@@ -119,7 +119,7 @@ alias kerneldoc      uboot, marex
 alias fdt            uboot, sjg
 alias i2c            uboot, hs
 alias kconfig        uboot, masahiro
-alias mmc            uboot, freenix
+alias mmc            uboot, freenix, jaehoon
 alias nand           uboot
 alias net            uboot, jhersh
 alias phy            uboot, jhersh

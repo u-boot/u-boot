@@ -19,7 +19,7 @@ Synopsis
     mmc wp
     mmc bootbus <dev> <boot_bus_width> <reset_boot_bus_width> <boot_mode>
     mmc bootpart-resize <dev> <dev part size MB> <RPMB part size MB>
-    mmc partconf <dev> [boot_ack boot_partition partition_access]
+    mmc partconf <dev> [[varname] | [<boot_ack> <boot_partition> <partition_access>]]
     mmc rst-function <dev> <value>
 
 Description
@@ -92,6 +92,8 @@ The 'mmc bootbus' command sets the BOOT_BUS_WIDTH field. (*Refer to eMMC specifi
 
 The 'mmc partconf' command shows or changes PARTITION_CONFIG field.
 
+    varname
+        When showing the PARTITION_CONFIG, an optional environment variable to store the current boot_partition value into.
     boot_ack
         boot acknowledge value
     boot_partition

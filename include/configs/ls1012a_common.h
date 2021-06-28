@@ -102,11 +102,11 @@
 
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
-#define QSPI_NOR_BOOTCOMMAND	"pfe stop; sf probe 0:0; sf read $kernel_load "\
+#define QSPI_NOR_BOOTCOMMAND	"sf probe 0:0; sf read $kernel_load "\
 				"$kernel_start $kernel_size && "\
 				"bootm $kernel_load"
 #else
-#define CONFIG_BOOTCOMMAND	"pfe stop; sf probe 0:0; sf read $kernel_load "\
+#define CONFIG_BOOTCOMMAND	"sf probe 0:0; sf read $kernel_load "\
 				"$kernel_start $kernel_size && "\
 				"bootm $kernel_load"
 #endif

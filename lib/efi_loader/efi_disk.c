@@ -476,7 +476,7 @@ static efi_status_t efi_disk_add_dev(
 			efi_system_partition.if_type = desc->if_type;
 			efi_system_partition.devnum = desc->devnum;
 			efi_system_partition.part = part;
-			EFI_PRINT("EFI system partition: %s %d:%d\n",
+			EFI_PRINT("EFI system partition: %s %x:%x\n",
 				  blk_get_if_type_name(desc->if_type),
 				  desc->devnum, part);
 		}
@@ -521,7 +521,7 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 
 		if (part_get_info(desc, part, &info))
 			continue;
-		snprintf(devname, sizeof(devname), "%s:%d", pdevname,
+		snprintf(devname, sizeof(devname), "%s:%x", pdevname,
 			 part);
 		ret = efi_disk_add_dev(parent, dp, if_typename, desc, diskid,
 				       &info, part, NULL);

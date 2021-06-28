@@ -1253,7 +1253,7 @@ static int sqfs_get_regfile_info(struct squashfs_reg_inode *reg,
 				       fentry);
 		if (ret < 0)
 			return -EINVAL;
-		finfo->comp = true;
+		finfo->comp = ret;
 		if (fentry->size < 1 || fentry->start == 0x7FFFFFFF)
 			return -EINVAL;
 	} else {
@@ -1291,7 +1291,7 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 				       fentry);
 		if (ret < 0)
 			return -EINVAL;
-		finfo->comp = true;
+		finfo->comp = ret;
 		if (fentry->size < 1 || fentry->start == 0x7FFFFFFF)
 			return -EINVAL;
 	} else {
@@ -1547,20 +1547,16 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 			goto out;
 		}
 
-		for (j = *actread; j < finfo.size; j++) {
-			memcpy(buf + j, &fragment_block[finfo.offset + j], 1);
-			(*actread)++;
-		}
+		memcpy(buf + *actread, &fragment_block[finfo.offset], finfo.size - *actread);
+		*actread = finfo.size;
 
 		free(fragment_block);
 
 	} else if (finfo.frag && !finfo.comp) {
 		fragment_block = (void *)fragment + table_offset;
 
-		for (j = *actread; j < finfo.size; j++) {
-			memcpy(buf + j, &fragment_block[finfo.offset + j], 1);
-			(*actread)++;
-		}
+		memcpy(buf + *actread, &fragment_block[finfo.offset], finfo.size - *actread);
+		*actread = finfo.size;
 	}
 
 out:

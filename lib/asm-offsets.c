@@ -41,5 +41,7 @@ int main(void)
 
 	DEFINE(GD_NEW_GD, offsetof(struct global_data, new_gd));
 
+	DEFINE(GD_ENV_ADDR, offsetof(struct global_data, env_addr));
+
 	return 0;
 }

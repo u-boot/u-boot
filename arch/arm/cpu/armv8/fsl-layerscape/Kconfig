@@ -223,7 +223,9 @@ config ARCH_LX2162A
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_EC1
 	select SYS_FSL_EC2
-	select SYS_FSL_ERRATUM_A050106
+	select SYS_FSL_ERRATUM_A050204
+	select SYS_FSL_ERRATUM_A011334
+	select SYS_FSL_ESDHC_UNRELIABLE_PULSE_DETECTION_WORKAROUND
 	select SYS_FSL_HAS_RGMII
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_HAS_CCN508
@@ -253,7 +255,9 @@ config ARCH_LX2160A
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_EC1
 	select SYS_FSL_EC2
-	select SYS_FSL_ERRATUM_A050106
+	select SYS_FSL_ERRATUM_A050204
+	select SYS_FSL_ERRATUM_A011334
+	select SYS_FSL_ESDHC_UNRELIABLE_PULSE_DETECTION_WORKAROUND
 	select SYS_FSL_HAS_RGMII
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_HAS_CCN508
@@ -371,8 +375,8 @@ config SYS_FSL_ERRATUM_A009008
 config SYS_FSL_ERRATUM_A009798
 	bool "Workaround for USB PHY erratum A009798"
 
-config SYS_FSL_ERRATUM_A050106
-	bool "Workaround for USB PHY erratum A050106"
+config SYS_FSL_ERRATUM_A050204
+	bool "Workaround for USB PHY erratum A050204"
 	help
 	  USB3.0 Receiver needs to enable fixed equalization
 	  for each of PHY instances in an SOC. This is similar

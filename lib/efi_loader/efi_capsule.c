@@ -901,7 +901,8 @@ static efi_status_t efi_capsule_delete_file(const u16 *filename)
 	/* ignore an error */
 	EFI_CALL((*dirh->close)(dirh));
 
-	ret = EFI_CALL((*fh->delete)(fh));
+	if (ret == EFI_SUCCESS)
+		ret = EFI_CALL((*fh->delete)(fh));
 
 	return ret;
 }

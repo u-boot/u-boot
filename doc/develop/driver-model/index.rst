@@ -19,6 +19,7 @@ subsystems
    i2c-howto
    livetree
    migration
+   nvme
    of-plat
    pci-info
    pmic-framework

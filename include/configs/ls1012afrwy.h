@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2021 NXP
  */
 
 #ifndef __LS1012AFRWY_H__
@@ -31,11 +31,6 @@
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
-#endif
-
-/*  MMC  */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
 #define CONFIG_PCIE1		/* PCIE controller 1 */
@@ -89,7 +84,7 @@
 			"env exists secureboot "	\
 			"&& esbc_validate ${scripthdraddr};"    \
 		"source ${scriptaddr}\0"	  \
-	"sd_bootcmd=pfe stop; echo Trying load from sd card..;"		\
+	"sd_bootcmd=echo Trying load from sd card..;"		\
 		"mmcinfo; mmc read $load_addr "			\
 		"$kernel_addr_sd $kernel_size_sd ;"		\
 		"env exists secureboot && mmc read $kernelheader_addr_r "\
@@ -100,10 +95,10 @@
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #undef QSPI_NOR_BOOTCOMMAND
-#define QSPI_NOR_BOOTCOMMAND "pfe stop; run distro_bootcmd; run sd_bootcmd; "\
+#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "\
 			     "env exists secureboot && esbc_halt;"
 #else
-#define CONFIG_BOOTCOMMAND "pfe stop; run distro_bootcmd; run sd_bootcmd; "\
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "\
 			   "env exists secureboot && esbc_halt;"
 #endif
 

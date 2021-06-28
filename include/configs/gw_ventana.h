@@ -65,8 +65,6 @@
  * PCI express
  */
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#define CONFIG_PCI_FIXUP_DEV
 #define CONFIG_PCIE_IMX
 #endif
 
@@ -81,13 +79,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-
-/* Ethernet support */
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE             ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE      RGMII
-#define CONFIG_FEC_MXC_PHYADDR   0
-#define CONFIG_ARP_TIMEOUT       200UL
 
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET  /* For OTG port */
@@ -129,7 +120,6 @@
 #define CONFIG_SERVERIP           192.168.1.146
 
 #define CONFIG_EXTRA_ENV_SETTINGS_COMMON \
-	"pcidisable=1\0" \
 	"splashpos=m,m\0" \
 	"usb_pgood_delay=2000\0" \
 	"console=ttymxc1\0" \

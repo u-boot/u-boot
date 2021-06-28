@@ -77,10 +77,17 @@
 				reg = <0x0>;
 			};
 
+#ifdef CONFIG_T2080RDB_REV_D
+			xg_aq1202_phy4: ethernet-phy@8 {
+				compatible = "ethernet-phy-ieee802.3-c45";
+				reg = <0x8>;
+			};
+#else
 			xg_aq1202_phy4: ethernet-phy@1 {
 				compatible = "ethernet-phy-ieee802.3-c45";
 				reg = <0x1>;
 			};
+#endif
 		};
 	};
 };

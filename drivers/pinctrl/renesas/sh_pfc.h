@@ -1,11 +1,8 @@
-/*
+/* SPDX-License-Identifier: GPL-2.0
+ *
  * SuperH Pin Function Controller Support
  *
  * Copyright (c) 2008 Magnus Damm
- *
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file "COPYING" in the main directory of this archive
- * for more details.
  */
 
 #ifndef __SH_PFC_H
@@ -21,19 +18,32 @@ enum {
 	PINMUX_TYPE_INPUT,
 };
 
+#define SH_PFC_PIN_NONE			U16_MAX
+
 #define SH_PFC_PIN_CFG_INPUT		(1 << 0)
 #define SH_PFC_PIN_CFG_OUTPUT		(1 << 1)
 #define SH_PFC_PIN_CFG_PULL_UP		(1 << 2)
 #define SH_PFC_PIN_CFG_PULL_DOWN	(1 << 3)
+#define SH_PFC_PIN_CFG_PULL_UP_DOWN	(SH_PFC_PIN_CFG_PULL_UP | \
+					 SH_PFC_PIN_CFG_PULL_DOWN)
 #define SH_PFC_PIN_CFG_IO_VOLTAGE	(1 << 4)
 #define SH_PFC_PIN_CFG_DRIVE_STRENGTH	(1 << 5)
+
+#define SH_PFC_PIN_VOLTAGE_18_33	(0 << 6)
+#define SH_PFC_PIN_VOLTAGE_25_33	(1 << 6)
+
+#define SH_PFC_PIN_CFG_IO_VOLTAGE_18_33	(SH_PFC_PIN_CFG_IO_VOLTAGE | \
+					 SH_PFC_PIN_VOLTAGE_18_33)
+#define SH_PFC_PIN_CFG_IO_VOLTAGE_25_33	(SH_PFC_PIN_CFG_IO_VOLTAGE | \
+					 SH_PFC_PIN_VOLTAGE_25_33)
+
 #define SH_PFC_PIN_CFG_NO_GPIO		(1 << 31)
 
 struct sh_pfc_pin {
-	u16 pin;
-	u16 enum_id;
 	const char *name;
 	unsigned int configs;
+	u16 pin;
+	u16 enum_id;
 };
 
 #define SH_PFC_PIN_GROUP_ALIAS(alias, n)		\
@@ -393,12 +403,12 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 /*
  * Describe a pinmux configuration in which a pin is physically multiplexed
  * with other pins.
- *   - ipsr: IPSR field (unused, for documentation purposes only)
+ *   - ipsr: IPSR field
  *   - fn: Function name
  *   - psel: Physical multiplexing selector
  */
 #define PINMUX_IPSR_PHYS(ipsr, fn, psel) \
-	PINMUX_DATA(fn##_MARK, FN_##psel)
+	PINMUX_DATA(fn##_MARK, FN_##psel, FN_##ipsr)
 
 /*
  * Describe a pinmux configuration for a single-function pin with GPIO
@@ -416,9 +426,13 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 	fn(bank, pin, GP_##bank##_##pin, sfx, cfg)
 #define PORT_GP_1(bank, pin, fn, sfx)	PORT_GP_CFG_1(bank, pin, fn, sfx, 0)
 
-#define PORT_GP_CFG_4(bank, fn, sfx, cfg)				\
+#define PORT_GP_CFG_2(bank, fn, sfx, cfg)				\
 	PORT_GP_CFG_1(bank, 0,  fn, sfx, cfg),				\
-	PORT_GP_CFG_1(bank, 1,  fn, sfx, cfg),				\
+	PORT_GP_CFG_1(bank, 1,  fn, sfx, cfg)
+#define PORT_GP_2(bank, fn, sfx)	PORT_GP_CFG_2(bank, fn, sfx, 0)
+
+#define PORT_GP_CFG_4(bank, fn, sfx, cfg)				\
+	PORT_GP_CFG_2(bank, fn, sfx, cfg),				\
 	PORT_GP_CFG_1(bank, 2,  fn, sfx, cfg),				\
 	PORT_GP_CFG_1(bank, 3,  fn, sfx, cfg)
 #define PORT_GP_4(bank, fn, sfx)	PORT_GP_CFG_4(bank, fn, sfx, 0)
@@ -517,9 +531,13 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 	PORT_GP_CFG_1(bank, 25, fn, sfx, cfg)
 #define PORT_GP_26(bank, fn, sfx)	PORT_GP_CFG_26(bank, fn, sfx, 0)
 
-#define PORT_GP_CFG_28(bank, fn, sfx, cfg)				\
+#define PORT_GP_CFG_27(bank, fn, sfx, cfg)				\
 	PORT_GP_CFG_26(bank, fn, sfx, cfg),				\
-	PORT_GP_CFG_1(bank, 26, fn, sfx, cfg),				\
+	PORT_GP_CFG_1(bank, 26, fn, sfx, cfg)
+#define PORT_GP_27(bank, fn, sfx)	PORT_GP_CFG_27(bank, fn, sfx, 0)
+
+#define PORT_GP_CFG_28(bank, fn, sfx, cfg)				\
+	PORT_GP_CFG_27(bank, fn, sfx, cfg),				\
 	PORT_GP_CFG_1(bank, 27, fn, sfx, cfg)
 #define PORT_GP_28(bank, fn, sfx)	PORT_GP_CFG_28(bank, fn, sfx, 0)
 
@@ -533,9 +551,13 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 	PORT_GP_CFG_1(bank, 29, fn, sfx, cfg)
 #define PORT_GP_30(bank, fn, sfx)	PORT_GP_CFG_30(bank, fn, sfx, 0)
 
-#define PORT_GP_CFG_32(bank, fn, sfx, cfg)				\
+#define PORT_GP_CFG_31(bank, fn, sfx, cfg)				\
 	PORT_GP_CFG_30(bank, fn, sfx, cfg),				\
-	PORT_GP_CFG_1(bank, 30, fn, sfx, cfg),				\
+	PORT_GP_CFG_1(bank, 30, fn, sfx, cfg)
+#define PORT_GP_31(bank, fn, sfx)	PORT_GP_CFG_31(bank, fn, sfx, 0)
+
+#define PORT_GP_CFG_32(bank, fn, sfx, cfg)				\
+	PORT_GP_CFG_31(bank, fn, sfx, cfg),				\
 	PORT_GP_CFG_1(bank, 31, fn, sfx, cfg)
 #define PORT_GP_32(bank, fn, sfx)	PORT_GP_CFG_32(bank, fn, sfx, 0)
 
@@ -559,7 +581,7 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 
 /* GP_ALL(suffix) - Expand to a list of GP_#_#_suffix */
 #define _GP_ALL(bank, pin, name, sfx, cfg)	name##_##sfx
-#define GP_ALL(str)			CPU_ALL_PORT(_GP_ALL, str)
+#define GP_ALL(str)			CPU_ALL_GP(_GP_ALL, str)
 
 /* PINMUX_GPIO_GP_ALL - Expand to a list of sh_pfc_pin entries */
 #define _GP_GPIO(bank, _pin, _name, sfx, cfg)				\
@@ -569,11 +591,29 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 		.enum_id = _name##_DATA,				\
 		.configs = cfg,						\
 	}
-#define PINMUX_GPIO_GP_ALL()		CPU_ALL_PORT(_GP_GPIO, unused)
+#define PINMUX_GPIO_GP_ALL()		CPU_ALL_GP(_GP_GPIO, unused)
 
 /* PINMUX_DATA_GP_ALL -  Expand to a list of name_DATA, name_FN marks */
 #define _GP_DATA(bank, pin, name, sfx, cfg)	PINMUX_DATA(name##_DATA, name##_FN)
-#define PINMUX_DATA_GP_ALL()		CPU_ALL_PORT(_GP_DATA, unused)
+#define PINMUX_DATA_GP_ALL()		CPU_ALL_GP(_GP_DATA, unused)
+
+/*
+ * GP_ASSIGN_LAST() - Expand to an enum definition for the last GP pin
+ *
+ * The largest GP pin index is obtained by taking the size of a union,
+ * containing one array per GP pin, sized by the corresponding pin index.
+ * As the fields in the CPU_ALL_GP() macro definition are separated by commas,
+ * while the members of a union must be terminated by semicolons, the commas
+ * are absorbed by wrapping them inside dummy attributes.
+ */
+#define _GP_ENTRY(bank, pin, name, sfx, cfg)				\
+	deprecated)); char name[(bank * 32) + pin] __attribute__((deprecated
+#define GP_ASSIGN_LAST()						\
+	GP_LAST = sizeof(union {					\
+		char dummy[0] __attribute__((deprecated,		\
+		CPU_ALL_GP(_GP_ENTRY, unused),				\
+		deprecated));						\
+	})
 
 /*
  * PORT style (linear pin space)
@@ -616,22 +656,6 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 		.configs = cfgs,					\
 	}
 
-/* SH_PFC_PIN_NAMED - Expand to a sh_pfc_pin entry with the given name */
-#define SH_PFC_PIN_NAMED(row, col, _name)				\
-	{								\
-		.pin = PIN_NUMBER(row, col),				\
-		.name = __stringify(PIN_##_name),			\
-		.configs = SH_PFC_PIN_CFG_NO_GPIO,			\
-	}
-
-/* SH_PFC_PIN_NAMED_CFG - Expand to a sh_pfc_pin entry with the given name */
-#define SH_PFC_PIN_NAMED_CFG(row, col, _name, cfgs)			\
-	{								\
-		.pin = PIN_NUMBER(row, col),				\
-		.name = __stringify(PIN_##_name),			\
-		.configs = SH_PFC_PIN_CFG_NO_GPIO | cfgs,		\
-	}
-
 /* PINMUX_DATA_ALL - Expand to a list of PORT_name_DATA, PORT_name_FN0,
  *		     PORT_name_OUT, PORT_name_IN marks
  */
@@ -639,6 +663,24 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 	PINMUX_DATA(PORT##pfx##_DATA, PORT##pfx##_FN0,			\
 		    PORT##pfx##_OUT, PORT##pfx##_IN)
 #define PINMUX_DATA_ALL()		CPU_ALL_PORT(_PORT_DATA, , unused)
+
+/*
+ * PORT_ASSIGN_LAST() - Expand to an enum definition for the last PORT pin
+ *
+ * The largest PORT pin index is obtained by taking the size of a union,
+ * containing one array per PORT pin, sized by the corresponding pin index.
+ * As the fields in the CPU_ALL_PORT() macro definition are separated by
+ * commas, while the members of a union must be terminated by semicolons, the
+ * commas are absorbed by wrapping them inside dummy attributes.
+ */
+#define _PORT_ENTRY(pn, pfx, sfx)					\
+	deprecated)); char pfx[pn] __attribute__((deprecated
+#define PORT_ASSIGN_LAST()						\
+	PORT_LAST = sizeof(union {					\
+		char dummy[0] __attribute__((deprecated,		\
+		CPU_ALL_PORT(_PORT_ENTRY, PORT, unused),		\
+		deprecated));						\
+	})
 
 /* GPIO_FN(name) - Expand to a sh_pfc_pin entry for a function GPIO */
 #define PINMUX_GPIO_FN(gpio, base, data_or_mark)			\
@@ -648,6 +690,26 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 	}
 #define GPIO_FN(str)							\
 	PINMUX_GPIO_FN(GPIO_FN_##str, PINMUX_FN_BASE, str##_MARK)
+
+/*
+ * Pins not associated with a GPIO port
+ */
+
+#define PIN_NOGP_CFG(pin, name, fn, cfg)	fn(pin, name, cfg)
+#define PIN_NOGP(pin, name, fn)			fn(pin, name, 0)
+
+/* NOGP_ALL - Expand to a list of PIN_id */
+#define _NOGP_ALL(pin, name, cfg)		PIN_##pin
+#define NOGP_ALL()				CPU_ALL_NOGP(_NOGP_ALL)
+
+/* PINMUX_NOGP_ALL - Expand to a list of sh_pfc_pin entries */
+#define _NOGP_PINMUX(_pin, _name, cfg)					\
+	{								\
+		.pin = PIN_##_pin,					\
+		.name = "PIN_" _name,					\
+		.configs = SH_PFC_PIN_CFG_NO_GPIO | cfg,		\
+	}
+#define PINMUX_NOGP_ALL()		CPU_ALL_NOGP(_NOGP_PINMUX)
 
 /*
  * PORTnCR helper macro for SH-Mobile/R-Mobile

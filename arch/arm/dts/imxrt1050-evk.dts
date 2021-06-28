@@ -16,9 +16,11 @@
 	chosen {
 		bootargs = "root=/dev/ram";
 		stdout-path = "serial0:115200n8";
+		tick-timer = &gpt1;
 	};
 
 	memory {
+		device_type = "memory";
 		reg = <0x80000000 0x2000000>;
 	};
 };
@@ -187,7 +189,6 @@
 		};
 
 		pinctrl_lcdif: lcdifgrp {
-			u-boot,dm-spl;
 			fsl,pins = <
 				MXRT1050_IOMUXC_GPIO_B0_00_LCD_CLK		0x1b0b1
 				MXRT1050_IOMUXC_GPIO_B0_01_LCD_ENABLE		0x1b0b1
@@ -215,6 +216,10 @@
 	};
 };
 
+&gpt1 {
+	status = "okay";
+};
+
 &usdhc1 {
 	pinctrl-names = "default", "state_100mhz", "state_200mhz", "sleep";
 	pinctrl-0 = <&pinctrl_usdhc0>;
@@ -231,9 +236,6 @@
 	pinctrl-0 = <&pinctrl_lcdif>;
 	display = <&display0>;
 	status = "okay";
-
-	assigned-clocks = <&clks IMXRT1050_CLK_LCDIF_SEL>;
-	assigned-clock-parents = <&clks IMXRT1050_CLK_PLL5_VIDEO>;
 
 	display0: display0 {
 		bits-per-pixel = <16>;
@@ -257,4 +259,9 @@
 			};
 		};
 	};
+};
+
+&usbotg1 {
+	dr_mode = "host";
+	status = "okay";
 };

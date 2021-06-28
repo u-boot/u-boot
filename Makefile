@@ -3,7 +3,7 @@
 VERSION = 2021
 PATCHLEVEL = 07
 SUBLEVEL =
-EXTRAVERSION = -rc4
+EXTRAVERSION = -rc5
 NAME =
 
 # *DOCUMENTATION*
@@ -2279,7 +2279,7 @@ endif
 	$(build)=$(build-dir) $(@:.ko=.o)
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost
 
-quiet_cmd_genenv = GENENV $@
+quiet_cmd_genenv = GENENV  $@
 cmd_genenv = $(OBJCOPY) --dump-section .rodata.default_environment=$@ env/common.o; \
 	sed --in-place -e 's/\x00/\x0A/g' $@
 

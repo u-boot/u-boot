@@ -67,25 +67,47 @@ static void mxs_lcd_init(struct udevice *dev, u32 fb_addr,
 	uint32_t vdctrl0;
 
 #if CONFIG_IS_ENABLED(CLK)
-	struct clk per_clk;
+	struct clk clk;
 	int ret;
 
-	ret = clk_get_by_name(dev, "per", &per_clk);
+	ret = clk_get_by_name(dev, "pix", &clk);
 	if (ret) {
-		dev_err(dev, "Failed to get mxs clk: %d\n", ret);
+		dev_err(dev, "Failed to get mxs pix clk: %d\n", ret);
 		return;
 	}
 
-	ret = clk_set_rate(&per_clk, timings->pixelclock.typ);
+	ret = clk_set_rate(&clk, timings->pixelclock.typ);
 	if (ret < 0) {
-		dev_err(dev, "Failed to set mxs clk: %d\n", ret);
+		dev_err(dev, "Failed to set mxs pix clk: %d\n", ret);
 		return;
 	}
 
-	ret = clk_enable(&per_clk);
+	ret = clk_enable(&clk);
 	if (ret < 0) {
-		dev_err(dev, "Failed to enable mxs clk: %d\n", ret);
+		dev_err(dev, "Failed to enable mxs pix clk: %d\n", ret);
 		return;
+	}
+
+	ret = clk_get_by_name(dev, "axi", &clk);
+	if (!ret) {
+		debug("%s: Failed to get mxs axi clk: %d\n", __func__, ret);
+	} else {
+		ret = clk_enable(&clk);
+		if (ret < 0) {
+			dev_err(dev, "Failed to enable mxs axi clk: %d\n", ret);
+			return;
+		}
+	}
+
+	ret = clk_get_by_name(dev, "disp_axi", &clk);
+	if (!ret) {
+		debug("%s: Failed to get mxs disp_axi clk: %d\n", __func__, ret);
+	} else {
+		ret = clk_enable(&clk);
+		if (ret < 0) {
+			dev_err(dev, "Failed to enable mxs disp_axi clk: %d\n", ret);
+			return;
+		}
 	}
 #else
 	/* Kick in the LCDIF clock */
