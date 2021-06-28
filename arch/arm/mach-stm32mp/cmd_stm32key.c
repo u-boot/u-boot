@@ -210,10 +210,60 @@ static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 	return CMD_RET_SUCCESS;
 }
 
+static int do_stm32key_close(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	bool yes, lock, closed;
+	struct udevice *dev;
+	u32 val;
+	int ret;
+
+	yes = false;
+	if (argc == 2) {
+		if (strcmp(argv[1], "-y"))
+			return CMD_RET_USAGE;
+		yes = true;
+	}
+
+	ret = read_hash_otp(!yes, &lock, &closed);
+	if (ret) {
+		if (ret == -ENOENT)
+			printf("Error: OTP not programmed!\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (closed) {
+		printf("Error: already closed!\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (!lock)
+		printf("Warning: OTP not locked!\n");
+
+	if (!yes && !confirm_prog())
+		return CMD_RET_FAILURE;
+
+	ret = get_misc_dev(&dev);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	val = STM32_OTP_CLOSE_MASK;
+	ret = misc_write(dev, STM32_BSEC_OTP(STM32_OTP_CLOSE_ID), &val, 4);
+	if (ret != 4) {
+		printf("Error: can't update OTP\n");
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Device is closed !\n");
+
+	return CMD_RET_SUCCESS;
+}
+
 static char stm32key_help_text[] =
 	"read [<addr>]: Read the hash stored at addr in memory or in OTP\n"
-	"stm32key fuse [-y] <addr> : Fuse hash stored at addr in OTP\n";
+	"stm32key fuse [-y] <addr> : Fuse hash stored at addr in OTP\n"
+	"stm32key close [-y] : Close the device, the hash stored in OTP\n";
 
 U_BOOT_CMD_WITH_SUBCMDS(stm32key, "Fuse ST Hash key", stm32key_help_text,
 	U_BOOT_SUBCMD_MKENT(read, 2, 0, do_stm32key_read),
-	U_BOOT_SUBCMD_MKENT(fuse, 3, 0, do_stm32key_fuse));
+	U_BOOT_SUBCMD_MKENT(fuse, 3, 0, do_stm32key_fuse),
+	U_BOOT_SUBCMD_MKENT(close, 2, 0, do_stm32key_close));
