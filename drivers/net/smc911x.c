@@ -28,6 +28,7 @@ struct smc911x_priv {
 	phys_addr_t		iobase;
 	const struct chip_id	*chipid;
 	unsigned char		enetaddr[6];
+	bool			use_32_bit_io;
 };
 
 static const struct chip_id chip_ids[] =  {
@@ -48,28 +49,24 @@ static const struct chip_id chip_ids[] =  {
 
 #define DRIVERNAME "smc911x"
 
-#if defined (CONFIG_SMC911X_32_BIT)
 static u32 smc911x_reg_read(struct smc911x_priv *priv, u32 offset)
 {
-	return readl(priv->iobase + offset);
+	if (priv->use_32_bit_io)
+		return readl(priv->iobase + offset);
+
+	return (readw(priv->iobase + offset) & 0xffff) |
+	       (readw(priv->iobase + offset + 2) << 16);
 }
 
 static void smc911x_reg_write(struct smc911x_priv *priv, u32 offset, u32 val)
 {
-	writel(val, priv->iobase + offset);
+	if (priv->use_32_bit_io) {
+		writel(val, priv->iobase + offset);
+	} else {
+		writew(val & 0xffff, priv->iobase + offset);
+		writew(val >> 16, priv->iobase + offset + 2);
+	}
 }
-#else
-static u32 smc911x_reg_read(struct smc911x_priv *priv, u32 offset)
-{
-	return (readw(priv->iobase + offset) & 0xffff) |
-	       (readw(priv->iobase + offset + 2) << 16);
-}
-static void smc911x_reg_write(struct smc911x_priv *priv, u32 offset, u32 val)
-{
-	writew(val & 0xffff, priv->iobase + offset);
-	writew(val >> 16, priv->iobase + offset + 2);
-}
-#endif /* CONFIG_SMC911X_32_BIT */
 
 static u32 smc911x_get_mac_csr(struct smc911x_priv *priv, u8 reg)
 {
@@ -493,6 +490,8 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 	priv->iobase = base_addr;
 	priv->dev.iobase = base_addr;
 
+	priv->use_32_bit_io = CONFIG_IS_ENABLED(SMC911X_32_BIT);
+
 	/* Try to detect chip. Will fail if not present. */
 	ret = smc911x_detect_chip(priv);
 	if (ret) {
@@ -603,9 +602,17 @@ static int smc911x_of_to_plat(struct udevice *dev)
 {
 	struct smc911x_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
+	u32 io_width;
+	int ret;
 
 	pdata->iobase = dev_read_addr(dev);
 	priv->iobase = pdata->iobase;
+
+	ret = dev_read_u32(dev, "reg-io-width", &io_width);
+	if (!ret)
+		priv->use_32_bit_io = (io_width == 4);
+	else
+		priv->use_32_bit_io = CONFIG_IS_ENABLED(SMC911X_32_BIT);
 
 	return 0;
 }
