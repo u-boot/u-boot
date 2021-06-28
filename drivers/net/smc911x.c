@@ -48,12 +48,6 @@ static const struct chip_id chip_ids[] =  {
 
 #define DRIVERNAME "smc911x"
 
-#if defined (CONFIG_SMC911X_32_BIT) && \
-	defined (CONFIG_SMC911X_16_BIT)
-#error "SMC911X: Only one of CONFIG_SMC911X_32_BIT and \
-	CONFIG_SMC911X_16_BIT shall be set"
-#endif
-
 #if defined (CONFIG_SMC911X_32_BIT)
 static u32 smc911x_reg_read(struct smc911x_priv *priv, u32 offset)
 {
@@ -64,7 +58,7 @@ static void smc911x_reg_write(struct smc911x_priv *priv, u32 offset, u32 val)
 {
 	writel(val, priv->iobase + offset);
 }
-#elif defined (CONFIG_SMC911X_16_BIT)
+#else
 static u32 smc911x_reg_read(struct smc911x_priv *priv, u32 offset)
 {
 	return (readw(priv->iobase + offset) & 0xffff) |
@@ -75,9 +69,7 @@ static void smc911x_reg_write(struct smc911x_priv *priv, u32 offset, u32 val)
 	writew(val & 0xffff, priv->iobase + offset);
 	writew(val >> 16, priv->iobase + offset + 2);
 }
-#else
-#error "SMC911X: undefined bus width"
-#endif /* CONFIG_SMC911X_16_BIT */
+#endif /* CONFIG_SMC911X_32_BIT */
 
 static u32 smc911x_get_mac_csr(struct smc911x_priv *priv, u8 reg)
 {
