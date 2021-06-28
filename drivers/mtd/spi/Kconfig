@@ -88,6 +88,32 @@ config SPI_FLASH_SFDP_SUPPORT
 	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
 	 tables as per JESD216 standard.
 
+config SPI_FLASH_SMART_HWCAPS
+	bool "Smart hardware capability detection based on SPI MEM supports_op() hook"
+	default y
+	help
+	 Enable support for smart hardware capability detection based on SPI
+	 MEM supports_op() hook that lets controllers express whether they
+	 can support a type of operation in a much more refined way compared
+	 to using flags like SPI_RX_DUAL, SPI_TX_QUAD, etc.
+
+config SPI_FLASH_SOFT_RESET
+	bool "Software Reset support for SPI NOR flashes"
+	default n
+	help
+	 Enable support for xSPI Software Reset. It will be used to switch from
+	 Octal DTR mode to legacy mode on shutdown and boot (if enabled).
+
+config SPI_FLASH_SOFT_RESET_ON_BOOT
+	bool "Perform a Software Reset on boot on flashes that boot in stateful mode"
+	depends on SPI_FLASH_SOFT_RESET
+	default n
+	help
+	 Perform a Software Reset on boot to allow detecting flashes that are
+	 handed to us in Octal DTR mode. Do not enable this config on flashes
+	 that are not supposed to be handed to U-Boot in Octal DTR mode, even
+	 if they _do_ support the Soft Reset sequence.
+
 config SPI_FLASH_BAR
 	bool "SPI flash Bank/Extended address register support"
 	help
@@ -141,10 +167,26 @@ config SPI_FLASH_SPANSION
 	help
 	  Add support for various Spansion SPI flash chips (S25FLxxx)
 
+config SPI_FLASH_S28HS512T
+	bool "Cypress S28HS512T chip support"
+	depends on SPI_FLASH_SPANSION
+	help
+	 Add support for the Cypress S28HS512T chip. This is a separate config
+	 because the fixup hooks for this flash add extra size overhead. Boards
+	 that don't use the flash can disable this to save space.
+
 config SPI_FLASH_STMICRO
 	bool "STMicro SPI flash support"
 	help
 	  Add support for various STMicro SPI flash chips (M25Pxxx and N25Qxxx)
+
+config SPI_FLASH_MT35XU
+	bool "Micron MT35XU chip support"
+	depends on SPI_FLASH_STMICRO
+	help
+	 Add support for the Micron MT35XU chip. This is a separate config
+	 because the fixup hooks for this flash add extra size overhead. Boards
+	 that don't use the flash can disable this to save space.
 
 config SPI_FLASH_SST
 	bool "SST SPI flash support"

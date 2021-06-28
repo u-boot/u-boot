@@ -151,6 +151,11 @@ int spi_flash_std_probe(struct udevice *dev)
 static int spi_flash_std_remove(struct udevice *dev)
 {
 	struct spi_flash *flash = dev_get_uclass_priv(dev);
+	int ret;
+
+	ret = spi_nor_remove(flash);
+	if (ret)
+		return ret;
 
 	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
 		spi_flash_mtd_unregister(flash);
@@ -178,6 +183,7 @@ U_BOOT_DRIVER(jedec_spi_nor) = {
 	.remove		= spi_flash_std_remove,
 	.priv_auto	= sizeof(struct spi_nor),
 	.ops		= &spi_flash_std_ops,
+	.flags		= DM_FLAG_OS_PREPARE,
 };
 
 DM_DRIVER_ALIAS(jedec_spi_nor, spansion_m25p16)

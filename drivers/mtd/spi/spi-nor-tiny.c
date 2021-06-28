@@ -555,28 +555,6 @@ static int spansion_read_cr_quad_enable(struct spi_nor *nor)
 }
 #endif /* CONFIG_SPI_FLASH_SPANSION */
 
-struct spi_nor_read_command {
-	u8			num_mode_clocks;
-	u8			num_wait_states;
-	u8			opcode;
-	enum spi_nor_protocol	proto;
-};
-
-enum spi_nor_read_command_index {
-	SNOR_CMD_READ,
-	SNOR_CMD_READ_FAST,
-
-	/* Quad SPI */
-	SNOR_CMD_READ_1_1_4,
-
-	SNOR_CMD_READ_MAX
-};
-
-struct spi_nor_flash_parameter {
-	struct spi_nor_hwcaps		hwcaps;
-	struct spi_nor_read_command	reads[SNOR_CMD_READ_MAX];
-};
-
 static void
 spi_nor_set_read_settings(struct spi_nor_read_command *read,
 			  u8 num_mode_clocks,

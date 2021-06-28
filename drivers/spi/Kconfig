@@ -255,6 +255,13 @@ config MXS_SPI
 	  Enable the MXS SPI controller driver. This driver can be used
 	  on the i.MX23 and i.MX28 SoCs.
 
+config SPI_MXIC
+	bool "Macronix MX25F0A SPI controller"
+	help
+	  Enable the Macronix MX25F0A SPI controller driver. This driver
+	  can be used to access the SPI flash on platforms embedding
+	  this Macronix IP core.
+
 config NXP_FSPI
 	bool "NXP FlexSPI driver"
 	depends on SPI_MEM

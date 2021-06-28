@@ -20,6 +20,8 @@
 #include <linux/sizes.h>
 #include "cadence_qspi.h"
 
+#define NSEC_PER_SEC			1000000000L
+
 #define CQSPI_STIG_READ			0
 #define CQSPI_STIG_WRITE		1
 #define CQSPI_READ			2
@@ -41,20 +43,22 @@ static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 	return 0;
 }
 
-static int cadence_spi_read_id(void *reg_base, u8 len, u8 *idcode)
+static int cadence_spi_read_id(struct cadence_spi_plat *plat, u8 len,
+			       u8 *idcode)
 {
 	struct spi_mem_op op = SPI_MEM_OP(SPI_MEM_OP_CMD(0x9F, 1),
 					  SPI_MEM_OP_NO_ADDR,
 					  SPI_MEM_OP_NO_DUMMY,
 					  SPI_MEM_OP_DATA_IN(len, idcode, 1));
 
-	return cadence_qspi_apb_command_read(reg_base, &op);
+	return cadence_qspi_apb_command_read(plat, &op);
 }
 
 /* Calibration sequence to determine the read data capture delay register */
 static int spi_calibration(struct udevice *bus, uint hz)
 {
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
+	struct cadence_spi_plat *plat = dev_get_plat(bus);
 	void *base = priv->regbase;
 	unsigned int idcode = 0, temp = 0;
 	int err = 0, i, range_lo = -1, range_hi = -1;
@@ -69,7 +73,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 	cadence_qspi_apb_controller_enable(base);
 
 	/* read the ID which will be our golden value */
-	err = cadence_spi_read_id(base, 3, (u8 *)&idcode);
+	err = cadence_spi_read_id(plat, 3, (u8 *)&idcode);
 	if (err) {
 		puts("SF: Calibration failed (read)\n");
 		return err;
@@ -88,7 +92,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 		cadence_qspi_apb_controller_enable(base);
 
 		/* issue a RDID to get the ID value */
-		err = cadence_spi_read_id(base, 3, (u8 *)&temp);
+		err = cadence_spi_read_id(plat, 3, (u8 *)&temp);
 		if (err) {
 			puts("SF: Calibration failed (read)\n");
 			return err;
@@ -141,12 +145,20 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 	cadence_qspi_apb_controller_disable(priv->regbase);
 
 	/*
-	 * Calibration required for different current SCLK speed, requested
-	 * SCLK speed or chip select
+	 * If the device tree already provides a read delay value, use that
+	 * instead of calibrating.
 	 */
-	if (priv->previous_hz != hz ||
-	    priv->qspi_calibrated_hz != hz ||
-	    priv->qspi_calibrated_cs != spi_chip_select(bus)) {
+	if (plat->read_delay >= 0) {
+		cadence_spi_write_speed(bus, hz);
+		cadence_qspi_apb_readdata_capture(priv->regbase, 1,
+						  plat->read_delay);
+	} else if (priv->previous_hz != hz ||
+		   priv->qspi_calibrated_hz != hz ||
+		   priv->qspi_calibrated_cs != spi_chip_select(bus)) {
+		/*
+		 * Calibration required for different current SCLK speed,
+		 * requested SCLK speed or chip select
+		 */
 		err = spi_calibration(bus, hz);
 		if (err)
 			return err;
@@ -199,6 +211,8 @@ static int cadence_spi_probe(struct udevice *bus)
 		cadence_qspi_apb_controller_init(plat);
 		priv->qspi_is_init = 1;
 	}
+
+	plat->wr_delay = 50 * DIV_ROUND_UP(NSEC_PER_SEC, plat->ref_clk_hz);
 
 	return 0;
 }
@@ -259,10 +273,14 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 
 	switch (mode) {
 	case CQSPI_STIG_READ:
-		err = cadence_qspi_apb_command_read(base, op);
+		err = cadence_qspi_apb_command_read_setup(plat, op);
+		if (!err)
+			err = cadence_qspi_apb_command_read(plat, op);
 		break;
 	case CQSPI_STIG_WRITE:
-		err = cadence_qspi_apb_command_write(base, op);
+		err = cadence_qspi_apb_command_write_setup(plat, op);
+		if (!err)
+			err = cadence_qspi_apb_command_write(plat, op);
 		break;
 	case CQSPI_READ:
 		err = cadence_qspi_apb_read_setup(plat, op);
@@ -280,6 +298,26 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 	}
 
 	return err;
+}
+
+static bool cadence_spi_mem_supports_op(struct spi_slave *slave,
+					const struct spi_mem_op *op)
+{
+	bool all_true, all_false;
+
+	all_true = op->cmd.dtr && op->addr.dtr && op->dummy.dtr &&
+		   op->data.dtr;
+	all_false = !op->cmd.dtr && !op->addr.dtr && !op->dummy.dtr &&
+		    !op->data.dtr;
+
+	/* Mixed DTR modes not supported. */
+	if (!(all_true || all_false))
+		return false;
+
+	if (all_true)
+		return spi_mem_dtr_supports_op(slave, op);
+	else
+		return spi_mem_default_supports_op(slave, op);
 }
 
 static int cadence_spi_of_to_plat(struct udevice *bus)
@@ -320,6 +358,14 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 						 255);
 	plat->tchsh_ns = ofnode_read_u32_default(subnode, "cdns,tchsh-ns", 20);
 	plat->tslch_ns = ofnode_read_u32_default(subnode, "cdns,tslch-ns", 20);
+	/*
+	 * Read delay should be an unsigned value but we use a signed integer
+	 * so that negative values can indicate that the device tree did not
+	 * specify any signed values and we need to perform the calibration
+	 * sequence to find it out.
+	 */
+	plat->read_delay = ofnode_read_s32_default(subnode, "cdns,read-delay",
+						   -1);
 
 	debug("%s: regbase=%p ahbbase=%p max-frequency=%d page-size=%d\n",
 	      __func__, plat->regbase, plat->ahbbase, plat->max_hz,
@@ -330,6 +376,7 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 
 static const struct spi_controller_mem_ops cadence_spi_mem_ops = {
 	.exec_op = cadence_spi_mem_exec_op,
+	.supports_op = cadence_spi_mem_supports_op,
 };
 
 static const struct dm_spi_ops cadence_spi_ops = {
