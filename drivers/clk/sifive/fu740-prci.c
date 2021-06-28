@@ -20,7 +20,7 @@
 #include "sifive-prci.h"
 #include <asm/io.h>
 
-int sifive_prci_fu740_pciauxclk_enable(struct __prci_clock *pc, bool enable)
+int sifive_prci_fu740_pcieauxclk_enable(struct __prci_clock *pc, bool enable)
 {
 	struct __prci_wrpll_data *pwd = pc->pwd;
 	struct __prci_data *pd = pc->pd;
@@ -98,7 +98,7 @@ static const struct __prci_clock_ops sifive_fu740_prci_hfpclkplldiv_clk_ops = {
 };
 
 static const struct __prci_clock_ops sifive_fu740_prci_pcieaux_clk_ops = {
-	.enable_clk = sifive_prci_fu740_pciauxclk_enable,
+	.enable_clk = sifive_prci_fu740_pcieauxclk_enable,
 };
 
 /* List of clock controls provided by the PRCI */
@@ -150,7 +150,7 @@ struct __prci_clock __prci_init_clocks_fu740[] = {
 		.ops = &sifive_fu740_prci_hfpclkplldiv_clk_ops,
 	},
 	[PRCI_CLK_PCIEAUX] {
-		.name = "pciaux",
+		.name = "pcieaux",
 		.parent_name = "",
 		.ops = &sifive_fu740_prci_pcieaux_clk_ops,
 		.pwd = &__prci_pcieaux_data,
