@@ -11,8 +11,13 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 
-#define STM32_OTP_HASH_KEY_START 24
-#define STM32_OTP_HASH_KEY_SIZE 8
+/* Closed device : bit 6 of OPT0*/
+#define STM32_OTP_CLOSE_ID		0
+#define STM32_OTP_CLOSE_MASK		BIT(6)
+
+/* HASH of key: 8 OTPs, starting with OTP24) */
+#define STM32_OTP_HASH_KEY_START	24
+#define STM32_OTP_HASH_KEY_SIZE		8
 
 static int get_misc_dev(struct udevice **dev)
 {
@@ -29,11 +34,75 @@ static void read_hash_value(u32 addr)
 {
 	int i;
 
+	printf("Read KEY at 0x%x\n", addr);
 	for (i = 0; i < STM32_OTP_HASH_KEY_SIZE; i++) {
 		printf("OTP value %i: %x\n", STM32_OTP_HASH_KEY_START + i,
 		       __be32_to_cpu(*(u32 *)addr));
 		addr += 4;
 	}
+}
+
+static int read_hash_otp(bool print, bool *locked, bool *closed)
+{
+	struct udevice *dev;
+	int i, word, ret;
+	int nb_invalid = 0, nb_zero = 0, nb_lock = 0;
+	u32 val, lock;
+	bool status;
+
+	ret = get_misc_dev(&dev);
+	if (ret)
+		return ret;
+
+	for (i = 0, word = STM32_OTP_HASH_KEY_START; i < STM32_OTP_HASH_KEY_SIZE; i++, word++) {
+		ret = misc_read(dev, STM32_BSEC_OTP(word), &val, 4);
+		if (ret != 4)
+			val = ~0x0;
+		ret = misc_read(dev, STM32_BSEC_LOCK(word), &lock, 4);
+		if (ret != 4)
+			lock = -1;
+		if (print)
+			printf("OTP HASH %i: %x lock : %d\n", word, val, lock);
+		if (val == ~0x0)
+			nb_invalid++;
+		else if (val == 0x0)
+			nb_zero++;
+		if (lock == 1)
+			nb_lock++;
+	}
+
+	word = STM32_OTP_CLOSE_ID;
+	ret = misc_read(dev, STM32_BSEC_OTP(word), &val, 4);
+	if (ret != 4)
+		val = 0x0;
+	ret = misc_read(dev, STM32_BSEC_LOCK(word), &lock, 4);
+	if (ret != 4)
+		lock = -1;
+
+	status = (val & STM32_OTP_CLOSE_MASK) == STM32_OTP_CLOSE_MASK;
+	if (closed)
+		*closed = status;
+	if (print)
+		printf("OTP %d: closed status: %d lock : %d\n", word, status, lock);
+
+	status = (nb_lock == STM32_OTP_HASH_KEY_SIZE);
+	if (locked)
+		*locked = status;
+	if (!status && print)
+		printf("Hash of key is not locked!\n");
+
+	if (nb_invalid == STM32_OTP_HASH_KEY_SIZE) {
+		if (print)
+			printf("Hash of key is invalid!\n");
+		return -EINVAL;
+	}
+	if (nb_zero == STM32_OTP_HASH_KEY_SIZE) {
+		if (print)
+			printf("Hash of key is free!\n");
+		return -ENOENT;
+	}
+
+	return 0;
 }
 
 static int fuse_hash_value(u32 addr, bool print)
@@ -88,8 +157,10 @@ static int do_stm32key_read(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 {
 	u32 addr;
 
-	if (argc == 1)
-		return CMD_RET_USAGE;
+	if (argc == 1) {
+		read_hash_otp(true, NULL, NULL);
+		return CMD_RET_SUCCESS;
+	}
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 	if (!addr)
@@ -103,7 +174,7 @@ static int do_stm32key_read(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	u32 addr;
-	bool yes = false;
+	bool yes = false, lock, closed;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -118,6 +189,16 @@ static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 	if (!addr)
 		return CMD_RET_USAGE;
 
+	if (read_hash_otp(!yes, &lock, &closed) != -ENOENT) {
+		printf("Error: can't fuse again the OTP\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (lock || closed) {
+		printf("Error: invalid OTP configuration (lock=%d, closed=%d)\n", lock, closed);
+		return CMD_RET_FAILURE;
+	}
+
 	if (!yes && !confirm_prog())
 		return CMD_RET_FAILURE;
 
@@ -130,7 +211,7 @@ static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 }
 
 static char stm32key_help_text[] =
-	"read <addr>: Read the hash stored at addr in memory\n"
+	"read [<addr>]: Read the hash stored at addr in memory or in OTP\n"
 	"stm32key fuse [-y] <addr> : Fuse hash stored at addr in OTP\n";
 
 U_BOOT_CMD_WITH_SUBCMDS(stm32key, "Fuse ST Hash key", stm32key_help_text,
