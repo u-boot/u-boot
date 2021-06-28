@@ -25,7 +25,7 @@ static void read_hash_value(u32 addr)
 	}
 }
 
-static void fuse_hash_value(u32 addr, bool print)
+static int fuse_hash_value(u32 addr, bool print)
 {
 	struct udevice *dev;
 	u32 word, val;
@@ -36,21 +36,25 @@ static void fuse_hash_value(u32 addr, bool print)
 					  &dev);
 	if (ret) {
 		log_err("Can't find stm32mp_bsec driver\n");
-		return;
+		return ret;
 	}
 
 	for (i = 0; i < STM32_OTP_HASH_KEY_SIZE; i++) {
-		if (print)
-			printf("Fuse OTP %i : %x\n",
-			       STM32_OTP_HASH_KEY_START + i,
-			       __be32_to_cpu(*(u32 *)addr));
-
 		word = STM32_OTP_HASH_KEY_START + i;
 		val = __be32_to_cpu(*(u32 *)addr);
-		misc_write(dev, STM32_BSEC_OTP(word), &val, 4);
+		if (print)
+			printf("Fuse OTP %i : %x\n", word, val);
+
+		ret = misc_write(dev, STM32_BSEC_OTP(word), &val, 4);
+		if (ret != 4) {
+			log_err("Fuse OTP %i failed\n", word);
+			return ret;
+		}
 
 		addr += 4;
 	}
+
+	return 0;
 }
 
 static int confirm_prog(void)
@@ -104,7 +108,9 @@ static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 	if (!yes && !confirm_prog())
 		return CMD_RET_FAILURE;
 
-	fuse_hash_value(addr, !yes);
+	if (fuse_hash_value(addr, !yes))
+		return CMD_RET_FAILURE;
+
 	printf("Hash key updated !\n");
 
 	return CMD_RET_SUCCESS;
