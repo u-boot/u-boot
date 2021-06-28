@@ -1,11 +1,11 @@
 CONFIG_ARM=y
 CONFIG_ARCH_OMAP2PLUS=y
 CONFIG_SYS_MALLOC_F_LEN=0x4000
+CONFIG_DEFAULT_DEVICE_TREE="omap4-panda"
 CONFIG_SPL_TEXT_BASE=0x40300000
 CONFIG_OMAP44XX=y
 CONFIG_TARGET_OMAP4_PANDA=y
 CONFIG_SPL=y
-CONFIG_DEFAULT_DEVICE_TREE="omap4-panda"
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTCOMMAND="if test ${boot_fit} -eq 1; then run update_to_fit; fi; run findfdt; run init_console; run envboot; run distro_bootcmd"
 CONFIG_DEFAULT_FDT_FILE="omap4-panda.dtb"
