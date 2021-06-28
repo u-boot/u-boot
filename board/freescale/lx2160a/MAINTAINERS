@@ -1,6 +1,7 @@
 LX2160ARDB BOARD
 M:	Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
 M:	Priyanka Jain <priyanka.jain@nxp.com>
+M:	Wasim Khan <wasim.khan@nxp.com>
 S:	Maintained
 F:	board/freescale/lx2160a/
 F:	include/configs/lx2160a_common.h
