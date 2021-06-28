@@ -114,3 +114,9 @@ config CLK_R8A77995
 	depends on CLK_RCAR_GEN3
 	help
 	  Enable this to support the clocks on Renesas R8A77995 SoC.
+
+config CLK_R8A779A0
+	bool "Renesas R8A779A0 clock driver"
+	depends on CLK_RCAR_GEN3
+	help
+	  Enable this to support the clocks on Renesas R8A779A0 SoC.

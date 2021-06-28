@@ -28,6 +28,14 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_GEN3_RPC,
 	CLK_TYPE_GEN3_RPCD2,
 
+	CLK_TYPE_R8A779A0_MAIN,
+	CLK_TYPE_R8A779A0_PLL1,
+	CLK_TYPE_R8A779A0_PLL2X_3X,	/* PLL[23][01] */
+	CLK_TYPE_R8A779A0_PLL5,
+	CLK_TYPE_R8A779A0_SD,
+	CLK_TYPE_R8A779A0_MDSEL,	/* Select parent/divider using mode pin */
+	CLK_TYPE_R8A779A0_OSC,	/* OSC EXTAL predivider and fixed divider */
+
 	/* SoC specific definitions start here */
 	CLK_TYPE_GEN3_SOC_BASE,
 };
@@ -69,6 +77,8 @@ struct rcar_gen3_cpg_pll_config {
 	u8 pll3_mult;
 	u8 pll3_div;
 	u8 osc_prediv;
+	u8 pll5_mult;
+	u8 pll5_div;
 };
 
 #define CPG_RST_MODEMR	0x060

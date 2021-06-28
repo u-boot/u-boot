@@ -28,13 +28,17 @@
 #define GPIO_EDGLEVEL	0x24	/* Edge/level Select Register */
 #define GPIO_FILONOFF	0x28	/* Chattering Prevention On/Off Register */
 #define GPIO_BOTHEDGE	0x4c	/* One Edge/Both Edge Select Register */
+#define GPIO_INEN	0x50	/* General Input Enable Register */
 
 #define RCAR_MAX_GPIO_PER_BANK		32
+
+#define RCAR_GPIO_HAS_INEN		BIT(0)
 
 DECLARE_GLOBAL_DATA_PTR;
 
 struct rcar_gpio_priv {
 	void __iomem		*regs;
+	u32			quirks;
 	int			pfc_offset;
 };
 
@@ -80,6 +84,14 @@ static void rcar_gpio_set_direction(struct udevice *dev, unsigned offset,
 
 	/* Configure postive logic in POSNEG */
 	clrbits_le32(regs + GPIO_POSNEG, BIT(offset));
+
+	/* Select "Input Enable/Disable" in INEN */
+	if (priv->quirks & RCAR_GPIO_HAS_INEN) {
+		if (output)
+			clrbits_le32(regs + GPIO_INEN, BIT(offset));
+		else
+			setbits_le32(regs + GPIO_INEN, BIT(offset));
+	}
 
 	/* Select "General Input/Output Mode" in IOINTSEL */
 	clrbits_le32(regs + GPIO_IOINTSEL, BIT(offset));
@@ -149,6 +161,7 @@ static int rcar_gpio_probe(struct udevice *dev)
 	int ret;
 
 	priv->regs = dev_read_addr_ptr(dev);
+	priv->quirks = dev_get_driver_data(dev);
 	uc_priv->bank_name = dev->name;
 
 	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, node, "gpio-ranges",
@@ -179,6 +192,7 @@ static const struct udevice_id rcar_gpio_ids[] = {
 	{ .compatible = "renesas,gpio-r8a77970" },
 	{ .compatible = "renesas,gpio-r8a77990" },
 	{ .compatible = "renesas,gpio-r8a77995" },
+	{ .compatible = "renesas,gpio-r8a779a0", .data = RCAR_GPIO_HAS_INEN },
 	{ .compatible = "renesas,rcar-gen2-gpio" },
 	{ .compatible = "renesas,rcar-gen3-gpio" },
 	{ /* sentinel */ }
