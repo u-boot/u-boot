@@ -31,6 +31,7 @@ F:	configs/lx2160aqds_tfa_SECURE_BOOT_defconfig
 
 LX2162AQDS BOARD
 M:	Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
+M:	Wasim Khan <wasim.khan@nxp.com>
 S:	Maintained
 F:	board/freescale/lx2160a/eth_lx2162aqds.h
 F:	include/configs/lx2162aqds.h
