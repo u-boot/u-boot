@@ -137,6 +137,16 @@ config EFI_CAPSULE_ON_DISK
 	  under a specific directory on UEFI system partition instead of
 	  via UpdateCapsule API.
 
+config EFI_IGNORE_OSINDICATIONS
+	bool "Ignore OsIndications for CapsuleUpdate on-disk"
+	depends on EFI_CAPSULE_ON_DISK
+	default n
+	help
+	  There are boards where U-Boot does not support SetVariable at runtime.
+	  Select this option if you want to use the capsule-on-disk feature
+	  without setting the EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED
+	  flag in variable OsIndications.
+
 config EFI_CAPSULE_ON_DISK_EARLY
 	bool "Initiate capsule-on-disk at U-Boot boottime"
 	depends on EFI_CAPSULE_ON_DISK
