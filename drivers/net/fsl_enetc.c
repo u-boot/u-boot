@@ -568,11 +568,9 @@ static int enetc_start(struct udevice *dev)
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
 
-	phy_startup(priv->phy);
-
 	enetc_setup_mac_iface(dev, priv->phy);
 
-	return 0;
+	return phy_startup(priv->phy);
 }
 
 /*
