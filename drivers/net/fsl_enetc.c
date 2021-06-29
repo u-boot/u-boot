@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * ENETC ethernet controller driver
- * Copyright 2017-2019 NXP
+ * Copyright 2017-2021 NXP
  */
 
 #include <common.h>
@@ -281,21 +281,20 @@ static void enetc_start_pcs(struct udevice *dev)
 }
 
 /* Configure the actual/external ethernet PHY, if one is found */
-static void enetc_config_phy(struct udevice *dev)
+static int enetc_config_phy(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 	int supported;
 
 	priv->phy = dm_eth_phy_connect(dev);
-
 	if (!priv->phy)
-		return;
+		return -ENODEV;
 
 	supported = PHY_GBIT_FEATURES | SUPPORTED_2500baseX_Full;
 	priv->phy->supported &= supported;
 	priv->phy->advertising &= supported;
 
-	phy_config(priv->phy);
+	return phy_config(priv->phy);
 }
 
 /*
@@ -335,9 +334,8 @@ static int enetc_probe(struct udevice *dev)
 	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, PCI_COMMAND_MEMORY);
 
 	enetc_start_pcs(dev);
-	enetc_config_phy(dev);
 
-	return 0;
+	return enetc_config_phy(dev);
 }
 
 /*
@@ -550,8 +548,7 @@ static int enetc_start(struct udevice *dev)
 
 	enetc_setup_mac_iface(dev);
 
-	if (priv->phy)
-		phy_startup(priv->phy);
+	phy_startup(priv->phy);
 
 	return 0;
 }
