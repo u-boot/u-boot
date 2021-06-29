@@ -47,7 +47,7 @@ struct smbios_ctx {
  * @addr:	start address to write the structure
  * @handle:	the structure's handle, a unique 16-bit number
  * @ctx:	context for writing the tables
- * @return:	size of the structure
+ * Return:	size of the structure
  */
 typedef int (*smbios_write_type)(ulong *addr, int handle,
 				 struct smbios_ctx *ctx);
@@ -72,7 +72,7 @@ struct smbios_write_method {
  *
  * @ctx:	SMBIOS context
  * @str:	string to add
- * @return:	string number in the string area (1 or more)
+ * Return:	string number in the string area (1 or more)
  */
 static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 {
@@ -111,7 +111,7 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
  *
  * @ctx:	context for writing the tables
  * @prop:	property to write
- * @return 0 if not found, else SMBIOS string number (1 or more)
+ * Return:	0 if not found, else SMBIOS string number (1 or more)
  */
 static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 			      int sysinfo_id)
@@ -139,7 +139,7 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
  * smbios_add_prop() - Add a property from the devicetree
  *
  * @prop:	property to write
- * @return 0 if not found, else SMBIOS string number (1 or more)
+ * Return:	0 if not found, else SMBIOS string number (1 or more)
  */
 static int smbios_add_prop(struct smbios_ctx *ctx, const char *prop)
 {
@@ -187,7 +187,7 @@ int smbios_update_version(const char *version)
  * This computes the size of the string area including the string terminator.
  *
  * @ctx:	SMBIOS context
- * @return:	string area size
+ * Return:	string area size
  */
 static int smbios_string_table_len(const struct smbios_ctx *ctx)
 {
@@ -229,9 +229,9 @@ static int smbios_write_type0(ulong *current, int handle,
 	t->bios_characteristics_ext1 = BIOS_CHARACTERISTICS_EXT1_ACPI;
 #endif
 #ifdef CONFIG_EFI_LOADER
-	t->bios_characteristics_ext1 |= BIOS_CHARACTERISTICS_EXT1_UEFI;
+	t->bios_characteristics_ext2 |= BIOS_CHARACTERISTICS_EXT2_UEFI;
 #endif
-	t->bios_characteristics_ext2 = BIOS_CHARACTERISTICS_EXT2_TARGET;
+	t->bios_characteristics_ext2 |= BIOS_CHARACTERISTICS_EXT2_TARGET;
 
 	/* bios_major_release has only one byte, so drop century */
 	t->bios_major_release = U_BOOT_VERSION_NUM % 100;
@@ -258,7 +258,11 @@ static int smbios_write_type1(ulong *current, int handle,
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
+	if (!t->manufacturer)
+		t->manufacturer = smbios_add_string(ctx, "Unknown");
 	t->product_name = smbios_add_prop(ctx, "product");
+	if (!t->product_name)
+		t->product_name = smbios_add_string(ctx, "Unknown Product");
 	t->version = smbios_add_prop_si(ctx, "version",
 					SYSINFO_ID_SMBIOS_SYSTEM_VERSION);
 	if (serial_str) {
@@ -288,7 +292,11 @@ static int smbios_write_type2(ulong *current, int handle,
 	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
+	if (!t->manufacturer)
+		t->manufacturer = smbios_add_string(ctx, "Unknown");
 	t->product_name = smbios_add_prop(ctx, "product");
+	if (!t->product_name)
+		t->product_name = smbios_add_string(ctx, "Unknown Product");
 	t->version = smbios_add_prop_si(ctx, "version",
 					SYSINFO_ID_SMBIOS_BASEBOARD_VERSION);
 	t->asset_tag_number = smbios_add_prop(ctx, "asset-tag");
@@ -313,6 +321,8 @@ static int smbios_write_type3(ulong *current, int handle,
 	fill_smbios_header(t, SMBIOS_SYSTEM_ENCLOSURE, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
+	if (!t->manufacturer)
+		t->manufacturer = smbios_add_string(ctx, "Unknown");
 	t->chassis_type = SMBIOS_ENCLOSURE_DESKTOP;
 	t->bootup_state = SMBIOS_STATE_SAFE;
 	t->power_supply_state = SMBIOS_STATE_SAFE;

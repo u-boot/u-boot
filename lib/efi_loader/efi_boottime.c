@@ -264,7 +264,6 @@ efi_status_t is_valid_tpl(efi_uintn_t tpl)
 	case TPL_APPLICATION:
 	case TPL_CALLBACK:
 	case TPL_NOTIFY:
-	case TPL_HIGH_LEVEL:
 		return EFI_SUCCESS;
 	default:
 		return EFI_INVALID_PARAMETER;
