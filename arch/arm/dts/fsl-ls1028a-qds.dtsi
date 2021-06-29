@@ -251,7 +251,7 @@
 
 &enetc1 {
 	status = "okay";
-	phy-mode = "rgmii";
+	phy-mode = "rgmii-id";
 	phy-handle = <&qds_phy0>;
 };
 
