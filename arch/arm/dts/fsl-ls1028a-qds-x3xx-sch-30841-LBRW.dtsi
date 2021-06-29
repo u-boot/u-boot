@@ -19,6 +19,10 @@
 #include "fsl-sch-30841.dtsi"
 };
 
+&enetc2 {
+	status = "okay";
+};
+
 &mscc_felix {
 	status = "okay";
 };
@@ -45,4 +49,9 @@
 	status = "okay";
 	phy-mode = "usxgmii";
 	phy-handle = <&{/i2c@2000000/fpga@66/mux-mdio@54/mdio@50/phy@03}>;
+};
+
+&mscc_felix_port4 {
+	ethernet = <&enetc2>;
+	status = "okay";
 };
