@@ -27,6 +27,7 @@
 #define SNOR_MFR_SPANSION	CFI_MFR_AMD
 #define SNOR_MFR_SST		CFI_MFR_SST
 #define SNOR_MFR_WINBOND	0xef /* Also used by some Spansion */
+#define SNOR_MFR_CYPRESS	0x34
 
 /*
  * Note on opcode nomenclature: some opcodes have a format like
