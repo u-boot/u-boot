@@ -1711,6 +1711,61 @@ static int macronix_quad_enable(struct spi_nor *nor)
 }
 #endif
 
+#ifdef CONFIG_SPI_FLASH_SPANSION
+/**
+ * spansion_quad_enable_volatile() - enable Quad I/O mode in volatile register.
+ * @nor:	pointer to a 'struct spi_nor'
+ * @addr_base:	base address of register (can be >0 in multi-die parts)
+ * @dummy:	number of dummy cycles for register read
+ *
+ * It is recommended to update volatile registers in the field application due
+ * to a risk of the non-volatile registers corruption by power interrupt. This
+ * function sets Quad Enable bit in CFR1 volatile.
+ *
+ * Return: 0 on success, -errno otherwise.
+ */
+static int spansion_quad_enable_volatile(struct spi_nor *nor, u32 addr_base,
+					 u8 dummy)
+{
+	u32 addr = addr_base + SPINOR_REG_ADDR_CFR1V;
+
+	u8 cr;
+	int ret;
+
+	/* Check current Quad Enable bit value. */
+	ret = spansion_read_any_reg(nor, addr, dummy, &cr);
+	if (ret < 0) {
+		dev_dbg(nor->dev,
+			"error while reading configuration register\n");
+		return -EINVAL;
+	}
+
+	if (cr & CR_QUAD_EN_SPAN)
+		return 0;
+
+	cr |= CR_QUAD_EN_SPAN;
+
+	write_enable(nor);
+
+	ret = spansion_write_any_reg(nor, addr, cr);
+
+	if (ret < 0) {
+		dev_dbg(nor->dev,
+			"error while writing configuration register\n");
+		return -EINVAL;
+	}
+
+	/* Read back and check it. */
+	ret = spansion_read_any_reg(nor, addr, dummy, &cr);
+	if (ret || !(cr & CR_QUAD_EN_SPAN)) {
+		dev_dbg(nor->dev, "Spansion Quad bit not set\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+#endif
+
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
 /*
  * Write status Register and configuration register with 2 bytes
