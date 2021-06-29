@@ -583,6 +583,12 @@ static int spi_nor_init_params(struct spi_nor *nor,
 		spi_nor_set_read_settings(&params->reads[SNOR_CMD_READ_FAST],
 					  0, 8, SPINOR_OP_READ_FAST,
 					  SNOR_PROTO_1_1_1);
+#ifdef CONFIG_SPI_FLASH_SPANSION
+		if (JEDEC_MFR(info) == SNOR_MFR_CYPRESS &&
+		    (info->id[1] == 0x2a || info->id[1] == 0x2b))
+			/* 0x2a: S25HL (QSPI, 3.3V), 0x2b: S25HS (QSPI, 1.8V) */
+			params->reads[SNOR_CMD_READ_FAST].num_mode_clocks = 8;
+#endif
 	}
 
 	if (info->flags & SPI_NOR_QUAD_READ) {
