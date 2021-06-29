@@ -952,7 +952,7 @@ erase_err:
 	return ret;
 }
 
-#ifdef CONFIG_SPI_FLASH_S28HS512T
+#ifdef CONFIG_SPI_FLASH_SPANSION
 /**
  * spansion_erase_non_uniform() - erase non-uniform sectors for Spansion/Cypress
  *                                chips
@@ -3085,6 +3085,134 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 	return nor->setup(nor, info, params);
 }
 
+#ifdef CONFIG_SPI_FLASH_SPANSION
+static int s25hx_t_mdp_ready(struct spi_nor *nor)
+{
+	u32 addr;
+	int ret;
+
+	for (addr = 0; addr < nor->mtd.size; addr += SZ_128M) {
+		ret = spansion_sr_ready(nor, addr, 0);
+		if (!ret)
+			return ret;
+	}
+
+	return 1;
+}
+
+static int s25hx_t_quad_enable(struct spi_nor *nor)
+{
+	u32 addr;
+	int ret;
+
+	for (addr = 0; addr < nor->mtd.size; addr += SZ_128M) {
+		ret = spansion_quad_enable_volatile(nor, addr, 0);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static int s25hx_t_erase_non_uniform(struct spi_nor *nor, loff_t addr)
+{
+	/* Support 32 x 4KB sectors at bottom */
+	return spansion_erase_non_uniform(nor, addr, SPINOR_OP_BE_4K_4B, 0,
+					  SZ_128K);
+}
+
+static int s25hx_t_setup(struct spi_nor *nor, const struct flash_info *info,
+			 const struct spi_nor_flash_parameter *params)
+{
+	int ret;
+	u8 cfr3v;
+
+#ifdef CONFIG_SPI_FLASH_BAR
+	return -ENOTSUPP; /* Bank Address Register is not supported */
+#endif
+	/*
+	 * Read CFR3V to check if uniform sector is selected. If not, assign an
+	 * erase hook that supports non-uniform erase.
+	 */
+	ret = spansion_read_any_reg(nor, SPINOR_REG_ADDR_CFR3V, 0, &cfr3v);
+	if (ret)
+		return ret;
+	if (!(cfr3v & CFR3V_UNHYSA))
+		nor->erase = s25hx_t_erase_non_uniform;
+
+	/*
+	 * For the multi-die package parts, the ready() hook is needed to check
+	 * all dies' status via read any register.
+	 */
+	if (nor->mtd.size > SZ_128M)
+		nor->ready = s25hx_t_mdp_ready;
+
+	return spi_nor_default_setup(nor, info, params);
+}
+
+static void s25hx_t_default_init(struct spi_nor *nor)
+{
+	nor->setup = s25hx_t_setup;
+}
+
+static int s25hx_t_post_bfpt_fixup(struct spi_nor *nor,
+				   const struct sfdp_parameter_header *header,
+				   const struct sfdp_bfpt *bfpt,
+				   struct spi_nor_flash_parameter *params)
+{
+	int ret;
+	u32 addr;
+	u8 cfr3v;
+
+	/* erase size in case it is set to 4K from BFPT */
+	nor->erase_opcode = SPINOR_OP_SE_4B;
+	nor->mtd.erasesize = nor->info->sector_size;
+
+	ret = set_4byte(nor, nor->info, 1);
+	if (ret)
+		return ret;
+	nor->addr_width = 4;
+
+	/*
+	 * The page_size is set to 512B from BFPT, but it actually depends on
+	 * the configuration register. Look up the CFR3V and determine the
+	 * page_size. For multi-die package parts, use 512B only when the all
+	 * dies are configured to 512B buffer.
+	 */
+	for (addr = 0; addr < params->size; addr += SZ_128M) {
+		ret = spansion_read_any_reg(nor, addr + SPINOR_REG_ADDR_CFR3V,
+					    0, &cfr3v);
+		if (ret)
+			return ret;
+
+		if (!(cfr3v & CFR3V_PGMBUF)) {
+			params->page_size = 256;
+			return 0;
+		}
+	}
+	params->page_size = 512;
+
+	return 0;
+}
+
+static void s25hx_t_post_sfdp_fixup(struct spi_nor *nor,
+				    struct spi_nor_flash_parameter *params)
+{
+	/* READ_FAST_4B (0Ch) requires mode cycles*/
+	params->reads[SNOR_CMD_READ_FAST].num_mode_clocks = 8;
+	/* PP_1_1_4 is not supported */
+	params->hwcaps.mask &= ~SNOR_HWCAPS_PP_1_1_4;
+	/* Use volatile register to enable quad */
+	params->quad_enable = s25hx_t_quad_enable;
+}
+
+static struct spi_nor_fixups s25hx_t_fixups = {
+	.default_init = s25hx_t_default_init,
+	.post_bfpt = s25hx_t_post_bfpt_fixup,
+	.post_sfdp = s25hx_t_post_sfdp_fixup,
+};
+#endif
+
 #ifdef CONFIG_SPI_FLASH_S28HS512T
 /**
  * spi_nor_cypress_octal_dtr_enable() - Enable octal DTR on Cypress flashes.
@@ -3493,6 +3621,20 @@ int spi_nor_remove(struct spi_nor *nor)
 
 void spi_nor_set_fixups(struct spi_nor *nor)
 {
+#ifdef CONFIG_SPI_FLASH_SPANSION
+	if (JEDEC_MFR(nor->info) == SNOR_MFR_CYPRESS) {
+		switch (nor->info->id[1]) {
+		case 0x2a: /* S25HL (QSPI, 3.3V) */
+		case 0x2b: /* S25HS (QSPI, 1.8V) */
+			nor->fixups = &s25hx_t_fixups;
+			break;
+
+		default:
+			break;
+		}
+	}
+#endif
+
 #ifdef CONFIG_SPI_FLASH_S28HS512T
 	if (!strcmp(nor->info->name, "s28hs512t"))
 		nor->fixups = &s28hs512t_fixups;

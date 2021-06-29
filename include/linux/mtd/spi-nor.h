@@ -128,6 +128,9 @@
 #define SPINOR_OP_WRAR		0x71	/* Write any register */
 #define SPINOR_REG_ADDR_STR1V	0x00800000
 #define SPINOR_REG_ADDR_CFR1V	0x00800002
+#define SPINOR_REG_ADDR_CFR3V	0x00800004
+#define CFR3V_UNHYSA		BIT(3)	/* Uniform sectors or not */
+#define CFR3V_PGMBUF		BIT(4)	/* Program buffer size */
 
 /* Used for Micron flashes only. */
 #define SPINOR_OP_RD_EVCR	0x65	/* Read EVCR register */
