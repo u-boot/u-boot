@@ -662,6 +662,9 @@ static int set_4byte(struct spi_nor *nor, const struct flash_info *info,
 		}
 
 		return status;
+	case SNOR_MFR_CYPRESS:
+		cmd = enable ? SPINOR_OP_EN4B : SPINOR_OP_EX4B_CYPRESS;
+		return nor->write_reg(nor, cmd, NULL, 0);
 	default:
 		/* Spansion style */
 		nor->cmd_buf[0] = enable << 7;
