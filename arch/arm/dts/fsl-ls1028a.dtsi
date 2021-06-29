@@ -142,7 +142,7 @@
 		};
 		enetc2: pci@0,2 {
 			reg = <0x000200 0 0 0 0>;
-			status = "okay";
+			status = "disabled";
 			phy-mode = "internal";
 
 			fixed-link {
