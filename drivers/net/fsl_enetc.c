@@ -178,21 +178,43 @@ static int enetc_init_sgmii(struct udevice *dev)
 }
 
 /* set up MAC for RGMII */
-static int enetc_init_rgmii(struct udevice *dev)
+static void enetc_init_rgmii(struct udevice *dev, struct phy_device *phydev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
-	u32 if_mode;
+	u32 old_val, val;
 
-	/* enable RGMII AN */
-	if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
-	if_mode |= ENETC_PM_IF_MODE_AN_ENA;
-	enetc_write_port(priv, ENETC_PM_IF_MODE, if_mode);
+	old_val = val = enetc_read_port(priv, ENETC_PM_IF_MODE);
 
-	return 0;
+	/* disable unreliable RGMII in-band signaling and force the MAC into
+	 * the speed negotiated by the PHY.
+	 */
+	val &= ~ENETC_PM_IF_MODE_AN_ENA;
+
+	if (phydev->speed == SPEED_1000) {
+		val &= ~ENETC_PM_IFM_SSP_MASK;
+		val |= ENETC_PM_IFM_SSP_1000;
+	} else if (phydev->speed == SPEED_100) {
+		val &= ~ENETC_PM_IFM_SSP_MASK;
+		val |= ENETC_PM_IFM_SSP_100;
+	} else if (phydev->speed == SPEED_10) {
+		val &= ~ENETC_PM_IFM_SSP_MASK;
+		val |= ENETC_PM_IFM_SSP_10;
+	}
+
+	if (phydev->duplex == DUPLEX_FULL)
+		val |= ENETC_PM_IFM_FULL_DPX;
+	else
+		val &= ~ENETC_PM_IFM_FULL_DPX;
+
+	if (val == old_val)
+		return;
+
+	enetc_write_port(priv, ENETC_PM_IF_MODE, val);
 }
 
 /* set up MAC configuration for the given interface type */
-static void enetc_setup_mac_iface(struct udevice *dev)
+static void enetc_setup_mac_iface(struct udevice *dev,
+				  struct phy_device *phydev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 	u32 if_mode;
@@ -202,7 +224,7 @@ static void enetc_setup_mac_iface(struct udevice *dev)
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_RGMII_RXID:
 	case PHY_INTERFACE_MODE_RGMII_TXID:
-		enetc_init_rgmii(dev);
+		enetc_init_rgmii(dev, phydev);
 		break;
 	case PHY_INTERFACE_MODE_XGMII:
 	case PHY_INTERFACE_MODE_USXGMII:
@@ -546,9 +568,9 @@ static int enetc_start(struct udevice *dev)
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
 
-	enetc_setup_mac_iface(dev);
-
 	phy_startup(priv->phy);
+
+	enetc_setup_mac_iface(dev, priv->phy);
 
 	return 0;
 }
