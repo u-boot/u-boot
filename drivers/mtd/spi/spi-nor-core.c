@@ -669,6 +669,35 @@ static int set_4byte(struct spi_nor *nor, const struct flash_info *info,
 	}
 }
 
+#ifdef CONFIG_SPI_FLASH_SPANSION
+/*
+ * Read status register 1 by using Read Any Register command to support multi
+ * die package parts.
+ */
+static int spansion_sr_ready(struct spi_nor *nor, u32 addr_base, u8 dummy)
+{
+	u32 reg_addr = addr_base + SPINOR_REG_ADDR_STR1V;
+	u8 sr;
+	int ret;
+
+	ret = spansion_read_any_reg(nor, reg_addr, dummy, &sr);
+	if (ret < 0)
+		return ret;
+
+	if (sr & (SR_E_ERR | SR_P_ERR)) {
+		if (sr & SR_E_ERR)
+			dev_dbg(nor->dev, "Erase Error occurred\n");
+		else
+			dev_dbg(nor->dev, "Programming Error occurred\n");
+
+		nor->write_reg(nor, SPINOR_OP_CLSR, NULL, 0);
+		return -EIO;
+	}
+
+	return !(sr & SR_WIP);
+}
+#endif
+
 static int spi_nor_sr_ready(struct spi_nor *nor)
 {
 	int sr = read_sr(nor);
