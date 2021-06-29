@@ -713,7 +713,7 @@ static int spi_nor_fsr_ready(struct spi_nor *nor)
 	return fsr & FSR_READY;
 }
 
-static int spi_nor_ready(struct spi_nor *nor)
+static int spi_nor_default_ready(struct spi_nor *nor)
 {
 	int sr, fsr;
 
@@ -724,6 +724,14 @@ static int spi_nor_ready(struct spi_nor *nor)
 	if (fsr < 0)
 		return fsr;
 	return sr && fsr;
+}
+
+static int spi_nor_ready(struct spi_nor *nor)
+{
+	if (nor->ready)
+		return nor->ready(nor);
+
+	return spi_nor_default_ready(nor);
 }
 
 /*

@@ -504,6 +504,7 @@ struct spi_flash {
  *			completely locked
  * @quad_enable:	[FLASH-SPECIFIC] enables SPI NOR quad mode
  * @octal_dtr_enable:	[FLASH-SPECIFIC] enables SPI NOR octal DTR mode.
+ * @ready:		[FLASH-SPECIFIC] check if the flash is ready
  * @priv:		the private data
  */
 struct spi_nor {
@@ -552,6 +553,7 @@ struct spi_nor {
 	int (*flash_is_locked)(struct spi_nor *nor, loff_t ofs, uint64_t len);
 	int (*quad_enable)(struct spi_nor *nor);
 	int (*octal_dtr_enable)(struct spi_nor *nor);
+	int (*ready)(struct spi_nor *nor);
 
 	void *priv;
 /* Compatibility for spi_flash, remove once sf layer is merged with mtd */
