@@ -52,8 +52,10 @@ void hw_watchdog_reset(void)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
 
-	writel(REFRESH_WORD0, &wdog->cnt);
-	writel(REFRESH_WORD1, &wdog->cnt);
+	dmb();
+	__raw_writel(REFRESH_WORD0, &wdog->cnt);
+	__raw_writel(REFRESH_WORD1, &wdog->cnt);
+	dmb();
 }
 
 void hw_watchdog_init(void)
@@ -61,8 +63,10 @@ void hw_watchdog_init(void)
 	u8 val;
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
 
-	writel(UNLOCK_WORD0, &wdog->cnt);
-	writel(UNLOCK_WORD1, &wdog->cnt);
+	dmb();
+	__raw_writel(UNLOCK_WORD0, &wdog->cnt);
+	__raw_writel(UNLOCK_WORD1, &wdog->cnt);
+	dmb();
 
 	val = readb(&wdog->cs2);
 	val |= WDGCS2_FLG;
@@ -81,8 +85,10 @@ void reset_cpu(void)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
 
-	writel(UNLOCK_WORD0, &wdog->cnt);
-	writel(UNLOCK_WORD1, &wdog->cnt);
+	dmb();
+	__raw_writel(UNLOCK_WORD0, &wdog->cnt);
+	__raw_writel(UNLOCK_WORD1, &wdog->cnt);
+	dmb();
 
 	hw_watchdog_set_timeout(5); /* 5ms timeout */
 	writel(0, &wdog->win);
