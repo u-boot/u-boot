@@ -540,3 +540,35 @@ int mac_read_from_eeprom(void)
 
 	return 0;
 }
+
+/**
+ * get_pcb_revision_from_eeprom - get the PCB revision
+ *
+ * Read the EEPROM to determine the board revision.
+ *
+ * This function is called before relocation, so we need to read a private
+ * copy of the EEPROM into a local variable on the stack.
+ */
+u8 get_pcb_revision_from_eeprom(void)
+{
+	struct __attribute__ ((__packed__)) board_eeprom {
+		u8 magic[MAGIC_NUMBER_BYTES];
+		u8 format_ver;
+		u16 product_id;
+		u8 pcb_revision;
+	} be;
+
+	int ret;
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(CONFIG_SYS_EEPROM_BUS_NUM,
+				      CONFIG_SYS_I2C_EEPROM_ADDR,
+				      1,
+				      &dev);
+
+	if (!ret)
+		dm_i2c_read(dev, 0, (void *)&be,
+			    sizeof(struct board_eeprom));
+
+	return be.pcb_revision;
+}
