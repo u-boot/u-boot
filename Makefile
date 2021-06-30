@@ -824,7 +824,7 @@ libs-y += drivers/usb/eth/
 libs-$(CONFIG_USB_DEVICE) += drivers/usb/gadget/
 libs-$(CONFIG_USB_GADGET) += drivers/usb/gadget/
 libs-$(CONFIG_USB_GADGET) += drivers/usb/gadget/udc/
-libs-y += drivers/usb/host/
+libs-$(CONFIG_USB_HOST) += drivers/usb/host/
 libs-y += drivers/usb/mtu3/
 libs-y += drivers/usb/musb/
 libs-y += drivers/usb/musb-new/
@@ -1115,7 +1115,7 @@ ifneq ($(CONFIG_DM),y)
 	@echo >&2 "===================================================="
 endif
 	$(call deprecated,CONFIG_DM_USB CONFIG_OF_CONTROL CONFIG_BLK,\
-		USB,v2019.07,$(CONFIG_USB))
+		USB_HOST,v2019.07,$(CONFIG_USB_HOST))
 	$(call deprecated,CONFIG_DM_PCI,PCI,v2019.07,$(CONFIG_PCI))
 	$(call deprecated,CONFIG_DM_VIDEO,video,v2019.07,\
 		$(CONFIG_LCD)$(CONFIG_VIDEO))

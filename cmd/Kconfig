@@ -1322,7 +1322,7 @@ config CMD_UNIVERSE
 
 config CMD_USB
 	bool "usb"
-	depends on USB
+	depends on USB_HOST
 	select HAVE_BLOCK_DEVICE
 	help
 	  USB support.
