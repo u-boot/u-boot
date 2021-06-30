@@ -158,6 +158,7 @@ enum eth_recv_flags {
  *		    ROM on the board. This is how the driver should expose it
  *		    to the network stack. This function should fill in the
  *		    eth_pdata::enetaddr field - optional
+ * set_promisc: Enable or Disable promiscuous mode
  */
 struct eth_ops {
 	int (*start)(struct udevice *dev);
@@ -168,6 +169,7 @@ struct eth_ops {
 	int (*mcast)(struct udevice *dev, const u8 *enetaddr, int join);
 	int (*write_hwaddr)(struct udevice *dev);
 	int (*read_rom_hwaddr)(struct udevice *dev);
+	int (*set_promisc)(struct udevice *dev, bool enable);
 };
 
 #define eth_get_ops(dev) ((struct eth_ops *)(dev)->driver->ops)
