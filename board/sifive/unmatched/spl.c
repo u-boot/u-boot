@@ -10,11 +10,14 @@
 #include <spl.h>
 #include <misc.h>
 #include <log.h>
+#include <fdtdec.h>
+#include <dm/root.h>
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/spl.h>
+#include <asm/arch/eeprom.h>
 
 #define GEM_PHY_RESET	SIFIVE_GENERIC_GPIO_NR(0, 12)
 
@@ -25,6 +28,16 @@
 int spl_board_init_f(void)
 {
 	int ret;
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_MULTI_DTB_FIT)
+	int rescan;
+
+	ret = fdtdec_resetup(&rescan);
+	if (!ret && rescan) {
+		dm_uninit();
+		dm_init_and_scan(true);
+	}
+#endif
 
 	ret = spl_soc_init();
 	if (ret) {
@@ -79,7 +92,18 @@ u32 spl_boot_device(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	/* boot using first FIT config */
-	return 0;
+	/*
+	 * Apply different DDR params on different board revision.
+	 * Use PCB revision which is byte 0x7 in I2C platform EEPROM
+	 * to distinguish that.
+	 */
+	if (get_pcb_revision_from_eeprom() == PCB_REVISION_REV3 &&
+	    !strcmp(name, "hifive-unmatched-a00"))
+		return 0;
+	else if (get_pcb_revision_from_eeprom() != PCB_REVISION_REV3 &&
+		 !strcmp(name, "hifive-unmatched-a00-rev1"))
+		return 0;
+
+	return -1;
 }
 #endif
