@@ -146,7 +146,7 @@ static int fec_get_clk_rate(void *udev, int idx)
 	    CONFIG_IS_ENABLED(CLK_CCF)) {
 		dev = udev;
 		if (!dev) {
-			ret = uclass_get_device(UCLASS_ETH, idx, &dev);
+			ret = uclass_get_device_by_seq(UCLASS_ETH, idx, &dev);
 			if (ret < 0) {
 				debug("Can't get FEC udev: %d\n", ret);
 				return ret;
