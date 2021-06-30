@@ -27,6 +27,7 @@
 #define SNOR_MFR_SPANSION	CFI_MFR_AMD
 #define SNOR_MFR_SST		CFI_MFR_SST
 #define SNOR_MFR_WINBOND	0xef /* Also used by some Spansion */
+#define SNOR_MFR_CYPRESS	0x34
 
 /*
  * Note on opcode nomenclature: some opcodes have a format like
@@ -122,6 +123,14 @@
 #define SPINOR_OP_BRWR		0x17	/* Bank register write */
 #define SPINOR_OP_BRRD		0x16	/* Bank register read */
 #define SPINOR_OP_CLSR		0x30	/* Clear status register 1 */
+#define SPINOR_OP_EX4B_CYPRESS	0xB8	/* Exit 4-byte mode */
+#define SPINOR_OP_RDAR		0x65	/* Read any register */
+#define SPINOR_OP_WRAR		0x71	/* Write any register */
+#define SPINOR_REG_ADDR_STR1V	0x00800000
+#define SPINOR_REG_ADDR_CFR1V	0x00800002
+#define SPINOR_REG_ADDR_CFR3V	0x00800004
+#define CFR3V_UNHYSA		BIT(3)	/* Uniform sectors or not */
+#define CFR3V_PGMBUF		BIT(4)	/* Program buffer size */
 
 /* Used for Micron flashes only. */
 #define SPINOR_OP_RD_EVCR	0x65	/* Read EVCR register */
@@ -500,6 +509,7 @@ struct spi_flash {
  *			completely locked
  * @quad_enable:	[FLASH-SPECIFIC] enables SPI NOR quad mode
  * @octal_dtr_enable:	[FLASH-SPECIFIC] enables SPI NOR octal DTR mode.
+ * @ready:		[FLASH-SPECIFIC] check if the flash is ready
  * @priv:		the private data
  */
 struct spi_nor {
@@ -548,6 +558,7 @@ struct spi_nor {
 	int (*flash_is_locked)(struct spi_nor *nor, loff_t ofs, uint64_t len);
 	int (*quad_enable)(struct spi_nor *nor);
 	int (*octal_dtr_enable)(struct spi_nor *nor);
+	int (*ready)(struct spi_nor *nor);
 
 	void *priv;
 /* Compatibility for spi_flash, remove once sf layer is merged with mtd */
