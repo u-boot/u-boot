@@ -1304,7 +1304,11 @@ static int device_get_phy_addr(struct fec_priv *priv, struct udevice *dev)
 	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 					 &phandle_args);
 	if (ret) {
-		debug("Failed to find phy-handle (err = %d\n)", ret);
+		priv->phy_of_node = ofnode_find_subnode(dev_ofnode(dev),
+							"fixed-link");
+		if (ofnode_valid(priv->phy_of_node))
+			return 0;
+		debug("Failed to find phy-handle (err = %d)\n", ret);
 		return ret;
 	}
 
