@@ -83,5 +83,6 @@ U_BOOT_CMD(
 	blkcache, 4, 0, do_blkcache,
 	"block cache diagnostics and control",
 	"show - show and reset statistics\n"
-	"blkcache configure blocks entries\n"
+	"blkcache configure <blocks> <entries> "
+	"- set max blocks per entry and max cache entries\n"
 );
