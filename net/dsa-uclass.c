@@ -277,8 +277,15 @@ static int dsa_port_probe(struct udevice *pdev)
 	 * has a unique MAC address specified in the environment.
 	 */
 	eth_env_get_enetaddr_by_index("eth", dev_seq(pdev), env_enetaddr);
-	if (!is_zero_ethaddr(env_enetaddr))
+	if (!is_zero_ethaddr(env_enetaddr)) {
+		/* individual port mac addrs require master to be promisc */
+		struct eth_ops *eth_ops = eth_get_ops(master);
+
+		if (eth_ops->set_promisc)
+			eth_ops->set_promisc(master, 1);
+
 		return 0;
+	}
 
 	master_pdata = dev_get_plat(master);
 	eth_pdata = dev_get_plat(pdev);
