@@ -26,6 +26,7 @@
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
 
+#include <power/bd71837.h>
 #include <power/mp5416.h>
 
 #include "gsc.h"
@@ -88,8 +89,23 @@ int board_early_init_f(void)
  * Note that we can not use pmic dm drivers here as we have a generic
  * venice dt that does not have board-specific pmic's defined.
  *
- * Instead we must use dm_i2c.
+ * Instead we must use dm_i2c so we a helpers to give us
+ * clrsetbit functions we would otherwise have if we could use PMIC dm
+ * drivers.
  */
+static int dm_i2c_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set)
+{
+	int ret;
+	u8 val;
+
+	ret = dm_i2c_read(dev, reg, &val, 1);
+	if (ret)
+		return ret;
+	val = (val & ~clr) | set;
+
+	return dm_i2c_write(dev, reg, &val, 1);
+}
+
 static int power_init_board(void)
 {
 	const char *model = gsc_get_model();
@@ -115,6 +131,43 @@ static int power_init_board(void)
 		/* set VDD_ARM SW3 to 0.92V for 1.6GHz */
 		dm_i2c_reg_write(dev, MP5416_VSET_SW3,
 				 BIT(7) | MP5416_VSET_SW3_SVAL(920000));
+	}
+
+	else if (!strncmp(model, "GW7901", 6)) {
+		ret = uclass_get_device_by_name(UCLASS_I2C, "i2c@30a30000", &bus);
+		if (ret) {
+			printf("PMIC    : failed I2C2 probe: %d\n", ret);
+			return ret;
+		}
+		ret = dm_i2c_probe(bus, 0x4b, 0, &dev);
+		if (ret) {
+			printf("PMIC    : failed probe: %d\n", ret);
+			return ret;
+		}
+		puts("PMIC    : BD71847\n");
+
+		/* unlock the PMIC regs */
+		dm_i2c_reg_write(dev, BD718XX_REGLOCK, 0x1);
+
+		/* set switchers to forced PWM mode */
+		dm_i2c_clrsetbits(dev, BD718XX_BUCK1_CTRL, 0, 0x8);
+		dm_i2c_clrsetbits(dev, BD718XX_BUCK2_CTRL, 0, 0x8);
+		dm_i2c_clrsetbits(dev, BD718XX_1ST_NODVS_BUCK_CTRL, 0, 0x8);
+		dm_i2c_clrsetbits(dev, BD718XX_2ND_NODVS_BUCK_CTRL, 0, 0x8);
+		dm_i2c_clrsetbits(dev, BD718XX_3RD_NODVS_BUCK_CTRL, 0, 0x8);
+		dm_i2c_clrsetbits(dev, BD718XX_4TH_NODVS_BUCK_CTRL, 0, 0x8);
+
+		/* increase VDD_0P95 (VDD_GPU/VPU/DRAM) to 0.975v for 1.5Ghz DDR */
+		dm_i2c_reg_write(dev, BD718XX_1ST_NODVS_BUCK_VOLT, 0x83);
+
+		/* increase VDD_SOC to 0.85v before first DRAM access */
+		dm_i2c_reg_write(dev, BD718XX_BUCK1_VOLT_RUN, 0x0f);
+
+		/* increase VDD_ARM to 0.92v for 800 and 1600Mhz */
+		dm_i2c_reg_write(dev, BD718XX_BUCK2_VOLT_RUN, 0x16);
+
+		/* Lock the PMIC regs */
+		dm_i2c_reg_write(dev, BD718XX_REGLOCK, 0x11);
 	}
 
 	return 0;
