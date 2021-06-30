@@ -3,6 +3,7 @@
 # Copyright (c) 2020-2021 SiFive, Inc
 
 obj-y   += unmatched.o
+obj-$(CONFIG_ID_EEPROM) += hifive-platform-i2c-eeprom.o
 
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
