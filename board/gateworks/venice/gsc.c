@@ -221,9 +221,11 @@ static const char *gsc_get_rst_cause(struct udevice *dev)
 
 	/* thermal protection */
 	if (!dm_i2c_read(dev, GSC_SC_THERM_PROTECT, &reg, 1)) {
-		reg |= 1;
-		dm_i2c_write(dev, GSC_SC_THERM_PROTECT, &reg, 1);
-		strcat(str, " Thermal Protection Enabled");
+		strcat(str, " Thermal Protection ");
+		if (reg & BIT(0))
+			strcat(str, "Enabled");
+		else
+			strcat(str, "Disabled");
 	}
 
 	return str;
