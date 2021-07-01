@@ -1133,13 +1133,13 @@
 			};
 
 			zynqmp_dp_snd_pcm0: zynqmp_dp_snd_pcm0 {
-				compatible = "xlnx,dp-snd-pcm";
+				compatible = "xlnx,dp-snd-pcm0";
 				dmas = <&zynqmp_dpdma 4>;
 				dma-names = "tx";
 			};
 
 			zynqmp_dp_snd_pcm1: zynqmp_dp_snd_pcm1 {
-				compatible = "xlnx,dp-snd-pcm";
+				compatible = "xlnx,dp-snd-pcm1";
 				dmas = <&zynqmp_dpdma 5>;
 				dma-names = "tx";
 			};
