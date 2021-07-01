@@ -177,21 +177,13 @@
 #define DEFAULT_COMMON_BOOT_TI_ARGS \
 	"console=" CONSOLEDEV ",115200n8\0" \
 	"fdtfile=undefined\0" \
-	"bootpart=0:2\0" \
-	"bootdir=/boot\0" \
-	"bootfile=zImage\0" \
+	"finduuid=part uuid mmc 0:2 uuid\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
 	AVB_VERIFY_CMD \
 	"partitions=" PARTS_DEFAULT "\0" \
 	"optargs=\0" \
 	"dofastboot=0\0" \
-	"emmc_linux_boot=" \
-		"echo Trying to boot Linux from eMMC ...; " \
-		"setenv mmcdev 1; " \
-		"setenv bootpart 1:2; " \
-		"setenv mmcroot /dev/mmcblk0p2 rw; " \
-		"run mmcboot;\0" \
 	"emmc_android_boot=" \
 		"setenv mmcdev 1; " \
 		"mmc dev $mmcdev; " \
@@ -278,12 +270,18 @@
 		"run update_to_fit;"	\
 	"fi;"	\
 	"run findfdt; " \
-	"run envboot; " \
-	"run mmcboot;" \
-	"run emmc_linux_boot; " \
+	"run finduuid; " \
+	"run distro_bootcmd;" \
 	"run emmc_android_boot; " \
 	""
 
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
@@ -294,6 +292,7 @@
 	DFUARGS \
 	NETARGS \
 	NANDARGS \
+	BOOTENV
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
