@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP SM-K26 rev1/B/A
  *
- * (C) Copyright 2020, Xilinx, Inc.
+ * (C) Copyright 2020 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -22,11 +22,12 @@
 		     "xlnx,zynqmp";
 
 	aliases {
-		gpio0 = &gpio;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		mmc0 = &sdhci0;
 		mmc1 = &sdhci1;
+		nvmem0 = &eeprom;
+		nvmem1 = &eeprom_cc;
 		rtc0 = &rtc;
 		serial0 = &uart0;
 		serial1 = &uart1;
@@ -36,8 +37,6 @@
 		spi2 = &spi1;
 		usb0 = &usb0;
 		usb1 = &usb1;
-		nvmem0 = &eeprom;
-		nvmem1 = &eeprom_cc;
 	};
 
 	chosen {

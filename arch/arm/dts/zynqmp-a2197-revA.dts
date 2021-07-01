@@ -18,13 +18,14 @@
 
 	aliases {
 		i2c0 = &i2c0;
+		nvmem0 = &eeprom1;
+		nvmem1 = &eeprom0;
 		serial0 = &uart0;
 	};
 
 	chosen {
 		bootargs = "earlycon";
 		stdout-path = "serial0:115200n8";
-		xlnx,eeprom = <&eeprom1 &eeprom0 &eeprom0>;
 	};
 
 	memory@0 {
@@ -35,7 +36,6 @@
 
 &uart0 { /* uart0 MIO38-39 */
 	status = "okay";
-	u-boot,dm-pre-reloc;
 };
 
 &i2c0 {

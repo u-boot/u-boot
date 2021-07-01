@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP ZCU104
  *
- * (C) Copyright 2017 - 2020, Xilinx, Inc.
+ * (C) Copyright 2017 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -21,9 +21,9 @@
 
 	aliases {
 		ethernet0 = &gem3;
-		gpio0 = &gpio;
 		i2c0 = &i2c1;
 		mmc0 = &sdhci1;
+		nvmem0 = &eeprom;
 		rtc0 = &rtc;
 		serial0 = &uart0;
 		serial1 = &uart1;
@@ -35,7 +35,6 @@
 	chosen {
 		bootargs = "earlycon";
 		stdout-path = "serial0:115200n8";
-		xlnx,eeprom = &eeprom;
 	};
 
 	memory@0 {
@@ -190,10 +189,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
-			clock_8t49n287: clock-generator@6c { /* 8T49N287 - u182 */
-				compatible = "idt,8t49n287";
-				reg = <0x6c>;
-			};
+			/* 8T49N287 - u182 */
 		};
 
 		i2c@2 {
@@ -436,6 +432,13 @@
 	};
 };
 
+&psgtr {
+	status = "okay";
+	/* nc, sata, usb3, dp */
+	clocks = <&clock_8t49n287_5>, <&clock_8t49n287_2>, <&clock_8t49n287_3>;
+	clock-names = "ref1", "ref2", "ref3";
+};
+
 &qspi {
 	status = "okay";
 	flash@0 {
@@ -467,13 +470,6 @@
 
 &rtc {
 	status = "okay";
-};
-
-&psgtr {
-	status = "okay";
-	/* nc, sata, usb3, dp */
-	clocks = <&clock_8t49n287_5>, <&clock_8t49n287_2>, <&clock_8t49n287_3>;
-	clock-names = "ref1", "ref2", "ref3";
 };
 
 &sata {

@@ -19,9 +19,9 @@
 
 	aliases {
 		ethernet0 = &gem0;
-		gpio0 = &gpio;
 		i2c0 = &i2c0;
 		mmc0 = &sdhci0;
+		nvmem0 = &eeprom;
 		rtc0 = &rtc;
 		serial0 = &uart0;
 		serial1 = &dcc;
@@ -31,7 +31,6 @@
 	chosen {
 		bootargs = "earlycon";
 		stdout-path = "serial0:115200n8";
-		xlnx,eeprom = <&eeprom>;
 	};
 
 	memory@0 {
@@ -75,7 +74,6 @@
 
 &uart0 { /* uart0 MIO38-39 */
 	status = "okay";
-	u-boot,dm-pre-reloc;
 };
 
 &gem0 { /* eth MDIO 76/77 */

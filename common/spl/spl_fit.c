@@ -480,7 +480,8 @@ static int spl_fit_record_loadable(const struct spl_fit_info *ctx, int index,
 	ret = fdt_record_loadable(blob, index, name, image->load_addr,
 				  image->size, image->entry_point,
 				  fdt_getprop(ctx->fit, node, "type", NULL),
-				  fdt_getprop(ctx->fit, node, "os", NULL));
+				  fdt_getprop(ctx->fit, node, "os", NULL),
+				  fdt_getprop(ctx->fit, node, "arch", NULL));
 	return ret;
 }
 

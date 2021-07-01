@@ -28,7 +28,17 @@
 #define ZYNQ_UART_CR_TXRST	BIT(1) /* TX logic reset */
 #define ZYNQ_UART_CR_RXRST	BIT(0) /* RX logic reset */
 
+#define ZYNQ_UART_MR_STOPMODE_2_BIT	0x00000080  /* 2 stop bits */
+#define ZYNQ_UART_MR_STOPMODE_1_5_BIT	0x00000040  /* 1.5 stop bits */
+#define ZYNQ_UART_MR_STOPMODE_1_BIT	0x00000000  /* 1 stop bit */
+
 #define ZYNQ_UART_MR_PARITY_NONE	0x00000020  /* No parity mode */
+#define ZYNQ_UART_MR_PARITY_ODD		0x00000008  /* Odd parity mode */
+#define ZYNQ_UART_MR_PARITY_EVEN	0x00000000  /* Even parity mode */
+
+#define ZYNQ_UART_MR_CHARLEN_6_BIT	0x00000006  /* 6 bits data */
+#define ZYNQ_UART_MR_CHARLEN_7_BIT	0x00000004  /* 7 bits data */
+#define ZYNQ_UART_MR_CHARLEN_8_BIT	0x00000000  /* 8 bits data */
 
 struct uart_zynq {
 	u32 control; /* 0x0 - Control Register [8:0] */
@@ -137,6 +147,63 @@ static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
+#if !defined(CONFIG_SPL_BUILD)
+static int zynq_serial_setconfig(struct udevice *dev, uint serial_config)
+{
+	struct zynq_uart_plat *plat = dev_get_plat(dev);
+	struct uart_zynq *regs = plat->regs;
+	u32 val = 0;
+
+	switch (SERIAL_GET_BITS(serial_config)) {
+	case SERIAL_6_BITS:
+		val |= ZYNQ_UART_MR_CHARLEN_6_BIT;
+		break;
+	case SERIAL_7_BITS:
+		val |= ZYNQ_UART_MR_CHARLEN_7_BIT;
+		break;
+	case SERIAL_8_BITS:
+		val |= ZYNQ_UART_MR_CHARLEN_8_BIT;
+		break;
+	default:
+		return -ENOTSUPP; /* not supported in driver */
+	}
+
+	switch (SERIAL_GET_STOP(serial_config)) {
+	case SERIAL_ONE_STOP:
+		val |= ZYNQ_UART_MR_STOPMODE_1_BIT;
+		break;
+	case SERIAL_ONE_HALF_STOP:
+		val |= ZYNQ_UART_MR_STOPMODE_1_5_BIT;
+		break;
+	case SERIAL_TWO_STOP:
+		val |= ZYNQ_UART_MR_STOPMODE_2_BIT;
+		break;
+	default:
+		return -ENOTSUPP; /* not supported in driver */
+	}
+
+	switch (SERIAL_GET_PARITY(serial_config)) {
+	case SERIAL_PAR_NONE:
+		val |= ZYNQ_UART_MR_PARITY_NONE;
+		break;
+	case SERIAL_PAR_ODD:
+		val |= ZYNQ_UART_MR_PARITY_ODD;
+		break;
+	case SERIAL_PAR_EVEN:
+		val |= ZYNQ_UART_MR_PARITY_EVEN;
+		break;
+	default:
+		return -ENOTSUPP; /* not supported in driver */
+	}
+
+	writel(val, &regs->mode);
+
+	return 0;
+}
+#else
+#define zynq_serial_setconfig NULL
+#endif
+
 static int zynq_serial_probe(struct udevice *dev)
 {
 	struct zynq_uart_plat *plat = dev_get_plat(dev);
@@ -198,6 +265,7 @@ static const struct dm_serial_ops zynq_serial_ops = {
 	.pending = zynq_serial_pending,
 	.getc = zynq_serial_getc,
 	.setbrg = zynq_serial_setbrg,
+	.setconfig = zynq_serial_setconfig,
 };
 
 static const struct udevice_id zynq_serial_ids[] = {

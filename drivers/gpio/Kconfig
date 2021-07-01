@@ -396,7 +396,7 @@ config DM_74X164
 
 config DM_PCA953X
 	bool "PCA95[357]x, PCA9698, TCA64xx, and MAX7310 I/O ports"
-	depends on DM_GPIO
+	depends on DM_GPIO && DM_I2C
 	help
 	  Say yes here to provide access to several register-oriented
 	  SMBus I/O expanders, made mostly by NXP or TI.  Compatible

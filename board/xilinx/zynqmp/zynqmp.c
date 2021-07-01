@@ -11,6 +11,8 @@
 #include <env.h>
 #include <env_internal.h>
 #include <init.h>
+#include <image.h>
+#include <lmb.h>
 #include <log.h>
 #include <net.h>
 #include <sata.h>
@@ -183,7 +185,38 @@ static const struct {
 		.device = 49,
 		.variants = ZYNQMP_VARIANT_DR,
 	},
+	{
+		.id = 0x046d0093,
+		.device = 67,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
 };
+
+static const struct {
+	u32 id;
+	char *name;
+} zynqmp_svd_devices[] = {
+	{
+		.id = 0x04714093,
+		.name = "xck24"
+	},
+	{
+		.id = 0x04724093,
+		.name = "xck26",
+	},
+};
+
+static char *zynqmp_detect_svd_name(u32 idcode)
+{
+	u32 i;
+
+	for (i = 0; i < ARRAY_SIZE(zynqmp_svd_devices); i++) {
+		if (zynqmp_svd_devices[i].id == (idcode & 0x0FFFFFFF))
+			return zynqmp_svd_devices[i].name;
+	}
+
+	return "unknown";
+}
 
 static char *zynqmp_get_silicon_idcode_name(void)
 {
@@ -219,7 +252,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	}
 
 	if (i >= ARRAY_SIZE(zynqmp_devices))
-		return "unknown";
+		return zynqmp_detect_svd_name(idcode);
 
 	/* Add device prefix to the name */
 	ret = snprintf(name, ZYNQMP_VERSION_SIZE, "zu%d",
@@ -426,6 +459,25 @@ int dram_init(void)
 		return -EINVAL;
 
 	return 0;
+}
+
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	phys_size_t size;
+	phys_addr_t reg;
+	struct lmb lmb;
+
+	/* found enough not-reserved memory to relocated U-Boot */
+	lmb_init(&lmb);
+	lmb_add(&lmb, gd->ram_base, gd->ram_size);
+	boot_fdt_add_mem_rsv_regions(&lmb, (void *)gd->fdt_blob);
+	size = ALIGN(CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE),
+	reg = lmb_alloc(&lmb, size, MMU_SECTION_SIZE);
+
+	if (!reg)
+		reg = gd->ram_top - size;
+
+	return reg + size;
 }
 #else
 int dram_init_banksize(void)
@@ -692,6 +744,41 @@ int checkboard(void)
 {
 	puts("Board: Xilinx ZynqMP\n");
 	return 0;
+}
+
+int mmc_get_env_dev(void)
+{
+	struct udevice *dev;
+	int bootseq = 0;
+
+	switch (zynqmp_get_bootmode()) {
+	case EMMC_MODE:
+	case SD_MODE:
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@ff160000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@ff160000", &dev)) {
+			return -1;
+		}
+		bootseq = dev_seq(dev);
+		break;
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@ff170000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@ff170000", &dev)) {
+			return -1;
+		}
+		bootseq = dev_seq(dev);
+		break;
+	default:
+		break;
+	}
+
+	debug("bootseq %d\n", bootseq);
+
+	return bootseq;
 }
 
 enum env_location env_get_location(enum env_operation op, int prio)
