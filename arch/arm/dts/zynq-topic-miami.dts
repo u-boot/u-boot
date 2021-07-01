@@ -36,7 +36,7 @@
 	is-dual = <0>;
 	num-cs = <1>;
 	flash@0 {
-		compatible = "st,m25p80", "n25q256a";
+		compatible = "st,m25p80", "n25q256a", "jedec,spi-nor";
 		m25p,fast-read;
 		reg = <0x0>;
 		spi-tx-bus-width = <1>;
