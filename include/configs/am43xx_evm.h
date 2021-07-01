@@ -108,59 +108,41 @@
 #define DFUARGS
 #endif
 
+#define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel "=" \
+	"run nandboot\0"
+
+#define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
+	#devtypel #instance " "
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(NAND, nand, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
 #ifndef CONFIG_SPL_BUILD
 #include <environment/ti/dfu.h>
-#include <environment/ti/mmc.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
-	DEFAULT_MMC_TI_ARGS \
-	DEFAULT_FIT_TI_ARGS \
 	"fdtfile=undefined\0" \
-	"bootpart=0:2\0" \
-	"bootdir=/boot\0" \
-	"bootfile=zImage\0" \
+	"finduuid=part uuid mmc 0:2 uuid\0" \
 	"console=ttyO0,115200n8\0" \
 	"partitions=" \
 		"uuid_disk=${uuid_gpt_disk};" \
 		"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}\0" \
 	"optargs=\0" \
-	"usbroot=/dev/sda2 rw\0" \
-	"usbrootfstype=ext4 rootwait\0" \
-	"usbdev=0\0" \
 	"ramroot=/dev/ram0 rw\0" \
 	"ramrootfstype=ext2\0" \
-	"usbargs=setenv bootargs console=${console} " \
-		"${optargs} " \
-		"root=${usbroot} " \
-		"rootfstype=${usbrootfstype}\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
 	"loadramdisk=load ${devtype} ${devnum} ${rdaddr} ramdisk.gz\0" \
-	"usbboot=" \
-		"setenv devnum ${usbdev}; " \
-		"setenv devtype usb; " \
-		"usb start ${usbdev}; " \
-		"if usb dev ${usbdev}; then " \
-			"if run loadbootenv; then " \
-				"echo Loaded environment from ${bootenv};" \
-				"run importbootenv;" \
-			"fi;" \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd ...;" \
-				"run uenvcmd;" \
-			"fi;" \
-			"if run loadimage; then " \
-				"run loadfdt; " \
-				"echo Booting from usb ${usbdev}...; " \
-				"run usbargs;" \
-				"bootz ${loadaddr} - ${fdtaddr}; " \
-			"fi;" \
-		"fi\0" \
-		"fi;" \
-		"usb stop ${usbdev};\0" \
 	"findfdt="\
 		"if test $board_name = AM43EPOS; then " \
 			"setenv fdtfile am43x-epos-evm.dtb; fi; " \
@@ -177,16 +159,7 @@
 	NANDARGS \
 	NETARGS \
 	DFUARGS \
-
-#define CONFIG_BOOTCOMMAND \
-	"if test ${boot_fit} -eq 1; then "	\
-		"run update_to_fit;"	\
-	"fi;"	\
-	"run findfdt; " \
-	"run envboot;" \
-	"run mmcboot;" \
-	"run usbboot;" \
-	NANDBOOT \
+	BOOTENV
 
 #endif
 
