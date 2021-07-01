@@ -813,6 +813,7 @@ static int zynqmp_clk_enable(struct clk *clk)
 		mask = 0x3;
 		break;
 	case qspi_ref ... can1_ref:
+	case lpd_lsbus:
 		clkact_shift = 24;
 		mask = 0x1;
 		break;
