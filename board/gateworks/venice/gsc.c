@@ -176,7 +176,7 @@ static int gsc_read_eeprom(int bus, int slave, int alen, struct venice_board_inf
 		chksum += buf[i];
 	if ((info->chksum[0] != chksum >> 8) ||
 	    (info->chksum[1] != (chksum & 0xff))) {
-		printf("EEPROM: I2C%d@0x%02x: Invalid Model in EEPROM\n", bus, slave);
+		printf("EEPROM: I2C%d@0x%02x: Invalid Checksum\n", bus, slave);
 		print_hex_dump_bytes("", DUMP_PREFIX_NONE, buf, sizeof(*info));
 		memset(info, 0, sizeof(*info));
 		return -EINVAL;
