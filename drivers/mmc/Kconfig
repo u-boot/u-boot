@@ -727,6 +727,15 @@ config MMC_SUNXI_HAS_MODE_SWITCH
 	bool
 	depends on MMC_SUNXI
 
+config MMC_PITON
+	bool "MMC support for OpenPiton SoC"
+	depends on DM_MMC && BLK
+	help
+	  This selects support for the SD host controller on OpenPiton SoC.
+	  Note that this SD controller directly exposes the contents of the
+	  SD card as memory mapped, so there is no manual configuration
+	  required
+
 config GENERIC_ATMEL_MCI
 	bool "Atmel Multimedia Card Interface support"
 	depends on DM_MMC && BLK && ARCH_AT91
