@@ -298,7 +298,7 @@ int gsc_hwmon(void)
 				}
 
 				/* adjust by offset */
-				val += offset;
+				val += (offset / 1000);
 
 				printf("%-8s: %d.%03dV\n", label, val / 1000, val % 1000);
 				break;
