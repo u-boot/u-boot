@@ -23,6 +23,8 @@
 #include <fdtdec.h>
 #include <membuff.h>
 #include <linux/list.h>
+#include <linux/build_bug.h>
+#include <asm-offsets.h>
 
 struct acpi_ctx;
 struct driver_rt;
@@ -464,6 +466,9 @@ struct global_data {
 	char *smbios_version;
 #endif
 };
+#ifndef DO_DEPS_ONLY
+static_assert(sizeof(struct global_data) == GD_SIZE);
+#endif
 
 /**
  * gd_board_type() - retrieve board type
