@@ -42,12 +42,16 @@ int board_fit_config_name_match(const char *name)
 {
 	int i  = 0;
 	const char *dtb;
+	static char init;
 	char buf[32];
 
 	do {
 		dtb = gsc_get_dtb_name(i++, buf, sizeof(buf));
-		if (!strcmp(dtb, name))
+		if (!strcmp(dtb, name)) {
+			if (!init++)
+				printf("DTB     : %s\n", name);
 			return 0;
+		}
 	} while (dtb);
 
 	return -1;
