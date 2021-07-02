@@ -854,6 +854,18 @@ config VIDEO_DT_SIMPLEFB
 	  The video output is initialized by U-Boot, and kept by the
 	  kernel.
 
+config VIDEO_MCDE_SIMPLE
+	bool "Simple driver for ST-Ericsson MCDE with preconfigured display"
+	depends on DM_VIDEO
+	help
+	  Enables a simple display driver for ST-Ericsson MCDE
+	  (Multichannel Display Engine), which reads the configuration from
+	  the MCDE registers.
+
+	  This driver assumes that the display hardware has been initialized
+	  before u-boot starts, and u-boot will simply render to the pre-
+	  allocated frame buffer surface.
+
 config OSD
 	bool "Enable OSD support"
 	depends on DM
