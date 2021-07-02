@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://source.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:focal-20210609-01Jul2021
+image: trini/u-boot-gitlab-ci-runner:focal-20210609-06Jul2021
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -38,7 +38,6 @@ stages:
     - cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/
     - cp ~/grub_x64.efi $UBOOT_TRAVIS_BUILD_DIR/
     - cp /opt/grub/grubriscv64.efi $UBOOT_TRAVIS_BUILD_DIR/grub_riscv64.efi
-    - cp /opt/grub/grubriscv32.efi $UBOOT_TRAVIS_BUILD_DIR/grub_riscv32.efi
     - cp /opt/grub/grubaa64.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm64.efi
     - cp /opt/grub/grubarm.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm.efi
     - virtualenv -p /usr/bin/python3 /tmp/venv
