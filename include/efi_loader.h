@@ -15,6 +15,8 @@
 #include <efi_api.h>
 #include <image.h>
 #include <pe.h>
+#include <linux/list.h>
+#include <linux/oid_registry.h>
 
 struct blk_desc;
 struct jmp_buf_data;
@@ -29,11 +31,100 @@ static inline void *guidcpy(void *dst, const void *src)
 	return memcpy(dst, src, sizeof(efi_guid_t));
 }
 
-/* No need for efi loader support in SPL */
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 
-#include <linux/list.h>
-#include <linux/oid_registry.h>
+/**
+ * __efi_runtime_data - declares a non-const variable for EFI runtime section
+ *
+ * This macro indicates that a variable is non-const and should go into the
+ * EFI runtime section, and thus still be available when the OS is running.
+ *
+ * Only use on variables not declared const.
+ *
+ * Example:
+ *
+ * ::
+ *
+ *   static __efi_runtime_data my_computed_table[256];
+ */
+#define __efi_runtime_data __section(".data.efi_runtime")
+
+/**
+ * __efi_runtime_rodata - declares a read-only variable for EFI runtime section
+ *
+ * This macro indicates that a variable is read-only (const) and should go into
+ * the EFI runtime section, and thus still be available when the OS is running.
+ *
+ * Only use on variables also declared const.
+ *
+ * Example:
+ *
+ * ::
+ *
+ *   static const __efi_runtime_rodata my_const_table[] = { 1, 2, 3 };
+ */
+#define __efi_runtime_rodata __section(".rodata.efi_runtime")
+
+/**
+ * __efi_runtime - declares a function for EFI runtime section
+ *
+ * This macro indicates that a function should go into the EFI runtime section,
+ * and thus still be available when the OS is running.
+ *
+ * Example:
+ *
+ * ::
+ *
+ *   static __efi_runtime compute_my_table(void);
+ */
+#define __efi_runtime __section(".text.efi_runtime")
+
+/*
+ * Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
+ * to make it available at runtime
+ */
+efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len);
+
+/*
+ * Special case handler for error/abort that just tries to dtrt to get
+ * back to u-boot world
+ */
+void efi_restore_gd(void);
+/* Call this to set the current device name */
+void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
+		     void *buffer, size_t buffer_size);
+/* Called by networking code to memorize the dhcp ack package */
+void efi_net_set_dhcp_ack(void *pkt, int len);
+/* Print information about all loaded images */
+void efi_print_image_infos(void *pc);
+
+/* Hook at initialization */
+efi_status_t efi_launch_capsules(void);
+
+#else /* CONFIG_IS_ENABLED(EFI_LOADER) */
+
+/* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
+#define __efi_runtime_data
+#define __efi_runtime_rodata
+#define __efi_runtime
+static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
+{
+	return EFI_SUCCESS;
+}
+
+/* No loader configured, stub out EFI_ENTRY */
+static inline void efi_restore_gd(void) { }
+static inline void efi_set_bootdev(const char *dev, const char *devnr,
+				   const char *path, void *buffer,
+				   size_t buffer_size) { }
+static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
+static inline void efi_print_image_infos(void *pc) { }
+static inline efi_status_t efi_launch_capsules(void)
+{
+	return EFI_SUCCESS;
+}
+
+#endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 /* Maximum number of configuration tables */
 #define EFI_MAX_CONFIGURATION_TABLES 16
@@ -466,8 +557,6 @@ efi_status_t efi_smbios_register(void);
 struct efi_simple_file_system_protocol *
 efi_fs_from_path(struct efi_device_path *fp);
 
-/* Called by networking code to memorize the dhcp ack package */
-void efi_net_set_dhcp_ack(void *pkt, int len);
 /* Called by efi_set_watchdog_timer to reset the timer */
 efi_status_t efi_set_watchdog(unsigned long timeout);
 
@@ -481,14 +570,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 			 struct efi_loaded_image *loaded_image_info);
 /* Called once to store the pristine gd pointer */
 void efi_save_gd(void);
-/* Special case handler for error/abort that just tries to dtrt to get
- * back to u-boot world */
-void efi_restore_gd(void);
 /* Call this to relocate the runtime section to an address space */
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
-/* Call this to set the current device name */
-void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
-		     void *buffer, size_t buffer_size);
 /* Add a new object to the object list. */
 void efi_add_handle(efi_handle_t obj);
 /* Create handle */
@@ -620,8 +703,6 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 				    struct efi_device_path *file_path,
 				    struct efi_loaded_image_obj **handle_ptr,
 				    struct efi_loaded_image **info_ptr);
-/* Print information about all loaded images */
-void efi_print_image_infos(void *pc);
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 extern void *efi_bounce_buffer;
@@ -683,61 +764,11 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
 
-/**
- * __efi_runtime_data - declares a non-const variable for EFI runtime section
- *
- * This macro indicates that a variable is non-const and should go into the
- * EFI runtime section, and thus still be available when the OS is running.
- *
- * Only use on variables not declared const.
- *
- * Example:
- *
- * ::
- *
- *   static __efi_runtime_data my_computed_table[256];
- */
-#define __efi_runtime_data __section(".data.efi_runtime")
-
-/**
- * __efi_runtime_rodata - declares a read-only variable for EFI runtime section
- *
- * This macro indicates that a variable is read-only (const) and should go into
- * the EFI runtime section, and thus still be available when the OS is running.
- *
- * Only use on variables also declared const.
- *
- * Example:
- *
- * ::
- *
- *   static const __efi_runtime_rodata my_const_table[] = { 1, 2, 3 };
- */
-#define __efi_runtime_rodata __section(".rodata.efi_runtime")
-
-/**
- * __efi_runtime - declares a function for EFI runtime section
- *
- * This macro indicates that a function should go into the EFI runtime section,
- * and thus still be available when the OS is running.
- *
- * Example:
- *
- * ::
- *
- *   static __efi_runtime compute_my_table(void);
- */
-#define __efi_runtime __section(".text.efi_runtime")
-
 /* Indicate supported runtime services */
 efi_status_t efi_init_runtime_supported(void);
 
 /* Update CRC32 in table header */
 void __efi_runtime efi_update_table_header_crc32(struct efi_table_hdr *table);
-
-/* Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
- * to make it available at runtime */
-efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len);
 
 /* Boards may provide the functions below to implement RTS functionality */
 
@@ -926,34 +957,6 @@ efi_status_t efi_capsule_authenticate(const void *capsule,
 				      void **image, efi_uintn_t *image_size);
 
 #define EFI_CAPSULE_DIR L"\\EFI\\UpdateCapsule\\"
-
-/* Hook at initialization */
-efi_status_t efi_launch_capsules(void);
-
-#else /* CONFIG_IS_ENABLED(EFI_LOADER) */
-
-/* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
-#define __efi_runtime_data
-#define __efi_runtime_rodata
-#define __efi_runtime
-static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
-{
-	return EFI_SUCCESS;
-}
-
-/* No loader configured, stub out EFI_ENTRY */
-static inline void efi_restore_gd(void) { }
-static inline void efi_set_bootdev(const char *dev, const char *devnr,
-				   const char *path, void *buffer,
-				   size_t buffer_size) { }
-static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
-static inline void efi_print_image_infos(void *pc) { }
-static inline efi_status_t efi_launch_capsules(void)
-{
-	return EFI_SUCCESS;
-}
-
-#endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 /**
  * Install the ESRT system table.
