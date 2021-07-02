@@ -266,14 +266,14 @@ As an example, consider this FIT:
 			data = <data for fdt1>;
 			signature-1 {
 				algo = "sha1,rsa2048";
-				vaue = <...fdt signature 1...>
+				value = <...fdt signature 1...>
 			};
 		};
 		fdt-2 {
 			data = <data for fdt2>;
 			signature-1 {
 				algo = "sha1,rsa2048";
-				vaue = <...fdt signature 2...>
+				value = <...fdt signature 2...>
 			};
 		};
 	};
