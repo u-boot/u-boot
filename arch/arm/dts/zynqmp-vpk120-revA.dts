@@ -43,6 +43,36 @@
 		reg = <0x0 0x0 0x0 0x80000000>;
 	};
 
+	si570_user1_fmc_clk: si570_user1_fmc_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&user_si570_1>;
+	};
+
+	si570_ref_clk: si570_ref_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&ref_clk>;
+	};
+
+	si570_lpddr4_clk3: si570_lpddr4_clk3 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&lpddr4_clk3>;
+	};
+
+	si570_lpddr4_clk2: si570_lpddr4_clk2 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&lpddr4_clk2>;
+	};
+
+	si570_lpddr4_clk1: si570_lpddr4_clk1 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&lpddr4_clk1>;
+	};
+
 	gpio-keys {
 		compatible = "gpio-keys";
 		autorepeat;
@@ -358,13 +388,13 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <6>;
-			si570_1: clock-generator@5d { /* USER C0 SI570 - u205 */
+			user_si570_1: clock-generator@5f { /* USER C0 SI570 - u205 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>;
+				reg = <0x5f>;
 				temperature-stability = <50>;
-				factory-fout = <300000000>; // FIXME not in schematics
-				clock-frequency = <300000000>;
+				factory-fout = <100000000>;
+				clock-frequency = <100000000>;
 				clock-output-names = "fmc_si570";
 			};
 
@@ -397,7 +427,7 @@
 				compatible = "st,24c128", "atmel,24c128";
 				reg = <0x54>; /* & 0x5c */
 			};
-			si570_ref_clk: clock-generator@5d { /* u32 */
+			ref_clk: clock-generator@5d { /* u32 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x5d>;
