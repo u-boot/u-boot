@@ -2100,7 +2100,7 @@ CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
-		  .tmp_objdiff doc/output
+		  .tmp_objdiff doc/output include/asm
 
 # Remove include/asm symlink created by U-Boot before v2014.01
 MRPROPER_FILES += .config .config.old include/autoconf.mk* include/config.h \
