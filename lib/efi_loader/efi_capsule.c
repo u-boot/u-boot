@@ -919,13 +919,13 @@ static void efi_capsule_scan_done(void)
 }
 
 /**
- * arch_efi_load_capsule_drivers - initialize capsule drivers
+ * efi_load_capsule_drivers - initialize capsule drivers
  *
- * Architecture or board specific initialization routine
+ * Generic FMP drivers backed by DFU
  *
  * Return:	status code
  */
-efi_status_t __weak arch_efi_load_capsule_drivers(void)
+efi_status_t __weak efi_load_capsule_drivers(void)
 {
 	__maybe_unused efi_handle_t handle;
 	efi_status_t ret = EFI_SUCCESS;
@@ -940,12 +940,39 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
 	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_RAW)) {
 		handle = NULL;
 		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
-				&efi_root,
+				&handle,
 				&efi_guid_firmware_management_protocol,
 				&efi_fmp_raw, NULL));
 	}
 
 	return ret;
+}
+
+/**
+ * check_run_capsules - Check whether capsule update should run
+ *
+ * The spec says OsIndications must be set in order to run the capsule update
+ * on-disk.  Since U-Boot doesn't support runtime SetVariable, allow capsules to
+ * run explicitly if CONFIG_EFI_IGNORE_OSINDICATIONS is selected
+ */
+static bool check_run_capsules(void)
+{
+	u64 os_indications;
+	efi_uintn_t size;
+	efi_status_t ret;
+
+	if (IS_ENABLED(CONFIG_EFI_IGNORE_OSINDICATIONS))
+		return true;
+
+	size = sizeof(os_indications);
+	ret = efi_get_variable_int(L"OsIndications", &efi_global_variable_guid,
+				   NULL, &size, &os_indications, NULL);
+	if (ret == EFI_SUCCESS &&
+	    (os_indications
+	      & EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED))
+		return true;
+
+	return false;
 }
 
 /**
@@ -958,28 +985,16 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
  */
 efi_status_t efi_launch_capsules(void)
 {
-	u64 os_indications;
-	efi_uintn_t size;
 	struct efi_capsule_header *capsule = NULL;
 	u16 **files;
 	unsigned int nfiles, index, i;
 	u16 variable_name16[12];
 	efi_status_t ret;
 
-	size = sizeof(os_indications);
-	ret = efi_get_variable_int(L"OsIndications", &efi_global_variable_guid,
-				   NULL, &size, &os_indications, NULL);
-	if (ret != EFI_SUCCESS ||
-	    !(os_indications
-	      & EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED))
+	if (!check_run_capsules())
 		return EFI_SUCCESS;
 
 	index = get_last_capsule();
-
-	/* Load capsule drivers */
-	ret = arch_efi_load_capsule_drivers();
-	if (ret != EFI_SUCCESS)
-		return ret;
 
 	/*
 	 * Find capsules on disk.
