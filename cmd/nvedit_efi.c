@@ -241,6 +241,7 @@ int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
 	const efi_guid_t *guid_p = NULL;
+	efi_guid_t guid;
 	bool verbose = true;
 	efi_status_t ret;
 
@@ -254,8 +255,6 @@ int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	for (argc--, argv++; argc > 0 && argv[0][0] == '-'; argc--, argv++) {
 		if (!strcmp(argv[0], "-guid")) {
-			efi_guid_t guid;
-
 			if (argc == 1)
 				return CMD_RET_USAGE;
 			argc--;
