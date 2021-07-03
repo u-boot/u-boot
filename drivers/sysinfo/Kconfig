@@ -17,6 +17,13 @@ config SYSINFO_GAZERBEAM
 	help
 	  Support querying device information for the gdsys Gazerbeam board.
 
+config SYSINFO_RCAR3
+	bool "Enable sysinfo driver for the Renesas R-Car Gen3"
+	depends on RCAR_GEN3 && I2C_EEPROM
+	default y if RCAR_GEN3
+	help
+	  Support querying SoC version information for Renesas R-Car Gen3.
+
 config SYSINFO_SANDBOX
 	bool "Enable sysinfo driver for the Sandbox board"
 	help
