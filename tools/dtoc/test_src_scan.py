@@ -171,8 +171,7 @@ class TestSrcScan(unittest.TestCase):
         self.assertEqual([], aliases)
         self.assertEqual(1, len(scan._missing_drivers))
         self.assertEqual({'rockchip_rk3288_grf'}, scan._missing_drivers)
-            #'WARNING: the driver rockchip_rk3288_grf was not found in the driver list',
-            #stdout.getvalue().strip())
+        self.assertEqual('', stdout.getvalue().strip())
 
         i2c = 'I2C_UCLASS'
         compat = {'rockchip,rk3288-grf': 'ROCKCHIP_SYSCON_GRF',
