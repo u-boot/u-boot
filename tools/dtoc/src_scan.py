@@ -555,7 +555,7 @@ class Scanner:
                 if ids_m:
                     ids_name = ids_m.group(1)
                 elif m_alias:
-                    self._driver_aliases[m_alias[2]] = m_alias[1]
+                    self._driver_aliases[m_alias.group(2)] = m_alias.group(1)
 
         # Make the updates based on what we found
         for driver in drivers.values():
