@@ -13,6 +13,7 @@ U_BOOT_DRIVER(), UCLASS_DRIVER and all struct declarations in header files.
 See doc/driver-model/of-plat.rst for more informaiton
 """
 
+import collections
 import os
 import re
 import sys
@@ -190,6 +191,9 @@ class Scanner:
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
         _drivers_additional (list or str): List of additional drivers to use
             during scanning
+        _warnings: Dict of warnings found:
+            key: Driver name
+            value: Set of warnings
         _of_match: Dict holding information about compatible strings
             key: Name of struct udevice_id variable
             value: Dict of compatible info in that variable:
@@ -217,6 +221,7 @@ class Scanner:
         self._driver_aliases = {}
         self._drivers_additional = drivers_additional or []
         self._missing_drivers = set()
+        self._warnings = collections.defaultdict(set)
         self._of_match = {}
         self._compat_to_driver = {}
         self._uclass = {}
@@ -267,7 +272,10 @@ class Scanner:
                 aliases_c.remove(compat_c)
             return compat_c, aliases_c
 
-        self._missing_drivers.add(compat_list_c[0])
+        name = compat_list_c[0]
+        self._missing_drivers.add(name)
+        self._warnings[name].add(
+            'WARNING: the driver %s was not found in the driver list' % name)
 
         return compat_list_c[0], compat_list_c[1:]
 
@@ -577,9 +585,17 @@ class Scanner:
 
     def show_warnings(self):
         """Show any warnings that have been collected"""
-        for name in sorted(list(self._missing_drivers)):
-            print('WARNING: the driver %s was not found in the driver list'
-                  % name)
+        used_drivers = [drv.name for drv in self._drivers.values() if drv.used]
+        missing = self._missing_drivers
+        for name in sorted(self._warnings.keys()):
+            if name in missing or name in used_drivers:
+                warns = sorted(list(self._warnings[name]))
+                # For now there is only ever one warning
+                print('%s: %s' % (name, warns[0]))
+                indent = ' ' * len(name)
+                if name in missing:
+                    missing.remove(name)
+                print()
 
     def scan_driver(self, fname):
         """Scan a driver file to build a list of driver names and aliases
