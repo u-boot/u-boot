@@ -32,10 +32,14 @@ int __weak show_board_info(void)
 		if (IS_ENABLED(CONFIG_SYSINFO)) {
 			/* This might provide more detail */
 			ret = sysinfo_get(&dev);
-			if (!ret)
-				ret = sysinfo_get_str(dev,
+			if (!ret) {
+				ret = sysinfo_detect(dev);
+				if (!ret) {
+					ret = sysinfo_get_str(dev,
 						      SYSINFO_ID_BOARD_MODEL,
 						      sizeof(str), str);
+				}
+			}
 		}
 
 		/* Fail back to the main 'model' if available */
