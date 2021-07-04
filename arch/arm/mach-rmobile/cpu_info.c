@@ -119,7 +119,7 @@ int print_cpuinfo(void)
 {
 	int i = rmobile_cpuinfo_idx();
 
-	printf("CPU: Renesas Electronics %s rev %d.%d\n",
+	printf("CPU:   Renesas Electronics %s rev %d.%d\n",
 		get_cpu_name(i), rmobile_get_cpu_rev_integer(),
 		rmobile_get_cpu_rev_fraction());
 
