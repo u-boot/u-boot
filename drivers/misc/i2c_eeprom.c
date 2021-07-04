@@ -264,6 +264,7 @@ static const struct i2c_eeprom_drv_data atmel24c512_data = {
 static const struct udevice_id i2c_eeprom_std_ids[] = {
 	{ .compatible = "i2c-eeprom", (ulong)&eeprom_data },
 	{ .compatible = "microchip,24aa02e48", (ulong)&mc24aa02e48_data },
+	{ .compatible = "atmel,24c01", (ulong)&atmel24c01a_data },
 	{ .compatible = "atmel,24c01a", (ulong)&atmel24c01a_data },
 	{ .compatible = "atmel,24c02", (ulong)&atmel24c02_data },
 	{ .compatible = "atmel,24c04", (ulong)&atmel24c04_data },
