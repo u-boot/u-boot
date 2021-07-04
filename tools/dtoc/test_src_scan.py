@@ -581,3 +581,41 @@ rockchip_rk3288_grf: WARNING: the driver rockchip_rk3288_grf was not found in th
 ''',
             stdout.getvalue())
         self.assertIn('tegra_i2c_ids', stdout.getvalue())
+
+    def scan_uclass_warning(self):
+        """Test a missing .uclass in the driver"""
+        buff = '''
+static const struct udevice_id tegra_i2c_ids[] = {
+	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_tegra) = {
+	.name	= "i2c_tegra",
+	.of_match = tegra_i2c_ids,
+};
+'''
+        scan = src_scan.Scanner(None, None)
+        scan._parse_driver('file.c', buff)
+        self.assertEqual(
+            {'i2c_tegra': {'Missing .uclass in file.c'}},
+            scan._warnings)
+
+    def scan_compat_warning(self):
+        """Test a missing .compatible in the driver"""
+        buff = '''
+static const struct udevice_id tegra_i2c_ids[] = {
+	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_tegra) = {
+	.name	= "i2c_tegra",
+	.id	= UCLASS_I2C,
+};
+'''
+        scan = src_scan.Scanner(None, None)
+        scan._parse_driver('file.c', buff)
+        self.assertEqual(
+            {'i2c_tegra': {'Missing .compatible in file.c'}},
+            scan._warnings)

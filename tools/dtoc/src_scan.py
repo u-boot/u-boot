@@ -546,7 +546,12 @@ class Scanner:
                         # The driver does not have a uclass or compat string.
                         # The first is required but the second is not, so just
                         # ignore this.
-                        pass
+                        if not driver.uclass_id:
+                            warn = 'Missing .uclass'
+                        else:
+                            warn = 'Missing .compatible'
+                        self._warnings[driver.name].add('%s in %s' %
+                                                        (warn, fname))
                     driver = None
                     ids_name = None
                     compat = None
