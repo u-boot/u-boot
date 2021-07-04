@@ -452,8 +452,8 @@ class Scanner:
 
         # Collect the compatible string, e.g. 'rockchip,rk3288-grf'
         compat = None
-        re_compat = re.compile(r'{\s*.compatible\s*=\s*"(.*)"\s*'
-                               r'(,\s*.data\s*=\s*(\S*))?\s*},')
+        re_compat = re.compile(r'{\s*\.compatible\s*=\s*"(.*)"\s*'
+                               r'(,\s*\.data\s*=\s*(\S*))?\s*},')
 
         # This is a dict of compatible strings that were found:
         #    key: Compatible string, e.g. 'rockchip,rk3288-grf'
