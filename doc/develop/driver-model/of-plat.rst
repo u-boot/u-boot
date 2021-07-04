@@ -597,6 +597,59 @@ as a macro included in the driver definition::
 
 
 
+Problems
+--------
+
+In some cases you will you see something like this::
+
+   WARNING: the driver rockchip_rk3188_grf was not found in the driver list
+
+The driver list is a list of drivers, each with a name. The name is in the
+U_BOOT_DRIVER() declaration, repeated twice, one in brackets and once as the
+.name member. For example, in the following declaration the driver name is
+`rockchip_rk3188_grf`::
+
+  U_BOOT_DRIVER(rockchip_rk3188_grf) = {
+       .name = "rockchip_rk3188_grf",
+       .id = UCLASS_SYSCON,
+       .of_match = rk3188_syscon_ids + 1,
+       .bind = rk3188_syscon_bind_of_plat,
+  };
+
+The first name U_BOOT_DRIVER(xx) is used to create a linker symbol so that the
+driver can be accessed at build-time without any overhead. The second one
+(.name = "xx") is used at runtime when something wants to print out the driver
+name.
+
+The dtoc tool expects to be able to find a driver for each compatible string in
+the devicetree. For example, if the devicetree has::
+
+   grf: grf@20008000 {
+      compatible = "rockchip,rk3188-grf", "syscon";
+      reg = <0x20008000 0x200>;
+      u-boot,dm-spl;
+   };
+
+then dtoc looks at the first compatible string ("rockchip,rk3188-grf"),
+converts that to a C identifier (rockchip_rk3188_grf) and then looks for that.
+
+Various things can cause dtoc to fail to find the driver and it tries to
+warn about these. For example:
+
+   rockchip_rk3188_uart: Missing .compatible in drivers/serial/serial_rockchip.c
+                    : WARNING: the driver rockchip_rk3188_uart was not found in the driver list
+
+Without a compatible string a driver cannot be used by dtoc, even if the
+compatible string is not actually needed at runtime.
+
+If the problem is simply that there are multiple compatible strings, the
+DM_DRIVER_ALIAS() macro can be used to tell dtoc about this and avoid a problem.
+
+Checks are also made to confirm that the referenced driver has a .compatible
+member and a .id member. The first provides the array of compatible strings and
+the second provides the uclass ID.
+
+
 Caveats
 -------
 
