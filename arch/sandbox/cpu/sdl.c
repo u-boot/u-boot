@@ -164,8 +164,29 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 
 int sandbox_sdl_sync(void *lcd_base)
 {
+	struct SDL_Rect rect;
+	int ret;
+
+	if (!sdl.texture)
+		return 0;
+	SDL_RenderClear(sdl.renderer);
 	SDL_UpdateTexture(sdl.texture, NULL, lcd_base, sdl.pitch);
-	SDL_RenderCopy(sdl.renderer, sdl.texture, NULL, NULL);
+	ret = SDL_RenderCopy(sdl.renderer, sdl.texture, NULL, NULL);
+	if (ret) {
+		printf("SDL copy %d: %s\n", ret, SDL_GetError());
+		return -EIO;
+	}
+
+	/*
+	 * On some machines this does not appear. Draw an empty rectangle which
+	 * seems to fix that.
+	 */
+	rect.x = 0;
+	rect.y = 0;
+	rect.w = 0;
+	rect.h = 0;
+	SDL_RenderDrawRect(sdl.renderer, &rect);
+
 	SDL_RenderPresent(sdl.renderer);
 	sandbox_sdl_poll_events();
 
