@@ -31,6 +31,8 @@ int ofnode_read_fmap_entry(ofnode node, struct fmap_entry *entry)
 	if (prop) {
 		if (!strcmp(prop, "lz4"))
 			entry->compress_algo = FMAP_COMPRESS_LZ4;
+		else if (!strcmp(prop, "lzma"))
+			entry->compress_algo = FMAP_COMPRESS_LZMA;
 		else
 			return log_msg_ret("compression algo", -EINVAL);
 	} else {
