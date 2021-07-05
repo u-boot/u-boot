@@ -496,9 +496,6 @@ static int process_cmd(struct ec_state *ec,
 	case EC_CMD_MKBP_STATE:
 		len = cros_ec_keyscan(ec, resp_data);
 		break;
-	case EC_CMD_ENTERING_MODE:
-		len = 0;
-		break;
 	case EC_CMD_GET_NEXT_EVENT: {
 		struct ec_response_get_next_event *resp = resp_data;
 

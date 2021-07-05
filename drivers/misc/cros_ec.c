@@ -754,17 +754,6 @@ int cros_ec_flash_protect(struct udevice *dev, uint32_t set_mask,
 	return 0;
 }
 
-int cros_ec_entering_mode(struct udevice *dev, int mode)
-{
-	int rc;
-
-	rc = ec_command(dev, EC_CMD_ENTERING_MODE, 0, &mode, sizeof(mode),
-			NULL, 0);
-	if (rc)
-		return -1;
-	return 0;
-}
-
 static int cros_ec_check_version(struct udevice *dev)
 {
 	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
