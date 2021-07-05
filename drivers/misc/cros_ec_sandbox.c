@@ -624,15 +624,19 @@ void cros_ec_check_keyboard(struct udevice *dev)
 	struct ec_state *ec = dev_get_priv(dev);
 	ulong start;
 
-	printf("Press keys for EC to detect on reset (ESC=recovery)...");
+	printf("\nPress keys for EC to detect on reset (ESC=recovery)...");
 	start = get_timer(0);
-	while (get_timer(start) < 1000)
-		;
-	putc('\n');
-	if (!sandbox_sdl_key_pressed(KEY_ESC)) {
-		ec->recovery_req = true;
-		printf("   - EC requests recovery\n");
+	while (get_timer(start) < 2000) {
+		if (tstc()) {
+			int ch = getchar();
+
+			if (ch == 0x1b) {
+				ec->recovery_req = true;
+				printf("EC requests recovery");
+			}
+		}
 	}
+	putc('\n');
 }
 
 /* Return the byte of EC switch states */
