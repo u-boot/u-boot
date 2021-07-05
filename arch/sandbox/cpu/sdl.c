@@ -123,6 +123,9 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 		sdl.vis_height = sdl.height;
 	}
 
+	if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
+		printf("Unable to init hinting: %s", SDL_GetError());
+
 	sdl.depth = 1 << log2_bpp;
 	sdl.pitch = sdl.width * sdl.depth / 8;
 	SDL_Window *screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
