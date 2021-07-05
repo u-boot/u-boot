@@ -525,7 +525,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT2_NAME) == 0) {
 		dev_desc = fastboot_mmc_get_dev(response);
 		if (dev_desc)
-			fb_mmc_boot_ops(dev_desc, download_buffer, 1,
+			fb_mmc_boot_ops(dev_desc, download_buffer, 2,
 					download_bytes, response);
 		return;
 	}
@@ -655,7 +655,7 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 		/* erase EMMC boot2 */
 		dev_desc = fastboot_mmc_get_dev(response);
 		if (dev_desc)
-			fb_mmc_boot_ops(dev_desc, NULL, 1, 0, response);
+			fb_mmc_boot_ops(dev_desc, NULL, 2, 0, response);
 		return;
 	}
 #endif
