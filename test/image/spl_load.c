@@ -56,6 +56,7 @@ struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
 
 static int spl_test_load(struct unit_test_state *uts)
 {
+	const char *cur_prefix, *next_prefix;
 	struct spl_image_info image;
 	struct image_header *header;
 	struct text_ctx text_ctx;
@@ -68,7 +69,10 @@ static int spl_test_load(struct unit_test_state *uts)
 	load.bl_len = 512;
 	load.read = read_fit_image;
 
-	ret = os_find_u_boot(fname, sizeof(fname), true);
+	cur_prefix = spl_phase_prefix(spl_phase());
+	next_prefix = spl_phase_prefix(spl_next_phase());
+	ret = os_find_u_boot(fname, sizeof(fname), true, cur_prefix,
+			     next_prefix);
 	if (ret) {
 		printf("(%s not found, error %d)\n", fname, ret);
 		return ret;

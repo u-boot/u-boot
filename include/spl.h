@@ -176,6 +176,27 @@ static inline const char *spl_phase_name(enum u_boot_phase phase)
 	}
 }
 
+/**
+ * spl_phase_prefix() - Get the prefix  of the current phase
+ *
+ * @phase: Phase to look up
+ * @return phase prefix ("spl", "tpl", etc.)
+ */
+static inline const char *spl_phase_prefix(enum u_boot_phase phase)
+{
+	switch (phase) {
+	case PHASE_TPL:
+		return "tpl";
+	case PHASE_SPL:
+		return "spl";
+	case PHASE_BOARD_F:
+	case PHASE_BOARD_R:
+		return "";
+	default:
+		return "phase?";
+	}
+}
+
 /* A string name for SPL or TPL */
 #ifdef CONFIG_SPL_BUILD
 # ifdef CONFIG_TPL_BUILD

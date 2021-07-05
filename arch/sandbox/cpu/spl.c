@@ -17,6 +17,20 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int sandbox_find_next_phase(char *fname, int maxlen, bool use_img)
+{
+	const char *cur_prefix, *next_prefix;
+	int ret;
+
+	cur_prefix = spl_phase_prefix(spl_phase());
+	next_prefix = spl_phase_prefix(spl_next_phase());
+	ret = os_find_u_boot(fname, maxlen, use_img, cur_prefix, next_prefix);
+	if (ret)
+		return log_msg_ret("find", ret);
+
+	return 0;
+}
+
 /* SPL / TPL init function */
 void board_init_f(ulong flag)
 {
@@ -37,7 +51,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	char fname[256];
 	int ret;
 
-	ret = os_find_u_boot(fname, sizeof(fname), false);
+	ret = sandbox_find_next_phase(fname, sizeof(fname), false);
 	if (ret) {
 		printf("(%s not found, error %d)\n", fname, ret);
 		return ret;
