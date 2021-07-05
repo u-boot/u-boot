@@ -180,8 +180,6 @@ void xhci_cleanup(struct xhci_ctrl *ctrl)
 	xhci_free_virt_devices(ctrl);
 	free(ctrl->erst.entries);
 	free(ctrl->dcbaa);
-	if (reset_valid(&ctrl->reset))
-		reset_free(&ctrl->reset);
 	memset(ctrl, '\0', sizeof(struct xhci_ctrl));
 }
 
