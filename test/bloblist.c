@@ -576,6 +576,29 @@ static int bloblist_test_resize_last(struct unit_test_state *uts)
 }
 BLOBLIST_TEST(bloblist_test_resize_last, 0);
 
+/* Check a completely full bloblist */
+static int bloblist_test_blob_maxsize(struct unit_test_state *uts)
+{
+	void *ptr;
+	int size;
+
+	/* At the start there should be no records */
+	clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+
+	/* Add a blob that takes up all space */
+	size = TEST_BLOBLIST_SIZE - sizeof(struct bloblist_hdr) -
+		sizeof(struct bloblist_rec);
+	ptr = bloblist_add(TEST_TAG, size, 0);
+	ut_assertnonnull(ptr);
+
+	ptr = bloblist_add(TEST_TAG, size + 1, 0);
+	ut_assertnull(ptr);
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_blob_maxsize, 0);
+
 int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {

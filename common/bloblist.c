@@ -118,7 +118,7 @@ static int bloblist_addrec(uint tag, int size, int align,
 	/* Calculate the new allocated total */
 	new_alloced = data_start + ALIGN(size, align);
 
-	if (new_alloced >= hdr->size) {
+	if (new_alloced > hdr->size) {
 		log(LOGC_BLOBLIST, LOGL_ERR,
 		    "Failed to allocate %x bytes size=%x, need size=%x\n",
 		    size, hdr->size, new_alloced);
