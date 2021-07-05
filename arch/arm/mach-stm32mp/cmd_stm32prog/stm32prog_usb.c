@@ -178,7 +178,7 @@ int stm32prog_get_medium_size_virt(struct dfu_entity *dfu, u64 *size)
 
 	switch (dfu->data.virt.dev_num) {
 	case PHASE_CMD:
-		*size = 512;
+		*size = CMD_SIZE;
 		break;
 	case PHASE_OTP:
 		*size = OTP_SIZE;
