@@ -652,4 +652,12 @@ int cros_ec_vstore_read(struct udevice *dev, int slot, uint8_t *data);
 int cros_ec_vstore_write(struct udevice *dev, int slot, const uint8_t *data,
 			 size_t size);
 
+/**
+ * cros_ec_read_batt_charge() - Read the battery-charge state
+ *
+ * @dev: CROS-EC device
+ * @chargep: Return battery-charge state as a percentage
+ */
+int cros_ec_read_batt_charge(struct udevice *dev, uint *chargep);
+
 #endif

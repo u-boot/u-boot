@@ -1661,6 +1661,23 @@ int cros_ec_get_switches(struct udevice *dev)
 	return ret;
 }
 
+int cros_ec_read_batt_charge(struct udevice *dev, uint *chargep)
+{
+	struct ec_params_charge_state req;
+	struct ec_response_charge_state resp;
+	int ret;
+
+	req.cmd = CHARGE_STATE_CMD_GET_STATE;
+	ret = ec_command(dev, EC_CMD_CHARGE_STATE, 0, &req, sizeof(req),
+			 &resp, sizeof(resp));
+	if (ret)
+		return log_msg_ret("read", ret);
+
+	*chargep = resp.get_state.batt_state_of_charge;
+
+	return 0;
+}
+
 UCLASS_DRIVER(cros_ec) = {
 	.id		= UCLASS_CROS_EC,
 	.name		= "cros-ec",
