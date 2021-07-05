@@ -8,6 +8,7 @@ import pytest
 import re
 from subprocess import call, check_call, check_output, CalledProcessError
 from fstest_defs import *
+import u_boot_utils as util
 
 supported_fs_basic = ['fat16', 'fat32', 'ext4']
 supported_fs_ext = ['fat16', 'fat32']
@@ -209,24 +210,23 @@ def mount_fs(fs_type, device, mount_point):
     """
     global fuse_mounted
 
-    fuse_mounted = False
     try:
-        if tool_is_in_path('guestmount'):
-            fuse_mounted = True
-            check_call('guestmount -a %s -m /dev/sda %s'
-                % (device, mount_point), shell=True)
-        else:
-            mount_opt = 'loop,rw'
-            if re.match('fat', fs_type):
-                mount_opt += ',umask=0000'
-
-            check_call('sudo mount -o %s %s %s'
-                % (mount_opt, device, mount_point), shell=True)
-
-            # may not be effective for some file systems
-            check_call('sudo chmod a+rw %s' % mount_point, shell=True)
+        check_call('guestmount --pid-file guestmount.pid -a %s -m /dev/sda %s'
+            % (device, mount_point), shell=True)
+        fuse_mounted = True
+        return
     except CalledProcessError:
-        raise
+        fuse_mounted = False
+
+    mount_opt = 'loop,rw'
+    if re.match('fat', fs_type):
+        mount_opt += ',umask=0000'
+
+    check_call('sudo mount -o %s %s %s'
+        % (mount_opt, device, mount_point), shell=True)
+
+    # may not be effective for some file systems
+    check_call('sudo chmod a+rw %s' % mount_point, shell=True)
 
 def umount_fs(mount_point):
     """Unmount a volume.
@@ -240,6 +240,16 @@ def umount_fs(mount_point):
     if fuse_mounted:
         call('sync')
         call('guestunmount %s' % mount_point, shell=True)
+
+        try:
+            with open("guestmount.pid", "r") as pidfile:
+                pid = int(pidfile.read())
+            util.waitpid(pid, kill=True)
+            os.remove("guestmount.pid")
+
+        except FileNotFoundError:
+            pass
+
     else:
         call('sudo umount %s' % mount_point, shell=True)
 
