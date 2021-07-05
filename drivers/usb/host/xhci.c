@@ -188,37 +188,6 @@ static int xhci_start(struct xhci_hcor *hcor)
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(DM_USB)
-/**
- * Resets XHCI Hardware
- *
- * @param ctrl	pointer to host controller
- * @return 0 if OK, or a negative error code.
- */
-static int xhci_reset_hw(struct xhci_ctrl *ctrl)
-{
-	int ret;
-
-	ret = reset_get_by_index(ctrl->dev, 0, &ctrl->reset);
-	if (ret && ret != -ENOENT && ret != -ENOTSUPP) {
-		dev_err(ctrl->dev, "failed to get reset\n");
-		return ret;
-	}
-
-	if (reset_valid(&ctrl->reset)) {
-		ret = reset_assert(&ctrl->reset);
-		if (ret)
-			return ret;
-
-		ret = reset_deassert(&ctrl->reset);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-#endif
-
 /**
  * Resets the XHCI Controller
  *
@@ -1533,10 +1502,6 @@ int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
 	      ctrl, hccr, hcor);
 
 	ctrl->dev = dev;
-
-	ret = xhci_reset_hw(ctrl);
-	if (ret)
-		goto err;
 
 	/*
 	 * XHCI needs to issue a Address device command to setup

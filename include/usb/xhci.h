@@ -17,7 +17,6 @@
 #define HOST_XHCI_H_
 
 #include <phys2bus.h>
-#include <reset.h>
 #include <asm/types.h>
 #include <asm/cache.h>
 #include <asm/io.h>
@@ -1200,7 +1199,6 @@ struct xhci_ctrl {
 #if CONFIG_IS_ENABLED(DM_USB)
 	struct udevice *dev;
 #endif
-	struct reset_ctl reset;
 	struct xhci_hccr *hccr;	/* R/O registers, not need for volatile */
 	struct xhci_hcor *hcor;
 	struct xhci_doorbell_array *dba;
