@@ -76,7 +76,6 @@
  * USB configuration
  */
 
-#define CONFIG_TFTP_TSIZE
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Default environment */

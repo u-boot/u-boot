@@ -32,8 +32,8 @@ struct unit_test_state {
 	struct udevice *testdev;
 	int force_fail_alloc;
 	int skip_post_probe;
-	char expect_str[256];
-	char actual_str[256];
+	char expect_str[512];
+	char actual_str[512];
 };
 
 /* Test flags for each test */

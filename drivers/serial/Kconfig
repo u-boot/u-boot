@@ -332,7 +332,7 @@ config DEBUG_UART_APBUART
 
 config DEBUG_UART_PL010
 	bool "pl010"
-	depends on PL01X_SERIAL
+	depends on PL01X_SERIAL || PL010_SERIAL
 	help
 	  Select this to enable a debug UART using the pl01x driver with the
 	  PL010 UART type. You will need to provide parameters to make this
@@ -341,7 +341,7 @@ config DEBUG_UART_PL010
 
 config DEBUG_UART_PL011
 	bool "pl011"
-	depends on PL011_SERIAL
+	depends on PL01X_SERIAL || PL011_SERIAL
 	help
 	  Select this to enable a debug UART using the pl01x driver with the
 	  PL011 UART type. You will need to provide parameters to make this

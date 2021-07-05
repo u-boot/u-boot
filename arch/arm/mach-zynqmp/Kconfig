@@ -92,6 +92,41 @@ config ZYNQMP_NO_DDR
 	  This option configures MMU with no DDR to avoid speculative
 	  access to DDR memory where DDR is not present.
 
+config SPL_ZYNQMP_DRAM_ECC_INIT
+	bool "Initialize DRAM ECC"
+	depends on SPL
+	help
+	  This option initializes all memory to 0xdeadbeef. Must be set if your
+	  memory is of ECC type.
+
+config SPL_ZYNQMP_DRAM_BANK1_BASE
+	depends on SPL_ZYNQMP_DRAM_ECC_INIT
+	hex "DRAM Bank1 address"
+       default 0x00000000
+       help
+         Start address of DRAM ECC bank1
+
+config SPL_ZYNQMP_DRAM_BANK1_LEN
+	depends on SPL_ZYNQMP_DRAM_ECC_INIT
+	hex "DRAM Bank1 size"
+       default 0x80000000
+       help
+         Size in bytes of the DRAM ECC bank1
+
+config SPL_ZYNQMP_DRAM_BANK2_BASE
+	depends on SPL_ZYNQMP_DRAM_ECC_INIT
+	hex "DRAM Bank2 address"
+       default 0x800000000
+       help
+         Start address of DRAM ECC bank2
+
+config SPL_ZYNQMP_DRAM_BANK2_LEN
+	depends on SPL_ZYNQMP_DRAM_ECC_INIT
+	hex "DRAM Bank2 size"
+       default 0x0
+       help
+         Size in bytes of the DRAM ECC bank2. A null size takes no action.
+
 config SYS_MALLOC_F_LEN
 	default 0x600
 

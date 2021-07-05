@@ -122,7 +122,6 @@
 #define CONFIG_USB_GADGET_AT91
 
 /* DFU class support */
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_1M
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 #endif
 

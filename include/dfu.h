@@ -100,12 +100,6 @@ struct virt_internal_data {
 };
 
 #define DFU_NAME_SIZE			32
-#ifndef CONFIG_SYS_DFU_DATA_BUF_SIZE
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE		(1024*1024*8)	/* 8 MiB */
-#endif
-#ifndef CONFIG_SYS_DFU_MAX_FILE_SIZE
-#define CONFIG_SYS_DFU_MAX_FILE_SIZE CONFIG_SYS_DFU_DATA_BUF_SIZE
-#endif
 #ifndef DFU_DEFAULT_POLL_TIMEOUT
 #define DFU_DEFAULT_POLL_TIMEOUT 0
 #endif
@@ -382,6 +376,17 @@ void dfu_initiated_callback(struct dfu_entity *dfu);
  * @dfu:	pointer to the dfu_entity, which should be flushed
  */
 void dfu_flush_callback(struct dfu_entity *dfu);
+
+/**
+ * dfu_error_callback() - weak callback called at the DFU write error
+ *
+ * It is a callback function called by DFU stack after DFU write error.
+ * This function allows to manage some board specific behavior on DFU targets
+ *
+ * @dfu:	pointer to the dfu_entity which cause the error
+ * @msg:	the message of the error
+ */
+void dfu_error_callback(struct dfu_entity *dfu, const char *msg);
 
 int dfu_transaction_initiate(struct dfu_entity *dfu, bool read);
 void dfu_transaction_cleanup(struct dfu_entity *dfu);

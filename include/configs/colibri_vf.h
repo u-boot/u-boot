@@ -143,6 +143,5 @@
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
 /* USB DFU */
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE (SZ_1M)
 
 #endif /* __CONFIG_H */

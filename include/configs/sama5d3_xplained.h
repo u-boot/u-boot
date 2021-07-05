@@ -79,4 +79,18 @@
 #define CONFIG_SYS_NAND_BLOCK_SIZE	0x20000
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0x0
 
+/* Falcon boot support on raw MMC */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x100  /* 128 KiB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(CONFIG_CMD_SPL_WRITE_SIZE / 512)
+/* U-Boot proper stored by default at 0x200 (256 KiB) */
+#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x1000 /* 2MB */
+#define CONFIG_SYS_SPL_ARGS_ADDR		0x22000000
+
+/* Falcon boot support on FAT on MMC */
+#define CONFIG_SPL_FS_LOAD_ARGS_NAME		"args"
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME		"uImage"
+
+/* Falcon boot support on raw NAND */
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x1a0000
+
 #endif

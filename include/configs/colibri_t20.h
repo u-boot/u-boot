@@ -17,9 +17,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_COLIBRI_TEGRA2
 
-/* General networking support */
-#define CONFIG_TFTP_TSIZE
-
 /* LCD support */
 #define CONFIG_LCD_LOGO
 

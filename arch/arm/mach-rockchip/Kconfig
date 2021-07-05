@@ -257,6 +257,23 @@ config ROCKCHIP_RK3399
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
 
+config ROCKCHIP_RK3568
+	bool "Support Rockchip RK3568"
+	select ARM64
+	select CLK
+	select PINCTRL
+	select RAM
+	select REGMAP
+	select SYSCON
+	select BOARD_LATE_INIT
+	imply ROCKCHIP_COMMON_BOARD
+	help
+	  The Rockchip RK3568 is a ARM-based SoC with quad-core Cortex-A55,
+	  including NEON and GPU, 512K L3 cache, Mali-G52 based graphics,
+	  two video interfaces supporting HDMI and eDP, several DDR3 options
+	  and video codec support. Peripherals include Gigabit Ethernet,
+	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
+
 config ROCKCHIP_RV1108
 	bool "Support Rockchip RV1108"
 	select CPU_V7A
@@ -386,5 +403,6 @@ source "arch/arm/mach-rockchip/rk3308/Kconfig"
 source "arch/arm/mach-rockchip/rk3328/Kconfig"
 source "arch/arm/mach-rockchip/rk3368/Kconfig"
 source "arch/arm/mach-rockchip/rk3399/Kconfig"
+source "arch/arm/mach-rockchip/rk3568/Kconfig"
 source "arch/arm/mach-rockchip/rv1108/Kconfig"
 endif

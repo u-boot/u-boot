@@ -15,10 +15,10 @@
 		     "xlnx,zynqmp";
 	chosen {
 		stdout-path = "serial0:115200n8";
-		xlnx,eeprom = &eeprom;
 	};
 	aliases {
 		ethernet0 = &gem3;
+		nvmem0 = &eeprom;
 		serial0 = &uart0;
 	};
 };

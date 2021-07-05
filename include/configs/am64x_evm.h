@@ -12,6 +12,8 @@
 #include <linux/sizes.h>
 #include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
+#include <asm/arch/am64_hardware.h>
+#include <environment/ti/k3_dfu.h>
 
 /* DDR Configuration */
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
@@ -43,7 +45,7 @@
  * location filled in by the boot ROM that we want to read out without any
  * interference from the C context.
  */
-#define CONFIG_SPL_BSS_START_ADDR	(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX -\
+#define CONFIG_SPL_BSS_START_ADDR	(TI_SRAM_SCRATCH_BOARD_EEPROM_START -\
 					 CONFIG_SPL_BSS_MAX_SIZE)
 /* Set the stack right below the SPL BSS section */
 #define CONFIG_SYS_INIT_SP_ADDR         CONFIG_SPL_BSS_START_ADDR
@@ -94,15 +96,24 @@
 		"${bootdir}/${name_fit}\0"				\
 	"partitions=" PARTS_DEFAULT
 
+#define EXTRA_ENV_DFUARGS \
+	DFU_ALT_INFO_MMC \
+	DFU_ALT_INFO_EMMC \
+	DFU_ALT_INFO_RAM \
+	DFU_ALT_INFO_OSPI
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	DEFAULT_MMC_TI_ARGS						\
 	EXTRA_ENV_AM642_BOARD_SETTINGS					\
-	EXTRA_ENV_AM642_BOARD_SETTINGS_MMC
+	EXTRA_ENV_AM642_BOARD_SETTINGS_MMC				\
+	EXTRA_ENV_DFUARGS
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
+
+#define CONFIG_SYS_USB_FAT_BOOT_PARTITION 1
 
 /* MMC ENV related defines */
 #ifdef CONFIG_ENV_IS_IN_MMC

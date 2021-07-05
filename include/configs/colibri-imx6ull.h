@@ -18,9 +18,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-/* Network */
-#define CONFIG_TFTP_TSIZE
-
 /* ENET1 */
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 
@@ -143,7 +140,6 @@
 #define CONFIG_USBD_HS
 
 /* USB Device Firmware Update support */
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
 #if defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)

@@ -75,18 +75,20 @@ static const image_header_t *image_get_fdt(ulong fdt_addr)
 #endif
 
 static void boot_fdt_reserve_region(struct lmb *lmb, uint64_t addr,
-				    uint64_t size)
+				    uint64_t size, enum lmb_flags flags)
 {
 	long ret;
 
-	ret = lmb_reserve(lmb, addr, size);
+	ret = lmb_reserve_flags(lmb, addr, size, flags);
 	if (ret >= 0) {
-		debug("   reserving fdt memory region: addr=%llx size=%llx\n",
-		      (unsigned long long)addr, (unsigned long long)size);
+		debug("   reserving fdt memory region: addr=%llx size=%llx flags=%x\n",
+		      (unsigned long long)addr,
+		      (unsigned long long)size, flags);
 	} else {
 		puts("ERROR: reserving fdt memory region failed ");
-		printf("(addr=%llx size=%llx)\n",
-		       (unsigned long long)addr, (unsigned long long)size);
+		printf("(addr=%llx size=%llx flags=%x)\n",
+		       (unsigned long long)addr,
+		       (unsigned long long)size, flags);
 	}
 }
 
@@ -106,6 +108,7 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 	int i, total, ret;
 	int nodeoffset, subnode;
 	struct fdt_resource res;
+	enum lmb_flags flags;
 
 	if (fdt_check_header(fdt_blob) != 0)
 		return;
@@ -115,7 +118,7 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 	for (i = 0; i < total; i++) {
 		if (fdt_get_mem_rsv(fdt_blob, i, &addr, &size) != 0)
 			continue;
-		boot_fdt_reserve_region(lmb, addr, size);
+		boot_fdt_reserve_region(lmb, addr, size, LMB_NONE);
 	}
 
 	/* process reserved-memory */
@@ -127,9 +130,13 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 			ret = fdt_get_resource(fdt_blob, subnode, "reg", 0,
 					       &res);
 			if (!ret && fdtdec_get_is_enabled(fdt_blob, subnode)) {
+				flags = LMB_NONE;
+				if (fdtdec_get_bool(fdt_blob, subnode,
+						    "no-map"))
+					flags = LMB_NOMAP;
 				addr = res.start;
 				size = res.end - res.start + 1;
-				boot_fdt_reserve_region(lmb, addr, size);
+				boot_fdt_reserve_region(lmb, addr, size, flags);
 			}
 
 			subnode = fdt_next_subnode(fdt_blob, subnode);

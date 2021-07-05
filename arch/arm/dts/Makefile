@@ -146,6 +146,9 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-rockpro64.dtb \
 	rk3399pro-rock-pi-n10.dtb
 
+dtb-$(CONFIG_ROCKCHIP_RK3568) += \
+	rk3568-evb.dtb
+
 dtb-$(CONFIG_ROCKCHIP_RV1108) += \
 	rv1108-elgin-r1.dtb \
 	rv1108-evb.dtb
@@ -904,7 +907,8 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a77970-eagle-u-boot.dtb \
 	r8a77980-condor-u-boot.dtb \
 	r8a77990-ebisu-u-boot.dtb \
-	r8a77995-draak-u-boot.dtb
+	r8a77995-draak-u-boot.dtb \
+	r8a779a0-falcon-u-boot.dtb
 
 ifdef CONFIG_RCAR_GEN3
 DTC_FLAGS += -R 4 -p 0x1000

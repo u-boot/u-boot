@@ -160,11 +160,12 @@ static inline void fdt_fixup_crypto_node(void *blob, int sec_rev) {}
  * @param entry_point   entry point (if specified, otherwise pass -1)
  * @param type          type (if specified, otherwise pass NULL)
  * @param os            os-type (if specified, otherwise pass NULL)
+ * @param arch		architecture (if specified, otherwise pass NULL)
  * @return 0 if ok, or -1 or -FDT_ERR_... on error
  */
 int fdt_record_loadable(void *blob, u32 index, const char *name,
 			uintptr_t load_addr, u32 size, uintptr_t entry_point,
-			const char *type, const char *os);
+			const char *type, const char *os, const char *arch);
 
 #ifdef CONFIG_PCI
 #include <pci.h>

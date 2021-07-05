@@ -594,7 +594,7 @@ void fdt_fixup_ethernet(void *fdt)
 
 int fdt_record_loadable(void *blob, u32 index, const char *name,
 			uintptr_t load_addr, u32 size, uintptr_t entry_point,
-			const char *type, const char *os)
+			const char *type, const char *os, const char *arch)
 {
 	int err, node;
 
@@ -622,6 +622,8 @@ int fdt_record_loadable(void *blob, u32 index, const char *name,
 		fdt_setprop_string(blob, node, "type", type);
 	if (os)
 		fdt_setprop_string(blob, node, "os", os);
+	if (arch)
+		fdt_setprop_string(blob, node, "arch", arch);
 
 	return node;
 }

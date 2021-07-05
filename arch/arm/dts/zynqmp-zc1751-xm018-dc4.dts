@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP zc1751-xm018-dc4
  *
- * (C) Copyright 2015 - 2020, Xilinx, Inc.
+ * (C) Copyright 2015 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -17,13 +17,10 @@
 	compatible = "xlnx,zynqmp-zc1751", "xlnx,zynqmp";
 
 	aliases {
-		can0 = &can0;
-		can1 = &can1;
 		ethernet0 = &gem0;
 		ethernet1 = &gem1;
 		ethernet2 = &gem2;
 		ethernet3 = &gem3;
-		gpio0 = &gpio;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		rtc0 = &rtc;
@@ -112,14 +109,6 @@
 };
 
 &lpd_dma_chan8 {
-	status = "okay";
-};
-
-&zynqmp_dpsub {
-	status = "okay";
-};
-
-&zynqmp_dpdma {
 	status = "okay";
 };
 
@@ -219,5 +208,13 @@
 };
 
 &watchdog0 {
+	status = "okay";
+};
+
+&zynqmp_dpdma {
+	status = "okay";
+};
+
+&zynqmp_dpsub {
 	status = "okay";
 };

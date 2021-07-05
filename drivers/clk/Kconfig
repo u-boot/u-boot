@@ -128,6 +128,17 @@ config CLK_ZYNQ
 	  This clock driver adds support for clock related settings for
 	  Zynq platform.
 
+config CLK_XLNX_CLKWZRD
+	bool "Xilinx Clocking Wizard"
+	depends on CLK
+	help
+	  Support for the Xilinx Clocking Wizard IP core clock generator.
+	  The wizard support for dynamically reconfiguring the clocking
+	  primitives for Multiply, Divide, Phase Shift/Offset, or Duty
+	  Cycle. Limited by U-Boot clk uclass without set_phase API and
+	  set_duty_cycle API, this driver only supports set_rate to modify
+	  the frequency.
+
 config CLK_ZYNQMP
 	bool "Enable clock driver support for ZynqMP"
 	depends on ARCH_ZYNQMP
@@ -159,11 +170,23 @@ config CLK_SCMI
 	  by a SCMI agent based on SCMI clock protocol communication
 	  with a SCMI server.
 
+config CLK_K210
+	bool "Clock support for Kendryte K210"
+	depends on CLK
+	help
+	  This enables support clock driver for Kendryte K210 platforms.
+
+config CLK_K210_SET_RATE
+	bool "Enable setting the Kendryte K210 PLL rate"
+	depends on CLK_K210
+	help
+	  Add functionality to calculate new rates for K210 PLLs. Enabling this
+	  feature adds around 1K to U-Boot's final size.
+
 source "drivers/clk/analogbits/Kconfig"
 source "drivers/clk/at91/Kconfig"
 source "drivers/clk/exynos/Kconfig"
 source "drivers/clk/imx/Kconfig"
-source "drivers/clk/kendryte/Kconfig"
 source "drivers/clk/meson/Kconfig"
 source "drivers/clk/microchip/Kconfig"
 source "drivers/clk/mvebu/Kconfig"

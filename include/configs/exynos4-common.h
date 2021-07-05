@@ -19,7 +19,6 @@
 /* SD/MMC configuration */
 #define CONFIG_MMC_DEFAULT_DEV	0
 
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
 /* USB Samsung's IDs */

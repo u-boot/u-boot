@@ -180,6 +180,18 @@ void board_init_f(ulong dummy)
 	k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata),
 			k3_mmc_stop_clock, k3_mmc_restart_clock);
 
+	/*
+	 * Force probe of clk_k3 driver here to ensure basic default clock
+	 * configuration is always done.
+	 */
+	if (IS_ENABLED(CONFIG_SPL_CLK_K3)) {
+		ret = uclass_get_device_by_driver(UCLASS_CLK,
+						  DM_DRIVER_GET(ti_clk),
+						  &dev);
+		if (ret)
+			panic("Failed to initialize clk-k3!\n");
+	}
+
 	/* Prepare console output */
 	preloader_console_init();
 

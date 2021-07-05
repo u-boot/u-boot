@@ -253,6 +253,28 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
 						CPG_PLL4CR, 0, 0, "PLL4");
 
+	case CLK_TYPE_R8A779A0_MAIN:
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						0, 1, pll_config->extal_div,
+						"V3U_MAIN");
+
+	case CLK_TYPE_R8A779A0_PLL1:
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						0, pll_config->pll1_mult,
+						pll_config->pll1_div,
+						"V3U_PLL1");
+
+	case CLK_TYPE_R8A779A0_PLL2X_3X:
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						core->offset, 0, 0,
+						"V3U_PLL2X_3X");
+
+	case CLK_TYPE_R8A779A0_PLL5:
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+						0, pll_config->pll5_mult,
+						pll_config->pll5_div,
+						"V3U_PLL5");
+
 	case CLK_TYPE_FF:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
 						0, core->mult, core->div,
@@ -268,6 +290,8 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return rate;
 
 	case CLK_TYPE_GEN3_SD:		/* FIXME */
+		fallthrough;
+	case CLK_TYPE_R8A779A0_SD:
 		value = readl(priv->base + core->offset);
 		value &= CPG_SD_STP_MASK | CPG_SD_FC_MASK;
 
@@ -394,6 +418,11 @@ int gen3_clk_probe(struct udevice *dev)
 		priv->info->control_regs = smstpcr;
 		priv->info->reset_regs = srcr;
 		priv->info->reset_clear_regs = srstclr;
+	} else if (info->reg_layout == CLK_REG_LAYOUT_RCAR_V3U) {
+		priv->info->status_regs = mstpsr_for_v3u;
+		priv->info->control_regs = mstpcr_for_v3u;
+		priv->info->reset_regs = srcr_for_v3u;
+		priv->info->reset_clear_regs = srstclr_for_v3u;
 	} else {
 		return -EINVAL;
 	}

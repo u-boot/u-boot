@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
@@ -106,6 +107,38 @@ void do_dt_magic(void)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(USB_STORAGE)
+static int fixup_usb_boot(const void *fdt_blob)
+{
+	int ret = 0;
+
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_USB:
+		/*
+		 * If the boot mode is host, fixup the dr_mode to host
+		 * before cdns3 bind takes place
+		 */
+		ret = fdt_find_and_setprop((void *)fdt_blob,
+					   "/bus@f4000/cdns-usb@f900000/usb@f400000",
+					   "dr_mode", "host", 5, 0);
+		if (ret)
+			printf("%s: fdt_find_and_setprop() failed:%d\n",
+			       __func__, ret);
+		fallthrough;
+	default:
+		break;
+	}
+
+	return ret;
+}
+
+int fdtdec_board_setup(const void *fdt_blob)
+{
+	/* Can use the pointer from the function parameters */
+	return fixup_usb_boot(fdt_blob);
+}
+#endif
+
 void board_init_f(ulong dummy)
 {
 #if defined(CONFIG_K3_LOAD_SYSFW)
@@ -192,8 +225,11 @@ static u32 __get_backup_bootmedia(u32 main_devstat)
 	case BACKUP_BOOT_DEVICE_UART:
 		return BOOT_DEVICE_UART;
 
-	case BACKUP_BOOT_DEVICE_USB:
-		return BOOT_DEVICE_USB;
+	case BACKUP_BOOT_DEVICE_DFU:
+		if (bkup_bootmode_cfg & MAIN_DEVSTAT_BACKUP_USB_MODE_MASK)
+			return BOOT_DEVICE_USB;
+		return BOOT_DEVICE_DFU;
+
 
 	case BACKUP_BOOT_DEVICE_ETHERNET:
 		return BOOT_DEVICE_ETHERNET;
@@ -244,6 +280,12 @@ static u32 __get_primary_bootmedia(u32 main_devstat)
 		     MAIN_DEVSTAT_PRIMARY_MMC_PORT_SHIFT)
 			return BOOT_DEVICE_MMC2;
 		return BOOT_DEVICE_MMC1;
+
+	case BOOT_DEVICE_DFU:
+		if ((bootmode_cfg & MAIN_DEVSTAT_PRIMARY_USB_MODE_MASK) >>
+		    MAIN_DEVSTAT_PRIMARY_USB_MODE_SHIFT)
+			return BOOT_DEVICE_USB;
+		return BOOT_DEVICE_DFU;
 
 	case BOOT_DEVICE_NOBOOT:
 		return BOOT_DEVICE_RAM;

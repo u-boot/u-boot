@@ -28,9 +28,6 @@
 /* PCI networking support */
 #define CONFIG_E1000_NO_NVM
 
-/* General networking support */
-#define CONFIG_TFTP_TSIZE
-
 /* Increase console I/O buffer size */
 #undef CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_CBSIZE		1024

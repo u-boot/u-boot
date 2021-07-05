@@ -73,12 +73,12 @@ support. Below is the pictorial representation of boot flow:
 |    |         |         |   +-------------+     |                       |                       |
 |    |         |<--------|---| Start A72   |     |                       |                       |
 |    |         |         |   | and jump to |     |                       |                       |
-|    |         |         |   | next image  |     |                       |                       |
+|    |         |         |   | DM fw image |     |                       |                       |
 |    |         |         |   +-------------+     |                       |                       |
 |    |         |         |                       |     +-----------+     |                       |
 |    |         |---------|-----------------------|---->| Reset rls |     |                       |
 |    |         |         |                       |     +-----------+     |                       |
-|    |  DMSC   |         |                       |          :            |                       |
+|    |  TIFS   |         |                       |          :            |                       |
 |    |Services |         |                       |     +-----------+     |                       |
 |    |         |<--------|-----------------------|---->|*ATF/OPTEE*|     |                       |
 |    |         |         |                       |     +-----------+     |                       |
@@ -154,7 +154,7 @@ $ make CROSS_COMPILE=arm-linux-gnueabihf- O=/tmp/r5
 
 4.2. A72:
 $ make CROSS_COMPILE=aarch64-linux-gnu- j721e_evm_a72_defconfig O=/tmp/a72
-$ make CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin O=/tmp/a72
+$ make CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin DM=<path to DM firmware image> O=/tmp/a72
 
 Target Images
 --------------
@@ -195,6 +195,9 @@ Image formats:
                 | +-------------------+ |
                 | |                   | |
                 | |     A72 OPTEE     | |
+                | +-------------------+ |
+                | |                   | |
+                | |      R5 DM FW     | |
                 | +-------------------+ |
                 | |                   | |
                 | |      A72 SPL      | |

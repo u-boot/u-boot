@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP Z2-VSOM
  *
- * (C) Copyright 2020, Xilinx, Inc.
+ * (C) Copyright 2020 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */

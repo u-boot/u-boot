@@ -369,23 +369,24 @@ static int parse_flash_layout(struct stm32prog_data *data,
 	bool end_of_line, eof;
 	char *p, *start, *last, *col;
 	struct stm32prog_part_t *part;
+	struct image_header_s header;
 	int part_list_size;
 	int i;
 
 	data->part_nb = 0;
 
 	/* check if STM32image is detected */
-	stm32prog_header_check((struct raw_header_s *)addr, &data->header);
-	if (data->header.type == HEADER_STM32IMAGE) {
+	stm32prog_header_check((struct raw_header_s *)addr, &header);
+	if (header.type == HEADER_STM32IMAGE) {
 		u32 checksum;
 
 		addr = addr + BL_HEADER_SIZE;
-		size = data->header.image_length;
+		size = header.image_length;
 
-		checksum = stm32prog_header_checksum(addr, &data->header);
-		if (checksum != data->header.image_checksum) {
+		checksum = stm32prog_header_checksum(addr, &header);
+		if (checksum != header.image_checksum) {
 			stm32prog_err("Layout: invalid checksum : 0x%x expected 0x%x",
-				      checksum, data->header.image_checksum);
+				      checksum, header.image_checksum);
 			return -EIO;
 		}
 	}
@@ -1149,7 +1150,10 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	struct dfu_entity *dfu;
 	int alt_nb;
 
-	alt_nb = 3; /* number of virtual = CMD, OTP, PMIC*/
+	alt_nb = 2; /* number of virtual = CMD, OTP*/
+	if (CONFIG_IS_ENABLED(DM_PMIC))
+		alt_nb++; /* PMIC NVMEM*/
+
 	if (data->part_nb == 0)
 		alt_nb++;  /* +1 for FlashLayout */
 	else
@@ -1472,7 +1476,7 @@ error:
 	return ret;
 }
 
-static void stm32prog_end_phase(struct stm32prog_data *data)
+static void stm32prog_end_phase(struct stm32prog_data *data, u64 offset)
 {
 	if (data->phase == PHASE_FLASHLAYOUT) {
 		if (parse_flash_layout(data, STM32_DDR_BASE, 0))
@@ -1488,6 +1492,10 @@ static void stm32prog_end_phase(struct stm32prog_data *data)
 			data->uimage = data->cur_part->addr;
 		if (data->cur_part->part_type == PART_FILESYSTEM)
 			data->dtb = data->cur_part->addr;
+		if (data->cur_part->part_type == PART_BINARY) {
+			data->initrd = data->cur_part->addr;
+			data->initrd_size = offset;
+		}
 	}
 
 	if (CONFIG_IS_ENABLED(MMC) &&
@@ -1727,7 +1735,6 @@ void stm32prog_clean(struct stm32prog_data *data)
 	free(data->part_array);
 	free(data->otp_part);
 	free(data->buffer);
-	free(data->header_data);
 }
 
 /* DFU callback: used after serial and direct DFU USB access */
@@ -1747,7 +1754,7 @@ void dfu_flush_callback(struct dfu_entity *dfu)
 	if (dfu->dev_type == DFU_DEV_RAM) {
 		if (dfu->alt == 0 &&
 		    stm32prog_data->phase == PHASE_FLASHLAYOUT) {
-			stm32prog_end_phase(stm32prog_data);
+			stm32prog_end_phase(stm32prog_data, dfu->offset);
 			/* waiting DFU DETACH for reenumeration */
 		}
 	}
@@ -1756,7 +1763,7 @@ void dfu_flush_callback(struct dfu_entity *dfu)
 		return;
 
 	if (dfu->alt == stm32prog_data->cur_part->alt_id) {
-		stm32prog_end_phase(stm32prog_data);
+		stm32prog_end_phase(stm32prog_data, dfu->offset);
 		stm32prog_next_phase(stm32prog_data);
 	}
 }
@@ -1775,4 +1782,18 @@ void dfu_initiated_callback(struct dfu_entity *dfu)
 		stm32prog_data->dfu_seq = 0;
 		log_debug("dfu offset = 0x%llx\n", dfu->offset);
 	}
+}
+
+void dfu_error_callback(struct dfu_entity *dfu, const char *msg)
+{
+	struct stm32prog_data *data = stm32prog_data;
+
+	if (!stm32prog_data)
+		return;
+
+	if (!stm32prog_data->cur_part)
+		return;
+
+	if (dfu->alt == stm32prog_data->cur_part->alt_id)
+		stm32prog_err(msg);
 }
