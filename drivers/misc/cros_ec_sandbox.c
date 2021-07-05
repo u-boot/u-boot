@@ -343,15 +343,13 @@ static int process_cmd(struct ec_state *ec,
 
 		switch (req->op) {
 		case EC_VBNV_CONTEXT_OP_READ:
-			/* TODO(sjg@chromium.org): Support full-size context */
 			memcpy(resp->block, ec->vbnv_context,
-			       EC_VBNV_BLOCK_SIZE);
-			len = 16;
+			       EC_VBNV_BLOCK_SIZE_V2);
+			len = EC_VBNV_BLOCK_SIZE_V2;
 			break;
 		case EC_VBNV_CONTEXT_OP_WRITE:
-			/* TODO(sjg@chromium.org): Support full-size context */
 			memcpy(ec->vbnv_context, req->block,
-			       EC_VBNV_BLOCK_SIZE);
+			       EC_VBNV_BLOCK_SIZE_V2);
 			len = 0;
 			break;
 		default:
