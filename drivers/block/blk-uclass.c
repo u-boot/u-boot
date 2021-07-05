@@ -540,6 +540,55 @@ int blk_next_free_devnum(enum if_type if_type)
 	return ret + 1;
 }
 
+static int blk_flags_check(struct udevice *dev, enum blk_flag_t req_flags)
+{
+	const struct blk_desc *desc = dev_get_uclass_plat(dev);
+	enum blk_flag_t flags;
+
+	flags = desc->removable ? BLKF_REMOVABLE : BLKF_FIXED;
+
+	return flags & req_flags ? 0 : 1;
+}
+
+int blk_first_device_err(enum blk_flag_t flags, struct udevice **devp)
+{
+	int ret;
+
+	for (ret = uclass_first_device_err(UCLASS_BLK, devp);
+	     !ret;
+	     ret = uclass_next_device_err(devp)) {
+		if (!blk_flags_check(*devp, flags))
+			return 0;
+	}
+
+	return -ENODEV;
+}
+
+int blk_next_device_err(enum blk_flag_t flags, struct udevice **devp)
+{
+	int ret;
+
+	for (ret = uclass_next_device_err(devp);
+	     !ret;
+	     ret = uclass_next_device_err(devp)) {
+		if (!blk_flags_check(*devp, flags))
+			return 0;
+	}
+
+	return -ENODEV;
+}
+
+int blk_count_devices(enum blk_flag_t flag)
+{
+	struct udevice *dev;
+	int count = 0;
+
+	blk_foreach_probe(flag, dev)
+		count++;
+
+	return count;
+}
+
 static int blk_claim_devnum(enum if_type if_type, int devnum)
 {
 	struct udevice *dev;
