@@ -64,10 +64,10 @@ enum bloblist_tag_t {
  *	first bloblist_rec starts at this offset from the start of the header
  * @flags: Space for BLOBLISTF_... flags (none yet)
  * @magic: BLOBLIST_MAGIC
- * @size: Total size of all records (non-zero if valid) including this header.
+ * @size: Total size of the bloblist (non-zero if valid) including this header.
  *	The bloblist extends for this many bytes from the start of this header.
- * @alloced: Total size allocated for this bloblist. When adding new records,
- *	the bloblist can grow up to this size. This starts out as
+ *	When adding new records, the bloblist can grow up to this size.
+ * @alloced: Total size allocated so far for this bloblist. This starts out as
  *	sizeof(bloblist_hdr) since we need at least that much space to store a
  *	valid bloblist
  * @spare: Spare space (for future use)
@@ -230,6 +230,10 @@ int bloblist_finish(void);
  * bloblist_get_stats() - Get information about the bloblist
  *
  * This returns useful information about the bloblist
+ *
+ * @basep: Returns base address of bloblist
+ * @sizep: Returns the number of bytes used in the bloblist
+ * @allocedp: Returns the total space allocated to the bloblist
  */
 void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp);
 
