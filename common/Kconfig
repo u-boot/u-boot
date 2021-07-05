@@ -724,7 +724,7 @@ config BLOBLIST_SIZE
 config BLOBLIST_ADDR
 	hex "Address of bloblist"
 	depends on BLOBLIST
-	default 0xe000 if SANDBOX
+	default 0xc000 if SANDBOX
 	help
 	  Sets the address of the bloblist, set up by the first part of U-Boot
 	  which runs. Subsequent U-Boot stages typically use the same address.
