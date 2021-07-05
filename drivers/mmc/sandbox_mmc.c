@@ -136,14 +136,31 @@ static const struct dm_mmc_ops sandbox_mmc_ops = {
 	.get_cd = sandbox_mmc_get_cd,
 };
 
-int sandbox_mmc_probe(struct udevice *dev)
+static int sandbox_mmc_of_to_plat(struct udevice *dev)
+{
+	struct sandbox_mmc_plat *plat = dev_get_plat(dev);
+	struct mmc_config *cfg = &plat->cfg;
+	struct blk_desc *blk;
+	int ret;
+
+	ret = mmc_of_parse(dev, cfg);
+	if (ret)
+		return ret;
+	blk = mmc_get_blk_desc(&plat->mmc);
+	if (blk)
+		blk->removable = !(cfg->host_caps & MMC_CAP_NONREMOVABLE);
+
+	return 0;
+}
+
+static int sandbox_mmc_probe(struct udevice *dev)
 {
 	struct sandbox_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_init(&plat->mmc);
 }
 
-int sandbox_mmc_bind(struct udevice *dev)
+static int sandbox_mmc_bind(struct udevice *dev)
 {
 	struct sandbox_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_config *cfg = &plat->cfg;
@@ -158,7 +175,7 @@ int sandbox_mmc_bind(struct udevice *dev)
 	return mmc_bind(dev, &plat->mmc, cfg);
 }
 
-int sandbox_mmc_unbind(struct udevice *dev)
+static int sandbox_mmc_unbind(struct udevice *dev)
 {
 	mmc_unbind(dev);
 
@@ -177,6 +194,7 @@ U_BOOT_DRIVER(mmc_sandbox) = {
 	.ops		= &sandbox_mmc_ops,
 	.bind		= sandbox_mmc_bind,
 	.unbind		= sandbox_mmc_unbind,
+	.of_to_plat	= sandbox_mmc_of_to_plat,
 	.probe		= sandbox_mmc_probe,
 	.priv_auto = sizeof(struct sandbox_mmc_priv),
 	.plat_auto = sizeof(struct sandbox_mmc_plat),

@@ -819,6 +819,7 @@
 
 	mmc2 {
 		compatible = "sandbox,mmc";
+		non-removable;
 	};
 
 	mmc1 {
