@@ -87,8 +87,10 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		if (CONFIG_IS_ENABLED(OF_CONTROL) &&
 		    !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 			if (uc->uc_drv->name && ofnode_valid(node)) {
-				if (!dev_read_alias_seq(dev, &dev->seq_))
+				if (!dev_read_alias_seq(dev, &dev->seq_)) {
 					auto_seq = false;
+					log_debug("   - seq=%d\n", dev->seq_);
+					}
 			}
 		}
 	}
