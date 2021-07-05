@@ -180,6 +180,19 @@ void *bloblist_ensure(uint tag, int size);
 int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp);
 
 /**
+ * bloblist_resize() - resize a blob
+ *
+ * Any blobs above this one are relocated up or down. The resized blob remains
+ * in the same place.
+ *
+ * @tag:	Tag to add (enum bloblist_tag_t)
+ * @new_size:	New size of the blob (>0 to expand, <0 to contract)
+ * @return 0 if OK, -ENOSPC if the bloblist does not have enough space, -ENOENT
+ *	if the tag is not found
+ */
+int bloblist_resize(uint tag, int new_size);
+
+/**
  * bloblist_new() - Create a new, empty bloblist of a given size
  *
  * @addr: Address of bloblist
