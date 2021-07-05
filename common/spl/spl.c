@@ -593,32 +593,42 @@ static int spl_load_image(struct spl_image_info *spl_image,
  * @spl_image: Place to put the image details if successful
  * @spl_boot_list: List of boot devices to try
  * @count: Number of elements in spl_boot_list
- * @return 0 if OK, -ve on error
+ * @return 0 if OK, -ENODEV if there were no boot devices
+ *	if CONFIG_SHOW_ERRORS is enabled, returns -ENXIO if there were
+ *	devices but none worked
  */
 static int boot_from_devices(struct spl_image_info *spl_image,
 			     u32 spl_boot_list[], int count)
 {
+	int ret = -ENODEV;
 	int i;
 
 	for (i = 0; i < count && spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
 		struct spl_image_loader *loader;
+		int bootdev = spl_boot_list[i];
 
-		loader = spl_ll_find_loader(spl_boot_list[i]);
-#if defined(CONFIG_SPL_SERIAL_SUPPORT) \
-    && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)    \
-    && !defined(CONFIG_SILENT_CONSOLE)
-		if (loader)
-			printf("Trying to boot from %s\n", loader->name);
-		else
-			puts(SPL_TPL_PROMPT "Unsupported Boot Device!\n");
-#endif
+		if (CONFIG_IS_ENABLED(SHOW_ERRORS))
+			ret = -ENXIO;
+		loader = spl_ll_find_loader(bootdev);
+		if (CONFIG_IS_ENABLED(SERIAL_SUPPORT) &&
+		    CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT) &&
+		    !IS_ENABLED(CONFIG_SILENT_CONSOLE)) {
+			if (loader)
+				printf("Trying to boot from %s\n",
+				       spl_loader_name(loader));
+			else if (CONFIG_IS_ENABLED(SHOW_ERRORS))
+				printf(SPL_TPL_PROMPT
+				       "Unsupported Boot Device %d\n", bootdev);
+			else
+				puts(SPL_TPL_PROMPT "Unsupported Boot Device!\n");
+		}
 		if (loader && !spl_load_image(spl_image, loader)) {
-			spl_image->boot_device = spl_boot_list[i];
+			spl_image->boot_device = bootdev;
 			return 0;
 		}
 	}
 
-	return -ENODEV;
+	return ret;
 }
 
 #if defined(CONFIG_SPL_FRAMEWORK_BOARD_INIT_F)
@@ -710,9 +720,15 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_image.boot_device = BOOT_DEVICE_NONE;
 	board_boot_order(spl_boot_list);
 
-	if (boot_from_devices(&spl_image, spl_boot_list,
-			      ARRAY_SIZE(spl_boot_list))) {
-		puts(SPL_TPL_PROMPT "failed to boot from all boot devices\n");
+	ret = boot_from_devices(&spl_image, spl_boot_list,
+				ARRAY_SIZE(spl_boot_list));
+	if (ret) {
+		if (CONFIG_IS_ENABLED(SHOW_ERRORS) &&
+		    CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT))
+			printf(SPL_TPL_PROMPT "failed to boot from all boot devices (err=%d)\n",
+			       ret);
+		else
+			puts(SPL_TPL_PROMPT "failed to boot from all boot devices\n");
 		hang();
 	}
 

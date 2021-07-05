@@ -505,6 +505,16 @@ struct spl_image_loader {
 			  struct spl_boot_device *bootdev);
 };
 
+/* Helper function for accessing the name */
+static inline const char *spl_loader_name(const struct spl_image_loader *loader)
+{
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+	return loader->name;
+#else
+	return NULL;
+#endif
+}
+
 /* Declare an SPL image loader */
 #define SPL_LOAD_IMAGE(__name)					\
 	ll_entry_declare(struct spl_image_loader, __name, spl_image_loader)
