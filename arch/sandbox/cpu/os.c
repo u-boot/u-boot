@@ -226,7 +226,7 @@ int os_setup_signal_handlers(void)
 
 	act.sa_sigaction = os_signal_handler;
 	sigemptyset(&act.sa_mask);
-	act.sa_flags = SA_SIGINFO | SA_NODEFER;
+	act.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGILL, &act, NULL) ||
 	    sigaction(SIGBUS, &act, NULL) ||
 	    sigaction(SIGSEGV, &act, NULL))
