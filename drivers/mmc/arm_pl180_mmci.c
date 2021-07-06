@@ -526,13 +526,10 @@ static const struct dm_mmc_ops arm_pl180_dm_mmc_ops = {
 static int arm_pl180_mmc_of_to_plat(struct udevice *dev)
 {
 	struct pl180_mmc_host *host = dev_get_priv(dev);
-	fdt_addr_t addr;
 
-	addr = dev_read_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
+	host->base = dev_read_addr_ptr(dev);
+	if (!host->base)
 		return -EINVAL;
-
-	host->base = (void *)addr;
 
 	return 0;
 }
