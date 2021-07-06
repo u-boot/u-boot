@@ -17,10 +17,6 @@
 	model = "FriendlyElec NanoPi R4S";
 	compatible = "friendlyarm,nanopi-r4s", "rockchip,rk3399";
 
-	aliases {
-		ethernet1 = &r8169;
-	};
-
 	vdd_5v: vdd-5v {
 		compatible = "regulator-fixed";
 		regulator-name = "vdd_5v";
@@ -95,17 +91,6 @@
 	max-link-speed = <1>;
 	num-lanes = <1>;
 	vpcie3v3-supply = <&vcc3v3_sys>;
-
-	pcie@0 {
-		reg = <0x00000000 0 0 0 0>;
-		#address-cells = <3>;
-		#size-cells = <2>;
-
-		r8169: pcie@0,0 {
-			reg = <0x000000 0 0 0 0>;
-			local-mac-address = [ 00 00 00 00 00 00 ];
-		};
-	};
 };
 
 &sdhci {
