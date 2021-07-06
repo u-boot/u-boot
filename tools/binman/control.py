@@ -646,6 +646,9 @@ def Binman(args):
 
             if missing:
                 tout.Warning("\nSome images are invalid")
+
+            # Use this to debug the time take to pack the image
+            #state.TimingShow()
         finally:
             tools.FinaliseOutputDir()
     finally:

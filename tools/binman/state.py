@@ -5,8 +5,10 @@
 # Holds and modifies the state information held by binman
 #
 
+from collections import defaultdict
 import hashlib
 import re
+import time
 import threading
 
 from dtoc import fdt
@@ -58,6 +60,27 @@ allow_entry_contraction = False
 
 # Number of threads to use for binman (None means machine-dependent)
 num_threads = None
+
+
+class Timing:
+    """Holds information about an operation that is being timed
+
+    Properties:
+        name: Operation name (only one of each name is stored)
+        start: Start time of operation in seconds (None if not start)
+        accum:: Amount of time spent on this operation so far, in seconds
+    """
+    def __init__(self, name):
+        self.name = name
+        self.start = None # cause an error if TimingStart() is not called
+        self.accum = 0.0
+
+
+# Holds timing info for each name:
+#    key: name of Timing info (Timing.name)
+#    value: Timing object
+timing_info = {}
+
 
 def GetFdtForEtype(etype):
     """Get the Fdt object for a particular device-tree entry
@@ -443,3 +466,52 @@ def GetThreads():
         Number of threads to use (None for default, 0 for single-threaded)
     """
     return num_threads
+
+def GetTiming(name):
+    """Get the timing info for a particular operation
+
+    The object is created if it does not already exist.
+
+    Args:
+        name: Operation name to get
+
+    Returns:
+        Timing object for the current thread
+    """
+    threaded_name = '%s:%d' % (name, threading.get_ident())
+    timing = timing_info.get(threaded_name)
+    if not timing:
+        timing = Timing(threaded_name)
+        timing_info[threaded_name] = timing
+    return timing
+
+def TimingStart(name):
+    """Start the timer for an operation
+
+    Args:
+        name: Operation name to start
+    """
+    timing = GetTiming(name)
+    timing.start = time.monotonic()
+
+def TimingAccum(name):
+    """Stop and accumlate the time for an operation
+
+    This measures the time since the last TimingStart() and adds that to the
+    accumulated time.
+
+    Args:
+        name: Operation name to start
+    """
+    timing = GetTiming(name)
+    timing.accum += time.monotonic() - timing.start
+
+def TimingShow():
+    """Show all timing information"""
+    duration = defaultdict(float)
+    for threaded_name, timing in timing_info.items():
+        name = threaded_name.split(':')[0]
+        duration[name] += timing.accum
+
+    for name, seconds in duration.items():
+        print('%10s: %10.1fms' % (name, seconds * 1000))

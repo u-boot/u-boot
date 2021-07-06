@@ -4568,6 +4568,14 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Node '/binman/section@0': Timed out obtaining contents",
                       str(e.exception))
 
+    def testTiming(self):
+        """Test output of timing information"""
+        data = self._DoReadFile('055_sections.dts')
+        with test_util.capture_sys_output() as (stdout, stderr):
+            state.TimingShow()
+        self.assertIn('read:', stdout.getvalue())
+        self.assertIn('compress:', stdout.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()
