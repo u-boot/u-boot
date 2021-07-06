@@ -210,4 +210,6 @@
 
 #define CONFIG_SPL_PAD_TO			0x20000
 
+#define CONFIG_SYS_PCI_64BIT
+
 #endif /* __CONFIG_UNIPHIER_H__ */
