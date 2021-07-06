@@ -142,6 +142,7 @@
 #define SDI_FIFO_BURST_SIZE	8
 
 #define STM32_MMCI_ID		0x00880180
+#define UX500V2_MMCI_ID		0x10480180
 
 struct sdi_registers {
 	u32 power;		/* 0x00*/

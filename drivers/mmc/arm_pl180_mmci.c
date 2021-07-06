@@ -443,21 +443,29 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 			    SDI_CLKCR_HWFC_EN;
 	host->clock_in = clk_get_rate(&clk);
 
-	periphid = dev_read_u32_default(dev, "arm,primecell-periphid", 0);
-	switch (periphid) {
-	case STM32_MMCI_ID: /* stm32 variant */
-		host->version2 = false;
-		break;
-	default:
-		host->version2 = true;
-	}
-
 	cfg->name = dev->name;
 	cfg->voltages = VOLTAGE_WINDOW_SD;
 	cfg->host_caps = 0;
 	cfg->f_min = host->clock_in / (2 * (SDI_CLKCR_CLKDIV_INIT_V1 + 1));
 	cfg->f_max = MMC_CLOCK_MAX;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+
+	periphid = dev_read_u32_default(dev, "arm,primecell-periphid", 0);
+	switch (periphid) {
+	case STM32_MMCI_ID: /* stm32 variant */
+		host->version2 = false;
+		break;
+	case UX500V2_MMCI_ID:
+		host->pwr_init = SDI_PWR_OPD | SDI_PWR_PWRCTRL_ON;
+		host->clkdiv_init = SDI_CLKCR_CLKDIV_INIT_V2 | SDI_CLKCR_CLKEN |
+				    SDI_CLKCR_HWFC_EN;
+		cfg->voltages = VOLTAGE_WINDOW_MMC;
+		cfg->f_min = host->clock_in / (2 + SDI_CLKCR_CLKDIV_INIT_V2);
+		host->version2 = true;
+		break;
+	default:
+		host->version2 = true;
+	}
 
 	gpio_request_by_name(dev, "cd-gpios", 0, &host->cd_gpio, GPIOD_IS_IN);
 
