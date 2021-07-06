@@ -73,11 +73,18 @@
 	"type_guid_gpt_loader2=" TYPE_GUID_LOADER2 "\0" \
 	"type_guid_gpt_system=" TYPE_GUID_SYSTEM "\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	BOOTENV
 
 #define CONFIG_PREBOOT \
 	"setenv fdt_addr ${fdtcontroladdr};" \
 	"fdt addr ${fdtcontroladdr};"
 #endif /* CONFIG_SPL_BUILD */
+
+#define CONFIG_SYS_EEPROM_BUS_NUM		0
+#define CONFIG_SYS_I2C_EEPROM_ADDR		0x54
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		0x1
+
+#define CONFIG_ID_EEPROM
 
 #endif /* __SIFIVE_UNMATCHED_H */

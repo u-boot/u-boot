@@ -35,3 +35,6 @@ config SIFIVE_FU740
 	imply SIFIVE_OTP
 	imply DM_PWM
 	imply PWM_SIFIVE
+	imply DM_I2C
+	imply SYS_I2C_OCORES
+	imply SPL_I2C_SUPPORT

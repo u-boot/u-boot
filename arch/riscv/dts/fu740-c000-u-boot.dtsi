@@ -95,6 +95,10 @@
 	u-boot,dm-spl;
 };
 
+&i2c0 {
+	u-boot,dm-spl;
+};
+
 &eth0 {
 	assigned-clocks = <&prci PRCI_CLK_GEMGXLPLL>;
 	assigned-clock-rates = <125125000>;
