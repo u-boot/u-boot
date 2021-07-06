@@ -51,6 +51,10 @@ struct udevice;
 				 PHY_100BT_FEATURES | \
 				 PHY_DEFAULT_FEATURES)
 
+#define PHY_100BT1_FEATURES	(SUPPORTED_TP | \
+				 SUPPORTED_MII | \
+				 SUPPORTED_100baseT_Full)
+
 #define PHY_GBIT_FEATURES	(PHY_BASIC_FEATURES | \
 				 PHY_1000BT_FEATURES)
 
@@ -523,6 +527,7 @@ int phy_micrel_ksz8xxx_init(void);
 int phy_micrel_ksz90x1_init(void);
 int phy_meson_gxl_init(void);
 int phy_natsemi_init(void);
+int phy_nxp_tja11xx_init(void);
 int phy_realtek_init(void);
 int phy_smsc_init(void);
 int phy_teranetics_init(void);

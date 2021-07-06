@@ -142,14 +142,24 @@
 		};
 		enetc2: pci@0,2 {
 			reg = <0x000200 0 0 0 0>;
-			status = "okay";
+			status = "disabled";
 			phy-mode = "internal";
+
+			fixed-link {
+				speed = <2500>;
+				full-duplex;
+			};
 		};
 		mdio0: pci@0,3 {
 			#address-cells=<0>;
 			#size-cells=<1>;
 			reg = <0x000300 0 0 0 0>;
 			status = "disabled";
+
+			fixed-link {
+				speed = <1000>;
+				full-duplex;
+			};
 		};
 
 		mscc_felix: pci@0,5 {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * ENETC ethernet controller driver
- * Copyright 2017-2019 NXP
+ * Copyright 2017-2021 NXP
  */
 
 #include <common.h>
@@ -178,21 +178,43 @@ static int enetc_init_sgmii(struct udevice *dev)
 }
 
 /* set up MAC for RGMII */
-static int enetc_init_rgmii(struct udevice *dev)
+static void enetc_init_rgmii(struct udevice *dev, struct phy_device *phydev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
-	u32 if_mode;
+	u32 old_val, val;
 
-	/* enable RGMII AN */
-	if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
-	if_mode |= ENETC_PM_IF_MODE_AN_ENA;
-	enetc_write_port(priv, ENETC_PM_IF_MODE, if_mode);
+	old_val = val = enetc_read_port(priv, ENETC_PM_IF_MODE);
 
-	return 0;
+	/* disable unreliable RGMII in-band signaling and force the MAC into
+	 * the speed negotiated by the PHY.
+	 */
+	val &= ~ENETC_PM_IF_MODE_AN_ENA;
+
+	if (phydev->speed == SPEED_1000) {
+		val &= ~ENETC_PM_IFM_SSP_MASK;
+		val |= ENETC_PM_IFM_SSP_1000;
+	} else if (phydev->speed == SPEED_100) {
+		val &= ~ENETC_PM_IFM_SSP_MASK;
+		val |= ENETC_PM_IFM_SSP_100;
+	} else if (phydev->speed == SPEED_10) {
+		val &= ~ENETC_PM_IFM_SSP_MASK;
+		val |= ENETC_PM_IFM_SSP_10;
+	}
+
+	if (phydev->duplex == DUPLEX_FULL)
+		val |= ENETC_PM_IFM_FULL_DPX;
+	else
+		val &= ~ENETC_PM_IFM_FULL_DPX;
+
+	if (val == old_val)
+		return;
+
+	enetc_write_port(priv, ENETC_PM_IF_MODE, val);
 }
 
 /* set up MAC configuration for the given interface type */
-static void enetc_setup_mac_iface(struct udevice *dev)
+static void enetc_setup_mac_iface(struct udevice *dev,
+				  struct phy_device *phydev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 	u32 if_mode;
@@ -202,7 +224,7 @@ static void enetc_setup_mac_iface(struct udevice *dev)
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_RGMII_RXID:
 	case PHY_INTERFACE_MODE_RGMII_TXID:
-		enetc_init_rgmii(dev);
+		enetc_init_rgmii(dev, phydev);
 		break;
 	case PHY_INTERFACE_MODE_XGMII:
 	case PHY_INTERFACE_MODE_USXGMII:
@@ -281,21 +303,20 @@ static void enetc_start_pcs(struct udevice *dev)
 }
 
 /* Configure the actual/external ethernet PHY, if one is found */
-static void enetc_config_phy(struct udevice *dev)
+static int enetc_config_phy(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 	int supported;
 
 	priv->phy = dm_eth_phy_connect(dev);
-
 	if (!priv->phy)
-		return;
+		return -ENODEV;
 
 	supported = PHY_GBIT_FEATURES | SUPPORTED_2500baseX_Full;
 	priv->phy->supported &= supported;
 	priv->phy->advertising &= supported;
 
-	phy_config(priv->phy);
+	return phy_config(priv->phy);
 }
 
 /*
@@ -335,9 +356,8 @@ static int enetc_probe(struct udevice *dev)
 	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, PCI_COMMAND_MEMORY);
 
 	enetc_start_pcs(dev);
-	enetc_config_phy(dev);
 
-	return 0;
+	return enetc_config_phy(dev);
 }
 
 /*
@@ -548,12 +568,9 @@ static int enetc_start(struct udevice *dev)
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
 
-	enetc_setup_mac_iface(dev);
+	enetc_setup_mac_iface(dev, priv->phy);
 
-	if (priv->phy)
-		phy_startup(priv->phy);
-
-	return 0;
+	return phy_startup(priv->phy);
 }
 
 /*

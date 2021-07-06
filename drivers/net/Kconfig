@@ -548,21 +548,14 @@ config SMC911X_BASE
 	  of the device (I/O space)
 endif #DM_ETH
 
-choice
-	prompt "SMC911X bus width"
-	default SMC911X_16_BIT
-
 config SMC911X_32_BIT
-	bool "Enable 32-bit interface"
-
-config SMC911X_16_BIT
-	bool "Enable 16-bit interface"
+	bool "Enable SMC911X 32-bit interface"
+	default n
 	help
-	  Define this if data bus is 16 bits. If your processor
-	  automatically converts one 32 bit word to two 16 bit
-	  words you may also try CONFIG_SMC911X_32_BIT.
+	  Define this if data bus is 32 bits. If your processor use a
+	  narrower 16 bit bus or cannot convert one 32 bit word to two 16 bit
+	  words, leave this to "n".
 
-endchoice
 endif #SMC911X
 
 config SUN7I_GMAC
