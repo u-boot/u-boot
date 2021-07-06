@@ -166,7 +166,7 @@ class Entry_section(Entry):
         pad_byte = (entry._pad_byte if isinstance(entry, Entry_section)
                     else self._pad_byte)
 
-        data = b''
+        data = bytearray()
         # Handle padding before the entry
         if entry.pad_before:
             data += tools.GetBytes(self._pad_byte, entry.pad_before)
@@ -200,7 +200,7 @@ class Entry_section(Entry):
         Returns:
             Contents of the section (bytes)
         """
-        section_data = b''
+        section_data = bytearray()
 
         for entry in self._entries.values():
             entry_data = entry.GetData(required)

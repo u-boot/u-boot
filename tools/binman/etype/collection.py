@@ -40,7 +40,7 @@ class Entry_collection(Entry):
         """
         # Join up all the data
         self.Info('Getting contents, required=%s' % required)
-        data = b''
+        data = bytearray()
         for entry_phandle in self.content:
             entry_data = self.section.GetContentsByPhandle(entry_phandle, self,
                                                            required)
