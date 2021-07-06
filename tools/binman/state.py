@@ -7,6 +7,7 @@
 
 import hashlib
 import re
+import threading
 
 from dtoc import fdt
 import os
@@ -54,6 +55,9 @@ allow_entry_expansion = True
 # result in a larger compressed size than the new ones, but then after updating
 # to the new ones, the compressed size increases, etc.
 allow_entry_contraction = False
+
+# Number of threads to use for binman (None means machine-dependent)
+num_threads = None
 
 def GetFdtForEtype(etype):
     """Get the Fdt object for a particular device-tree entry
@@ -420,3 +424,22 @@ def AllowEntryContraction():
             raised
     """
     return allow_entry_contraction
+
+def SetThreads(threads):
+    """Set the number of threads to use when building sections
+
+    Args:
+        threads: Number of threads to use (None for default, 0 for
+            single-threaded)
+    """
+    global num_threads
+
+    num_threads = threads
+
+def GetThreads():
+    """Get the number of threads to use when building sections
+
+    Returns:
+        Number of threads to use (None for default, 0 for single-threaded)
+    """
+    return num_threads

@@ -36,6 +36,8 @@ class Image(section.Entry_section):
         fdtmap_data: Contents of the fdtmap when loading from a file
         allow_repack: True to add properties to allow the image to be safely
             repacked later
+        test_section_timeout: Use a zero timeout for section multi-threading
+            (for testing)
 
     Args:
         copy_to_orig: Copy offset/size to orig_offset/orig_size after reading
@@ -74,6 +76,7 @@ class Image(section.Entry_section):
         self.allow_repack = False
         self._ignore_missing = ignore_missing
         self.use_expanded = use_expanded
+        self.test_section_timeout = False
         if not test:
             self.ReadNode()
 

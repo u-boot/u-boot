@@ -1142,6 +1142,22 @@ adds a -v<level> option to the call to binman::
    make BINMAN_VERBOSE=5
 
 
+Building sections in parallel
+-----------------------------
+
+By default binman uses multiprocessing to speed up compilation of large images.
+This works at a section level, with one thread for each entry in the section.
+This can speed things up if the entries are large and use compression.
+
+This feature can be disabled with the '-T' flag, which defaults to a suitable
+value for your machine. This depends on the Python version, e.g on v3.8 it uses
+12 threads on an 8-core machine. See ConcurrentFutures_ for more details.
+
+The special value -T0 selects single-threaded mode, useful for debugging during
+development, since dealing with exceptions and problems in threads is more
+difficult. This avoids any use of ThreadPoolExecutor.
+
+
 History / Credits
 -----------------
 
@@ -1190,3 +1206,5 @@ Some ideas:
 --
 Simon Glass <sjg@chromium.org>
 7/7/2016
+
+.. _ConcurrentFutures: https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor

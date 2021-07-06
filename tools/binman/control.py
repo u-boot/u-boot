@@ -628,9 +628,13 @@ def Binman(args):
             tools.PrepareOutputDir(args.outdir, args.preserve)
             tools.SetToolPaths(args.toolpath)
             state.SetEntryArgs(args.entry_arg)
+            state.SetThreads(args.threads)
 
             images = PrepareImagesAndDtbs(dtb_fname, args.image,
                                           args.update_fdt, use_expanded)
+            if args.test_section_timeout:
+                # Set the first image to timeout, used in testThreadTimeout()
+                images[list(images.keys())[0]].test_section_timeout = True
             missing = False
             for image in images.values():
                 missing |= ProcessImage(image, args.update_fdt, args.map,
