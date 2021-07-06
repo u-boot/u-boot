@@ -424,7 +424,6 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 	struct pl180_mmc_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &pdata->cfg;
 	struct clk clk;
-	u32 bus_width;
 	u32 periphid;
 	int ret;
 
@@ -457,24 +456,14 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 	cfg->voltages = VOLTAGE_WINDOW_SD;
 	cfg->host_caps = 0;
 	cfg->f_min = host->clock_in / (2 * (SDI_CLKCR_CLKDIV_INIT_V1 + 1));
-	cfg->f_max = dev_read_u32_default(dev, "max-frequency", MMC_CLOCK_MAX);
+	cfg->f_max = MMC_CLOCK_MAX;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	gpio_request_by_name(dev, "cd-gpios", 0, &host->cd_gpio, GPIOD_IS_IN);
 
-	bus_width = dev_read_u32_default(dev, "bus-width", 1);
-	switch (bus_width) {
-	case 8:
-		cfg->host_caps |= MMC_MODE_8BIT;
-		/* Hosts capable of 8-bit transfers can also do 4 bits */
-	case 4:
-		cfg->host_caps |= MMC_MODE_4BIT;
-		break;
-	case 1:
-		break;
-	default:
-		dev_err(dev, "Invalid bus-width value %u\n", bus_width);
-	}
+	ret = mmc_of_parse(dev, cfg);
+	if (ret)
+		return ret;
 
 	arm_pl180_mmc_init(host);
 	mmc->priv = host;
