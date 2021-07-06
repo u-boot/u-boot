@@ -100,6 +100,8 @@
 struct imx_pcie_priv {
 	void __iomem		*dbi_base;
 	void __iomem		*cfg_base;
+	struct gpio_desc	reset_gpio;
+	bool			reset_active_high;
 };
 
 /*
@@ -541,7 +543,7 @@ __weak int imx6_pcie_toggle_power(void)
 	return 0;
 }
 
-__weak int imx6_pcie_toggle_reset(void)
+__weak int imx6_pcie_toggle_reset(struct gpio_desc *gpio, bool active_high)
 {
 	/*
 	 * See 'PCI EXPRESS BASE SPECIFICATION, REV 3.0, SECTION 6.6.1'
@@ -579,12 +581,20 @@ __weak int imx6_pcie_toggle_reset(void)
 	mdelay(20);
 	gpio_free(CONFIG_PCIE_IMX_PERST_GPIO);
 #else
-	puts("WARNING: Make sure the PCIe #PERST line is connected!\n");
+	if (dm_gpio_is_valid(gpio)) {
+		/* Assert PERST# for 20ms then de-assert */
+		dm_gpio_set_value(gpio, active_high ? 0 : 1);
+		mdelay(20);
+		dm_gpio_set_value(gpio, active_high ? 1 : 0);
+		mdelay(20);
+	} else {
+		puts("WARNING: Make sure the PCIe #PERST line is connected!\n");
+	}
 #endif
 	return 0;
 }
 
-static int imx6_pcie_deassert_core_reset(void)
+static int imx6_pcie_deassert_core_reset(struct imx_pcie_priv *priv)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
@@ -612,7 +622,7 @@ static int imx6_pcie_deassert_core_reset(void)
 	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_REF_SSP_EN);
 #endif
 
-	imx6_pcie_toggle_reset();
+	imx6_pcie_toggle_reset(&priv->reset_gpio, priv->reset_active_high);
 
 	return 0;
 }
@@ -625,7 +635,7 @@ static int imx_pcie_link_up(struct imx_pcie_priv *priv)
 
 	imx6_pcie_assert_core_reset(priv, false);
 	imx6_pcie_init_phy();
-	imx6_pcie_deassert_core_reset();
+	imx6_pcie_deassert_core_reset(priv);
 
 	imx_pcie_regions_setup(priv);
 
@@ -786,6 +796,15 @@ static int imx_pcie_dm_write_config(struct udevice *dev, pci_dev_t bdf,
 static int imx_pcie_dm_probe(struct udevice *dev)
 {
 	struct imx_pcie_priv *priv = dev_get_priv(dev);
+
+	/* if PERST# valid from dt then assert it */
+	gpio_request_by_name(dev, "reset-gpio", 0, &priv->reset_gpio,
+			     GPIOD_IS_OUT);
+	priv->reset_active_high = dev_read_bool(dev, "reset-gpio-active-high");
+	if (dm_gpio_is_valid(&priv->reset_gpio)) {
+		dm_gpio_set_value(&priv->reset_gpio,
+				  priv->reset_active_high ? 0 : 1);
+	}
 
 	return imx_pcie_link_up(priv);
 }

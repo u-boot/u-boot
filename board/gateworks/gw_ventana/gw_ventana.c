@@ -372,7 +372,7 @@ int power_init_board(void)
 	return 0;
 }
 
-int imx6_pcie_toggle_reset(void)
+int imx6_pcie_toggle_reset(struct gpio_desc *gpio, bool active_high)
 {
 	if (board_type < GW_UNKNOWN) {
 		uint pin = gpio_cfg[board_type].pcie_rst;
