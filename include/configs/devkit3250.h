@@ -31,11 +31,6 @@
 					 - GENERATED_GBL_DATA_SIZE)
 
 /*
- * Serial Driver
- */
-#define CONFIG_SYS_LPC32XX_UART		5   /* UART5 */
-
-/*
  * DMA
  */
 #if !defined(CONFIG_SPL_BUILD)
@@ -46,7 +41,6 @@
  * I2C
  */
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_LPC32XX
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /*

@@ -488,4 +488,12 @@ config MXC_SPI
 	  Enable the MXC SPI controller driver. This driver can be used
 	  on various i.MX SoCs such as i.MX31/35/51/6/7.
 
+config SYNQUACER_SPI
+	bool "Socionext SynQuacer HS-SPI driver"
+	depends on ARCH_SYNQUACER
+	help
+	  Enable the Socionext HS-SPI driver for SynQuacer. This driver can
+	  be used to access the SPI interface and SPI NOR flash on platforms
+	  embedding this HS-SPI IP core.
+
 endif # menu "SPI Support"

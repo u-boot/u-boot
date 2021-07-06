@@ -36,11 +36,6 @@
 					 - GENERATED_GBL_DATA_SIZE)
 
 /*
- * Serial Driver
- */
-#define CONFIG_SYS_LPC32XX_UART		5   /* UART5 - NS16550 */
-
-/*
  * Ethernet Driver
  */
 
@@ -52,7 +47,6 @@
  * I2C driver
  */
 
-#define CONFIG_SYS_I2C_LPC32XX
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SPEED 350000
 

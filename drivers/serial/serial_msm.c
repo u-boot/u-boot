@@ -23,6 +23,7 @@
 /* Serial registers - this driver works in uartdm mode*/
 
 #define UARTDM_DMRX             0x34 /* Max RX transfer length */
+#define UARTDM_DMEN             0x3C /* DMA/data-packing mode */
 #define UARTDM_NCF_TX           0x40 /* Number of chars to TX */
 
 #define UARTDM_RXFS             0x50 /* RX channel status register */
@@ -197,6 +198,9 @@ static void uart_dm_init(struct msm_serial_data *priv)
 	writel(MSM_BOOT_UART_DM_8_N_1_MODE, priv->base + UARTDM_MR2);
 	writel(MSM_BOOT_UART_DM_CMD_RESET_RX, priv->base + UARTDM_CR);
 	writel(MSM_BOOT_UART_DM_CMD_RESET_TX, priv->base + UARTDM_CR);
+
+	/* Make sure BAM/single character mode is disabled */
+	writel(0x0, priv->base + UARTDM_DMEN);
 }
 static int msm_serial_probe(struct udevice *dev)
 {

@@ -23,8 +23,7 @@ void lpc32xx_uart_init(unsigned int uart_id)
 		return;
 
 	/* Disable loopback mode, if it is set by S1L bootloader */
-	clrbits_le32(&ctrl->loop,
-		     UART_LOOPBACK(CONFIG_SYS_LPC32XX_UART));
+	clrbits_le32(&ctrl->loop, UART_LOOPBACK(uart_id));
 
 	if (uart_id < 3 || uart_id > 6)
 		return;

@@ -169,6 +169,12 @@ config SYS_I2C_IMX_LPI2C
 	help
 	  Add support for the NXP i.MX LPI2C driver.
 
+config SYS_I2C_LPC32XX
+	bool "LPC32XX I2C driver"
+	depends on ARCH_LPC32XX
+	help
+	  Enable support for the LPC32xx I2C driver.
+
 config SYS_I2C_MESON
 	bool "Amlogic Meson I2C driver"
 	depends on DM_I2C && ARCH_MESON
@@ -454,6 +460,13 @@ config SYS_I2C_STM32F7
 	   _ Easy to use event management
 	   _ Optional clock stretching
 	   _ Software reset
+
+config SYS_I2C_SYNQUACER
+	bool "Socionext SynQuacer I2C controller"
+	depends on ARCH_SYNQUACER && DM_I2C
+	help
+	  Support for Socionext Synquacer I2C controller. This I2C controller
+	  will be used for RTC and LS-connector on DeveloperBox.
 
 config SYS_I2C_TEGRA
 	bool "NVIDIA Tegra internal I2C controller"

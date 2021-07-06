@@ -249,6 +249,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	cn9130-crb-A.dtb			\
 	cn9130-crb-B.dtb
 
+dtb-$(CONFIG_ARCH_SYNQUACER) += synquacer-sc2a11-developerbox.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-global.dtb \
 	uniphier-ld11-ref.dtb
@@ -1115,6 +1116,8 @@ dtb-$(CONFIG_TARGET_DURIAN) += phytium-durian.dtb
 dtb-$(CONFIG_TARGET_PRESIDIO_ASIC) += ca-presidio-engboard.dtb
 
 dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE) += imx8mm-cl-iot-gate.dtb
+
+dtb-$(CONFIG_TARGET_EA_LPC3250DEVKITV2) += lpc3250-ea3250.dtb
 
 targets += $(dtb-y)
 
