@@ -841,6 +841,31 @@ const char *env_ext4_get_intf(void)
 	}
 }
 
+int mmc_get_boot(void)
+{
+	struct udevice *dev;
+	u32 boot_mode = get_bootmode();
+	unsigned int instance = (boot_mode & TAMP_BOOT_INSTANCE_MASK) - 1;
+	char cmd[20];
+	const u32 sdmmc_addr[] = {
+		STM32_SDMMC1_BASE,
+		STM32_SDMMC2_BASE,
+		STM32_SDMMC3_BASE
+	};
+
+	if (instance > ARRAY_SIZE(sdmmc_addr))
+		return 0;
+
+	/* search associated sdmmc node in devicetree */
+	snprintf(cmd, sizeof(cmd), "mmc@%x", sdmmc_addr[instance]);
+	if (uclass_get_device_by_name(UCLASS_MMC, cmd, &dev)) {
+		log_err("mmc%d = %s not found in device tree!\n", instance, cmd);
+		return 0;
+	}
+
+	return dev_seq(dev);
+};
+
 const char *env_ext4_get_dev_part(void)
 {
 	static char *const env_dev_part =
@@ -854,22 +879,16 @@ const char *env_ext4_get_dev_part(void)
 	if (strlen(env_dev_part) > 0)
 		return env_dev_part;
 
-	u32 bootmode = get_bootmode();
-
-	return dev_part[(bootmode & TAMP_BOOT_INSTANCE_MASK) - 1];
+	return dev_part[mmc_get_boot()];
 }
 
 int mmc_get_env_dev(void)
 {
-	u32 bootmode;
-
 	if (CONFIG_SYS_MMC_ENV_DEV >= 0)
 		return CONFIG_SYS_MMC_ENV_DEV;
 
-	bootmode = get_bootmode();
-
 	/* use boot instance to select the correct mmc device identifier */
-	return (bootmode & TAMP_BOOT_INSTANCE_MASK) - 1;
+	return mmc_get_boot();
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
