@@ -116,10 +116,6 @@
 	status = "disabled";
 };
 
-&sdmmc {
-	host-index-min = <1>;
-};
-
 &u2phy0_host {
 	phy-supply = <&vdd_5v>;
 };
