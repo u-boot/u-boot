@@ -62,13 +62,22 @@ int power_init_board(void)
 	/* BUCKxOUT_DVS0/1 control BUCK123 output */
 	pmic_reg_write(p, PCA9450_BUCK123_DVS, 0x29);
 
-	/* increase VDD_SOC to typical value 0.95V */
+	/* Increase VDD_SOC and VDD_ARM to OD voltage 0.95V */
+	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS0, 0x1C);
 	pmic_reg_write(p, PCA9450_BUCK2OUT_DVS0, 0x1C);
 
 	/* set WDOG_B_CFG to cold reset */
 	pmic_reg_write(p, PCA9450_RESET_CTRL, 0xA1);
 
 	return 0;
+}
+
+void spl_board_init(void)
+{
+	/* Set GIC clock to 500Mhz for OD VDD_SOC. */
+	clock_enable(CCGR_GIC, 0);
+	clock_set_target_val(GIC_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(5));
+	clock_enable(CCGR_GIC, 1);
 }
 
 int board_fit_config_name_match(const char *name)
