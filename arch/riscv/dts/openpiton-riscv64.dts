@@ -80,8 +80,8 @@
 	};
 
 	soc {
-		#address-cells = <1>;
-		#size-cells = <1>;
+		#address-cells = <2>;
+		#size-cells = <2>;
 		compatible = "openpiton,chipset", "simple-bus";
 		ranges;
 
