@@ -66,7 +66,11 @@ int power_init_board(void)
 	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS0, 0x1C);
 	pmic_reg_write(p, PCA9450_BUCK2OUT_DVS0, 0x1C);
 
-	/* set WDOG_B_CFG to cold reset */
+	/* Set BUCK1 DVS1 to suspend controlled through PMIC_STBY_REQ */
+	pmic_reg_write(p, PCA9450_BUCK1OUT_DVS1, 0x14);
+	pmic_reg_write(p, PCA9450_BUCK1CTRL, 0x59);
+
+	/* Set WDOG_B_CFG to cold reset */
 	pmic_reg_write(p, PCA9450_RESET_CTRL, 0xA1);
 
 	return 0;
