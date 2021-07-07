@@ -2,7 +2,7 @@ variables:
   windows_vm: vs2017-win2016
   ubuntu_vm: ubuntu-18.04
   macos_vm: macOS-10.15
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20210609-01Jul2021
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20210609-06Jul2021
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -300,7 +300,6 @@ jobs:
           cp ~/grub_x86.efi ${UBOOT_TRAVIS_BUILD_DIR}/
           cp ~/grub_x64.efi ${UBOOT_TRAVIS_BUILD_DIR}/
           cp /opt/grub/grubriscv64.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_riscv64.efi
-          cp /opt/grub/grubriscv32.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_riscv32.efi
           cp /opt/grub/grubaa64.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_arm64.efi
           cp /opt/grub/grubarm.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_arm.efi
           virtualenv -p /usr/bin/python3 /tmp/venv

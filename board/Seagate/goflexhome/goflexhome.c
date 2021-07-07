@@ -142,6 +142,7 @@ void reset_phy(void)
 }
 #endif /* CONFIG_RESET_PHY_R */
 
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
 #define GREEN_LED	(1 << 14)
 #define ORANGE_LED	(1 << 15)
 #define BOTH_LEDS	(GREEN_LED | ORANGE_LED)
@@ -175,3 +176,4 @@ void show_boot_progress(int val)
 		break;
 	}
 }
+#endif

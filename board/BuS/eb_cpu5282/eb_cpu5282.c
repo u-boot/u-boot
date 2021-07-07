@@ -22,8 +22,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if IS_ENABLED(CONFIG_VIDEO_VCXK)
-unsigned long display_width;
-unsigned long display_height;
+extern unsigned long display_width;
+extern unsigned long display_height;
 #endif
 
 /*---------------------------------------------------------------------------*/

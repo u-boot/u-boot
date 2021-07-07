@@ -155,6 +155,7 @@ int board_late_init(void)
 	return ret;
 }
 
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
 #define GPIO_DR 0x0
 #define GPIO_GDIR 0x4
 #define GPIO_ALT1 0x1
@@ -203,3 +204,4 @@ void show_boot_progress(int status)
 		gpio_direction_output(LED_RED, 1);
 	}
 }
+#endif

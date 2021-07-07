@@ -166,7 +166,9 @@ void board_init_f_init_reserve(ulong base)
 		board_init_f_init_stack_protection();
 }
 
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */
 __weak void show_boot_progress(int val) {}
+#endif

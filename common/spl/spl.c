@@ -58,10 +58,12 @@ binman_sym_declare(ulong, spl, size);
 /* Define board data structure */
 static struct bd_info bdata __attribute__ ((section(".data")));
 
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */
 __weak void show_boot_progress(int val) {}
+#endif
 
 #if defined(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF) || \
 	defined(CONFIG_SPL_ATF)
