@@ -23,4 +23,7 @@
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		0xa0412000
 
+/* Generate initrd atag for downstream kernel (others are copied in stemmy.c) */
+#define CONFIG_INITRD_TAG
+
 #endif

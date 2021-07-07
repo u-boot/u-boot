@@ -8,6 +8,7 @@ choice
 
 config TARGET_STEMMY
 	bool "Samsung (stemmy) board"
+	select MISC_INIT_R
 	help
 	  The Samsung "stemmy" board supports Samsung smartphones released with
 	  the ST-Ericsson NovaThor U8500 SoC, e.g.
