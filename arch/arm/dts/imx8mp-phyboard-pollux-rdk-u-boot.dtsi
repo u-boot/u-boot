@@ -18,7 +18,7 @@
 	u-boot,dm-spl;
 };
 
-&pinctrl_uart2 {
+&pinctrl_uart1 {
 	u-boot,dm-spl;
 };
 
@@ -54,7 +54,7 @@
 	u-boot,dm-spl;
 };
 
-&uart2 {
+&uart1 {
 	u-boot,dm-spl;
 };
 
