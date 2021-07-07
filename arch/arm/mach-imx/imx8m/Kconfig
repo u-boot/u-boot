@@ -127,6 +127,7 @@ config TARGET_PHYCORE_IMX8MM
 
 config TARGET_PHYCORE_IMX8MP
 	bool "PHYTEC PHYCORE i.MX8MP"
+	select BINMAN
 	select IMX8MP
         select SUPPORT_SPL
 	select IMX8M_LPDDR4
