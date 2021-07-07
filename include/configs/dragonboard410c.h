@@ -11,6 +11,9 @@
 #include <linux/sizes.h>
 #include <asm/arch/sysmap-apq8016.h>
 
+/* Build new ELF image from u-boot.bin (U-Boot + appended DTB) */
+#define CONFIG_REMAKE_ELF
+
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			0x80000000
 /* 1008 MB (the last ~30Mb are secured for TrustZone by ATF*/
