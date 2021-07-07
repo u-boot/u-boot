@@ -156,7 +156,7 @@ static int w1_gpio_of_to_plat(struct udevice *dev)
 	struct w1_gpio_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
-	ret = gpio_request_by_name(dev, "gpios", 0, &pdata->gpio, 0);
+	ret = gpio_request_by_name(dev, "gpios", 0, &pdata->gpio, GPIOD_IS_IN);
 	if (ret < 0)
 		printf("Error claiming GPIO %d\n", ret);
 
