@@ -30,6 +30,7 @@ obj-$(CONFIG_DM_BOOTCOUNT) += bootcount.o
 obj-$(CONFIG_CLK) += clk.o clk_ccf.o
 obj-$(CONFIG_CPU) += cpu.o
 obj-$(CONFIG_CROS_EC) += cros_ec.o
+obj-$(CONFIG_PWM_CROS_EC) += cros_ec_pwm.o
 obj-$(CONFIG_DEVRES) += devres.o
 obj-$(CONFIG_DMA) += dma.o
 obj-$(CONFIG_VIDEO_MIPI_DSI) += dsi_host.o

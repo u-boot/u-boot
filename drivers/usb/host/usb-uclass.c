@@ -6,6 +6,8 @@
  * usb_match_device() modified from Linux kernel v4.0.
  */
 
+#define LOG_CATEGORY UCLASS_USB
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>

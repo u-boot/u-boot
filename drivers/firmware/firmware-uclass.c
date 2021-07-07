@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+#define LOG_CATEGORY UCLASS_FIRMWARE
+
 #include <common.h>
 #include <dm.h>
 

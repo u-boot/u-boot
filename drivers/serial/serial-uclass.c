@@ -3,6 +3,8 @@
  * Copyright (c) 2014 The Chromium OS Authors.
  */
 
+#define LOG_CATEGORY UCLASS_SERIAL
+
 #include <common.h>
 #include <dm.h>
 #include <env_internal.h>

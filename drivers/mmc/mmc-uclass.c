@@ -5,6 +5,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_MMC
+
 #include <common.h>
 #include <log.h>
 #include <mmc.h>

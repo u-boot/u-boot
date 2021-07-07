@@ -3,6 +3,8 @@
  * Copyright (c) 2014 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_SPI_FLASH
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>

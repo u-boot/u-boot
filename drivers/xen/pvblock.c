@@ -3,6 +3,9 @@
  * (C) 2007-2008 Samuel Thibault.
  * (C) Copyright 2020 EPAM Systems Inc.
  */
+
+#define LOG_CATEGORY UCLASS_PVBLOCK
+
 #include <blk.h>
 #include <common.h>
 #include <dm.h>

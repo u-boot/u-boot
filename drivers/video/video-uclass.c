@@ -3,6 +3,8 @@
  * Copyright (c) 2015 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_VIDEO
+
 #include <common.h>
 #include <console.h>
 #include <cpu_func.h>

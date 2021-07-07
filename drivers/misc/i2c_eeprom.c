@@ -3,6 +3,8 @@
  * Copyright (c) 2014 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_I2C_EEPROM
+
 #include <common.h>
 #include <eeprom.h>
 #include <linux/delay.h>

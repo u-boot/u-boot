@@ -4,6 +4,8 @@
  * Mario Six,  Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
+#define LOG_CATEGORY UCLASS_AXI
+
 #include <common.h>
 #include <dm.h>
 #include <axi.h>

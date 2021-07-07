@@ -3,6 +3,8 @@
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
  */
 
+#define LOG_CATEGORY UCLASS_MISC
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>

@@ -6,6 +6,8 @@
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  */
 
+#define LOG_CATEGORY UCLASS_ROOT
+
 #include <common.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -111,9 +113,6 @@ void fix_uclass(void)
 			entry->init += gd->reloc_off;
 		if (entry->destroy)
 			entry->destroy += gd->reloc_off;
-		/* FIXME maybe also need to fix these ops */
-		if (entry->ops)
-			entry->ops += gd->reloc_off;
 	}
 }
 

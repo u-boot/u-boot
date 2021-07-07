@@ -390,6 +390,16 @@ static int sandbox_cmdline_cb_select_unittests(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT_SHORT(select_unittests, 'k', 1, "Select unit tests to run");
 
+static int sandbox_cmdline_cb_signals(struct sandbox_state *state,
+				      const char *arg)
+{
+	state->handle_signals = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(signals, 'S', 0,
+			  "Handle signals (such as SIGSEGV) in sandbox");
+
 static void setup_ram_buf(struct sandbox_state *state)
 {
 	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */
@@ -426,9 +436,6 @@ void sandbox_reset(void)
 	if (state_uninit())
 		os_exit(2);
 
-	if (dm_uninit())
-		os_exit(2);
-
 	/* Restart U-Boot */
 	os_relaunch(os_argv);
 }
@@ -444,6 +451,14 @@ int main(int argc, char *argv[])
 	text_base = os_find_text_base();
 
 	/*
+	 * This must be the first invocation of os_malloc() to have
+	 * state->ram_buf in the low 4 GiB.
+	 */
+	ret = state_init();
+	if (ret)
+		goto err;
+
+	/*
 	 * Copy argv[] so that we can pass the arguments in the original
 	 * sequence when resetting the sandbox.
 	 */
@@ -456,10 +471,6 @@ int main(int argc, char *argv[])
 	memset(&data, '\0', sizeof(data));
 	gd = &data;
 	gd->arch.text_base = text_base;
-
-	ret = state_init();
-	if (ret)
-		goto err;
 
 	state = state_get_current();
 	if (os_parse_args(state, argc, argv))
@@ -476,9 +487,11 @@ int main(int argc, char *argv[])
 	if (ret)
 		goto err;
 
-	ret = os_setup_signal_handlers();
-	if (ret)
-		goto err;
+	if (state->handle_signals) {
+		ret = os_setup_signal_handlers();
+		if (ret)
+			goto err;
+	}
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	gd->malloc_base = CONFIG_MALLOC_F_ADDR;

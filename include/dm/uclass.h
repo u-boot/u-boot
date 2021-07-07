@@ -84,8 +84,6 @@ struct udevice;
  * its children. If non-zero this is the size of this data, to be allocated
  * in the child device's parent_plat pointer. This value is only used as
  * a fallback if this member is 0 in the driver.
- * @ops: Uclass operations, providing the consistent interface to devices
- * within the uclass.
  * @flags: Flags for this uclass (DM_UC_...)
  */
 struct uclass_driver {
@@ -106,7 +104,6 @@ struct uclass_driver {
 	int per_device_plat_auto;
 	int per_child_auto;
 	int per_child_plat_auto;
-	const void *ops;
 	uint32_t flags;
 };
 

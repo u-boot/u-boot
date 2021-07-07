@@ -3,6 +3,8 @@
  * Copyright (c) 2015 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_PWRSEQ
+
 #include <common.h>
 #include <dm.h>
 #include <pwrseq.h>

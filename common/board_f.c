@@ -265,7 +265,9 @@ static int setup_mon_len(void)
 {
 #if defined(__ARM__) || defined(__MICROBLAZE__)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
-#elif defined(CONFIG_SANDBOX) || defined(CONFIG_EFI_APP)
+#elif defined(CONFIG_SANDBOX)
+	gd->mon_len = 0;
+#elif defined(CONFIG_EFI_APP)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
 #elif defined(CONFIG_NIOS2) || defined(CONFIG_XTENSA)
 	gd->mon_len = CONFIG_SYS_MONITOR_LEN;

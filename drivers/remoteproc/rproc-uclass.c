@@ -3,6 +3,9 @@
  * (C) Copyright 2015
  * Texas Instruments Incorporated - http://www.ti.com/
  */
+
+#define LOG_CATEGORY UCLASS_REMOTEPROC
+
 #define pr_fmt(fmt) "%s: " fmt, __func__
 #include <common.h>
 #include <errno.h>

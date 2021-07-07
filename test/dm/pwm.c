@@ -20,7 +20,7 @@ static int dm_test_pwm_base(struct unit_test_state *uts)
 	bool enable;
 	bool polarity;
 
-	ut_assertok(uclass_get_device(UCLASS_PWM, 0, &dev));
+	ut_assertok(uclass_get_device_by_name(UCLASS_PWM, "pwm", &dev));
 	ut_assertnonnull(dev);
 	ut_assertok(pwm_set_config(dev, 0, 100, 50));
 	ut_assertok(pwm_set_enable(dev, 0, true));
@@ -35,8 +35,10 @@ static int dm_test_pwm_base(struct unit_test_state *uts)
 	ut_asserteq(period_ns, 4096);
 	ut_asserteq(duty_ns, 50 * 4096 / 100);
 
+	ut_assertok(uclass_get_device(UCLASS_PWM, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_PWM, 1, &dev));
-	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PWM, 2, &dev));
+	ut_assertok(uclass_get_device(UCLASS_PWM, 2, &dev));
+	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PWM, 3, &dev));
 
 	return 0;
 }

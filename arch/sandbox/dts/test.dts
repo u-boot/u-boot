@@ -139,6 +139,12 @@
 				size = <0x10000>;
 			};
 		};
+
+		cros_ec_pwm: cros-ec-pwm {
+			compatible = "google,cros-ec-pwm";
+			#pwm-cells = <1>;
+		};
+
 	};
 
 	dsi_host: dsi_host {

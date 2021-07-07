@@ -3,6 +3,8 @@
  * Copyright (c) 2014 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_SIMPLE_BUS
+
 #include <common.h>
 #include <asm/global_data.h>
 #include <dm.h>

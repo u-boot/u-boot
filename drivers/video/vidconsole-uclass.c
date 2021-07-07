@@ -7,6 +7,8 @@
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  */
 
+#define LOG_CATEGORY UCLASS_VIDEO_CONSOLE
+
 #include <common.h>
 #include <command.h>
 #include <console.h>

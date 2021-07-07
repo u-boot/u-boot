@@ -3,6 +3,8 @@
  * Copyright (c) 2018 Linaro Limited
  */
 
+#define LOG_CATEGORY UCLASS_TEE
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>

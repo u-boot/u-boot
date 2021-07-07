@@ -64,11 +64,16 @@ struct ec_keymatrix_entry {
 
 enum {
 	VSTORE_SLOT_COUNT	= 4,
+	PWM_CHANNEL_COUNT	= 4,
 };
 
 struct vstore_slot {
 	bool locked;
 	u8 data[EC_VSTORE_SLOT_SIZE];
+};
+
+struct ec_pwm_channel {
+	uint duty;	/* not ns, EC_PWM_MAX_DUTY = 100% */
 };
 
 /**
@@ -85,6 +90,7 @@ struct vstore_slot {
  * @recovery_req: Keyboard recovery requested
  * @test_flags: Flags that control behaviour for tests
  * @slot_locked: Locked vstore slots (mask)
+ * @pwm: Information per PWM channel
  */
 struct ec_state {
 	u8 vbnv_context[EC_VBNV_BLOCK_SIZE_V2];
@@ -98,6 +104,7 @@ struct ec_state {
 	bool recovery_req;
 	uint test_flags;
 	struct vstore_slot slot[VSTORE_SLOT_COUNT];
+	struct ec_pwm_channel pwm[PWM_CHANNEL_COUNT];
 } s_state, *g_state;
 
 /**
@@ -554,6 +561,33 @@ static int process_cmd(struct ec_state *ec,
 		len = sizeof(*resp);
 		break;
 	}
+	case EC_CMD_PWM_GET_DUTY: {
+		const struct ec_params_pwm_get_duty *req = req_data;
+		struct ec_response_pwm_get_duty *resp = resp_data;
+		struct ec_pwm_channel *pwm;
+
+		if (req->pwm_type != EC_PWM_TYPE_GENERIC)
+			return -EINVAL;
+		if (req->index >= PWM_CHANNEL_COUNT)
+			return -EINVAL;
+		pwm = &ec->pwm[req->index];
+		resp->duty = pwm->duty;
+		len = sizeof(*resp);
+		break;
+	}
+	case EC_CMD_PWM_SET_DUTY: {
+		const struct ec_params_pwm_set_duty *req = req_data;
+		struct ec_pwm_channel *pwm;
+
+		if (req->pwm_type != EC_PWM_TYPE_GENERIC)
+			return -EINVAL;
+		if (req->index >= PWM_CHANNEL_COUNT)
+			return -EINVAL;
+		pwm = &ec->pwm[req->index];
+		pwm->duty = req->duty;
+		len = 0;
+		break;
+	}
 	default:
 		printf("   ** Unknown EC command %#02x\n", req_hdr->command);
 		return -1;
@@ -617,6 +651,19 @@ void sandbox_cros_ec_set_test_flags(struct udevice *dev, uint flags)
 	struct ec_state *ec = dev_get_priv(dev);
 
 	ec->test_flags = flags;
+}
+
+int sandbox_cros_ec_get_pwm_duty(struct udevice *dev, uint index, uint *duty)
+{
+	struct ec_state *ec = dev_get_priv(dev);
+	struct ec_pwm_channel *pwm;
+
+	if (index >= PWM_CHANNEL_COUNT)
+		return -ENOSPC;
+	pwm = &ec->pwm[index];
+	*duty = pwm->duty;
+
+	return 0;
 }
 
 int cros_ec_probe(struct udevice *dev)

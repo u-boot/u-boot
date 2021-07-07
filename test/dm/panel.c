@@ -28,7 +28,7 @@ static int dm_test_panel(struct unit_test_state *uts)
 	bool polarity;
 
 	ut_assertok(uclass_first_device_err(UCLASS_PANEL, &dev));
-	ut_assertok(uclass_first_device_err(UCLASS_PWM, &pwm));
+	ut_assertok(uclass_get_device_by_name(UCLASS_PWM, "pwm", &pwm));
 	ut_assertok(uclass_get_device(UCLASS_GPIO, 1, &gpio));
 	ut_assertok(regulator_get_by_platname("VDD_EMMC_1.8V", &reg));
 	ut_assertok(sandbox_pwm_get_config(pwm, 0, &period_ns, &duty_ns,

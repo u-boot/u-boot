@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_RAM
+
 #include <common.h>
 #include <ram.h>
 #include <dm.h>
