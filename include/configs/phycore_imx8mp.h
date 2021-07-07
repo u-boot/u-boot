@@ -42,6 +42,7 @@
 	"console=ttymxc0,115200\0" \
 	"fdt_addr=0x48000000\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	"ip_dyn=yes\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=2\0" \
@@ -57,6 +58,22 @@
 		"else " \
 			"echo WARN: Cannot load the DT; " \
 		"fi;\0 " \
+	"nfsroot=/nfs\0" \
+	"netargs=setenv bootargs console=${console} root=/dev/nfs ip=dhcp " \
+		"nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
+	"netboot=echo Booting from net ...; " \
+		"run netargs; " \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${loadaddr} ${image}; " \
+		"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
+			"booti ${loadaddr} - ${fdt_addr}; " \
+		"else " \
+			"echo WARN: Cannot load the DT; " \
+		"fi;\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
