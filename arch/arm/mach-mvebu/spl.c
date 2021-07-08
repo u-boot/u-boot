@@ -76,7 +76,30 @@ static u32 get_boot_device(void)
 
 u32 spl_boot_device(void)
 {
-	return get_boot_device();
+	u32 boot_device = get_boot_device();
+
+	/*
+	 * Return to the BootROM to continue the Marvell xmodem
+	 * UART boot protocol. As initiated by the kwboot tool.
+	 *
+	 * This can only be done by the BootROM since the beginning
+	 * of the image is already read and interpreted by the BootROM.
+	 * SPL has no chance to receive this information. So we
+	 * need to return to the BootROM to enable this xmodem
+	 * UART download. Use SPL infrastructure to return to BootROM.
+	 *
+	 * If booting from NAND lets let the BootROM load the
+	 * rest of the bootloader.
+	 */
+	switch (boot_device) {
+	case BOOT_DEVICE_UART:
+#if defined(CONFIG_ARMADA_38X)
+	case BOOT_DEVICE_NAND:
+#endif
+		return BOOT_DEVICE_BOOTROM;
+	default:
+		return boot_device;
+	}
 }
 
 int board_return_to_bootrom(struct spl_image_info *spl_image,
@@ -147,26 +170,4 @@ void board_init_f(ulong dummy)
 
 	/* Update read timing control for PCIe */
 	mv_rtc_config();
-
-	/*
-	 * Return to the BootROM to continue the Marvell xmodem
-	 * UART boot protocol. As initiated by the kwboot tool.
-	 *
-	 * This can only be done by the BootROM and not by the
-	 * U-Boot SPL infrastructure, since the beginning of the
-	 * image is already read and interpreted by the BootROM.
-	 * SPL has no chance to receive this information. So we
-	 * need to return to the BootROM to enable this xmodem
-	 * UART download.
-	 *
-	 * If booting from NAND lets let the BootROM load the
-	 * rest of the bootloader.
-	 */
-	switch (get_boot_device()) {
-		case BOOT_DEVICE_UART:
-#if defined(CONFIG_ARMADA_38X)
-		case BOOT_DEVICE_NAND:
-#endif
-			return_to_bootrom();
-	}
 }
