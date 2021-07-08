@@ -605,7 +605,7 @@ static void pcie_advk_set_ob_region(struct pcie_advk *pcie, int *wins,
 
 	/*
 	 * The n-th PCIe window is configured by tuple (match, remap, mask)
-	 * and an access to address A uses this window it if A matches the
+	 * and an access to address A uses this window if A matches the
 	 * match with given mask.
 	 * So every PCIe window size must be a power of two and every start
 	 * address must be aligned to window size. Minimal size is 64 KiB
