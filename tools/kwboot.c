@@ -645,6 +645,11 @@ kwboot_img_patch_hdr(void *img, size_t size)
 	else
 		hdrsz = KWBHEADER_V1_SIZE(hdr);
 
+	if (size < hdrsz) {
+		errno = EINVAL;
+		goto out;
+	}
+
 	csum = kwboot_img_csum8(hdr, hdrsz) - hdr->checksum;
 	if (csum != hdr->checksum) {
 		errno = EINVAL;
