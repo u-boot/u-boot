@@ -28,7 +28,7 @@
 #define IBR_HDR_PEX_ID			0x9C
 #define IBR_HDR_UART_ID			0x69
 #define IBR_HDR_SDIO_ID			0xAE
-#define IBR_DEF_ATTRIB	 		0x00
+#define IBR_DEF_ATTRIB			0x00
 
 /* Structure of the main header, version 0 (Kirkwood, Dove) */
 struct main_hdr_v0 {
