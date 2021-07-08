@@ -1252,8 +1252,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		cpu_to_le32(payloadsz - headersz);
 	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
 	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
-	main_hdr->destaddr     = cpu_to_le32(params->addr)
-				 - sizeof(image_header_t);
+	main_hdr->destaddr     = cpu_to_le32(params->addr);
 	main_hdr->execaddr     = cpu_to_le32(params->ep);
 	main_hdr->srcaddr      = cpu_to_le32(headersz);
 	main_hdr->ext          = hasext;
@@ -1273,13 +1272,6 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	e = image_find_option(IMAGE_CFG_DEBUG);
 	if (e)
 		main_hdr->flags = e->debug ? 0x1 : 0;
-	e = image_find_option(IMAGE_CFG_BINARY);
-	if (e) {
-		char *s = strrchr(e->binary.file, '/');
-
-		if (s && strcmp(s, "/binary.0") == 0)
-			main_hdr->destaddr = cpu_to_le32(params->addr);
-	}
 
 	/*
 	 * For SATA srcaddr is specified in number of sectors starting from
