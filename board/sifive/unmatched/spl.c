@@ -16,6 +16,9 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/spl.h>
 
+#define UBRDG_RESET	SIFIVE_GENERIC_GPIO_NR(0, 7)
+#define ULPI_RESET	SIFIVE_GENERIC_GPIO_NR(0, 9)
+#define UHUB_RESET	SIFIVE_GENERIC_GPIO_NR(0, 11)
 #define GEM_PHY_RESET	SIFIVE_GENERIC_GPIO_NR(0, 12)
 
 #define MODE_SELECT_REG		0x1000
@@ -61,6 +64,21 @@ static inline int spl_gemgxl_init(void)
 	return ret;
 }
 
+static inline int spl_usb_pcie_bridge_init(void)
+{
+	return spl_reset_device_by_gpio("usb_pcie_bridge_reset", UBRDG_RESET, 3000);
+}
+
+static inline int spl_usb_hub_init(void)
+{
+	return spl_reset_device_by_gpio("usb_hub_reset", UHUB_RESET, 100);
+}
+
+static inline int spl_ulpi_init(void)
+{
+	return spl_reset_device_by_gpio("ulpi_reset", ULPI_RESET, 1);
+}
+
 int spl_board_init_f(void)
 {
 	int ret;
@@ -74,6 +92,24 @@ int spl_board_init_f(void)
 	ret = spl_gemgxl_init();
 	if (ret) {
 		debug("Gigabit ethernet PHY (VSC8541) init failed: %d\n", ret);
+		goto end;
+	}
+
+	ret = spl_usb_pcie_bridge_init();
+	if (ret) {
+		debug("USB Bridge (ASM1042A) init failed: %d\n", ret);
+		goto end;
+	}
+
+	ret = spl_usb_hub_init();
+	if (ret) {
+		debug("USB Hub (ASM1074) init failed: %d\n", ret);
+		goto end;
+	}
+
+	ret = spl_ulpi_init();
+	if (ret) {
+		debug("USB 2.0 PHY (USB3320C) init failed: %d\n", ret);
 		goto end;
 	}
 
