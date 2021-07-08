@@ -558,7 +558,8 @@ kwboot_terminal(int tty)
 		}
 	} while (quit[s] != 0);
 
-	tcsetattr(in, TCSANOW, &otio);
+	if (in >= 0)
+		tcsetattr(in, TCSANOW, &otio);
 out:
 	return rc;
 }
