@@ -860,6 +860,14 @@ config AUTOBOOT_KEYED_CTRLC
 	  Setting this variable	provides an escape sequence from the
 	  limited "password" strings.
 
+config AUTOBOOT_NEVER_TIMEOUT
+	bool "Make the password entry never time-out"
+	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION && CRYPT_PW
+	help
+	  This option removes the timeout from the password entry
+	  when the user first presses the <Enter> key before entering
+	  any other character.
+
 config AUTOBOOT_STOP_STR_ENABLE
 	bool "Enable fixed string to stop autobooting"
 	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
