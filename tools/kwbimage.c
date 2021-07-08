@@ -979,19 +979,6 @@ static size_t image_headersz_v1(int *hasext)
 			*hasext = 1;
 	}
 
-#if defined(CONFIG_SYS_U_BOOT_OFFS)
-	if (headersz > CONFIG_SYS_U_BOOT_OFFS) {
-		fprintf(stderr,
-			"Error: Image header (incl. SPL image) too big!\n");
-		fprintf(stderr, "header=0x%x CONFIG_SYS_U_BOOT_OFFS=0x%x!\n",
-			(int)headersz, CONFIG_SYS_U_BOOT_OFFS);
-		fprintf(stderr, "Increase CONFIG_SYS_U_BOOT_OFFS!\n");
-		return 0;
-	}
-
-	headersz = CONFIG_SYS_U_BOOT_OFFS;
-#endif
-
 	/*
 	 * The payload should be aligned on some reasonable
 	 * boundary
