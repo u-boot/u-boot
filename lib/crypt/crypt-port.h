@@ -18,11 +18,13 @@ extern const unsigned char ascii64[65];
 
 #define b64t ((const char *)ascii64)
 
-void crypt_sha256crypt_rn(const char *phrase, size_t phr_size,
-			  const char *setting, size_t ARG_UNUSED(set_size),
-			  uint8_t *output, size_t out_size, void *scratch,
-			  size_t scr_size);
-void crypt_sha512crypt_rn(const char *phrase, size_t phr_size,
-			  const char *setting, size_t ARG_UNUSED(set_size),
-			  uint8_t *output, size_t out_size, void *scratch,
-			  size_t scr_size);
+int crypt_sha256crypt_rn_wrapped(const char *phrase, size_t phr_size,
+				 const char *setting,
+				 size_t ARG_UNUSED(set_size), uint8_t *output,
+				 size_t out_size, void *scratch,
+				 size_t scr_size);
+int crypt_sha512crypt_rn_wrapped(const char *phrase, size_t phr_size,
+				 const char *setting,
+				 size_t ARG_UNUSED(set_size), uint8_t *output,
+				 size_t out_size, void *scratch,
+				 size_t scr_size);

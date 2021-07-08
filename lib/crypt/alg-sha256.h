@@ -1,12 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /* Copyright (C) 2020 Steffen Jaeckel <jaeckel-floss@eyet-services.de> */
 
-#ifndef USE_HOSTCC
-#include "common.h"
-#else
-#include <string.h>
-#endif
-
 #include "u-boot/sha256.h"
 
 #define INCLUDE_sha256crypt 1
