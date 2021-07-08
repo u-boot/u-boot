@@ -51,12 +51,6 @@
 #define CONFIG_TWL6030_POWER		1
 #endif
 
-/* USB */
-
-/* USB device configuration */
-#define CONFIG_USB_DEVICE		1
-#define CONFIG_USB_TTY			1
-
 /*
  * Environment setup
  */
