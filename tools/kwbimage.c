@@ -1655,15 +1655,19 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 
 	/* Only version 0 extended header has checksum */
 	if (image_version((void *)ptr) == 0) {
-		struct ext_hdr_v0 *ext_hdr;
+		struct main_hdr_v0 *mhdr = (struct main_hdr_v0 *)ptr;
 
-		ext_hdr = (struct ext_hdr_v0 *)
+		if (mhdr->ext & 0x1) {
+			struct ext_hdr_v0 *ext_hdr;
+
+			ext_hdr = (struct ext_hdr_v0 *)
 				(ptr + sizeof(struct main_hdr_v0));
-		checksum = image_checksum8(ext_hdr,
-					   sizeof(struct ext_hdr_v0)
-					   - sizeof(uint8_t));
-		if (checksum != ext_hdr->checksum)
-			return -FDT_ERR_BADSTRUCTURE;
+			checksum = image_checksum8(ext_hdr,
+						   sizeof(struct ext_hdr_v0)
+						   - sizeof(uint8_t));
+			if (checksum != ext_hdr->checksum)
+				return -FDT_ERR_BADSTRUCTURE;
+		}
 	}
 
 	return 0;
