@@ -556,7 +556,9 @@ static void setup_boot_mode(void)
 		env_set("boot_instance", "0");
 		break;
 	default:
-		log_debug("unexpected boot mode = %x\n", boot_mode);
+		env_set("boot_device", "invalid");
+		env_set("boot_instance", "");
+		log_err("unexpected boot mode = %x\n", boot_mode);
 		break;
 	}
 
