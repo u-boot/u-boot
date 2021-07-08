@@ -812,10 +812,17 @@ config AUTOBOOT_ENCRYPTION
 	depends on AUTOBOOT_KEYED
 	help
 	  This option allows a string to be entered into U-Boot to stop the
-	  autoboot. The string itself is hashed and compared against the hash
-	  in the environment variable 'bootstopkeysha256'. If it matches then
-	  boot stops and a command-line prompt is presented.
-
+	  autoboot.
+	  The behavior depends whether CONFIG_CRYPT_PW from lib is enabled
+	  or not.
+	  In case CONFIG_CRYPT_PW is enabled, the string will be forwarded
+	  to the crypt-based functionality and be compared against the
+	  string in the environment variable 'bootstopkeycrypt'.
+	  In case CONFIG_CRYPT_PW is disabled the string itself is hashed
+	  and compared against the hash in the environment variable
+	  'bootstopkeysha256'.
+	  If it matches in either case then boot stops and
+	  a command-line prompt is presented.
 	  This provides a way to ship a secure production device which can also
 	  be accessed at the U-Boot command line.
 
@@ -853,9 +860,30 @@ config AUTOBOOT_KEYED_CTRLC
 	  Setting this variable	provides an escape sequence from the
 	  limited "password" strings.
 
+config AUTOBOOT_STOP_STR_ENABLE
+	bool "Enable fixed string to stop autobooting"
+	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
+	help
+	  This option enables the feature to add a fixed stop
+	  string that is defined at compile time.
+	  In every case it will be tried to load the stop
+	  string from the environment.
+	  In case this is enabled and there is no stop string
+	  in the environment, this will be used as default value.
+
+config AUTOBOOT_STOP_STR_CRYPT
+	string "Stop autobooting via crypt-hashed password"
+	depends on AUTOBOOT_STOP_STR_ENABLE && CRYPT_PW
+	help
+	  This option adds the feature to only stop the autobooting,
+	  and therefore boot into the U-Boot prompt, when the input
+	  string / password matches a values that is hashed via
+	  one of the supported crypt-style password hashing options
+	  and saved in the environment variable "bootstopkeycrypt".
+
 config AUTOBOOT_STOP_STR_SHA256
 	string "Stop autobooting via SHA256 encrypted password"
-	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
+	depends on AUTOBOOT_STOP_STR_ENABLE
 	help
 	  This option adds the feature to only stop the autobooting,
 	  and therefore boot into the U-Boot prompt, when the input

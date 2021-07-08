@@ -23,6 +23,7 @@
 #include <linux/delay.h>
 #include <u-boot/sha256.h>
 #include <bootcount.h>
+#include <crypt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,10 +39,11 @@ DECLARE_GLOBAL_DATA_PTR;
 static int stored_bootdelay;
 static int menukey;
 
-#ifdef CONFIG_AUTOBOOT_ENCRYPTION
-#define AUTOBOOT_STOP_STR_SHA256 CONFIG_AUTOBOOT_STOP_STR_SHA256
-#else
-#define AUTOBOOT_STOP_STR_SHA256 ""
+#if !defined(CONFIG_AUTOBOOT_STOP_STR_CRYPT)
+#define CONFIG_AUTOBOOT_STOP_STR_CRYPT ""
+#endif
+#if !defined(CONFIG_AUTOBOOT_STOP_STR_SHA256)
+#define CONFIG_AUTOBOOT_STOP_STR_SHA256 ""
 #endif
 
 #ifdef CONFIG_AUTOBOOT_USE_MENUKEY
@@ -49,6 +51,63 @@ static int menukey;
 #else
 #define AUTOBOOT_MENUKEY 0
 #endif
+
+/**
+ * passwd_abort_crypt() - check for a crypt-style hashed key sequence to abort booting
+ *
+ * This checks for the user entering a password within a given time.
+ *
+ * The entered password is hashed via one of the crypt-style hash methods
+ * and compared to the pre-defined value from either
+ *   the environment variable "bootstopkeycrypt"
+ * or
+ *   the config value CONFIG_AUTOBOOT_STOP_STR_CRYPT
+ *
+ * @etime: Timeout value ticks (stop when get_ticks() reachs this)
+ * @return 0 if autoboot should continue, 1 if it should stop
+ */
+static int passwd_abort_crypt(uint64_t etime)
+{
+	const char *crypt_env_str = env_get("bootstopkeycrypt");
+	char presskey[MAX_DELAY_STOP_STR];
+	u_int presskey_len = 0;
+	int abort = 0;
+	int err;
+
+	if (IS_ENABLED(CONFIG_AUTOBOOT_STOP_STR_ENABLE) && !crypt_env_str)
+		crypt_env_str = CONFIG_AUTOBOOT_STOP_STR_CRYPT;
+
+	if (!crypt_env_str)
+		return 0;
+
+	/* We expect the stop-string to be newline-terminated */
+	do {
+		if (tstc()) {
+			/* Check for input string overflow */
+			if (presskey_len >= sizeof(presskey))
+				return 0;
+
+			presskey[presskey_len] = getchar();
+
+			if ((presskey[presskey_len] == '\r') ||
+			    (presskey[presskey_len] == '\n')) {
+				presskey[presskey_len] = '\0';
+				err = crypt_compare(crypt_env_str, presskey,
+						    &abort);
+				if (err)
+					debug_bootkeys(
+						"crypt_compare() failed with: %s\n",
+						errno_str(err));
+				/* you had one chance */
+				break;
+			} else {
+				presskey_len++;
+			}
+		}
+	} while (get_ticks() <= etime);
+
+	return abort;
+}
 
 /*
  * Use a "constant-length" time compare function for this
@@ -89,7 +148,7 @@ static int passwd_abort_sha256(uint64_t etime)
 	int ret;
 
 	if (sha_env_str == NULL)
-		sha_env_str = AUTOBOOT_STOP_STR_SHA256;
+		sha_env_str = CONFIG_AUTOBOOT_STOP_STR_SHA256;
 
 	presskey = malloc_cache_aligned(MAX_DELAY_STOP_STR);
 	c = strstr(sha_env_str, ":");
@@ -245,10 +304,14 @@ static int abortboot_key_sequence(int bootdelay)
 	printf(CONFIG_AUTOBOOT_PROMPT, bootdelay);
 #  endif
 
-	if (IS_ENABLED(CONFIG_AUTOBOOT_ENCRYPTION))
-		abort = passwd_abort_sha256(etime);
-	else
+	if (IS_ENABLED(CONFIG_AUTOBOOT_ENCRYPTION)) {
+		if (IS_ENABLED(CONFIG_CRYPT_PW))
+			abort = passwd_abort_crypt(etime);
+		else
+			abort = passwd_abort_sha256(etime);
+	} else {
 		abort = passwd_abort_key(etime);
+	}
 	if (!abort)
 		debug_bootkeys("key timeout\n");
 
