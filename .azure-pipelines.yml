@@ -347,7 +347,7 @@ jobs:
         arm11_arm7_arm920t_arm946es:
           BUILDMAN: "arm11 arm7 arm920t arm946es"
         arm926ejs:
-          BUILDMAN: "arm926ejs -x freescale,siemens,at91,kirkwood,spear,omap"
+          BUILDMAN: "arm926ejs -x freescale,siemens,at91,kirkwood,omap"
         at91_non_armv7:
           BUILDMAN: "at91 -x armv7"
         at91_non_arm926ejs:
@@ -378,8 +378,6 @@ jobs:
           BUILDMAN: "k2 k3"
         samsung_socfpga:
           BUILDMAN: "samsung socfpga"
-        spear:
-          BUILDMAN: "spear"
         sun4i:
           BUILDMAN: "sun4i"
         sun5i:
