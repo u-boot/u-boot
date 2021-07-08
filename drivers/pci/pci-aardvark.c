@@ -609,21 +609,22 @@ static void pcie_advk_set_ob_region(struct pcie_advk *pcie, int *wins,
 	 * match with given mask.
 	 * So every PCIe window size must be a power of two and every start
 	 * address must be aligned to window size. Minimal size is 64 KiB
-	 * because lower 16 bits of mask must be zero.
+	 * because lower 16 bits of mask must be zero. Remapped address
+	 * may have set only bits from the mask.
 	 */
 	while (*wins < OB_WIN_COUNT && size > 0) {
 		/* Calculate the largest aligned window size */
 		win_size = (1ULL << (fls64(size) - 1)) |
 			   (phys_start ? (1ULL << __ffs64(phys_start)) : 0);
 		win_size = 1ULL << __ffs64(win_size);
-		if (win_size < 0x10000)
+		win_mask = ~(win_size - 1);
+		if (win_size < 0x10000 || (bus_start & ~win_mask))
 			break;
 
 		dev_dbg(pcie->dev,
 			"Configuring PCIe window %d: [0x%llx-0x%llx] as 0x%x\n",
 			*wins, (u64)phys_start, (u64)phys_start + win_size,
 			actions);
-		win_mask = ~(win_size - 1) & ~0xffff;
 		pcie_advk_set_ob_win(pcie, *wins, phys_start, bus_start,
 				     win_mask, actions);
 
