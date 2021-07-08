@@ -835,6 +835,14 @@ config AUTOBOOT_ENCRYPTION
 	  This provides a way to ship a secure production device which can also
 	  be accessed at the U-Boot command line.
 
+config AUTOBOOT_SHA256_FALLBACK
+	bool "Allow fallback from crypt-hashed password to sha256"
+	depends on AUTOBOOT_ENCRYPTION && CRYPT_PW
+	help
+	  This option adds support to fall back from crypt-hashed
+	  passwords to checking a SHA256 hashed password in case the
+	  'bootstopusesha256' environment variable is set to 'true'.
+
 config AUTOBOOT_DELAY_STR
 	string "Delay autobooting via specific input key / string"
 	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION

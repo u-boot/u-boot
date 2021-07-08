@@ -306,6 +306,26 @@ static void flush_stdin(void)
 		(void)getchar();
 }
 
+/**
+ * fallback_to_sha256() - check whether we should fall back to sha256
+ *                        password checking
+ *
+ * This checks for the environment variable `bootstopusesha256` in case
+ * sha256-fallback has been enabled via the config setting
+ * `AUTOBOOT_SHA256_FALLBACK`.
+ *
+ * @return `false` if we must not fall-back, `true` if plain sha256 should be tried
+ */
+static bool fallback_to_sha256(void)
+{
+	if (IS_ENABLED(CONFIG_AUTOBOOT_SHA256_FALLBACK))
+		return env_get_yesno("bootstopusesha256") == 1;
+	else if (IS_ENABLED(CONFIG_CRYPT_PW))
+		return false;
+	else
+		return true;
+}
+
 /***************************************************************************
  * Watch for 'delay' seconds for autoboot stop or autoboot delay string.
  * returns: 0 -  no key string, allow autoboot 1 - got key string, abort
@@ -326,7 +346,7 @@ static int abortboot_key_sequence(int bootdelay)
 #  endif
 
 	if (IS_ENABLED(CONFIG_AUTOBOOT_ENCRYPTION)) {
-		if (IS_ENABLED(CONFIG_CRYPT_PW))
+		if (IS_ENABLED(CONFIG_CRYPT_PW) && !fallback_to_sha256())
 			abort = passwd_abort_crypt(etime);
 		else
 			abort = passwd_abort_sha256(etime);
