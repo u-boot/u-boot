@@ -1670,6 +1670,35 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 		}
 	}
 
+	if (image_version((void *)ptr) == 1) {
+		struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
+
+		if (mhdr->ext & 0x1) {
+			uint32_t ohdr_size;
+			struct opt_hdr_v1 *ohdr = (struct opt_hdr_v1 *)
+						  (ptr + sizeof(*mhdr));
+
+			while (1) {
+				if ((uint8_t *)ohdr + sizeof(*ohdr) >
+				    (uint8_t *)mhdr + header_size)
+					return -FDT_ERR_BADSTRUCTURE;
+
+				ohdr_size = (ohdr->headersz_msb << 16) |
+					    le16_to_cpu(ohdr->headersz_lsb);
+
+				if (ohdr_size < 8 ||
+				    (uint8_t *)ohdr + ohdr_size >
+				    (uint8_t *)mhdr + header_size)
+					return -FDT_ERR_BADSTRUCTURE;
+
+				if (!(*((uint8_t *)ohdr + ohdr_size - 4) & 0x1))
+					break;
+				ohdr = (struct opt_hdr_v1 *)((uint8_t *)ohdr +
+							     ohdr_size);
+			}
+		}
+	}
+
 	return 0;
 }
 
