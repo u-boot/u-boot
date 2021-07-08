@@ -1510,6 +1510,17 @@ static int image_get_version(void)
 	return e->version;
 }
 
+static int image_get_bootfrom(void)
+{
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_BOOT_FROM);
+	if (!e)
+		return -1;
+
+	return e->bootfrom;
+}
+
 static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 				struct image_tool_params *params)
 {
@@ -1642,6 +1653,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 	FILE *fcfg;
 	struct stat s;
 	int alloc_len;
+	int bootfrom;
 	int version;
 	void *hdr;
 	int ret;
@@ -1678,6 +1690,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 		exit(EXIT_FAILURE);
 	}
 
+	bootfrom = image_get_bootfrom();
 	version = image_get_version();
 	switch (version) {
 		/*
@@ -1717,8 +1730,12 @@ static int kwbimage_generate(struct image_tool_params *params,
 	 * The resulting image needs to be 4-byte aligned. At least
 	 * the Marvell hdrparser tool complains if its unaligned.
 	 * After the image data is stored 4-byte checksum.
+	 * Final SPI and NAND images must be aligned to 256 bytes.
 	 */
-	return 4 + (4 - s.st_size % 4) % 4;
+	if (bootfrom == IBR_HDR_SPI_ID || bootfrom == IBR_HDR_NAND_ID)
+		return 4 + (256 - (alloc_len + s.st_size + 4) % 256) % 256;
+	else
+		return 4 + (4 - s.st_size % 4) % 4;
 }
 
 /*
