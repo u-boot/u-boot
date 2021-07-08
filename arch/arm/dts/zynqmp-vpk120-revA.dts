@@ -172,11 +172,11 @@
 		  "", "", "", "", "", /* 65 - 69 */
 		  "", "", "", "", "", /* 70 - 74 */
 		  "", "ETH_MDC", "ETH_MDIO", /* 75 - 77, MIO end and EMIO start */
-		  "", "", /* 78 - 79 */
-		  "", "", "", "", "", /* 80 - 84 */
-		  "", "", "", "", "", /* 85 - 89 */
-		  "", "", "", "", "", /* 90 - 94 */
-		  "", "", "", "", "", /* 95 - 99 */
+		  "SYSCTLR_VERSAL_MODE0", "SYSCTLR_VERSAL_MODE1", /* 78 - 79 */
+		  "SYSCTLR_VERSAL_MODE2", "SYSCTLR_VERSAL_MODE3", "SYSCTLR_POR_B_LS", "", "", /* 80 - 84 */
+		  "SYSCTLR_JTAG_S0", "SYSCTLR_JTAG_S1", "SYSCTLR_IIC_MUX0_RESET_B", "SYSCTLR_IIC_MUX1_RESET_B", "", /* 85 - 89 */
+		  "SYSCTLR_GPIO0", "SYSCTLR_GPIO1", "SYSCTLR_GPIO2", "SYSCTLR_GPIO3", "SYSCTLR_GPIO4", /* 90 - 94 */
+		  "SYSCTLR_GPIO5", "", "", "", "", /* 95 - 99 */
 		  "", "", "", "", "", /* 100 - 104 */
 		  "", "", "", "", "", /* 105 - 109 */
 		  "", "", "", "", "", /* 110 - 114 */
