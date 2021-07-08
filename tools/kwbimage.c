@@ -103,7 +103,6 @@ enum image_cfg_type {
 	IMAGE_CFG_NAND_ECC_MODE,
 	IMAGE_CFG_NAND_PAGESZ,
 	IMAGE_CFG_BINARY,
-	IMAGE_CFG_PAYLOAD,
 	IMAGE_CFG_DATA,
 	IMAGE_CFG_BAUDRATE,
 	IMAGE_CFG_DEBUG,
@@ -131,7 +130,6 @@ static const char * const id_strs[] = {
 	[IMAGE_CFG_NAND_ECC_MODE] = "NAND_ECC_MODE",
 	[IMAGE_CFG_NAND_PAGESZ] = "NAND_PAGE_SIZE",
 	[IMAGE_CFG_BINARY] = "BINARY",
-	[IMAGE_CFG_PAYLOAD] = "PAYLOAD",
 	[IMAGE_CFG_DATA] = "DATA",
 	[IMAGE_CFG_BAUDRATE] = "BAUDRATE",
 	[IMAGE_CFG_DEBUG] = "DEBUG",
@@ -157,7 +155,6 @@ struct image_cfg_element {
 			unsigned int args[BINARY_MAX_ARGS];
 			unsigned int nargs;
 		} binary;
-		const char *payload;
 		unsigned int dstaddr;
 		unsigned int execaddr;
 		unsigned int nandblksz;
@@ -874,11 +871,6 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 		headersz += sizeof(struct ext_hdr_v0);
 	}
 
-	if (image_count_options(IMAGE_CFG_PAYLOAD) > 1) {
-		fprintf(stderr, "More than one payload, not possible\n");
-		return NULL;
-	}
-
 	image = malloc(headersz);
 	if (!image) {
 		fprintf(stderr, "Cannot allocate memory for image\n");
@@ -949,11 +941,6 @@ static size_t image_headersz_v1(int *hasext)
 	 * payload
 	 */
 	headersz = sizeof(struct main_hdr_v1);
-
-	if (image_count_options(IMAGE_CFG_PAYLOAD) > 1) {
-		fprintf(stderr, "More than one payload, not possible\n");
-		return 0;
-	}
 
 	for (cfgi = 0; cfgi < cfgn; cfgi++) {
 		int ret;
