@@ -465,7 +465,7 @@ kwboot_term_pipe(int in, int out, char *quit, int *s)
 	ssize_t nin, nout;
 	char _buf[128], *buf = _buf;
 
-	nin = read(in, buf, sizeof(buf));
+	nin = read(in, buf, sizeof(_buf));
 	if (nin <= 0)
 		return -1;
 
