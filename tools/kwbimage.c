@@ -104,6 +104,7 @@ enum image_cfg_type {
 	IMAGE_CFG_NAND_PAGESZ,
 	IMAGE_CFG_BINARY,
 	IMAGE_CFG_DATA,
+	IMAGE_CFG_DATA_DELAY,
 	IMAGE_CFG_BAUDRATE,
 	IMAGE_CFG_DEBUG,
 	IMAGE_CFG_KAK,
@@ -131,6 +132,7 @@ static const char * const id_strs[] = {
 	[IMAGE_CFG_NAND_PAGESZ] = "NAND_PAGE_SIZE",
 	[IMAGE_CFG_BINARY] = "BINARY",
 	[IMAGE_CFG_DATA] = "DATA",
+	[IMAGE_CFG_DATA_DELAY] = "DATA_DELAY",
 	[IMAGE_CFG_BAUDRATE] = "BAUDRATE",
 	[IMAGE_CFG_DEBUG] = "DEBUG",
 	[IMAGE_CFG_KAK] = "KAK",
@@ -162,6 +164,7 @@ struct image_cfg_element {
 		unsigned int nandeccmode;
 		unsigned int nandpagesz;
 		struct ext_hdr_v0_reg regdata;
+		unsigned int regdata_delay;
 		unsigned int baudrate;
 		unsigned int debug;
 		const char *key_name;
@@ -1289,8 +1292,21 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	register_set_hdr = (struct register_set_hdr_v1 *)cur;
 	for (cfgi = 0; cfgi < cfgn; cfgi++) {
 		e = &image_cfg[cfgi];
-		if (e->type != IMAGE_CFG_DATA)
+		if (e->type != IMAGE_CFG_DATA &&
+		    e->type != IMAGE_CFG_DATA_DELAY)
 			continue;
+		if (e->type == IMAGE_CFG_DATA_DELAY) {
+			size = sizeof(struct register_set_hdr_v1) + 8 * datai + 4;
+			register_set_hdr->headertype = OPT_HDR_V1_REGISTER_TYPE;
+			register_set_hdr->headersz_lsb = cpu_to_le16(size & 0xFFFF);
+			register_set_hdr->headersz_msb = size >> 16;
+			register_set_hdr->data[datai].last_entry.delay = e->regdata_delay;
+			cur += size;
+			*next_ext = 1;
+			next_ext = &register_set_hdr->data[datai].last_entry.next;
+			datai = 0;
+			continue;
+		}
 		register_set_hdr->data[datai].entry.address =
 			cpu_to_le32(e->regdata.raddr);
 		register_set_hdr->data[datai].entry.value =
@@ -1428,6 +1444,12 @@ static int image_create_config_parse_oneline(char *line,
 
 		el->regdata.raddr = strtoul(value1, NULL, 16);
 		el->regdata.rdata = strtoul(value2, NULL, 16);
+		break;
+	case IMAGE_CFG_DATA_DELAY:
+		if (!strcmp(value1, "SDRAM_SETUP"))
+			el->regdata_delay = REGISTER_SET_HDR_OPT_DELAY_SDRAM_SETUP;
+		else
+			el->regdata_delay = REGISTER_SET_HDR_OPT_DELAY_MS(strtoul(value1, NULL, 10));
 		break;
 	case IMAGE_CFG_BAUDRATE:
 		el->baudrate = strtoul(value1, NULL, 10);
