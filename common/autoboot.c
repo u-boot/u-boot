@@ -297,6 +297,15 @@ static int passwd_abort_key(uint64_t etime)
 	return abort;
 }
 
+/**
+ * flush_stdin() - drops all pending characters from stdin
+ */
+static void flush_stdin(void)
+{
+	while (tstc())
+		(void)getchar();
+}
+
 /***************************************************************************
  * Watch for 'delay' seconds for autoboot stop or autoboot delay string.
  * returns: 0 -  no key string, allow autoboot 1 - got key string, abort
@@ -306,6 +315,8 @@ static int abortboot_key_sequence(int bootdelay)
 	int abort;
 	uint64_t etime = endtick(bootdelay);
 
+	if (IS_ENABLED(CONFIG_AUTOBOOT_FLUSH_STDIN))
+		flush_stdin();
 #  ifdef CONFIG_AUTOBOOT_PROMPT
 	/*
 	 * CONFIG_AUTOBOOT_PROMPT includes the %d for all boards.

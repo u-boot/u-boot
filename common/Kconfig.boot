@@ -791,6 +791,15 @@ config AUTOBOOT_KEYED
 	  U-Boot automatic booting process and bring the device
 	  to the U-Boot prompt for user input.
 
+config AUTOBOOT_FLUSH_STDIN
+	bool "Enable flushing stdin before starting to read the password"
+	depends on AUTOBOOT_KEYED && !SANDBOX
+	help
+	  When this option is enabled stdin buffer will be flushed before
+	  starting to read the password.
+	  This can't be enabled for the sandbox as flushing stdin would
+	  break the autoboot unit tests.
+
 config AUTOBOOT_PROMPT
 	string "Autoboot stop prompt"
 	depends on AUTOBOOT_KEYED
