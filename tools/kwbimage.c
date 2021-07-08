@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include "kwbimage.h"
 
-#ifdef CONFIG_KWB_SECURE
 #include <openssl/bn.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
@@ -42,13 +41,10 @@ void EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx)
 	EVP_MD_CTX_reset(ctx);
 }
 #endif
-#endif
 
 static struct image_cfg_element *image_cfg;
 static int cfgn;
-#ifdef CONFIG_KWB_SECURE
 static int verbose_mode;
-#endif
 
 struct boot_mode {
 	unsigned int id;
@@ -243,8 +239,6 @@ image_count_options(unsigned int optiontype)
 	return count;
 }
 
-#if defined(CONFIG_KWB_SECURE)
-
 static int image_get_csk_index(void)
 {
 	struct image_cfg_element *e;
@@ -266,8 +260,6 @@ static bool image_get_spezialized_img(void)
 
 	return e->sec_specialized_img;
 }
-
-#endif
 
 /*
  * Compute a 8-bit checksum of a memory area. This algorithm follows
@@ -363,7 +355,6 @@ static uint8_t baudrate_to_option(unsigned int baudrate)
 	}
 }
 
-#if defined(CONFIG_KWB_SECURE)
 static void kwb_msg(const char *fmt, ...)
 {
 	if (verbose_mode) {
@@ -852,8 +843,6 @@ done:
 	return ret;
 }
 
-#endif
-
 static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 			     int payloadsz)
 {
@@ -984,13 +973,11 @@ static size_t image_headersz_v1(int *hasext)
 			*hasext = 1;
 	}
 
-#if defined(CONFIG_KWB_SECURE)
 	if (image_get_csk_index() >= 0) {
 		headersz += sizeof(struct secure_hdr_v1);
 		if (hasext)
 			*hasext = 1;
 	}
-#endif
 
 #if defined(CONFIG_SYS_U_BOOT_OFFS)
 	if (headersz > CONFIG_SYS_U_BOOT_OFFS) {
@@ -1079,8 +1066,6 @@ err_close:
 
 	return -1;
 }
-
-#if defined(CONFIG_KWB_SECURE)
 
 int export_pub_kak_hash(RSA *kak, struct secure_hdr_v1 *secure_hdr)
 {
@@ -1189,7 +1174,6 @@ int add_secure_header_v1(struct image_tool_params *params, uint8_t *ptr,
 
 	return 0;
 }
-#endif
 
 static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 			     uint8_t *ptr, int payloadsz)
@@ -1197,9 +1181,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	struct image_cfg_element *e;
 	struct main_hdr_v1 *main_hdr;
 	struct register_set_hdr_v1 *register_set_hdr;
-#if defined(CONFIG_KWB_SECURE)
 	struct secure_hdr_v1 *secure_hdr = NULL;
-#endif
 	size_t headersz;
 	uint8_t *image, *cur;
 	int hasext = 0;
@@ -1275,7 +1257,6 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	if (main_hdr->blockid == IBR_HDR_PEX_ID)
 		main_hdr->srcaddr = cpu_to_le32(0xFFFFFFFF);
 
-#if defined(CONFIG_KWB_SECURE)
 	if (image_get_csk_index() >= 0) {
 		/*
 		 * only reserve the space here; we fill the header later since
@@ -1286,7 +1267,6 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		*next_ext = 1;
 		next_ext = &secure_hdr->next;
 	}
-#endif
 
 	datai = 0;
 	register_set_hdr = (struct register_set_hdr_v1 *)cur;
@@ -1334,11 +1314,9 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 			return NULL;
 	}
 
-#if defined(CONFIG_KWB_SECURE)
 	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz,
 					       headersz, image, secure_hdr))
 		return NULL;
-#endif
 
 	/* Calculate and set the header checksum */
 	main_hdr->checksum = image_checksum8(main_hdr, headersz);
