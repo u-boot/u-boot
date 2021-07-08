@@ -126,8 +126,7 @@ void get_sys_info(sys_info_t *sys_info)
 	 * it uses 6.
 	 * T2080 rev 1.1 and later also use half mem_pll comparing with rev 1.0
 	 */
-#if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160) || \
-	defined(CONFIG_ARCH_T2080)
+#if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T2080)
 	svr = get_svr();
 	switch (SVR_SOC_VER(svr)) {
 	case SVR_T4240:
@@ -201,7 +200,7 @@ void get_sys_info(sys_info_t *sys_info)
 	defined(CONFIG_ARCH_T2080)
 #define FM1_CLK_SEL	0xe0000000
 #define FM1_CLK_SHIFT	29
-#elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
+#elif defined(CONFIG_ARCH_T1024)
 #define FM1_CLK_SEL	0x00000007
 #define FM1_CLK_SHIFT	0
 #else
@@ -211,7 +210,7 @@ void get_sys_info(sys_info_t *sys_info)
 #define FM1_CLK_SHIFT	26
 #endif
 #if !defined(CONFIG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV)
-#if defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
+#if defined(CONFIG_ARCH_T1024)
 	rcw_tmp = in_be32(&gur->rcwsr[15]) - 4;
 #else
 	rcw_tmp = in_be32(&gur->rcwsr[7]);
@@ -607,8 +606,7 @@ int get_clocks(void)
 	 * for that SOC. This information is taken from application note
 	 * AN2919.
 	 */
-#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_ARCH_MPC8541) || \
-	defined(CONFIG_ARCH_MPC8560) || defined(CONFIG_ARCH_MPC8555)
+#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_ARCH_MPC8560)
 	gd->arch.i2c1_clk = sys_info.freq_systembus;
 #elif defined(CONFIG_ARCH_MPC8544)
 	/*

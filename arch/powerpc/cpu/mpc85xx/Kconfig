@@ -16,10 +16,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_SBC8548
-	bool "Support sbc8548"
-	select ARCH_MPC8548
-
 config TARGET_SOCRATES
 	bool "Support socrates"
 	select ARCH_MPC8544
@@ -48,24 +44,10 @@ config TARGET_P5040DS
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_MPC8541CDS
-	bool "Support MPC8541CDS"
-	select ARCH_MPC8541
-	select FSL_VIA
-
 config TARGET_MPC8548CDS
 	bool "Support MPC8548CDS"
 	select ARCH_MPC8548
 	select FSL_VIA
-
-config TARGET_MPC8555CDS
-	bool "Support MPC8555CDS"
-	select ARCH_MPC8555
-	select FSL_VIA
-
-config TARGET_MPC8568MDS
-	bool "Support MPC8568MDS"
-	select ARCH_MPC8568
 
 config TARGET_P1010RDB_PA
 	bool "Support P1010RDB_PA"
@@ -127,16 +109,6 @@ config TARGET_QEMU_PPCE500
 	select ARCH_QEMU_E500
 	select PHYS_64BIT
 
-config TARGET_T1023RDB
-	bool "Support T1023RDB"
-	select ARCH_T1023
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	select FSL_DDR_INTERACTIVE
-	imply CMD_EEPROM
-	imply PANIC_HANG
-
 config TARGET_T1024RDB
 	bool "Support T1024RDB"
 	select ARCH_T1024
@@ -145,22 +117,6 @@ config TARGET_T1024RDB
 	select PHYS_64BIT
 	select FSL_DDR_INTERACTIVE
 	imply CMD_EEPROM
-	imply PANIC_HANG
-
-config TARGET_T1040RDB
-	bool "Support T1040RDB"
-	select ARCH_T1040
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	imply PANIC_HANG
-
-config TARGET_T1040D4RDB
-	bool "Support T1040D4RDB"
-	select ARCH_T1040
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
 	imply PANIC_HANG
 
 config TARGET_T1042RDB
@@ -205,13 +161,6 @@ config TARGET_T2080RDB
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_T4160RDB
-	bool "Support T4160RDB"
-	select ARCH_T4160
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	imply PANIC_HANG
-
 config TARGET_T4240RDB
 	bool "Support T4240RDB"
 	select ARCH_T4240
@@ -228,20 +177,6 @@ config TARGET_KMP204X
 config TARGET_KMCENT2
 	bool "Support kmcent2"
 	select VENDOR_KM
-
-config TARGET_XPEDITE520X
-	bool "Support xpedite520x"
-	select ARCH_MPC8548
-
-config TARGET_XPEDITE537X
-	bool "Support xpedite537x"
-	select ARCH_MPC8572
-# Use DDR3 controller with DDR2 DIMMs on this board
-	select SYS_FSL_DDRC_GEN3
-
-config TARGET_XPEDITE550X
-	bool "Support xpedite550x"
-	select ARCH_P2020
 
 config TARGET_UCP1020
 	bool "Support uCP1020"
@@ -384,14 +319,6 @@ config ARCH_MPC8540
 	select FSL_LAW
 	select SYS_FSL_HAS_DDR1
 
-config ARCH_MPC8541
-	bool
-	select FSL_LAW
-	select SYS_FSL_HAS_DDR1
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_2
-
 config ARCH_MPC8544
 	bool
 	select FSL_LAW
@@ -421,44 +348,10 @@ config ARCH_MPC8548
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	imply CMD_REGINFO
 
-config ARCH_MPC8555
-	bool
-	select FSL_LAW
-	select SYS_FSL_HAS_DDR1
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_2
-
 config ARCH_MPC8560
 	bool
 	select FSL_LAW
 	select SYS_FSL_HAS_DDR1
-
-config ARCH_MPC8568
-	bool
-	select FSL_LAW
-	select FSL_PCIE_RESET
-	select SYS_FSL_HAS_DDR2
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_2
-
-config ARCH_MPC8572
-	bool
-	select FSL_LAW
-	select SYS_FSL_ERRATUM_A004508
-	select SYS_FSL_ERRATUM_A005125
-	select SYS_FSL_ERRATUM_DDR_115
-	select SYS_FSL_ERRATUM_DDR111_DDR134
-	select FSL_PCIE_RESET
-	select SYS_FSL_HAS_DDR2
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_2
-	select SYS_PPC_E500_USE_DEBUG_TLB
-	select FSL_ELBC
-	imply CMD_NAND
 
 config ARCH_P1010
 	bool
@@ -738,27 +631,6 @@ config ARCH_P5040
 config ARCH_QEMU_E500
 	bool
 
-config ARCH_T1023
-	bool
-	select E500MC
-	select FSL_LAW
-	select SYS_FSL_DDR_VER_50
-	select SYS_FSL_ERRATUM_A008378
-	select SYS_FSL_ERRATUM_A008109
-	select SYS_FSL_ERRATUM_A009663
-	select SYS_FSL_ERRATUM_A009942
-	select SYS_FSL_ERRATUM_ESDHC111
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_DDR4
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_QORIQ_CHASSIS2
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_5
-	select FSL_IFC
-	imply CMD_EEPROM
-	imply CMD_NAND
-	imply CMD_REGINFO
-
 config ARCH_T1024
 	bool
 	select E500MC
@@ -853,29 +725,6 @@ config ARCH_T2080
 	imply CMD_REGINFO
 	imply FSL_SATA
 
-config ARCH_T4160
-	bool
-	select E500MC
-	select E6500
-	select FSL_LAW
-	select SYS_FSL_DDR_VER_47
-	select SYS_FSL_ERRATUM_A004468
-	select SYS_FSL_ERRATUM_A005871
-	select SYS_FSL_ERRATUM_A006379
-	select SYS_FSL_ERRATUM_A006593
-	select SYS_FSL_ERRATUM_A007186
-	select SYS_FSL_ERRATUM_A007798
-	select SYS_FSL_ERRATUM_A009942
-	select SYS_FSL_HAS_DDR3
-	select SYS_FSL_HAS_SEC
-	select SYS_FSL_QORIQ_CHASSIS2
-	select SYS_FSL_SEC_BE
-	select SYS_FSL_SEC_COMPAT_4
-	select SYS_PPC64
-	select FSL_IFC
-	imply CMD_NAND
-	imply CMD_REGINFO
-
 config ARCH_T4240
 	bool
 	select E500MC
@@ -944,8 +793,7 @@ config NXP_ESBC
 config MAX_CPUS
 	int "Maximum number of CPUs permitted for MPC85xx"
 	default 12 if ARCH_T4240
-	default 8 if ARCH_P4080 || \
-		     ARCH_T4160
+	default 8 if ARCH_P4080
 	default 4 if ARCH_B4860 || \
 		     ARCH_P2041 || \
 		     ARCH_P3041 || \
@@ -955,14 +803,12 @@ config MAX_CPUS
 		     ARCH_T2080
 	default 2 if ARCH_B4420 || \
 		     ARCH_BSC9132 || \
-		     ARCH_MPC8572 || \
 		     ARCH_P1020 || \
 		     ARCH_P1021 || \
 		     ARCH_P1023 || \
 		     ARCH_P1024 || \
 		     ARCH_P1025 || \
 		     ARCH_P2020 || \
-		     ARCH_T1023 || \
 		     ARCH_T1024
 	default 1
 	help
@@ -979,13 +825,9 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_C29X	|| \
 				ARCH_MPC8536	|| \
 				ARCH_MPC8540	|| \
-				ARCH_MPC8541	|| \
 				ARCH_MPC8544	|| \
 				ARCH_MPC8548	|| \
-				ARCH_MPC8555	|| \
 				ARCH_MPC8560	|| \
-				ARCH_MPC8568	|| \
-				ARCH_MPC8572	|| \
 				ARCH_P1010	|| \
 				ARCH_P1011	|| \
 				ARCH_P1020	|| \
@@ -1000,12 +842,10 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_P3041	|| \
 				ARCH_P4080	|| \
 				ARCH_P5040	|| \
-				ARCH_T1023	|| \
 				ARCH_T1024	|| \
 				ARCH_T1040	|| \
 				ARCH_T1042	|| \
 				ARCH_T2080	|| \
-				ARCH_T4160	|| \
 				ARCH_T4240
 	default 0xe0000000 if ARCH_QEMU_E500
 	help
@@ -1190,17 +1030,14 @@ config SYS_FSL_NUM_LAWS
 			ARCH_P4080	|| \
 			ARCH_P5040	|| \
 			ARCH_T2080	|| \
-			ARCH_T4160	|| \
 			ARCH_T4240
-	default 16 if	ARCH_T1023	|| \
-			ARCH_T1024	|| \
+	default 16 if	ARCH_T1024	|| \
 			ARCH_T1040	|| \
 			ARCH_T1042
 	default 12 if	ARCH_BSC9131	|| \
 			ARCH_BSC9132	|| \
 			ARCH_C29X	|| \
 			ARCH_MPC8536	|| \
-			ARCH_MPC8572	|| \
 			ARCH_P1010	|| \
 			ARCH_P1011	|| \
 			ARCH_P1020	|| \
@@ -1210,11 +1047,8 @@ config SYS_FSL_NUM_LAWS
 			ARCH_P1025	|| \
 			ARCH_P2020
 	default 10 if	ARCH_MPC8544	|| \
-			ARCH_MPC8548	|| \
-			ARCH_MPC8568
+			ARCH_MPC8548
 	default 8 if	ARCH_MPC8540	|| \
-			ARCH_MPC8541	|| \
-			ARCH_MPC8555	|| \
 			ARCH_MPC8560
 	help
 		Number of local access windows. This is fixed per SoC.
@@ -1250,8 +1084,7 @@ config SYS_PPC_E500_DEBUG_TLB
 	depends on SYS_PPC_E500_USE_DEBUG_TLB
 	default 0 if	ARCH_MPC8544 || ARCH_MPC8548
 	default 1 if	ARCH_MPC8536
-	default 2 if	ARCH_MPC8572	|| \
-			ARCH_P1011	|| \
+	default 2 if	ARCH_P1011	|| \
 			ARCH_P1020	|| \
 			ARCH_P1021	|| \
 			ARCH_P1024	|| \
@@ -1274,10 +1107,8 @@ config SYS_FSL_IFC_CLK_DIV
 	default 2 if	ARCH_B4420	|| \
 			ARCH_B4860	|| \
 			ARCH_T1024	|| \
-			ARCH_T1023	|| \
 			ARCH_T1040	|| \
 			ARCH_T1042	|| \
-			ARCH_T4160	|| \
 			ARCH_T4240
 	default 1
 	help
@@ -1287,9 +1118,8 @@ config SYS_FSL_IFC_CLK_DIV
 config SYS_FSL_LBC_CLK_DIV
 	int "Divider of platform clock"
 	depends on FSL_ELBC || ARCH_MPC8540 || \
-		ARCH_MPC8548 || ARCH_MPC8541 || \
-		ARCH_MPC8555 || ARCH_MPC8560 || \
-		ARCH_MPC8568
+		ARCH_MPC8548 || \
+		ARCH_MPC8560
 
 	default 2 if	ARCH_P2041	|| \
 			ARCH_P3041	|| \
@@ -1306,10 +1136,7 @@ config FSL_VIA
 
 source "board/emulation/qemu-ppce500/Kconfig"
 source "board/freescale/corenet_ds/Kconfig"
-source "board/freescale/mpc8541cds/Kconfig"
 source "board/freescale/mpc8548cds/Kconfig"
-source "board/freescale/mpc8555cds/Kconfig"
-source "board/freescale/mpc8568mds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
@@ -1319,11 +1146,7 @@ source "board/freescale/t208xqds/Kconfig"
 source "board/freescale/t208xrdb/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
 source "board/keymile/Kconfig"
-source "board/sbc8548/Kconfig"
 source "board/socrates/Kconfig"
-source "board/xes/xpedite520x/Kconfig"
-source "board/xes/xpedite537x/Kconfig"
-source "board/xes/xpedite550x/Kconfig"
 source "board/Arcturus/ucp1020/Kconfig"
 
 endmenu

@@ -332,7 +332,7 @@ config DEBUG_UART_APBUART
 
 config DEBUG_UART_PL010
 	bool "pl010"
-	depends on PL01X_SERIAL || PL010_SERIAL
+	depends on PL01X_SERIAL
 	help
 	  Select this to enable a debug UART using the pl01x driver with the
 	  PL010 UART type. You will need to provide parameters to make this
@@ -694,12 +694,6 @@ config INTEL_MID_SERIAL
 	help
 	  Select this to enable a UART for Intel MID platforms.
 	  This uses the ns16550 driver as a library.
-
-config PL010_SERIAL
-	bool "ARM PL010 driver"
-	depends on !DM_SERIAL
-	help
-	  Select this to enable a UART for platforms using PL010.
 
 config PL011_SERIAL
 	bool "ARM PL011 driver"

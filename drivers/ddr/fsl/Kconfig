@@ -2,8 +2,8 @@ config SYS_FSL_DDR
 	bool
 	help
 	  Select Freescale General DDR driver, shared between most Freescale
-	  PowerPC- based SoCs (such as mpc83xx, mpc85xx, mpc86xx) and ARM-
-	  based Layerscape SoCs (such as ls2080a).
+	  PowerPC- based SoCs (such as mpc83xx, mpc85xx and ARM- based
+	  Layerscape SoCs (such as ls2080a).
 
 config SYS_FSL_MMDC
 	bool
@@ -41,13 +41,10 @@ config SYS_NUM_DDR_CTLRS
 			ARCH_T4240
 	default 2 if	ARCH_B4860	|| \
 			ARCH_BSC9132	|| \
-			ARCH_MPC8572	|| \
-			ARCH_MPC8641	|| \
 			ARCH_P4080	|| \
 			ARCH_P5040	|| \
 			ARCH_LX2160A	|| \
-			ARCH_LX2162A	|| \
-			ARCH_T4160
+			ARCH_LX2162A
 	default 1
 
 config SYS_FSL_DDR_VER
@@ -79,12 +76,6 @@ config SYS_FSL_DDRC_GEN2
 	depends on !MPC86xx
 	help
 	  Enable Freescale DDR2 controller.
-
-config SYS_FSL_DDRC_86XX_GEN2
-	bool
-	depends on MPC86xx
-	help
-	  Enable Freescale DDR2 controller for MPC86xx SoCs.
 
 config SYS_FSL_DDRC_GEN3
 	bool
@@ -137,7 +128,6 @@ config SYS_FSL_DDR2
 	bool "Freescale DDR2 controller"
 	depends on SYS_FSL_HAS_DDR2
 	select SYS_FSL_DDRC_GEN2 if (!MPC86xx && !SYS_FSL_DDRC_GEN3)
-	select SYS_FSL_DDRC_86XX_GEN2 if MPC86xx
 
 config SYS_FSL_DDR1
 	bool "Freescale DDR1 controller"

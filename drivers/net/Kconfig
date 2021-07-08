@@ -733,13 +733,11 @@ config SYS_DPAA_QBMAN
 		     ARCH_B4420 || \
 		     ARCH_P1023 || \
 		     ARCH_P2041 || \
-		     ARCH_T1023 || \
 		     ARCH_T1024 || \
 		     ARCH_T1040 || \
 		     ARCH_T1042 || \
 		     ARCH_T2080 || \
 		     ARCH_T4240 || \
-		     ARCH_T4160 || \
 		     ARCH_P4080 || \
 		     ARCH_P3041 || \
 		     ARCH_P5040 || \

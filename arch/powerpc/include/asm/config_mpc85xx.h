@@ -28,16 +28,6 @@
 #define CONFIG_SYS_FSL_RMU
 #define CONFIG_SYS_FSL_SRIO_MSG_UNIT_NUM	2
 
-#elif defined(CONFIG_ARCH_MPC8568)
-#define QE_MURAM_SIZE			0x10000UL
-#define MAX_QE_RISC			2
-#define QE_NUM_OF_SNUM			28
-#define CONFIG_SYS_FSL_SRIO_MAX_PORTS	1
-#define CONFIG_SYS_FSL_SRIO_OB_WIN_NUM	9
-#define CONFIG_SYS_FSL_SRIO_IB_WIN_NUM	5
-#define CONFIG_SYS_FSL_RMU
-#define CONFIG_SYS_FSL_SRIO_MSG_UNIT_NUM	2
-
 #elif defined(CONFIG_ARCH_P1010)
 #define CONFIG_FSL_SDHC_V2_3
 #define CONFIG_TSECV2
@@ -194,7 +184,7 @@
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v2.2"
 #define CONFIG_ESDHC_HC_BLK_ADDR
 
-#elif defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160)
+#elif defined(CONFIG_ARCH_T4240)
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
@@ -209,9 +199,6 @@
 #define CONFIG_SYS_NUM_FM1_10GEC	1
 #define CONFIG_SYS_NUM_FM2_DTSEC	8
 #define CONFIG_SYS_NUM_FM2_10GEC	1
-#if defined(CONFIG_ARCH_T4160)
-#define CONFIG_SYS_FSL_CLUSTER_CLOCKS	{ 1, 1 }
-#endif
 #endif
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	5
 #define CONFIG_SYS_FSL_SRDS_1
@@ -313,7 +300,7 @@
 #define QE_NUM_OF_SNUM			28
 #define CONFIG_SYS_FSL_SFP_VER_3_0
 
-#elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
+#elif defined(CONFIG_ARCH_T1024)
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET	     /* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 1

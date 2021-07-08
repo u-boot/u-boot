@@ -527,8 +527,7 @@ static void fdt_fixup_usb(void *fdt)
 #define fdt_fixup_usb(x)
 #endif
 
-#if defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T4240) || \
-	defined(CONFIG_ARCH_T4160)
+#if defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T4240)
 void fdt_fixup_dma3(void *blob)
 {
 	/* the 3rd DMA is not functional if SRIO2 is chosen */
@@ -545,7 +544,7 @@ void fdt_fixup_dma3(void *blob)
 	case 0x29:
 	case 0x2d:
 	case 0x2e:
-#elif defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160)
+#elif defined(CONFIG_ARCH_T4240)
 	u32 srds_prtcl_s4 = in_be32(&gur->rcwsr[4]) &
 				    FSL_CORENET2_RCWSR4_SRDS4_PRTCL;
 	srds_prtcl_s4 >>= FSL_CORENET2_RCWSR4_SRDS4_PRTCL_SHIFT;

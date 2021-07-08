@@ -1561,21 +1561,10 @@ u-boot-signed.sb: u-boot.bin spl/u-boot-spl.bin
 u-boot.sb: u-boot.bin spl/u-boot-spl.bin
 	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs u-boot.sb
 
-# On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
-# Both images are created using mkimage (crc etc), so that the ROM
-# bootloader can check its integrity. Padding needs to be done to the
-# SPL image (with mkimage header) and not the binary. Otherwise the resulting image
-# which is loaded/copied by the ROM bootloader to SRAM doesn't fit.
-# The resulting image containing both U-Boot images is called u-boot.spr
 MKIMAGEFLAGS_u-boot-spl.img = -A $(ARCH) -T firmware -C none \
 	-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) -n XLOADER
 spl/u-boot-spl.img: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
-
-OBJCOPYFLAGS_u-boot.spr = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
-			  --gap-fill=0xff
-u-boot.spr: spl/u-boot-spl.img u-boot.img FORCE
-	$(call if_changed,pad_cat)
 
 ifneq ($(CONFIG_ARCH_SOCFPGA),)
 quiet_cmd_gensplx4 = GENSPLX4 $@

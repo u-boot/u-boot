@@ -525,19 +525,8 @@ config ARCH_AT91
 	select SPL_BOARD_INIT if SPL && !TARGET_SMARTWEB
 	select SPL_SEPARATE_BSS if SPL
 
-config TARGET_EDB93XX
-	bool "Support edb93xx"
-	select CPU_ARM920T
-	select GPIO_EXTRA_HEADER
-	select PL010_SERIAL
-
 config TARGET_ASPENITE
 	bool "Support aspenite"
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-
-config TARGET_GPLUGD
-	bool "Support gplugd"
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 
@@ -577,38 +566,6 @@ config ARCH_ORION5X
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 
-config TARGET_SPEAR300
-	bool "Support spear300"
-	select BOARD_EARLY_INIT_F
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL
-	imply CMD_SAVES
-
-config TARGET_SPEAR310
-	bool "Support spear310"
-	select BOARD_EARLY_INIT_F
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL
-	imply CMD_SAVES
-
-config TARGET_SPEAR320
-	bool "Support spear320"
-	select BOARD_EARLY_INIT_F
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL
-	imply CMD_SAVES
-
-config TARGET_SPEAR600
-	bool "Support spear600"
-	select BOARD_EARLY_INIT_F
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL
-	imply CMD_SAVES
-
 config TARGET_STV0991
 	bool "Support stv0991"
 	select CPU_V7A
@@ -621,14 +578,6 @@ config TARGET_STV0991
 	select SPI
 	select SPI_FLASH
 	imply CMD_DM
-
-config TARGET_X600
-	bool "Support x600"
-	select BOARD_LATE_INIT
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL
-	select SUPPORT_SPL
 
 config TARGET_FLEA3
 	bool "Support flea3"
@@ -2096,7 +2045,6 @@ source "board/bosch/shc/Kconfig"
 source "board/bosch/guardian/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
-source "board/Marvell/gplugd/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
@@ -2106,7 +2054,6 @@ source "board/broadcom/bcm968360bg/Kconfig"
 source "board/broadcom/bcm968580xref/Kconfig"
 source "board/broadcom/bcmns3/Kconfig"
 source "board/cavium/thunderx/Kconfig"
-source "board/cirrus/edb93xx/Kconfig"
 source "board/eets/pdu001/Kconfig"
 source "board/emulation/qemu-arm/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
@@ -2135,11 +2082,6 @@ source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"
-source "board/spear/spear300/Kconfig"
-source "board/spear/spear310/Kconfig"
-source "board/spear/spear320/Kconfig"
-source "board/spear/spear600/Kconfig"
-source "board/spear/x600/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/tcl/sl50/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"

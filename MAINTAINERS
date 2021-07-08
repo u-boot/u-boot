@@ -1002,12 +1002,6 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
 
-POWERPC MPC86XX
-M:	Priyanka Jain <priyanka.jain@nxp.com>
-S:	Maintained
-T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc86xx.git
-F:	arch/powerpc/cpu/mpc86xx/
-
 RISC-V
 M:	Rick Chen <rick@andestech.com>
 M:	Leo <ycliang@andestech.com>

@@ -124,9 +124,7 @@ typedef struct ccsr_i2c {
 } ccsr_i2c_t;
 
 #if defined(CONFIG_ARCH_MPC8540) || \
-	defined(CONFIG_ARCH_MPC8541) || \
-	defined(CONFIG_ARCH_MPC8548) || \
-	defined(CONFIG_ARCH_MPC8555)
+	defined(CONFIG_ARCH_MPC8548)
 /* DUART Registers */
 typedef struct ccsr_duart {
 	u8	res1[1280];
@@ -1759,7 +1757,7 @@ typedef struct ccsr_gur {
 /* use reserved bits 18~23 as scratch space to host DDR PLL ratio */
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_RESV_SHIFT	8
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x3f
-#if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160)
+#if defined(CONFIG_ARCH_T4240)
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL		0xfc000000
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	26
 #define FSL_CORENET2_RCWSR4_SRDS2_PRTCL		0x00fe0000
@@ -1794,7 +1792,7 @@ typedef struct ccsr_gur {
 #define PXCKEN_MASK	0x80000000
 #define PXCK_MASK	0x00FF0000
 #define PXCK_BITS_START	16
-#elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
+#elif defined(CONFIG_ARCH_T1024)
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL		0xff800000
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	23
 #define FSL_CORENET_RCWSR6_BOOT_LOC		0x0f800000
@@ -1871,7 +1869,7 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_RCWSR11_EC2_FM2_DTSEC5_MII          0x00100000
 #define FSL_CORENET_RCWSR11_EC2_FM2_DTSEC5_NONE         0x00180000
 #endif
-#if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160)
+#if defined(CONFIG_ARCH_T4240)
 #define FSL_CORENET_RCWSR13_EC1			0x60000000 /* bits 417..418 */
 #define FSL_CORENET_RCWSR13_EC1_FM2_DTSEC5_RGMII	0x00000000
 #define FSL_CORENET_RCWSR13_EC1_FM2_GPIO		0x40000000
@@ -2459,11 +2457,7 @@ typedef struct ccsr_gur {
 	u32	svr;		/* System version */
 	u8	res10[8];
 	u32	rstcr;		/* Reset control */
-#if defined(CONFIG_ARCH_MPC8568)
-	u8	res11a[76];
-	par_io_t qe_par_io[7];
-	u8	res11b[1600];
-#elif defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
+#if defined(CONFIG_ARCH_P1021) || defined(CONFIG_ARCH_P1025)
 	u8      res11a[12];
 	u32     iovselsr;
 	u8      res11b[60];
@@ -2502,7 +2496,7 @@ typedef struct ccsr_gur {
 
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 #define MAX_SERDES 4
-#if defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
+#if defined(CONFIG_ARCH_T1024)
 #define SRDS_MAX_LANES 4
 #else
 #define SRDS_MAX_LANES 8
@@ -2859,7 +2853,7 @@ struct ccsr_pman {
 #define CONFIG_SYS_MPC85xx_PCIX2_OFFSET		0x9000
 #define CONFIG_SYS_MPC85xx_PCIE1_OFFSET         0xa000
 #define CONFIG_SYS_MPC85xx_PCIE2_OFFSET         0x9000
-#if defined(CONFIG_ARCH_MPC8572) || defined(CONFIG_ARCH_P2020)
+#if defined(CONFIG_ARCH_P2020)
 #define CONFIG_SYS_MPC85xx_PCIE3_OFFSET         0x8000
 #else
 #define CONFIG_SYS_MPC85xx_PCIE3_OFFSET         0xb000

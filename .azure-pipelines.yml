@@ -417,7 +417,7 @@ jobs:
         t208xrdb_corenet_ds:
           BUILDMAN: "t208xrdb corenet_ds"
         fsl_ppc:
-          BUILDMAN: "t4qds b4860qds mpc83xx&freescale mpc86xx&freescale"
+          BUILDMAN: "t4qds b4860qds mpc83xx&freescale"
         t102x:
           BUILDMAN: "t102*"
         p1_p2_rdb_pc:

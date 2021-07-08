@@ -19,7 +19,7 @@ config DDR_MC_CLOCK_MODE_1_2
 	bool "1 : 2"
 
 config DDR_MC_CLOCK_MODE_1_1
-	depends on ARCH_MPC8315 || ARCH_MPC8349 || ARCH_MPC8360 || ARCH_MPC837X
+	depends on ARCH_MPC8349 || ARCH_MPC8360 || ARCH_MPC837X
 	bool "1 : 1"
 
 endchoice
@@ -143,7 +143,6 @@ config CORE_PLL_VCO_DIVIDER_4
 	bool "4"
 
 config CORE_PLL_VCO_DIVIDER_8
-	depends on !ARCH_MPC8315
 	bool "8"
 
 endchoice

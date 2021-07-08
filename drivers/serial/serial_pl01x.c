@@ -191,9 +191,7 @@ static void pl01x_serial_init_baud(int baudrate)
 {
 	int clock = 0;
 
-#if defined(CONFIG_PL010_SERIAL)
-	pl01x_type = TYPE_PL010;
-#elif defined(CONFIG_PL011_SERIAL)
+#if defined(CONFIG_PL011_SERIAL)
 	pl01x_type = TYPE_PL011;
 	clock = CONFIG_PL011_CLOCK;
 #endif

@@ -8,52 +8,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_MPC8308_P1M
-	bool "Support mpc8308_p1m"
-	select ARCH_MPC8308
-
-config TARGET_SBC8349
-	bool "Support sbc8349"
-	select ARCH_MPC8349
-
-config TARGET_VE8313
-	bool "Support ve8313"
-	select ARCH_MPC8313
-
-config TARGET_VME8349
-	bool "Support vme8349"
-	select ARCH_MPC8349
-
-config TARGET_CADDY2
-	bool "Support caddy2"
-	select ARCH_MPC8349
-
-config TARGET_MPC8313ERDB_NOR
-	bool "Support MPC8313ERDB_NOR"
-	select ARCH_MPC8313
-	select BOARD_EARLY_INIT_F
-	select SUPPORT_SPL
-
-config TARGET_MPC8313ERDB_NAND
-	bool "Support MPC8313ERDB_NAND"
-	select ARCH_MPC8313
-	select BOARD_EARLY_INIT_F
-	select SUPPORT_SPL
-
-config TARGET_MPC8315ERDB
-	bool "Support MPC8315ERDB"
-	select ARCH_MPC8315
-	select BOARD_EARLY_INIT_F
-
-config TARGET_MPC8323ERDB
-	bool "Support MPC8323ERDB"
-	select ARCH_MPC832X
-
-config TARGET_MPC832XEMDS
-	bool "Support MPC832XEMDS"
-	select ARCH_MPC832X
-	select BOARD_EARLY_INIT_F
-
 config TARGET_MPC8349EMDS
 	bool "Support MPC8349EMDS"
 	select ARCH_MPC8349
@@ -120,11 +74,6 @@ config TARGET_KMTEPR2
 	bool "Support kmtepr2"
 	select VENDOR_KM
 	select KM_ENABLE_FULL_DM_DTS_SUPPORT
-
-config TARGET_TQM834X
-	bool "Support TQM834x"
-	select ARCH_MPC8349
-
 
 config TARGET_GAZERBEAM
 	bool "Support gazerbeam"
@@ -212,14 +161,6 @@ config ARCH_MPC8313
 	select MPC83XX_SECOND_I2C_SUPPORT
 	select FSL_ELBC
 
-config ARCH_MPC8315
-	bool
-	select ARCH_MPC831X
-	select MPC83XX_PCIE1_SUPPORT
-	select MPC83XX_PCIE2_SUPPORT
-	select MPC83XX_SATA_SUPPORT
-	select FSL_ELBC
-
 config ARCH_MPC832X
 	bool
 	select MPC83XX_QUICC_ENGINE
@@ -302,19 +243,10 @@ endmenu
 config FSL_ELBC
 	bool
 
-source "board/esd/vme8349/Kconfig"
-source "board/freescale/mpc8313erdb/Kconfig"
-source "board/freescale/mpc8315erdb/Kconfig"
-source "board/freescale/mpc8323erdb/Kconfig"
-source "board/freescale/mpc832xemds/Kconfig"
 source "board/freescale/mpc8349emds/Kconfig"
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
 source "board/keymile/Kconfig"
-source "board/mpc8308_p1m/Kconfig"
-source "board/sbc8349/Kconfig"
-source "board/tqc/tqm834x/Kconfig"
-source "board/ve8313/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
 
 endmenu
