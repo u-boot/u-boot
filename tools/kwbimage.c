@@ -933,6 +933,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 static size_t image_headersz_v1(int *hasext)
 {
 	struct image_cfg_element *binarye;
+	unsigned int count;
 	size_t headersz;
 	int cfgi;
 
@@ -941,6 +942,10 @@ static size_t image_headersz_v1(int *hasext)
 	 * payload
 	 */
 	headersz = sizeof(struct main_hdr_v1);
+
+	count = image_count_options(IMAGE_CFG_DATA);
+	if (count > 0)
+		headersz += sizeof(struct register_set_hdr_v1) + 8 * count + 4;
 
 	for (cfgi = 0; cfgi < cfgn; cfgi++) {
 		int ret;
@@ -1188,6 +1193,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 {
 	struct image_cfg_element *e;
 	struct main_hdr_v1 *main_hdr;
+	struct register_set_hdr_v1 *register_set_hdr;
 #if defined(CONFIG_KWB_SECURE)
 	struct secure_hdr_v1 *secure_hdr = NULL;
 #endif
@@ -1195,7 +1201,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	uint8_t *image, *cur;
 	int hasext = 0;
 	uint8_t *next_ext = NULL;
-	int cfgi;
+	int cfgi, datai, size;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -1278,6 +1284,30 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		next_ext = &secure_hdr->next;
 	}
 #endif
+
+	datai = 0;
+	register_set_hdr = (struct register_set_hdr_v1 *)cur;
+	for (cfgi = 0; cfgi < cfgn; cfgi++) {
+		e = &image_cfg[cfgi];
+		if (e->type != IMAGE_CFG_DATA)
+			continue;
+		register_set_hdr->data[datai].entry.address =
+			cpu_to_le32(e->regdata.raddr);
+		register_set_hdr->data[datai].entry.value =
+			cpu_to_le32(e->regdata.rdata);
+		datai++;
+	}
+	if (datai != 0) {
+		size = sizeof(struct register_set_hdr_v1) + 8 * datai + 4;
+		register_set_hdr->headertype = OPT_HDR_V1_REGISTER_TYPE;
+		register_set_hdr->headersz_lsb = cpu_to_le16(size & 0xFFFF);
+		register_set_hdr->headersz_msb = size >> 16;
+		/* Set delay to the smallest possible value 1ms. */
+		register_set_hdr->data[datai].last_entry.delay = 1;
+		cur += size;
+		*next_ext = 1;
+		next_ext = &register_set_hdr->data[datai].last_entry.next;
+	}
 
 	for (cfgi = 0; cfgi < cfgn; cfgi++) {
 		e = &image_cfg[cfgi];
