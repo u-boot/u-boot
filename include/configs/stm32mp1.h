@@ -101,7 +101,7 @@
 #define BOOT_TARGET_UBIFS(func)
 #endif
 
-#ifdef CONFIG_USB
+#ifdef CONFIG_CMD_USB
 #define BOOT_TARGET_USB(func)	func(USB, usb, 0)
 #else
 #define BOOT_TARGET_USB(func)

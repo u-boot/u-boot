@@ -15,7 +15,7 @@
 #include <mach/ddr.h>
 #include <debug_uart.h>
 
-#ifdef CONFIG_USB
+#ifdef CONFIG_USB_HOST
 static void wdr4300_usb_start(void)
 {
 	void __iomem *gpio_regs = map_physmem(AR71XX_GPIO_BASE,

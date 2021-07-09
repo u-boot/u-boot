@@ -34,7 +34,7 @@
 
 /* Setup proper boot sequences for Miami boards */
 
-#if defined(CONFIG_USB)
+#if defined(CONFIG_USB_HOST)
 # define EXTRA_ENV_USB \
 	"usbreset=i2c dev 1 && i2c mw 41 1 ff && i2c mw 41 3 fe && "\
 		"i2c mw 41 1 fe && i2c mw 41 1 ff\0" \
