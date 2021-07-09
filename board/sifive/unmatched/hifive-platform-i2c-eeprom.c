@@ -402,24 +402,6 @@ static void set_product_id(char *string)
 }
 
 /**
- * set_serial_number() - set the PCB serial number in the in-memory copy
- *
- * Set the board serial number in the in-memory EEPROM copy from the supplied
- * string argument, and update the CRC.
- */
-static void set_serial_number(char *string)
-{
-	if (strlen(string) > SERIAL_NUMBER_BYTES) {
-		printf("Serial number must not be greater than 16 bytes\n");
-		return;
-	}
-
-	memset(e.serial, 0, sizeof(e.serial));
-	strncpy((char *)e.serial, string, sizeof(e.serial));
-	update_crc();
-}
-
-/**
  * init_local_copy() - initialize the in-memory EEPROM copy
  *
  * Initialize the in-memory EEPROM copy with the magic number.  Must
@@ -468,10 +450,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 0;
 	}
 
-	if (!strcmp(cmd, "serial_number")) {
-		set_serial_number(argv[2]);
-		return 0;
-	} else if (!strcmp(cmd, "manuf_test_status")) {
+	if (!strcmp(cmd, "manuf_test_status")) {
 		set_manuf_test_status(argv[2]);
 		return 0;
 	} else if (!strcmp(cmd, "mac_address")) {
