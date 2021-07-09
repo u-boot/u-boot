@@ -65,7 +65,6 @@ config MBA6
 	bool "TQMa6 on MBa6 Starterkit"
 	select DM_ETH
 	select USB
-	select DM_USB
 	select CMD_USB
 	select USB_STORAGE
 	select USB_HOST_ETHER

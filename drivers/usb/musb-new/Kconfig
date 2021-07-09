@@ -5,22 +5,26 @@ comment "MUSB Controller Driver"
 
 config USB_MUSB_HOST
 	bool "MUSB host mode support"
+	depends on DM && OF_CONTROL
 	select SPL_SPRINTF if SPL
 	select TPL_SPRINTF if TPL
+	select USB_HOST
 	help
 	  Enables the MUSB USB dual-role controller in host mode.
 
 config USB_MUSB_GADGET
 	bool "MUSB gadget mode support"
+	depends on USB_GADGET
 	select USB_GADGET_DUALSPEED
 	select SPL_SPRINTF if SPL
 	select TPL_SPRINTF if TPL
 	help
 	  Enables the MUSB USB dual-role controller in gadget mode.
 
+if USB_MUSB_HOST || USB_MUSB_GADGET
 config USB_MUSB_DA8XX
 	bool "Enable DA8xx MUSB Controller"
-	depends on DM_USB
+	depends on ARCH_DAVINCI
 	help
 	  Say y here to enable support for the dual role high
 	  speed USB controller based on the Mentor Graphics
@@ -28,7 +32,7 @@ config USB_MUSB_DA8XX
 
 config USB_MUSB_TI
 	bool "Enable TI OTG USB controller"
-	depends on DM_USB
+	depends on AM33XX
 	select USB_MUSB_DSPS
 	default n
 	help
@@ -46,10 +50,9 @@ config USB_MUSB_AM35X
 config USB_MUSB_DSPS
 	bool "TI DSPS platforms"
 
-if USB_MUSB_HOST || USB_MUSB_GADGET
 config USB_MUSB_MT85XX
 	bool "Enable Mediatek MT85XX DRC USB controller"
-	depends on DM_USB && ARCH_MEDIATEK
+	depends on ARCH_MEDIATEK
 	default n
 	help
 	  Say y to enable Mediatek MT85XX USB DRC controller support
@@ -59,7 +62,7 @@ config USB_MUSB_MT85XX
 
 config USB_MUSB_PIC32
 	bool "Enable Microchip PIC32 DRC USB controller"
-	depends on DM_USB && MACH_PIC32
+	depends on MACH_PIC32
 	help
 	  Say y to enable PIC32 USB DRC controller support
 	  if it is available on your Microchip PIC32 platform.

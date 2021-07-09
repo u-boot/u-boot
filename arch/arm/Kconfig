@@ -984,7 +984,7 @@ config ARCH_SUNXI
 	select BINMAN
 	select CMD_GPIO
 	select CMD_MMC if MMC
-	select CMD_USB if DISTRO_DEFAULTS
+	select CMD_USB if DISTRO_DEFAULTS && USB_HOST
 	select CLK
 	select DM
 	select DM_ETH
@@ -993,7 +993,6 @@ config ARCH_SUNXI
 	select DM_MMC if MMC
 	select DM_SCSI if SCSI
 	select DM_SERIAL
-	select DM_USB if DISTRO_DEFAULTS
 	select GPIO_EXTRA_HEADER
 	select OF_BOARD_SETUP
 	select OF_CONTROL
@@ -1006,8 +1005,8 @@ config ARCH_SUNXI
 	select SYS_NS16550
 	select SYS_THUMB_BUILD if !ARM64
 	select USB if DISTRO_DEFAULTS
-	select USB_KEYBOARD if DISTRO_DEFAULTS
-	select USB_STORAGE if DISTRO_DEFAULTS
+	select USB_KEYBOARD if DISTRO_DEFAULTS && USB_HOST
+	select USB_STORAGE if DISTRO_DEFAULTS && USB_HOST
 	select SPL_USE_TINY_PRINTF
 	select USE_PREBOOT
 	select SYS_RELOC_GD_ENV_ADDR
@@ -1035,7 +1034,6 @@ config ARCH_U8500
 	select DM_GPIO
 	select DM_MMC if MMC
 	select DM_SERIAL
-	select DM_USB if USB
 	select OF_CONTROL
 	select SYSRESET
 	select TIMER
@@ -1078,7 +1076,6 @@ config ARCH_ZYNQ
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
-	select DM_USB if USB
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select SPI
@@ -1122,7 +1119,6 @@ config ARCH_ZYNQMP
 	select DM_SERIAL
 	select DM_SPI if SPI
 	select DM_SPI_FLASH if DM_SPI
-	select DM_USB if USB
 	select FIRMWARE
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
@@ -1177,7 +1173,6 @@ config TARGET_VEXPRESS64_JUNO
 	select DM_ETH
 	select BLK
 	select USB
-	select DM_USB
 
 config TARGET_TOTAL_COMPUTE
 	bool "Support Total Compute Platform"
@@ -1343,7 +1338,6 @@ config TARGET_POPLAR
 	select ARM64
 	select DM
 	select DM_SERIAL
-	select DM_USB
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select PL01X_SERIAL
@@ -1681,7 +1675,6 @@ config TARGET_SL28
 	select DM_SCSI
 	select DM_SERIAL
 	select DM_SPI
-	select DM_USB
 	select GPIO_EXTRA_HEADER
 	select SPL_DM if SPL
 	select SPL_DM_SPI if SPL
@@ -1708,7 +1701,6 @@ config ARCH_UNIPHIER
 	select DM_MTD
 	select DM_RESET
 	select DM_SERIAL
-	select DM_USB
 	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select OF_LIBFDT
@@ -1809,7 +1801,6 @@ config ARCH_ROCKCHIP
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
-	select DM_USB if USB
 	select ENABLE_ARM_SOC_BOOT0_HOOK
 	select OF_CONTROL
 	select SPI
