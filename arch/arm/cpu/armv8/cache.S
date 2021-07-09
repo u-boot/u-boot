@@ -188,27 +188,24 @@ ENDPROC(__asm_invalidate_icache_all)
 .popsection
 
 .pushsection .text.__asm_invalidate_l3_dcache, "ax"
-ENTRY(__asm_invalidate_l3_dcache)
+WEAK(__asm_invalidate_l3_dcache)
 	mov	x0, #0			/* return status as success */
 	ret
 ENDPROC(__asm_invalidate_l3_dcache)
-	.weak	__asm_invalidate_l3_dcache
 .popsection
 
 .pushsection .text.__asm_flush_l3_dcache, "ax"
-ENTRY(__asm_flush_l3_dcache)
+WEAK(__asm_flush_l3_dcache)
 	mov	x0, #0			/* return status as success */
 	ret
 ENDPROC(__asm_flush_l3_dcache)
-	.weak	__asm_flush_l3_dcache
 .popsection
 
 .pushsection .text.__asm_invalidate_l3_icache, "ax"
-ENTRY(__asm_invalidate_l3_icache)
+WEAK(__asm_invalidate_l3_icache)
 	mov	x0, #0			/* return status as success */
 	ret
 ENDPROC(__asm_invalidate_l3_icache)
-	.weak	__asm_invalidate_l3_icache
 .popsection
 
 /*

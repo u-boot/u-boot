@@ -43,6 +43,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct tag *params;
 
+#ifndef CONFIG_ARM64
 static ulong get_sp(void)
 {
 	ulong ret;
@@ -86,6 +87,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 		break;
 	}
 }
+#endif
 
 __weak void board_quiesce_devices(void)
 {
