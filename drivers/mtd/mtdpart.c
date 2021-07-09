@@ -446,24 +446,34 @@ static int part_erase(struct mtd_info *mtd, struct erase_info *instr)
 	int ret;
 
 	instr->addr += mtd->offset;
+
 	ret = mtd->parent->_erase(mtd->parent, instr);
-	if (ret) {
-		if (instr->fail_addr != MTD_FAIL_ADDR_UNKNOWN)
-			instr->fail_addr -= mtd->offset;
-		instr->addr -= mtd->offset;
-	}
+	if (ret && instr->fail_addr != MTD_FAIL_ADDR_UNKNOWN)
+		instr->fail_addr -= mtd->offset;
+
+	instr->addr -= mtd->offset;
+
 	return ret;
 }
 
 void mtd_erase_callback(struct erase_info *instr)
 {
-	if (instr->mtd->_erase == part_erase) {
+	if (!instr->callback)
+		return;
+
+	if (instr->mtd->_erase == part_erase && instr->len) {
 		if (instr->fail_addr != MTD_FAIL_ADDR_UNKNOWN)
 			instr->fail_addr -= instr->mtd->offset;
 		instr->addr -= instr->mtd->offset;
 	}
-	if (instr->callback)
-		instr->callback(instr);
+
+	instr->callback(instr);
+
+	if (instr->mtd->_erase == part_erase && instr->len) {
+		if (instr->fail_addr != MTD_FAIL_ADDR_UNKNOWN)
+			instr->fail_addr += instr->mtd->offset;
+		instr->addr += instr->mtd->offset;
+	}
 }
 EXPORT_SYMBOL_GPL(mtd_erase_callback);
 
