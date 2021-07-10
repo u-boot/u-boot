@@ -591,8 +591,6 @@ void spi_release_bus(struct spi_slave *slave)
 static int mxc_spi_probe(struct udevice *bus)
 {
 	struct mxc_spi_slave *mxcs = dev_get_plat(bus);
-	int node = dev_of_offset(bus);
-	const void *blob = gd->fdt_blob;
 	int ret;
 	int i;
 
@@ -629,6 +627,8 @@ static int mxc_spi_probe(struct udevice *bus)
 
 	mxcs->max_hz = clk_get_rate(&clk);
 #else
+	int node = dev_of_offset(bus);
+	const void *blob = gd->fdt_blob;
 	mxcs->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency",
 				      20000000);
 #endif
