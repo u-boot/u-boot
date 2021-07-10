@@ -97,11 +97,11 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
 	else
 		memset(&result.capsule_processed, 0, sizeof(time));
 	result.capsule_status = return_status;
-	ret = efi_set_variable(variable_name16, &efi_guid_capsule_report,
-			       EFI_VARIABLE_NON_VOLATILE |
-			       EFI_VARIABLE_BOOTSERVICE_ACCESS |
-			       EFI_VARIABLE_RUNTIME_ACCESS,
-			       sizeof(result), &result);
+	ret = efi_set_variable_int(variable_name16, &efi_guid_capsule_report,
+				   EFI_VARIABLE_NON_VOLATILE |
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS,
+				   sizeof(result), &result, false);
 	if (ret)
 		log_err("Setting %ls failed\n", variable_name16);
 }
