@@ -529,3 +529,9 @@ YONES TOPTECH BS1078 V2 BOARD
 M:	Peter Korsgaard <peter@korsgaard.com>
 S:	Maintained
 F:	configs/Yones_Toptech_BS1078_V2_defconfig
+
+ZEROPI BOARD
+M:	Yu-Tung Chang <mtwget@gmail.com>
+S:	Maintained
+F:	configs/zeropi_defconfig
+F:	arch/arm/dts/sun8i-h3-zeropi.dts

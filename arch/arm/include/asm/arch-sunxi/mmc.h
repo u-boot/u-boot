@@ -119,6 +119,7 @@ struct sunxi_mmc {
 #define SUNXI_MMC_STATUS_CARD_PRESENT		(0x1 << 8)
 #define SUNXI_MMC_STATUS_CARD_DATA_BUSY		(0x1 << 9)
 #define SUNXI_MMC_STATUS_DATA_FSM_BUSY		(0x1 << 10)
+#define SUNXI_MMC_STATUS_FIFO_LEVEL(reg)	(((reg) >> 17) & 0x3fff)
 
 #define SUNXI_MMC_NTSR_MODE_SEL_NEW		(0x1 << 31)
 

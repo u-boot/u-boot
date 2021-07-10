@@ -94,7 +94,7 @@ unsigned int clock_get_pll6(void)
 	int m = IS_ENABLED(CONFIG_MACH_SUN50I_H6) ? 4 : 2;
 
 	uint32_t rval = readl(&ccm->pll6_cfg);
-	int n = ((rval & CCM_PLL6_CTRL_N_MASK) >> CCM_PLL6_CTRL_N_SHIFT);
+	int n = ((rval & CCM_PLL6_CTRL_N_MASK) >> CCM_PLL6_CTRL_N_SHIFT) + 1;
 	int div1 = ((rval & CCM_PLL6_CTRL_DIV1_MASK) >>
 			CCM_PLL6_CTRL_DIV1_SHIFT) + 1;
 	int div2 = ((rval & CCM_PLL6_CTRL_DIV2_MASK) >>

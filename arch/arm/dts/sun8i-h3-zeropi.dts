@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2020 Yu-Tung Chang <mtwget@gmail.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -40,16 +40,15 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*
- * The Orange Pi Plus 2E is an extended version of the Orange Pi PC Plus,
- * with 2G RAM and an external gbit ethernet phy.
- */
-
-#include "sun8i-h3-orangepi-pc-plus.dts"
+#include "sun8i-h3-nanopi.dtsi"
 
 / {
-	model = "Xunlong Orange Pi Plus 2E";
-	compatible = "xunlong,orangepi-plus2e", "allwinner,sun8i-h3";
+	model = "FriendlyARM ZeroPi";
+	compatible = "friendlyarm,zeropi", "allwinner,sun8i-h3";
+
+	aliases {
+		ethernet0 = &emac;
+	};
 
 	reg_gmac_3v3: gmac-3v3 {
 		compatible = "regulator-fixed";
@@ -62,18 +61,25 @@
 	};
 };
 
+&external_mdio {
+	ext_rgmii_phy: ethernet-phy@7 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <7>;
+	};
+};
+
 &emac {
 	pinctrl-names = "default";
 	pinctrl-0 = <&emac_rgmii_pins>;
 	phy-supply = <&reg_gmac_3v3>;
 	phy-handle = <&ext_rgmii_phy>;
 	phy-mode = "rgmii-id";
+
+	allwinner,leds-active-low;
 	status = "okay";
 };
 
-&external_mdio {
-	ext_rgmii_phy: ethernet-phy@1 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <1>;
-	};
+&usb_otg {
+	status = "okay";
+	dr_mode = "host";
 };

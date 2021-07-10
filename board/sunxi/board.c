@@ -555,6 +555,17 @@ static void mmc_pinmux_setup(int sdc)
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
+#elif defined(CONFIG_MACH_SUN50I_H616)
+		/* SDC2: PC0-PC1, PC5-PC6, PC8-PC11, PC13-PC16 */
+		for (pin = SUNXI_GPC(0); pin <= SUNXI_GPC(16); pin++) {
+			if (pin > SUNXI_GPC(1) && pin < SUNXI_GPC(5))
+				continue;
+			if (pin == SUNXI_GPC(7) || pin == SUNXI_GPC(12))
+				continue;
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 3);
+		}
 #elif defined(CONFIG_MACH_SUN9I)
 		/* SDC2: PC6-PC16 */
 		for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(16); pin++) {
@@ -562,6 +573,8 @@ static void mmc_pinmux_setup(int sdc)
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
+#else
+		puts("ERROR: No pinmux setup defined for MMC2!\n");
 #endif
 		break;
 
