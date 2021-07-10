@@ -6,6 +6,8 @@
  *			Author: AKASHI Takahiro
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
@@ -101,7 +103,7 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
 			       EFI_VARIABLE_RUNTIME_ACCESS,
 			       sizeof(result), &result);
 	if (ret)
-		log_err("EFI: creating %ls failed\n", variable_name16);
+		log_err("Setting %ls failed\n", variable_name16);
 }
 
 #ifdef CONFIG_EFI_CAPSULE_FIRMWARE_MANAGEMENT
@@ -361,7 +363,7 @@ static efi_status_t efi_capsule_update_firmware(
 		/* sanity check */
 		if ((capsule->item_offset_list[item] + sizeof(*image)
 				 >= capsule_size)) {
-			log_err("EFI: A capsule has not enough data\n");
+			log_err("Capsule does not have enough data\n");
 			ret = EFI_INVALID_PARAMETER;
 			goto out;
 		}
@@ -379,7 +381,7 @@ static efi_status_t efi_capsule_update_firmware(
 				   image->update_hardware_instance,
 				   handles, no_handles);
 		if (!fmp) {
-			log_err("EFI Capsule: driver not found for firmware type: %pUl, hardware instance: %lld\n",
+			log_err("FMP driver not found for firmware type %pUl, hardware instance %lld\n",
 				&image->update_image_type_id,
 				image->update_hardware_instance);
 			ret = EFI_UNSUPPORTED;
@@ -397,7 +399,7 @@ static efi_status_t efi_capsule_update_firmware(
 					      vendor_code, NULL,
 					      &abort_reason));
 		if (ret != EFI_SUCCESS) {
-			log_err("EFI Capsule: firmware update failed: %ls\n",
+			log_err("Firmware update failed: %ls\n",
 				abort_reason);
 			efi_free_pool(abort_reason);
 			goto out;
@@ -453,7 +455,7 @@ efi_status_t EFIAPI efi_update_capsule(
 		/* sanity check */
 		if (capsule->header_size < sizeof(*capsule) ||
 		    capsule->capsule_image_size < sizeof(*capsule)) {
-			log_err("EFI: A capsule has not enough data\n");
+			log_err("Capsule does not have enough data\n");
 			continue;
 		}
 
@@ -463,7 +465,7 @@ efi_status_t EFIAPI efi_update_capsule(
 			     &efi_guid_firmware_management_capsule_id)) {
 			ret  = efi_capsule_update_firmware(capsule);
 		} else {
-			log_err("EFI: not support capsule type: %pUl\n",
+			log_err("Unsupported capsule type: %pUl\n",
 				&capsule->capsule_guid);
 			ret = EFI_UNSUPPORTED;
 		}
@@ -476,7 +478,7 @@ efi_status_t EFIAPI efi_update_capsule(
 		/* Rebuild the ESRT to reflect any updated FW images. */
 		ret = efi_esrt_populate();
 		if (ret != EFI_SUCCESS)
-			log_warning("EFI Capsule: failed to update ESRT\n");
+			log_warning("ESRT update failed\n");
 	}
 out:
 
@@ -679,7 +681,7 @@ skip:
 		u16 *path_str;
 
 		path_str = efi_dp_str(boot_dev);
-		log_debug("EFI Capsule: bootdev is %ls\n", path_str);
+		log_debug("Boot device %ls\n", path_str);
 		efi_free_pool(path_str);
 
 		volume = efi_fs_from_path(boot_dev);
@@ -720,7 +722,7 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
 
 	ret = find_boot_device();
 	if (ret == EFI_NOT_FOUND) {
-		log_debug("EFI Capsule: bootdev is not set\n");
+		log_debug("Boot device is not set\n");
 		*num = 0;
 		return EFI_SUCCESS;
 	} else if (ret != EFI_SUCCESS) {
@@ -1011,19 +1013,19 @@ efi_status_t efi_launch_capsules(void)
 
 	/* Launch capsules */
 	for (i = 0, ++index; i < nfiles; i++, index++) {
-		log_debug("capsule from %ls ...\n", files[i]);
+		log_debug("Applying %ls\n", files[i]);
 		if (index > 0xffff)
 			index = 0;
 		ret = efi_capsule_read_file(files[i], &capsule);
 		if (ret == EFI_SUCCESS) {
 			ret = EFI_CALL(efi_update_capsule(&capsule, 1, 0));
 			if (ret != EFI_SUCCESS)
-				log_err("EFI Capsule update failed at %ls\n",
+				log_err("Applying capsule %ls failed\n",
 					files[i]);
 
 			free(capsule);
 		} else {
-			log_err("EFI: reading capsule failed: %ls\n", files[i]);
+			log_err("Reading capsule %ls failed\n", files[i]);
 		}
 		/* create CapsuleXXXX */
 		set_capsule_result(index, capsule, ret);
@@ -1031,7 +1033,7 @@ efi_status_t efi_launch_capsules(void)
 		/* delete a capsule either in case of success or failure */
 		ret = efi_capsule_delete_file(files[i]);
 		if (ret != EFI_SUCCESS)
-			log_err("EFI: deleting a capsule file failed: %ls\n",
+			log_err("Deleting capsule %ls failed\n",
 				files[i]);
 	}
 	efi_capsule_scan_done();
