@@ -102,8 +102,20 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
 				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
 				   EFI_VARIABLE_RUNTIME_ACCESS,
 				   sizeof(result), &result, false);
-	if (ret)
+	if (ret != EFI_SUCCESS) {
 		log_err("Setting %ls failed\n", variable_name16);
+		return;
+	}
+
+	/* Variable CapsuleLast must not include terminating 0x0000 */
+	ret = efi_set_variable_int(L"CapsuleLast", &efi_guid_capsule_report,
+				   EFI_VARIABLE_READ_ONLY |
+				   EFI_VARIABLE_NON_VOLATILE |
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS,
+				   22, variable_name16, false);
+	if (ret != EFI_SUCCESS)
+		log_err("Setting %ls failed\n", L"CapsuleLast");
 }
 
 #ifdef CONFIG_EFI_CAPSULE_FIRMWARE_MANAGEMENT
@@ -990,7 +1002,6 @@ efi_status_t efi_launch_capsules(void)
 	struct efi_capsule_header *capsule = NULL;
 	u16 **files;
 	unsigned int nfiles, index, i;
-	u16 variable_name16[12];
 	efi_status_t ret;
 
 	if (!check_run_capsules())
@@ -1041,16 +1052,6 @@ efi_status_t efi_launch_capsules(void)
 	for (i = 0; i < nfiles; i++)
 		free(files[i]);
 	free(files);
-
-	/* CapsuleLast */
-	efi_create_indexed_name(variable_name16, sizeof(variable_name16),
-				"Capsule", index - 1);
-	efi_set_variable_int(L"CapsuleLast", &efi_guid_capsule_report,
-			     EFI_VARIABLE_READ_ONLY |
-			     EFI_VARIABLE_NON_VOLATILE |
-			     EFI_VARIABLE_BOOTSERVICE_ACCESS |
-			     EFI_VARIABLE_RUNTIME_ACCESS,
-			     22, variable_name16, false);
 
 	return ret;
 }
