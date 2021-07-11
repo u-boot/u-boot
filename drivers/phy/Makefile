@@ -3,6 +3,11 @@
 # Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
 # Written by Jean-Jacques Hiblot  <jjhiblot@ti.com>
 
+obj-y += allwinner/
+obj-y += marvell/
+obj-y += rockchip/
+obj-y += socionext/
+
 obj-$(CONFIG_$(SPL_)PHY) += phy-uclass.o
 obj-$(CONFIG_$(SPL_)NOP_PHY) += nop-phy.o
 obj-$(CONFIG_MIPI_DPHY_HELPERS) += phy-core-mipi-dphy.o
