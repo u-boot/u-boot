@@ -908,6 +908,7 @@ static int spi_nor_erase_sector(struct spi_nor *nor, u32 addr)
 static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 {
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
+	bool addr_known = false;
 	u32 addr, len, rem;
 	int ret, err;
 
@@ -915,11 +916,16 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 		(long long)instr->len);
 
 	div_u64_rem(instr->len, mtd->erasesize, &rem);
-	if (rem)
-		return -EINVAL;
+	if (rem) {
+		ret = -EINVAL;
+		goto erase_err_callback;
+	}
 
 	addr = instr->addr;
 	len = instr->len;
+
+	instr->state = MTD_ERASING;
+	addr_known = true;
 
 	while (len) {
 		WATCHDOG_RESET();
@@ -944,6 +950,7 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 			goto erase_err;
 	}
 
+	addr_known = false;
 erase_err:
 #ifdef CONFIG_SPI_FLASH_BAR
 	err = clean_bar(nor);
@@ -953,6 +960,15 @@ erase_err:
 	err = write_disable(nor);
 	if (!ret)
 		ret = err;
+
+erase_err_callback:
+	if (ret) {
+		instr->fail_addr = addr_known ? addr : MTD_FAIL_ADDR_UNKNOWN;
+		instr->state = MTD_ERASE_FAILED;
+	} else {
+		instr->state = MTD_ERASE_DONE;
+	}
+	mtd_erase_callback(instr);
 
 	return ret;
 }
