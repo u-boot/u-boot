@@ -914,9 +914,6 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 	dev_dbg(nor->dev, "at 0x%llx, len %lld\n", (long long)instr->addr,
 		(long long)instr->len);
 
-	if (!instr->len)
-		return 0;
-
 	div_u64_rem(instr->len, mtd->erasesize, &rem);
 	if (rem)
 		return -EINVAL;
@@ -1670,9 +1667,6 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 #endif
 
 	dev_dbg(nor->dev, "to 0x%08x, len %zd\n", (u32)to, len);
-
-	if (!len)
-		return 0;
 
 	for (i = 0; i < len; ) {
 		ssize_t written;
