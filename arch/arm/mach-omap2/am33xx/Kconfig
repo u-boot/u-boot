@@ -53,7 +53,7 @@ config TARGET_AM335X_EVM
 	imply SPL_SEPARATE_BSS
 	imply SPL_SERIAL_SUPPORT
 	imply SPL_SYS_MALLOC_SIMPLE
-	imply SPL_WATCHDOG_SUPPORT
+	imply SPL_WATCHDOG
 	imply SPL_YMODEM_SUPPORT
 	help
 	  This option specifies support for the AM335x
@@ -234,7 +234,7 @@ config TARGET_AM43XX_EVM
 	imply SPL_NAND_SUPPORT
 	imply SPL_POWER
 	imply SPL_SERIAL_SUPPORT
-	imply SPL_WATCHDOG_SUPPORT
+	imply SPL_WATCHDOG
 	imply SPL_YMODEM_SUPPORT
 	help
 	  This option specifies support for the AM43xx
