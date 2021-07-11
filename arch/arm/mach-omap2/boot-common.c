@@ -205,7 +205,7 @@ void spl_board_init(void)
 #if defined(CONFIG_SPL_I2C_SUPPORT) && !CONFIG_IS_ENABLED(DM_I2C)
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
-#if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW_SUPPORT)
+#if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW)
 	arch_misc_init();
 #endif
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)

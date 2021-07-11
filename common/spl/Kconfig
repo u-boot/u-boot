@@ -761,7 +761,7 @@ config SPL_MTD_SUPPORT
 	  devices. See SPL_NAND_SUPPORT and SPL_ONENAND_SUPPORT for how
 	  to enable specific MTD drivers.
 
-config SPL_MUSB_NEW_SUPPORT
+config SPL_MUSB_NEW
 	bool "Support new Mentor Graphics USB"
 	help
 	  Enable support for Mentor Graphics USB in SPL. This is a new
