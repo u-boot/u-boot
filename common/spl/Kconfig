@@ -1034,7 +1034,7 @@ config SPL_DM_RESET
 	  by using the generic reset API provided by driver model.
 	  This enables the drivers in drivers/reset as part of an SPL build.
 
-config SPL_POWER_SUPPORT
+config SPL_POWER
 	bool "Support power drivers"
 	help
 	  Enable support for power control in SPL. This includes support
