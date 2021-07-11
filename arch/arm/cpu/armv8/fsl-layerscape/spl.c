@@ -89,7 +89,7 @@ void board_init_f(ulong dummy)
 	spl_set_bd();
 
 #ifdef CONFIG_SYS_I2C_LEGACY
-#ifdef CONFIG_SPL_I2C_SUPPORT
+#ifdef CONFIG_SPL_I2C
 	i2c_init_all();
 #endif
 #endif

@@ -647,7 +647,7 @@ config SPL_GPIO
 	  for example. Enable this option to build the drivers in
 	  drivers/gpio as part of an SPL build.
 
-config SPL_I2C_SUPPORT
+config SPL_I2C
 	bool "Support I2C"
 	help
 	  Enable support for the I2C (Inter-Integrated Circuit) bus in SPL.
@@ -1501,10 +1501,10 @@ config TPL_GPIO
 	  for example. Enable this option to build the drivers in
 	  drivers/gpio as part of an TPL build.
 
-config TPL_I2C_SUPPORT
+config TPL_I2C
 	bool "Support I2C"
 	help
-	  Enable support for the I2C bus in TPL. See SPL_I2C_SUPPORT for
+	  Enable support for the I2C bus in TPL. See SPL_I2C for
 	  details.
 
 config TPL_LIBCOMMON_SUPPORT

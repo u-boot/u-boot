@@ -47,7 +47,7 @@ are supported:
 
 CONFIG_SPL_LIBCOMMON_SUPPORT (common/libcommon.o)
 CONFIG_SPL_LIBDISK_SUPPORT (disk/libdisk.o)
-CONFIG_SPL_I2C_SUPPORT (drivers/i2c/libi2c.o)
+CONFIG_SPL_I2C (drivers/i2c/libi2c.o)
 CONFIG_SPL_GPIO (drivers/gpio/libgpio.o)
 CONFIG_SPL_MMC_SUPPORT (drivers/mmc/libmmc.o)
 CONFIG_SPL_SERIAL_SUPPORT (drivers/serial/libserial.o)
