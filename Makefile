@@ -802,9 +802,13 @@ c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
-libs-y += lib/
+libs-$(CONFIG_API) += api/
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
+libs-y += cmd/
+libs-y += common/
 libs-$(CONFIG_OF_EMBED) += dts/
+libs-y += env/
+libs-y += lib/
 libs-y += fs/
 libs-y += net/
 libs-y += disk/
@@ -841,10 +845,6 @@ libs-y += drivers/usb/musb/
 libs-y += drivers/usb/musb-new/
 libs-y += drivers/usb/phy/
 libs-y += drivers/usb/ulpi/
-libs-y += cmd/
-libs-y += common/
-libs-y += env/
-libs-$(CONFIG_API) += api/
 ifdef CONFIG_POST
 libs-y += post/
 endif
