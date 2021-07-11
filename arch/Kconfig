@@ -229,7 +229,7 @@ config X86
 	# Thing to enable for when SPL/TPL are enabled: SPL
 	imply SPL_DM
 	imply SPL_OF_LIBFDT
-	imply SPL_DRIVERS_MISC_SUPPORT
+	imply SPL_DRIVERS_MISC
 	imply SPL_GPIO
 	imply SPL_PINCTRL
 	imply SPL_LIBCOMMON_SUPPORT
@@ -243,7 +243,7 @@ config X86
 	imply SPL_SYSCON
 	# TPL
 	imply TPL_DM
-	imply TPL_DRIVERS_MISC_SUPPORT
+	imply TPL_DRIVERS_MISC
 	imply TPL_GPIO
 	imply TPL_PINCTRL
 	imply TPL_LIBCOMMON_SUPPORT

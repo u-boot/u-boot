@@ -154,7 +154,7 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x2000
 
-config SPL_DRIVERS_MISC_SUPPORT
+config SPL_DRIVERS_MISC
 	default y
 
 config SPL_LIBCOMMON_SUPPORT

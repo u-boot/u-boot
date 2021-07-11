@@ -548,7 +548,7 @@ config SPL_DMA
 	  the CPU moving the data. Enable this option to build the drivers
 	  in drivers/dma as part of an SPL build.
 
-config SPL_DRIVERS_MISC_SUPPORT
+config SPL_DRIVERS_MISC
 	bool "Support misc drivers"
 	help
 	  Enable miscellaneous drivers in SPL. These drivers perform various
@@ -1477,7 +1477,7 @@ config TPL_BOOTROM_SUPPORT
 	  BOOT_DEVICE_BOOTROM (or fall-through to the next boot device in the
 	  boot device list, if not implemented for a given board)
 
-config TPL_DRIVERS_MISC_SUPPORT
+config TPL_DRIVERS_MISC
 	bool "Support misc drivers in TPL"
 	help
 	  Enable miscellaneous drivers in TPL. These drivers perform various
