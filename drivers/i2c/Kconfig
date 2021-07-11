@@ -74,7 +74,7 @@ config DM_I2C_GPIO
 
 config SPL_DM_I2C_GPIO
 	bool "Enable Driver Model for software emulated I2C bus driver in SPL"
-	depends on SPL_DM && DM_I2C_GPIO && SPL_DM_GPIO && SPL_GPIO_SUPPORT
+	depends on SPL_DM && DM_I2C_GPIO && SPL_DM_GPIO && SPL_GPIO
 	default y
 	help
 	  Enable the i2c bus driver emulation by using the GPIOs. The bus GPIO

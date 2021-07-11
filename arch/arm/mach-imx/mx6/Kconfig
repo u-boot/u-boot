@@ -301,7 +301,7 @@ config TARGET_MX6DL_MAMOJ
 	select PINCTRL
 	select SPL
 	select SPL_DM if SPL
-	select SPL_GPIO_SUPPORT if SPL
+	select SPL_GPIO if SPL
 	select SPL_LIBCOMMON_SUPPORT if SPL
 	select SPL_LIBDISK_SUPPORT if SPL
 	select SPL_LIBGENERIC_SUPPORT if SPL

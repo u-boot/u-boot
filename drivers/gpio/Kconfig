@@ -16,7 +16,7 @@ config DM_GPIO
 
 config SPL_DM_GPIO
 	bool "Enable Driver Model for GPIO drivers in SPL"
-	depends on DM_GPIO && SPL_DM && SPL_GPIO_SUPPORT
+	depends on DM_GPIO && SPL_DM && SPL_GPIO
 	default y
 	help
 	  Enable driver model for GPIO access in SPL. The standard GPIO
@@ -27,7 +27,7 @@ config SPL_DM_GPIO
 
 config TPL_DM_GPIO
 	bool "Enable Driver Model for GPIO drivers in TPL"
-	depends on DM_GPIO && TPL_DM && TPL_GPIO_SUPPORT
+	depends on DM_GPIO && TPL_DM && TPL_GPIO
 	default y
 	help
 	  Enable driver model for GPIO access in TPL. The standard GPIO
@@ -58,7 +58,7 @@ config DM_GPIO_LOOKUP_LABEL
 
 config SPL_DM_GPIO_LOOKUP_LABEL
 	bool "Enable searching for gpio labelnames"
-	depends on DM_GPIO && SPL_DM && SPL_GPIO_SUPPORT
+	depends on DM_GPIO && SPL_DM && SPL_GPIO
 	help
 	  This option enables searching for gpio names in
 	  the defined gpio labels, if the search for the

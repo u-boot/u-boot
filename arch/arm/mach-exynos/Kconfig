@@ -78,7 +78,7 @@ endif
 
 if ARCH_EXYNOS5
 
-config SPL_GPIO_SUPPORT
+config SPL_GPIO
 	default y
 
 config SPL_LIBCOMMON_SUPPORT

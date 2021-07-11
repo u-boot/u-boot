@@ -541,7 +541,7 @@ const struct pinctrl_ops mtk_pinctrl_ops = {
 };
 
 #if CONFIG_IS_ENABLED(DM_GPIO) || \
-    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
+    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO))
 static int mtk_gpio_get(struct udevice *dev, unsigned int off)
 {
 	int val, err;
@@ -664,7 +664,7 @@ int mtk_pinctrl_common_probe(struct udevice *dev,
 	priv->soc = soc;
 
 #if CONFIG_IS_ENABLED(DM_GPIO) || \
-    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
+    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO))
 	ret = mtk_gpiochip_register(dev);
 #endif
 

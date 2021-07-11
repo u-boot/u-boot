@@ -636,7 +636,7 @@ config SPL_FPGA
 	  as early as possible during boot, and this option can enable that
 	  within SPL.
 
-config SPL_GPIO_SUPPORT
+config SPL_GPIO
 	bool "Support GPIO in SPL"
 	help
 	  Enable support for GPIOs (General-purpose Input/Output) in SPL.
@@ -1490,7 +1490,7 @@ config TPL_ENV_SUPPORT
 	help
 	  Enable environment support in TPL. See SPL_ENV_SUPPORT for details.
 
-config TPL_GPIO_SUPPORT
+config TPL_GPIO
 	bool "Support GPIO in TPL"
 	help
 	  Enable support for GPIOs (General-purpose Input/Output) in TPL.

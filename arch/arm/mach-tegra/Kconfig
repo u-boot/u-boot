@@ -1,6 +1,6 @@
 if ARCH_TEGRA
 
-config SPL_GPIO_SUPPORT
+config SPL_GPIO
 	default y
 
 config SPL_LIBCOMMON_SUPPORT
