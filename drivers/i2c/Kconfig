@@ -2,7 +2,29 @@
 # I2C subsystem configuration
 #
 
-menu "I2C support"
+menuconfig I2C
+	bool "I2C support"
+	default y
+	help
+	  Note:
+	  This is a stand-in for an option to enable I2C support. In fact this
+	  simply enables building of the I2C directory for U-Boot. The actual
+	  I2C feature is enabled by DM_I2C (for driver model) and
+	  the #define CONFIG_SYS_I2C_LEGACY (for the legacy I2C stack).
+
+	  So at present there is no need to ever disable this option.
+
+	  Eventually it will:
+
+	  Enable support for the I2C (Inter-Integrated Circuit) bus in U-Boot.
+	  I2C works with a clock and data line which can be driven by a
+	  one or more masters or slaves. It is a fairly complex bus but is
+	  widely used as it only needs two lines for communication. Speeds of
+	  400kbps are typical but up to 3.4Mbps is supported by some
+	  hardware. Enable this option to build the drivers in drivers/i2c as
+	  part of a U-Boot build.
+
+if I2C
 
 config DM_I2C
 	bool "Enable Driver Model for I2C drivers"
@@ -528,4 +550,4 @@ config SYS_I2C_IHS
 
 source "drivers/i2c/muxes/Kconfig"
 
-endmenu
+endif
