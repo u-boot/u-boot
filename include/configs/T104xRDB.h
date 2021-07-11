@@ -453,7 +453,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 
 /* I2C */
 #if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LEGACY
 #define CONFIG_SYS_FSL_I2C_SPEED	400000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C2_SPEED	400000
 #define CONFIG_SYS_FSL_I2C3_SPEED	400000

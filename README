@@ -1461,9 +1461,12 @@ The following options need to be configured:
 		In such cases CONFIG_GPIO_LED_INVERTED_TABLE may be defined
 		with a list of GPIO LEDs that have inverted polarity.
 
-- I2C Support:	CONFIG_SYS_I2C
+- I2C Support:	CONFIG_SYS_I2C_LEGACY
 
-		This enable the NEW i2c subsystem, and will allow you to use
+		Note: This is deprecated in favour of driver model. Use
+		CONFIG_DM_I2C instead.
+
+		This enable the legacy i2c subsystem, and will allow you to use
 		i2c commands at the u-boot command line (as long as you set
 		    CONFIG_SYS_I2C_SOFT_SPEED and CONFIG_SYS_I2C_SOFT_SLAVE
 		    for defining speed and slave address

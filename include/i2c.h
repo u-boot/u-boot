@@ -20,7 +20,7 @@
 
 /*
  * For now there are essentially two parts to this file - driver model
- * here at the top, and the older code below (with CONFIG_SYS_I2C being
+ * here at the top, and the older code below (with CONFIG_SYS_I2C_LEGACY being
  * most recent). The plan is to migrate everything to driver model.
  * The driver model structures and API are separate as they are different
  * enough as to be incompatible for compilation purposes.
@@ -748,7 +748,7 @@ void i2c_early_init_f(void);
 void i2c_init(int speed, int slaveaddr);
 void i2c_init_board(void);
 
-#ifdef CONFIG_SYS_I2C
+#ifdef CONFIG_SYS_I2C_LEGACY
 /*
  * i2c_get_bus_num:
  *
@@ -922,13 +922,13 @@ int i2c_set_bus_speed(unsigned int);
  */
 
 unsigned int i2c_get_bus_speed(void);
-#endif /* CONFIG_SYS_I2C */
+#endif /* CONFIG_SYS_I2C_LEGACY */
 
 /*
  * only for backwardcompatibility, should go away if we switched
  * completely to new multibus support.
  */
-#if defined(CONFIG_SYS_I2C) || defined(CONFIG_I2C_MULTI_BUS)
+#if defined(CONFIG_SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS)
 # if !defined(CONFIG_SYS_MAX_I2C_BUS)
 #  define CONFIG_SYS_MAX_I2C_BUS		2
 # endif

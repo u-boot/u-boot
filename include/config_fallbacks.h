@@ -47,8 +47,8 @@
 #endif
 
 #if CONFIG_IS_ENABLED(DM_I2C)
-# ifdef CONFIG_SYS_I2C
-#  error "Cannot define CONFIG_SYS_I2C when CONFIG_DM_I2C is used"
+# ifdef CONFIG_SYS_I2C_LEGACY
+#  error "Cannot define CONFIG_SYS_I2C_LEGACY when CONFIG_DM_I2C is used"
 # endif
 #endif
 

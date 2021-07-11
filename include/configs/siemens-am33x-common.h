@@ -74,7 +74,7 @@
 
 /* I2C Configuration */
 #define CONFIG_I2C
-#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LEGACY
 
 /* Defines for SPL */
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \

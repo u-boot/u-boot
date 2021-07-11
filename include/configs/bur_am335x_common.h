@@ -20,7 +20,7 @@
 #define CONFIG_SYS_NS16550_COM1		0x44e09000
 
 #define CONFIG_I2C
-#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LEGACY
 
 #endif /* CONFIG_DM */
 

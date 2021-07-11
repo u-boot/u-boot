@@ -90,7 +90,7 @@
  * I2C related stuff
  */
 #undef CONFIG_I2C_MVTWSI
-#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LEGACY
 #define	CONFIG_SYS_I2C_SOFT	/* I2C bit-banged	*/
 #define CONFIG_SYS_I2C_INIT_BOARD
 

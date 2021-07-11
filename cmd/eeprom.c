@@ -75,7 +75,7 @@ void eeprom_init(int bus)
 	/* I2C EEPROM */
 #if CONFIG_IS_ENABLED(DM_I2C)
 	eeprom_i2c_bus = bus;
-#elif defined(CONFIG_SYS_I2C)
+#elif defined(CONFIG_SYS_I2C_LEGACY)
 	if (bus >= 0)
 		i2c_set_bus_num(bus);
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);

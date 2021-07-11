@@ -260,7 +260,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* I2C */
 #if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LEGACY
 #define CONFIG_SYS_FSL_I2C_SPEED	400000
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x118000

@@ -47,7 +47,7 @@
  * I2C driver
  */
 
-#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LEGACY
 #define CONFIG_SYS_I2C_SPEED 350000
 
 /*

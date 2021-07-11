@@ -277,7 +277,7 @@ struct global_data {
 	 */
 	void *trace_buff;
 #endif
-#if defined(CONFIG_SYS_I2C)
+#if defined(CONFIG_SYS_I2C_LEGACY)
 	/**
 	 * @cur_i2c_bus: currently used I2C bus
 	 */
