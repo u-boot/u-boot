@@ -104,7 +104,7 @@ void save_omap_boot_params(void)
 			sys_boot_device = 1;
 			break;
 #endif
-#if defined(BOOT_DEVICE_CPGMAC) && !defined(CONFIG_SPL_ETH_SUPPORT)
+#if defined(BOOT_DEVICE_CPGMAC) && !defined(CONFIG_SPL_ETH)
 		case BOOT_DEVICE_CPGMAC:
 			sys_boot_device = 1;
 			break;

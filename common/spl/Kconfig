@@ -582,7 +582,7 @@ config SPL_SAVEENV
 	  "reboot_image" and act accordingly and change the reboot_image
 	  to default mode using setenv and save the environment.
 
-config SPL_ETH_SUPPORT
+config SPL_ETH
 	bool "Support Ethernet"
 	depends on SPL_ENV_SUPPORT
 	help
@@ -926,7 +926,7 @@ config SPL_NET_SUPPORT
 	  This permits SPL to load U-Boot over a network link rather than
 	  from an on-board peripheral. Environment support is required since
 	  the network stack uses a number of environment variables. See also
-	  SPL_ETH_SUPPORT.
+	  SPL_ETH.
 
 if SPL_NET_SUPPORT
 config SPL_NET_VCI_STRING
@@ -1229,7 +1229,7 @@ config SPL_USB_ETHER
 	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
 	  than from an onboard peripheral. Environment support is required
 	  since the network stack uses a number of environment variables.
-	  See also SPL_NET_SUPPORT and SPL_ETH_SUPPORT.
+	  See also SPL_NET_SUPPORT and SPL_ETH.
 
 config SPL_DFU
 	bool "Support DFU (Device Firmware Upgrade)"
