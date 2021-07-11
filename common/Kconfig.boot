@@ -184,7 +184,7 @@ config SPL_FIT_SIGNATURE
 	depends on SPL_LOAD_FIT || SPL_LOAD_FIT_FULL
 	select FIT_SIGNATURE
 	select SPL_FIT
-	select SPL_CRYPTO_SUPPORT
+	select SPL_CRYPTO
 	select SPL_HASH_SUPPORT
 	select SPL_RSA
 	select SPL_RSA_VERIFY

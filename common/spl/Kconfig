@@ -511,7 +511,7 @@ config SPL_CPU
 	  may improve boot performance. Enable this option to build the
 	  drivers in drivers/cpu as part of an SPL build.
 
-config SPL_CRYPTO_SUPPORT
+config SPL_CRYPTO
 	bool "Support crypto drivers"
 	help
 	  Enable crypto drivers in SPL. These drivers can be used to

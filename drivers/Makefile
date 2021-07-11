@@ -39,7 +39,7 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_BOOTCOUNT_LIMIT) += bootcount/
 obj-$(CONFIG_SPL_CACHE_SUPPORT) += cache/
 obj-$(CONFIG_SPL_CPU) += cpu/
-obj-$(CONFIG_SPL_CRYPTO_SUPPORT) += crypto/
+obj-$(CONFIG_SPL_CRYPTO) += crypto/
 obj-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += ddr/fsl/
 obj-$(CONFIG_ARMADA_38X) += ddr/marvell/a38x/
 obj-$(CONFIG_ARMADA_XP) += ddr/marvell/axp/
