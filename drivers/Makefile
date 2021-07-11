@@ -9,11 +9,7 @@ obj-$(CONFIG_$(SPL_TPL_)GPIO) += gpio/
 obj-$(CONFIG_$(SPL_TPL_)DRIVERS_MISC) += misc/
 obj-$(CONFIG_$(SPL_TPL_)SYSRESET) += sysreset/
 obj-$(CONFIG_$(SPL_TPL_)FIRMWARE) +=firmware/
-
-# This is needed for now, until we drop the i2c/ rule in the top-level Makefile
-ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_$(SPL_TPL_)I2C) += i2c/
-endif
 obj-$(CONFIG_$(SPL_TPL_)INPUT) += input/
 obj-$(CONFIG_$(SPL_TPL_)LED) += led/
 obj-$(CONFIG_$(SPL_TPL_)MMC_SUPPORT) += mmc/
