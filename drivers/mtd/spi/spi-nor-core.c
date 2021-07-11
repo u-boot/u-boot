@@ -929,7 +929,7 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = write_bar(nor, addr);
 		if (ret < 0)
-			return ret;
+			goto erase_err;
 #endif
 		write_enable(nor);
 
