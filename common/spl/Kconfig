@@ -1192,7 +1192,7 @@ config SPL_THERMAL
 	  automatic power-off when the temperature gets too high or low. Other
 	  devices may be discrete but connected on a suitable bus.
 
-config SPL_USB_HOST_SUPPORT
+config SPL_USB_HOST
 	bool "Support USB host drivers"
 	select HAVE_BLOCK_DEVICE
 	help
@@ -1205,7 +1205,7 @@ config SPL_USB_HOST_SUPPORT
 
 config SPL_USB_STORAGE
 	bool "Support loading from USB"
-	depends on SPL_USB_HOST_SUPPORT && !(BLK && !DM_USB)
+	depends on SPL_USB_HOST && !(BLK && !DM_USB)
 	help
 	  Enable support for USB devices in SPL. This allows use of USB
 	  devices such as hard drives and flash drivers for loading U-Boot.

@@ -149,7 +149,7 @@ static int cdns3_core_init_role(struct cdns3 *cdns)
 
 	dr_mode = best_dr_mode;
 
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL_USB_HOST) || !defined(CONFIG_SPL_BUILD)
 	if (dr_mode == USB_DR_MODE_OTG || dr_mode == USB_DR_MODE_HOST) {
 		ret = cdns3_host_init(cdns);
 		if (ret) {
@@ -403,7 +403,7 @@ int cdns3_bind(struct udevice *parent)
 	dr_mode = usb_get_dr_mode(node);
 
 	switch (dr_mode) {
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || \
+#if defined(CONFIG_SPL_USB_HOST) || \
 	(!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST))
 	case USB_DR_MODE_HOST:
 		debug("%s: dr_mode: HOST\n", __func__);
@@ -466,7 +466,7 @@ U_BOOT_DRIVER(cdns_usb3_peripheral) = {
 };
 #endif
 
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || \
+#if defined(CONFIG_SPL_USB_HOST) || \
 	(!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST))
 static int cdns3_host_probe(struct udevice *dev)
 {
