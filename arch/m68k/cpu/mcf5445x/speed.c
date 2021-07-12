@@ -141,9 +141,6 @@ void setup_5445x_clocks(void)
 	int bPci;
 #endif
 
-#ifdef CONFIG_M54455EVB
-	u8 *cpld = (u8 *)(CONFIG_SYS_CS2_BASE + 3);
-#endif
 	u8 bootmode;
 
 	/* To determine PCI is present or not */
@@ -163,22 +160,6 @@ void setup_5445x_clocks(void)
 #endif
 	}
 
-#ifdef CONFIG_M54455EVB
-	bootmode = (in_8(cpld) & 0x03);
-
-	if (bootmode != 3) {
-		/* Temporary read from CCR- fixed fb issue, must be the same clock
-		   as pci or input clock, causing cpld/fpga read inconsistancy */
-		fbtemp = pPllmult[ccm->ccr & fbpll_mask];
-
-		/* Break down into small pieces, code still in flex bus */
-		pcrvalue = in_be32(&pll->pcr) & 0xFFFFF0FF;
-		temp = fbtemp - 1;
-		pcrvalue |= PLL_PCR_OUTDIV3(temp);
-
-		out_be32(&pll->pcr, pcrvalue);
-	}
-#endif
 #ifdef CONFIG_M54451EVB
 	/* No external logic to read the bootmode, hard coded from built */
 #ifdef CONFIG_CF_SBF

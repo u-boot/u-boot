@@ -330,14 +330,11 @@
 
 #endif				/* CONFIG_M54418 */
 
-#if defined(CONFIG_M54451) || defined(CONFIG_M54455)
+#if defined(CONFIG_M54451)
 #include <asm/immap_5445x.h>
 #include <asm/m5445x.h>
 
 #define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC0)
-#if defined(CONFIG_M54455EVB)
-#define CONFIG_SYS_FEC1_IOBASE		(MMAP_FEC1)
-#endif
 
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CONFIG_SYS_UART_PORT * 0x4000))
 
@@ -364,7 +361,7 @@
 #define CONFIG_SYS_PCI_TBATR0		(CONFIG_SYS_MBAR)
 #define CONFIG_SYS_PCI_TBATR5		(CONFIG_SYS_SDRAM_BASE)
 #endif
-#endif				/* CONFIG_M54451 || CONFIG_M54455 */
+#endif				/* CONFIG_M54451 */
 
 #ifdef CONFIG_M547x
 #include <asm/immap_547x_8x.h>

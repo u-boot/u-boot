@@ -123,10 +123,6 @@ config M54451
 	bool
 	select MCF5445x
 
-config M54455
-	bool
-	select MCF5445x
-
 config M52277
 	bool
 	select MCF5227x
@@ -199,10 +195,6 @@ config TARGET_M54451EVB
 	bool "Support M54451EVB"
 	select M54451
 
-config TARGET_M54455EVB
-	bool "Support M54455EVB"
-	select M54455
-
 config TARGET_AMCORE
 	bool "Support AMCORE"
 	select M5307
@@ -229,7 +221,6 @@ source "board/freescale/m5329evb/Kconfig"
 source "board/freescale/m5373evb/Kconfig"
 source "board/freescale/m54418twr/Kconfig"
 source "board/freescale/m54451evb/Kconfig"
-source "board/freescale/m54455evb/Kconfig"
 source "board/sysam/amcore/Kconfig"
 source "board/sysam/stmark2/Kconfig"
 
