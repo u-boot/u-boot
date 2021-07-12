@@ -646,7 +646,7 @@ static efi_status_t find_boot_device(void)
 		ret = get_dp_device(boot_var16, &boot_dev);
 		if (ret == EFI_SUCCESS) {
 			if (device_is_present_and_system_part(boot_dev)) {
-				goto out;
+				goto found;
 			} else {
 				efi_free_pool(boot_dev);
 				boot_dev = NULL;
@@ -689,6 +689,7 @@ skip:
 		efi_free_pool(boot_dev);
 		boot_dev = NULL;
 	}
+found:
 	if (boot_dev) {
 		u16 *path_str;
 
