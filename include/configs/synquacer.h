@@ -62,7 +62,7 @@
 /* #define CONFIG_SYS_PCI_64BIT		1 */
 
 #define DEFAULT_DFU_ALT_INFO "dfu_alt_info="				\
-			"mtd nor1=u-boot.bin raw 200000 100000;"	\
+			"mtd mx66u51235f=u-boot.bin raw 200000 100000;"	\
 			"fip.bin raw 180000 78000;"			\
 			"optee.bin raw 500000 100000\0"
 
