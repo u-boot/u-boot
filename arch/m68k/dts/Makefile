@@ -17,12 +17,6 @@ dtb-$(CONFIG_TARGET_ASTRO_MCF5373L) += astro_mcf5373l.dtb
 dtb-$(CONFIG_TARGET_M53017EVB) += M53017EVB.dtb
 dtb-$(CONFIG_TARGET_M5329EVB) += M5329AFEE.dtb M5329BFEE.dtb
 dtb-$(CONFIG_TARGET_M5373EVB) += M5373EVB.dtb
-dtb-$(CONFIG_TARGET_M54418TWR) += M54418TWR.dtb \
-	M54418TWR_nand_mii.dtb \
-	M54418TWR_nand_rmii.dtb \
-	M54418TWR_serial_mii.dtb \
-	M54418TWR_serial_rmii.dtb \
-	M54418TWR_nand_rmii_lowfreq.dtb
 dtb-$(CONFIG_TARGET_M54451EVB) += M54451EVB.dtb \
 	M54451EVB_stmicro.dtb
 dtb-$(CONFIG_TARGET_AMCORE) += amcore.dtb

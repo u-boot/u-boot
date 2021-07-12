@@ -187,10 +187,6 @@ config TARGET_M5373EVB
 	bool "Support M5373EVB"
 	select M5373
 
-config TARGET_M54418TWR
-	bool "Support M54418TWR"
-	select M54418
-
 config TARGET_M54451EVB
 	bool "Support M54451EVB"
 	select M54451
@@ -219,7 +215,6 @@ source "board/freescale/m5282evb/Kconfig"
 source "board/freescale/m53017evb/Kconfig"
 source "board/freescale/m5329evb/Kconfig"
 source "board/freescale/m5373evb/Kconfig"
-source "board/freescale/m54418twr/Kconfig"
 source "board/freescale/m54451evb/Kconfig"
 source "board/sysam/amcore/Kconfig"
 source "board/sysam/stmark2/Kconfig"
