@@ -159,7 +159,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			err = spl_parse_image_header(spl_image, header);
 			if (err)
 				return err;
-			err = spi_flash_read(flash, payload_offs,
+			err = spi_flash_read(flash, payload_offs + spl_image->offset,
 					     spl_image->size,
 					     (void *)spl_image->load_addr);
 		}
