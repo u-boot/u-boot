@@ -14,6 +14,7 @@
 #include <asm/global_data.h>
 #include <asm/spl.h>
 #include <handoff.h>
+#include <mmc.h>
 
 struct blk_desc;
 struct image_header;
@@ -375,7 +376,7 @@ u32 spl_boot_device(void);
  * Note:  It is important to use the boot_device parameter instead of e.g.
  * spl_boot_device() as U-Boot is not always loaded from the same device as SPL.
  */
-u32 spl_mmc_boot_mode(const u32 boot_device);
+u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device);
 
 /**
  * spl_mmc_boot_partition() - MMC partition to load U-Boot from.

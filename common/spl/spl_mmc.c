@@ -327,7 +327,7 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image,
 }
 #endif
 
-u32 __weak spl_mmc_boot_mode(const u32 boot_device)
+u32 __weak spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
 #if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 	return MMCSD_MODE_FS;
@@ -401,7 +401,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 		}
 	}
 
-	boot_mode = spl_mmc_boot_mode(bootdev->boot_device);
+	boot_mode = spl_mmc_boot_mode(mmc, bootdev->boot_device);
 	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
