@@ -113,17 +113,9 @@ config M54418
 	bool
 	select MCF5441x
 
-config M52277
-	bool
-	select MCF5227x
-
 choice
 	prompt "Target select"
 	optional
-
-config TARGET_M52277EVB
-	bool "Support M52277EVB"
-	select M52277
 
 config TARGET_M5235EVB
 	bool "Support M5235EVB"
@@ -191,7 +183,6 @@ source "board/BuS/eb_cpu5282/Kconfig"
 source "board/astro/mcf5373l/Kconfig"
 source "board/cobra5272/Kconfig"
 source "board/freescale/m5208evbe/Kconfig"
-source "board/freescale/m52277evb/Kconfig"
 source "board/freescale/m5235evb/Kconfig"
 source "board/freescale/m5249evb/Kconfig"
 source "board/freescale/m5253demo/Kconfig"

@@ -10,7 +10,7 @@
 #define __CACHE_H
 
 #if defined(CONFIG_MCF520x) || defined(CONFIG_MCF523x) || \
-    defined(CONFIG_MCF52x2) || defined(CONFIG_MCF5227x)
+    defined(CONFIG_MCF52x2)
 #define CONFIG_CF_V2
 #endif
 

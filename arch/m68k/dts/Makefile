@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-dtb-$(CONFIG_TARGET_M52277EVB) += M52277EVB.dtb \
-	M52277EVB_stmicro.dtb
 dtb-$(CONFIG_TARGET_M5235EVB) += M5235EVB.dtb \
 	M5235EVB_Flash32.dtb
 dtb-$(CONFIG_TARGET_COBRA5272) += cobra5272.dtb
