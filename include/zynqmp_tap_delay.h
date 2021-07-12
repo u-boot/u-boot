@@ -25,9 +25,9 @@ int arasan_zynqmp_set_out_tapdelay(u8 device_id, u32 type, u32 otap_delay)
 }
 #endif
 
-static inline int zynqmp_pm_sd_dll_reset(u32 node_id, u32 type)
+static inline int zynqmp_pm_sd_dll_reset(u8 node_id, u32 type)
 {
-	return xilinx_pm_request(PM_IOCTL, node_id, IOCTL_SD_DLL_RESET,
+	return xilinx_pm_request(PM_IOCTL, (u32)node_id, IOCTL_SD_DLL_RESET,
 				 type, 0, NULL);
 }
 

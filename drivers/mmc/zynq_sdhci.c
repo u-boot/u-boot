@@ -125,15 +125,14 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 	u32 ctrl;
+	u8 node_id = mmc->dev->seq ? NODE_SD_0 : NODE_SD_1;
 	struct sdhci_host *host;
 	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
 	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
-	u8 deviceid;
 
 	debug("%s\n", __func__);
 
 	host = priv->host;
-	deviceid = priv->deviceid;
 
 	ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 	ctrl |= SDHCI_CTRL_EXEC_TUNING;
@@ -141,7 +140,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 
 	mdelay(1);
 
-	arasan_zynqmp_dll_reset(host, deviceid);
+	arasan_zynqmp_dll_reset(host, node_id);
 
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_INT_ENABLE);
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_SIGNAL_ENABLE);
@@ -187,7 +186,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	}
 
 	udelay(1);
-	arasan_zynqmp_dll_reset(host, deviceid);
+	arasan_zynqmp_dll_reset(host, node_id);
 
 	/* Enable only interrupts served by the SD controller */
 	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
@@ -210,10 +209,9 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 					    int degrees)
 {
-	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	struct udevice *dev = mmc->dev;
-	u32 node_id = dev->seq ? NODE_SD_0 : NODE_SD_1;
+	u8 node_id = dev->seq ? NODE_SD_0 : NODE_SD_1;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
 	int ret;
@@ -253,7 +251,7 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 	tap_delay &= SDHCI_ARASAN_OTAPDLY_SEL_MASK;
 
 	/* Set the Clock Phase */
-	ret = arasan_zynqmp_set_out_tapdelay(priv->deviceid,
+	ret = arasan_zynqmp_set_out_tapdelay(node_id,
 					     PM_TAPDELAY_OUTPUT, tap_delay);
 	if (ret) {
 		dev_err(dev, "Error setting output Tap Delay\n");
@@ -282,10 +280,9 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 					    int degrees)
 {
-	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	struct udevice *dev = mmc->dev;
-	u32 node_id = dev->seq ? NODE_SD_0 : NODE_SD_1;
+	u8 node_id = dev->seq ? NODE_SD_0 : NODE_SD_1;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
 	int ret;
@@ -331,7 +328,7 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 	/* Limit input tap_delay value to 8 bits */
 	tap_delay &= SDHCI_ARASAN_ITAPDLY_SEL_MASK;
 
-	ret = arasan_zynqmp_set_in_tapdelay(priv->deviceid,
+	ret = arasan_zynqmp_set_in_tapdelay(node_id,
 					    PM_TAPDELAY_INPUT, tap_delay);
 	if (ret) {
 		dev_err(dev, "Error setting Input Tap Delay\n");
