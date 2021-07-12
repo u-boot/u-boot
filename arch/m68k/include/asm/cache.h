@@ -19,9 +19,7 @@
 #define CONFIG_CF_V3
 #endif
 
-#if defined(CONFIG_MCF5445x)
-#define CONFIG_CF_V4
-#elif defined(CONFIG_MCF5441x)
+#if defined(CONFIG_MCF5441x)
 #define CONFIG_CF_V4E		/* Four Extra ACRn */
 #endif
 

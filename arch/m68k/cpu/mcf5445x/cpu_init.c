@@ -73,13 +73,6 @@ void cfspi_port_conf(void)
 {
 	gpio_t *gpio = (gpio_t *)MMAP_GPIO;
 
-#ifdef CONFIG_MCF5445x
-	out_8(&gpio->par_dspi,
-	      GPIO_PAR_DSPI_SIN_SIN |
-	      GPIO_PAR_DSPI_SOUT_SOUT |
-	      GPIO_PAR_DSPI_SCK_SCK);
-#endif
-
 #ifdef CONFIG_MCF5441x
 	pm_t *pm = (pm_t *)MMAP_PM;
 
@@ -212,36 +205,6 @@ void cpu_init_f(void)
 #endif
 #endif		/* CONFIG_MCF5441x */
 
-#ifdef CONFIG_MCF5445x
-	scm1_t *scm1 = (scm1_t *) MMAP_SCM1;
-
-	out_be32(&scm1->mpr, 0x77777777);
-	out_be32(&scm1->pacra, 0);
-	out_be32(&scm1->pacrb, 0);
-	out_be32(&scm1->pacrc, 0);
-	out_be32(&scm1->pacrd, 0);
-	out_be32(&scm1->pacre, 0);
-	out_be32(&scm1->pacrf, 0);
-	out_be32(&scm1->pacrg, 0);
-
-	/* FlexBus */
-	out_8(&gpio->par_be,
-		GPIO_PAR_BE_BE3_BE3 | GPIO_PAR_BE_BE2_BE2 |
-		GPIO_PAR_BE_BE1_BE1 | GPIO_PAR_BE_BE0_BE0);
-	out_8(&gpio->par_fbctl,
-		GPIO_PAR_FBCTL_OE | GPIO_PAR_FBCTL_TA_TA |
-		GPIO_PAR_FBCTL_RW_RW | GPIO_PAR_FBCTL_TS_TS);
-
-#ifdef CONFIG_CF_SPI
-	cfspi_port_conf();
-#endif
-
-#ifdef CONFIG_SYS_FSL_I2C
-	out_be16(&gpio->par_feci2c,
-		GPIO_PAR_FECI2C_SCL_SCL | GPIO_PAR_FECI2C_SDA_SDA);
-#endif
-#endif		/* CONFIG_MCF5445x */
-
 	/* FlexBus Chipselect */
 	init_fbcs();
 
@@ -365,40 +328,6 @@ void uart_port_conf(int port)
 			GPIO_PAR_CANI2C_CAN1TX_U9TXD | GPIO_PAR_CANI2C_CAN1RX_U9RXD);
 		break;
 #endif
-#ifdef CONFIG_MCF5445x
-	case 0:
-		clrbits_8(&gpio->par_uart,
-			GPIO_PAR_UART_U0TXD_U0TXD | GPIO_PAR_UART_U0RXD_U0RXD);
-		setbits_8(&gpio->par_uart,
-			GPIO_PAR_UART_U0TXD_U0TXD | GPIO_PAR_UART_U0RXD_U0RXD);
-		break;
-	case 1:
-#ifdef CONFIG_SYS_UART1_PRI_GPIO
-		clrbits_8(&gpio->par_uart,
-			GPIO_PAR_UART_U1TXD_U1TXD | GPIO_PAR_UART_U1RXD_U1RXD);
-		setbits_8(&gpio->par_uart,
-			GPIO_PAR_UART_U1TXD_U1TXD | GPIO_PAR_UART_U1RXD_U1RXD);
-#elif defined(CONFIG_SYS_UART1_ALT1_GPIO)
-		clrbits_be16(&gpio->par_ssi,
-			~(GPIO_PAR_SSI_SRXD_UNMASK | GPIO_PAR_SSI_STXD_UNMASK));
-		setbits_be16(&gpio->par_ssi,
-			GPIO_PAR_SSI_SRXD_U1RXD | GPIO_PAR_SSI_STXD_U1TXD);
-#endif
-		break;
-	case 2:
-#if defined(CONFIG_SYS_UART2_ALT1_GPIO)
-		clrbits_8(&gpio->par_timer,
-			~(GPIO_PAR_TIMER_T3IN_UNMASK | GPIO_PAR_TIMER_T2IN_UNMASK));
-		setbits_8(&gpio->par_timer,
-			GPIO_PAR_TIMER_T3IN_U2RXD | GPIO_PAR_TIMER_T2IN_U2TXD);
-#elif defined(CONFIG_SYS_UART2_ALT2_GPIO)
-		clrbits_8(&gpio->par_timer,
-			~(GPIO_PAR_FECI2C_SCL_UNMASK | GPIO_PAR_FECI2C_SDA_UNMASK));
-		setbits_8(&gpio->par_timer,
-			GPIO_PAR_FECI2C_SCL_U2TXD | GPIO_PAR_FECI2C_SDA_U2RXD);
-#endif
-		break;
-#endif	/* CONFIG_MCF5445x */
 	}
 }
 
@@ -410,46 +339,6 @@ int fecpin_setclear(fec_info_t *info, int setclear)
 
 	if (fec_get_base_addr(0, &fec0_base))
 		return -1;
-
-#ifdef CONFIG_MCF5445x
-	if (setclear) {
-#ifdef CONFIG_SYS_FEC_NO_SHARED_PHY
-		if (info->iobase == fec0_base)
-			setbits_be16(&gpio->par_feci2c,
-				GPIO_PAR_FECI2C_MDC0_MDC0 |
-				GPIO_PAR_FECI2C_MDIO0_MDIO0);
-		else
-			setbits_be16(&gpio->par_feci2c,
-				GPIO_PAR_FECI2C_MDC1_MDC1 |
-				GPIO_PAR_FECI2C_MDIO1_MDIO1);
-#else
-		setbits_be16(&gpio->par_feci2c,
-			GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
-#endif
-
-		if (info->iobase == fec0_base)
-			setbits_8(&gpio->par_fec, GPIO_PAR_FEC_FEC0_RMII_GPIO);
-		else
-			setbits_8(&gpio->par_fec, GPIO_PAR_FEC_FEC1_RMII_ATA);
-	} else {
-		clrbits_be16(&gpio->par_feci2c,
-			GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
-
-		if (info->iobase == fec0_base) {
-#ifdef CONFIG_SYS_FEC_FULL_MII
-			setbits_8(&gpio->par_fec, GPIO_PAR_FEC_FEC0_MII);
-#else
-			clrbits_8(&gpio->par_fec, ~GPIO_PAR_FEC_FEC0_UNMASK);
-#endif
-		} else {
-#ifdef CONFIG_SYS_FEC_FULL_MII
-			setbits_8(&gpio->par_fec, GPIO_PAR_FEC_FEC1_MII);
-#else
-			clrbits_8(&gpio->par_fec, ~GPIO_PAR_FEC_FEC1_UNMASK);
-#endif
-		}
-	}
-#endif	/* CONFIG_MCF5445x */
 
 #ifdef CONFIG_MCF5441x
 	if (setclear) {

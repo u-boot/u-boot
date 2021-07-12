@@ -202,10 +202,6 @@ asm_dspi_init:
 	move.b	#0x80, (%a2)
 #endif
 
-#ifdef CONFIG_MCF5445x
-	move.l	#0xFC0A4063, %a0
-	move.b	#0x7F, (%a0)
-#endif
 	/* Configure DSPI module */
 	move.l	#0xFC05C000, %a0
 	move.l	#0x80FF0C00, (%a0)	/* Master, clear TX/RX FIFO */
@@ -213,9 +209,6 @@ asm_dspi_init:
 	move.l	#0xFC05C00C, %a0
 #ifdef CONFIG_MCF5441x
 	move.l	#0x3E000016, (%a0)
-#endif
-#ifdef CONFIG_MCF5445x
-	move.l	#0x3E000011, (%a0)
 #endif
 
 	move.l	#0xFC05C034, %a2	/* dtfr */

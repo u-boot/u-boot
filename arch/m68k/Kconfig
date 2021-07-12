@@ -53,12 +53,6 @@ config MCF5441x
         select DM_SERIAL
 	bool
 
-config MCF5445x
-	select OF_CONTROL
-	select DM
-        select DM_SERIAL
-	bool
-
 config MCF5227x
 	select OF_CONTROL
 	select DM
@@ -118,10 +112,6 @@ config M5373
 config M54418
 	bool
 	select MCF5441x
-
-config M54451
-	bool
-	select MCF5445x
 
 config M52277
 	bool
@@ -187,10 +177,6 @@ config TARGET_M5373EVB
 	bool "Support M5373EVB"
 	select M5373
 
-config TARGET_M54451EVB
-	bool "Support M54451EVB"
-	select M54451
-
 config TARGET_AMCORE
 	bool "Support AMCORE"
 	select M5307
@@ -215,7 +201,6 @@ source "board/freescale/m5282evb/Kconfig"
 source "board/freescale/m53017evb/Kconfig"
 source "board/freescale/m5329evb/Kconfig"
 source "board/freescale/m5373evb/Kconfig"
-source "board/freescale/m54451evb/Kconfig"
 source "board/sysam/amcore/Kconfig"
 source "board/sysam/stmark2/Kconfig"
 
