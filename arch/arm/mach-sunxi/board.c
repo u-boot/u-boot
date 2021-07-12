@@ -346,6 +346,89 @@ __weak void sunxi_sram_init(void)
 {
 }
 
+/*
+ * When booting from an eMMC boot partition, the SPL puts the same boot
+ * source code into SRAM A1 as when loading the SPL from the normal
+ * eMMC user data partition: 0x2. So to know where we have been loaded
+ * from, we repeat the BROM algorithm here: checking for a valid eGON boot
+ * image at offset 0 of a (potentially) selected boot partition.
+ * If any of the conditions is not met, it must have been the eMMC user
+ * data partition.
+ */
+static bool sunxi_valid_emmc_boot(struct mmc *mmc)
+{
+	struct blk_desc *bd = mmc_get_blk_desc(mmc);
+	uint32_t *buffer = (void *)(uintptr_t)CONFIG_SYS_TEXT_BASE;
+	struct boot_file_head *egon_head = (void *)buffer;
+	int bootpart = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
+	uint32_t spl_size, emmc_checksum, chksum = 0;
+	ulong count;
+
+	/* The BROM requires BOOT_ACK to be enabled. */
+	if (!EXT_CSD_EXTRACT_BOOT_ACK(mmc->part_config))
+		return false;
+
+	/*
+	 * The BOOT_BUS_CONDITION register must be 4-bit SDR, with (0x09)
+	 * or without (0x01) high speed timings.
+	 */
+	if ((mmc->ext_csd[EXT_CSD_BOOT_BUS_WIDTH] & 0x1b) != 0x01 &&
+	    (mmc->ext_csd[EXT_CSD_BOOT_BUS_WIDTH] & 0x1b) != 0x09)
+		return false;
+
+	/* Partition 0 is the user data partition, bootpart must be 1 or 2. */
+	if (bootpart != 1 && bootpart != 2)
+		return false;
+
+	/* Failure to switch to the boot partition is fatal. */
+	if (mmc_switch_part(mmc, bootpart))
+		return false;
+
+	/* Read the first block to do some sanity checks on the eGON header. */
+	count = blk_dread(bd, 0, 1, buffer);
+	if (count != 1 || !sunxi_egon_valid(egon_head))
+		return false;
+
+	/* Read the rest of the SPL now we know it's halfway sane. */
+	spl_size = buffer[4];
+	count = blk_dread(bd, 1, DIV_ROUND_UP(spl_size, bd->blksz) - 1,
+			  buffer + bd->blksz / 4);
+
+	/* Save the checksum and replace it with the "stamp value". */
+	emmc_checksum = buffer[3];
+	buffer[3] = 0x5f0a6c39;
+
+	/* The checksum is a simple ignore-carry addition of all words. */
+	for (count = 0; count < spl_size / 4; count++)
+		chksum += buffer[count];
+
+	debug("eMMC boot part SPL checksum: stored: 0x%08x, computed: 0x%08x\n",
+	       emmc_checksum, chksum);
+
+	return emmc_checksum == chksum;
+}
+
+u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
+{
+	static u32 result = ~0;
+
+	if (result != ~0)
+		return result;
+
+	result = MMCSD_MODE_RAW;
+	if (!IS_SD(mmc) && IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT)) {
+		if (sunxi_valid_emmc_boot(mmc))
+			result = MMCSD_MODE_EMMCBOOT;
+		else
+			mmc_switch_part(mmc, 0);
+	}
+
+	debug("%s(): %s part\n", __func__,
+	      result == MMCSD_MODE_RAW ? "user" : "boot");
+
+	return result;
+}
+
 void board_init_f(ulong dummy)
 {
 	sunxi_sram_init();
