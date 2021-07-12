@@ -23,7 +23,6 @@
 
 	aliases {
 		ethernet0 = &gem3;
-		gpio0 = &gpio;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		mmc0 = &sdhci1;
