@@ -480,6 +480,17 @@ static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
 	return EFI_SUCCESS;
 }
 
+static void rtc2efi(struct efi_time *time, struct rtc_time *tm)
+{
+	memset(time, 0, sizeof(struct efi_time));
+	time->year = tm->tm_year;
+	time->month = tm->tm_mon;
+	time->day = tm->tm_mday;
+	time->hour = tm->tm_hour;
+	time->minute = tm->tm_min;
+	time->second = tm->tm_sec;
+}
+
 static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 		void *buffer)
 {
@@ -535,6 +546,10 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 	info->size = required_size;
 	info->file_size = dent->size;
 	info->physical_size = dent->size;
+	info->attribute = dent->attr;
+	rtc2efi(&info->create_time, &dent->create_time);
+	rtc2efi(&info->modification_time, &dent->change_time);
+	rtc2efi(&info->last_access_time, &dent->access_time);
 
 	if (dent->type == FS_DT_DIR)
 		info->attribute |= EFI_FILE_DIRECTORY;

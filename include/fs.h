@@ -6,6 +6,7 @@
 #define _FS_H
 
 #include <common.h>
+#include <rtc.h>
 
 struct cmd_tbl;
 
@@ -160,13 +161,26 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 #define FS_DT_REG  8         /* regular file */
 #define FS_DT_LNK  10        /* symbolic link */
 
-/*
- * A directory entry, returned by fs_readdir().  Returns information
+/**
+ * struct fs_dirent - directory entry
+ *
+ * A directory entry, returned by fs_readdir(). Returns information
  * about the file/directory at the current directory entry position.
  */
 struct fs_dirent {
-	unsigned type;       /* one of FS_DT_x (not a mask) */
-	loff_t size;         /* size in bytes */
+	/** @type:		one of FS_DT_x (not a mask) */
+	unsigned int type;
+	/** @size:		file size */
+	loff_t size;
+	/** @flags:		attribute flags (FS_ATTR_*) */
+	u32 attr;
+	/** create_time:	time of creation */
+	struct rtc_time create_time;
+	/** access_time:	time of last access */
+	struct rtc_time access_time;
+	/** change_time:	time of last modification */
+	struct rtc_time change_time;
+	/** name:		file name */
 	char name[256];
 };
 
