@@ -10,7 +10,6 @@
 #define __CONFIG_AM654_EVM_H
 
 #include <linux/sizes.h>
-#include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
 #include <environment/ti/k3_rproc.h>
 #include <environment/ti/k3_dfu.h>
@@ -126,6 +125,16 @@
 	DFU_ALT_INFO_EMMC						\
 	DFU_ALT_INFO_OSPI
 
+#ifdef CONFIG_TARGET_AM654_A53_EVM
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0)
+
+#include <config_distro_bootcmd.h>
+#else
+#define BOOTENV
+#endif
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
@@ -136,7 +145,8 @@
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD				\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_UBI				\
 	EXTRA_ENV_RPROC_SETTINGS					\
-	EXTRA_ENV_DFUARGS
+	EXTRA_ENV_DFUARGS						\
+	BOOTENV
 
 #define CONFIG_SYS_USB_FAT_BOOT_PARTITION 1
 
