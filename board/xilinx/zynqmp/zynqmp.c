@@ -499,9 +499,11 @@ int dram_init(void)
 }
 #endif
 
+#if !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(void)
 {
 }
+#endif
 
 static u8 __maybe_unused zynqmp_get_bootmode(void)
 {
