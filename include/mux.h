@@ -51,7 +51,7 @@ unsigned int mux_control_states(struct mux_control *mux);
  */
 int __must_check mux_control_select(struct mux_control *mux,
 				    unsigned int state);
-#define mux_control_try_select(mux) mux_control_select(mux)
+#define mux_control_try_select(mux, state) mux_control_select(mux, state)
 
 /**
  * mux_control_deselect() - Deselect the previously selected multiplexer state.
@@ -128,7 +128,7 @@ int __must_check mux_control_select(struct mux_control *mux,
 	return -ENOSYS;
 }
 
-#define mux_control_try_select(mux) mux_control_select(mux)
+#define mux_control_try_select(mux, state) mux_control_select(mux, state)
 
 int mux_control_deselect(struct mux_control *mux)
 {
