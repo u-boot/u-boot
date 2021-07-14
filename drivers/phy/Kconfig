@@ -64,6 +64,12 @@ config MIPI_DPHY_HELPERS
 	help
 	  Provides a number of helpers a core functions for MIPI D-PHY drivers.
 
+config AB8500_USB_PHY
+	bool "AB8500 USB PHY Driver"
+	depends on PHY && PMIC_AB8500
+	help
+	  Support for the USB OTG PHY in ST-Ericsson AB8500.
+
 config BCM6318_USBH_PHY
 	bool "BCM6318 USBH PHY support"
 	depends on PHY && ARCH_BMIPS

@@ -7,23 +7,23 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* Loaded by another bootloader */
-#define CONFIG_SYS_MALLOC_LEN		SZ_2M
+/*
+ * The "stemmy" U-Boot port is designed to be chainloaded by the Samsung
+ * bootloader on devices based on ST-Ericsson Ux500. Therefore, we skip most
+ * low-level initialization and rely on configuration provided by the Samsung
+ * bootloader. New images are loaded at the same address for compatibility.
+ */
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_TEXT_BASE
 
-/* Physical Memory Map */
-#define PHYS_SDRAM_1			0x00000000	/* DDR-SDRAM Bank #1 */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_SDRAM_SIZE		SZ_1G
-#define CONFIG_SYS_INIT_RAM_SIZE	0x00100000
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_SDRAM_BASE + \
-					 CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_GBL_DATA_OFFSET
+#define CONFIG_SYS_MALLOC_LEN		SZ_2M
 
 /* FIXME: This should be loaded from device tree... */
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		0xa0412000
 
-#define CONFIG_SYS_LOAD_ADDR		0x00100000
+/* Generate initrd atag for downstream kernel (others are copied in stemmy.c) */
+#define CONFIG_INITRD_TAG
 
 #endif

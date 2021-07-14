@@ -340,4 +340,14 @@ config PCI_BRCMSTB
 	  on Broadcom set-top-box (STB) SoCs.
 	  This driver currently supports only BCM2711 SoC and RC mode
 	  of the controller.
+
+config PCIE_UNIPHIER
+	bool "Socionext UniPhier PCIe driver"
+	depends on DM_PCI
+	depends on ARCH_UNIPHIER
+	select PHY_UNIPHIER_PCIE
+	help
+	  Say Y here if you want to enable PCIe controller support on
+	  UniPhier SoCs.
+
 endif

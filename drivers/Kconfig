@@ -80,6 +80,8 @@ source "drivers/phy/allwinner/Kconfig"
 
 source "drivers/phy/marvell/Kconfig"
 
+source "drivers/phy/socionext/Kconfig"
+
 source "drivers/pinctrl/Kconfig"
 
 source "drivers/power/Kconfig"

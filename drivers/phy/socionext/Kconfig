@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# PHY drivers for Socionext platforms.
+#
+
+config PHY_UNIPHIER_PCIE
+	bool "UniPhier PCIe PHY driver"
+	depends on PHY && ARCH_UNIPHIER
+	imply REGMAP
+	help
+	  Enable this to support PHY implemented in PCIe controller
+	  on UniPhier SoCs.

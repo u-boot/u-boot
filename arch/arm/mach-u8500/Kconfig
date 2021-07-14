@@ -8,6 +8,7 @@ choice
 
 config TARGET_STEMMY
 	bool "Samsung (stemmy) board"
+	select MISC_INIT_R
 	help
 	  The Samsung "stemmy" board supports Samsung smartphones released with
 	  the ST-Ericsson NovaThor U8500 SoC, e.g.
@@ -15,6 +16,7 @@ config TARGET_STEMMY
 	      - Samsung Galaxy S III mini (GT-I8190)	"golden"
 	      - Samsung Galaxy S Advance (GT-I9070)	"janice"
 	      - Samsung Galaxy Xcover 2 (GT-S7710)	"skomer"
+	      - Samsung Galaxy Ace 2 (GT-I8160)		"codina"
 
 	  and likely others as well (untested).
 

@@ -13,8 +13,7 @@ CONFIG_FIT=y
 CONFIG_FIT_SIGNATURE=y
 CONFIG_LEGACY_IMAGE_FORMAT=y
 CONFIG_BOOTDELAY=5
-CONFIG_USE_BOOTARGS=y
-CONFIG_BOOTARGS="console=ttyAMA0 debug user_debug=31 earlycon=pl011,0x7ff80000 loglevel=9 androidboot.hardware=total_compute video=640x480-32@60 androidboot.boot_devices=1c050000.mmci ip=dhcp androidboot.selinux=permissive"
+# CONFIG_USE_BOOTARGS is not set
 # CONFIG_USE_BOOTCOMMAND is not set
 # CONFIG_DISPLAY_CPUINFO is not set
 # CONFIG_DISPLAY_BOARDINFO is not set

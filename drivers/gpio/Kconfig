@@ -495,4 +495,12 @@ config NX_GPIO
 	  The GPIOs for a device are defined in the device tree with one node
 	  for each bank.
 
+config NOMADIK_GPIO
+	bool "Nomadik GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support GPIO access on ST-Ericsson Ux500 SoCs. The GPIOs are arranged
+	  into a number of banks each with 32 GPIOs. The GPIOs for a device are
+	  defined in the device tree with one node for each bank.
+
 endmenu

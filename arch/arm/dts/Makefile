@@ -254,6 +254,7 @@ dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-global.dtb \
 	uniphier-ld11-ref.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER_LD20) += \
+	uniphier-ld20-akebi96.dtb \
 	uniphier-ld20-global.dtb \
 	uniphier-ld20-ref.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER_LD4) += \

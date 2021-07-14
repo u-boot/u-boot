@@ -10,7 +10,7 @@
 #include <common.h>
 
 #define MAX_PIN_NAME_LEN 32
-static char pin_name[MAX_PIN_NAME_LEN];
+static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 static const char * const msm_pinctrl_pins[] = {
 	"SDC1_CLK",
 	"SDC1_CMD",
@@ -59,4 +59,3 @@ struct msm_pinctrl_data apq8016_data = {
 	.get_function_mux = apq8016_get_function_mux,
 	.get_pin_name = apq8016_get_pin_name,
 };
-

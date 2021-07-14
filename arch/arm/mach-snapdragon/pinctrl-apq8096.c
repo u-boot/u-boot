@@ -10,7 +10,7 @@
 #include <common.h>
 
 #define MAX_PIN_NAME_LEN 32
-static char pin_name[MAX_PIN_NAME_LEN];
+static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 static const char * const msm_pinctrl_pins[] = {
 	"SDC1_CLK",
 	"SDC1_CMD",
