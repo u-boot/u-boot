@@ -600,34 +600,10 @@ static void arasan_dt_parse_clk_phases(struct udevice *dev)
 				 "clk-phase-mmc-hs400");
 }
 
-static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
-{
-	struct mmc *mmc = (struct mmc *)host->mmc;
-	u32 reg;
-
-	if (!IS_SD(mmc))
-		return;
-
-	if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180) {
-		reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
-		reg |= SDHCI_CTRL_VDD_180;
-		sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
-		/*
-		 * 5ms delay is required as per SD3.0 spec while switching
-		 * voltage to 1.8v
-		 */
-		mdelay(5);
-	}
-
-	if (mmc->selected_mode > SD_HS &&
-	    mmc->selected_mode <= MMC_HS_200)
-		sdhci_set_uhs_timing(host);
-}
-
 static const struct sdhci_ops arasan_ops = {
 	.platform_execute_tuning	= &arasan_sdhci_execute_tuning,
 	.set_delay = &arasan_sdhci_set_tapdelay,
-	.set_control_reg = &arasan_sdhci_set_control_reg,
+	.set_control_reg = &sdhci_set_control_reg,
 };
 #endif
 
