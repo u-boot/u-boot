@@ -14,7 +14,6 @@
 #include "rcar-gen3-common.h"
 
 /* Ethernet RAVB */
-#define CONFIG_NET_MULTI
 #define CONFIG_BITBANGMII_MULTI
 
 /* Generic Timer Definitions (use in assembler source) */
