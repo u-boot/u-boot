@@ -133,9 +133,6 @@ int board_late_init(void)
 		device_unbind(dev);
 	}
 
-	if (env_get("fdtfile"))
-		return 0;
-
 	/* Ensure that 'env default -a' set correct value to $fdtfile */
 	if (ddr4 && emmc)
 		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-v7-emmc.dtb");
@@ -145,10 +142,6 @@ int board_late_init(void)
 		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-emmc.dtb");
 	else
 		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin.dtb");
-
-	/* If $fdtfile was not set explicitly by user then set default value */
-	if (!env_get("fdtfile"))
-		env_set("fdtfile", ptr + sizeof("fdtfile="));
 
 	return 0;
 }
