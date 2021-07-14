@@ -47,6 +47,7 @@ struct fdt_region;
 #include <lmb.h>
 #include <asm/u-boot.h>
 #include <command.h>
+#include <linker_lists.h>
 
 /* Take notice of the 'ignore' property for hashes */
 #define IMAGE_ENABLE_IGNORE	1
@@ -1327,6 +1328,10 @@ struct crypto_algo {
 		      const struct image_region region[], int region_count,
 		      uint8_t *sig, uint sig_len);
 };
+
+/* Declare a new U-Boot crypto algorithm handler */
+#define U_BOOT_CRYPTO_ALGO(__name)						\
+ll_entry_declare(struct crypto_algo, __name, cryptos)
 
 struct padding_algo {
 	const char *name;

@@ -107,6 +107,7 @@ struct checksum_algo *image_get_checksum_algo(const char *full_name)
 
 struct crypto_algo *image_get_crypto_algo(const char *full_name)
 {
+	struct crypto_algo *crypto, *end;
 	int i;
 	const char *name;
 
@@ -133,6 +134,14 @@ struct crypto_algo *image_get_crypto_algo(const char *full_name)
 			return &crypto_algos[i];
 	}
 
+	crypto = ll_entry_start(struct crypto_algo, cryptos);
+	end = ll_entry_end(struct crypto_algo, cryptos);
+	for (; crypto < end; crypto++) {
+		if (!strcmp(crypto->name, name))
+			return crypto;
+	}
+
+	/* Not found */
 	return NULL;
 }
 
