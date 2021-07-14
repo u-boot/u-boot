@@ -1223,15 +1223,15 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 		sha1_csum_wd((unsigned char *)data, data_len,
 			     (unsigned char *)value, CHUNKSZ_SHA1);
 		*value_len = 20;
-	} else if (IMAGE_ENABLE_SHA256 && strcmp(algo, "sha256") == 0) {
+	} else if (CONFIG_IS_ENABLED(SHA256) && strcmp(algo, "sha256") == 0) {
 		sha256_csum_wd((unsigned char *)data, data_len,
 			       (unsigned char *)value, CHUNKSZ_SHA256);
 		*value_len = SHA256_SUM_LEN;
-	} else if (IMAGE_ENABLE_SHA384 && strcmp(algo, "sha384") == 0) {
+	} else if (CONFIG_IS_ENABLED(SHA384) && strcmp(algo, "sha384") == 0) {
 		sha384_csum_wd((unsigned char *)data, data_len,
 			       (unsigned char *)value, CHUNKSZ_SHA384);
 		*value_len = SHA384_SUM_LEN;
-	} else if (IMAGE_ENABLE_SHA512 && strcmp(algo, "sha512") == 0) {
+	} else if (CONFIG_IS_ENABLED(SHA512) && strcmp(algo, "sha512") == 0) {
 		sha512_csum_wd((unsigned char *)data, data_len,
 			       (unsigned char *)value, CHUNKSZ_SHA512);
 		*value_len = SHA512_SUM_LEN;

@@ -81,27 +81,6 @@ struct fdt_region;
 #define IMAGE_ENABLE_MD5	0
 #endif
 
-#if defined(CONFIG_FIT_SHA256) || \
-	defined(CONFIG_SPL_FIT_SHA256)
-#define IMAGE_ENABLE_SHA256	1
-#else
-#define IMAGE_ENABLE_SHA256	0
-#endif
-
-#if defined(CONFIG_FIT_SHA384) || \
-	defined(CONFIG_SPL_FIT_SHA384)
-#define IMAGE_ENABLE_SHA384	1
-#else
-#define IMAGE_ENABLE_SHA384	0
-#endif
-
-#if defined(CONFIG_FIT_SHA512) || \
-	defined(CONFIG_SPL_FIT_SHA512)
-#define IMAGE_ENABLE_SHA512	1
-#else
-#define IMAGE_ENABLE_SHA512	0
-#endif
-
 #endif /* IMAGE_ENABLE_FIT */
 
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
