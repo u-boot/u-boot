@@ -2027,7 +2027,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		 * fit_conf_get_node() will try to find default config node
 		 */
 		bootstage_mark(bootstage_id + BOOTSTAGE_SUB_NO_UNIT_NAME);
-		if (IMAGE_ENABLE_BEST_MATCH && !fit_uname_config) {
+		if (IS_ENABLED(CONFIG_FIT_BEST_MATCH) && !fit_uname_config) {
 			cfg_noffset = fit_conf_find_compat(fit, gd_fdt_blob());
 		} else {
 			cfg_noffset = fit_conf_get_node(fit,
