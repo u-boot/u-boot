@@ -17,7 +17,6 @@
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>
-#include <zynqmp_tap_delay.h>
 #include <zynqmp_firmware.h>
 
 #define SDHCI_ARASAN_ITAPDLY_REGISTER	0xF0F8
@@ -75,6 +74,26 @@ static const u8 mode2timing[] = {
 	[UHS_SDR104] = MMC_TIMING_UHS_SDR104,
 	[MMC_HS_200] = MMC_TIMING_MMC_HS200,
 };
+
+static inline int arasan_zynqmp_set_in_tapdelay(u8 deviceid, u32 type,
+						u32 itap_delay)
+{
+	return xilinx_pm_request(PM_IOCTL, (u32)deviceid, IOCTL_SET_SD_TAPDELAY,
+				 type, itap_delay, NULL);
+}
+
+static inline int arasan_zynqmp_set_out_tapdelay(u8 deviceid, u32 type,
+						 u32 otap_delay)
+{
+	return xilinx_pm_request(PM_IOCTL, (u32)deviceid, IOCTL_SET_SD_TAPDELAY,
+				 type, otap_delay, NULL);
+}
+
+static inline int zynqmp_pm_sd_dll_reset(u8 node_id, u32 type)
+{
+	return xilinx_pm_request(PM_IOCTL, (u32)node_id, IOCTL_SD_DLL_RESET,
+				 type, 0, NULL);
+}
 
 static int arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 deviceid)
 {
