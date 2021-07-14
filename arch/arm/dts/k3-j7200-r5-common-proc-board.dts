@@ -239,6 +239,32 @@
 	ti,driver-strength-ohm = <50>;
 };
 
+&wkup_i2c0 {
+	u-boot,dm-spl;
+	lp876441: lp876441@4c {
+		compatible = "ti,lp876441";
+		reg = <0x4c>;
+		u-boot,dm-spl;
+		pinctrl-names = "default";
+		pinctrl-0 = <&wkup_i2c0_pins_default>;
+		clock-frequency = <400000>;
+
+		regulators: regulators {
+			u-boot,dm-spl;
+			buck1_reg: buck1 {
+				/*VDD_CPU_AVS_REG*/
+				regulator-name = "buck1";
+				regulator-min-microvolt = <800000>;
+				regulator-max-microvolt = <1250000>;
+				regulator-always-on;
+				regulator-boot-on;
+				u-boot,dm-spl;
+			};
+		};
+	};
+
+};
+
 &main_i2c0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c0_pins_default>;
