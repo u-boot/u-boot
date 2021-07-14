@@ -119,11 +119,11 @@ int padding_pkcs_15_verify(struct image_sign_info *info,
 			   uint8_t *msg, int msg_len,
 			   const uint8_t *hash, int hash_len);
 
-#ifdef CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT
+#ifdef CONFIG_FIT_RSASSA_PSS
 int padding_pss_verify(struct image_sign_info *info,
 		       uint8_t *msg, int msg_len,
 		       const uint8_t *hash, int hash_len);
-#endif /* CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT */
+#endif /* CONFIG_FIT_RSASSA_PSS */
 #else
 static inline int rsa_verify_hash(struct image_sign_info *info,
 				  const uint8_t *hash,
@@ -146,14 +146,14 @@ static inline int padding_pkcs_15_verify(struct image_sign_info *info,
 	return -ENXIO;
 }
 
-#ifdef CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT
+#ifdef CONFIG_FIT_RSASSA_PSS
 static inline int padding_pss_verify(struct image_sign_info *info,
 				     uint8_t *msg, int msg_len,
 				     const uint8_t *hash, int hash_len)
 {
 	return -ENXIO;
 }
-#endif /* CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT */
+#endif /* CONFIG_FIT_RSASSA_PSS */
 #endif
 
 #define RSA_DEFAULT_PADDING_NAME		"pkcs-1.5"
