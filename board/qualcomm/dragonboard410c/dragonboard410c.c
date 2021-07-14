@@ -132,8 +132,7 @@ int misc_init_r(void)
 	}
 
 	if (dm_gpio_get_value(&resin)) {
-		env_set("bootdelay", "-1");
-		env_set("bootcmd", "fastboot 0");
+		env_set("preboot", "setenv preboot; fastboot 0");
 		printf("key_vol_down pressed - Starting fastboot.\n");
 	}
 
