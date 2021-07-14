@@ -327,7 +327,7 @@ config EFI_TCG2_PROTOCOL
 config EFI_TCG2_PROTOCOL_EVENTLOG_SIZE
 	int "EFI_TCG2_PROTOCOL EventLog size"
 	depends on EFI_TCG2_PROTOCOL
-	default 4096
+	default 65536
 	help
 		Define the size of the EventLog for EFI_TCG2_PROTOCOL. Note that
 		this is going to be allocated twice. One for the eventlog it self
