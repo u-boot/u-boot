@@ -124,7 +124,7 @@ int board_late_init(void)
 
 	/* eMMC is mmc dev num 1 */
 	mmc_dev = find_mmc_device(1);
-	emmc = (mmc_dev && mmc_init(mmc_dev) == 0);
+	emmc = (mmc_dev && mmc_get_op_cond(mmc_dev) == 0);
 
 	/* if eMMC is not present then remove it from DM */
 	if (!emmc && mmc_dev) {
