@@ -1196,19 +1196,16 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 #if defined(USE_HOSTCC)
 # if defined(CONFIG_FIT_SIGNATURE)
 #  define IMAGE_ENABLE_SIGN	1
-#  define IMAGE_ENABLE_VERIFY	1
 #  define IMAGE_ENABLE_VERIFY_ECDSA	1
 #  define FIT_IMAGE_ENABLE_VERIFY	1
 #  include <openssl/evp.h>
 # else
 #  define IMAGE_ENABLE_SIGN	0
-#  define IMAGE_ENABLE_VERIFY	0
 # define IMAGE_ENABLE_VERIFY_ECDSA	0
 #  define FIT_IMAGE_ENABLE_VERIFY	0
 # endif
 #else
 # define IMAGE_ENABLE_SIGN	0
-# define IMAGE_ENABLE_VERIFY		CONFIG_IS_ENABLED(RSA_VERIFY)
 # define IMAGE_ENABLE_VERIFY_ECDSA	0
 # define FIT_IMAGE_ENABLE_VERIFY	CONFIG_IS_ENABLED(FIT_SIGNATURE)
 #endif
@@ -1260,7 +1257,7 @@ struct image_region {
 	int size;
 };
 
-#if IMAGE_ENABLE_VERIFY
+#if FIT_IMAGE_ENABLE_VERIFY
 # include <u-boot/hash-checksum.h>
 #endif
 struct checksum_algo {
