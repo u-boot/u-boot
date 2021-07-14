@@ -52,16 +52,6 @@ struct checksum_algo checksum_algos[] = {
 };
 
 struct crypto_algo crypto_algos[] = {
-	{
-		.name = "rsa2048",
-		.key_len = RSA2048_BYTES,
-		.verify = rsa_verify,
-	},
-	{
-		.name = "rsa4096",
-		.key_len = RSA4096_BYTES,
-		.verify = rsa_verify,
-	},
 };
 
 struct padding_algo padding_algos[] = {
