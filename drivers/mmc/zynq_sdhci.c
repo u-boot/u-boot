@@ -75,17 +75,17 @@ static const u8 mode2timing[] = {
 	[MMC_HS_200] = MMC_TIMING_MMC_HS200,
 };
 
-static inline int arasan_zynqmp_set_in_tapdelay(u8 deviceid, u32 type,
+static inline int arasan_zynqmp_set_in_tapdelay(u8 node_id, u32 type,
 						u32 itap_delay)
 {
-	return xilinx_pm_request(PM_IOCTL, (u32)deviceid, IOCTL_SET_SD_TAPDELAY,
+	return xilinx_pm_request(PM_IOCTL, (u32)node_id, IOCTL_SET_SD_TAPDELAY,
 				 type, itap_delay, NULL);
 }
 
-static inline int arasan_zynqmp_set_out_tapdelay(u8 deviceid, u32 type,
+static inline int arasan_zynqmp_set_out_tapdelay(u8 node_id, u32 type,
 						 u32 otap_delay)
 {
-	return xilinx_pm_request(PM_IOCTL, (u32)deviceid, IOCTL_SET_SD_TAPDELAY,
+	return xilinx_pm_request(PM_IOCTL, (u32)node_id, IOCTL_SET_SD_TAPDELAY,
 				 type, otap_delay, NULL);
 }
 
@@ -95,7 +95,7 @@ static inline int zynqmp_pm_sd_dll_reset(u8 node_id, u32 type)
 				 type, 0, NULL);
 }
 
-static int arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 deviceid)
+static int arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 node_id)
 {
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	struct udevice *dev = mmc->dev;
@@ -108,14 +108,14 @@ static int arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 deviceid)
 	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
 
 	/* Issue DLL Reset */
-	ret = zynqmp_pm_sd_dll_reset(deviceid, PM_DLL_RESET_ASSERT);
+	ret = zynqmp_pm_sd_dll_reset(node_id, PM_DLL_RESET_ASSERT);
 	if (ret) {
 		dev_err(dev, "dll_reset assert failed with err: %d\n", ret);
 		return ret;
 	}
 
 	mdelay(1);
-	ret = zynqmp_pm_sd_dll_reset(deviceid, PM_DLL_RESET_RELEASE);
+	ret = zynqmp_pm_sd_dll_reset(node_id, PM_DLL_RESET_RELEASE);
 	if (ret) {
 		dev_err(dev, "dll_reset release failed with err: %d\n", ret);
 		return ret;
