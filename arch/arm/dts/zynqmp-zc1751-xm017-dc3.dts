@@ -221,27 +221,27 @@
 
 &usb0 {
 	status = "okay";
+	phy-names = "usb3-phy";
+	phys = <&psgtr 0 PHY_TYPE_USB3 0 2>;
 };
 
 &dwc3_0 {
 	status = "okay";
 	dr_mode = "host";
 	snps,usb3_lpm_capable;
-	phy-names = "usb3-phy";
-	phys = <&psgtr 0 PHY_TYPE_USB3 0 2>;
 	maximum-speed = "super-speed";
 };
 
 /* ULPI SMSC USB3320 */
 &usb1 {
 	status = "okay";
+	phy-names = "usb3-phy";
+	phys = <&psgtr 3 PHY_TYPE_USB3 1 2>;
 };
 
 &dwc3_1 {
 	status = "okay";
 	dr_mode = "host";
 	snps,usb3_lpm_capable;
-	phy-names = "usb3-phy";
-	phys = <&psgtr 3 PHY_TYPE_USB3 1 2>;
 	maximum-speed = "super-speed";
 };
