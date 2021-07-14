@@ -65,7 +65,7 @@ struct fdt_region;
 #  ifdef CONFIG_SPL_CRC32
 #   define IMAGE_ENABLE_CRC32	1
 #  endif
-#  ifdef CONFIG_SPL_MD5_SUPPORT
+#  ifdef CONFIG_SPL_MD5
 #   define IMAGE_ENABLE_MD5	1
 #  endif
 #  ifdef CONFIG_SPL_FIT_SHA1

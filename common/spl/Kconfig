@@ -417,7 +417,7 @@ config SPL_CRC32
 	  for detected accidental image corruption. For secure applications you
 	  should consider SHA1 or SHA256.
 
-config SPL_MD5_SUPPORT
+config SPL_MD5
 	bool "Support MD5"
 	depends on SPL_FIT
 	help
