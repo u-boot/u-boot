@@ -53,10 +53,9 @@
 /*
  * SATA driver configuration
  */
-#ifdef CONFIG_IDE
-#define __io
-#define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
-#define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
-#endif /* CONFIG_IDE */
+#ifdef CONFIG_SATA
+#define CONFIG_SYS_SATA_MAX_DEVICE	2
+#define CONFIG_LBA48
+#endif /* CONFIG_SATA */
 
 #endif /* _CONFIG_SHEEVAPLUG_H */
