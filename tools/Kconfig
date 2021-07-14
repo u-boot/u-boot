@@ -9,4 +9,15 @@ config MKIMAGE_DTC_PATH
 	  some cases the system dtc may not support all required features
 	  and the path to a different version should be given here.
 
+config TOOLS_LIBCRYPTO
+	bool "Use OpenSSL's libcrypto library for host tools"
+	default y
+	help
+	  Cryptographic signature, verification, and encryption of images is
+	  provided by host tools using OpenSSL's libcrypto. Select 'n' here if
+	  you wish to build host tools without OpenSSL. mkimage will not have
+	  the ability to sign images.
+	  This selection does not affect target features, such as runtime FIT
+	  signature verification.
+
 endmenu

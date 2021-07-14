@@ -3,6 +3,25 @@
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
+# A note on target vs host configuration:
+#
+# Host tools can be used across multiple targets, or different configurations
+# of the same target. Thus, host tools must be able to handle any combination
+# of target configurations. To prevent having different variations of the same
+# tool, the tool build options may not depend on target configuration.
+#
+# Some linux distributions package these utilities as u-boot-tools, and it
+# would be unmaintainable to have a different tool variation for each
+# arch or configuration.
+#
+# A couple of simple rules:
+#
+# 1) Do not use target CONFIG_* options to enable or disable features in host
+#    tools. Only use the configs from tools/Kconfig
+# 2) It's okay to use target configs to disable building specific tools.
+#    That's as long as the features of those tools aren't modified.
+#
+
 # Enable all the config-independent tools
 ifneq ($(HOST_TOOLS_ALL),)
 CONFIG_ARCH_KIRKWOOD = y
@@ -53,30 +72,30 @@ hostprogs-y += mkenvimage
 mkenvimage-objs := mkenvimage.o os_support.o lib/crc32.o
 
 hostprogs-y += dumpimage mkimage
-hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info fit_check_sign
+hostprogs-$(CONFIG_TOOLS_LIBCRYPTO) += fit_info fit_check_sign
 
 hostprogs-$(CONFIG_CMD_BOOTEFI_SELFTEST) += file2include
 
-FIT_OBJS-$(CONFIG_FIT) := fit_common.o fit_image.o image-host.o common/image-fit.o
-FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := image-sig-host.o common/image-fit-sig.o
-FIT_CIPHER_OBJS-$(CONFIG_FIT_CIPHER) := common/image-cipher.o
+FIT_OBJS-y := fit_common.o fit_image.o image-host.o common/image-fit.o
+FIT_SIG_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := image-sig-host.o common/image-fit-sig.o
+FIT_CIPHER_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := common/image-cipher.o
 
 # The following files are synced with upstream DTC.
 # Use synced versions from scripts/dtc/libfdt/.
 LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
 		fdt_strerror.o fdt_empty_tree.o fdt_addresses.o fdt_overlay.o)
 
-RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
+RSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/rsa/, \
 					rsa-sign.o rsa-verify.o \
 					rsa-mod-exp.o)
 
-ECDSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/ecdsa/, ecdsa-libcrypto.o)
+ECDSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/ecdsa/, ecdsa-libcrypto.o)
 
-AES_OBJS-$(CONFIG_FIT_CIPHER) := $(addprefix lib/aes/, \
+AES_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/aes/, \
 					aes-encrypt.o aes-decrypt.o)
 
 # Cryptographic helpers that depend on openssl/libcrypto
-LIBCRYPTO_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/, \
+LIBCRYPTO_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/, \
 					fdt-libcrypto.o)
 
 ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
@@ -136,22 +155,17 @@ fit_info-objs   := $(dumpimage-mkimage-objs) fit_info.o
 fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 file2include-objs := file2include.o
 
-ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_FIT_SIGNATURE),)
+ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_TOOLS_LIBCRYPTO),)
 # Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
 HOSTCFLAGS_mxsimage.o += -DCONFIG_MXS
 endif
 
-ifdef CONFIG_FIT_SIGNATURE
+ifdef CONFIG_TOOLS_LIBCRYPTO
 # This affects include/image.h, but including the board config file
 # is tricky, so manually define this options here.
 HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE
-HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE_MAX_SIZE=$(CONFIG_FIT_SIGNATURE_MAX_SIZE)
-endif
-
-ifdef CONFIG_FIT_CIPHER
-# This affects include/image.h, but including the board config file
-# is tricky, so manually define this options here.
+HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE_MAX_SIZE=0xffffffff
 HOST_EXTRACFLAGS	+= -DCONFIG_FIT_CIPHER
 endif
 
@@ -164,7 +178,7 @@ HOSTCFLAGS_kwbimage.o += -DCONFIG_KWB_SECURE
 endif
 
 # MXSImage needs LibSSL
-ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_ARMADA_38X)$(CONFIG_FIT_SIGNATURE)$(CONFIG_FIT_CIPHER),)
+ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_ARMADA_38X)$(CONFIG_TOOLS_LIBCRYPTO),)
 HOSTCFLAGS_kwbimage.o += \
 	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
 HOSTLDLIBS_mkimage += \
