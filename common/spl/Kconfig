@@ -429,7 +429,7 @@ config SPL_MD5_SUPPORT
 	  applications where images may be changed maliciously, you should
 	  consider SHA256 or SHA384.
 
-config SPL_SHA1_SUPPORT
+config SPL_FIT_SHA1
 	bool "Support SHA1"
 	depends on SPL_FIT
 	select SHA1
@@ -441,7 +441,7 @@ config SPL_SHA1_SUPPORT
 	  due to the expanding computing power available to brute-force
 	  attacks. For more security, consider SHA256 or SHA384.
 
-config SPL_SHA256_SUPPORT
+config SPL_FIT_SHA256
 	bool "Support SHA256"
 	depends on SPL_FIT
 	select SHA256
@@ -450,7 +450,7 @@ config SPL_SHA256_SUPPORT
 	  checksum is a 256-bit (32-byte) hash value used to check that the
 	  image contents have not been corrupted.
 
-config SPL_SHA384_SUPPORT
+config SPL_FIT_SHA384
 	bool "Support SHA384"
 	depends on SPL_FIT
 	select SHA384
@@ -461,7 +461,7 @@ config SPL_SHA384_SUPPORT
 	  image contents have not been corrupted. Use this for the highest
 	  security.
 
-config SPL_SHA512_SUPPORT
+config SPL_FIT_SHA512
 	bool "Support SHA512"
 	depends on SPL_FIT
 	select SHA512
