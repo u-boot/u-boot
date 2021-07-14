@@ -691,11 +691,7 @@ skip:
 	}
 found:
 	if (boot_dev) {
-		u16 *path_str;
-
-		path_str = efi_dp_str(boot_dev);
-		log_debug("Boot device %ls\n", path_str);
-		efi_free_pool(path_str);
+		log_debug("Boot device %pD\n", boot_dev);
 
 		volume = efi_fs_from_path(boot_dev);
 		if (!volume)
