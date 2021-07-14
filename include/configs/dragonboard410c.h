@@ -16,8 +16,8 @@
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			0x80000000
-/* 1008 MB (the last ~30Mb are secured for TrustZone by ATF*/
-#define PHYS_SDRAM_1_SIZE		0x3da00000
+/* Note: 8 MiB (0x86000000 - 0x86800000) are reserved for tz/smem/hyp/rmtfs/rfsa */
+#define PHYS_SDRAM_1_SIZE		SZ_1G
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x80000)
