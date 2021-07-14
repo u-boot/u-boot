@@ -68,13 +68,9 @@ struct fdt_region;
 #  ifdef CONFIG_SPL_MD5
 #   define IMAGE_ENABLE_MD5	1
 #  endif
-#  ifdef CONFIG_SPL_FIT_SHA1
-#   define IMAGE_ENABLE_SHA1	1
-#  endif
 # else
 #  define IMAGE_ENABLE_CRC32	1
 #  define IMAGE_ENABLE_MD5	1
-#  define IMAGE_ENABLE_SHA1	1
 # endif
 
 #ifndef IMAGE_ENABLE_CRC32
@@ -83,10 +79,6 @@ struct fdt_region;
 
 #ifndef IMAGE_ENABLE_MD5
 #define IMAGE_ENABLE_MD5	0
-#endif
-
-#ifndef IMAGE_ENABLE_SHA1
-#define IMAGE_ENABLE_SHA1	0
 #endif
 
 #if defined(CONFIG_FIT_SHA256) || \
