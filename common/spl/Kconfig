@@ -204,7 +204,7 @@ config SPL_LEGACY_IMAGE_SUPPORT
 config SPL_LEGACY_IMAGE_CRC_CHECK
 	bool "Check CRC of Legacy images"
 	depends on SPL_LEGACY_IMAGE_SUPPORT
-	select SPL_CRC32_SUPPORT
+	select SPL_CRC32
 	help
 	  Enable this to check the CRC of Legacy images. While this increases
 	  reliability, it affects both code size and boot duration.
@@ -407,7 +407,7 @@ config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
 	  the eMMC EXT_CSC_PART_CONFIG selection should be overridden in SPL
 	  by user defined partition number.
 
-config SPL_CRC32_SUPPORT
+config SPL_CRC32
 	bool "Support CRC32"
 	default y if SPL_LEGACY_IMAGE_SUPPORT
 	help
