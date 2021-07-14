@@ -97,6 +97,19 @@ struct crypto_algo *image_get_crypto_algo(const char *full_name)
 	struct crypto_algo *crypto, *end;
 	const char *name;
 
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+	static bool done;
+
+	if (!done) {
+		crypto = ll_entry_start(struct crypto_algo, cryptos);
+		end = ll_entry_end(struct crypto_algo, cryptos);
+		for (; crypto < end; crypto++) {
+			crypto->name += gd->reloc_off;
+			crypto->verify += gd->reloc_off;
+		}
+	}
+#endif
+
 	/* Move name to after the comma */
 	name = strchr(full_name, ',');
 	if (!name)
