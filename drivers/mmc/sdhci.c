@@ -532,7 +532,7 @@ static int sdhci_set_ios(struct mmc *mmc)
 		sdhci_set_clock(mmc, mmc->clock);
 
 	if (mmc->clk_disable)
-		return sdhci_set_clock(mmc, 0);
+		sdhci_set_clock(mmc, 0);
 
 	/* Set bus width */
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
@@ -557,11 +557,19 @@ static int sdhci_set_ios(struct mmc *mmc)
 		no_hispd_bit = true;
 	}
 
-	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
-
-	if (IS_SD(mmc) && SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
-		if (host->ops && host->ops->set_control_reg)
-			host->ops->set_control_reg(host);
+	if (!no_hispd_bit) {
+		if (mmc->selected_mode == MMC_HS ||
+		    mmc->selected_mode == SD_HS ||
+		    mmc->selected_mode == MMC_DDR_52 ||
+		    mmc->selected_mode == MMC_HS_200 ||
+		    mmc->selected_mode == MMC_HS_400 ||
+		    mmc->selected_mode == UHS_SDR25 ||
+		    mmc->selected_mode == UHS_SDR50 ||
+		    mmc->selected_mode == UHS_SDR104 ||
+		    mmc->selected_mode == UHS_DDR50)
+			ctrl |= SDHCI_CTRL_HISPD;
+		else
+			ctrl &= ~SDHCI_CTRL_HISPD;
 	}
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
