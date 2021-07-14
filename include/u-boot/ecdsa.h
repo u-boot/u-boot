@@ -15,7 +15,6 @@
  * @see "struct crypto_algo"
  * @{
  */
-#if IMAGE_ENABLE_SIGN
 /**
  * sign() - calculate and return signature for given input data
  *
@@ -49,22 +48,7 @@ int ecdsa_sign(struct image_sign_info *info, const struct image_region region[],
  * other -ve value on error
  */
 int ecdsa_add_verify_data(struct image_sign_info *info, void *keydest);
-#else
-static inline
-int ecdsa_sign(struct image_sign_info *info, const struct image_region region[],
-	       int region_count, uint8_t **sigp, uint *sig_len)
-{
-	return -ENXIO;
-}
 
-static inline
-int ecdsa_add_verify_data(struct image_sign_info *info, void *keydest)
-{
-	return -ENXIO;
-}
-#endif
-
-#if IMAGE_ENABLE_VERIFY_ECDSA
 /**
  * verify() - Verify a signature against some data
  *
@@ -78,15 +62,6 @@ int ecdsa_add_verify_data(struct image_sign_info *info, void *keydest)
 int ecdsa_verify(struct image_sign_info *info,
 		 const struct image_region region[], int region_count,
 		 uint8_t *sig, uint sig_len);
-#else
-static inline
-int ecdsa_verify(struct image_sign_info *info,
-		 const struct image_region region[], int region_count,
-		 uint8_t *sig, uint sig_len)
-{
-	return -ENXIO;
-}
-#endif
 /** @} */
 
 #define ECDSA256_BYTES	(256 / 8)
