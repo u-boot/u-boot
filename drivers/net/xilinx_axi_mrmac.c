@@ -21,16 +21,6 @@
 #include <linux/ethtool.h>
 #include "xilinx_axi_mrmac.h"
 
-static u8 rxframe[RX_DESC * PKTSIZE_ALIGN] __attribute((aligned(DMAALIGN)));
-static u8 txminframe[MIN_PKT_SIZE] __attribute((aligned(DMAALIGN)));
-
-/* Static buffer descriptors:
- * MRMAC needs atleast two buffer descriptors for the TX/RX to happen.
- * Otherwise MRMAC will drop the packets. So, have two tx and rx bd's here.
- */
-static struct mcdma_bd tx_bd[TX_DESC] __attribute((aligned(DMAALIGN)));
-static struct mcdma_bd rx_bd[RX_DESC] __attribute((aligned(DMAALIGN)));
-
 static void axi_mrmac_dma_write(struct mcdma_bd *bd, u32 *desc)
 {
 	if (IS_ENABLED(CONFIG_PHYS_64BIT))
@@ -39,24 +29,34 @@ static void axi_mrmac_dma_write(struct mcdma_bd *bd, u32 *desc)
 		writel((uintptr_t)bd, desc);
 }
 
+/**
+ * axi_mrmac_ethernet_init - MRMAC init function
+ * @priv:	MRMAC private structure
+ *
+ * Return:	0 on success, negative value on errors
+ *
+ * This function is called to reset and initialize MRMAC core. This is
+ * typically called during initialization. It does a reset of MRMAC Rx/Tx
+ * channels and Rx/Tx SERDES. It configures MRMAC speed based on mrmac_rate
+ * which is read from DT. This function waits for block lock bit to get set,
+ * if it is not set within 100ms time returns a timeout error.
+ */
 static int axi_mrmac_ethernet_init(struct axi_mrmac_priv *priv)
 {
 	struct mrmac_regs *regs = priv->iobase;
-	u32 val, reg;
+	u32 reg;
 	u32 ret;
 
 	/* Perform all the RESET's required */
-	val = readl(&regs->reset);
-	val |= MRMAC_RX_SERDES_RST_MASK | MRMAC_TX_SERDES_RST_MASK |
-		MRMAC_RX_RST_MASK | MRMAC_TX_RST_MASK;
-	writel(val, &regs->reset);
+	setbits_le32(&regs->reset, MRMAC_RX_SERDES_RST_MASK | MRMAC_RX_RST_MASK
+		     | MRMAC_TX_SERDES_RST_MASK | MRMAC_TX_RST_MASK);
 
 	mdelay(MRMAC_RESET_DELAY);
 
 	/* Configure Mode register */
 	reg = readl(&regs->mode);
 
-	debug("Configuring MRMAC speed to %d\n", priv->mrmac_rate);
+	log_debug("Configuring MRMAC speed to %d\n", priv->mrmac_rate);
 
 	if (priv->mrmac_rate == SPEED_25000) {
 		reg &= ~MRMAC_CTL_RATE_CFG_MASK;
@@ -76,20 +76,16 @@ static int axi_mrmac_ethernet_init(struct axi_mrmac_priv *priv)
 	reg |= MRMAC_CTL_PM_TICK_MASK;
 	writel(reg, &regs->mode);
 
-	val = readl(&regs->reset);
-	val &= ~(MRMAC_RX_SERDES_RST_MASK | MRMAC_TX_SERDES_RST_MASK |
-		 MRMAC_RX_RST_MASK | MRMAC_TX_RST_MASK);
-	writel(val, &regs->reset);
+	clrbits_le32(&regs->reset, MRMAC_RX_SERDES_RST_MASK | MRMAC_RX_RST_MASK
+		     | MRMAC_TX_SERDES_RST_MASK | MRMAC_TX_RST_MASK);
 
 	mdelay(MRMAC_RESET_DELAY);
 
 	/* Setup MRMAC hardware options */
-	writel(readl(&regs->rx_config) | MRMAC_RX_DEL_FCS_MASK,
-	       &regs->rx_config);
-	writel(readl(&regs->tx_config) | MRMAC_TX_INS_FCS_MASK,
-	       &regs->tx_config);
-	writel(readl(&regs->tx_config) | MRMAC_TX_EN_MASK, &regs->tx_config);
-	writel(readl(&regs->rx_config) | MRMAC_RX_EN_MASK, &regs->rx_config);
+	setbits_le32(&regs->rx_config, MRMAC_RX_DEL_FCS_MASK);
+	setbits_le32(&regs->tx_config, MRMAC_TX_INS_FCS_MASK);
+	setbits_le32(&regs->tx_config, MRMAC_TX_EN_MASK);
+	setbits_le32(&regs->rx_config, MRMAC_RX_EN_MASK);
 
 	/* Check for block lock bit to be set. This ensures that
 	 * MRMAC ethernet IP is functioning normally.
@@ -106,8 +102,8 @@ static int axi_mrmac_ethernet_init(struct axi_mrmac_priv *priv)
 				MRMAC_RX_BLKLCK_MASK, true,
 				MRMAC_BLKLCK_TIMEOUT, true);
 	if (ret) {
-		printf("%s: MRMAC block lock not complete!\n", __func__);
-		return 1;
+		log_warning("Error: MRMAC block lock not complete!\n");
+		return -EIO;
 	}
 
 	writel(MRMAC_TICK_TRIGGER, &regs->tick_reg);
@@ -115,7 +111,14 @@ static int axi_mrmac_ethernet_init(struct axi_mrmac_priv *priv)
 	return 0;
 }
 
-/* Reset DMA engine */
+/**
+ * axi_mcdma_init - Reset MCDMA engine
+ * @priv:	MRMAC private structure
+ *
+ * Return:	0 on success, negative value on timeouts
+ *
+ * This function is called to reset and initialize MCDMA engine
+ */
 static int axi_mcdma_init(struct axi_mrmac_priv *priv)
 {
 	u32 ret;
@@ -124,33 +127,42 @@ static int axi_mcdma_init(struct axi_mrmac_priv *priv)
 	writel(XMCDMA_CR_RESET, &priv->mm2s_cmn->control);
 	writel(XMCDMA_CR_RESET, &priv->s2mm_cmn->control);
 
-	/* Check TX/RX MCDMA.RST. Reset is done when the reset bit is low */
+	/* Check Tx/Rx MCDMA.RST. Reset is done when the reset bit is low */
 	ret = wait_for_bit_le32(&priv->mm2s_cmn->control, XMCDMA_CR_RESET,
 				false, MRMAC_DMARST_TIMEOUT, true);
 	if (ret) {
-		printf("%s: TX MCDMA reset Timeout\n", __func__);
-		return -1;
+		log_warning("Tx MCDMA reset Timeout\n");
+		return -ETIMEDOUT;
 	}
 
 	ret = wait_for_bit_le32(&priv->s2mm_cmn->control, XMCDMA_CR_RESET,
 				false, MRMAC_DMARST_TIMEOUT, true);
 	if (ret) {
-		printf("%s: RX MCDMA reset Timeout\n", __func__);
-		return -1;
+		log_warning("Rx MCDMA reset Timeout\n");
+		return -ETIMEDOUT;
 	}
 
-	/* Enable channel 1 for TX and RX */
+	/* Enable channel 1 for Tx and Rx */
 	writel(XMCDMA_CHANNEL_1, &priv->mm2s_cmn->chen);
 	writel(XMCDMA_CHANNEL_1, &priv->s2mm_cmn->chen);
 
 	return 0;
 }
 
+/**
+ * axi_mrmac_start - MRMAC start
+ * @dev:	udevice structure
+ *
+ * Return:	0 on success, negative value on errors
+ *
+ * This is a initialization function of MRMAC. Call MCDMA initialization
+ * function and setup Rx buffer descriptors for starting reception of packets.
+ * Enable Tx and Rx channels and trigger Rx channel fetch.
+ */
 static int axi_mrmac_start(struct udevice *dev)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
 	struct mrmac_regs *regs = priv->iobase;
-	u32 temp;
 
 	/*
 	 * Initialize MCDMA engine. MCDMA engine must be initialized before
@@ -162,78 +174,77 @@ static int axi_mrmac_start(struct udevice *dev)
 
 	/* Initialize MRMAC hardware */
 	if (axi_mrmac_ethernet_init(priv))
-		return -1;
+		return -EIO;
 
-	/* Disable all RX interrupts before RxBD space setup */
-	temp = readl(&priv->mcdma_rx->control);
-	temp &= ~XMCDMA_IRQ_ALL_MASK;
-	writel(temp, &priv->mcdma_rx->control);
+	/* Disable all Rx interrupts before RxBD space setup */
+	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
 
 	/* Update current descriptor */
-	axi_mrmac_dma_write(&rx_bd[0], &priv->mcdma_rx->current);
+	axi_mrmac_dma_write(priv->rx_bd[0], &priv->mcdma_rx->current);
 
 	/* Setup Rx BD. MRMAC needs atleast two descriptors */
-	memset(&rx_bd[0], 0, sizeof(rx_bd));
-	rx_bd[0].next_desc = lower_32_bits((u64)&rx_bd[1]);
-	rx_bd[0].buf_addr = lower_32_bits((u64)&rxframe);
+	memset(priv->rx_bd[0], 0, RX_BD_TOTAL_SIZE);
 
-	rx_bd[1].next_desc = lower_32_bits((u64)&rx_bd[0]);
-	rx_bd[1].buf_addr = lower_32_bits((u64)&rxframe[PKTSIZE_ALIGN]);
+	priv->rx_bd[0]->next_desc = lower_32_bits((u64)priv->rx_bd[1]);
+	priv->rx_bd[0]->buf_addr = lower_32_bits((u64)net_rx_packets[0]);
+
+	priv->rx_bd[1]->next_desc = lower_32_bits((u64)priv->rx_bd[0]);
+	priv->rx_bd[1]->buf_addr = lower_32_bits((u64)net_rx_packets[1]);
 
 	if (IS_ENABLED(CONFIG_PHYS_64BIT)) {
-		rx_bd[0].next_desc_msb = upper_32_bits((u64)&rx_bd[1]);
-		rx_bd[0].buf_addr_msb = upper_32_bits((u64)&rxframe);
+		priv->rx_bd[0]->next_desc_msb = upper_32_bits((u64)priv->rx_bd[1]);
+		priv->rx_bd[0]->buf_addr_msb = upper_32_bits((u64)net_rx_packets[0]);
 
-		rx_bd[1].next_desc_msb = upper_32_bits((u64)&rx_bd[0]);
-		rx_bd[1].buf_addr_msb = upper_32_bits((u64)&rxframe[PKTSIZE_ALIGN]);
+		priv->rx_bd[1]->next_desc_msb = upper_32_bits((u64)priv->rx_bd[0]);
+		priv->rx_bd[1]->buf_addr_msb = upper_32_bits((u64)net_rx_packets[1]);
 	}
 
-	rx_bd[0].cntrl = PKTSIZE_ALIGN;
-	rx_bd[1].cntrl = PKTSIZE_ALIGN;
-	/* Flush the last BD so DMA core could see the updates */
-	flush_cache((phys_addr_t)&rx_bd, sizeof(rx_bd));
+	priv->rx_bd[0]->cntrl = PKTSIZE_ALIGN;
+	priv->rx_bd[1]->cntrl = PKTSIZE_ALIGN;
 
-	/* It is necessary to flush rxframe because if you don't do it
+	/* Flush the last BD so DMA core could see the updates */
+	flush_cache((phys_addr_t)priv->rx_bd[0], RX_BD_TOTAL_SIZE);
+
+	/* It is necessary to flush rx buffers because if you don't do it
 	 * then cache can contain uninitialized data
 	 */
-	flush_cache((phys_addr_t)&rxframe, sizeof(rxframe));
+	flush_cache((phys_addr_t)priv->rx_bd[0]->buf_addr, RX_BUFF_TOTAL_SIZE);
 
 	/* Start the hardware */
-	temp = readl(&priv->s2mm_cmn->control);
-	temp |= XMCDMA_CR_RUNSTOP_MASK;
-	writel(temp, &priv->s2mm_cmn->control);
-
-	temp = readl(&priv->mm2s_cmn->control);
-	temp |= XMCDMA_CR_RUNSTOP_MASK;
-	writel(temp, &priv->mm2s_cmn->control);
-
-	temp = readl(&priv->mcdma_rx->control);
-	temp |= XMCDMA_IRQ_ALL_MASK;
-	writel(temp, &priv->mcdma_rx->control);
+	setbits_le32(&priv->s2mm_cmn->control, XMCDMA_CR_RUNSTOP_MASK);
+	setbits_le32(&priv->mm2s_cmn->control, XMCDMA_CR_RUNSTOP_MASK);
+	setbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
 
 	/* Channel fetch */
-	temp = readl(&priv->mcdma_rx->control);
-	temp |= XMCDMA_CR_RUNSTOP_MASK;
-	writel(temp, &priv->mcdma_rx->control);
+	setbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
 
 	/* Update tail descriptor. Now it's ready to receive data */
-	axi_mrmac_dma_write(&rx_bd[1], &priv->mcdma_rx->tail);
+	axi_mrmac_dma_write(priv->rx_bd[1], &priv->mcdma_rx->tail);
 
-	/* Enable TX */
-	writel(readl(&regs->tx_config) | MRMAC_TX_EN_MASK, &regs->tx_config);
+	/* Enable Tx */
+	setbits_le32(&regs->tx_config, MRMAC_TX_EN_MASK);
 
-	/* Enable RX */
-	writel(readl(&regs->rx_config) | MRMAC_RX_EN_MASK, &regs->rx_config);
+	/* Enable Rx */
+	setbits_le32(&regs->rx_config, MRMAC_RX_EN_MASK);
 
 	return 0;
 }
 
+/**
+ * axi_mrmac_send - MRMAC Tx function
+ * @dev:	udevice structure
+ * @ptr:	pointer to Tx buffer
+ * @len:	transfer length
+ *
+ * Return:	0 on success, negative value on errors
+ *
+ * This is a Tx send function of MRMAC. Setup Tx buffer descriptors and trigger
+ * transfer. Wait till the data is transferred.
+ */
 static int axi_mrmac_send(struct udevice *dev, void *ptr, int len)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
-	u32 val;
 	u32 ret;
-	u32 temp;
 
 #ifdef DEBUG
 	print_buffer(ptr, ptr, 1, len, 16);
@@ -243,81 +254,76 @@ static int axi_mrmac_send(struct udevice *dev, void *ptr, int len)
 
 	/* If size is less than min packet size, pad to min size */
 	if (len < MIN_PKT_SIZE) {
-		memset(txminframe, 0, MIN_PKT_SIZE);
-		memcpy(txminframe, ptr, len);
+		memset(priv->txminframe, 0, MIN_PKT_SIZE);
+		memcpy(priv->txminframe, ptr, len);
 		len = MIN_PKT_SIZE;
-		ptr = txminframe;
+		ptr = priv->txminframe;
 	}
 
 	writel(XMCDMA_IRQ_ALL_MASK, &priv->mcdma_tx->status);
 
-	temp = readl(&priv->mcdma_tx->control);
-	temp &= ~XMCDMA_CR_RUNSTOP_MASK;
-	writel(temp, &priv->mcdma_tx->control);
+	clrbits_le32(&priv->mcdma_tx->control, XMCDMA_CR_RUNSTOP_MASK);
 
 	/* Flush packet to main memory to be trasfered by DMA */
 	flush_cache((phys_addr_t)ptr, len);
 
 	/* Setup Tx BD. MRMAC needs atleast two descriptors */
-	memset(&tx_bd[0], 0, sizeof(tx_bd));
-	tx_bd[0].next_desc = lower_32_bits((u64)&tx_bd[1]);
-	tx_bd[0].buf_addr = lower_32_bits((u64)ptr);
+	memset(priv->tx_bd[0], 0, TX_BD_TOTAL_SIZE);
+
+	priv->tx_bd[0]->next_desc = lower_32_bits((u64)priv->tx_bd[1]);
+	priv->tx_bd[0]->buf_addr = lower_32_bits((u64)ptr);
 
 	/* At the end of the ring, link the last BD back to the top */
-	tx_bd[1].next_desc = lower_32_bits((u64)&tx_bd[0]);
-	tx_bd[1].buf_addr = lower_32_bits((u64)ptr + len / 2);
+	priv->tx_bd[1]->next_desc = lower_32_bits((u64)priv->tx_bd[0]);
+	priv->tx_bd[1]->buf_addr = lower_32_bits((u64)ptr + len / 2);
 
 	if (IS_ENABLED(CONFIG_PHYS_64BIT)) {
-		tx_bd[0].next_desc_msb = upper_32_bits((u64)&tx_bd[1]);
-		tx_bd[0].buf_addr_msb = upper_32_bits((u64)ptr);
+		priv->tx_bd[0]->next_desc_msb = upper_32_bits((u64)priv->tx_bd[1]);
+		priv->tx_bd[0]->buf_addr_msb = upper_32_bits((u64)ptr);
 
-		tx_bd[1].next_desc_msb = upper_32_bits((u64)&tx_bd[0]);
-		tx_bd[1].buf_addr_msb = upper_32_bits((u64)ptr + len / 2);
+		priv->tx_bd[1]->next_desc_msb = upper_32_bits((u64)priv->tx_bd[0]);
+		priv->tx_bd[1]->buf_addr_msb = upper_32_bits((u64)ptr + len / 2);
 	}
 
-	/* Split TX data in to half and send in two descriptors */
-	tx_bd[0].cntrl = (len / 2) | XMCDMA_BD_CTRL_TXSOF_MASK;
-	tx_bd[1].cntrl = (len - len / 2) | XMCDMA_BD_CTRL_TXEOF_MASK;
+	/* Split Tx data in to half and send in two descriptors */
+	priv->tx_bd[0]->cntrl = (len / 2) | XMCDMA_BD_CTRL_TXSOF_MASK;
+	priv->tx_bd[1]->cntrl = (len - len / 2) | XMCDMA_BD_CTRL_TXEOF_MASK;
 
 	/* Flush the last BD so DMA core could see the updates */
-	flush_cache((phys_addr_t)&tx_bd, sizeof(tx_bd));
+	flush_cache((phys_addr_t)priv->tx_bd[0], TX_BD_TOTAL_SIZE);
 
 	if (readl(&priv->mcdma_tx->status) & XMCDMA_CH_IDLE) {
-		axi_mrmac_dma_write(&tx_bd[0], &priv->mcdma_tx->current);
+		axi_mrmac_dma_write(priv->tx_bd[0], &priv->mcdma_tx->current);
 		/* Channel fetch */
-		temp = readl(&priv->mcdma_tx->control);
-		temp |= XMCDMA_CR_RUNSTOP_MASK;
-		writel(temp, &priv->mcdma_tx->control);
+		setbits_le32(&priv->mcdma_tx->control, XMCDMA_CR_RUNSTOP_MASK);
 	} else {
-		printf("Error: current desc is not updated\n");
-		return 1;
+		log_warning("Error: current desc is not updated\n");
+		return -EIO;
 	}
 
-	val = readl(&priv->mcdma_tx->control);
-	val |= XMCDMA_IRQ_ALL_MASK;
-	writel(val, &priv->mcdma_tx->control);
+	setbits_le32(&priv->mcdma_tx->control, XMCDMA_IRQ_ALL_MASK);
 
 	/* Start transfer */
-	axi_mrmac_dma_write(&tx_bd[1], &priv->mcdma_tx->tail);
+	axi_mrmac_dma_write(priv->tx_bd[1], &priv->mcdma_tx->tail);
 
 	/* Wait for transmission to complete */
 	ret = wait_for_bit_le32(&priv->mcdma_tx->status, XMCDMA_IRQ_IOC_MASK,
 				true, 1, true);
 	if (ret) {
-		printf("%s: Timeout\n", __func__);
-		return 1;
+		log_warning("%s: Timeout\n", __func__);
+		return -ETIMEDOUT;
 	}
 
 	/* Clear status */
-	tx_bd[0].sband_stats = 0;
-	tx_bd[1].sband_stats = 0;
+	priv->tx_bd[0]->sband_stats = 0;
+	priv->tx_bd[1]->sband_stats = 0;
 
-	debug("axi mrmac: Sending complete\n");
+	log_debug("Sending complete\n");
 
 	return 0;
 }
 
-static int isrxready(struct axi_mrmac_priv *priv)
+static bool isrxready(struct axi_mrmac_priv *priv)
 {
 	u32 status;
 
@@ -328,7 +334,7 @@ static int isrxready(struct axi_mrmac_priv *priv)
 	writel(status & XMCDMA_IRQ_ALL_MASK, &priv->mcdma_rx->status);
 
 	/*
-	 * If Reception done interrupt is asserted, call RX call back function
+	 * If Reception done interrupt is asserted, call Rx call back function
 	 * to handle the processed BDs and then raise the according flag.
 	 */
 	if (status & (XMCDMA_IRQ_IOC_MASK | XMCDMA_IRQ_DELAY_MASK))
@@ -337,112 +343,127 @@ static int isrxready(struct axi_mrmac_priv *priv)
 	return 0;
 }
 
+/**
+ * axi_mrmac_recv - MRMAC Rx function
+ * @dev:	udevice structure
+ * @flags:	flags from network stack
+ * @packetp	pointer to received data
+ *
+ * Return:	received data length on success, negative value on errors
+ *
+ * This is a Rx function of MRMAC. Check if any data is received on MCDMA.
+ * Copy buffer pointer to packetp and return received data length.
+ */
 static int axi_mrmac_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
+	u32 rx_bd_end;
 	u32 length;
-	u32 temp;
 
 	/* Wait for an incoming packet */
 	if (!isrxready(priv))
-		return -1;
+		return -EAGAIN;
 
 	/* Clear all interrupts */
 	writel(XMCDMA_IRQ_ALL_MASK, &priv->mcdma_rx->status);
 
 	/* Disable IRQ for a moment till packet is handled */
-	temp = readl(&priv->mcdma_rx->control);
-	temp &= ~XMCDMA_IRQ_ALL_MASK;
-	writel(temp, &priv->mcdma_rx->control);
+	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
 
 	/* Disable channel fetch */
-	temp = readl(&priv->mcdma_rx->control);
-	temp &= ~XMCDMA_CR_RUNSTOP_MASK;
-	writel(temp, &priv->mcdma_rx->control);
+	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
 
-	length = rx_bd[0].status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
-	*packetp = rxframe;
+	rx_bd_end = (ulong)priv->rx_bd[0] + roundup(RX_BD_TOTAL_SIZE,
+						    ARCH_DMA_MINALIGN);
+	/* Invalidate Rx descriptors to see proper Rx length */
+	invalidate_dcache_range((phys_addr_t)priv->rx_bd[0], rx_bd_end);
+
+	length = priv->rx_bd[0]->status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
+	*packetp = (uchar *)(ulong)priv->rx_bd[0]->buf_addr;
 
 	if (!length) {
-		length = rx_bd[1].status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
-		*packetp = &rxframe[PKTSIZE_ALIGN];
+		length = priv->rx_bd[1]->status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
+		*packetp = (uchar *)(ulong)priv->rx_bd[1]->buf_addr;
 	}
 
 #ifdef DEBUG
 	print_buffer(*packetp, *packetp, 1, length, 16);
 #endif
-
 	/* Clear status */
-	rx_bd[0].status = 0;
-	rx_bd[1].status = 0;
+	priv->rx_bd[0]->status = 0;
+	priv->rx_bd[1]->status = 0;
 
 	return length;
 }
 
+/**
+ * axi_mrmac_free_pkt - MRMAC free packet function
+ * @dev:	udevice structure
+ * @packet:	receive buffer pointer
+ * @length	received data length
+ *
+ * Return:	0 on success, negative value on errors
+ *
+ * This is Rx free packet function of MRMAC. Prepare MRMAC for reception of
+ * data again. Invalidate previous data from Rx buffers and set Rx buffer
+ * descriptors. Trigger reception by updating tail descriptor.
+ */
 static int axi_mrmac_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
-	u32 temp;
 
 #ifdef DEBUG
 	/* It is useful to clear buffer to be sure that it is consistent */
-	memset(rxframe, 0, sizeof(rxframe));
+	memset(priv->rx_bd[0]->buf_addr, 0, RX_BUFF_TOTAL_SIZE);
 #endif
-	/* Disable all RX interrupts before RxBD space setup */
-	temp = readl(&priv->mcdma_rx->control);
-	temp &= ~XMCDMA_IRQ_ALL_MASK;
-	writel(temp, &priv->mcdma_rx->control);
+	/* Disable all Rx interrupts before RxBD space setup */
+	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
 
 	/* Disable channel fetch */
-	temp = readl(&priv->mcdma_rx->control);
-	temp &= ~XMCDMA_CR_RUNSTOP_MASK;
-	writel(temp, &priv->mcdma_rx->control);
+	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
 
 	/* Update current descriptor */
-	axi_mrmac_dma_write(&rx_bd[0], &priv->mcdma_rx->current);
+	axi_mrmac_dma_write(priv->rx_bd[0], &priv->mcdma_rx->current);
 
 	/* Write bd to HW */
-	flush_cache((phys_addr_t)&rx_bd, sizeof(rx_bd));
+	flush_cache((phys_addr_t)priv->rx_bd[0], RX_BD_TOTAL_SIZE);
 
-	/* It is necessary to flush rxframe because if you don't do it
+	/* It is necessary to flush rx buffers because if you don't do it
 	 * then cache will contain previous packet
 	 */
-	flush_cache((phys_addr_t)&rxframe, sizeof(rxframe));
+	flush_cache((phys_addr_t)priv->rx_bd[0]->buf_addr, RX_BUFF_TOTAL_SIZE);
 
 	/* Enable all IRQ */
-	temp = readl(&priv->mcdma_rx->control);
-	temp |= XMCDMA_IRQ_ALL_MASK;
-	writel(temp, &priv->mcdma_rx->control);
+	setbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
 
 	/* Channel fetch */
-	temp = readl(&priv->mcdma_rx->control);
-	temp |= XMCDMA_CR_RUNSTOP_MASK;
-	writel(temp, &priv->mcdma_rx->control);
+	setbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
 
 	/* Update tail descriptor. Now it's ready to receive data */
-	axi_mrmac_dma_write(&rx_bd[1], &priv->mcdma_rx->tail);
+	axi_mrmac_dma_write(priv->rx_bd[1], &priv->mcdma_rx->tail);
 
-	debug("axi mrmac: RX completed, framelength = %x\n", length);
+	log_debug("Rx completed, framelength = %x\n", length);
 
 	return 0;
 }
 
-/* STOP DMA transfers */
+/**
+ * axi_mrmac_stop - Stop MCDMA transfers
+ * @dev:	udevice structure
+ *
+ * Return:	0 on success, negative value on errors
+ *
+ * Stop MCDMA engine for both Tx and Rx transfers.
+ */
 static void axi_mrmac_stop(struct udevice *dev)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
-	u32 temp;
 
 	/* Stop the hardware */
-	temp = readl(&priv->mcdma_tx->control);
-	temp &= ~XMCDMA_CR_RUNSTOP_MASK;
-	writel(temp, &priv->mcdma_tx->control);
+	clrbits_le32(&priv->mcdma_tx->control, XMCDMA_CR_RUNSTOP_MASK);
+	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
 
-	temp = readl(&priv->mcdma_rx->control);
-	temp &= ~XMCDMA_CR_RUNSTOP_MASK;
-	writel(temp, &priv->mcdma_rx->control);
-
-	debug("%s: Halted\n", __func__);
+	log_debug("Halted\n");
 }
 
 static int axi_mrmac_probe(struct udevice *dev)
@@ -462,11 +483,29 @@ static int axi_mrmac_probe(struct udevice *dev)
 						   + XMCDMA_CHAN_OFFSET);
 	priv->mrmac_rate = plat->mrmac_rate;
 
+	/* Align buffers to ARCH_DMA_MINALIGN */
+	priv->tx_bd[0] = memalign(ARCH_DMA_MINALIGN, TX_BD_TOTAL_SIZE);
+	priv->tx_bd[1] = (struct mcdma_bd *)((ulong)priv->tx_bd[0] +
+					     sizeof(struct mcdma_bd));
+
+	priv->rx_bd[0] = memalign(ARCH_DMA_MINALIGN, RX_BD_TOTAL_SIZE);
+	priv->rx_bd[1] = (struct mcdma_bd *)((ulong)priv->rx_bd[0] +
+					     sizeof(struct mcdma_bd));
+
+	priv->txminframe = memalign(ARCH_DMA_MINALIGN, MIN_PKT_SIZE);
+
 	return 0;
 }
 
 static int axi_mrmac_remove(struct udevice *dev)
 {
+	struct axi_mrmac_priv *priv = dev_get_priv(dev);
+
+	/* Free buffer descriptors */
+	free(priv->tx_bd[0]);
+	free(priv->rx_bd[0]);
+	free(priv->txminframe);
+
 	return 0;
 }
 
@@ -482,14 +521,14 @@ static int axi_mrmac_ofdata_to_platdata(struct udevice *dev)
 	ret = dev_read_phandle_with_args(dev, "axistream-connected", NULL, 0, 0,
 					 &phandle_args);
 	if (ret) {
-		printf("%s: axistream not found\n", __func__);
+		log_debug("axistream not found\n");
 		return -EINVAL;
 	}
 
 	plat->mm2s_cmn = (struct mcdma_common_regs *)ofnode_read_u64_default
 						(phandle_args.node, "reg", -1);
 	if (!plat->mm2s_cmn) {
-		printf("%s: MRMAC dma register space not found\n", __func__);
+		log_warning("MRMAC dma register space not found\n");
 		return -EINVAL;
 	}
 

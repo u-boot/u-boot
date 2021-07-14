@@ -11,9 +11,12 @@
 #ifndef __XILINX_AXI_MRMAC_H
 #define __XILINX_AXI_MRMAC_H
 
-#define DMAALIGN	128
 #define MIN_PKT_SIZE	60
 
+/* MRMAC needs atleast two buffer descriptors for Tx/Rx to work.
+ * Otherwise MRMAC will drop the packets. So, have atleast two Tx and
+ * two Rx bd's.
+ */
 #define TX_DESC		2
 #define RX_DESC		2
 
@@ -21,7 +24,7 @@
 struct axi_mrmac_plat {
 	struct eth_pdata eth_pdata;
 	struct mcdma_common_regs *mm2s_cmn;
-	u32 mrmac_rate;
+	u32 mrmac_rate; /* Hold the value from DT property "mrmac-rate" */
 };
 
 /* MRMAC private driver structure */
@@ -31,7 +34,10 @@ struct axi_mrmac_priv {
 	struct mcdma_common_regs *s2mm_cmn;
 	struct mcdma_chan_reg *mcdma_tx;
 	struct mcdma_chan_reg *mcdma_rx;
-	u32 mrmac_rate;
+	struct mcdma_bd *tx_bd[TX_DESC];
+	struct mcdma_bd *rx_bd[RX_DESC];
+	u8 *txminframe;		/* Pointer to hold min length Tx frame(60) */
+	u32 mrmac_rate;		/* Speed to configure(Read from DT 10G/25G..) */
 };
 
 /* MRMAC Register Definitions */
@@ -39,17 +45,22 @@ struct mrmac_regs {
 	u32 revision;	/* 0x0: Revision Register */
 	u32 reset;	/* 0x4: Reset Register */
 	u32 mode;	/* 0x8: Mode */
-	u32 tx_config;	/* 0xC: TX Configuration */
-	u32 rx_config;	/* 0x10: RX Configuration */
+	u32 tx_config;	/* 0xc: Tx Configuration */
+	u32 rx_config;	/* 0x10: Rx Configuration */
 	u32 reserved[6];/* 0x14-0x28: Reserved */
-	u32 tick_reg;	/* 0x2C: Tick Register */
+	u32 tick_reg;	/* 0x2c: Tick Register */
 };
+
+#define TX_BD_TOTAL_SIZE		(TX_DESC * sizeof(struct mcdma_bd))
+#define RX_BD_TOTAL_SIZE		(RX_DESC * sizeof(struct mcdma_bd))
+
+#define RX_BUFF_TOTAL_SIZE		(RX_DESC * PKTSIZE_ALIGN)
 
 /* Status Registers */
 #define MRMAC_TX_STS_OFFSET		0x740
 #define MRMAC_RX_STS_OFFSET		0x744
 #define MRMAC_TX_RT_STS_OFFSET		0x748
-#define MRMAC_RX_RT_STS_OFFSET		0x74C
+#define MRMAC_RX_RT_STS_OFFSET		0x74c
 #define MRMAC_STATRX_BLKLCK_OFFSET	0x754
 
 /* Register bit masks */
@@ -59,7 +70,7 @@ struct mrmac_regs {
 #define MRMAC_TX_RST_MASK		BIT(6)
 #define MRMAC_RX_AXI_RST_MASK		BIT(8)
 #define MRMAC_TX_AXI_RST_MASK		BIT(9)
-#define MRMAC_STS_ALL_MASK		0xFFFFFFFF
+#define MRMAC_STS_ALL_MASK		0xffffffff
 
 #define MRMAC_RX_EN_MASK		BIT(0)
 #define MRMAC_RX_DEL_FCS_MASK		BIT(1)
@@ -139,7 +150,7 @@ struct mrmac_regs {
 #define MRMAC_CTL_PM_TICK_MASK		BIT(30)
 #define MRMAC_TICK_TRIGGER		BIT(0)
 
-#define XMCDMA_BD_STS_ACTUAL_LEN_MASK  0x007FFFFF /* Actual len */
+#define XMCDMA_BD_STS_ACTUAL_LEN_MASK  0x007fffff /* Actual length */
 
 /* MCDMA common offsets */
 struct mcdma_common_regs {
@@ -157,7 +168,7 @@ struct mcdma_common_regs {
 	u32 reserved[5];
 };
 
-/* MCDMA per channel registers */
+/* MCDMA per-channel registers */
 struct mcdma_chan_reg {
 	u32 control;	/* Control */
 	u32 status;	/* Status */
@@ -179,8 +190,8 @@ struct mcdma_bd {
 	u32 status;	/* Status */
 	u32 sband_stats;
 	u32 app0;
-	u32 app1;	/* TX start << 16 | insert */
-	u32 app2;	/* TX csum seed */
+	u32 app1;	/* Tx start << 16 | insert */
+	u32 app2;	/* Tx csum seed */
 	u32 app3;
 	u32 app4;
 	u32 sw_id_offset;
