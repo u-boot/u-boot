@@ -53,7 +53,7 @@ int initr_watchdog(void)
 						    4 * reset_period) / 4;
 	}
 
-	if (!CONFIG_IS_ENABLED(WATCHDOG_AUTOSTART)) {
+	if (!IS_ENABLED(CONFIG_WATCHDOG_AUTOSTART)) {
 		printf("WDT:   Not starting\n");
 		return 0;
 	}
