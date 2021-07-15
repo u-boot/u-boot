@@ -167,6 +167,10 @@ __weak void spl_board_prepare_for_linux(void)
 	/* Nothing to do! */
 }
 
+__weak void spl_board_prepare_for_optee(void *fdt)
+{
+}
+
 __weak void spl_board_prepare_for_boot(void)
 {
 	/* Nothing to do! */
@@ -763,6 +767,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #if CONFIG_IS_ENABLED(OPTEE)
 	case IH_OS_TEE:
 		debug("Jumping to U-Boot via OP-TEE\n");
+		spl_board_prepare_for_optee(spl_image.fdt_addr);
 		spl_optee_entry(NULL, NULL, spl_image.fdt_addr,
 				(void *)spl_image.entry_point);
 		break;
