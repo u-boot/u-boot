@@ -1830,3 +1830,13 @@ U_BOOT_DRVINFO(spl_test2) = {
         dtb_file = get_dtb_file('dtoc_test_single_reg.dts')
         output = tools.GetOutputFilename('output')
         self.run_test(['struct'], dtb_file, output)
+
+    def test_missing_parent(self):
+        """Test detection of a parent node with no properties"""
+        dtb_file = get_dtb_file('dtoc_test_noparent.dts', capture_stderr=True)
+        output = tools.GetOutputFilename('output')
+        with self.assertRaises(ValueError) as exc:
+            self.run_test(['device'], dtb_file, output, instantiate=True)
+        self.assertIn("Node '/i2c@0/spl-test/pmic@9' requires parent node "
+                      "'/i2c@0/spl-test' but it is not in the valid list",
+                      str(exc.exception))

@@ -10,18 +10,22 @@
 
 #include <asm/atomic.h>
 #include <asm/cache.h>
+#include <linux/bitops.h>
 
 struct udevice;
 
 enum {
-	/* Indicates that the function should run on all CPUs */
-	MP_SELECT_ALL	= -1,
+	/*
+	 * Indicates that the function should run on all CPUs. We use a large
+	 * number, above the number of real CPUs we expect to find.
+	 */
+	MP_SELECT_ALL	= BIT(16),
 
 	/* Run on boot CPUs */
-	MP_SELECT_BSP	= -2,
+	MP_SELECT_BSP,
 
 	/* Run on non-boot CPUs */
-	MP_SELECT_APS	= -3,
+	MP_SELECT_APS,
 };
 
 typedef int (*mp_callback_t)(struct udevice *cpu, void *arg);

@@ -114,7 +114,7 @@ static bool ich9_can_do_33mhz(struct udevice *dev)
 	struct ich_spi_priv *priv = dev_get_priv(dev);
 	u32 fdod, speed;
 
-	if (!CONFIG_IS_ENABLED(PCI))
+	if (!CONFIG_IS_ENABLED(PCI) || !priv->pch)
 		return false;
 	/* Observe SPI Descriptor Component Section 0 */
 	dm_pci_write_config32(priv->pch, 0xb0, 0x1000);
@@ -632,7 +632,7 @@ static int ich_spi_get_basics(struct udevice *bus, bool can_probe,
 		if (device_get_uclass_id(pch) != UCLASS_PCH) {
 			uclass_first_device(UCLASS_PCH, &pch);
 			if (!pch)
-				return log_msg_ret("uclass", -EPROTOTYPE);
+				; /* ignore this error since we don't need it */
 		}
 	}
 

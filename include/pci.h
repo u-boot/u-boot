@@ -578,7 +578,6 @@ typedef int pci_dev_t;
 #define PCI_MASK_BUS(bdf)	((bdf) & 0xffff)
 #define PCI_ADD_BUS(bus, devfn)	(((bus) << 16) | (devfn))
 #define PCI_BDF(b, d, f)	((b) << 16 | PCI_DEVFN(d, f))
-#define PCI_VENDEV(v, d)	(((v) << 16) | (d))
 #define PCI_ANY_ID		(~0)
 
 /* Convert from Linux format to U-Boot format */
@@ -1064,7 +1063,7 @@ int pci_get_ff(enum pci_size_t size);
  * @devp:	Returns matching device if found
  * @return 0 if found, -ENODEV if not
  */
-int pci_bus_find_devices(struct udevice *bus, struct pci_device_id *ids,
+int pci_bus_find_devices(struct udevice *bus, const struct pci_device_id *ids,
 			 int *indexp, struct udevice **devp);
 
 /**
@@ -1076,7 +1075,7 @@ int pci_bus_find_devices(struct udevice *bus, struct pci_device_id *ids,
  * @devp:	Returns matching device if found
  * @return 0 if found, -ENODEV if not
  */
-int pci_find_device_id(struct pci_device_id *ids, int index,
+int pci_find_device_id(const struct pci_device_id *ids, int index,
 		       struct udevice **devp);
 
 /**

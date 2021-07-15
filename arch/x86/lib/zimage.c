@@ -313,11 +313,11 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	int bootproto = get_boot_protocol(hdr, false);
 
 	log_debug("Setup E820 entries\n");
-	if (ll_boot_init()) {
-		setup_base->e820_entries = install_e820_map(
-			ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
-	} else if (IS_ENABLED(CONFIG_COREBOOT_SYSINFO)) {
+	if (IS_ENABLED(CONFIG_COREBOOT_SYSINFO)) {
 		setup_base->e820_entries = cb_install_e820_map(
+			ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
+	} else {
+		setup_base->e820_entries = install_e820_map(
 			ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
 	}
 
