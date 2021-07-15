@@ -2766,7 +2766,7 @@ static int mmc_power_cycle(struct mmc *mmc)
 	return mmc_power_on(mmc);
 }
 
-int mmc_get_op_cond(struct mmc *mmc)
+int mmc_get_op_cond(struct mmc *mmc, bool quiet)
 {
 	bool uhs_en = supports_uhs(mmc->cfg->host_caps);
 	int err;
@@ -2842,7 +2842,8 @@ retry:
 
 		if (err) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-			pr_err("Card did not respond to voltage select! : %d\n", err);
+			if (!quiet)
+				pr_err("Card did not respond to voltage select! : %d\n", err);
 #endif
 			return -EOPNOTSUPP;
 		}
@@ -2882,7 +2883,7 @@ int mmc_start_init(struct mmc *mmc)
 		return -ENOMEDIUM;
 	}
 
-	err = mmc_get_op_cond(mmc);
+	err = mmc_get_op_cond(mmc, false);
 
 	if (!err)
 		mmc->init_in_progress = 1;

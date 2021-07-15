@@ -331,6 +331,10 @@ int a3700_fdt_fix_pcie_regions(void *blob)
 	/* Calculate fixup offset from first child address (in last cell) */
 	fix_offset = base - fdt32_to_cpu(ranges[2]);
 
+	/* If fixup offset is zero then there is nothing to fix */
+	if (!fix_offset)
+		return 0;
+
 	/*
 	 * Fix address (last cell) of each child address and each parent
 	 * address

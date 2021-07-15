@@ -374,7 +374,7 @@ static bool has_emmc(void)
 	mmc = find_mmc_device(2);
 	if (!mmc)
 		return 0;
-	return (mmc_get_op_cond(mmc) < 0) ? 0 : 1;
+	return (mmc_get_op_cond(mmc, true) < 0) ? 0 : 1;
 }
 
 int checkboard(void)

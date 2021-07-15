@@ -900,9 +900,10 @@ int mmc_set_bkops_enable(struct mmc *mmc);
  * the presence of SD/eMMC when no card detect logic is available.
  *
  * @param mmc	Pointer to a MMC device struct
+ * @param quiet	Be quiet, do not print error messages when card is not detected.
  * @return 0 on success, <0 on error.
  */
-int mmc_get_op_cond(struct mmc *mmc);
+int mmc_get_op_cond(struct mmc *mmc, bool quiet);
 
 /**
  * Start device initialization and return immediately; it does not block on

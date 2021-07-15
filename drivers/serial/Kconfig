@@ -443,6 +443,7 @@ config DEBUG_UART_CLOCK
 	int "UART input clock"
 	depends on DEBUG_UART
 	default 0 if DEBUG_UART_SANDBOX
+	default 0 if DEBUG_MVEBU_A3700_UART
 	help
 	  The UART input clock determines the speed of the internal UART
 	  circuitry. The baud rate is derived from this by dividing the input
