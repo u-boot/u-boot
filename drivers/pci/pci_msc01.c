@@ -4,7 +4,7 @@
  * Author: Paul Burton <paul.burton@mips.com>
  */
 
-#include <common.h>
+#include <dm.h>
 #include <init.h>
 #include <msc01.h>
 #include <pci.h>
@@ -62,6 +62,7 @@ static int msc01_config_access(struct msc01_pci_controller *msc01,
 	return 0;
 }
 
+#if !IS_ENABLED(CONFIG_DM_PCI)
 static int msc01_read_config_dword(struct pci_controller *hose, pci_dev_t dev,
 				   int where, u32 *value)
 {
@@ -123,3 +124,72 @@ void msc01_pci_init(void *base, unsigned long sys_bus, unsigned long sys_phys,
 	pci_register_hose(hose);
 	hose->last_busno = pci_hose_scan(hose);
 }
+#else
+static int msc01_pci_read_config(const struct udevice *dev, pci_dev_t bdf,
+				 uint where, ulong *val, enum pci_size_t size)
+{
+	struct msc01_pci_controller *msc01 = dev_get_priv(dev);
+	u32 data = 0;
+
+	if (msc01_config_access(msc01, PCI_ACCESS_READ, bdf, where, &data)) {
+		*val = pci_get_ff(size);
+		return 0;
+	}
+
+	*val = pci_conv_32_to_size(data, where, size);
+
+	return 0;
+}
+
+static int msc01_pci_write_config(struct udevice *dev, pci_dev_t bdf,
+				  uint where, ulong val, enum pci_size_t size)
+{
+	struct msc01_pci_controller *msc01 = dev_get_priv(dev);
+	u32 data = 0;
+
+	if (size == PCI_SIZE_32) {
+		data = val;
+	} else {
+		u32 old;
+
+		if (msc01_config_access(msc01, PCI_ACCESS_READ, bdf, where, &old))
+			return 0;
+
+		data = pci_conv_size_to_32(old, val, where, size);
+	}
+
+	msc01_config_access(msc01, PCI_ACCESS_WRITE, bdf, where, &data);
+
+	return 0;
+}
+
+static int msc01_pci_probe(struct udevice *dev)
+{
+	struct msc01_pci_controller *msc01 = dev_get_priv(dev);
+
+	msc01->base = dev_remap_addr(dev);
+	if (!msc01->base)
+		return -EINVAL;
+
+	return 0;
+}
+
+static const struct dm_pci_ops msc01_pci_ops = {
+	.read_config	= msc01_pci_read_config,
+	.write_config	= msc01_pci_write_config,
+};
+
+static const struct udevice_id msc01_pci_ids[] = {
+	{ .compatible = "mips,pci-msc01" },
+	{ }
+};
+
+U_BOOT_DRIVER(msc01_pci) = {
+	.name		= "msc01_pci",
+	.id		= UCLASS_PCI,
+	.of_match	= msc01_pci_ids,
+	.ops		= &msc01_pci_ops,
+	.probe		= msc01_pci_probe,
+	.priv_auto	= sizeof(struct msc01_pci_controller),
+};
+#endif
