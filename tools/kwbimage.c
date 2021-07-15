@@ -89,7 +89,7 @@ struct nand_ecc_mode nand_ecc_modes[] = {
 /* Used to identify an undefined execution or destination address */
 #define ADDR_INVALID ((uint32_t)-1)
 
-#define BINARY_MAX_ARGS 8
+#define BINARY_MAX_ARGS 255
 
 /* In-memory representation of a line of the configuration file */
 
