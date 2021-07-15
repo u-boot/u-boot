@@ -29,9 +29,12 @@
 	};
 
 	reserved-memory {
+		u-boot,dm-spl;
+
 		optee@de000000 {
 			reg = <0xde000000 0x02000000>;
 			no-map;
+			u-boot,dm-spl;
 		};
 	};
 
