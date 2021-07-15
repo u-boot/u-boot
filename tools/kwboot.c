@@ -26,12 +26,6 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#ifdef __GNUC__
-#define PACKED __attribute((packed))
-#else
-#define PACKED
-#endif
-
 /*
  * Marvell BootROM UART Sensing
  */
@@ -68,7 +62,7 @@ struct kwboot_block {
 	uint8_t _pnum;
 	uint8_t data[128];
 	uint8_t csum;
-} PACKED;
+} __packed;
 
 #define KWBOOT_BLK_RSP_TIMEO 1000 /* ms */
 
