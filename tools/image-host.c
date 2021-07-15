@@ -132,8 +132,10 @@ static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
 	if (!ret) {
 		time_t timestamp = imagetool_get_source_date(cmdname,
 							     time(NULL));
+		uint32_t t = cpu_to_uimage(timestamp);
 
-		ret = fit_set_timestamp(fit, noffset, timestamp);
+		ret = fdt_setprop(fit, noffset, FIT_TIMESTAMP_PROP, &t,
+			sizeof(uint32_t));
 	}
 	if (region_prop && !ret) {
 		uint32_t strdata[2];

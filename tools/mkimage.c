@@ -12,6 +12,9 @@
 #include "imximage.h"
 #include <image.h>
 #include <version.h>
+#ifdef __linux__
+#include <sys/ioctl.h>
+#endif
 
 static void copy_file(int, const char *, int);
 
@@ -402,6 +405,7 @@ int main(int argc, char **argv)
 	}
 
 	if (params.lflag || params.fflag) {
+		uint64_t size;
 		/*
 		 * list header information of existing image
 		 */
@@ -412,14 +416,34 @@ int main(int argc, char **argv)
 			exit (EXIT_FAILURE);
 		}
 
-		if ((unsigned)sbuf.st_size < tparams->header_size) {
+		if ((sbuf.st_mode & S_IFMT) == S_IFBLK) {
+#ifdef __linux__
+#if defined(__linux__) && defined(_IOR) && !defined(BLKGETSIZE64)
+#define BLKGETSIZE64 _IOR(0x12,114,size_t)	/* return device size in bytes (u64 *arg) */
+#endif
+			if (ioctl(ifd, BLKGETSIZE64, &size) < 0) {
+				fprintf (stderr,
+					"%s: failed to get size of block device \"%s\"\n",
+					params.cmdname, params.imagefile);
+				exit (EXIT_FAILURE);
+			}
+#else
 			fprintf (stderr,
-				"%s: Bad size: \"%s\" is not valid image\n",
+				"%s: \"%s\" is block device, don't know how to get its size\n",
 				params.cmdname, params.imagefile);
 			exit (EXIT_FAILURE);
+#endif
+		} else if ((unsigned)sbuf.st_size < tparams->header_size) {
+			fprintf (stderr,
+				"%s: Bad size: \"%s\" is not valid image: size %ld < %u\n",
+				params.cmdname, params.imagefile,
+				sbuf.st_size, tparams->header_size);
+			exit (EXIT_FAILURE);
+		} else {
+			size = sbuf.st_size;
 		}
 
-		ptr = mmap(0, sbuf.st_size, PROT_READ, MAP_SHARED, ifd, 0);
+		ptr = mmap(0, size, PROT_READ, MAP_SHARED, ifd, 0);
 		if (ptr == MAP_FAILED) {
 			fprintf (stderr, "%s: Can't read %s: %s\n",
 				params.cmdname, params.imagefile,
