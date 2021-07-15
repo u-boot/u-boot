@@ -50,7 +50,7 @@ static int do_call(struct cmd_tbl *cmdtp, int flag, int argc,
 
 #ifdef CONFIG_CMD_SMC
 U_BOOT_CMD(
-	smc,	8,		2,	do_call,
+	smc,	9,		2,	do_call,
 	"Issue a Secure Monitor Call",
 	"<fid> [arg1 ... arg6] [id]\n"
 	"  - fid Function ID\n"
@@ -61,9 +61,9 @@ U_BOOT_CMD(
 
 #ifdef CONFIG_CMD_HVC
 U_BOOT_CMD(
-	hvc,	8,		2,	do_call,
+	hvc,	9,		2,	do_call,
 	"Issue a Hypervisor Call",
-	"<fid> [arg1...arg7] [id]\n"
+	"<fid> [arg1...arg6] [id]\n"
 	"  - fid Function ID\n"
 	"  - arg HVC arguments, passed to X1-X6 (default to zero)\n"
 	"  - id  Session ID, passed to W7 (defaults to zero)\n"
