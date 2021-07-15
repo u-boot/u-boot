@@ -14,8 +14,11 @@ choice
 
 config TARGET_MALTA
 	bool "Support malta"
+	select BOARD_EARLY_INIT_R
 	select DM
 	select DM_SERIAL
+	select DM_PCI
+	select DM_ETH
 	select DYNAMIC_IO_PORT_BASE
 	select MIPS_CM
 	select MIPS_INSERT_BOOT_CONFIG
@@ -23,6 +26,7 @@ config TARGET_MALTA
 	select MIPS_L2_CACHE
 	select OF_CONTROL
 	select OF_ISA_BUS
+	select PCI_MAP_SYSTEM_MEMORY
 	select ROM_EXCEPTION_VECTORS
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
