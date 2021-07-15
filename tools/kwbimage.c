@@ -984,7 +984,7 @@ static size_t image_headersz_v1(int *hasext)
 		}
 
 		headersz += sizeof(struct opt_hdr_v1) +
-			s.st_size +
+			ALIGN(s.st_size, 4) +
 			(binarye->binary.nargs + 2) * sizeof(uint32_t);
 		if (hasext)
 			*hasext = 1;
@@ -1051,14 +1051,7 @@ int add_binary_header_v1(uint8_t *cur)
 
 	binhdrsz = sizeof(struct opt_hdr_v1) +
 		(binarye->binary.nargs + 2) * sizeof(uint32_t) +
-		s.st_size;
-
-	/*
-	 * The size includes the binary image size, rounded
-	 * up to a 4-byte boundary. Plus 4 bytes for the
-	 * next-header byte and 3-byte alignment at the end.
-	 */
-	binhdrsz = ALIGN(binhdrsz, 4) + 4;
+		ALIGN(s.st_size, 4);
 	hdr->headersz_lsb = cpu_to_le16(binhdrsz & 0xFFFF);
 	hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
 
