@@ -1849,17 +1849,73 @@ static int kwbimage_generate(struct image_tool_params *params,
 		return 4 + (4 - s.st_size % 4) % 4;
 }
 
+static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params)
+{
+	struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
+	size_t header_size = kwbimage_header_size(ptr);
+	int idx = params->pflag;
+	int cur_idx = 0;
+	uint32_t offset;
+	ulong image;
+	ulong size;
+
+	if (image_version((void *)ptr) == 1 && (mhdr->ext & 0x1)) {
+		struct opt_hdr_v1 *ohdr = (struct opt_hdr_v1 *)
+					  ((uint8_t *)ptr +
+					   sizeof(*mhdr));
+
+		while (1) {
+			uint32_t ohdr_size = (ohdr->headersz_msb << 16) |
+					     le16_to_cpu(ohdr->headersz_lsb);
+
+			if (ohdr->headertype == OPT_HDR_V1_BINARY_TYPE) {
+				if (idx == cur_idx) {
+					image = (ulong)&ohdr->data[4 +
+					         4 * ohdr->data[0]];
+					size = ohdr_size - 12 -
+					       4 * ohdr->data[0];
+					goto extract;
+				}
+				++cur_idx;
+			}
+			if (!(*((uint8_t *)ohdr + ohdr_size - 4) & 0x1))
+				break;
+			ohdr = (struct opt_hdr_v1 *)((uint8_t *)ohdr +
+						     ohdr_size);
+		}
+	}
+
+	if (idx != cur_idx) {
+		printf("Image %d is not present\n", idx);
+		return -1;
+	}
+
+	offset = le32_to_cpu(mhdr->srcaddr);
+
+	if (mhdr->blockid == IBR_HDR_SATA_ID) {
+		offset -= 1;
+		offset *= 512;
+	}
+
+	if (mhdr->blockid == IBR_HDR_SDIO_ID)
+		offset *= 512;
+
+	if (mhdr->blockid == IBR_HDR_PEX_ID && offset == 0xFFFFFFFF)
+		offset = header_size;
+
+	image = (ulong)((uint8_t *)ptr + offset);
+	size = le32_to_cpu(mhdr->blocksize) - 4;
+
+extract:
+	return imagetool_save_subimage(params->outfile, image, size);
+}
+
 /*
  * Report Error if xflag is set in addition to default
  */
 static int kwbimage_check_params(struct image_tool_params *params)
 {
-	if (params->iflag) {
-		fprintf(stderr, "%s: kwbimage does not support extract operation\n", params->cmdname);
-		return CFG_INVALID;
-	}
-
-	if (!params->imagename || !strlen(params->imagename)) {
+	if (!params->iflag && (!params->imagename || !strlen(params->imagename))) {
 		char *msg = "Configuration file for kwbimage creation omitted";
 
 		fprintf(stderr, "Error:%s - %s\n", params->cmdname, msg);
@@ -1869,7 +1925,7 @@ static int kwbimage_check_params(struct image_tool_params *params)
 	return (params->dflag && (params->fflag || params->lflag)) ||
 		(params->fflag && (params->dflag || params->lflag)) ||
 		(params->lflag && (params->dflag || params->fflag)) ||
-		(params->xflag) || !(strlen(params->imagename));
+		(params->xflag);
 }
 
 /*
@@ -1884,7 +1940,7 @@ U_BOOT_IMAGE_TYPE(
 	kwbimage_verify_header,
 	kwbimage_print_header,
 	kwbimage_set_header,
-	NULL,
+	kwbimage_extract_subimage,
 	kwbimage_check_image_types,
 	NULL,
 	kwbimage_generate
