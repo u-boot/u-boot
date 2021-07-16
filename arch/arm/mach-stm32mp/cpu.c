@@ -483,6 +483,11 @@ static void setup_boot_mode(void)
 		STM32_UART7_BASE,
 		STM32_UART8_BASE
 	};
+	const u32 sdmmc_addr[] = {
+		STM32_SDMMC1_BASE,
+		STM32_SDMMC2_BASE,
+		STM32_SDMMC3_BASE
+	};
 	char cmd[60];
 	u32 boot_ctx = readl(TAMP_BOOT_CONTEXT);
 	u32 boot_mode =
@@ -525,7 +530,16 @@ static void setup_boot_mode(void)
 		break;
 	case BOOT_FLASH_SD:
 	case BOOT_FLASH_EMMC:
-		sprintf(cmd, "%d", instance);
+		if (instance > ARRAY_SIZE(sdmmc_addr))
+			break;
+		/* search associated sdmmc node in devicetree */
+		sprintf(cmd, "mmc@%x", sdmmc_addr[instance]);
+		if (uclass_get_device_by_name(UCLASS_MMC, cmd, &dev)) {
+			printf("mmc%d = %s not found in device tree!\n",
+			       instance, cmd);
+			break;
+		}
+		sprintf(cmd, "%d", dev_seq(dev));
 		env_set("boot_device", "mmc");
 		env_set("boot_instance", cmd);
 		break;

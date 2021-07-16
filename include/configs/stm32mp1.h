@@ -155,7 +155,7 @@
 
 /*
  * memory layout for 32M uncompressed/compressed kernel,
- * 1M fdt, 1M script, 1M pxe and 1M for splashimage
+ * 1M fdt, 1M script, 1M pxe and 1M for overlay
  * and the ramdisk at the end.
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -163,7 +163,7 @@
 	"fdt_addr_r=0xc4000000\0" \
 	"scriptaddr=0xc4100000\0" \
 	"pxefile_addr_r=0xc4200000\0" \
-	"splashimage=0xc4300000\0"  \
+	"fdtoverlay_addr_r=0xc4300000\0" \
 	"ramdisk_addr_r=0xc4400000\0" \
 	"altbootcmd=run bootcmd\0" \
 	"env_check=if env info -p -d -q; then env save; fi\0" \

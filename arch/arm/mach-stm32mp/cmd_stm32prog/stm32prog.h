@@ -19,6 +19,7 @@
 
 #define DEFAULT_ADDRESS		0xFFFFFFFF
 
+#define CMD_SIZE		512
 #define OTP_SIZE		1024
 #define PMIC_SIZE		8
 

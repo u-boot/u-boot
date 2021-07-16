@@ -174,10 +174,12 @@ config STM32_ETZPC
 
 config CMD_STM32KEY
 	bool "command stm32key to fuse public key hash"
-	default y
+	default n
 	help
 		fuse public key hash in corresponding fuse used to authenticate
 		binary.
+		This command is used to evaluate the secure boot on stm32mp SOC,
+		it is deactivated by default in real products.
 
 config PRE_CON_BUF_ADDR
 	default 0xC02FF000

@@ -177,12 +177,12 @@ cleanup:
 }
 
 U_BOOT_CMD(stm32prog, 5, 0, do_stm32prog,
+	   "start communication with tools STM32Cubeprogrammer",
 	   "<link> <dev> [<addr>] [<size>]\n"
-	   "start communication with tools STM32Cubeprogrammer on <link> with Flashlayout at <addr>",
-	   "<link> = serial|usb\n"
-	   "<dev>  = device instance\n"
-	   "<addr> = address of flashlayout\n"
-	   "<size> = size of flashlayout\n"
+	   "  <link> = serial|usb\n"
+	   "  <dev>  = device instance\n"
+	   "  <addr> = address of flashlayout\n"
+	   "  <size> = size of flashlayout (optional for image with STM32 header)\n"
 );
 
 bool stm32prog_get_tee_partitions(void)
