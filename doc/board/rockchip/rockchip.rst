@@ -194,7 +194,7 @@ Copy SPI boot images into SD card and boot from SD::
 2. Package the image with Rockchip miniloader
 ---------------------------------------------
 
-Image package with Rockchip miniloader requires robin [1].
+Image package with Rockchip miniloader requires rkbin [1].
 
 Create idbloader.img
 
