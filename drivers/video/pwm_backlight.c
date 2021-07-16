@@ -235,8 +235,10 @@ static int pwm_backlight_of_to_plat(struct udevice *dev)
 		priv->levels = malloc(len);
 		if (!priv->levels)
 			return log_ret(-ENOMEM);
-		dev_read_u32_array(dev, "brightness-levels", priv->levels,
-				   count);
+		ret = dev_read_u32_array(dev, "brightness-levels", priv->levels,
+					 count);
+		if (ret)
+			return log_msg_ret("levels", ret);
 		priv->num_levels = count;
 		priv->default_level = priv->levels[index];
 		priv->max_level = priv->levels[count - 1];

@@ -167,6 +167,8 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 		}
 
 		swap_file_header(&header, file_header);
+		if (header.offset >= size)
+			return log_msg_ret("range", -E2BIG);
 		ret = fill_node(node, start, &header);
 		if (ret) {
 			priv->result = CBFS_BAD_FILE;

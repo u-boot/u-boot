@@ -17,6 +17,7 @@
 #include <u-boot/crc.h>
 #else
 #include <linux/compiler.h>
+#include <linux/sizes.h>
 #include <common.h>
 #include <errno.h>
 #include <log.h>
@@ -2267,10 +2268,10 @@ int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
 	ulong load, len;
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 	ulong image_start, image_end;
-	ulong ovload, ovlen;
+	ulong ovload, ovlen, ovcopylen;
 	const char *uconfig;
 	const char *uname;
-	void *base, *ov;
+	void *base, *ov, *ovcopy = NULL;
 	int i, err, noffset, ov_noffset;
 #endif
 
@@ -2360,7 +2361,7 @@ int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
 			addr, &uname, &uconfig,
 			arch, IH_TYPE_FLATDT,
 			BOOTSTAGE_ID_FIT_FDT_START,
-			FIT_LOAD_REQUIRED, &ovload, &ovlen);
+			FIT_LOAD_IGNORED, &ovload, &ovlen);
 		if (ov_noffset < 0) {
 			printf("load of %s failed\n", uname);
 			continue;
@@ -2369,6 +2370,21 @@ int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
 				uname, ovload, ovlen);
 		ov = map_sysmem(ovload, ovlen);
 
+		ovcopylen = ALIGN(fdt_totalsize(ov), SZ_4K);
+		ovcopy = malloc(ovcopylen);
+		if (!ovcopy) {
+			printf("failed to duplicate DTO before application\n");
+			fdt_noffset = -ENOMEM;
+			goto out;
+		}
+
+		err = fdt_open_into(ov, ovcopy, ovcopylen);
+		if (err < 0) {
+			printf("failed on fdt_open_into for DTO\n");
+			fdt_noffset = err;
+			goto out;
+		}
+
 		base = map_sysmem(load, len + ovlen);
 		err = fdt_open_into(base, base, len + ovlen);
 		if (err < 0) {
@@ -2376,14 +2392,18 @@ int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
 			fdt_noffset = err;
 			goto out;
 		}
+
 		/* the verbose method prints out messages on error */
-		err = fdt_overlay_apply_verbose(base, ov);
+		err = fdt_overlay_apply_verbose(base, ovcopy);
 		if (err < 0) {
 			fdt_noffset = err;
 			goto out;
 		}
 		fdt_pack(base);
 		len = fdt_totalsize(base);
+
+		free(ovcopy);
+		ovcopy = NULL;
 	}
 #else
 	printf("config with overlays but CONFIG_OF_LIBFDT_OVERLAY not set\n");
@@ -2400,6 +2420,10 @@ out:
 	if (fit_uname_configp)
 		*fit_uname_configp = fit_uname_config;
 
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	if (ovcopy)
+		free(ovcopy);
+#endif
 	if (fit_uname_config_copy)
 		free(fit_uname_config_copy);
 	return fdt_noffset;

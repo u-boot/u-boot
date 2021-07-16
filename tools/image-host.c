@@ -329,7 +329,7 @@ static int get_random_data(void *data, int size)
 {
 	unsigned char *tmp = data;
 	struct timespec date;
-	int i, ret = 0;
+	int i, ret;
 
 	if (!tmp) {
 		printf("%s: pointer data is NULL\n", __func__);
@@ -338,9 +338,9 @@ static int get_random_data(void *data, int size)
 	}
 
 	ret = clock_gettime(CLOCK_MONOTONIC, &date);
-	if (ret < 0) {
-		printf("%s: clock_gettime has failed (err=%d, str=%s)\n",
-		       __func__, ret, strerror(errno));
+	if (ret) {
+		printf("%s: clock_gettime has failed (%s)\n", __func__,
+		       strerror(errno));
 		goto out;
 	}
 
