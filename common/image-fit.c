@@ -1219,19 +1219,19 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 							CHUNKSZ_CRC32);
 		*((uint32_t *)value) = cpu_to_uimage(*((uint32_t *)value));
 		*value_len = 4;
-	} else if (IMAGE_ENABLE_SHA1 && strcmp(algo, "sha1") == 0) {
+	} else if (CONFIG_IS_ENABLED(SHA1) && strcmp(algo, "sha1") == 0) {
 		sha1_csum_wd((unsigned char *)data, data_len,
 			     (unsigned char *)value, CHUNKSZ_SHA1);
 		*value_len = 20;
-	} else if (IMAGE_ENABLE_SHA256 && strcmp(algo, "sha256") == 0) {
+	} else if (CONFIG_IS_ENABLED(SHA256) && strcmp(algo, "sha256") == 0) {
 		sha256_csum_wd((unsigned char *)data, data_len,
 			       (unsigned char *)value, CHUNKSZ_SHA256);
 		*value_len = SHA256_SUM_LEN;
-	} else if (IMAGE_ENABLE_SHA384 && strcmp(algo, "sha384") == 0) {
+	} else if (CONFIG_IS_ENABLED(SHA384) && strcmp(algo, "sha384") == 0) {
 		sha384_csum_wd((unsigned char *)data, data_len,
 			       (unsigned char *)value, CHUNKSZ_SHA384);
 		*value_len = SHA384_SUM_LEN;
-	} else if (IMAGE_ENABLE_SHA512 && strcmp(algo, "sha512") == 0) {
+	} else if (CONFIG_IS_ENABLED(SHA512) && strcmp(algo, "sha512") == 0) {
 		sha512_csum_wd((unsigned char *)data, data_len,
 			       (unsigned char *)value, CHUNKSZ_SHA512);
 		*value_len = SHA512_SUM_LEN;
@@ -2027,7 +2027,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		 * fit_conf_get_node() will try to find default config node
 		 */
 		bootstage_mark(bootstage_id + BOOTSTAGE_SUB_NO_UNIT_NAME);
-		if (IMAGE_ENABLE_BEST_MATCH && !fit_uname_config) {
+		if (IS_ENABLED(CONFIG_FIT_BEST_MATCH) && !fit_uname_config) {
 			cfg_noffset = fit_conf_find_compat(fit, gd_fdt_blob());
 		} else {
 			cfg_noffset = fit_conf_get_node(fit,

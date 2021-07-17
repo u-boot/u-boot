@@ -442,7 +442,7 @@ static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 		goto err_sign;
 	}
 
-#ifdef CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT
+#ifdef CONFIG_FIT_RSASSA_PSS
 	if (padding_algo && !strcmp(padding_algo->name, "pss")) {
 		if (EVP_PKEY_CTX_set_rsa_padding(ckey,
 						 RSA_PKCS1_PSS_PADDING) <= 0) {
@@ -450,7 +450,7 @@ static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 			goto err_sign;
 		}
 	}
-#endif /* CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT */
+#endif /* CONFIG_FIT_RSASSA_PSS */
 
 	for (i = 0; i < region_count; i++) {
 		if (!EVP_DigestSignUpdate(context, region[i].data,

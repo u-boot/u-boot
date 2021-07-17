@@ -204,7 +204,7 @@ config SPL_LEGACY_IMAGE_SUPPORT
 config SPL_LEGACY_IMAGE_CRC_CHECK
 	bool "Check CRC of Legacy images"
 	depends on SPL_LEGACY_IMAGE_SUPPORT
-	select SPL_CRC32_SUPPORT
+	select SPL_CRC32
 	help
 	  Enable this to check the CRC of Legacy images. While this increases
 	  reliability, it affects both code size and boot duration.
@@ -407,7 +407,7 @@ config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
 	  the eMMC EXT_CSC_PART_CONFIG selection should be overridden in SPL
 	  by user defined partition number.
 
-config SPL_CRC32_SUPPORT
+config SPL_CRC32
 	bool "Support CRC32"
 	default y if SPL_LEGACY_IMAGE_SUPPORT
 	help
@@ -417,7 +417,7 @@ config SPL_CRC32_SUPPORT
 	  for detected accidental image corruption. For secure applications you
 	  should consider SHA1 or SHA256.
 
-config SPL_MD5_SUPPORT
+config SPL_MD5
 	bool "Support MD5"
 	depends on SPL_FIT
 	help
@@ -429,7 +429,7 @@ config SPL_MD5_SUPPORT
 	  applications where images may be changed maliciously, you should
 	  consider SHA256 or SHA384.
 
-config SPL_SHA1_SUPPORT
+config SPL_FIT_SHA1
 	bool "Support SHA1"
 	depends on SPL_FIT
 	select SHA1
@@ -441,7 +441,7 @@ config SPL_SHA1_SUPPORT
 	  due to the expanding computing power available to brute-force
 	  attacks. For more security, consider SHA256 or SHA384.
 
-config SPL_SHA256_SUPPORT
+config SPL_FIT_SHA256
 	bool "Support SHA256"
 	depends on SPL_FIT
 	select SHA256
@@ -450,7 +450,7 @@ config SPL_SHA256_SUPPORT
 	  checksum is a 256-bit (32-byte) hash value used to check that the
 	  image contents have not been corrupted.
 
-config SPL_SHA384_SUPPORT
+config SPL_FIT_SHA384
 	bool "Support SHA384"
 	depends on SPL_FIT
 	select SHA384
@@ -461,7 +461,7 @@ config SPL_SHA384_SUPPORT
 	  image contents have not been corrupted. Use this for the highest
 	  security.
 
-config SPL_SHA512_SUPPORT
+config SPL_FIT_SHA512
 	bool "Support SHA512"
 	depends on SPL_FIT
 	select SHA512

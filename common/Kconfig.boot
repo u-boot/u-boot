@@ -35,7 +35,7 @@ config FIT_EXTERNAL_OFFSET
 	  could be put in the hole between data payload and fit image
 	  header, such as CSF data on i.MX platform.
 
-config FIT_ENABLE_SHA256_SUPPORT
+config FIT_SHA256
 	bool "Support SHA256 checksum of FIT image contents"
 	default y
 	select SHA256
@@ -44,7 +44,7 @@ config FIT_ENABLE_SHA256_SUPPORT
 	  SHA256 checksum is a 256-bit (32-byte) hash value used to check that
 	  the image contents have not been corrupted.
 
-config FIT_ENABLE_SHA384_SUPPORT
+config FIT_SHA384
 	bool "Support SHA384 checksum of FIT image contents"
 	default n
 	select SHA384
@@ -54,7 +54,7 @@ config FIT_ENABLE_SHA384_SUPPORT
 	  the image contents have not been corrupted. Use this for the highest
 	  security.
 
-config FIT_ENABLE_SHA512_SUPPORT
+config FIT_SHA512
 	bool "Support SHA512 checksum of FIT image contents"
 	default n
 	select SHA512
@@ -103,7 +103,7 @@ config FIT_SIGNATURE_MAX_SIZE
 	  device memory. Assure this size does not extend past expected storage
 	  space.
 
-config FIT_ENABLE_RSASSA_PSS_SUPPORT
+config FIT_RSASSA_PSS
 	bool "Support rsassa-pss signature scheme of FIT image contents"
 	depends on FIT_SIGNATURE
 	default n
