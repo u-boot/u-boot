@@ -42,12 +42,16 @@ int board_fit_config_name_match(const char *name)
 {
 	int i  = 0;
 	const char *dtb;
+	static char init;
 	char buf[32];
 
 	do {
 		dtb = gsc_get_dtb_name(i++, buf, sizeof(buf));
-		if (!strcmp(dtb, name))
+		if (!strcmp(dtb, name)) {
+			if (!init++)
+				printf("DTB     : %s\n", name);
 			return 0;
+		}
 	} while (dtb);
 
 	return -1;
@@ -101,12 +105,25 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	const char *ethmac;
+	const char *str;
 	char env[32];
 	int ret, i;
 	u8 enetaddr[6];
+	char fdt[64];
 
 	led_default_state();
+
+	/* Set fdt_file vars */
+	i = 0;
+	do {
+		str = gsc_get_dtb_name(i, fdt, sizeof(fdt));
+		if (str) {
+			sprintf(env, "fdt_file%d", i + 1);
+			strcat(fdt, ".dtb");
+			env_set(env, fdt);
+		}
+		i++;
+	} while (str);
 
 	/* Set mac addrs */
 	i = 0;
@@ -115,8 +132,8 @@ int board_late_init(void)
 			sprintf(env, "eth%daddr", i);
 		else
 			sprintf(env, "ethaddr");
-		ethmac = env_get(env);
-		if (!ethmac) {
+		str = env_get(env);
+		if (!str) {
 			ret = gsc_getmac(i, enetaddr);
 			if (!ret)
 				eth_env_set_enetaddr(env, enetaddr);

@@ -6,37 +6,23 @@
  */
 
 #include <common.h>
-#include <init.h>
-#include <log.h>
-#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
-#include <asm/io.h>
 #include <asm/setup.h>
-#include <dm.h>
 #include <env.h>
 #include <hwconfig.h>
-#include <i2c.h>
-#include <fdt_support.h>
-#include <jffs2/load_kernel.h>
 #include <linux/ctype.h>
 #include <miiphy.h>
 #include <mtd_node.h>
-#include <pci.h>
 #include <linux/delay.h>
-#include <linux/libfdt.h>
 #include <power/pmic.h>
-#include <power/ltc3676_pmic.h>
-#include <power/pfuze100_pmic.h>
 #include <fdt_support.h>
 #include <jffs2/load_kernel.h>
 
@@ -95,6 +81,7 @@ int board_phy_config(struct phy_device *phydev)
 
 	/* Marvel 88E1510 */
 	if (phydev->phy_id == 0x1410dd1) {
+		puts("MV88E1510");
 		/*
 		 * Page 3, Register 16: LED[2:0] Function Control Register
 		 * LED[0] (SPD:Amber) R16_3.3:0 to 0111: on-GbE link
@@ -110,6 +97,13 @@ int board_phy_config(struct phy_device *phydev)
 
 	/* TI DP83867 */
 	else if (phydev->phy_id == 0x2000a231) {
+		puts("TIDP83867 ");
+		/* LED configuration */
+		val = 0;
+		val |= 0x5 << 4; /* LED1(Amber;Speed)   : 1000BT link */
+		val |= 0xb << 8; /* LED2(Green;Link/Act): blink for TX/RX act */
+		phy_write(phydev, MDIO_DEVAD_NONE, 24, val);
+
 		/* configure register 0x170 for ref CLKOUT */
 		phy_write(phydev, MDIO_DEVAD_NONE, 13, 0x001f);
 		phy_write(phydev, MDIO_DEVAD_NONE, 14, 0x0170);
@@ -252,6 +246,27 @@ struct display_info_t const displays[] = {{
 		.sync           = FB_SYNC_EXT,
 		.vmode          = FB_VMODE_NONINTERLACED
 } }, {
+	/* DLC0700XDP21LF-C-1 */
+	.bus	= 0,
+	.addr	= 0,
+	.detect	= NULL,
+	.enable	= enable_lvds,
+	.pixfmt	= IPU_PIX_FMT_LVDS666,
+	.mode	= {
+		.name           = "DLC0700XDP21LF",
+		.refresh        = 60,
+		.xres           = 1024,		/* 1024x600active pixels */
+		.yres           = 600,
+		.pixclock       = 15385,	/* 64MHz */
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
 	/* DLC800FIG-T-3 */
 	.bus	= 2,
 	.addr	= 0x14,
@@ -357,7 +372,7 @@ int power_init_board(void)
 	return 0;
 }
 
-int imx6_pcie_toggle_reset(void)
+int imx6_pcie_toggle_reset(struct gpio_desc *gpio, bool active_high)
 {
 	if (board_type < GW_UNKNOWN) {
 		uint pin = gpio_cfg[board_type].pcie_rst;

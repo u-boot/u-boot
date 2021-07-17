@@ -4,6 +4,8 @@
  * Author: Teresa Remmet <t.remmet@phytec.de>
  */
 
+#include "imx8mp-u-boot.dtsi"
+
 / {
 	wdt-reboot {
 		compatible = "wdt-reboot";
@@ -12,48 +14,11 @@
 	};
 };
 
-&{/soc@0} {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
-};
-
-&clk {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-};
-
-&osc_32k {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-};
-
-&osc_24m {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-};
-
-&aips1 {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-};
-
-&aips2 {
-	u-boot,dm-spl;
-};
-
-&aips3 {
-	u-boot,dm-spl;
-};
-
-&iomuxc {
-	u-boot,dm-spl;
-};
-
 &reg_usdhc2_vmmc {
 	u-boot,dm-spl;
 };
 
-&pinctrl_uart2 {
+&pinctrl_uart1 {
 	u-boot,dm-spl;
 };
 
@@ -66,6 +31,10 @@
 };
 
 &pinctrl_usdhc3 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_wdog {
 	u-boot,dm-spl;
 };
 
@@ -89,7 +58,7 @@
 	u-boot,dm-spl;
 };
 
-&uart2 {
+&uart1 {
 	u-boot,dm-spl;
 };
 

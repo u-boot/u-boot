@@ -357,6 +357,29 @@ u32 spl_mmc_boot_mode(const u32 boot_device);
  * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
  */
 int spl_mmc_boot_partition(const u32 boot_device);
+
+struct mmc;
+/**
+ * default_spl_mmc_emmc_boot_partition() - eMMC boot partition to load U-Boot from.
+ * mmc:			Pointer for the mmc device structure
+ *
+ * This function should return the eMMC boot partition number which
+ * the SPL should load U-Boot from (on the given boot_device).
+ */
+int default_spl_mmc_emmc_boot_partition(struct mmc *mmc);
+
+/**
+ * spl_mmc_emmc_boot_partition() - eMMC boot partition to load U-Boot from.
+ * mmc:			Pointer for the mmc device structure
+ *
+ * This function should return the eMMC boot partition number which
+ * the SPL should load U-Boot from (on the given boot_device).
+ *
+ * If not overridden, it is weakly defined in common/spl/spl_mmc.c
+ * and calls default_spl_mmc_emmc_boot_partition();
+ */
+int spl_mmc_emmc_boot_partition(struct mmc *mmc);
+
 void spl_set_bd(void);
 
 /**

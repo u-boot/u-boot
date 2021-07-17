@@ -324,6 +324,29 @@ unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 	return raw_sect;
 }
 
+int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)
+{
+	int part;
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	part = CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION;
+#else
+	/*
+	 * We need to check what the partition is configured to.
+	 * 1 and 2 match up to boot0 / boot1 and 7 is user data
+	 * which is the first physical partition (0).
+	 */
+	part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
+	if (part == 7)
+		part = 0;
+#endif
+	return part;
+}
+
+int __weak spl_mmc_emmc_boot_partition(struct mmc *mmc)
+{
+	return default_spl_mmc_emmc_boot_partition(mmc);
+}
+
 int spl_mmc_load(struct spl_image_info *spl_image,
 		 struct spl_boot_device *bootdev,
 		 const char *filename,
@@ -355,19 +378,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
-		part = CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION;
-#else
-		/*
-		 * We need to check what the partition is configured to.
-		 * 1 and 2 match up to boot0 / boot1 and 7 is user data
-		 * which is the first physical partition (0).
-		 */
-		part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
-
-		if (part == 7)
-			part = 0;
-#endif
+		part = spl_mmc_emmc_boot_partition(mmc);
 
 		if (CONFIG_IS_ENABLED(MMC_TINY))
 			err = mmc_switch_part(mmc, part);

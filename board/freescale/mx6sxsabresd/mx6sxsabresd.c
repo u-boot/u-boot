@@ -320,7 +320,10 @@ int board_late_init(void)
 
 int checkboard(void)
 {
+#ifdef CONFIG_NXP_BOARD_REVISION
 	printf("Board: MX6SX SABRE SDB rev%c\n", nxp_board_rev_string());
-
+#else
+       puts("Board: MX6SX SABRE SDB");
+#endif
 	return 0;
 }

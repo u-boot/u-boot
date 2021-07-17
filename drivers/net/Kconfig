@@ -402,6 +402,13 @@ config KS8851_MLL_BASEADDR
 endif #DM_ETH
 endif #KS8851_MLL
 
+config KSZ9477
+	bool "Microchip KSZ9477 I2C controller driver"
+	depends on DM_DSA && DM_I2C
+	help
+	  This driver implements a DSA switch driver for the KSZ9477 family
+	  of GbE switches using the I2C interface.
+
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on ARCH_KIRKWOOD || ARCH_ORION5X

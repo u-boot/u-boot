@@ -176,7 +176,7 @@ static int gsc_read_eeprom(int bus, int slave, int alen, struct venice_board_inf
 		chksum += buf[i];
 	if ((info->chksum[0] != chksum >> 8) ||
 	    (info->chksum[1] != (chksum & 0xff))) {
-		printf("EEPROM: I2C%d@0x%02x: Invalid Model in EEPROM\n", bus, slave);
+		printf("EEPROM: I2C%d@0x%02x: Invalid Checksum\n", bus, slave);
 		print_hex_dump_bytes("", DUMP_PREFIX_NONE, buf, sizeof(*info));
 		memset(info, 0, sizeof(*info));
 		return -EINVAL;
@@ -221,9 +221,11 @@ static const char *gsc_get_rst_cause(struct udevice *dev)
 
 	/* thermal protection */
 	if (!dm_i2c_read(dev, GSC_SC_THERM_PROTECT, &reg, 1)) {
-		reg |= 1;
-		dm_i2c_write(dev, GSC_SC_THERM_PROTECT, &reg, 1);
-		strcat(str, " Thermal Protection Enabled");
+		strcat(str, " Thermal Protection ");
+		if (reg & BIT(0))
+			strcat(str, "Enabled");
+		else
+			strcat(str, "Disabled");
 	}
 
 	return str;
@@ -298,7 +300,7 @@ int gsc_hwmon(void)
 				}
 
 				/* adjust by offset */
-				val += offset;
+				val += (offset / 1000);
 
 				printf("%-8s: %d.%03dV\n", label, val / 1000, val % 1000);
 				break;
