@@ -64,3 +64,14 @@ void sb_tpm_write_data(struct nvdata_state nvdata[NV_SEQ_COUNT],
 	else
 		memcpy(&nvdata[seq].data, buf + data_ofs, length);
 }
+
+void sb_tpm_define_data(struct nvdata_state nvdata[NV_SEQ_COUNT],
+			enum sandbox_nv_space seq, int length)
+{
+	struct nvdata_state *nvd = &nvdata[seq];
+
+	if (length > NV_DATA_SIZE)
+		log_err("Invalid length %x (max %x)\n", length, NV_DATA_SIZE);
+	nvd->length = length;
+	nvd->present = true;
+}

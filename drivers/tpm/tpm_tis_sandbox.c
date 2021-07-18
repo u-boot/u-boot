@@ -210,6 +210,17 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 		memset(recvbuf, '\0', *recv_len);
 		break;
 	case TPM_CMD_NV_DEFINE_SPACE:
+		index = get_unaligned_be32(sendbuf + 12);
+		length = get_unaligned_be32(sendbuf + 77);
+		seq = sb_tpm_index_to_seq(index);
+		if (seq < 0)
+			return -EINVAL;
+		printf("tpm: define_space index=%#02x, len=%#02x, seq=%#02x\n",
+		       index, length, seq);
+		sb_tpm_define_data(tpm->nvdata, seq, length);
+		*recv_len = 12;
+		memset(recvbuf, '\0', *recv_len);
+		break;
 	case 0x15: /* pcr read */
 	case 0x5d: /* force clear */
 	case 0x6f: /* physical enable */

@@ -93,4 +93,16 @@ void sb_tpm_write_data(struct nvdata_state nvdata[NV_SEQ_COUNT],
 		       enum sandbox_nv_space seq, const u8 *buf, int data_ofs,
 		       int length);
 
+/**
+ * sb_tpm_define_data() - Set up non-volatile data
+ *
+ * If @length is too large, an error is logged and nothing is written.
+ *
+ * @nvdata: Current nvdata state
+ * @seq: Sequence number to set up
+ * @length: Length of space in bytes
+ */
+void sb_tpm_define_data(struct nvdata_state nvdata[NV_SEQ_COUNT],
+			enum sandbox_nv_space seq, int length);
+
 #endif
