@@ -45,19 +45,31 @@ static const u8 sandbox_extended_once_pcr[] = {
 	0xea, 0x98, 0x31, 0xa9, 0x27, 0x59, 0xfb, 0x4b,
 };
 
+/*
+ * Information about our TPM emulation. This is preserved in the sandbox
+ * state file if enabled.
+ *
+ * @init_done: true if open() has been called
+ * @startup_done: true if TPM2_CC_STARTUP has been processed
+ * @tests_done: true if TPM2_CC_SELF_TEST has be processed
+ * @pw: TPM password per hierarchy
+ * @pw_sz: Size of each password in bytes
+ * @properties: TPM properties
+ * @pcr: TPM Platform Configuration Registers. Each of these holds a hash and
+ *	can be 'extended' a number of times, meaning another hash is added into
+ *	its value (initial value all zeroes)
+ * @pcr_extensions: Number of times each PCR has been extended (starts at 0)
+ * @nvdata: non-volatile data, used to store important things for the platform
+ */
 struct sandbox_tpm2 {
 	/* TPM internal states */
 	bool init_done;
 	bool startup_done;
 	bool tests_done;
-	/* TPM password per hierarchy */
 	char pw[TPM2_HIERARCHY_NB][TPM2_DIGEST_LEN + 1];
 	int pw_sz[TPM2_HIERARCHY_NB];
-	/* TPM properties */
 	u32 properties[TPM2_PROPERTY_NB];
-	/* TPM PCRs */
 	u8 pcr[SANDBOX_TPM_PCR_NB][TPM2_DIGEST_LEN];
-	/* TPM PCR extensions */
 	u32 pcr_extensions[SANDBOX_TPM_PCR_NB];
 };
 
