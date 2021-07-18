@@ -11,6 +11,7 @@
 #include <asm/unaligned.h>
 #include <linux/bitops.h>
 #include <u-boot/crc.h>
+#include <u-boot/sha256.h>
 #include "sandbox_common.h"
 
 /* Hierarchies */
@@ -38,13 +39,6 @@ enum tpm2_cap_tpm_property {
 };
 
 #define SANDBOX_TPM_PCR_NB 1
-
-static const u8 sandbox_extended_once_pcr[] = {
-	0xf5, 0xa5, 0xfd, 0x42, 0xd1, 0x6a, 0x20, 0x30,
-	0x27, 0x98, 0xef, 0x6e, 0xd3, 0x09, 0x97, 0x9b,
-	0x43, 0x00, 0x3d, 0x23, 0x20, 0xd9, 0xf0, 0xe8,
-	0xea, 0x98, 0x31, 0xa9, 0x27, 0x59, 0xfb, 0x4b,
-};
 
 /*
  * Information about our TPM emulation. This is preserved in the sandbox
@@ -407,15 +401,17 @@ static int sandbox_tpm2_extend(struct udevice *dev, int pcr_index,
 			       const u8 *extension)
 {
 	struct sandbox_tpm2 *tpm = dev_get_priv(dev);
-	int i;
+	sha256_context ctx;
 
-	/* Only simulate the first extensions from all '0' with only '0' */
-	for (i = 0; i < TPM2_DIGEST_LEN; i++)
-		if (tpm->pcr[pcr_index][i] || extension[i])
-			return TPM2_RC_FAILURE;
+	/* Zero the PCR if this is the first use */
+	if (!tpm->pcr_extensions[pcr_index])
+		memset(tpm->pcr[pcr_index], '\0', TPM2_DIGEST_LEN);
 
-	memcpy(tpm->pcr[pcr_index], sandbox_extended_once_pcr,
-	       TPM2_DIGEST_LEN);
+	sha256_starts(&ctx);
+	sha256_update(&ctx, tpm->pcr[pcr_index], TPM2_DIGEST_LEN);
+	sha256_update(&ctx, extension, TPM2_DIGEST_LEN);
+	sha256_finish(&ctx, tpm->pcr[pcr_index]);
+
 	tpm->pcr_extensions[pcr_index]++;
 
 	return 0;
