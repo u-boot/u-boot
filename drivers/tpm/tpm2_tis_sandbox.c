@@ -49,6 +49,7 @@ static const u8 sandbox_extended_once_pcr[] = {
  * Information about our TPM emulation. This is preserved in the sandbox
  * state file if enabled.
  *
+ * @valid: true if this is valid (only used in s_state)
  * @init_done: true if open() has been called
  * @startup_done: true if TPM2_CC_STARTUP has been processed
  * @tests_done: true if TPM2_CC_SELF_TEST has be processed
@@ -62,6 +63,7 @@ static const u8 sandbox_extended_once_pcr[] = {
  * @nvdata: non-volatile data, used to store important things for the platform
  */
 struct sandbox_tpm2 {
+	bool valid;
 	/* TPM internal states */
 	bool init_done;
 	bool startup_done;
@@ -72,6 +74,8 @@ struct sandbox_tpm2 {
 	u8 pcr[SANDBOX_TPM_PCR_NB][TPM2_DIGEST_LEN];
 	u32 pcr_extensions[SANDBOX_TPM_PCR_NB];
 };
+
+static struct sandbox_tpm2 s_state, *g_state;
 
 /*
  * Check the tag validity depending on the command (authentication required or
@@ -606,10 +610,12 @@ static int sandbox_tpm2_probe(struct udevice *dev)
 	/* Use the TPM v2 stack */
 	priv->version = TPM_V2;
 
-	memset(tpm, 0, sizeof(*tpm));
-
 	priv->pcr_count = 32;
 	priv->pcr_select_min = 2;
+
+	if (s_state.valid)
+		memcpy(tpm, &s_state, sizeof(*tpm));
+	g_state = tpm;
 
 	return 0;
 }
