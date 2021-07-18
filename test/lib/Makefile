@@ -17,3 +17,4 @@ obj-$(CONFIG_UT_LIB_ASN1) += asn1.o
 obj-$(CONFIG_UT_LIB_RSA) += rsa.o
 obj-$(CONFIG_AES) += test_aes.o
 obj-$(CONFIG_GETOPT) += getopt.o
+obj-$(CONFIG_UT_LIB_CRYPT) += test_crypt.o

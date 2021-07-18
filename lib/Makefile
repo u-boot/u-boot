@@ -65,6 +65,7 @@ obj-$(CONFIG_HASH) += hash-checksum.o
 obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SHA256) += sha256.o
 obj-$(CONFIG_SHA512_ALGO) += sha512.o
+obj-$(CONFIG_CRYPT_PW) += crypt/
 
 obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
 obj-$(CONFIG_$(SPL_)ZSTD) += zstd/

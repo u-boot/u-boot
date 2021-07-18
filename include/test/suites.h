@@ -31,6 +31,7 @@ int do_ut_addrmap(struct cmd_tbl *cmdtp, int flag, int argc,
 int do_ut_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[]);
+int do_ut_common(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_compression(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[]);
 int do_ut_dm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
