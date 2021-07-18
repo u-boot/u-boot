@@ -4,7 +4,8 @@
  * Copyright (C) 2013 Imagination Technologies
  */
 
-#include <common.h>
+#include <config.h>
+#include <fdt_support.h>
 #include <ide.h>
 #include <init.h>
 #include <net.h>
@@ -23,6 +24,9 @@
 #include "superio.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define MALTA_GT_PATH	 "/pci0@1be00000"
+#define MALTA_MSC_PATH	 "/pci0@1bd00000"
 
 enum core_card {
 	CORE_UNKNOWN,
@@ -120,10 +124,12 @@ int checkboard(void)
 	return 0;
 }
 
+#if !IS_ENABLED(CONFIG_DM_ETH)
 int board_eth_init(struct bd_info *bis)
 {
 	return pci_eth_init(bis);
 }
+#endif
 
 void _machine_restart(void)
 {
@@ -167,6 +173,77 @@ int misc_init_r(void)
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
+/*
+ * TODO: currently doesn't work because rw_fdt_blob points to a
+ * NOR flash address. This needs some changes in board_init_f.
+ */
+int board_fix_fdt(void *rw_fdt_blob)
+{
+	int node = -1;
+
+	switch (malta_sys_con()) {
+	case SYSCON_GT64120:
+		node =  fdt_path_offset(rw_fdt_blob, MALTA_GT_PATH);
+		break;
+	default:
+	case SYSCON_MSC01:
+		node =  fdt_path_offset(rw_fdt_blob, MALTA_MSC_PATH);
+		break;
+	}
+
+	return fdt_status_okay(rw_fdt_blob, node);
+}
+#endif
+
+#if IS_ENABLED(CONFIG_DM_PCI)
+int board_early_init_r(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	pci_init();
+
+	ret = dm_pci_find_device(PCI_VENDOR_ID_INTEL,
+				 PCI_DEVICE_ID_INTEL_82371AB_0, 0, &dev);
+	if (ret)
+		panic("Failed to find PIIX4 PCI bridge\n");
+
+	/* setup PCI interrupt routing */
+	dm_pci_write_config8(dev, PCI_CFG_PIIX4_PIRQRCA, 10);
+	dm_pci_write_config8(dev, PCI_CFG_PIIX4_PIRQRCB, 10);
+	dm_pci_write_config8(dev, PCI_CFG_PIIX4_PIRQRCC, 11);
+	dm_pci_write_config8(dev, PCI_CFG_PIIX4_PIRQRCD, 11);
+
+	/* mux SERIRQ onto SERIRQ pin */
+	dm_pci_clrset_config32(dev, PCI_CFG_PIIX4_GENCFG, 0,
+			       PCI_CFG_PIIX4_GENCFG_SERIRQ);
+
+	/* enable SERIRQ - Linux currently depends upon this */
+	dm_pci_clrset_config8(dev, PCI_CFG_PIIX4_SERIRQC, 0,
+			      PCI_CFG_PIIX4_SERIRQC_EN | PCI_CFG_PIIX4_SERIRQC_CONT);
+
+	ret = dm_pci_find_device(PCI_VENDOR_ID_INTEL,
+				 PCI_DEVICE_ID_INTEL_82371AB, 0, &dev);
+	if (ret)
+		panic("Failed to find PIIX4 IDE controller\n");
+
+	/* enable bus master & IO access */
+	dm_pci_clrset_config32(dev, PCI_COMMAND, 0,
+			       PCI_COMMAND_MASTER | PCI_COMMAND_IO);
+
+	/* set latency */
+	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x40);
+
+	/* enable IDE/ATA */
+	dm_pci_write_config32(dev, PCI_CFG_PIIX4_IDETIM_PRI,
+			      PCI_CFG_PIIX4_IDETIM_IDE);
+	dm_pci_write_config32(dev, PCI_CFG_PIIX4_IDETIM_SEC,
+			      PCI_CFG_PIIX4_IDETIM_IDE);
+
+	return 0;
+}
+#else
 void pci_init_board(void)
 {
 	pci_dev_t bdf;
@@ -231,3 +308,4 @@ void pci_init_board(void)
 	pci_write_config_dword(bdf, PCI_CFG_PIIX4_IDETIM_SEC,
 			       PCI_CFG_PIIX4_IDETIM_IDE);
 }
+#endif

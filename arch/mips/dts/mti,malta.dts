@@ -29,4 +29,32 @@
 			u-boot,dm-pre-reloc;
 		};
 	};
+
+	pci0@1bd00000 {
+		compatible = "mips,pci-msc01";
+		device_type = "pci";
+		reg = <0x1bd00000 0x2000>;
+
+		#address-cells = <3>;
+		#size-cells = <2>;
+		bus-range = <0x0 0x0>;
+		ranges = <0x01000000 0 0x00000000 0x00000000 0 0x800000		/* I/O */
+			  0x02000000 0 0x10000000 0xb0000000 0 0x10000000	/* MEM */>;
+
+		status = "disabled";
+	};
+
+	pci0@1be00000 {
+		compatible = "marvell,pci-gt64120";
+		device_type = "pci";
+		reg = <0x1be00000 0x2000>;
+
+		#address-cells = <3>;
+		#size-cells = <2>;
+		bus-range = <0x0 0x0>;
+		ranges = <0x01000000 0 0x00000000 0x00000000 0 0x20000		/* I/O */
+			  0x02000000 0 0x10000000 0x10000000 0 0x8000000	/* MEM */>;
+
+		status = "okay";
+	};
 };

@@ -54,6 +54,19 @@ config PCI_REGION_MULTI_ENTRY
 	  region type. This helps to add support for SoC's like OcteonTX/TX2
 	  where every peripheral is on the PCI bus.
 
+config PCI_MAP_SYSTEM_MEMORY
+	bool "Map local system memory from a virtual base address"
+	depends on PCI || DM_PCI
+	depends on MIPS
+	default n
+	help
+	  Say Y if base address of system memory is being used as a virtual address
+	  instead of a physical address (e.g. on MIPS). The PCI core will then remap
+	  the virtual memory base address to a physical address when adding the PCI
+	  region of type PCI_REGION_SYS_MEMORY.
+	  This should only be required on MIPS where CONFIG_SYS_SDRAM_BASE is still
+	  being used as virtual address.
+
 config PCI_SRIOV
 	bool "Enable Single Root I/O Virtualization support for PCI"
 	depends on PCI || DM_PCI
