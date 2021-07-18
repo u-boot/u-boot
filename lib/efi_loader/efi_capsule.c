@@ -16,6 +16,7 @@
 #include <mapmem.h>
 #include <sort.h>
 
+#include <asm/sections.h>
 #include <crypto/pkcs7.h>
 #include <crypto/pkcs7_parser.h>
 #include <linux/err.h>
@@ -222,12 +223,23 @@ skip:
 const efi_guid_t efi_guid_capsule_root_cert_guid =
 	EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
 
+static int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
+{
+	const void *blob = __efi_capsule_sig_begin;
+	const int len = __efi_capsule_sig_end - __efi_capsule_sig_begin;
+
+	*pkey = (void *)blob;
+	*pkey_len = len;
+
+	return 0;
+}
+
 efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
 				      void **image, efi_uintn_t *image_size)
 {
 	u8 *buf;
 	int ret;
-	void *fdt_pkey, *pkey;
+	void *stored_pkey, *pkey;
 	efi_uintn_t pkey_len;
 	uint64_t monotonic_count;
 	struct efi_signature_store *truststore;
@@ -286,7 +298,7 @@ efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_s
 		goto out;
 	}
 
-	ret = efi_get_public_key_data(&fdt_pkey, &pkey_len);
+	ret = efi_get_public_key_data(&stored_pkey, &pkey_len);
 	if (ret < 0)
 		goto out;
 
@@ -294,7 +306,7 @@ efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_s
 	if (!pkey)
 		goto out;
 
-	memcpy(pkey, fdt_pkey, pkey_len);
+	memcpy(pkey, stored_pkey, pkey_len);
 	truststore = efi_build_signature_store(pkey, pkey_len);
 	if (!truststore)
 		goto out;
@@ -691,11 +703,7 @@ skip:
 	}
 found:
 	if (boot_dev) {
-		u16 *path_str;
-
-		path_str = efi_dp_str(boot_dev);
-		log_debug("Boot device %ls\n", path_str);
-		efi_free_pool(path_str);
+		log_debug("Boot device %pD\n", boot_dev);
 
 		volume = efi_fs_from_path(boot_dev);
 		if (!volume)

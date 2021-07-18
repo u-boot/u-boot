@@ -5,6 +5,8 @@
  * (C) Copyright 2017 Rob Clark
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
@@ -16,6 +18,7 @@
 #include <efi_loader.h>
 #include <part.h>
 #include <sandboxblockdev.h>
+#include <uuid.h>
 #include <asm-generic/unaligned.h>
 #include <linux/compat.h> /* U16_MAX */
 
@@ -851,8 +854,11 @@ static void *dp_part_node(void *buf, struct blk_desc *desc, int part)
 			break;
 		case SIG_TYPE_GUID:
 			hddp->signature_type = 2;
-			memcpy(hddp->partition_signature, &desc->guid_sig,
-			       sizeof(hddp->partition_signature));
+			if (uuid_str_to_bin(info.uuid,
+					    hddp->partition_signature, 1))
+				log_warning(
+					"Partition no. %d: invalid guid: %s\n",
+					part, info.uuid);
 			break;
 		}
 
