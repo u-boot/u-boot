@@ -20,7 +20,7 @@
 static struct tpm_state {
 	bool valid;
 	struct nvdata_state nvdata[NV_SEQ_COUNT];
-} g_state;
+} s_state, *g_state;
 
 /**
  * sandbox_tpm_read_state() - read the sandbox EC state from the state file
@@ -33,6 +33,7 @@ static struct tpm_state {
  */
 static int sandbox_tpm_read_state(const void *blob, int node)
 {
+	struct tpm_state *state = &s_state;
 	const char *prop;
 	int len;
 	int i;
@@ -41,22 +42,27 @@ static int sandbox_tpm_read_state(const void *blob, int node)
 		return 0;
 
 	for (i = 0; i < NV_SEQ_COUNT; i++) {
+		struct nvdata_state *nvd = &state->nvdata[i];
 		char prop_name[20];
 
 		sprintf(prop_name, "nvdata%d", i);
 		prop = fdt_getprop(blob, node, prop_name, &len);
-		if (prop && len == NV_DATA_SIZE) {
-			memcpy(g_state.nvdata[i].data, prop, NV_DATA_SIZE);
-			g_state.nvdata[i].present = true;
+		if (len >= NV_DATA_SIZE)
+			return log_msg_ret("nvd", -E2BIG);
+		if (prop) {
+			memcpy(nvd->data, prop, len);
+			nvd->length = len;
+			nvd->present = true;
 		}
 	}
-	g_state.valid = true;
+
+	s_state.valid = true;
 
 	return 0;
 }
 
 /**
- * cros_ec_write_state() - Write out our state to the state file
+ * sandbox_tpm_write_state() - Write out our state to the state file
  *
  * The caller will ensure that there is a node ready for the state. The node
  * may already contain the old state, in which case it is overridden.
@@ -66,7 +72,11 @@ static int sandbox_tpm_read_state(const void *blob, int node)
  */
 static int sandbox_tpm_write_state(void *blob, int node)
 {
+	const struct tpm_state *state = g_state;
 	int i;
+
+	if (!state)
+		return 0;
 
 	/*
 	 * We are guaranteed enough space to write basic properties.
@@ -74,12 +84,13 @@ static int sandbox_tpm_write_state(void *blob, int node)
 	 * own node - perhaps useful if we add access informaiton to each.
 	 */
 	for (i = 0; i < NV_SEQ_COUNT; i++) {
+		const struct nvdata_state *nvd = &state->nvdata[i];
 		char prop_name[20];
 
-		if (g_state.nvdata[i].present) {
-			sprintf(prop_name, "nvdata%d", i);
-			fdt_setprop(blob, node, prop_name,
-				    g_state.nvdata[i].data, NV_DATA_SIZE);
+		if (nvd->present) {
+			snprintf(prop_name, sizeof(prop_name), "nvdata%d", i);
+			fdt_setprop(blob, node, prop_name, nvd->data,
+				    nvd->length);
 		}
 	}
 
@@ -233,7 +244,9 @@ static int sandbox_tpm_probe(struct udevice *dev)
 {
 	struct tpm_state *tpm = dev_get_priv(dev);
 
-	memcpy(tpm, &g_state, sizeof(*tpm));
+	if (s_state.valid)
+		memcpy(tpm, &s_state, sizeof(*tpm));
+	g_state = tpm;
 
 	return 0;
 }
