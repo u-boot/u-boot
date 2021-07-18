@@ -642,15 +642,8 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 		for (i = 0; i < pcr_array_sz; i++)
 			pcr_map += (u64)sent[i] << (i * 8);
 
-		if (pcr_map >> SANDBOX_TPM_PCR_NB) {
-			printf("Sandbox TPM handles up to %d PCR(s)\n",
-			       SANDBOX_TPM_PCR_NB);
-			rc = TPM2_RC_VALUE;
-			return sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
-		}
-
 		if (!pcr_map) {
-			printf("Empty PCR map.\n");
+			printf("Empty PCR map\n");
 			rc = TPM2_RC_VALUE;
 			return sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
 		}
@@ -658,6 +651,13 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 		for (i = 0; i < SANDBOX_TPM_PCR_NB; i++)
 			if (pcr_map & BIT(i))
 				pcr_index = i;
+
+		if (pcr_index >= SANDBOX_TPM_PCR_NB) {
+			printf("Invalid index %d, sandbox TPM handles up to %d PCR(s)\n",
+			       pcr_index, SANDBOX_TPM_PCR_NB);
+			rc = TPM2_RC_VALUE;
+			return sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
+		}
 
 		/* Write tag */
 		put_unaligned_be16(tag, recv);
@@ -692,9 +692,9 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 		pcr_index = get_unaligned_be32(sendbuf + sizeof(tag) +
 					       sizeof(length) +
 					       sizeof(command));
-		if (pcr_index > SANDBOX_TPM_PCR_NB) {
-			printf("Sandbox TPM handles up to %d PCR(s)\n",
-			       SANDBOX_TPM_PCR_NB);
+		if (pcr_index >= SANDBOX_TPM_PCR_NB) {
+			printf("Invalid index %d, sandbox TPM handles up to %d PCR(s)\n",
+			       pcr_index, SANDBOX_TPM_PCR_NB);
 			rc = TPM2_RC_VALUE;
 		}
 
