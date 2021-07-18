@@ -140,16 +140,13 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 			printf("Get flags index %#02x\n", index);
 			*recv_len = 22;
 			memset(recvbuf, '\0', *recv_len);
-			data = recvbuf + TPM_RESPONSE_HEADER_LENGTH +
-					sizeof(uint32_t);
+			data = recvbuf + TPM_HDR_LEN + sizeof(uint32_t);
 			switch (index) {
 			case FIRMWARE_NV_INDEX:
 				break;
 			case KERNEL_NV_INDEX:
 				handle_cap_flag_space(&data, index);
-				*recv_len = data - recvbuf -
-					TPM_RESPONSE_HEADER_LENGTH -
-					sizeof(uint32_t);
+				*recv_len = data - recvbuf;
 				break;
 			case TPM_CAP_FLAG_PERMANENT: {
 				struct tpm_permanent_flags *pflags;
@@ -166,15 +163,12 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 				printf("   ** Unknown flags index %x\n", index);
 				return -ENOSYS;
 			}
-			put_unaligned_be32(*recv_len,
-					   recvbuf +
-					   TPM_RESPONSE_HEADER_LENGTH);
+			put_unaligned_be32(*recv_len, recvbuf + TPM_HDR_LEN);
 			break;
 		case TPM_CAP_NV_INDEX:
 			index = get_unaligned_be32(sendbuf + 18);
 			printf("Get cap nv index %#02x\n", index);
-			put_unaligned_be32(22, recvbuf +
-					   TPM_RESPONSE_HEADER_LENGTH);
+			put_unaligned_be32(22, recvbuf + TPM_HDR_LEN);
 			break;
 		default:
 			printf("   ** Unknown 0x65 command type %#02x\n",
