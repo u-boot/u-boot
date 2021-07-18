@@ -43,11 +43,7 @@ Note that standalone/API support is not available at present.
 Prerequisites
 -------------
 
-Here are some packages that are worth installing if you are doing sandbox or
-tools development in U-Boot:
-
-   python3-pytest lzma lzma-alone lz4 python3 python3-virtualenv
-   libssl1.0-dev
+Install the dependencies noted in :doc:`../build/gcc`.
 
 
 Basic Operation

@@ -26,8 +26,10 @@ Depending on the build targets further packages maybe needed
     sudo apt-get install bc bison build-essential coccinelle \
       device-tree-compiler dfu-util efitools flex gdisk liblz4-tool \
       libguestfs-tools libncurses-dev libpython3-dev libsdl2-dev libssl-dev \
-      lzma-alone openssl python3 python3-coverage python3-pyelftools \
-      python3-pytest python3-sphinxcontrib.apidoc python3-sphinx-rtd-theme swig
+      lz4 lzma lzma-alone openssl python3 python3-coverage \
+      python3-pycryptodome python3-pyelftools python3-pytest \
+      python3-sphinxcontrib.apidoc python3-sphinx-rtd-theme python3-virtualenv \
+      swig
 
 SUSE based
 ~~~~~~~~~~
