@@ -417,7 +417,8 @@ static inline void _debug_uart_putc(int ch)
 {
 	struct pl01x_regs *regs = (struct pl01x_regs *)CONFIG_DEBUG_UART_BASE;
 
-	pl01x_putc(regs, ch);
+	while (pl01x_putc(regs, ch) == -EAGAIN)
+		;
 }
 
 DEBUG_UART_FUNCS
