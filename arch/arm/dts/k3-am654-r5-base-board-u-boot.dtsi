@@ -1,0 +1,207 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2018-2021 Texas Instruments Incorporated - http://www.ti.com/
+ */
+
+#include <dt-bindings/pinctrl/k3.h>
+#include <dt-bindings/net/ti-dp83867.h>
+
+/ {
+	chosen {
+		stdout-path = "serial2:115200n8";
+	};
+
+	aliases {
+		serial2 = &main_uart0;
+		ethernet0 = &cpsw_port1;
+		usb0 = &usb0;
+		usb1 = &usb1;
+		spi0 = &ospi0;
+		spi1 = &ospi1;
+	};
+};
+
+&cbass_main{
+	u-boot,dm-spl;
+	main-navss {
+		u-boot,dm-spl;
+	};
+};
+
+&cbass_mcu {
+	u-boot,dm-spl;
+
+	mcu-navss {
+		u-boot,dm-spl;
+
+		ringacc@2b800000 {
+			reg =	<0x0 0x2b800000 0x0 0x400000>,
+				<0x0 0x2b000000 0x0 0x400000>,
+				<0x0 0x28590000 0x0 0x100>,
+				<0x0 0x2a500000 0x0 0x40000>,
+				<0x0 0x28440000 0x0 0x40000>;
+			reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target", "cfg";
+			u-boot,dm-spl;
+			ti,dma-ring-reset-quirk;
+		};
+
+		dma-controller@285c0000 {
+			reg =	<0x0 0x285c0000 0x0 0x100>,
+				<0x0 0x284c0000 0x0 0x4000>,
+				<0x0 0x2a800000 0x0 0x40000>,
+				<0x0 0x284a0000 0x0 0x4000>,
+				<0x0 0x2aa00000 0x0 0x40000>,
+				<0x0 0x28400000 0x0 0x2000>;
+			reg-names = "gcfg", "rchan", "rchanrt", "tchan",
+					    "tchanrt", "rflow";
+			u-boot,dm-spl;
+		};
+	};
+};
+
+&cbass_wakeup {
+	u-boot,dm-spl;
+
+	chipid@43000014 {
+		u-boot,dm-spl;
+	};
+};
+
+&secure_proxy_main {
+	u-boot,dm-spl;
+};
+
+&dmsc {
+	u-boot,dm-spl;
+	k3_sysreset: sysreset-controller {
+		compatible = "ti,sci-sysreset";
+		u-boot,dm-spl;
+	};
+};
+
+&k3_pds {
+	u-boot,dm-spl;
+};
+
+&k3_clks {
+	u-boot,dm-spl;
+};
+
+&k3_reset {
+	u-boot,dm-spl;
+};
+
+&wkup_pmx0 {
+	u-boot,dm-spl;
+
+	wkup_i2c0_pins_default {
+		u-boot,dm-spl;
+	};
+};
+
+&main_pmx0 {
+	u-boot,dm-spl;
+	usb0_pins_default: usb0_pins_default {
+		pinctrl-single,pins = <
+			AM65X_IOPAD(0x02bc, PIN_OUTPUT, 0) /* (AD9) USB0_DRVVBUS */
+		>;
+		u-boot,dm-spl;
+	};
+};
+
+&main_uart0_pins_default {
+	u-boot,dm-spl;
+};
+
+&main_pmx1 {
+	u-boot,dm-spl;
+};
+
+&wkup_pmx0 {
+	mcu-fss0-ospi0-pins-default {
+		u-boot,dm-spl;
+	};
+};
+
+&main_uart0 {
+	u-boot,dm-spl;
+};
+
+&main_mmc0_pins_default {
+	u-boot,dm-spl;
+};
+
+&main_mmc1_pins_default {
+	u-boot,dm-spl;
+};
+
+&sdhci0 {
+	u-boot,dm-spl;
+};
+
+&sdhci1 {
+	u-boot,dm-spl;
+};
+
+&davinci_mdio {
+	phy0: ethernet-phy@0 {
+		reg = <0>;
+		/* TODO: phy reset: TCA9555RTWR(i2c:0x21)[p04].GPIO_MCU_RGMII_RSTN */
+		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+	};
+};
+
+&mcu_cpsw {
+	reg = <0x0 0x46000000 0x0 0x200000>,
+	      <0x0 0x40f00200 0x0 0x2>;
+	reg-names = "cpsw_nuss", "mac_efuse";
+	/delete-property/ ranges;
+
+	cpsw-phy-sel@40f04040 {
+		compatible = "ti,am654-cpsw-phy-sel";
+		reg= <0x0 0x40f04040 0x0 0x4>;
+		reg-names = "gmii-sel";
+	};
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
+};
+
+&usb1 {
+	dr_mode = "peripheral";
+};
+
+&fss {
+	u-boot,dm-spl;
+};
+
+&ospi0 {
+	u-boot,dm-spl;
+
+	 flash@0{
+		u-boot,dm-spl;
+	};
+};
+
+&dwc3_0 {
+	status = "okay";
+	u-boot,dm-spl;
+};
+
+&usb0_phy {
+	status = "okay";
+	u-boot,dm-spl;
+};
+
+&usb0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb0_pins_default>;
+	dr_mode = "host";
+	u-boot,dm-spl;
+};
+
+&scm_conf {
+	u-boot,dm-spl;
+};

@@ -89,6 +89,13 @@
 			<&mcu_secproxy 23>;
 		u-boot,dm-spl;
 	};
+
+	wkup_vtm0: vtm@42040000 {
+		compatible = "ti,am654-vtm", "ti,j721e-avs";
+		reg = <0x0 0x42040000 0x0 0x330>;
+		power-domains = <&k3_pds 154 TI_SCI_PD_EXCLUSIVE>;
+		#thermal-sensor-cells = <1>;
+	};
 };
 
 &dmsc {
@@ -237,6 +244,37 @@
 	clock-names = "clk_xin";
 	clocks = <&clk_200mhz>;
 	ti,driver-strength-ohm = <50>;
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
+	lp876441: lp876441@4c {
+		compatible = "ti,lp876441";
+		reg = <0x4c>;
+		u-boot,dm-spl;
+		pinctrl-names = "default";
+		pinctrl-0 = <&wkup_i2c0_pins_default>;
+		clock-frequency = <400000>;
+
+		regulators: regulators {
+			u-boot,dm-spl;
+			buck1_reg: buck1 {
+				/*VDD_CPU_AVS_REG*/
+				regulator-name = "buck1";
+				regulator-min-microvolt = <800000>;
+				regulator-max-microvolt = <1250000>;
+				regulator-always-on;
+				regulator-boot-on;
+				u-boot,dm-spl;
+			};
+		};
+	};
+
+};
+
+&wkup_vtm0 {
+	vdd-supply-2 = <&buck1_reg>;
+	u-boot,dm-spl;
 };
 
 &main_i2c0 {

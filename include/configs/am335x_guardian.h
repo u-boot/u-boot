@@ -29,6 +29,7 @@
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=0x80000000\0" \
 	"pxefile_addr_r=0x80100000\0" \
+	"tftp_load_addr=0x82000000\0" \
 	"kernel_addr_r=0x82000000\0" \
 	"fdt_addr_r=0x88000000\0" \
 	"ramdisk_addr_r=0x88080000\0" \
@@ -57,19 +58,20 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
 	GUARDIAN_DEFAULT_PROD_ENV \
+	"autoload=no\0" \
+	"backlight_brightness=50\0" \
 	"bootubivol=rootfs\0" \
 	"distro_bootcmd=" \
-		"setenv autoload no; " \
 		"setenv rootflags \"bulk_read,chk_data_crc\"; " \
 		"setenv ethact usb_ether; " \
 		"if test \"${swi_status}\" -eq 1; then " \
-		  "setenv extrabootargs \"swi_attached\"; " \
 		  "if dhcp; then " \
 		    "sleep 1; " \
 		    "if tftp \"${tftp_load_addr}\" \"bootscript.scr\"; then " \
 		      "source \"${tftp_load_addr}\"; " \
 		    "fi; " \
 		  "fi; " \
+		  "setenv extrabootargs $extrabootargs \"swi_attached\"; " \
 		"fi;" \
 		"run bootcmd_ubifs0;\0" \
 	"altbootcmd=" \
@@ -79,6 +81,17 @@
 		"run bootcmd_ubifs0;\0"
 
 #endif /* ! CONFIG_SPL_BUILD */
+
+#define CONFIG_BMP_16BPP
+#define SPLASH_SCREEN_NAND_PART "nand0,10"
+#define SPLASH_SCREEN_BMP_FILE_SIZE 0x26000
+#define SPLASH_SCREEN_BMP_LOAD_ADDR 0x82000000
+#define SPLASH_SCREEN_TEXT "U-Boot"
+
+/* BGR 16Bit Color Definitions */
+#define CONSOLE_COLOR_BLACK 0x0000
+#define CONSOLE_COLOR_WHITE 0xFFFF
+#define CONSOLE_COLOR_RED 0x001F
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */

@@ -71,12 +71,20 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_34xx;
 
 #endif
 
+void early_system_init(void)
+{
+	hw_data_init();
+}
+
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
+	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
+
 /******************************************************************************
  * Routine: secure_unlock
  * Description: Setup security registers for access
  *              (GP Device only)
  *****************************************************************************/
-void secure_unlock_mem(void)
+static void secure_unlock_mem(void)
 {
 	struct pm *pm_rt_ape_base = (struct pm *)PM_RT_APE_BASE_ADDR_ARM;
 	struct pm *pm_gpmc_base = (struct pm *)PM_GPMC_BASE_ADDR_ARM;
@@ -114,7 +122,7 @@ void secure_unlock_mem(void)
  *		configure secure registers and exit secure world
  *              general use.
  *****************************************************************************/
-void secureworld_exit(void)
+static void secureworld_exit(void)
 {
 	unsigned long i;
 
@@ -145,7 +153,7 @@ void secureworld_exit(void)
  * Description: If chip is GP/EMU(special) type, unlock the SRAM for
  *              general use.
  *****************************************************************************/
-void try_unlock_memory(void)
+static void try_unlock_memory(void)
 {
 	int mode;
 	int in_sdram = is_running_in_sdram();
@@ -174,13 +182,6 @@ void try_unlock_memory(void)
 	return;
 }
 
-void early_system_init(void)
-{
-	hw_data_init();
-}
-
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
-	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
 /******************************************************************************
  * Routine: s_init
  * Description: Does early system init of muxing and clocks.

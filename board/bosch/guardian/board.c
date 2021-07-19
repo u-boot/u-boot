@@ -9,19 +9,15 @@
  */
 
 #include <common.h>
-#include <cpsw.h>
 #include <dm.h>
-#include <env.h>
 #include <env_internal.h>
 #include <errno.h>
 #include <i2c.h>
-#include <init.h>
 #include <led.h>
-#include <miiphy.h>
 #include <panel.h>
+#include <linux/delay.h>
 #include <asm/global_data.h>
 #include <power/tps65217.h>
-#include <power/tps65910.h>
 #include <spl.h>
 #include <watchdog.h>
 #include <asm/arch/clock.h>
@@ -29,13 +25,17 @@
 #include <asm/arch/ddr_defs.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/mem.h>
-#include <asm/arch/mmc_host_def.h>
+#include <asm/arch/mem-guardian.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <jffs2/load_kernel.h>
+#include <mtd.h>
+#include <nand.h>
+#include <video.h>
+#include <video_console.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -193,26 +193,10 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 static void set_bootmode_env(void)
 {
-	char *boot_device_name = NULL;
 	char *boot_mode_gpio = "gpio@44e07000_14";
 	int   ret;
-	int   value;
 
 	struct gpio_desc boot_mode_desc;
-
-	switch (gd->arch.omap_boot_device) {
-	case BOOT_DEVICE_NAND:
-		boot_device_name = "nand";
-		break;
-	case BOOT_DEVICE_USBETH:
-		boot_device_name = "usbeth";
-		break;
-	default:
-		break;
-	}
-
-	if (boot_device_name)
-		env_set("boot_device", boot_device_name);
 
 	ret = dm_gpio_lookup_name(boot_mode_gpio, &boot_mode_desc);
 	if (ret) {
@@ -226,20 +210,138 @@ static void set_bootmode_env(void)
 		goto err;
 	}
 
-	value = dm_gpio_get_value(&boot_mode_desc);
-	value ? env_set("swi_status", "0") : env_set("swi_status", "1");
+	dm_gpio_set_dir_flags(&boot_mode_desc, GPIOD_IS_IN);
+	udelay(10);
+
+	ret = dm_gpio_get_value(&boot_mode_desc);
+	if (ret == 0) {
+		env_set("swi_status", "1");
+	} else if (ret == 1) {
+		env_set("swi_status", "0");
+	} else {
+		printf("swi status gpio error\n");
+		goto err;
+	}
+
 	return;
 
 err:
 	env_set("swi_status", "err");
 }
 
+void lcdbacklight_en(void)
+{
+	unsigned long brightness = env_get_ulong("backlight_brightness", 10, 50);
+
+	if (brightness > 99 || brightness == 0)
+		brightness = 99;
+
+	/*
+	 * Brightness range:
+	 * WLEDCTRL2 DUTY[6:0]
+	 *
+	 * 000 0000b = 1%
+	 * 000 0001b = 2%
+	 * ...
+	 * 110 0010b = 99%
+	 * 110 0011b = 100%
+	 *
+	 */
+
+	tps65217_reg_write(TPS65217_PROT_LEVEL_NONE, TPS65217_WLEDCTRL2,
+			   brightness, 0xFF);
+	tps65217_reg_write(TPS65217_PROT_LEVEL_NONE, TPS65217_WLEDCTRL1,
+			   brightness != 0 ? 0x0A : 0x02, 0xFF);
+}
+
+#if IS_ENABLED(CONFIG_AM335X_LCD)
+static void splash_screen(void)
+{
+	struct udevice *video_dev;
+	struct udevice *console_dev;
+	struct video_priv *vid_priv;
+	struct mtd_info *mtd;
+	size_t len;
+	int ret;
+
+	struct mtd_device *mtd_dev;
+	struct part_info  *part;
+	u8 pnum;
+
+	ret = uclass_get_device(UCLASS_VIDEO, 0, &video_dev);
+	if (ret != 0) {
+		debug("video device not found\n");
+		goto exit;
+	}
+
+	vid_priv = dev_get_uclass_priv(video_dev);
+	mtdparts_init();
+
+	if (find_dev_and_part(SPLASH_SCREEN_NAND_PART, &mtd_dev, &pnum, &part))	{
+		debug("Could not find nand partition\n");
+		goto splash_screen_text;
+	}
+
+	mtd = get_nand_dev_by_index(mtd_dev->id->num);
+	if (!mtd) {
+		debug("MTD partition is not valid\n");
+		goto splash_screen_text;
+	}
+
+	len = SPLASH_SCREEN_BMP_FILE_SIZE;
+	ret = nand_read_skip_bad(mtd, part->offset, &len, NULL,
+				 SPLASH_SCREEN_BMP_FILE_SIZE,
+				 (u_char *)SPLASH_SCREEN_BMP_LOAD_ADDR);
+	if (ret != 0) {
+		debug("Reading NAND partition failed\n");
+		goto splash_screen_text;
+	}
+
+	ret = video_bmp_display(video_dev, SPLASH_SCREEN_BMP_LOAD_ADDR, 0, 0, false);
+	if (ret != 0) {
+		debug("No valid bmp image found!!\n");
+		goto splash_screen_text;
+	} else {
+		goto exit;
+	}
+
+splash_screen_text:
+	vid_priv->colour_fg = CONSOLE_COLOR_RED;
+	vid_priv->colour_bg = CONSOLE_COLOR_BLACK;
+
+	if (!uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &console_dev)) {
+		debug("Found console\n");
+		vidconsole_position_cursor(console_dev, 17, 7);
+		vidconsole_put_string(console_dev, SPLASH_SCREEN_TEXT);
+	} else {
+		debug("No console device found\n");
+	}
+
+exit:
+	return;
+}
+#endif /* CONFIG_AM335X_LCD */
+
 int board_late_init(void)
 {
+	int ret;
+	struct udevice *cdev;
+
 #ifdef CONFIG_LED_GPIO
 	led_default_state();
 #endif
 	set_bootmode_env();
+
+	ret = uclass_get_device(UCLASS_PANEL, 0, &cdev);
+	if (ret) {
+		debug("video panel not found: %d\n", ret);
+		return ret;
+	}
+
+	lcdbacklight_en();
+	if (IS_ENABLED(CONFIG_AM335X_LCD))
+		splash_screen();
+
 	return 0;
 }
 #endif /* CONFIG_BOARD_LATE_INIT */

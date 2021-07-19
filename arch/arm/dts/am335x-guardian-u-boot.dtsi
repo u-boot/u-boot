@@ -42,6 +42,17 @@
 	u-boot,dm-pre-reloc;
 };
 
+&spi0 {
+	lcd0: display@0 {
+		compatible = "himax,hx8238d";
+		pinctrl-names = "default";
+		pinctrl-0 = <&lcd0_pins>;
+		reg = <0>;
+		label = "lcd";
+		spi-max-frequency = <100000>;
+	};
+};
+
 &uart0 {
 	u-boot,dm-pre-reloc;
 };

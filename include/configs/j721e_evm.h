@@ -10,7 +10,6 @@
 #define __CONFIG_J721E_EVM_H
 
 #include <linux/sizes.h>
-#include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
 #include <environment/ti/k3_rproc.h>
 #include <environment/ti/ufs.h>
@@ -160,6 +159,26 @@
 #define EXTRA_ENV_J721E_BOARD_SETTINGS_MTD
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_PXE)
+# define BOOT_TARGET_PXE(func) func(PXE, pxe, na)
+#else
+# define BOOT_TARGET_PXE(func)
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_DHCP)
+# define BOOT_TARGET_DHCP(func) func(DHCP, dhcp, na)
+#else
+# define BOOT_TARGET_DHCP(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
+	BOOT_TARGET_PXE(func) \
+	BOOT_TARGET_DHCP(func)
+
+#include <config_distro_bootcmd.h>
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
@@ -170,7 +189,8 @@
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS						\
 	DEFAULT_UFS_TI_ARGS						\
-	EXTRA_ENV_J721E_BOARD_SETTINGS_MTD
+	EXTRA_ENV_J721E_BOARD_SETTINGS_MTD				\
+	BOOTENV
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>

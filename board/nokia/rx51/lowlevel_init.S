@@ -27,6 +27,9 @@ imagesize:		/* maximal size of image */
 ih_magic:		/* IH_MAGIC in big endian from include/image.h */
 	.word 0x56190527
 
+z_magic:		/* LINUX_ARM_ZIMAGE_MAGIC */
+	.word 0x016f2818
+
 /*
  * Routine: save_boot_params (called after reset from start.S)
  * Description: Copy attached kernel to address KERNEL_ADDRESS
@@ -75,6 +78,12 @@ copy_kernel_start:
 	ldr	r4, [r0]	/* r4 - 4 bytes header of kernel */
 	ldr	r5, ih_magic	/* r5 - IH_MAGIC */
 	cmp	r4, r5
+	beq	copy_kernel_loop
+
+	/* check for valid kernel zImage */
+	ldr	r4, [r0, #36]	/* r4 - 4 bytes header of kernel at offset 36 */
+	ldr	r5, z_magic	/* r5 - LINUX_ARM_ZIMAGE_MAGIC */
+	cmp	r4, r5
 	bne	copy_kernel_end	/* skip if invalid image */
 
 copy_kernel_loop:
@@ -85,7 +94,8 @@ copy_kernel_loop:
 
 copy_kernel_end:
 	mov	r5, #0
-	str	r5, [r0]	/* remove 4 bytes header of kernel */
+	str	r5, [r0]	/* remove 4 bytes header of kernel uImage */
+	str	r5, [r0, #36]	/* remove 4 bytes header of kernel zImage */
 
 
 /* Fix u-boot code */
