@@ -386,7 +386,7 @@ unsigned long get_board_ddr_clk(void);
 	"kernel_start=0x1000000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
-	"mcinitcmd=sf probe 0:0;sf read 0xa0a00000 0xa00000 0x100000;"	\
+	"mcinitcmd=sf probe 0:0;sf read 0xa0a00000 0xa00000 0x200000;"	\
 	"sf read 0xa0640000 0x640000 0x4000; esbc_validate 0xa0640000;"	\
 	"sf read 0xa0e00000 0xe00000 0x100000;"	\
 	"sf read 0xa0680000 0x680000 0x4000;esbc_validate 0xa0680000;"	\
@@ -395,13 +395,13 @@ unsigned long get_board_ddr_clk(void);
 #else /* if !(CONFIG_NXP_ESBC) */
 #ifdef CONFIG_TFABOOT
 #define QSPI_MC_INIT_CMD				\
-	"sf probe 0:0;sf read 0x80000000 0xA00000 0x100000;"	\
-	"sf read 0x80100000 0xE00000 0x100000;" \
-	"fsl_mc start mc 0x80000000 0x80100000\0"
+	"sf probe 0:0;sf read 0x80a00000 0xA00000 0x200000;"	\
+	"sf read 0x80e00000 0xE00000 0x100000;" \
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 #define SD_MC_INIT_CMD				\
-	"mmcinfo;mmc read 0x80000000 0x5000 0x800;"  \
-	"mmc read 0x80100000 0x7000 0x800;" \
-	"fsl_mc start mc 0x80000000 0x80100000\0"
+	"mmcinfo;mmc read 0x80a00000 0x5000 0x1000;"  \
+	"mmc read 0x80e00000 0x7000 0x800;" \
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 #define IFC_MC_INIT_CMD				\
 	"fsl_mc start mc 0x580A00000 0x580E00000\0"
 
@@ -421,9 +421,9 @@ unsigned long get_board_ddr_clk(void);
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"kernel_size_sd=0x14000\0"               \
-	"mcinitcmd=sf probe 0:0;sf read 0x80000000 0xA00000 0x100000;"	\
-	"sf read 0x80100000 0xE00000 0x100000;" \
-	"fsl_mc start mc 0x80000000 0x80100000\0"	\
+	"mcinitcmd=sf probe 0:0;sf read 0x80a00000 0xA00000 0x200000;"	\
+	"sf read 0x80e00000 0xE00000 0x100000;" \
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"	\
 	"mcmemsize=0x70000000 \0"		\
 	"BOARD=ls1088aqds\0" \
 	"scriptaddr=0x80000000\0"		\
@@ -480,9 +480,9 @@ unsigned long get_board_ddr_clk(void);
 	"kernel_start=0x1000000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
-	"mcinitcmd=sf probe 0:0;sf read 0x80000000 0xA00000 0x100000;"	\
-	"sf read 0x80100000 0xE00000 0x100000;" \
-	"fsl_mc start mc 0x80000000 0x80100000\0"	\
+	"mcinitcmd=sf probe 0:0;sf read 0x80a00000 0xA00000 0x200000;"	\
+	"sf read 0x80e00000 0xE00000 0x100000;" \
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"	\
 	"mcmemsize=0x70000000 \0"
 #elif defined(CONFIG_SD_BOOT)
 #undef CONFIG_EXTRA_ENV_SETTINGS
@@ -498,9 +498,9 @@ unsigned long get_board_ddr_clk(void);
 	"kernel_start=0x8000\0"              \
 	"kernel_load=0xa0000000\0"              \
 	"kernel_size=0x14000\0"               \
-	"mcinitcmd=mmcinfo;mmc read 0x80000000 0x5000 0x800;"  \
-	"mmc read 0x80100000 0x7000 0x800;" \
-	"fsl_mc start mc 0x80000000 0x80100000\0"       \
+	"mcinitcmd=mmcinfo;mmc read 0x80a00000 0x5000 0x1000;"  \
+	"mmc read 0x80e00000 0x7000 0x800;" \
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"       \
 	"mcmemsize=0x70000000 \0"
 #else	/* NOR BOOT */
 #undef CONFIG_EXTRA_ENV_SETTINGS
