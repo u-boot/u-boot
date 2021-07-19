@@ -473,7 +473,7 @@ static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 	#endif
 	EVP_MD_CTX_destroy(context);
 
-	debug("Got signature: %d bytes, expected %zu\n", *sig_size, size);
+	debug("Got signature: %zu bytes, expected %d\n", size, EVP_PKEY_size(pkey));
 	*sigp = sig;
 	*sig_size = size;
 
