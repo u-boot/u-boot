@@ -105,17 +105,11 @@ static void set_fec_duplex_speed(volatile fec_t *fecp, int dup_spd)
 	}
 
 	if ((dup_spd & 0xFFFF) == _100BASET) {
-#ifdef CONFIG_MCF5445x
-		fecp->rcr &= ~0x200;	/* disabled 10T base */
-#endif
 #ifdef MII_DEBUG
 		printf("100Mbps\n");
 #endif
 		bd->bi_ethspeed = 100;
 	} else {
-#ifdef CONFIG_MCF5445x
-		fecp->rcr |= 0x200;	/* enabled 10T base */
-#endif
 #ifdef MII_DEBUG
 		printf("10Mbps\n");
 #endif

@@ -220,7 +220,7 @@ int misc_init_r(void)
 int board_late_init(void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-#ifdef CONFIG_USB
+#ifdef CONFIG_USB_HOST
 	clrsetbits_be32(&immap->sysconf.sicrl, SICRL_USB_A, 0x40000000);
 #endif
 	return 0;

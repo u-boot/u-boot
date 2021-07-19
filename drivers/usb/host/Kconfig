@@ -5,9 +5,11 @@ comment "USB Host Controller Drivers"
 
 config USB_HOST
 	bool
+	select DM_USB
 
 config USB_XHCI_HCD
 	bool "xHCI HCD (USB 3.0) support"
+	depends on DM && OF_CONTROL
 	select USB_HOST
 	---help---
 	  The eXtensible Host Controller Interface (xHCI) is standard for USB 3.0
@@ -107,6 +109,7 @@ endif # USB_XHCI_HCD
 config USB_EHCI_HCD
 	bool "EHCI HCD (USB 2.0) support"
 	default y if ARCH_MX5 || ARCH_MX6
+	depends on DM && OF_CONTROL
 	select USB_HOST
 	---help---
 	  The Enhanced Host Controller Interface (EHCI) is standard for USB 2.0
@@ -217,7 +220,6 @@ config USB_EHCI_ZYNQ
 
 config USB_EHCI_GENERIC
 	bool "Support for generic EHCI USB controller"
-	depends on OF_CONTROL
 	depends on DM_USB
 	default ARCH_SUNXI
 	default n
@@ -234,6 +236,8 @@ endif # USB_EHCI_HCD
 
 config USB_OHCI_HCD
 	bool "OHCI HCD (USB 1.1) support"
+	depends on DM && OF_CONTROL
+	select USB_HOST
 	---help---
 	  The Open Host Controller Interface (OHCI) is a standard for accessing
 	  USB 1.1 host controller hardware.  It does more in hardware than Intel's
@@ -244,21 +248,17 @@ config USB_OHCI_HCD
 	  based system where you're not sure, the "lspci -v" entry will list the
 	  right "prog-if" for your USB controller(s):  EHCI, OHCI, or UHCI.
 
+if USB_OHCI_HCD
+
 config USB_OHCI_PCI
 	bool "Support for PCI-based OHCI USB controller"
-	depends on DM_USB
-	default n
+	depends on PCI
 	help
 	  Enables support for the PCI-based OHCI controller.
 
-if USB_OHCI_HCD
-
 config USB_OHCI_GENERIC
 	bool "Support for generic OHCI USB controller"
-	depends on OF_CONTROL
-	depends on DM_USB
 	default ARCH_SUNXI
-	select USB_HOST
 	---help---
 	  Enables support for generic OHCI controller.
 
@@ -289,6 +289,7 @@ endif # USB_UHCI_HCD
 
 config USB_DWC2
 	bool "DesignWare USB2 Core support"
+	depends on DM && OF_CONTROL
 	select USB_HOST
 	---help---
 	  The DesignWare USB 2.0 controller is compliant with the
@@ -311,8 +312,7 @@ endif # USB_DWC2
 
 config USB_R8A66597_HCD
 	bool "Renesas R8A66597 USB Core support"
-	depends on OF_CONTROL
-	depends on DM_USB
+	depends on DM && OF_CONTROL
 	select USB_HOST
 	---help---
 	  This enables support for the on-chip Renesas R8A66597 USB 2.0

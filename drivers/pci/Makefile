@@ -3,16 +3,12 @@
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifneq ($(CONFIG_DM_PCI),)
 obj-$(CONFIG_DM_VIDEO) += pci_rom.o
 obj-$(CONFIG_PCI) += pci-uclass.o pci_auto.o
 obj-$(CONFIG_DM_PCI_COMPAT) += pci_compat.o
 obj-$(CONFIG_PCI_SANDBOX) += pci_sandbox.o
 obj-$(CONFIG_SANDBOX) += pci-emul-uclass.o
 obj-$(CONFIG_X86) += pci_x86.o pci_rom.o
-else
-obj-$(CONFIG_PCI) += pci.o pci_auto_old.o
-endif
 obj-$(CONFIG_PCI) += pci_auto_common.o pci_common.o
 
 obj-$(CONFIG_PCIE_ECAM_GENERIC) += pcie_ecam_generic.o

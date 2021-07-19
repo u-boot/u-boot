@@ -239,7 +239,6 @@ config TARGET_KOSAGI_NOVENA
 	select DM_MMC
 	select DM_PCI
 	select DM_SCSI
-	select DM_USB
 	select DM_VIDEO
 	select OF_CONTROL
 	select SUPPORT_SPL
@@ -556,7 +555,6 @@ config TARGET_KP_IMX6Q_TPC
 	select DM_SERIAL
 	select DM_I2C
 	select DM_GPIO
-	select DM_USB
 	select SUPPORT_SPL
 	select SPL_SEPARATE_BSS if SPL
 	imply CMD_DM
