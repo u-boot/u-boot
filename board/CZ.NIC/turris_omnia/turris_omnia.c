@@ -13,6 +13,7 @@
 #include <init.h>
 #include <log.h>
 #include <miiphy.h>
+#include <mtd.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/global_data.h>
@@ -30,6 +31,8 @@
 #include <../serdes/a38x/high_speed_env_spec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define OMNIA_SPI_NOR_PATH		"/soc/spi@10600/spi-nor@0"
 
 #define OMNIA_I2C_BUS_NAME		"i2c@11000->i2cmux@70->i2c@0"
 
@@ -557,3 +560,90 @@ out:
 	return 0;
 }
 
+#if defined(CONFIG_OF_BOARD_SETUP)
+/*
+ * I plan to generalize this function and move it to common/fdt_support.c.
+ * This will require some more work on multiple boards, though, so for now leave
+ * it here.
+ */
+static bool fixup_mtd_partitions(void *blob, int offset, struct mtd_info *mtd)
+{
+	struct mtd_info *slave;
+	int parts;
+
+	parts = fdt_subnode_offset(blob, offset, "partitions");
+	if (parts < 0)
+		return false;
+
+	if (fdt_del_node(blob, parts) < 0)
+		return false;
+
+	parts = fdt_add_subnode(blob, offset, "partitions");
+	if (parts < 0)
+		return false;
+
+	if (fdt_setprop_u32(blob, parts, "#address-cells", 1) < 0)
+		return false;
+
+	if (fdt_setprop_u32(blob, parts, "#size-cells", 1) < 0)
+		return false;
+
+	if (fdt_setprop_string(blob, parts, "compatible",
+			       "fixed-partitions") < 0)
+		return false;
+
+	mtd_probe_devices();
+
+	list_for_each_entry(slave, &mtd->partitions, node) {
+		char name[32];
+		int part;
+
+		snprintf(name, sizeof(name), "partition@%llx", slave->offset);
+		part = fdt_add_subnode(blob, parts, name);
+		if (part < 0)
+			return false;
+
+		if (fdt_setprop_u32(blob, part, "reg", slave->offset) < 0)
+			return false;
+
+		if (fdt_appendprop_u32(blob, part, "reg", slave->size) < 0)
+			return false;
+
+		if (fdt_setprop_string(blob, part, "label", slave->name) < 0)
+			return false;
+
+		if (!(slave->flags & MTD_WRITEABLE))
+			if (fdt_setprop_empty(blob, part, "read-only") < 0)
+				return false;
+
+		if (slave->flags & MTD_POWERUP_LOCK)
+			if (fdt_setprop_empty(blob, part, "lock") < 0)
+				return false;
+	}
+
+	return true;
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	struct mtd_info *mtd;
+	int node;
+
+	mtd = get_mtd_device_nm(OMNIA_SPI_NOR_PATH);
+	if (IS_ERR_OR_NULL(mtd))
+		goto fail;
+
+	node = fdt_path_offset(blob, OMNIA_SPI_NOR_PATH);
+	if (node < 0)
+		goto fail;
+
+	if (!fixup_mtd_partitions(blob, node, mtd))
+		goto fail;
+
+	return 0;
+
+fail:
+	printf("Failed fixing SPI NOR partitions!\n");
+	return 0;
+}
+#endif

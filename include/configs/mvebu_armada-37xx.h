@@ -58,11 +58,6 @@
 #define CONFIG_SYS_I2C_SLAVE		0x0
 
 /*
- * SPI Flash configuration
- */
-#define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
-
-/*
  * Environment
  */
 #define DEFAULT_ENV_IS_RW		/* required for configuring default fdtfile= */

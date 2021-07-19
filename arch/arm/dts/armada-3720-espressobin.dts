@@ -164,6 +164,24 @@
 		reg = <0>; /* Chip select 0 */
 		spi-max-frequency = <50000000>;
 		m25p,fast-read;
+
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@firmware {
+				reg = <0 CONFIG_ENV_OFFSET>;
+				label = "firmware";
+			};
+
+			partition@u-boot-env {
+				reg = <CONFIG_ENV_OFFSET CONFIG_ENV_SIZE>;
+				label = "u-boot-env";
+			};
+		};
+#endif
 	};
 };
 
