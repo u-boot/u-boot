@@ -307,7 +307,6 @@ struct eqos_priv {
 	struct clk clk_slave_bus;
 	struct mii_dev *mii;
 	struct phy_device *phy;
-	int phyaddr;
 	u32 max_speed;
 	void *descs;
 	int tx_desc_idx, rx_desc_idx;
@@ -1813,7 +1812,6 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	if (ret)
 		pr_warn("No phy clock provided %d", ret);
 
-	eqos->phyaddr = -1;
 	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 					 &phandle_args);
 	if (!ret) {
@@ -1826,9 +1824,6 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 		if (ret)
 			pr_warn("gpio_request_by_name(phy reset) not provided %d",
 				ret);
-
-		eqos->phyaddr = ofnode_read_u32_default(phandle_args.node,
-							"reg", -1);
 	}
 
 	debug("%s: OK\n", __func__);
