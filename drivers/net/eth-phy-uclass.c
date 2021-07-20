@@ -5,8 +5,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <asm-generic/gpio.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/lists.h>
@@ -27,25 +29,25 @@ int eth_phy_binds_nodes(struct udevice *eth_dev)
 
 	mdio_node = dev_read_subnode(eth_dev, "mdio");
 	if (!ofnode_valid(mdio_node)) {
-		debug("%s: %s mdio subnode not found!", __func__,
-		      eth_dev->name);
+		dev_dbg(eth_dev, "%s: %s mdio subnode not found!", __func__,
+			eth_dev->name);
 		return -ENXIO;
 	}
 
 	ofnode_for_each_subnode(phy_node, mdio_node) {
 		node_name = ofnode_get_name(phy_node);
 
-		debug("* Found child node: '%s'\n", node_name);
+		dev_dbg(eth_dev, "* Found child node: '%s'\n", node_name);
 
 		ret = device_bind_driver_to_node(eth_dev,
 						 "eth_phy_generic_drv",
 						 node_name, phy_node, NULL);
 		if (ret) {
-			debug("  - Eth phy binding error: %d\n", ret);
+			dev_dbg(eth_dev, "  - Eth phy binding error: %d\n", ret);
 			continue;
 		}
 
-		debug("  - bound phy device: '%s'\n", node_name);
+		dev_dbg(eth_dev, "  - bound phy device: '%s'\n", node_name);
 	}
 
 	return 0;
@@ -86,14 +88,14 @@ struct mii_dev *eth_phy_get_mdio_bus(struct udevice *eth_dev)
 			 */
 			uc_priv = (struct eth_phy_device_priv *)(dev_get_uclass_priv(phy_dev));
 			if (uc_priv->mdio_bus)
-				printf("Get shared mii bus on %s\n", eth_dev->name);
+				log_notice("Get shared mii bus on %s\n", eth_dev->name);
 			else
-				printf("Can't get shared mii bus on %s\n", eth_dev->name);
+				log_notice("Can't get shared mii bus on %s\n", eth_dev->name);
 
 			return uc_priv->mdio_bus;
 		}
 	} else {
-		printf("FEC: can't find phy-handle\n");
+		log_notice("FEC: can't find phy-handle\n");
 	}
 
 	return NULL;
@@ -106,7 +108,7 @@ int eth_phy_get_addr(struct udevice *dev)
 
 	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 				       &phandle_args)) {
-		debug("Failed to find phy-handle");
+		dev_dbg(dev, "Failed to find phy-handle");
 		return -ENODEV;
 	}
 
