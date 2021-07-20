@@ -218,6 +218,39 @@ skip:
 	return NULL;
 }
 
+/**
+ * efi_remove_auth_hdr - remove authentication data from image
+ * @image:	Pointer to pointer to Image
+ * @image_size:	Pointer to Image size
+ *
+ * Remove the authentication data from image if possible.
+ * Update @image and @image_size.
+ *
+ * Return:		status code
+ */
+static efi_status_t efi_remove_auth_hdr(void **image, efi_uintn_t *image_size)
+{
+	struct efi_firmware_image_authentication *auth_hdr;
+	efi_status_t ret = EFI_INVALID_PARAMETER;
+
+	auth_hdr = (struct efi_firmware_image_authentication *)*image;
+	if (*image_size < sizeof(*auth_hdr))
+		goto out;
+
+	if (auth_hdr->auth_info.hdr.dwLength <=
+	    offsetof(struct win_certificate_uefi_guid, cert_data))
+		goto out;
+
+	*image = (uint8_t *)*image + sizeof(auth_hdr->monotonic_count) +
+		auth_hdr->auth_info.hdr.dwLength;
+	*image_size = *image_size - auth_hdr->auth_info.hdr.dwLength -
+		sizeof(auth_hdr->monotonic_count);
+
+	ret = EFI_SUCCESS;
+out:
+	return ret;
+}
+
 #if defined(CONFIG_EFI_CAPSULE_AUTHENTICATE)
 
 static int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
@@ -254,21 +287,15 @@ efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_s
 	if (capsule == NULL || capsule_size == 0)
 		goto out;
 
+	*image = (uint8_t *)capsule;
+	*image_size = capsule_size;
+	if (efi_remove_auth_hdr(image, image_size) != EFI_SUCCESS)
+		goto out;
+
 	auth_hdr = (struct efi_firmware_image_authentication *)capsule;
-	if (capsule_size < sizeof(*auth_hdr))
-		goto out;
-
-	if (auth_hdr->auth_info.hdr.dwLength <=
-	    offsetof(struct win_certificate_uefi_guid, cert_data))
-		goto out;
-
 	if (guidcmp(&auth_hdr->auth_info.cert_type, &efi_guid_cert_type_pkcs7))
 		goto out;
 
-	*image = (uint8_t *)capsule + sizeof(auth_hdr->monotonic_count) +
-		auth_hdr->auth_info.hdr.dwLength;
-	*image_size = capsule_size - auth_hdr->auth_info.hdr.dwLength -
-		sizeof(auth_hdr->monotonic_count);
 	memcpy(&monotonic_count, &auth_hdr->monotonic_count,
 	       sizeof(monotonic_count));
 
@@ -348,7 +375,7 @@ static efi_status_t efi_capsule_update_firmware(
 {
 	struct efi_firmware_management_capsule_header *capsule;
 	struct efi_firmware_management_capsule_image_header *image;
-	size_t capsule_size;
+	size_t capsule_size, image_binary_size;
 	void *image_binary, *vendor_code;
 	efi_handle_t *handles;
 	efi_uintn_t no_handles;
@@ -410,13 +437,30 @@ static efi_status_t efi_capsule_update_firmware(
 		}
 
 		/* do update */
+		if (IS_ENABLED(CONFIG_EFI_CAPSULE_AUTHENTICATE) &&
+		    !(image->image_capsule_support &
+				CAPSULE_SUPPORT_AUTHENTICATION)) {
+			/* no signature */
+			ret = EFI_SECURITY_VIOLATION;
+			goto out;
+		}
+
 		image_binary = (void *)image + sizeof(*image);
-		vendor_code = image_binary + image->update_image_size;
+		image_binary_size = image->update_image_size;
+		vendor_code = image_binary + image_binary_size;
+		if (!IS_ENABLED(CONFIG_EFI_CAPSULE_AUTHENTICATE) &&
+		    (image->image_capsule_support &
+				CAPSULE_SUPPORT_AUTHENTICATION)) {
+			ret = efi_remove_auth_hdr(&image_binary,
+						  &image_binary_size);
+			if (ret != EFI_SUCCESS)
+				goto out;
+		}
 
 		abort_reason = NULL;
 		ret = EFI_CALL(fmp->set_image(fmp, image->update_image_index,
 					      image_binary,
-					      image->update_image_size,
+					      image_binary_size,
 					      vendor_code, NULL,
 					      &abort_reason));
 		if (ret != EFI_SUCCESS) {
