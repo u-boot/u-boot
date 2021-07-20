@@ -27,6 +27,8 @@
  *    all clock and reset signals to the HW block.
  */
 
+#define LOG_CATEGORY UCLASS_ETH
+
 #include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
