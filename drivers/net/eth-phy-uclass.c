@@ -27,12 +27,18 @@ int eth_phy_binds_nodes(struct udevice *eth_dev)
 	const char *node_name;
 	int ret;
 
-	mdio_node = dev_read_subnode(eth_dev, "mdio");
+	/* search a subnode named "mdio.*" */
+	dev_for_each_subnode(mdio_node, eth_dev) {
+		node_name = ofnode_get_name(mdio_node);
+		if (!strncmp(node_name, "mdio", 4))
+			break;
+	}
 	if (!ofnode_valid(mdio_node)) {
-		dev_dbg(eth_dev, "%s: %s mdio subnode not found!", __func__,
+		dev_dbg(eth_dev, "%s: %s mdio subnode not found!\n", __func__,
 			eth_dev->name);
 		return -ENXIO;
 	}
+	dev_dbg(eth_dev, "%s: %s subnode found!\n", __func__, node_name);
 
 	ofnode_for_each_subnode(phy_node, mdio_node) {
 		node_name = ofnode_get_name(phy_node);
