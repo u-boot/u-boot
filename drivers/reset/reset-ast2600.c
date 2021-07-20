@@ -41,9 +41,9 @@ static int ast2600_reset_assert(struct reset_ctl *reset_ctl)
 	debug("%s: reset_ctl->id: %lu\n", __func__, reset_ctl->id);
 
 	if (reset_ctl->id < 32)
-		writel(BIT(reset_ctl->id), scu->modrst_ctrl1);
+		writel(BIT(reset_ctl->id), &scu->modrst_ctrl1);
 	else
-		writel(BIT(reset_ctl->id - 32), scu->modrst_ctrl2);
+		writel(BIT(reset_ctl->id - 32), &scu->modrst_ctrl2);
 
 	return 0;
 }
@@ -56,9 +56,9 @@ static int ast2600_reset_deassert(struct reset_ctl *reset_ctl)
 	debug("%s: reset_ctl->id: %lu\n", __func__, reset_ctl->id);
 
 	if (reset_ctl->id < 32)
-		writel(BIT(reset_ctl->id), scu->modrst_clr1);
+		writel(BIT(reset_ctl->id), &scu->modrst_clr1);
 	else
-		writel(BIT(reset_ctl->id - 32), scu->modrst_clr2);
+		writel(BIT(reset_ctl->id - 32), &scu->modrst_clr2);
 
 	return 0;
 }
