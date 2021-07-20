@@ -17,6 +17,7 @@
 #include <pe.h>
 
 struct blk_desc;
+struct jmp_buf_data;
 
 static inline int guidcmp(const void *g1, const void *g2)
 {
