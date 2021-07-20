@@ -5,6 +5,8 @@
  * Joe Hershberger, National Instruments
  */
 
+#define LOG_CATEGORY UCLASS_ETH
+
 #include <common.h>
 #include <bootstage.h>
 #include <dm.h>
