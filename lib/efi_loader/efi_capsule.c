@@ -220,9 +220,6 @@ skip:
 
 #if defined(CONFIG_EFI_CAPSULE_AUTHENTICATE)
 
-const efi_guid_t efi_guid_capsule_root_cert_guid =
-	EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
-
 static int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
 {
 	const void *blob = __efi_capsule_sig_begin;
