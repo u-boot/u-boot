@@ -6,12 +6,17 @@
 #include <common.h>
 #include <dm.h>
 #include <net.h>
+#include <asm-generic/gpio.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/lists.h>
+#include <linux/delay.h>
 
 struct eth_phy_device_priv {
 	struct mii_dev *mdio_bus;
+	struct gpio_desc reset_gpio;
+	u32 reset_assert_delay;
+	u32 reset_deassert_delay;
 };
 
 int eth_phy_binds_nodes(struct udevice *eth_dev)
@@ -110,13 +115,64 @@ int eth_phy_get_addr(struct udevice *dev)
 	return reg;
 }
 
+/* parsing generic properties of devicetree/bindings/net/ethernet-phy.yaml */
+static int eth_phy_of_to_plat(struct udevice *dev)
+{
+	struct eth_phy_device_priv *uc_priv = dev_get_uclass_priv(dev);
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(DM_GPIO))
+		return 0;
+
+	/* search "reset-gpios" in phy node */
+	ret = gpio_request_by_name(dev, "reset-gpios", 0,
+				   &uc_priv->reset_gpio,
+				   GPIOD_IS_OUT);
+	if (ret != -ENOENT)
+		return ret;
+
+	uc_priv->reset_assert_delay = dev_read_u32_default(dev, "reset-assert-us", 0);
+	uc_priv->reset_deassert_delay = dev_read_u32_default(dev, "reset-deassert-us", 0);
+
+	return 0;
+}
+
+void eth_phy_reset(struct udevice *dev, int value)
+{
+	struct eth_phy_device_priv *uc_priv = dev_get_uclass_priv(dev);
+	u32 delay;
+
+	if (!CONFIG_IS_ENABLED(DM_GPIO))
+		return;
+
+	if (!dm_gpio_is_valid(&uc_priv->reset_gpio))
+		return;
+
+	dm_gpio_set_value(&uc_priv->reset_gpio, value);
+
+	delay = value ? uc_priv->reset_assert_delay : uc_priv->reset_deassert_delay;
+	if (delay)
+		udelay(delay);
+}
+
+static int eth_phy_pre_probe(struct udevice *dev)
+{
+	/* Assert and deassert the reset signal */
+	eth_phy_reset(dev, 1);
+	eth_phy_reset(dev, 0);
+
+	return 0;
+}
+
 UCLASS_DRIVER(eth_phy_generic) = {
 	.id		= UCLASS_ETH_PHY,
 	.name		= "eth_phy_generic",
 	.per_device_auto	= sizeof(struct eth_phy_device_priv),
+	.pre_probe	= eth_phy_pre_probe,
 };
 
 U_BOOT_DRIVER(eth_phy_generic_drv) = {
 	.name		= "eth_phy_generic_drv",
 	.id		= UCLASS_ETH_PHY,
+	.of_to_plat	= eth_phy_of_to_plat,
 };
