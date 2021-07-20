@@ -1,7 +1,0 @@
-// SPDX-License-Identifier: (GPL-2.0 OR MIT)
-/*
- * Copyright (C) 2021 SiFive, Inc
- */
-
-#include "hifive-unmatched-a00-u-boot.dtsi"
-#include "fu740-hifive-unmatched-a00-ddr-rev1.dtsi"
