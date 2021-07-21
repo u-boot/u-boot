@@ -115,26 +115,20 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	/*
-	 * Set the address of the fdt
-	 */
+	/* fdt addr: Set the address of the fdt */
 	if (strncmp(argv[1], "ad", 2) == 0) {
 		unsigned long addr;
 		int control = 0;
 		struct fdt_header *blob;
-		/*
-		 * Set the address [and length] of the fdt.
-		 */
+
+		/* Set the address [and length] of the fdt */
 		argc -= 2;
 		argv += 2;
-/* Temporary #ifdef - some archs don't have fdt_blob yet */
-#ifdef CONFIG_OF_CONTROL
 		if (argc && !strcmp(*argv, "-c")) {
 			control = 1;
 			argc--;
 			argv++;
 		}
-#endif
 		if (argc == 0) {
 			if (control)
 				blob = (struct fdt_header *)gd->fdt_blob;
@@ -160,22 +154,18 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		if (argc >= 2) {
 			int  len;
 			int  err;
-			/*
-			 * Optional new length
-			 */
+
+			/* Optional new length */
 			len = simple_strtoul(argv[1], NULL, 16);
 			if (len < fdt_totalsize(blob)) {
-				printf ("New length %d < existing length %d, "
-					"ignoring.\n",
-					len, fdt_totalsize(blob));
+				printf("New length %d < existing length %d, ignoring\n",
+				       len, fdt_totalsize(blob));
 			} else {
-				/*
-				 * Open in place with a new length.
-				 */
+				/* Open in place with a new length */
 				err = fdt_open_into(blob, blob, len);
 				if (err != 0) {
-					printf ("libfdt fdt_open_into(): %s\n",
-						fdt_strerror(err));
+					printf("libfdt fdt_open_into(): %s\n",
+					       fdt_strerror(err));
 				}
 			}
 		}
@@ -184,10 +174,9 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	if (!working_fdt) {
-		puts(
-			"No FDT memory address configured. Please configure\n"
-			"the FDT address via \"fdt addr <address>\" command.\n"
-			"Aborting!\n");
+		puts("No FDT memory address configured. Please configure\n"
+		     "the FDT address via \"fdt addr <address>\" command.\n"
+		     "Aborting!\n");
 		return CMD_RET_FAILURE;
 	}
 
