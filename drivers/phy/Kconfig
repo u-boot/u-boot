@@ -283,5 +283,6 @@ config PHY_IMX8MQ_USB
 
 source "drivers/phy/rockchip/Kconfig"
 source "drivers/phy/cadence/Kconfig"
+source "drivers/phy/ti/Kconfig"
 
 endmenu
