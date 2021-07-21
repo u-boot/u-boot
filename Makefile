@@ -1735,7 +1735,7 @@ u-boot-keep-syms-lto_c := $(patsubst %.o,%.c,$(u-boot-keep-syms-lto))
 
 quiet_cmd_keep_syms_lto = KSL     $@
       cmd_keep_syms_lto = \
-	NM=$(NM) $(srctree)/scripts/gen_ll_addressable_symbols.sh $^ >$@
+	$(srctree)/scripts/gen_ll_addressable_symbols.sh $(NM) $^ > $@
 
 quiet_cmd_keep_syms_lto_cc = KSLCC   $@
       cmd_keep_syms_lto_cc = \
