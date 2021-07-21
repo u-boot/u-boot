@@ -58,6 +58,7 @@ config ARCH_LS1043A
 	select ARM_ERRATA_855873 if !TFABOOT
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
+	select HAS_FSL_XHCI_USB if USB_HOST
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -89,6 +90,7 @@ config ARCH_LS1046A
 	select ARMV8_SET_SMPEN
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
+	select HAS_FSL_XHCI_USB if USB_HOST
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -245,6 +247,7 @@ config ARCH_LX2160A
 	bool
 	select ARMV8_SET_SMPEN
 	select FSL_LSCH3
+	select HAS_FSL_XHCI_USB if USB_HOST
 	select NXP_LSCH3_2
 	select SYS_HAS_SERDES
 	select SYS_FSL_SRDS_1
@@ -642,9 +645,8 @@ config SPL_LDSCRIPT
 
 config HAS_FSL_XHCI_USB
 	bool
-	default y if ARCH_LS1043A || ARCH_LS1046A
 	help
-	  For some SoC(such as LS1043A and LS1046A), USB and QE-HDLC multiplex use
+	  For some SoC (such as LS1043A and LS1046A), USB and QE-HDLC multiplex use
 	  pins, select it when the pins are assigned to USB.
 
 config SYS_FSL_BOOTROM_BASE
