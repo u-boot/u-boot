@@ -232,6 +232,16 @@ static inline ofnode ofnode_root(void)
 }
 
 /**
+ * ofnode_name_eq() - Check if the node name is equivalent to a given name
+ *                    ignoring the unit address
+ *
+ * @node:	valid node reference that has to be compared
+ * @name:	name that has to be compared with the node name
+ * @return true if matches, false if it doesn't match
+ */
+bool ofnode_name_eq(ofnode node, const char *name);
+
+/**
  * ofnode_read_u32() - Read a 32-bit integer from a property
  *
  * @ref:	valid node reference to read property from

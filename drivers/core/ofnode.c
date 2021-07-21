@@ -18,6 +18,19 @@
 #include <linux/ioport.h>
 #include <asm/global_data.h>
 
+bool ofnode_name_eq(ofnode node, const char *name)
+{
+	const char *node_name;
+	size_t len;
+
+	assert(ofnode_valid(node));
+
+	node_name = ofnode_get_name(node);
+	len = strchrnul(node_name, '@') - node_name;
+
+	return (strlen(name) == len) && !strncmp(node_name, name, len);
+}
+
 int ofnode_read_u32(ofnode node, const char *propname, u32 *outp)
 {
 	return ofnode_read_u32_index(node, propname, 0, outp);
