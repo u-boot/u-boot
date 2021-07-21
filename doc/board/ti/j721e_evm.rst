@@ -314,3 +314,18 @@ Flash layout for OSPI:
              |     ospi.rootfs(UBIFS)     |
              |                            |
              +----------------------------+
+
+Firmwares:
+----------
+
+The J721e u-boot allows firmware to be loaded for the Cortex-R5 subsystem.
+The CPSW5G in J7200 and CPSW9G in J721E present in MAIN domain is configured
+and controlled by the ethernet firmware that executes in the MAIN Cortex R5.
+The default supported environment variables support loading these firmwares
+from only MMC. "dorprocboot" env variable has to be set for the U-BOOT to load
+and start the remote cores in the system.
+
+J721E common processor board can be attached to a Ethernet QSGMII card and the
+PHY in the card has to be reset before it can be used for data transfer.
+"do_main_cpsw0_qsgmii_phyinit" env variable has to be set for the U-BOOT to
+configure this PHY.
