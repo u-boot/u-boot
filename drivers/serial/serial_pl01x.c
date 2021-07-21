@@ -404,8 +404,12 @@ static void _debug_uart_init(void)
 {
 #ifndef CONFIG_DEBUG_UART_SKIP_INIT
 	struct pl01x_regs *regs = (struct pl01x_regs *)CONFIG_DEBUG_UART_BASE;
-	enum pl01x_type type = CONFIG_IS_ENABLED(DEBUG_UART_PL011) ?
-				TYPE_PL011 : TYPE_PL010;
+	enum pl01x_type type;
+
+	if (IS_ENABLED(CONFIG_DEBUG_UART_PL011))
+		type = TYPE_PL011;
+	else
+		type = TYPE_PL010;
 
 	pl01x_generic_serial_init(regs, type);
 	pl01x_generic_setbrg(regs, type,
