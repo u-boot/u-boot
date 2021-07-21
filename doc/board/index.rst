@@ -27,6 +27,7 @@ Board-specific doc
    socionext/index
    st/index
    tbs/index
+   ti/index
    toradex/index
    xen/index
    xilinx/index
