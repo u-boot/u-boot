@@ -136,9 +136,10 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 				blob = working_fdt;
 			if (!blob || !fdt_valid(&blob))
 				return 1;
-			printf("The address of the fdt is %#08lx\n",
+			printf("%s fdt: %08lx\n",
+			       control ? "Control" : "Working",
 			       control ? (ulong)map_to_sysmem(blob) :
-					env_get_hex("fdtaddr", 0));
+			       env_get_hex("fdtaddr", 0));
 			return 0;
 		}
 
