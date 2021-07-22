@@ -13,6 +13,7 @@ Implementation
    driver-model/index
    global_data
    logging
+   makefiles
    menus
    uefi/index
    version
