@@ -144,50 +144,36 @@ This tool can help find such configs. To use it, first build a database::
 
 Then try to query it::
 
-    ./tools/moveconfig.py -i CONFIG_CMD_IRQ
-    CONFIG_CMD_IRQ found in 311/2384 defconfigs
-    44 : CONFIG_SYS_FSL_ERRATUM_IFC_A002769
-    41 : CONFIG_SYS_FSL_ERRATUM_A007075
-    31 : CONFIG_SYS_FSL_DDR_VER_44
-    28 : CONFIG_ARCH_P1010
-    28 : CONFIG_SYS_FSL_ERRATUM_P1010_A003549
-    28 : CONFIG_SYS_FSL_ERRATUM_SEC_A003571
-    28 : CONFIG_SYS_FSL_ERRATUM_IFC_A003399
-    25 : CONFIG_SYS_FSL_ERRATUM_A008044
-    22 : CONFIG_ARCH_P1020
-    21 : CONFIG_SYS_FSL_DDR_VER_46
-    20 : CONFIG_MAX_PIRQ_LINKS
-    20 : CONFIG_HPET_ADDRESS
-    20 : CONFIG_X86
-    20 : CONFIG_PCIE_ECAM_SIZE
-    20 : CONFIG_IRQ_SLOT_COUNT
-    20 : CONFIG_I8259_PIC
-    20 : CONFIG_CPU_ADDR_BITS
-    20 : CONFIG_RAMBASE
-    20 : CONFIG_SYS_FSL_ERRATUM_A005871
-    20 : CONFIG_PCIE_ECAM_BASE
-    20 : CONFIG_X86_TSC_TIMER
-    20 : CONFIG_I8254_TIMER
-    20 : CONFIG_CMD_GETTIME
-    19 : CONFIG_SYS_FSL_ERRATUM_A005812
-    18 : CONFIG_X86_RUN_32BIT
-    17 : CONFIG_CMD_CHIP_CONFIG
-    ...
+   ./tools/moveconfig.py -i CONFIG_I8042_KEYB
+   CONFIG_I8042_KEYB found in 33/5155 defconfigs
+   28 : CONFIG_X86
+   28 : CONFIG_SA_PCIEX_LENGTH
+   28 : CONFIG_HPET_ADDRESS
+   28 : CONFIG_MAX_PIRQ_LINKS
+   28 : CONFIG_I8254_TIMER
+   28 : CONFIG_I8259_PIC
+   28 : CONFIG_RAMBASE
+   28 : CONFIG_IRQ_SLOT_COUNT
+   28 : CONFIG_PCIE_ECAM_SIZE
+   28 : CONFIG_APIC
+   ...
 
-This shows a list of config options which might imply CONFIG_CMD_EEPROM along
+This shows a list of config options which might imply CONFIG_I8042_KEYB along
 with how many defconfigs they cover. From this you can see that CONFIG_X86
-implies CONFIG_CMD_EEPROM. Therefore, instead of adding CONFIG_CMD_EEPROM to
+generally implies CONFIG_I8042_KEYB but not always (28 out of 35). Therefore,
+instead of adding CONFIG_I8042_KEYB to
 the defconfig of every x86 board, you could add a single imply line to the
-Kconfig file:
+Kconfig file::
 
     config X86
         bool "x86 architecture"
         ...
         imply CMD_EEPROM
 
-That will cover 20 defconfigs. Many of the options listed are not suitable as
-they are not related. E.g. it would be odd for CONFIG_CMD_GETTIME to imply
-CMD_EEPROM.
+That will cover 28 defconfigs and you can perhaps find another condition that
+indicates that CONFIG_I8042_KEYB is not needed for the remaining 5 boards. Many
+of the options listed are not suitable as they are not related. E.g. it would be
+odd for CONFIG_RAMBASE to imply CONFIG_I8042_KEYB.
 
 Using this search you can reduce the size of moveconfig patches.
 
