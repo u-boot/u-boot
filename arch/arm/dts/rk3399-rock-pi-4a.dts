@@ -9,5 +9,5 @@
 
 / {
 	model = "Radxa ROCK Pi 4A";
-	compatible = "radxa,rockpi4", "rockchip,rk3399";
+	compatible = "radxa,rockpi4a", "radxa,rockpi4", "rockchip,rk3399";
 };
