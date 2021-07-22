@@ -64,7 +64,7 @@
 					};
 				};
 
-#ifndef CONFIG_MACH_SUN50I_H616
+#ifdef SCP_ADDR
 				scp {
 					description = "SCP firmware";
 					type = "firmware";
@@ -92,7 +92,7 @@
 				@config-SEQ {
 					description = "NAME";
 					firmware = "atf";
-#ifdef CONFIG_MACH_SUN50I_H616
+#ifndef SCP_ADDR
 					loadables = "uboot";
 #else
 					loadables = "scp", "uboot";
