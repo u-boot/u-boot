@@ -466,6 +466,9 @@ def Compress(indata, algo, with_header=True):
     This requires 'lz4' and 'lzma_alone' tools. It also requires an output
     directory to be previously set up, by calling PrepareOutputDir().
 
+    Care is taken to use unique temporary files so that this function can be
+    called from multiple threads.
+
     Args:
         indata: Input data to compress
         algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
@@ -475,14 +478,16 @@ def Compress(indata, algo, with_header=True):
     """
     if algo == 'none':
         return indata
-    fname = GetOutputFilename('%s.comp.tmp' % algo)
+    fname = tempfile.NamedTemporaryFile(prefix='%s.comp.tmp' % algo,
+                                        dir=outdir).name
     WriteFile(fname, indata)
     if algo == 'lz4':
         data = Run('lz4', '--no-frame-crc', '-B4', '-5', '-c', fname,
                    binary=True)
     # cbfstool uses a very old version of lzma
     elif algo == 'lzma':
-        outfname = GetOutputFilename('%s.comp.otmp' % algo)
+        outfname = tempfile.NamedTemporaryFile(prefix='%s.comp.otmp' % algo,
+                                               dir=outdir).name
         Run('lzma_alone', 'e', fname, outfname, '-lc1', '-lp0', '-pb0', '-d8')
         data = ReadFile(outfname)
     elif algo == 'gzip':

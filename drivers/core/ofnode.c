@@ -329,7 +329,8 @@ static fdt_addr_t __ofnode_get_addr_size_index(ofnode node, int index,
 {
 	int na, ns;
 
-	*size = FDT_SIZE_T_NONE;
+	if (size)
+		*size = FDT_SIZE_T_NONE;
 
 	if (ofnode_is_np(node)) {
 		const __be32 *prop_val;
@@ -340,6 +341,7 @@ static fdt_addr_t __ofnode_get_addr_size_index(ofnode node, int index,
 					  &flags);
 		if (!prop_val)
 			return FDT_ADDR_T_NONE;
+
 		if (size)
 			*size = size64;
 
@@ -359,8 +361,6 @@ static fdt_addr_t __ofnode_get_addr_size_index(ofnode node, int index,
 						  index, na, ns, size,
 						  translate);
 	}
-
-	return FDT_ADDR_T_NONE;
 }
 
 fdt_addr_t ofnode_get_addr_size_index(ofnode node, int index, fdt_size_t *size)

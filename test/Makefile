@@ -3,7 +3,9 @@
 # (C) Copyright 2012 The Chromium Authors
 
 obj-y += test-main.o
+ifdef CONFIG_SPL_LOAD_FIT
 obj-$(CONFIG_SANDBOX) += image/
+endif
 
 ifneq ($(CONFIG_$(SPL_)BLOBLIST),)
 obj-$(CONFIG_$(SPL_)CMDLINE) += bloblist.o

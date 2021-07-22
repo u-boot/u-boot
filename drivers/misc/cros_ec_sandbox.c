@@ -343,15 +343,13 @@ static int process_cmd(struct ec_state *ec,
 
 		switch (req->op) {
 		case EC_VBNV_CONTEXT_OP_READ:
-			/* TODO(sjg@chromium.org): Support full-size context */
 			memcpy(resp->block, ec->vbnv_context,
-			       EC_VBNV_BLOCK_SIZE);
-			len = 16;
+			       EC_VBNV_BLOCK_SIZE_V2);
+			len = EC_VBNV_BLOCK_SIZE_V2;
 			break;
 		case EC_VBNV_CONTEXT_OP_WRITE:
-			/* TODO(sjg@chromium.org): Support full-size context */
 			memcpy(ec->vbnv_context, req->block,
-			       EC_VBNV_BLOCK_SIZE);
+			       EC_VBNV_BLOCK_SIZE_V2);
 			len = 0;
 			break;
 		default:
@@ -496,9 +494,6 @@ static int process_cmd(struct ec_state *ec,
 	case EC_CMD_MKBP_STATE:
 		len = cros_ec_keyscan(ec, resp_data);
 		break;
-	case EC_CMD_ENTERING_MODE:
-		len = 0;
-		break;
 	case EC_CMD_GET_NEXT_EVENT: {
 		struct ec_response_get_next_event *resp = resp_data;
 
@@ -629,15 +624,19 @@ void cros_ec_check_keyboard(struct udevice *dev)
 	struct ec_state *ec = dev_get_priv(dev);
 	ulong start;
 
-	printf("Press keys for EC to detect on reset (ESC=recovery)...");
+	printf("\nPress keys for EC to detect on reset (ESC=recovery)...");
 	start = get_timer(0);
-	while (get_timer(start) < 1000)
-		;
-	putc('\n');
-	if (!sandbox_sdl_key_pressed(KEY_ESC)) {
-		ec->recovery_req = true;
-		printf("   - EC requests recovery\n");
+	while (get_timer(start) < 2000) {
+		if (tstc()) {
+			int ch = getchar();
+
+			if (ch == 0x1b) {
+				ec->recovery_req = true;
+				printf("EC requests recovery");
+			}
+		}
 	}
+	putc('\n');
 }
 
 /* Return the byte of EC switch states */

@@ -9,10 +9,12 @@ images to be created.
 """
 
 from collections import OrderedDict
+import concurrent.futures
 import re
 import sys
 
 from binman.entry import Entry
+from binman import state
 from dtoc import fdt_util
 from patman import tools
 from patman import tout
@@ -164,7 +166,7 @@ class Entry_section(Entry):
         pad_byte = (entry._pad_byte if isinstance(entry, Entry_section)
                     else self._pad_byte)
 
-        data = b''
+        data = bytearray()
         # Handle padding before the entry
         if entry.pad_before:
             data += tools.GetBytes(self._pad_byte, entry.pad_before)
@@ -198,7 +200,7 @@ class Entry_section(Entry):
         Returns:
             Contents of the section (bytes)
         """
-        section_data = b''
+        section_data = bytearray()
 
         for entry in self._entries.values():
             entry_data = entry.GetData(required)
@@ -525,15 +527,43 @@ class Entry_section(Entry):
     def GetEntryContents(self):
         """Call ObtainContents() for each entry in the section
         """
+        def _CheckDone(entry):
+            if not entry.ObtainContents():
+                next_todo.append(entry)
+            return entry
+
         todo = self._entries.values()
         for passnum in range(3):
+            threads = state.GetThreads()
             next_todo = []
-            for entry in todo:
-                if not entry.ObtainContents():
-                    next_todo.append(entry)
+
+            if threads == 0:
+                for entry in todo:
+                    _CheckDone(entry)
+            else:
+                with concurrent.futures.ThreadPoolExecutor(
+                        max_workers=threads) as executor:
+                    future_to_data = {
+                        entry: executor.submit(_CheckDone, entry)
+                        for entry in todo}
+                    timeout = 60
+                    if self.GetImage().test_section_timeout:
+                        timeout = 0
+                    done, not_done = concurrent.futures.wait(
+                        future_to_data.values(), timeout=timeout)
+                    # Make sure we check the result, so any exceptions are
+                    # generated. Check the results in entry order, since tests
+                    # may expect earlier entries to fail first.
+                    for entry in todo:
+                        job = future_to_data[entry]
+                        job.result()
+                    if not_done:
+                        self.Raise('Timed out obtaining contents')
+
             todo = next_todo
             if not todo:
                 break
+
         if todo:
             self.Raise('Internal error: Could not complete processing of contents: remaining %s' %
                        todo)

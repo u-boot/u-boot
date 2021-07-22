@@ -20,6 +20,9 @@ from patman import tools
 
 OUR_PATH = os.path.dirname(os.path.realpath(__file__))
 
+EXPECT_WARN = {'rockchip_rk3288_grf':
+                   {'WARNING: the driver rockchip_rk3288_grf was not found in the driver list'}}
+
 class FakeNode:
     """Fake Node object for testing"""
     def __init__(self):
@@ -152,6 +155,7 @@ class TestSrcScan(unittest.TestCase):
              'nvidia,tegra20-i2c-dvc': 'TYPE_DVC'}, drv.compat)
         self.assertEqual('i2c_bus', drv.priv)
         self.assertEqual(1, len(scan._drivers))
+        self.assertEqual({}, scan._warnings)
 
     def test_normalized_name(self):
         """Test operation of get_normalized_compat_name()"""
@@ -171,8 +175,8 @@ class TestSrcScan(unittest.TestCase):
         self.assertEqual([], aliases)
         self.assertEqual(1, len(scan._missing_drivers))
         self.assertEqual({'rockchip_rk3288_grf'}, scan._missing_drivers)
-            #'WARNING: the driver rockchip_rk3288_grf was not found in the driver list',
-            #stdout.getvalue().strip())
+        self.assertEqual('', stdout.getvalue().strip())
+        self.assertEqual(EXPECT_WARN, scan._warnings)
 
         i2c = 'I2C_UCLASS'
         compat = {'rockchip,rk3288-grf': 'ROCKCHIP_SYSCON_GRF',
@@ -189,6 +193,7 @@ class TestSrcScan(unittest.TestCase):
         self.assertEqual('', stdout.getvalue().strip())
         self.assertEqual('rockchip_rk3288_grf', name)
         self.assertEqual([], aliases)
+        self.assertEqual(EXPECT_WARN, scan._warnings)
 
         prop.value = 'rockchip,rk3288-srf'
         with test_util.capture_sys_output() as (stdout, _):
@@ -196,6 +201,7 @@ class TestSrcScan(unittest.TestCase):
         self.assertEqual('', stdout.getvalue().strip())
         self.assertEqual('rockchip_rk3288_grf', name)
         self.assertEqual(['rockchip_rk3288_srf'], aliases)
+        self.assertEqual(EXPECT_WARN, scan._warnings)
 
     def test_scan_errors(self):
         """Test detection of scanning errors"""
@@ -490,3 +496,126 @@ U_BOOT_DRIVER(%s) = {
         self.assertEqual(3, seq)
         self.assertEqual({'mypath': 3}, uc.alias_path_to_num)
         self.assertEqual({2: node, 3: node}, uc.alias_num_to_node)
+
+    def test_scan_warnings(self):
+        """Test detection of scanning warnings"""
+        buff = '''
+static const struct udevice_id tegra_i2c_ids[] = {
+	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_tegra) = {
+	.name	= "i2c_tegra",
+	.id	= UCLASS_I2C,
+	.of_match = tegra_i2c_ids + 1,
+};
+'''
+        # The '+ 1' above should generate a warning
+
+        prop = FakeProp()
+        prop.name = 'compatible'
+        prop.value = 'rockchip,rk3288-grf'
+        node = FakeNode()
+        node.props = {'compatible': prop}
+
+        # get_normalized_compat_name() uses this to check for root node
+        node.parent = FakeNode()
+
+        scan = src_scan.Scanner(None, None)
+        scan._parse_driver('file.c', buff)
+        self.assertEqual(
+            {'i2c_tegra':
+                 {"file.c: Warning: unexpected suffix ' + 1' on .of_match line for compat 'tegra_i2c_ids'"}},
+            scan._warnings)
+
+        tprop = FakeProp()
+        tprop.name = 'compatible'
+        tprop.value = 'nvidia,tegra114-i2c'
+        tnode = FakeNode()
+        tnode.props = {'compatible': tprop}
+
+        # get_normalized_compat_name() uses this to check for root node
+        tnode.parent = FakeNode()
+
+        with test_util.capture_sys_output() as (stdout, _):
+            scan.get_normalized_compat_name(node)
+            scan.get_normalized_compat_name(tnode)
+        self.assertEqual('', stdout.getvalue().strip())
+
+        self.assertEqual(2, len(scan._missing_drivers))
+        self.assertEqual({'rockchip_rk3288_grf', 'nvidia_tegra114_i2c'},
+                         scan._missing_drivers)
+        with test_util.capture_sys_output() as (stdout, _):
+            scan.show_warnings()
+        self.assertIn('rockchip_rk3288_grf', stdout.getvalue())
+
+        # This should show just the rockchip warning, since the tegra driver
+        # is not in self._missing_drivers
+        scan._missing_drivers.remove('nvidia_tegra114_i2c')
+        with test_util.capture_sys_output() as (stdout, _):
+            scan.show_warnings()
+        self.assertIn('rockchip_rk3288_grf', stdout.getvalue())
+        self.assertNotIn('tegra_i2c_ids', stdout.getvalue())
+
+        # Do a similar thing with used drivers. By marking the tegra driver as
+        # used, the warning related to that driver will be shown
+        drv = scan._drivers['i2c_tegra']
+        drv.used = True
+        with test_util.capture_sys_output() as (stdout, _):
+            scan.show_warnings()
+        self.assertIn('rockchip_rk3288_grf', stdout.getvalue())
+        self.assertIn('tegra_i2c_ids', stdout.getvalue())
+
+        # Add a warning to make sure multiple warnings are shown
+        scan._warnings['i2c_tegra'].update(
+            scan._warnings['nvidia_tegra114_i2c'])
+        del scan._warnings['nvidia_tegra114_i2c']
+        with test_util.capture_sys_output() as (stdout, _):
+            scan.show_warnings()
+        self.assertEqual('''i2c_tegra: WARNING: the driver nvidia_tegra114_i2c was not found in the driver list
+         : file.c: Warning: unexpected suffix ' + 1' on .of_match line for compat 'tegra_i2c_ids'
+
+rockchip_rk3288_grf: WARNING: the driver rockchip_rk3288_grf was not found in the driver list
+
+''',
+            stdout.getvalue())
+        self.assertIn('tegra_i2c_ids', stdout.getvalue())
+
+    def scan_uclass_warning(self):
+        """Test a missing .uclass in the driver"""
+        buff = '''
+static const struct udevice_id tegra_i2c_ids[] = {
+	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_tegra) = {
+	.name	= "i2c_tegra",
+	.of_match = tegra_i2c_ids,
+};
+'''
+        scan = src_scan.Scanner(None, None)
+        scan._parse_driver('file.c', buff)
+        self.assertEqual(
+            {'i2c_tegra': {'Missing .uclass in file.c'}},
+            scan._warnings)
+
+    def scan_compat_warning(self):
+        """Test a missing .compatible in the driver"""
+        buff = '''
+static const struct udevice_id tegra_i2c_ids[] = {
+	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ }
+};
+
+U_BOOT_DRIVER(i2c_tegra) = {
+	.name	= "i2c_tegra",
+	.id	= UCLASS_I2C,
+};
+'''
+        scan = src_scan.Scanner(None, None)
+        scan._parse_driver('file.c', buff)
+        self.assertEqual(
+            {'i2c_tegra': {'Missing .compatible in file.c'}},
+            scan._warnings)

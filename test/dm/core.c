@@ -1171,6 +1171,7 @@ static int dm_test_all_have_seq(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_all_have_seq, UT_TESTF_SCAN_PDATA);
 
+#if CONFIG_IS_ENABLED(DM_DMA)
 static int dm_test_dma_offset(struct unit_test_state *uts)
 {
        struct udevice *dev;
@@ -1200,3 +1201,4 @@ static int dm_test_dma_offset(struct unit_test_state *uts)
        return 0;
 }
 DM_TEST(dm_test_dma_offset, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+#endif

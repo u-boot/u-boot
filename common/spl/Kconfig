@@ -91,6 +91,16 @@ config SPL_SYS_REPORT_STACK_F_USAGE
 	  occurrence of non 0xaa bytes.
 	  This default implementation works for stacks growing down only.
 
+config SPL_SHOW_ERRORS
+	bool "Show more information when something goes wrong"
+	help
+	  This enabled more verbose error messages and checking when something
+	  goes wrong in SPL. For example, it shows the error code when U-Boot
+	  cannot be located. This can help to diagnose the problem and figure
+	  out a fix, particularly during development.
+
+	  This adds a small amount to SPL code size, perhaps 100 bytes.
+
 menu "PowerPC and LayerScape SPL Boot options"
 
 config SPL_NAND_BOOT

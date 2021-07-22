@@ -32,6 +32,10 @@ controlled by a description in the board device tree.'''
         default=False, help='Display the README file')
     parser.add_argument('--toolpath', type=str, action='append',
         help='Add a path to the directories containing tools')
+    parser.add_argument('-T', '--threads', type=int,
+          default=None, help='Number of threads to use (0=single-thread)')
+    parser.add_argument('--test-section-timeout', action='store_true',
+          help='Use a zero timeout for section multi-threading (for testing)')
     parser.add_argument('-v', '--verbosity', default=1,
         type=int, help='Control verbosity: 0=silent, 1=warnings, 2=notices, '
         '3=info, 4=detail, 5=debug')

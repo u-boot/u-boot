@@ -13,6 +13,7 @@ U_BOOT_DRIVER(), UCLASS_DRIVER and all struct declarations in header files.
 See doc/driver-model/of-plat.rst for more informaiton
 """
 
+import collections
 import os
 import re
 import sys
@@ -190,6 +191,9 @@ class Scanner:
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
         _drivers_additional (list or str): List of additional drivers to use
             during scanning
+        _warnings: Dict of warnings found:
+            key: Driver name
+            value: Set of warnings
         _of_match: Dict holding information about compatible strings
             key: Name of struct udevice_id variable
             value: Dict of compatible info in that variable:
@@ -217,6 +221,7 @@ class Scanner:
         self._driver_aliases = {}
         self._drivers_additional = drivers_additional or []
         self._missing_drivers = set()
+        self._warnings = collections.defaultdict(set)
         self._of_match = {}
         self._compat_to_driver = {}
         self._uclass = {}
@@ -267,7 +272,10 @@ class Scanner:
                 aliases_c.remove(compat_c)
             return compat_c, aliases_c
 
-        self._missing_drivers.add(compat_list_c[0])
+        name = compat_list_c[0]
+        self._missing_drivers.add(name)
+        self._warnings[name].add(
+            'WARNING: the driver %s was not found in the driver list' % name)
 
         return compat_list_c[0], compat_list_c[1:]
 
@@ -444,8 +452,8 @@ class Scanner:
 
         # Collect the compatible string, e.g. 'rockchip,rk3288-grf'
         compat = None
-        re_compat = re.compile(r'{\s*.compatible\s*=\s*"(.*)"\s*'
-                               r'(,\s*.data\s*=\s*(\S*))?\s*},')
+        re_compat = re.compile(r'{\s*\.compatible\s*=\s*"(.*)"\s*'
+                               r'(,\s*\.data\s*=\s*(\S*))?\s*},')
 
         # This is a dict of compatible strings that were found:
         #    key: Compatible string, e.g. 'rockchip,rk3288-grf'
@@ -460,7 +468,7 @@ class Scanner:
 
         # Matches the references to the udevice_id list
         re_of_match = re.compile(
-            r'\.of_match\s*=\s*(of_match_ptr\()?([a-z0-9_]+)(\))?,')
+            r'\.of_match\s*=\s*(of_match_ptr\()?([a-z0-9_]+)([^,]*),')
 
         re_phase = re.compile('^\s*DM_PHASE\((.*)\).*$')
         re_hdr = re.compile('^\s*DM_HEADER\((.*)\).*$')
@@ -506,6 +514,11 @@ class Scanner:
                     driver.uclass_id = m_id.group(1)
                 elif m_of_match:
                     compat = m_of_match.group(2)
+                    suffix = m_of_match.group(3)
+                    if suffix and suffix != ')':
+                        self._warnings[driver.name].add(
+                            "%s: Warning: unexpected suffix '%s' on .of_match line for compat '%s'" %
+                            (fname, suffix, compat))
                 elif m_phase:
                     driver.phase = m_phase.group(1)
                 elif m_hdr:
@@ -533,7 +546,12 @@ class Scanner:
                         # The driver does not have a uclass or compat string.
                         # The first is required but the second is not, so just
                         # ignore this.
-                        pass
+                        if not driver.uclass_id:
+                            warn = 'Missing .uclass'
+                        else:
+                            warn = 'Missing .compatible'
+                        self._warnings[driver.name].add('%s in %s' %
+                                                        (warn, fname))
                     driver = None
                     ids_name = None
                     compat = None
@@ -555,7 +573,7 @@ class Scanner:
                 if ids_m:
                     ids_name = ids_m.group(1)
                 elif m_alias:
-                    self._driver_aliases[m_alias[2]] = m_alias[1]
+                    self._driver_aliases[m_alias.group(2)] = m_alias.group(1)
 
         # Make the updates based on what we found
         for driver in drivers.values():
@@ -577,9 +595,18 @@ class Scanner:
 
     def show_warnings(self):
         """Show any warnings that have been collected"""
-        for name in sorted(list(self._missing_drivers)):
-            print('WARNING: the driver %s was not found in the driver list'
-                  % name)
+        used_drivers = [drv.name for drv in self._drivers.values() if drv.used]
+        missing = self._missing_drivers.copy()
+        for name in sorted(self._warnings.keys()):
+            if name in missing or name in used_drivers:
+                warns = sorted(list(self._warnings[name]))
+                print('%s: %s' % (name, warns[0]))
+                indent = ' ' * len(name)
+                for warn in warns[1:]:
+                    print('%-s: %s' % (indent, warn))
+                if name in missing:
+                    missing.remove(name)
+                print()
 
     def scan_driver(self, fname):
         """Scan a driver file to build a list of driver names and aliases

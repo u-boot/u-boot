@@ -38,7 +38,7 @@ static int log_console_emit(struct log_device *ldev, struct log_rec *rec)
 		if (fmt & BIT(LOGF_LINE))
 			printf("%d-", rec->line);
 		if (fmt & BIT(LOGF_FUNC))
-			printf("%s()", rec->func);
+			printf("%*s()", CONFIG_LOGF_FUNC_PAD, rec->func);
 	}
 	if (fmt & BIT(LOGF_MSG))
 		printf("%s%s", add_space ? " " : "", rec->msg);

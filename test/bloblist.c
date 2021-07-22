@@ -33,6 +33,9 @@ enum {
 	ERASE_BYTE		= '\xff',
 };
 
+static const char test1_str[] = "the eyes are open";
+static const char test2_str[] = "the mouth moves";
+
 static struct bloblist_hdr *clear_bloblist(void)
 {
 	struct bloblist_hdr *hdr;
@@ -383,6 +386,218 @@ static int bloblist_test_reloc(struct unit_test_state *uts)
 	return 0;
 }
 BLOBLIST_TEST(bloblist_test_reloc, 0);
+
+/* Test expansion of a blob */
+static int bloblist_test_grow(struct unit_test_state *uts)
+{
+	const uint small_size = 0x20;
+	void *blob1, *blob2, *blob1_new;
+	struct bloblist_hdr *hdr;
+	void *ptr;
+
+	ptr = map_sysmem(TEST_ADDR, TEST_BLOBLIST_SIZE);
+	hdr = ptr;
+	memset(hdr, ERASE_BYTE, TEST_BLOBLIST_SIZE);
+
+	/* Create two blobs */
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	blob1 = bloblist_add(TEST_TAG, small_size, 0);
+	ut_assertnonnull(blob1);
+	ut_assertok(check_zero(blob1, small_size));
+	strcpy(blob1, test1_str);
+
+	blob2 = bloblist_add(TEST_TAG2, small_size, 0);
+	ut_assertnonnull(blob2);
+	strcpy(blob2, test2_str);
+
+	ut_asserteq(sizeof(struct bloblist_hdr) +
+		    sizeof(struct bloblist_rec) * 2 + small_size * 2,
+		    hdr->alloced);
+
+	/* Resize the first one */
+	ut_assertok(bloblist_resize(TEST_TAG, small_size + 4));
+
+	/* The first one should not have moved, just got larger */
+	blob1_new = bloblist_find(TEST_TAG, small_size + 4);
+	ut_asserteq_ptr(blob1, blob1_new);
+
+	/* The new space should be zeroed */
+	ut_assertok(check_zero(blob1 + small_size, 4));
+
+	/* The second one should have moved */
+	blob2 = bloblist_find(TEST_TAG2, small_size);
+	ut_assertnonnull(blob2);
+	ut_asserteq_str(test2_str, blob2);
+
+	/* The header should have more bytes in use */
+	hdr = ptr;
+	ut_asserteq(sizeof(struct bloblist_hdr) +
+		    sizeof(struct bloblist_rec) * 2 + small_size * 2 +
+		    BLOBLIST_ALIGN,
+		    hdr->alloced);
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_grow, 0);
+
+/* Test shrinking of a blob */
+static int bloblist_test_shrink(struct unit_test_state *uts)
+{
+	const uint small_size = 0x20;
+	void *blob1, *blob2, *blob1_new;
+	struct bloblist_hdr *hdr;
+	int new_size;
+	void *ptr;
+
+	ptr = map_sysmem(TEST_ADDR, TEST_BLOBLIST_SIZE);
+
+	/* Create two blobs */
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	blob1 = bloblist_add(TEST_TAG, small_size, 0);
+	ut_assertnonnull(blob1);
+	strcpy(blob1, test1_str);
+
+	blob2 = bloblist_add(TEST_TAG2, small_size, 0);
+	ut_assertnonnull(blob2);
+	strcpy(blob2, test2_str);
+
+	hdr = ptr;
+	ut_asserteq(sizeof(struct bloblist_hdr) +
+		    sizeof(struct bloblist_rec) * 2 + small_size * 2,
+		    hdr->alloced);
+
+	/* Resize the first one */
+	new_size = small_size - BLOBLIST_ALIGN - 4;
+	ut_assertok(bloblist_resize(TEST_TAG, new_size));
+
+	/* The first one should not have moved, just got smaller */
+	blob1_new = bloblist_find(TEST_TAG, new_size);
+	ut_asserteq_ptr(blob1, blob1_new);
+
+	/* The second one should have moved */
+	blob2 = bloblist_find(TEST_TAG2, small_size);
+	ut_assertnonnull(blob2);
+	ut_asserteq_str(test2_str, blob2);
+
+	/* The header should have fewer bytes in use */
+	hdr = ptr;
+	ut_asserteq(sizeof(struct bloblist_hdr) +
+		    sizeof(struct bloblist_rec) * 2 + small_size * 2 -
+		    BLOBLIST_ALIGN,
+		    hdr->alloced);
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_shrink, 0);
+
+/* Test failing to adjust a blob size */
+static int bloblist_test_resize_fail(struct unit_test_state *uts)
+{
+	const uint small_size = 0x20;
+	struct bloblist_hdr *hdr;
+	void *blob1, *blob2;
+	int new_size;
+	void *ptr;
+
+	ptr = map_sysmem(TEST_ADDR, TEST_BLOBLIST_SIZE);
+
+	/* Create two blobs */
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	blob1 = bloblist_add(TEST_TAG, small_size, 0);
+	ut_assertnonnull(blob1);
+
+	blob2 = bloblist_add(TEST_TAG2, small_size, 0);
+	ut_assertnonnull(blob2);
+
+	hdr = ptr;
+	ut_asserteq(sizeof(struct bloblist_hdr) +
+		    sizeof(struct bloblist_rec) * 2 + small_size * 2,
+		    hdr->alloced);
+
+	/* Resize the first one, to check the boundary conditions */
+	ut_asserteq(-EINVAL, bloblist_resize(TEST_TAG, -1));
+
+	new_size = small_size + (hdr->size - hdr->alloced);
+	ut_asserteq(-ENOSPC, bloblist_resize(TEST_TAG, new_size + 1));
+	ut_assertok(bloblist_resize(TEST_TAG, new_size));
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_resize_fail, 0);
+
+/* Test expanding the last blob in a bloblist */
+static int bloblist_test_resize_last(struct unit_test_state *uts)
+{
+	const uint small_size = 0x20;
+	struct bloblist_hdr *hdr;
+	void *blob1, *blob2, *blob2_new;
+	int alloced_val;
+	void *ptr;
+
+	ptr = map_sysmem(TEST_ADDR, TEST_BLOBLIST_SIZE);
+	memset(ptr, ERASE_BYTE, TEST_BLOBLIST_SIZE);
+	hdr = ptr;
+
+	/* Create two blobs */
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	blob1 = bloblist_add(TEST_TAG, small_size, 0);
+	ut_assertnonnull(blob1);
+
+	blob2 = bloblist_add(TEST_TAG2, small_size, 0);
+	ut_assertnonnull(blob2);
+
+	/* Check the byte after the last blob */
+	alloced_val = sizeof(struct bloblist_hdr) +
+		    sizeof(struct bloblist_rec) * 2 + small_size * 2;
+	ut_asserteq(alloced_val, hdr->alloced);
+	ut_asserteq_ptr((void *)hdr + alloced_val, blob2 + small_size);
+	ut_asserteq((u8)ERASE_BYTE, *((u8 *)hdr + hdr->alloced));
+
+	/* Resize the second one, checking nothing changes */
+	ut_asserteq(0, bloblist_resize(TEST_TAG2, small_size + 4));
+
+	blob2_new = bloblist_find(TEST_TAG2, small_size + 4);
+	ut_asserteq_ptr(blob2, blob2_new);
+
+	/*
+	 * the new blob should encompass the byte we checked now, so it should
+	 * be zeroed. This zeroing should affect only the four new bytes added
+	 * to the blob.
+	 */
+	ut_asserteq(0, *((u8 *)hdr + alloced_val));
+	ut_asserteq((u8)ERASE_BYTE, *((u8 *)hdr + alloced_val + 4));
+
+	/* Check that the new top of the allocated blobs has not been touched */
+	alloced_val += BLOBLIST_ALIGN;
+	ut_asserteq(alloced_val, hdr->alloced);
+	ut_asserteq((u8)ERASE_BYTE, *((u8 *)hdr + hdr->alloced));
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_resize_last, 0);
+
+/* Check a completely full bloblist */
+static int bloblist_test_blob_maxsize(struct unit_test_state *uts)
+{
+	void *ptr;
+	int size;
+
+	/* At the start there should be no records */
+	clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+
+	/* Add a blob that takes up all space */
+	size = TEST_BLOBLIST_SIZE - sizeof(struct bloblist_hdr) -
+		sizeof(struct bloblist_rec);
+	ptr = bloblist_add(TEST_TAG, size, 0);
+	ut_assertnonnull(ptr);
+
+	ptr = bloblist_add(TEST_TAG, size + 1, 0);
+	ut_assertnull(ptr);
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_blob_maxsize, 0);
 
 int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])

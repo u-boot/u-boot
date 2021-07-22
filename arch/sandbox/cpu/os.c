@@ -226,7 +226,7 @@ int os_setup_signal_handlers(void)
 
 	act.sa_sigaction = os_signal_handler;
 	sigemptyset(&act.sa_mask);
-	act.sa_flags = SA_SIGINFO | SA_NODEFER;
+	act.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGILL, &act, NULL) ||
 	    sigaction(SIGBUS, &act, NULL) ||
 	    sigaction(SIGSEGV, &act, NULL))
@@ -783,12 +783,14 @@ int os_jump_to_image(const void *dest, int size)
 	return os_jump_to_file(fname, true);
 }
 
-int os_find_u_boot(char *fname, int maxlen, bool use_img)
+int os_find_u_boot(char *fname, int maxlen, bool use_img,
+		   const char *cur_prefix, const char *next_prefix)
 {
 	struct sandbox_state *state = state_get_current();
 	const char *progname = state->argv[0];
 	int len = strlen(progname);
-	const char *suffix;
+	char subdir[10];
+	char *suffix;
 	char *p;
 	int fd;
 
@@ -798,45 +800,36 @@ int os_find_u_boot(char *fname, int maxlen, bool use_img)
 	strcpy(fname, progname);
 	suffix = fname + len - 4;
 
-	/* If we are TPL, boot to SPL */
-	if (!strcmp(suffix, "-tpl")) {
-		fname[len - 3] = 's';
-		fd = os_open(fname, O_RDONLY);
-		if (fd >= 0) {
-			close(fd);
-			return 0;
-		}
+	/* Change the existing suffix to the new one */
+	if (*suffix != '-')
+		return -EINVAL;
 
-		/* Look for 'u-boot-spl' in the spl/ directory */
-		p = strstr(fname, "/spl/");
-		if (p) {
-			p[1] = 's';
-			fd = os_open(fname, O_RDONLY);
-			if (fd >= 0) {
-				close(fd);
-				return 0;
-			}
-		}
-		return -ENOENT;
+	if (*next_prefix)
+		strcpy(suffix + 1, next_prefix);  /* e.g. "-tpl" to "-spl" */
+	else
+		*suffix = '\0';  /* e.g. "-spl" to "" */
+	fd = os_open(fname, O_RDONLY);
+	if (fd >= 0) {
+		close(fd);
+		return 0;
 	}
 
-	/* Look for 'u-boot' in the same directory as 'u-boot-spl' */
-	if (!strcmp(suffix, "-spl")) {
-		fname[len - 4] = '\0';
-		fd = os_open(fname, O_RDONLY);
-		if (fd >= 0) {
-			close(fd);
-			return 0;
-		}
-	}
-
-	/* Look for 'u-boot' in the parent directory of spl/ */
-	p = strstr(fname, "spl/");
+	/*
+	 * We didn't find it, so try looking for 'u-boot-xxx' in the xxx/
+	 * directory. Replace the old dirname with the new one.
+	 */
+	snprintf(subdir, sizeof(subdir), "/%s/", cur_prefix);
+	p = strstr(fname, subdir);
 	if (p) {
-		/* Remove the "spl" characters */
-		memmove(p, p + 4, strlen(p + 4) + 1);
+		if (*next_prefix)
+			/* e.g. ".../tpl/u-boot-spl"  to "../spl/u-boot-spl" */
+			memcpy(p + 1, next_prefix, strlen(next_prefix));
+		else
+			/* e.g. ".../spl/u-boot" to ".../u-boot" */
+			strcpy(p, p + 1 + strlen(cur_prefix));
 		if (use_img)
 			strcat(p, ".img");
+
 		fd = os_open(fname, O_RDONLY);
 		if (fd >= 0) {
 			close(fd);

@@ -176,6 +176,27 @@ static inline const char *spl_phase_name(enum u_boot_phase phase)
 	}
 }
 
+/**
+ * spl_phase_prefix() - Get the prefix  of the current phase
+ *
+ * @phase: Phase to look up
+ * @return phase prefix ("spl", "tpl", etc.)
+ */
+static inline const char *spl_phase_prefix(enum u_boot_phase phase)
+{
+	switch (phase) {
+	case PHASE_TPL:
+		return "tpl";
+	case PHASE_SPL:
+		return "spl";
+	case PHASE_BOARD_F:
+	case PHASE_BOARD_R:
+		return "";
+	default:
+		return "phase?";
+	}
+}
+
 /* A string name for SPL or TPL */
 #ifdef CONFIG_SPL_BUILD
 # ifdef CONFIG_TPL_BUILD
@@ -483,6 +504,16 @@ struct spl_image_loader {
 	int (*load_image)(struct spl_image_info *spl_image,
 			  struct spl_boot_device *bootdev);
 };
+
+/* Helper function for accessing the name */
+static inline const char *spl_loader_name(const struct spl_image_loader *loader)
+{
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+	return loader->name;
+#else
+	return NULL;
+#endif
+}
 
 /* Declare an SPL image loader */
 #define SPL_LOAD_IMAGE(__name)					\

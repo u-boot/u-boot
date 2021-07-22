@@ -162,3 +162,58 @@ static int dm_test_blk_get_from_parent(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_blk_get_from_parent, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test iteration through block devices */
+static int dm_test_blk_iter(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	int i;
+
+	/*
+	 * See sandbox test.dts - it has:
+	 *
+	 *   mmc0 - removable
+	 *   mmc1 - removable
+	 *   mmc2 - fixed
+	 */
+	ut_assertok(blk_first_device_err(BLKF_FIXED, &dev));
+	ut_asserteq_str("mmc2.blk", dev->name);
+	ut_asserteq(-ENODEV, blk_next_device_err(BLKF_FIXED, &dev));
+
+	ut_assertok(blk_first_device_err(BLKF_REMOVABLE, &dev));
+	ut_asserteq_str("mmc1.blk", dev->name);
+	ut_assertok(blk_next_device_err(BLKF_REMOVABLE, &dev));
+	ut_asserteq_str("mmc0.blk", dev->name);
+	ut_asserteq(-ENODEV, blk_next_device_err(BLKF_REMOVABLE, &dev));
+
+	ut_assertok(blk_first_device_err(BLKF_BOTH, &dev));
+	ut_asserteq_str("mmc2.blk", dev->name);
+	ut_assertok(blk_next_device_err(BLKF_BOTH, &dev));
+	ut_asserteq_str("mmc1.blk", dev->name);
+	ut_assertok(blk_next_device_err(BLKF_BOTH, &dev));
+	ut_asserteq_str("mmc0.blk", dev->name);
+	ut_asserteq(-ENODEV, blk_next_device_err(BLKF_FIXED, &dev));
+
+	ut_asserteq(1, blk_count_devices(BLKF_FIXED));
+	ut_asserteq(2, blk_count_devices(BLKF_REMOVABLE));
+	ut_asserteq(3, blk_count_devices(BLKF_BOTH));
+
+	i = 0;
+	blk_foreach_probe(BLKF_FIXED, dev)
+		ut_asserteq_str((i++, "mmc2.blk"), dev->name);
+	ut_asserteq(1, i);
+
+	i = 0;
+	blk_foreach_probe(BLKF_REMOVABLE, dev)
+		ut_asserteq_str(i++ ? "mmc0.blk" : "mmc1.blk", dev->name);
+	ut_asserteq(2, i);
+
+	i = 0;
+	blk_foreach_probe(BLKF_BOTH, dev)
+		ut_asserteq_str((++i == 1 ? "mmc2.blk" : i == 2 ?
+			"mmc1.blk" : "mmc0.blk"), dev->name);
+	ut_asserteq(3, i);
+
+	return 0;
+}
+DM_TEST(dm_test_blk_iter, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

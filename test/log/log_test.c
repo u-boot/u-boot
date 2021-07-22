@@ -62,9 +62,9 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 
 	for (i = min; i <= max; i++) {
 		if (flags & EXPECT_LOG)
-			ut_assert_nextline("do_log_run() log %d", i);
+			ut_assert_nextline("          do_log_run() log %d", i);
 		if (flags & EXPECT_DIRECT)
-			ut_assert_nextline("func() _log %d", i);
+			ut_assert_nextline("                func() _log %d", i);
 		if (flags & EXPECT_DEBUG) {
 			ut_assert_nextline("log %d", i);
 			ut_assert_nextline("_log %d", i);
@@ -72,11 +72,12 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 	}
 	if (flags & EXPECT_EXTRA)
 		for (; i <= LOGL_MAX ; i++)
-			ut_assert_nextline("func() _log %d", i);
+			ut_assert_nextline("                func() _log %d", i);
 
 	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
 		if (flags & EXPECT_FORCE)
-			ut_assert_nextline("func() _log force %d", i);
+			ut_assert_nextline("                func() _log force %d",
+					   i);
 		if (flags & EXPECT_DEBUG)
 			ut_assert_nextline("_log force %d", i);
 	}
@@ -277,7 +278,8 @@ int do_log_test_helpers(struct unit_test_state *uts)
 	log_io("level %d\n", LOGL_DEBUG_IO);
 
 	for (i = LOGL_EMERG; i <= _LOG_MAX_LEVEL; i++)
-		ut_assert_nextline("%s() level %d", __func__, i);
+		ut_assert_nextline("%*s() level %d", CONFIG_LOGF_FUNC_PAD,
+				   __func__, i);
 	ut_assert_console_end();
 	return 0;
 }
@@ -297,14 +299,14 @@ int do_log_test_disable(struct unit_test_state *uts)
 {
 	ut_assertok(console_record_reset_enable());
 	log_err("default\n");
-	ut_assert_nextline("%s() default", __func__);
+	ut_assert_nextline("%*s() default", CONFIG_LOGF_FUNC_PAD, __func__);
 
 	ut_assertok(log_device_set_enable(LOG_GET_DRIVER(console), false));
 	log_err("disabled\n");
 
 	ut_assertok(log_device_set_enable(LOG_GET_DRIVER(console), true));
 	log_err("enabled\n");
-	ut_assert_nextline("%s() enabled", __func__);
+	ut_assert_nextline("%*s() enabled", CONFIG_LOGF_FUNC_PAD, __func__);
 	ut_assert_console_end();
 	return 0;
 }

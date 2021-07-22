@@ -169,11 +169,11 @@ class Popen(subprocess.Popen):
                 self.stdin.close()
         if self.stdout:
             read_set.append(self.stdout)
-            stdout = b''
+            stdout = bytearray()
         if self.stderr and self.stderr != self.stdout:
             read_set.append(self.stderr)
-            stderr = b''
-        combined = b''
+            stderr = bytearray()
+        combined = bytearray()
 
         input_offset = 0
         while read_set or write_set:

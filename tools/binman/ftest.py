@@ -308,7 +308,8 @@ class TestFunctional(unittest.TestCase):
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
                     entry_args=None, images=None, use_real_dtb=False,
                     use_expanded=False, verbosity=None, allow_missing=False,
-                    extra_indirs=None):
+                    extra_indirs=None, threads=None,
+                    test_section_timeout=False):
         """Run binman with a given test file
 
         Args:
@@ -331,6 +332,8 @@ class TestFunctional(unittest.TestCase):
             allow_missing: Set the '--allow-missing' flag so that missing
                 external binaries just produce a warning instead of an error
             extra_indirs: Extra input directories to add using -I
+            threads: Number of threads to use (None for default, 0 for
+                single-threaded)
         """
         args = []
         if debug:
@@ -342,6 +345,10 @@ class TestFunctional(unittest.TestCase):
         if self.toolpath:
             for path in self.toolpath:
                 args += ['--toolpath', path]
+        if threads is not None:
+            args.append('-T%d' % threads)
+        if test_section_timeout:
+            args.append('--test-section-timeout')
         args += ['build', '-p', '-I', self._indir, '-d', self.TestFile(fname)]
         if map:
             args.append('-m')
@@ -412,7 +419,7 @@ class TestFunctional(unittest.TestCase):
 
     def _DoReadFileDtb(self, fname, use_real_dtb=False, use_expanded=False,
                        map=False, update_dtb=False, entry_args=None,
-                       reset_dtbs=True, extra_indirs=None):
+                       reset_dtbs=True, extra_indirs=None, threads=None):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -439,6 +446,8 @@ class TestFunctional(unittest.TestCase):
                 function. If reset_dtbs is True, then the original test dtb
                 is written back before this function finishes
             extra_indirs: Extra input directories to add using -I
+            threads: Number of threads to use (None for default, 0 for
+                single-threaded)
 
         Returns:
             Tuple:
@@ -463,7 +472,8 @@ class TestFunctional(unittest.TestCase):
         try:
             retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
                     entry_args=entry_args, use_real_dtb=use_real_dtb,
-                    use_expanded=use_expanded, extra_indirs=extra_indirs)
+                    use_expanded=use_expanded, extra_indirs=extra_indirs,
+                    threads=threads)
             self.assertEqual(0, retcode)
             out_dtb_fname = tools.GetOutputFilename('u-boot.dtb.out')
 
@@ -4541,6 +4551,31 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with an OpenSBI binary can be created"""
         data = self._DoReadFile('201_opensbi.dts')
         self.assertEqual(OPENSBI_DATA, data[:len(OPENSBI_DATA)])
+
+    def testSectionsSingleThread(self):
+        """Test sections without multithreading"""
+        data = self._DoReadFileDtb('055_sections.dts', threads=0)[0]
+        expected = (U_BOOT_DATA + tools.GetBytes(ord('!'), 12) +
+                    U_BOOT_DATA + tools.GetBytes(ord('a'), 12) +
+                    U_BOOT_DATA + tools.GetBytes(ord('&'), 4))
+        self.assertEqual(expected, data)
+
+    def testThreadTimeout(self):
+        """Test handling a thread that takes too long"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('202_section_timeout.dts',
+                             test_section_timeout=True)
+        self.assertIn("Node '/binman/section@0': Timed out obtaining contents",
+                      str(e.exception))
+
+    def testTiming(self):
+        """Test output of timing information"""
+        data = self._DoReadFile('055_sections.dts')
+        with test_util.capture_sys_output() as (stdout, stderr):
+            state.TimingShow()
+        self.assertIn('read:', stdout.getvalue())
+        self.assertIn('compress:', stdout.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

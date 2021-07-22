@@ -34,6 +34,9 @@ class Entry_files(Entry_section):
         from binman import state
 
         super().__init__(section, etype, node)
+
+    def ReadNode(self):
+        super().ReadNode()
         self._pattern = fdt_util.GetString(self._node, 'pattern')
         if not self._pattern:
             self.Raise("Missing 'pattern' property")

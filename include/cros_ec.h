@@ -199,15 +199,6 @@ int cros_ec_flash_protect(struct udevice *dev, uint32_t set_mask,
 			  struct ec_response_flash_protect *resp);
 
 /**
- * Notify EC of current boot mode
- *
- * @param dev		CROS-EC device
- * @param vboot_mode    Verified boot mode
- * @return 0 if ok, <0 on error
- */
-int cros_ec_entering_mode(struct udevice *dev, int mode);
-
-/**
  * Run internal tests on the cros_ec interface.
  *
  * @param dev		CROS-EC device
@@ -651,5 +642,13 @@ int cros_ec_vstore_read(struct udevice *dev, int slot, uint8_t *data);
  */
 int cros_ec_vstore_write(struct udevice *dev, int slot, const uint8_t *data,
 			 size_t size);
+
+/**
+ * cros_ec_read_batt_charge() - Read the battery-charge state
+ *
+ * @dev: CROS-EC device
+ * @chargep: Return battery-charge state as a percentage
+ */
+int cros_ec_read_batt_charge(struct udevice *dev, uint *chargep);
 
 #endif

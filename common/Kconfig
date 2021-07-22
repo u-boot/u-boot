@@ -322,6 +322,14 @@ config LOGF_FUNC
 	  Show the function name in log messages by default. This value can
 	  be overridden using the 'log format' command.
 
+config LOGF_FUNC_PAD
+	int "Number of characters to use for function"
+	default 20
+	help
+	  Sets the field width to use when showing the function. Set this to
+	  a larger value if you have lots of long function names, and want
+	  things to line up.
+
 config LOG_SYSLOG
 	bool "Log output to syslog server"
 	depends on NET
@@ -724,7 +732,7 @@ config BLOBLIST_SIZE
 config BLOBLIST_ADDR
 	hex "Address of bloblist"
 	depends on BLOBLIST
-	default 0xe000 if SANDBOX
+	default 0xc000 if SANDBOX
 	help
 	  Sets the address of the bloblist, set up by the first part of U-Boot
 	  which runs. Subsequent U-Boot stages typically use the same address.
