@@ -1262,8 +1262,8 @@ def find_kconfig_rules(kconf, config, imply_config):
     """
     sym = kconf.syms.get(imply_config)
     if sym:
-        for sel in sym.get_selected_symbols() | sym.get_implied_symbols():
-            if sel.get_name() == config:
+        for sel, cond in (sym.selects + sym.implies):
+            if sel == config:
                 return sym
     return None
 
@@ -1288,10 +1288,10 @@ def check_imply_rule(kconf, config, imply_config):
     sym = kconf.syms.get(imply_config)
     if not sym:
         return 'cannot find sym'
-    locs = sym.get_def_locations()
-    if len(locs) != 1:
-        return '%d locations' % len(locs)
-    fname, linenum = locs[0]
+    nodes = sym.nodes
+    if len(nodes) != 1:
+        return '%d locations' % len(nodes)
+    fname, linenum = nodes[0].filename, nodes[0].linern
     cwd = os.getcwd()
     if cwd and fname.startswith(cwd):
         fname = fname[len(cwd) + 1:]
@@ -1502,9 +1502,9 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                                          iconfig[CONFIG_LEN:])
                 kconfig_info = ''
                 if sym:
-                    locs = sym.get_def_locations()
-                    if len(locs) == 1:
-                        fname, linenum = locs[0]
+                    nodes = sym.nodes
+                    if len(nodes) == 1:
+                        fname, linenum = nodes[0].filename, nodes[0].linenr
                         if cwd and fname.startswith(cwd):
                             fname = fname[len(cwd) + 1:]
                         kconfig_info = '%s:%d' % (fname, linenum)
@@ -1514,9 +1514,9 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                     sym = kconf.syms.get(iconfig[CONFIG_LEN:])
                     fname = ''
                     if sym:
-                        locs = sym.get_def_locations()
-                        if len(locs) == 1:
-                            fname, linenum = locs[0]
+                        nodes = sym.nodes
+                        if len(nodes) == 1:
+                            fname, linenum = nodes[0].filename, nodes[0].linenr
                             if cwd and fname.startswith(cwd):
                                 fname = fname[len(cwd) + 1:]
                     in_arch_board = not sym or (fname.startswith('arch') or
