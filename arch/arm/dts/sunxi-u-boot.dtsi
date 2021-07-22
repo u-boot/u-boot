@@ -13,7 +13,9 @@
 / {
 	aliases {
 		mmc0 = &mmc0;
+#if CONFIG_MMC_SUNXI_EXTRA_SLOT == 2
 		mmc1 = &mmc2;
+#endif
 	};
 
 	binman: binman {
