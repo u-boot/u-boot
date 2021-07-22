@@ -59,6 +59,9 @@ RE_DIFF = re.compile(r'^>.*diff --git a/(.*) b/(.*)$')
 # Detect a context line, like '> @@ -153,8 +153,13 @@ CheckPatch
 RE_LINE = re.compile(r'>.*@@ \-(\d+),\d+ \+(\d+),\d+ @@ *(.*)')
 
+# Detect line with invalid TAG
+RE_INV_TAG = re.compile('^Serie-([a-z-]*): *(.*)')
+
 # States we can be in - can we use range() and still have comments?
 STATE_MSG_HEADER = 0        # Still in the message header
 STATE_PATCH_SUBJECT = 1     # In patch subject (first line of log for a commit)
@@ -318,6 +321,7 @@ class PatchStream:
         leading_whitespace_match = RE_LEADING_WHITESPACE.match(line)
         diff_match = RE_DIFF.match(line)
         line_match = RE_LINE.match(line)
+        invalid_match = RE_INV_TAG.match(line)
         tag_match = None
         if self.state == STATE_PATCH_HEADER:
             tag_match = RE_TAG.match(line)
@@ -470,6 +474,11 @@ class PatchStream:
             else:
                 self._add_warn('Line %d: Ignoring Commit-%s' %
                                (self.linenum, name))
+
+        # Detect invalid tags
+        elif invalid_match:
+            raise ValueError("Line %d: Invalid tag = '%s'" %
+                (self.linenum, line))
 
         # Detect the start of a new commit
         elif commit_match:
