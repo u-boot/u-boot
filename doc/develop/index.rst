@@ -42,7 +42,14 @@ Testing
    :maxdepth: 1
 
    testing
-   coccinelle
    py_testing
    tests_writing
    tests_sandbox
+
+Refactoring
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   coccinelle
