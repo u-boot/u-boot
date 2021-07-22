@@ -41,8 +41,8 @@ Testing
 .. toctree::
    :maxdepth: 1
 
-   coccinelle
    testing
+   coccinelle
    py_testing
    tests_writing
    tests_sandbox
