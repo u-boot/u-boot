@@ -53,3 +53,4 @@ Refactoring
    :maxdepth: 1
 
    coccinelle
+   moveconfig
