@@ -15,6 +15,15 @@ ifdef MINIMAL
 # necessary to create built-in.o
 obj- := __dummy__.o
 else
+# include i2c_common.o once if either VID or FSL_USE_PCA9547_MUX
+I2C_COMMON=
+ifdef CONFIG_VID
+I2C_COMMON=y
+endif
+ifdef CONFIG_FSL_USE_PCA9547_MUX
+I2C_COMMON=y
+endif
+
 obj-$(CONFIG_FSL_CADMUS)	+= cadmus.o
 obj-$(CONFIG_FSL_VIA)		+= cds_via.o
 obj-$(CONFIG_FMAN_ENET)	+= fman.o
@@ -22,6 +31,8 @@ obj-$(CONFIG_FSL_PIXIS)	+= pixis.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_FSL_NGPIXIS)	+= ngpixis.o
 endif
+obj-$(I2C_COMMON)		+= i2c_common.o
+obj-$(CONFIG_FSL_USE_PCA9547_MUX)		+= i2c_mux.o
 obj-$(CONFIG_VID)		+= vid.o
 obj-$(CONFIG_FSL_QIXIS)	+= qixis.o
 obj-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o

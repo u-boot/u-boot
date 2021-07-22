@@ -261,45 +261,45 @@
 /* Initial environment variables */
 #ifdef CONFIG_TFABOOT
 #define QSPI_MC_INIT_CMD				\
-	"sf probe 0:0;sf read 0x80000000 0xA00000 0x100000;"	\
-	"sf read 0x80100000 0xE00000 0x100000;"				\
+	"sf probe 0:0;sf read 0x80a00000 0xA00000 0x200000;"	\
+	"sf read 0x80e00000 0xE00000 0x100000;"				\
 	"env exists secureboot && "			\
 	"sf read 0x80640000 0x640000 0x40000 && "	\
 	"sf read 0x80680000 0x680000 0x40000 && "	\
 	"esbc_validate 0x80640000 && "			\
 	"esbc_validate 0x80680000 ;"			\
-	"fsl_mc start mc 0x80000000 0x80100000\0"
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 #define SD_MC_INIT_CMD				\
-	"mmcinfo;mmc read 0x80000000 0x5000 0x800;"		\
-	"mmc read 0x80100000 0x7000 0x800;"				\
+	"mmcinfo;mmc read 0x80a00000 0x5000 0x1000;"		\
+	"mmc read 0x80e00000 0x7000 0x800;"				\
 	"env exists secureboot && "			\
 	"mmc read 0x80640000 0x3200 0x20 && "		\
 	"mmc read 0x80680000 0x3400 0x20 && "		\
 	"esbc_validate 0x80640000 && "			\
 	"esbc_validate 0x80680000 ;"			\
-	"fsl_mc start mc 0x80000000 0x80100000\0"
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 #else
 #if defined(CONFIG_QSPI_BOOT)
 #define MC_INIT_CMD				\
-	"mcinitcmd=sf probe 0:0;sf read 0x80000000 0xA00000 0x100000;"	\
-	"sf read 0x80100000 0xE00000 0x100000;"				\
+	"mcinitcmd=sf probe 0:0;sf read 0x80a00000 0xA00000 0x200000;"	\
+	"sf read 0x80e00000 0xE00000 0x100000;"				\
 	"env exists secureboot && "			\
 	"sf read 0x80640000 0x640000 0x40000 && "	\
 	"sf read 0x80680000 0x680000 0x40000 && "	\
 	"esbc_validate 0x80640000 && "			\
 	"esbc_validate 0x80680000 ;"			\
-	"fsl_mc start mc 0x80000000 0x80100000\0"	\
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"	\
 	"mcmemsize=0x70000000\0"
 #elif defined(CONFIG_SD_BOOT)
 #define MC_INIT_CMD				\
-	"mcinitcmd=mmcinfo;mmc read 0x80000000 0x5000 0x800;"		\
-	"mmc read 0x80100000 0x7000 0x800;"				\
+	"mcinitcmd=mmcinfo;mmc read 0x80a00000 0x5000 0x1000;"		\
+	"mmc read 0x80e00000 0x7000 0x800;"				\
 	"env exists secureboot && "			\
 	"mmc read 0x80640000 0x3200 0x20 && "		\
 	"mmc read 0x80680000 0x3400 0x20 && "		\
 	"esbc_validate 0x80640000 && "			\
 	"esbc_validate 0x80680000 ;"			\
-	"fsl_mc start mc 0x80000000 0x80100000\0"	\
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"	\
 	"mcmemsize=0x70000000\0"
 #endif
 #endif /* CONFIG_TFABOOT */

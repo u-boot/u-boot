@@ -26,6 +26,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
+#include "../common/i2c_mux.h"
 
 #include "../common/qixis.h"
 #include "ls1088a_qixis.h"
@@ -415,34 +416,13 @@ unsigned long get_board_ddr_clk(void)
 	return 66666666;
 }
 
-int select_i2c_ch_pca9547(u8 ch)
-{
-	int ret;
-
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
-#else
-	struct udevice *dev;
-
-	ret = i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev);
-	if (!ret)
-		ret = dm_i2c_write(dev, 0, &ch, 1);
-#endif
-	if (ret) {
-		puts("PCA: failed to select proper channel\n");
-		return ret;
-	}
-
-	return 0;
-}
-
 #if !defined(CONFIG_SPL_BUILD)
 void board_retimer_init(void)
 {
 	u8 reg;
 
 	/* Retimer is connected to I2C1_CH5 */
-	select_i2c_ch_pca9547(I2C_MUX_CH5);
+	select_i2c_ch_pca9547(I2C_MUX_CH5, 0);
 
 	/* Access to Control/Shared register */
 	reg = 0x0;
@@ -532,7 +512,7 @@ void board_retimer_init(void)
 
 #ifdef	CONFIG_TARGET_LS1088AQDS
 	/* Retimer is connected to I2C1_CH5 */
-	select_i2c_ch_pca9547(I2C_MUX_CH5);
+	select_i2c_ch_pca9547(I2C_MUX_CH5, 0);
 
 	/* Access to Control/Shared register */
 	reg = 0x0;
@@ -620,7 +600,7 @@ void board_retimer_init(void)
 
 #endif
 	/*return the default channel*/
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 }
 
 #ifdef CONFIG_MISC_INIT_R
@@ -669,7 +649,7 @@ int misc_init_r(void)
 
 int i2c_multiplexer_select_vid_channel(u8 channel)
 {
-	return select_i2c_ch_pca9547(channel);
+	return select_i2c_ch_pca9547(channel, 0);
 }
 
 #ifdef CONFIG_TARGET_LS1088AQDS
@@ -827,7 +807,7 @@ int board_init(void)
 	u32 __iomem *irq_ccsr = (u32 __iomem *)ISC_BASE;
 #endif
 
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 	board_retimer_init();
 
 #ifdef CONFIG_ENV_IS_NOWHERE
