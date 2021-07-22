@@ -146,7 +146,7 @@ def get_mksquashfs_version():
     out = subprocess.run(['mksquashfs -version'], shell=True, check=True,
                          capture_output=True, text=True)
     # 'out' is: mksquashfs version X (yyyy/mm/dd) ...
-    return float(out.stdout.split()[2])
+    return float(out.stdout.split()[2].split('-')[0])
 
 def check_mksquashfs_version():
     """ Checks if mksquashfs meets the required version. """
