@@ -20,7 +20,7 @@
 	u-boot,dm-spl;
 };
 
-&sdmmc0m1_gpio {
+&sdmmc0m1_pin {
 	u-boot,dm-spl;
 };
 
