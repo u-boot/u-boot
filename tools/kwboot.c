@@ -560,6 +560,7 @@ kwboot_terminal(int tty)
 
 	if (in >= 0)
 		tcsetattr(in, TCSANOW, &otio);
+	printf("\n");
 out:
 	return rc;
 }
