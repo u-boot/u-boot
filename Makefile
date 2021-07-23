@@ -1397,7 +1397,7 @@ MKIMAGEFLAGS_u-boot.kwb = -n $(KWD_CONFIG_FILE) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
 MKIMAGEFLAGS_u-boot-spl.kwb = -n $(KWD_CONFIG_FILE) \
-	-T kwbimage -a $(shell printf "0x%x" $$(($(CONFIG_SYS_TEXT_BASE)-64))) -e $(CONFIG_SYS_TEXT_BASE) \
+	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) \
 	$(if $(KEYDIR),-k $(KEYDIR))
 
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
@@ -1440,7 +1440,7 @@ u-boot.itb: u-boot-nodtb.bin \
 	$(BOARD_SIZE_CHECK)
 endif
 
-u-boot-spl.kwb: u-boot.img spl/u-boot-spl.bin FORCE
+u-boot-spl.kwb: u-boot.bin spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
 u-boot.sha1:	u-boot.bin
