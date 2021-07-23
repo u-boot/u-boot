@@ -1414,6 +1414,14 @@ config CMD_SETEXPR
 	  Also supports loading the value at a memory location into a variable.
 	  If CONFIG_REGEX is enabled, setexpr also supports a gsub function.
 
+config CMD_SETEXPR_FMT
+	bool "setexpr_fmt"
+	default n
+	depends on CMD_SETEXPR
+	help
+	  Evaluate format string expression and store result in an environment
+	    variable.
+
 endmenu
 
 menu "Android support commands"

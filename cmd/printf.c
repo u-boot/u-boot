@@ -1,11 +1,20 @@
-/* vi: set sw=4 ts=4: */
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * printf - format and print data
+ * Copyright (C) 2021 Weidmüller Interface GmbH & Co. KG
+ * Roland Gaudig <roland.gaudig@weidmueller.com>
  *
  * Copyright 1999 Dave Cinege
  * Portions copyright (C) 1990-1996 Free Software Foundation, Inc.
  *
  * Licensed under GPLv2 or later, see file LICENSE in this source tree.
+ */
+/*
+ * This file provides a shell printf like format string expansion as required
+ * for the setexpr <name> fmt <format> <value> command.
+ * This source file was mostly taken from the BusyBox project (www.busybox.net)
+ * In contrast to the original sources the output is not written to stdout
+ * anymore but into a char array, which can be used as input for the env_set()
+ * function.
  */
 /* Usage: printf format [argument...]
  *
@@ -59,8 +68,6 @@
 //usage:       "$ printf \"Val=%d\\n\" 5\n"
 //usage:       "Val=5\n"
 
-#include "libbb.h"
-
 /* A note on bad input: neither bash 3.2 nor coreutils 6.10 stop on it.
  * They report it:
  *  bash: printf: XXX: invalid number
@@ -77,22 +84,97 @@
  * We try to be compatible.
  */
 
-typedef void FAST_FUNC (*converter)(const char *arg, void *result);
+#include <common.h>
+#include <ctype.h>
+#include <errno.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define WANT_HEX_ESCAPES 0
+#define PRINT_CONVERSION_ERROR 1
+#define PRINT_TRUNCATED_ERROR 2
+#define PRINT_SIZE_ERROR 4
 
-/* Usual "this only works for ascii compatible encodings" disclaimer. */
-#undef _tolower
-#define _tolower(X) ((X)|((char) 0x20))
+struct print_inf {
+	char *str;
+	size_t size;
+	size_t offset;
+	unsigned int error;
+};
 
-char FAST_FUNC bb_process_escape_sequence(const char **ptr)
+typedef void (*converter)(const char *arg, void *result);
+
+/**
+ * printf_str() - print formatted into char array with length checks
+ *
+ * This function povides a printf like function for printing into a char array
+ * with checking the boundaries.
+ * Unlike snprintf, all checks are performed inside this function and status
+ * reports are stored inside the print_inf struct. That way, this function can
+ * be used almost as drop-in replacement without needing much code changes.
+ * Unlike snprintf errors are not reported by return value, but inside the
+ * error member of struct print_inf. The output stored inside the struct
+ * print_inf str member shall only be used when the error member is 0.
+ *
+ * @inf: Info structure for print operation
+ * @char: format string with optional arguments
+ */
+static void printf_str(struct print_inf *inf, char *format, ...)
+{
+	va_list args;
+	int i;
+
+	if (!inf)
+		return;
+
+	/* Do not write anything if previous error is pending */
+	if (inf->error)
+		return;
+
+	/* Check if end of receiving buffer is already reached */
+	if (inf->offset >= inf->size) {
+		inf->error |= PRINT_SIZE_ERROR;
+		return;
+	}
+
+	size_t remaining = inf->size - inf->offset;
+
+	va_start(args, format);
+	i = vsnprintf(inf->str + inf->offset, remaining, format, args);
+	va_end(args);
+
+	if (i >= remaining)
+		inf->error |= PRINT_TRUNCATED_ERROR;
+	else if (i < 0)
+		inf->error |= PRINT_CONVERSION_ERROR;
+	else
+		inf->offset += i;
+}
+
+/**
+ * putchar_str() - Print single character into char array with length checks
+ *
+ * This function provices a putchar like function, which stores the output
+ * into a char array with checking boundaries.
+ *
+ * @inf: Info structure for print operation
+ * @char: Single character to be printed
+ */
+static void putchar_str(struct print_inf *inf, char c)
+{
+	printf_str(inf, "%c", c);
+}
+
+static char process_escape_sequence(const char **ptr)
 {
 	const char *q;
-	unsigned num_digits;
-	unsigned n;
-	unsigned base;
+	unsigned int num_digits;
+	unsigned int n;
+	unsigned int base;
 
-	num_digits = n = 0;
+	num_digits = 0;
+	n = 0;
 	base = 8;
 	q = *ptr;
 
@@ -104,13 +186,14 @@ char FAST_FUNC bb_process_escape_sequence(const char **ptr)
 
 	/* bash requires leading 0 in octal escapes:
 	 * \02 works, \2 does not (prints \ and 2).
-	 * We treat \2 as a valid octal escape sequence. */
+	 * We treat \2 as a valid octal escape sequence.
+	 */
 	do {
-		unsigned r;
-		unsigned d = (unsigned char)(*q) - '0';
+		unsigned int r;
+		unsigned int d = (unsigned char)(*q) - '0';
 #if WANT_HEX_ESCAPES
 		if (d >= 10) {
-			d = (unsigned char)_tolower(*q) - 'a';
+			d = (unsigned char)tolower(*q) - 'a';
 			//d += 10;
 			/* The above would map 'A'-'F' and 'a'-'f' to 10-15,
 			 * however, some chars like '@' would map to 9 < base.
@@ -125,7 +208,8 @@ char FAST_FUNC bb_process_escape_sequence(const char **ptr)
 				--num_digits;
 				if (num_digits == 0) {
 					/* \x<bad_char>: return '\',
-					 * leave ptr pointing to x */
+					 * leave ptr pointing to x
+					 */
 					return '\\';
 				}
 			}
@@ -133,9 +217,8 @@ char FAST_FUNC bb_process_escape_sequence(const char **ptr)
 		}
 
 		r = n * base + d;
-		if (r > UCHAR_MAX) {
+		if (r > 255)
 			break;
-		}
 
 		n = r;
 		++q;
@@ -143,17 +226,20 @@ char FAST_FUNC bb_process_escape_sequence(const char **ptr)
 
 	if (num_digits == 0) {
 		/* Not octal or hex escape sequence.
-		 * Is it one-letter one? */
-
+		 * Is it one-letter one?
+		 */
 		/* bash builtin "echo -e '\ec'" interprets \e as ESC,
 		 * but coreutils "/bin/echo -e '\ec'" does not.
 		 * Manpages tend to support coreutils way.
-		 * Update: coreutils added support for \e on 28 Oct 2009. */
-		static const char charmap[] ALIGN1 = {
+		 * Update: coreutils added support for \e on 28 Oct 2009.
+		 */
+		static const char charmap[] = {
 			'a',  'b', 'e', 'f',  'n',  'r',  't',  'v',  '\\', '\0',
 			'\a', '\b', 27, '\f', '\n', '\r', '\t', '\v', '\\', '\\',
 		};
+
 		const char *p = charmap;
+
 		do {
 			if (*p == *q) {
 				q++;
@@ -163,16 +249,17 @@ char FAST_FUNC bb_process_escape_sequence(const char **ptr)
 		/* p points to found escape char or NUL,
 		 * advance it and find what it translates to.
 		 * Note that \NUL and unrecognized sequence \z return '\'
-		 * and leave ptr pointing to NUL or z. */
+		 * and leave ptr pointing to NUL or z.
+		 */
 		n = p[sizeof(charmap) / 2];
 	}
 
 	*ptr = q;
 
-	return (char) n;
+	return (char)n;
 }
 
-char* FAST_FUNC skip_whitespace(const char *s)
+static char *skip_whitespace(const char *s)
 {
 	/* In POSIX/C locale (the only locale we care about: do we REALLY want
 	 * to allow Unicode whitespace in, say, .conf files? nuts!)
@@ -183,11 +270,11 @@ char* FAST_FUNC skip_whitespace(const char *s)
 	while (*s == ' ' || (unsigned char)(*s - 9) <= (13 - 9))
 		s++;
 
-	return (char *) s;
+	return (char *)s;
 }
 
 /* Like strcpy but can copy overlapping strings. */
-void FAST_FUNC overlapping_strcpy(char *dst, const char *src)
+static void overlapping_strcpy(char *dst, const char *src)
 {
 	/* Cheap optimization for dst == src case -
 	 * better to have it here than in many callers.
@@ -202,80 +289,72 @@ void FAST_FUNC overlapping_strcpy(char *dst, const char *src)
 
 static int multiconvert(const char *arg, void *result, converter convert)
 {
-	if (*arg == '"' || *arg == '\'') {
-		arg = utoa((unsigned char)arg[1]);
-	}
-	errno = 0;
+	if (*arg == '"' || *arg == '\'')
+		sprintf((char *)arg + strlen(arg), "%u", (unsigned char)arg[1]);
+	//errno = 0;
 	convert(arg, result);
-	if (errno) {
-		bb_error_msg("invalid number '%s'", arg);
-		return 1;
-	}
+	/* Unlike their Posix counterparts, simple_strtoll and
+	 * simple_strtoull do not set errno
+	 *
+	 * if (errno) {
+	 *	printf("error invalid number '%s'", arg);
+	 *	return 1;
+	 * }
+	 */
 	return 0;
 }
 
-static void FAST_FUNC conv_strtoull(const char *arg, void *result)
+static void conv_strtoull(const char *arg, void *result)
 {
-	/* Allow leading '+' - bb_strtoull() by itself does not allow it,
-	 * and probably shouldn't (other callers might require purely numeric
-	 * inputs to be allowed.
-	 */
-	if (arg[0] == '+')
-		arg++;
-	*(unsigned long long*)result = bb_strtoull(arg, NULL, 0);
 	/* both coreutils 6.10 and bash 3.2:
 	 * $ printf '%x\n' -2
 	 * fffffffffffffffe
 	 * Mimic that:
 	 */
-	if (errno) {
-		*(unsigned long long*)result = bb_strtoll(arg, NULL, 0);
+	if (arg[0] == '-') {
+		*(unsigned long long *)result = simple_strtoll(arg, NULL, 16);
+		return;
 	}
+	/* Allow leading '+' - simple_strtoull() by itself does not allow it,
+	 * and probably shouldn't (other callers might require purely numeric
+	 * inputs to be allowed.
+	 */
+	if (arg[0] == '+')
+		arg++;
+	*(unsigned long long *)result = simple_strtoull(arg, NULL, 16);
 }
-static void FAST_FUNC conv_strtoll(const char *arg, void *result)
+
+static void conv_strtoll(const char *arg, void *result)
 {
 	if (arg[0] == '+')
 		arg++;
-	*(long long*)result = bb_strtoll(arg, NULL, 0);
-}
-static void FAST_FUNC conv_strtod(const char *arg, void *result)
-{
-	char *end;
-	/* Well, this one allows leading whitespace... so what? */
-	/* What I like much less is that "-" accepted too! :( */
-	*(double*)result = strtod(arg, &end);
-	if (end[0]) {
-		errno = ERANGE;
-		*(double*)result = 0;
-	}
+	*(long long *)result = simple_strtoll(arg, NULL, 16);
 }
 
 /* Callers should check errno to detect errors */
 static unsigned long long my_xstrtoull(const char *arg)
 {
 	unsigned long long result;
+
 	if (multiconvert(arg, &result, conv_strtoull))
 		result = 0;
 	return result;
 }
+
 static long long my_xstrtoll(const char *arg)
 {
 	long long result;
+
 	if (multiconvert(arg, &result, conv_strtoll))
 		result = 0;
 	return result;
 }
-static double my_xstrtod(const char *arg)
-{
-	double result;
-	multiconvert(arg, &result, conv_strtod);
-	return result;
-}
 
 /* Handles %b; return 1 if output is to be short-circuited by \c */
-static int print_esc_string(const char *str)
+static int print_esc_string(struct print_inf *inf, const char *str)
 {
 	char c;
+
 	while ((c = *str) != '\0') {
 		str++;
 		if (c == '\\') {
@@ -285,30 +364,30 @@ static int print_esc_string(const char *str)
 					/* 2nd char is 0..7: skip leading '0' */
 					str++;
 				}
-			}
-			else if (*str == 'c') {
+			} else if (*str == 'c') {
 				return 1;
 			}
 			{
 				/* optimization: don't force arg to be on-stack,
-				 * use another variable for that. */
+				 * use another variable for that.
+				 */
 				const char *z = str;
-				c = bb_process_escape_sequence(&z);
+
+				c = process_escape_sequence(&z);
 				str = z;
 			}
 		}
-		putchar(c);
+		putchar_str(inf, c);
 	}
 
 	return 0;
 }
 
-static void print_direc(char *format, unsigned fmt_length,
-		int field_width, int precision,
-		const char *argument)
+static void print_direc(struct print_inf *inf, char *format, unsigned int fmt_length,
+			int field_width, int precision,
+			const char *argument)
 {
 	long long llv;
-	double dv;
 	char saved;
 	char *have_prec, *have_width;
 
@@ -325,7 +404,7 @@ static void print_direc(char *format, unsigned fmt_length,
 
 	switch (format[fmt_length - 1]) {
 	case 'c':
-		printf(format, *argument);
+		printf_str(inf, format, *argument);
 		break;
 	case 'd':
 	case 'i':
@@ -333,14 +412,14 @@ static void print_direc(char *format, unsigned fmt_length,
  print_long:
 		if (!have_width) {
 			if (!have_prec)
-				printf(format, llv);
+				printf_str(inf, format, llv);
 			else
-				printf(format, precision, llv);
+				printf_str(inf, format, precision, llv);
 		} else {
 			if (!have_prec)
-				printf(format, field_width, llv);
+				printf_str(inf, format, field_width, llv);
 			else
-				printf(format, field_width, precision, llv);
+				printf_str(inf, format, field_width, precision, llv);
 		}
 		break;
 	case 'o':
@@ -357,36 +436,24 @@ static void print_direc(char *format, unsigned fmt_length,
 			goto print_long;
 		} else {
 			/* Hope compiler will optimize it out by moving call
-			 * instruction after the ifs... */
+			 * instruction after the ifs...
+			 */
 			if (!have_width) {
 				if (!have_prec)
-					printf(format, argument, /*unused:*/ argument, argument);
+					printf_str(inf, format, argument,
+						   /*unused:*/ argument, argument);
 				else
-					printf(format, precision, argument, /*unused:*/ argument);
+					printf_str(inf, format, precision,
+						   argument, /*unused:*/ argument);
 			} else {
 				if (!have_prec)
-					printf(format, field_width, argument, /*unused:*/ argument);
+					printf_str(inf, format, field_width,
+						   argument, /*unused:*/ argument);
 				else
-					printf(format, field_width, precision, argument);
+					printf_str(inf, format, field_width,
+						   precision, argument);
 			}
 			break;
-		}
-	case 'f':
-	case 'e':
-	case 'E':
-	case 'g':
-	case 'G':
-		dv = my_xstrtod(argument);
-		if (!have_width) {
-			if (!have_prec)
-				printf(format, dv);
-			else
-				printf(format, precision, dv);
-		} else {
-			if (!have_prec)
-				printf(format, field_width, dv);
-			else
-				printf(format, field_width, precision, dv);
 		}
 		break;
 	} /* switch */
@@ -397,22 +464,27 @@ static void print_direc(char *format, unsigned fmt_length,
 /* Handle params for "%*.*f". Negative numbers are ok (compat). */
 static int get_width_prec(const char *str)
 {
-	int v = bb_strtoi(str, NULL, 10);
-	if (errno) {
-		bb_error_msg("invalid number '%s'", str);
-		v = 0;
-	}
-	return v;
+	long v = simple_strtol(str, NULL, 10);
+
+	/* Unlike its Posix counterpart, simple_strtol does not set errno
+	 *
+	 * if (errno) {
+	 *	printf("error invalid number '%s'", str);
+	 *	v = 0;
+	 * }
+	 */
+	return (int)v;
 }
 
 /* Print the text in FORMAT, using ARGV for arguments to any '%' directives.
-   Return advanced ARGV.  */
-static char **print_formatted(char *f, char **argv, int *conv_err)
+ * Return advanced ARGV.
+ */
+static char **print_formatted(struct print_inf *inf, char *f, char **argv, int *conv_err)
 {
-	char *direc_start;      /* Start of % directive.  */
-	unsigned direc_length;  /* Length of % directive.  */
-	int field_width;        /* Arg to first '*' */
-	int precision;          /* Arg to second '*' */
+	char *direc_start;          /* Start of % directive.  */
+	unsigned int direc_length;  /* Length of % directive.  */
+	int field_width;            /* Arg to first '*' */
+	int precision;              /* Arg to second '*' */
 	char **saved_argv = argv;
 
 	for (; *f; ++f) {
@@ -420,14 +492,15 @@ static char **print_formatted(char *f, char **argv, int *conv_err)
 		case '%':
 			direc_start = f++;
 			direc_length = 1;
-			field_width = precision = 0;
+			field_width = 0;
+			precision = 0;
 			if (*f == '%') {
-				bb_putchar('%');
+				putchar_str(inf, '%');
 				break;
 			}
 			if (*f == 'b') {
 				if (*argv) {
-					if (print_esc_string(*argv))
+					if (print_esc_string(inf, *argv))
 						return saved_argv; /* causes main() to exit */
 					++argv;
 				}
@@ -467,24 +540,28 @@ static char **print_formatted(char *f, char **argv, int *conv_err)
 			/* Remove "lLhz" size modifiers, repeatedly.
 			 * bash does not like "%lld", but coreutils
 			 * happily takes even "%Llllhhzhhzd"!
-			 * We are permissive like coreutils */
-			while ((*f | 0x20) == 'l' || *f == 'h' || *f == 'z') {
+			 * We are permissive like coreutils
+			 */
+			while ((*f | 0x20) == 'l' || *f == 'h' || *f == 'z')
 				overlapping_strcpy(f, f + 1);
-			}
 			/* Add "ll" if integer modifier, then print */
 			{
-				static const char format_chars[] ALIGN1 = "diouxXfeEgGcs";
+				static const char format_chars[] = "diouxXcs";
 				char *p = strchr(format_chars, *f);
 				/* needed - try "printf %" without it */
-				if (p == NULL || *f == '\0') {
-					bb_error_msg("%s: invalid format", direc_start);
+				if (!p || *f == '\0') {
+					printf("`%s': invalid format\n", direc_start);
 					/* causes main() to exit with error */
 					return saved_argv - 1;
 				}
 				++direc_length;
 				if (p - format_chars <= 5) {
 					/* it is one of "diouxX" */
-					p = xmalloc(direc_length + 3);
+					p = malloc(direc_length + 3);
+					if (!p) {
+						/* exit with error */
+						return saved_argv - 1;
+					}
 					memcpy(p, direc_start, direc_length);
 					p[direc_length + 1] = p[direc_length - 1];
 					p[direc_length - 1] = 'l';
@@ -496,81 +573,75 @@ static char **print_formatted(char *f, char **argv, int *conv_err)
 					p = NULL;
 				}
 				if (*argv) {
-					print_direc(direc_start, direc_length, field_width,
-								precision, *argv++);
+					print_direc(inf, direc_start, direc_length,
+						    field_width, precision, *argv++);
 				} else {
-					print_direc(direc_start, direc_length, field_width,
-								precision, "");
+					print_direc(inf, direc_start, direc_length,
+						    field_width, precision, "");
 				}
 				*conv_err |= errno;
 				free(p);
 			}
 			break;
 		case '\\':
-			if (*++f == 'c') {
+			if (*++f == 'c')
 				return saved_argv; /* causes main() to exit */
-			}
-			bb_putchar(bb_process_escape_sequence((const char **)&f));
+			putchar_str(inf, process_escape_sequence((const char **)&f));
 			f--;
 			break;
 		default:
-			putchar(*f);
+			putchar_str(inf, *f);
 		}
 	}
 
 	return argv;
 }
 
-int printf_main(int argc UNUSED_PARAM, char **argv)
+/**
+ * printf_setexpr() - Implements the setexpr <name> fmt <format> command
+ *
+ * This function implements the format string evaluation for the
+ * setexpr <name> fmt <format> <value> command.
+ *
+ * @str: Output string of the evaluated expression
+ * @size: Length of @str buffer
+ * @argc: Number of arguments
+ * @argv: Argument list
+ * @return: 0 if OK, 1 on error
+ */
+int printf_setexpr(char *str, size_t size, int argc, char *const *argv)
 {
 	int conv_err;
 	char *format;
 	char **argv2;
+	struct print_inf inf = {
+		.str = str,
+		.size = size,
+		.offset = 0,
+		.error = 0,
+	};
 
-	/* We must check that stdout is not closed.
-	 * The reason for this is highly non-obvious.
-	 * printf_main is used from shell.
-	 * Shell must correctly handle 'printf "%s" foo'
-	 * if stdout is closed. With stdio, output gets shoveled into
-	 * stdout buffer, and even fflush cannot clear it out. It seems that
-	 * even if libc receives EBADF on write attempts, it feels determined
-	 * to output data no matter what. So it will try later,
-	 * and possibly will clobber future output. Not good. */
-// TODO: check fcntl() & O_ACCMODE == O_WRONLY or O_RDWR?
-	if (fcntl(1, F_GETFL) == -1)
-		return 1; /* match coreutils 6.10 (sans error msg to stderr) */
-	//if (dup2(1, 1) != 1) - old way
-	//	return 1;
+	if (!str || !size)
+		return 1;
 
-	/* bash builtin errors out on "printf '-%s-\n' foo",
-	 * coreutils-6.9 works. Both work with "printf -- '-%s-\n' foo".
-	 * We will mimic coreutils. */
-	if (argv[1] && argv[1][0] == '-' && argv[1][1] == '-' && !argv[1][2])
-		argv++;
-	if (!argv[1]) {
-		if (ENABLE_ASH_PRINTF
-		 && applet_name[0] != 'p'
-		) {
-			bb_simple_error_msg("usage: printf FORMAT [ARGUMENT...]");
-			return 2; /* bash compat */
-		}
-		bb_show_usage();
-	}
+	inf.str[0] = '\0';
 
-	format = argv[1];
-	argv2 = argv + 2;
+	format = argv[0];
+	argv2 = (char **)argv + 1;
 
 	conv_err = 0;
-	do {
-		argv = argv2;
-		argv2 = print_formatted(format, argv, &conv_err);
-	} while (argv2 > argv && *argv2);
+	argv = argv2;
+	/* In case any print_str call raises an error inf.error will be
+	 * set after print_formatted returns.
+	 */
+	argv2 = print_formatted(&inf, format, (char **)argv, &conv_err);
 
 	/* coreutils compat (bash doesn't do this):
-	if (*argv)
-		fprintf(stderr, "excess args ignored");
-	*/
+	 *if (*argv)
+	 *	fprintf(stderr, "excess args ignored");
+	 */
 
-	return (argv2 < argv) /* if true, print_formatted errored out */
-		|| conv_err; /* print_formatted saw invalid number */
+	return (argv2 < argv) || /* if true, print_formatted errored out */
+		conv_err || /* print_formatted saw invalid number */
+		inf.error;  /* print_str reported error */
 }
