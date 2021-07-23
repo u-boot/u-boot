@@ -344,7 +344,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	default 0x75 if ARCH_DAVINCI
 	default 0x8a if ARCH_MX6 || ARCH_MX7
 	default 0x100 if ARCH_UNIPHIER
-	default 0x140 if ARCH_MVEBU
+	default 0x0 if ARCH_MVEBU
 	default 0x200 if ARCH_SOCFPGA || ARCH_AT91
 	default 0x300 if ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || OMAP44XX || \
 		         OMAP54XX || AM33XX || AM43XX || ARCH_K3
@@ -1099,6 +1099,7 @@ config SPL_SATA_SUPPORT
 config SPL_SATA_RAW_U_BOOT_USE_SECTOR
 	bool "SATA raw mode: by sector"
 	depends on SPL_SATA_SUPPORT
+	default y if ARCH_MVEBU
 	help
 	  Use sector number for specifying U-Boot location on SATA disk in
 	  raw mode.
@@ -1106,6 +1107,7 @@ config SPL_SATA_RAW_U_BOOT_USE_SECTOR
 config SPL_SATA_RAW_U_BOOT_SECTOR
 	hex "Sector on the SATA disk to load U-Boot from"
 	depends on SPL_SATA_RAW_U_BOOT_USE_SECTOR
+	default 0x1 if ARCH_MVEBU
 	help
 	  Sector on the SATA disk to load U-Boot from, when the SATA disk is being
 	  used in raw mode. Units: SATA disk sectors (1 sector = 512 bytes).

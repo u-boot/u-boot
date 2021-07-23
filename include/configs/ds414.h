@@ -70,7 +70,7 @@
 
 #if defined(CONFIG_MVEBU_SPL_BOOT_DEVICE_SPI)
 /* SPL related SPI defines */
-#define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
+#define CONFIG_SYS_U_BOOT_OFFS		0x24000
 #endif
 
 /* DS414 bus width is 32bits */
