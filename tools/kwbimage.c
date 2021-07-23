@@ -942,6 +942,7 @@ static size_t image_headersz_v1(int *hasext)
 {
 	struct image_cfg_element *binarye;
 	size_t headersz;
+	int cfgi;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -949,20 +950,18 @@ static size_t image_headersz_v1(int *hasext)
 	 */
 	headersz = sizeof(struct main_hdr_v1);
 
-	if (image_count_options(IMAGE_CFG_BINARY) > 1) {
-		fprintf(stderr, "More than one binary blob, not supported\n");
-		return 0;
-	}
-
 	if (image_count_options(IMAGE_CFG_PAYLOAD) > 1) {
 		fprintf(stderr, "More than one payload, not possible\n");
 		return 0;
 	}
 
-	binarye = image_find_option(IMAGE_CFG_BINARY);
-	if (binarye) {
+	for (cfgi = 0; cfgi < cfgn; cfgi++) {
 		int ret;
 		struct stat s;
+
+		binarye = &image_cfg[cfgi];
+		if (binarye->type != IMAGE_CFG_BINARY)
+			continue;
 
 		ret = stat(binarye->binary.file, &s);
 		if (ret < 0) {
@@ -1018,21 +1017,16 @@ static size_t image_headersz_v1(int *hasext)
 	return ALIGN(headersz, 4096);
 }
 
-int add_binary_header_v1(uint8_t *cur)
+int add_binary_header_v1(uint8_t **cur, uint8_t **next_ext,
+			 struct image_cfg_element *binarye)
 {
-	struct image_cfg_element *binarye;
-	struct opt_hdr_v1 *hdr = (struct opt_hdr_v1 *)cur;
+	struct opt_hdr_v1 *hdr = (struct opt_hdr_v1 *)*cur;
 	uint32_t *args;
 	size_t binhdrsz;
 	struct stat s;
 	int argi;
 	FILE *bin;
 	int ret;
-
-	binarye = image_find_option(IMAGE_CFG_BINARY);
-
-	if (!binarye)
-		return 0;
 
 	hdr->headertype = OPT_HDR_V1_BINARY_TYPE;
 
@@ -1055,17 +1049,17 @@ int add_binary_header_v1(uint8_t *cur)
 	hdr->headersz_lsb = cpu_to_le16(binhdrsz & 0xFFFF);
 	hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
 
-	cur += sizeof(struct opt_hdr_v1);
+	*cur += sizeof(struct opt_hdr_v1);
 
-	args = (uint32_t *)cur;
+	args = (uint32_t *)*cur;
 	*args = cpu_to_le32(binarye->binary.nargs);
 	args++;
 	for (argi = 0; argi < binarye->binary.nargs; argi++)
 		args[argi] = cpu_to_le32(binarye->binary.args[argi]);
 
-	cur += (binarye->binary.nargs + 1) * sizeof(uint32_t);
+	*cur += (binarye->binary.nargs + 1) * sizeof(uint32_t);
 
-	ret = fread(cur, s.st_size, 1, bin);
+	ret = fread(*cur, s.st_size, 1, bin);
 	if (ret != 1) {
 		fprintf(stderr,
 			"Could not read binary image %s\n",
@@ -1075,17 +1069,13 @@ int add_binary_header_v1(uint8_t *cur)
 
 	fclose(bin);
 
-	cur += ALIGN(s.st_size, 4);
+	*cur += ALIGN(s.st_size, 4);
 
-	/*
-	 * For now, we don't support more than one binary
-	 * header, and no other header types are
-	 * supported. So, the binary header is necessarily the
-	 * last one
-	 */
-	*((uint32_t *)cur) = 0x00000000;
+	*((uint32_t *)*cur) = 0x00000000;
+	**next_ext = 1;
+	*next_ext = *cur;
 
-	cur += sizeof(uint32_t);
+	*cur += sizeof(uint32_t);
 
 	return 0;
 
@@ -1218,6 +1208,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	uint8_t *image, *cur;
 	int hasext = 0;
 	uint8_t *next_ext = NULL;
+	int cfgi;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -1296,13 +1287,19 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		 */
 		secure_hdr = (struct secure_hdr_v1 *)cur;
 		cur += sizeof(struct secure_hdr_v1);
+		*next_ext = 1;
 		next_ext = &secure_hdr->next;
 	}
 #endif
-	*next_ext = 1;
 
-	if (add_binary_header_v1(cur))
-		return NULL;
+	for (cfgi = 0; cfgi < cfgn; cfgi++) {
+		e = &image_cfg[cfgi];
+		if (e->type != IMAGE_CFG_BINARY)
+			continue;
+
+		if (add_binary_header_v1(&cur, &next_ext, e))
+			return NULL;
+	}
 
 #if defined(CONFIG_KWB_SECURE)
 	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz,
