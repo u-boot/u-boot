@@ -200,7 +200,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 	spl_image->name = "U-Boot";
 }
 
-#ifdef CONFIG_SPL_LOAD_FIT_FULL
+#if CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 /* Parse and load full fitImage in SPL */
 static int spl_load_fit_image(struct spl_image_info *spl_image,
 			      const struct image_header *header)
@@ -307,7 +307,7 @@ __weak int spl_parse_legacy_header(struct spl_image_info *spl_image,
 int spl_parse_image_header(struct spl_image_info *spl_image,
 			   const struct image_header *header)
 {
-#ifdef CONFIG_SPL_LOAD_FIT_FULL
+#if CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 	int ret = spl_load_fit_image(spl_image, header);
 
 	if (!ret)

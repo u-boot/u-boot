@@ -377,4 +377,10 @@ void tee_optee_ta_uuid_from_octets(struct tee_optee_ta_uuid *d,
 void tee_optee_ta_uuid_to_octets(u8 d[TEE_UUID_LEN],
 				 const struct tee_optee_ta_uuid *s);
 
+/**
+ * tee_flush_all_shm_dcache() - Flush data cache for all shared memories
+ * @dev:	The TEE device
+ */
+void tee_flush_all_shm_dcache(struct udevice *dev);
+
 #endif /* __TEE_H */

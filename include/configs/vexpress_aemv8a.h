@@ -126,6 +126,39 @@
 
 /* Initial environment variables */
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
+/* Copy the kernel and FDT to DRAM memory and boot */
+#define BOOTENV_DEV_AFS(devtypeu, devtypel, instance) \
+	"bootcmd_afs="							\
+		"afs load ${kernel_name} ${kernel_addr_r} ;"\
+		"if test $? -eq 1; then "\
+		"  echo Loading ${kernel_alt_name} instead of ${kernel_name}; "\
+		"  afs load ${kernel_alt_name} ${kernel_addr_r};"\
+		"fi ; "\
+		"afs load ${fdtfile} ${fdt_addr_r} ;"\
+		"if test $? -eq 1; then "\
+		"  echo Loading ${fdt_alt_name} instead of ${fdtfile}; "\
+		"  afs load ${fdt_alt_name} ${fdt_addr_r}; "\
+		"fi ; "\
+		"fdt addr ${fdt_addr_r}; fdt resize; " \
+		"if afs load  ${ramdisk_name} ${ramdisk_addr_r} ; "\
+		"then "\
+		"  setenv ramdisk_param ${ramdisk_addr_r}; "\
+		"else "\
+		"  setenv ramdisk_param -; "\
+		"fi ; " \
+		"booti ${kernel_addr_r} ${ramdisk_param} ${fdt_addr_r}\0"
+#define BOOTENV_DEV_NAME_AFS(devtypeu, devtypel, instance) "afs "
+
+#define BOOT_TARGET_DEVICES(func)	\
+	func(USB, usb, 0)		\
+	func(SATA, sata, 0)		\
+	func(SATA, sata, 1)		\
+	func(PXE, pxe, na)		\
+	func(DHCP, dhcp, na)		\
+	func(AFS, afs, na)
+
+#include <config_distro_bootcmd.h>
+
 /*
  * Defines where the kernel and FDT exist in NOR flash and where it will
  * be copied into DRAM
@@ -139,30 +172,7 @@
 				"fdtfile=board.dtb\0" \
 				"fdt_alt_name=juno\0" \
 				"fdt_addr_r=0x80000000\0" \
-
-#ifndef CONFIG_BOOTCOMMAND
-/* Copy the kernel and FDT to DRAM memory and boot */
-#define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr_r} ;"\
-				"if test $? -eq 1; then "\
-				"  echo Loading ${kernel_alt_name} instead of "\
-				"${kernel_name}; "\
-				"  afs load ${kernel_alt_name} ${kernel_addr_r};"\
-				"fi ; "\
-				"afs load ${fdtfile} ${fdt_addr_r} ;"\
-				"if test $? -eq 1; then "\
-				"  echo Loading ${fdt_alt_name} instead of "\
-				"${fdtfile}; "\
-				"  afs load ${fdt_alt_name} ${fdt_addr_r}; "\
-				"fi ; "\
-				"fdt addr ${fdt_addr_r}; fdt resize; " \
-				"if afs load  ${ramdisk_name} ${ramdisk_addr_r} ; "\
-				"then "\
-				"  setenv ramdisk_param ${ramdisk_addr_r}; "\
-				"  else setenv ramdisk_param -; "\
-				"fi ; " \
-				"booti ${kernel_addr_r} ${ramdisk_param} ${fdt_addr_r}"
-#endif
-
+				BOOTENV
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define CONFIG_EXTRA_ENV_SETTINGS	\
