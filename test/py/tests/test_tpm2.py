@@ -18,6 +18,15 @@ any password.
 * Commands like pcr_setauthpolicy and pcr_resetauthpolicy are not implemented
 here because they would fail the tests in most cases (TPMs do not implement them
 and return an error).
+
+
+Note:
+This test doesn't rely on boardenv_* configuration value but can change test
+behavior.
+
+* Setup env__tpm_device_test_skip to True if tests with TPM devices should be
+skipped.
+
 """
 
 updates = 0
@@ -29,6 +38,9 @@ def force_init(u_boot_console, force=False):
     twice will spawn an error used to detect that the TPM was not reset and no
     initialization code should be run.
     """
+    skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
+    if skip_test:
+        pytest.skip('skip TPM device test')
     output = u_boot_console.run_command('tpm2 init')
     if force or not 'Error' in output:
         u_boot_console.run_command('echo --- start of init ---')
@@ -44,6 +56,10 @@ def force_init(u_boot_console, force=False):
 def test_tpm2_init(u_boot_console):
     """Init the software stack to use TPMv2 commands."""
 
+    skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
+    if skip_test:
+        pytest.skip('skip TPM device test')
+
     u_boot_console.run_command('tpm2 init')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
@@ -55,6 +71,9 @@ def test_tpm2_startup(u_boot_console):
     Initiate the TPM internal state machine.
     """
 
+    skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
+    if skip_test:
+        pytest.skip('skip TPM device test')
     u_boot_console.run_command('tpm2 startup TPM2_SU_CLEAR')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
@@ -66,6 +85,9 @@ def test_tpm2_self_test_full(u_boot_console):
     Ask the TPM to perform all self tests to also enable full capabilities.
     """
 
+    skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
+    if skip_test:
+        pytest.skip('skip TPM device test')
     u_boot_console.run_command('tpm2 self_test full')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
@@ -78,6 +100,9 @@ def test_tpm2_continue_self_test(u_boot_console):
     to enter a fully operational state.
     """
 
+    skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
+    if skip_test:
+        pytest.skip('skip TPM device test')
     u_boot_console.run_command('tpm2 self_test continue')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
@@ -95,6 +120,9 @@ def test_tpm2_clear(u_boot_console):
     PLATFORM hierarchies are also available.
     """
 
+    skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
+    if skip_test:
+        pytest.skip('skip TPM device test')
     u_boot_console.run_command('tpm2 clear TPM2_RH_LOCKOUT')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
