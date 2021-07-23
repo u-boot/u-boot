@@ -147,7 +147,7 @@ int show_board_info(void)
 	return 0;
 }
 
-#ifdef CONFIG_USB_GADGET_DOWNLOAD
+#ifdef CONFIG_TDX_CFG_BLOCK_USB_GADGET_PID
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
 	unsigned short usb_pid;
