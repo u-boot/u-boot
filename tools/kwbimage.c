@@ -1281,6 +1281,28 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 			main_hdr->destaddr = cpu_to_le32(params->addr);
 	}
 
+	/*
+	 * For SATA srcaddr is specified in number of sectors starting from
+	 * sector 0. The main header is stored at sector number 1.
+	 * This expects the sector size to be 512 bytes.
+	 * Header size is already aligned.
+	 */
+	if (main_hdr->blockid == IBR_HDR_SATA_ID)
+		main_hdr->srcaddr = cpu_to_le32(headersz / 512 + 1);
+
+	/*
+	 * For SDIO srcaddr is specified in number of sectors starting from
+	 * sector 0. The main header is stored at sector number 0.
+	 * This expects sector size to be 512 bytes.
+	 * Header size is already aligned.
+	 */
+	if (main_hdr->blockid == IBR_HDR_SDIO_ID)
+		main_hdr->srcaddr = cpu_to_le32(headersz / 512);
+
+	/* For PCIe srcaddr is not used and must be set to 0xFFFFFFFF. */
+	if (main_hdr->blockid == IBR_HDR_PEX_ID)
+		main_hdr->srcaddr = cpu_to_le32(0xFFFFFFFF);
+
 #if defined(CONFIG_KWB_SECURE)
 	if (image_get_csk_index() >= 0) {
 		/*
@@ -1731,9 +1753,12 @@ static int kwbimage_generate(struct image_tool_params *params,
 	 * the Marvell hdrparser tool complains if its unaligned.
 	 * After the image data is stored 4-byte checksum.
 	 * Final SPI and NAND images must be aligned to 256 bytes.
+	 * Final SATA and SDIO images must be aligned to 512 bytes.
 	 */
 	if (bootfrom == IBR_HDR_SPI_ID || bootfrom == IBR_HDR_NAND_ID)
 		return 4 + (256 - (alloc_len + s.st_size + 4) % 256) % 256;
+	else if (bootfrom == IBR_HDR_SATA_ID || bootfrom == IBR_HDR_SDIO_ID)
+		return 4 + (512 - (alloc_len + s.st_size + 4) % 512) % 512;
 	else
 		return 4 + (4 - s.st_size % 4) % 4;
 }
