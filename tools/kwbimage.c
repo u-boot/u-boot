@@ -1277,7 +1277,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	if (e) {
 		char *s = strrchr(e->binary.file, '/');
 
-		if (strcmp(s, "/binary.0") == 0)
+		if (s && strcmp(s, "/binary.0") == 0)
 			main_hdr->destaddr = cpu_to_le32(params->addr);
 	}
 
