@@ -891,7 +891,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 
 	/* Fill in the main header */
 	main_hdr->blocksize =
-		cpu_to_le32(payloadsz + sizeof(uint32_t) - headersz);
+		cpu_to_le32(payloadsz - headersz);
 	main_hdr->srcaddr   = cpu_to_le32(headersz);
 	main_hdr->ext       = has_ext;
 	main_hdr->destaddr  = cpu_to_le32(params->addr);
@@ -1249,7 +1249,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 
 	/* Fill the main header */
 	main_hdr->blocksize    =
-		cpu_to_le32(payloadsz - headersz + sizeof(uint32_t));
+		cpu_to_le32(payloadsz - headersz);
 	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
 	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
 	main_hdr->destaddr     = cpu_to_le32(params->addr)
@@ -1519,7 +1519,6 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	size_t headersz = 0;
 	uint32_t checksum;
 	int ret;
-	int size;
 
 	fcfg = fopen(params->imagename, "r");
 	if (!fcfg) {
@@ -1546,9 +1545,6 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 		free(image_cfg);
 		exit(EXIT_FAILURE);
 	}
-
-	/* The MVEBU BootROM does not allow non word aligned payloads */
-	sbuf->st_size = ALIGN(sbuf->st_size, 4);
 
 	version = image_get_version();
 	switch (version) {
@@ -1580,16 +1576,10 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	free(image_cfg);
 
 	/* Build and add image checksum header */
-	checksum =
-		cpu_to_le32(image_checksum32((uint32_t *)ptr, sbuf->st_size));
-	size = write(ifd, &checksum, sizeof(uint32_t));
-	if (size != sizeof(uint32_t)) {
-		fprintf(stderr, "Error:%s - Checksum write %d bytes %s\n",
-			params->cmdname, size, params->imagefile);
-		exit(EXIT_FAILURE);
-	}
-
-	sbuf->st_size += sizeof(uint32_t);
+	checksum = cpu_to_le32(image_checksum32((uint8_t *)ptr + headersz,
+				sbuf->st_size - headersz - sizeof(uint32_t)));
+	memcpy((uint8_t *)ptr + sbuf->st_size - sizeof(uint32_t), &checksum,
+		sizeof(uint32_t));
 
 	/* Finally copy the header into the image area */
 	memcpy(ptr, image, headersz);
@@ -1650,6 +1640,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 			     struct image_type_params *tparams)
 {
 	FILE *fcfg;
+	struct stat s;
 	int alloc_len;
 	int version;
 	void *hdr;
@@ -1659,6 +1650,12 @@ static int kwbimage_generate(struct image_tool_params *params,
 	if (!fcfg) {
 		fprintf(stderr, "Could not open input file %s\n",
 			params->imagename);
+		exit(EXIT_FAILURE);
+	}
+
+	if (stat(params->datafile, &s)) {
+		fprintf(stderr, "Could not stat data file %s: %s\n",
+			params->datafile, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -1719,12 +1716,9 @@ static int kwbimage_generate(struct image_tool_params *params,
 	/*
 	 * The resulting image needs to be 4-byte aligned. At least
 	 * the Marvell hdrparser tool complains if its unaligned.
-	 * By returning 1 here in this function, called via
-	 * tparams->vrec_header() in mkimage.c, mkimage will
-	 * automatically pad the the resulting image to a 4-byte
-	 * size if necessary.
+	 * After the image data is stored 4-byte checksum.
 	 */
-	return 1;
+	return 4 + (4 - s.st_size % 4) % 4;
 }
 
 /*
