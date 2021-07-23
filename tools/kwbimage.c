@@ -1867,7 +1867,7 @@ static int kwbimage_generate(struct image_tool_params *params,
  */
 static int kwbimage_check_params(struct image_tool_params *params)
 {
-	if (!strlen(params->imagename)) {
+	if (!params->imagename || !strlen(params->imagename)) {
 		char *msg = "Configuration file for kwbimage creation omitted";
 
 		fprintf(stderr, "Error:%s - %s\n", params->cmdname, msg);
