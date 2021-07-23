@@ -338,6 +338,7 @@ static int rsa_init(void)
 
 static int rsa_engine_init(const char *engine_id, ENGINE **pe)
 {
+	const char *key_pass;
 	ENGINE *e;
 	int ret;
 
@@ -362,10 +363,20 @@ static int rsa_engine_init(const char *engine_id, ENGINE **pe)
 		goto err_set_rsa;
 	}
 
+	key_pass = getenv("MKIMAGE_SIGN_PIN");
+	if (key_pass) {
+		if (!ENGINE_ctrl_cmd_string(e, "PIN", key_pass, 0)) {
+			fprintf(stderr, "Couldn't set PIN\n");
+			ret = -1;
+			goto err_set_pin;
+		}
+	}
+
 	*pe = e;
 
 	return 0;
 
+err_set_pin:
 err_set_rsa:
 	ENGINE_finish(e);
 err_engine_init:
