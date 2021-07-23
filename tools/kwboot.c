@@ -479,13 +479,14 @@ kwboot_term_pipe(int in, int out, char *quit, int *s)
 					return 0;
 				buf++;
 				nin--;
-			} else
+			} else {
 				while (*s > 0) {
 					nout = write(out, quit, *s);
 					if (nout <= 0)
 						return -1;
 					(*s) -= nout;
 				}
+			}
 		}
 	}
 
