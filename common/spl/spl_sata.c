@@ -36,6 +36,8 @@ static int spl_sata_load_image_raw(struct spl_image_info *spl_image,
 	struct image_header *header;
 	unsigned long count;
 	u32 image_size_sectors;
+	u32 image_offset_sectors;
+	u32 image_offset;
 	int ret;
 
 	header = spl_get_load_buffer(-sizeof(*header), stor_dev->blksz);
@@ -48,10 +50,18 @@ static int spl_sata_load_image_raw(struct spl_image_info *spl_image,
 		return ret;
 
 	image_size_sectors = DIV_ROUND_UP(spl_image->size, stor_dev->blksz);
-	count = blk_dread(stor_dev, sector, image_size_sectors,
+	image_offset_sectors = spl_image->offset / stor_dev->blksz;
+	image_offset = spl_image->offset % stor_dev->blksz;
+	count = blk_dread(stor_dev, sector + image_offset_sectors,
+			image_size_sectors,
 			(void *)spl_image->load_addr);
 	if (count != image_size_sectors)
 		return -EIO;
+
+	if (image_offset)
+		memmove((void *)spl_image->load_addr,
+			(void *)spl_image->load_addr + image_offset,
+			spl_image->size);
 
 	return 0;
 }
