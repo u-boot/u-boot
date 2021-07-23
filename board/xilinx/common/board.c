@@ -462,3 +462,34 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif
+
+#if CONFIG_IS_ENABLED(DTB_RESELECT)
+char * __maybe_unused __weak board_name_decode(void)
+{
+	return NULL;
+}
+
+bool __maybe_unused __weak board_detection(void)
+{
+	return false;
+}
+
+int embedded_dtb_select(void)
+{
+	if (board_detection()) {
+		char *board_local_name;
+
+		board_local_name = board_name_decode();
+		if (board_local_name) {
+			board_name = board_local_name;
+			debug("Detected name: %s\n", board_name);
+
+			/* Time to change DTB on fly */
+			/* Both ways should work here */
+			/* fdtdec_resetup(&rescan); */
+			fdtdec_setup();
+		}
+	}
+	return 0;
+}
+#endif
