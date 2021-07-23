@@ -206,6 +206,7 @@ config DWC_ETH_QOS_IMX
 config DWC_ETH_QOS_STM32
 	bool "Synopsys DWC Ethernet QOS device support for STM32"
 	depends on DWC_ETH_QOS
+	select DM_ETH_PHY
 	default y if ARCH_STM32MP
 	help
 	  The Synopsys Designware Ethernet QOS IP block with the specific

@@ -1269,7 +1269,7 @@ static void print_packet( byte * buf, int length )
 }
 #endif
 
-int smc91111_initialize(u8 dev_num, int base_addr)
+int smc91111_initialize(u8 dev_num, phys_addr_t base_addr)
 {
 	struct smc91111_priv *priv;
 	struct eth_device *dev;
