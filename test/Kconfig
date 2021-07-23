@@ -38,6 +38,16 @@ config UT_LIB_ASN1
 	  Enables a test which exercises asn1 compiler and decoder function
 	  via various parsers.
 
+config UT_LIB_CRYPT
+	bool "Unit test for crypt-style password hashing"
+	depends on !SPL && AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
+	default y
+	select CRYPT_PW
+	select CRYPT_PW_SHA256
+	select CRYPT_PW_SHA512
+	help
+	  Enables a test for the crypt-style password hash functions.
+
 config UT_LIB_RSA
 	bool "Unit test for rsa_verify() function"
 	depends on RSA

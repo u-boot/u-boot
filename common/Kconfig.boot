@@ -791,6 +791,15 @@ config AUTOBOOT_KEYED
 	  U-Boot automatic booting process and bring the device
 	  to the U-Boot prompt for user input.
 
+config AUTOBOOT_FLUSH_STDIN
+	bool "Enable flushing stdin before starting to read the password"
+	depends on AUTOBOOT_KEYED && !SANDBOX
+	help
+	  When this option is enabled stdin buffer will be flushed before
+	  starting to read the password.
+	  This can't be enabled for the sandbox as flushing stdin would
+	  break the autoboot unit tests.
+
 config AUTOBOOT_PROMPT
 	string "Autoboot stop prompt"
 	depends on AUTOBOOT_KEYED
@@ -812,12 +821,27 @@ config AUTOBOOT_ENCRYPTION
 	depends on AUTOBOOT_KEYED
 	help
 	  This option allows a string to be entered into U-Boot to stop the
-	  autoboot. The string itself is hashed and compared against the hash
-	  in the environment variable 'bootstopkeysha256'. If it matches then
-	  boot stops and a command-line prompt is presented.
-
+	  autoboot.
+	  The behavior depends whether CONFIG_CRYPT_PW from lib is enabled
+	  or not.
+	  In case CONFIG_CRYPT_PW is enabled, the string will be forwarded
+	  to the crypt-based functionality and be compared against the
+	  string in the environment variable 'bootstopkeycrypt'.
+	  In case CONFIG_CRYPT_PW is disabled the string itself is hashed
+	  and compared against the hash in the environment variable
+	  'bootstopkeysha256'.
+	  If it matches in either case then boot stops and
+	  a command-line prompt is presented.
 	  This provides a way to ship a secure production device which can also
 	  be accessed at the U-Boot command line.
+
+config AUTOBOOT_SHA256_FALLBACK
+	bool "Allow fallback from crypt-hashed password to sha256"
+	depends on AUTOBOOT_ENCRYPTION && CRYPT_PW
+	help
+	  This option adds support to fall back from crypt-hashed
+	  passwords to checking a SHA256 hashed password in case the
+	  'bootstopusesha256' environment variable is set to 'true'.
 
 config AUTOBOOT_DELAY_STR
 	string "Delay autobooting via specific input key / string"
@@ -853,9 +877,38 @@ config AUTOBOOT_KEYED_CTRLC
 	  Setting this variable	provides an escape sequence from the
 	  limited "password" strings.
 
-config AUTOBOOT_STOP_STR_SHA256
-	string "Stop autobooting via SHA256 encrypted password"
+config AUTOBOOT_NEVER_TIMEOUT
+	bool "Make the password entry never time-out"
+	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION && CRYPT_PW
+	help
+	  This option removes the timeout from the password entry
+	  when the user first presses the <Enter> key before entering
+	  any other character.
+
+config AUTOBOOT_STOP_STR_ENABLE
+	bool "Enable fixed string to stop autobooting"
 	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
+	help
+	  This option enables the feature to add a fixed stop
+	  string that is defined at compile time.
+	  In every case it will be tried to load the stop
+	  string from the environment.
+	  In case this is enabled and there is no stop string
+	  in the environment, this will be used as default value.
+
+config AUTOBOOT_STOP_STR_CRYPT
+	string "Stop autobooting via crypt-hashed password"
+	depends on AUTOBOOT_STOP_STR_ENABLE && CRYPT_PW
+	help
+	  This option adds the feature to only stop the autobooting,
+	  and therefore boot into the U-Boot prompt, when the input
+	  string / password matches a values that is hashed via
+	  one of the supported crypt-style password hashing options
+	  and saved in the environment variable "bootstopkeycrypt".
+
+config AUTOBOOT_STOP_STR_SHA256
+	string "Stop autobooting via SHA256 hashed password"
+	depends on AUTOBOOT_STOP_STR_ENABLE
 	help
 	  This option adds the feature to only stop the autobooting,
 	  and therefore boot into the U-Boot prompt, when the input

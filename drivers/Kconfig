@@ -92,6 +92,8 @@ source "drivers/qe/Kconfig"
 
 source "drivers/ram/Kconfig"
 
+source "drivers/reboot-mode/Kconfig"
+
 source "drivers/remoteproc/Kconfig"
 
 source "drivers/reset/Kconfig"
