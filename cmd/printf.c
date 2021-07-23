@@ -79,6 +79,127 @@
 
 typedef void FAST_FUNC (*converter)(const char *arg, void *result);
 
+#define WANT_HEX_ESCAPES 0
+
+/* Usual "this only works for ascii compatible encodings" disclaimer. */
+#undef _tolower
+#define _tolower(X) ((X)|((char) 0x20))
+
+char FAST_FUNC bb_process_escape_sequence(const char **ptr)
+{
+	const char *q;
+	unsigned num_digits;
+	unsigned n;
+	unsigned base;
+
+	num_digits = n = 0;
+	base = 8;
+	q = *ptr;
+
+	if (WANT_HEX_ESCAPES && *q == 'x') {
+		++q;
+		base = 16;
+		++num_digits;
+	}
+
+	/* bash requires leading 0 in octal escapes:
+	 * \02 works, \2 does not (prints \ and 2).
+	 * We treat \2 as a valid octal escape sequence. */
+	do {
+		unsigned r;
+		unsigned d = (unsigned char)(*q) - '0';
+#if WANT_HEX_ESCAPES
+		if (d >= 10) {
+			d = (unsigned char)_tolower(*q) - 'a';
+			//d += 10;
+			/* The above would map 'A'-'F' and 'a'-'f' to 10-15,
+			 * however, some chars like '@' would map to 9 < base.
+			 * Do not allow that, map invalid chars to N > base:
+			 */
+			if ((int)d >= 0)
+				d += 10;
+		}
+#endif
+		if (d >= base) {
+			if (WANT_HEX_ESCAPES && base == 16) {
+				--num_digits;
+				if (num_digits == 0) {
+					/* \x<bad_char>: return '\',
+					 * leave ptr pointing to x */
+					return '\\';
+				}
+			}
+			break;
+		}
+
+		r = n * base + d;
+		if (r > UCHAR_MAX) {
+			break;
+		}
+
+		n = r;
+		++q;
+	} while (++num_digits < 3);
+
+	if (num_digits == 0) {
+		/* Not octal or hex escape sequence.
+		 * Is it one-letter one? */
+
+		/* bash builtin "echo -e '\ec'" interprets \e as ESC,
+		 * but coreutils "/bin/echo -e '\ec'" does not.
+		 * Manpages tend to support coreutils way.
+		 * Update: coreutils added support for \e on 28 Oct 2009. */
+		static const char charmap[] ALIGN1 = {
+			'a',  'b', 'e', 'f',  'n',  'r',  't',  'v',  '\\', '\0',
+			'\a', '\b', 27, '\f', '\n', '\r', '\t', '\v', '\\', '\\',
+		};
+		const char *p = charmap;
+		do {
+			if (*p == *q) {
+				q++;
+				break;
+			}
+		} while (*++p != '\0');
+		/* p points to found escape char or NUL,
+		 * advance it and find what it translates to.
+		 * Note that \NUL and unrecognized sequence \z return '\'
+		 * and leave ptr pointing to NUL or z. */
+		n = p[sizeof(charmap) / 2];
+	}
+
+	*ptr = q;
+
+	return (char) n;
+}
+
+char* FAST_FUNC skip_whitespace(const char *s)
+{
+	/* In POSIX/C locale (the only locale we care about: do we REALLY want
+	 * to allow Unicode whitespace in, say, .conf files? nuts!)
+	 * isspace is only these chars: "\t\n\v\f\r" and space.
+	 * "\t\n\v\f\r" happen to have ASCII codes 9,10,11,12,13.
+	 * Use that.
+	 */
+	while (*s == ' ' || (unsigned char)(*s - 9) <= (13 - 9))
+		s++;
+
+	return (char *) s;
+}
+
+/* Like strcpy but can copy overlapping strings. */
+void FAST_FUNC overlapping_strcpy(char *dst, const char *src)
+{
+	/* Cheap optimization for dst == src case -
+	 * better to have it here than in many callers.
+	 */
+	if (dst != src) {
+		while ((*dst = *src) != '\0') {
+			dst++;
+			src++;
+		}
+	}
+}
+
 static int multiconvert(const char *arg, void *result, converter convert)
 {
 	if (*arg == '"' || *arg == '\'') {
