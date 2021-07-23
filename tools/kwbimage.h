@@ -149,6 +149,33 @@ struct secure_hdr_v1 {
 };
 
 /*
+ * Structure of register set
+ */
+struct register_set_hdr_v1 {
+	uint8_t  headertype;		/* 0x0 */
+	uint8_t  headersz_msb;		/* 0x1 */
+	uint16_t headersz_lsb;		/* 0x2 - 0x3 */
+	union {
+		struct {
+			uint32_t address;	/* 0x4+8*N - 0x7+8*N */
+			uint32_t value;		/* 0x8+8*N - 0xB+8*N */
+		} entry;
+		struct {
+			uint8_t  next;		/* 0xC+8*N */
+			uint8_t  delay;		/* 0xD+8*N */
+			uint16_t reserved;	/* 0xE+8*N - 0xF+8*N */
+		} last_entry;
+	} data[];
+};
+
+/*
+ * Value 0 in register_set_hdr_v1 delay field is special.
+ * Instead of delay it setup SDRAM Controller.
+ */
+#define REGISTER_SET_HDR_OPT_DELAY_SDRAM_SETUP 0
+#define REGISTER_SET_HDR_OPT_DELAY_MS(val) ((val) ?: 1)
+
+/*
  * Various values for the opt_hdr_v1->headertype field, describing the
  * different types of optional headers. The "secure" header contains
  * informations related to secure boot (encryption keys, etc.). The
