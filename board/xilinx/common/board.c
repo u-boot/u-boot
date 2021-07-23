@@ -435,11 +435,13 @@ int board_late_init_xilinx(void)
 }
 #endif
 
+static char *board_name = DEVICE_TREE;
+
 int __maybe_unused board_fit_config_name_match(const char *name)
 {
-	debug("%s: Check %s, default %s\n", __func__, name, DEVICE_TREE);
+	debug("%s: Check %s, default %s\n", __func__, name, board_name);
 
-	if (!strcmp(name, DEVICE_TREE))
+	if (!strcmp(name, board_name))
 		return 0;
 
 	return -1;
