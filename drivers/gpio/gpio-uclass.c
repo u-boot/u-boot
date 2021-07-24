@@ -122,7 +122,7 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 	int numeric;
 	int ret;
 
-	numeric = isdigit(*name) ? simple_strtoul(name, NULL, 10) : -1;
+	numeric = isdigit(*name) ? dectoul(name, NULL) : -1;
 	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
 	     dev;
 	     ret = uclass_next_device(&dev)) {

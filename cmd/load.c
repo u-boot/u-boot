@@ -70,7 +70,7 @@ static int do_load_serial(struct cmd_tbl *cmdtp, int flag, int argc,
 		offset = simple_strtol(argv[1], NULL, 16);
 	}
 	if (argc == 3) {
-		load_baudrate = (int)simple_strtoul(argv[2], NULL, 10);
+		load_baudrate = (int)dectoul(argv[2], NULL);
 
 		/* default to current baudrate */
 		if (load_baudrate == 0)
@@ -264,7 +264,7 @@ int do_save_serial(struct cmd_tbl *cmdtp, int flag, int argc,
 		size = hextoul(argv[2], NULL);
 	}
 	if (argc == 4) {
-		save_baudrate = (int)simple_strtoul(argv[3], NULL, 10);
+		save_baudrate = (int)dectoul(argv[3], NULL);
 
 		/* default to current baudrate */
 		if (save_baudrate == 0)
@@ -446,7 +446,7 @@ static int do_load_serial_bin(struct cmd_tbl *cmdtp, int flag, int argc,
 		offset = hextoul(argv[1], NULL);
 	}
 	if (argc == 3) {
-		load_baudrate = (int)simple_strtoul(argv[2], NULL, 10);
+		load_baudrate = (int)dectoul(argv[2], NULL);
 
 		/* default to current baudrate */
 		if (load_baudrate == 0)

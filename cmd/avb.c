@@ -366,7 +366,7 @@ int do_avb_read_pvalue(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	name = argv[1];
-	bytes = simple_strtoul(argv[2], &endp, 10);
+	bytes = dectoul(argv[2], &endp);
 	if (*endp && *endp != '\n')
 		return CMD_RET_USAGE;
 

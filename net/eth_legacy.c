@@ -114,7 +114,7 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 		return 0;
 
 	/* look for an index after "eth" */
-	index = simple_strtoul(name + 3, NULL, 10);
+	index = dectoul(name + 3, NULL);
 
 	dev = eth_devices;
 	do {

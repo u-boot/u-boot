@@ -660,7 +660,7 @@ static int do_gsc(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]
 	if (strcasecmp(argv[1], "sleep") == 0) {
 		if (argc < 3)
 			return CMD_RET_USAGE;
-		if (!gsc_sleep(simple_strtoul(argv[2], NULL, 10)))
+		if (!gsc_sleep(dectoul(argv[2], NULL)))
 			return CMD_RET_SUCCESS;
 	} else if (strcasecmp(argv[1], "hwmon") == 0) {
 		if (!gsc_hwmon())

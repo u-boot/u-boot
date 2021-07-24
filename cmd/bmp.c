@@ -131,11 +131,11 @@ static int do_bmp_display(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (!strcmp(argv[2], "m"))
 			x = BMP_ALIGN_CENTER;
 		else
-			x = simple_strtoul(argv[2], NULL, 10);
+			x = dectoul(argv[2], NULL);
 		if (!strcmp(argv[3], "m"))
 			y = BMP_ALIGN_CENTER;
 		else
-			y = simple_strtoul(argv[3], NULL, 10);
+			y = dectoul(argv[3], NULL);
 		break;
 	default:
 		return CMD_RET_USAGE;

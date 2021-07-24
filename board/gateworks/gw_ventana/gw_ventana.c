@@ -471,7 +471,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 	if (serial) {
 		serialnr->high = 0;
-		serialnr->low = simple_strtoul(serial, NULL, 10);
+		serialnr->low = dectoul(serial, NULL);
 	} else if (ventana_info.model[0]) {
 		serialnr->high = 0;
 		serialnr->low = ventana_info.serial;

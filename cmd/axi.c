@@ -120,7 +120,7 @@ static int do_axi_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 		int i;
 
 		/* show specific bus */
-		i = simple_strtoul(argv[1], NULL, 10);
+		i = dectoul(argv[1], NULL);
 
 		struct udevice *bus;
 		int ret;
@@ -153,7 +153,7 @@ static int do_axi_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		printf("Current bus is %d\n", bus_no);
 	} else {
-		bus_no = simple_strtoul(argv[1], NULL, 10);
+		bus_no = dectoul(argv[1], NULL);
 		printf("Setting bus to %d\n", bus_no);
 
 		ret = axi_set_cur_bus(bus_no);
@@ -193,7 +193,7 @@ static int do_axi_md(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
-		size = simple_strtoul(argv[1], NULL, 10);
+		size = dectoul(argv[1], NULL);
 
 		/*
 		 * Address is specified since argc >= 3
@@ -273,7 +273,7 @@ static int do_axi_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc <= 3 || argc >= 6)
 		return CMD_RET_USAGE;
 
-	size = simple_strtoul(argv[1], NULL, 10);
+	size = dectoul(argv[1], NULL);
 
 	switch (size) {
 	case 8:

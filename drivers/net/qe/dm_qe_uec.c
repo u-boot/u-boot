@@ -938,7 +938,7 @@ enum qe_clock qe_clock_source(const char *source)
 		return QE_CLK_NONE;
 
 	if (strncasecmp(source, "brg", 3) == 0) {
-		i = simple_strtoul(source + 3, NULL, 10);
+		i = dectoul(source + 3, NULL);
 		if (i >= 1 && i <= 16)
 			return (QE_BRG1 - 1) + i;
 		else
@@ -946,7 +946,7 @@ enum qe_clock qe_clock_source(const char *source)
 	}
 
 	if (strncasecmp(source, "clk", 3) == 0) {
-		i = simple_strtoul(source + 3, NULL, 10);
+		i = dectoul(source + 3, NULL);
 		if (i >= 1 && i <= 24)
 			return (QE_CLK1 - 1) + i;
 		else

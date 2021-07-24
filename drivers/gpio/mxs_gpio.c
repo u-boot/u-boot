@@ -123,12 +123,12 @@ int name_to_gpio(const char *name)
 	unsigned bank, pin;
 	char *end;
 
-	bank = simple_strtoul(name, &end, 10);
+	bank = dectoul(name, &end);
 
 	if (!*end || *end != ':')
 		return bank;
 
-	pin = simple_strtoul(end + 1, NULL, 10);
+	pin = dectoul(end + 1, NULL);
 
 	return (bank << MXS_PAD_BANK_SHIFT) | (pin << MXS_PAD_PIN_SHIFT);
 }

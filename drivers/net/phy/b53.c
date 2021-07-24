@@ -648,7 +648,7 @@ int do_b53_reg_read(const char *name, int argc, char *const argv[])
 
 	page = hextoul(argv[1], NULL);
 	offset = hextoul(argv[2], NULL);
-	width = simple_strtoul(argv[3], NULL, 10);
+	width = dectoul(argv[3], NULL);
 
 	switch (width) {
 	case 8:
@@ -700,7 +700,7 @@ int do_b53_reg_write(const char *name, int argc, char *const argv[])
 
 	page = hextoul(argv[1], NULL);
 	offset = hextoul(argv[2], NULL);
-	width = simple_strtoul(argv[3], NULL, 10);
+	width = dectoul(argv[3], NULL);
 	if (width == 48 || width == 64)
 		value64 = simple_strtoull(argv[4], NULL, 16);
 	else

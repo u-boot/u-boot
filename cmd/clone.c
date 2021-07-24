@@ -34,7 +34,7 @@ static int do_clone(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv
 		printf("Unable to open destination device\n");
 		return 1;
 	}
-	requested = simple_strtoul(argv[5], &unit, 10);
+	requested = dectoul(argv[5], &unit);
 	srcbz = srcdesc->blksz;
 	destbz = destdesc->blksz;
 

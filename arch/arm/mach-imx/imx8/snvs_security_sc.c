@@ -726,7 +726,7 @@ static int do_tamper_pin_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != (2 + 1))
 		return CMD_RET_USAGE;
 
-	conf.pad = simple_strtoul(argv[++idx], NULL, 10);
+	conf.pad = dectoul(argv[++idx], NULL);
 	conf.mux_conf = hextoul(argv[++idx], NULL);
 
 	err = apply_tamper_pin_list_config(&conf, 1);

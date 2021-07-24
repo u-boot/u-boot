@@ -424,7 +424,7 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 			return 0;
 		}
 
-		dev = (int)simple_strtoul(argv[2], NULL, 10);
+		dev = (int)dectoul(argv[2], NULL);
 		set_dev(dev);
 
 		return 0;

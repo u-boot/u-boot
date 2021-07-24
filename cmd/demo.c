@@ -106,7 +106,7 @@ static int do_demo(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	if (argc) {
-		devnum = simple_strtoul(argv[0], NULL, 10);
+		devnum = dectoul(argv[0], NULL);
 		ret = uclass_get_device(UCLASS_DEMO, devnum, &demo_dev);
 		if (ret)
 			return cmd_process_error(cmdtp, ret);

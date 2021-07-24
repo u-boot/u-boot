@@ -642,7 +642,7 @@ static unsigned long get_mc_boot_timeout_ms(void)
 	char *timeout_ms_env_var = env_get(MC_BOOT_TIMEOUT_ENV_VAR);
 
 	if (timeout_ms_env_var) {
-		timeout_ms = simple_strtoul(timeout_ms_env_var, NULL, 10);
+		timeout_ms = dectoul(timeout_ms_env_var, NULL);
 		if (timeout_ms == 0) {
 			printf("fsl-mc: WARNING: Invalid value for \'"
 			       MC_BOOT_TIMEOUT_ENV_VAR

@@ -184,9 +184,9 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 
 		dfu->layout = DFU_RAW_ADDR;
 
-		dev = simple_strtoul(s, &s, 10);
+		dev = dectoul(s, &s);
 		s++;
-		part = simple_strtoul(s, &s, 10);
+		part = dectoul(s, &s);
 
 		sprintf(mtd_id, "%s%d,%d", "nor", dev, part - 1);
 		printf("using id '%s'\n", mtd_id);

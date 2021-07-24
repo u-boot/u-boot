@@ -93,7 +93,7 @@ int do_led(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (cmd == LEDST_BLINK) {
 		if (argc < 4)
 			return CMD_RET_USAGE;
-		freq_ms = simple_strtoul(argv[3], NULL, 10);
+		freq_ms = dectoul(argv[3], NULL);
 	}
 #endif
 	ret = led_get_by_label(led_label, &dev);

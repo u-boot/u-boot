@@ -1007,7 +1007,7 @@ long read_number (char *txt)
 	if (txt[0] == '0' && (txt[1] == 'x' || txt[1] == 'X'))	/* hex */
 		val = hextoul(&txt[2], NULL);
 	else						/* decimal */
-		val = simple_strtoul (txt, NULL, 10);
+		val = dectoul(txt, NULL);
 
 	if (is_neg)
 		val = -val;

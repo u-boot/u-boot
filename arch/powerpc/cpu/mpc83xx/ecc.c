@@ -138,7 +138,7 @@ int do_ecc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 	if (argc == 3) {
 		if (strcmp(argv[1], "sbecnt") == 0) {
-			val = simple_strtoul(argv[2], NULL, 10);
+			val = dectoul(argv[2], NULL);
 			if (val > 255) {
 				printf("Incorrect Counter value, "
 				       "should be 0..255\n");
@@ -151,7 +151,7 @@ int do_ecc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			ddr->err_sbe = val;
 			return 0;
 		} else if (strcmp(argv[1], "sbethr") == 0) {
-			val = simple_strtoul(argv[2], NULL, 10);
+			val = dectoul(argv[2], NULL);
 			if (val > 255) {
 				printf("Incorrect Counter value, "
 				       "should be 0..255\n");

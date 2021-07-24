@@ -114,20 +114,20 @@ int do_spi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	{
 		if (argc >= 2) {
 			mode = CONFIG_DEFAULT_SPI_MODE;
-			bus = simple_strtoul(argv[1], &cp, 10);
+			bus = dectoul(argv[1], &cp);
 			if (*cp == ':') {
-				cs = simple_strtoul(cp+1, &cp, 10);
+				cs = dectoul(cp + 1, &cp);
 			} else {
 				cs = bus;
 				bus = CONFIG_DEFAULT_SPI_BUS;
 			}
 			if (*cp == '.')
-				mode = simple_strtoul(cp+1, &cp, 10);
+				mode = dectoul(cp + 1, &cp);
 			if (*cp == '@')
-				freq = simple_strtoul(cp+1, &cp, 10);
+				freq = dectoul(cp + 1, &cp);
 		}
 		if (argc >= 3)
-			bitlen = simple_strtoul(argv[2], NULL, 10);
+			bitlen = dectoul(argv[2], NULL);
 		if (argc >= 4) {
 			cp = argv[3];
 			for(j = 0; *cp; j++, cp++) {

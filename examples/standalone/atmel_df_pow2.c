@@ -141,11 +141,12 @@ int atmel_df_pow2(int argc, char *const argv[])
 		if (line[0] == '\0')
 			continue;
 
-		bus = cs = simple_strtoul(line, &p, 10);
+		bus = dectoul(line, &p);
+		cs = bus;
 		if (*p) {
 			if (*p == ':') {
 				++p;
-				cs = simple_strtoul(p, &p, 10);
+				cs = dectoul(p, &p);
 			}
 			if (*p) {
 				puts("invalid format, please try again\n");

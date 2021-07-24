@@ -130,7 +130,7 @@ int do_rtc(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 
 	idx = curr_rtc;
 	if (!strcmp(argv[0], "dev") && argc >= 2)
-		idx = simple_strtoul(argv[1], NULL, 10);
+		idx = dectoul(argv[1], NULL);
 
 	ret = uclass_get_device(UCLASS_RTC, idx, &dev);
 	if (ret) {

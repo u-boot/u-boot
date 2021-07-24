@@ -218,13 +218,13 @@ static int do_bind_unbind(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_USAGE;
 		ret = unbind_by_node_path(argv[1]);
 	} else if (!by_node && bind) {
-		int index = (argc > 2) ? simple_strtoul(argv[2], NULL, 10) : 0;
+		int index = (argc > 2) ? dectoul(argv[2], NULL) : 0;
 
 		if (argc != 4)
 			return CMD_RET_USAGE;
 		ret = bind_by_class_index(argv[1], index, argv[3]);
 	} else if (!by_node && !bind) {
-		int index = (argc > 2) ? simple_strtoul(argv[2], NULL, 10) : 0;
+		int index = (argc > 2) ? dectoul(argv[2], NULL) : 0;
 
 		if (argc == 3)
 			ret = unbind_by_class_index(argv[1], index);

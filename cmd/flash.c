@@ -57,7 +57,7 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
 		return 0;
 	*p++ = '\0';
 
-	bank = simple_strtoul (str, &ep, 10);
+	bank = dectoul(str, &ep);
 	if (ep == str || *ep != '\0' ||
 		bank < 1 || bank > CONFIG_SYS_MAX_FLASH_BANKS ||
 		(fp = &flash_info[bank - 1])->flash_id == FLASH_UNKNOWN)
@@ -67,12 +67,12 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
 	if ((p = strchr (str, '-')) != NULL)
 		*p++ = '\0';
 
-	first = simple_strtoul (str, &ep, 10);
+	first = dectoul(str, &ep);
 	if (ep == str || *ep != '\0' || first >= fp->sector_count)
 		return -1;
 
 	if (p != NULL) {
-		last = simple_strtoul (p, &ep, 10);
+		last = dectoul(p, &ep);
 		if (ep == p || *ep != '\0' ||
 			last < first || last >= fp->sector_count)
 			return -1;

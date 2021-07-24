@@ -189,7 +189,7 @@ static int do_mem_mdc(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 4)
 		return CMD_RET_USAGE;
 
-	count = simple_strtoul(argv[3], NULL, 10);
+	count = dectoul(argv[3], NULL);
 
 	for (;;) {
 		do_mem_md (NULL, 0, 3, argv);
@@ -217,7 +217,7 @@ static int do_mem_mwc(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 4)
 		return CMD_RET_USAGE;
 
-	count = simple_strtoul(argv[3], NULL, 10);
+	count = dectoul(argv[3], NULL);
 
 	for (;;) {
 		do_mem_mw (NULL, 0, 3, argv);

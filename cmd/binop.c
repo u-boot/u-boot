@@ -89,7 +89,7 @@ static int do_binop(struct cmd_tbl *cmdtp, int flag, int argc,
 	else
 		return CMD_RET_USAGE;
 
-	len = simple_strtoul(lenarg, NULL, 10);
+	len = dectoul(lenarg, NULL);
 
 	src1 = malloc(len);
 	src2 = malloc(len);

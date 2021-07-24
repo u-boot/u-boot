@@ -302,7 +302,7 @@ static int do_dek_blob(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	src_addr = hextoul(argv[1], NULL);
 	dst_addr = hextoul(argv[2], NULL);
-	len = simple_strtoul(argv[3], NULL, 10);
+	len = dectoul(argv[3], NULL);
 
 	return blob_encap_dek(src_addr, dst_addr, len);
 }

@@ -368,7 +368,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		update_crc();
 		break;
 	case '0' ... '9':	/* "mac 0" through "mac 22" */
-		set_mac_address(simple_strtoul(argv[1], NULL, 10), argv[2]);
+		set_mac_address(dectoul(argv[1], NULL), argv[2]);
 		break;
 	case 'h':	/* help */
 	default:

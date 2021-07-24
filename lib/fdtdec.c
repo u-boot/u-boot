@@ -405,7 +405,7 @@ int fdtdec_add_aliases_for_id(const void *blob, const char *name,
 			continue;
 
 		/* Get the alias number */
-		number = simple_strtoul(path + name_len, NULL, 10);
+		number = dectoul(path + name_len, NULL);
 		if (number < 0 || number >= maxcount) {
 			debug("%s: warning: alias '%s' is out of range\n",
 			      __func__, path);

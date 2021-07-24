@@ -54,6 +54,11 @@ ulong hextoul(const char *cp, char **endp)
 	return simple_strtoul(cp, endp, 16);
 }
 
+ulong dectoul(const char *cp, char **endp)
+{
+	return simple_strtoul(cp, endp, 10);
+}
+
 int strict_strtoul(const char *cp, unsigned int base, unsigned long *res)
 {
 	char *tail;
@@ -164,7 +169,7 @@ long trailing_strtoln(const char *str, const char *end)
 	if (isdigit(end[-1])) {
 		for (p = end - 1; p > str; p--) {
 			if (!isdigit(*p))
-				return simple_strtoul(p + 1, NULL, 10);
+				return dectoul(p + 1, NULL);
 		}
 	}
 

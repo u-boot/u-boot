@@ -52,7 +52,7 @@ void spi_set_speed(struct spi_slave *slave, uint hz)
  */
 int name_to_gpio(const char *name)
 {
-	int gpio = 31 - simple_strtoul(name, NULL, 10);
+	int gpio = 31 - dectoul(name, NULL);
 
 	if (gpio < 16)
 		gpio = -1;

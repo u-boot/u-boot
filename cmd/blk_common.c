@@ -40,7 +40,7 @@ int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
 		return CMD_RET_USAGE;
 	case 3:
 		if (strncmp(argv[1], "dev", 3) == 0) {
-			int dev = (int)simple_strtoul(argv[2], NULL, 10);
+			int dev = (int)dectoul(argv[2], NULL);
 
 			if (!blk_show_device(if_type, dev)) {
 				*cur_devnump = dev;
@@ -50,7 +50,7 @@ int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
 			}
 			return 0;
 		} else if (strncmp(argv[1], "part", 4) == 0) {
-			int dev = (int)simple_strtoul(argv[2], NULL, 10);
+			int dev = (int)dectoul(argv[2], NULL);
 
 			if (blk_print_part_devnum(if_type, dev)) {
 				printf("\n%s device %d not available\n",

@@ -279,7 +279,7 @@ static int pstore_display(struct cmd_tbl *cmdtp, int flag,  int argc,
 				- pstore_ftrace_size - pstore_console_size;
 
 		if (argc > 2) {
-			ptr += simple_strtoul(argv[2], NULL, 10)
+			ptr += dectoul(argv[2], NULL)
 				* pstore_record_size;
 			ptr_end = ptr + pstore_record_size;
 		}

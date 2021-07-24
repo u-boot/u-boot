@@ -38,6 +38,19 @@ ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
 unsigned long hextoul(const char *cp, char **endp);
 
 /**
+ * dec_strtoul - convert a string in decimal to an unsigned long
+ *
+ * @param cp	The string to be converted
+ * @param endp	Updated to point to the first character not converted
+ * @return value decoded from string (0 if invalid)
+ *
+ * Converts a decimal string to an unsigned long. If there are invalid
+ * characters at the end these are ignored. In the worst case, if all characters
+ * are invalid, 0 is returned
+ */
+unsigned long dectoul(const char *cp, char **endp);
+
+/**
  * strict_strtoul - convert a string to an unsigned long strictly
  * @param cp	The string to be converted
  * @param base	The number base to use

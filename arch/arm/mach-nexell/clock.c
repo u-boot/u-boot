@@ -592,7 +592,7 @@ struct clk *clk_get(const char *id)
 			c = strrchr((const char *)str, (int)'.');
 			if (!c || !cdev->peri)
 				break;
-		devid = simple_strtoul(++c, NULL, 10);
+		devid = dectoul(++c, NULL);
 		if (cdev->peri->dev_id == devid)
 			break;
 		}

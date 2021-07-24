@@ -302,7 +302,7 @@ int do_tpm_device(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	int rc;
 
 	if (argc == 2) {
-		num = simple_strtoul(argv[1], NULL, 10);
+		num = dectoul(argv[1], NULL);
 
 		rc = tpm_set_device(num);
 		if (rc)

@@ -59,7 +59,7 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 
-	dev = (int)simple_strtoul(argv[2], NULL, 10);
+	dev = (int)dectoul(argv[2], NULL);
 
 	addr = STM32_DDR_BASE;
 	size = 0;

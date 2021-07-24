@@ -501,11 +501,11 @@ static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		if (argc < 3)
 			return CMD_RET_USAGE;
-		index = simple_strtoul(argv[2], &endp, 10);
+		index = dectoul(argv[2], &endp);
 		if (*argv[2] == 0 || *endp != 0)
 			return CMD_RET_USAGE;
 		if (argc > 3) {
-			state = simple_strtoul(argv[3], &endp, 10);
+			state = dectoul(argv[3], &endp);
 			if (*argv[3] == 0 || *endp != 0)
 				return CMD_RET_USAGE;
 			ret = cros_ec_set_ldo(dev, index, state);

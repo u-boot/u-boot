@@ -298,7 +298,7 @@ int pfe_firmware_init(void)
 	if (!p) {
 		max_fw_count = 2;
 	} else {
-		max_fw_count = simple_strtoul(p, NULL, 10);
+		max_fw_count = dectoul(p, NULL);
 		if (max_fw_count)
 			max_fw_count = 3;
 		else

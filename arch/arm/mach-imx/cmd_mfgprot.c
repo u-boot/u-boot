@@ -72,7 +72,7 @@ static int do_mfgprot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			return CMD_RET_USAGE;
 
 		m_addr = hextoul(argv[2], NULL);
-		m_size = simple_strtoul(argv[3], NULL, 10);
+		m_size = dectoul(argv[3], NULL);
 		m_ptr = map_physmem(m_addr, m_size, MAP_NOCACHE);
 		if (!m_ptr)
 			return -ENOMEM;

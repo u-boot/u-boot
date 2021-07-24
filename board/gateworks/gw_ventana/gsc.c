@@ -277,7 +277,7 @@ static int do_gsc_sleep(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	secs = simple_strtoul(argv[1], NULL, 10);
+	secs = dectoul(argv[1], NULL);
 	printf("GSC Sleeping for %ld seconds\n", secs);
 
 	i2c_set_bus_num(0);
@@ -322,7 +322,7 @@ static int do_gsc_wd(struct cmd_tbl *cmdtp, int flag, int argc,
 		int timeout = 0;
 
 		if (argc > 2)
-			timeout = simple_strtoul(argv[2], NULL, 10);
+			timeout = dectoul(argv[2], NULL);
 		i2c_set_bus_num(0);
 		if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
 			return CMD_RET_FAILURE;

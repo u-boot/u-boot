@@ -23,7 +23,7 @@ struct in_addr string_to_ip(const char *s)
 		return addr;
 
 	for (addr.s_addr = 0, i = 0; i < 4; ++i) {
-		ulong val = s ? simple_strtoul(s, &e, 10) : 0;
+		ulong val = s ? dectoul(s, &e) : 0;
 		if (val > 255) {
 			addr.s_addr = 0;
 			return addr;

@@ -423,7 +423,7 @@ int do_env_ask(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	 * the size.  Otherwise we echo it as part of the
 	 * message.
 	 */
-	i = simple_strtoul(argv[argc - 1], &endptr, 10);
+	i = dectoul(argv[argc - 1], &endptr);
 	if (*endptr != '\0') {			/* no size */
 		size = CONFIG_SYS_CBSIZE - 1;
 	} else {				/* size given */

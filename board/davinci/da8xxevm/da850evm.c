@@ -284,7 +284,7 @@ u32 get_board_rev(void)
 
 	s = env_get("maxcpuclk");
 	if (s)
-		maxcpuclk = simple_strtoul(s, NULL, 10);
+		maxcpuclk = dectoul(s, NULL);
 
 	if (maxcpuclk >= 456000000)
 		rev = 3;

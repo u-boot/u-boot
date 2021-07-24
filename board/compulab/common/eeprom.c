@@ -153,7 +153,7 @@ u32 cl_eeprom_get_board_rev(uint eeprom_bus)
 	 */
 	if (cl_eeprom_layout == LAYOUT_LEGACY) {
 		sprintf(str, "%x", board_rev);
-		board_rev = simple_strtoul(str, NULL, 10);
+		board_rev = dectoul(str, NULL);
 	}
 
 	return board_rev;

@@ -403,10 +403,10 @@ static unsigned long strfractoint(char *strptr)
 		mulconst = 1;
 		for (i = 0; i < j; i++)
 			mulconst *= 10;
-		decval = simple_strtoul(decarr, NULL, 10);
+		decval = dectoul(decarr, NULL);
 	}
 
-	intval = simple_strtoul(intarr, NULL, 10);
+	intval = dectoul(intarr, NULL);
 	intval = intval * mulconst;
 
 	return intval + decval;
@@ -489,9 +489,9 @@ static int pixis_reset_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 		unsigned long corepll;
 		unsigned long mpxpll;
 
-		sysclk = simple_strtoul(p_cf_sysclk, NULL, 10);
+		sysclk = dectoul(p_cf_sysclk, NULL);
 		corepll = strfractoint(p_cf_corepll);
-		mpxpll = simple_strtoul(p_cf_mpxpll, NULL, 10);
+		mpxpll = dectoul(p_cf_mpxpll, NULL);
 
 		if (!(set_px_sysclk(sysclk)
 		      && set_px_corepll(corepll)

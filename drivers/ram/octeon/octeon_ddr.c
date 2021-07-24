@@ -2544,7 +2544,7 @@ try_again:
 
 	eptr = env_get("limit_dram_mbytes");
 	if (eptr) {
-		unsigned int mbytes = simple_strtoul(eptr, NULL, 10);
+		unsigned int mbytes = dectoul(eptr, NULL);
 
 		if (mbytes > 0) {
 			memsize_mbytes = mbytes;

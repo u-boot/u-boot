@@ -1079,7 +1079,7 @@ static int do_i2c_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 	 */
 	delay = 1000;
 	if (argc > 3)
-		delay = simple_strtoul(argv[4], NULL, 10);
+		delay = dectoul(argv[4], NULL);
 	/*
 	 * Run the loop...
 	 */
@@ -1765,7 +1765,7 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 		int i;
 
 		/* show specific bus */
-		i = simple_strtoul(argv[1], NULL, 10);
+		i = dectoul(argv[1], NULL);
 #if CONFIG_IS_ENABLED(DM_I2C)
 		struct udevice *bus;
 		int ret;
@@ -1833,7 +1833,7 @@ static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 #endif
 		printf("Current bus is %d\n", bus_no);
 	} else {
-		bus_no = simple_strtoul(argv[1], NULL, 10);
+		bus_no = dectoul(argv[1], NULL);
 #if defined(CONFIG_SYS_I2C_LEGACY)
 		if (bus_no >= CONFIG_SYS_NUM_I2C_BUSES) {
 			printf("Invalid bus %d\n", bus_no);
@@ -1884,7 +1884,7 @@ static int do_i2c_bus_speed(struct cmd_tbl *cmdtp, int flag, int argc,
 		/* querying current speed */
 		printf("Current bus speed=%d\n", speed);
 	} else {
-		speed = simple_strtoul(argv[1], NULL, 10);
+		speed = dectoul(argv[1], NULL);
 		printf("Setting bus speed to %d Hz\n", speed);
 #if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_set_bus_speed(bus, speed);

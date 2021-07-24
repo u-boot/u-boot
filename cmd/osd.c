@@ -211,7 +211,7 @@ static int do_show_osd(struct cmd_tbl *cmdtp, int flag, int argc,
 		int i, res;
 
 		/* show specific OSD */
-		i = simple_strtoul(argv[1], NULL, 10);
+		i = dectoul(argv[1], NULL);
 
 		res = uclass_get_device_by_seq(UCLASS_VIDEO_OSD, i, &osd);
 		if (res) {
@@ -240,7 +240,7 @@ static int do_osd_num(struct cmd_tbl *cmdtp, int flag, int argc,
 			osd_no = -1;
 		printf("Current osd is %d\n", osd_no);
 	} else {
-		osd_no = simple_strtoul(argv[1], NULL, 10);
+		osd_no = dectoul(argv[1], NULL);
 		printf("Setting osd to %d\n", osd_no);
 
 		res = cmd_osd_set_osd_num(osd_no);
