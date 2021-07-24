@@ -1,0 +1,56 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+Command-line Parsing
+====================
+
+The command line is available in U-Boot proper, enabled by CONFIG_CMDLINE which
+is on by default. It is not enabled in SPL.
+
+There are two different command-line parsers available with U-Boot:
+the old "simple" one, and the much more powerful "hush" shell:
+
+Simple command-line parser
+--------------------------
+
+This takes very little code space and offers only basic features:
+
+- supports environment variables (through setenv / saveenv commands)
+- several commands on one line, separated by ';'
+- variable substitution using "... ${name} ..." syntax
+- special characters ('$', ';') can be escaped by prefixing with '\',
+  for example::
+
+    setenv bootcmd bootm \${address}
+
+- You can also escape text by enclosing in single apostrophes, for example::
+
+    setenv addip 'setenv bootargs $bootargs ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off'
+
+Hush shell
+----------
+
+This is similar to Bourne shell, with control structures like:
+
+- `if`... `then` ... `else`... `fi`
+- `for`... `do` ... `done`
+- `while` ... `do` ... `done`
+- `until` ... `do` ... `done`
+
+Hush supports environment ("global") variables (through setenv / saveenv
+commands) and local shell variables (through standard shell syntax
+`name=value`); only environment variables can be used with the "run" command
+
+The Hush shell is enabled with `CONFIG_HUSH_PARSER`.
+
+General rules
+-------------
+
+#. If a command line (or an environment variable executed by a "run"
+   command) contains several commands separated by semicolon, and
+   one of these commands fails, then the remaining commands will be
+   executed anyway.
+
+#. If you execute several variables with one call to run (i. e.
+   calling run with a list of variables as arguments), any failing
+   command will cause "run" to terminate, i. e. the remaining
+   variables are not executed.
