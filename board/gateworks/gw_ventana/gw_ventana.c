@@ -1017,7 +1017,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		return 0;
 	}
 
-	if (test_bit(EECONFIG_NAND, info->config)) {
+	if (gpio_cfg[board_type].nand) {
 		/* Update partition nodes using info from mtdparts env var */
 		puts("   Updating MTD partitions...\n");
 		fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
