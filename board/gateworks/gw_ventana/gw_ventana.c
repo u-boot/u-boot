@@ -372,18 +372,6 @@ int power_init_board(void)
 	return 0;
 }
 
-int imx6_pcie_toggle_reset(struct gpio_desc *gpio, bool active_high)
-{
-	if (board_type < GW_UNKNOWN) {
-		uint pin = gpio_cfg[board_type].pcie_rst;
-		gpio_request(pin, "pci_rst#");
-		gpio_direction_output(pin, 0);
-		mdelay(50);
-		gpio_direction_output(pin, 1);
-	}
-	return 0;
-}
-
 /*
  * Most Ventana boards have a PLX PEX860x PCIe switch onboard and use its
  * GPIO's as PERST# signals for its downstream ports - configure the GPIO's

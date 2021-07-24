@@ -61,7 +61,6 @@ struct ventana {
 	struct dio_cfg *dio_cfg;
 	int dio_num;
 	/* various gpios (0 if non-existent) */
-	int pcie_rst;
 	int mezz_pwren;
 	int mezz_irq;
 	int rs485en;
