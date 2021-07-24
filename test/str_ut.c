@@ -84,6 +84,8 @@ static int str_simple_strtoul(struct unit_test_state *uts)
 		/* Base 10 and base 16 */
 		ut_assertok(run_strtoul(uts, str2, 10, 1099, 4, upper));
 		ut_assertok(run_strtoul(uts, str2, 16, 0x1099ab, 6, upper));
+		ut_assertok(run_strtoul(uts, str3, 16, 0xb, 3, upper));
+		ut_assertok(run_strtoul(uts, str3, 10, 0, 1, upper));
 
 		/* Invalid string */
 		ut_assertok(run_strtoul(uts, str1, 10, 0, 0, upper));
