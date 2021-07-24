@@ -89,7 +89,7 @@ static int str_simple_strtoul(struct unit_test_state *uts)
 		ut_assertok(run_strtoul(uts, str2, 10, 1099, 4, upper));
 		ut_assertok(run_strtoul(uts, str2, 16, 0x1099ab, 6, upper));
 		ut_assertok(run_strtoul(uts, str3, 16, 0xb, 3, upper));
-		ut_assertok(run_strtoul(uts, str3, 10, 0, 1, upper));
+		ut_assertok(run_strtoul(uts, str3, 10, 0xb, 3, upper));
 
 		/* Octal */
 		ut_assertok(run_strtoul(uts, str6, 0, 63, 3, upper));
@@ -144,7 +144,7 @@ static int str_simple_strtoull(struct unit_test_state *uts)
 		ut_assertok(run_strtoull(uts, str2, 10, 1099, 4, upper));
 		ut_assertok(run_strtoull(uts, str2, 16, 0x1099ab, 6, upper));
 		ut_assertok(run_strtoull(uts, str3, 16, 0xb, 3, upper));
-		ut_assertok(run_strtoull(uts, str3, 10, 0, 1, upper));
+		ut_assertok(run_strtoull(uts, str3, 10, 0xb, 3, upper));
 
 		/* Octal */
 		ut_assertok(run_strtoull(uts, str6, 0, 63, 3, upper));

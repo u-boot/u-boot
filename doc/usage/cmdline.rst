@@ -85,3 +85,9 @@ useful::
   => pmic write 2 0177
   => pmic read 2
   0x02: 0x00007f
+
+It is possible to use a `0x` prefix to use a hex value if that is more
+convenient::
+
+  => i2c speed 0x30000
+  Setting bus speed to 196608 Hz

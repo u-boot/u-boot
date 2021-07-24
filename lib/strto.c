@@ -14,19 +14,25 @@
 #include <linux/ctype.h>
 
 /* from lib/kstrtox.c */
-static const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
+static const char *_parse_integer_fixup_radix(const char *s, uint *basep)
 {
-	if (*base == 0) {
-		if (s[0] == '0') {
-			if (tolower(s[1]) == 'x')
-				*base = 16;
-			else
-				*base = 8;
-		} else
-			*base = 10;
+	/* Look for a 0x prefix */
+	if (s[0] == '0') {
+		int ch = tolower(s[1]);
+
+		if (ch == 'x') {
+			*basep = 16;
+			s += 2;
+		} else if (!*basep) {
+			/* Only select octal if we don't have a base */
+			*basep = 8;
+		}
 	}
-	if (*base == 16 && s[0] == '0' && tolower(s[1]) == 'x')
-		s += 2;
+
+	/* Use decimal by default */
+	if (!*basep)
+		*basep = 10;
+
 	return s;
 }
 
