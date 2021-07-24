@@ -199,8 +199,6 @@ static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_EIM_A19__GPIO2_IO19 | DIO_PAD_CFG),
 	/* IOEXP_IRQ# */
 	IOMUX_PADS(PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(IRQ_PAD_CTRL)),
-	/* CAN_STBY */
-	IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG),
 	/* GPS_SHDN */
 	IOMUX_PADS(PAD_ENET_RXD0__GPIO1_IO27 | DIO_PAD_CFG),
 	/* USBOTG_SEL */
@@ -218,8 +216,6 @@ static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* MSATA_EN */
 	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | DIO_PAD_CFG),
-	/* CAN_STBY */
-	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
 	/* IOEXP_PWREN# */
 	IOMUX_PADS(PAD_EIM_A19__GPIO2_IO19 | DIO_PAD_CFG),
 	/* IOEXP_IRQ# */
@@ -241,8 +237,6 @@ static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* MSATA_EN */
 	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | DIO_PAD_CFG),
-	/* CAN_STBY */
-	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
 	/* MIPI_DIO */
 	IOMUX_PADS(PAD_SD1_DAT3__GPIO1_IO21 | DIO_PAD_CFG),
 	/* RS485_EN */
@@ -260,8 +254,6 @@ static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw551x_gpio_pads[] = {
-	/* CAN_STBY */
-	IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
@@ -296,8 +288,6 @@ static iomux_v3_cfg_t const gw553x_gpio_pads[] = {
 static iomux_v3_cfg_t const gw560x_gpio_pads[] = {
 	/* RS232_EN# */
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
-	/* CAN_STBY */
-	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
 	/* IOEXP_PWREN# */
 	IOMUX_PADS(PAD_EIM_A19__GPIO2_IO19 | DIO_PAD_CFG),
 	/* IOEXP_IRQ# */
@@ -315,8 +305,6 @@ static iomux_v3_cfg_t const gw560x_gpio_pads[] = {
 static iomux_v3_cfg_t const gw5901_gpio_pads[] = {
 	/* ETH1_EN */
 	IOMUX_PADS(PAD_GPIO_1__GPIO1_IO01 | DIO_PAD_CFG),
-	/* CAN_STBY */
-	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
 	/* PMIC reset */
 	IOMUX_PADS(PAD_DISP0_DAT8__WDOG1_B | DIO_PAD_CFG),
 	/* COM_CFGA/B/C/D */
@@ -333,10 +321,6 @@ static iomux_v3_cfg_t const gw5901_gpio_pads[] = {
 };
 
 static iomux_v3_cfg_t const gw5902_gpio_pads[] = {
-	/* CAN1_STBY */
-	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
-	/* CAN2_STBY */
-	IOMUX_PADS(PAD_SD3_CLK__GPIO7_IO03 | DIO_PAD_CFG),
 	/* UART1_EN# */
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 	/* 5V_UVLO */
@@ -1139,12 +1123,7 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 		gpio_request(IMX_GPIO_NR(4, 26), "12p0_en");
 		gpio_direction_output(IMX_GPIO_NR(4, 26), 1);
 		break;
-	case GW5901:
-		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 2), "can_stby", 0);
-		break;
 	case GW5902:
-		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 2), "can1_stby", 0);
-		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(7, 3), "can2_stby", 0);
 		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(7, 12), "5P0V_EN", 1);
 		break;
 	case GW5903:
