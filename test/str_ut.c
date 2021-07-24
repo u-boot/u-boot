@@ -17,6 +17,8 @@ static const char str2[] = "1099abNo, don't bother apologising.";
 static const char str3[] = "0xbI'm sorry you're alive.";
 static const char str4[] = "1234567890123 I lost closer friends";
 static const char str5[] = "0x9876543210the last time I was deloused";
+static const char str6[] = "0778octal is seldom used";
+static const char str7[] = "707it is a piece of computing history";
 
 /* Declare a new str test */
 #define STR_TEST(_name, _flags)		UNIT_TEST(_name, _flags, str_test)
@@ -89,6 +91,10 @@ static int str_simple_strtoul(struct unit_test_state *uts)
 		ut_assertok(run_strtoul(uts, str3, 16, 0xb, 3, upper));
 		ut_assertok(run_strtoul(uts, str3, 10, 0, 1, upper));
 
+		/* Octal */
+		ut_assertok(run_strtoul(uts, str6, 0, 63, 3, upper));
+		ut_assertok(run_strtoul(uts, str7, 8, 0x1c7, 3, upper));
+
 		/* Invalid string */
 		ut_assertok(run_strtoul(uts, str1, 10, 0, 0, upper));
 
@@ -139,6 +145,10 @@ static int str_simple_strtoull(struct unit_test_state *uts)
 		ut_assertok(run_strtoull(uts, str2, 16, 0x1099ab, 6, upper));
 		ut_assertok(run_strtoull(uts, str3, 16, 0xb, 3, upper));
 		ut_assertok(run_strtoull(uts, str3, 10, 0, 1, upper));
+
+		/* Octal */
+		ut_assertok(run_strtoull(uts, str6, 0, 63, 3, upper));
+		ut_assertok(run_strtoull(uts, str7, 8, 0x1c7, 3, upper));
 
 		/* Large values */
 		ut_assertok(run_strtoull(uts, str4, 10, 1234567890123, 13,
