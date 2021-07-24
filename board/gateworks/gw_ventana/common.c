@@ -184,8 +184,6 @@ static iomux_v3_cfg_t const gw51xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(IRQ_PAD_CTRL)),
 	/* GPS_SHDN */
 	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
-	/* VID_PWR */
-	IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
@@ -207,8 +205,6 @@ static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_ENET_RXD0__GPIO1_IO27 | DIO_PAD_CFG),
 	/* USBOTG_SEL */
 	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
-	/* VID_PWR */
-	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
 	/* RS485_EN */
 	IOMUX_PADS(PAD_SD3_DAT4__GPIO7_IO01 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
@@ -232,8 +228,6 @@ static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_GPIO_19__GPIO4_IO05 | DIO_PAD_CFG),
 	/* GPS_SHDN */
 	IOMUX_PADS(PAD_ENET_RXD0__GPIO1_IO27 | DIO_PAD_CFG),
-	/* VID_EN */
-	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
 	/* RS485_EN */
 	IOMUX_PADS(PAD_SD3_DAT4__GPIO7_IO01 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
@@ -259,8 +253,6 @@ static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(IRQ_PAD_CTRL)),
 	/* DIOI2C_DIS# */
 	IOMUX_PADS(PAD_GPIO_19__GPIO4_IO05 | DIO_PAD_CFG),
-	/* VID_EN */
-	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
 	/* RS485_EN */
 	IOMUX_PADS(PAD_SD3_DAT4__GPIO7_IO01 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
@@ -297,8 +289,6 @@ static iomux_v3_cfg_t const gw552x_gpio_pads[] = {
 static iomux_v3_cfg_t const gw553x_gpio_pads[] = {
 	/* SD3_VSELECT */
 	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
-	/* VID_PWR */
-	IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
@@ -314,8 +304,6 @@ static iomux_v3_cfg_t const gw560x_gpio_pads[] = {
 	IOMUX_PADS(PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(IRQ_PAD_CTRL)),
 	/* DIOI2C_DIS# */
 	IOMUX_PADS(PAD_GPIO_19__GPIO4_IO05 | DIO_PAD_CFG),
-	/* VID_EN */
-	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
 	/* RS485_EN */
 	IOMUX_PADS(PAD_SD3_DAT4__GPIO7_IO01 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
@@ -875,7 +863,6 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mezz_pwren = IMX_GPIO_NR(2, 19),
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 		.gps_shdn = IMX_GPIO_NR(1, 2),
-		.vidin_en = IMX_GPIO_NR(5, 20),
 		.wdis = IMX_GPIO_NR(7, 12),
 	},
 
@@ -888,7 +875,6 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mezz_pwren = IMX_GPIO_NR(2, 19),
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 		.gps_shdn = IMX_GPIO_NR(1, 27),
-		.vidin_en = IMX_GPIO_NR(3, 31),
 		.usb_sel = IMX_GPIO_NR(1, 2),
 		.wdis = IMX_GPIO_NR(7, 12),
 		.msata_en = GP_MSATA_SEL,
@@ -906,7 +892,6 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mezz_pwren = IMX_GPIO_NR(2, 19),
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 		.gps_shdn = IMX_GPIO_NR(1, 27),
-		.vidin_en = IMX_GPIO_NR(3, 31),
 		.wdis = IMX_GPIO_NR(7, 12),
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
@@ -923,7 +908,6 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mezz_pwren = IMX_GPIO_NR(2, 19),
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 		.rs485en = IMX_GPIO_NR(7, 1),
-		.vidin_en = IMX_GPIO_NR(3, 31),
 		.dioi2c_en = IMX_GPIO_NR(4,  5),
 		.pcie_sson = IMX_GPIO_NR(1, 20),
 		.wdis = IMX_GPIO_NR(5, 17),
@@ -959,7 +943,6 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.num_pads = ARRAY_SIZE(gw553x_gpio_pads)/2,
 		.dio_cfg = gw553x_dio,
 		.dio_num = ARRAY_SIZE(gw553x_dio),
-		.vidin_en = IMX_GPIO_NR(5, 20),
 		.wdis = IMX_GPIO_NR(7, 12),
 		.vsel_pin = IMX_GPIO_NR(6, 14),
 		.mmc_cd = IMX_GPIO_NR(7, 0),
@@ -974,7 +957,6 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mezz_pwren = IMX_GPIO_NR(2, 19),
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 		.rs232_en = GP_RS232_EN,
-		.vidin_en = IMX_GPIO_NR(3, 31),
 		.wdis = IMX_GPIO_NR(7, 12),
 		.mmc_cd = IMX_GPIO_NR(7, 0),
 	},
@@ -1049,7 +1031,6 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mezz_pwren = IMX_GPIO_NR(2, 19),
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 		.gps_shdn = IMX_GPIO_NR(1, 27),
-		.vidin_en = IMX_GPIO_NR(3, 31),
 		.wdis = IMX_GPIO_NR(7, 12),
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
@@ -1113,12 +1094,6 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 	if (gpio_cfg[board].gps_shdn) {
 		gpio_request(gpio_cfg[board].gps_shdn, "gps_shdn");
 		gpio_direction_output(gpio_cfg[board].gps_shdn, 1);
-	}
-
-	/* Analog video codec power enable */
-	if (gpio_cfg[board].vidin_en) {
-		gpio_request(gpio_cfg[board].vidin_en, "anavidin_en");
-		gpio_direction_output(gpio_cfg[board].vidin_en, 1);
 	}
 
 	/* DIOI2C_DIS# */

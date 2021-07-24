@@ -65,7 +65,6 @@ struct ventana {
 	int mezz_irq;
 	int rs485en;
 	int gps_shdn;
-	int vidin_en;
 	int dioi2c_en;
 	int pcie_sson;
 	int usb_sel;
