@@ -434,6 +434,15 @@ static iomux_v3_cfg_t const gw5910_gpio_pads[] = {
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
+static iomux_v3_cfg_t const gw5912_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
+	/* RS232_EN# */
+	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | DIO_PAD_CFG),
+};
+
 /* Digital I/O */
 struct dio_cfg gw51xx_dio[] = {
 	{
@@ -850,6 +859,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.dioi2c_en = IMX_GPIO_NR(4,  5),
 		.pcie_sson = IMX_GPIO_NR(1, 20),
 		.mmc_cd = IMX_GPIO_NR(7, 0),
+		.wdis = -1,
 	},
 
 	/* GW51xx */
@@ -964,6 +974,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.gpio_pads = gw5901_gpio_pads,
 		.num_pads = ARRAY_SIZE(gw5901_gpio_pads)/2,
 		.dio_cfg = gw5901_dio,
+		.wdis = -1,
 	},
 
 	/* GW5902 */
@@ -972,6 +983,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.num_pads = ARRAY_SIZE(gw5902_gpio_pads)/2,
 		.dio_cfg = gw5902_dio,
 		.rs232_en = GP_RS232_EN,
+		.wdis = -1,
 	},
 
 	/* GW5903 */
@@ -981,6 +993,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.dio_cfg = gw5903_dio,
 		.dio_num = ARRAY_SIZE(gw5903_dio),
 		.mmc_cd = IMX_GPIO_NR(6, 11),
+		.wdis = -1,
 	},
 
 	/* GW5904 */
@@ -991,6 +1004,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.dio_num = ARRAY_SIZE(gw5904_dio),
 		.mezz_pwren = IMX_GPIO_NR(2, 19),
 		.mezz_irq = IMX_GPIO_NR(2, 18),
+		.wdis = -1,
 	},
 
 	/* GW5905 */
@@ -1042,6 +1056,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.dio_num = ARRAY_SIZE(gw5904_dio),
 		.mezz_pwren = IMX_GPIO_NR(2, 19),
 		.mezz_irq = IMX_GPIO_NR(2, 18),
+		.wdis = -1,
 	},
 
 	/* GW5910 */
@@ -1051,6 +1066,18 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.dio_cfg = gw52xx_dio,
 		.dio_num = ARRAY_SIZE(gw52xx_dio),
 		.wdis = IMX_GPIO_NR(7, 12),
+		.rs232_en = GP_RS232_EN,
+		.vsel_pin = IMX_GPIO_NR(6, 14),
+		.mmc_cd = IMX_GPIO_NR(7, 0),
+	},
+
+	/* GW5912 */
+	{
+		.gpio_pads = gw5912_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw5912_gpio_pads) / 2,
+		.dio_cfg = gw54xx_dio,
+		.dio_num = ARRAY_SIZE(gw54xx_dio),
+		.wdis = IMX_GPIO_NR(1, 0),
 		.rs232_en = GP_RS232_EN,
 		.vsel_pin = IMX_GPIO_NR(6, 14),
 		.mmc_cd = IMX_GPIO_NR(7, 0),
@@ -1125,7 +1152,7 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 	}
 
 	/* PCISKT_WDIS# (Wireless disable GPIO to miniPCIe sockets) */
-	if (gpio_cfg[board].wdis) {
+	if (gpio_cfg[board].wdis != -1) {
 		gpio_request(gpio_cfg[board].wdis, "wlan_dis");
 		gpio_direction_output(gpio_cfg[board].wdis, 1);
 	}
@@ -1617,6 +1644,7 @@ int board_mmc_init(struct bd_info *bis)
 	case GW54xx:
 	case GW553x:
 	case GW5910:
+	case GW5912:
 		/* usdhc3: 4bit microSD */
 		SETUP_IOMUX_PADS(usdhc3_pads);
 		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
