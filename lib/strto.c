@@ -30,16 +30,33 @@ static const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
 	return s;
 }
 
+/**
+ * decode_digit() - Decode a single character into its numeric digit value
+ *
+ * This ignore case
+ *
+ * @ch: Character to convert (expects '0'..'9', 'a'..'f' or 'A'..'F')
+ * @return value of digit (0..0xf) or 255 if the character is invalid
+ */
+static uint decode_digit(int ch)
+{
+	if (!isxdigit(ch))
+		return 256;
+
+	ch = tolower(ch);
+
+	return ch <= '9' ? ch - '0' : ch - 'a' + 0xa;
+}
+
 ulong simple_strtoul(const char *cp, char **endp, uint base)
 {
 	ulong result = 0;
-	ulong value;
+	uint value;
 
 	cp = _parse_integer_fixup_radix(cp, &base);
 
-	while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp-'0' : (islower(*cp)
-	    ? toupper(*cp) : *cp)-'A'+10) < base) {
-		result = result*base + value;
+	while (value = decode_digit(*cp), value < base) {
+		result = result * base + value;
 		cp++;
 	}
 
@@ -136,12 +153,12 @@ unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base)
 unsigned long long simple_strtoull(const char *cp, char **endp,
 					unsigned int base)
 {
-	unsigned long long result = 0, value;
+	unsigned long long result = 0;
+	uint value;
 
 	cp = _parse_integer_fixup_radix(cp, &base);
 
-	while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp - '0'
-		: (islower(*cp) ? toupper(*cp) : *cp) - 'A' + 10) < base) {
+	while (value = decode_digit(*cp), value < base) {
 		result = result * base + value;
 		cp++;
 	}
