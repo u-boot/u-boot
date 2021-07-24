@@ -15,12 +15,15 @@
  *
  * @param cp	The string to be converted
  * @param endp	Updated to point to the first character not converted
- * @param base	The number base to use
+ * @param base	The number base to use (0 for the default)
  * @return value decoded from string (0 if invalid)
  *
  * Converts a string to an unsigned long. If there are invalid characters at
  * the end these are ignored. In the worst case, if all characters are invalid,
  * 0 is returned
+ *
+ * If @base is 0, octal or hex prefixes are supported (e.g. 0777, 0x123) to
+ * select a particular base. By default decimal is used.
  */
 ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
 
@@ -53,7 +56,7 @@ unsigned long dectoul(const char *cp, char **endp);
 /**
  * strict_strtoul - convert a string to an unsigned long strictly
  * @param cp	The string to be converted
- * @param base	The number base to use
+ * @param base	The number base to use (0 for the default)
  * @param res	The converted result value
  * @return 0 if conversion is successful and *res is set to the converted
  * value, otherwise it returns -EINVAL and *res is set to 0.
@@ -67,6 +70,9 @@ unsigned long dectoul(const char *cp, char **endp);
  *      echo 1024 > /sys/module/e1000/parameters/copybreak
  *
  * echo will append a newline to the tail.
+ *
+ * If @base is 0, octal or hex prefixes are supported (e.g. 0777, 0x123) to
+ * select a particular base. By default decimal is used.
  *
  * Copied this function from Linux 2.6.38 commit ID:
  * 521cb40b0c44418a4fd36dc633f575813d59a43d
