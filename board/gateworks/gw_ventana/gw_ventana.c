@@ -981,7 +981,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	struct ventana_board_info *info = &ventana_info;
 	struct ventana_eeprom_config *cfg;
-	static const struct node_info nodes[] = {
+	static const struct node_info nand_nodes[] = {
 		{ "sst,w25q256",          MTD_DEV_TYPE_NOR, },  /* SPI flash */
 		{ "fsl,imx6q-gpmi-nand",  MTD_DEV_TYPE_NAND, }, /* NAND flash */
 	};
@@ -1003,11 +1003,9 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		return 0;
 	}
 
-	if (gpio_cfg[board_type].nand) {
-		/* Update partition nodes using info from mtdparts env var */
-		puts("   Updating MTD partitions...\n");
-		fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
-	}
+	/* Update MTD partition nodes using info from mtdparts env var */
+	puts("   Updating MTD partitions...\n");
+	fdt_fixup_mtdparts(blob, nand_nodes, ARRAY_SIZE(nand_nodes));
 
 	/* Update display timings from display env var */
 	if (display) {
