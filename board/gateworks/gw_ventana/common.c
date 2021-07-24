@@ -229,6 +229,10 @@ static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_SD3_DAT4__GPIO7_IO01 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
+	/* J6_PWREN */
+	IOMUX_PADS(PAD_EIM_DA15__GPIO3_IO15 | DIO_PAD_CFG),
+	/* PCIEGBE_EN */
+	IOMUX_PADS(PAD_EIM_DA14__GPIO3_IO14 | DIO_PAD_CFG),
 };
 
 static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
@@ -1226,6 +1230,12 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 
 	/* Anything else board specific */
 	switch(board) {
+	case GW53xx:
+		gpio_request(IMX_GPIO_NR(3, 15), "j6_pwren");
+		gpio_direction_output(IMX_GPIO_NR(3, 15), 1);
+		gpio_request(IMX_GPIO_NR(3, 14), "gbe_en");
+		gpio_direction_output(IMX_GPIO_NR(3, 14), 1);
+		break;
 	case GW560x:
 		gpio_request(IMX_GPIO_NR(4, 26), "12p0_en");
 		gpio_direction_output(IMX_GPIO_NR(4, 26), 1);
@@ -1645,6 +1655,15 @@ void ft_early_fixup(void *blob, int board_type)
 		/* GW53xx-E adds WDOG1_B external reset */
 		if (rev < 'E')
 			ft_board_wdog_fixup(blob, WDOG1_ADDR);
+
+		/* GW53xx-G has an adv7280 instead of an adv7180 */
+		else if (rev > 'F') {
+			i = fdt_node_offset_by_compatible(blob, -1, "adi,adv7180");
+			if (i) {
+				fdt_setprop_string(blob, i, "compatible", "adi,adv7280");
+				fdt_setprop_empty(blob, i, "adv,force-bt656-4");
+			}
+		}
 		break;
 
 	case GW54xx:
