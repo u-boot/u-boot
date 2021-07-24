@@ -16,13 +16,19 @@
 static int check_for_input(struct unit_test_state *uts, const char *in,
 			   bool correct)
 {
+	bool old_val;
 	/* The bootdelay is set to 1 second in test_autoboot() */
 	const char *autoboot_prompt =
 		"Enter password \"a\" in 1 seconds to stop autoboot";
 
 	console_record_reset_enable();
 	console_in_puts(in);
+
+	/* turn on keyed autoboot for the test, if possible */
+	old_val = autoboot_set_keyed(true);
 	autoboot_command("echo Autoboot password unlock not successful");
+	old_val = autoboot_set_keyed(old_val);
+
 	ut_assert_nextline(autoboot_prompt);
 	if (!correct)
 		ut_assert_nextline("Autoboot password unlock not successful");
