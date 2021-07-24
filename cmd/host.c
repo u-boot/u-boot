@@ -62,7 +62,7 @@ static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc > 2)
 		return CMD_RET_USAGE;
 	dev_str = argv[0];
-	dev = simple_strtoul(dev_str, &ep, 16);
+	dev = hextoul(dev_str, &ep);
 	if (*ep) {
 		printf("** Bad device specification %s **\n", dev_str);
 		return CMD_RET_USAGE;
@@ -82,7 +82,7 @@ static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc >= 2) {
 		char *ep;
 		char *dev_str = argv[1];
-		int dev = simple_strtoul(dev_str, &ep, 16);
+		int dev = hextoul(dev_str, &ep);
 		if (*ep) {
 			printf("** Bad device specification %s **\n", dev_str);
 			return CMD_RET_USAGE;
@@ -139,7 +139,7 @@ static int do_host_dev(struct cmd_tbl *cmdtp, int flag, int argc,
 		return 0;
 	}
 
-	dev = simple_strtoul(argv[1], &ep, 16);
+	dev = hextoul(argv[1], &ep);
 	if (*ep) {
 		printf("** Bad device specification %s **\n", argv[2]);
 		return CMD_RET_USAGE;

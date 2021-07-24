@@ -351,7 +351,7 @@ static void label_boot_fdtoverlay(struct cmd_tbl *cmdtp, struct pxe_label *label
 	int err;
 
 	/* Get the main fdt and map it */
-	fdt_addr = simple_strtoul(env_get("fdt_addr_r"), NULL, 16);
+	fdt_addr = hextoul(env_get("fdt_addr_r"), NULL);
 	working_fdt = map_sysmem(fdt_addr, 0);
 	err = fdt_check_header(working_fdt);
 	if (err)
@@ -364,7 +364,7 @@ static void label_boot_fdtoverlay(struct cmd_tbl *cmdtp, struct pxe_label *label
 		return;
 	}
 
-	fdtoverlay_addr = simple_strtoul(fdtoverlay_addr_env, NULL, 16);
+	fdtoverlay_addr = hextoul(fdtoverlay_addr_env, NULL);
 
 	/* Cycle over the overlay files and apply them in order */
 	do {

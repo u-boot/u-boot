@@ -52,7 +52,7 @@ void string_to_enetaddr(const char *addr, uint8_t *enetaddr)
 		return;
 
 	for (i = 0; i < 6; ++i) {
-		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
+		enetaddr[i] = addr ? hextoul(addr, &end) : 0;
 		if (addr)
 			addr = (*end) ? end + 1 : end;
 	}

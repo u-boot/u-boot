@@ -281,7 +281,7 @@ static void set_mac_address(char *string)
 	}
 
 	for (i = 0; *string && (i < MAC_ADDR_BYTES); i++) {
-		e.mac_addr[i] = simple_strtoul(string, &string, 16);
+		e.mac_addr[i] = hextoul(string, &string);
 		if (*string == ':')
 			string++;
 	}

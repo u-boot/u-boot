@@ -747,7 +747,7 @@ static int on_splashimage(const char *name, const char *value, enum env_op op,
 	if (op == env_op_delete)
 		return 0;
 
-	addr = simple_strtoul(value, NULL, 16);
+	addr = hextoul(value, NULL);
 	/* See README.displaying-bmps */
 	aligned = (addr % 4 == 2);
 	if (!aligned) {

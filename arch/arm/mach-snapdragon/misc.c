@@ -47,7 +47,7 @@ void msm_generate_mac_addr(u8 *mac)
 	mac[0] = 0x02;
 	mac[1] = 00;
 	for (i = 3; i >= 0; i--) {
-		mac[i + 2] = simple_strtoul(&sn[2 * i], NULL, 16);
+		mac[i + 2] = hextoul(&sn[2 * i], NULL);
 		sn[2 * i] = 0;
 	}
 }

@@ -30,11 +30,10 @@ static const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
 	return s;
 }
 
-unsigned long simple_strtoul(const char *cp, char **endp,
-				unsigned int base)
+ulong simple_strtoul(const char *cp, char **endp, uint base)
 {
-	unsigned long result = 0;
-	unsigned long value;
+	ulong result = 0;
+	ulong value;
 
 	cp = _parse_integer_fixup_radix(cp, &base);
 
@@ -48,6 +47,11 @@ unsigned long simple_strtoul(const char *cp, char **endp,
 		*endp = (char *)cp;
 
 	return result;
+}
+
+ulong hextoul(const char *cp, char **endp)
+{
+	return simple_strtoul(cp, endp, 16);
 }
 
 int strict_strtoul(const char *cp, unsigned int base, unsigned long *res)

@@ -204,9 +204,9 @@ int dfu_fill_entity_nand(struct dfu_entity *dfu, char *devstr, char *s)
 	st = strsep(&s, " ");
 	if (!strcmp(st, "raw")) {
 		dfu->layout = DFU_RAW_ADDR;
-		dfu->data.nand.start = simple_strtoul(s, &s, 16);
+		dfu->data.nand.start = hextoul(s, &s);
 		s++;
-		dfu->data.nand.size = simple_strtoul(s, &s, 16);
+		dfu->data.nand.size = hextoul(s, &s);
 	} else if ((!strcmp(st, "part")) || (!strcmp(st, "partubi"))) {
 		char mtd_id[32];
 		struct mtd_device *mtd_dev;

@@ -143,7 +143,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return 0;
 		}
 
-		addr = simple_strtoul(argv[0], NULL, 16);
+		addr = hextoul(argv[0], NULL);
 		blob = map_sysmem(addr, 0);
 		if (!fdt_valid(&blob))
 			return 1;
@@ -157,7 +157,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			int  err;
 
 			/* Optional new length */
-			len = simple_strtoul(argv[1], NULL, 16);
+			len = hextoul(argv[1], NULL);
 			if (len < fdt_totalsize(blob)) {
 				printf("New length %d < existing length %d, ignoring\n",
 				       len, fdt_totalsize(blob));
@@ -195,11 +195,11 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		/*
 		 * Set the address and length of the fdt.
 		 */
-		working_fdt = (struct fdt_header *)simple_strtoul(argv[2], NULL, 16);
+		working_fdt = (struct fdt_header *)hextoul(argv[2], NULL);
 		if (!fdt_valid(&working_fdt))
 			return 1;
 
-		newaddr = (struct fdt_header *)simple_strtoul(argv[3],NULL,16);
+		newaddr = (struct fdt_header *)hextoul(argv[3], NULL);
 
 		/*
 		 * If the user specifies a length, use that.  Otherwise use the
@@ -208,7 +208,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		if (argc <= 4) {
 			len = fdt_totalsize(working_fdt);
 		} else {
-			len = simple_strtoul(argv[4], NULL, 16);
+			len = hextoul(argv[4], NULL);
 			if (len < fdt_totalsize(working_fdt)) {
 				printf ("New length 0x%X < existing length "
 					"0x%X, aborting.\n",
@@ -364,21 +364,22 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		}
 
 		if (subcmd[0] == 'n' || (subcmd[0] == 's' && argc == 5)) {
-			int reqIndex = -1;
+			int req_index = -1;
 			int startDepth = fdt_node_depth(
 				working_fdt, nodeoffset);
 			int curDepth = startDepth;
-			int curIndex = -1;
+			int cur_index = -1;
 			int nextNodeOffset = fdt_next_node(
 				working_fdt, nodeoffset, &curDepth);
 
 			if (subcmd[0] == 'n')
-				reqIndex = simple_strtoul(argv[5], NULL, 16);
+				req_index = hextoul(argv[5], NULL);
 
 			while (curDepth > startDepth) {
 				if (curDepth == startDepth + 1)
-					curIndex++;
-				if (subcmd[0] == 'n' && curIndex == reqIndex) {
+					cur_index++;
+				if (subcmd[0] == 'n' &&
+				    cur_index == req_index) {
 					const char *node_name;
 
 					node_name = fdt_get_name(working_fdt,
@@ -394,7 +395,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			}
 			if (subcmd[0] == 's') {
 				/* get the num nodes at this level */
-				env_set_ulong(var, curIndex + 1);
+				env_set_ulong(var, cur_index + 1);
 			} else {
 				/* node index not found */
 				printf("libfdt node not found\n");
@@ -548,7 +549,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	 * Set boot cpu id
 	 */
 	} else if (strncmp(argv[1], "boo", 3) == 0) {
-		unsigned long tmp = simple_strtoul(argv[2], NULL, 16);
+		unsigned long tmp = hextoul(argv[2], NULL);
 		fdt_set_boot_cpuid_phys(working_fdt, tmp);
 
 	/*
@@ -600,7 +601,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 				return err;
 			}
 		} else if (argv[2][0] == 'd') {
-			unsigned long idx = simple_strtoul(argv[3], NULL, 16);
+			unsigned long idx = hextoul(argv[3], NULL);
 			int err = fdt_del_mem_rsv(working_fdt, idx);
 
 			if (err < 0) {
@@ -636,8 +637,8 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return CMD_RET_USAGE;
 
 		if (argc == 4) {
-			initrd_start = simple_strtoul(argv[2], NULL, 16);
-			initrd_end = simple_strtoul(argv[3], NULL, 16);
+			initrd_start = hextoul(argv[2], NULL);
+			initrd_end = hextoul(argv[3], NULL);
 		}
 
 		fdt_chosen(working_fdt);
@@ -654,7 +655,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return CMD_RET_FAILURE;
 
 		if (argc > 2) {
-			addr = simple_strtoul(argv[2], NULL, 16);
+			addr = hextoul(argv[2], NULL);
 			blob = map_sysmem(addr, 0);
 		} else {
 			blob = (struct fdt_header *)gd->fdt_blob;
@@ -691,7 +692,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		if (!working_fdt)
 			return CMD_RET_FAILURE;
 
-		addr = simple_strtoul(argv[2], NULL, 16);
+		addr = hextoul(argv[2], NULL);
 		blob = map_sysmem(addr, 0);
 		if (!fdt_valid(&blob))
 			return CMD_RET_FAILURE;
@@ -706,7 +707,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	else if (strncmp(argv[1], "re", 2) == 0) {
 		uint extrasize;
 		if (argc > 2)
-			extrasize = simple_strtoul(argv[2], NULL, 16);
+			extrasize = hextoul(argv[2], NULL);
 		else
 			extrasize = 0;
 		fdt_shrink_to_minimum(working_fdt, extrasize);
@@ -797,7 +798,7 @@ static int fdt_parse_prop(char * const *newval, int count, char *data, int *len)
 			}
 			if (!isxdigit(*newp))
 				break;
-			tmp = simple_strtoul(newp, &newp, 16);
+			tmp = hextoul(newp, &newp);
 			*data++ = tmp & 0xFF;
 			*len    = *len + 1;
 		}
@@ -883,7 +884,7 @@ static void print_data(const void *data, int len)
 
 	env_max_dump = env_get("fdt_max_dump");
 	if (env_max_dump)
-		max_dump = simple_strtoul(env_max_dump, NULL, 16);
+		max_dump = hextoul(env_max_dump, NULL);
 
 	/*
 	 * It is a string, but it may have multiple strings (embedded '\0's).

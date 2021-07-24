@@ -10,7 +10,32 @@
 #include <stdarg.h>
 #include <linux/types.h>
 
+/**
+ * simple_strtoul - convert a string to an unsigned long
+ *
+ * @param cp	The string to be converted
+ * @param endp	Updated to point to the first character not converted
+ * @param base	The number base to use
+ * @return value decoded from string (0 if invalid)
+ *
+ * Converts a string to an unsigned long. If there are invalid characters at
+ * the end these are ignored. In the worst case, if all characters are invalid,
+ * 0 is returned
+ */
 ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
+
+/**
+ * hex_strtoul - convert a string in hex to an unsigned long
+ *
+ * @param cp	The string to be converted
+ * @param endp	Updated to point to the first character not converted
+ * @return value decoded from string (0 if invalid)
+ *
+ * Converts a hex string to an unsigned long. If there are invalid characters at
+ * the end these are ignored. In the worst case, if all characters are invalid,
+ * 0 is returned
+ */
+unsigned long hextoul(const char *cp, char **endp);
 
 /**
  * strict_strtoul - convert a string to an unsigned long strictly
@@ -29,9 +54,6 @@ ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
  *      echo 1024 > /sys/module/e1000/parameters/copybreak
  *
  * echo will append a newline to the tail.
- *
- * simple_strtoul just ignores the successive invalid characters and
- * return the converted value of prefix part of the string.
  *
  * Copied this function from Linux 2.6.38 commit ID:
  * 521cb40b0c44418a4fd36dc633f575813d59a43d

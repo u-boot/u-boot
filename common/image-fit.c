@@ -53,7 +53,7 @@ static int fit_parse_spec(const char *spec, char sepc, ulong addr_curr,
 	sep = strchr(spec, sepc);
 	if (sep) {
 		if (sep - spec > 0)
-			*addr = simple_strtoul(spec, NULL, 16);
+			*addr = hextoul(spec, NULL);
 
 		*name = sep + 1;
 		return 1;

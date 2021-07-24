@@ -27,7 +27,7 @@ static int do_adtimg_addr(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	hdr_addr = simple_strtoul(argv[1], &endp, 16);
+	hdr_addr = hextoul(argv[1], &endp);
 	if (*endp != '\0') {
 		printf("Error: Wrong image address '%s'\n", argv[1]);
 		return CMD_RET_FAILURE;

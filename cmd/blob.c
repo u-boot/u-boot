@@ -70,10 +70,10 @@ static int do_blob(struct cmd_tbl *cmdtp, int flag, int argc,
 	else
 		return CMD_RET_USAGE;
 
-	src_addr = simple_strtoul(argv[2], NULL, 16);
-	dst_addr = simple_strtoul(argv[3], NULL, 16);
-	len = simple_strtoul(argv[4], NULL, 16);
-	key_addr = simple_strtoul(argv[5], NULL, 16);
+	src_addr = hextoul(argv[2], NULL);
+	dst_addr = hextoul(argv[3], NULL);
+	len = hextoul(argv[4], NULL);
+	key_addr = hextoul(argv[5], NULL);
 
 	km_ptr = (uint8_t *)(uintptr_t)key_addr;
 	src_ptr = (uint8_t *)(uintptr_t)src_addr;

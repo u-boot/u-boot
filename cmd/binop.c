@@ -58,7 +58,7 @@ void write_to_mem(char *varname, u8 *result, ulong len)
 	ulong addr;
 	u8 *buf;
 
-	addr = simple_strtoul(varname, NULL, 16);
+	addr = hextoul(varname, NULL);
 	buf = map_sysmem(addr, len);
 	memcpy(buf, result, len);
 	unmap_sysmem(buf);
@@ -95,12 +95,12 @@ static int do_binop(struct cmd_tbl *cmdtp, int flag, int argc,
 	src2 = malloc(len);
 
 	if (*src1arg == '*')
-		read_from_mem(simple_strtoul(src1arg + 1, NULL, 16), src1, len);
+		read_from_mem(hextoul(src1arg + 1, NULL), src1, len);
 	else
 		read_from_env_var(src1arg, src1);
 
 	if (*src2arg == '*')
-		read_from_mem(simple_strtoul(src2arg + 1, NULL, 16), src2, len);
+		read_from_mem(hextoul(src2arg + 1, NULL), src2, len);
 	else
 		read_from_env_var(src2arg, src2);
 

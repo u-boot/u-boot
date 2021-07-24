@@ -49,7 +49,7 @@ static int get_arg(char *s, int w, struct expr_arg *argp)
 		int len;
 		char *str;
 
-		addr = simple_strtoul(&s[1], NULL, 16);
+		addr = hextoul(&s[1], NULL);
 		switch (w) {
 		case 1:
 			p = map_sysmem(addr, sizeof(uchar));
@@ -94,7 +94,7 @@ static int get_arg(char *s, int w, struct expr_arg *argp)
 	} else {
 		if (w == CMD_DATA_SIZE_STR)
 			return -EINVAL;
-		arg.ival = simple_strtoul(s, NULL, 16);
+		arg.ival = hextoul(s, NULL);
 	}
 	*argp = arg;
 

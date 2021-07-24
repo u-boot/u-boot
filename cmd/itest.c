@@ -57,7 +57,7 @@ static long evalexp(char *s, int w)
 
 	/* if the parameter starts with a * then assume is a pointer to the value we want */
 	if (s[0] == '*') {
-		addr = simple_strtoul(&s[1], NULL, 16);
+		addr = hextoul(&s[1], NULL);
 		buf = map_physmem(addr, w, MAP_WRBACK);
 		if (!buf && addr) {
 			puts("Failed to map physical memory\n");
@@ -82,7 +82,7 @@ static long evalexp(char *s, int w)
 		unmap_physmem(buf, w);
 		return l;
 	} else {
-		l = simple_strtoul(s, NULL, 16);
+		l = hextoul(s, NULL);
 	}
 
 	/* avoid overflow on mask calculus */
@@ -93,7 +93,7 @@ static char * evalstr(char *s)
 {
 	/* if the parameter starts with a * then assume a string pointer else its a literal */
 	if (s[0] == '*') {
-		return (char *)simple_strtoul(&s[1], NULL, 16);
+		return (char *)hextoul(&s[1], NULL);
 	} else if (s[0] == '$') {
 		int i = 2;
 

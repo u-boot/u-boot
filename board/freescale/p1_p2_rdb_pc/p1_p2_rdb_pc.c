@@ -281,7 +281,7 @@ int board_early_init_r(void)
 	/* If a VSC7385 microcode image is present, then upload it. */
 	tmp = env_get("vscfw_addr");
 	if (tmp) {
-		vscfw_addr = simple_strtoul(tmp, NULL, 16);
+		vscfw_addr = hextoul(tmp, NULL);
 		printf("uploading VSC7385 microcode from %x\n", vscfw_addr);
 		if (vsc7385_upload_firmware((void *)vscfw_addr,
 					    CONFIG_VSC7385_IMAGE_SIZE))

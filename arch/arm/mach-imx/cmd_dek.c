@@ -300,8 +300,8 @@ static int do_dek_blob(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 4)
 		return CMD_RET_USAGE;
 
-	src_addr = simple_strtoul(argv[1], NULL, 16);
-	dst_addr = simple_strtoul(argv[2], NULL, 16);
+	src_addr = hextoul(argv[1], NULL);
+	dst_addr = hextoul(argv[2], NULL);
 	len = simple_strtoul(argv[3], NULL, 10);
 
 	return blob_encap_dek(src_addr, dst_addr, len);

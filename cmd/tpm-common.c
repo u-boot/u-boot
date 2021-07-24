@@ -68,7 +68,7 @@ void *parse_byte_string(char *bytes, u8 *data, size_t *count_ptr)
 	for (i = 0; i < length; i += 2) {
 		byte[0] = bytes[i];
 		byte[1] = bytes[i + 1];
-		data[i / 2] = (u8)simple_strtoul(byte, NULL, 16);
+		data[i / 2] = (u8)hextoul(byte, NULL);
 	}
 
 	if (count_ptr)

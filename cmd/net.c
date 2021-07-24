@@ -205,7 +205,7 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 	/* pre-set image_load_addr */
 	s = env_get("loadaddr");
 	if (s != NULL)
-		image_load_addr = simple_strtoul(s, NULL, 16);
+		image_load_addr = hextoul(s, NULL);
 
 	switch (argc) {
 	case 1:
@@ -220,7 +220,7 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 		 * form must be written in a format which can not be
 		 * mis-interpreted as a valid number.
 		 */
-		addr = simple_strtoul(argv[1], &end, 16);
+		addr = hextoul(argv[1], &end);
 		if (end == (argv[1] + strlen(argv[1]))) {
 			image_load_addr = addr;
 			/* refresh bootfile name from env */
@@ -234,7 +234,7 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 		break;
 
 	case 3:
-		image_load_addr = simple_strtoul(argv[1], NULL, 16);
+		image_load_addr = hextoul(argv[1], NULL);
 		net_boot_file_name_explicit = true;
 		copy_filename(net_boot_file_name, argv[2],
 			      sizeof(net_boot_file_name));

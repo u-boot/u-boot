@@ -405,17 +405,17 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	if (s)
-		state.bzimage_addr = simple_strtoul(s, NULL, 16);
+		state.bzimage_addr = hextoul(s, NULL);
 
 	if (argc >= 3) {
 		/* argv[2] holds the size of the bzImage */
-		state.bzimage_size = simple_strtoul(argv[2], NULL, 16);
+		state.bzimage_size = hextoul(argv[2], NULL);
 	}
 
 	if (argc >= 4)
-		state.initrd_addr = simple_strtoul(argv[3], NULL, 16);
+		state.initrd_addr = hextoul(argv[3], NULL);
 	if (argc >= 5)
-		state.initrd_size = simple_strtoul(argv[4], NULL, 16);
+		state.initrd_size = hextoul(argv[4], NULL);
 	if (argc >= 6) {
 		/*
 		 * When the base_ptr is passed in, we assume that the image is
@@ -428,7 +428,7 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 		 * load address and set bzimage_addr to 0 so we know that it
 		 * cannot be proceesed (or processed again).
 		 */
-		state.base_ptr = (void *)simple_strtoul(argv[5], NULL, 16);
+		state.base_ptr = (void *)hextoul(argv[5], NULL);
 		state.load_address = state.bzimage_addr;
 		state.bzimage_addr = 0;
 	}
@@ -702,7 +702,7 @@ static int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct boot_params *base_ptr = state.base_ptr;
 
 	if (argc > 1)
-		base_ptr = (void *)simple_strtoul(argv[1], NULL, 16);
+		base_ptr = (void *)hextoul(argv[1], NULL);
 	if (!base_ptr) {
 		printf("No zboot setup_base\n");
 		return CMD_RET_FAILURE;
@@ -749,7 +749,7 @@ int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc > 1) {
 		char *endp;
 
-		simple_strtoul(argv[1], &endp, 16);
+		hextoul(argv[1], &endp);
 		/*
 		 * endp pointing to nul means that argv[1] was just a valid
 		 * number, so pass it along to the normal processing

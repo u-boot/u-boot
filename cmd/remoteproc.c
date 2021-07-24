@@ -130,9 +130,9 @@ static int do_remoteproc_load(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	id = (int)simple_strtoul(argv[1], NULL, 10);
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 
-	size = simple_strtoul(argv[3], NULL, 16);
+	size = hextoul(argv[3], NULL);
 
 	if (!size) {
 		printf("\t Expect some size??\n");

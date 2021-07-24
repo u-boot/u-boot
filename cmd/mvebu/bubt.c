@@ -137,7 +137,7 @@ static ulong get_load_addr(void)
 
 	addr_str = env_get("loadaddr");
 	if (addr_str)
-		addr = simple_strtoul(addr_str, NULL, 16);
+		addr = hextoul(addr_str, NULL);
 	else
 		addr = CONFIG_SYS_LOAD_ADDR;
 

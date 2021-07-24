@@ -820,7 +820,7 @@ void *video_hw_init(void)
 	if (penv) {
 		/* decide if it is a string */
 		if (penv[0] <= '9') {
-			videomode = (int) simple_strtoul(penv, NULL, 16);
+			videomode = (int)hextoul(penv, NULL);
 			tmp = 1;
 		}
 	} else {

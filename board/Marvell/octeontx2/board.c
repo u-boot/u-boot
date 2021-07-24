@@ -230,7 +230,7 @@ static int do_go_uboot(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[1], NULL, 16);
+	addr = hextoul(argv[1], NULL);
 	fdt = board_fdt_blob_setup();
 	entry = (uboot_entry_t)addr;
 	flush_cache((ulong)addr, 1 << 20);	/* 1MiB should be enough */

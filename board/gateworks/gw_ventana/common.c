@@ -1502,7 +1502,7 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 			continue;
 		s = hwconfig_subarg(arg, "padctrl", &len);
 		if (s) {
-			ctrl = MUX_PAD_CTRL(simple_strtoul(s, NULL, 16)
+			ctrl = MUX_PAD_CTRL(hextoul(s, NULL)
 					    & 0x1ffff) | MUX_MODE_SION;
 		}
 		if (hwconfig_subarg_cmp(arg, "mode", "gpio")) {

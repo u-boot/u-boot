@@ -235,25 +235,25 @@ int do_atf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	char str[4 * sizeof(uint64_t)];
 
 	if ((argc == 5) && !strcmp(argv[1], "readmmc")) {
-		buffer = (void *)simple_strtoul(argv[2], NULL, 16);
+		buffer = (void *)hextoul(argv[2], NULL);
 		offset = simple_strtoul(argv[3], NULL, 10);
 		size = simple_strtoul(argv[4], NULL, 10);
 
 		ret = atf_read_mmc(offset, buffer, size);
 	} else if ((argc == 5) && !strcmp(argv[1], "readnor")) {
-		buffer = (void *)simple_strtoul(argv[2], NULL, 16);
+		buffer = (void *)hextoul(argv[2], NULL);
 		offset = simple_strtoul(argv[3], NULL, 10);
 		size = simple_strtoul(argv[4], NULL, 10);
 
 		ret = atf_read_nor(offset, buffer, size);
 	} else if ((argc == 5) && !strcmp(argv[1], "writemmc")) {
-		buffer = (void *)simple_strtoul(argv[2], NULL, 16);
+		buffer = (void *)hextoul(argv[2], NULL);
 		offset = simple_strtoul(argv[3], NULL, 10);
 		size = simple_strtoul(argv[4], NULL, 10);
 
 		ret = atf_write_mmc(offset, buffer, size);
 	} else if ((argc == 5) && !strcmp(argv[1], "writenor")) {
-		buffer = (void *)simple_strtoul(argv[2], NULL, 16);
+		buffer = (void *)hextoul(argv[2], NULL);
 		offset = simple_strtoul(argv[3], NULL, 10);
 		size = simple_strtoul(argv[4], NULL, 10);
 

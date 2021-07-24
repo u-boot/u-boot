@@ -236,10 +236,10 @@ static int do_ini(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 
 	section = argv[1];
-	file_address = (char *)simple_strtoul(
-		argc < 3 ? env_get("loadaddr") : argv[2], NULL, 16);
-	file_size = (size_t)simple_strtoul(
-		argc < 4 ? env_get("filesize") : argv[3], NULL, 16);
+	file_address = (char *)hextoul(argc < 3 ? env_get("loadaddr") : argv[2],
+					NULL);
+	file_size = (size_t)hextoul(argc < 4 ? env_get("filesize") : argv[3],
+				     NULL);
 
 	return ini_parse(file_address, file_size, ini_handler, (void *)section);
 }

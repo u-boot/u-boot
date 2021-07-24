@@ -252,7 +252,7 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 			return 1;
 		}
 
-		u32 boot_addr = simple_strtoul(argv[0], NULL, 16);
+		u32 boot_addr = hextoul(argv[0], NULL);
 		u32 boot_addr_uniq = 0;
 		if (!(boot_addr == ZYNQMP_R5_LOVEC_ADDR ||
 		      boot_addr == ZYNQMP_R5_HIVEC_ADDR)) {

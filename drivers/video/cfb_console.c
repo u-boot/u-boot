@@ -1857,7 +1857,7 @@ static void *video_logo(void)
 		ret = splash_screen_prepare();
 		if (ret < 0)
 			return video_fb_address;
-		addr = simple_strtoul(s, NULL, 16);
+		addr = hextoul(s, NULL);
 
 		if (video_display_bitmap(addr,
 					video_logo_xpos,

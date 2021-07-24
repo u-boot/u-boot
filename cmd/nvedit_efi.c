@@ -471,12 +471,12 @@ int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 
 			argc--;
 			argv++;
-			addr = simple_strtoul(argv[0], &ep, 16);
+			addr = hextoul(argv[0], &ep);
 			if (*ep != ':')
 				return CMD_RET_USAGE;
 
 			/* 0 should be allowed for delete */
-			size = simple_strtoul(++ep, NULL, 16);
+			size = hextoul(++ep, NULL);
 
 			value_on_memory = true;
 		} else if (!strcmp(argv[0], "-v")) {

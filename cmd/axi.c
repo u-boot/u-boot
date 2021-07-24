@@ -198,14 +198,14 @@ static int do_axi_md(struct cmd_tbl *cmdtp, int flag, int argc,
 		/*
 		 * Address is specified since argc >= 3
 		 */
-		addr = simple_strtoul(argv[2], NULL, 16);
+		addr = hextoul(argv[2], NULL);
 
 		/*
 		 * If there's another parameter, it is the length to display;
 		 * length is the number of objects, not number of bytes
 		 */
 		if (argc > 3)
-			length = simple_strtoul(argv[3], NULL, 16);
+			length = hextoul(argv[3], NULL);
 	}
 
 	switch (size) {
@@ -291,14 +291,14 @@ static int do_axi_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	};
 
 	/* Address is specified since argc > 4 */
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 
 	/* Get the value to write */
-	writeval = simple_strtoul(argv[3], NULL, 16);
+	writeval = hextoul(argv[3], NULL);
 
 	/* Count ? */
 	if (argc == 5)
-		count = simple_strtoul(argv[4], NULL, 16);
+		count = hextoul(argv[4], NULL);
 	else
 		count = 1;
 

@@ -105,6 +105,18 @@ static int str_simple_strtoul(struct unit_test_state *uts)
 }
 STR_TEST(str_simple_strtoul, 0);
 
+static int str_hextoul(struct unit_test_state *uts)
+{
+	char *endp;
+
+	/* Just a simple test, since we know this uses simple_strtoul() */
+	ut_asserteq(0x1099ab, hextoul(str2, &endp));
+	ut_asserteq(6, endp - str2);
+
+	return 0;
+}
+STR_TEST(str_hextoul, 0);
+
 int do_ut_str(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(str_test);

@@ -662,7 +662,7 @@ static int on_loadaddr(const char *name, const char *value, enum env_op op,
 	switch (op) {
 	case env_op_create:
 	case env_op_overwrite:
-		image_load_addr = simple_strtoul(value, NULL, 16);
+		image_load_addr = hextoul(value, NULL);
 		break;
 	default:
 		break;
@@ -676,7 +676,7 @@ ulong env_get_bootm_low(void)
 {
 	char *s = env_get("bootm_low");
 	if (s) {
-		ulong tmp = simple_strtoul(s, NULL, 16);
+		ulong tmp = hextoul(s, NULL);
 		return tmp;
 	}
 
@@ -1060,7 +1060,7 @@ ulong genimg_get_kernel_addr_fit(char * const img_addr,
 		      *fit_uname_kernel, kernel_addr);
 #endif
 	} else {
-		kernel_addr = simple_strtoul(img_addr, NULL, 16);
+		kernel_addr = hextoul(img_addr, NULL);
 		debug("*  kernel: cmdline image address = 0x%08lx\n",
 		      kernel_addr);
 	}
@@ -1227,7 +1227,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 			} else
 #endif
 			{
-				rd_addr = simple_strtoul(select, NULL, 16);
+				rd_addr = hextoul(select, NULL);
 				debug("*  ramdisk: cmdline image address = "
 						"0x%08lx\n",
 						rd_addr);
@@ -1301,7 +1301,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 			if (select)
 				end = strchr(select, ':');
 			if (end) {
-				rd_len = simple_strtoul(++end, NULL, 16);
+				rd_len = hextoul(++end, NULL);
 				rd_data = rd_addr;
 			} else
 #endif
@@ -1379,7 +1379,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		/* a value of "no" or a similar string will act like 0,
 		 * turning the "load high" feature off. This is intentional.
 		 */
-		initrd_high = simple_strtoul(s, NULL, 16);
+		initrd_high = hextoul(s, NULL);
 		if (initrd_high == ~0)
 			initrd_copy_to_ram = 0;
 	} else {

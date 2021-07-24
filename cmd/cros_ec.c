@@ -65,11 +65,11 @@ static int do_read_write(struct udevice *dev, int is_write, int argc,
 		return 1;
 	if (argc < 4)
 		return 1;
-	addr = simple_strtoul(argv[3], &endp, 16);
+	addr = hextoul(argv[3], &endp);
 	if (*argv[3] == 0 || *endp != 0)
 		return 1;
 	if (argc > 4) {
-		size = simple_strtoul(argv[4], &endp, 16);
+		size = hextoul(argv[4], &endp);
 		if (*argv[4] == 0 || *endp != 0)
 			return 1;
 	}

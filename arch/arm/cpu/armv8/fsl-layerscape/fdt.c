@@ -565,28 +565,28 @@ void fdt_fixup_pfe_firmware(void *blob)
 	if (!p)
 		return;
 
-	pclassfw = (void *)simple_strtoul(p, NULL, 16);
+	pclassfw = (void *)hextoul(p, NULL);
 	if (!pclassfw)
 		return;
 
 	p = env_get("class_elf_size");
 	if (!p)
 		return;
-	len_class = simple_strtoul(p, NULL, 16);
+	len_class = hextoul(p, NULL);
 
 	/* If the environment variable is not set, then exit silently */
 	p = env_get("tmu_elf_firmware");
 	if (!p)
 		return;
 
-	ptmufw = (void *)simple_strtoul(p, NULL, 16);
+	ptmufw = (void *)hextoul(p, NULL);
 	if (!ptmufw)
 		return;
 
 	p = env_get("tmu_elf_size");
 	if (!p)
 		return;
-	len_tmu = simple_strtoul(p, NULL, 16);
+	len_tmu = hextoul(p, NULL);
 
 	if (len_class == 0 || len_tmu == 0) {
 		printf("PFE FW corrupted. CLASS FW size %d, TMU FW size %d\n",
@@ -605,14 +605,14 @@ void fdt_fixup_pfe_firmware(void *blob)
 	if (!p)
 		return;
 
-	putilfw = (void *)simple_strtoul(p, NULL, 16);
+	putilfw = (void *)hextoul(p, NULL);
 	if (!putilfw)
 		return;
 
 	p = env_get("util_elf_size");
 	if (!p)
 		return;
-	len_util = simple_strtoul(p, NULL, 16);
+	len_util = hextoul(p, NULL);
 
 	if (len_util) {
 		printf("PFE Util PE firmware is not added to FDT.\n");

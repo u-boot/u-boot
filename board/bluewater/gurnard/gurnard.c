@@ -376,7 +376,7 @@ int board_late_init(void)
 		/* Parse MAC address */
 		for (i = 0; i < 6; i++) {
 			env_enetaddr[i] = env_str ?
-				simple_strtoul(env_str, &end, 16) : 0;
+				hextoul(env_str, &end) : 0;
 			if (env_str)
 				env_str = (*end) ? end+1 : end;
 		}

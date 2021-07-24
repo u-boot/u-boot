@@ -278,7 +278,7 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 				 * use simple_strtoul because we need &end and
 				 * we know we got non numeric char at the end
 				 */
-				bid = simple_strtoul(rest, &endp, 16);
+				bid = hextoul(rest, &endp);
 				/* BoardId and HWkey are separated with a "_" */
 				if (*endp == '_') {
 					rest  = endp + 1;
@@ -286,7 +286,7 @@ static int do_checkboardidhwk(struct cmd_tbl *cmdtp, int flag, int argc,
 					 * use simple_strtoul because we need
 					 * &end
 					 */
-					hwkey = simple_strtoul(rest, &endp, 16);
+					hwkey = hextoul(rest, &endp);
 					rest  = endp;
 					while (*rest && !isxdigit(*rest))
 						rest++;

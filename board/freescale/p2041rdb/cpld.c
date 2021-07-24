@@ -100,8 +100,8 @@ int cpld_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		else
 			cpld_set_defbank();
 	} else if (strcmp(argv[1], "lane_mux") == 0) {
-		u32 lane = simple_strtoul(argv[2], NULL, 16);
-		u8 val = (u8)simple_strtoul(argv[3], NULL, 16);
+		u32 lane = hextoul(argv[2], NULL);
+		u8 val = (u8)hextoul(argv[3], NULL);
 		u8 reg = CPLD_READ(serdes_mux);
 
 		switch (lane) {

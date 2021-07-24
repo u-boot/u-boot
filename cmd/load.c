@@ -257,11 +257,11 @@ int do_save_serial(struct cmd_tbl *cmdtp, int flag, int argc,
 #endif
 
 	if (argc >= 2) {
-		offset = simple_strtoul(argv[1], NULL, 16);
+		offset = hextoul(argv[1], NULL);
 	}
 #ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 	if (argc >= 3) {
-		size = simple_strtoul(argv[2], NULL, 16);
+		size = hextoul(argv[2], NULL);
 	}
 	if (argc == 4) {
 		save_baudrate = (int)simple_strtoul(argv[3], NULL, 10);
@@ -284,7 +284,7 @@ int do_save_serial(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 #else	/* ! CONFIG_SYS_LOADS_BAUD_CHANGE */
 	if (argc == 3) {
-		size = simple_strtoul(argv[2], NULL, 16);
+		size = hextoul(argv[2], NULL);
 	}
 #endif	/* CONFIG_SYS_LOADS_BAUD_CHANGE */
 
@@ -438,12 +438,12 @@ static int do_load_serial_bin(struct cmd_tbl *cmdtp, int flag, int argc,
 	/* pre-set offset from $loadaddr */
 	s = env_get("loadaddr");
 	if (s)
-		offset = simple_strtoul(s, NULL, 16);
+		offset = hextoul(s, NULL);
 
 	load_baudrate = current_baudrate = gd->baudrate;
 
 	if (argc >= 2) {
-		offset = simple_strtoul(argv[1], NULL, 16);
+		offset = hextoul(argv[1], NULL);
 	}
 	if (argc == 3) {
 		load_baudrate = (int)simple_strtoul(argv[2], NULL, 10);

@@ -138,7 +138,7 @@ static int do_sl28_nvm(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 
 	if (argc > 1) {
-		nvm = simple_strtoul(argv[1], &endp, 16);
+		nvm = hextoul(argv[1], &endp);
 		if (*endp != '\0') {
 			printf("ERROR: argument is not a valid number\n");
 			ret = -EINVAL;

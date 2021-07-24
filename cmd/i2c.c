@@ -308,13 +308,13 @@ static int do_i2c_read(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * I2C chip address
 	 */
-	chip = simple_strtoul(argv[1], NULL, 16);
+	chip = hextoul(argv[1], NULL);
 
 	/*
 	 * I2C data address within the chip.  This can be 1 or
 	 * 2 bytes long.  Some day it might be 3 bytes long :-).
 	 */
-	devaddr = simple_strtoul(argv[2], NULL, 16);
+	devaddr = hextoul(argv[2], NULL);
 	alen = get_alen(argv[2], DEFAULT_ADDR_LEN);
 	if (alen > 3)
 		return CMD_RET_USAGE;
@@ -322,12 +322,12 @@ static int do_i2c_read(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * Length is the number of objects, not number of bytes.
 	 */
-	length = simple_strtoul(argv[3], NULL, 16);
+	length = hextoul(argv[3], NULL);
 
 	/*
 	 * memaddr is the address where to store things in memory
 	 */
-	memaddr = (u_char *)simple_strtoul(argv[4], NULL, 16);
+	memaddr = (u_char *)hextoul(argv[4], NULL);
 
 #if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
@@ -363,18 +363,18 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * memaddr is the address where to store things in memory
 	 */
-	memaddr = (u_char *)simple_strtoul(argv[1], NULL, 16);
+	memaddr = (u_char *)hextoul(argv[1], NULL);
 
 	/*
 	 * I2C chip address
 	 */
-	chip = simple_strtoul(argv[2], NULL, 16);
+	chip = hextoul(argv[2], NULL);
 
 	/*
 	 * I2C data address within the chip.  This can be 1 or
 	 * 2 bytes long.  Some day it might be 3 bytes long :-).
 	 */
-	devaddr = simple_strtoul(argv[3], NULL, 16);
+	devaddr = hextoul(argv[3], NULL);
 	alen = get_alen(argv[3], DEFAULT_ADDR_LEN);
 	if (alen > 3)
 		return cmd_usage(cmdtp);
@@ -382,7 +382,7 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * Length is the number of bytes.
 	 */
-	length = simple_strtoul(argv[4], NULL, 16);
+	length = hextoul(argv[4], NULL);
 
 #if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
@@ -447,13 +447,13 @@ static int do_i2c_flags(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	chip = simple_strtoul(argv[1], NULL, 16);
+	chip = hextoul(argv[1], NULL);
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (ret)
 		return i2c_report_err(ret, I2C_ERR_READ);
 
 	if (argc > 2) {
-		flags = simple_strtoul(argv[2], NULL, 16);
+		flags = hextoul(argv[2], NULL);
 		ret = i2c_set_chip_flags(dev, flags);
 	} else  {
 		ret = i2c_get_chip_flags(dev, &flags);
@@ -477,13 +477,13 @@ static int do_i2c_olen(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	chip = simple_strtoul(argv[1], NULL, 16);
+	chip = hextoul(argv[1], NULL);
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (ret)
 		return i2c_report_err(ret, I2C_ERR_READ);
 
 	if (argc > 2) {
-		olen = simple_strtoul(argv[2], NULL, 16);
+		olen = hextoul(argv[2], NULL);
 		ret = i2c_set_chip_offset_len(dev, olen);
 	} else  {
 		ret = i2c_get_chip_offset_len(dev);
@@ -543,13 +543,13 @@ static int do_i2c_md(struct cmd_tbl *cmdtp, int flag, int argc,
 		/*
 		 * I2C chip address
 		 */
-		chip = simple_strtoul(argv[1], NULL, 16);
+		chip = hextoul(argv[1], NULL);
 
 		/*
 		 * I2C data address within the chip.  This can be 1 or
 		 * 2 bytes long.  Some day it might be 3 bytes long :-).
 		 */
-		addr = simple_strtoul(argv[2], NULL, 16);
+		addr = hextoul(argv[2], NULL);
 		alen = get_alen(argv[2], DEFAULT_ADDR_LEN);
 		if (alen > 3)
 			return CMD_RET_USAGE;
@@ -559,7 +559,7 @@ static int do_i2c_md(struct cmd_tbl *cmdtp, int flag, int argc,
 		 * Length is the number of objects, not number of bytes.
 		 */
 		if (argc > 3)
-			length = simple_strtoul(argv[3], NULL, 16);
+			length = hextoul(argv[3], NULL);
 	}
 
 #if CONFIG_IS_ENABLED(DM_I2C)
@@ -651,12 +651,12 @@ static int do_i2c_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * Chip is always specified.
 	 */
-	chip = simple_strtoul(argv[1], NULL, 16);
+	chip = hextoul(argv[1], NULL);
 
 	/*
 	 * Address is always specified.
 	 */
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 	alen = get_alen(argv[2], DEFAULT_ADDR_LEN);
 	if (alen > 3)
 		return CMD_RET_USAGE;
@@ -671,13 +671,13 @@ static int do_i2c_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * Value to write is always specified.
 	 */
-	byte = simple_strtoul(argv[3], NULL, 16);
+	byte = hextoul(argv[3], NULL);
 
 	/*
 	 * Optional count
 	 */
 	if (argc == 5)
-		count = simple_strtoul(argv[4], NULL, 16);
+		count = hextoul(argv[4], NULL);
 	else
 		count = 1;
 
@@ -740,12 +740,12 @@ static int do_i2c_crc(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * Chip is always specified.
 	 */
-	chip = simple_strtoul(argv[1], NULL, 16);
+	chip = hextoul(argv[1], NULL);
 
 	/*
 	 * Address is always specified.
 	 */
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 	alen = get_alen(argv[2], DEFAULT_ADDR_LEN);
 	if (alen > 3)
 		return CMD_RET_USAGE;
@@ -760,7 +760,7 @@ static int do_i2c_crc(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * Count is always specified
 	 */
-	count = simple_strtoul(argv[3], NULL, 16);
+	count = hextoul(argv[3], NULL);
 
 	printf ("CRC32 for %08lx ... %08lx ==> ", addr, addr + count - 1);
 	/*
@@ -840,12 +840,12 @@ static int mod_i2c_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 		/*
 		 * Chip is always specified.
 		 */
-		chip = simple_strtoul(argv[1], NULL, 16);
+		chip = hextoul(argv[1], NULL);
 
 		/*
 		 * Address is always specified.
 		 */
-		addr = simple_strtoul(argv[2], NULL, 16);
+		addr = hextoul(argv[2], NULL);
 		alen = get_alen(argv[2], DEFAULT_ADDR_LEN);
 		if (alen > 3)
 			return CMD_RET_USAGE;
@@ -900,7 +900,7 @@ static int mod_i2c_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 		else {
 			char *endp;
 
-			data = simple_strtoul(console_buffer, &endp, 16);
+			data = hextoul(console_buffer, &endp);
 			if (size == 1)
 				data = data << 24;
 			else if (size == 2)
@@ -1049,12 +1049,12 @@ static int do_i2c_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * Chip is always specified.
 	 */
-	chip = simple_strtoul(argv[1], NULL, 16);
+	chip = hextoul(argv[1], NULL);
 
 	/*
 	 * Address is always specified.
 	 */
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 	alen = get_alen(argv[2], DEFAULT_ADDR_LEN);
 	if (alen > 3)
 		return CMD_RET_USAGE;
@@ -1070,7 +1070,7 @@ static int do_i2c_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * Length is the number of objects, not number of bytes.
 	 */
 	length = 1;
-	length = simple_strtoul(argv[3], NULL, 16);
+	length = hextoul(argv[3], NULL);
 	if (length > sizeof(bytes))
 		length = sizeof(bytes);
 
@@ -1219,7 +1219,7 @@ static int do_sdram(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * Chip is always specified.
 	 */
-	chip = simple_strtoul (argv[1], NULL, 16);
+	chip = hextoul(argv[1], NULL);
 
 #if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
@@ -1673,7 +1673,7 @@ int do_edid(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 1;
 	}
 
-	chip = simple_strtoul(argv[1], NULL, 16);
+	chip = hextoul(argv[1], NULL);
 #if CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_get_cur_bus_chip(chip, &dev);
 	if (!ret)

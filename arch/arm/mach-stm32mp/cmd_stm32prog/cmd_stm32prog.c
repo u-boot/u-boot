@@ -64,12 +64,12 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 	addr = STM32_DDR_BASE;
 	size = 0;
 	if (argc > 3) {
-		addr = simple_strtoul(argv[3], NULL, 16);
+		addr = hextoul(argv[3], NULL);
 		if (!addr)
 			return CMD_RET_FAILURE;
 	}
 	if (argc > 4)
-		size = simple_strtoul(argv[4], NULL, 16);
+		size = hextoul(argv[4], NULL);
 
 	/* check STM32IMAGE presence */
 	if (size == 0) {

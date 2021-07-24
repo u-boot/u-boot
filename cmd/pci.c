@@ -470,14 +470,14 @@ static pci_dev_t get_pci_dev(char *name)
 		if (name[i] == '.') {
 			memcpy(cnum, &name[iold], i - iold);
 			cnum[i - iold] = '\0';
-			bdfs[n++] = simple_strtoul(cnum, NULL, 16);
+			bdfs[n++] = hextoul(cnum, NULL);
 			iold = i + 1;
 		}
 	}
 	strcpy(cnum, &name[iold]);
 	if (n == 0)
 		n = 1;
-	bdfs[n] = simple_strtoul(cnum, NULL, 16);
+	bdfs[n] = hextoul(cnum, NULL);
 
 	return PCI_BDF(bdfs[0], bdfs[1], bdfs[2]);
 }
@@ -588,7 +588,7 @@ static int pci_cfg_modify(pci_dev_t bdf, ulong addr, ulong size, ulong value,
 #endif
 		else {
 			char *endp;
-			i = simple_strtoul(console_buffer, &endp, 16);
+			i = hextoul(console_buffer, &endp);
 			nbytes = endp - console_buffer;
 			if (nbytes) {
 				/* good enough to not time out
@@ -683,9 +683,9 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		cmd_size = cmd_get_data_size(argv[1], 4);
 		size = (cmd_size == 4) ? PCI_SIZE_32 : cmd_size - 1;
 		if (argc > 3)
-			addr = simple_strtoul(argv[3], NULL, 16);
+			addr = hextoul(argv[3], NULL);
 		if (argc > 4)
-			value = simple_strtoul(argv[4], NULL, 16);
+			value = hextoul(argv[4], NULL);
 	case 'h':		/* header */
 #ifdef CONFIG_DM_PCI
 	case 'b':		/* bars */
@@ -709,7 +709,7 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 				argc--;
 			}
 			if (argc > 1)
-				busnum = simple_strtoul(argv[1], NULL, 16);
+				busnum = hextoul(argv[1], NULL);
 		}
 #ifdef CONFIG_DM_PCI
 		ret = uclass_get_device_by_seq(UCLASS_PCI, busnum, &bus);

@@ -64,7 +64,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	s = env_get("machid");
 	if (s) {
-		machid = simple_strtoul(s, NULL, 16);
+		machid = hextoul(s, NULL);
 		printf("Using machid 0x%x from environment\n", machid);
 	}
 

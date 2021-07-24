@@ -767,7 +767,7 @@ static inline int str2longbe(const char *p, ulong *num)
 	if (!p) {
 		return 0;
 	} else {
-		tmp = simple_strtoul(p, &endptr, 16);
+		tmp = hextoul(p, &endptr);
 		if (sizeof(ulong) == 4)
 			*num = cpu_to_be32(tmp);
 		else

@@ -39,7 +39,7 @@ int misc_init_r(void)
 			tmp[0] = efuse_mac_addr[i * 2];
 			tmp[1] = efuse_mac_addr[i * 2 + 1];
 			tmp[2] = '\0';
-			mac_addr[i] = simple_strtoul(tmp, NULL, 16);
+			mac_addr[i] = hextoul(tmp, NULL);
 		}
 
 		if (is_valid_ethaddr(mac_addr))

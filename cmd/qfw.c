@@ -120,7 +120,7 @@ static int qemu_fwcfg_do_load(struct cmd_tbl *cmdtp, int flag,
 
 	env = env_get("loadaddr");
 	load_addr = env ?
-		(void *)simple_strtoul(env, NULL, 16) :
+		(void *)hextoul(env, NULL) :
 #ifdef CONFIG_LOADADDR
 		(void *)CONFIG_LOADADDR;
 #else
@@ -129,7 +129,7 @@ static int qemu_fwcfg_do_load(struct cmd_tbl *cmdtp, int flag,
 
 	env = env_get("ramdiskaddr");
 	initrd_addr = env ?
-		(void *)simple_strtoul(env, NULL, 16) :
+		(void *)hextoul(env, NULL) :
 #ifdef CONFIG_RAMDISK_ADDR
 		(void *)CONFIG_RAMDISK_ADDR;
 #else
@@ -137,10 +137,10 @@ static int qemu_fwcfg_do_load(struct cmd_tbl *cmdtp, int flag,
 #endif
 
 	if (argc == 2) {
-		load_addr = (void *)simple_strtoul(argv[0], NULL, 16);
-		initrd_addr = (void *)simple_strtoul(argv[1], NULL, 16);
+		load_addr = (void *)hextoul(argv[0], NULL);
+		initrd_addr = (void *)hextoul(argv[1], NULL);
 	} else if (argc == 1) {
-		load_addr = (void *)simple_strtoul(argv[0], NULL, 16);
+		load_addr = (void *)hextoul(argv[0], NULL);
 	}
 
 	if (!load_addr || !initrd_addr) {

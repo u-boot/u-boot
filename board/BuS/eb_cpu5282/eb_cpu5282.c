@@ -214,7 +214,7 @@ int drv_video_init(void)
 #ifdef CONFIG_SPLASH_SCREEN
 	s = env_get("splashimage");
 	if (s != NULL) {
-		splash = simple_strtoul(s, NULL, 16);
+		splash = hextoul(s, NULL);
 		vcxk_acknowledge_wait();
 		video_display_bitmap(splash, 0, 0);
 	}

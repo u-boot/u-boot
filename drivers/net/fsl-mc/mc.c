@@ -956,8 +956,7 @@ unsigned long mc_get_dram_block_size(void)
 	char *dram_block_size_env_var = env_get(MC_MEM_SIZE_ENV_VAR);
 
 	if (dram_block_size_env_var) {
-		dram_block_size = simple_strtoul(dram_block_size_env_var, NULL,
-						 16);
+		dram_block_size = hextoul(dram_block_size_env_var, NULL);
 
 		if (dram_block_size < CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE) {
 			printf("fsl-mc: WARNING: Invalid value for \'"

@@ -48,7 +48,7 @@ static int do_demo_light(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	if (argc) {
-		light = simple_strtoul(argv[0], NULL, 16);
+		light = hextoul(argv[0], NULL);
 		ret = demo_set_light(demo_dev, light);
 	} else {
 		ret = demo_get_light(demo_dev);
