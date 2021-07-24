@@ -123,6 +123,7 @@ enum {
 	GW5909,
 	GW5910,
 	GW5912,
+	GW5913,
 	GW_UNKNOWN,
 	GW_BADCRC,
 };

@@ -843,6 +843,51 @@ struct dio_cfg gw5906_dio[] = {
 	},
 };
 
+struct dio_cfg gw5913_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
+		IMX_GPIO_NR(1, 18),
+		{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
+		4
+	},
+	{
+		{ IOMUX_PADS(PAD_SD2_DAT0__GPIO1_IO15) },
+		IMX_GPIO_NR(1, 15),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD2_DAT1__GPIO1_IO14) },
+		IMX_GPIO_NR(1, 14),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_GPIO_19__GPIO4_IO05) },
+		IMX_GPIO_NR(4, 5),
+		{ 0, 0 },
+		0
+	},
+};
+
 /*
  * Board Specific GPIO
  */
@@ -1081,6 +1126,15 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.rs232_en = GP_RS232_EN,
 		.vsel_pin = IMX_GPIO_NR(6, 14),
 		.mmc_cd = IMX_GPIO_NR(7, 0),
+	},
+
+	/* GW5913 */
+	{
+		.gpio_pads = gw5912_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw5912_gpio_pads) / 2,
+		.dio_cfg = gw5913_dio,
+		.dio_num = ARRAY_SIZE(gw5913_dio),
+		.wdis = IMX_GPIO_NR(1, 0),
 	},
 };
 
