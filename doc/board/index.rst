@@ -20,6 +20,7 @@ Board-specific doc
    kontron/index
    microchip/index
    openpiton/index
+   qualcomm/index
    rockchip/index
    sifive/index
    sipeed/index

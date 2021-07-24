@@ -62,6 +62,19 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define LOAD_OFFSET 0x100
 
+/* SCBM System MMU is used for eMMC and NETSEC */
+#define SCBM_SMMU_ADDR				(0x52e00000UL)
+#define SMMU_SCR0_OFFS				(0x0)
+#define SMMU_SCR0_SHCFG_INNER			(0x2 << 22)
+#define SMMU_SCR0_MTCFG				(0x1 << 20)
+#define SMMU_SCR0_MEMATTR_INNER_OUTER_WB	(0xf << 16)
+
+static void synquacer_setup_scbm_smmu(void)
+{
+	writel(SMMU_SCR0_SHCFG_INNER | SMMU_SCR0_MTCFG | SMMU_SCR0_MEMATTR_INNER_OUTER_WB,
+	       SCBM_SMMU_ADDR + SMMU_SCR0_OFFS);
+}
+
 /*
  * Miscellaneous platform dependent initialisations
  */
@@ -70,6 +83,8 @@ int board_init(void)
 	gd->bd->bi_boot_params = CONFIG_SYS_LOAD_ADDR + LOAD_OFFSET;
 
 	gd->env_addr = (ulong)&default_environment[0];
+
+	synquacer_setup_scbm_smmu();
 
 	return 0;
 }

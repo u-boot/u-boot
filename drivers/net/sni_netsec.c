@@ -1059,17 +1059,10 @@ static int netsec_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
-#define SMMU_SCR0_SHCFG_INNER             (0x2 << 22)
-#define SMMU_SCR0_MTCFG                   (0x1 << 20)
-#define SMMU_SCR0_MEMATTR_INNER_OUTER_WB  (0xf << 16)
-
 static int netsec_probe(struct udevice *dev)
 {
 	struct netsec_priv *priv = dev_get_priv(dev);
 	int ret;
-
-	writel(SMMU_SCR0_SHCFG_INNER | SMMU_SCR0_MTCFG | SMMU_SCR0_MEMATTR_INNER_OUTER_WB,
-	       (phys_addr_t)0x52E00000);
 
 	netsec_reset_hardware(priv, true);
 

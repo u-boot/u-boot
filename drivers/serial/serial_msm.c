@@ -18,6 +18,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 #include <dm/pinctrl.h>
 
 /* Serial registers - this driver works in uartdm mode*/
@@ -193,6 +194,9 @@ static int msm_uart_clk_init(struct udevice *dev)
 
 static void uart_dm_init(struct msm_serial_data *priv)
 {
+	/* Delay initialization for a bit to let pins stabilize if necessary */
+	mdelay(5);
+
 	writel(priv->clk_bit_rate, priv->base + UARTDM_CSR);
 	writel(0x0, priv->base + UARTDM_MR1);
 	writel(MSM_BOOT_UART_DM_8_N_1_MODE, priv->base + UARTDM_MR2);

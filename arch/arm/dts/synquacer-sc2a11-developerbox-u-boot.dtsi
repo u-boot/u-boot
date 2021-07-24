@@ -31,6 +31,55 @@
 			spi-max-frequency = <31250000>;
 			spi-rx-bus-width = <0x1>;
 			spi-tx-bus-width = <0x1>;
+
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				partition@0 {
+					label = "BootStrap-BL1";
+					reg = <0x0 0x70000>;
+					read-only;
+				};
+
+				partition@70000 {
+					label = "Flash-Writer";
+					reg = <0x70000 0x90000>;
+					read-only;
+				};
+
+				partition@100000 {
+					label = "SCP-BL2";
+					reg = <0x100000 0x80000>;
+					read-only;
+				};
+
+				partition@180000 {
+					label = "FIP-TFA";
+					reg = <0x180000 0x78000>;
+				};
+
+				partition@1f8000 {
+					label = "Stage2Tables";
+					reg = <0x1f8000 0x8000>;
+				};
+
+				partition@200000 {
+					label = "U-Boot";
+					reg = <0x200000 0x100000>;
+				};
+
+				partition@300000 {
+					label = "UBoot-Env";
+					reg = <0x300000 0x100000>;
+				};
+
+				partition@500000 {
+					label = "Ex-OPTEE";
+					reg = <0x500000 0x200000>;
+				};
+			};
 		};
 	};
 

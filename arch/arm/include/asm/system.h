@@ -80,6 +80,12 @@
 #define HCR_EL2_HCD_DIS		(1 << 29) /* Hypervisor Call disabled         */
 
 /*
+ * ID_AA64PFR0_EL1 bits definitions
+ */
+#define ID_AA64PFR0_EL1_EL3	(0xF << 12) /* EL3 implemented                */
+#define ID_AA64PFR0_EL1_EL2	(0xF << 8)  /* EL2 implemented                */
+
+/*
  * CPACR_EL1 bits definitions
  */
 #define CPACR_EL1_FPEN_EN	(3 << 20) /* SIMD and FP instruction enabled  */

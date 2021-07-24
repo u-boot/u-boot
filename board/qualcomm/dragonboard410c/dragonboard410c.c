@@ -22,19 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* pointer to the device tree ammended by the firmware */
-extern void *fw_dtb;
-
-void *board_fdt_blob_setup(void)
-{
-	if (fdt_magic(fw_dtb) != FDT_MAGIC) {
-		printf("Firmware provided invalid dtb!\n");
-		return NULL;
-	}
-
-	return fw_dtb;
-}
-
 int dram_init(void)
 {
 	gd->ram_size = PHYS_SDRAM_1_SIZE;
@@ -145,8 +132,7 @@ int misc_init_r(void)
 	}
 
 	if (dm_gpio_get_value(&resin)) {
-		env_set("bootdelay", "-1");
-		env_set("bootcmd", "fastboot 0");
+		env_set("preboot", "setenv preboot; fastboot 0");
 		printf("key_vol_down pressed - Starting fastboot.\n");
 	}
 
