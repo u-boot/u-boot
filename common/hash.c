@@ -396,7 +396,7 @@ int hash_parse_string(const char *algo_name, const char *str, uint8_t *result)
 	for (i = 0; i < algo->digest_size; i++) {
 		char chr[3];
 
-		strncpy(chr, &str[i * 2], 2);
+		strlcpy(chr, &str[i * 2], 3);
 		result[i] = simple_strtoul(chr, NULL, 16);
 	}
 
