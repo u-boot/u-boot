@@ -85,7 +85,7 @@ class TestEfiCapsuleFirmwareFit(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e -all Capsule0000')
+                    'env print -e Capsule0000')
 
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
@@ -160,7 +160,7 @@ class TestEfiCapsuleFirmwareFit(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e -all Capsule0000')
+                    'env print -e Capsule0000')
 
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
@@ -227,7 +227,7 @@ class TestEfiCapsuleFirmwareFit(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e -all Capsule0000')
+                    'env print -e Capsule0000')
 
             output = u_boot_console.run_command_list(['efidebug capsule esrt'])
 

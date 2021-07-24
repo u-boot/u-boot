@@ -5,6 +5,8 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <efi_loader.h>
 #include <log.h>
@@ -43,14 +45,13 @@ efi_status_t efi_smbios_register(void)
 	 * Generate SMBIOS tables - we know that efi_allocate_pages() returns
 	 * a 4k-aligned address, so it is safe to assume that
 	 * write_smbios_table() will write the table at that address.
-	 *
-	 * Note that on sandbox, efi_allocate_pages() unfortunately returns a
-	 * pointer even though it uses a uint64_t type. Convert it.
 	 */
 	assert(!(dmi_addr & 0xf));
 	dmi = (void *)(uintptr_t)dmi_addr;
-	write_smbios_table(map_to_sysmem(dmi));
-
-	/* And expose them to our EFI payload */
-	return efi_install_configuration_table(&smbios_guid, dmi);
+	if (write_smbios_table(map_to_sysmem(dmi)))
+		/* Install SMBIOS information as configuration table */
+		return efi_install_configuration_table(&smbios_guid, dmi);
+	efi_free_pages(dmi_addr, 1);
+	log_err("Cannot create SMBIOS table\n");
+	return EFI_SUCCESS;
 }
