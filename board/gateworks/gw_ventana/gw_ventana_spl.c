@@ -729,10 +729,10 @@ void board_boot_order(u32 *spl_boot_list)
 
 /* called from board_init_r after gd setup if CONFIG_SPL_BOARD_INIT defined */
 /* its our chance to print info about boot device */
+static int board_type;
 void spl_board_init(void)
 {
 	u32 boot_device;
-	int board_type;
 
 	/* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 */
 	boot_device = spl_boot_device();
@@ -785,3 +785,8 @@ int spl_start_uboot(void)
 	return ret;
 }
 #endif
+
+void spl_perform_fixups(struct spl_image_info *spl_image)
+{
+	ft_early_fixup(spl_image->fdt_addr, board_type);
+}
