@@ -11,4 +11,3 @@ Emulation
    qemu-ppce500
    qemu-riscv
    qemu-x86
-   qemu_capsule_update
