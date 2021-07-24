@@ -19,6 +19,7 @@
 #include <power/pmic.h>
 #include <power/ltc3676_pmic.h>
 #include <power/pfuze100_pmic.h>
+#include <power/mp5416.h>
 
 #include "common.h"
 
@@ -418,6 +419,19 @@ static iomux_v3_cfg_t const gw5905_gpio_pads[] = {
 	IOMUX_PADS(PAD_KEY_COL1__GPIO4_IO08 | DIO_PAD_CFG),
 	/* TOUCH_IRQ */
 	IOMUX_PADS(PAD_KEY_COL0__GPIO4_IO06 | DIO_PAD_CFG),
+};
+
+static iomux_v3_cfg_t const gw5910_gpio_pads[] = {
+	/* SD3_VSELECT */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
+	/* RS232_EN# */
+	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
+	/* RF_RESET# */
+	IOMUX_PADS(PAD_GPIO_7__GPIO1_IO07 | DIO_PAD_CFG),
+	/* RF_BOOT */
+	IOMUX_PADS(PAD_GPIO_8__GPIO1_IO08 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
 /* Digital I/O */
@@ -1029,6 +1043,18 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mezz_pwren = IMX_GPIO_NR(2, 19),
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 	},
+
+	/* GW5910 */
+	{
+		.gpio_pads = gw5910_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw5910_gpio_pads) / 2,
+		.dio_cfg = gw52xx_dio,
+		.dio_num = ARRAY_SIZE(gw52xx_dio),
+		.wdis = IMX_GPIO_NR(7, 12),
+		.rs232_en = GP_RS232_EN,
+		.vsel_pin = IMX_GPIO_NR(6, 14),
+		.mmc_cd = IMX_GPIO_NR(7, 0),
+	},
 };
 
 #define SETUP_GPIO_OUTPUT(gpio, name, level) \
@@ -1180,6 +1206,11 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 		 * low for address
 		 */
 		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(4, 8), "touch_rst", 1);
+		break;
+	case GW5910:
+		/* CC1352 */
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 7), "rf_reset#", 1);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 8), "rf_boot", 1);
 		break;
 	}
 }
@@ -1423,6 +1454,21 @@ void setup_pmic(void)
 		pmic_reg_write(p, LTC3676_BUCK3, 0xc0);
 		pmic_reg_write(p, LTC3676_BUCK4, 0xc0);
 	}
+
+	/* configure MP5416 PMIC */
+	else if (!i2c_probe(0x69)) {
+		puts("PMIC:  MP5416\n");
+		switch (board) {
+		case GW5910:
+			/* SW1: VDD_ARM 1.2V -> (1.275 to 1.475) */
+			reg = MP5416_VSET_EN | MP5416_VSET_SW1_SVAL(1475000);
+			i2c_write(0x69, MP5416_VSET_SW1, 1, (uint8_t *)&reg, 1);
+			/* SW4: VDD_SOC 1.2V -> (1.350 to 1.475) */
+			reg = MP5416_VSET_EN | MP5416_VSET_SW4_SVAL(1475000);
+			i2c_write(0x69, MP5416_VSET_SW4, 1, (uint8_t *)&reg, 1);
+			break;
+		}
+	}
 }
 
 #include <fdt_support.h>
@@ -1570,6 +1616,7 @@ int board_mmc_init(struct bd_info *bis)
 	case GW53xx:
 	case GW54xx:
 	case GW553x:
+	case GW5910:
 		/* usdhc3: 4bit microSD */
 		SETUP_IOMUX_PADS(usdhc3_pads);
 		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
