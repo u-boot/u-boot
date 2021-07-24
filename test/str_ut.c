@@ -15,6 +15,8 @@
 static const char str1[] = "I'm sorry I'm late.";
 static const char str2[] = "1099abNo, don't bother apologising.";
 static const char str3[] = "0xbI'm sorry you're alive.";
+static const char str4[] = "1234567890123 I lost closer friends";
+static const char str5[] = "0x9876543210the last time I was deloused";
 
 /* Declare a new str test */
 #define STR_TEST(_name, _flags)		UNIT_TEST(_name, _flags, str_test)
@@ -106,6 +108,65 @@ static int str_simple_strtoul(struct unit_test_state *uts)
 	return 0;
 }
 STR_TEST(str_simple_strtoul, 0);
+
+static int run_strtoull(struct unit_test_state *uts, const char *str, int base,
+			unsigned long long expect_val, int expect_endp_offset,
+			bool upper)
+{
+	char out[TEST_STR_SIZE];
+	char *endp;
+	unsigned long long val;
+
+	strcpy(out, str);
+	if (upper)
+		str_to_upper(out, out, -1);
+
+	val = simple_strtoull(out, &endp, base);
+	ut_asserteq(expect_val, val);
+	ut_asserteq(expect_endp_offset, endp - out);
+
+	return 0;
+}
+
+static int str_simple_strtoull(struct unit_test_state *uts)
+{
+	int upper;
+
+	/* Check that it is case-insentive */
+	for (upper = 0; upper < 2; upper++) {
+		/* Base 10 and base 16 */
+		ut_assertok(run_strtoull(uts, str2, 10, 1099, 4, upper));
+		ut_assertok(run_strtoull(uts, str2, 16, 0x1099ab, 6, upper));
+		ut_assertok(run_strtoull(uts, str3, 16, 0xb, 3, upper));
+		ut_assertok(run_strtoull(uts, str3, 10, 0, 1, upper));
+
+		/* Large values */
+		ut_assertok(run_strtoull(uts, str4, 10, 1234567890123, 13,
+					 upper));
+		ut_assertok(run_strtoull(uts, str4, 16, 0x1234567890123, 13,
+					 upper));
+		ut_assertok(run_strtoull(uts, str5, 0, 0x9876543210, 12,
+					 upper));
+
+		/* Invalid string */
+		ut_assertok(run_strtoull(uts, str1, 10, 0, 0, upper));
+
+		/* Base 0 */
+		ut_assertok(run_strtoull(uts, str1, 0, 0, 0, upper));
+		ut_assertok(run_strtoull(uts, str2, 0, 1099, 4, upper));
+		ut_assertok(run_strtoull(uts, str3, 0, 0xb, 3, upper));
+
+		/* Base 2 */
+		ut_assertok(run_strtoull(uts, str1, 2, 0, 0, upper));
+		ut_assertok(run_strtoull(uts, str2, 2, 2, 2, upper));
+	}
+
+	/* Check endp being NULL */
+	ut_asserteq(1099, simple_strtoull(str2, NULL, 0));
+
+	return 0;
+}
+STR_TEST(str_simple_strtoull, 0);
 
 static int str_hextoul(struct unit_test_state *uts)
 {
