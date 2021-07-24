@@ -58,8 +58,8 @@
 		mmc0 = &usdhc2;
 		mmc1 = &usdhc3;
 		ssi0 = &ssi1;
-		usb0 = &usbh1;
-		usb1 = &usbotg;
+		usb0 = &usbotg;
+		usb1 = &usbh1;
 	};
 
 	chosen {

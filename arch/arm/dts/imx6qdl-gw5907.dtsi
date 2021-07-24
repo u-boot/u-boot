@@ -13,8 +13,8 @@
 		led0 = &led0;
 		led1 = &led1;
 		nand = &gpmi;
-		usb0 = &usbh1;
-		usb1 = &usbotg;
+		usb0 = &usbotg;
+		usb1 = &usbh1;
 	};
 
 	chosen {

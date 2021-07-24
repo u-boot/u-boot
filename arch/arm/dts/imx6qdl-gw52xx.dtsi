@@ -16,8 +16,8 @@
 		mmc0 = &usdhc3;
 		nand = &gpmi;
 		ssi0 = &ssi1;
-		usb0 = &usbh1;
-		usb1 = &usbotg;
+		usb0 = &usbotg;
+		usb1 = &usbh1;
 	};
 
 	chosen {
