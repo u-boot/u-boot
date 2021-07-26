@@ -305,6 +305,7 @@ U_BOOT_DRIVER(serial_mvebu) = {
 #ifdef CONFIG_DEBUG_MVEBU_A3700_UART
 
 #include <debug_uart.h>
+#include <mach/soc.h>
 
 static inline void _debug_uart_init(void)
 {
@@ -322,7 +323,8 @@ static inline void _debug_uart_init(void)
 	 * Calculate divider
 	 * baudrate = clock / 16 / divider
 	 */
-	parent_rate = get_ref_clk() * 1000000;
+	parent_rate = (readl(MVEBU_REGISTER(0x13808)) & BIT(9)) ?
+		      40000000 : 25000000;
 	divider = DIV_ROUND_CLOSEST(parent_rate, CONFIG_BAUDRATE * 16);
 	writel(divider, base + UART_BAUD_REG);
 
