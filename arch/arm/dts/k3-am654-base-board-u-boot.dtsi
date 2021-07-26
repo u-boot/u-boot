@@ -76,3 +76,7 @@
 &tx_pru2_1 {
 	remoteproc-name = "tx_pru2_1";
 };
+
+&mcu_r5fss0 {
+	ti,cluster-mode = <0>;
+};
