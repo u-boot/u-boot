@@ -56,6 +56,13 @@ config STM32MP15x
 		dual core A7 for STM32MP157/3, monocore for STM32MP151
 		target all the STMicroelectronics board with SOC STM32MP1 family
 
+config STM32MP15x_STM32IMAGE
+	bool "Support STM32 image for generated U-Boot image"
+	depends on STM32MP15x && TFABOOT
+	help
+		Support of STM32 image generation for SOC STM32MP15x
+		for TF-A boot when FIP container is not used
+
 choice
 	prompt "STM32MP15x board select"
 	optional

@@ -105,10 +105,14 @@ int checkboard(void)
 	const char *fdt_compat;
 	int fdt_compat_len;
 
-	if (IS_ENABLED(CONFIG_TFABOOT))
-		mode = "trusted";
-	else
+	if (IS_ENABLED(CONFIG_TFABOOT)) {
+		if (IS_ENABLED(CONFIG_STM32MP15x_STM32IMAGE))
+			mode = "trusted - stm32image";
+		else
+			mode = "trusted";
+	} else {
 		mode = "basic";
+	}
 
 	fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
 				 &fdt_compat_len);
