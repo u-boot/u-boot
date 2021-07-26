@@ -499,9 +499,11 @@ int dram_init(void)
 }
 #endif
 
+#if !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(void)
 {
 }
+#endif
 
 static u8 __maybe_unused zynqmp_get_bootmode(void)
 {
@@ -797,18 +799,18 @@ enum env_location env_get_location(enum env_operation op, int prio)
 			return ENVL_FAT;
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
 			return ENVL_EXT4;
-		return ENVL_UNKNOWN;
+		return ENVL_NOWHERE;
 	case NAND_MODE:
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
 			return ENVL_NAND;
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_UBI))
 			return ENVL_UBI;
-		return ENVL_UNKNOWN;
+		return ENVL_NOWHERE;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
 			return ENVL_SPI_FLASH;
-		return ENVL_UNKNOWN;
+		return ENVL_NOWHERE;
 	case JTAG_MODE:
 	default:
 		return ENVL_NOWHERE;

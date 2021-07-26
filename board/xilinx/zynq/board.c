@@ -134,18 +134,18 @@ enum env_location env_get_location(enum env_operation op, int prio)
 			return ENVL_FAT;
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
 			return ENVL_EXT4;
-		return ENVL_UNKNOWN;
+		return ENVL_NOWHERE;
 	case ZYNQ_BM_NAND:
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
 			return ENVL_NAND;
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_UBI))
 			return ENVL_UBI;
-		return ENVL_UNKNOWN;
+		return ENVL_NOWHERE;
 	case ZYNQ_BM_NOR:
 	case ZYNQ_BM_QSPI:
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
 			return ENVL_SPI_FLASH;
-		return ENVL_UNKNOWN;
+		return ENVL_NOWHERE;
 	case ZYNQ_BM_JTAG:
 	default:
 		return ENVL_NOWHERE;
