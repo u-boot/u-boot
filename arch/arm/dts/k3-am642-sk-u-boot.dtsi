@@ -8,6 +8,10 @@
 		stdout-path = "serial2:115200n8";
 		tick-timer = &timer1;
 	};
+
+	aliases {
+		mmc1 = &sdhci1;
+	};
 };
 
 &cbass_main{
@@ -79,6 +83,7 @@
 };
 
 &sdhci0 {
+	status = "disabled";
 	u-boot,dm-spl;
 };
 
