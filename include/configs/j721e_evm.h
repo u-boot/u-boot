@@ -129,6 +129,7 @@
 
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 #define DEFAULT_RPROCS	""						\
+		"2 /lib/firmware/j7-main-r5f0_0-fw "			\
 		"3 /lib/firmware/j7-main-r5f0_1-fw "			\
 		"4 /lib/firmware/j7-main-r5f1_0-fw "			\
 		"5 /lib/firmware/j7-main-r5f1_1-fw "			\

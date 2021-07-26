@@ -377,7 +377,11 @@ void start_non_linux_remote_cores(void)
 	int size = 0, ret;
 	u32 loadaddr = 0;
 
-	if (!soc_is_j721e())
+	/*
+	 * Skip booting of Main R5FSS Core0 in R5 SPL. This is no longer
+	 * supported after the R5 SPL re-architecture.
+	 */
+	if (soc_is_j721e() || soc_is_j7200())
 		return;
 
 	size = load_firmware("name_mainr5f0_0fw", "addr_mainr5f0_0load",
