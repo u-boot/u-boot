@@ -309,7 +309,7 @@ U_BOOT_DRIVER(serial_mvebu) = {
 static inline void _debug_uart_init(void)
 {
 	void __iomem *base = (void __iomem *)CONFIG_DEBUG_UART_BASE;
-	u32 baudrate, parent_rate, divider;
+	u32 parent_rate, divider;
 
 	/* reset FIFOs */
 	writel(UART_CTRL_RXFIFO_RESET | UART_CTRL_TXFIFO_RESET,
@@ -322,9 +322,8 @@ static inline void _debug_uart_init(void)
 	 * Calculate divider
 	 * baudrate = clock / 16 / divider
 	 */
-	baudrate = 115200;
 	parent_rate = get_ref_clk() * 1000000;
-	divider = DIV_ROUND_CLOSEST(parent_rate, baudrate * 16);
+	divider = DIV_ROUND_CLOSEST(parent_rate, CONFIG_BAUDRATE * 16);
 	writel(divider, base + UART_BAUD_REG);
 
 	/*
