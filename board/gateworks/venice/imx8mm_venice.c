@@ -152,3 +152,11 @@ int board_mmc_get_env_dev(int devno)
 {
 	return devno;
 }
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	/* set board model dt prop */
+	fdt_setprop_string(blob, 0, "board", gsc_get_model());
+
+	return 0;
+}
