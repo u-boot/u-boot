@@ -350,9 +350,7 @@ static int multi_boot(void)
 
 	multiboot = readl(&csu_base->multi_boot);
 
-	printf("Multiboot:\t%d\n", multiboot);
-
-	return 0;
+	return multiboot;
 }
 
 #define PS_SYSMON_ANALOG_BUS_VAL	0x3210
@@ -392,7 +390,7 @@ int board_init(void)
 #endif
 
 	if (current_el() == 3)
-		multi_boot();
+		printf("Multiboot:\t%d\n", multi_boot());
 
 	return 0;
 }
