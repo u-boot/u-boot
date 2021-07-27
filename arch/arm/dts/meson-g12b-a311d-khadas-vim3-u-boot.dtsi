@@ -6,3 +6,26 @@
 
 #include "meson-g12-common-u-boot.dtsi"
 #include "meson-khadas-vim3-u-boot.dtsi"
+
+/ {
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "khadas";
+				product = "VIM3";
+			};
+
+			baseboard {
+				manufacturer = "khadas";
+				product = "VIM3";
+			};
+
+			chassis {
+				manufacturer = "khadas";
+				product = "VIM3";
+			};
+		};
+	};
+};
