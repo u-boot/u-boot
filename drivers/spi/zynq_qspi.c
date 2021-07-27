@@ -289,9 +289,7 @@ static int zynq_qspi_child_pre_probe(struct udevice *bus)
 	slave->option = priv->is_dual;
 	slave->dio = priv->is_dio;
 	slave->mode = plat->tx_rx_mode;
-#ifdef CONFIG_SPI_FLASH_SPLIT_READ
-	slave->multi_die = 1;
-#endif
+
 	return 0;
 }
 

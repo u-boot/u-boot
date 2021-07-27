@@ -3042,6 +3042,9 @@ int spi_nor_scan(struct spi_nor *nor)
 	if (info->flags & SPI_NOR_NO_ERASE)
 		mtd->flags |= MTD_NO_ERASE;
 
+	if (info->flags & SPI_NOR_MULTI_DIE)
+		nor->spi->multi_die = true;
+
 	nor->page_size = params.page_size;
 	mtd->writebufsize = nor->page_size;
 
