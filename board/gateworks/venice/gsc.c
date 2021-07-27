@@ -18,6 +18,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct venice_board_info som_info;
 struct venice_board_info base_info;
 char venice_model[32];
+uint32_t venice_serial;
 
 /* return a mac address from EEPROM info */
 int gsc_getmac(int index, uint8_t *address)
@@ -451,6 +452,8 @@ const char *gsc_get_dtb_name(int level, char *buf, int sz)
 
 static int gsc_read(void)
 {
+	char rev_pcb;
+	int rev_bom;
 	int ret;
 
 	ret = gsc_read_eeprom(GSC_BUSNO, GSC_EEPROM_ADDR, 1, &som_info);
@@ -460,25 +463,11 @@ static int gsc_read(void)
 	}
 
 	/* read optional baseboard EEPROM */
-	return gsc_read_eeprom(BASEBOARD_EEPROM_BUSNO, BASEBOARD_EEPROM_ADDR,
-			       2, &base_info);
-}
+	gsc_read_eeprom(BASEBOARD_EEPROM_BUSNO, BASEBOARD_EEPROM_ADDR,
+			2, &base_info);
 
-static int gsc_info(int verbose)
-{
-	struct udevice *dev;
-	unsigned char buf[16];
-	char rev_pcb;
-	int rev_bom;
-
-	if (!base_info.model[0]) {
-		strcpy(venice_model, som_info.model);
-		printf("Model   : %s\n", som_info.model);
-		printf("Serial  : %d\n", som_info.serial);
-		printf("MFGDate : %02x-%02x-%02x%02x\n",
-		       som_info.mfgdate[0], som_info.mfgdate[1],
-		       som_info.mfgdate[2], som_info.mfgdate[3]);
-	} else {
+	/* create model strings */
+	if (base_info.model[0]) {
 		sprintf(venice_model, "GW%c%c%c%c-%c%c-",
 			som_info.model[2], /* family */
 			base_info.model[3], /* baseboard */
@@ -499,22 +488,33 @@ static int gsc_info(int verbose)
 			sprintf(venice_model + strlen(venice_model), "%c%d", rev_pcb, rev_bom);
 		else
 			sprintf(venice_model + strlen(venice_model), "%c", rev_pcb);
+	} else {
+		strcpy(venice_model, som_info.model);
+	}
+	venice_serial = som_info.serial;
 
-		if (verbose > 1) {
-			printf("SOM     : %s %d %02x-%02x-%02x%02x\n",
-			       som_info.model, som_info.serial,
-			       som_info.mfgdate[0], som_info.mfgdate[1],
-			       som_info.mfgdate[2], som_info.mfgdate[3]);
-			printf("BASE    : %s %d %02x-%02x-%02x%02x\n",
-			       base_info.model, base_info.serial,
-			       base_info.mfgdate[0], base_info.mfgdate[1],
-			       base_info.mfgdate[2], base_info.mfgdate[3]);
-		}
-		printf("Model   : %s\n", venice_model);
-		printf("Serial  : %d\n", som_info.serial);
-		printf("MFGDate : %02x-%02x-%02x%02x\n",
+	return 0;
+}
+
+static int gsc_info(int verbose)
+{
+	struct udevice *dev;
+	unsigned char buf[16];
+
+	printf("Model   : %s\n", venice_model);
+	printf("Serial  : %d\n", som_info.serial);
+	printf("MFGDate : %02x-%02x-%02x%02x\n",
+	       som_info.mfgdate[0], som_info.mfgdate[1],
+	       som_info.mfgdate[2], som_info.mfgdate[3]);
+	if (base_info.model[0] && verbose > 1) {
+		printf("SOM     : %s %d %02x-%02x-%02x%02x\n",
+		       som_info.model, som_info.serial,
 		       som_info.mfgdate[0], som_info.mfgdate[1],
 		       som_info.mfgdate[2], som_info.mfgdate[3]);
+		printf("BASE    : %s %d %02x-%02x-%02x%02x\n",
+		       base_info.model, base_info.serial,
+		       base_info.mfgdate[0], base_info.mfgdate[1],
+		       base_info.mfgdate[2], base_info.mfgdate[3]);
 	}
 
 	/* Display RTC */
@@ -574,6 +574,11 @@ int gsc_init(int quiet)
 const char *gsc_get_model(void)
 {
 	return venice_model;
+}
+
+uint32_t gsc_get_serial(void)
+{
+	return venice_serial;
 }
 
 #if !(IS_ENABLED(CONFIG_SPL_BUILD))

@@ -40,5 +40,6 @@ int gsc_hwmon(void);
 const char *gsc_get_model(void);
 const char *gsc_get_dtb_name(int level, char *buf, int len);
 int gsc_getmac(int index, uint8_t *enetaddr);
+uint32_t gsc_get_serial(void);
 
 #endif
