@@ -343,27 +343,6 @@ config HAS_ROM
 	  Enables building of a u-boot.rom target. This collects U-Boot and
 	  any necessary binary blobs.
 
-config ROM_NEEDS_BLOBS
-	bool
-	depends on HAS_ROM
-	help
-	  Enable this if building the u-boot.rom target needs binary blobs, and
-	  so cannot be done normally. In this case, U-Boot will only build the
-	  ROM if the required blobs exist. If not, you will see an warning like:
-
-	    Image 'main-section' is missing external blobs and is non-functional:
-	      intel-descriptor intel-me intel-refcode intel-vga intel-mrc
-
-config BUILD_ROM
-	bool "Build U-Boot as BIOS replacement"
-	depends on HAS_ROM
-	default y if !ROM_NEEDS_BLOBS
-	help
-	  This option allows to build a ROM version of U-Boot.
-	  The build process generally requires several binary blobs
-	  which are not shipped in the U-Boot source tree.
-	  Please, see doc/arch/x86.rst for details.
-
 config SPL_IMAGE
 	string "SPL image used in the combined SPL+U-Boot image"
 	default "spl/boot.bin" if ARCH_AT91 && SPL_NAND_SUPPORT

@@ -364,7 +364,6 @@ config HAVE_FSP
 	depends on !EFI
 	select USE_HOB
 	select HAS_ROM
-	select ROM_NEEDS_BLOBS
 	help
 	  Select this option to add an Firmware Support Package binary to
 	  the resulting U-Boot image. It is a binary blob which U-Boot uses
@@ -525,7 +524,6 @@ config ENABLE_MRC_CACHE
 config HAVE_MRC
 	bool "Add a System Agent binary"
 	select HAS_ROM
-	select ROM_NEEDS_BLOBS
 	depends on !HAVE_FSP
 	help
 	  Select this option to add a System Agent binary to
