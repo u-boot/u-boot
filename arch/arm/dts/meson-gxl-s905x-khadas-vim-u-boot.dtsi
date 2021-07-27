@@ -5,3 +5,26 @@
  */
 
 #include "meson-gxl-u-boot.dtsi"
+
+/ {
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "khadas";
+				product = "VIM";
+			};
+
+			baseboard {
+				manufacturer = "khadas";
+				product = "VIM";
+			};
+
+			chassis {
+				manufacturer = "khadas";
+				product = "VIM";
+			};
+		};
+	};
+};

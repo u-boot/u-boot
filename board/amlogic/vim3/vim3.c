@@ -19,9 +19,15 @@
 
 int mmc_get_env_dev(void)
 {
-	if (meson_get_boot_device() == BOOT_DEVICE_EMMC)
+	switch (meson_get_boot_device()) {
+	case BOOT_DEVICE_EMMC:
 		return 2;
-	return 1;
+	case BOOT_DEVICE_SD:
+		return 1;
+	default:
+		/* boot device is not EMMC|SD */
+		return -1;
+	}
 }
 
 /*
@@ -98,8 +104,8 @@ int meson_ft_board_setup(void *blob, struct bd_info *bd)
 		}
 
 		/* Update PHY names (mandatory to disable USB3.0) */
-		len = strlcpy(data, "usb2-phy0", 32) + 1;
-		len += strlcpy(&data[len], "usb2-phy1", 32 - len) + 1;
+		len = strlcpy(data, "usb2-phy0", 32);
+		len += strlcpy(&data[len], "usb2-phy1", 32 - len);
 		ret = fdt_setprop(blob, node, "phy-names", data, len);
 		if (ret < 0) {
 			printf("vim3: failed to update usb phy names property (%d)\n", ret);
