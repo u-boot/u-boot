@@ -432,6 +432,20 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			   const struct image_header *header);
 
 void spl_board_prepare_for_linux(void);
+
+/**
+ * spl_board_prepare_for_optee() - Prepare board for an OPTEE payload
+ *
+ * Prepares the board for booting an OP-TEE payload. Initialization is platform
+ * specific, and may include configuring the TrustZone memory, and other
+ * initialization steps required by OP-TEE.
+ * Note that @fdt is not used directly by OP-TEE. OP-TEE passes this @fdt to
+ * its normal world target. This target is not guaranteed to be u-boot, so @fdt
+ * changes that would normally be done by u-boot should be done in this step.
+ *
+ * @fdt: Devicetree that will be passed on, or NULL
+ */
+void spl_board_prepare_for_optee(void *fdt);
 void spl_board_prepare_for_boot(void);
 int spl_board_ubi_load_image(u32 boot_device);
 int spl_board_boot_device(u32 boot_device);
