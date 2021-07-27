@@ -8,6 +8,7 @@
 #include <command.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
+#include <dfu.h>
 #include <env.h>
 #include <env_internal.h>
 #include <init.h>
@@ -19,6 +20,7 @@
 #include <ahci.h>
 #include <scsi.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <wdt.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
@@ -818,3 +820,55 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_NOWHERE;
 	}
 }
+
+#if defined(CONFIG_SET_DFU_ALT_INFO)
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	u8 multiboot;
+	int bootseq = 0;
+
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (env_get("dfu_alt_info"))
+		return;
+
+	memset(buf, 0, sizeof(buf));
+
+	multiboot = multi_boot();
+	debug("Multiboot: %d\n", multiboot);
+
+	switch (zynqmp_get_bootmode()) {
+	case EMMC_MODE:
+	case SD_MODE:
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		bootseq = mmc_get_env_dev();
+		if (!multiboot)
+			snprintf(buf, DFU_ALT_BUF_LEN,
+				 "mmc %d:1=boot.bin fat %d 1;"
+				 "u-boot.itb fat %d 1",
+				 bootseq, bootseq, bootseq);
+		else
+			snprintf(buf, DFU_ALT_BUF_LEN,
+				 "mmc %d:1=boot%04d.bin fat %d 1;"
+				 "u-boot.itb fat %d 1",
+				 bootseq, multiboot, bootseq, bootseq);
+		break;
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		snprintf(buf, DFU_ALT_BUF_LEN,
+			 "sf 0:0=boot.bin raw %x 0x1500000;"
+			 "u-boot.itb raw 0x%x 0x500000",
+			 multiboot * SZ_32K, CONFIG_SYS_SPI_U_BOOT_OFFS);
+		break;
+	default:
+		return;
+	}
+
+	env_set("dfu_alt_info", buf);
+	puts("DFU alt info setting: done\n");
+}
+#endif
