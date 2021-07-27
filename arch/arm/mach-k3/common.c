@@ -193,6 +193,11 @@ int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
 }
 #endif
 
+__weak void release_resources_for_core_shutdown(void)
+{
+	debug("%s not implemented...\n", __func__);
+}
+
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_noargs_t)(void);
