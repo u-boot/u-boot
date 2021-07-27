@@ -346,9 +346,12 @@ int board_early_init_f(void)
 
 static int multi_boot(void)
 {
-	u32 multiboot;
+	u32 multiboot = 0;
+	int ret;
 
-	multiboot = readl(&csu_base->multi_boot);
+	ret = zynqmp_mmio_read((ulong)&csu_base->multi_boot, &multiboot);
+	if (ret)
+		return -EINVAL;
 
 	return multiboot;
 }
