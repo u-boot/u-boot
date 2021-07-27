@@ -13,6 +13,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include <asm/unaligned.h>
 
 #include "gsc.h"
 
@@ -20,20 +21,19 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_phys_sdram_size(phys_size_t *size)
 {
-	int ddr_size = readl(M4_BOOTROM_BASE_ADDR);
+	const fdt64_t *val;
+	int offset;
+	int len;
 
-	if (ddr_size == 0x4) {
-		*size = 0x100000000;
-	} else if (ddr_size == 0x3) {
-		*size = 0xc0000000;
-	} else if (ddr_size == 0x2) {
-		*size = 0x80000000;
-	} else if (ddr_size == 0x1) {
-		*size = 0x40000000;
-	} else {
-		printf("Unknown DDR type!!!\n");
-		*size = 0x40000000;
-	}
+	/* get size from dt which SPL updated per EEPROM config */
+	offset = fdt_path_offset(gd->fdt_blob, "/memory");
+	if (offset < 0)
+		return -EINVAL;
+
+	val = fdt_getprop(gd->fdt_blob, offset, "reg", &len);
+	if (len < sizeof(*val) * 2)
+		return -EINVAL;
+	*size = get_unaligned_be64(&val[1]);
 
 	return 0;
 }
