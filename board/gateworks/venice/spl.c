@@ -116,7 +116,7 @@ static int power_init_board(void)
 	if ((!strncmp(model, "GW71", 4)) ||
 	    (!strncmp(model, "GW72", 4)) ||
 	    (!strncmp(model, "GW73", 4))) {
-		ret = uclass_get_device_by_name(UCLASS_I2C, "i2c@30a20000", &bus);
+		ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
 		if (ret) {
 			printf("PMIC    : failed I2C1 probe: %d\n", ret);
 			return ret;
@@ -134,7 +134,7 @@ static int power_init_board(void)
 	}
 
 	else if (!strncmp(model, "GW7901", 6)) {
-		ret = uclass_get_device_by_name(UCLASS_I2C, "i2c@30a30000", &bus);
+		ret = uclass_get_device_by_seq(UCLASS_I2C, 1, &bus);
 		if (ret) {
 			printf("PMIC    : failed I2C2 probe: %d\n", ret);
 			return ret;

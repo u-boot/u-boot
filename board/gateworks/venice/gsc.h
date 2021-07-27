@@ -6,11 +6,16 @@
 #ifndef _GSC_H_
 #define _GSC_H_
 
+/* I2C bus numbers */
+#define GSC_BUSNO			0
+#define BASEBOARD_EEPROM_BUSNO		1
+
 /* I2C slave addresses */
 #define GSC_SC_ADDR             0x20
 #define GSC_RTC_ADDR            0x68
 #define GSC_HWMON_ADDR          0x29
 #define GSC_EEPROM_ADDR         0x51
+#define BASEBOARD_EEPROM_ADDR	0x52
 
 struct venice_board_info {
 	u8 mac[6];		/* 0x00: MAC base */

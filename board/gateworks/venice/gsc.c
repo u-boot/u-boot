@@ -123,13 +123,13 @@ enum {
 	GSC_SC_RST_CAUSE_MAX		= 10,
 };
 
+#include <dm/device.h>
 static struct udevice *gsc_get_dev(int busno, int slave)
 {
-	static const char * const i2c[] = { "i2c@30a20000", "i2c@30a30000" };
 	struct udevice *dev, *bus;
 	int ret;
 
-	ret = uclass_get_device_by_name(UCLASS_I2C, i2c[busno - 1], &bus);
+	ret = uclass_get_device_by_seq(UCLASS_I2C, busno, &bus);
 	if (ret) {
 		printf("GSC     : failed I2C%d probe: %d\n", busno, ret);
 		return NULL;
@@ -246,7 +246,7 @@ int gsc_hwmon(void)
 		return node;
 
 	/* probe device */
-	dev = gsc_get_dev(1, GSC_HWMON_ADDR);
+	dev = gsc_get_dev(GSC_BUSNO, GSC_HWMON_ADDR);
 	if (!dev) {
 		puts("ERROR: Failed to probe GSC HWMON\n");
 		return -ENODEV;
@@ -453,14 +453,15 @@ static int gsc_read(void)
 {
 	int ret;
 
-	ret = gsc_read_eeprom(1, GSC_EEPROM_ADDR, 1, &som_info);
+	ret = gsc_read_eeprom(GSC_BUSNO, GSC_EEPROM_ADDR, 1, &som_info);
 	if (ret) {
 		memset(&som_info, 0, sizeof(som_info));
 		return ret;
 	}
 
 	/* read optional baseboard EEPROM */
-	return gsc_read_eeprom(2, 0x52, 2, &base_info);
+	return gsc_read_eeprom(BASEBOARD_EEPROM_BUSNO, BASEBOARD_EEPROM_ADDR,
+			       2, &base_info);
 }
 
 static int gsc_info(int verbose)
@@ -518,7 +519,7 @@ static int gsc_info(int verbose)
 
 	/* Display RTC */
 	puts("RTC     : ");
-	dev = gsc_get_dev(1, GSC_RTC_ADDR);
+	dev = gsc_get_dev(GSC_BUSNO, GSC_RTC_ADDR);
 	if (!dev) {
 		puts("Failed to probe GSC RTC\n");
 	} else {
@@ -542,7 +543,7 @@ int gsc_init(int quiet)
 	 */
 	while (1) {
 		/* probe device */
-		dev = gsc_get_dev(1, GSC_SC_ADDR);
+		dev = gsc_get_dev(GSC_BUSNO, GSC_SC_ADDR);
 		if (dev)
 			break;
 		mdelay(1);
@@ -583,7 +584,7 @@ static int gsc_sleep(unsigned long secs)
 	int ret;
 
 	/* probe device */
-	dev = gsc_get_dev(1, GSC_SC_ADDR);
+	dev = gsc_get_dev(GSC_BUSNO, GSC_SC_ADDR);
 	if (!dev)
 		return -ENODEV;
 
@@ -631,7 +632,7 @@ static int gsc_boot_wd_disable(void)
 	int ret;
 
 	/* probe device */
-	dev = gsc_get_dev(1, GSC_SC_ADDR);
+	dev = gsc_get_dev(GSC_BUSNO, GSC_SC_ADDR);
 	if (!dev)
 		return -ENODEV;
 
