@@ -374,6 +374,8 @@ jobs:
           BUILDMAN: "mx6 -x boundary,engicam,freescale,technexion,toradex"
         imx:
           BUILDMAN: "mx -x mx6,freescale,technexion,toradex"
+        imx8:
+          BUILDMAN: "imx8"
         keystone2_keystone3:
           BUILDMAN: "k2 k3"
         samsung_socfpga:
@@ -433,7 +435,7 @@ jobs:
         uniphier:
           BUILDMAN: "uniphier"
         aarch64_catch_all:
-          BUILDMAN: "aarch64 -x bcm,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,renesas,sunxi,samsung,socfpga,rk,versal,zynq"
+          BUILDMAN: "aarch64 -x bcm,imx8,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,renesas,sunxi,samsung,socfpga,rk,versal,zynq"
         rockchip:
           BUILDMAN: "rk"
         renesas:
