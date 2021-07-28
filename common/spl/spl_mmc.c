@@ -20,25 +20,39 @@
 static int mmc_load_legacy(struct spl_image_info *spl_image, struct mmc *mmc,
 			   ulong sector, struct image_header *header)
 {
+	u32 image_offset_sectors;
 	u32 image_size_sectors;
 	unsigned long count;
+	u32 image_offset;
 	int ret;
 
 	ret = spl_parse_image_header(spl_image, header);
 	if (ret)
 		return ret;
 
+	/* convert offset to sectors - round down */
+	image_offset_sectors = spl_image->offset / mmc->read_bl_len;
+	/* calculate remaining offset */
+	image_offset = spl_image->offset % mmc->read_bl_len;
+
 	/* convert size to sectors - round up */
 	image_size_sectors = (spl_image->size + mmc->read_bl_len - 1) /
 			     mmc->read_bl_len;
 
 	/* Read the header too to avoid extra memcpy */
-	count = blk_dread(mmc_get_blk_desc(mmc), sector, image_size_sectors,
+	count = blk_dread(mmc_get_blk_desc(mmc),
+			  sector + image_offset_sectors,
+			  image_size_sectors,
 			  (void *)(ulong)spl_image->load_addr);
 	debug("read %x sectors to %lx\n", image_size_sectors,
 	      spl_image->load_addr);
 	if (count != image_size_sectors)
 		return -EIO;
+
+	if (image_offset)
+		memmove((void *)(ulong)spl_image->load_addr,
+			(void *)(ulong)spl_image->load_addr + image_offset,
+			spl_image->size);
 
 	return 0;
 }

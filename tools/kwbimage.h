@@ -11,6 +11,12 @@
 #include <compiler.h>
 #include <stdint.h>
 
+#ifdef __GNUC__
+#define __packed __attribute((packed))
+#else
+#define __packed
+#endif
+
 #define KWBIMAGE_MAX_CONFIG	((0x1dc - 0x20)/sizeof(struct reg_config))
 #define MAX_TEMPBUF_LEN		32
 
@@ -27,7 +33,8 @@
 #define IBR_HDR_SATA_ID			0x78
 #define IBR_HDR_PEX_ID			0x9C
 #define IBR_HDR_UART_ID			0x69
-#define IBR_DEF_ATTRIB	 		0x00
+#define IBR_HDR_SDIO_ID			0xAE
+#define IBR_DEF_ATTRIB			0x00
 
 /* Structure of the main header, version 0 (Kirkwood, Dove) */
 struct main_hdr_v0 {
@@ -45,12 +52,12 @@ struct main_hdr_v0 {
 	uint16_t rsvd2;			/* 0x1C-0x1D */
 	uint8_t  ext;			/* 0x1E      */
 	uint8_t  checksum;		/* 0x1F      */
-};
+} __packed;
 
 struct ext_hdr_v0_reg {
 	uint32_t raddr;
 	uint32_t rdata;
-};
+} __packed;
 
 #define EXT_HDR_V0_REG_COUNT ((0x1dc - 0x20) / sizeof(struct ext_hdr_v0_reg))
 
@@ -60,12 +67,12 @@ struct ext_hdr_v0 {
 	struct ext_hdr_v0_reg rcfg[EXT_HDR_V0_REG_COUNT];
 	uint8_t               reserved2[7];
 	uint8_t               checksum;
-};
+} __packed;
 
 struct kwb_header {
 	struct main_hdr_v0	kwb_hdr;
 	struct ext_hdr_v0	kwb_exthdr;
-};
+} __packed;
 
 /* Structure of the main header, version 1 (Armada 370/38x/XP) */
 struct main_hdr_v1 {
@@ -86,7 +93,7 @@ struct main_hdr_v1 {
 	uint16_t reserved5;             /* 0x1C-0x1D */
 	uint8_t  ext;                   /* 0x1E      */
 	uint8_t  checksum;              /* 0x1F      */
-};
+} __packed;
 
 /*
  * Main header options
@@ -108,21 +115,21 @@ struct opt_hdr_v1 {
 	uint8_t  headersz_msb;
 	uint16_t headersz_lsb;
 	char     data[0];
-};
+} __packed;
 
 /*
  * Public Key data in DER format
  */
 struct pubkey_der_v1 {
 	uint8_t key[524];
-};
+} __packed;
 
 /*
  * Signature (RSA 2048)
  */
 struct sig_v1 {
 	uint8_t sig[256];
-};
+} __packed;
 
 /*
  * Structure of secure header (Armada 38x)
@@ -145,7 +152,34 @@ struct secure_hdr_v1 {
 	uint8_t  next;			/* 0x25E0 */
 	uint8_t  reserved4;		/* 0x25E1 */
 	uint16_t reserved5;		/* 0x25E2 - 0x25E3 */
-};
+} __packed;
+
+/*
+ * Structure of register set
+ */
+struct register_set_hdr_v1 {
+	uint8_t  headertype;		/* 0x0 */
+	uint8_t  headersz_msb;		/* 0x1 */
+	uint16_t headersz_lsb;		/* 0x2 - 0x3 */
+	union {
+		struct {
+			uint32_t address;	/* 0x4+8*N - 0x7+8*N */
+			uint32_t value;		/* 0x8+8*N - 0xB+8*N */
+		} __packed entry;
+		struct {
+			uint8_t  next;		/* 0xC+8*N */
+			uint8_t  delay;		/* 0xD+8*N */
+			uint16_t reserved;	/* 0xE+8*N - 0xF+8*N */
+		} __packed last_entry;
+	} data[];
+} __packed;
+
+/*
+ * Value 0 in register_set_hdr_v1 delay field is special.
+ * Instead of delay it setup SDRAM Controller.
+ */
+#define REGISTER_SET_HDR_OPT_DELAY_SDRAM_SETUP 0
+#define REGISTER_SET_HDR_OPT_DELAY_MS(val) ((val) ?: 1)
 
 /*
  * Various values for the opt_hdr_v1->headertype field, describing the

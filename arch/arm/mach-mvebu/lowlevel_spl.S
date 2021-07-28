@@ -13,8 +13,9 @@ ENDPROC(save_boot_params)
 ENTRY(return_to_bootrom)
 	ldr	r12, =CONFIG_SPL_BOOTROM_SAVE
 	ldr	sp, [r12]
+	ldmfd	sp!, {r0 - r12, lr}	/* @ restore registers from stack */
 	mov	r0, #0x0		/* @ return value: 0x0 NO_ERR */
-	ldmfd	sp!, {r0 - r12, pc}	/* @ restore regs and return */
+	bx	lr			/* @ return to bootrom */
 ENDPROC(return_to_bootrom)
 
 /*

@@ -300,6 +300,12 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 }
 #endif
 
+__weak int spl_parse_board_header(struct spl_image_info *spl_image,
+				  const void *image_header, size_t size)
+{
+	return -EINVAL;
+}
+
 __weak int spl_parse_legacy_header(struct spl_image_info *spl_image,
 				   const struct image_header *header)
 {
@@ -351,6 +357,9 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			return 0;
 		}
 #endif
+
+		if (!spl_parse_board_header(spl_image, (const void *)header, sizeof(*header)))
+			return 0;
 
 #ifdef CONFIG_SPL_RAW_IMAGE_SUPPORT
 		/* Signature not found - assume u-boot.bin */
