@@ -518,6 +518,9 @@ static u8 __maybe_unused zynqmp_get_bootmode(void)
 	if (ret)
 		return -EINVAL;
 
+	debug("HW boot mode: %x\n", reg & BOOT_MODES_MASK);
+	debug("ALT boot mode: %x\n", reg >> BOOT_MODE_ALT_SHIFT);
+
 	if (reg >> BOOT_MODE_ALT_SHIFT)
 		reg >>= BOOT_MODE_ALT_SHIFT;
 
