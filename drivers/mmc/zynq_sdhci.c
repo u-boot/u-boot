@@ -144,9 +144,9 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 	u32 ctrl;
-	u8 node_id = mmc->dev->seq ? NODE_SD_0 : NODE_SD_1;
 	struct sdhci_host *host;
 	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
+	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
 
 	debug("%s\n", __func__);
@@ -230,7 +230,8 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 {
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	struct udevice *dev = mmc->dev;
-	u8 node_id = dev->seq ? NODE_SD_0 : NODE_SD_1;
+	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
+	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
 	int ret;
@@ -301,7 +302,8 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 {
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	struct udevice *dev = mmc->dev;
-	u8 node_id = dev->seq ? NODE_SD_0 : NODE_SD_1;
+	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
+	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
 	int ret;
