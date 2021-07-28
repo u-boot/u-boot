@@ -43,6 +43,7 @@ Shell commands
    reset
    sbi
    scp03
+   setexpr
    size
    true
    ums

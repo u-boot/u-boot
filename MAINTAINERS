@@ -1050,6 +1050,12 @@ F:	arch/sandbox/
 F:	doc/arch/sandbox.rst
 F:	include/dt-bindings/*/sandbox*.h
 
+SETEXPR
+M:	Roland Gaudig <roland.gaudig@weidmueller.com>
+S:	Maintained
+F:	cmd/printf.c
+F:	doc/usage/setexpr.rst
+
 SH
 M:	Marek Vasut <marek.vasut+renesas@gmail.com>
 M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>

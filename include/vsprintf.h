@@ -41,6 +41,7 @@ int strict_strtoul(const char *cp, unsigned int base, unsigned long *res);
 unsigned long long simple_strtoull(const char *cp, char **endp,
 					unsigned int base);
 long simple_strtol(const char *cp, char **endp, unsigned int base);
+long long simple_strtoll(const char *cp, char **endp, unsigned int base);
 
 /**
  * trailing_strtol() - extract a trailing integer from a string

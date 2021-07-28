@@ -143,6 +143,14 @@ unsigned long long simple_strtoull(const char *cp, char **endp,
 	return result;
 }
 
+long long simple_strtoll(const char *cp, char **endp, unsigned int base)
+{
+	if (*cp == '-')
+		return -simple_strtoull(cp + 1, endp, base);
+
+	return simple_strtoull(cp, endp, base);
+}
+
 long trailing_strtoln(const char *str, const char *end)
 {
 	const char *p;
