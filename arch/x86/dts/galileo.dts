@@ -42,7 +42,7 @@
 	};
 
 	tsc-timer {
-		clock-frequency = <400000000>;
+		clock-frequency = <CONFIG_X86_TSC_TIMER_FREQ>;
 	};
 
 	mrc {
