@@ -13,8 +13,8 @@
 /include/ "pcspkr.dtsi"
 /include/ "reset.dtsi"
 /include/ "rtc.dtsi"
-/include/ "tsc_timer.dtsi"
 
+#include "tsc_timer.dtsi"
 #include "smbios.dtsi"
 
 / {

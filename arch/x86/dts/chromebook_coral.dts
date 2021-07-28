@@ -8,7 +8,8 @@
 /include/ "keyboard.dtsi"
 /include/ "reset.dtsi"
 /include/ "rtc.dtsi"
-/include/ "tsc_timer.dtsi"
+
+#include "tsc_timer.dtsi"
 
 #if defined(CONFIG_CHROMEOS_VBOOT) && defined(CONFIG_ROM_SIZE)
 #include "chromeos-x86.dtsi"
