@@ -1017,7 +1017,7 @@ For example:
     + u-boot.cfg: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_NET_SUPPORT=1
     + u-boot-spl.cfg: CONFIG_SPL_MMC_SUPPORT=1 CONFIG_SPL_NAND_SUPPORT=1
     + all: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_MMC_SUPPORT=1 CONFIG_SPL_NAND_SUPPORT=1 CONFIG_SPL_NET_SUPPORT=1
-    44: Convert CONFIG_SPL_USB_HOST_SUPPORT to Kconfig
+    44: Convert CONFIG_SPL_USB_HOST to Kconfig
     ...
 
 This shows that commit 44 enabled three new options for the board

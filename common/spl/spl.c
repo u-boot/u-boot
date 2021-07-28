@@ -707,7 +707,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_board_init();
 #endif
 
-#if defined(CONFIG_SPL_WATCHDOG_SUPPORT) && CONFIG_IS_ENABLED(WDT)
+#if defined(CONFIG_SPL_WATCHDOG) && CONFIG_IS_ENABLED(WDT)
 	initr_watchdog();
 #endif
 

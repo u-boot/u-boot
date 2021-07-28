@@ -339,7 +339,7 @@ void board_init_f(ulong dummy)
 	spl_init();
 	preloader_console_init();
 
-#ifdef CONFIG_SPL_I2C_SUPPORT
+#ifdef CONFIG_SPL_I2C
 	/* Needed early by sunxi_board_init if PMU is enabled */
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif

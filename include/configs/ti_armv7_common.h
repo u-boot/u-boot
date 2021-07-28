@@ -88,8 +88,7 @@
 
 /* If DM_I2C, enable non-DM I2C support */
 #if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_I2C
-#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LEGACY
 #endif
 
 /*

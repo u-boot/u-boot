@@ -588,7 +588,7 @@ void sdram_init(void)
 #endif
 
 #if defined(CONFIG_CLOCK_SYNTHESIZER) && (!defined(CONFIG_SPL_BUILD) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD)))
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD)))
 static void request_and_set_gpio(int gpio, char *name, int val)
 {
 	int ret;
@@ -724,7 +724,7 @@ int board_init(void)
 #endif
 
 #if defined(CONFIG_CLOCK_SYNTHESIZER) && (!defined(CONFIG_SPL_BUILD) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD)))
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD)))
 	if (board_is_icev2()) {
 		int rv;
 		u32 reg;

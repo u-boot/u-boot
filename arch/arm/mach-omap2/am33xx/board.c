@@ -209,7 +209,7 @@ int cpu_mmc_init(struct bd_info *bis)
 #if (defined(CONFIG_USB_MUSB_GADGET) || defined(CONFIG_USB_MUSB_HOST)) && \
 	(defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1)) && \
 	(!CONFIG_IS_ENABLED(DM_USB) || !CONFIG_IS_ENABLED(OF_CONTROL)) && \
-	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_MUSB_NEW_SUPPORT))
+	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_MUSB_NEW))
 
 static struct musb_hdrc_config musb_config = {
 	.multipoint     = 1,

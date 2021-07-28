@@ -264,7 +264,7 @@ config MVEBU_SPL_BOOT_DEVICE_MMC
 	# GPIO needed for eMMC/SD card presence detection
 	select SPL_DM_GPIO
 	select SPL_DM_MMC
-	select SPL_GPIO_SUPPORT
+	select SPL_GPIO
 	select SPL_LIBDISK_SUPPORT
 	select SPL_MMC_SUPPORT
 

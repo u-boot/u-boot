@@ -171,7 +171,7 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 #endif
 #endif
 
-#ifdef CONFIG_SYS_I2C
+#ifdef CONFIG_SYS_I2C_LEGACY
 static struct i2c_pads_info tqma6_i2c3_pads = {
 	/* I2C3: on board LM75, M24C64,  */
 	.scl = {
@@ -216,7 +216,7 @@ int board_init(void)
 #ifndef CONFIG_DM_SPI
 	tqma6_iomuxc_spi();
 #endif
-#ifdef CONFIG_SYS_I2C
+#ifdef CONFIG_SYS_I2C_LEGACY
 	tqma6_setup_i2c();
 #endif
 

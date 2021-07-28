@@ -89,7 +89,7 @@ static int phycore_init(void)
 	if (ret)
 		return ret;
 
-#if defined(CONFIG_SPL_POWER_SUPPORT)
+#if defined(CONFIG_SPL_POWER)
 	/* Increase USB input current to 2A */
 	ret = rk818_spl_configure_usb_input_current(pmic, 2000);
 	if (ret)

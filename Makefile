@@ -802,16 +802,19 @@ c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
-libs-y += lib/
+libs-$(CONFIG_API) += api/
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
+libs-y += cmd/
+libs-y += common/
 libs-$(CONFIG_OF_EMBED) += dts/
+libs-y += env/
+libs-y += lib/
 libs-y += fs/
 libs-y += net/
 libs-y += disk/
 libs-y += drivers/
 libs-y += drivers/dma/
 libs-y += drivers/gpio/
-libs-y += drivers/i2c/
 libs-y += drivers/net/
 libs-y += drivers/net/phy/
 libs-y += drivers/power/ \
@@ -841,10 +844,6 @@ libs-y += drivers/usb/musb/
 libs-y += drivers/usb/musb-new/
 libs-y += drivers/usb/phy/
 libs-y += drivers/usb/ulpi/
-libs-y += cmd/
-libs-y += common/
-libs-y += env/
-libs-$(CONFIG_API) += api/
 ifdef CONFIG_POST
 libs-y += post/
 endif
@@ -1128,7 +1127,7 @@ endif
 	$(call deprecated,CONFIG_WDT,DM watchdog,v2019.10,\
 		$(CONFIG_WATCHDOG)$(CONFIG_HW_WATCHDOG))
 	$(call deprecated,CONFIG_DM_ETH,Ethernet drivers,v2020.07,$(CONFIG_NET))
-	$(call deprecated,CONFIG_DM_I2C,I2C drivers,v2022.04,$(CONFIG_I2C))
+	$(call deprecated,CONFIG_DM_I2C,I2C drivers,v2022.04,$(CONFIG_SYS_I2C_LEGACY))
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
@@ -2100,7 +2099,7 @@ CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
-		  .tmp_objdiff doc/output
+		  .tmp_objdiff doc/output include/asm
 
 # Remove include/asm symlink created by U-Boot before v2014.01
 MRPROPER_FILES += .config .config.old include/autoconf.mk* include/config.h \

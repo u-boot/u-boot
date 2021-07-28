@@ -30,6 +30,6 @@
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* I2C */
-#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LEGACY
 
 #endif /* __CONFIG_TQMA6_WRU4_H */

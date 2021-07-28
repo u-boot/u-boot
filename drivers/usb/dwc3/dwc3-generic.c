@@ -163,7 +163,7 @@ U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 };
 #endif
 
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || \
+#if defined(CONFIG_SPL_USB_HOST) || \
 	!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST)
 static int dwc3_generic_host_probe(struct udevice *dev)
 {
@@ -320,7 +320,7 @@ static int dwc3_glue_bind(struct udevice *parent)
 			driver = "dwc3-generic-peripheral";
 #endif
 			break;
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL_USB_HOST) || !defined(CONFIG_SPL_BUILD)
 		case USB_DR_MODE_HOST:
 			debug("%s: dr_mode: HOST\n", __func__);
 			driver = "dwc3-generic-host";

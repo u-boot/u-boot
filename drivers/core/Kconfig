@@ -325,6 +325,7 @@ config DM_DEV_READ_INLINE
 config ACPIGEN
 	bool "Support ACPI table generation in driver model"
 	default y if SANDBOX || (GENERATE_ACPI_TABLE && !QEMU)
+	select LIB_UUID
 	help
 	  This option enables generation of ACPI tables using driver-model
 	  devices. It adds a new operation struct to each driver, to support

@@ -167,7 +167,7 @@ config CMD_TLV_EEPROM
 config SPL_CMD_TLV_EEPROM
 	bool "tlv_eeprom for SPL"
 	depends on SPL_I2C_EEPROM
-	select SPL_DRIVERS_MISC_SUPPORT
+	select SPL_DRIVERS_MISC
 	help
 	  Read system EEPROM data block in ONIE Tlvinfo format from SPL.
 

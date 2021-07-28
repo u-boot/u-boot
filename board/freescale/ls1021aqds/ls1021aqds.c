@@ -213,7 +213,7 @@ void board_init_f(ulong dummy)
 
 	preloader_console_init();
 
-#ifdef CONFIG_SPL_I2C_SUPPORT
+#ifdef CONFIG_SPL_I2C
 	i2c_init_all();
 #endif
 

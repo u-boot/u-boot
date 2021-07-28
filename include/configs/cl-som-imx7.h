@@ -31,7 +31,7 @@
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
 
 /* I2C configs */
-#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LEGACY
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C2		/* Enable I2C bus 2 */
 #define CONFIG_SYS_I2C_SPEED		100000

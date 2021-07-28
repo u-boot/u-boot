@@ -72,7 +72,7 @@ obj-$(CONFIG_SPL_LOAD_FIT) += common_fit.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdt_support.o
 
-ifdef CONFIG_SPL_USB_HOST_SUPPORT
+ifdef CONFIG_SPL_USB_HOST
 obj-y += usb.o
 obj-y += usb_hub.o
 obj-$(CONFIG_SPL_USB_STORAGE) += usb_storage.o
