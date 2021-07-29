@@ -9,6 +9,9 @@
 #ifndef __MESON64_ANDROID_CONFIG_H
 #define __MESON64_ANDROID_CONFIG_H
 
+#ifndef BOOT_PARTITION
+#define BOOT_PARTITION "boot"
+#endif
 
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
 	"bootcmd_fastboot=" \
@@ -77,11 +80,11 @@
 
 #define BOOTENV_DEV_SYSTEM(devtypeu, devtypel, instance) \
 	"bootcmd_system=" \
-		"echo Loading Android boot partition...;" \
+		"echo Loading Android " BOOT_PARTITION " partition...;" \
 		"mmc dev ${mmcdev};" \
 		"setenv bootargs ${bootargs} console=${console} androidboot.serialno=${serial#};" \
-		"part start mmc ${mmcdev} ${bootpart} boot_start;" \
-		"part size mmc ${mmcdev} ${bootpart} boot_size;" \
+		"part start mmc ${mmcdev} " BOOT_PARTITION " boot_start;" \
+		"part size mmc ${mmcdev} " BOOT_PARTITION " boot_size;" \
 		"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
 			"echo Running Android...;" \
 			"bootm ${loadaddr};" \
@@ -111,7 +114,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS                                     \
 	"partitions=" PARTS_DEFAULT "\0"                              \
 	"mmcdev=2\0"                                                  \
-	"bootpart=1\0"                                                \
 	"logopart=2\0"                                                \
 	"gpio_recovery=88\0"                                          \
 	"check_button=gpio input ${gpio_recovery};test $? -eq 0;\0"   \
