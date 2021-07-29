@@ -362,6 +362,7 @@
 				u-boot,dm-pre-proper;
 				u-boot,dm-spl;
 				reg = <0>;
+				m25p,fast-read;
 				compatible = "winbond,w25q128fw",
 					 "jedec,spi-nor";
 				rw-mrc-cache {
