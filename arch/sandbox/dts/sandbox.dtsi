@@ -231,6 +231,7 @@
 		boolval;
 		intval = <1>;
 		intarray = <2 3 4>;
+		maybe-empty-int = <>;
 		byteval = [05];
 		bytearray = [06];
 		longbytearray = [09 0a 0b 0c 0d 0e 0f 10 11];
@@ -254,6 +255,7 @@
 		u-boot,dm-pre-reloc;
 		compatible = "sandbox,spl-test";
 		stringarray = "one";
+		maybe-empty-int = <1>;
 	};
 
 	spl-test5 {

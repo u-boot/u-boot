@@ -122,8 +122,9 @@ class TestFdt(unittest.TestCase):
         node = self.dtb.GetNode('/spl-test')
         props = self.dtb.GetProps(node)
         self.assertEqual(['boolval', 'bytearray', 'byteval', 'compatible',
-                          'intarray', 'intval', 'longbytearray', 'notstring',
-                          'stringarray', 'stringval', 'u-boot,dm-pre-reloc'],
+                          'intarray', 'intval', 'longbytearray',
+                          'maybe-empty-int', 'notstring', 'stringarray',
+                          'stringval', 'u-boot,dm-pre-reloc'],
                          sorted(props.keys()))
 
     def testCheckError(self):
@@ -430,6 +431,19 @@ class TestProp(unittest.TestCase):
         prop.Widen(prop2)
         self.assertEqual(Type.INT, prop.type)
         self.assertEqual(3, len(prop.value))
+
+        # Widen an empty bool to an int
+        prop = self.node.props['maybe-empty-int']
+        prop3 = node3.props['maybe-empty-int']
+        self.assertEqual(Type.BOOL, prop.type)
+        self.assertEqual(True, prop.value)
+        self.assertEqual(Type.INT, prop3.type)
+        self.assertFalse(isinstance(prop.value, list))
+        self.assertEqual(4, len(prop3.value))
+        prop.Widen(prop3)
+        self.assertEqual(Type.INT, prop.type)
+        self.assertTrue(isinstance(prop.value, list))
+        self.assertEqual(1, len(prop.value))
 
     def testAdd(self):
         """Test adding properties"""

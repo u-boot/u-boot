@@ -153,6 +153,18 @@ class Prop:
         specific.
         """
         if self.type.needs_widening(newprop.type):
+
+            # A boolean has an empty value: if it exists it is True and if not
+            # it is False. So when widening we always start with an empty list
+            # since the only valid integer property would be an empty list of
+            # integers.
+            # e.g. this is a boolean:
+            #    some-prop;
+            # and it would be widened to int list by:
+            #    some-prop = <1 2>;
+            if self.type == Type.BOOL:
+                self.type = Type.INT
+                self.value = [self.GetEmpty(self.type)]
             if self.type == Type.INT and newprop.type == Type.BYTE:
                 if type(self.value) == list:
                     new_value = []

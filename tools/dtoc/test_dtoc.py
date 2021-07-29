@@ -299,6 +299,7 @@ struct dtd_sandbox_spl_test {
 \tfdt32_t\t\tintarray[3];
 \tfdt32_t\t\tintval;
 \tunsigned char\tlongbytearray[9];
+\tfdt32_t\t\tmaybe_empty_int[1];
 \tunsigned char\tnotstring[5];
 \tconst char *\tstringarray[3];
 \tconst char *\tstringval;
@@ -358,6 +359,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test = {
 \t.intval\t\t\t= 0x1,
 \t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10,
 \t\t0x11},
+\t.maybe_empty_int\t= {0x0},
 \t.notstring\t\t= {0x20, 0x21, 0x22, 0x10, 0x0},
 \t.stringarray\t\t= {"multi-word", "message", ""},
 \t.stringval\t\t= "message",
@@ -398,6 +400,7 @@ U_BOOT_DRVINFO(spl_test2) = {
 static struct dtd_sandbox_spl_test dtv_spl_test3 = {
 \t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10,
 \t\t0x0},
+\t.maybe_empty_int\t= {0x1},
 \t.stringarray\t\t= {"one", "", ""},
 };
 U_BOOT_DRVINFO(spl_test3) = {

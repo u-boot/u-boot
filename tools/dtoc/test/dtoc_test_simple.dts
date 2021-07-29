@@ -14,6 +14,7 @@
 		u-boot,dm-pre-reloc;
 		compatible = "sandbox,spl-test";
 		boolval;
+		maybe-empty-int = <>;
 		intval = <1>;
 		intarray = <2 3 4>;
 		byteval = [05];
@@ -42,6 +43,7 @@
 		compatible = "sandbox,spl-test";
 		stringarray = "one";
 		longbytearray = [09 0a 0b 0c 0d 0e 0f 10];
+		maybe-empty-int = <1>;
 	};
 
 	i2c@0 {
