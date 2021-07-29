@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Configuration for the SEI510
+ * Configuration for the SEI610
  *
  * Copyright (C) 2019 Baylibre, SAS
  * Author: Jerome Brunet <jbrunet@baylibre.com>
