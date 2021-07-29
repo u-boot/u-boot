@@ -379,7 +379,7 @@ class TestProp(unittest.TestCase):
         self.assertEqual(Type.INT, prop.type)
         self.assertEqual(1, fdt32_to_cpu(prop.value))
 
-        # Convert singla value to array
+        # Convert single value to array
         prop2 = self.node.props['intarray']
         prop.Widen(prop2)
         self.assertEqual(Type.INT, prop.type)
@@ -420,6 +420,15 @@ class TestProp(unittest.TestCase):
         self.assertEqual(2, len(prop.value))
         prop.Widen(prop2)
         self.assertTrue(isinstance(prop.value, list))
+        self.assertEqual(3, len(prop.value))
+
+        # Widen an array of ints with an int (should do nothing)
+        prop = self.node.props['intarray']
+        prop2 = node2.props['intarray']
+        self.assertEqual(Type.INT, prop.type)
+        self.assertEqual(3, len(prop.value))
+        prop.Widen(prop2)
+        self.assertEqual(Type.INT, prop.type)
         self.assertEqual(3, len(prop.value))
 
     def testAdd(self):

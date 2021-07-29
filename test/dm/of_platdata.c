@@ -35,11 +35,10 @@ static int dm_test_of_plat_props(struct unit_test_state *uts)
 	plat = dev_get_plat(dev);
 	ut_assert(plat->boolval);
 	ut_asserteq(1, plat->intval);
-	ut_asserteq(4, ARRAY_SIZE(plat->intarray));
+	ut_asserteq(3, ARRAY_SIZE(plat->intarray));
 	ut_asserteq(2, plat->intarray[0]);
 	ut_asserteq(3, plat->intarray[1]);
 	ut_asserteq(4, plat->intarray[2]);
-	ut_asserteq(0, plat->intarray[3]);
 	ut_asserteq(5, plat->byteval);
 	ut_asserteq(3, ARRAY_SIZE(plat->bytearray));
 	ut_asserteq(6, plat->bytearray[0]);
@@ -61,7 +60,6 @@ static int dm_test_of_plat_props(struct unit_test_state *uts)
 	ut_asserteq(5, plat->intarray[0]);
 	ut_asserteq(0, plat->intarray[1]);
 	ut_asserteq(0, plat->intarray[2]);
-	ut_asserteq(0, plat->intarray[3]);
 	ut_asserteq(8, plat->byteval);
 	ut_asserteq(3, ARRAY_SIZE(plat->bytearray));
 	ut_asserteq(1, plat->bytearray[0]);

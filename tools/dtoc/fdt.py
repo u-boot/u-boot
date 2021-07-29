@@ -163,13 +163,14 @@ class Prop:
                 self.value = new_value
             self.type = newprop.type
 
-        if type(newprop.value) == list and type(self.value) != list:
-            self.value = [self.value]
+        if type(newprop.value) == list:
+            if type(self.value) != list:
+                self.value = [self.value]
 
-        if type(self.value) == list and len(newprop.value) > len(self.value):
-            val = self.GetEmpty(self.type)
-            while len(self.value) < len(newprop.value):
-                self.value.append(val)
+            if len(newprop.value) > len(self.value):
+                val = self.GetEmpty(self.type)
+                while len(self.value) < len(newprop.value):
+                    self.value.append(val)
 
     @classmethod
     def GetEmpty(self, type):
