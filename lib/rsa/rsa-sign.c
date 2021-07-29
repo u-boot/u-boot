@@ -19,24 +19,6 @@
 #include <openssl/evp.h>
 #include <openssl/engine.h>
 
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
-#define HAVE_ERR_REMOVE_THREAD_STATE
-#endif
-
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
-static void RSA_get0_key(const RSA *r,
-                 const BIGNUM **n, const BIGNUM **e, const BIGNUM **d)
-{
-   if (n != NULL)
-       *n = r->n;
-   if (e != NULL)
-       *e = r->e;
-   if (d != NULL)
-       *d = r->d;
-}
-#endif
-
 static int rsa_err(const char *msg)
 {
 	unsigned long sslErr = ERR_get_error();
@@ -314,24 +296,11 @@ static int rsa_init(void)
 {
 	int ret;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
-	ret = SSL_library_init();
-#else
 	ret = OPENSSL_init_ssl(0, NULL);
-#endif
 	if (!ret) {
 		fprintf(stderr, "Failure to init SSL library\n");
 		return -1;
 	}
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
-	SSL_load_error_strings();
-
-	OpenSSL_add_all_algorithms();
-	OpenSSL_add_all_digests();
-	OpenSSL_add_all_ciphers();
-#endif
 
 	return 0;
 }
@@ -347,8 +316,7 @@ static int rsa_engine_init(const char *engine_id, ENGINE **pe)
 	e = ENGINE_by_id(engine_id);
 	if (!e) {
 		fprintf(stderr, "Engine isn't available\n");
-		ret = -1;
-		goto err_engine_by_id;
+		return -1;
 	}
 
 	if (!ENGINE_init(e)) {
@@ -381,27 +349,7 @@ err_set_rsa:
 	ENGINE_finish(e);
 err_engine_init:
 	ENGINE_free(e);
-err_engine_by_id:
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
-	ENGINE_cleanup();
-#endif
 	return ret;
-}
-
-static void rsa_remove(void)
-{
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
-	CRYPTO_cleanup_all_ex_data();
-	ERR_free_strings();
-#ifdef HAVE_ERR_REMOVE_THREAD_STATE
-	ERR_remove_thread_state(NULL);
-#else
-	ERR_remove_state(0);
-#endif
-	EVP_cleanup();
-#endif
 }
 
 static void rsa_engine_remove(ENGINE *e)
@@ -476,12 +424,7 @@ static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 		goto err_sign;
 	}
 
-	#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-		(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
-		EVP_MD_CTX_cleanup(context);
-	#else
-		EVP_MD_CTX_reset(context);
-	#endif
+	EVP_MD_CTX_reset(context);
 	EVP_MD_CTX_destroy(context);
 
 	debug("Got signature: %zu bytes, expected %d\n", size, EVP_PKEY_size(pkey));
@@ -513,7 +456,7 @@ int rsa_sign(struct image_sign_info *info,
 	if (info->engine_id) {
 		ret = rsa_engine_init(info->engine_id, &e);
 		if (ret)
-			goto err_engine;
+			return ret;
 	}
 
 	ret = rsa_get_priv_key(info->keydir, info->keyname, info->keyfile,
@@ -528,7 +471,6 @@ int rsa_sign(struct image_sign_info *info,
 	EVP_PKEY_free(pkey);
 	if (info->engine_id)
 		rsa_engine_remove(e);
-	rsa_remove();
 
 	return ret;
 
@@ -537,8 +479,6 @@ err_sign:
 err_priv:
 	if (info->engine_id)
 		rsa_engine_remove(e);
-err_engine:
-	rsa_remove();
 	return ret;
 }
 
@@ -686,12 +626,8 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 	ret = rsa_get_pub_key(info->keydir, info->keyname, e, &pkey);
 	if (ret)
 		goto err_get_pub_key;
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
-	rsa = EVP_PKEY_get1_RSA(pkey);
-#else
+
 	rsa = EVP_PKEY_get0_RSA(pkey);
-#endif
 	ret = rsa_get_params(rsa, &exponent, &n0_inv, &modulus, &r_squared);
 	if (ret)
 		goto err_get_params;
@@ -761,10 +697,6 @@ done:
 	if (ret)
 		ret = ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
 err_get_params:
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
-	RSA_free(rsa);
-#endif
 	EVP_PKEY_free(pkey);
 err_get_pub_key:
 	if (info->engine_id)
