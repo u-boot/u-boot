@@ -82,8 +82,6 @@
 #ifdef CONFIG_SYS_K3_SPL_ATF
 #if defined(CONFIG_TARGET_J721E_R5_EVM)
 #define EXTRA_ENV_R5_SPL_RPROC_FW_ARGS_MMC				\
-	"addr_mainr5f0_0load=0x88000000\0"				\
-	"name_mainr5f0_0fw=/lib/firmware/j7-main-r5f0_0-fw\0"		\
 	"addr_mcur5f0_0load=0x89000000\0"				\
 	"name_mcur5f0_0fw=/lib/firmware/j7-mcu-r5f0_0-fw\0"
 #elif defined(CONFIG_TARGET_J7200_R5_EVM)
@@ -129,6 +127,7 @@
 
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 #define DEFAULT_RPROCS	""						\
+		"2 /lib/firmware/j7-main-r5f0_0-fw "			\
 		"3 /lib/firmware/j7-main-r5f0_1-fw "			\
 		"4 /lib/firmware/j7-main-r5f1_0-fw "			\
 		"5 /lib/firmware/j7-main-r5f1_1-fw "			\
@@ -138,10 +137,23 @@
 #endif /* CONFIG_TARGET_J721E_A72_EVM */
 
 #ifdef CONFIG_TARGET_J7200_A72_EVM
+#define EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY				\
+	"do_main_cpsw0_qsgmii_phyinit=1\0"				\
+	"init_main_cpsw0_qsgmii_phy=gpio set gpio@22_17;"		\
+		 "gpio clear gpio@22_16\0"				\
+	"main_cpsw0_qsgmii_phyinit="					\
+	"if test ${do_main_cpsw0_qsgmii_phyinit} -eq 1 && test ${dorprocboot} -eq 1 && " \
+			"test ${boot} = mmc; then "			\
+		"run init_main_cpsw0_qsgmii_phy;"			\
+	"fi;\0"
 #define DEFAULT_RPROCS ""						\
 		"2 /lib/firmware/j7200-main-r5f0_0-fw "			\
 		"3 /lib/firmware/j7200-main-r5f0_1-fw "
 #endif /* CONFIG_TARGET_J7200_A72_EVM */
+
+#ifndef EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY
+#define EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY
+#endif
 
 /* set default dfu_bufsiz to 128KB (sector size of OSPI) */
 #define EXTRA_ENV_DFUARGS \
@@ -190,6 +202,7 @@
 	EXTRA_ENV_DFUARGS						\
 	DEFAULT_UFS_TI_ARGS						\
 	EXTRA_ENV_J721E_BOARD_SETTINGS_MTD				\
+	EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY				\
 	BOOTENV
 
 /* Now for the remaining common defines */

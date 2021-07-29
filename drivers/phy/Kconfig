@@ -282,4 +282,7 @@ config PHY_IMX8MQ_USB
 	  Support the USB3.0 PHY in NXP i.MX8MQ SoC
 
 source "drivers/phy/rockchip/Kconfig"
+source "drivers/phy/cadence/Kconfig"
+source "drivers/phy/ti/Kconfig"
+
 endmenu

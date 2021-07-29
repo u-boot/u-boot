@@ -619,6 +619,7 @@ static int am654_sdhci_of_to_plat(struct udevice *dev)
 		}
 	}
 
+	dev_read_u32(dev, "ti,strobe-sel", &plat->strb_sel);
 	dev_read_u32(dev, "ti,clkbuf-sel", &plat->clkbuf_sel);
 
 	ret = mmc_of_parse(dev, cfg);

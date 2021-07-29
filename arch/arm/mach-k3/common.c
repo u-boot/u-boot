@@ -193,10 +193,6 @@ int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
 }
 #endif
 
-__weak void start_non_linux_remote_cores(void)
-{
-}
-
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_noargs_t)(void);
@@ -214,7 +210,6 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	init_env();
 
 	if (!fit_image_info[IMAGE_ID_DM_FW].image_start) {
-		start_non_linux_remote_cores();
 		size = load_firmware("name_mcur5f0_0fw", "addr_mcur5f0_0load",
 				     &loadaddr);
 	}

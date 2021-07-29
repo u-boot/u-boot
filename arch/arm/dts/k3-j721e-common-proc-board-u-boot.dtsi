@@ -129,13 +129,17 @@
 	u-boot,dm-spl;
 };
 
+&wiz3_pll1_refclk {
+	assigned-clocks = <&wiz3_pll1_refclk>, <&wiz3_pll0_refclk>;
+	assigned-clock-parents = <&k3_clks 295 0>, <&k3_clks 295 9>;
+};
+
 &main_usbss0_pins_default {
 	u-boot,dm-spl;
 };
 
 &usbss0 {
 	u-boot,dm-spl;
-	ti,usb2-only;
 };
 
 &usb0 {
@@ -214,4 +218,17 @@
 
 &main_r5fss1 {
 	ti,cluster-mode = <0>;
+};
+
+&wiz3_pll1_refclk {
+	assigned-clocks = <&wiz3_pll1_refclk>, <&wiz3_pll0_refclk>;
+	assigned-clock-parents = <&k3_clks 295 0>, <&k3_clks 295 9>;
+};
+
+&serdes_ln_ctrl {
+	u-boot,mux-autoprobe;
+};
+
+&usb_serdes_mux {
+	u-boot,mux-autoprobe;
 };
