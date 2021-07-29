@@ -128,6 +128,13 @@ int misc_init_r(void)
 	reg |= CPLD_RSTCON_EDC_RST;
 	CPLD_WRITE(reset_ctl, reg);
 
+	/* Enable POR for boards revisions D and up */
+	if (get_hw_revision() >= 'D') {
+		reg = CPLD_READ(misc_csr);
+		reg |= CPLD_MISC_POR_EN;
+		CPLD_WRITE(misc_csr, reg);
+	}
+
 	return 0;
 }
 
