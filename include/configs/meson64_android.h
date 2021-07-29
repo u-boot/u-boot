@@ -38,7 +38,7 @@
 		"fi;" \
 		"if test \"${run_fastboot}\" -eq 1; then " \
 			"echo Running Fastboot...;" \
-			"fastboot 0;" \
+			"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
 		"fi\0"
 
 #define BOOTENV_DEV_NAME_FASTBOOT(devtypeu, devtypel, instance)	\
@@ -69,7 +69,7 @@
 		"fi;" \
 		"if test \"${run_recovery}\" -eq 1; then " \
 			"echo Running Recovery...;" \
-			"fastboot 0;" \
+			"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
 		"fi\0"
 
 #define BOOTENV_DEV_NAME_RECOVERY(devtypeu, devtypel, instance)	\
