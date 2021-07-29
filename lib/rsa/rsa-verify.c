@@ -556,7 +556,7 @@ int rsa_verify(struct image_sign_info *info,
 	 */
 	if (info->checksum->checksum_len >
 	    info->crypto->key_len) {
-		debug("%s: invlaid checksum-algorithm %s for %s\n",
+		debug("%s: invalid checksum-algorithm %s for %s\n",
 		      __func__, info->checksum->name, info->crypto->name);
 		return -EINVAL;
 	}

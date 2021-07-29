@@ -533,8 +533,8 @@ Generic engine key ids:
 or
   "<key-name-hint>"
 
-As mkimage does not at this time support prompting for passwords HSM may need
-key preloading wrapper to be used when invoking mkimage.
+In order to set the pin in the HSM, an environment variable "MKIMAGE_SIGN_PIN"
+can be specified.
 
 The following examples use the Nitrokey Pro using pkcs11 engine. Instructions
 for other devices may vary.
