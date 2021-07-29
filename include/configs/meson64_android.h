@@ -86,7 +86,7 @@
 	"bootcmd_system=" \
 		"echo Loading Android " BOOT_PARTITION " partition...;" \
 		"mmc dev ${mmcdev};" \
-		"setenv bootargs ${bootargs} console=${console} androidboot.serialno=${serial#};" \
+		"setenv bootargs ${bootargs} androidboot.serialno=${serial#};" \
 		"part start mmc ${mmcdev} " BOOT_PARTITION " boot_start;" \
 		"part size mmc ${mmcdev} " BOOT_PARTITION " boot_size;" \
 		"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
@@ -121,8 +121,6 @@
 	"gpio_recovery=88\0"                                          \
 	"check_button=gpio input ${gpio_recovery};test $? -eq 0;\0"   \
 	"load_logo=" PREBOOT_LOAD_LOGO "\0"			      \
-	"console=/dev/ttyAML0\0"                                      \
-	"bootargs=no_console_suspend\0"                               \
 	"stdin=" STDIN_CFG "\0"                                       \
 	"stdout=" STDOUT_CFG "\0"                                     \
 	"stderr=" STDOUT_CFG "\0"                                     \
