@@ -13,6 +13,10 @@
 #define BOOT_PARTITION "boot"
 #endif
 
+#ifndef LOGO_PARTITION
+#define LOGO_PARTITION "logo"
+#endif
+
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
 	"bootcmd_fastboot=" \
 		"sm reboot_reason reason;" \
@@ -104,8 +108,8 @@
 	"if test \"${boot_source}\" != \"usb\" && " \
 		"gpt verify mmc ${mmcdev} ${partitions}; then; " \
 		"mmc dev ${mmcdev};" \
-		"part start mmc ${mmcdev} ${logopart} boot_start;" \
-		"part size mmc ${mmcdev} ${logopart} boot_size;" \
+		"part start mmc ${mmcdev} " LOGO_PARTITION " boot_start;" \
+		"part size mmc ${mmcdev} " LOGO_PARTITION " boot_size;" \
 		"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
 			"bmp display ${loadaddr} m m;" \
 		"fi;" \
@@ -114,7 +118,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS                                     \
 	"partitions=" PARTS_DEFAULT "\0"                              \
 	"mmcdev=2\0"                                                  \
-	"logopart=2\0"                                                \
 	"gpio_recovery=88\0"                                          \
 	"check_button=gpio input ${gpio_recovery};test $? -eq 0;\0"   \
 	"load_logo=" PREBOOT_LOAD_LOGO "\0"			      \
