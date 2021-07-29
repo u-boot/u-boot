@@ -179,6 +179,15 @@ config STM32_ETZPC
 	help
 	  Say y to enable STM32 Extended TrustZone Protection
 
+config STM32_ECDSA_VERIFY
+	bool "STM32 ECDSA verification via the ROM API"
+	depends on SPL_ECDSA_VERIFY
+	default y
+	help
+	  Say y to enable the uclass driver for ECDSA verification using the
+	  ROM API provided on STM32MP.
+	  The ROM API is only available during SPL for now.
+
 config CMD_STM32KEY
 	bool "command stm32key to fuse public key hash"
 	default n
