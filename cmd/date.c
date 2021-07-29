@@ -41,10 +41,13 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 #ifdef CONFIG_DM_RTC
 	struct udevice *dev;
 
-	rcode = uclass_get_device(UCLASS_RTC, 0, &dev);
+	rcode = uclass_get_device_by_seq(UCLASS_RTC, 0, &dev);
 	if (rcode) {
-		printf("Cannot find RTC: err=%d\n", rcode);
-		return CMD_RET_FAILURE;
+		rcode = uclass_get_device(UCLASS_RTC, 0, &dev);
+		if (rcode) {
+			printf("Cannot find RTC: err=%d\n", rcode);
+			return CMD_RET_FAILURE;
+		}
 	}
 #elif defined(CONFIG_SYS_I2C_LEGACY)
 	old_bus = i2c_get_bus_num();
