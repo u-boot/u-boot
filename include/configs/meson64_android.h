@@ -21,6 +21,10 @@
 #define CONTROL_PARTITION "misc"
 #endif
 
+#ifndef RECOVERY_PARTITION
+#define RECOVERY_PARTITION "recovery"
+#endif
+
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
 	"bootcmd_fastboot=" \
 		"setenv run_fastboot 0;" \
@@ -51,20 +55,23 @@
 #define BOOTENV_DEV_NAME_FASTBOOT(devtypeu, devtypel, instance)	\
 		"fastboot "
 
-/* TOFIX: Run actual recovery instead of fastboot */
 #define BOOTENV_DEV_RECOVERY(devtypeu, devtypel, instance) \
 	"bootcmd_recovery=" \
 		"pinmux dev pinctrl@14;" \
 		"pinmux dev pinctrl@40;" \
-		"sm reboot_reason reason;" \
 		"setenv run_recovery 0;" \
 		"if run check_button; then " \
 			"echo Recovery button is pressed;" \
 			"setenv run_recovery 1;" \
-		"elif test \"${reason}\" = \"recovery\" -o " \
-			  "\"${reason}\" = \"update\"; then " \
-			"echo Recovery asked by reboot reason;" \
-			"setenv run_recovery 1;" \
+		"fi; " \
+		"if bcb load " __stringify(CONFIG_FASTBOOT_FLASH_MMC_DEV) " " \
+		CONTROL_PARTITION "; then " \
+			"if bcb test command = boot-recovery; then " \
+				"echo BCB: Recovery boot...; " \
+				"setenv run_recovery 1;" \
+			"fi;" \
+		"else " \
+			"echo Warning: BCB is corrupted or does not exist; " \
 		"fi;" \
 		"if test \"${skip_recovery}\" -eq 1; then " \
 			"echo Recovery skipped by environment;" \
@@ -76,7 +83,16 @@
 		"fi;" \
 		"if test \"${run_recovery}\" -eq 1; then " \
 			"echo Running Recovery...;" \
-			"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
+			"mmc dev ${mmcdev};" \
+			"setenv bootargs \"${bootargs} androidboot.serialno=${serial#}\";" \
+			"part start mmc ${mmcdev} " RECOVERY_PARTITION " boot_start;" \
+			"part size mmc ${mmcdev} " RECOVERY_PARTITION " boot_size;" \
+			"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
+				"echo Running Android Recovery...;" \
+				"bootm ${loadaddr};" \
+			"fi;" \
+			"echo Failed to boot Android...;" \
+			"reset;" \
 		"fi\0"
 
 #define BOOTENV_DEV_NAME_RECOVERY(devtypeu, devtypel, instance)	\
