@@ -17,9 +17,12 @@
 #define LOGO_PARTITION "logo"
 #endif
 
+#ifndef CONTROL_PARTITION
+#define CONTROL_PARTITION "misc"
+#endif
+
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
 	"bootcmd_fastboot=" \
-		"sm reboot_reason reason;" \
 		"setenv run_fastboot 0;" \
 		"if test \"${boot_source}\" = \"usb\"; then " \
 			"echo Fastboot forced by usb rom boot;" \
@@ -30,18 +33,15 @@
 			"echo Broken MMC partition scheme;" \
 			"setenv run_fastboot 1;" \
 		"fi;" \
-		"if test \"${reason}\" = \"bootloader\" -o " \
-			"\"${reason}\" = \"fastboot\"; then " \
-			"echo Fastboot asked by reboot reason;" \
-			"setenv run_fastboot 1;" \
-		"fi;" \
-		"if test \"${skip_fastboot}\" -eq 1; then " \
-			"echo Fastboot skipped by environment;" \
-			"setenv run_fastboot 0;" \
-		"fi;" \
-		"if test \"${force_fastboot}\" -eq 1; then " \
-			"echo Fastboot forced by environment;" \
-			"setenv run_fastboot 1;" \
+		"if bcb load " __stringify(CONFIG_FASTBOOT_FLASH_MMC_DEV) " " \
+		CONTROL_PARTITION "; then " \
+			"if bcb test command = bootonce-bootloader; then " \
+				"echo BCB: Bootloader boot...; " \
+				"bcb clear command; bcb store; " \
+				"setenv run_fastboot 1;" \
+			"fi; " \
+		"else " \
+			"echo Warning: BCB is corrupted or does not exist; " \
 		"fi;" \
 		"if test \"${run_fastboot}\" -eq 1; then " \
 			"echo Running Fastboot...;" \
