@@ -1,0 +1,5 @@
+config DM_HASH
+	bool "Enable Driver Model for Hash"
+	depends on DM
+	help
+	  If you want to use driver model for Hash, say Y.
