@@ -44,6 +44,10 @@
 				"bcb clear command; bcb store; " \
 				"setenv run_fastboot 1;" \
 			"fi; " \
+			"if bcb test command = boot-fastboot; then " \
+				"echo BCB: fastboot userspace boot...; " \
+				"setenv force_recovery 1;" \
+			"fi; " \
 		"else " \
 			"echo Warning: BCB is corrupted or does not exist; " \
 		"fi;" \
