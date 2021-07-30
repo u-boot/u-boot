@@ -2858,10 +2858,11 @@ spi_nor_adjust_hwcaps(struct spi_nor *nor,
 	unsigned int cap;
 
 	/*
-	 * Enable all caps by default. We will mask them after checking what's
-	 * really supported using spi_mem_supports_op().
+	 * Start by assuming the controller supports every capability.
+	 * We will mask them after checking what's really supported
+	 * using spi_mem_supports_op().
 	 */
-	*hwcaps = SNOR_HWCAPS_ALL;
+	*hwcaps = SNOR_HWCAPS_ALL & params->hwcaps.mask;
 
 	/* X-X-X modes are not supported yet, mask them all. */
 	*hwcaps &= ~SNOR_HWCAPS_X_X_X;
