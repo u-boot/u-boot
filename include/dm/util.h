@@ -7,7 +7,7 @@
 #define __DM_UTIL_H
 
 #if CONFIG_IS_ENABLED(DM_WARN)
-void dm_warn(const char *fmt, ...);
+#define dm_warn(fmt...) log(LOGC_DM, LOGL_WARNING, ##fmt)
 #else
 static inline void dm_warn(const char *fmt, ...)
 {
