@@ -197,4 +197,13 @@ config RESET_SCMI
 	  Enable this option if you want to support reset controller
 	  devices exposed by a SCMI agent based on SCMI reset domain
 	  protocol communication with a SCMI server.
+
+config RESET_ZYNQMP
+	bool "Reset Driver for Xilinx ZynqMP SoC's"
+	depends on DM_RESET && ZYNQMP_FIRMWARE
+	help
+	  Support for reset controller on Xilinx ZynqMP SoC. Driver is only
+	  passing request via Xilinx firmware interface to TF-A and PMU
+	  firmware.
+
 endmenu
