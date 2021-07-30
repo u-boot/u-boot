@@ -25,6 +25,10 @@
 #include <asm/io.h>
 #include <malloc.h>
 #include <asm/global_data.h>
+#ifdef CONFIG_DM_HASH
+#include <dm.h>
+#include <u-boot/hash.h>
+#endif
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
@@ -1214,6 +1218,31 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp)
 int calculate_hash(const void *data, int data_len, const char *algo,
 			uint8_t *value, int *value_len)
 {
+#if !defined(USE_HOSTCC) && defined(CONFIG_DM_HASH)
+	int rc;
+	enum HASH_ALGO hash_algo;
+	struct udevice *dev;
+
+	rc = uclass_get_device(UCLASS_HASH, 0, &dev);
+	if (rc) {
+		debug("failed to get hash device, rc=%d\n", rc);
+		return -1;
+	}
+
+	hash_algo = hash_algo_lookup_by_name(algo);
+	if (hash_algo == HASH_ALGO_INVALID) {
+		debug("Unsupported hash algorithm\n");
+		return -1;
+	};
+
+	rc = hash_digest_wd(dev, hash_algo, data, data_len, value, CHUNKSZ);
+	if (rc) {
+		debug("failed to get hash value, rc=%d\n", rc);
+		return -1;
+	}
+
+	*value_len = hash_algo_digest_size(hash_algo);
+#else
 	if (IMAGE_ENABLE_CRC32 && strcmp(algo, "crc32") == 0) {
 		*((uint32_t *)value) = crc32_wd(0, data, data_len,
 							CHUNKSZ_CRC32);
@@ -1242,6 +1271,7 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 		debug("Unsupported hash alogrithm\n");
 		return -1;
 	}
+#endif
 	return 0;
 }
 
