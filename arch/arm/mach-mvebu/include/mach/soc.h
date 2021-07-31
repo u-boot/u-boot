@@ -208,10 +208,7 @@
 
 #define BOOT_FROM_UART		0x2
 #define BOOT_FROM_SPI		0x3
-#endif
 
-/* TCLK Core Clock definition */
-#ifndef CONFIG_SYS_TCLK
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 #endif
 
