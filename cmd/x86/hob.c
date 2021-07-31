@@ -78,7 +78,7 @@ static void show_hob_details(const struct hob_header *hdr)
 		const struct hob_res_desc *res = ptr;
 		const char *typename;
 
-		typename = res->type > 0 && res->type <= RES_MAX_MEM_TYPE ?
+		typename = res->type >= RES_SYS_MEM && res->type <= RES_MAX_MEM_TYPE ?
 			res_type[res->type] : "unknown";
 
 		printf("     base = %08llx, len = %08llx, end = %08llx, type = %d (%s)\n\n",
