@@ -155,7 +155,7 @@ int mtrr_commit(bool do_caches)
 	debug("open done\n");
 	qsort(req, gd->arch.mtrr_req_count, sizeof(*req), h_comp_mtrr);
 	for (i = 0; i < gd->arch.mtrr_req_count; i++, req++)
-		set_var_mtrr(i, req->type, req->start, req->size);
+		mtrr_set_next_var(req->type, req->start, req->size);
 
 	debug("close\n");
 	mtrr_close(&state, do_caches);
