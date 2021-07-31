@@ -1440,7 +1440,7 @@ u-boot.itb: u-boot-nodtb.bin \
 	$(BOARD_SIZE_CHECK)
 endif
 
-u-boot-spl.kwb: u-boot.img spl/u-boot-spl.bin FORCE
+u-boot-spl.kwb: u-boot.bin spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
 u-boot.sha1:	u-boot.bin
