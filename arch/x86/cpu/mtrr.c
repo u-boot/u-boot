@@ -157,10 +157,6 @@ int mtrr_commit(bool do_caches)
 	for (i = 0; i < gd->arch.mtrr_req_count; i++, req++)
 		set_var_mtrr(i, req->type, req->start, req->size);
 
-	/* Clear the ones that are unused */
-	debug("clear\n");
-	for (; i < mtrr_get_var_count(); i++)
-		wrmsrl(MTRR_PHYS_MASK_MSR(i), 0);
 	debug("close\n");
 	mtrr_close(&state, do_caches);
 	debug("mtrr done\n");
