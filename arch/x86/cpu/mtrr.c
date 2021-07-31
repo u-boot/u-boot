@@ -26,6 +26,7 @@
 #include <asm/mp.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
+#include <linux/log2.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -179,6 +180,9 @@ int mtrr_add_request(int type, uint64_t start, uint64_t size)
 	if (!gd->arch.has_mtrr)
 		return -ENOSYS;
 
+	if (!is_power_of_2(size))
+		return -EINVAL;
+
 	if (gd->arch.mtrr_req_count == MAX_MTRR_REQUESTS)
 		return -ENOSPC;
 	req = &gd->arch.mtrr_req[gd->arch.mtrr_req_count++];
@@ -222,6 +226,9 @@ static int get_free_var_mtrr(void)
 int mtrr_set_next_var(uint type, uint64_t start, uint64_t size)
 {
 	int mtrr;
+
+	if (!is_power_of_2(size))
+		return -EINVAL;
 
 	mtrr = get_free_var_mtrr();
 	if (mtrr < 0)

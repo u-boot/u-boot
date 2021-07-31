@@ -119,7 +119,7 @@ void mtrr_close(struct mtrr_state *state, bool do_caches);
  *
  * @type:	Requested type (MTRR_TYPE_)
  * @start:	Start address
- * @size:	Size
+ * @size:	Size, must be power of 2
  *
  * @return:	0 on success, non-zero on failure
  */
@@ -144,8 +144,9 @@ int mtrr_commit(bool do_caches);
  *
  * @type:	Requested type (MTRR_TYPE_)
  * @start:	Start address
- * @size:	Size
- * @return 0 on success, -ENOSPC if there are no more MTRRs
+ * @size:	Size, must be power of 2
+ * @return 0 on success, -EINVAL if size is not power of 2,
+ * -ENOSPC if there are no more MTRRs
  */
 int mtrr_set_next_var(uint type, uint64_t base, uint64_t size);
 
