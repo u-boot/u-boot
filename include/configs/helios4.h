@@ -17,7 +17,6 @@
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.
  */
-#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI

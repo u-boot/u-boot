@@ -12,8 +12,6 @@
 
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
-#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
-
 /*
  * NS16550 Configuration
  */

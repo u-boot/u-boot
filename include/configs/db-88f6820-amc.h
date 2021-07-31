@@ -10,8 +10,6 @@
  * High Level Configuration Options (easy to change)
  */
 
-#define CONFIG_SYS_TCLK		200000000	/* 200MHz */
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 
