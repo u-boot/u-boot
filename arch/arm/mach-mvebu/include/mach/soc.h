@@ -187,6 +187,8 @@
 #define BOOT_FROM_NAND		0x1
 #define BOOT_FROM_UART		0x2
 #define BOOT_FROM_SPI		0x3
+
+#define CONFIG_SYS_TCLK		200000000	/* 200MHz */
 #else
 /* SAR values for Armada XP */
 #define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18230))

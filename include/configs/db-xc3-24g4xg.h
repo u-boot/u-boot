@@ -11,7 +11,6 @@
  */
 
 #define CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
-#define CONFIG_SYS_TCLK		200000000	/* 200MHz */
 
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
