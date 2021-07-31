@@ -145,6 +145,9 @@
 
 #define BOOT_FROM_UART		0x30
 #define BOOT_FROM_SPI		0x38
+
+#define CONFIG_SYS_TCLK		((readl(CONFIG_SAR_REG) & BIT(20)) ? \
+				 200000000 : 166000000)
 #elif defined(CONFIG_ARMADA_38X)
 /* SAR values for Armada 38x */
 #define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18600))
