@@ -159,7 +159,8 @@ void *uclass_get_priv(const struct uclass *uc);
  *
  * @key: ID to look up
  * @ucp: Returns pointer to uclass (there is only one per ID)
- * @return 0 if OK, -ve on error
+ * @return 0 if OK, -EDEADLK if driver model is not yet inited, other -ve on
+ *	other error
  */
 int uclass_get(enum uclass_id key, struct uclass **ucp);
 

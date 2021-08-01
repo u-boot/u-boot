@@ -146,6 +146,9 @@ int uclass_get(enum uclass_id id, struct uclass **ucp)
 {
 	struct uclass *uc;
 
+	/* Immediately fail if driver model is not set up */
+	if (!gd->uclass_root)
+		return -EDEADLK;
 	*ucp = NULL;
 	uc = uclass_find(id);
 	if (!uc) {
