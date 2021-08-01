@@ -804,6 +804,30 @@ static int setup_root_or_create_block(struct btrfs_fs_info *fs_info,
 	return 0;
 }
 
+static int get_default_subvolume(struct btrfs_fs_info *fs_info,
+				 struct btrfs_key *key_ret)
+{
+	struct btrfs_root *root = fs_info->tree_root;
+	struct btrfs_dir_item *dir_item;
+	struct btrfs_path path;
+	int ret = 0;
+
+	btrfs_init_path(&path);
+
+	dir_item = btrfs_lookup_dir_item(NULL, root, &path,
+					 BTRFS_ROOT_TREE_DIR_OBJECTID,
+					 "default", 7, 0);
+	if (IS_ERR(dir_item)) {
+		ret = PTR_ERR(dir_item);
+		goto out;
+	}
+
+	btrfs_dir_item_key_to_cpu(path.nodes[0], dir_item, key_ret);
+out:
+	btrfs_release_path(&path);
+	return ret;
+}
+
 int btrfs_setup_all_roots(struct btrfs_fs_info *fs_info)
 {
 	struct btrfs_super_block *sb = fs_info->super_copy;
@@ -833,9 +857,17 @@ int btrfs_setup_all_roots(struct btrfs_fs_info *fs_info)
 
 	fs_info->last_trans_committed = generation;
 
-	key.objectid = BTRFS_FS_TREE_OBJECTID;
-	key.type = BTRFS_ROOT_ITEM_KEY;
-	key.offset = (u64)-1;
+	ret = get_default_subvolume(fs_info, &key);
+	if (ret) {
+		/*
+		 * The default dir item isn't there. Linux kernel behaviour is
+		 * to silently use the top-level subvolume in this case.
+		 */
+		key.objectid = BTRFS_FS_TREE_OBJECTID;
+		key.type = BTRFS_ROOT_ITEM_KEY;
+		key.offset = (u64)-1;
+	}
+
 	fs_info->fs_root = btrfs_read_fs_root(fs_info, &key);
 
 	if (IS_ERR(fs_info->fs_root))
