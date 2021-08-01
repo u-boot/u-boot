@@ -506,6 +506,17 @@ Tested-by: %s
             'Reviewed-by': {self.joe, self.mary},
             'Tested-by': {self.leb}})
 
+    def testInvalidTag(self):
+        """Test invalid tag in a patchstream"""
+        text = '''This is a patch
+
+Serie-version: 2
+'''
+        with self.assertRaises(ValueError) as exc:
+            pstrm = PatchStream.process_text(text)
+        self.assertEqual("Line 3: Invalid tag = 'Serie-version: 2'",
+                         str(exc.exception))
+
     def testMissingEnd(self):
         """Test a missing END tag"""
         text = '''This is a patch

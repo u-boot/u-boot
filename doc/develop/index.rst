@@ -41,8 +41,16 @@ Testing
 .. toctree::
    :maxdepth: 1
 
-   coccinelle
    testing
    py_testing
    tests_writing
    tests_sandbox
+
+Refactoring
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   coccinelle
+   moveconfig

@@ -24,16 +24,19 @@ from patman import tools
 
 # A list of types we support
 class Type(IntEnum):
+    # Types in order from widest to narrowest
     (BYTE, INT, STRING, BOOL, INT64) = range(5)
 
-    def is_wider_than(self, other):
-        """Check if another type is 'wider' than this one
+    def needs_widening(self, other):
+        """Check if this type needs widening to hold a value from another type
 
-        A wider type is one that holds more information than an earlier one,
-        similar to the concept of type-widening in C.
+        A wider type is one that can hold a wider array of information than
+        another one, or is less restrictive, so it can hold the information of
+        another type as well as its own. This is similar to the concept of
+        type-widening in C.
 
         This uses a simple arithmetic comparison, since type values are in order
-        from narrowest (BYTE) to widest (INT64).
+        from widest (BYTE) to narrowest (INT64).
 
         Args:
             other: Other type to compare against
@@ -149,7 +152,19 @@ class Prop:
         update the current property to be like the second, since it is less
         specific.
         """
-        if self.type.is_wider_than(newprop.type):
+        if self.type.needs_widening(newprop.type):
+
+            # A boolean has an empty value: if it exists it is True and if not
+            # it is False. So when widening we always start with an empty list
+            # since the only valid integer property would be an empty list of
+            # integers.
+            # e.g. this is a boolean:
+            #    some-prop;
+            # and it would be widened to int list by:
+            #    some-prop = <1 2>;
+            if self.type == Type.BOOL:
+                self.type = Type.INT
+                self.value = [self.GetEmpty(self.type)]
             if self.type == Type.INT and newprop.type == Type.BYTE:
                 if type(self.value) == list:
                     new_value = []
@@ -160,13 +175,14 @@ class Prop:
                 self.value = new_value
             self.type = newprop.type
 
-        if type(newprop.value) == list and type(self.value) != list:
-            self.value = [self.value]
+        if type(newprop.value) == list:
+            if type(self.value) != list:
+                self.value = [self.value]
 
-        if type(self.value) == list and len(newprop.value) > len(self.value):
-            val = self.GetEmpty(self.type)
-            while len(self.value) < len(newprop.value):
-                self.value.append(val)
+            if len(newprop.value) > len(self.value):
+                val = self.GetEmpty(self.type)
+                while len(self.value) < len(newprop.value):
+                    self.value.append(val)
 
     @classmethod
     def GetEmpty(self, type):

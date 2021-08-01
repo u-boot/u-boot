@@ -400,6 +400,15 @@ static int sandbox_cmdline_cb_signals(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(signals, 'S', 0,
 			  "Handle signals (such as SIGSEGV) in sandbox");
 
+static int sandbox_cmdline_cb_autoboot_keyed(struct sandbox_state *state,
+					     const char *arg)
+{
+	state->autoboot_keyed = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT(autoboot_keyed, 0, "Allow keyed autoboot");
+
 static void setup_ram_buf(struct sandbox_state *state)
 {
 	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */

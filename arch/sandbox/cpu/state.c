@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <autoboot.h>
 #include <bloblist.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -376,6 +377,23 @@ void state_reset_for_test(struct sandbox_state *state)
 	 */
 	INIT_LIST_HEAD(&state->mapmem_head);
 	state->next_tag = state->ram_size;
+}
+
+bool autoboot_keyed(void)
+{
+	struct sandbox_state *state = state_get_current();
+
+	return IS_ENABLED(CONFIG_AUTOBOOT_KEYED) && state->autoboot_keyed;
+}
+
+bool autoboot_set_keyed(bool autoboot_keyed)
+{
+	struct sandbox_state *state = state_get_current();
+	bool old_val = state->autoboot_keyed;
+
+	state->autoboot_keyed = autoboot_keyed;
+
+	return old_val;
 }
 
 int state_init(void)

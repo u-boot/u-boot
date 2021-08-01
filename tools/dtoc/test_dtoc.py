@@ -296,9 +296,10 @@ struct dtd_sandbox_spl_test {
 \tbool\t\tboolval;
 \tunsigned char\tbytearray[3];
 \tunsigned char\tbyteval;
-\tfdt32_t\t\tintarray[4];
+\tfdt32_t\t\tintarray[3];
 \tfdt32_t\t\tintval;
 \tunsigned char\tlongbytearray[9];
+\tfdt32_t\t\tmaybe_empty_int[1];
 \tunsigned char\tnotstring[5];
 \tconst char *\tstringarray[3];
 \tconst char *\tstringval;
@@ -354,10 +355,11 @@ static struct dtd_sandbox_spl_test dtv_spl_test = {
 \t.boolval\t\t= true,
 \t.bytearray\t\t= {0x6, 0x0, 0x0},
 \t.byteval\t\t= 0x5,
-\t.intarray\t\t= {0x2, 0x3, 0x4, 0x0},
+\t.intarray\t\t= {0x2, 0x3, 0x4},
 \t.intval\t\t\t= 0x1,
 \t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10,
 \t\t0x11},
+\t.maybe_empty_int\t= {0x0},
 \t.notstring\t\t= {0x20, 0x21, 0x22, 0x10, 0x0},
 \t.stringarray\t\t= {"multi-word", "message", ""},
 \t.stringval\t\t= "message",
@@ -377,7 +379,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test2 = {
 \t.acpi_name\t\t= "\\\\_SB.GPO0",
 \t.bytearray\t\t= {0x1, 0x23, 0x34},
 \t.byteval\t\t= 0x8,
-\t.intarray\t\t= {0x5, 0x0, 0x0, 0x0},
+\t.intarray\t\t= {0x5, 0x0, 0x0},
 \t.intval\t\t\t= 0x3,
 \t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0x0, 0x0, 0x0, 0x0,
 \t\t0x0},
@@ -398,6 +400,7 @@ U_BOOT_DRVINFO(spl_test2) = {
 static struct dtd_sandbox_spl_test dtv_spl_test3 = {
 \t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10,
 \t\t0x0},
+\t.maybe_empty_int\t= {0x1},
 \t.stringarray\t\t= {"one", "", ""},
 };
 U_BOOT_DRVINFO(spl_test3) = {
