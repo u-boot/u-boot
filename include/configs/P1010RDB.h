@@ -150,34 +150,6 @@
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xffc10000
 #endif
 
-#if !defined(CONFIG_DM_PCI)
-#define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
-#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_SYS_PCIE1_NAME		"mini PCIe Slot"
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE1_MEM_BUS	0x80000000
-#else
-#define CONFIG_SYS_PCIE1_MEM_BUS	0x80000000
-#endif
-#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000	/* 512M */
-#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
-
-#if defined(CONFIG_TARGET_P1010RDB_PA)
-#define CONFIG_SYS_PCIE2_NAME		"PCIe Slot"
-#elif defined(CONFIG_TARGET_P1010RDB_PB)
-#define CONFIG_SYS_PCIE2_NAME		"mini PCIe Slot"
-#endif
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE2_MEM_BUS	0xc0000000
-#else
-#define CONFIG_SYS_PCIE2_MEM_BUS	0xa0000000
-#endif
-#define CONFIG_SYS_PCIE2_MEM_SIZE	0x20000000	/* 512M */
-#define CONFIG_SYS_PCIE2_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
-#endif
-
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif
 

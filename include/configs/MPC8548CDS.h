@@ -370,23 +370,7 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #if defined(CONFIG_PCI)
-
-#if !defined(CONFIG_DM_PCI)
-#define CONFIG_FSL_PCI_INIT		1	/* Use common FSL init code */
-#define CONFIG_PCI_INDIRECT_BRIDGE	1
-#define CONFIG_SYS_PCIE1_NAME		"Slot"
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
-#else
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
-#endif
-#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000      /* 512M */
-#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
-#endif
-
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-
 #endif	/* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
