@@ -196,7 +196,6 @@ int board_fix_fdt(void *rw_fdt_blob)
 }
 #endif
 
-#if IS_ENABLED(CONFIG_DM_PCI)
 int board_early_init_r(void)
 {
 	struct udevice *dev;
@@ -243,69 +242,3 @@ int board_early_init_r(void)
 
 	return 0;
 }
-#else
-void pci_init_board(void)
-{
-	pci_dev_t bdf;
-	u32 val32;
-	u8 val8;
-
-	switch (malta_sys_con()) {
-	case SYSCON_GT64120:
-		gt64120_pci_init((void *)CKSEG1ADDR(MALTA_GT_BASE),
-				 0x00000000, 0x00000000, CONFIG_SYS_MEM_SIZE,
-				 0x10000000, 0x10000000, 128 * 1024 * 1024,
-				 0x00000000, 0x00000000, 0x20000);
-		break;
-
-	default:
-	case SYSCON_MSC01:
-		msc01_pci_init((void *)CKSEG1ADDR(MALTA_MSC01_PCI_BASE),
-			       0x00000000, 0x00000000, CONFIG_SYS_MEM_SIZE,
-			       MALTA_MSC01_PCIMEM_MAP,
-			       CKSEG1ADDR(MALTA_MSC01_PCIMEM_BASE),
-			       MALTA_MSC01_PCIMEM_SIZE, MALTA_MSC01_PCIIO_MAP,
-			       0x00000000, MALTA_MSC01_PCIIO_SIZE);
-		break;
-	}
-
-	bdf = pci_find_device(PCI_VENDOR_ID_INTEL,
-			      PCI_DEVICE_ID_INTEL_82371AB_0, 0);
-	if (bdf == -1)
-		panic("Failed to find PIIX4 PCI bridge\n");
-
-	/* setup PCI interrupt routing */
-	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCA, 10);
-	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCB, 10);
-	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCC, 11);
-	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCD, 11);
-
-	/* mux SERIRQ onto SERIRQ pin */
-	pci_read_config_dword(bdf, PCI_CFG_PIIX4_GENCFG, &val32);
-	val32 |= PCI_CFG_PIIX4_GENCFG_SERIRQ;
-	pci_write_config_dword(bdf, PCI_CFG_PIIX4_GENCFG, val32);
-
-	/* enable SERIRQ - Linux currently depends upon this */
-	pci_read_config_byte(bdf, PCI_CFG_PIIX4_SERIRQC, &val8);
-	val8 |= PCI_CFG_PIIX4_SERIRQC_EN | PCI_CFG_PIIX4_SERIRQC_CONT;
-	pci_write_config_byte(bdf, PCI_CFG_PIIX4_SERIRQC, val8);
-
-	bdf = pci_find_device(PCI_VENDOR_ID_INTEL,
-			      PCI_DEVICE_ID_INTEL_82371AB, 0);
-	if (bdf == -1)
-		panic("Failed to find PIIX4 IDE controller\n");
-
-	/* enable bus master & IO access */
-	val32 |= PCI_COMMAND_MASTER | PCI_COMMAND_IO;
-	pci_write_config_dword(bdf, PCI_COMMAND, val32);
-
-	/* set latency */
-	pci_write_config_byte(bdf, PCI_LATENCY_TIMER, 0x40);
-
-	/* enable IDE/ATA */
-	pci_write_config_dword(bdf, PCI_CFG_PIIX4_IDETIM_PRI,
-			       PCI_CFG_PIIX4_IDETIM_IDE);
-	pci_write_config_dword(bdf, PCI_CFG_PIIX4_IDETIM_SEC,
-			       PCI_CFG_PIIX4_IDETIM_IDE);
-}
-#endif
