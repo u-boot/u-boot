@@ -23,7 +23,7 @@ endif
 ifeq ($(CONFIG_EFI_CAPSULE_AUTHENTICATE),y)
 EFI_CAPSULE_KEY_PATH := $(subst $\",,$(CONFIG_EFI_CAPSULE_KEY_PATH))
 ifeq ("$(wildcard $(EFI_CAPSULE_KEY_PATH))","")
-$(error .esl cerificate not found. Configure your CONFIG_EFI_CAPSULE_KEY_PATH)
+$(error .esl certificate not found. Configure your CONFIG_EFI_CAPSULE_KEY_PATH)
 endif
 endif
 
