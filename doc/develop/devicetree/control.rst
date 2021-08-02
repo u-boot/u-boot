@@ -152,6 +152,8 @@ ways:
     $ make DEVICE_TREE=<dts-file-name>
 
 
+.. _dttweaks:
+
 Adding tweaks for U-Boot
 ------------------------
 
