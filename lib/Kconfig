@@ -566,8 +566,7 @@ config HEXDUMP
 
 config SPL_HEXDUMP
 	bool "Enable hexdump in SPL"
-	depends on HEXDUMP
-	default y
+	depends on SPL && HEXDUMP
 	help
 	  This enables functions for printing dumps of binary data in
 	  SPL.
