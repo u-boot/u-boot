@@ -14,6 +14,10 @@
 struct fwu_mdata;
 struct udevice;
 
+struct fwu_mdata_gpt_blk_priv {
+	struct udevice *blk_dev;
+};
+
 /**
  * @mdata_check: check the validity of the FWU metadata partitions
  * @get_mdata() - Get a FWU metadata copy
@@ -39,6 +43,7 @@ int fwu_get_active_index(u32 *active_idx);
 int fwu_update_active_index(u32 active_idx);
 int fwu_get_image_alt_num(efi_guid_t *image_type_id, u32 update_bank,
 			  int *alt_num);
+int fwu_verify_mdata(struct fwu_mdata *mdata, bool pri_part);
 int fwu_mdata_check(void);
 int fwu_revert_boot_index(void);
 int fwu_accept_image(efi_guid_t *img_type_id, u32 bank);
