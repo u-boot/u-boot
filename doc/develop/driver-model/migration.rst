@@ -75,15 +75,6 @@ Partially converted::
 * Status: In progress
 * Deadline: 2019.07
 
-CONFIG_DM_PCI
--------------
-Deadline: 2019.07
-
-The PCI subsystem has supported driver model since mid 2015. Maintainers should
-submit patches switching over to using CONFIG_DM_PCI and other base driver
-model options in time for inclusion in the 2019.07 release.
-
-
 CONFIG_DM_VIDEO
 ---------------
 Deadline: 2019.07
