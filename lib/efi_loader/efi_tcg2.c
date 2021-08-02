@@ -1337,10 +1337,11 @@ out:
  */
 static efi_status_t efi_append_scrtm_version(struct udevice *dev)
 {
-	u8 ver[] = U_BOOT_VERSION_STRING;
 	efi_status_t ret;
 
-	ret = tcg2_measure_event(dev, 0, EV_S_CRTM_VERSION, sizeof(ver), ver);
+	ret = tcg2_measure_event(dev, 0, EV_S_CRTM_VERSION,
+				 strlen(version_string) + 1,
+				 (u8 *)version_string);
 
 	return ret;
 }
