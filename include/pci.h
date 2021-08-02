@@ -656,10 +656,6 @@ struct pci_controller {
 	struct pci_region *pci_mem, *pci_io, *pci_prefetch;
 };
 
-#ifdef CONFIG_PCI_INDIRECT_BRIDGE
-extern void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data);
-#endif
-
 #if defined(CONFIG_DM_PCI_COMPAT)
 extern phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
 					pci_addr_t addr, unsigned long flags);

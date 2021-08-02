@@ -27,7 +27,6 @@
  * assume U-Boot is less than 0.5MB
  */
 
-#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #undef CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
 #define CONFIG_RESET_PHY_R	1	/* Call reset_phy() */

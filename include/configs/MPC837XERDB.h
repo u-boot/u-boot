@@ -255,8 +255,6 @@
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00800000
 
 #ifdef CONFIG_PCI
-#define CONFIG_PCI_INDIRECT_BRIDGE
-
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
 
