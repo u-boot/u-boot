@@ -681,86 +681,6 @@ static int imx_pcie_link_up(struct imx_pcie_priv *priv)
 	return 0;
 }
 
-#if !CONFIG_IS_ENABLED(DM_PCI)
-static struct imx_pcie_priv imx_pcie_priv = {
-	.dbi_base	= (void __iomem *)MX6_DBI_ADDR,
-	.cfg_base	= (void __iomem *)MX6_ROOT_ADDR,
-};
-
-static struct imx_pcie_priv *priv = &imx_pcie_priv;
-
-static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
-				int where, u32 *val)
-{
-	struct imx_pcie_priv *priv = hose->priv_data;
-
-	return imx_pcie_read_cfg(priv, d, where, val);
-}
-
-static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
-				 int where, u32 val)
-{
-	struct imx_pcie_priv *priv = hose->priv_data;
-
-	return imx_pcie_write_cfg(priv, d, where, val);
-}
-
-void imx_pcie_init(void)
-{
-	/* Static instance of the controller. */
-	static struct pci_controller	pcc;
-	struct pci_controller		*hose = &pcc;
-	int ret;
-
-	memset(&pcc, 0, sizeof(pcc));
-
-	hose->priv_data = priv;
-
-	/* PCI I/O space */
-	pci_set_region(&hose->regions[0],
-		       MX6_IO_ADDR, MX6_IO_ADDR,
-		       MX6_IO_SIZE, PCI_REGION_IO);
-
-	/* PCI memory space */
-	pci_set_region(&hose->regions[1],
-		       MX6_MEM_ADDR, MX6_MEM_ADDR,
-		       MX6_MEM_SIZE, PCI_REGION_MEM);
-
-	/* System memory space */
-	pci_set_region(&hose->regions[2],
-		       MMDC0_ARB_BASE_ADDR, MMDC0_ARB_BASE_ADDR,
-		       0xefffffff, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-
-	hose->region_count = 3;
-
-	pci_set_ops(hose,
-		    pci_hose_read_config_byte_via_dword,
-		    pci_hose_read_config_word_via_dword,
-		    imx_pcie_read_config,
-		    pci_hose_write_config_byte_via_dword,
-		    pci_hose_write_config_word_via_dword,
-		    imx_pcie_write_config);
-
-	/* Start the controller. */
-	ret = imx_pcie_link_up(priv);
-
-	if (!ret) {
-		pci_register_hose(hose);
-		hose->last_busno = pci_hose_scan(hose);
-	}
-}
-
-void imx_pcie_remove(void)
-{
-	imx6_pcie_assert_core_reset(priv, true);
-}
-
-/* Probe function. */
-void pci_init_board(void)
-{
-	imx_pcie_init();
-}
-#else
 static int imx_pcie_dm_read_config(const struct udevice *dev, pci_dev_t bdf,
 				   uint offset, ulong *value,
 				   enum pci_size_t size)
@@ -852,4 +772,3 @@ U_BOOT_DRIVER(imx_pcie) = {
 	.priv_auto	= sizeof(struct imx_pcie_priv),
 	.flags			= DM_FLAG_OS_PREPARE,
 };
-#endif
