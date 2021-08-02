@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2020-201 SiFive, Inc
+ * Copyright (C) 2020-2021 SiFive, Inc
  * Pragnesh Patel <pragnesh.patel@sifive.com>
  */
 
