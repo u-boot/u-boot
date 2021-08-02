@@ -33,7 +33,6 @@ obj-$(CONFIG_CPM2)	+= ether_fcc.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-$(CONFIG_FSL_CORENET) += liodn.o
 obj-$(CONFIG_MP)	+= mp.o
-obj-$(CONFIG_PCI)	+= pci.o
 obj-$(CONFIG_SYS_DPAA_QBMAN) += portals.o
 
 # various SoC specific assignments
