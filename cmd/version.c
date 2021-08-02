@@ -7,6 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <version.h>
+#include <version_string.h>
 #include <linux/compiler.h>
 #ifdef CONFIG_SYS_COREBOOT
 #include <asm/cb_sysinfo.h>

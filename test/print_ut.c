@@ -9,7 +9,7 @@
 #include <display_options.h>
 #include <log.h>
 #include <mapmem.h>
-#include <version.h>
+#include <version_string.h>
 #include <test/suites.h>
 #include <test/test.h>
 #include <test/ut.h>

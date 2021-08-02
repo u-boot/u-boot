@@ -14,7 +14,7 @@
 #include <efi_tcg2.h>
 #include <log.h>
 #include <malloc.h>
-#include <version.h>
+#include <version_string.h>
 #include <tpm-v2.h>
 #include <u-boot/hash-checksum.h>
 #include <u-boot/sha1.h>

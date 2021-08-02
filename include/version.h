@@ -16,7 +16,4 @@
 #define U_BOOT_VERSION_STRING U_BOOT_VERSION " (" U_BOOT_DATE " - " \
 	U_BOOT_TIME " " U_BOOT_TZ ")" CONFIG_IDENT_STRING
 
-#ifndef __ASSEMBLY__
-extern const char version_string[];
-#endif	/* __ASSEMBLY__ */
 #endif	/* __VERSION_H__ */
