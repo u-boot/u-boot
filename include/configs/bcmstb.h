@@ -10,7 +10,6 @@
 #ifndef __BCMSTB_H
 #define __BCMSTB_H
 
-#include "version.h"
 #include <linux/sizes.h>
 
 #ifndef __ASSEMBLY__

@@ -6,7 +6,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <version.h>
 
 /*
  * icache and dcache configuration used only for start.S.
