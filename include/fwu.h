@@ -39,6 +39,8 @@ int fwu_get_active_index(u32 *active_idx);
 int fwu_update_active_index(u32 active_idx);
 int fwu_get_image_alt_num(efi_guid_t *image_type_id, u32 update_bank,
 			  int *alt_num);
+int fwu_get_mdata_device(struct udevice *dev, struct udevice **mdata_dev);
+int fwu_verify_mdata(struct fwu_mdata *mdata, bool pri_part);
 int fwu_mdata_check(void);
 int fwu_revert_boot_index(void);
 int fwu_accept_image(efi_guid_t *img_type_id, u32 bank);
