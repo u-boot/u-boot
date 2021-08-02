@@ -347,7 +347,7 @@ int board_late_init(void)
 	if (!s)
 		return 0;
 
-	addr = simple_strtoul(s, NULL, 16);
+	addr = hextoul(s, NULL);
 	dst = malloc(CONFIG_SYS_VIDEO_LOGO_MAX_SIZE);
 	if (!dst)
 		return -ENOMEM;

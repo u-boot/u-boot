@@ -16,7 +16,7 @@ static int do_dhry(struct cmd_tbl *cmdtp, int flag, int argc,
 	int iterations = 1000000;
 
 	if (argc > 1)
-		iterations = simple_strtoul(argv[1], NULL, 10);
+		iterations = dectoul(argv[1], NULL);
 
 	start = get_timer(0);
 	dhry(iterations);

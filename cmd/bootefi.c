@@ -281,7 +281,7 @@ efi_status_t efi_install_fdt(void *fdt)
 				return EFI_NOT_FOUND;
 			}
 		}
-		fdt_addr = simple_strtoul(fdt_opt, NULL, 16);
+		fdt_addr = hextoul(fdt_opt, NULL);
 		if (!fdt_addr) {
 			log_err("ERROR: invalid $fdt_addr or $fdtcontroladdr\n");
 			return EFI_LOAD_ERROR;
@@ -628,7 +628,7 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc > 2) {
 		uintptr_t fdt_addr;
 
-		fdt_addr = simple_strtoul(argv[2], NULL, 16);
+		fdt_addr = hextoul(argv[2], NULL);
 		fdt = map_sysmem(fdt_addr, 0);
 	} else {
 		fdt = EFI_FDT_USE_INTERNAL;

@@ -1591,7 +1591,7 @@ ushort string_to_vlan(const char *s)
 	if (*s < '0' || *s > '9')
 		id = VLAN_NONE;
 	else
-		id = (ushort)simple_strtoul(s, NULL, 10);
+		id = (ushort)dectoul(s, NULL);
 
 	return htons(id);
 }

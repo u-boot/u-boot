@@ -858,7 +858,7 @@ bool str2long(const char *p, ulong *num)
 {
 	char *endptr;
 
-	*num = simple_strtoul(p, &endptr, 16);
+	*num = hextoul(p, &endptr);
 	return *p != '\0' && *endptr == '\0';
 }
 

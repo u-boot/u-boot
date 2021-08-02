@@ -78,8 +78,8 @@ static int do_mtrr_set(int cpu_select, uint reg, int argc, char *const argv[])
 		printf("Invalid type name %s\n", typename);
 		return CMD_RET_USAGE;
 	}
-	start = simple_strtoul(argv[1], NULL, 16);
-	size = simple_strtoul(argv[2], NULL, 16);
+	start = hextoul(argv[1], NULL);
+	size = hextoul(argv[2], NULL);
 
 	base = start | type;
 	valid = native_read_msr(MTRR_PHYS_MASK_MSR(reg)) & MTRR_PHYS_MASK_VALID;
@@ -126,7 +126,7 @@ static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (cmd != 'l') {
 		if (argc < 2)
 			return CMD_RET_USAGE;
-		reg = simple_strtoul(argv[1], NULL, 16);
+		reg = hextoul(argv[1], NULL);
 		if (reg >= reg_count) {
 			printf("Invalid register number\n");
 			return CMD_RET_USAGE;

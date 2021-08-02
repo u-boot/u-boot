@@ -186,7 +186,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 	/* If fdt_high is set use it to select the relocation address */
 	fdt_high = env_get("fdt_high");
 	if (fdt_high) {
-		void *desired_addr = (void *)simple_strtoul(fdt_high, NULL, 16);
+		void *desired_addr = (void *)hextoul(fdt_high, NULL);
 
 		if (((ulong) desired_addr) == ~0UL) {
 			/* All ones means use fdt in place */
@@ -297,7 +297,7 @@ int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 	*of_size = 0;
 
 	img_addr = (argc == 0) ? image_load_addr :
-			simple_strtoul(argv[0], NULL, 16);
+			hextoul(argv[0], NULL);
 	buf = map_sysmem(img_addr, 0);
 
 	if (argc > 2)
@@ -329,7 +329,7 @@ int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 			} else
 #endif
 			{
-				fdt_addr = simple_strtoul(select, NULL, 16);
+				fdt_addr = hextoul(select, NULL);
 				debug("*  fdt: cmdline image address = 0x%08lx\n",
 				      fdt_addr);
 			}

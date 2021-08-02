@@ -281,7 +281,7 @@ static void set_mac_address(char *string)
 	}
 
 	for (i = 0; *string && (i < MAC_ADDR_BYTES); i++) {
-		e.mac_addr[i] = simple_strtoul(string, &string, 16);
+		e.mac_addr[i] = hextoul(string, &string);
 		if (*string == ':')
 			string++;
 	}
@@ -324,7 +324,7 @@ static void set_pcb_revision(char *string)
 {
 	unsigned long p;
 
-	p = simple_strtoul(string, &string, 10);
+	p = dectoul(string, &string);
 	if (p > U8_MAX) {
 		printf("%s must not be greater than %d\n", "PCB revision",
 		       U8_MAX);
@@ -366,7 +366,7 @@ static void set_bom_variant(char *string)
 {
 	unsigned long p;
 
-	p = simple_strtoul(string, &string, 10);
+	p = dectoul(string, &string);
 	if (p > U8_MAX) {
 		printf("%s must not be greater than %d\n", "BOM variant",
 		       U8_MAX);
@@ -389,7 +389,7 @@ static void set_product_id(char *string)
 {
 	unsigned long p;
 
-	p = simple_strtoul(string, &string, 10);
+	p = dectoul(string, &string);
 	if (p > U16_MAX) {
 		printf("%s must not be greater than %d\n", "Product ID",
 		       U16_MAX);

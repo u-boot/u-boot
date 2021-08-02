@@ -122,14 +122,14 @@ static int do_ubifs_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[1], &endp, 16);
+	addr = hextoul(argv[1], &endp);
 	if (endp == argv[1])
 		return CMD_RET_USAGE;
 
 	filename = argv[2];
 
 	if (argc == 4) {
-		size = simple_strtoul(argv[3], &endp, 16);
+		size = hextoul(argv[3], &endp);
 		if (endp == argv[3])
 			return CMD_RET_USAGE;
 	}

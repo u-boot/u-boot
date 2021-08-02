@@ -171,9 +171,9 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 	st = strsep(&s, " ");
 	if (!strcmp(st, "raw")) {
 		dfu->layout = DFU_RAW_ADDR;
-		dfu->data.sf.start = simple_strtoul(s, &s, 16);
+		dfu->data.sf.start = hextoul(s, &s);
 		s++;
-		dfu->data.sf.size = simple_strtoul(s, &s, 16);
+		dfu->data.sf.size = hextoul(s, &s);
 	} else if (CONFIG_IS_ENABLED(DFU_SF_PART) &&
 		   (!strcmp(st, "part") || !strcmp(st, "partubi"))) {
 		char mtd_id[32];
@@ -184,9 +184,9 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 
 		dfu->layout = DFU_RAW_ADDR;
 
-		dev = simple_strtoul(s, &s, 10);
+		dev = dectoul(s, &s);
 		s++;
-		part = simple_strtoul(s, &s, 10);
+		part = dectoul(s, &s);
 
 		sprintf(mtd_id, "%s%d,%d", "nor", dev, part - 1);
 		printf("using id '%s'\n", mtd_id);

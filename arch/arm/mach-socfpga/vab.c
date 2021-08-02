@@ -17,8 +17,8 @@ static int do_vab(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[1], NULL, 16);
-	len = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[1], NULL);
+	len = hextoul(argv[2], NULL);
 
 	if (socfpga_vendor_authentication((void *)&addr, (size_t *)&len) != 0)
 		return CMD_RET_FAILURE;

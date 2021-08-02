@@ -471,7 +471,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 	if (serial) {
 		serialnr->high = 0;
-		serialnr->low = simple_strtoul(serial, NULL, 10);
+		serialnr->low = dectoul(serial, NULL);
 	} else if (ventana_info.model[0]) {
 		serialnr->high = 0;
 		serialnr->low = ventana_info.serial;
@@ -915,7 +915,7 @@ int fdt_fixup_sky2(void *blob, int np, struct pci_dev *dev)
 	if (tmp) {
 		for (j = 0; j < 6; j++) {
 			mac_addr[j] = tmp ?
-				      simple_strtoul(tmp, &end,16) : 0;
+				      hextoul(tmp, &end) : 0;
 			if (tmp)
 				tmp = (*end) ? end+1 : end;
 		}

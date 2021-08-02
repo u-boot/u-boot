@@ -54,7 +54,7 @@ static int sf_parse_len_arg(char *arg, ulong *len)
 		++arg;
 	}
 
-	len_arg = simple_strtoul(arg, &ep, 16);
+	len_arg = hextoul(arg, &ep);
 	if (ep == arg || *ep != '\0')
 		return -1;
 
@@ -119,7 +119,7 @@ static int do_spi_flash_probe(int argc, char *const argv[])
 			return -1;
 	}
 	if (argc >= 4) {
-		mode = simple_strtoul(argv[3], &endp, 16);
+		mode = hextoul(argv[3], &endp);
 		if (*argv[3] == 0 || *endp != 0)
 			return -1;
 	}
@@ -272,7 +272,7 @@ static int do_spi_flash_read_write(int argc, char *const argv[])
 	if (argc < 3)
 		return -1;
 
-	addr = simple_strtoul(argv[1], &endp, 16);
+	addr = hextoul(argv[1], &endp);
 	if (*argv[1] == 0 || *endp != 0)
 		return -1;
 
@@ -517,10 +517,10 @@ static int do_spi_flash_test(int argc, char *const argv[])
 
 	if (argc < 3)
 		return -1;
-	offset = simple_strtoul(argv[1], &endp, 16);
+	offset = hextoul(argv[1], &endp);
 	if (*argv[1] == 0 || *endp != 0)
 		return -1;
-	len = simple_strtoul(argv[2], &endp, 16);
+	len = hextoul(argv[2], &endp);
 	if (*argv[2] == 0 || *endp != 0)
 		return -1;
 

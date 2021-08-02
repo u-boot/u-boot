@@ -89,14 +89,14 @@ static int do_mem_md(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		/* Address is specified since argc > 1
 		*/
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		addr += base_address;
 
 		/* If another parameter, it is the length to display.
 		 * Length is the number of objects, not number of bytes.
 		 */
 		if (argc > 2)
-			length = simple_strtoul(argv[2], NULL, 16);
+			length = hextoul(argv[2], NULL);
 	}
 
 	bytes = size * length;
@@ -144,7 +144,7 @@ static int do_mem_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Address is specified since argc > 1
 	*/
-	addr = simple_strtoul(argv[1], NULL, 16);
+	addr = hextoul(argv[1], NULL);
 	addr += base_address;
 
 	/* Get the value to write.
@@ -152,11 +152,11 @@ static int do_mem_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (SUPPORT_64BIT_DATA)
 		writeval = simple_strtoull(argv[2], NULL, 16);
 	else
-		writeval = simple_strtoul(argv[2], NULL, 16);
+		writeval = hextoul(argv[2], NULL);
 
 	/* Count ? */
 	if (argc == 4) {
-		count = simple_strtoul(argv[3], NULL, 16);
+		count = hextoul(argv[3], NULL);
 	} else {
 		count = 1;
 	}
@@ -189,7 +189,7 @@ static int do_mem_mdc(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 4)
 		return CMD_RET_USAGE;
 
-	count = simple_strtoul(argv[3], NULL, 10);
+	count = dectoul(argv[3], NULL);
 
 	for (;;) {
 		do_mem_md (NULL, 0, 3, argv);
@@ -217,7 +217,7 @@ static int do_mem_mwc(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 4)
 		return CMD_RET_USAGE;
 
-	count = simple_strtoul(argv[3], NULL, 10);
+	count = dectoul(argv[3], NULL);
 
 	for (;;) {
 		do_mem_mw (NULL, 0, 3, argv);
@@ -258,13 +258,13 @@ static int do_mem_cmp(struct cmd_tbl *cmdtp, int flag, int argc,
 	       size == 4 ? "word" :
 	       size == 2 ? "halfword" : "byte";
 
-	addr1 = simple_strtoul(argv[1], NULL, 16);
+	addr1 = hextoul(argv[1], NULL);
 	addr1 += base_address;
 
-	addr2 = simple_strtoul(argv[2], NULL, 16);
+	addr2 = hextoul(argv[2], NULL);
 	addr2 += base_address;
 
-	count = simple_strtoul(argv[3], NULL, 16);
+	count = hextoul(argv[3], NULL);
 
 	bytes = size * count;
 	base = buf1 = map_sysmem(addr1, bytes);
@@ -321,13 +321,13 @@ static int do_mem_cp(struct cmd_tbl *cmdtp, int flag, int argc,
 	if ((size = cmd_get_data_size(argv[0], 4)) < 0)
 		return 1;
 
-	addr = simple_strtoul(argv[1], NULL, 16);
+	addr = hextoul(argv[1], NULL);
 	addr += base_address;
 
-	dest = simple_strtoul(argv[2], NULL, 16);
+	dest = hextoul(argv[2], NULL);
 	dest += base_address;
 
-	count = simple_strtoul(argv[3], NULL, 16);
+	count = hextoul(argv[3], NULL);
 
 	if (count == 0) {
 		puts ("Zero length ???\n");
@@ -405,7 +405,7 @@ static int do_mem_search(struct cmd_tbl *cmdtp, int flag, int argc,
 			if (ch == 'q')
 				quiet = true;
 			else if (ch == 'l' && isxdigit(argv[0][2]))
-				limit = simple_strtoul(argv[0] + 2, NULL, 16);
+				limit = hextoul(argv[0] + 2, NULL);
 			else
 				return CMD_RET_USAGE;
 			argc--;
@@ -413,11 +413,11 @@ static int do_mem_search(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 
 		/* Address is specified since argc > 1 */
-		addr = simple_strtoul(argv[0], NULL, 16);
+		addr = hextoul(argv[0], NULL);
 		addr += base_address;
 
 		/* Length is the number of objects, not number of bytes */
-		length = simple_strtoul(argv[1], NULL, 16);
+		length = hextoul(argv[1], NULL);
 
 		/* Read the bytes to search for */
 		end = search_buf + sizeof(search_buf);
@@ -434,7 +434,7 @@ static int do_mem_search(struct cmd_tbl *cmdtp, int flag, int argc,
 				ptr += len;
 				continue;
 			} else {
-				u32 val = simple_strtoul(argv[i], NULL, 16);
+				u32 val = hextoul(argv[i], NULL);
 
 				switch (size) {
 				case 1:
@@ -512,7 +512,7 @@ static int do_mem_base(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc > 1) {
 		/* Set new base address.
 		*/
-		base_address = simple_strtoul(argv[1], NULL, 16);
+		base_address = hextoul(argv[1], NULL);
 	}
 	/* Print the current base address.
 	*/
@@ -543,11 +543,11 @@ static int do_mem_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Address is always specified.
 	*/
-	addr = simple_strtoul(argv[1], NULL, 16);
+	addr = hextoul(argv[1], NULL);
 
 	/* Length is the number of objects, not number of bytes.
 	*/
-	length = simple_strtoul(argv[2], NULL, 16);
+	length = hextoul(argv[2], NULL);
 
 	bytes = size * length;
 	buf = map_sysmem(addr, bytes);
@@ -636,17 +636,17 @@ static int do_mem_loopw(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Address is always specified.
 	*/
-	addr = simple_strtoul(argv[1], NULL, 16);
+	addr = hextoul(argv[1], NULL);
 
 	/* Length is the number of objects, not number of bytes.
 	*/
-	length = simple_strtoul(argv[2], NULL, 16);
+	length = hextoul(argv[2], NULL);
 
 	/* data to write */
 	if (SUPPORT_64BIT_DATA)
 		data = simple_strtoull(argv[3], NULL, 16);
 	else
-		data = simple_strtoul(argv[3], NULL, 16);
+		data = hextoul(argv[3], NULL);
 
 	bytes = size * length;
 	buf = map_sysmem(addr, bytes);
@@ -1175,7 +1175,7 @@ mod_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 
 		/* Address is specified since argc > 1
 		*/
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		addr += base_address;
 	}
 
@@ -1215,7 +1215,7 @@ mod_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 			if (SUPPORT_64BIT_DATA)
 				i = simple_strtoull(console_buffer, &endp, 16);
 			else
-				i = simple_strtoul(console_buffer, &endp, 16);
+				i = hextoul(console_buffer, &endp);
 			nbytes = endp - console_buffer;
 			if (nbytes) {
 				/* good enough to not time out
@@ -1282,11 +1282,11 @@ static int do_random(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 3 || argc > 4)
 		return CMD_RET_USAGE;
 
-	len = simple_strtoul(argv[2], NULL, 16);
-	addr = simple_strtoul(argv[1], NULL, 16);
+	len = hextoul(argv[2], NULL);
+	addr = hextoul(argv[1], NULL);
 
 	if (argc == 4) {
-		seed = simple_strtoul(argv[3], NULL, 16);
+		seed = hextoul(argv[3], NULL);
 		if (seed == 0) {
 			printf("The seed cannot be 0. Using 0xDEADBEEF.\n");
 			seed = 0xDEADBEEF;

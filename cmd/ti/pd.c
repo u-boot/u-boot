@@ -119,8 +119,8 @@ static int do_pd_endis(int argc, char *const argv[], u8 state)
 	if (!data)
 		return CMD_RET_FAILURE;
 
-	psc_id = simple_strtoul(argv[1], NULL, 10);
-	lpsc_id = simple_strtoul(argv[2], NULL, 10);
+	psc_id = dectoul(argv[1], NULL);
+	lpsc_id = dectoul(argv[2], NULL);
 
 	for (i = 0; i < data->num_lpsc; i++) {
 		lpsc = &data->lpsc[i];

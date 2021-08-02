@@ -28,15 +28,15 @@ static int do_call(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	fid = simple_strtoul(argv[1], NULL, 16);
+	fid = hextoul(argv[1], NULL);
 
-	a1 = argc > 2 ? simple_strtoul(argv[2], NULL, 16) : 0;
-	a2 = argc > 3 ? simple_strtoul(argv[3], NULL, 16) : 0;
-	a3 = argc > 4 ? simple_strtoul(argv[4], NULL, 16) : 0;
-	a4 = argc > 5 ? simple_strtoul(argv[5], NULL, 16) : 0;
-	a5 = argc > 6 ? simple_strtoul(argv[6], NULL, 16) : 0;
-	a6 = argc > 7 ? simple_strtoul(argv[7], NULL, 16) : 0;
-	a7 = argc > 8 ? simple_strtoul(argv[8], NULL, 16) : 0;
+	a1 = argc > 2 ? hextoul(argv[2], NULL) : 0;
+	a2 = argc > 3 ? hextoul(argv[3], NULL) : 0;
+	a3 = argc > 4 ? hextoul(argv[4], NULL) : 0;
+	a4 = argc > 5 ? hextoul(argv[5], NULL) : 0;
+	a5 = argc > 6 ? hextoul(argv[6], NULL) : 0;
+	a6 = argc > 7 ? hextoul(argv[7], NULL) : 0;
+	a7 = argc > 8 ? hextoul(argv[8], NULL) : 0;
 
 	if (!strcmp(argv[0], "smc"))
 		arm_smccc_smc(fid, a1, a2, a3, a4, a5, a6, a7, &res);

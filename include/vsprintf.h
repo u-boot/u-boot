@@ -10,12 +10,57 @@
 #include <stdarg.h>
 #include <linux/types.h>
 
+/**
+ * simple_strtoul - convert a string to an unsigned long
+ *
+ * @param cp	The string to be converted
+ * @param endp	Updated to point to the first character not converted
+ * @param base	The number base to use (0 for the default)
+ * @return value decoded from string (0 if invalid)
+ *
+ * Converts a string to an unsigned long. If there are invalid characters at
+ * the end these are ignored. In the worst case, if all characters are invalid,
+ * 0 is returned
+ *
+ * A hex prefix is supported (e.g. 0x123) regardless of the value of @base.
+ * If found, the base is set to hex (16).
+ *
+ * If @base is 0:
+ *    - an octal '0' prefix (e.g. 0777) sets the base to octal (8).
+ *    - otherwise the base defaults to decimal (10).
+ */
 ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
+
+/**
+ * hex_strtoul - convert a string in hex to an unsigned long
+ *
+ * @param cp	The string to be converted
+ * @param endp	Updated to point to the first character not converted
+ * @return value decoded from string (0 if invalid)
+ *
+ * Converts a hex string to an unsigned long. If there are invalid characters at
+ * the end these are ignored. In the worst case, if all characters are invalid,
+ * 0 is returned
+ */
+unsigned long hextoul(const char *cp, char **endp);
+
+/**
+ * dec_strtoul - convert a string in decimal to an unsigned long
+ *
+ * @param cp	The string to be converted
+ * @param endp	Updated to point to the first character not converted
+ * @return value decoded from string (0 if invalid)
+ *
+ * Converts a decimal string to an unsigned long. If there are invalid
+ * characters at the end these are ignored. In the worst case, if all characters
+ * are invalid, 0 is returned
+ */
+unsigned long dectoul(const char *cp, char **endp);
 
 /**
  * strict_strtoul - convert a string to an unsigned long strictly
  * @param cp	The string to be converted
- * @param base	The number base to use
+ * @param base	The number base to use (0 for the default)
  * @param res	The converted result value
  * @return 0 if conversion is successful and *res is set to the converted
  * value, otherwise it returns -EINVAL and *res is set to 0.
@@ -30,8 +75,12 @@ ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
  *
  * echo will append a newline to the tail.
  *
- * simple_strtoul just ignores the successive invalid characters and
- * return the converted value of prefix part of the string.
+ * A hex prefix is supported (e.g. 0x123) regardless of the value of @base.
+ * If found, the base is set to hex (16).
+ *
+ * If @base is 0:
+ *    - an octal '0' prefix (e.g. 0777) sets the base to octal (8).
+ *    - otherwise the base defaults to decimal (10).
  *
  * Copied this function from Linux 2.6.38 commit ID:
  * 521cb40b0c44418a4fd36dc633f575813d59a43d

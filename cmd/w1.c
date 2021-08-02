@@ -51,16 +51,16 @@ static int w1_read(int argc, char *const argv[])
 	u8 buf[512];
 
 	if (argc > 2)
-		bus_n = simple_strtoul(argv[2], NULL, 10);
+		bus_n = dectoul(argv[2], NULL);
 
 	if (argc > 3)
-		dev_n = simple_strtoul(argv[3], NULL, 10);
+		dev_n = dectoul(argv[3], NULL);
 
 	if (argc > 4)
-		offset = simple_strtoul(argv[4], NULL, 10);
+		offset = dectoul(argv[4], NULL);
 
 	if (argc > 5)
-		len = simple_strtoul(argv[5], NULL, 10);
+		len = dectoul(argv[5], NULL);
 
 	if (len > 512) {
 		printf("len needs to be <= 512\n");

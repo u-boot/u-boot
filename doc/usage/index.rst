@@ -9,6 +9,7 @@ Use U-Boot
    fit
    netconsole
    partitions
+   cmdline
 
 Shell commands
 --------------

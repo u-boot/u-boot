@@ -548,7 +548,7 @@ static int get_cfgblock_interactive(void)
 		len = cli_readline(message);
 	}
 
-	tdx_serial = simple_strtoul(console_buffer, NULL, 10);
+	tdx_serial = dectoul(console_buffer, NULL);
 
 	return 0;
 }
@@ -566,14 +566,14 @@ static int get_cfgblock_barcode(char *barcode, struct toradex_hw *tag,
 	/* Get hardware information from the first 8 digits */
 	tag->ver_major = barcode[4] - '0';
 	tag->ver_minor = barcode[5] - '0';
-	tag->ver_assembly = simple_strtoul(revision, NULL, 10);
+	tag->ver_assembly = dectoul(revision, NULL);
 
 	barcode[4] = '\0';
-	tag->prodid = simple_strtoul(barcode, NULL, 10);
+	tag->prodid = dectoul(barcode, NULL);
 
 	/* Parse second part of the barcode (serial number */
 	barcode += 8;
-	*serial = simple_strtoul(barcode, NULL, 10);
+	*serial = dectoul(barcode, NULL);
 
 	return 0;
 }
@@ -710,7 +710,7 @@ int try_migrate_tdx_cfg_block_carrier(void)
 	tdx_car_hw_tag.ver_assembly = pid8[7] - '0';
 
 	pid8[4] = '\0';
-	tdx_car_hw_tag.prodid = simple_strtoul(pid8, NULL, 10);
+	tdx_car_hw_tag.prodid = dectoul(pid8, NULL);
 
 	/* Valid Tag */
 	write_tag(config_block, &offset, TAG_VALID, NULL, 0);
@@ -754,7 +754,7 @@ static int get_cfgblock_carrier_interactive(void)
 
 	sprintf(message, "Choose your carrier board (provide ID): ");
 	len = cli_readline(message);
-	tdx_car_hw_tag.prodid = simple_strtoul(console_buffer, NULL, 10);
+	tdx_car_hw_tag.prodid = dectoul(console_buffer, NULL);
 
 	do {
 		sprintf(message, "Enter carrier board version (e.g. V1.1B): V");
@@ -770,7 +770,7 @@ static int get_cfgblock_carrier_interactive(void)
 		len = cli_readline(message);
 	}
 
-	tdx_car_serial = simple_strtoul(console_buffer, NULL, 10);
+	tdx_car_serial = dectoul(console_buffer, NULL);
 
 	return 0;
 }

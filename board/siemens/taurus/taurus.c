@@ -394,10 +394,9 @@ static int do_upgrade_available(struct cmd_tbl *cmdtp, int flag, int argc,
 	unsigned long boot_retry = 0;
 	char boot_buf[10];
 
-	upgrade_available = simple_strtoul(env_get("upgrade_available"), NULL,
-					   10);
+	upgrade_available = dectoul(env_get("upgrade_available"), NULL);
 	if (upgrade_available) {
-		boot_retry = simple_strtoul(env_get("boot_retries"), NULL, 10);
+		boot_retry = dectoul(env_get("boot_retries"), NULL);
 		boot_retry++;
 		sprintf(boot_buf, "%lx", boot_retry);
 		env_set("boot_retries", boot_buf);

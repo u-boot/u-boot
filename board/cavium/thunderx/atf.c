@@ -235,48 +235,48 @@ int do_atf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	char str[4 * sizeof(uint64_t)];
 
 	if ((argc == 5) && !strcmp(argv[1], "readmmc")) {
-		buffer = (void *)simple_strtoul(argv[2], NULL, 16);
-		offset = simple_strtoul(argv[3], NULL, 10);
-		size = simple_strtoul(argv[4], NULL, 10);
+		buffer = (void *)hextoul(argv[2], NULL);
+		offset = dectoul(argv[3], NULL);
+		size = dectoul(argv[4], NULL);
 
 		ret = atf_read_mmc(offset, buffer, size);
 	} else if ((argc == 5) && !strcmp(argv[1], "readnor")) {
-		buffer = (void *)simple_strtoul(argv[2], NULL, 16);
-		offset = simple_strtoul(argv[3], NULL, 10);
-		size = simple_strtoul(argv[4], NULL, 10);
+		buffer = (void *)hextoul(argv[2], NULL);
+		offset = dectoul(argv[3], NULL);
+		size = dectoul(argv[4], NULL);
 
 		ret = atf_read_nor(offset, buffer, size);
 	} else if ((argc == 5) && !strcmp(argv[1], "writemmc")) {
-		buffer = (void *)simple_strtoul(argv[2], NULL, 16);
-		offset = simple_strtoul(argv[3], NULL, 10);
-		size = simple_strtoul(argv[4], NULL, 10);
+		buffer = (void *)hextoul(argv[2], NULL);
+		offset = dectoul(argv[3], NULL);
+		size = dectoul(argv[4], NULL);
 
 		ret = atf_write_mmc(offset, buffer, size);
 	} else if ((argc == 5) && !strcmp(argv[1], "writenor")) {
-		buffer = (void *)simple_strtoul(argv[2], NULL, 16);
-		offset = simple_strtoul(argv[3], NULL, 10);
-		size = simple_strtoul(argv[4], NULL, 10);
+		buffer = (void *)hextoul(argv[2], NULL);
+		offset = dectoul(argv[3], NULL);
+		size = dectoul(argv[4], NULL);
 
 		ret = atf_write_nor(offset, buffer, size);
 	} else if ((argc == 2) && !strcmp(argv[1], "part")) {
 		atf_print_part_table();
 	} else if ((argc == 4) && !strcmp(argv[1], "erasenor")) {
-		offset = simple_strtoul(argv[2], NULL, 10);
-		size = simple_strtoul(argv[3], NULL, 10);
+		offset = dectoul(argv[2], NULL);
+		size = dectoul(argv[3], NULL);
 
 		ret = atf_erase_nor(offset, size);
 	} else if ((argc == 2) && !strcmp(argv[1], "envcount")) {
 		ret = atf_env_count();
 		printf("Number of environment strings: %zd\n", ret);
 	} else if ((argc == 3) && !strcmp(argv[1], "envstring")) {
-		index = simple_strtoul(argv[2], NULL, 10);
+		index = dectoul(argv[2], NULL);
 		ret = atf_env_string(index, str);
 		if (ret > 0)
 			printf("Environment string %d: %s\n", index, str);
 		else
 			printf("Return code: %zd\n", ret);
 	} else if ((argc == 3) && !strcmp(argv[1], "dramsize")) {
-		node = simple_strtoul(argv[2], NULL, 10);
+		node = dectoul(argv[2], NULL);
 		ret = atf_dram_size(node);
 		printf("DRAM size: %zd Mbytes\n", ret >> 20);
 	} else if ((argc == 2) && !strcmp(argv[1], "nodes")) {

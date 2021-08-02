@@ -65,7 +65,7 @@ static int splash_video_logo_load(void)
 	if (!splashimage)
 		return -ENOENT;
 
-	bmp_load_addr = simple_strtoul(splashimage, 0, 16);
+	bmp_load_addr = hextoul(splashimage, 0);
 	if (!bmp_load_addr) {
 		printf("Error: bad 'splashimage' address\n");
 		return -EFAULT;
@@ -162,7 +162,7 @@ int splash_display(void)
 	if (!s)
 		return -EINVAL;
 
-	addr = simple_strtoul(s, NULL, 16);
+	addr = hextoul(s, NULL);
 	ret = splash_screen_prepare();
 	if (ret)
 		return ret;

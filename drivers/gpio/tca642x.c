@@ -262,11 +262,11 @@ static int do_tca642x(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* arg2 used as chip number or pin number */
 	if (argc > 2)
-		ul_arg2 = simple_strtoul(argv[2], NULL, 10);
+		ul_arg2 = dectoul(argv[2], NULL);
 
 	/* arg3 used as pin or invert value */
 	if (argc > 3)
-		ul_arg3 = simple_strtoul(argv[3], NULL, 10) & 0x1;
+		ul_arg3 = dectoul(argv[3], NULL) & 0x1;
 
 	switch ((int)c->cmd) {
 	case TCA642X_CMD_INFO:

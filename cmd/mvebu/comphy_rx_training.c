@@ -25,8 +25,8 @@ int mvebu_comphy_rx_training_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 		return -1;
 	}
 
-	cp_index = simple_strtoul(argv[1], NULL, 16);
-	comphy_index = simple_strtoul(argv[2], NULL, 16);
+	cp_index = hextoul(argv[1], NULL);
+	comphy_index = hextoul(argv[2], NULL);
 
 	ret = uclass_get(UCLASS_MISC, &uc);
 	if (ret) {

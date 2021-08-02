@@ -269,7 +269,7 @@ static int do_mbr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc != 4 && argc != 5)
 		return CMD_RET_USAGE;
 
-	dev = (int)simple_strtoul(argv[3], &ep, 10);
+	dev = (int)dectoul(argv[3], &ep);
 	if (!ep || ep[0] != '\0') {
 		printf("'%s' is not a number\n", argv[3]);
 		return CMD_RET_USAGE;

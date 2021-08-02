@@ -268,9 +268,9 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char *s)
 	st = strsep(&s, " ");
 	if (!strcmp(st, "raw")) {
 		dfu->layout = DFU_RAW_ADDR;
-		dfu->data.mtd.start = simple_strtoul(s, &s, 16);
+		dfu->data.mtd.start = hextoul(s, &s);
 		s++;
-		dfu->data.mtd.size = simple_strtoul(s, &s, 16);
+		dfu->data.mtd.size = hextoul(s, &s);
 	} else if ((!strcmp(st, "part")) || (!strcmp(st, "partubi"))) {
 		char mtd_id[32];
 		struct mtd_device *mtd_dev;
@@ -279,7 +279,7 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char *s)
 
 		dfu->layout = DFU_RAW_ADDR;
 
-		part = simple_strtoul(s, &s, 10);
+		part = dectoul(s, &s);
 
 		sprintf(mtd_id, "%s,%d", devstr, part - 1);
 		printf("using id '%s'\n", mtd_id);

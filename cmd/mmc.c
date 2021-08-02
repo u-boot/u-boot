@@ -189,7 +189,7 @@ static int do_mmcrpmb_key(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	key_addr = (void *)simple_strtoul(argv[1], NULL, 16);
+	key_addr = (void *)hextoul(argv[1], NULL);
 	if (!confirm_key_prog())
 		return CMD_RET_FAILURE;
 	if (mmc_rpmb_set_key(mmc, key_addr)) {
@@ -211,12 +211,12 @@ static int do_mmcrpmb_read(struct cmd_tbl *cmdtp, int flag,
 	if (argc < 4)
 		return CMD_RET_USAGE;
 
-	addr = (void *)simple_strtoul(argv[1], NULL, 16);
-	blk = simple_strtoul(argv[2], NULL, 16);
-	cnt = simple_strtoul(argv[3], NULL, 16);
+	addr = (void *)hextoul(argv[1], NULL);
+	blk = hextoul(argv[2], NULL);
+	cnt = hextoul(argv[3], NULL);
 
 	if (argc == 5)
-		key_addr = (void *)simple_strtoul(argv[4], NULL, 16);
+		key_addr = (void *)hextoul(argv[4], NULL);
 
 	printf("\nMMC RPMB read: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
@@ -240,10 +240,10 @@ static int do_mmcrpmb_write(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 5)
 		return CMD_RET_USAGE;
 
-	addr = (void *)simple_strtoul(argv[1], NULL, 16);
-	blk = simple_strtoul(argv[2], NULL, 16);
-	cnt = simple_strtoul(argv[3], NULL, 16);
-	key_addr = (void *)simple_strtoul(argv[4], NULL, 16);
+	addr = (void *)hextoul(argv[1], NULL);
+	blk = hextoul(argv[2], NULL);
+	cnt = hextoul(argv[3], NULL);
+	key_addr = (void *)hextoul(argv[4], NULL);
 
 	printf("\nMMC RPMB write: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
@@ -334,9 +334,9 @@ static int do_mmc_read(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 4)
 		return CMD_RET_USAGE;
 
-	addr = (void *)simple_strtoul(argv[1], NULL, 16);
-	blk = simple_strtoul(argv[2], NULL, 16);
-	cnt = simple_strtoul(argv[3], NULL, 16);
+	addr = (void *)hextoul(argv[1], NULL);
+	blk = hextoul(argv[2], NULL);
+	cnt = hextoul(argv[3], NULL);
 
 	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
@@ -379,8 +379,8 @@ static int do_mmc_sparse_write(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 3)
 		return CMD_RET_USAGE;
 
-	addr = (void *)simple_strtoul(argv[1], NULL, 16);
-	blk = simple_strtoul(argv[2], NULL, 16);
+	addr = (void *)hextoul(argv[1], NULL);
+	blk = hextoul(argv[2], NULL);
 
 	if (!is_sparse_image(addr)) {
 		printf("Not a sparse image\n");
@@ -427,9 +427,9 @@ static int do_mmc_write(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 4)
 		return CMD_RET_USAGE;
 
-	addr = (void *)simple_strtoul(argv[1], NULL, 16);
-	blk = simple_strtoul(argv[2], NULL, 16);
-	cnt = simple_strtoul(argv[3], NULL, 16);
+	addr = (void *)hextoul(argv[1], NULL);
+	blk = hextoul(argv[2], NULL);
+	cnt = hextoul(argv[3], NULL);
 
 	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
@@ -457,8 +457,8 @@ static int do_mmc_erase(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 3)
 		return CMD_RET_USAGE;
 
-	blk = simple_strtoul(argv[1], NULL, 16);
-	cnt = simple_strtoul(argv[2], NULL, 16);
+	blk = hextoul(argv[1], NULL);
+	cnt = hextoul(argv[2], NULL);
 
 	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
@@ -519,10 +519,10 @@ static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 	if (argc == 1) {
 		dev = curr_device;
 	} else if (argc == 2) {
-		dev = simple_strtoul(argv[1], NULL, 10);
+		dev = dectoul(argv[1], NULL);
 	} else if (argc == 3) {
-		dev = (int)simple_strtoul(argv[1], NULL, 10);
-		part = (int)simple_strtoul(argv[2], NULL, 10);
+		dev = (int)dectoul(argv[1], NULL);
+		part = (int)dectoul(argv[2], NULL);
 		if (part > PART_ACCESS_MASK) {
 			printf("#part_num shouldn't be larger than %d\n",
 			       PART_ACCESS_MASK);
@@ -572,9 +572,9 @@ static int parse_hwpart_user(struct mmc_hwpart_conf *pconf,
 			if (i + 2 >= argc)
 				return -1;
 			pconf->user.enh_start =
-				simple_strtoul(argv[i+1], NULL, 10);
+				dectoul(argv[i + 1], NULL);
 			pconf->user.enh_size =
-				simple_strtoul(argv[i+2], NULL, 10);
+				dectoul(argv[i + 2], NULL);
 			i += 3;
 		} else if (!strcmp(argv[i], "wrrel")) {
 			if (i + 1 >= argc)
@@ -603,7 +603,7 @@ static int parse_hwpart_gp(struct mmc_hwpart_conf *pconf, int pidx,
 
 	if (1 >= argc)
 		return -1;
-	pconf->gp_part[pidx].size = simple_strtoul(argv[0], NULL, 10);
+	pconf->gp_part[pidx].size = dectoul(argv[0], NULL);
 
 	i = 1;
 	while (i < argc) {
@@ -721,10 +721,10 @@ static int do_mmc_bootbus(struct cmd_tbl *cmdtp, int flag,
 
 	if (argc != 5)
 		return CMD_RET_USAGE;
-	dev = simple_strtoul(argv[1], NULL, 10);
-	width = simple_strtoul(argv[2], NULL, 10);
-	reset = simple_strtoul(argv[3], NULL, 10);
-	mode = simple_strtoul(argv[4], NULL, 10);
+	dev = dectoul(argv[1], NULL);
+	width = dectoul(argv[2], NULL);
+	reset = dectoul(argv[3], NULL);
+	mode = dectoul(argv[4], NULL);
 
 	mmc = init_mmc_device(dev, false);
 	if (!mmc)
@@ -785,9 +785,9 @@ static int do_mmc_boot_resize(struct cmd_tbl *cmdtp, int flag,
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
-	dev = simple_strtoul(argv[1], NULL, 10);
-	bootsize = simple_strtoul(argv[2], NULL, 10);
-	rpmbsize = simple_strtoul(argv[3], NULL, 10);
+	dev = dectoul(argv[1], NULL);
+	bootsize = dectoul(argv[2], NULL);
+	rpmbsize = dectoul(argv[3], NULL);
 
 	mmc = init_mmc_device(dev, false);
 	if (!mmc)
@@ -842,7 +842,7 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 2 && argc != 3 && argc != 5)
 		return CMD_RET_USAGE;
 
-	dev = simple_strtoul(argv[1], NULL, 10);
+	dev = dectoul(argv[1], NULL);
 
 	mmc = init_mmc_device(dev, false);
 	if (!mmc)
@@ -856,9 +856,9 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 	if (argc == 2 || argc == 3)
 		return mmc_partconf_print(mmc, argc == 3 ? argv[2] : NULL);
 
-	ack = simple_strtoul(argv[2], NULL, 10);
-	part_num = simple_strtoul(argv[3], NULL, 10);
-	access = simple_strtoul(argv[4], NULL, 10);
+	ack = dectoul(argv[2], NULL);
+	part_num = dectoul(argv[3], NULL);
+	access = dectoul(argv[4], NULL);
 
 	/* acknowledge to be sent during boot operation */
 	return mmc_set_part_conf(mmc, ack, part_num, access);
@@ -879,8 +879,8 @@ static int do_mmc_rst_func(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 3)
 		return CMD_RET_USAGE;
 
-	dev = simple_strtoul(argv[1], NULL, 10);
-	enable = simple_strtoul(argv[2], NULL, 10);
+	dev = dectoul(argv[1], NULL);
+	enable = dectoul(argv[2], NULL);
 
 	if (enable > 2) {
 		puts("Invalid RST_n_ENABLE value\n");
@@ -908,7 +908,7 @@ static int do_mmc_setdsr(struct cmd_tbl *cmdtp, int flag,
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
-	val = simple_strtoul(argv[1], NULL, 16);
+	val = hextoul(argv[1], NULL);
 
 	mmc = find_mmc_device(curr_device);
 	if (!mmc) {
@@ -937,7 +937,7 @@ static int do_mmc_bkops_enable(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	dev = simple_strtoul(argv[1], NULL, 10);
+	dev = dectoul(argv[1], NULL);
 
 	mmc = init_mmc_device(dev, false);
 	if (!mmc)

@@ -30,10 +30,10 @@ static int do_osd_write(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 4 || (strlen(argv[3])) % 2)
 		return CMD_RET_USAGE;
 
-	x = simple_strtoul(argv[1], NULL, 16);
-	y = simple_strtoul(argv[2], NULL, 16);
+	x = hextoul(argv[1], NULL);
+	y = hextoul(argv[2], NULL);
 	hexstr = argv[3];
-	count = (argc > 4) ? simple_strtoul(argv[4], NULL, 16) : 1;
+	count = (argc > 4) ? hextoul(argv[4], NULL) : 1;
 
 	buflen = strlen(hexstr) / 2;
 
@@ -80,9 +80,9 @@ static int do_osd_print(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 5)
 		return CMD_RET_USAGE;
 
-	x = simple_strtoul(argv[1], NULL, 16);
-	y = simple_strtoul(argv[2], NULL, 16);
-	color = simple_strtoul(argv[3], NULL, 16);
+	x = hextoul(argv[1], NULL);
+	y = hextoul(argv[2], NULL);
+	color = hextoul(argv[3], NULL);
 	text = argv[4];
 
 	for (uclass_first_device(UCLASS_VIDEO_OSD, &dev);
@@ -109,8 +109,8 @@ static int do_osd_size(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	x = simple_strtoul(argv[1], NULL, 16);
-	y = simple_strtoul(argv[2], NULL, 16);
+	x = hextoul(argv[1], NULL);
+	y = hextoul(argv[2], NULL);
 
 	for (uclass_first_device(UCLASS_VIDEO_OSD, &dev);
 	     dev;

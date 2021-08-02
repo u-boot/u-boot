@@ -49,19 +49,19 @@ int do_fpga_md(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		/*
 		 * FPGA is specified since argc > 2
 		 */
-		fpga = simple_strtoul(argv[1], NULL, 16);
+		fpga = hextoul(argv[1], NULL);
 
 		/*
 		 * Address is specified since argc > 2
 		 */
-		addr = simple_strtoul(argv[2], NULL, 16);
+		addr = hextoul(argv[2], NULL);
 
 		/*
 		 * If another parameter, it is the length to display.
 		 * Length is the number of objects, not number of bytes.
 		 */
 		if (argc > 3)
-			length = simple_strtoul(argv[3], NULL, 16);
+			length = hextoul(argv[3], NULL);
 	}
 
 	nbytes = length * sizeof(u16);

@@ -102,7 +102,7 @@ static int do_bmp_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		addr = image_load_addr;
 		break;
 	case 2:		/* use argument */
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		break;
 	default:
 		return CMD_RET_USAGE;
@@ -124,18 +124,18 @@ static int do_bmp_display(struct cmd_tbl *cmdtp, int flag, int argc,
 		addr = image_load_addr;
 		break;
 	case 2:		/* use argument */
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		break;
 	case 4:
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		if (!strcmp(argv[2], "m"))
 			x = BMP_ALIGN_CENTER;
 		else
-			x = simple_strtoul(argv[2], NULL, 10);
+			x = dectoul(argv[2], NULL);
 		if (!strcmp(argv[3], "m"))
 			y = BMP_ALIGN_CENTER;
 		else
-			y = simple_strtoul(argv[3], NULL, 10);
+			y = dectoul(argv[3], NULL);
 		break;
 	default:
 		return CMD_RET_USAGE;

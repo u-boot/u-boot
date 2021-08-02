@@ -24,12 +24,12 @@ static int get_base_size(int argc, char *const argv[], ulong *basep,
 	*sizep = CONFIG_BOOTSTAGE_STASH_SIZE;
 	if (argc < 2)
 		return 0;
-	*basep = simple_strtoul(argv[1], &endp, 16);
+	*basep = hextoul(argv[1], &endp);
 	if (*argv[1] == 0 || *endp != 0)
 		return -1;
 	if (argc == 2)
 		return 0;
-	*sizep = simple_strtoul(argv[2], &endp, 16);
+	*sizep = hextoul(argv[2], &endp);
 	if (*argv[2] == 0 || *endp != 0)
 		return -1;
 

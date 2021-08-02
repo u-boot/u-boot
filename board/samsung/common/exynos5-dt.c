@@ -169,7 +169,7 @@ char *get_dfu_alt_boot(char *interface, char *devstr)
 	if (board_is_odroidxu4() || board_is_odroidhc1() || board_is_odroidhc2())
 		return info;
 
-	dev_num = simple_strtoul(devstr, NULL, 10);
+	dev_num = dectoul(devstr, NULL);
 
 	mmc = find_mmc_device(dev_num);
 	if (!mmc)

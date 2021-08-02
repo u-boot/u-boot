@@ -53,13 +53,13 @@ static int do_spi_images_addr(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	/* convert command parameter to fastboot address (base 16), i.e. hex */
-	images_load_addr = simple_strtoul(argv[1], NULL, 16);
+	images_load_addr = hextoul(argv[1], NULL);
 	if (!images_load_addr) {
 		pr_err("Invalid load address\n");
 		return CMD_RET_USAGE;
 	}
 
-	spi_load_addr = simple_strtoul(argv[2], NULL, 16);
+	spi_load_addr = hextoul(argv[2], NULL);
 	if (!spi_load_addr) {
 		pr_err("Invalid spi load address\n");
 		return CMD_RET_USAGE;

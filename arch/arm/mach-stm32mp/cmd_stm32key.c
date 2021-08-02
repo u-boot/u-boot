@@ -162,7 +162,7 @@ static int do_stm32key_read(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 		return CMD_RET_SUCCESS;
 	}
 
-	addr = simple_strtoul(argv[1], NULL, 16);
+	addr = hextoul(argv[1], NULL);
 	if (!addr)
 		return CMD_RET_USAGE;
 
@@ -185,7 +185,7 @@ static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 		yes = true;
 	}
 
-	addr = simple_strtoul(argv[argc - 1], NULL, 16);
+	addr = hextoul(argv[argc - 1], NULL);
 	if (!addr)
 		return CMD_RET_USAGE;
 

@@ -191,7 +191,7 @@ static int do_bridge(struct cmd_tbl *cmdtp, int flag, int argc,
 	argv++;
 
 	if (argc == 3)
-		mask = simple_strtoul(argv[1], NULL, 16);
+		mask = hextoul(argv[1], NULL);
 
 	switch (*argv[0]) {
 	case 'e':	/* Enable */

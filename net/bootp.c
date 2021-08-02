@@ -740,7 +740,7 @@ void bootp_request(void)
 
 	ep = env_get("bootpretryperiod");
 	if (ep != NULL)
-		time_taken_max = simple_strtoul(ep, NULL, 10);
+		time_taken_max = dectoul(ep, NULL);
 	else
 		time_taken_max = TIMEOUT_MS;
 

@@ -398,7 +398,7 @@ static int do_onenand_read(struct cmd_tbl *cmdtp, int flag, int argc,
 	if ((s != NULL) && (!strcmp(s, ".oob")))
 		oob = 1;
 
-	addr = (ulong)simple_strtoul(argv[1], NULL, 16);
+	addr = (ulong)hextoul(argv[1], NULL);
 
 	printf("\nOneNAND read: ");
 	if (arg_off_size_onenand(argc - 2, argv + 2, &ofs, &len) != 0)
@@ -425,7 +425,7 @@ static int do_onenand_write(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (strncmp(argv[0] + 6, "yaffs", 5) == 0)
 		withoob = 1;
 
-	addr = (ulong)simple_strtoul(argv[1], NULL, 16);
+	addr = (ulong)hextoul(argv[1], NULL);
 
 	printf("\nOneNAND write: ");
 	if (arg_off_size_onenand(argc - 2, argv + 2, &ofs, &len) != 0)
@@ -512,7 +512,7 @@ static int do_onenand_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	s = strchr(argv[0], '.');
-	ofs = (int)simple_strtoul(argv[1], NULL, 16);
+	ofs = (int)hextoul(argv[1], NULL);
 
 	if (s != NULL && strcmp(s, ".oob") == 0)
 		ret = onenand_dump(mtd, ofs, 1);
@@ -535,7 +535,7 @@ static int do_onenand_markbad(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	while (argc > 0) {
-		addr = simple_strtoul(*argv, NULL, 16);
+		addr = hextoul(*argv, NULL);
 
 		if (mtd_block_markbad(mtd, addr)) {
 			printf("block 0x%08lx NOT marked "

@@ -233,8 +233,7 @@ void work_92105_display_init(void)
 	/* set display contrast */
 	display_contrast_str = env_get("fwopt_dispcontrast");
 	if (display_contrast_str)
-		display_contrast = simple_strtoul(display_contrast_str,
-			NULL, 10);
+		display_contrast = dectoul(display_contrast_str, NULL);
 	i2c_write(0x2c, 0x00, 1, &display_contrast, 1);
 
 	/* request GPO_15 as an output initially set to 1 */

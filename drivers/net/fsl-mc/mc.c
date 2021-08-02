@@ -642,7 +642,7 @@ static unsigned long get_mc_boot_timeout_ms(void)
 	char *timeout_ms_env_var = env_get(MC_BOOT_TIMEOUT_ENV_VAR);
 
 	if (timeout_ms_env_var) {
-		timeout_ms = simple_strtoul(timeout_ms_env_var, NULL, 10);
+		timeout_ms = dectoul(timeout_ms_env_var, NULL);
 		if (timeout_ms == 0) {
 			printf("fsl-mc: WARNING: Invalid value for \'"
 			       MC_BOOT_TIMEOUT_ENV_VAR
@@ -956,8 +956,7 @@ unsigned long mc_get_dram_block_size(void)
 	char *dram_block_size_env_var = env_get(MC_MEM_SIZE_ENV_VAR);
 
 	if (dram_block_size_env_var) {
-		dram_block_size = simple_strtoul(dram_block_size_env_var, NULL,
-						 16);
+		dram_block_size = hextoul(dram_block_size_env_var, NULL);
 
 		if (dram_block_size < CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE) {
 			printf("fsl-mc: WARNING: Invalid value for \'"

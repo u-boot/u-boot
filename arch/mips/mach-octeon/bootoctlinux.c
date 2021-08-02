@@ -281,8 +281,7 @@ int octeon_parse_bootopts(int argc, char *const argv[],
 		} else if (!strncmp(argv[arg], "forceboot", 9)) {
 			boot_args->forceboot = true;
 		} else if (!strncmp(argv[arg], "nodemask=", 9)) {
-			boot_args->node_mask = simple_strtoul(argv[arg] + 9,
-							      NULL, 16);
+			boot_args->node_mask = hextoul(argv[arg] + 9, NULL);
 		} else if (!strncmp(argv[arg], "numcores=", 9)) {
 			memset(node_values, 0, sizeof(node_values));
 			num_values = octeon_parse_nodes(node_values,
@@ -383,7 +382,7 @@ int do_bootoctlinux(struct cmd_tbl *cmdtp, int flag, int argc,
 						   argv[1][1] == 'x' ||
 						   argv[1][1] == 'X' ||
 						   argv[1][1] == '\0'))) {
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		if (!addr)
 			addr = CONFIG_SYS_LOAD_ADDR;
 		arg_start++;

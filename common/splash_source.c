@@ -414,7 +414,7 @@ int splash_source_load(struct splash_location *locations, uint size)
 	if (env_splashimage_value == NULL)
 		return -ENOENT;
 
-	bmp_load_addr = simple_strtoul(env_splashimage_value, 0, 16);
+	bmp_load_addr = hextoul(env_splashimage_value, 0);
 	if (bmp_load_addr == 0) {
 		printf("Error: bad splashimage address specified\n");
 		return -EFAULT;

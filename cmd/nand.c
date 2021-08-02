@@ -424,7 +424,7 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 			return 0;
 		}
 
-		dev = (int)simple_strtoul(argv[2], NULL, 10);
+		dev = (int)dectoul(argv[2], NULL);
 		set_dev(dev);
 
 		return 0;
@@ -543,7 +543,7 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (argc < 3)
 			goto usage;
 
-		off = (int)simple_strtoul(argv[2], NULL, 16);
+		off = (int)hextoul(argv[2], NULL);
 		ret = nand_dump(mtd, off, !strcmp(&cmd[4], ".oob"), repeat);
 
 		return ret == 0 ? 1 : 0;
@@ -559,7 +559,7 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (argc < 4)
 			goto usage;
 
-		addr = (ulong)simple_strtoul(argv[2], NULL, 16);
+		addr = (ulong)hextoul(argv[2], NULL);
 
 		read = strncmp(cmd, "read", 4) == 0; /* 1 = read, 0 = write */
 		printf("\nNAND %s: ", read ? "read" : "write");
@@ -713,7 +713,7 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 			goto usage;
 
 		while (argc > 0) {
-			addr = simple_strtoul(*argv, NULL, 16);
+			addr = hextoul(*argv, NULL);
 
 			if (mtd_block_markbad(mtd, addr)) {
 				printf("block 0x%08lx NOT marked "
@@ -957,7 +957,7 @@ static int do_nandboot(struct cmd_tbl *cmdtp, int flag, int argc,
 			if (argc > 3)
 				goto usage;
 			if (argc == 3)
-				addr = simple_strtoul(argv[1], NULL, 16);
+				addr = hextoul(argv[1], NULL);
 			else
 				addr = CONFIG_SYS_LOAD_ADDR;
 
@@ -975,17 +975,17 @@ static int do_nandboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		boot_device = env_get("bootdevice");
 		break;
 	case 2:
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		boot_device = env_get("bootdevice");
 		break;
 	case 3:
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		boot_device = argv[2];
 		break;
 	case 4:
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		boot_device = argv[2];
-		offset = simple_strtoul(argv[3], NULL, 16);
+		offset = hextoul(argv[3], NULL);
 		break;
 	default:
 #if defined(CONFIG_CMD_MTDPARTS)
@@ -1003,7 +1003,7 @@ usage:
 	}
 	bootstage_mark(BOOTSTAGE_ID_NAND_BOOT_DEVICE);
 
-	idx = simple_strtoul(boot_device, NULL, 16);
+	idx = hextoul(boot_device, NULL);
 
 	mtd = get_nand_dev_by_index(idx);
 	if (!mtd) {

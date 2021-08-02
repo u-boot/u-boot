@@ -253,7 +253,7 @@ static int parse_type(struct stm32prog_data *data,
 				result = -EINVAL;
 			else
 				part->bin_nb =
-					simple_strtoul(&p[7], NULL, 10);
+					dectoul(&p[7], NULL);
 		}
 	} else if (!strcmp(p, "System")) {
 		part->part_type = PART_SYSTEM;

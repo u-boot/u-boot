@@ -23,8 +23,8 @@ int do_frd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	fslnum = (unsigned int)simple_strtoul (argv[1], NULL, 16);
-	blocking = (unsigned int)simple_strtoul (argv[2], NULL, 16);
+	fslnum = (unsigned int)hextoul(argv[1], NULL);
+	blocking = (unsigned int)hextoul(argv[2], NULL);
 	if (fslnum < 0 || fslnum >= XILINX_FSL_NUMBER) {
 		puts ("Bad number of FSL\n");
 		return CMD_RET_USAGE;
@@ -178,9 +178,9 @@ int do_fwr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	fslnum = (unsigned int)simple_strtoul (argv[1], NULL, 16);
-	num = (unsigned int)simple_strtoul (argv[2], NULL, 16);
-	blocking = (unsigned int)simple_strtoul (argv[3], NULL, 16);
+	fslnum = (unsigned int)hextoul(argv[1], NULL);
+	num = (unsigned int)hextoul(argv[2], NULL);
+	blocking = (unsigned int)hextoul(argv[3], NULL);
 	if (fslnum < 0 || fslnum >= XILINX_FSL_NUMBER)
 		return CMD_RET_USAGE;
 
@@ -332,8 +332,8 @@ int do_rspr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	reg = (unsigned int)simple_strtoul (argv[1], NULL, 16);
-	val = (unsigned int)simple_strtoul (argv[2], NULL, 16);
+	reg = (unsigned int)hextoul(argv[1], NULL);
+	val = (unsigned int)hextoul(argv[2], NULL);
 	switch (reg) {
 	case 0x1:
 		if (argc > 2) {

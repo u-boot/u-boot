@@ -2401,8 +2401,7 @@ static int _usb_eth_init(struct ether_priv *priv)
 	usb_gadget_connect(gadget);
 
 	if (env_get("cdc_connect_timeout"))
-		timeout = simple_strtoul(env_get("cdc_connect_timeout"),
-						NULL, 10) * CONFIG_SYS_HZ;
+		timeout = dectoul(env_get("cdc_connect_timeout"), NULL) * CONFIG_SYS_HZ;
 	ts = get_timer(0);
 	while (!dev->network_started) {
 		/* Handle control-c and timeouts */

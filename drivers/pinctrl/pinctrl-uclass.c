@@ -69,7 +69,7 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 		 * If statename is not found in "pinctrl-names",
 		 * assume statename is just the integer state ID.
 		 */
-		state = simple_strtoul(statename, &end, 10);
+		state = dectoul(statename, &end);
 		if (*end)
 			return -EINVAL;
 	}

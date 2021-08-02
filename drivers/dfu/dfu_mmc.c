@@ -348,7 +348,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 	const char *argv[3];
 	const char **parg = argv;
 
-	dfu->data.mmc.dev_num = simple_strtoul(devstr, NULL, 10);
+	dfu->data.mmc.dev_num = dectoul(devstr, NULL);
 
 	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
 		*parg = strsep(&s, " ");

@@ -165,8 +165,8 @@ int do_ywr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	filename = argv[1];
-	value = simple_strtoul(argv[2], NULL, 16);
-	numValues = simple_strtoul(argv[3], NULL, 16);
+	value = hextoul(argv[2], NULL);
+	numValues = hextoul(argv[3], NULL);
 
 	printf("Writing value (%lx) %lx times to %s... ", value, numValues,
 	       filename);
@@ -188,7 +188,7 @@ int do_yrdm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	filename = argv[1];
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 
 	cmd_yaffs_mread_file(filename, (char *)addr);
 
@@ -207,8 +207,8 @@ int do_ywrm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	filename = argv[1];
-	addr = simple_strtoul(argv[2], NULL, 16);
-	size = simple_strtoul(argv[3], NULL, 16);
+	addr = hextoul(argv[2], NULL);
+	size = hextoul(argv[3], NULL);
 
 	cmd_yaffs_mwrite_file(filename, (char *)addr, size);
 

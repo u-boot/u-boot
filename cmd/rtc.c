@@ -18,13 +18,13 @@ static int do_rtc_read(struct udevice *dev, int argc, char * const argv[])
 	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
 
-	reg = simple_strtoul(argv[0], NULL, 16);
-	len = simple_strtoul(argv[1], NULL, 16);
+	reg = hextoul(argv[0], NULL);
+	len = hextoul(argv[1], NULL);
 
 	if (argc == 3) {
 		u8 *addr;
 
-		addr = map_sysmem(simple_strtoul(argv[2], NULL, 16), len);
+		addr = map_sysmem(hextoul(argv[2], NULL), len);
 		ret = dm_rtc_read(dev, reg, addr, len);
 		unmap_sysmem(addr);
 		if (ret) {
@@ -59,13 +59,13 @@ static int do_rtc_write(struct udevice *dev, int argc, char * const argv[])
 	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
 
-	reg = simple_strtoul(argv[0], NULL, 16);
+	reg = hextoul(argv[0], NULL);
 
 	if (argc == 3) {
 		u8 *addr;
 
-		len = simple_strtoul(argv[1], NULL, 16);
-		addr = map_sysmem(simple_strtoul(argv[2], NULL, 16), len);
+		len = hextoul(argv[1], NULL);
+		addr = map_sysmem(hextoul(argv[2], NULL), len);
 		ret = dm_rtc_write(dev, reg, addr, len);
 		unmap_sysmem(addr);
 		if (ret) {
@@ -130,7 +130,7 @@ int do_rtc(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 
 	idx = curr_rtc;
 	if (!strcmp(argv[0], "dev") && argc >= 2)
-		idx = simple_strtoul(argv[1], NULL, 10);
+		idx = dectoul(argv[1], NULL);
 
 	ret = uclass_get_device(UCLASS_RTC, idx, &dev);
 	if (ret) {

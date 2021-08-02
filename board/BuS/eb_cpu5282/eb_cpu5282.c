@@ -194,13 +194,13 @@ int drv_video_init(void)
 	printf("Init Video as ");
 	s = env_get("displaywidth");
 	if (s != NULL)
-		display_width = simple_strtoul(s, NULL, 10);
+		display_width = dectoul(s, NULL);
 	else
 		display_width = 256;
 
 	s = env_get("displayheight");
 	if (s != NULL)
-		display_height = simple_strtoul(s, NULL, 10);
+		display_height = dectoul(s, NULL);
 	else
 		display_height = 256;
 
@@ -214,7 +214,7 @@ int drv_video_init(void)
 #ifdef CONFIG_SPLASH_SCREEN
 	s = env_get("splashimage");
 	if (s != NULL) {
-		splash = simple_strtoul(s, NULL, 16);
+		splash = hextoul(s, NULL);
 		vcxk_acknowledge_wait();
 		video_display_bitmap(splash, 0, 0);
 	}
@@ -234,8 +234,8 @@ int do_brightness(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	switch (argc) {
 	case 3:
-		side = simple_strtoul(argv[1], NULL, 10);
-		bright = simple_strtoul(argv[2], NULL, 10);
+		side = dectoul(argv[1], NULL);
+		bright = dectoul(argv[2], NULL);
 		if ((side >= 0) && (side <= 3) &&
 			(bright >= 0) && (bright <= 1000)) {
 			vcxk_setbrightness(side, bright);

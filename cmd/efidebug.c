@@ -61,7 +61,7 @@ static int do_efi_capsule_update(struct cmd_tbl *cmdtp, int flag,
 		argv++;
 	}
 
-	capsule = (typeof(capsule))simple_strtoul(argv[1], &endp, 16);
+	capsule = (typeof(capsule))hextoul(argv[1], &endp);
 	if (endp == argv[1]) {
 		printf("Invalid address: %s", argv[1]);
 		return CMD_RET_FAILURE;
@@ -117,7 +117,7 @@ static int do_efi_capsule_show(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	capsule = (typeof(capsule))simple_strtoul(argv[1], &endp, 16);
+	capsule = (typeof(capsule))hextoul(argv[1], &endp);
 	if (endp == argv[1]) {
 		printf("Invalid address: %s", argv[1]);
 		return CMD_RET_FAILURE;
@@ -256,7 +256,7 @@ static int do_efi_capsule_res(struct cmd_tbl *cmdtp, int flag,
 		argc--;
 		argv++;
 
-		capsule_id = simple_strtoul(argv[0], &endp, 16);
+		capsule_id = hextoul(argv[0], &endp);
 		if (capsule_id < 0 || capsule_id > 0xffff)
 			return CMD_RET_USAGE;
 
@@ -983,7 +983,7 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 				r = CMD_RET_USAGE;
 				goto out;
 			}
-			id = (int)simple_strtoul(argv[1], &endp, 16);
+			id = (int)hextoul(argv[1], &endp);
 			if (*endp != '\0' || id > 0xffff)
 				return CMD_RET_USAGE;
 
@@ -1113,7 +1113,7 @@ static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
 
 	guid = efi_global_variable_guid;
 	for (i = 1; i < argc; i++, argv++) {
-		id = (int)simple_strtoul(argv[1], &endp, 16);
+		id = (int)hextoul(argv[1], &endp);
 		if (*endp != '\0' || id > 0xffff)
 			return CMD_RET_FAILURE;
 
@@ -1410,7 +1410,7 @@ static int do_efi_boot_next(struct cmd_tbl *cmdtp, int flag,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	bootnext = (u16)simple_strtoul(argv[1], &endp, 16);
+	bootnext = (u16)hextoul(argv[1], &endp);
 	if (*endp) {
 		printf("invalid value: %s\n", argv[1]);
 		r = CMD_RET_FAILURE;
@@ -1469,7 +1469,7 @@ static int do_efi_boot_order(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 
 	for (i = 0; i < argc; i++) {
-		id = (int)simple_strtoul(argv[i], &endp, 16);
+		id = (int)hextoul(argv[i], &endp);
 		if (*endp != '\0' || id > 0xffff) {
 			printf("invalid value: %s\n", argv[i]);
 			r = CMD_RET_FAILURE;

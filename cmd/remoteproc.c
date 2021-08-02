@@ -84,7 +84,7 @@ static int do_rproc_init(struct cmd_tbl *cmdtp, int flag, int argc,
 			return 0;
 		printf("Few Remote Processors failed to be initialized\n");
 	} else if (argc == 2) {
-		id = (int)simple_strtoul(argv[1], NULL, 10);
+		id = (int)dectoul(argv[1], NULL);
 		if (!rproc_dev_init(id))
 			return 0;
 		printf("Remote Processor %d failed to be initialized\n", id);
@@ -129,10 +129,10 @@ static int do_remoteproc_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 4)
 		return CMD_RET_USAGE;
 
-	id = (int)simple_strtoul(argv[1], NULL, 10);
-	addr = simple_strtoul(argv[2], NULL, 16);
+	id = (int)dectoul(argv[1], NULL);
+	addr = hextoul(argv[2], NULL);
 
-	size = simple_strtoul(argv[3], NULL, 16);
+	size = hextoul(argv[3], NULL);
 
 	if (!size) {
 		printf("\t Expect some size??\n");
@@ -167,7 +167,7 @@ static int do_remoteproc_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	id = (int)simple_strtoul(argv[1], NULL, 10);
+	id = (int)dectoul(argv[1], NULL);
 
 	if (!strcmp(argv[0], "start")) {
 		ret = rproc_start(id);

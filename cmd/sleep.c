@@ -20,7 +20,7 @@ static int do_sleep(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	delay = simple_strtoul(argv[1], NULL, 10) * CONFIG_SYS_HZ;
+	delay = dectoul(argv[1], NULL) * CONFIG_SYS_HZ;
 
 	frpart = strchr(argv[1], '.');
 

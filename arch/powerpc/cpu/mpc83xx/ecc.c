@@ -138,7 +138,7 @@ int do_ecc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 	if (argc == 3) {
 		if (strcmp(argv[1], "sbecnt") == 0) {
-			val = simple_strtoul(argv[2], NULL, 10);
+			val = dectoul(argv[2], NULL);
 			if (val > 255) {
 				printf("Incorrect Counter value, "
 				       "should be 0..255\n");
@@ -151,7 +151,7 @@ int do_ecc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			ddr->err_sbe = val;
 			return 0;
 		} else if (strcmp(argv[1], "sbethr") == 0) {
-			val = simple_strtoul(argv[2], NULL, 10);
+			val = dectoul(argv[2], NULL);
 			if (val > 255) {
 				printf("Incorrect Counter value, "
 				       "should be 0..255\n");
@@ -219,17 +219,17 @@ int do_ecc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			ddr->err_detect = val;
 			return 0;
 		} else if (strcmp(argv[1], "injectdatahi") == 0) {
-			val = simple_strtoul(argv[2], NULL, 16);
+			val = hextoul(argv[2], NULL);
 
 			ddr->data_err_inject_hi = val;
 			return 0;
 		} else if (strcmp(argv[1], "injectdatalo") == 0) {
-			val = simple_strtoul(argv[2], NULL, 16);
+			val = hextoul(argv[2], NULL);
 
 			ddr->data_err_inject_lo = val;
 			return 0;
 		} else if (strcmp(argv[1], "injectecc") == 0) {
-			val = simple_strtoul(argv[2], NULL, 16);
+			val = hextoul(argv[2], NULL);
 			if (val > 0xff) {
 				printf("Incorrect ECC inject mask, "
 				       "should be 0x00..0xff\n");
@@ -269,8 +269,8 @@ int do_ecc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 	if (argc == 4) {
 		if (strcmp(argv[1], "testdw") == 0) {
-			addr = (u64 *) simple_strtoul(argv[2], NULL, 16);
-			count = simple_strtoul(argv[3], NULL, 16);
+			addr = (u64 *)hextoul(argv[2], NULL);
+			count = hextoul(argv[3], NULL);
 
 			if ((u32) addr % 8) {
 				printf("Address not aligned on "
@@ -308,8 +308,8 @@ int do_ecc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return 0;
 		}
 		if (strcmp(argv[1], "testword") == 0) {
-			addr = (u64 *) simple_strtoul(argv[2], NULL, 16);
-			count = simple_strtoul(argv[3], NULL, 16);
+			addr = (u64 *)hextoul(argv[2], NULL);
+			count = hextoul(argv[3], NULL);
 
 			if ((u32) addr % 8) {
 				printf("Address not aligned on "

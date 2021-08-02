@@ -272,7 +272,7 @@ int update_tftp(ulong addr, char *interface, char *devstring)
 	/* get load address of downloaded update file */
 	env_addr = env_get("loadaddr");
 	if (env_addr)
-		addr = simple_strtoul(env_addr, NULL, 16);
+		addr = hextoul(env_addr, NULL);
 	else
 		addr = CONFIG_UPDATE_LOAD_ADDR;
 

@@ -16,7 +16,7 @@ static int do_ufs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc >= 2) {
 		if (!strcmp(argv[1], "init")) {
 			if (argc == 3) {
-				dev = simple_strtoul(argv[2], NULL, 10);
+				dev = dectoul(argv[2], NULL);
 				ret = ufs_probe_dev(dev);
 				if (ret)
 					return CMD_RET_FAILURE;

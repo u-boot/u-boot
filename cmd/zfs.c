@@ -50,13 +50,13 @@ static int do_zfs_load(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	count = 0;
-	addr = simple_strtoul(argv[3], NULL, 16);
+	addr = hextoul(argv[3], NULL);
 	filename = env_get("bootfile");
 	switch (argc) {
 	case 3:
 		addr_str = env_get("loadaddr");
 		if (addr_str != NULL)
-			addr = simple_strtoul(addr_str, NULL, 16);
+			addr = hextoul(addr_str, NULL);
 		else
 			addr = CONFIG_SYS_LOAD_ADDR;
 
@@ -68,7 +68,7 @@ static int do_zfs_load(struct cmd_tbl *cmdtp, int flag, int argc,
 		break;
 	case 6:
 		filename = argv[4];
-		count = simple_strtoul(argv[5], NULL, 16);
+		count = hextoul(argv[5], NULL);
 		break;
 
 	default:

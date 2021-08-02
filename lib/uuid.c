@@ -164,26 +164,26 @@ int uuid_str_to_bin(const char *uuid_str, unsigned char *uuid_bin,
 	}
 
 	if (str_format == UUID_STR_FORMAT_STD) {
-		tmp32 = cpu_to_be32(simple_strtoul(uuid_str, NULL, 16));
+		tmp32 = cpu_to_be32(hextoul(uuid_str, NULL));
 		memcpy(uuid_bin, &tmp32, 4);
 
-		tmp16 = cpu_to_be16(simple_strtoul(uuid_str + 9, NULL, 16));
+		tmp16 = cpu_to_be16(hextoul(uuid_str + 9, NULL));
 		memcpy(uuid_bin + 4, &tmp16, 2);
 
-		tmp16 = cpu_to_be16(simple_strtoul(uuid_str + 14, NULL, 16));
+		tmp16 = cpu_to_be16(hextoul(uuid_str + 14, NULL));
 		memcpy(uuid_bin + 6, &tmp16, 2);
 	} else {
-		tmp32 = cpu_to_le32(simple_strtoul(uuid_str, NULL, 16));
+		tmp32 = cpu_to_le32(hextoul(uuid_str, NULL));
 		memcpy(uuid_bin, &tmp32, 4);
 
-		tmp16 = cpu_to_le16(simple_strtoul(uuid_str + 9, NULL, 16));
+		tmp16 = cpu_to_le16(hextoul(uuid_str + 9, NULL));
 		memcpy(uuid_bin + 4, &tmp16, 2);
 
-		tmp16 = cpu_to_le16(simple_strtoul(uuid_str + 14, NULL, 16));
+		tmp16 = cpu_to_le16(hextoul(uuid_str + 14, NULL));
 		memcpy(uuid_bin + 6, &tmp16, 2);
 	}
 
-	tmp16 = cpu_to_be16(simple_strtoul(uuid_str + 19, NULL, 16));
+	tmp16 = cpu_to_be16(hextoul(uuid_str + 19, NULL));
 	memcpy(uuid_bin + 8, &tmp16, 2);
 
 	tmp64 = cpu_to_be64(simple_strtoull(uuid_str + 24, NULL, 16));

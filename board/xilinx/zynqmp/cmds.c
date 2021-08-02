@@ -40,7 +40,7 @@ static int do_zynqmp_verify_secure(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	src_addr = simple_strtoull(argv[2], NULL, 16);
-	len = simple_strtoul(argv[3], NULL, 16);
+	len = hextoul(argv[3], NULL);
 
 	if (argc == 5)
 		key_ptr = (uint8_t *)(uintptr_t)simple_strtoull(argv[4],
@@ -86,7 +86,7 @@ static int do_zynqmp_mmio_read(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 
 	ret = zynqmp_mmio_read(addr, &read_val);
 	if (!ret)
@@ -107,9 +107,9 @@ static int do_zynqmp_mmio_write(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[2], NULL, 16);
-	mask = simple_strtoul(argv[3], NULL, 16);
-	val = simple_strtoul(argv[4], NULL, 16);
+	addr = hextoul(argv[2], NULL);
+	mask = hextoul(argv[3], NULL);
+	val = hextoul(argv[4], NULL);
 
 	ret = zynqmp_mmio_write(addr, mask, val);
 	if (ret != 0)
@@ -135,12 +135,12 @@ static int do_zynqmp_aes(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < cmdtp->maxargs - 1)
 		return CMD_RET_USAGE;
 
-	aes->srcaddr = simple_strtoul(argv[2], NULL, 16);
-	aes->ivaddr = simple_strtoul(argv[3], NULL, 16);
-	aes->len = simple_strtoul(argv[4], NULL, 16);
-	aes->op = simple_strtoul(argv[5], NULL, 16);
-	aes->keysrc = simple_strtoul(argv[6], NULL, 16);
-	aes->dstaddr = simple_strtoul(argv[7], NULL, 16);
+	aes->srcaddr = hextoul(argv[2], NULL);
+	aes->ivaddr = hextoul(argv[3], NULL);
+	aes->len = hextoul(argv[4], NULL);
+	aes->op = hextoul(argv[5], NULL);
+	aes->keysrc = hextoul(argv[6], NULL);
+	aes->dstaddr = hextoul(argv[7], NULL);
 
 	flush_dcache_range((ulong)aes, (ulong)(aes) +
 			   roundup(sizeof(struct aes), ARCH_DMA_MINALIGN));
@@ -161,7 +161,7 @@ static int do_zynqmp_aes(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (argc < cmdtp->maxargs)
 			return CMD_RET_USAGE;
 
-		aes->keyaddr = simple_strtoul(argv[8], NULL, 16);
+		aes->keyaddr = hextoul(argv[8], NULL);
 		if (aes->keyaddr)
 			flush_dcache_range(aes->keyaddr,
 					   (aes->keyaddr +
@@ -187,7 +187,7 @@ static int do_zynqmp_tcm_init(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	mode = simple_strtoul(argv[2], NULL, 16);
+	mode = hextoul(argv[2], NULL);
 	if (mode != TCM_LOCK && mode != TCM_SPLIT) {
 		printf("Mode should be either 0(lock)/1(split)\n");
 		return CMD_RET_FAILURE;
@@ -209,8 +209,8 @@ static int do_zynqmp_pmufw(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[2], NULL, 16);
-	size = simple_strtoul(argv[3], NULL, 16);
+	addr = hextoul(argv[2], NULL);
+	size = hextoul(argv[3], NULL);
 	flush_dcache_range((ulong)addr, (ulong)(addr + size));
 
 	zynqmp_pmufw_load_config_object((const void *)(uintptr_t)addr,
@@ -236,16 +236,16 @@ static int do_zynqmp_rsa(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	srcaddr = simple_strtoul(argv[2], NULL, 16);
-	srclen = simple_strtoul(argv[3], NULL, 16);
+	srcaddr = hextoul(argv[2], NULL);
+	srclen = hextoul(argv[3], NULL);
 	if (srclen != RSA_KEY_SIZE) {
 		puts("ERR: srclen should be equal to 0x200(512 bytes)\n");
 		return CMD_RET_USAGE;
 	}
 
-	mod = simple_strtoul(argv[4], NULL, 16);
-	exp = simple_strtoul(argv[5], NULL, 16);
-	rsaop = simple_strtoul(argv[6], NULL, 16);
+	mod = hextoul(argv[4], NULL);
+	exp = hextoul(argv[5], NULL);
+	rsaop = hextoul(argv[6], NULL);
 	if (!(rsaop == 0 || rsaop == 1)) {
 		puts("ERR: rsaop should be either 0 or 1\n");
 		return CMD_RET_USAGE;
@@ -299,11 +299,11 @@ static int do_zynqmp_sha3(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	srcaddr = simple_strtoul(argv[2], NULL, 16);
-	srclen = simple_strtoul(argv[3], NULL, 16);
+	srcaddr = hextoul(argv[2], NULL);
+	srclen = hextoul(argv[3], NULL);
 
 	if (argc == 5) {
-		hashaddr = simple_strtoul(argv[4], NULL, 16);
+		hashaddr = hextoul(argv[4], NULL);
 		flush_dcache_range(hashaddr,
 				   hashaddr + roundup(ZYNQMP_SHA3_SIZE,
 						      ARCH_DMA_MINALIGN));

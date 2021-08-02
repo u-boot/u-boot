@@ -120,7 +120,7 @@ static void setup_serial(void)
 	if (env_get("serial#"))
 		return;
 
-	board_serial = simple_strtoul(ep->serial, &endp, 16);
+	board_serial = hextoul(ep->serial, &endp);
 	if (*endp != '\0') {
 		pr_err("Error: Can't set serial# to %s\n", ep->serial);
 		return;

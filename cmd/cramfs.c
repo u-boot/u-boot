@@ -107,7 +107,7 @@ int do_cramfs_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct mtdids id;
 
 	ulong addr;
-	addr = simple_strtoul(env_get("cramfsaddr"), NULL, 16);
+	addr = hextoul(env_get("cramfsaddr"), NULL);
 
 	/* hack! */
 	/* cramfs_* only supports NOR flash chips */
@@ -172,7 +172,7 @@ int do_cramfs_ls(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	struct mtdids id;
 
 	ulong addr;
-	addr = simple_strtoul(env_get("cramfsaddr"), NULL, 16);
+	addr = hextoul(env_get("cramfsaddr"), NULL);
 
 	/* hack! */
 	/* cramfs_* only supports NOR flash chips */
