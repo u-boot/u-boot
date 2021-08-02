@@ -6,4 +6,5 @@ STMicroelectronics
 .. toctree::
    :maxdepth: 2
 
+   st
    stm32mp1
