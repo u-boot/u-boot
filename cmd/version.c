@@ -13,7 +13,7 @@
 #include <asm/cb_sysinfo.h>
 #endif
 
-const char __weak version_string[] = U_BOOT_VERSION_STRING;
+const char version_string[] = U_BOOT_VERSION_STRING;
 
 static int do_version(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
