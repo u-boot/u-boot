@@ -998,4 +998,6 @@ efi_status_t efi_esrt_populate(void);
 efi_status_t efi_load_capsule_drivers(void);
 
 efi_status_t platform_get_eventlog(struct udevice *dev, u64 *addr, u32 *sz);
+efi_status_t fill_image_type_guid_array(const efi_guid_t *default_guid,
+					efi_guid_t **part_guid_arr);
 #endif /* _EFI_LOADER_H */

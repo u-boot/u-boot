@@ -96,6 +96,46 @@ efi_status_t EFIAPI efi_firmware_set_package_info_unsupported(
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 
+efi_status_t __weak fill_image_type_guid_array(const efi_guid_t *guid,
+					       efi_guid_t **part_guid_arr)
+{
+	int i;
+	int dfu_num = 0;
+	efi_guid_t *guid_arr;
+	struct dfu_entity *dfu;
+	efi_status_t ret = EFI_SUCCESS;
+
+	dfu_init_env_entities(NULL, NULL);
+
+	dfu_num = 0;
+	list_for_each_entry(dfu, &dfu_list, list) {
+		dfu_num++;
+	}
+
+	if (!dfu_num) {
+		log_warning("Probably dfu_alt_info not defined\n");
+		ret = EFI_NOT_READY;
+		goto out;
+	}
+
+	*part_guid_arr = malloc(sizeof(efi_guid_t) * dfu_num);
+	if (!*part_guid_arr) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+
+	guid_arr = *part_guid_arr;
+	for (i = 0; i < dfu_num; i++) {
+		guidcpy(guid_arr, guid);
+		++guid_arr;
+	}
+
+out:
+	dfu_free_entities();
+
+	return ret;
+}
+
 /**
  * efi_get_dfu_info - return information about the current firmware image
  * @this:			Protocol instance
@@ -104,9 +144,9 @@ efi_status_t EFIAPI efi_firmware_set_package_info_unsupported(
  * @descriptor_version:		Pointer to version number
  * @descriptor_count:		Pointer to number of descriptors
  * @descriptor_size:		Pointer to descriptor size
- * package_version:		Package version
- * package_version_name:	Package version's name
- * image_type:			Image type GUID
+ * @package_version:		Package version
+ * @package_version_name:	Package version's name
+ * @guid_array:			Image type GUID array
  *
  * Return information bout the current firmware image in @image_info.
  * @image_info will consist of a number of descriptors.
@@ -122,7 +162,7 @@ static efi_status_t efi_get_dfu_info(
 	efi_uintn_t *descriptor_size,
 	u32 *package_version,
 	u16 **package_version_name,
-	const efi_guid_t *image_type)
+	const efi_guid_t *guid_array)
 {
 	struct dfu_entity *dfu;
 	size_t names_len, total_size;
@@ -175,7 +215,7 @@ static efi_status_t efi_get_dfu_info(
 	next = name;
 	list_for_each_entry(dfu, &dfu_list, list) {
 		image_info[i].image_index = dfu->alt + 1;
-		image_info[i].image_type_id = *image_type;
+		image_info[i].image_type_id = guid_array[i];
 		image_info[i].image_id = dfu->alt;
 
 		/* copy the DFU entity name */
@@ -253,6 +293,7 @@ efi_status_t EFIAPI efi_firmware_fit_get_image_info(
 	u16 **package_version_name)
 {
 	efi_status_t ret;
+	efi_guid_t *part_guid_arr = NULL;
 
 	EFI_ENTRY("%p %p %p %p %p %p %p %p\n", this,
 		  image_info_size, image_info,
@@ -267,12 +308,19 @@ efi_status_t EFIAPI efi_firmware_fit_get_image_info(
 	     !descriptor_size || !package_version || !package_version_name))
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
+	ret = fill_image_type_guid_array(&efi_firmware_image_type_uboot_fit,
+					 &part_guid_arr);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	ret = efi_get_dfu_info(image_info_size, image_info,
 			       descriptor_version, descriptor_count,
 			       descriptor_size,
 			       package_version, package_version_name,
-			       &efi_firmware_image_type_uboot_fit);
+			       part_guid_arr);
 
+out:
+	free(part_guid_arr);
 	return EFI_EXIT(ret);
 }
 
@@ -362,6 +410,7 @@ efi_status_t EFIAPI efi_firmware_raw_get_image_info(
 	u16 **package_version_name)
 {
 	efi_status_t ret = EFI_SUCCESS;
+	efi_guid_t *part_guid_arr = NULL;
 
 	EFI_ENTRY("%p %p %p %p %p %p %p %p\n", this,
 		  image_info_size, image_info,
@@ -376,12 +425,20 @@ efi_status_t EFIAPI efi_firmware_raw_get_image_info(
 	     !descriptor_size || !package_version || !package_version_name))
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
+	ret = fill_image_type_guid_array(
+		&efi_firmware_image_type_uboot_raw,
+		&part_guid_arr);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	ret = efi_get_dfu_info(image_info_size, image_info,
 			       descriptor_version, descriptor_count,
 			       descriptor_size,
 			       package_version, package_version_name,
-			       &efi_firmware_image_type_uboot_raw);
+			       part_guid_arr);
 
+out:
+	free(part_guid_arr);
 	return EFI_EXIT(ret);
 }
 
