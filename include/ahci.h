@@ -148,16 +148,12 @@ struct ahci_ioports {
  * where dev is the controller (although at present it sometimes stands alone).
  */
 struct ahci_uc_priv {
-#if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
 	/*
 	 * TODO(sjg@chromium.org): Drop this once this structure is only used
 	 * in a driver-model context (i.e. attached to a device with
 	 * dev_get_uclass_priv()
 	 */
 	struct udevice *dev;
-#else
-	pci_dev_t	dev;
-#endif
 	struct ahci_ioports	port[AHCI_MAX_PORTS];
 	u16 *ataid[AHCI_MAX_PORTS];
 	u32	n_ports;
