@@ -53,7 +53,7 @@ int checkboard (void)
 	}
 	putc('\n');
 
-#if defined(CONFIG_PCI) || defined(CONFIG_DM_PCI)
+#if defined(CONFIG_PCI)
 	/* Check the PCI_clk sel bit */
 	if (in_be32(&gur->porpllsr) & (1<<15)) {
 		src = "SYSCLK";
@@ -130,9 +130,7 @@ int misc_init_r (void)
 			       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 	}
 
-#if defined(CONFIG_DM_PCI)
 	pci_init();
-#endif
 
 	return 0;
 }
