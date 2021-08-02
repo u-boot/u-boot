@@ -222,7 +222,6 @@ config DWC_ETH_QOS_TEGRA186
 
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
-	depends on (DM_ETH && DM_PCI) || !DM_ETH
 	help
 	  This driver supports Intel(R) PRO/1000 gigabit ethernet family of
 	  adapters.  For more information on how to identify your adapter, go
@@ -506,7 +505,7 @@ config OCTEONTX2_CGX_INTF
 
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
-	depends on DM_ETH && DM_PCI
+	depends on DM_ETH
 	select PHYLIB
 	help
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
@@ -606,7 +605,6 @@ source "drivers/net/ti/Kconfig"
 
 config TULIP
 	bool "DEC Tulip DC2114x Ethernet support"
-	depends on (DM_ETH && DM_PCI) || !DM_ETH
 	help
 	  This driver supports DEC DC2114x Fast ethernet chips.
 
@@ -791,7 +789,7 @@ config HIGMACV300_ETH
 
 config FSL_ENETC
 	bool "NXP ENETC Ethernet controller"
-	depends on DM_PCI && DM_ETH && DM_MDIO
+	depends on DM_ETH && DM_MDIO
 	help
 	  This driver supports the NXP ENETC Ethernet controller found on some
 	  of the NXP SoCs.

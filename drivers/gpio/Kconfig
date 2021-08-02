@@ -358,7 +358,7 @@ config PIC32_GPIO
 
 config OCTEON_GPIO
 	bool "Octeon II/III/TX/TX2 GPIO driver"
-	depends on DM_GPIO && DM_PCI &&	(ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	depends on DM_GPIO && PCI && (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	default y
 	help
 	  Add support for the Marvell Octeon GPIO driver. This is used with

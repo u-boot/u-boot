@@ -237,7 +237,7 @@ config TARGET_KOSAGI_NOVENA
 	select DM_ETH
 	select DM_GPIO
 	select DM_MMC
-	select DM_PCI
+	select PCI
 	select DM_SCSI
 	select DM_VIDEO
 	select OF_CONTROL

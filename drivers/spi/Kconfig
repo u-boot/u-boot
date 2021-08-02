@@ -271,7 +271,7 @@ config NXP_FSPI
 
 config OCTEON_SPI
 	bool "Octeon SPI driver"
-	depends on DM_PCI && (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	depends on ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2
 	help
 	  Enable the Octeon SPI driver. This driver can be used to
 	  access the SPI NOR flash on Octeon II/III and OcteonTX/TX2
