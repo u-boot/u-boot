@@ -1,6 +1,5 @@
-# SPDX-License-Identifier: GPL-2.0+
-#
-# Copyright (c) 2011 The Chromium OS Authors.
+.. SPDX-License-Identifier: GPL-2.0+
+.. sectionauthor:: Copyright 2011 The Chromium OS Authors
 
 Device Tree Control in U-Boot
 =============================
@@ -37,9 +36,7 @@ What is a Flat Device Tree?
 ---------------------------
 
 An fdt can be specified in source format as a text file. To read about
-the fdt syntax, take a look at the specification here:
-
-https://www.power.org/resources/downloads/Power_ePAPR_APPROVED_v1.0.pdf
+the fdt syntax, take a look at the specification (dtspec_).
 
 You also might find this section of the Linux kernel documentation
 useful: (access this in the Linux kernel source code)
@@ -60,18 +57,18 @@ To use this feature you will need to get the device tree compiler. This is
 provided by U-Boot automatically. If you have a system version of dtc
 (typically in the 'device-tree-compiler' package), it is currently not used.
 
-If you want to build your own dtc, it is kept here:
+If you want to build your own dtc, it is kept here::
 
 	git://git.kernel.org/pub/scm/utils/dtc/dtc.git
 
-For example:
+For example::
 
 	$ git clone git://git.kernel.org/pub/scm/utils/dtc/dtc.git
 	$ cd dtc
 	$ make
 	$ sudo make install
 
-Then run the compiler (your version will vary):
+Then run the compiler (your version will vary)::
 
 	$ dtc -v
 	Version: DTC 1.2.0-g2cb4b51f
@@ -105,14 +102,14 @@ Failing that, you could write one from scratch yourself!
 Configuration
 -------------
 
-Use:
+Use::
 
-#define CONFIG_DEFAULT_DEVICE_TREE	"<name>"
+   #define CONFIG_DEFAULT_DEVICE_TREE	"<name>"
 
 to set the filename of the device tree source. Then put your device tree
-file into
+file into::
 
-	board/<vendor>/dts/<name>.dts
+   board/<vendor>/dts/<name>.dts
 
 This should include your CPU or SOC's device tree file, placed in
 arch/<arch>/dts, and then make any adjustments required.
@@ -123,9 +120,9 @@ and development only and is not recommended for production devices.
 
 If CONFIG_OF_SEPARATE is defined, then it will be built and placed in
 a u-boot.dtb file alongside u-boot-nodtb.bin. A common approach is then to
-join the two:
+join the two::
 
-	cat u-boot-nodtb.bin u-boot.dtb >image.bin
+   cat u-boot-nodtb.bin u-boot.dtb >image.bin
 
 and then flash image.bin onto your board. Note that U-Boot creates
 u-boot-dtb.bin which does the above step for you also. Resulting
@@ -144,9 +141,9 @@ specify the file to read.
 You cannot use more than one of these options at the same time.
 
 To use a device tree file that you have compiled yourself, pass
-EXT_DTB=<filename> to 'make', as in:
+EXT_DTB=<filename> to 'make', as in::
 
-	make EXT_DTB=boot/am335x-boneblack-pubkey.dtb
+   make EXT_DTB=boot/am335x-boneblack-pubkey.dtb
 
 Then U-Boot will copy that file to u-boot.dtb, put it in the .img file
 if used, and u-boot-dtb.bin.
@@ -162,16 +159,21 @@ variable will be set to the address of the newly relocated fdt blob.
 It is read-only and cannot be changed. It can optionally be used to
 control the boot process of Linux with bootm/bootz commands.
 
-To use this, put something like this in your board header file:
+To use this, put something like this in your board header file::
 
-#define CONFIG_EXTRA_ENV_SETTINGS	"fdtcontroladdr=10000\0"
+   #define CONFIG_EXTRA_ENV_SETTINGS	"fdtcontroladdr=10000\0"
 
 Build:
 
-After board configuration is done, fdt supported u-boot can be build in two ways:
-1)  build the default dts which is defined from CONFIG_DEFAULT_DEVICE_TREE
+After board configuration is done, fdt supported u-boot can be build in two
+ways:
+
+#  build the default dts which is defined from CONFIG_DEFAULT_DEVICE_TREE::
+
     $ make
-2)  build the user specified dts file
+
+#  build the user specified dts file::
+
     $ make DEVICE_TREE=<dts-file-name>
 
 
@@ -225,6 +227,4 @@ but can use the fdt to specific the UART clock, peripheral address, etc.
 In very broad terms, the CONFIG options in general control *what* driver
 files are pulled in, and the fdt controls *how* those files work.
 
---
-Simon Glass <sjg@chromium.org>
-1-Sep-11
+.. _dtspec: https://www.power.org/resources/downloads/Power_ePAPR_APPROVED_v1.0.pdf
