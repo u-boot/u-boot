@@ -10,7 +10,6 @@
 #include <common.h>
 #include <asm-offsets.h>
 #include <config.h>
-#include <timestamp.h>
 #include "version.h"
 #include <asm/cache.h>
 
