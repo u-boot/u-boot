@@ -200,8 +200,7 @@ fdt_addr_t devfdt_get_addr_pci(const struct udevice *dev)
 	ulong addr;
 
 	addr = devfdt_get_addr(dev);
-	if (CONFIG_IS_ENABLED(PCI) && IS_ENABLED(CONFIG_DM_PCI) &&
-	    addr == FDT_ADDR_T_NONE) {
+	if (CONFIG_IS_ENABLED(PCI) && addr == FDT_ADDR_T_NONE) {
 		struct fdt_pci_addr pci_addr;
 		u32 bar;
 		int ret;
