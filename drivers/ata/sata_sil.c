@@ -27,11 +27,7 @@
 
 #include "sata_sil.h"
 
-#ifdef CONFIG_DM_PCI
 #define virt_to_bus(devno, v)	dm_pci_virt_to_mem(devno, (void *) (v))
-#else
-#define virt_to_bus(devno, v)	pci_virt_to_mem(devno, (void *) (v))
-#endif
 
 /* just compatible ahci_ops */
 struct sil_ops {
@@ -616,11 +612,7 @@ static int sil_init_sata(struct udevice *uc_dev, int dev)
 #else
 	priv->sil_sata_desc[dev] = sata;
 	priv->port_num = dev;
-#ifdef CONFIG_DM_PCI
 	sata->devno = uc_dev->parent;
-#else
-	sata->devno = sata_info.devno;
-#endif	/* CONFIG_DM_PCI */
 #endif
 	sata->id = dev;
 	sata->port = port;
