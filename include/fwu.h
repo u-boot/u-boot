@@ -50,4 +50,7 @@ int fwu_revert_boot_index(void);
 int fwu_accept_image(efi_guid_t *img_type_id, u32 bank);
 int fwu_clear_accept_image(efi_guid_t *img_type_id, u32 bank);
 
+int fwu_plat_get_update_index(u32 *update_idx);
+int fwu_plat_get_alt_num(struct udevice *dev, void *identifier);
+
 #endif /* _FWU_H_ */

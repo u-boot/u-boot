@@ -7,10 +7,13 @@
 
 #include <common.h>
 #include <adc.h>
+#include <blk.h>
 #include <bootm.h>
 #include <clk.h>
 #include <config.h>
+#include <dfu.h>
 #include <dm.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <env_internal.h>
 #include <fdt_simplefb.h>
@@ -24,9 +27,11 @@
 #include <log.h>
 #include <malloc.h>
 #include <misc.h>
+#include <mmc.h>
 #include <mtd_node.h>
 #include <net.h>
 #include <netdev.h>
+#include <part.h>
 #include <phy.h>
 #include <remoteproc.h>
 #include <reset.h>
@@ -944,3 +949,76 @@ static void board_copro_image_process(ulong fw_image, size_t fw_size)
 }
 
 U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_COPRO, board_copro_image_process);
+
+#if defined(CONFIG_FWU_MULTI_BANK_UPDATE)
+#include <fwu.h>
+#include <fwu_mdata.h>
+
+static int gpt_plat_get_alt_num(int dev_num, void *identifier)
+{
+	int i;
+	int ret = -1;
+	u32 part;
+	int alt_num = dfu_get_alt_number();
+	struct dfu_entity *dfu;
+
+	part = *(u32 *)identifier;
+	dfu_init_env_entities(NULL, NULL);
+
+	for (i = 0; i < alt_num; i++) {
+		dfu = dfu_get_entity(i);
+
+		if (!dfu)
+			continue;
+
+		/*
+		 * Currently, Multi Bank update
+		 * feature is being supported
+		 * only on GPT partitioned
+		 * MMC/SD devices.
+		 */
+		if (dfu->dev_type != DFU_DEV_MMC)
+			continue;
+
+		if (dfu->layout == DFU_RAW_ADDR &&
+		    dfu->data.mmc.dev_num == dev_num &&
+		    dfu->data.mmc.part == part) {
+			ret = dfu->alt;
+			break;
+		}
+	}
+
+	dfu_free_entities();
+
+	return ret;
+}
+
+int fwu_plat_get_alt_num(struct udevice *dev, void *identifier)
+{
+	struct blk_desc *desc;
+
+	desc = dev_get_uclass_plat(dev);
+	if (!desc) {
+		log_err("Block device not found\n");
+		return -ENODEV;
+	}
+
+	return gpt_plat_get_alt_num(desc->devnum, identifier);
+}
+
+int fwu_plat_get_update_index(u32 *update_idx)
+{
+	int ret;
+	u32 active_idx;
+
+	ret = fwu_get_active_index(&active_idx);
+
+	if (ret < 0)
+		return -1;
+
+	*update_idx = active_idx ^= 0x1;
+
+	return ret;
+}
+
+#endif /* CONFIG_FWU_MULTI_BANK_UPDATE */
