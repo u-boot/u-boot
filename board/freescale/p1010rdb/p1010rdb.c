@@ -129,13 +129,6 @@ int board_early_init_r(void)
 	return 0;
 }
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_DM_PCI)
-void pci_init_board(void)
-{
-	fsl_pcie_init_board(0);
-}
-#endif /* ifdef CONFIG_PCI */
-
 int config_board_mux(int ctrl_type)
 {
 	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -616,10 +609,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	base = env_get_bootm_low();
 	size = env_get_bootm_size();
-
-#if defined(CONFIG_PCI) && !defined(CONFIG_DM_PCI)
-	FT_FSL_PCI_SETUP;
-#endif
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 
