@@ -507,14 +507,13 @@ static int stm32_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 	return 0;
 }
 
-static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
+static int stm32_i2c_compute_solutions(u32 i2cclk,
+				       struct stm32_i2c_setup *setup,
 				       const struct stm32_i2c_spec *specs,
 				       struct list_head *solutions)
 {
 	struct stm32_i2c_timings *v;
 	u32 p_prev = STM32_PRESC_MAX;
-	u32 i2cclk = DIV_ROUND_CLOSEST(STM32_NSEC_PER_SEC,
-				       setup->clock_src);
 	u32 af_delay_min, af_delay_max;
 	u16 p, l, a;
 	int sdadel_min, sdadel_max, scldel_min;
@@ -582,7 +581,8 @@ static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
 	return ret;
 }
 
-static int stm32_i2c_choose_solution(struct stm32_i2c_setup *setup,
+static int stm32_i2c_choose_solution(u32 i2cclk,
+				     struct stm32_i2c_setup *setup,
 				     const struct stm32_i2c_spec *specs,
 				     struct list_head *solutions,
 				     struct stm32_i2c_timings *s)
@@ -591,8 +591,6 @@ static int stm32_i2c_choose_solution(struct stm32_i2c_setup *setup,
 	u32 i2cbus = DIV_ROUND_CLOSEST(STM32_NSEC_PER_SEC,
 				       setup->speed_freq);
 	u32 clk_error_prev = i2cbus;
-	u32 i2cclk = DIV_ROUND_CLOSEST(STM32_NSEC_PER_SEC,
-				       setup->clock_src);
 	u32 clk_min, clk_max;
 	u32 af_delay_min;
 	u32 dnf_delay;
@@ -679,9 +677,9 @@ static const struct stm32_i2c_spec *get_specs(u32 rate)
 }
 
 static int stm32_i2c_compute_timing(struct stm32_i2c_priv *i2c_priv,
-				    struct stm32_i2c_setup *setup,
 				    struct stm32_i2c_timings *output)
 {
+	struct stm32_i2c_setup *setup = &i2c_priv->setup;
 	const struct stm32_i2c_spec *specs;
 	struct stm32_i2c_timings *v, *_v;
 	struct list_head solutions;
@@ -712,11 +710,11 @@ static int stm32_i2c_compute_timing(struct stm32_i2c_priv *i2c_priv,
 	}
 
 	INIT_LIST_HEAD(&solutions);
-	ret = stm32_i2c_compute_solutions(setup, specs, &solutions);
+	ret = stm32_i2c_compute_solutions(i2cclk, setup, specs, &solutions);
 	if (ret)
 		goto exit;
 
-	ret = stm32_i2c_choose_solution(setup, specs, &solutions, output);
+	ret = stm32_i2c_choose_solution(i2cclk, setup, specs, &solutions, output);
 	if (ret)
 		goto exit;
 
@@ -761,7 +759,7 @@ static int stm32_i2c_setup_timing(struct stm32_i2c_priv *i2c_priv,
 	}
 
 	do {
-		ret = stm32_i2c_compute_timing(i2c_priv, setup, timing);
+		ret = stm32_i2c_compute_timing(i2c_priv, timing);
 		if (ret) {
 			log_debug("failed to compute I2C timings.\n");
 			if (setup->speed_freq > I2C_SPEED_STANDARD_RATE) {
