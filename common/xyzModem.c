@@ -608,10 +608,10 @@ xyzModem_stream_read (char *buf, int size, int *err)
 void
 xyzModem_stream_close (int *err)
 {
-  diag_printf
+  ZM_DEBUG (zm_dprintf
     ("xyzModem - %s mode, %d(SOH)/%d(STX)/%d(CAN) packets, %d retries\n",
      xyz.crc_mode ? "CRC" : "Cksum", xyz.total_SOH, xyz.total_STX,
-     xyz.total_CAN, xyz.total_retries);
+     xyz.total_CAN, xyz.total_retries));
   ZM_DEBUG (zm_flush ());
 }
 
