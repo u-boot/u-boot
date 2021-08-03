@@ -9,9 +9,9 @@ config ARM64
 	select PHYS_64BIT
 	select SYS_CACHE_SHIFT_6
 
-if ARM64
 config POSITION_INDEPENDENT
 	bool "Generate position-independent pre-relocation code"
+	depends on ARM64
 	help
 	  U-Boot expects to be linked to a specific hard-coded address, and to
 	  be loaded to and run from that address. This option lifts that
@@ -22,6 +22,7 @@ config POSITION_INDEPENDENT
 
 config INIT_SP_RELATIVE
 	bool "Specify the early stack pointer relative to the .bss section"
+	depends on ARM64
 	default n if ARCH_QEMU
 	default y if POSITION_INDEPENDENT
 	help
@@ -37,6 +38,7 @@ config INIT_SP_RELATIVE
 
 config SYS_INIT_SP_BSS_OFFSET
 	int "Early stack offset from the .bss base address"
+	depends on ARM64
 	depends on INIT_SP_RELATIVE
 	default 524288
 	help
@@ -46,6 +48,7 @@ config SYS_INIT_SP_BSS_OFFSET
 	  do not overlap any appended DTB.
 
 config LINUX_KERNEL_IMAGE_HEADER
+	depends on ARM64
 	bool
 	help
 	  Place a Linux kernel image header at the start of the U-Boot binary.
@@ -54,14 +57,12 @@ config LINUX_KERNEL_IMAGE_HEADER
 	  image header reports the amount of memory (BSS and similar) that
 	  U-Boot needs to use, but which isn't part of the binary.
 
-if LINUX_KERNEL_IMAGE_HEADER
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	depends on LINUX_KERNEL_IMAGE_HEADER
 	hex
 	help
 	  The value subtracted from CONFIG_SYS_TEXT_BASE to calculate the
 	  TEXT_OFFSET value written to the Linux kernel image header.
-endif
-endif
 
 config GICV2
 	bool
