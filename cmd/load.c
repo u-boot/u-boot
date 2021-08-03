@@ -1009,8 +1009,8 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 		printf("%s\n", xyzModem_error(err));
 	}
 
-	xyzModem_stream_close(&err);
 	xyzModem_stream_terminate(false, &getcxmodem);
+	xyzModem_stream_close(&err);
 
 
 	flush_cache(offset, ALIGN(size, ARCH_DMA_MINALIGN));
