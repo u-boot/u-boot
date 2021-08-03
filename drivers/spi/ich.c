@@ -918,12 +918,14 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	/*
-	 * Yes this controller can only write a small number of bytes at
+	 * Yes this controller can only transfer a small number of bytes at
 	 * once! The limit is typically 64 bytes. For hardware sequencing a
 	 * a loop is used to get around this.
 	 */
-	if (!plat->hwseq)
+	if (!plat->hwseq) {
+		slave->max_read_size = priv->databytes;
 		slave->max_write_size = priv->databytes;
+	}
 	/*
 	 * ICH 7 SPI controller only supports array read command
 	 * and byte program command for SST flash

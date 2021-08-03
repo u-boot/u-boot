@@ -425,12 +425,13 @@ static void tsc_timer_ensure_setup(bool early)
 			goto done;
 
 		if (early)
-			fast_calibrate = CONFIG_X86_TSC_TIMER_EARLY_FREQ;
+			gd->arch.clock_rate = CONFIG_X86_TSC_TIMER_FREQ;
 		else
 			return;
 
 done:
-		gd->arch.clock_rate = fast_calibrate * 1000000;
+		if (!gd->arch.clock_rate)
+			gd->arch.clock_rate = fast_calibrate * 1000000;
 	}
 	gd->arch.tsc_inited = true;
 }

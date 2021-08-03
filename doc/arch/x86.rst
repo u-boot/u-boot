@@ -42,17 +42,8 @@ Build Instructions for U-Boot as BIOS replacement (bare mode)
 -------------------------------------------------------------
 Building a ROM version of U-Boot (hereafter referred to as u-boot.rom) is a
 little bit tricky, as generally it requires several binary blobs which are not
-shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build is
-not turned on by default in the U-Boot source tree. Firstly, you need turn it
-on by enabling the ROM build either via an environment variable::
-
-   $ export BUILD_ROM=y
-
-or via configuration::
-
-   CONFIG_BUILD_ROM=y
-
-Both tell the Makefile to build u-boot.rom as a target.
+shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build may
+print some warnings if required binary blobs (e.g.: FSP) are not present.
 
 CPU Microcode
 -------------

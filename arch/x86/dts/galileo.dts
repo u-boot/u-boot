@@ -11,7 +11,8 @@
 /include/ "skeleton.dtsi"
 /include/ "reset.dtsi"
 /include/ "rtc.dtsi"
-/include/ "tsc_timer.dtsi"
+
+#include "tsc_timer.dtsi"
 
 / {
 	model = "Intel Galileo";
@@ -39,10 +40,6 @@
 			reg = <0>;
 			intel,apic-id = <0>;
 		};
-	};
-
-	tsc-timer {
-		clock-frequency = <400000000>;
 	};
 
 	mrc {

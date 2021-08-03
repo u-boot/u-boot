@@ -9,8 +9,8 @@
 /include/ "serial.dtsi"
 /include/ "reset.dtsi"
 /include/ "rtc.dtsi"
-/include/ "tsc_timer.dtsi"
 
+#include "tsc_timer.dtsi"
 #include "smbios.dtsi"
 
 / {
@@ -430,6 +430,7 @@
 					#address-cells = <1>;
 					u-boot,dm-pre-reloc;
 					reg = <0>;
+					m25p,fast-read;
 					compatible = "winbond,w25q64",
 							"jedec,spi-nor";
 					memory-map = <0xff800000 0x00800000>;

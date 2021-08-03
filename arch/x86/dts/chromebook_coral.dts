@@ -8,7 +8,8 @@
 /include/ "keyboard.dtsi"
 /include/ "reset.dtsi"
 /include/ "rtc.dtsi"
-/include/ "tsc_timer.dtsi"
+
+#include "tsc_timer.dtsi"
 
 #if defined(CONFIG_CHROMEOS_VBOOT) && defined(CONFIG_ROM_SIZE)
 #include "chromeos-x86.dtsi"
@@ -362,6 +363,7 @@
 				u-boot,dm-pre-proper;
 				u-boot,dm-spl;
 				reg = <0>;
+				m25p,fast-read;
 				compatible = "winbond,w25q128fw",
 					 "jedec,spi-nor";
 				rw-mrc-cache {
