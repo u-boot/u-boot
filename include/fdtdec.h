@@ -140,8 +140,6 @@ enum fdt_compat_id {
 					/* Tegra124 XUSB pad controller */
 	COMPAT_NVIDIA_TEGRA210_XUSB_PADCTL,
 					/* Tegra210 XUSB pad controller */
-	COMPAT_SMSC_LAN9215,		/* SMSC 10/100 Ethernet LAN9215 */
-	COMPAT_SAMSUNG_EXYNOS5_SROMC,	/* Exynos5 SROMC */
 	COMPAT_SAMSUNG_EXYNOS_USB_PHY,	/* Exynos phy controller for usb2.0 */
 	COMPAT_SAMSUNG_EXYNOS5_USB3_PHY,/* Exynos phy controller for usb3.0 */
 	COMPAT_SAMSUNG_EXYNOS_TMU,	/* Exynos TMU */

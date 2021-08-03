@@ -48,7 +48,7 @@ static int do_test_strlcat(struct unit_test_state *uts, int line, size_t align1,
 	if (expected != actual) {
 		ut_failf(uts, __FILE__, line, __func__,
 			 "strlcat(s2, s1, 2) == len2 < n ? min(len1 + len2, n) : n",
-			 "Expected %#lx (%ld), got %#lx (%ld)",
+			 "Expected %#zx (%zd), got %#zx (%zd)",
 			 expected, expected, actual, actual);
 		return CMD_RET_FAILURE;
 	}
@@ -66,7 +66,7 @@ static int do_test_strlcat(struct unit_test_state *uts, int line, size_t align1,
 	if (len2 < n && s2[i] != '\0') {
 		ut_failf(uts, __FILE__, line, __func__,
 			 "n < len1 && s2[len2 + n] == '\\0'",
-			 "Expected s2[%ld] = '\\0', got %d ('%c')",
+			 "Expected s2[%zd] = '\\0', got %d ('%c')",
 			 i, s2[i], s2[i]);
 		return CMD_RET_FAILURE;
 	}
