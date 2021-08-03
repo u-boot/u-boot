@@ -108,7 +108,6 @@ struct stm32_i2c_regs {
 #define STM32_I2C_DNF_DEFAULT			0
 #define STM32_I2C_DNF_MAX			16
 
-#define STM32_I2C_ANALOG_FILTER_ENABLE	1
 #define STM32_I2C_ANALOG_FILTER_DELAY_MIN	50	/* ns */
 #define STM32_I2C_ANALOG_FILTER_DELAY_MAX	260	/* ns */
 
@@ -919,7 +918,7 @@ static int stm32_of_to_plat(struct udevice *dev)
 					 STM32_I2C_FALL_TIME_DEFAULT);
 
 	i2c_priv->setup.dnf = STM32_I2C_DNF_DEFAULT;
-	i2c_priv->setup.analog_filter = STM32_I2C_ANALOG_FILTER_ENABLE;
+	i2c_priv->setup.analog_filter = dev_read_bool(dev, "i2c-analog-filter");
 
 	/* Optional */
 	i2c_priv->regmap = syscon_regmap_lookup_by_phandle(dev,
