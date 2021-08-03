@@ -107,7 +107,6 @@ struct stm32_i2c_regs {
 
 #define STM32_I2C_MAX_LEN			0xff
 
-#define STM32_I2C_DNF_DEFAULT			0
 #define STM32_I2C_DNF_MAX			15
 
 #define STM32_I2C_ANALOG_FILTER_DELAY_MIN	50	/* ns */
@@ -204,6 +203,7 @@ struct stm32_i2c_timings {
  * @regmap_sreg: register address for setting Fast Mode Plus bits
  * @regmap_creg: register address for clearing Fast Mode Plus bits
  * @regmap_mask: mask for Fast Mode Plus bits
+ * @dnf_dt: value of digital filter requested via dt
  */
 struct stm32_i2c_priv {
 	struct stm32_i2c_regs *regs;
@@ -214,6 +214,7 @@ struct stm32_i2c_priv {
 	u32 regmap_sreg;
 	u32 regmap_creg;
 	u32 regmap_mask;
+	u32 dnf_dt;
 };
 
 static const struct stm32_i2c_spec i2c_specs[] = {
@@ -684,6 +685,7 @@ static int stm32_i2c_compute_timing(struct stm32_i2c_priv *i2c_priv,
 	const struct stm32_i2c_spec *specs;
 	struct stm32_i2c_timings *v, *_v;
 	struct list_head solutions;
+	u32 i2cclk = DIV_ROUND_CLOSEST(STM32_NSEC_PER_SEC, setup->clock_src);
 	int ret;
 
 	specs = get_specs(setup->speed_freq);
@@ -701,6 +703,8 @@ static int stm32_i2c_compute_timing(struct stm32_i2c_priv *i2c_priv,
 		return -EINVAL;
 	}
 
+	/*  Analog and Digital Filters */
+	setup->dnf = DIV_ROUND_CLOSEST(i2c_priv->dnf_dt, i2cclk);
 	if (setup->dnf > STM32_I2C_DNF_MAX) {
 		log_err("DNF out of bound %d/%d\n",
 			setup->dnf, STM32_I2C_DNF_MAX);
@@ -923,7 +927,10 @@ static int stm32_of_to_plat(struct udevice *dev)
 	fall_time = dev_read_u32_default(dev, "i2c-scl-falling-time-ns",
 					 STM32_I2C_FALL_TIME_DEFAULT);
 
-	i2c_priv->setup.dnf = STM32_I2C_DNF_DEFAULT;
+	i2c_priv->dnf_dt = dev_read_u32_default(dev, "i2c-digital-filter-width-ns", 0);
+	if (!dev_read_bool(dev, "i2c-digital-filter"))
+		i2c_priv->dnf_dt = 0;
+
 	i2c_priv->setup.analog_filter = dev_read_bool(dev, "i2c-analog-filter");
 
 	/* Optional */
