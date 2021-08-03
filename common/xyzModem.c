@@ -32,6 +32,7 @@
 /* Values magic to the protocol */
 #define SOH 0x01
 #define STX 0x02
+#define ETX 0x03		/* ^C for interrupt */
 #define EOT 0x04
 #define ACK 0x06
 #define BSP 0x08
@@ -283,6 +284,7 @@ xyzModem_get_hdr (void)
 	      hdr_found = true;
 	      break;
 	    case CAN:
+	    case ETX:
 	      xyz.total_CAN++;
 	      ZM_DEBUG (zm_dump (__LINE__));
 	      if (++can_total == xyzModem_CAN_COUNT)
