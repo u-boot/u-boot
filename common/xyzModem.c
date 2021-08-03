@@ -572,6 +572,8 @@ xyzModem_stream_read (char *buf, int size, int *err)
 		      CYGACC_COMM_IF_PUTC (*xyz.__chan, ACK);
 		      ZM_DEBUG (zm_dprintf ("FINAL ACK (%d)\n", __LINE__));
 		    }
+		  else
+		    stat = 0;
 		  xyz.at_eof = true;
 		  break;
 		}
