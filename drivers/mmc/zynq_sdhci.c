@@ -776,6 +776,25 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		return ret;
 	upriv->mmc = host->mmc;
 
+	/*
+	 * WORKAROUND: Versal platforms have an issue with card detect state.
+	 * Due to this, host controller is switching off voltage to sd card
+	 * causing sd card timeout error. Workaround this by adding a wait for
+	 * 1000msec till the card detect state gets stable.
+	 */
+	if (IS_ENABLED(CONFIG_ARCH_VERSAL)) {
+		u32 timeout = 1000;
+
+		while (((sdhci_readl(host, SDHCI_PRESENT_STATE) &
+			 SDHCI_CARD_STATE_STABLE) == 0) && timeout--) {
+			mdelay(1);
+		}
+		if (!timeout) {
+			dev_err(dev, "Sdhci card detect state not stable\n");
+			return -ETIMEDOUT;
+		}
+	}
+
 	return sdhci_probe(dev);
 }
 
