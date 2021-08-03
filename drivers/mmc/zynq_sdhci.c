@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <sdhci.h>
 #include <zynqmp_tap_delay.h>
+#include <zynqmp_firmware.h>
 
 #define SDHCI_ARASAN_ITAPDLY_REGISTER	0xF0F8
 #define SDHCI_ARASAN_ITAPDLY_SEL_MASK	GENMASK(7, 0)
@@ -75,26 +76,40 @@ static const u8 mode2timing[] = {
 	[MMC_HS_200] = MMC_TIMING_MMC_HS200,
 };
 
-static void arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 deviceid)
+static int arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 node_id)
 {
-	u16 clk;
+	struct mmc *mmc = (struct mmc *)host->mmc;
+	struct udevice *dev = mmc->dev;
 	unsigned long timeout;
+	int ret;
+	u16 clk;
 
 	clk = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
 	clk &= ~(SDHCI_CLOCK_CARD_EN);
 	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
 
 	/* Issue DLL Reset */
-	zynqmp_dll_reset(deviceid);
+	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_ASSERT);
+	if (ret) {
+		dev_err(dev, "dll_reset assert failed with err: %d\n", ret);
+		return ret;
+	}
+
+	/* Allow atleast 1ms delay for proper DLL reset */
+	mdelay(1);
+	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_RELEASE);
+	if (ret) {
+		dev_err(dev, "dll_reset release failed with err: %d\n", ret);
+		return ret;
+	}
 
 	/* Wait max 20 ms */
 	timeout = 100;
 	while (!((clk = sdhci_readw(host, SDHCI_CLOCK_CONTROL))
 				& SDHCI_CLOCK_INT_STABLE)) {
 		if (timeout == 0) {
-			dev_err(mmc_dev(host->mmc),
-				": Internal clock never stabilised.\n");
-			return;
+			dev_err(dev, ": Internal clock never stabilised.\n");
+			return -EBUSY;
 		}
 		timeout--;
 		udelay(1000);
@@ -102,6 +117,8 @@ static void arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 deviceid)
 
 	clk |= SDHCI_CLOCK_CARD_EN;
 	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
+
+	return 0;
 }
 
 static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
@@ -112,12 +129,11 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	struct sdhci_host *host;
 	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
 	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
-	u8 deviceid;
+	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 
 	debug("%s\n", __func__);
 
 	host = priv->host;
-	deviceid = priv->deviceid;
 
 	ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 	ctrl |= SDHCI_CTRL_EXEC_TUNING;
@@ -125,7 +141,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 
 	mdelay(1);
 
-	arasan_zynqmp_dll_reset(host, deviceid);
+	arasan_zynqmp_dll_reset(host, node_id);
 
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_INT_ENABLE);
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_SIGNAL_ENABLE);
@@ -171,7 +187,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	}
 
 	udelay(1);
-	arasan_zynqmp_dll_reset(host, deviceid);
+	arasan_zynqmp_dll_reset(host, node_id);
 
 	/* Enable only interrupts served by the SD controller */
 	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
@@ -194,10 +210,13 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 					    int degrees)
 {
-	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct mmc *mmc = (struct mmc *)host->mmc;
+	struct udevice *dev = mmc->dev;
+	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
+	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
+	int ret;
 
 	/*
 	 * This is applicable for SDHCI_SPEC_300 and above
@@ -233,7 +252,19 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 	/* Limit output tap_delay value to 6 bits */
 	tap_delay &= SDHCI_ARASAN_OTAPDLY_SEL_MASK;
 
-	arasan_zynqmp_set_out_tapdelay(priv->deviceid, tap_delay);
+	/* Set the Clock Phase */
+	ret = arasan_zynqmp_set_out_tapdelay(node_id, tap_delay);
+	if (ret) {
+		dev_err(dev, "Error setting output Tap Delay\n");
+		return ret;
+	}
+
+	/* Release DLL Reset */
+	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_RELEASE);
+	if (ret) {
+		dev_err(dev, "dll_reset release failed with err: %d\n", ret);
+		return ret;
+	}
 
 	return 0;
 }
@@ -250,10 +281,13 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 					    int degrees)
 {
-	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct mmc *mmc = (struct mmc *)host->mmc;
+	struct udevice *dev = mmc->dev;
+	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
+	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
+	int ret;
 
 	/*
 	 * This is applicable for SDHCI_SPEC_300 and above
@@ -262,6 +296,13 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 	 */
 	if (SDHCI_GET_VERSION(host) < SDHCI_SPEC_300)
 		return 0;
+
+	/* Assert DLL Reset */
+	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_ASSERT);
+	if (ret) {
+		dev_err(dev, "dll_reset assert failed with err: %d\n", ret);
+		return ret;
+	}
 
 	switch (timing) {
 	case MMC_TIMING_MMC_HS:
@@ -289,7 +330,11 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 	/* Limit input tap_delay value to 8 bits */
 	tap_delay &= SDHCI_ARASAN_ITAPDLY_SEL_MASK;
 
-	arasan_zynqmp_set_in_tapdelay(priv->deviceid, tap_delay);
+	ret = arasan_zynqmp_set_in_tapdelay(node_id, tap_delay);
+	if (ret) {
+		dev_err(dev, "Error setting Input Tap Delay\n");
+		return ret;
+	}
 
 	return 0;
 }
