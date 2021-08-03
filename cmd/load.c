@@ -474,6 +474,14 @@ static int do_load_serial_bin(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		addr = load_serial_ymodem(offset, xyzModem_ymodem);
 
+		if (addr == ~0) {
+			image_load_addr = 0;
+			printf("## Binary (ymodem) download aborted\n");
+			rcode = 1;
+		} else {
+			printf("## Start Addr      = 0x%08lX\n", addr);
+			image_load_addr = addr;
+		}
 	} else if (strcmp(argv[0],"loadx")==0) {
 		printf("## Ready for binary (xmodem) download "
 			"to 0x%08lX at %d bps...\n",
@@ -482,6 +490,14 @@ static int do_load_serial_bin(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		addr = load_serial_ymodem(offset, xyzModem_xmodem);
 
+		if (addr == ~0) {
+			image_load_addr = 0;
+			printf("## Binary (xmodem) download aborted\n");
+			rcode = 1;
+		} else {
+			printf("## Start Addr      = 0x%08lX\n", addr);
+			image_load_addr = addr;
+		}
 	} else {
 
 		printf("## Ready for binary (kermit) download "
