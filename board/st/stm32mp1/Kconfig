@@ -10,4 +10,11 @@ config SYS_CONFIG_NAME
 	default "stm32mp15_st_common"
 
 source "board/st/common/Kconfig"
+
+config FWU_NUM_BANKS
+       default 2
+
+config FWU_NUM_IMAGES_PER_BANK
+	default 1
+
 endif
