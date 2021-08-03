@@ -33,6 +33,9 @@ u32 msm_board_serial(void)
 	if (!mmc_dev)
 		return 0;
 
+	if (mmc_init(mmc_dev))
+		return 0;
+
 	return UNSTUFF_BITS(mmc_dev->cid, 16, 32);
 }
 
