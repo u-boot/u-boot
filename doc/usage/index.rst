@@ -47,6 +47,7 @@ Shell commands
    cmd/fatload
    cmd/fdt
    cmd/for
+   cmd/fwu_mdata
    cmd/gpio
    cmd/load
    cmd/loadm
