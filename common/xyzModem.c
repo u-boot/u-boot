@@ -494,7 +494,7 @@ xyzModem_stream_read (char *buf, int size, int *err)
   total = 0;
   stat = xyzModem_cancel;
   /* Try and get 'size' bytes into the buffer */
-  while (!xyz.at_eof && (size > 0))
+  while (!xyz.at_eof && xyz.len >= 0 && (size > 0))
     {
       if (xyz.len == 0)
 	{
@@ -587,7 +587,7 @@ xyzModem_stream_read (char *buf, int size, int *err)
 	    }
 	}
       /* Don't "read" data from the EOF protocol package */
-      if (!xyz.at_eof)
+      if (!xyz.at_eof && xyz.len > 0)
 	{
 	  len = xyz.len;
 	  if (size < len)
