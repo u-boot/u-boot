@@ -978,6 +978,7 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 	res = xyzModem_stream_open(&info, &err);
 	if (!res) {
 
+		err = 0;
 		while ((res =
 			xyzModem_stream_read(ymodemBuf, 1024, &err)) > 0) {
 			store_addr = addr + offset;
@@ -990,6 +991,9 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 				rc = flash_write((char *) ymodemBuf,
 						  store_addr, res);
 				if (rc != 0) {
+					xyzModem_stream_terminate(true, &getcxmodem);
+					xyzModem_stream_close(&err);
+					printf("\n");
 					flash_perror(rc);
 					return (~0);
 				}
@@ -1001,12 +1005,20 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 			}
 
 		}
+		if (err) {
+			xyzModem_stream_terminate((err == xyzModem_cancel) ? false : true, &getcxmodem);
+			xyzModem_stream_close(&err);
+			printf("\n%s\n", xyzModem_error(err));
+			return (~0); /* Download aborted */
+		}
+
 		if (IS_ENABLED(CONFIG_CMD_BOOTEFI))
 			efi_set_bootdev("Uart", "", "",
 					map_sysmem(offset, 0), size);
 
 	} else {
-		printf("%s\n", xyzModem_error(err));
+		printf("\n%s\n", xyzModem_error(err));
+		return (~0); /* Download aborted */
 	}
 
 	xyzModem_stream_terminate(false, &getcxmodem);
