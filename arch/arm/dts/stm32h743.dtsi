@@ -124,6 +124,7 @@
 				     <32>;
 			resets = <&rcc STM32H7_APB1L_RESET(I2C1)>;
 			clocks = <&rcc I2C1_CK>;
+			i2c-analog-filter;
 			status = "disabled";
 		};
 
@@ -136,6 +137,7 @@
 				     <34>;
 			resets = <&rcc STM32H7_APB1L_RESET(I2C2)>;
 			clocks = <&rcc I2C2_CK>;
+			i2c-analog-filter;
 			status = "disabled";
 		};
 
@@ -148,6 +150,7 @@
 				     <73>;
 			resets = <&rcc STM32H7_APB1L_RESET(I2C3)>;
 			clocks = <&rcc I2C3_CK>;
+			i2c-analog-filter;
 			status = "disabled";
 		};
 
@@ -395,6 +398,7 @@
 				     <96>;
 			resets = <&rcc STM32H7_APB4_RESET(I2C4)>;
 			clocks = <&rcc I2C4_CK>;
+			i2c-analog-filter;
 			status = "disabled";
 		};
 
