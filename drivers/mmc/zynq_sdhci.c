@@ -422,7 +422,7 @@ static int sdhci_versal_sampleclk_set_phase(struct sdhci_host *host,
 	return 0;
 }
 
-static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
+static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 {
 	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
 	struct arasan_sdhci_clk_data *clk_data = &priv->clk_data;
@@ -431,18 +431,31 @@ static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 	u8 timing = mode2timing[mmc->selected_mode];
 	u32 iclk_phase = clk_data->clk_phase_in[timing];
 	u32 oclk_phase = clk_data->clk_phase_out[timing];
+	int ret;
 
 	dev_dbg(dev, "%s, host:%s, mode:%d\n", __func__, host->name, timing);
 
 	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP) &&
 	    device_is_compatible(dev, "xlnx,zynqmp-8.9a")) {
-		sdhci_zynqmp_sampleclk_set_phase(host, iclk_phase);
-		sdhci_zynqmp_sdcardclk_set_phase(host, oclk_phase);
+		ret = sdhci_zynqmp_sampleclk_set_phase(host, iclk_phase);
+		if (ret)
+			return ret;
+
+		ret = sdhci_zynqmp_sdcardclk_set_phase(host, oclk_phase);
+		if (ret)
+			return ret;
 	} else if (IS_ENABLED(CONFIG_ARCH_VERSAL) &&
 		   device_is_compatible(dev, "xlnx,versal-8.9a")) {
-		sdhci_versal_sampleclk_set_phase(host, iclk_phase);
-		sdhci_versal_sdcardclk_set_phase(host, oclk_phase);
+		ret = sdhci_versal_sampleclk_set_phase(host, iclk_phase);
+		if (ret)
+			return ret;
+
+		ret = sdhci_versal_sdcardclk_set_phase(host, oclk_phase);
+		if (ret)
+			return ret;
 	}
+
+	return 0;
 }
 
 static void arasan_dt_read_clk_phase(struct udevice *dev, unsigned char timing,
