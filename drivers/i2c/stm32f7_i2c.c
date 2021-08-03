@@ -158,7 +158,6 @@ struct stm32_i2c_spec {
  * @fall_time: Fall time (ns)
  * @dnf: Digital filter coefficient (0-16)
  * @analog_filter: Analog filter delay (On/Off)
- * @fmp_clr_offset: Fast Mode Plus clear register offset from set register
  */
 struct stm32_i2c_setup {
 	u32 speed_freq;
@@ -167,6 +166,13 @@ struct stm32_i2c_setup {
 	u32 fall_time;
 	u8 dnf;
 	bool analog_filter;
+};
+
+/**
+ * struct stm32_i2c_data - driver data for I2C configuration by compatible
+ * @fmp_clr_offset: Fast Mode Plus clear register offset from set register
+ */
+struct stm32_i2c_data {
 	u32 fmp_clr_offset;
 };
 
@@ -201,7 +207,7 @@ struct stm32_i2c_timings {
 struct stm32_i2c_priv {
 	struct stm32_i2c_regs *regs;
 	struct clk clk;
-	struct stm32_i2c_setup *setup;
+	struct stm32_i2c_setup setup;
 	u32 speed;
 	struct regmap *regmap;
 	u32 regmap_sreg;
@@ -251,18 +257,11 @@ static const struct stm32_i2c_spec i2c_specs[] = {
 	},
 };
 
-static const struct stm32_i2c_setup stm32f7_setup = {
-	.rise_time = STM32_I2C_RISE_TIME_DEFAULT,
-	.fall_time = STM32_I2C_FALL_TIME_DEFAULT,
-	.dnf = STM32_I2C_DNF_DEFAULT,
-	.analog_filter = STM32_I2C_ANALOG_FILTER_ENABLE,
+static const struct stm32_i2c_data stm32f7_data = {
+	.fmp_clr_offset = 0x00,
 };
 
-static const struct stm32_i2c_setup stm32mp15_setup = {
-	.rise_time = STM32_I2C_RISE_TIME_DEFAULT,
-	.fall_time = STM32_I2C_FALL_TIME_DEFAULT,
-	.dnf = STM32_I2C_DNF_DEFAULT,
-	.analog_filter = STM32_I2C_ANALOG_FILTER_ENABLE,
+static const struct stm32_i2c_data stm32mp15_data = {
 	.fmp_clr_offset = 0x40,
 };
 
@@ -745,7 +744,7 @@ static u32 get_lower_rate(u32 rate)
 static int stm32_i2c_setup_timing(struct stm32_i2c_priv *i2c_priv,
 				  struct stm32_i2c_timings *timing)
 {
-	struct stm32_i2c_setup *setup = i2c_priv->setup;
+	struct stm32_i2c_setup *setup = &i2c_priv->setup;
 	int ret = 0;
 
 	setup->speed_freq = i2c_priv->speed;
@@ -839,10 +838,11 @@ static int stm32_i2c_hw_config(struct stm32_i2c_priv *i2c_priv)
 	writel(timing, &regs->timingr);
 
 	/* Enable I2C */
-	if (i2c_priv->setup->analog_filter)
+	if (i2c_priv->setup.analog_filter)
 		clrbits_le32(&regs->cr1, STM32_I2C_CR1_ANFOFF);
 	else
 		setbits_le32(&regs->cr1, STM32_I2C_CR1_ANFOFF);
+
 	setbits_le32(&regs->cr1, STM32_I2C_CR1_PE);
 
 	return 0;
@@ -903,21 +903,23 @@ clk_free:
 
 static int stm32_of_to_plat(struct udevice *dev)
 {
+	const struct stm32_i2c_data *data;
 	struct stm32_i2c_priv *i2c_priv = dev_get_priv(dev);
 	u32 rise_time, fall_time;
 	int ret;
 
-	i2c_priv->setup = (struct stm32_i2c_setup *)dev_get_driver_data(dev);
-	if (!i2c_priv->setup)
+	data = (const struct stm32_i2c_data *)dev_get_driver_data(dev);
+	if (!data)
 		return -EINVAL;
 
-	rise_time = dev_read_u32_default(dev, "i2c-scl-rising-time-ns", 0);
-	if (rise_time)
-		i2c_priv->setup->rise_time = rise_time;
+	rise_time = dev_read_u32_default(dev, "i2c-scl-rising-time-ns",
+					 STM32_I2C_RISE_TIME_DEFAULT);
 
-	fall_time = dev_read_u32_default(dev, "i2c-scl-falling-time-ns", 0);
-	if (fall_time)
-		i2c_priv->setup->fall_time = fall_time;
+	fall_time = dev_read_u32_default(dev, "i2c-scl-falling-time-ns",
+					 STM32_I2C_FALL_TIME_DEFAULT);
+
+	i2c_priv->setup.dnf = STM32_I2C_DNF_DEFAULT;
+	i2c_priv->setup.analog_filter = STM32_I2C_ANALOG_FILTER_ENABLE;
 
 	/* Optional */
 	i2c_priv->regmap = syscon_regmap_lookup_by_phandle(dev,
@@ -930,8 +932,7 @@ static int stm32_of_to_plat(struct udevice *dev)
 			return ret;
 
 		i2c_priv->regmap_sreg = fmp[1];
-		i2c_priv->regmap_creg = fmp[1] +
-					i2c_priv->setup->fmp_clr_offset;
+		i2c_priv->regmap_creg = fmp[1] + data->fmp_clr_offset;
 		i2c_priv->regmap_mask = fmp[2];
 	}
 
@@ -944,8 +945,8 @@ static const struct dm_i2c_ops stm32_i2c_ops = {
 };
 
 static const struct udevice_id stm32_i2c_of_match[] = {
-	{ .compatible = "st,stm32f7-i2c", .data = (ulong)&stm32f7_setup },
-	{ .compatible = "st,stm32mp15-i2c", .data = (ulong)&stm32mp15_setup },
+	{ .compatible = "st,stm32f7-i2c", .data = (ulong)&stm32f7_data },
+	{ .compatible = "st,stm32mp15-i2c", .data = (ulong)&stm32mp15_data },
 	{}
 };
 
