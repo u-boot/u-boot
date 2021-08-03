@@ -379,24 +379,19 @@ Booting SeaBIOS is done via U-Boot's bootelf command, like below::
    Using e1000#0 device
    TFTP from server 10.10.0.100; our IP address is 10.10.0.108
    ...
-   Bytes transferred = 122124 (1dd0c hex)
-   ## Starting application at 0x000ff06e ...
-   SeaBIOS (version rel-1.9.0)
+   Bytes transferred = 128748 (1f6ec hex)
+   ## Starting application at 0x000fd269 ...
+   SeaBIOS (version rel-1.14.0-0-g155821a)
    ...
 
-bios.bin.elf is the SeaBIOS image built from SeaBIOS source tree.
-Make sure it is built as follows::
+bios.bin.elf is the SeaBIOS image built from SeaBIOS source tree. At the time
+being, SeaBIOS release 1.14.0 has been tested. To build the SeaBIOS image::
 
-   $ make menuconfig
-
-Inside the "General Features" menu, select "Build for coreboot" as the
-"Build Target". Inside the "Debugging" menu, turn on "Serial port debugging"
-so that we can see something as soon as SeaBIOS boots. Leave other options
-as in their default state. Then::
-
+   $ echo -e 'CONFIG_COREBOOT=y\nCONFIG_COREBOOT_FLASH=n\nCONFIG_DEBUG_SERIAL=y\nCONFIG_DEBUG_COREBOOT=n' > .config
+   $ make olddefconfig
    $ make
    ...
-   Total size: 121888  Fixed: 66496  Free: 9184 (used 93.0% of 128KiB rom)
+   Total size: 128512  Fixed: 69216  Free: 2560 (used 98.0% of 128KiB rom)
    Creating out/bios.bin.elf
 
 Currently this is tested on QEMU x86 target with U-Boot chain-loading SeaBIOS
