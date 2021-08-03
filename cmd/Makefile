@@ -79,6 +79,7 @@ obj-$(CONFIG_CMD_FPGA) += fpga.o
 obj-$(CONFIG_CMD_FPGAD) += fpgad.o
 obj-$(CONFIG_CMD_FS_GENERIC) += fs.o
 obj-$(CONFIG_CMD_FUSE) += fuse.o
+obj-$(CONFIG_CMD_FWU_METADATA) += fwu_mdata.o
 obj-$(CONFIG_CMD_GETTIME) += gettime.o
 obj-$(CONFIG_CMD_GPIO) += gpio.o
 obj-$(CONFIG_CMD_HVC) += smccc.o
