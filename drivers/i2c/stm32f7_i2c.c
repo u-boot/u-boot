@@ -45,6 +45,8 @@ struct stm32_i2c_regs {
 
 /* STM32 I2C control 1 */
 #define STM32_I2C_CR1_ANFOFF			BIT(12)
+#define STM32_I2C_CR1_DNF_MASK			GENMASK(11, 8)
+#define STM32_I2C_CR1_DNF(n)			(((n) & 0xf) << 8)
 #define STM32_I2C_CR1_ERRIE			BIT(7)
 #define STM32_I2C_CR1_TCIE			BIT(6)
 #define STM32_I2C_CR1_STOPIE			BIT(5)
@@ -106,7 +108,7 @@ struct stm32_i2c_regs {
 #define STM32_I2C_MAX_LEN			0xff
 
 #define STM32_I2C_DNF_DEFAULT			0
-#define STM32_I2C_DNF_MAX			16
+#define STM32_I2C_DNF_MAX			15
 
 #define STM32_I2C_ANALOG_FILTER_DELAY_MIN	50	/* ns */
 #define STM32_I2C_ANALOG_FILTER_DELAY_MAX	260	/* ns */
@@ -155,7 +157,7 @@ struct stm32_i2c_spec {
  * @clock_src: I2C clock source frequency (Hz)
  * @rise_time: Rise time (ns)
  * @fall_time: Fall time (ns)
- * @dnf: Digital filter coefficient (0-16)
+ * @dnf: value of digital filter to apply
  * @analog_filter: Analog filter delay (On/Off)
  */
 struct stm32_i2c_setup {
@@ -841,6 +843,10 @@ static int stm32_i2c_hw_config(struct stm32_i2c_priv *i2c_priv)
 		clrbits_le32(&regs->cr1, STM32_I2C_CR1_ANFOFF);
 	else
 		setbits_le32(&regs->cr1, STM32_I2C_CR1_ANFOFF);
+
+	/* Program the Digital Filter */
+	clrsetbits_le32(&regs->cr1, STM32_I2C_CR1_DNF_MASK,
+			STM32_I2C_CR1_DNF(i2c_priv->setup.dnf));
 
 	setbits_le32(&regs->cr1, STM32_I2C_CR1_PE);
 
