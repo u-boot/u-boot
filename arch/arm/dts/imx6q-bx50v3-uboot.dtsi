@@ -47,3 +47,13 @@
 	phy-reset-duration = <1>;
 	phy-reset-post-delay = <0>;
 };
+
+/*
+ * PCIe reset is not done in the file shared with the kernel, since
+ * this GPIO also resets other peripherals (i.e. not just PCIe).
+ * These peripherals are being initialized by U-Boot and should not
+ * be reset by the kernel, so it may not reset PCIe via this GPIO.
+ */
+&pcie {
+	reset-gpio = <&gpio7 12 GPIO_ACTIVE_LOW>;
+};
