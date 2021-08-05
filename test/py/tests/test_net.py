@@ -6,6 +6,7 @@
 
 import pytest
 import u_boot_utils
+import datetime
 
 """
 Note: This test relies on boardenv_* containing configuration values to define
@@ -45,7 +46,7 @@ env__net_tftp_readable_file = {
     'addr': 0x10000000,
     'size': 5058624,
     'crc32': 'c2244b26',
-    'timeout": 50000,
+    'timeout': 50000,
 }
 
 # Details regarding a file that may be read from a NFS server. This variable
@@ -214,3 +215,72 @@ def test_net_nfs(u_boot_console):
 
     output = u_boot_console.run_command('crc32 %x $filesize' % addr)
     assert expected_crc in output
+
+@pytest.mark.buildconfigspec("cmd_crc32")
+@pytest.mark.buildconfigspec("cmd_net")
+def test_net_tftpput(u_boot_console):
+    """Test the tftpput command.
+
+    A file is downloaded from the TFTP server and then uploaded to the TFTP
+    server, its size and its CRC32 are validated.
+
+    The details of the file to download are provided by the boardenv_* file;
+    see the comment at the beginning of this file.
+    """
+
+    if not net_set_up:
+        pytest.skip("Network not initialized")
+
+    f = u_boot_console.config.env.get("env__net_tftp_readable_file", None)
+    if not f:
+        pytest.skip("No TFTP readable file to read")
+
+    addr = f.get("addr", None)
+    if not addr:
+        addr = u_boot_utils.find_ram_base(u_boot_console)
+
+    sz = f.get("size", None)
+    timeout = f.get("timeout", u_boot_console.p.timeout)
+
+    fn = f["fn"]
+    fnu = "_".join([datetime.datetime.now().strftime("%y%m%d%H%M%S"), fn])
+    with u_boot_console.temporary_timeout(timeout):
+        output = u_boot_console.run_command("tftpboot %x %s" % (addr, fn))
+
+    expected_text = "Bytes transferred = "
+    if sz:
+        expected_text += "%d" % sz
+    assert "TIMEOUT" not in output
+    assert expected_text in output
+
+    expected_tftpb_crc = f.get("crc32", None)
+
+    output = u_boot_console.run_command("crc32 $fileaddr $filesize")
+    assert expected_tftpb_crc in output
+
+    with u_boot_console.temporary_timeout(timeout):
+        output = u_boot_console.run_command(
+            "tftpput $fileaddr $filesize $serverip:%s" % (fnu)
+        )
+
+    expected_text = "Bytes transferred = "
+    if sz:
+        expected_text += "%d" % sz
+        addr = addr + sz
+    assert "TIMEOUT" not in output
+    assert "Access violation" not in output
+    assert expected_text in output
+
+    with u_boot_console.temporary_timeout(timeout):
+        output = u_boot_console.run_command("tftpboot %x %s" % (addr, fnu))
+
+    expected_text = "Bytes transferred = "
+    if sz:
+        expected_text += "%d" % sz
+    assert "TIMEOUT" not in output
+    assert expected_text in output
+
+    expected_tftpp_crc = expected_tftpb_crc
+
+    output = u_boot_console.run_command("crc32 $fileaddr $filesize")
+    assert expected_tftpp_crc in output
