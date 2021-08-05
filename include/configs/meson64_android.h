@@ -81,6 +81,8 @@
 #define RECOVERY_PARTITION "recovery"
 #endif
 
+#define BOOT_CMD "bootm ${loadaddr};"
+
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
 	"bootcmd_fastboot=" \
 		"setenv run_fastboot 0;" \
@@ -152,7 +154,7 @@
 			"part size mmc ${mmcdev} " RECOVERY_PARTITION "${slot_suffix} boot_size;" \
 			"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
 				"echo Running Android Recovery...;" \
-				"bootm ${loadaddr};" \
+				BOOT_CMD \
 			"fi;" \
 			"echo Failed to boot Android...;" \
 			"reset;" \
@@ -174,7 +176,7 @@
 		"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
 			"setenv bootargs \"${bootargs} " AB_BOOTARGS "\"  ; " \
 			"echo Running Android...;" \
-			"bootm ${loadaddr};" \
+			BOOT_CMD \
 		"fi;" \
 		"echo Failed to boot Android...;" \
 		"reset\0"
