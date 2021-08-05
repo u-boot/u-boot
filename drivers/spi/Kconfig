@@ -319,6 +319,14 @@ config RENESAS_RPC_SPI
 	  on Renesas RCar Gen3 SoCs. This uses driver model and requires a
 	  device tree binding to operate.
 
+config ROCKCHIP_SFC
+	bool "Rockchip SFC Driver"
+	help
+	  Enable the Rockchip SFC Driver for SPI NOR flash. This device is
+	  a limited purpose SPI controller for driving NOR flash on certain
+	  Rockchip SoCs. This uses driver model and requires a device tree
+	  binding to operate.
+
 config ROCKCHIP_SPI
 	bool "Rockchip SPI driver"
 	help
