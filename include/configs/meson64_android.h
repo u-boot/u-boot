@@ -25,9 +25,6 @@
 #define CONTROL_PARTITION "misc"
 #endif
 
-#ifndef RECOVERY_PARTITION
-#define RECOVERY_PARTITION "recovery"
-
 #if defined(CONFIG_CMD_AVB)
 #define AVB_VERIFY_CHECK \
 	"if test \"${force_avb}\" -eq 1; then " \
@@ -42,10 +39,46 @@
 		"echo Running without AVB...; "\
 	"fi;"
 
-#define AVB_VERIFY_CMD "avb_verify=avb init ${mmcdev}; avb verify;\0"
+#define AVB_VERIFY_CMD "avb_verify=avb init ${mmcdev}; avb verify $slot_suffix;\0"
 #else
 #define AVB_VERIFY_CHECK ""
 #define AVB_VERIFY_CMD ""
+#endif
+
+#if defined(CONFIG_CMD_AB_SELECT)
+#define ANDROIDBOOT_GET_CURRENT_SLOT_CMD "get_current_slot=" \
+	"if part number mmc ${mmcdev} " CONTROL_PARTITION " control_part_number; " \
+	"then " \
+		"echo " CONTROL_PARTITION \
+			" partition number:${control_part_number};" \
+		"ab_select current_slot mmc ${mmcdev}:${control_part_number};" \
+	"else " \
+		"echo " CONTROL_PARTITION " partition not found;" \
+	"fi;\0"
+
+#define AB_SELECT_SLOT \
+	"run get_current_slot; " \
+	"if test -e \"${current_slot}\"; " \
+	"then " \
+		"setenv slot_suffix _${current_slot}; " \
+	"else " \
+		"echo current_slot not found;" \
+		"exit;" \
+	"fi;"
+
+#define AB_SELECT_ARGS \
+	"setenv bootargs_ab androidboot.slot_suffix=${slot_suffix}; " \
+	"echo A/B cmdline addition: ${bootargs_ab};" \
+	"setenv bootargs ${bootargs} ${bootargs_ab};"
+
+#define AB_BOOTARGS " androidboot.force_normal_boot=1"
+#define RECOVERY_PARTITION "boot"
+#else
+#define AB_SELECT_SLOT ""
+#define AB_SELECT_ARGS " "
+#define ANDROIDBOOT_GET_CURRENT_SLOT_CMD ""
+#define AB_BOOTARGS " "
+#define RECOVERY_PARTITION "recovery"
 #endif
 
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
@@ -112,9 +145,11 @@
 			"echo Running Recovery...;" \
 			"mmc dev ${mmcdev};" \
 			"setenv bootargs \"${bootargs} androidboot.serialno=${serial#}\";" \
+			AB_SELECT_SLOT \
+			AB_SELECT_ARGS \
 			AVB_VERIFY_CHECK \
-			"part start mmc ${mmcdev} " RECOVERY_PARTITION " boot_start;" \
-			"part size mmc ${mmcdev} " RECOVERY_PARTITION " boot_size;" \
+			"part start mmc ${mmcdev} " RECOVERY_PARTITION "${slot_suffix} boot_start;" \
+			"part size mmc ${mmcdev} " RECOVERY_PARTITION "${slot_suffix} boot_size;" \
 			"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
 				"echo Running Android Recovery...;" \
 				"bootm ${loadaddr};" \
@@ -131,10 +166,13 @@
 		"echo Loading Android " BOOT_PARTITION " partition...;" \
 		"mmc dev ${mmcdev};" \
 		"setenv bootargs ${bootargs} androidboot.serialno=${serial#};" \
+		AB_SELECT_SLOT \
+		AB_SELECT_ARGS \
 		AVB_VERIFY_CHECK \
-		"part start mmc ${mmcdev} " BOOT_PARTITION " boot_start;" \
-		"part size mmc ${mmcdev} " BOOT_PARTITION " boot_size;" \
+		"part start mmc ${mmcdev} " BOOT_PARTITION "${slot_suffix} boot_start;" \
+		"part size mmc ${mmcdev} " BOOT_PARTITION "${slot_suffix} boot_size;" \
 		"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
+			"setenv bootargs \"${bootargs} " AB_BOOTARGS "\"  ; " \
 			"echo Running Android...;" \
 			"bootm ${loadaddr};" \
 		"fi;" \
@@ -163,6 +201,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS                                     \
 	"partitions=" PARTS_DEFAULT "\0"                              \
 	"mmcdev=2\0"                                                  \
+	ANDROIDBOOT_GET_CURRENT_SLOT_CMD                              \
 	AVB_VERIFY_CMD                                                \
 	"force_avb=0\0"                                               \
 	"gpio_recovery=88\0"                                          \
