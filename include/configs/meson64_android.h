@@ -9,6 +9,10 @@
 #ifndef __MESON64_ANDROID_CONFIG_H
 #define __MESON64_ANDROID_CONFIG_H
 
+#include <linux/sizes.h>
+
+#define CONFIG_SYS_MALLOC_LEN	       SZ_128M
+
 #ifndef BOOT_PARTITION
 #define BOOT_PARTITION "boot"
 #endif
