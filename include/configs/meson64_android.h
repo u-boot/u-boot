@@ -27,6 +27,25 @@
 
 #ifndef RECOVERY_PARTITION
 #define RECOVERY_PARTITION "recovery"
+
+#if defined(CONFIG_CMD_AVB)
+#define AVB_VERIFY_CHECK \
+	"if test \"${force_avb}\" -eq 1; then " \
+		"if run avb_verify; then " \
+			"echo AVB verification OK.;" \
+			"setenv bootargs \"$bootargs $avb_bootargs\";" \
+		"else " \
+			"echo AVB verification failed.;" \
+		"exit; fi;" \
+	"else " \
+		"setenv bootargs \"$bootargs androidboot.verifiedbootstate=orange\";" \
+		"echo Running without AVB...; "\
+	"fi;"
+
+#define AVB_VERIFY_CMD "avb_verify=avb init ${mmcdev}; avb verify;\0"
+#else
+#define AVB_VERIFY_CHECK ""
+#define AVB_VERIFY_CMD ""
 #endif
 
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
@@ -93,6 +112,7 @@
 			"echo Running Recovery...;" \
 			"mmc dev ${mmcdev};" \
 			"setenv bootargs \"${bootargs} androidboot.serialno=${serial#}\";" \
+			AVB_VERIFY_CHECK \
 			"part start mmc ${mmcdev} " RECOVERY_PARTITION " boot_start;" \
 			"part size mmc ${mmcdev} " RECOVERY_PARTITION " boot_size;" \
 			"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
@@ -111,6 +131,7 @@
 		"echo Loading Android " BOOT_PARTITION " partition...;" \
 		"mmc dev ${mmcdev};" \
 		"setenv bootargs ${bootargs} androidboot.serialno=${serial#};" \
+		AVB_VERIFY_CHECK \
 		"part start mmc ${mmcdev} " BOOT_PARTITION " boot_start;" \
 		"part size mmc ${mmcdev} " BOOT_PARTITION " boot_size;" \
 		"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
@@ -142,6 +163,8 @@
 #define CONFIG_EXTRA_ENV_SETTINGS                                     \
 	"partitions=" PARTS_DEFAULT "\0"                              \
 	"mmcdev=2\0"                                                  \
+	AVB_VERIFY_CMD                                                \
+	"force_avb=0\0"                                               \
 	"gpio_recovery=88\0"                                          \
 	"check_button=gpio input ${gpio_recovery};test $? -eq 0;\0"   \
 	"load_logo=" PREBOOT_LOAD_LOGO "\0"			      \
