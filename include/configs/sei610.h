@@ -16,14 +16,14 @@
 #define USERDATA_UUID "9b976e42-5207-11e9-8f16-ff47ac594b22;"
 #define ROOT_UUID "ddb8c3f6-d94d-4394-b633-3134139cc2e0;"
 
-#define PARTS_DEFAULT                                        \
-	"uuid_disk=${uuid_gpt_disk};"  			\
+#define PARTS_DEFAULT \
+	"uuid_disk=${uuid_gpt_disk};" \
 	"name=boot,size=64M,bootable,uuid=${uuid_gpt_boot};" \
-	"name=logo,size=2M,uuid=" LOGO_UUID             \
-	"name=cache,size=256M,uuid=" CACHE_UUID             \
-	"name=system,size=1536M,uuid=" SYSTEM_UUID           \
-	"name=vendor,size=256M,uuid=" VENDOR_UUID            \
-	"name=userdata,size=12795M,uuid=" USERDATA_UUID	\
+	"name=logo,size=2M,uuid=" LOGO_UUID \
+	"name=cache,size=256M,uuid=" CACHE_UUID \
+	"name=system,size=1536M,uuid=" SYSTEM_UUID \
+	"name=vendor,size=256M,uuid=" VENDOR_UUID \
+	"name=userdata,size=12795M,uuid=" USERDATA_UUID \
 	"name=rootfs,size=-,uuid=" ROOT_UUID
 
 #include <configs/meson64_android.h>
