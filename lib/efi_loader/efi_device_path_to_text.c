@@ -190,6 +190,19 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 
 		break;
 	}
+	case DEVICE_PATH_SUB_TYPE_MSG_URI: {
+		struct efi_device_path_uri *udp =
+			(struct efi_device_path_uri *)dp;
+		int n;
+
+		n = (int)udp->dp.length - sizeof(struct efi_device_path_uri);
+
+		s += sprintf(s, "Uri(");
+		if (n > 0 && n < MAX_NODE_LEN - 6)
+			s += snprintf(s, n, "%s", (char *)udp->uri);
+		s += sprintf(s, ")");
+		break;
+	}
 	case DEVICE_PATH_SUB_TYPE_MSG_SD:
 	case DEVICE_PATH_SUB_TYPE_MSG_MMC: {
 		const char *typename =
