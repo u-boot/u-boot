@@ -81,7 +81,59 @@
 #define RECOVERY_PARTITION "recovery"
 #endif
 
+#if defined(CONFIG_CMD_ABOOTIMG)
+/*
+ * Prepares complete device tree blob for current board (for Android boot).
+ *
+ * Boot image or recovery image should be loaded into $loadaddr prior to running
+ * these commands. The logic of these commnads is next:
+ *
+ *   1. Read correct DTB for current SoC/board from boot image in $loadaddr
+ *      to $fdtaddr
+ *   2. Merge all needed DTBO for current board from 'dtbo' partition into read
+ *      DTB
+ *   3. User should provide $fdtaddr as 3rd argument to 'bootm'
+ */
+#define PREPARE_FDT \
+	"echo Preparing FDT...; " \
+	"if test $board_name = sei510; then " \
+		"echo \"  Reading DTB for sei510...\"; " \
+		"setenv dtb_index 0;" \
+	"elif test $board_name = sei610; then " \
+		"echo \"  Reading DTB for sei610...\"; " \
+		"setenv dtb_index 1;" \
+	"else " \
+		"echo Error: Android boot is not supported for $board_name; " \
+		"exit; " \
+	"fi; " \
+	"abootimg get dtb --index=$dtb_index dtb_start dtb_size; " \
+	"cp.b $dtb_start $fdt_addr_r $dtb_size; " \
+	"fdt addr $fdt_addr_r  0x80000; " \
+	"if test $board_name = sei510; then " \
+		"echo \"  Reading DTBO for sei510...\"; " \
+		"setenv dtbo_index 0;" \
+	"elif test $board_name = sei610; then " \
+		"echo \"  Reading DTBO for sei610...\"; " \
+		"setenv dtbo_index 1;" \
+	"else " \
+		"echo Error: Android boot is not supported for $board_name; " \
+		"exit; " \
+	"fi; " \
+	"part start mmc ${mmcdev} dtbo${slot_suffix} p_dtbo_start; " \
+	"part size mmc ${mmcdev} dtbo${slot_suffix} p_dtbo_size; " \
+	"mmc read ${dtboaddr} ${p_dtbo_start} ${p_dtbo_size}; " \
+	"echo \"  Applying DTBOs...\"; " \
+	"adtimg addr $dtboaddr; " \
+	"adtimg get dt --index=$dtbo_index dtbo0_addr; " \
+	"fdt apply $dtbo0_addr;" \
+	"setenv bootargs \"$bootargs androidboot.dtbo_idx=$dtbo_index \";"\
+
+#define BOOT_CMD "bootm ${loadaddr} ${loadaddr} ${fdt_addr_r};"
+
+#else
+#define PREPARE_FDT " "
 #define BOOT_CMD "bootm ${loadaddr};"
+#endif
 
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \
 	"bootcmd_fastboot=" \
@@ -153,6 +205,7 @@
 			"part start mmc ${mmcdev} " RECOVERY_PARTITION "${slot_suffix} boot_start;" \
 			"part size mmc ${mmcdev} " RECOVERY_PARTITION "${slot_suffix} boot_size;" \
 			"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
+				PREPARE_FDT \
 				"echo Running Android Recovery...;" \
 				BOOT_CMD \
 			"fi;" \
@@ -174,6 +227,7 @@
 		"part start mmc ${mmcdev} " BOOT_PARTITION "${slot_suffix} boot_start;" \
 		"part size mmc ${mmcdev} " BOOT_PARTITION "${slot_suffix} boot_size;" \
 		"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
+			PREPARE_FDT \
 			"setenv bootargs \"${bootargs} " AB_BOOTARGS "\"  ; " \
 			"echo Running Android...;" \
 			BOOT_CMD \
@@ -212,7 +266,8 @@
 	"stdin=" STDIN_CFG "\0"                                       \
 	"stdout=" STDOUT_CFG "\0"                                     \
 	"stderr=" STDOUT_CFG "\0"                                     \
-	"loadaddr=0x01000000\0"                                       \
+	"dtboaddr=0x08200000\0"                                       \
+	"loadaddr=0x01080000\0"                                       \
 	"fdt_addr_r=0x01000000\0"                                     \
 	"scriptaddr=0x08000000\0"                                     \
 	"kernel_addr_r=0x01080000\0"                                  \
