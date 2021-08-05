@@ -183,7 +183,7 @@
 	};
 };
 
-&sdhci0 { /* MIO13-23 - 16GB emmc MTFC16GAPALBH-IT - U133A*/
+&sdhci0 { /* MIO13-23 - 16GB emmc MTFC16GAPALBH-IT - U133A */
 	status = "okay";
 	non-removable;
 	disable-wp;
