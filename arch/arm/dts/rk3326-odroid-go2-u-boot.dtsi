@@ -7,6 +7,15 @@
 	chosen {
 		u-boot,spl-boot-order = &sdmmc;
 	};
+
+	aliases {
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		mmc0 = &sdmmc;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		spi0 = &sfc;
+	};
 };
 
 &cru {
@@ -55,6 +64,14 @@
 
 	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
 	u-boot,spl-fifo-mode;
+};
+
+&sfc {
+	u-boot,dm-pre-reloc;
+};
+
+&spi_flash {
+	u-boot,dm-pre-reloc;
 };
 
 &uart1 {
