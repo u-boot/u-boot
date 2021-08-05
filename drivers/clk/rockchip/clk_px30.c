@@ -581,6 +581,32 @@ static ulong px30_mmc_set_clk(struct px30_clk_priv *priv,
 	return px30_mmc_get_clk(priv, clk_id);
 }
 
+static ulong px30_sfc_get_clk(struct px30_clk_priv *priv, uint clk_id)
+{
+	struct px30_cru *cru = priv->cru;
+	u32 div, con;
+
+	con = readl(&cru->clksel_con[22]);
+	div = (con & SFC_DIV_CON_MASK) >> SFC_DIV_CON_SHIFT;
+
+	return DIV_TO_RATE(priv->gpll_hz, div);
+}
+
+static ulong px30_sfc_set_clk(struct px30_clk_priv *priv,
+			      ulong clk_id, ulong set_rate)
+{
+	struct px30_cru *cru = priv->cru;
+	int src_clk_div;
+
+	src_clk_div = DIV_ROUND_UP(priv->gpll_hz, set_rate);
+	rk_clrsetreg(&cru->clksel_con[22],
+		     SFC_PLL_SEL_MASK | SFC_DIV_CON_MASK,
+		     0 << SFC_PLL_SEL_SHIFT |
+		     (src_clk_div - 1) << SFC_DIV_CON_SHIFT);
+
+	return px30_sfc_get_clk(priv, clk_id);
+}
+
 static ulong px30_pwm_get_clk(struct px30_clk_priv *priv, ulong clk_id)
 {
 	struct px30_cru *cru = priv->cru;
@@ -1192,6 +1218,9 @@ static ulong px30_clk_get_rate(struct clk *clk)
 	case SCLK_EMMC_SAMPLE:
 		rate = px30_mmc_get_clk(priv, clk->id);
 		break;
+	case SCLK_SFC:
+		rate = px30_sfc_get_clk(priv, clk->id);
+		break;
 	case SCLK_I2C0:
 	case SCLK_I2C1:
 	case SCLK_I2C2:
@@ -1270,6 +1299,9 @@ static ulong px30_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_SDMMC:
 	case SCLK_EMMC:
 		ret = px30_mmc_set_clk(priv, clk->id, rate);
+		break;
+	case SCLK_SFC:
+		ret = px30_sfc_set_clk(priv, clk->id, rate);
 		break;
 	case SCLK_I2C0:
 	case SCLK_I2C1:
