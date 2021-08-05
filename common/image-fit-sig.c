@@ -245,7 +245,13 @@ static int fit_config_check_sig(const void *fit, int noffset,
 				int required_keynode, int conf_noffset,
 				char **err_msgp)
 {
-	char * const exc_prop[] = {"data", "data-size", "data-position"};
+	static char * const exc_prop[] = {
+		"data",
+		"data-size",
+		"data-position",
+		"data-offset"
+	};
+
 	const char *prop, *end, *name;
 	struct image_sign_info info;
 	const uint32_t *strings;

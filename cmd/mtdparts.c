@@ -2077,9 +2077,9 @@ static int do_mtdparts(struct cmd_tbl *cmdtp, int flag, int argc,
 /***************************************************/
 U_BOOT_CMD(
 	chpart,	2,	0,	do_chpart,
-	"change active partition",
+	"change active partition of a MTD device",
 	"part-id\n"
-	"    - change active partition (e.g. part-id = nand0,1)"
+	"    - change active partition (e.g. part-id = nand0,1) of a MTD device"
 );
 
 #ifdef CONFIG_SYS_LONGHELP

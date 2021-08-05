@@ -9,6 +9,7 @@ Implementation
 .. toctree::
    :maxdepth: 1
 
+   ci_testing
    commands
    driver-model/index
    global_data
