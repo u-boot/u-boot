@@ -68,6 +68,9 @@
 	status = "okay";
 	xlnx,mio-bank = <1>;
 	no-1-8-v;
+	sdhci-caps-mask = <0 0x200000>;
+	sdhci-caps = <0 0>;
+	max-frequency = <19000000>;
 };
 
 &serial0 { /* PMC_MIO42/43 */
