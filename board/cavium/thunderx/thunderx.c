@@ -123,10 +123,3 @@ int board_eth_init(struct bd_info *bis)
 
 	return rc;
 }
-
-#ifdef CONFIG_PCI
-void pci_init_board(void)
-{
-	printf("DEBUG: PCI Init TODO *****\n");
-}
-#endif

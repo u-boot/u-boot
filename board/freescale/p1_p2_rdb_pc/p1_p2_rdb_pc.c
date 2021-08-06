@@ -239,13 +239,6 @@ int checkboard(void)
 	return 0;
 }
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_DM_PCI)
-void pci_init_board(void)
-{
-	fsl_pcie_init_board(0);
-}
-#endif
-
 int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
@@ -362,10 +355,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	size = env_get_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
-
-#if !defined(CONFIG_DM_PCI)
-	FT_FSL_PCI_SETUP;
-#endif
 
 #ifdef CONFIG_QE
 	do_fixup_by_compat(blob, "fsl,qe", "status", "okay",

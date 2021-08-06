@@ -258,7 +258,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE
 
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
-#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #endif	/* CONFIG_PCI */
 
 /*

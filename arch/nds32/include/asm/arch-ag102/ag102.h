@@ -11,8 +11,6 @@
  * Hardware register bases
  */
 
-/* PCI Controller */
-#define CONFIG_FTPCI100_BASE		0x90000000
 /* LPC Controller */
 #define CONFIG_LPC_IO_BASE		0x90100000
 /* LPC Controller */

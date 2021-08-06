@@ -836,17 +836,14 @@ int pci_last_busno(void);
 extern void pci_mpc85xx_init (struct pci_controller *hose);
 #endif
 
-#ifdef CONFIG_PCIE_IMX
-extern void imx_pcie_remove(void);
-#endif
-
-#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 /**
  * pci_write_bar32() - Write the address of a BAR including control bits
  *
  * This writes a raw address (with control bits) to a bar. This can be used
  * with devices which require hard-coded addresses, not part of the normal
  * PCI enumeration process.
+ *
+ * This is only available if CONFIG_DM_PCI_COMPAT is enabled
  *
  * @hose:	PCI hose to use
  * @dev:	PCI device to update
@@ -859,6 +856,8 @@ void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
 /**
  * pci_read_bar32() - read the address of a bar
  *
+ * This is only available if CONFIG_DM_PCI_COMPAT is enabled
+ *
  * @hose:	PCI hose to use
  * @dev:	PCI device to inspect
  * @barnum:	BAR number (0-5)
@@ -868,6 +867,8 @@ u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
 
 /**
  * pci_hose_find_devices() - Find devices by vendor/device ID
+ *
+ * This is only available if CONFIG_DM_PCI_COMPAT is enabled
  *
  * @hose:	PCI hose to search
  * @busnum:	Bus number to search
@@ -879,7 +880,6 @@ u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
  */
 pci_dev_t pci_hose_find_devices(struct pci_controller *hose, int busnum,
 				struct pci_device_id *ids, int *indexp);
-#endif /* !CONFIG_DM_PCI || CONFIG_DM_PCI_COMPAT */
 
 /* Access sizes for PCI reads and writes */
 enum pci_size_t {
