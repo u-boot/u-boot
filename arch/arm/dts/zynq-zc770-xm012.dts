@@ -53,6 +53,15 @@
 	};
 };
 
+&nor0 {
+	status = "okay";
+	bank-width = <1>;
+};
+
+&smcc {
+	status = "okay";
+};
+
 &spi1 {
 	status = "okay";
 	num-cs = <4>;
