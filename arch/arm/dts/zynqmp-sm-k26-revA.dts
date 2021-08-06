@@ -60,13 +60,13 @@
 
 	leds {
 		compatible = "gpio-leds";
-		ds35 {
+		ds35-led {
 			label = "heartbeat";
 			gpios = <&gpio 7 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
 
-		ds36 {
+		ds36-led {
 			label = "vbus_det";
 			gpios = <&gpio 8 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
