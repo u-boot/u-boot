@@ -345,3 +345,36 @@ int dram_init_banksize(void)
 	return 0;
 }
 #endif
+
+/*
+ * read the address where the IVT header must sit
+ * from IVT image header, loaded from SPL into
+ * an malloced buffer and copy the IVT header
+ * to this address
+ */
+void *spl_load_simple_fit_fix_load(const void *fit)
+{
+	struct ivt *ivt;
+	unsigned long new;
+	unsigned long offset;
+	unsigned long size;
+	u8 *tmp = (u8 *)fit;
+
+	offset = ALIGN(fdt_totalsize(fit), 0x1000);
+	size = ALIGN(fdt_totalsize(fit), 4);
+	size = board_spl_fit_size_align(size);
+	tmp += offset;
+	ivt = (struct ivt *)tmp;
+	if (ivt->hdr.magic != IVT_HEADER_MAGIC) {
+		debug("no IVT header found\n");
+		return (void *)fit;
+	}
+	debug("%s: ivt: %p offset: %lx size: %lx\n", __func__, ivt, offset, size);
+	debug("%s: ivt self: %x\n", __func__, ivt->self);
+	new = ivt->self;
+	new -= offset;
+	debug("%s: new %lx\n", __func__, new);
+	memcpy((void *)new, fit, size);
+
+	return (void *)new;
+}
