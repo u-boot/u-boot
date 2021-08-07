@@ -9,6 +9,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/armv8/mmu.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <efi_loader.h>
+#include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -292,3 +294,35 @@ int arch_cpu_init(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_SPL_BUILD)
+__weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+{
+	debug("image entry point: 0x%lx\n", spl_image->entry_point);
+
+	/* Update SIM1 DGO8 for reset vector base */
+	writel((u32)spl_image->entry_point, SIM1_BASE_ADDR + 0x5c);
+
+	/* set update bit */
+	setbits_le32(SIM1_BASE_ADDR + 0x8, 0x1 << 24);
+
+	/* polling the ack */
+	while ((readl(SIM1_BASE_ADDR + 0x8) & (0x1 << 26)) == 0)
+		;
+
+	/* clear the update */
+	clrbits_le32(SIM1_BASE_ADDR + 0x8, (0x1 << 24));
+
+	/* clear the ack by set 1 */
+	setbits_le32(SIM1_BASE_ADDR + 0x8, (0x1 << 26));
+
+	/* Enable the 512KB cache */
+	setbits_le32(SIM1_BASE_ADDR + 0x30, (0x1 << 4));
+
+	/* reset core */
+	setbits_le32(SIM1_BASE_ADDR + 0x30, (0x1 << 16));
+
+	while (1)
+		;
+}
+#endif
