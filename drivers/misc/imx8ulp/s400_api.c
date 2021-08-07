@@ -161,3 +161,84 @@ int ahab_forward_lifecycle(u16 life_cycle, u32 *response)
 
 	return ret;
 }
+
+int ahab_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *response)
+{
+	struct udevice *dev = gd->arch.s400_dev;
+	int size = sizeof(struct imx8ulp_s400_msg);
+	struct imx8ulp_s400_msg msg;
+	int ret;
+
+	if (!dev) {
+		printf("s400 dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	if (!fuse_words) {
+		printf("Invalid parameters for fuse read\n");
+		return -EINVAL;
+	}
+
+	if ((fuse_id != 1 && fuse_num != 1) ||
+	    (fuse_id == 1 && fuse_num != 4)) {
+		printf("Invalid fuse number parameter\n");
+		return -EINVAL;
+	}
+
+	msg.version = AHAB_VERSION;
+	msg.tag = AHAB_CMD_TAG;
+	msg.size = 2;
+	msg.command = AHAB_READ_FUSE_REQ_CID;
+	msg.data[0] = fuse_id;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, fuse_id 0x%x, response 0x%x\n",
+		       __func__, ret, fuse_id, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	fuse_words[0] = msg.data[1];
+	if (fuse_id == 1) {
+		/* OTP_UNIQ_ID */
+		fuse_words[1] = msg.data[2];
+		fuse_words[2] = msg.data[3];
+		fuse_words[3] = msg.data[4];
+	}
+
+	return ret;
+}
+
+int ahab_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response)
+{
+	struct udevice *dev = gd->arch.s400_dev;
+	int size = sizeof(struct imx8ulp_s400_msg);
+	struct imx8ulp_s400_msg msg;
+	int ret;
+
+	if (!dev) {
+		printf("s400 dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	msg.version = AHAB_VERSION;
+	msg.tag = AHAB_CMD_TAG;
+	msg.size = 3;
+	msg.command = AHAB_WRITE_FUSE_REQ_CID;
+	msg.data[0] = (32 << 16) | (fuse_id << 5);
+	if (lock)
+		msg.data[0] |= (1 << 31);
+
+	msg.data[1] = fuse_val;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, fuse_id 0x%x, response 0x%x\n",
+		       __func__, ret, fuse_id, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	return ret;
+}
