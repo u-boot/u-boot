@@ -42,6 +42,7 @@ config FLASH_CFI_DRIVER
 config CFI_FLASH
 	bool "Enable Driver Model for CFI Flash driver"
 	depends on DM_MTD
+	select FLASH_CFI_DRIVER
 	help
 	  The Common Flash Interface specification was developed by Intel,
 	  AMD and other flash manufactures. It provides a universal method
