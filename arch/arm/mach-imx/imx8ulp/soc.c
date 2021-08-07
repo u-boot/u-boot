@@ -16,6 +16,12 @@
 #include <asm/arch/mu_hal.h>
 #include <cpu_func.h>
 #include <asm/setup.h>
+#include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
+#include <dm/uclass.h>
+#include <dm/device.h>
+#include <dm/uclass-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -322,7 +328,18 @@ int dram_init(void)
 #ifdef CONFIG_SERIAL_TAG
 void get_board_serial(struct tag_serialnr *serialnr)
 {
-	/* TODO */
+	u32 uid[4];
+	u32 res;
+	int ret;
+
+	ret = ahab_read_common_fuse(1, uid, 4, &res);
+	if (ret)
+		printf("ahab read fuse failed %d, 0x%x\n", ret, res);
+	else
+		printf("UID 0x%x,0x%x,0x%x,0x%x\n", uid[0], uid[1], uid[2], uid[3]);
+
+	serialnr->low = uid[0];
+	serialnr->high = uid[3];
 }
 #endif
 
@@ -391,6 +408,22 @@ int arch_cpu_init(void)
 	} else {
 		/* reconfigure core0 reset vector to ROM */
 		set_core0_reset_vector(0x1000);
+	}
+
+	return 0;
+}
+
+int arch_cpu_init_dm(void)
+{
+	struct udevice *devp;
+	int node, ret;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "fsl,imx8ulp-mu");
+
+	ret = uclass_get_device_by_of_offset(UCLASS_MISC, node, &devp);
+	if (ret) {
+		printf("could not get S400 mu %d\n", ret);
+		return ret;
 	}
 
 	return 0;
