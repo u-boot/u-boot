@@ -344,17 +344,23 @@ static void set_core0_reset_vector(u32 entry)
 	setbits_le32(SIM1_BASE_ADDR + 0x8, (0x1 << 26));
 }
 
-static int release_xrdc(void)
+enum rdc_type {
+	RDC_TRDC,
+	RDC_XRDC,
+};
+
+static int release_rdc(enum rdc_type type)
 {
 	ulong s_mu_base = 0x27020000UL;
 	struct imx8ulp_s400_msg msg;
 	int ret;
+	u32 rdc_id = (type == RDC_XRDC) ? 0x78 : 0x74;
 
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 2;
 	msg.command = AHAB_RELEASE_RDC_REQ_CID;
-	msg.data[0] = (0x78 << 8) | 0x2; /* A35 XRDC */
+	msg.data[0] = (rdc_id << 8) | 0x2; /* A35 XRDC */
 
 	mu_hal_init(s_mu_base);
 	mu_hal_sendmsg(s_mu_base, 0, *((u32 *)&msg));
@@ -363,13 +369,12 @@ static int release_xrdc(void)
 	ret = mu_hal_receivemsg(s_mu_base, 0, (u32 *)&msg);
 	if (!ret) {
 		ret = mu_hal_receivemsg(s_mu_base, 1, &msg.data[0]);
-		if (!ret)
-			return ret;
+		if (!ret) {
+			if ((msg.data[0] & 0xff) == 0xd6)
+				return 0;
+		}
 
-		if ((msg.data[0] & 0xff) == 0)
-			return 0;
-		else
-			return -EIO;
+		return -EIO;
 	}
 
 	return ret;
@@ -423,8 +428,11 @@ int arch_cpu_init(void)
 		/* Disable wdog */
 		init_wdog();
 
+		if (get_boot_mode() == SINGLE_BOOT)
+			release_rdc(RDC_TRDC);
+
 		/* release xrdc, then allow A35 to write SRAM2 */
-		release_xrdc();
+		release_rdc(RDC_XRDC);
 		xrdc_mrc_region_set_access(2, CONFIG_SPL_TEXT_BASE, 0xE00);
 
 		clock_init();
