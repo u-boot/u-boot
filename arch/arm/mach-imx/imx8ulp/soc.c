@@ -23,7 +23,7 @@ enum bt_mode get_boot_mode(void)
 {
 	u32 bt0_cfg = 0;
 
-	bt0_cfg = readl(CMC0_RBASE + 0x80);
+	bt0_cfg = readl(CMC1_BASE_ADDR + 0xa0);
 	bt0_cfg &= (BT0CFG_LPBOOT_MASK | BT0CFG_DUALBOOT_MASK);
 
 	if (!(bt0_cfg & BT0CFG_LPBOOT_MASK)) {
