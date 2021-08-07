@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <log.h>
 #include <dm/devres.h>
 #include <dm/device_compat.h>
@@ -231,7 +232,7 @@ static int gpio_find_and_xlate(struct gpio_desc *desc,
 		return gpio_xlate_offs_flags(desc->dev, desc, args);
 }
 
-#if defined(CONFIG_GPIO_HOG)
+#if CONFIG_IS_ENABLED(GPIO_HOG)
 
 struct gpio_hog_priv {
 	struct gpio_desc gpiod;
@@ -1226,6 +1227,27 @@ int gpio_get_list_count(struct udevice *dev, const char *list_name)
 }
 #endif /* OF_PLATDATA */
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+int gpio_request_by_phandle(struct udevice *dev,
+			    const struct phandle_2_arg *cells,
+			    struct gpio_desc *desc, int flags)
+{
+	struct ofnode_phandle_args args;
+	struct udevice *gpio_dev;
+	const int index = 0;
+	int ret;
+
+	ret = device_get_by_ofplat_idx(cells->idx, &gpio_dev);
+	if (ret)
+		return ret;
+	args.args[0] = cells->arg[0];
+	args.args[1] = cells->arg[1];
+
+	return gpio_request_tail(ret, NULL, &args, NULL, index, desc, flags,
+				 index > 0, gpio_dev);
+}
+#endif
+
 int dm_gpio_free(struct udevice *dev, struct gpio_desc *desc)
 {
 	/* For now, we don't do any checking of dev */
@@ -1430,7 +1452,7 @@ static int gpio_post_bind(struct udevice *dev)
 	}
 #endif
 
-	if (IS_ENABLED(CONFIG_GPIO_HOG)) {
+	if (CONFIG_IS_ENABLED(OF_REAL) && IS_ENABLED(CONFIG_GPIO_HOG)) {
 		dev_for_each_subnode(node, dev) {
 			if (ofnode_read_bool(node, "gpio-hog")) {
 				const char *name = ofnode_get_name(node);

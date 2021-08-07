@@ -8,6 +8,7 @@
 #include <dm/test.h>
 #include <test/test.h>
 #include <test/ut.h>
+#include <asm-generic/gpio.h>
 #include <asm/global_data.h>
 
 /* Test that we can find a device using of-platdata */
@@ -259,3 +260,22 @@ static int dm_test_of_plat_irq(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_of_plat_irq, UT_TESTF_SCAN_PDATA);
+
+/* Test GPIOs with of-platdata */
+static int dm_test_of_plat_gpio(struct unit_test_state *uts)
+{
+	struct dtd_sandbox_gpio_test *plat;
+	struct udevice *dev;
+	struct gpio_desc desc;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "sandbox_gpio_test",
+					      &dev));
+	plat = dev_get_plat(dev);
+
+	ut_assertok(gpio_request_by_phandle(dev, &plat->test_gpios[0], &desc,
+					    GPIOD_IS_OUT));
+	ut_asserteq_str("sandbox_gpio", desc.dev->name);
+
+	return 0;
+}
+DM_TEST(dm_test_of_plat_gpio, UT_TESTF_SCAN_PDATA);
