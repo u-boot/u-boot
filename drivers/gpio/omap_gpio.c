@@ -336,7 +336,7 @@ static int omap_gpio_bind(struct udevice *dev)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id omap_gpio_ids[] = {
 	{ .compatible = "ti,omap3-gpio" },
 	{ .compatible = "ti,omap4-gpio" },

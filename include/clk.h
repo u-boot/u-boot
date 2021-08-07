@@ -300,9 +300,7 @@ enum clk_defaults_stage {
 	CLK_DEFAULTS_POST_FORCE,
 };
 
-#if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) && \
-	CONFIG_IS_ENABLED(CLK)
-
+#if CONFIG_IS_ENABLED(OF_REAL) && CONFIG_IS_ENABLED(CLK)
 /**
  * clk_set_defaults - Process 'assigned-{clocks/clock-parents/clock-rates}'
  *                    properties to configure clocks

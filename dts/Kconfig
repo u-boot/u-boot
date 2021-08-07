@@ -44,12 +44,13 @@ config OF_CONTROL
 	bool "Run-time configuration via Device Tree"
 	select DTC
 	select OF_LIBFDT if !OF_PLATDATA
+	select OF_REAL if !OF_PLATDATA
 	help
 	  This feature provides for run-time configuration of U-Boot
 	  via a flattened device tree.
 
 config OF_REAL
-	def_bool y
+	bool
 	help
 	  Indicates that a real devicetree is available which can be accessed
 	  at runtime. This means that dev_read_...() functions can be used to

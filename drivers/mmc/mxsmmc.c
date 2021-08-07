@@ -665,7 +665,7 @@ static const struct dm_mmc_ops mxsmmc_ops = {
 	.set_ios	= mxsmmc_set_ios,
 };
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int mxsmmc_of_to_plat(struct udevice *bus)
 {
 	struct mxsmmc_plat *plat = dev_get_plat(bus);
@@ -709,7 +709,7 @@ static const struct udevice_id mxsmmc_ids[] = {
 U_BOOT_DRIVER(fsl_imx23_mmc) = {
 	.name = "fsl_imx23_mmc",
 	.id	= UCLASS_MMC,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = mxsmmc_ids,
 	.of_to_plat = mxsmmc_of_to_plat,
 #endif

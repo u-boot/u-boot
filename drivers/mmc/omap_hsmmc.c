@@ -1891,7 +1891,7 @@ static int omap_hsmmc_get_pinctrl_state(struct mmc *mmc)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 #ifdef CONFIG_OMAP54XX
 __weak const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 {
@@ -2009,7 +2009,7 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	return omap_hsmmc_init_setup(mmc);
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 
 static const struct omap_mmc_of_data dra7_mmc_of_data = {
 	.controller_flags = OMAP_HSMMC_REQUIRE_IODELAY,
@@ -2027,7 +2027,7 @@ static const struct udevice_id omap_hsmmc_ids[] = {
 U_BOOT_DRIVER(omap_hsmmc) = {
 	.name	= "omap_hsmmc",
 	.id	= UCLASS_MMC,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = omap_hsmmc_ids,
 	.of_to_plat = omap_hsmmc_of_to_plat,
 	.plat_auto	= sizeof(struct omap_hsmmc_plat),

@@ -950,7 +950,7 @@ static int __maybe_unused rk3288_clk_set_parent(struct clk *clk, struct clk *par
 static struct clk_ops rk3288_clk_ops = {
 	.get_rate	= rk3288_clk_get_rate,
 	.set_rate	= rk3288_clk_set_rate,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.set_parent	= rk3288_clk_set_parent,
 #endif
 };

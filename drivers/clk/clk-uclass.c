@@ -35,8 +35,7 @@ struct clk *dev_get_clk_ptr(struct udevice *dev)
 	return (struct clk *)dev_get_uclass_priv(dev);
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-# if CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
 int clk_get_by_driver_info(struct udevice *dev, struct phandle_1_arg *cells,
 			   struct clk *clk)
 {
@@ -49,7 +48,9 @@ int clk_get_by_driver_info(struct udevice *dev, struct phandle_1_arg *cells,
 
 	return 0;
 }
-# else
+#endif
+
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int clk_of_xlate_default(struct clk *clk,
 				struct ofnode_phandle_args *args)
 {
@@ -412,7 +413,6 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 
 	return clk_get_by_index(dev, index, clk);
 }
-# endif /* OF_PLATDATA */
 
 int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 {
@@ -465,7 +465,7 @@ int clk_release_all(struct clk *clk, int count)
 	return 0;
 }
 
-#endif /* OF_CONTROL */
+#endif /* OF_REAL */
 
 int clk_request(struct udevice *dev, struct clk *clk)
 {

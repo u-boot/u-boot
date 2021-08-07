@@ -1034,7 +1034,7 @@ static int omap_i2c_probe(struct udevice *bus)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int omap_i2c_of_to_plat(struct udevice *bus)
 {
 	struct omap_i2c_plat *plat = dev_get_plat(bus);
@@ -1063,7 +1063,7 @@ static const struct dm_i2c_ops omap_i2c_ops = {
 U_BOOT_DRIVER(i2c_omap) = {
 	.name	= "i2c_omap",
 	.id	= UCLASS_I2C,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = omap_i2c_ids,
 	.of_to_plat = omap_i2c_of_to_plat,
 	.plat_auto	= sizeof(struct omap_i2c_plat),

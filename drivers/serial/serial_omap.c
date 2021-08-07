@@ -98,7 +98,7 @@ DEBUG_UART_FUNCS
 
 #if CONFIG_IS_ENABLED(DM_SERIAL)
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int omap_serial_of_to_plat(struct udevice *dev)
 {
 	struct ns16550_plat *plat = dev_get_plat(dev);
@@ -149,13 +149,13 @@ static const struct udevice_id omap_serial_ids[] = {
 	{ .compatible = "ti,am654-uart", },
 	{}
 };
-#endif /* OF_CONTROL && !OF_PLATDATA */
+#endif /* OF_REAL */
 
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 U_BOOT_DRIVER(omap_serial) = {
 	.name	= "omap_serial",
 	.id	= UCLASS_SERIAL,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = omap_serial_ids,
 	.of_to_plat = omap_serial_of_to_plat,
 	.plat_auto	= sizeof(struct ns16550_plat),
