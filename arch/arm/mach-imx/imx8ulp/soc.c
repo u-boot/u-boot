@@ -380,6 +380,102 @@ static int release_rdc(enum rdc_type type)
 	return ret;
 }
 
+struct mbc_mem_dom {
+	u32 mem_glbcfg[4];
+	u32 nse_blk_index;
+	u32 nse_blk_set;
+	u32 nse_blk_clr;
+	u32 nsr_blk_clr_all;
+	u32 memn_glbac[8];
+	/* The upper only existed in the beginning of each MBC */
+	u32 mem0_blk_cfg_w[64];
+	u32 mem0_blk_nse_w[16];
+	u32 mem1_blk_cfg_w[8];
+	u32 mem1_blk_nse_w[2];
+	u32 mem2_blk_cfg_w[8];
+	u32 mem2_blk_nse_w[2];
+	u32 mem3_blk_cfg_w[8];
+	u32 mem3_blk_nse_w[2];/*0x1F0, 0x1F4 */
+	u32 reserved[2];
+};
+
+struct trdc {
+	u8 res0[0x1000];
+	struct mbc_mem_dom mem_dom[4][8];
+};
+
+/* MBC[m]_[d]_MEM[s]_BLK_CFG_W[w] */
+int trdc_mbc_set_access(u32 mbc_x, u32 dom_x, u32 mem_x, u32 blk_x, u32 perm)
+{
+	struct trdc *trdc_base = (struct trdc *)0x28031000U;
+	struct mbc_mem_dom *mbc_dom;
+	u32 *cfg_w, *nse_w;
+	u32 index, offset, val;
+
+	mbc_dom = &trdc_base->mem_dom[mbc_x][dom_x];
+
+	switch (mem_x) {
+	case 0:
+		cfg_w = &mbc_dom->mem0_blk_cfg_w[blk_x / 8];
+		nse_w = &mbc_dom->mem0_blk_nse_w[blk_x / 32];
+		break;
+	case 1:
+		cfg_w = &mbc_dom->mem1_blk_cfg_w[blk_x / 8];
+		nse_w = &mbc_dom->mem1_blk_nse_w[blk_x / 32];
+		break;
+	case 2:
+		cfg_w = &mbc_dom->mem2_blk_cfg_w[blk_x / 8];
+		nse_w = &mbc_dom->mem2_blk_nse_w[blk_x / 32];
+		break;
+	case 3:
+		cfg_w = &mbc_dom->mem3_blk_cfg_w[blk_x / 8];
+		nse_w = &mbc_dom->mem3_blk_nse_w[blk_x / 32];
+		break;
+	default:
+		return -EINVAL;
+	};
+
+	index = blk_x % 8;
+	offset = index * 4;
+
+	val = readl((void __iomem *)cfg_w);
+
+	val &= ~(0xFU << offset);
+
+	if (perm == 0x7700) {
+		val |= (0x0 << offset);
+		writel(perm, (void __iomem *)cfg_w);
+	} else if (perm == 0x0077) {
+		val |= (0x8 << offset); /* nse bit set */
+		writel(val, (void __iomem *)cfg_w);
+	} else {
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+int trdc_set_access(void)
+{
+	/*
+	 * CGC0: PBridge0 slot 47
+	 * trdc_mbc_set_access(2, 7, 0, 47, 0x7700);
+	 * For secure access, default single boot already support,
+	 * For non-secure access, need add in future per usecase.
+	 */
+	 trdc_mbc_set_access(2, 7, 0, 49, 0x7700);
+	 trdc_mbc_set_access(2, 7, 0, 50, 0x7700);
+	 trdc_mbc_set_access(2, 7, 0, 51, 0x7700);
+	 trdc_mbc_set_access(2, 7, 0, 52, 0x7700);
+
+	 trdc_mbc_set_access(2, 7, 0, 47, 0x0077);
+
+	 /* iomuxc 0 */
+	 trdc_mbc_set_access(2, 7, 1, 33, 0x7700);
+
+	return 0;
+}
+
 static void xrdc_mrc_region_set_access(int mrc_index, u32 addr, u32 access)
 {
 	ulong xrdc_base = 0x292f0000, off;
@@ -428,8 +524,14 @@ int arch_cpu_init(void)
 		/* Disable wdog */
 		init_wdog();
 
-		if (get_boot_mode() == SINGLE_BOOT)
+		if (get_boot_mode() == SINGLE_BOOT) {
 			release_rdc(RDC_TRDC);
+			trdc_set_access();
+			/* LPAV to APD */
+			setbits_le32(0x2802B044, BIT(7));
+			/* GPU 2D/3D to APD */
+			setbits_le32(0x2802B04C, BIT(1) | BIT(2));
+		}
 
 		/* release xrdc, then allow A35 to write SRAM2 */
 		release_rdc(RDC_XRDC);
