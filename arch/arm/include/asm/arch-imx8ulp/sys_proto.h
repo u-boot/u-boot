@@ -8,4 +8,7 @@
 
 #include <asm/mach-imx/sys_proto.h>
 
+extern unsigned long rom_pointer[];
+
+enum bt_mode get_boot_mode(void);
 #endif
