@@ -186,7 +186,7 @@ static const struct udevice_id generic_syscon_ids[] = {
 U_BOOT_DRIVER(generic_syscon) = {
 	.name	= "syscon",
 	.id	= UCLASS_SYSCON,
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.bind           = dm_scan_fdt_dev,
 #endif
 	.of_match = generic_syscon_ids,

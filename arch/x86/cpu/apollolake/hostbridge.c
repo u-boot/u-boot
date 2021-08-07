@@ -220,7 +220,7 @@ static int apl_hostbridge_of_to_plat(struct udevice *dev)
 	ret = uclass_first_device_err(UCLASS_PINCTRL, &pinctrl);
 	if (ret)
 		return log_msg_ret("no hostbridge PINCTRL", ret);
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	int root;
 
 	/* Get length of PCI Express Region */
@@ -375,7 +375,7 @@ struct acpi_ops apl_hostbridge_acpi_ops = {
 #endif
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id apl_hostbridge_ids[] = {
 	{ .compatible = "intel,apl-hostbridge" },
 	{ }

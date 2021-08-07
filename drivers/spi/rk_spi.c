@@ -193,7 +193,7 @@ static int conv_of_plat(struct udevice *dev)
 
 static int rockchip_spi_of_to_plat(struct udevice *bus)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct rockchip_spi_plat *plat = dev_get_plat(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	int ret;

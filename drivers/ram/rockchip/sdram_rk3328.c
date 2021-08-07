@@ -517,7 +517,7 @@ static int rk3328_dmc_init(struct udevice *dev)
 	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	int ret;
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct rk3328_sdram_params *params = &plat->sdram_params;
 #else
 	struct dtd_rockchip_rk3328_dmc *dtplat = &plat->dtplat;
@@ -549,7 +549,7 @@ static int rk3328_dmc_init(struct udevice *dev)
 
 static int rk3328_dmc_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	int ret;
 

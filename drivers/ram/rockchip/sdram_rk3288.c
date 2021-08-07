@@ -973,7 +973,7 @@ static int setup_sdram(struct udevice *dev)
 
 static int rk3288_dmc_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct rk3288_sdram_params *params = dev_get_plat(dev);
 	int ret;
 

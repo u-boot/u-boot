@@ -883,7 +883,7 @@ static int rk3368_dmc_of_to_plat(struct udevice *dev)
 {
 	int ret = 0;
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct rk3368_sdram_params *plat = dev_get_plat(dev);
 
 	ret = regmap_init_mem(dev_ofnode(dev), &plat->map);

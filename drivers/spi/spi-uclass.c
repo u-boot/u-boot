@@ -162,7 +162,7 @@ int spi_write_then_read(struct spi_slave *slave, const u8 *opcode,
 	return ret;
 }
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int spi_child_post_bind(struct udevice *dev)
 {
 	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
@@ -176,7 +176,7 @@ static int spi_child_post_bind(struct udevice *dev)
 
 static int spi_post_probe(struct udevice *bus)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 
 	spi->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
@@ -539,7 +539,7 @@ UCLASS_DRIVER(spi) = {
 	.per_device_auto	= sizeof(struct dm_spi_bus),
 	.per_child_auto	= sizeof(struct spi_slave),
 	.per_child_plat_auto	= sizeof(struct dm_spi_slave_plat),
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.child_post_bind = spi_child_post_bind,
 #endif
 };

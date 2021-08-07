@@ -55,7 +55,7 @@ ulong timer_get_boot_us(void)
 		/* The timer is available */
 		rate = timer_get_rate(gd->timer);
 		timer_get_count(gd->timer, &ticks);
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	} else if (ret == -EAGAIN) {
 		/* We have been called so early that the DM is not ready,... */
 		ofnode node = offset_to_ofnode(-1);
@@ -100,7 +100,7 @@ static u64 rockchip_timer_get_count(struct udevice *dev)
 
 static int rockchip_clk_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct rockchip_timer_priv *priv = dev_get_priv(dev);
 
 	priv->timer = dev_read_addr_ptr(dev);

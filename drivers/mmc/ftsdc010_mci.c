@@ -392,7 +392,7 @@ static void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswid
 
 static int ftsdc010_mmc_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct ftsdc_priv *priv = dev_get_priv(dev);
 	struct ftsdc010_chip *chip = &priv->chip;
 	chip->name = dev->name;

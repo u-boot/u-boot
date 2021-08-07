@@ -596,7 +596,7 @@ static int rk3368_clk_probe(struct udevice *dev)
 
 static int rk3368_clk_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct rk3368_clk_priv *priv = dev_get_priv(dev);
 
 	priv->cru = dev_read_addr_ptr(dev);

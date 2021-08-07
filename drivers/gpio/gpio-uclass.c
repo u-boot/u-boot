@@ -1137,7 +1137,7 @@ err:
 	return ret;
 }
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int _gpio_request_by_name_nodev(ofnode node, const char *list_name,
 				       int index, struct gpio_desc *desc,
 				       int flags, bool add_index)

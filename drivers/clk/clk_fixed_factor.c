@@ -40,7 +40,7 @@ const struct clk_ops clk_fixed_factor_ops = {
 
 static int clk_fixed_factor_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	int err;
 	struct clk_fixed_factor *ff = to_clk_fixed_factor(dev);
 

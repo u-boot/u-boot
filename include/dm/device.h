@@ -181,7 +181,7 @@ struct udevice {
 	u32 flags_;
 #endif
 	int seq_;
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	ofnode node_;
 #endif
 #ifdef CONFIG_DEVRES
@@ -242,7 +242,7 @@ static inline void dev_bic_flags(struct udevice *dev, u32 bic)
  */
 static inline ofnode dev_ofnode(const struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	return dev->node_;
 #else
 	return ofnode_null();
@@ -262,7 +262,7 @@ static inline ofnode dev_ofnode(const struct udevice *dev)
 
 static inline int dev_of_offset(const struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	return ofnode_to_offset(dev_ofnode(dev));
 #else
 	return -1;
@@ -271,7 +271,7 @@ static inline int dev_of_offset(const struct udevice *dev)
 
 static inline bool dev_has_ofnode(const struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	return ofnode_valid(dev_ofnode(dev));
 #else
 	return false;
@@ -280,7 +280,7 @@ static inline bool dev_has_ofnode(const struct udevice *dev)
 
 static inline void dev_set_ofnode(struct udevice *dev, ofnode node)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	dev->node_ = node;
 #endif
 }

@@ -155,7 +155,7 @@ static int apl_pinctrl_of_to_plat(struct udevice *dev)
 	return intel_pinctrl_of_to_plat(dev, comm, 2);
 }
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id apl_gpio_ids[] = {
 	{ .compatible = "intel,apl-pinctrl"},
 	{ }
@@ -168,7 +168,7 @@ U_BOOT_DRIVER(intel_apl_pinctrl) = {
 	.of_match	= of_match_ptr(apl_gpio_ids),
 	.probe		= intel_pinctrl_probe,
 	.ops		= &intel_pinctrl_ops,
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.bind		= dm_scan_fdt_dev,
 #endif
 	.of_to_plat = apl_pinctrl_of_to_plat,

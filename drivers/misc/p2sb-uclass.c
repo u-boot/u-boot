@@ -183,7 +183,7 @@ int p2sb_set_port_id(struct udevice *dev, int portid)
 
 static int p2sb_child_post_bind(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
 	int ret;
 	u32 pid;

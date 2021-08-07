@@ -79,7 +79,7 @@ UCLASS_DRIVER(i2c_emul) = {
 UCLASS_DRIVER(i2c_emul_parent) = {
 	.id		= UCLASS_I2C_EMUL_PARENT,
 	.name		= "i2c_emul_parent",
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.post_bind	= dm_scan_fdt_dev,
 #endif
 };

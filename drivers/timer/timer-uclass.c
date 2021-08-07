@@ -50,7 +50,7 @@ unsigned long notrace timer_get_rate(struct udevice *dev)
 
 static int timer_pre_probe(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct clk timer_clk;
 	int err;
@@ -136,7 +136,7 @@ int notrace dm_timer_init(void)
 	if (gd->dm_root == NULL)
 		return -EAGAIN;
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	/* Check for a chosen timer to be used for tick */
 	node = ofnode_get_chosen_node("tick-timer");
 

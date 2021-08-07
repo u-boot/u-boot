@@ -32,7 +32,7 @@ void clk_fixed_rate_ofdata_to_plat_(struct udevice *dev,
 				    struct clk_fixed_rate *plat)
 {
 	struct clk *clk = &plat->clk;
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	plat->fixed_rate = dev_read_u32_default(dev, "clock-frequency", 0);
 #endif
 	/* Make fixed rate clock accessible from higher level struct clk */
