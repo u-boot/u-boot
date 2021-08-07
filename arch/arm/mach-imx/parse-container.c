@@ -8,7 +8,9 @@
 #include <log.h>
 #include <spl.h>
 #include <asm/mach-imx/image.h>
+#ifdef CONFIG_AHAB_BOOT
 #include <asm/arch/sci/sci.h>
+#endif
 
 #define SEC_SECURE_RAM_BASE		0x31800000UL
 #define SEC_SECURE_RAM_END_BASE		(SEC_SECURE_RAM_BASE + 0xFFFFUL)
