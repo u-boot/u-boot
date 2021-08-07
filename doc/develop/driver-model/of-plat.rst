@@ -642,7 +642,7 @@ Missing .compatible or Missing .id
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Various things can cause dtoc to fail to find the driver and it tries to
-warn about these. For example:
+warn about these. For example::
 
    rockchip_rk3188_uart: Missing .compatible in drivers/serial/serial_rockchip.c
                     : WARNING: the driver rockchip_rk3188_uart was not found in the driver list
@@ -732,6 +732,54 @@ The second error above indicates that the MISC uclass is needed by the driver
 The fix above would fix this error too. But if you do want this uclass in the
 build, check your Kconfig settings to make sure the uclass is being built
 (CONFIG_MISC in this case).
+
+Another error that can crop up is something like::
+
+   spl/dts/dt-device.c:257:38: error: invalid application of ‘sizeof’ to
+         incomplete type ‘struct sandbox_irq_priv’
+      257 | u8 _sandbox_irq_priv_irq_sbox[sizeof(struct sandbox_irq_priv)]
+          |                                      ^~~~~~
+
+This indicates that `struct sandbox_irq_priv` is not defined anywhere. The
+solution is to add a DM_HEADER() line, as below, so this is included in the
+dt-device.c file::
+
+   U_BOOT_DRIVER(sandbox_irq) = {
+      .name		= "sandbox_irq",
+      .id		= UCLASS_IRQ,
+      .of_match	= sandbox_irq_ids,
+      .ops		= &sandbox_irq_ops,
+      .priv_auto	= sizeof(struct sandbox_irq_priv),
+      DM_HEADER(<asm/irq.h>)
+   };
+
+Note that there is no dependency checking on the above, so U-Boot will not
+regenerate the dt-device.c file when you update the source file (here,
+`irq_sandbox.c`). You need to run `make mrproper` first to get a fresh build.
+
+Another error that can crop up is something like::
+
+   spl/dts/dt-device.c:257:38: error: invalid application of ‘sizeof’ to
+         incomplete type ‘struct sandbox_irq_priv’
+      257 | u8 _sandbox_irq_priv_irq_sbox[sizeof(struct sandbox_irq_priv)]
+          |                                      ^~~~~~
+
+This indicates that `struct sandbox_irq_priv` is not defined anywhere. The
+solution is to add a DM_HEADER() line, as below, so this is included in the
+dt-device.c file::
+
+   U_BOOT_DRIVER(sandbox_irq) = {
+      .name		= "sandbox_irq",
+      .id		= UCLASS_IRQ,
+      .of_match	= sandbox_irq_ids,
+      .ops		= &sandbox_irq_ops,
+      .priv_auto	= sizeof(struct sandbox_irq_priv),
+      DM_HEADER(<asm/irq.h>)
+   };
+
+Note that there is no dependency checking on the above, so U-Boot will not
+regenerate the dt-device.c file when you update the source file (here,
+`irq_sandbox.c`). You need to run `make mrproper` first to get a fresh build.
 
 
 Caveats
