@@ -15,6 +15,7 @@
 #define AHAB_VERIFY_IMG_CID     0x88
 #define AHAB_RELEASE_CTNR_CID   0x89
 #define AHAB_RELEASE_RDC_REQ_CID   0xC4
+#define AHAB_FWD_LIFECYCLE_UP_REQ_CID   0x95
 
 #define S400_MAX_MSG          8U
 
@@ -26,5 +27,10 @@ struct imx8ulp_s400_msg {
 	u32 data[(S400_MAX_MSG - 1U)];
 };
 
-int ahab_release_rdc(u8 core_id);
+int ahab_release_rdc(u8 core_id, u32 *response);
+int ahab_auth_oem_ctnr(ulong ctnr_addr, u32 *response);
+int ahab_release_container(u32 *response);
+int ahab_verify_image(u32 img_id, u32 *response);
+int ahab_forward_lifecycle(u16 life_cycle, u32 *response);
+
 #endif
