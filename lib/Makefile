@@ -80,10 +80,7 @@ obj-$(CONFIG_$(SPL_)LIB_RATIONAL) += rational.o
 obj-$(CONFIG_LIBAVB) += libavb/
 
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += libfdt/
-ifneq ($(CONFIG_$(SPL_TPL_)BUILD)$(CONFIG_$(SPL_TPL_)OF_PLATDATA),yy)
-obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += fdtdec_common.o
-obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += fdtdec.o
-endif
+obj-$(CONFIG_$(SPL_TPL_)OF_REAL) += fdtdec_common.o fdtdec.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o
