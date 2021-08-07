@@ -22,4 +22,31 @@
 /* Generate initrd atag for downstream kernel (others are copied in stemmy.c) */
 #define CONFIG_INITRD_TAG
 
+/* Linux does not boot if FDT / initrd is loaded to end of RAM */
+#define BOOT_ENV \
+	"fdt_high=0x6000000\0" \
+	"initrd_high=0x6000000\0"
+
+#define CONSOLE_ENV \
+	"stdin=serial\0" \
+	"stdout=serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0"
+
+#define FASTBOOT_ENV \
+	"fastboot_partition_alias_boot=Kernel\0" \
+	"fastboot_partition_alias_recovery=Kernel2\0" \
+	"fastboot_partition_alias_system=SYSTEM\0" \
+	"fastboot_partition_alias_cache=CACHEFS\0" \
+	"fastboot_partition_alias_hidden=HIDDEN\0" \
+	"fastboot_partition_alias_userdata=DATAFS\0"
+
+#define BOOTCMD_ENV \
+	"fastbootcmd=echo '*** FASTBOOT MODE ***'; fastboot usb 0\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	BOOT_ENV \
+	CONSOLE_ENV \
+	FASTBOOT_ENV \
+	BOOTCMD_ENV
+
 #endif
