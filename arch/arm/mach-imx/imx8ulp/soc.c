@@ -321,21 +321,10 @@ void get_board_serial(struct tag_serialnr *serialnr)
 }
 #endif
 
-int arch_cpu_init(void)
+static void set_core0_reset_vector(u32 entry)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
-		clock_init();
-
-	return 0;
-}
-
-#if defined(CONFIG_SPL_BUILD)
-__weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
-{
-	debug("image entry point: 0x%lx\n", spl_image->entry_point);
-
 	/* Update SIM1 DGO8 for reset vector base */
-	writel((u32)spl_image->entry_point, SIM1_BASE_ADDR + 0x5c);
+	writel(entry, SIM1_BASE_ADDR + 0x5c);
 
 	/* set update bit */
 	setbits_le32(SIM1_BASE_ADDR + 0x8, 0x1 << 24);
@@ -349,6 +338,26 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 
 	/* clear the ack by set 1 */
 	setbits_le32(SIM1_BASE_ADDR + 0x8, (0x1 << 26));
+}
+
+int arch_cpu_init(void)
+{
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		clock_init();
+	} else {
+		/* reconfigure core0 reset vector to ROM */
+		set_core0_reset_vector(0x1000);
+	}
+
+	return 0;
+}
+
+#if defined(CONFIG_SPL_BUILD)
+__weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+{
+	debug("image entry point: 0x%lx\n", spl_image->entry_point);
+
+	set_core0_reset_vector((u32)spl_image->entry_point);
 
 	/* Enable the 512KB cache */
 	setbits_le32(SIM1_BASE_ADDR + 0x30, (0x1 << 4));
