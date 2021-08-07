@@ -532,3 +532,8 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 		;
 }
 #endif
+
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
+{
+	memset(mac, 0, 6);
+}
