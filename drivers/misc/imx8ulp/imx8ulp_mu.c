@@ -42,24 +42,27 @@ struct imx8ulp_mu {
 #define MU_TR_COUNT		4
 #define MU_RR_COUNT		4
 
-static inline void mu_hal_init(struct mu_type *base)
+void mu_hal_init(ulong base)
 {
-	writel(0, &base->tcr);
-	writel(0, &base->rcr);
+	struct mu_type *mu_base = (struct mu_type *)base;
+
+	writel(0, &mu_base->tcr);
+	writel(0, &mu_base->rcr);
 }
 
-static int mu_hal_sendmsg(struct mu_type *base, u32 reg_index, u32 msg)
+int mu_hal_sendmsg(ulong base, u32 reg_index, u32 msg)
 {
+	struct mu_type *mu_base = (struct mu_type *)base;
 	u32 mask = MU_SR_TE0_MASK << reg_index;
 	u32 val;
 	int ret;
 
 	assert(reg_index < MU_TR_COUNT);
 
-	debug("sendmsg sr 0x%x\n", readl(&base->sr));
+	debug("sendmsg sr 0x%x\n", readl(&mu_base->sr));
 
 	/* Wait TX register to be empty. */
-	ret = readl_poll_timeout(&base->tsr, val, val & mask, 10000);
+	ret = readl_poll_timeout(&mu_base->tsr, val, val & mask, 10000);
 	if (ret < 0) {
 		debug("%s timeout\n", __func__);
 		return -ETIMEDOUT;
@@ -67,29 +70,30 @@ static int mu_hal_sendmsg(struct mu_type *base, u32 reg_index, u32 msg)
 
 	debug("tr[%d] 0x%x\n", reg_index, msg);
 
-	writel(msg, &base->tr[reg_index]);
+	writel(msg, &mu_base->tr[reg_index]);
 
 	return 0;
 }
 
-static int mu_hal_receivemsg(struct mu_type *base, u32 reg_index, u32 *msg)
+int mu_hal_receivemsg(ulong base, u32 reg_index, u32 *msg)
 {
+	struct mu_type *mu_base = (struct mu_type *)base;
 	u32 mask = MU_SR_RF0_MASK << reg_index;
 	u32 val;
 	int ret;
 
 	assert(reg_index < MU_TR_COUNT);
 
-	debug("receivemsg sr 0x%x\n", readl(&base->sr));
+	debug("receivemsg sr 0x%x\n", readl(&mu_base->sr));
 
 	/* Wait RX register to be full. */
-	ret = readl_poll_timeout(&base->rsr, val, val & mask, 10000);
+	ret = readl_poll_timeout(&mu_base->rsr, val, val & mask, 10000);
 	if (ret < 0) {
 		debug("%s timeout\n", __func__);
 		return -ETIMEDOUT;
 	}
 
-	*msg = readl(&base->rr[reg_index]);
+	*msg = readl(&mu_base->rr[reg_index]);
 
 	debug("rr[%d] 0x%x\n", reg_index, *msg);
 
@@ -106,7 +110,7 @@ static int imx8ulp_mu_read(struct mu_type *base, void *data)
 		return -EINVAL;
 
 	/* Read first word */
-	ret = mu_hal_receivemsg(base, 0, (u32 *)msg);
+	ret = mu_hal_receivemsg((ulong)base, 0, (u32 *)msg);
 	if (ret)
 		return ret;
 	count++;
@@ -119,7 +123,7 @@ static int imx8ulp_mu_read(struct mu_type *base, void *data)
 
 	/* Read remaining words */
 	while (count < msg->size) {
-		ret = mu_hal_receivemsg(base, count % MU_RR_COUNT,
+		ret = mu_hal_receivemsg((ulong)base, count % MU_RR_COUNT,
 					&msg->data[count - 1]);
 		if (ret)
 			return ret;
@@ -143,14 +147,14 @@ static int imx8ulp_mu_write(struct mu_type *base, void *data)
 		return -EINVAL;
 
 	/* Write first word */
-	ret = mu_hal_sendmsg(base, 0, *((u32 *)msg));
+	ret = mu_hal_sendmsg((ulong)base, 0, *((u32 *)msg));
 	if (ret)
 		return ret;
 	count++;
 
 	/* Write remaining words */
 	while (count < msg->size) {
-		ret = mu_hal_sendmsg(base, count % MU_TR_COUNT,
+		ret = mu_hal_sendmsg((ulong)base, count % MU_TR_COUNT,
 				     msg->data[count - 1]);
 		if (ret)
 			return ret;
@@ -207,7 +211,7 @@ static int imx8ulp_mu_probe(struct udevice *dev)
 	debug("mu base 0x%lx\n", (ulong)priv->base);
 
 	/* U-Boot not enable interrupts, so need to enable RX interrupts */
-	mu_hal_init(priv->base);
+	mu_hal_init((ulong)priv->base);
 
 	gd->arch.s400_dev = dev;
 
