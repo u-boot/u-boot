@@ -12,6 +12,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct rom_api *g_rom_api = (struct rom_api *)0x1980;
+
 u32 get_cpu_rev(void)
 {
 	return (MXC_CPU_IMX8ULP << 12) | CHIP_REV_1_0;

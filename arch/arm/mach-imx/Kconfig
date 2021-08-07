@@ -161,7 +161,7 @@ config DDRMC_VF610_CALIBRATION
 
 config SPL_IMX_ROMAPI_LOADADDR
 	hex "Default load address to load image through ROM API"
-	depends on IMX8MN || IMX8MP
+	depends on IMX8MN || IMX8MP || IMX8ULP
 
 config IMX_DCD_ADDR
 	hex "DCD Blocks location on the image"
