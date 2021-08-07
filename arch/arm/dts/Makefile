@@ -862,6 +862,9 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 	imx8-deneb.dtb \
 	imx8-giedi.dtb
 
+dtb-$(CONFIG_ARCH_IMX8ULP) += \
+	imx8ulp-evk.dtb
+
 dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-evk.dtb \
 	imx8mm-icore-mx8mm-ctouch2.dtb \

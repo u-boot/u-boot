@@ -1,0 +1,223 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2021 NXP
+ */
+
+/dts-v1/;
+
+#include "imx8ulp.dtsi"
+
+/ {
+	model = "FSL i.MX8ULP EVK";
+	compatible = "fsl,imx8ulp-evk", "fsl,imx8ulp";
+
+	chosen {
+		stdout-path = &lpuart5;
+		bootargs = "console=ttyLP1,115200 earlycon";
+	};
+
+	usdhc2_pwrseq: usdhc2_pwrseq {
+		compatible = "mmc-pwrseq-simple";
+		reset-gpios = <&pcal6408 2 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&lpuart5 {
+	/* console */
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&pinctrl_lpuart5>;
+	pinctrl-1 = <&pinctrl_lpuart5>;
+	status = "okay";
+};
+
+&iomuxc1 {
+	pinctrl_lpuart5: lpuart5grp {
+		fsl,pins = <
+			MX8ULP_PAD_PTF14__LPUART5_TX	0x03
+			MX8ULP_PAD_PTF15__LPUART5_RX	0x03
+		>;
+	};
+
+	pinctrl_lpi2c7: lpi2c7grp {
+		fsl,pins = <
+			MX8ULP_PAD_PTE12__LPI2C7_SCL	0x27
+			MX8ULP_PAD_PTE13__LPI2C7_SDA	0x27
+		>;
+	};
+
+	pinctrl_usdhc0: usdhc0grp {
+		fsl,pins = <
+			MX8ULP_PAD_PTD0__SDHC0_RESET_B  0x43
+			MX8ULP_PAD_PTD1__SDHC0_CMD	0x43
+			MX8ULP_PAD_PTD2__SDHC0_CLK	0x10042
+			MX8ULP_PAD_PTD10__SDHC0_D0	0x43
+			MX8ULP_PAD_PTD9__SDHC0_D1	0x43
+			MX8ULP_PAD_PTD8__SDHC0_D2	0x43
+			MX8ULP_PAD_PTD7__SDHC0_D3	0x43
+			MX8ULP_PAD_PTD6__SDHC0_D4	0x43
+			MX8ULP_PAD_PTD5__SDHC0_D5	0x43
+			MX8ULP_PAD_PTD4__SDHC0_D6	0x43
+			MX8ULP_PAD_PTD3__SDHC0_D7	0x43
+			MX8ULP_PAD_PTD11__SDHC0_DQS	0x10042
+		>;
+	};
+
+	pinctrl_usdhc2_pte: usdhc2ptegrp {
+		fsl,pins = <
+			MX8ULP_PAD_PTE1__SDHC2_D0	0x43
+			MX8ULP_PAD_PTE0__SDHC2_D1	0x43
+			MX8ULP_PAD_PTE5__SDHC2_D2	0x43
+			MX8ULP_PAD_PTE4__SDHC2_D3	0x43
+			MX8ULP_PAD_PTE2__SDHC2_CLK	0x10042
+			MX8ULP_PAD_PTE3__SDHC2_CMD	0x43
+			MX8ULP_PAD_PTE7__PTE7		0x10003
+		>;
+	};
+
+	pinctrl_fec: fecgrp {
+		fsl,pins = <
+			MX8ULP_PAD_PTE14__ENET0_MDIO		0x43
+			MX8ULP_PAD_PTE15__ENET0_MDC	0x43
+			MX8ULP_PAD_PTE18__ENET0_CRS_DV	0x43
+			MX8ULP_PAD_PTE17__ENET0_RXER	0x43
+			MX8ULP_PAD_PTF1__ENET0_RXD0	0x43
+			MX8ULP_PAD_PTE20__ENET0_RXD1	0x43
+			MX8ULP_PAD_PTE16__ENET0_TXEN	0x43
+			MX8ULP_PAD_PTE23__ENET0_TXD0	0x43
+			MX8ULP_PAD_PTE22__ENET0_TXD1	0x43
+			MX8ULP_PAD_PTE19__ENET0_REFCLK	0x10043
+			MX8ULP_PAD_PTF10__ENET0_1588_CLKIN 0x10043
+		>;
+	};
+
+	pinctrl_usbotg0_id: otg0idgrp {
+		fsl,pins = <
+			MX8ULP_PAD_PTF2__USB0_ID	0x10003
+		>;
+	};
+
+	pinctrl_usbotg1_id: otg1idgrp {
+		fsl,pins = <
+			MX8ULP_PAD_PTD23__USB1_ID	0x10003
+		>;
+	};
+};
+
+&usdhc0 {
+	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-0 = <&pinctrl_usdhc0>;
+	pinctrl-1 = <&pinctrl_usdhc0>;
+	pinctrl-2 = <&pinctrl_usdhc0>;
+	bus-width = <8>;
+	non-removable;
+	status = "okay";
+};
+
+&usdhc2 {
+	pinctrl-names = "default", "state_100mhz", "state_200mhz", "sleep";
+	pinctrl-0 = <&pinctrl_usdhc2_pte>;
+	pinctrl-1 = <&pinctrl_usdhc2_pte>;
+	pinctrl-2 = <&pinctrl_usdhc2_pte>;
+	pinctrl-3 = <&pinctrl_usdhc2_pte>;
+	mmc-pwrseq = <&usdhc2_pwrseq>;
+	max-frequency = <100000000>;
+	bus-width = <4>;
+	keep-power-in-suspend;
+	non-removable;
+	wakeup-source;
+	status = "okay";
+
+	wifi_wake_host {
+		compatible = "nxp,wifi-wake-host";
+		interrupt-parent = <&gpioe>;
+		interrupts = <7 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "host-wake";
+	};
+};
+
+&lpi2c7 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpi2c7>;
+	status = "okay";
+
+	pcal6408: gpio@21 {
+		compatible = "ti,tca6408";
+		reg = <0x21>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+};
+
+&flexspi0 {
+	status = "okay";
+
+	flash0: atxp032@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <66000000>;
+	};
+};
+
+&flexspi2 {
+	status = "okay";
+
+	flash1: mt35xu512aba@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <29000000>;
+		spi-nor,ddr-quad-read-dummy = <8>;
+	};
+};
+
+&fec {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_fec>;
+	phy-mode = "rmii";
+	phy-handle = <&ethphy>;
+	status = "okay";
+
+	phy-reset-gpios = <&pcal6408 4 GPIO_ACTIVE_LOW>;
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy: ethernet-phy@1 {
+			reg = <1>;
+			micrel,led-mode = <1>;
+		};
+	};
+};
+
+&usbotg0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usbotg0_id>;
+	srp-disable;
+	hnp-disable;
+	adp-disable;
+	status = "okay";
+};
+
+&usbphy0 {
+	fsl,tx-d-cal = <88>;
+};
+
+&usbotg1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usbotg1_id>;
+	srp-disable;
+	hnp-disable;
+	adp-disable;
+	status = "okay";
+};
+
+&usbphy1 {
+	fsl,tx-d-cal = <88>;
+};

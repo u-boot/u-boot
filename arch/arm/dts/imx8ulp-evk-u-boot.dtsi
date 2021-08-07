@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2021 NXP
+ */
+
+&{/soc@0} {
+	u-boot,dm-spl;
+};
+
+&per_bridge3 {
+	u-boot,dm-spl;
+};
+
+&per_bridge4 {
+	u-boot,dm-spl;
+};
+
+&iomuxc1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_lpuart5 {
+	u-boot,dm-spl;
+};
+
+&s400_mu {
+	u-boot,dm-spl;
+};
+
+&lpuart5 {
+	u-boot,dm-spl;
+};
+
+&usdhc0 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc0 {
+	u-boot,dm-spl;
+};
