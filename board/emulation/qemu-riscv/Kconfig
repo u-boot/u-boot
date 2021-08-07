@@ -64,5 +64,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply VIRTIO_PCI
 	imply VIRTIO_NET
 	imply VIRTIO_BLK
+	imply MTD_NOR_FLASH
+	imply CFI_FLASH
 
 endif
