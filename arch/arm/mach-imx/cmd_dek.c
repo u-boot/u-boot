@@ -17,7 +17,7 @@
 #include <tee.h>
 #ifdef CONFIG_IMX_SECO_DEK_ENCAP
 #include <asm/arch/sci/sci.h>
-#include <asm/arch/image.h>
+#include <asm/mach-imx/image.h>
 #endif
 #include <cpu_func.h>
 

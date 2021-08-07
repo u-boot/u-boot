@@ -11,7 +11,7 @@
 #include <mmc.h>
 #include <spi_flash.h>
 #include <nand.h>
-#include <asm/arch/image.h>
+#include <asm/mach-imx/image.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 

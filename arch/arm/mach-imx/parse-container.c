@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <log.h>
 #include <spl.h>
-#include <asm/arch/image.h>
+#include <asm/mach-imx/image.h>
 #include <asm/arch/sci/sci.h>
 
 #define SEC_SECURE_RAM_BASE		0x31800000UL
