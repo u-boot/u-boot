@@ -482,6 +482,8 @@ int arch_cpu_init(void)
 			setbits_le32(0x2802B044, BIT(7));
 			/* GPU 2D/3D to APD */
 			setbits_le32(0x2802B04C, BIT(1) | BIT(2));
+			/* DCNANO and MIPI_DSI to APD */
+			setbits_le32(0x2802B04C, BIT(1) | BIT(2) | BIT(3) | BIT(4));
 		}
 
 		/* release xrdc, then allow A35 to write SRAM2 */
