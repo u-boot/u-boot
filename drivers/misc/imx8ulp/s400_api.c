@@ -14,7 +14,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int ahab_release_rdc(u8 core_id, u32 *response)
+int ahab_release_rdc(u8 core_id, bool xrdc, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
 	int size = sizeof(struct imx8ulp_s400_msg);
@@ -30,7 +30,10 @@ int ahab_release_rdc(u8 core_id, u32 *response)
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 2;
 	msg.command = AHAB_RELEASE_RDC_REQ_CID;
-	msg.data[0] = core_id;
+	if (xrdc)
+		msg.data[0] = (0x78 << 8) | core_id;
+	else
+		msg.data[0] = (0x74 << 8) | core_id;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
 	if (ret)
