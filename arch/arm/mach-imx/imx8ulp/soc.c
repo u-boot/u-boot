@@ -144,9 +144,43 @@ int print_cpuinfo(void)
 }
 #endif
 
+#define UNLOCK_WORD0 0xC520 /* 1st unlock word */
+#define UNLOCK_WORD1 0xD928 /* 2nd unlock word */
+#define REFRESH_WORD0 0xA602 /* 1st refresh word */
+#define REFRESH_WORD1 0xB480 /* 2nd refresh word */
+
+static void disable_wdog(void __iomem *wdog_base)
+{
+	u32 val_cs = readl(wdog_base + 0x00);
+
+	if (!(val_cs & 0x80))
+		return;
+
+	dmb();
+	__raw_writel(REFRESH_WORD0, (wdog_base + 0x04)); /* Refresh the CNT */
+	__raw_writel(REFRESH_WORD1, (wdog_base + 0x04));
+	dmb();
+
+	if (!(val_cs & 800)) {
+		dmb();
+		__raw_writel(UNLOCK_WORD0, (wdog_base + 0x04));
+		__raw_writel(UNLOCK_WORD1, (wdog_base + 0x04));
+		dmb();
+
+		while (!(readl(wdog_base + 0x00) & 0x800))
+			;
+	}
+	writel(0x0, (wdog_base + 0x0C)); /* Set WIN to 0 */
+	writel(0x400, (wdog_base + 0x08)); /* Set timeout to default 0x400 */
+	writel(0x120, (wdog_base + 0x00)); /* Disable it and set update */
+
+	while (!(readl(wdog_base + 0x00) & 0x400))
+		;
+}
+
 void init_wdog(void)
 {
-	/* TODO */
+	disable_wdog((void __iomem *)WDG3_RBASE);
 }
 
 static struct mm_region imx8ulp_arm64_mem_map[] = {
