@@ -265,9 +265,16 @@ unsigned long spl_nor_get_uboot_base(void)
 #endif
 
 #ifdef CONFIG_SPL_BOOTROM_SUPPORT
+u32 __weak spl_arch_boot_image_offset(u32 image_offset, u32 rom_bt_dev)
+{
+	return image_offset;
+}
+
 ulong spl_romapi_get_uboot_base(u32 image_offset, u32 rom_bt_dev)
 {
 	ulong end;
+
+	image_offset = spl_arch_boot_image_offset(image_offset, rom_bt_dev);
 
 	end = get_imageset_end((void *)(ulong)image_offset, ROM_API_DEV);
 	end = ROUND(end, SZ_1K);
