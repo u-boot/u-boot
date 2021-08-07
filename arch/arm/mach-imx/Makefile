@@ -227,6 +227,7 @@ obj-$(CONFIG_MX5) += mx5/
 obj-$(CONFIG_MX6) += mx6/
 obj-$(CONFIG_MX7) += mx7/
 obj-$(CONFIG_ARCH_MX7ULP) += mx7ulp/
+obj-$(CONFIG_ARCH_IMX8ULP) += imx8ulp/
 obj-$(CONFIG_IMX8M) += imx8m/
 obj-$(CONFIG_ARCH_IMX8) += imx8/
 obj-$(CONFIG_ARCH_IMXRT) += imxrt/

@@ -7,7 +7,10 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/armv8/mmu.h>
 #include <asm/mach-imx/boot_mode.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 u32 get_cpu_rev(void)
 {
@@ -52,8 +55,8 @@ static u32 reset_cause = -1;
 static char *get_reset_cause(char *ret)
 {
 	u32 cause1, cause = 0, srs = 0;
-	void __iomem *reg_ssrs = (void __iomem *)(SRC_BASE_ADDR + 0x88);
-	void __iomem *reg_srs = (void __iomem *)(SRC_BASE_ADDR + 0x80);
+	void __iomem *reg_ssrs = (void __iomem *)(CMC1_BASE_ADDR + 0x88);
+	void __iomem *reg_srs = (void __iomem *)(CMC1_BASE_ADDR + 0x80);
 
 	if (!ret)
 		return "null";
@@ -136,3 +139,151 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif
+
+void init_wdog(void)
+{
+	/* TODO */
+}
+
+static struct mm_region imx8ulp_arm64_mem_map[] = {
+	{
+		/* ROM */
+		.virt = 0x0,
+		.phys = 0x0,
+		.size = 0x40000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_OUTER_SHARE
+	},
+	{
+		/* FLEXSPI0 */
+		.virt = 0x04000000,
+		.phys = 0x04000000,
+		.size = 0x08000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	},
+	{
+		/* SSRAM (align with 2M) */
+		.virt = 0x1FE00000UL,
+		.phys = 0x1FE00000UL,
+		.size = 0x400000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_OUTER_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* SRAM1 (align with 2M) */
+		.virt = 0x21000000UL,
+		.phys = 0x21000000UL,
+		.size = 0x200000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_OUTER_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* SRAM0 (align with 2M) */
+		.virt = 0x22000000UL,
+		.phys = 0x22000000UL,
+		.size = 0x200000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_OUTER_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* Peripherals */
+		.virt = 0x27000000UL,
+		.phys = 0x27000000UL,
+		.size = 0x3000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* Peripherals */
+		.virt = 0x2D000000UL,
+		.phys = 0x2D000000UL,
+		.size = 0x1600000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* FLEXSPI1-2 */
+		.virt = 0x40000000UL,
+		.phys = 0x40000000UL,
+		.size = 0x40000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* DRAM1 */
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
+		.size = PHYS_SDRAM_SIZE,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_OUTER_SHARE
+	}, {
+		/*
+		 * empty entrie to split table entry 5
+		 * if needed when TEEs are used
+		 */
+		0,
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = imx8ulp_arm64_mem_map;
+
+/* simplify the page table size to enhance boot speed */
+#define MAX_PTE_ENTRIES		512
+#define MAX_MEM_MAP_REGIONS	16
+u64 get_page_table_size(void)
+{
+	u64 one_pt = MAX_PTE_ENTRIES * sizeof(u64);
+	u64 size = 0;
+
+	/*
+	 * For each memory region, the max table size:
+	 * 2 level 3 tables + 2 level 2 tables + 1 level 1 table
+	 */
+	size = (2 + 2 + 1) * one_pt * MAX_MEM_MAP_REGIONS + one_pt;
+
+	/*
+	 * We need to duplicate our page table once to have an emergency pt to
+	 * resort to when splitting page tables later on
+	 */
+	size *= 2;
+
+	/*
+	 * We may need to split page tables later on if dcache settings change,
+	 * so reserve up to 4 (random pick) page tables for that.
+	 */
+	size += one_pt * 4;
+
+	return size;
+}
+
+void enable_caches(void)
+{
+	/* TODO: add TEE memmap region */
+
+	icache_enable();
+	dcache_enable();
+}
+
+int dram_init(void)
+{
+	gd->ram_size = PHYS_SDRAM_SIZE;
+
+	return 0;
+}
+
+#ifdef CONFIG_SERIAL_TAG
+void get_board_serial(struct tag_serialnr *serialnr)
+{
+	/* TODO */
+}
+#endif
+
+int arch_cpu_init(void)
+{
+	return 0;
+}
