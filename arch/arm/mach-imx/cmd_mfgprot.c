@@ -29,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
  * on error.
  */
-static int do_mfgprot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_mfgprot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	u8 *m_ptr, *dgst_ptr, *c_ptr, *d_ptr, *dst_ptr;
 	char *pubk, *sign, *sel;

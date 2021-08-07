@@ -15,7 +15,7 @@
 #include <command.h>
 #include "../drivers/crypto/fsl_caam_internal.h"
 
-int do_priblob_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_priblob_write(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 {
 	writel((readl(CAAM_SCFGR) & 0xFFFFFFFC) | 3, CAAM_SCFGR);
 	printf("New priblob setting = 0x%x\n", readl(CAAM_SCFGR) & 0x3);
