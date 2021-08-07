@@ -7,6 +7,7 @@
 #define _IMX8ULP_REGS_H_
 #define ARCH_MXC
 
+#include <linux/bitops.h>
 #include <linux/sizes.h>
 
 #define PBRIDGE0_BASE		0x28000000

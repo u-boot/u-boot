@@ -4,4 +4,4 @@
 #
 
 obj-y += lowlevel_init.o
-obj-y += soc.o clock.o iomux.o
+obj-y += soc.o clock.o iomux.o pcc.o cgc.o
