@@ -4,6 +4,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <dt-structs.h>
+#include <irq.h>
 #include <dm/test.h>
 #include <test/test.h>
 #include <test/ut.h>
@@ -28,11 +29,9 @@ static int dm_test_of_plat_props(struct unit_test_state *uts)
 	struct udevice *dev;
 	int i;
 
-	/* Skip the clock */
-	ut_assertok(uclass_first_device_err(UCLASS_MISC, &dev));
-	ut_asserteq_str("sandbox_clk_test", dev->name);
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "sandbox_spl_test",
+					      &dev));
 
-	ut_assertok(uclass_next_device_err(&dev));
 	plat = dev_get_plat(dev);
 	ut_assert(plat->boolval);
 	ut_asserteq(1, plat->intval);
@@ -241,3 +240,22 @@ static int dm_test_of_plat_clk(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_of_plat_clk, UT_TESTF_SCAN_PDATA);
+
+/* Test irqs with of-platdata */
+static int dm_test_of_plat_irq(struct unit_test_state *uts)
+{
+	struct dtd_sandbox_irq_test *plat;
+	struct udevice *dev;
+	struct irq irq;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "sandbox_irq_test",
+					      &dev));
+	plat = dev_get_plat(dev);
+
+	ut_assertok(irq_get_by_phandle(dev, &plat->interrupts_extended[0],
+				       &irq));
+	ut_asserteq_str("sandbox_irq", irq.dev->name);
+
+	return 0;
+}
+DM_TEST(dm_test_of_plat_irq, UT_TESTF_SCAN_PDATA);

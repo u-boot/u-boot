@@ -124,6 +124,19 @@
 		#sound-dai-cells = <1>;
 	};
 
+	irq_sandbox: irq-sbox {
+		u-boot,dm-spl;
+		compatible = "sandbox,irq";
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	irq-test {
+		u-boot,dm-spl;
+		compatible = "sandbox,irq-test";
+		interrupts-extended = <&irq_sandbox 3 0>;
+	};
+
 	lcd {
 		u-boot,dm-pre-proper;
 		compatible = "sandbox,lcd-sdl";

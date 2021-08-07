@@ -62,6 +62,7 @@ VAL_PREFIX = 'dtv_'
 # a phandle property.
 PHANDLE_PROPS = {
     'clocks': '#clock-cells',
+    'interrupts-extended': '#interrupt-cells',
     'gpios': '#gpio-cells',
     'sandbox,emul': '#emul-cells',
     }

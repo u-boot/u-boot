@@ -64,8 +64,8 @@ int irq_read_and_clear(struct irq *irq)
 }
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-int irq_get_by_driver_info(struct udevice *dev,
-			   struct phandle_1_arg *cells, struct irq *irq)
+int irq_get_by_phandle(struct udevice *dev, const struct phandle_2_arg *cells,
+		       struct irq *irq)
 {
 	int ret;
 
@@ -73,6 +73,12 @@ int irq_get_by_driver_info(struct udevice *dev,
 	if (ret)
 		return ret;
 	irq->id = cells->arg[0];
+
+	/*
+	 * Note: we could call irq_of_xlate_default() here to do this properly.
+	 * For now, this is good enough for existing cases.
+	 */
+	irq->flags = cells->arg[1];
 
 	return 0;
 }
