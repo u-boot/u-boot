@@ -62,6 +62,9 @@
 	};
 
 	config {
+		testing-bool;
+		testing-int = <123>;
+		testing-str = "testing";
 		environment {
 			from_fdt = "yes";
 			fdt_env_path = "";

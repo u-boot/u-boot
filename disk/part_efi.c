@@ -23,11 +23,10 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <part_efi.h>
+#include <dm/ofnode.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 #include <u-boot/crc.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_HAVE_BLOCK_DEVICE
 
@@ -563,9 +562,8 @@ static uint32_t partition_entries_offset(struct blk_desc *dev_desc)
 	 * from the start of the device) to be specified as a property
 	 * of the device tree '/config' node.
 	 */
-	config_offset = fdtdec_get_config_int(gd->fdt_blob,
-					      "u-boot,efi-partition-entries-offset",
-					      -EINVAL);
+	config_offset = ofnode_conf_read_int(
+		"u-boot,efi-partition-entries-offset", -EINVAL);
 	if (config_offset != -EINVAL) {
 		offset_bytes = PAD_TO_BLOCKSIZE(config_offset, dev_desc);
 		offset_blks = offset_bytes / dev_desc->blksz;

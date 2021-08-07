@@ -42,6 +42,7 @@
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 #include <watchdog.h>
+#include <dm/ofnode.h>
 #include "../../st/common/stpmic1.h"
 
 /* SYSCFG registers */
@@ -382,10 +383,10 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 #ifdef CONFIG_LED
 static int get_led(struct udevice **dev, char *led_string)
 {
-	char *led_name;
+	const char *led_name;
 	int ret;
 
-	led_name = fdtdec_get_config_string(gd->fdt_blob, led_string);
+	led_name = ofnode_conf_read_str(led_string);
 	if (!led_name) {
 		pr_debug("%s: could not find %s config string\n",
 			 __func__, led_string);

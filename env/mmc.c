@@ -19,6 +19,7 @@
 #include <part.h>
 #include <search.h>
 #include <errno.h>
+#include <dm/ofnode.h>
 
 #define __STR(X) #X
 #define STR(X) __STR(X)
@@ -73,7 +74,7 @@ static inline s64 mmc_offset(int copy)
 	int err;
 
 	/* look for the partition in mmc CONFIG_SYS_MMC_ENV_DEV */
-	str = fdtdec_get_config_string(gd->fdt_blob, dt_prop.partition);
+	str = ofnode_conf_read_str(dt_prop.partition);
 	if (str) {
 		/* try to place the environment at end of the partition */
 		err = mmc_offset_try_partition(str, copy, &val);
@@ -90,7 +91,7 @@ static inline s64 mmc_offset(int copy)
 		propname = dt_prop.offset_redund;
 	}
 #endif
-	return fdtdec_get_config_int(gd->fdt_blob, propname, defvalue);
+	return ofnode_conf_read_int(propname, defvalue);
 }
 #else
 static inline s64 mmc_offset(int copy)

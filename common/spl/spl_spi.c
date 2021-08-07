@@ -16,8 +16,7 @@
 #include <errno.h>
 #include <spl.h>
 #include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
+#include <dm/ofnode.h>
 
 #ifdef CONFIG_SPL_OS_BOOT
 /*
@@ -104,9 +103,8 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-	payload_offs = fdtdec_get_config_int(gd->fdt_blob,
-					     "u-boot,spl-payload-offset",
-					     payload_offs);
+	payload_offs = ofnode_conf_read_int("u-boot,spl-payload-offset",
+					    payload_offs);
 #endif
 
 #ifdef CONFIG_SPL_OS_BOOT

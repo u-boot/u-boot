@@ -75,6 +75,7 @@
 #include <malloc.h>
 #include <video.h>
 #include <asm/global_data.h>
+#include <dm/ofnode.h>
 #include <linux/compiler.h>
 
 #if defined(CONFIG_VIDEO_MXS)
@@ -2137,8 +2138,7 @@ int drv_video_init(void)
 #if defined(CONFIG_VGA_AS_SINGLE_DEVICE)
 	have_keyboard = false;
 #elif defined(CONFIG_OF_CONTROL)
-	have_keyboard = !fdtdec_get_config_bool(gd->fdt_blob,
-						"u-boot,no-keyboard");
+	have_keyboard = !ofnode_conf_read_bool("u-boot,no-keyboard");
 #else
 	have_keyboard = true;
 #endif

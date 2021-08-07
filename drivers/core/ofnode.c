@@ -1103,3 +1103,36 @@ int ofnode_set_enabled(ofnode node, bool value)
 	else
 		return ofnode_write_string(node, "status", "disabled");
 }
+
+bool ofnode_conf_read_bool(const char *prop_name)
+{
+	ofnode node;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node))
+		return false;
+
+	return ofnode_read_bool(node, prop_name);
+}
+
+int ofnode_conf_read_int(const char *prop_name, int default_val)
+{
+	ofnode node;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node))
+		return default_val;
+
+	return ofnode_read_u32_default(node, prop_name, default_val);
+}
+
+const char *ofnode_conf_read_str(const char *prop_name)
+{
+	ofnode node;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node))
+		return NULL;
+
+	return ofnode_read_string(node, prop_name);
+}
