@@ -957,11 +957,11 @@ static struct clk_ops rk3288_clk_ops = {
 
 static int rk3288_clk_of_to_plat(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(OF_REAL)
-	struct rk3288_clk_priv *priv = dev_get_priv(dev);
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		struct rk3288_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = dev_read_addr_ptr(dev);
-#endif
+		priv->cru = dev_read_addr_ptr(dev);
+	}
 
 	return 0;
 }

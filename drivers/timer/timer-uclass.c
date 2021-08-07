@@ -50,27 +50,29 @@ unsigned long notrace timer_get_rate(struct udevice *dev)
 
 static int timer_pre_probe(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(OF_REAL)
-	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct clk timer_clk;
-	int err;
-	ulong ret;
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+		struct clk timer_clk;
+		int err;
+		ulong ret;
 
-	/* It is possible that a timer device has a null ofnode */
-	if (!dev_has_ofnode(dev))
-		return 0;
+		/*
+		 * It is possible that a timer device has a null ofnode
+		 */
+		if (!dev_has_ofnode(dev))
+			return 0;
 
-	err = clk_get_by_index(dev, 0, &timer_clk);
-	if (!err) {
-		ret = clk_get_rate(&timer_clk);
-		if (IS_ERR_VALUE(ret))
-			return ret;
-		uc_priv->clock_rate = ret;
-	} else {
-		uc_priv->clock_rate =
-			dev_read_u32_default(dev, "clock-frequency", 0);
+		err = clk_get_by_index(dev, 0, &timer_clk);
+		if (!err) {
+			ret = clk_get_rate(&timer_clk);
+			if (IS_ERR_VALUE(ret))
+				return ret;
+			uc_priv->clock_rate = ret;
+		} else {
+			uc_priv->clock_rate =
+				dev_read_u32_default(dev, "clock-frequency", 0);
+		}
 	}
-#endif
 
 	return 0;
 }
@@ -136,23 +138,23 @@ int notrace dm_timer_init(void)
 	if (gd->dm_root == NULL)
 		return -EAGAIN;
 
-#if CONFIG_IS_ENABLED(OF_REAL)
-	/* Check for a chosen timer to be used for tick */
-	node = ofnode_get_chosen_node("tick-timer");
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		/* Check for a chosen timer to be used for tick */
+		node = ofnode_get_chosen_node("tick-timer");
 
-	if (ofnode_valid(node) &&
-	    uclass_get_device_by_ofnode(UCLASS_TIMER, node, &dev)) {
-		/*
-		 * If the timer is not marked to be bound before
-		 * relocation, bind it anyway.
-		 */
-		if (!lists_bind_fdt(dm_root(), node, &dev, false)) {
-			ret = device_probe(dev);
-			if (ret)
-				return ret;
+		if (ofnode_valid(node) &&
+		    uclass_get_device_by_ofnode(UCLASS_TIMER, node, &dev)) {
+			/*
+			 * If the timer is not marked to be bound before
+			 * relocation, bind it anyway.
+			 */
+			if (!lists_bind_fdt(dm_root(), node, &dev, false)) {
+				ret = device_probe(dev);
+				if (ret)
+					return ret;
+			}
 		}
 	}
-#endif
 
 	if (!dev) {
 		/* Fall back to the first available timer */

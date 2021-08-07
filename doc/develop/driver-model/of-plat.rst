@@ -215,16 +215,16 @@ For example:
 
     static int mmc_of_to_plat(struct udevice *dev)
     {
-    #if CONFIG_IS_ENABLED(OF_REAL)
+        if (CONFIG_IS_ENABLED(OF_REAL)) {
             /* Decode the devicetree data */
             struct mmc_plat *plat = dev_get_plat(dev);
             const void *blob = gd->fdt_blob;
             int node = dev_of_offset(dev);
 
             plat->fifo_depth = fdtdec_get_int(blob, node, "fifo-depth", 0);
-    #endif
+        }
 
-            return 0;
+        return 0;
     }
 
     static int mmc_probe(struct udevice *dev)

@@ -3013,9 +3013,11 @@ static int sdram_init(struct dram_info *dram,
 
 static int rk3399_dmc_of_to_plat(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(OF_REAL)
 	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	int ret;
+
+	if (!CONFIG_IS_ENABLED(OF_REAL))
+		return 0;
 
 	ret = dev_read_u32_array(dev, "rockchip,sdram-params",
 				 (u32 *)&plat->sdram_params,
@@ -3029,7 +3031,6 @@ static int rk3399_dmc_of_to_plat(struct udevice *dev)
 	if (ret)
 		printf("%s: regmap failed %d\n", __func__, ret);
 
-#endif
 	return 0;
 }
 

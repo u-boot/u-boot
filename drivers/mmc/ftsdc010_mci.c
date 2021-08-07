@@ -390,28 +390,29 @@ static void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswid
 
 static int ftsdc010_mmc_of_to_plat(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(OF_REAL)
 	struct ftsdc_priv *priv = dev_get_priv(dev);
 	struct ftsdc010_chip *chip = &priv->chip;
 
-	chip->name = dev->name;
-	chip->ioaddr = dev_read_addr_ptr(dev);
-	chip->buswidth = dev_read_u32_default(dev, "bus-width", 4);
-	chip->priv = dev;
-	priv->fifo_depth = dev_read_u32_default(dev, "fifo-depth", 0);
-	priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
-	if (dev_read_u32_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
-		if (dev_read_u32(dev, "max-frequency", &priv->minmax[1]))
-			return -EINVAL;
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		chip->name = dev->name;
+		chip->ioaddr = dev_read_addr_ptr(dev);
+		chip->buswidth = dev_read_u32_default(dev, "bus-width", 4);
+		chip->priv = dev;
+		priv->fifo_depth = dev_read_u32_default(dev, "fifo-depth", 0);
+		priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
+		if (dev_read_u32_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
+			if (dev_read_u32(dev, "max-frequency", &priv->minmax[1]))
+				return -EINVAL;
 
-		priv->minmax[0] = 400000;  /* 400 kHz */
-	} else {
-		debug("%s: 'clock-freq-min-max' property was deprecated.\n",
-		__func__);
+			priv->minmax[0] = 400000;  /* 400 kHz */
+		} else {
+			debug("%s: 'clock-freq-min-max' property was deprecated.\n",
+			      __func__);
+		}
 	}
-#endif
 	chip->sclk = priv->minmax[1];
 	chip->regs = chip->ioaddr;
+
 	return 0;
 }
 

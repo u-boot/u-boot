@@ -176,11 +176,11 @@ static int spi_child_post_bind(struct udevice *dev)
 
 static int spi_post_probe(struct udevice *bus)
 {
-#if CONFIG_IS_ENABLED(OF_REAL)
-	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 
-	spi->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
-#endif
+		spi->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
+	}
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct dm_spi_ops *ops = spi_get_ops(bus);
 	static int reloc_done;
