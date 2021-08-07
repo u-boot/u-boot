@@ -10,28 +10,11 @@
 #include <dm/root.h>
 #include <dm/device-internal.h>
 #include <asm/arch/s400_api.h>
+#include <asm/arch/imx-regs.h>
 #include <linux/iopoll.h>
 #include <misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-struct mu_type {
-	u32 ver;
-	u32 par;
-	u32 cr;
-	u32 sr;
-	u32 reserved0[68];
-	u32 tcr;
-	u32 tsr;
-	u32 rcr;
-	u32 rsr;
-	u32 reserved1[52];
-	u32 tr[16];
-	u32 reserved2[16];
-	u32 rr[16];
-	u32 reserved4[14];
-	u32 mu_attr;
-};
 
 struct imx8ulp_mu {
 	struct mu_type *base;
