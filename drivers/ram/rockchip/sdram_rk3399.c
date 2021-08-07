@@ -3107,7 +3107,7 @@ static int rk3399_dmc_init(struct udevice *dev)
 	      priv->cic, priv->pmugrf, priv->pmusgrf, priv->pmucru, priv->pmu);
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->ddr_clk);
+	ret = clk_get_by_phandle(dev, dtplat->clocks, &priv->ddr_clk);
 #else
 	ret = clk_get_by_index(dev, 0, &priv->ddr_clk);
 #endif

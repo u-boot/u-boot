@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <dm/test.h>
@@ -222,3 +223,21 @@ static int dm_test_of_plat_parent(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_of_plat_parent, UT_TESTF_SCAN_PDATA);
 #endif
+
+/* Test clocks with of-platdata */
+static int dm_test_of_plat_clk(struct unit_test_state *uts)
+{
+	struct dtd_sandbox_clk_test *plat;
+	struct udevice *dev;
+	struct clk clk;
+
+	ut_assertok(uclass_first_device_err(UCLASS_MISC, &dev));
+	ut_asserteq_str("sandbox_clk_test", dev->name);
+	plat = dev_get_plat(dev);
+
+	ut_assertok(clk_get_by_phandle(dev, &plat->clocks[0], &clk));
+	ut_asserteq_str("sandbox_fixed_clock", clk.dev->name);
+
+	return 0;
+}
+DM_TEST(dm_test_of_plat_clk, UT_TESTF_SCAN_PDATA);
