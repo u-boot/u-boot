@@ -178,6 +178,16 @@ enum boot_dev_type_e {
 extern struct rom_api *g_rom_api;
 #endif
 
+/* For i.MX ULP */
+#define BT0CFG_LPBOOT_MASK	0x1
+#define BT0CFG_DUALBOOT_MASK	0x2
+
+enum bt_mode {
+	LOW_POWER_BOOT,		/* LP_BT = 1 */
+	DUAL_BOOT,		/* LP_BT = 0, DUAL_BT = 1 */
+	SINGLE_BOOT		/* LP_BT = 0, DUAL_BT = 0 */
+};
+
 u32 get_nr_cpus(void);
 u32 get_cpu_rev(void);
 u32 get_cpu_speed_grade_hz(void);
