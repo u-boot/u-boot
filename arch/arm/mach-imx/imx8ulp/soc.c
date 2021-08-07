@@ -149,8 +149,6 @@ enum bt_mode get_boot_mode(void)
 #define CMC_SRS_POR                       BIT(1)
 #define CMC_SRS_WUP                       BIT(0)
 
-static u32 reset_cause = -1;
-
 static char *get_reset_cause(char *ret)
 {
 	u32 cause1, cause = 0, srs = 0;
@@ -163,9 +161,7 @@ static char *get_reset_cause(char *ret)
 	srs = readl(reg_srs);
 	cause1 = readl(reg_ssrs);
 
-	reset_cause = cause1;
-
-	cause = cause1 & (CMC_SRS_POR | CMC_SRS_WUP | CMC_SRS_WARM);
+	cause = srs & (CMC_SRS_POR | CMC_SRS_WUP | CMC_SRS_WARM);
 
 	switch (cause) {
 	case CMC_SRS_POR:
@@ -175,7 +171,7 @@ static char *get_reset_cause(char *ret)
 		sprintf(ret, "%s", "WUP");
 		break;
 	case CMC_SRS_WARM:
-		cause = cause1 & (CMC_SRS_WDG | CMC_SRS_SW |
+		cause = srs & (CMC_SRS_WDG | CMC_SRS_SW |
 			CMC_SRS_JTAG_RST);
 		switch (cause) {
 		case CMC_SRS_WDG:
@@ -193,7 +189,7 @@ static char *get_reset_cause(char *ret)
 		}
 		break;
 	default:
-		sprintf(ret, "%s-%X", "UNKN", cause1);
+		sprintf(ret, "%s-%X", "UNKN", srs);
 		break;
 	}
 
