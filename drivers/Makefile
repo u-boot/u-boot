@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+obj-$(CONFIG_$(SPL_TPL_)BOOTCOUNT_LIMIT) += bootcount/
 obj-$(CONFIG_$(SPL_TPL_)BUTTON) += button/
 obj-$(CONFIG_$(SPL_TPL_)CACHE) += cache/
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk/
@@ -36,7 +37,6 @@ obj-$(CONFIG_$(SPL_)FPGA) += fpga/
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD
 
-obj-$(CONFIG_SPL_BOOTCOUNT_LIMIT) += bootcount/
 obj-$(CONFIG_SPL_CPU) += cpu/
 obj-$(CONFIG_SPL_CRYPTO) += crypto/
 obj-$(CONFIG_SPL_MPC8XXX_INIT_DDR) += ddr/fsl/
@@ -69,7 +69,6 @@ endif
 
 ifdef CONFIG_TPL_BUILD
 
-obj-$(CONFIG_TPL_BOOTCOUNT_LIMIT) += bootcount/
 obj-$(CONFIG_TPL_MPC8XXX_INIT_DDR) += ddr/fsl/
 
 endif
@@ -82,7 +81,6 @@ obj-y += bus/
 obj-$(CONFIG_DM_DEMO) += demo/
 obj-$(CONFIG_BIOSEMU) += bios_emulator/
 obj-y += block/
-obj-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount/
 obj-y += cache/
 obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
