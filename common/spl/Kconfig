@@ -590,7 +590,7 @@ config SPL_ETH
 	  drivers in SPL. This permits SPL to load U-Boot over an Ethernet
 	  link rather than from an on-board peripheral. Environment support
 	  is required since the network stack uses a number of environment
-	  variables. See also SPL_NET_SUPPORT.
+	  variables. See also SPL_NET.
 
 config SPL_FS_EXT4
 	bool "Support EXT filesystems"
@@ -910,7 +910,7 @@ config UBI_SPL_SILENCE_MSG
 
 endif   # if SPL_UBI
 
-config SPL_NET_SUPPORT
+config SPL_NET
 	bool "Support networking"
 	help
 	  Enable support for network devices (such as Ethernet) in SPL.
@@ -919,7 +919,7 @@ config SPL_NET_SUPPORT
 	  the network stack uses a number of environment variables. See also
 	  SPL_ETH.
 
-if SPL_NET_SUPPORT
+if SPL_NET
 config SPL_NET_VCI_STRING
 	string "BOOTP Vendor Class Identifier string sent by SPL"
 	help
@@ -928,7 +928,7 @@ config SPL_NET_VCI_STRING
 	  of a client.  This is often used in practice to allow for the DHCP
 	  server to specify different files to load depending on if the ROM,
 	  SPL or U-Boot itself makes the request
-endif   # if SPL_NET_SUPPORT
+endif   # if SPL_NET
 
 config SPL_NO_CPU_SUPPORT
 	bool "Drop CPU code in SPL"
@@ -1222,7 +1222,7 @@ config SPL_USB_ETHER
 	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
 	  than from an onboard peripheral. Environment support is required
 	  since the network stack uses a number of environment variables.
-	  See also SPL_NET_SUPPORT and SPL_ETH.
+	  See also SPL_NET and SPL_ETH.
 
 config SPL_DFU
 	bool "Support DFU (Device Firmware Upgrade)"

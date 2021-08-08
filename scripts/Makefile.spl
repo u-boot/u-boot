@@ -108,7 +108,7 @@ libs-$(CONFIG_SPL_USB_GADGET) += drivers/usb/cdns3/
 libs-y += dts/
 libs-y += fs/
 libs-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
-libs-$(CONFIG_SPL_NET_SUPPORT) += net/
+libs-$(CONFIG_SPL_NET) += net/
 libs-$(CONFIG_SPL_UNIT_TEST) += test/
 
 head-y		:= $(addprefix $(obj)/,$(head-y))
