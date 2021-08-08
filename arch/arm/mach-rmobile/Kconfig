@@ -17,6 +17,7 @@ config RCAR_GEN3
 	select PINCTRL
 	select PINCONF
 	select PINCTRL_PFC
+	select POSITION_INDEPENDENT
 	select SUPPORT_SPL
 	imply CMD_FS_UUID
 	imply CMD_GPT
