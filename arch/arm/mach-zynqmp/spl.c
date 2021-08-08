@@ -100,7 +100,7 @@ u32 spl_boot_device(void)
 	case USB_MODE:
 		return BOOT_DEVICE_DFU;
 #endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 	case SW_SATA_MODE:
 		return BOOT_DEVICE_SATA;
 #endif

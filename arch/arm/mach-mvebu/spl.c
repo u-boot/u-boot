@@ -18,7 +18,7 @@
 #include <asm/arch/soc.h>
 
 #if defined(CONFIG_SPL_SPI_FLASH_SUPPORT) || defined(CONFIG_SPL_MMC) || \
-	defined(CONFIG_SPL_SATA_SUPPORT)
+	defined(CONFIG_SPL_SATA)
 
 /*
  * When loading U-Boot via SPL from SPI NOR, CONFIG_SYS_SPI_U_BOOT_OFFS must
@@ -57,7 +57,7 @@
  * stored at sector 1. Therefore CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR must be
  * set to 1. Otherwise U-Boot SPL would not be able to load U-Boot proper.
  */
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 #if !defined(CONFIG_SPL_SATA_RAW_U_BOOT_USE_SECTOR) || !defined(CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR) || CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR != 1
 #error CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR must be set to 1
 #endif
@@ -122,7 +122,7 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_SPI_FLASH_SUPPORT
 	     mhdr->blockid != IBR_HDR_SPI_ID &&
 #endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 	     mhdr->blockid != IBR_HDR_SATA_ID &&
 #endif
 #ifdef CONFIG_SPL_MMC
@@ -136,7 +136,7 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 
 	spl_image->offset = mhdr->srcaddr;
 
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 	/*
 	 * For SATA srcaddr is specified in number of sectors.
 	 * The main header is must be stored at sector number 1.
@@ -266,7 +266,7 @@ u32 spl_boot_device(void)
 	case BOOT_DEVICE_MMC1:
 		return BOOT_DEVICE_MMC1;
 #endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 	case BOOT_FROM_SATA:
 		return BOOT_FROM_SATA;
 #endif

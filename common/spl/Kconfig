@@ -196,7 +196,7 @@ config SPL_BOOTCOUNT_LIMIT
 
 config SPL_RAW_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of RAW images"
-	default n if (ARCH_MX6 && (SPL_MMC || SPL_SATA_SUPPORT))
+	default n if (ARCH_MX6 && (SPL_MMC || SPL_SATA))
 	default y if !TI_SECURE_DEVICE
 	help
 	  SPL will support loading and booting a RAW image when this option
@@ -1076,7 +1076,7 @@ config SPL_RTC
 	  needed. This enables the drivers in drivers/rtc as part of an SPL
 	  build.
 
-config SPL_SATA_SUPPORT
+config SPL_SATA
 	bool "Support loading from SATA"
 	help
 	  Enable support for SATA (Serial AT attachment) in SPL. This allows
@@ -1088,7 +1088,7 @@ config SPL_SATA_SUPPORT
 
 config SPL_SATA_RAW_U_BOOT_USE_SECTOR
 	bool "SATA raw mode: by sector"
-	depends on SPL_SATA_SUPPORT
+	depends on SPL_SATA
 	default y if ARCH_MVEBU
 	help
 	  Use sector number for specifying U-Boot location on SATA disk in
