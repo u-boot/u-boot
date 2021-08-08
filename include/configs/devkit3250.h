@@ -26,9 +26,6 @@
 /*
  * DMA
  */
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_DMA_LPC32XX
-#endif
 
 /*
  * GPIO
