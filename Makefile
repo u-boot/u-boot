@@ -815,13 +815,6 @@ libs-y += disk/
 libs-y += drivers/
 libs-y += drivers/net/
 libs-y += drivers/net/phy/
-libs-y += drivers/power/ \
-	drivers/power/domain/ \
-	drivers/power/fuel_gauge/ \
-	drivers/power/mfd/ \
-	drivers/power/pmic/ \
-	drivers/power/battery/ \
-	drivers/power/regulator/
 libs-$(CONFIG_FMAN_ENET) += drivers/net/fm/
 libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
 libs-$(CONFIG_SYS_FSL_MMDC) += drivers/ddr/fsl/

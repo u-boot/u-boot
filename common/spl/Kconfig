@@ -1038,6 +1038,7 @@ config SPL_POWER
 
 config SPL_POWER_DOMAIN
 	bool "Support power domain drivers"
+	select SPL_POWER
 	help
 	  Enable support for power domain control in SPL. Many SoCs allow
 	  power to be applied to or removed from portions of the SoC (power
@@ -1424,6 +1425,18 @@ config TPL_NEEDS_SEPARATE_STACK
 	help
 	  Enable, if the TPL stage should not inherit its initial
 	  stack-pointer from the settings for the SPL stage.
+
+config TPL_POWER
+	bool "Support power drivers"
+	help
+	  Enable support for power control in TPL. This includes support
+	  for PMICs (Power-management Integrated Circuits) and some of the
+	  features provided by PMICs. In particular, voltage regulators can
+	  be used to enable/disable power and vary its voltage. That can be
+	  useful in TPL to turn on boot peripherals and adjust CPU voltage
+	  so that the clock speed can be increased. This enables the drivers
+	  in drivers/power, drivers/power/pmic and drivers/power/regulator
+	  as part of an TPL build.
 
 config TPL_TEXT_BASE
 	hex "Base address for the .text section of the TPL stage"

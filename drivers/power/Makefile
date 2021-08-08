@@ -3,6 +3,14 @@
 # Copyright (c) 2009 Wind River Systems, Inc.
 # Tom Rix <Tom.Rix at windriver.com>
 
+obj-$(CONFIG_$(SPL_TPL_)ACPI_PMC) += acpi_pmc/
+obj-y += battery/
+obj-$(CONFIG_$(SPL_TPL_)POWER_DOMAIN) += domain/
+obj-y += fuel_gauge/
+obj-y += mfd/
+obj-y += pmic/
+obj-y += regulator/
+
 obj-$(CONFIG_AXP152_POWER)	+= axp152.o
 obj-$(CONFIG_AXP209_POWER)	+= axp209.o
 obj-$(CONFIG_AXP221_POWER)	+= axp221.o
