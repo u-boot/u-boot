@@ -585,6 +585,7 @@ config SPL_SAVEENV
 config SPL_ETH
 	bool "Support Ethernet"
 	depends on SPL_ENV_SUPPORT
+	depends on SPL_NET
 	help
 	  Enable access to the network subsystem and associated Ethernet
 	  drivers in SPL. This permits SPL to load U-Boot over an Ethernet
@@ -1216,6 +1217,7 @@ if SPL_USB_GADGET
 
 config SPL_USB_ETHER
 	bool "Support USB Ethernet drivers"
+	depends on SPL_NET
 	help
 	  Enable access to the USB network subsystem and associated
 	  drivers in SPL. This permits SPL to load U-Boot over a
