@@ -56,7 +56,7 @@ u32 spl_boot_device(void)
 	case ZYNQ_BM_NOR:
 		mode = BOOT_DEVICE_NOR;
 		break;
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 	case ZYNQ_BM_SD:
 		mode = BOOT_DEVICE_MMC1;
 		break;

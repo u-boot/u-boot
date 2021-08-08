@@ -199,7 +199,7 @@ int g_dnl_get_board_bcd_device_number(int gcnum)
 }
 #endif
 
-#if defined(CONFIG_SPL_MMC_SUPPORT)
+#if defined(CONFIG_SPL_MMC)
 /* called from spl_mmc to see type of boot mode for storage (RAW or FAT) */
 u32 spl_mmc_boot_mode(const u32 boot_device)
 {

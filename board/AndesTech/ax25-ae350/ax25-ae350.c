@@ -109,7 +109,7 @@ void board_boot_order(u32 *spl_boot_list)
 #ifdef CONFIG_SPL_RAM_SUPPORT
 		BOOT_DEVICE_RAM,
 #endif
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 		BOOT_DEVICE_MMC1,
 #endif
 	};

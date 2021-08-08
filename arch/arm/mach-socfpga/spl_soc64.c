@@ -14,7 +14,7 @@ u32 spl_boot_device(void)
 	return BOOT_DEVICE_MMC1;
 }
 
-#if IS_ENABLED(CONFIG_SPL_MMC_SUPPORT)
+#if IS_ENABLED(CONFIG_SPL_MMC)
 u32 spl_boot_mode(const u32 boot_device)
 {
 	if (IS_ENABLED(CONFIG_SPL_FS_FAT) || IS_ENABLED(CONFIG_SPL_FS_EXT4))

@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 u32 spl_boot_device(void)
 {
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 	return BOOT_DEVICE_MMC1;
 #endif
 #ifdef CONFIG_SPL_NAND_SUPPORT

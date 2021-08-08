@@ -51,7 +51,7 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_NAND;
 #endif
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 	case DAVINCI_SD_OR_MMC_BOOT:
 	case DAVINCI_MMC_ONLY_BOOT:
 		return BOOT_DEVICE_MMC1;

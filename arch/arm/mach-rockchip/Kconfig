@@ -382,7 +382,7 @@ config TPL_ROCKCHIP_EARLYRETURN_TO_BROM
 	  This enables support code in the BOOT0 hook for the TPL stage
 	  to allow multiple entries.
 
-config SPL_MMC_SUPPORT
+config SPL_MMC
 	default y if !SPL_ROCKCHIP_BACK_TO_BROM
 
 config ROCKCHIP_SPI_IMAGE

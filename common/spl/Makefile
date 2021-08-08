@@ -20,7 +20,7 @@ obj-$(CONFIG_$(SPL_TPL_)ONENAND_SUPPORT) += spl_onenand.o
 endif
 obj-$(CONFIG_$(SPL_TPL_)UBI) += spl_ubi.o
 obj-$(CONFIG_$(SPL_TPL_)NET_SUPPORT) += spl_net.o
-obj-$(CONFIG_$(SPL_TPL_)MMC_SUPPORT) += spl_mmc.o
+obj-$(CONFIG_$(SPL_TPL_)MMC) += spl_mmc.o
 obj-$(CONFIG_$(SPL_TPL_)ATF) += spl_atf.o
 obj-$(CONFIG_$(SPL_TPL_)OPTEE) += spl_optee.o
 obj-$(CONFIG_$(SPL_TPL_)OPENSBI) += spl_opensbi.o
