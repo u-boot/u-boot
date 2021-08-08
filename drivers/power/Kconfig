@@ -1,5 +1,34 @@
 menu "Power"
 
+config POWER_LEGACY
+	bool "Legacy power support"
+	help
+	  Note: This is a legacy option. Use DM_PMIC instead.
+
+	  Enable support for power control in U-Boot. This includes support
+	  for PMICs (Power-management Integrated Circuits) and some of the
+	  features provided by PMICs. In particular, voltage regulators can
+	  be used to enable/disable power and vary its voltage. That can be
+	  useful in U-Boot to turn on boot peripherals and adjust CPU voltage
+	  so that the clock speed can be increased. This enables the drivers
+	  in drivers/power, drivers/power/pmic and drivers/power/regulator
+	  as part of a build.
+
+config SPL_POWER_LEGACY
+	bool "Legacy power support in SPL"
+	default y if POWER_LEGACY
+	help
+	  Note: This is a legacy option. Use SPL_DM_PMIC instead.
+
+	  Enable support for power control in SPL. This includes support
+	  for PMICs (Power-management Integrated Circuits) and some of the
+	  features provided by PMICs. In particular, voltage regulators can
+	  be used to enable/disable power and vary its voltage. That can be
+	  useful in SPL to turn on boot peripherals and adjust CPU voltage
+	  so that the clock speed can be increased. This enables the drivers
+	  in drivers/power, drivers/power/pmic and drivers/power/regulator
+	  as part of a build.
+
 source "drivers/power/acpi_pmc/Kconfig"
 
 source "drivers/power/domain/Kconfig"
@@ -382,5 +411,26 @@ config POWER_MT6323
 	help
 	  This adds poweroff driver for mt6323
 	  this pmic is used on mt7623 / Bananapi R2
+
+config POWER_I2C
+	bool "I2C-based power control for legacy power"
+	depends on POWER_LEGACY
+	help
+	  Enable this to use the I2C driver designed for the legacy PMIC
+	  interface.
+
+	  Not to be used for new designs and existing ones should be moved to
+	  the new PMIC interface based on driver model.
+
+config SPL_POWER_I2C
+	bool "I2C-based power control for legacy power"
+	depends on SPL_POWER_LEGACY
+	default y if POWER_I2C
+	help
+	  Enable this to use the I2C driver designed for the legacy PMIC
+	  interface.
+
+	  Not to be used for new designs and existing ones should be moved to
+	  the new PMIC interface based on driver model.
 
 endmenu

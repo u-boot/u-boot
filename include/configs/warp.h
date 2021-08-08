@@ -52,8 +52,6 @@
 /* I2C Configs */
 
 /* PMIC */
-#define CONFIG_POWER_LEGACY
-#define CONFIG_POWER_I2C
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \

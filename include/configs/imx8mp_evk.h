@@ -31,8 +31,6 @@
 
 #undef CONFIG_DM_MMC
 
-#define CONFIG_POWER_LEGACY
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_PCA9450
 
 #endif

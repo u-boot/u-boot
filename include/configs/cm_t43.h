@@ -50,8 +50,6 @@
 #define CONFIG_AM437X_USB2PHY2_HOST
 
 /* Power */
-#define CONFIG_POWER_LEGACY
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_TPS65218
 
 /* Enabling L2 Cache */

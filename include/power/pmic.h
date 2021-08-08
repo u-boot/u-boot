@@ -18,7 +18,7 @@
 enum { PMIC_I2C, PMIC_SPI, PMIC_NONE};
 
 /* TODO: Change to !CONFIG_IS_ENABLED(DM_PMIC) when SPL_DM_PMIC exists */
-#ifdef CONFIG_POWER_LEGACY
+#if CONFIG_IS_ENABLED(POWER_LEGACY)
 enum { I2C_PMIC, I2C_NUM, };
 enum { PMIC_READ, PMIC_WRITE, };
 enum { PMIC_SENSOR_BYTE_ORDER_LITTLE, PMIC_SENSOR_BYTE_ORDER_BIG, };
@@ -83,7 +83,7 @@ struct pmic {
 	struct pmic *parent;
 	struct list_head list;
 };
-#endif /* CONFIG_POWER_LEGACY */
+#endif /* CONFIG_IS_ENABLED(POWER_LEGACY) */
 
 /* TODO: Change to CONFIG_IS_ENABLED(DM_PMIC) when SPL_DM_PMIC exists */
 #ifdef CONFIG_DM_PMIC
@@ -311,7 +311,7 @@ struct uc_pmic_priv {
 #endif /* DM_PMIC */
 
 /* TODO: Change to CONFIG_IS_ENABLED(DM_PMIC) when SPL_DM_PMIC exists */
-#ifdef CONFIG_POWER_LEGACY
+#if CONFIG_IS_ENABLED(POWER_LEGACY)
 
 /* Legacy API, do not use */
 int pmic_init(unsigned char bus);
@@ -324,7 +324,7 @@ int pmic_probe(struct pmic *p);
 int pmic_reg_read(struct pmic *p, u32 reg, u32 *val);
 int pmic_reg_write(struct pmic *p, u32 reg, u32 val);
 int pmic_set_output(struct pmic *p, u32 reg, int ldo, int on);
-#endif /* CONFIG_POWER_LEGACY */
+#endif /* CONFIG_IS_ENABLED(POWER_LEGACY) */
 
 #define pmic_i2c_addr (p->hw.i2c.addr)
 #define pmic_i2c_tx_num (p->hw.i2c.tx_num)

@@ -23,10 +23,6 @@
 /* I2C Configuration */
 
 /* Power */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_POWER_LEGACY
-#define CONFIG_POWER_I2C
-#endif
 #define CONFIG_POWER_TPS65218
 #define CONFIG_POWER_TPS62362
 

@@ -59,8 +59,6 @@
 /* DMA stuff, needed for GPMI/MXS NAND support */
 
 /* PMIC */
-#define CONFIG_POWER_LEGACY
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
