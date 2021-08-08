@@ -824,7 +824,6 @@ libs-y += drivers/power/ \
 	drivers/power/pmic/ \
 	drivers/power/battery/ \
 	drivers/power/regulator/
-libs-y += drivers/spi/
 libs-$(CONFIG_FMAN_ENET) += drivers/net/fm/
 libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
 libs-$(CONFIG_SYS_FSL_MMDC) += drivers/ddr/fsl/

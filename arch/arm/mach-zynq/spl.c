@@ -45,7 +45,7 @@ u32 spl_boot_device(void)
 	u32 mode;
 
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#ifdef CONFIG_SPL_SPI
 	case ZYNQ_BM_QSPI:
 		mode = BOOT_DEVICE_SPI;
 		break;

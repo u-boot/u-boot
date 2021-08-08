@@ -302,7 +302,7 @@ static void cm_fx6_setup_uart(void)
 	enable_uart_clk(1);
 }
 
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#ifdef CONFIG_SPL_SPI
 static void cm_fx6_setup_ecspi(void)
 {
 	cm_fx6_set_ecspi_iomux();

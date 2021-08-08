@@ -273,7 +273,7 @@ static void spl_dram_init(void)
 #endif
 }
 
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#ifdef CONFIG_SPL_SPI
 static void displ5_init_ecspi(void)
 {
 	displ5_set_iomux_ecspi_spl();

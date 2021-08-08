@@ -22,7 +22,7 @@ config SPL
 	imply SPL_BOOTSTAGE if BOOTSTAGE
 	imply SPL_DISPLAY_PRINT
 	imply SPL_LIBDISK_SUPPORT
-	imply SPL_SPI_LOAD if SPL_SPI_SUPPORT
+	imply SPL_SPI_LOAD if SPL_SPI
 
 config SYS_SOC
 	default "stm32mp"

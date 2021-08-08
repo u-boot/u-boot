@@ -88,7 +88,7 @@ config CPU_ADDR_BITS
 config APL_SPI_FLASH_BOOT
 	bool "Support booting with SPI-flash driver instead memory-mapped SPI"
 	select TPL_SPI_FLASH_SUPPORT
-	select TPL_SPI_SUPPORT
+	select TPL_SPI
 	select TPL_DM_SPI
 	select TPL_DM_SPI_FLASH
 	help
