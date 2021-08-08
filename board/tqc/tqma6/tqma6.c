@@ -247,7 +247,7 @@ static const char *tqma6_get_boardname(void)
 	};
 }
 
-#ifdef CONFIG_POWER
+#ifdef CONFIG_POWER_LEGACY
 /* setup board specific PMIC */
 int power_init_board(void)
 {

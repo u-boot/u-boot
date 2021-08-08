@@ -33,7 +33,7 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* PMIC Controller */
-#define CONFIG_POWER
+#define CONFIG_POWER_LEGACY
 #define CONFIG_POWER_I2C
 #define CONFIG_DIALOG_POWER
 #define CONFIG_POWER_FSL

@@ -60,7 +60,7 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_POWER
+#ifdef CONFIG_POWER_LEGACY
 #define I2C_PMIC	3
 int power_init_board(void)
 {

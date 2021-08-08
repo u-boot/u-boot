@@ -124,8 +124,8 @@
 #define I2C_RETIMER_ADDR			0x18
 
 /* PMIC */
-#define CONFIG_POWER
-#ifdef CONFIG_POWER
+#define CONFIG_POWER_LEGACY
+#ifdef CONFIG_POWER_LEGACY
 #define CONFIG_POWER_I2C
 #endif
 

@@ -13,7 +13,7 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_POWER
+#define CONFIG_POWER_LEGACY
 #define CONFIG_POWER_HI6553
 
 #define CONFIG_REMAKE_ELF
