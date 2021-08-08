@@ -309,7 +309,7 @@ config TARGET_MX6DL_MAMOJ
 	select SPL_OF_LIBFDT if SPL
 	select SPL_PINCTRL if SPL
 	select SPL_SEPARATE_BSS if SPL
-	select SPL_SERIAL_SUPPORT if SPL
+	select SPL_SERIAL if SPL
 	select SPL_USB_GADGET if SPL
 	select SPL_USB_HOST if SPL
 	select SPL_USB_SDP_SUPPORT if SPL

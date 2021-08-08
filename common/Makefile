@@ -88,9 +88,9 @@ obj-$(CONFIG_HWCONFIG) += hwconfig.o
 obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_TPL_BUILD
-obj-$(CONFIG_TPL_SERIAL_SUPPORT) += console.o
+obj-$(CONFIG_TPL_SERIAL) += console.o
 else
-obj-$(CONFIG_SPL_SERIAL_SUPPORT) += console.o
+obj-$(CONFIG_SPL_SERIAL) += console.o
 endif
 else
 obj-y += console.o

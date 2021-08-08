@@ -18,7 +18,7 @@ config SPL_LIBGENERIC_SUPPORT
 config SPL_MMC
 	default y if MMC_SDHCI_ZYNQ
 
-config SPL_SERIAL_SUPPORT
+config SPL_SERIAL
 	default y
 
 config SPL_SPI_FLASH_SUPPORT

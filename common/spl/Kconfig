@@ -1108,7 +1108,7 @@ config SPL_SATA_RAW_U_BOOT_SECTOR
 	  Sector on the SATA disk to load U-Boot from, when the SATA disk is being
 	  used in raw mode. Units: SATA disk sectors (1 sector = 512 bytes).
 
-config SPL_SERIAL_SUPPORT
+config SPL_SERIAL
 	bool "Support serial"
 	select SPL_PRINTF
 	select SPL_STRTO
@@ -1258,7 +1258,7 @@ endchoice
 
 config SPL_USB_SDP_SUPPORT
 	bool "Support SDP (Serial Download Protocol)"
-	depends on SPL_SERIAL_SUPPORT
+	depends on SPL_SERIAL
 	help
 	  Enable Serial Download Protocol (SDP) device support in SPL. This
 	  allows to download images into memory and execute (jump to) them
@@ -1284,7 +1284,7 @@ config SPL_WATCHDOG
 
 config SPL_YMODEM_SUPPORT
 	bool "Support loading using Ymodem"
-	depends on SPL_SERIAL_SUPPORT
+	depends on SPL_SERIAL
 	help
 	  While loading from serial is slow it can be a useful backup when
 	  there is no other option. The Ymodem protocol provides a reliable
@@ -1571,12 +1571,12 @@ config TPL_RTC
 	  needed. This enables the drivers in drivers/rtc as part of an TPL
 	  build.
 
-config TPL_SERIAL_SUPPORT
+config TPL_SERIAL
 	bool "Support serial"
 	select TPL_PRINTF
 	select TPL_STRTO
 	help
-	  Enable support for serial in TPL. See SPL_SERIAL_SUPPORT for
+	  Enable support for serial in TPL. See SPL_SERIAL for
 	  details.
 
 config TPL_SPI_FLASH_SUPPORT
@@ -1620,7 +1620,7 @@ config TPL_DM_SPI_FLASH
 
 config TPL_YMODEM_SUPPORT
 	bool "Support loading using Ymodem"
-	depends on TPL_SERIAL_SUPPORT
+	depends on TPL_SERIAL
 	help
 	  While loading from serial is slow it can be a useful backup when
 	  there is no other option. The Ymodem protocol provides a reliable

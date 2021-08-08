@@ -15,7 +15,7 @@ config SPL
 	select SPL_PINCTRL
 	select SPL_REGMAP
 	select SPL_DM_RESET
-	select SPL_SERIAL_SUPPORT
+	select SPL_SERIAL
 	select SPL_SYSCON
 	select SPL_WATCHDOG if WATCHDOG
 	imply BOOTSTAGE_STASH if SPL_BOOTSTAGE
