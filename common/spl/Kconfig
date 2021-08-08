@@ -1004,7 +1004,7 @@ config SPL_PCI
 	  necessary driver support. This enables the drivers in drivers/pci
 	  as part of an SPL build.
 
-config SPL_PCH_SUPPORT
+config SPL_PCH
 	bool "Support PCH drivers"
 	help
 	  Enable support for PCH (Platform Controller Hub) devices in SPL.
@@ -1540,7 +1540,7 @@ config TPL_PCI
 	  necessary driver support. This enables the drivers in drivers/pci
 	  as part of a TPL build.
 
-config TPL_PCH_SUPPORT
+config TPL_PCH
 	bool "Support PCH drivers"
 	help
 	  Enable support for PCH (Platform Controller Hub) devices in TPL.
