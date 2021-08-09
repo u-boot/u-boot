@@ -345,7 +345,11 @@ void board_init_f(ulong dummy)
 	serdes_phy_config();
 
 	/* Setup DDR */
-	ddr3_init();
+	ret = ddr3_init();
+	if (ret) {
+		debug("ddr3_init() failed: %d\n", ret);
+		hang();
+	}
 #endif
 
 	/* Initialize Auto Voltage Scaling */
