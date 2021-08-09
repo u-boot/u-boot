@@ -68,6 +68,10 @@ obj-$(CONFIG_CMD_DEKBLOB) += cmd_dek.o
 obj-$(CONFIG_CMD_NANDBCB) += cmd_nandbcb.o
 endif
 
+ifeq ($(CONFIG_SPL_BUILD),y)
+obj-$(CONFIG_SPL_LOAD_IMX_CONTAINER) += image-container.o parse-container.o
+endif
+
 PLUGIN = board/$(BOARDDIR)/plugin
 
 ifeq ($(CONFIG_USE_IMXIMG_PLUGIN),y)
@@ -227,6 +231,7 @@ obj-$(CONFIG_MX5) += mx5/
 obj-$(CONFIG_MX6) += mx6/
 obj-$(CONFIG_MX7) += mx7/
 obj-$(CONFIG_ARCH_MX7ULP) += mx7ulp/
+obj-$(CONFIG_ARCH_IMX8ULP) += imx8ulp/
 obj-$(CONFIG_IMX8M) += imx8m/
 obj-$(CONFIG_ARCH_IMX8) += imx8/
 obj-$(CONFIG_ARCH_IMXRT) += imxrt/

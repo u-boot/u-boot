@@ -680,6 +680,7 @@ dtb-$(CONFIG_TARGET_MX23_OLINUXINO) += \
 	imx23-olinuxino.dtb
 
 dtb-$(CONFIG_MX28) += \
+	imx28-evk.dtb \
 	imx28-xea.dtb
 
 dtb-$(CONFIG_MX51) += \
@@ -861,6 +862,9 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 	imx8-deneb.dtb \
 	imx8-giedi.dtb
 
+dtb-$(CONFIG_ARCH_IMX8ULP) += \
+	imx8ulp-evk.dtb
+
 dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-evk.dtb \
 	imx8mm-icore-mx8mm-ctouch2.dtb \
@@ -870,6 +874,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-venice-gw72xx-0x.dtb \
 	imx8mm-venice-gw73xx-0x.dtb \
 	imx8mm-venice-gw7901.dtb \
+	imx8mm-venice-gw7902.dtb \
 	imx8mm-verdin.dtb \
 	phycore-imx8mm.dtb \
 	imx8mn-ddr4-evk.dtb \

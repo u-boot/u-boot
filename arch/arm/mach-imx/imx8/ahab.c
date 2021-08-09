@@ -13,7 +13,7 @@
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/image.h>
+#include <asm/mach-imx/image.h>
 #include <console.h>
 #include <cpu_func.h>
 

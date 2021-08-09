@@ -355,12 +355,22 @@ int board_usb_phy_mode(int port)
 	}
 }
 
+#if defined(CONFIG_BOARD_LATE_INIT)
 int board_late_init(void)
 {
 #if defined(CONFIG_DM_VIDEO)
 	setup_lcd();
 #endif
+
+#if defined(CONFIG_CMD_USB_SDP)
+	if (is_boot_from_usb()) {
+		printf("Serial Downloader recovery mode, using sdp command\n");
+		env_set("bootdelay", "0");
+		env_set("bootcmd", "sdp 0");
+	}
+#endif
 	return 0;
 }
+#endif /* CONFIG_BOARD_LATE_INIT */
 
 #endif

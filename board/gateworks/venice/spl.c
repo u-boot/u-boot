@@ -44,6 +44,9 @@ static void spl_dram_init(int size)
 	case 1:
 		dram_timing = &dram_timing_1gb;
 		break;
+	case 2:
+		dram_timing = &dram_timing_2gb;
+		break;
 	case 4:
 		dram_timing = &dram_timing_4gb;
 		break;
@@ -116,7 +119,7 @@ static int power_init_board(void)
 	if ((!strncmp(model, "GW71", 4)) ||
 	    (!strncmp(model, "GW72", 4)) ||
 	    (!strncmp(model, "GW73", 4))) {
-		ret = uclass_get_device_by_name(UCLASS_I2C, "i2c@30a20000", &bus);
+		ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
 		if (ret) {
 			printf("PMIC    : failed I2C1 probe: %d\n", ret);
 			return ret;
@@ -133,8 +136,12 @@ static int power_init_board(void)
 				 BIT(7) | MP5416_VSET_SW3_SVAL(920000));
 	}
 
-	else if (!strncmp(model, "GW7901", 6)) {
-		ret = uclass_get_device_by_name(UCLASS_I2C, "i2c@30a30000", &bus);
+	else if ((!strncmp(model, "GW7901", 6)) ||
+		 (!strncmp(model, "GW7902", 6))) {
+		if (!strncmp(model, "GW7901", 6))
+			ret = uclass_get_device_by_seq(UCLASS_I2C, 1, &bus);
+		else
+			ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
 		if (ret) {
 			printf("PMIC    : failed I2C2 probe: %d\n", ret);
 			return ret;

@@ -1,0 +1,23 @@
+if ARCH_IMX8ULP
+
+config IMX8ULP
+	bool
+	select ARMV8_SPL_EXCEPTION_VECTORS
+
+config SYS_SOC
+	default "imx8ulp"
+
+choice
+	prompt "i.MX8ULP board select"
+	optional
+
+config TARGET_IMX8ULP_EVK
+	bool "imx8ulp_evk"
+	select IMX8ULP
+	select SUPPORT_SPL
+
+endchoice
+
+source "board/freescale/imx8ulp_evk/Kconfig"
+
+endif

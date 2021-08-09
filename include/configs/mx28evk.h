@@ -31,13 +31,6 @@
 
 /* UBI and NAND partitioning */
 
-/* FEC Ethernet on SoC */
-#ifdef	CONFIG_CMD_NET
-#define CONFIG_FEC_MXC
-#define CONFIG_FEC_MXC_MDIO_BASE MXS_ENET0_BASE
-#define CONFIG_MX28_FEC_MAC_IN_OCOTP
-#endif
-
 /* RTC */
 #ifdef	CONFIG_CMD_DATE
 #define	CONFIG_RTC_MXS

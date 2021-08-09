@@ -11,7 +11,7 @@
 #include <mmc.h>
 #include <spi_flash.h>
 #include <nand.h>
-#include <asm/arch/image.h>
+#include <asm/mach-imx/image.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 
@@ -19,8 +19,9 @@
 #define QSPI_DEV	1
 #define NAND_DEV	2
 #define QSPI_NOR_DEV	3
+#define ROM_API_DEV	4
 
-static int __get_container_size(ulong addr)
+int get_container_size(ulong addr, u16 *header_length)
 {
 	struct container_hdr *phdr;
 	struct boot_img_t *img_entry;
@@ -34,7 +35,9 @@ static int __get_container_size(ulong addr)
 		return -EFAULT;
 	}
 
-	max_offset = sizeof(struct container_hdr);
+	max_offset = phdr->length_lsb + (phdr->length_msb << 8);
+	if (header_length)
+		*header_length = max_offset;
 
 	img_entry = (struct boot_img_t *)(addr + sizeof(struct container_hdr));
 	for (i = 0; i < phdr->num_images; i++) {
@@ -60,7 +63,7 @@ static int __get_container_size(ulong addr)
 	return max_offset;
 }
 
-static int get_container_size(void *dev, int dev_type, unsigned long offset)
+static int get_dev_container_size(void *dev, int dev_type, unsigned long offset, u16 *header_length)
 {
 	u8 *buf = malloc(CONTAINER_HDR_ALIGNMENT);
 	int ret = 0;
@@ -115,7 +118,17 @@ static int get_container_size(void *dev, int dev_type, unsigned long offset)
 		memcpy(buf, (const void *)offset, CONTAINER_HDR_ALIGNMENT);
 #endif
 
-	ret = __get_container_size((ulong)buf);
+#ifdef CONFIG_SPL_BOOTROM_SUPPORT
+	if (dev_type == ROM_API_DEV) {
+		ret = spl_romapi_raw_seekable_read(offset, CONTAINER_HDR_ALIGNMENT, buf);
+		if (!ret) {
+			printf("Read container image from ROM API failed\n");
+			return -EIO;
+		}
+	}
+#endif
+
+	ret = get_container_size((ulong)buf, header_length);
 
 	free(buf);
 
@@ -149,6 +162,8 @@ static unsigned long get_boot_device_offset(void *dev, int dev_type)
 		offset = CONTAINER_HDR_NAND_OFFSET;
 	} else if (dev_type == QSPI_NOR_DEV) {
 		offset = CONTAINER_HDR_QSPI_OFFSET + 0x08000000;
+	} else if (dev_type == ROM_API_DEV) {
+		offset = (unsigned long)dev;
 	}
 
 	return offset;
@@ -158,11 +173,12 @@ static int get_imageset_end(void *dev, int dev_type)
 {
 	unsigned long offset1 = 0, offset2 = 0;
 	int value_container[2];
+	u16 hdr_length;
 
 	offset1 = get_boot_device_offset(dev, dev_type);
 	offset2 = CONTAINER_HDR_ALIGNMENT + offset1;
 
-	value_container[0] = get_container_size(dev, dev_type, offset1);
+	value_container[0] = get_dev_container_size(dev, dev_type, offset1, &hdr_length);
 	if (value_container[0] < 0) {
 		printf("Parse seco container failed %d\n", value_container[0]);
 		return value_container[0];
@@ -170,7 +186,7 @@ static int get_imageset_end(void *dev, int dev_type)
 
 	debug("seco container size 0x%x\n", value_container[0]);
 
-	value_container[1] = get_container_size(dev, dev_type, offset2);
+	value_container[1] = get_dev_container_size(dev, dev_type, offset2, &hdr_length);
 	if (value_container[1] < 0) {
 		debug("Parse scu container failed %d, only seco container\n",
 		      value_container[1]);
@@ -243,6 +259,27 @@ unsigned long spl_nor_get_uboot_base(void)
 		end = ROUND(end, SZ_1K);
 
 	printf("Load image from NOR 0x%x\n", end);
+
+	return end;
+}
+#endif
+
+#ifdef CONFIG_SPL_BOOTROM_SUPPORT
+u32 __weak spl_arch_boot_image_offset(u32 image_offset, u32 rom_bt_dev)
+{
+	return image_offset;
+}
+
+ulong spl_romapi_get_uboot_base(u32 image_offset, u32 rom_bt_dev)
+{
+	ulong end;
+
+	image_offset = spl_arch_boot_image_offset(image_offset, rom_bt_dev);
+
+	end = get_imageset_end((void *)(ulong)image_offset, ROM_API_DEV);
+	end = ROUND(end, SZ_1K);
+
+	printf("Load image from 0x%lx by ROM_API\n", end);
 
 	return end;
 }

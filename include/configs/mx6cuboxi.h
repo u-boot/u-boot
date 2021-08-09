@@ -38,7 +38,6 @@
 /* Command definition */
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
-#define CONSOLE_DEV	"ttymxc0"
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -54,10 +53,10 @@
 	"ramdiskaddr=0x13000000\0" \
 	"initrd_high=0xffffffff\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONSOLE_DEV ",115200\0" \
+	"console=ttymxc0\0" \
 	"bootm_size=0x10000000\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
-	"finduuid=part uuid mmc 0:1 uuid\0" \
+	"finduuid=part uuid mmc 1:1 uuid\0" \
 	"update_sd_firmware=" \
 		"if test ${ip_dyn} = yes; then " \
 			"setenv get_cmd dhcp; " \
