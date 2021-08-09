@@ -662,6 +662,7 @@ def insert_tags(msg, tags_to_emit):
     out = []
     done = False
     emit_tags = False
+    emit_blank = False
     for line in msg.splitlines():
         if not done:
             signoff_match = RE_SIGNOFF.match(line)
@@ -672,9 +673,13 @@ def insert_tags(msg, tags_to_emit):
                 out += tags_to_emit
                 emit_tags = False
                 done = True
+            emit_blank = not (signoff_match or tag_match)
+        else:
+            emit_blank = line
         out.append(line)
     if not done:
-        out.append('')
+        if emit_blank:
+            out.append('')
         out += tags_to_emit
     return '\n'.join(out)
 

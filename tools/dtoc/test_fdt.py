@@ -425,7 +425,7 @@ class TestProp(unittest.TestCase):
 
         # Widen an array of ints with an int (should do nothing)
         prop = self.node.props['intarray']
-        prop2 = node2.props['intarray']
+        prop2 = node2.props['intval']
         self.assertEqual(Type.INT, prop.type)
         self.assertEqual(3, len(prop.value))
         prop.Widen(prop2)

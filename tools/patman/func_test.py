@@ -136,7 +136,7 @@ class TestFunctional(unittest.TestCase):
             Commit-changes: 2
             - Changes only for this commit
 
-            Cover-changes: 4
+'            Cover-changes: 4
             - Some notes for the cover letter
 
             Cover-letter:
@@ -1293,3 +1293,24 @@ Reviewed-by: %s
         self.assertEqual(terminal.PrintLine(
             '4 new responses available in patchwork (use -d to write them to a new branch)',
             None), next(lines))
+
+    def testInsertTags(self):
+        """Test inserting of review tags"""
+        msg = '''first line
+second line.'''
+        tags = [
+            'Reviewed-by: Bin Meng <bmeng.cn@gmail.com>',
+            'Tested-by: Bin Meng <bmeng.cn@gmail.com>'
+            ]
+        signoff = 'Signed-off-by: Simon Glass <sjg@chromium.com>'
+        tag_str = '\n'.join(tags)
+
+        new_msg = patchstream.insert_tags(msg, tags)
+        self.assertEqual(msg + '\n\n' + tag_str, new_msg)
+
+        new_msg = patchstream.insert_tags(msg + '\n', tags)
+        self.assertEqual(msg + '\n\n' + tag_str, new_msg)
+
+        msg += '\n\n' + signoff
+        new_msg = patchstream.insert_tags(msg, tags)
+        self.assertEqual(msg + '\n' + tag_str, new_msg)

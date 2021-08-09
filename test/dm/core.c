@@ -994,6 +994,7 @@ static int dm_test_uclass_before_ready(struct unit_test_state *uts)
 	memset(&gd->uclass_root, '\0', sizeof(gd->uclass_root));
 
 	ut_asserteq_ptr(NULL, uclass_find(UCLASS_TEST));
+	ut_asserteq(-EDEADLK, uclass_get(UCLASS_TEST, &uc));
 
 	return 0;
 }
