@@ -28,6 +28,8 @@ int cm_set_qspi_controller_clk_hz(u32 clk_hz);
 #include <asm/arch/clock_manager_s10.h>
 #elif defined(CONFIG_TARGET_SOCFPGA_AGILEX)
 #include <asm/arch/clock_manager_agilex.h>
+#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
+#include <asm/arch/clock_manager_n5x.h>
 #endif
 
 #endif /* _CLOCK_MANAGER_H_ */
