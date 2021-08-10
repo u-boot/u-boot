@@ -125,7 +125,7 @@
 		   "setenv spl_imgsize;" \
 		   "setenv spl_imgaddr;" \
 		   "setenv spl_addr_tmp;\0" \
-	CONFIG_EXTRA_ENV_ITB \
+	ENV_ITB \
 	"fdtaddr=40800000\0" \
 
 /* GPT */
