@@ -6,16 +6,16 @@
 
 #include <altera.h>
 #include <common.h>
-#include <env.h>
-#include <errno.h>
-#include <init.h>
-#include <log.h>
-#include <asm/global_data.h>
-#include <asm/io.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
+#include <asm/io.h>
+#include <asm/global_data.h>
+#include <env.h>
+#include <errno.h>
+#include <init.h>
+#include <log.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
