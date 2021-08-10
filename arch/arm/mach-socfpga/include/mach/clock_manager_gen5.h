@@ -96,7 +96,6 @@ struct cm_config {
 #define CLKMGR_PERPLL_EN			CLKMGR_GEN5_PERPLL_EN
 
 /* Clock speed accessors */
-unsigned long cm_get_mpu_clk_hz(void);
 unsigned long cm_get_sdram_clk_hz(void);
 unsigned int cm_get_l4_sp_clk_hz(void);
 unsigned int cm_get_mmc_controller_clk_hz(void);
