@@ -560,14 +560,6 @@ unsigned long get_board_sys_clk(void);
 #endif
 
 /* MAC/PHY configuration */
-#ifdef CONFIG_FSL_MC_ENET
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_CORTINA_FW_ADDR		0x20980000
-#else
-#define CONFIG_CORTINA_FW_ADDR		0x580980000
-#endif
-#define CONFIG_CORTINA_FW_LENGTH	0x40000
-
 #define CORTINA_PHY_ADDR1	0x10
 #define CORTINA_PHY_ADDR2	0x11
 #define CORTINA_PHY_ADDR3	0x12
@@ -577,9 +569,7 @@ unsigned long get_board_sys_clk(void);
 #define AQ_PHY_ADDR3		0x02
 #define AQ_PHY_ADDR4		0x03
 #define AQR405_IRQ_MASK		0x36
-
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
-#endif
 
 #include <asm/fsl_secure_boot.h>
 

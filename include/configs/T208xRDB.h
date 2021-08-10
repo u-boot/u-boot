@@ -479,7 +479,6 @@ unsigned long get_board_ddr_clk(void);
  * env, so we got 0x110000.
  */
 #define CONFIG_SYS_FMAN_FW_ADDR		0x110000
-#define CONFIG_CORTINA_FW_ADDR		0x120000
 
 #elif defined(CONFIG_SDCARD)
 /*
@@ -488,11 +487,9 @@ unsigned long get_board_ddr_clk(void);
  * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080.
  */
 #define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x820)
-#define CONFIG_CORTINA_FW_ADDR		(512 * 0x8a0)
 
 #elif defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FMAN_FW_ADDR		(3 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#define CONFIG_CORTINA_FW_ADDR		(4 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing
@@ -502,17 +499,14 @@ unsigned long get_board_ddr_clk(void);
  * master LAW->the ucode address in master's memory space.
  */
 #define CONFIG_SYS_FMAN_FW_ADDR		0xFFE00000
-#define CONFIG_CORTINA_FW_ADDR		0xFFE10000
 #else
 #define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
-#define CONFIG_CORTINA_FW_ADDR		0xEFE00000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif /* CONFIG_NOBQFMAN */
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_CORTINA_FW_LENGTH	0x40000
 #define RGMII_PHY1_ADDR		0x01  /* RealTek RTL8211E */
 #define RGMII_PHY2_ADDR		0x02
 #define CORTINA_PHY_ADDR1	0x0c  /* Cortina CS4315 */
