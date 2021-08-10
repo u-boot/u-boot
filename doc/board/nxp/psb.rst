@@ -159,7 +159,7 @@ WARM reset into B-copy using WDT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To perform a reboot into B-copy, the PERSIST_SECONDARY_BOOT must be set
-in SRC_GPR0 register. Example on iMX8MM::
+in SRC_GPR10 register. Example on iMX8MM::
 
   => mw 0x30390098 0x40000000
 
