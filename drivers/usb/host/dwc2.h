@@ -759,32 +759,32 @@ struct dwc2_core_regs {
 #define RH_B_PPCM	0xffff0000	/* port power control mask */
 
 /* Default driver configuration */
-#define CONFIG_DWC2_DMA_ENABLE
-#define CONFIG_DWC2_DMA_BURST_SIZE		32	/* DMA burst len */
-#undef CONFIG_DWC2_DFLT_SPEED_FULL		/* Do not force DWC2 to FS */
-#define CONFIG_DWC2_ENABLE_DYNAMIC_FIFO		/* Runtime FIFO size detect */
-#define CONFIG_DWC2_MAX_CHANNELS		16	/* Max # of EPs */
-#define CONFIG_DWC2_HOST_RX_FIFO_SIZE		(516 + CONFIG_DWC2_MAX_CHANNELS)
-#define CONFIG_DWC2_HOST_NPERIO_TX_FIFO_SIZE	0x100	/* nPeriodic TX FIFO */
-#define CONFIG_DWC2_HOST_PERIO_TX_FIFO_SIZE	0x200	/* Periodic TX FIFO */
-#define CONFIG_DWC2_MAX_TRANSFER_SIZE		65535
-#define CONFIG_DWC2_MAX_PACKET_COUNT		511
+#define DWC2_DMA_ENABLE
+#define DWC2_DMA_BURST_SIZE		32	/* DMA burst len */
+#undef DWC2_DFLT_SPEED_FULL		/* Do not force DWC2 to FS */
+#define DWC2_ENABLE_DYNAMIC_FIFO		/* Runtime FIFO size detect */
+#define DWC2_MAX_CHANNELS		16	/* Max # of EPs */
+#define DWC2_HOST_RX_FIFO_SIZE		(516 + DWC2_MAX_CHANNELS)
+#define DWC2_HOST_NPERIO_TX_FIFO_SIZE	0x100	/* nPeriodic TX FIFO */
+#define DWC2_HOST_PERIO_TX_FIFO_SIZE	0x200	/* Periodic TX FIFO */
+#define DWC2_MAX_TRANSFER_SIZE		65535
+#define DWC2_MAX_PACKET_COUNT		511
 
 #define DWC2_PHY_TYPE_FS		0
 #define DWC2_PHY_TYPE_UTMI		1
 #define DWC2_PHY_TYPE_ULPI		2
-#define CONFIG_DWC2_PHY_TYPE		DWC2_PHY_TYPE_UTMI	/* PHY type */
-#ifndef CONFIG_DWC2_UTMI_WIDTH
-#define CONFIG_DWC2_UTMI_WIDTH		8	/* UTMI bus width (8/16) */
+#define DWC2_PHY_TYPE		DWC2_PHY_TYPE_UTMI	/* PHY type */
+#ifndef DWC2_UTMI_WIDTH
+#define DWC2_UTMI_WIDTH		8	/* UTMI bus width (8/16) */
 #endif
 
-#undef CONFIG_DWC2_PHY_ULPI_DDR			/* ULPI PHY uses DDR mode */
-#define CONFIG_DWC2_PHY_ULPI_EXT_VBUS		/* ULPI PHY controls VBUS */
-#undef CONFIG_DWC2_I2C_ENABLE			/* Enable I2C */
-#undef CONFIG_DWC2_ULPI_FS_LS			/* ULPI is FS/LS */
-#undef CONFIG_DWC2_TS_DLINE			/* External DLine pulsing */
-#undef CONFIG_DWC2_THR_CTL			/* Threshold control */
-#define CONFIG_DWC2_TX_THR_LENGTH		64
-#undef CONFIG_DWC2_IC_USB_CAP			/* IC Cap */
+#undef DWC2_PHY_ULPI_DDR			/* ULPI PHY uses DDR mode */
+#define DWC2_PHY_ULPI_EXT_VBUS		/* ULPI PHY controls VBUS */
+#undef DWC2_I2C_ENABLE			/* Enable I2C */
+#undef DWC2_ULPI_FS_LS			/* ULPI is FS/LS */
+#undef DWC2_TS_DLINE			/* External DLine pulsing */
+#undef DWC2_THR_CTL			/* Threshold control */
+#define DWC2_TX_THR_LENGTH		64
+#undef DWC2_IC_USB_CAP			/* IC Cap */
 
 #endif	/* __DWC2_H__ */
