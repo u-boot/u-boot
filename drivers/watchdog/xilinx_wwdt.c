@@ -14,6 +14,7 @@
 #include <regmap.h>
 #include <wdt.h>
 #include <linux/compat.h>
+#include <dm/device_compat.h>
 #include <linux/io.h>
 
 /* Refresh Register Masks */
