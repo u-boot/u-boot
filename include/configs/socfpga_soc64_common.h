@@ -7,7 +7,7 @@
 #ifndef __CONFIG_SOCFPGA_SOC64_COMMON_H__
 #define __CONFIG_SOCFPGA_SOC64_COMMON_H__
 
-#include <asm/arch/base_addr_s10.h>
+#include <asm/arch/base_addr_soc64.h>
 #include <asm/arch/handoff_soc64.h>
 #include <linux/stringify.h>
 

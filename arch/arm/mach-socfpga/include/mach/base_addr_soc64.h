@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2016-2017 Intel Corporation <www.intel.com>
+ * Copyright (C) 2016-2021 Intel Corporation <www.intel.com>
  */
 
-#ifndef _SOCFPGA_S10_BASE_HARDWARE_H_
-#define _SOCFPGA_S10_BASE_HARDWARE_H_
+#ifndef _SOCFPGA_SOC64_BASE_HARDWARE_H_
+#define _SOCFPGA_SOC64_BASE_HARDWARE_H_
 
 #define SOCFPGA_CCU_ADDRESS			0xf7000000
 #define SOCFPGA_SDR_SCHEDULER_ADDRESS		0xf8000400
@@ -44,4 +44,4 @@
 #define GICD_BASE				0xfffc1000
 #define GICC_BASE				0xfffc2000
 
-#endif /* _SOCFPGA_S10_BASE_HARDWARE_H_ */
+#endif /* _SOCFPGA_SOC64_BASE_HARDWARE_H_ */
