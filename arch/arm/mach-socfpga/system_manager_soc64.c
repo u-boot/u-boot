@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2016-2018 Intel Corporation <www.intel.com>
+ * Copyright (C) 2016-2021 Intel Corporation <www.intel.com>
  *
  */
 
@@ -66,10 +66,10 @@ void populate_sysmgr_fpgaintf_module(void)
 void populate_sysmgr_pinmux(void)
 {
 	u32 len, i;
-	u32 len_mux = socfpga_get_handoff_size((void *)SOC64_HANDOFF_MUX, BIG_ENDIAN);
-	u32 len_ioctl = socfpga_get_handoff_size((void *)SOC64_HANDOFF_IOCTL, BIG_ENDIAN);
-	u32 len_fpga = socfpga_get_handoff_size((void *)SOC64_HANDOFF_FPGA, BIG_ENDIAN);
-	u32 len_delay = socfpga_get_handoff_size((void *)SOC64_HANDOFF_DELAY, BIG_ENDIAN);
+	u32 len_mux = socfpga_get_handoff_size((void *)SOC64_HANDOFF_MUX);
+	u32 len_ioctl = socfpga_get_handoff_size((void *)SOC64_HANDOFF_IOCTL);
+	u32 len_fpga = socfpga_get_handoff_size((void *)SOC64_HANDOFF_FPGA);
+	u32 len_delay = socfpga_get_handoff_size((void *)SOC64_HANDOFF_DELAY);
 
 	len = (len_mux > len_ioctl) ? len_mux : len_ioctl;
 	len = (len > len_fpga) ? len : len_fpga;
@@ -79,7 +79,7 @@ void populate_sysmgr_pinmux(void)
 
 	/* setup the pin sel */
 	len = (len_mux < SOC64_HANDOFF_MUX_LEN) ? len_mux : SOC64_HANDOFF_MUX_LEN;
-	socfpga_handoff_read((void *)SOC64_HANDOFF_MUX, handoff_table, len, BIG_ENDIAN);
+	socfpga_handoff_read((void *)SOC64_HANDOFF_MUX, handoff_table, len);
 	for (i = 0; i < len; i = i + 2) {
 		writel(handoff_table[i + 1],
 		       handoff_table[i] +
@@ -89,7 +89,7 @@ void populate_sysmgr_pinmux(void)
 
 	/* setup the pin ctrl */
 	len = (len_ioctl < SOC64_HANDOFF_IOCTL_LEN) ? len_ioctl : SOC64_HANDOFF_IOCTL_LEN;
-	socfpga_handoff_read((void *)SOC64_HANDOFF_IOCTL, handoff_table, len, BIG_ENDIAN);
+	socfpga_handoff_read((void *)SOC64_HANDOFF_IOCTL, handoff_table, len);
 	for (i = 0; i < len; i = i + 2) {
 		writel(handoff_table[i + 1],
 		       handoff_table[i] +
@@ -99,7 +99,7 @@ void populate_sysmgr_pinmux(void)
 
 	/* setup the fpga use */
 	len = (len_fpga < SOC64_HANDOFF_FPGA_LEN) ? len_fpga : SOC64_HANDOFF_FPGA_LEN;
-	socfpga_handoff_read((void *)SOC64_HANDOFF_FPGA, handoff_table, len, BIG_ENDIAN);
+	socfpga_handoff_read((void *)SOC64_HANDOFF_FPGA, handoff_table, len);
 	for (i = 0; i < len; i = i + 2) {
 		writel(handoff_table[i + 1],
 		       handoff_table[i] +
@@ -109,7 +109,7 @@ void populate_sysmgr_pinmux(void)
 
 	/* setup the IO delay */
 	len = (len_delay < SOC64_HANDOFF_DELAY_LEN) ? len_delay : SOC64_HANDOFF_DELAY_LEN;
-	socfpga_handoff_read((void *)SOC64_HANDOFF_DELAY, handoff_table, len, BIG_ENDIAN);
+	socfpga_handoff_read((void *)SOC64_HANDOFF_DELAY, handoff_table, len);
 	for (i = 0; i < len; i = i + 2) {
 		writel(handoff_table[i + 1],
 		       handoff_table[i] +
