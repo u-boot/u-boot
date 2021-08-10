@@ -187,7 +187,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
-	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+	ENV_KS2_BOARD_SETTINGS						\
 	DFUARGS								\
 	"bootdir=/boot\0" \
 	"tftp_root=/\0"							\
