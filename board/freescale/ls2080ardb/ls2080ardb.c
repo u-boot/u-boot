@@ -33,6 +33,9 @@
 #endif
 #include "../common/vid.h"
 
+#define CORTINA_FW_ADDR_IFCNOR			0x580980000
+#define CORTINA_FW_ADDR_IFCNOR_ALTBANK	0x584980000
+#define CORTINA_FW_ADDR_QSPI			0x980000
 #define PIN_MUX_SEL_SDHC	0x00
 #define PIN_MUX_SEL_DSPI	0x0a
 
@@ -233,6 +236,41 @@ int config_board_mux(int ctrl_type)
 	QIXIS_WRITE(brdcfg[5], reg5);
 #endif
 	return 0;
+}
+
+ulong *cs4340_get_fw_addr(void)
+{
+#ifdef CONFIG_TFABOOT
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	u32 svr = gur_in32(&gur->svr);
+#endif
+	ulong cortina_fw_addr = CONFIG_CORTINA_FW_ADDR;
+
+#ifdef CONFIG_TFABOOT
+	/* LS2088A TFA boot */
+	if (SVR_SOC_VER(svr) == SVR_LS2088A) {
+		enum boot_src src = get_boot_src();
+		u8 sw;
+
+		switch (src) {
+		case BOOT_SOURCE_IFC_NOR:
+			sw = QIXIS_READ(brdcfg[0]);
+			sw = (sw & 0x0f);
+			if (sw == 0)
+				cortina_fw_addr = CORTINA_FW_ADDR_IFCNOR;
+			else if (sw == 4)
+				cortina_fw_addr = CORTINA_FW_ADDR_IFCNOR_ALTBANK;
+			break;
+		case BOOT_SOURCE_QSPI_NOR:
+			/* Only one bank in QSPI */
+			cortina_fw_addr = CORTINA_FW_ADDR_QSPI;
+			break;
+		default:
+			printf("WARNING: Boot source not found\n");
+		}
+	}
+#endif
+	return (ulong *)cortina_fw_addr;
 }
 
 int board_init(void)
