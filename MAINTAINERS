@@ -546,6 +546,7 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-versal/
 F:	drivers/net/xilinx_axi_mrmac.*
+F:	drivers/soc/soc_xilinx_versal.c
 F:	drivers/watchdog/xilinx_wwdt.c
 N:	(?<!uni)versal
 

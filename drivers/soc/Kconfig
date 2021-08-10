@@ -24,6 +24,14 @@ config SOC_XILINX_ZYNQMP
 	  This allows other drivers to verify the SoC familiy & revision
 	  using matching SoC attributes.
 
+config SOC_XILINX_VERSAL
+	bool "Enable SoC Device ID driver for Xilinx Versal"
+	depends on SOC_DEVICE && ARCH_VERSAL
+	help
+	  Enable this option to select SoC device id driver for Xilinx Versal.
+	  This allows other drivers to verify the SoC familiy & revision using
+	  matching SoC attributes.
+
 source "drivers/soc/ti/Kconfig"
 
 endmenu
