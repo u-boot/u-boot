@@ -602,6 +602,7 @@ F:	drivers/net/zynq_gem.c
 F:	drivers/serial/serial_zynq.c
 F:	drivers/reset/reset-zynqmp.c
 F:	drivers/rtc/zynqmp_rtc.c
+F:	drivers/soc/soc_xilinx_zynqmp.c
 F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
 F:	drivers/timer/cadence-ttc.c
