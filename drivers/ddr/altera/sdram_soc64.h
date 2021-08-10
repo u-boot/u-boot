@@ -180,6 +180,7 @@ int emif_reset(struct altera_sdram_plat *plat);
 int poll_hmc_clock_status(void);
 void sdram_clear_mem(phys_addr_t addr, phys_size_t size);
 void sdram_init_ecc_bits(struct bd_info *bd);
+void sdram_set_firewall(struct bd_info *bd);
 void sdram_size_check(struct bd_info *bd);
 phys_size_t sdram_calculate_size(struct altera_sdram_plat *plat);
 int sdram_mmr_init_full(struct udevice *dev);
