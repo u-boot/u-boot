@@ -17,6 +17,7 @@
 #include <i2c_eeprom.h>
 #include <net.h>
 #include <generated/dt.h>
+#include <soc.h>
 
 #include "fru.h"
 
@@ -439,3 +440,28 @@ int __maybe_unused board_fit_config_name_match(const char *name)
 
 	return -1;
 }
+
+#if defined(CONFIG_DISPLAY_CPUINFO) && !defined(CONFIG_ARCH_ZYNQ)
+int print_cpuinfo(void)
+{
+	struct udevice *soc;
+	char name[SOC_MAX_STR_SIZE];
+	int ret;
+
+	ret = soc_get(&soc);
+	if (ret) {
+		printf("CPU:   UNKNOWN\n");
+		return 0;
+	}
+
+	ret = soc_get_family(soc, name, SOC_MAX_STR_SIZE);
+	if (ret)
+		printf("CPU:   %s\n", name);
+
+	ret = soc_get_revision(soc, name, SOC_MAX_STR_SIZE);
+	if (ret)
+		printf("Silicon: %s\n", name);
+
+	return 0;
+}
+#endif
