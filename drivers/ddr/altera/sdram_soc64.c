@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2016-2019 Intel Corporation <www.intel.com>
+ * Copyright (C) 2016-2021 Intel Corporation <www.intel.com>
  *
  */
 
@@ -182,6 +182,7 @@ void sdram_size_check(struct bd_info *bd)
 	phys_size_t total_ram_check = 0;
 	phys_size_t ram_check = 0;
 	phys_addr_t start = 0;
+	phys_size_t size, remaining_size;
 	int bank;
 
 	/* Sanity check ensure correct SDRAM size specified */
@@ -189,10 +190,27 @@ void sdram_size_check(struct bd_info *bd)
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
 		start = bd->bi_dram[bank].start;
+		remaining_size = bd->bi_dram[bank].size;
 		while (ram_check < bd->bi_dram[bank].size) {
-			ram_check += get_ram_size((void *)(start + ram_check),
-						 (phys_size_t)SZ_1G);
+			size = min((phys_addr_t)SZ_1G,
+				   (phys_addr_t)remaining_size);
+
+			/*
+			 * Ensure the size is power of two, this is requirement
+			 * to run get_ram_size() / memory test
+			 */
+			if (size != 0 && ((size & (size - 1)) == 0)) {
+				ram_check += get_ram_size((void *)
+						(start + ram_check), size);
+				remaining_size = bd->bi_dram[bank].size -
+							ram_check;
+			} else {
+				puts("DDR: Memory test requires SDRAM size ");
+				puts("in power of two!\n");
+				hang();
+			}
 		}
+
 		total_ram_check += ram_check;
 		ram_check = 0;
 	}
