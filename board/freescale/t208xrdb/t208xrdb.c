@@ -165,3 +165,23 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
+
+ulong *cs4340_get_fw_addr(void)
+{
+	ulong cortina_fw_addr = CONFIG_CORTINA_FW_ADDR;
+
+#ifdef CONFIG_SYS_CORTINA_FW_IN_NOR
+	u8 reg;
+
+	reg = CPLD_READ(flash_csr);
+	if (!(reg & CPLD_BOOT_SEL)) {
+		reg = ((reg & CPLD_LBMAP_MASK) >> CPLD_LBMAP_SHIFT);
+		if (reg == 0)
+			cortina_fw_addr = CORTINA_FW_ADDR_IFCNOR;
+		else if (reg == 4)
+			cortina_fw_addr = CORTINA_FW_ADDR_IFCNOR_ALTBANK;
+	}
+#endif
+
+	return (ulong *)cortina_fw_addr;
+}
