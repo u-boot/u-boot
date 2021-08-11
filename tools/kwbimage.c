@@ -1745,7 +1745,7 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 			return -FDT_ERR_BADSTRUCTURE;
 
 		size = le32_to_cpu(mhdr->blocksize);
-		if (offset + size > image_size || size % 4 != 0)
+		if (size < 4 || offset + size > image_size || size % 4 != 0)
 			return -FDT_ERR_BADSTRUCTURE;
 
 		if (image_checksum32(ptr + offset, size - 4) !=
