@@ -385,8 +385,10 @@ int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 
 	if (host->ops && host->ops->set_delay) {
 		ret = host->ops->set_delay(host);
-		if (ret)
+		if (ret) {
+			printf("%s: Error while setting tap delay\n", __func__);
 			return ret;
+		}
 	}
 
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {

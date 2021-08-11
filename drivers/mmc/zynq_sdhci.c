@@ -15,20 +15,35 @@
 #include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/libfdt.h>
+#include <asm/cache.h>
 #include <malloc.h>
 #include <sdhci.h>
 #include <zynqmp_firmware.h>
 
 #define SDHCI_ARASAN_ITAPDLY_REGISTER	0xF0F8
-#define SDHCI_ARASAN_ITAPDLY_SEL_MASK	0xFF
+#define SDHCI_ARASAN_ITAPDLY_SEL_MASK	GENMASK(7, 0)
 #define SDHCI_ARASAN_OTAPDLY_REGISTER	0xF0FC
-#define SDHCI_ARASAN_OTAPDLY_SEL_MASK	0x3F
-#define SDHCI_ITAPDLY_CHGWIN		0x200
-#define SDHCI_ITAPDLY_ENABLE		0x100
-#define SDHCI_OTAPDLY_ENABLE		0x40
+#define SDHCI_ARASAN_OTAPDLY_SEL_MASK	GENMASK(5, 0)
+#define SDHCI_ITAPDLY_CHGWIN		BIT(9)
+#define SDHCI_ITAPDLY_ENABLE		BIT(8)
+#define SDHCI_OTAPDLY_ENABLE		BIT(6)
 
 #define SDHCI_TUNING_LOOP_COUNT		40
 #define MMC_BANK2			0x2
+
+#define SD_DLL_CTRL			0xFF180358
+#define SD_ITAP_DLY			0xFF180314
+#define SD_OTAP_DLY			0xFF180318
+#define SD0_DLL_RST			BIT(2)
+#define SD1_DLL_RST			BIT(18)
+#define SD0_ITAPCHGWIN			BIT(9)
+#define SD1_ITAPCHGWIN			BIT(25)
+#define SD0_ITAPDLYENA			BIT(8)
+#define SD1_ITAPDLYENA			BIT(24)
+#define SD0_ITAPDLYSEL_MASK		GENMASK(7, 0)
+#define SD1_ITAPDLYSEL_MASK		GENMASK(23, 16)
+#define SD0_OTAPDLYSEL_MASK		GENMASK(5, 0)
+#define SD1_OTAPDLYSEL_MASK		GENMASK(21, 16)
 
 struct arasan_sdhci_clk_data {
 	int clk_phase_in[MMC_TIMING_MMC_HS400 + 1];
@@ -47,6 +62,12 @@ struct arasan_sdhci_priv {
 	u8 bank;
 	u8 no_1p8;
 };
+
+/* For Versal platforms zynqmp_mmio_write() won't be available */
+__weak int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value)
+{
+	return 0;
+}
 
 #if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL)
 /* Default settings for ZynqMP Clock Phases */
@@ -75,24 +96,90 @@ static const u8 mode2timing[] = {
 	[MMC_HS_200] = MMC_TIMING_MMC_HS200,
 };
 
-static inline int arasan_zynqmp_set_in_tapdelay(u8 node_id, u32 type,
-						u32 itap_delay)
+static inline int arasan_zynqmp_set_in_tapdelay(u8 node_id, u32 itap_delay)
 {
-	return xilinx_pm_request(PM_IOCTL, (u32)node_id, IOCTL_SET_SD_TAPDELAY,
-				 type, itap_delay, NULL);
+	int ret;
+
+	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
+		if (node_id == NODE_SD_0) {
+			ret = zynqmp_mmio_write(SD_ITAP_DLY, SD0_ITAPCHGWIN,
+						SD0_ITAPCHGWIN);
+			if (ret)
+				return ret;
+
+			ret = zynqmp_mmio_write(SD_ITAP_DLY, SD0_ITAPDLYENA,
+						SD0_ITAPDLYENA);
+			if (ret)
+				return ret;
+
+			ret = zynqmp_mmio_write(SD_ITAP_DLY, SD0_ITAPDLYSEL_MASK,
+						itap_delay);
+			if (ret)
+				return ret;
+
+			ret = zynqmp_mmio_write(SD_ITAP_DLY, SD0_ITAPCHGWIN, 0);
+			if (ret)
+				return ret;
+		}
+		ret = zynqmp_mmio_write(SD_ITAP_DLY, SD1_ITAPCHGWIN,
+					SD1_ITAPCHGWIN);
+		if (ret)
+			return ret;
+
+		ret = zynqmp_mmio_write(SD_ITAP_DLY, SD1_ITAPDLYENA,
+					SD1_ITAPDLYENA);
+		if (ret)
+			return ret;
+
+		ret = zynqmp_mmio_write(SD_ITAP_DLY, SD1_ITAPDLYSEL_MASK,
+					(itap_delay << 16));
+		if (ret)
+			return ret;
+
+		ret = zynqmp_mmio_write(SD_ITAP_DLY, SD1_ITAPCHGWIN, 0);
+		if (ret)
+			return ret;
+	} else {
+		return xilinx_pm_request(PM_IOCTL, (u32)node_id,
+					 IOCTL_SET_SD_TAPDELAY,
+					 PM_TAPDELAY_INPUT, itap_delay, NULL);
+	}
+
+	return 0;
 }
 
-static inline int arasan_zynqmp_set_out_tapdelay(u8 node_id, u32 type,
-						 u32 otap_delay)
+static inline int arasan_zynqmp_set_out_tapdelay(u8 node_id, u32 otap_delay)
 {
-	return xilinx_pm_request(PM_IOCTL, (u32)node_id, IOCTL_SET_SD_TAPDELAY,
-				 type, otap_delay, NULL);
+	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
+		if (node_id == NODE_SD_0)
+			return zynqmp_mmio_write(SD_OTAP_DLY,
+						 SD0_OTAPDLYSEL_MASK,
+						 otap_delay);
+
+		return zynqmp_mmio_write(SD_OTAP_DLY, SD1_OTAPDLYSEL_MASK,
+					 (otap_delay << 16));
+	} else {
+		return xilinx_pm_request(PM_IOCTL, (u32)node_id,
+					 IOCTL_SET_SD_TAPDELAY,
+					 PM_TAPDELAY_OUTPUT, otap_delay, NULL);
+	}
 }
 
-static inline int zynqmp_pm_sd_dll_reset(u8 node_id, u32 type)
+static inline int zynqmp_dll_reset(u8 node_id, u32 type)
 {
-	return xilinx_pm_request(PM_IOCTL, (u32)node_id, IOCTL_SD_DLL_RESET,
-				 type, 0, NULL);
+	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
+		if (node_id == NODE_SD_0)
+			return zynqmp_mmio_write(SD_DLL_CTRL, SD0_DLL_RST,
+						 type == PM_DLL_RESET_ASSERT ?
+						 SD0_DLL_RST : 0);
+
+		return zynqmp_mmio_write(SD_DLL_CTRL, SD1_DLL_RST,
+					 type == PM_DLL_RESET_ASSERT ?
+					 SD1_DLL_RST : 0);
+	} else {
+		return xilinx_pm_request(PM_IOCTL, (u32)node_id,
+					 IOCTL_SD_DLL_RESET, type, 0, NULL);
+	}
 }
 
 static int arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 node_id)
@@ -108,14 +195,15 @@ static int arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 node_id)
 	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
 
 	/* Issue DLL Reset */
-	ret = zynqmp_pm_sd_dll_reset(node_id, PM_DLL_RESET_ASSERT);
+	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_ASSERT);
 	if (ret) {
 		dev_err(dev, "dll_reset assert failed with err: %d\n", ret);
 		return ret;
 	}
 
+	/* Allow atleast 1ms delay for proper DLL reset */
 	mdelay(1);
-	ret = zynqmp_pm_sd_dll_reset(node_id, PM_DLL_RESET_RELEASE);
+	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_RELEASE);
 	if (ret) {
 		dev_err(dev, "dll_reset release failed with err: %d\n", ret);
 		return ret;
@@ -146,8 +234,8 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	u32 ctrl;
 	struct sdhci_host *host;
 	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
-	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
+	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 
 	debug("%s\n", __func__);
 
@@ -271,15 +359,14 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 	tap_delay &= SDHCI_ARASAN_OTAPDLY_SEL_MASK;
 
 	/* Set the Clock Phase */
-	ret = arasan_zynqmp_set_out_tapdelay(node_id,
-					     PM_TAPDELAY_OUTPUT, tap_delay);
+	ret = arasan_zynqmp_set_out_tapdelay(node_id, tap_delay);
 	if (ret) {
 		dev_err(dev, "Error setting output Tap Delay\n");
 		return ret;
 	}
 
 	/* Release DLL Reset */
-	ret = zynqmp_pm_sd_dll_reset(node_id, PM_DLL_RESET_RELEASE);
+	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_RELEASE);
 	if (ret) {
 		dev_err(dev, "dll_reset release failed with err: %d\n", ret);
 		return ret;
@@ -317,7 +404,7 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 		return 0;
 
 	/* Assert DLL Reset */
-	ret = zynqmp_pm_sd_dll_reset(node_id, PM_DLL_RESET_ASSERT);
+	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_ASSERT);
 	if (ret) {
 		dev_err(dev, "dll_reset assert failed with err: %d\n", ret);
 		return ret;
@@ -349,8 +436,7 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 	/* Limit input tap_delay value to 8 bits */
 	tap_delay &= SDHCI_ARASAN_ITAPDLY_SEL_MASK;
 
-	ret = arasan_zynqmp_set_in_tapdelay(node_id,
-					    PM_TAPDELAY_INPUT, tap_delay);
+	ret = arasan_zynqmp_set_in_tapdelay(node_id, tap_delay);
 	if (ret) {
 		dev_err(dev, "Error setting Input Tap Delay\n");
 		return ret;
@@ -505,6 +591,7 @@ static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 		ret = sdhci_zynqmp_sampleclk_set_phase(host, iclk_phase);
 		if (ret)
 			return ret;
+
 		ret = sdhci_zynqmp_sdcardclk_set_phase(host, oclk_phase);
 		if (ret)
 			return ret;
@@ -513,6 +600,7 @@ static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 		ret = sdhci_versal_sampleclk_set_phase(host, iclk_phase);
 		if (ret)
 			return ret;
+
 		ret = sdhci_versal_sdcardclk_set_phase(host, oclk_phase);
 		if (ret)
 			return ret;
@@ -670,8 +758,10 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	upriv->mmc = host->mmc;
 
 	/*
-	 * Wait for 1000msec till the card detect state gets stable
-	 * else host controller will set sd power bus voltage to 0.
+	 * WORKAROUND: Versal platforms have an issue with card detect state.
+	 * Due to this, host controller is switching off voltage to sd card
+	 * causing sd card timeout error. Workaround this by adding a wait for
+	 * 1000msec till the card detect state gets stable.
 	 */
 	if (IS_ENABLED(CONFIG_ARCH_VERSAL)) {
 		u32 timeout = 1000;
@@ -682,7 +772,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		}
 		if (!timeout) {
 			dev_err(dev, "Sdhci card detect state not stable\n");
-			return -EIO;
+			return -ETIMEDOUT;
 		}
 	}
 
