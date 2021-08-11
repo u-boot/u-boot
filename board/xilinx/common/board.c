@@ -18,6 +18,7 @@
 #include <net.h>
 #include <generated/dt.h>
 #include <soc.h>
+#include <linux/ctype.h>
 
 #include "fru.h"
 
@@ -187,12 +188,14 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 		goto end;
 	}
 
-	printf("Xilinx I2C FRU format at %s:\n", name);
 	fru_capture((unsigned long)fru_content);
-	ret = fru_display(0);
-	if (ret) {
-		printf("FRU format decoding failed.\n");
-		goto end;
+	if (gd->flags & GD_FLG_RELOC || (_DEBUG && CONFIG_IS_ENABLED(DTB_RESELECT))) {
+		printf("Xilinx I2C FRU format at %s:\n", name);
+		ret = fru_display(0);
+		if (ret) {
+			printf("FRU format decoding failed.\n");
+			goto end;
+		}
 	}
 
 	if (desc->header == EEPROM_HEADER_MAGIC) {
@@ -464,13 +467,82 @@ int print_cpuinfo(void)
 #endif
 
 #if CONFIG_IS_ENABLED(DTB_RESELECT)
+#define MAX_NAME_LENGTH	50
+
 char * __maybe_unused __weak board_name_decode(void)
 {
+	char *board_local_name;
+	struct xilinx_board_description *desc;
+	int i, id;
+
+	board_local_name = calloc(1, MAX_NAME_LENGTH);
+	if (!board_info)
+		return NULL;
+
+	for (id = 0; id <= highest_id; id++) {
+		desc = &board_info[id];
+
+		/* No board description */
+		if (!desc)
+			goto error;
+
+		/* Board is not detected */
+		if (desc->header != EEPROM_HEADER_MAGIC)
+			continue;
+
+		/* The first string should be soc name */
+		if (!id)
+			strcat(board_local_name, CONFIG_SYS_BOARD);
+
+		/*
+		 * For two purpose here:
+		 * soc_name- eg: zynqmp-
+		 * and between base board and CC eg: ..revA-sck...
+		 */
+		strcat(board_local_name, "-");
+
+		if (desc->name[0]) {
+			/* For DT composition name needs to be lowercase */
+			for (i = 0; i < sizeof(desc->name); i++)
+				desc->name[i] = tolower(desc->name[i]);
+
+			strcat(board_local_name, desc->name);
+		}
+		if (desc->revision[0]) {
+			strcat(board_local_name, "-rev");
+
+			/* And revision needs to be uppercase */
+			for (i = 0; i < sizeof(desc->revision); i++)
+				desc->revision[i] = toupper(desc->revision[i]);
+
+			strcat(board_local_name, desc->revision);
+		}
+	}
+
+	/*
+	 * Longer strings will end up with buffer overflow and potential
+	 * attacks that's why check it
+	 */
+	if (strlen(board_local_name) >= MAX_NAME_LENGTH)
+		panic("Board name can't be determined\n");
+
+	if (strlen(board_local_name))
+		return board_local_name;
+
+error:
+	free(board_local_name);
 	return NULL;
 }
 
 bool __maybe_unused __weak board_detection(void)
 {
+	if (CONFIG_IS_ENABLED(DM_I2C) && CONFIG_IS_ENABLED(I2C_EEPROM)) {
+		int ret;
+
+		ret = xilinx_read_eeprom();
+		return !ret ? true : false;
+	}
+
 	return false;
 }
 
@@ -482,7 +554,7 @@ int embedded_dtb_select(void)
 		board_local_name = board_name_decode();
 		if (board_local_name) {
 			board_name = board_local_name;
-			debug("Detected name: %s\n", board_name);
+			printf("Detected name: %s\n", board_name);
 
 			/* Time to change DTB on fly */
 			/* Both ways should work here */
