@@ -20,8 +20,6 @@
  * U-Boot into it.
  */
 
-#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
-
 #define CONFIG_LOADADDR 		1000000
 
 /*

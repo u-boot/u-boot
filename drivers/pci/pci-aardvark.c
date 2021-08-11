@@ -177,7 +177,6 @@
 #define LINK_MAX_RETRIES			10
 #define LINK_WAIT_TIMEOUT			100000
 
-#define CFG_RD_UR_VAL			0xFFFFFFFF
 #define CFG_RD_CRS_VAL			0xFFFF0001
 
 /**
@@ -263,12 +262,12 @@ static int pcie_advk_wait_pio(struct pcie_advk *pcie)
  * pcie_advk_check_pio_status() - Validate PIO status and get the read result
  *
  * @pcie: Pointer to the PCI bus
- * @read: Read from or write to configuration space - true(read) false(write)
- * @read_val: Pointer to the read result, only valid when read is true
+ * @allow_crs: Only for read requests, if CRS response is allowed
+ * @read_val: Pointer to the read result
  *
  */
 static int pcie_advk_check_pio_status(struct pcie_advk *pcie,
-				      bool read,
+				      bool allow_crs,
 				      uint *read_val)
 {
 	uint reg;
@@ -286,22 +285,16 @@ static int pcie_advk_check_pio_status(struct pcie_advk *pcie,
 			break;
 		}
 		/* Get the read result */
-		if (read)
+		if (read_val)
 			*read_val = advk_readl(pcie, PIO_RD_DATA);
 		/* No error */
 		strcomp_status = NULL;
 		break;
 	case PIO_COMPLETION_STATUS_UR:
-		if (read) {
-			/* For reading, UR is not an error status. */
-			*read_val = CFG_RD_UR_VAL;
-			strcomp_status = NULL;
-		} else {
-			strcomp_status = "UR";
-		}
+		strcomp_status = "UR";
 		break;
 	case PIO_COMPLETION_STATUS_CRS:
-		if (read) {
+		if (allow_crs && read_val) {
 			/* For reading, CRS is not an error status. */
 			*read_val = CFG_RD_CRS_VAL;
 			strcomp_status = NULL;
@@ -352,6 +345,7 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 				 enum pci_size_t size)
 {
 	struct pcie_advk *pcie = dev_get_priv(bus);
+	bool allow_crs;
 	uint reg;
 	int ret;
 
@@ -364,13 +358,17 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 		return 0;
 	}
 
+	allow_crs = (offset == PCI_VENDOR_ID) && (size == 4);
+
 	if (advk_readl(pcie, PIO_START)) {
 		dev_err(pcie->dev,
 			"Previous PIO read/write transfer is still running\n");
-		if (offset != PCI_VENDOR_ID)
-			return -EINVAL;
-		*valuep = CFG_RD_CRS_VAL;
-		return 0;
+		if (allow_crs) {
+			*valuep = CFG_RD_CRS_VAL;
+			return 0;
+		}
+		*valuep = pci_get_ff(size);
+		return -EINVAL;
 	}
 
 	/* Program the control register */
@@ -392,16 +390,20 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 	advk_writel(pcie, 1, PIO_START);
 
 	if (!pcie_advk_wait_pio(pcie)) {
-		if (offset != PCI_VENDOR_ID)
-			return -EINVAL;
-		*valuep = CFG_RD_CRS_VAL;
-		return 0;
+		if (allow_crs) {
+			*valuep = CFG_RD_CRS_VAL;
+			return 0;
+		}
+		*valuep = pci_get_ff(size);
+		return -EINVAL;
 	}
 
 	/* Check PIO status and get the read result */
-	ret = pcie_advk_check_pio_status(pcie, true, &reg);
-	if (ret)
+	ret = pcie_advk_check_pio_status(pcie, allow_crs, &reg);
+	if (ret) {
+		*valuep = pci_get_ff(size);
 		return ret;
+	}
 
 	dev_dbg(pcie->dev, "(addr,size,val)=(0x%04x, %d, 0x%08x)\n",
 		offset, size, reg);
@@ -511,9 +513,7 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 	}
 
 	/* Check PIO status */
-	pcie_advk_check_pio_status(pcie, false, &reg);
-
-	return 0;
+	return pcie_advk_check_pio_status(pcie, false, NULL);
 }
 
 /**

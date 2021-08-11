@@ -72,4 +72,10 @@
 #define CONFIG_PHY_BASE_ADR	0
 #endif /* CONFIG_CMD_NET */
 
+/* SATA driver configuration */
+#ifdef CONFIG_SATA
+#define CONFIG_SYS_SATA_MAX_DEVICE	1
+#define CONFIG_LBA48
+#endif /* CONFIG_SATA */
+
 #endif /* _CONFIG_GOFLEXHOME_H */

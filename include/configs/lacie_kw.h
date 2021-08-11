@@ -40,11 +40,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
- * Core clock definition
- */
-#define CONFIG_SYS_TCLK			166000000 /* 166MHz */
-
-/*
  * SDRAM configuration
  */
 

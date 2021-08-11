@@ -809,6 +809,7 @@ static int mv_ata_exec_ata_cmd_nondma(struct udevice *dev, int port,
 static int mv_sata_identify(struct udevice *dev, int port, u16 *id)
 {
 	struct sata_fis_h2d h2d;
+	int len;
 
 	memset(&h2d, 0, sizeof(struct sata_fis_h2d));
 
@@ -818,8 +819,32 @@ static int mv_sata_identify(struct udevice *dev, int port, u16 *id)
 	/* Give device time to get operational */
 	mdelay(10);
 
-	return mv_ata_exec_ata_cmd_nondma(dev, port, &h2d, (u8 *)id,
-					  ATA_ID_WORDS * 2, READ_CMD);
+	/* During cold start, with some HDDs, the first ATA ID command does
+	 * not populate the ID words. In fact, the first ATA ID
+	 * command will only power up the drive, and then the ATA ID command
+	 * processing is lost in the process.
+	 */
+	len = mv_ata_exec_ata_cmd_nondma(dev, port, &h2d, (u8 *)id,
+					 ATA_ID_WORDS * 2, READ_CMD);
+
+	/* If drive capacity has been filled in, then it was successfully
+	 * identified (the drive has been powered up before, i.e.
+	 * this function is invoked during a reboot)
+	 */
+	if (ata_id_n_sectors(id) != 0)
+		return len;
+
+	/* Issue the 2nd ATA ID command to make sure the ID words are
+	 * populated properly.
+	 */
+	mdelay(10);
+	len = mv_ata_exec_ata_cmd_nondma(dev, port, &h2d, (u8 *)id,
+					 ATA_ID_WORDS * 2, READ_CMD);
+	if (ata_id_n_sectors(id) != 0)
+		return len;
+
+	printf("Err: Failed to identify SATA device %d\n", port);
+	return -ENODEV;
 }
 
 static void mv_sata_xfer_mode(struct udevice *dev, int port, u16 *id)
