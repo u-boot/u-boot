@@ -1670,6 +1670,9 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 		if (mhdr->ext & 0x1) {
 			struct ext_hdr_v0 *ext_hdr;
 
+			if (header_size + sizeof(*ext_hdr) > image_size)
+				return -FDT_ERR_BADSTRUCTURE;
+
 			ext_hdr = (struct ext_hdr_v0 *)
 				(ptr + sizeof(struct main_hdr_v0));
 			checksum = image_checksum8(ext_hdr,
