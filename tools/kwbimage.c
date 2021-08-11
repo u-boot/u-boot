@@ -59,13 +59,13 @@ struct hash_v1 {
 };
 
 struct boot_mode boot_modes[] = {
-	{ 0x4D, "i2c"  },
-	{ 0x5A, "spi"  },
-	{ 0x8B, "nand" },
-	{ 0x78, "sata" },
-	{ 0x9C, "pex"  },
-	{ 0x69, "uart" },
-	{ 0xAE, "sdio" },
+	{ IBR_HDR_I2C_ID, "i2c"  },
+	{ IBR_HDR_SPI_ID, "spi"  },
+	{ IBR_HDR_NAND_ID, "nand" },
+	{ IBR_HDR_SATA_ID, "sata" },
+	{ IBR_HDR_PEX_ID, "pex"  },
+	{ IBR_HDR_UART_ID, "uart" },
+	{ IBR_HDR_SDIO_ID, "sdio" },
 	{},
 };
 
@@ -75,10 +75,10 @@ struct nand_ecc_mode {
 };
 
 struct nand_ecc_mode nand_ecc_modes[] = {
-	{ 0x00, "default" },
-	{ 0x01, "hamming" },
-	{ 0x02, "rs" },
-	{ 0x03, "disabled" },
+	{ IBR_HDR_ECC_DEFAULT, "default" },
+	{ IBR_HDR_ECC_FORCED_HAMMING, "hamming" },
+	{ IBR_HDR_ECC_FORCED_RS, "rs" },
+	{ IBR_HDR_ECC_DISABLED, "disabled" },
 	{},
 };
 
