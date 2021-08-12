@@ -167,7 +167,7 @@ static bool xilinx_detect_legacy(u8 *buffer)
 static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 				  struct xilinx_board_description *desc)
 {
-	int ret, eeprom_size;
+	int i, ret, eeprom_size;
 	u8 *fru_content;
 
 	/* FIXME this is shortcut - if eeprom type is wrong it will fail */
@@ -206,6 +206,10 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 		sizeof(desc->manufacturer));
 	strncpy(desc->name, (char *)fru_data.brd.product_name,
 		sizeof(desc->name));
+	for (i = 0; i < sizeof(desc->name); i++) {
+		if (desc->name[i] == ' ')
+			desc->name[i] = '\0';
+	}
 	strncpy(desc->revision, (char *)fru_data.brd.rev,
 		sizeof(desc->revision));
 	strncpy(desc->serial, (char *)fru_data.brd.serial_number,
