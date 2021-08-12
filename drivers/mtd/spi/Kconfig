@@ -204,6 +204,12 @@ config SPI_FLASH_XMC
 	  Add support for various XMC (Wuhan Xinxin Semiconductor
 	  Manufacturing Corp.) SPI flash chips (XM25xxx)
 
+config SPI_FLASH_XTX
+	bool "XTX SPI flash support"
+	help
+	  Add support for various XTX (XTX Technology Limited)
+	  SPI flash chips (XT25xxx).
+
 endif
 
 config SPI_FLASH_USE_4K_SECTORS

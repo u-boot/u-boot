@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
@@ -59,12 +59,14 @@
 #define ACLK_LCDC1		196
 #define ACLK_GPU		197
 #define ACLK_SMC		198
-#define ACLK_CIF		199
+#define ACLK_CIF1		199
 #define ACLK_IPP		200
 #define ACLK_RGA		201
 #define ACLK_CIF0		202
 #define ACLK_CPU		203
 #define ACLK_PERI		204
+#define ACLK_VEPU		205
+#define ACLK_VDPU		206
 
 /* pclk gates */
 #define PCLK_GRF		320
@@ -125,8 +127,12 @@
 #define HCLK_NANDC0		467
 #define HCLK_CPU		468
 #define HCLK_PERI		469
+#define HCLK_CIF1		470
+#define HCLK_VEPU		471
+#define HCLK_VDPU		472
+#define HCLK_HDMI		473
 
-#define CLK_NR_CLKS		(HCLK_PERI + 1)
+#define CLK_NR_CLKS		(HCLK_HDMI + 1)
 
 /* soft-reset indices */
 #define SRST_MCORE		2
