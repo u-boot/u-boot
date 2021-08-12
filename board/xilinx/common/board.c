@@ -67,7 +67,7 @@ struct xilinx_board_description {
 };
 
 static int highest_id = -1;
-static struct xilinx_board_description **board_info;
+static struct xilinx_board_description *board_info;
 
 #define XILINX_I2C_DETECTION_BITS	sizeof(struct fru_common_hdr)
 
@@ -279,7 +279,7 @@ static int xilinx_read_eeprom_single(char *name,
 
 __maybe_unused int xilinx_read_eeprom(void)
 {
-	int id, ret;
+	int id;
 	char name_buf[8]; /* 8 bytes should be enough for nvmem+number */
 	struct xilinx_board_description *desc;
 
@@ -288,7 +288,7 @@ __maybe_unused int xilinx_read_eeprom(void)
 	if (highest_id < 0)
 		return -EINVAL;
 
-	board_info = calloc(1, sizeof(desc) * highest_id);
+	board_info = calloc(1, sizeof(*desc) * (highest_id + 1));
 	if (!board_info)
 		return -ENOMEM;
 
@@ -299,21 +299,10 @@ __maybe_unused int xilinx_read_eeprom(void)
 		snprintf(name_buf, sizeof(name_buf), "nvmem%d", id);
 
 		/* Alloc structure */
-		desc = board_info[id];
-		if (!desc) {
-			desc = calloc(1, sizeof(*desc));
-			if (!desc)
-				return -ENOMEM;
-
-			board_info[id] = desc;
-		}
+		desc = &board_info[id];
 
 		/* Ignoring return value for supporting multiple chips */
-		ret = xilinx_read_eeprom_single(name_buf, desc);
-		if (ret) {
-			free(desc);
-			board_info[id] = NULL;
-		}
+		xilinx_read_eeprom_single(name_buf, desc);
 	}
 
 	/*
@@ -399,7 +388,7 @@ int board_late_init_xilinx(void)
 	ret |= env_set_addr("bootm_size", (void *)bootm_size);
 
 	for (id = 0; id <= highest_id; id++) {
-		desc = board_info[id];
+		desc = &board_info[id];
 		if (desc && desc->header == EEPROM_HEADER_MAGIC) {
 			if (desc->manufacturer[0])
 				ret |= env_set_by_index("manufacturer", id,
