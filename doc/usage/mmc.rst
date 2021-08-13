@@ -12,9 +12,9 @@ Synopsis
     mmc read addr blk# cnt
     mmc write addr blk# cnt
     mmc erase blk# cnt
-    mmc rescan
+    mmc rescan [mode]
     mmc part
-    mmc dev [dev] [part]
+    mmc dev [dev] [part] [mode]
     mmc list
     mmc wp
     mmc bootbus <dev> <boot_bus_width> <reset_boot_bus_width> <boot_mode>
@@ -49,6 +49,27 @@ The 'mmc erase' command erases *cnt* blocks on the MMC device starting at block 
 
 The 'mmc rescan' command scans the available MMC device.
 
+   mode
+       speed mode to set.
+       CONFIG_MMC_SPEED_MODE_SET should be enabled. The required speed mode is
+       passed as the index from the following list.
+
+       0   - MMC_LEGACY
+       1   - MMC_HS
+       2   - SD_HS
+       3   - MMC_HS_52
+       4   - MMC_DDR_52
+       5   - UHS_SDR12
+       6   - UHS_SDR25
+       7   - UHS_SDR50
+       8   - UHS_DDR50
+       9   - UHS_SDR104
+       10  - MMC_HS_200
+       11  - MMC_HS_400
+       12  - MMC_HS_400_ES
+
+       A speed mode can be set only if it has already been enabled in the device tree
+
 The 'mmc part' command displays the list available partition on current mmc device.
 
 The 'mmc dev' command shows or set current mmc device.
@@ -57,6 +78,27 @@ The 'mmc dev' command shows or set current mmc device.
         device number to change
     part
         partition number to change
+
+   mode
+       speed mode to set.
+       CONFIG_MMC_SPEED_MODE_SET should be enabled. The required speed mode is
+       passed as the index from the following list.
+
+       0   - MMC_LEGACY
+       1   - MMC_HS
+       2   - SD_HS
+       3   - MMC_HS_52
+       4   - MMC_DDR_52
+       5   - UHS_SDR12
+       6   - UHS_SDR25
+       7   - UHS_SDR50
+       8   - UHS_DDR50
+       9   - UHS_SDR104
+       10  - MMC_HS_200
+       11  - MMC_HS_400
+       12  - MMC_HS_400_ES
+
+       A speed mode can be set only if it has already been enabled in the device tree
 
 The 'mmc list' command displays the list available devices.
 
@@ -194,6 +236,9 @@ The current device can be shown or set via 'mmc dev' command:
     => mmc dev 2 0
     switch to partitions #0, OK
     mmc2 is current device
+    => mmc dev 0 1 4
+    switch to partitions #1, OK
+    mmc0(part 1) is current device
 
 The list of available devices can be shown via 'mmc list' command:
 ::
