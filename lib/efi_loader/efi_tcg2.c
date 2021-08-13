@@ -35,6 +35,7 @@ struct event_log_buffer {
 };
 
 static struct event_log_buffer event_log;
+static bool tcg2_efi_app_invoked;
 /*
  * When requesting TPM2_CAP_TPM_PROPERTIES the value is on a standard offset.
  * Since the current tpm2_get_capability() response buffers starts at
@@ -1382,6 +1383,126 @@ static efi_status_t tcg2_measure_variable(struct udevice *dev, u32 pcr_index,
 	ret = tcg2_measure_event(dev, pcr_index, event_type, event_size,
 				 (u8 *)event);
 	free(event);
+	return ret;
+}
+
+/**
+ * tcg2_measure_boot_variable() - measure boot variables
+ *
+ * @dev:	TPM device
+ *
+ * Return:	status code
+ */
+static efi_status_t tcg2_measure_boot_variable(struct udevice *dev)
+{
+	u16 *boot_order;
+	u16 *boot_index;
+	u16 var_name[] = L"BootOrder";
+	u16 boot_name[] = L"Boot####";
+	u8 *bootvar;
+	efi_uintn_t var_data_size;
+	u32 count, i;
+	efi_status_t ret;
+
+	boot_order = efi_get_var(var_name, &efi_global_variable_guid,
+				 &var_data_size);
+	if (!boot_order) {
+		ret = EFI_NOT_FOUND;
+		goto error;
+	}
+
+	ret = tcg2_measure_variable(dev, 1, EV_EFI_VARIABLE_BOOT2, var_name,
+				    &efi_global_variable_guid, var_data_size,
+				    (u8 *)boot_order);
+	if (ret != EFI_SUCCESS)
+		goto error;
+
+	count = var_data_size / sizeof(*boot_order);
+	boot_index = boot_order;
+	for (i = 0; i < count; i++) {
+		efi_create_indexed_name(boot_name, sizeof(boot_name),
+					"Boot", *boot_index++);
+
+		bootvar = efi_get_var(boot_name, &efi_global_variable_guid,
+				      &var_data_size);
+
+		if (!bootvar) {
+			log_info("%ls not found\n", boot_name);
+			continue;
+		}
+
+		ret = tcg2_measure_variable(dev, 1, EV_EFI_VARIABLE_BOOT2,
+					    boot_name,
+					    &efi_global_variable_guid,
+					    var_data_size, bootvar);
+		free(bootvar);
+		if (ret != EFI_SUCCESS)
+			goto error;
+	}
+
+error:
+	free(boot_order);
+	return ret;
+}
+
+/**
+ * efi_tcg2_measure_efi_app_invocation() - measure efi app invocation
+ *
+ * Return:	status code
+ */
+efi_status_t efi_tcg2_measure_efi_app_invocation(void)
+{
+	efi_status_t ret;
+	u32 pcr_index;
+	struct udevice *dev;
+	u32 event = 0;
+
+	if (tcg2_efi_app_invoked)
+		return EFI_SUCCESS;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = tcg2_measure_boot_variable(dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_measure_event(dev, 4, EV_EFI_ACTION,
+				 strlen(EFI_CALLING_EFI_APPLICATION),
+				 (u8 *)EFI_CALLING_EFI_APPLICATION);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	for (pcr_index = 0; pcr_index <= 7; pcr_index++) {
+		ret = tcg2_measure_event(dev, pcr_index, EV_SEPARATOR,
+					 sizeof(event), (u8 *)&event);
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
+
+	tcg2_efi_app_invoked = true;
+out:
+	return ret;
+}
+
+/**
+ * efi_tcg2_measure_efi_app_exit() - measure efi app exit
+ *
+ * Return:	status code
+ */
+efi_status_t efi_tcg2_measure_efi_app_exit(void)
+{
+	efi_status_t ret;
+	struct udevice *dev;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = tcg2_measure_event(dev, 4, EV_EFI_ACTION,
+				 strlen(EFI_RETURNING_FROM_EFI_APPLICATION),
+				 (u8 *)EFI_RETURNING_FROM_EFI_APPLICATION);
 	return ret;
 }
 
