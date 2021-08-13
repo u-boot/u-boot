@@ -142,6 +142,26 @@ struct efi_tcg2_final_events_table {
 	struct tcg_pcr_event2 event[];
 };
 
+/**
+ * struct tdUEFI_VARIABLE_DATA - event log structure of UEFI variable
+ * @variable_name:		The vendorGUID parameter in the
+ *				GetVariable() API.
+ * @unicode_name_length:	The length in CHAR16 of the Unicode name of
+ *				the variable.
+ * @variable_data_length:	The size of the variable data.
+ * @unicode_name:		The CHAR16 unicode name of the variable
+ *				without NULL-terminator.
+ * @variable_data:		The data parameter of the efi variable
+ *				in the GetVariable() API.
+ */
+struct efi_tcg2_uefi_variable_data {
+	efi_guid_t variable_name;
+	u64 unicode_name_length;
+	u64 variable_data_length;
+	u16 unicode_name[1];
+	u8 variable_data[1];
+};
+
 struct efi_tcg2_protocol {
 	efi_status_t (EFIAPI * get_capability)(struct efi_tcg2_protocol *this,
 					       struct efi_tcg2_boot_service_capability *capability);

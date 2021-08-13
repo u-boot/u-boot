@@ -78,6 +78,19 @@ static const struct digest_info hash_algo_list[] = {
 	},
 };
 
+struct variable_info {
+	u16		*name;
+	const efi_guid_t	*guid;
+};
+
+static struct variable_info secure_variables[] = {
+	{L"SecureBoot", &efi_global_variable_guid},
+	{L"PK", &efi_global_variable_guid},
+	{L"KEK", &efi_global_variable_guid},
+	{L"db", &efi_guid_image_security_database},
+	{L"dbx", &efi_guid_image_security_database},
+};
+
 #define MAX_HASH_COUNT ARRAY_SIZE(hash_algo_list)
 
 /**
@@ -1265,6 +1278,39 @@ free_pool:
 }
 
 /**
+ * tcg2_measure_event() - common function to add event log and extend PCR
+ *
+ * @dev:		TPM device
+ * @pcr_index:		PCR index
+ * @event_type:		type of event added
+ * @size:		event size
+ * @event:		event data
+ *
+ * Return:	status code
+ */
+static efi_status_t
+tcg2_measure_event(struct udevice *dev, u32 pcr_index, u32 event_type,
+		   u32 size, u8 event[])
+{
+	struct tpml_digest_values digest_list;
+	efi_status_t ret;
+
+	ret = tcg2_create_digest(event, size, &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_pcr_extend(dev, pcr_index, &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_agile_log_append(pcr_index, event_type, &digest_list,
+				    size, event);
+
+out:
+	return ret;
+}
+
+/**
  * efi_append_scrtm_version - Append an S-CRTM EV_S_CRTM_VERSION event on the
  *			      eventlog and extend the PCRs
  *
@@ -1291,6 +1337,118 @@ static efi_status_t efi_append_scrtm_version(struct udevice *dev)
 				    sizeof(ver), ver);
 
 out:
+	return ret;
+}
+
+/**
+ * tcg2_measure_variable() - add variable event log and extend PCR
+ *
+ * @dev:		TPM device
+ * @pcr_index:		PCR index
+ * @event_type:		type of event added
+ * @var_name:		variable name
+ * @guid:		guid
+ * @data_size:		variable data size
+ * @data:		variable data
+ *
+ * Return:	status code
+ */
+static efi_status_t tcg2_measure_variable(struct udevice *dev, u32 pcr_index,
+					  u32 event_type, u16 *var_name,
+					  const efi_guid_t *guid,
+					  efi_uintn_t data_size, u8 *data)
+{
+	u32 event_size;
+	efi_status_t ret;
+	struct efi_tcg2_uefi_variable_data *event;
+
+	event_size = sizeof(event->variable_name) +
+		     sizeof(event->unicode_name_length) +
+		     sizeof(event->variable_data_length) +
+		     (u16_strlen(var_name) * sizeof(u16)) + data_size;
+	event = malloc(event_size);
+	if (!event)
+		return EFI_OUT_OF_RESOURCES;
+
+	guidcpy(&event->variable_name, guid);
+	event->unicode_name_length = u16_strlen(var_name);
+	event->variable_data_length = data_size;
+	memcpy(event->unicode_name, var_name,
+	       (event->unicode_name_length * sizeof(u16)));
+	if (data) {
+		memcpy((u16 *)event->unicode_name + event->unicode_name_length,
+		       data, data_size);
+	}
+	ret = tcg2_measure_event(dev, pcr_index, event_type, event_size,
+				 (u8 *)event);
+	free(event);
+	return ret;
+}
+
+/**
+ * tcg2_measure_secure_boot_variable() - measure secure boot variables
+ *
+ * @dev:	TPM device
+ *
+ * Return:	status code
+ */
+static efi_status_t tcg2_measure_secure_boot_variable(struct udevice *dev)
+{
+	u8 *data;
+	efi_uintn_t data_size;
+	u32 count, i;
+	efi_status_t ret;
+
+	count = ARRAY_SIZE(secure_variables);
+	for (i = 0; i < count; i++) {
+		/*
+		 * According to the TCG2 PC Client PFP spec, "SecureBoot",
+		 * "PK", "KEK", "db" and "dbx" variables must be measured
+		 * even if they are empty.
+		 */
+		data = efi_get_var(secure_variables[i].name,
+				   secure_variables[i].guid,
+				   &data_size);
+
+		ret = tcg2_measure_variable(dev, 7,
+					    EV_EFI_VARIABLE_DRIVER_CONFIG,
+					    secure_variables[i].name,
+					    secure_variables[i].guid,
+					    data_size, data);
+		free(data);
+		if (ret != EFI_SUCCESS)
+			goto error;
+	}
+
+	/*
+	 * TCG2 PC Client PFP spec says "dbt" and "dbr" are
+	 * measured if present and not empty.
+	 */
+	data = efi_get_var(L"dbt",
+			   &efi_guid_image_security_database,
+			   &data_size);
+	if (data) {
+		ret = tcg2_measure_variable(dev, 7,
+					    EV_EFI_VARIABLE_DRIVER_CONFIG,
+					    L"dbt",
+					    &efi_guid_image_security_database,
+					    data_size, data);
+		free(data);
+	}
+
+	data = efi_get_var(L"dbr",
+			   &efi_guid_image_security_database,
+			   &data_size);
+	if (data) {
+		ret = tcg2_measure_variable(dev, 7,
+					    EV_EFI_VARIABLE_DRIVER_CONFIG,
+					    L"dbr",
+					    &efi_guid_image_security_database,
+					    data_size, data);
+		free(data);
+	}
+
+error:
 	return ret;
 }
 
@@ -1328,6 +1486,13 @@ efi_status_t efi_tcg2_register(void)
 		tcg2_uninit();
 		goto fail;
 	}
+
+	ret = tcg2_measure_secure_boot_variable(dev);
+	if (ret != EFI_SUCCESS) {
+		tcg2_uninit();
+		goto fail;
+	}
+
 	return ret;
 
 fail:
