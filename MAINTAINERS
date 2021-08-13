@@ -520,6 +520,7 @@ F:	arch/arm/mach-sunxi/
 F:	board/sunxi/
 F:	drivers/clk/sunxi/
 F:	drivers/phy/allwinner/
+F:	drivers/pinctrl/sunxi/
 F:	drivers/video/sunxi/
 
 ARM TEGRA

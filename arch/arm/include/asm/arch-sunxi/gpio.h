@@ -224,6 +224,11 @@ enum sunxi_gpio_number {
 #define SUNXI_GPIO_AXP0_VBUS_ENABLE	5
 #define SUNXI_GPIO_AXP0_GPIO_COUNT	6
 
+struct sunxi_gpio_plat {
+	struct sunxi_gpio	*regs;
+	char			bank_name[3];
+};
+
 void sunxi_gpio_set_cfgbank(struct sunxi_gpio *pio, int bank_offset, u32 val);
 void sunxi_gpio_set_cfgpin(u32 pin, u32 val);
 int sunxi_gpio_get_cfgbank(struct sunxi_gpio *pio, int bank_offset);
