@@ -1321,23 +1321,11 @@ out:
  */
 static efi_status_t efi_append_scrtm_version(struct udevice *dev)
 {
-	struct tpml_digest_values digest_list;
 	u8 ver[] = U_BOOT_VERSION_STRING;
-	const int pcr_index = 0;
 	efi_status_t ret;
 
-	ret = tcg2_create_digest(ver, sizeof(ver), &digest_list);
-	if (ret != EFI_SUCCESS)
-		goto out;
+	ret = tcg2_measure_event(dev, 0, EV_S_CRTM_VERSION, sizeof(ver), ver);
 
-	ret = tcg2_pcr_extend(dev, pcr_index, &digest_list);
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	ret = tcg2_agile_log_append(pcr_index, EV_S_CRTM_VERSION, &digest_list,
-				    sizeof(ver), ver);
-
-out:
 	return ret;
 }
 
