@@ -184,8 +184,7 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 			  eeprom_size);
 	if (ret) {
 		debug("%s: I2C EEPROM read failed\n", __func__);
-		free(fru_content);
-		return ret;
+		goto end;
 	}
 
 	printf("Xilinx I2C FRU format at %s:\n", name);
@@ -193,12 +192,13 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 	ret = fru_display(0);
 	if (ret) {
 		printf("FRU format decoding failed.\n");
-		return ret;
+		goto end;
 	}
 
 	if (desc->header == EEPROM_HEADER_MAGIC) {
 		debug("Information already filled\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto end;
 	}
 
 	/* It is clear that FRU was captured and structures were filled */
@@ -216,7 +216,9 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 		sizeof(desc->serial));
 	desc->header = EEPROM_HEADER_MAGIC;
 
-	return 0;
+end:
+	free(fru_content);
+	return ret;
 }
 
 static bool xilinx_detect_fru(u8 *buffer)
