@@ -158,6 +158,7 @@ struct spi_slave {
 #define SPI_XFER_MMAP		BIT(2)	/* Memory Mapped start */
 #define SPI_XFER_MMAP_END	BIT(3)	/* Memory Mapped End */
 #define SPI_XFER_U_PAGE		BIT(4)
+#define SPI_XFER_SET_DDR        BIT(5)
 
 	u8 option;
 	u8 dio;

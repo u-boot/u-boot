@@ -124,6 +124,8 @@
 /* Used for Micron flashes only. */
 #define SPINOR_OP_RD_EVCR      0x65    /* Read EVCR register */
 #define SPINOR_OP_WD_EVCR      0x61    /* Write EVCR register */
+#define SPINOR_OP_WRCR		0x81	/* Write Configuration Register */
+#define SPINOR_EN_OCTAL_DDR	0xe7	/* Enable octal DDR for micron */
 
 /* Status Register bits. */
 #define SR_WIP			BIT(0)	/* Write in progress */
@@ -354,6 +356,7 @@ struct spi_nor {
 	int (*flash_unlock)(struct spi_nor *nor, loff_t ofs, uint64_t len);
 	int (*flash_is_locked)(struct spi_nor *nor, loff_t ofs, uint64_t len);
 	int (*quad_enable)(struct spi_nor *nor);
+	int (*octal_ddr_enable)(struct spi_nor *nor);
 
 	void *priv;
 /* Compatibility for spi_flash, remove once sf layer is merged with mtd */
