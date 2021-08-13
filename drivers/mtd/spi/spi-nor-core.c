@@ -2414,6 +2414,13 @@ static int spi_nor_init_params(struct spi_nor *nor,
 					  0, 8, SPINOR_OP_READ_1_1_8,
 					  SNOR_PROTO_1_1_8);
 	}
+	if (info->flags & SPI_NOR_OCTAL_DTR_READ) {
+		params->hwcaps.mask |= SNOR_HWCAPS_READ_8_8_8;
+		spi_nor_set_read_settings
+				(&params->reads[SNOR_CMD_READ_8_8_8],
+				 0, 16, SPINOR_OP_READ_1_8_8,
+				 SNOR_PROTO_8_8_8);
+	}
 
 	/* Page Program settings. */
 	params->hwcaps.mask |= SNOR_HWCAPS_PP;
@@ -2424,6 +2431,14 @@ static int spi_nor_init_params(struct spi_nor *nor,
 		params->hwcaps.mask |= SNOR_HWCAPS_PP_1_1_4;
 		spi_nor_set_pp_settings(&params->page_programs[SNOR_CMD_PP_1_1_4],
 					SPINOR_OP_PP_1_1_4, SNOR_PROTO_1_1_4);
+	}
+
+	if (info->flags & SPI_NOR_OCTAL_WRITE) {
+		params->hwcaps.mask |= SNOR_HWCAPS_PP_8_8_8;
+		spi_nor_set_pp_settings
+				(&params->page_programs[SNOR_CMD_PP_8_8_8],
+				 SPINOR_OP_PP_1_8_8,
+				 SNOR_PROTO_8_8_8);
 	}
 
 	/* Select the procedure to set the Quad Enable bit. */
@@ -2622,9 +2637,7 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 	/* SPI n-n-n protocols are not supported yet. */
 	ignored_mask = (SNOR_HWCAPS_READ_2_2_2 |
 			SNOR_HWCAPS_READ_4_4_4 |
-			SNOR_HWCAPS_READ_8_8_8 |
-			SNOR_HWCAPS_PP_4_4_4 |
-			SNOR_HWCAPS_PP_8_8_8);
+			SNOR_HWCAPS_PP_4_4_4);
 	if (shared_mask & ignored_mask) {
 		dev_dbg(nor->dev,
 			"SPI n-n-n protocols are not supported yet.\n");
@@ -2955,12 +2968,10 @@ int spi_nor_scan(struct spi_nor *nor)
 	nor->write_reg = spi_nor_write_reg;
 
 	if (spi->mode & SPI_RX_OCTAL) {
-		hwcaps.mask |= SNOR_HWCAPS_READ_1_1_8;
+		hwcaps.mask |= SNOR_HWCAPS_READ_MASK;
 
 		if (spi->mode & SPI_TX_OCTAL)
-			hwcaps.mask |= (SNOR_HWCAPS_READ_1_8_8 |
-					SNOR_HWCAPS_PP_1_1_8 |
-					SNOR_HWCAPS_PP_1_8_8);
+			hwcaps.mask |= SNOR_HWCAPS_PP_MASK;
 	} else if (spi->mode & SPI_RX_QUAD) {
 		hwcaps.mask |= SNOR_HWCAPS_READ_1_1_4;
 
