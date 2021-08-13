@@ -2862,7 +2862,25 @@ int mmc_start_init(struct mmc *mmc)
 	 * timings.
 	 */
 	mmc->host_caps = mmc->cfg->host_caps | MMC_CAP(MMC_LEGACY) |
-			 MMC_CAP(MMC_LEGACY) | MMC_MODE_1BIT;
+			 MMC_MODE_1BIT;
+
+	if (IS_ENABLED(CONFIG_MMC_SPEED_MODE_SET)) {
+		if (mmc->user_speed_mode != MMC_MODES_END) {
+			int i;
+			/* set host caps */
+			if (mmc->host_caps & MMC_CAP(mmc->user_speed_mode)) {
+				/* Remove all existing speed capabilities */
+				for (i = MMC_LEGACY; i < MMC_MODES_END; i++)
+					mmc->host_caps &= ~MMC_CAP(i);
+				mmc->host_caps |= (MMC_CAP(mmc->user_speed_mode)
+						   | MMC_CAP(MMC_LEGACY) |
+						   MMC_MODE_1BIT);
+			} else {
+				pr_err("bus_mode requested is not supported\n");
+				return -EINVAL;
+			}
+		}
+	}
 #if CONFIG_IS_ENABLED(DM_MMC)
 	mmc_deferred_probe(mmc);
 #endif
@@ -3060,6 +3078,8 @@ int mmc_init_device(int num)
 	}
 
 	m = mmc_get_mmc_dev(dev);
+	m->user_speed_mode = MMC_MODES_END; /* Initialising user set speed mode */
+
 	if (!m)
 		return 0;
 	if (m->preinit)
