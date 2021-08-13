@@ -2182,6 +2182,11 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	efi_set_watchdog(0);
 	WATCHDOG_RESET();
 out:
+	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
+		if (ret != EFI_SUCCESS)
+			efi_tcg2_notify_exit_boot_services_failed();
+	}
+
 	return EFI_EXIT(ret);
 }
 

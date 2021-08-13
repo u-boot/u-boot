@@ -1507,6 +1507,67 @@ efi_status_t efi_tcg2_measure_efi_app_exit(void)
 }
 
 /**
+ * efi_tcg2_notify_exit_boot_services() - ExitBootService callback
+ *
+ * @event:	callback event
+ * @context:	callback context
+ */
+static void EFIAPI
+efi_tcg2_notify_exit_boot_services(struct efi_event *event, void *context)
+{
+	efi_status_t ret;
+	struct udevice *dev;
+
+	EFI_ENTRY("%p, %p", event, context);
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_ACTION,
+				 strlen(EFI_EXIT_BOOT_SERVICES_INVOCATION),
+				 (u8 *)EFI_EXIT_BOOT_SERVICES_INVOCATION);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_ACTION,
+				 strlen(EFI_EXIT_BOOT_SERVICES_SUCCEEDED),
+				 (u8 *)EFI_EXIT_BOOT_SERVICES_SUCCEEDED);
+
+out:
+	EFI_EXIT(ret);
+}
+
+/**
+ * efi_tcg2_notify_exit_boot_services_failed()
+ *  - notify ExitBootServices() is failed
+ *
+ * Return:	status code
+ */
+efi_status_t efi_tcg2_notify_exit_boot_services_failed(void)
+{
+	struct udevice *dev;
+	efi_status_t ret;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_ACTION,
+				 strlen(EFI_EXIT_BOOT_SERVICES_INVOCATION),
+				 (u8 *)EFI_EXIT_BOOT_SERVICES_INVOCATION);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_ACTION,
+				 strlen(EFI_EXIT_BOOT_SERVICES_FAILED),
+				 (u8 *)EFI_EXIT_BOOT_SERVICES_FAILED);
+
+out:
+	return ret;
+}
+
+/**
  * tcg2_measure_secure_boot_variable() - measure secure boot variables
  *
  * @dev:	TPM device
@@ -1584,6 +1645,7 @@ efi_status_t efi_tcg2_register(void)
 {
 	efi_status_t ret = EFI_SUCCESS;
 	struct udevice *dev;
+	struct efi_event *event;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
@@ -1603,6 +1665,14 @@ efi_status_t efi_tcg2_register(void)
 
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
+	if (ret != EFI_SUCCESS) {
+		tcg2_uninit();
+		goto fail;
+	}
+
+	ret = efi_create_event(EVT_SIGNAL_EXIT_BOOT_SERVICES, TPL_CALLBACK,
+			       efi_tcg2_notify_exit_boot_services, NULL,
+			       NULL, &event);
 	if (ret != EFI_SUCCESS) {
 		tcg2_uninit();
 		goto fail;

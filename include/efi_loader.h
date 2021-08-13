@@ -499,6 +499,7 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size);
 efi_status_t efi_init_variables(void);
 /* Notify ExitBootServices() is called */
 void efi_variables_boot_exit_notify(void);
+efi_status_t efi_tcg2_notify_exit_boot_services_failed(void);
 /* Measure efi application invocation */
 efi_status_t efi_tcg2_measure_efi_app_invocation(void);
 /* Measure efi application exit */
