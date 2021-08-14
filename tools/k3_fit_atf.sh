@@ -67,8 +67,8 @@ cat << __HEADER_EOF
 			arch = "arm32";
 			compression = "none";
 			os = "DM";
-			load = <0xa0000000>;
-			entry = <0xa0000000>;
+			load = <0x89000000>;
+			entry = <0x89000000>;
 		};
 		spl {
 			description = "SPL (64-bit)";
