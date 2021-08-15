@@ -35,6 +35,7 @@ struct event_log_buffer {
 };
 
 static struct event_log_buffer event_log;
+static bool tcg2_efi_app_invoked;
 /*
  * When requesting TPM2_CAP_TPM_PROPERTIES the value is on a standard offset.
  * Since the current tpm2_get_capability() response buffers starts at
@@ -76,6 +77,19 @@ static const struct digest_info hash_algo_list[] = {
 		EFI_TCG2_BOOT_HASH_ALG_SHA512,
 		TPM2_SHA512_DIGEST_SIZE,
 	},
+};
+
+struct variable_info {
+	u16		*name;
+	const efi_guid_t	*guid;
+};
+
+static struct variable_info secure_variables[] = {
+	{L"SecureBoot", &efi_global_variable_guid},
+	{L"PK", &efi_global_variable_guid},
+	{L"KEK", &efi_global_variable_guid},
+	{L"db", &efi_guid_image_security_database},
+	{L"dbx", &efi_guid_image_security_database},
 };
 
 #define MAX_HASH_COUNT ARRAY_SIZE(hash_algo_list)
@@ -1265,6 +1279,39 @@ free_pool:
 }
 
 /**
+ * tcg2_measure_event() - common function to add event log and extend PCR
+ *
+ * @dev:		TPM device
+ * @pcr_index:		PCR index
+ * @event_type:		type of event added
+ * @size:		event size
+ * @event:		event data
+ *
+ * Return:	status code
+ */
+static efi_status_t
+tcg2_measure_event(struct udevice *dev, u32 pcr_index, u32 event_type,
+		   u32 size, u8 event[])
+{
+	struct tpml_digest_values digest_list;
+	efi_status_t ret;
+
+	ret = tcg2_create_digest(event, size, &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_pcr_extend(dev, pcr_index, &digest_list);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_agile_log_append(pcr_index, event_type, &digest_list,
+				    size, event);
+
+out:
+	return ret;
+}
+
+/**
  * efi_append_scrtm_version - Append an S-CRTM EV_S_CRTM_VERSION event on the
  *			      eventlog and extend the PCRs
  *
@@ -1274,23 +1321,304 @@ free_pool:
  */
 static efi_status_t efi_append_scrtm_version(struct udevice *dev)
 {
-	struct tpml_digest_values digest_list;
 	u8 ver[] = U_BOOT_VERSION_STRING;
-	const int pcr_index = 0;
 	efi_status_t ret;
 
-	ret = tcg2_create_digest(ver, sizeof(ver), &digest_list);
+	ret = tcg2_measure_event(dev, 0, EV_S_CRTM_VERSION, sizeof(ver), ver);
+
+	return ret;
+}
+
+/**
+ * tcg2_measure_variable() - add variable event log and extend PCR
+ *
+ * @dev:		TPM device
+ * @pcr_index:		PCR index
+ * @event_type:		type of event added
+ * @var_name:		variable name
+ * @guid:		guid
+ * @data_size:		variable data size
+ * @data:		variable data
+ *
+ * Return:	status code
+ */
+static efi_status_t tcg2_measure_variable(struct udevice *dev, u32 pcr_index,
+					  u32 event_type, u16 *var_name,
+					  const efi_guid_t *guid,
+					  efi_uintn_t data_size, u8 *data)
+{
+	u32 event_size;
+	efi_status_t ret;
+	struct efi_tcg2_uefi_variable_data *event;
+
+	event_size = sizeof(event->variable_name) +
+		     sizeof(event->unicode_name_length) +
+		     sizeof(event->variable_data_length) +
+		     (u16_strlen(var_name) * sizeof(u16)) + data_size;
+	event = malloc(event_size);
+	if (!event)
+		return EFI_OUT_OF_RESOURCES;
+
+	guidcpy(&event->variable_name, guid);
+	event->unicode_name_length = u16_strlen(var_name);
+	event->variable_data_length = data_size;
+	memcpy(event->unicode_name, var_name,
+	       (event->unicode_name_length * sizeof(u16)));
+	if (data) {
+		memcpy((u16 *)event->unicode_name + event->unicode_name_length,
+		       data, data_size);
+	}
+	ret = tcg2_measure_event(dev, pcr_index, event_type, event_size,
+				 (u8 *)event);
+	free(event);
+	return ret;
+}
+
+/**
+ * tcg2_measure_boot_variable() - measure boot variables
+ *
+ * @dev:	TPM device
+ *
+ * Return:	status code
+ */
+static efi_status_t tcg2_measure_boot_variable(struct udevice *dev)
+{
+	u16 *boot_order;
+	u16 *boot_index;
+	u16 var_name[] = L"BootOrder";
+	u16 boot_name[] = L"Boot####";
+	u8 *bootvar;
+	efi_uintn_t var_data_size;
+	u32 count, i;
+	efi_status_t ret;
+
+	boot_order = efi_get_var(var_name, &efi_global_variable_guid,
+				 &var_data_size);
+	if (!boot_order) {
+		ret = EFI_NOT_FOUND;
+		goto error;
+	}
+
+	ret = tcg2_measure_variable(dev, 1, EV_EFI_VARIABLE_BOOT2, var_name,
+				    &efi_global_variable_guid, var_data_size,
+				    (u8 *)boot_order);
+	if (ret != EFI_SUCCESS)
+		goto error;
+
+	count = var_data_size / sizeof(*boot_order);
+	boot_index = boot_order;
+	for (i = 0; i < count; i++) {
+		efi_create_indexed_name(boot_name, sizeof(boot_name),
+					"Boot", *boot_index++);
+
+		bootvar = efi_get_var(boot_name, &efi_global_variable_guid,
+				      &var_data_size);
+
+		if (!bootvar) {
+			log_info("%ls not found\n", boot_name);
+			continue;
+		}
+
+		ret = tcg2_measure_variable(dev, 1, EV_EFI_VARIABLE_BOOT2,
+					    boot_name,
+					    &efi_global_variable_guid,
+					    var_data_size, bootvar);
+		free(bootvar);
+		if (ret != EFI_SUCCESS)
+			goto error;
+	}
+
+error:
+	free(boot_order);
+	return ret;
+}
+
+/**
+ * efi_tcg2_measure_efi_app_invocation() - measure efi app invocation
+ *
+ * Return:	status code
+ */
+efi_status_t efi_tcg2_measure_efi_app_invocation(void)
+{
+	efi_status_t ret;
+	u32 pcr_index;
+	struct udevice *dev;
+	u32 event = 0;
+
+	if (tcg2_efi_app_invoked)
+		return EFI_SUCCESS;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = tcg2_measure_boot_variable(dev);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = tcg2_pcr_extend(dev, pcr_index, &digest_list);
+	ret = tcg2_measure_event(dev, 4, EV_EFI_ACTION,
+				 strlen(EFI_CALLING_EFI_APPLICATION),
+				 (u8 *)EFI_CALLING_EFI_APPLICATION);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = tcg2_agile_log_append(pcr_index, EV_S_CRTM_VERSION, &digest_list,
-				    sizeof(ver), ver);
+	for (pcr_index = 0; pcr_index <= 7; pcr_index++) {
+		ret = tcg2_measure_event(dev, pcr_index, EV_SEPARATOR,
+					 sizeof(event), (u8 *)&event);
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
+
+	tcg2_efi_app_invoked = true;
+out:
+	return ret;
+}
+
+/**
+ * efi_tcg2_measure_efi_app_exit() - measure efi app exit
+ *
+ * Return:	status code
+ */
+efi_status_t efi_tcg2_measure_efi_app_exit(void)
+{
+	efi_status_t ret;
+	struct udevice *dev;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = tcg2_measure_event(dev, 4, EV_EFI_ACTION,
+				 strlen(EFI_RETURNING_FROM_EFI_APPLICATION),
+				 (u8 *)EFI_RETURNING_FROM_EFI_APPLICATION);
+	return ret;
+}
+
+/**
+ * efi_tcg2_notify_exit_boot_services() - ExitBootService callback
+ *
+ * @event:	callback event
+ * @context:	callback context
+ */
+static void EFIAPI
+efi_tcg2_notify_exit_boot_services(struct efi_event *event, void *context)
+{
+	efi_status_t ret;
+	struct udevice *dev;
+
+	EFI_ENTRY("%p, %p", event, context);
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_ACTION,
+				 strlen(EFI_EXIT_BOOT_SERVICES_INVOCATION),
+				 (u8 *)EFI_EXIT_BOOT_SERVICES_INVOCATION);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_ACTION,
+				 strlen(EFI_EXIT_BOOT_SERVICES_SUCCEEDED),
+				 (u8 *)EFI_EXIT_BOOT_SERVICES_SUCCEEDED);
 
 out:
+	EFI_EXIT(ret);
+}
+
+/**
+ * efi_tcg2_notify_exit_boot_services_failed()
+ *  - notify ExitBootServices() is failed
+ *
+ * Return:	status code
+ */
+efi_status_t efi_tcg2_notify_exit_boot_services_failed(void)
+{
+	struct udevice *dev;
+	efi_status_t ret;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_ACTION,
+				 strlen(EFI_EXIT_BOOT_SERVICES_INVOCATION),
+				 (u8 *)EFI_EXIT_BOOT_SERVICES_INVOCATION);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_ACTION,
+				 strlen(EFI_EXIT_BOOT_SERVICES_FAILED),
+				 (u8 *)EFI_EXIT_BOOT_SERVICES_FAILED);
+
+out:
+	return ret;
+}
+
+/**
+ * tcg2_measure_secure_boot_variable() - measure secure boot variables
+ *
+ * @dev:	TPM device
+ *
+ * Return:	status code
+ */
+static efi_status_t tcg2_measure_secure_boot_variable(struct udevice *dev)
+{
+	u8 *data;
+	efi_uintn_t data_size;
+	u32 count, i;
+	efi_status_t ret;
+
+	count = ARRAY_SIZE(secure_variables);
+	for (i = 0; i < count; i++) {
+		/*
+		 * According to the TCG2 PC Client PFP spec, "SecureBoot",
+		 * "PK", "KEK", "db" and "dbx" variables must be measured
+		 * even if they are empty.
+		 */
+		data = efi_get_var(secure_variables[i].name,
+				   secure_variables[i].guid,
+				   &data_size);
+
+		ret = tcg2_measure_variable(dev, 7,
+					    EV_EFI_VARIABLE_DRIVER_CONFIG,
+					    secure_variables[i].name,
+					    secure_variables[i].guid,
+					    data_size, data);
+		free(data);
+		if (ret != EFI_SUCCESS)
+			goto error;
+	}
+
+	/*
+	 * TCG2 PC Client PFP spec says "dbt" and "dbr" are
+	 * measured if present and not empty.
+	 */
+	data = efi_get_var(L"dbt",
+			   &efi_guid_image_security_database,
+			   &data_size);
+	if (data) {
+		ret = tcg2_measure_variable(dev, 7,
+					    EV_EFI_VARIABLE_DRIVER_CONFIG,
+					    L"dbt",
+					    &efi_guid_image_security_database,
+					    data_size, data);
+		free(data);
+	}
+
+	data = efi_get_var(L"dbr",
+			   &efi_guid_image_security_database,
+			   &data_size);
+	if (data) {
+		ret = tcg2_measure_variable(dev, 7,
+					    EV_EFI_VARIABLE_DRIVER_CONFIG,
+					    L"dbr",
+					    &efi_guid_image_security_database,
+					    data_size, data);
+		free(data);
+	}
+
+error:
 	return ret;
 }
 
@@ -1305,6 +1633,7 @@ efi_status_t efi_tcg2_register(void)
 {
 	efi_status_t ret = EFI_SUCCESS;
 	struct udevice *dev;
+	struct efi_event *event;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
@@ -1328,6 +1657,21 @@ efi_status_t efi_tcg2_register(void)
 		tcg2_uninit();
 		goto fail;
 	}
+
+	ret = efi_create_event(EVT_SIGNAL_EXIT_BOOT_SERVICES, TPL_CALLBACK,
+			       efi_tcg2_notify_exit_boot_services, NULL,
+			       NULL, &event);
+	if (ret != EFI_SUCCESS) {
+		tcg2_uninit();
+		goto fail;
+	}
+
+	ret = tcg2_measure_secure_boot_variable(dev);
+	if (ret != EFI_SUCCESS) {
+		tcg2_uninit();
+		goto fail;
+	}
+
 	return ret;
 
 fail:

@@ -11,6 +11,7 @@ Implementation
 
    ci_testing
    commands
+   devicetree/index
    driver-model/index
    global_data
    logging
