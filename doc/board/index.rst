@@ -14,11 +14,11 @@ Board-specific doc
    congatec/index
    coreboot/index
    emulation/index
-   freescale/index
    google/index
    intel/index
    kontron/index
    microchip/index
+   nxp/index
    openpiton/index
    qualcomm/index
    rockchip/index
