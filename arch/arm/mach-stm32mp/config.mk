@@ -4,7 +4,7 @@
 #
 
 ifndef CONFIG_SPL
-INPUTS-y += u-boot.stm32
+INPUTS-$(CONFIG_STM32MP15x_STM32IMAGE) += u-boot.stm32
 else
 ifdef CONFIG_SPL_BUILD
 INPUTS-y += u-boot-spl.stm32

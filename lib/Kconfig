@@ -303,6 +303,7 @@ config AES
 	  supported by the algorithm but only a 128-bit key is supported at
 	  present.
 
+source lib/ecdsa/Kconfig
 source lib/rsa/Kconfig
 source lib/crypto/Kconfig
 source lib/crypt/Kconfig

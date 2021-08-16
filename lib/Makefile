@@ -60,6 +60,7 @@ endif
 
 obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi/
 obj-$(CONFIG_$(SPL_)MD5) += md5.o
+obj-$(CONFIG_ECDSA) += ecdsa/
 obj-$(CONFIG_$(SPL_)RSA) += rsa/
 obj-$(CONFIG_HASH) += hash-checksum.o
 obj-$(CONFIG_SHA1) += sha1.o

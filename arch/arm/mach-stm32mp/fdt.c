@@ -332,7 +332,16 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 				       "st,package", pkg, false);
 	}
 
-	if (!CONFIG_IS_ENABLED(OPTEE) ||
+	/*
+	 * TEMP: remove OP-TEE nodes in kernel device tree
+	 *       copied from U-Boot device tree by optee_copy_fdt_nodes
+	 *       when OP-TEE is not detected (probe failed)
+	 * these OP-TEE nodes are present in <board>-u-boot.dtsi
+	 * under CONFIG_STM32MP15x_STM32IMAGE only for compatibility
+	 * when FIP is not used by TF-A
+	 */
+	if (CONFIG_IS_ENABLED(STM32MP15x_STM32IMAGE) &&
+	    CONFIG_IS_ENABLED(OPTEE) &&
 	    !tee_find_device(NULL, NULL, NULL, NULL))
 		stm32_fdt_disable_optee(blob);
 
