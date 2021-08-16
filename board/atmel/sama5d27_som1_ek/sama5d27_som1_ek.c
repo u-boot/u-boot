@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <fdtdec.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -68,7 +69,7 @@ int board_early_init_f(void)
 int board_init(void)
 {
 	/* address of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;
 
 #ifdef CONFIG_CMD_USB
 	board_usb_hw_init();
@@ -77,11 +78,14 @@ int board_init(void)
 	return 0;
 }
 
+int dram_init_banksize(void)
+{
+	return fdtdec_setup_memory_banksize();
+}
+
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
-				    CONFIG_SYS_SDRAM_SIZE);
-	return 0;
+	return fdtdec_setup_mem_size_base();
 }
 
 #define MAC24AA_MAC_OFFSET	0xfa
