@@ -202,18 +202,31 @@ static void rpc_spi_flush_read_cache(struct udevice *dev)
 
 }
 
+static u32 rpc_spi_get_strobe_delay(void)
+{
+#ifndef CONFIG_RZA1
+	u32 cpu_type = rmobile_get_cpu_type();
+
+	/*
+	 * NOTE: RPC_PHYCNT_STRTIM value:
+	 *       0: On H3 ES1.x (not supported in mainline U-Boot)
+	 *       6: On M3 ES1.x
+	 *       7: On other R-Car Gen3
+	 */
+	if (cpu_type == RMOBILE_CPU_TYPE_R8A7796 && rmobile_get_cpu_rev_integer() == 1)
+		return RPC_PHYCNT_STRTIM(6);
+	else
+#endif
+		return RPC_PHYCNT_STRTIM(7);
+}
+
 static int rpc_spi_claim_bus(struct udevice *dev, bool manual)
 {
 	struct udevice *bus = dev->parent;
 	struct rpc_spi_priv *priv = dev_get_priv(bus);
 
-	/*
-	 * NOTE: The 0x260 are undocumented bits, but they must be set.
-	 * NOTE: On H3 ES1.x (not supported in mainline U-Boot), the
-	 *       RPC_PHYCNT_STRTIM shall be 0, while on newer parts, the
-	 *       RPC_PHYCNT_STRTIM shall be 6.
-	 */
-	writel(RPC_PHYCNT_CAL | RPC_PHYCNT_STRTIM(6) | 0x260,
+	/* NOTE: The 0x260 are undocumented bits, but they must be set. */
+	writel(RPC_PHYCNT_CAL | rpc_spi_get_strobe_delay() | 0x260,
 	       priv->regs + RPC_PHYCNT);
 	writel((manual ? RPC_CMNCR_MD : 0) | RPC_CMNCR_SFDE |
 		 RPC_CMNCR_MOIIO_HIZ | RPC_CMNCR_IOFV_HIZ | RPC_CMNCR_BSZ(0),
@@ -233,7 +246,7 @@ static int rpc_spi_release_bus(struct udevice *dev)
 	struct rpc_spi_priv *priv = dev_get_priv(bus);
 
 	/* NOTE: The 0x260 are undocumented bits, but they must be set. */
-	writel(RPC_PHYCNT_STRTIM(6) | 0x260, priv->regs + RPC_PHYCNT);
+	writel(rpc_spi_get_strobe_delay() | 0x260, priv->regs + RPC_PHYCNT);
 
 	rpc_spi_flush_read_cache(dev);
 
