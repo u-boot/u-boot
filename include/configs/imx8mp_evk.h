@@ -43,9 +43,6 @@
 #define FEC_QUIRK_ENET_MAC
 
 #define DWC_NET_PHYADDR			1
-#ifdef CONFIG_DWC_ETH_QOS
-#define CONFIG_SYS_NONCACHED_MEMORY     (1 * SZ_1M)     /* 1M */
-#endif
 
 #define PHY_ANEG_TIMEOUT 20000
 
