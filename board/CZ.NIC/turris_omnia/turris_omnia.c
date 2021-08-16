@@ -434,6 +434,11 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
+	return 0;
+}
+
+int board_late_init(void)
+{
 	/*
 	 * If not booting from UART, MCU watchdog was not disabled in SPL,
 	 * disable it now.
@@ -441,11 +446,6 @@ int board_init(void)
 	if (get_boot_device() != BOOT_DEVICE_UART)
 		disable_mcu_watchdog();
 
-	return 0;
-}
-
-int board_late_init(void)
-{
 	set_regdomain();
 	handle_reset_button();
 	pci_init();
