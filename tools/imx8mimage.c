@@ -271,7 +271,7 @@ static void copy_file(int ifd, const char *datafile, int pad, int offset,
 	if (ptr == MAP_FAILED) {
 		fprintf(stderr, "Can't read %s: %s\n",
 			datafile, strerror(errno));
-		exit(EXIT_FAILURE);
+		goto err_mmap;
 	}
 
 	size = sbuf.st_size - datafile_offset;
@@ -311,6 +311,7 @@ static void copy_file(int ifd, const char *datafile, int pad, int offset,
 	}
 
 	munmap((void *)ptr, sbuf.st_size);
+err_mmap:
 	close(dfd);
 }
 
