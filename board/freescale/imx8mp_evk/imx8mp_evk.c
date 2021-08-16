@@ -101,9 +101,10 @@ int board_init(void)
 
 	if (CONFIG_IS_ENABLED(FEC_MXC)) {
 		setup_fec();
+	}
 
-		if (CONFIG_IS_ENABLED(DWC_ETH_QOS))
-			ret = setup_eqos();
+	if (CONFIG_IS_ENABLED(DWC_ETH_QOS)) {
+		ret = setup_eqos();
 	}
 
 	return ret;
