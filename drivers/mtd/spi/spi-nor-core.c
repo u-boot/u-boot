@@ -2912,7 +2912,9 @@ static int micron_is_locked_sr(struct spi_nor *nor, loff_t ofs, uint64_t len,
 	u64 lock_len;
 
 	ofs >>= nor->shift;
-	len >>= nor->shift;
+	/* Avoid shifting of data length for size 1 */
+	if (len != 1)
+		len >>= nor->shift;
 
 	debug("%s, ofs:0x%lx, len:0x%lx\n", __func__,
 	      (unsigned long)ofs,
