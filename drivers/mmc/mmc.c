@@ -2092,14 +2092,16 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 	}
 
 #if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
 	/*
 	 * In case the eMMC is in HS200/HS400 mode, downgrade to HS mode
 	 * before doing anything else, since a transition from either of
 	 * the HS200/HS400 mode directly to legacy mode is not supported.
 	 */
 	if (mmc->selected_mode == MMC_HS_200 ||
-	    mmc->selected_mode == MMC_HS_400)
+	    mmc->selected_mode == MMC_HS_400 ||
+	    mmc->selected_mode == MMC_HS_400_ES)
 		mmc_set_card_speed(mmc, MMC_HS, true);
 	else
 #endif
@@ -2970,7 +2972,7 @@ int mmc_deinit(struct mmc *mmc)
 		return sd_select_mode_and_width(mmc, caps_filtered);
 	} else {
 		caps_filtered = mmc->card_caps &
-			~(MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_HS_400));
+			~(MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_HS_400) | MMC_CAP(MMC_HS_400_ES));
 
 		return mmc_select_mode_and_width(mmc, caps_filtered);
 	}
