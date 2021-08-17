@@ -13,18 +13,6 @@
 	};
 };
 
-&sdmmc0 {
-	u-boot,dm-pre-reloc;
-};
-
-&uart0 { /* mikrobus1 uart */
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl_sdmmc0_default {
-	u-boot,dm-pre-reloc;
-};
-
 &pinctrl_mikrobus1_uart {
 	u-boot,dm-pre-reloc;
 };
@@ -37,6 +25,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&pinctrl_sdmmc0_default {
+	u-boot,dm-pre-reloc;
+};
+
 &qspi1 {
 	u-boot,dm-pre-reloc;
 
@@ -44,3 +36,12 @@
 		u-boot,dm-pre-reloc;
 	};
 };
+
+&sdmmc0 {
+	u-boot,dm-pre-reloc;
+};
+
+&uart0 { /* mikrobus1 uart */
+	u-boot,dm-pre-reloc;
+};
+
