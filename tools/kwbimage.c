@@ -832,6 +832,12 @@ static int kwb_dump_fuse_cmds(struct secure_hdr_v1 *sec_hdr)
 	if (!strcmp(e->name, "a38x")) {
 		FILE *out = fopen("kwb_fuses_a38x.txt", "w+");
 
+		if (!out) {
+			fprintf(stderr, "Couldn't open eFuse settings: '%s': %s\n",
+				"kwb_fuses_a38x.txt", strerror(errno));
+			return -ENOENT;
+		}
+
 		kwb_dump_fuse_cmds_38x(out, sec_hdr);
 		fclose(out);
 		goto done;
@@ -1060,6 +1066,11 @@ int export_pub_kak_hash(RSA *kak, struct secure_hdr_v1 *secure_hdr)
 	int res;
 
 	hashf = fopen("pub_kak_hash.txt", "w");
+	if (!hashf) {
+		fprintf(stderr, "Couldn't open hash file: '%s': %s\n",
+			"pub_kak_hash.txt", strerror(errno));
+		return 1;
+	}
 
 	res = kwb_export_pubkey(kak, &secure_hdr->kak, hashf, "KAK");
 
