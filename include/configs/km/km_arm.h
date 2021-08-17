@@ -91,7 +91,6 @@
  */
 #undef CONFIG_I2C_MVTWSI
 #define CONFIG_SYS_I2C_LEGACY
-#define	CONFIG_SYS_I2C_SOFT	/* I2C bit-banged	*/
 #define CONFIG_SYS_I2C_INIT_BOARD
 
 #define	CONFIG_KIRKWOOD_GPIO		/* Enable GPIO Support */
@@ -124,9 +123,6 @@ extern void __set_direction(unsigned pin, int high);
 
 #define I2C_DELAY	udelay(1)
 #define I2C_SOFT_DECLARATIONS
-
-#define	CONFIG_SYS_I2C_SOFT_SLAVE	0x0
-#define	CONFIG_SYS_I2C_SOFT_SPEED	100000
 
 /* EEprom support 24C128, 24C256 valid for environment eeprom */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE

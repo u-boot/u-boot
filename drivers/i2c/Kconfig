@@ -437,6 +437,25 @@ config SYS_I2C_SANDBOX
 	  bus. Devices can be attached to the bus using the device tree
 	  which specifies the driver to use.  See sandbox.dts as an example.
 
+config SYS_I2C_SOFT
+	bool "Legacy software I2C interface"
+	help
+	  Enable the legacy software defined I2C interface
+
+config SYS_I2C_SOFT_SPEED
+	int "Software I2C bus speed"
+	depends on SYS_I2C_SOFT
+	default 100000
+	help
+	  Speed of the software I2C bus
+
+config SYS_I2C_SOFT_SLAVE
+	hex "Software I2C slave address"
+	depends on SYS_I2C_SOFT
+	default 0xfe
+	help
+	  Slave address of the software I2C bus
+
 config SYS_I2C_OCTEON
 	bool "Octeon II/III/TX/TX2 I2C driver"
 	depends on (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2) && DM_I2C
