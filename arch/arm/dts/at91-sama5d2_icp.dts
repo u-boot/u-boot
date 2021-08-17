@@ -33,6 +33,21 @@
 		};
 
 		apb {
+
+			qspi1: spi@f0024000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_qspi1_sck_cs_default &pinctrl_qspi1_dat_default>;
+				status = "okay";
+
+				flash@0 {
+					compatible = "jedec,spi-nor";
+					reg = <0>;
+					spi-max-frequency = <83000000>;
+					spi-rx-bus-width = <4>;
+					spi-tx-bus-width = <4>;
+				};
+			};
+
 			uart0: serial@f801c000 { /* mikrobus1 uart */
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_mikrobus1_uart>;
@@ -106,6 +121,20 @@
 
 					pinctrl_macb0_rst: macb0_sw_rst {
 						pinmux = <PIN_PD4__GPIO>;
+						bias-pull-up;
+					};
+
+					pinctrl_qspi1_sck_cs_default: qspi1_sck_cs_default {
+						pinmux = <PIN_PA6__QSPI1_SCK>,
+							 <PIN_PA11__QSPI1_CS>;
+						bias-disable;
+					};
+
+					pinctrl_qspi1_dat_default: qspi1_dat_default {
+						pinmux = <PIN_PA7__QSPI1_IO0>,
+							 <PIN_PA8__QSPI1_IO1>,
+							 <PIN_PA9__QSPI1_IO2>,
+							 <PIN_PA10__QSPI1_IO3>;
 						bias-pull-up;
 					};
 
