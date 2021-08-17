@@ -971,7 +971,6 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	if (priv->clock != clock)
 		set_sysctl(priv, mmc, clock);
 
-#ifdef MMC_SUPPORTS_TUNING
 	if (mmc->clk_disable) {
 #ifdef CONFIG_FSL_USDHC
 		esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_CKEN);
@@ -987,6 +986,7 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 #endif
 	}
 
+#ifdef MMC_SUPPORTS_TUNING
 	/*
 	 * For HS400/HS400ES mode, make sure set the strobe dll in the
 	 * target clock rate. So call esdhc_set_strobe_dll() after the
