@@ -38,8 +38,24 @@
 int arch_misc_init(void)
 {
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
-	    NVBOOTTYPE_RECOVERY)
-		printf("USB recovery mode\n");
+	    NVBOOTTYPE_RECOVERY) {
+		printf("USB recovery mode, attempting to boot Toradex Easy "
+		       "Installer\n");
+		env_set("bootdelay", "-2");
+		env_set("defargs", "pcie_aspm=off user_debug=30");
+		env_set("fdt_high", "");
+		env_set("initrd_high", "");
+
+		env_set("setup", "env set setupargs igb_mac=${ethaddr} "
+			"consoleblank=0 no_console_suspend=1 "
+			"console=${console},${baudrate}n8 ${memargs}");
+		env_set("teziargs", "rootfstype=squashfs root=/dev/ram quiet "
+			"autoinstall");
+		env_set("vidargs", "video=HDMI-A-1:640x480-16@60D");
+		env_set("bootcmd", "run setup; env set bootargs ${defargs} "
+			"${setupargs} ${vidargs} ${teziargs}; bootm 0x80208000"
+			"#config@${soc}-${fdt_module}-${fdt_board}.dtb");
+	}
 
 	/* PCB Version Indication: V1.2 and later have GPIO_PV0 wired to GND */
 	gpio_request(TEGRA_GPIO(V, 0), "PCB Version Indication");
