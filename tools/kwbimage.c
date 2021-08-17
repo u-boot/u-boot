@@ -1087,7 +1087,7 @@ int kwb_sign_csk_with_kak(struct image_tool_params *params,
 	int csk_idx = image_get_csk_index();
 	struct sig_v1 tmp_sig;
 
-	if (csk_idx >= 16) {
+	if (csk_idx < 0 || csk_idx > 15) {
 		fprintf(stderr, "Invalid CSK index %d\n", csk_idx);
 		return 1;
 	}
