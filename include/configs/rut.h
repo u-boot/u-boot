@@ -26,11 +26,6 @@
 /* I2C Configuration */
 #define CONFIG_SYS_I2C_SPEED		100000
 
-#define CONFIG_SYS_I2C_EEPROM_ADDR              0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN          2
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS       6       /* 64 byte pages */
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS   10      /* take up to 10 msec */
-
 #define CONFIG_FACTORYSET
 
 /* Watchdog */

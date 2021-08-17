@@ -922,7 +922,7 @@ static int mod_i2c_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 				if (ret)
 					return i2c_report_err(ret,
 							      I2C_ERR_WRITE);
-#ifdef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
+#if CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS > 0
 				udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
 				if (incrflag)

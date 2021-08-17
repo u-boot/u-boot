@@ -519,15 +519,10 @@ extern unsigned long get_sdram_size(void);
 #ifdef CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #endif
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 #define MAX_NUM_PORTS			9 /* for 128Bytes EEPROM */
 #endif
 /* enable read and write access to EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 /* RTC */
 #define CONFIG_RTC_PT7C4338

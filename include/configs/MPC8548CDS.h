@@ -309,8 +309,6 @@ extern unsigned long get_clock_freq(void);
 
 /* EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_CCID
-#define CONFIG_SYS_I2C_EEPROM_ADDR     0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
 
 /*
  * General PCI

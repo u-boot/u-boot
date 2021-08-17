@@ -146,8 +146,6 @@
 
 #define CONFIG_SYS_SPD_BUS_NUM 0
 
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
-
 /*
  * General PCI
  * Memory space is mapped 1-1.

@@ -15,15 +15,6 @@
 #include <linux/kernel.h>
 #include "eeprom.h"
 
-#ifndef CONFIG_SYS_I2C_EEPROM_ADDR
-# define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-# define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#endif
-
-#ifndef CONFIG_SYS_I2C_EEPROM_BUS
-#define CONFIG_SYS_I2C_EEPROM_BUS	0
-#endif
-
 #define EEPROM_LAYOUT_VER_OFFSET	44
 #define BOARD_SERIAL_OFFSET		20
 #define BOARD_SERIAL_OFFSET_LEGACY	8

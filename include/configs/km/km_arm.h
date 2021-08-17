@@ -130,11 +130,6 @@ extern void __set_direction(unsigned pin, int high);
 
 /* EEprom support 24C128, 24C256 valid for environment eeprom */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	6 /* 64 Byte write page */
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
-
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 
 /*
  *  Environment variables configurations
@@ -142,7 +137,6 @@ extern void __set_direction(unsigned pin, int high);
 #if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
 #define CONFIG_ENV_TOTAL_SIZE		0x20000     /* no bracets! */
 #else
-#define CONFIG_SYS_DEF_EEPROM_ADDR	0x50
 #define CONFIG_SYS_EEPROM_WREN
 #define CONFIG_I2C_ENV_EEPROM_BUS 5 /* I2C2 (Mux-Port 5) */
 #endif
@@ -164,9 +158,9 @@ extern void __set_direction(unsigned pin, int high);
 	"newenv=setenv addr 0x100000 && "				\
 		"i2c dev " __stringify(CONFIG_I2C_ENV_EEPROM_BUS) "; "  \
 		"mw.b ${addr} 0 4 && "					\
-		"eeprom write " __stringify(CONFIG_SYS_DEF_EEPROM_ADDR)	\
+		"eeprom write " __stringify(CONFIG_SYS_I2C_EEPROM_ADDR)	\
 		" ${addr} " __stringify(CONFIG_ENV_OFFSET) " 4 && "	\
-		"eeprom write " __stringify(CONFIG_SYS_DEF_EEPROM_ADDR)	\
+		"eeprom write " __stringify(CONFIG_SYS_I2C_EEPROM_ADDR)	\
 		" ${addr} " __stringify(CONFIG_ENV_OFFSET_REDUND) " 4\0"
 #endif
 
