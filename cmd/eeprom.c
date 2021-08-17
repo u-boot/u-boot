@@ -53,12 +53,11 @@
  * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1 (8-bit EEPROM page address) offset is
  *   0x00000nxx for EEPROM address selectors and page number at n.
  */
-#if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-#if !defined(CONFIG_SYS_I2C_EEPROM_ADDR_LEN) || \
-	(CONFIG_SYS_I2C_EEPROM_ADDR_LEN < 1) || \
-	(CONFIG_SYS_I2C_EEPROM_ADDR_LEN > 2)
+#if !defined(CONFIG_SPI) && \
+	(!defined(CONFIG_SYS_I2C_EEPROM_ADDR_LEN) || \
+		(CONFIG_SYS_I2C_EEPROM_ADDR_LEN < 1) || \
+		(CONFIG_SYS_I2C_EEPROM_ADDR_LEN > 2))
 #error CONFIG_SYS_I2C_EEPROM_ADDR_LEN must be 1 or 2
-#endif
 #endif
 
 #if CONFIG_IS_ENABLED(DM_I2C)

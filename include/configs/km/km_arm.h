@@ -143,7 +143,6 @@ extern void __set_direction(unsigned pin, int high);
 #define CONFIG_ENV_TOTAL_SIZE		0x20000     /* no bracets! */
 #else
 #define CONFIG_SYS_DEF_EEPROM_ADDR	0x50
-#define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_EEPROM_WREN
 #define CONFIG_I2C_ENV_EEPROM_BUS 5 /* I2C2 (Mux-Port 5) */
 #endif
