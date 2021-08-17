@@ -84,6 +84,7 @@ config ARCH_LS1043A
 	select SYS_I2C_MXC_I2C3 if !DM_I2C
 	select SYS_I2C_MXC_I2C4 if !DM_I2C
 	imply CMD_PCI
+	imply ID_EEPROM
 
 config ARCH_LS1046A
 	bool
@@ -117,6 +118,7 @@ config ARCH_LS1046A
 	select SYS_I2C_MXC_I2C2 if !DM_I2C
 	select SYS_I2C_MXC_I2C3 if !DM_I2C
 	select SYS_I2C_MXC_I2C4 if !DM_I2C
+	imply ID_EEPROM
 	imply SCSI
 	imply SCSI_AHCI
 
@@ -158,6 +160,7 @@ config ARCH_LS1088A
 	select SYS_I2C_MXC_I2C3 if !TFABOOT
 	select SYS_I2C_MXC_I2C4 if !TFABOOT
 	select RESV_RAM if GIC_V3_ITS
+	imply ID_EEPROM
 	imply SCSI
 	imply PANIC_HANG
 
@@ -210,6 +213,7 @@ config ARCH_LS2080A
 	select SYS_I2C_MXC_I2C4 if !TFABOOT
 	select RESV_RAM if GIC_V3_ITS
 	imply DISTRO_DEFAULTS
+	imply ID_EEPROM
 	imply PANIC_HANG
 
 config ARCH_LX2162A
@@ -272,6 +276,7 @@ config ARCH_LX2160A
 	select SYS_I2C_MXC
 	select RESV_RAM if GIC_V3_ITS
 	imply DISTRO_DEFAULTS
+	imply ID_EEPROM
 	imply PANIC_HANG
 	imply SCSI
 	imply SCSI_AHCI

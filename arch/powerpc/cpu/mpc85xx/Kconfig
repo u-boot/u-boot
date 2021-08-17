@@ -724,6 +724,7 @@ config ARCH_T2080
 	imply CMD_NAND
 	imply CMD_REGINFO
 	imply FSL_SATA
+	imply ID_EEPROM
 
 config ARCH_T4240
 	bool

@@ -88,7 +88,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50

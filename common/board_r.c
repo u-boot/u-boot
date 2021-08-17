@@ -720,7 +720,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 	cpu_secondary_init_r,
-#if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET)
+#if defined(CONFIG_ID_EEPROM)
 	mac_read_from_eeprom,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
