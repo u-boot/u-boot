@@ -296,3 +296,9 @@ int nand_default_bbt(struct mtd_info *mtd)
 void nand_deselect(void)
 {
 }
+
+u32 nand_spl_adjust_offset(u32 sector, u32 offs)
+{
+	/* Handle the offset adjust in nand_spl_load_image,*/
+	return offs;
+}
