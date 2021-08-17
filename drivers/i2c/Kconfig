@@ -530,7 +530,6 @@ config SYS_I2C_VERSATILE
 
 config SYS_I2C_MVTWSI
 	bool "Marvell I2C driver"
-	depends on DM_I2C
 	help
 	  Support for Marvell I2C controllers as used on the orion5x and
 	  kirkwood SoC families.
