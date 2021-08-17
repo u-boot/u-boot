@@ -823,7 +823,7 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 	 * capable of polling by using mmc_wait_dat0, then rely on waiting the
 	 * stated timeout to be sufficient.
 	 */
-	if (ret == -ENOSYS && !send_status) {
+	if (ret == -ENOSYS || !send_status) {
 		mdelay(timeout_ms);
 		return 0;
 	}
