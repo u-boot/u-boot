@@ -1466,20 +1466,6 @@ The following options need to be configured:
 		Note: This is deprecated in favour of driver model. Use
 		CONFIG_DM_I2C instead.
 
-		This enable the legacy i2c subsystem, and will allow you to use
-		i2c commands at the u-boot command line (as long as you set
-		    CONFIG_SYS_I2C_SOFT_SPEED and CONFIG_SYS_I2C_SOFT_SLAVE
-		    for defining speed and slave address
-		  - activate second bus with I2C_SOFT_DECLARATIONS2 define
-		    CONFIG_SYS_I2C_SOFT_SPEED_2 and CONFIG_SYS_I2C_SOFT_SLAVE_2
-		    for defining speed and slave address
-		  - activate third bus with I2C_SOFT_DECLARATIONS3 define
-		    CONFIG_SYS_I2C_SOFT_SPEED_3 and CONFIG_SYS_I2C_SOFT_SLAVE_3
-		    for defining speed and slave address
-		  - activate fourth bus with I2C_SOFT_DECLARATIONS4 define
-		    CONFIG_SYS_I2C_SOFT_SPEED_4 and CONFIG_SYS_I2C_SOFT_SLAVE_4
-		    for defining speed and slave address
-
 		- drivers/i2c/fsl_i2c.c:
 		  - activate i2c driver with CONFIG_SYS_I2C_FSL
 		    define CONFIG_SYS_FSL_I2C_OFFSET for setting the register
