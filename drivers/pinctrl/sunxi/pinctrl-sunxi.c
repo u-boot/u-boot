@@ -92,6 +92,32 @@ static int sunxi_pinctrl_pinmux_set(struct udevice *dev, uint pin_selector,
 	return 0;
 }
 
+static int sunxi_pinctrl_get_pin_muxing(struct udevice *dev, uint pin_selector,
+					char *buf, int size)
+{
+	struct sunxi_pinctrl_plat *plat = dev_get_plat(dev);
+	int bank = pin_selector / SUNXI_GPIOS_PER_BANK;
+	int pin	 = pin_selector % SUNXI_GPIOS_PER_BANK;
+	int mux  = sunxi_gpio_get_cfgbank(plat->base + bank, pin);
+
+	switch (mux) {
+	case SUNXI_GPIO_INPUT:
+		strlcpy(buf, "gpio input", size);
+		break;
+	case SUNXI_GPIO_OUTPUT:
+		strlcpy(buf, "gpio output", size);
+		break;
+	case SUNXI_GPIO_DISABLE:
+		strlcpy(buf, "disabled", size);
+		break;
+	default:
+		snprintf(buf, size, "function %d", mux);
+		break;
+	}
+
+	return 0;
+}
+
 static const struct pinctrl_ops sunxi_pinctrl_ops = {
 	.get_pins_count		= sunxi_pinctrl_get_pins_count,
 	.get_pin_name		= sunxi_pinctrl_get_pin_name,
@@ -99,6 +125,7 @@ static const struct pinctrl_ops sunxi_pinctrl_ops = {
 	.get_function_name	= sunxi_pinctrl_get_function_name,
 	.pinmux_set		= sunxi_pinctrl_pinmux_set,
 	.set_state		= pinctrl_generic_set_state,
+	.get_pin_muxing		= sunxi_pinctrl_get_pin_muxing,
 };
 
 static int sunxi_pinctrl_bind(struct udevice *dev)
