@@ -189,7 +189,6 @@
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_I2C_EEPROM_ADDR CONFIG_SYS_IVM_EEPROM_ADR
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 
 /******************************************************************************
