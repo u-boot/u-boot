@@ -68,7 +68,7 @@ static void *dp_alloc(size_t sz)
 {
 	void *buf;
 
-	if (efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, sz, &buf) !=
+	if (efi_allocate_pool(EFI_BOOT_SERVICES_DATA, sz, &buf) !=
 	    EFI_SUCCESS) {
 		debug("EFI: ERROR: out of memory in %s\n", __func__);
 		return NULL;
