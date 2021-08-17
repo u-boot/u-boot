@@ -27,6 +27,7 @@
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/iopoll.h>
 #include <linux/dma-mapping.h>
 #include <sdhci.h>
 
@@ -1138,6 +1139,20 @@ int fsl_esdhc_hs400_prepare_ddr(struct udevice *dev)
 	return 0;
 }
 
+static int fsl_esdhc_wait_dat0(struct udevice *dev, int state,
+			       int timeout_us)
+{
+	int ret;
+	u32 tmp;
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+
+	ret = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp,
+				 !!(tmp & PRSSTAT_DAT0) == !!state,
+				 timeout_us);
+	return ret;
+}
+
 static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
@@ -1147,6 +1162,7 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 #endif
 	.reinit = fsl_esdhc_reinit,
 	.hs400_prepare_ddr = fsl_esdhc_hs400_prepare_ddr,
+	.wait_dat0 = fsl_esdhc_wait_dat0,
 };
 
 static const struct udevice_id fsl_esdhc_ids[] = {
