@@ -20,9 +20,6 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_EEPROM_ADDR 0x50
-#define CONFIG_SYS_EEPROM_BUS_NUM 1
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
 
 /* Command definition */
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
