@@ -12,7 +12,24 @@
 
 extern U_BOOT_DRIVER(gpio_sunxi);
 
+/*
+ * This structure implements a simplified view of the possible pinmux settings:
+ * Each mux value is assumed to be the same for a given function, across the
+ * pins in each group (almost universally true, with same rare exceptions not
+ * relevant to U-Boot), but also across different ports (not true in many
+ * cases). We ignore the first problem, and work around the latter by just
+ * supporting one particular port for a each function. This works fine for all
+ * board configurations so far. If this would need to be revisited, we could
+ * add a "u8 port;" below and match that, with 0 encoding the "don't care" case.
+ */
+struct sunxi_pinctrl_function {
+	const char	name[sizeof("gpio_out")];
+	u8		mux;
+};
+
 struct sunxi_pinctrl_desc {
+	const struct sunxi_pinctrl_function	*functions;
+	u8					num_functions;
 	u8					first_bank;
 	u8					num_banks;
 };
@@ -21,7 +38,66 @@ struct sunxi_pinctrl_plat {
 	struct sunxi_gpio __iomem *base;
 };
 
+static int sunxi_pinctrl_get_pins_count(struct udevice *dev)
+{
+	const struct sunxi_pinctrl_desc *desc = dev_get_priv(dev);
+
+	return desc->num_banks * SUNXI_GPIOS_PER_BANK;
+}
+
+static const char *sunxi_pinctrl_get_pin_name(struct udevice *dev,
+					      uint pin_selector)
+{
+	const struct sunxi_pinctrl_desc *desc = dev_get_priv(dev);
+	static char pin_name[sizeof("PN31")];
+
+	snprintf(pin_name, sizeof(pin_name), "P%c%d",
+		 pin_selector / SUNXI_GPIOS_PER_BANK + desc->first_bank + 'A',
+		 pin_selector % SUNXI_GPIOS_PER_BANK);
+
+	return pin_name;
+}
+
+static int sunxi_pinctrl_get_functions_count(struct udevice *dev)
+{
+	const struct sunxi_pinctrl_desc *desc = dev_get_priv(dev);
+
+	return desc->num_functions;
+}
+
+static const char *sunxi_pinctrl_get_function_name(struct udevice *dev,
+						   uint func_selector)
+{
+	const struct sunxi_pinctrl_desc *desc = dev_get_priv(dev);
+
+	return desc->functions[func_selector].name;
+}
+
+static int sunxi_pinctrl_pinmux_set(struct udevice *dev, uint pin_selector,
+				    uint func_selector)
+{
+	const struct sunxi_pinctrl_desc *desc = dev_get_priv(dev);
+	struct sunxi_pinctrl_plat *plat = dev_get_plat(dev);
+	int bank = pin_selector / SUNXI_GPIOS_PER_BANK;
+	int pin	 = pin_selector % SUNXI_GPIOS_PER_BANK;
+
+	debug("set mux: %-4s => %s (%d)\n",
+	      sunxi_pinctrl_get_pin_name(dev, pin_selector),
+	      sunxi_pinctrl_get_function_name(dev, func_selector),
+	      desc->functions[func_selector].mux);
+
+	sunxi_gpio_set_cfgbank(plat->base + bank, pin,
+			       desc->functions[func_selector].mux);
+
+	return 0;
+}
+
 static const struct pinctrl_ops sunxi_pinctrl_ops = {
+	.get_pins_count		= sunxi_pinctrl_get_pins_count,
+	.get_pin_name		= sunxi_pinctrl_get_pin_name,
+	.get_functions_count	= sunxi_pinctrl_get_functions_count,
+	.get_function_name	= sunxi_pinctrl_get_function_name,
+	.pinmux_set		= sunxi_pinctrl_pinmux_set,
 	.set_state		= pinctrl_generic_set_state,
 };
 
@@ -76,117 +152,278 @@ static int sunxi_pinctrl_probe(struct udevice *dev)
 	return 0;
 }
 
+static const struct sunxi_pinctrl_function suniv_f1c100s_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused suniv_f1c100s_pinctrl_desc = {
+	.functions	= suniv_f1c100s_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(suniv_f1c100s_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 6,
 };
 
+static const struct sunxi_pinctrl_function sun4i_a10_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun4i_a10_pinctrl_desc = {
+	.functions	= sun4i_a10_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun4i_a10_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 9,
 };
 
+static const struct sunxi_pinctrl_function sun5i_a13_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun5i_a13_pinctrl_desc = {
+	.functions	= sun5i_a13_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun5i_a13_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 7,
 };
 
+static const struct sunxi_pinctrl_function sun6i_a31_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun6i_a31_pinctrl_desc = {
+	.functions	= sun6i_a31_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun6i_a31_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 8,
 };
 
+static const struct sunxi_pinctrl_function sun6i_a31_r_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun6i_a31_r_pinctrl_desc = {
+	.functions	= sun6i_a31_r_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun6i_a31_r_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_L,
 	.num_banks	= 2,
 };
 
+static const struct sunxi_pinctrl_function sun7i_a20_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun7i_a20_pinctrl_desc = {
+	.functions	= sun7i_a20_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun7i_a20_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 9,
 };
 
+static const struct sunxi_pinctrl_function sun8i_a23_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun8i_a23_pinctrl_desc = {
+	.functions	= sun8i_a23_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun8i_a23_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 8,
+};
+
+static const struct sunxi_pinctrl_function sun8i_a23_r_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
 };
 
 static const struct sunxi_pinctrl_desc __maybe_unused sun8i_a23_r_pinctrl_desc = {
+	.functions	= sun8i_a23_r_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun8i_a23_r_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_L,
 	.num_banks	= 1,
+};
+
+static const struct sunxi_pinctrl_function sun8i_a33_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
 };
 
 static const struct sunxi_pinctrl_desc __maybe_unused sun8i_a33_pinctrl_desc = {
+	.functions	= sun8i_a33_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun8i_a33_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 8,
+};
+
+static const struct sunxi_pinctrl_function sun8i_a83t_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
 };
 
 static const struct sunxi_pinctrl_desc __maybe_unused sun8i_a83t_pinctrl_desc = {
+	.functions	= sun8i_a83t_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun8i_a83t_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 8,
+};
+
+static const struct sunxi_pinctrl_function sun8i_a83t_r_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
 };
 
 static const struct sunxi_pinctrl_desc __maybe_unused sun8i_a83t_r_pinctrl_desc = {
+	.functions	= sun8i_a83t_r_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun8i_a83t_r_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_L,
 	.num_banks	= 1,
+};
+
+static const struct sunxi_pinctrl_function sun8i_h3_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
 };
 
 static const struct sunxi_pinctrl_desc __maybe_unused sun8i_h3_pinctrl_desc = {
+	.functions	= sun8i_h3_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun8i_h3_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 7,
 };
 
+static const struct sunxi_pinctrl_function sun8i_h3_r_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun8i_h3_r_pinctrl_desc = {
+	.functions	= sun8i_h3_r_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun8i_h3_r_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_L,
 	.num_banks	= 1,
 };
 
+static const struct sunxi_pinctrl_function sun8i_v3s_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun8i_v3s_pinctrl_desc = {
+	.functions	= sun8i_v3s_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun8i_v3s_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 7,
 };
 
+static const struct sunxi_pinctrl_function sun9i_a80_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun9i_a80_pinctrl_desc = {
+	.functions	= sun9i_a80_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun9i_a80_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 8,
 };
 
+static const struct sunxi_pinctrl_function sun9i_a80_r_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun9i_a80_r_pinctrl_desc = {
+	.functions	= sun9i_a80_r_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun9i_a80_r_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_L,
 	.num_banks	= 3,
 };
 
+static const struct sunxi_pinctrl_function sun50i_a64_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun50i_a64_pinctrl_desc = {
+	.functions	= sun50i_a64_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun50i_a64_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 8,
 };
 
+static const struct sunxi_pinctrl_function sun50i_a64_r_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun50i_a64_r_pinctrl_desc = {
+	.functions	= sun50i_a64_r_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun50i_a64_r_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_L,
 	.num_banks	= 1,
 };
 
+static const struct sunxi_pinctrl_function sun50i_h5_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h5_pinctrl_desc = {
+	.functions	= sun50i_h5_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun50i_h5_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 7,
 };
 
+static const struct sunxi_pinctrl_function sun50i_h6_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h6_pinctrl_desc = {
+	.functions	= sun50i_h6_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun50i_h6_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 8,
 };
 
+static const struct sunxi_pinctrl_function sun50i_h6_r_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h6_r_pinctrl_desc = {
+	.functions	= sun50i_h6_r_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun50i_h6_r_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_L,
 	.num_banks	= 2,
 };
 
+static const struct sunxi_pinctrl_function sun50i_h616_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h616_pinctrl_desc = {
+	.functions	= sun50i_h616_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun50i_h616_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_A,
 	.num_banks	= 9,
 };
 
+static const struct sunxi_pinctrl_function sun50i_h616_r_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+};
+
 static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h616_r_pinctrl_desc = {
+	.functions	= sun50i_h616_r_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun50i_h616_r_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_L,
 	.num_banks	= 1,
 };
