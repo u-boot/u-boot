@@ -68,7 +68,7 @@
 	};
 
 	ahb {
-		usb1: ohci@00400000 {
+		usb1: ohci@400000 {
 			num-ports = <3>;
 			atmel,vbus-gpio = <&pioA 42 0>;
 			pinctrl-names = "default";
@@ -76,7 +76,7 @@
 			status = "okay";
 		};
 
-		usb2: ehci@00500000 {
+		usb2: ehci@500000 {
 			status = "okay";
 		};
 

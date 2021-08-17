@@ -32,7 +32,7 @@
 		#size-cells = <1>;
 		u-boot,dm-pre-reloc;
 
-		usb1: ohci@00400000 {
+		usb1: ohci@400000 {
 			compatible = "atmel,at91rm9200-ohci", "usb-ohci";
 			reg = <0x00400000 0x100000>;
 			clocks = <&uhphs_clk>, <&uhphs_clk>, <&uhpck>;
@@ -40,7 +40,7 @@
 			status = "disabled";
 		};
 
-		usb2: ehci@00500000 {
+		usb2: ehci@500000 {
 			compatible = "atmel,at91sam9g45-ehci", "usb-ehci";
 			reg = <0x00500000 0x100000>;
 			clocks = <&utmi>, <&uhphs_clk>;
