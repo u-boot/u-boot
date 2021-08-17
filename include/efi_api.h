@@ -249,7 +249,7 @@ struct efi_memory_range {
 struct efi_memory_range_capsule {
 	struct efi_capsule_header *header;
 	/* EFI_MEMORY_TYPE: 0x80000000-0xFFFFFFFF */
-	enum efi_mem_type os_requested_memory_type;
+	enum efi_memory_type os_requested_memory_type;
 	u64 number_of_memory_ranges;
 	struct efi_memory_range memory_ranges[];
 } __packed;

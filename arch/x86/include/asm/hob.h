@@ -91,7 +91,7 @@ struct hob_mem_alloc {
 	 * Type EFI_MEMORY_TYPE is defined in AllocatePages() in the UEFI 2.0
 	 * specification.
 	 */
-	enum efi_mem_type	mem_type;
+	enum efi_memory_type	mem_type;
 	/* padding */
 	u8			reserved[4];
 };

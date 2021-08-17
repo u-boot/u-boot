@@ -154,7 +154,7 @@ enum efi_allocate_type {
 };
 
 /* Enumeration of memory types introduced in UEFI */
-enum efi_mem_type {
+enum efi_memory_type {
 	EFI_RESERVED_MEMORY_TYPE,
 	/*
 	 * The code portions of a loaded application.
