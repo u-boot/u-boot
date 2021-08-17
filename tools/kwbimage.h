@@ -235,4 +235,62 @@ static inline unsigned int image_version(const void *header)
 	return ptr[8];
 }
 
+static inline uint32_t opt_hdr_v1_size(const struct opt_hdr_v1 *ohdr)
+{
+	return (ohdr->headersz_msb << 16) | le16_to_cpu(ohdr->headersz_lsb);
+}
+
+static inline int opt_hdr_v1_valid_size(const struct opt_hdr_v1 *ohdr,
+					const void *mhdr_end)
+{
+	uint32_t ohdr_size;
+
+	if ((void *)(ohdr + 1) > mhdr_end)
+		return 0;
+
+	ohdr_size = opt_hdr_v1_size(ohdr);
+	if (ohdr_size < 8 || (void *)((uint8_t *)ohdr + ohdr_size) > mhdr_end)
+		return 0;
+
+	return 1;
+}
+
+static inline struct opt_hdr_v1 *opt_hdr_v1_first(void *img) {
+	struct main_hdr_v1 *mhdr;
+
+	if (image_version(img) != 1)
+		return NULL;
+
+	mhdr = img;
+	if (mhdr->ext & 0x1)
+		return (struct opt_hdr_v1 *)(mhdr + 1);
+	else
+		return NULL;
+}
+
+static inline uint8_t *opt_hdr_v1_ext(struct opt_hdr_v1 *cur)
+{
+	uint32_t size = opt_hdr_v1_size(cur);
+
+	return (uint8_t *)cur + size - 4;
+}
+
+static inline struct opt_hdr_v1 *_opt_hdr_v1_next(struct opt_hdr_v1 *cur)
+{
+	return (struct opt_hdr_v1 *)((uint8_t *)cur + opt_hdr_v1_size(cur));
+}
+
+static inline struct opt_hdr_v1 *opt_hdr_v1_next(struct opt_hdr_v1 *cur)
+{
+	if (*opt_hdr_v1_ext(cur) & 0x1)
+		return _opt_hdr_v1_next(cur);
+	else
+		return NULL;
+}
+
+#define for_each_opt_hdr_v1(ohdr, img)		\
+	for ((ohdr) = opt_hdr_v1_first((img));	\
+	     (ohdr) != NULL;			\
+	     (ohdr) = opt_hdr_v1_next((ohdr)))
+
 #endif /* _KWBIMAGE_H_ */

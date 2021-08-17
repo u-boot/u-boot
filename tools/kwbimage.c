@@ -1618,34 +1618,20 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 static void kwbimage_print_header(const void *ptr)
 {
 	struct main_hdr_v0 *mhdr = (struct main_hdr_v0 *)ptr;
+	struct opt_hdr_v1 *ohdr;
 
 	printf("Image Type:   MVEBU Boot from %s Image\n",
 	       image_boot_mode_name(mhdr->blockid));
 	printf("Image version:%d\n", image_version((void *)ptr));
-	if (image_version((void *)ptr) == 1) {
-		struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
 
-		if (mhdr->ext & 0x1) {
-			struct opt_hdr_v1 *ohdr = (struct opt_hdr_v1 *)
-						  ((uint8_t *)ptr +
-						   sizeof(*mhdr));
-
-			while (1) {
-				uint32_t ohdr_size;
-
-				ohdr_size = (ohdr->headersz_msb << 16) |
-					    le16_to_cpu(ohdr->headersz_lsb);
-				if (ohdr->headertype == OPT_HDR_V1_BINARY_TYPE) {
-					printf("BIN Hdr Size: ");
-					genimg_print_size(ohdr_size - 12 - 4 * ohdr->data[0]);
-				}
-				if (!(*((uint8_t *)ohdr + ohdr_size - 4) & 0x1))
-					break;
-				ohdr = (struct opt_hdr_v1 *)((uint8_t *)ohdr +
-							     ohdr_size);
-			}
+	for_each_opt_hdr_v1 (ohdr, mhdr) {
+		if (ohdr->headertype == OPT_HDR_V1_BINARY_TYPE) {
+			printf("BIN Hdr Size: ");
+			genimg_print_size(opt_hdr_v1_size(ohdr) - 12 -
+					  4 * ohdr->data[0]);
 		}
 	}
+
 	printf("Data Size:    ");
 	genimg_print_size(mhdr->blocksize - sizeof(uint32_t));
 	printf("Load Address: %08x\n", mhdr->destaddr);
@@ -1692,33 +1678,15 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 		}
 	} else if (image_version((void *)ptr) == 1) {
 		struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
+		const uint8_t *mhdr_end;
+		struct opt_hdr_v1 *ohdr;
 		uint32_t offset;
 		uint32_t size;
 
-		if (mhdr->ext & 0x1) {
-			uint32_t ohdr_size;
-			struct opt_hdr_v1 *ohdr = (struct opt_hdr_v1 *)
-						  (ptr + sizeof(*mhdr));
-
-			while (1) {
-				if ((uint8_t *)ohdr + sizeof(*ohdr) >
-				    (uint8_t *)mhdr + header_size)
-					return -FDT_ERR_BADSTRUCTURE;
-
-				ohdr_size = (ohdr->headersz_msb << 16) |
-					    le16_to_cpu(ohdr->headersz_lsb);
-
-				if (ohdr_size < 8 ||
-				    (uint8_t *)ohdr + ohdr_size >
-				    (uint8_t *)mhdr + header_size)
-					return -FDT_ERR_BADSTRUCTURE;
-
-				if (!(*((uint8_t *)ohdr + ohdr_size - 4) & 0x1))
-					break;
-				ohdr = (struct opt_hdr_v1 *)((uint8_t *)ohdr +
-							     ohdr_size);
-			}
-		}
+		mhdr_end = (uint8_t *)mhdr + header_size;
+		for_each_opt_hdr_v1 (ohdr, ptr)
+			if (!opt_hdr_v1_valid_size(ohdr, mhdr_end))
+				return -FDT_ERR_BADSTRUCTURE;
 
 		offset = le32_to_cpu(mhdr->srcaddr);
 
@@ -1865,36 +1833,24 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
 {
 	struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
 	size_t header_size = kwbimage_header_size(ptr);
+	struct opt_hdr_v1 *ohdr;
 	int idx = params->pflag;
 	int cur_idx = 0;
 	uint32_t offset;
 	ulong image;
 	ulong size;
 
-	if (image_version((void *)ptr) == 1 && (mhdr->ext & 0x1)) {
-		struct opt_hdr_v1 *ohdr = (struct opt_hdr_v1 *)
-					  ((uint8_t *)ptr +
-					   sizeof(*mhdr));
+	for_each_opt_hdr_v1 (ohdr, ptr) {
+		if (ohdr->headertype != OPT_HDR_V1_BINARY_TYPE)
+			continue;
 
-		while (1) {
-			uint32_t ohdr_size = (ohdr->headersz_msb << 16) |
-					     le16_to_cpu(ohdr->headersz_lsb);
-
-			if (ohdr->headertype == OPT_HDR_V1_BINARY_TYPE) {
-				if (idx == cur_idx) {
-					image = (ulong)&ohdr->data[4 +
-					         4 * ohdr->data[0]];
-					size = ohdr_size - 12 -
-					       4 * ohdr->data[0];
-					goto extract;
-				}
-				++cur_idx;
-			}
-			if (!(*((uint8_t *)ohdr + ohdr_size - 4) & 0x1))
-				break;
-			ohdr = (struct opt_hdr_v1 *)((uint8_t *)ohdr +
-						     ohdr_size);
+		if (idx == cur_idx) {
+			image = (ulong)&ohdr->data[4 + 4 * ohdr->data[0]];
+			size = opt_hdr_v1_size(ohdr) - 12 - 4 * ohdr->data[0];
+			goto extract;
 		}
+
+		++cur_idx;
 	}
 
 	if (idx != cur_idx) {
