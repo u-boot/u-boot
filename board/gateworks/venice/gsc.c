@@ -527,6 +527,9 @@ static int gsc_info(int verbose)
 		printf("%d\n", buf[0] | buf[1] << 8 | buf[2] << 16 | buf[3] << 24);
 	}
 
+	/* Display hwmon */
+	gsc_hwmon();
+
 	return 0;
 }
 
