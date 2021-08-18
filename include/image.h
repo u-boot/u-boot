@@ -1312,6 +1312,10 @@ struct padding_algo {
 		      const uint8_t *hash, int hash_len);
 };
 
+/* Declare a new U-Boot padding algorithm handler */
+#define U_BOOT_PADDING_ALGO(__name)						\
+ll_entry_declare(struct padding_algo, __name, paddings)
+
 /**
  * image_get_checksum_algo() - Look up a checksum algorithm
  *
