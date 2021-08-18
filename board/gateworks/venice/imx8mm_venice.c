@@ -114,7 +114,8 @@ int board_late_init(void)
 	led_default_state();
 
 	/* Set board serial/model */
-	env_set_ulong("serial#", gsc_get_serial());
+	if (!env_get("serial#"))
+		env_set_ulong("serial#", gsc_get_serial());
 	env_set("model", gsc_get_model());
 
 	/* Set fdt_file vars */
