@@ -710,7 +710,21 @@ static int bootflow_scan_menu_boot(struct unit_test_state *uts)
 	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
 
 	ut_assert_nextline("Selected: Armbian");
-	ut_assert_skip_to_line("Boot failed (err=-14)");
+
+	if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
+		/*
+		 * With old hush, despite booti failing to boot, i.e. returning
+		 * CMD_RET_FAILURE, run_command() returns 0 which leads bootflow_boot(), as
+		 * we are using bootmeth_script here, to return -EFAULT.
+		 */
+		ut_assert_skip_to_line("Boot failed (err=-14)");
+	} else if (gd->flags & GD_FLG_HUSH_MODERN_PARSER) {
+		/*
+		 * While with modern one, run_command() propagates CMD_RET_FAILURE returned
+		 * by booti, so we get 1 here.
+		 */
+		ut_assert_skip_to_line("Boot failed (err=1)");
+	}
 	ut_assertnonnull(std->cur_bootflow);
 	ut_assert_console_end();
 

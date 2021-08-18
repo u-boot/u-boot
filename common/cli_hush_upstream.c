@@ -8022,7 +8022,7 @@ static int parse_and_run_string(const char *s)
 }
 
 #ifdef __U_BOOT__
-int parse_string_outer(const char *cmd, int flags)
+int parse_string_outer_modern(const char *cmd, int flags)
 {
 	int ret;
 	int old_flags;
