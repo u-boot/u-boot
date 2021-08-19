@@ -793,6 +793,12 @@
 		};
 	};
 
+	gpio-wdt {
+		gpios = <&gpio_a 7 0>;
+		compatible = "linux,wdt-gpio";
+		always-running;
+	};
+
 	mbox: mbox {
 		compatible = "sandbox,mbox";
 		#mbox-cells = <1>;
