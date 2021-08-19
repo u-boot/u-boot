@@ -1066,7 +1066,7 @@ dtb-$(CONFIG_TARGET_PRESIDIO_ASIC) += ca-presidio-engboard.dtb
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here
-DTC_FLAGS +=
+DTC_FLAGS += -a 0x8
 
 PHONY += dtbs
 dtbs: $(addprefix $(obj)/, $(dtb-y))
