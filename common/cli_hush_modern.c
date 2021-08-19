@@ -221,6 +221,9 @@ static uint8_t xfunc_error_retval;
 static const char defifsvar[] __aligned(1) = "IFS= \t\n";
 #define defifs (defifsvar + 4)
 
+/* This define is used to check if exit command was called. */
+#define EXIT_RET_CODE -2
+
 /*
  * This define is used for changes that need be done directly in the upstream
  * sources still. Ideally, its use should be minimized as much as possible.

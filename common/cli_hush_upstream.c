@@ -7913,7 +7913,17 @@ static void parse_and_run_stream(struct in_str *inp, int end_trigger)
 		}
 		debug_print_tree(pipe_list, 0);
 		debug_printf_exec("parse_and_run_stream: run_and_free_list\n");
+#ifndef __U_BOOT__
 		run_and_free_list(pipe_list);
+#else /* __U_BOOT__ */
+		int rcode = run_and_free_list(pipe_list);
+		/*
+		 * We reset input string to not run the following command, so running
+		 * 'exit; echo foo' does not print foo.
+		 */
+		if (rcode <= EXIT_RET_CODE)
+			setup_file_in_str(inp);
+#endif /* __U_BOOT__ */
 		empty = 0;
 		if (G_flag_return_in_progress == 1)
 			break;
@@ -10368,13 +10378,39 @@ static int run_list(struct pipe *pi)
 #endif /* !__U_BOOT__ */
 		rcode = r = run_pipe(pi); /* NB: rcode is a smalluint, r is int */
 #ifdef __U_BOOT__
-		if (r == -2) {
-			/* -2 indicates exit was called, so we need to quit now. */
-			G.last_exitcode = rcode;
+		if (r <= EXIT_RET_CODE) {
+			int previous_rcode = G.last_exitcode;
+			/*
+			 * This magic is to get the exit code given by the user.
+			 * Contrary to old shell code, we use + EXIT_RET_CODE as EXIT_RET_CODE
+			 * equals -2.
+			 */
+			G.last_exitcode = -r + EXIT_RET_CODE;
 
-			break;
+			/*
+			 * This case deals with the following:
+			 * => setenv inner 'echo entry inner; exit; echo inner done'
+			 * => setenv outer 'echo entry outer; run inner; echo outer done'
+			 * => run outer
+			 * So, if we are in inner, we need to break and not run the other
+			 * commands.
+			 * Otherwise, we just continue in outer.
+			 * As return code are propagated, we use the previous value to check if
+			 * exit was just called or was propagated.
+			 */
+			if (previous_rcode != r) {
+				/*
+				 * If run from run_command, run_command_flags will be set, so we check
+				 * this to know if we are in main input shell.
+				 */
+				if (!G.run_command_flags)
+					printf("exit not allowed from main input shell.\n");
+
+				break;
+			}
+			continue;
 		}
-#endif
+#endif /* __U_BOOT__ */
 		if (r != -1) {
 			/* We ran a builtin, function, or group.
 			 * rcode is already known
