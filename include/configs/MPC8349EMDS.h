@@ -210,9 +210,6 @@
 
 #if defined(CONFIG_PCI)
 
-#define CONFIG_83XX_PCI_STREAMING
-
-
 #if !defined(CONFIG_PCI_PNP)
 	#define PCI_ENET0_IOADDR	0xFIXME
 	#define PCI_ENET0_MEMADDR	0xFIXME

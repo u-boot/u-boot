@@ -12,16 +12,6 @@
 #include <asm/arch/omap.h>
 
 /*
- * CPU
- */
-
-#define CONFIG_ARM_ARCH_CP15_ERRATA
-
-/*
- * Board
- */
-
-/*
  * Clocks
  */
 

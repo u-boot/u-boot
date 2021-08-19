@@ -251,18 +251,14 @@ struct smc91111_priv{
  * We have only 16 Bit PCMCIA access on Socket 0
  */
 
-#ifdef CONFIG_ADNPESC1
-#define	SMC_inw(a,r)	(*((volatile word *)((a)->iobase+((r)<<1))))
-#elif CONFIG_ARM64
+#if CONFIG_ARM64
 #define	SMC_inw(a, r)	(*((volatile word*)((a)->iobase+((dword)(r)))))
 #else
 #define SMC_inw(a, r)	(*((volatile word*)((a)->iobase+(r))))
 #endif
 #define  SMC_inb(a,r)	(((r)&1) ? SMC_inw((a),(r)&~1)>>8 : SMC_inw((a),(r)&0xFF))
 
-#ifdef CONFIG_ADNPESC1
-#define	SMC_outw(a,d,r)	(*((volatile word *)((a)->iobase+((r)<<1))) = d)
-#elif CONFIG_ARM64
+#if CONFIG_ARM64
 #define	SMC_outw(a, d, r)	\
 			(*((volatile word*)((a)->iobase+((dword)(r)))) = d)
 #else
@@ -439,11 +435,6 @@ struct smc91111_priv{
 #define RPC_LED_RX	(0x07)	/* LED = RX packet occurred */
 #if defined(CONFIG_DK1C20) || defined(CONFIG_DK1S10)
 /* buggy schematic: LEDa -> yellow, LEDb --> green */
-#define RPC_DEFAULT	( RPC_SPEED | RPC_DPLX | RPC_ANEG	\
-			| (RPC_LED_TX_RX << RPC_LSXA_SHFT)	\
-			| (RPC_LED_100_10 << RPC_LSXB_SHFT)	)
-#elif defined(CONFIG_ADNPESC1)
-/* SSV ADNP/ESC1 has only one LED: LEDa -> Rx/Tx indicator */
 #define RPC_DEFAULT	( RPC_SPEED | RPC_DPLX | RPC_ANEG	\
 			| (RPC_LED_TX_RX << RPC_LSXA_SHFT)	\
 			| (RPC_LED_100_10 << RPC_LSXB_SHFT)	)
