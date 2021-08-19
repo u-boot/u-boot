@@ -1521,19 +1521,6 @@ The following options need to be configured:
 		  - CONFIG_SYS_I2C_SH_SPEED4 for for the speed channel 4
 		  - CONFIG_SYS_I2C_SH_NUM_CONTROLLERS for number of i2c buses
 
-		- drivers/i2c/omap24xx_i2c.c
-		  - activate this driver with CONFIG_SYS_I2C_OMAP24XX
-		  - CONFIG_SYS_OMAP24_I2C_SPEED speed channel 0
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE slave addr channel 0
-		  - CONFIG_SYS_OMAP24_I2C_SPEED1 speed channel 1
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE1 slave addr channel 1
-		  - CONFIG_SYS_OMAP24_I2C_SPEED2 speed channel 2
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE2 slave addr channel 2
-		  - CONFIG_SYS_OMAP24_I2C_SPEED3 speed channel 3
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE3 slave addr channel 3
-		  - CONFIG_SYS_OMAP24_I2C_SPEED4 speed channel 4
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE4 slave addr channel 4
-
 		- drivers/i2c/s3c24x0_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_S3C24X0
 		  - This driver adds i2c buses (11 for Exynos5250, Exynos5420

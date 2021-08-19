@@ -246,7 +246,7 @@ struct tam3517_module_info {
 
 #define TAM3517_READ_EEPROM(info, ret) \
 do {								\
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE); \
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE); \
 	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,		\
 		(void *)info, sizeof(*info)))			\
 		ret = 1;					\
