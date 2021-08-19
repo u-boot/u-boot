@@ -256,10 +256,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
 /* I2C */
-#if CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 
 
 /*

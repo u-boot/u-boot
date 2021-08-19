@@ -298,8 +298,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 #else
 #define CONFIG_SYS_SPD_BUS_NUM 0
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
 #endif
 
 /* EEPROM */

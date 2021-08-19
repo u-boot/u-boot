@@ -417,10 +417,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* I2C */
-#if CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 
 #define I2C_PCA6408_BUS_NUM		1
 #define I2C_PCA6408_ADDR		0x20

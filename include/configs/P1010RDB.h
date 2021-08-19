@@ -497,10 +497,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
 /* I2C */
-#if CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 #define I2C_PCA9557_ADDR1		0x18
 #define I2C_PCA9557_ADDR2		0x19
 #define I2C_PCA9557_BUS_NUM		0

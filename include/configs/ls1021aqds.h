@@ -330,11 +330,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * I2C
  */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
-#endif
 
 /* GPIO */
 #ifdef CONFIG_DM_GPIO

@@ -319,10 +319,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * I2C
  */
-#if CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 
 #define I2C_MUX_PCA_ADDR_PRI	0x77 /* I2C bus multiplexer,primary */
 #define I2C_MUX_PCA_ADDR_SEC1	0x75 /* I2C bus multiplexer,secondary 1 */

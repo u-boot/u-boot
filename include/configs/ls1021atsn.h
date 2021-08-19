@@ -104,11 +104,6 @@
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
-#endif
 
 /* EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_NXID

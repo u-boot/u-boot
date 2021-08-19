@@ -452,10 +452,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 /* I2C */
-#if CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
