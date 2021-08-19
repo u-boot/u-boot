@@ -342,7 +342,7 @@
 	"fdtfile=mpc834x_mds.dtb\0"					\
 	""
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv bootargs root=/dev/nfs rw "				\
 		"nfsroot=$serverip:$rootpath "				\
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:"	\
@@ -352,7 +352,7 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND						\
+#define RAMBOOTCOMMAND						\
 	"setenv bootargs root=/dev/ram rw "				\
 		"console=$consoledev,$baudrate $othbootargs;"		\
 	"tftp $ramdiskaddr $ramdiskfile;"				\

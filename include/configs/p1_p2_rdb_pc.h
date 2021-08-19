@@ -675,7 +675,7 @@ __stringify(__SD_RST_CMD)"\0" \
 __stringify(__NAND_RST_CMD)"\0" \
 __stringify(__PCIE_RST_CMD)"\0"
 
-#define CONFIG_NFSBOOTCOMMAND	\
+#define NFSBOOTCOMMAND	\
 "setenv bootargs root=/dev/nfs rw "	\
 "nfsroot=$serverip:$rootpath "	\
 "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -684,7 +684,7 @@ __stringify(__PCIE_RST_CMD)"\0"
 "tftp $fdtaddr $fdtfile;"	\
 "bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_HDBOOT	\
+#define HDBOOT	\
 "setenv bootargs root=/dev/$bdev rw rootdelay=30 "	\
 "console=$consoledev,$baudrate $othbootargs;" \
 "usb start;"	\
@@ -717,7 +717,7 @@ __stringify(__PCIE_RST_CMD)"\0"
 "console=$consoledev,$baudrate rootfstype=jffs2 $othbootargs;"	\
 "bootm $norbootaddr - $norfdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND	\
+#define RAMBOOTCOMMAND	\
 "setenv bootargs root=/dev/ram rw "	\
 "console=$consoledev,$baudrate $othbootargs " \
 "ramdisk_size=$ramdisk_size;"	\
@@ -726,6 +726,6 @@ __stringify(__PCIE_RST_CMD)"\0"
 "tftp $fdtaddr $fdtfile;"	\
 "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND	CONFIG_HDBOOT
+#define CONFIG_BOOTCOMMAND	HDBOOT
 
 #endif /* __CONFIG_H */

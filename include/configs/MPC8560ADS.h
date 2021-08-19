@@ -316,7 +316,7 @@
 	"fdtaddr=400000\0"						\
 	"fdtfile=mpc8560ads.dtb\0"
 
-#define CONFIG_NFSBOOTCOMMAND	                                        \
+#define NFSBOOTCOMMAND	                                        \
 	"setenv bootargs root=/dev/nfs rw "				\
 		"nfsroot=$serverip:$rootpath "				\
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -325,7 +325,7 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND \
+#define RAMBOOTCOMMAND \
 	"setenv bootargs root=/dev/ram rw "				\
 		"console=$consoledev,$baudrate $othbootargs;"		\
 	"tftp $ramdiskaddr $ramdiskfile;"				\
@@ -333,6 +333,6 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND  NFSBOOTCOMMAND
 
 #endif	/* __CONFIG_H */

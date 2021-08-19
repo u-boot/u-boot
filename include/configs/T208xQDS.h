@@ -644,7 +644,7 @@ unsigned long get_board_ddr_clk(void);
  * For emulation this causes u-boot to jump to the start of the
  * proof point app code automatically
  */
-#define CONFIG_PROOF_POINTS				\
+#define PROOF_POINTS				\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"cpu 1 release 0x29000000 - - -;"		\
@@ -656,11 +656,11 @@ unsigned long get_board_ddr_clk(void);
 	"cpu 7 release 0x29000000 - - -;"		\
 	"go 0x29000000"
 
-#define CONFIG_HVBOOT				\
+#define HVBOOT				\
 	"setenv bootargs config-addr=0x60000000; "	\
 	"bootm 0x01000000 - 0x00f00000"
 
-#define CONFIG_ALU				\
+#define ALU				\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"cpu 1 release 0x01000000 - - -;"		\
@@ -672,7 +672,7 @@ unsigned long get_board_ddr_clk(void);
 	"cpu 7 release 0x01000000 - - -;"		\
 	"go 0x01000000"
 
-#define CONFIG_LINUX				\
+#define LINUXBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"setenv ramdiskaddr 0x02000000;"		\
@@ -680,14 +680,14 @@ unsigned long get_board_ddr_clk(void);
 	"setenv loadaddr 0x1000000;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_HDBOOT					\
+#define HDBOOT					\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $loadaddr $bootfile;"			\
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_NFSBOOTCOMMAND			\
+#define NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\
 	"nfsroot=$serverip:$rootpath "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -696,7 +696,7 @@ unsigned long get_board_ddr_clk(void);
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND				\
+#define RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $ramdiskaddr $ramdiskfile;"		\
@@ -704,7 +704,7 @@ unsigned long get_board_ddr_clk(void);
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND		CONFIG_LINUX
+#define CONFIG_BOOTCOMMAND		LINUXBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

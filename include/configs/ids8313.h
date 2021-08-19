@@ -279,7 +279,7 @@
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv rootdev /dev/nfs;"					\
 	"run setipargs;run addmtd;"					\
 	"tftp ${loadaddr} ${bootfile};"				\

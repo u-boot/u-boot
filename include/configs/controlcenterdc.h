@@ -134,7 +134,7 @@
 		" gpio clear ${gpio1}; gpio set ${gpio2};"			\
 		" fi; sleep 0.12; done\0"
 
-#define CONFIG_NFSBOOTCOMMAND								\
+#define NFSBOOTCOMMAND								\
 	"setenv bootargs root=/dev/nfs rw "						\
 	"nfsroot=${serverip}:${rootpath} "						\
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:${netdev}:off "	\
@@ -142,7 +142,7 @@
 	"tftpboot ${bootfile_addr} ${bootfile}; "						\
 	"bootm ${bootfile_addr}"
 
-#define CONFIG_MMCBOOTCOMMAND					\
+#define MMCBOOTCOMMAND					\
 	"setenv bootargs root=/dev/mmcblk0p3 rw rootwait "	\
 	"console=${consoledev},${baudrate} ${othbootargs}; "	\
 	"ext2load mmc 0:2 ${bootfile_addr} ${bootfile}; "	\

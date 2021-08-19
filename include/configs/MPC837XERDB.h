@@ -387,7 +387,7 @@
 							"$netdev:off "	\
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0"
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv rootdev /dev/nfs;"					\
 	"run setbootargs;"						\
 	"run setipargs;"						\
@@ -395,7 +395,7 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND						\
+#define RAMBOOTCOMMAND						\
 	"setenv rootdev /dev/ram;"					\
 	"run setbootargs;"						\
 	"tftp $ramdiskaddr $ramdiskfile;"				\

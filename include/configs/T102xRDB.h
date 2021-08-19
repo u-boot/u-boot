@@ -650,7 +650,7 @@ unsigned long get_board_ddr_clk(void);
 	"fdtaddr=1e00000\0"					\
 	"bdev=sda3\0"
 
-#define CONFIG_LINUX					\
+#define LINUXBOOTCOMMAND					\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"setenv ramdiskaddr 0x02000000;"		\
@@ -658,7 +658,7 @@ unsigned long get_board_ddr_clk(void);
 	"setenv loadaddr 0x1000000;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_NFSBOOTCOMMAND			\
+#define NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\
 	"nfsroot=$serverip:$rootpath "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -667,7 +667,7 @@ unsigned long get_board_ddr_clk(void);
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND	CONFIG_LINUX
+#define CONFIG_BOOTCOMMAND	LINUXBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 
