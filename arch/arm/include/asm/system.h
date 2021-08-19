@@ -84,6 +84,30 @@
 #define HCR_EL2_HCD_DIS		(1 << 29) /* Hypervisor Call disabled         */
 
 /*
+ * VTCR_EL2 bits definitions
+ */
+#define VTCR_EL2_MSA      	(1 << 31) /* EL1&0 memory architecture        */
+
+/*
+ * ID_AA64MMFR0_EL1 bits definitions
+ */
+#define ID_AA64MMFR0_EL1_MSA_FRAC_MASK		(0xFUL << 52) /* Memory system
+								 architecture
+								 frac         */
+#define ID_AA64MMFR0_EL1_MSA_FRAC_VMSA		(0x2UL << 52) /* EL1&0 supports
+								 VMSA         */
+#define ID_AA64MMFR0_EL1_MSA_FRAC_PMSA		(0x1UL << 52) /* EL1&0 only
+							         supports PMSA*/
+#define ID_AA64MMFR0_EL1_MSA_FRAC_NO_PMSA	(0x0UL << 52) /* No PMSA
+								 support      */
+#define ID_AA64MMFR0_EL1_MSA_MASK		(0xFUL << 48) /* Memory system
+								 architecture */
+#define ID_AA64MMFR0_EL1_MSA_USE_FRAC		(0xFUL << 48) /* Use MSA_FRAC */
+#define ID_AA64MMFR0_EL1_MSA_VMSA		(0x0UL << 48) /* Memory system
+								 architecture
+								 is VMSA      */
+
+/*
  * ID_AA64ISAR1_EL1 bits definitions
  */
 #define ID_AA64ISAR1_EL1_GPI	(0xF << 28) /* Implementation-defined generic

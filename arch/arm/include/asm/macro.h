@@ -316,6 +316,23 @@ lr	.req	x30
 	csel	\tmp, \tmp2, \tmp, eq
 	msr	hcr_el2, \tmp
 
+	/*
+	 * Detect whether the system has a configurable memory system
+	 * architecture at EL1&0
+	 */
+	mrs	\tmp, id_aa64mmfr0_el1
+	lsr	\tmp, \tmp, #48
+	and	\tmp, \tmp, #((ID_AA64MMFR0_EL1_MSA_MASK | \
+			ID_AA64MMFR0_EL1_MSA_FRAC_MASK) >> 48)
+	cmp	\tmp, #((ID_AA64MMFR0_EL1_MSA_USE_FRAC | \
+			ID_AA64MMFR0_EL1_MSA_FRAC_VMSA) >> 48)
+	bne	2f
+
+	/* Ensure the EL1&0 VMSA is enabled */
+	mov	\tmp, #(VTCR_EL2_MSA)
+	msr	vtcr_el2, \tmp
+2:
+
 	/* Return to the EL1_SP1 mode from EL2 */
 	ldr	\tmp, =(SPSR_EL_DEBUG_MASK | SPSR_EL_SERR_MASK |\
 			SPSR_EL_IRQ_MASK | SPSR_EL_FIQ_MASK |\
