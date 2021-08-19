@@ -210,10 +210,10 @@ static int wdt_pre_probe(struct udevice *dev)
 }
 
 UCLASS_DRIVER(wdt) = {
-	.id		= UCLASS_WDT,
-	.name		= "watchdog",
-	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-	.post_bind	= wdt_post_bind,
+	.id			= UCLASS_WDT,
+	.name			= "watchdog",
+	.flags			= DM_UC_FLAG_SEQ_ALIAS,
+	.post_bind		= wdt_post_bind,
 	.pre_probe		= wdt_pre_probe,
 	.per_device_auto	= sizeof(struct wdt_priv),
 };
