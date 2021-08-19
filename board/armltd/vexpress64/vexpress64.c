@@ -18,6 +18,7 @@
 #include <dm/platform_data/serial_pl01x.h>
 #include "pcie.h"
 #include <asm/armv8/mmu.h>
+#include <asm/armv8/mpu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,6 +54,27 @@ static struct mm_region vexpress64_mem_map[] = {
 };
 
 struct mm_region *mem_map = vexpress64_mem_map;
+
+static struct mpu_region vexpress64_aemv8r_mem_map[] = {
+	{
+		.start = 0x0UL,
+		.end = 0x7fffffffUL,
+		.attrs = PRLAR_ATTRIDX(MT_NORMAL)
+	}, {
+		.start = 0x80000000UL,
+		.end = 0xffffffffUL,
+		.attrs = PRLAR_ATTRIDX(MT_DEVICE_NGNRNE)
+	}, {
+		.start = 0x100000000UL,
+		.end = 0xffffffffffUL,
+		.attrs = PRLAR_ATTRIDX(MT_NORMAL)
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mpu_region *mpu_mem_map = vexpress64_aemv8r_mem_map;
 
 /* This function gets replaced by platforms supporting PCIe.
  * The replacement function, eg. on Juno, initialises the PCIe bus.

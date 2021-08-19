@@ -25,7 +25,7 @@ or turning on CONFIG_BASE_FVP for the more full featured model.
 Rather than create a new armv8 board similar to armltd/vexpress64, add
 semihosting calls to the existing one, enabled with CONFIG_SEMIHOSTING
 and CONFIG_BASE_FVP both set. Also reuse the existing board config file
-vexpress_aemv8a.h but differentiate the two models by the presence or
+vexpress_aemv8.h but differentiate the two models by the presence or
 absence of CONFIG_BASE_FVP. This change is tested and works on both the
 Foundation and Base fastmodel simulators.
 

@@ -1185,6 +1185,13 @@ config TARGET_VEXPRESS64_BASE_FVP
 	select PL01X_SERIAL
 	select SEMIHOSTING
 
+config TARGET_VEXPRESS64_BASER_FVP
+	bool "Support Versatile Express ARMv8r64 FVP BASE model"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	select PL01X_SERIAL
+
 config TARGET_VEXPRESS64_JUNO
 	bool "Support Versatile Express Juno Development Platform"
 	select ARM64
