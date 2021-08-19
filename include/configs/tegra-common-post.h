@@ -113,11 +113,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
-/* remove I2C support */
-#ifdef CONFIG_SYS_I2C_TEGRA
-#undef CONFIG_SYS_I2C_TEGRA
-#endif
-
 /* remove USB */
 #ifdef CONFIG_USB_EHCI_TEGRA
 #undef CONFIG_USB_EHCI_TEGRA

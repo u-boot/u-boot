@@ -1462,11 +1462,6 @@ The following options need to be configured:
 		with a list of GPIO LEDs that have inverted polarity.
 
 - I2C Support:
-		- drivers/i2c/tegra_i2c.c:
-		  - activate this driver with CONFIG_SYS_I2C_TEGRA
-		  - This driver adds 4 i2c buses with a fix speed from
-		    100000 and the slave addr 0!
-
 		- drivers/i2c/ppc4xx_i2c.c
 		  - activate this driver with CONFIG_SYS_I2C_PPC4XX
 		  - CONFIG_SYS_I2C_PPC4XX_CH0 activate hardware channel 0
