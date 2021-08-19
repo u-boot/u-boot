@@ -57,7 +57,7 @@ cat << __HEADER_EOF
 /dts-v1/;
 
 / {
-	description = "Configuration to load ATF before U-Boot";
+	description = "Configuration for Xilinx ZynqMP SoC";
 
 	images {
 		uboot {
@@ -78,7 +78,7 @@ __HEADER_EOF
 if [ -f $BL31 ]; then
 cat << __ATF
 		atf {
-			description = "ARM Trusted Firmware";
+			description = "Trusted Firmware-A";
 			data = /incbin/("$BL31");
 			type = "firmware";
 			os = "arm-trusted-firmware";
