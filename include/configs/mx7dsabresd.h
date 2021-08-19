@@ -20,9 +20,6 @@
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 
-/* I2C configs */
-#define CONFIG_SYS_I2C_MXC
-
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #ifdef CONFIG_IMX_BOOTAUX

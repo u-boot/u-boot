@@ -126,9 +126,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* I2C configs */
-#define CONFIG_SYS_I2C_MXC
-
 /* environment organization */
 /* Environment starts at 768k = 768 * 1024 = 786432 */
 /*

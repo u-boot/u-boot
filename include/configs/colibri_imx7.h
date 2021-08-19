@@ -24,9 +24,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #endif
 
-/* I2C configs */
-#define CONFIG_SYS_I2C_MXC
-
 #define CONFIG_IPADDR			192.168.10.2
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1

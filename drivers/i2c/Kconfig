@@ -234,10 +234,7 @@ config SYS_I2C_MXC
 	  channels and operating on standard mode up to 100 kbits/s and fast
 	  mode up to 400 kbits/s.
 
-# These settings are not used with DM_I2C, however SPL doesn't use
-# DM_I2C even if DM_I2C is enabled, and so might use these settings even
-# when main u-boot does not!
-if SYS_I2C_MXC && (!DM_I2C || SPL)
+if SYS_I2C_MXC && (SYS_I2C_LEGACY || SPL_SYS_I2C_LEGACY)
 config SYS_I2C_MXC_I2C1
 	bool "NXP MXC I2C1"
 	help
@@ -296,7 +293,7 @@ config SYS_MXC_I2C1_SPEED
 	 MXC I2C Channel 1 speed
 
 config SYS_MXC_I2C1_SLAVE
-	int "I2C1 Slave"
+	hex "I2C1 Slave"
 	default 0
 	help
 	 MXC I2C1 Slave
@@ -311,7 +308,7 @@ config SYS_MXC_I2C2_SPEED
 	 MXC I2C Channel 2 speed
 
 config SYS_MXC_I2C2_SLAVE
-	int "I2C2 Slave"
+	hex "I2C2 Slave"
 	default 0
 	help
 	 MXC I2C2 Slave
@@ -325,7 +322,7 @@ config SYS_MXC_I2C3_SPEED
 	 MXC I2C Channel 3 speed
 
 config SYS_MXC_I2C3_SLAVE
-	int "I2C3 Slave"
+	hex "I2C3 Slave"
 	default 0
 	help
 	 MXC I2C3 Slave
@@ -339,7 +336,7 @@ config SYS_MXC_I2C4_SPEED
 	 MXC I2C Channel 4 speed
 
 config SYS_MXC_I2C4_SLAVE
-	int "I2C4 Slave"
+	hex "I2C4 Slave"
 	default 0
 	help
 	 MXC I2C4 Slave
@@ -353,7 +350,7 @@ config SYS_MXC_I2C5_SPEED
 	 MXC I2C Channel 5 speed
 
 config SYS_MXC_I2C5_SLAVE
-	int "I2C5 Slave"
+	hex "I2C5 Slave"
 	default 0
 	help
 	 MXC I2C5 Slave
@@ -367,7 +364,7 @@ config SYS_MXC_I2C6_SPEED
 	 MXC I2C Channel 6 speed
 
 config SYS_MXC_I2C6_SLAVE
-	int "I2C6 Slave"
+	hex "I2C6 Slave"
 	default 0
 	help
 	 MXC I2C6 Slave
@@ -381,7 +378,7 @@ config SYS_MXC_I2C7_SPEED
 	 MXC I2C Channel 7 speed
 
 config SYS_MXC_I2C7_SLAVE
-	int "I2C7 Slave"
+	hex "I2C7 Slave"
 	default 0
 	help
 	 MXC I2C7 Slave
@@ -395,7 +392,7 @@ config SYS_MXC_I2C8_SPEED
 	 MXC I2C Channel 8 speed
 
 config SYS_MXC_I2C8_SLAVE
-	int "I2C8 Slave"
+	hex "I2C8 Slave"
 	default 0
 	help
 	 MXC I2C8 Slave
