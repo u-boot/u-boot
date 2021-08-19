@@ -61,20 +61,24 @@ static void init_watchdog_dev(struct udevice *dev)
 
 int initr_watchdog(void)
 {
-	/*
-	 * Init watchdog: This will call the probe function of the
-	 * watchdog driver, enabling the use of the device
-	 */
-	if (uclass_get_device_by_seq(UCLASS_WDT, 0,
-				     (struct udevice **)&gd->watchdog_dev)) {
-		debug("WDT:   Not found by seq!\n");
-		if (uclass_get_device(UCLASS_WDT, 0,
-				      (struct udevice **)&gd->watchdog_dev)) {
-			printf("WDT:   Not found!\n");
-			return 0;
-		}
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_WDT, &uc);
+	if (ret) {
+		log_debug("Error getting UCLASS_WDT: %d\n", ret);
+		return 0;
 	}
-	init_watchdog_dev(gd->watchdog_dev);
+
+	uclass_foreach_dev(dev, uc) {
+		ret = device_probe(dev);
+		if (ret) {
+			log_debug("Error probing %s: %d\n", dev->name, ret);
+			continue;
+		}
+		init_watchdog_dev(dev);
+	}
 
 	gd->flags |= GD_FLG_WDT_READY;
 	return 0;
@@ -182,22 +186,34 @@ void watchdog_reset(void)
 {
 	struct wdt_priv *priv;
 	struct udevice *dev;
+	struct uclass *uc;
 	ulong now;
 
 	/* Exit if GD is not ready or watchdog is not initialized yet */
 	if (!gd || !(gd->flags & GD_FLG_WDT_READY))
 		return;
 
-	dev = gd->watchdog_dev;
-	priv = dev_get_uclass_priv(dev);
-	if (!priv->running)
+	if (uclass_get(UCLASS_WDT, &uc))
 		return;
 
-	/* Do not reset the watchdog too often */
-	now = get_timer(0);
-	if (time_after_eq(now, priv->next_reset)) {
-		priv->next_reset = now + priv->reset_period;
-		wdt_reset(dev);
+	/*
+	 * All devices bound to the wdt uclass should have been probed
+	 * in initr_watchdog(). But just in case something went wrong,
+	 * check device_active() before accessing the uclass private
+	 * data.
+	 */
+	uclass_foreach_dev(dev, uc) {
+		if (!device_active(dev))
+			continue;
+		priv = dev_get_uclass_priv(dev);
+		if (!priv->running)
+			continue;
+		/* Do not reset the watchdog too often */
+		now = get_timer(0);
+		if (time_after_eq(now, priv->next_reset)) {
+			priv->next_reset = now + priv->reset_period;
+			wdt_reset(dev);
+		}
 	}
 }
 #endif

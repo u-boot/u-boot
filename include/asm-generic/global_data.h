@@ -447,12 +447,6 @@ struct global_data {
 	 */
 	fdt_addr_t translation_offset;
 #endif
-#if CONFIG_IS_ENABLED(WDT)
-	/**
-	 * @watchdog_dev: watchdog device
-	 */
-	struct udevice *watchdog_dev;
-#endif
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 	/**
 	 * @acpi_ctx: ACPI context pointer
