@@ -120,10 +120,8 @@ int wdt_expire_now(struct udevice *dev, ulong flags)
 	if (ops->expire_now) {
 		return ops->expire_now(dev, flags);
 	} else {
-		if (!ops->start)
-			return -ENOSYS;
+		ret = wdt_start(dev, 1, flags);
 
-		ret = ops->start(dev, 1, flags);
 		if (ret < 0)
 			return ret;
 
