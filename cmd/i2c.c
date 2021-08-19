@@ -195,54 +195,6 @@ void i2c_init_board(void)
 {
 }
 
-/* TODO: Implement architecture-specific get/set functions */
-
-/**
- * i2c_get_bus_speed() - Return I2C bus speed
- *
- * This function is the default implementation of function for retrieveing
- * the current I2C bus speed in Hz.
- *
- * A driver implementing runtime switching of I2C bus speed must override
- * this function to report the speed correctly. Simple or legacy drivers
- * can use this fallback.
- *
- * Returns I2C bus speed in Hz.
- */
-#if !CONFIG_IS_ENABLED(SYS_I2C_LEGACY) && !CONFIG_IS_ENABLED(DM_I2C)
-/*
- * TODO: Implement architecture-specific get/set functions
- * Should go away, if we switched completely to new multibus support
- */
-__weak
-unsigned int i2c_get_bus_speed(void)
-{
-	return CONFIG_SYS_I2C_SPEED;
-}
-
-/**
- * i2c_set_bus_speed() - Configure I2C bus speed
- * @speed:	Newly set speed of the I2C bus in Hz
- *
- * This function is the default implementation of function for setting
- * the I2C bus speed in Hz.
- *
- * A driver implementing runtime switching of I2C bus speed must override
- * this function to report the speed correctly. Simple or legacy drivers
- * can use this fallback.
- *
- * Returns zero on success, negative value on error.
- */
-__weak
-int i2c_set_bus_speed(unsigned int speed)
-{
-	if (speed != CONFIG_SYS_I2C_SPEED)
-		return -1;
-
-	return 0;
-}
-#endif
-
 /**
  * get_alen() - Small parser helper function to get address length
  *
@@ -1953,8 +1905,6 @@ static int do_i2c_reset(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 #elif CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	i2c_init(I2C_ADAP->speed, I2C_ADAP->slaveaddr);
-#else
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 	return 0;
 }
