@@ -1527,30 +1527,6 @@ The following options need to be configured:
 		    9 i2c buses for Exynos4 and 1 for S3C24X0 SoCs from Samsung)
 		    with a fix speed from 100000 and the slave addr 0!
 
-		- drivers/i2c/ihs_i2c.c
-		  - activate this driver with CONFIG_SYS_I2C_IHS
-		  - CONFIG_SYS_I2C_IHS_CH0 activate hardware channel 0
-		  - CONFIG_SYS_I2C_IHS_SPEED_0 speed channel 0
-		  - CONFIG_SYS_I2C_IHS_SLAVE_0 slave addr channel 0
-		  - CONFIG_SYS_I2C_IHS_CH1 activate hardware channel 1
-		  - CONFIG_SYS_I2C_IHS_SPEED_1 speed channel 1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_1 slave addr channel 1
-		  - CONFIG_SYS_I2C_IHS_CH2 activate hardware channel 2
-		  - CONFIG_SYS_I2C_IHS_SPEED_2 speed channel 2
-		  - CONFIG_SYS_I2C_IHS_SLAVE_2 slave addr channel 2
-		  - CONFIG_SYS_I2C_IHS_CH3 activate hardware channel 3
-		  - CONFIG_SYS_I2C_IHS_SPEED_3 speed channel 3
-		  - CONFIG_SYS_I2C_IHS_SLAVE_3 slave addr channel 3
-		  - activate dual channel with CONFIG_SYS_I2C_IHS_DUAL
-		  - CONFIG_SYS_I2C_IHS_SPEED_0_1 speed channel 0_1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_0_1 slave addr channel 0_1
-		  - CONFIG_SYS_I2C_IHS_SPEED_1_1 speed channel 1_1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_1_1 slave addr channel 1_1
-		  - CONFIG_SYS_I2C_IHS_SPEED_2_1 speed channel 2_1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_2_1 slave addr channel 2_1
-		  - CONFIG_SYS_I2C_IHS_SPEED_3_1 speed channel 3_1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_3_1 slave addr channel 3_1
-
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES
