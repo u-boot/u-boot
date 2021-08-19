@@ -121,9 +121,8 @@ int board_init(void)
 
 void arch_preboot_os(void)
 {
-#ifdef CONFIG_WATCHDOG
-	wdt_stop(gd->watchdog_dev);
-#endif
+	if (CONFIG_IS_ENABLED(WDT))
+		wdt_stop_all();
 }
 
 static int led_7seg_init(unsigned int segments)
