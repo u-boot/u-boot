@@ -20,15 +20,24 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define WATCHDOG_TIMEOUT_SECS	(CONFIG_WATCHDOG_TIMEOUT_MSECS / 1000)
 
-/*
- * Reset every 1000ms, or however often is required as indicated by a
- * hw_margin_ms property.
- */
-static ulong reset_period = 1000;
+struct wdt_priv {
+	/* Timeout, in seconds, to configure this device to. */
+	u32 timeout;
+	/*
+	 * Time, in milliseconds, between calling the device's ->reset()
+	 * method from watchdog_reset().
+	 */
+	ulong reset_period;
+	/*
+	 * Next time (as returned by get_timer(0)) to call
+	 * ->reset().
+	 */
+	ulong next_reset;
+};
 
 int initr_watchdog(void)
 {
-	u32 timeout = WATCHDOG_TIMEOUT_SECS;
+	struct wdt_priv *priv;
 	int ret;
 
 	/*
@@ -44,28 +53,21 @@ int initr_watchdog(void)
 			return 0;
 		}
 	}
-
-	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
-		timeout = dev_read_u32_default(gd->watchdog_dev, "timeout-sec",
-					       WATCHDOG_TIMEOUT_SECS);
-		reset_period = dev_read_u32_default(gd->watchdog_dev,
-						    "hw_margin_ms",
-						    4 * reset_period) / 4;
-	}
+	priv = dev_get_uclass_priv(gd->watchdog_dev);
 
 	if (!IS_ENABLED(CONFIG_WATCHDOG_AUTOSTART)) {
 		printf("WDT:   Not starting\n");
 		return 0;
 	}
 
-	ret = wdt_start(gd->watchdog_dev, timeout * 1000, 0);
+	ret = wdt_start(gd->watchdog_dev, priv->timeout * 1000, 0);
 	if (ret != 0) {
 		printf("WDT:   Failed to start\n");
 		return 0;
 	}
 
 	printf("WDT:   Started with%s servicing (%ds timeout)\n",
-	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", timeout);
+	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", priv->timeout);
 
 	return 0;
 }
@@ -139,18 +141,21 @@ int wdt_expire_now(struct udevice *dev, ulong flags)
  */
 void watchdog_reset(void)
 {
-	static ulong next_reset;
+	struct wdt_priv *priv;
+	struct udevice *dev;
 	ulong now;
 
 	/* Exit if GD is not ready or watchdog is not initialized yet */
 	if (!gd || !(gd->flags & GD_FLG_WDT_READY))
 		return;
 
+	dev = gd->watchdog_dev;
+	priv = dev_get_uclass_priv(dev);
 	/* Do not reset the watchdog too often */
 	now = get_timer(0);
-	if (time_after_eq(now, next_reset)) {
-		next_reset = now + reset_period;
-		wdt_reset(gd->watchdog_dev);
+	if (time_after_eq(now, priv->next_reset)) {
+		priv->next_reset = now + priv->reset_period;
+		wdt_reset(dev);
 	}
 }
 #endif
@@ -177,9 +182,38 @@ static int wdt_post_bind(struct udevice *dev)
 	return 0;
 }
 
+static int wdt_pre_probe(struct udevice *dev)
+{
+	u32 timeout = WATCHDOG_TIMEOUT_SECS;
+	/*
+	 * Reset every 1000ms, or however often is required as
+	 * indicated by a hw_margin_ms property.
+	 */
+	ulong reset_period = 1000;
+	struct wdt_priv *priv;
+
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
+		timeout = dev_read_u32_default(dev, "timeout-sec", timeout);
+		reset_period = dev_read_u32_default(dev, "hw_margin_ms",
+						    4 * reset_period) / 4;
+	}
+	priv = dev_get_uclass_priv(dev);
+	priv->timeout = timeout;
+	priv->reset_period = reset_period;
+	/*
+	 * Pretend this device was last reset "long" ago so the first
+	 * watchdog_reset will actually call its ->reset method.
+	 */
+	priv->next_reset = get_timer(0);
+
+	return 0;
+}
+
 UCLASS_DRIVER(wdt) = {
 	.id		= UCLASS_WDT,
 	.name		= "watchdog",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= wdt_post_bind,
+	.pre_probe		= wdt_pre_probe,
+	.per_device_auto	= sizeof(struct wdt_priv),
 };
