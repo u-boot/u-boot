@@ -1461,11 +1461,7 @@ The following options need to be configured:
 		In such cases CONFIG_GPIO_LED_INVERTED_TABLE may be defined
 		with a list of GPIO LEDs that have inverted polarity.
 
-- I2C Support:	CONFIG_SYS_I2C_LEGACY
-
-		Note: This is deprecated in favour of driver model. Use
-		CONFIG_DM_I2C instead.
-
+- I2C Support:
 		- drivers/i2c/fsl_i2c.c:
 		  - activate i2c driver with CONFIG_SYS_I2C_FSL
 		    define CONFIG_SYS_FSL_I2C_OFFSET for setting the register

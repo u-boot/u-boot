@@ -53,7 +53,6 @@
  * I2C
  */
 
-#define CONFIG_SYS_I2C_LEGACY
 #define CONFIG_I2C_MULTI_BUS
 
 /*

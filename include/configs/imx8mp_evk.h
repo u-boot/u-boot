@@ -37,8 +37,6 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_PCA9450
 
-#define CONFIG_SYS_I2C_LEGACY
-
 #endif
 
 #if defined(CONFIG_CMD_NET)

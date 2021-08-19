@@ -90,7 +90,6 @@
  * I2C related stuff
  */
 #undef CONFIG_I2C_MVTWSI
-#define CONFIG_SYS_I2C_LEGACY
 #define CONFIG_SYS_I2C_INIT_BOARD
 
 #define	CONFIG_KIRKWOOD_GPIO		/* Enable GPIO Support */

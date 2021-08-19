@@ -121,6 +121,7 @@ config ARCH_LS1046A
 	imply ID_EEPROM
 	imply SCSI
 	imply SCSI_AHCI
+	imply SPL_SYS_I2C_LEGACY
 
 config ARCH_LS1088A
 	bool
@@ -162,6 +163,7 @@ config ARCH_LS1088A
 	select RESV_RAM if GIC_V3_ITS
 	imply ID_EEPROM
 	imply SCSI
+	imply SPL_SYS_I2C_LEGACY
 	imply PANIC_HANG
 
 config ARCH_LS2080A
@@ -215,6 +217,7 @@ config ARCH_LS2080A
 	imply DISTRO_DEFAULTS
 	imply ID_EEPROM
 	imply PANIC_HANG
+	imply SPL_SYS_I2C_LEGACY
 
 config ARCH_LX2162A
 	bool
@@ -246,6 +249,7 @@ config ARCH_LX2162A
 	imply PANIC_HANG
 	imply SCSI
 	imply SCSI_AHCI
+	imply SPL_SYS_I2C_LEGACY
 
 config ARCH_LX2160A
 	bool
@@ -280,6 +284,7 @@ config ARCH_LX2160A
 	imply PANIC_HANG
 	imply SCSI
 	imply SCSI_AHCI
+	imply SPL_SYS_I2C_LEGACY
 
 config FSL_LSCH2
 	bool
