@@ -16,6 +16,7 @@
 #include <misc.h>
 #include <spl.h>
 #include <asm/arch/cache.h>
+#include <asm/sections.h>
 
 /*
  * This define is a value used for error/unknown serial.
@@ -112,6 +113,16 @@ int misc_init_r(void)
 }
 
 #endif
+
+void *board_fdt_blob_setup(void)
+{
+	if (IS_ENABLED(CONFIG_OF_SEPARATE)) {
+		if (gd->arch.firmware_fdt_addr)
+			return (ulong *)gd->arch.firmware_fdt_addr;
+		else
+			return (ulong *)&_end;
+	}
+}
 
 int board_init(void)
 {
