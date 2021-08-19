@@ -150,8 +150,8 @@ static int kbd_reset(int quirk)
 	else if ((quirk & QUIRK_DUP_POR) && config == KBD_POR)
 		config = kbd_cmd_read(CMD_RD_CONFIG);
 
-	config |= CONFIG_AT_TRANS;
-	config &= ~(CONFIG_KIRQ_EN | CONFIG_MIRQ_EN);
+	config |= CFG_AT_TRANS;
+	config &= ~(CFG_KIRQ_EN | CFG_MIRQ_EN);
 	if (kbd_cmd_write(CMD_WR_CONFIG, config))
 		goto err;
 
