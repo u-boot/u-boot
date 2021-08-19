@@ -15,7 +15,7 @@ static void i2c_write_start_seq(void)
 {
 	struct fsl_i2c_base *base;
 	base = (struct fsl_i2c_base *)(CONFIG_SYS_IMMR +
-			CONFIG_SYS_I2C_OFFSET);
+			CONFIG_SYS_FSL_I2C_OFFSET);
 	udelay(DELAY_ABORT_SEQ);
 	out_8(&base->cr, (I2C_CR_MEN | I2C_CR_MSTA));
 	udelay(DELAY_ABORT_SEQ);
@@ -26,7 +26,7 @@ int i2c_make_abort(void)
 {
 	struct fsl_i2c_base *base;
 	base = (struct fsl_i2c_base *)(CONFIG_SYS_IMMR +
-			CONFIG_SYS_I2C_OFFSET);
+			CONFIG_SYS_FSL_I2C_OFFSET);
 	uchar   last;
 	int     nbr_read = 0;
 	int     i = 0;

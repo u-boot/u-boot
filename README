@@ -1462,18 +1462,6 @@ The following options need to be configured:
 		with a list of GPIO LEDs that have inverted polarity.
 
 - I2C Support:
-		- drivers/i2c/fsl_i2c.c:
-		  - activate i2c driver with CONFIG_SYS_I2C_FSL
-		    define CONFIG_SYS_FSL_I2C_OFFSET for setting the register
-		    offset CONFIG_SYS_FSL_I2C_SPEED for the i2c speed and
-		    CONFIG_SYS_FSL_I2C_SLAVE for the slave addr of the first
-		    bus.
-		  - If your board supports a second fsl i2c bus, define
-		    CONFIG_SYS_FSL_I2C2_OFFSET for the register offset
-		    CONFIG_SYS_FSL_I2C2_SPEED for the speed and
-		    CONFIG_SYS_FSL_I2C2_SLAVE for the slave address of the
-		    second bus.
-
 		- drivers/i2c/tegra_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_TEGRA
 		  - This driver adds 4 i2c buses with a fix speed from

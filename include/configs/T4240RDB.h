@@ -154,17 +154,10 @@
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
-#else
+#if CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_I2C_SET_DEFAULT_BUS_NUM
 #define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
 #endif
-
-#define CONFIG_SYS_I2C_FSL
 
 /*
  * General PCI
@@ -428,8 +421,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* I2C */
-#define CONFIG_SYS_FSL_I2C_SPEED	100000	/* I2C speed */
-#define CONFIG_SYS_FSL_I2C2_SPEED	100000	/* I2C2 speed */
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* I2C bus multiplexer,primary */
 #define I2C_MUX_PCA_ADDR_SEC		0x76 /* I2C bus multiplexer,secondary */
 

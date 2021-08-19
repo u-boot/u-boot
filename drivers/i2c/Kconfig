@@ -153,10 +153,35 @@ config SYS_I2C_IPROC
 
 config SYS_I2C_FSL
        bool "Freescale I2C bus driver"
-       depends on DM_I2C
        help
 	  Add support for Freescale I2C busses as used on MPC8240, MPC8245, and
 	  MPC85xx processors.
+
+if SYS_I2C_FSL && (SYS_I2C_LEGACY || SPL_SYS_I2C_LEGACY)
+config SYS_FSL_I2C_OFFSET
+	hex "Offset from the IMMR of the address of the first I2C controller"
+
+config SYS_FSL_HAS_I2C2_OFFSET
+	bool "Support a second I2C controller"
+
+config SYS_FSL_I2C2_OFFSET
+	hex "Offset from the IMMR of the address of the second I2C controller"
+	depends on SYS_FSL_HAS_I2C2_OFFSET
+
+config SYS_FSL_HAS_I2C3_OFFSET
+	bool "Support a third I2C controller"
+
+config SYS_FSL_I2C3_OFFSET
+	hex "Offset from the IMMR of the address of the third I2C controller"
+	depends on SYS_FSL_HAS_I2C3_OFFSET
+
+config SYS_FSL_HAS_I2C4_OFFSET
+	bool "Support a fourth I2C controller"
+
+config SYS_FSL_I2C4_OFFSET
+	hex "Offset from the IMMR of the address of the fourth I2C controller"
+	depends on SYS_FSL_HAS_I2C4_OFFSET
+endif
 
 config SYS_I2C_CADENCE
 	tristate "Cadence I2C Controller"
