@@ -9,7 +9,7 @@ obj-y += init/
 obj-y += main.o
 obj-y += exports.o
 obj-y += cli_getch.o cli_simple.o cli_readline.o
-obj-$(CONFIG_HUSH_PARSER) += cli_hush.o
+obj-$(CONFIG_HUSH_OLD_PARSER) += cli_hush.o
 obj-$(CONFIG_AUTOBOOT) += autoboot.o
 obj-y += version.o
 

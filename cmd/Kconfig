@@ -22,6 +22,19 @@ config HUSH_PARSER
 	  If disabled, you get the old, much simpler behaviour with a somewhat
 	  smaller memory footprint.
 
+menu "Hush flavor to use"
+depends on HUSH_PARSER
+
+config HUSH_OLD_PARSER
+	bool "Use hush old parser"
+	default y
+	help
+	  This option enables the old flavor of hush based on hush Busybox from
+	  2005.
+
+	  It is actually the default U-Boot shell when decided to use hush as shell.
+endmenu
+
 config CMDLINE_EDITING
 	bool "Enable command line editing"
 	default y
