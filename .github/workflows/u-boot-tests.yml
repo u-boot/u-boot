@@ -1,0 +1,32 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ ut-hush, hush-2021 ]
+  pull_request:
+    branches: [ ut-hush, hush-2021 ]
+
+jobs:
+  hush_old:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/ut-hush' || github.ref == 'refs/heads/hush-2021'
+    steps:
+    - uses: actions/checkout@v2
+    - name: configure
+      run: make sandbox_defconfig
+    - name: make
+      run: make NO_SDL=1 -j$(nproc)
+    - name: tests
+      run: ./u-boot -c 'ut hush'
+
+  hush_2021:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/hush-2021'
+    steps:
+    - uses: actions/checkout@v2
+    - name: configure
+      run: bash -c "make sandbox_defconfig && perl -pi -e 's/default HUSH_OLD_PARSER/default HUSH_2021_PARSER/' cmd/Kconfig"
+    - name: make
+      run: make NO_SDL=1 -j$(nproc)
+    - name: tests
+      run: ./u-boot -c 'ut hush'
