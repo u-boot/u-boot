@@ -1090,7 +1090,7 @@ int sqfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition
 
 	/* Make sure it has a valid SquashFS magic number*/
 	if (get_unaligned_le32(&sblk->s_magic) != SQFS_MAGIC_NUMBER) {
-		printf("Bad magic number for SquashFS image.\n");
+		debug("Bad magic number for SquashFS image.\n");
 		ret = -EINVAL;
 		goto error;
 	}
