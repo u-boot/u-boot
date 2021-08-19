@@ -182,6 +182,35 @@ err:
 	return ret;
 }
 
+int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep)
+{
+	void *ptr;
+	int size;
+	int ifd;
+
+	ifd = os_open(pathname, os_flags);
+	if (ifd < 0) {
+		printf("Cannot open file '%s'\n", pathname);
+		return -EIO;
+	}
+	size = os_filesize(ifd);
+	if (size < 0) {
+		printf("Cannot get file size of '%s'\n", pathname);
+		return -EIO;
+	}
+
+	ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, ifd, 0);
+	if (ptr == MAP_FAILED) {
+		printf("Can't map file '%s': %s\n", pathname, strerror(errno));
+		return -EPERM;
+	}
+
+	*bufp = ptr;
+	*sizep = size;
+
+	return 0;
+}
+
 /* Restore tty state when we exit */
 static struct termios orig_term;
 static bool term_setup;
