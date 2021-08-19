@@ -449,6 +449,54 @@ config SYS_I2C_SANDBOX
 	  bus. Devices can be attached to the bus using the device tree
 	  which specifies the driver to use.  See sandbox.dts as an example.
 
+config SYS_I2C_SH
+	bool "Legacy SuperH I2C interface"
+	depends on ARCH_RMOBILE && SYS_I2C_LEGACY
+	help
+	  Enable the legacy SuperH I2C interface.
+
+if SYS_I2C_SH
+config SYS_I2C_SH_NUM_CONTROLLERS
+	int
+	default 5
+
+config SYS_I2C_SH_BASE0
+	hex
+	default 0xE6820000
+
+config SYS_I2C_SH_BASE1
+	hex
+	default 0xE6822000
+
+config SYS_I2C_SH_BASE2
+	hex
+	default 0xE6824000
+
+config SYS_I2C_SH_BASE3
+	hex
+	default 0xE6826000
+
+config SYS_I2C_SH_BASE4
+	hex
+	default 0xE6828000
+
+config SH_I2C_8BIT
+	bool
+	default y
+
+config SH_I2C_DATA_HIGH
+	int
+	default 4
+
+config SH_I2C_DATA_LOW
+	int
+	default 5
+
+config SH_I2C_CLOCK
+	int
+	default 104000000
+endif
+
 config SYS_I2C_SOFT
 	bool "Legacy software I2C interface"
 	help
