@@ -133,6 +133,19 @@ int os_write_file(const char *fname, const void *buf, int size)
 	return 0;
 }
 
+int os_filesize(int fd)
+{
+	off_t size;
+
+	size = os_lseek(fd, 0, OS_SEEK_END);
+	if (size < 0)
+		return -errno;
+	if (os_lseek(fd, 0, OS_SEEK_SET) < 0)
+		return -errno;
+
+	return size;
+}
+
 int os_read_file(const char *fname, void **bufp, int *sizep)
 {
 	off_t size;
@@ -144,15 +157,12 @@ int os_read_file(const char *fname, void **bufp, int *sizep)
 		printf("Cannot open file '%s'\n", fname);
 		goto err;
 	}
-	size = os_lseek(fd, 0, OS_SEEK_END);
+	size = os_filesize(fd);
 	if (size < 0) {
-		printf("Cannot seek to end of file '%s'\n", fname);
+		printf("Cannot get file size of '%s'\n", fname);
 		goto err;
 	}
-	if (os_lseek(fd, 0, OS_SEEK_SET) < 0) {
-		printf("Cannot seek to start of file '%s'\n", fname);
-		goto err;
-	}
+
 	*bufp = os_malloc(size);
 	if (!*bufp) {
 		printf("Not enough memory to read file '%s'\n", fname);

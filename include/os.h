@@ -52,6 +52,14 @@ off_t os_lseek(int fd, off_t offset, int whence);
 #define OS_SEEK_END	2
 
 /**
+ * os_filesize() - Calculate the size of a file
+ *
+ * @fd:		File descriptor as returned by os_open()
+ * Return:	file size or negative error code
+ */
+int os_filesize(int fd);
+
+/**
  * Access to the OS open() system call
  *
  * @pathname:	Pathname of file to open
