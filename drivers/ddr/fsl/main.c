@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 /*
@@ -297,9 +298,13 @@ const char * step_to_string(unsigned int step) {
 
 	unsigned int s = __ilog2(step);
 
-	if ((1 << s) != step)
-		return step_string_tbl[7];
-
+	if (s <= 31) {
+		if ((1 << s) != step)
+			return step_string_tbl[7];
+	} else {
+		if ((1 << (s - 32)) != step)
+			return step_string_tbl[7];
+	}
 	if (s >= ARRAY_SIZE(step_string_tbl)) {
 		printf("Error for the step in %s\n", __func__);
 		s = 0;
