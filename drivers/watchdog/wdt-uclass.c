@@ -35,11 +35,30 @@ struct wdt_priv {
 	ulong next_reset;
 };
 
-int initr_watchdog(void)
+static void init_watchdog_dev(struct udevice *dev)
 {
 	struct wdt_priv *priv;
 	int ret;
 
+	priv = dev_get_uclass_priv(dev);
+
+	if (!IS_ENABLED(CONFIG_WATCHDOG_AUTOSTART)) {
+		printf("WDT:   Not starting %s\n", dev->name);
+		return;
+	}
+
+	ret = wdt_start(dev, priv->timeout * 1000, 0);
+	if (ret != 0) {
+		printf("WDT:   Failed to start %s\n", dev->name);
+		return;
+	}
+
+	printf("WDT:   Started %s with%s servicing (%ds timeout)\n", dev->name,
+	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", priv->timeout);
+}
+
+int initr_watchdog(void)
+{
 	/*
 	 * Init watchdog: This will call the probe function of the
 	 * watchdog driver, enabling the use of the device
@@ -53,21 +72,7 @@ int initr_watchdog(void)
 			return 0;
 		}
 	}
-	priv = dev_get_uclass_priv(gd->watchdog_dev);
-
-	if (!IS_ENABLED(CONFIG_WATCHDOG_AUTOSTART)) {
-		printf("WDT:   Not starting\n");
-		return 0;
-	}
-
-	ret = wdt_start(gd->watchdog_dev, priv->timeout * 1000, 0);
-	if (ret != 0) {
-		printf("WDT:   Failed to start\n");
-		return 0;
-	}
-
-	printf("WDT:   Started with%s servicing (%ds timeout)\n",
-	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", priv->timeout);
+	init_watchdog_dev(gd->watchdog_dev);
 
 	return 0;
 }
