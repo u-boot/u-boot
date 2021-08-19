@@ -1193,6 +1193,8 @@ MKIMAGEFLAGS_fit-dtb.blob = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-a 0 -e 0 -E \
 	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST))) -d /dev/null
 
+MKIMAGEFLAGS_fit-dtb.blob += -B 0x8
+
 ifneq ($(EXT_DTB),)
 u-boot-fit-dtb.bin: u-boot-nodtb.bin $(EXT_DTB)
 		$(call if_changed,cat)
@@ -1445,6 +1447,7 @@ MKIMAGEFLAGS_u-boot.itb =
 else
 MKIMAGEFLAGS_u-boot.itb = -E
 endif
+MKIMAGEFLAGS_u-boot.itb += -B 0x8
 
 ifdef U_BOOT_ITS
 u-boot.itb: u-boot-nodtb.bin \
