@@ -33,6 +33,8 @@ struct wdt_priv {
 	 * ->reset().
 	 */
 	ulong next_reset;
+	/* Whether watchdog_start() has been called on the device. */
+	bool running;
 };
 
 static void init_watchdog_dev(struct udevice *dev)
@@ -74,6 +76,7 @@ int initr_watchdog(void)
 	}
 	init_watchdog_dev(gd->watchdog_dev);
 
+	gd->flags |= GD_FLG_WDT_READY;
 	return 0;
 }
 
@@ -86,8 +89,11 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 		return -ENOSYS;
 
 	ret = ops->start(dev, timeout_ms, flags);
-	if (ret == 0)
-		gd->flags |= GD_FLG_WDT_READY;
+	if (ret == 0) {
+		struct wdt_priv *priv = dev_get_uclass_priv(dev);
+
+		priv->running = true;
+	}
 
 	return ret;
 }
@@ -101,8 +107,11 @@ int wdt_stop(struct udevice *dev)
 		return -ENOSYS;
 
 	ret = ops->stop(dev);
-	if (ret == 0)
-		gd->flags &= ~GD_FLG_WDT_READY;
+	if (ret == 0) {
+		struct wdt_priv *priv = dev_get_uclass_priv(dev);
+
+		priv->running = false;
+	}
 
 	return ret;
 }
@@ -156,6 +165,9 @@ void watchdog_reset(void)
 
 	dev = gd->watchdog_dev;
 	priv = dev_get_uclass_priv(dev);
+	if (!priv->running)
+		return;
+
 	/* Do not reset the watchdog too often */
 	now = get_timer(0);
 	if (time_after_eq(now, priv->next_reset)) {
