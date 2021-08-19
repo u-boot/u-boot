@@ -14,7 +14,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Declare a new compression test */
+/* Declare a new bloblist test */
 #define BLOBLIST_TEST(_name, _flags) \
 		UNIT_TEST(_name, _flags, bloblist_test)
 
