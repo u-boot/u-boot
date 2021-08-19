@@ -470,6 +470,9 @@ ulong board_get_usable_ram_top(ulong total_size)
 	phys_addr_t reg;
 	struct lmb lmb;
 
+	if (!IS_ALIGNED((ulong)gd->fdt_blob, 0x8))
+		panic("Not 64bit aligned DT location: %p\n", gd->fdt_blob);
+
 	/* found enough not-reserved memory to relocated U-Boot */
 	lmb_init(&lmb);
 	lmb_add(&lmb, gd->ram_base, gd->ram_size);
