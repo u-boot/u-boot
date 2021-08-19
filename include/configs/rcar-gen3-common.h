@@ -26,7 +26,6 @@
 #define CONFIG_INITRD_TAG
 
 /* Generic Interrupt Controller Definitions */
-#define CONFIG_GICV2
 #define GICD_BASE	0xF1010000
 #define GICC_BASE	0xF1020000
 

@@ -116,11 +116,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 	"socfpga_legacy_reset_compat=1\0"
 
 /*
- * Generic Interrupt Controller Definitions
- */
-#define CONFIG_GICV2
-
-/*
  * External memory configurations
  */
 #define PHYS_SDRAM_1			0x0

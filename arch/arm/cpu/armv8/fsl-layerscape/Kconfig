@@ -4,6 +4,7 @@ config ARCH_LS1012A
 	select ARM_ERRATA_855873 if !TFABOOT
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
+	select GICV2
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR_BE
@@ -25,6 +26,7 @@ config ARCH_LS1028A
 	select ARMV8_SET_SMPEN
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select GICV3
 	select NXP_LSCH3_2
 	select SYS_FSL_HAS_CCI400
 	select SYS_FSL_SRDS_1
@@ -58,6 +60,7 @@ config ARCH_LS1043A
 	select ARM_ERRATA_855873 if !TFABOOT
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
+	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -91,6 +94,7 @@ config ARCH_LS1046A
 	select ARMV8_SET_SMPEN
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
+	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -129,6 +133,7 @@ config ARCH_LS1088A
 	select ARM_ERRATA_855873 if !TFABOOT
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select GICV3
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -175,6 +180,7 @@ config ARCH_LS2080A
 	select ARM_ERRATA_833471
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select GICV3
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -223,6 +229,7 @@ config ARCH_LX2162A
 	bool
 	select ARMV8_SET_SMPEN
 	select FSL_LSCH3
+	select GICV3
 	select NXP_LSCH3_2
 	select SYS_HAS_SERDES
 	select SYS_FSL_SRDS_1
@@ -255,6 +262,7 @@ config ARCH_LX2160A
 	bool
 	select ARMV8_SET_SMPEN
 	select FSL_LSCH3
+	select GICV3
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select NXP_LSCH3_2
 	select SYS_HAS_SERDES

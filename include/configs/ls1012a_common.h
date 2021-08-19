@@ -6,8 +6,6 @@
 #ifndef __LS1012A_COMMON_H
 #define __LS1012A_COMMON_H
 
-#define CONFIG_GICV2
-
 #include <asm/arch/config.h>
 #include <asm/arch/stream_id_lsch2.h>
 #include <linux/sizes.h>
