@@ -15,6 +15,7 @@
 #include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
+#include <asm/armv8/mpu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -365,6 +366,86 @@ __weak u64 get_page_table_size(void)
 	return size;
 }
 
+static void mpu_clear_regions(void)
+{
+	int i;
+
+	for (i = 0; mpu_mem_map[i].end || mpu_mem_map[i].attrs; i++) {
+		setup_el2_mpu_region(i, 0, 0);
+	}
+}
+
+static struct mpu_region default_mpu_mem_map[] = {{0,}};
+__weak struct mpu_region *mpu_mem_map = default_mpu_mem_map;
+
+static void mpu_setup(void)
+{
+	int i;
+
+	if (current_el() != 2) {
+		panic("MPU configuration is only supported at EL2");
+	}
+
+	set_sctlr(get_sctlr() & ~(CR_M | CR_WXN));
+
+	asm volatile("msr MAIR_EL2, %0" : : "r" MEMORY_ATTRIBUTES);
+
+	for (i = 0; mpu_mem_map[i].end || mpu_mem_map[i].attrs; i++) {
+		setup_el2_mpu_region(i,
+			PRBAR_ADDRESS(mpu_mem_map[i].start)
+				| PRBAR_OUTER_SH | PRBAR_AP_RW_ANY,
+			PRLAR_ADDRESS(mpu_mem_map[i].end)
+				| mpu_mem_map[i].attrs | PRLAR_EN_BIT
+			);
+	}
+
+	set_sctlr(get_sctlr() | CR_M);
+}
+
+static bool el_has_mmu(void)
+{
+	uint64_t id_aa64mmfr0;
+	asm volatile("mrs %0, id_aa64mmfr0_el1"
+			: "=r" (id_aa64mmfr0) : : "cc");
+	uint64_t msa = id_aa64mmfr0 & ID_AA64MMFR0_EL1_MSA_MASK;
+	uint64_t msa_frac = id_aa64mmfr0 & ID_AA64MMFR0_EL1_MSA_FRAC_MASK;
+
+	switch (msa) {
+		case ID_AA64MMFR0_EL1_MSA_VMSA:
+			/*
+			 * VMSA supported in all translation regimes.
+			 * No support for PMSA.
+			 */
+			return true;
+		case ID_AA64MMFR0_EL1_MSA_USE_FRAC:
+			/* See MSA_frac for the supported MSAs. */
+			switch (msa_frac) {
+				case ID_AA64MMFR0_EL1_MSA_FRAC_NO_PMSA:
+					/*
+					 * PMSA not supported in any translation
+					 * regime.
+					 */
+					return true;
+				case ID_AA64MMFR0_EL1_MSA_FRAC_VMSA:
+					/*
+					* PMSA supported in all translation
+					* regimes. No support for VMSA.
+					*/
+				case ID_AA64MMFR0_EL1_MSA_FRAC_PMSA:
+					/*
+					 * PMSA supported in all translation
+					 * regimes.
+					 */
+					return false;
+				default:
+					panic("Unsupported id_aa64mmfr0_el1 " \
+						"MSA_frac value");
+			}
+		default:
+			panic("Unsupported id_aa64mmfr0_el1 MSA value");
+	}
+}
+
 void setup_pgtables(void)
 {
 	int i;
@@ -479,8 +560,13 @@ void dcache_enable(void)
 	/* The data cache is not active unless the mmu is enabled */
 	if (!(get_sctlr() & CR_M)) {
 		invalidate_dcache_all();
-		__asm_invalidate_tlb_all();
-		mmu_setup();
+
+		if (el_has_mmu()) {
+			__asm_invalidate_tlb_all();
+			mmu_setup();
+		} else {
+			mpu_setup();
+		}
 	}
 
 	set_sctlr(get_sctlr() | CR_C);
@@ -499,7 +585,11 @@ void dcache_disable(void)
 	set_sctlr(sctlr & ~(CR_C|CR_M));
 
 	flush_dcache_all();
-	__asm_invalidate_tlb_all();
+
+	if (el_has_mmu())
+		__asm_invalidate_tlb_all();
+	else
+		mpu_clear_regions();
 }
 
 int dcache_status(void)
