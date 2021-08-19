@@ -690,7 +690,6 @@ static int add_args(char ***argvp, char *add_args[], int count)
 				continue;
 			}
 		} else if (!strcmp(arg, "--rm_memory")) {
-			ap++;
 			continue;
 		}
 		argv[argc++] = arg;
