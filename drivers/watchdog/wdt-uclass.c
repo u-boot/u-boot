@@ -116,6 +116,31 @@ int wdt_stop(struct udevice *dev)
 	return ret;
 }
 
+int wdt_stop_all(void)
+{
+	struct wdt_priv *priv;
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret, err;
+
+	ret = uclass_get(UCLASS_WDT, &uc);
+	if (ret)
+		return ret;
+
+	uclass_foreach_dev(dev, uc) {
+		if (!device_active(dev))
+			continue;
+		priv = dev_get_uclass_priv(dev);
+		if (!priv->running)
+			continue;
+		err = wdt_stop(dev);
+		if (!ret)
+			ret = err;
+	}
+
+	return ret;
+}
+
 int wdt_reset(struct udevice *dev)
 {
 	const struct wdt_ops *ops = device_get_ops(dev);
