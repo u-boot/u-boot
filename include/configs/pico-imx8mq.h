@@ -162,9 +162,6 @@
 
 #define CONFIG_MXC_GPIO
 
-/* I2C Configs */
-#define CONFIG_SYS_I2C_SPEED		100000
-
 #define CONFIG_OF_SYSTEM_SETUP
 
 #ifndef CONFIG_SPL_BUILD

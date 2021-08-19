@@ -55,7 +55,6 @@
  * I2C
  */
 #define CONFIG_I2C_MV
-#define CONFIG_SYS_I2C_SLAVE		0x0
 
 /*
  * Environment

@@ -32,9 +32,6 @@
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 1GB */
 
-/* I2C Configuration */
-#define CONFIG_SYS_I2C_SPEED		400000
-
 #define CONFIG_FACTORYSET
 
 #ifndef CONFIG_SPL_BUILD

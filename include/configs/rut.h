@@ -23,9 +23,6 @@
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20) /* 256 MiB */
 
-/* I2C Configuration */
-#define CONFIG_SYS_I2C_SPEED		100000
-
 #define CONFIG_FACTORYSET
 
 /* Watchdog */

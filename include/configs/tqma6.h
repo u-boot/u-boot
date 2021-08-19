@@ -36,7 +36,6 @@
 
 /* I2C Configs */
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /* I2C EEPROM (M24C64) */
 #define CONFIG_SYS_I2C_EEPROM_PAGE_WRITE_BITS		5 /* 32 Bytes */

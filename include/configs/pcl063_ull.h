@@ -38,7 +38,6 @@
 /* I2C configs */
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_SPEED		100000
 #endif
 
 /* Miscellaneous configurable options */

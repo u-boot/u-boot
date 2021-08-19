@@ -12,8 +12,6 @@
 
 /* I2C */
 #define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
-#define CONFIG_SYS_I2C_SLAVE		0x0
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /*
  * SATA/SCSI/AHCI configuration

@@ -176,7 +176,7 @@ void board_init_f(ulong dummy)
 
 	enable_tzc380();
 
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+	setup_i2c(1, 100000, 0x7f, &i2c_pad_info1);
 
 	power_init_board();
 

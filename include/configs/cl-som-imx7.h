@@ -33,7 +33,6 @@
 /* I2C configs */
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C2		/* Enable I2C bus 2 */
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_PCA953X
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x20

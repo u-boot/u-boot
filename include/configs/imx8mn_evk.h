@@ -93,6 +93,4 @@
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
-#define CONFIG_SYS_I2C_SPEED		100000
-
 #endif

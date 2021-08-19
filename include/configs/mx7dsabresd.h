@@ -22,7 +22,6 @@
 
 /* I2C configs */
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 

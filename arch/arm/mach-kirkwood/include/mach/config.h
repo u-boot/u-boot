@@ -91,14 +91,6 @@
 #define CONFIG_SYS_ATA_BASE_ADDR	MV_SATA_BASE
 #endif /* CONFIG_IDE */
 
-/*
- * I2C related stuff
- */
-#if defined(CONFIG_CMD_I2C) && !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_SLAVE		0x0
-#define CONFIG_SYS_I2C_SPEED		100000
-#endif
-
 /* Use common timer */
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 #define CONFIG_SYS_TIMER_COUNTER	(MVEBU_TIMER_BASE + 0x14)

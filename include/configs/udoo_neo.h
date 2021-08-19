@@ -73,7 +73,6 @@
 /* I2C configs */
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C1
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /* PMIC */
 #define CONFIG_POWER

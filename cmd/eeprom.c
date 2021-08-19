@@ -27,10 +27,6 @@
 #include <eeprom_layout.h>
 #include <linux/delay.h>
 
-#ifndef	CONFIG_SYS_I2C_SPEED
-#define	CONFIG_SYS_I2C_SPEED	50000
-#endif
-
 #ifndef	I2C_RXTX_LEN
 #define I2C_RXTX_LEN	128
 #endif

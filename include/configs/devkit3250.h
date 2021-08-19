@@ -38,11 +38,6 @@
 #endif
 
 /*
- * I2C
- */
-#define CONFIG_SYS_I2C_SPEED		100000
-
-/*
  * GPIO
  */
 #define CONFIG_LPC32XX_GPIO

@@ -747,16 +747,6 @@ extern struct i2c_bus_hose	i2c_bus[];
 #endif
 
 /*
- * Many boards/controllers/drivers don't support an I2C slave interface so
- * provide a default slave address for them for use in common code.  A real
- * value for CONFIG_SYS_I2C_SLAVE should be defined for any board which does
- * support a slave interface.
- */
-#ifndef	CONFIG_SYS_I2C_SLAVE
-#define	CONFIG_SYS_I2C_SLAVE	0xfe
-#endif
-
-/*
  * Initialization, must be called once on start up, may be called
  * repeatedly to change the speed and slave addresses.
  */

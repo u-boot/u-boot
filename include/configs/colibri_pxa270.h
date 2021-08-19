@@ -45,7 +45,6 @@
 #define CONFIG_SYS_I2C_PXA
 #define CONFIG_PXA_STD_I2C
 #define CONFIG_PXA_PWR_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
 #endif
 
 /* LCD support */

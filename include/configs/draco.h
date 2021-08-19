@@ -29,9 +29,6 @@
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
-/* I2C Configuration */
-#define CONFIG_SYS_I2C_SPEED		100000
-
 #define CONFIG_FACTORYSET
 
 /* Define own nand partitions */

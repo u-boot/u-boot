@@ -128,7 +128,6 @@
 
 /* I2C configs */
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /* environment organization */
 /* Environment starts at 768k = 768 * 1024 = 786432 */
