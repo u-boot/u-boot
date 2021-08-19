@@ -610,6 +610,10 @@ extern struct acpi_ops i2c_acpi_ops;
  */
 int acpi_i2c_of_to_plat(struct udevice *dev);
 
+#ifdef CONFIG_SYS_I2C_EARLY_INIT
+void i2c_early_init_f(void);
+#endif
+
 #if !CONFIG_IS_ENABLED(DM_I2C)
 
 /*
@@ -756,9 +760,6 @@ extern struct i2c_bus_hose	i2c_bus[];
  * Initialization, must be called once on start up, may be called
  * repeatedly to change the speed and slave addresses.
  */
-#ifdef CONFIG_SYS_I2C_EARLY_INIT
-void i2c_early_init_f(void);
-#endif
 void i2c_init(int speed, int slaveaddr);
 void i2c_init_board(void);
 

@@ -69,6 +69,13 @@ config TPL_SYS_I2C_LEGACY
 	  Enable the legacy I2C subsystem and drivers in TPL.  This is useful
 	  in some size constrained situations.
 
+config SYS_I2C_EARLY_INIT
+	bool "Enable legacy I2C subsystem early in boot"
+	depends on BOARD_EARLY_INIT_F && SPL_SYS_I2C_LEGACY && SYS_I2C_MXC
+	help
+	  Add the function prototype for i2c_early_init_f which is called in
+	  board_early_init_f.
+
 config I2C_CROS_EC_TUNNEL
 	tristate "Chrome OS EC tunnel I2C bus"
 	depends on CROS_EC
