@@ -354,7 +354,7 @@ int uclass_next_device(struct udevice **devp);
  * The device returned is probed if necessary, and ready for use
  *
  * @devp: On entry, pointer to device to lookup. On exit, returns pointer
- * to the next device in the uclass if no error occurred, or -ENODEV if
+ * to the next device in the uclass if no error occurred, or NULL if
  * there is no next device.
  * @return 0 if found, -ENODEV if not found, other -ve on error
  */

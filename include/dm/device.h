@@ -738,7 +738,7 @@ int device_find_next_child(struct udevice **devp);
  *
  * @parent:	Parent device to search
  * @uclass_id:	Uclass to look for
- * @devp:	Returns device found, if any
+ * @devp:	Returns device found, if any, else NULL
  * @return 0 if found, else -ENODEV
  */
 int device_find_first_inactive_child(const struct udevice *parent,
@@ -750,7 +750,7 @@ int device_find_first_inactive_child(const struct udevice *parent,
  *
  * @parent: Parent device to search
  * @uclass_id:	Uclass to look for
- * @devp: Returns first child device in that uclass, if any
+ * @devp: Returns first child device in that uclass, if any, else NULL
  * @return 0 if found, else -ENODEV
  */
 int device_find_first_child_by_uclass(const struct udevice *parent,
