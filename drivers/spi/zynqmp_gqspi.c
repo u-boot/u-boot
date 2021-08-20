@@ -202,9 +202,8 @@ static void zynqmp_qspi_init_hw(struct zynqmp_qspi_priv *priv)
 	config_reg = readl(&regs->confr);
 	config_reg &= ~(GQSPI_GFIFO_STRT_MODE_MASK |
 			GQSPI_CONFIG_MODE_EN_MASK);
-	config_reg |= GQSPI_CONFIG_DMA_MODE |
-		      GQSPI_GFIFO_WP_HOLD |
-		      GQSPI_DFLT_BAUD_RATE_DIV;
+	config_reg |= GQSPI_CONFIG_DMA_MODE | GQSPI_GFIFO_WP_HOLD |
+		      GQSPI_DFLT_BAUD_RATE_DIV | GQSPI_GFIFO_STRT_MODE_MASK;
 	writel(config_reg, &regs->confr);
 
 	writel(GQSPI_ENABLE_ENABLE_MASK, &regs->enbr);
@@ -242,6 +241,8 @@ static void zynqmp_qspi_fill_gen_fifo(struct zynqmp_qspi_priv *priv,
 	u32 config_reg, ier;
 	int ret = 0;
 
+	writel(gqspi_fifo_reg, &regs->genfifo);
+
 	config_reg = readl(&regs->confr);
 	/* Manual start if needed */
 	config_reg |= GQSPI_STRT_GEN_FIFO;
@@ -249,16 +250,15 @@ static void zynqmp_qspi_fill_gen_fifo(struct zynqmp_qspi_priv *priv,
 
 	/* Enable interrupts */
 	ier = readl(&regs->ier);
-	ier |= GQSPI_IXR_GFNFULL_MASK;
+	ier |= GQSPI_IXR_GFEMTY_MASK;
 	writel(ier, &regs->ier);
 
-	/* Wait until the fifo is not full to write the new command */
-	ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_GFNFULL_MASK, 1,
+	/* Wait until the gen fifo is empty to write the new command */
+	ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_GFEMTY_MASK, 1,
 				GQSPI_TIMEOUT, 1);
 	if (ret)
 		printf("%s Timeout\n", __func__);
 
-	writel(gqspi_fifo_reg, &regs->genfifo);
 }
 
 static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
