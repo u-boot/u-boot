@@ -77,6 +77,7 @@
 
 #define GQSPI_GFIFO_SELECT		BIT(0)
 #define GQSPI_FIFO_THRESHOLD		1
+#define GQSPI_GENFIFO_THRESHOLD		31
 
 #define SPI_XFER_ON_BOTH		0
 #define SPI_XFER_ON_LOWER		1
@@ -197,7 +198,9 @@ static void zynqmp_qspi_init_hw(struct zynqmp_qspi_priv *priv)
 	writel(GQSPI_GFIFO_ALL_INT_MASK, &regs->idisr);
 	writel(GQSPI_FIFO_THRESHOLD, &regs->txftr);
 	writel(GQSPI_FIFO_THRESHOLD, &regs->rxftr);
+	writel(GQSPI_GENFIFO_THRESHOLD, &regs->gqfthr);
 	writel(GQSPI_GFIFO_ALL_INT_MASK, &regs->isr);
+	writel(~GQSPI_ENABLE_ENABLE_MASK, &regs->enbr);
 
 	config_reg = readl(&regs->confr);
 	config_reg &= ~(GQSPI_GFIFO_STRT_MODE_MASK |
@@ -572,25 +575,20 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 				 u32 gen_fifo_cmd, u32 *buf)
 {
 	u32 addr;
-	u32 size, len;
+	u32 size;
 	u32 actuallen = priv->len;
 	int ret = 0;
 	struct zynqmp_qspi_dma_regs *dma_regs = priv->dma_regs;
 
 	writel((unsigned long)buf, &dma_regs->dmadst);
-	writel(roundup(priv->len, ARCH_DMA_MINALIGN), &dma_regs->dmasize);
+	writel(roundup(priv->len, GQSPI_DMA_ALIGN), &dma_regs->dmasize);
 	writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
 	addr = (unsigned long)buf;
-	size = roundup(priv->len, ARCH_DMA_MINALIGN);
+	size = roundup(priv->len, GQSPI_DMA_ALIGN);
 	flush_dcache_range(addr, addr + size);
 
 	while (priv->len) {
-		len = zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
-		if (!(gen_fifo_cmd & GQSPI_GFIFO_EXP_MASK) &&
-		    (len % ARCH_DMA_MINALIGN)) {
-			gen_fifo_cmd &= ~GENMASK(7, 0);
-			gen_fifo_cmd |= roundup(len, ARCH_DMA_MINALIGN);
-		}
+		zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
 		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
 
 		debug("GFIFO_CMD_RX:0x%x\n", gen_fifo_cmd);
