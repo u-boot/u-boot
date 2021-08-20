@@ -26,6 +26,8 @@ List of mainline supported rockchip boards:
      - Kylin (kylin_rk3036)
 * rk3128
      - Rockchip Evb-RK3128 (evb-rk3128)
+* rk3188
+     - Radxa Rock (rock)
 * rk3229
      - Rockchip Evb-RK3229 (evb-rk3229)
 * rk3288
@@ -75,8 +77,6 @@ List of mainline supported rockchip boards:
 * rv1108
      - Rockchip Evb-rv1108 (evb-rv1108)
      - Elgin-R1 (elgin-rv1108)
-* rv3188
-     - Radxa Rock (rock)
 
 Building
 --------
