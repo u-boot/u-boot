@@ -63,9 +63,6 @@
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
-/* DS414 bus width is 32bits */
-#define CONFIG_DDR_32BIT
-
 /* Default Environment */
 #define CONFIG_LOADADDR		0x80000
 #define CONFIG_BOOTCOMMAND					\
