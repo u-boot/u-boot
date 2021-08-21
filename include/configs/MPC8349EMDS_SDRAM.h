@@ -38,23 +38,9 @@
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
-/*
- * 32-bit data path mode.
- *
- * Please note that using this mode for devices with the real density of 64-bit
- * effectively reduces the amount of available memory due to the effect of
- * wrapping around while translating address to row/columns, for example in the
- * 256MB module the upper 128MB get aliased with contents of the lower
- * 128MB); normally this define should be used for devices with real 32-bit
- * data path.
- */
-#undef CONFIG_DDR_32BIT
-
 #define CONFIG_SYS_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN \
 					| DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
-#undef  CONFIG_DDR_2T_TIMING
-
 /*
  * DDRCDR - DDR Control Driver Register
  */
@@ -70,21 +56,6 @@
  * Manually set up DDR parameters
  */
 #define CONFIG_SYS_DDR_SIZE		256		/* MB */
-#if defined(CONFIG_DDR_II)
-#define CONFIG_SYS_DDRCDR		0x80080001
-#define CONFIG_SYS_DDR_CS2_BNDS		0x0000000f
-#define CONFIG_SYS_DDR_CS2_CONFIG	0x80330102
-#define CONFIG_SYS_DDR_TIMING_0		0x00220802
-#define CONFIG_SYS_DDR_TIMING_1		0x38357322
-#define CONFIG_SYS_DDR_TIMING_2		0x2f9048c8
-#define CONFIG_SYS_DDR_TIMING_3		0x00000000
-#define CONFIG_SYS_DDR_CLK_CNTL		0x02000000
-#define CONFIG_SYS_DDR_MODE		0x47d00432
-#define CONFIG_SYS_DDR_MODE2		0x8000c000
-#define CONFIG_SYS_DDR_INTERVAL		0x03cf0080
-#define CONFIG_SYS_DDR_SDRAM_CFG	0x43000000
-#define CONFIG_SYS_DDR_SDRAM_CFG2	0x00401000
-#else
 #define CONFIG_SYS_DDR_CS2_CONFIG	(CSCONFIG_EN \
 				| CSCONFIG_ROW_BIT_13 \
 				| CSCONFIG_COL_BIT_10)
@@ -93,16 +64,9 @@
 #define CONFIG_SYS_DDR_CONTROL	0xc2000000	/* unbuffered,no DYN_PWR */
 #define CONFIG_SYS_DDR_INTERVAL	0x04060100	/* autocharge,no open page */
 
-#if defined(CONFIG_DDR_32BIT)
-/* set burst length to 8 for 32-bit data path */
-				/* DLL,normal,seq,4/2.5, 8 burst len */
-#define CONFIG_SYS_DDR_MODE	0x00000023
-#else
 /* the default burst length is 4 - for 64-bit data path */
 				/* DLL,normal,seq,4/2.5, 4 burst len */
 #define CONFIG_SYS_DDR_MODE	0x00000022
-#endif
-#endif
 #endif
 
 /*

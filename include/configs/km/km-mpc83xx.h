@@ -18,7 +18,6 @@
 /*
  * Manually set up DDR parameters
  */
-#define CONFIG_DDR_II
 #define CONFIG_SYS_DDR_SIZE		2048 /* MB */
 
 /*

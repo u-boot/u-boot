@@ -100,21 +100,6 @@ int fixed_sdram(void)
 #if (CONFIG_SYS_DDR_SIZE != 256)
 #warning Currenly any ddr size other than 256 is not supported
 #endif
-#ifdef CONFIG_DDR_II
-	im->ddr.csbnds[2].csbnds = CONFIG_SYS_DDR_CS2_BNDS;
-	im->ddr.cs_config[2] = CONFIG_SYS_DDR_CS2_CONFIG;
-	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
-	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
-	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
-	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
-#else
-
 #if ((CONFIG_SYS_SDRAM_BASE & 0x00FFFFFF) != 0)
 #warning Chip select bounds is only configurable in 16MB increments
 #endif
@@ -134,18 +119,10 @@ int fixed_sdram(void)
 
 	im->ddr.sdram_cfg =
 		SDRAM_CFG_SREN
-#if defined(CONFIG_DDR_2T_TIMING)
-		| SDRAM_CFG_2T_EN
-#endif
 		| 2 << SDRAM_CFG_SDRAM_TYPE_SHIFT;
-#if defined (CONFIG_DDR_32BIT)
-	/* for 32-bit mode burst length is 8 */
-	im->ddr.sdram_cfg |= (SDRAM_CFG_32_BE | SDRAM_CFG_8_BE);
-#endif
 	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
 
 	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
-#endif
 	udelay(200);
 
 	/* enable DDR controller */

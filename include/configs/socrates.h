@@ -72,7 +72,6 @@
 /* I2C addresses of SPD EEPROMs */
 #define SPD_EEPROM_ADDRESS	0x50	/* CTLR 0 DIMM 0 */
 
-#define CONFIG_DDR_DEFAULT_CL	30		/* CAS latency 3	*/
 
 /* Hardcoded values, to use instead of SPD */
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000000f
