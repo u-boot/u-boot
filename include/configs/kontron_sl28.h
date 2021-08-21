@@ -16,8 +16,6 @@
 #endif
 
 /* DDR */
-#define CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 
 #define CONFIG_VERY_BIG_RAM

@@ -26,14 +26,6 @@
 #endif
 #endif
 
-/* Check if boards need to enable FSL DMA engine for SDRAM init */
-#if !defined(CONFIG_FSL_DMA) && defined(CONFIG_DDR_ECC)
-#if ((defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)) && \
-	!defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER))
-#define CONFIG_FSL_DMA
-#endif
-#endif
-
 /*
  * Provide a default boot page translation virtual address that lines up with
  * Freescale's default e500 reset page.

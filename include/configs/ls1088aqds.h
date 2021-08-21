@@ -32,9 +32,6 @@ unsigned long get_board_sys_clk(void);
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 
-#define CONFIG_DDR_SPD
-#define CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #define SPD_EEPROM_ADDRESS		0x51
 #define CONFIG_SYS_SPD_BUS_NUM		0

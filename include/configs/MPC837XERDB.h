@@ -66,9 +66,6 @@
 
 #define CONFIG_SYS_DDRCDR_VALUE	(DDRCDR_DHC_EN | DDRCDR_ODT | DDRCDR_Q_DRN)
 
-#undef CONFIG_DDR_ECC		/* support DDR ECC function */
-#undef CONFIG_DDR_ECC_CMD	/* Use DDR ECC user commands */
-
 #undef CONFIG_NEVER_ASSERT_ODT_TO_CPU	/* Never assert ODT to internal IOs */
 
 /*

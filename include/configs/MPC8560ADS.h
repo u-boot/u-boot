@@ -62,7 +62,6 @@
 
 /* DDR Setup */
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
-#define CONFIG_DDR_SPD
 
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 

@@ -50,8 +50,6 @@
 #endif
 #endif /* CONFIG_RAMBOOT_PBL */
 
-#define CONFIG_DDR_ECC
-
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 
@@ -72,7 +70,6 @@
 #define CONFIG_SYS_CACHE_STASHING
 #define CONFIG_BTB			/* toggle branch predition */
 #ifdef CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
@@ -101,8 +98,6 @@
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
-
-#define CONFIG_DDR_SPD
 
 /*
  * IFC Definitions

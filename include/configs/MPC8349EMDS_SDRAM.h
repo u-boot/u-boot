@@ -22,8 +22,6 @@
 /*
  * DDR Setup
  */
-#define CONFIG_DDR_ECC			/* support DDR ECC function */
-#define CONFIG_DDR_ECC_CMD		/* use DDR ECC user commands */
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 
 /*
@@ -35,7 +33,6 @@
 #define SPD_EEPROM_ADDRESS2	0x51
 #define CONFIG_DIMM_SLOTS_PER_CTLR	2
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
 #define CONFIG_SYS_SDRAM_BASE	0x00000000	/* DDR is system memory*/
