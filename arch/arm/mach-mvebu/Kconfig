@@ -197,6 +197,20 @@ config DDR_32BIT
 
 endchoice
 
+config DDR_LOG_LEVEL
+	int "DDR training code log level"
+	depends on ARMADA_XP
+	default 0
+	range 0 3
+	help
+	  Amount of information provided on error while running the DDR
+	  training code.  At level 0, provides an error code in a case of
+	  failure, RL, WL errors and other algorithm failure.  At level 1,
+	  provides the D-Unit setup (SPD/Static configuration).  At level 2,
+	  provides the windows margin as a results of DQS centeralization.
+	  At level 3, rovides the windows margin of each DQ as a results of
+	  DQS centeralization.
+
 config SYS_BOARD
 	default "clearfog" if TARGET_CLEARFOG
 	default "helios4" if TARGET_HELIOS4
