@@ -80,7 +80,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&spi_flash {
+&{/sfc@ff3a0000/flash@0} {
 	u-boot,dm-pre-reloc;
 };
 
