@@ -6,6 +6,8 @@
 #ifndef _CONFIG_DB_MV7846MP_GP_H
 #define _CONFIG_DB_MV7846MP_GP_H
 
+#include <linux/sizes.h>
+
 /*
  * High Level Configuration Options (easy to change)
  */
@@ -61,7 +63,7 @@
 /* SPL related SPI defines */
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_DDR_FIXED_SIZE		(1 << 20)	/* 1GiB */
+#define CONFIG_SYS_SDRAM_SIZE		SZ_1G
 #define CONFIG_BOARD_ECC_SUPPORT	/* this board supports ECC */
 
 #endif /* _CONFIG_DB_MV7846MP_GP_H */
