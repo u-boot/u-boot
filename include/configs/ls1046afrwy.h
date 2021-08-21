@@ -9,7 +9,6 @@
 #include "ls1046a_common.h"
 
 #define CONFIG_SYS_CLK_FREQ		100000000
-#define CONFIG_DDR_CLK_FREQ		100000000
 
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 

@@ -242,11 +242,9 @@
 	"bootm 0x01000000 - 0x00f00000"
 
 #define CONFIG_SYS_CLK_FREQ	66666666
-#define CONFIG_DDR_CLK_FREQ	133333333
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
-unsigned long get_board_ddr_clk(void);
 #endif
 
 /*

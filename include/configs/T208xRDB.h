@@ -98,11 +98,9 @@
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
-unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	66660000
-#define CONFIG_DDR_CLK_FREQ	133330000
 
 /*
  * Config the L3 Cache as L3 SRAM

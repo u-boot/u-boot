@@ -164,7 +164,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	100000000
-#define CONFIG_DDR_CLK_FREQ	66666666
 
 /*
  * These can be toggled for performance analysis, otherwise use default.

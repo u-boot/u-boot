@@ -157,7 +157,6 @@
 #else
 #define CONFIG_SYS_CLK_FREQ	66666666
 #endif
-#define CONFIG_DDR_CLK_FREQ	66666666
 
 #define CONFIG_HWCONFIG
 /*
