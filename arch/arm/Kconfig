@@ -1066,6 +1066,7 @@ config ARCH_SUNXI
 	imply SPL_POWER
 	imply SPL_SERIAL
 	imply USB_GADGET
+	imply WDT
 
 config ARCH_U8500
 	bool "ST-Ericsson U8500 Series"
