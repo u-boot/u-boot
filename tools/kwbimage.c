@@ -5,8 +5,6 @@
  *
  * (C) Copyright 2013 Thomas Petazzoni
  * <thomas.petazzoni@free-electrons.com>
- *
- * Not implemented: support for the register headers in v1 images
  */
 
 #include "imagetool.h"
