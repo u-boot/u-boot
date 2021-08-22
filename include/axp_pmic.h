@@ -9,24 +9,12 @@
 
 #include <stdbool.h>
 
-#ifdef CONFIG_AXP152_POWER
 #include <axp152.h>
-#endif
-#ifdef CONFIG_AXP209_POWER
 #include <axp209.h>
-#endif
-#ifdef CONFIG_AXP221_POWER
 #include <axp221.h>
-#endif
-#ifdef CONFIG_AXP305_POWER
 #include <axp305.h>
-#endif
-#ifdef CONFIG_AXP809_POWER
 #include <axp809.h>
-#endif
-#ifdef CONFIG_AXP818_POWER
 #include <axp818.h>
-#endif
 
 #define AXP_PMIC_MODE_REG		0x3e
 #define AXP_PMIC_MODE_I2C		0x00
