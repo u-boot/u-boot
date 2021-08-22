@@ -107,7 +107,12 @@ void print_size(uint64_t size, const char *s)
 	}
 
 	if (!c) {
-		printf("%llu Bytes%s", size, s);
+		/*
+		 * SPL tiny-printf is not capable for printing uint64_t.
+		 * We have just checked that the size is small enought to fit
+		 * unsigned int safely.
+		 */
+		printf("%u Bytes%s", (unsigned int)size, s);
 		return;
 	}
 
