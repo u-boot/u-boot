@@ -5,6 +5,7 @@
  * X-Powers AX Power Management IC support header
  */
 #ifndef _AXP_PMIC_H_
+#define _AXP_PMIC_H_
 
 #include <stdbool.h>
 
