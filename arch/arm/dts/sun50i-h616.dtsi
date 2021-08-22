@@ -122,7 +122,6 @@
 			reg = <0x030090a0 0x20>;
 			interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&osc24M>;
-			status = "disabled";
 		};
 
 		pio: pinctrl@300b000 {
