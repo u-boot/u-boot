@@ -30,8 +30,7 @@
 /*
  * default load address used for command tftp,  bootm , loadb, ...
  */
-#define CONFIG_LOADADDR			0xc2000000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR			0xc2000000
 
 /* ATAGs */
 #define CONFIG_CMDLINE_TAG

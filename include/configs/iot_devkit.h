@@ -75,6 +75,5 @@
  * Environment
  */
 #define CONFIG_BOOTFILE			"app.bin"
-#define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 
 #endif /* _CONFIG_IOT_DEVKIT_H_ */

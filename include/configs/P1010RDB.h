@@ -639,9 +639,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin/* U-Boot image on TFTP server */
 
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=" __stringify(CONFIG_DEF_HWCONFIG)  "\0"	\
 	"netdev=eth0\0"						\

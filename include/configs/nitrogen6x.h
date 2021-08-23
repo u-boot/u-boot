@@ -108,9 +108,9 @@
 	"initrd_high=0xffffffff\0" \
 	"fdt_addr_r=0x18000000\0" \
 	FDTFILE \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0"  \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"  \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x13000000\0" \
 	"ramdiskaddr=0x13000000\0" \
 	"ip_dyn=yes\0" \

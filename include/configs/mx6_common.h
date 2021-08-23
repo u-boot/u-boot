@@ -43,11 +43,10 @@
 #if defined(CONFIG_MX6SL) || defined(CONFIG_MX6SLL) || \
 	defined(CONFIG_MX6SX) || \
 	defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
-#define CONFIG_LOADADDR		0x82000000
+#define CONFIG_SYS_LOAD_ADDR		0x82000000
 #else
-#define CONFIG_LOADADDR		0x12000000
+#define CONFIG_SYS_LOAD_ADDR		0x12000000
 #endif
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE	512

@@ -14,8 +14,7 @@
 #define CONFIG_BOOTFILE		"fitImage"
 #define CONFIG_BOOTCOMMAND	"run selboot"
 #define CONFIG_SYS_BOOTM_LEN	0x2000000	/* 32 MiB */
-#define CONFIG_LOADADDR		0x01000000
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR		0x01000000
 
 /* Ethernet on SoC (EMAC) */
 

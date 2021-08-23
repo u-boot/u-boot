@@ -44,8 +44,8 @@
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"image=Image\0" \
 	BOOTENV \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"console=ttymxc1,115200\0" \
 	"fdt_addr_r=0x43000000\0"			\
 	"boot_fit=no\0" \
@@ -56,9 +56,7 @@
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x40480000
-
-#define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR			0x40480000
 
 #define CONFIG_SYS_INIT_RAM_ADDR        0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE        0x200000

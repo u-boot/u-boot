@@ -20,8 +20,6 @@
  * U-Boot into it.
  */
 
-#define CONFIG_LOADADDR 		1000000
-
 /*
  * SATA/SCSI/AHCI configuration
  */

@@ -84,8 +84,6 @@
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 
-#define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
-
 /* TODO: Turn into string option and migrate to Kconfig */
 #define CONFIG_HOSTNAME		"gazerbeam"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"

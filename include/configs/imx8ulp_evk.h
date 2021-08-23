@@ -63,8 +63,8 @@
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"image=Image\0" \
 	"console=ttyLP1,115200 earlycon\0" \
 	"fdt_addr_r=0x83000000\0"			\
@@ -76,9 +76,7 @@
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x80480000
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR			0x80480000
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x80000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x80000

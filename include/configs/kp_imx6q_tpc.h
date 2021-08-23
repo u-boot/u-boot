@@ -36,11 +36,7 @@
 #define CONFIG_MXC_USB_FLAGS		0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2 /* Enabled USB controller number */
 #endif
-
-/* Watchdog */
-
-#define CONFIG_LOADADDR			0x12000000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR			0x12000000
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS	\

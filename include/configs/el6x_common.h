@@ -47,9 +47,9 @@
 	"fdt_addr_r=0x18000000\0" \
 	"fdt_addr=0x18000000\0" \
 	"findfdt=setenv fdtfile " CONFIG_DEFAULT_FDT_FILE "\0"                  \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \

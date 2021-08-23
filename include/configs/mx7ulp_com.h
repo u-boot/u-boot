@@ -47,7 +47,7 @@
 #define PHYS_SDRAM			0x60000000
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 
-#define CONFIG_LOADADDR			0x60800000
+#define CONFIG_SYS_LOAD_ADDR			0x60800000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
@@ -73,8 +73,6 @@
 	"if run loadimage; then " \
 		"run mmcboot; " \
 	"fi; " \
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	SZ_256K

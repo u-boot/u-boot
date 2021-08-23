@@ -27,8 +27,7 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_LOADADDR		0x42000000
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR		0x42000000
 
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \

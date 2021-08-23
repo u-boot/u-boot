@@ -611,9 +611,6 @@
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR	1000000
-
 #ifdef __SW_BOOT_NOR
 #define __NOR_RST_CMD	\
 norboot=i2c dev 1; i2c mw 18 1 __SW_BOOT_NOR 1; \

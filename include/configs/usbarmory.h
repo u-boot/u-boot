@@ -35,8 +35,7 @@
 #define CONFIG_FSL_IIM
 
 /* U-Boot memory offsets */
-#define CONFIG_LOADADDR		0x72000000
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR		0x72000000
 
 /* Linux boot */
 #define CONFIG_HOSTNAME		"usbarmory"

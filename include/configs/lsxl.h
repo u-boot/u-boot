@@ -45,7 +45,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_LOADADDR		0x00800000
 
 #if defined(CONFIG_LSXHL)
 #define CONFIG_FDTFILE "kirkwood-lsxhl.dtb"

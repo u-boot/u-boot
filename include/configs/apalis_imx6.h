@@ -71,8 +71,7 @@
 #define CONFIG_NETMASK			255.255.255.0
 #undef CONFIG_SERVERIP
 #define CONFIG_SERVERIP			192.168.10.1
-
-#define CONFIG_LOADADDR			0x12000000
+#define CONFIG_SYS_LOAD_ADDR			0x12000000
 
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
@@ -154,7 +153,7 @@
 		"load ${interface} ${drive}:1 ${loadaddr} flash_blk.img && " \
 		"source ${loadaddr}\0" \
 	"splashpos=m,m\0" \
-	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"vidargs=mxc_hdmi.only_cea=1 fbmem=32M\0"
 
 /* Miscellaneous configurable options */
@@ -162,8 +161,6 @@
 #define CONFIG_SYS_CBSIZE		1024
 #undef CONFIG_SYS_MAXARGS
 #define CONFIG_SYS_MAXARGS		48
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

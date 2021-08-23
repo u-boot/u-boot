@@ -24,7 +24,6 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

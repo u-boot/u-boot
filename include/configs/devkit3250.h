@@ -126,7 +126,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_LOADADDR			0x80008000
 
 /*
  * SPL specific defines

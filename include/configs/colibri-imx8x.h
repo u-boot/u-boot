@@ -102,9 +102,7 @@
 	"vidargs=video=imxdpufb5:off video=imxdpufb6:off video=imxdpufb7:off\0"
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x80280000
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR			0x80280000
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 

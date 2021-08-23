@@ -15,7 +15,6 @@
  * Configuration of the external SDRAM memory
  */
 #define CONFIG_SYS_LOAD_ADDR		0x90400000
-#define CONFIG_LOADADDR			0x90400000
 
 #define CONFIG_SYS_MAX_FLASH_SECT	12
 #define CONFIG_SYS_MAX_FLASH_BANKS	2

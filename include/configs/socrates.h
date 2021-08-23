@@ -209,7 +209,6 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port*/
 #endif
 
-#define CONFIG_LOADADDR	 200000		/* default addr for tftp & bootm*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

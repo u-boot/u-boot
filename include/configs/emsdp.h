@@ -22,7 +22,6 @@
  * Environment
  */
 #define CONFIG_BOOTFILE			"app.bin"
-#define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"upgrade_image=u-boot.bin\0" \

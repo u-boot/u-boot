@@ -229,9 +229,6 @@
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
 
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
-
 #define HVBOOT					\
 	"setenv bootargs config-addr=0x60000000; "	\
 	"bootm 0x01000000 - 0x00f00000"

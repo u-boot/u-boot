@@ -430,9 +430,6 @@
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
-
 #if defined(CONFIG_DONGLE)
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\

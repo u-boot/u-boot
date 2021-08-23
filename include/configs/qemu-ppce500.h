@@ -102,9 +102,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
 
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
-
 #define CONFIG_BOOTCOMMAND		\
 	"test -n \"$qemu_kernel_addr\" && bootm $qemu_kernel_addr - $fdtcontroladdr\0"
 

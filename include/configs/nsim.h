@@ -28,7 +28,6 @@
  * Environment configuration
  */
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 
 /*
  * Console configuration

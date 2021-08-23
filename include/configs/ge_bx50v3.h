@@ -33,10 +33,6 @@
 #define CONFIG_LBA48
 #endif
 
-/* Serial Flash */
-
-#define CONFIG_LOADADDR	0x12000000
-
 #ifdef CONFIG_CMD_NFS
 #define NETWORKBOOT \
         "setnetworkboot=" \
@@ -120,8 +116,7 @@
 
 
 /* Miscellaneous configurable options */
-
-#define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR	0x12000000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR

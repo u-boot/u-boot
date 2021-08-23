@@ -61,6 +61,5 @@
  * MISC
  */
 #define CONFIG_SYS_LOAD_ADDR		0xd4000000	/* Half of RAM */
-#define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 
 #endif /* __CONFIG_H */

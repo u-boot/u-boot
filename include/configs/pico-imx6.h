@@ -94,11 +94,11 @@
 			"run base_boot;" \
 		"fi; \0" \
 	"base_boot=run findfdt; run finduuid; run distro_bootcmd\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x13000000\0" \
 	"ramdiskaddr=0x13000000\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \

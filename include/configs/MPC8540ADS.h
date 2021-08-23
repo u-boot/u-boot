@@ -316,8 +316,6 @@
 #define CONFIG_GATEWAYIP 192.168.1.1
 #define CONFIG_NETMASK   255.255.255.0
 
-#define CONFIG_LOADADDR  200000	/* default location for tftp and bootm */
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS0\0"                                                 \

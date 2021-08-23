@@ -61,7 +61,7 @@
 
 #define CONFIG_ETHPRIME		"FEC0"
 
-#define CONFIG_LOADADDR		0x92000000	/* loadaddr env var */
+#define CONFIG_SYS_LOAD_ADDR		0x92000000	/* loadaddr env var */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
@@ -139,8 +139,6 @@
 /*
  * Miscellaneous configurable options
  */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

@@ -677,9 +677,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
 
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
-
 #define __USB_PHY_TYPE	utmi
 #define RAMDISKFILE	"t104xrdb/ramdisk.uboot"
 

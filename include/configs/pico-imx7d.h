@@ -74,7 +74,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"splashpos=m,m\0" \
-	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"console=ttymxc4\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -82,11 +82,11 @@
 	"videomode=video=ctfb:x:800,y:480,depth:24,mode:0,pclk:30000,le:46,ri:210,up:22,lo:23,hs:20,vs:10,sync:0,vmode:0\0" \
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x83000000\0" \
 	"ramdiskaddr=0x83000000\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	CONFIG_DFU_ENV_SETTINGS \
 	"findfdt=" \
 		"if test $fdtfile = ask ; then " \
@@ -110,7 +110,6 @@
 #include <config_distro_bootcmd.h>
 #include <linux/stringify.h>
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

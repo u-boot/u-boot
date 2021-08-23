@@ -25,7 +25,7 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-#define CONFIG_LOADADDR			0x82000000
+#define CONFIG_SYS_LOAD_ADDR			0x82000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
 #define CONFIG_BOARD_SIZE_LIMIT		520192
@@ -138,8 +138,6 @@
 		"nand write ${ram_addr} root ${filesize}; fi\0"
 
 /* Miscellaneous configurable options */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical memory map */
 #define PHYS_SDRAM			(0x80000000)

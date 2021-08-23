@@ -105,9 +105,9 @@
 	"bootdev=/dev/mmcblk0p1\0"					\
 	"rootdev=/dev/mmcblk0p2\0"					\
 	"netdev=eth0\0"							\
-	"kernel_addr_r="__stringify(CONFIG_LOADADDR)"\0"		\
-	"pxefile_addr_r="__stringify(CONFIG_LOADADDR)"\0"		\
-	"scriptaddr="__stringify(CONFIG_LOADADDR)"\0"			\
+	"kernel_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"		\
+	"pxefile_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"		\
+	"scriptaddr="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"			\
 	"ramdisk_addr_r=0x28000000\0"		   			\
 	"fdt_addr_r=0x18000000\0"					\
 	"fdtfile=imx6q-novena.dtb\0"					\

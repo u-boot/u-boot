@@ -92,7 +92,6 @@
 #define CONFIG_INITRD_TAG
 
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_LOADADDR			0x80008000
 
 /*
  * SPL

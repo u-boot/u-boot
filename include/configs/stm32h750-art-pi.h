@@ -20,7 +20,6 @@
  * Configuration of the external SDRAM memory
  */
 #define CONFIG_SYS_LOAD_ADDR		0xC1800000
-#define CONFIG_LOADADDR			0xC1800000
 
 #define CONFIG_SYS_HZ_CLOCK		1000000
 

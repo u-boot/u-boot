@@ -442,8 +442,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_GATEWAYIP 192.168.1.1
 #define CONFIG_NETMASK	 255.255.255.0
 
-#define CONFIG_LOADADDR	1000000	/*default location for tftp and bootm*/
-
 #define	CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:ecc=off\0"		\
 	"netdev=eth0\0"				\

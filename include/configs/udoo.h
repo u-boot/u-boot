@@ -43,10 +43,10 @@
 			"setenv fdtfile imx6dl-udoo.dtb; fi; " \
 		"if test ${fdtfile} = undefined; then " \
 			"echo WARNING: Could not determine dtb to use; fi\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x13000000\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \

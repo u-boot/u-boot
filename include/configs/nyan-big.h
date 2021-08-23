@@ -26,8 +26,8 @@
 /* SPI */
 #define CONFIG_SPI_FLASH_SIZE          (4 << 20)
 
-#undef CONFIG_LOADADDR
-#define CONFIG_LOADADDR		0x82408000
+#undef CONFIG_SYS_LOAD_ADDR
+#define CONFIG_SYS_LOAD_ADDR		0x82408000
 
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"

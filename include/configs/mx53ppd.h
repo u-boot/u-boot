@@ -33,7 +33,7 @@
 
 /* Command definition */
 
-#define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
+#define CONFIG_SYS_LOAD_ADDR		0x72000000	/* loadaddr env var */
 
 #define PPD_CONFIG_NFS \
 	"nfsserver=192.168.252.95\0" \
@@ -115,8 +115,6 @@
 
 #define CONFIG_SYS_MAXARGS	48	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
 

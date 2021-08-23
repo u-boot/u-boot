@@ -38,7 +38,7 @@
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_SERVERIP		192.168.10.1
 
-#define CONFIG_LOADADDR			0x80008000
+#define CONFIG_SYS_LOAD_ADDR			0x80008000
 #define CONFIG_FDTADDR			0x84000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
@@ -117,7 +117,6 @@
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical memory map */

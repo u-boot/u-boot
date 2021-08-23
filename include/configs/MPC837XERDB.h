@@ -347,9 +347,6 @@
 #define CONFIG_UBOOTPATH	"u-boot.bin"
 #define CONFIG_FDTFILE		"mpc8379_rdb.dtb"
 
-				/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		800000
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" CONFIG_NETDEV "\0"				\
 	"uboot=" CONFIG_UBOOTPATH "\0"					\

@@ -127,8 +127,7 @@
 	"reset;"
 
 /* Default location for tftp and bootm */
-#define CONFIG_LOADADDR			0x80280000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR			0x80280000
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
 /* On CCP board, USDHC1 is for eMMC */

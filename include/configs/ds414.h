@@ -64,7 +64,6 @@
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
 /* Default Environment */
-#define CONFIG_LOADADDR		0x80000
 #define CONFIG_BOOTCOMMAND					\
 	"sf probe; "						\
 	"sf read ${loadaddr} 0xd0000 0x2d0000; "		\

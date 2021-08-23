@@ -49,8 +49,7 @@
 
 #define CONFIG_NET_RETRY_COUNT	100
 
-
-#define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
+#define CONFIG_SYS_LOAD_ADDR		0x80800000	/* loadaddr env var */
 
 /*
  * Ethernet on SOC (FEC)
@@ -68,8 +67,6 @@
 #define CONFIG_SYS_CBSIZE	512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	32	/* max number of command args */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /*
  * Physical Memory Map

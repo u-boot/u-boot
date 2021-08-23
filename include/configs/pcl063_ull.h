@@ -39,7 +39,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

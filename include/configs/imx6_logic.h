@@ -36,7 +36,7 @@
 	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x14000000\0" \
 	"ramdisk_addr_r=0x14080000\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
