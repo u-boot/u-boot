@@ -98,6 +98,13 @@
 &i2c1 { /* PMC_MIO44/45 */
 	status = "okay";
 	clock-frequency = <400000>;
+
+	/* Use for storing information about board */
+	eeprom: eeprom@54 { /* u34 - m24128 16kB */
+		compatible = "st,24c128", "atmel,24c128";
+		reg = <0x54>; /* & 0x5c */
+		u-boot,dm-pre-reloc;
+	};
 };
 
 /* PCIe at MIO 38/39/40/50 */
