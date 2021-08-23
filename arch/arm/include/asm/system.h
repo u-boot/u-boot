@@ -590,7 +590,6 @@ s32 psci_affinity_info(u32 function_id, u32 target_affinity,
 u32 psci_migrate_info_type(void);
 void psci_system_off(void);
 void psci_system_reset(void);
-s32 psci_features(u32 function_id, u32 psci_fid);
 #endif
 
 #endif /* __ASSEMBLY__ */
