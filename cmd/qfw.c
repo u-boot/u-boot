@@ -121,11 +121,7 @@ static int qemu_fwcfg_do_load(struct cmd_tbl *cmdtp, int flag,
 	env = env_get("loadaddr");
 	load_addr = env ?
 		(void *)hextoul(env, NULL) :
-#ifdef CONFIG_LOADADDR
-		(void *)CONFIG_LOADADDR;
-#else
-		NULL;
-#endif
+		(void *)CONFIG_SYS_LOAD_ADDR;
 
 	env = env_get("ramdiskaddr");
 	initrd_addr = env ?

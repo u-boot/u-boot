@@ -26,7 +26,7 @@ The *qfw load* command is used to load a kernel and an initial RAM disk.
 kernel_addr
     address to which the file specified by the -kernel parameter of QEMU shall
     be loaded. Defaults to environment variable *loadaddr* and further to
-    the value of *CONFIG_LOADADDR*.
+    the value of *CONFIG_SYS_LOAD_ADDR*.
 
 initrd_addr
     address to which the file specified by the -initrd parameter of QEMU shall
