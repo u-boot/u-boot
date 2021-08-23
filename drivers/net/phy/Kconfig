@@ -131,6 +131,16 @@ config SYS_CORTINA_FW_IN_SPIFLASH
 
 endchoice
 
+config CORTINA_FW_ADDR
+	hex "Cortina Firmware Address"
+	depends on PHY_CORTINA && !SYS_CORTINA_NO_FW_UPLOAD
+	default 0x0
+
+config CORTINA_FW_LENGTH
+	hex "Cortina Firmware Length"
+	depends on PHY_CORTINA && !SYS_CORTINA_NO_FW_UPLOAD
+	default 0x40000
+
 config PHY_CORTINA_ACCESS
 	bool "Cortina Access Ethernet PHYs support"
 	default y

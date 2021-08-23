@@ -143,7 +143,6 @@
 
 /* USB */
 #ifdef CONFIG_USB_HOST
-#define CONFIG_HAS_FSL_XHCI_USB
 #ifndef CONFIG_TARGET_LX2162AQDS
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #endif
@@ -181,6 +180,7 @@ unsigned long get_board_ddr_clk(void);
 #define XSPI_MC_INIT_CMD				\
 	"sf probe 0:0 && "				\
 	"sf read 0x80640000 0x640000 0x80000 && "	\
+	"sf read $fdt_addr_r 0xf00000 0x100000 && "	\
 	"env exists secureboot && "			\
 	"esbc_validate 0x80640000 && "			\
 	"esbc_validate 0x80680000; "			\
@@ -191,6 +191,7 @@ unsigned long get_board_ddr_clk(void);
 #define SD_MC_INIT_CMD				\
 	"mmc read 0x80a00000 0x5000 0x1200;"	\
 	"mmc read 0x80e00000 0x7000 0x800;"	\
+	"mmc read $fdt_addr_r 0x7800 0x800;"	\
 	"env exists secureboot && "		\
 	"mmc read 0x80640000 0x3200 0x20 && "	\
 	"mmc read 0x80680000 0x3400 0x20 && "	\
@@ -201,6 +202,7 @@ unsigned long get_board_ddr_clk(void);
 #define SD2_MC_INIT_CMD				\
 	"mmc dev 1; mmc read 0x80a00000 0x5000 0x1200;"	\
 	"mmc read 0x80e00000 0x7000 0x800;"	\
+	"mmc read $fdt_addr_r 0x7800 0x800;"	\
 	"env exists secureboot && "		\
 	"mmc read 0x80640000 0x3200 0x20 && "	\
 	"mmc read 0x80680000 0x3400 0x20 && "	\
