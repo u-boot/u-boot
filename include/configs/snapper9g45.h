@@ -64,7 +64,6 @@
 /* UARTs/Serial console */
 
 /* Boot options */
-#define CONFIG_SYS_LOAD_ADDR		0x23000000
 
 #define CONFIG_BOOTP_BOOTFILESIZE
 

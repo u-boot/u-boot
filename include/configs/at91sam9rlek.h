@@ -62,10 +62,6 @@
 
 /* Ethernet - not present */
 
-/* USB - not supported */
-
-#define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
-
 #ifdef CONFIG_SYS_USE_DATAFLASH
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */

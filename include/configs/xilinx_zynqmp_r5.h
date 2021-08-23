@@ -17,7 +17,6 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /* Boot configuration */
-#define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 

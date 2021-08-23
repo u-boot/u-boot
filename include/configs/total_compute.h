@@ -25,7 +25,6 @@
 #define CONFIG_PL011_CLOCK	7372800
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	0x90000000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1		0x80000000

@@ -14,6 +14,7 @@ CONFIG_ENV_OFFSET_REDUND=0x120000
 # CONFIG_SPL_SPI_SUPPORT is not set
 CONFIG_BUILD_TARGET="u-boot-with-nand-spl.sfp"
 CONFIG_DISTRO_DEFAULTS=y
+CONFIG_SYS_LOAD_ADDR=0x02000000
 CONFIG_FIT=y
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 ubi.fm_autoconvert=1 uio_pdrv_genirq.of_id=\"idq,regbank\""

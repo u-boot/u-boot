@@ -65,7 +65,6 @@
 #define BMP_LOAD_ADDR			0x78000000
 
 /* kernel load address */
-#define CONFIG_SYS_LOAD_ADDR		0x71080000
 #define INITRD_START			0x79000000
 #define KERNEL_DTB_ADDR			0x7A000000
 

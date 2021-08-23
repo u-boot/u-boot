@@ -31,8 +31,6 @@
  */
 #undef CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
-
 /*
  * Clock configuration: enable only one of the following options
  */

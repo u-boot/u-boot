@@ -53,8 +53,6 @@
  * start addr of ram disk
  */
 
-#define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
-
  /* Physical Memory Map */
 #define PHYS_DRAM_1			0x80000000	/* DRAM Bank #1 */
 

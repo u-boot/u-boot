@@ -75,10 +75,6 @@
 
 #define CONFIG_SYS_MAXARGS		32	/* max number of command */
 						/* args */
-/* memtest works on */
-
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
-								/* address */
 
 /*
  * AM3517 has 12 GP timers, they can be driven by the system clock

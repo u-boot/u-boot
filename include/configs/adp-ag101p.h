@@ -217,14 +217,6 @@
 #endif /* CONFIG_MEM_REMAP */
 
 /*
- * Load address and memory test area should agree with
- * arch/nds32/config.mk. Be careful not to overwrite U-Boot itself.
- */
-#define CONFIG_SYS_LOAD_ADDR		0x300000
-
-/* memtest works on 63 MB in DRAM */
-
-/*
  * Static memory controller configuration
  */
 #define CONFIG_FTSMC020

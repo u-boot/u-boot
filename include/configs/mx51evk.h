@@ -61,8 +61,6 @@
 
 #define CONFIG_ETHPRIME		"FEC0"
 
-#define CONFIG_SYS_LOAD_ADDR		0x92000000	/* loadaddr env var */
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \

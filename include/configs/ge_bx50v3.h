@@ -114,10 +114,6 @@
 #define CONFIG_BOOTCOMMAND MMCBOOTCOMMAND
 #endif
 
-
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	0x12000000
-
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 

@@ -71,8 +71,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR			0x22000000
-
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_BOOTCOMMAND	"nboot 21000000 0"
 #define CONFIG_EXTRA_ENV_SETTINGS \

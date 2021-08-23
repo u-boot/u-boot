@@ -89,6 +89,4 @@
 #define CONFIG_PHY_BASE_ADR	0x01
 #endif /* CONFIG_CMD_NET */
 
-#define CONFIG_SYS_LOAD_ADDR  0x1000000      /* default location for tftp and bootm */
-
 #endif /* _CONFIG_SBX81LIFKW_H */

@@ -21,8 +21,6 @@
 /** Heap size for U-Boot */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 64 * 1024 * 1024)
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
-
 #define CONFIG_LAST_STAGE_INIT
 
 /* Allow environment variable to be overwritten */

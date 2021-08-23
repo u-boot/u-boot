@@ -35,8 +35,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x80000)
-
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		19000000
 

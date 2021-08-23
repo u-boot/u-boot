@@ -81,8 +81,6 @@
 #define CONFIG_HW_WATCHDOG
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR			0x12000000
-
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"console=ttymxc0,115200\0"	\

@@ -42,7 +42,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			(MEM_BASE)	  /* SDRAM Bank #1 */

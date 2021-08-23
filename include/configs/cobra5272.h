@@ -135,9 +135,6 @@ enter a valid image address in flash */
 
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR		0x20000		/*Defines default RAM address
-from which user programs will be started */
-
 /*---*/
 
 /*

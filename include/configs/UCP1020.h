@@ -377,7 +377,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms tick */
 
 /*

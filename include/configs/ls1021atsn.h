@@ -206,8 +206,6 @@
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
-
 #define CONFIG_LS102XA_STREAM_ID
 
 #define CONFIG_SYS_INIT_SP_OFFSET \

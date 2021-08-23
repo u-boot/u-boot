@@ -31,7 +31,6 @@
 
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_LOAD_ADDR		0x80500000 /* default load address */
 
 /*----------------------------------------------------------------------
  * Commands

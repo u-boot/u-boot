@@ -389,6 +389,20 @@ config SYS_LDSCRIPT
 	  Path within the source tree to the linker script to use for the
 	  main U-Boot binary.
 
+config SYS_LOAD_ADDR
+	hex "Address in memory to use by default"
+	default 0x01000000 if ARCH_SOCFPGA
+	default 0x02000000 if PPC || X86
+	default 0x22000000 if MACH_SUN9I
+	default 0x42000000 if ARCH_SUNXI && !MACH_SUN9I
+	default 0x82000000 if ARCH_KEYSTONE || ARCH_OMAP2PLUS || ARCH_K3
+	default 0x82000000 if ARCH_MX6 && (MX6SL || MX6SLL  || MX6SX || MX6UL || MX6ULL)
+	default 0x12000000 if ARCH_MX6 && !(MX6SL || MX6SLL  || MX6SX || MX6UL || MX6ULL)
+	default 0x80800000 if ARCH_MX7
+	default 0x90000000 if FSL_LSCH2 || FSL_LSCH3
+	help
+	  Address in memory to use as the default safe load address.
+
 config ERR_PTR_OFFSET
 	hex
 	default 0x0

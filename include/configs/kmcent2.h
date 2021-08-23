@@ -185,8 +185,6 @@
 #define SPD_EEPROM_ADDRESS	0x54
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
 
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-
 /******************************************************************************
  * (PRAM usage)
  * ... -------------------------------------------------------

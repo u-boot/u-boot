@@ -54,8 +54,6 @@
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
-
 #ifdef CONFIG_SD_BOOT
 /* bootstrap + u-boot + env + linux in sd card */
 #define CONFIG_BOOTCOMMAND  \

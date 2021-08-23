@@ -56,8 +56,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR			0x22000000 /* load address */
-
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x18000
 #define CONFIG_SPL_BSS_START_ADDR	0x20000000

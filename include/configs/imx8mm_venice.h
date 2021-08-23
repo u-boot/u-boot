@@ -37,7 +37,6 @@
 	"scriptaddr=0x46000000\0"
 
 /* Link Definitions */
-#define CONFIG_SYS_LOAD_ADDR			0x40480000
 
 /* Enable Distro Boot */
 #ifndef CONFIG_SPL_BUILD

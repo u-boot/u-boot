@@ -53,8 +53,6 @@
  */
 #define CONFIG_SYS_CBSIZE			512
 
-#define CONFIG_SYS_LOAD_ADDR			0x20000000
-
 /*-----------------------------------------------------------------------
  * CPU Features
  */

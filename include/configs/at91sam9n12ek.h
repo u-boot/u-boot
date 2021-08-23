@@ -61,9 +61,6 @@
 	"bootargs_nand=rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs rw\0"\
 	"bootargs_mmc=root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait\0"
 
-/* Ethernet */
-#define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
-
 /* USB host */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_ATMEL

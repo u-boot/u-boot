@@ -48,7 +48,6 @@
 #endif
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		0x8000000
 
 #if defined(CONFIG_ZYNQMP_USB)
 #define DFU_DEFAULT_POLL_TIMEOUT	300

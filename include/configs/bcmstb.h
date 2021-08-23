@@ -88,7 +88,6 @@ extern phys_addr_t prior_stage_fdt_address;
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR +	\
 					 CONFIG_SYS_INIT_RAM_SIZE -	\
 					 GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_LOAD_ADDR		0x2000000
 
 /*
  * CONFIG_SYS_LOAD_ADDR - 1 MiB.

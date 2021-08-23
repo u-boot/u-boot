@@ -43,8 +43,6 @@
 
 /* Command definition */
 
-#define CONFIG_SYS_LOAD_ADDR		0x70010000	/* loadaddr env var */
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \

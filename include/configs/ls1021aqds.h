@@ -440,8 +440,6 @@ unsigned long get_board_sys_clk(void);
  */
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
-
 #define CONFIG_LS102XA_STREAM_ID
 
 #define CONFIG_SYS_INIT_SP_OFFSET \

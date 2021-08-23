@@ -40,8 +40,6 @@
 
 #include "asm/arch/config.h"
 
-#define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
-
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU					\
 		"bootcountaddr=${bootcountaddr} ${mtdparts}"		\

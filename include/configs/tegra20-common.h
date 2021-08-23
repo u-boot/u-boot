@@ -46,7 +46,6 @@
  * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 49M allows
  *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
  */
-#define CONFIG_SYS_LOAD_ADDR 0x01000000
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=0x10000000\0" \
 	"pxefile_addr_r=0x10100000\0" \

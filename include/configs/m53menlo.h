@@ -136,7 +136,6 @@
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTFILE		"boot/fitImage"
-#define CONFIG_SYS_LOAD_ADDR		0x70800000
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 
 /*

@@ -45,12 +45,6 @@
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 
-/* specific .lds file */
-
-/* Boot Argument Buffer Size */
-/* memtest works on */
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
-
 #define CONFIG_RD_LVL
 
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE

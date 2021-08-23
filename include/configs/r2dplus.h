@@ -15,7 +15,6 @@
 
 #define CONFIG_SYS_PBSIZE		256
 
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 32 * 1024 * 1024)
 /* Address of u-boot image in Flash */
 #define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)

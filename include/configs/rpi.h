@@ -87,7 +87,6 @@
 #define CONFIG_SYS_CBSIZE		1024
 
 /* Environment */
-#define CONFIG_SYS_LOAD_ADDR		0x1000000
 
 /* Shell */
 

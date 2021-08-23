@@ -66,8 +66,6 @@
 
 #define CONFIG_PRAM		512	/* 512 KB */
 
-#define CONFIG_SYS_LOAD_ADDR	0x40010000
-
 #define CONFIG_SYS_CLK		166666666	/* CPU Core Clock */
 #define CONFIG_SYS_PLL_ODR	0x36
 #define CONFIG_SYS_PLL_FDR	0x7D

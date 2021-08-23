@@ -140,7 +140,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x8000)
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
 
 /* Physical Memory Map */

@@ -57,8 +57,6 @@
 #define CONFIG_BOOT_RETRY_TIME 45
 #define CONFIG_RESET_TO_RETRY
 
-#define CONFIG_SYS_LOAD_ADDR   CONFIG_KM_KERNEL_ADDR
-
 /*
  * FPGA Remote Update related environment
  *

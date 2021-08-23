@@ -37,8 +37,6 @@
 	"ramdisk_addr_r=0x46400000\0" \
 	"scriptaddr=0x46000000\0"
 
-#define CONFIG_SYS_LOAD_ADDR		0x40480000
-
 /* Enable Distro Boot */
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \

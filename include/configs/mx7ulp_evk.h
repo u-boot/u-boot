@@ -47,8 +47,6 @@
 #define PHYS_SDRAM_SIZE			SZ_1G
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 
-#define CONFIG_SYS_LOAD_ADDR             0x60800000
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \

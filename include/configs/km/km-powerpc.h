@@ -12,8 +12,6 @@
 /* EEprom support 24C08, 24C16, 24C64 */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
 
-#define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
-
 /* Reserve 4 MB for malloc */
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 

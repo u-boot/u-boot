@@ -188,9 +188,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"run attachboot;" \
 	"echo"
 
-/* default load address */
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)
-
 /*
  * OMAP3 has 12 GP timers, they can be driven by the system clock
  * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).

@@ -98,9 +98,6 @@
 #define XTENSA_SYS_TEXT_ADDR		\
 	(MEMADDR(CONFIG_SYS_MEMORY_SIZE) - CONFIG_SYS_MONITOR_LEN)
 
-/* Used by tftpboot; env var 'loadaddr' */
-#define CONFIG_SYS_LOAD_ADDR		MEMADDR(0x02000000)
-
 /*==============================*/
 /* U-Boot general configuration */
 /*==============================*/

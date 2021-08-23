@@ -16,7 +16,6 @@
 #define PHYS_SDRAM_1			V2M_BASE
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_LOAD_ADDR		(PHYS_SDRAM_1 + 0x80000)
 
 /*
  * Initial SP before reloaction is placed at end of first DRAM bank,

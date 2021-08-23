@@ -22,7 +22,6 @@
 
 #define CONFIG_SYS_MALLOC_LEN		SZ_128K
 #define CONFIG_SYS_BOOTM_LEN		SZ_32M
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /*
  * UART configuration

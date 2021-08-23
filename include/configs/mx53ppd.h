@@ -33,8 +33,6 @@
 
 /* Command definition */
 
-#define CONFIG_SYS_LOAD_ADDR		0x72000000	/* loadaddr env var */
-
 #define PPD_CONFIG_NFS \
 	"nfsserver=192.168.252.95\0" \
 	"gatewayip=192.168.252.95\0" \

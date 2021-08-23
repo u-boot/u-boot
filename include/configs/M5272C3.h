@@ -75,7 +75,6 @@
 	"save\0"				\
 	""
 
-#define CONFIG_SYS_LOAD_ADDR		0x20000
 #define CONFIG_SYS_CLK			66000000
 
 /*

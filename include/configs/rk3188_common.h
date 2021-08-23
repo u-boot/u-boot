@@ -18,7 +18,6 @@
 /* Bootrom will load u-boot binary to 0x60000000 once return from SPL */
 #endif
 #define CONFIG_SYS_INIT_SP_ADDR		0x60100000
-#define CONFIG_SYS_LOAD_ADDR		0x60800800
 
 #define CONFIG_ROCKCHIP_MAX_INIT_SIZE	(0x8000 - 0x800)
 #define CONFIG_ROCKCHIP_CHIP_TAG	"RK31"

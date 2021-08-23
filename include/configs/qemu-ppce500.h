@@ -85,7 +85,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*
  * For booting Linux, the board info and command line data

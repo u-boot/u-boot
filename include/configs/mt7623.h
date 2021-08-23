@@ -32,9 +32,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + SZ_2M - \
 					 GENERATED_GBL_DATA_SIZE)
 
-/* UBoot -> Kernel */
-#define CONFIG_SYS_LOAD_ADDR			0x84000000
-
 /* MMC */
 #define MMC_SUPPORTS_TUNING
 

@@ -130,12 +130,6 @@
 #define CONFIG_SYS_CBSIZE		512
 
 /*
- * RAM Memory address where to put the
- * Linux Kernel befor starting.
- */
-#define CONFIG_SYS_LOAD_ADDR		0x22000000
-
-/*
  * The NAND Flash partitions:
  */
 #define CONFIG_ENV_RANGE		(SZ_512K)

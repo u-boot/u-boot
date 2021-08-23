@@ -68,7 +68,6 @@
 
 /* environment */
 /* see include/configs/ti_armv7_common.h */
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"kernel_addr_r=0x82000000\0" \

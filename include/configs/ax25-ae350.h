@@ -79,20 +79,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000000 - \
 					GENERATED_GBL_DATA_SIZE)
 
-/*
- * Load address and memory test area should agree with
- * arch/riscv/config.mk. Be careful not to overwrite U-Boot itself.
- */
-#define CONFIG_SYS_LOAD_ADDR		0x100000	/* SDRAM */
-
-/*
- * memtest works on 512 MB in DRAM
- */
-
-/*
- * FLASH and environment organization
- */
-
 /* use CFI framework */
 
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT

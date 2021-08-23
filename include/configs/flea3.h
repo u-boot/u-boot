@@ -49,8 +49,6 @@
 
 #define CONFIG_NET_RETRY_COUNT	100
 
-#define CONFIG_SYS_LOAD_ADDR		0x80800000	/* loadaddr env var */
-
 /*
  * Ethernet on SOC (FEC)
  */

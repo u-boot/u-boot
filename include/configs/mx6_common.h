@@ -39,15 +39,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-/* Boot options */
-#if defined(CONFIG_MX6SL) || defined(CONFIG_MX6SLL) || \
-	defined(CONFIG_MX6SX) || \
-	defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
-#else
-#define CONFIG_SYS_LOAD_ADDR		0x12000000
-#endif
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE	512
 #define CONFIG_SYS_MAXARGS	32

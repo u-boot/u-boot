@@ -8,7 +8,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_LOAD_ADDR 0x80000000
 /* Start just below the second bank so we don't clobber it during reloc */
 #define CONFIG_SYS_INIT_SP_ADDR 0x803FFFFF
 #define CONFIG_SYS_MALLOC_LEN SZ_128K

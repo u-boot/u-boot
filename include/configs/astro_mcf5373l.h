@@ -154,9 +154,6 @@
 #endif
 #endif
 
-/* default RAM address for user programs */
-#define CONFIG_SYS_LOAD_ADDR	0x20000
-
 #define CONFIG_FPGA_COUNT	1
 #define CONFIG_SYS_FPGA_PROG_FEEDBACK
 #define CONFIG_SYS_FPGA_WAIT		1000

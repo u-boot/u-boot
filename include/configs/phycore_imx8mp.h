@@ -82,7 +82,6 @@
 	"fi;"
 
 /* Link Definitions */
-#define CONFIG_SYS_LOAD_ADDR			0x40480000
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE	SZ_512K

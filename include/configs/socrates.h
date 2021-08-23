@@ -196,7 +196,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address		*/
 
 /*
  * For booting Linux, the board info and command line data

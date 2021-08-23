@@ -47,7 +47,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		(DDR_BASE + 0x10000000)
 #define CONFIG_LAST_STAGE_INIT
 
 /* SDRAM Bank #1 */

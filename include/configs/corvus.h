@@ -83,8 +83,6 @@
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
-#define CONFIG_SYS_LOAD_ADDR	ATMEL_BASE_CS6
-
 /* bootstrap + u-boot + env in nandflash */
 
 #define CONFIG_BOOTCOMMAND						\

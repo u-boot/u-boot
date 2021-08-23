@@ -25,8 +25,6 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-#define CONFIG_SYS_LOAD_ADDR			0x82000000
-
 /* We boot from the gfxRAM area of the OCRAM. */
 #define CONFIG_BOARD_SIZE_LIMIT		520192
 

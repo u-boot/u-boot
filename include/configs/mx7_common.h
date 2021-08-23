@@ -28,8 +28,6 @@
 /* Enable iomux-lpsr support */
 #define CONFIG_IOMUX_LPSR
 
-#define CONFIG_SYS_LOAD_ADDR		0x80800000
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		32

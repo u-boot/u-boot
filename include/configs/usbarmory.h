@@ -34,9 +34,6 @@
 /* Fuse */
 #define CONFIG_FSL_IIM
 
-/* U-Boot memory offsets */
-#define CONFIG_SYS_LOAD_ADDR		0x72000000
-
 /* Linux boot */
 #define CONFIG_HOSTNAME		"usbarmory"
 #define CONFIG_BOOTCOMMAND						\

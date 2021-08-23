@@ -102,9 +102,6 @@
 /* SPL related */
 #endif
 
-/* load address */
-#define CONFIG_SYS_LOAD_ADDR			0x22000000
-
 /* bootstrap in spi flash , u-boot + env + linux in nandflash */
 
 #ifndef CONFIG_SPL_BUILD

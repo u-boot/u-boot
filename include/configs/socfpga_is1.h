@@ -13,7 +13,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"zImage"
-#define CONFIG_SYS_LOAD_ADDR		0x01000000
 
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)

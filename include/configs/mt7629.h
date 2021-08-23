@@ -43,7 +43,6 @@
 
 /* UBoot -> Kernel */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x40000000
-#define CONFIG_SYS_LOAD_ADDR			0x42007f1c
 
 /* DRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000

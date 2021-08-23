@@ -25,7 +25,6 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(0xe0000000)	/* stack of init proccess */
 #define CONFIG_SYS_MALLOC_LEN		(0x01000000)	/* 16Mbyte size of malloc() */
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE /* default kernel load address */
 
 /*
  * Hardware drivers support

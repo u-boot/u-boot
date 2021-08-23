@@ -57,9 +57,5 @@
  * (which is common practice).
  */
 
-/*
- * MISC
- */
-#define CONFIG_SYS_LOAD_ADDR		0xd4000000	/* Half of RAM */
 
 #endif /* __CONFIG_H */

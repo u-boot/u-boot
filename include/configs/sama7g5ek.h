@@ -24,8 +24,6 @@
 	 GENERATED_GBL_DATA_SIZE)
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR		0x62000000 /* load address */
-
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_SD_BOOT
 /* u-boot env in sd/mmc card */

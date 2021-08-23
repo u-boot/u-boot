@@ -55,8 +55,6 @@
 #define	CONFIG_SYS_CBSIZE	512
 /* max number of command args */
 #define	CONFIG_SYS_MAXARGS	15
-/* default load address */
-#define	CONFIG_SYS_LOAD_ADDR	0
 
 #define	CONFIG_HOSTNAME		"microblaze-generic"
 

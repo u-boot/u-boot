@@ -13,7 +13,6 @@
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"fitImage"
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
-#define CONFIG_SYS_LOAD_ADDR		0x01000000
 
 /* Environment is in MMC */
 
