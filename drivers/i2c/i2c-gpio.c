@@ -336,8 +336,17 @@ static int i2c_gpio_of_to_plat(struct udevice *dev)
 	struct i2c_gpio_bus *bus = dev_get_priv(dev);
 	int ret;
 
+	/* "gpios" is deprecated and replaced by "sda-gpios" + "scl-gpios". */
 	ret = gpio_request_list_by_name(dev, "gpios", bus->gpios,
 					ARRAY_SIZE(bus->gpios), 0);
+	if (ret == -ENOENT) {
+		ret = gpio_request_by_name(dev, "sda-gpios", 0,
+					   &bus->gpios[PIN_SDA], 0);
+		if (ret < 0)
+			goto error;
+		ret = gpio_request_by_name(dev, "scl-gpios", 0,
+					   &bus->gpios[PIN_SCL], 0);
+	}
 	if (ret < 0)
 		goto error;
 

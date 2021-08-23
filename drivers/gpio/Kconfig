@@ -179,6 +179,16 @@ config LPC32XX_GPIO
 	help
 	  Support for the LPC32XX GPIO driver.
 
+config MCP230XX_GPIO
+	bool "MCP230XX GPIO driver"
+	depends on DM
+	help
+	  Support for Microchip's MCP230XX I2C connected GPIO devices.
+	  The following chips are supported:
+	   - MCP23008
+	   - MCP23017
+	   - MCP23018
+
 config MSCC_SGPIO
 	bool "Microsemi Serial GPIO driver"
 	depends on DM_GPIO && SOC_VCOREIII

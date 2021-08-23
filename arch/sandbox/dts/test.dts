@@ -731,6 +731,20 @@
 		i2c-eeprom = <&bootcount_i2c>;
 	};
 
+	bootcount_4@0 {
+		compatible = "u-boot,bootcount-syscon";
+		syscon = <&syscon0>;
+		reg = <0x0 0x04>, <0x0 0x04>;
+		reg-names = "syscon_reg", "offset";
+	};
+
+	bootcount_2@0 {
+		compatible = "u-boot,bootcount-syscon";
+		syscon = <&syscon0>;
+		reg = <0x0 0x04>, <0x0 0x02> ;
+		reg-names = "syscon_reg", "offset";
+	};
+
 	adc: adc@0 {
 		compatible = "sandbox,adc";
 		#io-channel-cells = <1>;
