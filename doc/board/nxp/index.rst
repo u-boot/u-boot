@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-Freescale
-=========
+NXP Semiconductors
+==================
 
 .. toctree::
    :maxdepth: 2
@@ -17,3 +17,4 @@ Freescale
    mx6sabresd
    mx6ul_14x14_evk
    mx6ullevk
+   psb

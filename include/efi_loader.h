@@ -676,13 +676,14 @@ struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid);
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
 /* More specific EFI memory allocator, called by EFI payloads */
-efi_status_t efi_allocate_pages(int type, int memory_type, efi_uintn_t pages,
-				uint64_t *memory);
+efi_status_t efi_allocate_pages(enum efi_allocate_type type,
+				enum efi_memory_type memory_type,
+				efi_uintn_t pages, uint64_t *memory);
 /* EFI memory free function. */
 efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages);
 /* EFI memory allocator for small allocations */
-efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size,
-			       void **buffer);
+efi_status_t efi_allocate_pool(enum efi_memory_type pool_type,
+			       efi_uintn_t size, void **buffer);
 /* EFI pool memory free function. */
 efi_status_t efi_free_pool(void *buffer);
 /* Returns the EFI memory map */

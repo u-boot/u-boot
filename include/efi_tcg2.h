@@ -3,6 +3,13 @@
  * Defines data structures and APIs that allow an OS to interact with UEFI
  * firmware to query information about the device
  *
+ * This file refers the following TCG specification.
+ *  - TCG PC Client Platform Firmware Profile Specification
+ *    https://trustedcomputinggroup.org/resource/pc-client-specific-platform-firmware-profile-specification/
+ *
+ *  - TCG EFI Protocol Specification
+ *    https://trustedcomputinggroup.org/resource/tcg-efi-protocol-specification/
+ *
  * Copyright (c) 2020, Linaro Limited
  */
 
@@ -36,11 +43,23 @@ typedef u32 efi_tcg_event_log_bitmap;
 typedef u32 efi_tcg_event_log_format;
 typedef u32 efi_tcg_event_algorithm_bitmap;
 
+/**
+ * struct tdEFI_TCG2_VERSION - structure of EFI TCG2 version
+ * @major:	major version
+ * @minor:	minor version
+ */
 struct efi_tcg2_version {
 	u8 major;
 	u8 minor;
 };
 
+/**
+ * struct tdEFI_TCG2_EVENT_HEADER - structure of EFI TCG2 event header
+ * @header_size:	size of the event header
+ * @header_version:	header version
+ * @pcr_index:		index of the PCR that is extended
+ * @event_type:		type of the event that is extended
+ */
 struct efi_tcg2_event_header {
 	u32 header_size;
 	u16 header_version;
@@ -48,12 +67,27 @@ struct efi_tcg2_event_header {
 	u32 event_type;
 } __packed;
 
+/**
+ * struct tdEFI_TCG2_EVENT - structure of EFI TCG2 event
+ * @size:	total size of the event including the size component, the header
+ *		and the event data
+ * @header:	event header
+ * @event:	event to add
+ */
 struct efi_tcg2_event {
 	u32 size;
 	struct efi_tcg2_event_header header;
 	u8 event[];
 } __packed;
 
+/**
+ * struct tdUEFI_IMAGE_LOAD_EVENT - structure of PE/COFF image measurement
+ * @image_location_in_memory:	image address
+ * @image_length_in_memory:	image size
+ * @image_link_time_address:	image link time address
+ * @length_of_device_path:	devive path size
+ * @device_path:		device path
+ */
 struct uefi_image_load_event {
 	efi_physical_addr_t image_location_in_memory;
 	u64 image_length_in_memory;
@@ -62,6 +96,23 @@ struct uefi_image_load_event {
 	struct efi_device_path device_path[];
 };
 
+/**
+ * struct tdEFI_TCG2_BOOT_SERVICE_CAPABILITY - protocol capability information
+ * @size:			allocated size of the structure
+ * @structure_version:		version of this structure
+ * @protocol_version:		version of the EFI TCG2 protocol.
+ * @hash_algorithm_bitmap:	supported hash algorithms
+ * @supported_event_logs:	bitmap of supported event log formats
+ * @tpm_present_flag:		false = TPM not present
+ * @max_command_size:		max size (in bytes) of a command
+ *				that can be sent to the TPM
+ * @max_response_size:		max size (in bytes) of a response that
+ *				can be provided by the TPM
+ * @manufacturer_id:		4-byte Vendor ID
+ * @number_of_pcr_banks:	maximum number of PCR banks
+ * @active_pcr_banks:		bitmap of currently active
+ *				PCR banks (hashing algorithms).
+ */
 struct efi_tcg2_boot_service_capability {
 	u8 size;
 	struct efi_tcg2_version structure_version;
@@ -86,7 +137,7 @@ struct efi_tcg2_boot_service_capability {
 #define TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_ERRATA_TPM2 2
 
 /**
- *  struct TCG_EfiSpecIdEventAlgorithmSize
+ *  struct TCG_EfiSpecIdEventAlgorithmSize - hashing algorithm information
  *
  *  @algorithm_id:	algorithm defined in enum tpm2_algorithms
  *  @digest_size:	size of the algorithm
@@ -97,7 +148,7 @@ struct tcg_efi_spec_id_event_algorithm_size {
 } __packed;
 
 /**
- * struct TCG_EfiSpecIDEventStruct
+ * struct TCG_EfiSpecIDEventStruct - content of the event log header
  *
  * @signature:			signature, set to Spec ID Event03
  * @platform_class:		class defined in TCG ACPI Specification
@@ -130,7 +181,7 @@ struct tcg_efi_spec_id_event {
 } __packed;
 
 /**
- * struct tdEFI_TCG2_FINAL_EVENTS_TABLE
+ * struct tdEFI_TCG2_FINAL_EVENTS_TABLE - log entries after Get Event Log
  * @version:		version number for this structure
  * @number_of_events:	number of events recorded after invocation of
  *			GetEventLog()

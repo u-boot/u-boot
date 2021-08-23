@@ -125,8 +125,36 @@ struct efi_table_hdr {
 	u32 reserved;
 };
 
+/* Allocation types for calls to boottime->allocate_pages*/
+/**
+ * enum efi_allocate_type - address restriction for memory allocation
+ */
+enum efi_allocate_type {
+	/**
+	 * @EFI_ALLOCATE_ANY_PAGES:
+	 * Allocate any block of sufficient size. Ignore memory address.
+	 */
+	EFI_ALLOCATE_ANY_PAGES,
+	/**
+	 * @EFI_ALLOCATE_MAX_ADDRESS:
+	 * Allocate a memory block with an uppermost address less or equal
+	 * to the indicated address.
+	 */
+	EFI_ALLOCATE_MAX_ADDRESS,
+	/**
+	 * @EFI_ALLOCATE_ADDRESS:
+	 * Allocate a memory block starting at the indicatged adress.
+	 */
+	EFI_ALLOCATE_ADDRESS,
+	/**
+	 * @EFI_MAX_ALLOCATE_TYPE:
+	 * Value use for range checking.
+	 */
+	EFI_MAX_ALLOCATE_TYPE,
+};
+
 /* Enumeration of memory types introduced in UEFI */
-enum efi_mem_type {
+enum efi_memory_type {
 	EFI_RESERVED_MEMORY_TYPE,
 	/*
 	 * The code portions of a loaded application.
@@ -223,12 +251,6 @@ struct efi_mem_desc {
 };
 
 #define EFI_MEMORY_DESCRIPTOR_VERSION 1
-
-/* Allocation types for calls to boottime->allocate_pages*/
-#define EFI_ALLOCATE_ANY_PAGES		0
-#define EFI_ALLOCATE_MAX_ADDRESS	1
-#define EFI_ALLOCATE_ADDRESS		2
-#define EFI_MAX_ALLOCATE_TYPE		3
 
 /* Types and defines for Time Services */
 #define EFI_TIME_ADJUST_DAYLIGHT 0x1
