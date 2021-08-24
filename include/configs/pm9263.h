@@ -25,8 +25,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 
-#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9263"
-
 /* clocks */
 #define CONFIG_SYS_MOR_VAL						\
 		(AT91_PMC_MOR_MOSCEN |					\
