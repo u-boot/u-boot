@@ -250,6 +250,39 @@ static int single_get_pin_muxing(struct udevice *dev, unsigned int pin,
 	return 0;
 }
 
+static int single_request(struct udevice *dev, int pin, int flags)
+{
+	struct single_priv *priv = dev_get_priv(dev);
+	struct single_pdata *pdata = dev_get_plat(dev);
+	struct single_gpiofunc_range *frange = NULL;
+	struct list_head *pos, *tmp;
+	phys_addr_t reg;
+	int mux_bytes = 0;
+	u32 data;
+
+	/* If function mask is null, needn't enable it. */
+	if (!pdata->mask)
+		return -ENOTSUPP;
+
+	list_for_each_safe(pos, tmp, &priv->gpiofuncs) {
+		frange = list_entry(pos, struct single_gpiofunc_range, node);
+		if ((pin >= frange->offset + frange->npins) ||
+		    pin < frange->offset)
+			continue;
+
+		mux_bytes = pdata->width / BITS_PER_BYTE;
+		reg = pdata->base + pin * mux_bytes;
+
+		data = single_read(dev, reg);
+		data &= ~pdata->mask;
+		data |= frange->gpiofunc;
+		single_write(dev, data, reg);
+		break;
+	}
+
+	return 0;
+}
+
 static struct single_func *single_allocate_function(struct udevice *dev,
 						    unsigned int group_pins)
 {
@@ -587,6 +620,7 @@ const struct pinctrl_ops single_pinctrl_ops = {
 	.get_pin_name = single_get_pin_name,
 	.set_state = single_set_state,
 	.get_pin_muxing	= single_get_pin_muxing,
+	.request = single_request,
 };
 
 static const struct udevice_id single_pinctrl_match[] = {
