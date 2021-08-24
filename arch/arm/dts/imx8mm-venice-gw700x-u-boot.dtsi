@@ -3,59 +3,7 @@
  * Copyright 2021 Gateworks Corporation
  */
 
-#include "imx8mm-u-boot.dtsi"
-
-&gpio1 {
-	u-boot,dm-spl;
-};
-
-&gpio2 {
-	u-boot,dm-spl;
-};
-
-&gpio3 {
-	u-boot,dm-spl;
-};
-
-&gpio4 {
-	u-boot,dm-spl;
-};
-
-&gpio5 {
-	u-boot,dm-spl;
-};
-
-&uart2 {
-	u-boot,dm-spl;
-};
-
-&pinctrl_uart2 {
-	u-boot,dm-spl;
-};
-
-&usdhc3 {
-	u-boot,dm-spl;
-};
-
-&pinctrl_usdhc3 {
-	u-boot,dm-spl;
-};
-
-&i2c1 {
-	u-boot,dm-spl;
-};
-
-&pinctrl_i2c1 {
-	u-boot,dm-spl;
-};
-
-&i2c2 {
-	u-boot,dm-spl;
-};
-
-&pinctrl_i2c2 {
-	u-boot,dm-spl;
-};
+#include "imx8mm-venice-u-boot.dtsi"
 
 &fec1 {
 	phy-reset-gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
@@ -63,10 +11,18 @@
 	phy-reset-post-delay = <1>;
 };
 
+&pinctrl_fec1 {
+	u-boot,dm-spl;
+};
+
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@69} {
 	u-boot,dm-spl;
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@69/regulators} {
+	u-boot,dm-spl;
+};
+
+&pinctrl_pmic {
 	u-boot,dm-spl;
 };
