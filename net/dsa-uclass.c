@@ -248,7 +248,7 @@ static int dsa_port_probe(struct udevice *pdev)
 	struct dsa_port_pdata *port_pdata;
 	struct dsa_priv *dsa_priv;
 	struct udevice *master;
-	int ret;
+	int err;
 
 	port_pdata = dev_get_parent_plat(pdev);
 	dsa_priv = dev_get_uclass_priv(dev);
@@ -268,9 +268,9 @@ static int dsa_port_probe(struct udevice *pdev)
 	 * TODO: we assume the master device is always there and doesn't get
 	 * removed during runtime.
 	 */
-	ret = device_probe(master);
-	if (ret)
-		return ret;
+	err = device_probe(master);
+	if (err)
+		return err;
 
 	/*
 	 * Inherit port's hwaddr from the DSA master, unless the port already
