@@ -240,11 +240,36 @@ static const struct eth_ops dsa_port_ops = {
 	.free_pkt	= dsa_port_free_pkt,
 };
 
+/*
+ * Inherit port's hwaddr from the DSA master, unless the port already has a
+ * unique MAC address specified in the environment.
+ */
+static void dsa_port_set_hwaddr(struct udevice *pdev, struct udevice *master)
+{
+	struct eth_pdata *eth_pdata, *master_pdata;
+	unsigned char env_enetaddr[ARP_HLEN];
+
+	eth_env_get_enetaddr_by_index("eth", dev_seq(pdev), env_enetaddr);
+	if (!is_zero_ethaddr(env_enetaddr)) {
+		/* individual port mac addrs require master to be promisc */
+		struct eth_ops *eth_ops = eth_get_ops(master);
+
+		if (eth_ops->set_promisc)
+			eth_ops->set_promisc(master, 1);
+
+		return;
+	}
+
+	master_pdata = dev_get_plat(master);
+	eth_pdata = dev_get_plat(pdev);
+	memcpy(eth_pdata->enetaddr, master_pdata->enetaddr, ARP_HLEN);
+	eth_env_set_enetaddr_by_index("eth", dev_seq(pdev),
+				      master_pdata->enetaddr);
+}
+
 static int dsa_port_probe(struct udevice *pdev)
 {
 	struct udevice *dev = dev_get_parent(pdev);
-	struct eth_pdata *eth_pdata, *master_pdata;
-	unsigned char env_enetaddr[ARP_HLEN];
 	struct dsa_port_pdata *port_pdata;
 	struct dsa_priv *dsa_priv;
 	struct udevice *master;
@@ -272,26 +297,7 @@ static int dsa_port_probe(struct udevice *pdev)
 	if (err)
 		return err;
 
-	/*
-	 * Inherit port's hwaddr from the DSA master, unless the port already
-	 * has a unique MAC address specified in the environment.
-	 */
-	eth_env_get_enetaddr_by_index("eth", dev_seq(pdev), env_enetaddr);
-	if (!is_zero_ethaddr(env_enetaddr)) {
-		/* individual port mac addrs require master to be promisc */
-		struct eth_ops *eth_ops = eth_get_ops(master);
-
-		if (eth_ops->set_promisc)
-			eth_ops->set_promisc(master, 1);
-
-		return 0;
-	}
-
-	master_pdata = dev_get_plat(master);
-	eth_pdata = dev_get_plat(pdev);
-	memcpy(eth_pdata->enetaddr, master_pdata->enetaddr, ARP_HLEN);
-	eth_env_set_enetaddr_by_index("eth", dev_seq(pdev),
-				      master_pdata->enetaddr);
+	dsa_port_set_hwaddr(pdev, master);
 
 	return 0;
 }
