@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <hang.h>
 #include <init.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -14,7 +15,31 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 
+#include "ddr/ddr.h"
+
 DECLARE_GLOBAL_DATA_PTR;
+
+int board_phys_sdram_size(phys_size_t *size)
+{
+	struct lpddr4_tcm_desc *lpddr4_tcm_desc =
+		(struct lpddr4_tcm_desc *)TCM_DATA_CFG;
+
+	switch (lpddr4_tcm_desc->size) {
+	case 4096:
+	case 2048:
+	case 1024:
+		*size = (1L << 20) * lpddr4_tcm_desc->size;
+		break;
+	default:
+		printf("%s: DRAM size %uM is not supported\n",
+		       __func__,
+		       lpddr4_tcm_desc->size);
+		hang();
+		break;
+	};
+
+	return 0;
+}
 
 static int setup_fec(void)
 {
