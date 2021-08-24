@@ -270,6 +270,7 @@ static void dsa_port_set_hwaddr(struct udevice *pdev, struct udevice *master)
 static int dsa_port_probe(struct udevice *pdev)
 {
 	struct udevice *dev = dev_get_parent(pdev);
+	struct dsa_ops *ops = dsa_get_ops(dev);
 	struct dsa_port_pdata *port_pdata;
 	struct dsa_priv *dsa_priv;
 	struct udevice *master;
@@ -298,6 +299,13 @@ static int dsa_port_probe(struct udevice *pdev)
 		return err;
 
 	dsa_port_set_hwaddr(pdev, master);
+
+	if (ops->port_probe) {
+		err = ops->port_probe(dev, port_pdata->index,
+				      port_pdata->phy);
+		if (err)
+			return err;
+	}
 
 	return 0;
 }
