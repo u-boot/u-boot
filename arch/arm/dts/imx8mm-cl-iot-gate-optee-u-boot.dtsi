@@ -213,7 +213,19 @@
 					entry = <0x920000>;
 
 					atf_blob: blob-ext {
-						filename = "bl31.bin";
+						filename = "bl2.bin";
+					};
+				};
+
+				fip {
+					description = "Trusted Firmware FIP";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					load = <0x40310000>;
+
+					fip_blob: blob-ext{
+						filename = "fip.bin";
 					};
 				};
 
@@ -234,7 +246,7 @@
 				conf {
 					description = "NAME";
 					firmware = "uboot";
-					loadables = "atf";
+					loadables = "atf", "fip";
 					fdt = "fdt";
 				};
 			};

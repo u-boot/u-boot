@@ -138,6 +138,13 @@ config TARGET_IMX8MM_CL_IOT_GATE
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+
+config TARGET_IMX8MM_CL_IOT_GATE_OPTEE
+	bool "CompuLab iot-gate-imx8 with optee support"
+	select BINMAN
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
 endchoice
 
 source "board/beacon/imx8mm/Kconfig"
