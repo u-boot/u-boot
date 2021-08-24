@@ -175,6 +175,7 @@
 };
 
 &cp0_mdio {
+	status = "okay";
 	phy0: ethernet-phy@0 {
 		reg = <0>;
 	};
