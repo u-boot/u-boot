@@ -233,7 +233,7 @@ static void felix_start_pcs(struct udevice *dev, int port,
 	}
 }
 
-void felix_init(struct udevice *dev)
+static void felix_init(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct felix_priv *priv = dev_get_priv(dev);
