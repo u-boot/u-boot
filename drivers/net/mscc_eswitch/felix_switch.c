@@ -317,10 +317,23 @@ static int felix_probe(struct udevice *dev)
 	return 0;
 }
 
+static int felix_port_probe(struct udevice *dev, int port,
+			    struct phy_device *phy)
+{
+	int supported = PHY_GBIT_FEATURES | SUPPORTED_2500baseX_Full;
+	struct felix_priv *priv = dev_get_priv(dev);
+
+	phy->supported &= supported;
+	phy->advertising &= supported;
+
+	felix_start_pcs(dev, port, phy, &priv->imdio);
+
+	return phy_config(phy);
+}
+
 static int felix_port_enable(struct udevice *dev, int port,
 			     struct phy_device *phy)
 {
-	int supported = PHY_GBIT_FEATURES | SUPPORTED_2500baseX_Full;
 	struct felix_priv *priv = dev_get_priv(dev);
 	void *base = priv->regs_base;
 
@@ -338,12 +351,6 @@ static int felix_port_enable(struct udevice *dev, int port,
 		 FELIX_QSYS_SYSTEM_SW_PORT_ENA |
 		 FELIX_QSYS_SYSTEM_SW_PORT_LOSSY |
 		 FELIX_QSYS_SYSTEM_SW_PORT_SCH(1));
-
-	felix_start_pcs(dev, port, phy, &priv->imdio);
-
-	phy->supported &= supported;
-	phy->advertising &= supported;
-	phy_config(phy);
 
 	phy_startup(phy);
 
@@ -392,6 +399,7 @@ static int felix_rcv(struct udevice *dev, int *pidx, void *packet, int length)
 }
 
 static const struct dsa_ops felix_dsa_ops = {
+	.port_probe	= felix_port_probe,
 	.port_enable	= felix_port_enable,
 	.port_disable	= felix_port_disable,
 	.xmit		= felix_xmit,
