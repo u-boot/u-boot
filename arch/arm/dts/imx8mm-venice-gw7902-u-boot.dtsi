@@ -3,59 +3,7 @@
  * Copyright 2021 Gateworks Corporation
  */
 
-#include "imx8mm-u-boot.dtsi"
-
-&gpio1 {
-	u-boot,dm-spl;
-};
-
-&gpio2 {
-	u-boot,dm-spl;
-};
-
-&gpio3 {
-	u-boot,dm-spl;
-};
-
-&gpio4 {
-	u-boot,dm-spl;
-};
-
-&gpio5 {
-	u-boot,dm-spl;
-};
-
-&uart2 {
-	u-boot,dm-spl;
-};
-
-&pinctrl_uart2 {
-	u-boot,dm-spl;
-};
-
-&usdhc3 {
-	u-boot,dm-spl;
-};
-
-&pinctrl_usdhc3 {
-	u-boot,dm-spl;
-};
-
-&i2c1 {
-	u-boot,dm-spl;
-};
-
-&pinctrl_i2c1 {
-	u-boot,dm-spl;
-};
-
-&i2c2 {
-	u-boot,dm-spl;
-};
-
-&pinctrl_i2c2 {
-	u-boot,dm-spl;
-};
+#include "imx8mm-venice-u-boot.dtsi"
 
 &fec1 {
 	phy-reset-gpios = <&gpio1 10 GPIO_ACTIVE_LOW>;
