@@ -352,9 +352,7 @@ static int felix_port_enable(struct udevice *dev, int port,
 		 FELIX_QSYS_SYSTEM_SW_PORT_LOSSY |
 		 FELIX_QSYS_SYSTEM_SW_PORT_SCH(1));
 
-	phy_startup(phy);
-
-	return 0;
+	return phy_startup(phy);
 }
 
 static void felix_port_disable(struct udevice *dev, int pidx,
