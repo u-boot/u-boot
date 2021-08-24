@@ -7,6 +7,10 @@
 #include <dt-bindings/clk/versaclock.h>
 
 / {
+	aliases {
+		spi0 = &rpc;
+	};
+
 	memory@48000000 {
 		device_type = "memory";
 		/* first 128MB is reserved for secure area. */
@@ -272,6 +276,25 @@
 		groups = "sdhi3_data8", "sdhi3_ctrl", "sdhi3_ds";
 		function = "sdhi3";
 		power-source = <1800>;
+	};
+};
+
+&rpc {
+	compatible = "renesas,rcar-gen3-rpc";
+	num-cs = <1>;
+	spi-max-frequency = <40000000>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	flash0: spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		compatible = "spi-flash", "jedec,spi-nor";
+		spi-max-frequency = <40000000>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
 	};
 };
 
