@@ -794,6 +794,7 @@ config ARCH_IMX8
 	select ARM64
 	select DM
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select OF_CONTROL
 	select ENABLE_ARM_SOC_BOOT0_HOOK
 
@@ -801,6 +802,7 @@ config ARCH_IMX8M
 	bool "NXP i.MX8M platform"
 	select ARM64
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -813,6 +815,7 @@ config ARCH_IMX8ULP
 	bool "NXP i.MX8ULP platform"
 	select ARM64
 	select DM
+	select MACH_IMX
 	select OF_CONTROL
 	select SUPPORT_SPL
 	select GPIO_EXTRA_HEADER
@@ -824,6 +827,7 @@ config ARCH_IMXRT
 	select DM
 	select DM_SERIAL
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SUPPORT_SPL
 	imply CMD_DM
 
@@ -831,6 +835,7 @@ config ARCH_MX23
 	bool "NXP i.MX23 family"
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select PL011_SERIAL
 	select SUPPORT_SPL
 
@@ -838,6 +843,7 @@ config ARCH_MX25
 	bool "NXP MX25"
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	imply MXC_GPIO
 
 config ARCH_MX28
@@ -845,17 +851,20 @@ config ARCH_MX28
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 	select PL011_SERIAL
+	select MACH_IMX
 	select SUPPORT_SPL
 
 config ARCH_MX31
 	bool "NXP i.MX31 family"
 	select CPU_ARM1136
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 
 config ARCH_MX7ULP
 	bool "NXP MX7ULP"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -868,6 +877,7 @@ config ARCH_MX7
 	select ARCH_MISC_INIT
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -879,6 +889,7 @@ config ARCH_MX6
 	bool "Freescale MX6"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -895,6 +906,7 @@ config ARCH_MX5
 	select BOARD_EARLY_INIT_F
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	imply MXC_GPIO
 
 config ARCH_NEXELL
@@ -1082,6 +1094,7 @@ config ARCH_VF610
 	bool "Freescale Vybrid"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply CMD_MTDPARTS
 	imply MTD_RAW_NAND
