@@ -32,10 +32,8 @@ static const struct efi_auth_var_name_type name_type[] = {
 	{u"KEK", &efi_global_variable_guid, EFI_AUTH_VAR_KEK},
 	{u"db",  &efi_guid_image_security_database, EFI_AUTH_VAR_DB},
 	{u"dbx",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBX},
-	/* not used yet
 	{u"dbt",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBT},
 	{u"dbr",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBR},
-	*/
 };
 
 static bool efi_secure_boot;

@@ -161,10 +161,13 @@ efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp, loff_t *
 /**
  * efi_var_restore() - restore EFI variables from buffer
  *
+ * Only if @safe is set secure boot related variables will be restored.
+ *
  * @buf:	buffer
+ * @safe:	restoring from tamper-resistant storage
  * Return:	status code
  */
-efi_status_t efi_var_restore(struct efi_var_file *buf);
+efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe);
 
 /**
  * efi_var_from_file() - read variables from file

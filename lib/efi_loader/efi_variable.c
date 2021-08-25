@@ -426,7 +426,7 @@ efi_status_t efi_init_variables(void)
 
 	if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
 		ret = efi_var_restore((struct efi_var_file *)
-				      __efi_var_file_begin);
+				      __efi_var_file_begin, true);
 		if (ret != EFI_SUCCESS)
 			log_err("Invalid EFI variable seed\n");
 	}
