@@ -29,7 +29,6 @@ int board_interface_eth_init(struct udevice *dev,
 int cpu_eth_init(struct bd_info *bis);
 
 /* Driver initialization prototypes */
-int at91emac_register(struct bd_info *bis, unsigned long iobase);
 int ax88180_initialize(struct bd_info *bis);
 int bcm_sf2_eth_register(struct bd_info *bis, u8 dev_num);
 int bfin_EMAC_initialize(struct bd_info *bis);
