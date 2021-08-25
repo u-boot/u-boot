@@ -223,5 +223,8 @@ config REFR
 	   details.
 
 endmenu
-endif
 
+config IMX_CONFIG
+	default "arch/arm/mach-imx/spl_sd.cfg"
+
+endif

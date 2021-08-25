@@ -5,7 +5,9 @@ config HAS_CAAM
 	bool
 
 config IMX_CONFIG
-	string
+	string "DCD script to use"
+	depends on MACH_IMX
+	default "arch/arm/mach-imx/spl_sd.cfg"
 
 config ROM_UNIFIED_SECTIONS
 	bool

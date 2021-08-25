@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "somlabs_visionsom_6ull"
 
+config IMX_CONFIG
+	default "board/somlabs/visionsom-6ull/imximage.cfg"
+
 endif

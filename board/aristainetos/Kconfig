@@ -8,6 +8,9 @@ config SYS_BOARD
 config SYS_BOARD_VERSION
 	default 5
 
+config IMX_CONFIG
+	default "board/aristainetos/aristainetos2.cfg"
+
 endif
 
 if TARGET_ARISTAINETOS2CCSLB
@@ -19,5 +22,8 @@ config SYS_BOARD
 
 config SYS_BOARD_VERSION
 	default 6
+
+config IMX_CONFIG
+	default "board/aristainetos/aristainetos2.cfg"
 
 endif

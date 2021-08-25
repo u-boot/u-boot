@@ -1,4 +1,3 @@
-
 if TARGET_MX53PPD
 
 config SYS_BOARD
@@ -12,6 +11,9 @@ config SYS_SOC
 
 config SYS_CONFIG_NAME
 	default "mx53ppd"
+
+config IMX_CONFIG
+	default "board/ge/mx53ppd/imximage.cfg"
 
 source "board/ge/common/Kconfig"
 

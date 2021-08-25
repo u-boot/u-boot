@@ -158,7 +158,8 @@ ifdef CONFIG_EFI_LOADER
 OBJCOPYFLAGS += -j .efi_runtime -j .efi_runtime_rel
 endif
 
-ifneq ($(CONFIG_IMX_CONFIG),)
+ifdef CONFIG_MACH_IMX
+ifneq ($(CONFIG_IMX_CONFIG),"")
 ifdef CONFIG_SPL
 ifndef CONFIG_SPL_BUILD
 INPUTS-y += SPL
@@ -172,6 +173,7 @@ endif
 endif
 ifneq ($(CONFIG_VF610),)
 INPUTS-y += u-boot.vyb
+endif
 endif
 endif
 

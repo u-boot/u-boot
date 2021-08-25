@@ -17,6 +17,9 @@ config IMX8MN_BEACON_2GB_LPDDR
 	bool "Enable 2GB LPDDR"
 	default n
 
+config IMX_CONFIG
+	default "arch/arm/mach-imx/imx8m/imximage-8mn-lpddr4.cfg"
+
 source "board/freescale/common/Kconfig"
 
 endif
