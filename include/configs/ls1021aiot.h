@@ -52,14 +52,7 @@
 #define SDRAM_CFG2_FRC_SR		0x80000000
 #define SDRAM_CFG_BI			0x00000001
 
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI	\
-	board/freescale/ls1021aiot/ls102xa_pbi.cfg
-#endif
-
 #ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW	\
-	board/freescale/ls1021aiot/ls102xa_rcw_sd.cfg
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT

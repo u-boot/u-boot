@@ -18,7 +18,6 @@
 #define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
 
 #ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t4rdb/t4_pbi.cfg
 #ifndef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_TEXT_BASE        CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS     0xfffffffc
@@ -38,7 +37,6 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t4rdb/t4_sd_rcw.cfg
 #endif
 
 #ifdef CONFIG_SPL_BUILD

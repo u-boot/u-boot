@@ -22,19 +22,7 @@
 
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 
-#ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/ls1046ardb/ls1046ardb_pbi.cfg
-#ifdef CONFIG_EMMC_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW \
-	board/freescale/ls1046ardb/ls1046ardb_rcw_emmc.cfg
-#else
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1046ardb/ls1046ardb_rcw_sd.cfg
-#endif
-#elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_SYS_FSL_PBL_RCW \
-	board/freescale/ls1046ardb/ls1046ardb_rcw_qspi.cfg
-#define CONFIG_SYS_FSL_PBL_PBI \
-	board/freescale/ls1046ardb/ls1046ardb_qspi_pbi.cfg
+#if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_SYS_UBOOT_BASE		0x40100000
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x90000000
 #endif

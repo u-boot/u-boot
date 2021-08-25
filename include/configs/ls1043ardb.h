@@ -23,16 +23,7 @@
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
 
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/ls1043ardb/ls1043ardb_pbi.cfg
-#endif
-
-#ifdef CONFIG_NAND_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043ardb/ls1043ardb_rcw_nand.cfg
-#endif
-
 #ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043ardb/ls1043ardb_rcw_sd.cfg
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x90000000
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x10000
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x500

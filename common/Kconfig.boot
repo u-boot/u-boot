@@ -398,6 +398,26 @@ config CHROMEOS_VBOOT
 	  distinguishing between booting Chrome OS in a basic way (developer
 	  mode) and a full boot.
 
+config RAMBOOT_PBL
+	bool "Freescale PBL(pre-boot loader) image format support"
+	help
+	  Some SoCs use PBL to load RCW and/or pre-initialization instructions.
+	  For more details refer to doc/README.pblimage
+
+config SYS_FSL_PBL_PBI
+	string "PBI(pre-boot instructions) commands for the PBL image"
+	depends on RAMBOOT_PBL
+	help
+	  PBI commands can be used to configure SoC before it starts the execution.
+	  Please refer doc/README.pblimage for more details.
+
+config SYS_FSL_PBL_RCW
+	string "Aadditional RCW (Power on reset configuration) for the PBL image"
+	depends on RAMBOOT_PBL
+	help
+	  Enables addition of RCW (Power on reset configuration) in built image.
+	  Please refer doc/README.pblimage for more details.
+
 endmenu		# Boot images
 
 menu "Boot timing"

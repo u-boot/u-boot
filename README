@@ -477,15 +477,6 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to eLBC controller).
 
-		CONFIG_SYS_FSL_PBL_PBI
-		It enables addition of RCW (Power on reset configuration) in built image.
-		Please refer doc/README.pblimage for more details
-
-		CONFIG_SYS_FSL_PBL_RCW
-		It adds PBI(pre-boot instructions) commands in u-boot build image.
-		PBI commands can be used to configure SoC before it starts the execution.
-		Please refer doc/README.pblimage for more details
-
 		CONFIG_SYS_FSL_DDR_BE
 		Defines the DDR controller register space as Big Endian
 

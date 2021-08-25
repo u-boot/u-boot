@@ -26,7 +26,6 @@
 #endif
 
 #ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xrdb/t1024_pbi.cfg
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_PAD_TO		0x40000
 #define CONFIG_SPL_MAX_SIZE		0x28000
@@ -43,11 +42,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_nand_rcw.cfg
-#elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_nand_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -60,11 +54,6 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_spi_rcw.cfg
-#elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_spi_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -75,11 +64,6 @@
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(260 << 10)
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
-#endif
-#if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_sd_rcw.cfg
-#elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_sd_rcw.cfg
 #endif
 #endif
 

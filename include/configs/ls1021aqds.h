@@ -34,19 +34,7 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #endif
 
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI	board/freescale/ls1021aqds/ls102xa_pbi.cfg
-#endif
-
 #ifdef CONFIG_SD_BOOT
-#ifdef CONFIG_SD_BOOT_QSPI
-#define CONFIG_SYS_FSL_PBL_RCW	\
-	board/freescale/ls1021aqds/ls102xa_rcw_sd_qspi.cfg
-#else
-#define CONFIG_SYS_FSL_PBL_RCW	\
-	board/freescale/ls1021aqds/ls102xa_rcw_sd_ifc.cfg
-#endif
-
 #define CONFIG_SPL_MAX_SIZE		0x1a000
 #define CONFIG_SPL_STACK		0x1001d000
 #define CONFIG_SPL_PAD_TO		0x1c000
@@ -60,8 +48,6 @@ unsigned long get_board_sys_clk(void);
 #endif
 
 #ifdef CONFIG_NAND_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW	board/freescale/ls1021aqds/ls102xa_rcw_nand.cfg
-
 #define CONFIG_SPL_MAX_SIZE		0x1a000
 #define CONFIG_SPL_STACK		0x1001d000
 #define CONFIG_SPL_PAD_TO		0x1c000

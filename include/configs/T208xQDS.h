@@ -29,8 +29,6 @@
 #define CONFIG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS
 
 #ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xqds/t208x_pbi.cfg
-
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_PAD_TO		0x40000
 #define CONFIG_SPL_MAX_SIZE		0x28000
@@ -47,9 +45,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#if defined(CONFIG_ARCH_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_nand_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -62,9 +57,6 @@
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#if defined(CONFIG_ARCH_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_spi_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -75,9 +67,6 @@
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(260 << 10)
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
-#endif
-#if defined(CONFIG_ARCH_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_sd_rcw.cfg
 #endif
 #endif
 

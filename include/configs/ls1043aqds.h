@@ -48,23 +48,6 @@ unsigned long get_board_sys_clk(void);
 #define QSGMII_CARD_PORT4_PHY_ADDR_S2 0xB
 #endif
 
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/ls1043aqds/ls1043aqds_pbi.cfg
-#endif
-
-#ifdef CONFIG_NAND_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043aqds/ls1043aqds_rcw_nand.cfg
-#endif
-
-#ifdef CONFIG_SD_BOOT
-#ifdef CONFIG_SD_BOOT_QSPI
-#define CONFIG_SYS_FSL_PBL_RCW \
-	board/freescale/ls1043aqds/ls1043aqds_rcw_sd_qspi.cfg
-#else
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043aqds/ls1043aqds_rcw_sd_ifc.cfg
-#endif
-#endif
-
 /* LPUART */
 #ifdef CONFIG_LPUART
 #define CONFIG_LPUART_32B_REG
