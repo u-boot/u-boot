@@ -84,14 +84,6 @@
 #define DISTRO_BOOT_DEV_DHCP(func)
 #endif
 
-
-#if defined(CONFIG_SABRELITE)
-#define FDTFILE "fdtfile=imx6q-sabrelite.dtb\0"
-#else
-/* FIXME: nitrogen6x covers multiple configs. Define fdtfile for each supported config. */
-#define FDTFILE
-#endif
-
 #define BOOT_TARGET_DEVICES(func) \
 	DISTRO_BOOT_DEV_MMC(func) \
 	DISTRO_BOOT_DEV_SATA(func) \
@@ -107,7 +99,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_addr_r=0x18000000\0" \
-	FDTFILE \
+	"fdtfile=" __stringify(CONFIG_DEFAULT_DEVICE_TREE) ".dtb\0" \
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"  \
 	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
