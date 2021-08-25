@@ -465,10 +465,6 @@ The following options need to be configured:
 		Board config to use DDR3L. It can be enabled for SoCs with
 		DDR3L controllers.
 
-		CONFIG_SYS_FSL_DDR4
-		Board config to use DDR4. It can be enabled for SoCs with
-		DDR4 controllers.
-
 		CONFIG_SYS_FSL_IFC_BE
 		Defines the IFC controller register space as Big Endian
 
