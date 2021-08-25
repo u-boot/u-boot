@@ -254,6 +254,9 @@ void socfpga_get_managers_addr(void)
 #ifdef CONFIG_TARGET_SOCFPGA_AGILEX
 	ret = socfpga_get_base_addr("intel,agilex-clkmgr",
 				    &socfpga_clkmgr_base);
+#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
+	ret = socfpga_get_base_addr("intel,n5x-clkmgr",
+				    &socfpga_clkmgr_base);
 #else
 	ret = socfpga_get_base_addr("altr,clk-mgr", &socfpga_clkmgr_base);
 #endif

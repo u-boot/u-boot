@@ -116,17 +116,18 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 #if !IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_FIT)
 void board_prep_linux(bootm_headers_t *images)
 {
-	if (IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH) &&
-	    !IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH_ALLOW_NON_FIT_IMAGE)) {
-		/*
-		 * Ensure the OS is always booted from FIT and with
-		 * VAB signed certificate
-		 */
-		if (!images->fit_uname_cfg) {
+	if (!images->fit_uname_cfg) {
+		if (IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH) &&
+		    !IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH_ALLOW_NON_FIT_IMAGE)) {
+			/*
+			 * Ensure the OS is always booted from FIT and with
+			 * VAB signed certificate
+			 */
 			printf("Please use FIT with VAB signed images!\n");
 			hang();
 		}
-
+	} else {
+		/* Update fdt_addr in enviroment variable */
 		env_set_hex("fdt_addr", (ulong)images->ft_addr);
 		debug("images->ft_addr = 0x%08lx\n", (ulong)images->ft_addr);
 	}

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2019 Intel Corporation <www.intel.com>
+ * Copyright (C) 2019-2021 Intel Corporation <www.intel.com>
  */
 
 #ifndef _SYSTEM_MANAGER_SOC64_H_
@@ -28,8 +28,12 @@ void populate_sysmgr_pinmux(void);
 #define SYSMGR_SOC64_FPGAINTF_EN2		0x6c
 #define SYSMGR_SOC64_FPGAINTF_EN3		0x70
 #define SYSMGR_SOC64_DMA_L3MASTER		0x74
+#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
+#define SYSMGR_SOC64_DDR_MODE			0xb8
+#else
 #define SYSMGR_SOC64_HMC_CLK			0xb4
 #define SYSMGR_SOC64_IO_PA_CTRL			0xb8
+#endif
 #define SYSMGR_SOC64_NOC_TIMEOUT		0xc0
 #define SYSMGR_SOC64_NOC_IDLEREQ_SET		0xc4
 #define SYSMGR_SOC64_NOC_IDLEREQ_CLR		0xc8
@@ -142,5 +146,9 @@ void populate_sysmgr_pinmux(void);
 #define SYSMGR_DMAPERIPH_ALL_NS		0xFFFFFFFF
 
 #define SYSMGR_WDDBG_PAUSE_ALL_CPU	0x0F0F0F0F
+
+#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
+#define	SYSMGR_SOC64_DDR_MODE_MSK	BIT(0)
+#endif
 
 #endif /* _SYSTEM_MANAGER_SOC64_H_ */

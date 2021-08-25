@@ -7,7 +7,7 @@
 #ifndef __CONFIG_SOCFPGA_SOC64_COMMON_H__
 #define __CONFIG_SOCFPGA_SOC64_COMMON_H__
 
-#include <asm/arch/base_addr_s10.h>
+#include <asm/arch/base_addr_soc64.h>
 #include <asm/arch/handoff_soc64.h>
 #include <linux/stringify.h>
 
@@ -20,7 +20,6 @@
 #define CONFIG_REMAKE_ELF
 /* sysmgr.boot_scratch_cold4 & 5 (64bit) will be used for PSCI_CPU_ON call */
 #define CPU_RELEASE_ADDR		0xFFD12210
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 /*
  * U-Boot console configurations
