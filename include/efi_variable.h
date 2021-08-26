@@ -12,6 +12,7 @@
 
 enum efi_auth_var_type {
 	EFI_AUTH_VAR_NONE = 0,
+	EFI_AUTH_MODE,
 	EFI_AUTH_VAR_PK,
 	EFI_AUTH_VAR_KEK,
 	EFI_AUTH_VAR_DB,

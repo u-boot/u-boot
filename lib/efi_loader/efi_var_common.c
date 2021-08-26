@@ -34,6 +34,8 @@ static const struct efi_auth_var_name_type name_type[] = {
 	{u"dbx",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBX},
 	{u"dbt",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBT},
 	{u"dbr",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBR},
+	{u"AuditMode", &efi_global_variable_guid, EFI_AUTH_MODE},
+	{u"DeployedMode", &efi_global_variable_guid, EFI_AUTH_MODE},
 };
 
 static bool efi_secure_boot;
