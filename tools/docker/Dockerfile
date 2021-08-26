@@ -60,6 +60,7 @@ RUN apt-get update && apt-get install -y \
 	iasl \
 	imagemagick \
 	iputils-ping \
+	libconfuse-dev \
 	libgit2-dev \
 	libguestfs-tools \
 	liblz4-tool \
@@ -176,6 +177,14 @@ RUN git clone git://git.qemu.org/qemu.git /tmp/qemu && \
 	./configure --prefix=/opt/qemu --target-list="aarch64-softmmu,arm-softmmu,i386-softmmu,mips-softmmu,mips64-softmmu,mips64el-softmmu,mipsel-softmmu,ppc-softmmu,riscv32-softmmu,riscv64-softmmu,sh4-softmmu,x86_64-softmmu,xtensa-softmmu" && \
 	make -j$(nproc) all install && \
 	rm -rf /tmp/qemu
+
+# Build genimage (required by some targets to generate disk images)
+RUN wget -O - https://github.com/pengutronix/genimage/releases/download/v14/genimage-14.tar.xz | tar -C /tmp -xJ && \
+	cd /tmp/genimage-14 && \
+	./configure && \
+	make -j$(nproc) && \
+	make install && \
+	rm -rf /tmp/genimage-14
 
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
