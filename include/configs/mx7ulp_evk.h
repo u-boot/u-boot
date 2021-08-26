@@ -33,8 +33,6 @@
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
 
-#define CONFIG_SYS_CACHELINE_SIZE      64
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_CBSIZE		512

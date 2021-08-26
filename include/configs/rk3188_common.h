@@ -6,8 +6,6 @@
 #ifndef __CONFIG_RK3188_COMMON_H
 #define __CONFIG_RK3188_COMMON_H
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 

@@ -22,7 +22,7 @@ config TARGET_MALTA
 	select DYNAMIC_IO_PORT_BASE
 	select MIPS_CM
 	select MIPS_INSERT_BOOT_CONFIG
-	select MIPS_L1_CACHE_SHIFT_6
+	select SYS_CACHE_SHIFT_6
 	select MIPS_L2_CACHE
 	select OF_CONTROL
 	select OF_ISA_BUS
@@ -132,7 +132,7 @@ config TARGET_BOSTON
 	select DM
 	select DM_SERIAL
 	select MIPS_CM
-	select MIPS_L1_CACHE_SHIFT_6
+	select SYS_CACHE_SHIFT_6
 	select MIPS_L2_CACHE
 	select OF_BOARD_SETUP
 	select OF_CONTROL
@@ -153,7 +153,7 @@ config TARGET_XILFPGA
 	select DM_ETH
 	select DM_GPIO
 	select DM_SERIAL
-	select MIPS_L1_CACHE_SHIFT_4
+	select SYS_CACHE_SHIFT_4
 	select OF_CONTROL
 	select ROM_EXCEPTION_VECTORS
 	select SUPPORTS_CPU_MIPS32_R1
@@ -565,26 +565,6 @@ config SYS_CACHE_SIZE_AUTO
 	  of caches at runtime. This has a small cost in code size & runtime
 	  so if you know the cache configuration for your system at compile
 	  time it would be beneficial to configure it.
-
-config MIPS_L1_CACHE_SHIFT_4
-	bool
-
-config MIPS_L1_CACHE_SHIFT_5
-	bool
-
-config MIPS_L1_CACHE_SHIFT_6
-	bool
-
-config MIPS_L1_CACHE_SHIFT_7
-	bool
-
-config MIPS_L1_CACHE_SHIFT
-	int
-	default "7" if MIPS_L1_CACHE_SHIFT_7
-	default "6" if MIPS_L1_CACHE_SHIFT_6
-	default "5" if MIPS_L1_CACHE_SHIFT_5
-	default "4" if MIPS_L1_CACHE_SHIFT_4
-	default "5"
 
 config MIPS_L2_CACHE
 	bool

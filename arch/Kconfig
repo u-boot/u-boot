@@ -7,6 +7,27 @@ config HAVE_ARCH_IOREMAP
 config NEEDS_MANUAL_RELOC
 	bool
 
+config SYS_CACHE_SHIFT_4
+	bool
+
+config SYS_CACHE_SHIFT_5
+	bool
+
+config SYS_CACHE_SHIFT_6
+	bool
+
+config SYS_CACHE_SHIFT_7
+	bool
+
+config SYS_CACHELINE_SIZE
+	int
+	default 128 if SYS_CACHE_SHIFT_7
+	default 64 if SYS_CACHE_SHIFT_6
+	default 32 if SYS_CACHE_SHIFT_5
+	default 16 if SYS_CACHE_SHIFT_4
+	# Fall-back for MIPS
+	default 32 if MIPS
+
 config LINKER_LIST_ALIGN
 	int
 	default 32 if SANDBOX
@@ -29,6 +50,7 @@ config ARC
 	select DM
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
+	select SYS_CACHE_SHIFT_7
 	select TIMER
 
 config ARM
@@ -44,6 +66,7 @@ config M68K
 	select NEEDS_MANUAL_RELOC
 	select SYS_BOOT_GET_CMDLINE
 	select SYS_BOOT_GET_KBD
+	select SYS_CACHE_SHIFT_4
 	select SUPPORT_OF_CONTROL
 
 config MICROBLAZE
@@ -122,6 +145,7 @@ config SANDBOX
 	select SPI
 	select SUPPORT_OF_CONTROL
 	select SYSRESET_CMD_POWEROFF
+	select SYS_CACHE_SHIFT_4
 	select IRQ
 	select SUPPORT_EXTENSION_SCAN
 	imply BITREVERSE
@@ -188,6 +212,7 @@ config X86
 	select OF_CONTROL
 	select PCI
 	select SUPPORT_OF_CONTROL
+	select SYS_CACHE_SHIFT_6
 	select TIMER
 	select USE_PRIVATE_LIBGCC
 	select X86_TSC_TIMER

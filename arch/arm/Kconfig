@@ -338,21 +338,6 @@ config SYS_ARM_ARCH
 	default 4 if CPU_SA1100
 	default 8 if ARM64
 
-config SYS_CACHE_SHIFT_5
-	bool
-
-config SYS_CACHE_SHIFT_6
-	bool
-
-config SYS_CACHE_SHIFT_7
-	bool
-
-config SYS_CACHELINE_SIZE
-	int
-	default 128 if SYS_CACHE_SHIFT_7
-	default 64 if SYS_CACHE_SHIFT_6
-	default 32 if SYS_CACHE_SHIFT_5
-
 choice
 	prompt "Select the ARM data write cache policy"
 	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || \

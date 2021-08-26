@@ -22,9 +22,11 @@ config TARGET_SIFIVE_UNLEASHED
 
 config TARGET_SIFIVE_UNMATCHED
 	bool "Support SiFive Unmatched Board"
+	select SYS_CACHE_SHIFT_6
 
 config TARGET_SIPEED_MAIX
 	bool "Support Sipeed Maix Board"
+	select SYS_CACHE_SHIFT_6
 
 config TARGET_OPENPITON_RISCV64
 	bool "Support RISC-V cores on OpenPiton SoC"

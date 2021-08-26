@@ -36,8 +36,6 @@
 
 #define CONFIG_SYS_PCI_64BIT		1	/* enable 64-bit resources */
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 /* Environment options */
 
 #ifndef CONFIG_SPL_BUILD
