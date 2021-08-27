@@ -80,8 +80,7 @@ ENTRY(__asm_dcache_all)
 	/* x15 <- return address */
 
 loop_level:
-	lsl	x12, x0, #1
-	add	x12, x12, x0		/* x0 <- tripled cache level */
+	add	x12, x0, x0, lsl #1	/* x12 <- tripled cache level */
 	lsr	x12, x10, x12
 	and	x12, x12, #7		/* x12 <- cache type */
 	cmp	x12, #2
