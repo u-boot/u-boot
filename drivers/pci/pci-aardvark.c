@@ -358,7 +358,18 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 		return 0;
 	}
 
-	allow_crs = (offset == PCI_VENDOR_ID) && (size == 4);
+	/*
+	 * Returning fabricated CRS value (0xFFFF0001) by PCIe Root Complex to
+	 * OS is allowed only for 4-byte PCI_VENDOR_ID config read request and
+	 * only when CRSSVE bit in Root Port PCIe device is enabled. In all
+	 * other error PCIe Root Complex must return all-ones.
+	 * Aardvark HW does not have Root Port PCIe device and U-Boot does not
+	 * implement emulation of this device.
+	 * U-Boot currently does not support handling of CRS return value for
+	 * PCI_VENDOR_ID config read request and also does not set CRSSVE bit.
+	 * Therefore disable returning CRS response for now.
+	 */
+	allow_crs = false;
 
 	if (advk_readl(pcie, PIO_START)) {
 		dev_err(pcie->dev,
