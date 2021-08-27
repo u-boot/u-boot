@@ -176,6 +176,7 @@ int rtc_write32(struct udevice *dev, unsigned int reg, u32 value)
 UCLASS_DRIVER(rtc) = {
 	.name		= "rtc",
 	.id		= UCLASS_RTC,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.post_bind	= dm_scan_fdt_dev,
 #endif

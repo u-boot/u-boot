@@ -18,6 +18,8 @@
 #include <i2c_eeprom.h>
 #include <net.h>
 #include <generated/dt.h>
+#include <soc.h>
+#include <linux/ctype.h>
 
 #include "fru.h"
 
@@ -67,7 +69,7 @@ struct xilinx_board_description {
 };
 
 static int highest_id = -1;
-static struct xilinx_board_description **board_info;
+static struct xilinx_board_description *board_info;
 
 #define XILINX_I2C_DETECTION_BITS	sizeof(struct fru_common_hdr)
 
@@ -167,7 +169,7 @@ static bool xilinx_detect_legacy(u8 *buffer)
 static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 				  struct xilinx_board_description *desc)
 {
-	int ret, eeprom_size;
+	int i, ret, eeprom_size;
 	u8 *fru_content;
 
 	/* FIXME this is shortcut - if eeprom type is wrong it will fail */
@@ -184,21 +186,23 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 			  eeprom_size);
 	if (ret) {
 		debug("%s: I2C EEPROM read failed\n", __func__);
-		free(fru_content);
-		return ret;
+		goto end;
 	}
 
-	printf("Xilinx I2C FRU format at %s:\n", name);
 	fru_capture((unsigned long)fru_content);
-	ret = fru_display(0);
-	if (ret) {
-		printf("FRU format decoding failed.\n");
-		return ret;
+	if (gd->flags & GD_FLG_RELOC || (_DEBUG && CONFIG_IS_ENABLED(DTB_RESELECT))) {
+		printf("Xilinx I2C FRU format at %s:\n", name);
+		ret = fru_display(0);
+		if (ret) {
+			printf("FRU format decoding failed.\n");
+			goto end;
+		}
 	}
 
 	if (desc->header == EEPROM_HEADER_MAGIC) {
 		debug("Information already filled\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto end;
 	}
 
 	/* It is clear that FRU was captured and structures were filled */
@@ -206,13 +210,19 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 		sizeof(desc->manufacturer));
 	strncpy(desc->name, (char *)fru_data.brd.product_name,
 		sizeof(desc->name));
+	for (i = 0; i < sizeof(desc->name); i++) {
+		if (desc->name[i] == ' ')
+			desc->name[i] = '\0';
+	}
 	strncpy(desc->revision, (char *)fru_data.brd.rev,
 		sizeof(desc->revision));
 	strncpy(desc->serial, (char *)fru_data.brd.serial_number,
 		sizeof(desc->serial));
 	desc->header = EEPROM_HEADER_MAGIC;
 
-	return 0;
+end:
+	free(fru_content);
+	return ret;
 }
 
 static bool xilinx_detect_fru(u8 *buffer)
@@ -275,7 +285,7 @@ static int xilinx_read_eeprom_single(char *name,
 
 __maybe_unused int xilinx_read_eeprom(void)
 {
-	int id, ret;
+	int id;
 	char name_buf[8]; /* 8 bytes should be enough for nvmem+number */
 	struct xilinx_board_description *desc;
 
@@ -284,7 +294,7 @@ __maybe_unused int xilinx_read_eeprom(void)
 	if (highest_id < 0)
 		return -EINVAL;
 
-	board_info = calloc(1, sizeof(desc) * highest_id);
+	board_info = calloc(1, sizeof(*desc) * (highest_id + 1));
 	if (!board_info)
 		return -ENOMEM;
 
@@ -295,21 +305,10 @@ __maybe_unused int xilinx_read_eeprom(void)
 		snprintf(name_buf, sizeof(name_buf), "nvmem%d", id);
 
 		/* Alloc structure */
-		desc = board_info[id];
-		if (!desc) {
-			desc = calloc(1, sizeof(*desc));
-			if (!desc)
-				return -ENOMEM;
-
-			board_info[id] = desc;
-		}
+		desc = &board_info[id];
 
 		/* Ignoring return value for supporting multiple chips */
-		ret = xilinx_read_eeprom_single(name_buf, desc);
-		if (ret) {
-			free(desc);
-			board_info[id] = NULL;
-		}
+		xilinx_read_eeprom_single(name_buf, desc);
 	}
 
 	/*
@@ -395,7 +394,7 @@ int board_late_init_xilinx(void)
 	ret |= env_set_addr("bootm_size", (void *)bootm_size);
 
 	for (id = 0; id <= highest_id; id++) {
-		desc = board_info[id];
+		desc = &board_info[id];
 		if (desc && desc->header == EEPROM_HEADER_MAGIC) {
 			if (desc->manufacturer[0])
 				ret |= env_set_by_index("manufacturer", id,
@@ -431,12 +430,139 @@ int board_late_init_xilinx(void)
 }
 #endif
 
+static char *board_name = DEVICE_TREE;
+
 int __maybe_unused board_fit_config_name_match(const char *name)
 {
-	debug("%s: Check %s, default %s\n", __func__, name, DEVICE_TREE);
+	debug("%s: Check %s, default %s\n", __func__, name, board_name);
 
-	if (!strcmp(name, DEVICE_TREE))
+	if (!strcmp(name, board_name))
 		return 0;
 
 	return -1;
 }
+
+#if defined(CONFIG_DISPLAY_CPUINFO) && !defined(CONFIG_ARCH_ZYNQ)
+int print_cpuinfo(void)
+{
+	struct udevice *soc;
+	char name[SOC_MAX_STR_SIZE];
+	int ret;
+
+	ret = soc_get(&soc);
+	if (ret) {
+		printf("CPU:   UNKNOWN\n");
+		return 0;
+	}
+
+	ret = soc_get_family(soc, name, SOC_MAX_STR_SIZE);
+	if (ret)
+		printf("CPU:   %s\n", name);
+
+	ret = soc_get_revision(soc, name, SOC_MAX_STR_SIZE);
+	if (ret)
+		printf("Silicon: %s\n", name);
+
+	return 0;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(DTB_RESELECT)
+#define MAX_NAME_LENGTH	50
+
+char * __maybe_unused __weak board_name_decode(void)
+{
+	char *board_local_name;
+	struct xilinx_board_description *desc;
+	int i, id;
+
+	board_local_name = calloc(1, MAX_NAME_LENGTH);
+	if (!board_info)
+		return NULL;
+
+	for (id = 0; id <= highest_id; id++) {
+		desc = &board_info[id];
+
+		/* No board description */
+		if (!desc)
+			goto error;
+
+		/* Board is not detected */
+		if (desc->header != EEPROM_HEADER_MAGIC)
+			continue;
+
+		/* The first string should be soc name */
+		if (!id)
+			strcat(board_local_name, CONFIG_SYS_BOARD);
+
+		/*
+		 * For two purpose here:
+		 * soc_name- eg: zynqmp-
+		 * and between base board and CC eg: ..revA-sck...
+		 */
+		strcat(board_local_name, "-");
+
+		if (desc->name[0]) {
+			/* For DT composition name needs to be lowercase */
+			for (i = 0; i < sizeof(desc->name); i++)
+				desc->name[i] = tolower(desc->name[i]);
+
+			strcat(board_local_name, desc->name);
+		}
+		if (desc->revision[0]) {
+			strcat(board_local_name, "-rev");
+
+			/* And revision needs to be uppercase */
+			for (i = 0; i < sizeof(desc->revision); i++)
+				desc->revision[i] = toupper(desc->revision[i]);
+
+			strcat(board_local_name, desc->revision);
+		}
+	}
+
+	/*
+	 * Longer strings will end up with buffer overflow and potential
+	 * attacks that's why check it
+	 */
+	if (strlen(board_local_name) >= MAX_NAME_LENGTH)
+		panic("Board name can't be determined\n");
+
+	if (strlen(board_local_name))
+		return board_local_name;
+
+error:
+	free(board_local_name);
+	return NULL;
+}
+
+bool __maybe_unused __weak board_detection(void)
+{
+	if (CONFIG_IS_ENABLED(DM_I2C) && CONFIG_IS_ENABLED(I2C_EEPROM)) {
+		int ret;
+
+		ret = xilinx_read_eeprom();
+		return !ret ? true : false;
+	}
+
+	return false;
+}
+
+int embedded_dtb_select(void)
+{
+	if (board_detection()) {
+		char *board_local_name;
+
+		board_local_name = board_name_decode();
+		if (board_local_name) {
+			board_name = board_local_name;
+			printf("Detected name: %s\n", board_name);
+
+			/* Time to change DTB on fly */
+			/* Both ways should work here */
+			/* fdtdec_resetup(&rescan); */
+			fdtdec_setup();
+		}
+	}
+	return 0;
+}
+#endif

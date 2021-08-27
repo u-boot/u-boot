@@ -7,10 +7,10 @@
  * Michal Simek <michal.simek@xilinx.com>
  */
 
- #include <dt-bindings/gpio/gpio.h>
- #include <dt-bindings/net/ti-dp83867.h>
- #include <dt-bindings/phy/phy.h>
- #include <dt-bindings/pinctrl/pinctrl-zynqmp.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/net/ti-dp83867.h>
+#include <dt-bindings/phy/phy.h>
+#include <dt-bindings/pinctrl/pinctrl-zynqmp.h>
 
 /dts-v1/;
 /plugin/;

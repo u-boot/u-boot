@@ -60,13 +60,13 @@
 
 	leds {
 		compatible = "gpio-leds";
-		ds35 {
+		ds35-led {
 			label = "heartbeat";
 			gpios = <&gpio 7 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
 
-		ds36 {
+		ds36-led {
 			label = "vbus_det";
 			gpios = <&gpio 8 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
@@ -183,7 +183,7 @@
 	};
 };
 
-&sdhci0 { /* MIO13-23 - 16GB emmc MTFC16GAPALBH-IT - U133A*/
+&sdhci0 { /* MIO13-23 - 16GB emmc MTFC16GAPALBH-IT - U133A */
 	status = "okay";
 	non-removable;
 	disable-wp;
@@ -204,17 +204,20 @@
 
 &i2c1 {
 	status = "okay";
+	u-boot,dm-pre-reloc;
 	clock-frequency = <400000>;
 	scl-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio 25 GPIO_ACTIVE_HIGH>;
 
 	eeprom: eeprom@50 { /* u46 - also at address 0x58 */
+		u-boot,dm-pre-reloc;
 		compatible = "st,24c64", "atmel,24c64"; /* st m24c64 */
 		reg = <0x50>;
 		/* WP pin EE_WP_EN connected to slg7x644092@68 */
 	};
 
 	eeprom_cc: eeprom@51 { /* required by spec - also at address 0x59 */
+		u-boot,dm-pre-reloc;
 		compatible = "st,24c64", "atmel,24c64"; /* st m24c64 */
 		reg = <0x51>;
 	};

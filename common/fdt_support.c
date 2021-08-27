@@ -420,6 +420,24 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 #else
 #define MEMORY_BANKS_MAX 4
 #endif
+
+/**
+ * fdt_fixup_memory_banks - Update DT memory node
+ * @blob: Pointer to DT blob
+ * @start: Pointer to memory start addresses array
+ * @size: Pointer to memory sizes array
+ * @banks: Number of memory banks
+ *
+ * Return: 0 on success, negative value on failure
+ *
+ * Based on the passed number of banks and arrays, the function is able to
+ * update existing DT memory nodes to match run time detected/changed memory
+ * configuration. Implementation is handling one specific case with only one
+ * memory node where multiple tuples could be added/updated.
+ * The case where multiple memory nodes with a single tuple (base, size) are
+ * used, this function is only updating the first memory node without removing
+ * others.
+ */
 int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 {
 	int err, nodeoffset;

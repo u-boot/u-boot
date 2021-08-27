@@ -195,4 +195,11 @@ config RTC_DAVINCI
 	  Say "yes" here to support the on chip real time clock
 	  present on TI OMAP1, AM33xx, DA8xx/OMAP-L13x, AM43xx and DRA7xx.
 
+config RTC_ZYNQMP
+	bool "Enable ZynqMP RTC driver"
+	depends on ARCH_ZYNQMP
+	help
+	  Say "yes" here to support the on chip real time clock
+	  present on Xilinx ZynqMP SoC.
+
 endmenu

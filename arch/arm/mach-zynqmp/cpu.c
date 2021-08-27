@@ -15,6 +15,7 @@
 #include <asm/io.h>
 #include <zynqmp_firmware.h>
 #include <asm/cache.h>
+#include <dm/platdata.h>
 
 #define ZYNQ_SILICON_VER_MASK	0xF000
 #define ZYNQ_SILICON_VER_SHIFT	12
@@ -218,3 +219,7 @@ int zynqmp_mmio_read(const u32 address, u32 *value)
 
 	return ret;
 }
+
+U_BOOT_DRVINFO(soc_xilinx_zynqmp) = {
+	.name = "soc_xilinx_zynqmp",
+};

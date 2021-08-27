@@ -65,6 +65,10 @@ struct crp_regs {
 
 #define crp_base ((struct crp_regs *)VERSAL_CRP_BASEADDR)
 
+#define VERSAL_PS_PMC_VERSION	0xF11A0004
+#define VERSAL_PS_VER_MASK	GENMASK(7, 0)
+#define VERSAL_PS_VER_SHIFT	12
+
 /* Bootmode setting values */
 #define BOOT_MODES_MASK	0x0000000F
 #define QSPI_MODE_24BIT	0x00000001
