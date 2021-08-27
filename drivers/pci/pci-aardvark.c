@@ -234,19 +234,19 @@ static int pcie_advk_addr_valid(pci_dev_t bdf, int first_busno)
  *
  * Wait up to 1.5 seconds for PIO access to be accomplished.
  *
- * Return 1 (true) if PIO access is accomplished.
- * Return 0 (false) if PIO access is timed out.
+ * Return positive - retry count if PIO access is accomplished.
+ * Return negative - error if PIO access is timed out.
  */
 static int pcie_advk_wait_pio(struct pcie_advk *pcie)
 {
 	uint start, isr;
 	uint count;
 
-	for (count = 0; count < PIO_MAX_RETRIES; count++) {
+	for (count = 1; count <= PIO_MAX_RETRIES; count++) {
 		start = advk_readl(pcie, PIO_START);
 		isr = advk_readl(pcie, PIO_ISR);
 		if (!start && isr)
-			return 1;
+			return count;
 		/*
 		 * Do not check the PIO state too frequently,
 		 * 100us delay is appropriate.
@@ -255,7 +255,7 @@ static int pcie_advk_wait_pio(struct pcie_advk *pcie)
 	}
 
 	dev_err(pcie->dev, "PIO read/write transfer time out\n");
-	return 0;
+	return -ETIMEDOUT;
 }
 
 /**
@@ -265,11 +265,13 @@ static int pcie_advk_wait_pio(struct pcie_advk *pcie)
  * @allow_crs: Only for read requests, if CRS response is allowed
  * @read_val: Pointer to the read result
  *
+ * Return: 0 on success
  */
 static int pcie_advk_check_pio_status(struct pcie_advk *pcie,
 				      bool allow_crs,
 				      uint *read_val)
 {
+	int ret;
 	uint reg;
 	unsigned int status;
 	char *strcomp_status, *str_posted;
@@ -282,6 +284,7 @@ static int pcie_advk_check_pio_status(struct pcie_advk *pcie,
 	case PIO_COMPLETION_STATUS_OK:
 		if (reg & PIO_ERR_STATUS) {
 			strcomp_status = "COMP_ERR";
+			ret = -EFAULT;
 			break;
 		}
 		/* Get the read result */
@@ -289,29 +292,35 @@ static int pcie_advk_check_pio_status(struct pcie_advk *pcie,
 			*read_val = advk_readl(pcie, PIO_RD_DATA);
 		/* No error */
 		strcomp_status = NULL;
+		ret = 0;
 		break;
 	case PIO_COMPLETION_STATUS_UR:
 		strcomp_status = "UR";
+		ret = -EOPNOTSUPP;
 		break;
 	case PIO_COMPLETION_STATUS_CRS:
 		if (allow_crs && read_val) {
 			/* For reading, CRS is not an error status. */
 			*read_val = CFG_RD_CRS_VAL;
 			strcomp_status = NULL;
+			ret = 0;
 		} else {
 			strcomp_status = "CRS";
+			ret = -EAGAIN;
 		}
 		break;
 	case PIO_COMPLETION_STATUS_CA:
 		strcomp_status = "CA";
+		ret = -ECANCELED;
 		break;
 	default:
 		strcomp_status = "Unknown";
+		ret = -EINVAL;
 		break;
 	}
 
 	if (!strcomp_status)
-		return 0;
+		return ret;
 
 	if (reg & PIO_NON_POSTED_REQ)
 		str_posted = "Non-posted";
@@ -322,7 +331,7 @@ static int pcie_advk_check_pio_status(struct pcie_advk *pcie,
 		str_posted, strcomp_status, reg,
 		advk_readl(pcie, PIO_ADDR_LS));
 
-	return -EFAULT;
+	return ret;
 }
 
 /**
@@ -345,6 +354,7 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 				 enum pci_size_t size)
 {
 	struct pcie_advk *pcie = dev_get_priv(bus);
+	int retry_count;
 	bool allow_crs;
 	uint reg;
 	int ret;
@@ -379,7 +389,7 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 			return 0;
 		}
 		*valuep = pci_get_ff(size);
-		return -EINVAL;
+		return -EAGAIN;
 	}
 
 	/* Program the control register */
@@ -396,21 +406,29 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 	advk_writel(pcie, reg, PIO_ADDR_LS);
 	advk_writel(pcie, 0, PIO_ADDR_MS);
 
+	retry_count = 0;
+
+retry:
 	/* Start the transfer */
 	advk_writel(pcie, 1, PIO_ISR);
 	advk_writel(pcie, 1, PIO_START);
 
-	if (!pcie_advk_wait_pio(pcie)) {
+	ret = pcie_advk_wait_pio(pcie);
+	if (ret < 0) {
 		if (allow_crs) {
 			*valuep = CFG_RD_CRS_VAL;
 			return 0;
 		}
 		*valuep = pci_get_ff(size);
-		return -EINVAL;
+		return ret;
 	}
+
+	retry_count += ret;
 
 	/* Check PIO status and get the read result */
 	ret = pcie_advk_check_pio_status(pcie, allow_crs, &reg);
+	if (ret == -EAGAIN && retry_count < PIO_MAX_RETRIES)
+		goto retry;
 	if (ret) {
 		*valuep = pci_get_ff(size);
 		return ret;
@@ -472,7 +490,9 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 				  enum pci_size_t size)
 {
 	struct pcie_advk *pcie = dev_get_priv(bus);
+	int retry_count;
 	uint reg;
+	int ret;
 
 	dev_dbg(pcie->dev, "PCIE CFG write: (b,d,f)=(%2d,%2d,%2d) ",
 		PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
@@ -487,7 +507,7 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 	if (advk_readl(pcie, PIO_START)) {
 		dev_err(pcie->dev,
 			"Previous PIO read/write transfer is still running\n");
-		return -EINVAL;
+		return -EAGAIN;
 	}
 
 	/* Program the control register */
@@ -515,16 +535,24 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 	advk_writel(pcie, reg, PIO_WR_DATA_STRB);
 	dev_dbg(pcie->dev, "\tPIO req. - strb = 0x%02x\n", reg);
 
+	retry_count = 0;
+
+retry:
 	/* Start the transfer */
 	advk_writel(pcie, 1, PIO_ISR);
 	advk_writel(pcie, 1, PIO_START);
 
-	if (!pcie_advk_wait_pio(pcie)) {
-		return -EINVAL;
-	}
+	ret = pcie_advk_wait_pio(pcie);
+	if (ret < 0)
+		return ret;
+
+	retry_count += ret;
 
 	/* Check PIO status */
-	return pcie_advk_check_pio_status(pcie, false, NULL);
+	ret = pcie_advk_check_pio_status(pcie, false, NULL);
+	if (ret == -EAGAIN && retry_count < PIO_MAX_RETRIES)
+		goto retry;
+	return ret;
 }
 
 /**
