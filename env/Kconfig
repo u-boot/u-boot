@@ -685,7 +685,6 @@ config ENV_FDT_PATH
 
 config ENV_APPEND
 	bool "Always append the environment with new data"
-	default n
 	help
 	  If defined, the environment hash table is only ever appended with new
 	  data, but the existing hash table can never be dropped and reloaded
@@ -694,7 +693,6 @@ config ENV_APPEND
 
 config ENV_WRITEABLE_LIST
 	bool "Permit write access only to listed variables"
-	default n
 	help
 	  If defined, only environment variables which explicitly set the 'w'
 	  writeable flag can be written and modified at runtime. No variables
@@ -702,7 +700,6 @@ config ENV_WRITEABLE_LIST
 
 config ENV_ACCESS_IGNORE_FORCE
 	bool "Block forced environment operations"
-	default n
 	help
 	  If defined, don't allow the -f switch to env set override variable
 	  access flags.

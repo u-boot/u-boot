@@ -629,7 +629,6 @@ config SYS_SOC
 
 config UART0_PORT_F
 	bool "UART0 on MicroSD breakout board"
-	default n
 	---help---
 	Repurpose the SD card slot for getting access to the UART0 serial
 	console. Primarily useful only for low level u-boot debugging on
@@ -640,7 +639,6 @@ config UART0_PORT_F
 
 config OLD_SUNXI_KERNEL_COMPAT
 	bool "Enable workarounds for booting old kernels"
-	default n
 	---help---
 	Set this to enable various workarounds for old kernels, this results in
 	sub-optimal settings for newer kernels, only enable if needed.
@@ -771,14 +769,12 @@ config I2C0_ENABLE
 
 config I2C1_ENABLE
 	bool "Enable I2C/TWI controller 1"
-	default n
 	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 
 config I2C2_ENABLE
 	bool "Enable I2C/TWI controller 2"
-	default n
 	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
@@ -786,7 +782,6 @@ config I2C2_ENABLE
 if MACH_SUN6I || MACH_SUN7I
 config I2C3_ENABLE
 	bool "Enable I2C/TWI controller 3"
-	default n
 	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
@@ -805,7 +800,6 @@ endif
 if MACH_SUN7I
 config I2C4_ENABLE
 	bool "Enable I2C/TWI controller 4"
-	default n
 	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
@@ -813,7 +807,6 @@ endif
 
 config AXP_GPIO
 	bool "Enable support for gpio-s on axp PMICs"
-	default n
 	---help---
 	Say Y here to enable support for the gpio pins of the axp PMIC ICs.
 
@@ -845,14 +838,12 @@ config VIDEO_HDMI
 config VIDEO_VGA
 	bool "VGA output support"
 	depends on VIDEO_SUNXI && (MACH_SUN4I || MACH_SUN7I)
-	default n
 	---help---
 	Say Y here to add support for outputting video over VGA.
 
 config VIDEO_VGA_VIA_LCD
 	bool "VGA via LCD controller support"
 	depends on VIDEO_SUNXI && (MACH_SUN5I || MACH_SUN6I || MACH_SUN8I)
-	default n
 	---help---
 	Say Y here to add support for external DACs connected to the parallel
 	LCD interface driving a VGA connector, such as found on the
@@ -861,7 +852,6 @@ config VIDEO_VGA_VIA_LCD
 config VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
 	bool "Force sync active high for VGA via LCD controller support"
 	depends on VIDEO_VGA_VIA_LCD
-	default n
 	---help---
 	Say Y here if you've a board which uses opendrain drivers for the vga
 	hsync and vsync signals. Opendrain drivers cannot generate steep enough
@@ -879,7 +869,6 @@ config VIDEO_VGA_EXTERNAL_DAC_EN
 config VIDEO_COMPOSITE
 	bool "Composite video output support"
 	depends on VIDEO_SUNXI && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
-	default n
 	---help---
 	Say Y here to add support for outputting composite video.
 
@@ -943,7 +932,6 @@ config VIDEO_LCD_BL_PWM_ACTIVE_LOW
 config VIDEO_LCD_PANEL_I2C
 	bool "LCD panel needs to be configured via i2c"
 	depends on VIDEO_SUNXI
-	default n
 	select CMD_I2C
 	---help---
 	Say y here if the LCD panel needs to be configured via i2c. This
@@ -976,7 +964,6 @@ config VIDEO_LCD_IF_LVDS
 
 config SUNXI_DE2
 	bool
-	default n
 
 config VIDEO_DE2
 	bool "Display Engine 2 video driver"

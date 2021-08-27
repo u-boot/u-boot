@@ -634,7 +634,6 @@ config TPL_HASH
 
 config STACKPROTECTOR
 	bool "Stack Protector buffer overflow detection"
-	default n
 	help
 	  Enable stack smash detection through compiler's stack-protector
 	  canary logic
@@ -642,12 +641,10 @@ config STACKPROTECTOR
 config SPL_STACKPROTECTOR
 	bool "Stack Protector buffer overflow detection for SPL"
 	depends on STACKPROTECTOR && SPL
-	default n
 
 config TPL_STACKPROTECTOR
 	bool "Stack Protector buffer overflow detection for TPL"
 	depends on STACKPROTECTOR && TPL
-	default n
 
 endmenu
 
@@ -655,7 +652,6 @@ menu "Update support"
 
 config UPDATE_COMMON
 	bool
-	default n
 	select DFU_WRITE_ALT
 
 config UPDATE_TFTP
@@ -687,7 +683,6 @@ config UPDATE_FIT
 
 config ANDROID_AB
 	bool "Android A/B updates"
-	default n
 	help
 	  If enabled, adds support for the new Android A/B update model. This
 	  allows the bootloader to select which slot to boot from based on the

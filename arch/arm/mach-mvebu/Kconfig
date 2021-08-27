@@ -2,7 +2,6 @@ if ARCH_MVEBU
 
 config HAVE_MVEBU_EFUSE
 	bool
-	default n
 
 config ARMADA_32BIT
 	bool
@@ -311,14 +310,12 @@ endchoice
 
 config MVEBU_EFUSE
 	bool "Enable eFuse support"
-	default n
 	depends on HAVE_MVEBU_EFUSE
 	help
 	  Enable support for reading and writing eFuses on mvebu SoCs.
 
 config MVEBU_EFUSE_FAKE
 	bool "Fake eFuse access (dry run)"
-	default n
 	depends on MVEBU_EFUSE
 	help
 	  This enables a "dry run" mode where eFuses are not really programmed.

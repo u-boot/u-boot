@@ -137,7 +137,6 @@ config SERIAL_SEARCH_ALL
 config SERIAL_PROBE_ALL
 	bool "Probe all available serial devices"
 	depends on DM_SERIAL
-	default n
 	help
 	  The serial subsystem only probes for a single serial device,
 	  but does not probe for other remaining serial devices.
@@ -621,7 +620,6 @@ config FSL_LPUART
 
 config MVEBU_A3700_UART
 	bool "UART support for Armada 3700"
-	default n
 	help
 	  Choose this option to add support for UART driver on the Marvell
 	  Armada 3700 SoC. The base address is configured via DT.

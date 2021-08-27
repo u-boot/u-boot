@@ -40,7 +40,6 @@ endchoice
 config SPL_UART2_SPIS_PINMUX
 	bool "Use alternative pinmux for UART2 in SPL stage"
 	depends on SPL_SERIAL_SUPPORT
-	default n
 	help
 	  Select this if the UART2 of your board is connected to GPIO 16/17
 	  (shared with SPIS) rather than the usual GPIO 20/21.

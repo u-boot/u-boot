@@ -104,13 +104,11 @@ endchoice
 
 config CPU_BIG_ENDIAN
 	bool "Enable Big Endian Mode"
-	default n
 	help
 	  Build kernel for Big Endian Mode of ARC CPU
 
 config SYS_ICACHE_OFF
 	bool "Do not enable icache"
-	default n
 	help
 	  Do not enable instruction cache in U-Boot.
 
@@ -123,7 +121,6 @@ config SPL_SYS_ICACHE_OFF
 
 config SYS_DCACHE_OFF
 	bool "Do not enable dcache"
-	default n
 	help
 	  Do not enable data cache in U-Boot.
 
@@ -136,14 +133,12 @@ config SPL_SYS_DCACHE_OFF
 
 menuconfig ARC_DBG
 	bool "ARC debugging"
-	default n
 
 if ARC_DBG
 
 config ARC_DBG_IOC_ENABLE
 	bool "Enable IO coherency unit"
 	depends on CPU_ARCHS38
-	default n
 	help
 	  Enable IO coherency unit to debug problems with caches and
 	  DMA peripherals.

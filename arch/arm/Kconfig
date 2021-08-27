@@ -110,7 +110,6 @@ config THUMB2_KERNEL
 
 config SYS_ICACHE_OFF
 	bool "Do not enable icache"
-	default n
 	help
 	  Do not enable instruction cache in U-Boot.
 
@@ -123,7 +122,6 @@ config SPL_SYS_ICACHE_OFF
 
 config SYS_DCACHE_OFF
 	bool "Do not enable dcache"
-	default n
 	help
 	  Do not enable data cache in U-Boot.
 
@@ -443,7 +441,6 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 
 config ARM_CORTEX_CPU_IS_UP
 	bool
-	default n
 
 config USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy"
@@ -1907,7 +1904,6 @@ config ARCH_SUPPORT_TFABOOT
 config TFABOOT
 	bool "Support for booting from TF-A"
 	depends on ARCH_SUPPORT_TFABOOT
-	default n
 	help
 	  Some platforms support the setup of secure registers (for instance
 	  for CPU errata handling) or provide secure services like PSCI.

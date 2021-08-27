@@ -83,7 +83,6 @@ config CC_OPTIMIZE_FOR_SIZE
 
 config OPTIMIZE_INLINING
 	bool "Allow compiler to uninline functions marked 'inline' in full U-Boot"
-	default n
 	help
 	  This option determines if U-Boot forces gcc to inline the functions
 	  developers have marked 'inline'. Doing so takes away freedom from gcc to
@@ -93,7 +92,6 @@ config OPTIMIZE_INLINING
 config SPL_OPTIMIZE_INLINING
 	bool "Allow compiler to uninline functions marked 'inline' in SPL"
 	depends on SPL
-	default n
 	help
 	  This option determines if U-Boot forces gcc to inline the functions
 	  developers have marked 'inline'. Doing so takes away freedom from gcc to
@@ -106,7 +104,6 @@ config ARCH_SUPPORTS_LTO
 config LTO
 	bool "Enable Link Time Optimizations"
 	depends on ARCH_SUPPORTS_LTO
-	default n
 	help
 	  This option enables Link Time Optimization (LTO), a mechanism which
 	  allows the compiler to optimize between different compilation units.
@@ -127,7 +124,6 @@ config LTO
 config TPL_OPTIMIZE_INLINING
 	bool "Allow compiler to uninline functions marked 'inline' in TPL"
 	depends on TPL
-	default n
 	help
 	  This option determines if U-Boot forces gcc to inline the functions
 	  developers have marked 'inline'. Doing so takes away freedom from gcc to
@@ -310,7 +306,6 @@ if EXPERT
 
 config SYS_MALLOC_DEFAULT_TO_INIT
 	bool "Default malloc to init while reserving the memory for it"
-	default n
 	help
 	  It may happen that one needs to move the dynamic allocation
 	  from one to another memory range, eg. when moving the malloc
@@ -440,7 +435,6 @@ config SYS_HAS_SRAM
 	default y if TARGET_PIC32MZDASK
 	default y if TARGET_DEVKIT8000
 	default y if TARGET_TRICORDER
-	default n
 	help
 	  Enable this to allow support for the on board SRAM.
 	  SRAM base address is controlled by CONFIG_SYS_SRAM_BASE.

@@ -123,7 +123,6 @@ config MMC_IO_VOLTAGE
 
 config SPL_MMC_IO_VOLTAGE
 	bool "Support IO voltage configuration in SPL"
-	default n
 	help
 	  IO voltage configuration allows selecting the voltage level of the IO
 	  lines (not the level of main supply). This is required for UHS
@@ -193,7 +192,6 @@ config MMC_VERBOSE
 
 config MMC_TRACE
 	bool "MMC debugging"
-	default n
 	help
 	  This is an option for use by developer. Enable MMC core debugging.
 
@@ -221,7 +219,6 @@ config MMC_DW_CORTINA
 	depends on DM_MMC
 	depends on MMC_DW
 	depends on BLK
-	default n
 	help
 	  This selects support for Cortina SoC specific extensions to the
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
@@ -770,7 +767,6 @@ config FTSDC010
 
 config FTSDC010_SDIO
 	bool "Support ftsdc010 sdio"
-	default n
 	depends on FTSDC010
 	help
 		This can enable ftsdc010 sdio function.
@@ -805,7 +801,6 @@ config FSL_ESDHC_SUPPORT_ADMA2
 config FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
 	bool "enable eSDHC workaround for 3.3v IO reliability issue"
 	depends on FSL_ESDHC && DM_MMC
-	default n
 	help
 	  When eSDHC operates at 3.3v, damage can accumulate in an internal
 	  level shifter at a higher than expected rate. The faster the interface

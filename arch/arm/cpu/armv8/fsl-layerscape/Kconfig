@@ -453,7 +453,6 @@ config QSPI_AHB_INIT
 
 config FSPI_AHB_EN_4BYTE
 	bool "Enable 4-byte Fast Read command for AHB mode"
-	default n
 	help
 	  The default setting for FlexSPI AHB bus just supports 3-byte addressing.
 	  But some FlexSPI flash sizes are up to 64MBytes.
