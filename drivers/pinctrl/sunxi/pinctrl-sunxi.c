@@ -287,6 +287,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun5i_a13_pinctrl_desc = {
 };
 
 static const struct sunxi_pinctrl_function sun6i_a31_pinctrl_functions[] = {
+	{ "gmac",	2 },	/* PA0-PA27 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
@@ -318,6 +319,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun6i_a31_r_pinctrl_desc =
 
 static const struct sunxi_pinctrl_function sun7i_a20_pinctrl_functions[] = {
 	{ "emac",	2 },	/* PA0-PA17 */
+	{ "gmac",	5 },	/* PA0-PA17 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
@@ -467,6 +469,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun8i_v3s_pinctrl_desc = {
 };
 
 static const struct sunxi_pinctrl_function sun9i_a80_pinctrl_functions[] = {
+	{ "gmac",	2 },	/* PA0-PA17 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
