@@ -386,6 +386,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun8i_a33_pinctrl_desc = {
 };
 
 static const struct sunxi_pinctrl_function sun8i_a83t_pinctrl_functions[] = {
+	{ "gmac",	4 },	/* PD2-PD23 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
@@ -418,6 +419,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun8i_a83t_r_pinctrl_desc 
 };
 
 static const struct sunxi_pinctrl_function sun8i_h3_pinctrl_functions[] = {
+	{ "emac",	2 },	/* PD0-PD17 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
@@ -450,6 +452,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun8i_h3_r_pinctrl_desc = 
 };
 
 static const struct sunxi_pinctrl_function sun8i_v3s_pinctrl_functions[] = {
+	{ "emac",	4 },	/* PD0-PD17 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
@@ -500,6 +503,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun9i_a80_r_pinctrl_desc =
 };
 
 static const struct sunxi_pinctrl_function sun50i_a64_pinctrl_functions[] = {
+	{ "emac",	4 },	/* PD8-PD23 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
@@ -532,6 +536,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun50i_a64_r_pinctrl_desc 
 };
 
 static const struct sunxi_pinctrl_function sun50i_h5_pinctrl_functions[] = {
+	{ "emac",	2 },	/* PD0-PD17 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
@@ -551,6 +556,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h5_pinctrl_desc = {
 };
 
 static const struct sunxi_pinctrl_function sun50i_h6_pinctrl_functions[] = {
+	{ "emac",	5 },	/* PD0-PD20 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
@@ -582,6 +588,7 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h6_r_pinctrl_desc =
 };
 
 static const struct sunxi_pinctrl_function sun50i_h616_pinctrl_functions[] = {
+	{ "emac0",	2 },	/* PI0-PI16 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
