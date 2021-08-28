@@ -269,7 +269,7 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 			snprintf(key_id, sizeof(key_id),
 				 "%s%s",
 				 keydir, name);
-		else if (keydir)
+		else if (name)
 			snprintf(key_id, sizeof(key_id),
 				 "%s",
 				 name);
