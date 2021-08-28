@@ -32,7 +32,6 @@
 #include <linux/bitops.h>
 
 #include <asm/bitops.h>
-#include <asm/gpio.h>
 #include <asm/io.h>
 
 #include <linux/iopoll.h>
@@ -178,87 +177,6 @@ static void sun4i_spi_set_cs(struct udevice *bus, u8 cs, bool enable)
 		reg |= SPI_BIT(priv, SPI_TCR_CS_LEVEL);
 
 	writel(reg, SPI_REG(priv, SPI_TCR));
-}
-
-static int sun4i_spi_parse_pins(struct udevice *dev)
-{
-	const void *fdt = gd->fdt_blob;
-	const char *pin_name;
-	const fdt32_t *list;
-	u32 phandle;
-	int drive, pull = 0, pin, i;
-	int offset;
-	int size;
-
-	list = fdt_getprop(fdt, dev_of_offset(dev), "pinctrl-0", &size);
-	if (!list) {
-		printf("WARNING: sun4i_spi: cannot find pinctrl-0 node\n");
-		return -EINVAL;
-	}
-
-	while (size) {
-		phandle = fdt32_to_cpu(*list++);
-		size -= sizeof(*list);
-
-		offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (offset < 0)
-			return offset;
-
-		drive = fdt_getprop_u32_default_node(fdt, offset, 0,
-						     "drive-strength", 0);
-		if (drive) {
-			if (drive <= 10)
-				drive = 0;
-			else if (drive <= 20)
-				drive = 1;
-			else if (drive <= 30)
-				drive = 2;
-			else
-				drive = 3;
-		} else {
-			drive = fdt_getprop_u32_default_node(fdt, offset, 0,
-							     "allwinner,drive",
-							      0);
-			drive = min(drive, 3);
-		}
-
-		if (fdt_get_property(fdt, offset, "bias-disable", NULL))
-			pull = 0;
-		else if (fdt_get_property(fdt, offset, "bias-pull-up", NULL))
-			pull = 1;
-		else if (fdt_get_property(fdt, offset, "bias-pull-down", NULL))
-			pull = 2;
-		else
-			pull = fdt_getprop_u32_default_node(fdt, offset, 0,
-							    "allwinner,pull",
-							     0);
-		pull = min(pull, 2);
-
-		for (i = 0; ; i++) {
-			pin_name = fdt_stringlist_get(fdt, offset,
-						      "pins", i, NULL);
-			if (!pin_name) {
-				pin_name = fdt_stringlist_get(fdt, offset,
-							      "allwinner,pins",
-							       i, NULL);
-				if (!pin_name)
-					break;
-			}
-
-			pin = sunxi_name_to_gpio(pin_name);
-			if (pin < 0)
-				break;
-
-			if (IS_ENABLED(CONFIG_MACH_SUN50I) ||
-			    IS_ENABLED(CONFIG_SUN50I_GEN_H6))
-				sunxi_gpio_set_cfgpin(pin, SUN50I_GPC_SPI0);
-			else
-				sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SPI0);
-			sunxi_gpio_set_drv(pin, drive);
-			sunxi_gpio_set_pull(pin, pull);
-		}
-	}
-	return 0;
 }
 
 static inline int sun4i_spi_set_clock(struct udevice *dev, bool enable)
@@ -506,8 +424,6 @@ static int sun4i_spi_probe(struct udevice *bus)
 		dev_err(bus, "failed to get reset\n");
 		return ret;
 	}
-
-	sun4i_spi_parse_pins(bus);
 
 	priv->variant = plat->variant;
 	priv->base = plat->base;
