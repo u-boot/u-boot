@@ -13,7 +13,6 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/pwm.h>
-#include <asm/arch/gpio.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -44,14 +43,6 @@ static const u32 prescaler_table[] = {
 	0,	/* 1110 */
 	1,	/* 1111 */
 };
-
-static int sunxi_pwm_config_pinmux(void)
-{
-#ifdef CONFIG_MACH_SUN50I
-	sunxi_gpio_set_cfgpin(SUNXI_GPD(22), SUNXI_GPD_PWM);
-#endif
-	return 0;
-}
 
 static int sunxi_pwm_set_invert(struct udevice *dev, uint channel,
 				bool polarity)
@@ -136,8 +127,6 @@ static int sunxi_pwm_set_enable(struct udevice *dev, uint channel, bool enable)
 		writel(v, &regs->ctrl);
 		return 0;
 	}
-
-	sunxi_pwm_config_pinmux();
 
 	if (priv->invert)
 		v &= ~SUNXI_PWM_CTRL_CH0_ACT_STA;
