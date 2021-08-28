@@ -239,6 +239,7 @@ static const struct sunxi_pinctrl_function suniv_f1c100s_pinctrl_functions[] = {
 	{ "i2c1",	3 },	/* PD5-PD6 */
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	3 },	/* PC0-PC2 */
+	{ "spi0",	2 },	/* PC0-PC3 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -267,6 +268,7 @@ static const struct sunxi_pinctrl_function sun4i_a10_pinctrl_functions[] = {
 #endif
 	{ "mmc2",	3 },	/* PC6-PC15 */
 	{ "mmc3",	2 },	/* PI4-PI9 */
+	{ "spi0",	3 },	/* PC0-PC2, PC23 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	4 },	/* PF2-PF4 */
 #else
@@ -290,6 +292,7 @@ static const struct sunxi_pinctrl_function sun5i_a13_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG3-PG8 */
 	{ "mmc2",	3 },	/* PC6-PC15 */
+	{ "spi0",	3 },	/* PC0-PC3 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	4 },	/* PF2-PF4 */
 #else
@@ -315,6 +318,7 @@ static const struct sunxi_pinctrl_function sun6i_a31_pinctrl_functions[] = {
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC6-PC15, PC24 */
 	{ "mmc3",	4 },	/* PC6-PC15, PC24 */
+	{ "spi0",	3 },	/* PC0-PC2, PC27 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -357,6 +361,7 @@ static const struct sunxi_pinctrl_function sun7i_a20_pinctrl_functions[] = {
 	{ "mmc1",	4 },	/* PG0-PG5 */
 #endif
 	{ "mmc2",	3 },	/* PC5-PC15, PC24 */
+	{ "spi0",	3 },	/* PC0-PC2, PC23 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	4 },	/* PF2-PF4 */
 #else
@@ -379,6 +384,7 @@ static const struct sunxi_pinctrl_function sun8i_a23_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC5-PC16 */
+	{ "spi0",	3 },	/* PC0-PC3 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #endif
@@ -415,6 +421,7 @@ static const struct sunxi_pinctrl_function sun8i_a33_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC5-PC16 */
+	{ "spi0",	3 },	/* PC0-PC3 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -440,6 +447,7 @@ static const struct sunxi_pinctrl_function sun8i_a83t_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC5-PC16 */
+	{ "spi0",	3 },	/* PC0-PC3 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -479,6 +487,7 @@ static const struct sunxi_pinctrl_function sun8i_h3_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC5-PC16 */
+	{ "spi0",	3 },	/* PC0-PC3 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -518,6 +527,7 @@ static const struct sunxi_pinctrl_function sun8i_v3s_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	2 },	/* PC0-PC10 */
+	{ "spi0",	3 },	/* PC0-PC3 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -543,6 +553,7 @@ static const struct sunxi_pinctrl_function sun9i_a80_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC6-PC16 */
+	{ "spi0",	3 },	/* PC0-PC2, PC19 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	4 },	/* PF2-PF4 */
 #else
@@ -582,6 +593,7 @@ static const struct sunxi_pinctrl_function sun50i_a64_pinctrl_functions[] = {
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC1-PC16 */
 	{ "pwm",	2 },	/* PD22 */
+	{ "spi0",	4 },	/* PC0-PC3 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -621,6 +633,7 @@ static const struct sunxi_pinctrl_function sun50i_h5_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC1-PC16 */
+	{ "spi0",	3 },	/* PC0-PC3 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -646,6 +659,7 @@ static const struct sunxi_pinctrl_function sun50i_h6_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC1-PC14 */
+	{ "spi0",	4 },	/* PC0-PC7 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -682,6 +696,7 @@ static const struct sunxi_pinctrl_function sun50i_h616_pinctrl_functions[] = {
 	{ "mmc0",	2 },	/* PF0-PF5 */
 	{ "mmc1",	2 },	/* PG0-PG5 */
 	{ "mmc2",	3 },	/* PC0-PC16 */
+	{ "spi0",	4 },	/* PC0-PC7, PC15-PC16 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
