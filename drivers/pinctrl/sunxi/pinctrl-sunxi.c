@@ -237,6 +237,8 @@ static const struct sunxi_pinctrl_function suniv_f1c100s_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	3 },	/* PE11-PE12 */
 	{ "i2c1",	3 },	/* PD5-PD6 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	3 },	/* PC0-PC2 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -257,6 +259,14 @@ static const struct sunxi_pinctrl_function sun4i_a10_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PB0-PB1 */
 	{ "i2c1",	2 },	/* PB18-PB19 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+#if IS_ENABLED(CONFIG_MMC1_PINS_PH)
+	{ "mmc1",	5 },	/* PH22-PH27 */
+#else
+	{ "mmc1",	4 },	/* PG0-PG5 */
+#endif
+	{ "mmc2",	3 },	/* PC6-PC15 */
+	{ "mmc3",	2 },	/* PI4-PI9 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	4 },	/* PF2-PF4 */
 #else
@@ -277,6 +287,9 @@ static const struct sunxi_pinctrl_function sun5i_a13_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PB0-PB1 */
 	{ "i2c1",	2 },	/* PB15-PB16 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG3-PG8 */
+	{ "mmc2",	3 },	/* PC6-PC15 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	4 },	/* PF2-PF4 */
 #else
@@ -298,6 +311,10 @@ static const struct sunxi_pinctrl_function sun6i_a31_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PH14-PH15 */
 	{ "i2c1",	2 },	/* PH16-PH17 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC6-PC15, PC24 */
+	{ "mmc3",	4 },	/* PC6-PC15, PC24 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -333,6 +350,13 @@ static const struct sunxi_pinctrl_function sun7i_a20_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PB0-PB1 */
 	{ "i2c1",	2 },	/* PB18-PB19 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+#if IS_ENABLED(CONFIG_MMC1_PINS_PH)
+	{ "mmc1",	5 },	/* PH22-PH27 */
+#else
+	{ "mmc1",	4 },	/* PG0-PG5 */
+#endif
+	{ "mmc2",	3 },	/* PC5-PC15, PC24 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	4 },	/* PF2-PF4 */
 #else
@@ -352,6 +376,9 @@ static const struct sunxi_pinctrl_function sun8i_a23_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PH2-PH3 */
 	{ "i2c1",	2 },	/* PH4-PH5 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC5-PC16 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #endif
@@ -385,6 +412,9 @@ static const struct sunxi_pinctrl_function sun8i_a33_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PH2-PH3 */
 	{ "i2c1",	2 },	/* PH4-PH5 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC5-PC16 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -407,6 +437,9 @@ static const struct sunxi_pinctrl_function sun8i_a83t_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PH0-PH1 */
 	{ "i2c1",	2 },	/* PH2-PH3 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC5-PC16 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -443,6 +476,9 @@ static const struct sunxi_pinctrl_function sun8i_h3_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PA11-PA12 */
 	{ "i2c1",	3 },	/* PA18-PA19 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC5-PC16 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -479,6 +515,9 @@ static const struct sunxi_pinctrl_function sun8i_v3s_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PB6-PB7 */
 	{ "i2c1",	2 },	/* PB8-PB9 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	2 },	/* PC0-PC10 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -501,6 +540,9 @@ static const struct sunxi_pinctrl_function sun9i_a80_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PH0-PH1 */
 	{ "i2c1",	2 },	/* PH2-PH3 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC6-PC16 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	4 },	/* PF2-PF4 */
 #else
@@ -536,6 +578,9 @@ static const struct sunxi_pinctrl_function sun50i_a64_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PH0-PH1 */
 	{ "i2c1",	2 },	/* PH2-PH3 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC1-PC16 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -572,6 +617,9 @@ static const struct sunxi_pinctrl_function sun50i_h5_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PA11-PA12 */
 	{ "i2c1",	3 },	/* PA18-PA19 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC1-PC16 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -594,6 +642,9 @@ static const struct sunxi_pinctrl_function sun50i_h6_pinctrl_functions[] = {
 	{ "gpio_out",	1 },
 	{ "i2c0",	2 },	/* PD25-PD26 */
 	{ "i2c1",	4 },	/* PH5-PH6 */
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC1-PC14 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
@@ -627,6 +678,9 @@ static const struct sunxi_pinctrl_function sun50i_h616_pinctrl_functions[] = {
 	{ "emac0",	2 },	/* PI0-PI16 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC0-PC16 */
 #if IS_ENABLED(CONFIG_UART0_PORT_F)
 	{ "uart0",	3 },	/* PF2-PF4 */
 #else
