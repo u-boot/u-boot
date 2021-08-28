@@ -13,10 +13,6 @@
 #include <asm/arch/base.h>
 #endif
 
-#if defined(CONFIG_TARGET_RPI_2) || defined(CONFIG_TARGET_RPI_3_32B)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
-
 /* Architecture, CPU, etc.*/
 
 /* Use SoC timer for AArch32, but architected timer for AArch64 */

@@ -36,7 +36,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * CPU configuration.
  */
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 /*
  * Memory configuration.

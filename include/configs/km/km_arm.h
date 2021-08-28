@@ -57,8 +57,6 @@
 		"appended one; fi\0"					\
 	""
 
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

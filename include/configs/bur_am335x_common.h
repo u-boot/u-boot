@@ -45,9 +45,6 @@
  * Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_NOR_BOOT)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif /* !CONFIG_SPL_BUILD, ... */
 /*
  * ----------------------------------------------------------------------------
  * DDR information.  We say (for simplicity) that we have 1 bank,

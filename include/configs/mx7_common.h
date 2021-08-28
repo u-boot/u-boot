@@ -47,10 +47,5 @@
  * launched by OPTEE, because of that we shall skip all the low level
  * initialization since it was already done by ATF or OPTEE
  */
-#if (CONFIG_OPTEE_TZDRAM_SIZE != 0)
-#ifndef CONFIG_OPTEE
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
-#endif
 
 #endif

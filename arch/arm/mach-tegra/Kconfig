@@ -72,6 +72,7 @@ config TEGRA_ARMV7_COMMON
 	select CPU_V7A
 	select SPL
 	select SPL_BOARD_INIT if SPL
+	select SPL_SKIP_LOWLEVEL_INIT_ONLY if SPL
 	select SUPPORT_SPL
 	select TEGRA_CLKRST
 	select TEGRA_COMMON

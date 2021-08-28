@@ -21,7 +21,6 @@
  */
 #define CONFIG_FEROCEON_88FR131		/* #define CPU Core subversion */
 #define CONFIG_KW88F6192		/* SOC Name */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /* power-on led, regulator, sata0, sata1 */
 #define NAS220_GE_OE_VAL_LOW ((1 << 12)|(1 << 14)|(1 << 24)|(1 << 28))

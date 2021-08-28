@@ -8,8 +8,6 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 

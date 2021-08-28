@@ -9,7 +9,6 @@
 #include "rockchip-common.h"
 
 #define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_SYS_NS16550_MEM32
 

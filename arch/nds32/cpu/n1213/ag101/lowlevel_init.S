@@ -164,7 +164,7 @@ sdram_b0_cr:
 	ret
 
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 
 .globl	lowlevel_init
 lowlevel_init:
@@ -314,4 +314,4 @@ show_led:
     li      $r8, (CONFIG_DEBUG_LED)
     swi     $r7, [$r8]
     ret
-#endif /* #ifndef CONFIG_SKIP_LOWLEVEL_INIT */
+#endif /* #if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) */

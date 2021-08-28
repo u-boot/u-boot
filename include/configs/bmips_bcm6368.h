@@ -26,7 +26,6 @@
 /* U-Boot */
 
 #if defined(CONFIG_BMIPS_BOOT_RAM)
-#define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SYS_INIT_SP_OFFSET	SZ_8K
 #endif
 

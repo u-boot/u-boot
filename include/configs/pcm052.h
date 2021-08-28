@@ -12,8 +12,6 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
 

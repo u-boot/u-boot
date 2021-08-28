@@ -2741,22 +2741,6 @@ Low Level (hardware related) configuration options:
 		This only takes effect if the memory commands are activated
 		globally (CONFIG_CMD_MEMORY).
 
-- CONFIG_SKIP_LOWLEVEL_INIT
-		[ARM, NDS32, MIPS, RISC-V only] If this variable is defined, then certain
-		low level initializations (like setting up the memory
-		controller) are omitted and/or U-Boot does not
-		relocate itself into RAM.
-
-		Normally this variable MUST NOT be defined. The only
-		exception is when U-Boot is loaded (to RAM) by some
-		other boot loader or by a debugger which performs
-		these initializations itself.
-
-- CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-		[ARM926EJ-S only] This allows just the call to lowlevel_init()
-		to be skipped. The normal CP15 init (such as enabling the
-		instruction cache) is still performed.
-
 - CONFIG_SPL_BUILD
 		Set when the currently-running compilation is for an artifact
 		that will end up in the SPL (as opposed to the TPL or U-Boot

@@ -23,8 +23,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 #ifndef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_DDR_RAW_TIMING
 #endif

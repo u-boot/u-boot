@@ -9,7 +9,6 @@
 #include "rockchip-common.h"
 
 #define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define COUNTER_FREQUENCY               24000000
 #define CONFIG_ROCKCHIP_STIMER_BASE	0xff8680a0

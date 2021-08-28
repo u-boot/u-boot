@@ -174,7 +174,7 @@ set_ivb:
 
 	jal mem_init
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 	jal	lowlevel_init
 /*
  *  gp = ~VMA          for burn mode

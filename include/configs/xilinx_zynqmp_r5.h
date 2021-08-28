@@ -31,6 +31,4 @@
 /* Extend size of kernel image for uncompression */
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 #endif /* __CONFIG_ZYNQ_ZYNQMP_R5_H */

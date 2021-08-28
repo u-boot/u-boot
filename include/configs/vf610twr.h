@@ -15,8 +15,6 @@
 
 #define CONFIG_MACH_TYPE		4146
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
 

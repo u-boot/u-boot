@@ -9,8 +9,6 @@
 #ifndef __CONFIG_CI20_H__
 #define __CONFIG_CI20_H__
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* Ingenic JZ4780 clock configuration. */
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_MHZ			1200

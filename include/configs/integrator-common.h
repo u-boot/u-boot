@@ -47,7 +47,6 @@
  * image to run at reset/power up
  * e.g. whether the ARM Boot Monitor runs before U-Boot
  */
-/* #define CONFIG_SKIP_LOWLEVEL_INIT */
 
 /*
  * The ARM boot monitor does not relocate U-Boot.

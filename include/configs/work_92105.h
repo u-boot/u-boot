@@ -19,10 +19,6 @@
  */
 #define CONFIG_MACH_TYPE		736
 
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
-
 /*
  * Memory configurations
  */

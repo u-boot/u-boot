@@ -11,7 +11,6 @@
 #define __XILFPGA_CONFIG_H
 
 /* BootROM + MIG is pretty smart. DDR and Cache initialized */
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 /*--------------------------------------------
  * CPU configuration

@@ -37,7 +37,6 @@
 #else
 #define CONFIG_KW88F6281
 #endif
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
  * SDRAM configuration

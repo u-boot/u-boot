@@ -5,6 +5,7 @@ config ARCH_LS1012A
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select GICV2
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR_BE
@@ -62,6 +63,7 @@ config ARCH_LS1043A
 	select FSL_LSCH2
 	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -96,6 +98,7 @@ config ARCH_LS1046A
 	select FSL_LSCH2
 	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -134,6 +137,7 @@ config ARCH_LS1088A
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select GICV3
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -181,6 +185,7 @@ config ARCH_LS2080A
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select GICV3
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -296,6 +301,7 @@ config ARCH_LX2160A
 
 config FSL_LSCH2
 	bool
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_HAS_CCI400
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5

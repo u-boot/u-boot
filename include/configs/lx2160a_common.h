@@ -18,8 +18,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_FLASH_BASE		0x20000000
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* DDR */
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
 #define CONFIG_SYS_FSL_DDR_INTLV_256B	/* force 256 byte interleaving */

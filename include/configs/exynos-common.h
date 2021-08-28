@@ -16,8 +16,6 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* Keep L2 Cache Disabled */
 
 /* input clock of PLL: 24MHz input clock */

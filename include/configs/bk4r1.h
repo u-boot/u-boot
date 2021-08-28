@@ -60,8 +60,6 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
 

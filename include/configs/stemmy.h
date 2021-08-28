@@ -13,7 +13,6 @@
  * low-level initialization and rely on configuration provided by the Samsung
  * bootloader. New images are loaded at the same address for compatibility.
  */
-#define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_MALLOC_LEN		SZ_2M

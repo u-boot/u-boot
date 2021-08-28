@@ -14,7 +14,6 @@
 /* The first stage boot loader expects u-boot running at this address. */
 
 /* The first stage boot loader takes care of low level initialization. */
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* Set our official architecture number. */
 #define CONFIG_MACH_TYPE MACH_TYPE_ETHERNUT5

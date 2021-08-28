@@ -11,7 +11,6 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_DEEP_SLEEP
 
 /*

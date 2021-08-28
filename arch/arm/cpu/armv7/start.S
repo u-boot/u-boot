@@ -80,11 +80,11 @@ switch_to_hypervisor_ret:
 #endif
 
 	/* the mask ROM code should have PLL and others stable */
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 #ifdef CONFIG_CPU_V7A
 	bl	cpu_init_cp15
 #endif
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT_ONLY)
 	bl	cpu_init_crit
 #endif
 #endif
@@ -320,8 +320,8 @@ skip_errata_801819:
 	mov	pc, r5			@ back to my caller
 ENDPROC(cpu_init_cp15)
 
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
-	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) && \
+	!CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT_ONLY)
 /*************************************************************************
  *
  * CPU_init_critical registers

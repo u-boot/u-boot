@@ -28,7 +28,7 @@
 	.set noreorder
 
 LEAF(mips_sram_init)
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 	/* Setup CPU PLL */
 	li	t0, DELAY_USEC(1000000)
 	li	t1, KSEG1ADDR(SYSCTL_BASE + SYSCTL_ROM_STATUS_REG)
@@ -116,7 +116,7 @@ _cpu_pll_done:
 	sub	a1, CONFIG_SYS_DCACHE_LINE_SIZE
 	bnez	a1, 3b
 	 nop
-#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
+#endif /* CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) */
 
 	jr	ra
 	 nop
