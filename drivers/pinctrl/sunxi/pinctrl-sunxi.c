@@ -92,6 +92,56 @@ static int sunxi_pinctrl_pinmux_set(struct udevice *dev, uint pin_selector,
 	return 0;
 }
 
+static const struct pinconf_param sunxi_pinctrl_pinconf_params[] = {
+	{ "bias-disable",	PIN_CONFIG_BIAS_DISABLE,	 0 },
+	{ "bias-pull-down",	PIN_CONFIG_BIAS_PULL_DOWN,	 2 },
+	{ "bias-pull-up",	PIN_CONFIG_BIAS_PULL_UP,	 1 },
+	{ "drive-strength",	PIN_CONFIG_DRIVE_STRENGTH,	10 },
+};
+
+static int sunxi_pinctrl_pinconf_set_pull(struct sunxi_pinctrl_plat *plat,
+					  uint bank, uint pin, uint bias)
+{
+	struct sunxi_gpio *regs = &plat->base[bank];
+
+	sunxi_gpio_set_pull_bank(regs, pin, bias);
+
+	return 0;
+}
+
+static int sunxi_pinctrl_pinconf_set_drive(struct sunxi_pinctrl_plat *plat,
+					   uint bank, uint pin, uint drive)
+{
+	struct sunxi_gpio *regs = &plat->base[bank];
+
+	if (drive < 10 || drive > 40)
+		return -EINVAL;
+
+	/* Convert mA to the register value, rounding down. */
+	sunxi_gpio_set_drv_bank(regs, pin, drive / 10 - 1);
+
+	return 0;
+}
+
+static int sunxi_pinctrl_pinconf_set(struct udevice *dev, uint pin_selector,
+				     uint param, uint val)
+{
+	struct sunxi_pinctrl_plat *plat = dev_get_plat(dev);
+	int bank = pin_selector / SUNXI_GPIOS_PER_BANK;
+	int pin  = pin_selector % SUNXI_GPIOS_PER_BANK;
+
+	switch (param) {
+	case PIN_CONFIG_BIAS_DISABLE:
+	case PIN_CONFIG_BIAS_PULL_DOWN:
+	case PIN_CONFIG_BIAS_PULL_UP:
+		return sunxi_pinctrl_pinconf_set_pull(plat, bank, pin, val);
+	case PIN_CONFIG_DRIVE_STRENGTH:
+		return sunxi_pinctrl_pinconf_set_drive(plat, bank, pin, val);
+	}
+
+	return -EINVAL;
+}
+
 static int sunxi_pinctrl_get_pin_muxing(struct udevice *dev, uint pin_selector,
 					char *buf, int size)
 {
@@ -124,6 +174,9 @@ static const struct pinctrl_ops sunxi_pinctrl_ops = {
 	.get_functions_count	= sunxi_pinctrl_get_functions_count,
 	.get_function_name	= sunxi_pinctrl_get_function_name,
 	.pinmux_set		= sunxi_pinctrl_pinmux_set,
+	.pinconf_num_params	= ARRAY_SIZE(sunxi_pinctrl_pinconf_params),
+	.pinconf_params		= sunxi_pinctrl_pinconf_params,
+	.pinconf_set		= sunxi_pinctrl_pinconf_set,
 	.set_state		= pinctrl_generic_set_state,
 	.get_pin_muxing		= sunxi_pinctrl_get_pin_muxing,
 };

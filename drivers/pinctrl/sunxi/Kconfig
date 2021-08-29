@@ -5,6 +5,7 @@ if ARCH_SUNXI
 config PINCTRL_SUNXI
 	select PINCTRL_FULL
 	select PINCTRL_GENERIC
+	select PINCONF
 	select PINMUX
 	bool
 
