@@ -115,9 +115,6 @@
 #define CONFIG_SYS_L2CACHE_OFF		1
 #define CONFIG_INITRD_TAG		1
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 512 * 1024) /* >= 512 KiB */
-
 #define SCTL_BASE			V2M_SYSCTL
 #define VEXPRESS_FLASHPROG_FLVPPEN	(1 << 0)
 

@@ -14,9 +14,6 @@
 
 #define PHYS_SDRAM_SIZE			SZ_512M
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

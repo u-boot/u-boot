@@ -212,7 +212,6 @@
  */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(8 * 1024 * 1024)
 
 /*
  * Environment Configuration

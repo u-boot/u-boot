@@ -59,7 +59,6 @@
 
 #define CONFIG_SYS_STACK_SIZE			(32 * 1024)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_MALLOC_LEN			0x200000
 
 /*-----------------------------------------------------------------------
  * Environment configuration

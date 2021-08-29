@@ -24,7 +24,6 @@
  * Boot info
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(0xe0000000)	/* stack of init proccess */
-#define CONFIG_SYS_MALLOC_LEN		(0x01000000)	/* 16Mbyte size of malloc() */
 
 /*
  * Hardware drivers support

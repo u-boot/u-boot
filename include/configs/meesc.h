@@ -97,10 +97,4 @@
 
 #define CONFIG_SYS_CBSIZE		512
 
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + \
-					128*1024, 0x1000)
-
 #endif

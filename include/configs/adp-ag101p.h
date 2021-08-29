@@ -83,12 +83,6 @@
  */
 
 /*
- * Size of malloc() pool
- */
-/* 512kB is suggested, (CONFIG_ENV_SIZE + 128 * 1024) was not enough */
-#define CONFIG_SYS_MALLOC_LEN		(512 << 10)
-
-/*
  * AHB Controller configuration
  */
 #define CONFIG_FTAHBC020S

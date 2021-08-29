@@ -33,8 +33,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)
-
 /*
  * Console
  */

@@ -135,14 +135,6 @@
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
 #endif
 
-#ifndef CONFIG_MACH_SUN8I_V3S
-/* 64MB of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (64 << 20))
-#else
-/* 2MB of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (2 << 20))
-#endif
-
 /*
  * Miscellaneous configurable options
  */

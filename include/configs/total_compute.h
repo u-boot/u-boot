@@ -18,9 +18,6 @@
 
 #define UART0_BASE		0x7ff80000
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (8 << 20))
-
 /* PL011 Serial Configuration */
 #define CONFIG_PL011_CLOCK	7372800
 

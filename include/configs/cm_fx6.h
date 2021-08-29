@@ -176,7 +176,6 @@
 #define CONFIG_SERIAL_TAG
 
 /* misc */
-#define CONFIG_SYS_MALLOC_LEN			(10 * 1024 * 1024)
 
 /* SPL */
 #include "imx6_spl.h"

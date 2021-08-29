@@ -18,9 +18,6 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
-
 /* Environment settings */
 
 /* Environment in SD */

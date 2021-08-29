@@ -50,7 +50,6 @@
 #endif
 
 /* Memory sizes */
-#define CONFIG_SYS_MALLOC_LEN		0x00400000	/* 4 MB for malloc */
 
 /* OCRAM at 0x0 ; 32kB on MX23 ; 128kB on MX28 */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x00000000

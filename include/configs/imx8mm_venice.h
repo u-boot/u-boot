@@ -85,8 +85,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		SZ_32M
 #define CONFIG_SYS_SDRAM_BASE           0x40000000
 
 /* SDRAM configuration */

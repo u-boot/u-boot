@@ -24,7 +24,6 @@
 /*
  * Configuration of the external SDRAM memory
  */
-#define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 
 /* For SPL */
 #ifdef CONFIG_SUPPORT_SPL

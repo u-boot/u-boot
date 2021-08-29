@@ -24,9 +24,6 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR        0x1000  /* 2MB */
 #endif
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 #define CONFIG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
 /* MMC Config */

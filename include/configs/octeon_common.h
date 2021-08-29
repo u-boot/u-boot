@@ -8,11 +8,9 @@
 #define __OCTEON_COMMON_H__
 
 #if defined(CONFIG_RAM_OCTEON)
-#define CONFIG_SYS_MALLOC_LEN		(16 << 20)
 #define CONFIG_SYS_INIT_SP_OFFSET	0x20100000
 #else
 /* No DDR init -> run in L2 cache with limited resources */
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 #define CONFIG_SYS_INIT_SP_OFFSET	0x00180000
 #endif
 

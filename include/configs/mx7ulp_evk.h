@@ -27,9 +27,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 /*#define CONFIG_REVISION_TAG*/
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(8 * SZ_1M)
-
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
 

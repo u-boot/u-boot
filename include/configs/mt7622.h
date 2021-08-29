@@ -16,8 +16,6 @@
 #define CONFIG_SYS_CBSIZE		SZ_1K
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +	\
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		SZ_4M
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
 /* Uboot definition */

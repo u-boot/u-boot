@@ -25,7 +25,6 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(PHYS_SDRAM_1 + 0x80000000)
 /* 12MB Malloc size */
-#define CONFIG_SYS_MALLOC_LEN		(SZ_8M + SZ_4M)
 
 /* console configuration */
 #define CONFIG_SYS_NS16550_CLK		25000000

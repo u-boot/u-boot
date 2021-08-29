@@ -45,7 +45,6 @@
 					+ 0x100000)
 #endif
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_SP_ADDR)
-#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 
 /*
  * U-Boot environment configurations

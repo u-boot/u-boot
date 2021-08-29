@@ -39,12 +39,7 @@
 #define CONFIG_REVISION_TAG			/* enable passing revision tag*/
 #define CONFIG_SETUP_MEMORY_TAGS		/* enable memory tag */
 
-/*
- * Size of malloc() pool
- */
 #define CONFIG_UBI_SIZE			(512 << 10)
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + CONFIG_UBI_SIZE + \
-					(128 << 10))
 
 /*
  * Hardware drivers

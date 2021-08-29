@@ -10,9 +10,6 @@
 
 #include "mx6_common.h"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)
-
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 #define CONFIG_EXTRA_ENV_SETTINGS \

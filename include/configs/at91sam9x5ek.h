@@ -82,11 +82,6 @@
 				"bootm 0x22000000"
 #endif
 
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(512 * 1024 + 0x1000)
-
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x6000
 #define CONFIG_SPL_STACK		0x308000

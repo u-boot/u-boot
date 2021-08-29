@@ -98,11 +98,6 @@
 
 #endif
 
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN	(4 * 1024 * 1024)
-
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x6000
 #define CONFIG_SPL_STACK		0x308000

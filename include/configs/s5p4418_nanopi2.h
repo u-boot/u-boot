@@ -60,8 +60,6 @@
  */
 #define CONFIG_SYS_SDRAM_SIZE		(0xb0000000 - CONFIG_SYS_SDRAM_BASE)
 
-#define CONFIG_SYS_MALLOC_LEN		(32 * 1024 * 1024)
-
 #define BMP_LOAD_ADDR			0x78000000
 
 /* kernel load address */

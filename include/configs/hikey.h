@@ -42,9 +42,6 @@
 #define GICD_BASE			0xf6801000
 #define GICC_BASE			0xf6802000
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)
-
 #define CONFIG_HIKEY_GPIO
 
 /* BOOTP options */

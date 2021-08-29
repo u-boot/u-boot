@@ -15,8 +15,6 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_MALLOC_LEN		SZ_2M
-
 /* FIXME: This should be loaded from device tree... */
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		0xa0412000

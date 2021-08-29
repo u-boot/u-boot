@@ -33,7 +33,6 @@
 /* 128MB SDRAM in 1 bank */
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		(128 << 20)
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
 
 /* 512kB on-chip NOR flash */
 # define CONFIG_SYS_MAX_FLASH_BANKS	1

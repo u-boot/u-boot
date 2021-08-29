@@ -229,12 +229,6 @@
 #error "Undefined memory device"
 #endif
 
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		\
-		ROUND(3 * CONFIG_ENV_SIZE + 128 * 1024, 0x1000)
-
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - \
 				GENERATED_GBL_DATA_SIZE)

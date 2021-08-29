@@ -14,9 +14,6 @@
 
 #include "imx6_spl.h"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)
-
 /* MMC Configuration */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 

@@ -16,7 +16,6 @@
 #include <linux/stringify.h>
 /* ------------------------------------------------------------------------- */
 /* memory */
-#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 #define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
 /* Clock Defines */

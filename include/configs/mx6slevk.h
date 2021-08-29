@@ -16,9 +16,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_MX6SL_EVK
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)
-
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR
 
 /* MMC Configs */

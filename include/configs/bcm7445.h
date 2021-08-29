@@ -15,8 +15,6 @@
 #define CONFIG_SYS_TEXT_BASE		0x80100000
 #define CONFIG_SYS_INIT_RAM_ADDR	0x80200000
 
-#define CONFIG_SYS_MALLOC_LEN		((10 * 1024) << 10) /* 10 MiB */
-
 #include "bcmstb.h"
 
 #define BCMSTB_TIMER_LOW	0xf0412008

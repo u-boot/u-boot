@@ -14,7 +14,6 @@
 					  230400, 500000, 1500000 }
 /* Memory usage */
 #define CONFIG_SYS_MAXARGS		24
-#define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
 
 /*
  * 6858

@@ -13,9 +13,6 @@
 
 #define CONFIG_MACH_TYPE	3769
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
-
 #define CONFIG_USBD_HS
 
 #define CONFIG_MXC_UART_BASE	       UART2_BASE

@@ -152,11 +152,6 @@
 	"upgrade_available=0\0"
 #endif
 #endif /* #ifndef CONFIG_SPL_BUILD */
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN \
-	ROUND(3 * CONFIG_ENV_SIZE + SZ_4M, 0x1000)
 
 /* Defines for SPL */
 #define CONFIG_SPL_MAX_SIZE		(31 * SZ_512)

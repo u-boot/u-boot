@@ -29,9 +29,6 @@
 /* CSU */
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(5 * SZ_1M)
-
 /* PFE */
 #define CONFIG_SYS_FMAN_FW_ADDR		0x400d0000
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x300000

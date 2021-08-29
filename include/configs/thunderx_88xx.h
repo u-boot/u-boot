@@ -25,9 +25,6 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
-
 /* PL011 Serial Configuration */
 
 #define CONFIG_PL011_CLOCK		24000000

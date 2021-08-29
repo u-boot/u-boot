@@ -22,9 +22,6 @@
  */
 #define CONFIG_LNX_KRNL_IMG_TEXT_OFFSET_BASE    CONFIG_SYS_LOAD_ADDR
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN         (32 * 1024 * 1024)
-
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE             1024
 #define CONFIG_SYS_MAXARGS            64

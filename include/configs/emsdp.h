@@ -15,8 +15,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_1M)
 
-#define CONFIG_SYS_MALLOC_LEN		SZ_64K
-
 /*
  * Environment
  */

@@ -92,8 +92,6 @@
 
 #define CONFIG_MMCROOT			"/dev/mmcblk2p2"  /* USDHC3 */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		SZ_32M
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
 #define PHYS_SDRAM			SZ_1G

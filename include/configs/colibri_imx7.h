@@ -13,9 +13,6 @@
 
 #include "mx7_common.h"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #ifdef CONFIG_TARGET_COLIBRI_IMX7_NAND

@@ -15,9 +15,6 @@
 
 #define PHYS_SDRAM_SIZE			SZ_512M
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 /* ENET1 */
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 

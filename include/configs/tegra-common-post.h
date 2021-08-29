@@ -7,17 +7,6 @@
 #ifndef __TEGRA_COMMON_POST_H
 #define __TEGRA_COMMON_POST_H
 
-/*
- * Size of malloc() pool
- */
-#ifdef CONFIG_DFU_OVER_USB
-#define CONFIG_SYS_MALLOC_LEN	(SZ_4M + \
-					CONFIG_SYS_DFU_DATA_BUF_SIZE + \
-					CONFIG_SYS_DFU_MAX_FILE_SIZE)
-#else
-#define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
-#endif
-
 #define CONFIG_SYS_NONCACHED_MEMORY	(1 << 20)	/* 1 MiB */
 
 #ifndef CONFIG_SPL_BUILD

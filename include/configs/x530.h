@@ -61,8 +61,6 @@
 /* NAND */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
-#define CONFIG_SYS_MALLOC_LEN		(4 << 20)
-
 #include <asm/arch/config.h>
 
 /*

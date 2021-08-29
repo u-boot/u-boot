@@ -49,9 +49,6 @@
 	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)
-
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		64

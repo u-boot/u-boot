@@ -49,7 +49,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE		0x00000000
 #define CONFIG_SYS_MONITOR_LEN		(1 * 1024 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* The HF/QSPI layout permits up to 1 MiB large bootloader blob */

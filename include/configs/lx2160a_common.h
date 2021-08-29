@@ -55,9 +55,6 @@
 
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
-
 /* Serial Port */
 #define CONFIG_PL01X_SERIAL
 #define CONFIG_PL011_CLOCK		(get_bus_freq(0) / 4)

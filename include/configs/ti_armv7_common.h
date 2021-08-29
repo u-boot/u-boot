@@ -89,7 +89,6 @@
  * we are on so we do not need to rely on the command prompt.  We set a
  * console baudrate of 115200 and use the default baud rate table.
  */
-#define CONFIG_SYS_MALLOC_LEN		SZ_32M
 
 /* As stated above, the following choices are optional. */
 

@@ -29,9 +29,6 @@
 /* Serial ATAG */
 #define CONFIG_SERIAL_TAG
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-
 /* Serial */
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 

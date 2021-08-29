@@ -19,9 +19,6 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
-
 #define CONFIG_REVISION_TAG
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE

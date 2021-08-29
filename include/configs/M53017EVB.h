@@ -117,7 +117,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
-#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc() */
 
 /*
  * For booting Linux, the board info and command line data

@@ -25,9 +25,6 @@
 # define COUNTER_FREQUENCY		100000000
 #endif
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x4000000)
-
 /* Serial setup */
 #define CONFIG_CPU_ARMV8
 

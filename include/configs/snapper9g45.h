@@ -90,7 +90,4 @@
 
 /* Console settings */
 
-/* U-Boot memory settings */
-#define CONFIG_SYS_MALLOC_LEN		(1 << 20)
-
 #endif /* __CONFIG_H */

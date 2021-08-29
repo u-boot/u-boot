@@ -19,7 +19,6 @@
 /*
  * RAM
  */
-#define CONFIG_SYS_MALLOC_LEN SZ_4M
 #define CONFIG_SYS_SDRAM_BASE EMC_DYCS0_BASE
 
 /*

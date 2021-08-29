@@ -63,9 +63,6 @@
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 4 * SZ_1M)
-
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 1

@@ -41,8 +41,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-#define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
-
 /* SPL */
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 

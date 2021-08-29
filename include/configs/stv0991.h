@@ -13,8 +13,6 @@
 #define CONFIG_SYS_SDRAM_BASE			PHYS_SDRAM_1
 #define PHYS_SDRAM_1_SIZE			0x00198000
 
-#define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 16 * 1024)
-
 /* user interface */
 #define CONFIG_SYS_CBSIZE			1024
 

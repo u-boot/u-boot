@@ -13,8 +13,6 @@
 
 #include "imx6_spl.h"
 
-#define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 

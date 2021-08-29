@@ -359,8 +359,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #define CONFIG_SYS_MONITOR_LEN		0xc0000         /* 768k */
 
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
-
 /*
  * Serial Port - controlled on board with jumper J8
  * open - index 2

@@ -33,9 +33,6 @@
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #define CONFIG_FEC_XCV_TYPE		RMII
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
-
 #define CONFIG_MXC_UART_BASE		UART6_BASE_ADDR
 
 /* MMC Configs */

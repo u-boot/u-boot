@@ -65,8 +65,6 @@
 # define CONFIG_SYS_MONITOR_LEN		0x00040000	/* 256KB */
 #endif
 
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* heap  256KB */
-
 /* Linux boot param area in RAM (used only when booting linux) */
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64  << 10)
 

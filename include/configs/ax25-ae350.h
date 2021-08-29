@@ -47,12 +47,6 @@
  */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
-/*
- * Size of malloc() pool
- * 512kB is suggested, (CONFIG_ENV_SIZE + 128 * 1024) was not enough
- */
-#define CONFIG_SYS_MALLOC_LEN   (512 << 10)
-
 /* DT blob (fdt) address */
 #define CONFIG_SYS_FDT_BASE		0x800f0000
 

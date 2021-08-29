@@ -17,7 +17,6 @@
 
 #define COUNTER_FREQUENCY			13000000
 
-#define CONFIG_SYS_MALLOC_LEN			SZ_32M
 #define CONFIG_SYS_BOOTM_LEN			SZ_64M
 
 /* Uboot definition */

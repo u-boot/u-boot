@@ -19,7 +19,6 @@
 /*
  * Environment settings
  */
-#define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 #define	CONFIG_BOOTCOMMAND						\
 	"if fatload mmc 0 0xa0000000 uImage; then "			\
 		"bootm 0xa0000000; "					\

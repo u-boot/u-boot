@@ -36,8 +36,6 @@
 
 #define CONFIG_SYS_CBSIZE		1024
 
-#define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 

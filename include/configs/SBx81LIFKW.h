@@ -59,7 +59,6 @@
  */
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for monitor */
-#define CONFIG_SYS_MALLOC_LEN		  (4 << 20)	/* Reserve 4.0 MB for malloc */
 
 /*
  * For booting Linux, the board info and command line data

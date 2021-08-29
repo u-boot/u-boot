@@ -26,11 +26,6 @@
 #define CONFIG_REVISION_TAG
 
 /*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10) + \
-					2 * 1024 * 1024)
-/*
  * DDR related
  */
 #define CONFIG_SYS_CS0_SIZE		(256 * 1024 * 1024)

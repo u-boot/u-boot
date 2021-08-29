@@ -67,8 +67,6 @@
 /*
  * Memory Info
  */
-/* malloc() len */
-#define CONFIG_SYS_MALLOC_LEN		(0x10000 + 512 * 1024)
 /* memtest start address */
 #define PHYS_SDRAM_1		0xA0000000	/* DDR Start */
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* DDR size 128MB */

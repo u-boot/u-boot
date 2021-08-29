@@ -52,9 +52,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024)
-
 #define CONFIG_MXC_UART_BASE		UART5_BASE
 
 /* I2C Configs */

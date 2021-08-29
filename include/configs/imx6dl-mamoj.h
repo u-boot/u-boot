@@ -13,9 +13,6 @@
 #include <linux/sizes.h>
 #include "mx6_common.h"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M)
-
 /* Total Size of Environment Sector */
 
 /* Environment */

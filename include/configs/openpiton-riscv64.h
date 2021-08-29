@@ -16,7 +16,6 @@
 /* Environment options */
 #define CONFIG_SYS_SDRAM_BASE 0x80000000
 #define CONFIG_SYS_INIT_SP_ADDR     (CONFIG_SYS_SDRAM_BASE + SZ_32M)
-#define CONFIG_SYS_MALLOC_LEN       SZ_256M
 #define CONFIG_SYS_BOOTM_LEN        SZ_256M
 
 #ifdef CONFIG_SPL

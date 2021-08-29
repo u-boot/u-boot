@@ -81,9 +81,6 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)
-
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS		64	/* max command args */

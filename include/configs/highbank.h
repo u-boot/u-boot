@@ -12,11 +12,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	(0xFFF34000 + 0x4)
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(512 * 1024)
-
 #define CONFIG_PL011_CLOCK		150000000
 
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */

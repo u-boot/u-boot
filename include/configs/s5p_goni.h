@@ -31,9 +31,6 @@
 #define CONFIG_REVISION_TAG
 #define CONFIG_INITRD_TAG
 
-/* Size of malloc() pool before and after relocation */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))
-
 /* MMC */
 #define SDHCI_MAX_HOSTS		4
 

@@ -18,9 +18,6 @@
 #endif
 #endif
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 << 20)
-
 /* Miscellaneous configurable options */
 #define CONFIG_STANDALONE_LOAD_ADDR	CONFIG_SYS_LOAD_ADDR
 

@@ -44,7 +44,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
 
 /** Heap size for U-Boot */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 64 * 1024 * 1024)
 
 /* Allow environment variable to be overwritten */
 #define CONFIG_ENV_OVERWRITE

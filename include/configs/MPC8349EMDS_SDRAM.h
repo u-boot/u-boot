@@ -107,7 +107,6 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN	(512 * 1024)	/* Reserve 512 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN	(256 * 1024)	/* Reserved for malloc */
 
 /*
  * The MPC834xEA MDS for 834xE rev3.1 may not be assembled SDRAM memory.

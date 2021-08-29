@@ -275,7 +275,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
-#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL

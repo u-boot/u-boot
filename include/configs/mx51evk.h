@@ -23,11 +23,6 @@
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX51_BABBAGE
 /*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
-
-/*
  * Hardware drivers
  */
 #define CONFIG_FSL_IIM

@@ -48,9 +48,6 @@
  */
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
-
 /* GPIO */
 #ifdef CONFIG_DM_GPIO
 #ifndef CONFIG_MPC8XXX_GPIO

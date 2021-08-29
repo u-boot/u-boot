@@ -40,9 +40,6 @@
 /* generic timer */
 #define COUNTER_FREQUENCY		25000000
 
-/* size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
-
 /* early heap for SPL DM */
 #define CONFIG_MALLOC_F_ADDR		CONFIG_SYS_FSL_OCRAM_BASE
 
