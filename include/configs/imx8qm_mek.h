@@ -42,8 +42,6 @@
 #define USDHC2_BASE_ADDR                0x5B020000
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 #ifdef CONFIG_AHAB_BOOT
 #define AHAB_ENV "sec_boot=yes\0"
 #else

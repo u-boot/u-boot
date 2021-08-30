@@ -24,7 +24,6 @@
 
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 /* FUSE command */
 
 /* Boot M4 */
