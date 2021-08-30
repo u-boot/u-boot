@@ -1937,6 +1937,20 @@ config SERIAL_TAG
 	bool "Pass system serial number via ATAG"
 	depends on SUPPORT_PASSING_ATAGS
 
+config STATIC_MACH_TYPE
+	bool "Statically define the Machine ID number"
+	help
+	  When booting via ATAGs, enable this option if we know the correct
+	  machine ID number to use at compile time.  Some systems will be
+	  passed the number dynamically by whatever loads U-Boot.
+
+config MACH_TYPE
+	int "Machine ID number"
+	depends on STATIC_MACH_TYPE
+	help
+	  When booting via ATAGs, the machine type must be passed as a number.
+	  For the full list see https://www.arm.linux.org.uk/developer/machines
+
 config ARCH_SUPPORT_TFABOOT
 	bool
 
