@@ -1673,7 +1673,6 @@ static int spansion_no_read_cr_quad_enable(struct spi_nor *nor)
 #endif /* CONFIG_SPI_FLASH_SFDP_SUPPORT */
 #endif /* CONFIG_SPI_FLASH_SPANSION */
 
-#if defined(CONFIG_SPI_FLASH_STMICRO)
 static int micron_octal_ddr_enable(struct spi_nor *nor)
 {
 	struct spi_slave *spi = nor->spi;
@@ -1701,7 +1700,6 @@ static int micron_octal_ddr_enable(struct spi_nor *nor)
 
 	return ret;
 }
-#endif /* CONFIG_SPI_FLASH_STMICRO */
 
 struct spi_nor_read_command {
 	u8			num_mode_clocks;
