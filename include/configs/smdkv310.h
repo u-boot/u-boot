@@ -16,9 +16,6 @@
 /* High Level Configuration Options */
 #define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
 
-/* Mach Type */
-#define CONFIG_MACH_TYPE		MACH_TYPE_SMDKV310
-
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
 /* Handling Sleep Mode*/

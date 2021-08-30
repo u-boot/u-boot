@@ -6,9 +6,6 @@
 #ifndef _CONFIG_SYNOLOGY_DS414_H
 #define _CONFIG_SYNOLOGY_DS414_H
 
-/* Vendor kernel expects this MACH_TYPE */
-#define CONFIG_MACH_TYPE	3036
-
 /*
  * High Level Configuration Options (easy to change)
  */

@@ -13,11 +13,6 @@
 #define _CONFIG_DNS325_H
 
 /*
- * Machine number definition
- */
-#define CONFIG_MACH_TYPE		MACH_TYPE_DNS325
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */

@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MACH_TYPE	MACH_TYPE_MX53_LOCO
-
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_SYS_FSL_CLK

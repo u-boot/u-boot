@@ -24,7 +24,6 @@
 #define CONFIG_FSL_USDHC
 
 /* Boot */
-#define CONFIG_MACH_TYPE		0xFFFFFFFF
 
 /* misc */
 

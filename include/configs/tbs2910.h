@@ -12,8 +12,6 @@
 
 /* General configuration */
 
-#define CONFIG_MACH_TYPE		3980
-
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

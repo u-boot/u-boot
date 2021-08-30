@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_MACH_TYPE		4146
-
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 

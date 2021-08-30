@@ -14,8 +14,6 @@
 
 #undef CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_MACH_TYPE		4886
-
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 

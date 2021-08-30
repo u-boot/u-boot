@@ -8,7 +8,6 @@
 #define __KZM9G_H
 
 #define CONFIG_SH73A0
-#define CONFIG_MACH_TYPE MACH_TYPE_KZM9G
 
 #include <asm/arch/rmobile.h>
 

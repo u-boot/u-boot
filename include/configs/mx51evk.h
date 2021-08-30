@@ -16,7 +16,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_MACH_TYPE	MACH_TYPE_MX51_BABBAGE
 /*
  * Hardware drivers
  */

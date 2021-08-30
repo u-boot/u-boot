@@ -14,7 +14,6 @@
 
 /* Machine config */
 #define CONFIG_SYS_LITTLE_ENDIAN
-#define CONFIG_MACH_TYPE		4273
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3

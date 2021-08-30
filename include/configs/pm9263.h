@@ -27,8 +27,6 @@
 
 #define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9263"
 
-#define CONFIG_MACH_TYPE	MACH_TYPE_PM9263
-
 /* clocks */
 #define CONFIG_SYS_MOR_VAL						\
 		(AT91_PMC_MOR_MOSCEN |					\

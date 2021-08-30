@@ -24,8 +24,6 @@
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
 
-#define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
-
 /* Serial */
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 

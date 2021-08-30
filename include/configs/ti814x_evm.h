@@ -18,8 +18,6 @@
 
 #include <asm/arch/omap.h>
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_TI8148EVM
-
 /* commands to include */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \

@@ -25,8 +25,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_16M
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_AM335XEVM
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

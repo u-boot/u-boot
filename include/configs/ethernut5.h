@@ -15,9 +15,6 @@
 
 /* The first stage boot loader takes care of low level initialization. */
 
-/* Set our official architecture number. */
-#define CONFIG_MACH_TYPE MACH_TYPE_ETHERNUT5
-
 /* CPU information */
 
 /* ARM asynchronous clock */

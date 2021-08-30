@@ -25,8 +25,6 @@
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
 #define CONFIG_KW88F6281		/* SOC Name */
 
-#define CONFIG_MACH_TYPE	MACH_TYPE_KM_KIRKWOOD
-
 #define CONFIG_NAND_ECC_BCH
 
 /* include common defines/options for all Keymile boards */

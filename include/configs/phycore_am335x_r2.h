@@ -14,8 +14,6 @@
 
 #include <configs/ti_am335x_common.h>
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_SBC_PHYCORE_AM335X
-
 #ifdef CONFIG_MTD_RAW_NAND
 #define NANDARGS \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \

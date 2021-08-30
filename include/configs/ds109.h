@@ -11,9 +11,6 @@
 #ifndef _CONFIG_DS109_H
 #define _CONFIG_DS109_H
 
-/* Provide the MACH_TYPE value that the vendor kernel requires. */
-#define CONFIG_MACH_TYPE		527
-
 /*
  * High Level Configuration Options (easy to change)
  */

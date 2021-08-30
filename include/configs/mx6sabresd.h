@@ -12,7 +12,6 @@
 #include "imx6_spl.h"
 #endif
 
-#define CONFIG_MACH_TYPE	3980
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONSOLE_DEV		"ttymxc0"
 

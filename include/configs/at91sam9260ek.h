@@ -64,24 +64,6 @@
 	(ATMEL_BASE_SRAM1 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 #endif
 
-/*
- * The (arm)linux board id set by generic code depending on configured board
- * (see boards.cfg for different boards)
- */
-#ifdef CONFIG_AT91SAM9G20
-	/* the sam9g20 variants have two different board ids */
-# ifdef CONFIG_AT91SAM9G20EK_2MMC
-	/* we may be setup for the 2MMC variant of at91sam9g20ek */
-#  define CONFIG_MACH_TYPE MACH_TYPE_AT91SAM9G20EK_2MMC
-# else
-	/* or the normal at91sam9g20ek */
-#  define CONFIG_MACH_TYPE MACH_TYPE_AT91SAM9G20EK
-# endif
-#else
-	/* otherwise default to good old at91sam9260ek */
-# define CONFIG_MACH_TYPE MACH_TYPE_AT91SAM9260EK
-#endif
-
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

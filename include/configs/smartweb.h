@@ -45,7 +45,6 @@
 #define CONFIG_SYS_MAXARGS    32
 
 /* setting board specific options */
-#define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
 #define CONFIG_SYS_AUTOLOAD "yes"
 #define CONFIG_RESET_TO_RETRY
 

@@ -24,8 +24,6 @@
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_MACH_TYPE		3589
-
 #ifndef CONFIG_SPL_BUILD
 
 /* Default environment */

@@ -17,8 +17,6 @@
 #undef CONFIG_MAX_RAM_BANK_SIZE
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 512MB */
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_CM_T335
-
 /* Clock Defines */
 #define V_OSCK				25000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

@@ -13,7 +13,6 @@
 /*
  * SoC and board defines
  */
-#define CONFIG_MACH_TYPE MACH_TYPE_LPC3XXX
 #define CONFIG_BOARD_SIZE_LIMIT 0x000fffff /* maximum allowable size for full U-Boot binary */
 
 /*

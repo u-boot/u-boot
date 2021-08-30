@@ -18,10 +18,6 @@
 #define CONFIG_DMA_COHERENT
 #define CONFIG_DMA_COHERENT_SIZE	(1 << 20)
 
-#ifdef CONFIG_SIEMENS_MACH_TYPE
-#define CONFIG_MACH_TYPE		CONFIG_SIEMENS_MACH_TYPE
-#endif
-
 /* commands to include */
 
 #ifndef CONFIG_SPL_BUILD

@@ -13,8 +13,6 @@
 #ifndef __CONFIG_PXM2_H
 #define __CONFIG_PXM2_H
 
-#define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_PXM2
-
 #include "siemens-am33x-common.h"
 
 #define DDR_IOCTRL_VAL		0x18b
