@@ -26,9 +26,6 @@
 
 #define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
 
-/* Serial ATAG */
-#define CONFIG_SERIAL_TAG
-
 /* Serial */
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 

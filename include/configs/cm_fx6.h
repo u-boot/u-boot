@@ -173,7 +173,6 @@
 
 /* Boot */
 #define CONFIG_SYS_BOOTMAPSZ	        (8 << 20)
-#define CONFIG_SERIAL_TAG
 
 /* misc */
 
