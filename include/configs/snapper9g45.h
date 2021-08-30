@@ -19,9 +19,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 
 /* CPU */
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS6

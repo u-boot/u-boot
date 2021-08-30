@@ -241,6 +241,7 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_REVISION_TAG
 /*
  * Routine: get_board_revision
  * Description: Return board revision.
@@ -249,6 +250,7 @@ u32 get_board_rev(void)
 {
 	return simple_strtol(hw_build_ptr, NULL, 16);
 }
+#endif
 
 /*
  * Routine: setup_board_tags

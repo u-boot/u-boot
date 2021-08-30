@@ -1907,6 +1907,36 @@ config TARGET_XENGUEST_ARM64
 	select SSCANF
 endchoice
 
+config SUPPORT_PASSING_ATAGS
+	bool "Support pre-devicetree ATAG-based booting"
+	depends on !ARM64
+	imply SETUP_MEMORY_TAGS
+	help
+	  Support for booting older Linux kernels, using ATAGs rather than
+	  passing a devicetree.  This is option is rarely used, and the
+	  semantics are defined at
+	  https://www.kernel.org/doc/Documentation/arm/Booting at section 4a.
+
+config SETUP_MEMORY_TAGS
+	bool "Pass memory size information via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
+config CMDLINE_TAG
+	bool "Pass Linux kernel cmdline via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
+config INITRD_TAG
+	bool "Pass initrd starting point and size via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
+config REVISION_TAG
+	bool "Pass system revision via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
+config SERIAL_TAG
+	bool "Pass system serial number via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
 config ARCH_SUPPORT_TFABOOT
 	bool
 

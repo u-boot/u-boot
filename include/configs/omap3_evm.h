@@ -23,11 +23,6 @@
  * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB).
  */
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 /* NAND */
 #if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE

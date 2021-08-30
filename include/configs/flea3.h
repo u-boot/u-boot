@@ -23,11 +23,6 @@
 
 /* This is required to setup the ESDC controller */
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_REVISION_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 /*
  * Hardware drivers
  */

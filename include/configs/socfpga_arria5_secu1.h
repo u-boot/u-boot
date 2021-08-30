@@ -43,7 +43,6 @@
 	"setenv altbootcmd 'setenv bootnum b && saveenv && boot;' && " \
 	"saveenv && saveenv && boot;"
 
-#define CONFIG_CMDLINE_TAG
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* Environment settings */

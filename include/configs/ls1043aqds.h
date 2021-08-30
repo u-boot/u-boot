@@ -365,8 +365,6 @@ unsigned long get_board_sys_clk(void);
  * Environment
  */
 
-#define CONFIG_CMDLINE_TAG
-
 #include <asm/fsl_secure_boot.h>
 
 #endif /* __LS1043AQDS_H__ */

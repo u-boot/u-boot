@@ -312,6 +312,7 @@ void board_mmc_power_init(void)
 #endif
 #endif
 
+#ifdef CONFIG_REVISION_TAG
 /*
  * get_board_rev() - get board revision
  */
@@ -319,3 +320,4 @@ u32 get_board_rev(void)
 {
 	return 0x20;
 }
+#endif

@@ -19,9 +19,6 @@
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		0xa0412000
 
-/* Generate initrd atag for downstream kernel (others are copied in stemmy.c) */
-#define CONFIG_INITRD_TAG
-
 /* Linux does not boot if FDT / initrd is loaded to end of RAM */
 #define BOOT_ENV \
 	"fdt_high=0x6000000\0" \

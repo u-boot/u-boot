@@ -24,10 +24,6 @@
 
 #define CONFIG_POWER_TPS65217
 
-/* Support both device trees and ATAGs. */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 /*#define CONFIG_MACH_TYPE		3589*/
 #define CONFIG_MACH_TYPE		0xFFFFFFFF /* TODO: check with kernel*/
 

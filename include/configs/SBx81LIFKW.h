@@ -37,15 +37,6 @@
  * for your console driver.
  */
 
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs */
-#define CONFIG_INITRD_TAG	1	/* enable INITRD tag */
-#define CONFIG_SETUP_MEMORY_TAGS 1	/* enable memory tag */
-
 #define MTDPARTS_DEFAULT "mtdparts=spi0.0:768K(boot)ro,256K(boot-env),14M(user),1M(errlog)"
 #define MTDPARTS_MTDOOPS "errlog"
 #define CONFIG_DOS_PARTITION
@@ -60,11 +51,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for monitor */
 
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Mem map for Linux*/
 
 /* size in bytes reserved for initial data */

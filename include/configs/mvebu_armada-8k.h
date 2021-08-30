@@ -19,15 +19,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, \
 					  115200, 230400, 460800, 921600 }
 
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
-#define CONFIG_INITRD_TAG		/* enable INITRD tag */
-#define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
-
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
 
 /*

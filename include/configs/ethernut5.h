@@ -122,9 +122,6 @@
 /* File systems */
 
 /* Boot command */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 #define CONFIG_BOOTCOMMAND	"sf probe 0:0; " \
 				"sf read 0x22000000 0xc6000 0x294000; " \
 				"bootm 0x22000000"

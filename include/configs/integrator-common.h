@@ -8,9 +8,6 @@
 
 #define CONFIG_SYS_TIMERBASE		0x13000100	/* Timer1 */
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
-#define CONFIG_SETUP_MEMORY_TAGS
-
 /*
  * There are various dependencies on the core module (CM) fitted
  * Users should refer to their CM user guide

@@ -34,11 +34,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#define CONFIG_CMDLINE_TAG	/* enable passing kernel command line string */
-#define CONFIG_INITRD_TAG			/* enable passing initrd */
-#define CONFIG_REVISION_TAG			/* enable passing revision tag*/
-#define CONFIG_SETUP_MEMORY_TAGS		/* enable memory tag */
-
 #define CONFIG_UBI_SIZE			(512 << 10)
 
 /*

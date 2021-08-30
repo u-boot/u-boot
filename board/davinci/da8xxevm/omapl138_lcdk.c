@@ -143,20 +143,6 @@ const int lpsc_size = ARRAY_SIZE(lpsc);
 #define CONFIG_DA850_EVM_MAX_CPU_CLK	456000000
 #endif
 
-/*
- * get_board_rev() - setup to pass kernel board revision information
- * Returns:
- * bit[0-3]	Maximum cpu clock rate supported by onboard SoC
- *		0000b - 300 MHz
- *		0001b - 372 MHz
- *		0010b - 408 MHz
- *		0011b - 456 MHz
- */
-u32 get_board_rev(void)
-{
-	return 0;
-}
-
 int board_early_init_f(void)
 {
 	/*

@@ -10,10 +10,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 #ifdef CONFIG_SPL
 #define CONFIG_SPL_TARGET	"spl/u-boot-spl.srec"
 #endif

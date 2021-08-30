@@ -12,9 +12,6 @@
 #include <linux/sizes.h>
 
 /* Miscellaneous configurable options */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_CMDLINE_TAG
 
 #define CONFIG_SYS_MAXARGS		8
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M

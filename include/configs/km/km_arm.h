@@ -55,15 +55,6 @@
 	""
 
 /*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
-#define CONFIG_INITRD_TAG		/* enable INITRD tag */
-#define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
-
-/*
  * NAND Flash configuration
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

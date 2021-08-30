@@ -9,7 +9,7 @@
 
 extern void bd_hwrev_init(void);
 extern void bd_base_rev_init(void);
-extern u32 get_board_rev(void);
+extern u32 get_board_revision(void);
 extern const char *get_board_name(void);
 
 #endif /* __BD_HW_REV_H__ */

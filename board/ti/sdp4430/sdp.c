@@ -104,6 +104,7 @@ int spl_start_uboot(void)
 }
 #endif /* CONFIG_SPL_OS_BOOT */
 
+#ifdef CONFIG_REVISION_TAG
 /*
  * get_board_rev() - get board revision
  */
@@ -111,3 +112,4 @@ u32 get_board_rev(void)
 {
 	return 0x20;
 }
+#endif

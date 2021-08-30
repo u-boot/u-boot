@@ -34,8 +34,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-#define CONFIG_REVISION_TAG		1
-
 /* Hardware drivers */
 /* DM9000 */
 #define CONFIG_NET_RETRY_COUNT		20

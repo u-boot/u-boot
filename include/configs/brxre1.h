@@ -57,11 +57,6 @@ BUR_COMMON_ENV \
 
 #define CONFIG_BOOTCOMMAND		"mmc dev 1; run b_default"
 
-/* Support both device trees and ATAGs. */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 /* Environment */
 
 #endif	/* __CONFIG_BRXRE1_H__ */

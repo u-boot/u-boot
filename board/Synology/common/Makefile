@@ -2,4 +2,4 @@
 #
 # Copyright (C) 2021 Phil Sutter <phil@nwl.cc>
 
-obj-y	+= legacy.o
+obj-$(SUPPORT_PASSING_ATAGS)	+= legacy.o

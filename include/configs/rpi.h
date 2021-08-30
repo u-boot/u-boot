@@ -85,11 +85,6 @@
 
 /* Shell */
 
-/* ATAGs support for bootm/bootz */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_INITRD_TAG
-
 /* Environment */
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial,usbkbd\0" \

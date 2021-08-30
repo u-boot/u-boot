@@ -26,10 +26,6 @@
 		"fatls usb 0; fatload usb 0 0x81000000 zmx25-init.bin;" \
 		"bootm 0x81000000; bootelf 0x81000000\0"
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 /*
  * Hardware drivers
  */

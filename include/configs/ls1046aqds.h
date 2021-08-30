@@ -377,8 +377,6 @@ unsigned long get_board_sys_clk(void);
  * Environment
  */
 
-#define CONFIG_CMDLINE_TAG
-
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #define IFC_NAND_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\

@@ -12,10 +12,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 /* MEMORY */
 #define KZM_SDRAM_BASE	(0x40000000)
 #define PHYS_SDRAM		KZM_SDRAM_BASE

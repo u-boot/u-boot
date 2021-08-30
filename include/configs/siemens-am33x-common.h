@@ -22,10 +22,6 @@
 #define CONFIG_MACH_TYPE		CONFIG_SIEMENS_MACH_TYPE
 #endif
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 /* commands to include */
 
 #ifndef CONFIG_SPL_BUILD

@@ -109,12 +109,6 @@
  * U-Boot Commands
  */
 
-/*
- * Boot Linux
- */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-
 #define CONFIG_BOOTFILE			"uImage"
 
 /*

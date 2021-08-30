@@ -33,10 +33,12 @@ DECLARE_GLOBAL_DATA_PTR;
 unsigned int board_rev;
 static int init_pmic_lcd(void);
 
+#ifdef CONFIG_REVISION_TAG
 u32 get_board_rev(void)
 {
 	return board_rev;
 }
+#endif
 
 int exynos_power_init(void)
 {
