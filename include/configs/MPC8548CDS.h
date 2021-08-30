@@ -295,23 +295,13 @@ extern unsigned long get_clock_freq(void);
  * I2C
  */
 #if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 #else
 #define CONFIG_SYS_SPD_BUS_NUM 0
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
 #endif
-#define CONFIG_SYS_I2C_FSL
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_CCID
-#define CONFIG_SYS_I2C_EEPROM_ADDR     0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
 
 /*
  * General PCI
@@ -478,7 +468,7 @@ extern unsigned long get_clock_freq(void);
 	"fdtaddr=1e00000\0"			\
 	"fdtfile=mpc8548cds.dtb\0"
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
    "setenv bootargs root=/dev/nfs rw "					\
       "nfsroot=$serverip:$rootpath "					\
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -487,7 +477,7 @@ extern unsigned long get_clock_freq(void);
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND \
+#define RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "					\
       "console=$consoledev,$baudrate $othbootargs;"			\
    "tftp $ramdiskaddr $ramdiskfile;"					\
@@ -495,6 +485,6 @@ extern unsigned long get_clock_freq(void);
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND	CONFIG_NFSBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND	NFSBOOTCOMMAND
 
 #endif	/* __CONFIG_H */

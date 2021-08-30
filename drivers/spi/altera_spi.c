@@ -19,9 +19,7 @@
 #define ALTERA_SPI_STATUS_RRDY_MSK	BIT(7)
 #define ALTERA_SPI_CONTROL_SSO_MSK	BIT(10)
 
-#ifndef CONFIG_ALTERA_SPI_IDLE_VAL
-#define CONFIG_ALTERA_SPI_IDLE_VAL	0xff
-#endif
+#define ALTERA_SPI_IDLE_VAL		0xff
 
 struct altera_spi_regs {
 	u32	rxdata;
@@ -119,7 +117,7 @@ static int altera_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		if (txp)
 			data = *txp++;
 		else
-			data = CONFIG_ALTERA_SPI_IDLE_VAL;
+			data = ALTERA_SPI_IDLE_VAL;
 
 		debug("%s: tx:%x ", __func__, data);
 		writel(data, &regs->txdata);

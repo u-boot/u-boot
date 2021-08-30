@@ -4,61 +4,73 @@ menu "Select Target SoC"
 
 config R8A774A1
 	bool "Renesas SoC R8A774A1"
+	select GICV2
 	imply CLK_R8A774A1
 	imply PINCTRL_PFC_R8A774A1
 
 config R8A774B1
 	bool "Renesas SoC R8A774B1"
+	select GICV2
 	imply CLK_R8A774B1
 	imply PINCTRL_PFC_R8A774B1
 
 config R8A774C0
 	bool "Renesas SoC R8A774C0"
+	select GICV2
 	imply CLK_R8A774C0
 	imply PINCTRL_PFC_R8A774C0
 
 config R8A774E1
 	bool "Renesas SoC R8A774E1"
+	select GICV2
 	imply CLK_R8A774E1
 	imply PINCTRL_PFC_R8A774E1
 
 config R8A7795
 	bool "Renesas SoC R8A7795"
+	select GICV2
 	imply CLK_R8A7795
 	imply PINCTRL_PFC_R8A7795
 
 config R8A7796
 	bool "Renesas SoC R8A7796"
+	select GICV2
 	imply CLK_R8A7796
 	imply PINCTRL_PFC_R8A7796
 
 config R8A77965
 	bool "Renesas SoC R8A77965"
+	select GICV2
 	imply CLK_R8A77965
 	imply PINCTRL_PFC_R8A77965
 
 config R8A77970
 	bool "Renesas SoC R8A77970"
+	select GICV2
 	imply CLK_R8A77970
 	imply PINCTRL_PFC_R8A77970
 
 config R8A77980
 	bool "Renesas SoC R8A77980"
+	select GICV2
 	imply CLK_R8A77980
 	imply PINCTRL_PFC_R8A77980
 
 config R8A77990
 	bool "Renesas SoC R8A77990"
+	select GICV2
 	imply CLK_R8A77990
 	imply PINCTRL_PFC_R8A77990
 
 config R8A77995
 	bool "Renesas SoC R8A77995"
+	select GICV2
 	imply CLK_R8A77995
 	imply PINCTRL_PFC_R8A77995
 
 config R8A779A0
 	bool "Renesas SoC R8A779A0"
+	select GICV3
 	imply CLK_R8A779A0
 	imply PINCTRL_PFC_R8A779A0
 

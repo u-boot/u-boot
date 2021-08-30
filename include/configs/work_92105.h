@@ -43,24 +43,6 @@
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 /* FIXME: remove "Waiting for PHY auto negotiation to complete..." message */
 
-/*
- * I2C driver
- */
-
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_SPEED 350000
-
-/*
- * I2C EEPROM
- */
-
-#define CONFIG_SYS_I2C_EEPROM_ADDR 0x56
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
-
-/*
- * I2C RTC
- */
-
 #define CONFIG_RTC_DS1374
 
 /*

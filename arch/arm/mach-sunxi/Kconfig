@@ -209,6 +209,8 @@ config MACH_SUN4I
 	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
+	imply SPL_SYS_I2C_LEGACY
+	imply SYS_I2C_LEGACY
 
 config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
@@ -219,6 +221,8 @@ config MACH_SUN5I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	imply CONS_INDEX_2 if !DM_SERIAL
+	imply SPL_SYS_I2C_LEGACY
+	imply SYS_I2C_LEGACY
 
 config MACH_SUN6I
 	bool "sun6i (Allwinner A31)"
@@ -245,6 +249,8 @@ config MACH_SUN7I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply SPL_SYS_I2C_LEGACY
+	imply SYS_I2C_LEGACY
 
 config MACH_SUN8I_A23
 	bool "sun8i (Allwinner A23)"
@@ -303,6 +309,7 @@ config MACH_SUN8I_R40
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
 	select PHY_SUN4I_USB
+	imply SPL_SYS_I2C_LEGACY
 
 config MACH_SUN8I_V3S
 	bool "sun8i (Allwinner V3/V3s/S3/S3L)"

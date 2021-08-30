@@ -101,7 +101,7 @@
 
 /* BOOTP and DHCP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv autoload yes; setenv autoboot yes; "			\
 	"setenv bootargs ${basicargs} ${mtdparts} "			\
 	"root=/dev/nfs ip=dhcp nfsroot=${serverip}:/srv/nfs/rootfs; "	\

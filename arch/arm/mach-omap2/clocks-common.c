@@ -918,8 +918,8 @@ void gpi2c_init(void)
 	static int gpi2c = 1;
 
 	if (gpi2c) {
-		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
-			 CONFIG_SYS_OMAP24_I2C_SLAVE);
+		i2c_init(CONFIG_SYS_I2C_SPEED,
+			 CONFIG_SYS_I2C_SLAVE);
 		gpi2c = 0;
 	}
 }

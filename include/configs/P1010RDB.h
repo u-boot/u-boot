@@ -497,38 +497,19 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
-#define CONFIG_SYS_FSL_I2C2_SPEED	400000
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 #define I2C_PCA9557_ADDR1		0x18
 #define I2C_PCA9557_ADDR2		0x19
 #define I2C_PCA9557_BUS_NUM		0
-#define CONFIG_SYS_I2C_FSL
 
 /* I2C EEPROM */
 #if defined(CONFIG_TARGET_P1010RDB_PB)
-#define CONFIG_ID_EEPROM
 #ifdef CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #endif
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 #define MAX_NUM_PORTS			9 /* for 128Bytes EEPROM */
 #endif
 /* enable read and write access to EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 /* RTC */
 #define CONFIG_RTC_PT7C4338
@@ -715,7 +696,7 @@ extern unsigned long get_sdram_size(void);
 	"i2c mw 19 1 4; i2c mw 19 3 f3; reset\0"
 #endif
 
-#define CONFIG_RAMBOOTCOMMAND		\
+#define RAMBOOTCOMMAND		\
 	"setenv bootargs root=/dev/ram rw "	\
 	"console=$consoledev,$baudrate $othbootargs; "	\
 	"tftp $ramdiskaddr $ramdiskfile;"	\
@@ -723,7 +704,7 @@ extern unsigned long get_sdram_size(void);
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND RAMBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

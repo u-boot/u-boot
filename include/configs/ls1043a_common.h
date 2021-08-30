@@ -27,7 +27,6 @@
 #endif
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_GICV2
 
 #include <asm/arch/stream_id_lsch2.h>
 #include <asm/arch/config.h>
@@ -149,16 +148,6 @@
 #endif
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
-#endif
 
 /* PCIe */
 #ifndef SPL_NO_PCIE

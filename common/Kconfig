@@ -548,6 +548,12 @@ config MISC_INIT_R
 	help
 	  Enabling this option calls 'misc_init_r' function
 
+config ID_EEPROM
+	bool "Enable I2C connected system identifier EEPROM"
+	help
+	  A number of different systems and vendors enable a vendor-specified
+	  EEPROM that contains various identifying features.
+
 config PCI_INIT_R
 	bool "Enumerate PCI buses during init"
 	depends on PCI

@@ -109,7 +109,7 @@
 	"ramdiskfile=initramfs.gz\0"
 
 
-#define CONFIG_RAMBOOTCOMMAND				\
+#define RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
 	"console=$consoledev,$baudrate $othbootargs;"	\
@@ -117,7 +117,7 @@
 	"tftpboot $ramdisk_addr_r $ramdiskfile;"	\
 	"zboot $kernel_addr_r 0 $ramdisk_addr_r $filesize"
 
-#define CONFIG_NFSBOOTCOMMAND				\
+#define NFSBOOTCOMMAND				\
 	"setenv bootargs root=/dev/nfs rw "		\
 	"nfsroot=$serverip:$rootpath "			\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \

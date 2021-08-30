@@ -119,11 +119,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_DCSRBAR_PHYS	0xf00000000ull
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 
 /*
  * DDR Setup
@@ -322,26 +319,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * I2C
  */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_FSL_I2C_SLAVE   0x7F
-#define CONFIG_SYS_FSL_I2C2_SLAVE  0x7F
-#define CONFIG_SYS_FSL_I2C3_SLAVE  0x7F
-#define CONFIG_SYS_FSL_I2C4_SLAVE  0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET  0x118000
-#define CONFIG_SYS_FSL_I2C2_OFFSET 0x118100
-#define CONFIG_SYS_FSL_I2C3_OFFSET 0x119000
-#define CONFIG_SYS_FSL_I2C4_OFFSET 0x119100
-#define CONFIG_SYS_FSL_I2C_SPEED   100000
-#define CONFIG_SYS_FSL_I2C2_SPEED  100000
-#define CONFIG_SYS_FSL_I2C3_SPEED  100000
-#define CONFIG_SYS_FSL_I2C4_SPEED  100000
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
-
-#define CONFIG_SYS_I2C_FSL
 
 #define I2C_MUX_PCA_ADDR_PRI	0x77 /* I2C bus multiplexer,primary */
 #define I2C_MUX_PCA_ADDR_SEC1	0x75 /* I2C bus multiplexer,secondary 1 */
@@ -616,7 +593,7 @@ unsigned long get_board_ddr_clk(void);
  * For emulation this causes u-boot to jump to the start of the
  * proof point app code automatically
  */
-#define CONFIG_PROOF_POINTS				\
+#define PROOF_POINTS				\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"cpu 1 release 0x29000000 - - -;"		\
@@ -628,11 +605,11 @@ unsigned long get_board_ddr_clk(void);
 	"cpu 7 release 0x29000000 - - -;"		\
 	"go 0x29000000"
 
-#define CONFIG_HVBOOT				\
+#define HVBOOT				\
 	"setenv bootargs config-addr=0x60000000; "	\
 	"bootm 0x01000000 - 0x00f00000"
 
-#define CONFIG_ALU				\
+#define ALU				\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"cpu 1 release 0x01000000 - - -;"		\
@@ -644,7 +621,7 @@ unsigned long get_board_ddr_clk(void);
 	"cpu 7 release 0x01000000 - - -;"		\
 	"go 0x01000000"
 
-#define CONFIG_LINUX				\
+#define LINUXBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"setenv ramdiskaddr 0x02000000;"		\
@@ -652,14 +629,14 @@ unsigned long get_board_ddr_clk(void);
 	"setenv loadaddr 0x1000000;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_HDBOOT					\
+#define HDBOOT					\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $loadaddr $bootfile;"			\
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_NFSBOOTCOMMAND			\
+#define NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\
 	"nfsroot=$serverip:$rootpath "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -668,7 +645,7 @@ unsigned long get_board_ddr_clk(void);
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND				\
+#define RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $ramdiskaddr $ramdiskfile;"		\
@@ -676,7 +653,7 @@ unsigned long get_board_ddr_clk(void);
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND		CONFIG_LINUX
+#define CONFIG_BOOTCOMMAND		LINUXBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

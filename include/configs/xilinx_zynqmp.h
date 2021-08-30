@@ -15,7 +15,6 @@
 /* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
 
 /* Generic Interrupt Controller Definitions */
-#define CONFIG_GICV2
 #define GICD_BASE	0xF9010000
 #define GICC_BASE	0xF9020000
 

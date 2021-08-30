@@ -8,7 +8,6 @@
 #define __LS2_COMMON_H
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_GICV3
 
 #include <asm/arch/stream_id_lsch3.h>
 #include <asm/arch/config.h>
@@ -74,9 +73,6 @@
 #endif
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#endif
 
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL

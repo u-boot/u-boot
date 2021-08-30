@@ -98,7 +98,7 @@ static uint	i2c_mm_last_alen;
  * pairs.  The following macros take care of this */
 
 #if defined(CONFIG_SYS_I2C_NOPROBES)
-#if defined(CONFIG_SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS)
 static struct
 {
 	uchar	bus;
@@ -114,7 +114,7 @@ static uchar i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
 #define COMPARE_BUS(b,i)	((b) == 0)	/* Make compiler happy */
 #define COMPARE_ADDR(a,i)	(i2c_no_probes[(i)] == (a))
 #define NO_PROBE_ADDR(i)	i2c_no_probes[(i)]
-#endif	/* defined(CONFIG_SYS_I2C_LEGACY) */
+#endif	/* CONFIG_IS_ENABLED(SYS_I2C_LEGACY) */
 #endif
 
 #define DISP_LINE_LEN	16
@@ -194,54 +194,6 @@ __weak
 void i2c_init_board(void)
 {
 }
-
-/* TODO: Implement architecture-specific get/set functions */
-
-/**
- * i2c_get_bus_speed() - Return I2C bus speed
- *
- * This function is the default implementation of function for retrieveing
- * the current I2C bus speed in Hz.
- *
- * A driver implementing runtime switching of I2C bus speed must override
- * this function to report the speed correctly. Simple or legacy drivers
- * can use this fallback.
- *
- * Returns I2C bus speed in Hz.
- */
-#if !defined(CONFIG_SYS_I2C_LEGACY) && !CONFIG_IS_ENABLED(DM_I2C)
-/*
- * TODO: Implement architecture-specific get/set functions
- * Should go away, if we switched completely to new multibus support
- */
-__weak
-unsigned int i2c_get_bus_speed(void)
-{
-	return CONFIG_SYS_I2C_SPEED;
-}
-
-/**
- * i2c_set_bus_speed() - Configure I2C bus speed
- * @speed:	Newly set speed of the I2C bus in Hz
- *
- * This function is the default implementation of function for setting
- * the I2C bus speed in Hz.
- *
- * A driver implementing runtime switching of I2C bus speed must override
- * this function to report the speed correctly. Simple or legacy drivers
- * can use this fallback.
- *
- * Returns zero on success, negative value on error.
- */
-__weak
-int i2c_set_bus_speed(unsigned int speed)
-{
-	if (speed != CONFIG_SYS_I2C_SPEED)
-		return -1;
-
-	return 0;
-}
-#endif
 
 /**
  * get_alen() - Small parser helper function to get address length
@@ -922,7 +874,7 @@ static int mod_i2c_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 				if (ret)
 					return i2c_report_err(ret,
 							      I2C_ERR_WRITE);
-#ifdef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
+#if CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS > 0
 				udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
 				if (incrflag)
@@ -1725,7 +1677,7 @@ static void show_bus(struct udevice *bus)
  *
  * Returns zero always.
  */
-#if defined(CONFIG_SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
 static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 			   char *const argv[])
 {
@@ -1811,7 +1763,7 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
  * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
  * on error.
  */
-#if defined(CONFIG_SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS) || \
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS) || \
 		CONFIG_IS_ENABLED(DM_I2C)
 static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
@@ -1834,7 +1786,7 @@ static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("Current bus is %d\n", bus_no);
 	} else {
 		bus_no = dectoul(argv[1], NULL);
-#if defined(CONFIG_SYS_I2C_LEGACY)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 		if (bus_no >= CONFIG_SYS_NUM_I2C_BUSES) {
 			printf("Invalid bus %d\n", bus_no);
 			return -1;
@@ -1852,7 +1804,7 @@ static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
-#endif  /* defined(CONFIG_SYS_I2C_LEGACY) */
+#endif  /* CONFIG_IS_ENABLED(SYS_I2C_LEGACY) */
 
 /**
  * do_i2c_bus_speed() - Handle the "i2c speed" command-line command
@@ -1951,20 +1903,18 @@ static int do_i2c_reset(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("Error: Not supported by the driver\n");
 		return CMD_RET_FAILURE;
 	}
-#elif defined(CONFIG_SYS_I2C_LEGACY)
+#elif CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	i2c_init(I2C_ADAP->speed, I2C_ADAP->slaveaddr);
-#else
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 	return 0;
 }
 
 static struct cmd_tbl cmd_i2c_sub[] = {
-#if defined(CONFIG_SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
 	U_BOOT_CMD_MKENT(bus, 1, 1, do_i2c_show_bus, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(crc32, 3, 1, do_i2c_crc, "", ""),
-#if defined(CONFIG_SYS_I2C_LEGACY) || \
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || \
 	defined(CONFIG_I2C_MULTI_BUS) || CONFIG_IS_ENABLED(DM_I2C)
 	U_BOOT_CMD_MKENT(dev, 1, 1, do_i2c_bus_num, "", ""),
 #endif  /* CONFIG_I2C_MULTI_BUS */
@@ -2036,12 +1986,12 @@ static int do_i2c(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 /***************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char i2c_help_text[] =
-#if defined(CONFIG_SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
 	"bus [muxtype:muxaddr:muxchannel] - show I2C bus info\n"
 	"i2c " /* That's the prefix for the crc32 command below. */
 #endif
 	"crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
-#if defined(CONFIG_SYS_I2C_LEGACY) || \
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || \
 	defined(CONFIG_I2C_MULTI_BUS) || CONFIG_IS_ENABLED(DM_I2C)
 	"i2c dev [dev] - show or set current I2C bus\n"
 #endif  /* CONFIG_I2C_MULTI_BUS */

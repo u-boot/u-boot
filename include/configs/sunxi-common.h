@@ -194,21 +194,7 @@
 
 
 /* I2C */
-#if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \
-    defined CONFIG_I2C2_ENABLE || defined CONFIG_I2C3_ENABLE || \
-    defined CONFIG_I2C4_ENABLE || defined CONFIG_R_I2C_ENABLE
-#define CONFIG_SYS_I2C_MVTWSI
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_SPEED		400000
-#define CONFIG_SYS_I2C_SLAVE		0x7f
-#endif
-#endif
-
-#if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
-#define CONFIG_SYS_I2C_SOFT
-#define CONFIG_SYS_I2C_SOFT_SPEED	50000
-#define CONFIG_SYS_I2C_SOFT_SLAVE	0x00
+#if defined(CONFIG_VIDEO_LCD_PANEL_I2C)
 /* We use pin names in Kconfig and sunxi_name_to_gpio() */
 #define CONFIG_SOFT_I2C_GPIO_SDA	soft_i2c_gpio_sda
 #define CONFIG_SOFT_I2C_GPIO_SCL	soft_i2c_gpio_scl

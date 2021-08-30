@@ -37,8 +37,6 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_PCA9450
 
-#define CONFIG_SYS_I2C_LEGACY
-
 #endif
 
 #if defined(CONFIG_CMD_NET)
@@ -119,7 +117,5 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #endif

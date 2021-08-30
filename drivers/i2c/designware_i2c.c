@@ -674,24 +674,6 @@ U_BOOT_I2C_ADAP_COMPLETE(dw_0, dw_i2c_init, dw_i2c_probe, dw_i2c_read,
 			 dw_i2c_write, dw_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE, 0)
 
-#if CONFIG_SYS_I2C_BUS_MAX >= 2
-U_BOOT_I2C_ADAP_COMPLETE(dw_1, dw_i2c_init, dw_i2c_probe, dw_i2c_read,
-			 dw_i2c_write, dw_i2c_set_bus_speed,
-			 CONFIG_SYS_I2C_SPEED1, CONFIG_SYS_I2C_SLAVE1, 1)
-#endif
-
-#if CONFIG_SYS_I2C_BUS_MAX >= 3
-U_BOOT_I2C_ADAP_COMPLETE(dw_2, dw_i2c_init, dw_i2c_probe, dw_i2c_read,
-			 dw_i2c_write, dw_i2c_set_bus_speed,
-			 CONFIG_SYS_I2C_SPEED2, CONFIG_SYS_I2C_SLAVE2, 2)
-#endif
-
-#if CONFIG_SYS_I2C_BUS_MAX >= 4
-U_BOOT_I2C_ADAP_COMPLETE(dw_3, dw_i2c_init, dw_i2c_probe, dw_i2c_read,
-			 dw_i2c_write, dw_i2c_set_bus_speed,
-			 CONFIG_SYS_I2C_SPEED3, CONFIG_SYS_I2C_SLAVE3, 3)
-#endif
-
 #else /* CONFIG_DM_I2C */
 /* The DM I2C functions */
 

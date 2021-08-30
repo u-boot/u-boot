@@ -53,7 +53,7 @@
                 "nfs ${loadaddr} /srv/nfs/fitImage; " \
                 "bootm ${loadaddr}\0" \
 
-#define CONFIG_NETWORKBOOTCOMMAND \
+#define NETWORKBOOTCOMMAND \
 	"run networkboot; " \
 
 #else
@@ -108,14 +108,14 @@
 		"run doboot; " \
 		"run failbootcmd\0" \
 
-#define CONFIG_MMCBOOTCOMMAND \
+#define MMCBOOTCOMMAND \
 	"run doquiet; " \
 	"run tryboot; " \
 
 #ifdef CONFIG_CMD_NFS
-#define CONFIG_BOOTCOMMAND CONFIG_NETWORKBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND NETWORKBOOTCOMMAND
 #else
-#define CONFIG_BOOTCOMMAND CONFIG_MMCBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND MMCBOOTCOMMAND
 #endif
 
 

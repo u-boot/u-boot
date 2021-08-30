@@ -203,11 +203,6 @@
 #define CONFIG_FSL_SERDES2	0xe3100
 
 /* I2C */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x51} }
 
 /*
@@ -392,7 +387,7 @@
 							"$netdev:off "	\
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0"
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv rootdev /dev/nfs;"					\
 	"run setbootargs;"						\
 	"run setipargs;"						\
@@ -400,7 +395,7 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND						\
+#define RAMBOOTCOMMAND						\
 	"setenv rootdev /dev/ram;"					\
 	"run setbootargs;"						\
 	"tftp $ramdiskaddr $ramdiskfile;"				\

@@ -452,26 +452,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_FSL_I2C_SPEED	400000	/* I2C speed in Hz */
-#define CONFIG_SYS_FSL_I2C2_SPEED	400000
-#define CONFIG_SYS_FSL_I2C3_SPEED	400000
-#define CONFIG_SYS_FSL_I2C4_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C3_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C4_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
-#define CONFIG_SYS_FSL_I2C3_OFFSET	0x119000
-#define CONFIG_SYS_FSL_I2C4_OFFSET	0x119100
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 
-#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
 #define I2C_MUX_CH_DEFAULT      0x8
@@ -746,7 +727,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 	"fdtfile=" __stringify(FDTFILE) "\0"			\
 	"bdev=sda3\0"
 
-#define CONFIG_LINUX                       \
+#define LINUXBOOTCOMMAND                       \
 	"setenv bootargs root=/dev/ram rw "            \
 	"console=$consoledev,$baudrate $othbootargs;"  \
 	"setenv ramdiskaddr 0x02000000;"               \
@@ -754,14 +735,14 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 	"setenv loadaddr 0x1000000;"		       \
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_HDBOOT					\
+#define HDBOOT					\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $loadaddr $bootfile;"			\
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_NFSBOOTCOMMAND			\
+#define NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\
 	"nfsroot=$serverip:$rootpath "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -770,7 +751,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND				\
+#define RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $ramdiskaddr $ramdiskfile;"		\
@@ -778,7 +759,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND		CONFIG_LINUX
+#define CONFIG_BOOTCOMMAND		LINUXBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

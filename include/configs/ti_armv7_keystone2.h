@@ -120,11 +120,6 @@
 #define CONFIG_SYS_DAVINCI_I2C_SLAVE2	0x10 /* SMBus host address */
 
 /* EEPROM definitions */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	6
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	20
-#define CONFIG_ENV_EEPROM_IS_ON_I2C
 
 /* NAND Configuration */
 #define CONFIG_KEYSTONE_RBL_NAND
@@ -187,7 +182,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
-	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+	ENV_KS2_BOARD_SETTINGS						\
 	DFUARGS								\
 	"bootdir=/boot\0" \
 	"tftp_root=/\0"							\

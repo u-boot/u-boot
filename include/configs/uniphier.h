@@ -84,7 +84,7 @@
 #endif
 
 #define CONFIG_ROOTPATH			"/nfs/root/path"
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv bootargs $bootargs root=/dev/nfs rw "			\
 	"nfsroot=$serverip:$rootpath "					\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off;" \

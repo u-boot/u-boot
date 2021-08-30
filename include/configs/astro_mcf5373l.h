@@ -22,17 +22,17 @@
  * set the card type to actually compile for; either of
  * the possibilities listed below has to be used!
  */
-#define CONFIG_ASTRO_V532	1
+#define ASTRO_V532	1
 
-#if CONFIG_ASTRO_V532
+#if ASTRO_V532
 #define ASTRO_ID	0xF8
-#elif CONFIG_ASTRO_V512
+#elif ASTRO_V512
 #define ASTRO_ID	0xFA
-#elif CONFIG_ASTRO_TWIN7S2
+#elif ASTRO_TWIN7S2
 #define ASTRO_ID	0xF9
-#elif CONFIG_ASTRO_V912
+#elif ASTRO_V912
 #define ASTRO_ID	0xFC
-#elif CONFIG_ASTRO_COFDMDUOS2
+#elif ASTRO_COFDMDUOS2
 #define ASTRO_ID	0xFB
 #else
 #error No card type defined!
@@ -58,11 +58,6 @@
 #define CONFIG_MCFTMR
 
 /* I2C */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	80000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x58000
 #define CONFIG_SYS_IMMR			CONFIG_SYS_MBAR
 
 /*
@@ -149,7 +144,7 @@
 #ifdef CONFIG_MONITOR_IS_IN_RAM
 #define CONFIG_BOOTCOMMAND	""	/* no autoboot in this case */
 #else
-#if CONFIG_ASTRO_V532
+#if ASTRO_V532
 #define CONFIG_BOOTCOMMAND	"protect off 0x80000 0x1ffffff;run env_check;"\
 				"run xilinxload&&run alteraload&&bootm 0x80000;"\
 				"update;reset"

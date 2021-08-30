@@ -220,14 +220,6 @@
 #define CONFIG_SYS_NS16550_COM2        (CONFIG_SYS_IMMR+0x4600)
 
 /* I2C */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
-#define CONFIG_SYS_FSL_I2C2_SPEED	400000
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 
 /* SPI */
@@ -272,9 +264,6 @@
 #define CONFIG_SYS_PCI2_IO_SIZE		0x00100000	/* 1M */
 
 #if defined(CONFIG_PCI)
-
-#define CONFIG_83XX_PCI_STREAMING
-
 
 #if !defined(CONFIG_PCI_PNP)
 	#define PCI_ENET0_IOADDR	0xFIXME
@@ -407,7 +396,7 @@
 	"fdtfile=mpc834x_mds.dtb\0"					\
 	""
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv bootargs root=/dev/nfs rw "				\
 		"nfsroot=$serverip:$rootpath "				\
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:"	\
@@ -417,7 +406,7 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND						\
+#define RAMBOOTCOMMAND						\
 	"setenv bootargs root=/dev/ram rw "				\
 		"console=$consoledev,$baudrate $othbootargs;"		\
 	"tftp $ramdiskaddr $ramdiskfile;"				\

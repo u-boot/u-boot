@@ -346,17 +346,17 @@ int ivm_read_eeprom(unsigned char *buf, int len, int mac_address_offset)
 	struct udevice *eedev = NULL;
 
 	ret = i2c_get_chip_for_busnum(CONFIG_KM_IVM_BUS,
-				      CONFIG_SYS_I2C_EEPROM_ADDR, 1, &eedev);
+				      CONFIG_SYS_IVM_EEPROM_ADR, 1, &eedev);
 	if (ret) {
 		printf("failed to get device for EEPROM at address 0x%02x\n",
-		       CONFIG_SYS_I2C_EEPROM_ADDR);
+		       CONFIG_SYS_IVM_EEPROM_ADR);
 		return 1;
 	}
 
 	ret = dm_i2c_read(eedev, 0, buf, len);
 	if (ret != 0) {
 		printf("Error: Unable to read from I2C EEPROM at address %02X:%02X\n",
-		       CONFIG_SYS_I2C_EEPROM_ADDR, 0);
+		       CONFIG_SYS_IVM_EEPROM_ADR, 0);
 		return 1;
 	}
 #else

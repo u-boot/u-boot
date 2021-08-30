@@ -163,11 +163,6 @@
 /*
  * I2C setup
  */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3100
 #define CONFIG_SYS_I2C_RTC_ADDR	0x51
 
 /*
@@ -284,7 +279,7 @@
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv rootdev /dev/nfs;"					\
 	"run setipargs;run addmtd;"					\
 	"tftp ${loadaddr} ${bootfile};"				\

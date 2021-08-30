@@ -44,16 +44,6 @@
 				",100M(swap)"\
 				",-(UMS)\0"
 
-#define CONFIG_ENV_UBI_MTD	" ubi.mtd=${ubiblock} ubi.mtd=4 ubi.mtd=7"
-#define CONFIG_BOOTBLOCK	"10"
-#define CONFIG_UBIBLOCK		"9"
-
-#define CONFIG_ENV_UBIFS_OPTION	" rootflags=bulk_read,no_chk_data_crc "
-#define CONFIG_ENV_FLASHBOOT	CONFIG_ENV_UBI_MTD CONFIG_ENV_UBIFS_OPTION \
-				"${mtdparts}"
-
-#define CONFIG_ENV_COMMON_BOOT	"${console} ${meminfo}"
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
 		"onenand erase 0x0 0x100000;" \
@@ -71,18 +61,20 @@
 	"lpj=lpj=3981312\0" \
 	"ubifsboot=" \
 		"set bootargs root=ubi0!rootfs rootfstype=ubifs ${lpj} " \
-		CONFIG_ENV_FLASHBOOT " ${opts} ${lcdinfo} " \
-		CONFIG_ENV_COMMON_BOOT "; run bootk\0" \
+		"ubi.mtd=${ubiblock} ubi.mtd=4 ubi.mtd=7 " \
+		"rootflags=bulk_read,no_chk_data_crc ${mtdparts} ${opts} " \
+		"${lcdinfo} ${console} ${meminfo}; run bootk\0" \
 	"tftpboot=" \
 		"set bootargs root=ubi0!rootfs rootfstype=ubifs " \
-		CONFIG_ENV_FLASHBOOT " ${opts} ${lcdinfo} " \
-		CONFIG_ENV_COMMON_BOOT \
+		"ubi.mtd=${ubiblock} ubi.mtd=4 ubi.mtd=7 " \
+		"rootflags=bulk_read,no_chk_data_crc ${mtdparts} ${opts} " \
+		"${lcdinfo} ${console} ${meminfo}" \
 		"; tftp 0x40007FC0 uImage; bootm 0x40007FC0\0" \
 	"nfsboot=" \
 		"set bootargs root=/dev/nfs rw " \
 		"nfsroot=${nfsroot},nolock,tcp " \
 		"ip=${ipaddr}:${serverip}:${gatewayip}:" \
-		"${netmask}:generic:usb0:off " CONFIG_ENV_COMMON_BOOT \
+		"${netmask}:generic:usb0:off ${console} ${meminfo}" \
 		"; run bootk\0" \
 	"ramfsboot=" \
 		"set bootargs root=/dev/ram0 rw rootfstype=ext2 " \
@@ -102,8 +94,8 @@
 	"mbrparts=" MBRPARTS_DEFAULT \
 	"meminfo=crashkernel=32M@0x50000000\0" \
 	"nfsroot=/nfsroot/arm\0" \
-	"bootblock=" CONFIG_BOOTBLOCK "\0" \
-	"ubiblock=" CONFIG_UBIBLOCK" \0" \
+	"bootblock=10\0" \
+	"ubiblock=9\0" \
 	"ubi=enabled\0" \
 	"loaduimage=fatload mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 uImage\0" \
 	"mmcdev=0\0" \

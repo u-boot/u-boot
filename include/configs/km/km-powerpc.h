@@ -11,8 +11,6 @@
 
 /* EEprom support 24C08, 24C16, 24C64 */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3  /* 8 Byte write page */
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
 
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 

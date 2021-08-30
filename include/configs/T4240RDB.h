@@ -154,18 +154,6 @@
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
-
-#define CONFIG_SYS_I2C_FSL
 
 /*
  * General PCI
@@ -249,7 +237,7 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-#define CONFIG_HVBOOT					\
+#define HVBOOT					\
 	"setenv bootargs config-addr=0x60000000; "	\
 	"bootm 0x01000000 - 0x00f00000"
 
@@ -429,8 +417,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* I2C */
-#define CONFIG_SYS_FSL_I2C_SPEED	100000	/* I2C speed */
-#define CONFIG_SYS_FSL_I2C2_SPEED	100000	/* I2C2 speed */
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* I2C bus multiplexer,primary */
 #define I2C_MUX_PCA_ADDR_SEC		0x76 /* I2C bus multiplexer,secondary */
 
@@ -600,11 +586,11 @@ unsigned long get_board_ddr_clk(void);
 	"fdtfile=t4240rdb/t4240rdb.dtb\0"			\
 	"bdev=sda3\0"
 
-#define CONFIG_HVBOOT					\
+#define HVBOOT					\
 	"setenv bootargs config-addr=0x60000000; "	\
 	"bootm 0x01000000 - 0x00f00000"
 
-#define CONFIG_LINUX					\
+#define LINUXBOOTCOMMAND					\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"setenv ramdiskaddr 0x02000000;"		\
@@ -612,14 +598,14 @@ unsigned long get_board_ddr_clk(void);
 	"setenv loadaddr 0x1000000;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_HDBOOT					\
+#define HDBOOT					\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $loadaddr $bootfile;"			\
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_NFSBOOTCOMMAND			\
+#define NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\
 	"nfsroot=$serverip:$rootpath "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -628,7 +614,7 @@ unsigned long get_board_ddr_clk(void);
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND				\
+#define RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $ramdiskaddr $ramdiskfile;"		\
@@ -636,7 +622,7 @@ unsigned long get_board_ddr_clk(void);
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND		CONFIG_LINUX
+#define CONFIG_BOOTCOMMAND		LINUXBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

@@ -93,13 +93,13 @@
 #endif
 
 #if (CONFIG_SYS_BOARD_VERSION == 5)
-#define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
+#define EXTRA_ENV_BOARD_SETTINGS \
 	"dead=while true; do; " \
 		"led led_red on; sleep 1;" \
 		"led led_red off; sleep 1;" \
 	"done\0"
 #elif (CONFIG_SYS_BOARD_VERSION == 6)
-#define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
+#define EXTRA_ENV_BOARD_SETTINGS \
 	"dead=while true; do; " \
 		"led led_red on; led led_red2 on; sleep 1;" \
 		"led led_red off; led led_red2 off;; sleep 1;" \
@@ -414,7 +414,7 @@
 		"run main_rescue_boot;" \
 	"fi; \0"\
 	HAB_EXTRA_SETTINGS \
-	CONFIG_EXTRA_ENV_BOARD_SETTINGS
+	EXTRA_ENV_BOARD_SETTINGS
 
 #define CONFIG_ARP_TIMEOUT		200UL
 

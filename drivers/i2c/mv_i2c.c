@@ -80,7 +80,7 @@ static void i2c_reset(struct mv_i2c *base)
 
 	i2c_clk_enable();
 
-	writel(CONFIG_SYS_I2C_SLAVE, &base->isar); /* set our slave address */
+	writel(0x0, &base->isar); /* set our slave address */
 	/* set control reg values */
 	writel(I2C_ICR_INIT | icr_mode, &base->icr);
 	writel(I2C_ISR_INIT, &base->isr); /* set clear interrupt bits */

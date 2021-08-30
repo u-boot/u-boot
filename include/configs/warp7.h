@@ -135,10 +135,6 @@
  */
 #define CONFIG_BOARD_SIZE_LIMIT		785408
 
-/* I2C configs */
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		100000
-
 /* environment organization */
 
 #define CONFIG_SYS_FSL_USDHC_NUM	1

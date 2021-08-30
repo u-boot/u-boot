@@ -12,16 +12,6 @@
 #include <asm/arch/omap.h>
 
 /*
- * CPU
- */
-
-#define CONFIG_ARM_ARCH_CP15_ERRATA
-
-/*
- * Board
- */
-
-/*
  * Clocks
  */
 
@@ -53,7 +43,6 @@
  * I2C
  */
 
-#define CONFIG_SYS_I2C_LEGACY
 #define CONFIG_I2C_MULTI_BUS
 
 /*

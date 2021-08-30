@@ -112,9 +112,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
-/* I2C */
-#define CONFIG_SYS_I2C_SPEED		100000
-
 /* FEC */
 #define CONFIG_ETHPRIME                 "eth0"
 #define CONFIG_FEC_XCV_TYPE             RGMII

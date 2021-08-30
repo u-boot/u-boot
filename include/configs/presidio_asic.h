@@ -23,7 +23,6 @@
 /* note: arch/arm/cpu/armv8/start.S which references GICD_BASE/GICC_BASE
  * does not yet support DT. Thus define it here.
  */
-#define CONFIG_GICV2
 #define GICD_BASE			0xf7011000
 #define GICC_BASE			0xf7012000
 

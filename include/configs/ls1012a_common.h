@@ -6,8 +6,6 @@
 #ifndef __LS1012A_COMMON_H
 #define __LS1012A_COMMON_H
 
-#define CONFIG_GICV2
-
 #include <asm/arch/config.h>
 #include <asm/arch/stream_id_lsch2.h>
 #include <linux/sizes.h>
@@ -55,12 +53,6 @@
 						CONFIG_SYS_SCSI_MAX_LUN)
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
-#endif
 
 /* GPIO */
 #ifdef CONFIG_DM_GPIO

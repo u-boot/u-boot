@@ -170,13 +170,8 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 /*
  * DDR Setup
@@ -422,20 +417,7 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_FSL_I2C_SPEED	50000	/* I2C speed in Hz */
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_SPEED	50000	/* I2C speed in Hz */
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 
-#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 #define I2C_PCA6408_BUS_NUM		1
 #define I2C_PCA6408_ADDR		0x20
 
@@ -668,7 +650,7 @@ unsigned long get_board_ddr_clk(void);
 	"fdtaddr=1e00000\0"					\
 	"bdev=sda3\0"
 
-#define CONFIG_LINUX					\
+#define LINUXBOOTCOMMAND					\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"setenv ramdiskaddr 0x02000000;"		\
@@ -676,7 +658,7 @@ unsigned long get_board_ddr_clk(void);
 	"setenv loadaddr 0x1000000;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_NFSBOOTCOMMAND			\
+#define NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\
 	"nfsroot=$serverip:$rootpath "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -685,7 +667,7 @@ unsigned long get_board_ddr_clk(void);
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND	CONFIG_LINUX
+#define CONFIG_BOOTCOMMAND	LINUXBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

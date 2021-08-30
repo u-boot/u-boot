@@ -40,9 +40,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
 
-#define CONFIG_BOOTBLOCK		"10"
-#define CONFIG_ENV_COMMON_BOOT		"${console} ${meminfo}"
-
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa-mmc"
 #define PARTS_BOOT		"boot"
@@ -94,7 +91,7 @@
 		"setenv bootargs root=/dev/nfs rw " \
 		"nfsroot=${nfsroot},nolock,tcp " \
 		"ip=${ipaddr}:${serverip}:${gatewayip}:" \
-		"${netmask}:generic:usb0:off " CONFIG_ENV_COMMON_BOOT \
+		"${netmask}:generic:usb0:off ${console} ${meminfo}" \
 		"; run bootk\0" \
 	"ramfsboot=" \
 		"setenv bootargs root=/dev/ram0 rw rootfstype=ext2 " \
@@ -112,7 +109,7 @@
 	"console=console=ttySAC2,115200n8\0" \
 	"meminfo=crashkernel=32M@0x50000000\0" \
 	"nfsroot=/nfsroot/arm\0" \
-	"bootblock=" CONFIG_BOOTBLOCK "\0" \
+	"bootblock=10\0" \
 	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 uImage\0" \
 	"loaddtb=ext4load mmc ${mmcdev}:${mmcbootpart} ${fdtaddr} " \
 		"${fdtfile}\0" \
@@ -141,7 +138,7 @@
 		   "setenv spl_imgsize;" \
 		   "setenv spl_imgaddr;" \
 		   "setenv spl_addr_tmp;\0" \
-	CONFIG_EXTRA_ENV_ITB \
+	ENV_ITB \
 	"fdtaddr=40800000\0" \
 
 /* Falcon mode definitions */

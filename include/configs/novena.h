@@ -52,20 +52,10 @@
 #endif
 
 /* I2C */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
 /* I2C EEPROM */
-#ifdef CONFIG_CMD_EEPROM
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
-#define CONFIG_SYS_I2C_EEPROM_BUS	2
-#endif
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

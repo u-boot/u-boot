@@ -23,7 +23,7 @@
 #endif
 
 /* U-Boot general configuration */
-#define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+#define ENV_KS2_BOARD_SETTINGS						\
 	DEFAULT_FW_INITRAMFS_BOOT_ENV					\
 	DEFAULT_SEC_BOOT_ENV						\
 	"boot=ubi\0"							\

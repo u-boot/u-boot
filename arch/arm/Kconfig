@@ -63,6 +63,12 @@ config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 endif
 endif
 
+config GICV2
+	bool
+
+config GICV3
+	bool
+
 config GIC_V3_ITS
 	bool "ARM GICV3 ITS"
 	select REGMAP
@@ -797,6 +803,7 @@ config ARCH_IMX8M
 	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
+	select SYS_I2C_MXC
 	select DM
 	select SUPPORT_SPL
 	imply CMD_DM
@@ -952,6 +959,7 @@ config ARCH_SOCFPGA
 	select CPU_V7A if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select DM
 	select DM_SERIAL
+	select GICV2
 	select GPIO_EXTRA_HEADER
 	select ENABLE_ARM_SOC_BOOT0_HOOK if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select OF_CONTROL
@@ -1062,6 +1070,7 @@ config ARCH_VERSAL
 	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
+	select GICV3
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select SOC_DEVICE
@@ -1131,6 +1140,7 @@ config ARCH_ZYNQMP
 	select DM_SPI if SPI
 	select DM_SPI_FLASH if DM_SPI
 	select FIRMWARE
+	select GICV2
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
@@ -1880,6 +1890,7 @@ config TARGET_DURIAN
 config TARGET_PRESIDIO_ASIC
 	bool "Support Cortina Presidio ASIC Platform"
 	select ARM64
+	select GICV2
 
 config TARGET_XENGUEST_ARM64
 	bool "Xen guest ARM64"

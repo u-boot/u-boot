@@ -46,10 +46,4 @@
 #define CONFIG_SYS_MAXARGS	16
 #endif
 
-#if CONFIG_IS_ENABLED(DM_I2C)
-# ifdef CONFIG_SYS_I2C_LEGACY
-#  error "Cannot define CONFIG_SYS_I2C_LEGACY when CONFIG_DM_I2C is used"
-# endif
-#endif
-
 #endif	/* __CONFIG_FALLBACKS_H */

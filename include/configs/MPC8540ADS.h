@@ -206,11 +206,6 @@
 /*
  * I2C
  */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 
 /* RapidIO MMU */
@@ -332,7 +327,7 @@
    "fdtaddr=400000\0"							\
    "fdtfile=your.fdt.dtb\0"
 
-#define CONFIG_NFSBOOTCOMMAND	                                        \
+#define NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
       "nfsroot=$serverip:$rootpath "                                    \
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -341,7 +336,7 @@
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND \
+#define RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
@@ -349,6 +344,6 @@
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND  NFSBOOTCOMMAND
 
 #endif	/* __CONFIG_H */

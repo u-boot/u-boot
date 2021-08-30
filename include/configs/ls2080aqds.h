@@ -16,9 +16,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_QIXIS_I2C_ACCESS
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_EARLY_INIT
-#endif
 #define CONFIG_SYS_I2C_IFDR_DIV		0x7e
 #endif
 
@@ -304,13 +301,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 #define CONFIG_FSL_MEMAC
 

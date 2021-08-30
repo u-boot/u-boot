@@ -61,9 +61,6 @@
 #endif
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#endif
 
 
 /* Serial Port */

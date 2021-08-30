@@ -14,9 +14,6 @@
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
-/* Generic Interrupt Controller */
-#define CONFIG_GICV2
-
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *

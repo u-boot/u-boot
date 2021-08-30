@@ -28,7 +28,6 @@
 /* Hardware drivers */
 
 /* I2C */
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM AT24C64      */
 
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_USB_EHCI_OMAP

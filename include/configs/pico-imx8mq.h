@@ -40,11 +40,6 @@
 #undef CONFIG_DM_MMC
 #undef CONFIG_DM_PMIC
 
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #define CONFIG_POWER
@@ -162,9 +157,6 @@
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_MXC_GPIO
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_OF_SYSTEM_SETUP
 

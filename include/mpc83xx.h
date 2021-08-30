@@ -1372,7 +1372,7 @@
 #endif /* !CONFIG_MPC83XX_SDRAM */
 
 /*
- * CONFIG_ADDRESS - PCI Config Address Register
+ * PCI_CONFIG_ADDRESS - PCI Config Address Register
  */
 #define PCI_CONFIG_ADDRESS_EN		0x80000000
 #define PCI_CONFIG_ADDRESS_BN_SHIFT	16

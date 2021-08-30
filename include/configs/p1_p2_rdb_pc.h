@@ -464,36 +464,20 @@
 
 /* I2C */
 #if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
-#define CONFIG_SYS_FSL_I2C2_SPEED	400000
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x29} }
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
 #endif
 
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x52
 #define CONFIG_SYS_SPD_BUS_NUM		1 /* For rom_loc and flash bank */
 
 /*
  * I2C2 EEPROM
  */
-#undef CONFIG_ID_EEPROM
 
 #define CONFIG_RTC_PT7C4338
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
 #define CONFIG_SYS_I2C_PCA9557_ADDR	0x18
 
 /* enable read and write access to EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 #if defined(CONFIG_PCI)
 /*
@@ -691,7 +675,7 @@ __stringify(__SD_RST_CMD)"\0" \
 __stringify(__NAND_RST_CMD)"\0" \
 __stringify(__PCIE_RST_CMD)"\0"
 
-#define CONFIG_NFSBOOTCOMMAND	\
+#define NFSBOOTCOMMAND	\
 "setenv bootargs root=/dev/nfs rw "	\
 "nfsroot=$serverip:$rootpath "	\
 "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -700,7 +684,7 @@ __stringify(__PCIE_RST_CMD)"\0"
 "tftp $fdtaddr $fdtfile;"	\
 "bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_HDBOOT	\
+#define HDBOOT	\
 "setenv bootargs root=/dev/$bdev rw rootdelay=30 "	\
 "console=$consoledev,$baudrate $othbootargs;" \
 "usb start;"	\
@@ -733,7 +717,7 @@ __stringify(__PCIE_RST_CMD)"\0"
 "console=$consoledev,$baudrate rootfstype=jffs2 $othbootargs;"	\
 "bootm $norbootaddr - $norfdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND	\
+#define RAMBOOTCOMMAND	\
 "setenv bootargs root=/dev/ram rw "	\
 "console=$consoledev,$baudrate $othbootargs " \
 "ramdisk_size=$ramdisk_size;"	\
@@ -742,6 +726,6 @@ __stringify(__PCIE_RST_CMD)"\0"
 "tftp $fdtaddr $fdtfile;"	\
 "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND	CONFIG_HDBOOT
+#define CONFIG_BOOTCOMMAND	HDBOOT
 
 #endif /* __CONFIG_H */

@@ -32,7 +32,7 @@
 #define CONFIG_USB_GADGET_DWC2_OTG_PHY
 
 /* Common environment variables */
-#define CONFIG_EXTRA_ENV_ITB \
+#define ENV_ITB \
 	"loadkernel=load mmc ${mmcbootdev}:${mmcbootpart} ${kerneladdr} " \
 		"${kernelname}\0" \
 	"loadinitrd=load mmc ${mmcbootdev}:${mmcbootpart} ${initrdaddr} " \

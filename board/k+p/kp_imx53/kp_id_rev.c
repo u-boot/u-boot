@@ -64,6 +64,10 @@ void show_eeprom(void)
 	eth_env_set_enetaddr("ethaddr", p);
 }
 
+#define I2C_EEPROM_BUS_NUM	1
+#define I2C_EEPROM_ADDR		0x50
+#define I2C_EEPROM_ADDR_LEN	2
+
 int read_eeprom(void)
 {
 	struct udevice *dev;
@@ -72,9 +76,8 @@ int read_eeprom(void)
 	if (eeprom_has_been_read)
 		return 0;
 
-	ret = i2c_get_chip_for_busnum(CONFIG_SYS_EEPROM_BUS_NUM,
-				      CONFIG_SYS_I2C_EEPROM_ADDR,
-				      CONFIG_SYS_I2C_EEPROM_ADDR_LEN, &dev);
+	ret = i2c_get_chip_for_busnum(I2C_EEPROM_BUS_NUM, I2C_EEPROM_ADDR,
+				      I2C_EEPROM_ADDR_LEN, &dev);
 	if (ret) {
 		printf("Cannot find EEPROM !\n");
 		return ret;
