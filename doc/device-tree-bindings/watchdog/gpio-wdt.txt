@@ -1,0 +1,19 @@
+GPIO watchdog timer
+
+Describes a simple watchdog timer which is reset by toggling a gpio.
+
+Required properties:
+
+- compatible: Must be "linux,wdt-gpio".
+- gpios: gpio to toggle when wdt driver reset method is called.
+- always-running: Boolean property indicating that the watchdog cannot
+  be disabled. At present, U-Boot only supports this kind of GPIO
+  watchdog.
+
+Example:
+
+	gpio-wdt {
+		gpios = <&gpio0 1 0>;
+		compatible = "linux,wdt-gpio";
+		always-running;
+	};

@@ -147,6 +147,15 @@ config WDT_CORTINA
 	  This driver support all CPU ISAs supported by Cortina
 	  Access CAxxxx SoCs.
 
+config WDT_GPIO
+	bool "External gpio watchdog support"
+	depends on WDT
+	depends on DM_GPIO
+	help
+	  Support for external watchdog fed by toggling a gpio. See
+	  doc/device-tree-bindings/watchdog/gpio-wdt.txt for
+	  information on how to describe the watchdog in device tree.
+
 config WDT_MPC8xx
 	bool "MPC8xx watchdog timer support"
 	depends on WDT && MPC8xx
