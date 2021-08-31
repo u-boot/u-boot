@@ -80,10 +80,10 @@ def efi_capsule_data(request, u_boot_config):
         check_call('cd %s; %s/tools/mkimage -f uboot_bin_env.its uboot_bin_env.itb' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --fit uboot_bin_env.itb --index 1 Test01' %
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --fit uboot_bin_env.itb Test01' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --raw u-boot.bin.new --index 1 Test02' %
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --raw u-boot.bin.new Test02' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
         if capsule_auth_enabled:
