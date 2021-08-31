@@ -1076,6 +1076,24 @@ static void ddr_init(int *table, int size)
 		writel(table[2 * i + 1], table[2 * i]);
 }
 
+/* Perform DDR DRAM calibration */
+static void spl_dram_perform_cal(void)
+{
+#ifdef CONFIG_MX6_DDRCAL
+	int err;
+	struct mx6_ddr_sysinfo ddr_sysinfo = {
+		.dsize = 2,
+	};
+
+	err = mmdc_do_write_level_calibration(&ddr_sysinfo);
+	if (err)
+		printf("error %d from write level calibration\n", err);
+	err = mmdc_do_dqs_calibration(&ddr_sysinfo);
+	if (err)
+		printf("error %d from dqs calibration\n", err);
+#endif
+}
+
 static void spl_dram_init(void)
 {
 	int minc, maxc;
@@ -1094,6 +1112,7 @@ static void spl_dram_init(void)
 		break;
 	};
 	udelay(100);
+	spl_dram_perform_cal();
 }
 
 void board_init_f(ulong dummy)
