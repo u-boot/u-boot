@@ -24,11 +24,7 @@
 
 #define CONFIG_HOST_MAX_DEVICES 4
 
-/*
- * Size of malloc() pool, before and after relocation
- */
 #define CONFIG_MALLOC_F_ADDR		0x0010000
-#define CONFIG_SYS_MALLOC_LEN		(32 << 20)	/* 32MB  */
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 
@@ -38,8 +34,6 @@
 
 #define CONFIG_I2C_EDID
 
-/* Memory things - we don't really want a memory test */
-#define CONFIG_SYS_LOAD_ADDR		0x00000000
 #define CONFIG_SYS_FDT_LOAD_ADDR	        0x100
 
 #define CONFIG_PHYSMEM

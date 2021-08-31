@@ -16,8 +16,6 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* Keep L2 Cache Disabled */
 
 /* input clock of PLL: 24MHz input clock */
@@ -27,9 +25,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
-
-/* Size of malloc() pool before and after relocation */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))
 
 /* select serial console configuration */
 

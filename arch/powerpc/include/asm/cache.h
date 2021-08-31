@@ -25,13 +25,6 @@
  */
 #define ARCH_DMA_MINALIGN	L1_CACHE_BYTES
 
-/*
- * For compatibility reasons support the CONFIG_SYS_CACHELINE_SIZE too
- */
-#ifndef CONFIG_SYS_CACHELINE_SIZE
-#define CONFIG_SYS_CACHELINE_SIZE	L1_CACHE_BYTES
-#endif
-
 #define	L1_CACHE_ALIGN(x)       (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
 #define	L1_CACHE_PAGES		8
 

@@ -8,15 +8,8 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 16 * 1024 * 1024)
 
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
@@ -26,12 +19,6 @@
 					  CONFIG_KM_RESERVED_PRAM) >> 10)
 
 #define CONFIG_SYS_CLK_FREQ		66666666
-/*
- * Take into account default implementation where DDR_FDBK_MULTI is consider as
- * configured for DDR_PLL = 2*MEM_PLL_RAT.
- * In our case DDR_FDBK_MULTI is 2, means DDR_PLL = MEM_PLL_RAT.
- */
-#define CONFIG_DDR_CLK_FREQ		(100000000 >> 1)
 
 #define PHYS_SDRAM			0x80000000
 #define PHYS_SDRAM_SIZE			(1u * 1024 * 1024 * 1024)
@@ -41,8 +28,6 @@
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
-
-#define CONFIG_DDR_SPD
 
 #define CONFIG_SYS_SPD_BUS_NUM		0
 #define SPD_EEPROM_ADDRESS		0x54
@@ -221,8 +206,6 @@
 /*
  * Miscellaneous configurable options
  */
-
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 #define CONFIG_LS102XA_STREAM_ID
 

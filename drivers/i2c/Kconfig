@@ -193,7 +193,6 @@ config SYS_I2C_CADENCE
 config SYS_I2C_CA
 	tristate "Cortina-Access I2C Controller"
 	depends on DM_I2C && CORTINA_PLATFORM
-	default n
 	help
 	  Add support for the Cortina Access I2C host controller.
 	  Say yes here to select Cortina-Access I2C Host Controller.
@@ -206,7 +205,6 @@ config SYS_I2C_DAVINCI
 
 config SYS_I2C_DW
 	bool "Designware I2C Controller"
-	default n
 	help
 	  Say yes here to select the Designware I2C Host Controller. This
 	  controller is used in various SoCs, e.g. the ST SPEAr, Altera

@@ -6,6 +6,8 @@
 #ifndef _CONFIG_THEADORABLE_H
 #define _CONFIG_THEADORABLE_H
 
+#include <linux/sizes.h>
+
 /*
  * High Level Configuration Options (easy to change)
  */
@@ -89,6 +91,6 @@
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_DDR_FIXED_SIZE		(2 << 20)	/* 2GiB */
+#define CONFIG_SYS_SDRAM_SIZE		SZ_2G
 
 #endif /* _CONFIG_THEADORABLE_H */

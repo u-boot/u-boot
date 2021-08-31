@@ -722,7 +722,6 @@ config SYS_MMCSD_FS_BOOT_PARTITION
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
 	depends on SPL_MMC_SUPPORT
-	default n
 	help
 	  Enable MMC framework tinification support. This option is useful if
 	  if your SPL is extremely size constrained. Heed the warning, enable
@@ -739,7 +738,6 @@ config SPL_MMC_TINY
 config SPL_MMC_WRITE
 	bool "MMC/SD/SDIO card support for write operations in SPL"
 	depends on SPL_MMC_SUPPORT
-	default n
 	help
 	  Enable write access to MMC and SD Cards in SPL
 
@@ -912,7 +910,6 @@ config SPL_UBI_LOAD_ARGS_ID
 
 config UBI_SPL_SILENCE_MSG
 	bool "silence UBI SPL messages"
-	default n
 	help
 	  Disable messages from UBI SPL. This leaves warnings
 	  and errors enabled.
@@ -975,7 +972,6 @@ config SPL_ONENAND_SUPPORT
 config SPL_OS_BOOT
 	bool "Activate Falcon Mode"
 	depends on !TI_SECURE_DEVICE
-	default n
 	help
 	  Enable booting directly to an OS from SPL.
 	  for more info read doc/README.falcon
@@ -1422,7 +1418,6 @@ config TPL_LDSCRIPT
 
 config TPL_NEEDS_SEPARATE_TEXT_BASE
 	bool "TPL needs a separate text-base"
-	default n
 	depends on TPL
 	help
 	  Enable, if the TPL stage should not inherit its text-base
@@ -1431,7 +1426,6 @@ config TPL_NEEDS_SEPARATE_TEXT_BASE
 
 config TPL_NEEDS_SEPARATE_STACK
 	bool "TPL needs a separate initial stack-pointer"
-	default n
 	depends on TPL
 	help
 	  Enable, if the TPL stage should not inherit its initial
@@ -1638,7 +1632,6 @@ endif # TPL
 config SPL_AT91_MCK_BYPASS
 	bool "Use external clock signal as a source of main clock for AT91 platforms"
 	depends on ARCH_AT91
-	default n
 	help
 	  Use external 8 to 24 Mhz clock signal as source of main clock instead
 	  of an external crystal oscillator.

@@ -212,7 +212,6 @@
  */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(8 * 1024 * 1024)
 
 /*
  * Environment Configuration
@@ -224,7 +223,6 @@
 #define CONFIG_BOOTFILE		"ids8313/uImage"
 #define CONFIG_UBOOTPATH		"ids8313/u-boot.bin"
 #define CONFIG_FDTFILE			"ids8313/ids8313.dtb"
-#define CONFIG_LOADADDR		0x400000
 #define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mo,eth1addr:mo"
 
 /* Initial Memory map for Linux*/
@@ -236,7 +234,6 @@
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		0x100000
 #define CONFIG_LOADS_ECHO
 #define CONFIG_TIMESTAMP
 #define CONFIG_BOOTCOMMAND		"run boot_cramfs"

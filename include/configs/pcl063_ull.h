@@ -18,9 +18,6 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
-
 /* Environment settings */
 
 /* Environment in SD */
@@ -39,7 +36,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

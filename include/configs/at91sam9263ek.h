@@ -27,7 +27,6 @@
 #define CONFIG_INITRD_TAG	1
 
 #ifndef CONFIG_SYS_USE_BOOT_NORFLASH
-#define CONFIG_SKIP_LOWLEVEL_INIT
 #else
 #define CONFIG_SYS_USE_NORFLASH
 #endif
@@ -209,8 +208,6 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9263"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
-#define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
-
 #ifdef CONFIG_SYS_USE_DATAFLASH
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
@@ -223,10 +220,5 @@
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0x200000 0x300000; bootm"
 #endif
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN	ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
 
 #endif

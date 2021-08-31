@@ -23,7 +23,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
-#define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
 /* SATA Configs */
 #ifdef CONFIG_CMD_SATA
@@ -32,10 +31,6 @@
 #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
 #endif
-
-/* Serial Flash */
-
-#define CONFIG_LOADADDR	0x12000000
 
 #ifdef CONFIG_CMD_NFS
 #define NETWORKBOOT \
@@ -117,11 +112,6 @@
 #else
 #define CONFIG_BOOTCOMMAND MMCBOOTCOMMAND
 #endif
-
-
-/* Miscellaneous configurable options */
-
-#define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR

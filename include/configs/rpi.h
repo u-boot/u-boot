@@ -13,10 +13,6 @@
 #include <asm/arch/base.h>
 #endif
 
-#if defined(CONFIG_TARGET_RPI_2) || defined(CONFIG_TARGET_RPI_3_32B)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
-
 /* Architecture, CPU, etc.*/
 
 /* Use SoC timer for AArch32, but architected timer for AArch64 */
@@ -54,8 +50,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + \
 					 CONFIG_SYS_SDRAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_MALLOC_LEN		SZ_4M
-#define CONFIG_LOADADDR			0x00200000
 
 #ifdef CONFIG_ARM64
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
@@ -88,7 +82,6 @@
 #define CONFIG_SYS_CBSIZE		1024
 
 /* Environment */
-#define CONFIG_SYS_LOAD_ADDR		0x1000000
 
 /* Shell */
 

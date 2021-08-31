@@ -46,7 +46,6 @@ config FIT_SHA256
 
 config FIT_SHA384
 	bool "Support SHA384 checksum of FIT image contents"
-	default n
 	select SHA384
 	help
 	  Enable this to support SHA384 checksum of FIT image contents. A
@@ -56,7 +55,6 @@ config FIT_SHA384
 
 config FIT_SHA512
 	bool "Support SHA512 checksum of FIT image contents"
-	default n
 	select SHA512
 	help
 	  Enable this to support SHA512 checksum of FIT image contents. A
@@ -106,7 +104,6 @@ config FIT_SIGNATURE_MAX_SIZE
 config FIT_RSASSA_PSS
 	bool "Support rsassa-pss signature scheme of FIT image contents"
 	depends on FIT_SIGNATURE
-	default n
 	help
 	  Enable this to support the pss padding algorithm as described
 	  in the rfc8017 (https://tools.ietf.org/html/rfc8017).
@@ -397,6 +394,26 @@ config CHROMEOS_VBOOT
 	  at present, so this option is always set to 'n'. It allows
 	  distinguishing between booting Chrome OS in a basic way (developer
 	  mode) and a full boot.
+
+config RAMBOOT_PBL
+	bool "Freescale PBL(pre-boot loader) image format support"
+	help
+	  Some SoCs use PBL to load RCW and/or pre-initialization instructions.
+	  For more details refer to doc/README.pblimage
+
+config SYS_FSL_PBL_PBI
+	string "PBI(pre-boot instructions) commands for the PBL image"
+	depends on RAMBOOT_PBL
+	help
+	  PBI commands can be used to configure SoC before it starts the execution.
+	  Please refer doc/README.pblimage for more details.
+
+config SYS_FSL_PBL_RCW
+	string "Aadditional RCW (Power on reset configuration) for the PBL image"
+	depends on RAMBOOT_PBL
+	help
+	  Enables addition of RCW (Power on reset configuration) in built image.
+	  Please refer doc/README.pblimage for more details.
 
 endmenu		# Boot images
 
@@ -707,7 +724,6 @@ config NOR_BOOT
 
 config NAND_BOOT
 	bool "Support for booting from NAND flash"
-	default n
 	imply MTD_RAW_NAND
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
@@ -716,7 +732,6 @@ config NAND_BOOT
 
 config ONENAND_BOOT
 	bool "Support for booting from ONENAND"
-	default n
 	imply MTD_RAW_NAND
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
@@ -725,7 +740,6 @@ config ONENAND_BOOT
 
 config QSPI_BOOT
 	bool "Support for booting from QSPI flash"
-	default n
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via QSPI flash. This is not a must, some SoCs need this,
@@ -733,7 +747,6 @@ config QSPI_BOOT
 
 config SATA_BOOT
 	bool "Support for booting from SATA"
-	default n
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via SATA. This is not a must, some SoCs need this,
@@ -741,7 +754,6 @@ config SATA_BOOT
 
 config SD_BOOT
 	bool "Support for booting from SD/EMMC"
-	default n
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via SD/EMMC. This is not a must, some SoCs need this,
@@ -749,7 +761,6 @@ config SD_BOOT
 
 config SPI_BOOT
 	bool "Support for booting from SPI flash"
-	default n
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via SPI flash. This is not a must, some SoCs need this,
@@ -783,7 +794,6 @@ config BOOTDELAY
 
 config AUTOBOOT_KEYED
 	bool "Stop autobooting via specific input key / string"
-	default n
 	help
 	  This option enables stopping (aborting) of the automatic
 	  boot feature only by issuing a specific input key or
@@ -870,7 +880,6 @@ config AUTOBOOT_STOP_STR
 config AUTOBOOT_KEYED_CTRLC
 	bool "Enable Ctrl-C autoboot interruption"
 	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
-	default n
 	help
 	  This option allows for the boot sequence to be interrupted
 	  by ctrl-c, in addition to the "bootdelaykey" and "bootstopkey".

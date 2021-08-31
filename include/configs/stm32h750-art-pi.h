@@ -16,12 +16,6 @@
 #define CONFIG_SYS_FLASH_BASE		0x90000000
 #define CONFIG_SYS_INIT_SP_ADDR		0x24040000
 
-/*
- * Configuration of the external SDRAM memory
- */
-#define CONFIG_SYS_LOAD_ADDR		0xC1800000
-#define CONFIG_LOADADDR			0xC1800000
-
 #define CONFIG_SYS_HZ_CLOCK		1000000
 
 #define CONFIG_CMDLINE_TAG
@@ -30,7 +24,6 @@
 #define CONFIG_REVISION_TAG
 
 #define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)

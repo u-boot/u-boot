@@ -10,10 +10,6 @@
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on SoCrates */
 
-/* Booting Linux */
-#define CONFIG_LOADADDR		0x01000000
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
-
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 

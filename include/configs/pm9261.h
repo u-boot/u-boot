@@ -132,8 +132,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
-#undef CONFIG_SKIP_LOWLEVEL_INIT
-
 /*
  * Hardware drivers
  */
@@ -181,8 +179,6 @@
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9261"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-
-#define CONFIG_SYS_LOAD_ADDR			0x22000000
 
 #undef CONFIG_SYS_USE_DATAFLASH_CS0
 #undef CONFIG_SYS_USE_NANDFLASH
@@ -232,12 +228,6 @@
 #else
 #error "Undefined memory device"
 #endif
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		\
-		ROUND(3 * CONFIG_ENV_SIZE + 128 * 1024, 0x1000)
 
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - \

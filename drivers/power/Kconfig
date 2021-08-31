@@ -248,7 +248,6 @@ endchoice
 config AXP_ALDO3_INRUSH_QUIRK
 	bool "axp pmic (a)ldo3 inrush quirk"
 	depends on AXP209_POWER
-	default n
 	---help---
 	The reference design denotes a value of 4.7 uF for the output capacitor
 	of LDO3. Some boards have too high capacitance causing 	an inrush current
@@ -357,7 +356,6 @@ config AXP_FLDO3_VOLT
 config AXP_SW_ON
 	bool "axp pmic sw on"
 	depends on AXP809_POWER || AXP818_POWER
-	default n
 	---help---
 	Enable to turn on axp pmic sw.
 

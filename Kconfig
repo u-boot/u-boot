@@ -83,7 +83,6 @@ config CC_OPTIMIZE_FOR_SIZE
 
 config OPTIMIZE_INLINING
 	bool "Allow compiler to uninline functions marked 'inline' in full U-Boot"
-	default n
 	help
 	  This option determines if U-Boot forces gcc to inline the functions
 	  developers have marked 'inline'. Doing so takes away freedom from gcc to
@@ -93,7 +92,6 @@ config OPTIMIZE_INLINING
 config SPL_OPTIMIZE_INLINING
 	bool "Allow compiler to uninline functions marked 'inline' in SPL"
 	depends on SPL
-	default n
 	help
 	  This option determines if U-Boot forces gcc to inline the functions
 	  developers have marked 'inline'. Doing so takes away freedom from gcc to
@@ -106,7 +104,6 @@ config ARCH_SUPPORTS_LTO
 config LTO
 	bool "Enable Link Time Optimizations"
 	depends on ARCH_SUPPORTS_LTO
-	default n
 	help
 	  This option enables Link Time Optimization (LTO), a mechanism which
 	  allows the compiler to optimize between different compilation units.
@@ -127,7 +124,6 @@ config LTO
 config TPL_OPTIMIZE_INLINING
 	bool "Allow compiler to uninline functions marked 'inline' in TPL"
 	depends on TPL
-	default n
 	help
 	  This option determines if U-Boot forces gcc to inline the functions
 	  developers have marked 'inline'. Doing so takes away freedom from gcc to
@@ -249,8 +245,11 @@ config SYS_MALLOC_F_LEN
 
 config SYS_MALLOC_LEN
 	hex "Define memory for Dynamic allocation"
-	depends on ARCH_ZYNQ || ARCH_VERSAL || ARCH_STM32MP || ARCH_ROCKCHIP
-	default 0x2000000 if ARCH_ROCKCHIP
+	default 0x2000000 if ARCH_ROCKCHIP || ARCH_OMAP2PLUS || ARCH_MESON
+	default 0x4020000 if ARCH_SUNXI && !MACH_SUN8I_V3S
+	default 0x200000 if ARCH_BMIPS || X86
+	default 0x220000 if ARCH_SUNXI && MACH_SUN8I_V3S
+	default 0x400000
 	help
 	  This defines memory to be allocated for Dynamic allocation
 	  TODO: Use for other architectures
@@ -307,7 +306,6 @@ if EXPERT
 
 config SYS_MALLOC_DEFAULT_TO_INIT
 	bool "Default malloc to init while reserving the memory for it"
-	default n
 	help
 	  It may happen that one needs to move the dynamic allocation
 	  from one to another memory range, eg. when moving the malloc
@@ -389,6 +387,20 @@ config SYS_LDSCRIPT
 	  Path within the source tree to the linker script to use for the
 	  main U-Boot binary.
 
+config SYS_LOAD_ADDR
+	hex "Address in memory to use by default"
+	default 0x01000000 if ARCH_SOCFPGA
+	default 0x02000000 if PPC || X86
+	default 0x22000000 if MACH_SUN9I
+	default 0x42000000 if ARCH_SUNXI && !MACH_SUN9I
+	default 0x82000000 if ARCH_KEYSTONE || ARCH_OMAP2PLUS || ARCH_K3
+	default 0x82000000 if ARCH_MX6 && (MX6SL || MX6SLL  || MX6SX || MX6UL || MX6ULL)
+	default 0x12000000 if ARCH_MX6 && !(MX6SL || MX6SLL  || MX6SX || MX6UL || MX6ULL)
+	default 0x80800000 if ARCH_MX7
+	default 0x90000000 if FSL_LSCH2 || FSL_LSCH3
+	help
+	  Address in memory to use as the default safe load address.
+
 config ERR_PTR_OFFSET
 	hex
 	default 0x0
@@ -423,7 +435,6 @@ config SYS_HAS_SRAM
 	default y if TARGET_PIC32MZDASK
 	default y if TARGET_DEVKIT8000
 	default y if TARGET_TRICORDER
-	default n
 	help
 	  Enable this to allow support for the on board SRAM.
 	  SRAM base address is controlled by CONFIG_SYS_SRAM_BASE.

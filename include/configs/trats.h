@@ -26,9 +26,6 @@
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
-/* memtest works on */
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x4800000)
-
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 
 #define CONFIG_BOOTCOMMAND		"run autoboot"

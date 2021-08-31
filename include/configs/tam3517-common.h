@@ -26,11 +26,6 @@
 #define CONFIG_REVISION_TAG
 
 /*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10) + \
-					2 * 1024 * 1024)
-/*
  * DDR related
  */
 #define CONFIG_SYS_CS0_SIZE		(256 * 1024 * 1024)
@@ -75,10 +70,6 @@
 
 #define CONFIG_SYS_MAXARGS		32	/* max number of command */
 						/* args */
-/* memtest works on */
-
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
-								/* address */
 
 /*
  * AM3517 has 12 GP timers, they can be driven by the system clock

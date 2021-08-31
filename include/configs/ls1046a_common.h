@@ -38,8 +38,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
 #endif
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
@@ -50,9 +48,6 @@
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
 
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
@@ -107,7 +102,6 @@
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_WATCHDOG
 #define CONFIG_SPL_I2C
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_DRIVERS_MISC
@@ -184,7 +178,6 @@
 #endif
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128

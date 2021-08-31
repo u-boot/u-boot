@@ -15,9 +15,6 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 
-/* Size of malloc() poll */
-#define CONFIG_SYS_MALLOC_LEN		SZ_2M
-
 /* Console configs */
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
@@ -26,7 +23,6 @@
 
 #define CONFIG_NETMASK			255.255.255.0
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

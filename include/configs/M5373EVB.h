@@ -77,8 +77,6 @@
 
 #define CONFIG_PRAM		512	/* 512 KB */
 
-#define CONFIG_SYS_LOAD_ADDR		0x40010000
-
 #define CONFIG_SYS_CLK			80000000
 #define CONFIG_SYS_CPU_CLK		CONFIG_SYS_CLK * 3
 
@@ -117,7 +115,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
-#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc() */
 
 /*
  * For booting Linux, the board info and command line data
@@ -162,7 +159,6 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CONFIG_SYS_CACHELINE_SIZE	16
 
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - 8)

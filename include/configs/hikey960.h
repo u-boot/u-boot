@@ -24,17 +24,12 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x80000)
-
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		19000000
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			0xe82b1000
 #define GICC_BASE			0xe82b2000
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)

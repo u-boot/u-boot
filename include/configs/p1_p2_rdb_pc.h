@@ -157,7 +157,6 @@
 #else
 #define CONFIG_SYS_CLK_FREQ	66666666
 #endif
-#define CONFIG_DDR_CLK_FREQ	66666666
 
 #define CONFIG_HWCONFIG
 /*
@@ -179,7 +178,6 @@
 
 /* DDR Setup */
 #define CONFIG_SYS_DDR_RAW_TIMING
-#define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM 1
 #define SPD_EEPROM_ADDRESS 0x52
 
@@ -346,7 +344,6 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN	(768 * 1024)
-#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024)/* Reserved for malloc */
 
 #define CONFIG_SYS_CPLD_BASE	0xffa00000
 #ifdef CONFIG_PHYS_64BIT
@@ -591,7 +588,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*
  * For booting Linux, the board info and command line data
@@ -612,9 +608,6 @@
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
-
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR	1000000
 
 #ifdef __SW_BOOT_NOR
 #define __NOR_RST_CMD	\

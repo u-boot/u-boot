@@ -131,6 +131,7 @@ config MPC83XX_LDP_PIN
 config ARCH_MPC830X
 	bool
 	select MPC83XX_SDHC_SUPPORT
+	select SYS_CACHE_SHIFT_5
 
 config ARCH_MPC8308
 	bool
@@ -154,6 +155,7 @@ config ARCH_MPC831X
 	select MPC83XX_PCI_SUPPORT
 	select MPC83XX_TSEC1_SUPPORT
 	select MPC83XX_TSEC2_SUPPORT
+	select SYS_CACHE_SHIFT_5
 
 config ARCH_MPC8313
 	bool
@@ -165,9 +167,11 @@ config ARCH_MPC832X
 	bool
 	select MPC83XX_QUICC_ENGINE
 	select MPC83XX_PCI_SUPPORT
+	select SYS_CACHE_SHIFT_5
 
 config ARCH_MPC834X
 	bool
+	select SYS_CACHE_SHIFT_5
 
 config ARCH_MPC8349
 	bool
@@ -184,6 +188,7 @@ config ARCH_MPC8360
 	select MPC83XX_PCI_SUPPORT
 	select MPC83XX_LDP_PIN
 	select MPC83XX_SECOND_I2C
+	select SYS_CACHE_SHIFT_5
 
 config ARCH_MPC837X
 	bool
@@ -196,6 +201,7 @@ config ARCH_MPC837X
 	select MPC83XX_SATA_SUPPORT
 	select MPC83XX_LDP_PIN
 	select MPC83XX_SECOND_I2C
+	select SYS_CACHE_SHIFT_5
 	select FSL_ELBC
 
 config SYS_IMMR

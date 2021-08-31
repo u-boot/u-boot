@@ -53,7 +53,7 @@ copyex:
 	 * we do sys-critical inits only at reboot,
 	 * not when booting from ram!
 	 */
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 	bl	cpu_init_crit
 #endif
 
@@ -78,7 +78,7 @@ c_runtime_cpu_setup:
  */
 
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 cpu_init_crit:
 	/*
 	 * flush v4 I/D caches
@@ -97,7 +97,7 @@ cpu_init_crit:
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
 	mcr	p15, 0, r0, c1, c0, 0
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT_ONLY)
 	/*
 	 * before relocating, we have to setup RAM timing
 	 * because memory timing is board-dependend, you will
@@ -109,4 +109,4 @@ cpu_init_crit:
 	mov	lr, ip
 #endif
 	mov	pc, lr
-#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
+#endif /* CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) */

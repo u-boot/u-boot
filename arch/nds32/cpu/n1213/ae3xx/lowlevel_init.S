@@ -94,7 +94,7 @@ mem_init:
 	move	  $lp, $r11
 	ret
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 .globl	lowlevel_init
 lowlevel_init:
 	move	$r10, $lp
@@ -144,4 +144,4 @@ enable_fpu:
 	ret
 #endif
 
-#endif /* #ifndef CONFIG_SKIP_LOWLEVEL_INIT */
+#endif /* #if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) */

@@ -67,8 +67,6 @@
 /*
  * Memory Info
  */
-/* malloc() len */
-#define CONFIG_SYS_MALLOC_LEN		(0x10000 + 512 * 1024)
 /* memtest start address */
 #define PHYS_SDRAM_1		0xA0000000	/* DDR Start */
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* DDR size 128MB */
@@ -119,9 +117,6 @@
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
-#define CONFIG_LOADADDR		0xa0800000	/* loadaddr env var */
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

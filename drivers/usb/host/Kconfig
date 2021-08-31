@@ -146,7 +146,6 @@ config USB_EHCI_MARVELL
 config USB_EHCI_MX5
 	bool "Support for i.MX5 on-chip EHCI USB controller"
 	depends on ARCH_MX5
-	default n
 	help
 	  Enables support for the on-chip EHCI controller on i.MX5 SoCs.
 
@@ -195,7 +194,6 @@ config USB_EHCI_MSM
 	depends on DM_USB
 	select USB_ULPI_VIEWPORT
 	select MSM8916_USB_PHY
-	default n
 	---help---
 	  Enables support for the on-chip EHCI controller on Qualcomm
 	  Snapdragon SoCs.
@@ -222,13 +220,11 @@ config USB_EHCI_GENERIC
 	bool "Support for generic EHCI USB controller"
 	depends on DM_USB
 	default ARCH_SUNXI
-	default n
 	---help---
 	  Enables support for generic EHCI controller.
 
 config USB_EHCI_FSL
 	bool  "Support for FSL on-chip EHCI USB controller"
-	default n
 	select  CONFIG_EHCI_HCD_INIT_AFTER_RESET
 	---help---
 	  Enables support for the on-chip EHCI controller on FSL chips.

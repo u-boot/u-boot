@@ -1,2 +1,34 @@
+choice
+	prompt "Method to determine DDR clock frequency"
+	default STATIC_DDR_CLK_FREQ
+	depends on ARCH_P1010 || ARCH_P1020 || ARCH_P2020 || ARCH_T1024 \
+		|| ARCH_T1042 || ARCH_T2080 || ARCH_T4240 || ARCH_LS1021A \
+		|| FSL_LSCH2 || FSL_LSCH3 || TARGET_KMCENT2
+	help
+	  The DDR clock frequency can either be defined statically now at
+	  build time, or can be determined at run-time via the
+	  get_board_ddr_clk function.
+
+config DYNAMIC_DDR_CLK_FREQ
+	bool "Run-time DDR clock frequency"
+
+config STATIC_DDR_CLK_FREQ
+	bool "Build-time static DDR clock frequency"
+
+endchoice
+
+config DDR_CLK_FREQ
+	int "DDR clock frequency in Hz"
+	depends on STATIC_DDR_CLK_FREQ
+	default 100000000
+	help
+	  The DDR clock frequency, specified in Hz.
+
+config DDR_SPD
+	bool "JEDEC Serial Presence Detect (SPD) support"
+	help
+	  For memory controllers that can utilize it, add enable support for
+	  using the JEDEC SDP standard.
+
 source "drivers/ddr/altera/Kconfig"
 source "drivers/ddr/imx/Kconfig"

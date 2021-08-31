@@ -91,6 +91,7 @@ config TARGET_COLIBRI_IMX7
 	select DM
 	select DM_SERIAL
 	select DM_THERMAL
+	select MX7D
 	imply CMD_DM
 
 endchoice

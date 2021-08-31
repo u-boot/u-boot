@@ -29,11 +29,6 @@
 #define CONFIG_INITRD_TAG
 
 /*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
-
-/*
  * Hardware drivers
  */
 #define CONFIG_SYS_SPD_BUS_NUM		2 /* I2C3 */
@@ -48,9 +43,6 @@
  */
 
 #define CONFIG_NET_RETRY_COUNT	100
-
-
-#define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 
 /*
  * Ethernet on SOC (FEC)
@@ -68,8 +60,6 @@
 #define CONFIG_SYS_CBSIZE	512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	32	/* max number of command args */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /*
  * Physical Memory Map

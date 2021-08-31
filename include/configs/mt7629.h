@@ -22,8 +22,6 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +	\
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		SZ_4M
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
 /* Environment */
@@ -43,8 +41,6 @@
 
 /* UBoot -> Kernel */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x40000000
-#define CONFIG_LOADADDR			0x42007f1c
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* DRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000

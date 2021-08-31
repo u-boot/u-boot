@@ -15,12 +15,9 @@
 
 #define CONFIG_SYS_PBSIZE		256
 
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 32 * 1024 * 1024)
 /* Address of u-boot image in Flash */
 #define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
-/* Size of DRAM reserved for malloc() use */
-#define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 /*

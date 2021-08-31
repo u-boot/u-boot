@@ -23,8 +23,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 #ifndef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_DDR_RAW_TIMING
 #endif
@@ -61,9 +59,6 @@
  * will be udpated later when get_bus_freq(0) is available.
  */
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
 
 /* GPIO */
 #ifdef CONFIG_DM_GPIO
@@ -153,7 +148,6 @@ unsigned long long get_qixis_addr(void);
 #endif
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
 /* Physical Memory Map */
 /* fixme: these need to be checked against the board */

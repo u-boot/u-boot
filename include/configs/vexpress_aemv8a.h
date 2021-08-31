@@ -85,9 +85,6 @@
 #endif
 #endif /* !CONFIG_GICV3 */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
-
 #ifndef CONFIG_TARGET_VEXPRESS64_JUNO
 /* The Vexpress64 simulators use SMSC91C111 */
 #define CONFIG_SMC91111			1
@@ -105,7 +102,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x10000000)
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			(V2M_BASE)	/* SDRAM Bank #1 */

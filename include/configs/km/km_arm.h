@@ -32,15 +32,10 @@
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
-/* Reserve 4 MB for malloc */
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
-
 /* Increase max size of compressed kernel */
 #define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 
 #include "asm/arch/config.h"
-
-#define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
 
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU					\
@@ -58,8 +53,6 @@
 		"echo No FDT found, booting with the kernel "		\
 		"appended one; fi\0"					\
 	""
-
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
  * For booting Linux, the board info and command line data

@@ -14,9 +14,6 @@
 
 #define PHYS_SDRAM_SIZE		SZ_512M
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M)
-
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
@@ -45,7 +42,6 @@
 		"run mmcboot; " \
 	"fi; " \
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

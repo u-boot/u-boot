@@ -18,7 +18,6 @@
 #define CONFIG_DMA_COHERENT
 #define CONFIG_DMA_COHERENT_SIZE	(1 << 20)
 
-#define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024)
 #ifdef CONFIG_SIEMENS_MACH_TYPE
 #define CONFIG_MACH_TYPE		CONFIG_SIEMENS_MACH_TYPE
 #endif
@@ -52,8 +51,6 @@
  * memtest works on 8 MB in DRAM after skipping 32MB from
  * start addr of ram disk
  */
-
-#define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 
  /* Physical Memory Map */
 #define PHYS_DRAM_1			0x80000000	/* DRAM Bank #1 */
@@ -124,9 +121,6 @@
  * Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
 
 #ifndef CONFIG_SPL_BUILD
 /*

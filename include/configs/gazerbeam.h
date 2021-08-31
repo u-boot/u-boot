@@ -27,7 +27,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE /* start of monitor */
 
 #define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN	(512 * 1024) /* Reserved for malloc */
 
 /*
  * Initial RAM Base Address Setup
@@ -60,7 +59,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */
@@ -83,8 +81,6 @@
 
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
-
-#define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
 /* TODO: Turn into string option and migrate to Kconfig */
 #define CONFIG_HOSTNAME		"gazerbeam"

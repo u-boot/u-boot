@@ -11,9 +11,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_MALLOC_LEN		SZ_4M
-
 #define CONFIG_CPU_ARMV8
 #define COUNTER_FREQUENCY		13000000
 

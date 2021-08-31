@@ -9,6 +9,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "imx8mm_icore_mx8mm"
 
+config IMX_CONFIG
+	default "arch/arm/mach-imx/imx8m/imximage-8mm-lpddr4.cfg"
+
 source "board/freescale/common/Kconfig"
 
 endif

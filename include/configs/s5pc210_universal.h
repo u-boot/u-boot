@@ -31,9 +31,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
 
-/* memtest works on */
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x4800000)
-
 /* Actual modem binary size is 16MiB. Add 2MiB for bad block handling */
 
 #define NORMAL_MTDPARTS_DEFAULT CONFIG_MTDPARTS_DEFAULT

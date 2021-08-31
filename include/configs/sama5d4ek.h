@@ -22,8 +22,6 @@
 	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
-
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

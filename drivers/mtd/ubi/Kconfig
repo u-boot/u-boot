@@ -68,7 +68,6 @@ config MTD_UBI_BEB_LIMIT
 
 config MTD_UBI_FASTMAP
 	bool "UBI Fastmap (Experimental feature)"
-	default n
 	help
 	   Important: this feature is experimental so far and the on-flash
 	   format for fastmap may change in the next kernel versions

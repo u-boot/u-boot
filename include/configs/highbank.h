@@ -12,11 +12,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	(0xFFF34000 + 0x4)
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(512 * 1024)
-
 #define CONFIG_PL011_CLOCK		150000000
 
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
@@ -36,7 +31,6 @@
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		0x800000
 #define CONFIG_SYS_64BIT_LBA
 
 /* Environment data setup
@@ -46,7 +40,6 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_INIT_SP_ADDR		0x01000000
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"fdt_high=0x20000000\0"					\

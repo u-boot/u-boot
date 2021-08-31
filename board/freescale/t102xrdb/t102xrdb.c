@@ -167,11 +167,6 @@ unsigned long get_board_sys_clk(void)
 	return CONFIG_SYS_CLK_FREQ;
 }
 
-unsigned long get_board_ddr_clk(void)
-{
-	return CONFIG_DDR_CLK_FREQ;
-}
-
 #ifdef CONFIG_TARGET_T1024RDB
 void board_reset(void)
 {

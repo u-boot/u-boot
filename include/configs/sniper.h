@@ -37,8 +37,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(NON_SECURE_SRAM_END - \
 					 GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_MALLOC_LEN		(1024 * 1024 + CONFIG_ENV_SIZE)
-
 /*
  * I2C
  */
@@ -113,8 +111,6 @@
 /*
  * Boot
  */
-
-#define CONFIG_SYS_LOAD_ADDR	0x82000000
 
 #define CONFIG_BOOTCOMMAND \
 	"setenv boot_mmc_part ${kernel_mmc_part}; " \

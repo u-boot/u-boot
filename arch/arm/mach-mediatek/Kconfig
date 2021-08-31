@@ -8,7 +8,6 @@ config SYS_VENDOR
 
 config MT8512
 	bool "MediaTek MT8512 SoC"
-	default n
 
 choice
 	prompt "MediaTek board select"

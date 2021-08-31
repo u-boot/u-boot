@@ -12,7 +12,6 @@
 #define CONFIG_SOC_KEYSTONE
 
 /* U-Boot Build Configuration */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage loader */
 
 /* SoC Configuration */
 #define CONFIG_SPL_TARGET		"u-boot-spi.gph"

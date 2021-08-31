@@ -16,8 +16,6 @@
 #endif
 
 /* DDR */
-#define CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 
 #define CONFIG_VERY_BIG_RAM
@@ -42,9 +40,6 @@
 /* generic timer */
 #define COUNTER_FREQUENCY		25000000
 
-/* size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
-
 /* early heap for SPL DM */
 #define CONFIG_MALLOC_F_ADDR		CONFIG_SYS_FSL_OCRAM_BASE
 
@@ -53,7 +48,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_SYS_CLK_FREQ		100000000
-#define CONFIG_DDR_CLK_FREQ		100000000
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ / 4)
 
 /* ethernet */
@@ -71,7 +65,6 @@
 
 /* environment */
 /* see include/configs/ti_armv7_common.h */
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"kernel_addr_r=0x82000000\0" \

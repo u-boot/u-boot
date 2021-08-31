@@ -11,19 +11,12 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_DEEP_SLEEP
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 16 * 1024 * 1024)
 
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
 #define CONFIG_SYS_CLK_FREQ		100000000
-#define CONFIG_DDR_CLK_FREQ		100000000
 
 #define DDR_SDRAM_CFG			0x470c0008
 #define DDR_CS0_BNDS			0x008000bf
@@ -52,19 +45,7 @@
 #define SDRAM_CFG2_FRC_SR		0x80000000
 #define SDRAM_CFG_BI			0x00000001
 
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI	board/freescale/ls1021atwr/ls102xa_pbi.cfg
-#endif
-
 #ifdef CONFIG_SD_BOOT
-#ifdef CONFIG_SD_BOOT_QSPI
-#define CONFIG_SYS_FSL_PBL_RCW	\
-	board/freescale/ls1021atwr/ls102xa_rcw_sd_qspi.cfg
-#else
-#define CONFIG_SYS_FSL_PBL_RCW	\
-	board/freescale/ls1021atwr/ls102xa_rcw_sd_ifc.cfg
-#endif
-
 #ifdef CONFIG_NXP_ESBC
 /*
  * HDR would be appended at end of image and copied to DDR along
@@ -415,8 +396,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
-
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 #define CONFIG_LS102XA_STREAM_ID
 

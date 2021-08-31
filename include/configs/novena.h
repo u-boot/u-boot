@@ -41,8 +41,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-#define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
-
 /* SPL */
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 
@@ -105,9 +103,9 @@
 	"bootdev=/dev/mmcblk0p1\0"					\
 	"rootdev=/dev/mmcblk0p2\0"					\
 	"netdev=eth0\0"							\
-	"kernel_addr_r="__stringify(CONFIG_LOADADDR)"\0"		\
-	"pxefile_addr_r="__stringify(CONFIG_LOADADDR)"\0"		\
-	"scriptaddr="__stringify(CONFIG_LOADADDR)"\0"			\
+	"kernel_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"		\
+	"pxefile_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"		\
+	"scriptaddr="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"			\
 	"ramdisk_addr_r=0x28000000\0"		   			\
 	"fdt_addr_r=0x18000000\0"					\
 	"fdtfile=imx6q-novena.dtb\0"					\

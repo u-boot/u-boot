@@ -465,10 +465,6 @@ The following options need to be configured:
 		Board config to use DDR3L. It can be enabled for SoCs with
 		DDR3L controllers.
 
-		CONFIG_SYS_FSL_DDR4
-		Board config to use DDR4. It can be enabled for SoCs with
-		DDR4 controllers.
-
 		CONFIG_SYS_FSL_IFC_BE
 		Defines the IFC controller register space as Big Endian
 
@@ -480,15 +476,6 @@ The following options need to be configured:
 
 		CONFIG_SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to eLBC controller).
-
-		CONFIG_SYS_FSL_PBL_PBI
-		It enables addition of RCW (Power on reset configuration) in built image.
-		Please refer doc/README.pblimage for more details
-
-		CONFIG_SYS_FSL_PBL_RCW
-		It adds PBI(pre-boot instructions) commands in u-boot build image.
-		PBI commands can be used to configure SoC before it starts the execution.
-		Please refer doc/README.pblimage for more details
 
 		CONFIG_SYS_FSL_DDR_BE
 		Defines the DDR controller register space as Big Endian
@@ -2753,22 +2740,6 @@ Low Level (hardware related) configuration options:
 
 		This only takes effect if the memory commands are activated
 		globally (CONFIG_CMD_MEMORY).
-
-- CONFIG_SKIP_LOWLEVEL_INIT
-		[ARM, NDS32, MIPS, RISC-V only] If this variable is defined, then certain
-		low level initializations (like setting up the memory
-		controller) are omitted and/or U-Boot does not
-		relocate itself into RAM.
-
-		Normally this variable MUST NOT be defined. The only
-		exception is when U-Boot is loaded (to RAM) by some
-		other boot loader or by a debugger which performs
-		these initializations itself.
-
-- CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-		[ARM926EJ-S only] This allows just the call to lowlevel_init()
-		to be skipped. The normal CP15 init (such as enabling the
-		instruction cache) is still performed.
 
 - CONFIG_SPL_BUILD
 		Set when the currently-running compilation is for an artifact

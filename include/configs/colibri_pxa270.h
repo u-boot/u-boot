@@ -19,7 +19,6 @@
 /*
  * Environment settings
  */
-#define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 #define	CONFIG_BOOTCOMMAND						\
 	"if fatload mmc 0 0xa0000000 uImage; then "			\
 		"bootm 0xa0000000; "					\
@@ -82,7 +81,6 @@
 #define	CONFIG_SYS_DRAM_BASE		0xa0000000	/* CS0 */
 #define	CONFIG_SYS_DRAM_SIZE		0x04000000	/* 64 MB DRAM */
 
-#define	CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define	CONFIG_SYS_INIT_SP_ADDR		0x5c010000
 

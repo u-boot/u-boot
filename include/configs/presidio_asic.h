@@ -26,9 +26,6 @@
 #define GICD_BASE			0xf7011000
 #define GICC_BASE			0xf7012000
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
-
 #define CONFIG_SYS_TIMER_BASE		0xf4321000
 
 /* Use external clock source */
@@ -47,7 +44,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		(DDR_BASE + 0x10000000)
 #define CONFIG_LAST_STAGE_INIT
 
 /* SDRAM Bank #1 */

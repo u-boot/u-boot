@@ -61,7 +61,6 @@
 #ifdef CONFIG_MACH_SUN9I
 #define SDRAM_OFFSET(x) 0x2##x
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
-#define CONFIG_SYS_LOAD_ADDR		0x22000000 /* default load address */
 /* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
@@ -70,7 +69,6 @@
 #else
 #define SDRAM_OFFSET(x) 0x4##x
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 /* V3s do not have enough memory to place code at 0x4a000000 */
 /* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here
  * since it needs to fit in with the other values. By also #defining it
@@ -135,14 +133,6 @@
 #endif
 
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
-#endif
-
-#ifndef CONFIG_MACH_SUN8I_V3S
-/* 64MB of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (64 << 20))
-#else
-/* 2MB of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (2 << 20))
 #endif
 
 /*

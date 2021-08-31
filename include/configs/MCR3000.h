@@ -60,8 +60,6 @@
 
 /* Miscellaneous configurable options */
 
-#define	CONFIG_SYS_LOAD_ADDR		0x200000
-
 #define	CONFIG_SYS_HZ			1000
 
 /* Definitions for initial stack pointer and data area (in DPRAM) */
@@ -86,7 +84,6 @@
 #define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)
 #define	CONFIG_SYS_MONITOR_LEN		(320 << 10)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_MALLOC_LEN		(4096 << 10)
 
 /* Environment Configuration */
 

@@ -37,8 +37,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 #define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
@@ -102,9 +100,6 @@
 /* SPL related */
 #endif
 
-/* load address */
-#define CONFIG_SYS_LOAD_ADDR			0x22000000
-
 /* bootstrap in spi flash , u-boot + env + linux in nandflash */
 
 #ifndef CONFIG_SPL_BUILD
@@ -157,11 +152,6 @@
 	"upgrade_available=0\0"
 #endif
 #endif /* #ifndef CONFIG_SPL_BUILD */
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN \
-	ROUND(3 * CONFIG_ENV_SIZE + SZ_4M, 0x1000)
 
 /* Defines for SPL */
 #define CONFIG_SPL_MAX_SIZE		(31 * SZ_512)

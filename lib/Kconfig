@@ -92,7 +92,6 @@ config TPL_SPRINTF
 
 config SSCANF
 	bool
-	default n
 
 config STRTO
 	bool
@@ -348,7 +347,6 @@ menu "Android Verified Boot"
 config LIBAVB
 	bool "Android Verified Boot 2.0 support"
 	depends on ANDROID_BOOT_IMAGE
-	default n
 	help
 	  This enables support of Android Verified Boot 2.0 which can be used
 	  to assure the end user of the integrity of the software running on a
@@ -773,7 +771,6 @@ endmenu
 
 config PHANDLE_CHECK_SEQ
 	bool "Enable phandle check while getting sequence number"
-	default n
 	help
 	  When there are multiple device tree nodes with same name,
           enable this config option to distinguish them using

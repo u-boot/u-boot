@@ -38,7 +38,6 @@ config CMD_BOOTEFI_BOOTMGR
 
 config EFI_SETUP_EARLY
 	bool
-	default n
 
 choice
 	prompt "Store for non-volatile UEFI variables"
@@ -112,7 +111,6 @@ config EFI_SET_TIME
 	bool "SetTime() runtime service"
 	depends on EFI_GET_TIME
 	default y if ARCH_QEMU || SANDBOX
-	default n
 	help
 	  Provide the SetTime() runtime service at boottime. This service
 	  can be used by an EFI application to adjust the real time clock.
@@ -122,7 +120,6 @@ config EFI_HAVE_CAPSULE_SUPPORT
 
 config EFI_RUNTIME_UPDATE_CAPSULE
 	bool "UpdateCapsule() runtime service"
-	default n
 	select EFI_HAVE_CAPSULE_SUPPORT
 	help
 	  Select this option if you want to use UpdateCapsule and
@@ -131,7 +128,6 @@ config EFI_RUNTIME_UPDATE_CAPSULE
 config EFI_CAPSULE_ON_DISK
 	bool "Enable capsule-on-disk support"
 	select EFI_HAVE_CAPSULE_SUPPORT
-	default n
 	help
 	  Select this option if you want to use capsule-on-disk feature,
 	  that is, capsules can be fetched and executed from files
@@ -141,7 +137,6 @@ config EFI_CAPSULE_ON_DISK
 config EFI_IGNORE_OSINDICATIONS
 	bool "Ignore OsIndications for CapsuleUpdate on-disk"
 	depends on EFI_CAPSULE_ON_DISK
-	default n
 	help
 	  There are boards where U-Boot does not support SetVariable at runtime.
 	  Select this option if you want to use the capsule-on-disk feature
@@ -151,7 +146,6 @@ config EFI_IGNORE_OSINDICATIONS
 config EFI_CAPSULE_ON_DISK_EARLY
 	bool "Initiate capsule-on-disk at U-Boot boottime"
 	depends on EFI_CAPSULE_ON_DISK
-	default n
 	select EFI_SETUP_EARLY
 	help
 	  Normally, without this option enabled, capsules will be
@@ -162,7 +156,6 @@ config EFI_CAPSULE_ON_DISK_EARLY
 
 config EFI_CAPSULE_FIRMWARE
 	bool
-	default n
 
 config EFI_CAPSULE_FIRMWARE_MANAGEMENT
 	bool "Capsule: Firmware Management Protocol"
@@ -209,7 +202,6 @@ config EFI_CAPSULE_AUTHENTICATE
 	select PKCS7_VERIFY
 	select IMAGE_SIGN_INFO
 	select EFI_SIGNATURE_SUPPORT
-	default n
 	help
 	  Select this option if you want to enable capsule
 	  authentication
@@ -277,7 +269,6 @@ endif
 config EFI_LOADER_BOUNCE_BUFFER
 	bool "EFI Applications use bounce buffers for DMA operations"
 	depends on ARM64
-	default n
 	help
 	  Some hardware does not support DMA to full 64bit addresses. For this
 	  hardware we can create a bounce buffer so that payloads don't have to
@@ -364,7 +355,6 @@ config EFI_SECURE_BOOT
 	select PKCS7_MESSAGE_PARSER
 	select PKCS7_VERIFY
 	select EFI_SIGNATURE_SUPPORT
-	default n
 	help
 	  Select this option to enable EFI secure boot support.
 	  Once SecureBoot mode is enforced, any EFI binary can run only if

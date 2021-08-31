@@ -20,9 +20,6 @@
 #define CONFIG_BOARD_POSTCLK_INIT
 #define CONFIG_MXC_GPT_HCLK
 
-#define CONFIG_LOADADDR			0x10700000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-
 /* MMC */
 #define CONFIG_FSL_USDHC
 
@@ -33,7 +30,6 @@
 #define CONFIG_MACH_TYPE		0xFFFFFFFF
 
 /* misc */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 /* Environment */
 

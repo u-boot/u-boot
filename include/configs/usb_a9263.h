@@ -26,8 +26,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /*
  * Hardware drivers
  */
@@ -71,16 +69,9 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR			0x22000000
-
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_BOOTCOMMAND	"nboot 21000000 0"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN	ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
 
 #endif

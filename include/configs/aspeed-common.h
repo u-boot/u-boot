@@ -32,8 +32,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(SYS_INIT_RAM_END \
 					 - GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_MALLOC_LEN		(32 << 20)
-
 /*
  * NS16550 Configuration
  */

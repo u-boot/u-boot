@@ -13,9 +13,6 @@
 #include <linux/sizes.h>
 #include "mx6_common.h"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M)
-
 /* Total Size of Environment Sector */
 
 /* Environment */
@@ -65,7 +62,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

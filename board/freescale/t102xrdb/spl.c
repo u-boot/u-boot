@@ -30,11 +30,6 @@ unsigned long get_board_sys_clk(void)
 	return CONFIG_SYS_CLK_FREQ;
 }
 
-unsigned long get_board_ddr_clk(void)
-{
-	return CONFIG_DDR_CLK_FREQ;
-}
-
 #if defined(CONFIG_SPL_MMC_BOOT)
 #define GPIO1_SD_SEL 0x00020000
 int board_mmc_getcd(struct mmc *mmc)

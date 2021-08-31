@@ -1,7 +1,6 @@
 config RAM_OCTEON
 	bool "Ram drivers for Octeon SoCs"
 	depends on RAM && ARCH_OCTEON
-	default n
 	help
 	 This enables support for RAM drivers for Octeon SoCs.
 
@@ -9,7 +8,6 @@ if RAM_OCTEON
 
 config RAM_OCTEON_DDR4
 	bool "Octeon III DDR4 RAM support"
-	default n
 	help
 	 This enables support for DDR4 RAM suppoort for Octeon III.  This does
 	 not include support for Octeon CN70XX.

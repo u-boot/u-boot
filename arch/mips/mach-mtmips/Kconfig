@@ -39,7 +39,7 @@ choice
 
 config SOC_MT7620
 	bool "MT7620"
-	select MIPS_L1_CACHE_SHIFT_5
+	select SYS_CACHE_SHIFT_5
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	select PINCTRL_MT7620
 	select MT7620_SERIAL
@@ -54,7 +54,7 @@ config SOC_MT7620
 
 config SOC_MT7628
 	bool "MT7628"
-	select MIPS_L1_CACHE_SHIFT_5
+	select SYS_CACHE_SHIFT_5
 	select MIPS_INIT_STACK_IN_SRAM
 	select MIPS_SRAM_INIT
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD

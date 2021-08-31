@@ -92,9 +92,6 @@
 /* Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
 
 /*
  * Disable MMC DM for SPL build and can be re-enabled after adding

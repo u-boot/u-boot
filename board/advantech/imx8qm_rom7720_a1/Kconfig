@@ -9,6 +9,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "imx8qm_rom7720"
 
+config IMX_CONFIG
+	default "board/advantech/imx8qm_rom7720_a1/imximage.cfg"
+
 source "board/freescale/common/Kconfig"
 
 endif

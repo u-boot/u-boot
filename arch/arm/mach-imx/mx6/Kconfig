@@ -102,7 +102,6 @@ config MX6_OCRAM_256KB
 config MX6_DDRCAL
 	bool "Include dynamic DDR calibration routines"
 	depends on SPL
-	default n
 	help
 	  Say "Y" if your board uses dynamic (per-boot) DDR calibration.
 	  If unsure, say N.

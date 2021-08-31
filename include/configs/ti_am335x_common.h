@@ -46,9 +46,6 @@
  * Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_NOR_BOOT)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
 
 /*
  * When building U-Boot such that there is no previous loader

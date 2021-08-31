@@ -14,7 +14,6 @@
 /* The first stage boot loader expects u-boot running at this address. */
 
 /* The first stage boot loader takes care of low level initialization. */
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* Set our official architecture number. */
 #define CONFIG_MACH_TYPE MACH_TYPE_ETHERNUT5
@@ -34,9 +33,6 @@
 /* 128MB SDRAM in 1 bank */
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		(128 << 20)
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
-#define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
 
 /* 512kB on-chip NOR flash */
 # define CONFIG_SYS_MAX_FLASH_BANKS	1

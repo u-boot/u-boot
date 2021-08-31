@@ -57,9 +57,7 @@
 
 /* DDR Setup */
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
-#define CONFIG_DDR_SPD
 
-#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
@@ -72,7 +70,6 @@
 /* I2C addresses of SPD EEPROMs */
 #define SPD_EEPROM_ADDRESS	0x50	/* CTLR 0 DIMM 0 */
 
-#define CONFIG_DDR_DEFAULT_CL	30		/* CAS latency 3	*/
 
 /* Hardcoded values, to use instead of SPD */
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000000f
@@ -126,7 +123,6 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(384 * 1024)	/* Reserve 384KiB for Mon */
-#define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* Reserve 4 MB for malloc */
 
 /* FPGA and NAND */
 #define CONFIG_SYS_FPGA_BASE		0xc0000000
@@ -199,7 +195,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address		*/
 
 /*
  * For booting Linux, the board info and command line data
@@ -212,7 +207,6 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port*/
 #endif
 
-#define CONFIG_LOADADDR	 200000		/* default addr for tftp & bootm*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

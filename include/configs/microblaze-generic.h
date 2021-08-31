@@ -24,8 +24,6 @@
 /* setting reset address */
 /*#define	CONFIG_SYS_RESET_ADDRESS	CONFIG_SYS_TEXT_BASE*/
 
-#define CONFIG_SYS_MALLOC_LEN	0xC0000
-
 /* Stack location before relocation */
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_TEXT_BASE - \
 					 CONFIG_SYS_MALLOC_F_LEN)
@@ -55,8 +53,6 @@
 #define	CONFIG_SYS_CBSIZE	512
 /* max number of command args */
 #define	CONFIG_SYS_MAXARGS	15
-/* default load address */
-#define	CONFIG_SYS_LOAD_ADDR	0
 
 #define	CONFIG_HOSTNAME		"microblaze-generic"
 

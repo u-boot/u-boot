@@ -11,16 +11,10 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 16 * 1024 * 1024)
-
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
 #define CONFIG_SYS_CLK_FREQ		100000000
-#define CONFIG_DDR_CLK_FREQ		100000000
 
 /*
  * DDR: 800 MHz ( 1600 MT/s data rate )
@@ -53,18 +47,10 @@
 #define SDRAM_CFG2_FRC_SR		0x80000000
 #define SDRAM_CFG_BI			0x00000001
 
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI	\
-	board/freescale/ls1021aiot/ls102xa_pbi.cfg
-#endif
-
 #ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW	\
-	board/freescale/ls1021aiot/ls102xa_rcw_sd.cfg
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 #define CONFIG_SPL_I2C
 #define CONFIG_SPL_WATCHDOG
 #define CONFIG_SPL_MMC_SUPPORT
@@ -181,8 +167,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
-
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 #define CONFIG_LS102XA_STREAM_ID
 

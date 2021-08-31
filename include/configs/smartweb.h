@@ -43,7 +43,6 @@
 #define CONFIG_CMDLINE_TAG		/* pass commandline to Kernel */
 #define CONFIG_SETUP_MEMORY_TAGS	/* pass memory defs to kernel */
 #define CONFIG_INITRD_TAG		/* pass initrd param to kernel */
-#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY	/* U-Boot is loaded by a bootloader */
 
 /* We set the max number of command args high to avoid HUSH bugs. */
 #define CONFIG_SYS_MAXARGS    32
@@ -68,10 +67,6 @@
  * Perform a SDRAM Memtest from the start of SDRAM
  * till the beginning of the U-Boot position in RAM.
  */
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN \
-	ROUND(3 * CONFIG_ENV_SIZE + (4 * SZ_1M), 0x1000)
 
 /* NAND flash settings */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -128,12 +123,6 @@
 /* General Boot Parameter */
 #define CONFIG_BOOTCOMMAND		"run flashboot"
 #define CONFIG_SYS_CBSIZE		512
-
-/*
- * RAM Memory address where to put the
- * Linux Kernel befor starting.
- */
-#define CONFIG_SYS_LOAD_ADDR		0x22000000
 
 /*
  * The NAND Flash partitions:

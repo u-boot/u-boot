@@ -80,12 +80,4 @@
  * CFI FLASH driver setup
  */
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
-
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(0x400000 - 0x8000)
-
 #endif	/* __CONFIG_H */

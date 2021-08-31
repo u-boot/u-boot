@@ -29,8 +29,6 @@
 #define CONFIG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS
 
 #ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xqds/t208x_pbi.cfg
-
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_PAD_TO		0x40000
 #define CONFIG_SPL_MAX_SIZE		0x28000
@@ -47,9 +45,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#if defined(CONFIG_ARCH_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_nand_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -62,9 +57,6 @@
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#if defined(CONFIG_ARCH_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_spi_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -75,9 +67,6 @@
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(260 << 10)
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
-#endif
-#if defined(CONFIG_ARCH_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_sd_rcw.cfg
 #endif
 #endif
 
@@ -101,19 +90,15 @@
  */
 #define CONFIG_SYS_CACHE_STASHING
 #define CONFIG_BTB		/* toggle branch predition */
-#define CONFIG_DDR_ECC
 #ifdef CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
-unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk()
-#define CONFIG_DDR_CLK_FREQ	get_board_ddr_clk()
 
 /*
  * Config the L3 Cache as L3 SRAM
@@ -141,7 +126,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_DIMM_SLOTS_PER_CTLR	2
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
-#define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define CONFIG_SYS_SDRAM_SIZE	2048	/* for fixed parameter use */
 #define SPD_EEPROM_ADDRESS1	0x51
@@ -349,7 +333,6 @@ unsigned long get_board_ddr_clk(void);
 						GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 #define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 /*
  * Serial Port
@@ -593,7 +576,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000 /* default load address */
 
 /*
  * For booting Linux, the board info and command line data
@@ -615,8 +597,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_BOOTFILE	 "uImage"
 #define CONFIG_UBOOTPATH "u-boot.bin"	/* U-Boot image on TFTP server */
 
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
 #define __USB_PHY_TYPE		utmi
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\

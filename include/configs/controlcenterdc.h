@@ -12,15 +12,11 @@
  */
 #define CONFIG_CUSTOMER_BOARD_SUPPORT
 
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-
 /*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.
  */
-
-#define CONFIG_LOADADDR 		1000000
 
 /*
  * SATA/SCSI/AHCI configuration

@@ -11,8 +11,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_MALLOC_LEN	       SZ_128M
-
 #ifndef BOOT_PARTITION
 #define BOOT_PARTITION "boot"
 #endif

@@ -73,7 +73,6 @@
 /* Boot Argument Buffer Size    */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x10000)
 #define CONFIG_SYS_MBAR			0xFC000000
 
 /*
@@ -111,8 +110,6 @@
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
 /* Reserve 256 kB for Monitor */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
-/* Reserve 256 kB for malloc() */
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 
 /*
  * For booting Linux, the board info and command line data
@@ -132,7 +129,6 @@
 #endif
 
 /* Cache Configuration */
-#define CONFIG_SYS_CACHELINE_SIZE	16
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - 8)
 #define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \

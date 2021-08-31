@@ -65,8 +65,6 @@
 # define CONFIG_SYS_MONITOR_LEN		0x00040000	/* 256KB */
 #endif
 
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* heap  256KB */
-
 /* Linux boot param area in RAM (used only when booting linux) */
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64  << 10)
 
@@ -97,9 +95,6 @@
 
 #define XTENSA_SYS_TEXT_ADDR		\
 	(MEMADDR(CONFIG_SYS_MEMORY_SIZE) - CONFIG_SYS_MONITOR_LEN)
-
-/* Used by tftpboot; env var 'loadaddr' */
-#define CONFIG_SYS_LOAD_ADDR		MEMADDR(0x02000000)
 
 /*==============================*/
 /* U-Boot general configuration */

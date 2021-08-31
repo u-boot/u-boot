@@ -45,14 +45,6 @@
  * Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_NOR_BOOT)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif /* !CONFIG_SPL_BUILD, ... */
-/*
- * Our DDR memory always starts at 0x80000000 and U-Boot shall have
- * relocated itself to higher in memory by the time this value is used.
- */
-#define CONFIG_SYS_LOAD_ADDR		0x80000000
 /*
  * ----------------------------------------------------------------------------
  * DDR information.  We say (for simplicity) that we have 1 bank,

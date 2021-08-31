@@ -71,6 +71,9 @@ config TDX_CFG_BLOCK_OFFSET
 
 endif
 
+config IMX_CONFIG
+	default "board/toradex/colibri_imx7/imximage.cfg"
+
 source "board/toradex/common/Kconfig"
 
 endif

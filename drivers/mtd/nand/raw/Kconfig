@@ -31,12 +31,10 @@ if NAND_ATMEL
 
 config ATMEL_NAND_HWECC
 	bool "Atmel Hardware ECC"
-	default n
 
 config ATMEL_NAND_HW_PMECC
 	bool "Atmel Programmable Multibit ECC (PMECC)"
 	select ATMEL_NAND_HWECC
-	default n
 	help
 	  The Programmable Multibit ECC (PMECC) controller is a programmable
 	  binary BCH(Bose, Chaudhuri and Hocquenghem) encoder and decoder.
@@ -59,7 +57,6 @@ config SPL_GENERATE_ATMEL_PMECC_HEADER
 	bool "Atmel PMECC Header Generation"
 	select ATMEL_NAND_HWECC
 	select ATMEL_NAND_HW_PMECC
-	default n
 	help
 	  Generate Programmable Multibit ECC (PMECC) header for SPL image.
 

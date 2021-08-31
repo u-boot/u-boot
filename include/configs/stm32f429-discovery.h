@@ -14,8 +14,6 @@
 /*
  * Configuration of the external SDRAM memory
  */
-#define CONFIG_SYS_LOAD_ADDR		0x90400000
-#define CONFIG_LOADADDR			0x90400000
 
 #define CONFIG_SYS_MAX_FLASH_SECT	12
 #define CONFIG_SYS_MAX_FLASH_BANKS	2
@@ -33,8 +31,6 @@
 #define CONFIG_REVISION_TAG
 
 #define CONFIG_SYS_CBSIZE		1024
-
-#define CONFIG_SYS_MALLOC_LEN		(2 << 20)
 
 #define CONFIG_BOOTCOMMAND						\
 	"run bootcmd_romfs"

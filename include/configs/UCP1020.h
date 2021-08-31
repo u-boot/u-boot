@@ -149,7 +149,6 @@
 #define CONFIG_LBA48
 
 #define CONFIG_SYS_CLK_FREQ	66666666
-#define CONFIG_DDR_CLK_FREQ	66666666
 
 #define CONFIG_HWCONFIG
 
@@ -171,11 +170,6 @@
 #endif
 
 /* DDR Setup */
-#define CONFIG_DDR_ECC_ENABLE
-#ifndef CONFIG_DDR_ECC_ENABLE
-#define CONFIG_SYS_DDR_RAW_TIMING
-#define CONFIG_DDR_SPD
-#endif
 #define CONFIG_SYS_SPD_BUS_NUM 1
 
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_512M
@@ -204,11 +198,7 @@
 #define CONFIG_SYS_DDR_SR_CNTR		0x00000000
 #define CONFIG_SYS_DDR_RCW_1		0x00000000
 #define CONFIG_SYS_DDR_RCW_2		0x00000000
-#ifdef CONFIG_DDR_ECC_ENABLE
 #define CONFIG_SYS_DDR_CONTROL		0xE70C0000	/* Type = DDR3 & ECC */
-#else
-#define CONFIG_SYS_DDR_CONTROL		0xC70C0000	/* Type = DDR3 */
-#endif
 #define CONFIG_SYS_DDR_CONTROL_2	0x04401050
 #define CONFIG_SYS_DDR_TIMING_4		0x00220001
 #define CONFIG_SYS_DDR_TIMING_5		0x03402400
@@ -274,7 +264,6 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN	(256 * 1024)/* Reserve 256 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024)/* Reserved for malloc */
 
 #define CONFIG_SYS_PMC_BASE	0xff980000
 #define CONFIG_SYS_PMC_BASE_PHYS	CONFIG_SYS_PMC_BASE
@@ -387,7 +376,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms tick */
 
 /*
@@ -439,9 +427,6 @@
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
-
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
 
 #if defined(CONFIG_DONGLE)
 

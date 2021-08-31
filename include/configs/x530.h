@@ -61,8 +61,6 @@
 /* NAND */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
-#define CONFIG_SYS_MALLOC_LEN		(4 << 20)
-
 #include <asm/arch/config.h>
 
 /*
@@ -75,7 +73,6 @@
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
 
-#define CONFIG_SYS_LOAD_ADDR	0x1000000
 #define CONFIG_UBI_PART			user
 #define CONFIG_UBIFS_VOLUME		user
 

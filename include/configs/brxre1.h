@@ -18,7 +18,6 @@
 #define LCD_BPP				LCD_COLOR32
 
 /* memory */
-#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */

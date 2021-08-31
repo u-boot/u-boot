@@ -71,7 +71,6 @@ menuconfig PHY_AQUANTIA
 
 config PHY_AQUANTIA_UPLOAD_FW
 	bool "Aquantia firmware loading support"
-	default n
 	depends on PHY_AQUANTIA
 	help
 		Aquantia PHYs use firmware which can be either loaded automatically
@@ -102,7 +101,6 @@ config PHY_CORTINA
 
 config SYS_CORTINA_NO_FW_UPLOAD
 	bool "Cortina firmware loading support"
-	default n
 	depends on PHY_CORTINA
 	help
 		Cortina phy has provision to store phy firmware in attached dedicated
@@ -250,7 +248,6 @@ config RTL8211X_PHY_FORCE_MASTER
 config RTL8211F_PHY_FORCE_EEE_RXC_ON
 	bool "Ethernet PHY RTL8211F: do not stop receiving the xMII clock during LPI"
 	depends on PHY_REALTEK
-	default n
 	help
 	  The IEEE 802.3az-2010 (EEE) standard provides a protocol to coordinate
 	  transitions to/from a lower power consumption level (Low Power Idle

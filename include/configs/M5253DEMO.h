@@ -75,8 +75,6 @@
 #define CONFIG_SYS_I2C_PINMUX_CLR	(0xFFFFE7FF)
 #define CONFIG_SYS_I2C_PINMUX_SET	(0)
 
-#define CONFIG_SYS_LOAD_ADDR		0x00100000
-
 #undef CONFIG_SYS_PLL_BYPASS		/* bypass PLL for test purpose */
 #define CONFIG_SYS_FAST_CLK
 #ifdef CONFIG_SYS_FAST_CLK
@@ -119,7 +117,6 @@
 #endif
 
 #define CONFIG_SYS_MONITOR_LEN		0x40000
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64*1024)
 
 /*
@@ -155,7 +152,6 @@
 #endif
 
 /* Cache Configuration */
-#define CONFIG_SYS_CACHELINE_SIZE	16
 
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - 8)

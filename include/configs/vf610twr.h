@@ -15,13 +15,8 @@
 
 #define CONFIG_MACH_TYPE		4146
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
@@ -43,9 +38,6 @@
 
 /* I2C Configs */
 #define CONFIG_SYS_SPD_BUS_NUM		0
-
-
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
 #define CONFIG_BOARD_SIZE_LIMIT		520192

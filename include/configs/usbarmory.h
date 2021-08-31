@@ -34,10 +34,6 @@
 /* Fuse */
 #define CONFIG_FSL_IIM
 
-/* U-Boot memory offsets */
-#define CONFIG_LOADADDR		0x72000000
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
-
 /* Linux boot */
 #define CONFIG_HOSTNAME		"usbarmory"
 #define CONFIG_BOOTCOMMAND						\
@@ -82,7 +78,5 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 #endif				/* __CONFIG_H */

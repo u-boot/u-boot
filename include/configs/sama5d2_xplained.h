@@ -22,8 +22,6 @@
 	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
-
 /* SerialFlash */
 
 #ifdef CONFIG_SD_BOOT

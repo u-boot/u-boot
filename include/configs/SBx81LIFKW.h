@@ -11,7 +11,6 @@
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
 #define CONFIG_KW88F6281	1	/* SOC Name */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
 
 /* additions for new ARM relocation support */
@@ -60,7 +59,6 @@
  */
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for monitor */
-#define CONFIG_SYS_MALLOC_LEN		  (4 << 20)	/* Reserve 4.0 MB for malloc */
 
 /*
  * For booting Linux, the board info and command line data
@@ -88,7 +86,5 @@
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable a single port */
 #define CONFIG_PHY_BASE_ADR	0x01
 #endif /* CONFIG_CMD_NET */
-
-#define CONFIG_SYS_LOAD_ADDR  0x1000000      /* default location for tftp and bootm */
 
 #endif /* _CONFIG_SBX81LIFKW_H */

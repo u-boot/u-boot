@@ -40,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 
 static const struct ddr_data ddr3_sl50_data = {
 	.datardsratio0 = MT41K256M16HA125E_RD_DQS,

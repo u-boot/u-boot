@@ -10,6 +10,8 @@ config SYS_FSL_MMDC
 	help
 	  Select Freescale Multi Mode DDR controller (MMDC).
 
+if SYS_FSL_DDR || SYS_FSL_MMDC
+
 config SYS_FSL_DDR_BE
 	bool
 	help
@@ -116,27 +118,50 @@ choice
 config SYS_FSL_DDR4
 	bool "Freescale DDR4 controller"
 	depends on SYS_FSL_HAS_DDR4
+	imply DDR_SPD
 	select SYS_FSL_DDRC_GEN4
 
 config SYS_FSL_DDR3
 	bool "Freescale DDR3 controller"
 	depends on SYS_FSL_HAS_DDR3
+	imply DDR_SPD
 	select SYS_FSL_DDRC_GEN3 if PPC
 	select SYS_FSL_DDRC_ARM_GEN3 if ARM
 
 config SYS_FSL_DDR2
 	bool "Freescale DDR2 controller"
 	depends on SYS_FSL_HAS_DDR2
+	imply DDR_SPD
 	select SYS_FSL_DDRC_GEN2 if (!MPC86xx && !SYS_FSL_DDRC_GEN3)
 
 config SYS_FSL_DDR1
 	bool "Freescale DDR1 controller"
 	depends on SYS_FSL_HAS_DDR1
+	imply DDR_SPD
 	select SYS_FSL_DDRC_GEN1
 
 endchoice
 
 endmenu
+
+config FSL_DMA
+	def_bool y if DDR_ECC && MPC85xx && !ECC_INIT_VIA_DDRCONTROLLER
+
+config DDR_ECC
+	bool "ECC DDR memory support"
+
+config DDR_ECC_CMD
+	bool "Access the ECC features of the memory controller"
+	depends on DDR_ECC && MPC83xx
+	default y
+
+config ECC_INIT_VIA_DDRCONTROLLER
+	bool "DDR Memory controller initializes memory."
+	help
+	  Use the DDR controller to auto initialize memory.  If not enabled,
+	  the DMA controller is responsible for doing this.
+
+endif
 
 config SYS_FSL_ERRATUM_A008378
 	bool

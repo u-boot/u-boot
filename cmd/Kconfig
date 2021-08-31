@@ -471,7 +471,6 @@ config CMD_SAVEENV
 
 config CMD_ERASEENV
 	bool "eraseenv"
-	default n
 	depends on CMD_SAVEENV
 	help
 	  Erase environment variables from the compiled-in persistent
@@ -652,14 +651,12 @@ config LOOPW
 
 config CMD_MD5SUM
 	bool "md5sum"
-	default n
 	select MD5
 	help
 	  Compute MD5 checksum.
 
 config MD5SUM_VERIFY
 	bool "md5sum -v"
-	default n
 	depends on CMD_MD5SUM
 	help
 	  Add -v option to verify data against an MD5 checksum.
@@ -1119,7 +1116,6 @@ if CMD_MMC
 config CMD_BKOPS_ENABLE
 	bool "mmc bkops enable"
 	depends on CMD_MMC
-	default n
 	help
 	  Enable command for setting manual background operations handshake
 	  on a eMMC device. The feature is optionally available on eMMC devices
@@ -1447,7 +1443,6 @@ config CMD_SETEXPR
 
 config CMD_SETEXPR_FMT
 	bool "setexpr_fmt"
-	default n
 	depends on CMD_SETEXPR
 	help
 	  Evaluate format string expression and store result in an environment
@@ -1459,7 +1454,6 @@ menu "Android support commands"
 
 config CMD_AB_SELECT
 	bool "ab_select"
-	default n
 	depends on ANDROID_AB
 	help
 	  On Android devices with more than one boot slot (multiple copies of
@@ -1764,7 +1758,6 @@ config CMD_EFIDEBUG
 	bool "efidebug - display/configure UEFI environment"
 	depends on EFI_LOADER
 	select EFI_DEVICE_PATH_TO_TEXT
-	default n
 	help
 	  Enable the 'efidebug' command which provides a subset of UEFI
 	  shell utility with simplified functionality. It will be useful
@@ -2367,7 +2360,6 @@ config CMD_TRACE
 config CMD_AVB
 	bool "avb - Android Verified Boot 2.0 operations"
 	depends on AVB_VERIFY
-	default n
 	help
 	  Enables a "avb" command to perform verification of partitions using
 	  Android Verified Boot 2.0 functionality. It includes such subcommands:
@@ -2407,7 +2399,6 @@ config CMD_UBI
 config CMD_UBI_RENAME
        bool "Enable rename"
        depends on CMD_UBI
-       default n
        help
          Enable a "ubi" command to rename ubi volume:
 	   ubi rename <oldname> <newname>

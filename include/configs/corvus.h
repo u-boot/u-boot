@@ -32,7 +32,6 @@
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
-#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -83,19 +82,11 @@
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
-#define CONFIG_SYS_LOAD_ADDR	ATMEL_BASE_CS6
-
 /* bootstrap + u-boot + env in nandflash */
 
 #define CONFIG_BOOTCOMMAND						\
 	"nand read 0x70000000 0x200000 0x300000;"			\
 	"bootm 0x70000000"
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN	ROUND(3 * CONFIG_ENV_SIZE + \
-				SZ_4M, 0x1000)
 
 /* Defines for SPL */
 #define CONFIG_SPL_MAX_SIZE		(12 * SZ_1K)

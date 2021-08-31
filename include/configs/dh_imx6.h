@@ -32,9 +32,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(4 * SZ_1M)
-
 /* Bootcounter */
 #define CONFIG_SYS_BOOTCOUNT_BE
 
@@ -80,9 +77,6 @@
 #undef CONFIG_WATCHDOG
 #define CONFIG_HW_WATCHDOG
 #endif
-
-#define CONFIG_LOADADDR			0x12000000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS	\
