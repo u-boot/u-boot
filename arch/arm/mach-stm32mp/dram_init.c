@@ -47,7 +47,7 @@ ulong board_get_usable_ram_top(ulong total_size)
 	struct lmb lmb;
 
 	if (!total_size)
-		return gd->ram_base + gd->ram_size;
+		return gd->ram_top;
 
 	/* found enough not-reserved memory to relocated U-Boot */
 	lmb_init(&lmb);
