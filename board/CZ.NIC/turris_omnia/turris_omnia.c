@@ -129,7 +129,6 @@ static int omnia_mcu_read(u8 cmd, void *buf, int len)
 	return dm_i2c_read(chip, cmd, buf, len);
 }
 
-#ifndef CONFIG_SPL_BUILD
 static int omnia_mcu_write(u8 cmd, const void *buf, int len)
 {
 	struct udevice *chip;
@@ -158,7 +157,6 @@ static bool disable_mcu_watchdog(void)
 
 	return true;
 }
-#endif
 
 static bool omnia_detect_sata(void)
 {
@@ -325,7 +323,6 @@ struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 		return &board_topology_map_1g;
 }
 
-#ifndef CONFIG_SPL_BUILD
 static int set_regdomain(void)
 {
 	struct omnia_eeprom oep;
@@ -394,7 +391,6 @@ static void handle_reset_button(void)
 		}
 	}
 }
-#endif
 
 int board_early_init_f(void)
 {
@@ -423,24 +419,35 @@ int board_early_init_f(void)
 	return 0;
 }
 
+void spl_board_init(void)
+{
+	/*
+	 * If booting from UART, disable MCU watchdog in SPL, since uploading
+	 * U-Boot proper can take too much time and trigger it.
+	 */
+	if (get_boot_device() == BOOT_DEVICE_UART)
+		disable_mcu_watchdog();
+}
+
 int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
-
-#ifndef CONFIG_SPL_BUILD
-	disable_mcu_watchdog();
-#endif
 
 	return 0;
 }
 
 int board_late_init(void)
 {
-#ifndef CONFIG_SPL_BUILD
+	/*
+	 * If not booting from UART, MCU watchdog was not disabled in SPL,
+	 * disable it now.
+	 */
+	if (get_boot_device() != BOOT_DEVICE_UART)
+		disable_mcu_watchdog();
+
 	set_regdomain();
 	handle_reset_button();
-#endif
 	pci_init();
 
 	return 0;

@@ -5,8 +5,6 @@
  *
  * (C) Copyright 2013 Thomas Petazzoni
  * <thomas.petazzoni@free-electrons.com>
- *
- * Not implemented: support for the register headers in v1 images
  */
 
 #include "imagetool.h"
@@ -59,13 +57,13 @@ struct hash_v1 {
 };
 
 struct boot_mode boot_modes[] = {
-	{ 0x4D, "i2c"  },
-	{ 0x5A, "spi"  },
-	{ 0x8B, "nand" },
-	{ 0x78, "sata" },
-	{ 0x9C, "pex"  },
-	{ 0x69, "uart" },
-	{ 0xAE, "sdio" },
+	{ IBR_HDR_I2C_ID, "i2c"  },
+	{ IBR_HDR_SPI_ID, "spi"  },
+	{ IBR_HDR_NAND_ID, "nand" },
+	{ IBR_HDR_SATA_ID, "sata" },
+	{ IBR_HDR_PEX_ID, "pex"  },
+	{ IBR_HDR_UART_ID, "uart" },
+	{ IBR_HDR_SDIO_ID, "sdio" },
 	{},
 };
 
@@ -75,10 +73,10 @@ struct nand_ecc_mode {
 };
 
 struct nand_ecc_mode nand_ecc_modes[] = {
-	{ 0x00, "default" },
-	{ 0x01, "hamming" },
-	{ 0x02, "rs" },
-	{ 0x03, "disabled" },
+	{ IBR_HDR_ECC_DEFAULT, "default" },
+	{ IBR_HDR_ECC_FORCED_HAMMING, "hamming" },
+	{ IBR_HDR_ECC_FORCED_RS, "rs" },
+	{ IBR_HDR_ECC_DISABLED, "disabled" },
 	{},
 };
 
@@ -832,6 +830,12 @@ static int kwb_dump_fuse_cmds(struct secure_hdr_v1 *sec_hdr)
 	if (!strcmp(e->name, "a38x")) {
 		FILE *out = fopen("kwb_fuses_a38x.txt", "w+");
 
+		if (!out) {
+			fprintf(stderr, "Couldn't open eFuse settings: '%s': %s\n",
+				"kwb_fuses_a38x.txt", strerror(errno));
+			return -ENOENT;
+		}
+
 		kwb_dump_fuse_cmds_38x(out, sec_hdr);
 		fclose(out);
 		goto done;
@@ -1060,6 +1064,11 @@ int export_pub_kak_hash(RSA *kak, struct secure_hdr_v1 *secure_hdr)
 	int res;
 
 	hashf = fopen("pub_kak_hash.txt", "w");
+	if (!hashf) {
+		fprintf(stderr, "Couldn't open hash file: '%s': %s\n",
+			"pub_kak_hash.txt", strerror(errno));
+		return 1;
+	}
 
 	res = kwb_export_pubkey(kak, &secure_hdr->kak, hashf, "KAK");
 
@@ -1076,7 +1085,7 @@ int kwb_sign_csk_with_kak(struct image_tool_params *params,
 	int csk_idx = image_get_csk_index();
 	struct sig_v1 tmp_sig;
 
-	if (csk_idx >= 16) {
+	if (csk_idx < 0 || csk_idx > 15) {
 		fprintf(stderr, "Invalid CSK index %d\n", csk_idx);
 		return 1;
 	}
@@ -1670,6 +1679,9 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 		if (mhdr->ext & 0x1) {
 			struct ext_hdr_v0 *ext_hdr;
 
+			if (header_size + sizeof(*ext_hdr) > image_size)
+				return -FDT_ERR_BADSTRUCTURE;
+
 			ext_hdr = (struct ext_hdr_v0 *)
 				(ptr + sizeof(struct main_hdr_v0));
 			checksum = image_checksum8(ext_hdr,
@@ -1678,9 +1690,7 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 			if (checksum != ext_hdr->checksum)
 				return -FDT_ERR_BADSTRUCTURE;
 		}
-	}
-
-	if (image_version((void *)ptr) == 1) {
+	} else if (image_version((void *)ptr) == 1) {
 		struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
 		uint32_t offset;
 		uint32_t size;
@@ -1744,12 +1754,14 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 			return -FDT_ERR_BADSTRUCTURE;
 
 		size = le32_to_cpu(mhdr->blocksize);
-		if (offset + size > image_size || size % 4 != 0)
+		if (size < 4 || offset + size > image_size || size % 4 != 0)
 			return -FDT_ERR_BADSTRUCTURE;
 
 		if (image_checksum32(ptr + offset, size - 4) !=
 		    *(uint32_t *)(ptr + offset + size - 4))
 			return -FDT_ERR_BADSTRUCTURE;
+	} else {
+		return -FDT_ERR_BADSTRUCTURE;
 	}
 
 	return 0;
