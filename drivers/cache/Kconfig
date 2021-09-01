@@ -39,4 +39,11 @@ config NCORE_CACHE
 	  controller. The driver initializes cache directories and coherent
 	  agent interfaces.
 
+config SIFIVE_CCACHE
+	bool "SiFive composable cache"
+	select CACHE
+	help
+	  This driver is for SiFive Composable L2/L3 cache. It enables cache
+	  ways of composable cache.
+
 endmenu
