@@ -10,6 +10,7 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_BOOTI) += bootm.o image.o
 obj-$(CONFIG_CMD_GO) += boot.o
 obj-y	+= cache.o
+obj-$(CONFIG_SIFIVE_CACHE) += sifive_cache.o
 ifeq ($(CONFIG_$(SPL_)RISCV_MMODE),y)
 obj-$(CONFIG_$(SPL_)SIFIVE_CLINT) += sifive_clint.o
 obj-$(CONFIG_ANDES_PLIC) += andes_plic.o
