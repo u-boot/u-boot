@@ -11,6 +11,7 @@
  *
  */
 
+#include <asm/macro.h>
 #include "asmdefs.h"
 
 #define dstin	x0
@@ -25,6 +26,37 @@ ENTRY (memset)
 	PTR_ARG (0)
 	SIZE_ARG (2)
 
+	/*
+	 * The optimized memset uses the dc opcode, which causes problems
+	 * when the cache is disabled. Let's check if the cache is disabled
+	 * and use a very simple memset implementation in this case. Otherwise
+	 * jump to the optimized version.
+	 */
+	switch_el x6, 3f, 2f, 1f
+3:	mrs	x6, sctlr_el3
+	b	0f
+2:	mrs	x6, sctlr_el2
+	b	0f
+1:	mrs	x6, sctlr_el1
+0:
+	tst	x6, #CR_C
+	bne	9f
+
+	/*
+	 * A very "simple" memset implementation without the use of the
+	 * dc opcode. Can be run with caches disabled.
+	 */
+	mov	x3, #0x0
+	cmp	count, x3	/* check for zero length */
+	beq	8f
+4:	strb	valw, [dstin, x3]
+	add	x3, x3, #0x1
+	cmp	count, x3
+	bne	4b
+8:	ret
+9:
+
+	/* Here the optimized memset version starts */
 	dup	v0.16B, valw
 	add	dstend, dstin, count
 
