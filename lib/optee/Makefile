@@ -2,4 +2,4 @@
 #
 # (C) Copyright 2017 Linaro
 
-obj-$(CONFIG_OPTEE) += optee.o
+obj-y += optee.o

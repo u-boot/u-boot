@@ -20,6 +20,7 @@
 	"\n\theader lo=0x%08x hi=0x%08x size=0x%08lx arch=0x%08x" \
 	"\n\tuimage params 0x%08lx-0x%08lx\n"
 
+#if defined(CONFIG_OPTEE_IMAGE)
 int optee_verify_image(struct optee_header *hdr, unsigned long tzdram_start,
 		       unsigned long tzdram_len, unsigned long image_len)
 {
@@ -70,6 +71,7 @@ error:
 
 	return ret;
 }
+#endif
 
 #if defined(CONFIG_OF_LIBFDT)
 static int optee_copy_firmware_node(ofnode node, void *fdt_blob)

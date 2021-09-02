@@ -45,7 +45,7 @@ int dram_init_banksize(void)
 	gd->bd->bi_dram[0].start = 0x200000;
 	gd->bd->bi_dram[0].size = top - gd->bd->bi_dram[0].start;
 #else
-#ifdef CONFIG_SPL_OPTEE
+#ifdef CONFIG_SPL_OPTEE_IMAGE
 	struct tos_parameter_t *tos_parameter;
 
 	tos_parameter = (struct tos_parameter_t *)(CONFIG_SYS_SDRAM_BASE +
