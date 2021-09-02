@@ -455,8 +455,8 @@ config ARM_CORTEX_CPU_IS_UP
 
 config USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy"
-	default y
-	depends on !ARM64
+	default y if !ARM64
+	depends on !ARM64 || (ARM64 && (GCC_VERSION >= 90400))
 	help
 	  Enable the generation of an optimized version of memcpy.
 	  Such an implementation may be faster under some conditions
@@ -465,7 +465,7 @@ config USE_ARCH_MEMCPY
 config SPL_USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy for SPL"
 	default y if USE_ARCH_MEMCPY
-	depends on !ARM64 && SPL
+	depends on SPL
 	help
 	  Enable the generation of an optimized version of memcpy.
 	  Such an implementation may be faster under some conditions
@@ -474,16 +474,43 @@ config SPL_USE_ARCH_MEMCPY
 config TPL_USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy for TPL"
 	default y if USE_ARCH_MEMCPY
-	depends on !ARM64 && TPL
+	depends on TPL
 	help
 	  Enable the generation of an optimized version of memcpy.
 	  Such an implementation may be faster under some conditions
 	  but may increase the binary size.
 
+config USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove" if !ARM64
+	default USE_ARCH_MEMCPY if ARM64
+	depends on ARM64
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config SPL_USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove for SPL" if !ARM64
+	default SPL_USE_ARCH_MEMCPY if ARM64
+	depends on SPL && ARM64
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config TPL_USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove for TPL" if !ARM64
+	default TPL_USE_ARCH_MEMCPY if ARM64
+	depends on TPL && ARM64
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
 config USE_ARCH_MEMSET
 	bool "Use an assembly optimized implementation of memset"
-	default y
-	depends on !ARM64
+	default y if !ARM64
+	depends on !ARM64 || (ARM64 && (GCC_VERSION >= 90400))
 	help
 	  Enable the generation of an optimized version of memset.
 	  Such an implementation may be faster under some conditions
@@ -492,7 +519,7 @@ config USE_ARCH_MEMSET
 config SPL_USE_ARCH_MEMSET
 	bool "Use an assembly optimized implementation of memset for SPL"
 	default y if USE_ARCH_MEMSET
-	depends on !ARM64 && SPL
+	depends on SPL
 	help
 	  Enable the generation of an optimized version of memset.
 	  Such an implementation may be faster under some conditions
@@ -501,7 +528,7 @@ config SPL_USE_ARCH_MEMSET
 config TPL_USE_ARCH_MEMSET
 	bool "Use an assembly optimized implementation of memset for TPL"
 	default y if USE_ARCH_MEMSET
-	depends on !ARM64 && TPL
+	depends on TPL
 	help
 	  Enable the generation of an optimized version of memset.
 	  Such an implementation may be faster under some conditions
