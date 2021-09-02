@@ -532,7 +532,12 @@ R:	Linus Walleij <linus.walleij@linaro.org>
 S:	Maintained
 F:	arch/arm/dts/ste-*
 F:	arch/arm/mach-u8500/
+F:	drivers/gpio/nmk_gpio.c
+F:	drivers/phy/phy-ab8500-usb.c
+F:	drivers/power/pmic/ab8500.c
 F:	drivers/timer/nomadik-mtu-timer.c
+F:	drivers/usb/musb-new/ux500.c
+F:	drivers/video/mcde_simple.c
 
 ARM UNIPHIER
 S:	Orphan (Since 2020-09)

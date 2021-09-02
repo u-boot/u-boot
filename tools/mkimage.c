@@ -732,6 +732,12 @@ copy_file (int ifd, const char *datafile, int pad)
 		exit (EXIT_FAILURE);
 	}
 
+	if (sbuf.st_size == 0) {
+		fprintf (stderr, "%s: Input file %s is empty, bailing out\n",
+			params.cmdname, datafile);
+		exit (EXIT_FAILURE);
+	}
+
 	ptr = mmap(0, sbuf.st_size, PROT_READ, MAP_SHARED, dfd, 0);
 	if (ptr == MAP_FAILED) {
 		fprintf (stderr, "%s: Can't read %s: %s\n",

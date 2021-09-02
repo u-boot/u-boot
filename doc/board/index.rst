@@ -26,6 +26,7 @@ Board-specific doc
    sipeed/index
    socionext/index
    st/index
+   ste/index
    tbs/index
    ti/index
    toradex/index

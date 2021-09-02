@@ -535,6 +535,9 @@ static ulong load_serial_bin(ulong offset)
 		udelay(1000);
 	}
 
+	if (size == 0)
+		return ~0; /* Download aborted */
+
 	flush_cache(offset, size);
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);

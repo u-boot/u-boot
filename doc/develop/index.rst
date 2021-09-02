@@ -54,5 +54,6 @@ Refactoring
 .. toctree::
    :maxdepth: 1
 
+   checkpatch
    coccinelle
    moveconfig
