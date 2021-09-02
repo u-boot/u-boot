@@ -256,7 +256,7 @@ lr	.req	x30
  * For loading 64-bit OS, x0 is physical address to the FDT blob.
  * They will be passed to the guest.
  */
-.macro armv8_switch_to_el1_m, ep, flag, tmp
+.macro armv8_switch_to_el1_m, ep, flag, tmp, tmp2
 	/* Initialize Generic Timers */
 	mrs	\tmp, cnthctl_el2
 	/* Enable EL1 access to timers */
@@ -306,8 +306,32 @@ lr	.req	x30
 	b.eq	1f
 
 	/* Initialize HCR_EL2 */
-	ldr	\tmp, =(HCR_EL2_RW_AARCH64 | HCR_EL2_HCD_DIS)
+	/* Only disable PAuth traps if PAuth is supported */
+	mrs	\tmp, id_aa64isar1_el1
+	ldr	\tmp2, =(ID_AA64ISAR1_EL1_GPI | ID_AA64ISAR1_EL1_GPA | \
+		      ID_AA64ISAR1_EL1_API | ID_AA64ISAR1_EL1_APA)
+	tst	\tmp, \tmp2
+	mov	\tmp2, #(HCR_EL2_RW_AARCH64 | HCR_EL2_HCD_DIS)
+	orr	\tmp, \tmp2, #(HCR_EL2_APK | HCR_EL2_API)
+	csel	\tmp, \tmp2, \tmp, eq
 	msr	hcr_el2, \tmp
+
+	/*
+	 * Detect whether the system has a configurable memory system
+	 * architecture at EL1&0
+	 */
+	mrs	\tmp, id_aa64mmfr0_el1
+	lsr	\tmp, \tmp, #48
+	and	\tmp, \tmp, #((ID_AA64MMFR0_EL1_MSA_MASK | \
+			ID_AA64MMFR0_EL1_MSA_FRAC_MASK) >> 48)
+	cmp	\tmp, #((ID_AA64MMFR0_EL1_MSA_USE_FRAC | \
+			ID_AA64MMFR0_EL1_MSA_FRAC_VMSA) >> 48)
+	bne	2f
+
+	/* Ensure the EL1&0 VMSA is enabled */
+	mov	\tmp, #(VTCR_EL2_MSA)
+	msr	vtcr_el2, \tmp
+2:
 
 	/* Return to the EL1_SP1 mode from EL2 */
 	ldr	\tmp, =(SPSR_EL_DEBUG_MASK | SPSR_EL_SERR_MASK |\

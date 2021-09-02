@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2020 Broadcom
+ * Copyright (C) 2020-2021 Broadcom
  *
  */
 
@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/delay.h>
 #include <linux/log2.h>
 
 #define EP_PERST_SOURCE_SELECT_SHIFT 2
@@ -884,7 +885,7 @@ static int iproc_pcie_map_ranges(struct udevice *dev)
 	for (i = 0; i < hose->region_count; i++) {
 		if (hose->regions[i].flags == PCI_REGION_MEM ||
 		    hose->regions[i].flags == PCI_REGION_PREFETCH) {
-			debug("%d: bus_addr %p, axi_addr %p, size 0x%lx\n",
+			debug("%d: bus_addr %p, axi_addr %p, size 0x%llx\n",
 			      i, &hose->regions[i].bus_start,
 			      &hose->regions[i].phys_start,
 			      hose->regions[i].size);
@@ -1049,7 +1050,7 @@ static int iproc_pcie_map_dma_ranges(struct iproc_pcie *pcie)
 
 	while (!pci_get_dma_regions(pcie->dev, &regions, i)) {
 		dev_dbg(pcie->dev,
-			"dma %d: bus_addr %#lx, axi_addr %#llx, size %#lx\n",
+			"dma %d: bus_addr %#llx, axi_addr %#llx, size %#llx\n",
 			i, regions.bus_start, regions.phys_start, regions.size);
 
 		/* Each range entry corresponds to an inbound mapping region */

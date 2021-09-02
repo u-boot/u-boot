@@ -75,9 +75,48 @@
 /*
  * HCR_EL2 bits definitions
  */
+#define HCR_EL2_API		(1 << 41) /* Trap pointer authentication
+				             instructions                     */
+#define HCR_EL2_APK		(1 << 40) /* Trap pointer authentication
+				             key access                       */
 #define HCR_EL2_RW_AARCH64	(1 << 31) /* EL1 is AArch64                   */
 #define HCR_EL2_RW_AARCH32	(0 << 31) /* Lower levels are AArch32         */
 #define HCR_EL2_HCD_DIS		(1 << 29) /* Hypervisor Call disabled         */
+
+/*
+ * VTCR_EL2 bits definitions
+ */
+#define VTCR_EL2_MSA      	(1 << 31) /* EL1&0 memory architecture        */
+
+/*
+ * ID_AA64MMFR0_EL1 bits definitions
+ */
+#define ID_AA64MMFR0_EL1_MSA_FRAC_MASK		(0xFUL << 52) /* Memory system
+								 architecture
+								 frac         */
+#define ID_AA64MMFR0_EL1_MSA_FRAC_VMSA		(0x2UL << 52) /* EL1&0 supports
+								 VMSA         */
+#define ID_AA64MMFR0_EL1_MSA_FRAC_PMSA		(0x1UL << 52) /* EL1&0 only
+							         supports PMSA*/
+#define ID_AA64MMFR0_EL1_MSA_FRAC_NO_PMSA	(0x0UL << 52) /* No PMSA
+								 support      */
+#define ID_AA64MMFR0_EL1_MSA_MASK		(0xFUL << 48) /* Memory system
+								 architecture */
+#define ID_AA64MMFR0_EL1_MSA_USE_FRAC		(0xFUL << 48) /* Use MSA_FRAC */
+#define ID_AA64MMFR0_EL1_MSA_VMSA		(0x0UL << 48) /* Memory system
+								 architecture
+								 is VMSA      */
+
+/*
+ * ID_AA64ISAR1_EL1 bits definitions
+ */
+#define ID_AA64ISAR1_EL1_GPI	(0xF << 28) /* Implementation-defined generic
+				               code auth algorithm            */
+#define ID_AA64ISAR1_EL1_GPA	(0xF << 24) /* QARMA generic code auth
+				               algorithm                      */
+#define ID_AA64ISAR1_EL1_API	(0xF << 8)  /* Implementation-defined address
+				               auth algorithm                 */
+#define ID_AA64ISAR1_EL1_APA	(0xF << 4)  /* QARMA address auth algorithm   */
 
 /*
  * ID_AA64PFR0_EL1 bits definitions
@@ -551,7 +590,6 @@ s32 psci_affinity_info(u32 function_id, u32 target_affinity,
 u32 psci_migrate_info_type(void);
 void psci_system_off(void);
 void psci_system_reset(void);
-s32 psci_features(u32 function_id, u32 psci_fid);
 #endif
 
 #endif /* __ASSEMBLY__ */

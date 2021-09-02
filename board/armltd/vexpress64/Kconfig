@@ -1,4 +1,5 @@
-if TARGET_VEXPRESS64_BASE_FVP || TARGET_VEXPRESS64_JUNO
+if TARGET_VEXPRESS64_BASE_FVP || TARGET_VEXPRESS64_JUNO || \
+	TARGET_VEXPRESS64_BASER_FVP
 
 config SYS_BOARD
 	default "vexpress64"
@@ -7,7 +8,7 @@ config SYS_VENDOR
 	default "armltd"
 
 config SYS_CONFIG_NAME
-	default "vexpress_aemv8a"
+	default "vexpress_aemv8"
 
 config JUNO_DTB_PART
 	string "NOR flash partition holding DTB"
