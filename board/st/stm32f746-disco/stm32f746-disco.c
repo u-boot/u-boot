@@ -122,8 +122,6 @@ int board_late_init(void)
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;
-
 #ifdef CONFIG_ETH_DESIGNWARE
 	const char *phy_mode;
 	int node;
