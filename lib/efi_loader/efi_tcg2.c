@@ -708,6 +708,18 @@ efi_tcg2_get_eventlog(struct efi_tcg2_protocol *this,
 	EFI_ENTRY("%p, %u, %p, %p,  %p", this, log_format, event_log_location,
 		  event_log_last_entry, event_log_truncated);
 
+	if (!this || !event_log_location || !event_log_last_entry ||
+	    !event_log_truncated) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/* Only support TPMV2 */
+	if (log_format != TCG2_EVENT_LOG_FORMAT_TCG_2) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
 		event_log_location = NULL;
@@ -965,6 +977,7 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
 				   data_to_hash_len, (void **)&nt);
 		if (ret != EFI_SUCCESS) {
 			log_err("Not a valid PE-COFF file\n");
+			ret = EFI_UNSUPPORTED;
 			goto out;
 		}
 		ret = tcg2_hash_pe_image((void *)(uintptr_t)data_to_hash,
@@ -1038,9 +1051,15 @@ efi_tcg2_get_active_pcr_banks(struct efi_tcg2_protocol *this,
 {
 	efi_status_t ret;
 
+	if (!this || !active_pcr_banks) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
 	EFI_ENTRY("%p, %p", this, active_pcr_banks);
 	ret = __get_active_pcr_banks(active_pcr_banks);
 
+out:
 	return EFI_EXIT(ret);
 }
 
