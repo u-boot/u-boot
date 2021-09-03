@@ -158,7 +158,7 @@ config SPL_FIT_SIGNATURE
 	select FIT_SIGNATURE
 	select SPL_FIT
 	select SPL_CRYPTO
-	select SPL_HASH_SUPPORT
+	select SPL_HASH
 	imply SPL_RSA
 	imply SPL_RSA_VERIFY
 	select SPL_IMAGE_SIGN_INFO
