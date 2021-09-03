@@ -11,6 +11,7 @@ config ANDROID_BOOT_IMAGE
 
 config FIT
 	bool "Support Flattened Image Tree"
+	select HASH
 	select MD5
 	select SHA1
 	imply SHA256
@@ -134,6 +135,7 @@ if SPL
 config SPL_FIT
 	bool "Support Flattened Image Tree within SPL"
 	depends on SPL
+	select SPL_HASH
 	select SPL_OF_LIBFDT
 
 config SPL_FIT_PRINT
