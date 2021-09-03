@@ -1038,14 +1038,16 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
  *
  * @param blob		FDT blob
  * @param node		name of a node
- * @param name		name of the property in the given node that contains
+ * @param prop_name	name of the property in the given node that contains
  *			the phandle for the carveout
  * @param index		index of the phandle for which to read the carveout
  * @param carveout	return location for the carveout information
+ * @param name		return location for the carveout name
  * @return 0 on success or a negative error code on failure
  */
-int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
-			unsigned int index, struct fdt_memory *carveout);
+int fdtdec_get_carveout(const void *blob, const char *node,
+			const char *prop_name, unsigned int index,
+			struct fdt_memory *carveout, const char **name);
 
 /**
  * fdtdec_set_carveout() - sets a carveout region for a given node

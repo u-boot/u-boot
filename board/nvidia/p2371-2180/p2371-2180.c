@@ -128,7 +128,7 @@ static int ft_copy_carveout(void *dst, const void *src, const char *node)
 	struct fdt_memory fb;
 	int err;
 
-	err = fdtdec_get_carveout(src, node, "memory-region", 0, &fb);
+	err = fdtdec_get_carveout(src, node, "memory-region", 0, &fb, NULL);
 	if (err < 0) {
 		if (err != -FDT_ERR_NOTFOUND)
 			printf("failed to get carveout for %s: %d\n", node,

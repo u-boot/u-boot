@@ -214,7 +214,8 @@ static int check_fdt_carveout(void *fdt, uint32_t address_cells,
 	printf("carveout: %pap-%pap na=%u ns=%u: ", &expected.start,
 	       &expected.end, address_cells, size_cells);
 
-	CHECK(fdtdec_get_carveout(fdt, name, "memory-region", 0, &carveout));
+	CHECK(fdtdec_get_carveout(fdt, name, "memory-region", 0, &carveout,
+				  NULL));
 
 	if ((carveout.start != expected.start) ||
 	    (carveout.end != expected.end)) {

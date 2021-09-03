@@ -1406,8 +1406,9 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	return 0;
 }
 
-int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
-			unsigned int index, struct fdt_memory *carveout)
+int fdtdec_get_carveout(const void *blob, const char *node,
+			const char *prop_name, unsigned int index,
+			struct fdt_memory *carveout, const char **name)
 {
 	const fdt32_t *prop;
 	uint32_t phandle;
@@ -1418,9 +1419,9 @@ int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
 	if (offset < 0)
 		return offset;
 
-	prop = fdt_getprop(blob, offset, name, &len);
+	prop = fdt_getprop(blob, offset, prop_name, &len);
 	if (!prop) {
-		debug("failed to get %s for %s\n", name, node);
+		debug("failed to get %s for %s\n", prop_name, node);
 		return -FDT_ERR_NOTFOUND;
 	}
 
@@ -1441,6 +1442,9 @@ int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
 		debug("failed to find node for phandle %u\n", phandle);
 		return offset;
 	}
+
+	if (name)
+		*name = fdt_get_name(blob, offset, NULL);
 
 	carveout->start = fdtdec_get_addr_size_auto_noparent(blob, offset,
 							     "reg", 0, &size,
