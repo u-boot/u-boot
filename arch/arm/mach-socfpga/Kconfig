@@ -11,7 +11,7 @@ config SOCFPGA_SECURE_VAB_AUTH
 	depends on TARGET_SOCFPGA_AGILEX || TARGET_SOCFPGA_N5X
 	select FIT_IMAGE_POST_PROCESS
 	select SHA384
-	select SHA512_ALGO
+	select SHA512
 	select SPL_FIT_IMAGE_POST_PROCESS
 	help
 	 All images loaded from FIT will be authenticated by Secure Device

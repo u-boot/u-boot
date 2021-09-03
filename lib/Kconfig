@@ -375,14 +375,9 @@ config SHA256
 	  The SHA256 algorithm produces a 256-bit (32-byte) hash value
 	  (digest).
 
-config SHA512_ALGO
-	bool "Enable SHA512 algorithm"
-	help
-	  This option enables support of internal SHA512 algorithm.
 
 config SHA512
 	bool "Enable SHA512 support"
-	depends on SHA512_ALGO
 	help
 	  This option enables support of hashing using SHA512 algorithm.
 	  The hash is calculated in software.
@@ -391,10 +386,11 @@ config SHA512
 
 config SHA384
 	bool "Enable SHA384 support"
-	depends on SHA512_ALGO
+	select SHA512
 	help
 	  This option enables support of hashing using SHA384 algorithm.
-	  The hash is calculated in software.
+	  The hash is calculated in software. This is also selects SHA512,
+	  because these implementations share the bulk of the code..
 	  The SHA384 algorithm produces a 384-bit (48-byte) hash value
 	  (digest).
 
@@ -409,7 +405,7 @@ if SHA_HW_ACCEL
 
 config SHA512_HW_ACCEL
 	bool "Enable hardware acceleration for SHA512"
-	depends on SHA512_ALGO
+	depends on SHA512
 	help
 	  This option enables hardware acceleration for the SHA384 and SHA512
 	  hashing algorithms. This affects the 'hash' command and also the

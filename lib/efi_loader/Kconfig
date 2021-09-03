@@ -323,7 +323,7 @@ config EFI_TCG2_PROTOCOL
 	depends on TPM_V2
 	select SHA1
 	select SHA256
-	select SHA512_ALGO
+	select SHA512
 	select SHA384
 	select SHA512
 	select HASH
