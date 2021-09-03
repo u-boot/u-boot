@@ -13,6 +13,7 @@ config FIT
 	bool "Support Flattened Image Tree"
 	select MD5
 	select SHA1
+	imply SHA256
 	help
 	  This option allows you to boot the new uImage structure,
 	  Flattened Image Tree.  FIT is formally a FDT, which can include
@@ -34,34 +35,6 @@ config FIT_EXTERNAL_OFFSET
 	  fit image header. When specifies a offset, specific data
 	  could be put in the hole between data payload and fit image
 	  header, such as CSF data on i.MX platform.
-
-config FIT_SHA256
-	bool "Support SHA256 checksum of FIT image contents"
-	default y
-	select SHA256
-	help
-	  Enable this to support SHA256 checksum of FIT image contents. A
-	  SHA256 checksum is a 256-bit (32-byte) hash value used to check that
-	  the image contents have not been corrupted.
-
-config FIT_SHA384
-	bool "Support SHA384 checksum of FIT image contents"
-	default n
-	select SHA384
-	help
-	  Enable this to support SHA384 checksum of FIT image contents. A
-	  SHA384 checksum is a 384-bit (48-byte) hash value used to check that
-	  the image contents have not been corrupted. Use this for the highest
-	  security.
-
-config FIT_SHA512
-	bool "Support SHA512 checksum of FIT image contents"
-	default n
-	select SHA512
-	help
-	  Enable this to support SHA512 checksum of FIT image contents. A
-	  SHA512 checksum is a 512-bit (64-byte) hash value used to check that
-	  the image contents have not been corrupted.
 
 config FIT_FULL_CHECK
 	bool "Do a full check of the FIT before using it"

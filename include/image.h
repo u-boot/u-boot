@@ -31,9 +31,6 @@ struct fdt_region;
 #define IMAGE_ENABLE_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 #define CONFIG_FIT_RSASSA_PSS 1
-#define CONFIG_FIT_SHA256
-#define CONFIG_FIT_SHA384
-#define CONFIG_FIT_SHA512
 #define CONFIG_SHA1
 #define CONFIG_SHA256
 #define CONFIG_SHA384
