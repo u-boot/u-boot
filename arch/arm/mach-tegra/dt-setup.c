@@ -78,9 +78,11 @@ void ft_mac_address_setup(void *fdt)
 
 static int ft_copy_carveout(void *dst, const void *src, const char *node)
 {
+	const char *names = "memory-region-names";
 	struct fdt_memory carveout;
 	unsigned int index = 0;
-	int err;
+	int err, offset, len;
+	const void *prop;
 
 	while (true) {
 		const char **compatibles = NULL;
@@ -96,6 +98,8 @@ static int ft_copy_carveout(void *dst, const void *src, const char *node)
 			if (err != -FDT_ERR_NOTFOUND)
 				printf("failed to get carveout for %s: %d\n",
 				       node, err);
+			else
+				break;
 
 			return err;
 		}
@@ -124,6 +128,31 @@ static int ft_copy_carveout(void *dst, const void *src, const char *node)
 			free(copy);
 
 		index++;
+	}
+
+	offset = fdt_path_offset(src, node);
+	if (offset < 0) {
+		debug("failed to find source offset for %s: %s\n", node,
+		      fdt_strerror(err));
+		return err;
+	}
+
+	prop = fdt_getprop(src, offset, names, &len);
+	if (prop) {
+		offset = fdt_path_offset(dst, node);
+		if (offset < 0) {
+			debug("failed to find destination offset for %s: %s\n",
+			      node, fdt_strerror(err));
+			return err;
+		}
+
+		err = fdt_setprop(dst, offset, "memory-region-names", prop,
+				  len);
+		if (err < 0) {
+			debug("failed to copy \"%s\" property: %s\n", names,
+			      fdt_strerror(err));
+			return err;
+		}
 	}
 
 	return 0;
