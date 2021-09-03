@@ -977,6 +977,9 @@ static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
 	return fdt_setprop_u32(blob, node, "phandle", phandle);
 }
 
+/* add "no-map" property */
+#define FDTDEC_RESERVED_MEMORY_NO_MAP (1 << 0)
+
 /**
  * fdtdec_add_reserved_memory() - add or find a reserved-memory node
  *
@@ -996,7 +999,7 @@ static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
  *     uint32_t phandle;
  *
  *     fdtdec_add_reserved_memory(fdt, "framebuffer", &fb, NULL, 0, &phandle,
- *                                false);
+ *                                0);
  *
  * This results in the following subnode being added to the top-level
  * /reserved-memory node:
@@ -1025,13 +1028,13 @@ static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
  * @param count		number of compatible strings for the carveout region
  * @param phandlep	return location for the phandle of the carveout region
  *			can be NULL if no phandle should be added
- * @param no_map	add "no-map" property if true
+ * @param flags		bitmask of flags to set for the carveout region
  * @return 0 on success or a negative error code on failure
  */
 int fdtdec_add_reserved_memory(void *blob, const char *basename,
 			       const struct fdt_memory *carveout,
 			       const char **compatibles, unsigned int count,
-			       uint32_t *phandlep, bool no_map);
+			       uint32_t *phandlep, unsigned long flags);
 
 /**
  * fdtdec_get_carveout() - reads a carveout from an FDT
@@ -1048,13 +1051,15 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
  * @param carveout	return location for the carveout information
  * @param name		return location for the carveout name
  * @param compatiblesp	return location for compatible strings
- * @param countp		return location for the number of compatible strings
+ * @param countp	return location for the number of compatible strings
+ * @param flags		return location for the flags of the carveout
  * @return 0 on success or a negative error code on failure
  */
 int fdtdec_get_carveout(const void *blob, const char *node,
 			const char *prop_name, unsigned int index,
 			struct fdt_memory *carveout, const char **name,
-			const char ***compatiblesp, unsigned int *countp);
+			const char ***compatiblesp, unsigned int *countp,
+			unsigned long *flags);
 
 /**
  * fdtdec_set_carveout() - sets a carveout region for a given node
@@ -1073,7 +1078,7 @@ int fdtdec_get_carveout(const void *blob, const char *node,
  *     };
  *
  *     fdtdec_set_carveout(fdt, node, "memory-region", 0, "framebuffer", NULL,
- *                         0, &fb);
+ *                         0, &fb, 0);
  *
  * dc@54200000 is a display controller and was set up by the bootloader to
  * scan out the framebuffer specified by "fb". This would cause the following
@@ -1114,12 +1119,13 @@ int fdtdec_get_carveout(const void *blob, const char *node,
  * @param name		base name of the reserved-memory node to create
  * @param compatibles	compatible strings to set for the carveout
  * @param count		number of compatible strings
+ * @param flags		bitmask of flags to set for the carveout
  * @return 0 on success or a negative error code on failure
  */
 int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 			unsigned int index, const struct fdt_memory *carveout,
 			const char *name, const char **compatibles,
-			unsigned int count);
+			unsigned int count, unsigned long flags);
 
 /**
  * Set up the device tree ready for use

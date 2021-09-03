@@ -129,7 +129,7 @@ static int ft_copy_carveout(void *dst, const void *src, const char *node)
 	int err;
 
 	err = fdtdec_get_carveout(src, node, "memory-region", 0, &fb, NULL,
-				  NULL, NULL);
+				  NULL, NULL, NULL);
 	if (err < 0) {
 		if (err != -FDT_ERR_NOTFOUND)
 			printf("failed to get carveout for %s: %d\n", node,
@@ -139,7 +139,7 @@ static int ft_copy_carveout(void *dst, const void *src, const char *node)
 	}
 
 	err = fdtdec_set_carveout(dst, node, "memory-region", 0, &fb,
-				  "framebuffer", NULL, 0);
+				  "framebuffer", NULL, 0, 0);
 	if (err < 0) {
 		printf("failed to set carveout for %s: %d\n", node, err);
 		return err;

@@ -161,6 +161,7 @@ int optee_copy_fdt_nodes(void *new_blob)
 					.start = res.start,
 					.end = res.end,
 				};
+				unsigned long flags = FDTDEC_RESERVED_MEMORY_NO_MAP;
 				char *oldname, *nodename, *tmp;
 
 				oldname = strdup(name);
@@ -178,7 +179,7 @@ int optee_copy_fdt_nodes(void *new_blob)
 								 nodename,
 								 &carveout,
 								 NULL, 0,
-								 NULL, true);
+								 NULL, flags);
 				free(oldname);
 
 				if (ret < 0)

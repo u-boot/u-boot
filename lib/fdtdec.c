@@ -1294,7 +1294,7 @@ static int fdtdec_init_reserved_memory(void *blob)
 int fdtdec_add_reserved_memory(void *blob, const char *basename,
 			       const struct fdt_memory *carveout,
 			       const char **compatibles, unsigned int count,
-			       uint32_t *phandlep, bool no_map)
+			       uint32_t *phandlep, unsigned long flags)
 {
 	fdt32_t cells[4] = {}, *ptr = cells;
 	uint32_t upper, lower, phandle;
@@ -1364,6 +1364,12 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	if (node < 0)
 		return node;
 
+	if (flags & FDTDEC_RESERVED_MEMORY_NO_MAP) {
+		err = fdt_setprop(blob, node, "no-map", NULL, 0);
+		if (err < 0)
+			return err;
+	}
+
 	if (phandlep) {
 		err = fdt_generate_phandle(blob, &phandle);
 		if (err < 0)
@@ -1393,12 +1399,6 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	err = fdt_setprop(blob, node, "reg", cells, (na + ns) * sizeof(*cells));
 	if (err < 0)
 		return err;
-
-	if (no_map) {
-		err = fdt_setprop(blob, node, "no-map", NULL, 0);
-		if (err < 0)
-			return err;
-	}
 
 	if (compatibles && count > 0) {
 		size_t length = 0, len = 0;
@@ -1432,7 +1432,8 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 int fdtdec_get_carveout(const void *blob, const char *node,
 			const char *prop_name, unsigned int index,
 			struct fdt_memory *carveout, const char **name,
-			const char ***compatiblesp, unsigned int *countp)
+			const char ***compatiblesp, unsigned int *countp,
+			unsigned long *flags)
 {
 	const fdt32_t *prop;
 	uint32_t phandle;
@@ -1519,13 +1520,20 @@ skip_compat:
 
 	carveout->end = carveout->start + size - 1;
 
+	if (flags) {
+		*flags = 0;
+
+		if (fdtdec_get_bool(blob, offset, "no-map"))
+			*flags |= FDTDEC_RESERVED_MEMORY_NO_MAP;
+	}
+
 	return 0;
 }
 
 int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 			unsigned int index, const struct fdt_memory *carveout,
 			const char *name, const char **compatibles,
-			unsigned int count)
+			unsigned int count, unsigned long flags)
 {
 	uint32_t phandle;
 	int err, offset, len;
@@ -1533,7 +1541,7 @@ int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 	void *prop;
 
 	err = fdtdec_add_reserved_memory(blob, name, carveout, compatibles,
-					 count, &phandle, false);
+					 count, &phandle, flags);
 	if (err < 0) {
 		debug("failed to add reserved memory: %d\n", err);
 		return err;
