@@ -958,7 +958,7 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
 		goto out;
 	}
 
-	if (efi_tcg_event->header.pcr_index > TPM2_MAX_PCRS) {
+	if (efi_tcg_event->header.pcr_index > EFI_TCG2_MAX_PCR_INDEX) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
