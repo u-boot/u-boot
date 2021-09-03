@@ -127,8 +127,8 @@ struct efi_tcg2_boot_service_capability {
 	efi_tcg_event_algorithm_bitmap active_pcr_banks;
 };
 
+/* up to and including the vendor ID (manufacturer_id) field */
 #define boot_service_capability_min \
-	sizeof(struct efi_tcg2_boot_service_capability) - \
 	offsetof(struct efi_tcg2_boot_service_capability, number_of_pcr_banks)
 
 #define TCG_EFI_SPEC_ID_EVENT_SIGNATURE_03 "Spec ID Event03"
