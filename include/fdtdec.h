@@ -1110,16 +1110,16 @@ int fdtdec_get_carveout(const void *blob, const char *node,
  * @param prop_name	name of the property in which to store the phandle of
  *			the carveout
  * @param index		index of the phandle to store
- * @param name		base name of the reserved-memory node to create
  * @param carveout	information about the carveout to add
+ * @param name		base name of the reserved-memory node to create
  * @param compatibles	compatible strings to set for the carveout
  * @param count		number of compatible strings
  * @return 0 on success or a negative error code on failure
  */
 int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
-			unsigned int index, const char *name,
-			const char **compatibles, unsigned int count,
-			const struct fdt_memory *carveout);
+			unsigned int index, const struct fdt_memory *carveout,
+			const char *name, const char **compatibles,
+			unsigned int count);
 
 /**
  * Set up the device tree ready for use

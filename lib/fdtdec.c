@@ -1523,9 +1523,9 @@ skip_compat:
 }
 
 int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
-			unsigned int index, const char *name,
-			const char **compatibles, unsigned int count,
-			const struct fdt_memory *carveout)
+			unsigned int index, const struct fdt_memory *carveout,
+			const char *name, const char **compatibles,
+			unsigned int count)
 {
 	uint32_t phandle;
 	int err, offset, len;

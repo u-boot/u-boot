@@ -189,8 +189,8 @@ static int make_fdt_carveout_device(void *fdt, uint32_t na, uint32_t ns)
 	offset = CHECK(fdt_add_subnode(fdt, 0, name + 1));
 	CHECK(fdt_setprop(fdt, offset, "reg", cells, (na + ns) * sizeof(*cells)));
 
-	return fdtdec_set_carveout(fdt, name, "memory-region", 0,
-				   "framebuffer", NULL, 0, &carveout);
+	return fdtdec_set_carveout(fdt, name, "memory-region", 0, &carveout,
+				   "framebuffer", NULL, 0);
 }
 
 static int check_fdt_carveout(void *fdt, uint32_t address_cells,
