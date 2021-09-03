@@ -1431,7 +1431,7 @@ int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
 
 	if (len < (sizeof(phandle) * (index + 1))) {
 		debug("invalid phandle index\n");
-		return -FDT_ERR_BADPHANDLE;
+		return -FDT_ERR_NOTFOUND;
 	}
 
 	phandle = fdt32_to_cpu(prop[index]);
