@@ -177,6 +177,7 @@ int optee_copy_fdt_nodes(void *new_blob)
 				ret = fdtdec_add_reserved_memory(new_blob,
 								 nodename,
 								 &carveout,
+								 NULL, 0,
 								 NULL, true);
 				free(oldname);
 

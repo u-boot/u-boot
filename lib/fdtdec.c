@@ -1293,6 +1293,7 @@ static int fdtdec_init_reserved_memory(void *blob)
 
 int fdtdec_add_reserved_memory(void *blob, const char *basename,
 			       const struct fdt_memory *carveout,
+			       const char **compatibles, unsigned int count,
 			       uint32_t *phandlep, bool no_map)
 {
 	fdt32_t cells[4] = {}, *ptr = cells;
@@ -1399,6 +1400,28 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 			return err;
 	}
 
+	if (compatibles && count > 0) {
+		size_t length = 0, len = 0;
+		unsigned int i;
+		char *buffer;
+
+		for (i = 0; i < count; i++)
+			length += strlen(compatibles[i]) + 1;
+
+		buffer = malloc(length);
+		if (!buffer)
+			return -FDT_ERR_INTERNAL;
+
+		for (i = 0; i < count; i++)
+			len += strlcpy(buffer + len, compatibles[i],
+				       length - len) + 1;
+
+		err = fdt_setprop(blob, node, "compatible", buffer, length);
+		free(buffer);
+		if (err < 0)
+			return err;
+	}
+
 	/* return the phandle for the new node for the caller to use */
 	if (phandlep)
 		*phandlep = phandle;
@@ -1408,7 +1431,8 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 
 int fdtdec_get_carveout(const void *blob, const char *node,
 			const char *prop_name, unsigned int index,
-			struct fdt_memory *carveout, const char **name)
+			struct fdt_memory *carveout, const char **name,
+			const char ***compatiblesp, unsigned int *countp)
 {
 	const fdt32_t *prop;
 	uint32_t phandle;
@@ -1446,6 +1470,45 @@ int fdtdec_get_carveout(const void *blob, const char *node,
 	if (name)
 		*name = fdt_get_name(blob, offset, NULL);
 
+	if (compatiblesp) {
+		const char **compatibles = NULL;
+		const char *start, *end, *ptr;
+		unsigned int count = 0;
+
+		prop = fdt_getprop(blob, offset, "compatible", &len);
+		if (!prop)
+			goto skip_compat;
+
+		start = ptr = (const char *)prop;
+		end = start + len;
+
+		while (ptr < end) {
+			ptr = strchrnul(ptr, '\0');
+			count++;
+			ptr++;
+		}
+
+		compatibles = malloc(sizeof(ptr) * count);
+		if (!compatibles)
+			return -FDT_ERR_INTERNAL;
+
+		ptr = start;
+		count = 0;
+
+		while (ptr < end) {
+			compatibles[count] = ptr;
+			ptr = strchrnul(ptr, '\0');
+			count++;
+			ptr++;
+		}
+
+skip_compat:
+		*compatiblesp = compatibles;
+
+		if (countp)
+			*countp = count;
+	}
+
 	carveout->start = fdtdec_get_addr_size_auto_noparent(blob, offset,
 							     "reg", 0, &size,
 							     true);
@@ -1461,6 +1524,7 @@ int fdtdec_get_carveout(const void *blob, const char *node,
 
 int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 			unsigned int index, const char *name,
+			const char **compatibles, unsigned int count,
 			const struct fdt_memory *carveout)
 {
 	uint32_t phandle;
@@ -1468,7 +1532,8 @@ int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 	fdt32_t value;
 	void *prop;
 
-	err = fdtdec_add_reserved_memory(blob, name, carveout, &phandle, false);
+	err = fdtdec_add_reserved_memory(blob, name, carveout, compatibles,
+					 count, &phandle, false);
 	if (err < 0) {
 		debug("failed to add reserved memory: %d\n", err);
 		return err;

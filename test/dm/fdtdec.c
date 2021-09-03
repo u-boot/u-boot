@@ -30,19 +30,19 @@ static int dm_test_fdtdec_set_carveout(struct unit_test_state *uts)
 	resv.end = 0x2000;
 	ut_assertok(fdtdec_set_carveout(blob, "/a-test",
 					"memory-region", 2, "test_resv1",
-					&resv));
+					NULL, 0, &resv));
 
 	resv.start = 0x10000;
 	resv.end = 0x20000;
 	ut_assertok(fdtdec_set_carveout(blob, "/a-test",
 					"memory-region", 1, "test_resv2",
-					&resv));
+					NULL, 0, &resv));
 
 	resv.start = 0x100000;
 	resv.end = 0x200000;
 	ut_assertok(fdtdec_set_carveout(blob, "/a-test",
 					"memory-region", 0, "test_resv3",
-					&resv));
+					NULL, 0, &resv));
 
 	offset = fdt_path_offset(blob, "/a-test");
 	ut_assert(offset > 0);
@@ -80,8 +80,8 @@ static int dm_test_fdtdec_add_reserved_memory(struct unit_test_state *uts)
 	/* Insert a memory region in /reserved-memory node */
 	resv.start = 0x1000;
 	resv.end = 0x1fff;
-	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region",
-					       &resv, &phandle, false));
+	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region", &resv,
+					       NULL, 0, &phandle, false));
 
 	/* Test /reserve-memory and its subnode should exist */
 	parent = fdt_path_offset(blob, "/reserved-memory");
@@ -101,8 +101,8 @@ static int dm_test_fdtdec_add_reserved_memory(struct unit_test_state *uts)
 
 	resv.start = 0x2000;
 	resv.end = 0x2fff;
-	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region1",
-					       &resv, &phandle1, true));
+	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region1", &resv,
+					       NULL, 0, &phandle1, true));
 	subnode = fdt_path_offset(blob, "/reserved-memory/rsvd_region1");
 	ut_assert(subnode > 0);
 
@@ -118,8 +118,8 @@ static int dm_test_fdtdec_add_reserved_memory(struct unit_test_state *uts)
 	 */
 	resv.start = 0x1000;
 	resv.end = 0x1fff;
-	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region2",
-					       &resv, &phandle1, false));
+	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region2", &resv,
+					       NULL, 0, &phandle1, false));
 	subnode = fdt_path_offset(blob, "/reserved-memory/rsvd_region2");
 	ut_assert(subnode < 0);
 
