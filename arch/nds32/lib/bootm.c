@@ -19,11 +19,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_SETUP_MEMORY_TAGS) || \
-	defined(CONFIG_CMDLINE_TAG) || \
-	defined(CONFIG_INITRD_TAG) || \
-	defined(CONFIG_SERIAL_TAG) || \
-	defined(CONFIG_REVISION_TAG)
+#ifdef CONFIG_SUPPORT_PASSING_ATAGS
 static void setup_start_tag(struct bd_info *bd);
 
 # ifdef CONFIG_SETUP_MEMORY_TAGS
@@ -38,7 +34,7 @@ static void setup_initrd_tag(struct bd_info *bd, ulong initrd_start,
 static void setup_end_tag(struct bd_info *bd);
 
 static struct tag *params;
-#endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
+#endif /* CONFIG_SUPPORT_PASSING_ATAGS */
 
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
@@ -82,11 +78,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 		}
 #endif
 	} else if (BOOTM_ENABLE_TAGS) {
-#if defined(CONFIG_SETUP_MEMORY_TAGS) || \
-	defined(CONFIG_CMDLINE_TAG) || \
-	defined(CONFIG_INITRD_TAG) || \
-	defined(CONFIG_SERIAL_TAG) || \
-	defined(CONFIG_REVISION_TAG)
+#ifdef CONFIG_SUPPORT_PASSING_ATAGS
 	setup_start_tag(bd);
 #ifdef CONFIG_SERIAL_TAG
 	setup_serial_tag(&params);
@@ -127,11 +119,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	return 1;
 }
 
-#if defined(CONFIG_SETUP_MEMORY_TAGS) || \
-	defined(CONFIG_CMDLINE_TAG) || \
-	defined(CONFIG_INITRD_TAG) || \
-	defined(CONFIG_SERIAL_TAG) || \
-	defined(CONFIG_REVISION_TAG)
+#ifdef CONFIG_SUPPORT_PASSING_ATAGS
 static void setup_start_tag(struct bd_info *bd)
 {
 	params = (struct tag *)bd->bi_boot_params;
@@ -244,7 +232,7 @@ static void setup_end_tag(struct bd_info *bd)
 	params->hdr.size = 0;
 }
 
-#endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
+#endif /* CONFIG_SUPPORT_PASSING_ATAGS */
 
 static ulong get_sp(void)
 {
