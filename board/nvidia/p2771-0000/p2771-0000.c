@@ -9,6 +9,7 @@
 #include <i2c.h>
 #include <log.h>
 #include <net.h>
+#include <stdlib.h>
 #include <linux/libfdt.h>
 #include <asm/arch-tegra/cboot.h>
 #include "../p2571/max77620_init.h"
@@ -101,24 +102,52 @@ static void ft_mac_address_setup(void *fdt)
 
 static int ft_copy_carveout(void *dst, const void *src, const char *node)
 {
-	struct fdt_memory fb;
+	unsigned int index = 0;
 	int err;
 
-	err = fdtdec_get_carveout(src, node, "memory-region", 0, &fb, NULL,
-				  NULL, NULL, NULL);
-	if (err < 0) {
-		if (err != -FDT_ERR_NOTFOUND)
-			printf("failed to get carveout for %s: %d\n", node,
+	while (true) {
+		const char **compatibles = NULL;
+		unsigned int num_compatibles;
+		struct fdt_memory carveout;
+		unsigned long flags;
+		char *copy = NULL;
+		const char *name;
+
+		err = fdtdec_get_carveout(src, node, "memory-region", index,
+					  &carveout, &name, &compatibles,
+					  &num_compatibles, &flags);
+		if (err < 0) {
+			if (err != -FDT_ERR_NOTFOUND)
+				printf("failed to get carveout for %s: %d\n",
+				       node, err);
+
+			return err;
+		}
+
+		if (name) {
+			const char *ptr = strchr(name, '@');
+
+			if (ptr) {
+				copy = strndup(name, ptr - name);
+				name = copy;
+			}
+		} else {
+			name = "carveout";
+		}
+
+		err = fdtdec_set_carveout(dst, node, "memory-region", index,
+					  &carveout, name, compatibles,
+					  num_compatibles, flags);
+		if (err < 0) {
+			printf("failed to set carveout for %s: %d\n", node,
 			       err);
+			return err;
+		}
 
-		return err;
-	}
+		if (copy)
+			free(copy);
 
-	err = fdtdec_set_carveout(dst, node, "memory-region", 0, &fb,
-				  "framebuffer", NULL, 0, 0);
-	if (err < 0) {
-		printf("failed to set carveout for %s: %d\n", node, err);
-		return err;
+		index++;
 	}
 
 	return 0;
