@@ -48,7 +48,7 @@ void board_init_f(ulong dummy)
 	struct udevice *dev;
 	int ret;
 
-#if defined(CONFIG_DEBUG_UART) && defined(CONFIG_TPL_SERIAL_SUPPORT)
+#if defined(CONFIG_DEBUG_UART) && defined(CONFIG_TPL_SERIAL)
 	/*
 	 * Debug UART can be used from here if required:
 	 *

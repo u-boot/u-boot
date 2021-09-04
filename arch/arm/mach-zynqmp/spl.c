@@ -88,7 +88,7 @@ u32 spl_boot_device(void)
 	switch (bootmode) {
 	case JTAG_MODE:
 		return BOOT_DEVICE_RAM;
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 	case SD_MODE1:
 	case SD1_LSHFT_MODE: /* not working on silicon v1 */
 		return BOOT_DEVICE_MMC2;
@@ -100,11 +100,11 @@ u32 spl_boot_device(void)
 	case USB_MODE:
 		return BOOT_DEVICE_DFU;
 #endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 	case SW_SATA_MODE:
 		return BOOT_DEVICE_SATA;
 #endif
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#ifdef CONFIG_SPL_SPI
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
 		return BOOT_DEVICE_SPI;

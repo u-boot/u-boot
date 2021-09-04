@@ -23,7 +23,7 @@ void board_debug_uart_init(void)
 
 void mtmips_spl_serial_init(void)
 {
-#ifdef CONFIG_SPL_SERIAL_SUPPORT
+#ifdef CONFIG_SPL_SERIAL
 	void __iomem *base = ioremap_nocache(SYSCTL_BASE, SYSCTL_SIZE);
 
 #if CONFIG_CONS_INDEX == 1
@@ -32,5 +32,5 @@ void mtmips_spl_serial_init(void)
 	clrsetbits_32(base + SYSCTL_GPIOMODE_REG, UARTF_SHARE_MODE_M,
 		      UARTF_MODE_UARTF_GPIO << UARTF_SHARE_MODE_S);
 #endif
-#endif /* CONFIG_SPL_SERIAL_SUPPORT */
+#endif /* CONFIG_SPL_SERIAL */
 }

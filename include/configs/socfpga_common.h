@@ -185,7 +185,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #endif
 
 /* SPL SDMMC boot support */
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 #if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 #endif

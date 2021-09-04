@@ -23,7 +23,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 static gd_t gdata __section(".data");
-#ifdef CONFIG_SPL_SERIAL_SUPPORT
+#ifdef CONFIG_SPL_SERIAL
 static struct bd_info bdata __section(".data");
 #endif
 
@@ -108,7 +108,7 @@ static void mxs_spl_fixup_vectors(void)
 
 static void mxs_spl_console_init(void)
 {
-#ifdef CONFIG_SPL_SERIAL_SUPPORT
+#ifdef CONFIG_SPL_SERIAL
 	gd->bd = &bdata;
 	gd->baudrate = CONFIG_BAUDRATE;
 	serial_init();

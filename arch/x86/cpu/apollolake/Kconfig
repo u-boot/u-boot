@@ -12,10 +12,10 @@ config INTEL_APOLLOLAKE
 	select INTEL_SOC
 	select INTEL_PMC
 	select TPL_X86_TSC_TIMER_NATIVE
-	select SPL_PCH_SUPPORT
-	select TPL_PCH_SUPPORT
+	select SPL_PCH
+	select TPL_PCH
 	select PCIEX_LENGTH_256MB
-	select PCH_SUPPORT
+	select PCH
 	select P2SB
 	select SMP_AP_WORK
 	select INTEL_GMA_SWSMISCI
@@ -88,7 +88,7 @@ config CPU_ADDR_BITS
 config APL_SPI_FLASH_BOOT
 	bool "Support booting with SPI-flash driver instead memory-mapped SPI"
 	select TPL_SPI_FLASH_SUPPORT
-	select TPL_SPI_SUPPORT
+	select TPL_SPI
 	select TPL_DM_SPI
 	select TPL_DM_SPI_FLASH
 	help

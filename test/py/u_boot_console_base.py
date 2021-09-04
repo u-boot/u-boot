@@ -351,13 +351,13 @@ class ConsoleBase(object):
             self.p.logfile_read = self.logstream
             bcfg = self.config.buildconfig
             config_spl = bcfg.get('config_spl', 'n') == 'y'
-            config_spl_serial_support = bcfg.get('config_spl_serial_support',
+            config_spl_serial = bcfg.get('config_spl_serial',
                                                  'n') == 'y'
             env_spl_skipped = self.config.env.get('env__spl_skipped',
                                                   False)
             env_spl2_skipped = self.config.env.get('env__spl2_skipped',
                                                   True)
-            if config_spl and config_spl_serial_support and not env_spl_skipped:
+            if config_spl and config_spl_serial and not env_spl_skipped:
                 m = self.p.expect([pattern_u_boot_spl_signon] +
                                   self.bad_patterns)
                 if m != 0:

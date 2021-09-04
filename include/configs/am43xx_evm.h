@@ -23,10 +23,6 @@
 /* I2C Configuration */
 
 /* Power */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#endif
 #define CONFIG_POWER_TPS65218
 #define CONFIG_POWER_TPS62362
 
@@ -63,7 +59,7 @@
 #define CONFIG_AM437X_USB2PHY2_HOST
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_USB_ETHER)
+#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_USB_GADGET)
 #undef CONFIG_USB_DWC3_PHY_OMAP
 #undef CONFIG_USB_DWC3_OMAP
 #undef CONFIG_USB_DWC3

@@ -15,16 +15,16 @@ config SPL_LIBDISK_SUPPORT
 config SPL_LIBGENERIC_SUPPORT
 	default y
 
-config SPL_MMC_SUPPORT
+config SPL_MMC
 	default y if MMC_SDHCI_ZYNQ
 
-config SPL_SERIAL_SUPPORT
+config SPL_SERIAL
 	default y
 
 config SPL_SPI_FLASH_SUPPORT
 	default y if ZYNQ_QSPI
 
-config SPL_SPI_SUPPORT
+config SPL_SPI
 	default y if ZYNQ_QSPI
 
 config ZYNQ_DDRC_INIT

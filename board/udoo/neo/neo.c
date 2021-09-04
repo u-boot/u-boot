@@ -96,7 +96,7 @@ static struct i2c_pads_info i2c_pad_info1 = {
 };
 #endif
 
-#ifdef CONFIG_POWER
+#if CONFIG_IS_ENABLED(POWER_LEGACY)
 int power_init_board(void)
 {
 	struct pmic *p;

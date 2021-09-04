@@ -136,7 +136,7 @@ void board_init_f(ulong dummy)
 	at91_periph_clk_enable(ATMEL_ID_PIOC);
 #endif
 
-#if defined(CONFIG_SPL_SERIAL_SUPPORT)
+#if defined(CONFIG_SPL_SERIAL)
 	/* init console */
 	at91_seriald_hw_init();
 	preloader_console_init();

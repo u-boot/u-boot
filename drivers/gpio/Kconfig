@@ -2,7 +2,19 @@
 # GPIO infrastructure and drivers
 #
 
-menu "GPIO Support"
+menuconfig GPIO
+	bool "GPIO support"
+	default y
+	help
+	  Enable support for GPIOs (General-purpose Input/Output) in U-Boot.
+	  GPIOs allow U-Boot to read the state of an input line (high or
+	  low) and set the state of an output line. This can be used to
+	  drive LEDs, control power to various system parts and read user
+	  input. GPIOs can be useful to enable a 'sign-of-life' LED,
+	  for example. Enable this option to build the drivers in
+	  drivers/gpio as part of an U-Boot build.
+
+if GPIO
 
 config DM_GPIO
 	bool "Enable Driver Model for GPIO drivers"
@@ -503,4 +515,4 @@ config NOMADIK_GPIO
 	  into a number of banks each with 32 GPIOs. The GPIOs for a device are
 	  defined in the device tree with one node for each bank.
 
-endmenu
+endif

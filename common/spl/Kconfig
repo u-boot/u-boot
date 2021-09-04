@@ -196,7 +196,7 @@ config SPL_BOOTCOUNT_LIMIT
 
 config SPL_RAW_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of RAW images"
-	default n if (ARCH_MX6 && (SPL_MMC_SUPPORT || SPL_SATA_SUPPORT))
+	default n if (ARCH_MX6 && (SPL_MMC || SPL_SATA))
 	default y if !TI_SECURE_DEVICE
 	help
 	  SPL will support loading and booting a RAW image when this option
@@ -495,7 +495,7 @@ config SPL_FIT_IMAGE_TINY
 	  ensure this information is available to the next image
 	  invoked).
 
-config SPL_CACHE_SUPPORT
+config SPL_CACHE
 	bool "Support CACHE drivers"
 	help
 	  Enable CACHE drivers in SPL. These drivers can keep data so that
@@ -585,12 +585,13 @@ config SPL_SAVEENV
 config SPL_ETH
 	bool "Support Ethernet"
 	depends on SPL_ENV_SUPPORT
+	depends on SPL_NET
 	help
 	  Enable access to the network subsystem and associated Ethernet
 	  drivers in SPL. This permits SPL to load U-Boot over an Ethernet
 	  link rather than from an on-board peripheral. Environment support
 	  is required since the network stack uses a number of environment
-	  variables. See also SPL_NET_SUPPORT.
+	  variables. See also SPL_NET.
 
 config SPL_FS_EXT4
 	bool "Support EXT filesystems"
@@ -700,7 +701,7 @@ config SPL_DM_MAILBOX
 	  this option to build the drivers in drivers/mailbox as part of
 	  SPL build.
 
-config SPL_MMC_SUPPORT
+config SPL_MMC
 	bool "Support MMC"
 	depends on MMC
 	select HAVE_BLOCK_DEVICE
@@ -721,7 +722,7 @@ config SYS_MMCSD_FS_BOOT_PARTITION
 
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
-	depends on SPL_MMC_SUPPORT
+	depends on SPL_MMC
 	help
 	  Enable MMC framework tinification support. This option is useful if
 	  if your SPL is extremely size constrained. Heed the warning, enable
@@ -737,12 +738,12 @@ config SPL_MMC_TINY
 
 config SPL_MMC_WRITE
 	bool "MMC/SD/SDIO card support for write operations in SPL"
-	depends on SPL_MMC_SUPPORT
+	depends on SPL_MMC
 	help
 	  Enable write access to MMC and SD Cards in SPL
 
 
-config SPL_MPC8XXX_INIT_DDR_SUPPORT
+config SPL_MPC8XXX_INIT_DDR
 	bool "Support MPC8XXX DDR init"
 	help
 	  Enable support for DDR-SDRAM (double-data-rate synchronous dynamic
@@ -808,12 +809,6 @@ config SPL_UBI
 	  README.ubispl for more info.
 
 if SPL_DM
-config SPL_CACHE
-	depends on CACHE
-	bool "Support cache drivers in SPL"
-	help
-	  Enable support for cache drivers in SPL.
-
 config SPL_DM_SPI
 	bool "Support SPI DM drivers in SPL"
 	help
@@ -916,7 +911,7 @@ config UBI_SPL_SILENCE_MSG
 
 endif   # if SPL_UBI
 
-config SPL_NET_SUPPORT
+config SPL_NET
 	bool "Support networking"
 	help
 	  Enable support for network devices (such as Ethernet) in SPL.
@@ -925,7 +920,7 @@ config SPL_NET_SUPPORT
 	  the network stack uses a number of environment variables. See also
 	  SPL_ETH.
 
-if SPL_NET_SUPPORT
+if SPL_NET
 config SPL_NET_VCI_STRING
 	string "BOOTP Vendor Class Identifier string sent by SPL"
 	help
@@ -934,7 +929,7 @@ config SPL_NET_VCI_STRING
 	  of a client.  This is often used in practice to allow for the DHCP
 	  server to specify different files to load depending on if the ROM,
 	  SPL or U-Boot itself makes the request
-endif   # if SPL_NET_SUPPORT
+endif   # if SPL_NET
 
 config SPL_NO_CPU_SUPPORT
 	bool "Drop CPU code in SPL"
@@ -1004,7 +999,7 @@ config SPL_PCI
 	  necessary driver support. This enables the drivers in drivers/pci
 	  as part of an SPL build.
 
-config SPL_PCH_SUPPORT
+config SPL_PCH
 	bool "Support PCH drivers"
 	help
 	  Enable support for PCH (Platform Controller Hub) devices in SPL.
@@ -1044,6 +1039,7 @@ config SPL_POWER
 
 config SPL_POWER_DOMAIN
 	bool "Support power domain drivers"
+	select SPL_POWER
 	help
 	  Enable support for power domain control in SPL. Many SoCs allow
 	  power to be applied to or removed from portions of the SoC (power
@@ -1073,7 +1069,7 @@ config SPL_REMOTEPROC
 	  Enable support for REMOTEPROCs in SPL. This permits to load
 	  a remote processor firmware in SPL.
 
-config SPL_RTC_SUPPORT
+config SPL_RTC
 	bool "Support RTC drivers"
 	help
 	  Enable RTC (Real-time Clock) support in SPL. This includes support
@@ -1082,7 +1078,7 @@ config SPL_RTC_SUPPORT
 	  needed. This enables the drivers in drivers/rtc as part of an SPL
 	  build.
 
-config SPL_SATA_SUPPORT
+config SPL_SATA
 	bool "Support loading from SATA"
 	help
 	  Enable support for SATA (Serial AT attachment) in SPL. This allows
@@ -1094,7 +1090,7 @@ config SPL_SATA_SUPPORT
 
 config SPL_SATA_RAW_U_BOOT_USE_SECTOR
 	bool "SATA raw mode: by sector"
-	depends on SPL_SATA_SUPPORT
+	depends on SPL_SATA
 	default y if ARCH_MVEBU
 	help
 	  Use sector number for specifying U-Boot location on SATA disk in
@@ -1108,7 +1104,7 @@ config SPL_SATA_RAW_U_BOOT_SECTOR
 	  Sector on the SATA disk to load U-Boot from, when the SATA disk is being
 	  used in raw mode. Units: SATA disk sectors (1 sector = 512 bytes).
 
-config SPL_SERIAL_SUPPORT
+config SPL_SERIAL
 	bool "Support serial"
 	select SPL_PRINTF
 	select SPL_STRTO
@@ -1119,7 +1115,7 @@ config SPL_SERIAL_SUPPORT
 	  unless there are space reasons not to. Even then, consider
 	  enabling SPL_USE_TINY_PRINTF which is a small printf() version.
 
-config SPL_SPI_SUPPORT
+config SPL_SPI
 	bool "Support SPI drivers"
 	help
 	  Enable support for using SPI in SPL. This is used for connecting
@@ -1131,14 +1127,14 @@ config SPL_SPI_SUPPORT
 
 config SPL_SPI_FLASH_SUPPORT
 	bool "Support SPI flash drivers"
-	depends on SPL_SPI_SUPPORT
+	depends on SPL_SPI
 	help
 	  Enable support for using SPI flash in SPL, and loading U-Boot from
 	  SPI flash. SPI flash (Serial Peripheral Bus flash) is named after
 	  the SPI bus that is used to connect it to a system. It is a simple
 	  but fast bidirectional 4-wire bus (clock, chip select and two data
 	  lines). This enables the drivers in drivers/mtd/spi as part of an
-	  SPL build. This normally requires SPL_SPI_SUPPORT.
+	  SPL build. This normally requires SPL_SPI.
 
 if SPL_SPI_FLASH_SUPPORT
 
@@ -1221,13 +1217,14 @@ if SPL_USB_GADGET
 
 config SPL_USB_ETHER
 	bool "Support USB Ethernet drivers"
+	depends on SPL_NET
 	help
 	  Enable access to the USB network subsystem and associated
 	  drivers in SPL. This permits SPL to load U-Boot over a
 	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
 	  than from an onboard peripheral. Environment support is required
 	  since the network stack uses a number of environment variables.
-	  See also SPL_NET_SUPPORT and SPL_ETH.
+	  See also SPL_NET and SPL_ETH.
 
 config SPL_DFU
 	bool "Support DFU (Device Firmware Upgrade)"
@@ -1258,7 +1255,7 @@ endchoice
 
 config SPL_USB_SDP_SUPPORT
 	bool "Support SDP (Serial Download Protocol)"
-	depends on SPL_SERIAL_SUPPORT
+	depends on SPL_SERIAL
 	help
 	  Enable Serial Download Protocol (SDP) device support in SPL. This
 	  allows to download images into memory and execute (jump to) them
@@ -1284,7 +1281,7 @@ config SPL_WATCHDOG
 
 config SPL_YMODEM_SUPPORT
 	bool "Support loading using Ymodem"
-	depends on SPL_SERIAL_SUPPORT
+	depends on SPL_SERIAL
 	help
 	  While loading from serial is slow it can be a useful backup when
 	  there is no other option. The Ymodem protocol provides a reliable
@@ -1431,6 +1428,18 @@ config TPL_NEEDS_SEPARATE_STACK
 	  Enable, if the TPL stage should not inherit its initial
 	  stack-pointer from the settings for the SPL stage.
 
+config TPL_POWER
+	bool "Support power drivers"
+	help
+	  Enable support for power control in TPL. This includes support
+	  for PMICs (Power-management Integrated Circuits) and some of the
+	  features provided by PMICs. In particular, voltage regulators can
+	  be used to enable/disable power and vary its voltage. That can be
+	  useful in TPL to turn on boot peripherals and adjust CPU voltage
+	  so that the clock speed can be increased. This enables the drivers
+	  in drivers/power, drivers/power/pmic and drivers/power/regulator
+	  as part of an TPL build.
+
 config TPL_TEXT_BASE
 	hex "Base address for the .text section of the TPL stage"
 	depends on TPL_NEEDS_SEPARATE_TEXT_BASE
@@ -1515,17 +1524,17 @@ config TPL_LIBGENERIC_SUPPORT
 	  Enable support for generic U-Boot libraries within TPL. See
 	  SPL_LIBGENERIC_SUPPORT for details.
 
-config TPL_MPC8XXX_INIT_DDR_SUPPORT
+config TPL_MPC8XXX_INIT_DDR
 	bool "Support MPC8XXX DDR init"
 	help
 	  Enable support for DDR-SDRAM on the MPC8XXX family within TPL. See
-	  SPL_MPC8XXX_INIT_DDR_SUPPORT for details.
+	  SPL_MPC8XXX_INIT_DDR for details.
 
-config TPL_MMC_SUPPORT
+config TPL_MMC
 	bool "Support MMC"
 	depends on MMC
 	help
-	  Enable support for MMC within TPL. See SPL_MMC_SUPPORT for details.
+	  Enable support for MMC within TPL. See SPL_MMC for details.
 
 config TPL_NAND_SUPPORT
 	bool "Support NAND flash"
@@ -1540,7 +1549,7 @@ config TPL_PCI
 	  necessary driver support. This enables the drivers in drivers/pci
 	  as part of a TPL build.
 
-config TPL_PCH_SUPPORT
+config TPL_PCH
 	bool "Support PCH drivers"
 	help
 	  Enable support for PCH (Platform Controller Hub) devices in TPL.
@@ -1562,7 +1571,7 @@ config TPL_RAM_DEVICE
 	  be already in memory when TPL takes over, e.g. loaded by the boot
 	  ROM.
 
-config TPL_RTC_SUPPORT
+config TPL_RTC
 	bool "Support RTC drivers"
 	help
 	  Enable RTC (Real-time Clock) support in TPL. This includes support
@@ -1571,12 +1580,12 @@ config TPL_RTC_SUPPORT
 	  needed. This enables the drivers in drivers/rtc as part of an TPL
 	  build.
 
-config TPL_SERIAL_SUPPORT
+config TPL_SERIAL
 	bool "Support serial"
 	select TPL_PRINTF
 	select TPL_STRTO
 	help
-	  Enable support for serial in TPL. See SPL_SERIAL_SUPPORT for
+	  Enable support for serial in TPL. See SPL_SERIAL for
 	  details.
 
 config TPL_SPI_FLASH_SUPPORT
@@ -1602,10 +1611,10 @@ config TPL_SPI_LOAD
 	  Enable support for loading next stage, U-Boot or otherwise, from
 	  SPI NOR in U-Boot TPL.
 
-config TPL_SPI_SUPPORT
+config TPL_SPI
 	bool "Support SPI drivers"
 	help
-	  Enable support for using SPI in TPL. See SPL_SPI_SUPPORT for
+	  Enable support for using SPI in TPL. See SPL_SPI for
 	  details.
 
 config TPL_DM_SPI
@@ -1620,7 +1629,7 @@ config TPL_DM_SPI_FLASH
 
 config TPL_YMODEM_SUPPORT
 	bool "Support loading using Ymodem"
-	depends on TPL_SERIAL_SUPPORT
+	depends on TPL_SERIAL
 	help
 	  While loading from serial is slow it can be a useful backup when
 	  there is no other option. The Ymodem protocol provides a reliable

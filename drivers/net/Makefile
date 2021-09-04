@@ -3,6 +3,8 @@
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
+obj-y += phy/
+
 obj-$(CONFIG_ALTERA_TSE) += altera_tse.o
 obj-$(CONFIG_AG7XXX) += ag7xxx.o
 obj-$(CONFIG_ARMADA100_FEC) += armada100_fec.o
@@ -33,6 +35,7 @@ obj-$(CONFIG_SUN8I_EMAC) += sun8i_emac.o
 obj-$(CONFIG_EP93XX) += ep93xx_eth.o
 obj-$(CONFIG_ETHOC) += ethoc.o
 obj-$(CONFIG_FEC_MXC) += fec_mxc.o
+obj-$(CONFIG_FMAN_ENET) += fm/
 obj-$(CONFIG_FSLDMAFEC) += fsl_mcdmafec.o mcfmii.o
 obj-$(CONFIG_FTGMAC100) += ftgmac100.o
 obj-$(CONFIG_FTMAC110) += ftmac110.o

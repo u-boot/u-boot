@@ -267,7 +267,7 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_POWER
+#if CONFIG_IS_ENABLED(POWER_LEGACY)
 #define I2C_PMIC	0
 int power_init_board(void)
 {
@@ -293,7 +293,7 @@ int power_init_board(void)
 
 	return 0;
 }
-#endif /* CONFIG_POWER */
+#endif /* CONFIG_IS_ENABLED(POWER_LEGACY) */
 
 /*
  * cl_som_imx7_setup_wdog() - watchdog configuration.

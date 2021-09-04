@@ -185,7 +185,7 @@ int board_early_init_f(void)
 }
 #endif
 
-#if defined(CONFIG_POWER) || defined(CONFIG_DM_PMIC)
+#if CONFIG_IS_ENABLED(POWER_LEGACY) || CONFIG_IS_ENABLED(DM_PMIC)
 int power_init_board(void)
 {
 	set_ps_hold_ctrl();

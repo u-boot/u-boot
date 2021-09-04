@@ -2,7 +2,18 @@
 # Serial device configuration
 #
 
-menu "Serial drivers"
+menuconfig SERIAL
+	bool "Serial"
+	default y
+	help
+	  Enable support for serial drivers. This allows use of a serial UART
+	  for displaying messages while U-Boot is running. It also brings in
+	  printf() and panic() functions. This should normally be enabled
+	  unless there are space reasons not to. If you just need to disable
+	  the console you can adjust the stdout environment variable or use
+	  SILENT_CONSOLE.
+
+if SERIAL
 
 config BAUDRATE
 	int "Default baudrate"
@@ -937,4 +948,4 @@ config SYS_SDMR
 	depends on MPC8XX_CONS
 	default 0
 
-endmenu
+endif
