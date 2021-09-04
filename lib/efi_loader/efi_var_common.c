@@ -32,10 +32,10 @@ static const struct efi_auth_var_name_type name_type[] = {
 	{u"KEK", &efi_global_variable_guid, EFI_AUTH_VAR_KEK},
 	{u"db",  &efi_guid_image_security_database, EFI_AUTH_VAR_DB},
 	{u"dbx",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBX},
-	/* not used yet
 	{u"dbt",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBT},
 	{u"dbr",  &efi_guid_image_security_database, EFI_AUTH_VAR_DBR},
-	*/
+	{u"AuditMode", &efi_global_variable_guid, EFI_AUTH_MODE},
+	{u"DeployedMode", &efi_global_variable_guid, EFI_AUTH_MODE},
 };
 
 static bool efi_secure_boot;
@@ -314,17 +314,40 @@ err:
 
 efi_status_t efi_init_secure_state(void)
 {
-	enum efi_secure_mode mode = EFI_MODE_SETUP;
+	enum efi_secure_mode mode;
 	u8 efi_vendor_keys = 0;
-	efi_uintn_t size = 0;
+	efi_uintn_t size;
 	efi_status_t ret;
+	u8 deployed_mode = 0;
+	u8 audit_mode = 0;
+	u8 setup_mode = 1;
 
-	ret = efi_get_variable_int(L"PK", &efi_global_variable_guid,
-				   NULL, &size, NULL, NULL);
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
-			mode = EFI_MODE_USER;
+	if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT)) {
+		size = sizeof(deployed_mode);
+		ret = efi_get_variable_int(u"DeployedMode", &efi_global_variable_guid,
+					   NULL, &size, &deployed_mode, NULL);
+		size = sizeof(audit_mode);
+		ret = efi_get_variable_int(u"AuditMode", &efi_global_variable_guid,
+					   NULL, &size, &audit_mode, NULL);
+		size = 0;
+		ret = efi_get_variable_int(u"PK", &efi_global_variable_guid,
+					   NULL, &size, NULL, NULL);
+		if (ret == EFI_BUFFER_TOO_SMALL) {
+			setup_mode = 0;
+			audit_mode = 0;
+		} else {
+			setup_mode = 1;
+			deployed_mode = 0;
+		}
 	}
+	if (deployed_mode)
+		mode = EFI_MODE_DEPLOYED;
+	else if (audit_mode)
+		mode = EFI_MODE_AUDIT;
+	else if (setup_mode)
+		mode = EFI_MODE_SETUP;
+	else
+		mode = EFI_MODE_USER;
 
 	ret = efi_transfer_secure_state(mode);
 	if (ret != EFI_SUCCESS)
