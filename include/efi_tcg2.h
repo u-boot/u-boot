@@ -130,7 +130,7 @@ struct efi_tcg2_boot_service_capability {
 };
 
 /* up to and including the vendor ID (manufacturer_id) field */
-#define boot_service_capability_min \
+#define BOOT_SERVICE_CAPABILITY_MIN \
 	offsetof(struct efi_tcg2_boot_service_capability, number_of_pcr_banks)
 
 #define TCG_EFI_SPEC_ID_EVENT_SIGNATURE_03 "Spec ID Event03"

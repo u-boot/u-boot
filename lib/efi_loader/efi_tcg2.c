@@ -607,8 +607,8 @@ efi_tcg2_get_capability(struct efi_tcg2_protocol *this,
 		goto out;
 	}
 
-	if (capability->size < boot_service_capability_min) {
-		capability->size = boot_service_capability_min;
+	if (capability->size < BOOT_SERVICE_CAPABILITY_MIN) {
+		capability->size = BOOT_SERVICE_CAPABILITY_MIN;
 		efi_ret = EFI_BUFFER_TOO_SMALL;
 		goto out;
 	}
