@@ -42,6 +42,7 @@
  */
 #define GQSPI_IXR_TXNFULL_MASK		0x00000004 /* QSPI TX FIFO Overflow */
 #define GQSPI_IXR_TXFULL_MASK		0x00000008 /* QSPI TX FIFO is full */
+#define GQSPI_IXR_TXFIFOEMPTY_MASK	0x00000100 /* QSPI TX FIFO is Empty */
 #define GQSPI_IXR_RXNEMTY_MASK		0x00000010 /* QSPI RX FIFO Not Empty */
 #define GQSPI_IXR_GFEMTY_MASK		0x00000080 /* QSPI Generic FIFO Empty */
 #define GQSPI_IXR_GFNFULL_MASK		0x00000200 /* QSPI GENFIFO not full */
@@ -250,12 +251,9 @@ static void zynqmp_qspi_init_hw(struct zynqmp_qspi_priv *priv)
 	config_reg = readl(&regs->confr);
 	config_reg &= ~(GQSPI_CONFIG_MODE_EN_MASK);
 	config_reg |= GQSPI_GFIFO_WP_HOLD | GQSPI_DFLT_BAUD_RATE_DIV;
-	if (priv->io_mode) {
 		config_reg |= GQSPI_GFIFO_STRT_MODE_MASK;
-	} else {
-		config_reg &= ~(GQSPI_GFIFO_STRT_MODE_MASK);
+	if (!priv->io_mode)
 		config_reg |= GQSPI_CONFIG_DMA_MODE;
-	}
 
 	writel(config_reg, &regs->confr);
 
@@ -300,6 +298,8 @@ static void zynqmp_qspi_fill_gen_fifo(struct zynqmp_qspi_priv *priv,
 	u32 config_reg, ier;
 	int ret = 0;
 
+	writel(gqspi_fifo_reg, &regs->genfifo);
+
 	config_reg = readl(&regs->confr);
 	/* Manual start if needed */
 	config_reg |= GQSPI_STRT_GEN_FIFO;
@@ -307,16 +307,14 @@ static void zynqmp_qspi_fill_gen_fifo(struct zynqmp_qspi_priv *priv,
 
 	/* Enable interrupts */
 	ier = readl(&regs->ier);
-	ier |= GQSPI_IXR_GFNFULL_MASK;
+	ier |= GQSPI_IXR_GFEMTY_MASK;
 	writel(ier, &regs->ier);
 
 	/* Wait until the fifo is not full to write the new command */
-	ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_GFNFULL_MASK, 1,
+	ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_GFEMTY_MASK, 1,
 				GQSPI_TIMEOUT, 1);
 	if (ret)
 		printf("%s Timeout\n", __func__);
-
-	writel(gqspi_fifo_reg, &regs->genfifo);
 }
 
 static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
@@ -339,9 +337,6 @@ static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
 	}
 
 	debug("GFIFO_CMD_CS: 0x%x\n", gqspi_fifo_reg);
-
-	/* Dummy generic FIFO entry */
-	zynqmp_qspi_fill_gen_fifo(priv, 0);
 
 	zynqmp_qspi_fill_gen_fifo(priv, gqspi_fifo_reg);
 }
@@ -519,7 +514,7 @@ static int zynqmp_qspi_set_mode(struct udevice *bus, uint mode)
 
 static int zynqmp_qspi_fill_tx_fifo(struct zynqmp_qspi_priv *priv, u32 size)
 {
-	u32 data, config_reg, ier;
+	u32 data, ier;
 	int ret = 0;
 	struct zynqmp_qspi_regs *regs = priv->regs;
 	u32 *buf = (u32 *)priv->tx_buf;
@@ -528,16 +523,10 @@ static int zynqmp_qspi_fill_tx_fifo(struct zynqmp_qspi_priv *priv, u32 size)
 	debug("TxFIFO: 0x%x, size: 0x%x\n", readl(&regs->isr),
 	      size);
 
-	config_reg = readl(&regs->confr);
-	/* Manual start if needed */
-	if (config_reg & GQSPI_GEN_FIFO_STRT_MOD) {
-		config_reg |= GQSPI_STRT_GEN_FIFO;
-		writel(config_reg, &regs->confr);
-		/* Enable interrupts */
-		ier = readl(&regs->ier);
-		ier |= GQSPI_IXR_ALL_MASK;
-		writel(ier, &regs->ier);
-	}
+	/* Enable interrupts */
+	ier = readl(&regs->ier);
+	ier |= GQSPI_IXR_ALL_MASK | GQSPI_IXR_TXFIFOEMPTY_MASK;
+	writel(ier, &regs->ier);
 
 	while (size) {
 		ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_TXNFULL_MASK, 1,
@@ -572,6 +561,13 @@ static int zynqmp_qspi_fill_tx_fifo(struct zynqmp_qspi_priv *priv, u32 size)
 			writel(data, &regs->txd0r);
 			size = 0;
 		}
+	}
+
+	ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_TXFIFOEMPTY_MASK, 1,
+				GQSPI_TIMEOUT, 1);
+	if (ret) {
+		printf("%s: Timeout\n", __func__);
+		return ret;
 	}
 
 	priv->tx_buf += len;
