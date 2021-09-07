@@ -28,10 +28,6 @@
 #define BOOT_SCR_STRING "source ${bootscriptaddr}\0"
 #endif
 
-#ifndef CONFIG_OPTEE_LOAD_ADDR
-#define CONFIG_OPTEE_LOAD_ADDR 0
-#endif
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_DFU_ENV_SETTINGS \
 	"script=boot.scr\0" \
@@ -46,7 +42,6 @@
 	"fdt_file=imx7s-warp.dtb\0" \
 	"fdt_addr=" __stringify(CONFIG_SYS_FDT_ADDR)"\0" \
 	"fdtovaddr=0x83100000\0" \
-	"optee_addr=" __stringify(CONFIG_OPTEE_LOAD_ADDR)"\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \

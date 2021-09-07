@@ -11,13 +11,6 @@ config OPTEE_IMAGE
 	  This option enable the OPTEE specific checks done before booting
 	  an OPTEE image created with mkimage
 
-config OPTEE_LOAD_ADDR
-	hex "OPTEE load address"
-	default 0x00000000
-	depends on OPTEE_LIB
-	help
-	  The load address of the bootable OPTEE binary.
-
 config OPTEE_TZDRAM_SIZE
 	hex "Amount of Trust-Zone RAM for the OPTEE image"
 	default 0x0000000
