@@ -179,6 +179,11 @@ config SPL_SIFIVE_CLINT
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
 
+config SIFIVE_CACHE
+	bool
+	help
+	  This enables the operations to configure SiFive cache
+
 config ANDES_PLIC
 	bool
 	depends on RISCV_MMODE || SPL_RISCV_MMODE
