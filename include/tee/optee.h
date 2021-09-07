@@ -44,20 +44,6 @@ optee_image_get_load_addr(const struct image_header *hdr)
 }
 
 #if defined(CONFIG_OPTEE_IMAGE)
-int optee_verify_image(struct optee_header *hdr, unsigned long tzdram_start,
-		       unsigned long tzdram_len, unsigned long image_len);
-#else
-static inline int optee_verify_image(struct optee_header *hdr,
-				     unsigned long tzdram_start,
-				     unsigned long tzdram_len,
-				     unsigned long image_len)
-{
-	return -EPERM;
-}
-
-#endif
-
-#if defined(CONFIG_OPTEE_IMAGE)
 int optee_verify_bootm_image(unsigned long image_addr,
 			     unsigned long image_load_addr,
 			     unsigned long image_len);
