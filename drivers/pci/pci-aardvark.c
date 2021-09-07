@@ -327,7 +327,7 @@ static int pcie_advk_check_pio_status(struct pcie_advk *pcie,
 	else
 		str_posted = "Posted";
 
-	dev_err(pcie->dev, "%s PIO Response Status: %s, %#x @ %#x\n",
+	dev_dbg(pcie->dev, "%s PIO Response Status: %s, %#x @ %#x\n",
 		str_posted, strcomp_status, reg,
 		advk_readl(pcie, PIO_ADDR_LS));
 
