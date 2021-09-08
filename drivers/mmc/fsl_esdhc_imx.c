@@ -1707,6 +1707,11 @@ static struct esdhc_soc_data usdhc_imx7d_data = {
 			| ESDHC_FLAG_HS400,
 };
 
+static struct esdhc_soc_data usdhc_imx7ulp_data = {
+	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
+			| ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200,
+};
+
 static struct esdhc_soc_data usdhc_imx8qm_data = {
 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING |
 		ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200 |
@@ -1721,7 +1726,7 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,imx6sl-usdhc", },
 	{ .compatible = "fsl,imx6q-usdhc", },
 	{ .compatible = "fsl,imx7d-usdhc", .data = (ulong)&usdhc_imx7d_data,},
-	{ .compatible = "fsl,imx7ulp-usdhc", },
+	{ .compatible = "fsl,imx7ulp-usdhc", .data = (ulong)&usdhc_imx7ulp_data,},
 	{ .compatible = "fsl,imx8qm-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,imx8mm-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,imx8mn-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
