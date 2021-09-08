@@ -581,3 +581,16 @@ def ToHexSize(val):
         hex value of size, or 'None' if the value is None
     """
     return 'None' if val is None else '%#x' % len(val)
+
+def PrintFullHelp(fname):
+    """Print the full help message for a tool using an appropriate pager.
+
+    Args:
+        fname: Path to a file containing the full help message
+    """
+    pager = os.getenv('PAGER')
+    if not pager:
+        pager = shutil.which('less')
+    if not pager:
+        pager = 'more'
+    command.Run(pager, fname)
