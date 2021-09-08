@@ -46,6 +46,7 @@
 #include <spl.h>
 #include <sy8106a.h>
 #include <asm/setup.h>
+#include <status_led.h>
 
 #if defined(CONFIG_VIDEO_LCD_PANEL_I2C)
 /* So that we can use pin names in Kconfig and sunxi_name_to_gpio() */
@@ -628,6 +629,11 @@ static void sunxi_spl_store_dram_size(phys_addr_t dram_size)
 void sunxi_board_init(void)
 {
 	int power_failed = 0;
+
+#ifdef CONFIG_LED_STATUS
+	if (IS_ENABLED(CONFIG_SPL_DRIVERS_MISC))
+		status_led_init();
+#endif
 
 #ifdef CONFIG_SY8106A_POWER
 	power_failed = sy8106a_set_vout1(CONFIG_SY8106A_VOUT1_VOLT);
