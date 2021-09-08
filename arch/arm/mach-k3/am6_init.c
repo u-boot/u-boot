@@ -151,6 +151,19 @@ int fdtdec_board_setup(const void *fdt_blob)
 	return fixup_usb_boot();
 }
 #endif
+
+static void setup_am654_navss_northbridge(void)
+{
+	/*
+	 * NB0 is bridge to SRAM and NB1 is bridge to DDR.
+	 * To ensure that SRAM transfers are not stalled due to
+	 * delays during DDR refreshes, SRAM traffic should be higher
+	 * priority (threadmap=2) than DDR traffic (threadmap=0).
+	 */
+	writel(0x2, NAVSS0_NBSS_NB0_CFG_BASE + NAVSS_NBSS_THREADMAP);
+	writel(0x0, NAVSS0_NBSS_NB1_CFG_BASE + NAVSS_NBSS_THREADMAP);
+}
+
 void board_init_f(ulong dummy)
 {
 #if defined(CONFIG_K3_LOAD_SYSFW) || defined(CONFIG_K3_AM654_DDRSS)
@@ -167,6 +180,8 @@ void board_init_f(ulong dummy)
 
 	/* Make all control module registers accessible */
 	ctrl_mmr_unlock();
+
+	setup_am654_navss_northbridge();
 
 #ifdef CONFIG_CPU_V7R
 	disable_linefill_optimization();
