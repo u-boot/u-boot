@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0+
+.. SPDX-License-Identifier: GPL-2.0+
 
 Blob Lists - bloblist
 =====================
@@ -39,7 +39,7 @@ Blob tags
 
 Each blob has a tag which is a 32-bit number. This uniquely identifies the
 owner of the blob. Blob tags are listed in enum blob_tag_t and are named
-with a BLOBT_ prefix.
+with a `BLOBT_` prefix.
 
 
 Single structure
