@@ -69,7 +69,7 @@ config PINCONF_RECURSIVE
 	  direct children of the pin controller device (may be grandchildren for
 	  example). It is define is each individual pin controller device.
 	  Say Y here if you want to keep this behavior with the pinconfig
-	  u-class: all sub are recursivelly bounded.
+	  u-class: all sub are recursively bounded.
 	  If the option is disabled, this behavior is deactivated and only
 	  the direct children of pin controller will be assumed as pin
 	  configuration; you can save memory footprint when this feature is
