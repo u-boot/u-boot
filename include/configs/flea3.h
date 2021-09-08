@@ -17,16 +17,9 @@
  /* High Level Configuration Options */
 #define CONFIG_MX35
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_FLEA3
-
 /* Set TEXT at the beginning of the NOR flash */
 
 /* This is required to setup the ESDC controller */
-
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_REVISION_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 
 /*
  * Hardware drivers

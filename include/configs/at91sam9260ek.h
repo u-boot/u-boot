@@ -35,9 +35,6 @@
 #endif
 
 /* Misc CPU related */
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -65,24 +62,6 @@
 #else
 # define CONFIG_SYS_INIT_SP_ADDR \
 	(ATMEL_BASE_SRAM1 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
-#endif
-
-/*
- * The (arm)linux board id set by generic code depending on configured board
- * (see boards.cfg for different boards)
- */
-#ifdef CONFIG_AT91SAM9G20
-	/* the sam9g20 variants have two different board ids */
-# ifdef CONFIG_AT91SAM9G20EK_2MMC
-	/* we may be setup for the 2MMC variant of at91sam9g20ek */
-#  define CONFIG_MACH_TYPE MACH_TYPE_AT91SAM9G20EK_2MMC
-# else
-	/* or the normal at91sam9g20ek */
-#  define CONFIG_MACH_TYPE MACH_TYPE_AT91SAM9G20EK
-# endif
-#else
-	/* otherwise default to good old at91sam9260ek */
-# define CONFIG_MACH_TYPE MACH_TYPE_AT91SAM9260EK
 #endif
 
 /* NAND flash */

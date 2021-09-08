@@ -32,10 +32,6 @@
 
 #define CONFIG_SYS_HZ_CLOCK		1000000 /* Fixed at 1MHz from TSTMR */
 
-#define CONFIG_INITRD_TAG
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
 

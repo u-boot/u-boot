@@ -5,9 +5,6 @@
 #ifndef __CONFIGS_MX23_OLINUXINO_H__
 #define __CONFIGS_MX23_OLINUXINO_H__
 
-/* System configurations */
-#define CONFIG_MACH_TYPE	4105
-
 /* U-Boot Commands */
 
 /* Memory configuration */

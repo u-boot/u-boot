@@ -14,12 +14,6 @@
 #include <asm/arch/cpu.h>
 
 /*
- * Define work_92105 machine type by hand -- done only for compatibility
- * with original board code
- */
-#define CONFIG_MACH_TYPE		736
-
-/*
  * Memory configurations
  */
 #define CONFIG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
@@ -80,9 +74,6 @@
 /*
  * Boot Linux
  */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 
 #define CONFIG_BOOTFILE			"uImage"
 

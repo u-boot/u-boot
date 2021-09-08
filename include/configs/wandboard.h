@@ -12,8 +12,6 @@
 
 #include "imx6_spl.h"
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_WANDBOARD_IMX6
-
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* SATA Configs */

@@ -16,8 +16,6 @@
  * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB).
  */
 
-#define CONFIG_REVISION_TAG		1
-
 /* TPS65950 */
 #define PBIASLITEVMODE1			(1 << 8)
 

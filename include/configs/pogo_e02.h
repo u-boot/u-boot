@@ -13,11 +13,6 @@
 #define _CONFIG_POGO_E02_H
 
 /*
- * Machine type definition and ID
- */
-#define CONFIG_MACH_TYPE		MACH_TYPE_POGO_E02
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */

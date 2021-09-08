@@ -60,8 +60,6 @@
  */
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_HWCONFIG		/* enable hwconfig */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_SETUP_INITRD_TAG
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \

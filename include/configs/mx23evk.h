@@ -8,9 +8,6 @@
 #ifndef __CONFIGS_MX23EVK_H__
 #define __CONFIGS_MX23EVK_H__
 
-/* System configurations */
-#define CONFIG_MACH_TYPE	MACH_TYPE_MX23EVK
-
 /* U-Boot Commands */
 
 /* Memory configuration */

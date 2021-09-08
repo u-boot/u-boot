@@ -19,8 +19,6 @@
 #include <linux/sizes.h>
 #include <configs/ti_am335x_common.h>
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_AM335XEVM
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

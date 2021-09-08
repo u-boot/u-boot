@@ -12,9 +12,6 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-/* Enable passing of ATAGs */
-#define CONFIG_CMDLINE_TAG
-
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 

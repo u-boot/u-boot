@@ -19,11 +19,6 @@
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 /* SATA Configs */
 #ifdef CONFIG_CMD_SATA
 #define CONFIG_SYS_SATA_MAX_DEVICE	1

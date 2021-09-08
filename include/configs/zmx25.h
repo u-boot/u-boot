@@ -15,7 +15,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	\
 	(&((struct gpt_regs *)IMX_GPT1_BASE)->counter)
 
-#define CONFIG_MACH_TYPE	MACH_TYPE_ZMX25
 /*
  * Environment settings
  */
@@ -25,10 +24,6 @@
 	"bootcmd=dcache off; mw.l 0x81000000 0 1024; usb start;" \
 		"fatls usb 0; fatload usb 0 0x81000000 zmx25-init.bin;" \
 		"bootm 0x81000000; bootelf 0x81000000\0"
-
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 
 /*
  * Hardware drivers

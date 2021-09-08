@@ -196,12 +196,14 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_REVISION_TAG
 u32 get_board_rev(void)
 {
 	int rev = 0;
 
 	return (get_cpu_rev() & ~(0xF << 8)) | (rev & 0xF) << 8;
 }
+#endif
 
 /*
  * called prior to booting kernel or by 'fdt boardsetup' command

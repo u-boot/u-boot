@@ -119,7 +119,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Informational display configuration.
  */
-#define CONFIG_REVISION_TAG
 
 /*
  * Command configuration.

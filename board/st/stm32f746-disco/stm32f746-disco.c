@@ -77,12 +77,7 @@ u32 spl_boot_device(void)
 {
 	return BOOT_DEVICE_XIP;
 }
-
 #endif
-u32 get_board_rev(void)
-{
-	return 0;
-}
 
 int board_late_init(void)
 {

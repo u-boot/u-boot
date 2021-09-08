@@ -14,9 +14,6 @@
 
 /* Using 32K of volatile storage for environment */
 
-#define MACH_TYPE_PDU001	5075
-#define CONFIG_MACH_TYPE	MACH_TYPE_PDU001
-
 /* Clock Defines */
 #define V_OSCK			24000000  /* Clock output from T2 */
 #define V_SCLK			(V_OSCK)

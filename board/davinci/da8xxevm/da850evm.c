@@ -232,6 +232,7 @@ const int lpsc_size = ARRAY_SIZE(lpsc);
 
 #define REV_AM18X_EVM		0x100
 
+#ifdef CONFIG_REVISION_TAG
 /*
  * get_board_rev() - setup to pass kernel board revision information
  * Returns:
@@ -259,6 +260,7 @@ u32 get_board_rev(void)
 		rev = 1;
 	return rev;
 }
+#endif
 
 int board_early_init_f(void)
 {

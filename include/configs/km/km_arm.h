@@ -25,8 +25,6 @@
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
 #define CONFIG_KW88F6281		/* SOC Name */
 
-#define CONFIG_MACH_TYPE	MACH_TYPE_KM_KIRKWOOD
-
 #define CONFIG_NAND_ECC_BCH
 
 /* include common defines/options for all Keymile boards */
@@ -53,15 +51,6 @@
 		"echo No FDT found, booting with the kernel "		\
 		"appended one; fi\0"					\
 	""
-
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
-#define CONFIG_INITRD_TAG		/* enable INITRD tag */
-#define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
 
 /*
  * NAND Flash configuration

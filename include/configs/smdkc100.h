@@ -29,10 +29,6 @@
 
 /* Text Base */
 
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_INITRD_TAG
-
 /*
  * select serial console configuration
  */

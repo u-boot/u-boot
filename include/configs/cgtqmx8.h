@@ -50,8 +50,6 @@
 
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 /* Boot M4 */
 #define M4_BOOT_ENV \
 	"m4_0_image=m4_0.bin\0" \

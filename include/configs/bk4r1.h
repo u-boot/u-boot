@@ -60,9 +60,6 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-/* Enable passing of ATAGs */
-#define CONFIG_CMDLINE_TAG
-
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 1

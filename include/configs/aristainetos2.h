@@ -28,7 +28,6 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MACH_TYPE	4501
 #define CONFIG_MMCROOT		"/dev/mmcblk0p1"
 
 /* MMC Configs */

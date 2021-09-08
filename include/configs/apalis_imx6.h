@@ -14,20 +14,12 @@
 
 #undef CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_MACH_TYPE		4886
-
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
 #endif
-
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_SERIAL_TAG
 
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 

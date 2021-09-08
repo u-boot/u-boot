@@ -7,27 +7,6 @@
 #define _CONFIG_LACIE_KW_H
 
 /*
- * Machine number definition
- */
-#if defined(CONFIG_INETSPACE_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_INETSPACE_V2
-#elif defined(CONFIG_NETSPACE_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_V2
-#elif defined(CONFIG_NETSPACE_LITE_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_LITE_V2
-#elif defined(CONFIG_NETSPACE_MINI_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MINI_V2
-#elif defined(CONFIG_NETSPACE_MAX_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MAX_V2
-#elif defined(CONFIG_D2NET_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_D2NET_V2
-#elif defined(CONFIG_NET2BIG_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NET2BIG_V2
-#else
-#error "Unknown board"
-#endif
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */

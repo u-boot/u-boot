@@ -15,7 +15,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-#define CONFIG_MACH_TYPE	MACH_TYPE_DREAMPLUG
 
 #include "mv-plug-common.h"
 

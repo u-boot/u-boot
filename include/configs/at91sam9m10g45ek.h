@@ -18,10 +18,6 @@
 
 #define CONFIG_AT91SAM9M10G45EK
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 

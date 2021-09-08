@@ -33,8 +33,6 @@
 
 #endif
 
-#define CONFIG_SERIAL_TAG
-
 #define CONFIG_REMAKE_ELF
 
 #define CONFIG_BOARD_EARLY_INIT_F

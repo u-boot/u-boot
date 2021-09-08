@@ -71,11 +71,6 @@ u32 spl_boot_device(void)
 }
 #endif
 
-u32 get_board_rev(void)
-{
-	return 0;
-}
-
 int board_init(void)
 {
 	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;

@@ -12,8 +12,6 @@
 #include <configs/ti_armv7_omap.h>
 #include <asm/arch/omap.h>
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_TI8168EVM
-
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	DEFAULT_LINUX_BOOT_ENV \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \

@@ -27,8 +27,6 @@
 
 #define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9261"
 
-#define CONFIG_MACH_TYPE	MACH_TYPE_PM9261
-
 /* clocks */
 /* CKGR_MOR - enable main osc. */
 #define CONFIG_SYS_MOR_VAL						\
@@ -127,10 +125,6 @@
 		 AT91_WDT_MR_WDV(0xfff) |					\
 		 AT91_WDT_MR_WDDIS |				\
 		 AT91_WDT_MR_WDD(0xfff))
-
-#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS 1
-#define CONFIG_INITRD_TAG	1
 
 /*
  * Hardware drivers

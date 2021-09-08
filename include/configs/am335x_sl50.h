@@ -16,8 +16,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
-/*#define CONFIG_MACH_TYPE		3589	 Until the next sync */
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

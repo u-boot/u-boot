@@ -12,9 +12,6 @@
 
 #define CONFIG_EXYNOS5_DT
 
-/* Provide the MACH_TYPE value that the vendor kernel requires. */
-#define CONFIG_MACH_TYPE		8002
-
 #define CONFIG_VAR_SIZE_SPL
 
 #define CONFIG_IRAM_TOP			0x02074000

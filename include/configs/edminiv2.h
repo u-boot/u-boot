@@ -94,15 +94,6 @@
 
 /* auto boot */
 
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs  */
-#define CONFIG_INITRD_TAG	1	/* enable INITRD tag */
-#define CONFIG_SETUP_MEMORY_TAGS 1	/* enable memory tag */
-
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
 
 /*

@@ -14,11 +14,6 @@
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
 #define CONFIG_KW88F6281		/* SOC Name */
 
-/*
- * Machine type
- */
-#define CONFIG_MACH_TYPE	MACH_TYPE_ICONNECT
-
 #include "mv-common.h"
 
 /*

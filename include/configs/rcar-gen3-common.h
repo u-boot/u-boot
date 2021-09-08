@@ -21,10 +21,6 @@
 
 /* boot option */
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE	0xF1010000
 #define GICC_BASE	0xF1020000

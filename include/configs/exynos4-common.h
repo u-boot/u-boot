@@ -14,8 +14,6 @@
 
 #define CONFIG_BOARD_COMMON
 
-#define CONFIG_REVISION_TAG
-
 /* SD/MMC configuration */
 #define CONFIG_MMC_DEFAULT_DEV	0
 

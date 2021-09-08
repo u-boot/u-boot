@@ -32,11 +32,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
 
 /* Misc CPU related */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_SERIAL_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
 
 /*
  * Hardware drivers

@@ -35,6 +35,7 @@ int dram_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_REVISION_TAG
 u32 get_board_rev(void)
 {
 	u32 rev = get_cpu_rev();
@@ -42,6 +43,7 @@ u32 get_board_rev(void)
 		rev |= BOARD_REV_2_0 << BOARD_VER_OFFSET;
 	return rev;
 }
+#endif
 
 #define UART_PAD_CTRL	(PAD_CTL_HYS | PAD_CTL_PUS_100K_DOWN | PAD_CTL_DSE_HIGH)
 

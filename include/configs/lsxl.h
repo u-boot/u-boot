@@ -12,10 +12,8 @@
  */
 #if defined(CONFIG_LSCHLV2)
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-lschl.cfg
-#define CONFIG_MACH_TYPE 3006
 #elif defined(CONFIG_LSXHL)
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-lsxhl.cfg
-#define CONFIG_MACH_TYPE 2663
 #else
 #error "unknown board"
 #endif

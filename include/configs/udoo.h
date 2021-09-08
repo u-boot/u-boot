@@ -12,9 +12,6 @@
 
 #include "imx6_spl.h"
 
-/* Provide the MACH_TYPE value that the vendor kernel requires. */
-#define CONFIG_MACH_TYPE		4800
-
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
 /* SATA Configs */

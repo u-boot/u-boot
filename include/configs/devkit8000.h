@@ -15,7 +15,6 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_MACH_TYPE	MACH_TYPE_DEVKIT8000
 
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
@@ -33,8 +32,6 @@
 /*  Physical Memory Map  */
 
 #include <configs/ti_omap3_common.h>
-
-#define CONFIG_REVISION_TAG		1
 
 /* Hardware drivers */
 /* DM9000 */

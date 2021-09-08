@@ -33,12 +33,6 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-/* ATAGs */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE	512
 #define CONFIG_SYS_MAXARGS	32

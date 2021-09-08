@@ -22,8 +22,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 #ifndef CONFIG_SPL_BUILD
 
 #define MEM_LAYOUT_ENV_SETTINGS \

@@ -12,11 +12,6 @@
 #define _CONFIG_NAS220_H
 
 /*
- * Machine type ID
- */
-#define CONFIG_MACH_TYPE		MACH_TYPE_RD88F6192_NAS
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* #define CPU Core subversion */

@@ -13,7 +13,6 @@
 
 /* Miscellaneous */
 #define CONFIG_SYS_PBSIZE	256
-#define CONFIG_CMDLINE_TAG
 
 /* Internal RAM Size (RZ/A1=3M, RZ/A1M=5M, RZ/A1H=10M) */
 #define CONFIG_SYS_SDRAM_BASE		0x20000000

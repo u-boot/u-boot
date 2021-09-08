@@ -14,8 +14,6 @@
 #include "imx6_spl.h"
 #endif
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_MX6SL_EVK
-
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR
 
 /* MMC Configs */
