@@ -39,9 +39,6 @@ choice
 	prompt "MX28 board select"
 	optional
 
-config TARGET_BG0900
-	bool "Support bg0900"
-
 config TARGET_MX28EVK
 	bool "Support mx28evk"
 	select BOARD_EARLY_INIT_F
@@ -56,6 +53,5 @@ config SYS_SOC
 
 source "board/freescale/mx28evk/Kconfig"
 source "board/liebherr/xea/Kconfig"
-source "board/ppcag/bg0900/Kconfig"
 
 endif
