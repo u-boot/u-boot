@@ -67,56 +67,7 @@ static int mxc_set_usbcontrol(int port, unsigned int flags)
 	unsigned int v;
 
 	v = readl(IMX_USB_BASE + USBCTRL_OTGBASE_OFFSET);
-#if defined(CONFIG_MX25)
-	switch (port) {
-	case 0:	/* OTG port */
-		v &= ~(MX25_OTG_SIC_MASK | MX25_OTG_PM_BIT | MX25_OTG_PP_BIT |
-				MX25_OTG_OCPOL_BIT);
-		v |= (flags & MXC_EHCI_INTERFACE_MASK) << MX25_OTG_SIC_SHIFT;
-
-		if (!(flags & MXC_EHCI_POWER_PINS_ENABLED))
-			v |= MX25_OTG_PM_BIT;
-
-		if (flags & MXC_EHCI_PWR_PIN_ACTIVE_HIGH)
-			v |= MX25_OTG_PP_BIT;
-
-		if (!(flags & MXC_EHCI_OC_PIN_ACTIVE_LOW))
-			v |= MX25_OTG_OCPOL_BIT;
-
-		break;
-	case 1: /* H1 port */
-		v &= ~(MX25_H1_SIC_MASK | MX25_H1_PM_BIT | MX25_H1_PP_BIT |
-				MX25_H1_OCPOL_BIT | MX25_H1_TLL_BIT |
-				MX25_H1_USBTE_BIT | MX25_H1_IPPUE_DOWN_BIT |
-				MX25_H1_IPPUE_UP_BIT);
-		v |= (flags & MXC_EHCI_INTERFACE_MASK) << MX25_H1_SIC_SHIFT;
-
-		if (!(flags & MXC_EHCI_POWER_PINS_ENABLED))
-			v |= MX25_H1_PM_BIT;
-
-		if (flags & MXC_EHCI_PWR_PIN_ACTIVE_HIGH)
-			v |= MX25_H1_PP_BIT;
-
-		if (!(flags & MXC_EHCI_OC_PIN_ACTIVE_LOW))
-			v |= MX25_H1_OCPOL_BIT;
-
-		if (!(flags & MXC_EHCI_TTL_ENABLED))
-			v |= MX25_H1_TLL_BIT;
-
-		if (flags & MXC_EHCI_INTERNAL_PHY)
-			v |= MX25_H1_USBTE_BIT;
-
-		if (flags & MXC_EHCI_IPPUE_DOWN)
-			v |= MX25_H1_IPPUE_DOWN_BIT;
-
-		if (flags & MXC_EHCI_IPPUE_UP)
-			v |= MX25_H1_IPPUE_UP_BIT;
-
-		break;
-	default:
-		return -EINVAL;
-	}
-#elif defined(CONFIG_MX31)
+#if defined(CONFIG_MX31)
 	switch (port) {
 	case 0:	/* OTG port */
 		v &= ~(MX31_OTG_SIC_MASK | MX31_OTG_PM_BIT);

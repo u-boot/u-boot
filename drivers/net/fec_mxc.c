@@ -521,7 +521,7 @@ static int fec_open(struct eth_device *edev)
 	       &fec->eth->ecntrl);
 #endif
 
-#if defined(CONFIG_MX25) || defined(CONFIG_MX53) || defined(CONFIG_MX6SL)
+#if defined(CONFIG_MX53) || defined(CONFIG_MX6SL)
 	udelay(100);
 
 	/* setup the MII gasket for RMII mode */

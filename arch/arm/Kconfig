@@ -854,13 +854,6 @@ config ARCH_MX23
 	select PL011_SERIAL
 	select SUPPORT_SPL
 
-config ARCH_MX25
-	bool "NXP MX25"
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select MACH_IMX
-	imply MXC_GPIO
-
 config ARCH_MX28
 	bool "NXP i.MX28 family"
 	select CPU_ARM926EJS
@@ -2056,8 +2049,6 @@ source "arch/arm/mach-octeontx/Kconfig"
 source "arch/arm/mach-octeontx2/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
-
-source "arch/arm/mach-imx/mx2/Kconfig"
 
 source "arch/arm/mach-imx/mx3/Kconfig"
 
