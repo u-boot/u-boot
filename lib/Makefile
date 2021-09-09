@@ -65,7 +65,7 @@ obj-$(CONFIG_$(SPL_)RSA) += rsa/
 obj-$(CONFIG_HASH) += hash-checksum.o
 obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SHA256) += sha256.o
-obj-$(CONFIG_SHA512_ALGO) += sha512.o
+obj-$(CONFIG_SHA512) += sha512.o
 obj-$(CONFIG_CRYPT_PW) += crypt/
 
 obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
@@ -87,7 +87,7 @@ endif
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o
-obj-$(CONFIG_$(SPL_TPL_)HASH_SUPPORT) += crc16.o
+obj-$(CONFIG_$(SPL_TPL_)HASH) += crc16.o
 obj-y += net_utils.o
 endif
 obj-$(CONFIG_ADDR_MAP) += addr_map.o

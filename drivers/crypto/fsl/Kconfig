@@ -1,6 +1,8 @@
 config FSL_CAAM
 	bool "Freescale Crypto Driver Support"
 	select SHA_HW_ACCEL
+	# hw_sha1() under drivers/crypto, and needed with SHA_HW_ACCEL
+	imply SPL_CRYPTO if (ARM && SPL)
 	imply CMD_HASH
 	help
 	  Enables the Freescale's Cryptographic Accelerator and Assurance
