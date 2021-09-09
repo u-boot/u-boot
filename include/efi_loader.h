@@ -818,7 +818,7 @@ efi_status_t EFIAPI efi_query_variable_info(
 			u64 *remaining_variable_storage_size,
 			u64 *maximum_variable_size);
 
-void *efi_get_var(u16 *name, const efi_guid_t *vendor, efi_uintn_t *size);
+void *efi_get_var(const u16 *name, const efi_guid_t *vendor, efi_uintn_t *size);
 
 /*
  * See section 3.1.3 in the v2.7 UEFI spec for more details on

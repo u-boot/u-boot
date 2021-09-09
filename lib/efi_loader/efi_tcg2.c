@@ -1366,7 +1366,7 @@ static efi_status_t efi_append_scrtm_version(struct udevice *dev)
  * Return:	status code
  */
 static efi_status_t tcg2_measure_variable(struct udevice *dev, u32 pcr_index,
-					  u32 event_type, u16 *var_name,
+					  u32 event_type, const u16 *var_name,
 					  const efi_guid_t *guid,
 					  efi_uintn_t data_size, u8 *data)
 {
