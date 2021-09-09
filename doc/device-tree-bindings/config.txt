@@ -5,15 +5,15 @@ A number of run-time configuration options are provided in the /config node
 of the control device tree. You can access these using fdtdec_get_config_int(),
 fdtdec_get_config_bool() and fdtdec_get_config_string().
 
+These options are designed to affect the operation of U-Boot at runtime.
+Runtime-configuration items can help avoid proliferation of different builds
+with only minor changes, e.g. enabling and disabling console output. Items
+here should be those that can usefully be set by the build system after U-Boot
+is built.
+
 Available options are:
 
-silent-console
-	If present and non-zero, the console is silenced by default on boot.
-
-no-keyboard
-	Tells U-Boot not to expect an attached keyboard with a VGA console
-
-u-boot,efi-partition-entries-offset
+u-boot,efi-partition-entries-offset (int)
 	If present, this provides an offset (in bytes, from the start of a
 	device) that should be skipped over before the partition entries.
 	This is used by the EFI/GPT partition implementation when a device
@@ -21,17 +21,8 @@ u-boot,efi-partition-entries-offset
 
 	This setting will override any values configured via Kconfig.
 
-u-boot,mmc-env-partition
-	if present, the environment shall be placed at the last
-	CONFIG_ENV_SIZE blocks of the partition on the
-	CONFIG_SYS_MMC_ENV_DEV.
-
-	if u-boot,mmc-env-offset* is present, this setting will take
-	precedence. In that case, only if the partition is not found,
-	mmc-env-offset* will be tried.
-
-u-boot,mmc-env-offset
-u-boot,mmc-env-offset-redundant
+u-boot,mmc-env-offset (int)
+u-boot,mmc-env-offset-redundant (int)
 	If present, the values of the 'u-boot,mmc-env-offset' and/or
 	of the u-boot,mmc-env-offset-redundant' properties overrides
 	CONFIG_ENV_OFFSET and CONFIG_ENV_OFFSET_REDUND, respectively,
@@ -42,12 +33,27 @@ u-boot,mmc-env-offset-redundant
 	will point at the beginning of a LBA and values that are not
 	LBA-aligned will be rounded up to the next LBA address.
 
-u-boot,spl-payload-offset
+u-boot,mmc-env-partition (int)
+	if present, the environment shall be placed at the last
+	CONFIG_ENV_SIZE blocks of the partition on the
+	CONFIG_SYS_MMC_ENV_DEV.
+
+	if u-boot,mmc-env-offset* is present, this setting will take
+	precedence. In that case, only if the partition is not found,
+	mmc-env-offset* will be tried.
+
+u-boot,no-keyboard (bool)
+	Tells U-Boot not to expect an attached keyboard with a VGA console.
+
+silent-console (int)
+	If present and non-zero, the console is silenced by default on boot.
+
+u-boot,spl-payload-offset (int)
 	If present (and SPL is controlled by the device-tree), this allows
 	to override the CONFIG_SYS_SPI_U_BOOT_OFFS setting using a value
 	from the device-tree.
 
-sysreset-gpio
+sysreset-gpio (string)
 	If present (and supported by the specific board), indicates a
 	GPIO that can be set to trigger a system reset.  It is assumed
 	that such a system reset will effect a complete platform reset,
