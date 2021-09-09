@@ -257,6 +257,14 @@ enum efi_auth_var_type efi_auth_var_get_type(const u16 *name,
 					     const efi_guid_t *guid);
 
 /**
+ * efi_auth_var_get_guid() - get the predefined GUID for a variable name
+ *
+ * @name:	name of UEFI variable
+ * Return:	guid of UEFI variable
+ */
+const efi_guid_t *efi_auth_var_get_guid(const u16 *name);
+
+/**
  * efi_get_next_variable_name_mem() - Runtime common code across efi variable
  *                                    implementations for GetNextVariable()
  *                                    from the cached memory copy
