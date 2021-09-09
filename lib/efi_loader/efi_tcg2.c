@@ -11,6 +11,7 @@
 #include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 #include <efi_tcg2.h>
 #include <log.h>
 #include <malloc.h>
@@ -79,17 +80,12 @@ static const struct digest_info hash_algo_list[] = {
 	},
 };
 
-struct variable_info {
-	u16		*name;
-	const efi_guid_t	*guid;
-};
-
-static struct variable_info secure_variables[] = {
-	{L"SecureBoot", &efi_global_variable_guid},
-	{L"PK", &efi_global_variable_guid},
-	{L"KEK", &efi_global_variable_guid},
-	{L"db", &efi_guid_image_security_database},
-	{L"dbx", &efi_guid_image_security_database},
+static const u16 *secure_variables[] = {
+	u"SecureBoot",
+	u"PK",
+	u"KEK",
+	u"db",
+	u"dbx",
 };
 
 #define MAX_HASH_COUNT ARRAY_SIZE(hash_algo_list)
@@ -1594,19 +1590,20 @@ static efi_status_t tcg2_measure_secure_boot_variable(struct udevice *dev)
 
 	count = ARRAY_SIZE(secure_variables);
 	for (i = 0; i < count; i++) {
+		const efi_guid_t *guid;
+
+		guid = efi_auth_var_get_guid(secure_variables[i]);
+
 		/*
 		 * According to the TCG2 PC Client PFP spec, "SecureBoot",
 		 * "PK", "KEK", "db" and "dbx" variables must be measured
 		 * even if they are empty.
 		 */
-		data = efi_get_var(secure_variables[i].name,
-				   secure_variables[i].guid,
-				   &data_size);
+		data = efi_get_var(secure_variables[i], guid, &data_size);
 
 		ret = tcg2_measure_variable(dev, 7,
 					    EV_EFI_VARIABLE_DRIVER_CONFIG,
-					    secure_variables[i].name,
-					    secure_variables[i].guid,
+					    secure_variables[i], guid,
 					    data_size, data);
 		free(data);
 		if (ret != EFI_SUCCESS)
