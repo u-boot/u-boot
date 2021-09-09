@@ -1121,10 +1121,12 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 		if (is_ofst_odd == 1) {
 			memcpy(buf, (buf + 1), (len - 1));
 			*retlen += (ret - 1);
+			buf += ret - 1;
+			is_ofst_odd = 0;
 		} else {
 			*retlen += ret;
+			buf += ret;
 		}
-		buf += ret;
 		from += ret;
 		len -= ret;
 	}
