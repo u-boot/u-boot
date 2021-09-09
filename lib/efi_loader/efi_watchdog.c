@@ -27,8 +27,7 @@ static void EFIAPI efi_watchdog_timer_notify(struct efi_event *event,
 	EFI_ENTRY("%p, %p", event, context);
 
 	printf("\nEFI: Watchdog timeout\n");
-	EFI_CALL_VOID(efi_runtime_services.reset_system(EFI_RESET_COLD,
-							EFI_SUCCESS, 0, NULL));
+	do_reset(NULL, 0, 0, NULL);
 
 	EFI_EXIT(EFI_UNSUPPORTED);
 }
