@@ -11,6 +11,7 @@
 #include <linux/compiler.h>
 #include <linux/kernel.h>
 #include <linux/log2.h>
+#include <lmb.h>
 #include <asm/arcregs.h>
 #include <asm/arc-bcr.h>
 #include <asm/cache.h>
@@ -819,4 +820,33 @@ void sync_n_cleanup_cache_all(void)
 	}
 
 	__ic_entire_invalidate();
+}
+
+static ulong get_sp(void)
+{
+	ulong ret;
+
+	asm("mov %0, sp" : "=r"(ret) : );
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	ulong sp;
+
+	/*
+	 * Booting a (Linux) kernel image
+	 *
+	 * Allocate space for command line and board info - the
+	 * address should be as high as possible within the reach of
+	 * the kernel (see CONFIG_SYS_BOOTMAPSZ settings), but in unused
+	 * memory, which means far enough below the current stack
+	 * pointer.
+	 */
+	sp = get_sp();
+	debug("## Current stack ends at 0x%08lx ", sp);
+
+	/* adjust sp by 4K to be safe */
+	sp -= 4096;
+	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp));
 }
