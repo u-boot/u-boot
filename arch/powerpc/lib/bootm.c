@@ -119,7 +119,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 void arch_lmb_reserve(struct lmb *lmb)
 {
 	phys_size_t bootm_size;
-	ulong size, sp, bootmap_base;
+	ulong size, bootmap_base;
 
 	bootmap_base = env_get_bootm_low();
 	bootm_size = env_get_bootm_size();
@@ -141,21 +141,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 		lmb_reserve(lmb, base, bootm_size - size);
 	}
 
-	/*
-	 * Booting a (Linux) kernel image
-	 *
-	 * Allocate space for command line and board info - the
-	 * address should be as high as possible within the reach of
-	 * the kernel (see CONFIG_SYS_BOOTMAPSZ settings), but in unused
-	 * memory, which means far enough below the current stack
-	 * pointer.
-	 */
-	sp = get_sp();
-	debug("## Current stack ends at 0x%08lx\n", sp);
-
-	/* adjust sp by 4K to be safe */
-	sp -= 4096;
-	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + get_effective_memsize() - sp));
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
 
 #ifdef CONFIG_MP
 	cpu_mp_lmb_reserve(lmb);
