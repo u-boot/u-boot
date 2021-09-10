@@ -122,6 +122,7 @@ lmb_size_bytes(struct lmb_region *type, unsigned long region_nr)
 
 void board_lmb_reserve(struct lmb *lmb);
 void arch_lmb_reserve(struct lmb *lmb);
+void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align);
 
 /* Low level functions */
 
