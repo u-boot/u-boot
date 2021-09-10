@@ -1,7 +1,10 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * TI DP83867 PHY drivers
+ * Device Tree constants for the Texas Instruments DP83867 PHY
  *
+ * Author: Dan Murphy <dmurphy@ti.com>
+ *
+ * Copyright:   (C) 2015 Texas Instruments, Inc.
  */
 
 #ifndef _DT_BINDINGS_TI_DP83867_H
@@ -14,22 +17,22 @@
 #define DP83867_PHYCR_FIFO_DEPTH_8_B_NIB	0x03
 
 /* RGMIIDCTL internal delay for rx and tx */
-#define DP83867_RGMIIDCTL_250_PS	0x0
-#define DP83867_RGMIIDCTL_500_PS	0x1
-#define DP83867_RGMIIDCTL_750_PS	0x2
-#define DP83867_RGMIIDCTL_1_NS		0x3
-#define DP83867_RGMIIDCTL_1_25_NS	0x4
-#define DP83867_RGMIIDCTL_1_50_NS	0x5
-#define DP83867_RGMIIDCTL_1_75_NS	0x6
-#define DP83867_RGMIIDCTL_2_00_NS	0x7
-#define DP83867_RGMIIDCTL_2_25_NS	0x8
-#define DP83867_RGMIIDCTL_2_50_NS	0x9
-#define DP83867_RGMIIDCTL_2_75_NS	0xa
-#define DP83867_RGMIIDCTL_3_00_NS	0xb
-#define DP83867_RGMIIDCTL_3_25_NS	0xc
-#define DP83867_RGMIIDCTL_3_50_NS	0xd
-#define DP83867_RGMIIDCTL_3_75_NS	0xe
-#define DP83867_RGMIIDCTL_4_00_NS	0xf
+#define	DP83867_RGMIIDCTL_250_PS	0x0
+#define	DP83867_RGMIIDCTL_500_PS	0x1
+#define	DP83867_RGMIIDCTL_750_PS	0x2
+#define	DP83867_RGMIIDCTL_1_NS		0x3
+#define	DP83867_RGMIIDCTL_1_25_NS	0x4
+#define	DP83867_RGMIIDCTL_1_50_NS	0x5
+#define	DP83867_RGMIIDCTL_1_75_NS	0x6
+#define	DP83867_RGMIIDCTL_2_00_NS	0x7
+#define	DP83867_RGMIIDCTL_2_25_NS	0x8
+#define	DP83867_RGMIIDCTL_2_50_NS	0x9
+#define	DP83867_RGMIIDCTL_2_75_NS	0xa
+#define	DP83867_RGMIIDCTL_3_00_NS	0xb
+#define	DP83867_RGMIIDCTL_3_25_NS	0xc
+#define	DP83867_RGMIIDCTL_3_50_NS	0xd
+#define	DP83867_RGMIIDCTL_3_75_NS	0xe
+#define	DP83867_RGMIIDCTL_4_00_NS	0xf
 
 /* IO_MUX_CFG - Clock output selection */
 #define DP83867_CLK_O_SEL_CHN_A_RCLK		0x0

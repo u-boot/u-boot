@@ -41,7 +41,7 @@
 		u-boot,dm-spl;
 	};
 
-	mcu-navss{
+	mcu_navss: bus@28380000 {
 		u-boot,dm-spl;
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -118,10 +118,6 @@
 	u-boot,dm-spl;
 };
 
-&wkup_i2c0_pins_default {
-	u-boot,dm-spl;
-};
-
 &wkup_i2c0 {
 	u-boot,dm-spl;
 };
@@ -162,10 +158,6 @@
 
 &usb0 {
 	dr_mode = "peripheral";
-	u-boot,dm-spl;
-};
-
-&wkup_gpio_pins_default {
 	u-boot,dm-spl;
 };
 
