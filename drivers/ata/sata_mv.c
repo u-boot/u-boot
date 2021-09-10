@@ -1068,6 +1068,7 @@ static int sata_mv_probe(struct udevice *dev)
 	int nr_ports;
 	int ret;
 	int i;
+	int status = -ENODEV; /* If the probe fails to detected any SATA port */
 
 	/* Get number of ports of this SATA controller */
 	nr_ports = min(fdtdec_get_int(blob, node, "nr-ports", -1),
@@ -1078,7 +1079,7 @@ static int sata_mv_probe(struct udevice *dev)
 					 IF_TYPE_SATA, -1, 512, 0, &blk);
 		if (ret) {
 			debug("Can't create device\n");
-			return ret;
+			continue;
 		}
 
 		priv = dev_get_plat(blk);
@@ -1088,18 +1089,23 @@ static int sata_mv_probe(struct udevice *dev)
 		ret = sata_mv_init_sata(blk, i);
 		if (ret) {
 			debug("%s: Failed to init bus\n", __func__);
-			return ret;
+			continue;
 		}
 
 		/* Scan SATA port */
 		ret = sata_mv_scan_sata(blk, i);
 		if (ret) {
 			debug("%s: Failed to scan bus\n", __func__);
-			return ret;
+			continue;
 		}
+
+		/* If we got here, the current SATA port was probed
+		 * successfully, so set the probe status to successful.
+		 */
+		status = 0;
 	}
 
-	return 0;
+	return status;
 }
 
 static int sata_mv_scan(struct udevice *dev)
