@@ -32,7 +32,7 @@ void spl_board_init(void)
 	offset = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "nxp,imx8-pd");
 	while (offset != -FDT_ERR_NOTFOUND) {
 		lists_bind_fdt(gd->dm_root, offset_to_ofnode(offset),
-			       NULL, true);
+			       NULL, NULL, true);
 		offset = fdt_node_offset_by_compatible(gd->fdt_blob, offset,
 						       "nxp,imx8-pd");
 	}

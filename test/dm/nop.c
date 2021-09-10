@@ -25,7 +25,7 @@ static int noptest_bind(struct udevice *parent)
 		const char *bind_flag = ofnode_read_string(ofnode, "bind");
 
 		if (bind_flag && (strcmp(bind_flag, "True") == 0))
-			lists_bind_fdt(parent, ofnode, &dev, false);
+			lists_bind_fdt(parent, ofnode, &dev, NULL, false);
 		ofnode = dev_read_next_subnode(ofnode);
 	}
 

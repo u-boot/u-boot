@@ -69,7 +69,7 @@ static int serial_check_stdout(const void *blob, struct udevice **devp)
 	 * anyway.
 	 */
 	if (node > 0 && !lists_bind_fdt(gd->dm_root, offset_to_ofnode(node),
-					devp, false)) {
+					devp, NULL, false)) {
 		if (!device_probe(*devp))
 			return 0;
 	}
