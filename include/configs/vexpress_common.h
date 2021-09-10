@@ -15,7 +15,7 @@
  * Definitions copied from linux kernel:
  * arch/arm/mach-vexpress/include/mach/motherboard.h
  */
-#ifdef CONFIG_VEXPRESS_ORIGINAL_MEMORY_MAP
+#ifdef VEXPRESS_ORIGINAL_MEMORY_MAP
 /* CS register bases for the original memory map. */
 #define V2M_PA_CS0		0x40000000
 #define V2M_PA_CS1		0x44000000
