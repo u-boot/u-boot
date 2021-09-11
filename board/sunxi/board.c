@@ -912,10 +912,12 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	int __maybe_unused r;
 
 	/*
-	 * Call setup_environment again in case the boot fdt has
-	 * ethernet aliases the u-boot copy does not have.
+	 * Call setup_environment and fdt_fixup_ethernet again
+	 * in case the boot fdt has ethernet aliases the u-boot
+	 * copy does not have.
 	 */
 	setup_environment(blob);
+	fdt_fixup_ethernet(blob);
 
 	bluetooth_dt_fixup(blob);
 
