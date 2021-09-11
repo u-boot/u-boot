@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:focal-20210723
+FROM ubuntu:focal-20210827
 MAINTAINER Tom Rini <trini@konsulko.com>
 LABEL Description=" This image is for building U-Boot inside a container"
 
@@ -60,6 +60,7 @@ RUN apt-get update && apt-get install -y \
 	iasl \
 	imagemagick \
 	iputils-ping \
+	libconfuse-dev \
 	libgit2-dev \
 	libguestfs-tools \
 	liblz4-tool \
@@ -76,6 +77,7 @@ RUN apt-get update && apt-get install -y \
 	mount \
 	mtd-utils \
 	mtools \
+	ninja-build \
 	openssl \
 	picocom \
 	parted \
@@ -166,10 +168,23 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 RUN git clone git://git.qemu.org/qemu.git /tmp/qemu && \
 	cd /tmp/qemu && \
 	git submodule update --init dtc && \
-	git checkout v4.2.0 && \
+	git checkout v6.1.0 && \
+	# config user.name and user.email to make 'git am' happy
+	git config user.name u-boot && \
+	git config user.email u-boot@denx.de && \
+	# manually apply the bug fix for QEMU 6.1.0 Xilinx Zynq UART emulation codes
+	wget -O - http://patchwork.ozlabs.org/project/qemu-devel/patch/20210823020813.25192-2-bmeng.cn@gmail.com/mbox/ | git am && \
 	./configure --prefix=/opt/qemu --target-list="aarch64-softmmu,arm-softmmu,i386-softmmu,mips-softmmu,mips64-softmmu,mips64el-softmmu,mipsel-softmmu,ppc-softmmu,riscv32-softmmu,riscv64-softmmu,sh4-softmmu,x86_64-softmmu,xtensa-softmmu" && \
 	make -j$(nproc) all install && \
 	rm -rf /tmp/qemu
+
+# Build genimage (required by some targets to generate disk images)
+RUN wget -O - https://github.com/pengutronix/genimage/releases/download/v14/genimage-14.tar.xz | tar -C /tmp -xJ && \
+	cd /tmp/genimage-14 && \
+	./configure && \
+	make -j$(nproc) && \
+	make install && \
+	rm -rf /tmp/genimage-14
 
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
