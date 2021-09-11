@@ -849,9 +849,6 @@ static ulong k210_pll_set_rate(struct k210_clk_priv *priv, int id, ulong rate,
 	u32 reg;
 	ulong calc_rate;
 
-	if (rate_in < 0)
-		return rate_in;
-
 	err = k210_pll_calc_config(rate, rate_in, &config);
 	if (err)
 		return err;
@@ -895,7 +892,7 @@ static ulong k210_pll_get_rate(struct k210_clk_priv *priv, int id,
 	u64 r, f, od;
 	u32 reg = readl(priv->base + k210_plls[id].off);
 
-	if (rate_in < 0 || (reg & K210_PLL_BYPASS))
+	if (reg & K210_PLL_BYPASS)
 		return rate_in;
 
 	if (!(reg & K210_PLL_PWRD))
@@ -1029,6 +1026,8 @@ static ulong do_k210_clk_get_rate(struct k210_clk_priv *priv, int id)
 
 	parent = k210_clk_get_parent(priv, id);
 	parent_rate = do_k210_clk_get_rate(priv, parent);
+	if (IS_ERR_VALUE(parent_rate))
+		return parent_rate;
 
 	if (k210_clks[id].flags & K210_CLKF_PLL)
 		return k210_pll_get_rate(priv, k210_clks[id].pll, parent_rate);
@@ -1099,6 +1098,8 @@ static ulong k210_clk_set_rate(struct clk *clk, unsigned long rate)
 
 	parent = k210_clk_get_parent(priv, clk->id);
 	rate_in = do_k210_clk_get_rate(priv, parent);
+	if (IS_ERR_VALUE(rate_in))
+		return rate_in;
 
 	log_debug("id=%ld rate=%lu rate_in=%lu\n", clk->id, rate, rate_in);
 
