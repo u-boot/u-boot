@@ -816,6 +816,30 @@ again:
 				i--;
 			}
 
+			/*
+			 * Try looking back to see if there is a worse ratio
+			 * that we could try anyway
+			 */
+			while (i > 0) {
+				i--;
+				new_r = UNPACK_R(factors[i]);
+				new_od = UNPACK_OD(factors[i]);
+				/*
+				 * Don't loop over factors for the same product
+				 * to avoid getting stuck because of the above
+				 * clause
+				 */
+				if (r * od != new_r * new_od) {
+					if (new_r * new_od > last_r * last_od) {
+						r = new_r;
+						od = new_od;
+						swapped = false;
+						goto again;
+					}
+					break;
+				}
+			}
+
 			/* We ran out of things to try */
 			continue;
 		}

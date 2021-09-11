@@ -84,6 +84,10 @@ static int dm_test_k210_pll(struct unit_test_state *uts)
 	compare(400000000, 26000000);
 	compare(27000000, 26000000);
 	compare(26000000, 27000000);
+	compare(13300000 * 64, 13300000);
+	compare(21250000, 21250000 * 70);
+	compare(21250000, 1750000000);
+	compare(1750000000, 1750000000);
 
 	return 0;
 }
