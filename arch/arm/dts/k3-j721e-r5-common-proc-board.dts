@@ -280,7 +280,7 @@
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
 	clocks = <&clk_19_2mhz>;
-	clock-names = "usb2_refclk";
+	clock-names = "ref";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_usbss0_pins_default>;
 	ti,vbus-divider;

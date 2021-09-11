@@ -96,6 +96,34 @@
 		"${bootdir}/${name_fit}\0"				\
 	"partitions=" PARTS_DEFAULT
 
+#define EXTRA_ENV_AM642_BOARD_SETTING_USBMSC				\
+	"args_usb=run finduuid;setenv bootargs console=${console} "	\
+		"${optargs} "						\
+		"root=PARTUUID=${uuid} rw "				\
+		"rootfstype=${mmcrootfstype}\0"				\
+	"init_usb=run args_all args_usb\0"				\
+	"get_fdt_usb=load usb ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"get_overlay_usb="						\
+		"fdt address ${fdtaddr};"				\
+		"fdt resize 0x100000;"					\
+		"for overlay in $name_overlays;"			\
+		"do;"							\
+		"load usb ${bootpart} ${dtboaddr} ${bootdir}/${overlay} && "	\
+		"fdt apply ${dtboaddr};"				\
+		"done;\0"						\
+	"get_kern_usb=load usb ${bootpart} ${loadaddr} "		\
+		"${bootdir}/${name_kern}\0"				\
+	"get_fit_usb=load usb ${bootpart} ${addr_fit} "			\
+		"${bootdir}/${name_fit}\0"				\
+	"usbboot=setenv boot usb;"					\
+		"setenv bootpart 0:2;"					\
+		"usb start;"						\
+		"run findfdt;"						\
+		"run init_usb;"						\
+		"run get_kern_usb;"					\
+		"run get_fdt_usb;"					\
+		"run run_kern\0"
+
 #define EXTRA_ENV_DFUARGS \
 	DFU_ALT_INFO_MMC \
 	DFU_ALT_INFO_EMMC \
@@ -108,7 +136,8 @@
 	DEFAULT_MMC_TI_ARGS						\
 	EXTRA_ENV_AM642_BOARD_SETTINGS					\
 	EXTRA_ENV_AM642_BOARD_SETTINGS_MMC				\
-	EXTRA_ENV_DFUARGS
+	EXTRA_ENV_DFUARGS						\
+	EXTRA_ENV_AM642_BOARD_SETTING_USBMSC
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>

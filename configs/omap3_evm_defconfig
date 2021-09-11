@@ -10,6 +10,7 @@ CONFIG_TARGET_OMAP3_EVM=y
 CONFIG_SPL_SYS_MALLOC_F_LEN=0x400
 CONFIG_SPL=y
 CONFIG_DISTRO_DEFAULTS=y
+CONFIG_BOOTCOMMAND="if test ${boot_fit} -eq 1; then run update_to_fit; fi; run envboot; run distro_bootcmd"
 CONFIG_USE_PREBOOT=y
 CONFIG_DEFAULT_FDT_FILE="omap3-evm.dtb"
 CONFIG_SYS_CONSOLE_INFO_QUIET=y

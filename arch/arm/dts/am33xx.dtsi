@@ -380,28 +380,24 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ti,hwmods = "usb_otg_hs";
-			status = "disabled";
 
 			usb_ctrl_mod: control@44e10620 {
 				compatible = "ti,am335x-usb-ctrl-module";
 				reg = <0x44e10620 0x10
 					0x44e10648 0x4>;
 				reg-names = "phy_ctrl", "wakeup";
-				status = "disabled";
 			};
 
 			usb0_phy: usb-phy@47401300 {
 				compatible = "ti,am335x-usb-phy";
 				reg = <0x47401300 0x100>;
 				reg-names = "phy";
-				status = "disabled";
 				ti,ctrl_mod = <&usb_ctrl_mod>;
 				#phy-cells = <0>;
 			};
 
 			usb0: usb@47401000 {
 				compatible = "ti,musb-am33xx";
-				status = "disabled";
 				reg = <0x47401400 0x400
 					0x47401000 0x200>;
 				reg-names = "mc", "control";
@@ -443,14 +439,12 @@
 				compatible = "ti,am335x-usb-phy";
 				reg = <0x47401b00 0x100>;
 				reg-names = "phy";
-				status = "disabled";
 				ti,ctrl_mod = <&usb_ctrl_mod>;
 				#phy-cells = <0>;
 			};
 
 			usb1: usb@47401800 {
 				compatible = "ti,musb-am33xx";
-				status = "disabled";
 				reg = <0x47401c00 0x400
 					0x47401800 0x200>;
 				reg-names = "mc", "control";

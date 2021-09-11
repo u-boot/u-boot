@@ -59,6 +59,10 @@
 	u-boot,dm-spl;
 };
 
+&main_mmc1_pins_default {
+	u-boot,dm-spl;
+};
+
 &main_usb0_pins_default {
 	u-boot,dm-spl;
 };
