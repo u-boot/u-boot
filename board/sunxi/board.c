@@ -25,7 +25,6 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/display.h>
 #include <asm/arch/dram.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/prcm.h>
 #include <asm/arch/spl.h>

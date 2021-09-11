@@ -17,7 +17,6 @@
 
 #include <asm/arch/clock.h>
 #include <asm/arch/display.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/lcdc.h>
 #include <asm/arch/pwm.h>
 #include <asm/arch/tve.h>
