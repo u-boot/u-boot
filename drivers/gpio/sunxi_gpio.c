@@ -19,8 +19,6 @@
 #include <dm/device-internal.h>
 #include <dt-bindings/gpio/gpio.h>
 
-#define SUNXI_GPIOS_PER_BANK	SUNXI_GPIO_A_NR
-
 struct sunxi_gpio_plat {
 	struct sunxi_gpio *regs;
 	const char *bank_name;	/* Name of bank, e.g. "B" */

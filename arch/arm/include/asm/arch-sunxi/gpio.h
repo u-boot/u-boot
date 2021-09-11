@@ -93,20 +93,10 @@ struct sunxi_gpio_reg {
 #define GPIO_PULL_OFFSET(pin)	((((pin) & 0x1f) & 0xf) << 1)
 
 /* GPIO bank sizes */
-#define SUNXI_GPIO_A_NR		32
-#define SUNXI_GPIO_B_NR		32
-#define SUNXI_GPIO_C_NR		32
-#define SUNXI_GPIO_D_NR		32
-#define SUNXI_GPIO_E_NR		32
-#define SUNXI_GPIO_F_NR		32
-#define SUNXI_GPIO_G_NR		32
-#define SUNXI_GPIO_H_NR		32
-#define SUNXI_GPIO_I_NR		32
-#define SUNXI_GPIO_L_NR		32
-#define SUNXI_GPIO_M_NR		32
+#define SUNXI_GPIOS_PER_BANK	32
 
 #define SUNXI_GPIO_NEXT(__gpio) \
-	((__gpio##_START) + (__gpio##_NR) + 0)
+	((__gpio##_START) + SUNXI_GPIOS_PER_BANK)
 
 enum sunxi_gpio_number {
 	SUNXI_GPIO_A_START = 0,
