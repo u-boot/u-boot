@@ -186,6 +186,34 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	return 0;
 }
 
+unsigned long gpio_flags_xlate(uint32_t arg)
+{
+	unsigned long flags = 0;
+
+	if (arg & GPIO_ACTIVE_LOW)
+		flags |= GPIOD_ACTIVE_LOW;
+
+	/*
+	 * need to test 2 bits for gpio output binding:
+	 * OPEN_DRAIN (0x6) = SINGLE_ENDED (0x2) | LINE_OPEN_DRAIN (0x4)
+	 * OPEN_SOURCE (0x2) = SINGLE_ENDED (0x2) | LINE_OPEN_SOURCE (0x0)
+	 */
+	if (arg & GPIO_SINGLE_ENDED) {
+		if (arg & GPIO_LINE_OPEN_DRAIN)
+			flags |= GPIOD_OPEN_DRAIN;
+		else
+			flags |= GPIOD_OPEN_SOURCE;
+	}
+
+	if (arg & GPIO_PULL_UP)
+		flags |= GPIOD_PULL_UP;
+
+	if (arg & GPIO_PULL_DOWN)
+		flags |= GPIOD_PULL_DOWN;
+
+	return flags;
+}
+
 int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
 			  struct ofnode_phandle_args *args)
 {
@@ -201,27 +229,7 @@ int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
 	if (args->args_count < 2)
 		return 0;
 
-	desc->flags = 0;
-	if (args->args[1] & GPIO_ACTIVE_LOW)
-		desc->flags |= GPIOD_ACTIVE_LOW;
-
-	/*
-	 * need to test 2 bits for gpio output binding:
-	 * OPEN_DRAIN (0x6) = SINGLE_ENDED (0x2) | LINE_OPEN_DRAIN (0x4)
-	 * OPEN_SOURCE (0x2) = SINGLE_ENDED (0x2) | LINE_OPEN_SOURCE (0x0)
-	 */
-	if (args->args[1] & GPIO_SINGLE_ENDED) {
-		if (args->args[1] & GPIO_LINE_OPEN_DRAIN)
-			desc->flags |= GPIOD_OPEN_DRAIN;
-		else
-			desc->flags |= GPIOD_OPEN_SOURCE;
-	}
-
-	if (args->args[1] & GPIO_PULL_UP)
-		desc->flags |= GPIOD_PULL_UP;
-
-	if (args->args[1] & GPIO_PULL_DOWN)
-		desc->flags |= GPIOD_PULL_DOWN;
+	desc->flags = gpio_flags_xlate(args->args[1]);
 
 	return 0;
 }
