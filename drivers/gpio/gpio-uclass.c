@@ -141,7 +141,8 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 
 		if (!strncasecmp(name, uc_priv->bank_name, len)) {
 			if (!strict_strtoul(name + len, 10, &offset))
-				break;
+				if (offset < uc_priv->gpio_count)
+					break;
 		}
 
 		/*
