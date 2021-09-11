@@ -245,7 +245,7 @@ static int sun4i_spi_parse_pins(struct udevice *dev)
 					break;
 			}
 
-			pin = name_to_gpio(pin_name);
+			pin = sunxi_name_to_gpio(pin_name);
 			if (pin < 0)
 				break;
 

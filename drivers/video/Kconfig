@@ -452,7 +452,7 @@ config VIDEO_LCD_SSD2828_RESET
 	default ""
 	---help---
 	The reset pin of SSD2828 chip. This takes a string in the format
-	understood by 'name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+	understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_TDO_TL070WSH30
 	bool "TDO TL070WSH30 DSI LCD panel support"
@@ -477,7 +477,7 @@ config VIDEO_LCD_SPI_CS
 	This is one of the SPI communication pins, involved in setting up a
 	working LCD configuration. The exact role of SPI may differ for
 	different hardware setups. The option takes a string in the format
-	understood by 'name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+	understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_SPI_SCLK
 	string "SPI SCLK pin for LCD related config job"
@@ -487,7 +487,7 @@ config VIDEO_LCD_SPI_SCLK
 	This is one of the SPI communication pins, involved in setting up a
 	working LCD configuration. The exact role of SPI may differ for
 	different hardware setups. The option takes a string in the format
-	understood by 'name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+	understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_SPI_MOSI
 	string "SPI MOSI pin for LCD related config job"
@@ -497,7 +497,7 @@ config VIDEO_LCD_SPI_MOSI
 	This is one of the SPI communication pins, involved in setting up a
 	working LCD configuration. The exact role of SPI may differ for
 	different hardware setups. The option takes a string in the format
-	understood by 'name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+	understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_SPI_MISO
 	string "SPI MISO pin for LCD related config job (optional)"
@@ -509,7 +509,7 @@ config VIDEO_LCD_SPI_MISO
 	different hardware setups. If wired up, this pin may provide additional
 	useful functionality. Such as bi-directional communication with the
 	hardware and LCD panel id retrieval (if the panel can report it). The
-	option takes a string in the format understood by 'name_to_gpio'
+	option takes a string in the format understood by 'sunxi_name_to_gpio'
 	function, e.g. PH1 for pin 1 of port H.
 
 source "drivers/video/meson/Kconfig"

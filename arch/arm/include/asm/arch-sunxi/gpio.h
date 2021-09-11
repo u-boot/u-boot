@@ -239,7 +239,6 @@ int sunxi_gpio_get_cfgpin(u32 pin);
 int sunxi_gpio_set_drv(u32 pin, u32 val);
 int sunxi_gpio_set_pull(u32 pin, u32 val);
 int sunxi_name_to_gpio(const char *name);
-#define name_to_gpio(name) sunxi_name_to_gpio(name)
 
 #if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
 int axp_gpio_init(void);

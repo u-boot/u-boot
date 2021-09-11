@@ -871,11 +871,11 @@ static void sunxi_vga_external_dac_enable(void)
 static int sunxi_ssd2828_init(const struct ctfb_res_modes *mode)
 {
 	struct ssd2828_config cfg = {
-		.csx_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_CS),
-		.sck_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_SCLK),
-		.sdi_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_MOSI),
-		.sdo_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_MISO),
-		.reset_pin = name_to_gpio(CONFIG_VIDEO_LCD_SSD2828_RESET),
+		.csx_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_SPI_CS),
+		.sck_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_SPI_SCLK),
+		.sdi_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_SPI_MOSI),
+		.sdo_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_SPI_MISO),
+		.reset_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_SSD2828_RESET),
 		.ssd2828_tx_clk_khz  = CONFIG_VIDEO_LCD_SSD2828_TX_CLK * 1000,
 		.ssd2828_color_depth = 24,
 #ifdef CONFIG_VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828
