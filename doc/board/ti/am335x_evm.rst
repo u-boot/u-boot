@@ -4,8 +4,9 @@
 Summary
 =======
 
-This document covers various features of the 'am335x_evm' build, and some of
-the related build targets (am335x_evm_uartN, etc).
+This document covers various features of the `am335x_evm` default
+configuration, some of the related defconfigs, and how to enable hardware
+features not present by default in the defconfigs.
 
 Hardware
 --------
@@ -14,8 +15,7 @@ The binary produced by this board supports, based on parsing of the EEPROM
 documented in TI's reference designs:
 * AM335x GP EVM
 * AM335x EVM SK
-* Beaglebone White
-* Beaglebone Black
+* The Beaglebone family of designs
 
 Customization
 -------------
@@ -35,13 +35,10 @@ The following blocks are required:
 * I2C, to talk with the PMIC and ensure that we do not run afoul of
   errata 1.0.24.
 
-When removing options as part of customization,
-CONFIG_EXTRA_ENV_SETTINGS will need additional care to update for your
-needs and to remove no longer relevant options as in some cases we
-define additional text blocks (such as for NAND or DFU strings).  Also
-note that all of the SPL options are grouped together, rather than with
-the IP blocks, so both areas will need their choices updated to reflect
-the custom design.
+When removing options as part of customization, note that you will likely need
+to look at both `include/configs/am335x_evm.h`,
+`include/configs/ti_am335x_common.h` and `include/configs/am335x_evm.h` as the
+migration to Kconfig is not yet complete.
 
 NAND
 ----
@@ -89,30 +86,6 @@ Step-2: Flashing NAND via MMC/SD
 Step-3: Set BOOTSEL pin to select NAND boot, and POR the device.
 	The device should boot from images flashed on NAND device.
 
-NOR
----
-
-The Beaglebone White can be equipped with a "memory cape" that in turn can
-have a NOR module plugged into it.  In this case it is then possible to
-program and boot from NOR.  Note that due to how U-Boot is designed we
-must build a specific version of U-Boot that knows we have NOR flash.  This
-build is named 'am335x_evm_nor'.  Further, we have a 'am335x_evm_norboot'
-build that will assume that the environment is on NOR rather than NAND.  In
-the following example we assume that and SD card has been populated with
-MLO and u-boot.img from a 'am335x_evm_nor' build and also contains the
-'u-boot.bin' from a 'am335x_evm_norboot' build.  When booting from NOR, a
-binary must be written to the start of NOR, with no header or similar
-prepended.  In the following example we use a size of 512KiB (0x80000)
-as that is how much space we set aside before the environment, as per
-the config file.
-
-.. code-block:: text
-
-	U-Boot # mmc rescan
-	U-Boot # load mmc 0 ${loadaddr} u-boot.bin
-	U-Boot # protect off 08000000 +80000
-	U-Boot # erase 08000000 +80000
-	U-Boot # cp.b ${loadaddr} 08000000 ${filesize}
 
 Falcon Mode
 -----------
