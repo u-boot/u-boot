@@ -189,10 +189,14 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
 			  struct ofnode_phandle_args *args)
 {
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
 	if (args->args_count < 1)
 		return -EINVAL;
 
 	desc->offset = args->args[0];
+	if (desc->offset >= uc_priv->gpio_count)
+		return -EINVAL;
 
 	if (args->args_count < 2)
 		return 0;
