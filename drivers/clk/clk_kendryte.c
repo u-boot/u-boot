@@ -709,6 +709,10 @@ TEST_STATIC int k210_pll_calc_config(u32 rate, u32 rate_in,
 		 * Whether we swapped r and od while enforcing frequency limits
 		 */
 		bool swapped = false;
+		/*
+		 * Whether the intermediate frequencies are out-of-spec
+		 */
+		bool out_of_spec;
 		u64 last_od = od;
 		u64 last_r = r;
 
@@ -767,76 +771,71 @@ TEST_STATIC int k210_pll_calc_config(u32 rate, u32 rate_in,
 		 * aren't in spec, try swapping r and od. If everything is
 		 * in-spec, calculate the relative error.
 		 */
-		while (true) {
+again:
+		out_of_spec = false;
+		if (r > max_r) {
+			out_of_spec = true;
+		} else {
 			/*
-			 * Whether the intermediate frequencies are out-of-spec
+			 * There is no way to only divide once; we need
+			 * to examine the frequency with and without the
+			 * effect of od.
 			 */
-			bool out_of_spec = false;
+			u64 vco = DIV_ROUND_CLOSEST_ULL(rate_in * f, r);
 
-			if (r > max_r) {
+			if (vco > 1750000000 || vco < 340000000)
 				out_of_spec = true;
-			} else {
-				/*
-				 * There is no way to only divide once; we need
-				 * to examine the frequency with and without the
-				 * effect of od.
-				 */
-				u64 vco = DIV_ROUND_CLOSEST_ULL(rate_in * f, r);
+		}
 
-				if (vco > 1750000000 || vco < 340000000)
-					out_of_spec = true;
+		if (out_of_spec) {
+			u64 new_r, new_od;
+
+			if (!swapped) {
+				u64 tmp = r;
+
+				r = od;
+				od = tmp;
+				swapped = true;
+				goto again;
 			}
 
-			if (out_of_spec) {
-				if (!swapped) {
-					u64 tmp = r;
-
-					r = od;
-					od = tmp;
-					swapped = true;
-					continue;
-				} else {
-					/*
-					 * Try looking ahead to see if there are
-					 * additional factors for the same
-					 * product.
-					 */
-					if (i + 1 < ARRAY_SIZE(factors)) {
-						u64 new_r, new_od;
-
-						i++;
-						new_r = UNPACK_R(factors[i]);
-						new_od = UNPACK_OD(factors[i]);
-						if (r * od == new_r * new_od) {
-							r = new_r;
-							od = new_od;
-							swapped = false;
-							continue;
-						}
-						i--;
-					}
-					break;
+			/*
+			 * Try looking ahead to see if there are additional
+			 * factors for the same product.
+			 */
+			if (i + 1 < ARRAY_SIZE(factors)) {
+				i++;
+				new_r = UNPACK_R(factors[i]);
+				new_od = UNPACK_OD(factors[i]);
+				if (r * od == new_r * new_od) {
+					r = new_r;
+					od = new_od;
+					swapped = false;
+					goto again;
 				}
+				i--;
 			}
 
-			error = DIV_ROUND_CLOSEST_ULL(f * inv_ratio, r * od);
-			/* The lower 16 bits are spurious */
-			error = abs((error - BIT(32))) >> 16;
+			/* We ran out of things to try */
+			continue;
+		}
 
-			if (error < best_error) {
-				best->r = r;
-				best->f = f;
-				best->od = od;
-				best_error = error;
-			}
-			break;
+		error = DIV_ROUND_CLOSEST_ULL(f * inv_ratio, r * od);
+		/* The lower 16 bits are spurious */
+		error = abs((error - BIT(32))) >> 16;
+
+		if (error < best_error) {
+			best->r = r;
+			best->f = f;
+			best->od = od;
+			best_error = error;
 		}
 	} while (f < 64 && i + 1 < ARRAY_SIZE(factors) && error != 0);
 
+	log_debug("best error %lld\n", best_error);
 	if (best_error == S64_MAX)
 		return -EINVAL;
 
-	log_debug("best error %lld\n", best_error);
 	return 0;
 }
 
