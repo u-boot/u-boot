@@ -97,6 +97,38 @@ Device (PCI0)
         }
     }
 
+    Device (SDHB)
+    {
+        Name (_ADR, 0x00010002)
+        Name (_DEP, Package ()
+        {
+            GPIO
+        })
+
+        Name (RBUF, ResourceTemplate()
+        {
+            GpioInt(Edge, ActiveBoth, SharedAndWake, PullNone, 10000,
+                "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 77 }
+        })
+
+        Method (_CRS, 0, Serialized)
+        {
+            Return (RBUF)
+        }
+
+        Name (_DSD, Package () {
+            ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+            Package () {
+                Package () { "cd-gpios", Package () { ^SDHB, 0, 0, 0 } },
+            }
+        })
+
+        Method (_STA)
+        {
+            Return (STA_VISIBLE)
+        }
+    }
+
     Device (SDHC)
     {
         Name (_ADR, 0x00010003)
