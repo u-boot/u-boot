@@ -161,6 +161,13 @@
 	"splashfile=boot/usplash.bmp.gz\0"				\
 	"splashimage=0x88000000\0"					\
 	"splashpos=m,m\0"						\
+	"altbootcmd="							\
+		"if test ${mmcpart} -eq 1 ; then "			\
+			"setenv mmcpart 2 ; "				\
+		"else "							\
+			"setenv mmcpart 1 ; "				\
+		"fi ; "							\
+		"boot\0"						\
 	"stdout=serial,vidconsole\0"					\
 	"stderr=serial,vidconsole\0"					\
 	"addcons="							\
@@ -175,14 +182,14 @@
 		"setenv bootargs ${bootargs} ${miscargs}\0"		\
 	"addargs=run addcons addmisc addmtd\0"				\
 	"mmcload="							\
-		"mmc rescan ; load mmc ${mmcdev}:${mmcpart} "		\
-		"${kernel_addr_r} ${bootfile}\0"			\
+		"mmc rescan || reset ; load mmc ${mmcdev}:${mmcpart} "	\
+		"${kernel_addr_r} ${bootfile} || reset\0"		\
 	"miscargs=nohlt panic=1\0"					\
 	"mmcargs=setenv bootargs root=/dev/mmcblk0p${mmcpart} rw "	\
 		"rootwait\0"						\
 	"mmc_mmc="							\
-		"run mmcload mmcargs addargs ; "			\
-		"bootm ${kernel_addr_r}\0"				\
+		"run mmcload mmcargs addargs || reset ; "		\
+		"bootm ${kernel_addr_r} ; reset\0"			\
 	"netload=tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
 	"net_nfs="							\
 		"run netload nfsargs addip addargs ; "			\
