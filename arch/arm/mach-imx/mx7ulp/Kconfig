@@ -9,6 +9,9 @@ config LDO_ENABLED_MODE
 	  Select this option to enable the PMC1 LDO.
 
 config MX7ULP
+	select ARCH_SUPPORT_PSCI
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	select HAS_CAAM
 	bool
 
