@@ -653,9 +653,9 @@ static int sifive_prci_probe(struct udevice *dev)
 	struct prci_clk_desc *data =
 		(struct prci_clk_desc *)dev_get_driver_data(dev);
 
-	pd->va = (void *)dev_read_addr(dev);
-	if (IS_ERR(pd->va))
-		return PTR_ERR(pd->va);
+	pd->va = dev_read_addr_ptr(dev);
+	if (!pd->va)
+		return -EINVAL;
 
 	err = clk_get_by_index(dev, 0, &pd->parent_hfclk);
 	if (err)
