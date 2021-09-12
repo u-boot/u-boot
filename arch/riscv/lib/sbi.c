@@ -108,6 +108,18 @@ int sbi_probe_extension(int extid)
 	return -ENOTSUPP;
 }
 
+/**
+ * sbi_srst_reset() - invoke system reset extension
+ *
+ * @type:	type of reset
+ * @reason:	reason for reset
+ */
+void sbi_srst_reset(unsigned long type, unsigned long reason)
+{
+	sbi_ecall(SBI_EXT_SRST, SBI_EXT_SRST_RESET, type, reason,
+		  0, 0, 0, 0);
+}
+
 #ifdef CONFIG_SBI_V01
 
 /**
