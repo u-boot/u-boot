@@ -118,20 +118,6 @@ int sunxi_name_to_gpio(const char *name)
 }
 #endif /* DM_GPIO */
 
-int sunxi_name_to_gpio_bank(const char *name)
-{
-	int group = 0;
-
-	if (*name == 'P' || *name == 'p')
-		name++;
-	if (*name >= 'A') {
-		group = *name - (*name > 'a' ? 'a' : 'A');
-		return group;
-	}
-
-	return -1;
-}
-
 #if CONFIG_IS_ENABLED(DM_GPIO)
 /* TODO(sjg@chromium.org): Remove this function and use device tree */
 int sunxi_name_to_gpio(const char *name)
