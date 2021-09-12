@@ -574,14 +574,9 @@ static int macb_phy_find(struct macb_device *macb, const char *name)
 #ifdef CONFIG_DM_ETH
 static int macb_sifive_clk_init(struct udevice *dev, ulong rate)
 {
-	fdt_addr_t addr;
 	void *gemgxl_regs;
 
-	addr = dev_read_addr_index(dev, 1);
-	if (addr == FDT_ADDR_T_NONE)
-		return -ENODEV;
-
-	gemgxl_regs = (void __iomem *)addr;
+	gemgxl_regs = dev_read_addr_index_ptr(dev, 1);
 	if (!gemgxl_regs)
 		return -ENODEV;
 
@@ -1383,7 +1378,7 @@ static int macb_eth_probe(struct udevice *dev)
 		macb->phy_addr = ofnode_read_u32_default(phandle_args.node,
 							 "reg", -1);
 
-	macb->regs = (void *)pdata->iobase;
+	macb->regs = (void *)(uintptr_t)pdata->iobase;
 
 	macb->is_big_endian = (cpu_to_be32(0x12345678) == 0x12345678);
 
@@ -1444,7 +1439,7 @@ static int macb_eth_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 
-	pdata->iobase = (phys_addr_t)dev_remap_addr(dev);
+	pdata->iobase = (uintptr_t)dev_remap_addr(dev);
 	if (!pdata->iobase)
 		return -EINVAL;
 
