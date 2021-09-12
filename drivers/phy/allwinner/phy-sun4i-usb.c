@@ -26,6 +26,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+#include <power/regulator.h>
 
 #define REG_ISCR			0x00
 #define REG_PHYCTL_A10			0x04
@@ -137,6 +138,7 @@ struct sun4i_usb_phy_data {
 	void __iomem *base;
 	const struct sun4i_usb_phy_cfg *cfg;
 	struct sun4i_usb_phy_plat *usb_phy;
+	struct udevice *vbus_power_supply;
 };
 
 static int initial_usb_scan_delay = CONFIG_INITIAL_USB_SCAN_DELAY;
@@ -404,6 +406,8 @@ int sun4i_usb_phy_vbus_detect(struct phy *phy)
 			mdelay(100);
 			err = gpio_get_value(usb_phy->gpio_vbus_det);
 		}
+	} else if (data->vbus_power_supply) {
+		err = regulator_get_enable(data->vbus_power_supply);
 	}
 
 	return err;
@@ -446,6 +450,9 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 	data->base = (void __iomem *)devfdt_get_addr_name(dev, "phy_ctrl");
 	if (IS_ERR(data->base))
 		return PTR_ERR(data->base);
+
+	device_get_supply_regulator(dev, "usb0_vbus_power-supply",
+				    &data->vbus_power_supply);
 
 	data->usb_phy = plat;
 	for (i = 0; i < data->cfg->num_phys; i++) {
