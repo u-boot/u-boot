@@ -169,6 +169,9 @@ static void show_eeprom(u8 *eeprom)
 {
 	int tlv_end;
 	int curr_tlv;
+#ifdef DEBUG
+	int i;
+#endif
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	struct tlvinfo_tlv    *eeprom_tlv;
 
