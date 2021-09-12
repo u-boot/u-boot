@@ -677,24 +677,11 @@ config MMC3_CD_PIN
 	---help---
 	See MMC0_CD_PIN help text.
 
-config MMC1_PINS
-	string "Pins for mmc1"
-	default ""
+config MMC1_PINS_PH
+	bool "Pins for mmc1 are on Port H"
+	depends on MACH_SUN4I || MACH_SUN7I || MACH_SUN8I_R40
 	---help---
-	Set the pins used for mmc1, when applicable. This takes a string in the
-	format understood by sunxi_name_to_gpio_bank, e.g. PH for port H.
-
-config MMC2_PINS
-	string "Pins for mmc2"
-	default ""
-	---help---
-	See MMC1_PINS help text.
-
-config MMC3_PINS
-	string "Pins for mmc3"
-	default ""
-	---help---
-	See MMC1_PINS help text.
+	Select this option for boards where mmc1 uses the Port H pinmux.
 
 config MMC_SUNXI_SLOT_EXTRA
 	int "mmc extra slot number"
