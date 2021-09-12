@@ -38,7 +38,7 @@ static int sifive_ccache_get_info(struct udevice *dev, struct cache_info *info)
 {
 	struct sifive_ccache *priv = dev_get_priv(dev);
 
-	info->base = (phys_addr_t)priv->base;
+	info->base = (uintptr_t)priv->base;
 
 	return 0;
 }
