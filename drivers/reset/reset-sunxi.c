@@ -11,11 +11,11 @@
 #include <malloc.h>
 #include <reset-uclass.h>
 #include <asm/io.h>
+#include <clk/sunxi.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <linux/bitops.h>
 #include <linux/log2.h>
-#include <asm/arch/ccu.h>
 
 struct sunxi_reset_priv {
 	void *base;

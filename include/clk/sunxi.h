@@ -4,12 +4,10 @@
  * Author: Jagan Teki <jagan@amarulasolutions.com>
  */
 
-#ifndef _ASM_ARCH_CCU_H
-#define _ASM_ARCH_CCU_H
+#ifndef _CLK_SUNXI_H
+#define _CLK_SUNXI_H
 
-#ifndef __ASSEMBLY__
 #include <linux/bitops.h>
-#endif
 
 /**
  * enum ccu_flags - ccu clock/reset flags
@@ -97,4 +95,4 @@ extern struct clk_ops sunxi_clk_ops;
  */
 int sunxi_reset_bind(struct udevice *dev, ulong count);
 
-#endif /* _ASM_ARCH_CCU_H */
+#endif /* _CLK_SUNXI_H */
