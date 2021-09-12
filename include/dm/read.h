@@ -181,6 +181,18 @@ int dev_read_size(const struct udevice *dev, const char *propname);
 fdt_addr_t dev_read_addr_index(const struct udevice *dev, int index);
 
 /**
+ * dev_read_addr_index_ptr() - Get the indexed reg property of a device
+ *                             as a pointer
+ *
+ * @dev: Device to read from
+ * @index: the 'reg' property can hold a list of <addr, size> pairs
+ *	   and @index is used to select which one is required
+ *
+ * @return pointer or NULL if not found
+ */
+void *dev_read_addr_index_ptr(const struct udevice *dev, int index);
+
+/**
  * dev_read_addr_size_index() - Get the indexed reg property of a device
  *
  * @dev: Device to read from
@@ -803,6 +815,12 @@ static inline fdt_addr_t dev_read_addr_index(const struct udevice *dev,
 					     int index)
 {
 	return devfdt_get_addr_index(dev, index);
+}
+
+static inline void *dev_read_addr_index_ptr(const struct udevice *dev,
+					    int index)
+{
+	return devfdt_get_addr_index_ptr(dev, index);
 }
 
 static inline fdt_addr_t dev_read_addr_size_index(const struct udevice *dev,
