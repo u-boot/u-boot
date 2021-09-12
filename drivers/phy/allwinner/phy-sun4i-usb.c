@@ -393,8 +393,6 @@ int sun4i_usb_phy_vbus_detect(struct phy *phy)
 	struct sun4i_usb_phy_plat *usb_phy = &data->usb_phy[phy->id];
 	int err, retries = 3;
 
-	debug("%s: id_det = %d\n", __func__, usb_phy->gpio_id_det);
-
 	if (usb_phy->gpio_vbus_det < 0)
 		return usb_phy->gpio_vbus_det;
 
@@ -416,8 +414,6 @@ int sun4i_usb_phy_id_detect(struct phy *phy)
 {
 	struct sun4i_usb_phy_data *data = dev_get_priv(phy->dev);
 	struct sun4i_usb_phy_plat *usb_phy = &data->usb_phy[phy->id];
-
-	debug("%s: id_det = %d\n", __func__, usb_phy->gpio_id_det);
 
 	if (usb_phy->gpio_id_det < 0)
 		return usb_phy->gpio_id_det;
