@@ -391,20 +391,19 @@ int sun4i_usb_phy_vbus_detect(struct phy *phy)
 {
 	struct sun4i_usb_phy_data *data = dev_get_priv(phy->dev);
 	struct sun4i_usb_phy_plat *usb_phy = &data->usb_phy[phy->id];
-	int err, retries = 3;
+	int err = 1, retries = 3;
 
-	if (usb_phy->gpio_vbus_det < 0)
-		return usb_phy->gpio_vbus_det;
-
-	err = gpio_get_value(usb_phy->gpio_vbus_det);
-	/*
-	 * Vbus may have been provided by the board and just been turned of
-	 * some milliseconds ago on reset, what we're measuring then is a
-	 * residual charge on Vbus, sleep a bit and try again.
-	 */
-	while (err > 0 && retries--) {
-		mdelay(100);
+	if (usb_phy->gpio_vbus_det >= 0) {
 		err = gpio_get_value(usb_phy->gpio_vbus_det);
+		/*
+		 * Vbus may have been provided by the board and just turned off
+		 * some milliseconds ago on reset. What we're measuring then is
+		 * a residual charge on Vbus. Sleep a bit and try again.
+		 */
+		while (err > 0 && retries--) {
+			mdelay(100);
+			err = gpio_get_value(usb_phy->gpio_vbus_det);
+		}
 	}
 
 	return err;
