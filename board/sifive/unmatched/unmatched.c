@@ -15,7 +15,7 @@ void *board_fdt_blob_setup(void)
 {
 	if (IS_ENABLED(CONFIG_OF_SEPARATE)) {
 		if (gd->arch.firmware_fdt_addr)
-			return (ulong *)gd->arch.firmware_fdt_addr;
+			return (ulong *)(uintptr_t)gd->arch.firmware_fdt_addr;
 	}
 
 	return (ulong *)&_end;
