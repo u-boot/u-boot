@@ -25,6 +25,11 @@ static const struct ccu_clk_gate a80_gates[] = {
 	[CLK_BUS_SPI2]		= GATE(0x580, BIT(22)),
 	[CLK_BUS_SPI3]		= GATE(0x580, BIT(23)),
 
+	[CLK_BUS_I2C0]		= GATE(0x594, BIT(0)),
+	[CLK_BUS_I2C1]		= GATE(0x594, BIT(1)),
+	[CLK_BUS_I2C2]		= GATE(0x594, BIT(2)),
+	[CLK_BUS_I2C3]		= GATE(0x594, BIT(3)),
+	[CLK_BUS_I2C4]		= GATE(0x594, BIT(4)),
 	[CLK_BUS_UART0]		= GATE(0x594, BIT(16)),
 	[CLK_BUS_UART1]		= GATE(0x594, BIT(17)),
 	[CLK_BUS_UART2]		= GATE(0x594, BIT(18)),
@@ -40,6 +45,11 @@ static const struct ccu_reset a80_resets[] = {
 	[RST_BUS_SPI2]		= RESET(0x5a0, BIT(22)),
 	[RST_BUS_SPI3]		= RESET(0x5a0, BIT(23)),
 
+	[RST_BUS_I2C0]		= RESET(0x5b4, BIT(0)),
+	[RST_BUS_I2C1]		= RESET(0x5b4, BIT(1)),
+	[RST_BUS_I2C2]		= RESET(0x5b4, BIT(2)),
+	[RST_BUS_I2C3]		= RESET(0x5b4, BIT(3)),
+	[RST_BUS_I2C4]		= RESET(0x5b4, BIT(4)),
 	[RST_BUS_UART0]		= RESET(0x5b4, BIT(16)),
 	[RST_BUS_UART1]		= RESET(0x5b4, BIT(17)),
 	[RST_BUS_UART2]		= RESET(0x5b4, BIT(18)),

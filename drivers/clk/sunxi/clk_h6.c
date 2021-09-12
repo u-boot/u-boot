@@ -22,6 +22,11 @@ static struct ccu_clk_gate h6_gates[] = {
 	[CLK_BUS_UART2]		= GATE(0x90c, BIT(2)),
 	[CLK_BUS_UART3]		= GATE(0x90c, BIT(3)),
 
+	[CLK_BUS_I2C0]		= GATE(0x91c, BIT(0)),
+	[CLK_BUS_I2C1]		= GATE(0x91c, BIT(1)),
+	[CLK_BUS_I2C2]		= GATE(0x91c, BIT(2)),
+	[CLK_BUS_I2C3]		= GATE(0x91c, BIT(3)),
+
 	[CLK_SPI0]		= GATE(0x940, BIT(31)),
 	[CLK_SPI1]		= GATE(0x944, BIT(31)),
 
@@ -56,6 +61,11 @@ static struct ccu_reset h6_resets[] = {
 	[RST_BUS_UART1]		= RESET(0x90c, BIT(17)),
 	[RST_BUS_UART2]		= RESET(0x90c, BIT(18)),
 	[RST_BUS_UART3]		= RESET(0x90c, BIT(19)),
+
+	[RST_BUS_I2C0]		= RESET(0x91c, BIT(16)),
+	[RST_BUS_I2C1]		= RESET(0x91c, BIT(17)),
+	[RST_BUS_I2C2]		= RESET(0x91c, BIT(18)),
+	[RST_BUS_I2C3]		= RESET(0x91c, BIT(19)),
 
 	[RST_BUS_SPI0]		= RESET(0x96c, BIT(16)),
 	[RST_BUS_SPI1]		= RESET(0x96c, BIT(17)),
