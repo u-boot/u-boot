@@ -52,3 +52,29 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+#include <spl.h>
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (!strcmp(name, "imx7ulp-com"))
+		return 0;
+
+	return -1;
+}
+#endif
+
+void spl_board_init(void)
+{
+	preloader_console_init();
+}
+
+void board_init_f(ulong dummy)
+{
+	arch_cpu_init();
+
+	board_early_init_f();
+}
+#endif
