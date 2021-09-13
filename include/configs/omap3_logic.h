@@ -14,20 +14,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-/*
- * We are only ever GP parts and will utilize all of the "downloaded image"
- * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB) in
- * order to allow for BCH8 to fit in.
- */
-
-/* Hardware drivers */
-
-/* I2C */
-
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_USB_EHCI_OMAP
-#endif
-
 /* Board NAND Info. */
 #ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	  /* Max number of */
