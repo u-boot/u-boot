@@ -11,20 +11,6 @@
 #ifndef __CONFIG_PANDA_H
 #define __CONFIG_PANDA_H
 
-/*
- * High Level Configuration Options
- */
-
-/* USB UHH support options */
-
-/* USB Networking options */
-
-#define CONFIG_UBOOT_ENABLE_PADS_ALL
-
 #include <configs/ti_omap4_common.h>
-
-/* GPIO */
-
-/* ENV related config options */
 
 #endif /* __CONFIG_PANDA_H */
