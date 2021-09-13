@@ -360,10 +360,6 @@
 #define CONFIG_SYS_SICRH 0
 #define CONFIG_SYS_SICRL SICRL_LDP_A
 
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_INDIRECT_BRIDGE
-#endif
-
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #endif

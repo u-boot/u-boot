@@ -178,12 +178,6 @@ config TARGET_KMCENT2
 	bool "Support kmcent2"
 	select VENDOR_KM
 
-config TARGET_UCP1020
-	bool "Support uCP1020"
-	select ARCH_P1020
-	imply CMD_SATA
-	imply PANIC_HANG
-
 endchoice
 
 config ARCH_B4420
@@ -1147,6 +1141,5 @@ source "board/freescale/t208xrdb/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
 source "board/keymile/Kconfig"
 source "board/socrates/Kconfig"
-source "board/Arcturus/ucp1020/Kconfig"
 
 endmenu

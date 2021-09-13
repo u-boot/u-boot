@@ -7,7 +7,6 @@ choice
 config TARGET_DEVELOPERBOX
 	bool "Socionext DeveloperBox"
 	select PCI
-	select DM_PCI
 	select PCIE_ECAM_SYNQUACER
 	select SYS_DISABLE_DCACHE_OPS
 	select OF_BOARD_SETUP

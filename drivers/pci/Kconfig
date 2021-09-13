@@ -2,35 +2,26 @@ menuconfig PCI
 	bool "PCI support"
 	depends on DM
 	default y if PPC
-	select DM_PCI
 	help
 	  Enable support for PCI (Peripheral Interconnect Bus), a type of bus
 	  used on some devices to allow the CPU to communicate with its
 	  peripherals.
 
-config DM_PCI
-	bool
-	help
-	  Use driver model for PCI. Driver model is the new method for
-	  orgnising devices in U-Boot. For PCI, driver model keeps track of
-	  available PCI devices, allows scanning of PCI buses and provides
-	  device configuration support.
+	  This subsystem requires driver model.
 
 if PCI
 
 config DM_PCI_COMPAT
 	bool "Enable compatible functions for PCI"
-	depends on DM_PCI
 	help
 	  Enable compatibility functions for PCI so that old code can be used
-	  with CONFIG_DM_PCI enabled. This should be used as an interim
+	  with CONFIG_PCI enabled. This should be used as an interim
 	  measure when porting a board to use driver model for PCI. Once the
 	  board is fully supported, this option should be disabled.
 
 config PCI_AARDVARK
 	bool "Enable Aardvark PCIe driver"
 	default n
-	depends on DM_PCI
 	depends on DM_GPIO
 	depends on ARMADA_3700
 	help
@@ -40,14 +31,12 @@ config PCI_AARDVARK
 
 config PCI_PNP
 	bool "Enable Plug & Play support for PCI"
-	depends on PCI || DM_PCI
 	default y
 	help
 	  Enable PCI memory and I/O space resource allocation and assignment.
 
 config PCI_REGION_MULTI_ENTRY
 	bool "Enable Multiple entries of region type MEMORY in ranges for PCI"
-	depends on PCI || DM_PCI
 	default n
 	help
 	  Enable PCI memory regions to be of multiple entry. Multiple entry
@@ -57,7 +46,6 @@ config PCI_REGION_MULTI_ENTRY
 
 config PCI_MAP_SYSTEM_MEMORY
 	bool "Map local system memory from a virtual base address"
-	depends on PCI || DM_PCI
 	depends on MIPS
 	default n
 	help
@@ -70,7 +58,6 @@ config PCI_MAP_SYSTEM_MEMORY
 
 config PCI_SRIOV
 	bool "Enable Single Root I/O Virtualization support for PCI"
-	depends on PCI || DM_PCI
 	default n
 	help
 	  Say Y here if you want to enable PCI Single Root I/O Virtualization
@@ -80,7 +67,6 @@ config PCI_SRIOV
 
 config PCI_ARID
         bool "Enable Alternate Routing-ID support for PCI"
-        depends on PCI || DM_PCI
         default n
         help
           Say Y here if you want to enable Alternate Routing-ID capability
@@ -90,7 +76,6 @@ config PCI_ARID
 config PCIE_ECAM_GENERIC
 	bool "Generic ECAM-based PCI host controller support"
 	default n
-	depends on DM_PCI
 	help
 	  Say Y here if you want to enable support for generic ECAM-based
 	  PCIe host controllers, such as the one emulated by QEMU.
@@ -98,7 +83,6 @@ config PCIE_ECAM_GENERIC
 config PCIE_ECAM_SYNQUACER
 	bool "SynQuacer ECAM-based PCI host controller support"
 	default n
-	depends on DM_PCI
 	select PCI_INIT_R
 	select PCI_REGION_MULTI_ENTRY
 	help
@@ -109,14 +93,12 @@ config PCIE_ECAM_SYNQUACER
 
 config PCI_PHYTIUM
 	bool "Phytium PCIe support"
-	depends on DM_PCI
 	help
 	  Say Y here if you want to enable PCIe controller support on
 	  Phytium SoCs.
 
 config PCIE_DW_MVEBU
 	bool "Enable Armada-8K PCIe driver (DesignWare core)"
-	depends on DM_PCI
 	depends on ARMADA_8K
 	help
 	  Say Y here if you want to enable PCIe controller support on
@@ -135,7 +117,6 @@ config PCIE_DW_SIFIVE
 
 config PCIE_FSL
 	bool "FSL PowerPC PCIe support"
-	depends on DM_PCI
 	help
 	  Say Y here if you want to enable PCIe controller support on FSL
 	  PowerPC MPC85xx, MPC86xx, B series, P series and T series SoCs.
@@ -143,14 +124,12 @@ config PCIE_FSL
 
 config PCI_MPC85XX
 	bool "MPC85XX PowerPC PCI support"
-	depends on DM_PCI
 	help
 	  Say Y here if you want to enable PCI controller support on FSL
 	  PowerPC MPC85xx SoC.
 
 config PCI_RCAR_GEN2
 	bool "Renesas RCar Gen2 PCIe driver"
-	depends on DM_PCI
 	depends on RCAR_32
 	help
 	  Say Y here if you want to enable PCIe controller support on
@@ -159,7 +138,6 @@ config PCI_RCAR_GEN2
 
 config PCI_RCAR_GEN3
 	bool "Renesas RCar Gen3 PCIe driver"
-	depends on DM_PCI
 	depends on RCAR_GEN3
 	help
 	  Say Y here if you want to enable PCIe controller support on
@@ -167,7 +145,7 @@ config PCI_RCAR_GEN3
 
 config PCI_SANDBOX
 	bool "Sandbox PCI support"
-	depends on SANDBOX && DM_PCI
+	depends on SANDBOX
 	help
 	  Support PCI on sandbox, as an emulated bus. This permits testing of
 	  PCI feature such as bus scanning, device configuration and device
@@ -202,7 +180,6 @@ config PCIE_OCTEON
 
 config PCI_XILINX
 	bool "Xilinx AXI Bridge for PCI Express"
-	depends on DM_PCI
 	help
 	  Enable support for the Xilinx AXI bridge for PCI express, an IP block
 	  which can be used on some generations of Xilinx FPGAs.
@@ -213,7 +190,6 @@ config PCIE_LAYERSCAPE
 
 config PCIE_LAYERSCAPE_RC
 	bool "Layerscape PCIe Root Complex mode support"
-	depends on DM_PCI
 	select PCIE_LAYERSCAPE
 	help
 	  Enable Layerscape PCIe Root Complex mode driver support. The Layerscape
@@ -235,7 +211,6 @@ config PCI_IOMMU_EXTRA_MAPPINGS
 
 config PCIE_LAYERSCAPE_EP
 	bool "Layerscape PCIe Endpoint mode support"
-	depends on DM_PCI
 	select PCIE_LAYERSCAPE
 	select PCI_ENDPOINT
 	help
@@ -246,7 +221,6 @@ config PCIE_LAYERSCAPE_EP
 
 config PCIE_LAYERSCAPE_GEN4
 	bool "Layerscape Gen4 PCIe support"
-	depends on DM_PCI
 	help
 	  Support PCIe Gen4 on NXP Layerscape SoCs, which may have one or
 	  several PCIe controllers. The PCIe controller can work in RC or
@@ -279,14 +253,12 @@ config FSL_PCIE_EP_COMPAT
 
 config PCIE_INTEL_FPGA
 	bool "Intel FPGA PCIe support"
-	depends on DM_PCI
 	help
 	  Say Y here if you want to enable PCIe controller support on Intel
 	  FPGA, example Stratix 10.
 
 config PCIE_IPROC
 	bool "Iproc PCIe support"
-	depends on DM_PCI
 	help
 	  Broadcom iProc PCIe controller driver.
 	  Say Y here if you want to enable Broadcom iProc PCIe controller,
@@ -294,7 +266,6 @@ config PCIE_IPROC
 config PCI_MVEBU
 	bool "Enable Armada XP/38x PCIe driver"
 	depends on ARCH_MVEBU
-	select DM_PCI
 	select MISC
 	help
 	  Say Y here if you want to enable PCIe controller support on
@@ -302,7 +273,6 @@ config PCI_MVEBU
 
 config PCIE_DW_COMMON
 	bool
-	select DM_PCI
 
 config PCI_KEYSTONE
 	bool "TI Keystone PCIe controller"
@@ -312,7 +282,6 @@ config PCI_KEYSTONE
 
 config PCIE_MEDIATEK
 	bool "MediaTek PCIe Gen2 controller"
-	depends on DM_PCI
 	depends on ARCH_MEDIATEK
 	help
 	  Say Y here if you want to enable Gen2 PCIe controller,
@@ -329,7 +298,6 @@ config PCIE_DW_MESON
 config PCIE_ROCKCHIP
 	bool "Enable Rockchip PCIe driver"
 	depends on ARCH_ROCKCHIP
-	select DM_PCI
 	select PHY_ROCKCHIP_PCIE
 	default y if ROCKCHIP_RK3399
 	help
@@ -347,7 +315,6 @@ config PCIE_DW_ROCKCHIP
 
 config PCI_BRCMSTB
 	bool "Broadcom STB PCIe controller"
-	depends on DM_PCI
 	depends on ARCH_BCM283X
 	help
 	  Say Y here if you want to enable support for PCIe controller
@@ -357,7 +324,6 @@ config PCI_BRCMSTB
 
 config PCIE_UNIPHIER
 	bool "Socionext UniPhier PCIe driver"
-	depends on DM_PCI
 	depends on ARCH_UNIPHIER
 	select PHY_UNIPHIER_PCIE
 	help

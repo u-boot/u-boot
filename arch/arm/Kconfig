@@ -1681,7 +1681,7 @@ config TARGET_SL28
 	select DM_SPI_FLASH
 	select DM_ETH
 	select DM_MDIO
-	select DM_PCI
+	select PCI
 	select DM_RNG
 	select DM_RTC
 	select DM_SCSI

@@ -17,7 +17,7 @@ config TARGET_MALTA
 	select BOARD_EARLY_INIT_R
 	select DM
 	select DM_SERIAL
-	select DM_PCI
+	select PCI
 	select DM_ETH
 	select DYNAMIC_IO_PORT_BASE
 	select MIPS_CM
