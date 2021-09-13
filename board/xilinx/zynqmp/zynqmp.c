@@ -628,6 +628,7 @@ int board_late_init(void)
 
 		mode = "mmc";
 		bootseq = dev->seq;
+		env_set("modeboot", "emmcboot");
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
