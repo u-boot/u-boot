@@ -9,8 +9,6 @@
 #ifndef __CONFIG_KS2_EVM_H
 #define __CONFIG_KS2_EVM_H
 
-#define CONFIG_SOC_KEYSTONE
-
 /* U-Boot Build Configuration */
 
 /* SoC Configuration */
