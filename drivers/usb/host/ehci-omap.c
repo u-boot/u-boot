@@ -183,17 +183,8 @@ int omap_ehci_hcd_stop(void)
  * Based on "drivers/usb/host/ehci-omap.c" from Linux 3.1
  * See there for additional Copyrights.
  */
-#if !CONFIG_IS_ENABLED(DM_USB) || !CONFIG_IS_ENABLED(OF_CONTROL)
-
-int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata,
-		       struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	*hccr = (struct ehci_hccr *)(OMAP_EHCI_BASE);
-	*hcor = (struct ehci_hcor *)(OMAP_EHCI_BASE + 0x10);
-#else
 int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata)
 {
-#endif
 	int ret;
 	unsigned int i, reg = 0, rev = 0;
 
@@ -304,8 +295,6 @@ int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(DM_USB)
-
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
 	.port_mode[1] = OMAP_USBHS_PORT_MODE_UNUSED,
@@ -409,5 +398,3 @@ U_BOOT_DRIVER(usb_omap_ehci) = {
 	.ops	= &ehci_usb_ops,
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
-
-#endif
