@@ -14,19 +14,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-/* Hardware drivers */
-
-/*
- * USB configuration
- * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard
- * Enable CONFIG_USB_MUSB_GADGET for Device functionalities.
- */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_USB_EHCI_OMAP
-#endif
-
-/* I2C */
-
 /* Ethernet */
 #define CONFIG_NET_RETRY_COUNT		10
 
