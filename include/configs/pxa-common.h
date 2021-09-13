@@ -9,13 +9,6 @@
 #define	__CONFIG_PXA_COMMON_H__
 
 /*
- * KGDB
- */
-#ifdef	CONFIG_CMD_KGDB
-#define	CONFIG_KGDB_BAUDRATE		230400
-#endif
-
-/*
  * OHCI USB
  */
 #ifdef	CONFIG_CMD_USB

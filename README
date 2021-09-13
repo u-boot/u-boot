@@ -647,11 +647,6 @@ The following options need to be configured:
 		time on others. This setting #define's the initial
 		value of the "loads_echo" environment variable.
 
-- Kgdb Serial Baudrate: (if CONFIG_CMD_KGDB is defined)
-		CONFIG_KGDB_BAUDRATE
-		Select one of the baudrates listed in
-		CONFIG_SYS_BAUDRATE_TABLE, see below.
-
 - Removal of commands
 		If no commands are needed to boot, you can disable
 		CONFIG_CMDLINE to remove them. In this case, the command line

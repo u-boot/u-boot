@@ -585,11 +585,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial map for Linux*/
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
-#ifdef CONFIG_CMD_KGDB
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
-#endif
-
 /*
  * Environment Configuration
  */
