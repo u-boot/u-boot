@@ -45,9 +45,6 @@
 /* CPSW Ethernet support */
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
-/* USB support */
-#define CONFIG_USB_XHCI_OMAP
-
 /* Power */
 #define CONFIG_POWER_TPS65218
 

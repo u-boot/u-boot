@@ -54,7 +54,6 @@
 
 #if defined(CONFIG_SPL_USB_HOST) || !defined(CONFIG_SPL_BUILD)
 #define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
-#define CONFIG_USB_XHCI_OMAP
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_USB_GADGET)

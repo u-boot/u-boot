@@ -57,6 +57,16 @@ config USB_XHCI_OCTEON
 	  family SoCs. This is a driver for the dwc3 to provide the glue logic
 	  to configure the controller.
 
+config USB_XHCI_OMAP
+	bool "Support for TI OMAP family xHCI USB controller"
+	depends on ARCH_OMAP2PLUS
+	help
+	  Enables support for the on-chip xHCI controller found on some TI SoC
+	  families.  Note that some families have multiple contollers while
+	  others only have something such as DesignWare-based controllers.
+	  Consult the SoC documentation to determine if this option applies
+	  to your hardware.
+
 config USB_XHCI_PCI
 	bool "Support for PCI-based xHCI USB controller"
 	depends on DM_USB
