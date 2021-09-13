@@ -10,8 +10,6 @@
 #ifndef __CONFIG_CM_T335_H
 #define __CONFIG_CM_T335_H
 
-#define CONFIG_CM_T335
-
 #include <configs/ti_am335x_common.h>
 
 #undef CONFIG_MAX_RAM_BANK_SIZE
