@@ -347,9 +347,9 @@ static struct nand_ecclayout nand_keystone_rbl_4bit_layout_oobfirst = {
 };
 
 #ifdef CONFIG_SYS_NAND_PAGE_2K
-#define CONFIG_KEYSTONE_NAND_MAX_RBL_PAGE	CONFIG_KEYSTONE_NAND_MAX_RBL_SIZE >> 11
+#define KEYSTONE_NAND_MAX_RBL_PAGE	(0x100000 >> 11)
 #elif defined(CONFIG_SYS_NAND_PAGE_4K)
-#define CONFIG_KEYSTONE_NAND_MAX_RBL_PAGE	CONFIG_KEYSTONE_NAND_MAX_RBL_SIZE >> 12
+#define KEYSTONE_NAND_MAX_RBL_PAGE	(0x100000 >> 12)
 #endif
 
 /**
@@ -371,7 +371,7 @@ static int nand_davinci_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	struct nand_ecclayout *saved_ecc_layout;
 
 	/* save current ECC layout and assign Keystone RBL ECC layout */
-	if (page < CONFIG_KEYSTONE_NAND_MAX_RBL_PAGE) {
+	if (page < KEYSTONE_NAND_MAX_RBL_PAGE) {
 		saved_ecc_layout = chip->ecc.layout;
 		chip->ecc.layout = &nand_keystone_rbl_4bit_layout_oobfirst;
 		mtd->oobavail = chip->ecc.layout->oobavail;
@@ -402,7 +402,7 @@ static int nand_davinci_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 
 err:
 	/* restore ECC layout */
-	if (page < CONFIG_KEYSTONE_NAND_MAX_RBL_PAGE) {
+	if (page < KEYSTONE_NAND_MAX_RBL_PAGE) {
 		chip->ecc.layout = saved_ecc_layout;
 		mtd->oobavail = saved_ecc_layout->oobavail;
 	}
@@ -433,7 +433,7 @@ static int nand_davinci_read_page_hwecc(struct mtd_info *mtd, struct nand_chip *
 	struct nand_ecclayout *saved_ecc_layout = chip->ecc.layout;
 
 	/* save current ECC layout and assign Keystone RBL ECC layout */
-	if (page < CONFIG_KEYSTONE_NAND_MAX_RBL_PAGE) {
+	if (page < KEYSTONE_NAND_MAX_RBL_PAGE) {
 		chip->ecc.layout = &nand_keystone_rbl_4bit_layout_oobfirst;
 		mtd->oobavail = chip->ecc.layout->oobavail;
 	}
@@ -463,7 +463,7 @@ static int nand_davinci_read_page_hwecc(struct mtd_info *mtd, struct nand_chip *
 	}
 
 	/* restore ECC layout */
-	if (page < CONFIG_KEYSTONE_NAND_MAX_RBL_PAGE) {
+	if (page < KEYSTONE_NAND_MAX_RBL_PAGE) {
 		chip->ecc.layout = saved_ecc_layout;
 		mtd->oobavail = saved_ecc_layout->oobavail;
 	}
