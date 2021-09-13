@@ -53,6 +53,14 @@ config TI_EDMA3
 	  This driver support data transfer between memory
 	  regions.
 
+config TI_KSNAV
+	bool "TI Keystone Navigator DMA driver"
+	depends on ARCH_KEYSTONE
+	default y
+	select DMA_LEGACY
+	help
+	  Enable the Keystone Navigator driver for Keystone 2 platforms.
+
 config APBH_DMA
 	bool "Support APBH DMA"
 	depends on MX23 || MX28 || MX6 || MX7 || IMX8 || IMX8M
