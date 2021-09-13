@@ -187,8 +187,8 @@ static int efi_dump_var_all(int argc,  char *const argv[],
 	var_name16[0] = 0;
 	for (;;) {
 		size = buf_size;
-		ret = EFI_CALL(efi_get_next_variable_name(&size, var_name16,
-							  &guid));
+		ret = efi_get_next_variable_name_int(&size, var_name16,
+						     &guid);
 		if (ret == EFI_NOT_FOUND)
 			break;
 		if (ret == EFI_BUFFER_TOO_SMALL) {
@@ -199,9 +199,8 @@ static int efi_dump_var_all(int argc,  char *const argv[],
 				return CMD_RET_FAILURE;
 			}
 			var_name16 = p;
-			ret = EFI_CALL(efi_get_next_variable_name(&size,
-								  var_name16,
-								  &guid));
+			ret = efi_get_next_variable_name_int(&size, var_name16,
+							     &guid);
 		}
 		if (ret != EFI_SUCCESS) {
 			free(var_name16);

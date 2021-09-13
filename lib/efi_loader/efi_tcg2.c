@@ -607,8 +607,8 @@ efi_tcg2_get_capability(struct efi_tcg2_protocol *this,
 		goto out;
 	}
 
-	if (capability->size < boot_service_capability_min) {
-		capability->size = boot_service_capability_min;
+	if (capability->size < BOOT_SERVICE_CAPABILITY_MIN) {
+		capability->size = BOOT_SERVICE_CAPABILITY_MIN;
 		efi_ret = EFI_BUFFER_TOO_SMALL;
 		goto out;
 	}
@@ -865,20 +865,19 @@ efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	ret = EFI_CALL(efi_search_protocol(&handle->header,
-					   &efi_guid_loaded_image_device_path,
-					   &handler));
+	ret = efi_search_protocol(&handle->header,
+				  &efi_guid_loaded_image_device_path, &handler);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	device_path = EFI_CALL(handler->protocol_interface);
+	device_path = handler->protocol_interface;
 	device_path_length = efi_dp_size(device_path);
 	if (device_path_length > 0) {
 		/* add end node size */
 		device_path_length += sizeof(struct efi_device_path);
 	}
 	event_size = sizeof(struct uefi_image_load_event) + device_path_length;
-	image_load_event = (struct uefi_image_load_event *)malloc(event_size);
+	image_load_event = calloc(1, event_size);
 	if (!image_load_event)
 		return EFI_OUT_OF_RESOURCES;
 
@@ -901,10 +900,8 @@ efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 		goto out;
 	}
 
-	if (device_path_length > 0) {
-		memcpy(image_load_event->device_path, device_path,
-		       device_path_length);
-	}
+	/* device_path_length might be zero */
+	memcpy(image_load_event->device_path, device_path, device_path_length);
 
 	ret = tcg2_agile_log_append(pcr_index, event_type, &digest_list,
 				    event_size, (u8 *)image_load_event);
