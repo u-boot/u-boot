@@ -16,8 +16,6 @@
  */
 
 /* USB UHH support options */
-#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO 1
-#define CONFIG_OMAP_EHCI_PHY2_RESET_GPIO 62
 
 /* USB Networking options */
 

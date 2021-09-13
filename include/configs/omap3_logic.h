@@ -27,9 +27,6 @@
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_USB_EHCI_OMAP
 #endif
-#ifdef CONFIG_USB_EHCI_OMAP
-#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	4
-#endif
 
 /* Board NAND Info. */
 #ifdef CONFIG_MTD_RAW_NAND

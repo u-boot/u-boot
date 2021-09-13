@@ -183,6 +183,40 @@ config USB_EHCI_OMAP
 	  Enables support for the on-chip EHCI controller on OMAP3 and later
 	  SoCs.
 
+if USB_EHCI_OMAP
+
+config HAS_OMAP_EHCI_PHY1_RESET_GPIO
+	bool "PHY #1 requires a GPIO hold to it in RESET while PHY settles"
+	help
+	  Enable this to be able to configure the GPIO number used to hold the
+	  PHY in RESET for enough time until the PHY is settled and ready.
+
+config OMAP_EHCI_PHY1_RESET_GPIO
+	int "GPIO number to hold PHY #1 in RESET"
+	depends on HAS_OMAP_EHCI_PHY1_RESET_GPIO
+
+config HAS_OMAP_EHCI_PHY2_RESET_GPIO
+	bool "PHY #2 requires a GPIO hold to it in RESET while PHY settles"
+	help
+	  Enable this to be able to configure the GPIO number used to hold the
+	  PHY in RESET for enough time until the PHY is settled and ready.
+
+config OMAP_EHCI_PHY2_RESET_GPIO
+	int "GPIO number to hold PHY #2 in RESET"
+	depends on HAS_OMAP_EHCI_PHY2_RESET_GPIO
+
+config HAS_OMAP_EHCI_PHY3_RESET_GPIO
+	bool "PHY #3 requires a GPIO hold to it in RESET while PHY settles"
+	help
+	  Enable this to be able to configure the GPIO number used to hold the
+	  PHY in RESET for enough time until the PHY is settled and ready.
+
+config OMAP_EHCI_PHY3_RESET_GPIO
+	int "GPIO number to hold PHY #3 in RESET"
+	depends on HAS_OMAP_EHCI_PHY3_RESET_GPIO
+
+endif
+
 config USB_EHCI_VF
 	bool "Support for Vybrid on-chip EHCI USB controller"
 	depends on ARCH_VF610
