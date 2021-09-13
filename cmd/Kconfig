@@ -2389,4 +2389,14 @@ config CMD_UBIFS
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
 
+config MMC_SPEED_MODE_SET
+	bool "set speed mode using mmc command"
+	depends on CMD_MMC
+	default n
+	help
+	  Enable setting speed mode using mmc rescan and mmc dev commands.
+	  The speed mode is provided as the last argument in these commands
+	  and is indicated using the index from enum bus_mode in
+	  include/mmc.h. A speed mode can be set only if it has already
+	  been enabled in the device tree.
 endmenu
