@@ -891,7 +891,7 @@ struct nand_chip {
 	void __iomem *IO_ADDR_R;
 	void __iomem *IO_ADDR_W;
 
-	int flash_node;
+	ofnode flash_node;
 
 	uint8_t (*read_byte)(struct mtd_info *mtd);
 	u16 (*read_word)(struct mtd_info *mtd);
@@ -973,12 +973,12 @@ struct nand_chip {
 static inline void nand_set_flash_node(struct nand_chip *chip,
 				       ofnode node)
 {
-	chip->flash_node = ofnode_to_offset(node);
+	chip->flash_node = node;
 }
 
 static inline ofnode nand_get_flash_node(struct nand_chip *chip)
 {
-	return offset_to_ofnode(chip->flash_node);
+	return chip->flash_node;
 }
 
 static inline struct nand_chip *mtd_to_nand(struct mtd_info *mtd)
