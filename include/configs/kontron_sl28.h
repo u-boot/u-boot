@@ -45,7 +45,6 @@
 
 /* serial port */
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ / 4)

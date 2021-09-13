@@ -25,8 +25,6 @@
  * Serial Port
  */
 #define CONFIG_SYS_NS16550_CLK		40000000
-#define CONFIG_SYS_BAUDRATE_TABLE \
-	{9600, 19200, 38400, 57600, 115200}
 
 #define CONFIG_BOOTCOMMAND		\
 	"dhcp 192.168.1.1:wdr4300.fit && bootm $loadaddr"

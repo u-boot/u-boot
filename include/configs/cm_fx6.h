@@ -32,7 +32,6 @@
 
 /* Serial console */
 #define CONFIG_MXC_UART_BASE		UART4_BASE
-#define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /* Environment */
 

@@ -25,8 +25,6 @@
  * Serial Port
  */
 #define CONFIG_SYS_NS16550_CLK          25000000
-#define CONFIG_SYS_BAUDRATE_TABLE \
-	{9600, 19200, 38400, 57600, 115200}
 
 #define CONFIG_BOOTCOMMAND              "sf probe;" \
 					"mtdparts default;" \

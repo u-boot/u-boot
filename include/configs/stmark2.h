@@ -12,7 +12,6 @@
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		0
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600 , 19200 , 38400 , 57600, 115200 }
 
 #define LDS_BOARD_TEXT						\
 	board/sysam/stmark2/sbf_dram_init.o (.text*)
