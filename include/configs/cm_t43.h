@@ -47,7 +47,6 @@
 
 /* USB support */
 #define CONFIG_USB_XHCI_OMAP
-#define CONFIG_AM437X_USB2PHY2_HOST
 
 /* Power */
 #define CONFIG_POWER_TPS65218
