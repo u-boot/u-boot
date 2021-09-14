@@ -219,6 +219,9 @@ static unsigned int cadence_qspi_calc_dummy(const struct spi_mem_op *op,
 {
 	unsigned int dummy_clk;
 
+	if (!op->dummy.nbytes || !op->dummy.buswidth)
+		return 0;
+
 	dummy_clk = op->dummy.nbytes * (8 / op->dummy.buswidth);
 	if (dtr)
 		dummy_clk /= 2;
