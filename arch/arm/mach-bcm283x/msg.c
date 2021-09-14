@@ -75,6 +75,7 @@ int bcm2835_get_mmc_clock(u32 clock_id)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_clock_rate, msg_clk, 1);
 	int ret;
+	u32 clock_rate = 0;
 
 	ret = bcm2835_power_on_module(BCM2835_MBOX_POWER_DEVID_SDHCI);
 	if (ret)
@@ -90,7 +91,23 @@ int bcm2835_get_mmc_clock(u32 clock_id)
 		return -EIO;
 	}
 
-	return msg_clk->get_clock_rate.body.resp.rate_hz;
+	clock_rate = msg_clk->get_clock_rate.body.resp.rate_hz;
+
+	if (clock_rate == 0) {
+		BCM2835_MBOX_INIT_HDR(msg_clk);
+		BCM2835_MBOX_INIT_TAG(&msg_clk->get_clock_rate, GET_MAX_CLOCK_RATE);
+		msg_clk->get_clock_rate.body.req.clock_id = clock_id;
+
+		ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_clk->hdr);
+		if (ret) {
+			printf("bcm2835: Could not query max eMMC clock rate\n");
+			return -EIO;
+		}
+
+		clock_rate = msg_clk->get_clock_rate.body.resp.rate_hz;
+	}
+
+	return clock_rate;
 }
 
 int bcm2835_get_video_size(int *widthp, int *heightp)
