@@ -15,10 +15,6 @@
 	};
 };
 
-&watchdog0 {
-	status = "disabled";
-};
-
 &mmc {
 	status = "disabled";
 };
