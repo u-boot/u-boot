@@ -339,7 +339,7 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 {
 	struct stm32_usbphyc *usbphyc = dev_get_priv(dev);
 	struct reset_ctl reset;
-	ofnode node;
+	ofnode node, connector;
 	int i, ret;
 
 	usbphyc->base = dev_read_addr(dev);
@@ -395,10 +395,12 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 			return ret;
 		}
 
-		ret = stm32_usbphyc_get_regulator(node, "vbus-supply",
-						  &usbphyc_phy->vbus);
-		if (ret)
-			usbphyc_phy->vbus = NULL;
+		usbphyc_phy->vbus = NULL;
+		connector = ofnode_find_subnode(node, "connector");
+		if (ofnode_valid(connector)) {
+			ret = stm32_usbphyc_get_regulator(connector, "vbus-supply",
+							  &usbphyc_phy->vbus);
+		}
 
 		node = dev_read_next_subnode(node);
 	}
