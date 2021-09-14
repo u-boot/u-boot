@@ -349,10 +349,14 @@ static int mmc_trans_data_by_cpu(struct sunxi_mmc_priv *priv, struct mmc *mmc,
 		 * register without checking the status register after every
 		 * read. That saves half of the costly MMIO reads, effectively
 		 * doubling the read performance.
+		 * Some SoCs (A20) report a level of 0 if the FIFO is
+		 * completely full (value masked out?). Use a safe minimal
+		 * FIFO size in this case.
 		 */
-		for (in_fifo = SUNXI_MMC_STATUS_FIFO_LEVEL(status);
-		     in_fifo > 0;
-		     in_fifo--)
+		in_fifo = SUNXI_MMC_STATUS_FIFO_LEVEL(status);
+		if (in_fifo == 0 && (status & SUNXI_MMC_STATUS_FIFO_FULL))
+			in_fifo = 32;
+		for (; in_fifo > 0; in_fifo--)
 			buff[i++] = readl_relaxed(&priv->reg->fifo);
 		dmb();
 	}
