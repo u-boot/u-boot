@@ -252,6 +252,22 @@ struct bcm2835_mbox_tag_get_clock_rate {
 	} body;
 };
 
+#define BCM2835_MBOX_TAG_SET_SDHOST_CLOCK	0x00038042
+
+struct bcm2835_mbox_tag_set_sdhost_clock {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+			u32 rate_hz;
+		} req;
+		struct {
+			u32 rate_hz;
+			u32 rate_1;
+			u32 rate_2;
+		} resp;
+	} body;
+};
+
 #define BCM2835_MBOX_TAG_ALLOCATE_BUFFER	0x00040001
 
 struct bcm2835_mbox_tag_allocate_buffer {

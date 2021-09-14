@@ -21,6 +21,12 @@ struct msg_get_clock_rate {
 	u32 end_tag;
 };
 
+struct msg_set_sdhost_clock {
+	struct bcm2835_mbox_hdr hdr;
+	struct bcm2835_mbox_tag_set_sdhost_clock set_sdhost_clock;
+	u32 end_tag;
+};
+
 struct msg_query {
 	struct bcm2835_mbox_hdr hdr;
 	struct bcm2835_mbox_tag_physical_w_h physical_w_h;
@@ -108,6 +114,28 @@ int bcm2835_get_mmc_clock(u32 clock_id)
 	}
 
 	return clock_rate;
+}
+
+int bcm2835_set_sdhost_clock(u32 rate_hz, u32 *rate_1, u32 *rate_2)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_set_sdhost_clock, msg_sdhost_clk, 1);
+	int ret;
+
+	BCM2835_MBOX_INIT_HDR(msg_sdhost_clk);
+	BCM2835_MBOX_INIT_TAG(&msg_sdhost_clk->set_sdhost_clock, SET_SDHOST_CLOCK);
+
+	msg_sdhost_clk->set_sdhost_clock.body.req.rate_hz = rate_hz;
+
+	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_sdhost_clk->hdr);
+	if (ret) {
+		printf("bcm2835: Could not query sdhost clock rate\n");
+		return -EIO;
+	}
+
+	*rate_1 = msg_sdhost_clk->set_sdhost_clock.body.resp.rate_1;
+	*rate_2 = msg_sdhost_clk->set_sdhost_clock.body.resp.rate_2;
+
+	return 0;
 }
 
 int bcm2835_get_video_size(int *widthp, int *heightp)
