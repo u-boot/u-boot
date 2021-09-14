@@ -605,11 +605,6 @@ config TARGET_STV0991
 	select SPI_FLASH
 	imply CMD_DM
 
-config TARGET_FLEA3
-	bool "Support flea3"
-	select CPU_ARM1136
-	select GPIO_EXTRA_HEADER
-
 config ARCH_BCM283X
 	bool "Broadcom BCM283X family"
 	select DM
@@ -2149,7 +2144,6 @@ source "board/armltd/total_compute/Kconfig"
 
 source "board/bosch/shc/Kconfig"
 source "board/bosch/guardian/Kconfig"
-source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
