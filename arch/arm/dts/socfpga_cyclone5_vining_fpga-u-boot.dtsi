@@ -11,7 +11,7 @@
 /{
 	aliases {
 		spi0 = "/soc/spi@ff705000";
-		udc0 = &usb0;
+		udc0 = &usb1;
 	};
 };
 
