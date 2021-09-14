@@ -1193,12 +1193,6 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp)
 	return 0;
 }
 
-static void crc32_uimage_fixup(void *value)
-{
-	/* TODO: In C, this type punning is undefined behavior: */
-	*((uint32_t *)value) = cpu_to_uimage(*((uint32_t *)value));
-}
-
 /**
  * calculate_hash - calculate and return hash for provided input data
  * @data: pointer to the input data
@@ -1231,9 +1225,6 @@ int calculate_hash(const void *data, int data_len, const char *name,
 
 	algo->hash_func_ws(data, data_len, value, algo->chunk_size);
 	*value_len = algo->digest_size;
-
-	if (!strcmp(name, "crc32"))
-		crc32_uimage_fixup(value);
 
 	return 0;
 }
