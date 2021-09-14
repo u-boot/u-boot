@@ -95,6 +95,13 @@ int padding_pkcs_15_verify(struct image_sign_info *info,
 	return 0;
 }
 
+#ifndef USE_HOSTCC
+U_BOOT_PADDING_ALGO(pkcs_15) = {
+	.name = "pkcs-1.5",
+	.verify = padding_pkcs_15_verify,
+};
+#endif
+
 #ifdef CONFIG_FIT_RSASSA_PSS
 static void u32_i2osp(uint32_t val, uint8_t *buf)
 {
@@ -296,6 +303,14 @@ out:
 
 	return ret;
 }
+
+#ifndef USE_HOSTCC
+U_BOOT_PADDING_ALGO(pss) = {
+	.name = "pss",
+	.verify = padding_pss_verify,
+};
+#endif
+
 #endif
 
 #if CONFIG_IS_ENABLED(FIT_SIGNATURE) || CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY)
