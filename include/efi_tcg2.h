@@ -165,8 +165,6 @@ struct tcg_efi_spec_id_event_algorithm_size {
  * @digest_sizes:		array of number_of_algorithms pairs
  *				1st member defines the algorithm id
  *				2nd member defines the algorithm size
- * @vendor_info_size:		size in bytes for vendor specific info
- * @vendor_info:		vendor specific info
  */
 struct tcg_efi_spec_id_event {
 	u8 signature[16];
@@ -176,10 +174,7 @@ struct tcg_efi_spec_id_event {
 	u8 spec_errata;
 	u8 uintn_size;
 	u32 number_of_algorithms;
-	struct tcg_efi_spec_id_event_algorithm_size digest_sizes[TPM2_NUM_PCR_BANKS];
-	u8 vendor_info_size;
-	/* U-Boot does not provide any vendor info */
-	u8 vendor_info[];
+	struct tcg_efi_spec_id_event_algorithm_size digest_sizes[];
 } __packed;
 
 /**
