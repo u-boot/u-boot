@@ -17,7 +17,7 @@ This matrix concerns the actual source code version.
 +===============================+===========+=================+==============+=============+============+=============+==============+
 | Boards                        | Odroid-C2 | P212            | Khadas VIM2  | S400        | U200       | Odroid-N2   | SEI610       |
 |                               | Nanopi-K2 | Khadas-VIM      | Libretech-PC | JetHub J100 | SEI510     | Khadas-VIM3 | Khadas-VIM3L |
-|                               | P200      | LibreTech-CC v1 | WeTek Core2  |             |            | GT-King/Pro | Odroid-C4    |
+|                               | P200      | LibreTech-CC v1 | WeTek Core2  |             | Radxa Zero | GT-King/Pro | Odroid-C4    |
 |                               | P201      | LibreTech-AC v2 |              |             |            | GSKing-X    | Odroid-HC4   |
 |                               |           | JetHub J80      |              |             |            |             | BananaPi-M5  |
 +-------------------------------+-----------+-----------------+--------------+-------------+------------+-------------+--------------+
@@ -98,6 +98,7 @@ Board Documentation
    p201
    p212
    q200
+   radxa-zero
    s400
    sei510
    sei610
