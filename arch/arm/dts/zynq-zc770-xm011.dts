@@ -49,13 +49,6 @@
 
 &nand0 {
 	status = "okay";
-	arm,nand-cycle-t0 = <0x4>;
-	arm,nand-cycle-t1 = <0x4>;
-	arm,nand-cycle-t2 = <0x1>;
-	arm,nand-cycle-t3 = <0x2>;
-	arm,nand-cycle-t4 = <0x2>;
-	arm,nand-cycle-t5 = <0x2>;
-	arm,nand-cycle-t6 = <0x4>;
 
 	partition@0 {
 		label = "nand-fsbl-uboot";
@@ -81,11 +74,6 @@
 
 &smcc {
 	status = "okay";
-	arm,addr25 = <0x0>;
-	arm,nor-chip-sel0 = <0x0>;
-	arm,nor-chip-sel1 = <0x0>;
-	arm,sram-chip-sel0 = <0x0>;
-	arm,sram-chip-sel1 = <0x0>;
 };
 
 &spi0 {
