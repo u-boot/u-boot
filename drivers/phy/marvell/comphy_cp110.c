@@ -36,6 +36,10 @@ DECLARE_GLOBAL_DATA_PTR;
 			(COMPHY_CALLER_UBOOT | ((pcie_width) << 18) |	\
 			((clk_src) << 17) | COMPHY_FW_FORMAT(mode, 0, speeds))
 
+/* Invert polarity are bits 1-0 of the mode */
+#define COMPHY_FW_SATA_FORMAT(mode, invert)	\
+			((invert) | COMPHY_FW_MODE_FORMAT(mode))
+
 #define COMPHY_SATA_MODE	0x1
 #define COMPHY_SGMII_MODE	0x2	/* SGMII 1G */
 #define COMPHY_HS_SGMII_MODE	0x3	/* SGMII 2.5G */
@@ -607,7 +611,8 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 			break;
 		case COMPHY_TYPE_SATA0:
 		case COMPHY_TYPE_SATA1:
-			mode =  COMPHY_FW_MODE_FORMAT(COMPHY_SATA_MODE);
+			mode = COMPHY_FW_SATA_FORMAT(COMPHY_SATA_MODE,
+						     serdes_map[lane].invert);
 			ret = comphy_sata_power_up(lane, hpipe_base_addr,
 						   comphy_base_addr,
 						   ptr_chip_cfg->cp_index,
