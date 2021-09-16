@@ -23,7 +23,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc8xx.h>
-#include <version.h>
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
@@ -62,9 +61,6 @@
  */
 	.text
 	.long	0x27051956		/* U-Boot Magic Number			*/
-	.globl	version_string
-version_string:
-	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
