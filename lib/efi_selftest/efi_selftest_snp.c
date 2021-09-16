@@ -309,6 +309,18 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
+	/* Check media connected */
+	ret = net->get_status(net, NULL, NULL);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to get status");
+		return EFI_ST_FAILURE;
+	}
+	if (net->mode && net->mode->media_present_supported &&
+	    !net->mode->media_present) {
+		efi_st_error("Network media is not connected");
+		return EFI_ST_FAILURE;
+	}
+
 	/*
 	 * Send DHCP discover message
 	 */
