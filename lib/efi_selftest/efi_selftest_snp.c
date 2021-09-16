@@ -362,39 +362,46 @@ static int execute(void)
 			continue;
 		}
 		/*
-		 * Receive packet
+		 * Receive packets until buffer is empty
 		 */
-		buffer_size = sizeof(buffer);
-		ret = net->receive(net, NULL, &buffer_size, &buffer,
-				   &srcaddr, &destaddr, NULL);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("Failed to receive packet");
-			return EFI_ST_FAILURE;
-		}
-		/*
-		 * Check the packet is meant for this system.
-		 * Unfortunately QEMU ignores the broadcast flag.
-		 * So we have to check for broadcasts too.
-		 */
-		if (memcmp(&destaddr, &net->mode->current_address, ARP_HLEN) &&
-		    memcmp(&destaddr, BROADCAST_MAC, ARP_HLEN))
-			continue;
-		/*
-		 * Check this is a DHCP reply
-		 */
-		if (buffer.p.eth_hdr.et_protlen != ntohs(PROT_IP) ||
-		    buffer.p.ip_udp.ip_hl_v != 0x45 ||
-		    buffer.p.ip_udp.ip_p != IPPROTO_UDP ||
-		    buffer.p.ip_udp.udp_src != ntohs(67) ||
-		    buffer.p.ip_udp.udp_dst != ntohs(68) ||
-		    buffer.p.dhcp_hdr.op != BOOTREPLY)
-			continue;
-		/*
-		 * We successfully received a DHCP reply.
-		 */
-		break;
-	}
+		for (;;) {
+			buffer_size = sizeof(buffer);
+			ret = net->receive(net, NULL, &buffer_size, &buffer,
+					   &srcaddr, &destaddr, NULL);
+			if (ret == EFI_NOT_READY) {
+				/* The received buffer is empty. */
+				break;
+			}
 
+			if (ret != EFI_SUCCESS) {
+				efi_st_error("Failed to receive packet");
+				return EFI_ST_FAILURE;
+			}
+			/*
+			 * Check the packet is meant for this system.
+			 * Unfortunately QEMU ignores the broadcast flag.
+			 * So we have to check for broadcasts too.
+			 */
+			if (memcmp(&destaddr, &net->mode->current_address, ARP_HLEN) &&
+			    memcmp(&destaddr, BROADCAST_MAC, ARP_HLEN))
+				continue;
+			/*
+			 * Check this is a DHCP reply
+			 */
+			if (buffer.p.eth_hdr.et_protlen != ntohs(PROT_IP) ||
+			    buffer.p.ip_udp.ip_hl_v != 0x45 ||
+			    buffer.p.ip_udp.ip_p != IPPROTO_UDP ||
+			    buffer.p.ip_udp.udp_src != ntohs(67) ||
+			    buffer.p.ip_udp.udp_dst != ntohs(68) ||
+			    buffer.p.dhcp_hdr.op != BOOTREPLY)
+				continue;
+			/*
+			 * We successfully received a DHCP reply.
+			 */
+			goto received;
+		}
+	}
+received:
 	/*
 	 * Write a log message.
 	 */
