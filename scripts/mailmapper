@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2014, Masahiro Yamada <yamada.m@jp.panasonic.com>
@@ -89,9 +89,10 @@ output = {}
 for line in shortlog.splitlines():
     # tmp, mail = line.rsplit(None, 1) is not safe
     # because weird email addresses might include whitespaces
-    tmp, mail = line.split('<')
-    mail = '<' + mail.rstrip()
     try:
+        line = line.decode("utf-8")
+        tmp, mail = line.split('<')
+        mail = '<' + mail.rstrip()
         _, name = tmp.rstrip().split(None, 1)
     except ValueError:
         # author name is empty
@@ -100,8 +101,11 @@ for line in shortlog.splitlines():
         # another name for the same email address
         prev_name = mail_vs_name[mail]
         # Take the name with more commits
-        major_name = sorted([prev_name, name],
-                            key=lambda x: commits_per_name[x] if x else 0)[1]
+        try:
+            major_name = sorted([prev_name, name],
+                                key=lambda x: commits_per_name[x] if x else 0)[1]
+        except:
+            continue
         mail_vs_name[mail] = major_name
         if commits_per_name[major_name] > MIN_COMMITS:
             output[mail] = major_name
