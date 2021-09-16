@@ -1215,7 +1215,7 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp)
  *     0, on success
  *    -1, when algo is unsupported
  */
-int calculate_hash(const void *data, int data_len, const char *algo,
+int calculate_hash(const void *data, int data_len, const char *name,
 			uint8_t *value, int *value_len)
 {
 #if !defined(USE_HOSTCC) && defined(CONFIG_DM_HASH)
@@ -1243,35 +1243,19 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 
 	*value_len = hash_algo_digest_size(hash_algo);
 #else
-	if (IMAGE_ENABLE_CRC32 && strcmp(algo, "crc32") == 0) {
-		*((uint32_t *)value) = crc32_wd(0, data, data_len,
-							CHUNKSZ_CRC32);
-		*((uint32_t *)value) = cpu_to_uimage(*((uint32_t *)value));
-		*value_len = 4;
-	} else if (CONFIG_IS_ENABLED(SHA1) && strcmp(algo, "sha1") == 0) {
-		sha1_csum_wd((unsigned char *)data, data_len,
-			     (unsigned char *)value, CHUNKSZ_SHA1);
-		*value_len = 20;
-	} else if (CONFIG_IS_ENABLED(SHA256) && strcmp(algo, "sha256") == 0) {
-		sha256_csum_wd((unsigned char *)data, data_len,
-			       (unsigned char *)value, CHUNKSZ_SHA256);
-		*value_len = SHA256_SUM_LEN;
-	} else if (CONFIG_IS_ENABLED(SHA384) && strcmp(algo, "sha384") == 0) {
-		sha384_csum_wd((unsigned char *)data, data_len,
-			       (unsigned char *)value, CHUNKSZ_SHA384);
-		*value_len = SHA384_SUM_LEN;
-	} else if (CONFIG_IS_ENABLED(SHA512) && strcmp(algo, "sha512") == 0) {
-		sha512_csum_wd((unsigned char *)data, data_len,
-			       (unsigned char *)value, CHUNKSZ_SHA512);
-		*value_len = SHA512_SUM_LEN;
-	} else if (IMAGE_ENABLE_MD5 && strcmp(algo, "md5") == 0) {
-		md5_wd((unsigned char *)data, data_len, value, CHUNKSZ_MD5);
-		*value_len = 16;
-	} else {
+	struct hash_algo *algo;
+	int ret;
+
+	ret = hash_lookup_algo(name, &algo);
+	if (ret < 0) {
 		debug("Unsupported hash alogrithm\n");
 		return -1;
 	}
+
+	algo->hash_func_ws(data, data_len, value, algo->chunk_size);
+	*value_len = algo->digest_size;
 #endif
+
 	return 0;
 }
 

@@ -607,8 +607,8 @@ efi_tcg2_get_capability(struct efi_tcg2_protocol *this,
 		goto out;
 	}
 
-	if (capability->size < boot_service_capability_min) {
-		capability->size = boot_service_capability_min;
+	if (capability->size < BOOT_SERVICE_CAPABILITY_MIN) {
+		capability->size = BOOT_SERVICE_CAPABILITY_MIN;
 		efi_ret = EFI_BUFFER_TOO_SMALL;
 		goto out;
 	}
@@ -707,6 +707,18 @@ efi_tcg2_get_eventlog(struct efi_tcg2_protocol *this,
 
 	EFI_ENTRY("%p, %u, %p, %p,  %p", this, log_format, event_log_location,
 		  event_log_last_entry, event_log_truncated);
+
+	if (!this || !event_log_location || !event_log_last_entry ||
+	    !event_log_truncated) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/* Only support TPMV2 */
+	if (log_format != TCG2_EVENT_LOG_FORMAT_TCG_2) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
@@ -853,20 +865,19 @@ efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	ret = EFI_CALL(efi_search_protocol(&handle->header,
-					   &efi_guid_loaded_image_device_path,
-					   &handler));
+	ret = efi_search_protocol(&handle->header,
+				  &efi_guid_loaded_image_device_path, &handler);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	device_path = EFI_CALL(handler->protocol_interface);
+	device_path = handler->protocol_interface;
 	device_path_length = efi_dp_size(device_path);
 	if (device_path_length > 0) {
 		/* add end node size */
 		device_path_length += sizeof(struct efi_device_path);
 	}
 	event_size = sizeof(struct uefi_image_load_event) + device_path_length;
-	image_load_event = (struct uefi_image_load_event *)malloc(event_size);
+	image_load_event = calloc(1, event_size);
 	if (!image_load_event)
 		return EFI_OUT_OF_RESOURCES;
 
@@ -889,10 +900,8 @@ efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 		goto out;
 	}
 
-	if (device_path_length > 0) {
-		memcpy(image_load_event->device_path, device_path,
-		       device_path_length);
-	}
+	/* device_path_length might be zero */
+	memcpy(image_load_event->device_path, device_path, device_path_length);
 
 	ret = tcg2_agile_log_append(pcr_index, event_type, &digest_list,
 				    event_size, (u8 *)image_load_event);
@@ -946,7 +955,7 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
 		goto out;
 	}
 
-	if (efi_tcg_event->header.pcr_index > TPM2_MAX_PCRS) {
+	if (efi_tcg_event->header.pcr_index > EFI_TCG2_MAX_PCR_INDEX) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
@@ -965,6 +974,7 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
 				   data_to_hash_len, (void **)&nt);
 		if (ret != EFI_SUCCESS) {
 			log_err("Not a valid PE-COFF file\n");
+			ret = EFI_UNSUPPORTED;
 			goto out;
 		}
 		ret = tcg2_hash_pe_image((void *)(uintptr_t)data_to_hash,
@@ -1038,9 +1048,15 @@ efi_tcg2_get_active_pcr_banks(struct efi_tcg2_protocol *this,
 {
 	efi_status_t ret;
 
+	if (!this || !active_pcr_banks) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
 	EFI_ENTRY("%p, %p", this, active_pcr_banks);
 	ret = __get_active_pcr_banks(active_pcr_banks);
 
+out:
 	return EFI_EXIT(ret);
 }
 

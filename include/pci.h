@@ -623,13 +623,9 @@ extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev
  *	about a small subset of PCI devices. This is normally false.
  */
 struct pci_controller {
-#ifdef CONFIG_DM_PCI
 	struct udevice *bus;
 	struct udevice *ctlr;
 	bool skip_auto_config_until_reloc;
-#else
-	struct pci_controller *next;
-#endif
 
 	int first_busno;
 	int last_busno;
@@ -655,54 +651,12 @@ struct pci_controller {
 	struct pci_config_table *config_table;
 
 	void (*fixup_irq)(struct pci_controller *, pci_dev_t);
-#ifndef CONFIG_DM_PCI
-	/* Low-level architecture-dependent routines */
-	int (*read_byte)(struct pci_controller*, pci_dev_t, int where, u8 *);
-	int (*read_word)(struct pci_controller*, pci_dev_t, int where, u16 *);
-	int (*read_dword)(struct pci_controller*, pci_dev_t, int where, u32 *);
-	int (*write_byte)(struct pci_controller*, pci_dev_t, int where, u8);
-	int (*write_word)(struct pci_controller*, pci_dev_t, int where, u16);
-	int (*write_dword)(struct pci_controller*, pci_dev_t, int where, u32);
-#endif
 
 	/* Used by auto config */
 	struct pci_region *pci_mem, *pci_io, *pci_prefetch;
-
-#ifndef CONFIG_DM_PCI
-	int current_busno;
-
-	void *priv_data;
-#endif
 };
 
-#ifndef CONFIG_DM_PCI
-static inline void pci_set_ops(struct pci_controller *hose,
-				   int (*read_byte)(struct pci_controller*,
-						    pci_dev_t, int where, u8 *),
-				   int (*read_word)(struct pci_controller*,
-						    pci_dev_t, int where, u16 *),
-				   int (*read_dword)(struct pci_controller*,
-						     pci_dev_t, int where, u32 *),
-				   int (*write_byte)(struct pci_controller*,
-						     pci_dev_t, int where, u8),
-				   int (*write_word)(struct pci_controller*,
-						     pci_dev_t, int where, u16),
-				   int (*write_dword)(struct pci_controller*,
-						      pci_dev_t, int where, u32)) {
-	hose->read_byte   = read_byte;
-	hose->read_word   = read_word;
-	hose->read_dword  = read_dword;
-	hose->write_byte  = write_byte;
-	hose->write_word  = write_word;
-	hose->write_dword = write_dword;
-}
-#endif
-
-#ifdef CONFIG_PCI_INDIRECT_BRIDGE
-extern void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data);
-#endif
-
-#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
+#if defined(CONFIG_DM_PCI_COMPAT)
 extern phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
 					pci_addr_t addr, unsigned long flags);
 extern pci_addr_t pci_hose_phys_to_bus(struct pci_controller* hose,
@@ -752,15 +706,6 @@ extern int pci_hose_write_config_dword(struct pci_controller *hose,
 				       pci_dev_t dev, int where, u32 val);
 #endif
 
-#ifndef CONFIG_DM_PCI
-extern int pci_read_config_byte(pci_dev_t dev, int where, u8 *val);
-extern int pci_read_config_word(pci_dev_t dev, int where, u16 *val);
-extern int pci_read_config_dword(pci_dev_t dev, int where, u32 *val);
-extern int pci_write_config_byte(pci_dev_t dev, int where, u8 val);
-extern int pci_write_config_word(pci_dev_t dev, int where, u16 val);
-extern int pci_write_config_dword(pci_dev_t dev, int where, u32 val);
-#endif
-
 void pciauto_region_init(struct pci_region *res);
 void pciauto_region_align(struct pci_region *res, pci_size_t size);
 void pciauto_config_init(struct pci_controller *hose);
@@ -780,7 +725,7 @@ void pciauto_config_init(struct pci_controller *hose);
 int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
 			    pci_addr_t *bar, bool supports_64bit);
 
-#if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
+#if defined(CONFIG_DM_PCI_COMPAT)
 extern int pci_hose_read_config_byte_via_dword(struct pci_controller *hose,
 					       pci_dev_t dev, int where, u8 *val);
 extern int pci_hose_read_config_word_via_dword(struct pci_controller *hose,
@@ -827,7 +772,7 @@ int pci_find_next_ext_capability(struct pci_controller *hose,
 int pci_hose_find_ext_capability(struct pci_controller *hose,
 				 pci_dev_t dev, int cap);
 
-#endif /* !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT) */
+#endif /* defined(CONFIG_DM_PCI_COMPAT) */
 
 const char * pci_class_str(u8 class);
 int pci_last_busno(void);
@@ -890,7 +835,6 @@ enum pci_size_t {
 
 struct udevice;
 
-#ifdef CONFIG_DM_PCI
 /**
  * struct pci_child_plat - information stored about each PCI device
  *
@@ -1690,8 +1634,6 @@ int sandbox_pci_get_client(struct udevice *emul, struct udevice **devp);
  * @dev:	PCI device
  */
 extern void board_pci_fixup_dev(struct udevice *bus, struct udevice *dev);
-
-#endif /* CONFIG_DM_PCI */
 
 /**
  * PCI_DEVICE - macro used to describe a specific pci device

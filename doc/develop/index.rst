@@ -9,6 +9,7 @@ Implementation
 .. toctree::
    :maxdepth: 1
 
+   bloblist
    ci_testing
    commands
    devicetree/index

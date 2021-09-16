@@ -148,6 +148,8 @@ void __noreturn return_to_bootrom(void);
 int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks);
 #endif
 
+u32 get_boot_device(void);
+
 void get_sar_freq(struct sar_freq_modes *sar_freq);
 
 /*

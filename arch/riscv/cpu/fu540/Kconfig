@@ -19,6 +19,8 @@ config SIFIVE_FU540
 	imply SMP
 	imply CLK_SIFIVE
 	imply CLK_SIFIVE_PRCI
+	imply SIFIVE_CACHE
+	imply SIFIVE_CCACHE
 	imply SIFIVE_SERIAL
 	imply MACB
 	imply MII

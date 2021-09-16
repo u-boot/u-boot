@@ -6,6 +6,7 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
+#include <cpu_func.h>
 #include <dm.h>
 #include <env.h>
 #include <init.h>
@@ -15,7 +16,6 @@
 #include <linux/delay.h>
 #include <misc.h>
 #include <spl.h>
-#include <asm/arch/cache.h>
 #include <asm/sections.h>
 
 /*
@@ -126,14 +126,8 @@ void *board_fdt_blob_setup(void)
 
 int board_init(void)
 {
-	int ret;
-
 	/* enable all cache ways */
-	ret = cache_enable_ways();
-	if (ret) {
-		debug("%s: could not enable cache ways\n", __func__);
-		return ret;
-	}
+	enable_caches();
 
 	return 0;
 }

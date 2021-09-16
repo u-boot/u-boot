@@ -34,6 +34,8 @@
 
 #define CONFIG_SYS_PCI_64BIT		1	/* enable 64-bit resources */
 
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	4
+
 /* Environment options */
 
 #ifndef CONFIG_SPL_BUILD
@@ -41,6 +43,7 @@
 	func(NVME, nvme, 0) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \
+	func(SCSI, scsi, 0) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 

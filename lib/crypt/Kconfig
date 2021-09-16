@@ -20,7 +20,6 @@ config CRYPT_PW_SHA256
 config CRYPT_PW_SHA512
 	bool "Provide sha512crypt"
 	select SHA512
-	select SHA512_ALGO
 	help
 	  Enables support for the sha512crypt password-hashing algorithm.
 	  The prefix is "$6$".

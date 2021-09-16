@@ -51,19 +51,6 @@ struct checksum_algo checksum_algos[] = {
 
 };
 
-struct padding_algo padding_algos[] = {
-	{
-		.name = "pkcs-1.5",
-		.verify = padding_pkcs_15_verify,
-	},
-#ifdef CONFIG_FIT_RSASSA_PSS
-	{
-		.name = "pss",
-		.verify = padding_pss_verify,
-	}
-#endif /* CONFIG_FIT_RSASSA_PSS */
-};
-
 struct checksum_algo *image_get_checksum_algo(const char *full_name)
 {
 	int i;
@@ -129,14 +116,16 @@ struct crypto_algo *image_get_crypto_algo(const char *full_name)
 
 struct padding_algo *image_get_padding_algo(const char *name)
 {
-	int i;
+	struct padding_algo *padding, *end;
 
 	if (!name)
 		return NULL;
 
-	for (i = 0; i < ARRAY_SIZE(padding_algos); i++) {
-		if (!strcmp(padding_algos[i].name, name))
-			return &padding_algos[i];
+	padding = ll_entry_start(struct padding_algo, paddings);
+	end = ll_entry_end(struct padding_algo, paddings);
+	for (; padding < end; padding++) {
+		if (!strcmp(padding->name, name))
+			return padding;
 	}
 
 	return NULL;

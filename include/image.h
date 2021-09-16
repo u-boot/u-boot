@@ -31,9 +31,7 @@ struct fdt_region;
 #define IMAGE_ENABLE_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 #define CONFIG_FIT_RSASSA_PSS 1
-#define CONFIG_FIT_SHA256
-#define CONFIG_FIT_SHA384
-#define CONFIG_FIT_SHA512
+#define CONFIG_MD5
 #define CONFIG_SHA1
 #define CONFIG_SHA256
 #define CONFIG_SHA384
@@ -62,26 +60,6 @@ struct fdt_region;
 #include <hash.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
-# ifdef CONFIG_SPL_BUILD
-#  ifdef CONFIG_SPL_CRC32
-#   define IMAGE_ENABLE_CRC32	1
-#  endif
-#  ifdef CONFIG_SPL_MD5
-#   define IMAGE_ENABLE_MD5	1
-#  endif
-# else
-#  define IMAGE_ENABLE_CRC32	1
-#  define IMAGE_ENABLE_MD5	1
-# endif
-
-#ifndef IMAGE_ENABLE_CRC32
-#define IMAGE_ENABLE_CRC32	0
-#endif
-
-#ifndef IMAGE_ENABLE_MD5
-#define IMAGE_ENABLE_MD5	0
-#endif
-
 #endif /* IMAGE_ENABLE_FIT */
 
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
@@ -1333,6 +1311,10 @@ struct padding_algo {
 		      uint8_t *pad, int pad_len,
 		      const uint8_t *hash, int hash_len);
 };
+
+/* Declare a new U-Boot padding algorithm handler */
+#define U_BOOT_PADDING_ALGO(__name)						\
+ll_entry_declare(struct padding_algo, __name, paddings)
 
 /**
  * image_get_checksum_algo() - Look up a checksum algorithm

@@ -207,12 +207,25 @@ static int hash_finish_crc32(struct hash_algo *algo, void *ctx, void *dest_buf,
 	return 0;
 }
 
+#ifdef USE_HOSTCC
+# define I_WANT_MD5	1
+#else
+# define I_WANT_MD5	CONFIG_IS_ENABLED(MD5)
+#endif
 /*
  * These are the hash algorithms we support.  If we have hardware acceleration
  * is enable we will use that, otherwise a software version of the algorithm.
  * Note that algorithm names must be in lower case.
  */
 static struct hash_algo hash_algo[] = {
+#if I_WANT_MD5
+	{
+		.name		= "md5",
+		.digest_size	= MD5_SUM_LEN,
+		.chunk_size	= CHUNKSZ_MD5,
+		.hash_func_ws	= md5_wd,
+	},
+#endif
 #ifdef CONFIG_SHA1
 	{
 		.name 		= "sha1",

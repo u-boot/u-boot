@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <spl.h>
+#include <fdt_support.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <env.h>
@@ -57,6 +58,37 @@ int board_fit_config_name_match(const char *name)
 	}
 
 	return -1;
+}
+#endif
+
+#if defined(CONFIG_SPL_BUILD) && CONFIG_IS_ENABLED(USB_STORAGE)
+static int fixup_usb_boot(const void *fdt_blob)
+{
+	int ret = 0;
+
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_USB:
+		/*
+		 * If the boot mode is host, fixup the dr_mode to host
+		 * before cdns3 bind takes place
+		 */
+		ret = fdt_find_and_setprop((void *)fdt_blob,
+					   "/bus@f4000/cdns-usb@f900000/usb@f400000",
+					   "dr_mode", "host", 5, 0);
+		if (ret)
+			printf("%s: fdt_find_and_setprop() failed:%d\n",
+			       __func__, ret);
+		fallthrough;
+	default:
+		break;
+	}
+
+	return ret;
+}
+
+void spl_perform_fixups(struct spl_image_info *spl_image)
+{
+	fixup_usb_boot(spl_image->fdt_addr);
 }
 #endif
 

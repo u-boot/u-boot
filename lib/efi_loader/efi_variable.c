@@ -247,7 +247,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 			return EFI_WRITE_PROTECTED;
 
 		if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
-			if (var_type != EFI_AUTH_VAR_NONE)
+			if (var_type >= EFI_AUTH_VAR_PK)
 				return EFI_WRITE_PROTECTED;
 		}
 
@@ -268,7 +268,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 			return EFI_NOT_FOUND;
 	}
 
-	if (var_type != EFI_AUTH_VAR_NONE) {
+	if (var_type >= EFI_AUTH_VAR_PK) {
 		/* authentication is mandatory */
 		if (!(attributes &
 		      EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
@@ -426,7 +426,7 @@ efi_status_t efi_init_variables(void)
 
 	if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
 		ret = efi_var_restore((struct efi_var_file *)
-				      __efi_var_file_begin);
+				      __efi_var_file_begin, true);
 		if (ret != EFI_SUCCESS)
 			log_err("Invalid EFI variable seed\n");
 	}

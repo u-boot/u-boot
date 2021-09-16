@@ -361,13 +361,6 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 	while (esdhc_read32(&regs->prsstat) & PRSSTAT_DLA)
 		;
 
-	/* Wait at least 8 SD clock cycles before the next command */
-	/*
-	 * Note: This is way more than 8 cycles, but 1ms seems to
-	 * resolve timing issues with some cards
-	 */
-	udelay(1000);
-
 	/* Set up for a data transfer if we have one */
 	if (data) {
 		err = esdhc_setup_data(priv, mmc, data);

@@ -392,7 +392,6 @@ settings::
     CONFIG_EFI_CAPSULE_FIRMWARE_MANAGEMENT=y
     CONFIG_EFI_CAPSULE_FIRMWARE=y
     CONFIG_EFI_CAPSULE_FIRMWARE_RAW=y
-    CONFIG_EFI_CAPSULE_FMP_HEADER=y
 
 In addition, the following config needs to be disabled(QEMU ARM specific)::
 

@@ -1,5 +1,5 @@
 PANDA BOARD
-M:	Lokesh Vutla <lokeshvutla@ti.com>
+M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
 F:	board/ti/panda/
 F:	include/configs/omap4_panda.h

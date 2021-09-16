@@ -756,16 +756,16 @@ int designware_eth_write_hwaddr(struct udevice *dev)
 
 static int designware_eth_bind(struct udevice *dev)
 {
-#ifdef CONFIG_DM_PCI
-	static int num_cards;
-	char name[20];
+	if (IS_ENABLED(CONFIG_PCI)) {
+		static int num_cards;
+		char name[20];
 
-	/* Create a unique device name for PCI type devices */
-	if (device_is_on_pci_bus(dev)) {
-		sprintf(name, "eth_designware#%u", num_cards++);
-		device_set_name(dev, name);
+		/* Create a unique device name for PCI type devices */
+		if (device_is_on_pci_bus(dev)) {
+			sprintf(name, "eth_designware#%u", num_cards++);
+			device_set_name(dev, name);
+		}
 	}
-#endif
 
 	return 0;
 }
@@ -831,12 +831,11 @@ int designware_eth_probe(struct udevice *dev)
 	else
 		reset_deassert_bulk(&reset_bulk);
 
-#ifdef CONFIG_DM_PCI
 	/*
 	 * If we are on PCI bus, either directly attached to a PCI root port,
 	 * or via a PCI bridge, fill in plat before we probe the hardware.
 	 */
-	if (device_is_on_pci_bus(dev)) {
+	if (IS_ENABLED(CONFIG_PCI) && device_is_on_pci_bus(dev)) {
 		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
 		iobase = dm_pci_mem_to_phys(dev, iobase);
@@ -844,7 +843,6 @@ int designware_eth_probe(struct udevice *dev)
 		pdata->iobase = iobase;
 		pdata->phy_interface = PHY_INTERFACE_MODE_RMII;
 	}
-#endif
 
 	debug("%s, iobase=%x, priv=%p\n", __func__, iobase, priv);
 	ioaddr = iobase;

@@ -557,7 +557,6 @@ config ID_EEPROM
 config PCI_INIT_R
 	bool "Enumerate PCI buses during init"
 	depends on PCI
-	default y if !DM_PCI
 	help
 	  With this option U-Boot will call pci_init() soon after relocation,
 	  which will enumerate PCI buses. This is needed, for instance, in the

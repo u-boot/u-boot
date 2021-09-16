@@ -284,12 +284,12 @@ md5 (unsigned char *input, int len, unsigned char output[16])
  * watchdog every 'chunk_sz' bytes of input processed.
  */
 void
-md5_wd (unsigned char *input, int len, unsigned char output[16],
+md5_wd(const unsigned char *input, unsigned int len, unsigned char output[16],
 	unsigned int chunk_sz)
 {
 	struct MD5Context context;
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	unsigned char *end, *curr;
+	const unsigned char *end, *curr;
 	int chunk;
 #endif
 

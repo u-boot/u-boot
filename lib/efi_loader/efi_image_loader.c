@@ -801,6 +801,23 @@ efi_status_t efi_check_pe(void *buffer, size_t size, void **nt_header)
 }
 
 /**
+ * section_size() - determine size of section
+ *
+ * The size of a section in memory if normally given by VirtualSize.
+ * If VirtualSize is not provided, use SizeOfRawData.
+ *
+ * @sec:	section header
+ * Return:	size of section in memory
+ */
+static u32 section_size(IMAGE_SECTION_HEADER *sec)
+{
+	if (sec->Misc.VirtualSize)
+		return sec->Misc.VirtualSize;
+	else
+		return sec->SizeOfRawData;
+}
+
+/**
  * efi_load_pe() - relocate EFI binary
  *
  * This function loads all sections from a PE binary into a newly reserved
@@ -869,8 +886,9 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 	/* Calculate upper virtual address boundary */
 	for (i = num_sections - 1; i >= 0; i--) {
 		IMAGE_SECTION_HEADER *sec = &sections[i];
+
 		virt_size = max_t(unsigned long, virt_size,
-				  sec->VirtualAddress + sec->Misc.VirtualSize);
+				  sec->VirtualAddress + section_size(sec));
 	}
 
 	/* Read 32/64bit specific header bits */
@@ -880,6 +898,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		image_base = opt->ImageBase;
 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
 		handle->image_type = opt->Subsystem;
+		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {
@@ -890,12 +909,12 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
-		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
 		image_base = opt->ImageBase;
 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
 		handle->image_type = opt->Subsystem;
+		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {
@@ -906,7 +925,6 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
-		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 	} else {
 		log_err("Invalid optional header magic %x\n",
 			nt->OptionalHeader.Magic);
@@ -931,11 +949,16 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 	/* Load sections into RAM */
 	for (i = num_sections - 1; i >= 0; i--) {
 		IMAGE_SECTION_HEADER *sec = &sections[i];
-		memset(efi_reloc + sec->VirtualAddress, 0,
-		       sec->Misc.VirtualSize);
+		u32 copy_size = section_size(sec);
+
+		if (copy_size > sec->SizeOfRawData) {
+			copy_size = sec->SizeOfRawData;
+			memset(efi_reloc + sec->VirtualAddress, 0,
+			       sec->Misc.VirtualSize);
+		}
 		memcpy(efi_reloc + sec->VirtualAddress,
 		       efi + sec->PointerToRawData,
-		       min(sec->Misc.VirtualSize, sec->SizeOfRawData));
+		       copy_size);
 	}
 
 	/* Run through relocations */

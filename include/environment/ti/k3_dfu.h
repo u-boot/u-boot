@@ -40,7 +40,7 @@
 
 #define DFU_ALT_INFO_RAM \
 	"dfu_alt_info_ram=" \
-	"tispl.bin ram 0x80080000 0x100000;" \
-	"u-boot.img ram 0x81000000 0x100000\0" \
+	"tispl.bin ram 0x80080000 0x200000;" \
+	"u-boot.img ram 0x81000000 0x400000\0" \
 
 #endif /* __TI_DFU_H */

@@ -163,7 +163,7 @@ void reset_phy(void)
 	char *eth0_name = "ethernet-controller@72000";
 	char *eth0_path = "/ocp@f1000000/ethernet-controller@72000/ethernet0-port@0";
 	char *eth1_name = "ethernet-controller@76000";
-	char *eth1_path = "/ocp@f1000000/ethernet-controller@72000/ethernet1-port@0";
+	char *eth1_path = "/ocp@f1000000/ethernet-controller@76000/ethernet1-port@0";
 
 	/* configure and initialize both PHY's */
 	mv_phy_88e1116_init(eth0_name, eth0_path);

@@ -342,6 +342,9 @@ void mmc_do_preinit(void)
 
 		if (!m)
 			continue;
+
+		m->user_speed_mode = MMC_MODES_END;  /* Initialising user set speed mode */
+
 		if (m->preinit)
 			mmc_start_init(m);
 	}
@@ -414,7 +417,7 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 	/* setup initial part type */
 	bdesc->part_type = cfg->part_type;
 	mmc->dev = dev;
-
+	mmc->user_speed_mode = MMC_MODES_END;
 	return 0;
 }
 
