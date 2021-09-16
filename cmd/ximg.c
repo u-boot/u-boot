@@ -141,6 +141,20 @@ do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return 1;
 		}
 
+		if (CONFIG_IS_ENABLED(FIT_SIGNATURE_STRICT)) {
+			/* validate required fit config entry */
+			noffset = fit_conf_get_node(fit_hdr, NULL);
+			if (noffset >= 0) {
+				if (fit_config_verify(fit_hdr, noffset)) {
+					puts("Cannot verify FIT config node\n");
+					return 1;
+				}
+			} else {
+				puts("FIT_SIGNATURE_STRICT requires a config node\n");
+				return 1;
+			}
+		}
+
 		/* get subimage node offset */
 		noffset = fit_image_get_node(fit_hdr, uname);
 		if (noffset < 0) {

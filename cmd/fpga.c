@@ -335,6 +335,20 @@ static int do_fpga_loadmk(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 		}
 
+		if (CONFIG_IS_ENABLED(FIT_SIGNATURE_STRICT)) {
+			/* validate required fit config entry */
+			noffset = fit_conf_get_node(fit_hdr, NULL);
+			if (noffset >= 0) {
+				if (fit_config_verify(fit_hdr, noffset)) {
+					puts("Cannot verify FIT config node\n");
+					return CMD_RET_FAILURE;
+				}
+			} else {
+				puts("FIT_SIGNATURE_STRICT requires a config node\n");
+				return CMD_RET_FAILURE;
+			}
+		}
+
 		/* get fpga component image node offset */
 		noffset = fit_image_get_node(fit_hdr, fit_uname);
 		if (noffset < 0) {

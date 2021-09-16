@@ -77,6 +77,10 @@ config FIT_SIGNATURE_MAX_SIZE
 	  device memory. Assure this size does not extend past expected storage
 	  space.
 
+config FIT_SIGNATURE_STRICT
+	bool "Requires a valid FIT configuration signature for every image"
+	select FIT_SIGNATURE
+
 config FIT_RSASSA_PSS
 	bool "Support rsassa-pss signature scheme of FIT image contents"
 	depends on FIT_SIGNATURE

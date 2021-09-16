@@ -112,6 +112,20 @@ int image_source_script(ulong addr, const char *fit_uname)
 			return 1;
 		}
 
+		if (CONFIG_IS_ENABLED(FIT_SIGNATURE_STRICT)) {
+			/* validate required fit config entry */
+			noffset = fit_conf_get_node(fit_hdr, NULL);
+			if (noffset >= 0) {
+				if (fit_config_verify(fit_hdr, noffset)) {
+					puts("Cannot verify FIT config node\n");
+					return 1;
+				}
+			} else {
+				puts("FIT_SIGNATURE_STRICT requires a config node\n");
+				return 1;
+			}
+		}
+
 		if (!fit_uname)
 			fit_uname = get_default_image(fit_hdr);
 
