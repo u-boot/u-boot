@@ -182,6 +182,13 @@ config SPL_FIT_RSASSA_PSS
 	  Enable this to support the pss padding algorithm as described
 	  in the rfc8017 (https://tools.ietf.org/html/rfc8017) in SPL.
 
+config SPL_FIT_SIGNATURE_STRICT
+	bool "Halt if loadables or firmware don't pass FIT signature verification"
+	select SPL_FIT_SIGNATURE
+	help
+	  Strictly requires each loadable or firmware in a FIT image to be
+	  passed verification. Halt if any loadable fails to be verified.
+
 config SPL_LOAD_FIT
 	bool "Enable SPL loading U-Boot as a FIT (basic fitImage features)"
 	select SPL_FIT
