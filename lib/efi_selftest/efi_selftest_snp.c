@@ -340,8 +340,6 @@ static int execute(void)
 	events[0] = timer;
 	events[1] = net->wait_for_packet;
 	for (;;) {
-		u32 int_status;
-
 		/*
 		 * Wait for packet to be received or timer event.
 		 */
@@ -367,15 +365,6 @@ static int execute(void)
 		 * Receive packet
 		 */
 		buffer_size = sizeof(buffer);
-		ret = net->get_status(net, &int_status, NULL);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("Failed to get status");
-			return EFI_ST_FAILURE;
-		}
-		if (!(int_status & EFI_SIMPLE_NETWORK_RECEIVE_INTERRUPT)) {
-			efi_st_error("RX interrupt not set");
-			return EFI_ST_FAILURE;
-		}
 		ret = net->receive(net, NULL, &buffer_size, &buffer,
 				   &srcaddr, &destaddr, NULL);
 		if (ret != EFI_SUCCESS) {
