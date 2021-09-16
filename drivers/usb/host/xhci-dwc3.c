@@ -74,7 +74,8 @@ int dwc3_core_init(struct dwc3 *dwc3_reg)
 
 	revision = readl(&dwc3_reg->g_snpsid);
 	/* This should read as U3 followed by revision number */
-	if ((revision & DWC3_GSNPSID_MASK) != 0x55330000) {
+	if ((revision & DWC3_GSNPSID_MASK) != 0x55330000 &&
+	    (revision & DWC3_GSNPSID_MASK) != 0x33310000) {
 		puts("this is not a DesignWare USB3 DRD Core\n");
 		return -1;
 	}
