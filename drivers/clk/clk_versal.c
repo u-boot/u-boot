@@ -725,7 +725,10 @@ static int versal_clk_enable(struct clk *clk)
 
 	clk_id = priv->clk[clk->id].clk_id;
 
-	return xilinx_pm_request(PM_CLOCK_ENABLE, clk_id, 0, 0, 0, NULL);
+	if (versal_clock_gate(clk_id))
+		return xilinx_pm_request(PM_CLOCK_ENABLE, clk_id, 0, 0, 0, NULL);
+
+	return 0;
 }
 
 static struct clk_ops versal_clk_ops = {
