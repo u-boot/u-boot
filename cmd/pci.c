@@ -223,7 +223,7 @@ static struct pci_reg_info regs_cardbus[] = {
  *
  * @dev: Bus+Device+Function number
  */
-void pci_header_show(struct udevice *dev)
+static void pci_header_show(struct udevice *dev)
 {
 	unsigned long class, header_type;
 
