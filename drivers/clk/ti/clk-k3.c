@@ -2,7 +2,7 @@
 /*
  * Texas Instruments K3 clock driver
  *
- * Copyright (C) 2020 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2020-2021 Texas Instruments Incorporated - http://www.ti.com/
  *	Tero Kristo <t-kristo@ti.com>
  */
 
@@ -112,7 +112,7 @@ static int ti_clk_probe(struct udevice *dev)
 						   map_physmem(ti_clk_data->clk.div.reg, 0, MAP_NOCACHE),
 						   ti_clk_data->clk.div.shift,
 						   ti_clk_data->clk.div.width,
-						   0);
+						   ti_clk_data->clk.div.div_flags);
 			break;
 		case CLK_TYPE_MUX:
 			name = ti_clk_data->clk.mux.name;
