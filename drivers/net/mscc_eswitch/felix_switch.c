@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
  * Felix (VSC9959) Ethernet switch driver
- * Copyright 2018-2021 NXP Semiconductors
+ * Copyright 2018-2021 NXP
  */
 
 /*
