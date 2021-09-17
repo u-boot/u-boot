@@ -30,7 +30,7 @@ void ft_pci_setup(void *blob, struct bd_info *bd)
 }
 
 #if defined(CONFIG_FSL_LAYERSCAPE)
-int lx2_board_fix_fdt(void *fdt)
+static int lx2_board_fix_fdt(void *fdt)
 {
 	char *reg_name, *old_str, *new_str;
 	const char *reg_names;
