@@ -136,6 +136,7 @@ config RTC_RX8010SJ
 
 config RTC_RX8025
 	bool "Enable RX8025 driver"
+	depends on DM_RTC
 	help
 	  Support for Epson RX8025 Real Time Clock devices.
 
