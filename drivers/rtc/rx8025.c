@@ -214,11 +214,14 @@ static int rx8025_rtc_reset(struct udevice *dev)
  */
 static int rtc_write(struct udevice *dev, uchar reg, uchar val)
 {
-	uchar buf[2];
-	buf[0] = reg << 4;
-	buf[1] = val;
+	/* The RX8025/RX8035 uses the top 4 bits of the
+	 * 'offset' byte as the start register address,
+	 * and the bottom 4 bits as a 'transfer' mode setting
+	 * (only applicable for reads)
+	 */
+	u8 offset = (reg << 4);
 
-	if (dm_i2c_write(dev, 0, buf, 2)) {
+	if (dm_i2c_reg_write(dev, offset, val)) {
 		printf("Error writing to RTC\n");
 		return -EIO;
 	}
