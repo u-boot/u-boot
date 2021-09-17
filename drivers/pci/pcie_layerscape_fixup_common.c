@@ -12,6 +12,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/soc.h>
 #include <linux/libfdt.h>
+#include <fdt_support.h>
 #include "pcie_layerscape_fixup_common.h"
 
 void ft_pci_setup(void *blob, struct bd_info *bd)
