@@ -285,33 +285,38 @@ err_init:
 	return ret;
 }
 
-static inline int rockchip_sfc_get_fifo_level(struct rockchip_sfc *sfc, int wr)
+static int rockchip_sfc_wait_txfifo_ready(struct rockchip_sfc *sfc, u32 timeout_us)
 {
-	u32 fsr = readl(sfc->regbase + SFC_FSR);
-	int level;
+	int ret = 0;
+	u32 status;
 
-	if (wr)
-		level = (fsr & SFC_FSR_TXLV_MASK) >> SFC_FSR_TXLV_SHIFT;
-	else
-		level = (fsr & SFC_FSR_RXLV_MASK) >> SFC_FSR_RXLV_SHIFT;
+	ret = readl_poll_timeout(sfc->regbase + SFC_FSR, status,
+				 status & SFC_FSR_TXLV_MASK,
+				 timeout_us);
+	if (ret) {
+		dev_dbg(sfc->dev, "sfc wait tx fifo timeout\n");
 
-	return level;
-}
-
-static int rockchip_sfc_wait_fifo_ready(struct rockchip_sfc *sfc, int wr, u32 timeout)
-{
-	unsigned long tbase = get_timer(0);
-	int level;
-
-	while (!(level = rockchip_sfc_get_fifo_level(sfc, wr))) {
-		if (get_timer(tbase) > timeout) {
-			debug("%s fifo timeout\n", wr ? "write" : "read");
-			return -ETIMEDOUT;
-		}
-		udelay(1);
+		return -ETIMEDOUT;
 	}
 
-	return level;
+	return (status & SFC_FSR_TXLV_MASK) >> SFC_FSR_TXLV_SHIFT;
+}
+
+static int rockchip_sfc_wait_rxfifo_ready(struct rockchip_sfc *sfc, u32 timeout_us)
+{
+	int ret = 0;
+	u32 status;
+
+	ret = readl_poll_timeout(sfc->regbase + SFC_FSR, status,
+				 status & SFC_FSR_RXLV_MASK,
+				 timeout_us);
+	if (ret) {
+		dev_dbg(sfc->dev, "sfc wait rx fifo timeout\n");
+
+		return -ETIMEDOUT;
+	}
+
+	return (status & SFC_FSR_RXLV_MASK) >> SFC_FSR_RXLV_SHIFT;
 }
 
 static void rockchip_sfc_adjust_op_work(struct spi_mem_op *op)
@@ -429,7 +434,7 @@ static int rockchip_sfc_write_fifo(struct rockchip_sfc *sfc, const u8 *buf, int 
 
 	dwords = len >> 2;
 	while (dwords) {
-		tx_level = rockchip_sfc_wait_fifo_ready(sfc, SFC_CMD_DIR_WR, 1000);
+		tx_level = rockchip_sfc_wait_txfifo_ready(sfc, 1000);
 		if (tx_level < 0)
 			return tx_level;
 		write_words = min_t(u32, tx_level, dwords);
@@ -440,7 +445,7 @@ static int rockchip_sfc_write_fifo(struct rockchip_sfc *sfc, const u8 *buf, int 
 
 	/* write the rest non word aligned bytes */
 	if (bytes) {
-		tx_level = rockchip_sfc_wait_fifo_ready(sfc, SFC_CMD_DIR_WR, 1000);
+		tx_level = rockchip_sfc_wait_txfifo_ready(sfc, 1000);
 		if (tx_level < 0)
 			return tx_level;
 		memcpy(&tmp, buf, bytes);
@@ -461,7 +466,7 @@ static int rockchip_sfc_read_fifo(struct rockchip_sfc *sfc, u8 *buf, int len)
 	/* word aligned access only */
 	dwords = len >> 2;
 	while (dwords) {
-		rx_level = rockchip_sfc_wait_fifo_ready(sfc, SFC_CMD_DIR_RD, 1000);
+		rx_level = rockchip_sfc_wait_rxfifo_ready(sfc, 1000);
 		if (rx_level < 0)
 			return rx_level;
 		read_words = min_t(u32, rx_level, dwords);
@@ -472,7 +477,7 @@ static int rockchip_sfc_read_fifo(struct rockchip_sfc *sfc, u8 *buf, int len)
 
 	/* read the rest non word aligned bytes */
 	if (bytes) {
-		rx_level = rockchip_sfc_wait_fifo_ready(sfc, SFC_CMD_DIR_RD, 1000);
+		rx_level = rockchip_sfc_wait_rxfifo_ready(sfc, 1000);
 		if (rx_level < 0)
 			return rx_level;
 		tmp = readl(sfc->regbase + SFC_DATA);
@@ -533,19 +538,17 @@ static int rockchip_sfc_xfer_data_dma(struct rockchip_sfc *sfc,
 
 static int rockchip_sfc_xfer_done(struct rockchip_sfc *sfc, u32 timeout_us)
 {
-	unsigned long tbase = get_timer(0);
 	int ret = 0;
-	u32 timeout = timeout_us;
+	u32 status;
 
-	while (readl(sfc->regbase + SFC_SR) & SFC_SR_IS_BUSY) {
-		if (get_timer(tbase) > timeout) {
-			printf("wait sfc idle timeout\n");
-			rockchip_sfc_reset(sfc);
+	ret = readl_poll_timeout(sfc->regbase + SFC_SR, status,
+				 !(status & SFC_SR_IS_BUSY),
+				 timeout_us);
+	if (ret) {
+		dev_err(sfc->dev, "wait sfc idle timeout\n");
+		rockchip_sfc_reset(sfc);
 
-			return -ETIMEDOUT;
-		}
-
-		udelay(1);
+		ret = -EIO;
 	}
 
 	return ret;
