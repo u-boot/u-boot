@@ -59,7 +59,7 @@ static void pci_show_regs(struct udevice *dev, struct pci_reg_info *regs)
 	}
 }
 
-int pci_bar_show(struct udevice *dev)
+static int pci_bar_show(struct udevice *dev)
 {
 	u8 header_type;
 	int bar_cnt, bar_id, mem_type;
