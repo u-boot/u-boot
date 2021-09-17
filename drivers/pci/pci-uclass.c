@@ -1426,9 +1426,9 @@ phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t bus_addr,
 	return phys_addr;
 }
 
-int _dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
-			unsigned long flags, unsigned long skip_mask,
-			pci_addr_t *ba)
+static int _dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
+			       unsigned long flags, unsigned long skip_mask,
+			       pci_addr_t *ba)
 {
 	struct pci_region *res;
 	struct udevice *ctlr;
