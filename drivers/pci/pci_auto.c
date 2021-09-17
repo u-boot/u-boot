@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <log.h>
 #include <pci.h>
+#include "pci_internal.h"
 
 /* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
 #ifndef CONFIG_SYS_PCI_CACHE_LINE_SIZE
