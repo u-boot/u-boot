@@ -24,6 +24,11 @@
 #endif
 /*---------------------------------------------------------------------*/
 
+enum rx_model {
+	model_rx_8025,
+	model_rx_8035,
+};
+
 /*
  * RTC register addresses
  */
@@ -64,6 +69,20 @@
 
 static int rtc_write(struct udevice *dev, uchar reg, uchar val);
 
+static int rx8025_is_osc_stopped(enum rx_model model, int ctrl2)
+{
+	int xstp = ctrl2 & RTC_CTL2_BIT_XST;
+	/* XSTP bit has different polarity on RX-8025 vs RX-8035.
+	 * RX-8025: 0 == oscillator stopped
+	 * RX-8035: 1 == oscillator stopped
+	 */
+
+	if (model == model_rx_8025)
+		xstp = !xstp;
+
+	return xstp;
+}
+
 /*
  * Get the current time from the RTC
  */
@@ -101,8 +120,7 @@ static int rx8025_rtc_get(struct udevice *dev, struct rtc_time *tmp)
 		printf("RTC: voltage drop detected\n");
 		rel = -1;
 	}
-
-	if (!(ctl2 & RTC_CTL2_BIT_XST)) {
+	if (rx8025_is_osc_stopped(dev->driver_data, ctl2)) {
 		printf("RTC: oscillator stop detected\n");
 		rel = -1;
 	}
@@ -180,7 +198,11 @@ static int rx8025_rtc_reset(struct udevice *dev)
 
 	ctl2 = rtc_read(RTC_CTL2_REG_ADDR);
 	ctl2 &= ~(RTC_CTL2_BIT_PON | RTC_CTL2_BIT_VDET);
-	ctl2 |= RTC_CTL2_BIT_XST | RTC_CTL2_BIT_VDSL;
+
+	if (dev->driver_data == model_rx_8035)
+		ctl2 &= ~(RTC_CTL2_BIT_XST);
+	else
+		ctl2 |= RTC_CTL2_BIT_XST;
 
 	return rtc_write(dev, RTC_CTL2_REG_ADDR, ctl2);
 }
@@ -223,11 +245,12 @@ static const struct rtc_ops rx8025_rtc_ops = {
 };
 
 static const struct udevice_id rx8025_rtc_ids[] = {
-	{ .compatible = "epson,rx8025" },
+	{ .compatible = "epson,rx8025", .data = model_rx_8025 },
+	{ .compatible = "epson,rx8035", .data = model_rx_8035 },
 	{ }
 };
 
-U_BOOT_DRIVER(rx8010sj_rtc) = {
+U_BOOT_DRIVER(rx8025_rtc) = {
 	.name	  = "rx8025_rtc",
 	.id	      = UCLASS_RTC,
 	.probe    = rx8025_probe,
