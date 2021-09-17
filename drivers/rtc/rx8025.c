@@ -39,6 +39,7 @@ enum rx_model {
 #define RTC_DATE_REG_ADDR	0x04
 #define RTC_MON_REG_ADDR	0x05
 #define RTC_YR_REG_ADDR		0x06
+#define RTC_OFFSET_REG_ADDR	0x07
 
 #define RTC_CTL1_REG_ADDR	0x0e
 #define RTC_CTL2_REG_ADDR	0x0f
@@ -152,6 +153,19 @@ static int rx8025_rtc_get(struct udevice *dev, struct rtc_time *tmp)
  */
 static int rx8025_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
 {
+	/* To work around the read/write cycle issue mentioned
+	 * at the top of this file, write all the time registers
+	 * in one I2C transaction
+	 */
+	u8 write_op[8];
+
+	/* 2412 flag must be set before doing a RTC write,
+	 * otherwise the seconds and minute register
+	 * will be cleared when the flag is set
+	 */
+	if (rtc_write(dev, RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412))
+		return -EIO;
+
 	DEBUGR("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
@@ -159,28 +173,16 @@ static int rx8025_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
 	if (tmp->tm_year < 1970 || tmp->tm_year > 2069)
 		printf("WARNING: year should be between 1970 and 2069!\n");
 
-	if (rtc_write(dev, RTC_YR_REG_ADDR, bin2bcd(tmp->tm_year % 100)))
-		return -EIO;
+	write_op[RTC_SEC_REG_ADDR]  = bin2bcd(tmp->tm_sec);
+	write_op[RTC_MIN_REG_ADDR]  = bin2bcd(tmp->tm_min);
+	write_op[RTC_HR_REG_ADDR]   = bin2bcd(tmp->tm_hour);
+	write_op[RTC_DAY_REG_ADDR]	= bin2bcd(tmp->tm_wday);
+	write_op[RTC_DATE_REG_ADDR]	= bin2bcd(tmp->tm_mday);
+	write_op[RTC_MON_REG_ADDR]  = bin2bcd(tmp->tm_mon);
+	write_op[RTC_YR_REG_ADDR]	= bin2bcd(tmp->tm_year % 100);
+	write_op[RTC_OFFSET_REG_ADDR] = 0;
 
-	if (rtc_write(dev, RTC_MON_REG_ADDR, bin2bcd(tmp->tm_mon)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_DAY_REG_ADDR, bin2bcd(tmp->tm_wday)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_DATE_REG_ADDR, bin2bcd(tmp->tm_mday)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_HR_REG_ADDR, bin2bcd(tmp->tm_hour)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_MIN_REG_ADDR, bin2bcd(tmp->tm_min)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_SEC_REG_ADDR, bin2bcd(tmp->tm_sec)))
-		return -EIO;
-
-	return rtc_write(dev, RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412);
+	return dm_i2c_write(dev, 0, &write_op[0], 8);
 }
 
 /*
