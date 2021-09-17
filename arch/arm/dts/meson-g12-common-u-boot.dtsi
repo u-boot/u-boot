@@ -5,6 +5,13 @@
  */
 
 / {
+	/* Keep HW order from U-boot */
+	aliases {
+		/delete-property/ mmc0;
+		/delete-property/ mmc1;
+		/delete-property/ mmc2;
+	};
+
 	soc {
 		u-boot,dm-pre-reloc;
 	};
