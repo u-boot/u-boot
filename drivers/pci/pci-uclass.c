@@ -304,8 +304,8 @@ int pci_bus_clrset_config32(struct udevice *bus, pci_dev_t bdf, int offset,
 	return pci_bus_write_config(bus, bdf, offset, val, PCI_SIZE_32);
 }
 
-int pci_write_config(pci_dev_t bdf, int offset, unsigned long value,
-		     enum pci_size_t size)
+static int pci_write_config(pci_dev_t bdf, int offset, unsigned long value,
+			    enum pci_size_t size)
 {
 	struct udevice *bus;
 	int ret;
