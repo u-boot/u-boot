@@ -369,8 +369,8 @@ int pci_bus_read_config(const struct udevice *bus, pci_dev_t bdf, int offset,
 	return ops->read_config(bus, bdf, offset, valuep, size);
 }
 
-int pci_read_config(pci_dev_t bdf, int offset, unsigned long *valuep,
-		    enum pci_size_t size)
+static int pci_read_config(pci_dev_t bdf, int offset, unsigned long *valuep,
+			   enum pci_size_t size)
 {
 	struct udevice *bus;
 	int ret;
