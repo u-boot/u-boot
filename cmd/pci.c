@@ -251,7 +251,7 @@ static void pci_header_show(struct udevice *dev)
     }
 }
 
-void pciinfo_header(int busnum, bool short_listing)
+static void pciinfo_header(int busnum, bool short_listing)
 {
 	printf("Scanning PCI devices on bus %d\n", busnum);
 
