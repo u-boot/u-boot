@@ -199,9 +199,7 @@ static int dsa_port_free_pkt(struct udevice *pdev, uchar *packet, int length)
 static int dsa_port_of_to_pdata(struct udevice *pdev)
 {
 	struct dsa_port_pdata *port_pdata;
-	struct dsa_pdata *dsa_pdata;
 	struct eth_pdata *eth_pdata;
-	struct udevice *dev;
 	const char *label;
 	u32 index;
 	int err;
@@ -212,9 +210,6 @@ static int dsa_port_of_to_pdata(struct udevice *pdev)
 	err = ofnode_read_u32(dev_ofnode(pdev), "reg", &index);
 	if (err)
 		return err;
-
-	dev = dev_get_parent(pdev);
-	dsa_pdata = dev_get_uclass_plat(dev);
 
 	port_pdata = dev_get_parent_plat(pdev);
 	port_pdata->index = index;
@@ -272,12 +267,10 @@ static int dsa_port_probe(struct udevice *pdev)
 	struct udevice *dev = dev_get_parent(pdev);
 	struct dsa_ops *ops = dsa_get_ops(dev);
 	struct dsa_port_pdata *port_pdata;
-	struct dsa_priv *dsa_priv;
 	struct udevice *master;
 	int err;
 
 	port_pdata = dev_get_parent_plat(pdev);
-	dsa_priv = dev_get_uclass_priv(dev);
 
 	port_pdata->phy = dm_eth_phy_connect(pdev);
 	if (!port_pdata->phy)
@@ -312,12 +305,7 @@ static int dsa_port_probe(struct udevice *pdev)
 
 static int dsa_port_remove(struct udevice *pdev)
 {
-	struct udevice *dev = dev_get_parent(pdev);
-	struct dsa_port_pdata *port_pdata;
-	struct dsa_priv *dsa_priv;
-
-	port_pdata = dev_get_parent_plat(pdev);
-	dsa_priv = dev_get_uclass_priv(dev);
+	struct dsa_port_pdata *port_pdata = dev_get_parent_plat(pdev);
 
 	port_pdata->phy = NULL;
 
