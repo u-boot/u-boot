@@ -14,8 +14,8 @@ SoC overview.
  LS1046ARDB board Overview
  -----------------------
  - SERDES1 Connections, 4 lanes supporting:
-      - Lane0: XFI with x1 RJ45 connector
-      - Lane1: XFI Cage
+      - Lane0: 10GBase-R with x1 RJ45 connector
+      - Lane1: 10GBase-R Cage
       - Lane2: SGMII.5
       - Lane3: SGMII.6
  - SERDES2 Connections, 4 lanes supporting:

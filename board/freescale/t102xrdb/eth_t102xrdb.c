@@ -64,7 +64,7 @@ int board_eth_init(struct bd_info *bis)
 		/* set the on-board RGMII2  PHY */
 		fm_info_set_phy_address(FM1_DTSEC3, RGMII_PHY2_ADDR);
 
-		/* set 10G XFI with Aquantia AQR105 PHY */
+		/* set 10GBase-R with Aquantia AQR105 PHY */
 		fm_info_set_phy_address(FM1_10GEC1, FM1_10GEC1_PHY_ADDR);
 		break;
 #endif

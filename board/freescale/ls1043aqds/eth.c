@@ -242,13 +242,13 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				   "qsgmii");
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_XGMII &&
 		   port == FM1_10GEC1) {
-		/* XFI interface */
+		/* 10GBase-R interface */
 		f_link.phy_id = cpu_to_fdt32(port);
 		f_link.duplex = cpu_to_fdt32(1);
 		f_link.link_speed = cpu_to_fdt32(10000);
 		f_link.pause = 0;
 		f_link.asym_pause = 0;
-		/* no PHY for XFI */
+		/* no PHY for 10GBase-R */
 		fdt_delprop(fdt, offset, "phy-handle");
 		fdt_setprop(fdt, offset, "fixed-link", &f_link, sizeof(f_link));
 		fdt_setprop_string(fdt, offset, "phy-connection-type", "xgmii");

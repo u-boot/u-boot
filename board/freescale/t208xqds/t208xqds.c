@@ -136,14 +136,14 @@ int brd_mux_lane_to_slot(void)
 		break;
 	case 0x66:
 	case 0x67:
-		/* SD1(A:D) => XFI cage
+		/* SD1(A:D) => 10GBase-R cage
 		 * SD1(E:H) => SLOT1 PCIe4
 		 */
 		QIXIS_WRITE(brdcfg[12], 0xfe);
 		break;
 	case 0x6a:
 	case 0x6b:
-		/* SD1(A:D) => XFI cage
+		/* SD1(A:D) => 10GBase-R cage
 		 * SD1(E)   => SLOT1 PCIe4
 		 * SD1(F:H) => SLOT2 SGMII
 		 */
@@ -151,14 +151,14 @@ int brd_mux_lane_to_slot(void)
 		break;
 	case 0x6c:
 	case 0x6d:
-		/* SD1(A:B) => XFI cage
+		/* SD1(A:B) => 10GBase-R cage
 		 * SD1(C:D) => SLOT3 SGMII
 		 * SD1(E:H) => SLOT1 PCIe4
 		 */
 		QIXIS_WRITE(brdcfg[12], 0xda);
 		break;
 	case 0x6e:
-		/* SD1(A:B) => SFP Module, XFI
+		/* SD1(A:B) => SFP Module, 10GBase-R
 		 * SD1(C:D) => SLOT3 SGMII
 		 * SD1(E:F) => SLOT1 PCIe4 x2
 		 * SD1(G:H) => SLOT2 SGMII

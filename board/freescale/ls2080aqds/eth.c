@@ -874,13 +874,12 @@ void ls2080a_handle_phy_interface_xsgmii(int i)
 	case 0x4B:
 	case 0x4C:
 		/*
-		 * XFI does not need a PHY to work, but to avoid U-Boot use
-		 * default PHY address which is zero to a MAC when it found
-		 * a MAC has no PHY address, we give a PHY address to XFI
-		 * MAC, and should not use a real XAUI PHY address, since
-		 * MDIO can access it successfully, and then MDIO thinks
-		 * the XAUI card is used for the XFI MAC, which will cause
-		 * error.
+		 * 10GBase-R does not need a PHY to work, but to avoid U-Boot
+		 * use default PHY address which is zero to a MAC when it found
+		 * a MAC has no PHY address, we give a PHY address to 10GBase-R
+		 * MAC, and should not use a real XAUI PHY address, since MDIO
+		 * can access it successfully, and then MDIO thinks the XAUI
+		 * card is used for the 10GBase-R MAC, which will cause error.
 		 */
 		wriop_set_phy_address(i, 0, i + 4);
 		ls2080a_qds_enable_SFP_TX(SFP_TX);

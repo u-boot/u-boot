@@ -9,10 +9,10 @@
 
 &dpmac1 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac2 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };

@@ -228,7 +228,7 @@ static void enetc_setup_mac_iface(struct udevice *dev,
 		break;
 	case PHY_INTERFACE_MODE_XGMII:
 	case PHY_INTERFACE_MODE_USXGMII:
-	case PHY_INTERFACE_MODE_XFI:
+	case PHY_INTERFACE_MODE_10GBASER:
 		/* set ifmode to (US)XGMII */
 		if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
 		if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
@@ -296,7 +296,7 @@ static void enetc_start_pcs(struct udevice *dev)
 		break;
 	case PHY_INTERFACE_MODE_XGMII:
 	case PHY_INTERFACE_MODE_USXGMII:
-	case PHY_INTERFACE_MODE_XFI:
+	case PHY_INTERFACE_MODE_10GBASER:
 		enetc_init_sxgmii(dev);
 		break;
 	};
