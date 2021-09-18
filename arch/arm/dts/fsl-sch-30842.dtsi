@@ -8,7 +8,7 @@
 /*
  * SCH-30842 is a single port add-on card used with various FSL QDS boards.
  * It integrates a AQR112 PHY, which supports several protocols - SGMII,
- * SGMII-2500, USXGMII, 10GBase-R.
+ * 2500base-x, USXGMII, 10GBase-R.
  * PHY address is 0x02.
  */
 phy@02 {

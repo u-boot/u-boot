@@ -17,7 +17,7 @@
 #define ETH_1_2_5G_PHY_ID	0x1
 #define ETH_1_2_5G_MDIO_MUX	0x2
 #define ETH_2_5G_MDIO_PHY_MASK	0xFFFFFFF9
-#define ETH_2_5G_PHY_MODE	"sgmii-2500"
+#define ETH_2_5G_PHY_MODE	"2500base-x"
 #define ETH_2_2_5G_BUS_ID	0x1
 #define ETH_2_2_5G_PHY_ID	0x2
 #define ETH_2_2_5G_MDIO_MUX	0x3

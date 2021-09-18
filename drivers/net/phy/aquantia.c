@@ -308,7 +308,7 @@ struct {
 } aquantia_syscfg[PHY_INTERFACE_MODE_COUNT] = {
 	[PHY_INTERFACE_MODE_SGMII] =      {0x04b, AQUANTIA_VND1_GSYSCFG_1G,
 					   AQUANTIA_VND1_GSTART_RATE_1G},
-	[PHY_INTERFACE_MODE_SGMII_2500] = {0x144, AQUANTIA_VND1_GSYSCFG_2_5G,
+	[PHY_INTERFACE_MODE_2500BASEX]  = {0x144, AQUANTIA_VND1_GSYSCFG_2_5G,
 					   AQUANTIA_VND1_GSTART_RATE_2_5G},
 	[PHY_INTERFACE_MODE_10GBASER] =   {0x100, AQUANTIA_VND1_GSYSCFG_10G,
 					   AQUANTIA_VND1_GSTART_RATE_10G},
@@ -522,7 +522,7 @@ int aquantia_config(struct phy_device *phydev)
 		phy_write(phydev, MDIO_MMD_PHYXS,
 			  AQUANTIA_VENDOR_PROVISIONING_REG, reg_val1);
 		break;
-	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		/* 2.5GBASE-T mode */
 		phydev->advertising = SUPPORTED_1000baseT_Full;
 		phydev->supported = phydev->advertising;

@@ -121,12 +121,12 @@ int pfe_eth_board_init(struct udevice *dev)
 			/* MAC1 */
 			pfe_set_phy_address_mode(priv->gemac_port,
 						 CONFIG_PFE_EMAC1_PHY_ADDR,
-						 PHY_INTERFACE_MODE_SGMII_2500);
+						 PHY_INTERFACE_MODE_2500BASEX);
 		} else {
 			/* MAC2 */
 			pfe_set_phy_address_mode(priv->gemac_port,
 						 CONFIG_PFE_EMAC2_PHY_ADDR,
-						 PHY_INTERFACE_MODE_SGMII_2500);
+						 PHY_INTERFACE_MODE_2500BASEX);
 		}
 		break;
 	default:

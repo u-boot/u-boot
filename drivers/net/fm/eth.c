@@ -50,7 +50,7 @@ static void dtsec_configure_serdes(struct fm_eth *priv)
 	u32 value;
 	struct mii_dev bus;
 	bool sgmii_2500 = (priv->enet_if ==
-			PHY_INTERFACE_MODE_SGMII_2500) ? true : false;
+			PHY_INTERFACE_MODE_2500BASEX) ? true : false;
 	int i = 0, j;
 
 #ifndef CONFIG_DM_ETH
@@ -133,7 +133,7 @@ static void dtsec_init_phy(struct fm_eth *fm_eth)
 
 	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII ||
 	    fm_eth->enet_if == PHY_INTERFACE_MODE_QSGMII ||
-	    fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII_2500)
+	    fm_eth->enet_if == PHY_INTERFACE_MODE_2500BASEX)
 		dtsec_configure_serdes(fm_eth);
 }
 
@@ -432,7 +432,7 @@ static int fm_eth_startup(struct fm_eth *fm_eth)
 
 	/* For some reason we need to set SPEED_100 */
 	if (((fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII) ||
-	     (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII_2500) ||
+	     (fm_eth->enet_if == PHY_INTERFACE_MODE_2500BASEX) ||
 	     (fm_eth->enet_if == PHY_INTERFACE_MODE_QSGMII)) &&
 	      mac->set_if_mode)
 		mac->set_if_mode(mac, fm_eth->enet_if, SPEED_100);
@@ -829,7 +829,7 @@ static int init_phy(struct fm_eth *fm_eth)
 
 	if (fm_eth->type == FM_ETH_10G_E)
 		supported = PHY_10G_FEATURES;
-	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII_2500)
+	if (fm_eth->enet_if == PHY_INTERFACE_MODE_2500BASEX)
 		supported |= SUPPORTED_2500baseX_Full;
 #endif
 
@@ -1090,7 +1090,7 @@ static int fm_eth_probe(struct udevice *dev)
 		if (fm_eth->num != 0)
 			break;
 	case PHY_INTERFACE_MODE_SGMII:
-	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		fm_eth->pcs_mdio = fm_get_internal_mdio(dev);
 		break;
 	default:

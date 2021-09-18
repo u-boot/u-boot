@@ -144,7 +144,7 @@ static int enetc_init_sgmii(struct udevice *dev)
 	if (!enetc_has_imdio(dev))
 		return 0;
 
-	if (priv->if_type == PHY_INTERFACE_MODE_SGMII_2500)
+	if (priv->if_type == PHY_INTERFACE_MODE_2500BASEX)
 		is2500 = true;
 
 	/*
@@ -291,7 +291,7 @@ static void enetc_start_pcs(struct udevice *dev)
 
 	switch (priv->if_type) {
 	case PHY_INTERFACE_MODE_SGMII:
-	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		enetc_init_sgmii(dev);
 		break;
 	case PHY_INTERFACE_MODE_XGMII:

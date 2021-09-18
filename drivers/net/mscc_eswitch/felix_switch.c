@@ -213,12 +213,12 @@ static void felix_start_pcs(struct udevice *dev, int port,
 	bool autoneg = true;
 
 	if (phy->phy_id == PHY_FIXED_ID ||
-	    phy->interface == PHY_INTERFACE_MODE_SGMII_2500)
+	    phy->interface == PHY_INTERFACE_MODE_2500BASEX)
 		autoneg = false;
 
 	switch (phy->interface) {
 	case PHY_INTERFACE_MODE_SGMII:
-	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_2500BASEX:
 	case PHY_INTERFACE_MODE_QSGMII:
 		felix_init_sgmii(imdio, port, autoneg);
 		break;
