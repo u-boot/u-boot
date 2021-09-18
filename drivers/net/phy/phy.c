@@ -463,7 +463,7 @@ static struct phy_driver genphy_driver = {
 	.shutdown	= genphy_shutdown,
 };
 
-int genphy_init(void)
+static int genphy_init(void)
 {
 	return phy_register(&genphy_driver);
 }
