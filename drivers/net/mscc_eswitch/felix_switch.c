@@ -222,7 +222,6 @@ static void felix_start_pcs(struct udevice *dev, int port,
 	case PHY_INTERFACE_MODE_QSGMII:
 		felix_init_sgmii(imdio, port, autoneg);
 		break;
-	case PHY_INTERFACE_MODE_XGMII:
 	case PHY_INTERFACE_MODE_10GBASER:
 	case PHY_INTERFACE_MODE_USXGMII:
 		if (felix_init_sxgmii(imdio, port))
