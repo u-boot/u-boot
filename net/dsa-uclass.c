@@ -100,7 +100,7 @@ static void dsa_port_stop(struct udevice *pdev)
 
 		port_pdata = dev_get_parent_plat(pdev);
 		ops->port_disable(dev, port_pdata->index, port_pdata->phy);
-		ops->port_disable(dev, priv->cpu_port, NULL);
+		ops->port_disable(dev, priv->cpu_port, priv->cpu_port_fixed_phy);
 	}
 
 	eth_get_ops(master)->stop(master);
