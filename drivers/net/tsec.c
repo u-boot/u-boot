@@ -884,6 +884,8 @@ int tsec_probe(struct udevice *dev)
 	priv->tbiaddr = tbiaddr;
 
 	phy_mode = dev_read_prop(dev, "phy-connection-type", NULL);
+	if (!phy_mode)
+		phy_mode = dev_read_prop(dev, "phy-mode", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1)
