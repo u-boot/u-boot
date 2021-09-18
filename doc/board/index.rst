@@ -22,6 +22,7 @@ Board-specific doc
    openpiton/index
    qualcomm/index
    rockchip/index
+   siemens/index
    sifive/index
    sipeed/index
    socionext/index
