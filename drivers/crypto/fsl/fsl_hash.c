@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -120,8 +120,8 @@ static int caam_hash_update(void *hash_ctx, const void *buf,
  * Perform progressive hashing on the given buffer and copy hash at
  * destination buffer
  *
- * The context is freed after completion of hash operation.
- *
+ * The context is freed after successful completion of hash operation.
+ * In case of failure, context is not freed.
  * @hash_ctx: Pointer to the context for hashing
  * @dest_buf: Pointer to the destination buffer where hash is to be copied
  * @size: Size of the buffer being hashed
@@ -136,7 +136,6 @@ static int caam_hash_finish(void *hash_ctx, void *dest_buf,
 	int i = 0, ret = 0;
 
 	if (size < driver_hash[caam_algo].digestsize) {
-		free(ctx);
 		return -EINVAL;
 	}
 
@@ -152,11 +151,12 @@ static int caam_hash_finish(void *hash_ctx, void *dest_buf,
 
 	ret = run_descriptor_jr(ctx->sha_desc);
 
-	if (ret)
+	if (ret) {
 		debug("Error %x\n", ret);
-	else
+		return ret;
+	} else {
 		memcpy(dest_buf, ctx->hash, sizeof(ctx->hash));
-
+	}
 	free(ctx);
 	return ret;
 }
