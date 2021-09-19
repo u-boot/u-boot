@@ -394,7 +394,7 @@ enum {
 	STAGE_COUNT,
 };
 
-static char *stage_name[STAGE_COUNT] = {
+static const char *stage_name[STAGE_COUNT] = {
 	"erase",
 	"check",
 	"write",
