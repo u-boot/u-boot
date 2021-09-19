@@ -103,6 +103,36 @@ will be written to `${build_dir}/test-log.html`. This is best viewed in a web
 browser, but may be read directly as plain text, perhaps with the aid of the
 `html2text` utility.
 
+Running tests in parallel
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Note: This does not fully work yet and is documented only so you can try to
+fix the problems.
+
+First install support for parallel tests::
+
+    pip3 install pytest-xdist
+
+Then build sandbox in a suitable build directory. It is not possible to use
+the --build flag with xdist.
+
+Finally, run the tests in parallel using the -n flag::
+
+    # build sandbox first, in a suitable build directory. It is not possible
+    # to use the --build flag with -n
+    test/py/test.py -B sandbox --build-dir /tmp/b/sandbox -q -k 'not slow' -n32
+
+At least the following non-slow tests are known to fail:
+
+- test_fit_ecdsa
+- test_bind_unbind_with_uclass
+- ut_dm_spi_flash
+- test_gpt_rename_partition
+- test_gpt_swap_partitions
+- test_pinmux_status
+- test_sqfs_load
+
+
 Testing under a debugger
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
