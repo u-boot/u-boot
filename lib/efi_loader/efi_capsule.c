@@ -16,7 +16,6 @@
 #include <mapmem.h>
 #include <sort.h>
 
-#include <asm/sections.h>
 #include <crypto/pkcs7.h>
 #include <crypto/pkcs7_parser.h>
 #include <linux/err.h>
@@ -253,23 +252,12 @@ out:
 
 #if defined(CONFIG_EFI_CAPSULE_AUTHENTICATE)
 
-static int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
-{
-	const void *blob = __efi_capsule_sig_begin;
-	const int len = __efi_capsule_sig_end - __efi_capsule_sig_begin;
-
-	*pkey = (void *)blob;
-	*pkey_len = len;
-
-	return 0;
-}
-
 efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
 				      void **image, efi_uintn_t *image_size)
 {
 	u8 *buf;
 	int ret;
-	void *stored_pkey, *pkey;
+	void *fdt_pkey, *pkey;
 	efi_uintn_t pkey_len;
 	uint64_t monotonic_count;
 	struct efi_signature_store *truststore;
@@ -322,7 +310,7 @@ efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_s
 		goto out;
 	}
 
-	ret = efi_get_public_key_data(&stored_pkey, &pkey_len);
+	ret = efi_get_public_key_data(&fdt_pkey, &pkey_len);
 	if (ret < 0)
 		goto out;
 
@@ -330,7 +318,7 @@ efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_s
 	if (!pkey)
 		goto out;
 
-	memcpy(pkey, stored_pkey, pkey_len);
+	memcpy(pkey, fdt_pkey, pkey_len);
 	truststore = efi_build_signature_store(pkey, pkey_len);
 	if (!truststore)
 		goto out;
