@@ -384,7 +384,6 @@ static int do_spi_protect(int argc, char *const argv[])
 	return ret == 0 ? 0 : 1;
 }
 
-#ifdef CONFIG_CMD_SF_TEST
 enum {
 	STAGE_ERASE,
 	STAGE_CHECK,
@@ -548,7 +547,6 @@ static int do_spi_flash_test(int argc, char *const argv[])
 
 	return 0;
 }
-#endif /* CONFIG_CMD_SF_TEST */
 
 static int do_spi_flash(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
@@ -582,10 +580,8 @@ static int do_spi_flash(struct cmd_tbl *cmdtp, int flag, int argc,
 		ret = do_spi_flash_erase(argc, argv);
 	else if (strcmp(cmd, "protect") == 0)
 		ret = do_spi_protect(argc, argv);
-#ifdef CONFIG_CMD_SF_TEST
-	else if (!strcmp(cmd, "test"))
+	else if (IS_ENABLED(CONFIG_CMD_SF_TEST) && !strcmp(cmd, "test"))
 		ret = do_spi_flash_test(argc, argv);
-#endif
 	else
 		ret = -1;
 
@@ -597,16 +593,8 @@ usage:
 	return CMD_RET_USAGE;
 }
 
-#ifdef CONFIG_CMD_SF_TEST
-#define SF_TEST_HELP "\nsf test offset len		" \
-		"- run a very basic destructive test"
-#else
-#define SF_TEST_HELP
-#endif
-
-U_BOOT_CMD(
-	sf,	5,	1,	do_spi_flash,
-	"SPI flash sub-system",
+#ifdef CONFIG_SYS_LONGHELP
+static const char long_help[] =
 	"probe [[bus:]cs] [hz] [mode]	- init flash device on given SPI bus\n"
 	"				  and chip select\n"
 	"sf read addr offset|partition len	- read `len' bytes starting at\n"
@@ -622,6 +610,14 @@ U_BOOT_CMD(
 	"					  at `addr' to flash at `offset'\n"
 	"					  or to start of mtd `partition'\n"
 	"sf protect lock/unlock sector len	- protect/unprotect 'len' bytes starting\n"
-	"					  at address 'sector'\n"
-	SF_TEST_HELP
+	"					  at address 'sector'"
+#ifdef CONFIG_CMD_SF_TEST
+	"\nsf test offset len		- run a very basic destructive test"
+#endif
+#endif /* CONFIG_SYS_LONGHELP */
+	;
+
+U_BOOT_CMD(
+	sf,	5,	1,	do_spi_flash,
+	"SPI flash sub-system", long_help
 );
