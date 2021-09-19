@@ -119,11 +119,6 @@ subtests = (
     ('test ! ! aaa != aaa -o ! ! bbb = bbb', True),
     ('test ! ! aaa = aaa -o ! ! bbb != bbb', True),
     ('test ! ! aaa = aaa -o ! ! bbb = bbb', True),
-
-    # -z operator.
-
-    ('test -z "$ut_var_nonexistent"', True),
-    ('test -z "$ut_var_exists"', False),
 )
 
 def exec_hush_if(u_boot_console, expr, result):
@@ -141,12 +136,6 @@ def exec_hush_if(u_boot_console, expr, result):
     response = u_boot_console.run_command(cmd)
     assert response.strip() == str(result).lower()
 
-def test_hush_if_test_setup(u_boot_console):
-    """Set up environment variables used during the "if" tests."""
-
-    u_boot_console.run_command('setenv ut_var_nonexistent')
-    u_boot_console.run_command('setenv ut_var_exists 1')
-
 @pytest.mark.buildconfigspec('cmd_echo')
 @pytest.mark.parametrize('expr,result', subtests)
 def test_hush_if_test(u_boot_console, expr, result):
@@ -154,9 +143,12 @@ def test_hush_if_test(u_boot_console, expr, result):
 
     exec_hush_if(u_boot_console, expr, result)
 
-def test_hush_if_test_teardown(u_boot_console):
-    """Clean up environment variables used during the "if" tests."""
-
+def test_hush_z(u_boot_console):
+    """Test the -z operator"""
+    u_boot_console.run_command('setenv ut_var_nonexistent')
+    u_boot_console.run_command('setenv ut_var_exists 1')
+    exec_hush_if(u_boot_console, 'test -z "$ut_var_nonexistent"', True)
+    exec_hush_if(u_boot_console, 'test -z "$ut_var_exists"', False)
     u_boot_console.run_command('setenv ut_var_exists')
 
 # We might test this on real filesystems via UMS, DFU, 'save', etc.
