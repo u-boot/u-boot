@@ -9,18 +9,14 @@
 #define pr_fmt(fmt) "%s: " fmt, __func__
 #include <common.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <log.h>
 #include <malloc.h>
 #include <remoteproc.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device-internal.h>
 #include <dm.h>
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * for_each_remoteproc_device() - iterate through the list of rproc devices
@@ -121,21 +117,13 @@ static int rproc_pre_probe(struct udevice *dev)
 
 	if (!dev_get_plat(dev)) {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-		int node = dev_of_offset(dev);
-		const void *blob = gd->fdt_blob;
 		bool tmp;
-		if (!blob) {
-			debug("'%s' no dt?\n", dev->name);
-			return -EINVAL;
-		}
 		debug("'%s': using fdt\n", dev->name);
-		uc_pdata->name = fdt_getprop(blob, node,
-					     "remoteproc-name", NULL);
+		uc_pdata->name = dev_read_string(dev, "remoteproc-name");
 
 		/* Default is internal memory mapped */
 		uc_pdata->mem_type = RPROC_INTERNAL_MEMORY_MAPPED;
-		tmp = fdtdec_get_bool(blob, node,
-				      "remoteproc-internal-memory-mapped");
+		tmp = dev_read_bool(dev, "remoteproc-internal-memory-mapped");
 		if (tmp)
 			uc_pdata->mem_type = RPROC_INTERNAL_MEMORY_MAPPED;
 #else
