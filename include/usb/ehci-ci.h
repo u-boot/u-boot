@@ -249,17 +249,6 @@ struct usb_ehci {
  * For MXC SOCs
  */
 
-/* values for portsc field */
-#define MXC_EHCI_PHY_LOW_POWER_SUSPEND	(1 << 23)
-#define MXC_EHCI_FORCE_FS		(1 << 24)
-#define MXC_EHCI_UTMI_8BIT		(0 << 28)
-#define MXC_EHCI_UTMI_16BIT		(1 << 28)
-#define MXC_EHCI_SERIAL			(1 << 29)
-#define MXC_EHCI_MODE_UTMI		(0 << 30)
-#define MXC_EHCI_MODE_PHILIPS		(1 << 30)
-#define MXC_EHCI_MODE_ULPI		(2 << 30)
-#define MXC_EHCI_MODE_SERIAL		(3 << 30)
-
 /* values for flags field */
 #define MXC_EHCI_INTERFACE_DIFF_UNI	(0 << 0)
 #define MXC_EHCI_INTERFACE_DIFF_BI	(1 << 0)
