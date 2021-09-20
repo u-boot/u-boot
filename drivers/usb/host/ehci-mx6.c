@@ -23,6 +23,7 @@
 #include <asm/mach-types.h>
 #include <power/regulator.h>
 #include <linux/usb/otg.h>
+#include <linux/usb/phy.h>
 
 #include "ehci.h"
 
@@ -435,6 +436,7 @@ struct ehci_mx6_priv_data {
 	struct clk clk;
 	struct phy phy;
 	enum usb_init_type init_type;
+	enum usb_phy_interface phy_type;
 #if !defined(CONFIG_PHY)
 	int portnr;
 	void __iomem *phy_addr;
@@ -442,6 +444,24 @@ struct ehci_mx6_priv_data {
 	void __iomem *anatop_addr;
 #endif
 };
+
+static u32 mx6_portsc(enum usb_phy_interface phy_type)
+{
+	switch (phy_type) {
+	case USBPHY_INTERFACE_MODE_UTMI:
+		return PORT_PTS_UTMI;
+	case USBPHY_INTERFACE_MODE_UTMIW:
+		return PORT_PTS_UTMI | PORT_PTS_PTW;
+	case USBPHY_INTERFACE_MODE_ULPI:
+		return PORT_PTS_ULPI;
+	case USBPHY_INTERFACE_MODE_SERIAL:
+		return PORT_PTS_SERIAL;
+	case USBPHY_INTERFACE_MODE_HSIC:
+		return PORT_PTS_HSIC;
+	default:
+		return CONFIG_MXC_USB_PORTSC;
+	}
+}
 
 static int mx6_init_after_reset(struct ehci_ctrl *dev)
 {
@@ -479,7 +499,7 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 		return 0;
 
 	setbits_le32(&ehci->usbmode, CM_HOST);
-	writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
+	writel(mx6_portsc(priv->phy_type), &ehci->portsc);
 	setbits_le32(&ehci->portsc, USB_EN);
 
 	mdelay(10);
@@ -641,6 +661,7 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	priv->ehci = ehci;
 	priv->init_type = type;
+	priv->phy_type = usb_get_phy_mode(dev_ofnode(dev));
 
 #if CONFIG_IS_ENABLED(CLK)
 	ret = clk_get_by_index(dev, 0, &priv->clk);
@@ -690,7 +711,7 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	if (priv->init_type == USB_INIT_HOST) {
 		setbits_le32(&ehci->usbmode, CM_HOST);
-		writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
+		writel(mx6_portsc(priv->phy_type), &ehci->portsc);
 		setbits_le32(&ehci->portsc, USB_EN);
 	}
 

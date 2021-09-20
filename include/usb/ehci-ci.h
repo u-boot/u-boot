@@ -23,6 +23,7 @@
 #define PORT_PTS_ULPI		(2 << 30)
 #define PORT_PTS_SERIAL		(3 << 30)
 #define PORT_PTS_PTW		(1 << 28)
+#define PORT_PTS_HSIC		(1 << 25)
 #define PORT_PFSC		(1 << 24) /* Defined on Page 39-44 of the mpc5151 ERM */
 #define PORT_PTS_PHCD		(1 << 23)
 #define PORT_PP			(1 << 12)
