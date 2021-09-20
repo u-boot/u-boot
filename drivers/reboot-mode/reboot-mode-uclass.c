@@ -10,8 +10,6 @@
 #include <exports.h>
 #include <reboot-mode/reboot-mode.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int dm_reboot_mode_update(struct udevice *dev)
 {
 	struct reboot_mode_ops *ops = reboot_mode_get_ops(dev);
@@ -66,25 +64,20 @@ int dm_reboot_mode_pre_probe(struct udevice *dev)
 		return -EINVAL;
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	const int node = dev_of_offset(dev);
 	const char *mode_prefix = "mode-";
 	const int mode_prefix_len = strlen(mode_prefix);
-	int property;
+	struct ofprop property;
 	const u32 *propvalue;
 	const char *propname;
 
-	plat_data->env_variable = fdt_getprop(gd->fdt_blob,
-					      node,
-					      "u-boot,env-variable",
-					      NULL);
+	plat_data->env_variable = dev_read_string(dev, "u-boot,env-variable");
 	if (!plat_data->env_variable)
 		plat_data->env_variable = "reboot-mode";
 
 	plat_data->count = 0;
 
-	fdt_for_each_property_offset(property, gd->fdt_blob, node) {
-		propvalue = fdt_getprop_by_offset(gd->fdt_blob,
-						  property, &propname, NULL);
+	dev_for_each_property(property, dev) {
+		propvalue = dev_read_prop_by_prop(&property, &propname, NULL);
 		if (!propvalue) {
 			dev_err(dev, "Could not get the value for property %s\n",
 				propname);
@@ -100,9 +93,8 @@ int dm_reboot_mode_pre_probe(struct udevice *dev)
 
 	struct reboot_mode_mode *next = plat_data->modes;
 
-	fdt_for_each_property_offset(property, gd->fdt_blob, node) {
-		propvalue = fdt_getprop_by_offset(gd->fdt_blob,
-						  property, &propname, NULL);
+	dev_for_each_property(property, dev) {
+		propvalue = dev_read_prop_by_prop(&property, &propname, NULL);
 		if (!propvalue) {
 			dev_err(dev, "Could not get the value for property %s\n",
 				propname);
