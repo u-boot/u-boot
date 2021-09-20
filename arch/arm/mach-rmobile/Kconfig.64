@@ -94,6 +94,8 @@ config TARGET_BEACON_RZG2M
 	select PINCTRL_PFC_R8A774E1
 	imply MULTI_DTB_FIT
 	imply MULTI_DTB_FIT_USER_DEFINED_AREA
+	imply CLK_VERSACLOCK
+	imply CLK_CCF
 
 config TARGET_CONDOR
 	bool "Condor board"
