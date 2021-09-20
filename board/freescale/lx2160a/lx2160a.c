@@ -825,9 +825,17 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	u64 mc_memory_base = 0;
 	u64 mc_memory_size = 0;
 	u16 total_memory_banks;
+	int err;
 #if CONFIG_IS_ENABLED(TARGET_LX2160ARDB)
 	u8 board_rev;
 #endif
+
+	err = fdt_increase_size(blob, 512);
+	if (err) {
+		printf("%s fdt_increase_size: err=%s\n", __func__,
+		       fdt_strerror(err));
+		return err;
+	}
 
 	ft_cpu_setup(blob, bd);
 
