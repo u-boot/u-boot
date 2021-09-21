@@ -412,13 +412,6 @@ F:	include/dt-bindings/clock/stih407-clks.h
 F:	include/dt-bindings/clock/stih410-clks.h
 F:	include/dt-bindings/reset/stih407-resets.h
 
-ARM STM SPEAR
-#M:	Vipin Kumar <vipin.kumar@st.com>
-S:	Orphaned (Since 2016-02)
-T:	git https://source.denx.de/u-boot/custodians/u-boot-stm.git
-F:	arch/arm/cpu/arm926ejs/spear/
-F:	arch/arm/include/asm/arch-spear/
-
 ARM STM STM32MP
 M:	Patrick Delaunay <patrick.delaunay@foss.st.com>
 M:	Patrice Chotard <patrice.chotard@foss.st.com>
