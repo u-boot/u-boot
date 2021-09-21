@@ -148,7 +148,7 @@
 			compatible = "xlnx,canfd-2.0";
 			status = "disabled";
 			reg = <0 0xff060000 0 0x6000>;
-			interrupts = <0 20 1>;
+			interrupts = <0 20 4>;
 			clock-names = "can_clk", "s_axi_aclk";
 			rx-fifo-depth = <0x40>;
 			tx-mailbox-count = <0x20>;
@@ -158,7 +158,7 @@
 			compatible = "xlnx,canfd-2.0";
 			status = "disabled";
 			reg = <0 0xff070000 0 0x6000>;
-			interrupts = <0 21 1>;
+			interrupts = <0 21 4>;
 			clock-names = "can_clk", "s_axi_aclk";
 			rx-fifo-depth = <0x40>;
 			tx-mailbox-count = <0x20>;
