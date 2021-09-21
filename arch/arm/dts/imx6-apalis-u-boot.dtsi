@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * Copyright 2020 Foundries.IO
+ */
+
+#include "imx6qdl-u-boot.dtsi"
+
+&wdog1 {
+	status = "okay";
+	u-boot,dm-spl;
+};
