@@ -142,7 +142,6 @@
 /* NAND */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NAND_BASE		0x40000000
-#define CONFIG_SYS_NAND_MAX_CHIPS	1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 /* APBH DMA is required for NAND support */
 #endif

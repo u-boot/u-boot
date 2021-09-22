@@ -51,8 +51,6 @@
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS     0x200000
 
-#define CONFIG_SYS_NAND_MAX_CHIPS       1
-
 #undef CONFIG_SYS_MAX_NAND_DEVICE
 #define CONFIG_SYS_MAX_NAND_DEVICE      3
 #define CONFIG_SYS_NAND_BASE2           (0x18000000)    /* physical address */
