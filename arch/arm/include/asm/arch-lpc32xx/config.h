@@ -38,10 +38,8 @@
 #define CONFIG_SYS_NAND_ECCPOS		{ 40, 41, 42, 43, 44, 45, 46, 47, \
 					  48, 49, 50, 51, 52, 53, 54, 55, \
 					  56, 57, 58, 59, 60, 61, 62, 63, }
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #elif (CONFIG_SYS_NAND_PAGE_SIZE == NAND_SMALL_BLOCK_PAGE_SIZE)
 #define CONFIG_SYS_NAND_ECCPOS		{ 10, 11, 12, 13, 14, 15, }
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 #else
 #error "CONFIG_SYS_NAND_PAGE_SIZE set to an invalid value"
 #endif

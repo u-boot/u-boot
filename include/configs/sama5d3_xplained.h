@@ -71,7 +71,6 @@
 #endif
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0x0
 
 /* Falcon boot support on raw MMC */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x100  /* 128 KiB */

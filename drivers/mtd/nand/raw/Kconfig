@@ -425,6 +425,27 @@ config SYS_NAND_MAX_CHIPS
 
 if SPL
 
+choice
+	prompt "NAND bad block marker/indicator positon in the OOB"
+	depends on SPL_NAND_AM33XX_BCH || SPL_NAND_DENALI || SPL_NAND_SIMPLE || \
+		SPL_NAND_SUPPORT && (NAND_ATMEL || NAND_MXC)
+	default HAS_NAND_LARGE_BADBLOCK_POS
+	help
+	  In the OOB, which position contains the badblock information.
+
+config HAS_NAND_LARGE_BADBLOCK_POS
+	bool "Set the bad block marker/indicator to the 'large' position"
+
+config HAS_NAND_SMALL_BADBLOCK_POS
+	bool "Set the bad block marker/indicator to the 'small' position"
+
+endchoice
+
+config SYS_NAND_BAD_BLOCK_POS
+	int
+	default 0 if HAS_NAND_LARGE_BADBLOCK_POS
+	default 5 if HAS_NAND_SMALL_BADBLOCK_POS
+
 config SYS_NAND_U_BOOT_LOCATIONS
 	bool "Define U-boot binaries locations in NAND"
 	help

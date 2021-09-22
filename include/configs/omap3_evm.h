@@ -28,7 +28,6 @@
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #define CONFIG_SYS_MAX_NAND_DEVICE      1
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS   NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS          {2, 3, 4, 5, 6, 7, 8, 9,\
                                          10, 11, 12, 13}
 #define CONFIG_SYS_NAND_ECCSIZE         512

@@ -141,7 +141,6 @@
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
 #define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 
 /*
  * Extra Environments

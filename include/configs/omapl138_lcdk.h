@@ -135,7 +135,6 @@
 				22, 23, 24, 25, 26, 27, 28, 29, 30, 31, \
 				38, 39, 40, 41, 42, 43, 44, 45, 46, 47, \
 				54, 55, 56, 57, 58, 59, 60, 61, 62, 63 }
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	10
 #endif
