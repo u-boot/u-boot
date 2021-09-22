@@ -16,8 +16,6 @@
 /* NAND specific changes for etamin due to different page size */
 #undef CONFIG_SYS_NAND_ECCPOS
 #undef CONFIG_SYS_ENV_SECT_SIZE
-#undef CONFIG_NAND_OMAP_ECCSCHEME
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH16_CODE_HW
 
 #define CONFIG_SYS_ENV_SECT_SIZE       (512 << 10)     /* 512 KiB */
 #define CONFIG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \
