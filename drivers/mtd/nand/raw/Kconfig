@@ -122,6 +122,11 @@ config NAND_DENALI_DT
 	  Enable the driver for NAND flash on platforms using a Denali NAND
 	  controller as a DT device.
 
+config NAND_LPC32XX_MLC
+	bool "Support LPC32XX_MLC controller"
+	help
+	  Enable the LPC32XX MLC NAND controller.
+
 config NAND_LPC32XX_SLC
 	bool "Support LPC32XX_SLC controller"
 	help
