@@ -146,7 +146,6 @@ NANDTGTS \
 #define CONFIG_SYS_NAND_BASE		0x8000000
 /* don't change OMAP_ELM, ECCSCHEME. ROM code only supports this */
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9, \
 					10, 11, 12, 13, 14, 15, 16, 17, \
 					18, 19, 20, 21, 22, 23, 24, 25, \

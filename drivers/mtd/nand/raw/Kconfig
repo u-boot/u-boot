@@ -425,6 +425,15 @@ config SYS_NAND_MAX_CHIPS
 
 if SPL
 
+config SYS_NAND_5_ADDR_CYCLE
+	bool "Wait 5 address cycles during NAND commands"
+	depends on SPL_NAND_AM33XX_BCH || SPL_NAND_SIMPLE || \
+		(SPL_NAND_SUPPORT && NAND_ATMEL)
+	default y
+	help
+	  Some controllers require waiting for 5 address cycles when issuing
+	  some commands, on NAND chips larger than 128MiB.
+
 choice
 	prompt "NAND bad block marker/indicator positon in the OOB"
 	depends on SPL_NAND_AM33XX_BCH || SPL_NAND_DENALI || SPL_NAND_SIMPLE || \

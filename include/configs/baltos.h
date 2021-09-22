@@ -209,7 +209,6 @@
 #ifndef CONFIG_NOR_BOOT
 
 #ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
 					 10, 11, 12, 13, 14, 15, 16, 17, \
 					 18, 19, 20, 21, 22, 23, 24, 25, \
