@@ -35,20 +35,6 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr, r0
 
-#if	defined(CONFIG_AT91RM9200DK)
-	/*
-	 * relocate exception table
-	 */
-	ldr	r0, =_start
-	ldr	r1, =0x0
-	mov	r2, #16
-copyex:
-	subs	r2, r2, #1
-	ldr	r3, [r0], #4
-	str	r3, [r1], #4
-	bne	copyex
-#endif
-
 	/*
 	 * we do sys-critical inits only at reboot,
 	 * not when booting from ram!

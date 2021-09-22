@@ -856,17 +856,6 @@ The following options need to be configured:
 		Support for National dp8382[01] gigabit chips.
 
 - NETWORK Support (other):
-
-		CONFIG_DRIVER_AT91EMAC
-		Support for AT91RM9200 EMAC.
-
-			CONFIG_RMII
-			Define this to use reduced MII inteface
-
-			CONFIG_DRIVER_AT91EMAC_QUIET
-			If this defined, the driver is quiet.
-			The driver doen't show link status messages.
-
 		CONFIG_CALXEDA_XGMAC
 		Support for the Calxeda XGMAC device
 

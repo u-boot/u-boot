@@ -312,6 +312,7 @@ F:	arch/arm/mach-at91/
 F:	board/atmel/
 F:	drivers/cpu/at91_cpu.c
 F:	drivers/misc/microchip_flexcom.c
+F:	include/dt-bindings/mfd/atmel-flexcom.h
 F:	drivers/timer/mchp-pit64b-timer.c
 
 ARM NEXELL S5P4418

@@ -11,7 +11,6 @@ obj-$(CONFIG_ARMADA100_FEC) += armada100_fec.o
 obj-$(CONFIG_BCM6348_ETH) += bcm6348-eth.o
 obj-$(CONFIG_BCM6368_ETH) += bcm6368-eth.o
 obj-$(CONFIG_BCMGENET) += bcmgenet.o
-obj-$(CONFIG_DRIVER_AT91EMAC) += at91_emac.o
 obj-$(CONFIG_DRIVER_AX88180) += ax88180.o
 obj-$(CONFIG_BCM_SF2_ETH) += bcm-sf2-eth.o
 obj-$(CONFIG_BCM_SF2_ETH_GMAC) += bcm-sf2-eth-gmac.o

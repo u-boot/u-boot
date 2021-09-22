@@ -31,7 +31,7 @@
  * @ID_PLL_A_FRAC:		APLL fractional clock identifier
  * @ID_PLL_A_DIV:		APLL divider clock identifier
 
- * @ID_MCK:			MCK clock identifier
+ * @ID_MCK_DIV:			MCK DIV clock identifier
 
  * @ID_UTMI:			UTMI clock identifier
 
@@ -42,6 +42,8 @@
  * @ID_PCK1:			PCK1 system clock identifier
  * @ID_DDR:			DDR system clock identifier
  * @ID_QSPI:			QSPI system clock identifier
+ *
+ * @ID_MCK_PRES:		MCK PRES clock identifier
  *
  * Note: if changing the values of this enums please sync them with
  *       device tree
@@ -60,7 +62,7 @@ enum pmc_clk_ids {
 	ID_PLL_A_FRAC		= 9,
 	ID_PLL_A_DIV		= 10,
 
-	ID_MCK			= 11,
+	ID_MCK_DIV		= 11,
 
 	ID_UTMI			= 12,
 
@@ -72,6 +74,8 @@ enum pmc_clk_ids {
 
 	ID_DDR			= 17,
 	ID_QSPI			= 18,
+
+	ID_MCK_PRES		= 19,
 
 	ID_MAX,
 };
@@ -93,7 +97,8 @@ static const char *clk_names[] = {
 	[ID_MAINCK]		= "mainck",
 	[ID_PLL_U_DIV]		= "upll_divpmcck",
 	[ID_PLL_A_DIV]		= "plla_divpmcck",
-	[ID_MCK]		= "mck",
+	[ID_MCK_PRES]		= "mck_pres",
+	[ID_MCK_DIV]		= "mck_div",
 };
 
 /* Fractional PLL output range. */
@@ -260,10 +265,10 @@ static const struct {
 	u8 id;
 	u8 cid;
 } sam9x60_systemck[] = {
-	{ .n = "ddrck",		.p = "mck", .id = 2, .cid = ID_DDR, },
+	{ .n = "ddrck",		.p = "mck_pres", .id = 2, .cid = ID_DDR, },
 	{ .n = "pck0",		.p = "prog0",    .id = 8, .cid = ID_PCK0, },
 	{ .n = "pck1",		.p = "prog1",    .id = 9, .cid = ID_PCK1, },
-	{ .n = "qspick",	.p = "mck", .id = 19, .cid = ID_QSPI, },
+	{ .n = "qspick",	.p = "mck_pres", .id = 19, .cid = ID_QSPI, },
 };
 
 /**
@@ -508,7 +513,7 @@ static int sam9x60_clk_probe(struct udevice *dev)
 		clk_dm(AT91_TO_CLK_ID(PMC_TYPE_CORE, sam9x60_plls[i].cid), c);
 	}
 
-	/* Register MCK clock. */
+	/* Register MCK pres clock. */
 	p[0] = clk_names[ID_MD_SLCK];
 	p[1] = clk_names[ID_MAINCK];
 	p[2] = clk_names[ID_PLL_A_DIV];
@@ -519,25 +524,36 @@ static int sam9x60_clk_probe(struct udevice *dev)
 	cm[3] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_PLL_U_DIV);
 	prepare_mux_table(clkmuxallocs, clkmuxallocindex, tmpclkmux, cm, 4,
 			  fail);
-	c = at91_clk_register_master(base, clk_names[ID_MCK], p, 4, &mck_layout,
-				     &mck_characteristics, tmpclkmux);
+	c = at91_clk_register_master_pres(base, clk_names[ID_MCK_PRES], p, 4,
+					  &mck_layout, &mck_characteristics,
+					  tmpclkmux);
 	if (IS_ERR(c)) {
 		ret = PTR_ERR(c);
 		goto fail;
 	}
-	clk_dm(AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MCK), c);
+	clk_dm(AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MCK_PRES), c);
+
+	/* Register MCK div clock. */
+	c = at91_clk_register_master_div(base, clk_names[ID_MCK_DIV],
+					 clk_names[ID_MCK_PRES],
+					 &mck_layout, &mck_characteristics);
+	if (IS_ERR(c)) {
+		ret = PTR_ERR(c);
+		goto fail;
+	}
+	clk_dm(AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MCK_DIV), c);
 
 	/* Register programmable clocks. */
 	p[0] = clk_names[ID_MD_SLCK];
 	p[1] = clk_names[ID_TD_SLCK];
 	p[2] = clk_names[ID_MAINCK];
-	p[3] = clk_names[ID_MCK];
+	p[3] = clk_names[ID_MCK_DIV];
 	p[4] = clk_names[ID_PLL_A_DIV];
 	p[5] = clk_names[ID_PLL_U_DIV];
 	cm[0] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MD_SLCK);
 	cm[1] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_TD_SLCK);
 	cm[2] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MAINCK);
-	cm[3] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MCK);
+	cm[3] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MCK_DIV);
 	cm[4] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_PLL_A_DIV);
 	cm[5] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_PLL_U_DIV);
 	for (i = 0; i < ARRAY_SIZE(sam9x60_prog); i++) {
@@ -572,7 +588,7 @@ static int sam9x60_clk_probe(struct udevice *dev)
 	for (i = 0; i < ARRAY_SIZE(sam9x60_periphck); i++) {
 		c = at91_clk_register_sam9x5_peripheral(base, &pcr_layout,
 							sam9x60_periphck[i].n,
-							clk_names[ID_MCK],
+							clk_names[ID_MCK_DIV],
 							sam9x60_periphck[i].id,
 							&r);
 		if (IS_ERR(c)) {
@@ -587,7 +603,7 @@ static int sam9x60_clk_probe(struct udevice *dev)
 	p[0] = clk_names[ID_MD_SLCK];
 	p[1] = clk_names[ID_TD_SLCK];
 	p[2] = clk_names[ID_MAINCK];
-	p[3] = clk_names[ID_MCK];
+	p[3] = clk_names[ID_MCK_DIV];
 	p[4] = clk_names[ID_PLL_A_DIV];
 	p[5] = clk_names[ID_PLL_U_DIV];
 	m[0] = 0;
@@ -599,7 +615,7 @@ static int sam9x60_clk_probe(struct udevice *dev)
 	cm[0] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MD_SLCK);
 	cm[1] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_TD_SLCK);
 	cm[2] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MAINCK);
-	cm[3] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MCK);
+	cm[3] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_MCK_DIV);
 	cm[4] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_PLL_A_DIV);
 	cm[5] = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_PLL_U_DIV);
 	for (i = 0; i < ARRAY_SIZE(sam9x60_gck); i++) {
