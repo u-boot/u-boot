@@ -19,7 +19,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	  /* Max number of */
 						  /* NAND devices */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, \
 					 13, 14, 16, 17, 18, 19, 20, 21, 22, \
