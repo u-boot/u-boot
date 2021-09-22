@@ -134,8 +134,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
-
 #define CONFIG_FSL_QIXIS
 #define CONFIG_SYS_I2C_FPGA_ADDR	0x66
 #define QIXIS_LBMAP_SWITCH		6

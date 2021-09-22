@@ -309,7 +309,6 @@ extern unsigned long get_sdram_size(void);
 				| CSOR_NAND_PGS_512	/* Page Size = 512b */ \
 				| CSOR_NAND_SPRZ_16	/* Spare size = 16 */ \
 				| CSOR_NAND_PB(32))	/* 32 Pages Per Block */
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(16 * 1024)
 
 #elif defined(CONFIG_TARGET_P1010RDB_PB)
 #define CONFIG_SYS_NAND_ONFI_DETECTION
@@ -320,7 +319,6 @@ extern unsigned long get_sdram_size(void);
 				| CSOR_NAND_PGS_4K      /* Page Size = 4K */ \
 				| CSOR_NAND_SPRZ_224    /* Spare size = 224 */ \
 				| CSOR_NAND_PB(128))  /*Pages Per Block = 128 */
-#define CONFIG_SYS_NAND_BLOCK_SIZE     (512 * 1024)
 #endif
 
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }

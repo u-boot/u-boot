@@ -110,9 +110,6 @@
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT      (CONFIG_SYS_NAND_BLOCK_SIZE / \
 					CONFIG_SYS_NAND_PAGE_SIZE)
-#define CONFIG_SYS_NAND_PAGE_SIZE       4096
-#define CONFIG_SYS_NAND_OOBSIZE         256
-#define CONFIG_SYS_NAND_BLOCK_SIZE      (256 * 1024)
 
 #define CONFIG_SYS_NAND_ECCPOS  {   2,   3,   4,   5,   6,   7,   8,   9, \
 			 10,  11,  12,  13,  14,  15,  16,  17,  18,  19, \

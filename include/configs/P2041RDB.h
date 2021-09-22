@@ -171,7 +171,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_NAND_BASE_LIST     {CONFIG_SYS_NAND_BASE}
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BLOCK_SIZE    (128 * 1024)
 
 /* NAND flash config */
 #define CONFIG_SYS_NAND_BR_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
@@ -379,7 +378,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_SYS_FMAN_FW_ADDR	(512 * 1680)
 #elif defined(CONFIG_MTD_RAW_NAND)
-#define CONFIG_SYS_FMAN_FW_ADDR	(8 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_FMAN_FW_ADDR	(8 * (128 * 1024))
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing

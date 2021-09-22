@@ -226,7 +226,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_NAND_DDR_LAW		11
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 
 #if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
@@ -454,8 +453,6 @@ unsigned long get_board_sys_clk(void);
  */
 #define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x820)
 
-#elif defined(CONFIG_MTD_RAW_NAND)
-#define CONFIG_SYS_FMAN_FW_ADDR		(3 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing

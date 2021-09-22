@@ -14,9 +14,6 @@
 
 #include "siemens-am33x-common.h"
 /* NAND specific changes for etamin due to different page size */
-#undef CONFIG_SYS_NAND_PAGE_SIZE
-#undef CONFIG_SYS_NAND_OOBSIZE
-#undef CONFIG_SYS_NAND_BLOCK_SIZE
 #undef CONFIG_SYS_NAND_ECCPOS
 #undef CONFIG_SYS_NAND_U_BOOT_OFFS
 #undef CONFIG_SYS_ENV_SECT_SIZE
@@ -24,9 +21,6 @@
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH16_CODE_HW
 
 #define CONFIG_SYS_ENV_SECT_SIZE       (512 << 10)     /* 512 KiB */
-#define CONFIG_SYS_NAND_PAGE_SIZE       4096
-#define CONFIG_SYS_NAND_OOBSIZE         224
-#define CONFIG_SYS_NAND_BLOCK_SIZE      (128 * CONFIG_SYS_NAND_PAGE_SIZE)
 #define CONFIG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \
 				10, 11, 12, 13, 14, 15, 16, 17, 18, 19, \
 				20, 21, 22, 23, 24, 25, 26, 27, 28, 29, \
