@@ -10,8 +10,13 @@
 dtc="$*"
 
 if [ ${#dtc} -eq 0 ]; then
-	echo "Error: No dtc command specified."
+	echo "Error: No dtc command specified"
 	printf "Usage:\n\t$0 <dtc-command>\n"
+	exit 1
+fi
+
+if ! which $dtc >/dev/null ; then
+	echo "Error: Cannot find dtc: $dtc"
 	exit 1
 fi
 
