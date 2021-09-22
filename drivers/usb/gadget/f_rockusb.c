@@ -17,7 +17,6 @@
 #include <linux/usb/gadget.h>
 #include <linux/usb/composite.h>
 #include <linux/compiler.h>
-#include <version.h>
 #include <g_dnl.h>
 #include <asm/arch-rockchip/f_rockusb.h>
 

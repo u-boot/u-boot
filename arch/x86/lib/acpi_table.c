@@ -16,7 +16,6 @@
 #include <dm/uclass-internal.h>
 #include <mapmem.h>
 #include <serial.h>
-#include <version.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
 #include <acpi/acpi_table.h>

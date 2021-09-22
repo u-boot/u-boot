@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ *  Main sandbox64 devicetree
+ */
 /dts-v1/;
 
 #include <config.h>

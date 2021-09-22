@@ -1,3 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Devicetree file for running sandbox tests
+ *
+ * This includes lots of extra devices used by various tests.
+ *
+ * Note that SPL use the main sandbox.dts file
+ */
+
 /dts-v1/;
 
 #include <dt-bindings/gpio/gpio.h>

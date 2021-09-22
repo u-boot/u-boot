@@ -33,7 +33,7 @@
 #include <fsl_pmic.h>
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
-#include <version.h>
+#include <version_string.h>
 #include <watchdog.h>
 #include "ppd_gpio.h"
 #include <stdlib.h>
