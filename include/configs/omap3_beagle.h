@@ -27,7 +27,6 @@
 #define CONFIG_SYS_NAND_ECCSIZE         512
 #define CONFIG_SYS_NAND_ECCBYTES        3
 #define CONFIG_NAND_OMAP_ECCSCHEME      OMAP_ECC_HAM1_CODE_HW
-#define CONFIG_SYS_NAND_U_BOOT_OFFS     0x80000
 #define CONFIG_SYS_ENV_SECT_SIZE        SZ_128K
 /* NAND: SPL falcon mode configs */
 #if defined(CONFIG_SPL_OS_BOOT)

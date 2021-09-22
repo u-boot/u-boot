@@ -183,7 +183,6 @@
 			}
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	26
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x00180000
 /* NAND: SPL related configs */
 /* NAND: SPL falcon mode configs */
 #ifdef CONFIG_SPL_OS_BOOT

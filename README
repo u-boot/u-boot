@@ -2074,9 +2074,6 @@ The following options need to be configured:
 		Defines the size and behavior of the NAND that SPL uses
 		to read U-Boot
 
-		CONFIG_SYS_NAND_U_BOOT_OFFS
-		Location in NAND to read U-Boot from
-
 		CONFIG_SYS_NAND_U_BOOT_DST
 		Location in memory to load U-Boot to
 
