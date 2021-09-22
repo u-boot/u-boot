@@ -126,6 +126,17 @@ config NAND_DENALI_DT
 	  Enable the driver for NAND flash on platforms using a Denali NAND
 	  controller as a DT device.
 
+config NAND_FSL_ELBC
+	bool "Support Freescale Enhanced Local Bus Controller FCM NAND driver"
+	depends on FSL_ELBC
+	help
+	  Enable the Freescale Enhanced Local Bus Controller FCM NAND driver.
+
+config NAND_FSL_IFC
+	bool "Support Freescale Integrated Flash Controller NAND driver"
+	help
+	  Enable the Freescale Integrated Flash Controller NAND driver.
+
 config NAND_LPC32XX_MLC
 	bool "Support LPC32XX_MLC controller"
 	help

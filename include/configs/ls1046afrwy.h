@@ -22,7 +22,6 @@
 /*
  * NAND Flash Definitions
  */
-#define CONFIG_NAND_FSL_IFC
 
 #define CONFIG_SYS_NAND_BASE		0x7e800000
 #define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE

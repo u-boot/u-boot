@@ -71,10 +71,6 @@
 #endif
 #endif
 
-#ifndef SPL_NO_IFC
-#define CONFIG_NAND_FSL_IFC
-#endif
-
 #define CONFIG_SYS_NAND_MAX_ECCPOS	256
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 

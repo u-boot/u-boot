@@ -159,7 +159,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_NAND_FSL_ELBC
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC
 #define CONFIG_SYS_NAND_BASE		0xffa00000
