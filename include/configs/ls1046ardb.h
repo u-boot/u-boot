@@ -53,8 +53,6 @@
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(64))	/* 64 Pages Per Block */
 
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x7) | \
 					FTIM0_NAND_TWP(0x18)   | \
 					FTIM0_NAND_TWCHT(0x7) | \

@@ -278,8 +278,6 @@
 				CSOR_NAND_TRHZ_40    | /**/                   \
 				CSOR_NAND_BCTLD)       /**/
 
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-
 /* ONFI NAND Flash mode0 Timing Params */
 #define CONFIG_SYS_NAND_FTIM0	(FTIM0_NAND_TCCST(0x3) | \
 				FTIM0_NAND_TWP(0x8) | \

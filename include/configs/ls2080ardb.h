@@ -127,8 +127,6 @@ unsigned long get_board_sys_clk(void);
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(128))	/* Pages Per Block 128*/
 
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-
 /* ONFI NAND Flash mode0 Timing Params */
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x0e) | \
 					FTIM0_NAND_TWP(0x30)   | \

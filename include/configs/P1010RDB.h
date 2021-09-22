@@ -311,7 +311,6 @@ extern unsigned long get_sdram_size(void);
 				| CSOR_NAND_PB(32))	/* 32 Pages Per Block */
 
 #elif defined(CONFIG_TARGET_P1010RDB_PB)
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_NAND_CSOR   (CSOR_NAND_ECC_ENC_EN   /* ECC on encode */ \
 				| CSOR_NAND_ECC_DEC_EN  /* ECC on decode */ \
 				| CSOR_NAND_ECC_MODE_4  /* 4-bit ECC */ \

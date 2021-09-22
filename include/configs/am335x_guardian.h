@@ -130,7 +130,6 @@
 			}
 #define CONFIG_SYS_NAND_ECCSIZE         512
 #define CONFIG_SYS_NAND_ECCBYTES        26
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_NAND_OMAP_ECCSCHEME      OMAP_ECC_BCH16_CODE_HW
 #define MTDIDS_DEFAULT                  "nand0=nand.0"
 

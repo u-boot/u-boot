@@ -121,7 +121,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 /* used to initialize CONFIG_SYS_NAND_BASE_LIST which is unused */
 #define CONFIG_SYS_NAND_BASE		-1
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

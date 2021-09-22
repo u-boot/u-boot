@@ -29,7 +29,6 @@
  */
 
 /* NAND */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 
 #define BBT_CUSTOM_SCAN
@@ -59,7 +58,6 @@
 #endif
 
 /* NAND */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 #include <asm/arch/config.h>
 

@@ -103,7 +103,6 @@
 /* Ethernet support */
 
 /* NAND support */
-#define CONFIG_SYS_NAND_ONFI_DETECTION	1
 
 /* NAND config */
 #define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \

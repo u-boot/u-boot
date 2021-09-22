@@ -52,7 +52,6 @@
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
 
 /* NAND support */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* Ethernet need */

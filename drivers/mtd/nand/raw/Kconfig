@@ -370,6 +370,13 @@ config SYS_NAND_BLOCK_SIZE
 	  board. This is the multiple of NAND_PAGE_SIZE and the number of
 	  pages.
 
+config SYS_NAND_ONFI_DETECTION
+	bool "Enable detection of ONFI compliant devices during probe"
+	help
+	  Enables detection of ONFI compliant devices during probe.
+	  And fetching device parameters flashed on device, by parsing
+	  ONFI parameter page.
+
 config SYS_NAND_PAGE_COUNT
 	hex "NAND chip page count"
 	depends on SPL_NAND_SUPPORT && (NAND_ATMEL || NAND_MXC || \
@@ -435,7 +442,7 @@ config SYS_NAND_5_ADDR_CYCLE
 	  some commands, on NAND chips larger than 128MiB.
 
 choice
-	prompt "NAND bad block marker/indicator positon in the OOB"
+	prompt "NAND bad block marker/indicator position in the OOB"
 	depends on SPL_NAND_AM33XX_BCH || SPL_NAND_DENALI || SPL_NAND_SIMPLE || \
 		SPL_NAND_SUPPORT && (NAND_ATMEL || NAND_MXC)
 	default HAS_NAND_LARGE_BADBLOCK_POS

@@ -175,11 +175,6 @@ Configuration Options:
       flexibility, so that one day we can eliminate the old mechanism.
 
 
-   CONFIG_SYS_NAND_ONFI_DETECTION
-	Enables detection of ONFI compliant devices during probe.
-	And fetching device parameters flashed on device, by parsing
-	ONFI parameter page.
-
 Platform specific options
 =========================
    CONFIG_NAND_OMAP_GPMC

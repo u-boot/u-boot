@@ -38,7 +38,6 @@
 #endif
 
 /* NAND */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
