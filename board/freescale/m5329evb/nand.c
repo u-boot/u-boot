@@ -15,6 +15,7 @@
 #if defined(CONFIG_CMD_NAND)
 #include <nand.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/rawnand.h>
 
 #define SET_CLE		0x10
 #define SET_ALE		0x08

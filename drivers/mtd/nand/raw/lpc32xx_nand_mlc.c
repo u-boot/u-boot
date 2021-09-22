@@ -23,6 +23,7 @@
 #include <nand.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/io.h>
 #include <nand.h>
 #include <asm/arch/clk.h>

@@ -19,6 +19,7 @@
 #include <linux/err.h>
 #include <linux/iopoll.h>
 #include <linux/ioport.h>
+#include <linux/mtd/rawnand.h>
 
 /* Bad block marker length */
 #define FMC2_BBM_LEN			2

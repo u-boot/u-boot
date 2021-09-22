@@ -13,6 +13,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+#include <linux/mtd/rawnand.h>
 
 static struct mtd_info *mtd;
 static struct nand_chip nand_chip;

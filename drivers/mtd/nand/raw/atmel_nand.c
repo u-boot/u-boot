@@ -24,6 +24,7 @@
 #include <nand.h>
 #include <watchdog.h>
 #include <linux/mtd/nand_ecc.h>
+#include <linux/mtd/rawnand.h>
 
 #ifdef CONFIG_ATMEL_NAND_HWECC
 

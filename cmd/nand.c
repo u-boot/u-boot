@@ -24,6 +24,7 @@
 #include <image.h>
 #include <asm/cache.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/rawnand.h>
 #include <command.h>
 #include <console.h>
 #include <env.h>

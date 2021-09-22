@@ -13,6 +13,7 @@
 #include <common.h>
 #include <hang.h>
 #include <nand.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 #include "mxc_nand.h"
