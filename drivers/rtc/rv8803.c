@@ -157,6 +157,8 @@ static const struct rtc_ops rv8803_rtc_ops = {
 
 static const struct udevice_id rv8803_rtc_ids[] = {
 	{ .compatible = "microcrystal,rv8803", },
+	{ .compatible = "epson,rx8803" },
+	{ .compatible = "epson,rx8900" },
 	{ }
 };
 
