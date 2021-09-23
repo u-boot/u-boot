@@ -438,6 +438,11 @@ config KSZ9477
 	  This driver implements a DSA switch driver for the KSZ9477 family
 	  of GbE switches using the I2C interface.
 
+config LITEETH
+	bool "LiteX LiteEth Ethernet MAC"
+	help
+	 Driver for the LiteEth Ethernet MAC from LiteX.
+
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on ARCH_KIRKWOOD || ARCH_ORION5X
