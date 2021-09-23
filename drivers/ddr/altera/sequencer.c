@@ -3714,7 +3714,7 @@ static void debug_mem_calibrate(struct socfpga_sdrseq *seq, int pass)
 	u32 debug_info;
 
 	if (pass) {
-		debug("%s: CALIBRATION PASSED\n", __FILE__);
+		debug(KBUILD_BASENAME ": CALIBRATION PASSED\n");
 
 		seq->gbl.fom_in /= 2;
 		seq->gbl.fom_out /= 2;
@@ -3733,7 +3733,7 @@ static void debug_mem_calibrate(struct socfpga_sdrseq *seq, int pass)
 		writel(debug_info, &phy_mgr_cfg->cal_debug_info);
 		writel(PHY_MGR_CAL_SUCCESS, &phy_mgr_cfg->cal_status);
 	} else {
-		debug("%s: CALIBRATION FAILED\n", __FILE__);
+		debug(KBUILD_BASENAME ": CALIBRATION FAILED\n");
 
 		debug_info = seq->gbl.error_stage;
 		debug_info |= seq->gbl.error_substage << 8;
@@ -3750,7 +3750,7 @@ static void debug_mem_calibrate(struct socfpga_sdrseq *seq, int pass)
 		writel(debug_info, &sdr_reg_file->failing_stage);
 	}
 
-	debug("%s: Calibration complete\n", __FILE__);
+	debug(KBUILD_BASENAME ": Calibration complete\n");
 }
 
 /**
@@ -3934,7 +3934,7 @@ int sdram_calibration_full(struct socfpga_sdr *sdr)
 
 	initialize_tracking(&seq);
 
-	debug("%s: Preparing to start memory calibration\n", __FILE__);
+	debug(KBUILD_BASENAME ": Preparing to start memory calibration\n");
 
 	debug("%s:%d\n", __func__, __LINE__);
 	debug_cond(DLEVEL >= 1,
