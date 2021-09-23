@@ -8,6 +8,12 @@
 #include "imx6ull.dtsi"
 
 / {
+	/* Ethernet aliases to ensure correct MAC addresses */
+	aliases {
+		ethernet0 = &fec2;
+		ethernet1 = &fec1;
+	};
+
 	chosen {
 		stdout-path = &uart1;
 	};
