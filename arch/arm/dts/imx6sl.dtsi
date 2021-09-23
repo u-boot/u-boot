@@ -130,7 +130,7 @@
 			interrupts = <0 94 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
-		aips1: aips-bus@02000000 {
+		aips1: bus@02000000 {
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -751,7 +751,7 @@
 			};
 		};
 
-		aips2: aips-bus@02100000 {
+		aips2: bus@02100000 {
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;

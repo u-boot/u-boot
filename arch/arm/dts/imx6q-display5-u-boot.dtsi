@@ -23,7 +23,7 @@
 	soc {
 		u-boot,dm-pre-reloc;
 
-		aips-bus@2100000 {
+		bus@2100000 {
 			u-boot,dm-pre-reloc;
 		};
 	};
