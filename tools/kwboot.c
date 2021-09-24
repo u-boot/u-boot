@@ -568,6 +568,13 @@ kwboot_tty_baudrate_to_speed(int baudrate)
 }
 
 static int
+_is_within_tolerance(int value, int reference, int tolerance)
+{
+	return 100 * value >= reference * (100 - tolerance) &&
+	       100 * value <= reference * (100 + tolerance);
+}
+
+static int
 kwboot_tty_change_baudrate(int fd, int baudrate)
 {
 	struct termios tio;
@@ -601,7 +608,32 @@ kwboot_tty_change_baudrate(int fd, int baudrate)
 	if (rc)
 		return rc;
 
+	rc = tcgetattr(fd, &tio);
+	if (rc)
+		return rc;
+
+	if (cfgetospeed(&tio) != speed || cfgetispeed(&tio) != speed)
+		goto baud_fail;
+
+#ifdef BOTHER
+	/*
+	 * Check whether set baudrate is within 3% tolerance.
+	 * If BOTHER is defined, Linux always fills out c_ospeed / c_ispeed
+	 * with real values.
+	 */
+	if (!_is_within_tolerance(tio.c_ospeed, baudrate, 3))
+		goto baud_fail;
+
+	if (!_is_within_tolerance(tio.c_ispeed, baudrate, 3))
+		goto baud_fail;
+#endif
+
 	return 0;
+
+baud_fail:
+	fprintf(stderr, "Could not set baudrate to requested value\n");
+	errno = EINVAL;
+	return -1;
 }
 
 static int
