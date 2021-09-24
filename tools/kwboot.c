@@ -404,6 +404,29 @@ _is_xm_reply(char c)
 }
 
 static int
+_xm_reply_to_error(int c)
+{
+	int rc = -1;
+
+	switch (c) {
+	case ACK:
+		rc = 0;
+		break;
+	case NAK:
+		errno = EBADMSG;
+		break;
+	case CAN:
+		errno = ECANCELED;
+		break;
+	default:
+		errno = EPROTO;
+		break;
+	}
+
+	return rc;
+}
+
+static int
 kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm, int *non_xm_print)
 {
 	int timeout = allow_non_xm ? KWBOOT_HDR_RSP_TIMEO : blk_rsp_timeo;
@@ -483,24 +506,29 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 	if (non_xm_print)
 		kwboot_printv("\n");
 
-	rc = -1;
+	return _xm_reply_to_error(c);
+}
 
-	switch (c) {
-	case ACK:
-		rc = 0;
-		break;
-	case NAK:
-		errno = EBADMSG;
-		break;
-	case CAN:
-		errno = ECANCELED;
-		break;
-	default:
-		errno = EPROTO;
-		break;
-	}
+static int
+kwboot_xm_finish(int fd)
+{
+	int rc, retries;
+	char c;
 
-	return rc;
+	kwboot_printv("Finishing transfer\n");
+
+	retries = 16;
+	do {
+		rc = kwboot_tty_send_char(fd, EOT);
+		if (rc)
+			return rc;
+
+		rc = kwboot_xm_recv_reply(fd, &c, 0, NULL);
+		if (rc)
+			return rc;
+	} while (c == NAK && retries-- > 0);
+
+	return _xm_reply_to_error(c);
 }
 
 static int
@@ -577,7 +605,7 @@ kwboot_xmodem(int tty, const void *_img, size_t size)
 	if (rc)
 		return rc;
 
-	return kwboot_tty_send_char(tty, EOT);
+	return kwboot_xm_finish(tty);
 }
 
 static int
