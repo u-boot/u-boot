@@ -352,8 +352,7 @@ kwboot_xm_makeblock(struct kwboot_block *block, const void *data,
 		    size_t size, int pnum)
 {
 	const size_t blksz = sizeof(block->data);
-	size_t n;
-	int i;
+	size_t i, n;
 
 	block->soh = SOH;
 	block->pnum = pnum;
