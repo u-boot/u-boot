@@ -115,6 +115,7 @@
 #define DWC3_GEVNTCOUNT(n)	(0xc40c + (n * 0x10))
 
 #define DWC3_GHWPARAMS8		0xc600
+#define DWC3_GFLADJ		0xC630
 
 /* Device Registers */
 #define DWC3_DCFG		0xc700
@@ -389,6 +390,11 @@
 #define DWC3_DEPCMD_TYPE_ISOC		1
 #define DWC3_DEPCMD_TYPE_BULK		2
 #define DWC3_DEPCMD_TYPE_INTR		3
+
+/* Global Frame Length Adjustment Register */
+#define GFLADJ_30MHZ_REG_SEL		BIT(7)
+#define GFLADJ_30MHZ_MASK		GENMASK(5, 0)
+#define GFLADJ_REFCLK_FLADJ		GENMASK(21, 8)
 
 /* Structures */
 

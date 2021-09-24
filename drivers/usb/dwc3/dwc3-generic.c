@@ -49,6 +49,40 @@ struct dwc3_generic_host_priv {
 	struct dwc3_generic_priv gen_priv;
 };
 
+static void dwc3_frame_length_adjustment(struct udevice *dev, struct dwc3 *dwc)
+{
+	u32 fladj, gfladj, reg;
+	bool refclk_fladj;
+
+	fladj = dev_read_u32_default(dev, "snps,quirk-frame-length-adjustment",
+				     0);
+	if (!fladj)
+		return;
+
+	/* Save the initial GFLADJ register value */
+	reg = dwc3_readl(dwc->regs, DWC3_GFLADJ);
+	gfladj = reg;
+
+	refclk_fladj = dev_read_bool(dev, "snps,refclk_fladj");
+
+	if (refclk_fladj) {
+		if ((reg & GFLADJ_REFCLK_FLADJ) != (fladj &
+					GFLADJ_REFCLK_FLADJ)) {
+			reg &= ~GFLADJ_REFCLK_FLADJ;
+			reg |= (fladj & GFLADJ_REFCLK_FLADJ);
+		}
+	}
+
+	if ((reg & GFLADJ_30MHZ_MASK) != fladj) {
+		reg &= ~GFLADJ_30MHZ_MASK;
+		reg |= GFLADJ_30MHZ_REG_SEL | fladj;
+	}
+
+	/* Update GFLADJ if there is any change from initial value */
+	if (reg != gfladj)
+		dwc3_writel(dwc->regs, DWC3_GFLADJ, reg);
+}
+
 static int dwc3_generic_probe(struct udevice *dev,
 			      struct dwc3_generic_priv *priv)
 {
@@ -89,6 +123,10 @@ static int dwc3_generic_probe(struct udevice *dev,
 		unmap_physmem(priv->base, MAP_NOCACHE);
 		return rc;
 	}
+
+	/* Adjust frame length */
+	if (device_is_compatible(dev->parent, "xlnx,versal-dwc3"))
+		dwc3_frame_length_adjustment(dev, dwc3);
 
 	return 0;
 }
