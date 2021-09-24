@@ -757,6 +757,18 @@ kwboot_img_csum8(void *_data, size_t size)
 }
 
 static int
+kwboot_img_is_secure(void *img)
+{
+	struct opt_hdr_v1 *ohdr;
+
+	for_each_opt_hdr_v1 (ohdr, img)
+		if (ohdr->headertype == OPT_HDR_V1_SECURE_TYPE)
+			return 1;
+
+	return 0;
+}
+
+static int
 kwboot_img_patch_hdr(void *img, size_t size)
 {
 	int rc;
@@ -764,6 +776,7 @@ kwboot_img_patch_hdr(void *img, size_t size)
 	uint8_t csum;
 	size_t hdrsz = sizeof(*hdr);
 	int image_ver;
+	int is_secure;
 
 	rc = -1;
 	hdr = img;
@@ -796,12 +809,19 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		goto out;
 	}
 
-	if (hdr->blockid == IBR_HDR_UART_ID) {
-		rc = 0;
-		goto out;
-	}
+	is_secure = kwboot_img_is_secure(img);
 
-	hdr->blockid = IBR_HDR_UART_ID;
+	if (hdr->blockid != IBR_HDR_UART_ID) {
+		if (is_secure) {
+			fprintf(stderr,
+				"Image has secure header with signature for non-UART booting\n");
+			errno = EINVAL;
+			goto out;
+		}
+
+		kwboot_printv("Patching image boot signature to UART\n");
+		hdr->blockid = IBR_HDR_UART_ID;
+	}
 
 	if (image_ver == 0) {
 		struct main_hdr_v0 *hdr_v0 = img;
