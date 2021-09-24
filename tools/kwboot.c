@@ -583,7 +583,7 @@ kwboot_xmodem(int tty, const void *_img, size_t size)
 	int rc, pnum;
 	size_t hdrsz;
 
-	if (image_version(img) == 0)
+	if (kwbimage_version(img) == 0)
 		hdrsz = KWBHEADER_V0_SIZE((struct main_hdr_v0 *)img);
 	else
 		hdrsz = KWBHEADER_V1_SIZE((struct main_hdr_v1 *)img);
@@ -787,7 +787,7 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		goto out;
 	}
 
-	image_ver = image_version(img);
+	image_ver = kwbimage_version(img);
 	if (image_ver != 0 && image_ver != 1) {
 		fprintf(stderr, "Invalid image header version\n");
 		errno = EINVAL;

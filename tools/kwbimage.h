@@ -229,7 +229,7 @@ void init_kwb_image_type (void);
  * header, byte 8 was reserved, and always set to 0. In the v1 header,
  * byte 8 has been changed to a proper field, set to 1.
  */
-static inline unsigned int image_version(const void *header)
+static inline unsigned int kwbimage_version(const void *header)
 {
 	const unsigned char *ptr = header;
 	return ptr[8];
@@ -258,7 +258,7 @@ static inline int opt_hdr_v1_valid_size(const struct opt_hdr_v1 *ohdr,
 static inline struct opt_hdr_v1 *opt_hdr_v1_first(void *img) {
 	struct main_hdr_v1 *mhdr;
 
-	if (image_version(img) != 1)
+	if (kwbimage_version(img) != 1)
 		return NULL;
 
 	mhdr = img;

@@ -282,7 +282,7 @@ static uint8_t image_checksum8(void *start, uint32_t len)
 
 size_t kwbimage_header_size(unsigned char *ptr)
 {
-	if (image_version((void *)ptr) == 0)
+	if (kwbimage_version((void *)ptr) == 0)
 		return sizeof(struct main_hdr_v0);
 	else
 		return KWBHEADER_V1_SIZE((struct main_hdr_v1 *)ptr);
@@ -1622,7 +1622,7 @@ static void kwbimage_print_header(const void *ptr)
 
 	printf("Image Type:   MVEBU Boot from %s Image\n",
 	       image_boot_mode_name(mhdr->blockid));
-	printf("Image version:%d\n", image_version((void *)ptr));
+	printf("Image version:%d\n", kwbimage_version(ptr));
 
 	for_each_opt_hdr_v1 (ohdr, mhdr) {
 		if (ohdr->headertype == OPT_HDR_V1_BINARY_TYPE) {
@@ -1659,7 +1659,7 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 		return -FDT_ERR_BADSTRUCTURE;
 
 	/* Only version 0 extended header has checksum */
-	if (image_version((void *)ptr) == 0) {
+	if (kwbimage_version(ptr) == 0) {
 		struct main_hdr_v0 *mhdr = (struct main_hdr_v0 *)ptr;
 
 		if (mhdr->ext & 0x1) {
@@ -1676,7 +1676,7 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 			if (checksum != ext_hdr->checksum)
 				return -FDT_ERR_BADSTRUCTURE;
 		}
-	} else if (image_version((void *)ptr) == 1) {
+	} else if (kwbimage_version(ptr) == 1) {
 		struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
 		const uint8_t *mhdr_end;
 		struct opt_hdr_v1 *ohdr;
