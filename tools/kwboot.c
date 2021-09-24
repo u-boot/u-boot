@@ -1386,7 +1386,6 @@ _copy_baudrate_change_code(struct main_hdr_v1 *hdr, void *dst, int pre,
 static int
 kwboot_img_patch(void *img, size_t *size, int baudrate)
 {
-	int rc;
 	struct main_hdr_v1 *hdr;
 	uint32_t srcaddr;
 	uint8_t csum;
@@ -1394,33 +1393,25 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	int image_ver;
 	int is_secure;
 
-	rc = -1;
 	hdr = img;
 
-	if (*size < sizeof(struct main_hdr_v1)) {
-		errno = EINVAL;
-		goto out;
-	}
+	if (*size < sizeof(struct main_hdr_v1))
+		goto err;
 
 	image_ver = kwbimage_version(img);
 	if (image_ver != 0 && image_ver != 1) {
 		fprintf(stderr, "Invalid image header version\n");
-		errno = EINVAL;
-		goto out;
+		goto err;
 	}
 
 	hdrsz = kwbheader_size(hdr);
 
-	if (*size < hdrsz) {
-		errno = EINVAL;
-		goto out;
-	}
+	if (*size < hdrsz)
+		goto err;
 
 	csum = kwboot_hdr_csum8(hdr) - hdr->checksum;
-	if (csum != hdr->checksum) {
-		errno = EINVAL;
-		goto out;
-	}
+	if (csum != hdr->checksum)
+		goto err;
 
 	if (image_ver == 0) {
 		struct main_hdr_v0 *hdr_v0 = img;
@@ -1433,10 +1424,9 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 	switch (hdr->blockid) {
 	case IBR_HDR_SATA_ID:
-		if (srcaddr < 1) {
-			errno = EINVAL;
-			goto out;
-		}
+		if (srcaddr < 1)
+			goto err;
+
 		hdr->srcaddr = cpu_to_le32((srcaddr - 1) * 512);
 		break;
 
@@ -1459,10 +1449,8 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	}
 
 	if (hdrsz > le32_to_cpu(hdr->srcaddr) ||
-	    *size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize)) {
-		errno = EINVAL;
-		goto out;
-	}
+	    *size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize))
+		goto err;
 
 	is_secure = kwboot_img_is_secure(img);
 
@@ -1470,8 +1458,7 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 		if (is_secure) {
 			fprintf(stderr,
 				"Image has secure header with signature for non-UART booting\n");
-			errno = EINVAL;
-			goto out;
+			goto err;
 		}
 
 		kwboot_printv("Patching image boot signature to UART\n");
@@ -1485,15 +1472,13 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 		if (image_ver == 0) {
 			fprintf(stderr,
 				"Cannot inject code for changing baudrate into v0 image header\n");
-			errno = EINVAL;
-			goto out;
+			goto err;
 		}
 
 		if (is_secure) {
 			fprintf(stderr,
 				"Cannot inject code for changing baudrate into image with secure header\n");
-			errno = EINVAL;
-			goto out;
+			goto err;
 		}
 
 		/*
@@ -1529,8 +1514,7 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 		if (is_secure) {
 			fprintf(stderr, "Cannot align image with secure header\n");
-			errno = EINVAL;
-			goto out;
+			goto err;
 		}
 
 		kwboot_printv("Aligning image header to Xmodem block size\n");
@@ -1540,9 +1524,10 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	hdr->checksum = kwboot_hdr_csum8(hdr) - csum;
 
 	*size = le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize);
-	rc = 0;
-out:
-	return rc;
+	return 0;
+err:
+	errno = EINVAL;
+	return -1;
 }
 
 static void
