@@ -57,11 +57,13 @@ static unsigned char kwboot_msg_debug[] = {
 #define NAK	21	/* target block negative ack */
 #define CAN	24	/* target/sender transfer cancellation */
 
+#define KWBOOT_XM_BLKSZ	128 /* xmodem block size */
+
 struct kwboot_block {
 	uint8_t soh;
 	uint8_t pnum;
 	uint8_t _pnum;
-	uint8_t data[128];
+	uint8_t data[KWBOOT_XM_BLKSZ];
 	uint8_t csum;
 } __packed;
 
@@ -356,16 +358,15 @@ static size_t
 kwboot_xm_makeblock(struct kwboot_block *block, const void *data,
 		    size_t size, int pnum)
 {
-	const size_t blksz = sizeof(block->data);
 	size_t i, n;
 
 	block->soh = SOH;
 	block->pnum = pnum;
 	block->_pnum = ~block->pnum;
 
-	n = size < blksz ? size : blksz;
+	n = size < KWBOOT_XM_BLKSZ ? size : KWBOOT_XM_BLKSZ;
 	memcpy(&block->data[0], data, n);
-	memset(&block->data[n], 0, blksz - n);
+	memset(&block->data[n], 0, KWBOOT_XM_BLKSZ - n);
 
 	block->csum = 0;
 	for (i = 0; i < n; i++)
@@ -425,48 +426,73 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block)
 }
 
 static int
-kwboot_xmodem(int tty, const void *_data, size_t size)
+kwboot_xmodem_one(int tty, int *pnum, int header, const uint8_t *data,
+		  size_t size)
 {
-	const uint8_t *data = _data;
-	int rc, pnum, N, err;
+	size_t sent, left;
+	int rc;
 
-	pnum = 1;
-	N = 0;
+	kwboot_printv("Sending boot image %s (%zu bytes)...\n",
+		      header ? "header" : "data", size);
 
-	kwboot_printv("Sending boot image...\n");
+	left = size;
+	sent = 0;
 
-	sleep(2); /* flush isn't effective without it */
-	tcflush(tty, TCIOFLUSH);
-
-	do {
+	while (sent < size) {
 		struct kwboot_block block;
-		int n;
+		size_t blksz;
 
-		n = kwboot_xm_makeblock(&block,
-					data + N, size - N,
-					pnum++);
-		if (!n)
-			break;
+		blksz = kwboot_xm_makeblock(&block, data, left, (*pnum)++);
+		data += blksz;
 
 		rc = kwboot_xm_sendblock(tty, &block);
 		if (rc)
 			goto out;
 
-		N += n;
-		kwboot_progress(N * 100 / size, '.');
-	} while (1);
+		sent += blksz;
+		left -= blksz;
 
-	rc = kwboot_tty_send_char(tty, EOT);
+		kwboot_progress(sent * 100 / size, '.');
+	}
 
+	kwboot_printv("Done\n");
+
+	return 0;
 out:
 	kwboot_printv("\n");
 	return rc;
+}
 
-can:
-	err = errno;
-	kwboot_tty_send_char(tty, CAN);
-	errno = err;
-	goto out;
+static int
+kwboot_xmodem(int tty, const void *_img, size_t size)
+{
+	const uint8_t *img = _img;
+	int rc, pnum;
+	size_t hdrsz;
+
+	if (image_version(img) == 0)
+		hdrsz = KWBHEADER_V0_SIZE((struct main_hdr_v0 *)img);
+	else
+		hdrsz = KWBHEADER_V1_SIZE((struct main_hdr_v1 *)img);
+
+	kwboot_printv("Waiting 2s and flushing tty\n");
+	sleep(2); /* flush isn't effective without it */
+	tcflush(tty, TCIOFLUSH);
+
+	pnum = 1;
+
+	rc = kwboot_xmodem_one(tty, &pnum, 1, img, hdrsz);
+	if (rc)
+		return rc;
+
+	img += hdrsz;
+	size -= hdrsz;
+
+	rc = kwboot_xmodem_one(tty, &pnum, 0, img, size);
+	if (rc)
+		return rc;
+
+	return kwboot_tty_send_char(tty, EOT);
 }
 
 static int

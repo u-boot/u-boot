@@ -195,6 +195,10 @@ struct register_set_hdr_v1 {
 #define OPT_HDR_V1_BINARY_TYPE   0x2
 #define OPT_HDR_V1_REGISTER_TYPE 0x3
 
+#define KWBHEADER_V0_SIZE(hdr) \
+	(((hdr)->ext & 0x1) ? sizeof(struct kwb_header) : \
+			      sizeof(struct main_hdr_v0))
+
 #define KWBHEADER_V1_SIZE(hdr) \
 	(((hdr)->headersz_msb << 16) | le16_to_cpu((hdr)->headersz_lsb))
 
@@ -225,9 +229,9 @@ void init_kwb_image_type (void);
  * header, byte 8 was reserved, and always set to 0. In the v1 header,
  * byte 8 has been changed to a proper field, set to 1.
  */
-static inline unsigned int image_version(void *header)
+static inline unsigned int image_version(const void *header)
 {
-	unsigned char *ptr = header;
+	const unsigned char *ptr = header;
 	return ptr[8];
 }
 
