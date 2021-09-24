@@ -200,7 +200,7 @@ static int comphy_pcie_power_up(u32 speed, u32 invert)
 	 * 6. Enable the output of 100M/125M/500M clock
 	 */
 	reg_set16(phy_addr(PCIE, MISC_REG0),
-		  0xA00D | rb_clk500m_en | rb_clk100m_125m_en, 0xFFFF);
+		  0xA00D | rb_clk500m_en | rb_txdclk_2x_sel | rb_clk100m_125m_en, 0xFFFF);
 
 	/*
 	 * 7. Enable TX

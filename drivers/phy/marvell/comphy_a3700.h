@@ -120,6 +120,7 @@ static inline void __iomem *phy_addr(enum phy_unit unit, u32 addr)
 
 #define MISC_REG0			0x4f
 #define rb_clk100m_125m_en		BIT(4)
+#define rb_txdclk_2x_sel		BIT(6)
 #define rb_clk500m_en			BIT(7)
 #define rb_ref_clk_sel			BIT(10)
 
