@@ -709,9 +709,9 @@ out:
 }
 
 static void *
-kwboot_mmap_image(const char *path, size_t *size, int prot)
+kwboot_mmap_image(const char *path, size_t *size)
 {
-	int rc, fd, flags;
+	int rc, fd;
 	struct stat st;
 	void *img;
 
@@ -726,9 +726,7 @@ kwboot_mmap_image(const char *path, size_t *size, int prot)
 	if (rc)
 		goto out;
 
-	flags = (prot & PROT_WRITE) ? MAP_PRIVATE : MAP_SHARED;
-
-	img = mmap(NULL, st.st_size, prot, flags, fd, 0);
+	img = mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 	if (img == MAP_FAILED) {
 		img = NULL;
 		goto out;
@@ -833,7 +831,6 @@ kwboot_usage(FILE *stream, char *progname)
 	fprintf(stream, "\n");
 	fprintf(stream,
 		"  -b <image>: boot <image> with preamble (Kirkwood, Armada 370/XP)\n");
-	fprintf(stream, "  -p: patch <image> to type 0x69 (uart boot)\n");
 	fprintf(stream,
 		"  -D <image>: boot <image> without preamble (Dove)\n");
 	fprintf(stream, "  -d: enter debug mode\n");
@@ -853,7 +850,7 @@ int
 main(int argc, char **argv)
 {
 	const char *ttypath, *imgpath;
-	int rv, rc, tty, term, prot, patch;
+	int rv, rc, tty, term;
 	void *bootmsg;
 	void *debugmsg;
 	void *img;
@@ -867,7 +864,6 @@ main(int argc, char **argv)
 	imgpath = NULL;
 	img = NULL;
 	term = 0;
-	patch = 0;
 	size = 0;
 	speed = B115200;
 
@@ -894,7 +890,7 @@ main(int argc, char **argv)
 			break;
 
 		case 'p':
-			patch = 1;
+			/* nop, for backward compatibility */
 			break;
 
 		case 't':
@@ -934,9 +930,6 @@ main(int argc, char **argv)
 	if (!bootmsg && !term && !debugmsg)
 		goto usage;
 
-	if (patch && !imgpath)
-		goto usage;
-
 	if (argc - optind < 1)
 		goto usage;
 
@@ -949,16 +942,12 @@ main(int argc, char **argv)
 	}
 
 	if (imgpath) {
-		prot = PROT_READ | (patch ? PROT_WRITE : 0);
-
-		img = kwboot_mmap_image(imgpath, &size, prot);
+		img = kwboot_mmap_image(imgpath, &size);
 		if (!img) {
 			perror(imgpath);
 			goto out;
 		}
-	}
 
-	if (patch) {
 		rc = kwboot_img_patch_hdr(img, size);
 		if (rc) {
 			fprintf(stderr, "%s: Invalid image.\n", imgpath);
