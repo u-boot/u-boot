@@ -382,10 +382,43 @@ _is_xm_reply(char c)
 }
 
 static int
-kwboot_xm_sendblock(int fd, struct kwboot_block *block)
+kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm)
+{
+	int rc;
+
+	while (1) {
+		rc = kwboot_tty_recv(fd, c, 1, blk_rsp_timeo);
+		if (rc) {
+			if (errno != ETIMEDOUT)
+				return rc;
+			*c = NAK;
+		}
+
+		/* If received xmodem reply, end. */
+		if (_is_xm_reply(*c))
+			break;
+
+		/*
+		 * If printing non-xmodem text output is allowed and such a byte
+		 * was received, print it.
+		 */
+		if (allow_non_xm) {
+			putchar(*c);
+			fflush(stdout);
+		}
+	}
+
+	return 0;
+}
+
+static int
+kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
+		    int *done_print)
 {
 	int rc, retries;
 	char c;
+
+	*done_print = 0;
 
 	retries = 16;
 	do {
@@ -393,22 +426,18 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block)
 		if (rc)
 			return rc;
 
-		do {
-			rc = kwboot_tty_recv(fd, &c, 1, blk_rsp_timeo);
-			if (rc) {
-				if (errno != ETIMEDOUT)
-					return rc;
-				c = NAK;
-			}
+		if (allow_non_xm && !*done_print) {
+			kwboot_progress(100, '.');
+			kwboot_printv("Done\n");
+			*done_print = 1;
+		}
 
-			if (!_is_xm_reply(c))
-				printf("%c", c);
+		rc = kwboot_xm_recv_reply(fd, &c, allow_non_xm);
+		if (rc)
+			return rc;
 
-		} while (!_is_xm_reply(c));
-
-		if (c != ACK)
+		if (!allow_non_xm && c != ACK)
 			kwboot_progress(-1, '+');
-
 	} while (c == NAK && retries-- > 0);
 
 	rc = -1;
@@ -435,6 +464,7 @@ static int
 kwboot_xmodem_one(int tty, int *pnum, int header, const uint8_t *data,
 		  size_t size)
 {
+	int done_print = 0;
 	size_t sent, left;
 	int rc;
 
@@ -446,22 +476,28 @@ kwboot_xmodem_one(int tty, int *pnum, int header, const uint8_t *data,
 
 	while (sent < size) {
 		struct kwboot_block block;
+		int last_block;
 		size_t blksz;
 
 		blksz = kwboot_xm_makeblock(&block, data, left, (*pnum)++);
 		data += blksz;
 
-		rc = kwboot_xm_sendblock(tty, &block);
+		last_block = (left <= blksz);
+
+		rc = kwboot_xm_sendblock(tty, &block, header && last_block,
+					 &done_print);
 		if (rc)
 			goto out;
 
 		sent += blksz;
 		left -= blksz;
 
-		kwboot_progress(sent * 100 / size, '.');
+		if (!done_print)
+			kwboot_progress(sent * 100 / size, '.');
 	}
 
-	kwboot_printv("Done\n");
+	if (!done_print)
+		kwboot_printv("Done\n");
 
 	return 0;
 out:
