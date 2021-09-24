@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <termios.h>
+#include <time.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
@@ -68,6 +69,7 @@ struct kwboot_block {
 } __packed;
 
 #define KWBOOT_BLK_RSP_TIMEO 1000 /* ms */
+#define KWBOOT_HDR_RSP_TIMEO 10000 /* ms */
 
 static int kwboot_verbose;
 
@@ -375,6 +377,26 @@ kwboot_xm_makeblock(struct kwboot_block *block, const void *data,
 	return n;
 }
 
+static uint64_t
+_now(void)
+{
+	struct timespec ts;
+
+	if (clock_gettime(CLOCK_MONOTONIC, &ts)) {
+		static int err_print;
+
+		if (!err_print) {
+			perror("clock_gettime() does not work");
+			err_print = 1;
+		}
+
+		/* this will just make the timeout not work */
+		return -1ULL;
+	}
+
+	return ts.tv_sec * 1000ULL + (ts.tv_nsec + 500000) / 1000000;
+}
+
 static int
 _is_xm_reply(char c)
 {
@@ -384,16 +406,21 @@ _is_xm_reply(char c)
 static int
 kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm, int *non_xm_print)
 {
+	int timeout = allow_non_xm ? KWBOOT_HDR_RSP_TIMEO : blk_rsp_timeo;
+	uint64_t recv_until = 0;
 	int rc;
 
 	*non_xm_print = 0;
 
 	while (1) {
-		rc = kwboot_tty_recv(fd, c, 1, blk_rsp_timeo);
+		rc = kwboot_tty_recv(fd, c, 1, timeout);
 		if (rc) {
 			if (errno != ETIMEDOUT)
 				return rc;
-			*c = NAK;
+			else if (recv_until && recv_until < _now())
+				return -1;
+			else
+				*c = NAK;
 		}
 
 		/* If received xmodem reply, end. */
@@ -402,9 +429,10 @@ kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm, int *non_xm_print)
 
 		/*
 		 * If printing non-xmodem text output is allowed and such a byte
-		 * was received, print it.
+		 * was received, print it and increase receiving time.
 		 */
 		if (allow_non_xm) {
+			recv_until = _now() + timeout;
 			putchar(*c);
 			fflush(stdout);
 			*non_xm_print = 1;
