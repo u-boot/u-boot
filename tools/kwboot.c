@@ -347,7 +347,7 @@ kwboot_debugmsg(int tty, void *msg)
 	return rc;
 }
 
-static int
+static size_t
 kwboot_xm_makeblock(struct kwboot_block *block, const void *data,
 		    size_t size, int pnum)
 {
@@ -441,9 +441,6 @@ kwboot_xmodem(int tty, const void *_data, size_t size)
 		n = kwboot_xm_makeblock(&block,
 					data + N, size - N,
 					pnum++);
-		if (n < 0)
-			goto can;
-
 		if (!n)
 			break;
 
