@@ -21,10 +21,8 @@ __weak void board_pex_config(void)
 
 int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 {
-	u32 pex_idx, tmp, next_busno, first_busno, temp_pex_reg,
-	    temp_reg, addr, dev_id, ctrl_mode;
 	enum serdes_type serdes_type;
-	u32 idx;
+	u32 idx, tmp;
 
 	DEBUG_INIT_FULL_S("\n### hws_pex_config ###\n");
 
@@ -60,131 +58,7 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 
 	reg_write(SOC_CONTROL_REG1, tmp);
 
-	/* Support gen1/gen2 */
-	DEBUG_INIT_FULL_S("Support gen1/gen2\n");
-
 	board_pex_config();
-
-	next_busno = 0;
-	mdelay(150);
-
-	for (idx = 0; idx < count; idx++) {
-		serdes_type = serdes_map[idx].serdes_type;
-		DEBUG_INIT_FULL_S(" serdes_type=0x");
-		DEBUG_INIT_FULL_D(serdes_type, 8);
-		DEBUG_INIT_FULL_S("\n");
-		DEBUG_INIT_FULL_S(" idx=0x");
-		DEBUG_INIT_FULL_D(idx, 8);
-		DEBUG_INIT_FULL_S("\n");
-
-		/* Configuration for PEX only */
-		if ((serdes_type != PEX0) && (serdes_type != PEX1) &&
-		    (serdes_type != PEX2) && (serdes_type != PEX3))
-			continue;
-
-		if ((serdes_type != PEX0) &&
-		    ((serdes_map[idx].serdes_mode == PEX_ROOT_COMPLEX_X4) ||
-		     (serdes_map[idx].serdes_mode == PEX_END_POINT_X4))) {
-			/* for PEX by4 - relevant for the first port only */
-			continue;
-		}
-
-		pex_idx = serdes_type - PEX0;
-		tmp = reg_read(PEX_DBG_STATUS_REG(pex_idx));
-
-		first_busno = next_busno;
-		if ((tmp & 0x7f) != 0x7e) {
-			DEBUG_INIT_S("PCIe, Idx ");
-			DEBUG_INIT_D(pex_idx, 1);
-			DEBUG_INIT_S(": detected no link\n");
-			continue;
-		}
-
-		next_busno++;
-
-		/*
-		 * Read maximum link speed. It must be 0x2 (5.0 GT/s) as this
-		 * value was set in serdes_power_up_ctrl() function.
-		 */
-		temp_pex_reg = reg_read((PEX_CFG_DIRECT_ACCESS
-					 (pex_idx, PEX_LINK_CAPABILITY_REG)));
-		temp_pex_reg &= 0xf;
-		if (temp_pex_reg != 0x2)
-			continue;
-
-		/* Read negotiated link speed */
-		temp_reg = (reg_read(PEX_CFG_DIRECT_ACCESS(
-					     pex_idx,
-					     PEX_LINK_CTRL_STAT_REG)) &
-			    0xf0000) >> 16;
-
-		/* Check if the link established is GEN1 */
-		DEBUG_INIT_FULL_S
-			("Checking if the link established is gen1\n");
-		if (temp_reg != 0x1)
-			continue;
-
-		pex_local_bus_num_set(pex_idx, first_busno);
-		pex_local_dev_num_set(pex_idx, 1);
-		DEBUG_INIT_FULL_S("PCIe, Idx ");
-		DEBUG_INIT_FULL_D(pex_idx, 1);
-
-		DEBUG_INIT_S(":** Link is Gen1, check the EP capability\n");
-		/* link is Gen1, check the EP capability */
-		addr = pex_config_read(pex_idx, first_busno, 0, 0, 0x34) & 0xff;
-		DEBUG_INIT_FULL_C("pex_config_read: return addr=0x%x", addr, 4);
-		if (addr == 0xff) {
-			DEBUG_INIT_FULL_C
-				("pex_config_read: return 0xff -->PCIe (%d): Detected No Link.",
-				 pex_idx, 1);
-			continue;
-		}
-
-		/* Find start of the PCI Express Capability registers */
-		while ((pex_config_read(pex_idx, first_busno, 0, 0, addr)
-			& 0xff) != 0x10) {
-			addr = (pex_config_read(pex_idx, first_busno, 0,
-						0, addr) & 0xff00) >> 8;
-		}
-
-		/* Check for Gen2 and above */
-		if ((pex_config_read(pex_idx, first_busno, 0, 0,
-				     addr + 0xc) & 0xf) < 0x2) {
-			DEBUG_INIT_S("PCIe, Idx ");
-			DEBUG_INIT_D(pex_idx, 1);
-			DEBUG_INIT_S(": remains Gen1\n");
-			continue;
-		}
-
-		tmp = reg_read(PEX_LINK_CTRL_STATUS2_REG(pex_idx));
-		DEBUG_RD_REG(PEX_LINK_CTRL_STATUS2_REG(pex_idx), tmp);
-		tmp &= ~(BIT(0) | BIT(1));
-		tmp |= BIT(1);	/* Force Target Link Speed to 5.0 GT/s */
-		tmp |= BIT(6);	/* Select Deemphasize (-3.5d_b) */
-		reg_write(PEX_LINK_CTRL_STATUS2_REG(pex_idx), tmp);
-		DEBUG_WR_REG(PEX_LINK_CTRL_STATUS2_REG(pex_idx), tmp);
-
-		/*
-		 * Enable Auto Speed change. When set, link will issue link
-		 * speed change to max possible link speed.
-		 */
-		tmp = reg_read(PEX_CTRL_REG(pex_idx));
-		DEBUG_RD_REG(PEX_CTRL_REG(pex_idx), tmp);
-		tmp |= BIT(10);
-		reg_write(PEX_CTRL_REG(pex_idx), tmp);
-		DEBUG_WR_REG(PEX_CTRL_REG(pex_idx), tmp);
-
-		/*
-		 * We need to wait 10ms before reading the PEX_DBG_STATUS_REG
-		 * in order not to read the status of the former state
-		 */
-		mdelay(10);
-
-		DEBUG_INIT_S("PCIe, Idx ");
-		DEBUG_INIT_D(pex_idx, 1);
-		DEBUG_INIT_S
-			(": Link upgraded to Gen2 based on client capabilities\n");
-	}
 
 	return MV_OK;
 }
