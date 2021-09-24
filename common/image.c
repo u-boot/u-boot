@@ -216,6 +216,8 @@ static const struct comp_magic_map image_comp[] = {
 	{	IH_COMP_GZIP,	"gzip",		{0x1f, 0x8b},},
 	{	IH_COMP_LZMA,	"lzma",		{0x5d, 0x00},},
 	{	IH_COMP_LZO,	"lzo",		{0x89, 0x4c},},
+	{	IH_COMP_LZ4,    "lz4",          {0x04, 0x22},},
+	{	IH_COMP_ZSTD,   "zstd",         {0x28, 0xb5},},
 	{	IH_COMP_NONE,	"none",		{},	},
 };
 

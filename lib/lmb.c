@@ -12,6 +12,10 @@
 #include <log.h>
 #include <malloc.h>
 
+#include <asm/global_data.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
 #define LMB_ALLOC_ANYWHERE	0
 
 static void lmb_dump_region(struct lmb_region *rgn, char *name)
@@ -111,6 +115,37 @@ void lmb_init(struct lmb *lmb)
 #endif
 	lmb->memory.cnt = 0;
 	lmb->reserved.cnt = 0;
+}
+
+void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align)
+{
+	ulong bank_end;
+	int bank;
+
+	/*
+	 * Reserve memory from aligned address below the bottom of U-Boot stack
+	 * until end of U-Boot area using LMB to prevent U-Boot from overwriting
+	 * that memory.
+	 */
+	debug("## Current stack ends at 0x%08lx ", sp);
+
+	/* adjust sp by 4K to be safe */
+	sp -= align;
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		if (!gd->bd->bi_dram[bank].size ||
+		    sp < gd->bd->bi_dram[bank].start)
+			continue;
+		/* Watch out for RAM at end of address space! */
+		bank_end = gd->bd->bi_dram[bank].start +
+			gd->bd->bi_dram[bank].size - 1;
+		if (sp > bank_end)
+			continue;
+		if (bank_end > end)
+			bank_end = end - 1;
+
+		lmb_reserve(lmb, sp, bank_end - sp + 1);
+		break;
+	}
 }
 
 static void lmb_reserve_common(struct lmb *lmb, void *fdt_blob)

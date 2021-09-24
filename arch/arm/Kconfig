@@ -9,6 +9,16 @@ config ARM64
 	select PHYS_64BIT
 	select SYS_CACHE_SHIFT_6
 
+config ARM64_CRC32
+	bool "Enable support for CRC32 instruction"
+	depends on ARM64
+	default y
+	help
+	  ARMv8 implements dedicated crc32 instruction for crc32 calculation.
+	  This is faster than software crc32 calculation. This instruction may
+	  not be present on all ARMv8.0, but is always present on ARMv8.1 and
+	  newer.
+
 config POSITION_INDEPENDENT
 	bool "Generate position-independent pre-relocation code"
 	depends on ARM64 || CPU_V7A

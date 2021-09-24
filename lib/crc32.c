@@ -84,7 +84,7 @@ static void __efi_runtime make_crc_table(void)
   }
   crc_table_empty = 0;
 }
-#else
+#elif !defined(CONFIG_ARM64_CRC32)
 /* ========================================================================
  * Table of CRC-32's of all single-byte values (made by make_crc_table)
  */
@@ -184,6 +184,12 @@ const uint32_t * ZEXPORT get_crc_table()
  */
 uint32_t __efi_runtime crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
 {
+#ifdef CONFIG_ARM64_CRC32
+    crc = cpu_to_le32(crc);
+    while (len--)
+        crc = __builtin_aarch64_crc32b(crc, *buf++);
+    return le32_to_cpu(crc);
+#else
     const uint32_t *tab = crc_table;
     const uint32_t *b =(const uint32_t *)buf;
     size_t rem_len;
@@ -221,6 +227,7 @@ uint32_t __efi_runtime crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
     }
 
     return le32_to_cpu(crc);
+#endif
 }
 #undef DO_CRC
 

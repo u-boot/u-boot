@@ -10,6 +10,9 @@
 #include <image.h>
 #include <irq_func.h>
 #include <log.h>
+#include <asm/global_data.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define NIOS_MAGIC 0x534f494e /* enable command line and initrd passing */
 
@@ -59,4 +62,17 @@ int do_bootm_linux(int flag, int argc, char *const argv[],
 	/* does not return */
 
 	return 1;
+}
+
+static ulong get_sp(void)
+{
+	ulong ret;
+
+	asm("mov %0, sp" : "=r"(ret) : );
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
 }

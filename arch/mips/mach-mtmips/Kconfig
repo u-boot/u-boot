@@ -1,6 +1,9 @@
 menu "MediaTek MIPS platforms"
 	depends on ARCH_MTMIPS
 
+config SYS_VENDOR
+	default "mediatek" if BOARD_MT7628_RFB || BOARD_MT7620_RFB || BOARD_MT7620_MT7530_RFB
+
 config SYS_MALLOC_F_LEN
 	default 0x1000
 

@@ -245,3 +245,16 @@ static void setup_end_tag(struct bd_info *bd)
 }
 
 #endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
+
+static ulong get_sp(void)
+{
+	ulong ret;
+
+	asm("move %0, $sp" : "=r"(ret) : );
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
+}
