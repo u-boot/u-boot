@@ -42,6 +42,7 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 			continue;
 		}
 
+		/* Set Device/Port Type to RootComplex */
 		pex_idx = serdes_type - PEX0;
 		tmp = reg_read(PEX_CAPABILITIES_REG(pex_idx));
 		tmp &= ~(0xf << 20);
@@ -122,12 +123,18 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 		}
 
 		next_busno++;
+
+		/*
+		 * Read maximum link speed. It must be 0x2 (5.0 GT/s) as this
+		 * value was set in serdes_power_up_ctrl() function.
+		 */
 		temp_pex_reg = reg_read((PEX_CFG_DIRECT_ACCESS
 					 (pex_idx, PEX_LINK_CAPABILITY_REG)));
 		temp_pex_reg &= 0xf;
 		if (temp_pex_reg != 0x2)
 			continue;
 
+		/* Read negotiated link speed */
 		temp_reg = (reg_read(PEX_CFG_DIRECT_ACCESS(
 					     pex_idx,
 					     PEX_LINK_CTRL_STAT_REG)) &
@@ -155,6 +162,7 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 			continue;
 		}
 
+		/* Find start of the PCI Express Capability registers */
 		while ((pex_config_read(pex_idx, first_busno, 0, 0, addr)
 			& 0xff) != 0x10) {
 			addr = (pex_config_read(pex_idx, first_busno, 0,
@@ -173,11 +181,15 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 		tmp = reg_read(PEX_LINK_CTRL_STATUS2_REG(pex_idx));
 		DEBUG_RD_REG(PEX_LINK_CTRL_STATUS2_REG(pex_idx), tmp);
 		tmp &= ~(BIT(0) | BIT(1));
-		tmp |= BIT(1);
+		tmp |= BIT(1);	/* Force Target Link Speed to 5.0 GT/s */
 		tmp |= BIT(6);	/* Select Deemphasize (-3.5d_b) */
 		reg_write(PEX_LINK_CTRL_STATUS2_REG(pex_idx), tmp);
 		DEBUG_WR_REG(PEX_LINK_CTRL_STATUS2_REG(pex_idx), tmp);
 
+		/*
+		 * Enable Auto Speed change. When set, link will issue link
+		 * speed change to max possible link speed.
+		 */
 		tmp = reg_read(PEX_CTRL_REG(pex_idx));
 		DEBUG_RD_REG(PEX_CTRL_REG(pex_idx), tmp);
 		tmp |= BIT(10);
