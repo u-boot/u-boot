@@ -230,9 +230,13 @@ static int comphy_pcie_power_up(u32 speed, u32 invert)
 	 */
 	if (invert & COMPHY_POLARITY_TXD_INVERT)
 		reg_set16(phy_addr(PCIE, SYNC_PATTERN), phy_txd_inv, 0);
+	else
+		reg_set16(phy_addr(PCIE, SYNC_PATTERN), 0, phy_txd_inv);
 
 	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		reg_set16(phy_addr(PCIE, SYNC_PATTERN), phy_rxd_inv, 0);
+	else
+		reg_set16(phy_addr(PCIE, SYNC_PATTERN), 0, phy_rxd_inv);
 
 	/*
 	 * 11. Release SW reset
@@ -467,9 +471,13 @@ static int comphy_usb3_power_up(u32 lane, u32 type, u32 speed, u32 invert)
 	 */
 	if (invert & COMPHY_POLARITY_TXD_INVERT)
 		usb3_reg_set16(SYNC_PATTERN, phy_txd_inv, 0, lane);
+	else
+		usb3_reg_set16(SYNC_PATTERN, 0, phy_txd_inv, lane);
 
 	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		usb3_reg_set16(SYNC_PATTERN, phy_rxd_inv, 0, lane);
+	else
+		usb3_reg_set16(SYNC_PATTERN, 0, phy_rxd_inv, lane);
 
 	/*
 	 * 10. Set max speed generation to USB3.0 5Gbps
@@ -839,9 +847,13 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 */
 	if (invert & COMPHY_POLARITY_TXD_INVERT)
 		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), phy_txd_inv, 0);
+	else
+		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), 0, phy_txd_inv);
 
 	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), phy_rxd_inv, 0);
+	else
+		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), 0, phy_rxd_inv);
 
 	/*
 	 * 19. Set PHY input ports PIN_PU_PLL, PIN_PU_TX and PIN_PU_RX to 1
