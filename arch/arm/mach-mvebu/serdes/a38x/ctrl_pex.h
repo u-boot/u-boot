@@ -12,7 +12,7 @@
 /* Direct access to PEX0 Root Port's PCIe Capability structure */
 #define PEX0_RP_PCIE_CFG_OFFSET		(0x00080000 + 0x60)
 
-/* PEX_CAPABILITIES_REG fields */
+/* SOC_CONTROL_REG1 fields */
 #define PCIE0_ENABLE_OFFS		0
 #define PCIE0_ENABLE_MASK		(0x1 << PCIE0_ENABLE_OFFS)
 #define PCIE1_ENABLE_OFFS		1
