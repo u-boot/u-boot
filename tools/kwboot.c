@@ -380,12 +380,15 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block)
 	do {
 		rc = kwboot_tty_send(fd, block, sizeof(*block));
 		if (rc)
-			break;
+			return rc;
 
 		do {
 			rc = kwboot_tty_recv(fd, &c, 1, blk_rsp_timeo);
-			if (rc)
-				break;
+			if (rc) {
+				if (errno != ETIMEDOUT)
+					return rc;
+				c = NAK;
+			}
 
 			if (c != ACK && c != NAK && c != CAN)
 				printf("%c", c);
