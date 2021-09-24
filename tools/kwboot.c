@@ -25,7 +25,6 @@
 #include <stdint.h>
 #include <termios.h>
 #include <time.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 
 /*
@@ -706,11 +705,12 @@ out:
 }
 
 static void *
-kwboot_mmap_image(const char *path, size_t *size)
+kwboot_read_image(const char *path, size_t *size, size_t reserve)
 {
 	int rc, fd;
 	struct stat st;
 	void *img;
+	off_t tot;
 
 	rc = -1;
 	img = NULL;
@@ -723,17 +723,30 @@ kwboot_mmap_image(const char *path, size_t *size)
 	if (rc)
 		goto out;
 
-	img = mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-	if (img == MAP_FAILED) {
-		img = NULL;
+	img = malloc(st.st_size + reserve);
+	if (!img)
 		goto out;
+
+	tot = 0;
+	while (tot < st.st_size) {
+		ssize_t rd = read(fd, img + tot, st.st_size - tot);
+
+		if (rd < 0)
+			goto out;
+
+		tot += rd;
+
+		if (!rd && tot < st.st_size) {
+			errno = EIO;
+			goto out;
+		}
 	}
 
 	rc = 0;
 	*size = st.st_size;
 out:
 	if (rc && img) {
-		munmap(img, st.st_size);
+		free(img);
 		img = NULL;
 	}
 	if (fd >= 0)
@@ -769,8 +782,39 @@ kwboot_img_is_secure(void *img)
 	return 0;
 }
 
+static void
+kwboot_img_grow_hdr(void *img, size_t *size, size_t grow)
+{
+	uint32_t hdrsz, datasz, srcaddr;
+	struct main_hdr_v1 *hdr = img;
+	uint8_t *data;
+
+	srcaddr = le32_to_cpu(hdr->srcaddr);
+
+	hdrsz = kwbheader_size(img);
+	data = (uint8_t *)img + srcaddr;
+	datasz = *size - srcaddr;
+
+	/* only move data if there is not enough space */
+	if (hdrsz + grow > srcaddr) {
+		size_t need = hdrsz + grow - srcaddr;
+
+		/* move data by enough bytes */
+		memmove(data + need, data, datasz);
+
+		hdr->srcaddr = cpu_to_le32(srcaddr + need);
+		*size += need;
+	}
+
+	if (kwbimage_version(img) == 1) {
+		hdrsz += grow;
+		hdr->headersz_msb = hdrsz >> 16;
+		hdr->headersz_lsb = cpu_to_le16(hdrsz & 0xffff);
+	}
+}
+
 static int
-kwboot_img_patch_hdr(void *img, size_t size)
+kwboot_img_patch_hdr(void *img, size_t *size)
 {
 	int rc;
 	struct main_hdr_v1 *hdr;
@@ -783,7 +827,7 @@ kwboot_img_patch_hdr(void *img, size_t size)
 	rc = -1;
 	hdr = img;
 
-	if (size < hdrsz) {
+	if (*size < hdrsz) {
 		errno = EINVAL;
 		goto out;
 	}
@@ -797,7 +841,7 @@ kwboot_img_patch_hdr(void *img, size_t size)
 
 	hdrsz = kwbheader_size(hdr);
 
-	if (size < hdrsz) {
+	if (*size < hdrsz) {
 		errno = EINVAL;
 		goto out;
 	}
@@ -844,6 +888,12 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		break;
 	}
 
+	if (hdrsz > le32_to_cpu(hdr->srcaddr) ||
+	    *size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize)) {
+		errno = EINVAL;
+		goto out;
+	}
+
 	is_secure = kwboot_img_is_secure(img);
 
 	if (hdr->blockid != IBR_HDR_UART_ID) {
@@ -858,8 +908,23 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		hdr->blockid = IBR_HDR_UART_ID;
 	}
 
+	if (hdrsz % KWBOOT_XM_BLKSZ) {
+		size_t offset = (KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ) %
+				KWBOOT_XM_BLKSZ;
+
+		if (is_secure) {
+			fprintf(stderr, "Cannot align image with secure header\n");
+			errno = EINVAL;
+			goto out;
+		}
+
+		kwboot_printv("Aligning image header to Xmodem block size\n");
+		kwboot_img_grow_hdr(img, size, offset);
+	}
+
 	hdr->checksum = kwboot_hdr_csum8(hdr) - csum;
 
+	*size = le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize);
 	rc = 0;
 out:
 	return rc;
@@ -986,13 +1051,13 @@ main(int argc, char **argv)
 	}
 
 	if (imgpath) {
-		img = kwboot_mmap_image(imgpath, &size);
+		img = kwboot_read_image(imgpath, &size, KWBOOT_XM_BLKSZ);
 		if (!img) {
 			perror(imgpath);
 			goto out;
 		}
 
-		rc = kwboot_img_patch_hdr(img, size);
+		rc = kwboot_img_patch_hdr(img, &size);
 		if (rc) {
 			fprintf(stderr, "%s: Invalid image.\n", imgpath);
 			goto out;
@@ -1035,7 +1100,7 @@ out:
 		close(tty);
 
 	if (img)
-		munmap(img, size);
+		free(img);
 
 	return rv;
 
