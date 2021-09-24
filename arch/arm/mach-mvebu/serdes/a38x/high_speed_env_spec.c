@@ -1721,31 +1721,44 @@ int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 					reg_data &= ~0x4000;
 				reg_write(SOC_CONTROL_REG1, reg_data);
 
-				reg_data =
-				    reg_read(((PEX_IF_REGS_BASE(pex_idx)) +
-					      0x6c));
+				/* Set Maximum Link Width to X1 or X4 */
+				reg_data = reg_read(PEX_CFG_DIRECT_ACCESS(
+						     pex_idx,
+						     PEX_LINK_CAPABILITY_REG));
 				reg_data &= ~0x3f0;
 				if (is_pex_by1 == 1)
 					reg_data |= 0x10;
 				else
 					reg_data |= 0x40;
-				reg_write(((PEX_IF_REGS_BASE(pex_idx)) + 0x6c),
+				reg_write(PEX_CFG_DIRECT_ACCESS(
+					   pex_idx,
+					   PEX_LINK_CAPABILITY_REG),
 					  reg_data);
 
-				reg_data =
-				    reg_read(((PEX_IF_REGS_BASE(pex_idx)) +
-					      0x6c));
+				/* Set Maximum Link Speed to 5 GT/s */
+				reg_data = reg_read(PEX_CFG_DIRECT_ACCESS(
+						     pex_idx,
+						     PEX_LINK_CAPABILITY_REG));
 				reg_data &= ~0xf;
 				reg_data |= 0x2;
-				reg_write(((PEX_IF_REGS_BASE(pex_idx)) + 0x6c),
+				reg_write(PEX_CFG_DIRECT_ACCESS(
+					   pex_idx,
+					   PEX_LINK_CAPABILITY_REG),
 					  reg_data);
 
-				reg_data =
-				    reg_read(((PEX_IF_REGS_BASE(pex_idx)) +
-					      0x70));
+				/*
+				 * Set Common Clock Configuration to indicates
+				 * that both devices on the link use a
+				 * distributed common reference clock.
+				 */
+				reg_data = reg_read(PEX_CFG_DIRECT_ACCESS(
+						     pex_idx,
+						     PEX_LINK_CTRL_STAT_REG));
 				reg_data &= ~0x40;
 				reg_data |= 0x40;
-				reg_write(((PEX_IF_REGS_BASE(pex_idx)) + 0x70),
+				reg_write(PEX_CFG_DIRECT_ACCESS(
+					   pex_idx,
+					   PEX_LINK_CTRL_STAT_REG),
 					  reg_data);
 			}
 
