@@ -1,6 +1,7 @@
 /*
  * Boot a Marvell SoC, with Xmodem over UART0.
- *  supports Kirkwood, Dove, Armada 370, Armada XP
+ *  supports Kirkwood, Dove, Armada 370, Armada XP, Armada 375, Armada 38x and
+ *           Armada 39x
  *
  * (c) 2012 Daniel Stodden <daniel.stodden@gmail.com>
  *
