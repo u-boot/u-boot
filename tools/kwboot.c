@@ -407,17 +407,18 @@ static int
 kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm, int *non_xm_print)
 {
 	int timeout = allow_non_xm ? KWBOOT_HDR_RSP_TIMEO : blk_rsp_timeo;
-	uint64_t recv_until = 0;
+	uint64_t recv_until = _now() + timeout;
 	int rc;
 
-	*non_xm_print = 0;
+	if (non_xm_print)
+		*non_xm_print = 0;
 
 	while (1) {
 		rc = kwboot_tty_recv(fd, c, 1, timeout);
 		if (rc) {
 			if (errno != ETIMEDOUT)
 				return rc;
-			else if (recv_until && recv_until < _now())
+			else if (allow_non_xm && *non_xm_print)
 				return -1;
 			else
 				*c = NAK;
@@ -430,12 +431,19 @@ kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm, int *non_xm_print)
 		/*
 		 * If printing non-xmodem text output is allowed and such a byte
 		 * was received, print it and increase receiving time.
+		 * Otherwise decrease timeout by time elapsed.
 		 */
 		if (allow_non_xm) {
 			recv_until = _now() + timeout;
 			putchar(*c);
 			fflush(stdout);
 			*non_xm_print = 1;
+		} else {
+			timeout = recv_until - _now();
+			if (timeout < 0) {
+				errno = ETIMEDOUT;
+				return -1;
+			}
 		}
 	}
 
