@@ -836,6 +836,14 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		if (srcaddr == 0xFFFFFFFF)
 			hdr->srcaddr = cpu_to_le32(hdrsz);
 		break;
+
+	case IBR_HDR_SPI_ID:
+		if (hdr->destaddr == cpu_to_le32(0xFFFFFFFF)) {
+			kwboot_printv("Patching destination and execution addresses from SPI/NOR XIP area to DDR area 0x00800000\n");
+			hdr->destaddr = cpu_to_le32(0x00800000);
+			hdr->execaddr = cpu_to_le32(0x00800000);
+		}
+		break;
 	}
 
 	is_secure = kwboot_img_is_secure(img);
