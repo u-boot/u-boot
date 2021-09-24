@@ -186,33 +186,6 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 			(": Link upgraded to Gen2 based on client capabilities\n");
 	}
 
-	/* Update pex DEVICE ID */
-	ctrl_mode = sys_env_model_get();
-
-	for (idx = 0; idx < count; idx++) {
-		serdes_type = serdes_map[idx].serdes_type;
-		/* configuration for PEX only */
-		if ((serdes_type != PEX0) && (serdes_type != PEX1) &&
-		    (serdes_type != PEX2) && (serdes_type != PEX3))
-			continue;
-
-		if ((serdes_type != PEX0) &&
-		    ((serdes_map[idx].serdes_mode == PEX_ROOT_COMPLEX_X4) ||
-		     (serdes_map[idx].serdes_mode == PEX_END_POINT_X4))) {
-			/* for PEX by4 - relevant for the first port only */
-			continue;
-		}
-
-		pex_idx = serdes_type - PEX0;
-		dev_id = reg_read(PEX_CFG_DIRECT_ACCESS
-				  (pex_idx, PEX_DEVICE_AND_VENDOR_ID));
-		dev_id &= 0xffff;
-		dev_id |= ((ctrl_mode << 16) & 0xffff0000);
-		reg_write(PEX_CFG_DIRECT_ACCESS
-			  (pex_idx, PEX_DEVICE_AND_VENDOR_ID), dev_id);
-	}
-	DEBUG_INIT_FULL_C("Update PEX Device ID ", ctrl_mode, 4);
-
 	return MV_OK;
 }
 
