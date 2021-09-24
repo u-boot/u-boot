@@ -69,7 +69,7 @@ struct ext_hdr_v0 {
 	uint8_t               checksum;
 } __packed;
 
-/* Structure of the main header, version 1 (Armada 370/38x/XP) */
+/* Structure of the main header, version 1 (Armada 370/XP/375/38x/39x) */
 struct main_hdr_v1 {
 	uint8_t  blockid;               /* 0x0       */
 	uint8_t  flags;                 /* 0x1       */
@@ -103,7 +103,7 @@ struct main_hdr_v1 {
 #define MAIN_HDR_V1_OPT_BAUD_115200	0x7
 
 /*
- * Header for the optional headers, version 1 (Armada 370, Armada XP)
+ * Header for the optional headers, version 1 (Armada 370/XP/375/38x/39x)
  */
 struct opt_hdr_v1 {
 	uint8_t  headertype;
@@ -127,7 +127,7 @@ struct sig_v1 {
 } __packed;
 
 /*
- * Structure of secure header (Armada 38x)
+ * Structure of secure header (Armada XP/375/38x/39x)
  */
 struct secure_hdr_v1 {
 	uint8_t  headertype;		/* 0x0 */

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Image manipulator for Marvell SoCs
- *  supports Kirkwood, Dove, Armada 370, Armada XP, and Armada 38x
+ *  supports Kirkwood, Dove, Armada 370, Armada XP, Armada 375, Armada 38x and
+ *  Armada 39x
  *
  * (C) Copyright 2013 Thomas Petazzoni
  * <thomas.petazzoni@free-electrons.com>
