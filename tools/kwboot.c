@@ -639,7 +639,7 @@ baud_fail:
 static int
 kwboot_open_tty(const char *path, int baudrate)
 {
-	int rc, fd;
+	int rc, fd, flags;
 	struct termios tio;
 
 	rc = -1;
@@ -658,6 +658,14 @@ kwboot_open_tty(const char *path, int baudrate)
 	tio.c_cc[VTIME] = 0;
 
 	rc = tcsetattr(fd, TCSANOW, &tio);
+	if (rc)
+		goto out;
+
+	flags = fcntl(fd, F_GETFL);
+	if (flags < 0)
+		goto out;
+
+	rc = fcntl(fd, F_SETFL, flags & ~O_NDELAY);
 	if (rc)
 		goto out;
 
