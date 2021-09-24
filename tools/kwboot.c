@@ -376,6 +376,12 @@ kwboot_xm_makeblock(struct kwboot_block *block, const void *data,
 }
 
 static int
+_is_xm_reply(char c)
+{
+	return c == ACK || c == NAK || c == CAN;
+}
+
+static int
 kwboot_xm_sendblock(int fd, struct kwboot_block *block)
 {
 	int rc, retries;
@@ -395,10 +401,10 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block)
 				c = NAK;
 			}
 
-			if (c != ACK && c != NAK && c != CAN)
+			if (!_is_xm_reply(c))
 				printf("%c", c);
 
-		} while (c != ACK && c != NAK && c != CAN);
+		} while (!_is_xm_reply(c));
 
 		if (c != ACK)
 			kwboot_progress(-1, '+');
