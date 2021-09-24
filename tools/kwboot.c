@@ -773,6 +773,7 @@ kwboot_img_patch_hdr(void *img, size_t size)
 {
 	int rc;
 	struct main_hdr_v1 *hdr;
+	uint32_t srcaddr;
 	uint8_t csum;
 	size_t hdrsz = sizeof(*hdr);
 	int image_ver;
@@ -809,6 +810,34 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		goto out;
 	}
 
+	if (image_ver == 0) {
+		struct main_hdr_v0 *hdr_v0 = img;
+
+		hdr_v0->nandeccmode = IBR_HDR_ECC_DISABLED;
+		hdr_v0->nandpagesize = 0;
+	}
+
+	srcaddr = le32_to_cpu(hdr->srcaddr);
+
+	switch (hdr->blockid) {
+	case IBR_HDR_SATA_ID:
+		if (srcaddr < 1) {
+			errno = EINVAL;
+			goto out;
+		}
+		hdr->srcaddr = cpu_to_le32((srcaddr - 1) * 512);
+		break;
+
+	case IBR_HDR_SDIO_ID:
+		hdr->srcaddr = cpu_to_le32(srcaddr * 512);
+		break;
+
+	case IBR_HDR_PEX_ID:
+		if (srcaddr == 0xFFFFFFFF)
+			hdr->srcaddr = cpu_to_le32(hdrsz);
+		break;
+	}
+
 	is_secure = kwboot_img_is_secure(img);
 
 	if (hdr->blockid != IBR_HDR_UART_ID) {
@@ -821,17 +850,6 @@ kwboot_img_patch_hdr(void *img, size_t size)
 
 		kwboot_printv("Patching image boot signature to UART\n");
 		hdr->blockid = IBR_HDR_UART_ID;
-	}
-
-	if (image_ver == 0) {
-		struct main_hdr_v0 *hdr_v0 = img;
-
-		hdr_v0->nandeccmode = IBR_HDR_ECC_DISABLED;
-		hdr_v0->nandpagesize = 0;
-
-		hdr_v0->srcaddr = hdr_v0->ext
-			? sizeof(struct kwb_header)
-			: sizeof(*hdr_v0);
 	}
 
 	hdr->checksum = kwboot_img_csum8(hdr, hdrsz) - csum;
