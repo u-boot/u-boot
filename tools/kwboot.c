@@ -820,14 +820,14 @@ kwboot_img_patch_hdr(void *img, size_t *size)
 	struct main_hdr_v1 *hdr;
 	uint32_t srcaddr;
 	uint8_t csum;
-	size_t hdrsz = sizeof(*hdr);
+	size_t hdrsz;
 	int image_ver;
 	int is_secure;
 
 	rc = -1;
 	hdr = img;
 
-	if (*size < hdrsz) {
+	if (*size < sizeof(struct main_hdr_v1)) {
 		errno = EINVAL;
 		goto out;
 	}
