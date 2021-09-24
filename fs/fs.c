@@ -37,7 +37,7 @@ static int fs_type = FS_TYPE_ANY;
 static inline int fs_probe_unsupported(struct blk_desc *fs_dev_desc,
 				      struct disk_partition *fs_partition)
 {
-	log_err("** Unrecognized filesystem type **\n");
+	log_debug("Unrecognized filesystem type\n");
 	return -1;
 }
 
