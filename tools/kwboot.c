@@ -552,7 +552,7 @@ kwboot_terminal(int tty)
 				break;
 		}
 
-		if (FD_ISSET(in, &rfds)) {
+		if (in >= 0 && FD_ISSET(in, &rfds)) {
 			rc = kwboot_term_pipe(in, tty, quit, &s);
 			if (rc)
 				break;
