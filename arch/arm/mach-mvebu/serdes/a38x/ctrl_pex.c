@@ -49,7 +49,7 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 		reg_write(PEX_CAPABILITIES_REG(pex_idx), tmp);
 	}
 
-	tmp = reg_read(SOC_CTRL_REG);
+	tmp = reg_read(SOC_CONTROL_REG1);
 	tmp &= ~0x03;
 
 	for (idx = 0; idx < count; idx++) {
@@ -79,7 +79,7 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 		}
 	}
 
-	reg_write(SOC_CTRL_REG, tmp);
+	reg_write(SOC_CONTROL_REG1, tmp);
 
 	/* Support gen1/gen2 */
 	DEBUG_INIT_FULL_S("Support gen1/gen2\n");
