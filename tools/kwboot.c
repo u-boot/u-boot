@@ -459,6 +459,7 @@ kwboot_xmodem(int tty, const void *_data, size_t size)
 	rc = kwboot_tty_send_char(tty, EOT);
 
 out:
+	kwboot_printv("\n");
 	return rc;
 
 can:
