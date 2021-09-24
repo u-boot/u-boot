@@ -140,12 +140,14 @@ __progress(int pct, char c)
 	fputc(c, stdout);
 
 	nl = "]\n";
-	pos++;
+	pos = (pos + 1) % width;
 
 	if (pct == 100) {
-		while (pos++ < width)
+		while (pos && pos++ < width)
 			fputc(' ', stdout);
 		fputs(nl, stdout);
+		nl = "";
+		pos = 0;
 	}
 
 	fflush(stdout);
@@ -162,6 +164,9 @@ kwboot_progress(int _pct, char c)
 
 	if (kwboot_verbose)
 		__progress(pct, c);
+
+	if (pct == 100)
+		pct = 0;
 }
 
 static int
