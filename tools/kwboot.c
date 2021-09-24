@@ -11,6 +11,7 @@
 
 #include "kwbimage.h"
 #include "mkimage.h"
+#include "version.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -681,6 +682,7 @@ out:
 static void
 kwboot_usage(FILE *stream, char *progname)
 {
+	fprintf(stream, "kwboot version %s\n", PLAIN_VERSION);
 	fprintf(stream,
 		"Usage: %s [OPTIONS] [-b <image> | -D <image> ] [-B <baud> ] <TTY>\n",
 		progname);
