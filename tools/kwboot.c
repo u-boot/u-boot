@@ -382,9 +382,11 @@ _is_xm_reply(char c)
 }
 
 static int
-kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm)
+kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm, int *non_xm_print)
 {
 	int rc;
+
+	*non_xm_print = 0;
 
 	while (1) {
 		rc = kwboot_tty_recv(fd, c, 1, blk_rsp_timeo);
@@ -405,6 +407,7 @@ kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm)
 		if (allow_non_xm) {
 			putchar(*c);
 			fflush(stdout);
+			*non_xm_print = 1;
 		}
 	}
 
@@ -415,6 +418,7 @@ static int
 kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 		    int *done_print)
 {
+	int non_xm_print;
 	int rc, retries;
 	char c;
 
@@ -432,13 +436,16 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 			*done_print = 1;
 		}
 
-		rc = kwboot_xm_recv_reply(fd, &c, allow_non_xm);
+		rc = kwboot_xm_recv_reply(fd, &c, allow_non_xm, &non_xm_print);
 		if (rc)
 			return rc;
 
 		if (!allow_non_xm && c != ACK)
 			kwboot_progress(-1, '+');
 	} while (c == NAK && retries-- > 0);
+
+	if (non_xm_print)
+		kwboot_printv("\n");
 
 	rc = -1;
 
