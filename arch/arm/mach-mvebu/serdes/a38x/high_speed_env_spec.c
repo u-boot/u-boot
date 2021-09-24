@@ -1712,7 +1712,7 @@ int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 				(serdes_mode == PEX_END_POINT_X1);
 			pex_idx = serdes_type - PEX0;
 
-			if ((is_pex_by1 == 1) || (serdes_type == PEX0)) {
+			if (serdes_type == PEX0) {
 				/* For PEX by 4, init only the PEX 0 */
 				reg_data = reg_read(SOC_CONTROL_REG1);
 				if (is_pex_by1 == 1)
@@ -1721,30 +1721,20 @@ int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 					reg_data &= ~0x4000;
 				reg_write(SOC_CONTROL_REG1, reg_data);
 
-				/* Set Maximum Link Width to X1 or X4 */
-				reg_data = reg_read(PEX_CFG_DIRECT_ACCESS(
-						     pex_idx,
-						     PEX_LINK_CAPABILITY_REG));
-				reg_data &= ~0x3f0;
-				if (is_pex_by1 == 1)
-					reg_data |= 0x10;
-				else
-					reg_data |= 0x40;
-				reg_write(PEX_CFG_DIRECT_ACCESS(
-					   pex_idx,
-					   PEX_LINK_CAPABILITY_REG),
-					  reg_data);
-
-				/* Set Maximum Link Speed to 5 GT/s */
-				reg_data = reg_read(PEX_CFG_DIRECT_ACCESS(
-						     pex_idx,
-						     PEX_LINK_CAPABILITY_REG));
-				reg_data &= ~0xf;
-				reg_data |= 0x2;
-				reg_write(PEX_CFG_DIRECT_ACCESS(
-					   pex_idx,
-					   PEX_LINK_CAPABILITY_REG),
-					  reg_data);
+				/*
+				 * Set Maximum Link Width to X1 or X4 in Root
+				 * Port's PCIe Link Capability register.
+				 * This register is read-only but if is not set
+				 * correctly then access to PCI config space of
+				 * endpoint card behind this Root Port does not
+				 * work.
+				 */
+				reg_data = reg_read(PEX0_RP_PCIE_CFG_OFFSET +
+						    PCI_EXP_LNKCAP);
+				reg_data &= ~PCI_EXP_LNKCAP_MLW;
+				reg_data |= (is_pex_by1 ? 1 : 4) << 4;
+				reg_write(PEX0_RP_PCIE_CFG_OFFSET +
+					  PCI_EXP_LNKCAP, reg_data);
 
 				/*
 				 * Set Common Clock Configuration to indicates

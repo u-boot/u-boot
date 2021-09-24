@@ -28,28 +28,6 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 
 	DEBUG_INIT_FULL_S("\n### hws_pex_config ###\n");
 
-	for (idx = 0; idx < count; idx++) {
-		serdes_type = serdes_map[idx].serdes_type;
-		/* configuration for PEX only */
-		if ((serdes_type != PEX0) && (serdes_type != PEX1) &&
-		    (serdes_type != PEX2) && (serdes_type != PEX3))
-			continue;
-
-		if ((serdes_type != PEX0) &&
-		    ((serdes_map[idx].serdes_mode == PEX_ROOT_COMPLEX_X4) ||
-		     (serdes_map[idx].serdes_mode == PEX_END_POINT_X4))) {
-			/* for PEX by4 - relevant for the first port only */
-			continue;
-		}
-
-		/* Set Device/Port Type to RootComplex */
-		pex_idx = serdes_type - PEX0;
-		tmp = reg_read(PEX_CAPABILITIES_REG(pex_idx));
-		tmp &= ~(0xf << 20);
-		tmp |= (0x4 << 20);
-		reg_write(PEX_CAPABILITIES_REG(pex_idx), tmp);
-	}
-
 	tmp = reg_read(SOC_CONTROL_REG1);
 	tmp &= ~0x03;
 

@@ -6,7 +6,11 @@
 #ifndef _CTRL_PEX_H
 #define _CTRL_PEX_H
 
+#include <pci.h>
 #include "high_speed_env_spec.h"
+
+/* Direct access to PEX0 Root Port's PCIe Capability structure */
+#define PEX0_RP_PCIE_CFG_OFFSET		(0x00080000 + 0x60)
 
 /* Sample at Reset */
 #define MPP_SAMPLE_AT_RESET(id)		(0xe4200 + (id * 4))
