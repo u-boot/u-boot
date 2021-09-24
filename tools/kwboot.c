@@ -72,6 +72,23 @@ static int msg_req_delay = KWBOOT_MSG_REQ_DELAY;
 static int msg_rsp_timeo = KWBOOT_MSG_RSP_TIMEO;
 static int blk_rsp_timeo = KWBOOT_BLK_RSP_TIMEO;
 
+static ssize_t
+kwboot_write(int fd, const char *buf, size_t len)
+{
+	size_t tot = 0;
+
+	while (tot < len) {
+		ssize_t wr = write(fd, buf + tot, len - tot);
+
+		if (wr < 0)
+			return -1;
+
+		tot += wr;
+	}
+
+	return tot;
+}
+
 static void
 kwboot_printv(const char *fmt, ...)
 {
@@ -191,26 +208,13 @@ out:
 static int
 kwboot_tty_send(int fd, const void *buf, size_t len)
 {
-	int rc;
-	ssize_t n;
-
 	if (!buf)
 		return 0;
 
-	rc = -1;
+	if (kwboot_write(fd, buf, len) < 0)
+		return -1;
 
-	do {
-		n = write(fd, buf, len);
-		if (n < 0)
-			goto out;
-
-		buf = (char *)buf + n;
-		len -= n;
-	} while (len > 0);
-
-	rc = tcdrain(fd);
-out:
-	return rc;
+	return tcdrain(fd);
 }
 
 static int
@@ -462,7 +466,7 @@ can:
 static int
 kwboot_term_pipe(int in, int out, const char *quit, int *s)
 {
-	ssize_t nin, nout;
+	ssize_t nin;
 	char _buf[128], *buf = _buf;
 
 	nin = read(in, buf, sizeof(_buf));
@@ -480,22 +484,15 @@ kwboot_term_pipe(int in, int out, const char *quit, int *s)
 				buf++;
 				nin--;
 			} else {
-				while (*s > 0) {
-					nout = write(out, quit, *s);
-					if (nout <= 0)
-						return -1;
-					(*s) -= nout;
-				}
+				if (kwboot_write(out, quit, *s) < 0)
+					return -1;
+				*s = 0;
 			}
 		}
 	}
 
-	while (nin > 0) {
-		nout = write(out, buf, nin);
-		if (nout <= 0)
-			return -1;
-		nin -= nout;
-	}
+	if (kwboot_write(out, buf, nin) < 0)
+		return -1;
 
 	return 0;
 }
