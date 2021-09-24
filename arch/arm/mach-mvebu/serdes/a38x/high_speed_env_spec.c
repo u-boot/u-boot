@@ -1735,21 +1735,6 @@ int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 				reg_data |= (is_pex_by1 ? 1 : 4) << 4;
 				reg_write(PEX0_RP_PCIE_CFG_OFFSET +
 					  PCI_EXP_LNKCAP, reg_data);
-
-				/*
-				 * Set Common Clock Configuration to indicates
-				 * that both devices on the link use a
-				 * distributed common reference clock.
-				 */
-				reg_data = reg_read(PEX_CFG_DIRECT_ACCESS(
-						     pex_idx,
-						     PEX_LINK_CTRL_STAT_REG));
-				reg_data &= ~0x40;
-				reg_data |= 0x40;
-				reg_write(PEX_CFG_DIRECT_ACCESS(
-					   pex_idx,
-					   PEX_LINK_CTRL_STAT_REG),
-					  reg_data);
 			}
 
 			CHECK_STATUS(mv_seq_exec(serdes_num, PEX_POWER_UP_SEQ));
