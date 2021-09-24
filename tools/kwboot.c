@@ -644,7 +644,7 @@ kwboot_open_tty(const char *path, int baudrate)
 
 	rc = -1;
 
-	fd = open(path, O_RDWR|O_NOCTTY|O_NDELAY);
+	fd = open(path, O_RDWR | O_NOCTTY | O_NDELAY);
 	if (fd < 0)
 		goto out;
 
@@ -653,7 +653,7 @@ kwboot_open_tty(const char *path, int baudrate)
 		goto out;
 
 	cfmakeraw(&tio);
-	tio.c_cflag |= CREAD|CLOCAL;
+	tio.c_cflag |= CREAD | CLOCAL;
 	tio.c_cc[VMIN] = 1;
 	tio.c_cc[VTIME] = 0;
 
@@ -1137,7 +1137,7 @@ kwboot_terminal(int tty)
 		}
 
 		kwboot_printv("[Type Ctrl-%c + %c to quit]\r\n",
-			      quit[0]|0100, quit[1]);
+			      quit[0] | 0100, quit[1]);
 	} else
 		in = -1;
 
