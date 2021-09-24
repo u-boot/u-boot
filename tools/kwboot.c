@@ -648,11 +648,12 @@ kwboot_open_tty(const char *path, int baudrate)
 	if (fd < 0)
 		goto out;
 
-	memset(&tio, 0, sizeof(tio));
+	rc = tcgetattr(fd, &tio);
+	if (rc)
+		goto out;
 
-	tio.c_iflag = 0;
-	tio.c_cflag = CREAD|CLOCAL|CS8;
-
+	cfmakeraw(&tio);
+	tio.c_cflag |= CREAD|CLOCAL;
 	tio.c_cc[VMIN] = 1;
 	tio.c_cc[VTIME] = 10;
 
