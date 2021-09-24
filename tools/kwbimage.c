@@ -542,7 +542,7 @@ static int kwb_export_pubkey(RSA *key, struct pubkey_der_v1 *dst, FILE *hashf,
 	}
 
 	if (4 + size_seq > sizeof(dst->key)) {
-		fprintf(stderr, "export pk failed: seq too large (%d, %lu)\n",
+		fprintf(stderr, "export pk failed: seq too large (%d, %zu)\n",
 			4 + size_seq, sizeof(dst->key));
 		fprintf(stderr, errmsg, keyname);
 		return -ENOBUFS;
