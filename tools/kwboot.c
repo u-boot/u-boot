@@ -23,9 +23,14 @@
 #include <errno.h>
 #include <unistd.h>
 #include <stdint.h>
-#include <termios.h>
 #include <time.h>
 #include <sys/stat.h>
+
+#ifdef __linux__
+#include "termios_linux.h"
+#else
+#include <termios.h>
+#endif
 
 /*
  * Marvell BootROM UART Sensing
@@ -554,7 +559,11 @@ kwboot_tty_baudrate_to_speed(int baudrate)
 		return B50;
 #endif
 	default:
+#ifdef BOTHER
+		return BOTHER;
+#else
 		return B0;
+#endif
 	}
 }
 
@@ -574,6 +583,11 @@ kwboot_tty_change_baudrate(int fd, int baudrate)
 		errno = EINVAL;
 		return -1;
 	}
+
+#ifdef BOTHER
+	if (speed == BOTHER)
+		tio.c_ospeed = tio.c_ispeed = baudrate;
+#endif
 
 	rc = cfsetospeed(&tio, speed);
 	if (rc)
