@@ -583,10 +583,7 @@ kwboot_xmodem(int tty, const void *_img, size_t size)
 	int rc, pnum;
 	size_t hdrsz;
 
-	if (kwbimage_version(img) == 0)
-		hdrsz = KWBHEADER_V0_SIZE((struct main_hdr_v0 *)img);
-	else
-		hdrsz = KWBHEADER_V1_SIZE((struct main_hdr_v1 *)img);
+	hdrsz = kwbheader_size(img);
 
 	kwboot_printv("Waiting 2s and flushing tty\n");
 	sleep(2); /* flush isn't effective without it */
@@ -746,9 +743,13 @@ out:
 }
 
 static uint8_t
-kwboot_img_csum8(void *_data, size_t size)
+kwboot_hdr_csum8(const void *hdr)
 {
-	uint8_t *data = _data, csum;
+	const uint8_t *data = hdr;
+	uint8_t csum;
+	size_t size;
+
+	size = kwbheader_size_for_csum(hdr);
 
 	for (csum = 0; size-- > 0; data++)
 		csum += *data;
@@ -794,17 +795,14 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		goto out;
 	}
 
-	if (image_ver == 0)
-		hdrsz = sizeof(*hdr);
-	else
-		hdrsz = KWBHEADER_V1_SIZE(hdr);
+	hdrsz = kwbheader_size(hdr);
 
 	if (size < hdrsz) {
 		errno = EINVAL;
 		goto out;
 	}
 
-	csum = kwboot_img_csum8(hdr, hdrsz) - hdr->checksum;
+	csum = kwboot_hdr_csum8(hdr) - hdr->checksum;
 	if (csum != hdr->checksum) {
 		errno = EINVAL;
 		goto out;
@@ -860,7 +858,7 @@ kwboot_img_patch_hdr(void *img, size_t size)
 		hdr->blockid = IBR_HDR_UART_ID;
 	}
 
-	hdr->checksum = kwboot_img_csum8(hdr, hdrsz) - csum;
+	hdr->checksum = kwboot_hdr_csum8(hdr) - csum;
 
 	rc = 0;
 out:

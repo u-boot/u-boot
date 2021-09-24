@@ -280,14 +280,6 @@ static uint8_t image_checksum8(void *start, uint32_t len)
 	return csum;
 }
 
-size_t kwbimage_header_size(unsigned char *ptr)
-{
-	if (kwbimage_version((void *)ptr) == 0)
-		return sizeof(struct main_hdr_v0);
-	else
-		return KWBHEADER_V1_SIZE((struct main_hdr_v1 *)ptr);
-}
-
 /*
  * Verify checksum over a complete header that includes the checksum field.
  * Return 1 when OK, otherwise 0.
@@ -298,7 +290,7 @@ static int main_hdr_checksum_ok(void *hdr)
 	struct main_hdr_v0 *main_hdr = (struct main_hdr_v0 *)hdr;
 	uint8_t checksum;
 
-	checksum = image_checksum8(hdr, kwbimage_header_size(hdr));
+	checksum = image_checksum8(hdr, kwbheader_size_for_csum(hdr));
 	/* Calculated checksum includes the header checksum field. Compensate
 	 * for that.
 	 */
@@ -1649,8 +1641,8 @@ static int kwbimage_check_image_types(uint8_t type)
 static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 				  struct image_tool_params *params)
 {
-	uint8_t checksum;
-	size_t header_size = kwbimage_header_size(ptr);
+	size_t header_size = kwbheader_size(ptr);
+	uint8_t csum;
 
 	if (header_size > image_size)
 		return -FDT_ERR_BADSTRUCTURE;
@@ -1663,17 +1655,10 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 		struct main_hdr_v0 *mhdr = (struct main_hdr_v0 *)ptr;
 
 		if (mhdr->ext & 0x1) {
-			struct ext_hdr_v0 *ext_hdr;
+			struct ext_hdr_v0 *ext_hdr = (void *)(mhdr + 1);
 
-			if (header_size + sizeof(*ext_hdr) > image_size)
-				return -FDT_ERR_BADSTRUCTURE;
-
-			ext_hdr = (struct ext_hdr_v0 *)
-				(ptr + sizeof(struct main_hdr_v0));
-			checksum = image_checksum8(ext_hdr,
-						   sizeof(struct ext_hdr_v0)
-						   - sizeof(uint8_t));
-			if (checksum != ext_hdr->checksum)
+			csum = image_checksum8(ext_hdr, sizeof(*ext_hdr) - 1);
+			if (csum != ext_hdr->checksum)
 				return -FDT_ERR_BADSTRUCTURE;
 		}
 	} else if (kwbimage_version(ptr) == 1) {
@@ -1832,7 +1817,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params)
 {
 	struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
-	size_t header_size = kwbimage_header_size(ptr);
+	size_t header_size = kwbheader_size(ptr);
 	struct opt_hdr_v1 *ohdr;
 	int idx = params->pflag;
 	int cur_idx = 0;

@@ -69,11 +69,6 @@ struct ext_hdr_v0 {
 	uint8_t               checksum;
 } __packed;
 
-struct kwb_header {
-	struct main_hdr_v0	kwb_hdr;
-	struct ext_hdr_v0	kwb_exthdr;
-} __packed;
-
 /* Structure of the main header, version 1 (Armada 370/38x/XP) */
 struct main_hdr_v1 {
 	uint8_t  blockid;               /* 0x0       */
@@ -195,13 +190,6 @@ struct register_set_hdr_v1 {
 #define OPT_HDR_V1_BINARY_TYPE   0x2
 #define OPT_HDR_V1_REGISTER_TYPE 0x3
 
-#define KWBHEADER_V0_SIZE(hdr) \
-	(((hdr)->ext & 0x1) ? sizeof(struct kwb_header) : \
-			      sizeof(struct main_hdr_v0))
-
-#define KWBHEADER_V1_SIZE(hdr) \
-	(((hdr)->headersz_msb << 16) | le16_to_cpu((hdr)->headersz_lsb))
-
 enum kwbimage_cmd {
 	CMD_INVALID,
 	CMD_BOOT_FROM,
@@ -233,6 +221,29 @@ static inline unsigned int kwbimage_version(const void *header)
 {
 	const unsigned char *ptr = header;
 	return ptr[8];
+}
+
+static inline size_t kwbheader_size(const void *header)
+{
+	if (kwbimage_version(header) == 0) {
+		const struct main_hdr_v0 *hdr = header;
+
+		return sizeof(*hdr) +
+		       (hdr->ext & 0x1) ? sizeof(struct ext_hdr_v0) : 0;
+	} else {
+		const struct main_hdr_v1 *hdr = header;
+
+		return (hdr->headersz_msb << 16) |
+		       le16_to_cpu(hdr->headersz_lsb);
+	}
+}
+
+static inline size_t kwbheader_size_for_csum(const void *header)
+{
+	if (kwbimage_version(header) == 0)
+		return sizeof(struct main_hdr_v0);
+	else
+		return kwbheader_size(header);
 }
 
 static inline uint32_t opt_hdr_v1_size(const struct opt_hdr_v1 *ohdr)
