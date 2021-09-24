@@ -460,7 +460,7 @@ can:
 }
 
 static int
-kwboot_term_pipe(int in, int out, char *quit, int *s)
+kwboot_term_pipe(int in, int out, const char *quit, int *s)
 {
 	ssize_t nin, nout;
 	char _buf[128], *buf = _buf;
@@ -504,7 +504,7 @@ static int
 kwboot_terminal(int tty)
 {
 	int rc, in, s;
-	char *quit = "\34c";
+	const char *quit = "\34c";
 	struct termios otio, tio;
 
 	rc = -1;
