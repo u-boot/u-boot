@@ -64,6 +64,27 @@ out:
 	return EFI_EXIT(ret);
 }
 
+static __always_inline struct efi_gop_pixel efi_vid30_to_blt_col(u32 vid)
+{
+	struct efi_gop_pixel blt = {
+		.reserved = 0,
+	};
+
+	blt.blue  = (vid & 0x3ff) >> 2;
+	vid >>= 10;
+	blt.green = (vid & 0x3ff) >> 2;
+	vid >>= 10;
+	blt.red   = (vid & 0x3ff) >> 2;
+	return blt;
+}
+
+static __always_inline u32 efi_blt_col_to_vid30(struct efi_gop_pixel *blt)
+{
+	return (u32)(blt->red   << 2) << 20 |
+	       (u32)(blt->green << 2) << 10 |
+	       (u32)(blt->blue  << 2);
+}
+
 static __always_inline struct efi_gop_pixel efi_vid16_to_blt_col(u16 vid)
 {
 	struct efi_gop_pixel blt = {
@@ -191,6 +212,9 @@ static __always_inline efi_status_t gop_blt_int(struct efi_gop *this,
 				if (vid_bpp == 32)
 					pix = *(struct efi_gop_pixel *)&fb32[
 						slineoff + j + sx];
+				else if (vid_bpp == 30)
+					pix = efi_vid30_to_blt_col(fb32[
+						slineoff + j + sx]);
 				else
 					pix = efi_vid16_to_blt_col(fb16[
 						slineoff + j + sx]);
@@ -207,6 +231,9 @@ static __always_inline efi_status_t gop_blt_int(struct efi_gop *this,
 			case EFI_BLT_VIDEO_TO_VIDEO:
 				if (vid_bpp == 32)
 					fb32[dlineoff + j + dx] = *(u32 *)&pix;
+				else if (vid_bpp == 30)
+					fb32[dlineoff + j + dx] =
+						efi_blt_col_to_vid30(&pix);
 				else
 					fb16[dlineoff + j + dx] =
 						efi_blt_col_to_vid16(&pix);
@@ -231,7 +258,10 @@ static efi_uintn_t gop_get_bpp(struct efi_gop *this)
 #else
 	case LCD_COLOR32:
 #endif
-		vid_bpp = 32;
+		if (gopobj->info.pixel_format == EFI_GOT_BGRA8)
+			vid_bpp = 32;
+		else
+			vid_bpp = 30;
 		break;
 #ifdef CONFIG_DM_VIDEO
 	case VIDEO_BPP16:
@@ -275,6 +305,17 @@ static efi_status_t gop_blt_buf_to_vid16(struct efi_gop *this,
 {
 	return gop_blt_int(this, buffer, EFI_BLT_BUFFER_TO_VIDEO, sx, sy, dx,
 			   dy, width, height, delta, 16);
+}
+
+static efi_status_t gop_blt_buf_to_vid30(struct efi_gop *this,
+					 struct efi_gop_pixel *buffer,
+					 u32 foo, efi_uintn_t sx,
+					 efi_uintn_t sy, efi_uintn_t dx,
+					 efi_uintn_t dy, efi_uintn_t width,
+					 efi_uintn_t height, efi_uintn_t delta)
+{
+	return gop_blt_int(this, buffer, EFI_BLT_BUFFER_TO_VIDEO, sx, sy, dx,
+			   dy, width, height, delta, 30);
 }
 
 static efi_status_t gop_blt_buf_to_vid32(struct efi_gop *this,
@@ -392,6 +433,10 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 		/* This needs to be super-fast, so duplicate for 16/32bpp */
 		if (vid_bpp == 32)
 			ret = gop_blt_buf_to_vid32(this, buffer, operation, sx,
+						   sy, dx, dy, width, height,
+						   delta);
+		else if (vid_bpp == 30)
+			ret = gop_blt_buf_to_vid30(this, buffer, operation, sx,
 						   sy, dx, dy, width, height,
 						   delta);
 		else
