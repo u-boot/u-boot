@@ -910,12 +910,6 @@ static int pcie_advk_setup_hw(struct pcie_advk *pcie)
 	if (pcie_advk_wait_for_link(pcie))
 		return -ENXIO;
 
-	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
-	reg |= PCIE_CORE_CMD_MEM_ACCESS_EN |
-		PCIE_CORE_CMD_IO_ACCESS_EN |
-		PCIE_CORE_CMD_MEM_IO_REQ_EN;
-	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
-
 	return 0;
 }
 
