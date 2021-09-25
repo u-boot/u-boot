@@ -57,4 +57,10 @@ static inline void *manual_reloc(void *ptr)
 		return ptr;
 }
 
+#if !defined(USE_HOSTCC) && defined(CONFIG_NEEDS_MANUAL_RELOC)
+#define MANUAL_RELOC(ptr)	(ptr) = manual_reloc(ptr)
+#else
+#define MANUAL_RELOC(ptr)	(void)(ptr)
+#endif
+
 #endif	/* _RELOCATE_H_ */
