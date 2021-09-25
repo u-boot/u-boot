@@ -446,7 +446,7 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		 void *load_buf, void *image_buf, ulong image_len,
 		 uint unc_len, ulong *load_end)
 {
-	int ret = 0;
+	int ret = -ENOSYS;
 
 	*load_end = load;
 	print_decomp_msg(comp, type, load == image_start);
@@ -458,6 +458,7 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 	 */
 	switch (comp) {
 	case IH_COMP_NONE:
+		ret = 0;
 		if (load == image_start)
 			break;
 		if (image_len <= unc_len)
@@ -539,21 +540,22 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		}
 
 		image_len = ret;
-
 		break;
 	}
 #endif /* CONFIG_ZSTD */
 #endif
-	default:
-		printf("Unimplemented compression type %d\n", comp);
-		return -ENOSYS;
 	}
+	if (ret == -ENOSYS) {
+		printf("Unimplemented compression type %d\n", comp);
+		return ret;
+	}
+	if (ret)
+		return ret;
 
 	*load_end = load + image_len;
 
-	return ret;
+	return 0;
 }
-
 
 #ifndef USE_HOSTCC
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
