@@ -18,8 +18,6 @@
 #include <status_led.h>
 #endif
 
-#include <rtc.h>
-
 #if IMAGE_ENABLE_FIT || IMAGE_ENABLE_OF_LIBFDT
 #include <linux/libfdt.h>
 #include <fdt_support.h>
@@ -60,6 +58,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #include <abuf.h>
 #include <bzlib.h>
+#include <display_options.h>
 #include <gzip.h>
 #include <image.h>
 #include <lz4.h>
@@ -527,41 +526,6 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 
 	return 0;
 }
-
-#ifdef USE_HOSTCC
-void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
-{
-	memmove(to, from, len);
-}
-#endif /* !USE_HOSTCC */
-
-void genimg_print_size(uint32_t size)
-{
-#ifndef USE_HOSTCC
-	printf("%d Bytes = ", size);
-	print_size(size, "\n");
-#else
-	printf("%d Bytes = %.2f KiB = %.2f MiB\n",
-			size, (double)size / 1.024e3,
-			(double)size / 1.048576e6);
-#endif
-}
-
-#if IMAGE_ENABLE_TIMESTAMP
-void genimg_print_time(time_t timestamp)
-{
-#ifndef USE_HOSTCC
-	struct rtc_time tm;
-
-	rtc_to_tm(timestamp, &tm);
-	printf("%4d-%02d-%02d  %2d:%02d:%02d UTC\n",
-			tm.tm_year, tm.tm_mon, tm.tm_mday,
-			tm.tm_hour, tm.tm_min, tm.tm_sec);
-#else
-	printf("%s", ctime(&timestamp));
-#endif
-}
-#endif
 
 const table_entry_t *get_table_entry(const table_entry_t *table, int id)
 {

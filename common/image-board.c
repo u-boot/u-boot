@@ -15,6 +15,7 @@
 #include <fpga.h>
 #include <image.h>
 #include <mapmem.h>
+#include <rtc.h>
 #include <watchdog.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -925,3 +926,19 @@ int image_setup_linux(bootm_headers_t *images)
 	return 0;
 }
 #endif /* CONFIG_LMB */
+
+void genimg_print_size(uint32_t size)
+{
+	printf("%d Bytes = ", size);
+	print_size(size, "\n");
+}
+
+void genimg_print_time(time_t timestamp)
+{
+	struct rtc_time tm;
+
+	rtc_to_tm(timestamp, &tm);
+	printf("%4d-%02d-%02d  %2d:%02d:%02d UTC\n",
+	       tm.tm_year, tm.tm_mon, tm.tm_mday,
+	       tm.tm_hour, tm.tm_min, tm.tm_sec);
+}

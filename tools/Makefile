@@ -113,6 +113,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			lib/fdtdec_common.o \
 			lib/fdtdec.o \
 			common/image.o \
+			common/image-host.o \
 			imagetool.o \
 			imximage.o \
 			imx8image.o \
