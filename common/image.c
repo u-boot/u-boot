@@ -534,12 +534,10 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		abuf_init_set(&in, image_buf, image_len);
 		abuf_init_set(&in, load_buf, unc_len);
 		ret = zstd_decompress(&in, &out);
-		if (ret < 0) {
-			printf("ZSTD decompression failed\n");
-			return ret;
+		if (ret >= 0) {
+			image_len = ret;
+			ret = 0;
 		}
-
-		image_len = ret;
 		break;
 	}
 #endif /* CONFIG_ZSTD */
