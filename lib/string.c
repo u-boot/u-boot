@@ -659,6 +659,19 @@ void * memscan(void * addr, int c, size_t size)
 }
 #endif
 
+char *memdup(const void *src, size_t len)
+{
+	char *p;
+
+	p = malloc(len);
+	if (!p)
+		return NULL;
+
+	memcpy(p, src, len);
+
+	return p;
+}
+
 #ifndef __HAVE_ARCH_STRSTR
 /**
  * strstr - Find the first substring in a %NUL terminated string
