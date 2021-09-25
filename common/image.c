@@ -22,12 +22,9 @@
 #include <status_led.h>
 #endif
 
-#include <abuf.h>
 #include <rtc.h>
 
-#include <gzip.h>
 #include <image.h>
-#include <lz4.h>
 #include <mapmem.h>
 
 #if IMAGE_ENABLE_FIT || IMAGE_ENABLE_OF_LIBFDT
@@ -43,13 +40,6 @@
 #include <linux/errno.h>
 #include <asm/io.h>
 
-#include <bzlib.h>
-#include <linux/lzo.h>
-#include <lzma/LzmaTypes.h>
-#include <lzma/LzmaDec.h>
-#include <lzma/LzmaTools.h>
-#include <linux/zstd.h>
-
 #ifdef CONFIG_CMD_BDI
 extern int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[]);
@@ -61,7 +51,15 @@ DECLARE_GLOBAL_DATA_PTR;
 static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 						int verify);
 #endif
+
+/* Set this if we have less than 4 MB of malloc() space */
+#if CONFIG_SYS_MALLOC_LEN < (4096 * 1024)
+#define CONSERVE_MEMORY		true
 #else
+#define CONSERVE_MEMORY		false
+#endif
+
+#else /* USE_HOSTCC */
 #include "mkimage.h"
 #include <u-boot/md5.h>
 #include <time.h>
@@ -70,10 +68,23 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #ifndef __maybe_unused
 # define __maybe_unused		/* unimplemented */
 #endif
+
+#define CONSERVE_MEMORY		false
+
 #endif /* !USE_HOSTCC*/
 
-#include <u-boot/crc.h>
+#include <abuf.h>
+#include <bzlib.h>
+#include <gzip.h>
+#include <lz4.h>
 #include <imximage.h>
+#include <linux/lzo.h>
+#include <linux/zstd.h>
+#include <linux/kconfig.h>
+#include <lzma/LzmaTypes.h>
+#include <lzma/LzmaDec.h>
+#include <lzma/LzmaTools.h>
+#include <u-boot/crc.h>
 
 #ifndef CONFIG_SYS_BARGSIZE
 #define CONFIG_SYS_BARGSIZE 512
@@ -466,82 +477,62 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		else
 			ret = -ENOSPC;
 		break;
-#ifndef USE_HOSTCC
-#if CONFIG_IS_ENABLED(GZIP)
-	case IH_COMP_GZIP: {
-		ret = gunzip(load_buf, unc_len, image_buf, &image_len);
+	case IH_COMP_GZIP:
+		if (!host_build() && CONFIG_IS_ENABLED(GZIP))
+			ret = gunzip(load_buf, unc_len, image_buf, &image_len);
 		break;
-	}
-#endif /* CONFIG_GZIP */
-#endif
-#ifndef USE_HOSTCC
-#if CONFIG_IS_ENABLED(BZIP2)
-	case IH_COMP_BZIP2: {
-		uint size = unc_len;
+	case IH_COMP_BZIP2:
+		if (!host_build() && CONFIG_IS_ENABLED(BZIP2)) {
+			uint size = unc_len;
 
-		/*
-		 * If we've got less than 4 MB of malloc() space,
-		 * use slower decompression algorithm which requires
-		 * at most 2300 KB of memory.
-		 */
-		ret = BZ2_bzBuffToBuffDecompress(load_buf, &size,
-			image_buf, image_len,
-			CONFIG_SYS_MALLOC_LEN < (4096 * 1024), 0);
-		image_len = size;
-		break;
-	}
-#endif /* CONFIG_BZIP2 */
-#endif
-#ifndef USE_HOSTCC
-#if CONFIG_IS_ENABLED(LZMA)
-	case IH_COMP_LZMA: {
-		SizeT lzma_len = unc_len;
-
-		ret = lzmaBuffToBuffDecompress(load_buf, &lzma_len,
-					       image_buf, image_len);
-		image_len = lzma_len;
-		break;
-	}
-#endif /* CONFIG_LZMA */
-#endif
-#ifndef USE_HOSTCC
-#if CONFIG_IS_ENABLED(LZO)
-	case IH_COMP_LZO: {
-		size_t size = unc_len;
-
-		ret = lzop_decompress(image_buf, image_len, load_buf, &size);
-		image_len = size;
-		break;
-	}
-#endif /* CONFIG_LZO */
-#endif
-#ifndef USE_HOSTCC
-#if CONFIG_IS_ENABLED(LZ4)
-	case IH_COMP_LZ4: {
-		size_t size = unc_len;
-
-		ret = ulz4fn(image_buf, image_len, load_buf, &size);
-		image_len = size;
-		break;
-	}
-#endif /* CONFIG_LZ4 */
-#endif
-#ifndef USE_HOSTCC
-#if CONFIG_IS_ENABLED(ZSTD)
-	case IH_COMP_ZSTD: {
-		struct abuf in, out;
-
-		abuf_init_set(&in, image_buf, image_len);
-		abuf_init_set(&in, load_buf, unc_len);
-		ret = zstd_decompress(&in, &out);
-		if (ret >= 0) {
-			image_len = ret;
-			ret = 0;
+			/*
+			 * If we've got less than 4 MB of malloc() space,
+			 * use slower decompression algorithm which requires
+			 * at most 2300 KB of memory.
+			 */
+			ret = BZ2_bzBuffToBuffDecompress(load_buf, &size,
+				image_buf, image_len, CONSERVE_MEMORY, 0);
+			image_len = size;
 		}
 		break;
-	}
-#endif /* CONFIG_ZSTD */
-#endif
+	case IH_COMP_LZMA:
+		if (!host_build() && CONFIG_IS_ENABLED(LZMA)) {
+			SizeT lzma_len = unc_len;
+
+			ret = lzmaBuffToBuffDecompress(load_buf, &lzma_len,
+						       image_buf, image_len);
+			image_len = lzma_len;
+		}
+		break;
+	case IH_COMP_LZO:
+		if (!host_build() && CONFIG_IS_ENABLED(LZO)) {
+			size_t size = unc_len;
+
+			ret = lzop_decompress(image_buf, image_len, load_buf, &size);
+			image_len = size;
+		}
+		break;
+	case IH_COMP_LZ4:
+		if (!host_build() && CONFIG_IS_ENABLED(LZ4)) {
+			size_t size = unc_len;
+
+			ret = ulz4fn(image_buf, image_len, load_buf, &size);
+			image_len = size;
+		}
+		break;
+	case IH_COMP_ZSTD:
+		if (!host_build() && CONFIG_IS_ENABLED(ZSTD)) {
+			struct abuf in, out;
+
+			abuf_init_set(&in, image_buf, image_len);
+			abuf_init_set(&in, load_buf, unc_len);
+			ret = zstd_decompress(&in, &out);
+			if (ret >= 0) {
+				image_len = ret;
+				ret = 0;
+			}
+		}
+		break;
 	}
 	if (ret == -ENOSYS) {
 		printf("Unimplemented compression type %d\n", comp);
@@ -960,7 +951,7 @@ int get_table_entry_id(const table_entry_t *table,
 	const table_entry_t *t;
 
 	for (t = table; t->id >= 0; ++t) {
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
+#if !defined(USE_HOSTCC) && defined(CONFIG_NEEDS_MANUAL_RELOC)
 		if (t->sname && strcasecmp(t->sname + gd->reloc_off, name) == 0)
 #else
 		if (t->sname && strcasecmp(t->sname, name) == 0)
