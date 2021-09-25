@@ -29,6 +29,7 @@
 #include <asm/byteorder.h>
 #include <asm/bootm.h>
 #include <asm/bootparam.h>
+#include <asm/efi.h>
 #include <asm/global_data.h>
 #ifdef CONFIG_SYS_COREBOOT
 #include <asm/arch/timestamp.h>
