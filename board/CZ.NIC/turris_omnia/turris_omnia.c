@@ -647,10 +647,13 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	if (!fixup_mtd_partitions(blob, node, mtd))
 		goto fail;
 
+	put_mtd_device(mtd);
 	return 0;
 
 fail:
 	printf("Failed fixing SPI NOR partitions!\n");
+	if (!IS_ERR_OR_NULL(mtd))
+		put_mtd_device(mtd);
 	return 0;
 }
 #endif
