@@ -22,6 +22,7 @@
 #include <status_led.h>
 #endif
 
+#include <abuf.h>
 #include <rtc.h>
 
 #include <gzip.h>
@@ -527,50 +528,17 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 #ifndef USE_HOSTCC
 #if CONFIG_IS_ENABLED(ZSTD)
 	case IH_COMP_ZSTD: {
-		size_t size = unc_len;
-		ZSTD_DStream *dstream;
-		ZSTD_inBuffer in_buf;
-		ZSTD_outBuffer out_buf;
-		void *workspace;
-		size_t wsize;
+		struct abuf in, out;
 
-		wsize = ZSTD_DStreamWorkspaceBound(image_len);
-		workspace = malloc(wsize);
-		if (!workspace) {
-			debug("%s: cannot allocate workspace of size %zu\n", __func__,
-			      wsize);
-			return -1;
+		abuf_init_set(&in, image_buf, image_len);
+		abuf_init_set(&in, load_buf, unc_len);
+		ret = zstd_decompress(&in, &out);
+		if (ret < 0) {
+			printf("ZSTD decompression failed\n");
+			return ret;
 		}
 
-		dstream = ZSTD_initDStream(image_len, workspace, wsize);
-		if (!dstream) {
-			printf("%s: ZSTD_initDStream failed\n", __func__);
-			return ZSTD_getErrorCode(ret);
-		}
-
-		in_buf.src = image_buf;
-		in_buf.pos = 0;
-		in_buf.size = image_len;
-
-		out_buf.dst = load_buf;
-		out_buf.pos = 0;
-		out_buf.size = size;
-
-		while (1) {
-			size_t ret;
-
-			ret = ZSTD_decompressStream(dstream, &out_buf, &in_buf);
-			if (ZSTD_isError(ret)) {
-				printf("%s: ZSTD_decompressStream error %d\n", __func__,
-				       ZSTD_getErrorCode(ret));
-				return ZSTD_getErrorCode(ret);
-			}
-
-			if (in_buf.pos >= image_len || !ret)
-				break;
-		}
-
-		image_len = out_buf.pos;
+		image_len = ret;
 
 		break;
 	}
