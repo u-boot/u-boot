@@ -814,7 +814,6 @@ int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
 }
 #endif
 
-#ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -853,9 +852,7 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 
 	return 0;
 }
-#endif /* CONFIG_SYS_BOOT_GET_CMDLINE */
 
-#ifdef CONFIG_SYS_BOOT_GET_KBD
 /**
  * boot_get_kbd - allocate and initialize kernel copy of board info
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -883,15 +880,14 @@ int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd)
 
 	debug("## kernel board info at 0x%08lx\n", (ulong)*kbd);
 
-#if defined(DEBUG) && defined(CONFIG_CMD_BDI)
-	do_bdinfo(NULL, 0, 0, NULL);
+#if defined(DEBUG)
+	if (IS_ENABLED(CONFIG_CMD_BDI)
+		do_bdinfo(NULL, 0, 0, NULL);
 #endif
 
 	return 0;
 }
-#endif /* CONFIG_SYS_BOOT_GET_KBD */
 
-#ifdef CONFIG_LMB
 int image_setup_linux(bootm_headers_t *images)
 {
 	ulong of_size = images->ft_len;
@@ -925,7 +921,6 @@ int image_setup_linux(bootm_headers_t *images)
 
 	return 0;
 }
-#endif /* CONFIG_LMB */
 
 void genimg_print_size(uint32_t size)
 {
