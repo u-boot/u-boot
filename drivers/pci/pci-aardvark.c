@@ -196,13 +196,13 @@
  * @device:      The pointer to PCI uclass device.
  */
 struct pcie_advk {
-	void           *base;
-	int            first_busno;
-	int            sec_busno;
-	struct udevice *dev;
-	struct gpio_desc reset_gpio;
-	u32            cfgcache[0x34 - 0x10];
-	bool           cfgcrssve;
+	void			*base;
+	int			first_busno;
+	int			sec_busno;
+	struct udevice		*dev;
+	struct gpio_desc	reset_gpio;
+	u32			cfgcache[0x34 - 0x10];
+	bool			cfgcrssve;
 };
 
 static inline void advk_writel(struct pcie_advk *pcie, uint val, uint reg)
