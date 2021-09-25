@@ -41,8 +41,8 @@ DECLARE_GLOBAL_DATA_PTR;
  *     pointer to a ramdisk image header, if image was found and valid
  *     otherwise, return NULL
  */
-static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
-						int verify)
+static const image_header_t *image_get_ramdisk(ulong rd_addr, u8 arch,
+					       int verify)
 {
 	const image_header_t *rd_hdr = (const image_header_t *)rd_addr;
 
@@ -77,7 +77,7 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 	    !image_check_arch(rd_hdr, arch) ||
 	    !image_check_type(rd_hdr, IH_TYPE_RAMDISK)) {
 		printf("No Linux %s Ramdisk Image\n",
-				genimg_get_arch_name(arch));
+		       genimg_get_arch_name(arch));
 		bootstage_error(BOOTSTAGE_ID_RAMDISK);
 		return NULL;
 	}
@@ -94,7 +94,7 @@ ulong image_save_addr;			/* Default Save Address */
 ulong image_save_size;			/* Default Save Size (in bytes) */
 
 static int on_loadaddr(const char *name, const char *value, enum env_op op,
-	int flags)
+		       int flags)
 {
 	switch (op) {
 	case env_op_create:
@@ -112,6 +112,7 @@ U_BOOT_ENV_CALLBACK(loadaddr, on_loadaddr);
 ulong env_get_bootm_low(void)
 {
 	char *s = env_get("bootm_low");
+
 	if (s) {
 		ulong tmp = hextoul(s, NULL);
 		return tmp;
@@ -131,6 +132,7 @@ phys_size_t env_get_bootm_size(void)
 	phys_size_t tmp, size;
 	phys_addr_t start;
 	char *s = env_get("bootm_size");
+
 	if (s) {
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
 		return tmp;
@@ -155,6 +157,7 @@ phys_size_t env_get_bootm_mapsize(void)
 {
 	phys_size_t tmp;
 	char *s = env_get("bootm_mapsize");
+
 	if (s) {
 		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
 		return tmp;
@@ -179,6 +182,7 @@ void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
 	}
 	while (len > 0) {
 		size_t tail = (len > chunksz) ? chunksz : len;
+
 		WATCHDOG_RESET();
 		if (to > from) {
 			to -= tail;
@@ -212,8 +216,8 @@ void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
  *     kernel start address
  */
 ulong genimg_get_kernel_addr_fit(char * const img_addr,
-			     const char **fit_uname_config,
-			     const char **fit_uname_kernel)
+				 const char **fit_uname_config,
+				 const char **fit_uname_kernel)
 {
 	ulong kernel_addr;
 
@@ -319,7 +323,7 @@ int genimg_has_config(bootm_headers_t *images)
  * @rd_end: pointer to a ulong variable, will hold ramdisk end
  *
  * boot_get_ramdisk() is responsible for finding a valid ramdisk image.
- * Curently supported are the following ramdisk sources:
+ * Currently supported are the following ramdisk sources:
  *      - multicomponent kernel/ramdisk image,
  *      - commandline provided address of decicated ramdisk image.
  *
@@ -332,7 +336,7 @@ int genimg_has_config(bootm_headers_t *images)
  *     rd_start and rd_end are set to 0 if no ramdisk exists
  */
 int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
-		     uint8_t arch, ulong *rd_start, ulong *rd_end)
+		     u8 arch, ulong *rd_start, ulong *rd_end)
 {
 	ulong rd_addr, rd_load;
 	ulong rd_data, rd_len;
@@ -372,7 +376,8 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 	 */
 	if (select && strcmp(select, "-") ==  0) {
 		debug("## Skipping init Ramdisk\n");
-		rd_len = rd_data = 0;
+		rd_len = 0;
+		rd_data = 0;
 	} else if (select || genimg_has_config(images)) {
 #if IMAGE_ENABLE_FIT
 		if (select) {
@@ -389,21 +394,19 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 
 			if (fit_parse_conf(select, default_addr,
 					   &rd_addr, &fit_uname_config)) {
-				debug("*  ramdisk: config '%s' from image at "
-						"0x%08lx\n",
-						fit_uname_config, rd_addr);
+				debug("*  ramdisk: config '%s' from image at 0x%08lx\n",
+				      fit_uname_config, rd_addr);
 			} else if (fit_parse_subimage(select, default_addr,
-						&rd_addr, &fit_uname_ramdisk)) {
-				debug("*  ramdisk: subimage '%s' from image at "
-						"0x%08lx\n",
-						fit_uname_ramdisk, rd_addr);
+						      &rd_addr,
+						      &fit_uname_ramdisk)) {
+				debug("*  ramdisk: subimage '%s' from image at 0x%08lx\n",
+				      fit_uname_ramdisk, rd_addr);
 			} else
 #endif
 			{
 				rd_addr = hextoul(select, NULL);
-				debug("*  ramdisk: cmdline image address = "
-						"0x%08lx\n",
-						rd_addr);
+				debug("*  ramdisk: cmdline image address = 0x%08lx\n",
+				      rd_addr);
 			}
 #if IMAGE_ENABLE_FIT
 		} else {
@@ -413,7 +416,8 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 			 */
 			rd_addr = map_to_sysmem(images->fit_hdr_os);
 			rd_noffset = fit_get_node_from_config(images,
-					FIT_RAMDISK_PROP, rd_addr);
+							      FIT_RAMDISK_PROP,
+							      rd_addr);
 			if (rd_noffset == -ENOENT)
 				return 0;
 			else if (rd_noffset < 0)
@@ -430,14 +434,14 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 		switch (genimg_get_format(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 		case IMAGE_FORMAT_LEGACY:
-			printf("## Loading init Ramdisk from Legacy "
-					"Image at %08lx ...\n", rd_addr);
+			printf("## Loading init Ramdisk from Legacy Image at %08lx ...\n",
+			       rd_addr);
 
 			bootstage_mark(BOOTSTAGE_ID_CHECK_RAMDISK);
 			rd_hdr = image_get_ramdisk(rd_addr, arch,
-							images->verify);
+						   images->verify);
 
-			if (rd_hdr == NULL)
+			if (!rd_hdr)
 				return 1;
 
 			rd_data = image_get_data(rd_hdr);
@@ -448,12 +452,12 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 #if IMAGE_ENABLE_FIT
 		case IMAGE_FORMAT_FIT:
 			rd_noffset = fit_image_load(images,
-					rd_addr, &fit_uname_ramdisk,
-					&fit_uname_config, arch,
-					IH_TYPE_RAMDISK,
-					BOOTSTAGE_ID_FIT_RD_START,
-					FIT_LOAD_OPTIONAL_NON_ZERO,
-					&rd_data, &rd_len);
+						    rd_addr, &fit_uname_ramdisk,
+						    &fit_uname_config, arch,
+						    IH_TYPE_RAMDISK,
+						    BOOTSTAGE_ID_FIT_RD_START,
+						    FIT_LOAD_OPTIONAL_NON_ZERO,
+						    &rd_data, &rd_len);
 			if (rd_noffset < 0)
 				return 1;
 
@@ -465,7 +469,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 		case IMAGE_FORMAT_ANDROID:
 			android_image_get_ramdisk((void *)images->os.start,
-				&rd_data, &rd_len);
+						  &rd_data, &rd_len);
 			break;
 #endif
 		default:
@@ -480,22 +484,22 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 #endif
 			{
 				puts("Wrong Ramdisk Image Format\n");
-				rd_data = rd_len = rd_load = 0;
+				rd_data = 0;
+				rd_len = 0;
+				rd_load = 0;
 				return 1;
 			}
 		}
 	} else if (images->legacy_hdr_valid &&
 			image_check_type(&images->legacy_hdr_os_copy,
-						IH_TYPE_MULTI)) {
-
+					 IH_TYPE_MULTI)) {
 		/*
 		 * Now check if we have a legacy mult-component image,
 		 * get second entry data start address and len.
 		 */
 		bootstage_mark(BOOTSTAGE_ID_RAMDISK);
-		printf("## Loading init Ramdisk from multi component "
-				"Legacy Image at %08lx ...\n",
-				(ulong)images->legacy_hdr_os);
+		printf("## Loading init Ramdisk from multi component Legacy Image at %08lx ...\n",
+		       (ulong)images->legacy_hdr_os);
 
 		image_multi_getimg(images->legacy_hdr_os, 1, &rd_data, &rd_len);
 	} else {
@@ -503,7 +507,8 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 		 * no initrd image
 		 */
 		bootstage_mark(BOOTSTAGE_ID_NO_RAMDISK);
-		rd_len = rd_data = 0;
+		rd_len = 0;
+		rd_data = 0;
 	}
 
 	if (!rd_data) {
@@ -513,7 +518,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 		*rd_end = rd_data + rd_len;
 	}
 	debug("   ramdisk start = 0x%08lx, ramdisk end = 0x%08lx\n",
-			*rd_start, *rd_end);
+	      *rd_start, *rd_end);
 
 	return 0;
 }
@@ -541,7 +546,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
  *     -1 - failure
  */
 int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
-		  ulong *initrd_start, ulong *initrd_end)
+		      ulong *initrd_start, ulong *initrd_end)
 {
 	char	*s;
 	ulong	initrd_high;
@@ -559,9 +564,8 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		initrd_high = env_get_bootm_mapsize() + env_get_bootm_low();
 	}
 
-
 	debug("## initrd_high = 0x%08lx, copy_to_ram = %d\n",
-			initrd_high, initrd_copy_to_ram);
+	      initrd_high, initrd_copy_to_ram);
 
 	if (rd_data) {
 		if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */
@@ -585,10 +589,10 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 
 			*initrd_end = *initrd_start + rd_len;
 			printf("   Loading Ramdisk to %08lx, end %08lx ... ",
-					*initrd_start, *initrd_end);
+			       *initrd_start, *initrd_end);
 
 			memmove_wd((void *)*initrd_start,
-					(void *)rd_data, rd_len, CHUNKSZ);
+				   (void *)rd_data, rd_len, CHUNKSZ);
 
 #ifdef CONFIG_MP
 			/*
@@ -606,7 +610,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		*initrd_end = 0;
 	}
 	debug("   ramdisk load start = 0x%08lx, ramdisk load end = 0x%08lx\n",
-			*initrd_start, *initrd_end);
+	      *initrd_start, *initrd_end);
 
 	return 0;
 
@@ -615,7 +619,7 @@ error:
 }
 #endif /* CONFIG_SYS_BOOT_RAMDISK_HIGH */
 
-int boot_get_setup(bootm_headers_t *images, uint8_t arch,
+int boot_get_setup(bootm_headers_t *images, u8 arch,
 		   ulong *setup_start, ulong *setup_len)
 {
 #if IMAGE_ENABLE_FIT
@@ -628,7 +632,7 @@ int boot_get_setup(bootm_headers_t *images, uint8_t arch,
 #if IMAGE_ENABLE_FIT
 #if defined(CONFIG_FPGA)
 int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
-		  uint8_t arch, const ulong *ld_start, ulong * const ld_len)
+		  u8 arch, const ulong *ld_start, ulong * const ld_len)
 {
 	ulong tmp_img_addr, img_data, img_len;
 	void *buf;
@@ -666,7 +670,7 @@ int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
 		fit_img_result = fit_image_load(images,
 						tmp_img_addr,
 						(const char **)&uname,
-						&(images->fit_uname_cfg),
+						&images->fit_uname_cfg,
 						arch,
 						IH_TYPE_FPGA,
 						BOOTSTAGE_ID_FPGA_INIT,
@@ -711,7 +715,7 @@ int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
 }
 #endif
 
-static void fit_loadable_process(uint8_t img_type,
+static void fit_loadable_process(u8 img_type,
 				 ulong img_data,
 				 ulong img_len)
 {
@@ -729,7 +733,7 @@ static void fit_loadable_process(uint8_t img_type,
 }
 
 int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
-		      uint8_t arch, const ulong *ld_start, ulong * const ld_len)
+		      u8 arch, const ulong *ld_start, ulong * const ld_len)
 {
 	/*
 	 * These variables are used to hold the current image location
@@ -746,7 +750,7 @@ int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
 	int conf_noffset;
 	int fit_img_result;
 	const char *uname;
-	uint8_t img_type;
+	u8 img_type;
 
 	/* Check to see if the images struct has a FIT configuration */
 	if (!genimg_has_config(images)) {
@@ -769,18 +773,16 @@ int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
 
 		for (loadables_index = 0;
 		     uname = fdt_stringlist_get(buf, conf_noffset,
-					FIT_LOADABLE_PROP, loadables_index,
-					NULL), uname;
-		     loadables_index++)
-		{
-			fit_img_result = fit_image_load(images,
-				tmp_img_addr,
-				&uname,
-				&(images->fit_uname_cfg), arch,
-				IH_TYPE_LOADABLE,
-				BOOTSTAGE_ID_FIT_LOADABLE_START,
-				FIT_LOAD_OPTIONAL_NON_ZERO,
-				&img_data, &img_len);
+						FIT_LOADABLE_PROP,
+						loadables_index, NULL), uname;
+		     loadables_index++) {
+			fit_img_result = fit_image_load(images, tmp_img_addr,
+							&uname,
+							&images->fit_uname_cfg,
+							arch, IH_TYPE_LOADABLE,
+							BOOTSTAGE_ID_FIT_LOADABLE_START,
+							FIT_LOAD_OPTIONAL_NON_ZERO,
+							&img_data, &img_len);
 			if (fit_img_result < 0) {
 				/* Something went wrong! */
 				return fit_img_result;
@@ -834,8 +836,7 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 
 	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CONFIG_SYS_BARGSIZE, 0xf,
 				env_get_bootm_mapsize() + env_get_bootm_low());
-
-	if (cmdline == NULL)
+	if (!cmdline)
 		return -1;
 
 	s = env_get("bootargs");
@@ -844,7 +845,7 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 
 	strcpy(cmdline, s);
 
-	*cmd_start = (ulong) & cmdline[0];
+	*cmd_start = (ulong)cmdline;
 	*cmd_end = *cmd_start + strlen(cmdline);
 
 	debug("## cmdline at 0x%08lx ... 0x%08lx\n", *cmd_start, *cmd_end);
@@ -872,11 +873,12 @@ int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd)
 	*kbd = (struct bd_info *)(ulong)lmb_alloc_base(lmb,
 						       sizeof(struct bd_info),
 						       0xf,
-						       env_get_bootm_mapsize() + env_get_bootm_low());
-	if (*kbd == NULL)
+						       env_get_bootm_mapsize() +
+						       env_get_bootm_low());
+	if (!*kbd)
 		return -1;
 
-	**kbd = *(gd->bd);
+	**kbd = *gd->bd;
 
 	debug("## kernel board info at 0x%08lx\n", (ulong)*kbd);
 
@@ -901,7 +903,7 @@ int image_setup_linux(bootm_headers_t *images)
 
 	if (IMAGE_BOOT_GET_CMDLINE) {
 		ret = boot_get_cmdline(lmb, &images->cmdline_start,
-				&images->cmdline_end);
+				       &images->cmdline_end);
 		if (ret) {
 			puts("ERROR with allocation of cmdline\n");
 			return ret;
