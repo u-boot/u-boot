@@ -134,6 +134,7 @@ obj-$(CONFIG_OID_REGISTRY) += oid_registry.o
 obj-$(CONFIG_SSCANF) += sscanf.o
 endif
 
+obj-y += abuf.o
 obj-y += date.o
 obj-y += rtc-lib.o
 obj-$(CONFIG_LIB_ELF) += elf.o
