@@ -151,6 +151,11 @@ typedef unsigned long int uintptr_t;
 #define MEM_SUPPORT_64BIT_DATA	0
 #endif
 
+/**
+ * host_build() - check if we are building for the host
+ *
+ * @return true if building for the host, false if for a target
+ */
 static inline bool host_build(void) {
 #ifdef USE_HOSTCC
 	return true;
