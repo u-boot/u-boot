@@ -41,6 +41,7 @@
 #define     PCIE_CORE_CMD_MEM_IO_REQ_EN				BIT(2)
 #define PCIE_CORE_DEV_REV_REG					0x8
 #define PCIE_CORE_EXP_ROM_BAR_REG				0x30
+#define PCIE_CORE_PCIEXP_CAP_OFF				0xc0
 #define PCIE_CORE_DEV_CTRL_STATS_REG				0xc8
 #define     PCIE_CORE_DEV_CTRL_STATS_RELAX_ORDER_DISABLE	(0 << 4)
 #define     PCIE_CORE_DEV_CTRL_STATS_SNOOP_DISABLE		(0 << 11)
@@ -201,6 +202,7 @@ struct pcie_advk {
 	struct udevice *dev;
 	struct gpio_desc reset_gpio;
 	u32            cfgcache[0x34 - 0x10];
+	bool           cfgcrssve;
 };
 
 static inline void advk_writel(struct pcie_advk *pcie, uint val, uint reg)
@@ -413,6 +415,18 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 			data |= PCI_HEADER_TYPE_BRIDGE << 16;
 		}
 
+		if ((offset & ~3) == PCIE_CORE_PCIEXP_CAP_OFF + PCI_EXP_RTCTL) {
+			/* CRSSVE bit is stored only in cache */
+			if (pcie->cfgcrssve)
+				data |= PCI_EXP_RTCTL_CRSSVE;
+		}
+
+		if ((offset & ~3) == PCIE_CORE_PCIEXP_CAP_OFF +
+				     (PCI_EXP_RTCAP & ~3)) {
+			/* CRS is emulated below, so set CRSVIS capability */
+			data |= PCI_EXP_RTCAP_CRSVIS << 16;
+		}
+
 		*valuep = pci_conv_32_to_size(data, offset, size);
 
 		return 0;
@@ -423,13 +437,14 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 	 * OS is allowed only for 4-byte PCI_VENDOR_ID config read request and
 	 * only when CRSSVE bit in Root Port PCIe device is enabled. In all
 	 * other error PCIe Root Complex must return all-ones.
-	 * Aardvark HW does not have Root Port PCIe device and U-Boot does not
-	 * implement emulation of this device.
+	 *
 	 * U-Boot currently does not support handling of CRS return value for
 	 * PCI_VENDOR_ID config read request and also does not set CRSSVE bit.
-	 * Therefore disable returning CRS response for now.
+	 * So it means that pcie->cfgcrssve is false. But the code is prepared
+	 * for returning CRS, so that if U-Boot does support CRS in the future,
+	 * it will work for Aardvark.
 	 */
-	allow_crs = false;
+	allow_crs = pcie->cfgcrssve;
 
 	if (advk_readl(pcie, PIO_START)) {
 		dev_err(pcie->dev,
@@ -582,6 +597,9 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 		if (offset == PCI_SECONDARY_BUS ||
 		    (offset == PCI_PRIMARY_BUS && size != PCI_SIZE_8))
 			pcie->sec_busno = (data >> 8) & 0xff;
+
+		if ((offset & ~3) == PCIE_CORE_PCIEXP_CAP_OFF + PCI_EXP_RTCTL)
+			pcie->cfgcrssve = data & PCI_EXP_RTCTL_CRSSVE;
 
 		return 0;
 	}
