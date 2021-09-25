@@ -145,6 +145,7 @@
 #define     LTSSM_SHIFT				24
 #define     LTSSM_MASK				0x3f
 #define     LTSSM_L0				0x10
+#define     LTSSM_DISABLED			0x20
 #define VENDOR_ID_REG				(LMI_BASE_ADDR + 0x44)
 
 /* PCIe core controller registers */
@@ -569,7 +570,7 @@ static int pcie_advk_link_up(struct pcie_advk *pcie)
 
 	val = advk_readl(pcie, CFG_REG);
 	ltssm_state = (val >> LTSSM_SHIFT) & LTSSM_MASK;
-	return ltssm_state >= LTSSM_L0;
+	return ltssm_state >= LTSSM_L0 && ltssm_state < LTSSM_DISABLED;
 }
 
 /**
