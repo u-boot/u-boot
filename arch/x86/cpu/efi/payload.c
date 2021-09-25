@@ -280,15 +280,24 @@ void setup_efi_info(struct efi_info *efi_info)
 	}
 	efi_info->efi_memdesc_size = map->desc_size;
 	efi_info->efi_memdesc_version = map->version;
-	efi_info->efi_memmap = (u32)(map->desc);
+	efi_info->efi_memmap = (ulong)(map->desc);
 	efi_info->efi_memmap_size = size - sizeof(struct efi_entry_memmap);
 
 #ifdef CONFIG_EFI_STUB_64BIT
 	efi_info->efi_systab_hi = table->sys_table >> 32;
-	efi_info->efi_memmap_hi = (u64)(u32)(map->desc) >> 32;
+	efi_info->efi_memmap_hi = (u64)(ulong)map->desc >> 32;
 	signature = EFI64_LOADER_SIGNATURE;
 #else
 	signature = EFI32_LOADER_SIGNATURE;
 #endif
 	memcpy(&efi_info->efi_loader_signature, signature, 4);
+}
+
+void efi_show_bdinfo(void)
+{
+	struct efi_entry_systable *table = NULL;
+	int size, ret;
+
+	ret = efi_info_get(EFIET_SYS_TABLE, (void **)&table, &size);
+	bdinfo_print_num_l("efi_table", (ulong)table);
 }

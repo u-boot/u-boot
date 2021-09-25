@@ -29,4 +29,11 @@ void setup_video(struct screen_info *screen_info);
  */
 void setup_efi_info(struct efi_info *efi_info);
 
+/**
+ * efi_show_bdinfo() - Show information about EFI for the 'bdinfo' command
+ *
+ * This looks up the EFI table pointer and shows related info
+ */
+void efi_show_bdinfo(void);
+
 #endif
