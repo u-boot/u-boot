@@ -186,14 +186,15 @@
 /**
  * struct pcie_advk - Advk PCIe controller state
  *
- * @reg_base:    The base address of the register space.
- * @first_busno: This driver supports multiple PCIe controllers.
- *               first_busno stores the bus number of the PCIe root-port
- *               number which may vary depending on the PCIe setup
- *               (PEX switches etc).
- * @sec_busno:   sec_busno stores the bus number for the device behind
- *               the PCIe root-port
- * @device:      The pointer to PCI uclass device.
+ * @base:        The base address of the register space.
+ * @first_busno: Bus number of the PCIe root-port.
+ *               This may vary depending on the PCIe setup.
+ * @sec_busno:   Bus number for the device behind the PCIe root-port.
+ * @dev:         The pointer to PCI uclass device.
+ * @reset_gpio:  GPIO descriptor for PERST.
+ * @cfgcache:    Buffer for emulation of PCIe Root Port's PCI Bridge registers
+ *               that are not available on Aardvark.
+ * @cfgcrssve:   For CRSSVE emulation.
  */
 struct pcie_advk {
 	void			*base;
