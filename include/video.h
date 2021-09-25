@@ -64,6 +64,13 @@ enum video_log2_bpp {
 
 #define VNBITS(bpix)	(1 << (bpix))
 
+enum video_format {
+	VIDEO_UNKNOWN,
+	VIDEO_X8B8G8R8,
+	VIDEO_X8R8G8B8,
+	VIDEO_X2R10G10B10,
+};
+
 /**
  * struct video_priv - Device information used by the video uclass
  *
@@ -71,6 +78,7 @@ enum video_log2_bpp {
  * @ysize:	Number of pixels rows (e.g.. 768)
  * @rot:	Display rotation (0=none, 1=90 degrees clockwise, etc.)
  * @bpix:	Encoded bits per pixel (enum video_log2_bpp)
+ * @format:	Pixel format (enum video_format)
  * @vidconsole_drv_name:	Driver to use for the text console, NULL to
  *		select automatically
  * @font_size:	Font size in pixels (0 to use a default value)
@@ -95,6 +103,7 @@ struct video_priv {
 	ushort ysize;
 	ushort rot;
 	enum video_log2_bpp bpix;
+	enum video_format format;
 	const char *vidconsole_drv_name;
 	int font_size;
 
