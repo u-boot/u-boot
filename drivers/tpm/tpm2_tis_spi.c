@@ -589,18 +589,25 @@ static int tpm_tis_spi_probe(struct udevice *dev)
 	if (CONFIG_IS_ENABLED(DM_GPIO)) {
 		struct gpio_desc reset_gpio;
 
-		ret = gpio_request_by_name(dev, "gpio-reset", 0,
+		ret = gpio_request_by_name(dev, "reset-gpios", 0,
 					   &reset_gpio, GPIOD_IS_OUT);
 		if (ret) {
-			log(LOGC_NONE, LOGL_NOTICE, "%s: missing reset GPIO\n",
-			    __func__);
-		} else {
-			dm_gpio_set_value(&reset_gpio, 1);
-			mdelay(1);
-			dm_gpio_set_value(&reset_gpio, 0);
+			/* legacy reset */
+			ret = gpio_request_by_name(dev, "gpio-reset", 0,
+						   &reset_gpio, GPIOD_IS_OUT);
+			if (ret) {
+				log(LOGC_NONE, LOGL_NOTICE,
+				    "%s: missing reset GPIO\n", __func__);
+				goto init;
+			}
+			log(LOGC_NONE, LOGL_NOTICE,
+			    "%s: gpio-reset is deprecated\n", __func__);
 		}
+		dm_gpio_set_value(&reset_gpio, 1);
+		mdelay(1);
+		dm_gpio_set_value(&reset_gpio, 0);
 	}
-
+init:
 	/* Ensure a minimum amount of time elapsed since reset of the TPM */
 	mdelay(drv_data->time_before_first_cmd_ms);
 

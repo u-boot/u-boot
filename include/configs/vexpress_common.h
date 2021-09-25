@@ -15,7 +15,7 @@
  * Definitions copied from linux kernel:
  * arch/arm/mach-vexpress/include/mach/motherboard.h
  */
-#ifdef CONFIG_VEXPRESS_ORIGINAL_MEMORY_MAP
+#ifdef VEXPRESS_ORIGINAL_MEMORY_MAP
 /* CS register bases for the original memory map. */
 #define V2M_PA_CS0		0x40000000
 #define V2M_PA_CS1		0x44000000
@@ -158,29 +158,10 @@
         func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
-#ifdef CONFIG_VEXPRESS_ORIGINAL_MEMORY_MAP
-#define CONFIG_PLATFORM_ENV_SETTINGS \
-		"loadaddr=0x80008000\0" \
-		"ramdisk_addr_r=0x61000000\0" \
-		"kernel_addr=0x44100000\0" \
-		"ramdisk_addr=0x44800000\0" \
-		"maxramdisk=0x1800000\0" \
-		"pxefile_addr_r=0x88000000\0" \
-		"scriptaddr=0x88000000\0" \
-		"kernel_addr_r=0x80008000\0"
-#elif defined(CONFIG_VEXPRESS_EXTENDED_MEMORY_MAP)
-#define CONFIG_PLATFORM_ENV_SETTINGS \
-		"loadaddr=0xa0008000\0" \
-		"ramdisk_addr_r=0x81000000\0" \
-		"kernel_addr=0x0c100000\0" \
-		"ramdisk_addr=0x0c800000\0" \
-		"maxramdisk=0x1800000\0" \
-		"pxefile_addr_r=0xa8000000\0" \
-		"scriptaddr=0xa8000000\0" \
-		"kernel_addr_r=0xa0008000\0"
-#endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
-		CONFIG_PLATFORM_ENV_SETTINGS \
+                "kernel_addr_r=0x60100000\0" \
+                "fdt_addr_r=0x60000000\0" \
+                "bootargs=console=tty0 console=ttyAMA0,38400n8\0" \
                 BOOTENV \
 		"console=ttyAMA0,38400n8\0" \
 		"dram=1024M\0" \

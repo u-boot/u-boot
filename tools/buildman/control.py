@@ -16,6 +16,7 @@ from patman import command
 from patman import gitutil
 from patman import patchstream
 from patman import terminal
+from patman import tools
 from patman.terminal import Print
 
 def GetPlural(count):
@@ -133,12 +134,9 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     global builder
 
     if options.full_help:
-        pager = os.getenv('PAGER')
-        if not pager:
-            pager = 'more'
-        fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                             'README')
-        command.Run(pager, fname)
+        tools.PrintFullHelp(
+            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README')
+        )
         return 0
 
     gitutil.Setup()

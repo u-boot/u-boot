@@ -216,6 +216,12 @@ sandbox_flattree test.py:
     TEST_PY_BD: "sandbox_flattree"
   <<: *buildman_and_testpy_dfn
 
+vexpress_ca9x4 test.py:
+  variables:
+    TEST_PY_BD: "vexpress_ca9x4"
+    TEST_PY_ID: "--id qemu"
+  <<: *buildman_and_testpy_dfn
+
 integratorcp_cm926ejs test.py:
   variables:
     TEST_PY_BD: "integratorcp_cm926ejs"

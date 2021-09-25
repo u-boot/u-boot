@@ -28,6 +28,7 @@ from patman import settings
 from patman import terminal
 from patman import test_util
 from patman import test_checkpatch
+from patman import tools
 
 epilog = '''Create patches from commits in a branch, check them and email them
 as specified by tags you place in the commits. Use -n to do a dry run first.'''
@@ -170,14 +171,9 @@ elif args.cmd == 'send':
         fd.close()
 
     elif args.full_help:
-        pager = os.getenv('PAGER')
-        if not pager:
-            pager = shutil.which('less')
-        if not pager:
-            pager = 'more'
-        fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                             'README')
-        command.Run(pager, fname)
+        tools.PrintFullHelp(
+            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README')
+        )
 
     else:
         # If we are not processing tags, no need to warning about bad ones

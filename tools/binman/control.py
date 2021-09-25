@@ -565,12 +565,9 @@ def Binman(args):
     global state
 
     if args.full_help:
-        pager = os.getenv('PAGER')
-        if not pager:
-            pager = 'more'
-        fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                            'README.rst')
-        command.Run(pager, fname)
+        tools.PrintFullHelp(
+            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README.rst')
+        )
         return 0
 
     # Put these here so that we can import this module without libfdt

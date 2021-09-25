@@ -652,6 +652,11 @@ config ARCH_BCMSTB
 	  This enables support for Broadcom ARM-based set-top box
 	  chipsets, including the 7445 family of chips.
 
+config TARGET_VEXPRESS_CA9X4
+	bool "Support vexpress_ca9x4"
+	select CPU_V7A
+	select PL011_SERIAL
+
 config TARGET_BCMCYGNUS
 	bool "Support bcmcygnus"
 	select CPU_V7A
@@ -2148,6 +2153,7 @@ source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
+source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"
