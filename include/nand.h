@@ -68,7 +68,6 @@ static inline int nand_erase(struct mtd_info *info, loff_t off, size_t size)
 	instr.mtd = info;
 	instr.addr = off;
 	instr.len = size;
-	instr.callback = 0;
 
 	return mtd_erase(info, &instr);
 }

@@ -3602,10 +3602,6 @@ erase_exit:
 	chip->select_chip(mtd, -1);
 	nand_release_device(mtd);
 
-	/* Do call back function */
-	if (!ret)
-		mtd_erase_callback(instr);
-
 	/* Return more or less happy */
 	return ret;
 }

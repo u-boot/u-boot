@@ -305,18 +305,6 @@ int ubi_io_write(struct ubi_device *ubi, const void *buf, int pnum, int offset,
 }
 
 /**
- * erase_callback - MTD erasure call-back.
- * @ei: MTD erase information object.
- *
- * Note, even though MTD erase interface is asynchronous, all the current
- * implementations are synchronous anyway.
- */
-static void erase_callback(struct erase_info *ei)
-{
-	wake_up_interruptible((wait_queue_head_t *)ei->priv);
-}
-
-/**
  * do_sync_erase - synchronously erase a physical eraseblock.
  * @ubi: UBI device description object
  * @pnum: the physical eraseblock number to erase
@@ -346,7 +334,6 @@ retry:
 	ei.mtd      = ubi->mtd;
 	ei.addr     = (loff_t)pnum * ubi->peb_size;
 	ei.len      = ubi->peb_size;
-	ei.callback = erase_callback;
 	ei.priv     = (unsigned long)&wq;
 
 	err = mtd_erase(ubi->mtd, &ei);
