@@ -68,6 +68,9 @@ typedef uint32_t __u32;
 typedef unsigned int uint;
 typedef unsigned long ulong;
 
+/* Define these on the host so we can build some target code */
+typedef __u32 u32;
+
 #define uswap_16(x) \
 	((((x) & 0xff00) >> 8) | \
 	 (((x) & 0x00ff) << 8))

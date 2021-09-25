@@ -54,11 +54,11 @@ int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
  *	gzwrite_progress_finish called at end of loop to
  *		indicate success (retcode=0) or failure
  */
-void gzwrite_progress_init(u64 expected_size);
+void gzwrite_progress_init(ulong expected_size);
 
-void gzwrite_progress(int iteration, u64 bytes_written, u64 total_bytes);
+void gzwrite_progress(int iteration, ulong bytes_written, ulong total_bytes);
 
-void gzwrite_progress_finish(int retcode, u64 totalwritten, u64 totalsize,
+void gzwrite_progress_finish(int retcode, ulong totalwritten, ulong totalsize,
 			     u32 expected_crc, u32 calculated_crc);
 
 /**
@@ -74,7 +74,7 @@ void gzwrite_progress_finish(int retcode, u64 totalwritten, u64 totalsize,
  * @return 0 if OK, -1 on error
  */
 int gzwrite(unsigned char *src, int len, struct blk_desc *dev, ulong szwritebuf,
-	    u64 startoffs, u64 szexpected);
+	    ulong startoffs, ulong szexpected);
 
 /**
  * gzip()- Compress data into a buffer using the gzip algorithm
