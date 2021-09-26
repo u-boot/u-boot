@@ -227,16 +227,16 @@ ulong genimg_get_kernel_addr_fit(char * const img_addr,
 		kernel_addr = image_load_addr;
 		debug("*  kernel: default image load address = 0x%08lx\n",
 		      image_load_addr);
-#if CONFIG_IS_ENABLED(FIT)
-	} else if (fit_parse_conf(img_addr, image_load_addr, &kernel_addr,
+	} else if (CONFIG_IS_ENABLED(FIT) &&
+		   fit_parse_conf(img_addr, image_load_addr, &kernel_addr,
 				  fit_uname_config)) {
 		debug("*  kernel: config '%s' from image at 0x%08lx\n",
 		      *fit_uname_config, kernel_addr);
-	} else if (fit_parse_subimage(img_addr, image_load_addr, &kernel_addr,
-				     fit_uname_kernel)) {
+	} else if (CONFIG_IS_ENABLED(FIT) &&
+		   fit_parse_subimage(img_addr, image_load_addr, &kernel_addr,
+				      fit_uname_kernel)) {
 		debug("*  kernel: subimage '%s' from image at 0x%08lx\n",
 		      *fit_uname_kernel, kernel_addr);
-#endif
 	} else {
 		kernel_addr = hextoul(img_addr, NULL);
 		debug("*  kernel: cmdline image address = 0x%08lx\n",
@@ -275,21 +275,20 @@ ulong genimg_get_kernel_addr(char * const img_addr)
  */
 int genimg_get_format(const void *img_addr)
 {
-#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-	const image_header_t *hdr;
+	if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
+		const image_header_t *hdr;
 
-	hdr = (const image_header_t *)img_addr;
-	if (image_check_magic(hdr))
-		return IMAGE_FORMAT_LEGACY;
-#endif
-#if CONFIG_IS_ENABLED(FIT) || CONFIG_IS_ENABLED(OF_LIBFDT)
-	if (fdt_check_header(img_addr) == 0)
-		return IMAGE_FORMAT_FIT;
-#endif
-#ifdef CONFIG_ANDROID_BOOT_IMAGE
-	if (android_image_check_header(img_addr) == 0)
+		hdr = (const image_header_t *)img_addr;
+		if (image_check_magic(hdr))
+			return IMAGE_FORMAT_LEGACY;
+	}
+	if (CONFIG_IS_ENABLED(FIT) || CONFIG_IS_ENABLED(OF_LIBFDT)) {
+		if (!fdt_check_header(img_addr))
+			return IMAGE_FORMAT_FIT;
+	}
+	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE) &&
+	    !android_image_check_header(img_addr))
 		return IMAGE_FORMAT_ANDROID;
-#endif
 
 	return IMAGE_FORMAT_INVALID;
 }
@@ -307,10 +306,9 @@ int genimg_get_format(const void *img_addr)
  */
 int genimg_has_config(bootm_headers_t *images)
 {
-#if CONFIG_IS_ENABLED(FIT)
-	if (images->fit_uname_cfg)
+	if (CONFIG_IS_ENABLED(FIT) && images->fit_uname_cfg)
 		return 1;
-#endif
+
 	return 0;
 }
 
@@ -345,9 +343,6 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 	const image_header_t *rd_hdr;
 #endif
 	void *buf;
-#ifdef CONFIG_SUPPORT_RAW_INITRD
-	char *end;
-#endif
 #if CONFIG_IS_ENABLED(FIT)
 	const char	*fit_uname_config = images->fit_uname_cfg;
 	const char	*fit_uname_ramdisk = NULL;
@@ -359,14 +354,12 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 	*rd_start = 0;
 	*rd_end = 0;
 
-#ifdef CONFIG_ANDROID_BOOT_IMAGE
-	/*
-	 * Look for an Android boot image.
-	 */
-	buf = map_sysmem(images->os.start, 0);
-	if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
-		select = (argc == 0) ? env_get("loadaddr") : argv[0];
-#endif
+	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
+		/* Look for an Android boot image */
+		buf = map_sysmem(images->os.start, 0);
+		if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
+			select = (argc == 0) ? env_get("loadaddr") : argv[0];
+	}
 
 	if (argc >= 2)
 		select = argv[1];
@@ -474,22 +467,22 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 			break;
 #endif
 		default:
-#ifdef CONFIG_SUPPORT_RAW_INITRD
-			end = NULL;
-			if (select)
-				end = strchr(select, ':');
-			if (end) {
-				rd_len = hextoul(++end, NULL);
-				rd_data = rd_addr;
-			} else
-#endif
-			{
-				puts("Wrong Ramdisk Image Format\n");
-				rd_data = 0;
-				rd_len = 0;
-				rd_load = 0;
-				return 1;
+			if (IS_ENABLED(CONFIG_SUPPORT_RAW_INITRD)) {
+				char *end = NULL;
+
+				if (select)
+					end = strchr(select, ':');
+				if (end) {
+					rd_len = hextoul(++end, NULL);
+					rd_data = rd_addr;
+					break;
+				}
 			}
+			puts("Wrong Ramdisk Image Format\n");
+			rd_data = 0;
+			rd_len = 0;
+			rd_load = 0;
+			return 1;
 		}
 	} else if (images->legacy_hdr_valid &&
 			image_check_type(&images->legacy_hdr_os_copy,
@@ -524,7 +517,6 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 	return 0;
 }
 
-#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
 /**
  * boot_ramdisk_high - relocate init ramdisk
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -595,15 +587,15 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 			memmove_wd((void *)*initrd_start,
 				   (void *)rd_data, rd_len, CHUNKSZ);
 
-#ifdef CONFIG_MP
 			/*
 			 * Ensure the image is flushed to memory to handle
 			 * AMP boot scenarios in which we might not be
 			 * HW cache coherent
 			 */
-			flush_cache((unsigned long)*initrd_start,
-				    ALIGN(rd_len, ARCH_DMA_MINALIGN));
-#endif
+			if (IS_ENABLED(CONFIG_MP)) {
+				flush_cache((unsigned long)*initrd_start,
+					    ALIGN(rd_len, ARCH_DMA_MINALIGN));
+			}
 			puts("OK\n");
 		}
 	} else {
@@ -618,20 +610,16 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 error:
 	return -1;
 }
-#endif /* CONFIG_SYS_BOOT_RAMDISK_HIGH */
 
 int boot_get_setup(bootm_headers_t *images, u8 arch,
 		   ulong *setup_start, ulong *setup_len)
 {
-#if CONFIG_IS_ENABLED(FIT)
+	if (!CONFIG_IS_ENABLED(FIT))
+		return -ENOENT;
+
 	return boot_get_setup_fit(images, arch, setup_start, setup_len);
-#else
-	return -ENOENT;
-#endif
 }
 
-#if CONFIG_IS_ENABLED(FIT)
-#if defined(CONFIG_FPGA)
 int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
 		  u8 arch, const ulong *ld_start, ulong * const ld_len)
 {
@@ -642,6 +630,9 @@ int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
 	const char *uname, *name;
 	int err;
 	int devnum = 0; /* TODO support multi fpga platforms */
+
+	if (!IS_ENABLED(CONFIG_FPGA))
+		return -ENOSYS;
 
 	/* Check to see if the images struct has a FIT configuration */
 	if (!genimg_has_config(images)) {
@@ -714,7 +705,6 @@ int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
 
 	return 0;
 }
-#endif
 
 static void fit_loadable_process(u8 img_type,
 				 ulong img_data,
@@ -812,7 +802,6 @@ int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
 
 	return 0;
 }
-#endif
 
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline

@@ -298,7 +298,11 @@ typedef struct bootm_headers {
 	image_header_t	legacy_hdr_os_copy;	/* header copy */
 	ulong		legacy_hdr_valid;
 
-#if CONFIG_IS_ENABLED(FIT)
+	/*
+	 * The fit_ members are only used with FIT, but it involves a lot of
+	 * #ifdefs to avoid compiling that code. Since FIT is the standard
+	 * format, even for SPL, this extra data size seems worth it.
+	 */
 	const char	*fit_uname_cfg;	/* configuration node unit name */
 
 	void		*fit_hdr_os;	/* os FIT image header */
@@ -316,7 +320,6 @@ typedef struct bootm_headers {
 	void		*fit_hdr_setup;	/* x86 setup FIT image header */
 	const char	*fit_uname_setup; /* x86 setup subimage node name */
 	int		fit_noffset_setup;/* x86 setup subimage node offset */
-#endif
 
 #ifndef USE_HOSTCC
 	image_info_t	os;		/* os image info */
