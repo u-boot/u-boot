@@ -898,7 +898,7 @@ int image_setup_linux(bootm_headers_t *images)
 	if (CONFIG_IS_ENABLED(OF_LIBFDT))
 		boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
 
-	if (IMAGE_BOOT_GET_CMDLINE) {
+	if (IS_ENABLED(CONFIG_SYS_BOOT_GET_CMDLINE)) {
 		ret = boot_get_cmdline(lmb, &images->cmdline_start,
 				       &images->cmdline_end);
 		if (ret) {
