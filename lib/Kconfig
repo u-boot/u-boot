@@ -373,7 +373,6 @@ config SHA256
 	  The SHA256 algorithm produces a 256-bit (32-byte) hash value
 	  (digest).
 
-
 config SHA512
 	bool "Enable SHA512 support"
 	help
@@ -398,6 +397,48 @@ config SHA_HW_ACCEL
 	  This option enables hardware acceleration for the SHA1 and SHA256
 	  hashing algorithms. This affects the 'hash' command and also the
 	  hash_lookup_algo() function.
+
+if SPL
+
+config SPL_SHA1
+	bool "Enable SHA1 support in SPL"
+	default y if SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm.
+	  The hash is calculated in software.
+	  The SHA1 algorithm produces a 160-bit (20-byte) hash value
+	  (digest).
+
+config SPL_SHA256
+	bool "Enable SHA256 support in SPL"
+	default y if SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm.
+	  The hash is calculated in software.
+	  The SHA256 algorithm produces a 256-bit (32-byte) hash value
+	  (digest).
+
+config SPL_SHA512
+	bool "Enable SHA512 support in SPL"
+	default y if SHA512
+	help
+	  This option enables support of hashing using SHA512 algorithm.
+	  The hash is calculated in software.
+	  The SHA512 algorithm produces a 512-bit (64-byte) hash value
+	  (digest).
+
+config SPL_SHA384
+	bool "Enable SHA384 support in SPL"
+	default y if SHA384
+	select SPL_SHA512
+	help
+	  This option enables support of hashing using SHA384 algorithm.
+	  The hash is calculated in software. This is also selects SHA512,
+	  because these implementations share the bulk of the code..
+	  The SHA384 algorithm produces a 384-bit (48-byte) hash value
+	  (digest).
+
+endif
 
 if SHA_HW_ACCEL
 
