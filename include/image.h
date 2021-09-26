@@ -49,12 +49,6 @@ struct fdt_region;
 #include <fdt_support.h>
 #endif /* FIT */
 
-#ifdef CONFIG_OF_SYSTEM_SETUP
-# define IMAGE_OF_SYSTEM_SETUP	1
-#else
-# define IMAGE_OF_SYSTEM_SETUP	0
-#endif
-
 extern ulong image_load_addr;		/* Default Load Address */
 extern ulong image_save_addr;		/* Default Save Address */
 extern ulong image_save_size;		/* Default Save Size */
