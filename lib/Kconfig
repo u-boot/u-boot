@@ -438,6 +438,24 @@ config SPL_SHA384
 	  The SHA384 algorithm produces a 384-bit (48-byte) hash value
 	  (digest).
 
+config SPL_SHA_HW_ACCEL
+	bool "Enable hardware acceleration for SHA hash functions"
+	default y if SHA_HW_ACCEL
+	help
+	  This option enables hardware acceleration for the SHA1 and SHA256
+	  hashing algorithms. This affects the 'hash' command and also the
+	  hash_lookup_algo() function.
+
+config SPL_SHA_PROG_HW_ACCEL
+	bool "Enable Progressive hashing support using hardware in SPL"
+	depends on SHA_PROG_HW_ACCEL
+	default y
+	help
+	  This option enables hardware-acceleration for SHA progressive
+	  hashing.
+	  Data can be streamed in a block at a time and the hashing is
+	  performed in hardware.
+
 endif
 
 if SHA_HW_ACCEL

@@ -45,4 +45,29 @@ config TOOLS_FIT_SIGNATURE_MAX_SIZE
 	depends on TOOLS_FIT_SIGNATURE
 	default 0x10000000
 
+config TOOLS_MD5
+	def_bool y
+	help
+	  Enable MD5 support in the tools builds
+
+config TOOLS_SHA1
+	def_bool y
+	help
+	  Enable SHA1 support in the tools builds
+
+config TOOLS_SHA256
+	def_bool y
+	help
+	  Enable SHA256 support in the tools builds
+
+config TOOLS_SHA384
+	def_bool y
+	help
+	  Enable SHA384 support in the tools builds
+
+config TOOLS_SHA512
+	def_bool y
+	help
+	  Enable SHA512 support in the tools builds
+
 endmenu

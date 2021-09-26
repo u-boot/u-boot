@@ -6,13 +6,17 @@
 #ifndef _HASH_H
 #define _HASH_H
 
+#ifdef USE_HOSTCC
+#include <linux/kconfig.h>
+#endif
+
 struct cmd_tbl;
 
 /*
  * Maximum digest size for all algorithms we support. Having this value
  * avoids a malloc() or C99 local declaration in common/cmd_hash.c.
  */
-#if defined(CONFIG_SHA384) || defined(CONFIG_SHA512)
+#if CONFIG_IS_ENABLED(SHA384) || CONFIG_IS_ENABLED(SHA512)
 #define HASH_MAX_DIGEST_SIZE	64
 #else
 #define HASH_MAX_DIGEST_SIZE	32
