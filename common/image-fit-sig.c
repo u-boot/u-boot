@@ -49,10 +49,8 @@ struct image_region *fit_region_make_list(const void *fit,
 	 * Use malloc() except in SPL (to save code size). In SPL the caller
 	 * must allocate the array.
 	 */
-#ifndef CONFIG_SPL_BUILD
-	if (!region)
+	if (!IS_ENABLED(CONFIG_SPL_BUILD) && !region)
 		region = calloc(sizeof(*region), count);
-#endif
 	if (!region)
 		return NULL;
 	for (i = 0; i < count; i++) {
@@ -72,12 +70,10 @@ static int fit_image_setup_verify(struct image_sign_info *info,
 	char *algo_name;
 	const char *padding_name;
 
-#ifndef USE_HOSTCC
-	if (fdt_totalsize(fit) > CONFIG_FIT_SIGNATURE_MAX_SIZE) {
+	if (fdt_totalsize(fit) > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE)) {
 		*err_msgp = "Total size too large";
 		return 1;
 	}
-#endif
 	if (fit_image_hash_get_algo(fit, noffset, &algo_name)) {
 		*err_msgp = "Can't get hash algo property";
 		return -1;
