@@ -1277,7 +1277,7 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 	}
 	printf("%s", algo);
 
-	if (IMAGE_ENABLE_IGNORE) {
+	if (!tools_build()) {
 		fit_image_hash_get_ignore(fit, noffset, &ignore);
 		if (ignore) {
 			printf("-skipped ");
