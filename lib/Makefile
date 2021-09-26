@@ -96,9 +96,7 @@ obj-y += display_options.o
 CFLAGS_display_options.o := $(if $(BUILD_TAG),-DBUILD_TAG='"$(BUILD_TAG)"')
 obj-$(CONFIG_BCH) += bch.o
 obj-$(CONFIG_MMC_SPI) += crc7.o
-#ifndef CONFIG_TPL_BUILD
-obj-y += crc32.o
-#endif
+obj-$(CONFIG_$(SPL_TPL_)CRC32) += crc32.o
 obj-$(CONFIG_CRC32C) += crc32c.o
 obj-y += ctype.o
 obj-y += div64.o

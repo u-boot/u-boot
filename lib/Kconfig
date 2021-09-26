@@ -496,6 +496,11 @@ config SPL_MD5
 	  security applications, but it can be useful for providing a quick
 	  checksum of a block of data.
 
+config CRC32
+	def_bool y
+	help
+	  Enables CRC32 support in U-Boot. This is normally required.
+
 config CRC32C
 	bool
 
