@@ -1433,19 +1433,6 @@ int fit_image_cipher_get_algo(const void *fit, int noffset, char **algo);
 
 struct cipher_algo *image_get_cipher_algo(const char *full_name);
 
-#if CONFIG_IS_ENABLED(FIT_VERBOSE)
-#define fit_unsupported(msg)	printf("! %s:%d " \
-				"FIT images not supported for '%s'\n", \
-				__FILE__, __LINE__, (msg))
-
-#define fit_unsupported_reset(msg)	printf("! %s:%d " \
-				"FIT images not supported for '%s' " \
-				"- must reset board to recover!\n", \
-				__FILE__, __LINE__, (msg))
-#else
-#define fit_unsupported(msg)
-#define fit_unsupported_reset(msg)
-#endif /* FIT_VERBOSE */
 #endif /* CONFIG_FIT */
 
 #if !defined(USE_HOSTCC)
