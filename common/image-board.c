@@ -313,57 +313,21 @@ int genimg_has_config(bootm_headers_t *images)
 }
 
 /**
- * boot_get_ramdisk - main ramdisk handling routine
- * @argc: command argument count
- * @argv: command argument list
+ * select_ramdisk() - Select and locate the ramdisk to use
+ *
  * @images: pointer to the bootm images structure
+ * @select: name of ramdisk to select, or NULL for any
  * @arch: expected ramdisk architecture
- * @rd_start: pointer to a ulong variable, will hold ramdisk start address
- * @rd_end: pointer to a ulong variable, will hold ramdisk end
- *
- * boot_get_ramdisk() is responsible for finding a valid ramdisk image.
- * Currently supported are the following ramdisk sources:
- *      - multicomponent kernel/ramdisk image,
- *      - commandline provided address of decicated ramdisk image.
- *
- * returns:
- *     0, if ramdisk image was found and valid, or skiped
- *     rd_start and rd_end are set to ramdisk start/end addresses if
- *     ramdisk image is found and valid
- *
- *     1, if ramdisk image is found but corrupted, or invalid
- *     rd_start and rd_end are set to 0 if no ramdisk exists
+ * @rd_datap: pointer to a ulong variable, will hold ramdisk pointer
+ * @rd_lenp: pointer to a ulong variable, will hold ramdisk length
+ * @return 0 if OK, -ENOPKG if no ramdisk (but an error should not be reported),
+ *	other -ve value on other error
  */
-int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
-		     u8 arch, ulong *rd_start, ulong *rd_end)
+static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
+			  ulong *rd_datap, ulong *rd_lenp)
 {
-	ulong rd_data, rd_len;
-	void *buf;
-	const char *select = NULL;
-
-	*rd_start = 0;
-	*rd_end = 0;
-
-	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
-		/* Look for an Android boot image */
-		buf = map_sysmem(images->os.start, 0);
-		if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
-			select = (argc == 0) ? env_get("loadaddr") : argv[0];
-	}
-
-	if (argc >= 2)
-		select = argv[1];
-
-	/*
-	 * Look for a '-' which indicates to ignore the
-	 * ramdisk argument
-	 */
-	if (select && strcmp(select, "-") ==  0) {
-		debug("## Skipping init Ramdisk\n");
-		rd_len = 0;
-		rd_data = 0;
-	} else if (select || genimg_has_config(images)) {
-		ulong rd_addr, rd_load;
+	ulong rd_addr;
+	char *buf;
 
 #if CONFIG_IS_ENABLED(FIT)
 		const char *fit_uname_config = images->fit_uname_cfg;
@@ -403,16 +367,16 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 		} else {
 			/* use FIT configuration provided in first bootm
 			 * command argument. If the property is not defined,
-			 * quit silently.
+			 * quit silently (with -ENOPKG)
 			 */
 			rd_addr = map_to_sysmem(images->fit_hdr_os);
 			rd_noffset = fit_get_node_from_config(images,
 							      FIT_RAMDISK_PROP,
 							      rd_addr);
 			if (rd_noffset == -ENOENT)
-				return 0;
+				return -ENOPKG;
 			else if (rd_noffset < 0)
-				return 1;
+				return rd_noffset;
 		}
 #endif
 
@@ -435,11 +399,10 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 						   images->verify);
 
 			if (!rd_hdr)
-				return 1;
+				return -ENOENT;
 
-			rd_data = image_get_data(rd_hdr);
-			rd_len = image_get_data_size(rd_hdr);
-			rd_load = image_get_load(rd_hdr);
+			*rd_datap = image_get_data(rd_hdr);
+			*rd_lenp = image_get_data_size(rd_hdr);
 			break;
 		}
 #endif
@@ -451,9 +414,9 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 						    IH_TYPE_RAMDISK,
 						    BOOTSTAGE_ID_FIT_RD_START,
 						    FIT_LOAD_OPTIONAL_NON_ZERO,
-						    &rd_data, &rd_len);
+						    rd_datap, rd_lenp);
 			if (rd_noffset < 0)
-				return 1;
+				return rd_noffset;
 
 			images->fit_hdr_rd = map_sysmem(rd_addr, 0);
 			images->fit_uname_rd = fit_uname_ramdisk;
@@ -463,7 +426,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 		case IMAGE_FORMAT_ANDROID:
 			android_image_get_ramdisk((void *)images->os.start,
-						  &rd_data, &rd_len);
+						  rd_datap, rd_lenp);
 			break;
 #endif
 		default:
@@ -473,17 +436,77 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 				if (select)
 					end = strchr(select, ':');
 				if (end) {
-					rd_len = hextoul(++end, NULL);
-					rd_data = rd_addr;
+					*rd_lenp = hextoul(++end, NULL);
+					*rd_datap = rd_addr;
 					break;
 				}
 			}
 			puts("Wrong Ramdisk Image Format\n");
-			rd_data = 0;
-			rd_len = 0;
-			rd_load = 0;
-			return 1;
+			return -EINVAL;
 		}
+
+	return 0;
+}
+
+/**
+ * boot_get_ramdisk - main ramdisk handling routine
+ * @argc: command argument count
+ * @argv: command argument list
+ * @images: pointer to the bootm images structure
+ * @arch: expected ramdisk architecture
+ * @rd_start: pointer to a ulong variable, will hold ramdisk start address
+ * @rd_end: pointer to a ulong variable, will hold ramdisk end
+ *
+ * boot_get_ramdisk() is responsible for finding a valid ramdisk image.
+ * Currently supported are the following ramdisk sources:
+ *      - multicomponent kernel/ramdisk image,
+ *      - commandline provided address of decicated ramdisk image.
+ *
+ * returns:
+ *     0, if ramdisk image was found and valid, or skiped
+ *     rd_start and rd_end are set to ramdisk start/end addresses if
+ *     ramdisk image is found and valid
+ *
+ *     1, if ramdisk image is found but corrupted, or invalid
+ *     rd_start and rd_end are set to 0 if no ramdisk exists
+ */
+int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
+		     u8 arch, ulong *rd_start, ulong *rd_end)
+{
+	ulong rd_data, rd_len;
+	const char *select = NULL;
+
+	*rd_start = 0;
+	*rd_end = 0;
+
+	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
+		char *buf;
+
+		/* Look for an Android boot image */
+		buf = map_sysmem(images->os.start, 0);
+		if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
+			select = (argc == 0) ? env_get("loadaddr") : argv[0];
+	}
+
+	if (argc >= 2)
+		select = argv[1];
+
+	/*
+	 * Look for a '-' which indicates to ignore the
+	 * ramdisk argument
+	 */
+	if (select && strcmp(select, "-") ==  0) {
+		debug("## Skipping init Ramdisk\n");
+		rd_len = 0;
+		rd_data = 0;
+	} else if (select || genimg_has_config(images)) {
+		int ret;
+
+		ret = select_ramdisk(images, select, arch, &rd_data, &rd_len);
+		if (ret == -ENOPKG)
+			return 0;
+		else if (ret)
+			return ret;
 	} else if (images->legacy_hdr_valid &&
 			image_check_type(&images->legacy_hdr_os_copy,
 					 IH_TYPE_MULTI)) {
