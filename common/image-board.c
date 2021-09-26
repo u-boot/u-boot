@@ -282,7 +282,7 @@ int genimg_get_format(const void *img_addr)
 	if (image_check_magic(hdr))
 		return IMAGE_FORMAT_LEGACY;
 #endif
-#if CONFIG_IS_ENABLED(FIT) || IMAGE_ENABLE_OF_LIBFDT
+#if CONFIG_IS_ENABLED(FIT) || CONFIG_IS_ENABLED(OF_LIBFDT)
 	if (fdt_check_header(img_addr) == 0)
 		return IMAGE_FORMAT_FIT;
 #endif
@@ -895,7 +895,7 @@ int image_setup_linux(bootm_headers_t *images)
 	struct lmb *lmb = &images->lmb;
 	int ret;
 
-	if (IMAGE_ENABLE_OF_LIBFDT)
+	if (CONFIG_IS_ENABLED(OF_LIBFDT))
 		boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
 
 	if (IMAGE_BOOT_GET_CMDLINE) {
@@ -907,13 +907,13 @@ int image_setup_linux(bootm_headers_t *images)
 		}
 	}
 
-	if (IMAGE_ENABLE_OF_LIBFDT) {
+	if (CONFIG_IS_ENABLED(OF_LIBFDT)) {
 		ret = boot_relocate_fdt(lmb, of_flat_tree, &of_size);
 		if (ret)
 			return ret;
 	}
 
-	if (IMAGE_ENABLE_OF_LIBFDT && of_size) {
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && of_size) {
 		ret = image_setup_libfdt(images, *of_flat_tree, of_size, lmb);
 		if (ret)
 			return ret;

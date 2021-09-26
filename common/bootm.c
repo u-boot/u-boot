@@ -271,7 +271,7 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		return 1;
 	}
 
-#if IMAGE_ENABLE_OF_LIBFDT
+#if CONFIG_IS_ENABLED(OF_LIBFDT)
 	/* find flattened device tree */
 	ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
 			   &images.ft_addr, &images.ft_len);
@@ -706,7 +706,7 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 	}
 #endif
-#if IMAGE_ENABLE_OF_LIBFDT && defined(CONFIG_LMB)
+#if CONFIG_IS_ENABLED(OF_LIBFDT) && defined(CONFIG_LMB)
 	if (!ret && (states & BOOTM_STATE_FDT)) {
 		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
 		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,

@@ -199,7 +199,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 {
 	char *commandline = env_get("bootargs");
 
-	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
 #ifdef CONFIG_OF_LIBFDT
 		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
@@ -356,7 +356,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 	announce_and_cleanup(fake);
 
-	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len)
 		r2 = (unsigned long)images->ft_addr;
 	else
 		r2 = gd->bd->bi_boot_params;

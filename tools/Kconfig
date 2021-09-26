@@ -50,6 +50,11 @@ config TOOLS_MD5
 	help
 	  Enable MD5 support in the tools builds
 
+config TOOLS_OF_LIBFDT
+	def_bool y
+	help
+	  Enable libfdt support in the tools builds
+
 config TOOLS_SHA1
 	def_bool y
 	help

@@ -69,7 +69,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
 	       (ulong)theKernel);
 
-	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
 #ifdef CONFIG_OF_LIBFDT
 		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
@@ -110,7 +110,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 #endif
 	}
 	cleanup_before_linux();
-	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len)
 		theKernel(0, machid, (unsigned long)images->ft_addr);
 	else
 		theKernel(0, machid, bd->bi_boot_params);

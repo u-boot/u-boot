@@ -63,7 +63,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	       "(fake run for tracing)" : "");
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
 
-	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
 		r0 = 2;
 		r2 = (unsigned int)images->ft_addr;
 	} else {
