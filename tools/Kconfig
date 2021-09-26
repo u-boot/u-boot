@@ -20,4 +20,29 @@ config TOOLS_LIBCRYPTO
 	  This selection does not affect target features, such as runtime FIT
 	  signature verification.
 
+config TOOLS_FIT
+	def_bool y
+	help
+	  Enable FIT support in the tools builds.
+
+config TOOLS_FIT_FULL_CHECK
+	def_bool y
+	help
+	  Do a full check of the FIT before using it in the tools builds
+
+config TOOLS_FIT_PRINT
+	def_bool y
+	help
+	  Print the content of the FIT verbosely in the tools builds
+
+config TOOLS_FIT_SIGNATURE
+	def_bool y
+	help
+	  Enable signature verification of FIT uImages in the tools builds
+
+config TOOLS_FIT_SIGNATURE_MAX_SIZE
+	hex
+	depends on TOOLS_FIT_SIGNATURE
+	default 0x10000000
+
 endmenu

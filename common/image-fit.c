@@ -170,7 +170,7 @@ int fit_get_subimage_count(const void *fit, int images_noffset)
 	return count;
 }
 
-#if CONFIG_IS_ENABLED(FIT_PRINT) || CONFIG_IS_ENABLED(SPL_FIT_PRINT)
+#if CONFIG_IS_ENABLED(FIT_PRINT)
 /**
  * fit_image_print_data() - prints out the hash node details
  * @fit: pointer to the FIT format image header
@@ -578,7 +578,7 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 #else
 void fit_print_contents(const void *fit) { }
 void fit_image_print(const void *fit, int image_noffset, const char *p) { }
-#endif /* CONFIG_IS_ENABLED(FIR_PRINT) || CONFIG_IS_ENABLED(SPL_FIT_PRINT) */
+#endif /* CONFIG_IS_ENABLED(FIT_PRINT) */
 
 /**
  * fit_get_desc - get node description property
