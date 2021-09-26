@@ -276,21 +276,10 @@ error:
 int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 		 bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
 {
-#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-	const image_header_t *fdt_hdr;
-	ulong		load, load_end;
-	ulong		image_start, image_data, image_end;
-#endif
 	ulong		img_addr;
 	ulong		fdt_addr;
 	char		*fdt_blob = NULL;
 	void		*buf;
-#if CONFIG_IS_ENABLED(FIT)
-	const char	*fit_uname_config = images->fit_uname_cfg;
-	const char	*fit_uname_fdt = NULL;
-	ulong		default_addr;
-	int		fdt_noffset;
-#endif
 	const char *select = NULL;
 
 	*of_flat_tree = NULL;
@@ -304,6 +293,11 @@ int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 		select = argv[2];
 	if (select || genimg_has_config(images)) {
 #if CONFIG_IS_ENABLED(FIT)
+		const char *fit_uname_config = images->fit_uname_cfg;
+		const char *fit_uname_fdt = NULL;
+		ulong default_addr;
+		int fdt_noffset;
+
 		if (select) {
 			/*
 			 * If the FDT blob comes from the FIT image and the
@@ -359,7 +353,11 @@ int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 		buf = map_sysmem(fdt_addr, 0);
 		switch (genimg_get_format(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-		case IMAGE_FORMAT_LEGACY:
+		case IMAGE_FORMAT_LEGACY: {
+			const image_header_t *fdt_hdr;
+			ulong load, load_end;
+			ulong image_start, image_data, image_end;
+
 			/* verify fdt_addr points to a valid image header */
 			printf("## Flattened Device Tree from Legacy Image at %08lx\n",
 			       fdt_addr);
@@ -398,6 +396,7 @@ int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 
 			fdt_addr = load;
 			break;
+		}
 #endif
 		case IMAGE_FORMAT_FIT:
 			/*
