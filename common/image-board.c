@@ -337,18 +337,8 @@ int genimg_has_config(bootm_headers_t *images)
 int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 		     u8 arch, ulong *rd_start, ulong *rd_end)
 {
-	ulong rd_addr, rd_load;
 	ulong rd_data, rd_len;
-#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-	const image_header_t *rd_hdr;
-#endif
 	void *buf;
-#if CONFIG_IS_ENABLED(FIT)
-	const char	*fit_uname_config = images->fit_uname_cfg;
-	const char	*fit_uname_ramdisk = NULL;
-	ulong		default_addr;
-	int		rd_noffset;
-#endif
 	const char *select = NULL;
 
 	*rd_start = 0;
@@ -373,8 +363,15 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 		rd_len = 0;
 		rd_data = 0;
 	} else if (select || genimg_has_config(images)) {
+		ulong rd_addr, rd_load;
+
 #if CONFIG_IS_ENABLED(FIT)
+		const char *fit_uname_config = images->fit_uname_cfg;
+		const char *fit_uname_ramdisk = NULL;
+		int rd_noffset;
+
 		if (select) {
+			ulong default_addr;
 			/*
 			 * If the init ramdisk comes from the FIT image and
 			 * the FIT image address is omitted in the command
@@ -427,7 +424,9 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 		buf = map_sysmem(rd_addr, 0);
 		switch (genimg_get_format(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-		case IMAGE_FORMAT_LEGACY:
+		case IMAGE_FORMAT_LEGACY: {
+			const image_header_t *rd_hdr;
+
 			printf("## Loading init Ramdisk from Legacy Image at %08lx ...\n",
 			       rd_addr);
 
@@ -442,6 +441,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 			rd_len = image_get_data_size(rd_hdr);
 			rd_load = image_get_load(rd_hdr);
 			break;
+		}
 #endif
 #if CONFIG_IS_ENABLED(FIT)
 		case IMAGE_FORMAT_FIT:
