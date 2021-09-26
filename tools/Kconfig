@@ -45,6 +45,11 @@ config TOOLS_FIT_SIGNATURE_MAX_SIZE
 	depends on TOOLS_FIT_SIGNATURE
 	default 0x10000000
 
+config TOOLS_FIT_VERBOSE
+	def_bool y
+	help
+	  Support verbose FIT output in the tools builds
+
 config TOOLS_MD5
 	def_bool y
 	help
