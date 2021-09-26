@@ -103,11 +103,9 @@ int padding_pkcs_15_verify(struct image_sign_info *info,
 			   uint8_t *msg, int msg_len,
 			   const uint8_t *hash, int hash_len);
 
-#ifdef CONFIG_FIT_RSASSA_PSS
 int padding_pss_verify(struct image_sign_info *info,
 		       uint8_t *msg, int msg_len,
 		       const uint8_t *hash, int hash_len);
-#endif /* CONFIG_FIT_RSASSA_PSS */
 
 #define RSA_DEFAULT_PADDING_NAME		"pkcs-1.5"
 

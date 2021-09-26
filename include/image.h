@@ -27,9 +27,6 @@ struct fdt_region;
 #include <sys/types.h>
 #include <linux/kconfig.h>
 
-/* new uImage format support enabled on host */
-#define CONFIG_FIT_RSASSA_PSS 1
-
 #define IMAGE_ENABLE_IGNORE	0
 #define IMAGE_INDENT_STRING	""
 
