@@ -24,6 +24,7 @@
 #include <u-boot/crc.h>
 #else
 #include "mkimage.h"
+#include <linux/compiler_attributes.h>
 #include <time.h>
 #include <linux/kconfig.h>
 #endif /* !USE_HOSTCC*/
@@ -42,8 +43,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void reloc_update(void);
 
-#if CONFIG_IS_ENABLED(SHA1) && !CONFIG_IS_ENABLED(SHA_PROG_HW_ACCEL)
-static int hash_init_sha1(struct hash_algo *algo, void **ctxp)
+static int __maybe_unused hash_init_sha1(struct hash_algo *algo, void **ctxp)
 {
 	sha1_context *ctx = malloc(sizeof(sha1_context));
 	sha1_starts(ctx);
@@ -51,15 +51,16 @@ static int hash_init_sha1(struct hash_algo *algo, void **ctxp)
 	return 0;
 }
 
-static int hash_update_sha1(struct hash_algo *algo, void *ctx, const void *buf,
-			    unsigned int size, int is_last)
+static int __maybe_unused hash_update_sha1(struct hash_algo *algo, void *ctx,
+					   const void *buf, unsigned int size,
+					   int is_last)
 {
 	sha1_update((sha1_context *)ctx, buf, size);
 	return 0;
 }
 
-static int hash_finish_sha1(struct hash_algo *algo, void *ctx, void *dest_buf,
-			    int size)
+static int __maybe_unused hash_finish_sha1(struct hash_algo *algo, void *ctx,
+					   void *dest_buf, int size)
 {
 	if (size < algo->digest_size)
 		return -1;
@@ -68,10 +69,8 @@ static int hash_finish_sha1(struct hash_algo *algo, void *ctx, void *dest_buf,
 	free(ctx);
 	return 0;
 }
-#endif
 
-#if CONFIG_IS_ENABLED(SHA256) && !CONFIG_IS_ENABLED(SHA_PROG_HW_ACCEL)
-static int hash_init_sha256(struct hash_algo *algo, void **ctxp)
+static int __maybe_unused hash_init_sha256(struct hash_algo *algo, void **ctxp)
 {
 	sha256_context *ctx = malloc(sizeof(sha256_context));
 	sha256_starts(ctx);
@@ -79,15 +78,16 @@ static int hash_init_sha256(struct hash_algo *algo, void **ctxp)
 	return 0;
 }
 
-static int hash_update_sha256(struct hash_algo *algo, void *ctx,
-			      const void *buf, unsigned int size, int is_last)
+static int __maybe_unused hash_update_sha256(struct hash_algo *algo, void *ctx,
+					     const void *buf, uint size,
+					     int is_last)
 {
 	sha256_update((sha256_context *)ctx, buf, size);
 	return 0;
 }
 
-static int hash_finish_sha256(struct hash_algo *algo, void *ctx, void
-			      *dest_buf, int size)
+static int __maybe_unused hash_finish_sha256(struct hash_algo *algo, void *ctx,
+					     void *dest_buf, int size)
 {
 	if (size < algo->digest_size)
 		return -1;
@@ -96,10 +96,8 @@ static int hash_finish_sha256(struct hash_algo *algo, void *ctx, void
 	free(ctx);
 	return 0;
 }
-#endif
 
-#if CONFIG_IS_ENABLED(SHA384) && !CONFIG_IS_ENABLED(SHA_PROG_HW_ACCEL)
-static int hash_init_sha384(struct hash_algo *algo, void **ctxp)
+static int __maybe_unused hash_init_sha384(struct hash_algo *algo, void **ctxp)
 {
 	sha512_context *ctx = malloc(sizeof(sha512_context));
 	sha384_starts(ctx);
@@ -107,15 +105,16 @@ static int hash_init_sha384(struct hash_algo *algo, void **ctxp)
 	return 0;
 }
 
-static int hash_update_sha384(struct hash_algo *algo, void *ctx,
-			      const void *buf, unsigned int size, int is_last)
+static int __maybe_unused hash_update_sha384(struct hash_algo *algo, void *ctx,
+					     const void *buf, uint size,
+					     int is_last)
 {
 	sha384_update((sha512_context *)ctx, buf, size);
 	return 0;
 }
 
-static int hash_finish_sha384(struct hash_algo *algo, void *ctx, void
-			      *dest_buf, int size)
+static int __maybe_unused hash_finish_sha384(struct hash_algo *algo, void *ctx,
+					     void *dest_buf, int size)
 {
 	if (size < algo->digest_size)
 		return -1;
@@ -124,10 +123,8 @@ static int hash_finish_sha384(struct hash_algo *algo, void *ctx, void
 	free(ctx);
 	return 0;
 }
-#endif
 
-#if CONFIG_IS_ENABLED(SHA512) && !CONFIG_IS_ENABLED(SHA_PROG_HW_ACCEL)
-static int hash_init_sha512(struct hash_algo *algo, void **ctxp)
+static int __maybe_unused hash_init_sha512(struct hash_algo *algo, void **ctxp)
 {
 	sha512_context *ctx = malloc(sizeof(sha512_context));
 	sha512_starts(ctx);
@@ -135,15 +132,16 @@ static int hash_init_sha512(struct hash_algo *algo, void **ctxp)
 	return 0;
 }
 
-static int hash_update_sha512(struct hash_algo *algo, void *ctx,
-			      const void *buf, unsigned int size, int is_last)
+static int __maybe_unused hash_update_sha512(struct hash_algo *algo, void *ctx,
+					     const void *buf, uint size,
+					     int is_last)
 {
 	sha512_update((sha512_context *)ctx, buf, size);
 	return 0;
 }
 
-static int hash_finish_sha512(struct hash_algo *algo, void *ctx, void
-			      *dest_buf, int size)
+static int __maybe_unused hash_finish_sha512(struct hash_algo *algo, void *ctx,
+					     void *dest_buf, int size)
 {
 	if (size < algo->digest_size)
 		return -1;
@@ -152,8 +150,6 @@ static int hash_finish_sha512(struct hash_algo *algo, void *ctx, void
 	free(ctx);
 	return 0;
 }
-#endif
-
 
 static int hash_init_crc16_ccitt(struct hash_algo *algo, void **ctxp)
 {
