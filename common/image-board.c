@@ -282,7 +282,7 @@ int genimg_get_format(const void *img_addr)
 	if (image_check_magic(hdr))
 		return IMAGE_FORMAT_LEGACY;
 #endif
-#if IMAGE_ENABLE_FIT || IMAGE_ENABLE_OF_LIBFDT
+#if CONFIG_IS_ENABLED(FIT) || IMAGE_ENABLE_OF_LIBFDT
 	if (fdt_check_header(img_addr) == 0)
 		return IMAGE_FORMAT_FIT;
 #endif
@@ -307,7 +307,7 @@ int genimg_get_format(const void *img_addr)
  */
 int genimg_has_config(bootm_headers_t *images)
 {
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 	if (images->fit_uname_cfg)
 		return 1;
 #endif
@@ -348,7 +348,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 #ifdef CONFIG_SUPPORT_RAW_INITRD
 	char *end;
 #endif
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 	const char	*fit_uname_config = images->fit_uname_cfg;
 	const char	*fit_uname_ramdisk = NULL;
 	ulong		default_addr;
@@ -380,7 +380,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 		rd_len = 0;
 		rd_data = 0;
 	} else if (select || genimg_has_config(images)) {
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 		if (select) {
 			/*
 			 * If the init ramdisk comes from the FIT image and
@@ -409,7 +409,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 				debug("*  ramdisk: cmdline image address = 0x%08lx\n",
 				      rd_addr);
 			}
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 		} else {
 			/* use FIT configuration provided in first bootm
 			 * command argument. If the property is not defined,
@@ -450,7 +450,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 			rd_load = image_get_load(rd_hdr);
 			break;
 #endif
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 		case IMAGE_FORMAT_FIT:
 			rd_noffset = fit_image_load(images,
 						    rd_addr, &fit_uname_ramdisk,
@@ -623,14 +623,14 @@ error:
 int boot_get_setup(bootm_headers_t *images, u8 arch,
 		   ulong *setup_start, ulong *setup_len)
 {
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 	return boot_get_setup_fit(images, arch, setup_start, setup_len);
 #else
 	return -ENOENT;
 #endif
 }
 
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 #if defined(CONFIG_FPGA)
 int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
 		  u8 arch, const ulong *ld_start, ulong * const ld_len)

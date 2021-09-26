@@ -25,9 +25,9 @@ struct fdt_region;
 
 #ifdef USE_HOSTCC
 #include <sys/types.h>
+#include <linux/kconfig.h>
 
 /* new uImage format support enabled on host */
-#define IMAGE_ENABLE_FIT	1
 #define IMAGE_ENABLE_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 #define CONFIG_FIT_RSASSA_PSS 1
@@ -46,16 +46,15 @@ struct fdt_region;
 #define IMAGE_ENABLE_IGNORE	1
 #define IMAGE_INDENT_STRING	"   "
 
-#define IMAGE_ENABLE_FIT	CONFIG_IS_ENABLED(FIT)
 #define IMAGE_ENABLE_OF_LIBFDT	CONFIG_IS_ENABLED(OF_LIBFDT)
 
 #endif /* USE_HOSTCC */
 
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 #include <hash.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
-#endif /* IMAGE_ENABLE_FIT */
+#endif /* FIT */
 
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 # define IMAGE_BOOT_GET_CMDLINE		1
@@ -328,7 +327,7 @@ typedef struct bootm_headers {
 	image_header_t	legacy_hdr_os_copy;	/* header copy */
 	ulong		legacy_hdr_valid;
 
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 	const char	*fit_uname_cfg;	/* configuration node unit name */
 
 	void		*fit_hdr_os;	/* os FIT image header */
@@ -983,7 +982,7 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 /* cmdline argument format parsing */
 int fit_parse_conf(const char *spec, ulong addr_curr,
 		ulong *addr, const char **conf_name);
@@ -1157,7 +1156,7 @@ int fit_conf_get_prop_node(const void *fit, int noffset,
 
 int fit_check_ramdisk(const void *fit, int os_noffset,
 		uint8_t arch, int verify);
-#endif /* IMAGE_ENABLE_FIT */
+#endif /* FIT */
 
 int calculate_hash(const void *data, int data_len, const char *algo,
 			uint8_t *value, int *value_len);
@@ -1180,7 +1179,7 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 # define FIT_IMAGE_ENABLE_VERIFY	CONFIG_IS_ENABLED(FIT_SIGNATURE)
 #endif
 
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 #ifdef USE_HOSTCC
 void *image_get_host_blob(void);
 void image_set_host_blob(void *host_blob);
@@ -1335,7 +1334,7 @@ struct crypto_algo *image_get_crypto_algo(const char *full_name);
  */
 struct padding_algo *image_get_padding_algo(const char *name);
 
-#if IMAGE_ENABLE_FIT
+#if CONFIG_IS_ENABLED(FIT)
 
 /**
  * fit_image_verify_required_sigs() - Verify signatures marked as 'required'

@@ -18,7 +18,7 @@
 #include <status_led.h>
 #endif
 
-#if IMAGE_ENABLE_FIT || IMAGE_ENABLE_OF_LIBFDT
+#if CONFIG_IS_ENABLED(FIT) || IMAGE_ENABLE_OF_LIBFDT
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #endif
