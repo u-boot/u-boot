@@ -49,12 +49,6 @@ struct fdt_region;
 #include <fdt_support.h>
 #endif /* FIT */
 
-#ifdef CONFIG_OF_BOARD_SETUP
-# define IMAGE_OF_BOARD_SETUP		1
-#else
-# define IMAGE_OF_BOARD_SETUP		0
-#endif
-
 #ifdef CONFIG_OF_SYSTEM_SETUP
 # define IMAGE_OF_SYSTEM_SETUP	1
 #else
