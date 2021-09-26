@@ -509,7 +509,7 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 
 	ret = fit_image_get_data_and_size(fit, image_noffset, &data, &size);
 
-	if (!host_build()) {
+	if (!tools_build()) {
 		printf("%s  Data Start:   ", p);
 		if (ret) {
 			printf("unavailable\n");
@@ -1845,7 +1845,7 @@ int fit_conf_get_node(const void *fit, const char *conf_uname)
 	if (conf_uname == NULL) {
 		/* get configuration unit name from the default property */
 		debug("No configuration specified, trying default...\n");
-		if (!host_build() && IS_ENABLED(CONFIG_MULTI_DTB_FIT)) {
+		if (!tools_build() && IS_ENABLED(CONFIG_MULTI_DTB_FIT)) {
 			noffset = fit_find_config_node(fit);
 			if (noffset < 0)
 				return noffset;
@@ -2093,7 +2093,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	}
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
-	if (!host_build() && IS_ENABLED(CONFIG_SANDBOX)) {
+	if (!tools_build() && IS_ENABLED(CONFIG_SANDBOX)) {
 		if (!fit_image_check_target_arch(fit, noffset)) {
 			puts("Unsupported Architecture\n");
 			bootstage_error(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
@@ -2158,7 +2158,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	}
 
 	/* perform any post-processing on the image data */
-	if (!host_build() && IS_ENABLED(CONFIG_FIT_IMAGE_POST_PROCESS))
+	if (!tools_build() && IS_ENABLED(CONFIG_FIT_IMAGE_POST_PROCESS))
 		board_fit_image_post_process(fit, noffset, &buf, &size);
 
 	len = (ulong)size;

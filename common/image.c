@@ -460,11 +460,11 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 			ret = -ENOSPC;
 		break;
 	case IH_COMP_GZIP:
-		if (!host_build() && CONFIG_IS_ENABLED(GZIP))
+		if (!tools_build() && CONFIG_IS_ENABLED(GZIP))
 			ret = gunzip(load_buf, unc_len, image_buf, &image_len);
 		break;
 	case IH_COMP_BZIP2:
-		if (!host_build() && CONFIG_IS_ENABLED(BZIP2)) {
+		if (!tools_build() && CONFIG_IS_ENABLED(BZIP2)) {
 			uint size = unc_len;
 
 			/*
@@ -478,7 +478,7 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		}
 		break;
 	case IH_COMP_LZMA:
-		if (!host_build() && CONFIG_IS_ENABLED(LZMA)) {
+		if (!tools_build() && CONFIG_IS_ENABLED(LZMA)) {
 			SizeT lzma_len = unc_len;
 
 			ret = lzmaBuffToBuffDecompress(load_buf, &lzma_len,
@@ -487,7 +487,7 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		}
 		break;
 	case IH_COMP_LZO:
-		if (!host_build() && CONFIG_IS_ENABLED(LZO)) {
+		if (!tools_build() && CONFIG_IS_ENABLED(LZO)) {
 			size_t size = unc_len;
 
 			ret = lzop_decompress(image_buf, image_len, load_buf, &size);
@@ -495,7 +495,7 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		}
 		break;
 	case IH_COMP_LZ4:
-		if (!host_build() && CONFIG_IS_ENABLED(LZ4)) {
+		if (!tools_build() && CONFIG_IS_ENABLED(LZ4)) {
 			size_t size = unc_len;
 
 			ret = ulz4fn(image_buf, image_len, load_buf, &size);
@@ -503,7 +503,7 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		}
 		break;
 	case IH_COMP_ZSTD:
-		if (!host_build() && CONFIG_IS_ENABLED(ZSTD)) {
+		if (!tools_build() && CONFIG_IS_ENABLED(ZSTD)) {
 			struct abuf in, out;
 
 			abuf_init_set(&in, image_buf, image_len);

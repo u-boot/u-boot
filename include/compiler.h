@@ -155,11 +155,12 @@ typedef unsigned long int uintptr_t;
 #endif
 
 /**
- * host_build() - check if we are building for the host
+ * tools_build() - check if we are building host tools
  *
  * @return true if building for the host, false if for a target
  */
-static inline bool host_build(void) {
+static inline bool tools_build(void)
+{
 #ifdef USE_HOSTCC
 	return true;
 #else
