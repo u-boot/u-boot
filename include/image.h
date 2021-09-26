@@ -40,11 +40,10 @@ struct fdt_region;
 
 #endif /* USE_HOSTCC */
 
-#if CONFIG_IS_ENABLED(FIT)
 #include <hash.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
-#endif /* FIT */
+#include <u-boot/hash-checksum.h>
 
 extern ulong image_load_addr;		/* Default Load Address */
 extern ulong image_save_addr;		/* Default Save Address */
@@ -504,8 +503,7 @@ int genimg_get_type_id(const char *name);
 int genimg_get_comp_id(const char *name);
 void genimg_print_size(uint32_t size);
 
-#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || \
-	defined(USE_HOSTCC)
+#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 #define IMAGE_ENABLE_TIMESTAMP 1
 #else
 #define IMAGE_ENABLE_TIMESTAMP 0
@@ -523,12 +521,9 @@ enum fit_load_op {
 int boot_get_setup(bootm_headers_t *images, uint8_t arch, ulong *setup_start,
 		   ulong *setup_len);
 
-#ifndef USE_HOSTCC
 /* Image format types, returned by _get_format() routine */
 #define IMAGE_FORMAT_INVALID	0x00
-#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 #define IMAGE_FORMAT_LEGACY	0x01	/* legacy image_header based format */
-#endif
 #define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
 #define IMAGE_FORMAT_ANDROID	0x03	/* Android boot image */
 
@@ -567,7 +562,6 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
  */
 int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
 		      uint8_t arch, const ulong *ld_start, ulong *const ld_len);
-#endif /* !USE_HOSTCC */
 
 int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
 		       ulong *setup_start, ulong *setup_len);
@@ -644,7 +638,6 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
  */
 int image_source_script(ulong addr, const char *fit_uname);
 
-#ifndef USE_HOSTCC
 /**
  * fit_get_node_from_config() - Look up an image a FIT by type
  *
@@ -684,10 +677,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size);
 int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		  ulong *initrd_start, ulong *initrd_end);
 int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end);
-#ifdef CONFIG_SYS_BOOT_GET_KBD
 int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd);
-#endif /* CONFIG_SYS_BOOT_GET_KBD */
-#endif /* !USE_HOSTCC */
 
 /*******************************************************************/
 /* Legacy format specific code (prefixed with image_) */
@@ -802,11 +792,9 @@ static inline int image_check_type(const image_header_t *hdr, uint8_t type)
 }
 static inline int image_check_arch(const image_header_t *hdr, uint8_t arch)
 {
-#ifndef USE_HOSTCC
 	/* Let's assume that sandbox can load any architecture */
-	if (IS_ENABLED(CONFIG_SANDBOX))
+	if (!tools_build() && IS_ENABLED(CONFIG_SANDBOX))
 		return true;
-#endif
 	return (image_get_arch(hdr) == arch) ||
 		(image_get_arch(hdr) == IH_ARCH_ARM && arch == IH_ARCH_ARM64);
 }
@@ -954,7 +942,6 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
-#if CONFIG_IS_ENABLED(FIT)
 /* cmdline argument format parsing */
 int fit_parse_conf(const char *spec, ulong addr_curr,
 		ulong *addr, const char **conf_name);
@@ -1128,7 +1115,6 @@ int fit_conf_get_prop_node(const void *fit, int noffset,
 
 int fit_check_ramdisk(const void *fit, int os_noffset,
 		uint8_t arch, int verify);
-#endif /* FIT */
 
 int calculate_hash(const void *data, int data_len, const char *algo,
 			uint8_t *value, int *value_len);
@@ -1151,7 +1137,6 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 # define FIT_IMAGE_ENABLE_VERIFY	CONFIG_IS_ENABLED(FIT_SIGNATURE)
 #endif
 
-#if CONFIG_IS_ENABLED(FIT)
 #ifdef USE_HOSTCC
 void *image_get_host_blob(void);
 void image_set_host_blob(void *host_blob);
@@ -1159,8 +1144,6 @@ void image_set_host_blob(void *host_blob);
 #else
 # define gd_fdt_blob()		(gd->fdt_blob)
 #endif
-
-#endif /* IMAGE_ENABLE_FIT */
 
 /*
  * Information passed to the signing routines
@@ -1198,9 +1181,6 @@ struct image_region {
 	int size;
 };
 
-#if FIT_IMAGE_ENABLE_VERIFY
-# include <u-boot/hash-checksum.h>
-#endif
 struct checksum_algo {
 	const char *name;
 	const int checksum_len;
@@ -1210,7 +1190,7 @@ struct checksum_algo {
 	const EVP_MD *(*calculate_sign)(void);
 #endif
 	int (*calculate)(const char *name,
-			 const struct image_region region[],
+			 const struct image_region *region,
 			 int region_count, uint8_t *checksum);
 };
 
@@ -1305,8 +1285,6 @@ struct crypto_algo *image_get_crypto_algo(const char *full_name);
  * @return pointer to algorithm information, or NULL if not found
  */
 struct padding_algo *image_get_padding_algo(const char *name);
-
-#if CONFIG_IS_ENABLED(FIT)
 
 /**
  * fit_image_verify_required_sigs() - Verify signatures marked as 'required'
@@ -1433,10 +1411,6 @@ int fit_image_cipher_get_algo(const void *fit, int noffset, char **algo);
 
 struct cipher_algo *image_get_cipher_algo(const char *full_name);
 
-#endif /* CONFIG_FIT */
-
-#if !defined(USE_HOSTCC)
-#if defined(CONFIG_ANDROID_BOOT_IMAGE)
 struct andr_img_hdr;
 int android_image_check_header(const struct andr_img_hdr *hdr);
 int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
@@ -1452,12 +1426,7 @@ ulong android_image_get_end(const struct andr_img_hdr *hdr);
 ulong android_image_get_kload(const struct andr_img_hdr *hdr);
 ulong android_image_get_kcomp(const struct andr_img_hdr *hdr);
 void android_print_contents(const struct andr_img_hdr *hdr);
-#if !defined(CONFIG_SPL_BUILD)
 bool android_image_print_dtb_contents(ulong hdr_addr);
-#endif
-
-#endif /* CONFIG_ANDROID_BOOT_IMAGE */
-#endif /* !USE_HOSTCC */
 
 /**
  * board_fit_config_name_match() - Check for a matching board name
