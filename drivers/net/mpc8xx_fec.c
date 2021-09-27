@@ -160,7 +160,7 @@ int fec_initialize(struct bd_info *bis)
 		struct mii_dev *mdiodev = mdio_alloc();
 		if (!mdiodev)
 			return -ENOMEM;
-		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+		strlcpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
 		mdiodev->read = fec8xx_miiphy_read;
 		mdiodev->write = fec8xx_miiphy_write;
 
