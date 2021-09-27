@@ -493,7 +493,7 @@ static int eepro100_initialize_mii(struct eepro100_priv *priv)
 	if (!mdiodev)
 		return -ENOMEM;
 
-	strncpy(mdiodev->name, priv->name, MDIO_NAME_LEN);
+	strlcpy(mdiodev->name, priv->name, MDIO_NAME_LEN);
 	mdiodev->read = eepro100_miiphy_read;
 	mdiodev->write = eepro100_miiphy_write;
 	mdiodev->priv = priv;
