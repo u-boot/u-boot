@@ -339,7 +339,7 @@ int atsha204a_read(struct udevice *dev, enum atsha204a_zone zone, bool read32,
 		retry--;
 		atsha204a_wakeup(dev);
 	} while (retry >= 0);
-	
+
 	if (res) {
 		debug("ATSHA204A read failed\n");
 		return res;

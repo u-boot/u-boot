@@ -907,7 +907,7 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *chip)
 
  	u32 timer = (CONFIG_SYS_HZ * timeo) / 1000;
  	u32 time_start;
- 
+
  	time_start = get_timer(0);
  	while (get_timer(time_start) < timer) {
 		if (chip->dev_ready) {

@@ -327,7 +327,7 @@ static int ctrlreq_out_data_phase(struct usb_device *dev, u32 len, void *buffer)
 
 		/* Set TXPKTRDY bit */
 		csr = readw(&musbr->txcsr);
-			
+
 		csr |= MUSB_CSR0_TXPKTRDY;
 		csr |= MUSB_CSR0_H_DIS_PING;
 		writew(csr, &musbr->txcsr);

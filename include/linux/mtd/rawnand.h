@@ -945,7 +945,7 @@ struct nand_chip {
 	int jedec_version;
 	struct nand_onfi_params	onfi_params;
 	struct nand_jedec_params jedec_params;
- 
+
 	struct nand_data_interface *data_interface;
 
 	int read_retries;

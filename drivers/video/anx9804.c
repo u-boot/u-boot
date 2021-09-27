@@ -67,11 +67,11 @@ void anx9804_init(unsigned int i2c_bus, u8 lanes, u8 data_rate, int bpp)
 		printf("Error anx9804 clock is not stable\n");
 
 	i2c_reg_write(0x39, ANX9804_VID_CTRL2_REG, colordepth);
-	
+
 	/* Set a bunch of analog related register values */
-	i2c_reg_write(0x38, ANX9804_PLL_CTRL_REG, 0x07); 
-	i2c_reg_write(0x39, ANX9804_PLL_FILTER_CTRL3, 0x19); 
-	i2c_reg_write(0x39, ANX9804_PLL_CTRL3, 0xd9); 
+	i2c_reg_write(0x38, ANX9804_PLL_CTRL_REG, 0x07);
+	i2c_reg_write(0x39, ANX9804_PLL_FILTER_CTRL3, 0x19);
+	i2c_reg_write(0x39, ANX9804_PLL_CTRL3, 0xd9);
 	i2c_reg_write(0x39, ANX9804_RST_CTRL2_REG, ANX9804_RST_CTRL2_AC_MODE);
 	i2c_reg_write(0x39, ANX9804_ANALOG_DEBUG_REG1, 0xf0);
 	i2c_reg_write(0x39, ANX9804_ANALOG_DEBUG_REG3, 0x99);
@@ -105,7 +105,7 @@ void anx9804_init(unsigned int i2c_bus, u8 lanes, u8 data_rate, int bpp)
 	i2c_reg_write(0x38, ANX9804_LINK_BW_SET_REG, data_rate);
 	i2c_reg_write(0x38, ANX9804_LANE_COUNT_SET_REG, lanes);
 
-	/* Link training */	
+	/* Link training */
 	i2c_reg_write(0x38, ANX9804_LINK_TRAINING_CTRL_REG,
 		      ANX9804_LINK_TRAINING_CTRL_EN);
 	mdelay(5);

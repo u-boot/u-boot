@@ -4,7 +4,7 @@
  * drivers and users.
  *
  * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org>
- * Copyright © 2006      Red Hat UK Limited 
+ * Copyright © 2006      Red Hat UK Limited
  *
  */
 
@@ -123,7 +123,7 @@ void *idr_get_next(struct idr *idp, int *next)
 	} else {
 		*next = 0;
 	}
-	
+
 	return ret;
 }
 
