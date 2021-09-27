@@ -288,7 +288,6 @@
 #define UART_ACR_ASREN	0x80	/* Additional status enable */
 
 
-
 /*
  * These definitions are for the RSA-DV II/S card, from
  *

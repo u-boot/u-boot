@@ -149,12 +149,9 @@
 #define XCHAL_HAVE_PREFETCH		0	/* PREFCTL register */
 
 
-
-
 /****************************************************************************
     Parameters Useful for PRIVILEGED (Supervisory or Non-Virtualized) Code
  ****************************************************************************/
-
 
 #ifndef XTENSA_HAL_NON_PRIVILEGED_ONLY
 

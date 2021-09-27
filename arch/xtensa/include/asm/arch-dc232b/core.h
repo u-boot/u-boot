@@ -127,8 +127,6 @@
 #define XCHAL_DCACHE_IS_WRITEBACK	1	/* writeback feature */
 
 
-
-
 /****************************************************************************
     Parameters Useful for PRIVILEGED (Supervisory or Non-Virtualized) Code
  ****************************************************************************/

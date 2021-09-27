@@ -173,8 +173,6 @@ do { \
 	MC_RSP_OP(cmd, 2, 0,  64, uint64_t, state->options);\
 } while (0)
 
-
-
 /*                cmd, param, offset, width, type, arg_name */
 #define DPNI_CMD_SET_PRIMARY_MAC_ADDR(cmd, mac_addr) \
 do { \

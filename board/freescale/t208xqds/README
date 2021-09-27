@@ -158,7 +158,6 @@ Start Address   End Address	Definition			Max size
 0xE8000000	0xE801FFFF	RCW (current bank)		128KB
 
 
-
 Software configurations and board settings
 ------------------------------------------
 1. NOR boot:

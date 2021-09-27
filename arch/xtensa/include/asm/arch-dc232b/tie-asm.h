@@ -26,7 +26,6 @@
 #define XTHAL_SAS_ALL	0xFFFF	/* include all default NCP contents */
 
 
-
 /* Macro to save all non-coprocessor (extra) custom TIE and optional state
  * (not including zero-overhead loop registers).
  * Save area ptr (clobbered):  ptr  (1 byte aligned)
@@ -109,10 +108,7 @@
 	.endif
 	.endm	// xchal_ncp_load
 
-
-
 #define XCHAL_NCP_NUM_ATMPS	2
-
 
 #define XCHAL_SA_NUM_ATMPS	2
 

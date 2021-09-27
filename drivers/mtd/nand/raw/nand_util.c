@@ -545,8 +545,6 @@ int nand_verify(struct mtd_info *mtd, loff_t ofs, size_t len, u_char *buf)
 	return rval ? -EIO : 0;
 }
 
-
-
 /**
  * nand_write_skip_bad:
  *

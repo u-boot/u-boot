@@ -206,12 +206,9 @@
 #define XCHAL_HAVE_DCACHE_DYN_WAYS	0	/* Dcache dynamic way support */
 
 
-
-
 /****************************************************************************
     Parameters Useful for PRIVILEGED (Supervisory or Non-Virtualized) Code
  ****************************************************************************/
-
 
 #ifndef XTENSA_HAL_NON_PRIVILEGED_ONLY
 

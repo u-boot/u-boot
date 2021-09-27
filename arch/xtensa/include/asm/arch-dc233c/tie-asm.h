@@ -31,8 +31,6 @@
 					| ((ccuse) & XTHAL_SAS_ANYCC)  \
 					| ((abi)   & XTHAL_SAS_ANYABI) )
 
-
-
     /*
      *  Macro to save all non-coprocessor (extra) custom TIE and optional state
      *  (not including zero-overhead loop registers).
@@ -163,8 +161,6 @@
 
 
 #define XCHAL_NCP_NUM_ATMPS	1
-
-
 
 #define XCHAL_SA_NUM_ATMPS	1
 
