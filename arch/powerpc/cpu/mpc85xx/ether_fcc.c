@@ -449,8 +449,10 @@ int fec_initialize(struct bd_info *bis)
 		mdiodev->write = bb_miiphy_write;
 
 		retval = mdio_register(mdiodev);
-		if (retval < 0)
+		if (retval < 0) {
+			mdio_free(mdiodev);
 			return retval;
+		}
 #endif
 	}
 
