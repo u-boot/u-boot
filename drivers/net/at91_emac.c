@@ -507,7 +507,7 @@ int at91emac_register(struct bd_info *bis, unsigned long iobase)
 	struct mii_dev *mdiodev = mdio_alloc();
 	if (!mdiodev)
 		return -ENOMEM;
-	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	strlcpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
 	mdiodev->read = at91emac_mii_read;
 	mdiodev->write = at91emac_mii_write;
 
