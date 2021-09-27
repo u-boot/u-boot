@@ -21,7 +21,7 @@ identifier readfunc, writefunc;
 + mdiodev->write = writefunc;
 + 
 + retval = mdio_register(mdiodev);
-+ if (retval < 0) return retval;
++ if (retval < 0) { mdio_free(mdiodev); return retval; }
 
 @ update_read_sig @
 identifier mii_reg.readfunc;
