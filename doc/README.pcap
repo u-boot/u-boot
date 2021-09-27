@@ -59,4 +59,3 @@ PCAP status:
 
 # pcap stop
 # tftpput 0xffffffff80100000 $pcapsize 10.0.2.2:capture.pcap
-

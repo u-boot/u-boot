@@ -93,4 +93,3 @@
 #define CONFIG_SYS_CS1_CTRL		0x0100
 
 #endif  /* __AMCORE_CONFIG_H */
-

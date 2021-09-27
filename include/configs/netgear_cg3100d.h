@@ -5,4 +5,3 @@
 
 #include <configs/bmips_common.h>
 #include <configs/bmips_bcm3380.h>
-

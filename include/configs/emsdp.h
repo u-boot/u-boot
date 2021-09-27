@@ -29,4 +29,3 @@
 		"emsdp rom lock\0"
 
 #endif /* _CONFIG_EMSDP_H_ */
-

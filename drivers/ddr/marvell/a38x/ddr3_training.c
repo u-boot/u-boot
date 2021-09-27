@@ -2895,4 +2895,3 @@ unsigned int mv_ddr_misl_phy_odt_n_get(void)
 
 	return odt_n;
 }
-

@@ -384,4 +384,3 @@
 #define UART_EXAR_RXTRG		0x0b	/* Rx FIFO trigger level write-only */
 
 #endif /* _LINUX_SERIAL_REG_H */
-

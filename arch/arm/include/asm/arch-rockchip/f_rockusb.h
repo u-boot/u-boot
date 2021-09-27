@@ -133,4 +133,3 @@ struct f_rockusb {
 /* init rockusb device, tell rockusb which device you want to read/write*/
 void rockusb_dev_init(char *dev_type, int dev_index);
 #endif /* _F_ROCKUSB_H_ */
-

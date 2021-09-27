@@ -49,4 +49,3 @@ static char text[] =
 U_BOOT_CMD_WITH_SUBCMDS(scp03, "Secure Channel Protocol 03 control", text,
 	U_BOOT_SUBCMD_MKENT(enable, 1, 1, do_scp03_enable),
 	U_BOOT_SUBCMD_MKENT(provision, 1, 1, do_scp03_provision));
-

@@ -43,4 +43,3 @@ u32 __secure psci_get_context_id(int cpu)
 {
 	return psci_context_id[cpu];
 }
-

@@ -31,4 +31,3 @@ onewire_tm: onewire {
 			compatible = "sandbox,w1-eeprom";
 		}
 };
-

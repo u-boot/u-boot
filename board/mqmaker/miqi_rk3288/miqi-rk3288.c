@@ -2,4 +2,3 @@
 /*
  * (C) Copyright 2016 Rockchip Electronics Co., Ltd
  */
-

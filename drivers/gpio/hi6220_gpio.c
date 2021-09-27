@@ -91,5 +91,3 @@ U_BOOT_DRIVER(gpio_hi6220) = {
 	.probe	= hi6220_gpio_probe,
 	.priv_auto	= sizeof(struct gpio_bank),
 };
-
-

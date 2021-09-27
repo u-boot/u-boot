@@ -12383,7 +12383,3 @@ ps7_init()
   //xil_printf ("\n PCW Silicon Version : %d.0", pcw_ver);
   return PS7_INIT_SUCCESS;
 }
-
-
-
-

@@ -278,4 +278,3 @@ int cpu_eth_init(struct bd_info *bis)
 	return 0;
 }
 #endif
-

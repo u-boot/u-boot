@@ -181,5 +181,3 @@ int hi6220_pinmux_config(int peripheral)
 
 	return 0;
 }
-
-

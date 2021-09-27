@@ -26,4 +26,3 @@ struct coldfire_spi_plat {
 };
 
 #endif /* __spi_coldfire_h */
-

@@ -126,4 +126,3 @@
 #define XCHAL_OP0_FORMAT_LENGTHS	3,3,3,3,3,3,3,3,2,2,2,2,2,2,3,3
 
 #endif /*_XTENSA_CORE_TIE_H*/
-

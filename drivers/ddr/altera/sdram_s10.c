@@ -335,4 +335,3 @@ int sdram_mmr_init_full(struct udevice *dev)
 	debug("DDR: HMC init success\n");
 	return 0;
 }
-

@@ -853,4 +853,3 @@ U_BOOT_DRIVER(dmc_rk322x) = {
 	.plat_auto	= sizeof(struct rk322x_sdram_params),
 #endif
 };
-

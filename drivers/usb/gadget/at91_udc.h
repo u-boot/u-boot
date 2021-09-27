@@ -164,4 +164,3 @@ struct at91_request {
 #define DBG(stuff...)		debug("udc: " stuff)
 
 #endif
-

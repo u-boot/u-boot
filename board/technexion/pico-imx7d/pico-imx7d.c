@@ -244,4 +244,3 @@ int board_ehci_hcd_init(int port)
 	}
 	return 0;
 }
-

@@ -1894,4 +1894,3 @@ static const struct usb_device_id r8152_eth_id_table[] = {
 
 U_BOOT_USB_DEVICE(r8152_eth, r8152_eth_id_table);
 #endif /* CONFIG_DM_ETH */
-

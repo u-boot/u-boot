@@ -133,4 +133,3 @@
 #endif /* CONFIG_SPL_BUILD */
 
 #endif	/* __CONFIG_CM_T335_H */
-

@@ -141,4 +141,3 @@ void comphy_pcie_config_detect(u32 comphy_max_count,
 void comphy_pcie_unit_general_config(u32 pex_index);
 
 #endif /* _COMPHY_CORE_H_ */
-

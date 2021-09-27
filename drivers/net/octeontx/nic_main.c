@@ -775,4 +775,3 @@ static struct pci_device_id octeontx_nic_supported[] = {
 };
 
 U_BOOT_PCI_DEVICE(octeontx_nic, octeontx_nic_supported);
-

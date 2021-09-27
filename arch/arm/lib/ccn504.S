@@ -78,4 +78,3 @@ ENTRY(ccn504_set_aux)
 
 	ret
 ENDPROC(ccn504_set_aux)
-
