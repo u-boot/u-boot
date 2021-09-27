@@ -16,7 +16,7 @@ identifier readfunc, writefunc;
 - miiphy_register(devname, readfunc, writefunc);
 + struct mii_dev *mdiodev = mdio_alloc();
 + if (!mdiodev) return -ENOMEM;
-+ strncpy(mdiodev->name, devname, MDIO_NAME_LEN);
++ strlcpy(mdiodev->name, devname, MDIO_NAME_LEN);
 + mdiodev->read = readfunc;
 + mdiodev->write = writefunc;
 + 
