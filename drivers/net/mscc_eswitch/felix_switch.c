@@ -257,7 +257,7 @@ static void felix_init(struct udevice *dev)
 	priv->imdio.read = felix_mdio_read;
 	priv->imdio.write = felix_mdio_write;
 	priv->imdio.priv = priv->imdio_base + FELIX_PM_IMDIO_BASE;
-	strncpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
+	strlcpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
 
 	/* set up CPU port */
 	out_le32(base + FELIX_QSYS_SYSTEM_EXT_CPU_CFG,
@@ -302,7 +302,7 @@ static int felix_probe(struct udevice *dev)
 		mii_bus->read = felix_mdio_read;
 		mii_bus->write = felix_mdio_write;
 		mii_bus->priv = priv->imdio_base + FELIX_PM_IMDIO_BASE;
-		strncpy(mii_bus->name, dev->name, MDIO_NAME_LEN);
+		strlcpy(mii_bus->name, dev->name, MDIO_NAME_LEN);
 		mdio_register(mii_bus);
 	}
 
