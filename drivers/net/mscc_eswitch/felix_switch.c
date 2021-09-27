@@ -275,6 +275,7 @@ static void felix_init(struct udevice *dev)
 static int felix_probe(struct udevice *dev)
 {
 	struct felix_priv *priv = dev_get_priv(dev);
+	int err;
 
 	if (ofnode_valid(dev_ofnode(dev)) &&
 	    !ofnode_is_available(dev_ofnode(dev))) {
@@ -299,11 +300,18 @@ static int felix_probe(struct udevice *dev)
 		struct mii_dev *mii_bus;
 
 		mii_bus = mdio_alloc();
+		if (!mii_bus)
+			return -ENOMEM;
+
 		mii_bus->read = felix_mdio_read;
 		mii_bus->write = felix_mdio_write;
 		mii_bus->priv = priv->imdio_base + FELIX_PM_IMDIO_BASE;
 		strlcpy(mii_bus->name, dev->name, MDIO_NAME_LEN);
-		mdio_register(mii_bus);
+		err = mdio_register(mii_bus);
+		if (err) {
+			mdio_free(mii_bus);
+			return err;
+		}
 	}
 
 	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, PCI_COMMAND_MEMORY);
