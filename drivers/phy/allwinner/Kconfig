@@ -11,3 +11,11 @@ config PHY_SUN4I_USB
 
 	  This driver controls the entire USB PHY block, both the USB OTG
 	  parts, as well as the 2 regular USB 2 host PHYs.
+
+config PHY_SUN50I_USB3
+	bool "Allwinner sun50i USB3 PHY driver"
+	depends on ARCH_SUNXI
+	select PHY
+	help
+	  Enable this to support the USB3 transceiver that is part of
+	  Allwinner sun50i SoCs.

@@ -22,7 +22,7 @@
 struct designware_wdt_priv {
 	void __iomem	*base;
 	unsigned int	clk_khz;
-	struct reset_ctl_bulk *resets;
+	struct reset_ctl_bulk resets;
 };
 
 /*
@@ -99,11 +99,11 @@ static int designware_wdt_stop(struct udevice *dev)
         if (CONFIG_IS_ENABLED(DM_RESET)) {
 		int ret;
 
-		ret = reset_assert_bulk(priv->resets);
+		ret = reset_assert_bulk(&priv->resets);
 		if (ret)
 			return ret;
 
-		ret = reset_deassert_bulk(priv->resets);
+		ret = reset_deassert_bulk(&priv->resets);
 		if (ret)
 			return ret;
 	}
@@ -156,11 +156,11 @@ static int designware_wdt_probe(struct udevice *dev)
 #endif
 
 	if (CONFIG_IS_ENABLED(DM_RESET)) {
-		ret = reset_get_bulk(dev, priv->resets);
+		ret = reset_get_bulk(dev, &priv->resets);
 		if (ret)
 			goto err;
 
-		ret = reset_deassert_bulk(priv->resets);
+		ret = reset_deassert_bulk(&priv->resets);
 		if (ret)
 			goto err;
 	}

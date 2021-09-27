@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * (C) Copyright 2020 - Texas Instruments Incorporated - http://www.ti.com
+ * (C) Copyright 2020-2021 Texas Instruments Incorporated - http://www.ti.com
  *      Tero Kristo <t-kristo@ti.com>
  */
 
@@ -54,6 +54,7 @@ struct div_data {
 	u32 flags;
 	int shift;
 	int width;
+	u32 div_flags;
 };
 
 struct hfosc_data {
@@ -105,20 +106,23 @@ struct clk_data {
 		.width = _width, .flags = _flags }			\
 	}
 
-#define CLK_DIV(_name, _parent, _reg, _shift, _width, _flags)	\
-	{							\
-		.type = CLK_TYPE_DIV,				\
-		.clk.div = {.name = _name, .parent = _parent, .reg = _reg, .shift = _shift, .width = _width, .flags = _flags } \
+#define CLK_DIV(_name, _parent, _reg, _shift, _width, _flags, _div_flags)	\
+	{								\
+		.type = CLK_TYPE_DIV,					\
+		.clk.div = {						\
+			.name = _name, .parent = _parent, .reg = _reg,	\
+			.shift = _shift, .width = _width,		\
+			.flags = _flags, .div_flags = _div_flags }	\
 	}
 
-#define CLK_DIV_DEFFREQ(_name, _parent, _reg, _shift, _width, _flags, _freq) \
-	{							\
-		.type = CLK_TYPE_DIV,				\
-		.default_freq = _freq,				\
-		.clk.div = {					\
-			.name = _name, .parent = _parent,	\
-			.reg = _reg, .shift = _shift,		\
-			.width = _width, .flags = _flags }	\
+#define CLK_DIV_DEFFREQ(_name, _parent, _reg, _shift, _width, _flags, _div_flags, _freq) \
+	{								\
+		.type = CLK_TYPE_DIV,					\
+		.default_freq = _freq,					\
+		.clk.div = {						\
+			.name = _name, .parent = _parent, .reg = _reg,	\
+			.shift = _shift, .width = _width,		\
+			.flags = _flags, .div_flags = _div_flags }	\
 	}
 
 #define CLK_PLL(_name, _parent, _reg,  _flags)	\

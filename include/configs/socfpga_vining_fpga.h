@@ -15,8 +15,6 @@
 #define CONFIG_BOOTCOMMAND	"run selboot"
 #define CONFIG_SYS_BOOTM_LEN	0x2000000	/* 32 MiB */
 
-/* Ethernet on SoC (EMAC) */
-
 /* Extra Environment */
 #define CONFIG_HOSTNAME			"socfpga_vining_fpga"
 

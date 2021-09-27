@@ -23,6 +23,7 @@
 #define PORT_PTS_ULPI		(2 << 30)
 #define PORT_PTS_SERIAL		(3 << 30)
 #define PORT_PTS_PTW		(1 << 28)
+#define PORT_PTS_HSIC		(1 << 25)
 #define PORT_PFSC		(1 << 24) /* Defined on Page 39-44 of the mpc5151 ERM */
 #define PORT_PTS_PHCD		(1 << 23)
 #define PORT_PP			(1 << 12)
@@ -248,17 +249,6 @@ struct usb_ehci {
 /*
  * For MXC SOCs
  */
-
-/* values for portsc field */
-#define MXC_EHCI_PHY_LOW_POWER_SUSPEND	(1 << 23)
-#define MXC_EHCI_FORCE_FS		(1 << 24)
-#define MXC_EHCI_UTMI_8BIT		(0 << 28)
-#define MXC_EHCI_UTMI_16BIT		(1 << 28)
-#define MXC_EHCI_SERIAL			(1 << 29)
-#define MXC_EHCI_MODE_UTMI		(0 << 30)
-#define MXC_EHCI_MODE_PHILIPS		(1 << 30)
-#define MXC_EHCI_MODE_ULPI		(2 << 30)
-#define MXC_EHCI_MODE_SERIAL		(3 << 30)
 
 /* values for flags field */
 #define MXC_EHCI_INTERFACE_DIFF_UNI	(0 << 0)

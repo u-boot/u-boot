@@ -2,7 +2,7 @@
 /*
  * Texas Instruments K3 SoC PLL clock driver
  *
- * Copyright (C) 2020 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2020-2021 Texas Instruments Incorporated - http://www.ti.com/
  *	Tero Kristo <t-kristo@ti.com>
  */
 
@@ -122,6 +122,7 @@ static ulong ti_pll_clk_set_rate(struct clk *clk, ulong rate)
 	unsigned long pllm;
 	u32 pllfm = 0;
 	unsigned long plld;
+	u32 div_ctrl;
 	u32 rem;
 	int shift;
 
@@ -175,7 +176,15 @@ static ulong ti_pll_clk_set_rate(struct clk *clk, ulong rate)
 
 	writel(pllm, pll->reg + PLL_16FFT_FREQ_CTRL0);
 	writel(pllfm, pll->reg + PLL_16FFT_FREQ_CTRL1);
-	writel(plld, pll->reg + PLL_16FFT_DIV_CTRL);
+
+	/*
+	 * div_ctrl register contains other divider values, so rmw
+	 * only plld and leave existing values alone
+	 */
+	div_ctrl = readl(pll->reg + PLL_16FFT_DIV_CTRL);
+	div_ctrl &= ~PLL_16FFT_DIV_CTRL_REF_DIV_MASK;
+	div_ctrl |= plld;
+	writel(div_ctrl, pll->reg + PLL_16FFT_DIV_CTRL);
 
 	ctrl &= ~PLL_16FFT_CTRL_BYPASS_EN;
 	ctrl |= PLL_16FFT_CTRL_PLL_EN;

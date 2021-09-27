@@ -497,12 +497,11 @@ void *board_fdt_blob_setup(void)
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	/*
-	 * For now, we simply always add the simplefb DT node. Later, we
-	 * should be more intelligent, and e.g. only do this if no enabled DT
-	 * node exists for the "real" graphics driver.
-	 */
-	lcd_dt_simplefb_add_node(blob);
+	int node;
+
+	node = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");
+	if (node < 0)
+		lcd_dt_simplefb_add_node(blob);
 
 #ifdef CONFIG_EFI_LOADER
 	/* Reserve the spin table */

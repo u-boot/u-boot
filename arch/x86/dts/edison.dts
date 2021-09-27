@@ -88,6 +88,7 @@
 	emmc: mmc@ff3fc000 {
 		compatible = "intel,sdhci-tangier";
 		reg = <0xff3fc000 0x1000>;
+		non-removable;
 	};
 
 	sdcard: mmc@ff3fa000 {

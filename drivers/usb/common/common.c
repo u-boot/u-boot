@@ -80,6 +80,9 @@ static const char *const usbphy_modes[] = {
 	[USBPHY_INTERFACE_MODE_UNKNOWN]	= "",
 	[USBPHY_INTERFACE_MODE_UTMI]	= "utmi",
 	[USBPHY_INTERFACE_MODE_UTMIW]	= "utmi_wide",
+	[USBPHY_INTERFACE_MODE_ULPI]	= "ulpi",
+	[USBPHY_INTERFACE_MODE_SERIAL]	= "serial",
+	[USBPHY_INTERFACE_MODE_HSIC]	= "hsic",
 };
 
 enum usb_phy_interface usb_get_phy_mode(ofnode node)

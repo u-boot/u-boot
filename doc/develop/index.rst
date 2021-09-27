@@ -12,6 +12,7 @@ Implementation
    bloblist
    ci_testing
    commands
+   config_binding
    devicetree/index
    driver-model/index
    global_data

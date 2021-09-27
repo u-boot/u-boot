@@ -20,19 +20,11 @@ always += helloworld.efi
 targets += helloworld.o
 endif
 
-ifeq ($(CONFIG_EFI_CAPSULE_AUTHENTICATE),y)
-EFI_CAPSULE_KEY_PATH := $(subst $\",,$(CONFIG_EFI_CAPSULE_KEY_PATH))
-ifeq ("$(wildcard $(EFI_CAPSULE_KEY_PATH))","")
-$(error .esl certificate not found. Configure your CONFIG_EFI_CAPSULE_KEY_PATH)
-endif
-endif
-
 obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
 obj-$(CONFIG_CMD_BOOTEFI_BOOTMGR) += efi_bootmgr.o
 obj-y += efi_boottime.o
 obj-y += efi_helper.o
 obj-$(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) += efi_capsule.o
-obj-$(CONFIG_EFI_CAPSULE_AUTHENTICATE) += efi_capsule_key.o
 obj-$(CONFIG_EFI_CAPSULE_FIRMWARE) += efi_firmware.o
 obj-y += efi_console.o
 obj-y += efi_device_path.o

@@ -1,6 +1,6 @@
 GE BX50V3 BOARD
 M:	Ian Ray <ian.ray@ge.com>
-M:	Sebastian Reichel <sebastian.reichel@collabora.com>
+M:	Martyn Welch <martyn.welch@collabora.com>
 S:	Maintained
 F:	arch/arm/dts/imx6q-b450v3.dts
 F:	arch/arm/dts/imx6q-b650v3.dts

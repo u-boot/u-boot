@@ -7,11 +7,17 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <init.h>
 #include <log.h>
 #include <pci.h>
+#include <reset.h>
 #include <usb.h>
 #include <usb/xhci.h>
+
+struct xhci_pci_plat {
+	struct reset_ctl reset;
+};
 
 static int xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
 			 struct xhci_hcor **ret_hcor)
@@ -45,15 +51,53 @@ static int xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
 
 static int xhci_pci_probe(struct udevice *dev)
 {
+	struct xhci_pci_plat *plat = dev_get_plat(dev);
 	struct xhci_hccr *hccr;
 	struct xhci_hcor *hcor;
 	int ret;
 
+	ret = reset_get_by_index(dev, 0, &plat->reset);
+	if (ret && ret != -ENOENT && ret != -ENOTSUPP) {
+		dev_err(dev, "failed to get reset\n");
+		return ret;
+	}
+
+	if (reset_valid(&plat->reset)) {
+		ret = reset_assert(&plat->reset);
+		if (ret)
+			goto err_reset;
+
+		ret = reset_deassert(&plat->reset);
+		if (ret)
+			goto err_reset;
+	}
+
 	ret = xhci_pci_init(dev, &hccr, &hcor);
 	if (ret)
-		return ret;
+		goto err_reset;
 
-	return xhci_register(dev, hccr, hcor);
+	ret = xhci_register(dev, hccr, hcor);
+	if (ret)
+		goto err_reset;
+
+	return 0;
+
+err_reset:
+	if (reset_valid(&plat->reset))
+		reset_free(&plat->reset);
+
+	return ret;
+}
+
+static int xhci_pci_remove(struct udevice *dev)
+{
+	struct xhci_pci_plat *plat = dev_get_plat(dev);
+
+	xhci_deregister(dev);
+	if (reset_valid(&plat->reset))
+		reset_free(&plat->reset);
+
+	return 0;
 }
 
 static const struct udevice_id xhci_pci_ids[] = {
@@ -65,10 +109,10 @@ U_BOOT_DRIVER(xhci_pci) = {
 	.name	= "xhci_pci",
 	.id	= UCLASS_USB,
 	.probe = xhci_pci_probe,
-	.remove = xhci_deregister,
+	.remove	= xhci_pci_remove,
 	.of_match = xhci_pci_ids,
 	.ops	= &xhci_usb_ops,
-	.plat_auto	= sizeof(struct usb_plat),
+	.plat_auto	= sizeof(struct xhci_pci_plat),
 	.priv_auto	= sizeof(struct xhci_ctrl),
 	.flags	= DM_FLAG_OS_PREPARE | DM_FLAG_ALLOC_PRIV_DMA,
 };
