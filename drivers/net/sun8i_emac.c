@@ -403,7 +403,7 @@ static int sun8i_phy_init(struct emac_eth_dev *priv, void *dev)
 }
 
 #define cache_clean_descriptor(desc)					\
-	flush_dcache_range((uintptr_t)(desc), 				\
+	flush_dcache_range((uintptr_t)(desc),				\
 			   (uintptr_t)(desc) + sizeof(struct emac_dma_desc))
 
 #define cache_inv_descriptor(desc)					\

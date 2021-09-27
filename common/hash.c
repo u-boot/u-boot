@@ -228,7 +228,7 @@ static struct hash_algo hash_algo[] = {
 #endif
 #ifdef CONFIG_SHA1
 	{
-		.name 		= "sha1",
+		.name		= "sha1",
 		.digest_size	= SHA1_SUM_LEN,
 		.chunk_size	= CHUNKSZ_SHA1,
 #ifdef CONFIG_SHA_HW_ACCEL

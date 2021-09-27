@@ -203,7 +203,7 @@ void __read_once_size(const volatile void *p, void *res, int size)
 /*
  * We can't declare function 'inline' because __no_sanitize_address confilcts
  * with inlining. Attempt to inline it may cause a build failure.
- * 	https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67368
+ *	https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67368
  * '__maybe_unused' allows us to avoid defined-but-not-used warnings.
  */
 # define __no_kasan_or_inline __no_sanitize_address notrace __maybe_unused

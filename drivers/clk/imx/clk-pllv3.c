@@ -160,7 +160,7 @@ static ulong clk_pllv3_sys_set_rate(struct clk *clk, ulong rate)
 }
 
 static const struct clk_ops clk_pllv3_sys_ops = {
-	.enable 	= clk_pllv3_generic_enable,
+	.enable		= clk_pllv3_generic_enable,
 	.disable	= clk_pllv3_generic_disable,
 	.get_rate	= clk_pllv3_sys_get_rate,
 	.set_rate	= clk_pllv3_sys_set_rate,

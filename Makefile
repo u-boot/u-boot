@@ -1739,7 +1739,7 @@ endif
 # May be overridden by arch/$(ARCH)/config.mk
 ifdef CONFIG_LTO
 quiet_cmd_u-boot__ ?= LTO     $@
-      cmd_u-boot__ ?= 								\
+      cmd_u-boot__ ?=								\
 		$(CC) -nostdlib -nostartfiles					\
 		$(LTO_FINAL_LDFLAGS) $(c_flags)					\
 		$(KBUILD_LDFLAGS:%=-Wl,%) $(LDFLAGS_u-boot:%=-Wl,%) -o $@	\

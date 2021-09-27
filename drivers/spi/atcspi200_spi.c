@@ -81,7 +81,7 @@ struct nds_spi_slave {
 	unsigned int	freq;
 	ulong		clock;
 	unsigned int	mode;
-	u8 		num_cs;
+	u8		num_cs;
 	unsigned int	mtiming;
 	size_t		cmd_len;
 	u8		cmd_buf[16];

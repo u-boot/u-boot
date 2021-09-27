@@ -29,9 +29,9 @@ static unsigned int	bus;
 static unsigned int	cs;
 static unsigned int	mode;
 static unsigned int	freq;
-static int   		bitlen;
-static uchar 		dout[MAX_SPI_BYTES];
-static uchar 		din[MAX_SPI_BYTES];
+static int		bitlen;
+static uchar		dout[MAX_SPI_BYTES];
+static uchar		din[MAX_SPI_BYTES];
 
 static int do_spi_xfer(int bus, int cs)
 {

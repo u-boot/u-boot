@@ -63,8 +63,8 @@ at91_pio_t *pio = (at91_pio_t *) AT91_PIO_BASE;
 
 #ifndef CONFIG_SYS_VCXK_DOUBLEBUFFERED
 	#define VCXK_BWS(x, data)		vcxk_bws[x] = data;
-	#define VCXK_BWS_WORD_SET(x, mask) 	vcxk_bws_word[x] |= mask;
-	#define VCXK_BWS_WORD_CLEAR(x, mask) 	vcxk_bws_word[x] &= ~mask;
+	#define VCXK_BWS_WORD_SET(x, mask)	vcxk_bws_word[x] |= mask;
+	#define VCXK_BWS_WORD_CLEAR(x, mask)	vcxk_bws_word[x] &= ~mask;
 	#define VCXK_BWS_LONG(x, data)		vcxk_bws_long[x] = data;
 #else
 	u_char double_bws[16384];
@@ -83,7 +83,7 @@ at91_pio_t *pio = (at91_pio_t *) AT91_PIO_BASE;
 #endif
 
 #define VC4K16_Bright1	vcxk_bws_word[0x20004 / 2]
-#define VC4K16_Bright2 	vcxk_bws_word[0x20006 / 2]
+#define VC4K16_Bright2	vcxk_bws_word[0x20006 / 2]
 #define VC2K_Bright	vcxk_bws[0x8000]
 #define VC8K_BrightH	vcxk_bws[0xC000]
 #define VC8K_BrightL	vcxk_bws[0xC001]
@@ -263,7 +263,7 @@ void vcxk_clear(void)
  * set the display brightness
  * PARAMETER
  * side	1	set front side brightness
- * 		2	set back  side brightness
+ *		2	set back  side brightness
  *		3	set brightness for both sides
  * brightness 0..1000
  ***
@@ -276,7 +276,7 @@ void vcxk_setbrightness(unsigned int side, short brightness)
 			VC4K16_Bright1 = brightness + 23;
 		if ((side == 0) || (side & 0x2))
 			VC4K16_Bright2 = brightness + 23;
-	} else 	{
+	} else	{
 		VC2K_Bright = (brightness >> 4) + 2;
 		VC8K_BrightH = (brightness + 23) >> 8;
 		VC8K_BrightL = (brightness + 23) & 0xFF;

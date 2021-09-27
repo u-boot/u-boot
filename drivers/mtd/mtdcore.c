@@ -799,8 +799,8 @@ static bool mtd_device_matches_name(struct mtd_info *mtd, const char *name)
  *	device name
  *	@name: MTD device name to open
  *
- * 	This function returns MTD device description structure in case of
- * 	success and an error code in case of failure.
+ *	This function returns MTD device description structure in case of
+ *	success and an error code in case of failure.
  */
 struct mtd_info *get_mtd_device_nm(const char *name)
 {

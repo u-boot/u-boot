@@ -69,7 +69,7 @@ struct orion5x_tmr_registers *orion5x_tmr_regs =
 #define TVR_ARM_TIMER_OFFS		0
 #define TVR_ARM_TIMER_MASK		0xffffffff
 #define TVR_ARM_TIMER_MAX		0xffffffff
-#define TIMER_LOAD_VAL 			0xffffffff
+#define TIMER_LOAD_VAL			0xffffffff
 
 static inline ulong read_timer(void)
 {

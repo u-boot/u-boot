@@ -8,10 +8,10 @@ in slave mode.
 
 The SPI master node requires the following properties:
 - #address-cells  - number of cells required to define a chip select
-    		address on the SPI bus.
+		address on the SPI bus.
 - #size-cells     - should be zero.
 - compatible      - name of SPI bus controller following generic names
-    		recommended practice.
+		recommended practice.
 - cs-gpios	  - (optional) gpios chip select.
 No other properties are required in the SPI bus node.  It is assumed
 that a driver for an SPI bus device will understand that it is an SPI bus.
@@ -45,16 +45,16 @@ SPI slave nodes must be children of the SPI master node and can
 contain the following properties.
 - reg             - (required) chip select address of device.
 - compatible      - (required) name of SPI device following generic names
-    		recommended practice
+		recommended practice
 - spi-max-frequency - (required) Maximum SPI clocking speed of device in Hz
 - spi-cpol        - (optional) Empty property indicating device requires
-    		inverse clock polarity (CPOL) mode
+		inverse clock polarity (CPOL) mode
 - spi-cpha        - (optional) Empty property indicating device requires
-    		shifted clock phase (CPHA) mode
+		shifted clock phase (CPHA) mode
 - spi-cs-high     - (optional) Empty property indicating device requires
-    		chip select active high
+		chip select active high
 - spi-3wire       - (optional) Empty property indicating device requires
-    		    3-wire mode.
+		    3-wire mode.
 - spi-tx-bus-width - (optional) The bus width(number of data wires) that
                       used for MOSI. Defaults to 1 if not present.
 - spi-rx-bus-width - (optional) The bus width(number of data wires) that

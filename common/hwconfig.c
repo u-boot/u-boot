@@ -179,7 +179,7 @@ int hwconfig_arg_cmp_f(const char *opt, const char *arg, char *buf)
  *
  * This call is similar to hwconfig_f(), except that it takes additional
  * argument @subopt. In this example:
- * 	"dr_usb:mode=peripheral"
+ *	"dr_usb:mode=peripheral"
  * "dr_usb" is an option, "mode" is a sub-option, and "peripheral" is its
  * argument.
  */

@@ -552,7 +552,7 @@ void scale_vcores(struct vcores_data const *vcores)
 		if (pv->value[opp]) {
 			/* Handle non-empty members only */
 			pv->value[opp] = optimize_vcore_voltage(pv, opp);
-     			px = (struct volts *)vcores;
+			px = (struct volts *)vcores;
 			j = 0;
 			while (px < pv) {
 				/*

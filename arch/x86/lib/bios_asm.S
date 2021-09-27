@@ -22,8 +22,8 @@
 	.globl __idt_handler
 __idt_handler:
 	pushal
-	movb 	$0, %al /* This instruction gets modified */
-	ljmp 	$0, $__interrupt_handler_16bit
+	movb	$0, %al /* This instruction gets modified */
+	ljmp	$0, $__interrupt_handler_16bit
 	.globl __idt_handler_size
 __idt_handler_size:
 	.long  . - __idt_handler

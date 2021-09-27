@@ -44,16 +44,16 @@ _vectors:
 
 INITSP:	.long	0			/* Initial SP	*/
 #ifdef CONFIG_CF_SBF
-INITPC:	.long	ASM_DRAMINIT		/* Initial PC 	*/
+INITPC:	.long	ASM_DRAMINIT		/* Initial PC	*/
 #endif
 #ifdef CONFIG_SYS_NAND_BOOT
-INITPC:	.long	ASM_DRAMINIT_N		/* Initial PC 	*/
+INITPC:	.long	ASM_DRAMINIT_N		/* Initial PC	*/
 #endif
 
 #else
 
 INITSP:	.long	0			/* Initial SP	*/
-INITPC:	.long	_START			/* Initial PC 	*/
+INITPC:	.long	_START			/* Initial PC	*/
 
 #endif
 

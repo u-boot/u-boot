@@ -18,7 +18,7 @@
 #define VIOLOEN		(1 << 6)
 #define VIOLOSTBY	(1 << 7)
 #define VIOLOMODE	(1 << 8)
-#define VDIGEN 		(1 << 9)
+#define VDIGEN		(1 << 9)
 #define VDIGSTBY	(1 << 10)
 #define VDIGMODE	(1 << 11)
 #define VGENEN		(1 << 12)

@@ -257,7 +257,7 @@
  */
 #define UART_ASR	0x01	/* Additional Status Register */
 #define UART_RFL	0x03	/* Receiver FIFO level */
-#define UART_TFL 	0x04	/* Transmitter FIFO level */
+#define UART_TFL	0x04	/* Transmitter FIFO level */
 #define UART_ICR	0x05	/* Index Control Register */
 
 /* The 16950 ICR registers */

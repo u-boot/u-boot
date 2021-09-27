@@ -263,7 +263,7 @@ static void ioread8_rep(void *addr, uint8_t *buf, int len)
 static void ioread16_rep(void *addr, void *buf, int len)
 {
 	int i;
- 	u16 *p = (u16 *) buf;
+	u16 *p = (u16 *) buf;
 
 	for (i = 0; i < len; i++)
 		p[i] = readw(addr);
@@ -905,11 +905,11 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *chip)
 	if (ret)
 		return ret;
 
- 	u32 timer = (CONFIG_SYS_HZ * timeo) / 1000;
- 	u32 time_start;
+	u32 timer = (CONFIG_SYS_HZ * timeo) / 1000;
+	u32 time_start;
 
- 	time_start = get_timer(0);
- 	while (get_timer(time_start) < timer) {
+	time_start = get_timer(0);
+	while (get_timer(time_start) < timer) {
 		if (chip->dev_ready) {
 			if (chip->dev_ready(mtd))
 				break;

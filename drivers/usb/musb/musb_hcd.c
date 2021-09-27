@@ -14,7 +14,7 @@
 #include "musb_hcd.h"
 
 /* MSC control transfers */
-#define USB_MSC_BBB_RESET 	0xFF
+#define USB_MSC_BBB_RESET	0xFF
 #define USB_MSC_BBB_GET_MAX_LUN	0xFE
 
 /* Endpoint configuration information */

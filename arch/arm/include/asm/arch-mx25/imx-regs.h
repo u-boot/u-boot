@@ -50,11 +50,11 @@ struct ccm_regs {
 
 /* Enhanced SDRAM Controller (ESDRAMC) registers */
 struct esdramc_regs {
-	u32 ctl0; 	/* control 0 */
-	u32 cfg0; 	/* configuration 0 */
-	u32 ctl1; 	/* control 1 */
-	u32 cfg1; 	/* configuration 1 */
-	u32 misc; 	/* miscellaneous */
+	u32 ctl0;	/* control 0 */
+	u32 cfg0;	/* configuration 0 */
+	u32 ctl1;	/* control 1 */
+	u32 cfg1;	/* configuration 1 */
+	u32 misc;	/* miscellaneous */
 	u32 pad[3];
 	u32 cdly1;	/* Delay Line 1 configuration debug */
 	u32 cdly2;	/* delay line 2 configuration debug */
@@ -66,11 +66,11 @@ struct esdramc_regs {
 
 /* General Purpose Timer (GPT) registers */
 struct gpt_regs {
-	u32 ctrl;   	/* control */
-	u32 pre;    	/* prescaler */
-	u32 stat;   	/* status */
-	u32 intr;   	/* interrupt */
-	u32 cmp[3]; 	/* output compare 1-3 */
+	u32 ctrl;	/* control */
+	u32 pre;	/* prescaler */
+	u32 stat;	/* status */
+	u32 intr;	/* interrupt */
+	u32 cmp[3];	/* output compare 1-3 */
 	u32 capt[2];	/* input capture 1-2 */
 	u32 counter;	/* counter */
 };
@@ -456,7 +456,7 @@ struct epit_regs {
 #define GPT_CTRL_TEN		1		/* Timer enable	*/
 
 /* WDOG enable */
-#define WCR_WDE 		0x04
+#define WCR_WDE			0x04
 #define WSR_UNLOCK1		0x5555
 #define WSR_UNLOCK2		0xAAAA
 

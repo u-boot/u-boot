@@ -885,7 +885,7 @@ int fsl_pcie_init_board(int busno)
 	setbits_be32(addr, _DEVDISR_PCIE4); /* disable */
 #endif
 
- 	return busno;
+	return busno;
 }
 #else
 int fsl_pcie_init_ctrl(int busno, u32 devdisr, enum srds_prtcl dev,

@@ -129,7 +129,7 @@
 #define CONFIG_SYS_FPGA_SIZE		0x00100000	/* 1 MB		*/
 #define CONFIG_SYS_HMI_BASE		0xc0010000
 #define CONFIG_SYS_BR3_PRELIM		0xc0001881	/* UPMA, 32-bit */
-#define CONFIG_SYS_OR3_PRELIM		0xfff00000	/* 1 MB 	*/
+#define CONFIG_SYS_OR3_PRELIM		0xfff00000	/* 1 MB		*/
 
 #define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_FPGA_BASE + 0x70)
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -246,17 +246,17 @@
 		"era fe000000 fe1dffff;"				\
 		"cp.b 100000 fe000000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
-	"update_fdt=tftp 100000 ${fdt_file};" 				\
+	"update_fdt=tftp 100000 ${fdt_file};"				\
 		"era fe1e0000 fe1fffff;"				\
 		"cp.b 100000 fe1e0000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
-	"update_initrd=tftp 100000 ${initrd_file};" 			\
+	"update_initrd=tftp 100000 ${initrd_file};"			\
 		"era fe200000 fe9fffff;"				\
 		"cp.b 100000 fe200000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
 	"clean_data=era fea00000 fff5ffff\0"				\
-	"usbargs=setenv bootargs root=/dev/sda1 rw\0" 			\
-	"load_usb=usb start;" 						\
+	"usbargs=setenv bootargs root=/dev/sda1 rw\0"			\
+	"load_usb=usb start;"						\
 		"ext2load usb 0:1 ${kernel_addr_r} /boot/uImage\0"	\
 	"boot_usb=run load_usb usbargs addcons;"			\
 		"bootm ${kernel_addr_r} - ${fdt_addr};"			\

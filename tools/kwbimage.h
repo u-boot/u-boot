@@ -23,8 +23,8 @@
 /* NAND ECC Mode */
 #define IBR_HDR_ECC_DEFAULT		0x00
 #define IBR_HDR_ECC_FORCED_HAMMING	0x01
-#define IBR_HDR_ECC_FORCED_RS  		0x02
-#define IBR_HDR_ECC_DISABLED  		0x03
+#define IBR_HDR_ECC_FORCED_RS		0x02
+#define IBR_HDR_ECC_DISABLED		0x03
 
 /* Boot Type - block ID */
 #define IBR_HDR_I2C_ID			0x4D
