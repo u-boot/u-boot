@@ -1117,4 +1117,41 @@ int ofnode_write_string(ofnode node, const char *propname, const char *value);
  */
 int ofnode_set_enabled(ofnode node, bool value);
 
+/**
+ * ofnode_conf_read_bool() - Read a boolean value from the U-Boot config
+ *
+ * This reads a property from the /config node of the devicetree.
+ *
+ * See doc/config.txt for bindings
+ *
+ * @prop_name	property name to look up
+ * @return true, if it exists, false if not
+ */
+bool ofnode_conf_read_bool(const char *prop_name);
+
+/**
+ * ofnode_conf_read_int() - Read an integer value from the U-Boot config
+ *
+ * This reads a property from the /config node of the devicetree.
+ *
+ * See doc/config.txt for bindings
+ *
+ * @prop_name: property name to look up
+ * @default_val: default value to return if the property is not found
+ * @return integer value, if found, or @default_val if not
+ */
+int ofnode_conf_read_int(const char *prop_name, int default_val);
+
+/**
+ * ofnode_conf_read_str() - Read a string value from the U-Boot config
+ *
+ * This reads a property from the /config node of the devicetree.
+ *
+ * See doc/config.txt for bindings
+ *
+ * @prop_name: property name to look up
+ * @return string value, if found, or NULL if not
+ */
+const char *ofnode_conf_read_str(const char *prop_name);
+
 #endif

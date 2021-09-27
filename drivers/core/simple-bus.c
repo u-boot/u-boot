@@ -65,7 +65,7 @@ UCLASS_DRIVER(simple_bus) = {
 	.per_device_plat_auto	= sizeof(struct simple_bus_plat),
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id generic_simple_bus_ids[] = {
 	{ .compatible = "simple-bus" },
 	{ .compatible = "simple-mfd" },

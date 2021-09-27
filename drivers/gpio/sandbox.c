@@ -323,11 +323,13 @@ static const struct dm_gpio_ops gpio_sandbox_ops = {
 
 static int sandbox_gpio_of_to_plat(struct udevice *dev)
 {
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	uc_priv->gpio_count = dev_read_u32_default(dev, "sandbox,gpio-count",
-						   0);
-	uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
+		uc_priv->gpio_count =
+			dev_read_u32_default(dev, "sandbox,gpio-count", 0);
+		uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
+	}
 
 	return 0;
 }
@@ -370,6 +372,8 @@ U_BOOT_DRIVER(sandbox_gpio) = {
 };
 
 DM_DRIVER_ALIAS(sandbox_gpio, sandbox_gpio_alias)
+
+#if CONFIG_IS_ENABLED(PINCTRL)
 
 /* pincontrol: used only to check GPIO pin configuration (pinmux command) */
 
@@ -579,3 +583,5 @@ U_BOOT_DRIVER(sandbox_pinctrl_gpio) = {
 	.priv_auto	= sizeof(struct sb_pinctrl_priv),
 	ACPI_OPS_PTR(&pinctrl_sandbox_acpi_ops)
 };
+
+#endif /* PINCTRL */

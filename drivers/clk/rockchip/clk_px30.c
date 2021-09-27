@@ -1367,7 +1367,7 @@ static ulong px30_clk_set_rate(struct clk *clk, ulong rate)
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int px30_gmac_set_parent(struct clk *clk, struct clk *parent)
 {
 	struct px30_clk_priv *priv = dev_get_priv(clk->dev);
@@ -1418,7 +1418,7 @@ static int px30_clk_enable(struct clk *clk)
 static struct clk_ops px30_clk_ops = {
 	.get_rate = px30_clk_get_rate,
 	.set_rate = px30_clk_set_rate,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.set_parent = px30_clk_set_parent,
 #endif
 	.enable = px30_clk_enable,

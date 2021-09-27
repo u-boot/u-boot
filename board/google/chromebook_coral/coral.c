@@ -300,7 +300,7 @@ struct sysinfo_ops coral_sysinfo_ops = {
 	.get_str	= coral_get_str,
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id coral_ids[] = {
 	{ .compatible = "google,coral" },
 	{ }

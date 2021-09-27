@@ -200,6 +200,35 @@ int irq_restore_polarities(struct udevice *dev);
  */
 int irq_read_and_clear(struct irq *irq);
 
+struct phandle_2_arg;
+/**
+ * irq_get_by_phandle() - Get an irq by its phandle information (of-platadata)
+ *
+ * This function is used when of-platdata is enabled.
+ *
+ * This looks up an irq using the phandle info. With dtoc, each phandle in the
+ * 'interrupts-extended ' property is transformed into an idx representing the
+ * device. For example:
+ *
+ * interrupts-extended = <&acpi_gpe 0x3c 0>;
+ *
+ * might result in:
+ *
+ *	.interrupts_extended = {6, {0x3c, 0}},},
+ *
+ * indicating that the irq is udevice idx 6 in dt-plat.c with a arguments of
+ * 0x3c and 0.This function can return a valid irq given the above
+ * information. In this example it would return an irq containing the
+ * 'acpi_gpe' device and the irq ID 0x3c.
+ *
+ * @dev: Device containing the phandle
+ * @cells: Phandle info
+ * @irq: A pointer to a irq struct to initialise
+ * @return 0 if OK, or a negative error code
+ */
+int irq_get_by_phandle(struct udevice *dev, const struct phandle_2_arg *cells,
+		       struct irq *irq);
+
 /**
  * irq_get_by_index - Get/request an irq by integer index.
  *

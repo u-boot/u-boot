@@ -295,16 +295,13 @@ else
 FINAL_DTB_CONTAINER = $(obj)/$(SPL_BIN).multidtb.fit
 endif
 
-# Build the .dtb file if:
-#   - we are not using OF_PLATDATA
-#   - we are using OF_CONTROL
+# Build the .dtb file if needed
+#   - OF_REAL is enabled
 #   - we have either OF_SEPARATE or OF_HOSTFILE
 build_dtb :=
-ifeq ($(CONFIG_$(SPL_TPL_)OF_PLATDATA),)
-ifneq ($(CONFIG_$(SPL_TPL_)OF_CONTROL),)
+ifneq ($(CONFIG_$(SPL_TPL_)OF_REAL),)
 ifeq ($(CONFIG_OF_SEPARATE)$(CONFIG_OF_HOSTFILE),y)
 build_dtb := y
-endif
 endif
 endif
 

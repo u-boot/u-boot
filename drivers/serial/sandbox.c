@@ -237,7 +237,7 @@ U_BOOT_DRIVER(sandbox_serial) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct sandbox_serial_plat platdata_non_fdt = {
 	.colour = -1,
 };

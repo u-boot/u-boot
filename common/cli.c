@@ -19,8 +19,7 @@
 #include <hang.h>
 #include <malloc.h>
 #include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
+#include <dm/ofnode.h>
 
 #ifdef CONFIG_CMDLINE
 /*
@@ -157,7 +156,7 @@ int do_run(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 bool cli_process_fdt(const char **cmdp)
 {
 	/* Allow the fdt to override the boot command */
-	char *env = fdtdec_get_config_string(gd->fdt_blob, "bootcmd");
+	const char *env = ofnode_conf_read_str("bootcmd");
 	if (env)
 		*cmdp = env;
 	/*
@@ -165,7 +164,7 @@ bool cli_process_fdt(const char **cmdp)
 	 * Always use 'env' in this case, since bootsecure requres that the
 	 * bootcmd was specified in the FDT too.
 	 */
-	return fdtdec_get_config_int(gd->fdt_blob, "bootsecure", 0) != 0;
+	return ofnode_conf_read_int("bootsecure", 0);
 }
 
 /*

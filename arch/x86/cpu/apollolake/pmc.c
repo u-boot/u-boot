@@ -107,7 +107,7 @@ int apl_pmc_ofdata_to_uc_plat(struct udevice *dev)
 	struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);
 	struct apl_pmc_plat *plat = dev_get_plat(dev);
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	u32 base[6];
 	int size;
 	int ret;
@@ -206,7 +206,7 @@ static const struct acpi_pmc_ops apl_pmc_ops = {
 	.global_reset_set_enable = apl_global_reset_set_enable,
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id apl_pmc_ids[] = {
 	{ .compatible = "intel,apl-pmc" },
 	{ }

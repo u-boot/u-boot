@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index)
 {
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	fdt_addr_t addr;
 
 	if (CONFIG_IS_ENABLED(OF_TRANSLATE)) {

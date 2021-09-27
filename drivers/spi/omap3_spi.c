@@ -481,7 +481,7 @@ static const struct dm_spi_ops omap3_spi_ops = {
 	 */
 };
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static struct omap2_mcspi_platform_config omap2_pdata = {
 	.regs_offset = 0,
 };
@@ -516,7 +516,7 @@ U_BOOT_DRIVER(omap3_spi) = {
 	.name   = "omap3_spi",
 	.id     = UCLASS_SPI,
 	.flags	= DM_FLAG_PRE_RELOC,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = omap3_spi_ids,
 	.of_to_plat = omap3_spi_of_to_plat,
 	.plat_auto	= sizeof(struct omap3_spi_plat),

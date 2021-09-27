@@ -288,8 +288,8 @@ int exynos_dsim_config_parse_dt(const void *blob, struct mipi_dsim_config *dt,
 	dt->rx_timeout = fdtdec_get_int(blob, node,
 				"samsung,dsim-config-rx-timeout", 0);
 
-	lcd_dt->name = fdtdec_get_config_string(blob,
-				"samsung,dsim-device-name");
+	lcd_dt->name = fdt_getprop(blob, node, "samsung,dsim-device-name",
+				   NULL);
 
 	lcd_dt->id = fdtdec_get_int(blob, node,
 				"samsung,dsim-device-id", 0);

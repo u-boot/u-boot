@@ -23,7 +23,7 @@ static const struct pch_ops apl_pch_ops = {
 	.set_spi_protect = apl_set_spi_protect,
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id apl_pch_ids[] = {
 	{ .compatible = "intel,apl-pch" },
 	{ }

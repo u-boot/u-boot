@@ -870,50 +870,6 @@ const u8 *fdtdec_locate_byte_array(const void *blob, int node,
 	return cell;
 }
 
-int fdtdec_get_config_int(const void *blob, const char *prop_name,
-			  int default_val)
-{
-	int config_node;
-
-	debug("%s: %s\n", __func__, prop_name);
-	config_node = fdt_path_offset(blob, "/config");
-	if (config_node < 0)
-		return default_val;
-	return fdtdec_get_int(blob, config_node, prop_name, default_val);
-}
-
-int fdtdec_get_config_bool(const void *blob, const char *prop_name)
-{
-	int config_node;
-	const void *prop;
-
-	debug("%s: %s\n", __func__, prop_name);
-	config_node = fdt_path_offset(blob, "/config");
-	if (config_node < 0)
-		return 0;
-	prop = fdt_get_property(blob, config_node, prop_name, NULL);
-
-	return prop != NULL;
-}
-
-char *fdtdec_get_config_string(const void *blob, const char *prop_name)
-{
-	const char *nodep;
-	int nodeoffset;
-	int len;
-
-	debug("%s: %s\n", __func__, prop_name);
-	nodeoffset = fdt_path_offset(blob, "/config");
-	if (nodeoffset < 0)
-		return NULL;
-
-	nodep = fdt_getprop(blob, nodeoffset, prop_name, &len);
-	if (!nodep)
-		return NULL;
-
-	return (char *)nodep;
-}
-
 u64 fdtdec_get_number(const fdt32_t *ptr, unsigned int cells)
 {
 	u64 number = 0;

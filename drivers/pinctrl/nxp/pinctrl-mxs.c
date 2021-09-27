@@ -186,7 +186,7 @@ U_BOOT_DRIVER(fsl_imx23_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(mxs_pinctrl_match),
 	.probe = mxs_pinctrl_probe,
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.bind		= dm_scan_fdt_dev,
 #endif
 	.priv_auto	= sizeof(struct mxs_pinctrl_priv),

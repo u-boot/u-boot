@@ -397,7 +397,7 @@ done:
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 int uclass_find_device_by_phandle(enum uclass_id id, struct udevice *parent,
 				  const char *name, struct udevice **devp)
 {

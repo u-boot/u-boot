@@ -204,7 +204,7 @@ static const struct dm_gpio_ops gpio_intel_ops = {
 #endif
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id intel_intel_gpio_ids[] = {
 	{ .compatible = "intel,gpio" },
 	{ }

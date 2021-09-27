@@ -633,7 +633,7 @@ int i2c_deblock(struct udevice *bus)
 	return ops->deblock(bus);
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 int i2c_chip_of_to_plat(struct udevice *dev, struct dm_i2c_chip *chip)
 {
 	int addr;
@@ -655,7 +655,7 @@ int i2c_chip_of_to_plat(struct udevice *dev, struct dm_i2c_chip *chip)
 
 static int i2c_pre_probe(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
 	unsigned int max = 0;
 	ofnode node;
@@ -678,7 +678,7 @@ static int i2c_pre_probe(struct udevice *dev)
 
 static int i2c_post_probe(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
 
 	i2c->speed_hz = dev_read_u32_default(dev, "clock-frequency",
@@ -692,7 +692,7 @@ static int i2c_post_probe(struct udevice *dev)
 
 static int i2c_child_post_bind(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	struct dm_i2c_chip *plat = dev_get_parent_plat(dev);
 
 	if (!dev_has_ofnode(dev))
@@ -709,7 +709,7 @@ static int i2c_post_bind(struct udevice *dev)
 
 	debug("%s: %s, seq=%d\n", __func__, dev->name, dev_seq(dev));
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	ret = dm_scan_fdt_dev(dev);
 #endif
 	return ret;

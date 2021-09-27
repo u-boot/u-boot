@@ -62,6 +62,9 @@
 	};
 
 	config {
+		testing-bool;
+		testing-int = <123>;
+		testing-str = "testing";
 		environment {
 			from_fdt = "yes";
 			fdt_env_path = "";
@@ -821,19 +824,27 @@
 	};
 
 	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
 		timebase-frequency = <2000000>;
-		cpu-test1 {
+		cpu1: cpu@1 {
+			device_type = "cpu";
+			reg = <0x1>;
 			timebase-frequency = <3000000>;
 			compatible = "sandbox,cpu_sandbox";
 			u-boot,dm-pre-reloc;
 		};
 
-		cpu-test2 {
+		cpu2: cpu@2 {
+			device_type = "cpu";
+			reg = <0x2>;
 			compatible = "sandbox,cpu_sandbox";
 			u-boot,dm-pre-reloc;
 		};
 
-		cpu-test3 {
+		cpu3: cpu@3 {
+			device_type = "cpu";
+			reg = <0x3>;
 			compatible = "sandbox,cpu_sandbox";
 			u-boot,dm-pre-reloc;
 		};

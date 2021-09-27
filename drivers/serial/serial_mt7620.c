@@ -145,7 +145,7 @@ static int mt7620_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int mt7620_serial_of_to_plat(struct udevice *dev)
 {
 	struct mt7620_serial_plat *plat = dev_get_plat(dev);
@@ -200,7 +200,7 @@ static const struct dm_serial_ops mt7620_serial_ops = {
 U_BOOT_DRIVER(serial_mt7620) = {
 	.name = "serial_mt7620",
 	.id = UCLASS_SERIAL,
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = mt7620_serial_ids,
 	.of_to_plat = mt7620_serial_of_to_plat,
 #endif

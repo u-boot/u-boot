@@ -183,7 +183,7 @@ static int conv_of_plat(struct udevice *dev)
 
 	plat->base = dtplat->reg[0];
 	plat->frequency = 20000000;
-	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_phandle(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 
@@ -193,31 +193,31 @@ static int conv_of_plat(struct udevice *dev)
 
 static int rockchip_spi_of_to_plat(struct udevice *bus)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_spi_plat *plat = dev_get_plat(bus);
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
-	plat->base = dev_read_addr(bus);
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		plat->base = dev_read_addr(bus);
 
-	ret = clk_get_by_index(bus, 0, &priv->clk);
-	if (ret < 0) {
-		debug("%s: Could not get clock for %s: %d\n", __func__,
-		      bus->name, ret);
-		return ret;
+		ret = clk_get_by_index(bus, 0, &priv->clk);
+		if (ret < 0) {
+			debug("%s: Could not get clock for %s: %d\n", __func__,
+			      bus->name, ret);
+			return ret;
+		}
+
+		plat->frequency = dev_read_u32_default(bus, "spi-max-frequency",
+						       50000000);
+		plat->deactivate_delay_us =
+			dev_read_u32_default(bus, "spi-deactivate-delay", 0);
+		plat->activate_delay_us =
+			dev_read_u32_default(bus, "spi-activate-delay", 0);
+
+		debug("%s: base=%x, max-frequency=%d, deactivate_delay=%d\n",
+		      __func__, (uint)plat->base, plat->frequency,
+		      plat->deactivate_delay_us);
 	}
-
-	plat->frequency =
-		dev_read_u32_default(bus, "spi-max-frequency", 50000000);
-	plat->deactivate_delay_us =
-		dev_read_u32_default(bus, "spi-deactivate-delay", 0);
-	plat->activate_delay_us =
-		dev_read_u32_default(bus, "spi-activate-delay", 0);
-
-	debug("%s: base=%x, max-frequency=%d, deactivate_delay=%d\n",
-	      __func__, (uint)plat->base, plat->frequency,
-	      plat->deactivate_delay_us);
-#endif
 
 	return 0;
 }

@@ -213,7 +213,7 @@ static const struct irq_ops itss_ops = {
 #endif
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id itss_ids[] = {
 	{ .compatible = "intel,itss", .data = X86_IRQT_ITSS },
 	{ }

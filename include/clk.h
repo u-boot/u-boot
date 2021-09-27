@@ -89,11 +89,36 @@ struct clk_bulk {
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(CLK)
 struct phandle_1_arg;
-int clk_get_by_driver_info(struct udevice *dev,
-			   struct phandle_1_arg *cells, struct clk *clk);
+/**
+ * clk_get_by_phandle() - Get a clock by its phandle information (of-platadata)
+ *
+ * This function is used when of-platdata is enabled.
+ *
+ * This looks up a clock using the phandle info. With dtoc, each phandle in the
+ * 'clocks' property is transformed into an idx representing the device. For
+ * example:
+ *
+ *	clocks = <&dpll_mpu_ck 23>;
+ *
+ * might result in:
+ *
+ *	.clocks = {1, {23}},},
+ *
+ * indicating that the clock is udevice idx 1 in dt-plat.c with an argument of
+ * 23. This function can return a valid clock given the above information. In
+ * this example it would return a clock containing the 'dpll_mpu_ck' device and
+ * the clock ID 23.
+ *
+ * @dev: Device containing the phandle
+ * @cells: Phandle info
+ * @clock: A pointer to a clock struct to initialise
+ * @return 0 if OK, or a negative error code.
+ */
+int clk_get_by_phandle(struct udevice *dev, const struct phandle_1_arg *cells,
+		       struct clk *clk);
 
 /**
- * clk_get_by_index - Get/request a clock by integer index.
+ * clk_get_by_index() - Get/request a clock by integer index.
  *
  * This looks up and requests a clock. The index is relative to the client
  * device; each device is assumed to have n clocks associated with it somehow,
@@ -300,9 +325,7 @@ enum clk_defaults_stage {
 	CLK_DEFAULTS_POST_FORCE,
 };
 
-#if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) && \
-	CONFIG_IS_ENABLED(CLK)
-
+#if CONFIG_IS_ENABLED(OF_REAL) && CONFIG_IS_ENABLED(CLK)
 /**
  * clk_set_defaults - Process 'assigned-{clocks/clock-parents/clock-rates}'
  *                    properties to configure clocks

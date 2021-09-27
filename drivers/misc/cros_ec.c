@@ -1671,7 +1671,7 @@ UCLASS_DRIVER(cros_ec) = {
 	.id		= UCLASS_CROS_EC,
 	.name		= "cros-ec",
 	.per_device_auto	= sizeof(struct cros_ec_dev),
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.post_bind	= dm_scan_fdt_dev,
 #endif
 	.flags		= DM_UC_FLAG_ALLOC_PRIV_DMA,

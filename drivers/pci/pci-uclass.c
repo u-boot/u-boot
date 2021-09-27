@@ -856,10 +856,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 		/* Check only the first access, we don't expect problems */
 		ret = pci_bus_read_config(bus, bdf, PCI_VENDOR_ID, &vendor,
 					  PCI_SIZE_16);
-		if (ret)
-			goto error;
-
-		if (vendor == 0xffff || vendor == 0x0000)
+		if (ret || vendor == 0xffff || vendor == 0x0000)
 			continue;
 
 		pci_bus_read_config(bus, bdf, PCI_HEADER_TYPE,
@@ -940,10 +937,6 @@ int pci_bind_bus_devices(struct udevice *bus)
 	}
 
 	return 0;
-error:
-	printf("Cannot read bus configuration: %d\n", ret);
-
-	return ret;
 }
 
 static void decode_regions(struct pci_controller *hose, ofnode parent_node,
