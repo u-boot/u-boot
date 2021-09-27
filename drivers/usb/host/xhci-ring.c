@@ -482,6 +482,33 @@ union xhci_trb *xhci_wait_for_event(struct xhci_ctrl *ctrl, trb_type expected)
 }
 
 /*
+ * Send reset endpoint command for given endpoint. This recovers from a
+ * halted endpoint (e.g. due to a stall error).
+ */
+static void reset_ep(struct usb_device *udev, int ep_index)
+{
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
+	struct xhci_ring *ring =  ctrl->devs[udev->slot_id]->eps[ep_index].ring;
+	union xhci_trb *event;
+	u32 field;
+
+	printf("Resetting EP %d...\n", ep_index);
+	xhci_queue_command(ctrl, NULL, udev->slot_id, ep_index, TRB_RESET_EP);
+	event = xhci_wait_for_event(ctrl, TRB_COMPLETION);
+	field = le32_to_cpu(event->trans_event.flags);
+	BUG_ON(TRB_TO_SLOT_ID(field) != udev->slot_id);
+	xhci_acknowledge_event(ctrl);
+
+	xhci_queue_command(ctrl, (void *)((uintptr_t)ring->enqueue |
+		ring->cycle_state), udev->slot_id, ep_index, TRB_SET_DEQ);
+	event = xhci_wait_for_event(ctrl, TRB_COMPLETION);
+	BUG_ON(TRB_TO_SLOT_ID(le32_to_cpu(event->event_cmd.flags))
+		!= udev->slot_id || GET_COMP_CODE(le32_to_cpu(
+		event->event_cmd.status)) != COMP_SUCCESS);
+	xhci_acknowledge_event(ctrl);
+}
+
+/*
  * Stops transfer processing for an endpoint and throws away all unprocessed
  * TRBs by setting the xHC's dequeue pointer to our enqueue pointer. The next
  * xhci_bulk_tx/xhci_ctrl_tx on this enpoint will add new transfers there and
@@ -928,6 +955,10 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 
 	record_transfer_result(udev, event, length);
 	xhci_acknowledge_event(ctrl);
+	if (udev->status == USB_ST_STALLED) {
+		reset_ep(udev, ep_index);
+		return -EPIPE;
+	}
 
 	/* Invalidate buffer to make it available to usb-core */
 	if (length > 0)
