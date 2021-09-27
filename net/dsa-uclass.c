@@ -216,7 +216,7 @@ static int dsa_port_of_to_pdata(struct udevice *pdev)
 
 	label = ofnode_read_string(dev_ofnode(pdev), "label");
 	if (label)
-		strncpy(port_pdata->name, label, DSA_PORT_NAME_LENGTH);
+		strlcpy(port_pdata->name, label, DSA_PORT_NAME_LENGTH);
 
 	eth_pdata = dev_get_plat(pdev);
 	eth_pdata->priv_pdata = port_pdata;
@@ -421,7 +421,7 @@ static int dsa_post_bind(struct udevice *dev)
 			struct dsa_port_pdata *port_pdata;
 
 			port_pdata = dev_get_parent_plat(pdev);
-			strncpy(port_pdata->name, name, DSA_PORT_NAME_LENGTH);
+			strlcpy(port_pdata->name, name, DSA_PORT_NAME_LENGTH);
 			pdev->name = port_pdata->name;
 		}
 
