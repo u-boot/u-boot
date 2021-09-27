@@ -541,7 +541,7 @@ static int mcdmafec_probe(struct udevice *dev)
 	info->bus = mdio_alloc();
 	if (!info->bus)
 		return -ENOMEM;
-	strncpy(info->bus->name, dev->name, MDIO_NAME_LEN);
+	strlcpy(info->bus->name, dev->name, MDIO_NAME_LEN);
 	info->bus->read = mcffec_miiphy_read;
 	info->bus->write = mcffec_miiphy_write;
 
