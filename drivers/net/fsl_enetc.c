@@ -269,7 +269,7 @@ static void enetc_start_pcs(struct udevice *dev)
 		priv->imdio.read = enetc_mdio_read;
 		priv->imdio.write = enetc_mdio_write;
 		priv->imdio.priv = priv->port_regs + ENETC_PM_IMDIO_BASE;
-		strncpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
+		strlcpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
 		if (!miiphy_get_dev_by_name(priv->imdio.name))
 			mdio_register(&priv->imdio);
 	}
