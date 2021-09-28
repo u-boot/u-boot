@@ -313,7 +313,7 @@ static int fit_image_read_data(char *filename, unsigned char *data,
 
 	/* Check that we have read all the file */
 	if (n != sbuf.st_size) {
-		printf("Can't read all file %s (read %zd bytes, expexted %lld)\n",
+		printf("Can't read all file %s (read %zd bytes, expected %lld)\n",
 		       filename, n, (long long)sbuf.st_size);
 		goto err;
 	}
