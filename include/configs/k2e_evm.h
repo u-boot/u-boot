@@ -11,9 +11,6 @@
 
 #include <environment/ti/spi.h>
 
-/* Platform type */
-#define CONFIG_SOC_K2E
-
 #ifdef CONFIG_TI_SECURE_DEVICE
 #define DEFAULT_SEC_BOOT_ENV						\
 	DEFAULT_FIT_TI_ARGS						\

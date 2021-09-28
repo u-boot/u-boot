@@ -8,7 +8,6 @@
 #ifndef __CONFIG_CM_T43_H
 #define __CONFIG_CM_T43_H
 
-#define CONFIG_CM_T43
 #define CONFIG_MAX_RAM_BANK_SIZE	(2048 << 20)	/* 2GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
@@ -44,10 +43,6 @@
 
 /* CPSW Ethernet support */
 #define CONFIG_SYS_RX_ETH_BUFFER	64
-
-/* USB support */
-#define CONFIG_USB_XHCI_OMAP
-#define CONFIG_AM437X_USB2PHY2_HOST
 
 /* Power */
 #define CONFIG_POWER_TPS65218

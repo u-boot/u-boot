@@ -929,7 +929,7 @@ endif
 dtb-$(CONFIG_RZA1) += \
 	r7s72100-gr-peach-u-boot.dtb
 
-dtb-$(CONFIG_SOC_KEYSTONE) += keystone-k2hk-evm.dtb \
+dtb-$(CONFIG_ARCH_KEYSTONE) += keystone-k2hk-evm.dtb \
 	keystone-k2l-evm.dtb \
 	keystone-k2e-evm.dtb \
 	keystone-k2g-evm.dtb \

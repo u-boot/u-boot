@@ -12,9 +12,6 @@
 #include <environment/ti/mmc.h>
 #include <environment/ti/spi.h>
 
-/* Platform type */
-#define CONFIG_SOC_K2G
-
 /* U-Boot general configuration */
 #define ENV_KS2_BOARD_SETTINGS						\
 	DEFAULT_MMC_TI_ARGS						\

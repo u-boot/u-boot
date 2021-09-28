@@ -6,6 +6,7 @@ choice
 
 config TARGET_K2HK_EVM
 	bool "TI Keystone 2 Kepler/Hawking EVM"
+	select SOC_K2HK
 	select SPL_BOARD_INIT if SPL
 	select CMD_DDR3
 	imply DM_I2C
@@ -14,6 +15,7 @@ config TARGET_K2HK_EVM
 
 config TARGET_K2E_EVM
 	bool "TI Keystone 2 Edison EVM"
+	select SOC_K2E
 	select SPL_BOARD_INIT if SPL
 	select CMD_DDR3
 	imply DM_I2C
@@ -22,6 +24,7 @@ config TARGET_K2E_EVM
 
 config TARGET_K2L_EVM
 	bool "TI Keystone 2 Lamar EVM"
+	select SOC_K2L
 	select SPL_BOARD_INIT if SPL
 	select CMD_DDR3
 	imply DM_I2C
@@ -31,6 +34,7 @@ config TARGET_K2L_EVM
 config TARGET_K2G_EVM
 	bool "TI Keystone 2 Galileo EVM"
         select BOARD_LATE_INIT
+	select SOC_K2G
 	select SPL_BOARD_INIT if SPL
         select TI_I2C_BOARD_DETECT
 	select CMD_DDR3
@@ -39,6 +43,18 @@ config TARGET_K2G_EVM
 	imply TI_KEYSTONE_SERDES
 
 endchoice
+
+config SOC_K2E
+	bool
+
+config SOC_K2G
+	bool
+
+config SOC_K2HK
+	bool
+
+config SOC_K2L
+	bool
 
 config SYS_SOC
 	default "keystone"

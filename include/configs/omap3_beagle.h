@@ -41,9 +41,6 @@
 #endif /* CONFIG_SPL_OS_BOOT */
 #endif /* CONFIG_MTD_RAW_NAND */
 
-/* USB EHCI */
-#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	147
-
 /* Enable Multi Bus support for I2C */
 #define CONFIG_I2C_MULTI_BUS
 

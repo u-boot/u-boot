@@ -48,11 +48,6 @@
 #define CONFIG_NET_RETRY_COUNT		10
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs longer aneg time at 1G */
 
-/* USB xHCI HOST */
-#define CONFIG_USB_XHCI_OMAP
-
-#define CONFIG_OMAP_USB3PHY1_HOST
-
 /* SATA */
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	1

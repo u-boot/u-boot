@@ -74,11 +74,6 @@
 
 /* SPI SPL */
 
-/* USB xHCI HOST */
-#define CONFIG_USB_XHCI_OMAP
-
-#define CONFIG_OMAP_USB2PHY2_HOST
-
 /* SATA */
 #define CONFIG_SCSI_AHCI_PLAT
 
