@@ -144,6 +144,11 @@ static int xlnx_wwdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	return 0;
 }
 
+static int xlnx_wwdt_expire_now(struct udevice *dev, ulong flags)
+{
+	return xlnx_wwdt_start(dev, XWT_WWDT_CNT_MIN, flags);
+}
+
 static int xlnx_wwdt_probe(struct udevice *dev)
 {
 	int ret;
@@ -182,6 +187,7 @@ static const struct wdt_ops xlnx_wwdt_ops = {
 	.start = xlnx_wwdt_start,
 	.reset = xlnx_wwdt_reset,
 	.stop = xlnx_wwdt_stop,
+	.expire_now = xlnx_wwdt_expire_now,
 };
 
 static const struct udevice_id xlnx_wwdt_ids[] = {
