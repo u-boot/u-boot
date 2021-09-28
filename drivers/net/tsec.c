@@ -638,7 +638,7 @@ static int tsec_init(struct udevice *dev)
 	return priv->phydev->link ? 0 : -1;
 }
 
-static phy_interface_t tsec_get_interface(struct tsec_private *priv)
+static phy_interface_t __maybe_unused tsec_get_interface(struct tsec_private *priv)
 {
 	struct tsec __iomem *regs = priv->regs;
 	u32 ecntrl;
