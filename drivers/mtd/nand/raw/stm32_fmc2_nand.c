@@ -823,7 +823,7 @@ static int stm32_fmc2_nfc_parse_child(struct stm32_fmc2_nfc *nfc, ofnode node)
 		nand->cs_used[i] = cs[i];
 	}
 
-	nand->chip.flash_node = ofnode_to_offset(node);
+	nand->chip.flash_node = node;
 
 	return 0;
 }

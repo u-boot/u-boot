@@ -29,9 +29,6 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <common.h>
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-#include <fdtdec.h>
-#endif
 #include <log.h>
 #include <malloc.h>
 #include <watchdog.h>
@@ -4576,23 +4573,20 @@ ident_done:
 EXPORT_SYMBOL(nand_get_flash_type);
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-#include <asm/global_data.h>
-DECLARE_GLOBAL_DATA_PTR;
 
-static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, int node)
+static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode node)
 {
 	int ret, ecc_mode = -1, ecc_strength, ecc_step;
-	const void *blob = gd->fdt_blob;
 	const char *str;
 
-	ret = fdtdec_get_int(blob, node, "nand-bus-width", -1);
+	ret = ofnode_read_s32_default(node, "nand-bus-width", -1);
 	if (ret == 16)
 		chip->options |= NAND_BUSWIDTH_16;
 
-	if (fdtdec_get_bool(blob, node, "nand-on-flash-bbt"))
+	if (ofnode_read_bool(node, "nand-on-flash-bbt"))
 		chip->bbt_options |= NAND_BBT_USE_FLASH;
 
-	str = fdt_getprop(blob, node, "nand-ecc-mode", NULL);
+	str = ofnode_read_string(node, "nand-ecc-mode");
 	if (str) {
 		if (!strcmp(str, "none"))
 			ecc_mode = NAND_ECC_NONE;
@@ -4608,9 +4602,10 @@ static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, int node)
 			ecc_mode = NAND_ECC_SOFT_BCH;
 	}
 
-
-	ecc_strength = fdtdec_get_int(blob, node, "nand-ecc-strength", -1);
-	ecc_step = fdtdec_get_int(blob, node, "nand-ecc-step-size", -1);
+	ecc_strength = ofnode_read_s32_default(node,
+					       "nand-ecc-strength", -1);
+	ecc_step = ofnode_read_s32_default(node,
+					   "nand-ecc-step-size", -1);
 
 	if ((ecc_step >= 0 && !(ecc_strength >= 0)) ||
 	    (!(ecc_step >= 0) && ecc_strength >= 0)) {
@@ -4627,13 +4622,13 @@ static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, int node)
 	if (ecc_step > 0)
 		chip->ecc.size = ecc_step;
 
-	if (fdt_getprop(blob, node, "nand-ecc-maximize", NULL))
+	if (ofnode_read_bool(node, "nand-ecc-maximize"))
 		chip->ecc.options |= NAND_ECC_MAXIMIZE;
 
 	return 0;
 }
 #else
-static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, int node)
+static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode node)
 {
 	return 0;
 }
@@ -4657,7 +4652,7 @@ int nand_scan_ident(struct mtd_info *mtd, int maxchips,
 	struct nand_flash_dev *type;
 	int ret;
 
-	if (chip->flash_node) {
+	if (ofnode_valid(chip->flash_node)) {
 		ret = nand_dt_init(mtd, chip, chip->flash_node);
 		if (ret)
 			return ret;
