@@ -37,6 +37,7 @@ enum packing_op {
 #define SJA1105ET_FDB_BIN_SIZE				4
 #define SJA1105_SIZE_CGU_CMD				4
 #define SJA1105_SIZE_RESET_CMD				4
+#define SJA1105_SIZE_MDIO_CMD				4
 #define SJA1105_SIZE_SPI_MSG_HEADER			4
 #define SJA1105_SIZE_SPI_MSG_MAXLEN			(64 * 4)
 #define SJA1105_SIZE_DEVICE_ID				4
@@ -95,6 +96,8 @@ enum packing_op {
 
 #define SJA1105_RSV_ADDR		0xffffffffffffffffull
 
+#define SJA1110_PCS_BANK_REG		SJA1110_SPI_ADDR(0x3fc)
+
 #define DSA_8021Q_DIR_TX		BIT(11)
 #define DSA_8021Q_PORT_SHIFT		0
 #define DSA_8021Q_PORT_MASK		GENMASK(3, 0)
@@ -102,6 +105,89 @@ enum packing_op {
 						 DSA_8021Q_PORT_MASK)
 
 #define SJA1105_RATE_MBPS(speed) (((speed) * 64000) / 1000)
+
+/* XPCS registers */
+
+/* VR MII MMD registers offsets */
+#define DW_VR_MII_DIG_CTRL1		0x8000
+#define DW_VR_MII_AN_CTRL		0x8001
+#define DW_VR_MII_DIG_CTRL2		0x80e1
+
+/* VR_MII_DIG_CTRL1 */
+#define DW_VR_MII_DIG_CTRL1_MAC_AUTO_SW		BIT(9)
+
+/* VR_MII_DIG_CTRL2 */
+#define DW_VR_MII_DIG_CTRL2_TX_POL_INV		BIT(4)
+
+/* VR_MII_AN_CTRL */
+#define DW_VR_MII_AN_CTRL_TX_CONFIG_SHIFT	3
+#define DW_VR_MII_TX_CONFIG_MASK		BIT(3)
+#define DW_VR_MII_TX_CONFIG_MAC_SIDE_SGMII	0x0
+#define DW_VR_MII_AN_CTRL_PCS_MODE_SHIFT	1
+#define DW_VR_MII_PCS_MODE_MASK			GENMASK(2, 1)
+#define DW_VR_MII_PCS_MODE_C37_SGMII		0x2
+
+/* PMA registers */
+
+/* LANE_DRIVER1_0 register */
+#define SJA1110_LANE_DRIVER1_0		0x8038
+#define SJA1110_TXDRV(x)		(((x) << 12) & GENMASK(14, 12))
+
+/* LANE_DRIVER2_0 register */
+#define SJA1110_LANE_DRIVER2_0		0x803a
+#define SJA1110_TXDRVTRIM_LSB(x)	((x) & GENMASK_ULL(15, 0))
+
+/* LANE_DRIVER2_1 register */
+#define SJA1110_LANE_DRIVER2_1		0x803b
+#define SJA1110_LANE_DRIVER2_1_RSV	BIT(9)
+#define SJA1110_TXDRVTRIM_MSB(x)	(((x) & GENMASK_ULL(23, 16)) >> 16)
+
+/* LANE_TRIM register */
+#define SJA1110_LANE_TRIM		0x8040
+#define SJA1110_TXTEN			BIT(11)
+#define SJA1110_TXRTRIM(x)		(((x) << 8) & GENMASK(10, 8))
+#define SJA1110_TXPLL_BWSEL		BIT(7)
+#define SJA1110_RXTEN			BIT(6)
+#define SJA1110_RXRTRIM(x)		(((x) << 3) & GENMASK(5, 3))
+#define SJA1110_CDR_GAIN		BIT(2)
+#define SJA1110_ACCOUPLE_RXVCM_EN	BIT(0)
+
+/* LANE_DATAPATH_1 register */
+#define SJA1110_LANE_DATAPATH_1		0x8037
+
+/* POWERDOWN_ENABLE register */
+#define SJA1110_POWERDOWN_ENABLE	0x8041
+#define SJA1110_TXPLL_PD		BIT(12)
+#define SJA1110_TXPD			BIT(11)
+#define SJA1110_RXPKDETEN		BIT(10)
+#define SJA1110_RXCH_PD			BIT(9)
+#define SJA1110_RXBIAS_PD		BIT(8)
+#define SJA1110_RESET_SER_EN		BIT(7)
+#define SJA1110_RESET_SER		BIT(6)
+#define SJA1110_RESET_DES		BIT(5)
+#define SJA1110_RCVEN			BIT(4)
+
+/* RXPLL_CTRL0 register */
+#define SJA1110_RXPLL_CTRL0		0x8065
+#define SJA1110_RXPLL_FBDIV(x)		(((x) << 2) & GENMASK(9, 2))
+
+/* RXPLL_CTRL1 register */
+#define SJA1110_RXPLL_CTRL1		0x8066
+#define SJA1110_RXPLL_REFDIV(x)		((x) & GENMASK(4, 0))
+
+/* TXPLL_CTRL0 register */
+#define SJA1110_TXPLL_CTRL0		0x806d
+#define SJA1110_TXPLL_FBDIV(x)		((x) & GENMASK(11, 0))
+
+/* TXPLL_CTRL1 register */
+#define SJA1110_TXPLL_CTRL1		0x806e
+#define SJA1110_TXPLL_REFDIV(x)		((x) & GENMASK(5, 0))
+
+/* RX_DATA_DETECT register */
+#define SJA1110_RX_DATA_DETECT		0x8045
+
+/* RX_CDR_CTLE register */
+#define SJA1110_RX_CDR_CTLE		0x8042
 
 /* UM10944.pdf Page 11, Table 2. Configuration Blocks */
 enum {
@@ -203,11 +289,18 @@ struct sja1105_static_config {
 	struct sja1105_table tables[BLK_IDX_MAX];
 };
 
+struct sja1105_xpcs_cfg {
+	bool inband_an;
+	int speed;
+};
+
 struct sja1105_private {
 	struct sja1105_static_config static_config;
 	bool rgmii_rx_delay[SJA1105_MAX_NUM_PORTS];
 	bool rgmii_tx_delay[SJA1105_MAX_NUM_PORTS];
 	u16 pvid[SJA1105_MAX_NUM_PORTS];
+	struct sja1105_xpcs_cfg xpcs_cfg[SJA1105_MAX_NUM_PORTS];
+	struct mii_dev *mdio_pcs;
 	const struct sja1105_info *info;
 	struct udevice *dev;
 };
@@ -226,6 +319,7 @@ typedef enum {
 	XMII_MODE_MII		= 0,
 	XMII_MODE_RMII		= 1,
 	XMII_MODE_RGMII		= 2,
+	XMII_MODE_SGMII		= 3,
 } sja1105_phy_interface_t;
 
 enum {
@@ -263,6 +357,7 @@ struct sja1105_regs {
 	u64 rgmii_tx_clk[SJA1105_MAX_NUM_PORTS];
 	u64 rmii_ref_clk[SJA1105_MAX_NUM_PORTS];
 	u64 rmii_ext_tx_clk[SJA1105_MAX_NUM_PORTS];
+	u64 pcs_base[SJA1105_MAX_NUM_PORTS];
 };
 
 struct sja1105_info {
@@ -272,10 +367,15 @@ struct sja1105_info {
 	const struct sja1105_regs *regs;
 	int (*reset_cmd)(struct sja1105_private *priv);
 	int (*setup_rgmii_delay)(struct sja1105_private *priv, int port);
+	int (*pcs_mdio_read)(struct mii_dev *bus, int phy, int mmd, int reg);
+	int (*pcs_mdio_write)(struct mii_dev *bus, int phy, int mmd, int reg,
+			      u16 val);
+	int (*pma_config)(struct sja1105_private *priv, int port);
 	const char *name;
 	bool supports_mii[SJA1105_MAX_NUM_PORTS];
 	bool supports_rmii[SJA1105_MAX_NUM_PORTS];
 	bool supports_rgmii[SJA1105_MAX_NUM_PORTS];
+	bool supports_sgmii[SJA1105_MAX_NUM_PORTS];
 	const u64 port_speed[SJA1105_SPEED_MAX];
 };
 
@@ -2030,6 +2130,233 @@ static int sja1105_rmii_clocking_setup(struct sja1105_private *priv, int port,
 	return 0;
 }
 
+static int sja1105_pcs_read(struct sja1105_private *priv, int addr,
+			    int devad, int regnum)
+{
+	return priv->mdio_pcs->read(priv->mdio_pcs, addr, devad, regnum);
+}
+
+static int sja1105_pcs_write(struct sja1105_private *priv, int addr,
+			     int devad, int regnum, u16 val)
+{
+	return priv->mdio_pcs->write(priv->mdio_pcs, addr, devad, regnum, val);
+}
+
+/* In NXP SJA1105, the PCS is integrated with a PMA that has the TX lane
+ * polarity inverted by default (PLUS is MINUS, MINUS is PLUS). To obtain
+ * normal non-inverted behavior, the TX lane polarity must be inverted in the
+ * PCS, via the DIGITAL_CONTROL_2 register.
+ */
+static int sja1105_pma_config(struct sja1105_private *priv, int port)
+{
+	return sja1105_pcs_write(priv, port, MDIO_MMD_VEND2,
+				 DW_VR_MII_DIG_CTRL2,
+				 DW_VR_MII_DIG_CTRL2_TX_POL_INV);
+}
+
+static int sja1110_pma_config(struct sja1105_private *priv, int port)
+{
+	u16 txpll_fbdiv = 0x19, txpll_refdiv = 0x1;
+	u16 rxpll_fbdiv = 0x19, rxpll_refdiv = 0x1;
+	u16 rx_cdr_ctle = 0x212a;
+	u16 val;
+	int rc;
+
+	/* Program TX PLL feedback divider and reference divider settings for
+	 * correct oscillation frequency.
+	 */
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, SJA1110_TXPLL_CTRL0,
+			       SJA1110_TXPLL_FBDIV(txpll_fbdiv));
+	if (rc < 0)
+		return rc;
+
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, SJA1110_TXPLL_CTRL1,
+			       SJA1110_TXPLL_REFDIV(txpll_refdiv));
+	if (rc < 0)
+		return rc;
+
+	/* Program transmitter amplitude and disable amplitude trimming */
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2,
+			       SJA1110_LANE_DRIVER1_0, SJA1110_TXDRV(0x5));
+	if (rc < 0)
+		return rc;
+
+	val = SJA1110_TXDRVTRIM_LSB(0xffffffull);
+
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2,
+			       SJA1110_LANE_DRIVER2_0, val);
+	if (rc < 0)
+		return rc;
+
+	val = SJA1110_TXDRVTRIM_MSB(0xffffffull) | SJA1110_LANE_DRIVER2_1_RSV;
+
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2,
+			       SJA1110_LANE_DRIVER2_1, val);
+	if (rc < 0)
+		return rc;
+
+	/* Enable input and output resistor terminations for low BER. */
+	val = SJA1110_ACCOUPLE_RXVCM_EN | SJA1110_CDR_GAIN |
+	      SJA1110_RXRTRIM(4) | SJA1110_RXTEN | SJA1110_TXPLL_BWSEL |
+	      SJA1110_TXRTRIM(3) | SJA1110_TXTEN;
+
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, SJA1110_LANE_TRIM,
+			       val);
+	if (rc < 0)
+		return rc;
+
+	/* Select PCS as transmitter data source. */
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2,
+			       SJA1110_LANE_DATAPATH_1, 0);
+	if (rc < 0)
+		return rc;
+
+	/* Program RX PLL feedback divider and reference divider for correct
+	 * oscillation frequency.
+	 */
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, SJA1110_RXPLL_CTRL0,
+			       SJA1110_RXPLL_FBDIV(rxpll_fbdiv));
+	if (rc < 0)
+		return rc;
+
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, SJA1110_RXPLL_CTRL1,
+			       SJA1110_RXPLL_REFDIV(rxpll_refdiv));
+	if (rc < 0)
+		return rc;
+
+	/* Program threshold for receiver signal detector.
+	 * Enable control of RXPLL by receiver signal detector to disable RXPLL
+	 * when an input signal is not present.
+	 */
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2,
+			       SJA1110_RX_DATA_DETECT, 0x0005);
+	if (rc < 0)
+		return rc;
+
+	/* Enable TX and RX PLLs and circuits.
+	 * Release reset of PMA to enable data flow to/from PCS.
+	 */
+	rc = sja1105_pcs_read(priv, port, MDIO_MMD_VEND2,
+			      SJA1110_POWERDOWN_ENABLE);
+	if (rc < 0)
+		return rc;
+
+	val = rc & ~(SJA1110_TXPLL_PD | SJA1110_TXPD | SJA1110_RXCH_PD |
+		     SJA1110_RXBIAS_PD | SJA1110_RESET_SER_EN |
+		     SJA1110_RESET_SER | SJA1110_RESET_DES);
+	val |= SJA1110_RXPKDETEN | SJA1110_RCVEN;
+
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2,
+			       SJA1110_POWERDOWN_ENABLE, val);
+	if (rc < 0)
+		return rc;
+
+	/* Program continuous-time linear equalizer (CTLE) settings. */
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, SJA1110_RX_CDR_CTLE,
+			       rx_cdr_ctle);
+	if (rc < 0)
+		return rc;
+
+	return 0;
+}
+
+static int sja1105_xpcs_config_aneg_c37_sgmii(struct sja1105_private *priv,
+					      int port)
+{
+	int rc;
+
+	rc = sja1105_pcs_read(priv, port, MDIO_MMD_VEND2, MDIO_CTRL1);
+	if (rc < 0)
+		return rc;
+	rc &= ~MDIO_AN_CTRL1_ENABLE;
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, MDIO_CTRL1,
+			       rc);
+	if (rc < 0)
+		return rc;
+
+	rc = sja1105_pcs_read(priv, port, MDIO_MMD_VEND2, DW_VR_MII_AN_CTRL);
+	if (rc < 0)
+		return rc;
+
+	rc &= ~(DW_VR_MII_PCS_MODE_MASK | DW_VR_MII_TX_CONFIG_MASK);
+	rc |= (DW_VR_MII_PCS_MODE_C37_SGMII <<
+	       DW_VR_MII_AN_CTRL_PCS_MODE_SHIFT &
+	       DW_VR_MII_PCS_MODE_MASK);
+	rc |= (DW_VR_MII_TX_CONFIG_MAC_SIDE_SGMII <<
+	       DW_VR_MII_AN_CTRL_TX_CONFIG_SHIFT &
+	       DW_VR_MII_TX_CONFIG_MASK);
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, DW_VR_MII_AN_CTRL,
+			       rc);
+	if (rc < 0)
+		return rc;
+
+	rc = sja1105_pcs_read(priv, port, MDIO_MMD_VEND2, DW_VR_MII_DIG_CTRL1);
+	if (rc < 0)
+		return rc;
+
+	if (priv->xpcs_cfg[port].inband_an)
+		rc |= DW_VR_MII_DIG_CTRL1_MAC_AUTO_SW;
+	else
+		rc &= ~DW_VR_MII_DIG_CTRL1_MAC_AUTO_SW;
+
+	rc = sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, DW_VR_MII_DIG_CTRL1,
+			       rc);
+	if (rc < 0)
+		return rc;
+
+	rc = sja1105_pcs_read(priv, port, MDIO_MMD_VEND2, MDIO_CTRL1);
+	if (rc < 0)
+		return rc;
+
+	if (priv->xpcs_cfg[port].inband_an)
+		rc |= MDIO_AN_CTRL1_ENABLE;
+	else
+		rc &= ~MDIO_AN_CTRL1_ENABLE;
+
+	return sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, MDIO_CTRL1, rc);
+}
+
+static int sja1105_xpcs_link_up_sgmii(struct sja1105_private *priv, int port)
+{
+	int val = BMCR_FULLDPLX;
+
+	if (priv->xpcs_cfg[port].inband_an)
+		return 0;
+
+	switch (priv->xpcs_cfg[port].speed) {
+	case SPEED_1000:
+		val = BMCR_SPEED1000;
+		break;
+	case SPEED_100:
+		val = BMCR_SPEED100;
+		break;
+	case SPEED_10:
+		val = BMCR_SPEED10;
+		break;
+	default:
+		dev_err(priv->dev, "Invalid PCS speed %d\n",
+			priv->xpcs_cfg[port].speed);
+		return -EINVAL;
+	}
+
+	return sja1105_pcs_write(priv, port, MDIO_MMD_VEND2, MDIO_CTRL1, val);
+}
+
+static int sja1105_sgmii_setup(struct sja1105_private *priv, int port)
+{
+	int rc;
+
+	rc = sja1105_xpcs_config_aneg_c37_sgmii(priv, port);
+	if (rc)
+		return rc;
+
+	rc = sja1105_xpcs_link_up_sgmii(priv, port);
+	if (rc)
+		return rc;
+
+	return priv->info->pma_config(priv, port);
+}
+
 static int sja1105_clocking_setup_port(struct sja1105_private *priv, int port)
 {
 	struct sja1105_xmii_params_entry *mii;
@@ -2054,6 +2381,9 @@ static int sja1105_clocking_setup_port(struct sja1105_private *priv, int port)
 	case XMII_MODE_RGMII:
 		rc = sja1105_rgmii_clocking_setup(priv, port, role);
 		break;
+	case XMII_MODE_SGMII:
+		rc = sja1105_sgmii_setup(priv, port);
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -2075,6 +2405,188 @@ static int sja1105_clocking_setup(struct sja1105_private *priv)
 			return rc;
 	}
 	return 0;
+}
+
+static int sja1105_pcs_mdio_read(struct mii_dev *bus, int phy, int mmd, int reg)
+{
+	u8 packed_buf[SJA1105_SIZE_MDIO_CMD] = {0};
+	struct sja1105_private *priv = bus->priv;
+	const int size = SJA1105_SIZE_MDIO_CMD;
+	u64 addr, tmp;
+	int rc;
+
+	if (mmd == MDIO_DEVAD_NONE)
+		return -ENODEV;
+
+	if (!priv->info->supports_sgmii[phy])
+		return -ENODEV;
+
+	addr = (mmd << 16) | (reg & GENMASK(15, 0));
+
+	if (mmd != MDIO_MMD_VEND1 && mmd != MDIO_MMD_VEND2)
+		return 0xffff;
+
+	rc = sja1105_xfer_buf(priv, SPI_READ, addr, packed_buf, size);
+	if (rc < 0)
+		return rc;
+
+	sja1105_packing(packed_buf, &tmp, 31, 0, size, UNPACK);
+
+	return tmp & 0xffff;
+}
+
+static int sja1105_pcs_mdio_write(struct mii_dev *bus, int phy, int mmd,
+				  int reg, u16 val)
+{
+	u8 packed_buf[SJA1105_SIZE_MDIO_CMD] = {0};
+	struct sja1105_private *priv = bus->priv;
+	const int size = SJA1105_SIZE_MDIO_CMD;
+	u64 addr, tmp;
+
+	if (mmd == MDIO_DEVAD_NONE)
+		return -ENODEV;
+
+	if (!priv->info->supports_sgmii[phy])
+		return -ENODEV;
+
+	addr = (mmd << 16) | (reg & GENMASK(15, 0));
+	tmp = val;
+
+	if (mmd != MDIO_MMD_VEND1 && mmd != MDIO_MMD_VEND2)
+		return -ENODEV;
+
+	sja1105_packing(packed_buf, &tmp, 31, 0, size, PACK);
+
+	return sja1105_xfer_buf(priv, SPI_WRITE, addr, packed_buf, size);
+}
+
+static int sja1110_pcs_mdio_read(struct mii_dev *bus, int phy, int mmd, int reg)
+{
+	struct sja1105_private *priv = bus->priv;
+	const struct sja1105_regs *regs = priv->info->regs;
+	u8 packed_buf[SJA1105_SIZE_MDIO_CMD] = {0};
+	const int size = SJA1105_SIZE_MDIO_CMD;
+	int offset, bank;
+	u64 addr, tmp;
+	int rc;
+
+	if (mmd == MDIO_DEVAD_NONE)
+		return -ENODEV;
+
+	if (regs->pcs_base[phy] == SJA1105_RSV_ADDR)
+		return -ENODEV;
+
+	addr = (mmd << 16) | (reg & GENMASK(15, 0));
+
+	bank = addr >> 8;
+	offset = addr & GENMASK(7, 0);
+
+	/* This addressing scheme reserves register 0xff for the bank address
+	 * register, so that can never be addressed.
+	 */
+	if (offset == 0xff)
+		return -ENODEV;
+
+	tmp = bank;
+
+	sja1105_packing(packed_buf, &tmp, 31, 0, size, PACK);
+
+	rc = sja1105_xfer_buf(priv, SPI_WRITE,
+			      regs->pcs_base[phy] + SJA1110_PCS_BANK_REG,
+			      packed_buf, size);
+	if (rc < 0)
+		return rc;
+
+	rc = sja1105_xfer_buf(priv, SPI_READ, regs->pcs_base[phy] + offset,
+			      packed_buf, size);
+	if (rc < 0)
+		return rc;
+
+	sja1105_packing(packed_buf, &tmp, 31, 0, size, UNPACK);
+
+	return tmp & 0xffff;
+}
+
+static int sja1110_pcs_mdio_write(struct mii_dev *bus, int phy, int mmd,
+				  int reg, u16 val)
+{
+	struct sja1105_private *priv = bus->priv;
+	const struct sja1105_regs *regs = priv->info->regs;
+	u8 packed_buf[SJA1105_SIZE_MDIO_CMD] = {0};
+	const int size = SJA1105_SIZE_MDIO_CMD;
+	int offset, bank;
+	u64 addr, tmp;
+	int rc;
+
+	if (mmd == MDIO_DEVAD_NONE)
+		return -ENODEV;
+
+	if (regs->pcs_base[phy] == SJA1105_RSV_ADDR)
+		return -ENODEV;
+
+	addr = (mmd << 16) | (reg & GENMASK(15, 0));
+
+	bank = addr >> 8;
+	offset = addr & GENMASK(7, 0);
+
+	/* This addressing scheme reserves register 0xff for the bank address
+	 * register, so that can never be addressed.
+	 */
+	if (offset == 0xff)
+		return -ENODEV;
+
+	tmp = bank;
+	sja1105_packing(packed_buf, &tmp, 31, 0, size, PACK);
+
+	rc = sja1105_xfer_buf(priv, SPI_WRITE,
+			      regs->pcs_base[phy] + SJA1110_PCS_BANK_REG,
+			      packed_buf, size);
+	if (rc < 0)
+		return rc;
+
+	tmp = val;
+	sja1105_packing(packed_buf, &tmp, 31, 0, size, PACK);
+
+	return sja1105_xfer_buf(priv, SPI_WRITE, regs->pcs_base[phy] + offset,
+				packed_buf, size);
+}
+
+static int sja1105_mdiobus_register(struct sja1105_private *priv)
+{
+	struct udevice *dev = priv->dev;
+	struct mii_dev *bus;
+	int rc;
+
+	if (!priv->info->pcs_mdio_read || !priv->info->pcs_mdio_write)
+		return 0;
+
+	bus = mdio_alloc();
+	if (!bus)
+		return -ENOMEM;
+
+	snprintf(bus->name, MDIO_NAME_LEN, "%s-pcs", dev->name);
+	bus->read = priv->info->pcs_mdio_read;
+	bus->write = priv->info->pcs_mdio_write;
+	bus->priv = priv;
+
+	rc = mdio_register(bus);
+	if (rc) {
+		mdio_free(bus);
+		return rc;
+	}
+
+	priv->mdio_pcs = bus;
+
+	return 0;
+}
+
+static void sja1105_mdiobus_unregister(struct sja1105_private *priv)
+{
+	if (!priv->mdio_pcs)
+		return;
+
+	mdio_unregister(priv->mdio_pcs);
+	mdio_free(priv->mdio_pcs);
 }
 
 static const struct sja1105_regs sja1105et_regs = {
@@ -2185,6 +2697,9 @@ static const struct sja1105_regs sja1110_regs = {
 			    SJA1105_RSV_ADDR, SJA1105_RSV_ADDR,
 			    SJA1105_RSV_ADDR, SJA1105_RSV_ADDR,
 			    SJA1105_RSV_ADDR},
+	.pcs_base = {SJA1105_RSV_ADDR, 0x1c1400, 0x1c1800, 0x1c1c00, 0x1c2000,
+		     SJA1105_RSV_ADDR, SJA1105_RSV_ADDR, SJA1105_RSV_ADDR,
+		     SJA1105_RSV_ADDR, SJA1105_RSV_ADDR, SJA1105_RSV_ADDR},
 };
 
 enum sja1105_switch_id {
@@ -2279,6 +2794,9 @@ static const struct sja1105_info sja1105_info[] = {
 		.setup_rgmii_delay	= sja1105pqrs_setup_rgmii_delay,
 		.reset_cmd		= sja1105pqrs_reset_cmd,
 		.regs			= &sja1105pqrs_regs,
+		.pcs_mdio_read		= sja1105_pcs_mdio_read,
+		.pcs_mdio_write		= sja1105_pcs_mdio_write,
+		.pma_config		= sja1105_pma_config,
 		.port_speed		= {
 			[SJA1105_SPEED_AUTO] = 0,
 			[SJA1105_SPEED_10MBPS] = 3,
@@ -2288,6 +2806,7 @@ static const struct sja1105_info sja1105_info[] = {
 		.supports_mii		= {true, true, true, true, true},
 		.supports_rmii		= {true, true, true, true, true},
 		.supports_rgmii		= {true, true, true, true, true},
+		.supports_sgmii		= {false, false, false, false, true},
 		.name			= "SJA1105R",
 	},
 	[SJA1105S] = {
@@ -2297,6 +2816,9 @@ static const struct sja1105_info sja1105_info[] = {
 		.setup_rgmii_delay	= sja1105pqrs_setup_rgmii_delay,
 		.reset_cmd		= sja1105pqrs_reset_cmd,
 		.regs			= &sja1105pqrs_regs,
+		.pcs_mdio_read		= sja1105_pcs_mdio_read,
+		.pcs_mdio_write		= sja1105_pcs_mdio_write,
+		.pma_config		= sja1105_pma_config,
 		.port_speed		= {
 			[SJA1105_SPEED_AUTO] = 0,
 			[SJA1105_SPEED_10MBPS] = 3,
@@ -2306,6 +2828,7 @@ static const struct sja1105_info sja1105_info[] = {
 		.supports_mii		= {true, true, true, true, true},
 		.supports_rmii		= {true, true, true, true, true},
 		.supports_rgmii		= {true, true, true, true, true},
+		.supports_sgmii		= {false, false, false, false, true},
 		.name			= "SJA1105S",
 	},
 	[SJA1110A] = {
@@ -2315,6 +2838,9 @@ static const struct sja1105_info sja1105_info[] = {
 		.setup_rgmii_delay	= sja1110_setup_rgmii_delay,
 		.reset_cmd		= sja1110_reset_cmd,
 		.regs			= &sja1110_regs,
+		.pcs_mdio_read		= sja1110_pcs_mdio_read,
+		.pcs_mdio_write		= sja1110_pcs_mdio_write,
+		.pma_config		= sja1110_pma_config,
 		.port_speed		= {
 			[SJA1105_SPEED_AUTO] = 0,
 			[SJA1105_SPEED_10MBPS] = 4,
@@ -2327,6 +2853,8 @@ static const struct sja1105_info sja1105_info[] = {
 					   false, false, false, false, false, false},
 		.supports_rgmii		= {false, false, true, true, false,
 					   false, false, false, false, false, false},
+		.supports_sgmii		= {false, true, true, true, true,
+					   false, false, false, false, false, false},
 		.name			= "SJA1110A",
 	},
 	[SJA1110B] = {
@@ -2336,6 +2864,9 @@ static const struct sja1105_info sja1105_info[] = {
 		.setup_rgmii_delay	= sja1110_setup_rgmii_delay,
 		.reset_cmd		= sja1110_reset_cmd,
 		.regs			= &sja1110_regs,
+		.pcs_mdio_read		= sja1110_pcs_mdio_read,
+		.pcs_mdio_write		= sja1110_pcs_mdio_write,
+		.pma_config		= sja1110_pma_config,
 		.port_speed		= {
 			[SJA1105_SPEED_AUTO] = 0,
 			[SJA1105_SPEED_10MBPS] = 4,
@@ -2348,6 +2879,8 @@ static const struct sja1105_info sja1105_info[] = {
 					   false, false, false, false, false, false},
 		.supports_rgmii		= {false, false, true, true, false,
 					   false, false, false, false, false, false},
+		.supports_sgmii		= {false, false, false, true, true,
+					   false, false, false, false, false, false},
 		.name			= "SJA1110B",
 	},
 	[SJA1110C] = {
@@ -2357,6 +2890,9 @@ static const struct sja1105_info sja1105_info[] = {
 		.setup_rgmii_delay	= sja1110_setup_rgmii_delay,
 		.reset_cmd		= sja1110_reset_cmd,
 		.regs			= &sja1110_regs,
+		.pcs_mdio_read		= sja1110_pcs_mdio_read,
+		.pcs_mdio_write		= sja1110_pcs_mdio_write,
+		.pma_config		= sja1110_pma_config,
 		.port_speed		= {
 			[SJA1105_SPEED_AUTO] = 0,
 			[SJA1105_SPEED_10MBPS] = 4,
@@ -2369,6 +2905,8 @@ static const struct sja1105_info sja1105_info[] = {
 					   false, false, false, false, false, false},
 		.supports_rgmii		= {false, false, true, true, false,
 					   false, false, false, false, false, false},
+		.supports_sgmii		= {false, false, false, false, true,
+					   false, false, false, false, false, false},
 		.name			= "SJA1110C",
 	},
 	[SJA1110D] = {
@@ -2378,6 +2916,9 @@ static const struct sja1105_info sja1105_info[] = {
 		.setup_rgmii_delay	= sja1110_setup_rgmii_delay,
 		.reset_cmd		= sja1110_reset_cmd,
 		.regs			= &sja1110_regs,
+		.pcs_mdio_read		= sja1110_pcs_mdio_read,
+		.pcs_mdio_write		= sja1110_pcs_mdio_write,
+		.pma_config		= sja1110_pma_config,
 		.port_speed		= {
 			[SJA1105_SPEED_AUTO] = 0,
 			[SJA1105_SPEED_10MBPS] = 4,
@@ -2389,6 +2930,8 @@ static const struct sja1105_info sja1105_info[] = {
 		.supports_rmii		= {false, false, true, false, false,
 					   false, false, false, false, false, false},
 		.supports_rgmii		= {false, false, true, false, false,
+					   false, false, false, false, false, false},
+		.supports_sgmii		= {false, true, true, true, true,
 					   false, false, false, false, false, false},
 		.name			= "SJA1110D",
 	},
@@ -2541,7 +3084,11 @@ static int sja1105_static_config_reload(struct sja1105_private *priv)
 static int sja1105_port_probe(struct udevice *dev, int port,
 			      struct phy_device *phy)
 {
+	struct sja1105_private *priv = dev_get_priv(dev);
+	ofnode node = dsa_port_get_ofnode(dev, port);
 	phy_interface_t phy_mode = phy->interface;
+
+	priv->xpcs_cfg[port].inband_an = ofnode_eth_uses_inband_aneg(node);
 
 	if (phy_mode == PHY_INTERFACE_MODE_MII ||
 	    phy_mode == PHY_INTERFACE_MODE_RMII) {
@@ -2593,6 +3140,13 @@ static int sja1105_port_enable(struct udevice *dev, int port,
 
 		mii->xmii_mode[port] = XMII_MODE_RGMII;
 		break;
+	case PHY_INTERFACE_MODE_SGMII:
+		if (!priv->info->supports_sgmii[port])
+			goto unsupported;
+
+		mii->xmii_mode[port] = XMII_MODE_SGMII;
+		mii->special[port] = true;
+		break;
 unsupported:
 	default:
 		dev_err(dev, "Unsupported PHY mode %d on port %d!\n",
@@ -2621,7 +3175,10 @@ unsupported:
 		}
 	}
 
-	if (phy->speed == SPEED_1000) {
+	if (mii->xmii_mode[port] == XMII_MODE_SGMII) {
+		mac[port].speed = priv->info->port_speed[SJA1105_SPEED_1000MBPS];
+		priv->xpcs_cfg[port].speed = phy->speed;
+	} else if (phy->speed == SPEED_1000) {
 		mac[port].speed = priv->info->port_speed[SJA1105_SPEED_1000MBPS];
 	} else if (phy->speed == SPEED_100) {
 		mac[port].speed = priv->info->port_speed[SJA1105_SPEED_100MBPS];
@@ -2688,7 +3245,18 @@ static int sja1105_init(struct sja1105_private *priv)
 		return rc;
 	}
 
+	rc = sja1105_mdiobus_register(priv);
+	if (rc) {
+		printf("Failed to register MDIO bus: %d\n", rc);
+		goto err_mdiobus_register;
+	}
+
 	return 0;
+
+err_mdiobus_register:
+	sja1105_static_config_free(&priv->static_config);
+
+	return rc;
 }
 
 static int sja1105_check_device_id(struct sja1105_private *priv)
@@ -2777,6 +3345,7 @@ static int sja1105_remove(struct udevice *dev)
 {
 	struct sja1105_private *priv = dev_get_priv(dev);
 
+	sja1105_mdiobus_unregister(priv);
 	sja1105_static_config_free(&priv->static_config);
 
 	return 0;
