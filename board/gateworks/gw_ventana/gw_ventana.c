@@ -1048,6 +1048,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #endif
 
 	/*
+	 * remove reset gpio control as we configure the PHY registers
+	 * for internal delay, LED config, and clock config in the bootloader
+	 */
+	i = fdt_node_offset_by_compatible(blob, -1, "fsl,imx6q-fec");
+	if (i)
+		fdt_delprop(blob, i, "phy-reset-gpios");
+
+	/*
 	 * Peripheral Config:
 	 *  remove nodes by alias path if EEPROM config tells us the
 	 *  peripheral is not loaded on the board.
