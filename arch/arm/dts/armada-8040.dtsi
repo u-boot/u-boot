@@ -40,7 +40,7 @@
 };
 
 &cp0_pinctl {
-	compatible = "marvell,mvebu-pinctrl", "marvell,8k-cpm-pinctrl";
+	compatible = "marvell,mvebu-pinctrl", "marvell,armada-8k-cpm-pinctrl";
 	bank-name ="cp0-110";
 
 	cp0_i2c0_pins: cp0-i2c-pins-0 {
@@ -75,7 +75,7 @@
 };
 
 &cp1_pinctl {
-	compatible = "marvell,mvebu-pinctrl", "marvell,8k-cps-pinctrl";
+	compatible = "marvell,mvebu-pinctrl", "marvell,armada-8k-cps-pinctrl";
 	bank-name ="cp1-110";
 
 	cp1_ge1_rgmii_pins: cp1-ge-rgmii-pins-0 {
