@@ -75,6 +75,13 @@ config TARGET_IMX8MM_VENICE
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
+config TARGET_KONTRON_MX8MM
+	bool "Kontron Electronics N80xx"
+	select BINMAN
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 config TARGET_IMX8MN_EVK
 	bool "imx8mn LPDDR4 EVK board"
 	select BINMAN
@@ -157,6 +164,7 @@ source "board/freescale/imx8mn_evk/Kconfig"
 source "board/freescale/imx8mp_evk/Kconfig"
 source "board/gateworks/venice/Kconfig"
 source "board/google/imx8mq_phanbell/Kconfig"
+source "board/kontron/sl-mx8mm/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
