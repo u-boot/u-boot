@@ -1245,7 +1245,7 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 	struct mii_dev *mdiodev = mdio_alloc();
 	if (!mdiodev)
 		return -ENOMEM;
-	strncpy(mdiodev->name, netdev->name, MDIO_NAME_LEN);
+	strlcpy(mdiodev->name, netdev->name, MDIO_NAME_LEN);
 	mdiodev->read = macb_miiphy_read;
 	mdiodev->write = macb_miiphy_write;
 
@@ -1403,7 +1403,7 @@ static int macb_eth_probe(struct udevice *dev)
 	macb->bus = mdio_alloc();
 	if (!macb->bus)
 		return -ENOMEM;
-	strncpy(macb->bus->name, dev->name, MDIO_NAME_LEN);
+	strlcpy(macb->bus->name, dev->name, MDIO_NAME_LEN);
 	macb->bus->read = macb_miiphy_read;
 	macb->bus->write = macb_miiphy_write;
 

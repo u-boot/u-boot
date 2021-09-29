@@ -54,7 +54,7 @@ Differences between T2080 and T2081
 T2080PCIe-RDB board Overview
 ----------------------------
  - SERDES Configuration
-     - SerDes-1 Lane A-B: to two 10G XFI fiber (MAC9 & MAC10)
+     - SerDes-1 Lane A-B: to two 10GBase-R fiber (MAC9 & MAC10)
      - SerDes-1 Lane C-D: to two 10G Base-T (MAC1 & MAC2)
      - SerDes-1 Lane E-H: to PCIe Goldfinger (PCIe4 x4, Gen3)
      - SerDes-2 Lane A-D: to PCIe Slot (PCIe1 x4, Gen2)
@@ -62,7 +62,7 @@ T2080PCIe-RDB board Overview
      - SerDes-2 Lane G-H: to SATA1 & SATA2
  - Ethernet
      - Two on-board 10M/100M/1G RGMII ethernet ports
-     - Two on-board 10Gbps XFI fiber ports
+     - Two on-board 10GBase-R fiber ports
      - Two on-board 10Gbps Base-T copper ports
  - DDR Memory
      - Supports 72bit 4GB DDR3-LP SODIMM

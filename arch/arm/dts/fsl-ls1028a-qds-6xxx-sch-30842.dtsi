@@ -2,7 +2,7 @@
 /*
  * NXP LS1028A-QDS device tree fragment for RCW 6xxx
  *
- * Copyright 2019-2021 NXP Semiconductors
+ * Copyright 2019-2021 NXP
  */
 
 /*
@@ -14,6 +14,6 @@
 
 &enetc0 {
 	status = "okay";
-	phy-mode = "sgmii-2500";
+	phy-mode = "2500base-x";
 	phy-handle = <&{/i2c@2000000/fpga@66/mux-mdio@54/mdio@40/phy@02}>;
 };

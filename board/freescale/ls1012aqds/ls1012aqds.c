@@ -265,7 +265,7 @@ static void fdt_fsl_fixup_of_pfe(void *blob)
 						ETH_1_2_5G_MDIO_MUX);
 				prop_val.phy_mask = cpu_to_fdt32(
 						ETH_2_5G_MDIO_PHY_MASK);
-				prop_val.phy_mode = "sgmii-2500";
+				prop_val.phy_mode = "2500base-x";
 				pfe_set_properties(l_blob, prop_val, ETH_1_PATH,
 						   ETH_1_MDIO);
 			} else {
@@ -277,7 +277,7 @@ static void fdt_fsl_fixup_of_pfe(void *blob)
 						ETH_2_2_5G_MDIO_MUX);
 				prop_val.phy_mask = cpu_to_fdt32(
 						ETH_2_5G_MDIO_PHY_MASK);
-				prop_val.phy_mode = "sgmii-2500";
+				prop_val.phy_mode = "2500base-x";
 				pfe_set_properties(l_blob, prop_val, ETH_2_PATH,
 						   ETH_2_MDIO);
 			}

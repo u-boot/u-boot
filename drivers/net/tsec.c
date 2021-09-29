@@ -638,7 +638,7 @@ static int tsec_init(struct udevice *dev)
 	return priv->phydev->link ? 0 : -1;
 }
 
-static phy_interface_t tsec_get_interface(struct tsec_private *priv)
+static phy_interface_t __maybe_unused tsec_get_interface(struct tsec_private *priv)
 {
 	struct tsec __iomem *regs = priv->regs;
 	u32 ecntrl;
@@ -700,8 +700,6 @@ static int init_phy(struct tsec_private *priv)
 
 	/* Assign a Physical address to the TBI */
 	out_be32(&regs->tbipa, priv->tbiaddr);
-
-	priv->interface = tsec_get_interface(priv);
 
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII)
 		tsec_configure_serdes(priv);
@@ -886,12 +884,13 @@ int tsec_probe(struct udevice *dev)
 	priv->tbiaddr = tbiaddr;
 
 	phy_mode = dev_read_prop(dev, "phy-connection-type", NULL);
+	if (!phy_mode)
+		phy_mode = dev_read_prop(dev, "phy-mode", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
-	if (pdata->phy_interface == -1) {
-		printf("Invalid PHY interface '%s'\n", phy_mode);
-		return -EINVAL;
-	}
+	if (pdata->phy_interface == -1)
+		pdata->phy_interface = tsec_get_interface(priv);
+
 	priv->interface = pdata->phy_interface;
 
 	/* Check for speed limit, default is 1000Mbps */

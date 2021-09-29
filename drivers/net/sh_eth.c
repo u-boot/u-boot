@@ -657,7 +657,7 @@ int sh_eth_initialize(struct bd_info *bd)
 	mdiodev = mdio_alloc();
 	if (!mdiodev)
 		return -ENOMEM;
-	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	strlcpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
 	mdiodev->read = bb_miiphy_read;
 	mdiodev->write = bb_miiphy_write;
 

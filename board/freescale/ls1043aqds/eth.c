@@ -176,7 +176,7 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 					   "sgmii-riser-s4-p1");
 		}
 	} else if (fm_info_get_enet_if(port) ==
-		   PHY_INTERFACE_MODE_SGMII_2500) {
+		   PHY_INTERFACE_MODE_2500BASEX) {
 		/* 2.5G SGMII interface */
 		f_link.phy_id = cpu_to_fdt32(port);
 		f_link.duplex = cpu_to_fdt32(1);
@@ -187,7 +187,7 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 		fdt_delprop(fdt, offset, "phy-handle");
 		fdt_setprop(fdt, offset, "fixed-link", &f_link, sizeof(f_link));
 		fdt_setprop_string(fdt, offset, "phy-connection-type",
-				   "sgmii-2500");
+				   "2500base-x");
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_QSGMII) {
 		switch (mdio_mux[port]) {
 		case EMI1_SLOT1:
@@ -242,13 +242,13 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				   "qsgmii");
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_XGMII &&
 		   port == FM1_10GEC1) {
-		/* XFI interface */
+		/* 10GBase-R interface */
 		f_link.phy_id = cpu_to_fdt32(port);
 		f_link.duplex = cpu_to_fdt32(1);
 		f_link.link_speed = cpu_to_fdt32(10000);
 		f_link.pause = 0;
 		f_link.asym_pause = 0;
-		/* no PHY for XFI */
+		/* no PHY for 10GBase-R */
 		fdt_delprop(fdt, offset, "phy-handle");
 		fdt_setprop(fdt, offset, "fixed-link", &f_link, sizeof(f_link));
 		fdt_setprop_string(fdt, offset, "phy-connection-type", "xgmii");
@@ -430,12 +430,12 @@ int board_eth_init(struct bd_info *bis)
 		interface = fm_info_get_enet_if(i);
 		switch (interface) {
 		case PHY_INTERFACE_MODE_SGMII:
-		case PHY_INTERFACE_MODE_SGMII_2500:
+		case PHY_INTERFACE_MODE_2500BASEX:
 		case PHY_INTERFACE_MODE_QSGMII:
 			if (interface == PHY_INTERFACE_MODE_SGMII) {
 				lane = serdes_get_first_lane(FSL_SRDS_1,
 						SGMII_FM1_DTSEC1 + idx);
-			} else if (interface == PHY_INTERFACE_MODE_SGMII_2500) {
+			} else if (interface == PHY_INTERFACE_MODE_2500BASEX) {
 				lane = serdes_get_first_lane(FSL_SRDS_1,
 						SGMII_2500_FM1_DTSEC1 + idx);
 			} else {

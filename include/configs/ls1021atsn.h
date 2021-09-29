@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0
- * Copyright 2016-2019 NXP Semiconductors
+ * Copyright 2016-2019 NXP
  * Copyright 2019 Vladimir Oltean <olteanv@gmail.com>
  */
 

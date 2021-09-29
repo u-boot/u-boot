@@ -425,7 +425,7 @@ static int smc911x_initialize_mii(struct smc911x_priv *priv)
 	if (!mdiodev)
 		return -ENOMEM;
 
-	strncpy(mdiodev->name, priv->dev.name, MDIO_NAME_LEN);
+	strlcpy(mdiodev->name, priv->dev.name, MDIO_NAME_LEN);
 	mdiodev->read = smc911x_miiphy_read;
 	mdiodev->write = smc911x_miiphy_write;
 

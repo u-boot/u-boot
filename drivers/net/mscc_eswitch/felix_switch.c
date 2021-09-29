@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
  * Felix (VSC9959) Ethernet switch driver
- * Copyright 2018-2021 NXP Semiconductors
+ * Copyright 2018-2021 NXP
  */
 
 /*
@@ -213,17 +213,16 @@ static void felix_start_pcs(struct udevice *dev, int port,
 	bool autoneg = true;
 
 	if (phy->phy_id == PHY_FIXED_ID ||
-	    phy->interface == PHY_INTERFACE_MODE_SGMII_2500)
+	    phy->interface == PHY_INTERFACE_MODE_2500BASEX)
 		autoneg = false;
 
 	switch (phy->interface) {
 	case PHY_INTERFACE_MODE_SGMII:
-	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_2500BASEX:
 	case PHY_INTERFACE_MODE_QSGMII:
 		felix_init_sgmii(imdio, port, autoneg);
 		break;
-	case PHY_INTERFACE_MODE_XGMII:
-	case PHY_INTERFACE_MODE_XFI:
+	case PHY_INTERFACE_MODE_10GBASER:
 	case PHY_INTERFACE_MODE_USXGMII:
 		if (felix_init_sxgmii(imdio, port))
 			dev_err(dev, "PCS reset timeout on port %d\n", port);
@@ -233,7 +232,7 @@ static void felix_start_pcs(struct udevice *dev, int port,
 	}
 }
 
-void felix_init(struct udevice *dev)
+static void felix_init(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct felix_priv *priv = dev_get_priv(dev);
@@ -258,7 +257,7 @@ void felix_init(struct udevice *dev)
 	priv->imdio.read = felix_mdio_read;
 	priv->imdio.write = felix_mdio_write;
 	priv->imdio.priv = priv->imdio_base + FELIX_PM_IMDIO_BASE;
-	strncpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
+	strlcpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
 
 	/* set up CPU port */
 	out_le32(base + FELIX_QSYS_SYSTEM_EXT_CPU_CFG,
@@ -276,6 +275,7 @@ void felix_init(struct udevice *dev)
 static int felix_probe(struct udevice *dev)
 {
 	struct felix_priv *priv = dev_get_priv(dev);
+	int err;
 
 	if (ofnode_valid(dev_ofnode(dev)) &&
 	    !ofnode_is_available(dev_ofnode(dev))) {
@@ -300,11 +300,18 @@ static int felix_probe(struct udevice *dev)
 		struct mii_dev *mii_bus;
 
 		mii_bus = mdio_alloc();
+		if (!mii_bus)
+			return -ENOMEM;
+
 		mii_bus->read = felix_mdio_read;
 		mii_bus->write = felix_mdio_write;
 		mii_bus->priv = priv->imdio_base + FELIX_PM_IMDIO_BASE;
-		strncpy(mii_bus->name, dev->name, MDIO_NAME_LEN);
-		mdio_register(mii_bus);
+		strlcpy(mii_bus->name, dev->name, MDIO_NAME_LEN);
+		err = mdio_register(mii_bus);
+		if (err) {
+			mdio_free(mii_bus);
+			return err;
+		}
 	}
 
 	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, PCI_COMMAND_MEMORY);
@@ -317,10 +324,23 @@ static int felix_probe(struct udevice *dev)
 	return 0;
 }
 
+static int felix_port_probe(struct udevice *dev, int port,
+			    struct phy_device *phy)
+{
+	int supported = PHY_GBIT_FEATURES | SUPPORTED_2500baseX_Full;
+	struct felix_priv *priv = dev_get_priv(dev);
+
+	phy->supported &= supported;
+	phy->advertising &= supported;
+
+	felix_start_pcs(dev, port, phy, &priv->imdio);
+
+	return phy_config(phy);
+}
+
 static int felix_port_enable(struct udevice *dev, int port,
 			     struct phy_device *phy)
 {
-	int supported = PHY_GBIT_FEATURES | SUPPORTED_2500baseX_Full;
 	struct felix_priv *priv = dev_get_priv(dev);
 	void *base = priv->regs_base;
 
@@ -339,15 +359,7 @@ static int felix_port_enable(struct udevice *dev, int port,
 		 FELIX_QSYS_SYSTEM_SW_PORT_LOSSY |
 		 FELIX_QSYS_SYSTEM_SW_PORT_SCH(1));
 
-	felix_start_pcs(dev, port, phy, &priv->imdio);
-
-	phy->supported &= supported;
-	phy->advertising &= supported;
-	phy_config(phy);
-
-	phy_startup(phy);
-
-	return 0;
+	return phy_startup(phy);
 }
 
 static void felix_port_disable(struct udevice *dev, int pidx,
@@ -392,6 +404,7 @@ static int felix_rcv(struct udevice *dev, int *pidx, void *packet, int length)
 }
 
 static const struct dsa_ops felix_dsa_ops = {
+	.port_probe	= felix_port_probe,
 	.port_enable	= felix_port_enable,
 	.port_disable	= felix_port_disable,
 	.xmit		= felix_xmit,

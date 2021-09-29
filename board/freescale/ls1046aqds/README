@@ -18,7 +18,7 @@ SoC overview.
       - SGMII, SGMII 2.5
       - QSGMII
       - SATA 3.0
-      - XFI
+      - 10GBase-R
  - DDR Controller
      - 8GB 64bits DDR4 SDRAM. Support rates of up to 2133MT/s
  -IFC/Local Bus

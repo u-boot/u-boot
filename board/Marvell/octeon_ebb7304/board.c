@@ -339,7 +339,7 @@ void __fixup_fdt(void)
 		case CVMX_QLM_MODE_XFI:
 		case CVMX_QLM_MODE_RGMII_XFI:
 		case CVMX_QLM_MODE_RGMII_XFI_1X1:
-			type_str = "xfi";
+			type_str = "10gbase-r";
 			break;
 		case CVMX_QLM_MODE_10G_KR:
 		case CVMX_QLM_MODE_RGMII_10G_KR:
@@ -393,7 +393,7 @@ void __fixup_fdt(void)
 				if (pmd_control.s.train_en)
 					type_str = "10G_KR";
 				else
-					type_str = "xfi";
+					type_str = "10gbase-r";
 				break;
 			case 4:
 				if (pmd_control.s.train_en)
@@ -618,7 +618,7 @@ static void board_configure_qlms(void)
 					speed[qlm] = 103125;
 			}
 			printf("QLM %d: XLAUI\n", qlm);
-		} else if (!strncmp(mode_str, "xfi", 3)) {
+		} else if (!strncmp(mode_str, "10gbase-r", 3)) {
 			bool rgmii = false;
 
 			speed[qlm] = 103125;
