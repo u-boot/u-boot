@@ -1,17 +1,17 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-Summary
-=======
+Kontron SMARC-sAL28
+===================
 
 The Kontron SMARC-sAL28 board is a TSN-enabled dual-core ARM A72
 processor module with an on-chip 6-port TSN switch and a 3D GPU.
 
 
 Quickstart
-==========
+----------
 
 Compile U-Boot
---------------
+^^^^^^^^^^^^^^
 
 Configure and compile the binary::
 
@@ -21,7 +21,7 @@ Configure and compile the binary::
 Copy u-boot.rom to a TFTP server.
 
 Install the bootloader on the board
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Please note, this bootloader doesn't support the builtin watchdog (yet),
 therefore you have to disable it, see below. Otherwise you'll end up in
@@ -36,7 +36,7 @@ disabled the builtin watchdog you might have to manually enter failsafe
 mode by asserting the ``FORCE_RECOV#`` line during board reset.
 
 Disable the builtin watchdog
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - boot into the failsafe bootloader, either by asserting the
   ``FORCE_RECOV#`` line or if you still have the original bootloader
@@ -53,7 +53,7 @@ Disable the builtin watchdog
 
 
 Useful I2C tricks
-=================
+-----------------
 
 The board has a board management controller which is not supported in
 u-boot (yet). But you can use the i2c command to access it.
@@ -68,7 +68,7 @@ u-boot (yet). But you can use the i2c command to access it.
 
 
 Non-volatile Board Configuration Bits
-=====================================
+-------------------------------------
 
 The board has 16 configuration bits which are stored in the CPLD and are
 non-volatile. These can be changed by the `sl28 nvm` command.
@@ -98,21 +98,21 @@ Please note, that if the board is in failsafe mode, the bits will have the
 factory defaults, ie. all bits are off.
 
 Power-On Inhibit
-----------------
+^^^^^^^^^^^^^^^^
 
 If this is set, the board doesn't automatically turn on when power is
 applied. Instead, the user has to either toggle the ``PWR_BTN#`` line or
 use any other wake-up source such as RTC alarm or Wake-on-LAN.
 
 eMMC Boot
----------
+^^^^^^^^^
 
 If this is set, the RCW will be fetched from the on-board eMMC at offset
 1MiB. For further details, have a look at the `Reset Configuration Word
 Documentation`_.
 
 Watchdog
---------
+^^^^^^^^
 
 By default, the CPLD watchdog is enabled in failsafe mode. Using bits 2 and
 3, the user can change its mode or disable it altogether.
@@ -127,21 +127,21 @@ Bit 2  Bit 3  Description
 =====  =====  ===============================
 
 Clock Generator Select
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 The board is prepared to supply different SerDes clock speeds. But for now,
 only setting 0 is supported, otherwise the CPU will hang because the PLL
 will not lock.
 
 Clock Output Disable And Keep Devices In Reset
-----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To safe power, the user might disable different devices and clock output of
 the board. It is not supported to disable the "CPU SerDes clock #2" for
 now, otherwise the CPU will hang because the PLL will not lock.
 
 Automatic reset of the onboard PHYs
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 By default, there is no hardware reset of the onboard PHY. This is because
 for Wake-on-LAN, some registers have to retain their values. If you don't
@@ -151,7 +151,7 @@ power-on reset.
 
 
 Further documentation
-=====================
+---------------------
 
 - `Vendor Documentation`_
 - `Reset Configuration Word Documentation`_
