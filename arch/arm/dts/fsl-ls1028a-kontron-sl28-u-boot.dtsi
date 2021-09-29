@@ -15,6 +15,12 @@
 	};
 
 	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	u_boot_rom: u-boot-rom {
 		filename = "u-boot.rom";
 		pad-byte = <0xff>;
 
@@ -133,6 +139,31 @@
 	};
 };
 
+&binman {
+	u-boot-update {
+		filename = "u-boot.update";
+
+		fit {
+			description = "FIT update image";
+
+			images {
+				u-boot-bin {
+					description = "U-Boot";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <0>; /* unused */
+
+					blob {
+						filename = "u-boot.rom";
+					};
+				};
+			};
+		};
+	};
+};
+
 #ifdef CONFIG_SL28_ENABLE_SER0_CONSOLE
 / {
 	chosen {
@@ -142,7 +173,7 @@
 #endif
 
 #ifdef CONFIG_SL28_SPL_LOADS_ATF_BL31
-&binman {
+&u_boot_rom {
 	fit {
 		images {
 			bl31 {
@@ -191,7 +222,7 @@
 #endif
 
 #ifdef CONFIG_SL28_SPL_LOADS_OPTEE_BL32
-&binman {
+&u_boot_rom {
 	fit {
 		images {
 			bl32 {
