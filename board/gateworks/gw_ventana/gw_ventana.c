@@ -39,41 +39,6 @@ DECLARE_GLOBAL_DATA_PTR;
 struct ventana_board_info ventana_info;
 static int board_type;
 
-#ifdef CONFIG_USB_EHCI_MX6
-/* toggle USB_HUB_RST# for boards that have it; it is not defined in dt */
-int board_ehci_hcd_init(int port)
-{
-	int gpio;
-
-	/* USB HUB is always on P1 */
-	if (port == 0)
-		return 0;
-
-	/* Reset USB HUB */
-	switch (board_type) {
-	case GW53xx:
-	case GW552x:
-	case GW5906:
-		gpio = (IMX_GPIO_NR(1, 9));
-		break;
-	case GW54proto:
-	case GW54xx:
-		gpio = (IMX_GPIO_NR(1, 16));
-		break;
-	default:
-		return 0;
-	}
-
-	/* request and toggle hub rst */
-	gpio_request(gpio, "usb_hub_rst#");
-	gpio_direction_output(gpio, 0);
-	mdelay(2);
-	gpio_set_value(gpio, 1);
-
-	return 0;
-}
-#endif /* CONFIG_USB_EHCI_MX6 */
-
 /* configure eth0 PHY board-specific LED behavior */
 int board_phy_config(struct phy_device *phydev)
 {

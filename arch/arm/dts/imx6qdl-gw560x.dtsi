@@ -221,7 +221,8 @@
 		regulator-name = "usb_h1_vbus";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
-		regulator-always-on;
+		gpio = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 
 	reg_usb_otg_vbus: regulator-usb-otg-vbus {
