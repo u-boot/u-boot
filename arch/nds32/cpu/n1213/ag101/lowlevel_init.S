@@ -38,9 +38,9 @@
  * for Orca and Emerald
  */
 #define BOARD_ID_REG		0x104
-#define BOARD_ID_FAMILY_MASK 	0xfff000
-#define BOARD_ID_FAMILY_V5   	0x556000
-#define BOARD_ID_FAMILY_K7   	0x74b000
+#define BOARD_ID_FAMILY_MASK	0xfff000
+#define BOARD_ID_FAMILY_V5	0x556000
+#define BOARD_ID_FAMILY_K7	0x74b000
 
 /*
  * parameters for the static memory controller

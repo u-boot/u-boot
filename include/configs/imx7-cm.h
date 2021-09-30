@@ -20,9 +20,9 @@
 
 /*
  * Use:
- * 		boot-mode=mix
- * 		boot-mode=sd
- * 		boot-mode=net
+ *		boot-mode=mix
+ *		boot-mode=sd
+ *		boot-mode=net
  */
 #define MY_CONFIG_BOOT_MODE	"boot-mode=sd\0"
 

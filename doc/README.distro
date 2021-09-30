@@ -233,7 +233,7 @@ fdtfile:
   the DTB with a different DTB. fdtfile will automatically be set for you if
   it matches the format ${soc}-${board}.dtb which covers most 32 bit use cases.
   AArch64 generally does not match as the Linux kernel put the dtb files under
-  SoC vendor directories. 
+  SoC vendor directories.
 
 ramdisk_addr_r:
 

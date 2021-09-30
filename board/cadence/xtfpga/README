@@ -122,4 +122,3 @@ variable to make.
 Because this problem is easy to fall into and difficult to debug
 if one doesn't expect it, the linker script provides a link-time
 check and fatal error message if the image size exceeds 128 KB.
-

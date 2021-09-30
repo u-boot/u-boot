@@ -23,7 +23,7 @@ struct pinmux_config {
 /* pin table definition */
 struct pinmux_resource {
 	const struct pinmux_config	*pins;
-	const int 			n_pins;
+	const int			n_pins;
 };
 
 #define PINMUX_ITEM(item) { \

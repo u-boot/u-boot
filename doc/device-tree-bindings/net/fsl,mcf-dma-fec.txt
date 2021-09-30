@@ -21,7 +21,7 @@ Example:
 
 fec0: ethernet@9000 {
 	compatible = "fsl,mcf-dma-fec";
- 	reg = <0x9000 0x800>;
+	reg = <0x9000 0x800>;
 	mii-base = <0>;
 	phy-addr = <0>;
 	timeout-loop = <5000>;

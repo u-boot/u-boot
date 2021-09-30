@@ -414,7 +414,7 @@ static int ec_command(struct udevice *dev, uint cmd, int cmd_version,
 
 int cros_ec_scan_keyboard(struct udevice *dev, struct mbkp_keyscan *scan)
 {
- 	if (ec_command(dev, EC_CMD_MKBP_STATE, 0, NULL, 0, scan,
+	if (ec_command(dev, EC_CMD_MKBP_STATE, 0, NULL, 0, scan,
 		       sizeof(scan->data)) != sizeof(scan->data))
 		return -1;
 

@@ -71,4 +71,4 @@
 #define CONFIG_SYS_KMBEC_FPGA_SIZE	128
 
 /* EEprom support */
-
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1

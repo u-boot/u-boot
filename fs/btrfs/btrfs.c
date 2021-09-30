@@ -23,7 +23,7 @@ static int show_dir(struct btrfs_root *root, struct extent_buffer *eb,
 	struct btrfs_key key;
 	static const char* dir_item_str[] = {
 		[BTRFS_FT_REG_FILE]	= "   ",
-		[BTRFS_FT_DIR] 		= "DIR",
+		[BTRFS_FT_DIR]		= "DIR",
 		[BTRFS_FT_CHRDEV]	= "CHR",
 		[BTRFS_FT_BLKDEV]	= "BLK",
 		[BTRFS_FT_FIFO]		= "FIF",

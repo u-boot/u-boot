@@ -21,7 +21,6 @@ the reference implementation maintained by Linaro.
 		           in drivers/tee/optee/optee_smc.h
 
 
-
 Example:
 	firmware {
 		optee {

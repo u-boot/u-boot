@@ -268,4 +268,3 @@
 #define CLK_SGMII_CDR_FB		3
 
 #endif /* _DT_BINDINGS_CLK_MT7622_H */
-

@@ -14,8 +14,6 @@
 #include "sys_env_lib.h"
 #include "ctrl_pex.h"
 
-
-
 /*
  * serdes_seq_db - holds all serdes sequences, their size and the
  * relevant index in the data array initialized in serdes_seq_init

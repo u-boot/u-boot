@@ -89,7 +89,7 @@
 #define XCHAL_HAVE_HIFI3_VFPU		0	/* HiFi3 Audio Engine VFPU option */
 #define XCHAL_HAVE_HIFI2		0	/* HiFi2 Audio Engine pkg */
 #define XCHAL_HAVE_HIFI2EP		0	/* HiFi2EP */
-#define XCHAL_HAVE_HIFI_MINI		0	
+#define XCHAL_HAVE_HIFI_MINI		0
 
 
 #define XCHAL_HAVE_VECTORFPU2005	0	/* vector or user floating-point pkg */
@@ -108,8 +108,8 @@
 #define XCHAL_HAVE_DFP_ACCEL		0	/* double precision FP acceleration pkg */
 #define XCHAL_HAVE_DFP_accel		XCHAL_HAVE_DFP_ACCEL				/* for backward compatibility */
 
-#define XCHAL_HAVE_DFPU_SINGLE_ONLY    0                 	/* DFPU Coprocessor, single precision only */
-#define XCHAL_HAVE_DFPU_SINGLE_DOUBLE  0               	/* DFPU Coprocessor, single and double precision */
+#define XCHAL_HAVE_DFPU_SINGLE_ONLY	0	/* DFPU Coprocessor, single precision only */
+#define XCHAL_HAVE_DFPU_SINGLE_DOUBLE	0	/* DFPU Coprocessor, single and double precision */
 #define XCHAL_HAVE_VECTRA1		0	/* Vectra I  pkg */
 #define XCHAL_HAVE_VECTRALX		0	/* Vectra LX pkg */
 #define XCHAL_HAVE_PDX4		        0	/* PDX4 */
@@ -127,8 +127,8 @@
 #define XCHAL_HAVE_TURBO16		0	/* ConnX Turbo16 pkg */
 #define XCHAL_HAVE_BBP16		0	/* ConnX BBP16 pkg */
 #define XCHAL_HAVE_FLIX3		0	/* basic 3-way FLIX option */
-#define XCHAL_HAVE_GRIVPEP              0   /*  GRIVPEP is General Release of IVPEP */
-#define XCHAL_HAVE_GRIVPEP_HISTOGRAM    0   /* Histogram option on GRIVPEP */
+#define XCHAL_HAVE_GRIVPEP              0	/*  GRIVPEP is General Release of IVPEP */
+#define XCHAL_HAVE_GRIVPEP_HISTOGRAM    0	/* Histogram option on GRIVPEP */
 
 
 /*----------------------------------------------------------------------
@@ -206,12 +206,9 @@
 #define XCHAL_HAVE_DCACHE_DYN_WAYS	0	/* Dcache dynamic way support */
 
 
-
-
 /****************************************************************************
     Parameters Useful for PRIVILEGED (Supervisory or Non-Virtualized) Code
  ****************************************************************************/
-
 
 #ifndef XTENSA_HAL_NON_PRIVILEGED_ONLY
 
@@ -351,28 +348,28 @@
 						   EXCSAVE/EPS/EPC_n, RFI n) */
 
 /*  Type of each interrupt:  */
-#define XCHAL_INT0_TYPE 	XTHAL_INTTYPE_EXTERN_LEVEL
-#define XCHAL_INT1_TYPE 	XTHAL_INTTYPE_EXTERN_LEVEL
-#define XCHAL_INT2_TYPE 	XTHAL_INTTYPE_EXTERN_LEVEL
-#define XCHAL_INT3_TYPE 	XTHAL_INTTYPE_EXTERN_LEVEL
-#define XCHAL_INT4_TYPE 	XTHAL_INTTYPE_EXTERN_LEVEL
-#define XCHAL_INT5_TYPE 	XTHAL_INTTYPE_EXTERN_LEVEL
-#define XCHAL_INT6_TYPE 	XTHAL_INTTYPE_TIMER
-#define XCHAL_INT7_TYPE 	XTHAL_INTTYPE_SOFTWARE
-#define XCHAL_INT8_TYPE 	XTHAL_INTTYPE_EXTERN_LEVEL
-#define XCHAL_INT9_TYPE 	XTHAL_INTTYPE_EXTERN_LEVEL
-#define XCHAL_INT10_TYPE 	XTHAL_INTTYPE_TIMER
-#define XCHAL_INT11_TYPE 	XTHAL_INTTYPE_SOFTWARE
-#define XCHAL_INT12_TYPE 	XTHAL_INTTYPE_EXTERN_LEVEL
-#define XCHAL_INT13_TYPE 	XTHAL_INTTYPE_TIMER
-#define XCHAL_INT14_TYPE 	XTHAL_INTTYPE_NMI
-#define XCHAL_INT15_TYPE 	XTHAL_INTTYPE_EXTERN_EDGE
-#define XCHAL_INT16_TYPE 	XTHAL_INTTYPE_EXTERN_EDGE
-#define XCHAL_INT17_TYPE 	XTHAL_INTTYPE_EXTERN_EDGE
-#define XCHAL_INT18_TYPE 	XTHAL_INTTYPE_EXTERN_EDGE
-#define XCHAL_INT19_TYPE 	XTHAL_INTTYPE_EXTERN_EDGE
-#define XCHAL_INT20_TYPE 	XTHAL_INTTYPE_EXTERN_EDGE
-#define XCHAL_INT21_TYPE 	XTHAL_INTTYPE_EXTERN_EDGE
+#define XCHAL_INT0_TYPE		XTHAL_INTTYPE_EXTERN_LEVEL
+#define XCHAL_INT1_TYPE		XTHAL_INTTYPE_EXTERN_LEVEL
+#define XCHAL_INT2_TYPE		XTHAL_INTTYPE_EXTERN_LEVEL
+#define XCHAL_INT3_TYPE		XTHAL_INTTYPE_EXTERN_LEVEL
+#define XCHAL_INT4_TYPE		XTHAL_INTTYPE_EXTERN_LEVEL
+#define XCHAL_INT5_TYPE		XTHAL_INTTYPE_EXTERN_LEVEL
+#define XCHAL_INT6_TYPE		XTHAL_INTTYPE_TIMER
+#define XCHAL_INT7_TYPE		XTHAL_INTTYPE_SOFTWARE
+#define XCHAL_INT8_TYPE		XTHAL_INTTYPE_EXTERN_LEVEL
+#define XCHAL_INT9_TYPE		XTHAL_INTTYPE_EXTERN_LEVEL
+#define XCHAL_INT10_TYPE	XTHAL_INTTYPE_TIMER
+#define XCHAL_INT11_TYPE	XTHAL_INTTYPE_SOFTWARE
+#define XCHAL_INT12_TYPE	XTHAL_INTTYPE_EXTERN_LEVEL
+#define XCHAL_INT13_TYPE	XTHAL_INTTYPE_TIMER
+#define XCHAL_INT14_TYPE	XTHAL_INTTYPE_NMI
+#define XCHAL_INT15_TYPE	XTHAL_INTTYPE_EXTERN_EDGE
+#define XCHAL_INT16_TYPE	XTHAL_INTTYPE_EXTERN_EDGE
+#define XCHAL_INT17_TYPE	XTHAL_INTTYPE_EXTERN_EDGE
+#define XCHAL_INT18_TYPE	XTHAL_INTTYPE_EXTERN_EDGE
+#define XCHAL_INT19_TYPE	XTHAL_INTTYPE_EXTERN_EDGE
+#define XCHAL_INT20_TYPE	XTHAL_INTTYPE_EXTERN_EDGE
+#define XCHAL_INT21_TYPE	XTHAL_INTTYPE_EXTERN_EDGE
 
 /*  Masks of interrupts for each type of interrupt:  */
 #define XCHAL_INTTYPE_MASK_UNCONFIGURED	0xFFC00000
@@ -569,4 +566,3 @@
 
 
 #endif /* _XTENSA_CORE_CONFIGURATION_H */
-

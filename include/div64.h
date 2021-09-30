@@ -220,7 +220,7 @@ extern u32 __div64_32(u64 *dividend, u32 divisor);
 	} else if (likely(((n) >> 32) == 0)) {		\
 		__rem = (u32)(n) % __base;		\
 		(n) = (u32)(n) / __base;		\
-	} else 						\
+	} else						\
 		__rem = __div64_32(&(n), __base);	\
 	__rem;						\
  })

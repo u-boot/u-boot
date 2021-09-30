@@ -40,7 +40,7 @@
  *
  * To generate the content of the array below, use ie. the following command:
  * $ hexdump -v -e '/4 "0x%08x, "' r8a779x_usb3_v3.dlmem | \
- * 	sed "s@\(.\{47\}\) @\1\n@g"
+ *	sed "s@\(.\{47\}\) @\1\n@g"
  *
  * [1] git://git.kernel.org/pub/scm/linux/kernel/git/dwmw2/linux-firmware.git
  */

@@ -2307,8 +2307,8 @@ do {									\
 	"	.set " MIPS_ISA_LEVEL "				\n"	\
 	"	.set dsp					\n"	\
 	"	mflo %0, $ac0					\n"	\
-	"	.set pop					\n" 	\
-	: "=r" (mflo0)); 						\
+	"	.set pop					\n"	\
+	: "=r" (mflo0));						\
 	mflo0;								\
 })
 
@@ -2320,8 +2320,8 @@ do {									\
 	"	.set " MIPS_ISA_LEVEL "				\n"	\
 	"	.set dsp					\n"	\
 	"	mflo %0, $ac1					\n"	\
-	"	.set pop					\n" 	\
-	: "=r" (mflo1)); 						\
+	"	.set pop					\n"	\
+	: "=r" (mflo1));						\
 	mflo1;								\
 })
 
@@ -2333,8 +2333,8 @@ do {									\
 	"	.set " MIPS_ISA_LEVEL "				\n"	\
 	"	.set dsp					\n"	\
 	"	mflo %0, $ac2					\n"	\
-	"	.set pop					\n" 	\
-	: "=r" (mflo2)); 						\
+	"	.set pop					\n"	\
+	: "=r" (mflo2));						\
 	mflo2;								\
 })
 
@@ -2346,8 +2346,8 @@ do {									\
 	"	.set " MIPS_ISA_LEVEL "				\n"	\
 	"	.set dsp					\n"	\
 	"	mflo %0, $ac3					\n"	\
-	"	.set pop					\n" 	\
-	: "=r" (mflo3)); 						\
+	"	.set pop					\n"	\
+	: "=r" (mflo3));						\
 	mflo3;								\
 })
 
@@ -2359,8 +2359,8 @@ do {									\
 	"	.set " MIPS_ISA_LEVEL "				\n"	\
 	"	.set dsp					\n"	\
 	"	mfhi %0, $ac0					\n"	\
-	"	.set pop					\n" 	\
-	: "=r" (mfhi0)); 						\
+	"	.set pop					\n"	\
+	: "=r" (mfhi0));						\
 	mfhi0;								\
 })
 
@@ -2372,8 +2372,8 @@ do {									\
 	"	.set " MIPS_ISA_LEVEL "				\n"	\
 	"	.set dsp					\n"	\
 	"	mfhi %0, $ac1					\n"	\
-	"	.set pop					\n" 	\
-	: "=r" (mfhi1)); 						\
+	"	.set pop					\n"	\
+	: "=r" (mfhi1));						\
 	mfhi1;								\
 })
 
@@ -2385,8 +2385,8 @@ do {									\
 	"	.set " MIPS_ISA_LEVEL "				\n"	\
 	"	.set dsp					\n"	\
 	"	mfhi %0, $ac2					\n"	\
-	"	.set pop					\n" 	\
-	: "=r" (mfhi2)); 						\
+	"	.set pop					\n"	\
+	: "=r" (mfhi2));						\
 	mfhi2;								\
 })
 
@@ -2398,8 +2398,8 @@ do {									\
 	"	.set " MIPS_ISA_LEVEL "				\n"	\
 	"	.set dsp					\n"	\
 	"	mfhi %0, $ac3					\n"	\
-	"	.set pop					\n" 	\
-	: "=r" (mfhi3)); 						\
+	"	.set pop					\n"	\
+	: "=r" (mfhi3));						\
 	mfhi3;								\
 })
 

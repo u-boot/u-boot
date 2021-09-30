@@ -69,4 +69,3 @@ int gsc_info(int verbose);
 int gsc_boot_wd_disable(void);
 const char *gsc_get_dtb_name(int level, char *buf, int sz);
 #endif
-

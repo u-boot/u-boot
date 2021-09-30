@@ -4,4 +4,3 @@
 
 extra-y	= start.o
 obj-y	= interrupts.o cpu.o speed.o cpu_init.o
-

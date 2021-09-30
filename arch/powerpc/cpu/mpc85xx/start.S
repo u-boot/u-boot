@@ -76,7 +76,7 @@
 _start_e500:
 /* Enable debug exception */
 	li	r1,MSR_DE
-	mtmsr 	r1
+	mtmsr	r1
 
 	/*
 	 * If we got an ePAPR device tree pointer passed in as r3, we need that
@@ -1159,9 +1159,9 @@ _start_cont:
 
 	li	r0,0
 
-1: 	subi 	r4,r4,4
-	stw 	r0,0(r4)
-	cmplw 	r4,r3
+1:	subi	r4,r4,4
+	stw	r0,0(r4)
+	cmplw	r4,r3
 	bne	1b
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)

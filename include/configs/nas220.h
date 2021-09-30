@@ -81,4 +81,3 @@
 #define CONFIG_KIRKWOOD_GPIO
 
 #endif /* _CONFIG_NAS220_H */
-

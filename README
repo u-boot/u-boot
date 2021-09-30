@@ -300,7 +300,6 @@ board_init_r():
 	- loads U-Boot or (in falcon mode) Linux
 
 
-
 Configuration Options:
 ----------------------
 

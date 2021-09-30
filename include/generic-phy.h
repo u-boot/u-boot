@@ -201,7 +201,7 @@ int generic_phy_power_off(struct phy *phy);
  * generic_phy_configure() - configure a PHY device
  *
  * @phy:	PHY port to be configured
- * @params: 	PHY Parameters, underlying data is specific to the PHY function
+ * @params:	PHY Parameters, underlying data is specific to the PHY function
  * @return 0 if OK, or a negative error code
  */
 int generic_phy_configure(struct phy *phy, void *params);

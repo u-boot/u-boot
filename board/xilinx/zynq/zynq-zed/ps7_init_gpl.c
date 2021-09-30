@@ -12297,8 +12297,6 @@ unsigned long ps7_post_config_1_0[] = {
     //
 };
 
-
-
 #include "xil_io.h"
 
 unsigned long *ps7_mio_init_data = ps7_mio_init_data_3_0;
@@ -12375,15 +12373,9 @@ ps7_init()
   ret = ps7_config (ps7_ddr_init_data);
   if (ret != PS7_INIT_SUCCESS) return ret;
 
-
-
   // Peripherals init
   ret = ps7_config (ps7_peripherals_init_data);
   if (ret != PS7_INIT_SUCCESS) return ret;
   //xil_printf ("\n PCW Silicon Version : %d.0", pcw_ver);
   return PS7_INIT_SUCCESS;
 }
-
-
-
-

@@ -51,4 +51,3 @@
 #define UTMI_PHY_INVALID		0xff
 
 #endif /* _COMPHY_DATA_H_ */
-

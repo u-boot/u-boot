@@ -69,4 +69,3 @@ U_BOOT_CMD(
 	"  - id  Session ID, passed to W7 (defaults to zero)\n"
 );
 #endif
-

@@ -7,5 +7,5 @@ Required properties:
 Example:
 
 	tpm {
- 		compatible = "sandbox,tpm2";
+		compatible = "sandbox,tpm2";
 	};

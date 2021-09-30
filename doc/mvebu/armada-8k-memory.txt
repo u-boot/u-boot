@@ -53,4 +53,3 @@ Start		End			Use
 0xFFF00000	0xFFFFFFFF		Bootrom
 
 0x100000000	<DRAM Size>-1		DRAM
-

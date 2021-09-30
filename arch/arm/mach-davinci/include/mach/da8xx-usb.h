@@ -29,22 +29,22 @@
 struct da8xx_usb_regs {
 	dv_reg	revision;
 	dv_reg	control;
-	dv_reg 	status;
-	dv_reg 	emulation;
-	dv_reg 	mode;
-	dv_reg 	autoreq;
-	dv_reg 	srpfixtime;
-	dv_reg 	teardown;
-	dv_reg 	intsrc;
-	dv_reg 	intsrc_set;
-	dv_reg 	intsrc_clr;
-	dv_reg 	intmsk;
-	dv_reg 	intmsk_set;
-	dv_reg 	intmsk_clr;
-	dv_reg 	intsrcmsk;
-	dv_reg 	eoi;
-	dv_reg 	intvector;
-	dv_reg 	grndis_size[4];
+	dv_reg	status;
+	dv_reg	emulation;
+	dv_reg	mode;
+	dv_reg	autoreq;
+	dv_reg	srpfixtime;
+	dv_reg	teardown;
+	dv_reg	intsrc;
+	dv_reg	intsrc_set;
+	dv_reg	intsrc_clr;
+	dv_reg	intmsk;
+	dv_reg	intmsk_set;
+	dv_reg	intmsk_clr;
+	dv_reg	intsrcmsk;
+	dv_reg	eoi;
+	dv_reg	intvector;
+	dv_reg	grndis_size[4];
 };
 
 #define da8xx_usb_regs ((struct da8xx_usb_regs *)DA8XX_USB_OTG_BASE)
@@ -68,13 +68,13 @@ struct da8xx_usb_regs {
 #define CFGCHIP2_OTGMODE	(3 << 13)
 #define CFGCHIP2_NO_OVERRIDE	(0 << 13)
 #define CFGCHIP2_FORCE_HOST	(1 << 13)
-#define CFGCHIP2_FORCE_DEVICE 	(2 << 13)
+#define CFGCHIP2_FORCE_DEVICE	(2 << 13)
 #define CFGCHIP2_FORCE_HOST_VBUS_LOW (3 << 13)
 #define CFGCHIP2_USB1PHYCLKMUX	(1 << 12)
 #define CFGCHIP2_USB2PHYCLKMUX	(1 << 11)
 #define CFGCHIP2_PHYPWRDN	(1 << 10)
 #define CFGCHIP2_OTGPWRDN	(1 << 9)
-#define CFGCHIP2_DATPOL 	(1 << 8)
+#define CFGCHIP2_DATPOL		(1 << 8)
 #define CFGCHIP2_USB1SUSPENDM	(1 << 7)
 #define CFGCHIP2_PHY_PLLON	(1 << 6)	/* override PLL suspend */
 #define CFGCHIP2_SESENDEN	(1 << 5)	/* Vsess_end comparator */

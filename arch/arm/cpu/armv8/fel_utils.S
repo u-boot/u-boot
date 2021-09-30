@@ -64,18 +64,18 @@ ENTRY(return_to_fel)
 
 /* AArch32 code to restore the state from fel_stash and return back to FEL. */
 back_in_32:
-	.word	0xe59f0028 	// ldr	r0, [pc, #40]	; load fel_stash address
-	.word	0xe5901008 	// ldr	r1, [r0, #8]
-	.word	0xe129f001 	// msr	CPSR_fc, r1
+	.word	0xe59f0028	// ldr	r0, [pc, #40]	; load fel_stash address
+	.word	0xe5901008	// ldr	r1, [r0, #8]
+	.word	0xe129f001	// msr	CPSR_fc, r1
 	.word	0xf57ff06f	// isb
-	.word	0xe590d000 	// ldr	sp, [r0]
-	.word	0xe590e004 	// ldr	lr, [r0, #4]
-	.word	0xe5901010 	// ldr	r1, [r0, #16]
-	.word	0xee0c1f10 	// mcr	15, 0, r1, cr12, cr0, {0} ; VBAR
-	.word	0xe590100c 	// ldr	r1, [r0, #12]
-	.word	0xee011f10 	// mcr	15, 0, r1, cr1, cr0, {0}  ; SCTLR
+	.word	0xe590d000	// ldr	sp, [r0]
+	.word	0xe590e004	// ldr	lr, [r0, #4]
+	.word	0xe5901010	// ldr	r1, [r0, #16]
+	.word	0xee0c1f10	// mcr	15, 0, r1, cr12, cr0, {0} ; VBAR
+	.word	0xe590100c	// ldr	r1, [r0, #12]
+	.word	0xee011f10	// mcr	15, 0, r1, cr1, cr0, {0}  ; SCTLR
 	.word	0xf57ff06f	// isb
-	.word	0xe12fff1e 	// bx	lr		; return to FEL
+	.word	0xe12fff1e	// bx	lr		; return to FEL
 fel_stash_addr:
 	.word   0x00000000	// receives fel_stash addr, by AA64 code above
 ENDPROC(return_to_fel)

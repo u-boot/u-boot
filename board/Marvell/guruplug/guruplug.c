@@ -77,7 +77,7 @@ int board_early_init_f(void)
 		MPP43_GPIO,
 		MPP44_GPIO,
 		MPP45_GPIO,
-		MPP46_GPIO, 	/* M_RLED */
+		MPP46_GPIO,	/* M_RLED */
 		MPP47_GPIO,	/* M_GLED */
 		MPP48_GPIO,	/* B_RLED */
 		MPP49_GPIO,	/* B_GLED */

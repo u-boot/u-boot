@@ -45,7 +45,7 @@ struct armd1tmr_registers {
 #define TIMER			0	/* Use TIMER 0 */
 /* Each timer has 3 match registers */
 #define MATCH_CMP(x)		((3 * TIMER) + x)
-#define TIMER_LOAD_VAL 		0xffffffff
+#define TIMER_LOAD_VAL		0xffffffff
 #define	COUNT_RD_REQ		0x1
 
 DECLARE_GLOBAL_DATA_PTR;

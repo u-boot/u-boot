@@ -2,8 +2,8 @@
  * I2C Driver for Atmel ATSHA204 over I2C
  *
  * Copyright (C) 2014 Josh Datko, Cryptotronix, jbd@cryptotronix.com
- * 		 2016 Tomas Hlavacek, CZ.NIC, tmshlvck@gmail.com
- * 		 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
+ *		 2016 Tomas Hlavacek, CZ.NIC, tmshlvck@gmail.com
+ *		 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under the terms of the GNU General Public License version 2 as
@@ -40,11 +40,11 @@ DECLARE_GLOBAL_DATA_PTR;
  *
  * int i, j;
  * for (i = 0; i < 256; ++i) {
- * 	u8 c = 0;
- * 	for (j = 0; j < 8; ++j) {
- * 		c = (c << 1) | ((i >> j) & 1);
- * 	}
- * 	bitreverse_table[i] = c;
+ *	u8 c = 0;
+ *	for (j = 0; j < 8; ++j) {
+ *		c = (c << 1) | ((i >> j) & 1);
+ *	}
+ *	bitreverse_table[i] = c;
  * }
  */
 
@@ -88,14 +88,14 @@ static u8 const bitreverse_table[256] = {
  *
  * int i, j;
  * for (i = 0; i < 256; ++i) {
- * 	u16 c = i << 8;
- * 	for (j = 0; j < 8; ++j) {
- * 		int b = c >> 15;
- * 		c <<= 1;
- * 		if (b)
- * 			c ^= 0x8005;
- * 	}
- * 	crc16_table[i] = c;
+ *	u16 c = i << 8;
+ *	for (j = 0; j < 8; ++j) {
+ *		int b = c >> 15;
+ *		c <<= 1;
+ *		if (b)
+ *			c ^= 0x8005;
+ *	}
+ *	crc16_table[i] = c;
  * }
  */
 static u16 const crc16_table[256] = {
@@ -339,7 +339,7 @@ int atsha204a_read(struct udevice *dev, enum atsha204a_zone zone, bool read32,
 		retry--;
 		atsha204a_wakeup(dev);
 	} while (retry >= 0);
-	
+
 	if (res) {
 		debug("ATSHA204A read failed\n");
 		return res;

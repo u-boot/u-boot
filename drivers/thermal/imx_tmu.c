@@ -22,8 +22,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define SITES_MAX	16
-#define FLAGS_VER2 	0x1
-#define FLAGS_VER3 	0x2
+#define FLAGS_VER2	0x1
+#define FLAGS_VER3	0x2
 
 #define TMR_DISABLE	0x0
 #define TMR_ME		0x80000000

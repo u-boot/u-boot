@@ -203,7 +203,7 @@
 		"${defargs} " \
 		"${optargs} " \
 		"root=${ramroot} ramdisk_size=${ramdisk_size} " \
-	 	"rootfstype=${ramrootfstype}\0" \
+		"rootfstype=${ramrootfstype}\0" \
 	"ramboot=run mmcbootenv; " \
 		"if run loadimage && run loaddtb && run loadramdisk; then " \
 			"echo Booting ${bootdir}/${bootfile} from mmc ${bootpart} w/ramdisk ...; " \

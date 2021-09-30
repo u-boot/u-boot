@@ -772,8 +772,6 @@ void bus_i2c_init(int index, int speed, int unused,
 	bus_i2c_set_bus_speed(&mxc_i2c_buses[index], speed);
 }
 
-
-
 /*
  * Init I2C Bus
  */

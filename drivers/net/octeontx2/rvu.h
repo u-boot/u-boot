@@ -116,4 +116,3 @@ void rvu_aq_free(struct admin_queue *aq);
 void rvu_get_lfid_for_pf(int pf, int *nixid, int *npaid);
 
 #endif /* __RVU_H__ */
-

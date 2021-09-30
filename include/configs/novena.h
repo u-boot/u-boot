@@ -104,7 +104,7 @@
 	"kernel_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"		\
 	"pxefile_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"		\
 	"scriptaddr="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"			\
-	"ramdisk_addr_r=0x28000000\0"		   			\
+	"ramdisk_addr_r=0x28000000\0"					\
 	"fdt_addr_r=0x18000000\0"					\
 	"fdtfile=imx6q-novena.dtb\0"					\
 	"stdout=serial,vidconsole\0"					\

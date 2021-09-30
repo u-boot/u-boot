@@ -37,10 +37,10 @@
 _vectors:
 #if defined(CONFIG_CF_SBF)
 INITSP:	.long	0			/* Initial SP	*/
-INITPC:	.long	ASM_DRAMINIT		/* Initial PC 	*/
+INITPC:	.long	ASM_DRAMINIT		/* Initial PC	*/
 #else
 INITSP:	.long	0			/* Initial SP	*/
-INITPC:	.long	_START			/* Initial PC 	*/
+INITPC:	.long	_START			/* Initial PC	*/
 #endif
 
 vector02_0F:

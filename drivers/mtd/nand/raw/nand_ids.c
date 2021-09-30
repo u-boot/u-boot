@@ -30,7 +30,7 @@ struct nand_flash_dev nand_flash_ids[] = {
 	LEGACY_ID_NAND("NAND 1MiB 3,3V 8-bit",	0xe8, 1, SZ_4K, SP_OPTIONS),
 	LEGACY_ID_NAND("NAND 1MiB 3,3V 8-bit",	0xec, 1, SZ_4K, SP_OPTIONS),
 	LEGACY_ID_NAND("NAND 2MiB 3,3V 8-bit",	0xea, 2, SZ_4K, SP_OPTIONS),
-	LEGACY_ID_NAND("NAND 4MiB 3,3V 8-bit", 	0xd5, 4, SZ_8K, SP_OPTIONS),
+	LEGACY_ID_NAND("NAND 4MiB 3,3V 8-bit",	0xd5, 4, SZ_8K, SP_OPTIONS),
 
 	LEGACY_ID_NAND("NAND 8MiB 3,3V 8-bit",	0xe6, 8, SZ_8K, SP_OPTIONS),
 #endif

@@ -196,4 +196,3 @@ int bcm2711_notify_vl805_reset(void)
 
 	return 0;
 }
-

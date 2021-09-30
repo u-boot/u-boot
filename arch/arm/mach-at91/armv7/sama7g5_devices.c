@@ -8,4 +8,3 @@ char *get_cpu_name(void)
 {
 	return "SAMA7G5";
 }
-

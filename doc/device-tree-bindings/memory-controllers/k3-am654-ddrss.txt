@@ -14,7 +14,7 @@ DDRSS device node:
 Required properties:
 --------------------
 - compatible:		Shall be: "ti,am654-ddrss"
-- reg-names 		ss - Map the sub system wrapper logic region
+- reg-names		ss - Map the sub system wrapper logic region
 			ctl - Map the controller region
 			phy - Map the PHY region
 - reg:			Contains the register map per reg-names.

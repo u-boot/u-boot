@@ -401,7 +401,7 @@ static const struct pwm_ops meson_pwm_ops = {
 	.set_invert	= meson_pwm_set_invert,
 };
 
-#define XTAL 			-1
+#define XTAL			-1
 
 /* Local clock ids aliases to avoid define conflicts */
 #define GXBB_CLKID_HDMI_PLL		2

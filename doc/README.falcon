@@ -69,7 +69,7 @@ CONFIG_CMD_SPL_NAND_OFS	Offset in NAND where the parameters area was saved.
 
 CONFIG_CMD_SPL_NOR_OFS	Offset in NOR where the parameters area was saved.
 
-CONFIG_CMD_SPL_WRITE_SIZE 	Size of the parameters area to be copied
+CONFIG_CMD_SPL_WRITE_SIZE	Size of the parameters area to be copied
 
 CONFIG_SPL_OS_BOOT	Activate Falcon Mode.
 
@@ -89,7 +89,7 @@ Environment variables
 A board may chose to look at the environment for decisions about falcon
 mode.  In this case the following variables may be supported:
 
-boot_os : 		Set to yes/Yes/true/True/1 to enable booting to OS,
+boot_os :		Set to yes/Yes/true/True/1 to enable booting to OS,
 			any other value to fall back to U-Boot (including
 			unset)
 falcon_args_file :	Filename to load as the 'args' portion of falcon mode

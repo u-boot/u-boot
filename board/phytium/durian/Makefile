@@ -6,4 +6,3 @@
 #
 
 obj-y += durian.o
-

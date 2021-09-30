@@ -98,7 +98,7 @@ CONFIG_SYS_IMMR			-- define for MBAR offset
 
 CONFIG_SYS_MBAR			-- define MBAR offset
 
-CONFIG_MONITOR_IS_IN_RAM 	-- Not support
+CONFIG_MONITOR_IS_IN_RAM	-- Not support
 
 CONFIG_SYS_INIT_RAM_ADDR	-- defines the base address of the MCF5301x internal SRAM
 

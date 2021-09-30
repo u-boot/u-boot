@@ -7,7 +7,7 @@ Required properties:
 - reg : Physical base address and size of SPI registers map.
 - clock	: Clock phandle (see clock bindings for details).
 - #address-cells : Number of cells required to define a chip select
-                	address on the SPI bus. Should be set to 1.
+			address on the SPI bus. Should be set to 1.
 - #size-cells : Should be zero.
 - pinctrl-names : Must be "default"
 - pinctrl-n : At least one pinctrl phandle

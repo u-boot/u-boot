@@ -250,7 +250,7 @@ ENTRY(lowlevel_init)
 	 * b. We use only Region0 whose NSAID write/read is EN
 	 *
 	 * NOTE: As per the CCSR map doc, TZASC 3 and TZASC 4 are just
-	 * 	 placeholders.
+	 *	 placeholders.
 	 */
 
 .macro tzasc_prog, xreg
@@ -259,7 +259,7 @@ ENTRY(lowlevel_init)
 	mov     x16, #0x10000
 	mul     x14, \xreg, x16
 	add     x14, x14,x12
-	mov 	x1, #0x8
+	mov	x1, #0x8
 	add     x1, x1, x14
 
 	ldr     w0, [x1]		/* Filter 0 Gate Keeper Register */

@@ -88,8 +88,6 @@ found:
 		pbsp->clk_adjust, pbsp->wrlvl_start, pbsp->wrlvl_ctl_2,
 		pbsp->wrlvl_ctl_3);
 
-
-
 	popts->half_strength_driver_enable = 0;
 	/*
 	 * Write leveling override

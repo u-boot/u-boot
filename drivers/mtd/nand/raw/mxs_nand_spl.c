@@ -295,4 +295,3 @@ int nand_default_bbt(struct mtd_info *mtd)
 void nand_deselect(void)
 {
 }
-

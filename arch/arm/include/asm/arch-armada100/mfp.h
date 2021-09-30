@@ -17,7 +17,7 @@
 /*
  * Frequently used MFP Configuration macros for all ARMADA100 family of SoCs
  *
- * 				    offset, pull,pF, drv,dF, edge,eF ,afn,aF
+ *				    offset, pull,pF, drv,dF, edge,eF ,afn,aF
  */
 /* UART1 */
 #define MFP107_UART1_TXD	(MFP_REG(0x01ac) | MFP_AF1 | MFP_DRIVE_FAST)

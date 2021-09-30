@@ -105,7 +105,7 @@
 #ifdef CONFIG_MX6UL
 # define DRAM_OFFSET(x)			0x87##x
 # define FDT_ADDR			__stringify(DRAM_OFFSET(800000))
-#else 
+#else
 # define DRAM_OFFSET(x)			0x1##x
 # define FDT_ADDR			__stringify(DRAM_OFFSET(8000000))
 #endif

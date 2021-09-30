@@ -41,7 +41,7 @@
     umul_ppmm (__w.s.high, __w.s.low, u, v);				\
     __w.ll; })
 
-typedef 	 int SItype	__attribute__ ((mode (SI)));
+typedef		 int SItype	__attribute__ ((mode (SI)));
 typedef unsigned int USItype	__attribute__ ((mode (SI)));
 typedef		 int DItype	__attribute__ ((mode (DI)));
 typedef int word_type __attribute__ ((mode (__word__)));

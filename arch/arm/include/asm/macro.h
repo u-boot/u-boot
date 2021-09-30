@@ -154,7 +154,7 @@ lr	.req	x30
 	orr	\xreg1, \xreg1, \xreg2
 	cbz	\xreg1, \master_label
 #else
-	b 	\master_label
+	b	\master_label
 #endif
 .endm
 
