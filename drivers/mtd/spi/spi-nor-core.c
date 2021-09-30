@@ -3224,6 +3224,21 @@ static struct spi_nor_fixups s25hx_t_fixups = {
 	.post_bfpt = s25hx_t_post_bfpt_fixup,
 	.post_sfdp = s25hx_t_post_sfdp_fixup,
 };
+
+static int s25fl256l_setup(struct spi_nor *nor, const struct flash_info *info,
+			   const struct spi_nor_flash_parameter *params)
+{
+	return -ENOTSUPP; /* Bank Address Register is not supported */
+}
+
+static void s25fl256l_default_init(struct spi_nor *nor)
+{
+	nor->setup = s25fl256l_setup;
+}
+
+static struct spi_nor_fixups s25fl256l_fixups = {
+	.default_init = s25fl256l_default_init,
+};
 #endif
 
 #ifdef CONFIG_SPI_FLASH_S28HS512T
@@ -3646,6 +3661,10 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 			break;
 		}
 	}
+
+	if (CONFIG_IS_ENABLED(SPI_FLASH_BAR) &&
+	    !strcmp(nor->info->name, "s25fl256l"))
+		nor->fixups = &s25fl256l_fixups;
 #endif
 
 #ifdef CONFIG_SPI_FLASH_S28HS512T
