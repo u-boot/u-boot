@@ -170,6 +170,12 @@ int bcm2711_notify_vl805_reset(void)
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_notify_vl805_reset,
 				 msg_notify_vl805_reset, 1);
 	int ret;
+	static int done = false;
+
+	if (done)
+		return 0;
+
+	done = true;
 
 	BCM2835_MBOX_INIT_HDR(msg_notify_vl805_reset);
 	BCM2835_MBOX_INIT_TAG(&msg_notify_vl805_reset->dev_addr,

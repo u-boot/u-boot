@@ -57,7 +57,7 @@ config SF_DEFAULT_CS
 config SF_DEFAULT_MODE
 	hex "SPI Flash default mode (see include/spi.h)"
 	depends on SPI_FLASH || DM_SPI_FLASH
-	default 3
+	default 0
 	help
 	  The default mode may be provided by the platform
 	  to handle the common case when only a single serial

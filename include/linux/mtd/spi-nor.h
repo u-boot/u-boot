@@ -7,6 +7,7 @@
 #ifndef __LINUX_MTD_SPI_NOR_H
 #define __LINUX_MTD_SPI_NOR_H
 
+#include <mtd.h>
 #include <linux/bitops.h>
 #include <linux/mtd/cfi.h>
 #include <linux/mtd/mtd.h>
@@ -561,6 +562,7 @@ struct spi_nor {
 	int (*ready)(struct spi_nor *nor);
 
 	void *priv;
+	char mtd_name[MTD_NAME_SIZE(MTD_DEV_TYPE_NOR)];
 /* Compatibility for spi_flash, remove once sf layer is merged with mtd */
 	const char *name;
 	u32 size;

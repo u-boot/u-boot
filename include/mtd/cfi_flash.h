@@ -157,10 +157,16 @@ struct cfi_pri_hdr {
  * Use CONFIG_SYS_MAX_FLASH_BANKS_DETECT if defined
  */
 #if defined(CONFIG_SYS_MAX_FLASH_BANKS_DETECT)
-#define CONFIG_SYS_MAX_FLASH_BANKS	(cfi_flash_num_flash_banks)
 #define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS_DETECT
+/* map to cfi_flash_num_flash_banks only when supported */
+#if IS_ENABLED(CONFIG_FLASH_CFI_DRIVER) && \
+    (!IS_ENABLED(CONFIG_SPL_BUILD) || IS_ENABLED(CONFIG_SPL_MTD_SUPPORT))
+#define CONFIG_SYS_MAX_FLASH_BANKS	(cfi_flash_num_flash_banks)
 /* board code can update this variable before CFI detection */
 extern int cfi_flash_num_flash_banks;
+#else
+#define CONFIG_SYS_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS_DETECT
+#endif
 #else
 #define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS
 #endif
