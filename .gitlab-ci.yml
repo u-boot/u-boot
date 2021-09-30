@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://source.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:focal-20210723-04Aug2021
+image: trini/u-boot-gitlab-ci-runner:focal-20210723-30Sep2021
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
