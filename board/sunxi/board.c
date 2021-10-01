@@ -39,6 +39,7 @@
 #include <u-boot/crc.h>
 #include <env_internal.h>
 #include <linux/libfdt.h>
+#include <fdt_support.h>
 #include <nand.h>
 #include <net.h>
 #include <spl.h>
@@ -913,6 +914,38 @@ int board_late_init(void)
 	return 0;
 }
 
+static void bluetooth_dt_fixup(void *blob)
+{
+	/* Some devices ship with a Bluetooth controller default address.
+	 * Set a valid address through the device tree.
+	 */
+	uchar tmp[ETH_ALEN], bdaddr[ETH_ALEN];
+	unsigned int sid[4];
+	int i;
+
+	if (!CONFIG_BLUETOOTH_DT_DEVICE_FIXUP[0])
+		return;
+
+	if (eth_env_get_enetaddr("bdaddr", tmp)) {
+		/* Convert between the binary formats of the corresponding stacks */
+		for (i = 0; i < ETH_ALEN; ++i)
+			bdaddr[i] = tmp[ETH_ALEN - i - 1];
+	} else {
+		if (!get_unique_sid(sid))
+			return;
+
+		bdaddr[0] = ((sid[3] >>  0) & 0xff) ^ 1;
+		bdaddr[1] = (sid[3] >>  8) & 0xff;
+		bdaddr[2] = (sid[3] >> 16) & 0xff;
+		bdaddr[3] = (sid[3] >> 24) & 0xff;
+		bdaddr[4] = (sid[0] >>  0) & 0xff;
+		bdaddr[5] = 0x02;
+	}
+
+	do_fixup_by_compat(blob, CONFIG_BLUETOOTH_DT_DEVICE_FIXUP,
+			   "local-bd-address", bdaddr, ETH_ALEN, 1);
+}
+
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int __maybe_unused r;
@@ -922,6 +955,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	 * ethernet aliases the u-boot copy does not have.
 	 */
 	setup_environment(blob);
+
+	bluetooth_dt_fixup(blob);
 
 #ifdef CONFIG_VIDEO_DT_SIMPLEFB
 	r = sunxi_simplefb_setup(blob);
