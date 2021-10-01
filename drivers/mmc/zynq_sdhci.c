@@ -69,6 +69,12 @@ __weak int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value)
 	return 0;
 }
 
+__weak int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
+			     u32 arg3, u32 *ret_payload)
+{
+	return 0;
+}
+
 #if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL)
 /* Default settings for ZynqMP Clock Phases */
 static const u32 zynqmp_iclk_phases[] = {0, 63, 63, 0, 63,  0,
