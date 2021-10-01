@@ -385,6 +385,11 @@ M:	Icenowy Zheng <icenowy@aosc.io>
 S:	Maintained
 F:	configs/teres_i_defconfig
 
+ORANGEPI 3 BOARD
+M:	Andre Heider <a.heider@gmail.com>
+S:	Maintained
+F:	configs/orangepi_3_defconfig
+
 ORANGEPI LITE2 BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
