@@ -8,22 +8,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_MPC8349EMDS
-	bool "Support MPC8349EMDS"
-	select ARCH_MPC8349
-	select BOARD_EARLY_INIT_F
-	select SYS_FSL_DDR
-	select SYS_FSL_DDR_BE
-	select SYS_FSL_HAS_DDR2
-
-config TARGET_MPC8349EMDS_SDRAM
-	bool "Support MPC8349EMDS_SDRAM"
-	select ARCH_MPC8349
-	select BOARD_EARLY_INIT_F
-	select SYS_FSL_DDR
-	select SYS_FSL_DDR_BE
-	select SYS_FSL_HAS_DDR2
-
 config TARGET_MPC837XERDB
 	bool "Support MPC837XERDB"
 	select ARCH_MPC837X
@@ -173,15 +157,6 @@ config ARCH_MPC834X
 	bool
 	select SYS_CACHE_SHIFT_5
 
-config ARCH_MPC8349
-	bool
-	select ARCH_MPC834X
-	select MPC83XX_PCI_SUPPORT
-	select MPC83XX_TSEC1_SUPPORT
-	select MPC83XX_TSEC2_SUPPORT
-	select MPC83XX_LDP_PIN
-	select MPC83XX_SECOND_I2C
-
 config ARCH_MPC8360
 	bool
 	select MPC83XX_QUICC_ENGINE
@@ -220,36 +195,9 @@ source "arch/powerpc/cpu/mpc83xx/sysio/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/arbiter/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/initreg/Kconfig"
 
-menu "Legacy options"
-
-if ARCH_MPC8349
-
-#TODO(mario.six@gdsys.cc): Remove when mpc83xx PCI has been converted to DM/DT
-choice
-	prompt "PMC slot configuration"
-
-config PCI_ALL_PCI1
-	bool "All PMC slots on PCI1"
-
-config PCI_ONE_PCI1
-	bool "First PMC1 on PCI1"
-
-config PCI_TWO_PCI1
-	bool "First two PMC1 on PCI1"
-
-endchoice
-
-config PCI_64BIT
-	bool "PMC2 is 64bit"
-
-endif
-
-endmenu
-
 config FSL_ELBC
 	bool
 
-source "board/freescale/mpc8349emds/Kconfig"
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
 source "board/keymile/Kconfig"

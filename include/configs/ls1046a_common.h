@@ -54,8 +54,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 /* SD boot SPL */
 #ifdef CONFIG_SD_BOOT
 #define CONFIG_SPL_MAX_SIZE		0x1f000		/* 124 KiB */

@@ -15,7 +15,7 @@
 #include <linux/kbuild.h>
 #include <linux/arm-smccc.h>
 
-#if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX35) \
+#if defined(CONFIG_MX27) \
 	|| defined(CONFIG_MX51) || defined(CONFIG_MX53)
 #include <asm/arch/imx-regs.h>
 #endif
@@ -34,42 +34,6 @@ int main(void)
 	 * It means their offset addresses are referenced only from assembly
 	 * code. Is it better to define the macros directly in headers?
 	 */
-
-#if defined(CONFIG_MX25)
-	/* Clock Control Module */
-	DEFINE(CCM_CCTL, offsetof(struct ccm_regs, cctl));
-	DEFINE(CCM_CGCR0, offsetof(struct ccm_regs, cgr0));
-	DEFINE(CCM_CGCR1, offsetof(struct ccm_regs, cgr1));
-	DEFINE(CCM_CGCR2, offsetof(struct ccm_regs, cgr2));
-	DEFINE(CCM_PCDR2, offsetof(struct ccm_regs, pcdr[2]));
-	DEFINE(CCM_MCR, offsetof(struct ccm_regs, mcr));
-
-	/* Enhanced SDRAM Controller */
-	DEFINE(ESDRAMC_ESDCTL0, offsetof(struct esdramc_regs, ctl0));
-	DEFINE(ESDRAMC_ESDCFG0, offsetof(struct esdramc_regs, cfg0));
-	DEFINE(ESDRAMC_ESDMISC, offsetof(struct esdramc_regs, misc));
-
-	/* Multi-Layer AHB Crossbar Switch */
-	DEFINE(MAX_MPR0, offsetof(struct max_regs, mpr0));
-	DEFINE(MAX_SGPCR0, offsetof(struct max_regs, sgpcr0));
-	DEFINE(MAX_MPR1, offsetof(struct max_regs, mpr1));
-	DEFINE(MAX_SGPCR1, offsetof(struct max_regs, sgpcr1));
-	DEFINE(MAX_MPR2, offsetof(struct max_regs, mpr2));
-	DEFINE(MAX_SGPCR2, offsetof(struct max_regs, sgpcr2));
-	DEFINE(MAX_MPR3, offsetof(struct max_regs, mpr3));
-	DEFINE(MAX_SGPCR3, offsetof(struct max_regs, sgpcr3));
-	DEFINE(MAX_MPR4, offsetof(struct max_regs, mpr4));
-	DEFINE(MAX_SGPCR4, offsetof(struct max_regs, sgpcr4));
-	DEFINE(MAX_MGPCR0, offsetof(struct max_regs, mgpcr0));
-	DEFINE(MAX_MGPCR1, offsetof(struct max_regs, mgpcr1));
-	DEFINE(MAX_MGPCR2, offsetof(struct max_regs, mgpcr2));
-	DEFINE(MAX_MGPCR3, offsetof(struct max_regs, mgpcr3));
-	DEFINE(MAX_MGPCR4, offsetof(struct max_regs, mgpcr4));
-
-	/* AHB <-> IP-Bus Interface */
-	DEFINE(AIPS_MPR_0_7, offsetof(struct aips_regs, mpr_0_7));
-	DEFINE(AIPS_MPR_8_15, offsetof(struct aips_regs, mpr_8_15));
-#endif
 
 #if defined(CONFIG_MX27)
 	DEFINE(AIPI1_PSR0, IMX_AIPI1_BASE + offsetof(struct aipi_regs, psr0));
@@ -95,56 +59,6 @@ int main(void)
 		offsetof(struct system_control_regs, gpcr));
 	DEFINE(FMCR, IMX_SYSTEM_CTL_BASE +
 		offsetof(struct system_control_regs, fmcr));
-#endif
-
-#if defined(CONFIG_MX35)
-	/* Round up to make sure size gives nice stack alignment */
-	DEFINE(CLKCTL_CCMR, offsetof(struct ccm_regs, ccmr));
-	DEFINE(CLKCTL_PDR0, offsetof(struct ccm_regs, pdr0));
-	DEFINE(CLKCTL_PDR1, offsetof(struct ccm_regs, pdr1));
-	DEFINE(CLKCTL_PDR2, offsetof(struct ccm_regs, pdr2));
-	DEFINE(CLKCTL_PDR3, offsetof(struct ccm_regs, pdr3));
-	DEFINE(CLKCTL_PDR4, offsetof(struct ccm_regs, pdr4));
-	DEFINE(CLKCTL_RCSR, offsetof(struct ccm_regs, rcsr));
-	DEFINE(CLKCTL_MPCTL, offsetof(struct ccm_regs, mpctl));
-	DEFINE(CLKCTL_PPCTL, offsetof(struct ccm_regs, ppctl));
-	DEFINE(CLKCTL_ACMR, offsetof(struct ccm_regs, acmr));
-	DEFINE(CLKCTL_COSR, offsetof(struct ccm_regs, cosr));
-	DEFINE(CLKCTL_CGR0, offsetof(struct ccm_regs, cgr0));
-	DEFINE(CLKCTL_CGR1, offsetof(struct ccm_regs, cgr1));
-	DEFINE(CLKCTL_CGR2, offsetof(struct ccm_regs, cgr2));
-	DEFINE(CLKCTL_CGR3, offsetof(struct ccm_regs, cgr3));
-
-	/* Multi-Layer AHB Crossbar Switch */
-	DEFINE(MAX_MPR0, offsetof(struct max_regs, mpr0));
-	DEFINE(MAX_SGPCR0, offsetof(struct max_regs, sgpcr0));
-	DEFINE(MAX_MPR1, offsetof(struct max_regs, mpr1));
-	DEFINE(MAX_SGPCR1, offsetof(struct max_regs, sgpcr1));
-	DEFINE(MAX_MPR2, offsetof(struct max_regs, mpr2));
-	DEFINE(MAX_SGPCR2, offsetof(struct max_regs, sgpcr2));
-	DEFINE(MAX_MPR3, offsetof(struct max_regs, mpr3));
-	DEFINE(MAX_SGPCR3, offsetof(struct max_regs, sgpcr3));
-	DEFINE(MAX_MPR4, offsetof(struct max_regs, mpr4));
-	DEFINE(MAX_SGPCR4, offsetof(struct max_regs, sgpcr4));
-	DEFINE(MAX_MGPCR0, offsetof(struct max_regs, mgpcr0));
-	DEFINE(MAX_MGPCR1, offsetof(struct max_regs, mgpcr1));
-	DEFINE(MAX_MGPCR2, offsetof(struct max_regs, mgpcr2));
-	DEFINE(MAX_MGPCR3, offsetof(struct max_regs, mgpcr3));
-	DEFINE(MAX_MGPCR4, offsetof(struct max_regs, mgpcr4));
-	DEFINE(MAX_MGPCR5, offsetof(struct max_regs, mgpcr5));
-
-	/* AHB <-> IP-Bus Interface */
-	DEFINE(AIPS_MPR_0_7, offsetof(struct aips_regs, mpr_0_7));
-	DEFINE(AIPS_MPR_8_15, offsetof(struct aips_regs, mpr_8_15));
-	DEFINE(AIPS_PACR_0_7, offsetof(struct aips_regs, pacr_0_7));
-	DEFINE(AIPS_PACR_8_15, offsetof(struct aips_regs, pacr_8_15));
-	DEFINE(AIPS_PACR_16_23, offsetof(struct aips_regs, pacr_16_23));
-	DEFINE(AIPS_PACR_24_31, offsetof(struct aips_regs, pacr_24_31));
-	DEFINE(AIPS_OPACR_0_7, offsetof(struct aips_regs, opacr_0_7));
-	DEFINE(AIPS_OPACR_8_15, offsetof(struct aips_regs, opacr_8_15));
-	DEFINE(AIPS_OPACR_16_23, offsetof(struct aips_regs, opacr_16_23));
-	DEFINE(AIPS_OPACR_24_31, offsetof(struct aips_regs, opacr_24_31));
-	DEFINE(AIPS_OPACR_32_39, offsetof(struct aips_regs, opacr_32_39));
 #endif
 
 #if defined(CONFIG_MX51) || defined(CONFIG_MX53)

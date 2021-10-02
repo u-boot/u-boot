@@ -551,11 +551,6 @@ config ARCH_AT91
 	select SPL_BOARD_INIT if SPL && !TARGET_SMARTWEB
 	select SPL_SEPARATE_BSS if SPL
 
-config TARGET_ASPENITE
-	bool "Support aspenite"
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-
 config ARCH_DAVINCI
 	bool "TI DaVinci"
 	select CPU_ARM926EJS
@@ -604,11 +599,6 @@ config TARGET_STV0991
 	select SPI
 	select SPI_FLASH
 	imply CMD_DM
-
-config TARGET_FLEA3
-	bool "Support flea3"
-	select CPU_ARM1136
-	select GPIO_EXTRA_HEADER
 
 config ARCH_BCM283X
 	bool "Broadcom BCM283X family"
@@ -863,13 +853,6 @@ config ARCH_MX23
 	select MACH_IMX
 	select PL011_SERIAL
 	select SUPPORT_SPL
-
-config ARCH_MX25
-	bool "NXP MX25"
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	select MACH_IMX
-	imply MXC_GPIO
 
 config ARCH_MX28
 	bool "NXP i.MX28 family"
@@ -2067,8 +2050,6 @@ source "arch/arm/mach-octeontx2/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
-source "arch/arm/mach-imx/mx2/Kconfig"
-
 source "arch/arm/mach-imx/mx3/Kconfig"
 
 source "arch/arm/mach-imx/mx5/Kconfig"
@@ -2149,8 +2130,6 @@ source "board/armltd/total_compute/Kconfig"
 
 source "board/bosch/shc/Kconfig"
 source "board/bosch/guardian/Kconfig"
-source "board/CarMediaLab/flea3/Kconfig"
-source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
 source "board/armltd/vexpress/Kconfig"
