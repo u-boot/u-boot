@@ -23,7 +23,7 @@
 
 &cbass_main{
 	u-boot,dm-spl;
-	main-navss {
+	main_navss: bus@30800000 {
 		u-boot,dm-spl;
 	};
 };
@@ -31,7 +31,7 @@
 &cbass_mcu {
 	u-boot,dm-spl;
 
-	mcu-navss {
+	mcu_navss: bus@28380000 {
 		u-boot,dm-spl;
 
 		ringacc@2b800000 {

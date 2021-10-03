@@ -1090,7 +1090,14 @@ dtb-$(CONFIG_STM32MP15x) += \
 	stm32mp15xx-dhcom-picoitx.dtb \
 	stm32mp15xx-dhcor-avenger96.dtb
 
-dtb-$(CONFIG_SOC_K3_AM6) += k3-am654-base-board.dtb k3-am654-r5-base-board.dtb
+dtb-$(CONFIG_SOC_K3_AM6) += \
+	k3-am654-base-board.dtb \
+	k3-am654-r5-base-board.dtb \
+	k3-am65-iot2050-spl.dtb \
+	k3-am6528-iot2050-basic.dtb \
+	k3-am6528-iot2050-basic-pg2.dtb \
+	k3-am6548-iot2050-advanced.dtb \
+	k3-am6548-iot2050-advanced-pg2.dtb
 dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
 			      k3-j721e-r5-common-proc-board.dtb \
 			      k3-j7200-common-proc-board.dtb \

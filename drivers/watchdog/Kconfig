@@ -218,6 +218,26 @@ config WDT_K3_RTI
 	  Say Y here if you want to include support for the K3 watchdog
 	  timer (RTI module) available in the K3 generation of processors.
 
+if WDT_K3_RTI
+
+config WDT_K3_RTI_LOAD_FW
+	bool "Load watchdog firmware"
+	depends on REMOTEPROC
+	help
+	  Automatically load the specified firmware image into the MCU R5F
+	  core 0. On the AM65x, this firmware is supposed to handle the expiry
+	  of the watchdog timer, typically by resetting the system.
+
+config WDT_K3_RTI_FW_FILE
+	string "Watchdog firmware image file"
+	default "k3-rti-wdt.fw"
+	depends on WDT_K3_RTI_LOAD_FW
+	help
+	  Firmware image to be embedded into U-Boot and loaded on watchdog
+	  start.
+
+endif
+
 config WDT_SANDBOX
 	bool "Enable Watchdog Timer support for Sandbox"
 	depends on SANDBOX && WDT
