@@ -192,6 +192,11 @@
 	power-domains = <&versal_firmware PM_DEV_I2C_1>;
 };
 
+&i2c2 {
+	clocks = <&versal_clk I2C_REF>;
+	power-domains = <&versal_firmware PM_DEV_I2C_PMC>;
+};
+
 &lpd_dma_chan0 {
 	clocks = <&versal_clk ADMA>, <&versal_clk LPD_LSBUS>;
 	power-domains = <&versal_firmware PM_DEV_ADMA_0>;

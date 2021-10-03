@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx Versal
  *
- * (C) Copyright 2017 - 2019, Xilinx, Inc.
+ * (C) Copyright 2017 - 2021, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -345,6 +345,16 @@
 			status = "disabled";
 			reg = <0 0xff030000 0 0x1000>;
 			interrupts = <0 15 4>;
+			clock-frequency = <400000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c2: i2c@f1000000 {
+			compatible = "cdns,i2c-r1p14", "cdns,i2c-r1p10";
+			status = "disabled";
+			reg = <0 0xf1000000 0 0x1000>;
+			interrupts = <0 123 4>;
 			clock-frequency = <400000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
