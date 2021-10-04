@@ -61,7 +61,6 @@ obj-$(CONFIG_VIDEO_MCDE_SIMPLE) += mcde_simple.o
 obj-${CONFIG_VIDEO_MESON} += meson/
 obj-${CONFIG_VIDEO_MIPI_DSI} += mipi_dsi.o
 obj-$(CONFIG_VIDEO_MVEBU) += mvebu_lcd.o
-obj-$(CONFIG_VIDEO_MX3) += mx3fb.o videomodes.o
 obj-$(CONFIG_VIDEO_MXS) += mxsfb.o videomodes.o
 obj-$(CONFIG_VIDEO_NX) += nexell_display.o videomodes.o nexell/
 obj-$(CONFIG_VIDEO_OMAP3) += omap3_dss.o

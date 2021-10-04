@@ -83,13 +83,6 @@
 #endif
 
 /*
- * Defines for the i.MX31 driver (mx3fb.c)
- */
-#if defined(CONFIG_VIDEO_MX3) || defined(CONFIG_VIDEO_IPUV3)
-#define VIDEO_FB_16BPP_WORD_SWAP
-#endif
-
-/*
  * Include video_fb.h after definitions of VIDEO_HW_RECTFILL etc.
  */
 #include <video_fb.h>
