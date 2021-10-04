@@ -648,6 +648,12 @@ source "drivers/video/bridge/Kconfig"
 
 source "drivers/video/imx/Kconfig"
 
+config VIDEO_MXS
+	bool "Enable video support on i.MX28/i.MX6UL/i.MX7 SoCs"
+	depends on DM_VIDEO
+	help
+	  Enable framebuffer driver for i.MX28/i.MX6UL/i.MX7 processors
+
 config VIDEO_NX
 	bool "Enable video support on Nexell SoC"
 	depends on ARCH_S5P6818 || ARCH_S5P4418

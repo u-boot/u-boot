@@ -134,8 +134,7 @@
 /* USB Device Firmware Update support */
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
-#if defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
-#define CONFIG_VIDEO_MXS
+#if defined(CONFIG_DM_VIDEO)
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO

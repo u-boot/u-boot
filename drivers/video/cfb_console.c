@@ -78,10 +78,6 @@
 #include <dm/ofnode.h>
 #include <linux/compiler.h>
 
-#if defined(CONFIG_VIDEO_MXS)
-#define VIDEO_FB_16BPP_WORD_SWAP
-#endif
-
 /*
  * Include video_fb.h after definitions of VIDEO_HW_RECTFILL etc.
  */
