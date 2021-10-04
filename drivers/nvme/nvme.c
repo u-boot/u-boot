@@ -743,6 +743,7 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	u64 prp2;
 	u64 total_len = blkcnt << desc->log2blksz;
 	u64 temp_len = total_len;
+	uintptr_t temp_buffer = (uintptr_t)buffer;
 
 	u64 slba = blknr;
 	u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
@@ -770,19 +771,19 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 		}
 
 		if (nvme_setup_prps(dev, &prp2,
-				    lbas << ns->lba_shift, (ulong)buffer))
+				    lbas << ns->lba_shift, temp_buffer))
 			return -EIO;
 		c.rw.slba = cpu_to_le64(slba);
 		slba += lbas;
 		c.rw.length = cpu_to_le16(lbas - 1);
-		c.rw.prp1 = cpu_to_le64((ulong)buffer);
+		c.rw.prp1 = cpu_to_le64(temp_buffer);
 		c.rw.prp2 = cpu_to_le64(prp2);
 		status = nvme_submit_sync_cmd(dev->queues[NVME_IO_Q],
 				&c, NULL, IO_TIMEOUT);
 		if (status)
 			break;
 		temp_len -= (u32)lbas << ns->lba_shift;
-		buffer += lbas << ns->lba_shift;
+		temp_buffer += lbas << ns->lba_shift;
 	}
 
 	if (read)
