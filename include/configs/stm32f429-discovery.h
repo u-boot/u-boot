@@ -23,8 +23,6 @@
 #define CONFIG_RED_LED			110
 #define CONFIG_GREEN_LED		109
 
-#define CONFIG_STM32_FLASH
-
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 
 #define CONFIG_SYS_CBSIZE		1024

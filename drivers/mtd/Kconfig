@@ -109,6 +109,13 @@ config HBMC_AM654
 	 This is the driver for HyperBus controller on TI's AM65x and
 	 other SoCs
 
+config STM32_FLASH
+	bool "STM32 MCU Flash driver"
+	depends on ARCH_STM32
+	help
+	 This is the driver of embedded flash for some STMicroelectronics
+	 STM32 MCU.
+
 source "drivers/mtd/nand/Kconfig"
 
 source "drivers/mtd/spi/Kconfig"
