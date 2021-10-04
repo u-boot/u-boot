@@ -610,6 +610,10 @@ extern struct acpi_ops i2c_acpi_ops;
  */
 int acpi_i2c_of_to_plat(struct udevice *dev);
 
+#ifdef CONFIG_SYS_I2C_EARLY_INIT
+void i2c_early_init_f(void);
+#endif
+
 #if !CONFIG_IS_ENABLED(DM_I2C)
 
 /*
@@ -743,26 +747,13 @@ extern struct i2c_bus_hose	i2c_bus[];
 #endif
 
 /*
- * Many boards/controllers/drivers don't support an I2C slave interface so
- * provide a default slave address for them for use in common code.  A real
- * value for CONFIG_SYS_I2C_SLAVE should be defined for any board which does
- * support a slave interface.
- */
-#ifndef	CONFIG_SYS_I2C_SLAVE
-#define	CONFIG_SYS_I2C_SLAVE	0xfe
-#endif
-
-/*
  * Initialization, must be called once on start up, may be called
  * repeatedly to change the speed and slave addresses.
  */
-#ifdef CONFIG_SYS_I2C_EARLY_INIT
-void i2c_early_init_f(void);
-#endif
 void i2c_init(int speed, int slaveaddr);
 void i2c_init_board(void);
 
-#ifdef CONFIG_SYS_I2C_LEGACY
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 /*
  * i2c_get_bus_num:
  *
@@ -942,7 +933,7 @@ unsigned int i2c_get_bus_speed(void);
  * only for backwardcompatibility, should go away if we switched
  * completely to new multibus support.
  */
-#if defined(CONFIG_SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS)
 # if !defined(CONFIG_SYS_MAX_I2C_BUS)
 #  define CONFIG_SYS_MAX_I2C_BUS		2
 # endif

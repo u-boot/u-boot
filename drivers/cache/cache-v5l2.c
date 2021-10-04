@@ -68,8 +68,8 @@ struct v5l2_plat {
 	struct l2cache	*regs;
 	u32		iprefetch;
 	u32		dprefetch;
-	u32 		tram_ctl[2];
-	u32 		dram_ctl[2];
+	u32		tram_ctl[2];
+	u32		dram_ctl[2];
 };
 
 static int v5l2_enable(struct udevice *dev)

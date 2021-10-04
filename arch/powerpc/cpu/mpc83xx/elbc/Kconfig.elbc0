@@ -22,7 +22,7 @@ config BR0_PORTSIZE_16BIT
 
 config BR0_PORTSIZE_32BIT
 	depends on !BR0_MACHINE_FCM
-	depends on ARCH_MPC8349 || ARCH_MPC8360 || ARCH_MPC8379
+	depends on ARCH_MPC8360 || ARCH_MPC8379
 	bool "32-bit"
 
 endchoice
@@ -58,11 +58,11 @@ config BR0_MACHINE_GPCM
 	bool "GPCM"
 
 config BR0_MACHINE_FCM
-	depends on !ARCH_MPC832X && !ARCH_MPC8349 && !ARCH_MPC8360
+	depends on !ARCH_MPC832X && !ARCH_MPC8360
 	bool "FCM"
 
 config BR0_MACHINE_SDRAM
-	depends on ARCH_MPC8349 || ARCH_MPC8360
+	depends on ARCH_MPC8360
 	bool "SDRAM"
 
 config BR0_MACHINE_UPMA

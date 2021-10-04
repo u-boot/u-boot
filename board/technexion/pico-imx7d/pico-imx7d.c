@@ -60,7 +60,7 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_POWER
+#if CONFIG_IS_ENABLED(POWER_LEGACY)
 #define I2C_PMIC	3
 int power_init_board(void)
 {
@@ -244,4 +244,3 @@ int board_ehci_hcd_init(int port)
 	}
 	return 0;
 }
-

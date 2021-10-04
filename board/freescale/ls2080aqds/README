@@ -19,7 +19,7 @@ LS2088A SoC overview.
       - QSGMII
       - SATA 3.0
       - XAUI
-      - XFI
+      - 10GBase-R
  - DDR Controller
      - Two ports of 72-bits (8-bits ECC) DDR4. Each port supports four
        chip-selects and two DIMM connectors. Support is up to 2133MT/s.
@@ -213,4 +213,3 @@ DPMAC13 -> PHY4-P0
 DPMAC14 -> PHY4-P1
 DPMAC15 -> PHY4-P2
 DPMAC16 -> PHY4-P3
-

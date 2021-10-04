@@ -1147,7 +1147,7 @@ int arch_early_init_r(void)
 #endif
 #ifdef CONFIG_SYS_FSL_HAS_RGMII
 	/* some dpmacs in armv8a based freescale layerscape SOCs can be
-	 * configured via both serdes(sgmii, xfi, xlaui etc) bits and via
+	 * configured via both serdes(sgmii, 10gbase-r, xlaui etc) bits and via
 	 * EC*_PMUX(rgmii) bits in RCW.
 	 * e.g. dpmac 17 and 18 in LX2160A can be configured as SGMII from
 	 * serdes bits and as RGMII via EC1_PMUX/EC2_PMUX bits

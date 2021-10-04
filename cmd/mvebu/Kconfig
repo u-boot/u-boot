@@ -3,7 +3,6 @@ depends on ARCH_MVEBU
 
 config CMD_MVEBU_BUBT
 	bool "bubt"
-	default n
 	select SHA256 if ARMADA_3700
 	help
 	  bubt - Burn a u-boot image to flash

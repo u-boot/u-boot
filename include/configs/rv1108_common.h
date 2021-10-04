@@ -11,7 +11,6 @@
 #define CONFIG_IRAM_BASE		0x10080000
 
 #define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_SYS_TIMER_RATE		(24 * 1000 * 1000)
 /* TIMER1,initialized by ddr initialize code */
@@ -20,7 +19,6 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x60000000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + 0x100000)
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x2000000)
 
 /* rockchip ohci host driver */
 #define CONFIG_USB_OHCI_NEW

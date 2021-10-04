@@ -38,7 +38,7 @@ static int cpu_sandbox_get_vendor(const struct udevice *dev, char *buf,
 	return 0;
 }
 
-static const char *cpu_current = "cpu-test1";
+static const char *cpu_current = "cpu@1";
 
 void cpu_sandbox_set_current(const char *name)
 {

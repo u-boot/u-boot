@@ -9,9 +9,19 @@ config ARM64
 	select PHYS_64BIT
 	select SYS_CACHE_SHIFT_6
 
-if ARM64
+config ARM64_CRC32
+	bool "Enable support for CRC32 instruction"
+	depends on ARM64
+	default y
+	help
+	  ARMv8 implements dedicated crc32 instruction for crc32 calculation.
+	  This is faster than software crc32 calculation. This instruction may
+	  not be present on all ARMv8.0, but is always present on ARMv8.1 and
+	  newer.
+
 config POSITION_INDEPENDENT
 	bool "Generate position-independent pre-relocation code"
+	depends on ARM64 || CPU_V7A
 	help
 	  U-Boot expects to be linked to a specific hard-coded address, and to
 	  be loaded to and run from that address. This option lifts that
@@ -22,6 +32,7 @@ config POSITION_INDEPENDENT
 
 config INIT_SP_RELATIVE
 	bool "Specify the early stack pointer relative to the .bss section"
+	depends on ARM64
 	default n if ARCH_QEMU
 	default y if POSITION_INDEPENDENT
 	help
@@ -37,6 +48,7 @@ config INIT_SP_RELATIVE
 
 config SYS_INIT_SP_BSS_OFFSET
 	int "Early stack offset from the .bss base address"
+	depends on ARM64
 	depends on INIT_SP_RELATIVE
 	default 524288
 	help
@@ -46,6 +58,7 @@ config SYS_INIT_SP_BSS_OFFSET
 	  do not overlap any appended DTB.
 
 config LINUX_KERNEL_IMAGE_HEADER
+	depends on ARM64
 	bool
 	help
 	  Place a Linux kernel image header at the start of the U-Boot binary.
@@ -54,14 +67,18 @@ config LINUX_KERNEL_IMAGE_HEADER
 	  image header reports the amount of memory (BSS and similar) that
 	  U-Boot needs to use, but which isn't part of the binary.
 
-if LINUX_KERNEL_IMAGE_HEADER
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	depends on LINUX_KERNEL_IMAGE_HEADER
 	hex
 	help
 	  The value subtracted from CONFIG_SYS_TEXT_BASE to calculate the
 	  TEXT_OFFSET value written to the Linux kernel image header.
-endif
-endif
+
+config GICV2
+	bool
+
+config GICV3
+	bool
 
 config GIC_V3_ITS
 	bool "ARM GICV3 ITS"
@@ -104,7 +121,6 @@ config THUMB2_KERNEL
 
 config SYS_ICACHE_OFF
 	bool "Do not enable icache"
-	default n
 	help
 	  Do not enable instruction cache in U-Boot.
 
@@ -117,7 +133,6 @@ config SPL_SYS_ICACHE_OFF
 
 config SYS_DCACHE_OFF
 	bool "Do not enable dcache"
-	default n
 	help
 	  Do not enable data cache in U-Boot.
 
@@ -332,21 +347,6 @@ config SYS_ARM_ARCH
 	default 4 if CPU_SA1100
 	default 8 if ARM64
 
-config SYS_CACHE_SHIFT_5
-	bool
-
-config SYS_CACHE_SHIFT_6
-	bool
-
-config SYS_CACHE_SHIFT_7
-	bool
-
-config SYS_CACHELINE_SIZE
-	int
-	default 128 if SYS_CACHE_SHIFT_7
-	default 64 if SYS_CACHE_SHIFT_6
-	default 32 if SYS_CACHE_SHIFT_5
-
 choice
 	prompt "Select the ARM data write cache policy"
 	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || \
@@ -452,12 +452,11 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 
 config ARM_CORTEX_CPU_IS_UP
 	bool
-	default n
 
 config USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy"
-	default y
-	depends on !ARM64
+	default y if !ARM64
+	depends on !ARM64 || (ARM64 && (GCC_VERSION >= 90400))
 	help
 	  Enable the generation of an optimized version of memcpy.
 	  Such an implementation may be faster under some conditions
@@ -466,7 +465,7 @@ config USE_ARCH_MEMCPY
 config SPL_USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy for SPL"
 	default y if USE_ARCH_MEMCPY
-	depends on !ARM64 && SPL
+	depends on SPL
 	help
 	  Enable the generation of an optimized version of memcpy.
 	  Such an implementation may be faster under some conditions
@@ -475,16 +474,43 @@ config SPL_USE_ARCH_MEMCPY
 config TPL_USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy for TPL"
 	default y if USE_ARCH_MEMCPY
-	depends on !ARM64 && TPL
+	depends on TPL
 	help
 	  Enable the generation of an optimized version of memcpy.
 	  Such an implementation may be faster under some conditions
 	  but may increase the binary size.
 
+config USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove" if !ARM64
+	default USE_ARCH_MEMCPY if ARM64
+	depends on ARM64
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config SPL_USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove for SPL" if !ARM64
+	default SPL_USE_ARCH_MEMCPY if ARM64
+	depends on SPL && ARM64
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config TPL_USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove for TPL" if !ARM64
+	default TPL_USE_ARCH_MEMCPY if ARM64
+	depends on TPL && ARM64
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
 config USE_ARCH_MEMSET
 	bool "Use an assembly optimized implementation of memset"
-	default y
-	depends on !ARM64
+	default y if !ARM64
+	depends on !ARM64 || (ARM64 && (GCC_VERSION >= 90400))
 	help
 	  Enable the generation of an optimized version of memset.
 	  Such an implementation may be faster under some conditions
@@ -493,7 +519,7 @@ config USE_ARCH_MEMSET
 config SPL_USE_ARCH_MEMSET
 	bool "Use an assembly optimized implementation of memset for SPL"
 	default y if USE_ARCH_MEMSET
-	depends on !ARM64 && SPL
+	depends on SPL
 	help
 	  Enable the generation of an optimized version of memset.
 	  Such an implementation may be faster under some conditions
@@ -502,7 +528,7 @@ config SPL_USE_ARCH_MEMSET
 config TPL_USE_ARCH_MEMSET
 	bool "Use an assembly optimized implementation of memset for TPL"
 	default y if USE_ARCH_MEMSET
-	depends on !ARM64 && TPL
+	depends on TPL
 	help
 	  Enable the generation of an optimized version of memset.
 	  Such an implementation may be faster under some conditions
@@ -524,11 +550,6 @@ config ARCH_AT91
 	select GPIO_EXTRA_HEADER
 	select SPL_BOARD_INIT if SPL && !TARGET_SMARTWEB
 	select SPL_SEPARATE_BSS if SPL
-
-config TARGET_ASPENITE
-	bool "Support aspenite"
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
 
 config ARCH_DAVINCI
 	bool "TI DaVinci"
@@ -579,11 +600,6 @@ config TARGET_STV0991
 	select SPI_FLASH
 	imply CMD_DM
 
-config TARGET_FLEA3
-	bool "Support flea3"
-	select CPU_ARM1136
-	select GPIO_EXTRA_HEADER
-
 config ARCH_BCM283X
 	bool "Broadcom BCM283X family"
 	select DM
@@ -625,6 +641,11 @@ config ARCH_BCMSTB
 	help
 	  This enables support for Broadcom ARM-based set-top box
 	  chipsets, including the 7445 family of chips.
+
+config TARGET_VEXPRESS_CA9X4
+	bool "Support vexpress_ca9x4"
+	select CPU_V7A
+	select PL011_SERIAL
 
 config TARGET_BCMCYGNUS
 	bool "Support bcmcygnus"
@@ -723,6 +744,7 @@ config ARCH_KEYSTONE
 	bool "TI Keystone"
 	select CMD_POWEROFF
 	select CPU_V7A
+	select DDR_SPD
 	select GPIO_EXTRA_HEADER
 	select SUPPORT_SPL
 	select SYS_ARCH_TIMER
@@ -787,6 +809,7 @@ config ARCH_IMX8
 	select ARM64
 	select DM
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select OF_CONTROL
 	select ENABLE_ARM_SOC_BOOT0_HOOK
 
@@ -794,9 +817,11 @@ config ARCH_IMX8M
 	bool "NXP i.MX8M platform"
 	select ARM64
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
+	select SYS_I2C_MXC
 	select DM
 	select SUPPORT_SPL
 	imply CMD_DM
@@ -805,6 +830,7 @@ config ARCH_IMX8ULP
 	bool "NXP i.MX8ULP platform"
 	select ARM64
 	select DM
+	select MACH_IMX
 	select OF_CONTROL
 	select SUPPORT_SPL
 	select GPIO_EXTRA_HEADER
@@ -816,6 +842,7 @@ config ARCH_IMXRT
 	select DM
 	select DM_SERIAL
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SUPPORT_SPL
 	imply CMD_DM
 
@@ -823,31 +850,29 @@ config ARCH_MX23
 	bool "NXP i.MX23 family"
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select PL011_SERIAL
 	select SUPPORT_SPL
-
-config ARCH_MX25
-	bool "NXP MX25"
-	select CPU_ARM926EJS
-	select GPIO_EXTRA_HEADER
-	imply MXC_GPIO
 
 config ARCH_MX28
 	bool "NXP i.MX28 family"
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 	select PL011_SERIAL
+	select MACH_IMX
 	select SUPPORT_SPL
 
 config ARCH_MX31
 	bool "NXP i.MX31 family"
 	select CPU_ARM1136
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 
 config ARCH_MX7ULP
 	bool "NXP MX7ULP"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -860,6 +885,7 @@ config ARCH_MX7
 	select ARCH_MISC_INIT
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -871,6 +897,7 @@ config ARCH_MX6
 	bool "Freescale MX6"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -887,6 +914,7 @@ config ARCH_MX5
 	select BOARD_EARLY_INIT_F
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	imply MXC_GPIO
 
 config ARCH_NEXELL
@@ -952,6 +980,7 @@ config ARCH_SOCFPGA
 	select CPU_V7A if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select DM
 	select DM_SERIAL
+	select GICV2
 	select GPIO_EXTRA_HEADER
 	select ENABLE_ARM_SOC_BOOT0_HOOK if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select OF_CONTROL
@@ -962,7 +991,7 @@ config ARCH_SOCFPGA
 	select SPL_NAND_SUPPORT if SPL_NAND_DENALI
 	select SPL_OF_CONTROL
 	select SPL_SEPARATE_BSS if TARGET_SOCFPGA_SOC64
-	select SPL_SERIAL_SUPPORT
+	select SPL_SERIAL
 	select SPL_SYSRESET
 	select SPL_WATCHDOG
 	select SUPPORT_SPL
@@ -982,11 +1011,11 @@ config ARCH_SOCFPGA
 	imply SPL_DM_SPI
 	imply SPL_DM_SPI_FLASH
 	imply SPL_LIBDISK_SUPPORT
-	imply SPL_MMC_SUPPORT
+	imply SPL_MMC
 	imply SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	imply SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 	imply SPL_SPI_FLASH_SUPPORT
-	imply SPL_SPI_SUPPORT
+	imply SPL_SPI
 	imply L2X0_CACHE
 
 config ARCH_SUNXI
@@ -1032,9 +1061,9 @@ config ARCH_SUNXI
 	imply SPL_GPIO
 	imply SPL_LIBCOMMON_SUPPORT
 	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_MMC_SUPPORT if MMC
+	imply SPL_MMC if MMC
 	imply SPL_POWER
-	imply SPL_SERIAL_SUPPORT
+	imply SPL_SERIAL
 	imply USB_GADGET
 
 config ARCH_U8500
@@ -1044,14 +1073,22 @@ config ARCH_U8500
 	select DM_GPIO
 	select DM_MMC if MMC
 	select DM_SERIAL
+	select DM_USB_GADGET if DM_USB
 	select OF_CONTROL
 	select SYSRESET
 	select TIMER
+	imply AB8500_USB_PHY
 	imply ARM_PL180_MMCI
+	imply CLK
+	imply DM_PMIC
 	imply DM_RTC
+	imply NOMADIK_GPIO
 	imply NOMADIK_MTU_TIMER
+	imply PHY
 	imply PL01X_SERIAL
+	imply PMIC_AB8500
 	imply RTC_PL031
+	imply SYS_THUMB_BUILD
 	imply SYSRESET_SYSCON
 
 config ARCH_VERSAL
@@ -1062,6 +1099,7 @@ config ARCH_VERSAL
 	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
+	select GICV3
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select SOC_DEVICE
@@ -1072,6 +1110,7 @@ config ARCH_VF610
 	bool "Freescale Vybrid"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select MACH_IMX
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply CMD_MTDPARTS
 	imply MTD_RAW_NAND
@@ -1131,6 +1170,7 @@ config ARCH_ZYNQMP
 	select DM_SPI if SPI
 	select DM_SPI_FLASH if DM_SPI
 	select FIRMWARE
+	select GICV2
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
@@ -1880,6 +1920,7 @@ config TARGET_DURIAN
 config TARGET_PRESIDIO_ASIC
 	bool "Support Cortina Presidio ASIC Platform"
 	select ARM64
+	select GICV2
 
 config TARGET_XENGUEST_ARM64
 	bool "Xen guest ARM64"
@@ -1891,13 +1932,56 @@ config TARGET_XENGUEST_ARM64
 	select SSCANF
 endchoice
 
+config SUPPORT_PASSING_ATAGS
+	bool "Support pre-devicetree ATAG-based booting"
+	depends on !ARM64
+	imply SETUP_MEMORY_TAGS
+	help
+	  Support for booting older Linux kernels, using ATAGs rather than
+	  passing a devicetree.  This is option is rarely used, and the
+	  semantics are defined at
+	  https://www.kernel.org/doc/Documentation/arm/Booting at section 4a.
+
+config SETUP_MEMORY_TAGS
+	bool "Pass memory size information via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
+config CMDLINE_TAG
+	bool "Pass Linux kernel cmdline via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
+config INITRD_TAG
+	bool "Pass initrd starting point and size via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
+config REVISION_TAG
+	bool "Pass system revision via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
+config SERIAL_TAG
+	bool "Pass system serial number via ATAG"
+	depends on SUPPORT_PASSING_ATAGS
+
+config STATIC_MACH_TYPE
+	bool "Statically define the Machine ID number"
+	help
+	  When booting via ATAGs, enable this option if we know the correct
+	  machine ID number to use at compile time.  Some systems will be
+	  passed the number dynamically by whatever loads U-Boot.
+
+config MACH_TYPE
+	int "Machine ID number"
+	depends on STATIC_MACH_TYPE
+	help
+	  When booting via ATAGs, the machine type must be passed as a number.
+	  For the full list see https://www.arm.linux.org.uk/developer/machines
+
 config ARCH_SUPPORT_TFABOOT
 	bool
 
 config TFABOOT
 	bool "Support for booting from TF-A"
 	depends on ARCH_SUPPORT_TFABOOT
-	default n
 	help
 	  Some platforms support the setup of secure registers (for instance
 	  for CPU errata handling) or provide secure services like PSCI.
@@ -1965,8 +2049,6 @@ source "arch/arm/mach-octeontx/Kconfig"
 source "arch/arm/mach-octeontx2/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
-
-source "arch/arm/mach-imx/mx2/Kconfig"
 
 source "arch/arm/mach-imx/mx3/Kconfig"
 
@@ -2048,10 +2130,9 @@ source "board/armltd/total_compute/Kconfig"
 
 source "board/bosch/shc/Kconfig"
 source "board/bosch/guardian/Kconfig"
-source "board/CarMediaLab/flea3/Kconfig"
-source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
+source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"

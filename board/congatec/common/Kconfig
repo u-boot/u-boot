@@ -28,7 +28,6 @@ endif
 config VOL_MONITOR_LTC3882_READ
 	depends on VID
 	bool "Enable the LTC3882 voltage monitor read"
-	default n
 	help
 	 This option enables LTC3882 voltage monitor read
 	 functionality. It is used by common VID driver.
@@ -36,13 +35,11 @@ config VOL_MONITOR_LTC3882_READ
 config VOL_MONITOR_LTC3882_SET
 	depends on VID
 	bool "Enable the LTC3882 voltage monitor set"
-	default n
 	help
 	 This option enables LTC3882 voltage monitor set
 	 functionality. It is used by common VID driver.
 
 config USB_TCPC
 	bool "USB Typec port controller simple driver"
-	default n
 	help
 	  Enable USB type-c port controller (TCPC) driver

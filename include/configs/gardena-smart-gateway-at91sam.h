@@ -17,11 +17,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
-#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
@@ -31,8 +26,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024)
 
 /* NAND flash */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -44,8 +37,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE	BIT(22)
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PD4
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PD5
-
-#define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
 
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x7000

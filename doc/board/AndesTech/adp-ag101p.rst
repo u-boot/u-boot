@@ -23,8 +23,8 @@ CONFIG_MEM_REMAP:
 
 CONFIG_SKIP_LOWLEVEL_INIT:
 	If you want to boot this system from SPI ROM and bypass e-bios (the
-	other boot loader on ROM). You should undefine CONFIG_SKIP_LOWLEVEL_INIT
-	in "include/configs/adp-ag101p.h".
+	other boot loader on ROM). You should enable CONFIG_SKIP_LOWLEVEL_INIT
+	when running menuconfig or similar.
 
 Build and boot steps
 --------------------

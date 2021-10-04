@@ -2,7 +2,19 @@
 # GPIO infrastructure and drivers
 #
 
-menu "GPIO Support"
+menuconfig GPIO
+	bool "GPIO support"
+	default y
+	help
+	  Enable support for GPIOs (General-purpose Input/Output) in U-Boot.
+	  GPIOs allow U-Boot to read the state of an input line (high or
+	  low) and set the state of an output line. This can be used to
+	  drive LEDs, control power to various system parts and read user
+	  input. GPIOs can be useful to enable a 'sign-of-life' LED,
+	  for example. Enable this option to build the drivers in
+	  drivers/gpio as part of an U-Boot build.
+
+if GPIO
 
 config DM_GPIO
 	bool "Enable Driver Model for GPIO drivers"
@@ -39,7 +51,6 @@ config TPL_DM_GPIO
 config GPIO_HOG
 	bool "Enable GPIO hog support"
 	depends on DM_GPIO
-	default n
 	help
 	  Enable gpio hog support
 	  The GPIO chip may contain GPIO hog definitions. GPIO hogging
@@ -91,13 +102,11 @@ config CORTINA_GPIO
 config DWAPB_GPIO
 	bool "DWAPB GPIO driver"
 	depends on DM && DM_GPIO
-	default n
 	help
 	  Support for the Designware APB GPIO driver.
 
 config AT91_GPIO
 	bool "AT91 PIO GPIO driver"
-	default n
 	help
 	  Say yes here to select AT91 PIO GPIO driver. AT91 PIO
 	  controller manages up to 32 fully programmable input/output
@@ -110,7 +119,6 @@ config AT91_GPIO
 config ATMEL_PIO4
 	bool "ATMEL PIO4 driver"
 	depends on DM_GPIO
-	default n
 	help
 	  Say yes here to support the Atmel PIO4 driver.
 	  The PIO4 is new version of Atmel PIO controller, which manages
@@ -150,13 +158,11 @@ config INTEL_ICH6_GPIO
 config IMX_RGPIO2P
 	bool "i.MX7ULP RGPIO2P driver"
 	depends on DM
-	default n
 	help
 	  This driver supports i.MX7ULP Rapid GPIO2P controller.
 
 config IPROC_GPIO
 	bool "Broadcom iProc GPIO driver(without pinconf)"
-	default n
 	help
 	  The Broadcom iProc based SoCs- Cygnus, NS2, NS3, NSP and Stingray,
 	  use the same GPIO Controller IP hence this driver could be used
@@ -168,14 +174,12 @@ config IPROC_GPIO
 config HSDK_CREG_GPIO
 	bool "HSDK CREG GPIO griver"
 	depends on DM_GPIO
-	default n
 	help
 	  This driver supports CREG GPIOs on Synopsys HSDK SOC.
 
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
 	depends on DM
-	default n
 	help
 	  Support for the LPC32XX GPIO driver.
 
@@ -203,7 +207,6 @@ config MSCC_SGPIO
 config MSM_GPIO
 	bool "Qualcomm GPIO driver"
 	depends on DM_GPIO
-	default n
 	help
 	  Support GPIO controllers on Qualcomm Snapdragon family of SoCs.
 	  This controller have single bank (default name "soc"), every
@@ -345,7 +348,6 @@ config GPIO_UNIPHIER
 config VYBRID_GPIO
 	bool "Vybrid GPIO driver"
 	depends on DM
-	default n
 	help
 	  Say yes here to support Vybrid vf610 GPIOs.
 
@@ -513,4 +515,4 @@ config NOMADIK_GPIO
 	  into a number of banks each with 32 GPIOs. The GPIOs for a device are
 	  defined in the device tree with one node for each bank.
 
-endmenu
+endif

@@ -6,4 +6,3 @@
 # */
 
 obj-y += lowlevel_init.o clock.o cpu.o
-

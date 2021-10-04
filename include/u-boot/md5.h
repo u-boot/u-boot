@@ -19,6 +19,10 @@ struct MD5Context {
 	};
 };
 
+void MD5Init(struct MD5Context *ctx);
+void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len);
+void MD5Final(unsigned char digest[16], struct MD5Context *ctx);
+
 /*
  * Calculate and store in 'output' the MD5 digest of 'len' bytes at
  * 'input'. 'output' must have enough space to hold 16 bytes.

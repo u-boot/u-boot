@@ -1431,4 +1431,3 @@ struct dram_timing_info dram_timing = {
 	.ddrphy_pie_num = ARRAY_SIZE(ddr_phy_pie),
 	.fsp_table = { 3200, 400, 100, },
 };
-

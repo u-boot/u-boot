@@ -538,24 +538,24 @@ static uint fsl_i2c_set_bus_speed(struct i2c_adapter *adap, uint speed)
  */
 U_BOOT_I2C_ADAP_COMPLETE(fsl_0, fsl_i2c_init, fsl_i2c_probe_chip, fsl_i2c_read,
 			 fsl_i2c_write, fsl_i2c_set_bus_speed,
-			 CONFIG_SYS_FSL_I2C_SPEED, CONFIG_SYS_FSL_I2C_SLAVE,
+			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
 			 0)
 #ifdef CONFIG_SYS_FSL_I2C2_OFFSET
 U_BOOT_I2C_ADAP_COMPLETE(fsl_1, fsl_i2c_init, fsl_i2c_probe_chip, fsl_i2c_read,
 			 fsl_i2c_write, fsl_i2c_set_bus_speed,
-			 CONFIG_SYS_FSL_I2C2_SPEED, CONFIG_SYS_FSL_I2C2_SLAVE,
+			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
 			 1)
 #endif
 #ifdef CONFIG_SYS_FSL_I2C3_OFFSET
 U_BOOT_I2C_ADAP_COMPLETE(fsl_2, fsl_i2c_init, fsl_i2c_probe_chip, fsl_i2c_read,
 			 fsl_i2c_write, fsl_i2c_set_bus_speed,
-			 CONFIG_SYS_FSL_I2C3_SPEED, CONFIG_SYS_FSL_I2C3_SLAVE,
+			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
 			 2)
 #endif
 #ifdef CONFIG_SYS_FSL_I2C4_OFFSET
 U_BOOT_I2C_ADAP_COMPLETE(fsl_3, fsl_i2c_init, fsl_i2c_probe_chip, fsl_i2c_read,
 			 fsl_i2c_write, fsl_i2c_set_bus_speed,
-			 CONFIG_SYS_FSL_I2C4_SPEED, CONFIG_SYS_FSL_I2C4_SLAVE,
+			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
 			 3)
 #endif
 #else /* CONFIG_DM_I2C */

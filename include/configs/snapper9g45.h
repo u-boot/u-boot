@@ -19,10 +19,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 
 /* CPU */
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS6
@@ -64,7 +60,6 @@
 /* UARTs/Serial console */
 
 /* Boot options */
-#define CONFIG_SYS_LOAD_ADDR		0x23000000
 
 #define CONFIG_BOOTP_BOOTFILESIZE
 
@@ -91,8 +86,5 @@
 	"altbootcmd=run boot_mmc ; run boot_usb ; run boot_safe ; run boot_working\0"
 
 /* Console settings */
-
-/* U-Boot memory settings */
-#define CONFIG_SYS_MALLOC_LEN		(1 << 20)
 
 #endif /* __CONFIG_H */

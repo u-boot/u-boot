@@ -746,39 +746,6 @@ int fdtdec_get_bool(const void *blob, int node, const char *prop_name);
  */
 int fdtdec_get_child_count(const void *blob, int node);
 
-/**
- * Look in the FDT for a config item with the given name and return its value
- * as a 32-bit integer. The property must have at least 4 bytes of data. The
- * value of the first cell is returned.
- *
- * @param blob		FDT blob to use
- * @param prop_name	Node property name
- * @param default_val	default value to return if the property is not found
- * @return integer value, if found, or default_val if not
- */
-int fdtdec_get_config_int(const void *blob, const char *prop_name,
-		int default_val);
-
-/**
- * Look in the FDT for a config item with the given name
- * and return whether it exists.
- *
- * @param blob		FDT blob
- * @param prop_name	property name to look up
- * @return 1, if it exists, or 0 if not
- */
-int fdtdec_get_config_bool(const void *blob, const char *prop_name);
-
-/**
- * Look in the FDT for a config item with the given name and return its value
- * as a string.
- *
- * @param blob          FDT blob
- * @param prop_name     property name to look up
- * @returns property string, NULL on error.
- */
-char *fdtdec_get_config_string(const void *blob, const char *prop_name);
-
 /*
  * Look up a property in a node and return its contents in a byte
  * array of given length. The property must have at least enough data for

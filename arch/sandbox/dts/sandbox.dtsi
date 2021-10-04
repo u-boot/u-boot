@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * This is the common sandbox device-tree nodes. This is shared between sandbox
  * and sandbox64 builds.
@@ -65,12 +66,18 @@
 	};
 
 	gpio_b: gpios@1 {
-		u-boot,dm-pre-proper;
+		u-boot,dm-spl;
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <2>;
 		gpio-bank-name = "b";
 		sandbox,gpio-count = <10>;
+	};
+
+	gpio-test {
+		u-boot,dm-spl;
+		compatible = "sandbox,gpio-test";
+		test-gpios = <&gpio_b 3 0>;
 	};
 
 	hexagon {
@@ -121,6 +128,19 @@
 	i2s: i2s {
 		compatible = "sandbox,i2s";
 		#sound-dai-cells = <1>;
+	};
+
+	irq_sandbox: irq-sbox {
+		u-boot,dm-spl;
+		compatible = "sandbox,irq";
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	irq-test {
+		u-boot,dm-spl;
+		compatible = "sandbox,irq-test";
+		interrupts-extended = <&irq_sandbox 3 0>;
 	};
 
 	lcd {

@@ -493,24 +493,24 @@ static int get_cfgblock_interactive(void)
 		else
 			tdx_hw_tag.prodid = COLIBRI_PXA270_520MHZ;
 	}
-#ifdef CONFIG_MACH_TYPE
+#if defined(CONFIG_TARGET_APALIS_T30) || defined(CONFIG_TARGET_COLIBRI_T30)
 	else if (!strcmp("tegra30", soc)) {
-		if (CONFIG_MACH_TYPE == MACH_TYPE_APALIS_T30) {
-			if (it == 'y' || it == 'Y')
-				tdx_hw_tag.prodid = APALIS_T30_IT;
+#ifdef CONFIG_TARGET_APALIS_T30
+		if (it == 'y' || it == 'Y')
+			tdx_hw_tag.prodid = APALIS_T30_IT;
+		else
+			if (gd->ram_size == 0x40000000)
+				tdx_hw_tag.prodid = APALIS_T30_1GB;
 			else
-				if (gd->ram_size == 0x40000000)
-					tdx_hw_tag.prodid = APALIS_T30_1GB;
-				else
-					tdx_hw_tag.prodid = APALIS_T30_2GB;
-		} else {
-			if (it == 'y' || it == 'Y')
-				tdx_hw_tag.prodid = COLIBRI_T30_IT;
-			else
-				tdx_hw_tag.prodid = COLIBRI_T30;
-		}
+				tdx_hw_tag.prodid = APALIS_T30_2GB;
+#else
+		if (it == 'y' || it == 'Y')
+			tdx_hw_tag.prodid = COLIBRI_T30_IT;
+		else
+			tdx_hw_tag.prodid = COLIBRI_T30;
+#endif
 	}
-#endif /* CONFIG_MACH_TYPE */
+#endif /* CONFIG_TARGET_APALIS_T30 || CONFIG_TARGET_COLIBRI_T30 */
 	else if (!strcmp("tegra124", soc)) {
 		tdx_hw_tag.prodid = APALIS_TK1_2GB;
 	} else if (!strcmp("vf500", soc)) {

@@ -37,8 +37,6 @@
 /* Link Definitions */
 #define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
@@ -50,9 +48,6 @@
  */
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
-
 /* GPIO */
 #ifdef CONFIG_DM_GPIO
 #ifndef CONFIG_MPC8XXX_GPIO
@@ -61,17 +56,12 @@
 #endif
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#endif
 
 
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE     1
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #if !defined(SPL_NO_IFC) || defined(CONFIG_TARGET_LS1088AQDS)
 /* IFC */
@@ -147,7 +137,6 @@ unsigned long long get_qixis_addr(void);
 #endif
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
 /* SATA */
 #ifdef CONFIG_SCSI

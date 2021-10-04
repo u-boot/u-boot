@@ -12,15 +12,11 @@
  */
 #define CONFIG_CUSTOMER_BOARD_SUPPORT
 
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-
 /*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.
  */
-
-#define CONFIG_LOADADDR 		1000000
 
 /*
  * SATA/SCSI/AHCI configuration
@@ -85,7 +81,7 @@
 
 #if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SDIO_MMC_CARD
 /* SPL related MMC defines */
-#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_MMC
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
 #endif
@@ -134,7 +130,7 @@
 		" gpio clear ${gpio1}; gpio set ${gpio2};"			\
 		" fi; sleep 0.12; done\0"
 
-#define CONFIG_NFSBOOTCOMMAND								\
+#define NFSBOOTCOMMAND								\
 	"setenv bootargs root=/dev/nfs rw "						\
 	"nfsroot=${serverip}:${rootpath} "						\
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:${netdev}:off "	\
@@ -142,7 +138,7 @@
 	"tftpboot ${bootfile_addr} ${bootfile}; "						\
 	"bootm ${bootfile_addr}"
 
-#define CONFIG_MMCBOOTCOMMAND					\
+#define MMCBOOTCOMMAND					\
 	"setenv bootargs root=/dev/mmcblk0p3 rw rootwait "	\
 	"console=${consoledev},${baudrate} ${othbootargs}; "	\
 	"ext2load mmc 0:2 ${bootfile_addr} ${bootfile}; "	\

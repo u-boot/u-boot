@@ -162,7 +162,7 @@ int spi_write_then_read(struct spi_slave *slave, const u8 *opcode,
 	return ret;
 }
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int spi_child_post_bind(struct udevice *dev)
 {
 	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
@@ -176,11 +176,11 @@ static int spi_child_post_bind(struct udevice *dev)
 
 static int spi_post_probe(struct udevice *bus)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 
-	spi->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
-#endif
+		spi->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
+	}
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct dm_spi_ops *ops = spi_get_ops(bus);
 	static int reloc_done;
@@ -531,7 +531,7 @@ UCLASS_DRIVER(spi) = {
 	.id		= UCLASS_SPI,
 	.name		= "spi",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.post_bind	= dm_scan_fdt_dev,
 #endif
 	.post_probe	= spi_post_probe,
@@ -539,7 +539,7 @@ UCLASS_DRIVER(spi) = {
 	.per_device_auto	= sizeof(struct dm_spi_bus),
 	.per_child_auto	= sizeof(struct spi_slave),
 	.per_child_plat_auto	= sizeof(struct dm_spi_slave_plat),
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.child_post_bind = spi_child_post_bind,
 #endif
 };

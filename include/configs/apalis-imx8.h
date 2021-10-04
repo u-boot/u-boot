@@ -18,8 +18,6 @@
 #define USDHC2_BASE_ADDR		0x5b020000
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 /* Networking */
 #define CONFIG_IPADDR			192.168.10.2
 #define CONFIG_NETMASK			255.255.255.0
@@ -70,9 +68,6 @@
 		"${blkcnt}; fi\0"
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x80280000
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
@@ -82,9 +77,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M /* Increase max gunzip size */
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		((CONFIG_ENV_SIZE + (32 * 1024)) * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000

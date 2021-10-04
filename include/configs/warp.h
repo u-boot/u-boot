@@ -14,9 +14,6 @@
 
 #include "mx6_common.h"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
-
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR
 
 /* MMC Configs */
@@ -53,15 +50,8 @@
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
 /* I2C Configs */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_SPEED		  100000
 
 /* PMIC */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \

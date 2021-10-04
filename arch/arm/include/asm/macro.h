@@ -154,7 +154,7 @@ lr	.req	x30
 	orr	\xreg1, \xreg1, \xreg2
 	cbz	\xreg1, \master_label
 #else
-	b 	\master_label
+	b	\master_label
 #endif
 .endm
 
@@ -256,7 +256,7 @@ lr	.req	x30
  * For loading 64-bit OS, x0 is physical address to the FDT blob.
  * They will be passed to the guest.
  */
-.macro armv8_switch_to_el1_m, ep, flag, tmp
+.macro armv8_switch_to_el1_m, ep, flag, tmp, tmp2
 	/* Initialize Generic Timers */
 	mrs	\tmp, cnthctl_el2
 	/* Enable EL1 access to timers */
@@ -306,7 +306,14 @@ lr	.req	x30
 	b.eq	1f
 
 	/* Initialize HCR_EL2 */
-	ldr	\tmp, =(HCR_EL2_RW_AARCH64 | HCR_EL2_HCD_DIS)
+	/* Only disable PAuth traps if PAuth is supported */
+	mrs	\tmp, id_aa64isar1_el1
+	ldr	\tmp2, =(ID_AA64ISAR1_EL1_GPI | ID_AA64ISAR1_EL1_GPA | \
+		      ID_AA64ISAR1_EL1_API | ID_AA64ISAR1_EL1_APA)
+	tst	\tmp, \tmp2
+	mov	\tmp2, #(HCR_EL2_RW_AARCH64 | HCR_EL2_HCD_DIS)
+	orr	\tmp, \tmp2, #(HCR_EL2_APK | HCR_EL2_API)
+	csel	\tmp, \tmp2, \tmp, eq
 	msr	hcr_el2, \tmp
 
 	/* Return to the EL1_SP1 mode from EL2 */

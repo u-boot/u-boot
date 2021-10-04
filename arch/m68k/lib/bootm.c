@@ -32,23 +32,7 @@ static void set_clocks_in_mhz (struct bd_info *kbd);
 
 void arch_lmb_reserve(struct lmb *lmb)
 {
-	ulong sp;
-
-	/*
-	 * Booting a (Linux) kernel image
-	 *
-	 * Allocate space for command line and board info - the
-	 * address should be as high as possible within the reach of
-	 * the kernel (see CONFIG_SYS_BOOTMAPSZ settings), but in unused
-	 * memory, which means far enough below the current stack
-	 * pointer.
-	 */
-	sp = get_sp();
-	debug ("## Current stack ends at 0x%08lx ", sp);
-
-	/* adjust sp by 1K to be safe */
-	sp -= 1024;
-	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp));
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 1024);
 }
 
 int do_bootm_linux(int flag, int argc, char *const argv[],

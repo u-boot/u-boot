@@ -6,7 +6,6 @@
 /*
  * System Clock Setup
  */
-#define CONFIG_83XX_CLKIN		66000000
 #define CONFIG_SYS_CLK_FREQ		66000000
 #define CONFIG_83XX_PCICLK		66000000
 
@@ -73,4 +72,3 @@
 
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-

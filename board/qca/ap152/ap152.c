@@ -66,7 +66,7 @@ int board_early_init_f(void)
 	void __iomem *rst_regs = map_physmem(AR71XX_RESET_BASE,
 							 AR71XX_RESET_SIZE, MAP_NOCACHE);
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 	/* CPU:775, DDR:650, AHB:258 */
 	qca956x_pll_init();
 	qca956x_ddr_init();

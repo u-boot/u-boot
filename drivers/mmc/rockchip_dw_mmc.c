@@ -52,9 +52,11 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 
 static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
+
+	if (!CONFIG_IS_ENABLED(OF_REAL))
+		return 0;
 
 	host->name = dev->name;
 	host->ioaddr = dev_read_addr_ptr(dev);
@@ -95,7 +97,7 @@ static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 		debug("%s: 'clock-freq-min-max' property was deprecated.\n",
 		      __func__);
 	}
-#endif
+
 	return 0;
 }
 
@@ -121,7 +123,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	priv->minmax[0] = 400000;  /*  400 kHz */
 	priv->minmax[1] = dtplat->max_frequency;
 
-	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_phandle(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 #else

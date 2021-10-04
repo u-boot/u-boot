@@ -434,7 +434,7 @@ config HID2_IWLCK_1
 config HID2_IWLCK_2
 	bool "Way 0 through 2 locked"
 
-if ARCH_MPC8349 || ARCH_MPC8360 || ARCH_MPC8379
+if ARCH_MPC8360 || ARCH_MPC8379
 
 config HID2_IWLCK_3
 	bool "Way 0 through 3 locked"
@@ -470,7 +470,7 @@ config HID2_DWLCK_1
 config HID2_DWLCK_2
 	bool "Way 0 through 2 locked"
 
-if ARCH_MPC8349 || ARCH_MPC8360 || ARCH_MPC8379
+if ARCH_MPC8360 || ARCH_MPC8379
 
 config HID2_DWLCK_3
 	bool "Way 0 through 3 locked"

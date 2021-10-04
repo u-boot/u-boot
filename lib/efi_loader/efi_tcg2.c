@@ -14,7 +14,7 @@
 #include <efi_tcg2.h>
 #include <log.h>
 #include <malloc.h>
-#include <version.h>
+#include <version_string.h>
 #include <tpm-v2.h>
 #include <u-boot/hash-checksum.h>
 #include <u-boot/sha1.h>
@@ -1343,10 +1343,11 @@ out:
  */
 static efi_status_t efi_append_scrtm_version(struct udevice *dev)
 {
-	u8 ver[] = U_BOOT_VERSION_STRING;
 	efi_status_t ret;
 
-	ret = tcg2_measure_event(dev, 0, EV_S_CRTM_VERSION, sizeof(ver), ver);
+	ret = tcg2_measure_event(dev, 0, EV_S_CRTM_VERSION,
+				 strlen(version_string) + 1,
+				 (u8 *)version_string);
 
 	return ret;
 }

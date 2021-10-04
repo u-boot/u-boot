@@ -12,12 +12,6 @@
 
 #include "imx6_spl.h"
 
-/* Provide the MACH_TYPE value that the vendor kernel requires. */
-#define CONFIG_MACH_TYPE		4800
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(2 * SZ_1M)
-
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
 /* SATA Configs */
@@ -43,10 +37,10 @@
 			"setenv fdtfile imx6dl-udoo.dtb; fi; " \
 		"if test ${fdtfile} = undefined; then " \
 			"echo WARNING: Could not determine dtb to use; fi\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x13000000\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \

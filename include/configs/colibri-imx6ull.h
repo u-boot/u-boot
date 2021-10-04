@@ -15,18 +15,12 @@
 
 #define PHYS_SDRAM_SIZE			SZ_512M
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 /* ENET1 */
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 
 /* MMC Config */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	1
-
-/* I2C configs */
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_IPADDR			192.168.10.2
 #define CONFIG_NETMASK			255.255.255.0
@@ -106,11 +100,10 @@
 		"fatload ${interface} 0:1 ${loadaddr} " \
 		"${board}/flash_blk.img && source ${loadaddr}\0" \
 	"splashpos=m,m\0" \
-	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"videomode=video=ctfb:x:640,y:480,depth:18,pclk:39722,le:48,ri:16,up:33,lo:10,hs:96,vs:2,sync:0,vmode:0\0" \
 	"vidargs=video=mxsfb:640x480M-16@60"
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

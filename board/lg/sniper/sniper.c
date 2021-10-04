@@ -156,11 +156,13 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifdef CONFIG_REVISION_TAG
 u32 get_board_rev(void)
 {
 	/* Sold devices are expected to be at least revision F. */
 	return 6;
 }
+#endif
 
 void get_board_serial(struct tag_serialnr *serialnr)
 {

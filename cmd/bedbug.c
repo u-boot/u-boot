@@ -39,7 +39,6 @@ int bedbug_puts (const char *str)
 }				/* bedbug_puts */
 
 
-
 /* ======================================================================
  * Initialize the bug_ctx structure used by the bedbug debugger.  This is
  * specific to the CPU since each has different debug registers and
@@ -51,7 +50,6 @@ int bedbug_init(void)
 	/* -------------------------------------------------- */
 	return 0;
 }				/* bedbug_init */
-
 
 
 /* ======================================================================
@@ -183,7 +181,6 @@ void do_bedbug_breakpoint (struct pt_regs *regs)
 }				/* do_bedbug_breakpoint */
 
 
-
 /* ======================================================================
  * Called from the CPU-specific breakpoint handling routine.  Enter a
  * mini main loop until the stopped flag is cleared from the breakpoint
@@ -239,7 +236,6 @@ void bedbug_main_loop (unsigned long addr, struct pt_regs *regs)
 
 	return;
 }				/* bedbug_main_loop */
-
 
 
 /* ======================================================================

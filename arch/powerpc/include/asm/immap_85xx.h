@@ -1510,7 +1510,7 @@ typedef struct par_io {
  */
 
 typedef struct cpc_corenet {
-	u32 	cpccsr0;	/* Config/status reg */
+	u32	cpccsr0;	/* Config/status reg */
 	u32	res1;
 	u32	cpccfg0;	/* Configuration register */
 	u32	res2;
@@ -1573,7 +1573,7 @@ typedef struct cpc_corenet {
 #define CPC_SRCR0_SRAMSZ_16_WAY	0x00000008
 #define CPC_SRCR0_SRAMSZ_32_WAY	0x0000000a
 #define CPC_SRCR0_SRAMEN	0x00000001
-#define	CPC_ERRDIS_TMHITDIS  	0x00000080	/* multi-way hit disable */
+#define	CPC_ERRDIS_TMHITDIS	0x00000080	/* multi-way hit disable */
 #define CPC_HDBCR0_CDQ_SPEC_DIS	0x08000000
 #define CPC_HDBCR0_TAG_ECC_SCRUB_DIS	0x01000000
 #define CPC_HDBCR0_DATA_ECC_SCRUB_DIS	0x00400000

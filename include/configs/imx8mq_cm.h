@@ -65,9 +65,6 @@
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 
 /* Link Definitions */
-#define CONFIG_LOADADDR					0x40480000
-
-#define CONFIG_SYS_LOAD_ADDR			CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR        0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE        0x80000
@@ -77,9 +74,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		((CONFIG_ENV_SIZE + (2 * 1024)) * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE           0x40000000
 #define PHYS_SDRAM                      0x40000000

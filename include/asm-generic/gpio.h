@@ -608,6 +608,11 @@ int gpio_request_list_by_name(struct udevice *dev, const char *list_name,
  */
 int dm_gpio_request(struct gpio_desc *desc, const char *label);
 
+struct phandle_2_arg;
+int gpio_request_by_phandle(struct udevice *dev,
+			    const struct phandle_2_arg *cells,
+			    struct gpio_desc *desc, int flags);
+
 /**
  * gpio_get_list_count() - Returns the number of GPIOs in a list
  *

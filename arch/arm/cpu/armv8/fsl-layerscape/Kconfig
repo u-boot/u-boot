@@ -4,6 +4,8 @@ config ARCH_LS1012A
 	select ARM_ERRATA_855873 if !TFABOOT
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
+	select GICV2
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR_BE
@@ -25,6 +27,7 @@ config ARCH_LS1028A
 	select ARMV8_SET_SMPEN
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select GICV3
 	select NXP_LSCH3_2
 	select SYS_FSL_HAS_CCI400
 	select SYS_FSL_SRDS_1
@@ -58,7 +61,9 @@ config ARCH_LS1043A
 	select ARM_ERRATA_855873 if !TFABOOT
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
+	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -84,13 +89,16 @@ config ARCH_LS1043A
 	select SYS_I2C_MXC_I2C3 if !DM_I2C
 	select SYS_I2C_MXC_I2C4 if !DM_I2C
 	imply CMD_PCI
+	imply ID_EEPROM
 
 config ARCH_LS1046A
 	bool
 	select ARMV8_SET_SMPEN
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
+	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -117,8 +125,10 @@ config ARCH_LS1046A
 	select SYS_I2C_MXC_I2C2 if !DM_I2C
 	select SYS_I2C_MXC_I2C3 if !DM_I2C
 	select SYS_I2C_MXC_I2C4 if !DM_I2C
+	imply ID_EEPROM
 	imply SCSI
 	imply SCSI_AHCI
+	imply SPL_SYS_I2C_LEGACY
 
 config ARCH_LS1088A
 	bool
@@ -126,6 +136,8 @@ config ARCH_LS1088A
 	select ARM_ERRATA_855873 if !TFABOOT
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select GICV3
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -158,7 +170,9 @@ config ARCH_LS1088A
 	select SYS_I2C_MXC_I2C3 if !TFABOOT
 	select SYS_I2C_MXC_I2C4 if !TFABOOT
 	select RESV_RAM if GIC_V3_ITS
+	imply ID_EEPROM
 	imply SCSI
+	imply SPL_SYS_I2C_LEGACY
 	imply PANIC_HANG
 
 config ARCH_LS2080A
@@ -170,6 +184,8 @@ config ARCH_LS2080A
 	select ARM_ERRATA_833471
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select GICV3
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -210,12 +226,15 @@ config ARCH_LS2080A
 	select SYS_I2C_MXC_I2C4 if !TFABOOT
 	select RESV_RAM if GIC_V3_ITS
 	imply DISTRO_DEFAULTS
+	imply ID_EEPROM
 	imply PANIC_HANG
+	imply SPL_SYS_I2C_LEGACY
 
 config ARCH_LX2162A
 	bool
 	select ARMV8_SET_SMPEN
 	select FSL_LSCH3
+	select GICV3
 	select NXP_LSCH3_2
 	select SYS_HAS_SERDES
 	select SYS_FSL_SRDS_1
@@ -242,11 +261,13 @@ config ARCH_LX2162A
 	imply PANIC_HANG
 	imply SCSI
 	imply SCSI_AHCI
+	imply SPL_SYS_I2C_LEGACY
 
 config ARCH_LX2160A
 	bool
 	select ARMV8_SET_SMPEN
 	select FSL_LSCH3
+	select GICV3
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select NXP_LSCH3_2
 	select SYS_HAS_SERDES
@@ -272,12 +293,15 @@ config ARCH_LX2160A
 	select SYS_I2C_MXC
 	select RESV_RAM if GIC_V3_ITS
 	imply DISTRO_DEFAULTS
+	imply ID_EEPROM
 	imply PANIC_HANG
 	imply SCSI
 	imply SCSI_AHCI
+	imply SPL_SYS_I2C_LEGACY
 
 config FSL_LSCH2
 	bool
+	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_HAS_CCI400
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
@@ -429,7 +453,6 @@ config QSPI_AHB_INIT
 
 config FSPI_AHB_EN_4BYTE
 	bool "Enable 4-byte Fast Read command for AHB mode"
-	default n
 	help
 	  The default setting for FlexSPI AHB bus just supports 3-byte addressing.
 	  But some FlexSPI flash sizes are up to 64MBytes.

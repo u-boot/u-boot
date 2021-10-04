@@ -80,7 +80,6 @@ config DM_DEVICE_REMOVE
 config SPL_DM_DEVICE_REMOVE
 	bool "Support device removal in SPL"
 	depends on SPL_DM
-	default n
 	help
 	  We can save some code space by dropping support for removing a
 	  device. This is not normally required in SPL, so by default this
@@ -107,7 +106,6 @@ config DM_SEQ_ALIAS
 config SPL_DM_SEQ_ALIAS
 	bool "Support numbered aliases in device tree in SPL"
 	depends on SPL_DM
-	default n
 	help
 	  Most boards will have a '/aliases' node containing the path to
 	  numbered devices (e.g. serial0 = &serial0). This feature can be
@@ -132,7 +130,6 @@ config TPL_DM_INLINE_OFNODE
 config DM_DMA
 	bool "Support per-device DMA constraints"
 	depends on DM
-	default n
 	help
 	  Enable this to extract per-device DMA constraints, only supported on
 	  device-tree systems for now. This is needed in order translate
@@ -274,7 +271,6 @@ config OF_TRANSLATE
 config SPL_OF_TRANSLATE
 	bool "Translate addresses using fdt_translate_address in SPL"
 	depends on SPL_DM && SPL_OF_CONTROL
-	default n
 	help
 	  If this option is enabled, the reg property will be translated
 	  using the fdt_translate_address() function. This is necessary

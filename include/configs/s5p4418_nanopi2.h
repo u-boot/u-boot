@@ -60,12 +60,9 @@
  */
 #define CONFIG_SYS_SDRAM_SIZE		(0xb0000000 - CONFIG_SYS_SDRAM_BASE)
 
-#define CONFIG_SYS_MALLOC_LEN		(32 * 1024 * 1024)
-
 #define BMP_LOAD_ADDR			0x78000000
 
 /* kernel load address */
-#define CONFIG_SYS_LOAD_ADDR		0x71080000
 #define INITRD_START			0x79000000
 #define KERNEL_DTB_ADDR			0x7A000000
 
@@ -116,7 +113,6 @@
 					 (void *)PHY_BASEADDR_UART1, \
 					 (void *)PHY_BASEADDR_UART2, \
 					 (void *)PHY_BASEADDR_UART3}
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * PLL

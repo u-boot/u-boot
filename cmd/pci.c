@@ -59,7 +59,7 @@ static void pci_show_regs(struct udevice *dev, struct pci_reg_info *regs)
 	}
 }
 
-int pci_bar_show(struct udevice *dev)
+static int pci_bar_show(struct udevice *dev)
 {
 	u8 header_type;
 	int bar_cnt, bar_id, mem_type;
@@ -223,7 +223,7 @@ static struct pci_reg_info regs_cardbus[] = {
  *
  * @dev: Bus+Device+Function number
  */
-void pci_header_show(struct udevice *dev)
+static void pci_header_show(struct udevice *dev)
 {
 	unsigned long class, header_type;
 
@@ -251,7 +251,7 @@ void pci_header_show(struct udevice *dev)
     }
 }
 
-void pciinfo_header(int busnum, bool short_listing)
+static void pciinfo_header(int busnum, bool short_listing)
 {
 	printf("Scanning PCI devices on bus %d\n", busnum);
 

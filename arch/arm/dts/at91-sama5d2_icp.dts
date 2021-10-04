@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+ OR MIT
 /*
  * at91-sama5d2_icp.dts - Device Tree file for SAMA5D2 ICP board
- *			SAMA5D2 Industrial Connectivity Board
+ *			SAMA5D2 Industrial Connectivity Platform
  *
  *  Copyright (c) 2018, Microchip Technology Inc.
  *                2018, Eugen Hristev <eugen.hristev@microchip.com>
@@ -33,16 +33,31 @@
 		};
 
 		apb {
-			uart0: serial@f801c000 { /* mikrobus1 uart */
+
+			qspi1: spi@f0024000 {
 				pinctrl-names = "default";
-				pinctrl-0 = <&pinctrl_mikrobus1_uart>;
+				pinctrl-0 = <&pinctrl_qspi1_sck_cs_default &pinctrl_qspi1_dat_default>;
 				status = "okay";
+
+				flash@0 {
+					compatible = "jedec,spi-nor";
+					reg = <0>;
+					spi-max-frequency = <83000000>;
+					spi-rx-bus-width = <4>;
+					spi-tx-bus-width = <4>;
+				};
 			};
 
 			macb0: ethernet@f8008000 {
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_macb0_rmii &pinctrl_macb0_phy_irq &pinctrl_macb0_rst>;
 				phy-mode = "internal";
+				status = "okay";
+			};
+
+			uart0: serial@f801c000 { /* mikrobus1 uart */
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_mikrobus1_uart>;
 				status = "okay";
 			};
 
@@ -70,6 +85,7 @@
 					pagesize = <16>;
 				};
 			};
+
 			pioA: gpio@fc038000 {
 				status = "okay";
 				pinctrl {
@@ -109,6 +125,26 @@
 						bias-pull-up;
 					};
 
+					pinctrl_mikrobus1_uart: mikrobus1_uart {
+						pinmux = <PIN_PB26__URXD0>,
+							 <PIN_PB27__UTXD0>;
+						bias-disable;
+					};
+
+					pinctrl_qspi1_sck_cs_default: qspi1_sck_cs_default {
+						pinmux = <PIN_PA6__QSPI1_SCK>,
+							 <PIN_PA11__QSPI1_CS>;
+						bias-disable;
+					};
+
+					pinctrl_qspi1_dat_default: qspi1_dat_default {
+						pinmux = <PIN_PA7__QSPI1_IO0>,
+							 <PIN_PA8__QSPI1_IO1>,
+							 <PIN_PA9__QSPI1_IO2>,
+							 <PIN_PA10__QSPI1_IO3>;
+						bias-pull-up;
+					};
+
 					pinctrl_sdmmc0_default: sdmmc0_default {
 						pinmux = <PIN_PA1__SDMMC0_CMD>,
 							 <PIN_PA2__SDMMC0_DAT0>,
@@ -117,12 +153,6 @@
 							 <PIN_PA5__SDMMC0_DAT3>,
 							 <PIN_PA0__SDMMC0_CK>,
 							 <PIN_PA13__SDMMC0_CD>;
-						bias-disable;
-					};
-
-					pinctrl_mikrobus1_uart: mikrobus1_uart {
-						pinmux = <PIN_PB26__URXD0>,
-							 <PIN_PB27__UTXD0>;
 						bias-disable;
 					};
 				};

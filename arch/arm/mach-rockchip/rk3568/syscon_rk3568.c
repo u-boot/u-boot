@@ -18,7 +18,7 @@ U_BOOT_DRIVER(syscon_rk3568) = {
 	.name = "rk3568_syscon",
 	.id = UCLASS_SYSCON,
 	.of_match = rk3568_syscon_ids,
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.bind = dm_scan_fdt_dev,
 #endif
 };

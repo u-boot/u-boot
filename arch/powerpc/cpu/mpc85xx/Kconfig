@@ -48,6 +48,7 @@ config TARGET_MPC8548CDS
 	bool "Support MPC8548CDS"
 	select ARCH_MPC8548
 	select FSL_VIA
+	select SYS_CACHE_SHIFT_5
 
 config TARGET_P1010RDB_PA
 	bool "Support P1010RDB_PA"
@@ -316,6 +317,7 @@ config ARCH_MPC8540
 config ARCH_MPC8544
 	bool
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A005125
 	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR2
@@ -350,6 +352,7 @@ config ARCH_MPC8560
 config ARCH_P1010
 	bool
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A004477
 	select SYS_FSL_ERRATUM_A004508
 	select SYS_FSL_ERRATUM_A005125
@@ -395,6 +398,7 @@ config ARCH_P1011
 config ARCH_P1020
 	bool
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A004508
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_ELBC_A001
@@ -490,6 +494,7 @@ config ARCH_P1025
 config ARCH_P2020
 	bool
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A004477
 	select SYS_FSL_ERRATUM_A004508
 	select SYS_FSL_ERRATUM_A005125
@@ -510,6 +515,7 @@ config ARCH_P2041
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_ERRATUM_A004510
 	select SYS_FSL_ERRATUM_A004849
 	select SYS_FSL_ERRATUM_A005275
@@ -534,6 +540,7 @@ config ARCH_P3041
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_44
 	select SYS_FSL_ERRATUM_A004510
 	select SYS_FSL_ERRATUM_A004849
@@ -563,6 +570,7 @@ config ARCH_P4080
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_44
 	select SYS_FSL_ERRATUM_A004510
 	select SYS_FSL_ERRATUM_A004580
@@ -601,6 +609,7 @@ config ARCH_P5040
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_44
 	select SYS_FSL_ERRATUM_A004510
 	select SYS_FSL_ERRATUM_A004699
@@ -624,11 +633,13 @@ config ARCH_P5040
 
 config ARCH_QEMU_E500
 	bool
+	select SYS_CACHE_SHIFT_5
 
 config ARCH_T1024
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_ERRATUM_A008378
 	select SYS_FSL_ERRATUM_A008109
@@ -651,6 +662,7 @@ config ARCH_T1040
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_ERRATUM_A008044
 	select SYS_FSL_ERRATUM_A008378
@@ -673,6 +685,7 @@ config ARCH_T1042
 	bool
 	select E500MC
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_ERRATUM_A008044
 	select SYS_FSL_ERRATUM_A008378
@@ -696,6 +709,7 @@ config ARCH_T2080
 	select E500MC
 	select E6500
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A006379
 	select SYS_FSL_ERRATUM_A006593
@@ -718,12 +732,14 @@ config ARCH_T2080
 	imply CMD_NAND
 	imply CMD_REGINFO
 	imply FSL_SATA
+	imply ID_EEPROM
 
 config ARCH_T4240
 	bool
 	select E500MC
 	select E6500
 	select FSL_LAW
+	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A004468
 	select SYS_FSL_ERRATUM_A005871

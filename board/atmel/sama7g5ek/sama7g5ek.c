@@ -74,4 +74,3 @@ int dram_init(void)
 				    CONFIG_SYS_SDRAM_SIZE);
 	return 0;
 }
-

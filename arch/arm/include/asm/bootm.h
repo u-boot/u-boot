@@ -10,11 +10,7 @@
 
 extern void udc_disconnect(void);
 
-#if defined(CONFIG_SETUP_MEMORY_TAGS) || \
-		defined(CONFIG_CMDLINE_TAG) || \
-		defined(CONFIG_INITRD_TAG) || \
-		defined(CONFIG_SERIAL_TAG) || \
-		defined(CONFIG_REVISION_TAG)
+#ifdef CONFIG_SUPPORT_PASSING_ATAGS
 # define BOOTM_ENABLE_TAGS		1
 #else
 # define BOOTM_ENABLE_TAGS		0
@@ -41,9 +37,12 @@ extern void udc_disconnect(void);
 struct tag_serialnr;
 #ifdef CONFIG_SERIAL_TAG
  #define BOOTM_ENABLE_SERIAL_TAG	1
-void get_board_serial(struct tag_serialnr *serialnr);
 #else
  #define BOOTM_ENABLE_SERIAL_TAG	0
+#endif
+#if defined(CONFIG_SERIAL_TAG) || defined(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
+void get_board_serial(struct tag_serialnr *serialnr);
+#else
 static inline void get_board_serial(struct tag_serialnr *serialnr)
 {
 }

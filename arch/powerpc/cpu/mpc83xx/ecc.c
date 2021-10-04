@@ -11,7 +11,6 @@
 #include <mpc83xx.h>
 #include <command.h>
 
-#if defined(CONFIG_DDR_ECC) && defined(CONFIG_DDR_ECC_CMD)
 void ecc_print_status(void)
 {
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
@@ -386,4 +385,3 @@ U_BOOT_CMD(ecc, 4, 0, do_ecc,
 	   "  - writes pattern injecting errors with word access\n"
 	   "  - writes pattern with word access, generates error\n"
 	   "  - disables injects\n" "  - re-inits memory");
-#endif

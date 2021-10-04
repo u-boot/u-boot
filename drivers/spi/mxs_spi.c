@@ -440,7 +440,7 @@ static const struct dm_spi_ops mxs_spi_ops = {
 	 */
 };
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int mxs_of_to_plat(struct udevice *bus)
 {
 	struct mxs_spi_plat *plat = dev_get_plat(bus);
@@ -483,7 +483,7 @@ static const struct udevice_id mxs_spi_ids[] = {
 U_BOOT_DRIVER(fsl_imx23_spi) = {
 	.name = "fsl_imx23_spi",
 	.id	= UCLASS_SPI,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = mxs_spi_ids,
 	.of_to_plat = mxs_of_to_plat,
 #endif

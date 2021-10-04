@@ -8,6 +8,7 @@
  *		  2020, Claudiu Beznea <claudiu.beznea@microchip.com>
  */
 /dts-v1/;
+#include <dt-bindings/mfd/atmel-flexcom.h>
 #include "sama7g5.dtsi"
 #include "sama7g5-pinfunc.h"
 
@@ -64,7 +65,7 @@
 };
 
 &flx1 {
-	atmel,flexcom-mode = <3>;
+	atmel,flexcom-mode = <ATMEL_FLEXCOM_MODE_TWI>;
 	status = "okay";
 };
 

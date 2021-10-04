@@ -177,20 +177,13 @@
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_DDR_CLK_FREQ		66666666
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
-#define CONFIG_DDR_SPD
-
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x54
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
-
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_I2C_EEPROM_ADDR CONFIG_SYS_IVM_EEPROM_ADR
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 
 /******************************************************************************
  * (PRAM usage)
@@ -365,8 +358,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #define CONFIG_SYS_MONITOR_LEN		0xc0000         /* 768k */
-
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 /*
  * Serial Port - controlled on board with jumper J8

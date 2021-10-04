@@ -816,9 +816,11 @@ static int setup_sdram(struct udevice *dev)
 
 static int rk3188_dmc_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3188_sdram_params *params = dev_get_plat(dev);
 	int ret;
+
+	if (!CONFIG_IS_ENABLED(OF_REAL))
+		return 0;
 
 	/* rk3188 supports only one-channel */
 	params->num_channels = 1;
@@ -846,7 +848,6 @@ static int rk3188_dmc_of_to_plat(struct udevice *dev)
 	ret = regmap_init_mem(dev_ofnode(dev), &params->map);
 	if (ret)
 		return ret;
-#endif
 
 	return 0;
 }

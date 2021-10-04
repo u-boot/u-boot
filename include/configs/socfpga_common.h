@@ -18,7 +18,6 @@
  * Memory configurations
  */
 #define PHYS_SDRAM_1			0x0
-#define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
 #if defined(CONFIG_TARGET_SOCFPGA_GEN5)
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CONFIG_SYS_INIT_RAM_SIZE	SOCFPGA_PHYS_OCRAM_SIZE
@@ -186,7 +185,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #endif
 
 /* SPL SDMMC boot support */
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 #if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 #endif

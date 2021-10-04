@@ -298,7 +298,6 @@ endchoice
 
 config ATMEL_SFR
 	bool
-	default n
 
 config SYS_SOC
 	default "at91"

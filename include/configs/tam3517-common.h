@@ -20,16 +20,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10) + \
-					2 * 1024 * 1024)
 /*
  * DDR related
  */
@@ -53,12 +43,7 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
-/* EHCI */
-#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	25
 
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50		/* base address */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1		/* bytes of address */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
 
 /*
@@ -78,10 +63,6 @@
 
 #define CONFIG_SYS_MAXARGS		32	/* max number of command */
 						/* args */
-/* memtest works on */
-
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
-								/* address */
 
 /*
  * AM3517 has 12 GP timers, they can be driven by the system clock
@@ -249,7 +230,7 @@ struct tam3517_module_info {
 
 #define TAM3517_READ_EEPROM(info, ret) \
 do {								\
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE); \
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE); \
 	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,		\
 		(void *)info, sizeof(*info)))			\
 		ret = 1;					\

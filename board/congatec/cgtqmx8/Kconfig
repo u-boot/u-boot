@@ -9,6 +9,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "cgtqmx8"
 
+config IMX_CONFIG
+	default "board/congatec/cgtqmx8/imximage.cfg"
+
 source "board/congatec/common/Kconfig"
 
 endif

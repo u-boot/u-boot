@@ -248,7 +248,7 @@ U_BOOT_DRIVER(par_io_pinctrl) = {
 	.of_to_plat = qe_io_of_to_plat,
 	.plat_auto	= sizeof(struct qe_io_plat),
 	.ops = &par_io_pinctrl_ops,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif
 };

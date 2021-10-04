@@ -15,14 +15,14 @@ config SPL
 	select SPL_PINCTRL
 	select SPL_REGMAP
 	select SPL_DM_RESET
-	select SPL_SERIAL_SUPPORT
+	select SPL_SERIAL
 	select SPL_SYSCON
 	select SPL_WATCHDOG if WATCHDOG
 	imply BOOTSTAGE_STASH if SPL_BOOTSTAGE
 	imply SPL_BOOTSTAGE if BOOTSTAGE
 	imply SPL_DISPLAY_PRINT
 	imply SPL_LIBDISK_SUPPORT
-	imply SPL_SPI_LOAD if SPL_SPI_SUPPORT
+	imply SPL_SPI_LOAD if SPL_SPI
 
 config SYS_SOC
 	default "stm32mp"
@@ -190,7 +190,6 @@ config STM32_ECDSA_VERIFY
 
 config CMD_STM32KEY
 	bool "command stm32key to fuse public key hash"
-	default n
 	help
 		fuse public key hash in corresponding fuse used to authenticate
 		binary.

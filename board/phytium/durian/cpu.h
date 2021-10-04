@@ -20,4 +20,3 @@
 #define HNF_BASE            (unsigned long)(0x3A200000)
 
 #endif /* _FT_DURIAN_H */
-

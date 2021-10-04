@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "imx8mm_evk"
 
+config IMX_CONFIG
+	default "board/freescale/imx8mm_evk/imximage-8mm-lpddr4.cfg"
+
 endif

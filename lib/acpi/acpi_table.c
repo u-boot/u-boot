@@ -11,6 +11,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <tables_csum.h>
+#include <timestamp.h>
 #include <version.h>
 #include <acpi/acpi_table.h>
 #include <asm/global_data.h>

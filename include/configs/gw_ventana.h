@@ -24,14 +24,6 @@
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
 
-#define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
-
-/* Serial ATAG */
-#define CONFIG_SERIAL_TAG
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-
 /* Serial */
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
@@ -42,12 +34,6 @@
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* I2C Configs */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_I2C_GSC			0
 #define CONFIG_I2C_EDID
 
@@ -74,8 +60,6 @@
 /*
  * PMIC
  */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 #define CONFIG_POWER_LTC3676

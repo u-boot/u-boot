@@ -539,7 +539,7 @@ const struct iodelay_cfg_entry iodelay_cfg_array_bbai[] = {
 	{0x0884, 0, 0},         /* CFG_UART2_RTSN_OUT */
 	{0x0888, 683, 0},       /* CFG_UART2_RXD_IN */
 	{0x088C, 0, 0},         /* CFG_UART2_RXD_OEN */
-	{0x0890, 0, 0},	 	/* CFG_UART2_RXD_OUT */
+	{0x0890, 0, 0},		/* CFG_UART2_RXD_OUT */
 	{0x0894, 835, 0},       /* CFG_UART2_TXD_IN */
 	{0x0898, 0, 0},         /* CFG_UART2_TXD_OEN */
 	{0x089C, 0, 0},         /* CFG_UART2_TXD_OUT */
@@ -553,7 +553,7 @@ const struct iodelay_cfg_entry iodelay_cfg_array_bbai[] = {
 	{0x0C48, 0, 404},       /* CFG_VOUT1_D22_IN */
 	{0x0C78, 0, 0},         /* CFG_VOUT1_D4_IN */
 	{0x0C84, 0, 365},       /* CFG_VOUT1_D5_IN */
-	{0x0C90, 0, 0},	 	/* CFG_VOUT1_D6_IN */
+	{0x0C90, 0, 0},		/* CFG_VOUT1_D6_IN */
 	{0x0C9C, 0, 218},       /* CFG_VOUT1_D7_IN */
 };
 

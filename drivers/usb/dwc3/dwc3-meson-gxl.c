@@ -170,7 +170,7 @@ static int dwc3_meson_gxl_usb2_init(struct dwc3_meson_gxl *priv)
 static int dwc3_meson_gxl_usb_init(struct dwc3_meson_gxl *priv)
 {
 	int ret;
-	
+
 	ret = dwc3_meson_gxl_usb2_init(priv);
 	if (ret)
 		return ret;

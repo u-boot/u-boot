@@ -47,7 +47,6 @@
 #define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_SDRAM_BASE + \
 					 CONFIG_SYS_SDRAM_SIZE - \
 					 CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_SYS_MALLOC_LEN		0x20000
 
 /*
  * ENVIRONMENT -- Put environment in sector CONFIG_SYS_MONITOR_LEN above
@@ -57,10 +56,5 @@
  * (which is common practice).
  */
 
-/*
- * MISC
- */
-#define CONFIG_SYS_LOAD_ADDR		0xcc000000	/* Half of RAM */
-#define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 
 #endif /* __CONFIG_H */

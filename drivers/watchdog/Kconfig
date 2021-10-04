@@ -24,7 +24,7 @@ config WATCHDOG_AUTOSTART
 
 config WATCHDOG_TIMEOUT_MSECS
 	int "Watchdog timeout in msec"
-	default 128000 if ARCH_MX25 || ARCH_MX31 || ARCH_MX5 || ARCH_MX6
+	default 128000 if ARCH_MX31 || ARCH_MX5 || ARCH_MX6
 	default 128000 if ARCH_MX7 || ARCH_VF610
 	default 30000 if ARCH_SOCFPGA
 	default 60000
@@ -147,6 +147,15 @@ config WDT_CORTINA
 	  This driver support all CPU ISAs supported by Cortina
 	  Access CAxxxx SoCs.
 
+config WDT_GPIO
+	bool "External gpio watchdog support"
+	depends on WDT
+	depends on DM_GPIO
+	help
+	  Support for external watchdog fed by toggling a gpio. See
+	  doc/device-tree-bindings/watchdog/gpio-wdt.txt for
+	  information on how to describe the watchdog in device tree.
+
 config WDT_MPC8xx
 	bool "MPC8xx watchdog timer support"
 	depends on WDT && MPC8xx
@@ -208,6 +217,26 @@ config WDT_K3_RTI
 	help
 	  Say Y here if you want to include support for the K3 watchdog
 	  timer (RTI module) available in the K3 generation of processors.
+
+if WDT_K3_RTI
+
+config WDT_K3_RTI_LOAD_FW
+	bool "Load watchdog firmware"
+	depends on REMOTEPROC
+	help
+	  Automatically load the specified firmware image into the MCU R5F
+	  core 0. On the AM65x, this firmware is supposed to handle the expiry
+	  of the watchdog timer, typically by resetting the system.
+
+config WDT_K3_RTI_FW_FILE
+	string "Watchdog firmware image file"
+	default "k3-rti-wdt.fw"
+	depends on WDT_K3_RTI_LOAD_FW
+	help
+	  Firmware image to be embedded into U-Boot and loaded on watchdog
+	  start.
+
+endif
 
 config WDT_SANDBOX
 	bool "Enable Watchdog Timer support for Sandbox"

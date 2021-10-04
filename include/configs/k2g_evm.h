@@ -12,11 +12,8 @@
 #include <environment/ti/mmc.h>
 #include <environment/ti/spi.h>
 
-/* Platform type */
-#define CONFIG_SOC_K2G
-
 /* U-Boot general configuration */
-#define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+#define ENV_KS2_BOARD_SETTINGS						\
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_PMMC_BOOT_ENV						\
 	DEFAULT_FW_INITRAMFS_BOOT_ENV					\

@@ -51,7 +51,7 @@ int power_tps65910_init(unsigned char bus)
 
 /*
  * tps65910_set_i2c_control() - Set the TPS65910 to be controlled via the I2C
- * 				interface.
+ *				interface.
  * @return:		       0 on success, not 0 on failure
  */
 int tps65910_set_i2c_control(void)

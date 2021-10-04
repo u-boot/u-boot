@@ -40,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 
 static const struct ddr_data ddr3_sl50_data = {
 	.datardsratio0 = MT41K256M16HA125E_RD_DQS,
@@ -161,7 +161,7 @@ void am33xx_spl_board_init(void)
 const struct dpll_params *get_dpll_ddr_params(void)
 {
 	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	return &dpll_ddr_sl50;
 }

@@ -8,4 +8,3 @@
 #define _ASM_ARCH_IMXRT_H
 
 #endif /* _ASM_ARCH_IMXRT_H */
-

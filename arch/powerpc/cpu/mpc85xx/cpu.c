@@ -11,6 +11,7 @@
 #include <config.h>
 #include <common.h>
 #include <cpu_func.h>
+#include <clock_legacy.h>
 #include <init.h>
 #include <irq_func.h>
 #include <log.h>
@@ -52,7 +53,8 @@ int checkcpu (void)
 	uint major, minor;
 	struct cpu_type *cpu;
 	char buf1[32], buf2[32];
-#if defined(CONFIG_DDR_CLK_FREQ) || defined(CONFIG_FSL_CORENET)
+#if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || \
+	defined(CONFIG_STATIC_DDR_CLK_FREQ) || defined(CONFIG_FSL_CORENET)
 	ccsr_gur_t __iomem *gur =
 		(void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
@@ -70,12 +72,12 @@ int checkcpu (void)
 		>> FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT;
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 #else	/* CONFIG_FSL_CORENET */
-#ifdef CONFIG_DDR_CLK_FREQ
+#if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || defined(CONFIG_STATIC_DDR_CLK_FREQ)
 	u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
 		>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 #else
 	u32 ddr_ratio = 0;
-#endif /* CONFIG_DDR_CLK_FREQ */
+#endif /* CONFIG_DYNAMIC_DDR_CLK_FREQ || CONFIG_STATIC_DDR_CLK_FREQ */
 #endif /* CONFIG_FSL_CORENET */
 
 	unsigned int i, core, nr_cores = cpu_numcores();

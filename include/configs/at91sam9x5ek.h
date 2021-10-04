@@ -12,11 +12,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
@@ -65,8 +60,6 @@
 #endif
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
-
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_BOOTCOMMAND	"nand read " \
@@ -84,11 +77,6 @@
 				"sf read 0x22000000 0x84000 0x294000; " \
 				"bootm 0x22000000"
 #endif
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(512 * 1024 + 0x1000)
 
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x6000

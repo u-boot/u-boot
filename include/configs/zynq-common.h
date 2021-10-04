@@ -65,7 +65,6 @@
 /* enable preboot to be loaded before CONFIG_BOOTDELAY */
 
 /* Boot configuration */
-#define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
 #ifdef CONFIG_SPL_BUILD
 #define BOOTENV

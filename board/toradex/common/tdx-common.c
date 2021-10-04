@@ -32,8 +32,8 @@ static char tdx_car_rev_str[6];
 static char *tdx_carrier_board_name;
 #endif
 
-#ifdef CONFIG_REVISION_TAG
-u32 get_board_rev(void)
+#if defined(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
+u32 get_board_revision(void)
 {
 	/* Check validity */
 	if (!tdx_hw_tag.ver_major)
@@ -183,8 +183,8 @@ int ft_common_board_setup(void *blob, struct bd_info *bd)
 
 #else /* CONFIG_TDX_CFG_BLOCK */
 
-#ifdef CONFIG_REVISION_TAG
-u32 get_board_rev(void)
+#if defined(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
+u32 get_board_revision(void)
 {
 	return 0;
 }

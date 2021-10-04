@@ -20,11 +20,6 @@
 
 /* CPU */
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
 #define CONFIG_SYS_SDRAM_SIZE		(64 * 1024 * 1024) /* 64MB */
@@ -73,10 +68,6 @@
 #endif
 
 /* I2C - Bit-bashed */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
-#define CONFIG_SYS_I2C_SOFT_SPEED	100000
-#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
 #define CONFIG_SOFT_I2C_READ_REPEATED_START
 #define I2C_INIT do {							\
 		at91_set_gpio_output(AT91_PIN_PA23, 1);			\
@@ -100,15 +91,11 @@
 #define I2C_DELAY	udelay(2)
 
 /* Boot options */
-#define CONFIG_SYS_LOAD_ADDR		0x23000000
 
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Environment settings */
 
 /* Console settings */
-
-/* U-Boot memory settings */
-#define CONFIG_SYS_MALLOC_LEN		(1 << 20)
 
 #endif /* __CONFIG_H */

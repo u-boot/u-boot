@@ -29,9 +29,6 @@
 #endif
 #endif
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
-
 /* Environment settings */
 
 /* Environment in SD */
@@ -47,15 +44,9 @@
 #define CONFIG_SUPPORT_EMMC_BOOT
 
 /* I2C configs */
-#ifdef CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_SPEED		100000
-#endif
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

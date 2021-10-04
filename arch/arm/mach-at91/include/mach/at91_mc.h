@@ -16,7 +16,7 @@
 #ifndef __ASSEMBLY__
 
 typedef struct at91_ebi {
-	u32 	csa;		/* 0x00 Chip Select Assignment Register */
+	u32	csa;		/* 0x00 Chip Select Assignment Register */
 	u32	cfgr;		/* 0x04 Configuration Register */
 	u32	reserved[2];
 } at91_ebi_t;
@@ -28,20 +28,20 @@ typedef struct at91_ebi {
 #define AT91_EBI_CSA_CS4A	0x0010
 
 typedef struct at91_sdramc {
-	u32	mr; 	/* 0x00 SDRAMC Mode Register */
-	u32	tr; 	/* 0x04 SDRAMC Refresh Timer Register */
-	u32	cr; 	/* 0x08 SDRAMC Configuration Register */
-	u32	ssr; 	/* 0x0C SDRAMC Self Refresh Register */
-	u32	lpr; 	/* 0x10 SDRAMC Low Power Register */
-	u32	ier; 	/* 0x14 SDRAMC Interrupt Enable Register */
-	u32	idr; 	/* 0x18 SDRAMC Interrupt Disable Register */
-	u32	imr; 	/* 0x1C SDRAMC Interrupt Mask Register */
-	u32	icr; 	/* 0x20 SDRAMC Interrupt Status Register */
+	u32	mr;	/* 0x00 SDRAMC Mode Register */
+	u32	tr;	/* 0x04 SDRAMC Refresh Timer Register */
+	u32	cr;	/* 0x08 SDRAMC Configuration Register */
+	u32	ssr;	/* 0x0C SDRAMC Self Refresh Register */
+	u32	lpr;	/* 0x10 SDRAMC Low Power Register */
+	u32	ier;	/* 0x14 SDRAMC Interrupt Enable Register */
+	u32	idr;	/* 0x18 SDRAMC Interrupt Disable Register */
+	u32	imr;	/* 0x1C SDRAMC Interrupt Mask Register */
+	u32	icr;	/* 0x20 SDRAMC Interrupt Status Register */
 	u32	reserved[3];
 } at91_sdramc_t;
 
 typedef struct at91_smc {
-	u32	csr[8]; 	/* 0x00 SDRAMC Mode Register */
+	u32	csr[8];		/* 0x00 SDRAMC Mode Register */
 } at91_smc_t;
 
 #define AT91_SMC_CSR_RWHOLD(x)		((x & 0x7) << 28)
@@ -60,7 +60,7 @@ typedef struct at91_smc {
 #define AT91_SMC_CSR_NWS(x)		(x & 0x7F)
 
 typedef struct at91_bfc {
-	u32	mr; 	/* 0x00 SDRAMC Mode Register */
+	u32	mr;	/* 0x00 SDRAMC Mode Register */
 } at91_bfc_t;
 
 typedef struct at91_mc {

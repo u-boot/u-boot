@@ -15,8 +15,6 @@
  * U-Boot general configurations
  */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-#define CONFIG_LOADADDR			0x2000000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_REMAKE_ELF
 /* sysmgr.boot_scratch_cold4 & 5 (64bit) will be used for PSCI_CPU_ON call */
 #define CPU_RELEASE_ADDR		0xFFD12210
@@ -47,7 +45,6 @@
 					+ 0x100000)
 #endif
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_SP_ADDR)
-#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 
 /*
  * U-Boot environment configurations
@@ -114,11 +111,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 	"fatscript=if fatload mmc 0:1 ${scriptaddr} ${scriptfile};" \
 		   "then source ${scriptaddr}; fi\0" \
 	"socfpga_legacy_reset_compat=1\0"
-
-/*
- * Generic Interrupt Controller Definitions
- */
-#define CONFIG_GICV2
 
 /*
  * External memory configurations

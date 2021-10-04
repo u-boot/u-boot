@@ -203,7 +203,7 @@ void spl_board_init(void)
 	gpmc_init();
 #endif
 #if defined(CONFIG_SPL_I2C) && !CONFIG_IS_ENABLED(DM_I2C)
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 #if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW)
 	arch_misc_init();

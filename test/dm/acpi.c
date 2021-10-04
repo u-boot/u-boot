@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <timestamp.h>
 #include <version.h>
 #include <tables_csum.h>
 #include <version.h>

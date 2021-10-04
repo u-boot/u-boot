@@ -110,32 +110,6 @@ static u16 i2c_clk_div[50][2] = {
 };
 #endif
 
-#ifndef CONFIG_SYS_MXC_I2C1_SPEED
-#define CONFIG_SYS_MXC_I2C1_SPEED 100000
-#endif
-#ifndef CONFIG_SYS_MXC_I2C2_SPEED
-#define CONFIG_SYS_MXC_I2C2_SPEED 100000
-#endif
-#ifndef CONFIG_SYS_MXC_I2C3_SPEED
-#define CONFIG_SYS_MXC_I2C3_SPEED 100000
-#endif
-#ifndef CONFIG_SYS_MXC_I2C4_SPEED
-#define CONFIG_SYS_MXC_I2C4_SPEED 100000
-#endif
-
-#ifndef CONFIG_SYS_MXC_I2C1_SLAVE
-#define CONFIG_SYS_MXC_I2C1_SLAVE 0
-#endif
-#ifndef CONFIG_SYS_MXC_I2C2_SLAVE
-#define CONFIG_SYS_MXC_I2C2_SLAVE 0
-#endif
-#ifndef CONFIG_SYS_MXC_I2C3_SLAVE
-#define CONFIG_SYS_MXC_I2C3_SLAVE 0
-#endif
-#ifndef CONFIG_SYS_MXC_I2C4_SLAVE
-#define CONFIG_SYS_MXC_I2C4_SLAVE 0
-#endif
-
 /*
  * Calculate and set proper clock divider
  */
@@ -797,8 +771,6 @@ void bus_i2c_init(int index, int speed, int unused,
 
 	bus_i2c_set_bus_speed(&mxc_i2c_buses[index], speed);
 }
-
-
 
 /*
  * Init I2C Bus

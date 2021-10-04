@@ -277,7 +277,7 @@ struct global_data {
 	 */
 	void *trace_buff;
 #endif
-#if defined(CONFIG_SYS_I2C_LEGACY)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	/**
 	 * @cur_i2c_bus: currently used I2C bus
 	 */
@@ -446,12 +446,6 @@ struct global_data {
 	 * See CONFIG_TRANSLATION_OFFSET.
 	 */
 	fdt_addr_t translation_offset;
-#endif
-#if CONFIG_IS_ENABLED(WDT)
-	/**
-	 * @watchdog_dev: watchdog device
-	 */
-	struct udevice *watchdog_dev;
 #endif
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 	/**

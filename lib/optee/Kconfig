@@ -34,7 +34,6 @@ config BOOTM_OPTEE
 	bool "Support OPTEE bootm command"
 	select BOOTM_LINUX
 	depends on OPTEE
-	default n
 	help
 	  Select this command to enable chain-loading of a Linux kernel
 	  via an OPTEE firmware.

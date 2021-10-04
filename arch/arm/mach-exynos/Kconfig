@@ -141,7 +141,7 @@ if ARCH_EXYNOS7
 choice
 	prompt "EXYNOS7 board select"
 
-config  TARGET_ESPRESSO7420
+config TARGET_ESPRESSO7420
 	bool "ESPRESSO7420 board"
 	select ARM64
 	select ARMV8_MULTIENTRY

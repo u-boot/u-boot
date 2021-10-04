@@ -76,8 +76,8 @@ void early_system_init(void)
 	hw_data_init();
 }
 
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
-	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) && \
+	!CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT_ONLY)
 
 /******************************************************************************
  * Routine: secure_unlock

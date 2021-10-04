@@ -14,7 +14,6 @@
 					  230400, 500000, 1500000 }
 /* Memory usage */
 #define CONFIG_SYS_MAXARGS		24
-#define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
 
 /*
  * 6858
@@ -25,9 +24,6 @@
 
 /* U-Boot */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + SZ_16M)
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_TEXT_BASE
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -38,4 +34,3 @@
 /*
  * 968580xref
  */
-

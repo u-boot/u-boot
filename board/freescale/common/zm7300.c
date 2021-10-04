@@ -230,4 +230,3 @@ int zm_enable_wp()
 	}
 	return 0;
 }
-

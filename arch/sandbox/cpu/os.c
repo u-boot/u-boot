@@ -133,6 +133,19 @@ int os_write_file(const char *fname, const void *buf, int size)
 	return 0;
 }
 
+int os_filesize(int fd)
+{
+	off_t size;
+
+	size = os_lseek(fd, 0, OS_SEEK_END);
+	if (size < 0)
+		return -errno;
+	if (os_lseek(fd, 0, OS_SEEK_SET) < 0)
+		return -errno;
+
+	return size;
+}
+
 int os_read_file(const char *fname, void **bufp, int *sizep)
 {
 	off_t size;
@@ -144,15 +157,12 @@ int os_read_file(const char *fname, void **bufp, int *sizep)
 		printf("Cannot open file '%s'\n", fname);
 		goto err;
 	}
-	size = os_lseek(fd, 0, OS_SEEK_END);
+	size = os_filesize(fd);
 	if (size < 0) {
-		printf("Cannot seek to end of file '%s'\n", fname);
+		printf("Cannot get file size of '%s'\n", fname);
 		goto err;
 	}
-	if (os_lseek(fd, 0, OS_SEEK_SET) < 0) {
-		printf("Cannot seek to start of file '%s'\n", fname);
-		goto err;
-	}
+
 	*bufp = os_malloc(size);
 	if (!*bufp) {
 		printf("Not enough memory to read file '%s'\n", fname);
@@ -170,6 +180,35 @@ int os_read_file(const char *fname, void **bufp, int *sizep)
 err:
 	os_close(fd);
 	return ret;
+}
+
+int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep)
+{
+	void *ptr;
+	int size;
+	int ifd;
+
+	ifd = os_open(pathname, os_flags);
+	if (ifd < 0) {
+		printf("Cannot open file '%s'\n", pathname);
+		return -EIO;
+	}
+	size = os_filesize(ifd);
+	if (size < 0) {
+		printf("Cannot get file size of '%s'\n", pathname);
+		return -EIO;
+	}
+
+	ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, ifd, 0);
+	if (ptr == MAP_FAILED) {
+		printf("Can't map file '%s': %s\n", pathname, strerror(errno));
+		return -EPERM;
+	}
+
+	*bufp = ptr;
+	*sizep = size;
+
+	return 0;
 }
 
 /* Restore tty state when we exit */
@@ -690,7 +729,6 @@ static int add_args(char ***argvp, char *add_args[], int count)
 				continue;
 			}
 		} else if (!strcmp(arg, "--rm_memory")) {
-			ap++;
 			continue;
 		}
 		argv[argc++] = arg;

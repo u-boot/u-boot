@@ -3,7 +3,6 @@ if ARM64
 config ARMV8_SPL_EXCEPTION_VECTORS
 	bool "Install crash dump exception vectors"
 	depends on SPL
-	default n
 	help
 	  The default exception vector table is only used for the crash
 	  dump, but still takes quite a lot of space in the image size.
@@ -128,7 +127,6 @@ config PSCI_RESET
 
 config ARMV8_PSCI
 	bool "Enable PSCI support" if EXPERT
-	default n
 	help
 	  PSCI is Power State Coordination Interface defined by ARM.
 	  The PSCI in U-boot provides a general framework and each platform
@@ -156,7 +154,6 @@ config ARMV8_PSCI_CPUS_PER_CLUSTER
 
 config ARMV8_EA_EL3_FIRST
 	bool "External aborts and SError interrupt exception are taken in EL3"
-	default n
 	help
 	  Exception handling at all exception levels for External Abort and
 	  SError interrupt exception are taken in EL3.

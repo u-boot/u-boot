@@ -33,8 +33,6 @@
 
 #endif
 
-#define CONFIG_SERIAL_TAG
-
 #define CONFIG_REMAKE_ELF
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -63,8 +61,8 @@
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"image=Image\0" \
 	"console=ttyLP1,115200 earlycon\0" \
 	"fdt_addr_r=0x83000000\0"			\
@@ -76,9 +74,6 @@
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x80480000
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x80000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x80000
@@ -87,9 +82,6 @@
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_MMCROOT			"/dev/mmcblk2p2"
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_16M)
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM			0x80000000

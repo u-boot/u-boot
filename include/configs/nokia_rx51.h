@@ -23,8 +23,6 @@
  */
 #define CONFIG_SYS_L2CACHE_OFF		/* pretend there is no L2 CACHE */
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_NOKIA_RX51
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 #include <asm/arch/mem.h>
@@ -34,19 +32,7 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#define CONFIG_SKIP_LOWLEVEL_INIT		/* X-Loader set everything up */
-
-#define CONFIG_CMDLINE_TAG	/* enable passing kernel command line string */
-#define CONFIG_INITRD_TAG			/* enable passing initrd */
-#define CONFIG_REVISION_TAG			/* enable passing revision tag*/
-#define CONFIG_SETUP_MEMORY_TAGS		/* enable memory tag */
-
-/*
- * Size of malloc() pool
- */
 #define CONFIG_UBI_SIZE			(512 << 10)
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + CONFIG_UBI_SIZE + \
-					(128 << 10))
 
 /*
  * Hardware drivers
@@ -187,9 +173,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"run emmcboot;" \
 	"run attachboot;" \
 	"echo"
-
-/* default load address */
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)
 
 /*
  * OMAP3 has 12 GP timers, they can be driven by the system clock

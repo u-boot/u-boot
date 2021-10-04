@@ -2,7 +2,18 @@
 # Serial device configuration
 #
 
-menu "Serial drivers"
+menuconfig SERIAL
+	bool "Serial"
+	default y
+	help
+	  Enable support for serial drivers. This allows use of a serial UART
+	  for displaying messages while U-Boot is running. It also brings in
+	  printf() and panic() functions. This should normally be enabled
+	  unless there are space reasons not to. If you just need to disable
+	  the console you can adjust the stdout environment variable or use
+	  SILENT_CONSOLE.
+
+if SERIAL
 
 config BAUDRATE
 	int "Default baudrate"
@@ -137,7 +148,6 @@ config SERIAL_SEARCH_ALL
 config SERIAL_PROBE_ALL
 	bool "Probe all available serial devices"
 	depends on DM_SERIAL
-	default n
 	help
 	  The serial subsystem only probes for a single serial device,
 	  but does not probe for other remaining serial devices.
@@ -621,7 +631,6 @@ config FSL_LPUART
 
 config MVEBU_A3700_UART
 	bool "UART support for Armada 3700"
-	default n
 	help
 	  Choose this option to add support for UART driver on the Marvell
 	  Armada 3700 SoC. The base address is configured via DT.
@@ -636,8 +645,7 @@ config MCFUART
 
 config MXC_UART
 	bool "IMX serial port support"
-	depends on ARCH_MX25 || ARCH_MX31 || TARGET_FLEA3 \
-		|| MX5 || MX6 || MX7 || IMX8M
+	depends on ARCH_MX31 || MX5 || MX6 || MX7 || IMX8M
 	help
 	  If you have a machine based on a Motorola IMX CPU you
 	  can enable its onboard serial port by enabling this option.
@@ -939,4 +947,4 @@ config SYS_SDMR
 	depends on MPC8XX_CONS
 	default 0
 
-endmenu
+endif

@@ -8,7 +8,6 @@
 #define __LS2_COMMON_H
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_GICV3
 
 #include <asm/arch/stream_id_lsch3.h>
 #include <asm/arch/config.h>
@@ -23,8 +22,6 @@
 /* We need architecture specific misc initializations */
 
 /* Link Definitions */
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #ifndef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_DDR_RAW_TIMING
@@ -63,9 +60,6 @@
  */
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
-
 /* GPIO */
 #ifdef CONFIG_DM_GPIO
 #ifndef CONFIG_MPC8XXX_GPIO
@@ -74,16 +68,11 @@
 #endif
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#endif
 
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE     1
 #define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* IFC */
 #define CONFIG_FSL_IFC
@@ -157,7 +146,6 @@ unsigned long long get_qixis_addr(void);
 #endif
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
 /* Physical Memory Map */
 /* fixme: these need to be checked against the board */

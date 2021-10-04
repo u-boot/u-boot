@@ -828,4 +828,3 @@ void nix_print_mac_info(struct udevice *dev)
 	printf(" CGX%d LMAC%d [%s]", lmac->cgx->cgx_id, lmac->lmac_id,
 	       lmac_type_to_str[lmac->lmac_type]);
 }
-

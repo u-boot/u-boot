@@ -5,9 +5,6 @@
 #ifndef __CONFIGS_MX23_OLINUXINO_H__
 #define __CONFIGS_MX23_OLINUXINO_H__
 
-/* System configurations */
-#define CONFIG_MACH_TYPE	4105
-
 /* U-Boot Commands */
 
 /* Memory configuration */
@@ -27,8 +24,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_LOADADDR		0x42000000
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \

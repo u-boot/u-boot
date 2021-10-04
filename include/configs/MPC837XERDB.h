@@ -66,9 +66,6 @@
 
 #define CONFIG_SYS_DDRCDR_VALUE	(DDRCDR_DHC_EN | DDRCDR_ODT | DDRCDR_Q_DRN)
 
-#undef CONFIG_DDR_ECC		/* support DDR ECC function */
-#undef CONFIG_DDR_ECC_CMD	/* Use DDR ECC user commands */
-
 #undef CONFIG_NEVER_ASSERT_ODT_TO_CPU	/* Never assert ODT to internal IOs */
 
 /*
@@ -113,17 +110,9 @@
 				| (0 << SDRAM_INTERVAL_BSTOPRE_SHIFT))
 				/* 0x06090100 */
 
-#if defined(CONFIG_DDR_2T_TIMING)
-#define CONFIG_SYS_DDR_SDRAM_CFG	(SDRAM_CFG_SREN \
-					| SDRAM_CFG_SDRAM_TYPE_DDR2 \
-					| SDRAM_CFG_32_BE \
-					| SDRAM_CFG_2T_EN)
-					/* 0x43088000 */
-#else
 #define CONFIG_SYS_DDR_SDRAM_CFG	(SDRAM_CFG_SREN \
 					| SDRAM_CFG_SDRAM_TYPE_DDR2)
 					/* 0x43000000 */
-#endif
 #define CONFIG_SYS_DDR_SDRAM_CFG2	0x00001000 /* 1 posted refresh */
 #define CONFIG_SYS_DDR_MODE		((0x0406 << SDRAM_MODE_ESD_SHIFT) \
 					| (0x0442 << SDRAM_MODE_SD_SHIFT))
@@ -147,7 +136,6 @@
 #endif
 
 #define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN	(512 * 1024) /* Reserved for malloc */
 
 /*
  * Initial RAM Base Address Setup
@@ -203,11 +191,6 @@
 #define CONFIG_FSL_SERDES2	0xe3100
 
 /* I2C */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x51} }
 
 /*
@@ -329,7 +312,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000 /* default load address */
 
 /*
  * For booting Linux, the board info and command line data
@@ -338,10 +320,6 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ	(256 << 20) /* Initial Memory map for Linux */
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
-#endif
 
 /*
  * Environment Configuration
@@ -360,9 +338,6 @@
 				/* U-Boot image on TFTP server */
 #define CONFIG_UBOOTPATH	"u-boot.bin"
 #define CONFIG_FDTFILE		"mpc8379_rdb.dtb"
-
-				/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		800000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" CONFIG_NETDEV "\0"				\
@@ -390,7 +365,7 @@
 							"$netdev:off "	\
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0"
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv rootdev /dev/nfs;"					\
 	"run setbootargs;"						\
 	"run setipargs;"						\
@@ -398,7 +373,7 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND						\
+#define RAMBOOTCOMMAND						\
 	"setenv rootdev /dev/ram;"					\
 	"run setbootargs;"						\
 	"tftp $ramdiskaddr $ramdiskfile;"				\

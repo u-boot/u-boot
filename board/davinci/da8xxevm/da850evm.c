@@ -129,18 +129,11 @@ int misc_init_r(void)
 {
 	dspwake();
 
-#if defined(CONFIG_MAC_ADDR_IN_SPIFLASH) || defined(CONFIG_MAC_ADDR_IN_EEPROM)
-
-	uchar env_enetaddr[6];
-	int enetaddr_found;
+#if defined(CONFIG_MAC_ADDR_IN_SPIFLASH)
+	uchar env_enetaddr[6], buff[6];
+	int enetaddr_found, spi_mac_read;
 
 	enetaddr_found = eth_env_get_enetaddr("ethaddr", env_enetaddr);
-
-#endif
-
-#ifdef CONFIG_MAC_ADDR_IN_SPIFLASH
-	int spi_mac_read;
-	uchar buff[6];
 
 	spi_mac_read = get_mac_addr(buff);
 	buff[0] = 0;
@@ -173,34 +166,6 @@ int misc_init_r(void)
 					"with the MAC address in the environment\n");
 		printf("Default using MAC address from environment\n");
 	}
-
-#elif defined(CONFIG_MAC_ADDR_IN_EEPROM)
-	uint8_t enetaddr[8];
-	int eeprom_mac_read;
-
-	/* Read Ethernet MAC address from EEPROM */
-	eeprom_mac_read = dvevm_read_mac_address(enetaddr);
-
-	/*
-	 * MAC address not present in the environment
-	 * try and read the MAC address from EEPROM flash
-	 * and set it.
-	 */
-	if (!enetaddr_found) {
-		if (eeprom_mac_read)
-			/* Set Ethernet MAC address from EEPROM */
-			davinci_sync_env_enetaddr(enetaddr);
-	} else {
-		/*
-		 * MAC address present in environment compare it with
-		 * the MAC address in EEPROM and warn on mismatch
-		 */
-		if (eeprom_mac_read && memcmp(enetaddr, env_enetaddr, 6))
-			printf("Warning: MAC address in EEPROM don't match "
-					"with the MAC address in the environment\n");
-		printf("Default using MAC address from environment\n");
-	}
-
 #endif
 	return 0;
 }
@@ -267,6 +232,7 @@ const int lpsc_size = ARRAY_SIZE(lpsc);
 
 #define REV_AM18X_EVM		0x100
 
+#ifdef CONFIG_REVISION_TAG
 /*
  * get_board_rev() - setup to pass kernel board revision information
  * Returns:
@@ -294,6 +260,7 @@ u32 get_board_rev(void)
 		rev = 1;
 	return rev;
 }
+#endif
 
 int board_early_init_f(void)
 {

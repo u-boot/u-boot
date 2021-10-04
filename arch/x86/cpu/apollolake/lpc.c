@@ -128,7 +128,7 @@ struct acpi_ops apl_lpc_acpi_ops = {
 	.inject_dsdt	= southbridge_inject_dsdt,
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id apl_lpc_ids[] = {
 	{ .compatible = "intel,apl-lpc" },
 	{ }

@@ -951,21 +951,23 @@ static int flash_read_buf(int dev, int fd, void *buf, size_t count,
 				DEVNAME(dev), strerror(errno));
 			return -1;
 		}
-		if (rc != readlen) {
-			fprintf(stderr,
-				"Read error on %s: Attempted to read %zd bytes but got %d\n",
-				DEVNAME(dev), readlen, rc);
-			return -1;
-		}
 #ifdef DEBUG
 		fprintf(stderr, "Read 0x%x bytes at 0x%llx on %s\n",
 			rc, (unsigned long long)blockstart + block_seek,
 			DEVNAME(dev));
 #endif
-		processed += readlen;
-		readlen = min(blocklen, count - processed);
-		block_seek = 0;
-		blockstart += blocklen;
+		processed += rc;
+		if (rc != readlen) {
+			fprintf(stderr,
+				"Warning on %s: Attempted to read %zd bytes but got %d\n",
+				DEVNAME(dev), readlen, rc);
+			readlen -= rc;
+			block_seek += rc;
+		} else {
+			blockstart += blocklen;
+			readlen = min(blocklen, count - processed);
+			block_seek = 0;
+		}
 	}
 
 	return processed;

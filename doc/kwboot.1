@@ -1,21 +1,22 @@
-.TH KWBOOT 1 "2012-05-19"
+.TH KWBOOT 1 "2021-08-25"
 
 .SH NAME
-kwboot \- Boot Marvell Kirkwood SoCs over a serial link.
+kwboot \- Boot Marvell Kirkwood (and others 32-bit) SoCs over a serial link.
 .SH SYNOPSIS
 .B kwboot
 .RB [ "-b \fIimage\fP" ]
-.RB [ "-p" ]
 .RB [ "-t" ]
 .RB [ "-B \fIbaudrate\fP" ]
 .RB \fITTY\fP
 .SH "DESCRIPTION"
 
-The \fBmkimage\fP program boots boards based on Marvell's Kirkwood
-platform over their integrated UART. Boot image files will typically
+The \fBkwboot\fP program boots boards based on Marvell's 32-bit
+platforms including Kirkwood, Dove, A370, AXP, A375, A38x
+and A39x over their integrated UART. Boot image files will typically
 contain a second stage boot loader, such as U-Boot. The image file
 must conform to Marvell's BootROM firmware image format
-(\fIkwbimage\fP), created using a tool such as \fBmkimage\fP.
+(\fIkwbimage v0\fP or \fIv1\fP), created using a tool such as
+\fBmkimage\fP.
 
 Following power-up or a system reset, system BootROM code polls the
 UART for a brief period of time, sensing a handshake message which
@@ -36,25 +37,23 @@ by the second-stage loader.
 Handshake; then upload file \fIimage\fP over \fITTY\fP.
 
 Note that for the encapsulated boot code to be executed, \fIimage\fP
-must be of type "UART boot" (0x69). Boot images of different types,
-such as backup images of vendor firmware downloaded from flash memory
-(type 0x8B), will not work (or not as expected). See \fB-p\fP for a
-workaround.
+must be of type "UART boot" (0x69). The \fBkwboot\fP program changes
+this type automatically, unless the \fIimage\fP is signed, in which
+case it cannot be changed.
 
 This mode writes handshake status and upload progress indication to
-stdout.
+stdout. It is possible that \fIimage\fP contains an optional binary
+code in it's header which may also print some output via UART (for
+example U-Boot SPL does this). In such a case, this output is also
+written to stdout after the header is sent.
 
 .TP
 .BI "\-p"
-In combination with \fB-b\fP, patches the header in \fIimage\fP prior
-to upload, to "UART boot" type.
+Obsolete. Does nothing.
 
-This option attempts on-the-fly conversion of some none-UART image
-types, such as images which were originally formatted to be stored in
-flash memory.
-
-Conversion is performed in memory. The contents of \fIimage\fP will
-not be altered.
+In the past, when this option was used, the program patched the header
+in the image prior upload, to "UART boot" type. This is now done by
+default.
 
 .TP
 .BI "\-t"
@@ -65,11 +64,26 @@ If used in combination with \fB-b\fP, terminal mode is entered
 immediately following a successful image upload.
 
 If standard I/O streams connect to a console, this mode will terminate
-after receiving 'ctrl-\\' followed by 'c' from console input.
+after receiving \fBctrl-\e\fP followed by \fBc\fP from console input.
 
 .TP
 .BI "\-B \fIbaudrate\fP"
-Adjust the baud rate on \fITTY\fP. Default rate is 115200.
+If used in combination with \fB-b\fP, inject into the image header
+code that changes baud rate to \fIbaudrate\fP after uploading image
+header, and code that changes the baud rate back to the default
+(115200 Bd) before executing payload, and also adjust the baud rate
+on \fITTY\fP correspondingly. This can make the upload significantly
+faster.
+
+If used in combination with \fB-t\fP, adjust the baud rate to
+\fIbaudrate\fP on \fITTY\fP before starting terminal.
+
+If both \fB-b\fP and \fB-t\fP are used, the baud rate is changed
+back to 115200 after the upload.
+
+Tested values for \fIbaudrate\fP for Armada 38x include: 115200,
+230400, 460800, 500000, 576000, 921600, 1000000, 1152000, 1500000,
+2000000, 2500000, 3125000, 4000000 and 5200000.
 
 .SH "SEE ALSO"
 .PP
@@ -82,3 +96,7 @@ Daniel Stodden <daniel.stodden@gmail.com>
 Luka Perkov <luka@openwrt.org>
 .br
 David Purdy <david.c.purdy@gmail.com>
+.br
+Pali Rohár <pali@kernel.org>
+.br
+Marek Behún <marek.behun@nic.cz>

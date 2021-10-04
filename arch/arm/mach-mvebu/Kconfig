@@ -2,7 +2,6 @@ if ARCH_MVEBU
 
 config HAVE_MVEBU_EFUSE
 	bool
-	default n
 
 config ARMADA_32BIT
 	bool
@@ -184,6 +183,33 @@ config TARGET_CRS3XX_98DX3236
 
 endchoice
 
+choice
+	prompt "DDR bus width"
+	default DDR_64BIT
+	depends on ARMADA_XP
+
+config DDR_64BIT
+	bool "64bit bus width"
+
+config DDR_32BIT
+	bool "32bit bus width"
+
+endchoice
+
+config DDR_LOG_LEVEL
+	int "DDR training code log level"
+	depends on ARMADA_XP
+	default 0
+	range 0 3
+	help
+	  Amount of information provided on error while running the DDR
+	  training code.  At level 0, provides an error code in a case of
+	  failure, RL, WL errors and other algorithm failure.  At level 1,
+	  provides the D-Unit setup (SPD/Static configuration).  At level 2,
+	  provides the windows margin as a results of DQS centeralization.
+	  At level 3, rovides the windows margin of each DQ as a results of
+	  DQS centeralization.
+
 config SYS_BOARD
 	default "clearfog" if TARGET_CLEARFOG
 	default "helios4" if TARGET_HELIOS4
@@ -256,7 +282,7 @@ config MVEBU_SPL_BOOT_DEVICE_SPI
 	imply SPL_DM_SPI
 	imply SPL_SPI_FLASH_SUPPORT
 	imply SPL_SPI_LOAD
-	imply SPL_SPI_SUPPORT
+	imply SPL_SPI
 	select SPL_BOOTROM_SUPPORT
 
 config MVEBU_SPL_BOOT_DEVICE_MMC
@@ -267,12 +293,12 @@ config MVEBU_SPL_BOOT_DEVICE_MMC
 	imply SPL_DM_MMC
 	imply SPL_GPIO
 	imply SPL_LIBDISK_SUPPORT
-	imply SPL_MMC_SUPPORT
+	imply SPL_MMC
 	select SPL_BOOTROM_SUPPORT
 
 config MVEBU_SPL_BOOT_DEVICE_SATA
 	bool "SATA"
-	imply SPL_SATA_SUPPORT
+	imply SPL_SATA
 	imply SPL_LIBDISK_SUPPORT
 	select SPL_BOOTROM_SUPPORT
 
@@ -284,14 +310,12 @@ endchoice
 
 config MVEBU_EFUSE
 	bool "Enable eFuse support"
-	default n
 	depends on HAVE_MVEBU_EFUSE
 	help
 	  Enable support for reading and writing eFuses on mvebu SoCs.
 
 config MVEBU_EFUSE_FAKE
 	bool "Fake eFuse access (dry run)"
-	default n
 	depends on MVEBU_EFUSE
 	help
 	  This enables a "dry run" mode where eFuses are not really programmed.

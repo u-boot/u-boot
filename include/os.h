@@ -52,6 +52,14 @@ off_t os_lseek(int fd, off_t offset, int whence);
 #define OS_SEEK_END	2
 
 /**
+ * os_filesize() - Calculate the size of a file
+ *
+ * @fd:		File descriptor as returned by os_open()
+ * Return:	file size or negative error code
+ */
+int os_filesize(int fd);
+
+/**
  * Access to the OS open() system call
  *
  * @pathname:	Pathname of file to open
@@ -397,6 +405,19 @@ int os_write_file(const char *name, const void *buf, int size);
  * Return:	0 if OK, -ve on error
  */
 int os_read_file(const char *name, void **bufp, int *sizep);
+
+/**
+ * os_map_file() - Map a file from the host filesystem into memory
+ *
+ * This can be useful when to provide a backing store for an emulated device
+ *
+ * @pathname:	File pathname to map
+ * @os_flags:	Flags, like OS_O_RDONLY, OS_O_RDWR
+ * @bufp:	Returns buffer containing the file
+ * @sizep:	Returns size of data
+ * Return:	0 if OK, -ve on error
+ */
+int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep);
 
 /*
  * os_find_text_base() - Find the text section in this running process

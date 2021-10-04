@@ -18,11 +18,6 @@
  * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB).
  */
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 /* NAND */
 #if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
@@ -45,9 +40,6 @@
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x2a0000
 #endif /* CONFIG_SPL_OS_BOOT */
 #endif /* CONFIG_MTD_RAW_NAND */
-
-/* USB EHCI */
-#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	147
 
 /* Enable Multi Bus support for I2C */
 #define CONFIG_I2C_MULTI_BUS
@@ -211,7 +203,7 @@
 		"${defargs} " \
 		"${optargs} " \
 		"root=${ramroot} ramdisk_size=${ramdisk_size} " \
-	 	"rootfstype=${ramrootfstype}\0" \
+		"rootfstype=${ramrootfstype}\0" \
 	"ramboot=run mmcbootenv; " \
 		"if run loadimage && run loaddtb && run loadramdisk; then " \
 			"echo Booting ${bootdir}/${bootfile} from mmc ${bootpart} w/ramdisk ...; " \

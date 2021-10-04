@@ -241,7 +241,7 @@ int board_init(void)
 
 int board_early_init_f(void)
 {
-#ifdef CONFIG_SYS_I2C_EARLY_INIT
+#if defined(CONFIG_SYS_I2C_EARLY_INIT)
 	i2c_early_init_f();
 #endif
 	fsl_lsch3_early_init_f();

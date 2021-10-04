@@ -234,4 +234,3 @@ U_BOOT_DRIVER(mvmdio) = {
 	.ops			= &mvmdio_ops,
 	.priv_auto	= sizeof(struct mvmdio_priv),
 };
-

@@ -1,6 +1,9 @@
 menu "MediaTek MIPS platforms"
 	depends on ARCH_MTMIPS
 
+config SYS_VENDOR
+	default "mediatek" if BOARD_MT7628_RFB || BOARD_MT7620_RFB || BOARD_MT7620_MT7530_RFB
+
 config SYS_MALLOC_F_LEN
 	default 0x1000
 
@@ -39,7 +42,7 @@ choice
 
 config SOC_MT7620
 	bool "MT7620"
-	select MIPS_L1_CACHE_SHIFT_5
+	select SYS_CACHE_SHIFT_5
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	select PINCTRL_MT7620
 	select MT7620_SERIAL
@@ -54,7 +57,7 @@ config SOC_MT7620
 
 config SOC_MT7628
 	bool "MT7628"
-	select MIPS_L1_CACHE_SHIFT_5
+	select SYS_CACHE_SHIFT_5
 	select MIPS_INIT_STACK_IN_SRAM
 	select MIPS_SRAM_INIT
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
@@ -68,7 +71,7 @@ config SOC_MT7628
 	select SPL_OF_CONTROL if SPL_DM
 	select SPL_SIMPLE_BUS if SPL_DM
 	select SPL_DM_SERIAL if SPL_DM
-	select SPL_CLK if SPL_DM && SPL_SERIAL_SUPPORT
+	select SPL_CLK if SPL_DM && SPL_SERIAL
 	select SPL_SYSRESET if SPL_DM
 	select SPL_OF_LIBFDT if SPL_OF_CONTROL
 	help

@@ -137,7 +137,7 @@ int board_early_init_f(void)
 	u8 uart;
 #endif
 
-#ifdef CONFIG_SYS_I2C_EARLY_INIT
+#if defined(CONFIG_SYS_I2C_EARLY_INIT) && defined(CONFIG_SPL_BUILD)
 	i2c_early_init_f();
 #endif
 

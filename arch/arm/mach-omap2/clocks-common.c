@@ -552,7 +552,7 @@ void scale_vcores(struct vcores_data const *vcores)
 		if (pv->value[opp]) {
 			/* Handle non-empty members only */
 			pv->value[opp] = optimize_vcore_voltage(pv, opp);
-     			px = (struct volts *)vcores;
+			px = (struct volts *)vcores;
 			j = 0;
 			while (px < pv) {
 				/*
@@ -918,8 +918,8 @@ void gpi2c_init(void)
 	static int gpi2c = 1;
 
 	if (gpi2c) {
-		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
-			 CONFIG_SYS_OMAP24_I2C_SLAVE);
+		i2c_init(CONFIG_SYS_I2C_SPEED,
+			 CONFIG_SYS_I2C_SLAVE);
 		gpi2c = 0;
 	}
 }

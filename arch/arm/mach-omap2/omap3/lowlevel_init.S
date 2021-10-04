@@ -170,8 +170,8 @@ pll_div_val5:
 go_to_speed_end:
 #endif
 
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
-	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) && \
+	!CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT_ONLY)
 ENTRY(lowlevel_init)
 	ldr	sp, SRAM_STACK
 	str	ip, [sp]	/* stash ip register */

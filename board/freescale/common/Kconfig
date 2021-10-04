@@ -24,7 +24,6 @@ config CMD_ESBC_VALIDATE
 
 config FSL_USE_PCA9547_MUX
 	bool "Enable PCA9547 I2C Mux on Freescale boards"
-	default n
 	help
 	 This option enables the PCA9547 I2C mux on Freescale boards.
 

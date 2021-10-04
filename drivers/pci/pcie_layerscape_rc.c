@@ -143,8 +143,8 @@ static int ls_pcie_addr_valid(struct ls_pcie_rc *pcie_rc, pci_dev_t bdf)
 	return 0;
 }
 
-int ls_pcie_conf_address(const struct udevice *bus, pci_dev_t bdf,
-			 uint offset, void **paddress)
+static int ls_pcie_conf_address(const struct udevice *bus, pci_dev_t bdf,
+				uint offset, void **paddress)
 {
 	struct ls_pcie_rc *pcie_rc = dev_get_priv(bus);
 	struct ls_pcie *pcie = pcie_rc->pcie;

@@ -479,7 +479,7 @@ static const struct timer_ops tsc_timer_ops = {
 	.get_count = tsc_timer_get_count,
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id tsc_timer_ids[] = {
 	{ .compatible = "x86,tsc-timer", },
 	{ }

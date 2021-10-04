@@ -159,7 +159,7 @@ static struct int_queue *_musb_create_int_queue(struct musb_host_data *host,
 static int _musb_destroy_int_queue(struct musb_host_data *host,
 	struct usb_device *dev, struct int_queue *queue)
 {
-	int index = usb_pipein(queue->urb.pipe) * 16 + 
+	int index = usb_pipein(queue->urb.pipe) * 16 +
 		    usb_pipeendpoint(queue->urb.pipe);
 
 	if (queue->urb.status == -EINPROGRESS)

@@ -750,5 +750,3 @@ U_BOOT_DRIVER(mt7622_pinctrl) = {
 	.probe = mtk_pinctrl_mt7622_probe,
 	.priv_auto	= sizeof(struct mtk_pinctrl_priv),
 };
-
-

@@ -336,7 +336,7 @@ static int omap_gpio_bind(struct udevice *dev)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id omap_gpio_ids[] = {
 	{ .compatible = "ti,omap3-gpio" },
 	{ .compatible = "ti,omap4-gpio" },
@@ -362,7 +362,7 @@ U_BOOT_DRIVER(gpio_omap) = {
 	.name	= "gpio_omap",
 	.id	= UCLASS_GPIO,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = omap_gpio_ids,
 	.of_to_plat = of_match_ptr(omap_gpio_of_to_plat),
 	.plat_auto	= sizeof(struct omap_gpio_plat),

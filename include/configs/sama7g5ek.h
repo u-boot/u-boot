@@ -24,9 +24,7 @@
 	 GENERATED_GBL_DATA_SIZE)
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR		0x62000000 /* load address */
-
-#undef CONFIG_BOOTCOMMAND
+#ifndef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_SD_BOOT
 /* u-boot env in sd/mmc card */
 
@@ -34,10 +32,11 @@
 #define CONFIG_BOOTCOMMAND	"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x61000000 at91-sama7g5ek.dtb; " \
 				"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x62000000 zImage; " \
 				"bootz 0x62000000 - 0x61000000"
+#else
+#define CONFIG_BOOTCOMMAND	"Place your bootcommand here"
 #endif
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
+#endif
 
 #define CONFIG_ARP_TIMEOUT		200
 #define CONFIG_NET_RETRY_COUNT		50

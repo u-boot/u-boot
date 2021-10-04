@@ -144,7 +144,7 @@ static int enetc_init_sgmii(struct udevice *dev)
 	if (!enetc_has_imdio(dev))
 		return 0;
 
-	if (priv->if_type == PHY_INTERFACE_MODE_SGMII_2500)
+	if (priv->if_type == PHY_INTERFACE_MODE_2500BASEX)
 		is2500 = true;
 
 	/*
@@ -226,9 +226,8 @@ static void enetc_setup_mac_iface(struct udevice *dev,
 	case PHY_INTERFACE_MODE_RGMII_TXID:
 		enetc_init_rgmii(dev, phydev);
 		break;
-	case PHY_INTERFACE_MODE_XGMII:
 	case PHY_INTERFACE_MODE_USXGMII:
-	case PHY_INTERFACE_MODE_XFI:
+	case PHY_INTERFACE_MODE_10GBASER:
 		/* set ifmode to (US)XGMII */
 		if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
 		if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
@@ -270,7 +269,7 @@ static void enetc_start_pcs(struct udevice *dev)
 		priv->imdio.read = enetc_mdio_read;
 		priv->imdio.write = enetc_mdio_write;
 		priv->imdio.priv = priv->port_regs + ENETC_PM_IMDIO_BASE;
-		strncpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
+		strlcpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
 		if (!miiphy_get_dev_by_name(priv->imdio.name))
 			mdio_register(&priv->imdio);
 	}
@@ -291,12 +290,11 @@ static void enetc_start_pcs(struct udevice *dev)
 
 	switch (priv->if_type) {
 	case PHY_INTERFACE_MODE_SGMII:
-	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		enetc_init_sgmii(dev);
 		break;
-	case PHY_INTERFACE_MODE_XGMII:
 	case PHY_INTERFACE_MODE_USXGMII:
-	case PHY_INTERFACE_MODE_XFI:
+	case PHY_INTERFACE_MODE_10GBASER:
 		enetc_init_sxgmii(dev);
 		break;
 	};

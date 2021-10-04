@@ -17,7 +17,8 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
-#if defined(CONFIG_SPL_SPI_FLASH_SUPPORT) || defined(CONFIG_SPL_MMC_SUPPORT) || defined(CONFIG_SPL_SATA_SUPPORT)
+#if defined(CONFIG_SPL_SPI_FLASH_SUPPORT) || defined(CONFIG_SPL_MMC) || \
+	defined(CONFIG_SPL_SATA)
 
 /*
  * When loading U-Boot via SPL from SPI NOR, CONFIG_SYS_SPI_U_BOOT_OFFS must
@@ -39,7 +40,7 @@
  * and CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET need to point to the
  * kwbimage main header.
  */
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 #error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION is unsupported
 #endif
@@ -56,7 +57,7 @@
  * stored at sector 1. Therefore CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR must be
  * set to 1. Otherwise U-Boot SPL would not be able to load U-Boot proper.
  */
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 #if !defined(CONFIG_SPL_SATA_RAW_U_BOOT_USE_SECTOR) || !defined(CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR) || CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR != 1
 #error CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR must be set to 1
 #endif
@@ -92,7 +93,7 @@ struct kwbimage_main_hdr_v1 {
 	uint8_t  checksum;              /* 0x1F      */
 } __packed;
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 u32 spl_mmc_boot_mode(const u32 boot_device)
 {
 	return MMCSD_MODE_RAW;
@@ -121,10 +122,10 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_SPI_FLASH_SUPPORT
 	     mhdr->blockid != IBR_HDR_SPI_ID &&
 #endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 	     mhdr->blockid != IBR_HDR_SATA_ID &&
 #endif
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 	     mhdr->blockid != IBR_HDR_SDIO_ID &&
 #endif
 	     1
@@ -135,7 +136,7 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 
 	spl_image->offset = mhdr->srcaddr;
 
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 	/*
 	 * For SATA srcaddr is specified in number of sectors.
 	 * The main header is must be stored at sector number 1.
@@ -152,7 +153,7 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 	}
 #endif
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 	/*
 	 * For SDIO (eMMC) srcaddr is specified in number of sectors.
 	 * This expects that sector size is 512 bytes and recalculates
@@ -193,11 +194,11 @@ u32 spl_boot_device(void)
 	 * If SPL is compiled with chosen boot_device support
 	 * then use SPL driver for loading U-Boot proper.
 	 */
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 	case BOOT_DEVICE_MMC1:
 		return BOOT_DEVICE_MMC1;
 #endif
-#ifdef CONFIG_SPL_SATA_SUPPORT
+#ifdef CONFIG_SPL_SATA
 	case BOOT_FROM_SATA:
 		return BOOT_FROM_SATA;
 #endif

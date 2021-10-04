@@ -6,7 +6,6 @@ menu "1-Wire support"
 
 config W1
 	bool "Enable 1-wire controllers support"
-	default no
 	depends on DM
 	help
 	  Support for the Dallas 1-Wire bus.
@@ -15,15 +14,13 @@ if W1
 
 config W1_GPIO
 	bool "Enable 1-wire GPIO bitbanging"
-	default no
 	depends on DM_GPIO
 	help
 	  Emulate a 1-wire bus using a GPIO.
 
 config W1_MXC
 	bool "Enable 1-wire controller on i.MX processors"
-	default no
-	depends on ARCH_MX25 || ARCH_MX31 || ARCH_MX5
+	depends on ARCH_MX31 || ARCH_MX5
 	help
 	  Support the one wire controller found in some members of the NXP
 	  i.MX SoC family.

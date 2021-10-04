@@ -25,16 +25,6 @@
 #else
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/corenet_ds/pbi.cfg
-#if defined(CONFIG_TARGET_P3041DS)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/corenet_ds/rcw_p3041ds.cfg
-#elif defined(CONFIG_TARGET_P4080DS)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/corenet_ds/rcw_p4080ds.cfg
-#elif defined(CONFIG_TARGET_P5020DS)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/corenet_ds/rcw_p5020ds.cfg
-#elif defined(CONFIG_TARGET_P5040DS)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/corenet_ds/rcw_p5040ds.cfg
-#endif
 #endif
 #endif
 
@@ -73,9 +63,7 @@
 #define CONFIG_BACKSIDE_L2_CACHE
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
 #define CONFIG_BTB			/* toggle branch predition */
-#define	CONFIG_DDR_ECC
 #ifdef CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
@@ -101,11 +89,8 @@
 #endif
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
 /*
  * DDR Setup
@@ -116,8 +101,6 @@
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
-
-#define CONFIG_DDR_SPD
 
 #define CONFIG_SYS_SPD_BUS_NUM	1
 #define SPD_EEPROM_ADDRESS1	0x51
@@ -165,7 +148,7 @@
 #define PIXIS_LBMAP_ALTBANK	0x40
 
 #define CONFIG_SYS_FLASH_QUIET_TEST
-#define CONFIG_FLASH_SHOW_PROGRESS 	45 /* count down from 45/5: 9..1 */
+#define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	1024		/* sectors per device */
@@ -250,7 +233,6 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)	/* Reserved for malloc */
 
 /* Serial Port - controlled on board with jumper J8
  * open - index 2
@@ -269,19 +251,6 @@
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
-#define CONFIG_SYS_FSL_I2C2_SPEED	400000
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
-#define CONFIG_SYS_I2C_FSL
 
 /*
  * RapidIO
@@ -488,7 +457,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*
  * For booting Linux, the board info and command line data
@@ -498,19 +466,12 @@
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial Memory map for Linux*/
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
-#ifdef CONFIG_CMD_KGDB
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#endif
-
 /*
  * Environment Configuration
  */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
-
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
 
 #ifdef CONFIG_TARGET_P4080DS
 #define __USB_PHY_TYPE	ulpi
@@ -539,14 +500,14 @@
 	"fdtfile=p4080ds/p4080ds.dtb\0"				\
 	"bdev=sda3\0"
 
-#define CONFIG_HDBOOT					\
+#define HDBOOT					\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $loadaddr $bootfile;"			\
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_NFSBOOTCOMMAND			\
+#define NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\
 	"nfsroot=$serverip:$rootpath "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -555,7 +516,7 @@
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND				\
+#define RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $ramdiskaddr $ramdiskfile;"		\
@@ -563,7 +524,7 @@
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND		CONFIG_HDBOOT
+#define CONFIG_BOOTCOMMAND		HDBOOT
 
 #include <asm/fsl_secure_boot.h>
 

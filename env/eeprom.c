@@ -76,7 +76,7 @@ int env_eeprom_get_char(int index)
 	if (gd->env_valid == ENV_REDUND)
 		off = CONFIG_ENV_OFFSET_REDUND;
 #endif
-	eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
+	eeprom_bus_read(CONFIG_SYS_I2C_EEPROM_ADDR,
 			off + index + offsetof(env_t, data), &c, 1);
 
 	return c;
@@ -100,11 +100,11 @@ static int env_eeprom_load(void)
 
 	for (i = 0; i < 2; i++) {
 		/* read CRC */
-		eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
+		eeprom_bus_read(CONFIG_SYS_I2C_EEPROM_ADDR,
 				off_env[i] + offsetof(env_t, crc),
 				(uchar *)&crc[i], sizeof(ulong));
 		/* read FLAGS */
-		eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
+		eeprom_bus_read(CONFIG_SYS_I2C_EEPROM_ADDR,
 				off_env[i] + offsetof(env_t, flags),
 				(uchar *)&flags[i], sizeof(uchar));
 
@@ -114,7 +114,7 @@ static int env_eeprom_load(void)
 		while (len > 0) {
 			int n = (len > sizeof(rdbuf)) ? sizeof(rdbuf) : len;
 
-			eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR, off,
+			eeprom_bus_read(CONFIG_SYS_I2C_EEPROM_ADDR, off,
 					rdbuf, n);
 
 			crc_tmp = crc32(crc_tmp, rdbuf, n);
@@ -156,7 +156,7 @@ static int env_eeprom_load(void)
 	eeprom_init(-1);	/* prepare for EEPROM read/write */
 
 	/* read old CRC */
-	eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
+	eeprom_bus_read(CONFIG_SYS_I2C_EEPROM_ADDR,
 			CONFIG_ENV_OFFSET + offsetof(env_t, crc),
 			(uchar *)&crc, sizeof(ulong));
 
@@ -166,7 +166,7 @@ static int env_eeprom_load(void)
 	while (len > 0) {
 		int n = (len > sizeof(rdbuf)) ? sizeof(rdbuf) : len;
 
-		eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
+		eeprom_bus_read(CONFIG_SYS_I2C_EEPROM_ADDR,
 				CONFIG_ENV_OFFSET + off, rdbuf, n);
 		new = crc32(new, rdbuf, n);
 		len -= n;
@@ -186,7 +186,7 @@ static int env_eeprom_load(void)
 		off = CONFIG_ENV_OFFSET_REDUND;
 #endif
 
-	eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
+	eeprom_bus_read(CONFIG_SYS_I2C_EEPROM_ADDR,
 		off, (uchar *)buf_env, CONFIG_ENV_SIZE);
 
 	return env_import(buf_env, 1, H_EXTERNAL);
@@ -215,12 +215,12 @@ static int env_eeprom_save(void)
 	env_new.flags = ENV_REDUND_ACTIVE;
 #endif
 
-	rc = eeprom_bus_write(CONFIG_SYS_DEF_EEPROM_ADDR,
+	rc = eeprom_bus_write(CONFIG_SYS_I2C_EEPROM_ADDR,
 			      off, (uchar *)&env_new, CONFIG_ENV_SIZE);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (rc == 0) {
-		eeprom_bus_write(CONFIG_SYS_DEF_EEPROM_ADDR,
+		eeprom_bus_write(CONFIG_SYS_I2C_EEPROM_ADDR,
 				 off_red + offsetof(env_t, flags),
 				 (uchar *)&flag_obsolete, 1);
 

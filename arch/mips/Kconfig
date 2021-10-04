@@ -22,7 +22,7 @@ config TARGET_MALTA
 	select DYNAMIC_IO_PORT_BASE
 	select MIPS_CM
 	select MIPS_INSERT_BOOT_CONFIG
-	select MIPS_L1_CACHE_SHIFT_6
+	select SYS_CACHE_SHIFT_6
 	select MIPS_L2_CACHE
 	select OF_CONTROL
 	select OF_ISA_BUS
@@ -132,7 +132,7 @@ config TARGET_BOSTON
 	select DM
 	select DM_SERIAL
 	select MIPS_CM
-	select MIPS_L1_CACHE_SHIFT_6
+	select SYS_CACHE_SHIFT_6
 	select MIPS_L2_CACHE
 	select OF_BOARD_SETUP
 	select OF_CONTROL
@@ -153,7 +153,7 @@ config TARGET_XILFPGA
 	select DM_ETH
 	select DM_GPIO
 	select DM_SERIAL
-	select MIPS_L1_CACHE_SHIFT_4
+	select SYS_CACHE_SHIFT_4
 	select OF_CONTROL
 	select ROM_EXCEPTION_VECTORS
 	select SUPPORTS_CPU_MIPS32_R1
@@ -346,7 +346,6 @@ config MIPS_RELOCATION_TABLE_SIZE
 
 config RESTORE_EXCEPTION_VECTOR_BASE
 	bool "Restore exception vector base before booting linux kernel"
-	default n
 	help
 	  In U-Boot the exception vector base will be moved to top of memory,
 	  to be used to display register dump when exception occurs.
@@ -361,7 +360,6 @@ config RESTORE_EXCEPTION_VECTOR_BASE
 config OVERRIDE_EXCEPTION_VECTOR_BASE
 	bool "Override the exception vector base to be restored"
 	depends on RESTORE_EXCEPTION_VECTOR_BASE
-	default n
 	help
 	  Enable this option if you want to use a different exception vector
 	  base rather than the previously saved one.
@@ -376,7 +374,6 @@ config NEW_EXCEPTION_VECTOR_BASE
 
 config INIT_STACK_WITHOUT_MALLOC_F
 	bool "Do not reserve malloc space on initial stack"
-	default n
 	help
 	  Enable this option if you don't want to reserve malloc space on
 	  initial stack. This is useful if the initial stack can't hold large
@@ -385,7 +382,6 @@ config INIT_STACK_WITHOUT_MALLOC_F
 
 config SPL_INIT_STACK_WITHOUT_MALLOC_F
 	bool "Do not reserve malloc space on initial stack in SPL"
-	default n
 	help
 	  Enable this option if you don't want to reserve malloc space on
 	  initial stack. This is useful if the initial stack can't hold large
@@ -394,7 +390,6 @@ config SPL_INIT_STACK_WITHOUT_MALLOC_F
 
 config SPL_LOADER_SUPPORT
 	bool
-	default n
 	help
 	  Enable this option if you want to use SPL loaders without DM enabled.
 
@@ -422,7 +417,6 @@ config MIPS_BOOT_ENV_LEGACY
 
 config MIPS_BOOT_FDT
 	bool "Hand over a flattened device tree to Linux kernel"
-	default n
 	help
 	  Enable this option if you want U-Boot to hand over a flattened
 	  device tree to the kernel. According to UHI register $a0 will be set
@@ -501,7 +495,6 @@ config SYS_MIPS_CACHE_INIT_RAM_LOAD
 
 config MIPS_INIT_STACK_IN_SRAM
 	bool
-	default n
 	help
 	  Select this if the initial stack frame could be setup in SRAM.
 	  Normally the initial stack frame is set up in DRAM which is often
@@ -512,7 +505,6 @@ config MIPS_INIT_STACK_IN_SRAM
 
 config MIPS_SRAM_INIT
 	bool
-	default n
 	depends on MIPS_INIT_STACK_IN_SRAM
 	help
 	  Select this if the SRAM for initial stack needs to be initialized
@@ -566,26 +558,6 @@ config SYS_CACHE_SIZE_AUTO
 	  so if you know the cache configuration for your system at compile
 	  time it would be beneficial to configure it.
 
-config MIPS_L1_CACHE_SHIFT_4
-	bool
-
-config MIPS_L1_CACHE_SHIFT_5
-	bool
-
-config MIPS_L1_CACHE_SHIFT_6
-	bool
-
-config MIPS_L1_CACHE_SHIFT_7
-	bool
-
-config MIPS_L1_CACHE_SHIFT
-	int
-	default "7" if MIPS_L1_CACHE_SHIFT_7
-	default "6" if MIPS_L1_CACHE_SHIFT_6
-	default "5" if MIPS_L1_CACHE_SHIFT_5
-	default "4" if MIPS_L1_CACHE_SHIFT_4
-	default "5"
-
 config MIPS_L2_CACHE
 	bool
 	help
@@ -604,7 +576,6 @@ config MIPS_CM
 
 config MIPS_INSERT_BOOT_CONFIG
 	bool
-	default n
 	help
 	  Enable this to insert some board-specific boot configuration in
 	  the U-Boot binary at offset 0x10.

@@ -20,7 +20,7 @@
  */
 #define ENA_DCAC		2UL
 #define DIS_DCAC		~ENA_DCAC
-#define ICAC_MEM_KBF_ISET	(0x07)	 	! I Cache sets per way
+#define ICAC_MEM_KBF_ISET	(0x07)		! I Cache sets per way
 #define ICAC_MEM_KBF_IWAY	(0x07<<3)	! I cache ways
 #define ICAC_MEM_KBF_ISZ	(0x07<<6)	! I cache line size
 #define DCAC_MEM_KBF_DSET	(0x07)		! D Cache sets per way
@@ -174,7 +174,7 @@ set_ivb:
 
 	jal mem_init
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 	jal	lowlevel_init
 /*
  *  gp = ~VMA          for burn mode
@@ -434,21 +434,21 @@ tlb_fill:
 	SAVE_ALL
 	move	$r0, $sp			! To get the kernel stack
 	li	$r1, 1				! Determine interruption type
-	bal 	do_interruption
+	bal	do_interruption
 
 	.align	5
 tlb_not_present:
 	SAVE_ALL
 	move	$r0, $sp			! To get the kernel stack
 	li	$r1, 2				! Determine interruption type
-	bal 	do_interruption
+	bal	do_interruption
 
 	.align	5
 tlb_misc:
 	SAVE_ALL
 	move	$r0, $sp			! To get the kernel stack
 	li	$r1, 3				! Determine interruption type
-	bal 	do_interruption
+	bal	do_interruption
 
 	.align	5
 tlb_vlpt_miss:

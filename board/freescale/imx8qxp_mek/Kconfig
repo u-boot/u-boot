@@ -9,6 +9,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "imx8qxp_mek"
 
+config IMX_CONFIG
+	default "board/freescale/imx8qxp_mek/imximage.cfg"
+
 source "board/freescale/common/Kconfig"
 
 endif

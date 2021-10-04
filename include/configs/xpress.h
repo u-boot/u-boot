@@ -13,25 +13,13 @@
 /* SPL options */
 #include "imx6_spl.h"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 << 20)
-
 #define CONFIG_MXC_UART_BASE		MX6UL_UART7_BASE_ADDR
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
-/* I2C configs */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
-#define CONFIG_SYS_I2C_SPEED		100000
-
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

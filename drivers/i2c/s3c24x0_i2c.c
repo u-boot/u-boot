@@ -21,12 +21,6 @@
 #include <i2c.h>
 #include "s3c24x0_i2c.h"
 
-#ifndef CONFIG_SYS_I2C_S3C24X0_SLAVE
-#define SYS_I2C_S3C24X0_SLAVE_ADDR	0
-#else
-#define SYS_I2C_S3C24X0_SLAVE_ADDR	CONFIG_SYS_I2C_S3C24X0_SLAVE
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -82,6 +76,8 @@ static void i2c_ch_init(struct s3c24x0_i2c *i2c, int speed, int slaveadd)
 	/* program Master Transmit (and implicit STOP) */
 	writel(I2C_MODE_MT | I2C_TXRX_ENA, &i2c->iicstat);
 }
+
+#define SYS_I2C_S3C24X0_SLAVE_ADDR	0
 
 static int s3c24x0_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 {

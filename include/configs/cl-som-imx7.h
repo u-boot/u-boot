@@ -12,9 +12,6 @@
 
 #define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 /* Network */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_XCV_TYPE             RGMII
@@ -25,21 +22,8 @@
 #define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
 
 /* PMIC */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
-
-/* I2C configs */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C2		/* Enable I2C bus 2 */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define SYS_I2C_BUS_SOM			0
-
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_I2C_EEPROM_BUS	SYS_I2C_BUS_SOM
 
 #define CONFIG_PCA953X
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x20
@@ -108,7 +92,6 @@
 	"echo eMMC boot attempt ...; run emmcbootscript; run emmcboot; " \
 	"echo USB boot attempt ...; run usbbootscript; "
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */

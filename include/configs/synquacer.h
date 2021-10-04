@@ -24,8 +24,6 @@
  * Boot info
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(0xe0000000)	/* stack of init proccess */
-#define CONFIG_SYS_MALLOC_LEN		(0x01000000)	/* 16Mbyte size of malloc() */
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE /* default kernel load address */
 
 /*
  * Hardware drivers support
@@ -50,9 +48,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE + (512 * 1024))
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + PHYS_SDRAM_SIZE)
-
-#define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{115200, 19200, 38400, 57600, 9600 }
 
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_MAXARGS		128

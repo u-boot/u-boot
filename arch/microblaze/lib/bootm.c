@@ -34,33 +34,7 @@ static ulong get_sp(void)
 
 void arch_lmb_reserve(struct lmb *lmb)
 {
-	ulong sp, bank_end;
-	int bank;
-
-	/*
-	 * Booting a (Linux) kernel image
-	 *
-	 * Allocate space for command line and board info - the
-	 * address should be as high as possible within the reach of
-	 * the kernel (see CONFIG_SYS_BOOTMAPSZ settings), but in unused
-	 * memory, which means far enough below the current stack
-	 * pointer.
-	 */
-	sp = get_sp();
-	debug("## Current stack ends at 0x%08lx ", sp);
-
-	/* adjust sp by 4K to be safe */
-	sp -= 4096;
-	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		if (sp < gd->bd->bi_dram[bank].start)
-			continue;
-		bank_end = gd->bd->bi_dram[bank].start +
-			gd->bd->bi_dram[bank].size;
-		if (sp >= bank_end)
-			continue;
-		lmb_reserve(lmb, sp, bank_end - sp);
-		break;
-	}
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
 }
 
 static void boot_jump_linux(bootm_headers_t *images, int flag)

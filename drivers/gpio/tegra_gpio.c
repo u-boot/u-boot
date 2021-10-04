@@ -23,8 +23,8 @@
 #include <dm/device-internal.h>
 #include <dt-bindings/gpio/gpio.h>
 
-static const int CONFIG_SFIO = 0;
-static const int CONFIG_GPIO = 1;
+static const int CFG_SFIO = 0;
+static const int CFG_GPIO = 1;
 static const int DIRECTION_INPUT = 0;
 static const int DIRECTION_OUTPUT = 1;
 
@@ -54,7 +54,7 @@ static int get_config(unsigned gpio)
 	debug("get_config: port = %d, bit = %d is %s\n",
 		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), type ? "GPIO" : "SFPIO");
 
-	return type ? CONFIG_GPIO : CONFIG_SFIO;
+	return type ? CFG_GPIO : CFG_SFIO;
 }
 
 /* Config pin 'gpio' as GPIO or SFIO, based on 'type' */
@@ -68,7 +68,7 @@ static void set_config(unsigned gpio, int type)
 		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), type ? "GPIO" : "SFPIO");
 
 	u = readl(&bank->gpio_config[GPIO_PORT(gpio)]);
-	if (type != CONFIG_SFIO)
+	if (type != CFG_SFIO)
 		u |= 1 << GPIO_BIT(gpio);
 	else
 		u &= ~(1 << GPIO_BIT(gpio));
@@ -216,7 +216,7 @@ void gpio_config_table(const struct tegra_gpio_config *config, int len)
 			set_direction(config[i].gpio, DIRECTION_OUTPUT);
 			break;
 		}
-		set_config(config[i].gpio, CONFIG_GPIO);
+		set_config(config[i].gpio, CFG_GPIO);
 	}
 }
 

@@ -14,8 +14,6 @@
 
 #define CONFIG_BOARD_COMMON
 
-#define CONFIG_REVISION_TAG
-
 /* SD/MMC configuration */
 #define CONFIG_MMC_DEFAULT_DEV	0
 
@@ -32,7 +30,7 @@
 #define CONFIG_USB_GADGET_DWC2_OTG_PHY
 
 /* Common environment variables */
-#define CONFIG_EXTRA_ENV_ITB \
+#define ENV_ITB \
 	"loadkernel=load mmc ${mmcbootdev}:${mmcbootpart} ${kerneladdr} " \
 		"${kernelname}\0" \
 	"loadinitrd=load mmc ${mmcbootdev}:${mmcbootpart} ${initrdaddr} " \

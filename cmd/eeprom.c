@@ -15,7 +15,7 @@
  * degradation (typical for EEPROM) is incured for FRAM memory:
  *
  * #define CONFIG_SYS_I2C_FRAM
- * #undef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
+ * Set CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS to 0
  *
  */
 
@@ -27,39 +27,12 @@
 #include <eeprom_layout.h>
 #include <linux/delay.h>
 
-#ifndef	CONFIG_SYS_I2C_SPEED
-#define	CONFIG_SYS_I2C_SPEED	50000
-#endif
-
-#ifndef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	0
-#endif
-
-#ifndef CONFIG_SYS_EEPROM_PAGE_WRITE_BITS
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	8
-#endif
-
 #ifndef	I2C_RXTX_LEN
 #define I2C_RXTX_LEN	128
 #endif
 
 #define	EEPROM_PAGE_SIZE	(1 << CONFIG_SYS_EEPROM_PAGE_WRITE_BITS)
 #define	EEPROM_PAGE_OFFSET(x)	((x) & (EEPROM_PAGE_SIZE - 1))
-
-/*
- * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 2 (16-bit EEPROM address) offset is
- *   0x000nxxxx for EEPROM address selectors at n, offset xxxx in EEPROM.
- *
- * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1 (8-bit EEPROM page address) offset is
- *   0x00000nxx for EEPROM address selectors and page number at n.
- */
-#if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-#if !defined(CONFIG_SYS_I2C_EEPROM_ADDR_LEN) || \
-	(CONFIG_SYS_I2C_EEPROM_ADDR_LEN < 1) || \
-	(CONFIG_SYS_I2C_EEPROM_ADDR_LEN > 2)
-#error CONFIG_SYS_I2C_EEPROM_ADDR_LEN must be 1 or 2
-#endif
-#endif
 
 #if CONFIG_IS_ENABLED(DM_I2C)
 static int eeprom_i2c_bus;
@@ -75,13 +48,20 @@ void eeprom_init(int bus)
 	/* I2C EEPROM */
 #if CONFIG_IS_ENABLED(DM_I2C)
 	eeprom_i2c_bus = bus;
-#elif defined(CONFIG_SYS_I2C_LEGACY)
+#elif CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	if (bus >= 0)
 		i2c_set_bus_num(bus);
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 }
 
+/*
+ * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 2 (16-bit EEPROM address) offset is
+ *   0x000nxxxx for EEPROM address selectors at n, offset xxxx in EEPROM.
+ *
+ * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1 (8-bit EEPROM page address) offset is
+ *   0x00000nxx for EEPROM address selectors and page number at n.
+ */
 static int eeprom_addr(unsigned dev_addr, unsigned offset, uchar *addr)
 {
 	unsigned blk_off;
@@ -183,8 +163,10 @@ static int eeprom_rw(unsigned dev_addr, unsigned offset, uchar *buffer,
 		buffer += len;
 		offset += len;
 
+#if CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS > 0
 		if (!read)
 			udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+#endif
 	}
 
 	return rcode;
@@ -243,10 +225,10 @@ static int parse_i2c_bus_addr(int *i2c_bus, ulong *i2c_addr, int argc,
 	int argc_no_bus = argc_no_bus_addr + 1;
 	int argc_bus_addr = argc_no_bus_addr + 2;
 
-#ifdef CONFIG_SYS_DEF_EEPROM_ADDR
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR
 	if (argc == argc_no_bus_addr) {
 		*i2c_bus = -1;
-		*i2c_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
+		*i2c_addr = CONFIG_SYS_I2C_EEPROM_ADDR;
 
 		return 0;
 	}

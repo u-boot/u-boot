@@ -94,7 +94,7 @@ struct us_data {
 	int		action;			/* what to do */
 	int		ip_wanted;		/* needed */
 	int		*irq_handle;		/* for USB int requests */
-	unsigned int	irqpipe;	 	/* pipe for release_irq */
+	unsigned int	irqpipe;		/* pipe for release_irq */
 	unsigned char	irqmaxp;		/* max packed for irq Pipe */
 	unsigned char	irqinterval;		/* Intervall for IRQ Pipe */
 	struct scsi_cmd	*srb;			/* current srb */

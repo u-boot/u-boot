@@ -7,7 +7,7 @@ config LBMC_CLOCK_MODE_1_1
 	bool "1 : 1"
 
 config LBMC_CLOCK_MODE_1_2
-	depends on ARCH_MPC8349 || ARCH_MPC8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "1 : 2"
 
 endchoice
@@ -19,12 +19,12 @@ config DDR_MC_CLOCK_MODE_1_2
 	bool "1 : 2"
 
 config DDR_MC_CLOCK_MODE_1_1
-	depends on ARCH_MPC8349 || ARCH_MPC8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "1 : 1"
 
 endchoice
 
-if !ARCH_MPC8313 && !ARCH_MPC832X && !ARCH_MPC8349
+if !ARCH_MPC8313 && !ARCH_MPC832X
 
 choice
 	prompt "System PLL VCO division"
@@ -67,43 +67,43 @@ config SYSTEM_PLL_FACTOR_6_1
 	bool "6 : 1"
 
 config SYSTEM_PLL_FACTOR_7_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPV8360 || ARCH_MPC837X
 	bool "7 : 1"
 
 config SYSTEM_PLL_FACTOR_8_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPV8360 || ARCH_MPC837X
 	bool "8 : 1"
 
 config SYSTEM_PLL_FACTOR_9_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPV8360 || ARCH_MPC837X
 	bool "9 : 1"
 
 config SYSTEM_PLL_FACTOR_10_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPV8360 || ARCH_MPC837X
 	bool "10 : 1"
 
 config SYSTEM_PLL_FACTOR_11_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPV8360 || ARCH_MPC837X
 	bool "11 : 1"
 
 config SYSTEM_PLL_FACTOR_12_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPV8360 || ARCH_MPC837X
 	bool "12 : 1"
 
 config SYSTEM_PLL_FACTOR_13_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPV8360 || ARCH_MPC837X
 	bool "13 : 1"
 
 config SYSTEM_PLL_FACTOR_14_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPV8360 || ARCH_MPC837X
 	bool "14 : 1"
 
 config SYSTEM_PLL_FACTOR_15_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPV8360 || ARCH_MPC837X
 	bool "15 : 1"
 
 config SYSTEM_PLL_FACTOR_16_1
-	depends on ARCH_MPC8349 || ARCH_MPV8360
+	depends on ARCH_MPV8360
 	bool "16 : 1"
 
 endchoice
@@ -310,21 +310,6 @@ config PCI_HOST_MODE_ENABLE
 
 endchoice
 
-if ARCH_MPC8349
-
-choice
-	prompt "PCI 64-bit mode"
-
-config PCI_64BIT_MODE_DISABLE
-	bool "Disabled"
-
-config PCI_64BIT_MODE_ENABLE
-	bool "Enabled"
-
-endchoice
-
-endif
-
 choice
 	prompt "PCI internal arbiter 1 mode"
 
@@ -335,21 +320,6 @@ config PCI_INT_ARBITER1_ENABLE
 	bool "Enabled"
 
 endchoice
-
-if ARCH_MPC8349
-
-choice
-	prompt "PCI internal arbiter 2 mode"
-
-config PCI_INT_ARBITER2_DISABLE
-	bool "Disabled"
-
-config PCI_INT_ARBITER2_ENABLE
-	bool "Enabled"
-
-endchoice
-
-endif
 
 if ARCH_MPC8360
 
@@ -425,10 +395,6 @@ config BOOT_ROM_INTERFACE_PCI1
 	depends on MPC83XX_PCI_SUPPORT
 	bool "PCI1"
 
-config BOOT_ROM_INTERFACE_PCI2
-	depends on MPC83XX_PCI_SUPPORT && ARCH_MPC8349
-	bool "PCI2"
-
 config BOOT_ROM_INTERFACE_ON_CHIP_BOOT_ROM
 	depends on ARCH_MPC837X
 	bool "PCI2"
@@ -448,15 +414,15 @@ config BOOT_ROM_INTERFACE_GPCM_16BIT
 	bool "Local bus GPCM - 16-bit ROM"
 
 config BOOT_ROM_INTERFACE_GPCM_32BIT
-	depends on ARCH_MPC8349 || ARCH_MPC8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "Local bus GPCM - 32-bit ROM"
 
 config BOOT_ROM_INTERFACE_NAND_FLASH_8BIT_SMALL
-	depends on !ARCH_MPC832X && !ARCH_MPC8349 && !ARCH_MPC8360
+	depends on !ARCH_MPC832X && !ARCH_MPC8360
 	bool "Local bus NAND Flash- 8-bit small page ROM"
 
 config BOOT_ROM_INTERFACE_NAND_FLASH_8BIT_LARGE
-	depends on !ARCH_MPC832X && !ARCH_MPC8349 && !ARCH_MPC8360
+	depends on !ARCH_MPC832X && !ARCH_MPC8360
 	bool "Local bus NAND Flash- 8-bit large page ROM"
 
 endchoice
@@ -467,11 +433,10 @@ choice
 	prompt "TSEC1 mode"
 
 config TSEC1_MODE_MII
-	depends on !ARCH_MPC8349
 	bool "MII"
 
 config TSEC1_MODE_RMII
-	depends on ARCH_MPC831X && !ARCH_MPC8349
+	depends on ARCH_MPC831X
 	bool "RMII"
 
 config TSEC1_MODE_RGMII
@@ -480,14 +445,6 @@ config TSEC1_MODE_RGMII
 config TSEC1_MODE_RTBI
 	depends on ARCH_MPC831X || ARCH_MPC837X
 	bool "RTBI"
-
-config TSEC1_MODE_GMII
-	depends on ARCH_MPC8349
-	bool "GMII"
-
-config TSEC1_MODE_TBI
-	depends on ARCH_MPC8349
-	bool "TBI"
 
 config TSEC1_MODE_SGMII
 	depends on ARCH_MPC831X || ARCH_MPC837X
@@ -503,11 +460,10 @@ choice
 	prompt "TSEC2 mode"
 
 config TSEC2_MODE_MII
-	depends on !ARCH_MPC8349
 	bool "MII"
 
 config TSEC2_MODE_RMII
-	depends on ARCH_MPC831X && !ARCH_MPC8349
+	depends on ARCH_MPC831X
 	bool "RMII"
 
 config TSEC2_MODE_RGMII
@@ -516,14 +472,6 @@ config TSEC2_MODE_RGMII
 config TSEC2_MODE_RTBI
 	depends on ARCH_MPC831X || ARCH_MPC837X
 	bool "RTBI"
-
-config TSEC2_MODE_GMII
-	depends on ARCH_MPC8349
-	bool "GMII"
-
-config TSEC2_MODE_TBI
-	depends on ARCH_MPC8349
-	bool "TBI"
 
 config TSEC2_MODE_SGMII
 	depends on ARCH_MPC831X || ARCH_MPC837X
@@ -559,7 +507,7 @@ endchoice
 
 endif
 
-if ARCH_MPC831X || ARCH_MPC832X || ARCH_MPC8349 || ARCH_MPC8360
+if ARCH_MPC831X || ARCH_MPC832X || ARCH_MPC8360
 
 choice
 	prompt "LALE timing"
@@ -603,7 +551,7 @@ config DDR_MC_CLOCK_MODE
 
 config SYSTEM_PLL_VCO_DIV
 	int
-	default 0 if ARCH_MPC8349 || ARCH_MPC832X
+	default 0 if ARCH_MPC832X
 	default 2 if ARCH_MPC8313
 	default 0 if SYSTEM_PLL_VCO_DIV_2 && !ARCH_MPC8360 && !ARCH_MPC837X
 	default 1 if SYSTEM_PLL_VCO_DIV_4 && !ARCH_MPC8360 && !ARCH_MPC837X
@@ -675,7 +623,6 @@ config BOOT_ROM_INTERFACE
 	hex
 	default 0x0 if BOOT_ROM_INTERFACE_DDR_SDRAM
 	default 0x4 if BOOT_ROM_INTERFACE_PCI1
-	default 0x8 if BOOT_ROM_INTERFACE_PCI2
 	default 0x8 if BOOT_ROM_INTERFACE_ESDHC
 	default 0xc if BOOT_ROM_INTERFACE_SPI
 	default 0xc if BOOT_ROM_INTERFACE_ON_CHIP_BOOT_ROM
@@ -690,26 +637,18 @@ config TSEC1_MODE
 	default 0x0 if !MPC83XX_TSEC1_SUPPORT
 	default 0x0 if TSEC1_MODE_MII
 	default 0x1 if TSEC1_MODE_RMII
-	default 0x3 if TSEC1_MODE_RGMII && !ARCH_MPC8349
-	default 0x5 if TSEC1_MODE_RTBI && !ARCH_MPC8349
+	default 0x3 if TSEC1_MODE_RGMII
+	default 0x5 if TSEC1_MODE_RTBI
 	default 0x6 if TSEC1_MODE_SGMII
-	default 0x0 if TSEC1_MODE_RGMII && ARCH_MPC8349
-	default 0x1 if TSEC1_MODE_RTBI && ARCH_MPC8349
-	default 0x2 if TSEC1_MODE_GMII
-	default 0x3 if TSEC1_MODE_TBI
 
 config TSEC2_MODE
 	hex
 	default 0x0 if !MPC83XX_TSEC2_SUPPORT
 	default 0x0 if TSEC2_MODE_MII
 	default 0x1 if TSEC2_MODE_RMII
-	default 0x3 if TSEC2_MODE_RGMII && !ARCH_MPC8349
-	default 0x5 if TSEC2_MODE_RTBI && !ARCH_MPC8349
+	default 0x3 if TSEC2_MODE_RGMII
+	default 0x5 if TSEC2_MODE_RTBI
 	default 0x6 if TSEC2_MODE_SGMII
-	default 0x0 if TSEC2_MODE_RGMII && ARCH_MPC8349
-	default 0x1 if TSEC2_MODE_RTBI && ARCH_MPC8349
-	default 0x2 if TSEC2_MODE_GMII
-	default 0x3 if TSEC2_MODE_TBI
 
 config SECONDARY_DDR_IO
 	int
@@ -792,9 +731,7 @@ config PCI_HOST_MODE
 
 config PCI_64BIT_MODE
 	int
-	default 0 if !ARCH_MPC8349
-	default 0 if PCI_64BIT_MODE_DISABLE
-	default 1 if PCI_64BIT_MODE_ENABLE
+	default 0
 
 config PCI_INT_ARBITER1
 	int
@@ -804,9 +741,7 @@ config PCI_INT_ARBITER1
 
 config PCI_INT_ARBITER2
 	int
-	default 0 if !ARCH_MPC8349
-	default 0 if PCI_INT_ARBITER2_DISABLE
-	default 1 if PCI_INT_ARBITER2_ENABLE
+	default 0
 
 config PCI_CLOCK_OUTPUT_DRIVE
 	int

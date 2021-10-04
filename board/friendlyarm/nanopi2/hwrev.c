@@ -80,10 +80,17 @@ void bd_base_rev_init(void)
 }
 
 /* To override __weak symbols */
-u32 get_board_rev(void)
+u32 get_board_revision(void)
 {
 	return (base_rev << 8) | pcb_rev;
 }
+
+#ifdef CONFIG_REVISION_TAG
+u32 get_board_rev(void)
+{
+	return get_board_revision();
+}
+#endif
 
 const char *get_board_name(void)
 {

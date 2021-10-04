@@ -39,8 +39,6 @@
 #define BOOTENV
 #endif
 
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
-
 #define CONFIG_TIMESTAMP
 
 #define CONFIG_SYS_MONITOR_BASE		0
@@ -69,7 +67,6 @@
 #define CONFIG_GATEWAYIP		192.168.11.1
 #define CONFIG_NETMASK			255.255.255.0
 
-#define CONFIG_SYS_LOAD_ADDR		0x85000000
 #define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 
 #if defined(CONFIG_ARM64)
@@ -84,7 +81,7 @@
 #endif
 
 #define CONFIG_ROOTPATH			"/nfs/root/path"
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv bootargs $bootargs root=/dev/nfs rw "			\
 	"nfsroot=$serverip:$rootpath "					\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off;" \

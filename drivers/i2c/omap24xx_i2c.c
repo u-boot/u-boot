@@ -936,62 +936,34 @@ static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 	return __omap24_i2c_probe(i2c_base, ip_rev, adap->waitdelay, chip);
 }
 
-#if !defined(CONFIG_SYS_OMAP24_I2C_SPEED1)
-#define CONFIG_SYS_OMAP24_I2C_SPEED1 CONFIG_SYS_OMAP24_I2C_SPEED
-#endif
-#if !defined(CONFIG_SYS_OMAP24_I2C_SLAVE1)
-#define CONFIG_SYS_OMAP24_I2C_SLAVE1 CONFIG_SYS_OMAP24_I2C_SLAVE
-#endif
-
 U_BOOT_I2C_ADAP_COMPLETE(omap24_0, omap24_i2c_init, omap24_i2c_probe,
 			 omap24_i2c_read, omap24_i2c_write, omap24_i2c_setspeed,
-			 CONFIG_SYS_OMAP24_I2C_SPEED,
-			 CONFIG_SYS_OMAP24_I2C_SLAVE,
+			 CONFIG_SYS_I2C_SPEED,
+			 CONFIG_SYS_I2C_SLAVE,
 			 0)
 U_BOOT_I2C_ADAP_COMPLETE(omap24_1, omap24_i2c_init, omap24_i2c_probe,
 			 omap24_i2c_read, omap24_i2c_write, omap24_i2c_setspeed,
-			 CONFIG_SYS_OMAP24_I2C_SPEED1,
-			 CONFIG_SYS_OMAP24_I2C_SLAVE1,
+			 CONFIG_SYS_I2C_SPEED,
+			 CONFIG_SYS_I2C_SLAVE,
 			 1)
 
 #if (CONFIG_SYS_I2C_BUS_MAX > 2)
-#if !defined(CONFIG_SYS_OMAP24_I2C_SPEED2)
-#define CONFIG_SYS_OMAP24_I2C_SPEED2 CONFIG_SYS_OMAP24_I2C_SPEED
-#endif
-#if !defined(CONFIG_SYS_OMAP24_I2C_SLAVE2)
-#define CONFIG_SYS_OMAP24_I2C_SLAVE2 CONFIG_SYS_OMAP24_I2C_SLAVE
-#endif
-
 U_BOOT_I2C_ADAP_COMPLETE(omap24_2, omap24_i2c_init, omap24_i2c_probe,
 			 omap24_i2c_read, omap24_i2c_write, NULL,
-			 CONFIG_SYS_OMAP24_I2C_SPEED2,
-			 CONFIG_SYS_OMAP24_I2C_SLAVE2,
+			 CONFIG_SYS_I2C_SPEED,
+			 CONFIG_SYS_I2C_SLAVE,
 			 2)
 #if (CONFIG_SYS_I2C_BUS_MAX > 3)
-#if !defined(CONFIG_SYS_OMAP24_I2C_SPEED3)
-#define CONFIG_SYS_OMAP24_I2C_SPEED3 CONFIG_SYS_OMAP24_I2C_SPEED
-#endif
-#if !defined(CONFIG_SYS_OMAP24_I2C_SLAVE3)
-#define CONFIG_SYS_OMAP24_I2C_SLAVE3 CONFIG_SYS_OMAP24_I2C_SLAVE
-#endif
-
 U_BOOT_I2C_ADAP_COMPLETE(omap24_3, omap24_i2c_init, omap24_i2c_probe,
 			 omap24_i2c_read, omap24_i2c_write, NULL,
-			 CONFIG_SYS_OMAP24_I2C_SPEED3,
-			 CONFIG_SYS_OMAP24_I2C_SLAVE3,
+			 CONFIG_SYS_I2C_SPEED,
+			 CONFIG_SYS_I2C_SLAVE,
 			 3)
 #if (CONFIG_SYS_I2C_BUS_MAX > 4)
-#if !defined(CONFIG_SYS_OMAP24_I2C_SPEED4)
-#define CONFIG_SYS_OMAP24_I2C_SPEED4 CONFIG_SYS_OMAP24_I2C_SPEED
-#endif
-#if !defined(CONFIG_SYS_OMAP24_I2C_SLAVE4)
-#define CONFIG_SYS_OMAP24_I2C_SLAVE4 CONFIG_SYS_OMAP24_I2C_SLAVE
-#endif
-
 U_BOOT_I2C_ADAP_COMPLETE(omap24_4, omap24_i2c_init, omap24_i2c_probe,
 			 omap24_i2c_read, omap24_i2c_write, NULL,
-			 CONFIG_SYS_OMAP24_I2C_SPEED4,
-			 CONFIG_SYS_OMAP24_I2C_SLAVE4,
+			 CONFIG_SYS_I2C_SPEED,
+			 CONFIG_SYS_I2C_SLAVE,
 			 4)
 #endif
 #endif
@@ -1062,7 +1034,7 @@ static int omap_i2c_probe(struct udevice *bus)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int omap_i2c_of_to_plat(struct udevice *bus)
 {
 	struct omap_i2c_plat *plat = dev_get_plat(bus);
@@ -1091,7 +1063,7 @@ static const struct dm_i2c_ops omap_i2c_ops = {
 U_BOOT_DRIVER(i2c_omap) = {
 	.name	= "i2c_omap",
 	.id	= UCLASS_I2C,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = omap_i2c_ids,
 	.of_to_plat = omap_i2c_of_to_plat,
 	.plat_auto	= sizeof(struct omap_i2c_plat),

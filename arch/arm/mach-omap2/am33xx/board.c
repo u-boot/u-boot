@@ -65,7 +65,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 	sdram_init();
 #endif
 
@@ -351,7 +351,7 @@ int arch_misc_init(void)
 
 #endif /* CONFIG_USB_MUSB_* && CONFIG_AM335X_USB* && !CONFIG_DM_USB */
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 
 #if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC) || \
 	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT))
@@ -599,7 +599,7 @@ void board_init_f(ulong dummy)
 int arch_cpu_init_dm(void)
 {
 	hw_data_init();
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 	early_system_init();
 #endif
 	return 0;

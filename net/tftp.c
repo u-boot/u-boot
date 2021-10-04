@@ -925,4 +925,3 @@ void tftp_start_server(void)
 	memset(net_server_ethaddr, 0, 6);
 }
 #endif /* CONFIG_CMD_TFTPSRV */
-

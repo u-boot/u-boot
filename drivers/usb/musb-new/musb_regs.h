@@ -190,7 +190,7 @@
 
 
 /* SUNXI has different reg addresses, but identical r/w functions */
-#ifndef CONFIG_ARCH_SUNXI 
+#ifndef CONFIG_ARCH_SUNXI
 
 /*
  * Common USB registers

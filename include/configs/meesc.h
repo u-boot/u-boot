@@ -32,12 +32,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
 
 /* Misc CPU related */
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_SERIAL_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
 
 /*
  * Hardware drivers
@@ -57,8 +51,6 @@
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_SDRAM_SIZE		PHYS_SDRAM_SIZE
-
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x00100000)
 
 /*
  * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,
@@ -99,11 +91,5 @@
 #endif
 
 #define CONFIG_SYS_CBSIZE		512
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + \
-					128*1024, 0x1000)
 
 #endif

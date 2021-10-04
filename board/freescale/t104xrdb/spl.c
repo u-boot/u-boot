@@ -30,11 +30,6 @@ unsigned long get_board_sys_clk(void)
 	return CONFIG_SYS_CLK_FREQ;
 }
 
-unsigned long get_board_ddr_clk(void)
-{
-	return CONFIG_DDR_CLK_FREQ;
-}
-
 #define FSL_CORENET_CCSR_PORSR1_RCW_MASK	0xFF800000
 void board_init_f(ulong bootflag)
 {

@@ -29,11 +29,7 @@
 
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_PCA9450
-
-#define CONFIG_SYS_I2C_LEGACY
 
 #endif
 
@@ -84,8 +80,6 @@
 	"fi;"
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x40480000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE	SZ_512K
@@ -96,8 +90,6 @@
 
 #define CONFIG_MMCROOT			"/dev/mmcblk2p2"  /* USDHC3 */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		SZ_32M
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
 #define PHYS_SDRAM			0x40000000
@@ -116,8 +108,5 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-/* I2C */
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #endif /* __PHYCORE_IMX8MP_H */

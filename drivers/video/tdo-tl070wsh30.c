@@ -118,7 +118,7 @@ static int tl070wsh30_panel_probe(struct udevice *dev)
 
 	/* reset panel */
 	dm_gpio_set_value(&priv->reset, true);
-	
+
 	mdelay(10);
 
 	dm_gpio_set_value(&priv->reset, false);

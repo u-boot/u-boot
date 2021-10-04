@@ -22,9 +22,11 @@ config TARGET_SIFIVE_UNLEASHED
 
 config TARGET_SIFIVE_UNMATCHED
 	bool "Support SiFive Unmatched Board"
+	select SYS_CACHE_SHIFT_6
 
 config TARGET_SIPEED_MAIX
 	bool "Support Sipeed Maix Board"
+	select SYS_CACHE_SHIFT_6
 
 config TARGET_OPENPITON_RISCV64
 	bool "Support RISC-V cores on OpenPiton SoC"
@@ -33,7 +35,6 @@ endchoice
 
 config SYS_ICACHE_OFF
 	bool "Do not enable icache"
-	default n
 	help
 	  Do not enable instruction cache in U-Boot.
 
@@ -46,7 +47,6 @@ config SPL_SYS_ICACHE_OFF
 
 config SYS_DCACHE_OFF
 	bool "Do not enable dcache"
-	default n
 	help
 	  Do not enable data cache in U-Boot.
 

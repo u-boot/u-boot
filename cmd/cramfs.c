@@ -3,7 +3,7 @@
  *
  * based on: cmd_jffs2.c
  *
- * 	Add support for a CRAMFS located in RAM
+ *	Add support for a CRAMFS located in RAM
  */
 
 

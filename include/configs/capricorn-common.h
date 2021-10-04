@@ -51,7 +51,6 @@
 
 /* I2C Configuration */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_I2C_SPEED	400000
 /* EEPROM */
 #define  EEPROM_I2C_BUS		0 /* I2C0 */
 #define  EEPROM_I2C_ADDR	0x50
@@ -128,16 +127,11 @@
 	"reset;"
 
 /* Default location for tftp and bootm */
-#define CONFIG_LOADADDR			0x80280000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
 /* On CCP board, USDHC1 is for eMMC */
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* eMMC */
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		((CONFIG_ENV_SIZE + (32 * 1024)) * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000

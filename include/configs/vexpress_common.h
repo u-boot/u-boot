@@ -15,7 +15,7 @@
  * Definitions copied from linux kernel:
  * arch/arm/mach-vexpress/include/mach/motherboard.h
  */
-#ifdef CONFIG_VEXPRESS_ORIGINAL_MEMORY_MAP
+#ifdef VEXPRESS_ORIGINAL_MEMORY_MAP
 /* CS register bases for the original memory map. */
 #define V2M_PA_CS0		0x40000000
 #define V2M_PA_CS1		0x44000000
@@ -56,7 +56,6 @@
 
 /* Common peripherals relative to CS7. */
 #define V2M_AACI		(V2M_PA_CS7 + V2M_PERIPH_OFFSET(4))
-#define V2M_MMCI		(V2M_PA_CS7 + V2M_PERIPH_OFFSET(5))
 #define V2M_KMI0		(V2M_PA_CS7 + V2M_PERIPH_OFFSET(6))
 #define V2M_KMI1		(V2M_PA_CS7 + V2M_PERIPH_OFFSET(7))
 
@@ -109,15 +108,8 @@
 
 /* Board info register */
 #define SYS_ID				V2M_SYSREGS
-#define CONFIG_REVISION_TAG		1
 
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_SYS_L2CACHE_OFF		1
-#define CONFIG_INITRD_TAG		1
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 512 * 1024) /* >= 512 KiB */
 
 #define SCTL_BASE			V2M_SYSCTL
 #define VEXPRESS_FLASHPROG_FLVPPEN	(1 << 0)
@@ -131,19 +123,15 @@
 #define CONFIG_PL01x_PORTS		{(void *)CONFIG_SYS_SERIAL0, \
 					 (void *)CONFIG_SYS_SERIAL1}
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #define CONFIG_SYS_SERIAL0		V2M_UART0
 #define CONFIG_SYS_SERIAL1		V2M_UART1
 
-#define CONFIG_ARM_PL180_MMCI_BASE	V2M_MMCI
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	127
-#define CONFIG_ARM_PL180_MMCI_CLOCK_FREQ 6250000
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x8000)
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
 
 /* Physical Memory Map */
@@ -169,29 +157,10 @@
         func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
-#ifdef CONFIG_VEXPRESS_ORIGINAL_MEMORY_MAP
-#define CONFIG_PLATFORM_ENV_SETTINGS \
-		"loadaddr=0x80008000\0" \
-		"ramdisk_addr_r=0x61000000\0" \
-		"kernel_addr=0x44100000\0" \
-		"ramdisk_addr=0x44800000\0" \
-		"maxramdisk=0x1800000\0" \
-		"pxefile_addr_r=0x88000000\0" \
-		"scriptaddr=0x88000000\0" \
-		"kernel_addr_r=0x80008000\0"
-#elif defined(CONFIG_VEXPRESS_EXTENDED_MEMORY_MAP)
-#define CONFIG_PLATFORM_ENV_SETTINGS \
-		"loadaddr=0xa0008000\0" \
-		"ramdisk_addr_r=0x81000000\0" \
-		"kernel_addr=0x0c100000\0" \
-		"ramdisk_addr=0x0c800000\0" \
-		"maxramdisk=0x1800000\0" \
-		"pxefile_addr_r=0xa8000000\0" \
-		"scriptaddr=0xa8000000\0" \
-		"kernel_addr_r=0xa0008000\0"
-#endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
-		CONFIG_PLATFORM_ENV_SETTINGS \
+                "kernel_addr_r=0x60100000\0" \
+                "fdt_addr_r=0x60000000\0" \
+                "bootargs=console=tty0 console=ttyAMA0,38400n8\0" \
                 BOOTENV \
 		"console=ttyAMA0,38400n8\0" \
 		"dram=1024M\0" \

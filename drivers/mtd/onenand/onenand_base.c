@@ -2306,8 +2306,8 @@ static int flexonenand_get_boundary(struct mtd_info *mtd)
 
 /**
  * flexonenand_get_size - Fill up fields in onenand_chip and mtd_info
- * 			  boundary[], diesize[], mtd->size, mtd->erasesize,
- * 			  mtd->eraseregions
+ *			  boundary[], diesize[], mtd->size, mtd->erasesize,
+ *			  mtd->eraseregions
  * @param mtd		- MTD device structure
  */
 static void flexonenand_get_size(struct mtd_info *mtd)

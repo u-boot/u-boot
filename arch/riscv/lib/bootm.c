@@ -135,3 +135,16 @@ int do_bootm_vxworks(int flag, int argc, char *const argv[],
 {
 	return do_bootm_linux(flag, argc, argv, images);
 }
+
+static ulong get_sp(void)
+{
+	ulong ret;
+
+	asm("mv %0, sp" : "=r"(ret) : );
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
+}

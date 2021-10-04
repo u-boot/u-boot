@@ -29,7 +29,6 @@ obj-$(CONFIG_CMD_ERRATA) += cmd_errata.o
 endif
 obj-$(CONFIG_CPM2)	+= commproc.o
 
-obj-$(CONFIG_CPM2)	+= ether_fcc.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-$(CONFIG_FSL_CORENET) += liodn.o
 obj-$(CONFIG_MP)	+= mp.o

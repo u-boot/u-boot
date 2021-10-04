@@ -11,7 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_REVISION_TAG
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
@@ -24,7 +23,6 @@
 #define PHYS_SDRAM_2			CSD1_BASE_ADDR
 #define PHYS_SDRAM_2_SIZE		(gd->bd->bi_dram[1].size)
 #define PHYS_SDRAM_SIZE			(gd->ram_size)
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
@@ -84,17 +82,7 @@
 #define CONFIG_ETHPRIME			"FEC0"
 #endif
 
-/*
- * I2C
- */
-#ifdef CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_RTC_BUS_NUM		1 /* I2C2 */
-#endif
 
 /*
  * RTC
@@ -141,14 +129,8 @@
 /*
  * Boot Linux
  */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTFILE		"boot/fitImage"
-#define CONFIG_LOADADDR		0x70800000
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /*
  * NAND SPL

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2019-2021 NXP Semiconductors
+ * Copyright 2019-2021 NXP
  */
 
 #ifndef __DSA_H__
@@ -57,7 +57,8 @@
 /**
  * struct dsa_ops - DSA operations
  *
- * @port_enable:  Initialize a switch port for I/O.
+ * @port_probe:   Initialize a switch port.
+ * @port_enable:  Enable I/O for a port.
  * @port_disable: Disable I/O for a port.
  * @xmit:         Insert the DSA tag for transmission.
  *                DSA drivers receive a copy of the packet with headroom and
@@ -69,6 +70,8 @@
  *                master including any additional headers.
  */
 struct dsa_ops {
+	int (*port_probe)(struct udevice *dev, int port,
+			  struct phy_device *phy);
 	int (*port_enable)(struct udevice *dev, int port,
 			   struct phy_device *phy);
 	void (*port_disable)(struct udevice *dev, int port,

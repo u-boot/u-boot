@@ -36,7 +36,6 @@
 #define CONFIG_BOOTP_MAY_FAIL
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		0x8000000
 
 /* Monitor Command Prompt */
 /* Console I/O Buffer Size */

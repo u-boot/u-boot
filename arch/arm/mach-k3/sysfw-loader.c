@@ -370,7 +370,7 @@ void k3_sysfw_loader(bool rom_loaded_sysfw,
 
 	/* Load combined System Controller firmware and config data image */
 	switch (bootdev.boot_device) {
-#if CONFIG_IS_ENABLED(MMC_SUPPORT)
+#if CONFIG_IS_ENABLED(MMC)
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
 	case BOOT_DEVICE_MMC2_2:

@@ -11,25 +11,17 @@
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
-unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_QIXIS_I2C_ACCESS
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_EARLY_INIT
-#endif
 #define CONFIG_SYS_I2C_IFDR_DIV		0x7e
 #endif
 
 #define CONFIG_SYS_I2C_FPGA_ADDR	0x66
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-#define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ/4)
 
-#define CONFIG_DDR_SPD
-#define CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS1	0x51
 #define SPD_EEPROM_ADDRESS2	0x52
@@ -304,13 +296,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 #define CONFIG_FSL_MEMAC
 

@@ -75,9 +75,24 @@
 /*
  * HCR_EL2 bits definitions
  */
+#define HCR_EL2_API		(1 << 41) /* Trap pointer authentication
+				             instructions                     */
+#define HCR_EL2_APK		(1 << 40) /* Trap pointer authentication
+				             key access                       */
 #define HCR_EL2_RW_AARCH64	(1 << 31) /* EL1 is AArch64                   */
 #define HCR_EL2_RW_AARCH32	(0 << 31) /* Lower levels are AArch32         */
 #define HCR_EL2_HCD_DIS		(1 << 29) /* Hypervisor Call disabled         */
+
+/*
+ * ID_AA64ISAR1_EL1 bits definitions
+ */
+#define ID_AA64ISAR1_EL1_GPI	(0xF << 28) /* Implementation-defined generic
+				               code auth algorithm            */
+#define ID_AA64ISAR1_EL1_GPA	(0xF << 24) /* QARMA generic code auth
+				               algorithm                      */
+#define ID_AA64ISAR1_EL1_API	(0xF << 8)  /* Implementation-defined address
+				               auth algorithm                 */
+#define ID_AA64ISAR1_EL1_APA	(0xF << 4)  /* QARMA address auth algorithm   */
 
 /*
  * ID_AA64PFR0_EL1 bits definitions
@@ -551,7 +566,6 @@ s32 psci_affinity_info(u32 function_id, u32 target_affinity,
 u32 psci_migrate_info_type(void);
 void psci_system_off(void);
 void psci_system_reset(void);
-s32 psci_features(u32 function_id, u32 psci_fid);
 #endif
 
 #endif /* __ASSEMBLY__ */

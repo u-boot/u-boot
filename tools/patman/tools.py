@@ -5,6 +5,7 @@
 
 import glob
 import os
+import shlex
 import shutil
 import struct
 import sys
@@ -581,3 +582,17 @@ def ToHexSize(val):
         hex value of size, or 'None' if the value is None
     """
     return 'None' if val is None else '%#x' % len(val)
+
+def PrintFullHelp(fname):
+    """Print the full help message for a tool using an appropriate pager.
+
+    Args:
+        fname: Path to a file containing the full help message
+    """
+    pager = shlex.split(os.getenv('PAGER', ''))
+    if not pager:
+        lesspath = shutil.which('less')
+        pager = [lesspath] if lesspath else None
+    if not pager:
+        pager = ['more']
+    command.Run(*pager, fname)

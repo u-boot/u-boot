@@ -308,9 +308,9 @@ struct {
 } aquantia_syscfg[PHY_INTERFACE_MODE_COUNT] = {
 	[PHY_INTERFACE_MODE_SGMII] =      {0x04b, AQUANTIA_VND1_GSYSCFG_1G,
 					   AQUANTIA_VND1_GSTART_RATE_1G},
-	[PHY_INTERFACE_MODE_SGMII_2500] = {0x144, AQUANTIA_VND1_GSYSCFG_2_5G,
+	[PHY_INTERFACE_MODE_2500BASEX]  = {0x144, AQUANTIA_VND1_GSYSCFG_2_5G,
 					   AQUANTIA_VND1_GSTART_RATE_2_5G},
-	[PHY_INTERFACE_MODE_XFI] =        {0x100, AQUANTIA_VND1_GSYSCFG_10G,
+	[PHY_INTERFACE_MODE_10GBASER] =   {0x100, AQUANTIA_VND1_GSYSCFG_10G,
 					   AQUANTIA_VND1_GSTART_RATE_10G},
 	[PHY_INTERFACE_MODE_USXGMII] =    {0x080, AQUANTIA_VND1_GSYSCFG_10G,
 					   AQUANTIA_VND1_GSTART_RATE_10G},
@@ -443,18 +443,18 @@ int aquantia_config(struct phy_device *phydev)
 			return ret;
 	}
 	/*
-	 * for backward compatibility convert XGMII into either XFI or USX based
-	 * on FW config
+	 * for backward compatibility convert XGMII into either 10GBase-R or
+	 * USXGMII based on FW config
 	 */
 	if (interface == PHY_INTERFACE_MODE_XGMII) {
-		debug("use XFI or USXGMII SI protos, XGMII is not valid\n");
+		debug("use 10GBase-R or USXGMII SI protos, XGMII is not valid\n");
 
 		reg_val1 = phy_read(phydev, MDIO_MMD_PHYXS,
 				    AQUANTIA_SYSTEM_INTERFACE_SR);
 		if ((reg_val1 & AQUANTIA_SI_IN_USE_MASK) == AQUANTIA_SI_USXGMII)
 			interface = PHY_INTERFACE_MODE_USXGMII;
 		else
-			interface = PHY_INTERFACE_MODE_XFI;
+			interface = PHY_INTERFACE_MODE_10GBASER;
 	}
 
 	/*
@@ -494,7 +494,7 @@ int aquantia_config(struct phy_device *phydev)
 	case PHY_INTERFACE_MODE_USXGMII:
 		usx_an = 1;
 		/* FALLTHROUGH */
-	case PHY_INTERFACE_MODE_XFI:
+	case PHY_INTERFACE_MODE_10GBASER:
 		/* 10GBASE-T mode */
 		phydev->advertising = SUPPORTED_10000baseT_Full;
 		phydev->supported = phydev->advertising;
@@ -515,14 +515,14 @@ int aquantia_config(struct phy_device *phydev)
 			      phydev->dev->name);
 		} else {
 			reg_val1 &= ~AQUANTIA_USX_AUTONEG_CONTROL_ENA;
-			debug("%s: system interface XFI\n",
+			debug("%s: system interface 10GBase-R\n",
 			      phydev->dev->name);
 		}
 
 		phy_write(phydev, MDIO_MMD_PHYXS,
 			  AQUANTIA_VENDOR_PROVISIONING_REG, reg_val1);
 		break;
-	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		/* 2.5GBASE-T mode */
 		phydev->advertising = SUPPORTED_1000baseT_Full;
 		phydev->supported = phydev->advertising;

@@ -16,19 +16,6 @@
 #ifndef __CONFIG_TI_ARMV7_COMMON_H__
 #define __CONFIG_TI_ARMV7_COMMON_H__
 
-/* Support both device trees and ATAGs. */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
-/*
- * Our DDR memory always starts at 0x80000000 and U-Boot shall have
- * relocated itself to higher in memory by the time this value is used.
- * However, set this to a 32MB offset to allow for easier Linux kernel
- * booting as the default is often used as the kernel load address.
- */
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
-
 /*
  * We setup defaults based on constraints from the Linux kernel, which should
  * also be safe elsewhere.  We have the default load at 32MB into DDR (for
@@ -87,9 +74,6 @@
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 
 /* If DM_I2C, enable non-DM I2C support */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#endif
 
 /*
  * The following are general good-enough settings for U-Boot.  We set a
@@ -100,7 +84,6 @@
  * we are on so we do not need to rely on the command prompt.  We set a
  * console baudrate of 115200 and use the default baud rate table.
  */
-#define CONFIG_SYS_MALLOC_LEN		SZ_32M
 
 /* As stated above, the following choices are optional. */
 

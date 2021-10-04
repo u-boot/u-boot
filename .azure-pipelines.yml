@@ -2,7 +2,7 @@ variables:
   windows_vm: vs2017-win2016
   ubuntu_vm: ubuntu-18.04
   macos_vm: macOS-10.15
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20210723-30Sep2021
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20210827-30Sep2021
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -195,6 +195,9 @@ jobs:
         evb_ast2500:
           TEST_PY_BD: "evb-ast2500"
           TEST_PY_ID: "--id qemu"
+        vexpress_ca9x4:
+          TEST_PY_BD: "vexpress_ca9x4"
+          TEST_PY_ID: "--id qemu"
         integratorcp_cm926ejs:
           TEST_PY_BD: "integratorcp_cm926ejs"
           TEST_PY_ID: "--id qemu"
@@ -254,6 +257,12 @@ jobs:
         r2dplus_tulip:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id tulip_qemu"
+        sifive_unleashed_sdcard:
+          TEST_PY_BD: "sifive_unleashed"
+          TEST_PY_ID: "--id sdcard_qemu"
+        sifive_unleashed_spi-nor:
+          TEST_PY_BD: "sifive_unleashed"
+          TEST_PY_ID: "--id spi-nor_qemu"
         xilinx_zynq_virt:
           TEST_PY_BD: "xilinx_zynq_virt"
           TEST_PY_ID: "--id qemu"
@@ -289,7 +298,7 @@ jobs:
               wget -O - https://github.com/riscv/opensbi/releases/download/v0.9/opensbi-0.9-rv-bin.tar.xz | tar -C /tmp -xJ;
               export OPENSBI=/tmp/opensbi-0.9-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin;
           fi
-          if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]]; then
+          if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]] || [[ "${TEST_PY_BD}" == "sifive_unleashed" ]]; then
               wget -O - https://github.com/riscv/opensbi/releases/download/v0.9/opensbi-0.9-rv-bin.tar.xz | tar -C /tmp -xJ;
               export OPENSBI=/tmp/opensbi-0.9-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
           fi
@@ -302,6 +311,18 @@ jobs:
           cp /opt/grub/grubriscv64.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_riscv64.efi
           cp /opt/grub/grubaa64.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_arm64.efi
           cp /opt/grub/grubarm.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_arm.efi
+          # create sdcard / spi-nor images for sifive unleashed using genimage
+          if [[ "${TEST_PY_BD}" == "sifive_unleashed" ]]; then
+              mkdir -p root;
+              cp ${UBOOT_TRAVIS_BUILD_DIR}/spl/u-boot-spl.bin .;
+              cp ${UBOOT_TRAVIS_BUILD_DIR}/u-boot.itb .;
+              rm -rf tmp;
+              genimage --inputpath . --config board/sifive/unleashed/genimage_sdcard.cfg;
+              cp images/sdcard.img ${UBOOT_TRAVIS_BUILD_DIR}/;
+              rm -rf tmp;
+              genimage --inputpath . --config board/sifive/unleashed/genimage_spi-nor.cfg;
+              cp images/spi-nor.img ${UBOOT_TRAVIS_BUILD_DIR}/;
+          fi
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt

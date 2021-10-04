@@ -13,16 +13,10 @@
 
 #define PHYS_SDRAM_SIZE			SZ_512M
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M)
-
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-/* Switch on SERIAL_TAG */
-#define CONFIG_SERIAL_TAG
 
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=boot raw 0x2 0x1000 mmcpart 1\0" \
@@ -107,7 +101,6 @@
 		   "fi; " \
 	   "fi"
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
@@ -134,10 +127,6 @@
  * write the direct value here
  */
 #define CONFIG_BOARD_SIZE_LIMIT		785408
-
-/* I2C configs */
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /* environment organization */
 

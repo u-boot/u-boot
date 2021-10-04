@@ -13,8 +13,6 @@
 #include "mx6_common.h"
 #include "imx6_spl.h"
 
-#define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
-
 #ifdef CONFIG_SERIAL_CONSOLE_UART1
 #if defined(CONFIG_MX6SL)
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR

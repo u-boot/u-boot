@@ -17,14 +17,14 @@ TYPICAL CALL
 
 on OMAP3:
 nandecc hw
-nand read 0x82000000 0x280000 0x400000 	/* Read kernel image from NAND*/
-spl export atags 			/* export ATAGS */
+nand read 0x82000000 0x280000 0x400000	/* Read kernel image from NAND*/
+spl export atags			/* export ATAGS */
 nand erase 0x680000 0x20000		/* erase - one page */
 nand write 0x80000100 0x680000 0x20000	/* write the image - one page */
 
 call with FDT:
 nandecc hw
-nand read 0x82000000 0x280000 0x400000 	/* Read kernel image from NAND*/
+nand read 0x82000000 0x280000 0x400000	/* Read kernel image from NAND*/
 tftpboot 0x80000100 devkit8000.dtb /* Read fdt */
 spl export fdt 0x82000000 - 0x80000100	/* export FDT */
 nand erase 0x680000 0x20000		/* erase - one page */

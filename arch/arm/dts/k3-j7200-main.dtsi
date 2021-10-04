@@ -2,7 +2,7 @@
 /*
  * Device Tree Source for J7200 SoC Family Main Domain peripherals
  *
- * Copyright (C) 2020 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2020-2021 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 / {
@@ -68,8 +68,9 @@
 		};
 	};
 
-	main_gpio_intr: interrupt-controller0 {
+	main_gpio_intr: interrupt-controller@a00000 {
 		compatible = "ti,sci-intr";
+		reg = <0x00 0x00a00000 0x00 0x800>;
 		ti,intr-trigger-type = <1>;
 		interrupt-controller;
 		interrupt-parent = <&gic500>;
@@ -85,9 +86,12 @@
 		#size-cells = <2>;
 		ranges = <0x00 0x30000000 0x00 0x30000000 0x00 0x0c400000>;
 		ti,sci-dev-id = <199>;
+		dma-coherent;
+		dma-ranges;
 
-		main_navss_intr: interrupt-controller1 {
+		main_navss_intr: interrupt-controller@310e0000 {
 			compatible = "ti,sci-intr";
+			reg = <0x00 0x310e0000 0x00 0x4000>;
 			ti,intr-trigger-type = <4>;
 			interrupt-controller;
 			interrupt-parent = <&gic500>;
@@ -297,8 +301,6 @@
 	main_uart0: serial@2800000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02800000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 192 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
@@ -310,8 +312,6 @@
 	main_uart1: serial@2810000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02810000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 193 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
@@ -323,8 +323,6 @@
 	main_uart2: serial@2820000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02820000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 194 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
@@ -336,8 +334,6 @@
 	main_uart3: serial@2830000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02830000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 195 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
@@ -349,8 +345,6 @@
 	main_uart4: serial@2840000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02840000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 196 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
@@ -362,8 +356,6 @@
 	main_uart5: serial@2850000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02850000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 197 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
@@ -375,8 +367,6 @@
 	main_uart6: serial@2860000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02860000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 198 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
@@ -388,8 +378,6 @@
 	main_uart7: serial@2870000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02870000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 199 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
@@ -401,8 +389,6 @@
 	main_uart8: serial@2880000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02880000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 248 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
@@ -414,61 +400,12 @@
 	main_uart9: serial@2890000 {
 		compatible = "ti,j721e-uart", "ti,am654-uart";
 		reg = <0x00 0x02890000 0x00 0x100>;
-		reg-shift = <2>;
-		reg-io-width = <4>;
 		interrupts = <GIC_SPI 249 IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
 		power-domains = <&k3_pds 286 TI_SCI_PD_EXCLUSIVE>;
 		clocks = <&k3_clks 286 2>;
 		clock-names = "fclk";
-	};
-
-	main_sdhci0: sdhci@4f80000 {
-		compatible = "ti,j721e-sdhci-8bit";
-		reg = <0x0 0x04f80000 0x0 0x260>, <0x0 0x4f88000 0x0 0x134>;
-		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
-		power-domains = <&k3_pds 91 TI_SCI_PD_EXCLUSIVE>;
-		clock-names = "clk_xin", "clk_ahb";
-		clocks = <&k3_clks 91 3>, <&k3_clks 91 0>;
-		ti,otap-del-sel-legacy = <0x0>;
-		ti,otap-del-sel-mmc-hs = <0x0>;
-		ti,otap-del-sel-ddr52 = <0x6>;
-		ti,otap-del-sel-hs200 = <0x8>;
-		ti,otap-del-sel-hs400 = <0x5>;
-		ti,itap-del-sel-legacy = <0x10>;
-		ti,itap-del-sel-mmc-hs = <0xa>;
-		ti,strobe-sel = <0x77>;
-		ti,clkbuf-sel = <0x7>;
-		ti,trm-icp = <0x8>;
-		bus-width = <8>;
-		mmc-hs400-1_8v;
-		mmc-hs200-1_8v;
-		mmc-ddr-1_8v;
-		dma-coherent;
-	};
-
-	main_sdhci1: sdhci@4fb0000 {
-		compatible = "ti,j721e-sdhci-4bit";
-		reg = <0x0 0x04fb0000 0x0 0x260>, <0x0 0x4fb8000 0x0 0x134>;
-		interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-		power-domains = <&k3_pds 92 TI_SCI_PD_EXCLUSIVE>;
-		clock-names = "clk_xin", "clk_ahb";
-		clocks = <&k3_clks 92 2>, <&k3_clks 92 1>;
-		ti,otap-del-sel-legacy = <0x0>;
-		ti,otap-del-sel-sd-hs = <0x0>;
-		ti,otap-del-sel-sdr12 = <0xf>;
-		ti,otap-del-sel-sdr25 = <0xf>;
-		ti,otap-del-sel-sdr50 = <0xc>;
-		ti,otap-del-sel-sdr104 = <0x5>;
-		ti,otap-del-sel-ddr50 = <0xc>;
-		ti,itap-del-sel-legacy = <0x0>;
-		ti,itap-del-sel-sd-hs = <0x0>;
-		ti,itap-del-sel-sdr12 = <0x0>;
-		ti,itap-del-sel-sdr25 = <0x0>;
-		ti,clkbuf-sel = <0x7>;
-		ti,trm-icp = <0x8>;
-		dma-coherent;
 	};
 
 	main_i2c0: i2c@2000000 {
@@ -548,26 +485,51 @@
 		power-domains = <&k3_pds 193 TI_SCI_PD_EXCLUSIVE>;
 	};
 
-	main_gpio0: gpio@600000 {
-		compatible = "ti,j721e-gpio", "ti,keystone-gpio";
-		reg = <0x0 0x00600000 0x0 0x100>;
-		gpio-controller;
-		#gpio-cells = <2>;
-		interrupts = <105 0 IRQ_TYPE_EDGE_RISING>,
-			     <105 1 IRQ_TYPE_EDGE_RISING>,
-			     <105 2 IRQ_TYPE_EDGE_RISING>,
-			     <105 3 IRQ_TYPE_EDGE_RISING>,
-			     <105 4 IRQ_TYPE_EDGE_RISING>,
-			     <105 5 IRQ_TYPE_EDGE_RISING>,
-			     <105 6 IRQ_TYPE_EDGE_RISING>,
-			     <105 7 IRQ_TYPE_EDGE_RISING>;
-		interrupt-controller;
-		#interrupt-cells = <2>;
-		ti,ngpio = <69>;
-		ti,davinci-gpio-unbanked = <0>;
-		power-domains = <&k3_pds 105 TI_SCI_PD_EXCLUSIVE>;
-		clocks = <&k3_clks 105 0>;
-		clock-names = "gpio";
+	main_sdhci0: mmc@4f80000 {
+		compatible = "ti,j7200-sdhci-8bit", "ti,j721e-sdhci-8bit";
+		reg = <0x00 0x04f80000 0x00 0x260>, <0x00 0x4f88000 0x00 0x134>;
+		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&k3_pds 91 TI_SCI_PD_EXCLUSIVE>;
+		clock-names = "clk_ahb", "clk_xin";
+		clocks = <&k3_clks 91 0>, <&k3_clks 91 3>;
+		ti,otap-del-sel-legacy = <0x0>;
+		ti,otap-del-sel-mmc-hs = <0x0>;
+		ti,otap-del-sel-ddr52 = <0x6>;
+		ti,otap-del-sel-hs200 = <0x8>;
+		ti,otap-del-sel-hs400 = <0x5>;
+		ti,itap-del-sel-legacy = <0x10>;
+		ti,itap-del-sel-mmc-hs = <0xa>;
+		ti,strobe-sel = <0x77>;
+		ti,clkbuf-sel = <0x7>;
+		ti,trm-icp = <0x8>;
+		bus-width = <8>;
+		mmc-ddr-1_8v;
+		mmc-hs200-1_8v;
+		mmc-hs400-1_8v;
+		dma-coherent;
+	};
+
+	main_sdhci1: mmc@4fb0000 {
+		compatible = "ti,j7200-sdhci-4bit", "ti,j721e-sdhci-4bit";
+		reg = <0x00 0x04fb0000 0x00 0x260>, <0x00 0x4fb8000 0x00 0x134>;
+		interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&k3_pds 92 TI_SCI_PD_EXCLUSIVE>;
+		clock-names = "clk_ahb", "clk_xin";
+		clocks = <&k3_clks 92 1>, <&k3_clks 92 2>;
+		ti,otap-del-sel-legacy = <0x0>;
+		ti,otap-del-sel-sd-hs = <0x0>;
+		ti,otap-del-sel-sdr12 = <0xf>;
+		ti,otap-del-sel-sdr25 = <0xf>;
+		ti,otap-del-sel-sdr50 = <0xc>;
+		ti,otap-del-sel-sdr104 = <0x5>;
+		ti,otap-del-sel-ddr50 = <0xc>;
+		ti,itap-del-sel-legacy = <0x0>;
+		ti,itap-del-sel-sd-hs = <0x0>;
+		ti,itap-del-sel-sdr12 = <0x0>;
+		ti,itap-del-sel-sdr25 = <0x0>;
+		ti,clkbuf-sel = <0x7>;
+		ti,trm-icp = <0x8>;
+		dma-coherent;
 	};
 
 	serdes_wiz0: wiz@5060000 {
@@ -626,6 +588,54 @@
 		};
 	};
 
+	pcie1_rc: pcie@2910000 {
+		compatible = "ti,j7200-pcie-host", "ti,j721e-pcie-host";
+		reg = <0x00 0x02910000 0x00 0x1000>,
+		      <0x00 0x02917000 0x00 0x400>,
+		      <0x00 0x0d800000 0x00 0x00800000>,
+		      <0x00 0x18000000 0x00 0x00001000>;
+		reg-names = "intd_cfg", "user_cfg", "reg", "cfg";
+		interrupt-names = "link_state";
+		interrupts = <GIC_SPI 330 IRQ_TYPE_EDGE_RISING>;
+		device_type = "pci";
+		ti,syscon-pcie-ctrl = <&scm_conf 0x4074>;
+		max-link-speed = <3>;
+		num-lanes = <4>;
+		power-domains = <&k3_pds 240 TI_SCI_PD_EXCLUSIVE>;
+		clocks = <&k3_clks 240 6>;
+		clock-names = "fck";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		bus-range = <0x0 0xf>;
+		cdns,no-bar-match-nbits = <64>;
+		vendor-id = /bits/ 16 <0x104c>;
+		device-id = /bits/ 16 <0xb00f>;
+		msi-map = <0x0 &gic_its 0x0 0x10000>;
+		dma-coherent;
+		ranges = <0x01000000 0x0 0x18001000  0x00 0x18001000  0x0 0x0010000>,
+			 <0x02000000 0x0 0x18011000  0x00 0x18011000  0x0 0x7fef000>;
+		dma-ranges = <0x02000000 0x0 0x0 0x0 0x0 0x10000 0x0>;
+	};
+
+	pcie1_ep: pcie-ep@2910000 {
+		compatible = "ti,j7200-pcie-ep", "ti,j721e-pcie-ep";
+		reg = <0x00 0x02910000 0x00 0x1000>,
+		      <0x00 0x02917000 0x00 0x400>,
+		      <0x00 0x0d800000 0x00 0x00800000>,
+		      <0x00 0x18000000 0x00 0x08000000>;
+		reg-names = "intd_cfg", "user_cfg", "reg", "mem";
+		interrupt-names = "link_state";
+		interrupts = <GIC_SPI 330 IRQ_TYPE_EDGE_RISING>;
+		ti,syscon-pcie-ctrl = <&scm_conf 0x4074>;
+		max-link-speed = <3>;
+		num-lanes = <4>;
+		power-domains = <&k3_pds 240 TI_SCI_PD_EXCLUSIVE>;
+		clocks = <&k3_clks 240 6>;
+		clock-names = "fck";
+		max-functions = /bits/ 8 <6>;
+		dma-coherent;
+	};
+
 	usbss0: cdns-usb@4104000 {
 		compatible = "ti,j721e-usb";
 		reg = <0x00 0x4104000 0x00 0x100>;
@@ -653,12 +663,81 @@
 					  "otg";
 			maximum-speed = "super-speed";
 			dr_mode = "otg";
+			cdns,phyrst-a-enable;
 		};
+	};
+
+	main_gpio0: gpio@600000 {
+		compatible = "ti,j721e-gpio", "ti,keystone-gpio";
+		reg = <0x00 0x00600000 0x00 0x100>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-parent = <&main_gpio_intr>;
+		interrupts = <145>, <146>, <147>, <148>,
+			     <149>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		ti,ngpio = <69>;
+		ti,davinci-gpio-unbanked = <0>;
+		power-domains = <&k3_pds 105 TI_SCI_PD_EXCLUSIVE>;
+		clocks = <&k3_clks 105 0>;
+		clock-names = "gpio";
+	};
+
+	main_gpio2: gpio@610000 {
+		compatible = "ti,j721e-gpio", "ti,keystone-gpio";
+		reg = <0x00 0x00610000 0x00 0x100>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-parent = <&main_gpio_intr>;
+		interrupts = <154>, <155>, <156>, <157>,
+			     <158>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		ti,ngpio = <69>;
+		ti,davinci-gpio-unbanked = <0>;
+		power-domains = <&k3_pds 107 TI_SCI_PD_EXCLUSIVE>;
+		clocks = <&k3_clks 107 0>;
+		clock-names = "gpio";
+	};
+
+	main_gpio4: gpio@620000 {
+		compatible = "ti,j721e-gpio", "ti,keystone-gpio";
+		reg = <0x00 0x00620000 0x00 0x100>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-parent = <&main_gpio_intr>;
+		interrupts = <163>, <164>, <165>, <166>,
+			     <167>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		ti,ngpio = <69>;
+		ti,davinci-gpio-unbanked = <0>;
+		power-domains = <&k3_pds 109 TI_SCI_PD_EXCLUSIVE>;
+		clocks = <&k3_clks 109 0>;
+		clock-names = "gpio";
+	};
+
+	main_gpio6: gpio@630000 {
+		compatible = "ti,j721e-gpio", "ti,keystone-gpio";
+		reg = <0x00 0x00630000 0x00 0x100>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-parent = <&main_gpio_intr>;
+		interrupts = <172>, <173>, <174>, <175>,
+			     <176>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		ti,ngpio = <69>;
+		ti,davinci-gpio-unbanked = <0>;
+		power-domains = <&k3_pds 111 TI_SCI_PD_EXCLUSIVE>;
+		clocks = <&k3_clks 111 0>;
+		clock-names = "gpio";
 	};
 
 	main_r5fss0: r5fss@5c00000 {
 		compatible = "ti,j7200-r5fss";
-		ti,cluster-mode = <0>;
+		ti,cluster-mode = <1>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges = <0x5c00000 0x00 0x5c00000 0x20000>,
@@ -672,7 +751,7 @@
 			reg-names = "atcm", "btcm";
 			ti,sci = <&dmsc>;
 			ti,sci-dev-id = <245>;
-			ti,sci-proc-ids = <0x06 0xFF>;
+			ti,sci-proc-ids = <0x06 0xff>;
 			resets = <&k3_reset 245 1>;
 			firmware-name = "j7200-main-r5f0_0-fw";
 			ti,atcm-enable = <1>;
@@ -687,7 +766,7 @@
 			reg-names = "atcm", "btcm";
 			ti,sci = <&dmsc>;
 			ti,sci-dev-id = <246>;
-			ti,sci-proc-ids = <0x07 0xFF>;
+			ti,sci-proc-ids = <0x07 0xff>;
 			resets = <&k3_reset 246 1>;
 			firmware-name = "j7200-main-r5f0_1-fw";
 			ti,atcm-enable = <1>;

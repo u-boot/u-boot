@@ -27,7 +27,6 @@
 #endif
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_GICV2
 
 #include <asm/arch/config.h>
 #include <asm/arch/stream_id_lsch2.h>
@@ -38,8 +37,6 @@
 #else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
 #endif
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
@@ -52,15 +49,10 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
-
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* SD boot SPL */
 #ifdef CONFIG_SD_BOOT
@@ -108,7 +100,6 @@
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_WATCHDOG
 #define CONFIG_SPL_I2C
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_DRIVERS_MISC
@@ -133,16 +124,6 @@
 #endif
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
-#endif
 
 /* PCIe */
 #define CONFIG_PCIE1		/* PCIE controller 1 */
@@ -195,7 +176,6 @@
 #endif
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128

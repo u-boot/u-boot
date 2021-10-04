@@ -12,8 +12,6 @@
 #include <configs/ti_armv7_omap.h>
 #include <asm/arch/omap.h>
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_TI8168EVM
-
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	DEFAULT_LINUX_BOOT_ENV \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
@@ -92,9 +90,6 @@
 /* Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
 
 /*
  * Disable MMC DM for SPL build and can be re-enabled after adding

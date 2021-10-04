@@ -38,11 +38,6 @@ int board_init(void)
 	return 0;
 }
 
-u32 get_board_rev(void)
-{
-	return 0;
-}
-
 void reset_cpu(void)
 {
 }

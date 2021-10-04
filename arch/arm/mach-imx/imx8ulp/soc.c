@@ -405,7 +405,7 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SERIAL_TAG
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 void get_board_serial(struct tag_serialnr *serialnr)
 {
 	u32 uid[4];

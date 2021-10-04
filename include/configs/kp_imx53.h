@@ -12,20 +12,11 @@
 
 #define CONFIG_SYS_FSL_CLK
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 /* USB Configs */
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
 
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_EEPROM_ADDR 0x50
-#define CONFIG_SYS_EEPROM_BUS_NUM 1
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
-
 /* Command definition */
-#define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc1,115200\0"	\
@@ -77,7 +68,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR

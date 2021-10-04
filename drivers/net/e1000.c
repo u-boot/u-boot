@@ -5251,11 +5251,7 @@ e1000_configure_tx(struct e1000_hw *hw)
 		mdelay(20);
 	}
 
-
-
 	E1000_WRITE_REG(hw, TCTL, tctl);
-
-
 }
 
 /**

@@ -8,15 +8,12 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_CACHELINE_SIZE	64
-
 #include <asm/arch-rockchip/hardware.h>
 #include <linux/sizes.h>
 
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
 #define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_ROCKCHIP_STIMER_BASE	0xff830020
 #define COUNTER_FREQUENCY		24000000
@@ -24,7 +21,6 @@
 #define CONFIG_IRAM_BASE		0xff8c0000
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x00300000
-#define CONFIG_SYS_LOAD_ADDR		0x00800800
 
 #define CONFIG_SPL_MAX_SIZE             0x40000
 #define CONFIG_SPL_BSS_START_ADDR       0x400000

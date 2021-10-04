@@ -15,14 +15,6 @@
 #include <asm/config_mpc85xx.h>
 
 #ifdef CONFIG_RAMBOOT_PBL
-
-#ifndef CONFIG_NXP_ESBC
-#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t104xrdb/t104x_pbi.cfg
-#else
-#define CONFIG_SYS_FSL_PBL_PBI \
-		$(SRCTREE)/board/freescale/t104xrdb/t104x_pbi_sb.cfg
-#endif
-
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_PAD_TO		0x40000
 #define CONFIG_SPL_MAX_SIZE		0x28000
@@ -49,26 +41,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#ifdef CONFIG_TARGET_T1040RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1040_nand_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1042RDB_PI
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042_pi_nand_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1042RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042_nand_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1040D4RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1040d4_nand_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1042D4RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042d4_nand_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -81,26 +53,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_nand_rcw.cfg
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#ifdef CONFIG_TARGET_T1040RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1040_spi_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1042RDB_PI
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042_pi_spi_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1042RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042_spi_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1040D4RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1040d4_spi_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1042D4RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042d4_spi_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -111,26 +63,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_spi_rcw.cfg
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(260 << 10)
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
-#endif
-#ifdef CONFIG_TARGET_T1040RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1040_sd_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1042RDB_PI
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042_pi_sd_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1042RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042_sd_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1040D4RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1040d4_sd_rcw.cfg
-#endif
-#ifdef CONFIG_TARGET_T1042D4RDB
-#define CONFIG_SYS_FSL_PBL_RCW \
-$(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 #endif
 
@@ -164,7 +96,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	100000000
-#define CONFIG_DDR_CLK_FREQ	66666666
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -173,9 +104,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_BACKSIDE_L2_CACHE
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_DDR_ECC
 #ifdef CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
@@ -210,8 +139,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
-
-#define CONFIG_DDR_SPD
 
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
@@ -421,7 +348,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 /* Serial Port - controlled on board with jumper J8
  * open - index 2
@@ -452,26 +378,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_FSL_I2C_SPEED	400000	/* I2C speed in Hz */
-#define CONFIG_SYS_FSL_I2C2_SPEED	400000
-#define CONFIG_SYS_FSL_I2C3_SPEED	400000
-#define CONFIG_SYS_FSL_I2C4_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C3_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C4_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
-#define CONFIG_SYS_FSL_I2C3_OFFSET	0x119000
-#define CONFIG_SYS_FSL_I2C4_OFFSET	0x119100
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 
-#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
 #define I2C_MUX_CH_DEFAULT      0x8
@@ -676,7 +583,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*
  * For booting Linux, the board info and command line data
@@ -685,10 +591,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
  */
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial map for Linux*/
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
-
-#ifdef CONFIG_CMD_KGDB
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#endif
 
 /*
  * Dynamic MTD Partition support with mtdparts
@@ -700,9 +602,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
-
-/* default location for tftp and bootm */
-#define CONFIG_LOADADDR		1000000
 
 #define __USB_PHY_TYPE	utmi
 #define RAMDISKFILE	"t104xrdb/ramdisk.uboot"
@@ -746,7 +645,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 	"fdtfile=" __stringify(FDTFILE) "\0"			\
 	"bdev=sda3\0"
 
-#define CONFIG_LINUX                       \
+#define LINUXBOOTCOMMAND                       \
 	"setenv bootargs root=/dev/ram rw "            \
 	"console=$consoledev,$baudrate $othbootargs;"  \
 	"setenv ramdiskaddr 0x02000000;"               \
@@ -754,14 +653,14 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 	"setenv loadaddr 0x1000000;"		       \
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_HDBOOT					\
+#define HDBOOT					\
 	"setenv bootargs root=/dev/$bdev rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $loadaddr $bootfile;"			\
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_NFSBOOTCOMMAND			\
+#define NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\
 	"nfsroot=$serverip:$rootpath "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -770,7 +669,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND				\
+#define RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $ramdiskaddr $ramdiskfile;"		\
@@ -778,7 +677,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND		CONFIG_LINUX
+#define CONFIG_BOOTCOMMAND		LINUXBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

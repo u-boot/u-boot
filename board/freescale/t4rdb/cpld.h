@@ -45,4 +45,3 @@ void cpld_write(unsigned int reg, u8 value);
 #define CPLD_READ(reg) cpld_read(offsetof(struct cpld_data, reg))
 #define CPLD_WRITE(reg, value) \
 		cpld_write(offsetof(struct cpld_data, reg), value)
-

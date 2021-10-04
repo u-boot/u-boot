@@ -541,7 +541,7 @@ static const struct dm_spi_ops fsl_espi_ops = {
 	.set_mode	= fsl_espi_set_mode,
 };
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int fsl_espi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
@@ -572,7 +572,7 @@ static const struct udevice_id fsl_espi_ids[] = {
 U_BOOT_DRIVER(fsl_espi) = {
 	.name	= "fsl_espi",
 	.id	= UCLASS_SPI,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = fsl_espi_ids,
 	.of_to_plat = fsl_espi_of_to_plat,
 #endif

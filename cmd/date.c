@@ -49,7 +49,7 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 		}
 	}
-#elif defined(CONFIG_SYS_I2C_LEGACY)
+#elif CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	old_bus = i2c_get_bus_num();
 	i2c_set_bus_num(CONFIG_SYS_RTC_BUS_NUM);
 #else
@@ -122,7 +122,7 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	/* switch back to original I2C bus */
-#ifdef CONFIG_SYS_I2C_LEGACY
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	i2c_set_bus_num(old_bus);
 #elif !defined(CONFIG_DM_RTC)
 	I2C_SET_BUS(old_bus);

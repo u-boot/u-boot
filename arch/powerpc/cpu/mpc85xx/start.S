@@ -14,7 +14,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc85xx.h>
-#include <version.h>
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
@@ -77,7 +76,7 @@
 _start_e500:
 /* Enable debug exception */
 	li	r1,MSR_DE
-	mtmsr 	r1
+	mtmsr	r1
 
 	/*
 	 * If we got an ePAPR device tree pointer passed in as r3, we need that
@@ -1138,11 +1137,7 @@ switch_as:
 	.globl	_start
 _start:
 	.long	0x27051956		/* U-BOOT Magic Number */
-	.globl	version_string
-version_string:
-	.ascii U_BOOT_VERSION_STRING, "\0"
 
-	.align	4
 	.globl	_start_cont
 _start_cont:
 	/* Setup the stack in initial RAM,could be L2-as-SRAM or L1 dcache*/
@@ -1164,9 +1159,9 @@ _start_cont:
 
 	li	r0,0
 
-1: 	subi 	r4,r4,4
-	stw 	r0,0(r4)
-	cmplw 	r4,r3
+1:	subi	r4,r4,4
+	stw	r0,0(r4)
+	cmplw	r4,r3
 	bne	1b
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)

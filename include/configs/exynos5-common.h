@@ -45,12 +45,6 @@
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 
-/* specific .lds file */
-
-/* Boot Argument Buffer Size */
-/* memtest works on */
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
-
 #define CONFIG_RD_LVL
 
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
@@ -95,11 +89,6 @@
 
 #define EXYNOS_COPY_SPI_FNPTR_ADDR	0x02020058
 #define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
-
-/* I2C */
-#define CONFIG_SYS_I2C_S3C24X0
-#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000		/* 100 Kbps */
-#define CONFIG_SYS_I2C_S3C24X0_SLAVE    0x0
 
 /* SPI */
 

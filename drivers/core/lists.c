@@ -154,7 +154,7 @@ int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 /**
  * driver_check_compatible() - Check if a driver matches a compatible string
  *

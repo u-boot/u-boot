@@ -207,14 +207,14 @@ struct musb_regs {
 /* TxType/RxType */
 #define MUSB_TYPE_SPEED		0xc0
 #define MUSB_TYPE_SPEED_SHIFT	6
-#define MUSB_TYPE_SPEED_HIGH 	1
-#define MUSB_TYPE_SPEED_FULL 	2
+#define MUSB_TYPE_SPEED_HIGH	1
+#define MUSB_TYPE_SPEED_FULL	2
 #define MUSB_TYPE_SPEED_LOW	3
 #define MUSB_TYPE_PROTO		0x30	/* Implicitly zero for ep0 */
 #define MUSB_TYPE_PROTO_SHIFT	4
 #define MUSB_TYPE_REMOTE_END	0xf	/* Implicitly zero for ep0 */
-#define MUSB_TYPE_PROTO_BULK 	2
-#define MUSB_TYPE_PROTO_INTR 	3
+#define MUSB_TYPE_PROTO_BULK	2
+#define MUSB_TYPE_PROTO_INTR	3
 
 /* CONFIGDATA */
 #define MUSB_CONFIGDATA_MPRXE		0x80	/* Auto bulk pkt combining */
@@ -304,7 +304,7 @@ struct musb_regs {
  * values are not supported
  */
 struct musb_epinfo {
-	u8	epnum;	/* endpoint number 	*/
+	u8	epnum;	/* endpoint number	*/
 	u8	epdir;	/* endpoint direction	*/
 	u16	epsize;	/* endpoint FIFO size	*/
 };

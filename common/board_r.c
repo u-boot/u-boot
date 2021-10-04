@@ -67,6 +67,7 @@
 #endif
 #include <asm/sections.h>
 #include <dm/root.h>
+#include <dm/ofnode.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <efi_loader.h>
@@ -448,8 +449,7 @@ static int initr_pvblock(void)
 static int should_load_env(void)
 {
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
-		return fdtdec_get_config_int(gd->fdt_blob,
-						"load-environment", 1);
+		return ofnode_conf_read_int("load-environment", 1);
 
 	if (IS_ENABLED(CONFIG_DELAY_ENVIRONMENT))
 		return 0;
@@ -720,7 +720,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 	cpu_secondary_init_r,
-#if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET)
+#if defined(CONFIG_ID_EEPROM)
 	mac_read_from_eeprom,
 #endif
 	INIT_FUNC_WATCHDOG_RESET

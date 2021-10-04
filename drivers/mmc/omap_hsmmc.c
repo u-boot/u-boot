@@ -42,7 +42,7 @@
 #include <asm/arch/mux_dra7xx.h>
 #include <asm/arch/dra7xx_iodelay.h>
 #endif
-#if !defined(CONFIG_SOC_KEYSTONE)
+#if !defined(CONFIG_ARCH_KEYSTONE)
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #endif
@@ -1559,7 +1559,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		priv->base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE;
 #if (defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
 	defined(CONFIG_DRA7XX) || defined(CONFIG_AM33XX) || \
-	defined(CONFIG_AM43XX) || defined(CONFIG_SOC_KEYSTONE)) && \
+	defined(CONFIG_AM43XX) || defined(CONFIG_ARCH_KEYSTONE)) && \
 		defined(CONFIG_HSMMC2_8BIT)
 		/* Enable 8-bit interface for eMMC on OMAP4/5 or DRA7XX */
 		host_caps_val |= MMC_MODE_8BIT;
@@ -1891,7 +1891,7 @@ static int omap_hsmmc_get_pinctrl_state(struct mmc *mmc)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 #ifdef CONFIG_OMAP54XX
 __weak const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 {
@@ -2009,7 +2009,7 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	return omap_hsmmc_init_setup(mmc);
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 
 static const struct omap_mmc_of_data dra7_mmc_of_data = {
 	.controller_flags = OMAP_HSMMC_REQUIRE_IODELAY,
@@ -2027,7 +2027,7 @@ static const struct udevice_id omap_hsmmc_ids[] = {
 U_BOOT_DRIVER(omap_hsmmc) = {
 	.name	= "omap_hsmmc",
 	.id	= UCLASS_MMC,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = omap_hsmmc_ids,
 	.of_to_plat = omap_hsmmc_of_to_plat,
 	.plat_auto	= sizeof(struct omap_hsmmc_plat),

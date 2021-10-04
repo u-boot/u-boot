@@ -148,8 +148,8 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_CIC_HOST_ENABLE_IDX_SET	0x34
 #define KS2_CIC_CHAN_MAP(n)		(0x0400 + (n << 2))
 
-#define KS2_UART0_BASE                	0x02530c00
-#define KS2_UART1_BASE                	0x02531000
+#define KS2_UART0_BASE			0x02530c00
+#define KS2_UART1_BASE			0x02531000
 
 /* Boot Config */
 #define KS2_DEVICE_STATE_CTRL_BASE	0x02620000
@@ -210,7 +210,7 @@ typedef volatile unsigned int   *dv_reg_p;
 #endif
 
 /* AEMIF */
-#define KS2_AEMIF_CNTRL_BASE       	0x21000a00
+#define KS2_AEMIF_CNTRL_BASE		0x21000a00
 #define DAVINCI_ASYNC_EMIF_CNTRL_BASE   KS2_AEMIF_CNTRL_BASE
 
 /* Flag from ks2_debug options to check if DSPs need to stay ON */

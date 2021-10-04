@@ -11,7 +11,9 @@ config SYS_CONFIG_NAME
 
 config IMX8MN_LOW_DRIVE_MODE
 	bool "Enable the low drive mode of iMX8MN on EVK board"
-	default n
+
+config IMX_CONFIG
+	default "board/freescale/imx8mn_evk/imximage-8mn-ddr4.cfg"
 
 source "board/freescale/common/Kconfig"
 

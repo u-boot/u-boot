@@ -7,27 +7,6 @@
 #define _CONFIG_LACIE_KW_H
 
 /*
- * Machine number definition
- */
-#if defined(CONFIG_INETSPACE_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_INETSPACE_V2
-#elif defined(CONFIG_NETSPACE_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_V2
-#elif defined(CONFIG_NETSPACE_LITE_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_LITE_V2
-#elif defined(CONFIG_NETSPACE_MINI_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MINI_V2
-#elif defined(CONFIG_NETSPACE_MAX_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MAX_V2
-#elif defined(CONFIG_D2NET_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_D2NET_V2
-#elif defined(CONFIG_NET2BIG_V2)
-#define CONFIG_MACH_TYPE		MACH_TYPE_NET2BIG_V2
-#else
-#error "Unknown board"
-#endif
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
@@ -37,7 +16,6 @@
 #else
 #define CONFIG_KW88F6281
 #endif
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
  * SDRAM configuration
@@ -99,9 +77,6 @@
  */
 #ifdef CONFIG_CMD_I2C
 /* I2C EEPROM HT24LC04 (512B - 32 pages of 16 Bytes) */
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4 /* 16-byte page size */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1 /* 8-bit device address */
 #if defined(CONFIG_NET2BIG_V2)
 #define CONFIG_SYS_I2C_G762_ADDR		0x3e
 #endif

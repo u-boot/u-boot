@@ -1407,7 +1407,7 @@ int uec_initialize(struct bd_info *bis, struct uec_inf *uec_info)
 
 	if (!mdiodev)
 		return -ENOMEM;
-	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	strlcpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
 	mdiodev->read = uec_miiphy_read;
 	mdiodev->write = uec_miiphy_write;
 

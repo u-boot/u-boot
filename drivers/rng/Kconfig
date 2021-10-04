@@ -34,14 +34,12 @@ config RNG_MSM
 config RNG_STM32MP1
 	bool "Enable random number generator for STM32MP1"
 	depends on ARCH_STM32MP
-	default n
 	help
 	  Enable STM32MP1 rng driver.
 
 config RNG_ROCKCHIP
 	bool "Enable random number generator for rockchip crypto rng"
 	depends on ARCH_ROCKCHIP && DM_RNG
-	default n
 	help
 	  Enable random number generator for rockchip.This driver is
 	  support rng module of crypto v1 and crypto v2.
@@ -49,7 +47,6 @@ config RNG_ROCKCHIP
 config RNG_IPROC200
 	bool "Broadcom iProc RNG200 random number generator"
 	depends on DM_RNG
-	default n
 	help
 	  Enable random number generator for RPI4.
 endif

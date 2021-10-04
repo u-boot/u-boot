@@ -25,6 +25,7 @@ endif
 
 PLATFORM_RELFLAGS += -fno-common -ffixed-r9
 PLATFORM_RELFLAGS += $(call cc-option, -msoft-float) \
+		     $(call cc-option,-mgeneral-regs-only) \
       $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
 
 # LLVM support
@@ -158,7 +159,8 @@ ifdef CONFIG_EFI_LOADER
 OBJCOPYFLAGS += -j .efi_runtime -j .efi_runtime_rel
 endif
 
-ifneq ($(CONFIG_IMX_CONFIG),)
+ifdef CONFIG_MACH_IMX
+ifneq ($(CONFIG_IMX_CONFIG),"")
 ifdef CONFIG_SPL
 ifndef CONFIG_SPL_BUILD
 INPUTS-y += SPL
@@ -172,6 +174,7 @@ endif
 endif
 ifneq ($(CONFIG_VF610),)
 INPUTS-y += u-boot.vyb
+endif
 endif
 endif
 

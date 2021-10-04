@@ -16,17 +16,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
-#define CONFIG_MACH_TYPE	MACH_TYPE_MX51_BABBAGE
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
-
 /*
  * Hardware drivers
  */
@@ -35,7 +24,6 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* PMIC Controller */
-#define CONFIG_POWER
 #define CONFIG_POWER_SPI
 #define CONFIG_POWER_FSL
 #define CONFIG_FSL_PMIC_BUS	0
@@ -60,8 +48,6 @@
 #define CONFIG_VIDEO_LOGO
 
 #define CONFIG_ETHPRIME		"FEC0"
-
-#define CONFIG_LOADADDR		0x92000000	/* loadaddr env var */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
@@ -139,8 +125,6 @@
 /*
  * Miscellaneous configurable options
  */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

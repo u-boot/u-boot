@@ -21,9 +21,6 @@ config SYS_CONFIG_NAME
 	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
 	  will be used for board configuration.
 
-config GICV3
-	def_bool y
-
 config SYS_MALLOC_LEN
 	default 0x2000000
 

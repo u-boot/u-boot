@@ -65,7 +65,7 @@ int sandbox_gpio_get_direction(struct udevice *dev, unsigned int offset);
  *
  * @param dev		device to use
  * @param offset	GPIO offset within bank
- * @param output 	0 to set as input, 1 to set as output
+ * @param output	0 to set as input, 1 to set as output
  * @return -1 on error, 0 if ok
  */
 int sandbox_gpio_set_direction(struct udevice *dev, unsigned int offset,

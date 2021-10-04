@@ -273,7 +273,7 @@ static void spl_dram_init(void)
 #endif
 }
 
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#ifdef CONFIG_SPL_SPI
 static void displ5_init_ecspi(void)
 {
 	displ5_set_iomux_ecspi_spl();
@@ -283,7 +283,7 @@ static void displ5_init_ecspi(void)
 static inline void displ5_init_ecspi(void) { }
 #endif
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 static struct fsl_esdhc_cfg usdhc_cfg = {
 	.esdhc_base = USDHC4_BASE_ADDR,
 	.max_bus_width = 8,

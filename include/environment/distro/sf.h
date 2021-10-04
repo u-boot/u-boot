@@ -10,16 +10,16 @@
 
 #if CONFIG_IS_ENABLED(CMD_SF)
 #define BOOTENV_SHARED_SF(devtypel)				\
-	#devtypel "_boot=" 					\
+	#devtypel "_boot="					\
 	"if " #devtypel " probe ${busnum}; then "		\
-		"devtype=" #devtypel "; "	  		\
-		"run scan_sf_for_scripts; "	  		\
+		"devtype=" #devtypel "; "			\
+		"run scan_sf_for_scripts; "			\
 	"fi\0"
-#define BOOTENV_DEV_SF(devtypeu, devtypel, instance) 		\
-	"bootcmd_" #devtypel #instance "=" 			\
-		"busnum=" #instance "; " 			\
+#define BOOTENV_DEV_SF(devtypeu, devtypel, instance)		\
+	"bootcmd_" #devtypel #instance "="			\
+		"busnum=" #instance "; "			\
 		"run " #devtypel "_boot\0"
-#define BOOTENV_DEV_NAME_SF(devtypeu, devtypel, instance) 	\
+#define BOOTENV_DEV_NAME_SF(devtypeu, devtypel, instance)	\
 	#devtypel #instance " "
 #else
 #define BOOTENV_SHARED_SF(devtypel)

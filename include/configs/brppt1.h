@@ -16,7 +16,6 @@
 #include <linux/stringify.h>
 /* ------------------------------------------------------------------------- */
 /* memory */
-#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 #define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
 /* Clock Defines */
@@ -24,13 +23,6 @@
 #define V_SCLK				(V_OSCK)
 
 #define CONFIG_POWER_TPS65217
-
-/* Support both device trees and ATAGs. */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-/*#define CONFIG_MACH_TYPE		3589*/
-#define CONFIG_MACH_TYPE		0xFFFFFFFF /* TODO: check with kernel*/
 
 /*
  * When we have NAND flash we expect to be making use of mtdparts,

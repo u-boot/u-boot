@@ -30,7 +30,7 @@
 #include <panel.h>
 #include <rtc.h>
 #include <spi_flash.h>
-#include <version.h>
+#include <version_string.h>
 
 #include "../common/vpd_reader.h"
 

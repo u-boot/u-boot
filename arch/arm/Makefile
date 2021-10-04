@@ -18,7 +18,11 @@ arch-$(CONFIG_CPU_V7A)		=$(call cc-option, -march=armv7-a, \
 				 $(call cc-option, -march=armv7))
 arch-$(CONFIG_CPU_V7M)		=-march=armv7-m
 arch-$(CONFIG_CPU_V7R)		=-march=armv7-r
+ifeq ($(CONFIG_ARM64_CRC32),y)
+arch-$(CONFIG_ARM64)		=-march=armv8-a+crc
+else
 arch-$(CONFIG_ARM64)		=-march=armv8-a
+endif
 
 # On Tegra systems we must build SPL for the armv4 core on the device
 # but otherwise we can use the value in CONFIG_SYS_ARM_ARCH
@@ -107,7 +111,7 @@ libs-y += arch/arm/cpu/
 libs-y += arch/arm/lib/
 
 ifeq ($(CONFIG_SPL_BUILD),y)
-ifneq (,$(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_MX35)$(filter $(SOC), mx25 mx5 mx6 mx7 mx35 imx8m imx8 imx8ulp imxrt))
+ifneq (,$(CONFIG_MX23)$(CONFIG_MX28)$(filter $(SOC), mx25 mx5 mx6 mx7 mx35 imx8m imx8 imx8ulp imxrt))
 libs-y += arch/arm/mach-imx/
 endif
 else

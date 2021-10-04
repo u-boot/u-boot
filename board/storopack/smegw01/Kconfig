@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "smegw01"
 
+config IMX_CONFIG
+	default "board/storopack/smegw01/imximage.cfg"
+
 endif

@@ -995,8 +995,8 @@ void musb_g_rx(struct musb *musb, u8 epnum)
 				&& (musb_ep->dma->actual_len
 					== musb_ep->packet_sz)) {
 			/* In double buffer case, continue to unload fifo if
- 			 * there is Rx packet in FIFO.
- 			 **/
+			 * there is Rx packet in FIFO.
+			 **/
 			csr = musb_readw(epio, MUSB_RXCSR);
 			if ((csr & MUSB_RXCSR_RXPKTRDY) &&
 				hw_ep->rx_double_buffered)

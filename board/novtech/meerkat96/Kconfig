@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "meerkat96"
 
+config IMX_CONFIG
+	default "board/novtech/meerkat96/imximage.cfg"
+
 endif

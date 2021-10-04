@@ -70,16 +70,16 @@ struct reset_ops meson_reset_ops = {
 	.rst_deassert = meson_reset_deassert,
 };
 
-static const struct udevice_id meson_reset_ids[] = {                          
-	{ .compatible = "amlogic,meson-gxbb-reset" },                                  
+static const struct udevice_id meson_reset_ids[] = {
+	{ .compatible = "amlogic,meson-gxbb-reset" },
 	{ .compatible = "amlogic,meson-axg-reset" },
-	{ }                                                                     
-};  
+	{ }
+};
 
 static int meson_reset_probe(struct udevice *dev)
 {
 	struct meson_reset_priv *priv = dev_get_priv(dev);
-	
+
 	return regmap_init_mem(dev_ofnode(dev), &priv->regmap);
 }
 

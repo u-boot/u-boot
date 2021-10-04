@@ -41,7 +41,7 @@ config STM32F7
 	select SPL_OF_TRANSLATE
 	select SPL_PINCTRL
 	select SPL_RAM
-	select SPL_SERIAL_SUPPORT
+	select SPL_SERIAL
 	select SPL_SYS_MALLOC_SIMPLE
 	select SPL_TIMER
 	select SPL_XIP_SUPPORT

@@ -18,13 +18,10 @@
 #define LCD_BPP				LCD_COLOR32
 
 /* memory */
-#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
-
-#define CONFIG_MACH_TYPE		3589
 
 #ifndef CONFIG_SPL_BUILD
 
@@ -57,11 +54,6 @@ BUR_COMMON_ENV \
 #endif /* !CONFIG_SPL_BUILD*/
 
 #define CONFIG_BOOTCOMMAND		"mmc dev 1; run b_default"
-
-/* Support both device trees and ATAGs. */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 
 /* Environment */
 

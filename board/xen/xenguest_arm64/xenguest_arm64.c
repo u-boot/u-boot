@@ -195,4 +195,3 @@ void board_cleanup_before_linux(void)
 {
 	xen_fini();
 }
-

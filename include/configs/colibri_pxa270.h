@@ -19,7 +19,6 @@
 /*
  * Environment settings
  */
-#define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 #define	CONFIG_BOOTCOMMAND						\
 	"if fatload mmc 0 0xa0000000 uImage; then "			\
 		"bootm 0xa0000000; "					\
@@ -29,8 +28,6 @@
 	"fi; "								\
 	"bootm 0xc0000;"
 #define	CONFIG_TIMESTAMP
-#define	CONFIG_CMDLINE_TAG
-#define	CONFIG_SETUP_MEMORY_TAGS
 
 /*
  * Serial Console Configuration
@@ -41,11 +38,10 @@
  */
 
 /* I2C support */
-#ifdef CONFIG_SYS_I2C_LEGACY
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 #define CONFIG_SYS_I2C_PXA
 #define CONFIG_PXA_STD_I2C
 #define CONFIG_PXA_PWR_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
 #endif
 
 /* LCD support */
@@ -83,7 +79,6 @@
 #define	CONFIG_SYS_DRAM_BASE		0xa0000000	/* CS0 */
 #define	CONFIG_SYS_DRAM_SIZE		0x04000000	/* 64 MB DRAM */
 
-#define	CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define	CONFIG_SYS_INIT_SP_ADDR		0x5c010000
 

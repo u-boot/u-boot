@@ -6,22 +6,17 @@
 #ifndef __LS1012A_COMMON_H
 #define __LS1012A_COMMON_H
 
-#define CONFIG_GICV2
-
 #include <asm/arch/config.h>
 #include <asm/arch/stream_id_lsch2.h>
 #include <linux/sizes.h>
 
 #define CONFIG_SYS_CLK_FREQ		125000000
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 #ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_INIT_SP_ADDR                CONFIG_SYS_TEXT_BASE
 #else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
 #endif
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
@@ -33,9 +28,6 @@
 
 /* CSU */
 #define CONFIG_LAYERSCAPE_NS_ACCESS
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(5 * SZ_1M)
 
 /* PFE */
 #define CONFIG_SYS_FMAN_FW_ADDR		0x400d0000
@@ -55,12 +47,6 @@
 						CONFIG_SYS_SCSI_MAX_LUN)
 
 /* I2C */
-#if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_LEGACY
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
-#endif
 
 /* GPIO */
 #ifdef CONFIG_DM_GPIO
@@ -72,8 +58,6 @@
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE     1
 #define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_SYS_HZ			1000
 

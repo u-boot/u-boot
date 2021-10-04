@@ -56,8 +56,6 @@
 	BOOTENV
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x40480000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR        0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE        SZ_2M
@@ -66,8 +64,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		SZ_32M
 #define CONFIG_SYS_SDRAM_BASE           0x40000000
 
 /* SDRAM configuration */
@@ -93,8 +89,5 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-/* I2C */
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #endif /* __IMX8MM_ICORE_MX8MM_H */

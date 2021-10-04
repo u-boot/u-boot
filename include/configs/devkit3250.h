@@ -12,20 +12,11 @@
 #include <linux/sizes.h>
 #include <asm/arch/cpu.h>
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_DEVKIT3250
-
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
-
 /*
  * Memory configurations
  */
-#define CONFIG_SYS_MALLOC_LEN		SZ_1M
 #define CONFIG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
 #define CONFIG_SYS_SDRAM_SIZE		SZ_64M
-
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_32K)
 
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_4K \
 					 - GENERATED_GBL_DATA_SIZE)
@@ -33,15 +24,6 @@
 /*
  * DMA
  */
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_DMA_LPC32XX
-#endif
-
-/*
- * I2C
- */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /*
  * GPIO
@@ -125,14 +107,7 @@
  * U-Boot Commands
  */
 
-/*
- * Boot Linux
- */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_LOADADDR			0x80008000
 
 /*
  * SPL specific defines

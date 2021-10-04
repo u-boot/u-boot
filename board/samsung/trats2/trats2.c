@@ -67,10 +67,12 @@ static void check_hw_revision(void)
 	board_rev = modelrev << 8;
 }
 
+#ifdef CONFIG_REVISION_TAG
 u32 get_board_rev(void)
 {
 	return board_rev;
 }
+#endif
 
 static inline u32 get_model_rev(void)
 {

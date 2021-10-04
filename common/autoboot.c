@@ -24,6 +24,7 @@
 #include <u-boot/sha256.h>
 #include <bootcount.h>
 #include <crypt.h>
+#include <dm/ofnode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -424,12 +425,12 @@ static void process_fdt_options(const void *blob)
 	ulong addr;
 
 	/* Add an env variable to point to a kernel payload, if available */
-	addr = fdtdec_get_config_int(gd->fdt_blob, "kernel-offset", 0);
+	addr = ofnode_conf_read_int("kernel-offset", 0);
 	if (addr)
 		env_set_addr("kernaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
 
 	/* Add an env variable to point to a root disk, if available */
-	addr = fdtdec_get_config_int(gd->fdt_blob, "rootdisk-offset", 0);
+	addr = ofnode_conf_read_int("rootdisk-offset", 0);
 	if (addr)
 		env_set_addr("rootaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
 #endif /* CONFIG_SYS_TEXT_BASE */
@@ -446,8 +447,7 @@ const char *bootdelay_process(void)
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
-		bootdelay = fdtdec_get_config_int(gd->fdt_blob, "bootdelay",
-						  bootdelay);
+		bootdelay = ofnode_conf_read_int("bootdelay", bootdelay);
 
 	debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
 

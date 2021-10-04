@@ -8,21 +8,21 @@ Required properties:
 - anatop-reg-offset:	u32 value representing the anatop MFD register offset.
 - anatop-vol-bit-shift:	u32 value representing the bit shift for the register.
 - anatop-vol-bit-width:	u32 value representing the number of bits used in the
-  			register.
+			register.
 - anatop-min-bit-val:	u32 value representing the minimum value of this
-  			register.
+			register.
 - anatop-min-voltage:	u32 value representing the minimum voltage of this
-  			regulator.
+			regulator.
 - anatop-max-voltage:	u32 value representing the maximum voltage of this
-  			regulator.
+			regulator.
 
 Optional properties:
 - anatop-delay-reg-offset: u32 value representing the anatop MFD step time
-  			   register offset.
+			   register offset.
 - anatop-delay-bit-shift: u32 value representing the bit shift for the step
-  			  time register.
+			  time register.
 - anatop-delay-bit-width: u32 value representing the number of bits used in
-  			  the step time register.
+			  the step time register.
 - anatop-enable-bit:	  u32 value representing regulator enable bit offset.
 - vin-supply:		  input supply phandle.
 

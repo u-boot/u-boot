@@ -12,14 +12,11 @@
 
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
-#define CONFIG_GICV3
 #define CONFIG_FSL_TZPC_BP147
 #define CONFIG_FSL_MEMAC
 
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_FLASH_BASE		0x20000000
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* DDR */
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
@@ -30,9 +27,6 @@
 #define CONFIG_SYS_DDR_BLOCK2_BASE		0x2080000000ULL
 #define CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS	2
 #define CONFIG_SYS_SDRAM_SIZE			0x200000000UL
-#define CONFIG_DDR_SPD
-#define CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS1		0x51
@@ -49,7 +43,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(936 * 1024)
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
 /* SMP Definitinos  */
 #define CPU_RELEASE_ADDR		secondary_boot_addr
@@ -61,9 +54,6 @@
  */
 
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
 
 /* Serial Port */
 #define CONFIG_PL01X_SERIAL
@@ -77,7 +67,6 @@
 					(void *)CONFIG_SYS_SERIAL1, \
 					(void *)CONFIG_SYS_SERIAL2, \
 					(void *)CONFIG_SYS_SERIAL3 }
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* MC firmware */
 #define CONFIG_SYS_LS_MC_DPC_MAX_LENGTH		0x20000
@@ -110,13 +99,8 @@
 #define CONFIG_SYS_I2C_RTC_ADDR		0x51  /* Channel 3*/
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 
 /* Qixis */
 #define CONFIG_FSL_QIXIS
@@ -157,11 +141,9 @@
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
-unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-#define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ / 4)
 
 #define CONFIG_HWCONFIG

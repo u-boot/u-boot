@@ -29,16 +29,6 @@
 
 /* Text Base */
 
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_INITRD_TAG
-
-/*
- * Size of malloc() pool
- * 1MB = 0x100000, 0x100000 = 1024 * 1024
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
-
 /*
  * select serial console configuration
  */
@@ -105,8 +95,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
-/* memtest works on */
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
 
 /* SMDKC100 has 1 banks of DRAM, we use only one in U-Boot */
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* SDRAM Bank #1 */

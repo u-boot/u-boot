@@ -1,6 +1,5 @@
 config MVEBU_COMPHY_SUPPORT
 	bool "ComPhy SerDes driver"
-	default n
 	help
 	  Choose this option to add support
 	  for Comphy driver.

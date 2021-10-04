@@ -2,6 +2,9 @@ source "drivers/net/phy/Kconfig"
 source "drivers/net/pfe_eth/Kconfig"
 source "drivers/net/fsl-mc/Kconfig"
 
+config ETH
+	def_bool y
+
 config DM_ETH
 	bool "Enable Driver Model for Ethernet drivers"
 	depends on DM
@@ -557,7 +560,6 @@ endif #DM_ETH
 
 config SMC911X_32_BIT
 	bool "Enable SMC911X 32-bit interface"
-	default n
 	help
 	  Define this if data bus is 32 bits. If your processor use a
 	  narrower 16 bit bus or cannot convert one 32 bit word to two 16 bit
@@ -711,7 +713,6 @@ config FEC1_PHY
 config PHY_NORXERR
 	bool "PHY_NORXERR"
 	depends on ETHER_ON_FEC1
-	default n
 	help
 	  The PHY does not have a RXERR line (RMII only).
 	  (so program the FEC to ignore it).
@@ -736,7 +737,6 @@ config FEC2_PHY
 config FEC2_PHY_NORXERR
 	bool "PHY_NORXERR"
 	depends on ETHER_ON_FEC2
-	default n
 	help
 	  The PHY does not have a RXERR line (RMII only).
 	  (so program the FEC to ignore it).

@@ -10,13 +10,9 @@
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
-unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-#define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
@@ -24,13 +20,10 @@ unsigned long get_board_ddr_clk(void);
 /* Physical Memory Map */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
-#define CONFIG_DDR_SPD
 #define SPD_EEPROM_ADDRESS		0x51
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
-#define CONFIG_DDR_ECC
 #ifdef CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
 
@@ -53,23 +46,6 @@ unsigned long get_board_ddr_clk(void);
 #define QSGMII_CARD_PORT4_PHY_ADDR_S2 0xB
 #endif
 
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/ls1043aqds/ls1043aqds_pbi.cfg
-#endif
-
-#ifdef CONFIG_NAND_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043aqds/ls1043aqds_rcw_nand.cfg
-#endif
-
-#ifdef CONFIG_SD_BOOT
-#ifdef CONFIG_SD_BOOT_QSPI
-#define CONFIG_SYS_FSL_PBL_RCW \
-	board/freescale/ls1043aqds/ls1043aqds_rcw_sd_qspi.cfg
-#else
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043aqds/ls1043aqds_rcw_sd_ifc.cfg
-#endif
-#endif
-
 /* LPUART */
 #ifdef CONFIG_LPUART
 #define CONFIG_LPUART_32B_REG
@@ -79,13 +55,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SCSI_AHCI_PLAT
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 
 #define CONFIG_SYS_SATA				AHCI_BASE_ADDR
 
@@ -191,7 +162,6 @@ unsigned long get_board_ddr_clk(void);
 #if defined(CONFIG_TFABOOT) || \
 	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_QIXIS_I2C_ACCESS
-#define CONFIG_SYS_I2C_EARLY_INIT
 #endif
 
 /*
@@ -394,8 +364,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Environment
  */
-
-#define CONFIG_CMDLINE_TAG
 
 #include <asm/fsl_secure_boot.h>
 

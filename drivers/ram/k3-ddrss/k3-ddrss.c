@@ -27,8 +27,8 @@
 #define CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS	0x80
 #define CTRLMMR_DDR4_FSP_CLKCHNG_ACK_OFFS	0xc0
 
-#define DDRSS_V2A_R1_MAT_REG 			0x0020
-#define DDRSS_ECC_CTRL_REG 			0x0120
+#define DDRSS_V2A_R1_MAT_REG			0x0020
+#define DDRSS_ECC_CTRL_REG			0x0120
 
 struct k3_ddrss_desc {
 	struct udevice *dev;

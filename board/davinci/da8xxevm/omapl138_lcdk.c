@@ -143,20 +143,6 @@ const int lpsc_size = ARRAY_SIZE(lpsc);
 #define CONFIG_DA850_EVM_MAX_CPU_CLK	456000000
 #endif
 
-/*
- * get_board_rev() - setup to pass kernel board revision information
- * Returns:
- * bit[0-3]	Maximum cpu clock rate supported by onboard SoC
- *		0000b - 300 MHz
- *		0001b - 372 MHz
- *		0010b - 408 MHz
- *		0011b - 456 MHz
- */
-u32 get_board_rev(void)
-{
-	return 0;
-}
-
 int board_early_init_f(void)
 {
 	/*
@@ -236,12 +222,6 @@ int board_init(void)
 
 #define CFG_MAC_ADDR_OFFSET	(flash->size - SZ_64K)
 
-static int  get_mac_addr(u8 *addr)
-{
-	/* Need to find a way to get MAC ADDRESS */
-	return 0;
-}
-
 void dsp_lpsc_on(unsigned domain, unsigned int id)
 {
 	dv_reg_p mdstat, mdctl, ptstat, ptcmd;
@@ -304,29 +284,6 @@ int rmii_hw_init(void)
 
 int misc_init_r(void)
 {
-	uint8_t tmp[20], addr[10];
-
-
-	if (env_get("ethaddr") == NULL) {
-		/* Read Ethernet MAC address from EEPROM */
-		if (dvevm_read_mac_address(addr)) {
-			/* Set Ethernet MAC address from EEPROM */
-			davinci_sync_env_enetaddr(addr);
-		} else {
-			get_mac_addr(addr);
-		}
-
-		if (!is_multicast_ethaddr(addr) && !is_zero_ethaddr(addr)) {
-			sprintf((char *)tmp, "%02x:%02x:%02x:%02x:%02x:%02x",
-				addr[0], addr[1], addr[2], addr[3], addr[4],
-				addr[5]);
-
-			env_set("ethaddr", (char *)tmp);
-		} else {
-			printf("Invalid MAC address read.\n");
-		}
-	}
-
 #ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
 	/* Select RMII fucntion through the expander */
 	if (rmii_hw_init())

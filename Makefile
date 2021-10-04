@@ -327,14 +327,14 @@ os_x_before	= $(shell if [ $(DARWIN_MAJOR_VERSION) -le $(1) -a \
 	$(DARWIN_MINOR_VERSION) -le $(2) ] ; then echo "$(3)"; else echo "$(4)"; fi ;)
 
 os_x_after = $(shell if [ $(DARWIN_MAJOR_VERSION) -ge $(1) -a \
-	$(DARWIN_MINOR_VERSION) -ge $(2) ] ; then echo "$(3)"; else echo "$(4)"; fi ;)	
+	$(DARWIN_MINOR_VERSION) -ge $(2) ] ; then echo "$(3)"; else echo "$(4)"; fi ;)
 
 # Snow Leopards build environment has no longer restrictions as described above
 HOSTCC       = $(call os_x_before, 10, 5, "cc", "gcc")
 KBUILD_HOSTCFLAGS  += $(call os_x_before, 10, 4, "-traditional-cpp")
 KBUILD_HOSTLDFLAGS += $(call os_x_before, 10, 5, "-multiply_defined suppress")
 
-# macOS Mojave (10.14.X) 
+# macOS Mojave (10.14.X)
 # Undefined symbols for architecture x86_64: "_PyArg_ParseTuple"
 KBUILD_HOSTLDFLAGS += $(call os_x_after, 10, 14, "-lpython -dynamclib", "")
 endif
@@ -813,23 +813,9 @@ libs-y += fs/
 libs-y += net/
 libs-y += disk/
 libs-y += drivers/
-libs-y += drivers/dma/
-libs-y += drivers/gpio/
-libs-y += drivers/net/
-libs-y += drivers/net/phy/
-libs-y += drivers/power/ \
-	drivers/power/domain/ \
-	drivers/power/fuel_gauge/ \
-	drivers/power/mfd/ \
-	drivers/power/pmic/ \
-	drivers/power/battery/ \
-	drivers/power/regulator/
-libs-y += drivers/spi/
-libs-$(CONFIG_FMAN_ENET) += drivers/net/fm/
 libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
 libs-$(CONFIG_SYS_FSL_MMDC) += drivers/ddr/fsl/
 libs-$(CONFIG_$(SPL_)ALTERA_SDRAM) += drivers/ddr/altera/
-libs-y += drivers/serial/
 libs-y += drivers/usb/cdns3/
 libs-y += drivers/usb/dwc3/
 libs-y += drivers/usb/common/
@@ -1306,10 +1292,6 @@ u-boot.ldr:	u-boot
 # Use 'make BINMAN_VERBOSE=3' to set vebosity level
 default_dt := $(if $(DEVICE_TREE),$(DEVICE_TREE),$(CONFIG_DEFAULT_DEVICE_TREE))
 
-# Tell binman whether we have a devicetree for SPL and TPL
-have_spl_dt := $(if $(CONFIG_SPL_OF_PLATDATA),,$(CONFIG_SPL_OF_CONTROL))
-have_tpl_dt := $(if $(CONFIG_TPL_OF_PLATDATA),,$(CONFIG_TPL_OF_CONTROL))
-
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
                 --toolpath $(objtree)/tools \
@@ -1323,7 +1305,8 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-a scp-path=$(SCP) \
 		-a spl-bss-pad=$(if $(CONFIG_SPL_SEPARATE_BSS),,1) \
 		-a tpl-bss-pad=$(if $(CONFIG_TPL_SEPARATE_BSS),,1) \
-		-a spl-dtb=$(have_spl_dt) -a tpl-dtb=$(have_tpl_dt) \
+		-a spl-dtb=$(CONFIG_SPL_OF_REAL) \
+		-a tpl-dtb=$(CONFIG_SPL_OF_REAL) \
 		$(BINMAN_$(@F))
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
@@ -1756,7 +1739,7 @@ endif
 # May be overridden by arch/$(ARCH)/config.mk
 ifdef CONFIG_LTO
 quiet_cmd_u-boot__ ?= LTO     $@
-      cmd_u-boot__ ?= 								\
+      cmd_u-boot__ ?=								\
 		$(CC) -nostdlib -nostartfiles					\
 		$(LTO_FINAL_LDFLAGS) $(c_flags)					\
 		$(KBUILD_LDFLAGS:%=-Wl,%) $(LDFLAGS_u-boot:%=-Wl,%) -o $@	\

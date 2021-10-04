@@ -233,7 +233,7 @@ static int msm_serial_of_to_plat(struct udevice *dev)
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->clk_bit_rate = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), 
+	priv->clk_bit_rate = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 							"bit-rate", UART_DM_CLK_RX_TX_BIT_RATE);
 
 	return 0;

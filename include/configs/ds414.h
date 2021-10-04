@@ -6,9 +6,6 @@
 #ifndef _CONFIG_SYNOLOGY_DS414_H
 #define _CONFIG_SYNOLOGY_DS414_H
 
-/* Vendor kernel expects this MACH_TYPE */
-#define CONFIG_MACH_TYPE	3036
-
 /*
  * High Level Configuration Options (easy to change)
  */
@@ -20,11 +17,7 @@
  */
 
 /* I2C */
-#define CONFIG_SYS_I2C_LEGACY
-#define CONFIG_SYS_I2C_MVTWSI
 #define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
-#define CONFIG_SYS_I2C_SLAVE		0x0
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /* PCIe support */
 #ifndef CONFIG_SPL_BUILD
@@ -67,11 +60,7 @@
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
-/* DS414 bus width is 32bits */
-#define CONFIG_DDR_32BIT
-
 /* Default Environment */
-#define CONFIG_LOADADDR		0x80000
 #define CONFIG_BOOTCOMMAND					\
 	"sf probe; "						\
 	"sf read ${loadaddr} 0xd0000 0x2d0000; "		\

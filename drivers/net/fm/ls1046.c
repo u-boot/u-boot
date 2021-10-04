@@ -99,7 +99,7 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	case FM1_DTSEC10:
 		if (is_serdes_configured(SGMII_2500_FM1_DTSEC5 +
 					 port - FM1_DTSEC5))
-			return PHY_INTERFACE_MODE_SGMII_2500;
+			return PHY_INTERFACE_MODE_2500BASEX;
 		break;
 	default:
 		break;

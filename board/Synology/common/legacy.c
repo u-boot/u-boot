@@ -15,14 +15,15 @@
 
 static unsigned int syno_board_id(void)
 {
+#ifdef CONFIG_MACH_TYPE
 	switch (CONFIG_MACH_TYPE) {
 	case 527:
 		return SYNO_DS109_ID;
 	case 3036:
 		return SYNO_AXP_4BAY_2BAY;
-	default:
-		return 0;
 	}
+#endif
+	return 0;
 }
 
 static unsigned int usb_port_modes(void)

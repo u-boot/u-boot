@@ -47,7 +47,7 @@ struct screen_info {
 } __attribute__((packed));
 
 #define VIDEO_TYPE_MDA		0x10	/* Monochrome Text Display	*/
-#define VIDEO_TYPE_CGA		0x11	/* CGA Display 			*/
+#define VIDEO_TYPE_CGA		0x11	/* CGA Display			*/
 #define VIDEO_TYPE_EGAM		0x20	/* EGA/VGA in Monochrome Mode	*/
 #define VIDEO_TYPE_EGAC		0x21	/* EGA in Color Mode		*/
 #define VIDEO_TYPE_VGAC		0x22	/* VGA+ in Color Mode		*/
@@ -74,7 +74,7 @@ extern struct screen_info screen_info;
 #define ORIG_X			(screen_info.orig_x)
 #define ORIG_Y			(screen_info.orig_y)
 #define ORIG_VIDEO_MODE		(screen_info.orig_video_mode)
-#define ORIG_VIDEO_COLS 	(screen_info.orig_video_cols)
+#define ORIG_VIDEO_COLS		(screen_info.orig_video_cols)
 #define ORIG_VIDEO_EGA_BX	(screen_info.orig_video_ega_bx)
 #define ORIG_VIDEO_LINES	(screen_info.orig_video_lines)
 #define ORIG_VIDEO_ISVGA	(screen_info.orig_video_isVGA)

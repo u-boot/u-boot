@@ -223,3 +223,21 @@ int do_bootm_linux(int flag, int argc, char *const argv[],
 
 	return boot_jump_linux(images);
 }
+
+static ulong get_sp(void)
+{
+	ulong ret;
+
+#if CONFIG_IS_ENABLED(X86_64)
+	ret = gd->start_addr_sp;
+#else
+	asm("mov %%esp, %0" : "=r"(ret) : );
+#endif
+
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
+}

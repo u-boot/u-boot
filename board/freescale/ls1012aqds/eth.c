@@ -244,7 +244,7 @@ int pfe_eth_board_init(struct udevice *dev)
 		bus = miiphy_get_dev_by_name(mdio_name);
 		pfe_set_mdio(1, bus);
 		pfe_set_phy_address_mode(1, CONFIG_PFE_SGMII_2500_PHY2_ADDR,
-					 PHY_INTERFACE_MODE_SGMII_2500);
+					 PHY_INTERFACE_MODE_2500BASEX);
 
 		data8 = QIXIS_READ(brdcfg[12]);
 		data8 |= 0x20;
@@ -263,7 +263,7 @@ int pfe_eth_board_init(struct udevice *dev)
 		pfe_set_mdio(0, bus);
 		pfe_set_phy_address_mode(0,
 					 CONFIG_PFE_SGMII_2500_PHY1_ADDR,
-					 PHY_INTERFACE_MODE_SGMII_2500);
+					 PHY_INTERFACE_MODE_2500BASEX);
 	}
 		break;
 

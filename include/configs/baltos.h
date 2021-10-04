@@ -19,8 +19,6 @@
 #include <linux/sizes.h>
 #include <configs/ti_am335x_common.h>
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_AM335XEVM
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -203,10 +201,6 @@
 #define CONFIG_SYS_NS16550_COM4		0x481a6000	/* UART3 */
 #define CONFIG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
-
-#define CONFIG_ENV_EEPROM_IS_ON_I2C
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 
 /* PMIC support */
 #define CONFIG_POWER_TPS65910

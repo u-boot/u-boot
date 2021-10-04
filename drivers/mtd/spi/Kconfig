@@ -99,7 +99,6 @@ config SPI_FLASH_SMART_HWCAPS
 
 config SPI_FLASH_SOFT_RESET
 	bool "Software Reset support for SPI NOR flashes"
-	default n
 	help
 	 Enable support for xSPI Software Reset. It will be used to switch from
 	 Octal DTR mode to legacy mode on shutdown and boot (if enabled).
@@ -107,7 +106,6 @@ config SPI_FLASH_SOFT_RESET
 config SPI_FLASH_SOFT_RESET_ON_BOOT
 	bool "Perform a Software Reset on boot on flashes that boot in stateful mode"
 	depends on SPI_FLASH_SOFT_RESET
-	default n
 	help
 	 Perform a Software Reset on boot to allow detecting flashes that are
 	 handed to us in Octal DTR mode. Do not enable this config on flashes

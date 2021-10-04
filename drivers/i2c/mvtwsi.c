@@ -17,7 +17,9 @@
 #include <linux/bitops.h>
 #include <linux/compat.h>
 #if CONFIG_IS_ENABLED(DM_I2C)
+#include <clk.h>
 #include <dm.h>
+#include <reset.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -835,7 +837,18 @@ static int mvtwsi_i2c_bind(struct udevice *bus)
 static int mvtwsi_i2c_probe(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
+	struct reset_ctl reset;
+	struct clk clk;
 	uint actual_speed;
+	int ret;
+
+	ret = reset_get_by_index(bus, 0, &reset);
+	if (!ret)
+		reset_deassert(&reset);
+
+	ret = clk_get_by_index(bus, 0, &clk);
+	if (!ret)
+		clk_enable(&clk);
 
 	__twsi_i2c_init(dev->base, dev->speed, dev->slaveadd, &actual_speed);
 	dev->speed = actual_speed;

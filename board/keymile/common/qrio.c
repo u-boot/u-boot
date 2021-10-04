@@ -290,4 +290,3 @@ int get_scl(void)
 	return qrio_get_gpio(KM_I2C_DEBLOCK_PORT,
 			     KM_I2C_DEBLOCK_SCL);
 }
-

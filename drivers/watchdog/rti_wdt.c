@@ -11,9 +11,11 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <power-domain.h>
 #include <wdt.h>
 #include <asm/io.h>
+#include <remoteproc.h>
 
 /* Timer register set definition */
 #define RTIDWDCTRL		0x90
@@ -42,6 +44,88 @@ struct rti_wdt_priv {
 	unsigned int clk_khz;
 };
 
+#ifdef CONFIG_WDT_K3_RTI_LOAD_FW
+#define RTI_WDT_FIT_PATH	"/fit-images/k3-rti-wdt-firmware"
+
+static int rti_wdt_load_fw(struct udevice *dev)
+{
+	struct udevice *rproc_dev;
+	int primary_core, ret;
+	u32 cluster_mode;
+	ofnode node;
+	u64 rti_wdt_fw;
+	u32 rti_wdt_fw_size;
+
+	node = ofnode_path(RTI_WDT_FIT_PATH);
+	if (!ofnode_valid(node))
+		goto fit_error;
+
+	ret = ofnode_read_u64(node, "load", &rti_wdt_fw);
+	if (ret)
+		goto fit_error;
+	ret = ofnode_read_u32(node, "size", &rti_wdt_fw_size);
+	if (ret)
+		goto fit_error;
+
+	node = ofnode_by_compatible(ofnode_null(), "ti,am654-r5fss");
+	if (!ofnode_valid(node))
+		goto dt_error;
+
+	ret = ofnode_read_u32(node, "ti,cluster-mode", &cluster_mode);
+	if (ret)
+		cluster_mode = 1;
+
+	node = ofnode_by_compatible(node, "ti,am654-r5f");
+	if (!ofnode_valid(node))
+		goto dt_error;
+
+	ret = uclass_get_device_by_ofnode(UCLASS_REMOTEPROC, node, &rproc_dev);
+	if (ret)
+		return ret;
+
+	primary_core = dev_seq(rproc_dev);
+
+	ret = rproc_dev_init(primary_core);
+	if (ret)
+		goto fw_error;
+
+	if (cluster_mode == 1) {
+		ret = rproc_dev_init(primary_core + 1);
+		if (ret)
+			goto fw_error;
+	}
+
+	ret = rproc_load(primary_core, (ulong)rti_wdt_fw,
+			 rti_wdt_fw_size);
+	if (ret)
+		goto fw_error;
+
+	ret = rproc_start(primary_core);
+	if (ret)
+		goto fw_error;
+
+	return 0;
+
+fit_error:
+	dev_err(dev, "No loadable firmware found under %s\n", RTI_WDT_FIT_PATH);
+	return -ENOENT;
+
+dt_error:
+	dev_err(dev, "No compatible firmware target processor found\n");
+	return -ENODEV;
+
+fw_error:
+	dev_err(dev, "Failed to load watchdog firmware into remote processor %d\n",
+		primary_core);
+	return ret;
+}
+#else
+static inline int rti_wdt_load_fw(struct udevice *dev)
+{
+	return 0;
+}
+#endif
+
 static int rti_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	struct rti_wdt_priv *priv = dev_get_priv(dev);
@@ -50,6 +134,10 @@ static int rti_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 
 	if (readl(priv->regs + RTIDWDCTRL) == WDENABLE_KEY)
 		return -EBUSY;
+
+	ret = rti_wdt_load_fw(dev);
+	if (ret < 0)
+		return ret;
 
 	timer_margin = timeout_ms * priv->clk_khz / 1000;
 	timer_margin >>= WDT_PRELOAD_SHIFT;

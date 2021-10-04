@@ -56,7 +56,7 @@ void do_board_detect(void)
 }
 #endif
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 
 const struct dpll_params dpll_mpu[NUM_CRYSTAL_FREQ][NUM_OPPS] = {
 	{	/* 19.2 MHz */
@@ -393,13 +393,8 @@ void scale_vcores_generic(u32 m)
 {
 	int mpu_vdd, ddr_volt;
 
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	if (i2c_probe(TPS65218_CHIP_PM))
-		return;
-#else
 	if (power_tps65218_init(0))
 		return;
-#endif
 
 	switch (m) {
 	case 1000:
@@ -451,13 +446,8 @@ void scale_vcores_idk(u32 m)
 {
 	int mpu_vdd;
 
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	if (i2c_probe(TPS62362_I2C_ADDR))
-		return;
-#else
 	if (power_tps62362_init(0))
 		return;
-#endif
 
 	switch (m) {
 	case 1000:
@@ -492,10 +482,6 @@ void gpi2c_init(void)
 
 	if (first_time) {
 		enable_i2c0_pin_mux();
-#if !CONFIG_IS_ENABLED(DM_I2C)
-		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
-			 CONFIG_SYS_OMAP24_I2C_SLAVE);
-#endif
 		first_time = false;
 	}
 }
@@ -632,28 +618,15 @@ void sdram_init(void)
 int power_init_board(void)
 {
 	int rc;
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	struct pmic *p = NULL;
-#endif
 	if (board_is_idk()) {
 		rc = power_tps62362_init(0);
 		if (rc)
 			goto done;
-#if !CONFIG_IS_ENABLED(DM_I2C)
-		p = pmic_get("TPS62362");
-		if (!p || pmic_probe(p))
-			goto done;
-#endif
 		puts("PMIC:  TPS62362\n");
 	} else {
 		rc = power_tps65218_init(0);
 		if (rc)
 			goto done;
-#if !CONFIG_IS_ENABLED(DM_I2C)
-		p = pmic_get("TPS65218_PMIC");
-		if (!p || pmic_probe(p))
-			goto done;
-#endif
 		puts("PMIC:  TPS65218\n");
 	}
 done:

@@ -23,8 +23,8 @@
 /* NAND ECC Mode */
 #define IBR_HDR_ECC_DEFAULT		0x00
 #define IBR_HDR_ECC_FORCED_HAMMING	0x01
-#define IBR_HDR_ECC_FORCED_RS  		0x02
-#define IBR_HDR_ECC_DISABLED  		0x03
+#define IBR_HDR_ECC_FORCED_RS		0x02
+#define IBR_HDR_ECC_DISABLED		0x03
 
 /* Boot Type - block ID */
 #define IBR_HDR_I2C_ID			0x4D
@@ -69,12 +69,7 @@ struct ext_hdr_v0 {
 	uint8_t               checksum;
 } __packed;
 
-struct kwb_header {
-	struct main_hdr_v0	kwb_hdr;
-	struct ext_hdr_v0	kwb_exthdr;
-} __packed;
-
-/* Structure of the main header, version 1 (Armada 370/38x/XP) */
+/* Structure of the main header, version 1 (Armada 370/XP/375/38x/39x) */
 struct main_hdr_v1 {
 	uint8_t  blockid;               /* 0x0       */
 	uint8_t  flags;                 /* 0x1       */
@@ -108,7 +103,7 @@ struct main_hdr_v1 {
 #define MAIN_HDR_V1_OPT_BAUD_115200	0x7
 
 /*
- * Header for the optional headers, version 1 (Armada 370, Armada XP)
+ * Header for the optional headers, version 1 (Armada 370/XP/375/38x/39x)
  */
 struct opt_hdr_v1 {
 	uint8_t  headertype;
@@ -132,7 +127,7 @@ struct sig_v1 {
 } __packed;
 
 /*
- * Structure of secure header (Armada 38x)
+ * Structure of secure header (Armada XP/375/38x/39x)
  */
 struct secure_hdr_v1 {
 	uint8_t  headertype;		/* 0x0 */
@@ -195,9 +190,6 @@ struct register_set_hdr_v1 {
 #define OPT_HDR_V1_BINARY_TYPE   0x2
 #define OPT_HDR_V1_REGISTER_TYPE 0x3
 
-#define KWBHEADER_V1_SIZE(hdr) \
-	(((hdr)->headersz_msb << 16) | le16_to_cpu((hdr)->headersz_lsb))
-
 enum kwbimage_cmd {
 	CMD_INVALID,
 	CMD_BOOT_FROM,
@@ -225,10 +217,91 @@ void init_kwb_image_type (void);
  * header, byte 8 was reserved, and always set to 0. In the v1 header,
  * byte 8 has been changed to a proper field, set to 1.
  */
-static inline unsigned int image_version(void *header)
+static inline unsigned int kwbimage_version(const void *header)
 {
-	unsigned char *ptr = header;
+	const unsigned char *ptr = header;
 	return ptr[8];
 }
+
+static inline size_t kwbheader_size(const void *header)
+{
+	if (kwbimage_version(header) == 0) {
+		const struct main_hdr_v0 *hdr = header;
+
+		return sizeof(*hdr) +
+		       (hdr->ext & 0x1) ? sizeof(struct ext_hdr_v0) : 0;
+	} else {
+		const struct main_hdr_v1 *hdr = header;
+
+		return (hdr->headersz_msb << 16) |
+		       le16_to_cpu(hdr->headersz_lsb);
+	}
+}
+
+static inline size_t kwbheader_size_for_csum(const void *header)
+{
+	if (kwbimage_version(header) == 0)
+		return sizeof(struct main_hdr_v0);
+	else
+		return kwbheader_size(header);
+}
+
+static inline uint32_t opt_hdr_v1_size(const struct opt_hdr_v1 *ohdr)
+{
+	return (ohdr->headersz_msb << 16) | le16_to_cpu(ohdr->headersz_lsb);
+}
+
+static inline int opt_hdr_v1_valid_size(const struct opt_hdr_v1 *ohdr,
+					const void *mhdr_end)
+{
+	uint32_t ohdr_size;
+
+	if ((void *)(ohdr + 1) > mhdr_end)
+		return 0;
+
+	ohdr_size = opt_hdr_v1_size(ohdr);
+	if (ohdr_size < 8 || (void *)((uint8_t *)ohdr + ohdr_size) > mhdr_end)
+		return 0;
+
+	return 1;
+}
+
+static inline struct opt_hdr_v1 *opt_hdr_v1_first(void *img) {
+	struct main_hdr_v1 *mhdr;
+
+	if (kwbimage_version(img) != 1)
+		return NULL;
+
+	mhdr = img;
+	if (mhdr->ext & 0x1)
+		return (struct opt_hdr_v1 *)(mhdr + 1);
+	else
+		return NULL;
+}
+
+static inline uint8_t *opt_hdr_v1_ext(struct opt_hdr_v1 *cur)
+{
+	uint32_t size = opt_hdr_v1_size(cur);
+
+	return (uint8_t *)cur + size - 4;
+}
+
+static inline struct opt_hdr_v1 *_opt_hdr_v1_next(struct opt_hdr_v1 *cur)
+{
+	return (struct opt_hdr_v1 *)((uint8_t *)cur + opt_hdr_v1_size(cur));
+}
+
+static inline struct opt_hdr_v1 *opt_hdr_v1_next(struct opt_hdr_v1 *cur)
+{
+	if (*opt_hdr_v1_ext(cur) & 0x1)
+		return _opt_hdr_v1_next(cur);
+	else
+		return NULL;
+}
+
+#define for_each_opt_hdr_v1(ohdr, img)		\
+	for ((ohdr) = opt_hdr_v1_first((img));	\
+	     (ohdr) != NULL;			\
+	     (ohdr) = opt_hdr_v1_next((ohdr)))
 
 #endif /* _KWBIMAGE_H_ */

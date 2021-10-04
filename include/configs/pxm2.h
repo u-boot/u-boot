@@ -13,8 +13,6 @@
 #ifndef __CONFIG_PXM2_H
 #define __CONFIG_PXM2_H
 
-#define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_PXM2
-
 #include "siemens-am33x-common.h"
 
 #define DDR_IOCTRL_VAL		0x18b
@@ -31,10 +29,6 @@
 
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 1GB */
-
-/* I2C Configuration */
-#define CONFIG_SYS_I2C_SPEED		400000
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 
 #define CONFIG_FACTORYSET
 

@@ -24,8 +24,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
-/* memtest works on */
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
 #define CONFIG_BOOTCOMMAND		"run autoboot"
 
@@ -125,7 +123,7 @@
 		   "setenv spl_imgsize;" \
 		   "setenv spl_imgaddr;" \
 		   "setenv spl_addr_tmp;\0" \
-	CONFIG_EXTRA_ENV_ITB \
+	ENV_ITB \
 	"fdtaddr=40800000\0" \
 
 /* GPT */

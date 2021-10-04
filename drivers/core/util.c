@@ -22,7 +22,7 @@ int list_count_items(struct list_head *head)
 	return count;
 }
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 int pci_get_devfn(struct udevice *dev)
 {
 	struct fdt_pci_addr addr;

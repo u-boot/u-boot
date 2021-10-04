@@ -70,6 +70,7 @@ static const struct cpu_ops at91_cpu_ops = {
 
 static const struct udevice_id at91_cpu_ids[] = {
 	{ .compatible = "arm,cortex-a7" },
+	{ .compatible = "arm,arm926ej-s" },
 	{ /* Sentinel. */ }
 };
 

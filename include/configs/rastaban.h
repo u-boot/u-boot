@@ -34,10 +34,6 @@
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
-/* I2C Configuration */
-#define CONFIG_SYS_I2C_SPEED		100000
-
-#define CONFIG_SYS_I2C_EEPROM_ADDR              0x50
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
 

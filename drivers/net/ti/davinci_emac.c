@@ -816,7 +816,7 @@ static int davinci_emac_probe(struct udevice *dev)
 		struct mii_dev *mdiodev = mdio_alloc();
 		if (!mdiodev)
 			return -ENOMEM;
-		strncpy(mdiodev->name, phy[i].name, MDIO_NAME_LEN);
+		strlcpy(mdiodev->name, phy[i].name, MDIO_NAME_LEN);
 		mdiodev->read = davinci_mii_phy_read;
 		mdiodev->write = davinci_mii_phy_write;
 

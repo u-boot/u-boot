@@ -8,7 +8,6 @@
 #ifndef __CONFIG_CM_T43_H
 #define __CONFIG_CM_T43_H
 
-#define CONFIG_CM_T43
 #define CONFIG_MAX_RAM_BANK_SIZE	(2048 << 20)	/* 2GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
@@ -45,13 +44,7 @@
 /* CPSW Ethernet support */
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
-/* USB support */
-#define CONFIG_USB_XHCI_OMAP
-#define CONFIG_AM437X_USB2PHY2_HOST
-
 /* Power */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_TPS65218
 
 /* Enabling L2 Cache */
@@ -62,9 +55,6 @@
  * Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
 
 #define CONFIG_HSMMC2_8BIT
 
@@ -114,10 +104,5 @@
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
 /* EEPROM */
-#define CONFIG_ENV_EEPROM_IS_ON_I2C
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
-#define CONFIG_SYS_EEPROM_SIZE			256
 
 #endif	/* __CONFIG_CM_T43_H */

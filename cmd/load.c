@@ -474,6 +474,14 @@ static int do_load_serial_bin(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		addr = load_serial_ymodem(offset, xyzModem_ymodem);
 
+		if (addr == ~0) {
+			image_load_addr = 0;
+			printf("## Binary (ymodem) download aborted\n");
+			rcode = 1;
+		} else {
+			printf("## Start Addr      = 0x%08lX\n", addr);
+			image_load_addr = addr;
+		}
 	} else if (strcmp(argv[0],"loadx")==0) {
 		printf("## Ready for binary (xmodem) download "
 			"to 0x%08lX at %d bps...\n",
@@ -482,6 +490,14 @@ static int do_load_serial_bin(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		addr = load_serial_ymodem(offset, xyzModem_xmodem);
 
+		if (addr == ~0) {
+			image_load_addr = 0;
+			printf("## Binary (xmodem) download aborted\n");
+			rcode = 1;
+		} else {
+			printf("## Start Addr      = 0x%08lX\n", addr);
+			image_load_addr = addr;
+		}
 	} else {
 
 		printf("## Ready for binary (kermit) download "
@@ -534,6 +550,9 @@ static ulong load_serial_bin(ulong offset)
 		}
 		udelay(1000);
 	}
+
+	if (size == 0)
+		return ~0; /* Download aborted */
 
 	flush_cache(offset, size);
 
@@ -975,6 +994,7 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 	res = xyzModem_stream_open(&info, &err);
 	if (!res) {
 
+		err = 0;
 		while ((res =
 			xyzModem_stream_read(ymodemBuf, 1024, &err)) > 0) {
 			store_addr = addr + offset;
@@ -987,6 +1007,9 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 				rc = flash_write((char *) ymodemBuf,
 						  store_addr, res);
 				if (rc != 0) {
+					xyzModem_stream_terminate(true, &getcxmodem);
+					xyzModem_stream_close(&err);
+					printf("\n");
 					flash_perror(rc);
 					return (~0);
 				}
@@ -998,16 +1021,24 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 			}
 
 		}
+		if (err) {
+			xyzModem_stream_terminate((err == xyzModem_cancel) ? false : true, &getcxmodem);
+			xyzModem_stream_close(&err);
+			printf("\n%s\n", xyzModem_error(err));
+			return (~0); /* Download aborted */
+		}
+
 		if (IS_ENABLED(CONFIG_CMD_BOOTEFI))
 			efi_set_bootdev("Uart", "", "",
 					map_sysmem(offset, 0), size);
 
 	} else {
-		printf("%s\n", xyzModem_error(err));
+		printf("\n%s\n", xyzModem_error(err));
+		return (~0); /* Download aborted */
 	}
 
-	xyzModem_stream_close(&err);
 	xyzModem_stream_terminate(false, &getcxmodem);
+	xyzModem_stream_close(&err);
 
 
 	flush_cache(offset, ALIGN(size, ARCH_DMA_MINALIGN));

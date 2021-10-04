@@ -71,7 +71,7 @@ int board_early_init_f(void)
 	wdr4300_pinmux_config();
 #endif
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 	ar934x_pll_init(560, 480, 240);
 	ar934x_ddr_init(560, 480, 240);
 #endif

@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <clock_legacy.h>
 #include <ppc_asm.tmpl>
 #include <asm/global_data.h>
 #include <linux/compiler.h>
@@ -104,8 +105,8 @@ void get_sys_info(sys_info_t *sys_info)
 		sys_info->freq_ddrbus = CONFIG_SYS_CLK_FREQ;
 	else
 #endif
-#ifdef CONFIG_DDR_CLK_FREQ
-		sys_info->freq_ddrbus = CONFIG_DDR_CLK_FREQ;
+#if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || defined(CONFIG_STATIC_DDR_CLK_FREQ)
+		sys_info->freq_ddrbus = get_board_ddr_clk();
 #else
 		sys_info->freq_ddrbus = sysclk;
 #endif
@@ -538,12 +539,12 @@ void get_sys_info(sys_info_t *sys_info)
 	/* Note: freq_ddrbus is the MCLK frequency, not the data rate. */
 	sys_info->freq_ddrbus = sys_info->freq_systembus;
 
-#ifdef CONFIG_DDR_CLK_FREQ
+#if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || defined(CONFIG_STATIC_DDR_CLK_FREQ)
 	{
 		u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
 			>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 		if (ddr_ratio != 0x7)
-			sys_info->freq_ddrbus = ddr_ratio * CONFIG_DDR_CLK_FREQ;
+			sys_info->freq_ddrbus = ddr_ratio * get_board_ddr_clk();
 	}
 #endif
 

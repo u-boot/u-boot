@@ -22,12 +22,10 @@
 #define CONFIG_SYS_OSCIN_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 /*
  * Memory Info
  */
-#define CONFIG_SYS_MALLOC_LEN	(0x10000 + 1*1024*1024) /* malloc() len */
 #define PHYS_SDRAM_1		DAVINCI_DDR_EMIF_DATA_BASE /* DDR Start */
 #define PHYS_SDRAM_1_SIZE	(64 << 20) /* SDRAM size 64MB */
 #define CONFIG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
@@ -47,7 +45,6 @@
 /*
  * I2C Configuration
  */
-#define CONFIG_SYS_I2C_LEGACY
 #define CONFIG_SYS_DAVINCI_I2C_SPEED		400000
 #define CONFIG_SYS_DAVINCI_I2C_SLAVE   10 /* Bogus, master-only in U-Boot */
 
@@ -57,15 +54,12 @@
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
-#define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
 
 /*
  * Linux Information
  */
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_HWCONFIG		/* enable hwconfig */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_SETUP_INITRD_TAG
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
