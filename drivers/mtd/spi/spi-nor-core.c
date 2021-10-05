@@ -918,7 +918,7 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 	div_u64_rem(instr->len, mtd->erasesize, &rem);
 	if (rem) {
 		ret = -EINVAL;
-		goto erase_err_callback;
+		goto err;
 	}
 
 	addr = instr->addr;
@@ -966,14 +966,13 @@ erase_err:
 	if (!ret)
 		ret = err;
 
-erase_err_callback:
+err:
 	if (ret) {
 		instr->fail_addr = addr_known ? addr : MTD_FAIL_ADDR_UNKNOWN;
 		instr->state = MTD_ERASE_FAILED;
 	} else {
 		instr->state = MTD_ERASE_DONE;
 	}
-	mtd_erase_callback(instr);
 
 	return ret;
 }

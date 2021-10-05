@@ -58,7 +58,6 @@ static int cfi_mtd_erase(struct mtd_info *mtd, struct erase_info *instr)
 		}
 
 		instr->state = MTD_ERASE_DONE;
-		mtd_erase_callback(instr);
 		return 0;
 	}
 
