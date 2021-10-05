@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://source.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:focal-20210827-30Sep2021
+image: trini/u-boot-gitlab-ci-runner:focal-20210921-05Oct2021
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -190,7 +190,7 @@ sandbox test.py:
 sandbox with clang test.py:
   variables:
     TEST_PY_BD: "sandbox"
-    OVERRIDE: "-O clang-12"
+    OVERRIDE: "-O clang-13"
   <<: *buildman_and_testpy_dfn
 
 sandbox_spl test.py:
