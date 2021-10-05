@@ -929,6 +929,11 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 	while (len) {
 		WATCHDOG_RESET();
+		if (ctrlc()) {
+			addr_known = false;
+			ret = -EINTR;
+			goto erase_err;
+		}
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = write_bar(nor, addr);
 		if (ret < 0)
