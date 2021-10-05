@@ -909,7 +909,7 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 {
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
 	u32 addr, len, rem;
-	int ret;
+	int ret, err;
 
 	dev_dbg(nor->dev, "at 0x%llx, len %lld\n", (long long)instr->addr,
 		(long long)instr->len);
@@ -949,7 +949,9 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 erase_err:
 #ifdef CONFIG_SPI_FLASH_BAR
-	ret = clean_bar(nor);
+	err = clean_bar(nor);
+	if (!ret)
+		ret = err;
 #endif
 	write_disable(nor);
 
