@@ -931,7 +931,9 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 		if (ret < 0)
 			goto erase_err;
 #endif
-		write_enable(nor);
+		ret = write_enable(nor);
+		if (ret < 0)
+			goto erase_err;
 
 		ret = spi_nor_erase_sector(nor, addr);
 		if (ret < 0)
