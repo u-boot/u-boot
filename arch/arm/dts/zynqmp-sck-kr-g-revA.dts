@@ -145,6 +145,10 @@
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 	reset-gpio = <&gpio 76 0>;
 	/* usb2244 - u38 - SD_RESET_B via u19 */
+	usbsd: usb2244 {
+		compatible = "microchip,usb2244";
+		reset-gpios = <&slg7xl45106 2 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &dwc3_0 {
