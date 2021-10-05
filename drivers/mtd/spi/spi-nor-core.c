@@ -953,7 +953,9 @@ erase_err:
 	if (!ret)
 		ret = err;
 #endif
-	write_disable(nor);
+	err = write_disable(nor);
+	if (!ret)
+		ret = err;
 
 	return ret;
 }
