@@ -165,6 +165,9 @@ static inline int spi_flash_read(struct spi_flash *flash, u32 offset,
 	struct mtd_info *mtd = &flash->mtd;
 	size_t retlen;
 
+	if (!len)
+		return 0;
+
 	return mtd->_read(mtd, offset, len, &retlen, buf);
 }
 
@@ -173,6 +176,9 @@ static inline int spi_flash_write(struct spi_flash *flash, u32 offset,
 {
 	struct mtd_info *mtd = &flash->mtd;
 	size_t retlen;
+
+	if (!len)
+		return 0;
 
 	return mtd->_write(mtd, offset, len, &retlen, buf);
 }
@@ -187,6 +193,9 @@ static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
 		printf("SF: Erase offset/length not multiple of erase size\n");
 		return -EINVAL;
 	}
+
+	if (!len)
+		return 0;
 
 	memset(&instr, 0, sizeof(instr));
 	instr.addr = offset;
