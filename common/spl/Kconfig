@@ -1263,11 +1263,11 @@ config SPL_AM33XX_ENABLE_RTC32K_OSC
 	  Enable access to the AM33xx RTC and select the external 32kHz clock
 	  source.
 
-config SPL_OPTEE
-	bool "Support OP-TEE Trusted OS"
+config SPL_OPTEE_IMAGE
+	bool "Support OP-TEE Trusted OS image in SPL"
 	depends on ARM
 	help
-	  OP-TEE is an open source Trusted OS  which is loaded by SPL.
+	  OP-TEE is an open source Trusted OS which is loaded by SPL.
 	  More detail at: https://github.com/OP-TEE/optee_os
 
 config SPL_OPENSBI

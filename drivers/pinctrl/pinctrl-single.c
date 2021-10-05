@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
+#include <dm/of_access.h>
 #include <dm/pinctrl.h>
 #include <linux/libfdt.h>
 #include <linux/list.h>
@@ -45,10 +46,26 @@ struct single_func {
 };
 
 /**
+ * struct single_gpiofunc_range - pin ranges with same mux value of gpio fun
+ * @offset: offset base of pins
+ * @npins: number pins with the same mux value of gpio function
+ * @gpiofunc: mux value of gpio function
+ * @node: list node
+ */
+struct single_gpiofunc_range {
+	u32 offset;
+	u32 npins;
+	u32 gpiofunc;
+	struct list_head node;
+};
+
+/**
  * struct single_priv - private data
  * @bits_per_pin: number of bits per pin
  * @npins: number of selectable pins
  * @pin_name: temporary buffer to store the pin name
+ * @functions: list pin functions
+ * @gpiofuncs: list gpio functions
  */
 struct single_priv {
 #if (IS_ENABLED(CONFIG_SANDBOX))
@@ -58,6 +75,7 @@ struct single_priv {
 	unsigned int npins;
 	char pin_name[PINNAME_SIZE];
 	struct list_head functions;
+	struct list_head gpiofuncs;
 };
 
 /**
@@ -229,6 +247,39 @@ static int single_get_pin_muxing(struct udevice *dev, unsigned int pin,
 	fname = single_get_pin_function(dev, pin);
 	snprintf(buf, size, "%pa 0x%08x %s", &reg, val,
 		 fname ? fname : "UNCLAIMED");
+	return 0;
+}
+
+static int single_request(struct udevice *dev, int pin, int flags)
+{
+	struct single_priv *priv = dev_get_priv(dev);
+	struct single_pdata *pdata = dev_get_plat(dev);
+	struct single_gpiofunc_range *frange = NULL;
+	struct list_head *pos, *tmp;
+	phys_addr_t reg;
+	int mux_bytes = 0;
+	u32 data;
+
+	/* If function mask is null, needn't enable it. */
+	if (!pdata->mask)
+		return -ENOTSUPP;
+
+	list_for_each_safe(pos, tmp, &priv->gpiofuncs) {
+		frange = list_entry(pos, struct single_gpiofunc_range, node);
+		if ((pin >= frange->offset + frange->npins) ||
+		    pin < frange->offset)
+			continue;
+
+		mux_bytes = pdata->width / BITS_PER_BYTE;
+		reg = pdata->base + pin * mux_bytes;
+
+		data = single_read(dev, reg);
+		data &= ~pdata->mask;
+		data |= frange->gpiofunc;
+		single_write(dev, data, reg);
+		break;
+	}
+
 	return 0;
 }
 
@@ -454,6 +505,36 @@ static int single_get_pins_count(struct udevice *dev)
 	return priv->npins;
 }
 
+static int single_add_gpio_func(struct udevice *dev)
+{
+	struct single_priv *priv = dev_get_priv(dev);
+	const char *propname = "pinctrl-single,gpio-range";
+	const char *cellname = "#pinctrl-single,gpio-range-cells";
+	struct single_gpiofunc_range *range;
+	struct ofnode_phandle_args gpiospec;
+	int ret, i;
+
+	for (i = 0; ; i++) {
+		ret = ofnode_parse_phandle_with_args(dev_ofnode(dev), propname,
+						     cellname, 0, i, &gpiospec);
+		/* Do not treat it as error. Only treat it as end condition. */
+		if (ret) {
+			ret = 0;
+			break;
+		}
+		range = devm_kzalloc(dev, sizeof(*range), GFP_KERNEL);
+		if (!range) {
+			ret = -ENOMEM;
+			break;
+		}
+		range->offset = gpiospec.args[0];
+		range->npins = gpiospec.args[1];
+		range->gpiofunc = gpiospec.args[2];
+		list_add_tail(&range->node, &priv->gpiofuncs);
+	}
+	return ret;
+}
+
 static int single_probe(struct udevice *dev)
 {
 	struct single_pdata *pdata = dev_get_plat(dev);
@@ -461,6 +542,7 @@ static int single_probe(struct udevice *dev)
 	u32 size;
 
 	INIT_LIST_HEAD(&priv->functions);
+	INIT_LIST_HEAD(&priv->gpiofuncs);
 
 	size = pdata->offset + pdata->width / BITS_PER_BYTE;
 	#if (CONFIG_IS_ENABLED(SANDBOX))
@@ -482,6 +564,9 @@ static int single_probe(struct udevice *dev)
 		priv->bits_per_pin = fls(pdata->mask);
 		priv->npins *= (pdata->width / priv->bits_per_pin);
 	}
+
+	if (single_add_gpio_func(dev))
+		dev_dbg(dev, "gpio functions are not added\n");
 
 	dev_dbg(dev, "%d pins\n", priv->npins);
 	return 0;
@@ -535,6 +620,7 @@ const struct pinctrl_ops single_pinctrl_ops = {
 	.get_pin_name = single_get_pin_name,
 	.set_state = single_set_state,
 	.get_pin_muxing	= single_get_pin_muxing,
+	.request = single_request,
 };
 
 static const struct udevice_id single_pinctrl_match[] = {

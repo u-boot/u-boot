@@ -119,8 +119,7 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	}
 
 #ifdef CONFIG_STM32MP15x_STM32IMAGE
-	if (!serial && CONFIG_IS_ENABLED(OPTEE) &&
-	    tee_find_device(NULL, NULL, NULL, NULL))
+	if (!serial && tee_find_device(NULL, NULL, NULL, NULL))
 		tee = true;
 #endif
 

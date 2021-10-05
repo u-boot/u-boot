@@ -141,7 +141,8 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 
 		if (!strncasecmp(name, uc_priv->bank_name, len)) {
 			if (!strict_strtoul(name + len, 10, &offset))
-				break;
+				if (offset < uc_priv->gpio_count)
+					break;
 		}
 
 		/*
@@ -185,38 +186,50 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	return 0;
 }
 
-int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
-			  struct ofnode_phandle_args *args)
+unsigned long gpio_flags_xlate(uint32_t arg)
 {
-	if (args->args_count < 1)
-		return -EINVAL;
+	unsigned long flags = 0;
 
-	desc->offset = args->args[0];
-
-	if (args->args_count < 2)
-		return 0;
-
-	desc->flags = 0;
-	if (args->args[1] & GPIO_ACTIVE_LOW)
-		desc->flags |= GPIOD_ACTIVE_LOW;
+	if (arg & GPIO_ACTIVE_LOW)
+		flags |= GPIOD_ACTIVE_LOW;
 
 	/*
 	 * need to test 2 bits for gpio output binding:
 	 * OPEN_DRAIN (0x6) = SINGLE_ENDED (0x2) | LINE_OPEN_DRAIN (0x4)
 	 * OPEN_SOURCE (0x2) = SINGLE_ENDED (0x2) | LINE_OPEN_SOURCE (0x0)
 	 */
-	if (args->args[1] & GPIO_SINGLE_ENDED) {
-		if (args->args[1] & GPIO_LINE_OPEN_DRAIN)
-			desc->flags |= GPIOD_OPEN_DRAIN;
+	if (arg & GPIO_SINGLE_ENDED) {
+		if (arg & GPIO_LINE_OPEN_DRAIN)
+			flags |= GPIOD_OPEN_DRAIN;
 		else
-			desc->flags |= GPIOD_OPEN_SOURCE;
+			flags |= GPIOD_OPEN_SOURCE;
 	}
 
-	if (args->args[1] & GPIO_PULL_UP)
-		desc->flags |= GPIOD_PULL_UP;
+	if (arg & GPIO_PULL_UP)
+		flags |= GPIOD_PULL_UP;
 
-	if (args->args[1] & GPIO_PULL_DOWN)
-		desc->flags |= GPIOD_PULL_DOWN;
+	if (arg & GPIO_PULL_DOWN)
+		flags |= GPIOD_PULL_DOWN;
+
+	return flags;
+}
+
+int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
+			  struct ofnode_phandle_args *args)
+{
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	if (args->args_count < 1)
+		return -EINVAL;
+
+	desc->offset = args->args[0];
+	if (desc->offset >= uc_priv->gpio_count)
+		return -EINVAL;
+
+	if (args->args_count < 2)
+		return 0;
+
+	desc->flags = gpio_flags_xlate(args->args[1]);
 
 	return 0;
 }

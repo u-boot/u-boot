@@ -222,6 +222,14 @@ int gpio_requestf(unsigned gpio, const char *fmt, ...)
 struct fdtdec_phandle_args;
 
 /**
+ * gpio_flags_xlate() - convert DT flags to internal flags
+ *
+ * This routine converts the GPIO_* flags from the generic DT binding to the
+ * GPIOD_* flags used internally. It can be called from driver xlate functions.
+ */
+unsigned long gpio_flags_xlate(uint32_t arg);
+
+/**
  * gpio_xlate_offs_flags() - implementation for common use of dm_gpio_ops.xlate
  *
  * This routine sets the offset field to args[0] and the flags field to
