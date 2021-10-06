@@ -90,7 +90,11 @@ static inline int tcflush(int fd, int q)
 
 static inline int tcsendbreak(int fd, int d)
 {
-	return ioctl(fd, TCSBRK, d);
+#ifdef TCSBRKP
+	return ioctl(fd, TCSBRKP, d);
+#else
+	return ioctl(fd, TCSBRK, 0);
+#endif
 }
 
 static inline int tcflow(int fd, int a)
