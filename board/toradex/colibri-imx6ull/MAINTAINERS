@@ -4,8 +4,10 @@ W:	http://developer.toradex.com/software/linux/linux-software
 W:	https://www.toradex.com/community
 S:	Maintained
 F:	arch/arm/dts/imx6ull-colibri.dts
-F:	arch/arm/dts/imx6ull-colibri-u-boot.dtsi
 F:	arch/arm/dts/imx6ull-colibri.dtsi
+F:	arch/arm/dts/imx6ull-colibri-emmc.dts
+F:	arch/arm/dts/imx6ull-colibri-u-boot.dtsi
 F:	board/toradex/colibri-imx6ull/
 F:	configs/colibri-imx6ull_defconfig
+F:	configs/colibri-imx6ull-emmc_defconfig
 F:	include/configs/colibri-imx6ull.h
