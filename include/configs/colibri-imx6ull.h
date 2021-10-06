@@ -13,7 +13,7 @@
 #include "mx6_common.h"
 #define CONFIG_IOMUX_LPSR
 
-#define PHYS_SDRAM_SIZE			SZ_512M
+#define PHYS_SDRAM_SIZE			SZ_1G
 
 /* ENET1 */
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
