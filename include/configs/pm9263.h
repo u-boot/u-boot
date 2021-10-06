@@ -145,7 +145,6 @@
 #define CONFIG_INITRD_TAG	1
 
 #undef CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_USER_LOWLEVEL_INIT	1
 
 /*
  * Hardware drivers
