@@ -26,6 +26,7 @@
 #include <linux/completion.h>
 #include <linux/errno.h>
 #include <linux/log2.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/processor.h>
 #include <dm.h>
 

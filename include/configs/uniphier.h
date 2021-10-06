@@ -54,10 +54,8 @@
 #endif
 
 #define CONFIG_SYS_MAX_NAND_DEVICE			1
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_NAND_REGS_BASE			0x68100000
 #define CONFIG_SYS_NAND_DATA_BASE			0x68000000
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS			0
 
 /*
  * Network Configuration
@@ -194,8 +192,6 @@
 
 /* only for SPL */
 #define CONFIG_SPL_STACK		(0x00100000)
-
-#define CONFIG_SYS_NAND_U_BOOT_OFFS		0x20000
 
 /* subtract sizeof(struct image_header) */
 #define CONFIG_SYS_UBOOT_BASE			(0x130000 - 0x40)

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/io.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>

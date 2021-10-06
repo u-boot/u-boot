@@ -95,7 +95,6 @@ unsigned long get_board_sys_clk(void);
 #endif
 #endif
 
-#define CONFIG_NAND_FSL_IFC
 #define CONFIG_SYS_NAND_MAX_ECCPOS	256
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 
@@ -114,8 +113,6 @@ unsigned long get_board_sys_clk(void);
 				| CSOR_NAND_SPRZ_64/* Spare size = 64 */ \
 				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
 
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-
 /* ONFI NAND Flash mode0 Timing Params */
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x07) | \
 					FTIM0_NAND_TWP(0x18)   | \
@@ -133,8 +130,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
-
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
 #define CONFIG_FSL_QIXIS
 #define CONFIG_SYS_I2C_FPGA_ADDR	0x66

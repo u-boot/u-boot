@@ -30,7 +30,6 @@
 #define CONFIG_SYS_NAND_MASK_ALE	BIT(21)
 /* our CLE is AD22 */
 #define CONFIG_SYS_NAND_MASK_CLE	BIT(22)
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #endif
 
 #endif /* __CONFIG_H */

@@ -26,7 +26,6 @@
 #endif
 
 /* NAND support */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 #define CONFIG_IPADDR		192.168.10.2

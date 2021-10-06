@@ -8,7 +8,6 @@
 
 /* SPL */
 /* Location in NAND to read U-Boot from */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * SZ_1M)
 
 /* Falcon Mode */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000

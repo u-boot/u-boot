@@ -46,8 +46,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SPL_PAD_TO		0x1c000
 
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(400 << 10)
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
@@ -126,7 +124,6 @@ unsigned long get_board_sys_clk(void);
 /*
  * NAND Flash Definitions
  */
-#define CONFIG_NAND_FSL_IFC
 
 #define CONFIG_SYS_NAND_BASE		0x7e800000
 #define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
@@ -146,8 +143,6 @@ unsigned long get_board_sys_clk(void);
 				| CSOR_NAND_SPRZ_64	/* Spare size = 64 */ \
 				| CSOR_NAND_PB(64))	/* 64 Pages Per Block */
 
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x7) | \
 					FTIM0_NAND_TWP(0x18)   | \
 					FTIM0_NAND_TWCHT(0x7) | \
@@ -163,8 +158,6 @@ unsigned long get_board_sys_clk(void);
 
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 #endif
 
 /*

@@ -175,11 +175,6 @@ Configuration Options:
       flexibility, so that one day we can eliminate the old mechanism.
 
 
-   CONFIG_SYS_NAND_ONFI_DETECTION
-	Enables detection of ONFI compliant devices during probe.
-	And fetching device parameters flashed on device, by parsing
-	ONFI parameter page.
-
 Platform specific options
 =========================
    CONFIG_NAND_OMAP_GPMC
@@ -204,72 +199,6 @@ Platform specific options
 	Some legacy platforms like OMAP3xx do not have in-built ELM h/w engine,
 	so those platforms should use CONFIG_SPL_NAND_SIMPLE for enabling
         SPL-NAND driver with software ECC correction support.
-
-   CONFIG_NAND_OMAP_ECCSCHEME
-	On OMAP platforms, this CONFIG specifies NAND ECC scheme.
-	It can take following values:
-	OMAP_ECC_HAM1_CODE_SW
-		1-bit Hamming code using software lib.
-		(for legacy devices only)
-	OMAP_ECC_HAM1_CODE_HW
-		1-bit Hamming code using GPMC hardware.
-		(for legacy devices only)
-	OMAP_ECC_BCH4_CODE_HW_DETECTION_SW
-		4-bit BCH code (unsupported)
-	OMAP_ECC_BCH4_CODE_HW
-		4-bit BCH code (unsupported)
-	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
-		8-bit BCH code with
-		- ecc calculation using GPMC hardware engine,
-		- error detection using software library.
-		- requires CONFIG_BCH to enable software BCH library
-		(For legacy device which do not have ELM h/w engine)
-	OMAP_ECC_BCH8_CODE_HW
-		8-bit BCH code with
-		- ecc calculation using GPMC hardware engine,
-		- error detection using ELM hardware engine.
-	OMAP_ECC_BCH16_CODE_HW
-		16-bit BCH code with
-		- ecc calculation using GPMC hardware engine,
-		- error detection using ELM hardware engine.
-
-	How to select ECC scheme on OMAP and AMxx platforms ?
-	-----------------------------------------------------
-	Though higher ECC schemes have more capability to detect and correct
-	bit-flips, but still selection of ECC scheme is dependent on following
-	- hardware engines present in SoC.
-		Some legacy OMAP SoC do not have ELM h/w engine thus such
-		SoC cannot support BCHx_HW ECC schemes.
-	- size of OOB/Spare region
-		With higher ECC schemes, more OOB/Spare area is required to
-		store ECC. So choice of ECC scheme is limited by NAND oobsize.
-
-	In general following expression can help:
-		NAND_OOBSIZE >= 2 + (NAND_PAGESIZE / 512) * ECC_BYTES
-	where
-		NAND_OOBSIZE	= number of bytes available in
-				OOB/spare area per NAND page.
-		NAND_PAGESIZE	= bytes in main-area of NAND page.
-		ECC_BYTES	= number of ECC bytes generated to
-				protect 512 bytes of data, which is:
-				3 for HAM1_xx ecc schemes
-				7 for BCH4_xx ecc schemes
-				14 for BCH8_xx ecc schemes
-				26 for BCH16_xx ecc schemes
-
-		example to check for BCH16 on 2K page NAND
-		NAND_PAGESIZE = 2048
-		NAND_OOBSIZE = 64
-		2 + (2048 / 512) * 26 = 106 > NAND_OOBSIZE
-		Thus BCH16 cannot be supported on 2K page NAND.
-
-		However, for 4K pagesize NAND
-		NAND_PAGESIZE = 4096
-		NAND_OOBSIZE = 224
-		ECC_BYTES = 26
-		2 + (4096 / 512) * 26 = 210 < NAND_OOBSIZE
-		Thus BCH16 can be supported on 4K page NAND.
-
 
     CONFIG_NAND_OMAP_GPMC_PREFETCH
 	On OMAP platforms that use the GPMC controller

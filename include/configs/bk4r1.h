@@ -61,7 +61,6 @@
 #include <linux/sizes.h>
 
 /* NAND support */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 
 #define IMX_FEC1_BASE			ENET1_BASE_ADDR

@@ -111,6 +111,14 @@ config HBMC_AM654
 
 source "drivers/mtd/nand/Kconfig"
 
+config SYS_NAND_MAX_CHIPS
+	int "NAND max chips"
+	depends on MTD_RAW_NAND || CMD_ONENAND || TARGET_S5PC210_UNIVERSAL || \
+		SPL_OMAP3_ID_NAND
+	default 1
+	help
+	  The maximum number of NAND chips per device to be supported.
+
 source "drivers/mtd/spi/Kconfig"
 
 source "drivers/mtd/ubi/Kconfig"

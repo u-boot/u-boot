@@ -19,6 +19,7 @@
 #include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/gpio.h>
 #include <fdtdec.h>
 #include <bouncebuf.h>

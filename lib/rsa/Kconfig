@@ -20,6 +20,7 @@ config SPL_RSA
 
 config SPL_RSA_VERIFY
 	bool
+	depends on SPL_RSA
 	help
 	  Add RSA signature verification support in SPL.
 

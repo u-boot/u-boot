@@ -256,7 +256,6 @@
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS}
 
 /* NAND Flash on IFC CS1*/
-#define CONFIG_NAND_FSL_IFC
 #define CONFIG_SYS_NAND_BASE		0xfa000000
 #define CONFIG_SYS_NAND_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_NAND_BASE)
 
@@ -277,8 +276,6 @@
 				CSOR_NAND_PB(64)     | /* 64 Pages/Block */   \
 				CSOR_NAND_TRHZ_40    | /**/                   \
 				CSOR_NAND_BCTLD)       /**/
-
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* ONFI NAND Flash mode0 Timing Params */
 #define CONFIG_SYS_NAND_FTIM0	(FTIM0_NAND_TCCST(0x3) | \

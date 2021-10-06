@@ -108,7 +108,6 @@ unsigned long get_board_sys_clk(void);
 					 CONFIG_SYS_FLASH_BASE + 0x40000000}
 #endif
 
-#define CONFIG_NAND_FSL_IFC
 #define CONFIG_SYS_NAND_MAX_ECCPOS	256
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 
@@ -126,8 +125,6 @@ unsigned long get_board_sys_clk(void);
 				| CSOR_NAND_PGS_4K	/* Page Size = 4K */ \
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(128))	/* Pages Per Block 128*/
-
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* ONFI NAND Flash mode0 Timing Params */
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x0e) | \
@@ -147,7 +144,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 #define CONFIG_FSL_QIXIS	/* use common QIXIS code */
 #define QIXIS_LBMAP_SWITCH		0x06
 #define QIXIS_LBMAP_MASK		0x0f
@@ -206,7 +202,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NAND_FTIM3
 
 #define CONFIG_SPL_PAD_TO		0x80000
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	(1024 * 1024)
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(512 * 1024)
 #else
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NOR0_CSPR_EXT

@@ -174,10 +174,7 @@
 
 
 #else
-#ifdef CONFIG_NAND_BOOT
-/* Store Fman ucode at offeset 0x900000(72 blocks). */
-#define CONFIG_SYS_FMAN_FW_ADDR		(72 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_SD_BOOT)
+#if defined(CONFIG_SD_BOOT)
 /*
  * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
  * about 1MB (2040 blocks), Env is stored after the image, and the env size is

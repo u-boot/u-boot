@@ -242,7 +242,6 @@ unsigned long get_board_sys_clk(void);
 #endif
 
 /* NAND Flash on IFC */
-#define CONFIG_NAND_FSL_IFC
 #define CONFIG_SYS_NAND_BASE		0xff800000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_NAND_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_NAND_BASE)
@@ -264,7 +263,6 @@ unsigned long get_board_sys_clk(void);
 				| CSOR_NAND_PGS_4K	/* Page Size = 4K */ \
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 #elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_NAND_CSOR	(CSOR_NAND_ECC_ENC_EN   /* ECC on encode */ \
 				| CSOR_NAND_ECC_DEC_EN  /* ECC on decode */ \
@@ -273,10 +271,8 @@ unsigned long get_board_sys_clk(void);
 				| CSOR_NAND_PGS_2K	/* Page Size = 2K */ \
 				| CSOR_NAND_SPRZ_128	/* Spare size = 128 */ \
 				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 #endif
 
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 /* ONFI NAND Flash mode0 Timing Params */
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x07) | \
 					FTIM0_NAND_TWP(0x18)   | \
@@ -520,14 +516,6 @@ unsigned long get_board_sys_clk(void);
  */
 #define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x820)
 #define CONFIG_SYS_QE_FW_ADDR		(512 * 0x920)
-#elif defined(CONFIG_MTD_RAW_NAND)
-#if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_SYS_FMAN_FW_ADDR		(3 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#define CONFIG_SYS_QE_FW_ADDR		(4 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_FMAN_FW_ADDR		(11 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#define CONFIG_SYS_QE_FW_ADDR		(12 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#endif
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing

@@ -26,6 +26,14 @@
 
 #define BUF_SIZE		4096
 
+#define OEM_REVISION ((((U_BOOT_VERSION_NUM / 1000) % 10) << 28) | \
+		      (((U_BOOT_VERSION_NUM / 100) % 10) << 24) | \
+		      (((U_BOOT_VERSION_NUM / 10) % 10) << 20) | \
+		      ((U_BOOT_VERSION_NUM % 10) << 16) | \
+		      (((U_BOOT_VERSION_NUM_PATCH / 10) % 10) << 12) | \
+		      ((U_BOOT_VERSION_NUM_PATCH % 10) << 8) | \
+		      0x01)
+
 /**
  * struct testacpi_plat - Platform data for the test ACPI device
  *
@@ -219,7 +227,7 @@ static int dm_test_acpi_fill_header(struct unit_test_state *uts)
 	ut_asserteq_mem(OEM_ID, hdr.oem_id, sizeof(hdr.oem_id));
 	ut_asserteq_mem(OEM_TABLE_ID, hdr.oem_table_id,
 			sizeof(hdr.oem_table_id));
-	ut_asserteq(U_BOOT_BUILD_DATE, hdr.oem_revision);
+	ut_asserteq(OEM_REVISION, hdr.oem_revision);
 	ut_asserteq_mem(ASLC_ID, hdr.aslc_id, sizeof(hdr.aslc_id));
 	ut_asserteq(0x44, hdr.aslc_revision);
 
@@ -366,20 +374,20 @@ static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
 	addr = ALIGN(addr + sizeof(struct acpi_rsdp), 16);
 	ut_assert_nextline("RSDT %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
 			   addr, sizeof(struct acpi_table_header) +
-			   3 * sizeof(u32), U_BOOT_BUILD_DATE);
+			   3 * sizeof(u32), OEM_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_rsdt), 16);
 	ut_assert_nextline("XSDT %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
 			   addr, sizeof(struct acpi_table_header) +
-			   3 * sizeof(u64), U_BOOT_BUILD_DATE);
+			   3 * sizeof(u64), OEM_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_xsdt), 64);
 	ut_assert_nextline("DMAR %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
-			   addr, sizeof(struct acpi_dmar), U_BOOT_BUILD_DATE);
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
 	ut_assert_nextline("DMAR %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
-			   addr, sizeof(struct acpi_dmar), U_BOOT_BUILD_DATE);
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
 	ut_assert_nextline("DMAR %08lx %06zx (v01 U-BOOT U-BOOTBL %x INTL 0)",
-			   addr, sizeof(struct acpi_dmar), U_BOOT_BUILD_DATE);
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
 	ut_assert_console_end();
 
 	return 0;

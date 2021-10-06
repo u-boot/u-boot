@@ -87,7 +87,6 @@ fields. For example::
    #define U_BOOT_DATE "Jan 06 2021"     (US format only)
    #define U_BOOT_TIME "08:50:36"        (24-hour clock)
    #define U_BOOT_TZ "-0700"             (Time zone in hours)
-   #define U_BOOT_BUILD_DATE 0x20210106  (hex yyyymmdd format)
    #define U_BOOT_EPOCH 1609948236
 
 The Epoch is the number of seconds since midnight on 1/1/70. You can convert

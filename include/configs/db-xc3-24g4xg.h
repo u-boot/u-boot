@@ -18,7 +18,6 @@
 /* Environment in SPI NOR flash */
 
 /* NAND */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */
 #define CONFIG_EXTRA_ENV_SETTINGS	\

@@ -13,6 +13,7 @@
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/mtd/nand_ecc.h>
+#include <linux/mtd/rawnand.h>
 #include <linux/mtd/fsmc_nand.h>
 #include <asm/arch/hardware.h>
 

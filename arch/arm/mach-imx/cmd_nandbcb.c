@@ -23,6 +23,7 @@
 #include <jffs2/jffs2.h>
 #include <linux/bch.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/rawnand.h>
 
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/imx-nandbcb.h>

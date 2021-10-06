@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/io.h>
 #include <asm/arch/AT91RM9200.h>
 #include <asm/arch/hardware.h>

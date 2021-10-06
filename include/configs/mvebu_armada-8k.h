@@ -33,8 +33,6 @@
 /* When runtime detection fails this is the default */
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_MAX_CHIPS	1
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /*
  * Ethernet Driver configuration

@@ -8,6 +8,7 @@
 #include <config.h>
 #include <common.h>
 #include <nand.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/io.h>
 
 #define BIT_CLE			((unsigned short)0x0800)
