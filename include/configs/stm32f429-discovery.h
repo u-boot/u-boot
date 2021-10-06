@@ -29,9 +29,6 @@
 
 #define CONFIG_SYS_MALLOC_LEN		(2 << 20)
 
-#define CONFIG_BOOTCOMMAND						\
-	"run bootcmd_romfs"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootargs_romfs=uclinux.physaddr=0x08180000 root=/dev/mtdblock0\0" \
 	"bootcmd_romfs=setenv bootargs ${bootargs} ${bootargs_romfs};" \
