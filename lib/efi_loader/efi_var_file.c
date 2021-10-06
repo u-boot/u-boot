@@ -19,6 +19,13 @@
 
 #define PART_STR_LEN 10
 
+/* GUID used by Shim to store the MOK database */
+#define SHIM_LOCK_GUID \
+	EFI_GUID(0x605dab50, 0xe046, 0x4300, \
+		 0xab, 0xb6, 0x3d, 0xd8, 0x10, 0xdd, 0x8b, 0x23)
+
+static const efi_guid_t shim_lock_guid = SHIM_LOCK_GUID;
+
 /**
  * efi_set_blk_dev_to_system_partition() - select EFI system partition
  *
@@ -175,6 +182,7 @@ efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe)
 		if (!safe &&
 		    (efi_auth_var_get_type(var->name, &var->guid) !=
 		     EFI_AUTH_VAR_NONE ||
+		     !guidcmp(&var->guid, &shim_lock_guid) ||
 		     !(var->attr & EFI_VARIABLE_NON_VOLATILE)))
 			continue;
 		if (!var->length)
