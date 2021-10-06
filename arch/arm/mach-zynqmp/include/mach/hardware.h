@@ -153,7 +153,8 @@ struct apu_regs {
 #define CSU_PCAP_PROG_RELEASE_PL	BIT(0)
 
 struct csu_regs {
-	u32 reserved0[4];
+	u32 status;
+	u32 reserved0[3];
 	u32 multi_boot;
 	u32 reserved1[7];
 	u32 jtag_chain_status_wr;

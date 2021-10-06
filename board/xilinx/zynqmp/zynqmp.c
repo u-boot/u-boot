@@ -380,6 +380,20 @@ static void restore_jtag(void)
 }
 #endif
 
+static bool is_boot_authenticated(void)
+{
+	u32 status = 0;
+	int ret;
+
+	ret = zynqmp_mmio_read((ulong)&csu_base->status, &status);
+	if (ret) {
+		printf("Can't obtain boot auth state");
+		return false;
+	}
+
+	return (status & BIT(0));
+}
+
 #ifndef CONFIG_SPL_BUILD
 static int do_multi_boot(struct cmd_tbl *cmdtp, int flag,
 			 int argc, char * const argv[])
@@ -422,6 +436,30 @@ U_BOOT_CMD(
 	"\n"
 	"   no param  - get current offset value\n"
 	"   offset - set offset of the boot image in decimal\n"
+);
+
+static int do_is_boot_authenticated(struct cmd_tbl *cmdtp, int flag,
+				    int argc, char * const argv[])
+{
+	int ret;
+
+	if (is_boot_authenticated()) {
+		printf("Board is in closed state\n");
+
+		ret = env_set("board_is_closed", "1");
+		if (ret)
+			return CMD_RET_FAILURE;
+	} else {
+		printf("Board is in open state\n");
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+U_BOOT_CMD(
+	is_boot_authenticated, CONFIG_SYS_MAXARGS, 1,
+	do_is_boot_authenticated,
+	"Check if the board is authenticated", ""
 );
 #endif /* CONFIG_SPL_BUILD */
 
