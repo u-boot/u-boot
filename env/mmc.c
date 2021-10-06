@@ -263,20 +263,26 @@ static int env_mmc_erase(void)
 		return 1;
 	}
 
-	if (mmc_get_env_addr(mmc, copy, &offset))
-		return CMD_RET_FAILURE;
+	if (mmc_get_env_addr(mmc, copy, &offset)) {
+		ret = CMD_RET_FAILURE;
+		goto fini;
+	}
 
 	ret = erase_env(mmc, CONFIG_ENV_SIZE, offset);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	copy = 1;
 
-	if (mmc_get_env_addr(mmc, copy, &offset))
-		return CMD_RET_FAILURE;
+	if (mmc_get_env_addr(mmc, copy, &offset)) {
+		ret = CMD_RET_FAILURE;
+		goto fini;
+	}
 
 	ret |= erase_env(mmc, CONFIG_ENV_SIZE, offset);
 #endif
 
+fini:
+	fini_mmc_for_env(mmc);
 	return ret;
 }
 #endif /* CONFIG_CMD_SAVEENV && !CONFIG_SPL_BUILD */
