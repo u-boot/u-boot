@@ -368,7 +368,10 @@ static int get_cfgblock_interactive(void)
 	if (cpu_is_pxa27x())
 		sprintf(message, "Is the module the 312 MHz version? [y/N] ");
 	else
-		it = 'y';
+		sprintf(message, "Is the module an IT version? [y/N] ");
+
+	len = cli_readline(message);
+	it = console_buffer[0];
 
 #if defined(CONFIG_TARGET_APALIS_IMX8) || \
 		defined(CONFIG_TARGET_APALIS_IMX8X) || \
