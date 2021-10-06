@@ -14,7 +14,7 @@
 	compatible = "phytec,imx8mm-phycore-som", "fsl,imx8mm";
 
 	chosen {
-		stdout-patch = &uart3;
+		stdout-path = &uart3;
 	};
 
 	reg_usdhc2_vmmc: regulator-usdhc2 {
