@@ -103,6 +103,13 @@ will be written to `${build_dir}/test-log.html`. This is best viewed in a web
 browser, but may be read directly as plain text, perhaps with the aid of the
 `html2text` utility.
 
+Controlling output
+~~~~~~~~~~~~~~~~~~
+
+By default a short backtrace is reported. If you would like a longer one,
+pass ``--tb=long`` when running the test. See the pytest documentation for
+more options.
+
 Running tests in parallel
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
