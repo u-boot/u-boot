@@ -71,9 +71,14 @@ static int pci_bar_show(struct udevice *dev)
 	int prefetchable;
 
 	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &header_type);
+	header_type &= 0x7f;
 
 	if (header_type == PCI_HEADER_TYPE_CARDBUS) {
 		printf("CardBus doesn't support BARs\n");
+		return -ENOSYS;
+	} else if (header_type != PCI_HEADER_TYPE_NORMAL &&
+		   header_type != PCI_HEADER_TYPE_BRIDGE) {
+		printf("unknown header type\n");
 		return -ENOSYS;
 	}
 
