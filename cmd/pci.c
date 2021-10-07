@@ -239,7 +239,7 @@ static void pci_header_show(struct udevice *dev)
 	       pci_class_str(class));
 	pci_show_regs(dev, regs_rest);
 
-	switch (header_type & 0x03) {
+	switch (header_type & 0x7f) {
 	case PCI_HEADER_TYPE_NORMAL:	/* "normal" PCI device */
 		pci_show_regs(dev, regs_normal);
 		break;
