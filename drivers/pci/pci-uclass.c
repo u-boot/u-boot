@@ -627,12 +627,21 @@ int pci_generic_mmap_read_config(
 
 int dm_pci_hose_probe_bus(struct udevice *bus)
 {
+	u8 header_type;
 	int sub_bus;
 	int ret;
 	int ea_pos;
 	u8 reg;
 
 	debug("%s\n", __func__);
+
+	dm_pci_read_config8(bus, PCI_HEADER_TYPE, &header_type);
+	header_type &= 0x7f;
+	if (header_type != PCI_HEADER_TYPE_BRIDGE) {
+		debug("%s: Skipping PCI device %d with Non-Bridge Header Type 0x%x\n",
+		      __func__, PCI_DEV(dm_pci_get_bdf(bus)), header_type);
+		return log_msg_ret("probe", -EINVAL);
+	}
 
 	ea_pos = dm_pci_find_capability(bus, PCI_CAP_ID_EA);
 	if (ea_pos) {
