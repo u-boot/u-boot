@@ -31,7 +31,6 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 	fdt_addr_t addr;
 	fdt_size_t size;
 	int offset, node, err, rmem_offset;
-	bool nomap = true;
 	char basename[32] = {0};
 	int bname_len;
 	int max_len = sizeof(basename);
@@ -81,9 +80,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 			log_err("failed to add reserved memory: %d\n", err);
 			return err;
 		}
-		if (!fdt_getprop(src, node, "no-map", NULL))
-			nomap = false;
-		if (nomap) {
+		if (fdt_getprop(src, node, "no-map", NULL)) {
 			rmem_offset = fdt_node_offset_by_phandle(dst, phandle);
 			fdt_setprop_empty(dst, rmem_offset, "no-map");
 		}

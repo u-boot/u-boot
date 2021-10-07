@@ -69,27 +69,25 @@ static int dm_test_k210_pll(struct unit_test_state *uts)
 						  &theirs));
 	ut_asserteq(-EINVAL, k210_pll_calc_config(1500000000, 20000000,
 						  &theirs));
+	ut_asserteq(-EINVAL, k210_pll_calc_config(1750000000, 13300000,
+						  &theirs));
 
 	/* Verify we get the same output with brute-force */
-	ut_assertok(dm_test_k210_pll_calc_config(390000000, 26000000, &ours));
-	ut_assertok(k210_pll_calc_config(390000000, 26000000, &theirs));
-	ut_assertok(dm_test_k210_pll_compare(&ours, &theirs));
+#define compare(rate, rate_in) do { \
+	ut_assertok(dm_test_k210_pll_calc_config(rate, rate_in, &ours)); \
+	ut_assertok(k210_pll_calc_config(rate, rate_in, &theirs)); \
+	ut_assertok(dm_test_k210_pll_compare(&ours, &theirs)); \
+} while (0)
 
-	ut_assertok(dm_test_k210_pll_calc_config(26000000, 390000000, &ours));
-	ut_assertok(k210_pll_calc_config(26000000, 390000000, &theirs));
-	ut_assertok(dm_test_k210_pll_compare(&ours, &theirs));
-
-	ut_assertok(dm_test_k210_pll_calc_config(400000000, 26000000, &ours));
-	ut_assertok(k210_pll_calc_config(400000000, 26000000, &theirs));
-	ut_assertok(dm_test_k210_pll_compare(&ours, &theirs));
-
-	ut_assertok(dm_test_k210_pll_calc_config(27000000, 26000000, &ours));
-	ut_assertok(k210_pll_calc_config(27000000, 26000000, &theirs));
-	ut_assertok(dm_test_k210_pll_compare(&ours, &theirs));
-
-	ut_assertok(dm_test_k210_pll_calc_config(26000000, 27000000, &ours));
-	ut_assertok(k210_pll_calc_config(26000000, 27000000, &theirs));
-	ut_assertok(dm_test_k210_pll_compare(&ours, &theirs));
+	compare(390000000, 26000000);
+	compare(26000000, 390000000);
+	compare(400000000, 26000000);
+	compare(27000000, 26000000);
+	compare(26000000, 27000000);
+	compare(13300000 * 64, 13300000);
+	compare(21250000, 21250000 * 70);
+	compare(21250000, 1750000000);
+	compare(1750000000, 1750000000);
 
 	return 0;
 }

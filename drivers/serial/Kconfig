@@ -280,6 +280,14 @@ config DEBUG_EFI_CONSOLE
 	  U-Boot when running on top of EFI (Extensive Firmware Interface).
 	  This is a type of BIOS used by PCs.
 
+config DEBUG_SBI_CONSOLE
+	bool "SBI"
+	depends on SBI_V01
+	help
+	  Select this to enable a debug console which calls back to SBI to
+	  output to the console. This can be useful for early debugging of
+	  U-Boot when running on top of SBI (Supervisor Binary Interface).
+
 config DEBUG_UART_S5P
 	bool "Samsung S5P"
 	depends on ARCH_EXYNOS || ARCH_S5PC1XX
@@ -442,6 +450,7 @@ endchoice
 config DEBUG_UART_BASE
 	hex "Base address of UART"
 	depends on DEBUG_UART
+	default 0 if DEBUG_SBI_CONSOLE
 	default 0 if DEBUG_UART_SANDBOX
 	help
 	  This is the base address of your UART for memory-mapped UARTs.
@@ -452,6 +461,7 @@ config DEBUG_UART_BASE
 config DEBUG_UART_CLOCK
 	int "UART input clock"
 	depends on DEBUG_UART
+	default 0 if DEBUG_SBI_CONSOLE
 	default 0 if DEBUG_UART_SANDBOX
 	default 0 if DEBUG_MVEBU_A3700_UART
 	help
