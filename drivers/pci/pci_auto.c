@@ -131,7 +131,8 @@ static void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 	/* Configure the expansion ROM address */
 	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &header_type);
 	header_type &= 0x7f;
-	if (header_type != PCI_HEADER_TYPE_CARDBUS) {
+	if (header_type == PCI_HEADER_TYPE_NORMAL ||
+	    header_type == PCI_HEADER_TYPE_BRIDGE) {
 		rom_addr = (header_type == PCI_HEADER_TYPE_NORMAL) ?
 			PCI_ROM_ADDRESS : PCI_ROM_ADDRESS1;
 		dm_pci_write_config32(dev, rom_addr, 0xfffffffe);
