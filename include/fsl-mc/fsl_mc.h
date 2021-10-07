@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Freescale Semiconductor
+ * Copyright 2021 NXP
  */
 
 #ifndef __FSL_MC_H__
@@ -50,6 +51,14 @@ struct mc_ccsr_registers {
 	u32 reg_brr[2];
 	u32 reserved6[0x80];
 	u32 reg_error[];
+};
+
+struct log_header {
+	u32 magic_word;
+	char reserved[4];
+	u32 buf_start;
+	u32 buf_length;
+	u32 last_byte;
 };
 
 void fdt_fsl_mc_fixup_iommu_map_entry(void *blob);
