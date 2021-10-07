@@ -19,7 +19,7 @@
 #define CONFIG_SYS_PCI_CACHE_LINE_SIZE	8
 #endif
 
-static void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
+static void dm_pciauto_setup_device(struct udevice *dev,
 				    struct pci_region *mem,
 				    struct pci_region *prefetch,
 				    struct pci_region *io)
@@ -28,6 +28,7 @@ static void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 	pci_size_t bar_size;
 	u16 cmdstat = 0;
 	int bar, bar_nr = 0;
+	int bars_num;
 	u8 header_type;
 	int rom_addr;
 	pci_addr_t bar_value;
@@ -38,6 +39,26 @@ static void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 	dm_pci_read_config16(dev, PCI_COMMAND, &cmdstat);
 	cmdstat = (cmdstat & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY)) |
 			PCI_COMMAND_MASTER;
+
+	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &header_type);
+	header_type &= 0x7f;
+
+	switch (header_type) {
+	case PCI_HEADER_TYPE_NORMAL:
+		bars_num = 6;
+		break;
+	case PCI_HEADER_TYPE_BRIDGE:
+		bars_num = 2;
+		break;
+	case PCI_HEADER_TYPE_CARDBUS:
+		/* CardBus header does not have any BAR */
+		bars_num = 0;
+		break;
+	default:
+		/* Skip configuring BARs for unknown header types */
+		bars_num = 0;
+		break;
+	}
 
 	for (bar = PCI_BASE_ADDRESS_0;
 	     bar < PCI_BASE_ADDRESS_0 + (bars_num * 4); bar += 4) {
@@ -129,8 +150,6 @@ static void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 	}
 
 	/* Configure the expansion ROM address */
-	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &header_type);
-	header_type &= 0x7f;
 	if (header_type == PCI_HEADER_TYPE_NORMAL ||
 	    header_type == PCI_HEADER_TYPE_BRIDGE) {
 		rom_addr = (header_type == PCI_HEADER_TYPE_NORMAL) ?
@@ -343,7 +362,7 @@ int dm_pciauto_config_device(struct udevice *dev)
 		debug("PCI Autoconfig: Found P2P bridge, device %d\n",
 		      PCI_DEV(dm_pci_get_bdf(dev)));
 
-		dm_pciauto_setup_device(dev, 2, pci_mem, pci_prefetch, pci_io);
+		dm_pciauto_setup_device(dev, pci_mem, pci_prefetch, pci_io);
 
 		ret = dm_pci_hose_probe_bus(dev);
 		if (ret < 0)
@@ -356,7 +375,7 @@ int dm_pciauto_config_device(struct udevice *dev)
 		 * just do a minimal setup of the bridge,
 		 * let the OS take care of the rest
 		 */
-		dm_pciauto_setup_device(dev, 0, pci_mem, pci_prefetch, pci_io);
+		dm_pciauto_setup_device(dev, pci_mem, pci_prefetch, pci_io);
 
 		debug("PCI Autoconfig: Found P2CardBus bridge, device %d\n",
 		      PCI_DEV(dm_pci_get_bdf(dev)));
@@ -388,7 +407,7 @@ int dm_pciauto_config_device(struct udevice *dev)
 		/* fall through */
 
 	default:
-		dm_pciauto_setup_device(dev, 6, pci_mem, pci_prefetch, pci_io);
+		dm_pciauto_setup_device(dev, pci_mem, pci_prefetch, pci_io);
 		break;
 	}
 
