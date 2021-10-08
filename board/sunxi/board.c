@@ -47,47 +47,6 @@
 #include <asm/setup.h>
 #include <status_led.h>
 
-#if defined(CONFIG_VIDEO_LCD_PANEL_I2C)
-/* So that we can use pin names in Kconfig and sunxi_name_to_gpio() */
-int soft_i2c_gpio_sda;
-int soft_i2c_gpio_scl;
-
-static int soft_i2c_board_init(void)
-{
-	int ret;
-
-	soft_i2c_gpio_sda = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SDA);
-	if (soft_i2c_gpio_sda < 0) {
-		printf("Error invalid soft i2c sda pin: '%s', err %d\n",
-		       CONFIG_VIDEO_LCD_PANEL_I2C_SDA, soft_i2c_gpio_sda);
-		return soft_i2c_gpio_sda;
-	}
-	ret = gpio_request(soft_i2c_gpio_sda, "soft-i2c-sda");
-	if (ret) {
-		printf("Error requesting soft i2c sda pin: '%s', err %d\n",
-		       CONFIG_VIDEO_LCD_PANEL_I2C_SDA, ret);
-		return ret;
-	}
-
-	soft_i2c_gpio_scl = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SCL);
-	if (soft_i2c_gpio_scl < 0) {
-		printf("Error invalid soft i2c scl pin: '%s', err %d\n",
-		       CONFIG_VIDEO_LCD_PANEL_I2C_SCL, soft_i2c_gpio_scl);
-		return soft_i2c_gpio_scl;
-	}
-	ret = gpio_request(soft_i2c_gpio_scl, "soft-i2c-scl");
-	if (ret) {
-		printf("Error requesting soft i2c scl pin: '%s', err %d\n",
-		       CONFIG_VIDEO_LCD_PANEL_I2C_SCL, ret);
-		return ret;
-	}
-
-	return 0;
-}
-#else
-static int soft_i2c_board_init(void) { return 0; }
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 void i2c_init_board(void)
@@ -312,8 +271,7 @@ int board_init(void)
 #endif
 #endif	/* CONFIG_DM_MMC */
 
-	/* Uses dm gpio code so do this here and not in i2c_init_board() */
-	return soft_i2c_board_init();
+	return 0;
 }
 
 /*

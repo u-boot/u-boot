@@ -901,6 +901,42 @@ static int sunxi_ssd2828_init(const struct ctfb_res_modes *mode)
 }
 #endif /* CONFIG_VIDEO_LCD_SSD2828 */
 
+#ifdef CONFIG_VIDEO_LCD_PANEL_I2C
+static void sunxi_panel_i2c_init(struct sunxi_display_priv *sunxi_display)
+{
+	const char *name = CONFIG_VIDEO_LCD_PANEL_I2C_NAME;
+	struct udevice *i2c_bus;
+	int ret;
+
+	ret = uclass_get_device_by_name(UCLASS_I2C, name, &i2c_bus);
+	if (ret)
+		return;
+
+	if (IS_ENABLED(CONFIG_VIDEO_LCD_PANEL_EDP_4_LANE_1620M_VIA_ANX9804)) {
+		/*
+		 * The anx9804 needs 1.8V from eldo3, we do this here
+		 * and not via CONFIG_AXP_ELDO3_VOLT from board_init()
+		 * to avoid turning this on when using hdmi output.
+		 */
+		axp_set_eldo(3, 1800);
+		anx9804_init(i2c_bus, 4,
+			     ANX9804_DATA_RATE_1620M,
+			     sunxi_display->depth);
+	}
+	if (IS_ENABLED(CONFIG_VIDEO_LCD_TL059WV5C0)) {
+		struct udevice *chip;
+
+		ret = i2c_get_chip(i2c_bus, 0x5c, 1, &chip);
+		if (ret)
+			return;
+
+		dm_i2c_reg_write(chip, 0x04, 0x42); /* Turn on the LCD */
+	}
+}
+#else
+static void sunxi_panel_i2c_init(struct sunxi_display_priv *sunxi_display) {}
+#endif
+
 static void sunxi_engines_init(void)
 {
 	sunxi_composer_init();
@@ -935,27 +971,12 @@ static void sunxi_mode_set(struct sunxi_display_priv *sunxi_display,
 		break;
 	case sunxi_monitor_lcd:
 		sunxi_lcdc_panel_enable();
-		if (IS_ENABLED(CONFIG_VIDEO_LCD_PANEL_EDP_4_LANE_1620M_VIA_ANX9804)) {
-			/*
-			 * The anx9804 needs 1.8V from eldo3, we do this here
-			 * and not via CONFIG_AXP_ELDO3_VOLT from board_init()
-			 * to avoid turning this on when using hdmi output.
-			 */
-			axp_set_eldo(3, 1800);
-			anx9804_init(CONFIG_VIDEO_LCD_I2C_BUS, 4,
-				     ANX9804_DATA_RATE_1620M,
-				     sunxi_display->depth);
-		}
 		if (IS_ENABLED(CONFIG_VIDEO_LCD_HITACHI_TX18D42VM)) {
 			mdelay(50); /* Wait for lcd controller power on */
 			hitachi_tx18d42vm_init();
 		}
-		if (IS_ENABLED(CONFIG_VIDEO_LCD_TL059WV5C0)) {
-			unsigned int orig_i2c_bus = i2c_get_bus_num();
-			i2c_set_bus_num(CONFIG_VIDEO_LCD_I2C_BUS);
-			i2c_reg_write(0x5c, 0x04, 0x42); /* Turn on the LCD */
-			i2c_set_bus_num(orig_i2c_bus);
-		}
+		if (IS_ENABLED(CONFIG_VIDEO_LCD_PANEL_I2C))
+			sunxi_panel_i2c_init(sunxi_display);
 		sunxi_composer_mode_set(mode, address, monitor);
 		sunxi_lcdc_tcon0_mode_set(sunxi_display, mode, false);
 		sunxi_composer_enable();
