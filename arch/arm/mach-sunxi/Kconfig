@@ -106,7 +106,7 @@ config SUN6I_PRCM
 	  in A31 SoC.
 
 config AXP_PMIC_BUS
-	bool "Sunxi AXP PMIC bus access helpers"
+	bool
 	help
 	  Select this PMIC bus access helpers for Sunxi platform PRCM or other
 	  AXP family PMIC devices.
@@ -795,6 +795,7 @@ endif
 
 config AXP_GPIO
 	bool "Enable support for gpio-s on axp PMICs"
+	depends on AXP_PMIC_BUS
 	---help---
 	Say Y here to enable support for the gpio pins of the axp PMIC ICs.
 
