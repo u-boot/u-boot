@@ -36,6 +36,7 @@ config PMIC_CHILDREN
 
 config SPL_PMIC_CHILDREN
 	bool "Allow child devices for PMICs in SPL"
+	depends on SPL_DM_PMIC
 	default y
 	---help---
 	This allows PMICs to support child devices (such as regulators) in
@@ -70,7 +71,7 @@ config DM_PMIC_DA9063
 
 config SPL_DM_PMIC_DA9063
 	bool "Enable Driver Model for the Dialog DA9063 PMIC in SPL"
-	depends on SPL
+	depends on SPL_DM_PMIC
 	help
 	  This config enables implementation of driver-model pmic uclass features
 	  for PMIC DA9063. The driver implements read/write operations.
@@ -91,6 +92,7 @@ config DM_PMIC_BD71837
 
 config SPL_DM_PMIC_BD71837
 	bool "Enable Driver Model for PMIC BD71837 in SPL stage"
+	depends on SPL_DM_PMIC
 	help
 	  This config enables implementation of driver-model pmic uclass
 	  features for PMIC BD71837. The driver implements read/write
@@ -118,6 +120,7 @@ config DM_PMIC_MP5416
 
 config SPL_DM_PMIC_MP5416
 	bool "Enable Driver Model for PMIC MP5416 in SPL stage"
+	depends on SPL_DM_PMIC
 	help
 	  This config enables implementation of driver-model pmic uclass
 	  features for PMIC MP5416. The driver implements read/write
@@ -131,6 +134,7 @@ config DM_PMIC_PCA9450
 
 config SPL_DM_PMIC_PCA9450
 	bool "Enable Driver Model for PMIC PCA9450"
+	depends on SPL_DM_PMIC
 	help
 	  This config enables implementation of driver-model pmic uclass features
 	  for PMIC PCA9450 in SPL. The driver implements read/write operations.
@@ -143,6 +147,7 @@ config DM_PMIC_PFUZE100
 
 config SPL_DM_PMIC_PFUZE100
 	bool "Enable Driver Model for PMIC PFUZE100 in SPL"
+	depends on SPL_DM_PMIC
 	---help---
 	This config enables implementation of driver-model pmic uclass features
 	for PMIC PFUZE100 in SPL. The driver implements read/write operations.
@@ -204,6 +209,7 @@ config PMIC_RK8XX
 
 config SPL_PMIC_RK8XX
 	bool "Enable support for Rockchip PMIC RK8XX"
+	depends on SPL_DM_PMIC
 	---help---
 	The Rockchip RK808 PMIC provides four buck DC-DC convertors, 8 LDOs,
 	an RTC and two low Rds (resistance (drain to source)) switches. It is
@@ -313,18 +319,21 @@ config PMIC_STPMIC1
 
 config SPL_PMIC_PALMAS
 	bool "Enable driver for Texas Instruments PALMAS PMIC"
+	depends on SPL_DM_PMIC
 	help
 	The PALMAS is a PMIC containing several LDOs, SMPS.
 	This driver binds the pmic children in SPL.
 
 config SPL_PMIC_LP873X
 	bool "Enable driver for Texas Instruments LP873X PMIC"
+	depends on SPL_DM_PMIC
 	help
 	The LP873X is a PMIC containing couple of LDOs and couple of SMPS.
 	This driver binds the pmic children in SPL.
 
 config SPL_PMIC_LP87565
 	bool "Enable driver for Texas Instruments LP87565 PMIC"
+	depends on SPL_DM_PMIC
 	help
 	The LP87565 is a PMIC containing a bunch of SMPS.
 	This driver binds the pmic children in SPL.
