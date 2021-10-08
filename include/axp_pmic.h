@@ -6,6 +6,8 @@
  */
 #ifndef _AXP_PMIC_H_
 
+#include <stdbool.h>
+
 #ifdef CONFIG_AXP152_POWER
 #include <axp152.h>
 #endif
@@ -24,6 +26,10 @@
 #ifdef CONFIG_AXP818_POWER
 #include <axp818.h>
 #endif
+
+#define AXP_PMIC_MODE_REG		0x3e
+#define AXP_PMIC_MODE_I2C		0x00
+#define AXP_PMIC_MODE_P2WI		0x3e
 
 int axp_set_dcdc1(unsigned int mvolt);
 int axp_set_dcdc2(unsigned int mvolt);

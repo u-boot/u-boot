@@ -8,6 +8,7 @@
  * axp223 uses the rsb bus, these functions abstract this.
  */
 
+#include <axp_pmic.h>
 #include <common.h>
 #include <asm/arch/p2wi.h>
 #include <asm/arch/rsb.h>
@@ -21,8 +22,6 @@
 #define AXP305_I2C_ADDR			0x36
 
 #define AXP221_CHIP_ADDR		0x68
-#define AXP221_CTRL_ADDR		0x3e
-#define AXP221_INIT_DATA		0x3e
 
 /* AXP818 device and runtime addresses are same as AXP223 */
 #define AXP223_DEVICE_ADDR		0x3a3
@@ -40,8 +39,8 @@ int pmic_bus_init(void)
 #if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
 # ifdef CONFIG_MACH_SUN6I
 	p2wi_init();
-	ret = p2wi_change_to_p2wi_mode(AXP221_CHIP_ADDR, AXP221_CTRL_ADDR,
-				       AXP221_INIT_DATA);
+	ret = p2wi_change_to_p2wi_mode(AXP221_CHIP_ADDR, AXP_PMIC_MODE_REG,
+				       AXP_PMIC_MODE_P2WI);
 # elif defined CONFIG_MACH_SUN8I_R40
 	/* Nothing. R40 uses the AXP221s in I2C mode */
 	ret = 0;

@@ -11,7 +11,6 @@ obj-y	+= clock.o
 obj-y	+= cpu_info.o
 obj-y	+= dram_helpers.o
 obj-y	+= pinmux.o
-obj-$(CONFIG_SUN6I_P2WI)	+= p2wi.o
 obj-$(CONFIG_SUN6I_PRCM)	+= prcm.o
 obj-$(CONFIG_AXP_PMIC_BUS)	+= pmic_bus.o
 obj-$(CONFIG_SUN8I_RSB)		+= rsb.o

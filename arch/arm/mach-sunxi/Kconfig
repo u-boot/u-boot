@@ -88,17 +88,6 @@ config DRAM_SUN50I_H616_UNKNOWN_FEATURE
 	  feature.
 endif
 
-config SUN6I_P2WI
-	bool "Allwinner sun6i internal P2WI controller"
-	help
-	  If you say yes to this option, support will be included for the
-	  P2WI (Push/Pull 2 Wire Interface) controller embedded in some sunxi
-	  SOCs.
-	  The P2WI looks like an SMBus controller (which supports only byte
-	  accesses), except that it only supports one slave device.
-	  This interface is used to connect to specific PMIC devices (like the
-	  AXP221).
-
 config SUN6I_PRCM
 	bool
 	help
@@ -232,10 +221,11 @@ config MACH_SUN6I
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN6I
 	select PHY_SUN4I_USB
-	select SUN6I_P2WI
+	select SPL_I2C
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select SYS_I2C_SUN6I_P2WI
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN7I
