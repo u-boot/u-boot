@@ -94,25 +94,15 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x74>;
-		i2c@0 {
+		usbhub_i2c0: i2c@0 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
-			usbhub0: usb5744@2d { /* u43 */
-				compatible = "microchip,usb5744";
-				reg = <0x2d>;
-				reset-gpios = <&slg7xl45106 3 GPIO_ACTIVE_HIGH>;
-			};
 		};
-		i2c@1 {
+		usbhub_i2c1: i2c@1 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
-			usbhub1: usb5744@2d { /* u84 */
-				compatible = "microchip,usb5744";
-				reg = <0x2d>;
-				reset-gpios = <&slg7xl45106 4 GPIO_ACTIVE_HIGH>;
-			};
 		};
 		/* Bus 2/3 are not connected */
 	};
@@ -145,6 +135,13 @@
 	phy-names = "usb3-phy";
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 	reset-gpio = <&gpio 76 0>;
+
+	usbhub0: usb5744@2d { /* u43 */
+		i2c-bus = <&usbhub_i2c0>;
+		compatible = "microchip,usb5744";
+		reset-gpios = <&slg7xl45106 3 GPIO_ACTIVE_HIGH>;
+	};
+
 	/* usb2244 - u38 - SD_RESET_B via u19 */
 	usbsd: usb2244 {
 		compatible = "microchip,usb2244";
@@ -166,6 +163,12 @@
 	phy-names = "usb3-phy";
 	phys = <&psgtr 3 PHY_TYPE_USB3 1 1>;
 	reset-gpio = <&gpio 77 0>;
+
+	usbhub1: usb5744@2d { /* u84 */
+		i2c-bus = <&usbhub_i2c1>;
+		compatible = "microchip,usb5744";
+		reset-gpios = <&slg7xl45106 4 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &dwc3_1 {
