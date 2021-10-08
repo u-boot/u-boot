@@ -165,7 +165,6 @@ endif
 
 config MACH_SUNXI_H3_H5
 	bool
-	select DM_I2C
 	select PHY_SUN4I_USB
 	select SUNXI_DE2
 	select SUNXI_DRAM_DW
@@ -326,7 +325,6 @@ config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
 	select SPI
-	select DM_I2C
 	select DM_SPI if SPI
 	select DM_SPI_FLASH
 	select PHY_SUN4I_USB
@@ -909,7 +907,6 @@ config VIDEO_LCD_BL_PWM_ACTIVE_LOW
 config VIDEO_LCD_PANEL_I2C
 	bool "LCD panel needs to be configured via i2c"
 	depends on VIDEO_SUNXI
-	select DM_I2C
 	select DM_I2C_GPIO
 	---help---
 	Say y here if the LCD panel needs to be configured via i2c. This
