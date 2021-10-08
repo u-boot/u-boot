@@ -10,9 +10,11 @@
 
 #include <axp_pmic.h>
 #include <common.h>
+#include <dm.h>
 #include <asm/arch/p2wi.h>
 #include <asm/arch/rsb.h>
 #include <i2c.h>
+#include <power/pmic.h>
 #include <asm/arch/pmic_bus.h>
 
 #define AXP152_I2C_ADDR			0x30
@@ -23,6 +25,9 @@
 
 #define AXP221_CHIP_ADDR		0x68
 
+#if CONFIG_IS_ENABLED(PMIC_AXP)
+static struct udevice *pmic;
+#else
 static int pmic_i2c_address(void)
 {
 	if (IS_ENABLED(CONFIG_AXP152_POWER))
@@ -33,6 +38,7 @@ static int pmic_i2c_address(void)
 	/* Other AXP2xx and AXP8xx variants */
 	return AXP209_I2C_ADDR;
 }
+#endif
 
 int pmic_bus_init(void)
 {
@@ -43,6 +49,10 @@ int pmic_bus_init(void)
 	if (!needs_init)
 		return 0;
 
+#if CONFIG_IS_ENABLED(PMIC_AXP)
+	ret = uclass_get_device_by_driver(UCLASS_PMIC, DM_DRIVER_GET(axp_pmic),
+					  &pmic);
+#else
 	if (IS_ENABLED(CONFIG_SYS_I2C_SUN6I_P2WI)) {
 		p2wi_init();
 		ret = p2wi_change_to_p2wi_mode(AXP221_CHIP_ADDR,
@@ -56,6 +66,7 @@ int pmic_bus_init(void)
 		ret = rsb_set_device_address(AXP_PMIC_PRI_DEVICE_ADDR,
 					     AXP_PMIC_PRI_RUNTIME_ADDR);
 	}
+#endif
 
 	needs_init = ret;
 
@@ -64,22 +75,30 @@ int pmic_bus_init(void)
 
 int pmic_bus_read(u8 reg, u8 *data)
 {
+#if CONFIG_IS_ENABLED(PMIC_AXP)
+	return pmic_read(pmic, reg, data, 1);
+#else
 	if (IS_ENABLED(CONFIG_SYS_I2C_SUN6I_P2WI))
 		return p2wi_read(reg, data);
 	if (IS_ENABLED(CONFIG_SYS_I2C_SUN8I_RSB))
 		return rsb_read(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
 
 	return i2c_read(pmic_i2c_address(), reg, 1, data, 1);
+#endif
 }
 
 int pmic_bus_write(u8 reg, u8 data)
 {
+#if CONFIG_IS_ENABLED(PMIC_AXP)
+	return pmic_write(pmic, reg, &data, 1);
+#else
 	if (IS_ENABLED(CONFIG_SYS_I2C_SUN6I_P2WI))
 		return p2wi_write(reg, data);
 	if (IS_ENABLED(CONFIG_SYS_I2C_SUN8I_RSB))
 		return rsb_write(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
 
 	return i2c_write(pmic_i2c_address(), reg, 1, &data, 1);
+#endif
 }
 
 int pmic_bus_setbits(u8 reg, u8 bits)

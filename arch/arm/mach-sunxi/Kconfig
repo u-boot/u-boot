@@ -96,6 +96,8 @@ config SUN6I_PRCM
 
 config AXP_PMIC_BUS
 	bool
+	select DM_PMIC if DM_I2C
+	select PMIC_AXP if DM_I2C
 	help
 	  Select this PMIC bus access helpers for Sunxi platform PRCM or other
 	  AXP family PMIC devices.
