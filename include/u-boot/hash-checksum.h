@@ -7,10 +7,11 @@
 #define _RSA_CHECKSUM_H
 
 #include <errno.h>
-#include <image.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
 #include <u-boot/sha512.h>
+
+struct image_region;
 
 /**
  * hash_calculate() - Calculate hash over the data
@@ -23,7 +24,7 @@
  * @return 0 if OK, < 0 if error
  */
 int hash_calculate(const char *name,
-		   const struct image_region region[], int region_count,
+		   const struct image_region *region, int region_count,
 		   uint8_t *checksum);
 
 #endif

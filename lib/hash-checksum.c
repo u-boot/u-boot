@@ -17,7 +17,7 @@
 #include <image.h>
 
 int hash_calculate(const char *name,
-		    const struct image_region region[],
+		    const struct image_region *region,
 		    int region_count, uint8_t *checksum)
 {
 	struct hash_algo *algo;

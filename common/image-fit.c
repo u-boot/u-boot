@@ -170,7 +170,6 @@ int fit_get_subimage_count(const void *fit, int images_noffset)
 	return count;
 }
 
-#if CONFIG_IS_ENABLED(FIT_PRINT) || CONFIG_IS_ENABLED(SPL_FIT_PRINT)
 /**
  * fit_image_print_data() - prints out the hash node details
  * @fit: pointer to the FIT format image header
@@ -380,6 +379,9 @@ void fit_print_contents(const void *fit)
 	const char *p;
 	time_t timestamp;
 
+	if (!CONFIG_IS_ENABLED(FIT_PRINT))
+		return;
+
 	/* Indent string is defined in header image.h */
 	p = IMAGE_INDENT_STRING;
 
@@ -482,6 +484,9 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	int ndepth;
 	int ret;
 
+	if (!CONFIG_IS_ENABLED(FIT_PRINT))
+		return;
+
 	/* Mandatory properties */
 	ret = fit_get_desc(fit, image_noffset, &desc);
 	printf("%s  Description:  ", p);
@@ -509,7 +514,7 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 
 	ret = fit_image_get_data_and_size(fit, image_noffset, &data, &size);
 
-	if (!host_build()) {
+	if (!tools_build()) {
 		printf("%s  Data Start:   ", p);
 		if (ret) {
 			printf("unavailable\n");
@@ -575,10 +580,6 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 		}
 	}
 }
-#else
-void fit_print_contents(const void *fit) { }
-void fit_image_print(const void *fit, int image_noffset, const char *p) { }
-#endif /* CONFIG_IS_ENABLED(FIR_PRINT) || CONFIG_IS_ENABLED(SPL_FIT_PRINT) */
 
 /**
  * fit_get_desc - get node description property
@@ -1277,7 +1278,7 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 	}
 	printf("%s", algo);
 
-	if (IMAGE_ENABLE_IGNORE) {
+	if (!tools_build()) {
 		fit_image_hash_get_ignore(fit, noffset, &ignore);
 		if (ignore) {
 			printf("-skipped ");
@@ -1845,7 +1846,7 @@ int fit_conf_get_node(const void *fit, const char *conf_uname)
 	if (conf_uname == NULL) {
 		/* get configuration unit name from the default property */
 		debug("No configuration specified, trying default...\n");
-		if (!host_build() && IS_ENABLED(CONFIG_MULTI_DTB_FIT)) {
+		if (!tools_build() && IS_ENABLED(CONFIG_MULTI_DTB_FIT)) {
 			noffset = fit_find_config_node(fit);
 			if (noffset < 0)
 				return noffset;
@@ -2008,9 +2009,6 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	int type_ok, os_ok;
 	ulong load, load_end, data, len;
 	uint8_t os, comp;
-#ifndef USE_HOSTCC
-	uint8_t os_arch;
-#endif
 	const char *prop_name;
 	int ret;
 
@@ -2093,7 +2091,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	}
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
-	if (!host_build() && IS_ENABLED(CONFIG_SANDBOX)) {
+	if (!tools_build() && IS_ENABLED(CONFIG_SANDBOX)) {
 		if (!fit_image_check_target_arch(fit, noffset)) {
 			puts("Unsupported Architecture\n");
 			bootstage_error(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
@@ -2102,8 +2100,12 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	}
 
 #ifndef USE_HOSTCC
+	{
+	uint8_t os_arch;
+
 	fit_image_get_arch(fit, noffset, &os_arch);
 	images->os.arch = os_arch;
+	}
 #endif
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL);
@@ -2158,7 +2160,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	}
 
 	/* perform any post-processing on the image data */
-	if (!host_build() && IS_ENABLED(CONFIG_FIT_IMAGE_POST_PROCESS))
+	if (!tools_build() && IS_ENABLED(CONFIG_FIT_IMAGE_POST_PROCESS))
 		board_fit_image_post_process(fit, noffset, &buf, &size);
 
 	len = (ulong)size;

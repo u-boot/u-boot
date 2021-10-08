@@ -165,6 +165,16 @@ config SPL_FIT_SIGNATURE
 	select SPL_IMAGE_SIGN_INFO
 	select SPL_FIT_FULL_CHECK
 
+config SPL_FIT_SIGNATURE_MAX_SIZE
+	hex "Max size of signed FIT structures in SPL"
+	depends on SPL_FIT_SIGNATURE
+	default 0x10000000
+	help
+	  This option sets a max size in bytes for verified FIT uImages.
+	  A sane value of 256MB protects corrupted DTB structures from overlapping
+	  device memory. Assure this size does not extend past expected storage
+	  space.
+
 config SPL_LOAD_FIT
 	bool "Enable SPL loading U-Boot as a FIT (basic fitImage features)"
 	select SPL_FIT

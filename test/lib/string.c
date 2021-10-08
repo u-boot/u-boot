@@ -23,6 +23,8 @@
 /* Allow for copying up to 32 bytes */
 #define BUFLEN (SWEEP + 33)
 
+#define TEST_STR	"hello"
+
 /**
  * init_buffer() - initialize buffer
  *
@@ -193,3 +195,33 @@ static int lib_memmove(struct unit_test_state *uts)
 }
 
 LIB_TEST(lib_memmove, 0);
+
+/** lib_memdup() - unit test for memdup() */
+static int lib_memdup(struct unit_test_state *uts)
+{
+	char buf[BUFLEN];
+	size_t len;
+	char *p, *q;
+
+	/* Zero size should do nothing */
+	p = memdup(NULL, 0);
+	ut_assertnonnull(p);
+	free(p);
+
+	p = memdup(buf, 0);
+	ut_assertnonnull(p);
+	free(p);
+
+	strcpy(buf, TEST_STR);
+	len = sizeof(TEST_STR);
+	p = memdup(buf, len);
+	ut_asserteq_mem(p, buf, len);
+
+	q = memdup(p, len);
+	ut_asserteq_mem(q, buf, len);
+	free(q);
+	free(p);
+
+	return 0;
+}
+LIB_TEST(lib_memdup, 0);
