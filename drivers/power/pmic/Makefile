@@ -18,6 +18,7 @@ obj-$(CONFIG_DM_PMIC_SANDBOX) += sandbox.o i2c_pmic_emul.o
 obj-$(CONFIG_PMIC_AB8500) += ab8500.o
 obj-$(CONFIG_PMIC_ACT8846) += act8846.o
 obj-$(CONFIG_PMIC_AS3722) += as3722.o as3722_gpio.o
+obj-$(CONFIG_$(SPL_)PMIC_AXP) += axp.o
 obj-$(CONFIG_PMIC_MAX8997) += max8997.o
 obj-$(CONFIG_PMIC_PM8916) += pm8916.o
 obj-$(CONFIG_$(SPL_TPL_)PMIC_RK8XX) += rk8xx.o

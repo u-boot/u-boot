@@ -63,6 +63,20 @@ config PMIC_ACT8846
 	functions. It uses an I2C interface and is designed for use with
 	tablets and smartphones.
 
+config PMIC_AXP
+	bool "Enable Driver Model for X-Powers AXP PMICs"
+	depends on DM_I2C
+	help
+	  This config enables driver-model PMIC uclass features for
+	  X-Powers AXP152, AXP2xx, and AXP8xx PMICs.
+
+config SPL_PMIC_AXP
+	bool "Enable Driver Model for X-Powers AXP PMICs in SPL"
+	depends on SPL_DM_I2C && SPL_DM_PMIC
+	help
+	  This config enables driver-model PMIC uclass features in the SPL for
+	  X-Powers AXP152, AXP2xx, and AXP8xx PMICs.
+
 config DM_PMIC_DA9063
 	bool "Enable Driver Model for the Dialog DA9063 PMIC"
 	help
