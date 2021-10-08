@@ -23,10 +23,6 @@
 
 #define AXP221_CHIP_ADDR		0x68
 
-/* AXP818 device and runtime addresses are same as AXP223 */
-#define AXP223_DEVICE_ADDR		0x3a3
-#define AXP223_RUNTIME_ADDR		0x2d
-
 int pmic_bus_init(void)
 {
 	/* This cannot be 0 because it is used in SPL before BSS is ready */
@@ -49,7 +45,8 @@ int pmic_bus_init(void)
 	if (ret)
 		return ret;
 
-	ret = rsb_set_device_address(AXP223_DEVICE_ADDR, AXP223_RUNTIME_ADDR);
+	ret = rsb_set_device_address(AXP_PMIC_PRI_DEVICE_ADDR,
+				     AXP_PMIC_PRI_RUNTIME_ADDR);
 # endif
 	if (ret)
 		return ret;
@@ -73,7 +70,7 @@ int pmic_bus_read(u8 reg, u8 *data)
 # elif defined CONFIG_MACH_SUN8I_R40
 	return i2c_read(AXP209_I2C_ADDR, reg, 1, data, 1);
 # else
-	return rsb_read(AXP223_RUNTIME_ADDR, reg, data);
+	return rsb_read(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
 # endif
 #endif
 }
@@ -92,7 +89,7 @@ int pmic_bus_write(u8 reg, u8 data)
 # elif defined CONFIG_MACH_SUN8I_R40
 	return i2c_write(AXP209_I2C_ADDR, reg, 1, &data, 1);
 # else
-	return rsb_write(AXP223_RUNTIME_ADDR, reg, data);
+	return rsb_write(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
 # endif
 #endif
 }

@@ -13,7 +13,6 @@ obj-y	+= dram_helpers.o
 obj-y	+= pinmux.o
 obj-$(CONFIG_SUN6I_PRCM)	+= prcm.o
 obj-$(CONFIG_AXP_PMIC_BUS)	+= pmic_bus.o
-obj-$(CONFIG_SUN8I_RSB)		+= rsb.o
 obj-$(CONFIG_MACH_SUN4I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN5I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN6I)	+= clock_sun6i.o

@@ -100,14 +100,6 @@ config AXP_PMIC_BUS
 	  Select this PMIC bus access helpers for Sunxi platform PRCM or other
 	  AXP family PMIC devices.
 
-config SUN8I_RSB
-	bool "Allwinner sunXi Reduced Serial Bus Driver"
-	help
-	  Say y here to enable support for Allwinner's Reduced Serial Bus
-	  (RSB) support. This controller is responsible for communicating
-	  with various RSB based devices, such as AXP223, AXP8XX PMICs,
-	  and AC100/AC200 ICs.
-
 config SUNXI_SRAM_ADDRESS
 	hex
 	default 0x10000 if MACH_SUN9I || MACH_SUN50I || MACH_SUN50I_H5
@@ -250,9 +242,10 @@ config MACH_SUN8I_A23
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A23
 	select PHY_SUN4I_USB
-	select SUN8I_RSB
+	select SPL_I2C
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select SYS_I2C_SUN8I_RSB
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 	imply CONS_INDEX_5 if !DM_SERIAL
 
@@ -264,9 +257,10 @@ config MACH_SUN8I_A33
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A33
 	select PHY_SUN4I_USB
-	select SUN8I_RSB
+	select SPL_I2C
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select SYS_I2C_SUN8I_RSB
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 	imply CONS_INDEX_5 if !DM_SERIAL
 
@@ -275,11 +269,12 @@ config MACH_SUN8I_A83T
 	select CPU_V7A
 	select DRAM_SUN8I_A83T
 	select PHY_SUN4I_USB
-	select SUN8I_RSB
+	select SPL_I2C
 	select SUNXI_GEN_SUN6I
 	select MMC_SUNXI_HAS_NEW_MODE
 	select MMC_SUNXI_HAS_MODE_SWITCH
 	select SUPPORT_SPL
+	select SYS_I2C_SUN8I_RSB
 
 config MACH_SUN8I_H3
 	bool "sun8i (Allwinner H3)"
@@ -320,6 +315,7 @@ config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7A
 	select DRAM_SUN9I
+	select SPL_I2C
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL

@@ -30,6 +30,12 @@
 #define AXP_PMIC_MODE_REG		0x3e
 #define AXP_PMIC_MODE_I2C		0x00
 #define AXP_PMIC_MODE_P2WI		0x3e
+#define AXP_PMIC_MODE_RSB		0x7c
+
+#define AXP_PMIC_PRI_DEVICE_ADDR	0x3a3
+#define AXP_PMIC_PRI_RUNTIME_ADDR	0x2d
+#define AXP_PMIC_SEC_DEVICE_ADDR	0x745
+#define AXP_PMIC_SEC_RUNTIME_ADDR	0x3a
 
 int axp_set_dcdc1(unsigned int mvolt);
 int axp_set_dcdc2(unsigned int mvolt);
