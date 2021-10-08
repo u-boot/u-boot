@@ -23,75 +23,63 @@
 
 #define AXP221_CHIP_ADDR		0x68
 
+static int pmic_i2c_address(void)
+{
+	if (IS_ENABLED(CONFIG_AXP152_POWER))
+		return AXP152_I2C_ADDR;
+	if (IS_ENABLED(CONFIG_AXP305_POWER))
+		return AXP305_I2C_ADDR;
+
+	/* Other AXP2xx and AXP8xx variants */
+	return AXP209_I2C_ADDR;
+}
+
 int pmic_bus_init(void)
 {
 	/* This cannot be 0 because it is used in SPL before BSS is ready */
 	static int needs_init = 1;
-	__maybe_unused int ret;
+	int ret = 0;
 
 	if (!needs_init)
 		return 0;
 
-#if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
-# ifdef CONFIG_MACH_SUN6I
-	p2wi_init();
-	ret = p2wi_change_to_p2wi_mode(AXP221_CHIP_ADDR, AXP_PMIC_MODE_REG,
-				       AXP_PMIC_MODE_P2WI);
-# elif defined CONFIG_MACH_SUN8I_R40
-	/* Nothing. R40 uses the AXP221s in I2C mode */
-	ret = 0;
-# else
-	ret = rsb_init();
-	if (ret)
-		return ret;
+	if (IS_ENABLED(CONFIG_SYS_I2C_SUN6I_P2WI)) {
+		p2wi_init();
+		ret = p2wi_change_to_p2wi_mode(AXP221_CHIP_ADDR,
+					       AXP_PMIC_MODE_REG,
+					       AXP_PMIC_MODE_P2WI);
+	} else if (IS_ENABLED(CONFIG_SYS_I2C_SUN8I_RSB)) {
+		ret = rsb_init();
+		if (ret)
+			return ret;
 
-	ret = rsb_set_device_address(AXP_PMIC_PRI_DEVICE_ADDR,
-				     AXP_PMIC_PRI_RUNTIME_ADDR);
-# endif
-	if (ret)
-		return ret;
-#endif
+		ret = rsb_set_device_address(AXP_PMIC_PRI_DEVICE_ADDR,
+					     AXP_PMIC_PRI_RUNTIME_ADDR);
+	}
 
-	needs_init = 0;
-	return 0;
+	needs_init = ret;
+
+	return ret;
 }
 
 int pmic_bus_read(u8 reg, u8 *data)
 {
-#ifdef CONFIG_AXP152_POWER
-	return i2c_read(AXP152_I2C_ADDR, reg, 1, data, 1);
-#elif defined CONFIG_AXP209_POWER
-	return i2c_read(AXP209_I2C_ADDR, reg, 1, data, 1);
-#elif defined CONFIG_AXP305_POWER
-	return i2c_read(AXP305_I2C_ADDR, reg, 1, data, 1);
-#elif defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
-# ifdef CONFIG_MACH_SUN6I
-	return p2wi_read(reg, data);
-# elif defined CONFIG_MACH_SUN8I_R40
-	return i2c_read(AXP209_I2C_ADDR, reg, 1, data, 1);
-# else
-	return rsb_read(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
-# endif
-#endif
+	if (IS_ENABLED(CONFIG_SYS_I2C_SUN6I_P2WI))
+		return p2wi_read(reg, data);
+	if (IS_ENABLED(CONFIG_SYS_I2C_SUN8I_RSB))
+		return rsb_read(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
+
+	return i2c_read(pmic_i2c_address(), reg, 1, data, 1);
 }
 
 int pmic_bus_write(u8 reg, u8 data)
 {
-#ifdef CONFIG_AXP152_POWER
-	return i2c_write(AXP152_I2C_ADDR, reg, 1, &data, 1);
-#elif defined CONFIG_AXP209_POWER
-	return i2c_write(AXP209_I2C_ADDR, reg, 1, &data, 1);
-#elif defined CONFIG_AXP305_POWER
-	return i2c_write(AXP305_I2C_ADDR, reg, 1, &data, 1);
-#elif defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
-# ifdef CONFIG_MACH_SUN6I
-	return p2wi_write(reg, data);
-# elif defined CONFIG_MACH_SUN8I_R40
-	return i2c_write(AXP209_I2C_ADDR, reg, 1, &data, 1);
-# else
-	return rsb_write(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
-# endif
-#endif
+	if (IS_ENABLED(CONFIG_SYS_I2C_SUN6I_P2WI))
+		return p2wi_write(reg, data);
+	if (IS_ENABLED(CONFIG_SYS_I2C_SUN8I_RSB))
+		return rsb_write(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
+
+	return i2c_write(pmic_i2c_address(), reg, 1, &data, 1);
 }
 
 int pmic_bus_setbits(u8 reg, u8 bits)
