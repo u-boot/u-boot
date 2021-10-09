@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2020 Toradex
+ * Copyright 2020-2021 Toradex
  */
 
 #include <common.h>
@@ -10,9 +10,9 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
-#include <micrel.h>
 
 #include "../common/tdx-cfg-block.h"
 
