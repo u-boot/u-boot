@@ -37,11 +37,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
 
 /*
- * I2C
- */
-#define CONFIG_I2C_MV
-
-/*
  * Environment
  */
 #define DEFAULT_ENV_IS_RW		/* required for configuring default fdtfile= */

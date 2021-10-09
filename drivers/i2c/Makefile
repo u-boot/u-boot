@@ -10,7 +10,6 @@ obj-$(CONFIG_$(SPL_)DM_I2C_GPIO) += i2c-gpio.o
 obj-$(CONFIG_$(SPL_)I2C_CROS_EC_TUNNEL) += cros_ec_tunnel.o
 obj-$(CONFIG_$(SPL_)I2C_CROS_EC_LDO) += cros_ec_ldo.o
 
-obj-$(CONFIG_I2C_MV) += mv_i2c.o
 obj-$(CONFIG_$(SPL_)SYS_I2C_LEGACY) += i2c_core.o
 obj-$(CONFIG_SYS_I2C_ASPEED) += ast_i2c.o
 obj-$(CONFIG_SYS_I2C_AT91) += at91_i2c.o
@@ -29,6 +28,7 @@ obj-$(CONFIG_SYS_I2C_IPROC) += iproc_i2c.o
 obj-$(CONFIG_SYS_I2C_KONA) += kona_i2c.o
 obj-$(CONFIG_SYS_I2C_LPC32XX) += lpc32xx_i2c.o
 obj-$(CONFIG_SYS_I2C_MESON) += meson_i2c.o
+obj-$(CONFIG_SYS_I2C_MV) += mv_i2c.o
 obj-$(CONFIG_SYS_I2C_MVTWSI) += mvtwsi.o
 obj-$(CONFIG_SYS_I2C_MXC) += mxc_i2c.o
 obj-$(CONFIG_SYS_I2C_NEXELL) += nx_i2c.o
