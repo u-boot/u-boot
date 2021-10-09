@@ -9,6 +9,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <hang.h>
 #include <i2c.h>
 #include <micrel.h>
 #include <miiphy.h>
@@ -87,17 +88,13 @@ static void select_dt_from_module_version(void)
 
 	switch (get_pcb_revision()) {
 	case PCB_VERSION_1_0:
-		printf("Detected a V1.0 module\n");
-		if (is_wifi)
-			strncpy(&variant[0], "wifi", sizeof(variant));
-		else
-			strncpy(&variant[0], "nonwifi", sizeof(variant));
-		break;
+		printf("Detected a V1.0 module which is no longer supported in this BSP version\n");
+		hang();
 	default:
 		if (is_wifi)
-			strncpy(&variant[0], "wifi-v1.1", sizeof(variant));
+			strlcpy(&variant[0], "wifi", sizeof(variant));
 		else
-			strncpy(&variant[0], "nonwifi-v1.1", sizeof(variant));
+			strlcpy(&variant[0], "nonwifi", sizeof(variant));
 		break;
 	}
 
