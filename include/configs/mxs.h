@@ -121,9 +121,4 @@
 #define CONFIG_SPI_HALF_DUPLEX
 #endif
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI_IS_TDI
-#endif
-
 #endif	/* __CONFIGS_MXS_H__ */

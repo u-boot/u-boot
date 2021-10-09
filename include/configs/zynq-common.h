@@ -55,8 +55,6 @@
 #endif
 
 #ifdef CONFIG_USB_EHCI_ZYNQ
-# define CONFIG_USB_EHCI_IS_TDI
-
 # define DFU_DEFAULT_POLL_TIMEOUT	300
 # define CONFIG_THOR_RESET_OFF
 #endif

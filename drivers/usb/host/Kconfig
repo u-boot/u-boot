@@ -139,6 +139,9 @@ config USB_EHCI_HCD
 
 if USB_EHCI_HCD
 
+config USB_EHCI_IS_TDI
+	bool
+
 config USB_EHCI_ATMEL
 	bool  "Support for Atmel on-chip EHCI USB controller"
 	depends on ARCH_AT91
@@ -150,6 +153,7 @@ config USB_EHCI_MARVELL
 	bool "Support for Marvell on-chip EHCI USB controller"
 	depends on ARCH_MVEBU || ARCH_KIRKWOOD || ARCH_ORION5X
 	default y
+	select USB_EHCI_IS_TDI if !ARM64
 	---help---
 	  Enables support for the on-chip EHCI controller on MVEBU SoCs.
 
@@ -179,6 +183,7 @@ config USB_EHCI_MXS
 	bool "Support for i.MX23 EHCI USB controller"
 	depends on ARCH_MX23
 	default y
+	select USB_EHCI_IS_TDI
 	help
 	  Enables support for the on-chip EHCI controller on i.MX23 SoCs.
 
@@ -258,12 +263,14 @@ config USB_EHCI_PCI
 config USB_EHCI_TEGRA
 	bool "Support for NVIDIA Tegra on-chip EHCI USB controller"
 	depends on ARCH_TEGRA
+	select USB_EHCI_IS_TDI
 	---help---
 	  Enable support for Tegra on-chip EHCI USB controller
 
 config USB_EHCI_ZYNQ
 	bool "Support for Xilinx Zynq on-chip EHCI USB controller"
 	default y if ARCH_ZYNQ
+	select USB_EHCI_IS_TDI
 	---help---
 	  Enable support for Zynq on-chip EHCI USB controller
 

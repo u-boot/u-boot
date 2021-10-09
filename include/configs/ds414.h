@@ -24,9 +24,6 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
-/* USB/EHCI/XHCI configuration */
-#define CONFIG_USB_EHCI_IS_TDI
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

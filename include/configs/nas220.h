@@ -61,13 +61,6 @@
 #endif /* CONFIG_CMD_NET */
 
 /*
- * USB/EHCI
- */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI_IS_TDI
-#endif /* CONFIG_CMD_USB */
-
-/*
  * File system
  */
 #define CONFIG_JFFS2_NAND

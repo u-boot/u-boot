@@ -10,9 +10,6 @@
  * High Level Configuration Options (easy to change)
  */
 
-/* USB/EHCI configuration */
-#define CONFIG_USB_EHCI_IS_TDI
-
 /* Environment in SPI NOR flash */
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */

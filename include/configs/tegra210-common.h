@@ -47,7 +47,6 @@
 	"ramdisk_addr_r=0x83200000\0"
 
 /* For USB EHCI controller */
-#define CONFIG_USB_EHCI_IS_TDI
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
 
 /* GPU needs setup */

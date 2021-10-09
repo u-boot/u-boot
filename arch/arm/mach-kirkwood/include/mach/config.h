@@ -63,13 +63,6 @@
 #endif /* CONFIG_CMD_NET */
 
 /*
- * USB/EHCI
- */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI_IS_TDI
-#endif /* CONFIG_CMD_USB */
-
-/*
  * IDE Support on SATA ports
  */
 #ifdef CONFIG_IDE

@@ -20,6 +20,7 @@ config SOC_AR934X
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
+	select USB_EHCI_IS_TDI if USB_EHCI_HCD
 	help
 	  This supports QCA/Atheros ar934x family SOCs.
 
