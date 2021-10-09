@@ -61,7 +61,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <display_options.h>
 #include <gzip.h>
 #include <image.h>
-#include <lz4.h>
 #include <imximage.h>
 #include <relocate.h>
 #include <linux/lzo.h>
@@ -71,6 +70,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <lzma/LzmaDec.h>
 #include <lzma/LzmaTools.h>
 #include <u-boot/crc.h>
+#include <u-boot/lz4.h>
 
 static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_INVALID,	"invalid",	"Invalid ARCH",	},

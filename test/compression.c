@@ -9,11 +9,11 @@
 #include <gzip.h>
 #include <image.h>
 #include <log.h>
-#include <lz4.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <asm/io.h>
 
+#include <u-boot/lz4.h>
 #include <u-boot/zlib.h>
 #include <bzlib.h>
 
