@@ -15,9 +15,17 @@
 
 	wdt-reboot {
 		compatible = "wdt-reboot";
-		wdt = <&wdog1>;
 		u-boot,dm-spl;
+		wdt = <&wdog1>;
 	};
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic} {
+	u-boot,dm-spl;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic/regulators} {
+	u-boot,dm-spl;
 };
 
 &gpio1 {
@@ -61,14 +69,6 @@
 };
 
 &pinctrl_usdhc2 {
-	u-boot,dm-spl;
-};
-
-&{/soc@0/bus@30800000/i2c@30a20000/pmic} {
-	u-boot,dm-spl;
-};
-
-&{/soc@0/bus@30800000/i2c@30a20000/pmic/regulators} {
 	u-boot,dm-spl;
 };
 
