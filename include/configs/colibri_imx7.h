@@ -200,8 +200,7 @@
 
 #define CONFIG_USBD_HS
 
-#if defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
-#define CONFIG_VIDEO_MXS
+#if defined(CONFIG_DM_VIDEO)
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
