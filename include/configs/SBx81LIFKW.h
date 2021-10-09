@@ -60,11 +60,6 @@
 #undef CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 
 /*
- * Other required minimal configurations
- */
-#define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
-
-/*
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
