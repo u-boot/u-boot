@@ -6,6 +6,13 @@
 #include "imx8mm-u-boot.dtsi"
 
 / {
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
