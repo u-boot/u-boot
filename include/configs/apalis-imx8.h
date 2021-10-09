@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2019 Toradex
+ * Copyright 2019-2021 Toradex
  */
 
 #ifndef __APALIS_IMX8_H
@@ -42,12 +42,12 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
+	"boot_file=Image\0" \
 	"console=ttyLP1 earlycon\0" \
 	"fdt_addr=0x83000000\0"	\
 	"fdt_file=fsl-imx8qm-apalis-eval.dtb\0" \
 	"fdtfile=fsl-imx8qm-apalis-eval.dtb\0" \
 	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
-	"image=Image\0" \
 	"initrd_addr=0x83800000\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
@@ -57,7 +57,7 @@
 	"netargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp" \
 		"\0" \
-	"nfsboot=run netargs; dhcp ${loadaddr} ${image}; tftp ${fdt_addr} " \
+	"nfsboot=run netargs; dhcp ${loadaddr} ${boot_file}; tftp ${fdt_addr} " \
 		"apalis-imx8/${fdt_file}; booti ${loadaddr} - ${fdt_addr}\0" \
 	"panel=NULL\0" \
 	"script=boot.scr\0" \

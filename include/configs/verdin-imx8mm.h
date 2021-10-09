@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2020 Toradex
+ * Copyright 2020-2021 Toradex
  */
 
 #ifndef __VERDIN_IMX8MM_H
@@ -54,16 +54,16 @@
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"bootcmd_mfg=fastboot 0\0" \
+	"boot_file=Image\0" \
 	"console=ttymxc0\0" \
 	"fdt_addr=0x43000000\0" \
-	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	"fdt_board=dev\0" \
 	"initrd_addr=0x43800000\0" \
 	"initrd_high=0xffffffffffffffff\0" \
-	"kernel_image=Image\0" \
 	"netargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp" \
 		"\0" \
-	"nfsboot=run netargs; dhcp ${loadaddr} ${kernel_image}; " \
+	"nfsboot=run netargs; dhcp ${loadaddr} ${boot_file}; " \
 		"tftp ${fdt_addr} verdin/${fdtfile}; " \
 		"booti ${loadaddr} - ${fdt_addr}\0" \
 	"setup=setenv setupargs console=${console},${baudrate} " \
@@ -118,4 +118,4 @@
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
-#endif /*_VERDIN_IMX8MM_H */
+#endif /* __VERDIN_IMX8MM_H */
