@@ -485,44 +485,34 @@ static void handle_reset_button(void)
 	}
 }
 
-static void mox_print_info(void)
+int show_board_info(void)
 {
-	int ret, board_version, ram_size;
-	u64 serial_number;
+	int i, ret, board_version, ram_size, is_sd;
 	const char *pub_key;
+	const u8 *topology;
+	u64 serial_number;
+
+	printf("Model: CZ.NIC Turris Mox Board\n");
 
 	ret = mbox_sp_get_board_info(&serial_number, NULL, NULL, &board_version,
 				     &ram_size);
-	if (ret < 0)
-		return;
-
-	printf("Turris Mox:\n");
-	printf("  Board version: %i\n", board_version);
-	printf("  RAM size: %i MiB\n", ram_size);
-	printf("  Serial Number: %016llX\n", serial_number);
+	if (ret < 0) {
+		printf("  Cannot read board info: %i\n", ret);
+	} else {
+		printf("  Board version: %i\n", board_version);
+		printf("  RAM size: %i MiB\n", ram_size);
+		printf("  Serial Number: %016llX\n", serial_number);
+	}
 
 	pub_key = mox_sp_get_ecdsa_public_key();
 	if (pub_key)
 		printf("  ECDSA Public Key: %s\n", pub_key);
 	else
-		printf("Cannot read ECDSA Public Key\n");
-}
-
-int last_stage_init(void)
-{
-	int ret, i;
-	const u8 *topology;
-	int is_sd;
-	struct mii_dev *bus;
-	struct gpio_desc reset_gpio = {};
-
-	mox_print_info();
+		printf("  Cannot read ECDSA Public Key\n");
 
 	ret = mox_get_topology(&topology, &module_count, &is_sd);
-	if (ret) {
+	if (ret)
 		printf("Cannot read module topology!\n");
-		return 0;
-	}
 
 	printf("  SD/eMMC version: %s\n", is_sd ? "SD" : "eMMC");
 
@@ -554,8 +544,7 @@ int last_stage_init(void)
 		}
 	}
 
-	/* now check if modules are connected in supported mode */
-
+	/* check if modules are connected in supported mode */
 	for (i = 0; i < module_count; ++i) {
 		switch (topology[i]) {
 		case MOX_MODULE_SFP:
@@ -616,8 +605,17 @@ int last_stage_init(void)
 		}
 	}
 
-	/* now configure modules */
+	if (module_count)
+		printf("\n");
 
+	return 0;
+}
+
+int last_stage_init(void)
+{
+	struct gpio_desc reset_gpio = {};
+
+	/* configure modules */
 	if (get_reset_gpio(&reset_gpio) < 0)
 		return 0;
 
@@ -633,16 +631,19 @@ int last_stage_init(void)
 		mdelay(50);
 	}
 
+	/*
+	 * check if the addresses are set by reading Scratch & Misc register
+	 * 0x70 of Peridot (and potentially Topaz) modules
+	 */
 	if (peridot || topaz) {
-		/*
-		 * now check if the addresses are set by reading Scratch & Misc
-		 * register 0x70 of Peridot (and potentially Topaz) modules
-		 */
+		struct mii_dev *bus;
 
 		bus = miiphy_get_dev_by_name("neta@30000");
 		if (!bus) {
 			printf("Cannot get MDIO bus device!\n");
 		} else {
+			int i;
+
 			for (i = 0; i < peridot; ++i)
 				check_switch_address(bus, 0x10 + i);
 
@@ -652,8 +653,6 @@ int last_stage_init(void)
 			sw_blink_leds(bus, peridot, topaz);
 		}
 	}
-
-	printf("\n");
 
 	handle_reset_button();
 
