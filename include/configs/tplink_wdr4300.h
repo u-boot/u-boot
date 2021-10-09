@@ -41,7 +41,7 @@
 /* USB, USB storage, USB ethernet */
 #define CONFIG_EHCI_MMIO_BIG_ENDIAN
 #define CONFIG_EHCI_DESC_BIG_ENDIAN
-#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_EHCI_IS_TDI
 
 /*
  * Diagnostics

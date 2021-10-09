@@ -65,7 +65,7 @@
  */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI_KIRKWOOD	/* on Kirkwood platform	*/
-#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_EHCI_IS_TDI
 #endif /* CONFIG_CMD_USB */
 
 /*

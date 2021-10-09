@@ -46,7 +46,7 @@
 /* Additional FS support/configuration */
 
 /* USB/EHCI configuration */
-#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_EHCI_IS_TDI
 
 /* Environment in SPI NOR flash */
 

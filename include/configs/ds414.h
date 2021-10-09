@@ -25,7 +25,7 @@
 #endif
 
 /* USB/EHCI/XHCI configuration */
-#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_EHCI_IS_TDI
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

@@ -58,7 +58,7 @@
 #define CONFIG_SPL_STACK		0x800ffffc
 
 /* For USB EHCI controller */
-#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_EHCI_IS_TDI
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
 
 #endif /* _TEGRA114_COMMON_H_ */

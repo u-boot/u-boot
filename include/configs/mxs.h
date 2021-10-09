@@ -124,7 +124,7 @@
 /* USB */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI_MXS
-#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_EHCI_IS_TDI
 #endif
 
 #endif	/* __CONFIGS_MXS_H__ */

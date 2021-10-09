@@ -13,7 +13,7 @@
 #define CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
 
 /* USB/EHCI configuration */
-#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_EHCI_IS_TDI
 
 /* Environment in SPI NOR flash */
 
