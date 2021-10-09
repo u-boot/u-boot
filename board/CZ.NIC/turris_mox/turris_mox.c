@@ -617,7 +617,7 @@ int last_stage_init(void)
 
 	/* configure modules */
 	if (get_reset_gpio(&reset_gpio) < 0)
-		return 0;
+		goto handle_reset_btn;
 
 	if (peridot > 0) {
 		if (configure_peridots(&reset_gpio) < 0) {
@@ -654,6 +654,7 @@ int last_stage_init(void)
 		}
 	}
 
+handle_reset_btn:
 	handle_reset_button();
 
 	return 0;
