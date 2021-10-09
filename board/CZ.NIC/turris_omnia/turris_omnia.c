@@ -468,7 +468,7 @@ static struct udevice *get_atsha204a_dev(void)
 	return dev;
 }
 
-int checkboard(void)
+int show_board_info(void)
 {
 	u32 version_num, serial_num;
 	int err = 1;
@@ -496,7 +496,7 @@ int checkboard(void)
 	}
 
 out:
-	printf("Turris Omnia:\n");
+	printf("Model: Turris Omnia\n");
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
 	if (err)
 		printf("  Serial Number: unknown\n");
