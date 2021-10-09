@@ -359,20 +359,22 @@ static int get_reset_gpio(struct gpio_desc *reset_gpio)
 
 int misc_init_r(void)
 {
-	int ret;
-	u8 mac1[6], mac2[6];
+	u8 mac[2][6];
+	int i, ret;
 
-	ret = mbox_sp_get_board_info(NULL, mac1, mac2, NULL, NULL);
+	ret = mbox_sp_get_board_info(NULL, mac[0], mac[1], NULL, NULL);
 	if (ret < 0) {
 		printf("Cannot read data from OTP!\n");
 		return 0;
 	}
 
-	if (is_valid_ethaddr(mac1) && !env_get("ethaddr"))
-		eth_env_set_enetaddr("ethaddr", mac1);
+	for (i = 0; i < 2; ++i) {
+		u8 oldmac[6];
 
-	if (is_valid_ethaddr(mac2) && !env_get("eth1addr"))
-		eth_env_set_enetaddr("eth1addr", mac2);
+		if (is_valid_ethaddr(mac[i]) &&
+		    !eth_env_get_enetaddr_by_index("eth", i, oldmac))
+			eth_env_set_enetaddr_by_index("eth", i, mac[i]);
+	}
 
 	return 0;
 }
