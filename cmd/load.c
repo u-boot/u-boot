@@ -16,6 +16,7 @@
 #include <exports.h>
 #include <flash.h>
 #include <image.h>
+#include <lmb.h>
 #include <mapmem.h>
 #include <net.h>
 #include <s_record.h>
@@ -137,6 +138,7 @@ static int do_load_serial(struct cmd_tbl *cmdtp, int flag, int argc,
 
 static ulong load_serial(long offset)
 {
+	struct lmb lmb;
 	char	record[SREC_MAXRECLEN + 1];	/* buffer for one S-Record	*/
 	char	binbuf[SREC_MAXBINLEN];		/* buffer for binary data	*/
 	int	binlen;				/* no. of data bytes in S-Rec.	*/
@@ -147,6 +149,9 @@ static ulong load_serial(long offset)
 	ulong	start_addr = ~0;
 	ulong	end_addr   =  0;
 	int	line_count =  0;
+	long ret;
+
+	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
 
 	while (read_record(record, SREC_MAXRECLEN + 1) >= 0) {
 		type = srec_decode(record, &binlen, &addr, binbuf);
@@ -172,7 +177,14 @@ static ulong load_serial(long offset)
 		    } else
 #endif
 		    {
+			ret = lmb_reserve(&lmb, store_addr, binlen);
+			if (ret) {
+				printf("\nCannot overwrite reserved area (%08lx..%08lx)\n",
+					store_addr, store_addr + binlen);
+				return ret;
+			}
 			memcpy((char *)(store_addr), binbuf, binlen);
+			lmb_free(&lmb, store_addr, binlen);
 		    }
 		    if ((store_addr) < start_addr)
 			start_addr = store_addr;
