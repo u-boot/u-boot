@@ -118,7 +118,7 @@ config OF_EMBED
 	  Boards in the mainline U-Boot tree should not use it.
 
 config OF_BOARD
-	bool "Provided by the board at runtime"
+	bool "Provided by the board (e.g a previous loader) at runtime"
 	depends on !SANDBOX
 	help
 	  If this option is enabled, the device tree will be provided by
