@@ -1613,8 +1613,6 @@ int fdtdec_setup(void)
 		puts("Failed to read control FDT\n");
 		return -1;
 	}
-# elif defined(CONFIG_OF_PRIOR_STAGE)
-	gd->fdt_blob = (void *)(uintptr_t)prior_stage_fdt_address;
 # endif
 # ifndef CONFIG_SPL_BUILD
 	/* Allow the early environment to override the fdt address */
