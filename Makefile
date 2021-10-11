@@ -299,9 +299,7 @@ KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 # have older compilers as their default, so we make it explicit for
 # these that our host tools are GNU11 (i.e. C11 w/ GNU extensions).
 CSTD_FLAG := -std=gnu11
-ifeq ($(HOSTOS),linux)
 KBUILD_HOSTCFLAGS += $(CSTD_FLAG)
-endif
 
 ifeq ($(HOSTOS),cygwin)
 KBUILD_HOSTCFLAGS	+= -ansi
