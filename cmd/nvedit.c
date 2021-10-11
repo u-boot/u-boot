@@ -708,9 +708,6 @@ char *from_env(const char *envvar)
 
 static const char *env_match(const char *p, const char *s1)
 {
-	if (s1 == NULL || *s1 == '\0')
-		return NULL;
-
 	while (*s1 == *p++)
 		if (*s1++ == '=')
 			return p;
@@ -727,6 +724,9 @@ static const char *env_match(const char *p, const char *s1)
 int env_get_f(const char *name, char *buf, unsigned len)
 {
 	const char *env, *p, *end;
+
+	if (name == NULL || *name == '\0')
+		return -1;
 
 	if (gd->env_valid == ENV_INVALID)
 		env = (const char *)default_environment;
