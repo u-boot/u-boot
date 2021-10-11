@@ -42,20 +42,6 @@ extern void nvram_write(long dest, const void *src, size_t count);
 static env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif
 
-#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
-/** Call this function from overridden env_get_char_spec() if you need
- * this functionality.
- */
-int env_nvram_get_char(int index)
-{
-	uchar c;
-
-	nvram_read(&c, CONFIG_ENV_ADDR + index, 1);
-
-	return c;
-}
-#endif
-
 static int env_nvram_load(void)
 {
 	char buf[CONFIG_ENV_SIZE];
