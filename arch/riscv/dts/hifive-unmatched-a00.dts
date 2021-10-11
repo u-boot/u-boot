@@ -17,6 +17,7 @@
 
 	chosen {
 		stdout-path = "serial0";
+		u-boot,spl-boot-order = "same-as-spl", &qspi0, &spi0;
 	};
 
 	cpus {
