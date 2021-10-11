@@ -91,17 +91,6 @@ int env_init(void);
 void env_relocate(void);
 
 /**
- * env_match() - Match a name / name=value pair
- *
- * This is used prior to relocation for finding envrionment variables
- *
- * @name: A simple 'name', or a 'name=value' pair.
- * @index: The environment index for a 'name2=value2' pair.
- * @return index for the value if the names match, else -1.
- */
-int env_match(unsigned char *name, int index);
-
-/**
  * env_get() - Look up the value of an environment variable
  *
  * In U-Boot proper this can be called before relocation (which is when the

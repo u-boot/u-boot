@@ -706,6 +706,21 @@ char *from_env(const char *envvar)
 	return ret;
 }
 
+static int env_match(uchar *s1, int i2)
+{
+	if (s1 == NULL)
+		return -1;
+
+	while (*s1 == env_get_char(i2++))
+		if (*s1++ == '=')
+			return i2;
+
+	if (*s1 == '\0' && env_get_char(i2-1) == '=')
+		return i2;
+
+	return -1;
+}
+
 /*
  * Look up variable from environment for restricted C runtime env.
  */
@@ -815,21 +830,6 @@ static int do_env_select(struct cmd_tbl *cmdtp, int flag, int argc,
 #endif
 
 #endif /* CONFIG_SPL_BUILD */
-
-int env_match(uchar *s1, int i2)
-{
-	if (s1 == NULL)
-		return -1;
-
-	while (*s1 == env_get_char(i2++))
-		if (*s1++ == '=')
-			return i2;
-
-	if (*s1 == '\0' && env_get_char(i2-1) == '=')
-		return i2;
-
-	return -1;
-}
 
 #ifndef CONFIG_SPL_BUILD
 static int do_env_default(struct cmd_tbl *cmdtp, int flag,
