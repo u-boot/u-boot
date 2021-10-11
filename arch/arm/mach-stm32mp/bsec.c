@@ -503,10 +503,9 @@ static int stm32mp_bsec_probe(struct udevice *dev)
 
 	/*
 	 * update unlocked shadow for OTP cleared by the rom code
-	 * only executed in U-Boot proper when TF-A is not used
+	 * only executed in SPL, it is done in TF-A for TFABOOT
 	 */
-
-	if (!IS_ENABLED(CONFIG_TFABOOT) && !IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
 		plat = dev_get_plat(dev);
 
 		for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)
