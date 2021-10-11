@@ -10,7 +10,7 @@
 #include <linux/sizes.h>
 #include <asm/arch/stm32.h>
 
-#ifndef CONFIG_TFABOOT
+#ifdef CONFIG_ARMV7_PSCI
 /* PSCI support */
 #define CONFIG_ARMV7_SECURE_BASE		STM32_SYSRAM_BASE
 #define CONFIG_ARMV7_SECURE_MAX_SIZE		STM32_SYSRAM_SIZE

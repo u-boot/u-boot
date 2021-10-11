@@ -202,17 +202,16 @@ static int stm32mp1_ddr_probe(struct udevice *dev)
 
 	priv->info.base = STM32_DDR_BASE;
 
-#if !defined(CONFIG_TFABOOT) && \
-	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
-	priv->info.size = 0;
-	ret = stm32mp1_ddr_setup(dev);
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		priv->info.size = 0;
+		ret = stm32mp1_ddr_setup(dev);
 
-	return log_ret(ret);
-#else
+		return log_ret(ret);
+	}
+
 	ofnode node = stm32mp1_ddr_get_ofnode(dev);
 	priv->info.size = ofnode_read_u32_default(node, "st,mem-size", 0);
 	return 0;
-#endif
 }
 
 static int stm32mp1_ddr_get_info(struct udevice *dev, struct ram_info *info)

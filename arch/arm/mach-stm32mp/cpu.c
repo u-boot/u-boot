@@ -93,8 +93,7 @@ u8 early_tlb[PGTABLE_SIZE] __section(".data") __aligned(0x4000);
 
 struct lmb lmb;
 
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
-#ifndef CONFIG_TFABOOT
+#if defined(CONFIG_SPL_BUILD)
 static void security_init(void)
 {
 	/* Disable the backup domain write protection */
@@ -154,7 +153,6 @@ static void security_init(void)
 	writel(BIT(0), RCC_MP_AHB5ENSETR);
 	writel(0x0, GPIOZ_SECCFGR);
 }
-#endif /* CONFIG_TFABOOT */
 
 /*
  * Debug init
@@ -166,7 +164,7 @@ static void dbgmcu_init(void)
 	 * done in TF-A for TRUSTED boot and
 	 * DBGMCU access is controlled by BSEC_DENABLE.DBGSWENABLE
 	*/
-	if (!IS_ENABLED(CONFIG_TFABOOT) && bsec_dbgswenable()) {
+	if (bsec_dbgswenable()) {
 		setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
 		setbits_le32(DBGMCU_APB4FZ1, DBGMCU_APB4FZ1_IWDG2);
 	}
@@ -184,10 +182,7 @@ void spl_board_init(void)
 	if (ret)
 		log_warning("BSEC probe failed: %d\n", ret);
 }
-#endif /* !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD) */
 
-#if !defined(CONFIG_TFABOOT) && \
-	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 /* get bootmode from ROM code boot context: saved in TAMP register */
 static void update_bootmode(void)
 {
@@ -213,7 +208,7 @@ static void update_bootmode(void)
 			TAMP_BOOT_MODE_MASK,
 			boot_mode << TAMP_BOOT_MODE_SHIFT);
 }
-#endif
+#endif /* defined(CONFIG_SPL_BUILD) */
 
 u32 get_bootmode(void)
 {
@@ -291,11 +286,12 @@ int arch_cpu_init(void)
 	/* early armv7 timer init: needed for polling */
 	timer_init();
 
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
-#ifndef CONFIG_TFABOOT
+#if defined(CONFIG_SPL_BUILD)
 	security_init();
 	update_bootmode();
 #endif
+/* reset copro state in SPL, when used, or in U-Boot */
+#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 	/* Reset Coprocessor state unless it wakes up from Standby power mode */
 	if (!(readl(PWR_MCUCR) & PWR_MCUCR_SBF)) {
 		writel(TAMP_COPRO_STATE_OFF, TAMP_COPRO_STATE);
@@ -308,9 +304,7 @@ int arch_cpu_init(void)
 	if (IS_ENABLED(CONFIG_CMD_STM32PROG_SERIAL) &&
 	    (boot_mode & TAMP_BOOT_DEVICE_MASK) == BOOT_SERIAL_UART)
 		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
-#if defined(CONFIG_DEBUG_UART) && \
-	!defined(CONFIG_TFABOOT) && \
-	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
+#if defined(CONFIG_DEBUG_UART) && defined(CONFIG_SPL_BUILD)
 	else
 		debug_uart_init();
 #endif
