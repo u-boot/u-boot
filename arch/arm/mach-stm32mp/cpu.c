@@ -93,7 +93,6 @@ u8 early_tlb[PGTABLE_SIZE] __section(".data") __aligned(0x4000);
 
 struct lmb lmb;
 
-#if defined(CONFIG_SPL_BUILD)
 static void security_init(void)
 {
 	/* Disable the backup domain write protection */
@@ -208,7 +207,6 @@ static void update_bootmode(void)
 			TAMP_BOOT_MODE_MASK,
 			boot_mode << TAMP_BOOT_MODE_SHIFT);
 }
-#endif /* defined(CONFIG_SPL_BUILD) */
 
 u32 get_bootmode(void)
 {
@@ -286,28 +284,26 @@ int arch_cpu_init(void)
 	/* early armv7 timer init: needed for polling */
 	timer_init();
 
-#if defined(CONFIG_SPL_BUILD)
-	security_init();
-	update_bootmode();
-#endif
-/* reset copro state in SPL, when used, or in U-Boot */
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
-	/* Reset Coprocessor state unless it wakes up from Standby power mode */
-	if (!(readl(PWR_MCUCR) & PWR_MCUCR_SBF)) {
-		writel(TAMP_COPRO_STATE_OFF, TAMP_COPRO_STATE);
-		writel(0, TAMP_COPRO_RSC_TBL_ADDRESS);
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		security_init();
+		update_bootmode();
 	}
-#endif
+/* reset copro state in SPL, when used, or in U-Boot */
+	if (!IS_ENABLED(CONFIG_SPL) || IS_ENABLED(CONFIG_SPL_BUILD)) {
+		/* Reset Coprocessor state unless it wakes up from Standby power mode */
+		if (!(readl(PWR_MCUCR) & PWR_MCUCR_SBF)) {
+			writel(TAMP_COPRO_STATE_OFF, TAMP_COPRO_STATE);
+			writel(0, TAMP_COPRO_RSC_TBL_ADDRESS);
+		}
+	}
 
 	boot_mode = get_bootmode();
 
 	if (IS_ENABLED(CONFIG_CMD_STM32PROG_SERIAL) &&
 	    (boot_mode & TAMP_BOOT_DEVICE_MASK) == BOOT_SERIAL_UART)
 		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
-#if defined(CONFIG_DEBUG_UART) && defined(CONFIG_SPL_BUILD)
-	else
+	else if (IS_ENABLED(CONFIG_DEBUG_UART) && IS_ENABLED(CONFIG_SPL_BUILD))
 		debug_uart_init();
-#endif
 
 	return 0;
 }
@@ -461,7 +457,7 @@ void get_soc_name(char name[SOC_NAME_SIZE])
 		 soc_type[type], soc_pkg[pkg], soc_rev[rev]);
 }
 
-#if defined(CONFIG_DISPLAY_CPUINFO)
+/* used when CONFIG_DISPLAY_CPUINFO is activated */
 int print_cpuinfo(void)
 {
 	char name[SOC_NAME_SIZE];
@@ -471,7 +467,6 @@ int print_cpuinfo(void)
 
 	return 0;
 }
-#endif /* CONFIG_DISPLAY_CPUINFO */
 
 static void setup_boot_mode(void)
 {
@@ -601,12 +596,14 @@ static void setup_boot_mode(void)
  */
 __weak int setup_mac_address(void)
 {
-#if defined(CONFIG_NET)
 	int ret;
 	int i;
 	u32 otp[2];
 	uchar enetaddr[6];
 	struct udevice *dev;
+
+	if (!IS_ENABLED(CONFIG_NET))
+		return 0;
 
 	/* MAC already in environment */
 	if (eth_env_get_enetaddr("ethaddr", enetaddr))
@@ -634,7 +631,6 @@ __weak int setup_mac_address(void)
 	ret = eth_env_set_enetaddr("ethaddr", enetaddr);
 	if (ret)
 		log_err("Failed to set mac address %pM from OTP: %d\n", enetaddr, ret);
-#endif
 
 	return 0;
 }
