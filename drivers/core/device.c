@@ -1135,7 +1135,7 @@ int dev_enable_by_path(const char *path)
 	if (ret)
 		return ret;
 
-	return lists_bind_fdt(parent, node, NULL, false);
+	return lists_bind_fdt(parent, node, NULL, NULL, false);
 }
 #endif
 

@@ -136,8 +136,6 @@
 		 AT91_WDT_MR_WDDIS |				\
 		 AT91_WDT_MR_WDD(0xfff))
 
-#define CONFIG_USER_LOWLEVEL_INIT	1
-
 /*
  * Hardware drivers
  */
