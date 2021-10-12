@@ -30,7 +30,6 @@
 #include <env.h>
 #include <env_internal.h>
 #include <log.h>
-#include <net.h>
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>
@@ -38,7 +37,6 @@
 #include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <u-boot/crc.h>
-#include <watchdog.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
 #include <asm/io.h>
@@ -320,69 +318,6 @@ int env_set(const char *varname, const char *varvalue)
 		return _do_env_set(0, 3, (char * const *)argv, H_PROGRAMMATIC);
 }
 
-/**
- * Set an environment variable to an integer value
- *
- * @param varname	Environment variable to set
- * @param value		Value to set it to
- * @return 0 if ok, 1 on error
- */
-int env_set_ulong(const char *varname, ulong value)
-{
-	/* TODO: this should be unsigned */
-	char *str = simple_itoa(value);
-
-	return env_set(varname, str);
-}
-
-/**
- * Set an environment variable to an value in hex
- *
- * @param varname	Environment variable to set
- * @param value		Value to set it to
- * @return 0 if ok, 1 on error
- */
-int env_set_hex(const char *varname, ulong value)
-{
-	char str[17];
-
-	sprintf(str, "%lx", value);
-	return env_set(varname, str);
-}
-
-ulong env_get_hex(const char *varname, ulong default_val)
-{
-	const char *s;
-	ulong value;
-	char *endp;
-
-	s = env_get(varname);
-	if (s)
-		value = hextoul(s, &endp);
-	if (!s || endp == s)
-		return default_val;
-
-	return value;
-}
-
-int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr)
-{
-	string_to_enetaddr(env_get(name), enetaddr);
-	return is_valid_ethaddr(enetaddr);
-}
-
-int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr)
-{
-	char buf[ARP_HLEN_ASCII + 1];
-
-	if (eth_env_get_enetaddr(name, (uint8_t *)buf))
-		return -EEXIST;
-
-	sprintf(buf, "%pM", enetaddr);
-
-	return env_set(name, buf);
-}
-
 #ifndef CONFIG_SPL_BUILD
 static int do_env_set(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
@@ -661,117 +596,7 @@ static int do_env_edit(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 }
 #endif /* CONFIG_CMD_EDITENV */
-#endif /* CONFIG_SPL_BUILD */
 
-/*
- * Look up variable from environment,
- * return address of storage for that variable,
- * or NULL if not found
- */
-char *env_get(const char *name)
-{
-	if (gd->flags & GD_FLG_ENV_READY) { /* after import into hashtable */
-		struct env_entry e, *ep;
-
-		WATCHDOG_RESET();
-
-		e.key	= name;
-		e.data	= NULL;
-		hsearch_r(e, ENV_FIND, &ep, &env_htab, 0);
-
-		return ep ? ep->data : NULL;
-	}
-
-	/* restricted capabilities before import */
-	if (env_get_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) > 0)
-		return (char *)(gd->env_buf);
-
-	return NULL;
-}
-
-/*
- * Like env_get, but prints an error if envvar isn't defined in the
- * environment.  It always returns what env_get does, so it can be used in
- * place of env_get without changing error handling otherwise.
- */
-char *from_env(const char *envvar)
-{
-	char *ret;
-
-	ret = env_get(envvar);
-
-	if (!ret)
-		printf("missing environment variable: %s\n", envvar);
-
-	return ret;
-}
-
-/*
- * Look up variable from environment for restricted C runtime env.
- */
-int env_get_f(const char *name, char *buf, unsigned len)
-{
-	const char *env, *p, *end;
-	size_t name_len;
-
-	if (name == NULL || *name == '\0')
-		return -1;
-
-	name_len = strlen(name);
-
-	if (gd->env_valid == ENV_INVALID)
-		env = (const char *)default_environment;
-	else
-		env = (const char *)gd->env_addr;
-
-	for (p = env; *p != '\0'; p = end + 1) {
-		const char *value;
-		unsigned res;
-
-		for (end = p; *end != '\0'; ++end)
-			if (end - env >= CONFIG_ENV_SIZE)
-				return -1;
-
-		if (strncmp(name, p, name_len) || p[name_len] != '=')
-			continue;
-		value = &p[name_len + 1];
-
-		res = end - value;
-		memcpy(buf, value, min(len, res + 1));
-
-		if (len <= res) {
-			buf[len - 1] = '\0';
-			printf("env_buf [%u bytes] too small for value of \"%s\"\n",
-			       len, name);
-		}
-
-		return res;
-	}
-
-	return -1;
-}
-
-/**
- * Decode the integer value of an environment variable and return it.
- *
- * @param name		Name of environment variable
- * @param base		Number base to use (normally 10, or 16 for hex)
- * @param default_val	Default value to return if the variable is not
- *			found
- * @return the decoded value, or default_val if not found
- */
-ulong env_get_ulong(const char *name, int base, ulong default_val)
-{
-	/*
-	 * We can use env_get() here, even before relocation, since the
-	 * environment variable value is an integer and thus short.
-	 */
-	const char *str = env_get(name);
-
-	return str ? simple_strtoul(str, NULL, base) : default_val;
-}
-
-#ifndef CONFIG_SPL_BUILD
 #if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
 static int do_env_save(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
