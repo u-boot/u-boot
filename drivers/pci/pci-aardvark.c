@@ -581,6 +581,10 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 		if (offset >= 0x10 && offset < 0x34) {
 			data = pcie->cfgcache[(offset - 0x10) / 4];
 			data = pci_conv_size_to_32(data, value, offset, size);
+			/* This PCI bridge does not have configurable bars */
+			if ((offset & ~3) == PCI_BASE_ADDRESS_0 ||
+			    (offset & ~3) == PCI_BASE_ADDRESS_1)
+				data = 0x0;
 			pcie->cfgcache[(offset - 0x10) / 4] = data;
 		} else if ((offset & ~3) == PCI_ROM_ADDRESS1) {
 			data = advk_readl(pcie, PCIE_CORE_EXP_ROM_BAR_REG);
