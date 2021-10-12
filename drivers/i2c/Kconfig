@@ -575,6 +575,22 @@ config SYS_I2C_STM32F7
 	   _ Optional clock stretching
 	   _ Software reset
 
+config SYS_I2C_SUN6I_P2WI
+	bool "Allwinner sun6i P2WI controller"
+	depends on ARCH_SUNXI
+	help
+	  Support for the P2WI (Push/Pull 2 Wire Interface) controller embedded
+	  in the Allwinner A31 and A31s SOCs. This interface is used to connect
+	  to specific devices like the X-Powers AXP221 PMIC.
+
+config SYS_I2C_SUN8I_RSB
+	bool "Allwinner sun8i Reduced Serial Bus controller"
+	depends on ARCH_SUNXI
+	help
+	  Support for Allwinner's Reduced Serial Bus (RSB) controller. This
+	  controller is responsible for communicating with various RSB based
+	  devices, such as X-Powers AXPxxx PMICs and AC100/AC200 CODEC ICs.
+
 config SYS_I2C_SYNQUACER
 	bool "Socionext SynQuacer I2C controller"
 	depends on ARCH_SYNQUACER && DM_I2C

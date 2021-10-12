@@ -8,7 +8,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
-#include <asm/arch/ccu.h>
+#include <clk/sunxi.h>
 #include <dt-bindings/clock/sun8i-a83t-ccu.h>
 #include <dt-bindings/reset/sun8i-a83t-ccu.h>
 #include <linux/bitops.h>
@@ -25,6 +25,9 @@ static struct ccu_clk_gate a83t_gates[] = {
 	[CLK_BUS_EHCI1]		= GATE(0x060, BIT(27)),
 	[CLK_BUS_OHCI0]		= GATE(0x060, BIT(29)),
 
+	[CLK_BUS_I2C0]		= GATE(0x06c, BIT(0)),
+	[CLK_BUS_I2C1]		= GATE(0x06c, BIT(1)),
+	[CLK_BUS_I2C2]		= GATE(0x06c, BIT(2)),
 	[CLK_BUS_UART0]		= GATE(0x06c, BIT(16)),
 	[CLK_BUS_UART1]		= GATE(0x06c, BIT(17)),
 	[CLK_BUS_UART2]		= GATE(0x06c, BIT(18)),
@@ -57,6 +60,9 @@ static struct ccu_reset a83t_resets[] = {
 	[RST_BUS_EHCI1]		= RESET(0x2c0, BIT(27)),
 	[RST_BUS_OHCI0]		= RESET(0x2c0, BIT(29)),
 
+	[RST_BUS_I2C0]		= RESET(0x2d8, BIT(0)),
+	[RST_BUS_I2C1]		= RESET(0x2d8, BIT(1)),
+	[RST_BUS_I2C2]		= RESET(0x2d8, BIT(2)),
 	[RST_BUS_UART0]		= RESET(0x2d8, BIT(16)),
 	[RST_BUS_UART1]		= RESET(0x2d8, BIT(17)),
 	[RST_BUS_UART2]		= RESET(0x2d8, BIT(18)),

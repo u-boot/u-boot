@@ -14,13 +14,10 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
-#include <asm/arch/gpio.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <dm/device-internal.h>
 #include <dt-bindings/gpio/gpio.h>
-
-#define SUNXI_GPIOS_PER_BANK	SUNXI_GPIO_A_NR
 
 struct sunxi_gpio_plat {
 	struct sunxi_gpio *regs;
@@ -117,20 +114,6 @@ int sunxi_name_to_gpio(const char *name)
 	return group * 32 + pin;
 }
 #endif /* DM_GPIO */
-
-int sunxi_name_to_gpio_bank(const char *name)
-{
-	int group = 0;
-
-	if (*name == 'P' || *name == 'p')
-		name++;
-	if (*name >= 'A') {
-		group = *name - (*name > 'a' ? 'a' : 'A');
-		return group;
-	}
-
-	return -1;
-}
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
 /* TODO(sjg@chromium.org): Remove this function and use device tree */

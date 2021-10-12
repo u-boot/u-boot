@@ -160,23 +160,6 @@
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
 #endif
 
-
-/* I2C */
-#if defined(CONFIG_VIDEO_LCD_PANEL_I2C)
-/* We use pin names in Kconfig and sunxi_name_to_gpio() */
-#define CONFIG_SOFT_I2C_GPIO_SDA	soft_i2c_gpio_sda
-#define CONFIG_SOFT_I2C_GPIO_SCL	soft_i2c_gpio_scl
-#ifndef __ASSEMBLY__
-extern int soft_i2c_gpio_sda;
-extern int soft_i2c_gpio_scl;
-#endif
-#define CONFIG_VIDEO_LCD_I2C_BUS	0 /* The lcd panel soft i2c is bus 0 */
-#define CONFIG_SYS_SPD_BUS_NUM		1 /* And the axp209 i2c bus is bus 1 */
-#else
-#define CONFIG_SYS_SPD_BUS_NUM		0 /* The axp209 i2c bus is bus 0 */
-#define CONFIG_VIDEO_LCD_I2C_BUS	-1 /* NA, but necessary to compile */
-#endif
-
 /* Ethernet support */
 
 #ifdef CONFIG_USB_EHCI_HCD
