@@ -647,7 +647,7 @@ static int bootp_extended(u8 *e)
 	*e++ = (576 - 312 + OPT_FIELD_SIZE) & 0xff;
 #endif
 
-	add_vci(e);
+	e = add_vci(e);
 
 #if defined(CONFIG_BOOTP_SUBNETMASK)
 	*e++ = 1;		/* Subnet mask request */
