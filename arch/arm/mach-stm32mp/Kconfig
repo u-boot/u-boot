@@ -37,6 +37,7 @@ config STM32MP15x
 	bool "Support STMicroelectronics STM32MP15x Soc"
 	select ARCH_SUPPORT_PSCI if !TFABOOT
 	select ARM_SMCCC if TFABOOT
+	select BINMAN
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC if !TFABOOT
 	select CPU_V7_HAS_VIRT
