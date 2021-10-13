@@ -478,4 +478,11 @@
 		compatible = "arm,sp805-wdt";
 		reg = <0x0 0xc000000 0x0 0x1000>;
 	};
+
+	soc: soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+	};
 };

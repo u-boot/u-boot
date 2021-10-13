@@ -297,6 +297,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&soc {
+	u-boot,dm-pre-reloc;
+};
+
 &sysclk {
 	u-boot,dm-pre-reloc;
 };
