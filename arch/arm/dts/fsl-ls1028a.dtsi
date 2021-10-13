@@ -344,12 +344,10 @@
 		};
 
 		pcie1: pcie@3400000 {
-			compatible = "fsl,ls-pcie", "fsl,ls1028-pcie", "snps,dw-pcie";
-			reg = <0x00 0x03400000 0x0 0x80000
-			       0x00 0x03480000 0x0 0x40000   /* lut registers */
-			       0x00 0x034c0000 0x0 0x40000   /* pf controls registers */
-			       0x80 0x00000000 0x0 0x20000>; /* configuration space */
-			reg-names = "dbi", "lut", "ctrl", "config";
+			compatible = "fsl,ls1028a-pcie";
+			reg = <0x00 0x03400000 0x0 0x00100000>, /* controller registers */
+			      <0x80 0x00000000 0x0 0x00002000>; /* configuration space */
+			reg-names = "regs", "config";
 			#address-cells = <3>;
 			#size-cells = <2>;
 			device_type = "pci";
@@ -360,12 +358,10 @@
 		};
 
 		pcie2: pcie@3500000 {
-			compatible = "fsl,ls-pcie", "fsl,ls1028-pcie", "snps,dw-pcie";
-			reg = <0x00 0x03500000 0x0 0x80000
-			       0x00 0x03580000 0x0 0x40000   /* lut registers */
-			       0x00 0x035c0000 0x0 0x40000   /* pf controls registers */
-			       0x88 0x00000000 0x0 0x20000>; /* configuration space */
-			reg-names = "dbi", "lut", "ctrl", "config";
+			compatible = "fsl,ls1028a-pcie";
+			reg = <0x00 0x03500000 0x0 0x00100000>, /* controller registers */
+			      <0x88 0x00000000 0x0 0x00002000>; /* configuration space */
+			reg-names = "regs", "config";
 			#address-cells = <3>;
 			#size-cells = <2>;
 			device_type = "pci";
