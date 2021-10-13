@@ -43,105 +43,6 @@
 					  IRQ_TYPE_LEVEL_LOW)>;
 	};
 
-	pcie@1f0000000 {
-		compatible = "pci-host-ecam-generic";
-		/* ECAM bus 0, HW has more space reserved but not populated */
-		bus-range = <0x0 0x0>;
-		reg = <0x01 0xf0000000 0x0 0x100000>;
-		#address-cells = <3>;
-		#size-cells = <2>;
-		device_type = "pci";
-		ranges= <0x82000000 0x0 0x00000000 0x1 0xf8000000 0x0 0x160000>;
-		enetc0: pci@0,0 {
-			reg = <0x000000 0 0 0 0>;
-			status = "disabled";
-		};
-		enetc1: pci@0,1 {
-			reg = <0x000100 0 0 0 0>;
-			status = "disabled";
-		};
-		enetc2: pci@0,2 {
-			reg = <0x000200 0 0 0 0>;
-			status = "disabled";
-			phy-mode = "internal";
-
-			fixed-link {
-				speed = <2500>;
-				full-duplex;
-			};
-		};
-		mdio0: pci@0,3 {
-			#address-cells=<0>;
-			#size-cells=<1>;
-			reg = <0x000300 0 0 0 0>;
-			status = "disabled";
-
-			fixed-link {
-				speed = <1000>;
-				full-duplex;
-			};
-		};
-
-		mscc_felix: pci@0,5 {
-			reg = <0x000500 0 0 0 0>;
-			status = "disabled";
-
-			ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
-
-				mscc_felix_port0: port@0 {
-					reg = <0>;
-					status = "disabled";
-				};
-
-				mscc_felix_port1: port@1 {
-					reg = <1>;
-					status = "disabled";
-				};
-
-				mscc_felix_port2: port@2 {
-					reg = <2>;
-					status = "disabled";
-				};
-
-				mscc_felix_port3: port@3 {
-					reg = <3>;
-					status = "disabled";
-				};
-
-				mscc_felix_port4: port@4 {
-					reg = <4>;
-					phy-mode = "internal";
-					status = "disabled";
-
-					fixed-link {
-						speed = <2500>;
-						full-duplex;
-					};
-				};
-
-				mscc_felix_port5: port@5 {
-					reg = <5>;
-					phy-mode = "internal";
-					status = "disabled";
-
-					fixed-link {
-						speed = <1000>;
-						full-duplex;
-					};
-
-				};
-			};
-		};
-
-		enetc6: pci@0,6 {
-			reg = <0x000600 0 0 0 0>;
-			status = "disabled";
-			phy-mode = "internal";
-		};
-	};
-
 	soc: soc {
 		compatible = "simple-bus";
 		#address-cells = <2>;
@@ -483,6 +384,109 @@
 		cluster1_core0_watchdog: wdt@c000000 {
 			compatible = "arm,sp805-wdt";
 			reg = <0x0 0xc000000 0x0 0x1000>;
+		};
+
+		pcie@1f0000000 {
+			compatible = "pci-host-ecam-generic";
+			/* ECAM bus 0, HW has more space reserved but not populated */
+			bus-range = <0x0 0x0>;
+			reg = <0x01 0xf0000000 0x0 0x100000>;
+			#address-cells = <3>;
+			#size-cells = <2>;
+			device_type = "pci";
+			ranges = <0x82000000 0x0 0x00000000 0x1 0xf8000000 0x0 0x160000>;
+
+			enetc0: pci@0,0 {
+				reg = <0x000000 0 0 0 0>;
+				status = "disabled";
+			};
+
+			enetc1: pci@0,1 {
+				reg = <0x000100 0 0 0 0>;
+				status = "disabled";
+			};
+
+			enetc2: pci@0,2 {
+				reg = <0x000200 0 0 0 0>;
+				status = "disabled";
+				phy-mode = "internal";
+
+				fixed-link {
+					speed = <2500>;
+					full-duplex;
+				};
+			};
+
+			mdio0: pci@0,3 {
+				#address-cells=<0>;
+				#size-cells=<1>;
+				reg = <0x000300 0 0 0 0>;
+				status = "disabled";
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+
+			mscc_felix: pci@0,5 {
+				reg = <0x000500 0 0 0 0>;
+				status = "disabled";
+
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					mscc_felix_port0: port@0 {
+						reg = <0>;
+						status = "disabled";
+					};
+
+					mscc_felix_port1: port@1 {
+						reg = <1>;
+						status = "disabled";
+					};
+
+					mscc_felix_port2: port@2 {
+						reg = <2>;
+						status = "disabled";
+					};
+
+					mscc_felix_port3: port@3 {
+						reg = <3>;
+						status = "disabled";
+					};
+
+					mscc_felix_port4: port@4 {
+						reg = <4>;
+						phy-mode = "internal";
+						status = "disabled";
+
+						fixed-link {
+							speed = <2500>;
+							full-duplex;
+						};
+					};
+
+					mscc_felix_port5: port@5 {
+						reg = <5>;
+						phy-mode = "internal";
+						status = "disabled";
+
+						fixed-link {
+							speed = <1000>;
+							full-duplex;
+						};
+
+					};
+				};
+			};
+
+			enetc6: pci@0,6 {
+				reg = <0x000600 0 0 0 0>;
+				status = "disabled";
+				phy-mode = "internal";
+			};
 		};
 	};
 };
