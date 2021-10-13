@@ -212,7 +212,7 @@ static int sata_ceva_of_to_plat(struct udevice *dev)
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	ret = dev_read_resource_byname(dev, "ecc-addr", &res_regs);
+	ret = dev_read_resource_byname(dev, "sata-ecc", &res_regs);
 	if (ret)
 		priv->ecc_base = 0;
 	else
