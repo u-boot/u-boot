@@ -61,7 +61,6 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
 
 	 i2c-mux@77 {
 
