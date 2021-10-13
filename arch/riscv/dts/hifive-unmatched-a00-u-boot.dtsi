@@ -15,7 +15,7 @@
 	memory@80000000 {
 		u-boot,dm-spl;
 	};
-	
+
 	config {
 		u-boot,spl-payload-offset = <0x104400>; /* second partition @2082*512 = 0x104400 */
 	};
