@@ -10,9 +10,10 @@
 
 /*
  * NAND requires 8K padding. SD/eMMC gets away with 512 bytes,
- * but let's use the larger padding to cover both.
+ * but let's use the larger padding by default to cover both.
  */
 #define PAD_SIZE			8192
+#define PAD_SIZE_MIN			512
 
 static int egon_check_params(struct image_tool_params *params)
 {
@@ -114,10 +115,12 @@ static int egon_check_image_type(uint8_t type)
 static int egon_vrec_header(struct image_tool_params *params,
 			    struct image_type_params *tparams)
 {
+	int pad_size = ALIGN(params->bl_len ?: PAD_SIZE, PAD_SIZE_MIN);
+
 	tparams->hdr = calloc(sizeof(struct boot_file_head), 1);
 
-	/* Return padding to 8K blocks. */
-	return ALIGN(params->file_size, PAD_SIZE) - params->file_size;
+	/* Return padding to complete blocks. */
+	return ALIGN(params->file_size, pad_size) - params->file_size;
 }
 
 U_BOOT_IMAGE_TYPE(
