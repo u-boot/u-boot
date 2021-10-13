@@ -21,13 +21,6 @@
 		clock-output-names = "sysclk";
 	};
 
-	clockgen: clocking@1300000 {
-		compatible = "fsl,ls1028a-clockgen";
-		reg = <0x0 0x1300000 0x0 0xa0000>;
-		#clock-cells = <2>;
-		clocks = <&sysclk>;
-	};
-
 	gic: interrupt-controller@6000000 {
 		compatible = "arm,gic-v3";
 		reg = <0x0 0x06000000 0 0x10000>, /* GIC Dist */
@@ -484,5 +477,12 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+
+		clockgen: clocking@1300000 {
+			compatible = "fsl,ls1028a-clockgen";
+			reg = <0x0 0x1300000 0x0 0xa0000>;
+			#clock-cells = <2>;
+			clocks = <&sysclk>;
+		};
 	};
 };
