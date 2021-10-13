@@ -183,6 +183,7 @@ static void ft_carveout_setup(void *fdt)
 	static const char * const nodes[] = {
 		"/host1x@50000000/dc@54200000",
 		"/host1x@50000000/dc@54240000",
+		"/external-memory-controller@7001b000",
 	};
 	unsigned int i;
 	int err;
