@@ -4,12 +4,9 @@
 
 / {
 	aliases {
-		mmc0 = &esdhc1;
-		mmc1 = &esdhc;
 		i2c0 = &i2c0;
 		i2c1 = &i2c3;
 		i2c2 = &i2c4;
-		rtc0 = &rtc;
 		ethernet2 = &enetc_port2;
 		ethernet3 = &enetc_port3;
 	};
@@ -265,11 +262,6 @@
 };
 #endif
 
-&i2c0 {
-	rtc: rtc@32 {
-	};
-};
-
 &fspi {
 	u-boot,dm-pre-reloc;
 	flash@0 {
@@ -307,6 +299,10 @@
 };
 
 &pcie2 {
+	status = "okay";
+};
+
+&sata {
 	status = "okay";
 };
 

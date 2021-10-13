@@ -7,3 +7,11 @@
 		ethernet1 = &mscc_felix_port1;
 	};
 };
+
+&mscc_felix_port0 {
+	label = "gbe0";
+};
+
+&mscc_felix_port1 {
+	label = "gbe1";
+};
