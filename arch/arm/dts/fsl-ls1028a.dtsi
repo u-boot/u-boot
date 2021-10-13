@@ -266,64 +266,6 @@
 		status = "disabled";
 	};
 
-	dspi0: dspi@2100000 {
-		compatible = "fsl,vf610-dspi";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0x0 0x2100000 0x0 0x10000>;
-		interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
-		clock-names = "dspi";
-		clocks = <&clockgen 4 0>;
-		num-cs = <5>;
-		litte-endian;
-		status = "disabled";
-	};
-
-	dspi1: dspi@2110000 {
-		compatible = "fsl,vf610-dspi";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0x0 0x2110000 0x0 0x10000>;
-		interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
-		clock-names = "dspi";
-		clocks = <&clockgen 4 0>;
-		num-cs = <5>;
-		little-endian;
-		status = "disabled";
-	};
-
-	dspi2: dspi@2120000 {
-		compatible = "fsl,vf610-dspi";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0x0 0x2120000 0x0 0x10000>;
-		interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
-		clock-names = "dspi";
-		clocks = <&clockgen 4 0>;
-		num-cs = <5>;
-		little-endian;
-		status = "disabled";
-	};
-
-	esdhc0: esdhc@2140000 {
-		compatible = "fsl,esdhc";
-		reg = <0x0 0x2140000 0x0 0x10000>;
-		interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
-		big-endian;
-		bus-width = <4>;
-		status = "disabled";
-	};
-
-	esdhc1: esdhc@2150000 {
-		compatible = "fsl,esdhc";
-		reg = <0x0 0x2150000 0x0 0x10000>;
-		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
-		big-endian;
-		non-removable;
-		bus-width = <4>;
-		status = "disabled";
-	};
-
 	gpio0: gpio@2300000 {
 		compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
 		reg = <0x0 0x2300000 0x0 0x10000>;
@@ -482,6 +424,64 @@
 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
 			clock-names = "fspi_en", "fspi";
 			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+			status = "disabled";
+		};
+
+		dspi0: dspi@2100000 {
+			compatible = "fsl,vf610-dspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0 0x2100000 0x0 0x10000>;
+			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+			clock-names = "dspi";
+			clocks = <&clockgen 4 0>;
+			num-cs = <5>;
+			litte-endian;
+			status = "disabled";
+		};
+
+		dspi1: dspi@2110000 {
+			compatible = "fsl,vf610-dspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0 0x2110000 0x0 0x10000>;
+			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+			clock-names = "dspi";
+			clocks = <&clockgen 4 0>;
+			num-cs = <5>;
+			little-endian;
+			status = "disabled";
+		};
+
+		dspi2: dspi@2120000 {
+			compatible = "fsl,vf610-dspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0 0x2120000 0x0 0x10000>;
+			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+			clock-names = "dspi";
+			clocks = <&clockgen 4 0>;
+			num-cs = <5>;
+			little-endian;
+			status = "disabled";
+		};
+
+		esdhc0: esdhc@2140000 {
+			compatible = "fsl,esdhc";
+			reg = <0x0 0x2140000 0x0 0x10000>;
+			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+			big-endian;
+			bus-width = <4>;
+			status = "disabled";
+		};
+
+		esdhc1: esdhc@2150000 {
+			compatible = "fsl,esdhc";
+			reg = <0x0 0x2150000 0x0 0x10000>;
+			interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
+			big-endian;
+			non-removable;
+			bus-width = <4>;
 			status = "disabled";
 		};
 	};
