@@ -165,7 +165,7 @@
 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "dspi";
 			clocks = <&clockgen 4 0>;
-			num-cs = <5>;
+			spi-num-chipselects = <5>;
 			litte-endian;
 			status = "disabled";
 		};
@@ -178,7 +178,7 @@
 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "dspi";
 			clocks = <&clockgen 4 0>;
-			num-cs = <5>;
+			spi-num-chipselects = <5>;
 			little-endian;
 			status = "disabled";
 		};
@@ -191,7 +191,7 @@
 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "dspi";
 			clocks = <&clockgen 4 0>;
-			num-cs = <5>;
+			spi-num-chipselects = <5>;
 			little-endian;
 			status = "disabled";
 		};

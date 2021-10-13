@@ -586,8 +586,9 @@ static int fsl_dspi_of_to_plat(struct udevice *bus)
 	if (fdtdec_get_bool(blob, node, "big-endian"))
 		plat->flags |= DSPI_FLAG_REGMAP_ENDIAN_BIG;
 
-	plat->num_chipselect =
-		fdtdec_get_int(blob, node, "num-cs", FSL_DSPI_MAX_CHIPSELECT);
+	plat->num_chipselect = fdtdec_get_int(blob, node,
+					      "spi-num-chipselects",
+					      FSL_DSPI_MAX_CHIPSELECT);
 
 	addr = dev_read_addr(bus);
 	if (addr == FDT_ADDR_T_NONE) {
