@@ -190,39 +190,6 @@
 		status = "disabled";
 	};
 
-	gpio0: gpio@2300000 {
-		compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
-		reg = <0x0 0x2300000 0x0 0x10000>;
-		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
-		gpio-controller;
-		#gpio-cells = <2>;
-		interrupt-controller;
-		#interrupt-cells = <2>;
-		little-endian;
-	};
-
-	gpio1: gpio@2310000 {
-		compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
-		reg = <0x0 0x2310000 0x0 0x10000>;
-		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
-		gpio-controller;
-		#gpio-cells = <2>;
-		interrupt-controller;
-		#interrupt-cells = <2>;
-		little-endian;
-	};
-
-	gpio2: gpio@2320000 {
-		compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
-		reg = <0x0 0x2320000 0x0 0x10000>;
-		interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
-		gpio-controller;
-		#gpio-cells = <2>;
-		interrupt-controller;
-		#interrupt-cells = <2>;
-		little-endian;
-	};
-
 	sata: sata@3200000 {
 		compatible = "fsl,ls1028a-ahci";
 		reg = <0x0 0x3200000 0x0 0x10000	/* ccsr sata base */
@@ -483,6 +450,39 @@
 			clock-names = "ipg";
 			little-endian;
 			status = "disabled";
+		};
+
+		gpio0: gpio@2300000 {
+			compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
+			reg = <0x0 0x2300000 0x0 0x10000>;
+			interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			little-endian;
+		};
+
+		gpio1: gpio@2310000 {
+			compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
+			reg = <0x0 0x2310000 0x0 0x10000>;
+			interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			little-endian;
+		};
+
+		gpio2: gpio@2320000 {
+			compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
+			reg = <0x0 0x2320000 0x0 0x10000>;
+			interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			little-endian;
 		};
 	};
 };
