@@ -553,6 +553,8 @@ static const struct dm_serial_ops lpuart_serial_ops = {
 static const struct udevice_id lpuart_serial_ids[] = {
 	{ .compatible = "fsl,ls1021a-lpuart", .data =
 		LPUART_FLAG_REGMAP_32BIT_REG | LPUART_FLAG_REGMAP_ENDIAN_BIG },
+	{ .compatible = "fsl,ls1028a-lpuart",
+		.data = LPUART_FLAG_REGMAP_32BIT_REG },
 	{ .compatible = "fsl,imx7ulp-lpuart",
 		.data = LPUART_FLAG_REGMAP_32BIT_REG },
 	{ .compatible = "fsl,vf610-lpuart"},
