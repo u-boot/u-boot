@@ -174,31 +174,6 @@
 		};
 	};
 
-	usb1: usb3@3100000 {
-		compatible = "fsl,layerscape-dwc3";
-		reg = <0x0 0x3100000 0x0 0x10000>;
-		interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
-		dr_mode = "host";
-		status = "disabled";
-	};
-
-	usb2: usb3@3110000 {
-		compatible = "fsl,layerscape-dwc3";
-		reg = <0x0 0x3110000 0x0 0x10000>;
-		interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
-		dr_mode = "host";
-		status = "disabled";
-	};
-
-	sata: sata@3200000 {
-		compatible = "fsl,ls1028a-ahci";
-		reg = <0x0 0x3200000 0x0 0x10000	/* ccsr sata base */
-		       0x7 0x100520  0x0 0x4>;		/* ecc sata addr*/
-		reg-names = "sata-base", "ecc-addr";
-		interrupts = <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-	};
-
 	cluster1_core0_watchdog: wdt@c000000 {
 		compatible = "arm,sp805-wdt";
 		reg = <0x0 0xc000000 0x0 0x1000>;
@@ -483,6 +458,31 @@
 			interrupt-controller;
 			#interrupt-cells = <2>;
 			little-endian;
+		};
+
+		usb1: usb3@3100000 {
+			compatible = "fsl,layerscape-dwc3";
+			reg = <0x0 0x3100000 0x0 0x10000>;
+			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+			dr_mode = "host";
+			status = "disabled";
+		};
+
+		usb2: usb3@3110000 {
+			compatible = "fsl,layerscape-dwc3";
+			reg = <0x0 0x3110000 0x0 0x10000>;
+			interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
+			dr_mode = "host";
+			status = "disabled";
+		};
+
+		sata: sata@3200000 {
+			compatible = "fsl,ls1028a-ahci";
+			reg = <0x0 0x3200000 0x0 0x10000	/* ccsr sata base */
+			       0x7 0x100520  0x0 0x4>;		/* ecc sata addr*/
+			reg-names = "sata-base", "ecc-addr";
+			interrupts = <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>;
+			status = "disabled";
 		};
 	};
 };
