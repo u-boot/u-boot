@@ -14,8 +14,8 @@
 	compatible = "kontron,sl28", "fsl,ls1028a";
 
 	aliases {
-		serial0 = &serial0;
-		serial1 = &serial1;
+		serial0 = &duart0;
+		serial1 = &duart1;
 		serial2 = &lpuart1;
 		spi0 = &fspi;
 		spi1 = &dspi2;
@@ -30,21 +30,21 @@
 	status = "okay";
 };
 
-&enetc0 {
+&enetc_port0 {
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii";
 	status = "okay";
 };
 
-&enetc2 {
+&enetc_port2 {
 	status = "disabled";
 };
 
-&enetc6 {
+&enetc_port3 {
 	status = "disabled";
 };
 
-&esdhc0 {
+&esdhc {
 	sd-uhs-sdr104;
 	sd-uhs-sdr50;
 	sd-uhs-sdr25;
@@ -108,7 +108,7 @@
 	status = "okay";
 };
 
-&mdio0 {
+&enetc_mdio_pf3 {
 	status = "okay";
 	phy0: ethernet-phy@5 {
 		reg = <0x5>;
@@ -121,18 +121,18 @@
 	status = "okay";
 };
 
-&serial0 {
+&duart0 {
 	status = "okay";
 };
 
-&serial1 {
+&duart1 {
+	status = "okay";
+};
+
+&usb0 {
 	status = "okay";
 };
 
 &usb1 {
-	status = "okay";
-};
-
-&usb2 {
 	status = "okay";
 };

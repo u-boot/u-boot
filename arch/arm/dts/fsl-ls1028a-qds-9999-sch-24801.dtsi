@@ -19,7 +19,7 @@
 	#include "fsl-sch-24801.dtsi"
 };
 
-&enetc2 {
+&enetc_port2 {
 	status = "okay";
 };
 
@@ -52,6 +52,6 @@
 };
 
 &mscc_felix_port4 {
-	ethernet = <&enetc2>;
+	ethernet = <&enetc_port2>;
 	status = "okay";
 };

@@ -196,7 +196,7 @@
 			status = "disabled";
 		};
 
-		esdhc0: esdhc@2140000 {
+		esdhc: esdhc@2140000 {
 			compatible = "fsl,esdhc";
 			reg = <0x0 0x2140000 0x0 0x10000>;
 			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
@@ -215,7 +215,7 @@
 			status = "disabled";
 		};
 
-		serial0: serial@21c0500 {
+		duart0: serial@21c0500 {
 			device_type = "serial";
 			compatible = "fsl,ns16550", "ns16550a";
 			reg = <0x0 0x21c0500 0x0 0x100>;
@@ -223,7 +223,7 @@
 			status = "disabled";
 		};
 
-		serial1: serial@21c0600 {
+		duart1: serial@21c0600 {
 			device_type = "serial";
 			compatible = "fsl,ns16550", "ns16550a";
 			reg = <0x0 0x21c0600 0x0 0x100>;
@@ -291,7 +291,7 @@
 			status = "disabled";
 		};
 
-		gpio0: gpio@2300000 {
+		gpio1: gpio@2300000 {
 			compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
 			reg = <0x0 0x2300000 0x0 0x10000>;
 			interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
@@ -302,7 +302,7 @@
 			little-endian;
 		};
 
-		gpio1: gpio@2310000 {
+		gpio2: gpio@2310000 {
 			compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
 			reg = <0x0 0x2310000 0x0 0x10000>;
 			interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
@@ -313,7 +313,7 @@
 			little-endian;
 		};
 
-		gpio2: gpio@2320000 {
+		gpio3: gpio@2320000 {
 			compatible = "fsl,ls1028a-gpio","fsl,qoriq-gpio";
 			reg = <0x0 0x2320000 0x0 0x10000>;
 			interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
@@ -324,7 +324,7 @@
 			little-endian;
 		};
 
-		usb1: usb3@3100000 {
+		usb0: usb3@3100000 {
 			compatible = "fsl,layerscape-dwc3";
 			reg = <0x0 0x3100000 0x0 0x10000>;
 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
@@ -332,7 +332,7 @@
 			status = "disabled";
 		};
 
-		usb2: usb3@3110000 {
+		usb1: usb3@3110000 {
 			compatible = "fsl,layerscape-dwc3";
 			reg = <0x0 0x3110000 0x0 0x10000>;
 			interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
@@ -396,17 +396,17 @@
 			device_type = "pci";
 			ranges = <0x82000000 0x0 0x00000000 0x1 0xf8000000 0x0 0x160000>;
 
-			enetc0: pci@0,0 {
+			enetc_port0: pci@0,0 {
 				reg = <0x000000 0 0 0 0>;
 				status = "disabled";
 			};
 
-			enetc1: pci@0,1 {
+			enetc_port1: pci@0,1 {
 				reg = <0x000100 0 0 0 0>;
 				status = "disabled";
 			};
 
-			enetc2: pci@0,2 {
+			enetc_port2: pci@0,2 {
 				reg = <0x000200 0 0 0 0>;
 				status = "disabled";
 				phy-mode = "internal";
@@ -417,7 +417,7 @@
 				};
 			};
 
-			mdio0: pci@0,3 {
+			enetc_mdio_pf3: pci@0,3 {
 				#address-cells=<0>;
 				#size-cells=<1>;
 				reg = <0x000300 0 0 0 0>;
@@ -482,7 +482,7 @@
 				};
 			};
 
-			enetc6: pci@0,6 {
+			enetc_port3: pci@0,6 {
 				reg = <0x000600 0 0 0 0>;
 				status = "disabled";
 				phy-mode = "internal";

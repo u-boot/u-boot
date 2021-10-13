@@ -15,8 +15,8 @@
 	compatible = "fsl,ls1028a-rdb", "fsl,ls1028a";
 	aliases {
 		spi0 = &fspi;
-		ethernet0 = &enetc0;
-		ethernet1 = &enetc2;
+		ethernet0 = &enetc_port0;
+		ethernet1 = &enetc_port2;
 		ethernet2 = &mscc_felix_port0;
 		ethernet3 = &mscc_felix_port1;
 		ethernet4 = &mscc_felix_port2;
@@ -36,7 +36,7 @@
 	status = "okay";
 };
 
-&esdhc0 {
+&esdhc {
 	status = "okay";
 };
 
@@ -114,11 +114,15 @@
 	status = "okay";
 };
 
-&serial0 {
+&duart0 {
 	status = "okay";
 };
 
-&serial1 {
+&duart1 {
+	status = "okay";
+};
+
+&usb0 {
 	status = "okay";
 };
 
@@ -126,17 +130,13 @@
 	status = "okay";
 };
 
-&usb2 {
-	status = "okay";
-};
-
-&enetc0 {
+&enetc_port0 {
 	status = "okay";
 	phy-mode = "sgmii";
 	phy-handle = <&rdb_phy0>;
 };
 
-&enetc2 {
+&enetc_port2 {
 	status = "okay";
 };
 
@@ -173,11 +173,11 @@
 };
 
 &mscc_felix_port4 {
-	ethernet = <&enetc2>;
+	ethernet = <&enetc_port2>;
 	status = "okay";
 };
 
-&mdio0 {
+&enetc_mdio_pf3 {
 	status = "okay";
 	rdb_phy0: phy@2 {
 		reg = <2>;

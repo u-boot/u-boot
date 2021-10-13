@@ -3,6 +3,6 @@
 
 / {
 	aliases {
-		ethernet0 = &enetc0;
+		ethernet0 = &enetc_port0;
 	};
 };

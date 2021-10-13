@@ -21,19 +21,19 @@
 	compatible = "kontron,sl28-var1", "kontron,sl28", "fsl,ls1028a";
 };
 
-&enetc0 {
+&enetc_port0 {
 	status = "disabled";
 	/delete-property/ phy-handle;
 };
 
-&enetc1 {
+&enetc_port1 {
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
 	status = "okay";
 };
 
 /delete-node/ &phy0;
-&mdio0 {
+&enetc_mdio_pf3 {
 	phy0: ethernet-phy@4 {
 		reg = <0x4>;
 		eee-broken-1000t;

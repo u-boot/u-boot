@@ -17,12 +17,12 @@
 	compatible = "kontron,sl28-var2", "kontron,sl28", "fsl,ls1028a";
 };
 
-&enetc0 {
+&enetc_port0 {
 	status = "disabled";
 	/delete-property/ phy-handle;
 };
 
-&enetc2 {
+&enetc_port2 {
 	status = "okay";
 };
 
@@ -45,12 +45,12 @@
 };
 
 &mscc_felix_port4 {
-	ethernet = <&enetc2>;
+	ethernet = <&enetc_port2>;
 	status = "okay";
 };
 
 /delete-node/ &phy0;
-&mdio0 {
+&enetc_mdio_pf3 {
 	phy0: ethernet-phy@5 {
 		reg = <0x5>;
 		eee-broken-1000t;

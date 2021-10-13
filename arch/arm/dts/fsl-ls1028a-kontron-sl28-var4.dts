@@ -18,13 +18,13 @@
 	compatible = "kontron,sl28-var4", "kontron,sl28", "fsl,ls1028a";
 };
 
-&enetc1 {
+&enetc_port1 {
 	phy-handle = <&phy1>;
 	phy-mode = "rgmii-id";
 	status = "okay";
 };
 
-&mdio0 {
+&enetc_mdio_pf3 {
 	phy1: ethernet-phy@4 {
 		reg = <0x4>;
 		eee-broken-1000t;
