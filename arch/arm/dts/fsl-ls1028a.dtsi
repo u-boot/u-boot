@@ -43,38 +43,6 @@
 					  IRQ_TYPE_LEVEL_LOW)>;
 	};
 
-	pcie1: pcie@3400000 {
-	       compatible = "fsl,ls-pcie", "fsl,ls1028-pcie", "snps,dw-pcie";
-	       reg = <0x00 0x03400000 0x0 0x80000
-		       0x00 0x03480000 0x0 0x40000   /* lut registers */
-		       0x00 0x034c0000 0x0 0x40000  /* pf controls registers */
-		       0x80 0x00000000 0x0 0x20000>; /* configuration space */
-	       reg-names = "dbi", "lut", "ctrl", "config";
-	       #address-cells = <3>;
-	       #size-cells = <2>;
-	       device_type = "pci";
-	       num-lanes = <4>;
-	       bus-range = <0x0 0xff>;
-	       ranges = <0x81000000 0x0 0x00000000 0x80 0x00020000 0x0 0x00010000   /* downstream I/O */
-		       0x82000000 0x0 0x40000000 0x80 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
-	};
-
-	pcie2: pcie@3500000 {
-	       compatible = "fsl,ls-pcie", "fsl,ls1028-pcie", "snps,dw-pcie";
-	       reg = <0x00 0x03500000 0x0 0x80000
-		       0x00 0x03580000 0x0 0x40000   /* lut registers */
-		       0x00 0x035c0000 0x0 0x40000  /* pf controls registers */
-		       0x88 0x00000000 0x0 0x20000>; /* configuration space */
-	       reg-names = "dbi", "lut", "ctrl", "config";
-	       #address-cells = <3>;
-	       #size-cells = <2>;
-	       device_type = "pci";
-	       num-lanes = <4>;
-	       bus-range = <0x0 0xff>;
-	       ranges = <0x81000000 0x0 0x00000000 0x88 0x00020000 0x0 0x00010000   /* downstream I/O */
-		       0x82000000 0x0 0x40000000 0x88 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
-	};
-
 	pcie@1f0000000 {
 		compatible = "pci-host-ecam-generic";
 		/* ECAM bus 0, HW has more space reserved but not populated */
@@ -483,6 +451,38 @@
 			reg-names = "sata-base", "ecc-addr";
 			interrupts = <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>;
 			status = "disabled";
+		};
+
+		pcie1: pcie@3400000 {
+			compatible = "fsl,ls-pcie", "fsl,ls1028-pcie", "snps,dw-pcie";
+			reg = <0x00 0x03400000 0x0 0x80000
+			       0x00 0x03480000 0x0 0x40000   /* lut registers */
+			       0x00 0x034c0000 0x0 0x40000   /* pf controls registers */
+			       0x80 0x00000000 0x0 0x20000>; /* configuration space */
+			reg-names = "dbi", "lut", "ctrl", "config";
+			#address-cells = <3>;
+			#size-cells = <2>;
+			device_type = "pci";
+			num-lanes = <4>;
+			bus-range = <0x0 0xff>;
+			ranges = <0x81000000 0x0 0x00000000 0x80 0x00020000 0x0 0x00010000   /* downstream I/O */
+				  0x82000000 0x0 0x40000000 0x80 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
+		};
+
+		pcie2: pcie@3500000 {
+			compatible = "fsl,ls-pcie", "fsl,ls1028-pcie", "snps,dw-pcie";
+			reg = <0x00 0x03500000 0x0 0x80000
+			       0x00 0x03580000 0x0 0x40000   /* lut registers */
+			       0x00 0x035c0000 0x0 0x40000   /* pf controls registers */
+			       0x88 0x00000000 0x0 0x20000>; /* configuration space */
+			reg-names = "dbi", "lut", "ctrl", "config";
+			#address-cells = <3>;
+			#size-cells = <2>;
+			device_type = "pci";
+			num-lanes = <4>;
+			bus-range = <0x0 0xff>;
+			ranges = <0x81000000 0x0 0x00000000 0x88 0x00020000 0x0 0x00010000   /* downstream I/O */
+				  0x82000000 0x0 0x40000000 0x88 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 		};
 	};
 };
