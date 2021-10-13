@@ -142,11 +142,6 @@
 		};
 	};
 
-	cluster1_core0_watchdog: wdt@c000000 {
-		compatible = "arm,sp805-wdt";
-		reg = <0x0 0xc000000 0x0 0x1000>;
-	};
-
 	soc: soc {
 		compatible = "simple-bus";
 		#address-cells = <2>;
@@ -483,6 +478,11 @@
 			bus-range = <0x0 0xff>;
 			ranges = <0x81000000 0x0 0x00000000 0x88 0x00020000 0x0 0x00010000   /* downstream I/O */
 				  0x82000000 0x0 0x40000000 0x88 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
+		};
+
+		cluster1_core0_watchdog: wdt@c000000 {
+			compatible = "arm,sp805-wdt";
+			reg = <0x0 0xc000000 0x0 0x1000>;
 		};
 	};
 };
