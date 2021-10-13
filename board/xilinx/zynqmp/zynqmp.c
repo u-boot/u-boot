@@ -373,6 +373,18 @@ static void restore_jtag(void)
 }
 #endif
 
+static void print_secure_boot(void)
+{
+	u32 status = 0;
+
+	if (zynqmp_mmio_read((ulong)&csu_base->status, &status))
+		return;
+
+	printf("Secure Boot:\t%sauthenticated, %sencrypted\n",
+	       status & ZYNQMP_CSU_STATUS_AUTHENTICATED ? "" : "not ",
+	       status & ZYNQMP_CSU_STATUS_ENCRYPTED ? "" : "not ");
+}
+
 #define PS_SYSMON_ANALOG_BUS_VAL	0x3210
 #define PS_SYSMON_ANALOG_BUS_REG	0xFFA50914
 
@@ -413,6 +425,8 @@ int board_init(void)
 	fpga_add(fpga_xilinx, &zynqmppl);
 #endif
 
+	/* display secure boot information */
+	print_secure_boot();
 	if (current_el() == 3)
 		printf("Multiboot:\t%d\n", multi_boot());
 
