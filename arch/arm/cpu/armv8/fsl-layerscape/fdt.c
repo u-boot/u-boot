@@ -427,7 +427,7 @@ static void fdt_disable_multimedia(void *blob, unsigned int svr)
 		fdt_status_disabled(blob, off);
 
 	/* Disable GPU node */
-	off = fdt_node_offset_by_compatible(blob, -1, "fsl,ls1028a-gpu");
+	off = fdt_node_offset_by_compatible(blob, -1, "vivante,gc");
 	if (off != -FDT_ERR_NOTFOUND)
 		fdt_status_disabled(blob, off);
 }
