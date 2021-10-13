@@ -297,6 +297,19 @@
 	u-boot,dm-pre-reloc;
 };
 
+/*
+ * u-boot will enable the device in the linux device tree in place. Because
+ * we are using the linux device tree, we have to enable the PCI controller
+ * ourselves.
+ */
+&pcie1 {
+	status = "okay";
+};
+
+&pcie2 {
+	status = "okay";
+};
+
 &soc {
 	u-boot,dm-pre-reloc;
 };
