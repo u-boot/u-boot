@@ -39,20 +39,26 @@
 #define RESET_REASON_INTERNAL	BIT(1)
 #define RESET_REASON_EXTERNAL	BIT(0)
 
+#define CRLAPB_DBG_LPD_CTRL_SETUP_CLK	0x01002002
+#define CRLAPB_RST_LPD_DBG_RESET	0
+
 struct crlapb_regs {
 	u32 reserved0[36];
 	u32 cpu_r5_ctrl; /* 0x90 */
-	u32 reserved1[37];
+	u32 reserved1[7];
+	u32 dbg_lpd_ctrl; /* 0xB0 */
+	u32 reserved2[29];
 	u32 timestamp_ref_ctrl; /* 0x128 */
-	u32 reserved2[53];
+	u32 reserved3[53];
 	u32 boot_mode; /* 0x200 */
-	u32 reserved3_0[7];
+	u32 reserved4_0[7];
 	u32 reset_reason; /* 0x220 */
-	u32 reserved3_1[6];
+	u32 reserved4_1[6];
 	u32 rst_lpd_top; /* 0x23C */
-	u32 reserved4[4];
+	u32 rst_lpd_dbg; /* 0x240 */
+	u32 reserved5[3];
 	u32 boot_pin_ctrl; /* 0x250 */
-	u32 reserved5[21];
+	u32 reserved6[21];
 };
 
 #define crlapb_base ((struct crlapb_regs *)ZYNQMP_CRL_APB_BASEADDR)
@@ -141,12 +147,23 @@ struct apu_regs {
 #define ZYNQMP_SILICON_VER_MASK		0xF
 #define ZYNQMP_SILICON_VER_SHIFT	0
 
+#define CSU_JTAG_SEC_GATE_DISABLE	GENMASK(7, 0)
+#define CSU_JTAG_DAP_ENABLE_DEBUG	GENMASK(7, 0)
+#define CSU_JTAG_CHAIN_WR_SETUP		GENMASK(1, 0)
+#define CSU_PCAP_PROG_RELEASE_PL	BIT(0)
+
 struct csu_regs {
 	u32 reserved0[4];
 	u32 multi_boot;
-	u32 reserved1[11];
+	u32 reserved1[7];
+	u32 jtag_chain_status_wr;
+	u32 jtag_chain_status;
+	u32 jtag_sec;
+	u32 jtag_dap_cfg;
 	u32 idcode;
 	u32 version;
+	u32 reserved2[3055];
+	u32 pcap_prog;
 };
 
 #define csu_base ((struct csu_regs *)ZYNQMP_CSU_BASEADDR)

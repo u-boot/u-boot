@@ -149,6 +149,14 @@ config SPL_ZYNQMP_ALT_BOOTMODE_ENABLED
 	  Overwrite bootmode selected via boot mode pins to tell SPL what should
 	  be the next boot device.
 
+config SPL_ZYNQMP_RESTORE_JTAG
+	bool "Restore JTAG"
+	depends on SPL
+	help
+	  Booting SPL in secure mode causes the CSU to disable the JTAG interface
+	  even if no eFuses were burnt. This option restores the interface if
+	  possible.
+
 config ZYNQ_SDHCI_MAX_FREQ
 	default 200000000
 
