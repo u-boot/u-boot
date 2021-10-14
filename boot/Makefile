@@ -14,6 +14,9 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTI) += bootm.o bootm_os.o
 
+obj-$(CONFIG_CMD_PXE) += pxe_utils.o
+obj-$(CONFIG_CMD_SYSBOOT) += pxe_utils.o
+
 endif
 
 obj-y += image.o image-board.o
