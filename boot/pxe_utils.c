@@ -65,47 +65,6 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len)
 }
 
 /**
- * get_bootfile_path() - Figure out the path of a file to read
- *
- * Copies the boot directory into the supplied buffer. If there is no boot
- * directory, set it to ""
- *
- * @ctx: PXE context
- * @file_path: File path to read (relative to the PXE file)
- * @bootfile_path: Place to put the bootfile path
- * @bootfile_path_size: Size of @bootfile_path in bytes
- * @allow_abs_path: true to allow an absolute path (where @file_path starts with
- *	'/', false to return an empty path (and success) in that case
- * Returns 1 for success, -ENOSPC if bootfile_path_size is to small to hold the
- *	resulting path
- */
-static int get_bootfile_path(struct pxe_context *ctx, const char *file_path,
-			     char *bootfile_path, size_t bootfile_path_size,
-			     bool allow_abs_path)
-{
-	size_t path_len = 0;
-
-	/* Only syslinux allows absolute paths */
-	if (file_path[0] == '/' && allow_abs_path)
-		goto ret;
-
-	path_len = strlen(ctx->bootdir);
-	if (bootfile_path_size < path_len + 1) {
-		printf("bootfile_path too small. (%zd < %zd)\n",
-		       bootfile_path_size, path_len);
-
-		return -ENOSPC;
-	}
-
-	strncpy(bootfile_path, ctx->bootdir, path_len);
-
- ret:
-	bootfile_path[path_len] = '\0';
-
-	return 1;
-}
-
-/**
  * get_relfile() - read a file relative to the PXE file
  *
  * As in pxelinux, paths to files referenced from files we retrieve are
@@ -124,15 +83,13 @@ static int get_relfile(struct pxe_context *ctx, const char *file_path,
 	size_t path_len;
 	char relfile[MAX_TFTP_PATH_LEN + 1];
 	char addr_buf[18];
-	int err;
 
-	err = get_bootfile_path(ctx, file_path, relfile, sizeof(relfile),
-				ctx->allow_abs_path);
-	if (err < 0)
-		return err;
+	if (file_path[0] == '/' && ctx->allow_abs_path)
+		*relfile = '\0';
+	else
+		strncpy(relfile, ctx->bootdir, MAX_TFTP_PATH_LEN);
 
-	path_len = strlen(file_path);
-	path_len += strlen(relfile);
+	path_len = strlen(file_path) + strlen(relfile);
 
 	if (path_len > MAX_TFTP_PATH_LEN) {
 		printf("Base path too long (%s%s)\n", relfile, file_path);

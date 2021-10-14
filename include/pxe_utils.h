@@ -202,7 +202,8 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len);
  * @allow_abs_path: true to allow absolute paths
  * @bootfile: Bootfile whose directory loaded files are relative to, NULL if
  *	none
- * @return 0 if OK, -ENOMEM if out of memory
+ * @return 0 if OK, -ENOMEM if out of memory, -E2BIG if bootfile is larger than
+ *	MAX_TFTP_PATH_LEN bytes
  */
 int pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
 		  pxe_getfile_func getfile, void *userdata,
