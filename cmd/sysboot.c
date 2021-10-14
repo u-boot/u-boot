@@ -8,7 +8,7 @@
 
 static char *fs_argv[5];
 
-static int do_get_ext2(struct cmd_tbl *cmdtp, const char *file_path,
+static int do_get_ext2(struct pxe_context *ctx, const char *file_path,
 		       char *file_addr)
 {
 #ifdef CONFIG_CMD_EXT2
@@ -16,13 +16,13 @@ static int do_get_ext2(struct cmd_tbl *cmdtp, const char *file_path,
 	fs_argv[3] = file_addr;
 	fs_argv[4] = (void *)file_path;
 
-	if (!do_ext2load(cmdtp, 0, 5, fs_argv))
+	if (!do_ext2load(ctx->cmdtp, 0, 5, fs_argv))
 		return 1;
 #endif
 	return -ENOENT;
 }
 
-static int do_get_fat(struct cmd_tbl *cmdtp, const char *file_path,
+static int do_get_fat(struct pxe_context *ctx, const char *file_path,
 		      char *file_addr)
 {
 #ifdef CONFIG_CMD_FAT
@@ -30,13 +30,13 @@ static int do_get_fat(struct cmd_tbl *cmdtp, const char *file_path,
 	fs_argv[3] = file_addr;
 	fs_argv[4] = (void *)file_path;
 
-	if (!do_fat_fsload(cmdtp, 0, 5, fs_argv))
+	if (!do_fat_fsload(ctx->cmdtp, 0, 5, fs_argv))
 		return 1;
 #endif
 	return -ENOENT;
 }
 
-static int do_get_any(struct cmd_tbl *cmdtp, const char *file_path,
+static int do_get_any(struct pxe_context *ctx, const char *file_path,
 		      char *file_addr)
 {
 #ifdef CONFIG_CMD_FS_GENERIC
@@ -44,7 +44,7 @@ static int do_get_any(struct cmd_tbl *cmdtp, const char *file_path,
 	fs_argv[3] = file_addr;
 	fs_argv[4] = (void *)file_path;
 
-	if (!do_load(cmdtp, 0, 5, fs_argv, FS_TYPE_ANY))
+	if (!do_load(ctx->cmdtp, 0, 5, fs_argv, FS_TYPE_ANY))
 		return 1;
 #endif
 	return -ENOENT;
@@ -91,13 +91,13 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		env_set("bootfile", filename);
 	}
 
-	pxe_setup_ctx(&ctx, cmdtp);
+	pxe_setup_ctx(&ctx, cmdtp, NULL);
 	if (strstr(argv[3], "ext2")) {
-		do_getfile = do_get_ext2;
+		ctx.getfile = do_get_ext2;
 	} else if (strstr(argv[3], "fat")) {
-		do_getfile = do_get_fat;
+		ctx.getfile = do_get_fat;
 	} else if (strstr(argv[3], "any")) {
-		do_getfile = do_get_any;
+		ctx.getfile = do_get_any;
 	} else {
 		printf("Invalid filesystem: %s\n", argv[3]);
 		return 1;

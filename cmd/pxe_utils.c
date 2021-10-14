@@ -94,9 +94,6 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 	return 1;
 }
 
-int (*do_getfile)(struct cmd_tbl *cmdtp, const char *file_path,
-		  char *file_addr);
-
 /*
  * As in pxelinux, paths to files referenced from files we retrieve are
  * relative to the location of bootfile. get_relfile takes such a path and
@@ -133,7 +130,7 @@ static int get_relfile(struct pxe_context *ctx, const char *file_path,
 
 	sprintf(addr_buf, "%lx", file_addr);
 
-	return do_getfile(ctx->cmdtp, relfile, addr_buf);
+	return ctx->getfile(ctx, relfile, addr_buf);
 }
 
 int get_pxe_file(struct pxe_context *ctx, const char *file_path,
@@ -1453,7 +1450,9 @@ void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg)
 	boot_unattempted_labels(ctx, cfg);
 }
 
-void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp)
+void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
+		   pxe_getfile_func getfile)
 {
 	ctx->cmdtp = cmdtp;
+	ctx->getfile = getfile;
 }
