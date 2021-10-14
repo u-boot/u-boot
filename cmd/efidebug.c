@@ -1169,7 +1169,7 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 	printf("  file_path: %ls\n", dp_str);
 	efi_free_pool(dp_str);
 
-	initrd_path = efi_dp_from_lo(&lo, &initrd_dp_size, lf2_initrd_guid);
+	initrd_path = efi_dp_from_lo(&lo, &initrd_dp_size, &lf2_initrd_guid);
 	if (initrd_path) {
 		dp_str = efi_dp_str(initrd_path);
 		printf("  initrd_path: %ls\n", dp_str);

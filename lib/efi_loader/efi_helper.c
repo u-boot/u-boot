@@ -83,7 +83,7 @@ struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	tmp = efi_dp_from_lo(&lo, &size, guid);
+	tmp = efi_dp_from_lo(&lo, &size, &guid);
 	if (!tmp)
 		goto out;
 

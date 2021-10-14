@@ -1218,7 +1218,8 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
  */
 struct
 efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
-				efi_uintn_t *size, efi_guid_t guid)
+				efi_uintn_t *size,
+				const efi_guid_t *guid)
 {
 	struct efi_device_path *fp = lo->file_path;
 	struct efi_device_path_vendor *vendor;
@@ -1233,7 +1234,7 @@ efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
 			continue;
 
 		vendor = (struct efi_device_path_vendor *)fp;
-		if (!guidcmp(&vendor->guid, &guid))
+		if (!guidcmp(&vendor->guid, guid))
 			return efi_dp_dup(fp);
 	}
 	log_debug("VenMedia(%pUl) not found in %ls\n", &guid, lo->label);
