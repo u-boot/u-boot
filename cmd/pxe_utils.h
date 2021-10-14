@@ -79,6 +79,23 @@ extern bool is_pxe;
 
 extern int (*do_getfile)(struct cmd_tbl *cmdtp, const char *file_path,
 			 char *file_addr);
+
+/**
+ * struct pxe_context - context information for PXE parsing
+ *
+ * @cmdtp: Pointer to command table to use when calling other commands
+ */
+struct pxe_context {
+	struct cmd_tbl *cmdtp;
+};
+
+/**
+ * destroy_pxe_menu() - Destroy an allocated pxe structure
+ *
+ * Free the memory used by a pxe_menu and its labels
+ *
+ * @cfg: Config to destroy, previous returned from parse_pxefile()
+ */
 void destroy_pxe_menu(struct pxe_menu *cfg);
 
 /**
@@ -88,12 +105,12 @@ void destroy_pxe_menu(struct pxe_menu *cfg);
  * 'bootfile' was specified in the environment, the path to bootfile will be
  * prepended to 'file_path' and the resulting path will be used.
  *
- * @cmdtp: Pointer to command-table entry for the initiating command
+ * @ctx: PXE context
  * @file_path: Path to file
  * @file_addr: Address to place file
  * Returns 1 on success, or < 0 for error
  */
-int get_pxe_file(struct cmd_tbl *cmdtp, const char *file_path,
+int get_pxe_file(struct pxe_context *ctx, const char *file_path,
 		 ulong file_addr);
 
 /**
@@ -103,12 +120,12 @@ int get_pxe_file(struct cmd_tbl *cmdtp, const char *file_path,
  * to do the hard work, the location of the 'pxelinux.cfg' folder is generated
  * from the bootfile path, as described in get_pxe_file().
  *
- * @cmdtp: Pointer to command-table entry for the initiating command
+ * @ctx: PXE context
  * @file: Relative path to file
  * @pxefile_addr_r: Address to load file
  * Returns 1 on success or < 0 on error.
  */
-int get_pxelinux_path(struct cmd_tbl *cmdtp, const char *file,
+int get_pxelinux_path(struct pxe_context *ctx, const char *file,
 		      ulong pxefile_addr_r);
 
 /**
@@ -123,25 +140,23 @@ int get_pxelinux_path(struct cmd_tbl *cmdtp, const char *file,
  * If this function returns, there weren't any labels that successfully
  * booted, or the user interrupted the menu selection via ctrl+c.
  *
- * @cmdtp: Pointer to command-table entry for the initiating command
+ * @ctx: PXE context
  * @cfg: PXE menu
  */
-void handle_pxe_menu(struct cmd_tbl *cmdtp, struct pxe_menu *cfg);
+void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg);
 
 /**
  * parse_pxefile() - Parsing a pxe file
  *
  * This is only used for the top-level file.
  *
- * @cmdtp: Pointer to command-table entry for the initiating command
- * @menucfg: Address of PXE file
- *
+ * @ctx: PXE context (provided by the caller)
  * Returns NULL if there is an error, otherwise, returns a pointer to a
  * pxe_menu struct populated with the results of parsing the pxe file (and any
  * files it includes). The resulting pxe_menu struct can be free()'d by using
  * the destroy_pxe_menu() function.
  */
-struct pxe_menu *parse_pxefile(struct cmd_tbl *cmdtp, ulong menucfg);
+struct pxe_menu *parse_pxefile(struct pxe_context *ctx, ulong menucfg);
 
 /**
  * format_mac_pxe() - Convert a MAC address to PXE format
@@ -158,5 +173,13 @@ struct pxe_menu *parse_pxefile(struct cmd_tbl *cmdtp, ulong menucfg);
  * environment, or some other value < 0 on error.
  */
 int format_mac_pxe(char *outbuf, size_t outbuf_len);
+
+/**
+ * pxe_setup_ctx() - Setup a new PXE context
+ *
+ * @ctx: Context to set up
+ * @cmdtp: Command table entry which started this action
+ */
+void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp);
 
 #endif /* __PXE_UTILS_H */

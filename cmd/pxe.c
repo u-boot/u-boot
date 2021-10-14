@@ -43,7 +43,7 @@ static int do_get_tftp(struct cmd_tbl *cmdtp, const char *file_path,
  *
  * Returns 1 on success or < 0 on error.
  */
-static int pxe_uuid_path(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
+static int pxe_uuid_path(struct pxe_context *ctx, unsigned long pxefile_addr_r)
 {
 	char *uuid_str;
 
@@ -52,7 +52,7 @@ static int pxe_uuid_path(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
 	if (!uuid_str)
 		return -ENOENT;
 
-	return get_pxelinux_path(cmdtp, uuid_str, pxefile_addr_r);
+	return get_pxelinux_path(ctx, uuid_str, pxefile_addr_r);
 }
 
 /*
@@ -61,7 +61,7 @@ static int pxe_uuid_path(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
  *
  * Returns 1 on success or < 0 on error.
  */
-static int pxe_mac_path(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
+static int pxe_mac_path(struct pxe_context *ctx, unsigned long pxefile_addr_r)
 {
 	char mac_str[21];
 	int err;
@@ -71,7 +71,7 @@ static int pxe_mac_path(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
 	if (err < 0)
 		return err;
 
-	return get_pxelinux_path(cmdtp, mac_str, pxefile_addr_r);
+	return get_pxelinux_path(ctx, mac_str, pxefile_addr_r);
 }
 
 /*
@@ -81,7 +81,7 @@ static int pxe_mac_path(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
  *
  * Returns 1 on success or < 0 on error.
  */
-static int pxe_ipaddr_paths(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
+static int pxe_ipaddr_paths(struct pxe_context *ctx, unsigned long pxefile_addr_r)
 {
 	char ip_addr[9];
 	int mask_pos, err;
@@ -89,7 +89,7 @@ static int pxe_ipaddr_paths(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
 	sprintf(ip_addr, "%08X", ntohl(net_ip.s_addr));
 
 	for (mask_pos = 7; mask_pos >= 0;  mask_pos--) {
-		err = get_pxelinux_path(cmdtp, ip_addr, pxefile_addr_r);
+		err = get_pxelinux_path(ctx, ip_addr, pxefile_addr_r);
 
 		if (err > 0)
 			return err;
@@ -118,8 +118,10 @@ do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *pxefile_addr_str;
 	unsigned long pxefile_addr_r;
+	struct pxe_context ctx;
 	int err, i = 0;
 
+	pxe_setup_ctx(&ctx, cmdtp);
 	do_getfile = do_get_tftp;
 
 	if (argc != 1)
@@ -139,16 +141,16 @@ do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	 * Keep trying paths until we successfully get a file we're looking
 	 * for.
 	 */
-	if (pxe_uuid_path(cmdtp, pxefile_addr_r) > 0 ||
-	    pxe_mac_path(cmdtp, pxefile_addr_r) > 0 ||
-	    pxe_ipaddr_paths(cmdtp, pxefile_addr_r) > 0) {
+	if (pxe_uuid_path(&ctx, pxefile_addr_r) > 0 ||
+	    pxe_mac_path(&ctx, pxefile_addr_r) > 0 ||
+	    pxe_ipaddr_paths(&ctx, pxefile_addr_r) > 0) {
 		printf("Config file found\n");
 
 		return 0;
 	}
 
 	while (pxe_default_paths[i]) {
-		if (get_pxelinux_path(cmdtp, pxe_default_paths[i],
+		if (get_pxelinux_path(&ctx, pxe_default_paths[i],
 				      pxefile_addr_r) > 0) {
 			printf("Config file found\n");
 			return 0;
@@ -172,7 +174,9 @@ do_pxe_boot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	unsigned long pxefile_addr_r;
 	struct pxe_menu *cfg;
 	char *pxefile_addr_str;
+	struct pxe_context ctx;
 
+	pxe_setup_ctx(&ctx, cmdtp);
 	do_getfile = do_get_tftp;
 
 	if (argc == 1) {
@@ -191,14 +195,14 @@ do_pxe_boot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 1;
 	}
 
-	cfg = parse_pxefile(cmdtp, pxefile_addr_r);
+	cfg = parse_pxefile(&ctx, pxefile_addr_r);
 
 	if (!cfg) {
 		printf("Error parsing config file\n");
 		return 1;
 	}
 
-	handle_pxe_menu(cmdtp, cfg);
+	handle_pxe_menu(&ctx, cfg);
 
 	destroy_pxe_menu(cfg);
 

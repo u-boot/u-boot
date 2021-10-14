@@ -59,6 +59,7 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
 	unsigned long pxefile_addr_r;
+	struct pxe_context ctx;
 	struct pxe_menu *cfg;
 	char *pxefile_addr_str;
 	char *filename;
@@ -90,6 +91,7 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		env_set("bootfile", filename);
 	}
 
+	pxe_setup_ctx(&ctx, cmdtp);
 	if (strstr(argv[3], "ext2")) {
 		do_getfile = do_get_ext2;
 	} else if (strstr(argv[3], "fat")) {
@@ -108,12 +110,12 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		return 1;
 	}
 
-	if (get_pxe_file(cmdtp, filename, pxefile_addr_r) < 0) {
+	if (get_pxe_file(&ctx, filename, pxefile_addr_r) < 0) {
 		printf("Error reading config file\n");
 		return 1;
 	}
 
-	cfg = parse_pxefile(cmdtp, pxefile_addr_r);
+	cfg = parse_pxefile(&ctx, pxefile_addr_r);
 
 	if (!cfg) {
 		printf("Error parsing config file\n");
@@ -123,7 +125,7 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (prompt)
 		cfg->prompt = 1;
 
-	handle_pxe_menu(cmdtp, cfg);
+	handle_pxe_menu(&ctx, cfg);
 
 	destroy_pxe_menu(cfg);
 
