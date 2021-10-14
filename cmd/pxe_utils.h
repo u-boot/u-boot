@@ -86,6 +86,7 @@ typedef int (*pxe_getfile_func)(struct pxe_context *ctx, const char *file_path,
  *
  * @cmdtp: Pointer to command table to use when calling other commands
  * @getfile: Function called by PXE to read a file
+ * @userdata: Data the caller requires for @getfile
  */
 struct pxe_context {
 	struct cmd_tbl *cmdtp;
@@ -99,6 +100,8 @@ struct pxe_context {
 	 * Return 0 if OK, -ve on error
 	 */
 	pxe_getfile_func getfile;
+
+	void *userdata;
 };
 
 /**
@@ -192,8 +195,9 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len);
  * @ctx: Context to set up
  * @cmdtp: Command table entry which started this action
  * @getfile: Function to call to read a file
+ * @userdata: Data the caller requires for @getfile - stored in ctx->userdata
  */
 void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
-		   pxe_getfile_func getfile);
+		   pxe_getfile_func getfile, void *userdata);
 
 #endif /* __PXE_UTILS_H */

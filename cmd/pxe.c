@@ -121,7 +121,7 @@ do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	struct pxe_context ctx;
 	int err, i = 0;
 
-	pxe_setup_ctx(&ctx, cmdtp, do_get_tftp);
+	pxe_setup_ctx(&ctx, cmdtp, do_get_tftp, NULL);
 
 	if (argc != 1)
 		return CMD_RET_USAGE;
@@ -175,7 +175,7 @@ do_pxe_boot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	char *pxefile_addr_str;
 	struct pxe_context ctx;
 
-	pxe_setup_ctx(&ctx, cmdtp, do_get_tftp);
+	pxe_setup_ctx(&ctx, cmdtp, do_get_tftp, NULL);
 
 	if (argc == 1) {
 		pxefile_addr_str = from_env("pxefile_addr_r");

@@ -91,7 +91,7 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		env_set("bootfile", filename);
 	}
 
-	pxe_setup_ctx(&ctx, cmdtp, NULL);
+	pxe_setup_ctx(&ctx, cmdtp, NULL, NULL);
 	if (strstr(argv[3], "ext2")) {
 		ctx.getfile = do_get_ext2;
 	} else if (strstr(argv[3], "fat")) {
