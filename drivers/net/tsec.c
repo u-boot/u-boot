@@ -156,7 +156,7 @@ static int tsec_mcast_addr(struct udevice *dev, const u8 *mcast_mac, int join)
 	return 0;
 }
 
-static int tsec_set_promisc(struct udevice *dev, bool enable)
+static int __maybe_unused tsec_set_promisc(struct udevice *dev, bool enable)
 {
 	struct tsec_private *priv = dev_get_priv(dev);
 	struct tsec __iomem *regs = priv->regs;
