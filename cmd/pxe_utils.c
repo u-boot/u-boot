@@ -32,16 +32,6 @@
 
 bool is_pxe;
 
-/*
- * Convert an ethaddr from the environment to the format used by pxelinux
- * filenames based on mac addresses. Convert's ':' to '-', and adds "01-" to
- * the beginning of the ethernet address to indicate a hardware type of
- * Ethernet. Also converts uppercase hex characters into lowercase, to match
- * pxelinux's behavior.
- *
- * Returns 1 for success, -ENOENT if 'ethaddr' is undefined in the
- * environment, or some other value < 0 on error.
- */
 int format_mac_pxe(char *outbuf, size_t outbuf_len)
 {
 	uchar ethaddr[6];
@@ -146,13 +136,6 @@ static int get_relfile(struct cmd_tbl *cmdtp, const char *file_path,
 	return do_getfile(cmdtp, relfile, addr_buf);
 }
 
-/*
- * Retrieve the file at 'file_path' to the locate given by 'file_addr'. If
- * 'bootfile' was specified in the environment, the path to bootfile will be
- * prepended to 'file_path' and the resulting path will be used.
- *
- * Returns 1 on success, or < 0 for error.
- */
 int get_pxe_file(struct cmd_tbl *cmdtp, const char *file_path,
 		 unsigned long file_addr)
 {
@@ -187,13 +170,6 @@ int get_pxe_file(struct cmd_tbl *cmdtp, const char *file_path,
 
 #define PXELINUX_DIR "pxelinux.cfg/"
 
-/*
- * Retrieves a file in the 'pxelinux.cfg' folder. Since this uses get_pxe_file
- * to do the hard work, the location of the 'pxelinux.cfg' folder is generated
- * from the bootfile path, as described above.
- *
- * Returns 1 on success or < 0 on error.
- */
 int get_pxelinux_path(struct cmd_tbl *cmdtp, const char *file,
 		      unsigned long pxefile_addr_r)
 {
@@ -1328,15 +1304,6 @@ void destroy_pxe_menu(struct pxe_menu *cfg)
 	free(cfg);
 }
 
-/*
- * Entry point for parsing a pxe file. This is only used for the top level
- * file.
- *
- * Returns NULL if there is an error, otherwise, returns a pointer to a
- * pxe_menu struct populated with the results of parsing the pxe file (and any
- * files it includes). The resulting pxe_menu struct can be free()'d by using
- * the destroy_pxe_menu() function.
- */
 struct pxe_menu *parse_pxefile(struct cmd_tbl *cmdtp, unsigned long menucfg)
 {
 	struct pxe_menu *cfg;
@@ -1434,18 +1401,6 @@ static void boot_unattempted_labels(struct cmd_tbl *cmdtp, struct pxe_menu *cfg)
 	}
 }
 
-/*
- * Boot the system as prescribed by a pxe_menu.
- *
- * Use the menu system to either get the user's choice or the default, based
- * on config or user input.  If there is no default or user's choice,
- * attempted to boot labels in the order they were given in pxe files.
- * If the default or user's choice fails to boot, attempt to boot other
- * labels in the order they were given in pxe files.
- *
- * If this function returns, there weren't any labels that successfully
- * booted, or the user interrupted the menu selection via ctrl+c.
- */
 void handle_pxe_menu(struct cmd_tbl *cmdtp, struct pxe_menu *cfg)
 {
 	void *choice;
