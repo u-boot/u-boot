@@ -30,6 +30,21 @@
 
 #define MAX_TFTP_PATH_LEN 512
 
+/**
+ * format_mac_pxe() - obtain a MAC address in the PXE format
+ *
+ * This produces a MAC-address string in the format for the current ethernet
+ * device:
+ *
+ *   01-aa-bb-cc-dd-ee-ff
+ *
+ * where aa-ff is the MAC address in hex
+ *
+ * @outbuf: Buffer to write string to
+ * @outbuf_len: length of buffer
+ * @return 1 if OK, -ENOSPC if buffer is too small, -ENOENT is there is no
+ *	current ethernet device
+ */
 int format_mac_pxe(char *outbuf, size_t outbuf_len)
 {
 	uchar ethaddr[6];
@@ -37,7 +52,7 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len)
 	if (outbuf_len < 21) {
 		printf("outbuf is too small (%zd < 21)\n", outbuf_len);
 
-		return -EINVAL;
+		return -ENOSPC;
 	}
 
 	if (!eth_env_get_enetaddr_by_index("eth", eth_get_dev_index(), ethaddr))
@@ -50,10 +65,20 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len)
 	return 1;
 }
 
-/*
- * Returns the directory the file specified in the bootfile env variable is
+/**
+ * get_bootfile_path() - Figure out the path of a file to read
+ *
+ * Returns the directory the file specified in the 'bootfile' env variable is
  * in. If bootfile isn't defined in the environment, return NULL, which should
  * be interpreted as "don't prepend anything to paths".
+ *
+ * @file_path: File path to read (relative to the PXE file)
+ * @bootfile_path: Place to put the bootfile path
+ * @bootfile_path_size: Size of @bootfile_path in bytes
+ * @allow_abs_path: true to allow an absolute path (where @file_path starts with
+ *	'/', false to return an empty path (and success) in that case
+ * Returns 1 for success, -ENOSPC if bootfile_path_size is to small to hold the
+ *	resulting path
  */
 static int get_bootfile_path(const char *file_path, char *bootfile_path,
 			     size_t bootfile_path_size, bool allow_abs_path)
@@ -81,7 +106,7 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 		printf("bootfile_path too small. (%zd < %zd)\n",
 		       bootfile_path_size, path_len);
 
-		return -1;
+		return -ENOSPC;
 	}
 
 	strncpy(bootfile_path, bootfile, path_len);
@@ -92,13 +117,18 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 	return 1;
 }
 
-/*
+/**
+ * get_relfile() - read a file relative to the PXE file
+ *
  * As in pxelinux, paths to files referenced from files we retrieve are
  * relative to the location of bootfile. get_relfile takes such a path and
  * joins it with the bootfile path to get the full path to the target file. If
  * the bootfile path is NULL, we use file_path as is.
  *
- * Returns 1 for success, or < 0 on error.
+ * @ctx: PXE context
+ * @file_path: File path to read (relative to the PXE file)
+ * @file_addr: Address to load file to
+ * Returns 1 for success, or < 0 on error
  */
 static int get_relfile(struct pxe_context *ctx, const char *file_path,
 		       unsigned long file_addr)
@@ -132,6 +162,16 @@ static int get_relfile(struct pxe_context *ctx, const char *file_path,
 	return ctx->getfile(ctx, relfile, addr_buf);
 }
 
+/**
+ * get_pxe_file() - read a file
+ *
+ * The file is read and nul-terminated
+ *
+ * @ctx: PXE context
+ * @file_path: File path to read (relative to the PXE file)
+ * @file_addr: Address to load file to
+ * Returns 1 for success, or < 0 on error
+ */
 int get_pxe_file(struct pxe_context *ctx, const char *file_path,
 		 unsigned long file_addr)
 {
@@ -166,6 +206,14 @@ int get_pxe_file(struct pxe_context *ctx, const char *file_path,
 
 #define PXELINUX_DIR "pxelinux.cfg/"
 
+/**
+ * get_pxelinux_path() - Get a file in the pxelinux.cfg/ directory
+ *
+ * @ctx: PXE context
+ * @file: Filename to process (relative to pxelinux.cfg/)
+ * Returns 1 for success, -ENAMETOOLONG if the resulting path is too long.
+ *	or other value < 0 on other error
+ */
 int get_pxelinux_path(struct pxe_context *ctx, const char *file,
 		      unsigned long pxefile_addr_r)
 {
@@ -183,12 +231,20 @@ int get_pxelinux_path(struct pxe_context *ctx, const char *file,
 	return get_pxe_file(ctx, path, pxefile_addr_r);
 }
 
-/*
+/**
+ * get_relfile_envaddr() - read a file to an address in an env var
+ *
  * Wrapper to make it easier to store the file at file_path in the location
  * specified by envaddr_name. file_path will be joined to the bootfile path,
  * if any is specified.
  *
- * Returns 1 on success or < 0 on error.
+ * @ctx: PXE context
+ * @file_path: File path to read (relative to the PXE file)
+ * @envaddr_name: Name of environment variable which contains the address to
+ *	load to
+ * Returns 1 on success, -ENOENT if @envaddr_name does not exist as an
+ *	environment variable, -EINVAL if its format is not valid hex, or other
+ *	value < 0 on other error
  */
 static int get_relfile_envaddr(struct pxe_context *ctx, const char *file_path,
 			       const char *envaddr_name)
@@ -207,11 +263,13 @@ static int get_relfile_envaddr(struct pxe_context *ctx, const char *file_path,
 	return get_relfile(ctx, file_path, file_addr);
 }
 
-/*
+/**
+ * label_create() - crate a new PXE label
+ *
  * Allocates memory for and initializes a pxe_label. This uses malloc, so the
  * result must be free()'d to reclaim the memory.
  *
- * Returns NULL if malloc fails.
+ * Returns a pointer to the label, or NULL if out of memory
  */
 static struct pxe_label *label_create(void)
 {
@@ -227,13 +285,18 @@ static struct pxe_label *label_create(void)
 	return label;
 }
 
-/*
- * Free the memory used by a pxe_label, including that used by its name,
- * kernel, append and initrd members, if they're non NULL.
+/**
+ * label_destroy() - free the memory used by a pxe_label
+ *
+ * This frees @label itself as well as memory used by its name,
+ * kernel, config, append, initrd, fdt, fdtdir and fdtoverlay members, if
+ * they're non-NULL.
  *
  * So - be sure to only use dynamically allocated memory for the members of
  * the pxe_label struct, unless you want to clean it up first. These are
  * currently only created by the pxe file parsing code.
+ *
+ * @label: Label to free
  */
 static void label_destroy(struct pxe_label *label)
 {
@@ -264,11 +327,13 @@ static void label_destroy(struct pxe_label *label)
 	free(label);
 }
 
-/*
- * Print a label and its string members if they're defined.
+/**
+ * label_print() - Print a label and its string members if they're defined
  *
  * This is passed as a callback to the menu code for displaying each
  * menu entry.
+ *
+ * @data: Label to print (is cast to struct pxe_label *)
  */
 static void label_print(void *data)
 {
@@ -278,14 +343,16 @@ static void label_print(void *data)
 	printf("%s:\t%s\n", label->num, c);
 }
 
-/*
- * Boot a label that specified 'localboot'. This requires that the 'localcmd'
- * environment variable is defined. Its contents will be executed as U-Boot
- * command.  If the label specified an 'append' line, its contents will be
- * used to overwrite the contents of the 'bootargs' environment variable prior
- * to running 'localcmd'.
+/**
+ * label_localboot() - Boot a label that specified 'localboot'
  *
- * Returns 1 on success or < 0 on error.
+ * This requires that the 'localcmd' environment variable is defined. Its
+ * contents will be executed as U-Boot commands.  If the label specified an
+ * 'append' line, its contents will be used to overwrite the contents of the
+ * 'bootargs' environment variable prior to running 'localcmd'.
+ *
+ * @label: Label to process
+ * Returns 1 on success or < 0 on error
  */
 static int label_localboot(struct pxe_label *label)
 {
@@ -309,8 +376,11 @@ static int label_localboot(struct pxe_label *label)
 	return run_command_list(localcmd, strlen(localcmd), 0);
 }
 
-/*
- * Loads fdt overlays specified in 'fdtoverlays'.
+/**
+ * label_boot_fdtoverlay() - Loads fdt overlays specified in 'fdtoverlays'
+ *
+ * @ctx: PXE context
+ * @label: Label to process
  */
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 static void label_boot_fdtoverlay(struct pxe_context *ctx,
@@ -396,8 +466,8 @@ skip_overlay:
 }
 #endif
 
-/*
- * Boot according to the contents of a pxe_label.
+/**
+ * label_boot() - Boot according to the contents of a pxe_label
  *
  * If we can't boot for any reason, we return.  A successful boot never
  * returns.
@@ -410,6 +480,11 @@ skip_overlay:
  *
  * If the label specifies an 'append' line, its contents will overwrite that
  * of the 'bootargs' environment variable.
+ *
+ * @ctx: PXE context
+ * @label: Label to process
+ * Returns does not return on success, otherwise returns 0 if a localboot
+ *	label was processed, or 1 on error
  */
 static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 {
@@ -667,9 +742,7 @@ cleanup:
 	return 1;
 }
 
-/*
- * Tokens for the pxe file parser.
- */
+/** enum token_type - Tokens for the pxe file parser */
 enum token_type {
 	T_EOL,
 	T_STRING,
@@ -695,17 +768,13 @@ enum token_type {
 	T_INVALID
 };
 
-/*
- * A token - given by a value and a type.
- */
+/** struct token - token - given by a value and a type */
 struct token {
 	char *val;
 	enum token_type type;
 };
 
-/*
- * Keywords recognized.
- */
+/* Keywords recognized */
 static const struct token keywords[] = {
 	{"menu", T_MENU},
 	{"title", T_TITLE},
@@ -730,7 +799,9 @@ static const struct token keywords[] = {
 	{NULL, T_INVALID}
 };
 
-/*
+/**
+ * enum lex_state - lexer state
+ *
  * Since pxe(linux) files don't have a token to identify the start of a
  * literal, we have to keep track of when we're in a state where a literal is
  * expected vs when we're in a state a keyword is expected.
@@ -741,11 +812,10 @@ enum lex_state {
 	L_SLITERAL
 };
 
-/*
- * get_string retrieves a string from *p and stores it as a token in
- * *t.
+/**
+ * get_string() - retrieves a string from *p and stores it as a token in *t.
  *
- * get_string used for scanning both string literals and keywords.
+ * This is used for scanning both string literals and keywords.
  *
  * Characters from *p are copied into t-val until a character equal to
  * delim is found, or a NUL byte is reached. If delim has the special value of
@@ -758,9 +828,15 @@ enum lex_state {
  * The location of *p is updated to point to the first character after the end
  * of the token - the ending delimiter.
  *
- * On success, the new value of t->val is returned. Memory for t->val is
- * allocated using malloc and must be free()'d to reclaim it.  If insufficient
- * memory is available, NULL is returned.
+ * Memory for t->val is allocated using malloc and must be free()'d to reclaim
+ * it.
+ *
+ * @p: Points to a pointer to the current position in the input being processed.
+ *	Updated to point at the first character after the current token
+ * @t: Pointers to a token to fill in
+ * @delim: Delimiter character to look for, either newline or space
+ * @lower: true to convert the string to lower case when storing
+ * Returns the new value of t->val, on success, NULL if out of memory
  */
 static char *get_string(char **p, struct token *t, char delim, int lower)
 {
@@ -811,8 +887,11 @@ static char *get_string(char **p, struct token *t, char delim, int lower)
 	return t->val;
 }
 
-/*
- * Populate a keyword token with a type and value.
+/**
+ * get_keyword() - Populate a keyword token with a type and value
+ *
+ * Updates the ->type field based on the keyword string in @val
+ * @t: Token to populate
  */
 static void get_keyword(struct token *t)
 {
@@ -826,11 +905,14 @@ static void get_keyword(struct token *t)
 	}
 }
 
-/*
- * Get the next token.  We have to keep track of which state we're in to know
- * if we're looking to get a string literal or a keyword.
+/**
+ * get_token() - Get the next token
  *
- * *p is updated to point at the first character after the current token.
+ * We have to keep track of which state we're in to know if we're looking to get
+ * a string literal or a keyword.
+ *
+ * @p: Points to a pointer to the current position in the input being processed.
+ *	Updated to point at the first character after the current token
  */
 static void get_token(char **p, struct token *t, enum lex_state state)
 {
@@ -874,8 +956,13 @@ static void get_token(char **p, struct token *t, enum lex_state state)
 	*p = c;
 }
 
-/*
- * Increment *c until we get to the end of the current line, or EOF.
+/**
+ * eol_or_eof() - Find end of line
+ *
+ * Increment *c until we get to the end of the current line, or EOF
+ *
+ * @c: Points to a pointer to the current position in the input being processed.
+ *	Updated to point at the first character after the current token
  */
 static void eol_or_eof(char **c)
 {
