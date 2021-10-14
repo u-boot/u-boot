@@ -172,7 +172,18 @@ int sprintf(char *buf, const char *fmt, ...)
  * See the vsprintf() documentation for format string extensions over C99.
  */
 int vsprintf(char *buf, const char *fmt, va_list args);
-char *simple_itoa(ulong i);
+
+/**
+ * simple_itoa() - convert an unsigned integer to a string
+ *
+ * This returns a static string containing the decimal representation of the
+ * given value. The returned value may be overwritten by other calls to the
+ * same function, so should be used immediately
+ *
+ * @val: Value to convert
+ * @return string containing the decimal representation of @val
+ */
+char *simple_itoa(ulong val);
 
 /**
  * Format a string and place it in a buffer
