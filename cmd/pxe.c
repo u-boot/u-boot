@@ -104,6 +104,49 @@ static int pxe_ipaddr_paths(struct pxe_context *ctx, unsigned long pxefile_addr_
 
 	return -ENOENT;
 }
+
+int pxe_get(ulong pxefile_addr_r, char **bootdirp, ulong *sizep)
+{
+	struct cmd_tbl cmdtp[] = {};	/* dummy */
+	struct pxe_context ctx;
+	int i;
+
+	if (pxe_setup_ctx(&ctx, cmdtp, do_get_tftp, NULL, false,
+			  env_get("bootfile")))
+		return -ENOMEM;
+	/*
+	 * Keep trying paths until we successfully get a file we're looking
+	 * for.
+	 */
+	if (pxe_uuid_path(&ctx, pxefile_addr_r) > 0 ||
+	    pxe_mac_path(&ctx, pxefile_addr_r) > 0 ||
+	    pxe_ipaddr_paths(&ctx, pxefile_addr_r) > 0)
+		goto done;
+
+	i = 0;
+	while (pxe_default_paths[i]) {
+		if (get_pxelinux_path(&ctx, pxe_default_paths[i],
+				      pxefile_addr_r) > 0)
+			goto done;
+		i++;
+	}
+
+	pxe_destroy_ctx(&ctx);
+
+	return -ENOENT;
+done:
+	*bootdirp = env_get("bootfile");
+
+	/*
+	 * The PXE file size is returned but not the name. It is probably not
+	 * that useful.
+	 */
+	*sizep = ctx.pxe_file_size;
+	pxe_destroy_ctx(&ctx);
+
+	return 0;
+}
+
 /*
  * Entry point for the 'pxe get' command.
  * This Follows pxelinux's rules to download a config file from a tftp server.
@@ -122,9 +165,10 @@ static int
 do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *pxefile_addr_str;
-	unsigned long pxefile_addr_r;
-	struct pxe_context ctx;
-	int err, i = 0;
+	ulong pxefile_addr_r;
+	char *fname;
+	ulong size;
+	int ret;
 
 	if (argc != 1)
 		return CMD_RET_USAGE;
@@ -134,43 +178,25 @@ do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (!pxefile_addr_str)
 		return 1;
 
-	err = strict_strtoul(pxefile_addr_str, 16,
+	ret = strict_strtoul(pxefile_addr_str, 16,
 			     (unsigned long *)&pxefile_addr_r);
-	if (err < 0)
+	if (ret < 0)
 		return 1;
 
-	if (pxe_setup_ctx(&ctx, cmdtp, do_get_tftp, NULL, false,
-			  env_get("bootfile"))) {
+	ret = pxe_get(pxefile_addr_r, &fname, &size);
+	switch (ret) {
+	case 0:
+		printf("Config file '%s' found\n", fname);
+		break;
+	case -ENOMEM:
 		printf("Out of memory\n");
 		return CMD_RET_FAILURE;
-	}
-	/*
-	 * Keep trying paths until we successfully get a file we're looking
-	 * for.
-	 */
-	if (pxe_uuid_path(&ctx, pxefile_addr_r) > 0 ||
-	    pxe_mac_path(&ctx, pxefile_addr_r) > 0 ||
-	    pxe_ipaddr_paths(&ctx, pxefile_addr_r) > 0) {
-		printf("Config file found\n");
-		pxe_destroy_ctx(&ctx);
-
-		return 0;
+	default:
+		printf("Config file not found\n");
+		return CMD_RET_FAILURE;
 	}
 
-	while (pxe_default_paths[i]) {
-		if (get_pxelinux_path(&ctx, pxe_default_paths[i],
-				      pxefile_addr_r) > 0) {
-			printf("Config file found\n");
-			pxe_destroy_ctx(&ctx);
-			return 0;
-		}
-		i++;
-	}
-
-	printf("Config file not found\n");
-	pxe_destroy_ctx(&ctx);
-
-	return 1;
+	return 0;
 }
 
 /*

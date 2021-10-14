@@ -236,4 +236,18 @@ int pxe_process(struct pxe_context *ctx, ulong pxefile_addr_r, bool prompt);
  */
 int pxe_get_file_size(ulong *sizep);
 
+/**
+ * pxe_get() - Get the PXE file from the server
+ *
+ * This tries various filenames to obtain a PXE file
+ *
+ * @pxefile_addr_r: Address to put file
+ * @bootdirp: Returns the boot filename, or NULL if none. This is the 'bootfile'
+ *	option provided by the DHCP server. If none, returns NULL. For example,
+ *	"rpi/info", which indicates that all files should be fetched from the
+ *	"rpi/" subdirectory
+ * @sizep: Size of the PXE file (not bootfile)
+ */
+int pxe_get(ulong pxefile_addr_r, char **bootdirp, ulong *sizep);
+
 #endif /* __PXE_UTILS_H */
