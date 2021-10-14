@@ -144,6 +144,7 @@ Directory Hierarchy:
   /xtensa		Files generic to Xtensa architecture
 /api			Machine/arch-independent API for external apps
 /board			Board-dependent files
+/boot			Support for images and booting
 /cmd			U-Boot commands functions
 /common			Misc architecture-independent functions
 /configs		Board default configuration files

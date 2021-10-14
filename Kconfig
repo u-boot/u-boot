@@ -466,6 +466,8 @@ endmenu		# General setup
 
 source "api/Kconfig"
 
+source "boot/Kconfig"
+
 source "common/Kconfig"
 
 source "cmd/Kconfig"
