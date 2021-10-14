@@ -51,7 +51,6 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len)
 
 	if (outbuf_len < 21) {
 		printf("outbuf is too small (%zd < 21)\n", outbuf_len);
-
 		return -ENOSPC;
 	}
 
@@ -91,12 +90,10 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 		goto ret;
 
 	bootfile = from_env("bootfile");
-
 	if (!bootfile)
 		goto ret;
 
 	last_slash = strrchr(bootfile, '/');
-
 	if (!last_slash)
 		goto ret;
 
@@ -140,7 +137,6 @@ static int get_relfile(struct pxe_context *ctx, const char *file_path,
 
 	err = get_bootfile_path(file_path, relfile, sizeof(relfile),
 				ctx->allow_abs_path);
-
 	if (err < 0)
 		return err;
 
@@ -181,7 +177,6 @@ int get_pxe_file(struct pxe_context *ctx, const char *file_path,
 	char *buf;
 
 	err = get_relfile(ctx, file_path, file_addr);
-
 	if (err < 0)
 		return err;
 
@@ -190,7 +185,6 @@ int get_pxe_file(struct pxe_context *ctx, const char *file_path,
 	 * and add the NUL byte.
 	 */
 	tftp_filesize = from_env("filesize");
-
 	if (!tftp_filesize)
 		return -ENOENT;
 
@@ -253,7 +247,6 @@ static int get_relfile_envaddr(struct pxe_context *ctx, const char *file_path,
 	char *envaddr;
 
 	envaddr = from_env(envaddr_name);
-
 	if (!envaddr)
 		return -ENOENT;
 
@@ -276,7 +269,6 @@ static struct pxe_label *label_create(void)
 	struct pxe_label *label;
 
 	label = malloc(sizeof(struct pxe_label));
-
 	if (!label)
 		return NULL;
 
@@ -300,30 +292,14 @@ static struct pxe_label *label_create(void)
  */
 static void label_destroy(struct pxe_label *label)
 {
-	if (label->name)
-		free(label->name);
-
-	if (label->kernel)
-		free(label->kernel);
-
-	if (label->config)
-		free(label->config);
-
-	if (label->append)
-		free(label->append);
-
-	if (label->initrd)
-		free(label->initrd);
-
-	if (label->fdt)
-		free(label->fdt);
-
-	if (label->fdtdir)
-		free(label->fdtdir);
-
-	if (label->fdtoverlays)
-		free(label->fdtoverlays);
-
+	free(label->name);
+	free(label->kernel);
+	free(label->config);
+	free(label->append);
+	free(label->initrd);
+	free(label->fdt);
+	free(label->fdtdir);
+	free(label->fdtoverlays);
 	free(label);
 }
 
@@ -359,7 +335,6 @@ static int label_localboot(struct pxe_label *label)
 	char *localcmd;
 
 	localcmd = from_env("localcmd");
-
 	if (!localcmd)
 		return -ENOENT;
 
@@ -737,8 +712,8 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	unmap_sysmem(buf);
 
 cleanup:
-	if (fit_addr)
-		free(fit_addr);
+	free(fit_addr);
+
 	return 1;
 }
 
@@ -851,7 +826,6 @@ static char *get_string(char **p, struct token *t, char delim, int lower)
 	 */
 	b = *p;
 	e = *p;
-
 	while (*e) {
 		if ((delim == ' ' && isspace(*e)) || delim == *e)
 			break;
@@ -877,11 +851,8 @@ static char *get_string(char **p, struct token *t, char delim, int lower)
 
 	t->val[len] = '\0';
 
-	/*
-	 * Update *p so the caller knows where to continue scanning.
-	 */
+	/* Update *p so the caller knows where to continue scanning */
 	*p = e;
-
 	t->type = T_STRING;
 
 	return t->val;
@@ -1007,7 +978,6 @@ static int parse_integer(char **c, int *dst)
 	char *s = *c;
 
 	get_token(c, &t, L_SLITERAL);
-
 	if (t.type != T_STRING) {
 		printf("Expected string: %.*s\n", (int)(*c - s), s);
 		return -EINVAL;
@@ -1041,14 +1011,12 @@ static int handle_include(struct pxe_context *ctx, char **c, unsigned long base,
 	int ret;
 
 	err = parse_sliteral(c, &include_path);
-
 	if (err < 0) {
 		printf("Expected include path: %.*s\n", (int)(*c - s), s);
 		return err;
 	}
 
 	err = get_pxe_file(ctx, include_path, base);
-
 	if (err < 0) {
 		printf("Couldn't retrieve %s\n", include_path);
 		return err;
@@ -1098,7 +1066,6 @@ static int parse_menu(struct pxe_context *ctx, char **c, struct pxe_menu *cfg,
 		printf("Ignoring malformed menu command: %.*s\n",
 		       (int)(*c - s), s);
 	}
-
 	if (err < 0)
 		return err;
 
@@ -1372,11 +1339,8 @@ void destroy_pxe_menu(struct pxe_menu *cfg)
 	struct list_head *pos, *n;
 	struct pxe_label *label;
 
-	if (cfg->title)
-		free(cfg->title);
-
-	if (cfg->default_label)
-		free(cfg->default_label);
+	free(cfg->title);
+	free(cfg->default_label);
 
 	list_for_each_safe(pos, n, &cfg->labels) {
 		label = list_entry(pos, struct pxe_label, list);
@@ -1394,7 +1358,6 @@ struct pxe_menu *parse_pxefile(struct pxe_context *ctx, unsigned long menucfg)
 	int r;
 
 	cfg = malloc(sizeof(struct pxe_menu));
-
 	if (!cfg)
 		return NULL;
 
@@ -1405,7 +1368,6 @@ struct pxe_menu *parse_pxefile(struct pxe_context *ctx, unsigned long menucfg)
 	buf = map_sysmem(menucfg, 0);
 	r = parse_pxefile_top(ctx, buf, menucfg, cfg, 1);
 	unmap_sysmem(buf);
-
 	if (r < 0) {
 		destroy_pxe_menu(cfg);
 		return NULL;
@@ -1432,7 +1394,6 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 	 */
 	m = menu_create(cfg->title, DIV_ROUND_UP(cfg->timeout, 10),
 			cfg->prompt, NULL, label_print, NULL, NULL);
-
 	if (!m)
 		return NULL;
 
@@ -1511,7 +1472,6 @@ void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg)
 		return;
 
 	err = menu_get_choice(m, &choice);
-
 	menu_destroy(m);
 
 	/*
