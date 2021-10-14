@@ -171,9 +171,9 @@ static int
 do_pxe_boot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned long pxefile_addr_r;
-	struct pxe_menu *cfg;
 	char *pxefile_addr_str;
 	struct pxe_context ctx;
+	int ret;
 
 	pxe_setup_ctx(&ctx, cmdtp, do_get_tftp, NULL, false);
 
@@ -193,16 +193,9 @@ do_pxe_boot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 1;
 	}
 
-	cfg = parse_pxefile(&ctx, pxefile_addr_r);
-
-	if (!cfg) {
-		printf("Error parsing config file\n");
-		return 1;
-	}
-
-	handle_pxe_menu(&ctx, cfg);
-
-	destroy_pxe_menu(cfg);
+	ret = pxe_process(&ctx, pxefile_addr_r, false);
+	if (ret)
+		return CMD_RET_FAILURE;
 
 	copy_filename(net_boot_file_name, "", sizeof(net_boot_file_name));
 

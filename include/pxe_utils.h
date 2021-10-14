@@ -202,4 +202,13 @@ void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
 		   pxe_getfile_func getfile, void *userdata,
 		   bool allow_abs_path);
 
+/**
+ * pxe_process() - Process a PXE file through to boot
+ *
+ * @ctx: PXE context created with pxe_setup_ctx()
+ * @pxefile_addr_r: Address to load file
+ * @prompt: Force a prompt for the user
+ */
+int pxe_process(struct pxe_context *ctx, ulong pxefile_addr_r, bool prompt);
+
 #endif /* __PXE_UTILS_H */

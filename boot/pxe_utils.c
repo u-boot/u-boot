@@ -1505,3 +1505,23 @@ void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
 	ctx->userdata = userdata;
 	ctx->allow_abs_path = allow_abs_path;
 }
+
+int pxe_process(struct pxe_context *ctx, ulong pxefile_addr_r, bool prompt)
+{
+	struct pxe_menu *cfg;
+
+	cfg = parse_pxefile(ctx, pxefile_addr_r);
+	if (!cfg) {
+		printf("Error parsing config file\n");
+		return 1;
+	}
+
+	if (prompt)
+		cfg->prompt = 1;
+
+	handle_pxe_menu(ctx, cfg);
+
+	destroy_pxe_menu(cfg);
+
+	return 0;
+}

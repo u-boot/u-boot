@@ -60,10 +60,10 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	unsigned long pxefile_addr_r;
 	struct pxe_context ctx;
-	struct pxe_menu *cfg;
 	char *pxefile_addr_str;
 	char *filename;
 	int prompt = 0;
+	int ret;
 
 	if (argc > 1 && strstr(argv[1], "-p")) {
 		prompt = 1;
@@ -113,19 +113,9 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		return 1;
 	}
 
-	cfg = parse_pxefile(&ctx, pxefile_addr_r);
-
-	if (!cfg) {
-		printf("Error parsing config file\n");
-		return 1;
-	}
-
-	if (prompt)
-		cfg->prompt = 1;
-
-	handle_pxe_menu(&ctx, cfg);
-
-	destroy_pxe_menu(cfg);
+	ret = pxe_process(&ctx, pxefile_addr_r, prompt);
+	if (ret)
+		return CMD_RET_FAILURE;
 
 	return 0;
 }
