@@ -9,43 +9,58 @@
 static char *fs_argv[5];
 
 static int do_get_ext2(struct pxe_context *ctx, const char *file_path,
-		       char *file_addr)
+		       char *file_addr, ulong *sizep)
 {
 #ifdef CONFIG_CMD_EXT2
+	int ret;
+
 	fs_argv[0] = "ext2load";
 	fs_argv[3] = file_addr;
 	fs_argv[4] = (void *)file_path;
 
 	if (!do_ext2load(ctx->cmdtp, 0, 5, fs_argv))
 		return 1;
+	ret = pxe_get_file_size(sizep);
+	if (ret)
+		return log_msg_ret("tftp", ret);
 #endif
 	return -ENOENT;
 }
 
 static int do_get_fat(struct pxe_context *ctx, const char *file_path,
-		      char *file_addr)
+		      char *file_addr, ulong *sizep)
 {
 #ifdef CONFIG_CMD_FAT
+	int ret;
+
 	fs_argv[0] = "fatload";
 	fs_argv[3] = file_addr;
 	fs_argv[4] = (void *)file_path;
 
 	if (!do_fat_fsload(ctx->cmdtp, 0, 5, fs_argv))
 		return 1;
+	ret = pxe_get_file_size(sizep);
+	if (ret)
+		return log_msg_ret("tftp", ret);
 #endif
 	return -ENOENT;
 }
 
 static int do_get_any(struct pxe_context *ctx, const char *file_path,
-		      char *file_addr)
+		      char *file_addr, ulong *sizep)
 {
 #ifdef CONFIG_CMD_FS_GENERIC
+	int ret;
+
 	fs_argv[0] = "load";
 	fs_argv[3] = file_addr;
 	fs_argv[4] = (void *)file_path;
 
 	if (!do_load(ctx->cmdtp, 0, 5, fs_argv, FS_TYPE_ANY))
 		return 1;
+	ret = pxe_get_file_size(sizep);
+	if (ret)
+		return log_msg_ret("tftp", ret);
 #endif
 	return -ENOENT;
 }

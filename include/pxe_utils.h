@@ -77,7 +77,7 @@ struct pxe_menu {
 
 struct pxe_context;
 typedef int (*pxe_getfile_func)(struct pxe_context *ctx, const char *file_path,
-				char *file_addr);
+				char *file_addr, ulong *filesizep);
 
 /**
  * struct pxe_context - context information for PXE parsing
@@ -88,6 +88,7 @@ typedef int (*pxe_getfile_func)(struct pxe_context *ctx, const char *file_path,
  * @allow_abs_path: true to allow absolute paths
  * @bootdir: Directory that files are loaded from ("" if no directory). This is
  *	allocated
+ * @pxe_file_size: Size of the PXE file
  */
 struct pxe_context {
 	struct cmd_tbl *cmdtp;
@@ -98,6 +99,7 @@ struct pxe_context {
 	 * @file_path: Path to the file
 	 * @file_addr: String containing the hex address to put the file in
 	 *	memory
+	 * @filesizep: Returns the file size in bytes
 	 * Return 0 if OK, -ve on error
 	 */
 	pxe_getfile_func getfile;
@@ -105,6 +107,7 @@ struct pxe_context {
 	void *userdata;
 	bool allow_abs_path;
 	char *bootdir;
+	ulong pxe_file_size;
 };
 
 /**
@@ -224,5 +227,13 @@ void pxe_destroy_ctx(struct pxe_context *ctx);
  * @prompt: Force a prompt for the user
  */
 int pxe_process(struct pxe_context *ctx, ulong pxefile_addr_r, bool prompt);
+
+/**
+ * pxe_get_file_size() - Read the value of the 'filesize' environment variable
+ *
+ * @sizep: Place to put the value
+ * @return 0 if OK, -ENOENT if no such variable, -EINVAL if format is invalid
+ */
+int pxe_get_file_size(ulong *sizep);
 
 #endif /* __PXE_UTILS_H */

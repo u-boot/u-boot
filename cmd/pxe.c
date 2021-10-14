@@ -25,15 +25,20 @@ const char *pxe_default_paths[] = {
 };
 
 static int do_get_tftp(struct pxe_context *ctx, const char *file_path,
-		       char *file_addr)
+		       char *file_addr, ulong *sizep)
 {
 	char *tftp_argv[] = {"tftp", NULL, NULL, NULL};
+	int ret;
 
 	tftp_argv[1] = file_addr;
 	tftp_argv[2] = (void *)file_path;
 
 	if (do_tftpb(ctx->cmdtp, 0, 3, tftp_argv))
 		return -ENOENT;
+	ret = pxe_get_file_size(sizep);
+	if (ret)
+		return log_msg_ret("tftp", ret);
+	ctx->pxe_file_size = *sizep;
 
 	return 1;
 }
