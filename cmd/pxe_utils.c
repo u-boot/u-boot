@@ -30,8 +30,6 @@
 
 #define MAX_TFTP_PATH_LEN 512
 
-bool is_pxe;
-
 int format_mac_pxe(char *outbuf, size_t outbuf_len)
 {
 	uchar ethaddr[6];
@@ -58,13 +56,13 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len)
  * be interpreted as "don't prepend anything to paths".
  */
 static int get_bootfile_path(const char *file_path, char *bootfile_path,
-			     size_t bootfile_path_size)
+			     size_t bootfile_path_size, bool allow_abs_path)
 {
 	char *bootfile, *last_slash;
 	size_t path_len = 0;
 
 	/* Only syslinux allows absolute paths */
-	if (file_path[0] == '/' && !is_pxe)
+	if (file_path[0] == '/' && allow_abs_path)
 		goto ret;
 
 	bootfile = from_env("bootfile");
@@ -110,7 +108,8 @@ static int get_relfile(struct pxe_context *ctx, const char *file_path,
 	char addr_buf[18];
 	int err;
 
-	err = get_bootfile_path(file_path, relfile, sizeof(relfile));
+	err = get_bootfile_path(file_path, relfile, sizeof(relfile),
+				ctx->allow_abs_path);
 
 	if (err < 0)
 		return err;
@@ -1451,9 +1450,11 @@ void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg)
 }
 
 void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
-		   pxe_getfile_func getfile, void *userdata)
+		   pxe_getfile_func getfile, void *userdata,
+		   bool allow_abs_path)
 {
 	ctx->cmdtp = cmdtp;
 	ctx->getfile = getfile;
 	ctx->userdata = userdata;
+	ctx->allow_abs_path = allow_abs_path;
 }

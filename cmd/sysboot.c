@@ -65,8 +65,6 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 	char *filename;
 	int prompt = 0;
 
-	is_pxe = false;
-
 	if (argc > 1 && strstr(argv[1], "-p")) {
 		prompt = 1;
 		argc--;
@@ -91,7 +89,7 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		env_set("bootfile", filename);
 	}
 
-	pxe_setup_ctx(&ctx, cmdtp, NULL, NULL);
+	pxe_setup_ctx(&ctx, cmdtp, NULL, NULL, true);
 	if (strstr(argv[3], "ext2")) {
 		ctx.getfile = do_get_ext2;
 	} else if (strstr(argv[3], "fat")) {

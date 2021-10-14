@@ -75,8 +75,6 @@ struct pxe_menu {
 	struct list_head labels;
 };
 
-extern bool is_pxe;
-
 struct pxe_context;
 typedef int (*pxe_getfile_func)(struct pxe_context *ctx, const char *file_path,
 				char *file_addr);
@@ -87,6 +85,7 @@ typedef int (*pxe_getfile_func)(struct pxe_context *ctx, const char *file_path,
  * @cmdtp: Pointer to command table to use when calling other commands
  * @getfile: Function called by PXE to read a file
  * @userdata: Data the caller requires for @getfile
+ * @allow_abs_path: true to allow absolute paths
  */
 struct pxe_context {
 	struct cmd_tbl *cmdtp;
@@ -102,6 +101,7 @@ struct pxe_context {
 	pxe_getfile_func getfile;
 
 	void *userdata;
+	bool allow_abs_path;
 };
 
 /**
@@ -196,8 +196,10 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len);
  * @cmdtp: Command table entry which started this action
  * @getfile: Function to call to read a file
  * @userdata: Data the caller requires for @getfile - stored in ctx->userdata
+ * @allow_abs_path: true to allow absolute paths
  */
 void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
-		   pxe_getfile_func getfile, void *userdata);
+		   pxe_getfile_func getfile, void *userdata,
+		   bool allow_abs_path);
 
 #endif /* __PXE_UTILS_H */
