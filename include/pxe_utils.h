@@ -86,6 +86,8 @@ typedef int (*pxe_getfile_func)(struct pxe_context *ctx, const char *file_path,
  * @getfile: Function called by PXE to read a file
  * @userdata: Data the caller requires for @getfile
  * @allow_abs_path: true to allow absolute paths
+ * @bootdir: Directory that files are loaded from ("" if no directory). This is
+ *	allocated
  */
 struct pxe_context {
 	struct cmd_tbl *cmdtp;
@@ -102,6 +104,7 @@ struct pxe_context {
 
 	void *userdata;
 	bool allow_abs_path;
+	char *bootdir;
 };
 
 /**
@@ -197,10 +200,20 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len);
  * @getfile: Function to call to read a file
  * @userdata: Data the caller requires for @getfile - stored in ctx->userdata
  * @allow_abs_path: true to allow absolute paths
+ * @bootfile: Bootfile whose directory loaded files are relative to, NULL if
+ *	none
+ * @return 0 if OK, -ENOMEM if out of memory
  */
-void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
-		   pxe_getfile_func getfile, void *userdata,
-		   bool allow_abs_path);
+int pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
+		  pxe_getfile_func getfile, void *userdata,
+		  bool allow_abs_path, const char *bootfile);
+
+/**
+ * pxe_destroy_ctx() - Destroy a PXE context
+ *
+ * @ctx: Context to destroy
+ */
+void pxe_destroy_ctx(struct pxe_context *ctx);
 
 /**
  * pxe_process() - Process a PXE file through to boot

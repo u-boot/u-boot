@@ -121,8 +121,6 @@ do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	struct pxe_context ctx;
 	int err, i = 0;
 
-	pxe_setup_ctx(&ctx, cmdtp, do_get_tftp, NULL, false);
-
 	if (argc != 1)
 		return CMD_RET_USAGE;
 
@@ -136,6 +134,11 @@ do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (err < 0)
 		return 1;
 
+	if (pxe_setup_ctx(&ctx, cmdtp, do_get_tftp, NULL, false,
+			  env_get("bootfile"))) {
+		printf("Out of memory\n");
+		return CMD_RET_FAILURE;
+	}
 	/*
 	 * Keep trying paths until we successfully get a file we're looking
 	 * for.
@@ -144,6 +147,7 @@ do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	    pxe_mac_path(&ctx, pxefile_addr_r) > 0 ||
 	    pxe_ipaddr_paths(&ctx, pxefile_addr_r) > 0) {
 		printf("Config file found\n");
+		pxe_destroy_ctx(&ctx);
 
 		return 0;
 	}
@@ -152,12 +156,14 @@ do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		if (get_pxelinux_path(&ctx, pxe_default_paths[i],
 				      pxefile_addr_r) > 0) {
 			printf("Config file found\n");
+			pxe_destroy_ctx(&ctx);
 			return 0;
 		}
 		i++;
 	}
 
 	printf("Config file not found\n");
+	pxe_destroy_ctx(&ctx);
 
 	return 1;
 }
@@ -175,8 +181,6 @@ do_pxe_boot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	struct pxe_context ctx;
 	int ret;
 
-	pxe_setup_ctx(&ctx, cmdtp, do_get_tftp, NULL, false);
-
 	if (argc == 1) {
 		pxefile_addr_str = from_env("pxefile_addr_r");
 		if (!pxefile_addr_str)
@@ -193,7 +197,13 @@ do_pxe_boot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 1;
 	}
 
+	if (pxe_setup_ctx(&ctx, cmdtp, do_get_tftp, NULL, false,
+			  env_get("bootfile"))) {
+		printf("Out of memory\n");
+		return CMD_RET_FAILURE;
+	}
 	ret = pxe_process(&ctx, pxefile_addr_r, false);
+	pxe_destroy_ctx(&ctx);
 	if (ret)
 		return CMD_RET_FAILURE;
 

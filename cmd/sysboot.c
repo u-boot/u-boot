@@ -59,6 +59,7 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
 	unsigned long pxefile_addr_r;
+	pxe_getfile_func getfile;
 	struct pxe_context ctx;
 	char *pxefile_addr_str;
 	char *filename;
@@ -89,13 +90,12 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		env_set("bootfile", filename);
 	}
 
-	pxe_setup_ctx(&ctx, cmdtp, NULL, NULL, true);
 	if (strstr(argv[3], "ext2")) {
-		ctx.getfile = do_get_ext2;
+		getfile = do_get_ext2;
 	} else if (strstr(argv[3], "fat")) {
-		ctx.getfile = do_get_fat;
+		getfile = do_get_fat;
 	} else if (strstr(argv[3], "any")) {
-		ctx.getfile = do_get_any;
+		getfile = do_get_any;
 	} else {
 		printf("Invalid filesystem: %s\n", argv[3]);
 		return 1;
@@ -108,12 +108,19 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		return 1;
 	}
 
+	if (pxe_setup_ctx(&ctx, cmdtp, getfile, NULL, true, filename)) {
+		printf("Out of memory\n");
+		return CMD_RET_FAILURE;
+	}
+
 	if (get_pxe_file(&ctx, filename, pxefile_addr_r) < 0) {
 		printf("Error reading config file\n");
+		pxe_destroy_ctx(&ctx);
 		return 1;
 	}
 
 	ret = pxe_process(&ctx, pxefile_addr_r, prompt);
+	pxe_destroy_ctx(&ctx);
 	if (ret)
 		return CMD_RET_FAILURE;
 

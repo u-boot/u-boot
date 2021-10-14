@@ -67,10 +67,10 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len)
 /**
  * get_bootfile_path() - Figure out the path of a file to read
  *
- * Returns the directory the file specified in the 'bootfile' env variable is
- * in. If bootfile isn't defined in the environment, return NULL, which should
- * be interpreted as "don't prepend anything to paths".
+ * Copies the boot directory into the supplied buffer. If there is no boot
+ * directory, set it to ""
  *
+ * @ctx: PXE context
  * @file_path: File path to read (relative to the PXE file)
  * @bootfile_path: Place to put the bootfile path
  * @bootfile_path_size: Size of @bootfile_path in bytes
@@ -79,34 +79,25 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len)
  * Returns 1 for success, -ENOSPC if bootfile_path_size is to small to hold the
  *	resulting path
  */
-static int get_bootfile_path(const char *file_path, char *bootfile_path,
-			     size_t bootfile_path_size, bool allow_abs_path)
+static int get_bootfile_path(struct pxe_context *ctx, const char *file_path,
+			     char *bootfile_path, size_t bootfile_path_size,
+			     bool allow_abs_path)
 {
-	char *bootfile, *last_slash;
 	size_t path_len = 0;
 
 	/* Only syslinux allows absolute paths */
 	if (file_path[0] == '/' && allow_abs_path)
 		goto ret;
 
-	bootfile = from_env("bootfile");
-	if (!bootfile)
-		goto ret;
-
-	last_slash = strrchr(bootfile, '/');
-	if (!last_slash)
-		goto ret;
-
-	path_len = (last_slash - bootfile) + 1;
-
-	if (bootfile_path_size < path_len) {
+	path_len = strlen(ctx->bootdir);
+	if (bootfile_path_size < path_len + 1) {
 		printf("bootfile_path too small. (%zd < %zd)\n",
 		       bootfile_path_size, path_len);
 
 		return -ENOSPC;
 	}
 
-	strncpy(bootfile_path, bootfile, path_len);
+	strncpy(bootfile_path, ctx->bootdir, path_len);
 
  ret:
 	bootfile_path[path_len] = '\0';
@@ -135,7 +126,7 @@ static int get_relfile(struct pxe_context *ctx, const char *file_path,
 	char addr_buf[18];
 	int err;
 
-	err = get_bootfile_path(file_path, relfile, sizeof(relfile),
+	err = get_bootfile_path(ctx, file_path, relfile, sizeof(relfile),
 				ctx->allow_abs_path);
 	if (err < 0)
 		return err;
@@ -1496,14 +1487,39 @@ void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg)
 	boot_unattempted_labels(ctx, cfg);
 }
 
-void pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
-		   pxe_getfile_func getfile, void *userdata,
-		   bool allow_abs_path)
+int pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
+		  pxe_getfile_func getfile, void *userdata,
+		  bool allow_abs_path, const char *bootfile)
 {
+	const char *last_slash;
+	size_t path_len = 0;
+
+	memset(ctx, '\0', sizeof(*ctx));
 	ctx->cmdtp = cmdtp;
 	ctx->getfile = getfile;
 	ctx->userdata = userdata;
 	ctx->allow_abs_path = allow_abs_path;
+
+	/* figure out the boot directory, if there is one */
+	if (bootfile && strlen(bootfile) >= MAX_TFTP_PATH_LEN)
+		return -ENOSPC;
+	ctx->bootdir = strdup(bootfile ? bootfile : "");
+	if (!ctx->bootdir)
+		return -ENOMEM;
+
+	if (bootfile) {
+		last_slash = strrchr(bootfile, '/');
+		if (last_slash)
+			path_len = (last_slash - bootfile) + 1;
+	}
+	ctx->bootdir[path_len] = '\0';
+
+	return 0;
+}
+
+void pxe_destroy_ctx(struct pxe_context *ctx)
+{
+	free(ctx->bootdir);
 }
 
 int pxe_process(struct pxe_context *ctx, ulong pxefile_addr_r, bool prompt)
