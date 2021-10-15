@@ -175,6 +175,13 @@ config SPL_FIT_SIGNATURE_MAX_SIZE
 	  device memory. Assure this size does not extend past expected storage
 	  space.
 
+config SPL_FIT_RSASSA_PSS
+	bool "Support rsassa-pss signature scheme of FIT image contents in SPL"
+	depends on SPL_FIT_SIGNATURE
+	help
+	  Enable this to support the pss padding algorithm as described
+	  in the rfc8017 (https://tools.ietf.org/html/rfc8017) in SPL.
+
 config SPL_LOAD_FIT
 	bool "Enable SPL loading U-Boot as a FIT (basic fitImage features)"
 	select SPL_FIT
