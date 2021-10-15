@@ -580,11 +580,9 @@ static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,
 	compatible = fdt_getprop(ctx->fit, node, "compatible", NULL);
 	if (!compatible)
 		warn_deprecated("'fpga' image without 'compatible' property");
-	else if (strcmp(compatible, "u-boot,fpga-legacy"))
-		printf("Ignoring compatible = %s property\n", compatible);
 
 	ret = fpga_load(0, (void *)fpga_image->load_addr, fpga_image->size,
-			BIT_FULL);
+			BIT_FULL, compatible);
 	if (ret) {
 		printf("%s: Cannot load the image to the FPGA\n", __func__);
 		return ret;

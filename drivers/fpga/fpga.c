@@ -250,9 +250,11 @@ int fpga_loads(int devnum, const void *buf, size_t size,
 #endif
 
 /*
- * Generic multiplexing code
+ * Generic multiplexing code:
+ * Each architecture must handle the mandatory FPGA DT compatible property.
  */
-int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype)
+int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype,
+	      const char *compatible)
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
 	const fpga_desc *desc = fpga_validate(devnum, buf, bsize,
@@ -270,6 +272,9 @@ int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype)
 			break;
 		case fpga_altera:
 #if defined(CONFIG_FPGA_ALTERA)
+			if (strcmp(compatible, "u-boot,fpga-legacy"))
+				printf("Ignoring compatible = %s property\n",
+				       compatible);
 			ret_val = altera_load(desc->devdesc, buf, bsize);
 #else
 			fpga_no_sup((char *)__func__, "Altera devices");
@@ -277,6 +282,9 @@ int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype)
 			break;
 		case fpga_lattice:
 #if defined(CONFIG_FPGA_LATTICE)
+			if (strcmp(compatible, "u-boot,fpga-legacy"))
+				printf("Ignoring compatible = %s property\n",
+				       compatible);
 			ret_val = lattice_load(desc->devdesc, buf, bsize);
 #else
 			fpga_no_sup((char *)__func__, "Lattice devices");
