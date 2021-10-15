@@ -29,6 +29,10 @@ static int ipi_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 {
 	struct zynqmp_ipi_msg msg;
 	int ret;
+	u32 buffer[PAYLOAD_ARG_CNT];
+
+	if (!res)
+		res = buffer;
 
 	if (req_len > PMUFW_PAYLOAD_ARG_CNT ||
 	    res_maxlen > PMUFW_PAYLOAD_ARG_CNT)
