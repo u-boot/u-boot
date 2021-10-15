@@ -31,6 +31,7 @@ static int egon_check_params(struct image_tool_params *params)
 	 */
 	switch (egon_get_arch(params)) {
 	case IH_ARCH_ARM:
+	case IH_ARCH_RISCV:
 		break;
 	default:
 		return EXIT_FAILURE;
@@ -53,6 +54,10 @@ static int egon_verify_header(unsigned char *ptr, int image_size,
 	switch (egon_get_arch(params)) {
 	case IH_ARCH_ARM:
 		if ((le32_to_cpu(header->b_instruction) & 0xff000000) != 0xea000000)
+			return EXIT_FAILURE;
+		break;
+	case IH_ARCH_RISCV:
+		if ((le32_to_cpu(header->b_instruction) & 0x00000fff) != 0x0000006f)
 			return EXIT_FAILURE;
 		break;
 	default:
@@ -114,6 +119,24 @@ static void egon_set_header(void *buf, struct stat *sbuf, int infd,
 	case IH_ARCH_ARM:
 		/* Generate an ARM branch instruction to jump over the header. */
 		value = 0xea000000 | (sizeof(struct boot_file_head) / 4 - 2);
+		header->b_instruction = cpu_to_le32(value);
+		break;
+	case IH_ARCH_RISCV:
+		/*
+		 * Generate a RISC-V JAL instruction with rd=x0
+		 * (pseudo instruction J, jump without side effects).
+		 *
+		 * The following weird bit operation maps imm[20]
+		 * to inst[31], imm[10:1] to inst[30:21],
+		 * imm[11] to inst[20], imm[19:12] to inst[19:12],
+		 * and imm[0] is dropped (because 1-byte RISC-V instruction
+		 * is not allowed).
+		 */
+		value = 0x0000006f |
+			((sizeof(struct boot_file_head) & 0x00100000) << 11) |
+			((sizeof(struct boot_file_head) & 0x000007fe) << 20) |
+			((sizeof(struct boot_file_head) & 0x00000800) << 9) |
+			((sizeof(struct boot_file_head) & 0x000ff000) << 0);
 		header->b_instruction = cpu_to_le32(value);
 		break;
 	}
