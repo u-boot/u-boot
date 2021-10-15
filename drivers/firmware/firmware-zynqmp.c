@@ -164,6 +164,7 @@ int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		 * firmware API is limited by the SMC call size
 		 */
 		u32 regs[] = {api_id, arg0, arg1, arg2, arg3};
+		int ret;
 
 		if (api_id == PM_FPGA_LOAD) {
 			/* Swap addr_hi/low because of incompatibility */
@@ -173,7 +174,10 @@ int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 			regs[2] = temp;
 		}
 
-		ipi_req(regs, PAYLOAD_ARG_CNT, ret_payload, PAYLOAD_ARG_CNT);
+		ret = ipi_req(regs, PAYLOAD_ARG_CNT, ret_payload,
+			      PAYLOAD_ARG_CNT);
+		if (ret)
+			return ret;
 #else
 		return -EPERM;
 #endif
