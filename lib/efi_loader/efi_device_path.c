@@ -1233,7 +1233,7 @@ efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
 
 		vendor = (struct efi_device_path_vendor *)fp;
 		if (!guidcmp(&vendor->guid, guid))
-			return efi_dp_dup(fp);
+			return efi_dp_dup(efi_dp_next(fp));
 	}
 	log_debug("VenMedia(%pUl) not found in %ls\n", &guid, lo->label);
 

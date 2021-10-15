@@ -68,10 +68,8 @@ out:
  */
 struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid)
 {
-	struct efi_device_path *file_path = NULL;
-	struct efi_device_path *tmp = NULL;
 	struct efi_load_option lo;
-	void *var_value = NULL;
+	void *var_value;
 	efi_uintn_t size;
 	efi_status_t ret;
 	u16 var_name[16];
@@ -86,18 +84,11 @@ struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid)
 
 	ret = efi_deserialize_load_option(&lo, var_value, &size);
 	if (ret != EFI_SUCCESS)
-		goto out;
+		goto err;
 
-	tmp = efi_dp_from_lo(&lo, &guid);
-	if (!tmp)
-		goto out;
+	return efi_dp_from_lo(&lo, &guid);
 
-	/* efi_dp_dup will just return NULL if efi_dp_next is NULL */
-	file_path = efi_dp_dup(efi_dp_next(tmp));
-
-out:
-	efi_free_pool(tmp);
+err:
 	free(var_value);
-
-	return file_path;
+	return NULL;
 }
