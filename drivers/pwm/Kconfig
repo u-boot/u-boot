@@ -23,6 +23,13 @@ config PWM_AT91
 	help
 	  Support for PWM hardware on AT91 based SoC.
 
+config PWM_CADENCE_TTC
+	bool "Enable support for the Cadence TTC PWM"
+	depends on DM_PWM && !CADENCE_TTC_TIMER
+	help
+	  Cadence TTC can be configured as timer which is done via
+	  CONFIG_CADENCE_TTC_TIMER or as PWM. This is covering only PWM now.
+
 config PWM_CROS_EC
 	bool "Enable support for the Chrome OS EC PWM"
 	depends on DM_PWM
