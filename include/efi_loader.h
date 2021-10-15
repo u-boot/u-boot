@@ -842,7 +842,6 @@ struct efi_load_option {
 };
 
 struct efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
-				       efi_uintn_t *size,
 				       const efi_guid_t *guid);
 struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 				      const struct efi_device_path *dp2);

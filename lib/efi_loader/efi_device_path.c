@@ -1209,7 +1209,6 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
  *                    initrd location
  *
  * @lo:		EFI_LOAD_OPTION containing a valid device path
- * @size:	size of the discovered device path
  * @guid:	guid to search for
  *
  * Return:
@@ -1218,7 +1217,6 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
  */
 struct
 efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
-				efi_uintn_t *size,
 				const efi_guid_t *guid)
 {
 	struct efi_device_path *fp = lo->file_path;
