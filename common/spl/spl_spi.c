@@ -109,7 +109,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 						    payload_offs);
 		printf("payload offset determined by dtb: %u\n", payload_offs);
 	}
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if false && CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	payload_offs = fdtdec_get_config_int(gd->fdt_blob,
 					     "u-boot,spl-payload-offset",
 					     payload_offs);
