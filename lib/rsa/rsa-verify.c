@@ -340,7 +340,7 @@ static int rsa_verify_key(struct image_sign_info *info,
 	struct padding_algo *padding = info->padding;
 	int hash_len;
 
-	if (!prop || !sig || !hash || !checksum)
+	if (!prop || !sig || !hash || !checksum || !padding)
 		return -EIO;
 
 	if (sig_len != (prop->num_bits / 8)) {
