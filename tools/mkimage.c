@@ -172,6 +172,7 @@ static void process_args(int argc, char **argv)
 				show_valid_options(IH_ARCH);
 				usage("Invalid architecture");
 			}
+			params.Aflag = 1;
 			break;
 		case 'b':
 			if (add_content(IH_TYPE_FLATDT, optarg)) {
