@@ -18,9 +18,6 @@
  * U-Boot into it.
  */
 
-/* USB/EHCI configuration */
-#define CONFIG_EHCI_IS_TDI
-
 #define CONFIG_ENV_MIN_ENTRIES		128
 
 /* Environment in MMC */

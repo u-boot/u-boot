@@ -13,9 +13,6 @@
 #define CONFIG_SYS_BOOTM_LEN	(64 * 1024 * 1024) /* 64 MB */
 #define CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
 
-/* USB/EHCI configuration */
-#define CONFIG_EHCI_IS_TDI
-
 /* Environment in SPI NOR flash */
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */
