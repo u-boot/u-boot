@@ -169,8 +169,7 @@ jobs:
       options: $(container_option)
     steps:
       - script: |
-          ./tools/buildman/buildman --fetch-arch arm
-          export PATH=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/:$PATH
+          export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
 
   - job: test_py
