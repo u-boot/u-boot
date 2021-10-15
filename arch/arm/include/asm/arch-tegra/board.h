@@ -30,4 +30,14 @@ void pin_mux_nand(void);     /* overridable NAND pinmux setup    */
 void pin_mux_mmc(void);      /* overridable mmc pinmux setup     */
 void pin_mux_display(void);  /* overridable DISPLAY pinmux setup */
 
+/*
+ * Helpers for various standard DT update mechanisms.
+ */
+
+#if defined(CONFIG_ARM64)
+void ft_mac_address_setup(void *fdt);
+void ft_carveout_setup(void *fdt, const char *const *nodes,
+		       unsigned int count);
+#endif
+
 #endif
