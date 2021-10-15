@@ -53,6 +53,16 @@ config USB_DWC3_UNIPHIER
 	  Support of USB2/3 functionality in Socionext UniPhier platforms.
 	  Say 'Y' here if you have one such device.
 
+config USB_DWC3_LAYERSCAPE
+	bool "Freescale Layerscape platform support"
+	depends on DM_USB && USB_DWC3
+	depends on !USB_XHCI_FSL
+	help
+	  Select this for Freescale Layerscape Platforms.
+
+	  Host and Peripheral operation modes are supported. OTG is not
+	  supported.
+
 menu "PHY Subsystem"
 
 config USB_DWC3_PHY_OMAP
