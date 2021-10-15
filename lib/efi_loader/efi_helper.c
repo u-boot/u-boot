@@ -13,6 +13,11 @@
 #include <efi_loader.h>
 #include <efi_variable.h>
 
+#if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI_LOAD_FILE2_INITRD)
+/* GUID used by Linux to identify the LoadFile2 protocol with the initrd */
+const efi_guid_t efi_lf2_initrd_guid = EFI_INITRD_MEDIA_GUID;
+#endif
+
 /**
  * efi_create_current_boot_var() - Return Boot#### name were #### is replaced by
  *			           the value of BootCurrent
