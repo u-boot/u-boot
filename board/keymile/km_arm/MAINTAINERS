@@ -1,5 +1,5 @@
 KM_ARM BOARD
-M:	Valentin Longchamp <valentin.longchamp@hitachi-powergrids.com>
+M:	Holger Brunck <holger.brunck@hitachienergy.com>
 S:	Maintained
 F:	board/keymile/km_arm/
 F:	include/configs/km_kirkwood.h

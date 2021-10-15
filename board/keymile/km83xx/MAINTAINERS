@@ -1,5 +1,5 @@
 KM83XX BOARD
-M:	Holger Brunck <holger.brunck@hitachi-powergrids.com>
+M:	Holger Brunck <holger.brunck@hitachienergy.com>
 M:	Heiko Schocher <hs@denx.de>
 S:	Maintained
 F:	board/keymile/km83xx/

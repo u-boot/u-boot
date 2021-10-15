@@ -103,6 +103,21 @@ will be written to `${build_dir}/test-log.html`. This is best viewed in a web
 browser, but may be read directly as plain text, perhaps with the aid of the
 `html2text` utility.
 
+If sandbox crashes (e.g. with a segfault) you will see message like this::
+
+
+    test/py/u_boot_spawn.py:171: in expect
+        c = os.read(self.fd, 1024).decode(errors='replace')
+    E   ValueError: U-Boot exited with signal 11 (Signals.SIGSEGV)
+
+
+Controlling output
+~~~~~~~~~~~~~~~~~~
+
+By default a short backtrace is reported. If you would like a longer one,
+pass ``--tb=long`` when running the test. See the pytest documentation for
+more options.
+
 Running tests in parallel
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -35,6 +35,8 @@ class Spawn(object):
         """
 
         self.waited = False
+        self.exit_code = 0
+        self.exit_info = ''
         self.buf = ''
         self.output = ''
         self.logfile_read = None
@@ -80,6 +82,34 @@ class Spawn(object):
 
         os.kill(self.pid, sig)
 
+    def checkalive(self):
+        """Determine whether the child process is still running.
+
+        Returns:
+            tuple:
+                True if process is alive, else False
+                0 if process is alive, else exit code of process
+                string describing what happened ('' or 'status/signal n')
+        """
+
+        if self.waited:
+            return False, self.exit_code, self.exit_info
+
+        w = os.waitpid(self.pid, os.WNOHANG)
+        if w[0] == 0:
+            return True, 0, 'running'
+        status = w[1]
+
+        if os.WIFEXITED(status):
+            self.exit_code = os.WEXITSTATUS(status)
+            self.exit_info = 'status %d' % self.exit_code
+        elif os.WIFSIGNALED(status):
+            signum = os.WTERMSIG(status)
+            self.exit_code = -signum
+            self.exit_info = 'signal %d (%s)' % (signum, signal.Signals(signum))
+        self.waited = True
+        return False, self.exit_code, self.exit_info
+
     def isalive(self):
         """Determine whether the child process is still running.
 
@@ -89,16 +119,7 @@ class Spawn(object):
         Returns:
             Boolean indicating whether process is alive.
         """
-
-        if self.waited:
-            return False
-
-        w = os.waitpid(self.pid, os.WNOHANG)
-        if w[0] == 0:
-            return True
-
-        self.waited = True
-        return False
+        return self.checkalive()[0]
 
     def send(self, data):
         """Send data to the sub-process's stdin.
@@ -168,9 +189,20 @@ class Spawn(object):
                 events = self.poll.poll(poll_maxwait)
                 if not events:
                     raise Timeout()
-                c = os.read(self.fd, 1024).decode(errors='replace')
-                if not c:
-                    raise EOFError()
+                try:
+                    c = os.read(self.fd, 1024).decode(errors='replace')
+                except OSError as err:
+                    # With sandbox, try to detect when U-Boot exits when it
+                    # shouldn't and explain why. This is much more friendly than
+                    # just dying with an I/O error
+                    if err.errno == 5:  # Input/output error
+                        alive, exit_code, info = self.checkalive()
+                        if alive:
+                            raise
+                        else:
+                            raise ValueError('U-Boot exited with %s' % info)
+                    else:
+                        raise
                 if self.logfile_read:
                     self.logfile_read.write(c)
                 self.buf += c
