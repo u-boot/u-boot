@@ -99,10 +99,12 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 		puts("SPI probe failed.\n");
 		return -ENODEV;
 	}
+	printf("SPI Probe successful: %p\n", flash);
 
 	payload_offs = spl_spi_get_uboot_offs(flash);
 
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
+	printf("Got header load buffer: %p\n", header);
 
 	if (CONFIG_IS_ENABLED(OF_REAL)) {
 		payload_offs = ofnode_conf_read_int("u-boot,spl-payload-offset",
