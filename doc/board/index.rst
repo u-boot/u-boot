@@ -23,6 +23,7 @@ Board-specific doc
    openpiton/index
    qualcomm/index
    rockchip/index
+   samsung/index
    siemens/index
    sifive/index
    sipeed/index
