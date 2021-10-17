@@ -166,17 +166,12 @@ static struct env_driver *env_driver_lookup(enum env_operation op, int prio)
 	return drv;
 }
 
-__weak int env_get_char_spec(int index)
-{
-	return *(uchar *)(gd->env_addr + index);
-}
-
 int env_get_char(int index)
 {
 	if (gd->env_valid == ENV_INVALID)
 		return default_environment[index];
 	else
-		return env_get_char_spec(index);
+		return *(uchar *)(gd->env_addr + index);
 }
 
 int env_load(void)
