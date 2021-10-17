@@ -706,27 +706,18 @@ char *from_env(const char *envvar)
 	return ret;
 }
 
-static const char *env_match(const char *p, const char *s1)
-{
-	while (*s1 == *p++)
-		if (*s1++ == '=')
-			return p;
-
-	if (*s1 == '\0' && p[-1] == '=')
-		return p;
-
-	return NULL;
-}
-
 /*
  * Look up variable from environment for restricted C runtime env.
  */
 int env_get_f(const char *name, char *buf, unsigned len)
 {
 	const char *env, *p, *end;
+	size_t name_len;
 
 	if (name == NULL || *name == '\0')
 		return -1;
+
+	name_len = strlen(name);
 
 	if (gd->env_valid == ENV_INVALID)
 		env = (const char *)default_environment;
@@ -741,9 +732,9 @@ int env_get_f(const char *name, char *buf, unsigned len)
 			if (end - env >= CONFIG_ENV_SIZE)
 				return -1;
 
-		value = env_match(p, name);
-		if (value == NULL)
+		if (strncmp(name, p, name_len) || p[name_len] != '=')
 			continue;
+		value = &p[name_len + 1];
 
 		res = end - value;
 		memcpy(buf, value, min(len, res + 1));
