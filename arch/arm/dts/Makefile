@@ -477,6 +477,7 @@ dtb-$(CONFIG_TARGET_SL28) += fsl-ls1028a-kontron-sl28.dtb \
 
 dtb-$(CONFIG_TARGET_DRAGONBOARD410C) += dragonboard410c.dtb
 dtb-$(CONFIG_TARGET_DRAGONBOARD820C) += dragonboard820c.dtb
+dtb-$(CONFIG_TARGET_STARQLTECHN) += starqltechn.dtb
 
 dtb-$(CONFIG_TARGET_STEMMY) += ste-ux500-samsung-stemmy.dtb
 
