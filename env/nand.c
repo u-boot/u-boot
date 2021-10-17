@@ -107,8 +107,7 @@ static int env_nand_init(void)
 	gd->env_addr = (ulong)env_ptr->data;
 
 #else /* ENV_IS_EMBEDDED || CONFIG_NAND_ENV_DST */
-	gd->env_addr	= (ulong)&default_environment[0];
-	gd->env_valid	= ENV_VALID;
+	gd->env_valid	= ENV_INVALID;
 #endif /* ENV_IS_EMBEDDED || CONFIG_NAND_ENV_DST */
 
 	return 0;
