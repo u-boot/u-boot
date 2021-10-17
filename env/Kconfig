@@ -200,6 +200,11 @@ config ENV_IS_IN_MMC
 	  This value may also be positive or negative; this is handled in the
 	  same way as CONFIG_ENV_OFFSET.
 
+	  In case CONFIG_SYS_MMC_ENV_PART is 1 (i.e. environment in eMMC boot
+	  partition) then setting CONFIG_ENV_OFFSET_REDUND to the same value
+	  as CONFIG_ENV_OFFSET makes use of the second eMMC boot partition for
+	  the redundant environment copy.
+
 	  This value is also in units of bytes, but must also be aligned to
 	  an MMC sector boundary.
 
