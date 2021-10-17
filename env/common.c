@@ -162,7 +162,7 @@ int env_get_f(const char *name, char *buf, unsigned len)
 	name_len = strlen(name);
 
 	if (gd->env_valid == ENV_INVALID)
-		env = (const char *)default_environment;
+		env = default_environment;
 	else
 		env = (const char *)gd->env_addr;
 
@@ -264,7 +264,7 @@ void env_set_default(const char *s, int flags)
 	}
 
 	flags |= H_DEFAULT;
-	if (himport_r(&env_htab, (char *)default_environment,
+	if (himport_r(&env_htab, default_environment,
 			sizeof(default_environment), '\0', flags, 0,
 			0, NULL) == 0)
 		pr_err("## Error: Environment import failed: errno = %d\n",
@@ -283,7 +283,7 @@ int env_set_default_vars(int nvars, char * const vars[], int flags)
 	 * (and use \0 as a separator)
 	 */
 	flags |= H_NOCLEAR | H_DEFAULT;
-	return himport_r(&env_htab, (const char *)default_environment,
+	return himport_r(&env_htab, default_environment,
 				sizeof(default_environment), '\0',
 				flags, 0, nvars, vars);
 }
