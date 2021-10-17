@@ -120,6 +120,7 @@ static const struct udevice_id msm_gpio_ids[] = {
 	{ .compatible = "qcom,msm8916-pinctrl" },
 	{ .compatible = "qcom,apq8016-pinctrl" },
 	{ .compatible = "qcom,ipq4019-pinctrl" },
+	{ .compatible = "qcom,sdm845-pinctrl" },
 	{ }
 };
 
