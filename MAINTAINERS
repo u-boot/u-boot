@@ -400,6 +400,7 @@ F:	drivers/gpio/msm_gpio.c
 F:	drivers/mmc/msm_sdhci.c
 F:	drivers/phy/msm8916-usbh-phy.c
 F:	drivers/serial/serial_msm.c
+F:	drivers/serial/serial_msm_geni.c
 F:	drivers/smem/msm_smem.c
 F:	drivers/usb/host/ehci-msm.c
 
