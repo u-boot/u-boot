@@ -77,7 +77,6 @@ static int env_flash_init(void)
 	uchar flag1 = flash_addr->flags;
 	uchar flag2 = flash_addr_new->flags;
 
-	ulong addr_default = (ulong)&default_environment[0];
 	ulong addr1 = (ulong)&(flash_addr->data);
 	ulong addr2 = (ulong)&(flash_addr_new->data);
 
@@ -92,7 +91,6 @@ static int env_flash_init(void)
 		gd->env_addr	= addr2;
 		gd->env_valid	= ENV_VALID;
 	} else if (!crc1_ok && !crc2_ok) {
-		gd->env_addr	= addr_default;
 		gd->env_valid	= ENV_INVALID;
 	} else if (flag1 == ENV_REDUND_ACTIVE &&
 		   flag2 == ENV_REDUND_OBSOLETE) {
@@ -231,7 +229,6 @@ static int env_flash_init(void)
 		return 0;
 	}
 
-	gd->env_addr	= (ulong)&default_environment[0];
 	gd->env_valid	= ENV_INVALID;
 	return 0;
 }
