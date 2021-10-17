@@ -1,0 +1,116 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Qualcomm SDM845 chip device tree source
+ *
+ * (C) Copyright 2021 Dzmitry Sankouski <dsankouski@gmail.com>
+ *
+ */
+
+/dts-v1/;
+
+#include "skeleton64.dtsi"
+
+/ {
+	soc: soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0 0 0xffffffff>;
+		compatible = "simple-bus";
+
+		gcc: clock-controller@100000 {
+			u-boot,dm-pre-reloc;
+			compatible = "qcom,gcc-sdm845";
+			reg = <0x100000 0x1f0000>;
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+			#power-domain-cells = <1>;
+		};
+
+		gpio_north: gpio_north@3900000 {
+			u-boot,dm-pre-reloc;
+			#gpio-cells = <2>;
+			compatible = "qcom,sdm845-pinctrl";
+			reg = <0x3900000 0x400000>;
+			gpio-count = <150>;
+			gpio-controller;
+			gpio-ranges = <&gpio_north 0 0 150>;
+			gpio-bank-name = "soc_north.";
+		};
+
+		tlmm_north: pinctrl_north@3900000 {
+			u-boot,dm-pre-reloc;
+			compatible = "qcom,tlmm-sdm845";
+			reg = <0x3900000 0x400000>;
+			gpio-count = <150>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&tlmm_north 0 0 150>;
+
+			/* DEBUG UART */
+			qup_uart9: qup-uart9-default {
+				pinmux {
+					pins = "GPIO_4", "GPIO_5";
+					function = "qup9";
+				};
+			};
+		};
+
+		debug_uart: serial@a84000 {
+			compatible = "qcom,msm-geni-uart";
+			reg = <0xa84000 0x4000>;
+			reg-names = "se_phys";
+			clock-names = "se-clk";
+			clocks = <&gcc 0x58>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&qup_uart9>;
+			qcom,wrapper-core = <0x8a>;
+			status = "disabled";
+		};
+
+		spmi@c440000 {
+			compatible = "qcom,spmi-pmic-arb";
+			reg = <0xc440000 0x1100>,
+			      <0xc600000 0x2000000>,
+			      <0xe600000 0x100000>;
+			reg-names = "cnfg", "core", "obsrvr";
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+
+			qcom,revid@100 {
+				compatible = "qcom,qpnp-revid";
+				reg = <0x100 0x100>;
+			};
+
+			pmic0: pm8998@0 {
+				compatible = "qcom,spmi-pmic";
+				reg = <0x0 0x1>;
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+
+				pm8998_pon: pm8998_pon@800 {
+					compatible = "qcom,pm8998-pwrkey";
+					reg = <0x800 0x100>;
+					#gpio-cells = <2>;
+					gpio-controller;
+					gpio-bank-name = "pm8998_key.";
+				};
+
+				pm8998_gpios: pm8998_gpios@c000 {
+					compatible = "qcom,pm8998-gpio";
+					reg = <0xc000 0x1a00>;
+					gpio-controller;
+					gpio-count = <21>;
+					#gpio-cells = <2>;
+					gpio-bank-name = "pm8998.";
+				};
+			};
+
+			pmic1: pm8998@1 {
+				compatible = "qcom,spmi-pmic";
+				reg = <0x1 0x0>;
+				#address-cells = <0x2>;
+				#size-cells = <0x0>;
+			};
+		};
+	};
+};
