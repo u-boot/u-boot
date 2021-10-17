@@ -229,7 +229,7 @@ static int env_flash_init(void)
 		return 0;
 	}
 
-	gd->env_valid	= ENV_INVALID;
+	gd->env_valid = ENV_INVALID;
 	return 0;
 }
 #endif
