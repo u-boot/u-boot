@@ -341,8 +341,7 @@ static int env_sf_init_addr(void)
 		gd->env_addr = (ulong)&(env_ptr->data);
 		gd->env_valid = ENV_VALID;
 	} else {
-		gd->env_addr = (ulong)&default_environment[0];
-		gd->env_valid = ENV_VALID;
+		gd->env_valid = ENV_INVALID;
 	}
 
 	return 0;
