@@ -708,7 +708,7 @@ char *from_env(const char *envvar)
 
 static const char *env_match(const char *p, const char *s1)
 {
-	if (s1 == NULL)
+	if (s1 == NULL || *s1 == '\0')
 		return NULL;
 
 	while (*s1 == *p++)
