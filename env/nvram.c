@@ -87,10 +87,10 @@ static int env_nvram_init(void)
 	nvram_read(data, CONFIG_ENV_ADDR + sizeof(ulong), ENV_SIZE);
 
 	if (crc32(0, data, ENV_SIZE) == crc) {
-		gd->env_addr	= (ulong)CONFIG_ENV_ADDR + sizeof(long);
+		gd->env_addr = (ulong)CONFIG_ENV_ADDR + sizeof(long);
 #else
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
-		gd->env_addr	= (ulong)&env_ptr->data;
+		gd->env_addr = (ulong)&env_ptr->data;
 #endif
 		gd->env_valid = ENV_VALID;
 	} else {
