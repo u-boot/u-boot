@@ -706,19 +706,19 @@ char *from_env(const char *envvar)
 	return ret;
 }
 
-static int env_match(const char *env, const char *s1, int i2)
+static const char *env_match(const char *p, const char *s1)
 {
 	if (s1 == NULL)
-		return -1;
+		return NULL;
 
-	while (*s1 == env[i2++])
+	while (*s1 == *p++)
 		if (*s1++ == '=')
-			return i2;
+			return p;
 
-	if (*s1 == '\0' && env[i2-1] == '=')
-		return i2;
+	if (*s1 == '\0' && p[-1] == '=')
+		return p;
 
-	return -1;
+	return NULL;
 }
 
 /*
@@ -726,28 +726,28 @@ static int env_match(const char *env, const char *s1, int i2)
  */
 int env_get_f(const char *name, char *buf, unsigned len)
 {
-	const char *env;
-	int i, nxt;
+	const char *env, *p, *nxt;
 
 	if (gd->env_valid == ENV_INVALID)
 		env = (const char *)default_environment;
 	else
 		env = (const char *)gd->env_addr;
 
-	for (i = 0; env[i] != '\0'; i = nxt + 1) {
-		int val, n;
+	for (p = env; *p != '\0'; p = nxt + 1) {
+		const char *value;
+		int n;
 
-		for (nxt = i; env[nxt] != '\0'; ++nxt)
-			if (nxt >= CONFIG_ENV_SIZE)
+		for (nxt = p; *nxt != '\0'; ++nxt)
+			if (nxt - env >= CONFIG_ENV_SIZE)
 				return -1;
 
-		val = env_match(env, name, i);
-		if (val < 0)
+		value = env_match(p, name);
+		if (value == NULL)
 			continue;
 
 		/* found; copy out */
 		for (n = 0; n < len; ++n, ++buf) {
-			*buf = env[val++];
+			*buf = *value++;
 			if (*buf == '\0')
 				return n;
 		}
