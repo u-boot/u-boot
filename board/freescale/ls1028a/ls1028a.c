@@ -73,10 +73,6 @@ u32 get_lpuart_clk(void)
 
 int board_init(void)
 {
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
-#endif
-
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
 #endif
