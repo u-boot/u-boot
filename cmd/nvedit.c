@@ -726,19 +726,19 @@ static const char *env_match(const char *p, const char *s1)
  */
 int env_get_f(const char *name, char *buf, unsigned len)
 {
-	const char *env, *p, *nxt;
+	const char *env, *p, *end;
 
 	if (gd->env_valid == ENV_INVALID)
 		env = (const char *)default_environment;
 	else
 		env = (const char *)gd->env_addr;
 
-	for (p = env; *p != '\0'; p = nxt + 1) {
+	for (p = env; *p != '\0'; p = end + 1) {
 		const char *value;
 		int n;
 
-		for (nxt = p; *nxt != '\0'; ++nxt)
-			if (nxt - env >= CONFIG_ENV_SIZE)
+		for (end = p; *end != '\0'; ++end)
+			if (end - env >= CONFIG_ENV_SIZE)
 				return -1;
 
 		value = env_match(p, name);
