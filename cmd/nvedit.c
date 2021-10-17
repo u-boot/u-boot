@@ -735,7 +735,7 @@ int env_get_f(const char *name, char *buf, unsigned len)
 
 	for (p = env; *p != '\0'; p = end + 1) {
 		const char *value;
-		int n, res;
+		unsigned res;
 
 		for (end = p; *end != '\0'; ++end)
 			if (end - env >= CONFIG_ENV_SIZE)
@@ -746,19 +746,13 @@ int env_get_f(const char *name, char *buf, unsigned len)
 			continue;
 
 		res = end - value;
+		memcpy(buf, value, min(len, res + 1));
 
-		/* found; copy out */
-		for (n = 0; n < len; ++n, ++buf) {
-			*buf = *value++;
-			if (*buf == '\0')
-				return res;
+		if (len <= res) {
+			buf[len - 1] = '\0';
+			printf("env_buf [%u bytes] too small for value of \"%s\"\n",
+			       len, name);
 		}
-
-		if (n)
-			*--buf = '\0';
-
-		printf("env_buf [%u bytes] too small for value of \"%s\"\n",
-		       len, name);
 
 		return res;
 	}
