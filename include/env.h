@@ -131,7 +131,10 @@ char *from_env(const char *envvar);
  * support reading the value (slowly) and some will not.
  *
  * @varname:	Variable to look up
- * @return value of variable, or NULL if not found
+ * @return number of bytes written into @buf, excluding the terminating
+ *	NULL-byte if there was enough space in @buf, and including the
+ *	terminating NULL-byte if there wasn't enough space, or -1 if the
+ *	variable is not found
  */
 int env_get_f(const char *name, char *buf, unsigned int len);
 
