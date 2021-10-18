@@ -85,4 +85,18 @@ config FPGA_ZYNQPL
 	  Enable FPGA driver for loading bitstream in BIT and BIN format
 	  on Xilinx Zynq devices.
 
+config FPGA_LOAD_SECURE
+	bool "Enable loading secure bitstreams"
+	depends on FPGA
+	help
+	  Enables the fpga loads() functions that are used to load secure
+	  (authenticated or encrypted or both) bitstreams on to FPGA.
+
+config SPL_FPGA_LOAD_SECURE
+	bool "Enable loading secure bitstreams for SPL"
+	depends on FPGA
+	help
+	  Enables the fpga loads() functions that are used to load secure
+	  (authenticated or encrypted or both) bitstreams on to FPGA.
+
 endmenu

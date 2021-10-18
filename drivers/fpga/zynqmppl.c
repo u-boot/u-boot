@@ -245,7 +245,7 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	return ret;
 }
 
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE) && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
 static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 			struct fpga_secure_info *fpga_sec_info)
 {
@@ -306,7 +306,7 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE) && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
 	.loads = zynqmp_loads,
 #endif
 	.info = zynqmp_pcap_info,

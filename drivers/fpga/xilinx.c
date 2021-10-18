@@ -172,7 +172,7 @@ int xilinx_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 }
 #endif
 
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
 int xilinx_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 		 struct fpga_secure_info *fpga_sec_info)
 {

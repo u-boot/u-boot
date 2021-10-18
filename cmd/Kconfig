@@ -949,8 +949,9 @@ config CMD_FPGA_LOADP
 	  a partial bitstream.
 
 config CMD_FPGA_LOAD_SECURE
-	bool "fpga loads - loads secure bitstreams (Xilinx only)"
+	bool "fpga loads - loads secure bitstreams"
 	depends on CMD_FPGA
+	select FPGA_LOAD_SECURE
 	help
 	  Enables the fpga loads command which is used to load secure
 	  (authenticated or encrypted or both) bitstreams on to FPGA.
