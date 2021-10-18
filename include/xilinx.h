@@ -45,6 +45,7 @@ typedef struct {		/* typedef xilinx_desc */
 	int cookie;		/* implementation specific cookie */
 	struct xilinx_fpga_op *operations; /* operations */
 	char *name;		/* device name in bitstream */
+	char *compatible;	/* fdt compatible string */
 } xilinx_desc;			/* end, typedef xilinx_desc */
 
 struct xilinx_fpga_op {
