@@ -19,6 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int spi_flash_read_dm(struct udevice *dev, u32 offset, size_t len, void *buf)
 {
+	// FIXME this seems to execute a null pointer
 	return log_ret(sf_get_ops(dev)->read(dev, offset, len, buf));
 }
 
