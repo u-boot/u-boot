@@ -1159,7 +1159,7 @@ struct image_sign_info {
 	const char *keydir;		/* Directory conaining keys */
 	const char *keyname;		/* Name of key to use */
 	const char *keyfile;		/* Filename of private or public key */
-	void *fit;			/* Pointer to FIT blob */
+	const void *fit;		/* Pointer to FIT blob */
 	int node_offset;		/* Offset of signature node */
 	const char *name;		/* Algorithm name */
 	struct checksum_algo *checksum;	/* Checksum algorithm information */

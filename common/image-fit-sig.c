@@ -85,7 +85,7 @@ static int fit_image_setup_verify(struct image_sign_info *info,
 
 	memset(info, '\0', sizeof(*info));
 	info->keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
-	info->fit = (void *)fit;
+	info->fit = fit;
 	info->node_offset = noffset;
 	info->name = algo_name;
 	info->checksum = image_get_checksum_algo(algo_name);
