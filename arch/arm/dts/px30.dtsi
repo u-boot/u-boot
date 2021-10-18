@@ -967,7 +967,7 @@
 		clocks = <&cru SCLK_SFC>, <&cru HCLK_SFC>;
 		clock-names = "clk_sfc", "hclk_sfc";
 		pinctrl-names = "default";
-		pinctrl-0 = <&sfc_clk &sfc_cs &sfc_bus4>;
+		pinctrl-0 = <&sfc_clk &sfc_cs0 &sfc_bus4>;
 		power-domains = <&power PX30_PD_MMC_NAND>;
 		status = "disabled";
 	};
@@ -1953,7 +1953,7 @@
 					<1 RK_PA1 3 &pcfg_pull_none>;
 			};
 
-			sfc_cs: sfc-cs {
+			sfc_cs0: sfc-cs0 {
 				rockchip,pins =
 					<1 RK_PA4 3 &pcfg_pull_none>;
 			};

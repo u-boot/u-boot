@@ -14,7 +14,7 @@
 #define APLL_HZ		(816 * MHz)
 #define GPLL_HZ		(1188 * MHz)
 #define CPLL_HZ		(1000 * MHz)
-#define PPLL_HZ		(100 * MHz)
+#define PPLL_HZ		(200 * MHz)
 
 /* RK3568 pll id */
 enum rk3568_pll_id {

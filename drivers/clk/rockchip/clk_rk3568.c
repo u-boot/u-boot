@@ -1441,6 +1441,7 @@ static ulong rk3568_sdmmc_set_clk(struct rk3568_clk_priv *priv,
 
 	switch (rate) {
 	case OSC_HZ:
+	case 26 * MHz:
 		src_clk = CLK_SDMMC_SEL_24M;
 		break;
 	case 400 * MHz:
@@ -1507,7 +1508,7 @@ static ulong rk3568_sfc_get_clk(struct rk3568_clk_priv *priv)
 	case SCLK_SFC_SEL_125M:
 		return 125 * MHz;
 	case SCLK_SFC_SEL_150M:
-		return 150 * KHz;
+		return 150 * MHz;
 	default:
 		return -ENOENT;
 	}
@@ -1534,7 +1535,7 @@ static ulong rk3568_sfc_set_clk(struct rk3568_clk_priv *priv, ulong rate)
 	case 125 * MHz:
 		src_clk = SCLK_SFC_SEL_125M;
 		break;
-	case 150 * KHz:
+	case 150 * MHz:
 		src_clk = SCLK_SFC_SEL_150M;
 		break;
 	default:
@@ -2406,6 +2407,9 @@ static ulong rk3568_clk_get_rate(struct clk *clk)
 	case BCLK_EMMC:
 		rate = rk3568_emmc_get_bclk(priv);
 		break;
+	case TCLK_EMMC:
+		rate = OSC_HZ;
+		break;
 #ifndef CONFIG_SPL_BUILD
 	case ACLK_VOP:
 		rate = rk3568_aclk_vop_get_clk(priv);
@@ -2581,6 +2585,9 @@ static ulong rk3568_clk_set_rate(struct clk *clk, ulong rate)
 		break;
 	case BCLK_EMMC:
 		ret = rk3568_emmc_set_bclk(priv, rate);
+		break;
+	case TCLK_EMMC:
+		ret = OSC_HZ;
 		break;
 #ifndef CONFIG_SPL_BUILD
 	case ACLK_VOP:
