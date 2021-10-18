@@ -875,20 +875,23 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		if (!multiboot)
 			snprintf(buf, DFU_ALT_BUF_LEN,
 				 "mmc %d:1=boot.bin fat %d 1;"
-				 "u-boot.itb fat %d 1",
-				 bootseq, bootseq, bootseq);
+				 "%s fat %d 1",
+				 bootseq, bootseq,
+				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME, bootseq);
 		else
 			snprintf(buf, DFU_ALT_BUF_LEN,
 				 "mmc %d:1=boot%04d.bin fat %d 1;"
-				 "u-boot.itb fat %d 1",
-				 bootseq, multiboot, bootseq, bootseq);
+				 "%s fat %d 1",
+				 bootseq, multiboot, bootseq,
+				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME, bootseq);
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
 		snprintf(buf, DFU_ALT_BUF_LEN,
 			 "sf 0:0=boot.bin raw %x 0x1500000;"
-			 "u-boot.itb raw 0x%x 0x500000",
-			 multiboot * SZ_32K, CONFIG_SYS_SPI_U_BOOT_OFFS);
+			 "%s raw 0x%x 0x500000",
+			 multiboot * SZ_32K, CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
+			 CONFIG_SYS_SPI_U_BOOT_OFFS);
 		break;
 	default:
 		return;
