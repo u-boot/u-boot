@@ -210,6 +210,25 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	bool xilfpga_old = false;
 
+	if (desc->compatible &&
+	    !strcmp(desc->compatible, "u-boot,zynqmp-fpga-ddrauth")) {
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+		struct fpga_secure_info info = { 0 };
+
+		if (!desc->operations->loads) {
+			printf("%s: Missing load operation\n", __func__);
+			return FPGA_FAIL;
+		}
+		/* DDR authentication */
+		info.authflag = 1;
+		info.encflag = 2;
+		return desc->operations->loads(desc, buf, bsize, &info);
+#else
+		printf("No support for %s\n", desc->compatible);
+		return FPGA_FAIL;
+#endif
+	}
+
 	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
 		puts("WARN: PMUFW v1.0 or less is detected\n");
 		puts("WARN: Not all bitstream formats are supported\n");
