@@ -230,7 +230,7 @@
 	status = "okay";
 	pinctrl-names = "default";
 	phy-names = "usb3-phy";
-	phys = <&psgtr 2 PHY_TYPE_USB3 0 1>;
+	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 };
 
 &dwc3_0 {
