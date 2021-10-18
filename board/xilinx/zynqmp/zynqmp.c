@@ -710,7 +710,7 @@ int board_late_init(void)
 		break;
 	case SD1_LSHFT_MODE:
 		puts("LVL_SHFT_");
-		/* fall through */
+		fallthrough;
 	case SD_MODE1:
 		puts("SD_MODE1\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
