@@ -67,7 +67,7 @@ static int do_fpga_check_params(long *dev, long *fpga_data, size_t *data_size,
 	return 0;
 }
 
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+#if CONFIG_IS_ENABLED(CMD_FPGA_LOAD_SECURE)
 int do_fpga_loads(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	size_t data_size = 0;
@@ -382,7 +382,7 @@ static struct cmd_tbl fpga_commands[] = {
 #if defined(CONFIG_CMD_FPGA_LOADMK)
 	U_BOOT_CMD_MKENT(loadmk, 2, 1, do_fpga_loadmk, "", ""),
 #endif
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+#if CONFIG_IS_ENABLED(CMD_FPGA_LOAD_SECURE)
 	U_BOOT_CMD_MKENT(loads, 6, 1, do_fpga_loads, "", ""),
 #endif
 };
@@ -416,7 +416,7 @@ static int do_fpga_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
 	return cmd_process_error(fpga_cmd, ret);
 }
 
-#if defined(CONFIG_CMD_FPGA_LOADFS) || defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+#if defined(CONFIG_CMD_FPGA_LOADFS) || CONFIG_IS_ENABLED(CMD_FPGA_LOAD_SECURE)
 U_BOOT_CMD(fpga, 9, 1, do_fpga_wrapper,
 #else
 U_BOOT_CMD(fpga, 6, 1, do_fpga_wrapper,
@@ -451,7 +451,7 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga_wrapper,
 	   "\tsubimage unit name in the form of addr:<subimg_uname>"
 #endif
 #endif
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+#if CONFIG_IS_ENABLED(CMD_FPGA_LOAD_SECURE)
 	   "Load encrypted bitstream (Xilinx only)\n"
 	   "  loads [dev] [address] [size] [auth-OCM-0/DDR-1/noauth-2]\n"
 	   "        [enc-devkey(0)/userkey(1)/nenc(2) [Userkey address]\n"

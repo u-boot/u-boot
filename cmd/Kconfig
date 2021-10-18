@@ -956,6 +956,15 @@ config CMD_FPGA_LOAD_SECURE
 	  Enables the fpga loads command which is used to load secure
 	  (authenticated or encrypted or both) bitstreams on to FPGA.
 
+config CMD_SPL_FPGA_LOAD_SECURE
+	bool "fpga loads - loads secure bitstreams for SPL"
+	depends on CMD_FPGA && CMD_SPL
+	select SPL_FPGA_LOAD_SECURE
+	help
+	  Enables the fpga loads command which is used to load secure
+	  (authenticated or encrypted or both) bitstreams on to FPGA from
+	  SPL.
+
 config CMD_FPGAD
 	bool "fpgad - dump FPGA registers"
 	help
