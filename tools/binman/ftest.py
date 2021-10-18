@@ -4565,8 +4565,7 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('202_section_timeout.dts',
                              test_section_timeout=True)
-        self.assertIn("Node '/binman/section@0': Timed out obtaining contents",
-                      str(e.exception))
+        self.assertIn("Timed out obtaining contents", str(e.exception))
 
     def testTiming(self):
         """Test output of timing information"""
