@@ -14,6 +14,8 @@
 #include <virtio_types.h>
 #include <virtio.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int board_init(void)
 {
 	/*
@@ -69,3 +71,9 @@ int board_fit_config_name_match(const char *name)
 	return 0;
 }
 #endif
+
+void *board_fdt_blob_setup(void)
+{
+	/* Stored the DTB address there during our init */
+	return (void *)(ulong)gd->arch.firmware_fdt_addr;
+}

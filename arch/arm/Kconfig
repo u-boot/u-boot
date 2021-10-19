@@ -636,7 +636,6 @@ config ARCH_BCMSTB
 	select DM
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
-	select OF_PRIOR_STAGE
 	imply CMD_DM
 	help
 	  This enables support for Broadcom ARM-based set-top box

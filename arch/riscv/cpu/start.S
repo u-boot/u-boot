@@ -142,11 +142,6 @@ call_harts_early_init:
 	bnez	tp, secondary_hart_loop
 #endif
 
-#ifdef CONFIG_OF_PRIOR_STAGE
-	la	t0, prior_stage_fdt_address
-	SREG	s1, 0(t0)
-#endif
-
 	jal	board_init_f_init_reserve
 
 	SREG	s1, GD_FIRMWARE_FDT_ADDR(gp)
