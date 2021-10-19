@@ -37,6 +37,7 @@
  */
 #define GQSPI_IXR_TXNFULL_MASK		0x00000004 /* QSPI TX FIFO Overflow */
 #define GQSPI_IXR_TXFULL_MASK		0x00000008 /* QSPI TX FIFO is full */
+#define GQSPI_IXR_TXFIFOEMPTY_MASK	0x00000100 /* QSPI TX FIFO is Empty */
 #define GQSPI_IXR_RXNEMTY_MASK		0x00000010 /* QSPI RX FIFO Not Empty */
 #define GQSPI_IXR_GFEMTY_MASK		0x00000080 /* QSPI Generic FIFO Empty */
 #define GQSPI_IXR_GFNFULL_MASK		0x00000200 /* QSPI GENFIFO not full */
@@ -279,9 +280,6 @@ static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
 
 	debug("GFIFO_CMD_CS: 0x%x\n", gqspi_fifo_reg);
 
-	/* Dummy generic FIFO entry */
-	zynqmp_qspi_fill_gen_fifo(priv, 0);
-
 	zynqmp_qspi_fill_gen_fifo(priv, gqspi_fifo_reg);
 }
 
@@ -468,6 +466,13 @@ static int zynqmp_qspi_fill_tx_fifo(struct zynqmp_qspi_priv *priv, u32 size)
 			writel(data, &regs->txd0r);
 			size = 0;
 		}
+	}
+
+	ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_TXFIFOEMPTY_MASK, 1,
+				GQSPI_TIMEOUT, 1);
+	if (ret) {
+		printf("%s: Timeout\n", __func__);
+		return ret;
 	}
 
 	priv->tx_buf += len;
