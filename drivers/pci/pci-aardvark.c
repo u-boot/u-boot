@@ -445,7 +445,7 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 	 * for returning CRS, so that if U-Boot does support CRS in the future,
 	 * it will work for Aardvark.
 	 */
-	allow_crs = pcie->cfgcrssve;
+	allow_crs = (offset == PCI_VENDOR_ID) && (size == PCI_SIZE_32) && pcie->cfgcrssve;
 
 	if (advk_readl(pcie, PIO_START)) {
 		dev_err(pcie->dev,
