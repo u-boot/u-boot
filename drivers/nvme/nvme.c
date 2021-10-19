@@ -762,6 +762,10 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	c.rw.appmask = 0;
 	c.rw.metadata = 0;
 
+	/* Enable FUA for data integrity if vwc is enabled */
+	if (dev->vwc)
+		c.rw.control |= NVME_RW_FUA;
+
 	while (total_lbas) {
 		if (total_lbas < lbas) {
 			lbas = (u16)total_lbas;
