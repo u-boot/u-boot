@@ -788,6 +788,13 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	c.rw.appmask = 0;
 	c.rw.metadata = 0;
 
+	/*
+	 * Enable force unit access (FUA) for data integrity if volatile write
+	 * cache (VWC) is enabled.
+	 */
+	if (dev->vwc & NVME_CTRL_VWC_PRESENT)
+		c.rw.control |= NVME_RW_FUA;
+
 	while (total_lbas) {
 		if (total_lbas < lbas) {
 			lbas = (u16)total_lbas;
