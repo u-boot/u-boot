@@ -282,6 +282,14 @@ static int host_request(struct mmc *dev,
 	return result;
 }
 
+static int check_peripheral_id(struct pl180_mmc_host *host, u32 periph_id)
+{
+	return readl(&host->base->periph_id0) == (periph_id & 0xFF) &&
+		readl(&host->base->periph_id1) == ((periph_id >> 8) & 0xFF)  &&
+		readl(&host->base->periph_id2) == ((periph_id >> 16) & 0xFF) &&
+		readl(&host->base->periph_id3) == ((periph_id >> 24) & 0xFF);
+}
+
 static int  host_set_ios(struct mmc *dev)
 {
 	struct pl180_mmc_host *host = dev->priv;
@@ -337,6 +345,12 @@ static int  host_set_ios(struct mmc *dev)
 		sdi_clkcr &= ~(SDI_CLKCR_WIDBUS_MASK);
 		sdi_clkcr |= buswidth;
 	}
+	/* For MMCs' with peripheral id 0x02041180 and 0x03041180, H/W flow control
+	 * needs to be enabled for multi block writes (MMC CMD 18).
+	 */
+	if (check_peripheral_id(host, 0x02041180) ||
+		check_peripheral_id(host, 0x03041180))
+		sdi_clkcr |= SDI_CLKCR_HWFCEN;
 
 	writel(sdi_clkcr, &host->base->clock);
 	udelay(CLK_CHANGE_DELAY);
