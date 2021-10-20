@@ -650,7 +650,7 @@ static int write_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb)
 			};
 
 			ret = mtd_write_oob(mtd, off, &ops);
-			printf("NAND FCB write to 0x%llxx offset 0x%zx written: %s\n", off, ops.len, ret ? "ERROR" : "OK");
+			printf("NAND FCB write to 0x%llx offset 0x%zx written: %s\n", off, ops.len, ret ? "ERROR" : "OK");
 		}
 
 		if (ret)
