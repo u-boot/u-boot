@@ -300,16 +300,12 @@ class BuilderThread(threading.Thread):
             work_in_output: Use the output directory as the work directory and
                 don't write to a separate output directory.
         """
-        # Fatal error
-        if result.return_code < 0:
-            return
-
         # If we think this might have been aborted with Ctrl-C, record the
         # failure but not that we are 'done' with this board. A retry may fix
         # it.
-        maybe_aborted =  result.stderr and 'No child processes' in result.stderr
+        maybe_aborted = result.stderr and 'No child processes' in result.stderr
 
-        if result.already_done:
+        if result.return_code >= 0 and result.already_done:
             return
 
         # Write the output and stderr
@@ -331,6 +327,10 @@ class BuilderThread(threading.Thread):
                 fd.write(result.stderr)
         elif os.path.exists(errfile):
             os.remove(errfile)
+
+        # Fatal error
+        if result.return_code < 0:
+            return
 
         if result.toolchain:
             # Write the build result and toolchain information.
