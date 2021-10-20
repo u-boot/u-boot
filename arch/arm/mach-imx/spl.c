@@ -334,6 +334,20 @@ void board_spl_fit_post_load(const void *fit)
 }
 #endif
 
+void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
+{
+	int align_len = ARCH_DMA_MINALIGN - 1;
+
+	/* Some devices like SDP, NOR, NAND, SPI are using bl_len =1, so their fit address
+	 * is different with SD/MMC, this cause mismatch with signed address. Thus, adjust
+	 * the bl_len to align with SD/MMC.
+	 */
+	if (bl_len < 512)
+		bl_len = 512;
+
+	return  (void *)((CONFIG_SYS_TEXT_BASE - fit_size - bl_len -
+			align_len) & ~align_len);
+}
 #endif
 
 #if defined(CONFIG_MX6) && defined(CONFIG_SPL_OS_BOOT)
@@ -345,3 +359,36 @@ int dram_init_banksize(void)
 	return 0;
 }
 #endif
+
+/*
+ * read the address where the IVT header must sit
+ * from IVT image header, loaded from SPL into
+ * an malloced buffer and copy the IVT header
+ * to this address
+ */
+void *spl_load_simple_fit_fix_load(const void *fit)
+{
+	struct ivt *ivt;
+	unsigned long new;
+	unsigned long offset;
+	unsigned long size;
+	u8 *tmp = (u8 *)fit;
+
+	offset = ALIGN(fdt_totalsize(fit), 0x1000);
+	size = ALIGN(fdt_totalsize(fit), 4);
+	size = board_spl_fit_size_align(size);
+	tmp += offset;
+	ivt = (struct ivt *)tmp;
+	if (ivt->hdr.magic != IVT_HEADER_MAGIC) {
+		debug("no IVT header found\n");
+		return (void *)fit;
+	}
+	debug("%s: ivt: %p offset: %lx size: %lx\n", __func__, ivt, offset, size);
+	debug("%s: ivt self: %x\n", __func__, ivt->self);
+	new = ivt->self;
+	new -= offset;
+	debug("%s: new %lx\n", __func__, new);
+	memcpy((void *)new, fit, size);
+
+	return (void *)new;
+}

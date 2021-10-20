@@ -217,18 +217,6 @@
 					};
 				};
 
-				fip {
-					description = "Trusted Firmware FIP";
-					type = "firmware";
-					arch = "arm64";
-					compression = "none";
-					load = <0x40310000>;
-
-					fip_blob: blob-ext{
-						filename = "fip.bin";
-					};
-				};
-
 				fdt {
 					description = "NAME";
 					type = "flat_dt";
@@ -246,7 +234,7 @@
 				conf {
 					description = "NAME";
 					firmware = "uboot";
-					loadables = "atf", "fip";
+					loadables = "atf";
 					fdt = "fdt";
 				};
 			};

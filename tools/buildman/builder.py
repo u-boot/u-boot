@@ -24,6 +24,17 @@ from patman import gitutil
 from patman import terminal
 from patman.terminal import Print
 
+# This indicates an new int or hex Kconfig property with no default
+# It hangs the build since the 'conf' tool cannot proceed without valid input.
+#
+# We get a repeat sequence of something like this:
+# >>
+# Break things (BREAK_ME) [] (NEW)
+# Error in reading or end of file.
+# <<
+# which indicates that BREAK_ME has an empty default
+RE_NO_DEFAULT = re.compile(b'\((\w+)\) \[] \(NEW\)')
+
 """
 Theory of Operation
 
@@ -200,6 +211,8 @@ class Builder:
         _working_dir: Base working directory containing all threads
         _single_builder: BuilderThread object for the singer builder, if
             threading is not being used
+        _terminated: Thread was terminated due to an error
+        _restarting_config: True if 'Restart config' is detected in output
     """
     class Outcome:
         """Records a build outcome for a single make invocation
@@ -304,6 +317,8 @@ class Builder:
         self.work_in_output = work_in_output
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES
+        self._terminated = False
+        self._restarting_config = False
 
         self.warnings_as_errors = warnings_as_errors
         self.col = terminal.Color()
@@ -429,9 +444,35 @@ class Builder:
             args: Arguments to pass to make
             kwargs: Arguments to pass to command.RunPipe()
         """
+
+        def check_output(stream, data):
+            if b'Restart config' in data:
+                self._restarting_config = True
+
+            # If we see 'Restart config' following by multiple errors
+            if self._restarting_config:
+                m = RE_NO_DEFAULT.findall(data)
+
+                # Number of occurences of each Kconfig item
+                multiple = [m.count(val) for val in set(m)]
+
+                # If any of them occur more than once, we have a loop
+                if [val for val in multiple if val > 1]:
+                    self._terminated = True
+                    return True
+            return False
+
+        self._restarting_config = False
+        self._terminated  = False
         cmd = [self.gnu_make] + list(args)
         result = command.RunPipe([cmd], capture=True, capture_stderr=True,
-                cwd=cwd, raise_on_error=False, infile='/dev/null', **kwargs)
+                cwd=cwd, raise_on_error=False, infile='/dev/null',
+                output_func=check_output, **kwargs)
+
+        if self._terminated:
+            # Try to be helpful
+            result.stderr += '(** did you define an int/hex Kconfig with no default? **)'
+
         if self.verbose_build:
             result.stdout = '%s\n' % (' '.join(cmd)) + result.stdout
             result.combined = '%s\n' % (' '.join(cmd)) + result.combined

@@ -39,41 +39,6 @@ DECLARE_GLOBAL_DATA_PTR;
 struct ventana_board_info ventana_info;
 static int board_type;
 
-#ifdef CONFIG_USB_EHCI_MX6
-/* toggle USB_HUB_RST# for boards that have it; it is not defined in dt */
-int board_ehci_hcd_init(int port)
-{
-	int gpio;
-
-	/* USB HUB is always on P1 */
-	if (port == 0)
-		return 0;
-
-	/* Reset USB HUB */
-	switch (board_type) {
-	case GW53xx:
-	case GW552x:
-	case GW5906:
-		gpio = (IMX_GPIO_NR(1, 9));
-		break;
-	case GW54proto:
-	case GW54xx:
-		gpio = (IMX_GPIO_NR(1, 16));
-		break;
-	default:
-		return 0;
-	}
-
-	/* request and toggle hub rst */
-	gpio_request(gpio, "usb_hub_rst#");
-	gpio_direction_output(gpio, 0);
-	mdelay(2);
-	gpio_set_value(gpio, 1);
-
-	return 0;
-}
-#endif /* CONFIG_USB_EHCI_MX6 */
-
 /* configure eth0 PHY board-specific LED behavior */
 int board_phy_config(struct phy_device *phydev)
 {
@@ -158,25 +123,54 @@ static void enable_hdmi(struct display_info_t const *dev)
 	imx_enable_hdmi_phy();
 }
 
-static int detect_i2c(struct display_info_t const *dev)
+static int detect_lvds(struct display_info_t const *dev)
 {
+	/* only the following boards support LVDS connectors */
+	switch (board_type) {
+	case GW52xx:
+	case GW53xx:
+	case GW54xx:
+	case GW560x:
+	case GW5905:
+	case GW5909:
+		break;
+	default:
+		return 0;
+	}
+
 	return i2c_set_bus_num(dev->bus) == 0 &&
 		i2c_probe(dev->addr) == 0;
 }
 
 static void enable_lvds(struct display_info_t const *dev)
 {
-	struct iomuxc *iomux = (struct iomuxc *)
-				IOMUXC_BASE_ADDR;
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
 	/* set CH0 data width to 24bit (IOMUXC_GPR2:5 0=18bit, 1=24bit) */
 	u32 reg = readl(&iomux->gpr[2]);
 	reg |= IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT;
 	writel(reg, &iomux->gpr[2]);
 
-	/* Enable Backlight */
-	gpio_request(IMX_GPIO_NR(1, 10), "bklt_gpio");
-	gpio_direction_output(IMX_GPIO_NR(1, 10), 0);
+	/* Configure GPIO */
+	switch (board_type) {
+	case GW52xx:
+	case GW53xx:
+	case GW54xx:
+		if (!strncmp(dev->mode.name, "Hannstar", 8)) {
+			SETUP_IOMUX_PAD(PAD_SD2_CLK__GPIO1_IO10 | DIO_PAD_CFG);
+			gpio_request(IMX_GPIO_NR(1, 10), "cabc");
+			gpio_direction_output(IMX_GPIO_NR(1, 10), 0);
+		} else if (!strncmp(dev->mode.name, "DLC", 3)) {
+			SETUP_IOMUX_PAD(PAD_SD2_CLK__GPIO1_IO10 | DIO_PAD_CFG);
+			gpio_request(IMX_GPIO_NR(1, 10), "touch_rst#");
+			gpio_direction_output(IMX_GPIO_NR(1, 10), 1);
+		}
+		break;
+	default:
+		break;
+	}
+
+	/* Configure backlight */
 	gpio_request(IMX_GPIO_NR(1, 18), "bklt_en");
 	SETUP_IOMUX_PAD(PAD_SD1_CMD__GPIO1_IO18 | DIO_PAD_CFG);
 	gpio_direction_output(IMX_GPIO_NR(1, 18), 1);
@@ -208,7 +202,7 @@ struct display_info_t const displays[] = {{
 	.bus	= 2,
 	.addr	= 0x4,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
-	.detect	= detect_i2c,
+	.detect	= detect_lvds,
 	.enable	= enable_lvds,
 	.mode	= {
 		.name           = "Hannstar-XGA",
@@ -228,7 +222,7 @@ struct display_info_t const displays[] = {{
 	/* DLC700JMG-T-4 */
 	.bus	= 2,
 	.addr	= 0x38,
-	.detect	= NULL,
+	.detect	= detect_lvds,
 	.enable	= enable_lvds,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
 	.mode	= {
@@ -247,9 +241,9 @@ struct display_info_t const displays[] = {{
 		.vmode          = FB_VMODE_NONINTERLACED
 } }, {
 	/* DLC0700XDP21LF-C-1 */
-	.bus	= 0,
-	.addr	= 0,
-	.detect	= NULL,
+	.bus	= 2,
+	.addr	= 0x38,
+	.detect	= detect_lvds,
 	.enable	= enable_lvds,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
 	.mode	= {
@@ -270,7 +264,7 @@ struct display_info_t const displays[] = {{
 	/* DLC800FIG-T-3 */
 	.bus	= 2,
 	.addr	= 0x14,
-	.detect	= NULL,
+	.detect	= detect_lvds,
 	.enable	= enable_lvds,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
 	.mode	= {
@@ -290,7 +284,7 @@ struct display_info_t const displays[] = {{
 } }, {
 	.bus	= 2,
 	.addr	= 0x5d,
-	.detect	= detect_i2c,
+	.detect	= detect_lvds,
 	.enable	= enable_lvds,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
 	.mode	= {
@@ -358,10 +352,6 @@ static void setup_display(void)
 	    | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
 	       <<IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
 	writel(reg, &iomux->gpr[3]);
-
-	/* LVDS Backlight GPIO on LVDS connector - output low */
-	SETUP_IOMUX_PAD(PAD_SD2_CLK__GPIO1_IO10 | DIO_PAD_CFG);
-	gpio_direction_output(IMX_GPIO_NR(1, 10), 0);
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
@@ -1046,6 +1036,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	if (!env_get("nopcifixup"))
 		ft_board_pci_fixup(blob, bd);
 #endif
+
+	/*
+	 * remove reset gpio control as we configure the PHY registers
+	 * for internal delay, LED config, and clock config in the bootloader
+	 */
+	i = fdt_node_offset_by_compatible(blob, -1, "fsl,imx6q-fec");
+	if (i)
+		fdt_delprop(blob, i, "phy-reset-gpios");
 
 	/*
 	 * Peripheral Config:

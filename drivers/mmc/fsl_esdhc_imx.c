@@ -727,17 +727,20 @@ static void esdhc_set_strobe_dll(struct mmc *mmc)
 
 	if (priv->clock > ESDHC_STROBE_DLL_CLK_FREQ) {
 		esdhc_write32(&regs->strobe_dllctrl, ESDHC_STROBE_DLL_CTRL_RESET);
+		/* clear the reset bit on strobe dll before any setting */
+		esdhc_write32(&regs->strobe_dllctrl, 0);
 
 		/*
 		 * enable strobe dll ctrl and adjust the delay target
 		 * for the uSDHC loopback read clock
 		 */
 		val = ESDHC_STROBE_DLL_CTRL_ENABLE |
+			ESDHC_STROBE_DLL_CTRL_SLV_UPDATE_INT_DEFAULT |
 			(priv->strobe_dll_delay_target <<
 			 ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_SHIFT);
 		esdhc_write32(&regs->strobe_dllctrl, val);
-		/* wait 1us to make sure strobe dll status register stable */
-		mdelay(1);
+		/* wait 5us to make sure strobe dll status register stable */
+		mdelay(5);
 		val = esdhc_read32(&regs->strobe_dllstat);
 		if (!(val & ESDHC_STROBE_DLL_STS_REF_LOCK))
 			pr_warn("HS400 strobe DLL status REF not lock!\n");
@@ -971,7 +974,6 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	if (priv->clock != clock)
 		set_sysctl(priv, mmc, clock);
 
-#ifdef MMC_SUPPORTS_TUNING
 	if (mmc->clk_disable) {
 #ifdef CONFIG_FSL_USDHC
 		esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_CKEN);
@@ -987,6 +989,7 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 #endif
 	}
 
+#ifdef MMC_SUPPORTS_TUNING
 	/*
 	 * For HS400/HS400ES mode, make sure set the strobe dll in the
 	 * target clock rate. So call esdhc_set_strobe_dll() after the
@@ -1707,6 +1710,12 @@ static struct esdhc_soc_data usdhc_imx7d_data = {
 			| ESDHC_FLAG_HS400,
 };
 
+static struct esdhc_soc_data usdhc_imx7ulp_data = {
+	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
+			| ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
+			| ESDHC_FLAG_HS400,
+};
+
 static struct esdhc_soc_data usdhc_imx8qm_data = {
 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING |
 		ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200 |
@@ -1721,7 +1730,7 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,imx6sl-usdhc", },
 	{ .compatible = "fsl,imx6q-usdhc", },
 	{ .compatible = "fsl,imx7d-usdhc", .data = (ulong)&usdhc_imx7d_data,},
-	{ .compatible = "fsl,imx7ulp-usdhc", },
+	{ .compatible = "fsl,imx7ulp-usdhc", .data = (ulong)&usdhc_imx7ulp_data,},
 	{ .compatible = "fsl,imx8qm-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,imx8mm-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,imx8mn-usdhc", .data = (ulong)&usdhc_imx8qm_data,},

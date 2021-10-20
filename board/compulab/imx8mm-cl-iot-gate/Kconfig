@@ -1,4 +1,4 @@
-if TARGET_IMX8MM_CL_IOT_GATE
+if TARGET_IMX8MM_CL_IOT_GATE || TARGET_IMX8MM_CL_IOT_GATE_OPTEE
 
 config SYS_BOARD
 	default "imx8mm-cl-iot-gate"

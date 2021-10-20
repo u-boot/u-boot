@@ -87,15 +87,6 @@ typedef u64 iomux_v3_cfg_t;
 #define MUX_MODE_LPSR           ((iomux_v3_cfg_t)IOMUX_CONFIG_LPSR << \
 				MUX_MODE_SHIFT)
 #ifdef CONFIG_IMX8M
-#define PAD_CTL_DSE0		(0x0 << 0)
-#define PAD_CTL_DSE1		(0x1 << 0)
-#define PAD_CTL_DSE2		(0x2 << 0)
-#define PAD_CTL_DSE3		(0x3 << 0)
-#define PAD_CTL_DSE4		(0x4 << 0)
-#define PAD_CTL_DSE5		(0x5 << 0)
-#define PAD_CTL_DSE6		(0x6 << 0)
-#define PAD_CTL_DSE7		(0x7 << 0)
-
 #define PAD_CTL_FSEL0		(0x0 << 3)
 #define PAD_CTL_FSEL1		(0x1 << 3)
 #define PAD_CTL_FSEL2		(0x2 << 3)
@@ -105,8 +96,20 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_PUE		(0x1 << 6)
 #define PAD_CTL_HYS		(0x1 << 7)
 #if defined(CONFIG_IMX8MM) || defined(CONFIG_IMX8MN) || defined(CONFIG_IMX8MP)
+#define PAD_CTL_DSE1		(0x0 << 1)
+#define PAD_CTL_DSE2		(0x2 << 1)
+#define PAD_CTL_DSE4		(0x1 << 1)
+#define PAD_CTL_DSE6		(0x3 << 1)
 #define PAD_CTL_PE		(0x1 << 8)
 #else
+#define PAD_CTL_DSE0		(0x0 << 0)
+#define PAD_CTL_DSE1		(0x1 << 0)
+#define PAD_CTL_DSE2		(0x2 << 0)
+#define PAD_CTL_DSE3		(0x3 << 0)
+#define PAD_CTL_DSE4		(0x4 << 0)
+#define PAD_CTL_DSE5		(0x5 << 0)
+#define PAD_CTL_DSE6		(0x6 << 0)
+#define PAD_CTL_DSE7		(0x7 << 0)
 #define PAD_CTL_LVTTL		(0x1 << 8)
 #endif
 

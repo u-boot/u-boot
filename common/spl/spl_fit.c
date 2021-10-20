@@ -538,6 +538,11 @@ static void *spl_get_fit_load_buffer(size_t size)
 	return buf;
 }
 
+__weak void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
+{
+	return spl_get_fit_load_buffer(sectors * bl_len);
+}
+
 /*
  * Weak default function to allow customizing SPL fit loading for load-only
  * use cases by allowing to skip the parsing/processing of the FIT contents
@@ -546,6 +551,15 @@ static void *spl_get_fit_load_buffer(size_t size)
 __weak bool spl_load_simple_fit_skip_processing(void)
 {
 	return false;
+}
+
+/*
+ * Weak default function to allow fixes after fit header
+ * is loaded.
+ */
+__weak void *spl_load_simple_fit_fix_load(const void *fit)
+{
+	return (void *)fit;
 }
 
 static void warn_deprecated(const char *msg)
@@ -631,7 +645,7 @@ static int spl_simple_fit_read(struct spl_fit_info *ctx,
 	 * For FIT with external data, data is not loaded in this step.
 	 */
 	sectors = get_aligned_image_size(info, size, 0);
-	buf = spl_get_fit_load_buffer(sectors * info->bl_len);
+	buf = board_spl_fit_buffer_addr(size, sectors, info->bl_len);
 
 	count = info->read(info, sector, sectors, buf);
 	ctx->fit = buf;
@@ -684,6 +698,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	/* skip further processing if requested to enable load-only use cases */
 	if (spl_load_simple_fit_skip_processing())
 		return 0;
+
+	ctx.fit = spl_load_simple_fit_fix_load(ctx.fit);
 
 	ret = spl_simple_fit_parse(&ctx);
 	if (ret < 0)

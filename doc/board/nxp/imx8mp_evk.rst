@@ -52,7 +52,6 @@ Burn the flash.bin to the MicroSD card at offset 32KB:
 .. code-block:: bash
 
    $sudo dd if=build/flash.bin of=/dev/sd[x] bs=1K seek=32 conv=notrunc; sync
-   $sudo dd if=build/u-boot.itb of=/dev/sd[x] bs=1K seek=384 conv=notrunc; sync
 
 Boot
 ----

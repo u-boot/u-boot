@@ -1339,9 +1339,6 @@ $(U_BOOT_ITS): $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
 else
 ifneq ($(CONFIG_USE_SPL_FIT_GENERATOR),)
 U_BOOT_ITS := u-boot.its
-ifeq ($(CONFIG_SPL_FIT_GENERATOR),"arch/arm/mach-imx/mkimage_fit_atf.sh")
-U_BOOT_ITS_DEPS += u-boot-nodtb.bin
-endif
 ifeq ($(CONFIG_SPL_FIT_GENERATOR),"arch/arm/mach-rockchip/make_fit_atf.py")
 U_BOOT_ITS_DEPS += u-boot
 endif

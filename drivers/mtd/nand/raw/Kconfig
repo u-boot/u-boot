@@ -369,7 +369,7 @@ config NAND_MXC
 	imply CMD_NAND
 	help
 	  This enables the NAND driver for the NAND flash controller on the
-	  i.MX27 / i.MX31 / i.MX5 rocessors.
+	  i.MX27 / i.MX31 / i.MX5 processors.
 
 config NAND_MXS
 	bool "MXS NAND support"

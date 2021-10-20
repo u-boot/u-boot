@@ -60,11 +60,6 @@
 			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"fi;\0" \
 
-#define CONFIG_BOOTCOMMAND \
-	"if run loadimage; then " \
-		"run mmcboot; " \
-	"fi; " \
-
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	SZ_256K
 

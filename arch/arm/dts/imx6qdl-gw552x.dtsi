@@ -121,6 +121,15 @@
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 	};
+
+	reg_usb_h1_vbus: regulator-usbh1-vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "usb_h1_vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
 };
 
 &gpmi {
@@ -390,9 +399,13 @@
 &uart5 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart5>;
-	status = "okay"; };
+	status = "okay";
+};
 
 &usbh1 {
+	vbus-supply = <&reg_usb_h1_vbus>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usbh1>;
 	status = "okay";
 };
 
@@ -504,6 +517,12 @@
 		fsl,pins = <
 			MX6QDL_PAD_KEY_COL1__UART5_TX_DATA	0x1b0b1
 			MX6QDL_PAD_KEY_ROW1__UART5_RX_DATA	0x1b0b1
+		>;
+	};
+
+	pinctrl_usbh1: usbh1grp {
+		fsl,pins = <
+			MX6QDL_PAD_GPIO_9__GPIO1_IO09		0x1b0b0
 		>;
 	};
 
