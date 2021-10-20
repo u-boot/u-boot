@@ -5,9 +5,6 @@
 config SUPPORT_OF_CONTROL
 	bool
 
-config DTC
-	bool
-
 config PYLIBFDT
 	bool
 
@@ -42,7 +39,6 @@ menu "Device Tree Control"
 
 config OF_CONTROL
 	bool "Run-time configuration via Device Tree"
-	select DTC
 	select OF_LIBFDT if !OF_PLATDATA
 	select OF_REAL if !OF_PLATDATA
 	help

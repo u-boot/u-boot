@@ -756,6 +756,7 @@ F:	include/fdt*
 F:	include/linux/libfdt*
 F:	cmd/fdt.c
 F:	common/fdt_support.c
+F:	scripts/dtc-version.sh
 
 FREEBSD
 M:	Rafal Jaworowski <raj@semihalf.com>

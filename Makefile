@@ -299,9 +299,7 @@ KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 # have older compilers as their default, so we make it explicit for
 # these that our host tools are GNU11 (i.e. C11 w/ GNU extensions).
 CSTD_FLAG := -std=gnu11
-ifeq ($(HOSTOS),linux)
 KBUILD_HOSTCFLAGS += $(CSTD_FLAG)
-endif
 
 ifeq ($(HOSTOS),cygwin)
 KBUILD_HOSTCFLAGS	+= -ansi
@@ -415,7 +413,13 @@ PERL		= perl
 PYTHON		?= python
 PYTHON2		= python2
 PYTHON3		?= python3
-DTC		?= $(objtree)/scripts/dtc/dtc
+
+# The devicetree compiler and pylibfdt are automatically built unless DTC is
+# provided. If DTC is provided, it is assumed the pylibfdt is available too.
+DTC_INTREE	:= $(objtree)/scripts/dtc/dtc
+DTC		?= $(DTC_INTREE)
+DTC_MIN_VERSION	:= 010406
+
 CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
@@ -1954,9 +1958,29 @@ endif
 
 endif
 
+# Check dtc and pylibfdt, if DTC is provided, else build them
 PHONY += scripts_dtc
 scripts_dtc: scripts_basic
-	$(Q)$(MAKE) $(build)=scripts/dtc
+	$(Q)if test "$(DTC)" = "$(DTC_INTREE)"; then \
+		$(MAKE) $(build)=scripts/dtc; \
+	else \
+		if ! $(DTC) -v >/dev/null; then \
+			echo '*** Failed to check dtc version: $(DTC)'; \
+			false; \
+		else \
+			if test "$(call dtc-version)" -lt $(DTC_MIN_VERSION); then \
+				echo '*** Your dtc is too old, please upgrade to dtc $(DTC_MIN_VERSION) or newer'; \
+				false; \
+			else \
+				if [ -n "$(CONFIG_PYLIBFDT)" ]; then \
+					if ! echo "import libfdt" | $(PYTHON3) 2>/dev/null; then \
+						echo '*** pylibfdt does not seem to be available with $(PYTHON3)'; \
+						false; \
+					fi; \
+				fi; \
+			fi; \
+		fi; \
+	fi
 
 # ---------------------------------------------------------------------------
 quiet_cmd_cpp_lds = LDS     $@
