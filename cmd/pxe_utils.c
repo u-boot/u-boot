@@ -441,11 +441,14 @@ skip_overlay:
 static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
+	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
 	char initrd_str[28];
+	char initrd_filesize[10];
 	char mac_str[29] = "";
 	char ip_str[68] = "";
 	char *fit_addr = NULL;
 	int bootm_argc = 2;
+	int zboot_argc = 3;
 	int len = 0;
 	ulong kernel_addr;
 	void *buf;
@@ -478,6 +481,11 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 		strcat(bootm_argv[2], ":");
 		strncat(bootm_argv[2], env_get("filesize"), 9);
 		bootm_argc = 3;
+
+		strncpy(initrd_filesize, env_get("filesize"), 9);
+		zboot_argv[3] = env_get("ramdisk_addr_r");
+		zboot_argv[4] = initrd_filesize;
+		zboot_argc = 5;
 	}
 
 	if (get_relfile_envaddr(cmdtp, label->kernel, "kernel_addr_r") < 0) {
@@ -529,6 +537,8 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 	}
 
 	bootm_argv[1] = env_get("kernel_addr_r");
+	zboot_argv[1] = env_get("kernel_addr_r");
+
 	/* for FIT, append the configuration identifier */
 	if (label->config) {
 		int len = strlen(bootm_argv[1]) + strlen(label->config) + 1;
@@ -665,7 +675,7 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 		do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
 	/* Try booting an x86_64 Linux kernel image */
 	else if (IS_ENABLED(CONFIG_CMD_ZBOOT))
-		do_zboot_parent(cmdtp, 0, bootm_argc, bootm_argv, NULL);
+		do_zboot_parent(cmdtp, 0, zboot_argc, zboot_argv, NULL);
 
 	unmap_sysmem(buf);
 
