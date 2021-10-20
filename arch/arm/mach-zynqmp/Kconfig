@@ -25,6 +25,7 @@ config SPL_SPI
 	default y if ZYNQ_QSPI
 
 config SYS_BOARD
+	string "Board name"
 	default "zynqmp"
 
 config SYS_VENDOR
