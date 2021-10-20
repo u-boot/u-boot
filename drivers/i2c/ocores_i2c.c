@@ -516,7 +516,7 @@ static int ocores_i2c_probe(struct udevice *dev)
 	u32 clock_frequency_khz;
 	int ret;
 
-	bus->base = (void __iomem *)devfdt_get_addr(dev);
+	bus->base = dev_read_addr_ptr(dev);
 
 	if (dev_read_u32(dev, "reg-shift", &bus->reg_shift)) {
 		/* no 'reg-shift', check for deprecated 'regstep' */

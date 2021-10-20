@@ -93,6 +93,18 @@ void *devfdt_map_physmem(const struct udevice *dev, unsigned long size);
 fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index);
 
 /**
+ * devfdt_get_addr_index_ptr() - Return indexed pointer to the address of the
+ *                               reg property of a device
+ *
+ * @dev: Pointer to a device
+ * @index: the 'reg' property can hold a list of <addr, size> pairs
+ *	   and @index is used to select which one is required
+ *
+ * @return Pointer to addr, or NULL if there is no such property
+ */
+void *devfdt_get_addr_index_ptr(const struct udevice *dev, int index);
+
+/**
  * devfdt_get_addr_size_index() - Get the indexed reg property of a device
  *
  * Returns the address and size specified in the 'reg' property of a device.
