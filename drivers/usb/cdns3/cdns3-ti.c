@@ -180,6 +180,7 @@ static int cdns_ti_remove(struct udevice *dev)
 
 static const struct udevice_id cdns_ti_of_match[] = {
 	{ .compatible = "ti,j721e-usb", },
+	{ .compatible = "ti,am64-usb", },
 	{},
 };
 
