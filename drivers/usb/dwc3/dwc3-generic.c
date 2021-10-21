@@ -443,6 +443,18 @@ static int dwc3_glue_probe(struct udevice *dev)
 	struct udevice *child = NULL;
 	int index = 0;
 	int ret;
+	struct phy phy;
+
+	ret = generic_phy_get_by_name(dev, "usb3-phy", &phy);
+	if (!ret) {
+		ret = generic_phy_init(&phy);
+		if (ret)
+			return ret;
+
+		ret = generic_phy_power_on(&phy);
+		if (ret)
+			return ret;
+	}
 
 	glue->regs = dev_read_addr(dev);
 
