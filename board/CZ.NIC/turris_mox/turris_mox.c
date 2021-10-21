@@ -359,20 +359,22 @@ static int get_reset_gpio(struct gpio_desc *reset_gpio)
 
 int misc_init_r(void)
 {
-	int ret;
-	u8 mac1[6], mac2[6];
+	u8 mac[2][6];
+	int i, ret;
 
-	ret = mbox_sp_get_board_info(NULL, mac1, mac2, NULL, NULL);
+	ret = mbox_sp_get_board_info(NULL, mac[0], mac[1], NULL, NULL);
 	if (ret < 0) {
 		printf("Cannot read data from OTP!\n");
 		return 0;
 	}
 
-	if (is_valid_ethaddr(mac1) && !env_get("ethaddr"))
-		eth_env_set_enetaddr("ethaddr", mac1);
+	for (i = 0; i < 2; ++i) {
+		u8 oldmac[6];
 
-	if (is_valid_ethaddr(mac2) && !env_get("eth1addr"))
-		eth_env_set_enetaddr("eth1addr", mac2);
+		if (is_valid_ethaddr(mac[i]) &&
+		    !eth_env_get_enetaddr_by_index("eth", i, oldmac))
+			eth_env_set_enetaddr_by_index("eth", i, mac[i]);
+	}
 
 	return 0;
 }
@@ -485,44 +487,34 @@ static void handle_reset_button(void)
 	}
 }
 
-static void mox_print_info(void)
+int show_board_info(void)
 {
-	int ret, board_version, ram_size;
-	u64 serial_number;
+	int i, ret, board_version, ram_size, is_sd;
 	const char *pub_key;
+	const u8 *topology;
+	u64 serial_number;
+
+	printf("Model: CZ.NIC Turris Mox Board\n");
 
 	ret = mbox_sp_get_board_info(&serial_number, NULL, NULL, &board_version,
 				     &ram_size);
-	if (ret < 0)
-		return;
-
-	printf("Turris Mox:\n");
-	printf("  Board version: %i\n", board_version);
-	printf("  RAM size: %i MiB\n", ram_size);
-	printf("  Serial Number: %016llX\n", serial_number);
+	if (ret < 0) {
+		printf("  Cannot read board info: %i\n", ret);
+	} else {
+		printf("  Board version: %i\n", board_version);
+		printf("  RAM size: %i MiB\n", ram_size);
+		printf("  Serial Number: %016llX\n", serial_number);
+	}
 
 	pub_key = mox_sp_get_ecdsa_public_key();
 	if (pub_key)
 		printf("  ECDSA Public Key: %s\n", pub_key);
 	else
-		printf("Cannot read ECDSA Public Key\n");
-}
-
-int last_stage_init(void)
-{
-	int ret, i;
-	const u8 *topology;
-	int is_sd;
-	struct mii_dev *bus;
-	struct gpio_desc reset_gpio = {};
-
-	mox_print_info();
+		printf("  Cannot read ECDSA Public Key\n");
 
 	ret = mox_get_topology(&topology, &module_count, &is_sd);
-	if (ret) {
+	if (ret)
 		printf("Cannot read module topology!\n");
-		return 0;
-	}
 
 	printf("  SD/eMMC version: %s\n", is_sd ? "SD" : "eMMC");
 
@@ -554,8 +546,7 @@ int last_stage_init(void)
 		}
 	}
 
-	/* now check if modules are connected in supported mode */
-
+	/* check if modules are connected in supported mode */
 	for (i = 0; i < module_count; ++i) {
 		switch (topology[i]) {
 		case MOX_MODULE_SFP:
@@ -616,10 +607,19 @@ int last_stage_init(void)
 		}
 	}
 
-	/* now configure modules */
+	if (module_count)
+		printf("\n");
 
+	return 0;
+}
+
+int last_stage_init(void)
+{
+	struct gpio_desc reset_gpio = {};
+
+	/* configure modules */
 	if (get_reset_gpio(&reset_gpio) < 0)
-		return 0;
+		goto handle_reset_btn;
 
 	if (peridot > 0) {
 		if (configure_peridots(&reset_gpio) < 0) {
@@ -633,16 +633,19 @@ int last_stage_init(void)
 		mdelay(50);
 	}
 
+	/*
+	 * check if the addresses are set by reading Scratch & Misc register
+	 * 0x70 of Peridot (and potentially Topaz) modules
+	 */
 	if (peridot || topaz) {
-		/*
-		 * now check if the addresses are set by reading Scratch & Misc
-		 * register 0x70 of Peridot (and potentially Topaz) modules
-		 */
+		struct mii_dev *bus;
 
 		bus = miiphy_get_dev_by_name("neta@30000");
 		if (!bus) {
 			printf("Cannot get MDIO bus device!\n");
 		} else {
+			int i;
+
 			for (i = 0; i < peridot; ++i)
 				check_switch_address(bus, 0x10 + i);
 
@@ -653,8 +656,7 @@ int last_stage_init(void)
 		}
 	}
 
-	printf("\n");
-
+handle_reset_btn:
 	handle_reset_button();
 
 	return 0;

@@ -627,6 +627,12 @@ config SYS_I2C_VERSATILE
 	  Add support for the Arm Ltd Versatile Express I2C driver. The I2C host
 	  controller is present in the development boards manufactured by Arm Ltd.
 
+config SYS_I2C_MV
+	bool "Marvell PXA (Armada 3720) I2C driver"
+	help
+	  Support for PXA based I2C controller used on Armada 3720 SoC.
+	  In Linux, this driver is called i2c-pxa.
+
 config SYS_I2C_MVTWSI
 	bool "Marvell I2C driver"
 	help

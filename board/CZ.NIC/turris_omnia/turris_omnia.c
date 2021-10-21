@@ -468,7 +468,7 @@ static struct udevice *get_atsha204a_dev(void)
 	return dev;
 }
 
-int checkboard(void)
+int show_board_info(void)
 {
 	u32 version_num, serial_num;
 	int err = 1;
@@ -496,7 +496,7 @@ int checkboard(void)
 	}
 
 out:
-	printf("Turris Omnia:\n");
+	printf("Model: Turris Omnia\n");
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
 	if (err)
 		printf("  Serial Number: unknown\n");
@@ -516,6 +516,15 @@ static void increment_mac(u8 *mac)
 		if (mac[i])
 			break;
 	}
+}
+
+static void set_mac_if_invalid(int i, u8 *mac)
+{
+	u8 oldmac[6];
+
+	if (is_valid_ethaddr(mac) &&
+	    !eth_env_get_enetaddr_by_index("eth", i, oldmac))
+		eth_env_set_enetaddr_by_index("eth", i, mac);
 }
 
 int misc_init_r(void)
@@ -550,18 +559,11 @@ int misc_init_r(void)
 	mac[4] = mac1[2];
 	mac[5] = mac1[3];
 
-	if (is_valid_ethaddr(mac))
-		eth_env_set_enetaddr("eth1addr", mac);
-
+	set_mac_if_invalid(1, mac);
 	increment_mac(mac);
-
-	if (is_valid_ethaddr(mac))
-		eth_env_set_enetaddr("eth2addr", mac);
-
+	set_mac_if_invalid(2, mac);
 	increment_mac(mac);
-
-	if (is_valid_ethaddr(mac))
-		eth_env_set_enetaddr("ethaddr", mac);
+	set_mac_if_invalid(0, mac);
 
 out:
 	return 0;

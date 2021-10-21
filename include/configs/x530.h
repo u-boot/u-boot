@@ -58,11 +58,6 @@
 
 #include <asm/arch/config.h>
 
-/*
- * Other required minimal configurations
- */
-#define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
-
 /* Keep device tree and initrd in low memory so the kernel can access them */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
