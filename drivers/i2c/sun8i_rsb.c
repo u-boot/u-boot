@@ -95,27 +95,6 @@ static int sun8i_rsb_set_device_address(struct sunxi_rsb_reg *base,
 	return sun8i_rsb_do_trans(base);
 }
 
-static void sun8i_rsb_cfg_io(void)
-{
-#ifdef CONFIG_MACH_SUN8I
-	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUN8I_GPL_R_RSB);
-	sunxi_gpio_set_cfgpin(SUNXI_GPL(1), SUN8I_GPL_R_RSB);
-	sunxi_gpio_set_pull(SUNXI_GPL(0), 1);
-	sunxi_gpio_set_pull(SUNXI_GPL(1), 1);
-	sunxi_gpio_set_drv(SUNXI_GPL(0), 2);
-	sunxi_gpio_set_drv(SUNXI_GPL(1), 2);
-#elif defined CONFIG_MACH_SUN9I
-	sunxi_gpio_set_cfgpin(SUNXI_GPN(0), SUN9I_GPN_R_RSB);
-	sunxi_gpio_set_cfgpin(SUNXI_GPN(1), SUN9I_GPN_R_RSB);
-	sunxi_gpio_set_pull(SUNXI_GPN(0), 1);
-	sunxi_gpio_set_pull(SUNXI_GPN(1), 1);
-	sunxi_gpio_set_drv(SUNXI_GPN(0), 2);
-	sunxi_gpio_set_drv(SUNXI_GPN(1), 2);
-#else
-#error unsupported MACH_SUNXI
-#endif
-}
-
 static void sun8i_rsb_set_clk(struct sunxi_rsb_reg *base)
 {
 	u32 div = 0;
@@ -147,12 +126,6 @@ static int sun8i_rsb_set_device_mode(struct sunxi_rsb_reg *base)
 
 static int sun8i_rsb_init(struct sunxi_rsb_reg *base)
 {
-	/* Enable RSB and PIO clk, and de-assert their resets */
-	prcm_apb0_enable(PRCM_APB0_GATE_PIO | PRCM_APB0_GATE_RSB);
-
-	/* Setup external pins */
-	sun8i_rsb_cfg_io();
-
 	writel(RSB_CTRL_SOFT_RST, &base->ctrl);
 	sun8i_rsb_set_clk(base);
 
@@ -184,6 +157,25 @@ int rsb_set_device_address(u16 device_addr, u16 runtime_addr)
 int rsb_init(void)
 {
 	struct sunxi_rsb_reg *base = (struct sunxi_rsb_reg *)SUNXI_RSB_BASE;
+
+	/* Enable RSB and PIO clk, and de-assert their resets */
+	prcm_apb0_enable(PRCM_APB0_GATE_PIO | PRCM_APB0_GATE_RSB);
+
+	if (IS_ENABLED(CONFIG_MACH_SUN9I)) {
+		sunxi_gpio_set_cfgpin(SUNXI_GPN(0), SUN9I_GPN_R_RSB);
+		sunxi_gpio_set_cfgpin(SUNXI_GPN(1), SUN9I_GPN_R_RSB);
+		sunxi_gpio_set_pull(SUNXI_GPN(0), 1);
+		sunxi_gpio_set_pull(SUNXI_GPN(1), 1);
+		sunxi_gpio_set_drv(SUNXI_GPN(0), 2);
+		sunxi_gpio_set_drv(SUNXI_GPN(1), 2);
+	} else {
+		sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUN8I_GPL_R_RSB);
+		sunxi_gpio_set_cfgpin(SUNXI_GPL(1), SUN8I_GPL_R_RSB);
+		sunxi_gpio_set_pull(SUNXI_GPL(0), 1);
+		sunxi_gpio_set_pull(SUNXI_GPL(1), 1);
+		sunxi_gpio_set_drv(SUNXI_GPL(0), 2);
+		sunxi_gpio_set_drv(SUNXI_GPL(1), 2);
+	}
 
 	return sun8i_rsb_init(base);
 }
