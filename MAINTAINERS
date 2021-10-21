@@ -536,6 +536,7 @@ F:	drivers/net/xilinx_axi_mrmac.*
 F:	drivers/soc/soc_xilinx_versal.c
 F:	drivers/spi/cadence_ospi_versal.c
 F:	drivers/watchdog/xilinx_wwdt.c
+F:	drivers/gpio/zynqmp_gpio_modepin.c
 N:	(?<!uni)versal
 
 ARM VERSATILE EXPRESS DRIVERS

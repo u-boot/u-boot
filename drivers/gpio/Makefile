@@ -47,6 +47,7 @@ obj-$(CONFIG_OMAP_GPIO)	+= omap_gpio.o
 obj-$(CONFIG_DB8500_GPIO)	+= db8500_gpio.o
 obj-$(CONFIG_BCM2835_GPIO)	+= bcm2835_gpio.o
 obj-$(CONFIG_XILINX_GPIO)	+= xilinx_gpio.o
+obj-$(CONFIG_ZYNQMP_GPIO_MODEPIN)	+= zynqmp_gpio_modepin.o
 obj-$(CONFIG_ADI_GPIO2)	+= adi_gpio2.o
 obj-$(CONFIG_TCA642X)		+= tca642x.o
 obj-$(CONFIG_SUNXI_GPIO)	+= sunxi_gpio.o
