@@ -313,7 +313,7 @@ static int sifive_ddr_setup(struct udevice *dev)
 	sifive_ddr_phy_fixup(denali_phy);
 
 	/* check size */
-	priv->info.size = get_ram_size((long *)priv->info.base,
+	priv->info.size = get_ram_size((long *)(uintptr_t)priv->info.base,
 				       ddr_size);
 
 	debug("%s : %lx\n", __func__, (uintptr_t)priv->info.size);
@@ -369,9 +369,9 @@ static int sifive_ddr_probe(struct udevice *dev)
 		return ret;
 	}
 
-	priv->ctl = (struct sifive_ddrctl *)dev_read_addr_index(dev, 0);
-	priv->phy = (struct sifive_ddrphy *)dev_read_addr_index(dev, 1);
-	priv->physical_filter_ctrl = (u32 *)dev_read_addr_index(dev, 2);
+	priv->ctl = (struct sifive_ddrctl *)dev_read_addr_index_ptr(dev, 0);
+	priv->phy = (struct sifive_ddrphy *)dev_read_addr_index_ptr(dev, 1);
+	priv->physical_filter_ctrl = (u32 *)dev_read_addr_index_ptr(dev, 2);
 
 	return sifive_ddr_setup(dev);
 #endif

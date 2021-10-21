@@ -9,6 +9,13 @@
 #include <log.h>
 #include <usb.h>
 #include <dm/root.h>
+#include <linux/usb/gadget.h>
+
+struct sandbox_udc {
+	struct usb_gadget gadget;
+};
+
+struct sandbox_udc *this_controller;
 
 struct sandbox_usb_ctrl {
 	int rootdev;
@@ -115,6 +122,27 @@ static int sandbox_submit_int(struct udevice *bus, struct usb_device *udev,
 			   nonblock);
 
 	return ret;
+}
+
+int usb_gadget_handle_interrupts(int index)
+{
+	return 0;
+}
+
+int usb_gadget_register_driver(struct usb_gadget_driver *driver)
+{
+	struct sandbox_udc *dev = this_controller;
+
+	return driver->bind(&dev->gadget);
+}
+
+int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
+{
+	struct sandbox_udc *dev = this_controller;
+
+	driver->unbind(&dev->gadget);
+
+	return 0;
 }
 
 static int sandbox_alloc_device(struct udevice *dev, struct usb_device *udev)

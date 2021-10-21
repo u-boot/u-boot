@@ -41,6 +41,12 @@ enum ds_type {
 #define RTC_YR_REG_ADDR		0x06
 #define RTC_CTL_REG_ADDR	0x07
 
+#define DS1337_CTL_REG_ADDR	0x0e
+#define DS1337_STAT_REG_ADDR	0x0f
+#define DS1340_STAT_REG_ADDR	0x09
+
+#define RTC_STAT_BIT_OSF	0x80
+
 #define RTC_SEC_BIT_CH		0x80	/* Clock Halt (in Register 0)   */
 
 /* DS1307-specific bits */
@@ -248,6 +254,11 @@ static int ds1307_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 	if (ret < 0)
 		return ret;
 
+	if (type == ds_1337) {
+		/* Ensure oscillator is enabled */
+		dm_i2c_reg_write(dev, DS1337_CTL_REG_ADDR, 0);
+	}
+
 	return 0;
 }
 
@@ -257,62 +268,19 @@ static int ds1307_rtc_get(struct udevice *dev, struct rtc_time *tm)
 	uchar buf[7];
 	enum ds_type type = dev_get_driver_data(dev);
 
-read_rtc:
 	ret = dm_i2c_read(dev, 0, buf, sizeof(buf));
 	if (ret < 0)
 		return ret;
 
-	if (type == ds_1307) {
-		if (buf[RTC_SEC_REG_ADDR] & RTC_SEC_BIT_CH) {
-			printf("### Warning: RTC oscillator has stopped\n");
-			/* clear the CH flag */
-			buf[RTC_SEC_REG_ADDR] &= ~RTC_SEC_BIT_CH;
-			dm_i2c_reg_write(dev, RTC_SEC_REG_ADDR,
-					 buf[RTC_SEC_REG_ADDR]);
-			return -1;
-		}
-	} else if (type == ds_1337) {
-		if (buf[RTC_CTL_REG_ADDR] & DS1337_CTL_BIT_EOSC) {
-			printf("### Warning: RTC oscillator has stopped\n");
-			/* clear the not oscillator enable (~EOSC) flag */
-			buf[RTC_CTL_REG_ADDR] &= ~DS1337_CTL_BIT_EOSC;
-			dm_i2c_reg_write(dev, RTC_CTL_REG_ADDR,
-					 buf[RTC_CTL_REG_ADDR]);
-			return -1;
-		}
-	} else if (type == ds_1340) {
-		if (buf[RTC_SEC_REG_ADDR] & DS1340_SEC_BIT_EOSC) {
-			printf("### Warning: RTC oscillator has stopped\n");
-			/* clear the not oscillator enable (~EOSC) flag */
-			buf[RTC_SEC_REG_ADDR] &= ~DS1340_SEC_BIT_EOSC;
-			dm_i2c_reg_write(dev, RTC_SEC_REG_ADDR,
-					 buf[RTC_SEC_REG_ADDR]);
-			return -1;
-		}
-	} else if (type == m41t11) {
-		/* clock halted?  turn it on, so clock can tick. */
-		if (buf[RTC_SEC_REG_ADDR] & RTC_SEC_BIT_CH) {
-			buf[RTC_SEC_REG_ADDR] &= ~RTC_SEC_BIT_CH;
-			dm_i2c_reg_write(dev, RTC_SEC_REG_ADDR,
-					 MCP7941X_BIT_ST);
-			dm_i2c_reg_write(dev, RTC_SEC_REG_ADDR,
-					 buf[RTC_SEC_REG_ADDR]);
-			goto read_rtc;
-		}
-	} else if (type == mcp794xx) {
-		/* make sure that the backup battery is enabled */
-		if (!(buf[RTC_DAY_REG_ADDR] & MCP7941X_BIT_VBATEN)) {
-			dm_i2c_reg_write(dev, RTC_DAY_REG_ADDR,
-					 buf[RTC_DAY_REG_ADDR] |
-					 MCP7941X_BIT_VBATEN);
-		}
+	if (type == ds_1337 || type == ds_1340) {
+		uint reg = (type == ds_1337) ? DS1337_STAT_REG_ADDR :
+					       DS1340_STAT_REG_ADDR;
+		int status = dm_i2c_reg_read(dev, reg);
 
-		/* clock halted?  turn it on, so clock can tick. */
-		if (!(buf[RTC_SEC_REG_ADDR] & MCP7941X_BIT_ST)) {
-			dm_i2c_reg_write(dev, RTC_SEC_REG_ADDR,
-					 MCP7941X_BIT_ST);
-			printf("Started RTC\n");
-			goto read_rtc;
+		if (status >= 0 && (status & RTC_STAT_BIT_OSF)) {
+			printf("### Warning: RTC oscillator has stopped\n");
+			/* clear the OSF flag */
+			dm_i2c_reg_write(dev, reg, status & ~RTC_STAT_BIT_OSF);
 		}
 	}
 
@@ -361,7 +329,7 @@ static int ds1307_rtc_reset(struct udevice *dev)
 		/* Write control register in order to enable oscillator output
 		 * (not EOSC) and set a default rate of 32.768kHz (RS2|RS1).
 		 */
-		ret = dm_i2c_reg_write(dev, RTC_CTL_REG_ADDR,
+		ret = dm_i2c_reg_write(dev, DS1337_CTL_REG_ADDR,
 				       DS1337_CTL_BIT_RS2 | DS1337_CTL_BIT_RS1);
 	} else if (type == ds_1340 || type == mcp794xx || type == m41t11) {
 		/* Reset clock calibration, frequency test and output level. */

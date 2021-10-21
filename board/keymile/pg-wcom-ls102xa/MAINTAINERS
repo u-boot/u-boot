@@ -1,7 +1,6 @@
 Hitachi Power Grids LS102XA BOARD
-M:	Aleksandar Gerasimovski <aleksandar.gerasimovski@hitachi-powergrids.com>
-M:	Rainer Boschung <rainer.boschung@hitachi-powergrids.com>
-M:	Matteo Ghidoni <matteo.ghidoni@hitachi-powergrids.com>
+M:	Aleksandar Gerasimovski <aleksandar.gerasimovski@hitachienergy.com>
+M:	Rainer Boschung <rainer.boschung@hitachienergy.com>
 S:	Maintained
 F:	board/keymile/pg-wcom-ls102xa/
 F:	include/configs/km/pg-wcom-ls102xa.h

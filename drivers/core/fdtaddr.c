@@ -93,6 +93,13 @@ fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index)
 #endif
 }
 
+void *devfdt_get_addr_index_ptr(const struct udevice *dev, int index)
+{
+	fdt_addr_t addr = devfdt_get_addr_index(dev, index);
+
+	return (addr == FDT_ADDR_T_NONE) ? NULL : (void *)(uintptr_t)addr;
+}
+
 fdt_addr_t devfdt_get_addr_size_index(const struct udevice *dev, int index,
 				      fdt_size_t *size)
 {
@@ -155,9 +162,7 @@ fdt_addr_t devfdt_get_addr(const struct udevice *dev)
 
 void *devfdt_get_addr_ptr(const struct udevice *dev)
 {
-	fdt_addr_t addr = devfdt_get_addr_index(dev, 0);
-
-	return (addr == FDT_ADDR_T_NONE) ? NULL : (void *)(uintptr_t)addr;
+	return devfdt_get_addr_index_ptr(dev, 0);
 }
 
 void *devfdt_remap_addr_index(const struct udevice *dev, int index)

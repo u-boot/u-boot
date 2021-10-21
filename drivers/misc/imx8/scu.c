@@ -219,7 +219,7 @@ static int imx8_scu_bind(struct udevice *dev)
 
 	debug("%s(dev=%p)\n", __func__, dev);
 	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
-		ret = lists_bind_fdt(dev, node, &child, true);
+		ret = lists_bind_fdt(dev, node, &child, NULL, true);
 		if (ret)
 			return ret;
 		debug("bind child dev %s\n", child->name);

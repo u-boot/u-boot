@@ -8,7 +8,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
-#include <asm/arch/ccu.h>
+#include <clk/sunxi.h>
 #include <dt-bindings/clock/sun6i-a31-ccu.h>
 #include <dt-bindings/reset/sun6i-a31-ccu.h>
 #include <linux/bitops.h>
@@ -30,6 +30,10 @@ static struct ccu_clk_gate a31_gates[] = {
 	[CLK_AHB1_OHCI1]	= GATE(0x060, BIT(30)),
 	[CLK_AHB1_OHCI2]	= GATE(0x060, BIT(31)),
 
+	[CLK_APB2_I2C0]		= GATE(0x06c, BIT(0)),
+	[CLK_APB2_I2C1]		= GATE(0x06c, BIT(1)),
+	[CLK_APB2_I2C2]		= GATE(0x06c, BIT(2)),
+	[CLK_APB2_I2C3]		= GATE(0x06c, BIT(3)),
 	[CLK_APB2_UART0]	= GATE(0x06c, BIT(16)),
 	[CLK_APB2_UART1]	= GATE(0x06c, BIT(17)),
 	[CLK_APB2_UART2]	= GATE(0x06c, BIT(18)),
@@ -71,6 +75,10 @@ static struct ccu_reset a31_resets[] = {
 	[RST_AHB1_OHCI1]	= RESET(0x2c0, BIT(30)),
 	[RST_AHB1_OHCI2]	= RESET(0x2c0, BIT(31)),
 
+	[RST_APB2_I2C0]		= RESET(0x2d8, BIT(0)),
+	[RST_APB2_I2C1]		= RESET(0x2d8, BIT(1)),
+	[RST_APB2_I2C2]		= RESET(0x2d8, BIT(2)),
+	[RST_APB2_I2C3]		= RESET(0x2d8, BIT(3)),
 	[RST_APB2_UART0]	= RESET(0x2d8, BIT(16)),
 	[RST_APB2_UART1]	= RESET(0x2d8, BIT(17)),
 	[RST_APB2_UART2]	= RESET(0x2d8, BIT(18)),

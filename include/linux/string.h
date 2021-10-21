@@ -129,6 +129,19 @@ extern void * memchr(const void *,int,__kernel_size_t);
 void *memchr_inv(const void *, int, size_t);
 #endif
 
+/**
+ * memdup() - allocate a buffer and copy in the contents
+ *
+ * Note that this returns a valid pointer even if @len is 0
+ *
+ * @src: data to copy in
+ * @len: number of bytes to copy
+ * @return allocated buffer with the copied contents, or NULL if not enough
+ *	memory is available
+ *
+ */
+char *memdup(const void *src, size_t len);
+
 unsigned long ustrtoul(const char *cp, char **endp, unsigned int base);
 unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base);
 

@@ -5,9 +5,6 @@
 config SUPPORT_OF_CONTROL
 	bool
 
-config DTC
-	bool
-
 config PYLIBFDT
 	bool
 
@@ -22,7 +19,7 @@ config BINMAN
 config BINMAN_STANDALONE_FDT
 	bool
 	depends on BINMAN
-	default y if OF_BOARD || OF_PRIOR_STAGE
+	default y if OF_BOARD
 	help
 	  This option tells U-Boot build system that a standalone device tree
 	  source is explicitly required when using binman to package U-Boot.
@@ -32,7 +29,7 @@ config BINMAN_STANDALONE_FDT
 	  directory for a specific board. Such device tree sources are built for
 	  OF_SEPARATE or OF_EMBED. However for a scenario like the board device
 	  tree blob is not provided in the U-Boot build tree, but fed to U-Boot
-	  in the runtime, e.g.: in the OF_PRIOR_STAGE case that it is passed by
+	  in the runtime, e.g.: in the OF_BOARD case that it is passed by
 	  a prior stage bootloader. For such scenario, a standalone device tree
 	  blob containing binman node to describe how to package U-Boot should
 	  be provided explicitly.
@@ -42,7 +39,6 @@ menu "Device Tree Control"
 
 config OF_CONTROL
 	bool "Run-time configuration via Device Tree"
-	select DTC
 	select OF_LIBFDT if !OF_PLATDATA
 	select OF_REAL if !OF_PLATDATA
 	help
@@ -118,7 +114,7 @@ config OF_EMBED
 	  Boards in the mainline U-Boot tree should not use it.
 
 config OF_BOARD
-	bool "Provided by the board at runtime"
+	bool "Provided by the board (e.g a previous loader) at runtime"
 	depends on !SANDBOX
 	help
 	  If this option is enabled, the device tree will be provided by
@@ -132,13 +128,6 @@ config OF_HOSTFILE
 	  If this option is enabled, DTB will be read from a file on startup.
 	  This is only useful for Sandbox.  Use the -d flag to U-Boot to
 	  specify the file to read.
-
-config OF_PRIOR_STAGE
-	bool "Prior stage bootloader DTB for DT control"
-	help
-	  If this option is enabled, the device tree used for DT
-	  control will be read from a device tree binary, at a memory
-	  location passed to U-Boot by the prior stage bootloader.
 
 endchoice
 

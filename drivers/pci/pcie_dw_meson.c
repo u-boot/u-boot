@@ -319,15 +319,9 @@ static int meson_pcie_init_port(struct udevice *dev)
 
 	pcie_dw_setup_host(&priv->dw);
 
-	ret = meson_pcie_link_up(priv, LINK_SPEED_GEN_2);
-	if (ret < 0)
-		goto err_link_up;
+	meson_pcie_link_up(priv, LINK_SPEED_GEN_2);
 
 	return 0;
-err_link_up:
-	clk_disable(&priv->clk_port);
-	clk_disable(&priv->clk_general);
-	clk_disable(&priv->clk_pclk);
 err_deassert_bulk:
 	reset_assert_bulk(&priv->rsts);
 err_power_off_phy:

@@ -275,22 +275,19 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 			buffer += mydata->sect_size;
 			size -= mydata->sect_size;
 		}
-	} else {
-		__u32 idx;
+	} else if (size >= mydata->sect_size) {
+		__u32 bytes_read;
+		__u32 sect_count = size / mydata->sect_size;
 
-		idx = size / mydata->sect_size;
-		if (idx == 0)
-			ret = 0;
-		else
-			ret = disk_read(startsect, idx, buffer);
-		if (ret != idx) {
+		ret = disk_read(startsect, sect_count, buffer);
+		if (ret != sect_count) {
 			debug("Error reading data (got %d)\n", ret);
 			return -1;
 		}
-		startsect += idx;
-		idx *= mydata->sect_size;
-		buffer += idx;
-		size -= idx;
+		bytes_read = sect_count * mydata->sect_size;
+		startsect += sect_count;
+		buffer += bytes_read;
+		size -= bytes_read;
 	}
 	if (size) {
 		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);

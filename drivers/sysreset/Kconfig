@@ -85,6 +85,18 @@ config SYSRESET_PSCI
 	  Enable PSCI SYSTEM_RESET function call.  To use this, PSCI firmware
 	  must be running on your system.
 
+config SYSRESET_SBI
+	bool "Enable support for SBI System Reset"
+	depends on RISCV_SMODE && SBI_V02
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
+	help
+	  Enable system reset and poweroff via the SBI system reset extension.
+	  The extension was introduced in version 0.3 of the SBI specification.
+
+	  If the SBI implementation provides the extension, is board specific.
+	  The RISC-V platform specification mandates the extension for rich
+	  operating system platforms.
+
 config SYSRESET_SOCFPGA
 	bool "Enable support for Intel SOCFPGA family"
 	depends on ARCH_SOCFPGA && (TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10)

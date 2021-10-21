@@ -336,7 +336,7 @@ config EFI_LOAD_FILE2_INITRD
 
 config EFI_SECURE_BOOT
 	bool "Enable EFI secure boot support"
-	depends on EFI_LOADER
+	depends on EFI_LOADER && FIT_SIGNATURE
 	select HASH
 	select SHA256
 	select RSA

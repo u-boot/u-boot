@@ -203,7 +203,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #endif /* CONFIG_NAND_FSL_ELBC */
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO
-#define CONFIG_SYS_FLASH_AMD_CHECK_DQ7
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS + 0x8000000}
 
 #define CONFIG_HWCONFIG

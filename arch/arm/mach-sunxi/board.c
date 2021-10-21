@@ -21,7 +21,6 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/spl.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
@@ -339,7 +338,7 @@ void board_init_f(ulong dummy)
 	spl_init();
 	preloader_console_init();
 
-#ifdef CONFIG_SPL_I2C
+#if CONFIG_IS_ENABLED(I2C) && CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	/* Needed early by sunxi_board_init if PMU is enabled */
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif

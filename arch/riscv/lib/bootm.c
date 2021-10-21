@@ -64,7 +64,7 @@ static void announce_and_cleanup(int fake)
 
 static void boot_prep_linux(bootm_headers_t *images)
 {
-	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
 #ifdef CONFIG_OF_LIBFDT
 		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
@@ -96,7 +96,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	announce_and_cleanup(fake);
 
 	if (!fake) {
-		if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+		if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
 #ifdef CONFIG_SMP
 			ret = smp_call_function(images->ep,
 						(ulong)images->ft_addr, 0, 0);

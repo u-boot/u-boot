@@ -200,7 +200,7 @@ static int comphy_pcie_power_up(u32 speed, u32 invert)
 	 * 6. Enable the output of 100M/125M/500M clock
 	 */
 	reg_set16(phy_addr(PCIE, MISC_REG0),
-		  0xA00D | rb_clk500m_en | rb_clk100m_125m_en, 0xFFFF);
+		  0xA00D | rb_clk500m_en | rb_txdclk_2x_sel | rb_clk100m_125m_en, 0xFFFF);
 
 	/*
 	 * 7. Enable TX
@@ -230,9 +230,13 @@ static int comphy_pcie_power_up(u32 speed, u32 invert)
 	 */
 	if (invert & COMPHY_POLARITY_TXD_INVERT)
 		reg_set16(phy_addr(PCIE, SYNC_PATTERN), phy_txd_inv, 0);
+	else
+		reg_set16(phy_addr(PCIE, SYNC_PATTERN), 0, phy_txd_inv);
 
 	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		reg_set16(phy_addr(PCIE, SYNC_PATTERN), phy_rxd_inv, 0);
+	else
+		reg_set16(phy_addr(PCIE, SYNC_PATTERN), 0, phy_rxd_inv);
 
 	/*
 	 * 11. Release SW reset
@@ -467,9 +471,13 @@ static int comphy_usb3_power_up(u32 lane, u32 type, u32 speed, u32 invert)
 	 */
 	if (invert & COMPHY_POLARITY_TXD_INVERT)
 		usb3_reg_set16(SYNC_PATTERN, phy_txd_inv, 0, lane);
+	else
+		usb3_reg_set16(SYNC_PATTERN, 0, phy_txd_inv, lane);
 
 	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		usb3_reg_set16(SYNC_PATTERN, phy_rxd_inv, 0, lane);
+	else
+		usb3_reg_set16(SYNC_PATTERN, 0, phy_rxd_inv, lane);
 
 	/*
 	 * 10. Set max speed generation to USB3.0 5Gbps
@@ -586,24 +594,30 @@ static int comphy_usb2_power_up(u8 usb32)
 			      rb_usb2phy_pllcal_done,	/* value */
 			      rb_usb2phy_pllcal_done,	/* mask */
 			      POLL_32B_REG);		/* 32bit */
-	if (!ret)
+	if (!ret) {
 		printf("Failed to end USB2 PLL calibration\n");
+		goto out;
+	}
 
 	/* Assert impedance calibration done */
 	ret = comphy_poll_reg(USB2_PHY_CAL_CTRL_ADDR(usb32),
 			      rb_usb2phy_impcal_done,	/* value */
 			      rb_usb2phy_impcal_done,	/* mask */
 			      POLL_32B_REG);		/* 32bit */
-	if (!ret)
+	if (!ret) {
 		printf("Failed to end USB2 impedance calibration\n");
+		goto out;
+	}
 
 	/* Assert squetch calibration done */
 	ret = comphy_poll_reg(USB2_PHY_RX_CHAN_CTRL1_ADDR(usb32),
 			      rb_usb2phy_sqcal_done,	/* value */
 			      rb_usb2phy_sqcal_done,	/* mask */
 			      POLL_32B_REG);		/* 32bit */
-	if (!ret)
+	if (!ret) {
 		printf("Failed to end USB2 unknown calibration\n");
+		goto out;
+	}
 
 	/* Assert PLL is ready */
 	ret = comphy_poll_reg(USB2_PHY_PLL_CTRL0_ADDR(usb32),
@@ -611,9 +625,12 @@ static int comphy_usb2_power_up(u8 usb32)
 			      rb_usb2phy_pll_ready,		/* mask */
 			      POLL_32B_REG);		/* 32bit */
 
-	if (!ret)
+	if (!ret) {
 		printf("Failed to lock USB2 PLL\n");
+		goto out;
+	}
 
+out:
 	debug_exit();
 
 	return ret;
@@ -839,9 +856,13 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 	 */
 	if (invert & COMPHY_POLARITY_TXD_INVERT)
 		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), phy_txd_inv, 0);
+	else
+		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), 0, phy_txd_inv);
 
 	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), phy_rxd_inv, 0);
+	else
+		reg_set16(sgmiiphy_addr(lane, SYNC_PATTERN), 0, phy_rxd_inv);
 
 	/*
 	 * 19. Set PHY input ports PIN_PU_PLL, PIN_PU_TX and PIN_PU_RX to 1
@@ -861,8 +882,10 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 			      rb_pll_ready_tx | rb_pll_ready_rx, /* value */
 			      rb_pll_ready_tx | rb_pll_ready_rx, /* mask */
 			      POLL_32B_REG);			/* 32bit */
-	if (!ret)
+	if (!ret) {
 		printf("Failed to lock PLL for SGMII PHY %d\n", lane);
+		goto out;
+	}
 
 	/*
 	 * 21. Set COMPHY input port PIN_TX_IDLE=0
@@ -883,14 +906,17 @@ static int comphy_sgmii_power_up(u32 lane, u32 speed, u32 invert)
 			      rb_rx_init_done,			/* value */
 			      rb_rx_init_done,			/* mask */
 			      POLL_32B_REG);			/* 32bit */
-	if (!ret)
+	if (!ret) {
 		printf("Failed to init RX of SGMII PHY %d\n", lane);
+		goto out;
+	}
 
 	/*
 	 * Restore saved selector.
 	 */
 	reg_set(COMPHY_SEL_ADDR, saved_selector, 0xFFFFFFFF);
 
+out:
 	debug_exit();
 
 	return ret;

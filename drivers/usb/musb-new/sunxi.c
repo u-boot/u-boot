@@ -25,8 +25,6 @@
 #include <reset.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
-#include <asm-generic/gpio.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/root.h>

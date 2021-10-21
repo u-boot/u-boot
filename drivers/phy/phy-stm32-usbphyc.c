@@ -339,8 +339,8 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 {
 	struct stm32_usbphyc *usbphyc = dev_get_priv(dev);
 	struct reset_ctl reset;
-	ofnode node;
-	int i, ret;
+	ofnode node, connector;
+	int ret;
 
 	usbphyc->base = dev_read_addr(dev);
 	if (usbphyc->base == FDT_ADDR_T_NONE)
@@ -378,14 +378,18 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 		return ret;
 	}
 
-	/*
-	 * parse all PHY subnodes in order to populate regulator associated
-	 * to each PHY port
-	 */
-	node = dev_read_first_subnode(dev);
-	for (i = 0; i < MAX_PHYS; i++) {
-		struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + i;
+	/* parse all PHY subnodes to populate regulator associated to each PHY port */
+	dev_for_each_subnode(node, dev) {
+		fdt_addr_t phy_id;
+		struct stm32_usbphyc_phy *usbphyc_phy;
 
+		phy_id = ofnode_read_u32_default(node, "reg", FDT_ADDR_T_NONE);
+		if (phy_id >= MAX_PHYS) {
+			dev_err(dev, "invalid reg value %lx for %s\n",
+				phy_id, ofnode_get_name(node));
+			return -ENOENT;
+		}
+		usbphyc_phy = usbphyc->phys + phy_id;
 		usbphyc_phy->init = false;
 		usbphyc_phy->powered = false;
 		ret = stm32_usbphyc_get_regulator(node, "phy-supply",
@@ -395,12 +399,12 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 			return ret;
 		}
 
-		ret = stm32_usbphyc_get_regulator(node, "vbus-supply",
-						  &usbphyc_phy->vbus);
-		if (ret)
-			usbphyc_phy->vbus = NULL;
-
-		node = dev_read_next_subnode(node);
+		usbphyc_phy->vbus = NULL;
+		connector = ofnode_find_subnode(node, "connector");
+		if (ofnode_valid(connector)) {
+			ret = stm32_usbphyc_get_regulator(connector, "vbus-supply",
+							  &usbphyc_phy->vbus);
+		}
 	}
 
 	/* Check if second port has to be used for host controller */

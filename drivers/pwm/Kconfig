@@ -9,6 +9,12 @@ config DM_PWM
 	  frequency/period can be controlled along with the proportion of that
 	  time that the signal is high.
 
+config PWM_AT91
+	bool "Enable support for PWM found on AT91 SoC's"
+	depends on DM_PWM && ARCH_AT91
+	help
+	  Support for PWM hardware on AT91 based SoC.
+
 config PWM_CROS_EC
 	bool "Enable support for the Chrome OS EC PWM"
 	depends on DM_PWM

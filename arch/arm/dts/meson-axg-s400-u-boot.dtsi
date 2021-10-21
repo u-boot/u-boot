@@ -3,8 +3,6 @@
  * Copyright (c) 2017 Amlogic, Inc. All rights reserved.
  */
 
-#include "meson-axg-u-boot.dtsi"
-
 /* wifi module */
 &sd_emmc_b {
 	status = "disabled";
@@ -13,12 +11,6 @@
 /* emmc storage */
 &sd_emmc_c {
 	status = "okay";
-};
-
-&usb {
-	status = "okay";
-	dr_mode = "otg";
-	vbus-supply = <&usb_pwr>;
 };
 
 &usb2_phy1 {

@@ -105,11 +105,6 @@
 #endif
 #endif
 
-/* LCD */
-#ifdef CONFIG_VIDEO
-#define CONFIG_VIDEO_MXS
-#endif
-
 /* NAND */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -124,12 +119,6 @@
 /* SPI */
 #ifdef CONFIG_CMD_SPI
 #define CONFIG_SPI_HALF_DUPLEX
-#endif
-
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI_MXS
-#define CONFIG_EHCI_IS_TDI
 #endif
 
 #endif	/* __CONFIGS_MXS_H__ */

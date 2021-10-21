@@ -102,7 +102,7 @@ U_BOOT_PADDING_ALGO(pkcs_15) = {
 };
 #endif
 
-#ifdef CONFIG_FIT_RSASSA_PSS
+#if CONFIG_IS_ENABLED(FIT_RSASSA_PSS)
 static void u32_i2osp(uint32_t val, uint8_t *buf)
 {
 	buf[0] = (uint8_t)((val >> 24) & 0xff);
@@ -313,7 +313,6 @@ U_BOOT_PADDING_ALGO(pss) = {
 
 #endif
 
-#if CONFIG_IS_ENABLED(FIT_SIGNATURE) || CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY)
 /**
  * rsa_verify_key() - Verify a signature against some data using RSA Key
  *
@@ -385,9 +384,7 @@ static int rsa_verify_key(struct image_sign_info *info,
 
 	return 0;
 }
-#endif
 
-#if CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY)
 /**
  * rsa_verify_with_pkey() - Verify a signature against some data using
  * only modulus and exponent as RSA key properties.
@@ -408,6 +405,9 @@ int rsa_verify_with_pkey(struct image_sign_info *info,
 	struct key_prop *prop;
 	int ret;
 
+	if (!CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY))
+		return -EACCES;
+
 	/* Public key is self-described to fill key_prop */
 	ret = rsa_gen_key_prop(info->key, info->keylen, &prop);
 	if (ret) {
@@ -422,13 +422,6 @@ int rsa_verify_with_pkey(struct image_sign_info *info,
 
 	return ret;
 }
-#else
-int rsa_verify_with_pkey(struct image_sign_info *info,
-			 const void *hash, uint8_t *sig, uint sig_len)
-{
-	return -EACCES;
-}
-#endif
 
 #if CONFIG_IS_ENABLED(FIT_SIGNATURE)
 /**

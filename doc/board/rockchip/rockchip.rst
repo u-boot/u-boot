@@ -16,16 +16,18 @@ Rockchip boards
 Rockchip is SoC solutions provider for tablets & PCs, streaming media
 TV boxes, AI audio & vision, IoT hardware.
 
-A wide range of Rockchip SoCs with associated boardsare supported in
+A wide range of Rockchip SoCs with associated boards are supported in
 mainline U-Boot.
 
-List of mainline supported rockchip boards:
+List of mainline supported Rockchip boards:
 
 * rk3036
      - Rockchip Evb-RK3036 (evb-rk3036)
      - Kylin (kylin_rk3036)
 * rk3128
      - Rockchip Evb-RK3128 (evb-rk3128)
+* rk3188
+     - Radxa Rock (rock)
 * rk3229
      - Rockchip Evb-RK3229 (evb-rk3229)
 * rk3288
@@ -75,8 +77,6 @@ List of mainline supported rockchip boards:
 * rv1108
      - Rockchip Evb-rv1108 (evb-rv1108)
      - Elgin-R1 (elgin-rv1108)
-* rv3188
-     - Radxa Rock (rock)
 
 Building
 --------
@@ -93,7 +93,7 @@ To build TF-A::
         make realclean
         make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399
 
-Specify the PLAT= with desired rockchip platform to build TF-A for.
+Specify the PLAT= with desired Rockchip platform to build TF-A for.
 
 U-Boot
 ^^^^^^
@@ -130,7 +130,7 @@ Flashing
 SD Card
 ^^^^^^^
 
-All rockchip platforms, except rk3128 (which doesn't use SPL) are now
+All Rockchip platforms, except rk3128 (which doesn't use SPL) are now
 supporting single boot image using binman and pad_cat.
 
 To write an image that boots from an SD card (assumed to be /dev/sda)::
@@ -141,7 +141,7 @@ To write an image that boots from an SD card (assumed to be /dev/sda)::
 eMMC
 ^^^^
 
-eMMC flash would probe on mmc0 in most of the rockchip platforms.
+eMMC flash would probe on mmc0 in most of the Rockchip platforms.
 
 Create GPT partition layout as defined in configurations::
 
@@ -164,7 +164,7 @@ Program the flash::
         sudo fastboot -i 0x2207 flash loader1 idbloader.img
         sudo fastboot -i 0x2207 flash loader2 u-boot.itb
 
-Note: for rockchip 32-bit platforms the U-Boot proper image
+Note: for Rockchip 32-bit platforms the U-Boot proper image
 is u-boot-dtb.img
 
 SPI
@@ -227,8 +227,8 @@ Note:
 TODO
 ----
 
-- Add rockchip idbloader image building
-- Add rockchip TPL image building
+- Add Rockchip idbloader image building
+- Add Rockchip TPL image building
 - Document SPI flash boot
 - Add missing SoC's with it boards list
 

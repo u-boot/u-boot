@@ -756,6 +756,7 @@ F:	include/fdt*
 F:	include/linux/libfdt*
 F:	cmd/fdt.c
 F:	common/fdt_support.c
+F:	scripts/dtc-version.sh
 
 FREEBSD
 M:	Rafal Jaworowski <raj@semihalf.com>
@@ -1026,6 +1027,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-riscv.git
 F:	arch/riscv/
 F:	cmd/riscv/
 F:	doc/usage/sbi.rst
+F:	drivers/sysreset/sysreset_sbi.c
 F:	drivers/timer/andes_plmt_timer.c
 F:	drivers/timer/sifive_clint_timer.c
 F:	tools/prelink-riscv.c

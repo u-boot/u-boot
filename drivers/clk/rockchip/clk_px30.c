@@ -1291,6 +1291,9 @@ static ulong px30_clk_set_rate(struct clk *clk, ulong rate)
 	case PLL_NPLL:
 		ret = px30_clk_set_pll_rate(priv, NPLL, rate);
 		break;
+	case PLL_CPLL:
+		ret = px30_clk_set_pll_rate(priv, CPLL, rate);
+		break;
 	case ARMCLK:
 		ret = px30_armclk_set_clk(priv, rate);
 		break;

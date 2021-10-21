@@ -108,7 +108,7 @@ static struct descriptor {
 	},
 };
 
-#if defined(CONFIG_EHCI_IS_TDI)
+#if defined(CONFIG_USB_EHCI_IS_TDI)
 #define ehci_is_TDI()	(1)
 #else
 #define ehci_is_TDI()	(0)

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <dm/lists.h>
 #include <init.h>
 #include <log.h>
 #include <asm/encoding.h>
@@ -16,9 +17,6 @@
  * The variables here must be stored in the data section since they are used
  * before the bss section is available.
  */
-#ifdef CONFIG_OF_PRIOR_STAGE
-phys_addr_t prior_stage_fdt_address __section(".data");
-#endif
 #ifndef CONFIG_XIP
 u32 hart_lottery __section(".data") = 0;
 
@@ -138,7 +136,17 @@ int arch_cpu_init_dm(void)
 
 int arch_early_init_r(void)
 {
-	return riscv_cpu_probe();
+	int ret;
+
+	ret = riscv_cpu_probe();
+	if (ret)
+		return ret;
+
+	if (IS_ENABLED(CONFIG_SYSRESET_SBI))
+		device_bind_driver(gd->dm_root, "sbi-sysreset",
+				   "sbi-sysreset", NULL);
+
+	return 0;
 }
 
 /**

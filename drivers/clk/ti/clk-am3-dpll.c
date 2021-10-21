@@ -27,11 +27,17 @@ struct clk_ti_am3_dpll_priv {
 	struct clk_ti_reg clkmode_reg;
 	struct clk_ti_reg idlest_reg;
 	struct clk_ti_reg clksel_reg;
+	struct clk_ti_reg ssc_deltam_reg;
+	struct clk_ti_reg ssc_modfreq_reg;
 	struct clk clk_bypass;
 	struct clk clk_ref;
 	u16 last_rounded_mult;
 	u8 last_rounded_div;
+	u8 min_div;
 	ulong max_rate;
+	u32 ssc_modfreq;
+	u32 ssc_deltam;
+	bool ssc_downspread;
 };
 
 static ulong clk_ti_am3_dpll_round_rate(struct clk *clk, ulong rate)
@@ -51,7 +57,7 @@ static ulong clk_ti_am3_dpll_round_rate(struct clk *clk, ulong rate)
 	err = rate;
 	err_min = rate;
 	ref_rate = clk_get_rate(&priv->clk_ref);
-	for (d = 1; err_min && d <= 128; d++) {
+	for (d = priv->min_div; err_min && d <= 128; d++) {
 		for (m = 2; m <= 2047; m++) {
 			r = (ref_rate * m) / d;
 			err = abs(r - rate);
@@ -71,8 +77,8 @@ static ulong clk_ti_am3_dpll_round_rate(struct clk *clk, ulong rate)
 
 	priv->last_rounded_mult = mult;
 	priv->last_rounded_div = div;
-	dev_dbg(clk->dev, "rate=%ld, best_rate=%ld, mult=%d, div=%d\n", rate,
-		ret, mult, div);
+	dev_dbg(clk->dev, "rate=%ld, min-div: %d, best_rate=%ld, mult=%d, div=%d\n",
+		rate, priv->min_div, ret, mult, div);
 	return ret;
 }
 
@@ -107,6 +113,96 @@ static int clk_ti_am3_dpll_state(struct clk *clk, u8 state)
 	return 0;
 }
 
+/**
+ * clk_ti_am3_dpll_ssc_program - set spread-spectrum clocking registers
+ * @clk:	struct clk * of DPLL to set
+ *
+ * Enable the DPLL spread spectrum clocking if frequency modulation and
+ * frequency spreading have been set, otherwise disable it.
+ */
+static void clk_ti_am3_dpll_ssc_program(struct clk *clk)
+{
+	struct clk_ti_am3_dpll_priv *priv = dev_get_priv(clk->dev);
+	unsigned long ref_rate;
+	u32 v, ctrl, mod_freq_divider, exponent, mantissa;
+	u32 deltam_step, deltam_ceil;
+
+	ctrl = clk_ti_readl(&priv->clkmode_reg);
+
+	if (priv->ssc_modfreq && priv->ssc_deltam) {
+		ctrl |= CM_CLKMODE_DPLL_SSC_EN_MASK;
+
+		if (priv->ssc_downspread)
+			ctrl |= CM_CLKMODE_DPLL_SSC_DOWNSPREAD_MASK;
+		else
+			ctrl &= ~CM_CLKMODE_DPLL_SSC_DOWNSPREAD_MASK;
+
+		ref_rate = clk_get_rate(&priv->clk_ref);
+		mod_freq_divider =
+		    (ref_rate / priv->last_rounded_div) / (4 * priv->ssc_modfreq);
+		if (priv->ssc_modfreq > (ref_rate / 70))
+			dev_warn(clk->dev,
+				 "clock: SSC modulation frequency of DPLL %s greater than %ld\n",
+				 clk->dev->name, ref_rate / 70);
+
+		exponent = 0;
+		mantissa = mod_freq_divider;
+		while ((mantissa > 127) && (exponent < 7)) {
+			exponent++;
+			mantissa /= 2;
+		}
+		if (mantissa > 127)
+			mantissa = 127;
+
+		v = clk_ti_readl(&priv->ssc_modfreq_reg);
+		v &= ~(CM_SSC_MODFREQ_DPLL_MANT_MASK | CM_SSC_MODFREQ_DPLL_EXP_MASK);
+		v |= mantissa << __ffs(CM_SSC_MODFREQ_DPLL_MANT_MASK);
+		v |= exponent << __ffs(CM_SSC_MODFREQ_DPLL_EXP_MASK);
+		clk_ti_writel(v, &priv->ssc_modfreq_reg);
+		dev_dbg(clk->dev,
+			"mod_freq_divider: %u, exponent: %u, mantissa: %u, modfreq_reg: 0x%x\n",
+			mod_freq_divider, exponent, mantissa, v);
+
+		deltam_step = priv->last_rounded_mult * priv->ssc_deltam;
+		deltam_step /= 10;
+		if (priv->ssc_downspread)
+			deltam_step /= 2;
+
+		deltam_step <<= __ffs(CM_SSC_DELTAM_DPLL_INT_MASK);
+		deltam_step /= 100;
+		deltam_step /= mod_freq_divider;
+		if (deltam_step > 0xFFFFF)
+			deltam_step = 0xFFFFF;
+
+		deltam_ceil = (deltam_step & CM_SSC_DELTAM_DPLL_INT_MASK) >>
+			__ffs(CM_SSC_DELTAM_DPLL_INT_MASK);
+		if (deltam_step & CM_SSC_DELTAM_DPLL_FRAC_MASK)
+			deltam_ceil++;
+
+		if ((priv->ssc_downspread &&
+		     ((priv->last_rounded_mult - (2 * deltam_ceil)) < 20 ||
+		      priv->last_rounded_mult > 2045)) ||
+		    ((priv->last_rounded_mult - deltam_ceil) < 20 ||
+		     (priv->last_rounded_mult + deltam_ceil) > 2045))
+			dev_warn(clk->dev,
+				 "clock: SSC multiplier of DPLL %s is out of range\n",
+				 clk->dev->name);
+
+		v = clk_ti_readl(&priv->ssc_deltam_reg);
+		v &= ~(CM_SSC_DELTAM_DPLL_INT_MASK | CM_SSC_DELTAM_DPLL_FRAC_MASK);
+		v |= deltam_step << __ffs(CM_SSC_DELTAM_DPLL_INT_MASK |
+					  CM_SSC_DELTAM_DPLL_FRAC_MASK);
+		clk_ti_writel(v, &priv->ssc_deltam_reg);
+		dev_dbg(clk->dev,
+			"deltam_step: %u, deltam_ceil: %u, deltam_reg: 0x%x\n",
+			deltam_step, deltam_ceil, v);
+	} else {
+		ctrl &= ~CM_CLKMODE_DPLL_SSC_EN_MASK;
+	}
+
+	clk_ti_writel(ctrl, &priv->clkmode_reg);
+}
+
 static ulong clk_ti_am3_dpll_set_rate(struct clk *clk, ulong rate)
 {
 	struct clk_ti_am3_dpll_priv *priv = dev_get_priv(clk->dev);
@@ -135,6 +231,8 @@ static ulong clk_ti_am3_dpll_set_rate(struct clk *clk, ulong rate)
 		CM_CLKSEL_DPLL_N_MASK;
 
 	clk_ti_writel(v, &priv->clksel_reg);
+
+	clk_ti_am3_dpll_ssc_program(clk);
 
 	/* lock dpll */
 	clk_ti_am3_dpll_clken(priv, DPLL_EN_LOCK);
@@ -229,6 +327,7 @@ static int clk_ti_am3_dpll_of_to_plat(struct udevice *dev)
 	struct clk_ti_am3_dpll_priv *priv = dev_get_priv(dev);
 	struct clk_ti_am3_dpll_drv_data *data =
 		(struct clk_ti_am3_dpll_drv_data *)dev_get_driver_data(dev);
+	u32 min_div;
 	int err;
 
 	priv->max_rate = data->max_rate;
@@ -250,6 +349,32 @@ static int clk_ti_am3_dpll_of_to_plat(struct udevice *dev)
 		dev_err(dev, "failed to get clksel register\n");
 		return err;
 	}
+
+	err = clk_ti_get_reg_addr(dev, 3, &priv->ssc_deltam_reg);
+	if (err) {
+		dev_err(dev, "failed to get SSC deltam register\n");
+		return err;
+	}
+
+	err = clk_ti_get_reg_addr(dev, 4, &priv->ssc_modfreq_reg);
+	if (err) {
+		dev_err(dev, "failed to get SSC modfreq register\n");
+		return err;
+	}
+
+	if (dev_read_u32(dev, "ti,ssc-modfreq-hz", &priv->ssc_modfreq))
+		priv->ssc_modfreq = 0;
+
+	if (dev_read_u32(dev, "ti,ssc-deltam", &priv->ssc_deltam))
+		priv->ssc_deltam = 0;
+
+	priv->ssc_downspread = dev_read_bool(dev, "ti,ssc-downspread");
+
+	if (dev_read_u32(dev, "ti,min-div", &min_div) || min_div == 0 ||
+	    min_div > 128)
+		priv->min_div = 1;
+	else
+		priv->min_div = min_div;
 
 	return 0;
 }

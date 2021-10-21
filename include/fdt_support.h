@@ -7,7 +7,7 @@
 #ifndef __FDT_SUPPORT_H
 #define __FDT_SUPPORT_H
 
-#ifdef CONFIG_OF_LIBFDT
+#if defined(CONFIG_OF_LIBFDT) && !defined(USE_HOSTCC)
 
 #include <asm/u-boot.h>
 #include <linux/libfdt.h>

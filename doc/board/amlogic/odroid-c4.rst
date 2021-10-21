@@ -17,6 +17,9 @@ Co. Ltd with the following specifications:
  - UART serial
  - Infrared receiver
 
+The ODROID-HC4 is a variant with a PCIe-SATA controller, the same commands
+applies for HC4.
+
 Schematics are available on the manufacturer website.
 
 U-Boot compilation

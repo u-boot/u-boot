@@ -74,7 +74,7 @@ static void pciauto_show_region(const char *name, struct pci_region *region)
 {
 	pciauto_region_init(region);
 	debug("PCI Autoconfig: Bus %s region: [%llx-%llx],\n"
-	      "\t\tPhysical Memory [%llx-%llxx]\n", name,
+	      "\t\tPhysical Memory [%llx-%llx]\n", name,
 	      (unsigned long long)region->bus_start,
 	      (unsigned long long)(region->bus_start + region->size - 1),
 	      (unsigned long long)region->phys_start,

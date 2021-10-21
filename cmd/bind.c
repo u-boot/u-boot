@@ -152,7 +152,7 @@ static int bind_by_node_path(const char *path, const char *drv_name)
 	}
 
 	ofnode = ofnode_path(path);
-	ret = lists_bind_fdt(parent, ofnode, &dev, false);
+	ret = lists_bind_fdt(parent, ofnode, &dev, drv, false);
 
 	if (!dev || ret) {
 		printf("Unable to bind. err:%d\n", ret);

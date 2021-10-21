@@ -84,32 +84,32 @@ int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 
 #ifdef CONFIG_CMD_UNZIP
 __weak
-void gzwrite_progress_init(u64 expectedsize)
+void gzwrite_progress_init(ulong expectedsize)
 {
 	putc('\n');
 }
 
 __weak
 void gzwrite_progress(int iteration,
-		     u64 bytes_written,
-		     u64 total_bytes)
+		     ulong bytes_written,
+		     ulong total_bytes)
 {
 	if (0 == (iteration & 3))
-		printf("%llu/%llu\r", bytes_written, total_bytes);
+		printf("%lu/%lu\r", bytes_written, total_bytes);
 }
 
 __weak
 void gzwrite_progress_finish(int returnval,
-			     u64 bytes_written,
-			     u64 total_bytes,
+			     ulong bytes_written,
+			     ulong total_bytes,
 			     u32 expected_crc,
 			     u32 calculated_crc)
 {
 	if (0 == returnval) {
-		printf("\n\t%llu bytes, crc 0x%08x\n",
+		printf("\n\t%lu bytes, crc 0x%08x\n",
 		       total_bytes, calculated_crc);
 	} else {
-		printf("\n\tuncompressed %llu of %llu\n"
+		printf("\n\tuncompressed %lu of %lu\n"
 		       "\tcrcs == 0x%08x/0x%08x\n",
 		       bytes_written, total_bytes,
 		       expected_crc, calculated_crc);
@@ -119,15 +119,15 @@ void gzwrite_progress_finish(int returnval,
 int gzwrite(unsigned char *src, int len,
 	    struct blk_desc *dev,
 	    unsigned long szwritebuf,
-	    u64 startoffs,
-	    u64 szexpected)
+	    ulong startoffs,
+	    ulong szexpected)
 {
 	int i, flags;
 	z_stream s;
 	int r = 0;
 	unsigned char *writebuf;
 	unsigned crc = 0;
-	u64 totalfilled = 0;
+	ulong totalfilled = 0;
 	lbaint_t blksperbuf, outblock;
 	u32 expected_crc;
 	u32 payload_size;
@@ -142,7 +142,7 @@ int gzwrite(unsigned char *src, int len,
 	}
 
 	if (startoffs & (dev->blksz-1)) {
-		printf("%s: start offset %llu not a multiple of %lu\n",
+		printf("%s: start offset %lu not a multiple of %lu\n",
 		       __func__, startoffs, dev->blksz);
 		return -1;
 	}
@@ -182,12 +182,12 @@ int gzwrite(unsigned char *src, int len,
 	if (szexpected == 0) {
 		szexpected = le32_to_cpu(szuncompressed);
 	} else if (szuncompressed != (u32)szexpected) {
-		printf("size of %llx doesn't match trailer low bits %x\n",
+		printf("size of %lx doesn't match trailer low bits %x\n",
 		       szexpected, szuncompressed);
 		return -1;
 	}
 	if (lldiv(szexpected, dev->blksz) > (dev->lba - outblock)) {
-		printf("%s: uncompressed size %llu exceeds device size\n",
+		printf("%s: uncompressed size %lu exceeds device size\n",
 		       __func__, szexpected);
 		return -1;
 	}

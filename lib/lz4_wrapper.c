@@ -6,10 +6,10 @@
 #include <common.h>
 #include <compiler.h>
 #include <image.h>
-#include <lz4.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <asm/unaligned.h>
+#include <u-boot/lz4.h>
 
 static u16 LZ4_readLE16(const void *src)
 {

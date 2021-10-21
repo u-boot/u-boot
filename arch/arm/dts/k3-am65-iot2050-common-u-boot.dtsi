@@ -35,7 +35,7 @@
 
 &cbass_main {
 	u-boot,dm-spl;
-	main-navss {
+	main_navss: bus@30800000 {
 		u-boot,dm-spl;
 	};
 };

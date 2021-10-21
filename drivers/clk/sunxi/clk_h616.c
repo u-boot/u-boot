@@ -7,7 +7,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
-#include <asm/arch/ccu.h>
+#include <clk/sunxi.h>
 #include <dt-bindings/clock/sun50i-h616-ccu.h>
 #include <dt-bindings/reset/sun50i-h616-ccu.h>
 #include <linux/bitops.h>
@@ -23,6 +23,12 @@ static struct ccu_clk_gate h616_gates[] = {
 	[CLK_BUS_UART3]		= GATE(0x90c, BIT(3)),
 	[CLK_BUS_UART4]		= GATE(0x90c, BIT(4)),
 	[CLK_BUS_UART5]		= GATE(0x90c, BIT(5)),
+
+	[CLK_BUS_I2C0]		= GATE(0x91c, BIT(0)),
+	[CLK_BUS_I2C1]		= GATE(0x91c, BIT(1)),
+	[CLK_BUS_I2C2]		= GATE(0x91c, BIT(2)),
+	[CLK_BUS_I2C3]		= GATE(0x91c, BIT(3)),
+	[CLK_BUS_I2C4]		= GATE(0x91c, BIT(4)),
 
 	[CLK_SPI0]		= GATE(0x940, BIT(31)),
 	[CLK_SPI1]		= GATE(0x944, BIT(31)),
@@ -67,6 +73,12 @@ static struct ccu_reset h616_resets[] = {
 	[RST_BUS_UART3]		= RESET(0x90c, BIT(19)),
 	[RST_BUS_UART4]		= RESET(0x90c, BIT(20)),
 	[RST_BUS_UART5]		= RESET(0x90c, BIT(21)),
+
+	[RST_BUS_I2C0]		= RESET(0x91c, BIT(16)),
+	[RST_BUS_I2C1]		= RESET(0x91c, BIT(17)),
+	[RST_BUS_I2C2]		= RESET(0x91c, BIT(18)),
+	[RST_BUS_I2C3]		= RESET(0x91c, BIT(19)),
+	[RST_BUS_I2C4]		= RESET(0x91c, BIT(20)),
 
 	[RST_BUS_SPI0]		= RESET(0x96c, BIT(16)),
 	[RST_BUS_SPI1]		= RESET(0x96c, BIT(17)),

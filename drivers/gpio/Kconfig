@@ -183,6 +183,14 @@ config LPC32XX_GPIO
 	help
 	  Support for the LPC32XX GPIO driver.
 
+config MAX7320_GPIO
+	bool "MAX7320 I2C GPIO Expander driver"
+	depends on DM_GPIO && DM_I2C
+	help
+	 Support for MAX7320 I2C 8/16-bit GPIO expander.
+	 original maxim device has 8 push/pull outputs,
+	 some clones offers 16bit.
+
 config MCP230XX_GPIO
 	bool "MCP230XX GPIO driver"
 	depends on DM
