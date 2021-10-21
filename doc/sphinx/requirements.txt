@@ -1,4 +1,4 @@
 docutils==0.16
-Sphinx==2.4.4
+Sphinx==3.4.3
 sphinx_rtd_theme
 six
