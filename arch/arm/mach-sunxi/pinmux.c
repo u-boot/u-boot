@@ -45,7 +45,7 @@ int sunxi_gpio_get_cfgpin(u32 pin)
 	return sunxi_gpio_get_cfgbank(pio, pin);
 }
 
-int sunxi_gpio_set_drv(u32 pin, u32 val)
+void sunxi_gpio_set_drv(u32 pin, u32 val)
 {
 	u32 bank = GPIO_BANK(pin);
 	u32 index = GPIO_DRV_INDEX(pin);
@@ -53,11 +53,9 @@ int sunxi_gpio_set_drv(u32 pin, u32 val)
 	struct sunxi_gpio *pio = BANK_TO_GPIO(bank);
 
 	clrsetbits_le32(&pio->drv[0] + index, 0x3 << offset, val << offset);
-
-	return 0;
 }
 
-int sunxi_gpio_set_pull(u32 pin, u32 val)
+void sunxi_gpio_set_pull(u32 pin, u32 val)
 {
 	u32 bank = GPIO_BANK(pin);
 	u32 index = GPIO_PULL_INDEX(pin);
@@ -65,6 +63,4 @@ int sunxi_gpio_set_pull(u32 pin, u32 val)
 	struct sunxi_gpio *pio = BANK_TO_GPIO(bank);
 
 	clrsetbits_le32(&pio->pull[0] + index, 0x3 << offset, val << offset);
-
-	return 0;
 }
