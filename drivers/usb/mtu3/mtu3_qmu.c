@@ -112,6 +112,7 @@ int mtu3_gpd_ring_alloc(struct mtu3_ep *mep)
 	memset(gpd, 0, QMU_GPD_RING_SIZE);
 	ring->dma = (dma_addr_t)gpd;
 	gpd_ring_init(ring, gpd);
+	mtu3_flush_cache((uintptr_t)gpd, sizeof(*gpd));
 
 	return 0;
 }
