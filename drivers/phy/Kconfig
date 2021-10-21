@@ -281,6 +281,13 @@ config PHY_IMX8MQ_USB
 	help
 	  Support the USB3.0 PHY in NXP i.MX8MQ SoC
 
+config PHY_XILINX_ZYNQMP
+	tristate "Xilinx ZynqMP PHY driver"
+	depends on PHY && ARCH_ZYNQMP
+	help
+	  Enable this to support ZynqMP High Speed Gigabit Transceiver
+	  that is part of ZynqMP SoC.
+
 source "drivers/phy/rockchip/Kconfig"
 source "drivers/phy/cadence/Kconfig"
 source "drivers/phy/ti/Kconfig"
