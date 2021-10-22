@@ -138,6 +138,10 @@ static bool mvebu_pcie_valid_addr(struct mvebu_pcie *pcie,
 	if (busno == pcie->first_busno && (dev != 0 || func != 0))
 		return false;
 
+	/* Access to other buses is possible when link is up */
+	if (busno != pcie->first_busno && !mvebu_pcie_link_up(pcie))
+		return false;
+
 	/* On secondary bus can be only one PCIe device */
 	if (busno == pcie->sec_busno && dev != 0)
 		return false;
@@ -369,9 +373,6 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	u32 reg;
 
-	debug("%s: PCIe %d.%d - up, base %08x\n", __func__,
-	      pcie->port, pcie->lane, (u32)pcie->base);
-
 	/*
 	 * Change Class Code of PCI Bridge device to PCI Bridge (0x600400)
 	 * because default value is Memory controller (0x508000) which
@@ -602,13 +603,6 @@ static int mvebu_pcie_of_to_plat(struct udevice *dev)
 	ret = mvebu_pcie_port_parse_dt(dev_ofnode(dev), pcie);
 	if (ret < 0)
 		goto err;
-
-	/* Check link and skip ports that have no link */
-	if (!mvebu_pcie_link_up(pcie)) {
-		debug("%s: %s - down\n", __func__, pcie->name);
-		ret = -ENODEV;
-		goto err;
-	}
 
 	return 0;
 
