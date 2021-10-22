@@ -3,6 +3,24 @@ menu "Environment"
 config ENV_SUPPORT
 	def_bool y
 
+config ENV_SOURCE_FILE
+	string "Environment file to use"
+	default ""
+	help
+	  This sets the basename to use to generate the default environment.
+	  This a text file as described in doc/usage/environment.rst
+
+	  The file must be in the board directory and have a .env extension, so
+	  the resulting filename is typically
+	  board/<vendor>/<board>/<CONFIG_ENV_SOURCE_FILE>.env
+
+	  If the file is not present, an error is produced.
+
+	  If this CONFIG is empty, U-Boot uses CONFIG SYS_BOARD as a default, if
+	  the file board/<vendor>/<board>/<SYS_BOARD>.env exists. Otherwise the
+	  environment is assumed to come from the ad-hoc
+	  CONFIG_EXTRA_ENV_SETTINGS #define
+
 config SAVEENV
 	def_bool y if CMD_SAVEENV
 

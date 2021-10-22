@@ -10,6 +10,7 @@ Use U-Boot
    netconsole
    partitions
    cmdline
+   environment
 
 Shell commands
 --------------

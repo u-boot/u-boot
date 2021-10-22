@@ -760,6 +760,13 @@ F:	test/env/
 F:	tools/env*
 F:	tools/mkenvimage.c
 
+ENVIRONMENT AS TEXT
+M:	Simon Glass <sjg@chromium.org>
+R:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	doc/usage/environment.rst
+F:	scripts/env2string.awk
+
 FPGA
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained

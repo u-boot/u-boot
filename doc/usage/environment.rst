@@ -15,7 +15,86 @@ environment is erased by accident, a default environment is provided.
 
 Some configuration options can be set using Environment Variables.
 
-List of environment variables (most likely not complete):
+Text-based Environment
+----------------------
+
+The default environment for a board is created using a `.env` environment file
+using a simple text format. The base filename for this is defined by
+`CONFIG_ENV_SOURCE_FILE`, or `CONFIG_SYS_BOARD` if that is empty.
+
+The file must be in the board directory and have a .env extension, so
+assuming that there is a board vendor, the resulting filename is therefore::
+
+   board/<vendor>/<board>/<CONFIG_ENV_SOURCE_FILE>.env
+
+or::
+
+   board/<vendor>/<board>/<CONFIG_SYS_BOARD>.env
+
+This is a plain text file where you can type your environment variables in
+the form `var=value`. Blank lines and multi-line variables are supported.
+The conversion script looks for a line that starts in column 1 with a string
+and has an equals sign immediately afterwards. Spaces before the = are not
+permitted. It is a good idea to indent your scripts so that only the 'var='
+appears at the start of a line.
+
+To add additional text to a variable you can use `var+=value`. This text is
+merged into the variable during the make process and made available as a
+single value to U-Boot. Variables can contain `+` characters but in the unlikely
+event that you want to have a variable name ending in plus, put a backslash
+before the `+` so that the script knows you are not adding to an existing
+variable but assigning to a new one::
+
+    maximum\+=value
+
+This file can include C-style comments. Blank lines and multi-line
+variables are supported, and you can use normal C preprocessor directives
+and CONFIG defines from your board config also.
+
+For example, for snapper9260 you would create a text file called
+`board/bluewater/snapper9260.env` containing the environment text.
+
+Example::
+
+    stdout=serial
+    #ifdef CONFIG_LCD
+    stdout+=,lcd
+    #endif
+    bootcmd=
+        /* U-Boot script for booting */
+
+        if [ -z ${tftpserverip} ]; then
+            echo "Use 'setenv tftpserverip a.b.c.d' to set IP address."
+        fi
+
+        usb start; setenv autoload n; bootp;
+        tftpboot ${tftpserverip}:
+        bootm
+    failed=
+        /* Print a message when boot fails */
+        echo CONFIG_SYS_BOARD boot failed - please check your image
+        echo Load address is CONFIG_SYS_LOAD_ADDR
+
+If CONFIG_ENV_SOURCE_FILE is empty and the default filename is not present, then
+the old-style C environment is used instead. See below.
+
+Old-style C environment
+-----------------------
+
+Traditionally, the default environment is created in `include/env_default.h`,
+and can be augmented by various `CONFIG` defines. See that file for details. In
+particular you can define `CONFIG_EXTRA_ENV_SETTINGS` in your board file
+to add environment variables.
+
+Board maintainers are encouraged to migrate to the text-based environment as it
+is easier to maintain. The distro-board script still requires the old-style
+environment but work is underway to address this.
+
+
+List of environment variables
+-----------------------------
+
+This is most-likely not complete:
 
 baudrate
     see CONFIG_BAUDRATE
