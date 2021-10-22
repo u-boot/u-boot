@@ -4,8 +4,8 @@
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  */
 
-#ifndef _GPIO_H_
-#define _GPIO_H_
+#ifndef _STM32_GPIO_PRIV_H_
+#define _STM32_GPIO_PRIV_H_
 
 enum stm32_gpio_mode {
 	STM32_GPIO_MODE_IN = 0,
@@ -83,4 +83,4 @@ struct stm32_gpio_priv {
 
 int stm32_offset_to_index(struct udevice *dev, unsigned int offset);
 
-#endif /* _GPIO_H_ */
+#endif /* _STM32_GPIO_PRIV_H_ */

@@ -21,7 +21,6 @@
 #include <video.h>
 #include <video_bridge.h>
 #include <asm/io.h>
-#include <asm/arch/gpio.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
