@@ -4,16 +4,20 @@ Environment Variables
 =====================
 
 U-Boot supports user configuration using Environment Variables which
-can be made persistent by saving to Flash memory.
+can be made persistent by saving to persistent storage, for example flash
+memory.
 
-Environment Variables are set using "setenv", printed using
-"printenv", and saved to Flash using "saveenv". Using "setenv"
+Environment Variables are set using "env set" (alias "setenv"), printed using
+"env print" (alias "printenv"), and saved to persistent storage using
+"env save" (alias "saveenv"). Using "env set"
 without a value can be used to delete a variable from the
-environment. As long as you don't save the environment you are
+environment. As long as you don't save the environment, you are
 working with an in-memory copy. In case the Flash area containing the
 environment is erased by accident, a default environment is provided.
 
-Some configuration options can be set using Environment Variables.
+Some configuration is controlled by Environment Variables, so that setting the
+variable can adjust the behaviour of U-Boot (e.g. autoboot delay, autoloading
+from tftp).
 
 Text-based Environment
 ----------------------
@@ -94,16 +98,24 @@ environment but work is underway to address this.
 List of environment variables
 -----------------------------
 
+Some configuration options can be set using Environment Variables. In many cases
+the value in the default environment comes from a CONFIG option - see
+`include/env_default.h`) for this.
+
 This is most-likely not complete:
 
 baudrate
-    see CONFIG_BAUDRATE
+    Current baud rate used by the serial console. The built-in value is set by
+    CONFIG_BAUDRATE (see `drivers/serial/Kconfig`)
 
 bootdelay
-    see CONFIG_BOOTDELAY
+    Current autoboot delay. The built-in value is set by CONFIG_BOOTDELAY (see
+    `common/Kconfig`)
 
 bootcmd
-    see CONFIG_BOOTCOMMAND
+    Defines a command string that is automatically executed when no character
+    is read on the console interface within a cetain boot delay after reset.
+    The built-in value is set by CONFIG_BOOTCOMMAND (see `common/Kconfig`)
 
 bootargs
     Boot arguments when booting an RTOS image
@@ -149,7 +161,7 @@ autoload
     if set to "no" (any string beginning with 'n'),
     "bootp" will just load perform a lookup of the
     configuration from the BOOTP server, but not try to
-    load any image using TFTP
+    load any image using TFTP or DHCP.
 
 autostart
     if set to "yes", an image loaded using the "bootp",
@@ -315,6 +327,8 @@ vlan
     Ethernet is encapsulated/received over 802.1q
     VLAN tagged frames.
 
+    Note: This appears not to be used in U-Boot. See `README.VLAN`.
+
 bootpretryperiod
     Period during which BOOTP/DHCP sends retries.
     Unsigned value, in milliseconds. If not set, the period will
@@ -355,6 +369,10 @@ flash or offset in NAND flash.
 *Note* - these variables don't have to be defined for all boards, some
 boards currently use other variables for these purposes, and some
 boards use these variables for other purposes.
+
+Also note that most of these variables are just a commonly used set of variable
+names, used in some other variable definitions, but are not hard-coded anywhere
+in U-Boot code.
 
 ================= ============== ================ ==============
 Image             File Name      RAM Address      Flash Location

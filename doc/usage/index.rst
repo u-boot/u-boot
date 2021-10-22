@@ -5,6 +5,7 @@ Use U-Boot
    :maxdepth: 1
 
    dfu
+   environment
    fdt_overlays
    fit
    netconsole
