@@ -184,9 +184,22 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
 
 	/* read data */
-	data = readl(pcie->base + PCIE_CONF_DATA_OFF);
+	switch (size) {
+	case PCI_SIZE_8:
+		data = readb(pcie->base + PCIE_CONF_DATA_OFF + (offset & 3));
+		break;
+	case PCI_SIZE_16:
+		data = readw(pcie->base + PCIE_CONF_DATA_OFF + (offset & 2));
+		break;
+	case PCI_SIZE_32:
+		data = readl(pcie->base + PCIE_CONF_DATA_OFF);
+		break;
+	default:
+		return -EINVAL;
+	}
+
 	debug("(addr,size,val)=(0x%04x, %d, 0x%08x)\n", offset, size, data);
-	*valuep = pci_conv_32_to_size(data, offset, size);
+	*valuep = data;
 
 	return 0;
 }
