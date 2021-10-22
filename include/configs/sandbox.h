@@ -54,36 +54,7 @@
 #define CONFIG_LCD_BMP_RLE8
 
 #define CONFIG_KEYBOARD
-
-#define SANDBOX_SERIAL_SETTINGS		"stdin=serial,cros-ec-keyb,usbkbd\0" \
-					"stdout=serial,vidconsole\0" \
-					"stderr=serial,vidconsole\0"
-#else
-#define SANDBOX_SERIAL_SETTINGS		"stdin=serial\0" \
-					"stdout=serial,vidconsole\0" \
-					"stderr=serial,vidconsole\0"
 #endif
-
-#define SANDBOX_ETH_SETTINGS		"ethaddr=00:00:11:22:33:44\0" \
-					"eth2addr=00:00:11:22:33:48\0" \
-					"eth3addr=00:00:11:22:33:45\0" \
-					"eth4addr=00:00:11:22:33:48\0" \
-					"eth5addr=00:00:11:22:33:46\0" \
-					"eth6addr=00:00:11:22:33:47\0" \
-					"ipaddr=1.2.3.4\0"
-
-#define MEM_LAYOUT_ENV_SETTINGS \
-	"bootm_size=0x10000000\0" \
-	"kernel_addr_r=0x1000000\0" \
-	"fdt_addr_r=0xc00000\0" \
-	"ramdisk_addr_r=0x2000000\0" \
-	"scriptaddr=0x1000\0" \
-	"pxefile_addr_r=0x2000\0"
-
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	SANDBOX_SERIAL_SETTINGS \
-	SANDBOX_ETH_SETTINGS \
-	MEM_LAYOUT_ENV_SETTINGS
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_IDE_MAXBUS		1
