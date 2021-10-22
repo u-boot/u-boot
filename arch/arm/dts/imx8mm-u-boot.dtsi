@@ -36,6 +36,7 @@
 
 		u-boot-spl {
 			align-end = <4>;
+			filename = "u-boot-spl.bin";
 		};
 
 		blob_1: blob-ext@1 {
