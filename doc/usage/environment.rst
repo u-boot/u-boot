@@ -3,11 +3,11 @@
 Environment Variables
 =====================
 
-U-Boot supports user configuration using Environment Variables which
+U-Boot supports user configuration using environment variables which
 can be made persistent by saving to persistent storage, for example flash
 memory.
 
-Environment Variables are set using "env set" (alias "setenv"), printed using
+Environment variables are set using "env set" (alias "setenv"), printed using
 "env print" (alias "printenv"), and saved to persistent storage using
 "env save" (alias "saveenv"). Using "env set"
 without a value can be used to delete a variable from the
@@ -98,27 +98,37 @@ environment but work is underway to address this.
 List of environment variables
 -----------------------------
 
-Some configuration options can be set using Environment Variables. In many cases
-the value in the default environment comes from a CONFIG option - see
+Some device configuration options can be set using environment variables. In
+many cases the value in the default environment comes from a CONFIG option - see
 `include/env_default.h`) for this.
 
 This is most-likely not complete:
 
 baudrate
-    Current baud rate used by the serial console. The built-in value is set by
-    CONFIG_BAUDRATE (see `drivers/serial/Kconfig`)
+    Used to set the baudrate of the UART - it defaults to CONFIG_BAUDRATE (which
+    defaults to 115200).
 
 bootdelay
-    Current autoboot delay. The built-in value is set by CONFIG_BOOTDELAY (see
-    `common/Kconfig`)
+    Delay before automatically running bootcmd. During this time the user
+    can choose to enter the shell (or the boot menu if
+    CONFIG_AUTOBOOT_MENU_SHOW=y):
+
+    - 0 to autoboot with no delay, but you can stop it by key input.
+    - -1 to disable autoboot.
+    - -2 to autoboot with no delay and not check for abort
+
+    The default value is defined by CONFIG_BOOTDELAY.
+    The value of 'bootdelay' is overridden by the /config/bootdelay value in
+    the device-tree if CONFIG_OF_CONTROL=y.
+    Does it really make sense that the devicetree overrides the user setting?
 
 bootcmd
-    Defines a command string that is automatically executed when no character
-    is read on the console interface within a cetain boot delay after reset.
-    The built-in value is set by CONFIG_BOOTCOMMAND (see `common/Kconfig`)
+    The command that is run if the user does not enter the shell during the
+    boot delay.
 
 bootargs
-    Boot arguments when booting an RTOS image
+    Command line arguments passed when booting an operating system or binary
+    image
 
 bootfile
     Name of the image to load with TFTP
@@ -159,12 +169,12 @@ updatefile
 
 autoload
     if set to "no" (any string beginning with 'n'),
-    "bootp" will just load perform a lookup of the
+    "bootp" and "dhcp" will just load perform a lookup of the
     configuration from the BOOTP server, but not try to
     load any image using TFTP or DHCP.
 
 autostart
-    if set to "yes", an image loaded using the "bootp",
+    if set to "yes", an image loaded using the "bootp", "dhcp",
     "rarpboot", "tftpboot" or "diskboot" commands will
     be automatically started (by internally calling
     "bootm")
@@ -186,7 +196,8 @@ fdt_high
     of the 704 MB low memory, so that Linux kernel can
     access it during the boot procedure.
 
-    If this is set to the special value 0xFFFFFFFF then
+    If this is set to the special value 0xffffffff (32-bit machines) or
+    0xffffffffffffffff (64-bit machines) then
     the fdt will not be copied at all on boot.  For this
     to work it must reside in writable memory, have
     sufficient padding on the end of it for u-boot to
@@ -220,7 +231,8 @@ initrd_high
 
         setenv initrd_high 00c00000
 
-    If you set initrd_high to 0xFFFFFFFF, this is an
+    If you set initrd_high to 0xffffffff (32-bit machines) or
+    0xffffffffffffffff (64-bit machines), this is an
     indication to U-Boot that all addresses are legal
     for the Linux kernel, including addresses in flash
     memory. In this case U-Boot will NOT COPY the
@@ -251,7 +263,7 @@ bootstopkey
     see CONFIG_AUTOBOOT_STOP_STR
 
 ethprime
-    controls which interface is used first.
+    controls which network interface is used first.
 
 ethact
     controls which interface is currently active.
@@ -265,7 +277,9 @@ ethact
 ethrotate
     When set to "no" U-Boot does not go through all
     available network interfaces.
-    It just stays at the currently selected interface.
+    It just stays at the currently selected interface. When unset or set to
+    anything other than "no", U-Boot does go through all
+    available network interfaces.
 
 netretry
     When set to "no" each network operation will
@@ -276,12 +290,9 @@ netretry
     Useful on scripts which control the retry operation
     themselves.
 
-npe_ucode
-    set load address for the NPE microcode
-
 silent_linux
     If set then Linux will be told to boot silently, by
-    changing the console to be empty. If "yes" it will be
+    adding 'console=' to its command line. If "yes" it will be
     made silent. If "no" it will not be made silent. If
     unset, then it will be made silent if the U-Boot console
     is silent.
@@ -292,7 +303,7 @@ tftpsrcp
 
 tftpdstp
     If this is set, the value is used for TFTP's UDP
-    destination port instead of the Well Know Port 69.
+    destination port instead of the default port 69.
 
 tftpblocksize
     Block size to use for TFTP transfers; if not set,
@@ -415,11 +426,12 @@ serial#
     contains hardware identification information such as type string and/or
     serial number
 ethaddr
-    Ethernet address
+    Ethernet address. If CONFIG_REGEX=y, also eth*addr (where * is an integer).
 
 These variables can be set only once (usually during manufacturing of
 the board). U-Boot refuses to delete or overwrite these variables
-once they have been set once.
+once they have been set, unless CONFIG_ENV_OVERWRITE is enabled in the board
+configuration.
 
 Also:
 
@@ -429,53 +441,7 @@ ver
     readonly (see CONFIG_VERSION_VARIABLE).
 
 Please note that changes to some configuration parameters may take
-only effect after the next boot (yes, that's just like Windoze :-).
-
-
-Callback functions for environment variables
---------------------------------------------
-
-For some environment variables, the behavior of u-boot needs to change
-when their values are changed.  This functionality allows functions to
-be associated with arbitrary variables.  On creation, overwrite, or
-deletion, the callback will provide the opportunity for some side
-effect to happen or for the change to be rejected.
-
-The callbacks are named and associated with a function using the
-U_BOOT_ENV_CALLBACK macro in your board or driver code.
-
-These callbacks are associated with variables in one of two ways.  The
-static list can be added to by defining CONFIG_ENV_CALLBACK_LIST_STATIC
-in the board configuration to a string that defines a list of
-associations.  The list must be in the following format::
-
-    entry = variable_name[:callback_name]
-    list = entry[,list]
-
-If the callback name is not specified, then the callback is deleted.
-Spaces are also allowed anywhere in the list.
-
-Callbacks can also be associated by defining the ".callbacks" variable
-with the same list format above.  Any association in ".callbacks" will
-override any association in the static list. You can define
-CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
-".callbacks" environment variable in the default or embedded environment.
-
-If CONFIG_REGEX is defined, the variable_name above is evaluated as a
-regular expression. This allows multiple variables to be connected to
-the same callback without explicitly listing them all out.
-
-The signature of the callback functions is::
-
-    int callback(const char *name, const char *value, enum env_op op, int flags)
-
-* name - changed environment variable
-* value - new value of the environment variable
-* op - operation (create, overwrite, or delete)
-* flags - attributes of the environment variable change, see flags H_* in
-  include/search.h
-
-The return value is 0 if the variable change is accepted and 1 otherwise.
+only effect after the next boot (yes, that's just like Windows).
 
 
 External environment file
@@ -491,3 +457,8 @@ key=value pairs. Blank lines and lines beginning with # are ignored.
 
 Future work may unify this feature with the text-based environment, perhaps
 moving the contents of `env_default.h` to a text file.
+
+Implementation
+--------------
+
+See :doc:`../develop/environment` for internal development details.
