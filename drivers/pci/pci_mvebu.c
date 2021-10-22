@@ -211,8 +211,19 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
 
 	/* write data */
-	data = pci_conv_size_to_32(0, value, offset, size);
-	writel(data, pcie->base + PCIE_CONF_DATA_OFF);
+	switch (size) {
+	case PCI_SIZE_8:
+		writeb(value, pcie->base + PCIE_CONF_DATA_OFF + (offset & 3));
+		break;
+	case PCI_SIZE_16:
+		writew(value, pcie->base + PCIE_CONF_DATA_OFF + (offset & 2));
+		break;
+	case PCI_SIZE_32:
+		writel(value, pcie->base + PCIE_CONF_DATA_OFF);
+		break;
+	default:
+		return -EINVAL;
+	}
 
 	return 0;
 }
