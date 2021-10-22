@@ -126,22 +126,6 @@ static void mvebu_pcie_set_local_dev_nr(struct mvebu_pcie *pcie, int devno)
 	writel(stat, pcie->base + PCIE_STAT_OFF);
 }
 
-static int mvebu_pcie_get_local_bus_nr(struct mvebu_pcie *pcie)
-{
-	u32 stat;
-
-	stat = readl(pcie->base + PCIE_STAT_OFF);
-	return (stat & PCIE_STAT_BUS) >> 8;
-}
-
-static int mvebu_pcie_get_local_dev_nr(struct mvebu_pcie *pcie)
-{
-	u32 stat;
-
-	stat = readl(pcie->base + PCIE_STAT_OFF);
-	return (stat & PCIE_STAT_DEV) >> 16;
-}
-
 static inline struct mvebu_pcie *hose_to_pcie(struct pci_controller *hose)
 {
 	return container_of(hose, struct mvebu_pcie, hose);
