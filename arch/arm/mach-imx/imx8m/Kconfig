@@ -36,6 +36,7 @@ config TARGET_IMX8MQ_CM
 
 config TARGET_IMX8MQ_EVK
 	bool "imx8mq_evk"
+	select BINMAN
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
