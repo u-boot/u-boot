@@ -117,6 +117,7 @@ config TARGET_VERDIN_IMX8MM
 
 config TARGET_IMX8MM_BEACON
 	bool "imx8mm Beacon Embedded devkit"
+	select BINMAN
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
