@@ -15,8 +15,8 @@
 };
 
 &aips1 {
-	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &aips2 {
@@ -29,10 +29,10 @@
 
 &binman {
 	u-boot-spl-ddr {
+		align = <4>;
+		align-size = <4>;
 		filename = "u-boot-spl-ddr.bin";
 		pad-byte = <0xff>;
-		align-size = <4>;
-		align = <4>;
 
 		u-boot-spl {
 			align-end = <4>;
@@ -76,17 +76,17 @@
 
 		fit {
 			description = "Configuration to load ATF before U-Boot";
-			#address-cells = <1>;
 			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
 			fit,fdt-list = "of-list";
+			#address-cells = <1>;
 
 			images {
 				uboot {
-					description = "U-Boot (64-bit)";
-					type = "standalone";
 					arch = "arm64";
 					compression = "none";
+					description = "U-Boot (64-bit)";
 					load = <CONFIG_SYS_TEXT_BASE>;
+					type = "standalone";
 
 					uboot_blob: blob-ext {
 						filename = "u-boot-nodtb.bin";
@@ -94,12 +94,12 @@
 				};
 
 				atf {
-					description = "ARM Trusted Firmware";
-					type = "firmware";
 					arch = "arm64";
 					compression = "none";
-					load = <0x920000>;
+					description = "ARM Trusted Firmware";
 					entry = <0x920000>;
+					load = <0x920000>;
+					type = "firmware";
 
 					atf_blob: blob-ext {
 						filename = "bl31.bin";
@@ -107,17 +107,17 @@
 				};
 
 				binman_fip: fip {
-					description = "Trusted Firmware FIP";
-					type = "firmware";
 					arch = "arm64";
 					compression = "none";
+					description = "Trusted Firmware FIP";
 					load = <0x40310000>;
+					type = "firmware";
 				};
 
 				@fdt-SEQ {
+					compression = "none";
 					description = "NAME";
 					type = "flat_dt";
-					compression = "none";
 
 					uboot_fdt_blob: blob-ext {
 						filename = "u-boot.dtb";
@@ -130,9 +130,9 @@
 
 				binman_configuration: @config-SEQ {
 					description = "NAME";
+					fdt = "fdt-SEQ";
 					firmware = "uboot";
 					loadables = "atf";
-					fdt = "fdt-SEQ";
 				};
 			};
 		};
@@ -143,20 +143,20 @@
 		pad-byte = <0x00>;
 
 		spl: blob-ext@1 {
-			offset = <0x0>;
 			filename = "spl.bin";
+			offset = <0x0>;
 		};
 
 		binman_uboot: blob-ext@2 {
-			offset = <0x57c00>;
 			filename = "u-boot.itb";
+			offset = <0x57c00>;
 		};
 	};
 };
 
 &clk {
-	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
 	/delete-property/ assigned-clock-rates;
@@ -167,6 +167,6 @@
 };
 
 &osc_24m {
-	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
