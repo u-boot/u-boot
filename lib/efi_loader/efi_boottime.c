@@ -1690,8 +1690,9 @@ out:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
-							       void *table)
+static efi_status_t
+EFIAPI efi_install_configuration_table_ext(const efi_guid_t *guid,
+					   void *table)
 {
 	EFI_ENTRY("%pUl, %p", guid, table);
 	return EFI_EXIT(efi_install_configuration_table(guid, table));

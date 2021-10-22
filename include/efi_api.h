@@ -120,7 +120,7 @@ struct efi_boot_services {
 			struct efi_device_path **device_path,
 			efi_handle_t *device);
 	efi_status_t (EFIAPI *install_configuration_table)(
-			efi_guid_t *guid, void *table);
+			const efi_guid_t *guid, void *table);
 
 	efi_status_t (EFIAPI *load_image)(bool boot_policiy,
 			efi_handle_t parent_image,
