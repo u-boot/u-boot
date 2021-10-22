@@ -7,6 +7,6 @@ config SYS_VENDOR
 	default "engicam"
 
 config SYS_CONFIG_NAME
-	default "stm32mp1"
+	default "stm32mp15_common"
 
 endif

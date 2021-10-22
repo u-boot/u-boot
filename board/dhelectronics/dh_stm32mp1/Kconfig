@@ -7,7 +7,7 @@ config SYS_VENDOR
 	default "dhelectronics"
 
 config SYS_CONFIG_NAME
-	default "dh_stm32mp1"
+	default "stm32mp15_dh_dhsom"
 
 config ENV_SECT_SIZE
 	default 0x10000 if ENV_IS_IN_SPI_FLASH

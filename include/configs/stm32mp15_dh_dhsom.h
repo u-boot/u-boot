@@ -5,10 +5,10 @@
  * Configuration settings for the DH STM32MP15x SoMs
  */
 
-#ifndef __CONFIG_DH_STM32MP1_H__
-#define __CONFIG_DH_STM32MP1_H__
+#ifndef __CONFIG_STM32MP15_DH_DHSOM_H__
+#define __CONFIG_STM32MP15_DH_DHSOM_H__
 
-#include <configs/stm32mp1.h>
+#include <configs/stm32mp15_common.h>
 
 #define CONFIG_SPL_TARGET		"u-boot.itb"
 
