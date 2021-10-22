@@ -3,6 +3,8 @@
  * Copyright 2019 NXP
  */
 
+#include "imx8mm-u-boot.dtsi"
+
 / {
 	binman: binman {
 		multiple-images;
@@ -22,29 +24,11 @@
 	};
 };
 
-&{/soc@0} {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
-};
-
 &{/soc@0/bus@30800000/i2c@30a30000/pmic@4b} {
 	u-boot,dm-spl;
 };
 
 &{/soc@0/bus@30800000/i2c@30a30000/pmic@4b/regulators} {
-	u-boot,dm-spl;
-};
-
-&aips1 {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-};
-
-&aips2 {
-	u-boot,dm-spl;
-};
-
-&aips3 {
 	u-boot,dm-spl;
 };
 
@@ -149,14 +133,6 @@
 	};
 };
 
-&clk {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-parents;
-	/delete-property/ assigned-clock-rates;
-};
-
 &fec1 {
 	phy-reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
 };
@@ -187,15 +163,6 @@
 
 &i2c2 {
 	u-boot,dm-spl;
-};
-
-&iomuxc {
-	u-boot,dm-spl;
-};
-
-&osc_24m {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
 };
 
 &pinctrl_i2c2 {
