@@ -121,3 +121,9 @@ const char default_environment[] = {
 	}
 #endif
 };
+
+#if !defined(USE_HOSTCC) && !defined(DEFAULT_ENV_INSTANCE_EMBEDDED)
+#include <env_internal.h>
+static_assert(sizeof(default_environment) <= ENV_SIZE,
+	      "Default environment is too large");
+#endif
