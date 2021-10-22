@@ -458,3 +458,18 @@ The signature of the callback functions is::
   include/search.h
 
 The return value is 0 if the variable change is accepted and 1 otherwise.
+
+
+External environment file
+-------------------------
+
+The `CONFIG_USE_DEFAULT_ENV_FILE` option provides a way to bypass the
+environment generation in U-Boot. If enabled, then `CONFIG_DEFAULT_ENV_FILE`
+provides the name of a file which is converted into the environment,
+completely bypassing the standard environment variables in `env_default.h`.
+
+The format is the same as accepted by the mkenvimage tool, with lines containing
+key=value pairs. Blank lines and lines beginning with # are ignored.
+
+Future work may unify this feature with the text-based environment, perhaps
+moving the contents of `env_default.h` to a text file.
