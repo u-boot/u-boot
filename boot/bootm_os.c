@@ -26,12 +26,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static int do_bootm_standalone(int flag, int argc, char *const argv[],
 			       bootm_headers_t *images)
 {
-	char *s;
 	int (*appl)(int, char *const[]);
 
-	/* Don't start if "autostart" is set to "no" */
-	s = env_get("autostart");
-	if ((s != NULL) && !strcmp(s, "no")) {
+	if (!env_get_autostart()) {
 		env_set_hex("filesize", images->os.image_len);
 		return 0;
 	}
