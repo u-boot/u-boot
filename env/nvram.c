@@ -94,8 +94,7 @@ static int env_nvram_init(void)
 #endif
 		gd->env_valid = ENV_VALID;
 	} else {
-		gd->env_addr	= (ulong)&default_environment[0];
-		gd->env_valid	= ENV_INVALID;
+		gd->env_valid = ENV_INVALID;
 	}
 
 	return 0;
