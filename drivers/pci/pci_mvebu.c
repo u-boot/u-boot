@@ -451,14 +451,6 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	/* Setup windows and configure host bridge */
 	mvebu_pcie_setup_wins(pcie);
 
-	/* Master + slave enable. */
-	reg = readl(pcie->base + PCIE_CMD_OFF);
-	reg |= PCI_COMMAND_MEMORY;
-	reg |= PCI_COMMAND_IO;
-	reg |= PCI_COMMAND_MASTER;
-	reg |= BIT(10);		/* disable interrupts */
-	writel(reg, pcie->base + PCIE_CMD_OFF);
-
 	/* PCI memory space */
 	pci_set_region(hose->regions + 0, pcie->mem.start,
 		       pcie->mem.start, PCIE_MEM_SIZE, PCI_REGION_MEM);
