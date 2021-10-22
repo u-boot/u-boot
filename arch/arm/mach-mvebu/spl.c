@@ -72,7 +72,7 @@
 #define IBR_HDR_UART_ID			0x69
 #define IBR_HDR_SDIO_ID			0xAE
 
-/* Structure of the main header, version 1 (Armada 370/38x/XP) */
+/* Structure of the main header, version 1 (Armada 370/XP/375/38x/39x) */
 struct kwbimage_main_hdr_v1 {
 	uint8_t  blockid;               /* 0x0       */
 	uint8_t  flags;                 /* 0x1       */

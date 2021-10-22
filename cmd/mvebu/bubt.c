@@ -85,7 +85,7 @@ struct mvebu_image_info {
 };
 #endif
 
-/* Structure of the main header, version 1 (Armada 370/38x/XP) */
+/* Structure of the main header, version 1 (Armada 370/XP/375/38x/39x) */
 struct a38x_main_hdr_v1 {
 	u8  blockid;               /* 0x0       */
 	u8  flags;                 /* 0x1       */
