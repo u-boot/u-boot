@@ -21,6 +21,7 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <phy.h>
+#include <reset.h>
 #include <miiphy.h>
 #include <wait_bit.h>
 #include <watchdog.h>
@@ -215,6 +216,7 @@ struct zynq_gem_priv {
 	bool int_pcs;
 	bool dma_64bit;
 	u32 clk_en_info;
+	struct reset_ctl_bulk resets;
 };
 
 static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
@@ -686,11 +688,35 @@ static int zynq_gem_miiphy_write(struct mii_dev *bus, int addr, int devad,
 	return phywrite(priv, addr, reg, value);
 }
 
+static int zynq_gem_reset_init(struct udevice *dev)
+{
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = reset_get_bulk(dev, &priv->resets);
+	if (ret == -ENOTSUPP || ret == -ENOENT)
+		return 0;
+	else if (ret)
+		return ret;
+
+	ret = reset_deassert_bulk(&priv->resets);
+	if (ret) {
+		reset_release_bulk(&priv->resets);
+		return ret;
+	}
+
+	return 0;
+}
+
 static int zynq_gem_probe(struct udevice *dev)
 {
 	void *bd_space;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	int ret;
+
+	ret = zynq_gem_reset_init(dev);
+	if (ret)
+		return ret;
 
 	/* Align rxbuffers to ARCH_DMA_MINALIGN */
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
