@@ -44,6 +44,7 @@ Date:   Sat Apr 15 15:39:08 2017 -0600
     Signed-off-by: Simon Glass <sjg@chromium.org>
     Series-to: u-boot
     Series-prefix: RFC
+    Series-postfix: some-branch
     Series-cc: Stefan Brüns <stefan.bruens@rwth-aachen.de>
     Cover-letter-cc: Lord Mëlchett <clergy@palace.gov>
     Series-version: 3

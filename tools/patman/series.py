@@ -16,7 +16,7 @@ from patman import tools
 
 # Series-xxx tags that we understand
 valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
-                'cover_cc', 'process_log', 'links', 'patchwork_url']
+                'cover_cc', 'process_log', 'links', 'patchwork_url', 'postfix']
 
 class Series(dict):
     """Holds information about a patch series, including all tags.
@@ -133,6 +133,7 @@ class Series(dict):
             print('Cc:\t ', item)
         print('Version: ', self.get('version'))
         print('Prefix:\t ', self.get('prefix'))
+        print('Postfix:\t ', self.get('postfix'))
         if self.cover:
             print('Cover: %d lines' % len(self.cover))
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
@@ -322,4 +323,8 @@ class Series(dict):
         prefix = ''
         if self.get('prefix'):
             prefix = '%s ' % self['prefix']
-        return '%s%sPATCH%s' % (git_prefix, prefix, version)
+
+        postfix = ''
+        if self.get('postfix'):
+           postfix = ' %s' % self['postfix']
+        return '%s%sPATCH%s%s' % (git_prefix, prefix, postfix, version)
