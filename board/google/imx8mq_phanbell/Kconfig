@@ -10,6 +10,6 @@ config SYS_CONFIG_NAME
 	default "imx8mq_phanbell"
 
 config IMX_CONFIG
-	default "board/google/imx8mq_phanbell/imximage.cfg"
+	default "arch/arm/mach-imx/imx8m/imximage.cfg"
 
 endif
