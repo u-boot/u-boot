@@ -161,7 +161,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usb1_default>;
 	phy-names = "usb3-phy";
-	phys = <&psgtr 3 PHY_TYPE_USB3 1 1>;
+	phys = <&psgtr 3 PHY_TYPE_USB3 1 2>;
 	reset-gpio = <&gpio 77 0>;
 
 	usbhub1: usb5744@2d { /* u84 */
