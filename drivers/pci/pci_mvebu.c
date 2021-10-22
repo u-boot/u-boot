@@ -62,6 +62,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define  PCIE_MASK_ENABLE_INTS          (0xf << 24)
 #define PCIE_CTRL_OFF			0x1a00
 #define  PCIE_CTRL_X1_MODE		BIT(0)
+#define  PCIE_CTRL_RC_MODE		BIT(1)
 #define PCIE_STAT_OFF			0x1a04
 #define  PCIE_STAT_BUS                  (0xff << 8)
 #define  PCIE_STAT_DEV                  (0x1f << 16)
@@ -372,6 +373,11 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	u32 reg;
+
+	/* Setup PCIe controller to Root Complex mode */
+	reg = readl(pcie->base + PCIE_CTRL_OFF);
+	reg |= PCIE_CTRL_RC_MODE;
+	writel(reg, pcie->base + PCIE_CTRL_OFF);
 
 	/*
 	 * Change Class Code of PCI Bridge device to PCI Bridge (0x600400)
