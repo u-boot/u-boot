@@ -112,9 +112,9 @@ extern env_t embedded_environment;
 #endif /* ENV_IS_EMBEDDED */
 
 #ifdef DEFAULT_ENV_IS_RW
-extern unsigned char default_environment[];
+extern char default_environment[];
 #else
-extern const unsigned char default_environment[];
+extern const char default_environment[];
 #endif
 
 #ifndef DO_DEPS_ONLY

@@ -211,9 +211,6 @@ int board_init(void)
 			     FSL_QIXIS_BRDCFG9_QSPI);
 #endif
 
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
-#endif
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 
 #ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT

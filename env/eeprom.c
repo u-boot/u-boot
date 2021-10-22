@@ -64,24 +64,6 @@ static int eeprom_bus_write(unsigned dev_addr, unsigned offset,
 	return rcode;
 }
 
-/** Call this function from overridden env_get_char_spec() if you need
- * this functionality.
- */
-int env_eeprom_get_char(int index)
-{
-	uchar c;
-	unsigned int off = CONFIG_ENV_OFFSET;
-
-#ifdef CONFIG_ENV_OFFSET_REDUND
-	if (gd->env_valid == ENV_REDUND)
-		off = CONFIG_ENV_OFFSET_REDUND;
-#endif
-	eeprom_bus_read(CONFIG_SYS_I2C_EEPROM_ADDR,
-			off + index + offsetof(env_t, data), &c, 1);
-
-	return c;
-}
-
 static int env_eeprom_load(void)
 {
 	char buf_env[CONFIG_ENV_SIZE];

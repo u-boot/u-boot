@@ -91,17 +91,6 @@ int env_init(void);
 void env_relocate(void);
 
 /**
- * env_match() - Match a name / name=value pair
- *
- * This is used prior to relocation for finding envrionment variables
- *
- * @name: A simple 'name', or a 'name=value' pair.
- * @index: The environment index for a 'name2=value2' pair.
- * @return index for the value if the names match, else -1.
- */
-int env_match(unsigned char *name, int index);
-
-/**
  * env_get() - Look up the value of an environment variable
  *
  * In U-Boot proper this can be called before relocation (which is when the
@@ -131,7 +120,8 @@ char *from_env(const char *envvar);
  * support reading the value (slowly) and some will not.
  *
  * @varname:	Variable to look up
- * @return value of variable, or NULL if not found
+ * @return actual length of the variable value excluding the terminating
+ *	NULL-byte, or -1 if the variable is not found
  */
 int env_get_f(const char *name, char *buf, unsigned int len);
 
@@ -358,16 +348,6 @@ char *env_get_default(const char *name);
 
 /* [re]set to the default environment */
 void env_set_default(const char *s, int flags);
-
-/**
- * env_get_char() - Get a character from the early environment
- *
- * This reads from the pre-relocation environment
- *
- * @index: Index of character to read (0 = first)
- * @return character read, or -ve on error
- */
-int env_get_char(int index);
 
 /**
  * env_reloc() - Relocate the 'env' sub-commands

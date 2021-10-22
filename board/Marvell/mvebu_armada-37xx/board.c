@@ -87,7 +87,7 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-	char *ptr = (char *)&default_environment[0];
+	char *ptr = &default_environment[0];
 	struct udevice *dev;
 	struct mmc *mmc_dev;
 	bool ddr4, emmc;
