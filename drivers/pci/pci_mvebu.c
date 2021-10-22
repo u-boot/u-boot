@@ -633,7 +633,7 @@ static int mvebu_pcie_bind(struct udevice *parent)
 	struct udevice *dev;
 	ofnode subnode;
 
-	/* Lookup eth driver */
+	/* Lookup pci driver */
 	drv = lists_uclass_lookup(UCLASS_PCI);
 	if (!drv) {
 		puts("Cannot find PCI driver\n");
