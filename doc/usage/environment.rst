@@ -1,0 +1,381 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+Environment Variables
+=====================
+
+U-Boot supports user configuration using Environment Variables which
+can be made persistent by saving to Flash memory.
+
+Environment Variables are set using "setenv", printed using
+"printenv", and saved to Flash using "saveenv". Using "setenv"
+without a value can be used to delete a variable from the
+environment. As long as you don't save the environment you are
+working with an in-memory copy. In case the Flash area containing the
+environment is erased by accident, a default environment is provided.
+
+Some configuration options can be set using Environment Variables.
+
+List of environment variables (most likely not complete):
+
+baudrate
+    see CONFIG_BAUDRATE
+
+bootdelay
+    see CONFIG_BOOTDELAY
+
+bootcmd
+    see CONFIG_BOOTCOMMAND
+
+bootargs
+    Boot arguments when booting an RTOS image
+
+bootfile
+    Name of the image to load with TFTP
+
+bootm_low
+    Memory range available for image processing in the bootm
+    command can be restricted. This variable is given as
+    a hexadecimal number and defines lowest address allowed
+    for use by the bootm command. See also "bootm_size"
+    environment variable. Address defined by "bootm_low" is
+    also the base of the initial memory mapping for the Linux
+    kernel -- see the description of CONFIG_SYS_BOOTMAPSZ and
+    bootm_mapsize.
+
+bootm_mapsize
+    Size of the initial memory mapping for the Linux kernel.
+    This variable is given as a hexadecimal number and it
+    defines the size of the memory region starting at base
+    address bootm_low that is accessible by the Linux kernel
+    during early boot.  If unset, CONFIG_SYS_BOOTMAPSZ is used
+    as the default value if it is defined, and bootm_size is
+    used otherwise.
+
+bootm_size
+    Memory range available for image processing in the bootm
+    command can be restricted. This variable is given as
+    a hexadecimal number and defines the size of the region
+    allowed for use by the bootm command. See also "bootm_low"
+    environment variable.
+
+bootstopkeysha256, bootdelaykey, bootstopkey
+    See README.autoboot
+
+updatefile
+    Location of the software update file on a TFTP server, used
+    by the automatic software update feature. Please refer to
+    documentation in doc/README.update for more details.
+
+autoload
+    if set to "no" (any string beginning with 'n'),
+    "bootp" will just load perform a lookup of the
+    configuration from the BOOTP server, but not try to
+    load any image using TFTP
+
+autostart
+    if set to "yes", an image loaded using the "bootp",
+    "rarpboot", "tftpboot" or "diskboot" commands will
+    be automatically started (by internally calling
+    "bootm")
+
+    If set to "no", a standalone image passed to the
+    "bootm" command will be copied to the load address
+    (and eventually uncompressed), but NOT be started.
+    This can be used to load and uncompress arbitrary
+    data.
+
+fdt_high
+    if set this restricts the maximum address that the
+    flattened device tree will be copied into upon boot.
+    For example, if you have a system with 1 GB memory
+    at physical address 0x10000000, while Linux kernel
+    only recognizes the first 704 MB as low memory, you
+    may need to set fdt_high as 0x3C000000 to have the
+    device tree blob be copied to the maximum address
+    of the 704 MB low memory, so that Linux kernel can
+    access it during the boot procedure.
+
+    If this is set to the special value 0xFFFFFFFF then
+    the fdt will not be copied at all on boot.  For this
+    to work it must reside in writable memory, have
+    sufficient padding on the end of it for u-boot to
+    add the information it needs into it, and the memory
+    must be accessible by the kernel.
+
+fdtcontroladdr
+    if set this is the address of the control flattened
+    device tree used by U-Boot when CONFIG_OF_CONTROL is
+    defined.
+
+initrd_high
+    restrict positioning of initrd images:
+    If this variable is not set, initrd images will be
+    copied to the highest possible address in RAM; this
+    is usually what you want since it allows for
+    maximum initrd size. If for some reason you want to
+    make sure that the initrd image is loaded below the
+    CONFIG_SYS_BOOTMAPSZ limit, you can set this environment
+    variable to a value of "no" or "off" or "0".
+    Alternatively, you can set it to a maximum upper
+    address to use (U-Boot will still check that it
+    does not overwrite the U-Boot stack and data).
+
+    For instance, when you have a system with 16 MB
+    RAM, and want to reserve 4 MB from use by Linux,
+    you can do this by adding "mem=12M" to the value of
+    the "bootargs" variable. However, now you must make
+    sure that the initrd image is placed in the first
+    12 MB as well - this can be done with::
+
+        setenv initrd_high 00c00000
+
+    If you set initrd_high to 0xFFFFFFFF, this is an
+    indication to U-Boot that all addresses are legal
+    for the Linux kernel, including addresses in flash
+    memory. In this case U-Boot will NOT COPY the
+    ramdisk at all. This may be useful to reduce the
+    boot time on your system, but requires that this
+    feature is supported by your Linux kernel.
+
+ipaddr
+    IP address; needed for tftpboot command
+
+loadaddr
+    Default load address for commands like "bootp",
+    "rarpboot", "tftpboot", "loadb" or "diskboot"
+
+loads_echo
+    see CONFIG_LOADS_ECHO
+
+serverip
+    TFTP server IP address; needed for tftpboot command
+
+bootretry
+    see CONFIG_BOOT_RETRY_TIME
+
+bootdelaykey
+    see CONFIG_AUTOBOOT_DELAY_STR
+
+bootstopkey
+    see CONFIG_AUTOBOOT_STOP_STR
+
+ethprime
+    controls which interface is used first.
+
+ethact
+    controls which interface is currently active.
+    For example you can do the following::
+
+    => setenv ethact FEC
+    => ping 192.168.0.1 # traffic sent on FEC
+    => setenv ethact SCC
+    => ping 10.0.0.1 # traffic sent on SCC
+
+ethrotate
+    When set to "no" U-Boot does not go through all
+    available network interfaces.
+    It just stays at the currently selected interface.
+
+netretry
+    When set to "no" each network operation will
+    either succeed or fail without retrying.
+    When set to "once" the network operation will
+    fail when all the available network interfaces
+    are tried once without success.
+    Useful on scripts which control the retry operation
+    themselves.
+
+npe_ucode
+    set load address for the NPE microcode
+
+silent_linux
+    If set then Linux will be told to boot silently, by
+    changing the console to be empty. If "yes" it will be
+    made silent. If "no" it will not be made silent. If
+    unset, then it will be made silent if the U-Boot console
+    is silent.
+
+tftpsrcp
+    If this is set, the value is used for TFTP's
+    UDP source port.
+
+tftpdstp
+    If this is set, the value is used for TFTP's UDP
+    destination port instead of the Well Know Port 69.
+
+tftpblocksize
+    Block size to use for TFTP transfers; if not set,
+    we use the TFTP server's default block size
+
+tftptimeout
+    Retransmission timeout for TFTP packets (in milli-
+    seconds, minimum value is 1000 = 1 second). Defines
+    when a packet is considered to be lost so it has to
+    be retransmitted. The default is 5000 = 5 seconds.
+    Lowering this value may make downloads succeed
+    faster in networks with high packet loss rates or
+    with unreliable TFTP servers.
+
+tftptimeoutcountmax
+    maximum count of TFTP timeouts (no
+    unit, minimum value = 0). Defines how many timeouts
+    can happen during a single file transfer before that
+    transfer is aborted. The default is 10, and 0 means
+    'no timeouts allowed'. Increasing this value may help
+    downloads succeed with high packet loss rates, or with
+    unreliable TFTP servers or client hardware.
+
+tftpwindowsize
+    if this is set, the value is used for TFTP's
+    window size as described by RFC 7440.
+    This means the count of blocks we can receive before
+    sending ack to server.
+
+vlan
+    When set to a value < 4095 the traffic over
+    Ethernet is encapsulated/received over 802.1q
+    VLAN tagged frames.
+
+bootpretryperiod
+    Period during which BOOTP/DHCP sends retries.
+    Unsigned value, in milliseconds. If not set, the period will
+    be either the default (28000), or a value based on
+    CONFIG_NET_RETRY_COUNT, if defined. This value has
+    precedence over the valu based on CONFIG_NET_RETRY_COUNT.
+
+memmatches
+    Number of matches found by the last 'ms' command, in hex
+
+memaddr
+    Address of the last match found by the 'ms' command, in hex,
+    or 0 if none
+
+mempos
+    Index position of the last match found by the 'ms' command,
+    in units of the size (.b, .w, .l) of the search
+
+zbootbase
+    (x86 only) Base address of the bzImage 'setup' block
+
+zbootaddr
+    (x86 only) Address of the loaded bzImage, typically
+    BZIMAGE_LOAD_ADDR which is 0x100000
+
+
+Image locations
+---------------
+
+The following image location variables contain the location of images
+used in booting. The "Image" column gives the role of the image and is
+not an environment variable name. The other columns are environment
+variable names. "File Name" gives the name of the file on a TFTP
+server, "RAM Address" gives the location in RAM the image will be
+loaded to, and "Flash Location" gives the image's address in NOR
+flash or offset in NAND flash.
+
+*Note* - these variables don't have to be defined for all boards, some
+boards currently use other variables for these purposes, and some
+boards use these variables for other purposes.
+
+================= ============== ================ ==============
+Image             File Name      RAM Address      Flash Location
+================= ============== ================ ==============
+u-boot            u-boot         u-boot_addr_r    u-boot_addr
+Linux kernel      bootfile       kernel_addr_r    kernel_addr
+device tree blob  fdtfile        fdt_addr_r       fdt_addr
+ramdisk           ramdiskfile    ramdisk_addr_r   ramdisk_addr
+================= ============== ================ ==============
+
+
+Automatically updated variables
+-------------------------------
+
+The following environment variables may be used and automatically
+updated by the network boot commands ("bootp" and "rarpboot"),
+depending the information provided by your boot server:
+
+=========  ===================================================
+Variable   Notes
+=========  ===================================================
+bootfile   see above
+dnsip      IP address of your Domain Name Server
+dnsip2     IP address of your secondary Domain Name Server
+gatewayip  IP address of the Gateway (Router) to use
+hostname   Target hostname
+ipaddr     See above
+netmask    Subnet Mask
+rootpath   Pathname of the root filesystem on the NFS server
+serverip   see above
+=========  ===================================================
+
+
+Special environment variables
+-----------------------------
+
+There are two special Environment Variables:
+
+serial#
+    contains hardware identification information such as type string and/or
+    serial number
+ethaddr
+    Ethernet address
+
+These variables can be set only once (usually during manufacturing of
+the board). U-Boot refuses to delete or overwrite these variables
+once they have been set once.
+
+Also:
+
+ver
+    Contains the U-Boot version string as printed
+    with the "version" command. This variable is
+    readonly (see CONFIG_VERSION_VARIABLE).
+
+Please note that changes to some configuration parameters may take
+only effect after the next boot (yes, that's just like Windoze :-).
+
+
+Callback functions for environment variables
+--------------------------------------------
+
+For some environment variables, the behavior of u-boot needs to change
+when their values are changed.  This functionality allows functions to
+be associated with arbitrary variables.  On creation, overwrite, or
+deletion, the callback will provide the opportunity for some side
+effect to happen or for the change to be rejected.
+
+The callbacks are named and associated with a function using the
+U_BOOT_ENV_CALLBACK macro in your board or driver code.
+
+These callbacks are associated with variables in one of two ways.  The
+static list can be added to by defining CONFIG_ENV_CALLBACK_LIST_STATIC
+in the board configuration to a string that defines a list of
+associations.  The list must be in the following format::
+
+    entry = variable_name[:callback_name]
+    list = entry[,list]
+
+If the callback name is not specified, then the callback is deleted.
+Spaces are also allowed anywhere in the list.
+
+Callbacks can also be associated by defining the ".callbacks" variable
+with the same list format above.  Any association in ".callbacks" will
+override any association in the static list. You can define
+CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
+".callbacks" environment variable in the default or embedded environment.
+
+If CONFIG_REGEX is defined, the variable_name above is evaluated as a
+regular expression. This allows multiple variables to be connected to
+the same callback without explicitly listing them all out.
+
+The signature of the callback functions is::
+
+    int callback(const char *name, const char *value, enum env_op op, int flags)
+
+* name - changed environment variable
+* value - new value of the environment variable
+* op - operation (create, overwrite, or delete)
+* flags - attributes of the environment variable change, see flags H_* in
+  include/search.h
+
+The return value is 0 if the variable change is accepted and 1 otherwise.
