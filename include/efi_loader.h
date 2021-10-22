@@ -675,6 +675,8 @@ struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid);
 #define efi_size_in_pages(size) (((size) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
+/* Allocate pages on the specified alignment */
+void *efi_alloc_aligned_pages(u64 len, int memory_type, size_t align);
 /* More specific EFI memory allocator, called by EFI payloads */
 efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 				enum efi_memory_type memory_type,
@@ -840,7 +842,7 @@ struct efi_load_option {
 };
 
 struct efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
-				       efi_uintn_t *size, efi_guid_t guid);
+				       const efi_guid_t *guid);
 struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 				      const struct efi_device_path *dp2);
 efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,

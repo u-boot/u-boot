@@ -3,6 +3,7 @@
 # (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
+obj-y	+= bdinfo.o
 ifndef CONFIG_X86_64
 ifndef CONFIG_TPL_BUILD
 obj-y += bios.o

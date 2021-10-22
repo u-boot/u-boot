@@ -1143,10 +1143,7 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 {
 	struct efi_device_path *initrd_path = NULL;
 	struct efi_load_option lo;
-	u16 *dp_str;
 	efi_status_t ret;
-	efi_uintn_t initrd_dp_size;
-	const efi_guid_t lf2_initrd_guid = EFI_INITRD_MEDIA_GUID;
 
 	ret = efi_deserialize_load_option(&lo, data, size);
 	if (ret != EFI_SUCCESS) {
@@ -1165,15 +1162,11 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 	       lo.attributes);
 	printf("  label: %ls\n", lo.label);
 
-	dp_str = efi_dp_str(lo.file_path);
-	printf("  file_path: %ls\n", dp_str);
-	efi_free_pool(dp_str);
+	printf("  file_path: %pD\n", lo.file_path);
 
-	initrd_path = efi_dp_from_lo(&lo, &initrd_dp_size, lf2_initrd_guid);
+	initrd_path = efi_dp_from_lo(&lo, &efi_lf2_initrd_guid);
 	if (initrd_path) {
-		dp_str = efi_dp_str(initrd_path);
-		printf("  initrd_path: %ls\n", dp_str);
-		efi_free_pool(dp_str);
+		printf("  initrd_path: %pD\n", initrd_path);
 		efi_free_pool(initrd_path);
 	}
 

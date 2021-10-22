@@ -37,7 +37,7 @@ KBUILD_LDFLAGS += -m $(if $(IS_32BIT),elf_i386,elf_x86_64)
 LDFLAGS_EFI_PAYLOAD := -Bsymbolic -Bsymbolic-functions -shared --no-undefined -s
 
 OBJCOPYFLAGS_EFI := -j .text -j .sdata -j .data -j .dynamic -j .dynsym \
-	-j .rel -j .rela -j .reloc
+	-j .rel -j .rela -j .reloc --strip-all
 
 # Compiler flags to be added when building UEFI applications
 CFLAGS_EFI := -fpic -fshort-wchar
@@ -65,7 +65,7 @@ CPPFLAGS_crt0-efi-$(EFIARCH).o += $(CFLAGS_EFI)
 ifeq ($(CONFIG_EFI_APP),y)
 
 PLATFORM_CPPFLAGS += $(CFLAGS_EFI)
-LDFLAGS_FINAL += -znocombreloc -shared -s
+LDFLAGS_FINAL += -znocombreloc -shared
 LDSCRIPT := $(LDSCRIPT_EFI)
 
 else

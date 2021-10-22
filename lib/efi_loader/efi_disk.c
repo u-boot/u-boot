@@ -555,7 +555,6 @@ efi_status_t efi_disk_register(void)
 	struct efi_disk_obj *disk;
 	int disks = 0;
 	efi_status_t ret;
-#ifdef CONFIG_BLK
 	struct udevice *dev;
 
 	for (uclass_first_device_check(UCLASS_BLK, &dev); dev;
@@ -583,54 +582,7 @@ efi_status_t efi_disk_register(void)
 					&disk->header, desc, if_typename,
 					desc->devnum, dev->name);
 	}
-#else
-	int i, if_type;
 
-	/* Search for all available disk devices */
-	for (if_type = 0; if_type < IF_TYPE_COUNT; if_type++) {
-		const struct blk_driver *cur_drvr;
-		const char *if_typename;
-
-		cur_drvr = blk_driver_lookup_type(if_type);
-		if (!cur_drvr)
-			continue;
-
-		if_typename = cur_drvr->if_typename;
-		log_info("Scanning disks on %s...\n", if_typename);
-		for (i = 0; i < 4; i++) {
-			struct blk_desc *desc;
-			char devname[32] = { 0 }; /* dp->str is u16[32] long */
-
-			desc = blk_get_devnum_by_type(if_type, i);
-			if (!desc)
-				continue;
-			if (desc->type == DEV_TYPE_UNKNOWN)
-				continue;
-
-			snprintf(devname, sizeof(devname), "%s%d",
-				 if_typename, i);
-
-			/* Add block device for the full device */
-			ret = efi_disk_add_dev(NULL, NULL, if_typename, desc,
-					       i, NULL, 0, &disk);
-			if (ret == EFI_NOT_READY) {
-				log_notice("Disk %s not ready\n", devname);
-				continue;
-			}
-			if (ret) {
-				log_err("ERROR: failure to add disk device %s, r = %lu\n",
-					devname, ret & ~EFI_ERROR_MASK);
-				return ret;
-			}
-			disks++;
-
-			/* Partitions show up as block devices in EFI */
-			disks += efi_disk_create_partitions
-						(&disk->header, desc,
-						 if_typename, i, devname);
-		}
-	}
-#endif
 	log_info("Found %d disks\n", disks);
 
 	return EFI_SUCCESS;
