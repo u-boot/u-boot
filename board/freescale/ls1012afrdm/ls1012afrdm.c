@@ -172,10 +172,6 @@ int board_init(void)
 	if (current_el() == 3)
 		out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
 
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
-#endif
-
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
 #endif
