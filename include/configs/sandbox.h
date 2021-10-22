@@ -39,16 +39,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 
-#define BOOT_TARGET_DEVICES(func) \
-	func(HOST, host, 1) \
-	func(HOST, host, 0)
-
-#ifdef __ASSEMBLY__
-#define BOOTENV
-#else
-#include <config_distro_bootcmd.h>
-#endif
-
 #define CONFIG_KEEP_SERVERADDR
 #define CONFIG_UDP_CHECKSUM
 #define CONFIG_TIMESTAMP
@@ -93,7 +83,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	SANDBOX_SERIAL_SETTINGS \
 	SANDBOX_ETH_SETTINGS \
-	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS
 
 #ifndef CONFIG_SPL_BUILD
