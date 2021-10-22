@@ -1428,13 +1428,6 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	if (csum != hdr->checksum)
 		goto err;
 
-	if (image_ver == 0) {
-		struct main_hdr_v0 *hdr_v0 = img;
-
-		hdr_v0->nandeccmode = IBR_HDR_ECC_DISABLED;
-		hdr_v0->nandpagesize = 0;
-	}
-
 	srcaddr = le32_to_cpu(hdr->srcaddr);
 
 	switch (hdr->blockid) {
@@ -1478,6 +1471,12 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 		kwboot_printv("Patching image boot signature to UART\n");
 		hdr->blockid = IBR_HDR_UART_ID;
+	}
+
+	if (!is_secure) {
+		if (image_ver == 0)
+			((struct main_hdr_v0 *)img)->nandeccmode = IBR_HDR_ECC_DISABLED;
+		hdr->nandpagesize = 0;
 	}
 
 	if (baudrate) {
