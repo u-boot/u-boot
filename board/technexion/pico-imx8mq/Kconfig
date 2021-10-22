@@ -10,6 +10,6 @@ config SYS_CONFIG_NAME
 	default "pico-imx8mq"
 
 config IMX_CONFIG
-	default "arch/arm/mach-imx/imx8m/imximage.cfg"
+	default "board/technexion/pico-imx8mq/imximage.cfg"
 
 endif
