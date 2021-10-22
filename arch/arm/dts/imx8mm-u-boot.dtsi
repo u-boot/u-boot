@@ -39,24 +39,28 @@
 			filename = "u-boot-spl.bin";
 		};
 
-		blob_1: blob-ext@1 {
+		1d-imem {
 			filename = "lpddr4_pmu_train_1d_imem.bin";
 			size = <0x8000>;
+			type = "blob-ext";
 		};
 
-		blob_2: blob-ext@2 {
+		1d_dmem {
 			filename = "lpddr4_pmu_train_1d_dmem.bin";
 			size = <0x4000>;
+			type = "blob-ext";
 		};
 
-		blob_3: blob-ext@3 {
+		2d_imem {
 			filename = "lpddr4_pmu_train_2d_imem.bin";
 			size = <0x8000>;
+			type = "blob-ext";
 		};
 
-		blob_4: blob-ext@4 {
+		2d_dmem {
 			filename = "lpddr4_pmu_train_2d_dmem.bin";
 			size = <0x4000>;
+			type = "blob-ext";
 		};
 	};
 
@@ -89,8 +93,9 @@
 					load = <CONFIG_SYS_TEXT_BASE>;
 					type = "standalone";
 
-					uboot_blob: blob-ext {
+					uboot_blob {
 						filename = "u-boot-nodtb.bin";
+						type = "blob-ext";
 					};
 				};
 
@@ -102,8 +107,9 @@
 					load = <0x920000>;
 					type = "firmware";
 
-					atf_blob: blob-ext {
+					atf_blob {
 						filename = "bl31.bin";
+						type = "blob-ext";
 					};
 				};
 
@@ -120,8 +126,9 @@
 					description = "NAME";
 					type = "flat_dt";
 
-					uboot_fdt_blob: blob-ext {
+					uboot_fdt_blob {
 						filename = "u-boot.dtb";
+						type = "blob-ext";
 					};
 				};
 			};
@@ -143,14 +150,16 @@
 		filename = "flash.bin";
 		pad-byte = <0x00>;
 
-		spl: blob-ext@1 {
+		spl {
 			filename = "spl.bin";
 			offset = <0x0>;
+			type = "blob-ext";
 		};
 
-		binman_uboot: blob-ext@2 {
+		binman_uboot: uboot {
 			filename = "u-boot.itb";
 			offset = <0x57c00>;
+			type = "blob-ext";
 		};
 	};
 };
