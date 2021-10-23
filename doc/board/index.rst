@@ -10,6 +10,7 @@ Board-specific doc
    advantech/index
    AndesTech/index
    amlogic/index
+   apple/index
    atmel/index
    congatec/index
    coreboot/index
