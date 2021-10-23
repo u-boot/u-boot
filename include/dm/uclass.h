@@ -176,6 +176,15 @@ const char *uclass_get_name(enum uclass_id id);
  * uclass_get_by_name() - Look up a uclass by its driver name
  *
  * @name: Name to look up
+ * @len: Length of name
+ * @returns the associated uclass ID, or UCLASS_INVALID if not found
+ */
+enum uclass_id uclass_get_by_name_len(const char *name, int len);
+
+/**
+ * uclass_get_by_name() - Look up a uclass by its driver name
+ *
+ * @name: Name to look up
  * @returns the associated uclass ID, or UCLASS_INVALID if not found
  */
 enum uclass_id uclass_get_by_name(const char *name);
