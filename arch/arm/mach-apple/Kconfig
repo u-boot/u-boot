@@ -1,0 +1,18 @@
+if ARCH_APPLE
+
+config SYS_TEXT_BASE
+	default 0x00000000
+
+config SYS_CONFIG_NAME
+	default "apple"
+
+config SYS_SOC
+	default "m1"
+
+config SYS_MALLOC_LEN
+	default 0x4000000
+
+config SYS_MALLOC_F_LEN
+	default 0x4000
+
+endif
