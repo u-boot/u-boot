@@ -581,7 +581,8 @@ int of_property_match_string(const struct device_node *np, const char *propname,
  * @propname:	name of the property to be searched.
  * @out_strs:	output array of string pointers.
  * @sz:		number of array elements to read.
- * @skip:	Number of strings to skip over at beginning of list.
+ * @skip:	Number of strings to skip over at beginning of list (cannot be
+ *	negative)
  *
  * Don't call this function directly. It is a utility helper for the
  * of_property_read_string*() family of functions.

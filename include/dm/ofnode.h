@@ -590,11 +590,11 @@ int ofnode_stringlist_search(ofnode node, const char *propname,
  *
  * @node: node to check
  * @propname: name of the property containing the string list
- * @index: index of the string to return
+ * @index: index of the string to return (cannot be negative)
  * @lenp: return location for the string length or an error code on failure
  *
  * @return:
- *   length of string, if found or -ve error value if not found
+ *   0 if found or -ve error value if not found
  */
 int ofnode_read_string_index(ofnode node, const char *propname, int index,
 			     const char **outp);
