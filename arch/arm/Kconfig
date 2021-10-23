@@ -931,6 +931,7 @@ config ARCH_APPLE
 	select DM_SERIAL
 	select DM_USB
 	select DM_VIDEO
+	select IOMMU
 	select LINUX_KERNEL_IMAGE_HEADER
 	select OF_CONTROL
 	select OF_BOARD
