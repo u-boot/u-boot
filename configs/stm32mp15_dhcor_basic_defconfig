@@ -60,6 +60,8 @@ CONFIG_CMD_REGULATOR=y
 CONFIG_CMD_EXT4_WRITE=y
 CONFIG_CMD_MTDPARTS=y
 # CONFIG_SPL_DOS_PARTITION is not set
+# CONFIG_ISO_PARTITION is not set
+# CONFIG_SPL_PARTITION_UUIDS is not set
 CONFIG_OF_SPL_REMOVE_PROPS="interrupts interrupt-names interrupts-extended interrupt-controller \\\#interrupt-cells interrupt-parent dmas dma-names assigned-clocks assigned-clock-rates assigned-clock-parents hwlocks"
 CONFIG_ENV_IS_IN_SPI_FLASH=y
 CONFIG_USE_ENV_SPI_BUS=y
@@ -151,6 +153,8 @@ CONFIG_VIDEO_BMP_RLE8=y
 CONFIG_BMP_16BPP=y
 CONFIG_BMP_24BPP=y
 CONFIG_BMP_32BPP=y
+CONFIG_FAT_WRITE=y
 # CONFIG_BINMAN_FDT is not set
 CONFIG_LZO=y
 CONFIG_FDT_FIXUP_PARTITIONS=y
+# CONFIG_EFI_LOADER is not set
