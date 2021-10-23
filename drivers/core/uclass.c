@@ -794,6 +794,18 @@ int uclass_probe_all(enum uclass_id id)
 	return 0;
 }
 
+int uclass_id_count(enum uclass_id id)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int count = 0;
+
+	uclass_id_foreach_dev(id, dev, uc)
+		count++;
+
+	return count;
+}
+
 UCLASS_DRIVER(nop) = {
 	.id		= UCLASS_NOP,
 	.name		= "nop",
