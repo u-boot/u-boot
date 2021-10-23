@@ -165,7 +165,7 @@ class RunAndLog(object):
         if output and not output.endswith('\n'):
             output += '\n'
         if exit_status and not exception and not ignore_errors:
-            exception = Exception('Exit code: ' + str(exit_status))
+            exception = ValueError('Exit code: ' + str(exit_status))
         if exception:
             output += str(exception) + '\n'
         self.logfile.write(self, output)
