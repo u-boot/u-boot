@@ -250,7 +250,7 @@ void spl_board_init(void)
 {
 }
 
-#if CONFIG_IS_ENABLED(LED) && CONFIG_IS_ENABLED(BOOTSTAGE)
+#if CONFIG_IS_ENABLED(LED) && CONFIG_IS_ENABLED(SHOW_BOOT_PROGRESS)
 /*
  * Indicate any error or (accidental?) entering of CLI via the red status LED.
  */
