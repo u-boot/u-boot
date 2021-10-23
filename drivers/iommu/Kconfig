@@ -1,0 +1,17 @@
+#
+# IOMMU devices
+#
+
+menu "IOMMU device drivers"
+
+config IOMMU
+	bool "Enable Driver Model for IOMMU drivers"
+	depends on DM
+	help
+	  Enable driver model for IOMMU devices. An IOMMU maps device
+	  virtiual memory addresses to physical addresses. Devices
+	  that sit behind an IOMMU can typically only access physical
+	  memory if the IOMMU has been programmed to allow access to
+	  that memory.
+
+endmenu

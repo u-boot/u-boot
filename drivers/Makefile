@@ -102,6 +102,7 @@ obj-y += mtd/
 obj-y += pwm/
 obj-y += reset/
 obj-y += input/
+obj-y += iommu/
 # SOC specific infrastructure drivers.
 obj-y += smem/
 obj-y += thermal/
