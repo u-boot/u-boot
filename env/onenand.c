@@ -73,9 +73,7 @@ static int env_onenand_save(void)
 #endif
 	loff_t	env_addr = CONFIG_ENV_ADDR;
 	size_t	retlen;
-	struct erase_info instr = {
-		.callback	= NULL,
-	};
+	struct erase_info instr = {};
 
 	ret = env_export(&env_new);
 	if (ret)

@@ -186,9 +186,7 @@ next:
 static int onenand_block_erase(u32 start, u32 size, int force)
 {
 	struct onenand_chip *this = mtd->priv;
-	struct erase_info instr = {
-		.callback	= NULL,
-	};
+	struct erase_info instr = {};
 	loff_t ofs;
 	int ret;
 	int blocksize = 1 << this->erase_shift;
@@ -219,10 +217,7 @@ static int onenand_block_erase(u32 start, u32 size, int force)
 static int onenand_block_test(u32 start, u32 size)
 {
 	struct onenand_chip *this = mtd->priv;
-	struct erase_info instr = {
-		.callback	= NULL,
-		.priv		= 0,
-	};
+	struct erase_info instr = {};
 
 	int blocks;
 	loff_t ofs;
