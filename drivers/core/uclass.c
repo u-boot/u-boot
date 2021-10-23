@@ -682,7 +682,7 @@ err:
 }
 
 #if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
-int uclass_unbind_device(struct udevice *dev)
+int uclass_pre_unbind_device(struct udevice *dev)
 {
 	struct uclass *uc;
 	int ret;
@@ -694,7 +694,13 @@ int uclass_unbind_device(struct udevice *dev)
 			return ret;
 	}
 
+	return 0;
+}
+
+int uclass_unbind_device(struct udevice *dev)
+{
 	list_del(&dev->uclass_node);
+
 	return 0;
 }
 #endif
