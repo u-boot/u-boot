@@ -1,0 +1,97 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Apple Macbook Pro (M1, 2020)
+ *
+ * target-type: J293
+ *
+ * Copyright The Asahi Linux Contributors
+ */
+
+/dts-v1/;
+
+#include "t8103.dtsi"
+
+/ {
+	compatible = "apple,j293", "apple,t8103", "apple,arm-platform";
+	model = "Apple Macbook Pro (M1, 2020)";
+
+	aliases {
+		serial0 = &serial0;
+		wifi0 = &wifi0;
+	};
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		stdout-path = "serial0";
+
+		framebuffer0: framebuffer@0 {
+			compatible = "apple,simple-framebuffer", "simple-framebuffer";
+			reg = <0 0 0 0>; /* To be filled by loader */
+			/* Format properties will be added by loader */
+			status = "disabled";
+		};
+	};
+
+	memory@800000000 {
+		device_type = "memory";
+		reg = <0x8 0 0x2 0>; /* To be filled by loader */
+	};
+};
+
+&serial0 {
+	status = "okay";
+};
+
+&pcie0_dart_0 {
+	status = "okay";
+};
+
+&pcie0 {
+	status = "okay";
+
+	pci0: pci@0,0 {
+		device_type = "pci";
+		reg = <0x0 0x0 0x0 0x0 0x0>;
+		pwren-gpios = <&smc 13 0>;
+		reset-gpios = <&pinctrl_ap 152 0>;
+		max-link-speed = <2>;
+
+		#address-cells = <3>;
+		#size-cells = <2>;
+		ranges;
+	};
+};
+
+&pci0 {
+	wifi0: network@0,0 {
+		reg = <0x10000 0x0 0x0 0x0 0x0>;
+		local-mac-address = [00 00 00 00 00 00];
+	};
+};
+
+&dwc3_0_dart_0 {
+	status = "okay";
+};
+
+&dwc3_0_dart_1 {
+	status = "okay";
+};
+
+&dwc3_0 {
+	status = "okay";
+};
+
+&dwc3_1_dart_0 {
+	status = "okay";
+};
+
+&dwc3_1_dart_1 {
+	status = "okay";
+};
+
+&dwc3_1 {
+	status = "okay";
+};
