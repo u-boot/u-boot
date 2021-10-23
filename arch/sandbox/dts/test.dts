@@ -764,6 +764,11 @@
 		vss-microvolts = <0>;
 	};
 
+	iommu: iommu@0 {
+		compatible = "sandbox,iommu";
+		#iommu-cells = <0>;
+	};
+
 	irq: irq {
 		compatible = "sandbox,irq";
 		interrupt-controller;
@@ -1226,6 +1231,7 @@
 
 	usb_1: usb@1 {
 		compatible = "sandbox,usb";
+		iommus = <&iommu>;
 		hub {
 			compatible = "usb-hub";
 			usb,device-class = <9>;

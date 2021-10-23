@@ -48,6 +48,7 @@ obj-$(CONFIG_DM_I2C) += i2c.o
 obj-$(CONFIG_SOUND) += i2s.o
 obj-y += irq.o
 obj-$(CONFIG_CLK_K210_SET_RATE) += k210_pll.o
+obj-$(CONFIG_IOMMU) += iommu.o
 obj-$(CONFIG_LED) += led.o
 obj-$(CONFIG_DM_MAILBOX) += mailbox.o
 obj-$(CONFIG_DM_MDIO) += mdio.o
