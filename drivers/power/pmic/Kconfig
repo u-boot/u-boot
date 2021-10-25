@@ -66,6 +66,8 @@ config PMIC_ACT8846
 config PMIC_AXP
 	bool "Enable Driver Model for X-Powers AXP PMICs"
 	depends on DM_I2C
+	select SYSRESET_CMD_POWEROFF if SYSRESET && CMD_POWEROFF
+	imply CMD_POWEROFF if SYSRESET
 	help
 	  This config enables driver-model PMIC uclass features for
 	  X-Powers AXP152, AXP2xx, and AXP8xx PMICs.
