@@ -1563,8 +1563,7 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	}
 
 	if (hdrsz % KWBOOT_XM_BLKSZ) {
-		size_t offset = (KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ) %
-				KWBOOT_XM_BLKSZ;
+		size_t grow = KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ;
 
 		if (is_secure) {
 			fprintf(stderr, "Cannot align image with secure header\n");
@@ -1572,7 +1571,7 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 		}
 
 		kwboot_printv("Aligning image header to Xmodem block size\n");
-		kwboot_img_grow_hdr(img, size, offset);
+		kwboot_img_grow_hdr(img, size, grow);
 	}
 
 	hdr->checksum = kwboot_hdr_csum8(hdr) - csum;
