@@ -640,7 +640,7 @@ int board_late_init(void)
 	const char *mode;
 	char *new_targets;
 	char *env_targets;
-	int ret;
+	int ret, multiboot;
 
 #if defined(CONFIG_USB_ETHER) && !defined(CONFIG_USB_GADGET_DOWNLOAD)
 	usb_ether_init();
@@ -657,6 +657,10 @@ int board_late_init(void)
 	ret = set_fdtfile();
 	if (ret)
 		return ret;
+
+	multiboot = multi_boot();
+	if (multiboot >= 0)
+		env_set_hex("multiboot", multiboot);
 
 	bootmode = zynqmp_get_bootmode();
 
@@ -864,6 +868,10 @@ void set_dfu_alt_info(char *interface, char *devstr)
 	memset(buf, 0, sizeof(buf));
 
 	multiboot = multi_boot();
+	if (multiboot < 0)
+		multiboot = 0;
+
+	multiboot = env_get_hex("multiboot", multiboot);
 	debug("Multiboot: %d\n", multiboot);
 
 	switch (zynqmp_get_bootmode()) {
