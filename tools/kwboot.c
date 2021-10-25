@@ -657,6 +657,7 @@ kwboot_open_tty(const char *path, int baudrate)
 
 	cfmakeraw(&tio);
 	tio.c_cflag |= CREAD | CLOCAL;
+	tio.c_cflag &= ~(CSTOPB | HUPCL | CRTSCTS);
 	tio.c_cc[VMIN] = 1;
 	tio.c_cc[VTIME] = 0;
 
