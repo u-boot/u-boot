@@ -1507,6 +1507,17 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	}
 
 	if (!is_secure) {
+		if (image_ver == 1) {
+			/*
+			 * Tell BootROM to send BootROM messages to UART port
+			 * number 0 (used also for UART booting) with default
+			 * baudrate (which should be 115200) and do not touch
+			 * UART MPP configuration.
+			 */
+			hdr->options &= ~0x1F;
+			hdr->options |= MAIN_HDR_V1_OPT_BAUD_DEFAULT;
+			hdr->options |= 0 << 3;
+		}
 		if (image_ver == 0)
 			((struct main_hdr_v0 *)img)->nandeccmode = IBR_HDR_ECC_DISABLED;
 		hdr->nandpagesize = 0;
