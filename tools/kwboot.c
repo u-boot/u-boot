@@ -1295,34 +1295,22 @@ kwboot_img_is_secure(void *img)
 }
 
 static void *
-kwboot_img_grow_data_left(void *img, size_t *size, size_t grow)
+kwboot_img_grow_data_right(void *img, size_t *size, size_t grow)
 {
-	uint32_t hdrsz, datasz, srcaddr;
 	struct main_hdr_v1 *hdr = img;
-	uint8_t *data;
+	void *result;
 
-	srcaddr = le32_to_cpu(hdr->srcaddr);
-
-	hdrsz = kwbheader_size(hdr);
-	data = (uint8_t *)img + srcaddr;
-	datasz = *size - srcaddr;
-
-	/* only move data if there is not enough space */
-	if (hdrsz + grow > srcaddr) {
-		size_t need = hdrsz + grow - srcaddr;
-
-		/* move data by enough bytes */
-		memmove(data + need, data, datasz);
-		*size += need;
-		srcaddr += need;
-	}
-
-	srcaddr -= grow;
-	hdr->srcaddr = cpu_to_le32(srcaddr);
-	hdr->destaddr = cpu_to_le32(le32_to_cpu(hdr->destaddr) - grow);
+	/*
+	 * 32-bit checksum comes after end of image code, so we will be putting
+	 * new code there. So we get this pointer and then increase data size
+	 * (since increasing data size changes kwboot_img_csum32_ptr() return
+	 *  value).
+	 */
+	result = kwboot_img_csum32_ptr(img);
 	hdr->blocksize = cpu_to_le32(le32_to_cpu(hdr->blocksize) + grow);
+	*size += grow;
 
-	return (uint8_t *)img + srcaddr;
+	return result;
 }
 
 static void
@@ -1400,14 +1388,20 @@ kwboot_add_bin_ohdr_v1(void *img, size_t *size, uint32_t binsz)
 }
 
 static void
-_copy_baudrate_change_code(struct main_hdr_v1 *hdr, void *dst, int pre,
-			   int old_baud, int new_baud)
+_inject_baudrate_change_code(void *img, size_t *size, int pre,
+			     int old_baud, int new_baud)
 {
-	size_t codesz = sizeof(kwboot_baud_code);
-	uint8_t *code = dst;
+	uint32_t codesz = sizeof(kwboot_baud_code);
+	struct main_hdr_v1 *hdr = img;
+	uint8_t *code;
 
 	if (pre) {
-		size_t presz = sizeof(kwboot_pre_baud_code);
+		uint32_t presz = sizeof(kwboot_pre_baud_code);
+		uint32_t orig_datasz;
+
+		orig_datasz = le32_to_cpu(hdr->blocksize) - sizeof(uint32_t);
+
+		code = kwboot_img_grow_data_right(img, size, presz + codesz);
 
 		/*
 		 * We need to prepend code that loads lr register with original
@@ -1421,9 +1415,12 @@ _copy_baudrate_change_code(struct main_hdr_v1 *hdr, void *dst, int pre,
 		memcpy(code, kwboot_pre_baud_code, presz);
 		*(uint32_t *)code = hdr->execaddr;
 
-		hdr->execaddr = cpu_to_le32(le32_to_cpu(hdr->destaddr) + 4);
+		hdr->execaddr = cpu_to_le32(le32_to_cpu(hdr->destaddr) +
+					    orig_datasz + 4);
 
 		code += presz;
+	} else {
+		code = kwboot_add_bin_ohdr_v1(img, size, codesz);
 	}
 
 	memcpy(code, kwboot_baud_code, codesz - 8);
@@ -1516,9 +1513,6 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	}
 
 	if (baudrate) {
-		uint32_t codesz = sizeof(kwboot_baud_code);
-		void *code;
-
 		if (image_ver == 0) {
 			fprintf(stderr,
 				"Cannot inject code for changing baudrate into v0 image header\n");
@@ -1539,20 +1533,16 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 		 */
 		kwboot_printv("Injecting binary header code for changing baudrate to %d Bd\n",
 			      baudrate);
-
-		code = kwboot_add_bin_ohdr_v1(img, size, codesz);
-		_copy_baudrate_change_code(hdr, code, 0, 115200, baudrate);
+		_inject_baudrate_change_code(img, size, 0, 115200, baudrate);
 
 		/*
 		 * Now inject code that changes the baudrate back to 115200 Bd.
-		 * This code is prepended to the data part of the image, so it
-		 * is executed before U-Boot proper.
+		 * This code is appended after the data part of the image, and
+		 * execaddr is changed so that it is executed before U-Boot
+		 * proper.
 		 */
 		kwboot_printv("Injecting code for changing baudrate back\n");
-
-		codesz += sizeof(kwboot_pre_baud_code);
-		code = kwboot_img_grow_data_left(img, size, codesz);
-		_copy_baudrate_change_code(hdr, code, 1, baudrate, 115200);
+		_inject_baudrate_change_code(img, size, 1, baudrate, 115200);
 
 		/* recompute header size */
 		hdrsz = kwbheader_size(hdr);
