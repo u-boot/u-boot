@@ -1151,6 +1151,7 @@ kwboot_terminal(int tty)
 		fd_set rfds;
 		int nfds = 0;
 
+		FD_ZERO(&rfds);
 		FD_SET(tty, &rfds);
 		nfds = nfds < tty ? tty : nfds;
 
