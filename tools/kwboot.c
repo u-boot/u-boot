@@ -1672,8 +1672,10 @@ main(int argc, char **argv)
 	else
 		/* ensure we have enough space for baudrate change code */
 		after_img_rsv += KWBOOT_BAUDRATE_BIN_HEADER_SZ +
+				 KWBOOT_XM_BLKSZ +
 				 sizeof(kwboot_pre_baud_code) +
-				 sizeof(kwboot_baud_code);
+				 sizeof(kwboot_baud_code) +
+				 KWBOOT_XM_BLKSZ;
 
 	if (imgpath) {
 		img = kwboot_read_image(imgpath, &size, after_img_rsv);
