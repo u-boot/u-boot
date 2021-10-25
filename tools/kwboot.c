@@ -1352,17 +1352,18 @@ kwboot_add_bin_ohdr_v1(void *img, size_t *size, uint32_t binsz)
 	uint32_t num_args;
 	uint32_t offset;
 	uint32_t ohdrsz;
+	uint8_t *prev_ext;
 
 	if (hdr->ext & 0x1) {
 		for_each_opt_hdr_v1 (ohdr, img)
 			if (opt_hdr_v1_next(ohdr) == NULL)
 				break;
 
-		*opt_hdr_v1_ext(ohdr) |= 1;
-		ohdr = opt_hdr_v1_next(ohdr);
+		prev_ext = opt_hdr_v1_ext(ohdr);
+		ohdr = _opt_hdr_v1_next(ohdr);
 	} else {
-		hdr->ext |= 1;
 		ohdr = (void *)(hdr + 1);
+		prev_ext = &hdr->ext;
 	}
 
 	/*
@@ -1376,6 +1377,8 @@ kwboot_add_bin_ohdr_v1(void *img, size_t *size, uint32_t binsz)
 
 	ohdrsz = sizeof(*ohdr) + 4 + 4 * num_args + binsz + 4;
 	kwboot_img_grow_hdr(hdr, size, ohdrsz);
+
+	*prev_ext |= 1;
 
 	ohdr->headertype = OPT_HDR_V1_BINARY_TYPE;
 	ohdr->headersz_msb = ohdrsz >> 16;
