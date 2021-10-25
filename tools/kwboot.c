@@ -1065,7 +1065,7 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 	if (baudrate) {
 		char buf[sizeof(kwb_baud_magic)];
 
-		/* Wait 1s for baudrate change magic */
+		kwboot_printv("Waiting 1s for baudrate change magic\n");
 		rc = kwboot_tty_recv(tty, buf, sizeof(buf), 1000);
 		if (rc)
 			return rc;
