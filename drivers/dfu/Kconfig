@@ -38,6 +38,13 @@ config DFU_MMC
 	help
 	  This option enables using DFU to read and write to MMC based storage.
 
+config DFU_MTD
+	bool "MTD back end for DFU"
+	depends on DM_MTD
+	depends on CMD_MTDPARTS
+	help
+	  This option enables using DFU to read and write to on any MTD device.
+
 config DFU_NAND
 	bool "NAND back end for DFU"
 	depends on CMD_MTDPARTS
@@ -71,13 +78,6 @@ config DFU_SF_PART
 	help
 	  This option enables the support of "part" and "partubi" target in
 	  SPI flash DFU back end.
-
-config DFU_MTD
-	bool "MTD back end for DFU"
-	depends on DM_MTD
-	depends on CMD_MTDPARTS
-	help
-	  This option enables using DFU to read and write to on any MTD device.
 
 config DFU_VIRT
 	bool "VIRTUAL flash back end for DFU"
