@@ -925,7 +925,7 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 
 	*done_print = 0;
 
-	retries = 16;
+	retries = 0;
 	do {
 		rc = kwboot_tty_send(fd, block, sizeof(*block));
 		if (rc)
@@ -944,7 +944,7 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 
 		if (!allow_non_xm && c != ACK)
 			kwboot_progress(-1, '+');
-	} while (c == NAK && retries-- > 0);
+	} while (c == NAK && retries++ < 16);
 
 	if (non_xm_print)
 		kwboot_printv("\n");
@@ -973,7 +973,7 @@ kwboot_xm_finish(int fd)
 
 	kwboot_printv("Finishing transfer\n");
 
-	retries = 16;
+	retries = 0;
 	do {
 		rc = kwboot_tty_send_char(fd, EOT);
 		if (rc)
@@ -982,7 +982,7 @@ kwboot_xm_finish(int fd)
 		rc = kwboot_xm_recv_reply(fd, &c, 0, NULL, 0, NULL);
 		if (rc)
 			return rc;
-	} while (c == NAK && retries-- > 0);
+	} while (c == NAK && retries++ < 16);
 
 	return _xm_reply_to_error(c);
 }
