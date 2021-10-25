@@ -1544,6 +1544,9 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 		kwboot_printv("Injecting code for changing baudrate back\n");
 		_inject_baudrate_change_code(img, size, 1, baudrate, 115200);
 
+		/* Update the 32-bit data checksum */
+		*kwboot_img_csum32_ptr(img) = kwboot_img_csum32(img);
+
 		/* recompute header size */
 		hdrsz = kwbheader_size(hdr);
 	}
