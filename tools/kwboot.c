@@ -1251,6 +1251,37 @@ kwboot_hdr_csum8(const void *hdr)
 	return csum;
 }
 
+static uint32_t *
+kwboot_img_csum32_ptr(void *img)
+{
+	struct main_hdr_v1 *hdr = img;
+	uint32_t datasz;
+
+	datasz = le32_to_cpu(hdr->blocksize) - sizeof(uint32_t);
+
+	return img + le32_to_cpu(hdr->srcaddr) + datasz;
+}
+
+static uint32_t
+kwboot_img_csum32(const void *img)
+{
+	const struct main_hdr_v1 *hdr = img;
+	uint32_t datasz, csum = 0;
+	const uint32_t *data;
+
+	datasz = le32_to_cpu(hdr->blocksize) - sizeof(csum);
+	if (datasz % sizeof(uint32_t))
+		return 0;
+
+	data = img + le32_to_cpu(hdr->srcaddr);
+	while (datasz > 0) {
+		csum += le32_to_cpu(*data++);
+		datasz -= 4;
+	}
+
+	return cpu_to_le32(csum);
+}
+
 static int
 kwboot_img_is_secure(void *img)
 {
@@ -1460,6 +1491,9 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 	if (hdrsz > le32_to_cpu(hdr->srcaddr) ||
 	    *size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize))
+		goto err;
+
+	if (kwboot_img_csum32(img) != *kwboot_img_csum32_ptr(img))
 		goto err;
 
 	is_secure = kwboot_img_is_secure(img);
