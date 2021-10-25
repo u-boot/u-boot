@@ -851,7 +851,8 @@ kwboot_baud_magic_handle(int fd, char c, int baudrate)
 }
 
 static int
-kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm, int *non_xm_print,
+kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
+		     int allow_non_xm, int *non_xm_print,
 		     int baudrate, int *baud_changed)
 {
 	int timeout = allow_non_xm ? KWBOOT_HDR_RSP_TIMEO : blk_rsp_timeo;
@@ -904,6 +905,10 @@ kwboot_xm_recv_reply(int fd, char *c, int allow_non_xm, int *non_xm_print,
 				*non_xm_print = 1;
 			}
 		} else {
+			if (nak_on_non_xm) {
+				*c = NAK;
+				break;
+			}
 			timeout = recv_until - _now();
 			if (timeout < 0) {
 				errno = ETIMEDOUT;
@@ -937,7 +942,8 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 			*done_print = 1;
 		}
 
-		rc = kwboot_xm_recv_reply(fd, &c, allow_non_xm, &non_xm_print,
+		rc = kwboot_xm_recv_reply(fd, &c, retries < 3,
+					  allow_non_xm, &non_xm_print,
 					  baudrate, &baud_changed);
 		if (rc)
 			goto can;
@@ -979,7 +985,8 @@ kwboot_xm_finish(int fd)
 		if (rc)
 			return rc;
 
-		rc = kwboot_xm_recv_reply(fd, &c, 0, NULL, 0, NULL);
+		rc = kwboot_xm_recv_reply(fd, &c, retries < 3,
+					  0, NULL, 0, NULL);
 		if (rc)
 			return rc;
 	} while (c == NAK && retries++ < 16);
