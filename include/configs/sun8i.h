@@ -12,6 +12,8 @@
  * A23 specific configuration
  */
 
+#include <asm/arch/cpu.h>
+
 #ifdef SUNXI_SRAM_A2_SIZE
 /*
  * If the SoC has enough SRAM A2, use that for the secure monitor.

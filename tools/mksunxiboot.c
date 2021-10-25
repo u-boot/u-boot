@@ -12,10 +12,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sunxi_image.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "imagetool.h"
-#include "../arch/arm/include/asm/arch-sunxi/spl.h"
 
 #define STAMP_VALUE                     0x5F0A6C39
 

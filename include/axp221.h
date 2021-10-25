@@ -50,6 +50,7 @@
 #define AXP221_SID		0x20
 
 /* For axp_gpio.c */
+#ifdef CONFIG_AXP221_POWER
 #define AXP_POWER_STATUS		0x00
 #define AXP_POWER_STATUS_VBUS_PRESENT		(1 << 5)
 #define AXP_VBUS_IPSOUT			0x30
@@ -63,3 +64,4 @@
 #define AXP_GPIO_CTRL_INPUT			0x02 /* Input */
 #define AXP_GPIO_STATE			0x94
 #define AXP_GPIO_STATE_OFFSET			0
+#endif
