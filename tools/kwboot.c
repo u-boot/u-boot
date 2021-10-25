@@ -1318,11 +1318,20 @@ kwboot_img_grow_hdr(void *img, size_t *size, size_t grow)
 {
 	uint32_t hdrsz, datasz, srcaddr;
 	struct main_hdr_v1 *hdr = img;
+	struct opt_hdr_v1 *ohdr;
 	uint8_t *data;
 
 	srcaddr = le32_to_cpu(hdr->srcaddr);
 
-	hdrsz = kwbheader_size(img);
+	/* calculate real used space in kwbimage header */
+	if (kwbimage_version(img) == 0) {
+		hdrsz = kwbheader_size(img);
+	} else {
+		hdrsz = sizeof(*hdr);
+		for_each_opt_hdr_v1 (ohdr, hdr)
+			hdrsz += opt_hdr_v1_size(ohdr);
+	}
+
 	data = (uint8_t *)img + srcaddr;
 	datasz = *size - srcaddr;
 
@@ -1339,8 +1348,10 @@ kwboot_img_grow_hdr(void *img, size_t *size, size_t grow)
 
 	if (kwbimage_version(img) == 1) {
 		hdrsz += grow;
-		hdr->headersz_msb = hdrsz >> 16;
-		hdr->headersz_lsb = cpu_to_le16(hdrsz & 0xffff);
+		if (hdrsz > kwbheader_size(img)) {
+			hdr->headersz_msb = hdrsz >> 16;
+			hdr->headersz_lsb = cpu_to_le16(hdrsz & 0xffff);
+		}
 	}
 }
 
