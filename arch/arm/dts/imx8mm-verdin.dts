@@ -196,6 +196,18 @@
 	};
 };
 
+&gpio5 {
+	ctrl_sleep_moci {
+		gpio-hog;
+		/* Verdin CTRL_SLEEP_MOCI# (SODIMM 256) */
+		gpios = <1 GPIO_ACTIVE_HIGH>;
+		line-name = "CTRL_SLEEP_MOCI#";
+		output-high;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_ctrl_sleep_moci>;
+	};
+};
+
 /* On-module I2C */
 &i2c1 {
 	clock-frequency = <400000>;
@@ -545,6 +557,12 @@
 	pinctrl_ctrl_force_off_moci: ctrlforceoffgrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_SAI5_RXC_GPIO3_IO20	0x1c4		/* SODIMM 250 */
+		>;
+	};
+
+	pinctrl_ctrl_sleep_moci: ctrlsleepmocigrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SAI3_TXD_GPIO5_IO1		0x1c4		/* SODIMM 256 */
 		>;
 	};
 

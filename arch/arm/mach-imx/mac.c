@@ -31,7 +31,7 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 
 	offset = is_mx6() ? MAC_FUSE_MX6_OFFSET : MAC_FUSE_MX7_OFFSET;
 	fuse = (struct imx_mac_fuse *)(ulong)(OCOTP_BASE_ADDR + offset);
-	has_second_mac = is_mx7() || is_mx6sx() || is_mx6ul() || is_mx6ull();
+	has_second_mac = is_mx7() || is_mx6sx() || is_mx6ul() || is_mx6ull() || is_imx8mp();
 
 	if (has_second_mac && dev_id == 1) {
 		u32 value = readl(&fuse->mac_addr2);

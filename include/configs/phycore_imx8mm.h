@@ -37,10 +37,7 @@
 	"console=ttymxc2,115200\0" \
 	"fdt_addr=0x48000000\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"ipaddr=192.168.3.11\0" \
-	"serverip=192.168.3.10\0" \
-	"netmask=255.225.255.0\0" \
-	"ip_dyn=no\0" \
+	"ip_dyn=yes\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=2\0" \
@@ -94,30 +91,21 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
-#define PHYS_SDRAM			SZ_1G
+#define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE                 SZ_2G /* 2GB DDR */
 
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
 
 /* Monitor Command Prompt */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_CBSIZE		SZ_2K
 #define CONFIG_SYS_MAXARGS		64
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
+
 /* USDHC */
 #define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-/* ENET1 */
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_FEC_MXC_PHYADDR		0
-#define FEC_QUIRK_ENET_MAC
-#define IMX_FEC_BASE			0x30BE0000
 
 #endif /* __PHYCORE_IMX8MM_H */

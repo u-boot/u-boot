@@ -13,6 +13,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/hab.h>
+#include <asm/setup.h>
 #include <linux/bitops.h>
 
 #define PMC0_BASE_ADDR		0x410a1000
@@ -380,3 +381,25 @@ enum boot_device get_boot_device(void)
 
 	return boot_dev;
 }
+
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+/*
+ * OCOTP_CFG (SJC CHALLENGE, Unique ID)
+ * i.MX 7ULP Applications Processor Reference Manual, Rev. 0, 09/2020
+ *
+ * OCOTP_CFG0 offset 0x4B0: 15:0 -> 15:0  bits of Unique ID
+ * OCOTP_CFG1 offset 0x4C0: 15:0 -> 31:16 bits of Unique ID
+ * OCOTP_CFG2 offset 0x4D0: 15:0 -> 47:32 bits of Unique ID
+ * OCOTP_CFG3 offset 0x4E0: 15:0 -> 63:48 bits of Unique ID
+ */
+void get_board_serial(struct tag_serialnr *serialnr)
+{
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[1];
+	struct fuse_bank1_regs *fuse =
+		(struct fuse_bank1_regs *)bank->fuse_regs;
+
+	serialnr->low = (fuse->cfg0 & 0xFFFF) + ((fuse->cfg1 & 0xFFFF) << 16);
+	serialnr->high = (fuse->cfg2 & 0xFFFF) + ((fuse->cfg3 & 0xFFFF) << 16);
+}
+#endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */

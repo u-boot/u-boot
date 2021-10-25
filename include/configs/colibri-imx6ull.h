@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2018-2019 Toradex AG
+ * Copyright 2018-2021 Toradex AG
  *
  * Configuration settings for the Colibri iMX6ULL module.
  *
@@ -13,7 +13,7 @@
 #include "mx6_common.h"
 #define CONFIG_IOMUX_LPSR
 
-#define PHYS_SDRAM_SIZE			SZ_512M
+#define PHYS_SDRAM_SIZE			SZ_1G
 
 /* ENET1 */
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
@@ -26,6 +26,22 @@
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1
 
+#if defined(CONFIG_TARGET_COLIBRI_IMX6ULL_EMMC)
+#define UBOOT_UPDATE \
+	"uboot_hwpart=1\0" \
+	"uboot_blk=2\0" \
+	"set_blkcnt=setexpr blkcnt ${filesize} + 0x1ff && " \
+		"setexpr blkcnt ${blkcnt} / 0x200\0" \
+	"update_uboot=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
+		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0"
+#elif defined(CONFIG_TARGET_COLIBRI_IMX6ULL_NAND)
+#define UBOOT_UPDATE \
+	"update_uboot=nand erase.part u-boot1 && " \
+		"nand write ${loadaddr} u-boot1 ${filesize} && " \
+		"nand erase.part u-boot2 && " \
+		"nand write ${loadaddr} u-boot2 ${filesize}\0"
+#endif
+
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x82100000\0" \
@@ -33,12 +49,6 @@
 	"pxefile_addr_r=0x87100000\0" \
 	"ramdisk_addr_r=0x82200000\0" \
 	"scriptaddr=0x87000000\0"
-
-#define UBOOT_UPDATE \
-	"update_uboot=nand erase.part u-boot1 && " \
-		"nand write ${loadaddr} u-boot1 ${filesize} && " \
-		"nand erase.part u-boot2 && " \
-		"nand write ${loadaddr} u-boot2 ${filesize}\0"
 
 #define NFS_BOOTCMD \
 	"nfsargs=ip=:::::eth0: root=/dev/nfs\0" \
@@ -60,16 +70,31 @@
 		"ubi read ${fdt_addr_r} dtb && " \
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
+#if defined(CONFIG_TARGET_COLIBRI_IMX6ULL_NAND)
 /* Run Distro Boot script if ubiboot fails */
 #define CONFIG_BOOTCOMMAND "run ubiboot || run distro_bootcmd;"
+#define DFU_ALT_NAND_INFO "imx6ull-bcb part 0,1;u-boot1 part 0,2;u-boot2 part 0,3;u-boot-env part 0,4;ubi partubi 0,5"
+#define MODULE_EXTRA_ENV_SETTINGS \
+	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	UBI_BOOTCMD
+#else
+#define	MODULE_EXTRA_ENV_SETTINGS ""
+#endif
 
+#if defined(CONFIG_TARGET_COLIBRI_IMX6ULL_NAND)
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
+#elif defined(CONFIG_TARGET_COLIBRI_IMX6ULL_EMMC)
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
+#endif
 #include <config_distro_bootcmd.h>
-
-#define DFU_ALT_NAND_INFO "imx6ull-bcb part 0,1;u-boot1 part 0,2;u-boot2 part 0,3;u-boot-env part 0,4;ubi partubi 0,5"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
@@ -80,12 +105,10 @@
 	"bootubipart=ubi\0" \
 	"console=ttymxc0\0" \
 	"defargs=user_debug=30\0" \
-	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
 	"fdt_board=eval-v3\0" \
 	"fdt_fixup=;\0" \
 	"ip_dyn=yes\0" \
 	"kernel_file=zImage\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \
 		"${board}/flash_eth.img && source ${loadaddr}\0" \
@@ -117,10 +140,16 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
+/* environment organization */
+
+/* Environment in eMMC, before config block at the end of 1st "boot sector" */
+
+#ifdef CONFIG_TARGET_COLIBRI_IMX6ULL_NAND
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 /* used to initialize CONFIG_SYS_NAND_BASE_LIST which is unused */
 #define CONFIG_SYS_NAND_BASE		-1
+#endif
 
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

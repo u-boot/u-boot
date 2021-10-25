@@ -34,10 +34,10 @@ Get the DDR Firmware
 .. code-block:: bash
 
     $ cd ..
-    $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.4.1.bin
-    $ chmod +x firmware-imx-8.4.1.bin
-    $ ./firmware-imx-8.4.1.bin
-    $ cp firmware-imx-8.4.1/firmware/ddr/synopsys/lpddr4*.bin ./
+    $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.10.1.bin
+    $ chmod +x firmware-imx-8.10.1.bin
+    $ ./firmware-imx-8.10.1.bin
+    $ cp firmware-imx-8.10.1/firmware/ddr/synopsys/lpddr4*.bin ./
 
 Build U-Boot
 ------------
@@ -46,7 +46,7 @@ Build U-Boot
     $ export CROSS_COMPILE=aarch64-linux-gnu-
     $ export ATF_LOAD_ADDR=0x920000
     $ make verdin-imx8mm_defconfig
-    $ make flash.bin
+    $ make
 
 Flash to eMMC
 -------------
@@ -78,21 +78,28 @@ Output:
 
 .. code-block:: bash
 
-    U-Boot SPL 2020.01-00187-gd411d164e5 (Jan 26 2020 - 04:47:26 +0100)
-    Normal Boot
-    Trying to boot from MMC1
+U-Boot SPL 2021.10-rc2-00028-gee010ba1129 (Aug 23 2021 - 16:56:02 +0200)
+Normal Boot
+WDT:   Started with servicing (60s timeout)
+Trying to boot from MMC1
+NOTICE:  BL31: v2.2(release):rel_imx_5.4.70_2.3.2_rc1-5-g835a8f67b
+NOTICE:  BL31: Built : 18:02:12, Aug 16 2021
 
-    U-Boot 2020.01-00187-gd411d164e5 (Jan 26 2020 - 04:47:26 +0100)
 
-    CPU:   Freescale i.MX8MMQ rev1.0 at 0 MHz
-    Reset cause: POR
-    DRAM:  2 GiB
-    MMC:   FSL_SDHC: 0, FSL_SDHC: 1, FSL_SDHC: 2
-    Loading Environment from MMC... OK
-    In:    serial
-    Out:   serial
-    Err:   serial
-    Model: Toradex Verdin iMX8M Mini Quad 2GB Wi-Fi / BT IT V1.0A, Serial:
-    Net:   eth0: ethernet@30be0000
-    Hit any key to stop autoboot:  0
-    Verdin iMX8MM #
+U-Boot 2021.10-rc2-00028-gee010ba1129 (Aug 23 2021 - 16:56:02 +0200)
+
+CPU:   Freescale i.MX8MMQ rev1.0 at 1200 MHz
+Reset cause: POR
+DRAM:  2 GiB
+WDT:   Started with servicing (60s timeout)
+MMC:   FSL_SDHC: 0, FSL_SDHC: 1, FSL_SDHC: 2
+Loading Environment from MMC... OK
+In:    serial
+Out:   serial
+Err:   serial
+Model: Toradex Verdin iMX8M Mini Quad 2GB Wi-Fi / BT IT V1.1A, Serial# 06760554
+Carrier: Toradex Verdin Development Board V1.1A, Serial# 10754333
+Setting variant to wifi
+Net:   eth0: ethernet@30be0000
+Hit any key to stop autoboot:  0
+Verdin iMX8MM #
