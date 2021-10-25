@@ -152,6 +152,7 @@ void sbi_remote_sfence_vma_asid(const unsigned long *hart_mask,
 void sbi_set_timer(uint64_t stime_value);
 long sbi_get_spec_version(void);
 int sbi_get_impl_id(void);
+int sbi_get_impl_version(long *version);
 int sbi_probe_extension(int ext);
 void sbi_srst_reset(unsigned long type, unsigned long reason);
 

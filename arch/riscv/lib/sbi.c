@@ -90,6 +90,25 @@ int sbi_get_impl_id(void)
 }
 
 /**
+ * sbi_get_impl_version() - get SBI implementation version
+ *
+ * @version:	pointer to receive version
+ * Return:	0 on success, -ENOTSUPP otherwise
+ */
+int sbi_get_impl_version(long *version)
+{
+	struct sbiret ret;
+
+	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_GET_IMP_VERSION,
+			0, 0, 0, 0, 0, 0);
+	if (ret.error)
+		return -ENOTSUPP;
+	if (version)
+		*version = ret.value;
+	return 0;
+}
+
+/**
  * sbi_probe_extension() - Check if an SBI extension ID is supported or not.
  * @extid: The extension ID to be probed.
  *
