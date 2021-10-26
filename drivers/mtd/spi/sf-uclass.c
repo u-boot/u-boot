@@ -56,8 +56,10 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		return NULL;
 
 	struct spi_flash* flash = dev_get_uclass_priv(dev);
-	if(flash)
-		flash->dev = dev;
+
+	// this dev does not contain a #define sf_get_ops(dev) ((struct dm_spi_flash_ops *)(dev)->driver->ops)
+	//if(flash)
+	//	flash->dev = dev;
 
 	return flash;
 }
