@@ -210,6 +210,33 @@ struct efi_tcg2_uefi_variable_data {
 	u8 variable_data[1];
 };
 
+/**
+ * struct tdUEFI_HANDOFF_TABLE_POINTERS2 - event log structure of SMBOIS tables
+ * @table_description_size:	size of table description
+ * @table_description:		table description
+ * @number_of_tables:		number of uefi configuration table
+ * @table_entry:		uefi configuration table entry
+ */
+#define SMBIOS_HANDOFF_TABLE_DESC  "SmbiosTable"
+struct smbios_handoff_table_pointers2 {
+	u8 table_description_size;
+	u8 table_description[sizeof(SMBIOS_HANDOFF_TABLE_DESC)];
+	u64 number_of_tables;
+	struct efi_configuration_table table_entry[];
+} __packed;
+
+/**
+ * struct tdUEFI_GPT_DATA - event log structure of industry standard tables
+ * @uefi_partition_header:	gpt partition header
+ * @number_of_partitions:	the number of partition
+ * @partitions:			partition entries
+ */
+struct efi_gpt_data {
+	gpt_header uefi_partition_header;
+	u64 number_of_partitions;
+	gpt_entry partitions[];
+} __packed;
+
 struct efi_tcg2_protocol {
 	efi_status_t (EFIAPI * get_capability)(struct efi_tcg2_protocol *this,
 					       struct efi_tcg2_boot_service_capability *capability);

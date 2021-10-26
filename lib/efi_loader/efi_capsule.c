@@ -11,14 +11,19 @@
 #include <common.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
+#include <env.h>
+#include <fdtdec.h>
 #include <fs.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <sort.h>
+#include <asm/global_data.h>
 
 #include <crypto/pkcs7.h>
 #include <crypto/pkcs7_parser.h>
 #include <linux/err.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 const efi_guid_t efi_guid_capsule_report = EFI_CAPSULE_REPORT_GUID;
 static const efi_guid_t efi_guid_firmware_management_capsule_id =
@@ -251,6 +256,37 @@ out:
 }
 
 #if defined(CONFIG_EFI_CAPSULE_AUTHENTICATE)
+int __weak efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
+{
+	const void *fdt_blob = gd->fdt_blob;
+	const void *blob;
+	const char *cnode_name = "capsule-key";
+	const char *snode_name = "signature";
+	int sig_node;
+	int len;
+
+	sig_node = fdt_subnode_offset(fdt_blob, 0, snode_name);
+	if (sig_node < 0) {
+		log_err("Unable to get signature node offset\n");
+
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	blob = fdt_getprop(fdt_blob, sig_node, cnode_name, &len);
+
+	if (!blob || len < 0) {
+		log_err("Unable to get capsule-key value\n");
+		*pkey = NULL;
+		*pkey_len = 0;
+
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	*pkey = (void *)blob;
+	*pkey_len = len;
+
+	return 0;
+}
 
 efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
 				      void **image, efi_uintn_t *image_size)

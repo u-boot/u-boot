@@ -86,6 +86,8 @@ const efi_guid_t efi_guid_event_group_reset_system =
 /* GUIDs of the Load File and Load File2 protocols */
 const efi_guid_t efi_guid_load_file_protocol = EFI_LOAD_FILE_PROTOCOL_GUID;
 const efi_guid_t efi_guid_load_file2_protocol = EFI_LOAD_FILE2_PROTOCOL_GUID;
+/* GUID of the SMBIOS table */
+const efi_guid_t smbios_guid = SMBIOS_TABLE_GUID;
 
 static efi_status_t EFIAPI efi_disconnect_controller(
 					efi_handle_t controller_handle,
@@ -1690,8 +1692,9 @@ out:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
-							       void *table)
+static efi_status_t
+EFIAPI efi_install_configuration_table_ext(const efi_guid_t *guid,
+					   void *table)
 {
 	EFI_ENTRY("%pUl, %p", guid, table);
 	return EFI_EXIT(efi_install_configuration_table(guid, table));
@@ -3001,7 +3004,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
 		if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION) {
-			ret = efi_tcg2_measure_efi_app_invocation();
+			ret = efi_tcg2_measure_efi_app_invocation(image_obj);
 			if (ret != EFI_SUCCESS) {
 				log_warning("tcg2 measurement fails(0x%lx)\n",
 					    ret);

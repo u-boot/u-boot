@@ -374,7 +374,8 @@ bool efi_secure_boot_enabled(void)
 	return efi_secure_boot;
 }
 
-enum efi_auth_var_type efi_auth_var_get_type(u16 *name, const efi_guid_t *guid)
+enum efi_auth_var_type efi_auth_var_get_type(const u16 *name,
+					     const efi_guid_t *guid)
 {
 	for (size_t i = 0; i < ARRAY_SIZE(name_type); ++i) {
 		if (!u16_strcmp(name, name_type[i].name) &&
@@ -382,6 +383,15 @@ enum efi_auth_var_type efi_auth_var_get_type(u16 *name, const efi_guid_t *guid)
 			return name_type[i].type;
 	}
 	return EFI_AUTH_VAR_NONE;
+}
+
+const efi_guid_t *efi_auth_var_get_guid(const u16 *name)
+{
+	for (size_t i = 0; i < ARRAY_SIZE(name_type); ++i) {
+		if (!u16_strcmp(name, name_type[i].name))
+			return name_type[i].guid;
+	}
+	return &efi_global_variable_guid;
 }
 
 /**
@@ -393,7 +403,7 @@ enum efi_auth_var_type efi_auth_var_get_type(u16 *name, const efi_guid_t *guid)
  *
  * Return:	buffer with variable data or NULL
  */
-void *efi_get_var(u16 *name, const efi_guid_t *vendor, efi_uintn_t *size)
+void *efi_get_var(const u16 *name, const efi_guid_t *vendor, efi_uintn_t *size)
 {
 	efi_status_t ret;
 	void *buf = NULL;

@@ -308,6 +308,8 @@ extern const efi_guid_t efi_guid_capsule_report;
 extern const efi_guid_t efi_guid_firmware_management_protocol;
 /* GUID for the ESRT */
 extern const efi_guid_t efi_esrt_guid;
+/* GUID of the SMBIOS table */
+extern const efi_guid_t smbios_guid;
 
 extern char __efi_runtime_start[], __efi_runtime_stop[];
 extern char __efi_runtime_rel_start[], __efi_runtime_rel_stop[];
@@ -501,7 +503,7 @@ efi_status_t efi_init_variables(void);
 void efi_variables_boot_exit_notify(void);
 efi_status_t efi_tcg2_notify_exit_boot_services_failed(void);
 /* Measure efi application invocation */
-efi_status_t efi_tcg2_measure_efi_app_invocation(void);
+efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *handle);
 /* Measure efi application exit */
 efi_status_t efi_tcg2_measure_efi_app_exit(void);
 /* Called by bootefi to initialize root node */
@@ -818,7 +820,7 @@ efi_status_t EFIAPI efi_query_variable_info(
 			u64 *remaining_variable_storage_size,
 			u64 *maximum_variable_size);
 
-void *efi_get_var(u16 *name, const efi_guid_t *vendor, efi_uintn_t *size);
+void *efi_get_var(const u16 *name, const efi_guid_t *vendor, efi_uintn_t *size);
 
 /*
  * See section 3.1.3 in the v2.7 UEFI spec for more details on
@@ -845,6 +847,7 @@ struct efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
 				       const efi_guid_t *guid);
 struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 				      const struct efi_device_path *dp2);
+struct efi_device_path *search_gpt_dp_node(struct efi_device_path *device_path);
 efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
 					 efi_uintn_t *size);
 unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);

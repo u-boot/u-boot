@@ -11,9 +11,11 @@
 #include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 #include <efi_tcg2.h>
 #include <log.h>
 #include <malloc.h>
+#include <smbios.h>
 #include <version_string.h>
 #include <tpm-v2.h>
 #include <u-boot/hash-checksum.h>
@@ -80,16 +82,21 @@ static const struct digest_info hash_algo_list[] = {
 };
 
 struct variable_info {
-	u16		*name;
-	const efi_guid_t	*guid;
+	const u16	*name;
+	bool		accept_empty;
+	u32		pcr_index;
 };
 
 static struct variable_info secure_variables[] = {
-	{L"SecureBoot", &efi_global_variable_guid},
-	{L"PK", &efi_global_variable_guid},
-	{L"KEK", &efi_global_variable_guid},
-	{L"db", &efi_guid_image_security_database},
-	{L"dbx", &efi_guid_image_security_database},
+	{u"SecureBoot",		true,	7},
+	{u"PK",			true,	7},
+	{u"KEK",		true,	7},
+	{u"db",			true,	7},
+	{u"dbx",		true,	7},
+	{u"dbt",		false,	7},
+	{u"dbr",		false,	7},
+	{u"DeployedMode",	false,	1},
+	{u"AuditMode",		false,	1},
 };
 
 #define MAX_HASH_COUNT ARRAY_SIZE(hash_algo_list)
@@ -1366,7 +1373,7 @@ static efi_status_t efi_append_scrtm_version(struct udevice *dev)
  * Return:	status code
  */
 static efi_status_t tcg2_measure_variable(struct udevice *dev, u32 pcr_index,
-					  u32 event_type, u16 *var_name,
+					  u32 event_type, const u16 *var_name,
 					  const efi_guid_t *guid,
 					  efi_uintn_t data_size, u8 *data)
 {
@@ -1457,16 +1464,232 @@ error:
 }
 
 /**
+ * tcg2_measure_smbios() - measure smbios table
+ *
+ * @dev:	TPM device
+ * @entry:	pointer to the smbios_entry structure
+ *
+ * Return:	status code
+ */
+static efi_status_t
+tcg2_measure_smbios(struct udevice *dev,
+		    const struct smbios_entry *entry)
+{
+	efi_status_t ret;
+	struct smbios_header *smbios_copy;
+	struct smbios_handoff_table_pointers2 *event = NULL;
+	u32 event_size;
+
+	/*
+	 * TCG PC Client PFP Spec says
+	 * "SMBIOS structures that contain static configuration information
+	 * (e.g. Platform Manufacturer Enterprise Number assigned by IANA,
+	 * platform model number, Vendor and Device IDs for each SMBIOS table)
+	 * that is relevant to the security of the platform MUST be measured".
+	 * Device dependent parameters such as serial number are cleared to
+	 * zero or spaces for the measurement.
+	 */
+	event_size = sizeof(struct smbios_handoff_table_pointers2) +
+		     FIELD_SIZEOF(struct efi_configuration_table, guid) +
+		     entry->struct_table_length;
+	event = calloc(1, event_size);
+	if (!event) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+
+	event->table_description_size = sizeof(SMBIOS_HANDOFF_TABLE_DESC);
+	memcpy(event->table_description, SMBIOS_HANDOFF_TABLE_DESC,
+	       sizeof(SMBIOS_HANDOFF_TABLE_DESC));
+	put_unaligned_le64(1, &event->number_of_tables);
+	guidcpy(&event->table_entry[0].guid, &smbios_guid);
+	smbios_copy = (struct smbios_header *)((uintptr_t)&event->table_entry[0].table);
+	memcpy(&event->table_entry[0].table,
+	       (void *)((uintptr_t)entry->struct_table_address),
+	       entry->struct_table_length);
+
+	smbios_prepare_measurement(entry, smbios_copy);
+
+	ret = tcg2_measure_event(dev, 1, EV_EFI_HANDOFF_TABLES2, event_size,
+				 (u8 *)event);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+out:
+	free(event);
+
+	return ret;
+}
+
+/**
+ * find_smbios_table() - find smbios table
+ *
+ * Return:	pointer to the smbios table
+ */
+static void *find_smbios_table(void)
+{
+	u32 i;
+
+	for (i = 0; i < systab.nr_tables; i++) {
+		if (!guidcmp(&smbios_guid, &systab.tables[i].guid))
+			return systab.tables[i].table;
+	}
+
+	return NULL;
+}
+
+/**
+ * tcg2_measure_gpt_table() - measure gpt table
+ *
+ * @dev:		TPM device
+ * @loaded_image:	handle to the loaded image
+ *
+ * Return:	status code
+ */
+static efi_status_t
+tcg2_measure_gpt_data(struct udevice *dev,
+		      struct efi_loaded_image_obj *loaded_image)
+{
+	efi_status_t ret;
+	efi_handle_t handle;
+	struct efi_handler *dp_handler;
+	struct efi_device_path *orig_device_path;
+	struct efi_device_path *device_path;
+	struct efi_device_path *dp;
+	struct efi_block_io *block_io;
+	struct efi_gpt_data *event = NULL;
+	efi_guid_t null_guid = NULL_GUID;
+	gpt_header *gpt_h;
+	gpt_entry *entry = NULL;
+	gpt_entry *gpt_e;
+	u32 num_of_valid_entry = 0;
+	u32 event_size;
+	u32 i;
+	u32 total_gpt_entry_size;
+
+	ret = efi_search_protocol(&loaded_image->header,
+				  &efi_guid_loaded_image_device_path,
+				  &dp_handler);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	orig_device_path = dp_handler->protocol_interface;
+	if (!orig_device_path) /* no device path, skip GPT measurement */
+		return EFI_SUCCESS;
+
+	device_path = efi_dp_dup(orig_device_path);
+	if (!device_path)
+		return EFI_OUT_OF_RESOURCES;
+
+	dp = search_gpt_dp_node(device_path);
+	if (!dp) {
+		/* no GPT device path node found, skip GPT measurement */
+		ret = EFI_SUCCESS;
+		goto out1;
+	}
+
+	/* read GPT header */
+	dp->type = DEVICE_PATH_TYPE_END;
+	dp->sub_type = DEVICE_PATH_SUB_TYPE_END;
+	dp = device_path;
+	ret = EFI_CALL(systab.boottime->locate_device_path(&efi_block_io_guid,
+							   &dp, &handle));
+	if (ret != EFI_SUCCESS)
+		goto out1;
+
+	ret = EFI_CALL(efi_handle_protocol(handle,
+					   &efi_block_io_guid, (void **)&block_io));
+	if (ret != EFI_SUCCESS)
+		goto out1;
+
+	gpt_h = memalign(block_io->media->io_align, block_io->media->block_size);
+	if (!gpt_h) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out2;
+	}
+
+	ret = block_io->read_blocks(block_io, block_io->media->media_id, 1,
+				    block_io->media->block_size, gpt_h);
+	if (ret != EFI_SUCCESS)
+		goto out2;
+
+	/* read GPT entry */
+	total_gpt_entry_size = gpt_h->num_partition_entries *
+			       gpt_h->sizeof_partition_entry;
+	entry = memalign(block_io->media->io_align, total_gpt_entry_size);
+	if (!entry) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out2;
+	}
+
+	ret = block_io->read_blocks(block_io, block_io->media->media_id,
+				    gpt_h->partition_entry_lba,
+				    total_gpt_entry_size, entry);
+	if (ret != EFI_SUCCESS)
+		goto out2;
+
+	/* count valid GPT entry */
+	gpt_e = entry;
+	for (i = 0; i < gpt_h->num_partition_entries; i++) {
+		if (guidcmp(&null_guid, &gpt_e->partition_type_guid))
+			num_of_valid_entry++;
+
+		gpt_e = (gpt_entry *)((u8 *)gpt_e + gpt_h->sizeof_partition_entry);
+	}
+
+	/* prepare event data for measurement */
+	event_size = sizeof(struct efi_gpt_data) +
+		(num_of_valid_entry * gpt_h->sizeof_partition_entry);
+	event = calloc(1, event_size);
+	if (!event) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out2;
+	}
+	memcpy(event, gpt_h, sizeof(gpt_header));
+	put_unaligned_le64(num_of_valid_entry, &event->number_of_partitions);
+
+	/* copy valid GPT entry */
+	gpt_e = entry;
+	num_of_valid_entry = 0;
+	for (i = 0; i < gpt_h->num_partition_entries; i++) {
+		if (guidcmp(&null_guid, &gpt_e->partition_type_guid)) {
+			memcpy((u8 *)event->partitions +
+			       (num_of_valid_entry * gpt_h->sizeof_partition_entry),
+			       gpt_e, gpt_h->sizeof_partition_entry);
+			num_of_valid_entry++;
+		}
+
+		gpt_e = (gpt_entry *)((u8 *)gpt_e + gpt_h->sizeof_partition_entry);
+	}
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_GPT_EVENT, event_size, (u8 *)event);
+	if (ret != EFI_SUCCESS)
+		goto out2;
+
+out2:
+	EFI_CALL(efi_close_protocol((efi_handle_t)block_io, &efi_block_io_guid,
+				    NULL, NULL));
+	free(gpt_h);
+	free(entry);
+	free(event);
+out1:
+	efi_free_pool(device_path);
+
+	return ret;
+}
+
+/**
  * efi_tcg2_measure_efi_app_invocation() - measure efi app invocation
  *
  * Return:	status code
  */
-efi_status_t efi_tcg2_measure_efi_app_invocation(void)
+efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *handle)
 {
 	efi_status_t ret;
 	u32 pcr_index;
 	struct udevice *dev;
 	u32 event = 0;
+	struct smbios_entry *entry;
 
 	if (tcg2_efi_app_invoked)
 		return EFI_SUCCESS;
@@ -1482,6 +1705,17 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(void)
 	ret = tcg2_measure_event(dev, 4, EV_EFI_ACTION,
 				 strlen(EFI_CALLING_EFI_APPLICATION),
 				 (u8 *)EFI_CALLING_EFI_APPLICATION);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	entry = (struct smbios_entry *)find_smbios_table();
+	if (entry) {
+		ret = tcg2_measure_smbios(dev, entry);
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
+
+	ret = tcg2_measure_gpt_data(dev, handle);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
@@ -1591,54 +1825,38 @@ static efi_status_t tcg2_measure_secure_boot_variable(struct udevice *dev)
 	efi_uintn_t data_size;
 	u32 count, i;
 	efi_status_t ret;
+	u8 deployed_mode;
+	efi_uintn_t size;
+	u32 deployed_audit_pcr_index = 1;
+
+	size = sizeof(deployed_mode);
+	ret = efi_get_variable_int(u"DeployedMode", &efi_global_variable_guid,
+				   NULL, &size, &deployed_mode, NULL);
+	if (ret != EFI_SUCCESS || !deployed_mode)
+		deployed_audit_pcr_index = 7;
 
 	count = ARRAY_SIZE(secure_variables);
 	for (i = 0; i < count; i++) {
-		/*
-		 * According to the TCG2 PC Client PFP spec, "SecureBoot",
-		 * "PK", "KEK", "db" and "dbx" variables must be measured
-		 * even if they are empty.
-		 */
-		data = efi_get_var(secure_variables[i].name,
-				   secure_variables[i].guid,
-				   &data_size);
+		const efi_guid_t *guid;
 
-		ret = tcg2_measure_variable(dev, 7,
+		guid = efi_auth_var_get_guid(secure_variables[i].name);
+
+		data = efi_get_var(secure_variables[i].name, guid, &data_size);
+		if (!data && !secure_variables[i].accept_empty)
+			continue;
+
+		if (u16_strcmp(u"DeployedMode", secure_variables[i].name))
+			secure_variables[i].pcr_index = deployed_audit_pcr_index;
+		if (u16_strcmp(u"AuditMode", secure_variables[i].name))
+			secure_variables[i].pcr_index = deployed_audit_pcr_index;
+
+		ret = tcg2_measure_variable(dev, secure_variables[i].pcr_index,
 					    EV_EFI_VARIABLE_DRIVER_CONFIG,
-					    secure_variables[i].name,
-					    secure_variables[i].guid,
+					    secure_variables[i].name, guid,
 					    data_size, data);
 		free(data);
 		if (ret != EFI_SUCCESS)
 			goto error;
-	}
-
-	/*
-	 * TCG2 PC Client PFP spec says "dbt" and "dbr" are
-	 * measured if present and not empty.
-	 */
-	data = efi_get_var(L"dbt",
-			   &efi_guid_image_security_database,
-			   &data_size);
-	if (data) {
-		ret = tcg2_measure_variable(dev, 7,
-					    EV_EFI_VARIABLE_DRIVER_CONFIG,
-					    L"dbt",
-					    &efi_guid_image_security_database,
-					    data_size, data);
-		free(data);
-	}
-
-	data = efi_get_var(L"dbr",
-			   &efi_guid_image_security_database,
-			   &data_size);
-	if (data) {
-		ret = tcg2_measure_variable(dev, 7,
-					    EV_EFI_VARIABLE_DRIVER_CONFIG,
-					    L"dbr",
-					    &efi_guid_image_security_database,
-					    data_size, data);
-		free(data);
 	}
 
 error:

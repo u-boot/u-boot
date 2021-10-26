@@ -284,7 +284,8 @@ out:
  * StMM can store internal attributes and properties for variables, i.e enabling
  * R/O variables
  */
-static efi_status_t set_property_int(u16 *variable_name, efi_uintn_t name_size,
+static efi_status_t set_property_int(const u16 *variable_name,
+				     efi_uintn_t name_size,
 				     const efi_guid_t *vendor,
 				     struct var_check_property *var_property)
 {
@@ -317,7 +318,8 @@ out:
 	return ret;
 }
 
-static efi_status_t get_property_int(u16 *variable_name, efi_uintn_t name_size,
+static efi_status_t get_property_int(const u16 *variable_name,
+				     efi_uintn_t name_size,
 				     const efi_guid_t *vendor,
 				     struct var_check_property *var_property)
 {
@@ -361,7 +363,8 @@ out:
 	return ret;
 }
 
-efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+efi_status_t efi_get_variable_int(const u16 *variable_name,
+				  const efi_guid_t *vendor,
 				  u32 *attributes, efi_uintn_t *data_size,
 				  void *data, u64 *timep)
 {
@@ -502,9 +505,10 @@ out:
 	return ret;
 }
 
-efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
-				  u32 attributes, efi_uintn_t data_size,
-				  const void *data, bool ro_check)
+efi_status_t efi_set_variable_int(const u16 *variable_name,
+				  const efi_guid_t *vendor, u32 attributes,
+				  efi_uintn_t data_size, const void *data,
+				  bool ro_check)
 {
 	efi_status_t ret, alt_ret = EFI_SUCCESS;
 	struct var_check_property var_property;

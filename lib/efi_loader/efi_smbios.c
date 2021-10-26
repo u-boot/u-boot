@@ -13,8 +13,6 @@
 #include <mapmem.h>
 #include <smbios.h>
 
-static const efi_guid_t smbios_guid = SMBIOS_TABLE_GUID;
-
 /*
  * Install the SMBIOS table as a configuration table.
  *

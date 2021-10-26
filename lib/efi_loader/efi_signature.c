@@ -7,6 +7,7 @@
 #include <common.h>
 #include <charset.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 #include <image.h>
 #include <hexdump.h>
 #include <malloc.h>
@@ -740,44 +741,15 @@ err:
  */
 struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name)
 {
-	struct efi_signature_store *sigstore = NULL;
 	const efi_guid_t *vendor;
 	void *db;
 	efi_uintn_t db_size;
-	efi_status_t ret;
 
-	if (!u16_strcmp(name, L"PK") || !u16_strcmp(name, L"KEK")) {
-		vendor = &efi_global_variable_guid;
-	} else if (!u16_strcmp(name, L"db") || !u16_strcmp(name, L"dbx")) {
-		vendor = &efi_guid_image_security_database;
-	} else {
-		EFI_PRINT("unknown signature database, %ls\n", name);
-		return NULL;
-	}
-
-	/* retrieve variable data */
-	db_size = 0;
-	ret = EFI_CALL(efi_get_variable(name, vendor, NULL, &db_size, NULL));
-	if (ret == EFI_NOT_FOUND) {
-		EFI_PRINT("variable, %ls, not found\n", name);
-		sigstore = calloc(sizeof(*sigstore), 1);
-		return sigstore;
-	} else if (ret != EFI_BUFFER_TOO_SMALL) {
-		EFI_PRINT("Getting variable, %ls, failed\n", name);
-		return NULL;
-	}
-
-	db = malloc(db_size);
+	vendor = efi_auth_var_get_guid(name);
+	db = efi_get_var(name, vendor, &db_size);
 	if (!db) {
-		EFI_PRINT("Out of memory\n");
-		return NULL;
-	}
-
-	ret = EFI_CALL(efi_get_variable(name, vendor, NULL, &db_size, db));
-	if (ret != EFI_SUCCESS) {
-		EFI_PRINT("Getting variable, %ls, failed\n", name);
-		free(db);
-		return NULL;
+		EFI_PRINT("variable, %ls, not found\n", name);
+		return calloc(sizeof(struct efi_signature_store), 1);
 	}
 
 	return efi_build_signature_store(db, db_size);
