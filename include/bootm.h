@@ -39,7 +39,6 @@ extern boot_os_fn do_bootm_linux;
 extern boot_os_fn do_bootm_vxworks;
 
 int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
-void lynxkdi_boot(image_header_t *hdr);
 
 boot_os_fn *bootm_os_get_boot_func(int os);
 
