@@ -174,6 +174,14 @@ __weak void spl_board_prepare_for_optee(void *fdt)
 {
 }
 
+#if CONFIG_IS_ENABLED(OPTEE_IMAGE)
+__weak void __noreturn jump_to_image_optee(struct spl_image_info *spl_image)
+{
+	spl_optee_entry(NULL, NULL, spl_image->fdt_addr,
+			(void *)spl_image->entry_point);
+}
+#endif
+
 __weak void spl_board_prepare_for_boot(void)
 {
 	/* Nothing to do! */
@@ -780,8 +788,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	case IH_OS_TEE:
 		debug("Jumping to U-Boot via OP-TEE\n");
 		spl_board_prepare_for_optee(spl_image.fdt_addr);
-		spl_optee_entry(NULL, NULL, spl_image.fdt_addr,
-				(void *)spl_image.entry_point);
+		jump_to_image_optee(&spl_image);
 		break;
 #endif
 #if CONFIG_IS_ENABLED(OPENSBI)

@@ -77,3 +77,14 @@ void __noreturn jump_to_image_linux(struct spl_image_info *spl_image)
 }
 #endif	/* CONFIG_ARM64 */
 #endif
+
+#if CONFIG_IS_ENABLED(OPTEE_IMAGE)
+void __noreturn jump_to_image_optee(struct spl_image_info *spl_image)
+{
+	/* flush and turn off caches before jumping to OPTEE */
+	cleanup_before_linux();
+
+	spl_optee_entry(NULL, NULL, spl_image->fdt_addr,
+			(void *)spl_image->entry_point);
+}
+#endif
