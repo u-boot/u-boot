@@ -312,6 +312,7 @@ config EFI_TCG2_PROTOCOL
 	select SHA384
 	select SHA512
 	select HASH
+	select SMBIOS_PARSER
 	help
 	  Provide a EFI_TCG2_PROTOCOL implementation using the TPM hardware
 	  of the platform.

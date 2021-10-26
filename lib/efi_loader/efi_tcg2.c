@@ -15,6 +15,7 @@
 #include <efi_tcg2.h>
 #include <log.h>
 #include <malloc.h>
+#include <smbios.h>
 #include <version_string.h>
 #include <tpm-v2.h>
 #include <u-boot/hash-checksum.h>
@@ -1453,6 +1454,81 @@ error:
 }
 
 /**
+ * tcg2_measure_smbios() - measure smbios table
+ *
+ * @dev:	TPM device
+ * @entry:	pointer to the smbios_entry structure
+ *
+ * Return:	status code
+ */
+static efi_status_t
+tcg2_measure_smbios(struct udevice *dev,
+		    const struct smbios_entry *entry)
+{
+	efi_status_t ret;
+	struct smbios_header *smbios_copy;
+	struct smbios_handoff_table_pointers2 *event = NULL;
+	u32 event_size;
+
+	/*
+	 * TCG PC Client PFP Spec says
+	 * "SMBIOS structures that contain static configuration information
+	 * (e.g. Platform Manufacturer Enterprise Number assigned by IANA,
+	 * platform model number, Vendor and Device IDs for each SMBIOS table)
+	 * that is relevant to the security of the platform MUST be measured".
+	 * Device dependent parameters such as serial number are cleared to
+	 * zero or spaces for the measurement.
+	 */
+	event_size = sizeof(struct smbios_handoff_table_pointers2) +
+		     FIELD_SIZEOF(struct efi_configuration_table, guid) +
+		     entry->struct_table_length;
+	event = calloc(1, event_size);
+	if (!event) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+
+	event->table_description_size = sizeof(SMBIOS_HANDOFF_TABLE_DESC);
+	memcpy(event->table_description, SMBIOS_HANDOFF_TABLE_DESC,
+	       sizeof(SMBIOS_HANDOFF_TABLE_DESC));
+	put_unaligned_le64(1, &event->number_of_tables);
+	guidcpy(&event->table_entry[0].guid, &smbios_guid);
+	smbios_copy = (struct smbios_header *)((uintptr_t)&event->table_entry[0].table);
+	memcpy(&event->table_entry[0].table,
+	       (void *)((uintptr_t)entry->struct_table_address),
+	       entry->struct_table_length);
+
+	smbios_prepare_measurement(entry, smbios_copy);
+
+	ret = tcg2_measure_event(dev, 1, EV_EFI_HANDOFF_TABLES2, event_size,
+				 (u8 *)event);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+out:
+	free(event);
+
+	return ret;
+}
+
+/**
+ * find_smbios_table() - find smbios table
+ *
+ * Return:	pointer to the smbios table
+ */
+static void *find_smbios_table(void)
+{
+	u32 i;
+
+	for (i = 0; i < systab.nr_tables; i++) {
+		if (!guidcmp(&smbios_guid, &systab.tables[i].guid))
+			return systab.tables[i].table;
+	}
+
+	return NULL;
+}
+
+/**
  * efi_tcg2_measure_efi_app_invocation() - measure efi app invocation
  *
  * Return:	status code
@@ -1463,6 +1539,7 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(void)
 	u32 pcr_index;
 	struct udevice *dev;
 	u32 event = 0;
+	struct smbios_entry *entry;
 
 	if (tcg2_efi_app_invoked)
 		return EFI_SUCCESS;
@@ -1480,6 +1557,13 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(void)
 				 (u8 *)EFI_CALLING_EFI_APPLICATION);
 	if (ret != EFI_SUCCESS)
 		goto out;
+
+	entry = (struct smbios_entry *)find_smbios_table();
+	if (entry) {
+		ret = tcg2_measure_smbios(dev, entry);
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
 
 	for (pcr_index = 0; pcr_index <= 7; pcr_index++) {
 		ret = tcg2_measure_event(dev, pcr_index, EV_SEPARATOR,
