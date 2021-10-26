@@ -261,6 +261,8 @@ config ROCKCHIP_RK3399
 config ROCKCHIP_RK3568
 	bool "Support Rockchip RK3568"
 	select ARM64
+	select SUPPORT_SPL
+	select SPL
 	select CLK
 	select PINCTRL
 	select RAM
