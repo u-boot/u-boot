@@ -36,11 +36,7 @@
 		label = "ina260-u14";
 		reg = <0x40>;
 	};
-	usbhub: usb5744@2d { /* u43 */
-		compatible = "microchip,usb5744";
-		reg = <0x2d>;
-		reset-gpios = <&gpio 44 GPIO_ACTIVE_HIGH>;
-	};
+	/* u43 - 0x2d - USB hub */
 	/* u27 - 0xe0 - STDP4320 DP/HDMI splitter */
 };
 
@@ -111,6 +107,13 @@
 	pinctrl-0 = <&pinctrl_usb0_default>;
 	phy-names = "usb3-phy";
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 1>;
+
+	usbhub: usb5744@2d { /* u43 */
+		status = "okay";
+		compatible = "microchip,usb5744";
+		i2c-bus = <&i2c1>;
+		reset-gpios = <&gpio 44 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &dwc3_0 {
