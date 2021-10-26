@@ -101,6 +101,12 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	}
 	printf("SPI Probe successful: %p\n", flash);
 
+	if (!flash->dev) {
+		puts("Error: Flash device subsystem NULL\n");
+		return -ENODEV;
+	}
+	printf("Flash device: %p\n", flash->dev);
+
 	payload_offs = spl_spi_get_uboot_offs(flash);
 
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));

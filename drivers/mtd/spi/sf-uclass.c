@@ -55,7 +55,11 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	if (spi_flash_probe_bus_cs(bus, cs, max_hz, spi_mode, &dev))
 		return NULL;
 
-	return dev_get_uclass_priv(dev);
+	struct spi_flash* flash = dev_get_uclass_priv(dev);
+	if(flash)
+		flash->dev = dev;
+
+	return flash;
 }
 
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
