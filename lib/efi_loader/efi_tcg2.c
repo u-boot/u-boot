@@ -84,16 +84,19 @@ static const struct digest_info hash_algo_list[] = {
 struct variable_info {
 	const u16	*name;
 	bool		accept_empty;
+	u32		pcr_index;
 };
 
 static struct variable_info secure_variables[] = {
-	{u"SecureBoot",		true},
-	{u"PK",			true},
-	{u"KEK",		true},
-	{u"db",			true},
-	{u"dbx",		true},
-	{u"dbt",		false},
-	{u"dbr",		false},
+	{u"SecureBoot",		true,	7},
+	{u"PK",			true,	7},
+	{u"KEK",		true,	7},
+	{u"db",			true,	7},
+	{u"dbx",		true,	7},
+	{u"dbt",		false,	7},
+	{u"dbr",		false,	7},
+	{u"DeployedMode",	false,	1},
+	{u"AuditMode",		false,	1},
 };
 
 #define MAX_HASH_COUNT ARRAY_SIZE(hash_algo_list)
@@ -1822,6 +1825,15 @@ static efi_status_t tcg2_measure_secure_boot_variable(struct udevice *dev)
 	efi_uintn_t data_size;
 	u32 count, i;
 	efi_status_t ret;
+	u8 deployed_mode;
+	efi_uintn_t size;
+	u32 deployed_audit_pcr_index = 1;
+
+	size = sizeof(deployed_mode);
+	ret = efi_get_variable_int(u"DeployedMode", &efi_global_variable_guid,
+				   NULL, &size, &deployed_mode, NULL);
+	if (ret != EFI_SUCCESS || !deployed_mode)
+		deployed_audit_pcr_index = 7;
 
 	count = ARRAY_SIZE(secure_variables);
 	for (i = 0; i < count; i++) {
@@ -1833,7 +1845,12 @@ static efi_status_t tcg2_measure_secure_boot_variable(struct udevice *dev)
 		if (!data && !secure_variables[i].accept_empty)
 			continue;
 
-		ret = tcg2_measure_variable(dev, 7,
+		if (u16_strcmp(u"DeployedMode", secure_variables[i].name))
+			secure_variables[i].pcr_index = deployed_audit_pcr_index;
+		if (u16_strcmp(u"AuditMode", secure_variables[i].name))
+			secure_variables[i].pcr_index = deployed_audit_pcr_index;
+
+		ret = tcg2_measure_variable(dev, secure_variables[i].pcr_index,
 					    EV_EFI_VARIABLE_DRIVER_CONFIG,
 					    secure_variables[i].name, guid,
 					    data_size, data);
