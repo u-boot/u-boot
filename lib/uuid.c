@@ -257,7 +257,7 @@ void gen_rand_uuid(unsigned char *uuid_bin)
 
 	if (IS_ENABLED(CONFIG_DM_RNG)) {
 		ret = uclass_get_device(UCLASS_RNG, 0, &devp);
-		if (ret) {
+		if (!ret) {
 			ret = dm_rng_read(devp, &randv, sizeof(randv));
 			if (ret < 0)
 				randv = 0;

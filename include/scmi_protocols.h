@@ -97,14 +97,14 @@ struct scmi_clk_rate_get_out {
 
 /**
  * struct scmi_clk_state_in - Message payload for CLOCK_RATE_SET command
- * @clock_id:	SCMI clock ID
  * @flags:	Flags for the clock rate set request
+ * @clock_id:	SCMI clock ID
  * @rate_lsb:	32bit LSB of the clock rate in Hertz
  * @rate_msb:	32bit MSB of the clock rate in Hertz
  */
 struct scmi_clk_rate_set_in {
-	u32 clock_id;
 	u32 flags;
+	u32 clock_id;
 	u32 rate_lsb;
 	u32 rate_msb;
 };

@@ -210,8 +210,7 @@ static int env_flash_save(void)
 perror:
 	flash_perror(rc);
 done:
-	if (saved_data)
-		free(saved_data);
+	free(saved_data);
 	/* try to re-protect */
 	flash_sect_protect(1, (ulong)flash_addr, end_addr);
 	flash_sect_protect(1, (ulong)flash_addr_new, end_addr_new);
@@ -298,8 +297,7 @@ static int env_flash_save(void)
 perror:
 	flash_perror(rc);
 done:
-	if (saved_data)
-		free(saved_data);
+	free(saved_data);
 	/* try to re-protect */
 	flash_sect_protect(1, (long)flash_addr, end_addr);
 	return rc;
