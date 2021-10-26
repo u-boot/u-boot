@@ -81,12 +81,19 @@ static const struct digest_info hash_algo_list[] = {
 	},
 };
 
-static const u16 *secure_variables[] = {
-	u"SecureBoot",
-	u"PK",
-	u"KEK",
-	u"db",
-	u"dbx",
+struct variable_info {
+	const u16	*name;
+	bool		accept_empty;
+};
+
+static struct variable_info secure_variables[] = {
+	{u"SecureBoot",		true},
+	{u"PK",			true},
+	{u"KEK",		true},
+	{u"db",			true},
+	{u"dbx",		true},
+	{u"dbt",		false},
+	{u"dbr",		false},
 };
 
 #define MAX_HASH_COUNT ARRAY_SIZE(hash_algo_list)
@@ -1820,50 +1827,19 @@ static efi_status_t tcg2_measure_secure_boot_variable(struct udevice *dev)
 	for (i = 0; i < count; i++) {
 		const efi_guid_t *guid;
 
-		guid = efi_auth_var_get_guid(secure_variables[i]);
+		guid = efi_auth_var_get_guid(secure_variables[i].name);
 
-		/*
-		 * According to the TCG2 PC Client PFP spec, "SecureBoot",
-		 * "PK", "KEK", "db" and "dbx" variables must be measured
-		 * even if they are empty.
-		 */
-		data = efi_get_var(secure_variables[i], guid, &data_size);
+		data = efi_get_var(secure_variables[i].name, guid, &data_size);
+		if (!data && !secure_variables[i].accept_empty)
+			continue;
 
 		ret = tcg2_measure_variable(dev, 7,
 					    EV_EFI_VARIABLE_DRIVER_CONFIG,
-					    secure_variables[i], guid,
+					    secure_variables[i].name, guid,
 					    data_size, data);
 		free(data);
 		if (ret != EFI_SUCCESS)
 			goto error;
-	}
-
-	/*
-	 * TCG2 PC Client PFP spec says "dbt" and "dbr" are
-	 * measured if present and not empty.
-	 */
-	data = efi_get_var(L"dbt",
-			   &efi_guid_image_security_database,
-			   &data_size);
-	if (data) {
-		ret = tcg2_measure_variable(dev, 7,
-					    EV_EFI_VARIABLE_DRIVER_CONFIG,
-					    L"dbt",
-					    &efi_guid_image_security_database,
-					    data_size, data);
-		free(data);
-	}
-
-	data = efi_get_var(L"dbr",
-			   &efi_guid_image_security_database,
-			   &data_size);
-	if (data) {
-		ret = tcg2_measure_variable(dev, 7,
-					    EV_EFI_VARIABLE_DRIVER_CONFIG,
-					    L"dbr",
-					    &efi_guid_image_security_database,
-					    data_size, data);
-		free(data);
 	}
 
 error:
