@@ -45,6 +45,9 @@ enum if_type {
 #define BLK_PRD_SIZE		20
 #define BLK_REV_SIZE		8
 
+#define PART_FORMAT_PCAT	0x1
+#define PART_FORMAT_GPT		0x2
+
 /*
  * Identifies the partition table type (ie. MBR vs GPT GUID) signature
  */

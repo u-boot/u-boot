@@ -225,6 +225,18 @@ struct smbios_handoff_table_pointers2 {
 	struct efi_configuration_table table_entry[];
 } __packed;
 
+/**
+ * struct tdUEFI_GPT_DATA - event log structure of industry standard tables
+ * @uefi_partition_header:	gpt partition header
+ * @number_of_partitions:	the number of partition
+ * @partitions:			partition entries
+ */
+struct efi_gpt_data {
+	gpt_header uefi_partition_header;
+	u64 number_of_partitions;
+	gpt_entry partitions[];
+} __packed;
+
 struct efi_tcg2_protocol {
 	efi_status_t (EFIAPI * get_capability)(struct efi_tcg2_protocol *this,
 					       struct efi_tcg2_boot_service_capability *capability);

@@ -1239,3 +1239,30 @@ efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
 
 	return NULL;
 }
+
+/**
+ * search_gpt_dp_node() - search gpt device path node
+ *
+ * @device_path:	device path
+ *
+ * Return:	pointer to the gpt device path node
+ */
+struct efi_device_path *search_gpt_dp_node(struct efi_device_path *device_path)
+{
+	struct efi_device_path *dp = device_path;
+
+	while (dp) {
+		if (dp->type == DEVICE_PATH_TYPE_MEDIA_DEVICE &&
+		    dp->sub_type == DEVICE_PATH_SUB_TYPE_HARD_DRIVE_PATH) {
+			struct efi_device_path_hard_drive_path *hd_dp =
+				(struct efi_device_path_hard_drive_path *)dp;
+
+			if (hd_dp->partmap_type == PART_FORMAT_GPT &&
+			    hd_dp->signature_type == SIG_TYPE_GUID)
+				return dp;
+		}
+		dp = efi_dp_next(dp);
+	}
+
+	return NULL;
+}

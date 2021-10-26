@@ -503,7 +503,7 @@ efi_status_t efi_init_variables(void);
 void efi_variables_boot_exit_notify(void);
 efi_status_t efi_tcg2_notify_exit_boot_services_failed(void);
 /* Measure efi application invocation */
-efi_status_t efi_tcg2_measure_efi_app_invocation(void);
+efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *handle);
 /* Measure efi application exit */
 efi_status_t efi_tcg2_measure_efi_app_exit(void);
 /* Called by bootefi to initialize root node */
@@ -847,6 +847,7 @@ struct efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
 				       const efi_guid_t *guid);
 struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 				      const struct efi_device_path *dp2);
+struct efi_device_path *search_gpt_dp_node(struct efi_device_path *device_path);
 efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
 					 efi_uintn_t *size);
 unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);

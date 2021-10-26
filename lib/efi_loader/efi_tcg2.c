@@ -1529,11 +1529,151 @@ static void *find_smbios_table(void)
 }
 
 /**
+ * tcg2_measure_gpt_table() - measure gpt table
+ *
+ * @dev:		TPM device
+ * @loaded_image:	handle to the loaded image
+ *
+ * Return:	status code
+ */
+static efi_status_t
+tcg2_measure_gpt_data(struct udevice *dev,
+		      struct efi_loaded_image_obj *loaded_image)
+{
+	efi_status_t ret;
+	efi_handle_t handle;
+	struct efi_handler *dp_handler;
+	struct efi_device_path *orig_device_path;
+	struct efi_device_path *device_path;
+	struct efi_device_path *dp;
+	struct efi_block_io *block_io;
+	struct efi_gpt_data *event = NULL;
+	efi_guid_t null_guid = NULL_GUID;
+	gpt_header *gpt_h;
+	gpt_entry *entry = NULL;
+	gpt_entry *gpt_e;
+	u32 num_of_valid_entry = 0;
+	u32 event_size;
+	u32 i;
+	u32 total_gpt_entry_size;
+
+	ret = efi_search_protocol(&loaded_image->header,
+				  &efi_guid_loaded_image_device_path,
+				  &dp_handler);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	orig_device_path = dp_handler->protocol_interface;
+	if (!orig_device_path) /* no device path, skip GPT measurement */
+		return EFI_SUCCESS;
+
+	device_path = efi_dp_dup(orig_device_path);
+	if (!device_path)
+		return EFI_OUT_OF_RESOURCES;
+
+	dp = search_gpt_dp_node(device_path);
+	if (!dp) {
+		/* no GPT device path node found, skip GPT measurement */
+		ret = EFI_SUCCESS;
+		goto out1;
+	}
+
+	/* read GPT header */
+	dp->type = DEVICE_PATH_TYPE_END;
+	dp->sub_type = DEVICE_PATH_SUB_TYPE_END;
+	dp = device_path;
+	ret = EFI_CALL(systab.boottime->locate_device_path(&efi_block_io_guid,
+							   &dp, &handle));
+	if (ret != EFI_SUCCESS)
+		goto out1;
+
+	ret = EFI_CALL(efi_handle_protocol(handle,
+					   &efi_block_io_guid, (void **)&block_io));
+	if (ret != EFI_SUCCESS)
+		goto out1;
+
+	gpt_h = memalign(block_io->media->io_align, block_io->media->block_size);
+	if (!gpt_h) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out2;
+	}
+
+	ret = block_io->read_blocks(block_io, block_io->media->media_id, 1,
+				    block_io->media->block_size, gpt_h);
+	if (ret != EFI_SUCCESS)
+		goto out2;
+
+	/* read GPT entry */
+	total_gpt_entry_size = gpt_h->num_partition_entries *
+			       gpt_h->sizeof_partition_entry;
+	entry = memalign(block_io->media->io_align, total_gpt_entry_size);
+	if (!entry) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out2;
+	}
+
+	ret = block_io->read_blocks(block_io, block_io->media->media_id,
+				    gpt_h->partition_entry_lba,
+				    total_gpt_entry_size, entry);
+	if (ret != EFI_SUCCESS)
+		goto out2;
+
+	/* count valid GPT entry */
+	gpt_e = entry;
+	for (i = 0; i < gpt_h->num_partition_entries; i++) {
+		if (guidcmp(&null_guid, &gpt_e->partition_type_guid))
+			num_of_valid_entry++;
+
+		gpt_e = (gpt_entry *)((u8 *)gpt_e + gpt_h->sizeof_partition_entry);
+	}
+
+	/* prepare event data for measurement */
+	event_size = sizeof(struct efi_gpt_data) +
+		(num_of_valid_entry * gpt_h->sizeof_partition_entry);
+	event = calloc(1, event_size);
+	if (!event) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out2;
+	}
+	memcpy(event, gpt_h, sizeof(gpt_header));
+	put_unaligned_le64(num_of_valid_entry, &event->number_of_partitions);
+
+	/* copy valid GPT entry */
+	gpt_e = entry;
+	num_of_valid_entry = 0;
+	for (i = 0; i < gpt_h->num_partition_entries; i++) {
+		if (guidcmp(&null_guid, &gpt_e->partition_type_guid)) {
+			memcpy((u8 *)event->partitions +
+			       (num_of_valid_entry * gpt_h->sizeof_partition_entry),
+			       gpt_e, gpt_h->sizeof_partition_entry);
+			num_of_valid_entry++;
+		}
+
+		gpt_e = (gpt_entry *)((u8 *)gpt_e + gpt_h->sizeof_partition_entry);
+	}
+
+	ret = tcg2_measure_event(dev, 5, EV_EFI_GPT_EVENT, event_size, (u8 *)event);
+	if (ret != EFI_SUCCESS)
+		goto out2;
+
+out2:
+	EFI_CALL(efi_close_protocol((efi_handle_t)block_io, &efi_block_io_guid,
+				    NULL, NULL));
+	free(gpt_h);
+	free(entry);
+	free(event);
+out1:
+	efi_free_pool(device_path);
+
+	return ret;
+}
+
+/**
  * efi_tcg2_measure_efi_app_invocation() - measure efi app invocation
  *
  * Return:	status code
  */
-efi_status_t efi_tcg2_measure_efi_app_invocation(void)
+efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *handle)
 {
 	efi_status_t ret;
 	u32 pcr_index;
@@ -1564,6 +1704,10 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(void)
 		if (ret != EFI_SUCCESS)
 			goto out;
 	}
+
+	ret = tcg2_measure_gpt_data(dev, handle);
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	for (pcr_index = 0; pcr_index <= 7; pcr_index++) {
 		ret = tcg2_measure_event(dev, pcr_index, EV_SEPARATOR,
