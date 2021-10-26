@@ -119,7 +119,7 @@
 };
 
 &zynqmp_dpsub {
-	status = "disabled";
+	status = "okay";
 	phy-names = "dp-phy0", "dp-phy1";
 	phys = <&psgtr 1 PHY_TYPE_DP 0 1>;
 };

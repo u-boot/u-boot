@@ -320,3 +320,7 @@
 &ams_pl {
 	status = "okay";
 };
+
+&zynqmp_dpsub {
+	status = "okay";
+};
