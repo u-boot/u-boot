@@ -54,13 +54,15 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 	return 0;
 }
 
-void *board_fdt_blob_setup(void)
+void *board_fdt_blob_setup(int *err)
 {
+	*err = 0;
 #if CONFIG_IS_ENABLED(OF_BOARD)
 	return (void *)(ulong)gd->arch.firmware_fdt_addr;
 #elif CONFIG_IS_ENABLED(OF_SEPARATE)
 	return (void *)CONFIG_SYS_FDT_BASE;
 #else
+	*err = -EINVAL;
 	return NULL;
 #endif
 }

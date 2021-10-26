@@ -1213,9 +1213,11 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
  * For CONFIG_OF_SEPARATE, the board may optionally implement this to
  * provide and/or fixup the fdt.
  */
-__weak void *board_fdt_blob_setup(void)
+__weak void *board_fdt_blob_setup(int *err)
 {
 	void *fdt_blob = NULL;
+
+	*err = 0;
 #ifdef CONFIG_SPL_BUILD
 	/* FDT is at end of BSS unless it is in a different memory region */
 	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
@@ -1226,6 +1228,7 @@ __weak void *board_fdt_blob_setup(void)
 	/* FDT is at end of image */
 	fdt_blob = (ulong *)&_end;
 #endif
+
 	return fdt_blob;
 }
 #endif
@@ -1607,12 +1610,9 @@ int fdtdec_setup(void)
 #  endif
 # elif defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 	/* Allow the board to override the fdt address. */
-	gd->fdt_blob = board_fdt_blob_setup();
-# elif defined(CONFIG_OF_HOSTFILE)
-	if (sandbox_read_fdt_from_file()) {
-		puts("Failed to read control FDT\n");
-		return -1;
-	}
+	gd->fdt_blob = board_fdt_blob_setup(&ret);
+	if (ret)
+		return ret;
 # endif
 # ifndef CONFIG_SPL_BUILD
 	/* Allow the early environment to override the fdt address */

@@ -291,44 +291,51 @@ void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
 }
 
-int sandbox_read_fdt_from_file(void)
+void *board_fdt_blob_setup(int *ret)
 {
 	struct sandbox_state *state = state_get_current();
 	const char *fname = state->fdt_fname;
-	void *blob;
+	void *blob = NULL;
 	loff_t size;
 	int err;
 	int fd;
 
 	blob = map_sysmem(CONFIG_SYS_FDT_LOAD_ADDR, 0);
+	*ret = 0;
 	if (!state->fdt_fname) {
 		err = fdt_create_empty_tree(blob, 256);
 		if (!err)
 			goto done;
 		printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
-		return -EINVAL;
+		*ret = -EINVAL;
+		goto fail;
 	}
 
 	err = os_get_filesize(fname, &size);
 	if (err < 0) {
-		printf("Failed to file FDT file '%s'\n", fname);
-		return err;
+		printf("Failed to find FDT file '%s'\n", fname);
+		*ret = err;
+		goto fail;
 	}
 	fd = os_open(fname, OS_O_RDONLY);
 	if (fd < 0) {
 		printf("Failed to open FDT file '%s'\n", fname);
-		return -EACCES;
+		*ret = -EACCES;
+		goto fail;
 	}
+
 	if (os_read(fd, blob, size) != size) {
 		os_close(fd);
-		return -EIO;
+		printf("Failed to read FDT file '%s'\n", fname);
+		*ret =  -EIO;
+		goto fail;
 	}
 	os_close(fd);
 
 done:
-	gd->fdt_blob = blob;
-
-	return 0;
+	return blob;
+fail:
+	return NULL;
 }
 
 ulong timer_get_boot_us(void)

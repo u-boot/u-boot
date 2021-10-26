@@ -33,10 +33,11 @@ void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
  * Use the saved FDT address provided by TF-A at boot time (NT_FW_CONFIG =
  * Non Trusted Firmware configuration file) when the pointer is valid
  */
-void *board_fdt_blob_setup(void)
+void *board_fdt_blob_setup(int *err)
 {
 	log_debug("%s: nt_fw_dtb=%lx\n", __func__, nt_fw_dtb);
 
+	*err = 0;
 	/* use external device tree only if address is valid */
 	if (nt_fw_dtb >= STM32_DDR_BASE) {
 		if (fdt_magic(nt_fw_dtb) == FDT_MAGIC)

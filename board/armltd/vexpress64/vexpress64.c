@@ -131,12 +131,15 @@ static phys_addr_t find_dtb_in_nor_flash(const char *partname)
 	return ~0;
 }
 
-void *board_fdt_blob_setup(void)
+void *board_fdt_blob_setup(int *err)
 {
 	phys_addr_t fdt_rom_addr = find_dtb_in_nor_flash(CONFIG_JUNO_DTB_PART);
 
-	if (fdt_rom_addr == ~0UL)
+	*err = 0;
+	if (fdt_rom_addr == ~0UL) {
+		*err = -ENXIO;
 		return NULL;
+	}
 
 	return (void *)fdt_rom_addr;
 }

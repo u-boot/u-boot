@@ -97,6 +97,7 @@ config OF_LIVE
 choice
 	prompt "Provider of DTB for DT control"
 	depends on OF_CONTROL
+	default OF_BOARD if SANDBOX
 
 config OF_SEPARATE
 	bool "Separate DTB for DT control"
@@ -115,19 +116,10 @@ config OF_EMBED
 
 config OF_BOARD
 	bool "Provided by the board (e.g a previous loader) at runtime"
-	depends on !SANDBOX
 	help
 	  If this option is enabled, the device tree will be provided by
 	  the board at runtime if the board supports it, instead of being
 	  bundled with the image.
-
-config OF_HOSTFILE
-	bool "Host filed DTB for DT control"
-	depends on SANDBOX
-	help
-	  If this option is enabled, DTB will be read from a file on startup.
-	  This is only useful for Sandbox.  Use the -d flag to U-Boot to
-	  specify the file to read.
 
 endchoice
 

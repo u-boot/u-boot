@@ -72,8 +72,9 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
-void *board_fdt_blob_setup(void)
+void *board_fdt_blob_setup(int *err)
 {
+	*err = 0;
 	/* Stored the DTB address there during our init */
 	return (void *)(ulong)gd->arch.firmware_fdt_addr;
 }

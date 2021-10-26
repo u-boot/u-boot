@@ -300,7 +300,7 @@ endif
 #   - we have either OF_SEPARATE or OF_HOSTFILE
 build_dtb :=
 ifneq ($(CONFIG_$(SPL_TPL_)OF_REAL),)
-ifeq ($(CONFIG_OF_SEPARATE)$(CONFIG_OF_HOSTFILE),y)
+ifeq ($(CONFIG_OF_SEPARATE)$(CONFIG_SANDBOX),y)
 build_dtb := y
 endif
 endif
