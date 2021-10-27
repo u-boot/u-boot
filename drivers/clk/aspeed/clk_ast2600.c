@@ -1018,8 +1018,29 @@ static ulong ast2600_enable_haceclk(struct ast2600_scu *scu)
 	uint32_t reset_bit;
 	uint32_t clkgate_bit;
 
+	/* share the same reset control bit with ACRY */
 	reset_bit = BIT(ASPEED_RESET_HACE);
 	clkgate_bit = SCU_CLKGATE1_HACE;
+
+	/*
+	 * we don't do reset assertion here as HACE
+	 * shares the same reset control with ACRY
+	 */
+	writel(clkgate_bit, &scu->clkgate_clr1);
+	mdelay(20);
+	writel(reset_bit, &scu->modrst_clr1);
+
+	return 0;
+}
+
+static ulong ast2600_enable_rsaclk(struct ast2600_scu *scu)
+{
+	uint32_t reset_bit;
+	uint32_t clkgate_bit;
+
+	/* same reset control bit with HACE */
+	reset_bit = BIT(ASPEED_RESET_HACE);
+	clkgate_bit = SCU_CLKGATE1_ACRY;
 
 	/*
 	 * we don't do reset assertion here as HACE
@@ -1072,6 +1093,9 @@ static int ast2600_clk_enable(struct clk *clk)
 		break;
 	case ASPEED_CLK_GATE_YCLK:
 		ast2600_enable_haceclk(priv->scu);
+		break;
+	case ASPEED_CLK_GATE_RSACLK:
+		ast2600_enable_rsaclk(priv->scu);
 		break;
 	default:
 		pr_err("can't enable clk\n");
