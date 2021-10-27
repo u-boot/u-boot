@@ -119,7 +119,7 @@ static unsigned char kwboot_baud_code[] = {
 				/* ;   writel(UART_BASE + DLL, new_dll);      */
 				/* ;   writel(UART_BASE + DLH, new_dlh);      */
 				/* ;   writel(UART_BASE + LCR, lcr & ~DLAB);  */
-				/* ;   msleep(1);                             */
+				/* ;   msleep(5);                             */
 				/* ;   return 0;                              */
 				/* ; }                                        */
 
@@ -130,7 +130,7 @@ static unsigned char kwboot_baud_code[] = {
 	0x01, 0x00, 0x4d, 0xe3, /* movt  r0, #0xd001                          */
 
 				/*  ; r2 = address of preamble string         */
-	0xd0, 0x20, 0x8f, 0xe2, /* adr   r2, preamble                         */
+	0xcc, 0x20, 0x8f, 0xe2, /* adr   r2, preamble                         */
 
 				/*  ; Send preamble string over UART          */
 				/* .Lloop_preamble:                           */
@@ -177,15 +177,15 @@ static unsigned char kwboot_baud_code[] = {
 
 				/*  ; Read old baudrate value                 */
 				/*  ; r2 = old_baudrate                       */
-	0x8c, 0x20, 0x9f, 0xe5, /* ldr   r2, old_baudrate                     */
+	0x88, 0x20, 0x9f, 0xe5, /* ldr   r2, old_baudrate                     */
 
 				/*  ; Calculate base clock                    */
 				/*  ; r1 = r2 * r1                            */
 	0x92, 0x01, 0x01, 0xe0, /* mul   r1, r2, r1                           */
 
 				/*  ; Read new baudrate value                 */
-				/*  ; r2 = baudrate                           */
-	0x88, 0x20, 0x9f, 0xe5, /* ldr   r2, baudrate                         */
+				/*  ; r2 = new_baudrate                       */
+	0x84, 0x20, 0x9f, 0xe5, /* ldr   r2, new_baudrate                     */
 
 				/*  ; Calculate new Divisor Latch             */
 				/*  ; r1 = DIV_ROUND(r1, r2) =                */
@@ -225,10 +225,10 @@ static unsigned char kwboot_baud_code[] = {
 	0x80, 0x10, 0xc1, 0xe3, /* bic   r1, r1, #0x80                        */
 	0x0c, 0x10, 0x80, 0xe5, /* str   r1, [r0, #0x0c]                      */
 
-				/*  ; Sleep 1ms ~~ 600000 cycles at 1200 MHz  */
-				/*  ; r1 = 600000                             */
-	0x9f, 0x1d, 0xa0, 0xe3, /* mov   r1, #0x27c0                          */
-	0x09, 0x10, 0x40, 0xe3, /* movt  r1, #0x0009                          */
+				/*  ; Loop 0x2dc000 (2998272) cycles          */
+				/*  ; which is about 5ms on 1200 MHz CPU      */
+				/*  ; r1 = 0x2dc000                           */
+	0xb7, 0x19, 0xa0, 0xe3, /* mov   r1, #0x2dc000                        */
 				/* .Lloop_sleep:                              */
 	0x01, 0x10, 0x41, 0xe2, /* sub   r1, r1, #1                           */
 	0x00, 0x00, 0x51, 0xe3, /* cmp   r1, #0                               */
