@@ -117,13 +117,7 @@ static int mrfld_pinconfig_protected(unsigned int pin, u32 mask, u32 bits)
 	debug("scu: v: 0x%x p: 0x%x bits: %d, mask: %d bufcfg: 0x%p\n",
 	      v, (u32)bufcfg, bits, mask, bufcfg);
 
-	ret = scu_ipc_raw_command(IPCMSG_INDIRECT_WRITE, 0, &v, 4,
-				  NULL, 0, (u32)bufcfg, 0);
-	if (ret)
-		pr_err("Failed to set mode via SCU for pin %u (%d)\n",
-		       pin, ret);
-
-	return ret;
+	return scu_ipc_raw_command(IPCMSG_INDIRECT_WRITE, 0, &v, 4, NULL, 0, (u32)bufcfg, 0);
 }
 
 static int mrfld_pinconfig(unsigned int pin, u32 mask, u32 bits)
@@ -181,6 +175,8 @@ static int mrfld_pinctrl_cfg_pin(ofnode pin_node)
 		ret = mrfld_pinconfig_protected(pad_offset, mask, mode);
 	else
 		ret = mrfld_pinconfig(pad_offset, mask, mode);
+	if (ret)
+		pr_err("Failed to set mode for pin %u (%d)\n", pad_offset, ret);
 
 	return ret;
 }
