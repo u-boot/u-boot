@@ -404,7 +404,7 @@ out:
 }
 
 static int
-kwboot_tty_send(int fd, const void *buf, size_t len)
+kwboot_tty_send(int fd, const void *buf, size_t len, int nodrain)
 {
 	if (!buf)
 		return 0;
@@ -412,13 +412,16 @@ kwboot_tty_send(int fd, const void *buf, size_t len)
 	if (kwboot_write(fd, buf, len) < 0)
 		return -1;
 
+	if (nodrain)
+		return 0;
+
 	return tcdrain(fd);
 }
 
 static int
 kwboot_tty_send_char(int fd, unsigned char c)
 {
-	return kwboot_tty_send(fd, &c, 1);
+	return kwboot_tty_send(fd, &c, 1, 0);
 }
 
 static speed_t
@@ -705,7 +708,7 @@ kwboot_bootmsg(int tty, void *msg)
 			break;
 
 		for (count = 0; count < 128; count++) {
-			rc = kwboot_tty_send(tty, msg, 8);
+			rc = kwboot_tty_send(tty, msg, 8, 0);
 			if (rc) {
 				usleep(msg_req_delay * 1000);
 				continue;
@@ -737,7 +740,7 @@ kwboot_debugmsg(int tty, void *msg)
 		if (rc)
 			break;
 
-		rc = kwboot_tty_send(tty, msg, 8);
+		rc = kwboot_tty_send(tty, msg, 8, 0);
 		if (rc) {
 			usleep(msg_req_delay * 1000);
 			continue;
@@ -929,7 +932,7 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 
 	retries = 0;
 	do {
-		rc = kwboot_tty_send(fd, block, sizeof(*block));
+		rc = kwboot_tty_send(fd, block, sizeof(*block), 1);
 		if (rc)
 			return rc;
 
