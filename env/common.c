@@ -125,7 +125,7 @@ char *env_get(const char *name)
 	}
 
 	/* restricted capabilities before import */
-	if (env_get_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) > 0)
+	if (env_get_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) >= 0)
 		return (char *)(gd->env_buf);
 
 	return NULL;
