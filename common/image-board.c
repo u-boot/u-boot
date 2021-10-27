@@ -898,7 +898,7 @@ int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd)
 	debug("## kernel board info at 0x%08lx\n", (ulong)*kbd);
 
 #if defined(DEBUG)
-	if (IS_ENABLED(CONFIG_CMD_BDI)
+	if (IS_ENABLED(CONFIG_CMD_BDI))
 		do_bdinfo(NULL, 0, 0, NULL);
 #endif
 
