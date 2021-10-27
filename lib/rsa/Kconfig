@@ -1,7 +1,8 @@
 config RSA
 	bool "Use RSA Library"
 	select RSA_FREESCALE_EXP if FSL_CAAM && !ARCH_MX7 && !ARCH_MX7ULP && !ARCH_MX6 && !ARCH_MX5
-	select RSA_SOFTWARE_EXP if !RSA_FREESCALE_EXP
+	select RSA_ASPEED_EXP if ASPEED_ACRY
+	select RSA_SOFTWARE_EXP if !RSA_FREESCALE_EXP && !RSA_ASPEED_EXP
 	help
 	  RSA support. This enables the RSA algorithm used for FIT image
 	  verification in U-Boot.
@@ -61,5 +62,12 @@ config RSA_FREESCALE_EXP
 	help
 	Enables driver for RSA modular exponentiation using Freescale cryptographic
 	accelerator - CAAM.
+
+config RSA_ASPEED_EXP
+	bool "Enable RSA Modular Exponentiation with ASPEED crypto accelerator"
+	depends on DM && ASPEED_ACRY
+	help
+	Enables driver for RSA modular exponentiation using ASPEED cryptographic
+	accelerator - ACRY
 
 endif
