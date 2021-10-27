@@ -162,8 +162,6 @@ static int mrfld_pinctrl_cfg_pin(ofnode pin_node)
 	u32 mask;
 	int ret;
 
-	is_protected = ofnode_read_bool(pin_node, "protected");
-
 	pad_offset = ofnode_read_s32_default(pin_node, "pad-offset", -1);
 	if (pad_offset == -1)
 		return -EINVAL;
@@ -178,6 +176,7 @@ static int mrfld_pinctrl_cfg_pin(ofnode pin_node)
 	if (mode & ~mask)
 		return -ENOTSUPP;
 
+	is_protected = ofnode_read_bool(pin_node, "protected");
 	if (is_protected)
 		ret = mrfld_pinconfig_protected(pad_offset, mask, mode);
 	else
