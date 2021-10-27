@@ -38,13 +38,4 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Miscellaneous configurable options
- */
-
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"verify=yes\0"	\
-	"spi_dma=yes\0" \
-	""
-
 #endif	/* __AST_COMMON_CONFIG_H */
