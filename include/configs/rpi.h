@@ -137,7 +137,8 @@
 #if CONFIG_IS_ENABLED(CMD_MMC)
 	#define BOOT_TARGET_MMC(func) \
 		func(MMC, mmc, 0) \
-		func(MMC, mmc, 1)
+		func(MMC, mmc, 1) \
+		func(MMC, mmc, 2)
 #else
 	#define BOOT_TARGET_MMC(func)
 #endif
