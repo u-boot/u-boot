@@ -859,11 +859,6 @@ kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
 	uint64_t recv_until = _now() + timeout;
 	int rc;
 
-	if (non_xm_print)
-		*non_xm_print = 0;
-	if (baud_changed)
-		*baud_changed = 0;
-
 	while (1) {
 		rc = kwboot_tty_recv(fd, c, 1, timeout);
 		if (rc) {
@@ -929,6 +924,8 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 	char c;
 
 	*done_print = 0;
+	non_xm_print = 0;
+	baud_changed = 0;
 
 	retries = 0;
 	do {
