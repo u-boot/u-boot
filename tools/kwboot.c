@@ -126,8 +126,8 @@ static unsigned char kwboot_baud_code[] = {
 	0xfe, 0x5f, 0x2d, 0xe9, /* push  { r1 - r12, lr }                     */
 
 				/*  ; r0 = UART_BASE                          */
-	0x02, 0x0a, 0xa0, 0xe3, /* mov   r0, #0x2000                          */
-	0x01, 0x00, 0x4d, 0xe3, /* movt  r0, #0xd001                          */
+	0x0d, 0x02, 0xa0, 0xe3, /* mov   r0, #0xd0000000                      */
+	0x12, 0x0a, 0x80, 0xe3, /* orr   r0, r0, #0x12000                     */
 
 				/*  ; r2 = address of preamble string         */
 	0xcc, 0x20, 0x8f, 0xe2, /* adr   r2, preamble                         */
