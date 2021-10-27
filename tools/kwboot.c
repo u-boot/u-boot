@@ -78,14 +78,7 @@ struct kwboot_block {
 #define KWBOOT_BLK_RSP_TIMEO 1000 /* ms */
 #define KWBOOT_HDR_RSP_TIMEO 10000 /* ms */
 
-/* ARM code making baudrate changing function return to original exec address */
-static unsigned char kwboot_pre_baud_code[] = {
-				/* exec_addr:                                 */
-	0x00, 0x00, 0x00, 0x00, /* .word 0                                    */
-	0x0c, 0xe0, 0x1f, 0xe5, /* ldr lr, exec_addr                          */
-};
-
-/* ARM code for binary header injection to change baudrate */
+/* ARM code to change baudrate */
 static unsigned char kwboot_baud_code[] = {
 				/* ; #define UART_BASE 0xd0012000             */
 				/* ; #define THR       0x00                   */
@@ -123,14 +116,12 @@ static unsigned char kwboot_baud_code[] = {
 				/* ;   return 0;                              */
 				/* ; }                                        */
 
-	0xfe, 0x5f, 0x2d, 0xe9, /* push  { r1 - r12, lr }                     */
-
 				/*  ; r0 = UART_BASE                          */
 	0x0d, 0x02, 0xa0, 0xe3, /* mov   r0, #0xd0000000                      */
 	0x12, 0x0a, 0x80, 0xe3, /* orr   r0, r0, #0x12000                     */
 
 				/*  ; r2 = address of preamble string         */
-	0xcc, 0x20, 0x8f, 0xe2, /* adr   r2, preamble                         */
+	0xc8, 0x20, 0x8f, 0xe2, /* adr   r2, preamble                         */
 
 				/*  ; Send preamble string over UART          */
 				/* .Lloop_preamble:                           */
@@ -177,7 +168,7 @@ static unsigned char kwboot_baud_code[] = {
 
 				/*  ; Read old baudrate value                 */
 				/*  ; r2 = old_baudrate                       */
-	0x88, 0x20, 0x9f, 0xe5, /* ldr   r2, old_baudrate                     */
+	0x84, 0x20, 0x9f, 0xe5, /* ldr   r2, old_baudrate                     */
 
 				/*  ; Calculate base clock                    */
 				/*  ; r1 = r2 * r1                            */
@@ -185,7 +176,7 @@ static unsigned char kwboot_baud_code[] = {
 
 				/*  ; Read new baudrate value                 */
 				/*  ; r2 = new_baudrate                       */
-	0x84, 0x20, 0x9f, 0xe5, /* ldr   r2, new_baudrate                     */
+	0x80, 0x20, 0x9f, 0xe5, /* ldr   r2, new_baudrate                     */
 
 				/*  ; Calculate new Divisor Latch             */
 				/*  ; r1 = DIV_ROUND(r1, r2) =                */
@@ -234,9 +225,7 @@ static unsigned char kwboot_baud_code[] = {
 	0x00, 0x00, 0x51, 0xe3, /* cmp   r1, #0                               */
 	0xfc, 0xff, 0xff, 0x1a, /* bne   .Lloop_sleep                         */
 
-				/*  ; Return 0 - no error                     */
-	0x00, 0x00, 0xa0, 0xe3, /* mov   r0, #0                               */
-	0xfe, 0x9f, 0xbd, 0xe8, /* pop   { r1 - r12, pc }                     */
+	0x05, 0x00, 0x00, 0xea, /* b     end                                  */
 
 				/*  ; Preamble string                         */
 				/* preamble:                                  */
@@ -252,10 +241,29 @@ static unsigned char kwboot_baud_code[] = {
 				/*  ; Placeholder for new baudrate value      */
 				/* new_baudrate:                              */
 	0x00, 0x00, 0x00, 0x00, /* .word 0                                    */
+
+				/* end:                                       */
 };
 
-#define KWBOOT_BAUDRATE_BIN_HEADER_SZ (sizeof(kwboot_baud_code) + \
-				       sizeof(struct opt_hdr_v1) + 8 + 16)
+/* ARM code for storing registers for future returning back to the bootrom */
+static unsigned char kwboot_baud_code_binhdr_pre[] = {
+	0xfe, 0x5f, 0x2d, 0xe9, /* push  { r1 - r12, lr }                     */
+};
+
+/* ARM code for returning back to the bootrom */
+static unsigned char kwboot_baud_code_binhdr_post[] = {
+				/*  ; Return 0 - no error                     */
+	0x00, 0x00, 0xa0, 0xe3, /* mov   r0, #0                               */
+	0xfe, 0x9f, 0xbd, 0xe8, /* pop   { r1 - r12, pc }                     */
+};
+
+/* ARM code for jumping to the original image exec_addr */
+static unsigned char kwboot_baud_code_data_jump[] = {
+	0x04, 0xf0, 0x1f, 0xe5, /* ldr   pc, exec_addr                        */
+				/*  ; Placeholder for exec_addr               */
+				/* exec_addr:                                 */
+	0x00, 0x00, 0x00, 0x00, /* .word 0                                    */
+};
 
 static const char kwb_baud_magic[16] = "$baudratechange";
 
@@ -1409,44 +1417,51 @@ kwboot_add_bin_ohdr_v1(void *img, size_t *size, uint32_t binsz)
 }
 
 static void
-_inject_baudrate_change_code(void *img, size_t *size, int pre,
+_inject_baudrate_change_code(void *img, size_t *size, int for_data,
 			     int old_baud, int new_baud)
 {
-	uint32_t codesz = sizeof(kwboot_baud_code);
 	struct main_hdr_v1 *hdr = img;
+	uint32_t orig_datasz;
+	uint32_t codesz;
 	uint8_t *code;
 
-	if (pre) {
-		uint32_t presz = sizeof(kwboot_pre_baud_code);
-		uint32_t orig_datasz;
-
+	if (for_data) {
 		orig_datasz = le32_to_cpu(hdr->blocksize) - sizeof(uint32_t);
 
-		code = kwboot_img_grow_data_right(img, size, presz + codesz);
-
-		/*
-		 * We need to prepend code that loads lr register with original
-		 * value of hdr->execaddr. We do this by putting the original
-		 * exec address before the code that loads it relatively from
-		 * it's beginning.
-		 * Afterwards we change the exec address to this code (which is
-		 * at offset 4, because the first 4 bytes contain the original
-		 * exec address).
-		 */
-		memcpy(code, kwboot_pre_baud_code, presz);
-		*(uint32_t *)code = hdr->execaddr;
-
-		hdr->execaddr = cpu_to_le32(le32_to_cpu(hdr->destaddr) +
-					    orig_datasz + 4);
-
-		code += presz;
+		codesz = sizeof(kwboot_baud_code) +
+			 sizeof(kwboot_baud_code_data_jump);
+		code = kwboot_img_grow_data_right(img, size, codesz);
 	} else {
+		codesz = sizeof(kwboot_baud_code_binhdr_pre) +
+			 sizeof(kwboot_baud_code) +
+			 sizeof(kwboot_baud_code_binhdr_post);
 		code = kwboot_add_bin_ohdr_v1(img, size, codesz);
+
+		codesz = sizeof(kwboot_baud_code_binhdr_pre);
+		memcpy(code, kwboot_baud_code_binhdr_pre, codesz);
+		code += codesz;
 	}
 
-	memcpy(code, kwboot_baud_code, codesz - 8);
-	*(uint32_t *)(code + codesz - 8) = cpu_to_le32(old_baud);
-	*(uint32_t *)(code + codesz - 4) = cpu_to_le32(new_baud);
+	codesz = sizeof(kwboot_baud_code) - 2 * sizeof(uint32_t);
+	memcpy(code, kwboot_baud_code, codesz);
+	code += codesz;
+	*(uint32_t *)code = cpu_to_le32(old_baud);
+	code += sizeof(uint32_t);
+	*(uint32_t *)code = cpu_to_le32(new_baud);
+	code += sizeof(uint32_t);
+
+	if (for_data) {
+		codesz = sizeof(kwboot_baud_code_data_jump) - sizeof(uint32_t);
+		memcpy(code, kwboot_baud_code_data_jump, codesz);
+		code += codesz;
+		*(uint32_t *)code = hdr->execaddr;
+		code += sizeof(uint32_t);
+		hdr->execaddr = cpu_to_le32(le32_to_cpu(hdr->destaddr) + orig_datasz);
+	} else {
+		codesz = sizeof(kwboot_baud_code_binhdr_post);
+		memcpy(code, kwboot_baud_code_binhdr_post, codesz);
+		code += codesz;
+	}
 }
 
 static int
@@ -1729,10 +1744,13 @@ main(int argc, char **argv)
 		baudrate = 0;
 	else
 		/* ensure we have enough space for baudrate change code */
-		after_img_rsv += KWBOOT_BAUDRATE_BIN_HEADER_SZ +
-				 KWBOOT_XM_BLKSZ +
-				 sizeof(kwboot_pre_baud_code) +
+		after_img_rsv += sizeof(struct opt_hdr_v1) + 8 + 16 +
+				 sizeof(kwboot_baud_code_binhdr_pre) +
 				 sizeof(kwboot_baud_code) +
+				 sizeof(kwboot_baud_code_binhdr_post) +
+				 KWBOOT_XM_BLKSZ +
+				 sizeof(kwboot_baud_code) +
+				 sizeof(kwboot_baud_code_data_jump) +
 				 KWBOOT_XM_BLKSZ;
 
 	if (imgpath) {
