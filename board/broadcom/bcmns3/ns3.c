@@ -196,7 +196,8 @@ int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	u32 chimp_hs = CHIMP_HANDSHAKE_WAIT_TIMEOUT;
 
-	gic_lpi_tables_init();
+	/* FIXME: Need to call gic_lpi_tables_init correctly now */
+	printf("%s: failed to init gic-lpi-tables\n", __func__);
 
 	/*
 	 * Check for chimp handshake status.
