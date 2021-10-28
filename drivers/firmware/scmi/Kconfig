@@ -17,3 +17,19 @@ config SCMI_FIRMWARE
 	  based on message exchange. Messages can be exchange over tranport
 	  channels as a mailbox device or an Arm SMCCC service with some
 	  piece of identified shared memory.
+
+config SCMI_AGENT_MAILBOX
+	bool "Enable SCMI agent mailbox"
+	depends on SCMI_FIRMWARE && DM_MAILBOX
+	default y
+	help
+	  Enable the SCMI communication channel based on mailbox
+	  for compatible "arm,scmi".
+
+config SCMI_AGENT_SMCCC
+	bool "Enable SCMI agent SMCCC"
+	depends on SCMI_FIRMWARE && ARM_SMCCC
+	default y
+	help
+	  Enable the SCMI communication channel based on Arm SMCCC service for
+	  compatible "arm,scmi-smc".
