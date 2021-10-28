@@ -255,7 +255,7 @@ static unsigned char kwboot_baud_code[] = {
 };
 
 #define KWBOOT_BAUDRATE_BIN_HEADER_SZ (sizeof(kwboot_baud_code) + \
-				       sizeof(struct opt_hdr_v1) + 8)
+				       sizeof(struct opt_hdr_v1) + 8 + 16)
 
 static const char kwb_baud_magic[16] = "$baudratechange";
 
@@ -1328,10 +1328,9 @@ kwboot_add_bin_ohdr_v1(void *img, size_t *size, uint32_t binsz)
 {
 	struct main_hdr_v1 *hdr = img;
 	struct opt_hdr_v1 *ohdr;
+	uint32_t num_args;
+	uint32_t offset;
 	uint32_t ohdrsz;
-
-	ohdrsz = binsz + 8 + sizeof(*ohdr);
-	kwboot_img_grow_hdr(img, size, ohdrsz);
 
 	if (hdr->ext & 0x1) {
 		for_each_opt_hdr_v1 (ohdr, img)
@@ -1345,13 +1344,26 @@ kwboot_add_bin_ohdr_v1(void *img, size_t *size, uint32_t binsz)
 		ohdr = (void *)(hdr + 1);
 	}
 
+	/*
+	 * ARM executable code inside the BIN header on some mvebu platforms
+	 * (e.g. A370, AXP) must always be aligned with the 128-bit boundary.
+	 * This requirement can be met by inserting dummy arguments into
+	 * BIN header, if needed.
+	 */
+	offset = &ohdr->data[4] - (char *)img;
+	num_args = ((16 - offset % 16) % 16) / sizeof(uint32_t);
+
+	ohdrsz = sizeof(*ohdr) + 4 + 4 * num_args + binsz + 4;
+	kwboot_img_grow_hdr(hdr, size, ohdrsz);
+
 	ohdr->headertype = OPT_HDR_V1_BINARY_TYPE;
 	ohdr->headersz_msb = ohdrsz >> 16;
 	ohdr->headersz_lsb = cpu_to_le16(ohdrsz & 0xffff);
 
 	memset(&ohdr->data[0], 0, ohdrsz - sizeof(*ohdr));
+	*(uint32_t *)&ohdr->data[0] = cpu_to_le32(num_args);
 
-	return &ohdr->data[4];
+	return &ohdr->data[4 + 4 * num_args];
 }
 
 static void
@@ -1416,13 +1428,6 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	if (csum != hdr->checksum)
 		goto err;
 
-	if (image_ver == 0) {
-		struct main_hdr_v0 *hdr_v0 = img;
-
-		hdr_v0->nandeccmode = IBR_HDR_ECC_DISABLED;
-		hdr_v0->nandpagesize = 0;
-	}
-
 	srcaddr = le32_to_cpu(hdr->srcaddr);
 
 	switch (hdr->blockid) {
@@ -1466,6 +1471,12 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 		kwboot_printv("Patching image boot signature to UART\n");
 		hdr->blockid = IBR_HDR_UART_ID;
+	}
+
+	if (!is_secure) {
+		if (image_ver == 0)
+			((struct main_hdr_v0 *)img)->nandeccmode = IBR_HDR_ECC_DISABLED;
+		hdr->nandpagesize = 0;
 	}
 
 	if (baudrate) {

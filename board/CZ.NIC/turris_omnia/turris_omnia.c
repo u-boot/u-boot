@@ -603,7 +603,7 @@ static bool fixup_mtd_partitions(void *blob, int offset, struct mtd_info *mtd)
 
 	mtd_probe_devices();
 
-	list_for_each_entry(slave, &mtd->partitions, node) {
+	list_for_each_entry_reverse(slave, &mtd->partitions, node) {
 		char name[32];
 		int part;
 
