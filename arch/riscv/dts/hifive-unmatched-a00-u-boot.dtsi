@@ -10,6 +10,7 @@
 / {
 	aliases {
 		spi0 = &spi0;
+		qspi0 = &qspi0;
 	};
 
 	memory@80000000 {
@@ -32,6 +33,12 @@
 
 &clint {
 	clocks = <&rtcclk>;
+};
+
+&qspi0 {
+	flash@0 {
+		u-boot,dm-spl;	/* this should notify spl of this flash*/
+	};
 };
 
 &spi0 {

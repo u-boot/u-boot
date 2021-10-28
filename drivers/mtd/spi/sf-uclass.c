@@ -81,6 +81,7 @@ int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 	snprintf(name, sizeof(name), "spi_flash@%d:%d", busnum, cs);
 	str = strdup(name);
 #endif
+	printf("probing %s\n", str);	//FIXME: Make this debug mode
 	ret = spi_get_bus_and_cs(busnum, cs, max_hz, spi_mode,
 				  "jedec_spi_nor", str, &bus, &slave);
 	if (ret)

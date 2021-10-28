@@ -91,21 +91,26 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	 * taken from DT when available
 	 */
 
-	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
-				CONFIG_SF_DEFAULT_CS,
-				CONFIG_SF_DEFAULT_SPEED,
-				CONFIG_SF_DEFAULT_MODE);
-	if (!flash) {
+	printf("Loading SPI image from dev %s (%d)\n",
+			bootdev->boot_device_name, bootdev->boot_device);
+
+	struct udevice *flash_dev;
+
+	if (spi_flash_probe_bus_cs(CONFIG_SF_DEFAULT_BUS,
+			CONFIG_SF_DEFAULT_CS,
+			CONFIG_SF_DEFAULT_SPEED,
+			CONFIG_SF_DEFAULT_MODE,
+			&flash_dev)) {
 		puts("SPI probe failed.\n");
 		return -ENODEV;
 	}
-	printf("SPI Probe successful: %p\n", flash);
 
-	if (!flash->dev) {
-		puts("Error: Flash device subsystem NULL\n");
+	flash = dev_get_uclass_priv(flash_dev);
+	if (!flash) {
+		puts("Device init failed.\n");
 		return -ENODEV;
 	}
-	printf("Flash device: %p\n", flash->dev);
+	printf("SPI Probe successful: %p\n", flash_dev);
 
 	payload_offs = spl_spi_get_uboot_offs(flash);
 
@@ -130,8 +135,8 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	{
 		/* Load u-boot, mkimage header is 64 bytes. */
 		puts("reading spi flash\n");
-		err = spi_flash_read(flash, payload_offs, sizeof(*header),
-				     (void *)header);
+		err = spi_flash_read_dm(flash_dev, payload_offs,
+				sizeof(*header), (void *)header);
 		if (err) {
 			debug("%s: Failed to read from SPI flash (err=%d)\n",
 			      __func__, err);
@@ -142,7 +147,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 
 		if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL) &&
 		    image_get_magic(header) == FDT_MAGIC) {
-			err = spi_flash_read(flash, payload_offs,
+			err = spi_flash_read_dm(flash_dev, payload_offs,
 					     roundup(fdt_totalsize(header), 4),
 					     (void *)CONFIG_SYS_LOAD_ADDR);
 			if (err) {
@@ -182,7 +187,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 				printf("Could not parse image header (%d)\n", err);
 				return err;
 			}
-			err = spi_flash_read(flash, payload_offs + spl_image->offset,
+			err = spi_flash_read_dm(flash_dev, payload_offs + spl_image->offset,
 					     spl_image->size,
 					     (void *)spl_image->load_addr);
 		}
