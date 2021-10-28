@@ -36,11 +36,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
 
 /*
- * Environment
- */
-#define DEFAULT_ENV_IS_RW		/* required for configuring default fdtfile= */
-
-/*
  * Ethernet Driver configuration
  */
 #define CONFIG_ARP_TIMEOUT	200
@@ -70,15 +65,6 @@
 
 #include <config_distro_bootcmd.h>
 
-/* filler for default values filled by board_early_init_f() */
-#define ENV_RW_FILLER \
-	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" /* for ethaddr= */ \
-	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" /* for eth1addr= */ \
-	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" /* for eth2addr= */ \
-	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" /* for eth3addr= */ \
-	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" /* for fdtfile= */ \
-	""
-
 /* fdt_addr and kernel_addr are needed for existing distribution boot scripts */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"scriptaddr=0x6d00000\0"	\
@@ -88,7 +74,6 @@
 	"kernel_addr=0x7000000\0"	\
 	"kernel_addr_r=0x7000000\0"	\
 	"ramdisk_addr_r=0xa000000\0"	\
-	BOOTENV \
-	ENV_RW_FILLER
+	BOOTENV
 
 #endif /* _CONFIG_MVEBU_ARMADA_37XX_H */

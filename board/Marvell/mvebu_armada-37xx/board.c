@@ -84,43 +84,16 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_BOARD_LATE_INIT
-int board_late_init(void)
+static bool ram_is_ddr4(void)
 {
-	char *ptr = &default_environment[0];
-	struct udevice *dev;
-	struct mmc *mmc_dev;
-	bool ddr4, emmc;
-	const char *mac;
-	char eth[10];
-	int i;
-
-	if (!of_machine_is_compatible("globalscale,espressobin"))
-		return 0;
-
-	/* Find free buffer in default_environment[] for new variables */
-	while (*ptr != '\0' && *(ptr+1) != '\0') ptr++;
-	ptr += 2;
-
-	/*
-	 * Ensure that 'env default -a' does not erase permanent MAC addresses
-	 * stored in env variables: $ethaddr, $eth1addr, $eth2addr and $eth3addr
-	 */
-
-	mac = env_get("ethaddr");
-	if (mac && strlen(mac) <= 17)
-		ptr += sprintf(ptr, "ethaddr=%s", mac) + 1;
-
-	for (i = 1; i <= 3; i++) {
-		sprintf(eth, "eth%daddr", i);
-		mac = env_get(eth);
-		if (mac && strlen(mac) <= 17)
-			ptr += sprintf(ptr, "%s=%s", eth, mac) + 1;
-	}
-
-	/* If the memory controller has been configured for DDR4, we're running on v7 */
-	ddr4 = ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
+	return ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
 		& A3700_MC_CTRL2_SDRAM_TYPE_MASK) == A3700_MC_CTRL2_SDRAM_TYPE_DDR4;
+}
+
+static bool has_emmc(void)
+{
+	struct mmc *mmc_dev;
+	bool emmc;
 
 	/* eMMC is mmc dev num 1 */
 	mmc_dev = find_mmc_device(1);
@@ -128,24 +101,79 @@ int board_late_init(void)
 
 	/* if eMMC is not present then remove it from DM */
 	if (!emmc && mmc_dev) {
+		struct udevice *dev;
 		dev = mmc_dev->dev;
 		device_remove(dev, DM_REMOVE_NORMAL);
 		device_unbind(dev);
 	}
 
-	/* Ensure that 'env default -a' set correct value to $fdtfile */
-	if (ddr4 && emmc)
-		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-v7-emmc.dtb");
-	else if (ddr4)
-		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-v7.dtb");
-	else if (emmc)
-		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-emmc.dtb");
-	else
-		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin.dtb");
-
-	return 0;
+	return emmc;
 }
-#endif
+
+const char *board_special_default_env(unsigned i, const char **name)
+{
+	static unsigned nvars;
+	static bool built;
+	static struct {
+		const char *name;
+		char *value;
+	} vars[5];
+
+	if (!of_machine_is_compatible("globalscale,espressobin"))
+		return NULL;
+
+	/*
+	 * We can access ethNaddr variables only when environment is valid.
+	 * We can access mmc only if relocated (initr_env() is called after
+	 * initr_mmc(), so at this point mmc device is present.
+	 */
+	if (gd->env_valid != ENV_VALID || !(gd->flags & GD_FLG_RELOC))
+		return NULL;
+
+	if (!built) {
+		const char *names[4] = { "ethaddr", "eth1addr", "eth2addr",
+					 "eth3addr" };
+		bool ddr4, emmc;
+
+		for (i = 0; i < 4; ++i) {
+			const char *mac;
+
+			mac = env_get(names[i]);
+			if (mac && strlen(mac) <= 17) {
+				vars[nvars].name = names[i];
+				vars[nvars].value = strdup(mac);
+				++nvars;
+			}
+		}
+
+		/*
+		 * If the memory controller has been configured for DDR4, we're
+		 * running on v7
+		 */
+		ddr4 = ram_is_ddr4();
+
+		emmc = has_emmc();
+
+		vars[nvars].name = "fdtfile";
+		if (ddr4 && emmc)
+			vars[nvars].value = "marvell/armada-3720-espressobin-v7-emmc.dtb";
+		else if (ddr4)
+			vars[nvars].value = "marvell/armada-3720-espressobin-v7.dtb";
+		else if (emmc)
+			vars[nvars].value = "marvell/armada-3720-espressobin-emmc.dtb";
+		else
+			vars[nvars].value = "marvell/armada-3720-espressobin.dtb";
+		++nvars;
+
+		built = true;
+	}
+
+	if (i >= nvars)
+		return NULL;
+
+	*name = vars[i].name;
+	return vars[i].value;
+}
 
 /* Board specific AHCI / SATA enable code */
 int board_ahci_enable(void)
