@@ -2,6 +2,9 @@
 /*
  * Copyright (C) 2020-2021 Linaro Limited
  */
+
+#define LOG_CATEGORY UCLASS_REGULATOR
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
