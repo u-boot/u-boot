@@ -22,8 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 static int env_nowhere_init(void)
 {
-	gd->env_addr	= (ulong)&default_environment[0];
-	gd->env_valid	= ENV_INVALID;
+	gd->env_valid = ENV_INVALID;
 
 	return 0;
 }
@@ -38,7 +37,7 @@ static int env_nowhere_load(void)
 	if (!IS_ENABLED(CONFIG_SPL_BUILD))
 		env_set_default(NULL, 0);
 
-	gd->env_valid	= ENV_INVALID;
+	gd->env_valid = ENV_INVALID;
 
 	return 0;
 }

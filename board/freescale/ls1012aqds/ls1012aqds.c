@@ -150,10 +150,6 @@ int board_init(void)
 	erratum_a010315();
 #endif
 
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
-#endif
-
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
 #endif
