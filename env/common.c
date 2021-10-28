@@ -148,6 +148,41 @@ char *from_env(const char *envvar)
 	return ret;
 }
 
+__weak const char *board_special_default_env(unsigned i, const char **name)
+{
+	return NULL;
+}
+
+static int board_special_default_env_get(const char *var, char *buf,
+					 unsigned len)
+{
+	int i;
+
+	/*
+	 * Iterate all board special default env variables, and if one
+	 * exists with the requested name, return it.
+	 */
+	for (i = 0; ; ++i) {
+		const char *name, *value;
+
+		value = board_special_default_env(i, &name);
+		if (!value)
+			break;
+
+		if (!strcmp(var, name)) {
+			unsigned res = strlen(value);
+
+			memcpy(buf, value, min(len, res + 1));
+			if (len <= res)
+				buf[len - 1] = '\0';
+
+			return res;
+		}
+	}
+
+	return -1;
+}
+
 static int env_get_from_linear(const char *env, const char *name, char *buf,
 			       unsigned len)
 {
@@ -156,6 +191,17 @@ static int env_get_from_linear(const char *env, const char *name, char *buf,
 
 	if (name == NULL || *name == '\0')
 		return -1;
+
+	if (env == default_environment) {
+		int res = board_special_default_env_get(name, buf, len);
+
+		/*
+		 * Board special default envs take precedence over the
+		 * default_environment[] array.
+		 */
+		if (res >= 0)
+			return res;
+	}
 
 	name_len = strlen(name);
 
@@ -248,6 +294,41 @@ char *env_get_default(const char *name)
 	return NULL;
 }
 
+static int import_board_special_default_envs(bool all, int nvars,
+					     char * const vars[], int flags)
+{
+	int i;
+
+	for (i = 0; ; ++i) {
+		const char *name, *value;
+		struct env_entry e, *ep;
+
+		value = board_special_default_env(i, &name);
+		if (!value)
+			break;
+
+		if (!all) {
+			int j;
+
+			/* If name is not in vars, skip */
+
+			for (j = 0; j < nvars; ++j)
+				if (!strcmp(name, vars[j]))
+					break;
+			if (j == nvars)
+				continue;
+		}
+
+		e.key = name;
+		e.data = (char *)value;
+
+		if (!hsearch_r(e, ENV_ENTER, &ep, &env_htab, flags))
+			return -1;
+	}
+
+	return 0;
+}
+
 void env_set_default(const char *s, int flags)
 {
 	if (s) {
@@ -270,6 +351,12 @@ void env_set_default(const char *s, int flags)
 		return;
 	}
 
+	if (import_board_special_default_envs(true, 0, NULL, flags) < 0) {
+		pr_err("## Error: Board special default environment import failed: errno = %d\n",
+		       errno);
+		return;
+	}
+
 	gd->flags |= GD_FLG_ENV_READY;
 	gd->flags |= GD_FLG_ENV_DEFAULT;
 }
@@ -278,14 +365,20 @@ void env_set_default(const char *s, int flags)
 /* [re]set individual variables to their value in the default environment */
 int env_set_default_vars(int nvars, char * const vars[], int flags)
 {
+	int res;
+
 	/*
 	 * Special use-case: import from default environment
 	 * (and use \0 as a separator)
 	 */
 	flags |= H_NOCLEAR | H_DEFAULT;
-	return himport_r(&env_htab, default_environment,
-				sizeof(default_environment), '\0',
-				flags, 0, nvars, vars);
+	res = himport_r(&env_htab, default_environment,
+			sizeof(default_environment), '\0', flags, 0, nvars,
+			vars);
+	if (!res)
+		return res;
+
+	return import_board_special_default_envs(false, nvars, vars, flags);
 }
 
 /*
