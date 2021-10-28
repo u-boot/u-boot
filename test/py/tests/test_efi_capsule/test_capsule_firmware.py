@@ -148,6 +148,8 @@ class TestEfiCapsuleFirmwareFit(object):
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
+        capsule_auth = u_boot_config.buildconfig.get(
+            'config_efi_capsule_authenticate')
         with u_boot_console.log.section('Test Case 2-b, after reboot'):
             if not capsule_early:
                 # make sure that dfu_alt_info exists even persistent variables
@@ -171,12 +173,18 @@ class TestEfiCapsuleFirmwareFit(object):
                 'sf probe 0:0',
                 'sf read 4000000 100000 10',
                 'md.b 4000000 10'])
-            assert 'u-boot:New' in ''.join(output)
+            if capsule_auth:
+                assert 'u-boot:Old' in ''.join(output)
+            else:
+                assert 'u-boot:New' in ''.join(output)
 
             output = u_boot_console.run_command_list([
                 'sf read 4000000 150000 10',
                 'md.b 4000000 10'])
-            assert 'u-boot-env:New' in ''.join(output)
+            if capsule_auth:
+                assert 'u-boot-env:Old' in ''.join(output)
+            else:
+                assert 'u-boot-env:New' in ''.join(output)
 
     def test_efi_capsule_fw3(
             self, u_boot_config, u_boot_console, efi_capsule_data):
@@ -215,6 +223,8 @@ class TestEfiCapsuleFirmwareFit(object):
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
+        capsule_auth = u_boot_config.buildconfig.get(
+            'config_efi_capsule_authenticate')
         with u_boot_console.log.section('Test Case 3-b, after reboot'):
             if not capsule_early:
                 # make sure that dfu_alt_info exists even persistent variables
@@ -246,7 +256,10 @@ class TestEfiCapsuleFirmwareFit(object):
                 'sf probe 0:0',
                 'sf read 4000000 100000 10',
                 'md.b 4000000 10'])
-            assert 'u-boot:New' in ''.join(output)
+            if capsule_auth:
+                assert 'u-boot:Old' in ''.join(output)
+            else:
+                assert 'u-boot:New' in ''.join(output)
 
     def test_efi_capsule_fw4(
             self, u_boot_config, u_boot_console, efi_capsule_data):
@@ -285,6 +298,8 @@ class TestEfiCapsuleFirmwareFit(object):
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
+        capsule_auth = u_boot_config.buildconfig.get(
+            'config_efi_capsule_authenticate')
         with u_boot_console.log.section('Test Case 4-b, after reboot'):
             if not capsule_early:
                 # make sure that dfu_alt_info exists even persistent variables
@@ -313,4 +328,7 @@ class TestEfiCapsuleFirmwareFit(object):
                 'sf probe 0:0',
                 'sf read 4000000 100000 10',
                 'md.b 4000000 10'])
-            assert 'u-boot:New' in ''.join(output)
+            if capsule_auth:
+                assert 'u-boot:Old' in ''.join(output)
+            else:
+                assert 'u-boot:New' in ''.join(output)
