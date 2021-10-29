@@ -341,6 +341,18 @@ void enable_mipi_dsi_clk(unsigned char enable)
 	}
 }
 
+void enable_adc1_clk(bool enable)
+{
+	if (enable) {
+		pcc_clock_enable(1, ADC1_PCC1_SLOT, false);
+		pcc_clock_sel(1, ADC1_PCC1_SLOT, CM33_BUSCLK);
+		pcc_clock_enable(1, ADC1_PCC1_SLOT, true);
+		pcc_reset_peripheral(1, ADC1_PCC1_SLOT, false);
+	} else {
+		pcc_clock_enable(1, ADC1_PCC1_SLOT, false);
+	}
+}
+
 void reset_lcdclk(void)
 {
 	/* Disable clock and reset dcnano*/

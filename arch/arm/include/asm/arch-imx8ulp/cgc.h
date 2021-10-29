@@ -56,6 +56,10 @@ enum cgc_clk {
 	PLL4_PFD2_DIV2,
 	PLL4_PFD3_DIV1,
 	PLL4_PFD3_DIV2,
+	CM33_BUSCLK,
+	PLL1_VCO_DIV,
+	PLL0_PFD2_DIV,
+	PLL0_PFD1_DIV,
 };
 
 struct cgc1_regs {

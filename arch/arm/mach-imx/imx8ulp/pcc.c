@@ -15,6 +15,21 @@
 #define cgc_clk_TYPES 2
 #define cgc_clk_NUM 8
 
+static enum cgc_clk pcc1_clksrc[][8] = {
+	{
+	},
+	{
+		DUMMY0_CLK,
+		LPOSC,
+		SOSC_DIV2,
+		FRO_DIV2,
+		CM33_BUSCLK,
+		PLL1_VCO_DIV,
+		PLL0_PFD2_DIV,
+		PLL0_PFD1_DIV,
+	}
+};
+
 static enum cgc_clk pcc3_clksrc[][8] = {
 	{
 	},
@@ -73,6 +88,11 @@ static enum cgc_clk pcc5_clksrc[][8] = {
 		PLL4_VCODIV,
 		PLL4_PFD3_DIV1
 	}
+};
+
+static struct pcc_entry pcc1_arrays[] = {
+	{PCC1_RBASE, ADC1_PCC1_SLOT, CLKSRC_PER_BUS, PCC_NO_DIV, PCC_HAS_RST_B},
+	{}
 };
 
 static struct pcc_entry pcc3_arrays[] = {
@@ -228,6 +248,10 @@ static int find_pcc_entry(int pcc_controller, int pcc_clk_slot, struct pcc_entry
 	int index = 0;
 
 	switch (pcc_controller) {
+	case 1:
+		pcc_array = pcc1_arrays;
+		*out = &pcc1_arrays[0];
+		break;
 	case 3:
 		pcc_array = pcc3_arrays;
 		*out = &pcc3_arrays[0];
@@ -310,7 +334,9 @@ int pcc_clock_sel(int pcc_controller, int pcc_clk_slot, enum cgc_clk src)
 		return -EPERM;
 	}
 
-	if (pcc_controller == 3)
+	if (pcc_controller == 1)
+		cgc_clk_array = pcc1_clksrc[clksrc_type];
+	else if (pcc_controller == 3)
 		cgc_clk_array = pcc3_clksrc[clksrc_type];
 	else if (pcc_controller == 4)
 		cgc_clk_array = pcc4_clksrc[clksrc_type];

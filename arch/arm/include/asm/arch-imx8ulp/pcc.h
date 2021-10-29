@@ -8,6 +8,10 @@
 
 #include <asm/arch/cgc.h>
 
+enum pcc1_entry {
+	ADC1_PCC1_SLOT = 34,
+};
+
 enum pcc3_entry {
 	DMA1_MP_PCC3_SLOT = 1,
 	DMA1_CH0_PCC3_SLOT = 2,
