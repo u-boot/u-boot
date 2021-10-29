@@ -593,7 +593,33 @@ static int do_mmc_list(struct cmd_tbl *cmdtp, int flag,
 }
 
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
-static int parse_hwpart_user(struct mmc_hwpart_conf *pconf,
+static void parse_hwpart_user_enh_size(struct mmc *mmc,
+				       struct mmc_hwpart_conf *pconf,
+				       char *argv)
+{
+	int ret;
+
+	pconf->user.enh_size = 0;
+
+	if (!strcmp(argv, "-"))	{ /* The rest of eMMC */
+		ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
+		ret = mmc_send_ext_csd(mmc, ext_csd);
+		if (ret)
+			return;
+		/* This value is in 512B block units */
+		pconf->user.enh_size =
+			((ext_csd[EXT_CSD_MAX_ENH_SIZE_MULT + 2] << 16) +
+			(ext_csd[EXT_CSD_MAX_ENH_SIZE_MULT + 1] << 8) +
+			ext_csd[EXT_CSD_MAX_ENH_SIZE_MULT]) * 1024 *
+			ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] *
+			ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+		pconf->user.enh_size -= pconf->user.enh_start;
+	} else {
+		pconf->user.enh_size = dectoul(argv, NULL);
+	}
+}
+
+static int parse_hwpart_user(struct mmc *mmc, struct mmc_hwpart_conf *pconf,
 			     int argc, char *const argv[])
 {
 	int i = 0;
@@ -606,8 +632,7 @@ static int parse_hwpart_user(struct mmc_hwpart_conf *pconf,
 				return -1;
 			pconf->user.enh_start =
 				dectoul(argv[i + 1], NULL);
-			pconf->user.enh_size =
-				dectoul(argv[i + 2], NULL);
+			parse_hwpart_user_enh_size(mmc, pconf, argv[i + 2]);
 			i += 3;
 		} else if (!strcmp(argv[i], "wrrel")) {
 			if (i + 1 >= argc)
@@ -673,13 +698,18 @@ static int do_mmc_hwpartition(struct cmd_tbl *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
+	if (IS_SD(mmc)) {
+		puts("SD doesn't support partitioning\n");
+		return CMD_RET_FAILURE;
+	}
+
 	if (argc < 1)
 		return CMD_RET_USAGE;
 	i = 1;
 	while (i < argc) {
 		if (!strcmp(argv[i], "user")) {
 			i++;
-			r = parse_hwpart_user(&pconf, argc-i, &argv[i]);
+			r = parse_hwpart_user(mmc, &pconf, argc - i, &argv[i]);
 			if (r < 0)
 				return CMD_RET_USAGE;
 			i += r;
