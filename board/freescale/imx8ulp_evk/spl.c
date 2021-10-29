@@ -90,6 +90,9 @@ void spl_board_init(void)
 
 	/* Init XRDC MRC for VIDEO, DSP domains */
 	xrdc_init_mrc();
+
+	/* Call it after PS16 power up */
+	set_lpav_qos();
 }
 
 void board_init_f(ulong dummy)
