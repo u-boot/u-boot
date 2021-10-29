@@ -523,4 +523,13 @@ config NOMADIK_GPIO
 	  into a number of banks each with 32 GPIOs. The GPIOs for a device are
 	  defined in the device tree with one node for each bank.
 
+config ZYNQMP_GPIO_MODEPIN
+	bool "ZynqMP gpio modepin"
+	depends on DM_GPIO
+	help
+	  This config enables the ZynqMP gpio modepin driver. ZynqMP modepin
+	  driver will set and get the status of PS_MODE pins. These modepins
+	  are accessed using xilinx firmware. In modepin register, [3:0] bits
+	  set direction, [7:4] bits read IO, [11:8] bits set/clear IO.
+
 endif

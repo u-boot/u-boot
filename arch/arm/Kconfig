@@ -1214,6 +1214,7 @@ config ARCH_ZYNQMP
 	imply FAT_WRITE
 	imply MP
 	imply DM_USB_GADGET
+	imply ZYNQMP_GPIO_MODEPIN if DM_GPIO && USB
 
 config ARCH_TEGRA
 	bool "NVIDIA Tegra"
