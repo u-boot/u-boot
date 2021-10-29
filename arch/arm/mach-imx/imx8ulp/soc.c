@@ -471,8 +471,8 @@ void lpav_configure(void)
 	/* LPAV to APD */
 	setbits_le32(SIM_SEC_BASE_ADDR + 0x44, BIT(7));
 
-	/* GPU 2D/3D/DCNANO/MIPI_DSI to APD */
-	setbits_le32(SIM_SEC_BASE_ADDR + 0x4c, BIT(1) | BIT(2) | BIT(3) | BIT(4));
+	/* PXP/GPU 2D/3D/DCNANO/MIPI_DSI/EPDC/HIFI4 to APD */
+	setbits_le32(SIM_SEC_BASE_ADDR + 0x4c, 0x7F);
 
 	/* LPAV slave/dma2 ch allocation and request allocation to APD */
 	writel(0x1f, SIM_SEC_BASE_ADDR + 0x50);
