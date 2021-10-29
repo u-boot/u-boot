@@ -485,6 +485,9 @@ void lpav_configure(void)
 	writel(0x1f, SIM_SEC_BASE_ADDR + 0x50);
 	writel(0xffffffff, SIM_SEC_BASE_ADDR + 0x54);
 	writel(0x003fffff, SIM_SEC_BASE_ADDR + 0x58);
+
+	/* Set read QoS of dcnano on LPAV NIC */
+	writel(0xf, 0x2e447100);
 }
 
 int arch_cpu_init(void)
