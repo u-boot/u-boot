@@ -74,8 +74,8 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 		if (!devnum_part_str)
 			break;
 
-		partnum = blk_get_device_part_str(devtype, devnum_part_str,
-					&block_dev, &info, 1);
+		partnum = part_get_info_by_dev_and_name_or_num(devtype, devnum_part_str,
+							       &block_dev, &info, 1);
 
 		if (partnum < 0)
 			goto cleanup;
