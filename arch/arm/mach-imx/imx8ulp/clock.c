@@ -97,6 +97,9 @@ void ddrphy_pll_lock(void)
 
 void init_clk_ddr(void)
 {
+	/* disable the ddr pcc */
+	writel(0xc0000000, PCC5_LPDDR4_ADDR);
+
 	/* enable pll4 and ddrclk*/
 	cgc2_pll4_init();
 	cgc2_ddrclk_config(1, 1);
