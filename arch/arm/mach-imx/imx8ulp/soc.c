@@ -463,6 +463,8 @@ static int trdc_set_access(void)
 	/* Iomuxc0: : PBridge1 slot 33 */
 	trdc_mbc_set_access(2, 7, 1, 33, false);
 
+	/* flexspi0 */
+	trdc_mrc_region_set_access(0, 7, 0x04000000, 0x0c000000, false);
 	return 0;
 }
 
