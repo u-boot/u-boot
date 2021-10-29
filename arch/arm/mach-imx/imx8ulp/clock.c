@@ -317,6 +317,79 @@ int enable_usb_pll(ulong usb_phy_base)
 	return 0;
 }
 
+void enable_mipi_dsi_clk(unsigned char enable)
+{
+	if (enable) {
+		pcc_clock_enable(5, DSI_PCC5_SLOT, false);
+		pcc_clock_sel(5, DSI_PCC5_SLOT, PLL4_PFD3_DIV2);
+		pcc_clock_div_config(5, DSI_PCC5_SLOT, 0, 6);
+		pcc_clock_enable(5, DSI_PCC5_SLOT, true);
+		pcc_reset_peripheral(5, DSI_PCC5_SLOT, false);
+	} else {
+		pcc_clock_enable(5, DSI_PCC5_SLOT, false);
+		pcc_reset_peripheral(5, DSI_PCC5_SLOT, true);
+	}
+}
+
+void mxs_set_lcdclk(u32 base_addr, u32 freq_in_khz)
+{
+	u8 pcd, best_pcd = 0;
+	u32 frac, rate, parent_rate, pfd, div;
+	u32 best_pfd = 0, best_frac = 0, best = 0, best_div = 0;
+	u32 pll4_rate;
+
+	pcc_clock_enable(5, DCNANO_PCC5_SLOT, false);
+
+	pll4_rate = cgc_clk_get_rate(PLL4);
+	pll4_rate = pll4_rate / 1000;  /* Change to khz*/
+
+	debug("PLL4 rate %ukhz\n", pll4_rate);
+
+	for (pfd = 12; pfd <= 35; pfd++) {
+		parent_rate = pll4_rate;
+		parent_rate = parent_rate * 18 / pfd;
+
+		for (div = 1; div <= 64; div++) {
+			parent_rate = parent_rate / div;
+
+			for (pcd = 0; pcd < 8; pcd++) {
+				for (frac = 0; frac < 2; frac++) {
+					if (pcd == 0 && frac == 1)
+						continue;
+
+					rate = parent_rate * (frac + 1) / (pcd + 1);
+					if (rate > freq_in_khz)
+						continue;
+
+					if (best == 0 || rate > best) {
+						best = rate;
+						best_pfd = pfd;
+						best_frac = frac;
+						best_pcd = pcd;
+						best_div = div;
+					}
+				}
+			}
+		}
+	}
+
+	if (best == 0) {
+		printf("Can't find parent clock for LCDIF, target freq: %u\n", freq_in_khz);
+		return;
+	}
+
+	debug("LCD target rate %ukhz, best rate %ukhz, frac %u, pcd %u, best_pfd %u, best_div %u\n",
+	      freq_in_khz, best, best_frac, best_pcd, best_pfd, best_div);
+
+	cgc2_pll4_pfd_config(PLL4_PFD0, best_pfd);
+	cgc2_pll4_pfddiv_config(PLL4_PFD0_DIV1, best_div - 1);
+
+	pcc_clock_sel(5, DCNANO_PCC5_SLOT, PLL4_PFD0_DIV1);
+	pcc_clock_div_config(5, DCNANO_PCC5_SLOT, best_frac, best_pcd + 1);
+	pcc_clock_enable(5, DCNANO_PCC5_SLOT, true);
+	pcc_reset_peripheral(5, DCNANO_PCC5_SLOT, false);
+}
+
 u32 mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
