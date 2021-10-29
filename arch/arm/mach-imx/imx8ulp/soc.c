@@ -465,6 +465,11 @@ static int trdc_set_access(void)
 
 	/* flexspi0 */
 	trdc_mrc_region_set_access(0, 7, 0x04000000, 0x0c000000, false);
+
+	/* tpm0: PBridge1 slot 21 */
+	trdc_mbc_set_access(2, 7, 1, 21, false);
+	/* lpi2c0: PBridge1 slot 24 */
+	trdc_mbc_set_access(2, 7, 1, 24, false);
 	return 0;
 }
 

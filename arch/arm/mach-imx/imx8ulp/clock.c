@@ -186,6 +186,9 @@ int enable_i2c_clk(unsigned char enable, u32 i2c_num)
 		LPI2C7_PCC4_SLOT << 8 | 4,
 	};
 
+	if (i2c_num == 0)
+		return 0;
+
 	if (i2c_num < 4 || i2c_num > 7)
 		return -EINVAL;
 
@@ -213,6 +216,9 @@ u32 imx_get_i2cclk(u32 i2c_num)
 		LPI2C6_PCC4_SLOT << 8 | 4,
 		LPI2C7_PCC4_SLOT << 8 | 4,
 	};
+
+	if (i2c_num == 0)
+		return 24000000;
 
 	if (i2c_num < 4 || i2c_num > 7)
 		return 0;
