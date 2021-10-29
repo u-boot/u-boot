@@ -136,7 +136,7 @@
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 	reset-gpios = <&slg7xl45106 0 GPIO_ACTIVE_LOW>;
 
-	usbhub0: usb5744@2d { /* u43 */
+	usbhub0: usb-hub@2d { /* u43 */
 		i2c-bus = <&usbhub_i2c0>;
 		compatible = "microchip,usb5744";
 		reset-gpios = <&slg7xl45106 3 GPIO_ACTIVE_LOW>;
@@ -164,7 +164,7 @@
 	phys = <&psgtr 3 PHY_TYPE_USB3 1 2>;
 	reset-gpios = <&slg7xl45106 1 GPIO_ACTIVE_LOW>;
 
-	usbhub1: usb5744@2d { /* u84 */
+	usbhub1: usb-hub@2d { /* u84 */
 		i2c-bus = <&usbhub_i2c1>;
 		compatible = "microchip,usb5744";
 		reset-gpios = <&slg7xl45106 4 GPIO_ACTIVE_LOW>;

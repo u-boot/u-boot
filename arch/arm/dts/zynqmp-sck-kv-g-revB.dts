@@ -108,7 +108,7 @@
 	phy-names = "usb3-phy";
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 1>;
 
-	usbhub: usb5744@2d { /* u43 */
+	usb5744: usb-hub@2d { /* u43 */
 		status = "okay";
 		compatible = "microchip,usb5744";
 		i2c-bus = <&i2c1>;
