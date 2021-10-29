@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PLL_USB_LOCK_MASK		(0x01 << 31)
 #define PCC5_LPDDR4_ADDR 0x2da70108
 
-static void lpuart_set_clk(u32 index, enum cgc1_clk clk)
+static void lpuart_set_clk(u32 index, enum cgc_clk clk)
 {
 	const u32 lpuart_pcc_slots[] = {
 		LPUART4_PCC3_SLOT,
@@ -327,7 +327,7 @@ u32 mxc_get_clock(enum mxc_clock clk)
 	case MXC_ESDHC3_CLK:
 		return pcc_clock_get_rate(4, SDHC2_PCC4_SLOT);
 	case MXC_ARM_CLK:
-		return cgc1_clk_get_rate(PLL2);
+		return cgc_clk_get_rate(PLL2);
 	default:
 		return 0;
 	}
@@ -376,16 +376,40 @@ int do_mx8ulp_showclocks(struct cmd_tbl *cmdtp, int flag, int argc, char * const
 	printf("SDHC1 %8d MHz\n", pcc_clock_get_rate(4, SDHC1_PCC4_SLOT) / 1000000);
 	printf("SDHC2 %8d MHz\n", pcc_clock_get_rate(4, SDHC2_PCC4_SLOT) / 1000000);
 
-	printf("SOSC %8d MHz\n", cgc1_clk_get_rate(SOSC) / 1000000);
-	printf("FRO %8d MHz\n", cgc1_clk_get_rate(FRO) / 1000000);
-	printf("PLL2 %8d MHz\n", cgc1_clk_get_rate(PLL2) / 1000000);
-	printf("PLL3 %8d MHz\n", cgc1_clk_get_rate(PLL3) / 1000000);
-	printf("PLL3_VCODIV %8d MHz\n", cgc1_clk_get_rate(PLL3_VCODIV) / 1000000);
-	printf("PLL3_PFD0 %8d MHz\n", cgc1_clk_get_rate(PLL3_PFD0) / 1000000);
-	printf("PLL3_PFD1 %8d MHz\n", cgc1_clk_get_rate(PLL3_PFD1) / 1000000);
-	printf("PLL3_PFD2 %8d MHz\n", cgc1_clk_get_rate(PLL3_PFD2) / 1000000);
-	printf("PLL3_PFD3 %8d MHz\n", cgc1_clk_get_rate(PLL3_PFD3) / 1000000);
+	printf("SOSC %8d MHz\n", cgc_clk_get_rate(SOSC) / 1000000);
+	printf("FRO %8d MHz\n", cgc_clk_get_rate(FRO) / 1000000);
+	printf("PLL2 %8d MHz\n", cgc_clk_get_rate(PLL2) / 1000000);
+	printf("PLL3 %8d MHz\n", cgc_clk_get_rate(PLL3) / 1000000);
+	printf("PLL3_VCODIV %8d MHz\n", cgc_clk_get_rate(PLL3_VCODIV) / 1000000);
+	printf("PLL3_PFD0 %8d MHz\n", cgc_clk_get_rate(PLL3_PFD0) / 1000000);
+	printf("PLL3_PFD1 %8d MHz\n", cgc_clk_get_rate(PLL3_PFD1) / 1000000);
+	printf("PLL3_PFD2 %8d MHz\n", cgc_clk_get_rate(PLL3_PFD2) / 1000000);
+	printf("PLL3_PFD3 %8d MHz\n", cgc_clk_get_rate(PLL3_PFD3) / 1000000);
 
+	printf("PLL4_PFD0 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD0) / 1000000);
+	printf("PLL4_PFD1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD1) / 1000000);
+	printf("PLL4_PFD2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD2) / 1000000);
+	printf("PLL4_PFD3 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD3) / 1000000);
+
+	printf("PLL4_PFD0_DIV1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD0_DIV1) / 1000000);
+	printf("PLL4_PFD0_DIV2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD0_DIV2) / 1000000);
+	printf("PLL4_PFD1_DIV1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD1_DIV1) / 1000000);
+	printf("PLL4_PFD1_DIV2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD1_DIV2) / 1000000);
+
+	printf("PLL4_PFD2_DIV1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD2_DIV1) / 1000000);
+	printf("PLL4_PFD2_DIV2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD2_DIV2) / 1000000);
+	printf("PLL4_PFD3_DIV1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD3_DIV1) / 1000000);
+	printf("PLL4_PFD3_DIV2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD3_DIV2) / 1000000);
+
+	printf("LPAV_AXICLK %8d MHz\n", cgc_clk_get_rate(LPAV_AXICLK) / 1000000);
+	printf("LPAV_AHBCLK %8d MHz\n", cgc_clk_get_rate(LPAV_AHBCLK) / 1000000);
+	printf("LPAV_BUSCLK %8d MHz\n", cgc_clk_get_rate(LPAV_BUSCLK) / 1000000);
+	printf("NIC_APCLK %8d MHz\n", cgc_clk_get_rate(NIC_APCLK) / 1000000);
+
+	printf("NIC_PERCLK %8d MHz\n", cgc_clk_get_rate(NIC_PERCLK) / 1000000);
+	printf("XBAR_APCLK %8d MHz\n", cgc_clk_get_rate(XBAR_APCLK) / 1000000);
+	printf("XBAR_BUSCLK %8d MHz\n", cgc_clk_get_rate(XBAR_BUSCLK) / 1000000);
+	printf("AD_SLOWCLK %8d MHz\n", cgc_clk_get_rate(AD_SLOWCLK) / 1000000);
 	return 0;
 }
 

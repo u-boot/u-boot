@@ -12,10 +12,10 @@
 #include <asm/arch/cgc.h>
 #include <asm/arch/sys_proto.h>
 
-#define cgc1_clk_TYPES 2
-#define cgc1_clk_NUM 8
+#define cgc_clk_TYPES 2
+#define cgc_clk_NUM 8
 
-static enum cgc1_clk pcc3_clksrc[][8] = {
+static enum cgc_clk pcc3_clksrc[][8] = {
 	{
 	},
 	{	DUMMY0_CLK,
@@ -29,7 +29,7 @@ static enum cgc1_clk pcc3_clksrc[][8] = {
 	}
 };
 
-static enum cgc1_clk pcc4_clksrc[][8] = {
+static enum cgc_clk pcc4_clksrc[][8] = {
 	{
 		DUMMY0_CLK,
 		SOSC_DIV1,
@@ -49,6 +49,29 @@ static enum cgc1_clk pcc4_clksrc[][8] = {
 		XBAR_BUSCLK,
 		PLL3_VCODIV,
 		PLL3_PFD0_DIV1
+	}
+};
+
+static enum cgc_clk pcc5_clksrc[][8] = {
+	{
+		DUMMY0_CLK,
+		PLL4_PFD3_DIV2,
+		PLL4_PFD2_DIV2,
+		PLL4_PFD2_DIV1,
+		PLL4_PFD1_DIV2,
+		PLL4_PFD1_DIV1,
+		PLL4_PFD0_DIV2,
+		PLL4_PFD0_DIV1
+	},
+	{
+		DUMMY0_CLK,
+		DUMMY1_CLK,
+		LPOSC,
+		SOSC_DIV2,
+		FRO_DIV2,
+		LPAV_BUSCLK,
+		PLL4_VCODIV,
+		PLL4_PFD3_DIV1
 	}
 };
 
@@ -136,6 +159,69 @@ static struct pcc_entry pcc4_arrays[] = {
 	{}
 };
 
+static struct pcc_entry pcc5_arrays[] = {
+	{PCC5_RBASE, DMA2_MP_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH0_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH1_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH2_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH3_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH4_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH5_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH6_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH7_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH8_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH9_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH10_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH11_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH12_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH13_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH14_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH15_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH16_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH17_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH18_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH19_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH20_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH21_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH22_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH23_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH24_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH25_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH26_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH27_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH28_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH29_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH30_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, DMA2_CH31_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, MU2_B_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, MU3_B_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, SEMA42_2_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, CMC2_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, AVD_SIM_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, LPAV_CGC_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, PCC5_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, TPM8_PCC5_SLOT,		CLKSRC_PER_BUS, PCC_HAS_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, SAI6_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, SAI7_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, SPDIF_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, ISI_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, CSI_REGS_PCC5_SLOT,	CLKSRC_NO_PCS, PCC_NO_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, CSI_PCC5_SLOT,		CLKSRC_PER_PLAT, PCC_HAS_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, DSI_PCC5_SLOT,		CLKSRC_PER_PLAT, PCC_HAS_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, WDOG5_PCC5_SLOT,		CLKSRC_PER_BUS, PCC_HAS_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, EPDC_PCC5_SLOT,		CLKSRC_PER_PLAT, PCC_HAS_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, PXP_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, SFA2_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, GPU2D_PCC5_SLOT,		CLKSRC_PER_PLAT, PCC_HAS_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, GPU3D_PCC5_SLOT,		CLKSRC_PER_PLAT, PCC_HAS_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, DCNANO_PCC5_SLOT,		CLKSRC_PER_PLAT, PCC_HAS_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, LPDDR4_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_HAS_RST_B },
+	{PCC5_RBASE, CSI_CLK_UI_PCC5_SLOT,	CLKSRC_PER_PLAT, PCC_HAS_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, CSI_CLK_ESC_PCC5_SLOT,	CLKSRC_PER_PLAT, PCC_HAS_DIV, PCC_NO_RST_B },
+	{PCC5_RBASE, RGPIOD_PCC5_SLOT,		CLKSRC_NO_PCS, PCC_NO_DIV, PCC_NO_RST_B },
+	{}
+};
+
 static int find_pcc_entry(int pcc_controller, int pcc_clk_slot, struct pcc_entry **out)
 {
 	struct pcc_entry *pcc_array;
@@ -149,6 +235,10 @@ static int find_pcc_entry(int pcc_controller, int pcc_clk_slot, struct pcc_entry
 	case 4:
 		pcc_array = pcc4_arrays;
 		*out = &pcc4_arrays[0];
+		break;
+	case 5:
+		pcc_array = pcc5_arrays;
+		*out = &pcc5_arrays[0];
 		break;
 	default:
 		printf("Not supported pcc_controller: %d\n", pcc_controller);
@@ -199,12 +289,12 @@ int pcc_clock_enable(int pcc_controller, int pcc_clk_slot, bool enable)
 }
 
 /* The clock source select needs clock is disabled */
-int pcc_clock_sel(int pcc_controller, int pcc_clk_slot, enum cgc1_clk src)
+int pcc_clock_sel(int pcc_controller, int pcc_clk_slot, enum cgc_clk src)
 {
 	u32 val, i, clksrc_type;
 	void __iomem *reg;
 	struct pcc_entry *pcc_array;
-	enum cgc1_clk *cgc1_clk_array;
+	enum cgc_clk *cgc_clk_array;
 	int clk;
 
 	clk = find_pcc_entry(pcc_controller, pcc_clk_slot, &pcc_array);
@@ -221,18 +311,20 @@ int pcc_clock_sel(int pcc_controller, int pcc_clk_slot, enum cgc1_clk src)
 	}
 
 	if (pcc_controller == 3)
-		cgc1_clk_array = pcc3_clksrc[clksrc_type];
+		cgc_clk_array = pcc3_clksrc[clksrc_type];
+	else if (pcc_controller == 4)
+		cgc_clk_array = pcc4_clksrc[clksrc_type];
 	else
-		cgc1_clk_array = pcc4_clksrc[clksrc_type];
+		cgc_clk_array = pcc5_clksrc[clksrc_type];
 
-	for (i = 0; i < cgc1_clk_NUM; i++) {
-		if (cgc1_clk_array[i] == src) {
+	for (i = 0; i < cgc_clk_NUM; i++) {
+		if (cgc_clk_array[i] == src) {
 			/* Find the clock src, then set it to PCS */
 			break;
 		}
 	}
 
-	if (i == cgc1_clk_NUM) {
+	if (i == cgc_clk_NUM) {
 		printf("No parent in PCS of PCC %d, invalid scg_clk %d\n", clk, src);
 		return -EINVAL;
 	}
@@ -320,13 +412,13 @@ bool pcc_clock_is_enable(int pcc_controller, int pcc_clk_slot)
 	return false;
 }
 
-int pcc_clock_get_clksrc(int pcc_controller, int pcc_clk_slot, enum cgc1_clk *src)
+int pcc_clock_get_clksrc(int pcc_controller, int pcc_clk_slot, enum cgc_clk *src)
 {
 	u32 val, clksrc_type;
 	void __iomem *reg;
 	struct pcc_entry *pcc_array;
 	int clk;
-	enum cgc1_clk *cgc1_clk_array;
+	enum cgc_clk *cgc_clk_array;
 
 	clk = find_pcc_entry(pcc_controller, pcc_clk_slot, &pcc_array);
 	if (clk < 0)
@@ -360,11 +452,13 @@ int pcc_clock_get_clksrc(int pcc_controller, int pcc_clk_slot, enum cgc1_clk *sr
 	}
 
 	if (pcc_controller == 3)
-		cgc1_clk_array = pcc3_clksrc[clksrc_type];
+		cgc_clk_array = pcc3_clksrc[clksrc_type];
+	else if (pcc_controller == 4)
+		cgc_clk_array = pcc4_clksrc[clksrc_type];
 	else
-		cgc1_clk_array = pcc4_clksrc[clksrc_type];
+		cgc_clk_array = pcc5_clksrc[clksrc_type];
 
-	*src = cgc1_clk_array[val];
+	*src = cgc_clk_array[val];
 
 	debug("%s: parent cgc1 clk %d\n", __func__, *src);
 
@@ -412,7 +506,7 @@ u32 pcc_clock_get_rate(int pcc_controller, int pcc_clk_slot)
 {
 	u32 val, rate, frac, div;
 	void __iomem *reg;
-	enum cgc1_clk parent;
+	enum cgc_clk parent;
 	int ret;
 	int clk;
 	struct pcc_entry *pcc_array;
@@ -425,7 +519,7 @@ u32 pcc_clock_get_rate(int pcc_controller, int pcc_clk_slot)
 	if (ret)
 		return 0;
 
-	rate = cgc1_clk_get_rate(parent);
+	rate = cgc_clk_get_rate(parent);
 
 	debug("%s: parent rate %u\n", __func__, rate);
 
