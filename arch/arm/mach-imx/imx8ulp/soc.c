@@ -466,6 +466,20 @@ static int trdc_set_access(void)
 	return 0;
 }
 
+void lpav_configure(void)
+{
+	/* LPAV to APD */
+	setbits_le32(SIM_SEC_BASE_ADDR + 0x44, BIT(7));
+
+	/* GPU 2D/3D/DCNANO/MIPI_DSI to APD */
+	setbits_le32(SIM_SEC_BASE_ADDR + 0x4c, BIT(1) | BIT(2) | BIT(3) | BIT(4));
+
+	/* LPAV slave/dma2 ch allocation and request allocation to APD */
+	writel(0x1f, SIM_SEC_BASE_ADDR + 0x50);
+	writel(0xffffffff, SIM_SEC_BASE_ADDR + 0x54);
+	writel(0x003fffff, SIM_SEC_BASE_ADDR + 0x58);
+}
+
 int arch_cpu_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
@@ -486,12 +500,8 @@ int arch_cpu_init(void)
 				release_rdc(RDC_TRDC);
 
 			trdc_set_access();
-			/* LPAV to APD */
-			setbits_le32(0x2802B044, BIT(7));
-			/* GPU 2D/3D to APD */
-			setbits_le32(0x2802B04C, BIT(1) | BIT(2));
-			/* DCNANO and MIPI_DSI to APD */
-			setbits_le32(0x2802B04C, BIT(1) | BIT(2) | BIT(3) | BIT(4));
+
+			lpav_configure();
 		}
 
 		/* Release xrdc, then allow A35 to write SRAM2 */
