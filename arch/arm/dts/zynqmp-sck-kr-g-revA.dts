@@ -183,6 +183,7 @@
 	phys = <&psgtr 0 PHY_TYPE_SGMII 0 0>;
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii";
+	is-internal-pcspma;
 };
 
 &gem1 { /* mdio mio50/51, gem mio38 - mio49 */
