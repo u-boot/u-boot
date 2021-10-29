@@ -330,6 +330,7 @@ void enable_mipi_dsi_clk(unsigned char enable)
 {
 	if (enable) {
 		pcc_clock_enable(5, DSI_PCC5_SLOT, false);
+		pcc_reset_peripheral(5, DSI_PCC5_SLOT, true);
 		pcc_clock_sel(5, DSI_PCC5_SLOT, PLL4_PFD3_DIV2);
 		pcc_clock_div_config(5, DSI_PCC5_SLOT, 0, 6);
 		pcc_clock_enable(5, DSI_PCC5_SLOT, true);
@@ -338,6 +339,13 @@ void enable_mipi_dsi_clk(unsigned char enable)
 		pcc_clock_enable(5, DSI_PCC5_SLOT, false);
 		pcc_reset_peripheral(5, DSI_PCC5_SLOT, true);
 	}
+}
+
+void reset_lcdclk(void)
+{
+	/* Disable clock and reset dcnano*/
+	pcc_clock_enable(5, DCNANO_PCC5_SLOT, false);
+	pcc_reset_peripheral(5, DCNANO_PCC5_SLOT, true);
 }
 
 void mxs_set_lcdclk(u32 base_addr, u32 freq_in_khz)
