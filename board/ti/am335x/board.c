@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <env.h>
 #include <errno.h>
+#include <hang.h>
 #include <image.h>
 #include <init.h>
 #include <malloc.h>
@@ -38,6 +39,7 @@
 #include <miiphy.h>
 #include <cpsw.h>
 #include <linux/bitops.h>
+#include <linux/compiler.h>
 #include <linux/delay.h>
 #include <power/tps65217.h>
 #include <power/tps65910.h>
@@ -691,6 +693,8 @@ done:
 }
 #endif
 
+static bool __maybe_unused prueth_is_mii = true;
+
 /*
  * Basic board specific setup.  Pinmux has been handled already.
  */
@@ -710,6 +714,8 @@ int board_init(void)
 	if (board_is_icev2()) {
 		int rv;
 		u32 reg;
+		bool eth0_is_mii = true;
+		bool eth1_is_mii = true;
 
 		REQUEST_AND_SET_GPIO(GPIO_PR1_MII_CTRL);
 		/* Make J19 status available on GPIO1_26 */
@@ -740,6 +746,7 @@ int board_init(void)
 			writel(reg, GPIO0_IRQSTATUS1); /* clear irq */
 			/* RMII mode */
 			printf("ETH0, CPSW\n");
+			eth0_is_mii = false;
 		} else {
 			/* MII mode */
 			printf("ETH0, PRU\n");
@@ -752,11 +759,20 @@ int board_init(void)
 			/* RMII mode */
 			printf("ETH1, CPSW\n");
 			gpio_set_value(GPIO_MUX_MII_CTRL, 1);
+			eth1_is_mii = false;
 		} else {
 			/* MII mode */
 			printf("ETH1, PRU\n");
 			cdce913_data.pdiv2 = 4;	/* 25MHz PHY clk */
 		}
+
+		if (eth0_is_mii != eth1_is_mii) {
+			printf("Unsupported Ethernet port configuration\n");
+			printf("Both ports must be set as RMII or MII\n");
+			hang();
+		}
+
+		prueth_is_mii = eth0_is_mii;
 
 		/* disable rising edge IRQs */
 		reg = readl(GPIO0_RISINGDETECT) & ~BIT(11);
@@ -852,6 +868,8 @@ int board_late_init(void)
 		if (is_valid_ethaddr(mac_addr))
 			eth_env_set_enetaddr("eth1addr", mac_addr);
 	}
+
+	env_set("ice_mii", prueth_is_mii ? "mii" : "rmii");
 #endif
 
 	if (!env_get("serial#")) {
