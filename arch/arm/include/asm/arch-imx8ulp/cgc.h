@@ -152,6 +152,7 @@ void cgc1_soscdiv_init(void);
 void cgc1_init_core_clk(void);
 void cgc2_pll4_init(void);
 void cgc2_ddrclk_config(u32 src, u32 div);
+void cgc2_ddrclk_wait_unlock(void);
 u32 cgc1_sosc_div(enum cgc_clk clk);
 void cgc1_enet_stamp_sel(u32 clk_src);
 void cgc2_pll4_pfd_config(enum cgc_clk pllpfd, u32 pfd);

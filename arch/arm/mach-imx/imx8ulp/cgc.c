@@ -269,9 +269,20 @@ void cgc2_pll4_pfddiv_config(enum cgc_clk pllpfddiv, u32 div)
 
 void cgc2_ddrclk_config(u32 src, u32 div)
 {
+	/* If reg lock is set, wait until unlock by HW */
+	/* This lock is triggered by div updating and ddrclk halt status change, */
+	while ((readl(&cgc2_regs->ddrclk) & BIT(31)))
+		;
+
 	writel((src << 28) | (div << 21), &cgc2_regs->ddrclk);
 	/* wait for DDRCLK switching done */
 	while (!(readl(&cgc2_regs->ddrclk) & BIT(27)))
+		;
+}
+
+void cgc2_ddrclk_wait_unlock(void)
+{
+	while ((readl(&cgc2_regs->ddrclk) & BIT(31)))
 		;
 }
 

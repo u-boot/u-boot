@@ -107,6 +107,9 @@ void init_clk_ddr(void)
 	/* enable ddr pcc */
 	writel(0xd0000000, PCC5_LPDDR4_ADDR);
 
+	/* Wait until ddrclk reg lock bit is cleared, so that the div update is finished */
+	cgc2_ddrclk_wait_unlock();
+
 	/* for debug */
 	/* setclkout_ddr(); */
 }
@@ -143,6 +146,9 @@ int set_ddr_clk(u32 phy_freq_mhz)
 		printf("ddr phy clk %uMhz is not supported\n", phy_freq_mhz);
 		return -EINVAL;
 	}
+
+	/* Wait until ddrclk reg lock bit is cleared, so that the div update is finished */
+	cgc2_ddrclk_wait_unlock();
 
 	return 0;
 }
