@@ -178,6 +178,48 @@ int ddr_calibration(unsigned int fsp_table[3])
 	return 0;
 }
 
+static void save_dram_config(struct dram_timing_info2 *timing_info, unsigned long saved_timing_base)
+{
+	int i = 0;
+	struct dram_timing_info2 *saved_timing = (struct dram_timing_info2 *)saved_timing_base;
+	struct dram_cfg_param *cfg;
+
+	saved_timing->ctl_cfg_num = timing_info->ctl_cfg_num;
+	saved_timing->phy_f1_cfg_num = timing_info->phy_f1_cfg_num;
+	saved_timing->phy_f2_cfg_num = timing_info->phy_f2_cfg_num;
+
+	/* save the fsp table */
+	for (i = 0; i < 3; i++)
+		saved_timing->fsp_table[i] = timing_info->fsp_table[i];
+
+	cfg = (struct dram_cfg_param *)(saved_timing_base +
+					sizeof(*timing_info));
+
+	/* save ctl config */
+	saved_timing->ctl_cfg = cfg;
+	for (i = 0; i < timing_info->ctl_cfg_num; i++) {
+		cfg->reg = timing_info->ctl_cfg[i].reg;
+		cfg->val = timing_info->ctl_cfg[i].val;
+		cfg++;
+	}
+
+	/* save phy f1 config */
+	saved_timing->phy_f1_cfg = cfg;
+	for (i = 0; i < timing_info->phy_f1_cfg_num; i++) {
+		cfg->reg = timing_info->phy_f1_cfg[i].reg;
+		cfg->val = timing_info->phy_f1_cfg[i].val;
+		cfg++;
+	}
+
+	/* save phy f2 config */
+	saved_timing->phy_f2_cfg = cfg;
+	for (i = 0; i < timing_info->phy_f2_cfg_num; i++) {
+		cfg->reg = timing_info->phy_f2_cfg[i].reg;
+		cfg->val = timing_info->phy_f2_cfg[i].val;
+		cfg++;
+	}
+}
+
 int ddr_init(struct dram_timing_info2 *dram_timing)
 {
 	int i;
@@ -191,6 +233,9 @@ int ddr_init(struct dram_timing_info2 *dram_timing)
 		set_ddr_clk(dram_timing->fsp_table[0] >> 1); /* Set to boot freq */
 		clrbits_le32(AVD_SIM_BASE_ADDR, 0x1); /* SIM_DDR_CTRL_DIV2_EN */
 	}
+
+	/* save the dram config into sram for low power mode */
+	save_dram_config(dram_timing, CONFIG_SAVED_DRAM_TIMING_BASE);
 
 	/* Initialize CTL registers */
 	for (i = 0; i < dram_timing->ctl_cfg_num; i++)
