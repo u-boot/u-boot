@@ -487,6 +487,26 @@ void lpav_configure(void)
 	writel(0x003fffff, SIM_SEC_BASE_ADDR + 0x58);
 }
 
+void load_lposc_fuse(void)
+{
+	int ret;
+	u32 val = 0, val2 = 0, reg;
+
+	ret = fuse_read(25, 0, &val);
+	if (ret)
+		return; /* failed */
+
+	ret = fuse_read(25, 1, &val2);
+	if (ret)
+		return; /* failed */
+
+	/* LPOSCCTRL */
+	reg = readl(0x2802f304);
+	reg &= ~0xff;
+	reg |= (val & 0xff);
+	writel(reg, 0x2802f304);
+}
+
 void set_lpav_qos(void)
 {
 	/* Set read QoS of dcnano on LPAV NIC */
