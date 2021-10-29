@@ -129,8 +129,8 @@ int ddr_calibration(unsigned int fsp_table[3])
 		 * Polling SIM LPDDR_CTRL2 Bit phy_freq_chg_req until be 1'b1
 		 */
 		reg_val = readl(AVD_SIM_LPDDR_CTRL2);
-		phy_freq_req = (reg_val >> 7) & 0x1;
-
+		/* DFS interrupt is set */
+		phy_freq_req = ((reg_val >> 7) & 0x1) && ((reg_val >> 15) & 0x1);
 		if (phy_freq_req) {
 			phy_freq_type = reg_val & 0x1F;
 			if (phy_freq_type == 0x00) {
@@ -159,7 +159,11 @@ int ddr_calibration(unsigned int fsp_table[3])
 				if (freq_chg_pt == 2)
 					freq_chg_cnt--;
 			}
-			reg_val = readl(AVD_SIM_LPDDR_CTRL2);
+
+			/* Hardware clear the ack on falling edge of LPDDR_CTRL2:phy_freq_chg_reg */
+			/* Ensure the ack is clear before starting to poll request again */
+			while ((readl(AVD_SIM_LPDDR_CTRL2) & BIT(6)))
+				;
 		}
 	} while (1);
 
