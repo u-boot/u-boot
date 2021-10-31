@@ -45,7 +45,7 @@ int spl_ubi_load_image(struct spl_image_info *spl_image,
 	info.leb_start = CONFIG_SPL_UBI_LEB_START;
 	info.peb_count = CONFIG_SPL_UBI_MAX_PEBS - info.peb_offset;
 
-#ifdef CONFIG_SPL_OS_BOOT
+#if CONFIG_IS_ENABLED(OS_BOOT)
 	if (!spl_start_uboot()) {
 		volumes[0].vol_id = CONFIG_SPL_UBI_LOAD_KERNEL_ID;
 		volumes[0].load_addr = (void *)CONFIG_SYS_LOAD_ADDR;

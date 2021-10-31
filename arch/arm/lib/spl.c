@@ -50,7 +50,7 @@ void __weak board_init_f(ulong dummy)
  * This function jumps to an image with argument. Normally an FDT or ATAGS
  * image.
  */
-#ifdef CONFIG_SPL_OS_BOOT
+#if CONFIG_IS_ENABLED(OS_BOOT)
 #ifdef CONFIG_ARM64
 void __noreturn jump_to_image_linux(struct spl_image_info *spl_image)
 {
