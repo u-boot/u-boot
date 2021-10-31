@@ -12,7 +12,6 @@
 
 #define CONFIG_SYS_NS16550_COM1	0xf040c000
 
-#define CONFIG_SYS_TEXT_BASE		0x10100000
 #define CONFIG_SYS_INIT_RAM_ADDR	0x10200000
 
 #include "bcmstb.h"
