@@ -91,7 +91,6 @@
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #define CONFIG_FEC_XCV_TYPE		RMII
