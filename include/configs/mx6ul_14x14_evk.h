@@ -124,8 +124,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_HZ			1000
-
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 

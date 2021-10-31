@@ -60,8 +60,6 @@
 
 /* Miscellaneous configurable options */
 
-#define	CONFIG_SYS_HZ			1000
-
 /* Definitions for initial stack pointer and data area (in DPRAM) */
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_IMMR + 0x2800)
 #define	CONFIG_SYS_INIT_RAM_SIZE	(0x2e00 - 0x2800)

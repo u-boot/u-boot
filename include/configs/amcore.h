@@ -27,8 +27,6 @@
 		"erase 0xfff00000 0xffffffff; "			\
 		"cp.b 0x20000 0xfff00000 ${filesize}\0"
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_SYS_CLK			45000000
 #define CONFIG_SYS_CPU_CLK		(CONFIG_SYS_CLK * 2)
 /* Register Base Addrs */

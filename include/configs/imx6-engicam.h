@@ -100,8 +100,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_HZ			1000
-
 #ifdef CONFIG_MX6UL
 # define DRAM_OFFSET(x)			0x87##x
 # define FDT_ADDR			__stringify(DRAM_OFFSET(800000))

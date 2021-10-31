@@ -59,7 +59,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */
 

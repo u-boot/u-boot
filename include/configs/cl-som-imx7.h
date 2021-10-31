@@ -92,8 +92,6 @@
 	"echo eMMC boot attempt ...; run emmcbootscript; run emmcboot; " \
 	"echo USB boot attempt ...; run usbbootscript; "
 
-#define CONFIG_SYS_HZ			1000
-
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
