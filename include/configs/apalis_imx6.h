@@ -12,8 +12,6 @@
 
 #include "mx6_common.h"
 
-#undef CONFIG_DISPLAY_BOARDINFO
-
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 

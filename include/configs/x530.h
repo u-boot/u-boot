@@ -10,8 +10,6 @@
  * High Level Configuration Options (easy to change)
  */
 
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-
 /*
  * NS16550 Configuration
  */

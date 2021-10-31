@@ -98,6 +98,5 @@
 #define CONFIG_BOOTCOMMAND	"if mmcinfo; then " \
 	"if fatload mmc 0 0x1900000 ${bootscript}; then source 0x1900000; " \
 	"fi; fi; run $modeboot"
-#undef CONFIG_DISPLAY_BOARDINFO
 
 #endif /* __CONFIG_TOPIC_MIAMI_H */
