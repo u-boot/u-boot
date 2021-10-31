@@ -122,6 +122,7 @@ class TestFunctional(unittest.TestCase):
 
             Series-to: u-boot
             Series-prefix: RFC
+            Series-postfix: some-branch
             Series-cc: Stefan Brüns <stefan.bruens@rwth-aachen.de>
             Cover-letter-cc: Lord Mëlchett <clergy@palace.gov>
             Series-version: 3
@@ -176,7 +177,7 @@ class TestFunctional(unittest.TestCase):
             - each patch has the correct subject
             - dry-run information prints out correctly
             - unicode is handled correctly
-            - Series-to, Series-cc, Series-prefix, Cover-letter
+            - Series-to, Series-cc, Series-prefix, Series-postfix, Cover-letter
             - Cover-letter-cc, Series-version, Series-changes, Series-notes
             - Commit-notes
         """
@@ -235,6 +236,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('Cc:	  %s' % stefan, next(lines))
         self.assertEqual('Version:  3', next(lines))
         self.assertEqual('Prefix:\t  RFC', next(lines))
+        self.assertEqual('Postfix:\t  some-branch', next(lines))
         self.assertEqual('Cover: 4 lines', next(lines))
         self.assertEqual('      Cc:  %s' % self.fred, next(lines))
         self.assertEqual('      Cc:  %s' % self.leb,
@@ -285,7 +287,7 @@ Simon Glass (2):
 '''
         lines = open(cover_fname, encoding='utf-8').read().splitlines()
         self.assertEqual(
-            'Subject: [RFC PATCH v3 0/2] test: A test patch series',
+            'Subject: [RFC PATCH some-branch v3 0/2] test: A test patch series',
             lines[3])
         self.assertEqual(expected.splitlines(), lines[7:])
 

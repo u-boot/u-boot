@@ -20,9 +20,9 @@ env_t embedded_environment __UBOOT_ENV_SECTION__(environment) = {
 #elif defined(DEFAULT_ENV_INSTANCE_STATIC)
 static char default_environment[] = {
 #elif defined(DEFAULT_ENV_IS_RW)
-uchar default_environment[] = {
+char default_environment[] = {
 #else
-const uchar default_environment[] = {
+const char default_environment[] = {
 #endif
 #ifndef CONFIG_USE_DEFAULT_ENV_FILE
 #ifdef	CONFIG_ENV_CALLBACK_LIST_DEFAULT
@@ -121,3 +121,9 @@ const uchar default_environment[] = {
 	}
 #endif
 };
+
+#if !defined(USE_HOSTCC) && !defined(DEFAULT_ENV_INSTANCE_EMBEDDED)
+#include <env_internal.h>
+static_assert(sizeof(default_environment) <= ENV_SIZE,
+	      "Default environment is too large");
+#endif

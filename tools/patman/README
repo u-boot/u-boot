@@ -188,6 +188,11 @@ Series-prefix: prefix
 	well. If your format.subjectprefix is set to InternalProject, then
 	the patch shows like: [InternalProject][RFC/RESEND PATCH]
 
+Series-postfix: postfix
+	Sets the subject "postfix". Normally empty, but can be the name of a
+	tree such as net or net-next if that needs to be specified. The patch
+	subject is like [PATCH net] or [PATCH net-next].
+
 Series-name: name
 	Sets the name of the series. You don't need to have a name, and
 	patman does not yet use it, but it is convenient to put the branch

@@ -82,8 +82,6 @@ int board_init(void)
 {
 	gd->bd->bi_boot_params = CONFIG_SYS_LOAD_ADDR + LOAD_OFFSET;
 
-	gd->env_addr = (ulong)&default_environment[0];
-
 	synquacer_setup_scbm_smmu();
 
 	return 0;
