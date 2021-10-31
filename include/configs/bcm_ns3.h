@@ -42,7 +42,6 @@
 #define CONFIG_SYS_BOOTM_LEN		0x01800000
 
 /* Access eMMC Boot_1 and Boot_2 partitions */
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* enable 64-bit PCI resources */
 #define CONFIG_SYS_PCI_64BIT		1

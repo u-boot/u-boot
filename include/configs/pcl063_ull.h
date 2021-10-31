@@ -30,7 +30,6 @@
 /* MMC Configs */
 
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* I2C configs */
 

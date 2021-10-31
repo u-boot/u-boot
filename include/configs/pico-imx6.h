@@ -28,7 +28,6 @@
 
 /* MMC Configuration */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC3_BASE_ADDR
-#define CONFIG_SUPPORT_EMMC_BOOT
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 
 /* USB Configs */

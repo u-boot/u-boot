@@ -22,8 +22,6 @@
 #define USDHC2_BASE_ADDR		0x5B020000
 #define USDHC3_BASE_ADDR		0x5B030000
 
-#define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
-
 /* FUSE command */
 
 /* Boot M4 */
