@@ -32,6 +32,7 @@ struct comphy_mux_data {
 
 struct chip_serdes_phy_config {
 	struct comphy_mux_data *mux_data;
+	int (*comphy_init_map)(int, struct chip_serdes_phy_config *);
 	int (*ptr_comphy_chip_init)(struct chip_serdes_phy_config *,
 				    struct comphy_map *);
 	int (*rx_training)(struct chip_serdes_phy_config *, u32);
@@ -85,9 +86,20 @@ static inline void reg_set16(void __iomem *addr, u16 data, u16 mask)
 
 /* SoC specific init functions */
 #ifdef CONFIG_ARMADA_3700
+int comphy_a3700_init_serdes_map(int node, struct chip_serdes_phy_config *cfg);
 int comphy_a3700_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		      struct comphy_map *serdes_map);
 #else
+static inline int
+comphy_a3700_init_serdes_map(int node, struct chip_serdes_phy_config *cfg)
+{
+	/*
+	 * This function should never be called in this configuration, so
+	 * lets return an error here.
+	 */
+	return -1;
+}
+
 static inline int comphy_a3700_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 				    struct comphy_map *serdes_map)
 {
@@ -100,11 +112,22 @@ static inline int comphy_a3700_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 #endif
 
 #ifdef CONFIG_ARMADA_8K
+int comphy_cp110_init_serdes_map(int node, struct chip_serdes_phy_config *cfg);
 int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		      struct comphy_map *serdes_map);
 int comphy_cp110_sfi_rx_training(struct chip_serdes_phy_config *ptr_chip_cfg,
 				 u32 lane);
 #else
+static inline int
+comphy_cp110_init_serdes_map(int node, struct chip_serdes_phy_config *cfg)
+{
+	/*
+	 * This function should never be called in this configuration, so
+	 * lets return an error here.
+	 */
+	return -1;
+}
+
 static inline int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		      struct comphy_map *serdes_map)
 {
