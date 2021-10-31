@@ -14,11 +14,12 @@
 #include <asm/system.h>
 #include <asm/arch/mp.h>
 #include <asm/arch/soc.h>
+#include <linux/compat.h>
 #include <linux/delay.h>
 #include <linux/psci.h>
+#include <malloc.h>
 #include "cpu.h"
 #include <asm/arch-fsl-layerscape/soc.h>
-#include <efi_loader.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -83,8 +84,7 @@ int fsl_layerscape_wake_seconday_cores(void)
 	int i, timeout = 10;
 	u64 *table;
 #ifdef CONFIG_EFI_LOADER
-	u64 reloc_addr = U32_MAX;
-	efi_status_t ret;
+	void *reloc_addr;
 #endif
 
 #ifdef COUNTER_FREQUENCY_REAL
@@ -102,27 +102,26 @@ int fsl_layerscape_wake_seconday_cores(void)
 	 * Keep this after the __real_cntfrq update, so we have it when we
 	 * copy the complete section here.
 	 */
-	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
-				 EFI_RESERVED_MEMORY_TYPE,
-				 efi_size_in_pages(secondary_boot_code_size),
-				 &reloc_addr);
-	if (ret == EFI_SUCCESS) {
-		debug("Relocating spin table from %llx to %llx (size %lx)\n",
-		      (u64)secondary_boot_code_start, reloc_addr,
+	reloc_addr = memalign(PAGE_SIZE,
+			      round_up(secondary_boot_code_size, PAGE_SIZE));
+	if (reloc_addr) {
+		debug("Relocating spin table from %p to %p (size %lx)\n",
+		      secondary_boot_code_start, reloc_addr,
 		      secondary_boot_code_size);
-		memcpy((void *)reloc_addr, secondary_boot_code_start,
+		memcpy(reloc_addr, secondary_boot_code_start,
 		       secondary_boot_code_size);
-		flush_dcache_range(reloc_addr,
-				   reloc_addr + secondary_boot_code_size);
+		flush_dcache_range((unsigned long)reloc_addr,
+				   (unsigned long)reloc_addr +
+						  secondary_boot_code_size);
 
 		/* set new entry point for secondary cores */
-		secondary_boot_addr += (void *)reloc_addr -
+		secondary_boot_addr += reloc_addr -
 				       secondary_boot_code_start;
 		flush_dcache_range((unsigned long)&secondary_boot_addr,
 				   (unsigned long)&secondary_boot_addr + 8);
 
 		/* this will be used to reserve the memory */
-		secondary_boot_code_start = (void *)reloc_addr;
+		secondary_boot_code_start = reloc_addr;
 	}
 #endif
 
