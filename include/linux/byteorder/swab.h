@@ -39,6 +39,10 @@
 		(__u64)(((__u64)(x) & (__u64)0x00ff000000000000ULL) >> 40) | \
 		(__u64)(((__u64)(x) & (__u64)0xff00000000000000ULL) >> 56) ))
 
+#define ___constant_swab16(x) ___swab16(x)
+#define ___constant_swab32(x) ___swab32(x)
+#define ___constant_swab64(x) ___swab64(x)
+
 /*
  * provide defaults when no architecture-specific optimization is detected
  */
