@@ -26,7 +26,6 @@
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #ifdef CONFIG_OF_CONTROL
 #undef CONFIG_OF_SEPARATE
-#define CONFIG_OF_EMBED
 #endif
 #endif
 

@@ -673,13 +673,6 @@ The following options need to be configured:
 		U-Boot needs to get its device tree from somewhere. This can
 		be done using one of the three options below:
 
-		CONFIG_OF_EMBED
-		If this variable is defined, U-Boot will embed a device tree
-		binary in its image. This device tree file should be in the
-		board directory and called <soc>-<board>.dts. The binary file
-		is then picked up in board_init_f() and made available through
-		the global data structure as gd->fdt_blob.
-
 		CONFIG_OF_SEPARATE
 		If this variable is defined, U-Boot will build a device tree
 		binary. It will be called u-boot.dtb. Architecture-specific
