@@ -83,23 +83,19 @@ choice
 	prompt "Renesas ARM64 SoCs board select"
 	optional
 
-config TARGET_BEACON_RZG2H
-	bool "Beacon EmbeddedWorks RZ/G2H Dev Kit"
+config TARGET_BEACON_RZG2M
+	bool "Beacon EmbeddedWorks RZ/G2 Dev Kit"
+	select R8A774A1
+	select R8A774B1
 	select R8A774E1
 	select RZ_G2
-	select PINCTRL_PFC_R8A774E1
-
-config TARGET_BEACON_RZG2M
-	bool "Beacon EmbeddedWorks RZ/G2M Dev Kit"
-	select R8A774A1
-	select RZ_G2
 	select PINCTRL_PFC_R8A774A1
-
-config TARGET_BEACON_RZG2N
-	bool "Beacon EmbeddedWorks RZ/G2N Dev Kit"
-	select R8A774B1
-	select RZ_G2
 	select PINCTRL_PFC_R8A774B1
+	select PINCTRL_PFC_R8A774E1
+	imply MULTI_DTB_FIT
+	imply MULTI_DTB_FIT_USER_DEFINED_AREA
+	imply CLK_VERSACLOCK
+	imply CLK_CCF
 
 config TARGET_CONDOR
 	bool "Condor board"
@@ -189,11 +185,13 @@ source "board/hoperun/hihope-rzg2/Kconfig"
 source "board/silinux/ek874/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
+	default 0x80000 if TARGET_BEACON_RZG2M
 	default 0x80000 if TARGET_HIHOPE_RZG2
 	default 0x80000 if TARGET_SALVATOR_X
 	default 0x80000 if TARGET_ULCB
 
 config MULTI_DTB_FIT_USER_DEF_ADDR
+	default 0x49000000 if TARGET_BEACON_RZG2M
 	default 0x49000000 if TARGET_HIHOPE_RZG2
 	default 0x49000000 if TARGET_SALVATOR_X
 	default 0x49000000 if TARGET_ULCB
