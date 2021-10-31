@@ -1,0 +1,38 @@
+.. SPDX-License-Identifier: GPL-2.0+
+.. sectionauthor:: Dzmitry Sankouski <dsankouski@gmail.com>
+
+Snapdragon 845
+================
+
+About this
+----------
+This document describes the information about Qualcomm Snapdragon 845
+supported boards and it's usage steps.
+
+SDM845 - hi-end qualcomm chip, introduced in late 2017.
+Mostly used in flagship phones and tablets of 2018.
+
+U-Boot can be used as a replacement for Qualcomm's original ABL (UEFI) bootloader.
+It is loaded as an Android boot image through ABL
+
+Installation
+------------
+First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for your board::
+
+	$ export CROSS_COMPILE=<aarch64 toolchain prefix>
+	$ make <your board name here, see Boards section>_defconfig
+	$ make
+
+This will build ``u-boot.bin`` in the configured output directory.
+
+Boards
+------------
+starqlte
+^^^^^^^^^^^^
+
+The starqltechn is a production board for Samsung S9 (SM-G9600) phone,
+based on the Qualcomm SDM845 SoC.
+
+More information can be found on the `Samsung S9 page`_.
+
+.. _Samsung S9 page: https://en.wikipedia.org/wiki/Samsung_Galaxy_S9

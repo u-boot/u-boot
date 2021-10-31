@@ -135,6 +135,7 @@ static const struct udevice_id msm_clk_ids[] = {
 	{ .compatible = "qcom,gcc-apq8016" },
 	{ .compatible = "qcom,gcc-msm8996" },
 	{ .compatible = "qcom,gcc-apq8096" },
+	{ .compatible = "qcom,gcc-sdm845" },
 	{ }
 };
 

@@ -29,3 +29,69 @@ static struct mm_region exynos7420_mem_map[] = {
 
 struct mm_region *mem_map = exynos7420_mem_map;
 #endif
+
+#ifdef CONFIG_EXYNOS7870
+static struct mm_region exynos7870_mem_map[] = {
+	{
+		.virt	= 0x10000000UL,
+		.phys	= 0x10000000UL,
+		.size	= 0x10000000UL,
+		.attrs	= PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+				PTE_BLOCK_NON_SHARE |
+				PTE_BLOCK_PXN | PTE_BLOCK_UXN,
+	},
+	{
+		.virt	= 0x40000000UL,
+		.phys	= 0x40000000UL,
+		.size	= 0x3E400000UL,
+		.attrs	= PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				PTE_BLOCK_INNER_SHARE,
+	},
+	{
+		.virt	= 0x80000000UL,
+		.phys	= 0x80000000UL,
+		.size	= 0x40000000UL,
+		.attrs	= PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				PTE_BLOCK_INNER_SHARE,
+	},
+
+	{
+		/* List terminator */
+	},
+};
+
+struct mm_region *mem_map = exynos7870_mem_map;
+#endif
+
+#ifdef CONFIG_EXYNOS7880
+static struct mm_region exynos7880_mem_map[] = {
+	{
+		.virt	= 0x10000000UL,
+		.phys	= 0x10000000UL,
+		.size	= 0x10000000UL,
+		.attrs	= PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+				PTE_BLOCK_NON_SHARE |
+				PTE_BLOCK_PXN | PTE_BLOCK_UXN,
+	},
+	{
+		.virt	= 0x40000000UL,
+		.phys	= 0x40000000UL,
+		.size	= 0x3E400000UL,
+		.attrs	= PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				PTE_BLOCK_INNER_SHARE,
+	},
+	{
+		.virt	= 0x80000000UL,
+		.phys	= 0x80000000UL,
+		.size	= 0x80000000UL,
+		.attrs	= PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				PTE_BLOCK_INNER_SHARE,
+	},
+
+	{
+		/* List terminator */
+	},
+};
+
+struct mm_region *mem_map = exynos7880_mem_map;
+#endif

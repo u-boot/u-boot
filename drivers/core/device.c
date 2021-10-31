@@ -28,6 +28,7 @@
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
+#include <iommu.h>
 #include <linux/err.h>
 #include <linux/list.h>
 #include <power-domain.h>
@@ -539,6 +540,13 @@ int device_probe(struct udevice *dev)
 	    (device_get_uclass_id(dev) != UCLASS_POWER_DOMAIN) &&
 	    !(drv->flags & DM_FLAG_DEFAULT_PD_CTRL_OFF)) {
 		ret = dev_power_domain_on(dev);
+		if (ret)
+			goto fail;
+	}
+
+	if (CONFIG_IS_ENABLED(IOMMU) && dev->parent &&
+	    (device_get_uclass_id(dev) != UCLASS_IOMMU)) {
+		ret = dev_iommu_enable(dev);
 		if (ret)
 			goto fail;
 	}

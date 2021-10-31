@@ -9,6 +9,14 @@ config SYS_MALLOC_F_LEN
 config SPL_SYS_MALLOC_F_LEN
 	default 0x2000
 
+config SDM845
+	bool "Qualcomm Snapdragon 845 SoC"
+	default n
+	select LINUX_KERNEL_IMAGE_HEADER
+
+config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	default 0x80000000
+
 choice
 	prompt "Snapdragon board select"
 
@@ -36,9 +44,22 @@ config TARGET_DRAGONBOARD820C
 	  - 3GiB RAM
 	  - 32GiB UFS drive
 
+config TARGET_STARQLTECHN
+	bool "Samsung S9 SM-G9600(starqltechn)"
+	help
+	  Support for Samsung S9 SM-G9600(starqltechn) board.
+	  Features:
+	  - Qualcomm Snapdragon SDM845 SoC
+	  - 4GiB RAM
+	  - 64GiB UFS drive
+	select MISC_INIT_R
+	select SDM845
+	select DM_ETH if NET
+
 endchoice
 
 source "board/qualcomm/dragonboard410c/Kconfig"
 source "board/qualcomm/dragonboard820c/Kconfig"
+source "board/samsung/starqltechn/Kconfig"
 
 endif

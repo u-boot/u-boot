@@ -108,6 +108,15 @@ L:	uboot-snps-arc@synopsys.com
 F:	doc/device-tree-bindings/mmc/snps,dw-mmc.txt
 F:	drivers/mmc/snps_dw_mmc.c
 
+APPLE M1 SOC SUPPORT
+M:	Mark Kettenis <kettenis@openbsd.org>
+S:	Maintained
+F:	arch/arm/include/asm/arch-m1/
+F:	arch/arm/mach-apple/
+F:	configs/apple_m1_defconfig
+F:	drivers/iommu/apple_dart.c
+F:	include/configs/apple.h
+
 ARM
 M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
@@ -391,7 +400,9 @@ F:	drivers/gpio/msm_gpio.c
 F:	drivers/mmc/msm_sdhci.c
 F:	drivers/phy/msm8916-usbh-phy.c
 F:	drivers/serial/serial_msm.c
+F:	drivers/serial/serial_msm_geni.c
 F:	drivers/smem/msm_smem.c
+F:	drivers/spmi/spmi-msm.c
 F:	drivers/usb/host/ehci-msm.c
 
 ARM STI

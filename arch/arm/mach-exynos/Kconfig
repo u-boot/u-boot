@@ -151,6 +151,33 @@ config TARGET_ESPRESSO7420
 	select PINCTRL_EXYNOS7420
 	select SUPPORT_SPL
 
+config  TARGET_A5Y17LTE
+	bool "Samsung SM-A520F board"
+	select ARM64
+	select CLK_EXYNOS
+	select OF_CONTROL
+	select PINCTRL
+	select PINCTRL_EXYNOS78x0
+	select SUPPORT_SPL
+
+config  TARGET_A7Y17LTE
+	bool "Samsung SM-A520F board"
+	select ARM64
+	select CLK_EXYNOS
+	select OF_CONTROL
+	select PINCTRL
+	select PINCTRL_EXYNOS78x0
+	select SUPPORT_SPL
+
+config  TARGET_A3Y17LTE
+	bool "Samsung SM-A520F board"
+	select ARM64
+	select CLK_EXYNOS
+	select OF_CONTROL
+	select PINCTRL
+	select PINCTRL_EXYNOS7880
+	select SUPPORT_SPL
+
 endchoice
 endif
 
@@ -167,6 +194,7 @@ source "board/samsung/arndale/Kconfig"
 source "board/samsung/smdk5250/Kconfig"
 source "board/samsung/smdk5420/Kconfig"
 source "board/samsung/espresso7420/Kconfig"
+source "board/samsung/axy17lte/Kconfig"
 
 config SPL_LDSCRIPT
 	default "board/samsung/common/exynos-uboot-spl.lds" if ARCH_EXYNOS5 || ARCH_EXYNOS4

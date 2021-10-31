@@ -199,8 +199,8 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_MMC1;
 #endif
 #ifdef CONFIG_SPL_SATA
-	case BOOT_FROM_SATA:
-		return BOOT_FROM_SATA;
+	case BOOT_DEVICE_SATA:
+		return BOOT_DEVICE_SATA;
 #endif
 #ifdef CONFIG_SPL_SPI_FLASH_SUPPORT
 	case BOOT_DEVICE_SPI:
