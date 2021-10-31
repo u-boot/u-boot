@@ -10,7 +10,6 @@
 
 #define CONFIG_HOSTNAME			"stmark2"
 
-#define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		0
 
 #define LDS_BOARD_TEXT						\
