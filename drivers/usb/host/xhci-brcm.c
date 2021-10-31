@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <usb.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <usb/xhci.h>
 
 #define DRD2U3H_XHC_REGS_AXIWRA	0xC08
