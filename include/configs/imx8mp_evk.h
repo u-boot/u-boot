@@ -20,7 +20,6 @@
 
 #ifdef CONFIG_SPL_BUILD
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
 #define CONFIG_SPL_STACK		0x960000
 #define CONFIG_SPL_BSS_START_ADDR	0x0098FC00
 #define CONFIG_SPL_BSS_MAX_SIZE		0x400	/* 1 KB */
