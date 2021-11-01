@@ -13,6 +13,10 @@
 	compatible = "xlnx,versal-vmk180-revA-x-ebm-03-revA",
 		     "xlnx,versal-vmk180-revA", "xlnx,versal";
 	model = "Xilinx Versal vmk180 Eval board revA (OSPI)";
+
+	aliases {
+		spi0 = &ospi;
+	};
 };
 
 &ospi {
