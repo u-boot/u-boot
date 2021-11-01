@@ -441,13 +441,18 @@ skip_overlay:
 static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
+	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
+	char *kernel_addr = NULL;
+	char *initrd_addr_str = NULL;
+	char initrd_filesize[10];
 	char initrd_str[28];
 	char mac_str[29] = "";
 	char ip_str[68] = "";
 	char *fit_addr = NULL;
 	int bootm_argc = 2;
+	int zboot_argc = 3;
 	int len = 0;
-	ulong kernel_addr;
+	ulong kernel_addr_r;
 	void *buf;
 
 	label_print(label);
@@ -473,11 +478,12 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 			return 1;
 		}
 
-		bootm_argv[2] = initrd_str;
-		strncpy(bootm_argv[2], env_get("ramdisk_addr_r"), 18);
-		strcat(bootm_argv[2], ":");
-		strncat(bootm_argv[2], env_get("filesize"), 9);
-		bootm_argc = 3;
+		initrd_addr_str = env_get("ramdisk_addr_r");
+		strncpy(initrd_filesize, env_get("filesize"), 9);
+
+		strncpy(initrd_str, initrd_addr_str, 18);
+		strcat(initrd_str, ":");
+		strncat(initrd_str, initrd_filesize, 9);
 	}
 
 	if (get_relfile_envaddr(cmdtp, label->kernel, "kernel_addr_r") < 0) {
@@ -528,18 +534,19 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 		printf("append: %s\n", finalbootargs);
 	}
 
-	bootm_argv[1] = env_get("kernel_addr_r");
+	kernel_addr = env_get("kernel_addr_r");
+
 	/* for FIT, append the configuration identifier */
 	if (label->config) {
-		int len = strlen(bootm_argv[1]) + strlen(label->config) + 1;
+		int len = strlen(kernel_addr) + strlen(label->config) + 1;
 
 		fit_addr = malloc(len);
 		if (!fit_addr) {
 			printf("malloc fail (FIT address)\n");
 			return 1;
 		}
-		snprintf(fit_addr, len, "%s%s", bootm_argv[1], label->config);
-		bootm_argv[1] = fit_addr;
+		snprintf(fit_addr, len, "%s%s", kernel_addr, label->config);
+		kernel_addr = fit_addr;
 	}
 
 	/*
@@ -643,6 +650,18 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 		}
 	}
 
+	bootm_argv[1] = kernel_addr;
+	zboot_argv[1] = kernel_addr;
+
+	if (initrd_addr_str) {
+		bootm_argv[2] = initrd_str;
+		bootm_argc = 3;
+
+		zboot_argv[3] = initrd_addr_str;
+		zboot_argv[4] = initrd_filesize;
+		zboot_argc = 5;
+	}
+
 	if (!bootm_argv[3])
 		bootm_argv[3] = env_get("fdt_addr");
 
@@ -652,8 +671,8 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 		bootm_argc = 4;
 	}
 
-	kernel_addr = genimg_get_kernel_addr(bootm_argv[1]);
-	buf = map_sysmem(kernel_addr, 0);
+	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
+	buf = map_sysmem(kernel_addr_r, 0);
 	/* Try bootm for legacy and FIT format image */
 	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID)
 		do_bootm(cmdtp, 0, bootm_argc, bootm_argv);
@@ -665,7 +684,7 @@ static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 		do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
 	/* Try booting an x86_64 Linux kernel image */
 	else if (IS_ENABLED(CONFIG_CMD_ZBOOT))
-		do_zboot_parent(cmdtp, 0, bootm_argc, bootm_argv, NULL);
+		do_zboot_parent(cmdtp, 0, zboot_argc, zboot_argv, NULL);
 
 	unmap_sysmem(buf);
 

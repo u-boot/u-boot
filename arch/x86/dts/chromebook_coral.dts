@@ -825,6 +825,7 @@
 	 * Refer to EDS-Vol2-22.3
 	 * [14:8] steps of delay for HS400, each 125ps
 	 * [6:0] steps of delay for SDR104/HS200, each 125ps
+	 */
 
 	/*
 	 * EMMC TX DATA Delay 2
