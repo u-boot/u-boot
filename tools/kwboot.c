@@ -81,23 +81,15 @@ struct kwboot_block {
 /* ARM code to change baudrate */
 static unsigned char kwboot_baud_code[] = {
 				/* ; #define UART_BASE 0xd0012000             */
-				/* ; #define THR       0x00                   */
 				/* ; #define DLL       0x00                   */
 				/* ; #define DLH       0x04                   */
 				/* ; #define LCR       0x0c                   */
 				/* ; #define   DLAB    0x80                   */
 				/* ; #define LSR       0x14                   */
-				/* ; #define   THRE    0x20                   */
 				/* ; #define   TEMT    0x40                   */
 				/* ; #define DIV_ROUND(a, b) ((a + b/2) / b)  */
 				/* ;                                          */
 				/* ; u32 set_baudrate(u32 old_b, u32 new_b) { */
-				/* ;   const u8 *str = "$baudratechange";     */
-				/* ;   u8 c;                                  */
-				/* ;   do {                                   */
-				/* ;       c = *str++;                        */
-				/* ;       writel(UART_BASE + THR, c);        */
-				/* ;   } while (c);                           */
 				/* ;   while                                  */
 				/* ;      (!(readl(UART_BASE + LSR) & TEMT)); */
 				/* ;   u32 lcr = readl(UART_BASE + LCR);      */
@@ -119,29 +111,6 @@ static unsigned char kwboot_baud_code[] = {
 				/*  ; r0 = UART_BASE                          */
 	0x0d, 0x02, 0xa0, 0xe3, /* mov   r0, #0xd0000000                      */
 	0x12, 0x0a, 0x80, 0xe3, /* orr   r0, r0, #0x12000                     */
-
-				/*  ; r2 = address of preamble string         */
-	0xc8, 0x20, 0x8f, 0xe2, /* adr   r2, preamble                         */
-
-				/*  ; Send preamble string over UART          */
-				/* .Lloop_preamble:                           */
-				/*                                            */
-				/*  ; Wait until Transmitter Holding is Empty */
-				/* .Lloop_thre:                               */
-				/*  ; r1 = UART_BASE[LSR] & THRE              */
-	0x14, 0x10, 0x90, 0xe5, /* ldr   r1, [r0, #0x14]                      */
-	0x20, 0x00, 0x11, 0xe3, /* tst   r1, #0x20                            */
-	0xfc, 0xff, 0xff, 0x0a, /* beq   .Lloop_thre                          */
-
-				/*  ; Put character into Transmitter FIFO     */
-				/*  ; r1 = *r2++                              */
-	0x01, 0x10, 0xd2, 0xe4, /* ldrb  r1, [r2], #1                         */
-				/*  ; UART_BASE[THR] = r1                     */
-	0x00, 0x10, 0x80, 0xe5, /* str   r1, [r0, #0x0]                       */
-
-				/*  ; Loop until end of preamble string       */
-	0x00, 0x00, 0x51, 0xe3, /* cmp   r1, #0                               */
-	0xf8, 0xff, 0xff, 0x1a, /* bne   .Lloop_preamble                      */
 
 				/*  ; Wait until Transmitter FIFO is Empty    */
 				/* .Lloop_txempty:                            */
@@ -168,7 +137,7 @@ static unsigned char kwboot_baud_code[] = {
 
 				/*  ; Read old baudrate value                 */
 				/*  ; r2 = old_baudrate                       */
-	0x84, 0x20, 0x9f, 0xe5, /* ldr   r2, old_baudrate                     */
+	0x74, 0x20, 0x9f, 0xe5, /* ldr   r2, old_baudrate                     */
 
 				/*  ; Calculate base clock                    */
 				/*  ; r1 = r2 * r1                            */
@@ -176,7 +145,7 @@ static unsigned char kwboot_baud_code[] = {
 
 				/*  ; Read new baudrate value                 */
 				/*  ; r2 = new_baudrate                       */
-	0x80, 0x20, 0x9f, 0xe5, /* ldr   r2, new_baudrate                     */
+	0x70, 0x20, 0x9f, 0xe5, /* ldr   r2, new_baudrate                     */
 
 				/*  ; Calculate new Divisor Latch             */
 				/*  ; r1 = DIV_ROUND(r1, r2) =                */
@@ -225,14 +194,8 @@ static unsigned char kwboot_baud_code[] = {
 	0x00, 0x00, 0x51, 0xe3, /* cmp   r1, #0                               */
 	0xfc, 0xff, 0xff, 0x1a, /* bne   .Lloop_sleep                         */
 
-	0x05, 0x00, 0x00, 0xea, /* b     end                                  */
-
-				/*  ; Preamble string                         */
-				/* preamble:                                  */
-	0x24, 0x62, 0x61, 0x75, /* .asciz "$baudratechange"                   */
-	0x64, 0x72, 0x61, 0x74,
-	0x65, 0x63, 0x68, 0x61,
-	0x6e, 0x67, 0x65, 0x00,
+				/*  ; Jump to the end of execution            */
+	0x01, 0x00, 0x00, 0xea, /* b     end                                  */
 
 				/*  ; Placeholder for old baudrate value      */
 				/* old_baudrate:                              */
@@ -245,12 +208,66 @@ static unsigned char kwboot_baud_code[] = {
 				/* end:                                       */
 };
 
-/* ARM code for storing registers for future returning back to the bootrom */
+/* ARM code from binary header executed by BootROM before changing baudrate */
 static unsigned char kwboot_baud_code_binhdr_pre[] = {
+				/* ; #define UART_BASE 0xd0012000             */
+				/* ; #define THR       0x00                   */
+				/* ; #define LSR       0x14                   */
+				/* ; #define   THRE    0x20                   */
+				/* ;                                          */
+				/* ; void send_preamble(void) {               */
+				/* ;   const u8 *str = "$baudratechange";     */
+				/* ;   u8 c;                                  */
+				/* ;   do {                                   */
+				/* ;       while                              */
+				/* ;       ((readl(UART_BASE + LSR) & THRE)); */
+				/* ;       c = *str++;                        */
+				/* ;       writel(UART_BASE + THR, c);        */
+				/* ;   } while (c);                           */
+				/* ; }                                        */
+
+				/*  ; Preserve registers for BootROM          */
 	0xfe, 0x5f, 0x2d, 0xe9, /* push  { r1 - r12, lr }                     */
+
+				/*  ; r0 = UART_BASE                          */
+	0x0d, 0x02, 0xa0, 0xe3, /* mov   r0, #0xd0000000                      */
+	0x12, 0x0a, 0x80, 0xe3, /* orr   r0, r0, #0x12000                     */
+
+				/*  ; r2 = address of preamble string         */
+	0x00, 0x20, 0x8f, 0xe2, /* adr   r2, .Lstr_preamble                   */
+
+				/*  ; Skip preamble data section              */
+	0x03, 0x00, 0x00, 0xea, /* b     .Lloop_preamble                      */
+
+				/*  ; Preamble string                         */
+				/* .Lstr_preamble:                            */
+	0x24, 0x62, 0x61, 0x75, /* .asciz "$baudratechange"                   */
+	0x64, 0x72, 0x61, 0x74,
+	0x65, 0x63, 0x68, 0x61,
+	0x6e, 0x67, 0x65, 0x00,
+
+				/*  ; Send preamble string over UART          */
+				/* .Lloop_preamble:                           */
+				/*                                            */
+				/*  ; Wait until Transmitter Holding is Empty */
+				/* .Lloop_thre:                               */
+				/*  ; r1 = UART_BASE[LSR] & THRE              */
+	0x14, 0x10, 0x90, 0xe5, /* ldr   r1, [r0, #0x14]                      */
+	0x20, 0x00, 0x11, 0xe3, /* tst   r1, #0x20                            */
+	0xfc, 0xff, 0xff, 0x0a, /* beq   .Lloop_thre                          */
+
+				/*  ; Put character into Transmitter FIFO     */
+				/*  ; r1 = *r2++                              */
+	0x01, 0x10, 0xd2, 0xe4, /* ldrb  r1, [r2], #1                         */
+				/*  ; UART_BASE[THR] = r1                     */
+	0x00, 0x10, 0x80, 0xe5, /* str   r1, [r0, #0x0]                       */
+
+				/*  ; Loop until end of preamble string       */
+	0x00, 0x00, 0x51, 0xe3, /* cmp   r1, #0                               */
+	0xf8, 0xff, 0xff, 0x1a, /* bne   .Lloop_preamble                      */
 };
 
-/* ARM code for returning back to the bootrom */
+/* ARM code for returning from binary header back to BootROM */
 static unsigned char kwboot_baud_code_binhdr_post[] = {
 				/*  ; Return 0 - no error                     */
 	0x00, 0x00, 0xa0, 0xe3, /* mov   r0, #0                               */
@@ -1078,18 +1095,6 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 		return rc;
 
 	if (baudrate) {
-		char buf[sizeof(kwb_baud_magic)];
-
-		kwboot_printv("Waiting 1s for baudrate change magic\n");
-		rc = kwboot_tty_recv(tty, buf, sizeof(buf), 1000);
-		if (rc)
-			return rc;
-
-		if (memcmp(buf, kwb_baud_magic, sizeof(buf))) {
-			errno = EPROTO;
-			return -1;
-		}
-
 		kwboot_printv("\nChanging baudrate back to 115200 Bd\n\n");
 		rc = kwboot_tty_change_baudrate(tty, 115200);
 		if (rc)
