@@ -443,7 +443,7 @@ static void tsec_halt(struct udevice *dev)
  * of the eTSEC port initialization sequence,
  * the eTSEC Rx logic may not be properly initialized.
  */
-void redundant_init(struct tsec_private *priv)
+static void redundant_init(struct tsec_private *priv)
 {
 	struct tsec __iomem *regs = priv->regs;
 	uint t, count = 0;
