@@ -36,4 +36,3 @@ CONFIG_SYSCON=y
 # CONFIG_REGEX is not set
 # CONFIG_GZIP is not set
 CONFIG_EFI=y
-# CONFIG_EFI_LOADER is not set
