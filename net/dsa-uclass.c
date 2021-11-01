@@ -270,7 +270,7 @@ static void dsa_port_set_hwaddr(struct udevice *pdev, struct udevice *master)
 		struct eth_ops *eth_ops = eth_get_ops(master);
 
 		if (eth_ops->set_promisc)
-			eth_ops->set_promisc(master, 1);
+			eth_ops->set_promisc(master, true);
 
 		return;
 	}
