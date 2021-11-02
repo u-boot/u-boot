@@ -106,7 +106,7 @@ static int fdt_qportal(void *blob, int off, int id, char *name,
 		       enum fsl_dpaa_dev dev, int create)
 {
 	int childoff, dev_off, ret = 0;
-	u32 dev_handle;
+	unsigned int dev_handle;
 #ifdef CONFIG_FSL_CORENET
 	int num;
 	u32 liodns[2];
@@ -142,11 +142,9 @@ static int fdt_qportal(void *blob, int off, int id, char *name,
 		if (childoff > 0) {
 			dev_handle = fdt_get_phandle(blob, dev_off);
 			if (dev_handle <= 0) {
-				dev_handle = fdt_alloc_phandle(blob);
-				ret = fdt_set_phandle(blob, dev_off,
-						      dev_handle);
-				if (ret < 0)
-					return ret;
+				dev_handle = fdt_create_phandle(blob, dev_off);
+				if (!dev_handle)
+					return -FDT_ERR_NOPHANDLES;
 			}
 
 			ret = fdt_setprop(blob, childoff, "dev-handle",
