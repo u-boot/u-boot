@@ -569,7 +569,7 @@ config TARGET_KP_IMX6Q_TPC
 	imply CMD_SPL
 
 config TARGET_TQMA6
-	bool "TQ Systems TQMa6 board"
+	bool "TQ-Systems TQMa6 board"
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select MXC_SPI

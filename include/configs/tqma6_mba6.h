@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2013 - 2017 Markus Niebel <Markus.Niebel@tq-group.com>
  *
- * Configuration settings for the TQ Systems TQMa6<Q,D,DL,S> module on
+ * Configuration settings for the TQ-Systems TQMa6<Q,D,DL,S> module on
  * MBa6 starter kit
  */
 
