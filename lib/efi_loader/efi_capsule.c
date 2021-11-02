@@ -256,7 +256,7 @@ out:
 }
 
 #if defined(CONFIG_EFI_CAPSULE_AUTHENTICATE)
-int __weak efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
+int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
 {
 	const void *fdt_blob = gd->fdt_blob;
 	const void *blob;
