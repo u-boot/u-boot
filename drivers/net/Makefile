@@ -102,3 +102,4 @@ obj-$(CONFIG_HIGMACV300_ETH) += higmacv300.o
 obj-$(CONFIG_MDIO_SANDBOX) += mdio_sandbox.o
 obj-$(CONFIG_FSL_ENETC) += fsl_enetc.o fsl_enetc_mdio.o
 obj-$(CONFIG_FSL_LS_MDIO) += fsl_ls_mdio.o
+obj-$(CONFIG_ASPEED_MDIO) += aspeed_mdio.o
