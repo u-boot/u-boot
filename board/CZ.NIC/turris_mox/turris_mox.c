@@ -56,9 +56,11 @@ int board_fix_fdt(void *blob)
 	 * to read SPI by reading/writing SPI registers directly
 	 */
 
-	writel(0x10df, ARMADA_37XX_SPI_CFG);
 	/* put pin from GPIO to SPI mode */
 	clrbits_le32(ARMADA_37XX_NB_GPIO_SEL, BIT(12));
+	/* configure cpol, cpha, prescale */
+	writel(0x10df, ARMADA_37XX_SPI_CFG);
+	mdelay(1);
 	/* enable SPI CS1 */
 	setbits_le32(ARMADA_37XX_SPI_CTRL, BIT(17));
 
