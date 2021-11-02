@@ -91,7 +91,7 @@
 	u-boot,dm-spl;
 };
 
-&qspi0 {	/* this should notify spl of this spi*/
+&qspi0 {
 	u-boot,dm-spl;
 };
 

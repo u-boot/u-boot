@@ -568,7 +568,6 @@ int spl_init(void)
 __weak void board_boot_order(u32 *spl_boot_list)
 {
 	spl_boot_list[0] = spl_boot_device();
-	spl_boot_list[1] = BOOT_DEVICE_MMC1;
 }
 
 static struct spl_image_loader *spl_ll_find_loader(uint boot_device)

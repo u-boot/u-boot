@@ -8,7 +8,6 @@
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_$(SPL_TPL_)FRAMEWORK) += spl.o
-CFLAGS_spl.o+= -DDEBUG -DCONFIG_LOGLEVEL=8
 obj-$(CONFIG_$(SPL_TPL_)BOOTROM_SUPPORT) += spl_bootrom.o
 obj-$(CONFIG_$(SPL_TPL_)LOAD_FIT) += spl_fit.o
 obj-$(CONFIG_$(SPL_TPL_)LEGACY_IMAGE_SUPPORT) += spl_legacy.o
@@ -31,7 +30,6 @@ obj-$(CONFIG_$(SPL_TPL_)FS_EXT4) += spl_ext.o
 obj-$(CONFIG_$(SPL_TPL_)SATA) += spl_sata.o
 obj-$(CONFIG_$(SPL_TPL_)DFU) += spl_dfu.o
 obj-$(CONFIG_$(SPL_TPL_)SPI_LOAD) += spl_spi.o
-CFLAGS_spl_spi.o+= -DDEBUG -DCONFIG_LOGLEVEL=8
 obj-$(CONFIG_$(SPL_TPL_)RAM_SUPPORT) += spl_ram.o
 obj-$(CONFIG_$(SPL_TPL_)USB_SDP_SUPPORT) += spl_sdp.o
 endif

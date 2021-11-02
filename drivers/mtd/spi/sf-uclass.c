@@ -19,7 +19,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int spi_flash_read_dm(struct udevice *dev, u32 offset, size_t len, void *buf)
 {
-	// FIXME this seems to execute a null pointer
 	return log_ret(sf_get_ops(dev)->read(dev, offset, len, buf));
 }
 
@@ -55,13 +54,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	if (spi_flash_probe_bus_cs(bus, cs, max_hz, spi_mode, &dev))
 		return NULL;
 
-	struct spi_flash* flash = dev_get_uclass_priv(dev);
-
-	// this dev does not contain a #define sf_get_ops(dev) ((struct dm_spi_flash_ops *)(dev)->driver->ops)
-	//if(flash)
-	//	flash->dev = dev;
-
-	return flash;
+	return dev_get_uclass_priv(dev);
 }
 
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
@@ -81,7 +74,6 @@ int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 	snprintf(name, sizeof(name), "spi_flash@%d:%d", busnum, cs);
 	str = strdup(name);
 #endif
-	printf("probing %s\n", str);	//FIXME: Make this debug mode
 	ret = spi_get_bus_and_cs(busnum, cs, max_hz, spi_mode,
 				  "jedec_spi_nor", str, &bus, &slave);
 	if (ret)

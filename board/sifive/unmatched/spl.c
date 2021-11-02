@@ -127,7 +127,6 @@ u32 spl_boot_device(void)
 	case MODE_SELECT_SD:
 		return BOOT_DEVICE_MMC1;
 	case MODE_SELECT_QSPI:
-		puts("Boot from NOR-Flash not yet supported, but we'll try it anyway\n");
 		return BOOT_DEVICE_SPI;
 	default:
 		debug("Unsupported boot device 0x%x but trying MMC1\n",
@@ -135,6 +134,15 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_MMC1;
 	}
 }
+
+// overriding spl.c
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+	// enable fallback to booting from SD-Card
+	spl_boot_list[1] = BOOT_DEVICE_MMC1;
+}
+
 
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)

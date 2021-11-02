@@ -18,7 +18,10 @@
 	};
 
 	config {
-		u-boot,spl-payload-offset = <0x104400>; /* second partition @2082*512 = 0x104400 */
+		/* second partition @2082*512 = 0x104400
+		   see board/sifive/unmatched/genimage_spi-nor.cfg
+		*/
+		u-boot,spl-payload-offset = <0x104400>;
 	};
 
 	hfclk {
@@ -37,7 +40,7 @@
 
 &qspi0 {
 	flash@0 {
-		u-boot,dm-spl;	/* this should notify spl of this flash*/
+		u-boot,dm-spl;
 	};
 };
 
