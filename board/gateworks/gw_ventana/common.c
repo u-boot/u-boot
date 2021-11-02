@@ -1681,8 +1681,7 @@ void ft_early_fixup(void *blob, int board_type)
 		 * disable serial2 node for GW54xx for compatibility with older
 		 * 3.10.x kernel that improperly had this node enabled in the DT
 		 */
-		fdt_set_status_by_alias(blob, "serial2", FDT_STATUS_DISABLED,
-					0);
+		fdt_set_status_by_alias(blob, "serial2", FDT_STATUS_DISABLED);
 
 		/* GW54xx-E adds WDOG2_B external reset */
 		if (rev < 'E')

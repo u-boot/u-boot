@@ -1541,14 +1541,10 @@ unsigned int fdt_create_phandle(void *fdt, int nodeoffset)
  *
  * @fdt: ptr to device tree
  * @nodeoffset: node to update
- * @status: FDT_STATUS_OKAY, FDT_STATUS_DISABLED,
- *	    FDT_STATUS_FAIL, FDT_STATUS_FAIL_ERROR_CODE
- * @error_code: optional, only used if status is FDT_STATUS_FAIL_ERROR_CODE
+ * @status: FDT_STATUS_OKAY, FDT_STATUS_DISABLED, FDT_STATUS_FAIL
  */
-int fdt_set_node_status(void *fdt, int nodeoffset,
-			enum fdt_status status, unsigned int error_code)
+int fdt_set_node_status(void *fdt, int nodeoffset, enum fdt_status status)
 {
-	char buf[16];
 	int ret = 0;
 
 	if (nodeoffset < 0)
@@ -1564,10 +1560,6 @@ int fdt_set_node_status(void *fdt, int nodeoffset,
 	case FDT_STATUS_FAIL:
 		ret = fdt_setprop_string(fdt, nodeoffset, "status", "fail");
 		break;
-	case FDT_STATUS_FAIL_ERROR_CODE:
-		sprintf(buf, "fail-%d", error_code);
-		ret = fdt_setprop_string(fdt, nodeoffset, "status", buf);
-		break;
 	default:
 		printf("Invalid fdt status: %x\n", status);
 		ret = -1;
@@ -1582,16 +1574,14 @@ int fdt_set_node_status(void *fdt, int nodeoffset,
  *
  * @fdt: ptr to device tree
  * @alias: alias of node to update
- * @status: FDT_STATUS_OKAY, FDT_STATUS_DISABLED,
- *	    FDT_STATUS_FAIL, FDT_STATUS_FAIL_ERROR_CODE
- * @error_code: optional, only used if status is FDT_STATUS_FAIL_ERROR_CODE
+ * @status: FDT_STATUS_OKAY, FDT_STATUS_DISABLED, FDT_STATUS_FAIL
  */
 int fdt_set_status_by_alias(void *fdt, const char* alias,
-			    enum fdt_status status, unsigned int error_code)
+			    enum fdt_status status)
 {
 	int offset = fdt_path_offset(fdt, alias);
 
-	return fdt_set_node_status(fdt, offset, status, error_code);
+	return fdt_set_node_status(fdt, offset, status);
 }
 
 #if defined(CONFIG_VIDEO) || defined(CONFIG_LCD)
