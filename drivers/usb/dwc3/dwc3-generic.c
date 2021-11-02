@@ -25,6 +25,7 @@
 #include <reset.h>
 #include <clk.h>
 #include <usb/xhci.h>
+#include <asm/gpio.h>
 
 struct dwc3_glue_data {
 	struct clk_bulk		clks;
@@ -86,10 +87,11 @@ static void dwc3_frame_length_adjustment(struct udevice *dev, struct dwc3 *dwc)
 static int dwc3_generic_probe(struct udevice *dev,
 			      struct dwc3_generic_priv *priv)
 {
-	int rc;
+	int rc, ret;
 	struct dwc3_generic_plat *plat = dev_get_platdata(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
 	struct dwc3_glue_data *glue = dev_get_platdata(dev->parent);
+	struct gpio_desc reset_gpio;
 
 	dwc3->dev = dev;
 	dwc3->maximum_speed = plat->maximum_speed;
@@ -110,6 +112,19 @@ static int dwc3_generic_probe(struct udevice *dev,
 	rc = dwc3_setup_phy(dev, &priv->phys);
 	if (rc && rc != -ENOTSUPP)
 		return rc;
+
+	if (device_is_compatible(dev->parent, "xlnx,zynqmp-dwc3")) {
+		ret = gpio_request_by_name(dev->parent, "reset-gpios", 0,
+					   &reset_gpio, GPIOD_ACTIVE_LOW);
+		if (ret != -EBUSY && ret)
+			return ret;
+
+		/* Toggle ulpi to reset the phy. */
+		dm_gpio_set_value(&reset_gpio, 1);
+		mdelay(5);
+		dm_gpio_set_value(&reset_gpio, 0);
+		mdelay(5);
+	}
 
 	if (device_is_compatible(dev->parent, "rockchip,rk3399-dwc3"))
 		reset_deassert_bulk(&glue->resets);
