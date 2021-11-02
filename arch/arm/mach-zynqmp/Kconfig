@@ -24,6 +24,14 @@ config SPL_SPI_FLASH_SUPPORT
 config SPL_SPI
 	default y if ZYNQ_QSPI
 
+config SYS_SPI_U_BOOT_OFFS2
+	default 0xaa0000
+	hex "address of secondary u-boot payload in SPI flash"
+	depends on SPL_SPI_LOAD
+	help
+	  Address within SPI-Flash from where the u-boot secondary payload
+	  is fetched from.
+
 config SYS_BOARD
 	string "Board name"
 	default "zynqmp"

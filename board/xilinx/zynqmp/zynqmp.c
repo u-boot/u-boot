@@ -1013,6 +1013,40 @@ void set_dfu_alt_info(char *interface, char *devstr)
 }
 #endif
 
+#if defined(CONFIG_SPL_SPI_SUPPORT)
+unsigned int spl_spi_get_uboot_offs(struct spi_flash *flash)
+{
+	int ret;
+	u32 multiboot;
+	u32 spi_offset = 0;
+
+	multiboot = multi_boot_get();
+
+	/*
+	 * Primary boot.bin offset   - 0x0 (multiboot == 0)
+	 * Secondary boot.bin offset - 0x50000 (multiboot == 10,
+	 *                             as 10 * 32KB == 0x50000)
+	 */
+	switch(multiboot) {
+	case 0:
+		spi_offset = CONFIG_SYS_SPI_U_BOOT_OFFS;
+		break;
+	case 10:
+		spi_offset = CONFIG_SYS_SPI_U_BOOT_OFFS2;
+		break;
+	default:
+		printf("Invalid value of multiboot register, value = %d\n",
+		       multiboot);
+		hang();
+		break;
+	}
+
+	printf("SPL: Booting next image from 0x%x SPI offset\n", spi_offset);
+
+	return spi_offset;
+}
+#endif
+
 #if defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME)
 int spl_mmc_get_uboot_payload_filename(char *filename, size_t len,
 				       const u32 boot_device)
