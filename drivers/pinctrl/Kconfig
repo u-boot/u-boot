@@ -291,6 +291,15 @@ config ASPEED_AST2500_PINCTRL
 	  uses Generic Pinctrl framework and is compatible with the Linux
 	  driver, i.e. it uses the same device tree configuration.
 
+config ASPEED_AST2600_PINCTRL
+	bool "Aspeed AST2600 pin control driver"
+	depends on DM && PINCTRL_GENERIC && ASPEED_AST2600
+	default y
+	help
+	  Support pin multiplexing control on Aspeed ast2600 SoC. The driver
+	  uses Generic Pinctrl framework and is compatible with the Linux
+	  driver, i.e. it uses the same device tree configuration.
+
 config PINCTRL_K210
 	bool "Kendryte K210 Fully-Programmable Input/Output Array driver"
 	depends on DM && PINCTRL_GENERIC
