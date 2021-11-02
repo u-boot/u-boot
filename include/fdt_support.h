@@ -285,7 +285,6 @@ int fdt_get_dma_range(const void *blob, int node_offset, phys_addr_t *cpu,
 
 int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 					phys_addr_t compat_off);
-int fdt_alloc_phandle(void *blob);
 int fdt_set_phandle(void *fdt, int nodeoffset, uint32_t phandle);
 unsigned int fdt_create_phandle(void *fdt, int nodeoffset);
 int fdt_add_edid(void *blob, const char *compat, unsigned char *buf);
