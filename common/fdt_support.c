@@ -1504,7 +1504,7 @@ int fdt_set_phandle(void *fdt, int nodeoffset, uint32_t phandle)
 }
 
 /*
- * fdt_create_phandle: Create a phandle property for the given node
+ * fdt_create_phandle: Get or create a phandle property for the given node
  *
  * @fdt: ptr to device tree
  * @nodeoffset: node to update
