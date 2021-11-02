@@ -68,6 +68,26 @@ ssize_t meson_sm_read_efuse(uintptr_t offset, void *buffer, size_t size)
 	return regs.regs[0];
 }
 
+ssize_t meson_sm_write_efuse(uintptr_t offset, void *buffer, size_t size)
+{
+	struct pt_regs regs;
+
+	meson_init_shmem();
+
+        memcpy(shmem_input, buffer, size);
+
+	regs.regs[0] = FN_EFUSE_WRITE;
+	regs.regs[1] = offset;
+	regs.regs[2] = size;
+
+	smc_call(&regs);
+
+	if (regs.regs[0] == 0)
+		return -1;
+
+	return 0;
+}
+
 #define SM_CHIP_ID_LENGTH	119
 #define SM_CHIP_ID_OFFSET	4
 #define SM_CHIP_ID_SIZE		12
@@ -187,9 +207,53 @@ static int do_sm_reboot_reason(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
+static int do_efuse_read(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	ulong address, offset, size;
+	int ret;
+
+	if (argc < 4)
+		return CMD_RET_USAGE;
+
+        offset = simple_strtoul(argv[1], NULL, 0);
+        size = simple_strtoul(argv[2], NULL, 0);
+
+        address = simple_strtoul(argv[3], NULL, 0);
+
+	ret = meson_sm_read_efuse(offset, (void *)address, size);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
+}
+
+static int do_efuse_write(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	ulong address, offset, size;
+	int ret;
+
+	if (argc < 4)
+		return CMD_RET_USAGE;
+
+        offset = simple_strtoul(argv[1], NULL, 0);
+        size = simple_strtoul(argv[2], NULL, 0);
+
+        address = simple_strtoul(argv[3], NULL, 0);
+
+	ret = meson_sm_write_efuse(offset, (void *)address, size);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct cmd_tbl cmd_sm_sub[] = {
 	U_BOOT_CMD_MKENT(serial, 2, 1, do_sm_serial, "", ""),
 	U_BOOT_CMD_MKENT(reboot_reason, 1, 1, do_sm_reboot_reason, "", ""),
+	U_BOOT_CMD_MKENT(efuseread, 4, 1, do_efuse_read, "", ""),
+	U_BOOT_CMD_MKENT(efusewrite, 4, 0, do_efuse_write, "", ""),
 };
 
 static int do_sm(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -216,5 +280,7 @@ U_BOOT_CMD(
 	sm, 5, 0, do_sm,
 	"Secure Monitor Control",
 	"serial <address> - read chip unique id to memory address\n"
-	"sm reboot_reason [name] - get reboot reason and store to to environment"
+	"sm reboot_reason [name] - get reboot reason and store to to environment\n"
+	"sm efuseread <offset> <size> <address> - read efuse to memory address\n"
+	"sm efusewrite <offset> <size> <address> - write into efuse from memory address"
 );
