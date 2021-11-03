@@ -25,10 +25,7 @@ int sysinfo_detect(struct udevice *dev)
 	struct sysinfo_priv *priv = dev_get_uclass_priv(dev);
 	struct sysinfo_ops *ops = sysinfo_get_ops(dev);
 
-	if (!ops->detect)
-		return -ENOSYS;
-
-	ret = ops->detect(dev);
+	ret = ops->detect ? ops->detect(dev) : 0;
 	if (!ret)
 		priv->detected = true;
 
