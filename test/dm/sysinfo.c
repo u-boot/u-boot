@@ -58,6 +58,19 @@ static int dm_test_sysinfo(struct unit_test_state *uts)
 				       str));
 	ut_asserteq_str(str, "Yuggoth");
 
+	ut_asserteq(6, sysinfo_get_str_list(sysinfo, STR_VACATIONSPOT, 0,
+					    sizeof(str), str));
+	ut_asserteq_str(str, "R'lyeh");
+
+	ut_asserteq(17, sysinfo_get_str_list(sysinfo, STR_VACATIONSPOT, 5, 6,
+					     str));
+	ut_asserteq_str(str, "The N");
+
+	ut_asserteq(-ENOENT, sysinfo_get_str_list(sysinfo, INT_TEST1, 0,
+						  sizeof(str), str));
+	ut_asserteq(-ERANGE, sysinfo_get_str_list(sysinfo, STR_VACATIONSPOT, 10,
+						  sizeof(str), str));
+
 	return 0;
 }
 

@@ -107,6 +107,25 @@ struct sysinfo_ops {
 	int (*get_str)(struct udevice *dev, int id, size_t size, char *val);
 
 	/**
+	 * get_str_list() - Read a specific string data value from a string list
+	 *		    that describes hardware setup.
+	 * @dev:	The sysinfo instance to gather the data.
+	 * @id:		A unique identifier for the string list to read from.
+	 * @idx:	The index of the string in the string list.
+	 * @size:	The size of the buffer to receive the string data.
+	 *		If the buffer is not large enough to contain the whole
+	 *		string, the string must be trimmed to fit in the
+	 *		buffer including the terminating NULL-byte.
+	 * @val:	Pointer to a buffer that receives the value read.
+	 *
+	 * Return: Actual length of the string excluding the terminating
+	 *	   NULL-byte if OK, -ENOENT if list with ID @id does not exist,
+	 *	   -ERANGE if @idx is invalid or -ve on error.
+	 */
+	int (*get_str_list)(struct udevice *dev, int id, unsigned idx,
+			    size_t size, char *val);
+
+	/**
 	 * get_fit_loadable - Get the name of an image to load from FIT
 	 * This function can be used to provide the image names based on runtime
 	 * detection. A classic use-case would when DTBOs are used to describe
@@ -181,6 +200,25 @@ int sysinfo_get_int(struct udevice *dev, int id, int *val);
 int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val);
 
 /**
+ * sysinfo_get_str_list() - Read a specific string data value from a string list
+ *			    that describes hardware setup.
+ * @dev:	The sysinfo instance to gather the data.
+ * @id:		A unique identifier for the string list to read from.
+ * @idx:	The index of the string in the string list.
+ * @size:	The size of the buffer to receive the string data. If the buffer
+ *		is not large enough to contain the whole string, the string will
+ *		be trimmed to fit in the buffer including the terminating
+ *		NULL-byte.
+ * @val:	Pointer to a buffer that receives the value read.
+ *
+ * Return: Actual length of the string excluding the terminating NULL-byte if
+ *	   OK, -ENOENT if list with ID @id does not exist, -ERANGE if @idx is
+ *	   invalid, -EPERM if called before sysinfo_detect(), else -ve on error.
+ */
+int sysinfo_get_str_list(struct udevice *dev, int id, unsigned idx, size_t size,
+			 char *val);
+
+/**
  * sysinfo_get() - Return the sysinfo device for the sysinfo in question.
  * @devp: Pointer to structure to receive the sysinfo device.
  *
@@ -231,6 +269,12 @@ static inline int sysinfo_get_int(struct udevice *dev, int id, int *val)
 
 static inline int sysinfo_get_str(struct udevice *dev, int id, size_t size,
 				  char *val)
+{
+	return -ENOSYS;
+}
+
+static inline int sysinfo_get_str_list(struct udevice *dev, int id,
+				       unsigned idx, size_t size, char *val)
 {
 	return -ENOSYS;
 }

@@ -92,6 +92,21 @@ int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val)
 	return ops->get_str(dev, id, size, val);
 }
 
+int sysinfo_get_str_list(struct udevice *dev, int id, unsigned idx, size_t size,
+			 char *val)
+{
+	struct sysinfo_priv *priv = dev_get_uclass_priv(dev);
+	struct sysinfo_ops *ops = sysinfo_get_ops(dev);
+
+	if (!priv->detected)
+		return -EPERM;
+
+	if (!ops->get_str_list)
+		return -ENOSYS;
+
+	return ops->get_str_list(dev, id, idx, size, val);
+}
+
 UCLASS_DRIVER(sysinfo) = {
 	.id		= UCLASS_SYSINFO,
 	.name		= "sysinfo",
