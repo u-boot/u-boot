@@ -283,9 +283,12 @@ int env_set_default_vars(int nvars, char * const vars[], int flags)
 	 * (and use \0 as a separator)
 	 */
 	flags |= H_NOCLEAR | H_DEFAULT;
-	return himport_r(&env_htab, default_environment,
-				sizeof(default_environment), '\0',
-				flags, 0, nvars, vars);
+	if (!himport_r(&env_htab, default_environment,
+		       sizeof(default_environment), '\0', flags, 0, nvars,
+		       vars))
+		return -errno;
+
+	return 0;
 }
 
 /*

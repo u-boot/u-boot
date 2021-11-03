@@ -245,6 +245,7 @@ void env_fix_drivers(void);
  * @nvars: Number of variables to set/reset
  * @vars: List of variables to set/reset
  * @flags: Flags controlling matching (H_... - see search.h)
+ * @return 0 if OK, -ve on error
  */
 int env_set_default_vars(int nvars, char *const vars[], int flags);
 
