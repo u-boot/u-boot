@@ -28,7 +28,7 @@ static int dm_test_virtio_base(struct unit_test_state *uts)
 	/* check the child virtio-blk device is bound */
 	ut_assertok(device_find_first_child(bus, &dev));
 	ut_assertnonnull(dev);
-	ut_assertok(strcmp(dev->name, "virtio-blk#0"));
+	ut_asserteq_str(dev->name, "virtio-blk#0");
 
 	/* check driver status */
 	ut_assertok(virtio_get_status(dev, &status));

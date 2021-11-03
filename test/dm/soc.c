@@ -91,10 +91,10 @@ static int dm_test_soc(struct unit_test_state *uts)
 	ut_assertok(soc_get(&dev));
 
 	ut_assertok(soc_get_machine(dev, text, sizeof(text)));
-	ut_assertok(strcmp(text, "SANDBOX123"));
+	ut_asserteq_str(text, "SANDBOX123");
 
 	ut_assertok(soc_get_family(dev, text, sizeof(text)));
-	ut_assertok(strcmp(text, "SANDBOX1xx"));
+	ut_asserteq_str(text, "SANDBOX1xx");
 
 	ut_assertok(soc_get_revision(dev, text, sizeof(text)));
 	ut_asserteq_str(text, "1.0");

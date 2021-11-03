@@ -32,13 +32,13 @@ static int print_guid(struct unit_test_state *uts)
 	char str[40];
 
 	sprintf(str, "%pUb", guid);
-	ut_assertok(strcmp("01020304-0506-0708-090a-0b0c0d0e0f10", str));
+	ut_asserteq_str("01020304-0506-0708-090a-0b0c0d0e0f10", str);
 	sprintf(str, "%pUB", guid);
-	ut_assertok(strcmp("01020304-0506-0708-090A-0B0C0D0E0F10", str));
+	ut_asserteq_str("01020304-0506-0708-090A-0B0C0D0E0F10", str);
 	sprintf(str, "%pUl", guid);
-	ut_assertok(strcmp("04030201-0605-0807-090a-0b0c0d0e0f10", str));
+	ut_asserteq_str("04030201-0605-0807-090a-0b0c0d0e0f10", str);
 	sprintf(str, "%pUL", guid);
-	ut_assertok(strcmp("04030201-0605-0807-090A-0B0C0D0E0F10", str));
+	ut_asserteq_str("04030201-0605-0807-090A-0B0C0D0E0F10", str);
 
 	return 0;
 }
@@ -70,11 +70,11 @@ static int print_efi_ut(struct unit_test_state *uts)
 	dp_end->length = sizeof(struct efi_device_path);
 
 	snprintf(str, sizeof(str), "_%pD_", buf);
-	ut_assertok(strcmp("_/SD(3)_", str));
+	ut_asserteq_str("_/SD(3)_", str);
 
 	/* NULL device path */
 	snprintf(str, sizeof(str), "_%pD_", NULL);
-	ut_assertok(strcmp("_<NULL>_", str));
+	ut_asserteq_str("_<NULL>_", str);
 
 	return 0;
 }
@@ -89,41 +89,41 @@ static int print_printf(struct unit_test_state *uts)
 	int len;
 
 	snprintf(str, sizeof(str), "testing");
-	ut_assertok(strcmp("testing", str));
+	ut_asserteq_str("testing", str);
 
 	snprintf(str, sizeof(str), "testing but too long");
-	ut_assertok(strcmp("testing b", str));
+	ut_asserteq_str("testing b", str);
 
 	snprintf(str, 1, "testing none");
-	ut_assertok(strcmp("", str));
+	ut_asserteq_str("", str);
 
 	*str = 'x';
 	snprintf(str, 0, "testing none");
 	ut_asserteq('x', *str);
 
 	sprintf(big_str, "_%ls_", L"foo");
-	ut_assertok(strcmp("_foo_", big_str));
+	ut_asserteq_str("_foo_", big_str);
 
 	/* Test the banner function */
 	s = display_options_get_banner(true, str, sizeof(str));
 	ut_asserteq_ptr(str, s);
-	ut_assertok(strcmp("\n\nU-Boo\n\n", s));
+	ut_asserteq_str("\n\nU-Boo\n\n", s);
 
 	/* Assert that we do not overwrite memory before the buffer */
 	str[0] = '`';
 	s = display_options_get_banner(true, str + 1, 1);
 	ut_asserteq_ptr(str + 1, s);
-	ut_assertok(strcmp("`", str));
+	ut_asserteq_str("`", str);
 
 	str[0] = '~';
 	s = display_options_get_banner(true, str + 1, 2);
 	ut_asserteq_ptr(str + 1, s);
-	ut_assertok(strcmp("~\n", str));
+	ut_asserteq_str("~\n", str);
 
 	/* The last two characters are set to \n\n for all buffer sizes > 2 */
 	s = display_options_get_banner(false, str, sizeof(str));
 	ut_asserteq_ptr(str, s);
-	ut_assertok(strcmp("U-Boot \n\n", s));
+	ut_asserteq_str("U-Boot \n\n", s);
 
 	/* Give it enough space for some of the version */
 	big_str_len = strlen(version_string) - 5;
@@ -131,7 +131,7 @@ static int print_printf(struct unit_test_state *uts)
 					    big_str_len);
 	ut_asserteq_ptr(big_str, s);
 	ut_assertok(strncmp(version_string, s, big_str_len - 3));
-	ut_assertok(strcmp("\n\n", s + big_str_len - 3));
+	ut_asserteq_str("\n\n", s + big_str_len - 3);
 
 	/* Give it enough space for the version and some of the build tag */
 	big_str_len = strlen(version_string) + 9 + 20;
@@ -142,7 +142,7 @@ static int print_printf(struct unit_test_state *uts)
 	ut_assertok(strncmp(version_string, s, len));
 	ut_assertok(strncmp(", Build: ", s + len, 9));
 	ut_assertok(strncmp(FAKE_BUILD_TAG, s + 9 + len, 12));
-	ut_assertok(strcmp("\n\n", s + big_str_len - 3));
+	ut_asserteq_str("\n\n", s + big_str_len - 3);
 
 	return 0;
 }

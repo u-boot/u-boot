@@ -36,7 +36,7 @@ static int dm_test_sysinfo(struct unit_test_state *uts)
 
 	ut_asserteq(6, sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str),
 				       str));
-	ut_assertok(strcmp(str, "R'lyeh"));
+	ut_asserteq_str(str, "R'lyeh");
 
 	ut_assertok(sysinfo_get_int(sysinfo, INT_TEST1, &i));
 	ut_asserteq(0, i);
@@ -46,7 +46,7 @@ static int dm_test_sysinfo(struct unit_test_state *uts)
 
 	ut_asserteq(7, sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str),
 				       str));
-	ut_assertok(strcmp(str, "Carcosa"));
+	ut_asserteq_str(str, "Carcosa");
 
 	ut_assertok(sysinfo_get_int(sysinfo, INT_TEST1, &i));
 	ut_asserteq(1, i);
@@ -56,7 +56,7 @@ static int dm_test_sysinfo(struct unit_test_state *uts)
 
 	ut_asserteq(7, sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str),
 				       str));
-	ut_assertok(strcmp(str, "Yuggoth"));
+	ut_asserteq_str(str, "Yuggoth");
 
 	return 0;
 }
