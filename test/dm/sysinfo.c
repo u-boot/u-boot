@@ -75,3 +75,38 @@ static int dm_test_sysinfo(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_sysinfo, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_sysinfo_str_list_iter(struct unit_test_state *uts)
+{
+	struct udevice *sysinfo;
+	char *value;
+	void *iter;
+	int idx;
+
+	ut_assertok(sysinfo_get(&sysinfo));
+	ut_assert(sysinfo);
+
+	sysinfo_detect(sysinfo);
+
+	idx = 0;
+	for_each_sysinfo_str_list(sysinfo, STR_VACATIONSPOT, value, iter) {
+		switch (idx) {
+		case 0:
+			ut_asserteq_str(value, "R'lyeh");
+			break;
+		case 2:
+			ut_asserteq_str(value, "Plateau of Leng");
+			break;
+		case 3:
+			ut_asserteq_str(value, "Carcosa");
+			break;
+		}
+		++idx;
+	}
+
+	ut_assert(NULL == iter);
+
+	return 0;
+}
+
+DM_TEST(dm_test_sysinfo_str_list_iter, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

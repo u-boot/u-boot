@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <sysinfo.h>
 
 struct sysinfo_priv {
@@ -102,6 +103,84 @@ int sysinfo_get_str_list(struct udevice *dev, int id, unsigned idx, size_t size,
 		return -ENOSYS;
 
 	return ops->get_str_list(dev, id, idx, size, val);
+}
+
+int sysinfo_get_str_list_max_len(struct udevice *dev, int id)
+{
+	int maxlen = 0;
+	unsigned i;
+
+	/* first find out length of the longest string in the list */
+	for (i = 0; ; ++i) {
+		char dummy[1];
+		int len;
+
+		len = sysinfo_get_str_list(dev, id, i, 0, dummy);
+		if (len == -ERANGE)
+			break;
+		else if (len < 0)
+			return len;
+		else if (len > maxlen)
+			maxlen = len;
+	}
+
+	return maxlen;
+}
+
+struct sysinfo_str_list_iter {
+	struct udevice *dev;
+	int id;
+	size_t size;
+	unsigned idx;
+	char value[];
+};
+
+char *sysinfo_str_list_first(struct udevice *dev, int id, void *_iter)
+{
+	struct sysinfo_str_list_iter *iter, **iterp = _iter;
+	int maxlen, res;
+
+	maxlen = sysinfo_get_str_list_max_len(dev, id);
+	if (maxlen < 0)
+		return NULL;
+
+	iter = malloc(sizeof(struct sysinfo_str_list_iter) + maxlen + 1);
+	if (!iter) {
+		printf("No memory for sysinfo string list iterator\n");
+		return NULL;
+	}
+
+	iter->dev = dev;
+	iter->id = id;
+	iter->size = maxlen + 1;
+	iter->idx = 0;
+
+	res = sysinfo_get_str_list(dev, id, 0, iter->size, iter->value);
+	if (res < 0) {
+		*iterp = NULL;
+		free(iter);
+		return NULL;
+	}
+
+	*iterp = iter;
+
+	return iter->value;
+}
+
+char *sysinfo_str_list_next(void *_iter)
+{
+	struct sysinfo_str_list_iter **iterp = _iter, *iter = *iterp;
+	int res;
+
+	res = sysinfo_get_str_list(iter->dev, iter->id, ++iter->idx, iter->size,
+				   iter->value);
+	if (res < 0) {
+		*iterp = NULL;
+		free(iter);
+		return NULL;
+	}
+
+	return iter->value;
 }
 
 UCLASS_DRIVER(sysinfo) = {
