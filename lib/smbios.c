@@ -144,7 +144,7 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 		int ret;
 
 		ret = sysinfo_get_str(ctx->dev, sysinfo_id, sizeof(val), val);
-		if (!ret)
+		if (ret >= 0)
 			return smbios_add_string(ctx, val);
 	}
 	if (IS_ENABLED(CONFIG_OF_CONTROL)) {

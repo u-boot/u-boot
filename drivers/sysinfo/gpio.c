@@ -79,7 +79,7 @@ static int sysinfo_gpio_get_str(struct udevice *dev, int id, size_t size, char *
 
 		strncpy(val, name, size);
 		val[size - 1] = '\0';
-		return 0;
+		return strlen(name);
 	} default:
 		return -EINVAL;
 	};

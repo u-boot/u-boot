@@ -95,10 +95,15 @@ struct sysinfo_ops {
 	 * @dev:	The sysinfo instance to gather the data.
 	 * @id:		A unique identifier for the string value to be read.
 	 * @size:	The size of the buffer to receive the string data.
+	 *		If the buffer is not large enough to contain the whole
+	 *		string, the string must be trimmed to fit in the
+	 *		buffer including the terminating NULL-byte.
 	 * @val:	Pointer to a buffer that receives the value read.
 	 *
-	 * Return: 0 if OK, -ve on error.
+	 * Return: Actual length of the string excluding the terminating
+	 *	   NULL-byte if OK, -ve on error.
 	 */
+
 	int (*get_str)(struct udevice *dev, int id, size_t size, char *val);
 
 	/**
@@ -164,11 +169,14 @@ int sysinfo_get_int(struct udevice *dev, int id, int *val);
  *		     hardware setup.
  * @dev:	The sysinfo instance to gather the data.
  * @id:		A unique identifier for the string value to be read.
- * @size:	The size of the buffer to receive the string data.
+ * @size:	The size of the buffer to receive the string data. If the buffer
+ *		is not large enough to contain the whole string, the string will
+ *		be trimmed to fit in the buffer including the terminating
+ *		NULL-byte.
  * @val:	Pointer to a buffer that receives the value read.
  *
- * Return: 0 if OK, -EPERM if called before sysinfo_detect(), else -ve on
- * error.
+ * Return: Actual length of the string excluding the terminating NULL-byte if
+ *	   OK, -EPERM if called before sysinfo_detect(), else -ve on error.
  */
 int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val);
 

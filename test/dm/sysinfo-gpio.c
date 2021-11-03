@@ -32,8 +32,8 @@ static int dm_test_sysinfo_gpio(struct unit_test_state *uts)
 	ut_assertok(sysinfo_detect(sysinfo));
 	ut_assertok(sysinfo_get_int(sysinfo, SYSINFO_ID_BOARD_MODEL, &val));
 	ut_asserteq(19, val);
-	ut_assertok(sysinfo_get_str(sysinfo, SYSINFO_ID_BOARD_MODEL, sizeof(buf),
-				    buf));
+	ut_asserteq(5, sysinfo_get_str(sysinfo, SYSINFO_ID_BOARD_MODEL, sizeof(buf),
+				       buf));
 	ut_asserteq_str("rev_a", buf);
 
 	/*
@@ -46,8 +46,8 @@ static int dm_test_sysinfo_gpio(struct unit_test_state *uts)
 	ut_assertok(sysinfo_detect(sysinfo));
 	ut_assertok(sysinfo_get_int(sysinfo, SYSINFO_ID_BOARD_MODEL, &val));
 	ut_asserteq(5, val);
-	ut_assertok(sysinfo_get_str(sysinfo, SYSINFO_ID_BOARD_MODEL, sizeof(buf),
-				    buf));
+	ut_asserteq(3, sysinfo_get_str(sysinfo, SYSINFO_ID_BOARD_MODEL, sizeof(buf),
+				       buf));
 	ut_asserteq_str("foo", buf);
 
 	/*
@@ -60,8 +60,8 @@ static int dm_test_sysinfo_gpio(struct unit_test_state *uts)
 	ut_assertok(sysinfo_detect(sysinfo));
 	ut_assertok(sysinfo_get_int(sysinfo, SYSINFO_ID_BOARD_MODEL, &val));
 	ut_asserteq(15, val);
-	ut_assertok(sysinfo_get_str(sysinfo, SYSINFO_ID_BOARD_MODEL, sizeof(buf),
-				    buf));
+	ut_asserteq(7, sysinfo_get_str(sysinfo, SYSINFO_ID_BOARD_MODEL, sizeof(buf),
+				       buf));
 	ut_asserteq_str("unknown", buf);
 
 	return 0;

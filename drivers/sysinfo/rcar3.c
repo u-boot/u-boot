@@ -48,7 +48,7 @@ static int sysinfo_rcar_get_str(struct udevice *dev, int id, size_t size, char *
 	case SYSINFO_ID_BOARD_MODEL:
 		strncpy(val, priv->boardmodel, size);
 		val[size - 1] = '\0';
-		return 0;
+		return strlen(priv->boardmodel);
 	default:
 		return -EINVAL;
 	};

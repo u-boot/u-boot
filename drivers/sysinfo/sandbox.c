@@ -73,8 +73,9 @@ int sysinfo_sandbox_get_str(struct udevice *dev, int id, size_t size, char *val)
 	switch (id) {
 	case STR_VACATIONSPOT:
 		/* Picks a vacation spot depending on i1 and i2 */
-		snprintf(val, size, vacation_spots[index]);
-		return 0;
+		strncpy(val, vacation_spots[index], size);
+		val[size - 1] = '\0';
+		return strlen(vacation_spots[index]);
 	}
 
 	return -ENOENT;
