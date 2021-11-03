@@ -6,17 +6,20 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <env.h>
 #include <env_internal.h>
 #include <i2c.h>
 #include <init.h>
 #include <mmc.h>
+#include <net.h>
 #include <phy.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/delay.h>
+#include <sysinfo.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -85,65 +88,103 @@ int board_init(void)
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+struct ebin_sysinfo {
+	bool ddr4, emmc;
+	char vars[5][9];
+	u8 nvars;
+	u8 macs[4][6];
+};
+
+/*
+ * We must do this in probe() instead of detect(), because we call
+ * eth_env_get_enetaddr_by_index(), which may try to read default environment,
+ * which may call detect() again from itself.
+ */
+static int ebin_probe(struct udevice *dev)
+{
+	struct ebin_sysinfo *priv = dev_get_priv(dev);
+	struct mmc *mmc;
+	int i;
+
+	/* If the memory controller has been configured for DDR4, we're running on v7 */
+	priv->ddr4 = ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
+		      & A3700_MC_CTRL2_SDRAM_TYPE_MASK) == A3700_MC_CTRL2_SDRAM_TYPE_DDR4;
+
+	/* eMMC is mmc dev num 1 */
+	mmc = find_mmc_device(1);
+	priv->emmc = (mmc && mmc_get_op_cond(mmc, true) == 0);
+
+	/* if eMMC is not present then remove it from DM */
+	if (!priv->emmc && mmc) {
+		struct udevice *mmc_dev = mmc->dev;
+		device_remove(mmc_dev, DM_REMOVE_NORMAL);
+		device_unbind(mmc_dev);
+	}
+
+	strcpy(priv->vars[priv->nvars++], "fdtfile");
+
+	for (i = 0; i < 4; ++i)
+		if (eth_env_get_enetaddr_by_index("eth", i,
+						  priv->macs[priv->nvars - 1]))
+			sprintf(priv->vars[priv->nvars++],
+				i ? "eth%daddr" : "ethaddr", i);
+
+	return 0;
+}
+
+static int ebin_get_str_list(struct udevice *dev, int id, unsigned idx,
+			     size_t size, char *val)
+{
+	struct ebin_sysinfo *priv = dev_get_priv(dev);
+
+	if (id != SYSINFO_ID_DEF_ENV_NAMES && id != SYSINFO_ID_DEF_ENV_VALUES)
+		return -ENOENT;
+
+	if (idx >= priv->nvars)
+		return -ERANGE;
+
+	if (id == SYSINFO_ID_DEF_ENV_NAMES)
+		return snprintf(val, size, "%s", priv->vars[idx]);
+
+	if (idx == 0)
+		return snprintf(val, size,
+				"marvell/armada-3720-espressobin%s%s.dtb",
+				priv->ddr4 ? "-v7" : "",
+				priv->emmc ? "-emmc" : "");
+
+	return snprintf(val, size, "%pM", priv->macs[idx - 1]);
+}
+
+static struct sysinfo_ops ebin_sysinfo_ops = {
+	.get_str_list = ebin_get_str_list,
+};
+
+U_BOOT_DRIVER(ebin_sysinfo) = {
+	.name = "espressobin-sysinfo",
+	.id = UCLASS_SYSINFO,
+	.ops = &ebin_sysinfo_ops,
+	.priv_auto = sizeof(struct ebin_sysinfo),
+	.probe = ebin_probe,
+};
+
 int board_late_init(void)
 {
-	char *ptr = &default_environment[0];
 	struct udevice *dev;
-	struct mmc *mmc_dev;
-	bool ddr4, emmc;
-	const char *mac;
-	char eth[10];
-	int i;
+	int res;
 
 	if (!of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
 
-	/* Find free buffer in default_environment[] for new variables */
-	while (*ptr != '\0' && *(ptr+1) != '\0') ptr++;
-	ptr += 2;
+	res = device_bind_driver(gd->dm_root, "espressobin-sysinfo",
+				 "espressobin-sysinfo", &dev);
+	if (res < 0)
+		return res;
 
-	/*
-	 * Ensure that 'env default -a' does not erase permanent MAC addresses
-	 * stored in env variables: $ethaddr, $eth1addr, $eth2addr and $eth3addr
-	 */
+	res = device_probe(dev);
+	if (res < 0)
+		return res;
 
-	mac = env_get("ethaddr");
-	if (mac && strlen(mac) <= 17)
-		ptr += sprintf(ptr, "ethaddr=%s", mac) + 1;
-
-	for (i = 1; i <= 3; i++) {
-		sprintf(eth, "eth%daddr", i);
-		mac = env_get(eth);
-		if (mac && strlen(mac) <= 17)
-			ptr += sprintf(ptr, "%s=%s", eth, mac) + 1;
-	}
-
-	/* If the memory controller has been configured for DDR4, we're running on v7 */
-	ddr4 = ((readl(A3700_CH0_MC_CTRL2_REG) >> A3700_MC_CTRL2_SDRAM_TYPE_OFFS)
-		& A3700_MC_CTRL2_SDRAM_TYPE_MASK) == A3700_MC_CTRL2_SDRAM_TYPE_DDR4;
-
-	/* eMMC is mmc dev num 1 */
-	mmc_dev = find_mmc_device(1);
-	emmc = (mmc_dev && mmc_get_op_cond(mmc_dev, true) == 0);
-
-	/* if eMMC is not present then remove it from DM */
-	if (!emmc && mmc_dev) {
-		dev = mmc_dev->dev;
-		device_remove(dev, DM_REMOVE_NORMAL);
-		device_unbind(dev);
-	}
-
-	/* Ensure that 'env default -a' set correct value to $fdtfile */
-	if (ddr4 && emmc)
-		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-v7-emmc.dtb");
-	else if (ddr4)
-		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-v7.dtb");
-	else if (emmc)
-		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-emmc.dtb");
-	else
-		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin.dtb");
-
-	return 0;
+	return sysinfo_detect(dev);
 }
 #endif
 
