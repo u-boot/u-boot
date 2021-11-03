@@ -76,10 +76,7 @@ static int pcie_xilinx_config_address(const struct udevice *udev, pci_dev_t bdf,
 		return -ENODEV;
 
 	addr = pcie->cfg_base;
-	addr += bus << 20;
-	addr += dev << 15;
-	addr += func << 12;
-	addr += offset;
+	addr += PCIE_ECAM_OFFSET(bus, dev, func, offset);
 	*paddress = addr;
 
 	return 0;
