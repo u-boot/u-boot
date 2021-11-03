@@ -472,6 +472,9 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 	advk_writel(pcie, reg, PIO_ADDR_LS);
 	advk_writel(pcie, 0, PIO_ADDR_MS);
 
+	/* Program the data strobe */
+	advk_writel(pcie, 0xf, PIO_WR_DATA_STRB);
+
 	retry_count = 0;
 
 retry:
