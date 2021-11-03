@@ -47,6 +47,10 @@ enum sysinfo_id {
 	/* For show_board_info() */
 	SYSINFO_ID_BOARD_MODEL,
 
+	/* For overwriting default environment variables */
+	SYSINFO_ID_DEF_ENV_NAMES,
+	SYSINFO_ID_DEF_ENV_VALUES,
+
 	/* First value available for downstream/board used */
 	SYSINFO_ID_USER = 0x1000,
 };

@@ -22,6 +22,7 @@
 #include <u-boot/crc.h>
 #include <dm/ofnode.h>
 #include <net.h>
+#include <sysinfo.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -148,6 +149,31 @@ char *from_env(const char *envvar)
 	return ret;
 }
 
+static int sysinfo_default_env_get(const char *var, char *buf, unsigned len)
+{
+	struct udevice *dev;
+	unsigned idx;
+	char *name;
+	void *iter;
+
+	if (sysinfo_get(&dev) < 0 || sysinfo_detect(dev) < 0)
+		return -ENODEV;
+
+	idx = 0;
+	for_each_sysinfo_str_list(dev, SYSINFO_ID_DEF_ENV_NAMES, name, iter) {
+		if (strcmp(var, name)) {
+			++idx;
+			continue;
+		}
+
+		free(iter);
+		return sysinfo_get_str_list(dev, SYSINFO_ID_DEF_ENV_VALUES, idx,
+					    len, buf);
+	}
+
+	return -ENOENT;
+}
+
 static int env_get_from_linear(const char *env, const char *name, char *buf,
 			       unsigned len)
 {
@@ -156,6 +182,17 @@ static int env_get_from_linear(const char *env, const char *name, char *buf,
 
 	if (name == NULL || *name == '\0')
 		return -1;
+
+	if (env == default_environment) {
+		int res = sysinfo_default_env_get(name, buf, len);
+
+		/*
+		 * Board special default envs take precedence over the
+		 * default_environment[] array.
+		 */
+		if (res >= 0)
+			return res;
+	}
 
 	name_len = strlen(name);
 
@@ -248,8 +285,69 @@ char *env_get_default(const char *name)
 	return NULL;
 }
 
+static int sysinfo_import_default_envs(bool all, int nvars, char * const vars[],
+				       int flags)
+{
+	struct udevice *dev;
+	char *name, *value;
+	unsigned idx;
+	void *iter;
+	int len;
+
+	if (sysinfo_get(&dev) < 0 || sysinfo_detect(dev) < 0)
+		return 0;
+
+	len = sysinfo_get_str_list_max_len(dev, SYSINFO_ID_DEF_ENV_VALUES);
+	if (len == -ENOSYS || len == -ENOENT || len == -ERANGE)
+		return 0;
+	else if (len < 0)
+		return len;
+
+	value = malloc(len + 1);
+	if (!value)
+		return -ENOMEM;
+
+	idx = 0;
+	for_each_sysinfo_str_list(dev, SYSINFO_ID_DEF_ENV_NAMES, name, iter) {
+		struct env_entry e, *ep;
+
+		if (!all) {
+			int j;
+
+			/* If name is not in vars, skip */
+			for (j = 0; j < nvars; ++j)
+				if (!strcmp(name, vars[j]))
+					break;
+			if (j == nvars) {
+				idx++;
+				continue;
+			}
+		}
+
+		len = sysinfo_get_str_list(dev, SYSINFO_ID_DEF_ENV_VALUES,
+					   idx++, ENV_SIZE, value);
+		if (len < 0)
+			continue;
+
+		e.key = name;
+		e.data = value;
+		if (!hsearch_r(e, ENV_ENTER, &ep, &env_htab, flags)) {
+			int res = -errno;
+			free(iter);
+			free(value);
+			return res;
+		}
+	}
+
+	free(value);
+
+	return 0;
+}
+
 void env_set_default(const char *s, int flags)
 {
+	int res;
+
 	if (s) {
 		if ((flags & H_INTERACTIVE) == 0) {
 			printf("*** Warning - %s, "
@@ -267,6 +365,13 @@ void env_set_default(const char *s, int flags)
 			0, NULL) == 0) {
 		pr_err("## Error: Environment import failed: errno = %d\n",
 		       errno);
+		return;
+	}
+
+	res = sysinfo_import_default_envs(true, 0, NULL, flags);
+	if (res < 0) {
+		pr_err("## Error: Board special default environment import failed: %d\n",
+		       res);
 		return;
 	}
 
@@ -288,7 +393,7 @@ int env_set_default_vars(int nvars, char * const vars[], int flags)
 		       vars))
 		return -errno;
 
-	return 0;
+	return sysinfo_import_default_envs(false, nvars, vars, flags);
 }
 
 /*
