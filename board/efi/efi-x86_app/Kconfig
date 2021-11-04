@@ -1,4 +1,4 @@
-if TARGET_EFI_APP
+if EFI_APP
 
 config SYS_BOARD
 	default "efi-x86_app"

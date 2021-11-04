@@ -48,10 +48,10 @@ for that board. It will be either 32-bit or 64-bit. Alternatively, you can
 opt for using QEMU [1] and the OVMF [2], as detailed below.
 
 To build U-Boot as an EFI application (32-bit EFI required), enable CONFIG_EFI
-and CONFIG_EFI_APP. The efi-x86_app config (efi-x86_app_defconfig) is set up
+and CONFIG_EFI_APP. The efi-x86_app config (efi-x86_app32_defconfig) is set up
 for this. Just build U-Boot as normal, e.g.::
 
-   make efi-x86_app_defconfig
+   make efi-x86_app32_defconfig
    make
 
 To build U-Boot as an EFI payload (32-bit or 64-bit EFI can be used), enable
@@ -261,7 +261,7 @@ This work could be extended in a number of ways:
 
 - Add ARM support
 
-- Add 64-bit application support
+- Add 64-bit application support (in progress)
 
 - Figure out how to solve the interrupt problem
 
