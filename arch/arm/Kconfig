@@ -1084,6 +1084,9 @@ config ARCH_SUNXI
 	imply SPL_MMC if MMC
 	imply SPL_POWER
 	imply SPL_SERIAL
+	imply SYSRESET
+	imply SYSRESET_WATCHDOG
+	imply SYSRESET_WATCHDOG_AUTO
 	imply USB_GADGET
 	imply WDT
 
