@@ -26,6 +26,38 @@ struct zynqmp_power {
 	struct mbox_chan rx_chan;
 } zynqmp_power;
 
+#define NODE_ID_LOCATION	5
+
+static unsigned int xpm_configobject[] = {
+	/**********************************************************************/
+	/* HEADER */
+	2,	/* Number of remaining words in the header */
+	1,	/* Number of sections included in config object */
+	PM_CONFIG_OBJECT_TYPE_OVERLAY,	/* Type of Config object as overlay */
+	/**********************************************************************/
+	/* SLAVE SECTION */
+
+	PM_CONFIG_SLAVE_SECTION_ID,	/* Section ID */
+	1,				/* Number of slaves */
+
+	0, /* Node ID which will be changed below */
+	PM_SLAVE_FLAG_IS_SHAREABLE,
+	PM_CONFIG_IPI_PSU_CORTEXA53_0_MASK |
+	PM_CONFIG_IPI_PSU_CORTEXR5_0_MASK |
+	PM_CONFIG_IPI_PSU_CORTEXR5_1_MASK, /* IPI Mask */
+};
+
+int zynqmp_pmufw_node(u32 id)
+{
+	/* Record power domain id */
+	xpm_configobject[NODE_ID_LOCATION] = id;
+
+	zynqmp_pmufw_load_config_object(xpm_configobject,
+					sizeof(xpm_configobject));
+
+	return 0;
+}
+
 static int ipi_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 {
 	struct zynqmp_ipi_msg msg;
