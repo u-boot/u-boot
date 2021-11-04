@@ -710,6 +710,7 @@ M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 S:	Maintained
 W:	https://u-boot.readthedocs.io/en/latest/develop/uefi/u-boot_on_efi.html
 F:	lib/efi/efi_app.c
+F:	scripts/build-efi.sh
 
 EFI PAYLOAD
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
