@@ -334,6 +334,11 @@ class TestFunctional(unittest.TestCase):
             extra_indirs: Extra input directories to add using -I
             threads: Number of threads to use (None for default, 0 for
                 single-threaded)
+            test_section_timeout: True to force the first time to timeout, as
+                used in testThreadTimeout()
+
+        Returns:
+            int return code, 0 on success
         """
         args = []
         if debug:
