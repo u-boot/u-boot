@@ -118,8 +118,6 @@ config SYSRESET_TI_SCI
 	  This enables the system reset driver support over TI System Control
 	  Interface available on some new TI's SoCs.
 
-endif
-
 config SYSRESET_SYSCON
 	bool "Enable support for mfd syscon reboot driver"
 	select REGMAP
@@ -132,6 +130,13 @@ config SYSRESET_WATCHDOG
 	select WDT
 	help
 	  Reboot support for generic watchdog reset.
+
+config SYSRESET_WATCHDOG_AUTO
+	bool "Automatically register first watchdog with sysreset"
+	depends on SYSRESET_WATCHDOG
+	help
+	  If enabled, the first watchdog (as selected by the watchdog uclass)
+	  will automatically be registered with the watchdog reboot driver.
 
 config SYSRESET_RESETCTL
 	bool "Enable support for reset controller reboot driver"
@@ -161,5 +166,7 @@ config SYSRESET_MPC83XX
 	bool "Enable support MPC83xx SoC family reboot driver"
 	help
 	  Reboot support for NXP MPC83xx SoCs.
+
+endif
 
 endmenu
