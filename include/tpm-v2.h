@@ -641,4 +641,17 @@ u32 tpm2_write_lock(struct udevice *dev, u32 index);
  */
 u32 tpm2_disable_platform_hierarchy(struct udevice *dev);
 
+/**
+ * submit user specified data to the TPM and get response
+ *
+ * @dev		TPM device
+ * @sendbuf:	Buffer of the data to send
+ * @recvbuf:	Buffer to save the response to
+ * @recv_size:	Pointer to the size of the response buffer
+ *
+ * @return code of the operation
+ */
+u32 tpm2_submit_command(struct udevice *dev, const u8 *sendbuf,
+			u8 *recvbuf, size_t *recv_size);
+
 #endif /* __TPM_V2_H */

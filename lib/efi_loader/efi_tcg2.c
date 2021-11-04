@@ -1034,13 +1034,39 @@ out:
  * Return:	status code
  */
 static efi_status_t EFIAPI
-efi_tcg2_submit_command(__maybe_unused struct efi_tcg2_protocol *this,
-			u32 __maybe_unused input_param_block_size,
-			u8 __maybe_unused *input_param_block,
-			u32 __maybe_unused output_param_block_size,
-			u8 __maybe_unused *output_param_block)
+efi_tcg2_submit_command(struct efi_tcg2_protocol *this,
+			u32 input_param_block_size,
+			u8 *input_param_block,
+			u32 output_param_block_size,
+			u8 *output_param_block)
 {
-	return EFI_UNSUPPORTED;
+	struct udevice *dev;
+	efi_status_t ret;
+	u32 rc;
+	size_t resp_buf_size = output_param_block_size;
+
+	EFI_ENTRY("%p, %u, %p, %u, %p", this, input_param_block_size,
+		  input_param_block, output_param_block_size, output_param_block);
+
+	if (!this || !input_param_block || !input_param_block_size) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	rc = tpm2_submit_command(dev, input_param_block,
+				 output_param_block, &resp_buf_size);
+	if (rc) {
+		ret = (rc == -ENOSPC) ? EFI_OUT_OF_RESOURCES : EFI_DEVICE_ERROR;
+
+		goto out;
+	}
+
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
