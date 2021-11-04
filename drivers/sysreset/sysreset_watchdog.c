@@ -29,7 +29,7 @@ static struct sysreset_ops wdt_reboot_ops = {
 	.request = wdt_reboot_request,
 };
 
-int wdt_reboot_probe(struct udevice *dev)
+static int wdt_reboot_probe(struct udevice *dev)
 {
 	struct wdt_reboot_priv *priv = dev_get_priv(dev);
 	int err;

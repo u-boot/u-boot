@@ -26,7 +26,7 @@ static struct sysreset_ops resetctl_reboot_ops = {
 	.request = resetctl_reboot_request,
 };
 
-int resetctl_reboot_probe(struct udevice *dev)
+static int resetctl_reboot_probe(struct udevice *dev)
 {
 	struct resetctl_reboot_priv *priv = dev_get_priv(dev);
 
