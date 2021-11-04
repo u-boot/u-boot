@@ -24,7 +24,14 @@ try:
 except:  # pragma: no cover
     ELF_TOOLS = False
 
-Symbol = namedtuple('Symbol', ['section', 'address', 'size', 'weak'])
+# Information about an EFL symbol:
+# section (str): Name of the section containing this symbol
+# address (int): Address of the symbol (its value)
+# size (int): Size of the symbol in bytes
+# weak (bool): True if the symbol is weak
+# offset (int or None): Offset of the symbol's data in the ELF file, or None if
+#   not known
+Symbol = namedtuple('Symbol', ['section', 'address', 'size', 'weak', 'offset'])
 
 # Information about an ELF file:
 #    data: Extracted program contents of ELF file (this would be loaded by an
@@ -71,8 +78,48 @@ def GetSymbols(fname, patterns):
         section, size =  parts[:2]
         if len(parts) > 2:
             name = parts[2] if parts[2] != '.hidden' else parts[3]
-            syms[name] = Symbol(section, int(value, 16), int(size,16),
-                                flags[1] == 'w')
+            syms[name] = Symbol(section, int(value, 16), int(size, 16),
+                                flags[1] == 'w', None)
+
+    # Sort dict by address
+    return OrderedDict(sorted(syms.items(), key=lambda x: x[1].address))
+
+def GetSymbolFileOffset(fname, patterns):
+    """Get the symbols from an ELF file
+
+    Args:
+        fname: Filename of the ELF file to read
+        patterns: List of regex patterns to search for, each a string
+
+    Returns:
+        None, if the file does not exist, or Dict:
+          key: Name of symbol
+          value: Hex value of symbol
+    """
+    def _GetFileOffset(elf, addr):
+        for seg in elf.iter_segments():
+            seg_end = seg['p_vaddr'] + seg['p_filesz']
+            if seg.header['p_type'] == 'PT_LOAD':
+                if addr >= seg['p_vaddr'] and addr < seg_end:
+                    return addr - seg['p_vaddr'] + seg['p_offset']
+
+    if not ELF_TOOLS:
+        raise ValueError('Python elftools package is not available')
+
+    syms = {}
+    with open(fname, 'rb') as fd:
+        elf = ELFFile(fd)
+
+        re_syms = re.compile('|'.join(patterns))
+        for section in elf.iter_sections():
+            if isinstance(section, SymbolTableSection):
+                for symbol in section.iter_symbols():
+                    if not re_syms or re_syms.search(symbol.name):
+                        addr = symbol.entry['st_value']
+                        syms[symbol.name] = Symbol(
+                            section.name, addr, symbol.entry['st_size'],
+                            symbol.entry['st_info']['bind'] == 'STB_WEAK',
+                            _GetFileOffset(elf, addr))
 
     # Sort dict by address
     return OrderedDict(sorted(syms.items(), key=lambda x: x[1].address))

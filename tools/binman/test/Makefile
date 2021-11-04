@@ -31,7 +31,7 @@ LDS_BINMAN_X86 := -T $(SRC)u_boot_binman_syms_x86.lds
 
 TARGETS = u_boot_ucode_ptr u_boot_no_ucode_ptr bss_data \
 	u_boot_binman_syms u_boot_binman_syms.bin u_boot_binman_syms_bad \
-	u_boot_binman_syms_size u_boot_binman_syms_x86
+	u_boot_binman_syms_size u_boot_binman_syms_x86 embed_data
 
 all: $(TARGETS)
 
@@ -43,6 +43,9 @@ u_boot_ucode_ptr: u_boot_ucode_ptr.c
 
 bss_data: CFLAGS += $(SRC)bss_data.lds
 bss_data: bss_data.c
+
+embed_data: CFLAGS += $(SRC)embed_data.lds
+embed_data: embed_data.c
 
 u_boot_binman_syms.bin: u_boot_binman_syms
 	$(OBJCOPY) -O binary $< -R .note.gnu.build-id $@
