@@ -20,9 +20,16 @@ static int wdt_reboot_request(struct udevice *dev, enum sysreset_t type)
 	struct wdt_reboot_plat *plat = dev_get_plat(dev);
 	int ret;
 
-	ret = wdt_expire_now(plat->wdt, 0);
-	if (ret)
-		return ret;
+	switch (type) {
+	case SYSRESET_COLD:
+	case SYSRESET_WARM:
+		ret = wdt_expire_now(plat->wdt, 0);
+		if (ret)
+			return ret;
+		break;
+	default:
+		return -ENOSYS;
+	}
 
 	return -EINPROGRESS;
 }
