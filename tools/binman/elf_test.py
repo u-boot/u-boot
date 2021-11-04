@@ -70,8 +70,12 @@ def BuildElfTestFiles(target_dir):
     # correctly. So drop any make flags here.
     if 'MAKEFLAGS' in os.environ:
         del os.environ['MAKEFLAGS']
-    tools.Run('make', '-C', target_dir, '-f',
-              os.path.join(testdir, 'Makefile'), 'SRC=%s/' % testdir)
+    try:
+        tools.Run('make', '-C', target_dir, '-f',
+                  os.path.join(testdir, 'Makefile'), 'SRC=%s/' % testdir)
+    except ValueError as e:
+        # The test system seems to suppress this in a strange way
+        print(e)
 
 
 class TestElf(unittest.TestCase):
