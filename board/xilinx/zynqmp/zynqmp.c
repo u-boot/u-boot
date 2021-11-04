@@ -394,7 +394,7 @@ int board_init(void)
 	printf("Silicon version:\t%d\n", zynqmp_get_silicon_version());
 
 	/* the CSU disables the JTAG interface when secure boot is enabled */
-	if (CONFIG_IS_ENABLED(SPL_ZYNQMP_RESTORE_JTAG))
+	if (CONFIG_IS_ENABLED(ZYNQMP_RESTORE_JTAG))
 		restore_jtag();
 #else
 	if (CONFIG_IS_ENABLED(DM_I2C) && CONFIG_IS_ENABLED(I2C_EEPROM))
