@@ -19,12 +19,12 @@
 #include <asm/arch/pinmux.h>
 #include "pinctrl-exynos.h"
 
-static struct pinctrl_ops exynos78x0_pinctrl_ops = {
+static const struct pinctrl_ops exynos78x0_pinctrl_ops = {
 	.set_state	= exynos_pinctrl_set_state
 };
 
 /* pin banks of exynos78x0 pin-controller 0 (ALIVE) */
-static struct samsung_pin_bank_data exynos78x0_pin_banks0[] = {
+static const struct samsung_pin_bank_data exynos78x0_pin_banks0[] = {
 	EXYNOS_PIN_BANK(6, 0x000, "etc0"),
 	EXYNOS_PIN_BANK(3, 0x020, "etc1"),
 	EXYNOS_PIN_BANK(8, 0x040, "gpa0"),
@@ -35,19 +35,19 @@ static struct samsung_pin_bank_data exynos78x0_pin_banks0[] = {
 };
 
 /* pin banks of exynos78x0 pin-controller 1 (CCORE) */
-static struct samsung_pin_bank_data exynos78x0_pin_banks1[] = {
+static const struct samsung_pin_bank_data exynos78x0_pin_banks1[] = {
 	EXYNOS_PIN_BANK(2, 0x000, "gpm0"),
 };
 
 /* pin banks of exynos78x0 pin-controller 2 (DISPAUD) */
-static struct samsung_pin_bank_data exynos78x0_pin_banks2[] = {
+static const struct samsung_pin_bank_data exynos78x0_pin_banks2[] = {
 	EXYNOS_PIN_BANK(4, 0x000, "gpz0"),
 	EXYNOS_PIN_BANK(6, 0x020, "gpz1"),
 	EXYNOS_PIN_BANK(4, 0x040, "gpz2"),
 };
 
 /* pin banks of exynos78x0 pin-controller 4 (FSYS) */
-static struct samsung_pin_bank_data exynos78x0_pin_banks4[] = {
+static const struct samsung_pin_bank_data exynos78x0_pin_banks4[] = {
 	EXYNOS_PIN_BANK(3, 0x000, "gpr0"),
 	EXYNOS_PIN_BANK(8, 0x020, "gpr1"),
 	EXYNOS_PIN_BANK(2, 0x040, "gpr2"),
@@ -56,7 +56,7 @@ static struct samsung_pin_bank_data exynos78x0_pin_banks4[] = {
 };
 
 /* pin banks of exynos78x0 pin-controller 6 (TOP) */
-static struct samsung_pin_bank_data exynos78x0_pin_banks6[] = {
+static const struct samsung_pin_bank_data exynos78x0_pin_banks6[] = {
 	EXYNOS_PIN_BANK(4, 0x000, "gpb0"),
 	EXYNOS_PIN_BANK(3, 0x020, "gpc0"),
 	EXYNOS_PIN_BANK(4, 0x040, "gpc1"),
@@ -78,7 +78,7 @@ static struct samsung_pin_bank_data exynos78x0_pin_banks6[] = {
 	EXYNOS_PIN_BANK(5, 0x240, "gpf4"),
 };
 
-struct samsung_pin_ctrl exynos78x0_pin_ctrl[] = {
+const struct samsung_pin_ctrl exynos78x0_pin_ctrl[] = {
 	{
 		/* pin-controller instance 0 Alive data */
 		.pin_banks	= exynos78x0_pin_banks0,
