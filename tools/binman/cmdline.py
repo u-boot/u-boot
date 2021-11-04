@@ -71,6 +71,8 @@ controlled by a description in the board device tree.'''
              'given')
     build_parser.add_argument('-u', '--update-fdt', action='store_true',
         default=False, help='Update the binman node with offset/size info')
+    build_parser.add_argument('--update-fdt-in-elf', type=str,
+        help='Update an ELF file with the output dtb: infile,outfile,begin_sym,end_sym')
 
     entry_parser = subparsers.add_parser('entry-docs',
         help='Write out entry documentation (see entries.rst)')

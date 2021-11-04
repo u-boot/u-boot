@@ -818,6 +818,42 @@ the 'warning' line in scripts/Makefile.lib to see what it has found::
    # u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
 
 
+Updating an ELF file
+====================
+
+For the EFI app, where U-Boot is loaded from UEFI and runs as an app, there is
+no way to update the devicetree after U-Boot is built. Normally this works by
+creating a new u-boot.dtb.out with he updated devicetree, which is automatically
+built into the output image. With ELF this is not possible since the ELF is
+not part of an image, just a stand-along file. We must create an updated ELF
+file with the new devicetree.
+
+This is handled by the --update-fdt-in-elf option. It takes four arguments,
+separated by comma:
+
+   infile     - filename of input ELF file, e.g. 'u-boot's
+   outfile    - filename of output ELF file, e.g. 'u-boot.out'
+   begin_sym - symbol at the start of the embedded devicetree, e.g.
+   '__dtb_dt_begin'
+   end_sym   - symbol at the start of the embedded devicetree, e.g.
+   '__dtb_dt_end'
+
+When this flag is used, U-Boot does all the normal packaging, but as an
+additional step, it creates a new ELF file with the new devicetree embedded in
+it.
+
+If logging is enabled you will see a message like this::
+
+   Updating file 'u-boot' with data length 0x400a (16394) between symbols
+   '__dtb_dt_begin' and '__dtb_dt_end'
+
+There must be enough space for the updated devicetree. If not, an error like
+the following is produced::
+
+   ValueError: Not enough space in 'u-boot' for data length 0x400a (16394);
+   size is 0x1744 (5956)
+
+
 Entry Documentation
 ===================
 

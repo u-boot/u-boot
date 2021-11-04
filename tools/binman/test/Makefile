@@ -28,10 +28,12 @@ LDS_UCODE := -T $(SRC)u_boot_ucode_ptr.lds
 LDS_BINMAN := -T $(SRC)u_boot_binman_syms.lds
 LDS_BINMAN_BAD := -T $(SRC)u_boot_binman_syms_bad.lds
 LDS_BINMAN_X86 := -T $(SRC)u_boot_binman_syms_x86.lds
+LDS_BINMAN_EMBED := -T $(SRC)u_boot_binman_embed.lds
 
 TARGETS = u_boot_ucode_ptr u_boot_no_ucode_ptr bss_data \
 	u_boot_binman_syms u_boot_binman_syms.bin u_boot_binman_syms_bad \
-	u_boot_binman_syms_size u_boot_binman_syms_x86 embed_data
+	u_boot_binman_syms_size u_boot_binman_syms_x86 embed_data \
+	u_boot_binman_embed u_boot_binman_embed_sm
 
 all: $(TARGETS)
 
@@ -61,6 +63,12 @@ u_boot_binman_syms_bad: u_boot_binman_syms_bad.c
 
 u_boot_binman_syms_size: CFLAGS += $(LDS_BINMAN)
 u_boot_binman_syms_size: u_boot_binman_syms_size.c
+
+u_boot_binman_embed: CFLAGS += $(LDS_BINMAN_EMBED)
+u_boot_binman_embed: u_boot_binman_embed.c
+
+u_boot_binman_embed_sm: CFLAGS += $(LDS_BINMAN_EMBED)
+u_boot_binman_embed_sm: u_boot_binman_embed_sm.c
 
 clean:
 	rm -f $(TARGETS)

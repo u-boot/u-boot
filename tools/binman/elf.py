@@ -348,3 +348,24 @@ def DecodeElf(data, location):
                 segment.data()[offset:])
     return ElfInfo(output, data_start, elf.header['e_entry'] + virt_to_phys,
                    mem_end - data_start)
+
+def UpdateFile(infile, outfile, start_sym, end_sym, insert):
+    tout.Notice("Creating file '%s' with data length %#x (%d) between symbols '%s' and '%s'" %
+                (outfile, len(insert), len(insert), start_sym, end_sym))
+    syms = GetSymbolFileOffset(infile, [start_sym, end_sym])
+    if len(syms) != 2:
+        raise ValueError("Expected two symbols '%s' and '%s': got %d: %s" %
+                         (start_sym, end_sym, len(syms),
+                          ','.join(syms.keys())))
+
+    size = syms[end_sym].offset - syms[start_sym].offset
+    if len(insert) > size:
+        raise ValueError("Not enough space in '%s' for data length %#x (%d); size is %#x (%d)" %
+                         (infile, len(insert), len(insert), size, size))
+
+    data = tools.ReadFile(infile)
+    newdata = data[:syms[start_sym].offset]
+    newdata += insert + tools.GetBytes(0, size - len(insert))
+    newdata += data[syms[end_sym].offset:]
+    tools.WriteFile(outfile, newdata)
+    tout.Info('Written to offset %#x' % syms[start_sym].offset)
