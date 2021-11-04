@@ -31,9 +31,19 @@ struct efi_system_table *efi_get_sys_table(void)
 	return global_priv->sys_table;
 }
 
+struct efi_boot_services *efi_get_boot(void)
+{
+	return global_priv->boot;
+}
+
 unsigned long efi_get_ram_base(void)
 {
 	return global_priv->ram_base;
+}
+
+int efi_info_get(enum efi_entry_t type, void **datap, int *sizep)
+{
+	return -ENOSYS;
 }
 
 static efi_status_t setup_memory(struct efi_priv *priv)
