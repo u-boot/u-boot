@@ -265,7 +265,7 @@ This work could be extended in a number of ways:
 
 - Figure out how to solve the interrupt problem
 
-- Add more drivers to the application side (e.g. video, block devices, USB,
+- Add more drivers to the application side (e.g. block devices, USB,
   environment access). This would mostly be an academic exercise as a strong
   use case is not readily apparent, but it might be fun.
 

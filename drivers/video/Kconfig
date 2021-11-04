@@ -250,7 +250,7 @@ config VIDEO_COREBOOT
 
 config VIDEO_EFI
 	bool "Enable EFI framebuffer driver support"
-	depends on EFI_STUB
+	depends on EFI_STUB || EFI_APP
 	help
 	  Turn on this option to enable a framebuffeer driver when U-Boot is
 	  loaded as a payload (see README.u-boot_on_efi) by an EFI BIOS where
