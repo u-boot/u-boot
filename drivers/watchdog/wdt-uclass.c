@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <hang.h>
 #include <log.h>
+#include <sysreset.h>
 #include <time.h>
 #include <wdt.h>
 #include <asm/global_data.h>
@@ -43,6 +44,13 @@ static void init_watchdog_dev(struct udevice *dev)
 	int ret;
 
 	priv = dev_get_uclass_priv(dev);
+
+	if (IS_ENABLED(CONFIG_SYSRESET_WATCHDOG_AUTO)) {
+		ret = sysreset_register_wdt(dev);
+		if (ret)
+			printf("WDT:   Failed to register %s for sysreset\n",
+			       dev->name);
+	}
 
 	if (!IS_ENABLED(CONFIG_WATCHDOG_AUTOSTART)) {
 		printf("WDT:   Not starting %s\n", dev->name);

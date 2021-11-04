@@ -131,6 +131,13 @@ config SYSRESET_WATCHDOG
 	help
 	  Reboot support for generic watchdog reset.
 
+config SYSRESET_WATCHDOG_AUTO
+	bool "Automatically register first watchdog with sysreset"
+	depends on SYSRESET_WATCHDOG
+	help
+	  If enabled, the first watchdog (as selected by the watchdog uclass)
+	  will automatically be registered with the watchdog reboot driver.
+
 config SYSRESET_RESETCTL
 	bool "Enable support for reset controller reboot driver"
 	select DM_RESET

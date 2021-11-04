@@ -5,7 +5,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <errno.h>
+#include <malloc.h>
 #include <sysreset.h>
 #include <wdt.h>
 
@@ -57,3 +59,25 @@ U_BOOT_DRIVER(wdt_reboot) = {
 	.plat_auto	= sizeof(struct wdt_reboot_plat),
 	.ops = &wdt_reboot_ops,
 };
+
+#if IS_ENABLED(CONFIG_SYSRESET_WATCHDOG_AUTO)
+int sysreset_register_wdt(struct udevice *dev)
+{
+	struct wdt_reboot_plat *plat = malloc(sizeof(*plat));
+	int ret;
+
+	if (!plat)
+		return -ENOMEM;
+
+	plat->wdt = dev;
+
+	ret = device_bind(dev, DM_DRIVER_GET(wdt_reboot),
+			  dev->name, plat, ofnode_null(), NULL);
+	if (ret) {
+		free(plat);
+		return ret;
+	}
+
+	return 0;
+}
+#endif
