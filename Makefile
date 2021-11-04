@@ -1094,7 +1094,7 @@ endif
 ifeq ($(CONFIG_DEPRECATED),y)
 	$(warning "You have deprecated configuration options enabled in your .config! Please check your configuration.")
 endif
-ifeq ($(CONFIG_OF_EMBED),y)
+ifeq ($(CONFIG_OF_EMBED)$(CONFIG_EFI_APP),y)
 	@echo >&2 "===================== WARNING ======================"
 	@echo >&2 "CONFIG_OF_EMBED is enabled. This option should only"
 	@echo >&2 "be used for debugging purposes. Please use"
