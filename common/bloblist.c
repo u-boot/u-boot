@@ -7,6 +7,7 @@
 #include <common.h>
 #include <bloblist.h>
 #include <log.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <spl.h>
 #include <asm/global_data.h>
@@ -416,10 +417,21 @@ int bloblist_init(void)
 		ret = bloblist_check(CONFIG_BLOBLIST_ADDR,
 				     CONFIG_BLOBLIST_SIZE);
 	if (ret) {
+		ulong addr;
+
 		log(LOGC_BLOBLIST, expected ? LOGL_WARNING : LOGL_DEBUG,
 		    "Existing bloblist not found: creating new bloblist\n");
-		ret = bloblist_new(CONFIG_BLOBLIST_ADDR, CONFIG_BLOBLIST_SIZE,
-				   0);
+		if (IS_ENABLED(CONFIG_BLOBLIST_ALLOC)) {
+			void *ptr = memalign(BLOBLIST_ALIGN,
+					     CONFIG_BLOBLIST_SIZE);
+
+			if (!ptr)
+				return log_msg_ret("alloc", -ENOMEM);
+			addr = map_to_sysmem(ptr);
+		} else {
+			addr = CONFIG_BLOBLIST_ADDR;
+		}
+		ret = bloblist_new(addr, CONFIG_BLOBLIST_SIZE, 0);
 	} else {
 		log(LOGC_BLOBLIST, LOGL_DEBUG, "Found existing bloblist\n");
 	}
