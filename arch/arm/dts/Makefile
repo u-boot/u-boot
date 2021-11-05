@@ -1178,9 +1178,23 @@ dtb-$(CONFIG_TARGET_DURIAN) += phytium-durian.dtb
 
 dtb-$(CONFIG_TARGET_PRESIDIO_ASIC) += ca-presidio-engboard.dtb
 
-dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE) += imx8mm-cl-iot-gate.dtb
+dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE) += imx8mm-cl-iot-gate.dtb \
+					imx8mm-cl-iot-gate-ied.dtbo \
+					imx8mm-cl-iot-gate-ied-adc0.dtbo \
+					imx8mm-cl-iot-gate-ied-adc1.dtbo \
+					imx8mm-cl-iot-gate-ied-can0.dtbo \
+					imx8mm-cl-iot-gate-ied-can1.dtbo \
+					imx8mm-cl-iot-gate-ied-tpm0.dtbo \
+					imx8mm-cl-iot-gate-ied-tpm1.dtbo
 
-dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE_OPTEE) += imx8mm-cl-iot-gate-optee.dtb
+dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE_OPTEE) += imx8mm-cl-iot-gate-optee.dtb \
+					imx8mm-cl-iot-gate-ied.dtbo \
+					imx8mm-cl-iot-gate-ied-adc0.dtbo \
+					imx8mm-cl-iot-gate-ied-adc1.dtbo \
+					imx8mm-cl-iot-gate-ied-can0.dtbo \
+					imx8mm-cl-iot-gate-ied-can1.dtbo \
+					imx8mm-cl-iot-gate-ied-tpm0.dtbo \
+					imx8mm-cl-iot-gate-ied-tpm1.dtbo
 
 dtb-$(CONFIG_TARGET_EA_LPC3250DEVKITV2) += lpc3250-ea3250.dtb
 
