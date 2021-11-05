@@ -72,7 +72,6 @@
 /* Not used: not need IRQ/FIQ stuff */
 #undef  CONFIG_USE_IRQ
 /* decrementer freq: 1ms ticks */
-#define CONFIG_SYS_HZ			1000
 
 /*-----------------------------------------------------------------------
  *  System initialize options (board_init_f)

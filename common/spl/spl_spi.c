@@ -18,7 +18,7 @@
 #include <asm/global_data.h>
 #include <dm/ofnode.h>
 
-#ifdef CONFIG_SPL_OS_BOOT
+#if CONFIG_IS_ENABLED(OS_BOOT)
 /*
  * Load the kernel, check for a valid header we can parse, and if found load
  * the kernel and then device tree.
@@ -107,7 +107,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 						    payload_offs);
 	}
 
-#ifdef CONFIG_SPL_OS_BOOT
+#if CONFIG_IS_ENABLED(OS_BOOT)
 	if (spl_start_uboot() || spi_load_image_os(spl_image, flash, header))
 #endif
 	{

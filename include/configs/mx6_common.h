@@ -39,8 +39,4 @@
 
 /* MMC */
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SPL_DRIVERS_MISC
-#endif
-
 #endif

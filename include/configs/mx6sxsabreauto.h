@@ -111,8 +111,6 @@
 
 /* Network */
 
-#define CONFIG_FEC_MXC
-
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR          0x0
 

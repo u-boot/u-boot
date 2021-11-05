@@ -11,7 +11,6 @@
 #define CONFIG_HOSTNAME			"AMCORE"
 
 #define CONFIG_MCFTMR
-#define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		0
 
 #define CONFIG_BOOTCOMMAND		"bootm ffc20000"
@@ -26,8 +25,6 @@
 	"upgrade_jffs2=loady; "					\
 		"erase 0xfff00000 0xffffffff; "			\
 		"cp.b 0x20000 0xfff00000 ${filesize}\0"
-
-#define CONFIG_SYS_HZ			1000
 
 #define CONFIG_SYS_CLK			45000000
 #define CONFIG_SYS_CPU_CLK		(CONFIG_SYS_CLK * 2)

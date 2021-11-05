@@ -251,7 +251,6 @@
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
-# define CONFIG_SPL_ENV_SUPPORT
 # define CONFIG_SPL_HASH
 # define CONFIG_ENV_MAX_ENTRIES	10
 #endif

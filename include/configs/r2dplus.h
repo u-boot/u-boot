@@ -4,8 +4,6 @@
 #define CONFIG_CPU_SH7751	1
 #define __LITTLE_ENDIAN__	1
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* SCIF */
 #define CONFIG_CONS_SCIF1	1
 

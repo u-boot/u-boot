@@ -14,7 +14,6 @@
  * High Level Configuration Options (easy to change)                    *
  *----------------------------------------------------------------------*/
 
-#define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
 
 #undef	CONFIG_MONITOR_IS_IN_RAM		/* starts uboot direct */

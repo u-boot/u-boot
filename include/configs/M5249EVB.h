@@ -19,7 +19,6 @@
  */
 #define CONFIG_MCFTMR
 
-#define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
 
 #undef  CONFIG_WATCHDOG

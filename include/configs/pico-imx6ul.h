@@ -28,7 +28,6 @@
 
 /* Network support */
 
-#define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #define CONFIG_FEC_XCV_TYPE		RMII
@@ -107,8 +106,6 @@
 
 #include <config_distro_bootcmd.h>
 #include <linux/stringify.h>
-
-#define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

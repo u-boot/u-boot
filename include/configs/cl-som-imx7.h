@@ -13,7 +13,6 @@
 #define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
 /* Network */
-#define CONFIG_FEC_MXC
 #define CONFIG_FEC_XCV_TYPE             RGMII
 #define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_MXC_PHYADDR          0
@@ -91,8 +90,6 @@
 	"echo SD boot attempt ...; run sdbootscript; run sdboot; " \
 	"echo eMMC boot attempt ...; run emmcbootscript; run emmcboot; " \
 	"echo USB boot attempt ...; run usbbootscript; "
-
-#define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

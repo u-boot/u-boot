@@ -28,7 +28,6 @@
 
 /* MMC Configuration */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC3_BASE_ADDR
-#define CONFIG_SUPPORT_EMMC_BOOT
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 
 /* USB Configs */
@@ -131,7 +130,6 @@
 #define CONFIG_BOARD_SIZE_LIMIT		715776
 
 /* Ethernet Configuration */
-#define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII

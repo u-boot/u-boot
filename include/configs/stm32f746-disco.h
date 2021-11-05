@@ -42,8 +42,6 @@
 			"ramdisk_addr_r=0xC0438000\0"		\
 			BOOTENV
 
-#define CONFIG_DISPLAY_BOARDINFO
-
 /* For SPL */
 #ifdef CONFIG_SUPPORT_SPL
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR

@@ -22,9 +22,6 @@
 #define CONFIG_SPL_MAX_FOOTPRINT	CONFIG_SYS_SPI_U_BOOT_OFFS
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
 
-/* No falcon support */
-#undef CONFIG_SPL_OS_BOOT
-
 /* FPGA commands that we don't use */
 
 /* Extras */
@@ -101,6 +98,5 @@
 #define CONFIG_BOOTCOMMAND	"if mmcinfo; then " \
 	"if fatload mmc 0 0x1900000 ${bootscript}; then source 0x1900000; " \
 	"fi; fi; run $modeboot"
-#undef CONFIG_DISPLAY_BOARDINFO
 
 #endif /* __CONFIG_TOPIC_MIAMI_H */

@@ -100,8 +100,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_HZ			1000
-
 #ifdef CONFIG_MX6UL
 # define DRAM_OFFSET(x)			0x87##x
 # define FDT_ADDR			__stringify(DRAM_OFFSET(800000))
@@ -164,12 +162,6 @@
 
 /* SPL */
 #ifdef CONFIG_SPL
-# ifdef CONFIG_ENV_IS_IN_NAND
-#  define CONFIG_SPL_NAND_SUPPORT
-# else
-#  define CONFIG_SPL_MMC
-# endif
-
 # include "imx6_spl.h"
 #endif
 

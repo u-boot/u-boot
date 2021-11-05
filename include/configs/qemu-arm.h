@@ -18,7 +18,6 @@
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 /* For timer, QEMU emulates an ARMv7/ARMv8 architected timer */
-#define CONFIG_SYS_HZ                       1000
 
 /* Environment options */
 

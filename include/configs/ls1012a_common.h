@@ -59,8 +59,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE     1
 #define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 

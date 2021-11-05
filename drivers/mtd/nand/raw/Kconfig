@@ -480,7 +480,7 @@ comment "Generic NAND options"
 config SYS_NAND_BLOCK_SIZE
 	hex "NAND chip eraseblock size"
 	depends on ARCH_SUNXI || SPL_NAND_SUPPORT || TPL_NAND_SUPPORT
-	depends on !NAND_MXS_DT && !NAND_DENALI_DT && !NAND_LPC32XX_MLC
+	depends on !NAND_MXS && !NAND_DENALI_DT && !NAND_LPC32XX_MLC && !NAND_FSL_IFC
 	help
 	  Number of data bytes in one eraseblock for the NAND chip on the
 	  board. This is the multiple of NAND_PAGE_SIZE and the number of
@@ -505,7 +505,7 @@ config SYS_NAND_PAGE_SIZE
 	depends on ARCH_SUNXI || NAND_OMAP_GPMC || NAND_LPC32XX_SLC || \
 		SPL_NAND_SIMPLE || (NAND_MXC && SPL_NAND_SUPPORT) || \
 		(NAND_ATMEL && SPL_NAND_SUPPORT) || SPL_GENERATE_ATMEL_PMECC_HEADER
-	depends on !NAND_MXS_DT && !NAND_DENALI_DT && !NAND_LPC32XX_MLC
+	depends on !NAND_MXS && !NAND_DENALI_DT && !NAND_LPC32XX_MLC
 	help
 	  Number of data bytes in one page for the NAND chip on the
 	  board, not including the OOB area.
@@ -515,7 +515,7 @@ config SYS_NAND_OOBSIZE
 	depends on ARCH_SUNXI || NAND_OMAP_GPMC || NAND_LPC32XX_SLC || \
 		SPL_NAND_SIMPLE || (NAND_MXC && SPL_NAND_SUPPORT) || \
 		(NAND_ATMEL && SPL_NAND_SUPPORT) || SPL_GENERATE_ATMEL_PMECC_HEADER
-	depends on !NAND_MXS_DT && !NAND_DENALI_DT && !NAND_LPC32XX_MLC
+	depends on !NAND_MXS && !NAND_DENALI_DT && !NAND_LPC32XX_MLC
 	help
 	  Number of bytes in the Out-Of-Band area for the NAND chip on
 	  the board.

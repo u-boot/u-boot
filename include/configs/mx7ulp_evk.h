@@ -112,8 +112,6 @@
 		   "fi; " \
 	   "fi"
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	SZ_256K
 

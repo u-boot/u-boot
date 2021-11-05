@@ -673,13 +673,6 @@ The following options need to be configured:
 		U-Boot needs to get its device tree from somewhere. This can
 		be done using one of the three options below:
 
-		CONFIG_OF_EMBED
-		If this variable is defined, U-Boot will embed a device tree
-		binary in its image. This device tree file should be in the
-		board directory and called <soc>-<board>.dts. The binary file
-		is then picked up in board_init_f() and made available through
-		the global data structure as gd->fdt_blob.
-
 		CONFIG_OF_SEPARATE
 		If this variable is defined, U-Boot will build a device tree
 		binary. It will be called u-boot.dtb. Architecture-specific
@@ -1948,9 +1941,6 @@ The following options need to be configured:
 		CONFIG_SPL
 		Enable building of SPL globally.
 
-		CONFIG_SPL_LDSCRIPT
-		LDSCRIPT for linking the SPL binary.
-
 		CONFIG_SPL_MAX_FOOTPRINT
 		Maximum size in memory allocated to the SPL, BSS included.
 		When defined, the linker checks that the actual memory
@@ -2004,10 +1994,6 @@ The following options need to be configured:
 
 		CONFIG_SYS_SPL_MALLOC_SIZE
 		The size of the malloc pool used in SPL.
-
-		CONFIG_SPL_OS_BOOT
-		Enable booting directly to an OS from SPL.
-		See also: doc/README.falcon
 
 		CONFIG_SPL_DISPLAY_PRINT
 		For ARM, enable an optional function to print more information

@@ -344,8 +344,6 @@ unsigned long get_board_sys_clk(void);
  * Miscellaneous configurable options
  */
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_SYS_INIT_SP_OFFSET \
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 

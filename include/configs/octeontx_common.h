@@ -88,7 +88,6 @@
 
 /** EMMC specific defines */
 #if defined(CONFIG_MMC_OCTEONTX)
-#define CONFIG_SUPPORT_EMMC_BOOT
 #define CONFIG_SUPPORT_EMMC_RPMB
 #endif
 
