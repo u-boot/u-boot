@@ -153,6 +153,7 @@ config TARGET_IMX8MM_CL_IOT_GATE
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select SUPPORT_EXTENSION_SCAN
 
 config TARGET_IMX8MM_CL_IOT_GATE_OPTEE
 	bool "CompuLab iot-gate-imx8 with optee support"
@@ -160,6 +161,7 @@ config TARGET_IMX8MM_CL_IOT_GATE_OPTEE
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select SUPPORT_EXTENSION_SCAN
 endchoice
 
 source "board/beacon/imx8mm/Kconfig"
