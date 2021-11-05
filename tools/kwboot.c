@@ -1640,7 +1640,6 @@ err:
 static void
 kwboot_usage(FILE *stream, char *progname)
 {
-	fprintf(stream, "kwboot version %s\n", PLAIN_VERSION);
 	fprintf(stream,
 		"Usage: %s [OPTIONS] [-b <image> | -D <image> ] [-B <baud> ] <TTY>\n",
 		progname);
@@ -1684,6 +1683,8 @@ main(int argc, char **argv)
 	size = 0;
 	after_img_rsv = KWBOOT_XM_BLKSZ;
 	baudrate = 115200;
+
+	printf("kwboot version %s\n", PLAIN_VERSION);
 
 	kwboot_verbose = isatty(STDOUT_FILENO);
 
