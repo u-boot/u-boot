@@ -61,7 +61,7 @@ quiet_cmd_autoconf = GEN     $@
 			if [ -n "${KCONFIG_IGNORE_DUPLICATES}" ] ||			\
 			   ! grep -q "$${line%=*}=" include/config/auto.conf; then	\
 				echo "$$line";						\
-			fi								\
+			fi;								\
 		done > $@
 
 quiet_cmd_u_boot_cfg = CFG     $@

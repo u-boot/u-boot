@@ -1246,7 +1246,7 @@ binary_size_check: u-boot-nodtb.bin FORCE
 			echo "u-boot.map shows a binary size of $$map_size" >&2 ; \
 			echo "  but u-boot-nodtb.bin shows $$file_size" >&2 ; \
 			exit 1; \
-		fi \
+		fi; \
 	fi
 
 ifeq ($(CONFIG_INIT_SP_RELATIVE)$(CONFIG_OF_SEPARATE),yy)
