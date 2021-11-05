@@ -1724,6 +1724,20 @@ static int msdc_drv_bind(struct udevice *dev)
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
+static int msdc_ops_wait_dat0(struct udevice *dev, int state, int timeout_us)
+{
+	struct msdc_host *host = dev_get_priv(dev);
+	int ret;
+	u32 reg;
+
+	ret = readl_poll_sleep_timeout(&host->base->msdc_ps, reg,
+				       !!(reg & MSDC_PS_DAT0) == !!state,
+				       1000, /* 1 ms */
+				       timeout_us);
+
+	return ret;
+}
+
 static const struct dm_mmc_ops msdc_ops = {
 	.send_cmd = msdc_ops_send_cmd,
 	.set_ios = msdc_ops_set_ios,
@@ -1732,6 +1746,7 @@ static const struct dm_mmc_ops msdc_ops = {
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = msdc_execute_tuning,
 #endif
+	.wait_dat0 = msdc_ops_wait_dat0,
 };
 
 static const struct msdc_compatible mt7620_compat = {
