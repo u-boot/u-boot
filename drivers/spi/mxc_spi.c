@@ -391,8 +391,6 @@ int spi_xchg_single(struct mxc_spi_slave *mxcs, unsigned int bitlen,
 
 	nbytes = DIV_ROUND_UP(bitlen, 8);
 
-	cnt = nbytes % 32;
-
 	if (bitlen % 32) {
 		data = reg_read(&regs->rxdata);
 		cnt = (bitlen % 32) / 8;
