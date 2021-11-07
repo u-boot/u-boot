@@ -32,6 +32,7 @@
 #define PINMUX_UART1_TX_SHARED_IO_OFFSET_Q4_3	0x98
 
 #define REGULAR_BOOT_MAGIC	0xd15ea5e
+#define PERIPH_RBF_PROG_FORCE	0x50455249
 
 #define QSPI_S25FL_SOFT_RESET_COMMAND	0x00f0ff82
 #define QSPI_N25_SOFT_RESET_COMMAND	0x00000001
@@ -129,6 +130,41 @@ void do_bridge_reset(int enable, unsigned int mask)
 		socfpga_reset_deassert_bridges_handoff();
 	else
 		socfpga_bridges_reset();
+}
+
+/*
+ * This function set/unset flag with number "0x50455249" to
+ * handoff register isw_handoff[7] - 0xffd0624c
+ * This flag is used to force periph RBF program regardless FPGA status
+ * and double periph RBF config are needed on some devices or boards to
+ * stabilize the IO config system.
+ */
+void force_periph_program(unsigned int status)
+{
+	if (status)
+		writel(PERIPH_RBF_PROG_FORCE, socfpga_get_sysmgr_addr() +
+		       SYSMGR_A10_ISW_HANDOFF_BASE + SYSMGR_A10_ISW_HANDOFF_7);
+	else
+		writel(0, socfpga_get_sysmgr_addr() +
+		       SYSMGR_A10_ISW_HANDOFF_BASE + SYSMGR_A10_ISW_HANDOFF_7);
+}
+
+/*
+ * This function is used to check whether
+ * handoff register isw_handoff[7] contains
+ * flag for forcing the periph RBF program "0x50455249".
+ */
+bool is_periph_program_force(void)
+{
+	unsigned int status;
+
+	status = readl(socfpga_get_sysmgr_addr() +
+		       SYSMGR_A10_ISW_HANDOFF_BASE + SYSMGR_A10_ISW_HANDOFF_7);
+
+	if (status == PERIPH_RBF_PROG_FORCE)
+		return true;
+	else
+		return false;
 }
 
 /*

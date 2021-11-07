@@ -133,6 +133,20 @@ void spl_board_init(void)
 	} else if (!is_fpgamgr_early_user_mode()) {
 		/* Program IOSSM(early IO release) or full FPGA */
 		fpgamgr_program(buf, FPGA_BUFSIZ, 0);
+
+		/* Skipping double program for combined RBF */
+		if (!is_fpgamgr_user_mode()) {
+			/*
+			 * Expect FPGA entered early user mode, so
+			 * the flag is set to re-program IOSSM
+			 */
+			force_periph_program(true);
+
+			/* Re-program IOSSM to stabilize IO system */
+			fpgamgr_program(buf, FPGA_BUFSIZ, 0);
+
+			force_periph_program(false);
+		}
 	}
 
 	/* If the IOSSM/full FPGA is already loaded, start DDR */
