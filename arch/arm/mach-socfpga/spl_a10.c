@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  Copyright (C) 2012-2019 Altera Corporation <www.altera.com>
+ *  Copyright (C) 2012-2021 Altera Corporation <www.altera.com>
  */
 
 #include <common.h>
@@ -32,6 +32,7 @@
 #include <memalign.h>
 
 #define FPGA_BUFSIZ	16 * 1024
+#define FSBL_IMAGE_IS_VALID	0x49535756
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -168,4 +169,11 @@ void board_init_f(ulong dummy)
 
 	config_dedicated_pins(gd->fdt_blob);
 	WATCHDOG_RESET();
+}
+
+/* board specific function prior loading SSBL / U-Boot proper */
+void spl_board_prepare_for_boot(void)
+{
+	writel(FSBL_IMAGE_IS_VALID, socfpga_get_sysmgr_addr() +
+	       SYSMGR_A10_ROMCODE_INITSWSTATE);
 }
