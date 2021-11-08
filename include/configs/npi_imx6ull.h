@@ -52,8 +52,6 @@
 #define CONFIG_ETHPRIME			"eth0"
 #endif
 
-#define CONFIG_IMX_THERMAL
-
 #define CONFIG_FEC_ENET_DEV		1
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
