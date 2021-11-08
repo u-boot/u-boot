@@ -879,6 +879,20 @@ static size_t image_headersz_align(size_t headersz, uint8_t blockid)
 		return headersz;
 }
 
+static size_t image_headersz_v0(int *hasext)
+{
+	size_t headersz;
+
+	headersz = sizeof(struct main_hdr_v0);
+	if (image_count_options(IMAGE_CFG_DATA) > 0) {
+		headersz += sizeof(struct ext_hdr_v0);
+		if (hasext)
+			*hasext = 1;
+	}
+
+	return image_headersz_align(headersz, image_get_bootfrom());
+}
+
 static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 			     int payloadsz)
 {
@@ -892,12 +906,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	 * Calculate the size of the header and the size of the
 	 * payload
 	 */
-	headersz  = sizeof(struct main_hdr_v0);
-
-	if (image_count_options(IMAGE_CFG_DATA) > 0) {
-		has_ext = 1;
-		headersz += sizeof(struct ext_hdr_v0);
-	}
+	headersz = image_headersz_v0(&has_ext);
 
 	image = malloc(headersz);
 	if (!image) {
@@ -1854,8 +1863,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 		 */
 	case -1:
 	case 0:
-		alloc_len = sizeof(struct main_hdr_v0) +
-			sizeof(struct ext_hdr_v0);
+		alloc_len = image_headersz_v0(NULL);
 		break;
 
 	case 1:
