@@ -101,6 +101,8 @@ enum image_cfg_type {
 	IMAGE_CFG_DATA,
 	IMAGE_CFG_DATA_DELAY,
 	IMAGE_CFG_BAUDRATE,
+	IMAGE_CFG_UART_PORT,
+	IMAGE_CFG_UART_MPP,
 	IMAGE_CFG_DEBUG,
 	IMAGE_CFG_KAK,
 	IMAGE_CFG_CSK,
@@ -129,6 +131,8 @@ static const char * const id_strs[] = {
 	[IMAGE_CFG_DATA] = "DATA",
 	[IMAGE_CFG_DATA_DELAY] = "DATA_DELAY",
 	[IMAGE_CFG_BAUDRATE] = "BAUDRATE",
+	[IMAGE_CFG_UART_PORT] = "UART_PORT",
+	[IMAGE_CFG_UART_MPP] = "UART_MPP",
 	[IMAGE_CFG_DEBUG] = "DEBUG",
 	[IMAGE_CFG_KAK] = "KAK",
 	[IMAGE_CFG_CSK] = "CSK",
@@ -161,6 +165,8 @@ struct image_cfg_element {
 		struct ext_hdr_v0_reg regdata;
 		unsigned int regdata_delay;
 		unsigned int baudrate;
+		unsigned int uart_port;
+		unsigned int uart_mpp;
 		unsigned int debug;
 		const char *key_name;
 		int csk_idx;
@@ -1239,7 +1245,13 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		main_hdr->nandbadblklocation = e->nandbadblklocation;
 	e = image_find_option(IMAGE_CFG_BAUDRATE);
 	if (e)
-		main_hdr->options = baudrate_to_option(e->baudrate);
+		main_hdr->options |= baudrate_to_option(e->baudrate);
+	e = image_find_option(IMAGE_CFG_UART_PORT);
+	if (e)
+		main_hdr->options |= (e->uart_port & 3) << 3;
+	e = image_find_option(IMAGE_CFG_UART_MPP);
+	if (e)
+		main_hdr->options |= (e->uart_mpp & 7) << 5;
 	e = image_find_option(IMAGE_CFG_DEBUG);
 	if (e)
 		main_hdr->flags = e->debug ? 0x1 : 0;
@@ -1440,6 +1452,12 @@ static int image_create_config_parse_oneline(char *line,
 		break;
 	case IMAGE_CFG_BAUDRATE:
 		el->baudrate = strtoul(value1, NULL, 10);
+		break;
+	case IMAGE_CFG_UART_PORT:
+		el->uart_port = strtoul(value1, NULL, 16);
+		break;
+	case IMAGE_CFG_UART_MPP:
+		el->uart_mpp = strtoul(value1, NULL, 16);
 		break;
 	case IMAGE_CFG_DEBUG:
 		el->debug = strtoul(value1, NULL, 10);
