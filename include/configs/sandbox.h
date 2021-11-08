@@ -24,8 +24,6 @@
 
 /* SPI - enable all SPI flash types for testing purposes */
 
-#define CONFIG_I2C_EDID
-
 #define CONFIG_SYS_FDT_LOAD_ADDR	        0x100
 
 #define CONFIG_PHYSMEM

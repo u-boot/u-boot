@@ -15,9 +15,6 @@
 
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
-/* I2C Configs */
-#define CONFIG_I2C_EDID
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 #define CONFIG_SYS_FSL_USDHC_NUM       2

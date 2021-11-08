@@ -1189,11 +1189,6 @@ The following options need to be configured:
 
 		Support drawing of RLE8-compressed bitmaps on the LCD.
 
-		CONFIG_I2C_EDID
-
-		Enables an 'i2c edid' command which can read EDID
-		information over I2C from an attached LCD display.
-
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 

@@ -132,13 +132,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x00500000
 
-/* MTD device */
-
-/* DMA stuff, needed for GPMI/MXS NAND support */
-
-/* EEPROM  contains serial no, MAC addr and other Logic PD info */
-#define CONFIG_I2C_EEPROM
-
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
