@@ -24,7 +24,6 @@
 
 /* NS16550-ish UARTs */
 #define CONFIG_SYS_NS16550_CLK		48000000
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* Ethernet: davicom DM9000 */
 #define CONFIG_DRIVER_DM9000		1
