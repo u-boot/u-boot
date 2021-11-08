@@ -42,9 +42,6 @@
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
 
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		env_get("prompt")
-
 #if defined(CONFIG_MMC_OCTEONTX)
 #define MMC_SUPPORTS_TUNING
 /** EMMC specific defines */

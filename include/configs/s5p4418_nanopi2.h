@@ -78,15 +78,6 @@
  */
 /* board_init_f->init_sequence, call arch_cpu_init */
 
-/*-----------------------------------------------------------------------
- * Miscellaneous configurable options
- */
-#ifdef CONFIG_SYS_PROMPT
-#undef CONFIG_SYS_PROMPT
-/* Monitor Command Prompt */
-#define CONFIG_SYS_PROMPT		"nanopi2# "
-#endif
-
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		1024
 /* Print Buffer Size */
