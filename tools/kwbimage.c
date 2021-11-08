@@ -1680,6 +1680,9 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 				  struct image_tool_params *params)
 {
 	size_t header_size = kwbheader_size(ptr);
+	uint8_t blockid;
+	uint32_t offset;
+	uint32_t size;
 	uint8_t csum;
 
 	if (header_size > image_size)
@@ -1699,61 +1702,64 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 			if (csum != ext_hdr->checksum)
 				return -FDT_ERR_BADSTRUCTURE;
 		}
+
+		blockid = mhdr->blockid;
+		offset = le32_to_cpu(mhdr->srcaddr);
+		size = le32_to_cpu(mhdr->blocksize);
 	} else if (kwbimage_version(ptr) == 1) {
 		struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
 		const uint8_t *mhdr_end;
 		struct opt_hdr_v1 *ohdr;
-		uint32_t offset;
-		uint32_t size;
 
 		mhdr_end = (uint8_t *)mhdr + header_size;
 		for_each_opt_hdr_v1 (ohdr, ptr)
 			if (!opt_hdr_v1_valid_size(ohdr, mhdr_end))
 				return -FDT_ERR_BADSTRUCTURE;
 
+		blockid = mhdr->blockid;
 		offset = le32_to_cpu(mhdr->srcaddr);
-
-		/*
-		 * For SATA srcaddr is specified in number of sectors.
-		 * The main header is must be stored at sector number 1.
-		 * This expects that sector size is 512 bytes and recalculates
-		 * data offset to bytes relative to the main header.
-		 */
-		if (mhdr->blockid == IBR_HDR_SATA_ID) {
-			if (offset < 1)
-				return -FDT_ERR_BADSTRUCTURE;
-			offset -= 1;
-			offset *= 512;
-		}
-
-		/*
-		 * For SDIO srcaddr is specified in number of sectors.
-		 * This expects that sector size is 512 bytes and recalculates
-		 * data offset to bytes.
-		 */
-		if (mhdr->blockid == IBR_HDR_SDIO_ID)
-			offset *= 512;
-
-		/*
-		 * For PCIe srcaddr is always set to 0xFFFFFFFF.
-		 * This expects that data starts after all headers.
-		 */
-		if (mhdr->blockid == IBR_HDR_PEX_ID && offset == 0xFFFFFFFF)
-			offset = header_size;
-
-		if (offset > image_size || offset % 4 != 0)
-			return -FDT_ERR_BADSTRUCTURE;
-
 		size = le32_to_cpu(mhdr->blocksize);
-		if (size < 4 || offset + size > image_size || size % 4 != 0)
-			return -FDT_ERR_BADSTRUCTURE;
-
-		if (image_checksum32(ptr + offset, size - 4) !=
-		    *(uint32_t *)(ptr + offset + size - 4))
-			return -FDT_ERR_BADSTRUCTURE;
 	} else {
 		return -FDT_ERR_BADSTRUCTURE;
 	}
+
+	/*
+	 * For SATA srcaddr is specified in number of sectors.
+	 * The main header is must be stored at sector number 1.
+	 * This expects that sector size is 512 bytes and recalculates
+	 * data offset to bytes relative to the main header.
+	 */
+	if (blockid == IBR_HDR_SATA_ID) {
+		if (offset < 1)
+			return -FDT_ERR_BADSTRUCTURE;
+		offset -= 1;
+		offset *= 512;
+	}
+
+	/*
+	 * For SDIO srcaddr is specified in number of sectors.
+	 * This expects that sector size is 512 bytes and recalculates
+	 * data offset to bytes.
+	 */
+	if (blockid == IBR_HDR_SDIO_ID)
+		offset *= 512;
+
+	/*
+	 * For PCIe srcaddr is always set to 0xFFFFFFFF.
+	 * This expects that data starts after all headers.
+	 */
+	if (blockid == IBR_HDR_PEX_ID && offset == 0xFFFFFFFF)
+		offset = header_size;
+
+	if (offset > image_size || offset % 4 != 0)
+		return -FDT_ERR_BADSTRUCTURE;
+
+	if (size < 4 || offset + size > image_size || size % 4 != 0)
+		return -FDT_ERR_BADSTRUCTURE;
+
+	if (image_checksum32(ptr + offset, size - 4) !=
+	    *(uint32_t *)(ptr + offset + size - 4))
+		return -FDT_ERR_BADSTRUCTURE;
 
 	return 0;
 }
