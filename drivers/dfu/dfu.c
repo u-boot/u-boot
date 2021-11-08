@@ -735,6 +735,7 @@ int dfu_write_from_mem_addr(struct dfu_entity *dfu, void *buf, int size)
 	ret = dfu_flush(dfu, NULL, 0, i);
 	if (ret)
 		pr_err("DFU flush failed!");
+	puts("\n");
 
 	return ret;
 }

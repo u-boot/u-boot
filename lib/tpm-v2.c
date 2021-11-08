@@ -659,3 +659,9 @@ u32 tpm2_disable_platform_hierarchy(struct udevice *dev)
 
 	return 0;
 }
+
+u32 tpm2_submit_command(struct udevice *dev, const u8 *sendbuf,
+			u8 *recvbuf, size_t *recv_size)
+{
+	return tpm_sendrecv_command(dev, sendbuf, recvbuf, recv_size);
+}

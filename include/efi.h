@@ -444,8 +444,14 @@ extern char _binary_u_boot_bin_start[], _binary_u_boot_bin_end[];
  *
  * @return pointer to EFI system table
  */
-
 struct efi_system_table *efi_get_sys_table(void);
+
+/**
+ * efi_get_boot() - Get access to the EFI boot services table
+ *
+ * @return pointer to EFI boot services table
+ */
+struct efi_boot_services *efi_get_boot(void);
 
 /**
  * efi_get_ram_base() - Find the base of RAM

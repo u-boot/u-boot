@@ -50,6 +50,28 @@ static void efi_find_pixel_bits(u32 mask, u8 *pos, u8 *size)
 	*size = len;
 }
 
+static int get_mode_info(struct vesa_mode_info *vesa)
+{
+	efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+	struct efi_boot_services *boot = efi_get_boot();
+	struct efi_gop_mode *mode;
+	struct efi_gop *gop;
+	int ret;
+
+	if (!boot)
+		return log_msg_ret("sys", -ENOSYS);
+	ret = boot->locate_protocol(&efi_gop_guid, NULL, (void **)&gop);
+	if (ret)
+		return log_msg_ret("prot", -ENOTSUPP);
+
+	mode = gop->mode;
+	vesa->phys_base_ptr = mode->fb_base;
+	vesa->x_resolution = mode->info->width;
+	vesa->y_resolution = mode->info->height;
+
+	return 0;
+}
+
 static int save_vesa_mode(struct vesa_mode_info *vesa)
 {
 	struct efi_entry_gopmode *mode;
@@ -57,15 +79,22 @@ static int save_vesa_mode(struct vesa_mode_info *vesa)
 	int size;
 	int ret;
 
-	ret = efi_info_get(EFIET_GOP_MODE, (void **)&mode, &size);
-	if (ret == -ENOENT) {
-		debug("efi graphics output protocol mode not found\n");
-		return -ENXIO;
+	if (IS_ENABLED(CONFIG_EFI_APP)) {
+		ret = get_mode_info(vesa);
+		if (ret) {
+			printf("EFI graphics output protocol not found\n");
+			return -ENXIO;
+		}
+	} else {
+		ret = efi_info_get(EFIET_GOP_MODE, (void **)&mode, &size);
+		if (ret == -ENOENT) {
+			printf("EFI graphics output protocol mode not found\n");
+			return -ENXIO;
+		}
+		vesa->phys_base_ptr = mode->fb_base;
+		vesa->x_resolution = mode->info->width;
+		vesa->y_resolution = mode->info->height;
 	}
-
-	vesa->phys_base_ptr = mode->fb_base;
-	vesa->x_resolution = mode->info->width;
-	vesa->y_resolution = mode->info->height;
 
 	if (mode->info->pixel_format < EFI_GOT_BITMASK) {
 		fbinfo = &efi_framebuffer_format_map[mode->info->pixel_format];

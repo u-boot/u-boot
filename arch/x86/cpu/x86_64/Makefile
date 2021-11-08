@@ -4,3 +4,7 @@
 #
 
 obj-y += cpu.o interrupts.o setjmp.o
+
+ifndef CONFIG_EFI
+obj-y += misc.o
+endif

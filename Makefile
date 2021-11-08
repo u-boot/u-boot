@@ -1094,7 +1094,7 @@ endif
 ifeq ($(CONFIG_DEPRECATED),y)
 	$(warning "You have deprecated configuration options enabled in your .config! Please check your configuration.")
 endif
-ifeq ($(CONFIG_OF_EMBED),y)
+ifeq ($(CONFIG_OF_EMBED)$(CONFIG_EFI_APP),y)
 	@echo >&2 "===================== WARNING ======================"
 	@echo >&2 "CONFIG_OF_EMBED is enabled. This option should only"
 	@echo >&2 "be used for debugging purposes. Please use"
@@ -1756,12 +1756,16 @@ quiet_cmd_u-boot__ ?= LTO     $@
 		-Wl,-Map,u-boot.map;						\
 		$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
 else
+# Note: Linking efi-x86_app64 causes a segfault in the linker at present
+# when using x86_64-linux-gnu-ld.bfd
+# For now, disable --whole-archive which makes things link, although not
+# correctly
 quiet_cmd_u-boot__ ?= LD      $@
       cmd_u-boot__ ?= $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_u-boot) -o $@		\
 		-T u-boot.lds $(u-boot-init)					\
-		--whole-archive							\
+		$(if $(CONFIG_EFI_APP_64BIT),,--whole-archive)			\
 			$(u-boot-main)						\
-		--no-whole-archive						\
+		$(if $(CONFIG_EFI_APP_64BIT),,--no-whole-archive)		\
 		$(PLATFORM_LIBS) -Map u-boot.map;				\
 		$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
 endif
