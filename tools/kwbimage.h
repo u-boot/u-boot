@@ -191,28 +191,6 @@ struct register_set_hdr_v1 {
 #define OPT_HDR_V1_BINARY_TYPE   0x2
 #define OPT_HDR_V1_REGISTER_TYPE 0x3
 
-enum kwbimage_cmd {
-	CMD_INVALID,
-	CMD_BOOT_FROM,
-	CMD_NAND_ECC_MODE,
-	CMD_NAND_PAGE_SIZE,
-	CMD_SATA_PIO_MODE,
-	CMD_DDR_INIT_DELAY,
-	CMD_DATA
-};
-
-enum kwbimage_cmd_types {
-	CFG_INVALID = -1,
-	CFG_COMMAND,
-	CFG_DATA0,
-	CFG_DATA1
-};
-
-/*
- * functions
- */
-void init_kwb_image_type (void);
-
 /*
  * Byte 8 of the image header contains the version number. In the v0
  * header, byte 8 was reserved, and always set to 0. In the v1 header,

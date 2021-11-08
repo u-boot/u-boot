@@ -1916,7 +1916,7 @@ static int kwbimage_check_params(struct image_tool_params *params)
 		char *msg = "Configuration file for kwbimage creation omitted";
 
 		fprintf(stderr, "Error:%s - %s\n", params->cmdname, msg);
-		return CFG_INVALID;
+		return 1;
 	}
 
 	return (params->dflag && (params->fflag || params->lflag)) ||
