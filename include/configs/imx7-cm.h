@@ -88,8 +88,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC1_BASE_ADDR
 #define CONFIG_SYS_FSL_USDHC_NUM		2
 
-#define CONFIG_SYS_MMC_ENV_DEV			0   /* USDHC1 */
-#define CONFIG_SYS_MMC_ENV_PART			0	/* user area */
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 #define CONFIG_MMCROOT					"/dev/mmcblk0p2"  /* USDHC1 */
 

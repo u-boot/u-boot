@@ -54,7 +54,6 @@
 #   error "is set"
 #  endif
 extern unsigned long nand_env_oob_offset;
-#  define CONFIG_ENV_OFFSET nand_env_oob_offset
 # endif /* CONFIG_ENV_OFFSET_OOB */
 #endif /* CONFIG_ENV_IS_IN_NAND */
 

@@ -20,9 +20,6 @@
 
 #define CONFIG_LAST_STAGE_INIT
 
-/* Allow environment variable to be overwritten */
-#define CONFIG_ENV_OVERWRITE
-
 /* Autoboot options */
 #define CONFIG_RESET_TO_RETRY
 #define CONFIG_BOOT_RETRY_TIME		-1
@@ -36,11 +33,6 @@
 					"loadaddr=20080000\0"	\
 					"ethrotate=yes\0"	\
 					"autoload=0\0"
-
-/** Environment defines */
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */

@@ -45,9 +45,6 @@
 
 /** Heap size for U-Boot */
 
-/* Allow environment variable to be overwritten */
-#define CONFIG_ENV_OVERWRITE
-
 /* Autoboot options */
 #define CONFIG_RESET_TO_RETRY
 #define CONFIG_BOOT_RETRY_TIME		-1
@@ -68,11 +65,6 @@
 #ifdef CONFIG_DM_SPI_FLASH
 # define CONFIG_SF_DEFAULT_BUS	0
 # define CONFIG_SF_DEFAULT_CS	0
-#endif
-
-/** Environment defines */
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 
 /* Monitor Command Prompt */

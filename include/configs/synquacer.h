@@ -38,8 +38,6 @@
 #define CONFIG_PL011_CLOCK		UART_CLK
 #define CONFIG_PL01x_PORTS		{(void *)(0x2a400000)}
 
-#define CONFIG_ENV_OVERWRITE		/* ethaddr can be reprogrammed */
-
 /* Support MTD */
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)

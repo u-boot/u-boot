@@ -32,12 +32,6 @@
 #define CONFIG_SPL_GD_ADDR 0x85000000
 #endif
 
-/* -------------------------------------------------
- * Environment
- */
-//Disable persistent environment variable storage
-#define CONFIG_ENV_IS_NOWHERE   1
-
 /* ---------------------------------------------------------------------
  * Board boot configuration
  */
