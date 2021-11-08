@@ -22,7 +22,6 @@
 #define GICR_BASE	0xF1060000
 
 /* Ethernet RAVB */
-#define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
 
 /* Board Clock */
