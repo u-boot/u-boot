@@ -72,16 +72,12 @@ int scmi_mbox_probe(struct udevice *dev)
 	ret = mbox_get_by_index(dev, 0, &chan->mbox);
 	if (ret) {
 		dev_err(dev, "Failed to find mailbox: %d\n", ret);
-		goto out;
+		return ret;
 	}
 
 	ret = scmi_dt_get_smt_buffer(dev, &chan->smt);
 	if (ret)
 		dev_err(dev, "Failed to get shm resources: %d\n", ret);
-
-out:
-	if (ret)
-		devm_kfree(dev, chan);
 
 	return ret;
 }
