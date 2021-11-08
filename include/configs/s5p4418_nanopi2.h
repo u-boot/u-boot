@@ -77,7 +77,6 @@
  *  System initialize options (board_init_f)
  */
 /* board_init_f->init_sequence, call arch_cpu_init */
-#define CONFIG_ARCH_CPU_INIT
 
 /*-----------------------------------------------------------------------
  * Miscellaneous configurable options
