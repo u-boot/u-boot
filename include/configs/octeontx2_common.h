@@ -18,8 +18,6 @@
 /** Stack starting address */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
 
-#define CONFIG_LAST_STAGE_INIT
-
 /* Autoboot options */
 #define CONFIG_RESET_TO_RETRY
 #define CONFIG_BOOT_RETRY_TIME		-1
