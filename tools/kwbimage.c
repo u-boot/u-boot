@@ -890,7 +890,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 
 	/* Fill in the main header */
 	main_hdr->blocksize =
-		cpu_to_le32(payloadsz - headersz);
+		cpu_to_le32(payloadsz);
 	main_hdr->srcaddr   = cpu_to_le32(headersz);
 	main_hdr->ext       = has_ext;
 	main_hdr->version   = 0;
@@ -1234,7 +1234,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 
 	/* Fill the main header */
 	main_hdr->blocksize    =
-		cpu_to_le32(payloadsz - headersz);
+		cpu_to_le32(payloadsz);
 	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
 	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
 	main_hdr->destaddr     = cpu_to_le32(params->addr);
@@ -1345,7 +1345,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 			return NULL;
 	}
 
-	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz,
+	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz + headersz,
 					       headersz, image, secure_hdr))
 		return NULL;
 
@@ -1575,8 +1575,21 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	void *image = NULL;
 	int version;
 	size_t headersz = 0;
+	size_t datasz;
 	uint32_t checksum;
+	struct stat s;
 	int ret;
+
+	/*
+	 * Do not use sbuf->st_size as it contains size with padding.
+	 * We need original image data size, so stat original file.
+	 */
+	if (stat(params->datafile, &s)) {
+		fprintf(stderr, "Could not stat data file %s: %s\n",
+			params->datafile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	datasz = ALIGN(s.st_size, 4);
 
 	fcfg = fopen(params->imagename, "r");
 	if (!fcfg) {
@@ -1612,11 +1625,11 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 		 */
 	case -1:
 	case 0:
-		image = image_create_v0(&headersz, params, sbuf->st_size);
+		image = image_create_v0(&headersz, params, datasz + 4);
 		break;
 
 	case 1:
-		image = image_create_v1(&headersz, params, ptr, sbuf->st_size);
+		image = image_create_v1(&headersz, params, ptr, datasz + 4);
 		break;
 
 	default:
@@ -1633,11 +1646,10 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 
 	free(image_cfg);
 
-	/* Build and add image checksum header */
+	/* Build and add image data checksum */
 	checksum = cpu_to_le32(image_checksum32((uint8_t *)ptr + headersz,
-				sbuf->st_size - headersz - sizeof(uint32_t)));
-	memcpy((uint8_t *)ptr + sbuf->st_size - sizeof(uint32_t), &checksum,
-		sizeof(uint32_t));
+						datasz));
+	memcpy((uint8_t *)ptr + headersz + datasz, &checksum, sizeof(uint32_t));
 
 	/* Finally copy the header into the image area */
 	memcpy(ptr, image, headersz);
