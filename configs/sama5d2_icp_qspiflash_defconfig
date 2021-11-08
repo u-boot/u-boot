@@ -25,6 +25,7 @@ CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 earlycon earlyprintk=serial,ttyS0, ignore_loglevel root=/dev/mmcblk0p2 memtest=0 rootfstype=ext4 rw rootwait"
 CONFIG_DISPLAY_BOARDINFO_LATE=y
+CONFIG_MISC_INIT_R=y
 CONFIG_HUSH_PARSER=y
 CONFIG_CMD_CONFIG=y
 CONFIG_CMD_BOOTZ=y

@@ -13,10 +13,6 @@
 unsigned long get_board_sys_clk(void);
 #endif
 
-#ifdef CONFIG_TFABOOT
-#define CONFIG_MISC_INIT_R
-#endif
-
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_QIXIS_I2C_ACCESS
 #define SYS_NO_FLASH
