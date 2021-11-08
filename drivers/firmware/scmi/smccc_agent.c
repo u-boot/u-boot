@@ -65,12 +65,10 @@ static int scmi_smccc_of_to_plat(struct udevice *dev)
 	chan->func_id = func_id;
 
 	ret = scmi_dt_get_smt_buffer(dev, &chan->smt);
-	if (ret) {
+	if (ret)
 		dev_err(dev, "Failed to get smt resources: %d\n", ret);
-		return ret;
-	}
 
-	return 0;
+	return ret;
 }
 
 static const struct udevice_id scmi_smccc_ids[] = {
