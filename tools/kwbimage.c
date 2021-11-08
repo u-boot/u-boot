@@ -1847,6 +1847,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 	 * The resulting image needs to be 4-byte aligned. At least
 	 * the Marvell hdrparser tool complains if its unaligned.
 	 * After the image data is stored 4-byte checksum.
+	 * Final UART image must be aligned to 128 bytes.
 	 * Final SPI and NAND images must be aligned to 256 bytes.
 	 * Final SATA and SDIO images must be aligned to 512 bytes.
 	 */
@@ -1854,6 +1855,8 @@ static int kwbimage_generate(struct image_tool_params *params,
 		return 4 + (256 - (alloc_len + s.st_size + 4) % 256) % 256;
 	else if (bootfrom == IBR_HDR_SATA_ID || bootfrom == IBR_HDR_SDIO_ID)
 		return 4 + (512 - (alloc_len + s.st_size + 4) % 512) % 512;
+	else if (bootfrom == IBR_HDR_UART_ID)
+		return 4 + (128 - (alloc_len + s.st_size + 4) % 128) % 128;
 	else
 		return 4 + (4 - s.st_size % 4) % 4;
 }
