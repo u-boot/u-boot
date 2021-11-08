@@ -535,7 +535,6 @@ unsigned long get_board_sys_clk(void);
 #define XQSGMII_CARD_PHY4_PORT3_ADDR 0xf
 
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 
 #endif
 

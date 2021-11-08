@@ -484,7 +484,6 @@
 #define QSGMII2_PORT4_PHY_ADDR		0x1f
 
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
-#define CONFIG_PHY_GIGE
 #endif
 #endif
 
