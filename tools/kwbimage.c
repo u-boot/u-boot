@@ -858,6 +858,27 @@ done:
 	return ret;
 }
 
+static size_t image_headersz_align(size_t headersz, uint8_t blockid)
+{
+	/*
+	 * Header needs to be 4-byte aligned, which is already ensured by code
+	 * above. Moreover UART images must have header aligned to 128 bytes
+	 * (xmodem block size), NAND images to 256 bytes (ECC calculation),
+	 * and SATA and SDIO images to 512 bytes (storage block size).
+	 * Note that SPI images do not have to have header size aligned
+	 * to 256 bytes because it is possible to read from SPI storage from
+	 * any offset (read offset does not have to be aligned to block size).
+	 */
+	if (blockid == IBR_HDR_UART_ID)
+		return ALIGN(headersz, 128);
+	else if (blockid == IBR_HDR_NAND_ID)
+		return ALIGN(headersz, 256);
+	else if (blockid == IBR_HDR_SATA_ID || blockid == IBR_HDR_SDIO_ID)
+		return ALIGN(headersz, 512);
+	else
+		return headersz;
+}
+
 static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 			     int payloadsz)
 {
@@ -994,11 +1015,7 @@ static size_t image_headersz_v1(int *hasext)
 			*hasext = 1;
 	}
 
-	/*
-	 * The payload should be aligned on some reasonable
-	 * boundary
-	 */
-	return ALIGN(headersz, 4096);
+	return image_headersz_align(headersz, image_get_bootfrom());
 }
 
 int add_binary_header_v1(uint8_t **cur, uint8_t **next_ext,
