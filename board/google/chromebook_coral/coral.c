@@ -155,10 +155,8 @@ static int coral_get_str(struct udevice *dev, int id, size_t size, char *val)
 
 		if (ret < 0)
 			return ret;
-		if (size < 15)
-			return -ENOSPC;
-		sprintf(val, "rev%d", ret);
-		break;
+
+		return snprintf(val, size, "rev%d", ret);
 	}
 	case SYSINFO_ID_BOARD_MODEL: {
 		int mem_config, sku_config;
@@ -173,15 +171,12 @@ static int coral_get_str(struct udevice *dev, int id, size_t size, char *val)
 			log_warning("Unable to read skuconfig (err=%d)\n", ret);
 		sku_config = ret;
 		model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-		snprintf(val, size, "%s (memconfig %d, SKU %d)", model,
-			 mem_config, sku_config);
-		break;
+		return snprintf(val, size, "%s (memconfig %d, SKU %d)", model,
+				mem_config, sku_config);
 	}
 	default:
 		return -ENOENT;
 	}
-
-	return 0;
 }
 
 int chromeos_get_gpio(const struct udevice *dev, const char *prop,

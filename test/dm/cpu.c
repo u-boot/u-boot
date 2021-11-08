@@ -32,7 +32,7 @@ static int dm_test_cpu(struct unit_test_state *uts)
 	ut_asserteq(cpu_is_current(dev), 1);
 
 	ut_assertok(cpu_get_desc(dev, text, sizeof(text)));
-	ut_assertok(strcmp(text, "LEG Inc. SuperMegaUltraTurbo CPU No. 1"));
+	ut_asserteq_str(text, "LEG Inc. SuperMegaUltraTurbo CPU No. 1");
 
 	ut_assertok(cpu_get_info(dev, &info));
 	ut_asserteq(info.cpu_freq, 42 * 42 * 42 * 42 * 42);
@@ -42,7 +42,7 @@ static int dm_test_cpu(struct unit_test_state *uts)
 	ut_asserteq(cpu_get_count(dev), 42);
 
 	ut_assertok(cpu_get_vendor(dev, text, sizeof(text)));
-	ut_assertok(strcmp(text, "Languid Example Garbage Inc."));
+	ut_asserteq_str(text, "Languid Example Garbage Inc.");
 
 	return 0;
 }

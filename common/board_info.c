@@ -43,7 +43,7 @@ int __weak show_board_info(void)
 		}
 
 		/* Fail back to the main 'model' if available */
-		if (ret)
+		if (ret <= 0)
 			model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
 		else
 			model = str;

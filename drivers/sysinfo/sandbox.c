@@ -73,11 +73,26 @@ int sysinfo_sandbox_get_str(struct udevice *dev, int id, size_t size, char *val)
 	switch (id) {
 	case STR_VACATIONSPOT:
 		/* Picks a vacation spot depending on i1 and i2 */
-		snprintf(val, size, vacation_spots[index]);
-		return 0;
+		strncpy(val, vacation_spots[index], size);
+		val[size - 1] = '\0';
+		return strlen(vacation_spots[index]);
 	}
 
 	return -ENOENT;
+}
+
+int sysinfo_sandbox_get_str_list(struct udevice *dev, int id, unsigned idx,
+				 size_t size, char *val)
+{
+	if (id != STR_VACATIONSPOT)
+		return -ENOENT;
+
+	if (idx >= ARRAY_SIZE(vacation_spots))
+		return -ERANGE;
+
+	strncpy(val, vacation_spots[idx], size);
+	val[size - 1] = '\0';
+	return strlen(vacation_spots[idx]);
 }
 
 static const struct udevice_id sysinfo_sandbox_ids[] = {
@@ -90,6 +105,7 @@ static const struct sysinfo_ops sysinfo_sandbox_ops = {
 	.get_bool = sysinfo_sandbox_get_bool,
 	.get_int = sysinfo_sandbox_get_int,
 	.get_str = sysinfo_sandbox_get_str,
+	.get_str_list = sysinfo_sandbox_get_str_list,
 };
 
 int sysinfo_sandbox_probe(struct udevice *dev)

@@ -47,6 +47,10 @@ enum sysinfo_id {
 	/* For show_board_info() */
 	SYSINFO_ID_BOARD_MODEL,
 
+	/* For overwriting default environment variables */
+	SYSINFO_ID_DEF_ENV_NAMES,
+	SYSINFO_ID_DEF_ENV_VALUES,
+
 	/* First value available for downstream/board used */
 	SYSINFO_ID_USER = 0x1000,
 };
@@ -95,11 +99,35 @@ struct sysinfo_ops {
 	 * @dev:	The sysinfo instance to gather the data.
 	 * @id:		A unique identifier for the string value to be read.
 	 * @size:	The size of the buffer to receive the string data.
+	 *		If the buffer is not large enough to contain the whole
+	 *		string, the string must be trimmed to fit in the
+	 *		buffer including the terminating NULL-byte.
 	 * @val:	Pointer to a buffer that receives the value read.
 	 *
-	 * Return: 0 if OK, -ve on error.
+	 * Return: Actual length of the string excluding the terminating
+	 *	   NULL-byte if OK, -ve on error.
 	 */
+
 	int (*get_str)(struct udevice *dev, int id, size_t size, char *val);
+
+	/**
+	 * get_str_list() - Read a specific string data value from a string list
+	 *		    that describes hardware setup.
+	 * @dev:	The sysinfo instance to gather the data.
+	 * @id:		A unique identifier for the string list to read from.
+	 * @idx:	The index of the string in the string list.
+	 * @size:	The size of the buffer to receive the string data.
+	 *		If the buffer is not large enough to contain the whole
+	 *		string, the string must be trimmed to fit in the
+	 *		buffer including the terminating NULL-byte.
+	 * @val:	Pointer to a buffer that receives the value read.
+	 *
+	 * Return: Actual length of the string excluding the terminating
+	 *	   NULL-byte if OK, -ENOENT if list with ID @id does not exist,
+	 *	   -ERANGE if @idx is invalid or -ve on error.
+	 */
+	int (*get_str_list)(struct udevice *dev, int id, unsigned idx,
+			    size_t size, char *val);
 
 	/**
 	 * get_fit_loadable - Get the name of an image to load from FIT
@@ -164,13 +192,90 @@ int sysinfo_get_int(struct udevice *dev, int id, int *val);
  *		     hardware setup.
  * @dev:	The sysinfo instance to gather the data.
  * @id:		A unique identifier for the string value to be read.
- * @size:	The size of the buffer to receive the string data.
+ * @size:	The size of the buffer to receive the string data. If the buffer
+ *		is not large enough to contain the whole string, the string will
+ *		be trimmed to fit in the buffer including the terminating
+ *		NULL-byte.
  * @val:	Pointer to a buffer that receives the value read.
  *
- * Return: 0 if OK, -EPERM if called before sysinfo_detect(), else -ve on
- * error.
+ * Return: Actual length of the string excluding the terminating NULL-byte if
+ *	   OK, -EPERM if called before sysinfo_detect(), else -ve on error.
  */
 int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val);
+
+/**
+ * sysinfo_get_str_list() - Read a specific string data value from a string list
+ *			    that describes hardware setup.
+ * @dev:	The sysinfo instance to gather the data.
+ * @id:		A unique identifier for the string list to read from.
+ * @idx:	The index of the string in the string list.
+ * @size:	The size of the buffer to receive the string data. If the buffer
+ *		is not large enough to contain the whole string, the string will
+ *		be trimmed to fit in the buffer including the terminating
+ *		NULL-byte.
+ * @val:	Pointer to a buffer that receives the value read.
+ *
+ * Return: Actual length of the string excluding the terminating NULL-byte if
+ *	   OK, -ENOENT if list with ID @id does not exist, -ERANGE if @idx is
+ *	   invalid, -EPERM if called before sysinfo_detect(), else -ve on error.
+ */
+int sysinfo_get_str_list(struct udevice *dev, int id, unsigned idx, size_t size,
+			 char *val);
+
+/**
+ * sysinfo_get_str_list_max_len() - Get length of longest string in a string
+ *				    list that describes hardware setup.
+ * @dev:	The sysinfo instance to gather the data.
+ * @id:		A unique identifier for the string list to read from.
+ *
+ * Return: Length (excluding the terminating NULL-byte) of the longest string in
+ *	   the string list, or -ve on error.
+ */
+int sysinfo_get_str_list_max_len(struct udevice *dev, int id);
+
+/**
+ * sysinfo_str_list_first() - Start iterating a string list.
+ * @dev:	The sysinfo instance to gather the data.
+ * @id:		A unique identifier for the string list to read from.
+ * @_iter:	Pointer where iterator data will be stored.
+ *
+ * Pass a reference to a void * pointer as @_iter, i.e.
+ *	void *iter;
+ *	first = sysinfo_str_list_first(dev, id, &iter);
+ *
+ * The function will allocate space for the value. You need to iterate all
+ * elements with sysinfo_str_list_next() for the space to be freed, or free
+ * the pointer stored in @_iter, i.e.
+ *	void *iter;
+ *	first = sysinfo_str_list_first(dev, id, &iter);
+ *	if (first)
+ *		free(iter);
+ *
+ * Return: First string in the string list, or NULL on error.
+ */
+char *sysinfo_str_list_first(struct udevice *dev, int id, void *_iter);
+
+/**
+ * sysinfo_str_list_next() - Get next string in the string string list.
+ * @_iter:	Pointer to iterator, filled in by sysinfo_str_list_first().
+ *
+ * Pass a reference to a void * pointer as @_iter, i.e.
+ *	void *iter;
+ *	first = sysinfo_str_list_first(dev, id, &iter);
+ *	next = sysinfo_str_list_next(&iter);
+ *
+ * All elements must be iterated until the function returns NULL for the
+ * resources allocated for the iteration to be freed, or pointer stored in
+ * @_iter must be freed, i.e.:
+ *	void *iter;
+ *	first = sysinfo_str_list_first(dev, id, &iter);
+ *	next = sysinfo_str_list_next(&iter);
+ *	if (next)
+ *		free(iter);
+ *
+ * Return: Next string in the string list, NULL on end of list or NULL on error.
+ */
+char *sysinfo_str_list_next(void *_iter);
 
 /**
  * sysinfo_get() - Return the sysinfo device for the sysinfo in question.
@@ -227,6 +332,28 @@ static inline int sysinfo_get_str(struct udevice *dev, int id, size_t size,
 	return -ENOSYS;
 }
 
+static inline int sysinfo_get_str_list(struct udevice *dev, int id,
+				       unsigned idx, size_t size, char *val)
+{
+	return -ENOSYS;
+}
+
+static inline int sysinfo_get_str_list_max_len(struct udevice *dev, int id)
+{
+	return -ENOSYS;
+}
+
+static inline char *sysinfo_str_list_first(struct udevice *dev, int id,
+					   void *_iter)
+{
+	return NULL;
+}
+
+static inline char *sysinfo_str_list_next(void *_iter)
+{
+	return NULL;
+}
+
 static inline int sysinfo_get(struct udevice **devp)
 {
 	return -ENOSYS;
@@ -239,4 +366,32 @@ static inline int sysinfo_get_fit_loadable(struct udevice *dev, int index,
 }
 
 #endif
+
+/**
+ * for_each_sysinfo_str_list - Iterate a sysinfo string list
+ * @dev:	The sysinfo instance to gather the data.
+ * @id:		A unique identifier for the string list to read from.
+ * @val:	String pointer for the value.
+ * @iter:	Pointer where iteration data are stored.
+ *
+ * Important: all elements of the list must be iterated for the iterator
+ * resources to be freed automatically. If you need to break from the for cycle,
+ * you need to free the iterator.
+ *
+ * Example:
+ *	char *value;
+ *	void *iter;
+ *	for_each_sysinfo_str_list(dev, MY_STR_LIST, value, iter) {
+ *		printf("Value: %s\n", value);
+ *		if (!strcmp(value, "needle")) {
+ *			free(iter);
+ *			break;
+ *		}
+ *	}
+ */
+#define for_each_sysinfo_str_list(dev, id, val, iter)			\
+	for ((val) = sysinfo_str_list_first((dev), (id), &(iter));	\
+	     (val);							\
+	     (val) = sysinfo_str_list_next(&(iter)))
+
 #endif
