@@ -825,17 +825,10 @@ The following options need to be configured:
 		SCSI devices found during the last scan.
 
 - NETWORK Support (PCI):
-		CONFIG_E1000
-		Support for Intel 8254x/8257x gigabit chips.
-
 		CONFIG_E1000_SPI
 		Utility code for direct access to the SPI bus on Intel 8257x.
 		This does not do anything useful unless you set at least one
 		of CONFIG_CMD_E1000 or CONFIG_E1000_SPI_GENERIC.
-
-		CONFIG_E1000_SPI_GENERIC
-		Allow generic access to the SPI bus on the Intel 8257x, for
-		example with the "sspi" command.
 
 		CONFIG_NATSEMI
 		Support for National dp83815 chips.
