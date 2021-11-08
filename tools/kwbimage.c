@@ -266,6 +266,18 @@ static bool image_get_spezialized_img(void)
 	return e->sec_specialized_img;
 }
 
+static int image_get_bootfrom(void)
+{
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_BOOT_FROM);
+	if (!e)
+		/* fallback to SPI if no BOOT_FROM is not provided */
+		return IBR_HDR_SPI_ID;
+
+	return e->bootfrom;
+}
+
 /*
  * Compute a 8-bit checksum of a memory area. This algorithm follows
  * the requirements of the Marvell SoC BootROM specifications.
@@ -884,10 +896,8 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	main_hdr->version   = 0;
 	main_hdr->destaddr  = cpu_to_le32(params->addr);
 	main_hdr->execaddr  = cpu_to_le32(params->ep);
+	main_hdr->blockid   = image_get_bootfrom();
 
-	e = image_find_option(IMAGE_CFG_BOOT_FROM);
-	if (e)
-		main_hdr->blockid = e->bootfrom;
 	e = image_find_option(IMAGE_CFG_NAND_ECC_MODE);
 	if (e)
 		main_hdr->nandeccmode = e->nandeccmode;
@@ -1232,9 +1242,8 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	main_hdr->srcaddr      = cpu_to_le32(headersz);
 	main_hdr->ext          = hasext;
 	main_hdr->version      = 1;
-	e = image_find_option(IMAGE_CFG_BOOT_FROM);
-	if (e)
-		main_hdr->blockid = e->bootfrom;
+	main_hdr->blockid      = image_get_bootfrom();
+
 	e = image_find_option(IMAGE_CFG_NAND_BLKSZ);
 	if (e)
 		main_hdr->nandblocksize = e->nandblksz / (64 * 1024);
@@ -1557,17 +1566,6 @@ static int image_get_version(void)
 		return -1;
 
 	return e->version;
-}
-
-static int image_get_bootfrom(void)
-{
-	struct image_cfg_element *e;
-
-	e = image_find_option(IMAGE_CFG_BOOT_FROM);
-	if (!e)
-		return -1;
-
-	return e->bootfrom;
 }
 
 static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
