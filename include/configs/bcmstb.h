@@ -132,7 +132,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Filesystem configuration.
  */
-#define CONFIG_DOS_PARTITION
 
 /*
  * Environment configuration.
