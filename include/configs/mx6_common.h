@@ -27,10 +27,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
-#ifndef CONFIG_MX6
-#define CONFIG_MX6
-#endif
-
 #define CONFIG_SYS_FSL_CLK
 
 /* Miscellaneous configurable options */
