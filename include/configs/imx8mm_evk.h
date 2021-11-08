@@ -81,7 +81,6 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* USDHC */
-#define CONFIG_FSL_USDHC
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

@@ -21,7 +21,6 @@
 #define CONFIG_MXC_GPT_HCLK
 
 /* MMC */
-#define CONFIG_FSL_USDHC
 
 /* Boot */
 
