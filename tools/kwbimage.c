@@ -937,6 +937,28 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	main_hdr->checksum = image_checksum8(image,
 					     sizeof(struct main_hdr_v0));
 
+	/*
+	 * For SATA srcaddr is specified in number of sectors starting from
+	 * sector 0. The main header is stored at sector number 1.
+	 * This expects the sector size to be 512 bytes.
+	 * Header size is already aligned.
+	 */
+	if (main_hdr->blockid == IBR_HDR_SATA_ID)
+		main_hdr->srcaddr = cpu_to_le32(headersz / 512 + 1);
+
+	/*
+	 * For SDIO srcaddr is specified in number of sectors starting from
+	 * sector 0. The main header is stored at sector number 0.
+	 * This expects sector size to be 512 bytes.
+	 * Header size is already aligned.
+	 */
+	if (main_hdr->blockid == IBR_HDR_SDIO_ID)
+		main_hdr->srcaddr = cpu_to_le32(headersz / 512);
+
+	/* For PCIe srcaddr is not used and must be set to 0xFFFFFFFF. */
+	if (main_hdr->blockid == IBR_HDR_PEX_ID)
+		main_hdr->srcaddr = cpu_to_le32(0xFFFFFFFF);
+
 	/* Generate the ext header */
 	if (has_ext) {
 		struct ext_hdr_v0 *ext_hdr;
