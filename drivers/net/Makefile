@@ -13,6 +13,7 @@ obj-$(CONFIG_BCM6368_ETH) += bcm6368-eth.o
 obj-$(CONFIG_BCMGENET) += bcmgenet.o
 obj-$(CONFIG_BCM_SF2_ETH) += bcm-sf2-eth.o
 obj-$(CONFIG_BCM_SF2_ETH_GMAC) += bcm-sf2-eth-gmac.o
+obj-$(CONFIG_BNXT_ETH) += bnxt/
 obj-$(CONFIG_CALXEDA_XGMAC) += calxedaxgmac.o
 obj-$(CONFIG_CORTINA_NI_ENET) += cortina_ni.o
 obj-$(CONFIG_CS8900) += cs8900.o
