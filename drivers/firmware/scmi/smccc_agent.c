@@ -32,7 +32,7 @@ struct scmi_smccc_channel {
 
 static int scmi_smccc_process_msg(struct udevice *dev, struct scmi_msg *msg)
 {
-	struct scmi_smccc_channel *chan = dev_get_priv(dev);
+	struct scmi_smccc_channel *chan = dev_get_plat(dev);
 	struct arm_smccc_res res;
 	int ret;
 
@@ -51,9 +51,9 @@ static int scmi_smccc_process_msg(struct udevice *dev, struct scmi_msg *msg)
 	return ret;
 }
 
-static int scmi_smccc_probe(struct udevice *dev)
+static int scmi_smccc_of_to_plat(struct udevice *dev)
 {
-	struct scmi_smccc_channel *chan = dev_get_priv(dev);
+	struct scmi_smccc_channel *chan = dev_get_plat(dev);
 	u32 func_id;
 	int ret;
 
@@ -86,7 +86,7 @@ U_BOOT_DRIVER(scmi_smccc) = {
 	.name		= "scmi-over-smccc",
 	.id		= UCLASS_SCMI_AGENT,
 	.of_match	= scmi_smccc_ids,
-	.priv_auto	= sizeof(struct scmi_smccc_channel),
-	.probe		= scmi_smccc_probe,
+	.plat_auto	= sizeof(struct scmi_smccc_channel),
+	.of_to_plat	= scmi_smccc_of_to_plat,
 	.ops		= &scmi_smccc_ops,
 };
