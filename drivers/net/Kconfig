@@ -450,7 +450,6 @@ config MVPP2
 
 config MACB
 	bool "Cadence MACB/GEM Ethernet Interface"
-	depends on DM_ETH
 	select PHYLIB
 	help
 	  The Cadence MACB ethernet interface is found on many Atmel
