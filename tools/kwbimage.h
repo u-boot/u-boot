@@ -42,7 +42,8 @@ struct main_hdr_v0 {
 	uint8_t  nandeccmode;		/* 0x1       */
 	uint16_t nandpagesize;		/* 0x2-0x3   */
 	uint32_t blocksize;		/* 0x4-0x7   */
-	uint32_t rsvd1;			/* 0x8-0xB   */
+	uint8_t  version;		/* 0x8       */
+	uint8_t  rsvd1[3];		/* 0x9-0xB   */
 	uint32_t srcaddr;		/* 0xC-0xF   */
 	uint32_t destaddr;		/* 0x10-0x13 */
 	uint32_t execaddr;		/* 0x14-0x17 */
