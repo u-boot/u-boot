@@ -1220,6 +1220,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 {
 	struct image_cfg_element *e;
 	struct main_hdr_v1 *main_hdr;
+	struct opt_hdr_v1 *ohdr;
 	struct register_set_hdr_v1 *register_set_hdr;
 	struct secure_hdr_v1 *secure_hdr = NULL;
 	size_t headersz;
@@ -1370,6 +1371,14 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	main_hdr->checksum = image_checksum8(main_hdr, headersz);
 
 	*imagesz = headersz;
+
+	/* Fill the real header size without padding into the main header */
+	headersz = sizeof(*main_hdr);
+	for_each_opt_hdr_v1 (ohdr, main_hdr)
+		headersz += opt_hdr_v1_size(ohdr);
+	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
+	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
+
 	return image;
 }
 
