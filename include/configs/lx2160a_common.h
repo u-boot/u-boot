@@ -55,7 +55,6 @@
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
 /* Serial Port */
-#define CONFIG_PL01X_SERIAL
 #define CONFIG_PL011_CLOCK		(get_bus_freq(0) / 4)
 #define CONFIG_SYS_SERIAL0		0x21c0000
 #define CONFIG_SYS_SERIAL1		0x21d0000

@@ -34,7 +34,6 @@
 /* Serial (pl011)       */
 #define UART_CLK			(62500000)
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK		UART_CLK
 #define CONFIG_PL01x_PORTS		{(void *)(0x2a400000)}
 
