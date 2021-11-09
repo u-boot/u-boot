@@ -14,3 +14,4 @@ obj-$(CONFIG_$(SPL_TPL_)TPM2_CR50_I2C) += cr50_i2c.o
 obj-$(CONFIG_TPM2_TIS_SANDBOX) += tpm2_tis_sandbox.o sandbox_common.o
 obj-$(CONFIG_TPM2_TIS_SPI) += tpm2_tis_spi.o
 obj-$(CONFIG_TPM2_FTPM_TEE) += tpm2_ftpm_tee.o
+obj-$(CONFIG_TPM2_MMIO) += tpm2_tis_core.o tpm2_tis_mmio.o
