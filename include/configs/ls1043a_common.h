@@ -168,29 +168,6 @@
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
 
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_FMAN_FW_ADDR		0x900000
-#define CONFIG_SYS_QE_FW_ADDR		0x940000
-
-
-#else
-#if defined(CONFIG_SD_BOOT)
-/*
- * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
- * about 1MB (2040 blocks), Env is stored after the image, and the env size is
- * 0x2000 (16 blocks), 8 + 2040 + 16 = 2064, enlarge it to 18432(0x4800).
- */
-#define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x4800)
-#define CONFIG_SYS_QE_FW_ADDR		(512 * 0x4A00)
-#elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_SYS_FMAN_FW_ADDR		0x40900000
-#else
-/* FMan fireware Pre-load address */
-#define CONFIG_SYS_FMAN_FW_ADDR		0x60900000
-#define CONFIG_SYS_QE_FW_ADDR		0x60940000
-#endif
-#endif
-#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif
 #endif

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011-2012 Freescale Semiconductor, Inc.
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  */
 
 /*
@@ -361,35 +361,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
-/* Default address of microcode for the Linux Fman driver */
-#if defined(CONFIG_SPIFLASH)
-/*
- * env is stored at 0x100000, sector size is 0x10000, ucode is stored after
- * env, so we got 0x110000.
- */
-#define CONFIG_SYS_FMAN_FW_ADDR	0x110000
-#elif defined(CONFIG_SDCARD)
-/*
- * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
- * about 825KB (1650 blocks), Env is stored after the image, and the env size is
- * 0x2000 (16 blocks), 8 + 1650 + 16 = 1674, enlarge it to 1680.
- */
-#define CONFIG_SYS_FMAN_FW_ADDR	(512 * 1680)
-#elif defined(CONFIG_MTD_RAW_NAND)
-#define CONFIG_SYS_FMAN_FW_ADDR	(8 * (128 * 1024))
-#elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
-/*
- * Slave has no ucode locally, it can fetch this from remote. When implementing
- * in two corenet boards, slave's ucode could be stored in master's memory
- * space, the address can be mapped from slave TLB->slave LAW->
- * slave SRIO or PCIE outbound window->master inbound window->
- * master LAW->the ucode address in master's memory space.
- */
-#define CONFIG_SYS_FMAN_FW_ADDR	0xFFE00000
-#else
-#define CONFIG_SYS_FMAN_FW_ADDR	0xEFF00000
-#endif
-#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
 #ifdef CONFIG_PCI

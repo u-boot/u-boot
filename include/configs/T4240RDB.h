@@ -456,24 +456,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_DPAA_RMAN
 #define CONFIG_SYS_INTERLAKEN
 
-/* Default address of microcode for the Linux Fman driver */
-#if defined(CONFIG_SPIFLASH)
-/*
- * env is stored at 0x100000, sector size is 0x10000, ucode is stored after
- * env, so we got 0x110000.
- */
-#define CONFIG_SYS_FMAN_FW_ADDR	0x110000
-#elif defined(CONFIG_SDCARD)
-/*
- * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
- * about 1MB (2048 blocks), Env is stored after the image, and the env size is
- * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080.
- */
-#define CONFIG_SYS_FMAN_FW_ADDR	(512 * 0x820)
-#else
-#define CONFIG_SYS_FMAN_FW_ADDR	0xEFF00000
-#endif
-#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif /* CONFIG_NOBQFMAN */
 
