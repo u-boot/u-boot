@@ -48,11 +48,14 @@ RUN apt-get update && apt-get install -y \
 	dosfstools \
 	e2fsprogs \
 	efitools \
+	expect \
 	fakeroot \
 	flex \
+	gawk \
 	gdisk \
 	git \
 	gnu-efi \
+	gnutls-dev \
 	graphviz \
 	grub-efi-amd64-bin \
 	grub-efi-ia32-bin \
@@ -62,13 +65,16 @@ RUN apt-get update && apt-get install -y \
 	iputils-ping \
 	libconfuse-dev \
 	libgit2-dev \
+	libjson-glib-dev \
 	libguestfs-tools \
 	liblz4-tool \
 	libpixman-1-dev \
 	libpython3-dev \
 	libsdl1.2-dev \
 	libsdl2-dev \
+	libseccomp-dev \
 	libssl-dev \
+	libtool \
 	libudev-dev \
 	libusb-1.0-0-dev \
 	linux-image-kvm \
@@ -77,6 +83,7 @@ RUN apt-get update && apt-get install -y \
 	mount \
 	mtd-utils \
 	mtools \
+	net-tools \
 	ninja-build \
 	openssl \
 	picocom \
@@ -92,6 +99,8 @@ RUN apt-get update && apt-get install -y \
 	rpm2cpio \
 	sbsigntool \
 	sloccount \
+	socat \
+	softhsm2 \
 	sparse \
 	srecord \
 	sudo \
@@ -185,6 +194,25 @@ RUN wget -O - https://github.com/pengutronix/genimage/releases/download/v14/geni
 	make -j$(nproc) && \
 	make install && \
 	rm -rf /tmp/genimage-14
+
+# Build libtpms
+RUN git clone https://github.com/stefanberger/libtpms /tmp/libtpms && \
+	cd /tmp/libtpms && \
+	./autogen.sh && \
+	./configure && \
+	make -j$(nproc) && \
+	make install && \
+	ldconfig && \
+	rm -rf /tmp/libtpms
+
+# Build swtpm
+RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm && \
+	cd /tmp/swtpm && \
+	./autogen.sh && \
+	./configure && \
+	make -j$(nproc) && \
+	make install && \
+	rm -rf /tmp/swtpm
 
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
