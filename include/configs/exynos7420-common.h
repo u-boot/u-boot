@@ -10,7 +10,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_SAMSUNG			/* in a SAMSUNG core */
-#define CONFIG_EXYNOS7420		/* Exynos7 Family */
 #define CONFIG_S5P
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */

@@ -1,5 +1,8 @@
 if TARGET_ESPRESSO7420
 
+config EXYNOS7420
+	def_bool y
+
 config SYS_BOARD
 	default "espresso7420"
 	help
