@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  *
  * PCIe Gen4 driver for NXP Layerscape SoCs
  * Author: Hou Zhiqiang <Minder.Hou@gmail.com>
@@ -305,8 +305,6 @@ static void ls_pcie_g4_setup_ctrl(struct ls_pcie_g4 *pcie)
 	ccsr_writel(pcie, PAB_AXI_PIO_CTRL(0), val);
 
 	ls_pcie_g4_setup_wins(pcie);
-
-	pcie->stream_id_cur = 0;
 }
 
 static void ls_pcie_g4_ep_inbound_win_set(struct ls_pcie_g4 *pcie, int pf,

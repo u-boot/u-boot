@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2020 NXP
+ * Copyright 2020,2021 NXP
  * Layerscape PCIe driver
  */
 
@@ -244,7 +244,6 @@ static void ls_pcie_setup_ctrl(struct ls_pcie_rc *pcie_rc)
 	ls_pcie_dbi_ro_wr_dis(pcie);
 
 	ls_pcie_disable_bars(pcie_rc);
-	pcie_rc->stream_id_cur = 0;
 }
 
 static int ls_pcie_probe(struct udevice *dev)
