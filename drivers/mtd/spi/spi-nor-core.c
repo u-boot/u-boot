@@ -2655,6 +2655,12 @@ static int spi_nor_select_erase(struct spi_nor *nor,
 		nor->erase_opcode = SPINOR_OP_SE;
 		mtd->erasesize = info->sector_size << nor->shift;
 	}
+
+	if ((JEDEC_MFR(info) == SNOR_MFR_SST) && info->flags & SECT_4K) {
+		nor->erase_opcode = SPINOR_OP_BE_4K;
+		mtd->erasesize = 4096 << nor->shift;
+	}
+
 	return 0;
 }
 
