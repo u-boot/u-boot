@@ -1472,7 +1472,7 @@ static efi_status_t tcg2_measure_boot_variable(struct udevice *dev)
 				      &var_data_size);
 
 		if (!bootvar) {
-			log_info("%ls not found\n", boot_name);
+			log_debug("%ls not found\n", boot_name);
 			continue;
 		}
 
