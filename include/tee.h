@@ -32,6 +32,25 @@
 						 TEE_PARAM_ATTR_META)
 
 /*
+ * Global Platform login identifiers for tee_open_session_arg::clnt_login
+ */
+#define TEE_LOGIN_PUBLIC                  0x00000000
+#define TEE_LOGIN_USER                    0x00000001
+#define TEE_LOGIN_GROUP                   0x00000002
+#define TEE_LOGIN_APPLICATION             0x00000004
+#define TEE_LOGIN_APPLICATION_USER        0x00000005
+#define TEE_LOGIN_APPLICATION_GROUP       0x00000006
+/*
+ * Reserve use of GP implementation specific login method range
+ * (0x80000000 - 0xBFFFFFFF). This range is rather being used
+ * for REE kernel clients or TEE implementation.
+ */
+#define TEE_LOGIN_REE_KERNEL_MIN          0x80000000
+#define TEE_LOGIN_REE_KERNEL_MAX          0xBFFFFFFF
+/* Private login method for REE kernel/privileged clients */
+#define TEE_LOGIN_REE_KERNEL              0x80000000
+
+/*
  * Some Global Platform error codes which has a meaning if the
  * TEE_GEN_CAP_GP bit is returned by the driver in
  * struct tee_version_data::gen_caps
@@ -135,8 +154,8 @@ struct tee_param {
 /**
  * struct tee_open_session_arg - extra arguments for tee_open_session()
  * @uuid:	[in] UUID of the Trusted Application
- * @clnt_uuid:	[in] Normally zeroes
- * @clnt_login:	[in] Normally 0
+ * @clnt_uuid:	[in] UUID of client, zeroes for PUBLIC/REE_KERNEL
+ * @clnt_login:	[in] Class of client TEE_LOGIN_*
  * @session:	[out] Session id
  * @ret:	[out] return value
  * @ret_origin:	[out] origin of the return value
