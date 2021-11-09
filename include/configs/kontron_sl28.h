@@ -88,6 +88,8 @@
 	"envload=env import -d -b ${env_addr}\0" \
 	"install_rcw=source 20200000\0" \
 	"fdtfile=freescale/fsl-ls1028a-kontron-sl28.dtb\0" \
+	"dfu_alt_info=sf 0:0=u-boot-bin raw 0x210000 0x1d0000;" \
+			    "u-boot-env raw 0x3e0000 0x20000\0" \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 
