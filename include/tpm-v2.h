@@ -396,6 +396,7 @@ enum {
 	TPM_STS_DATA_EXPECT		= 1 << 3,
 	TPM_STS_SELF_TEST_DONE		= 1 << 2,
 	TPM_STS_RESPONSE_RETRY		= 1 << 1,
+	TPM_STS_READ_ZERO               = 0x23
 };
 
 enum {
