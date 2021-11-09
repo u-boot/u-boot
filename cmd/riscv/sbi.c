@@ -49,24 +49,34 @@ static struct sbi_ext extensions[] = {
 static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 		  char *const argv[])
 {
-	int i;
+	int i, impl_id;
 	long ret;
 
 	ret = sbi_get_spec_version();
 	if (ret >= 0)
-		printf("SBI %ld.%ld\n", ret >> 24, ret & 0xffffff);
-	ret = sbi_get_impl_id();
-	if (ret >= 0) {
+		printf("SBI %ld.%ld", ret >> 24, ret & 0xffffff);
+	impl_id = sbi_get_impl_id();
+	if (impl_id >= 0) {
 		for (i = 0; i < ARRAY_SIZE(implementations); ++i) {
-			if (ret == implementations[i].id) {
-				printf("%s\n", implementations[i].name);
+			if (impl_id == implementations[i].id) {
+				long vers;
+
+				printf("\n%s ", implementations[i].name);
+				ret = sbi_get_impl_version(&vers);
+				if (ret < 0)
+					break;
+				if (impl_id == 1)
+					printf("%ld.%ld",
+					       vers >> 16, vers & 0xffff);
+				else
+					printf("0x%lx", vers);
 				break;
 			}
 		}
 		if (i == ARRAY_SIZE(implementations))
-			printf("Unknown implementation ID %ld\n", ret);
+			printf("Unknown implementation ID %ld", ret);
 	}
-	printf("Extensions:\n");
+	printf("\nExtensions:\n");
 	for (i = 0; i < ARRAY_SIZE(extensions); ++i) {
 		ret = sbi_probe_extension(extensions[i].id);
 		if (ret > 0)
