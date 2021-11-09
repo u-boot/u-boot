@@ -64,6 +64,7 @@
 #define TEE_ERROR_NOT_SUPPORTED		0xffff000a
 #define TEE_ERROR_COMMUNICATION		0xffff000e
 #define TEE_ERROR_SECURITY		0xffff000f
+#define TEE_ERROR_SHORT_BUFFER		0xffff0010
 #define TEE_ERROR_OUT_OF_MEMORY		0xffff000c
 #define TEE_ERROR_OVERFLOW              0xffff300f
 #define TEE_ERROR_TARGET_DEAD		0xffff3024
