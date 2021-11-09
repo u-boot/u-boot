@@ -1452,8 +1452,8 @@ static efi_status_t tcg2_measure_boot_variable(struct udevice *dev)
 	boot_order = efi_get_var(var_name, &efi_global_variable_guid,
 				 &var_data_size);
 	if (!boot_order) {
-		ret = EFI_NOT_FOUND;
-		goto error;
+		/* If "BootOrder" is not defined, skip the boot variable measurement */
+		return EFI_SUCCESS;
 	}
 
 	ret = tcg2_measure_variable(dev, 1, EV_EFI_VARIABLE_BOOT2, var_name,
