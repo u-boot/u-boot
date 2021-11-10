@@ -12,6 +12,7 @@ config WATCHDOG
 config WATCHDOG_AUTOSTART
 	bool "Automatically start watchdog timer"
 	depends on WDT
+	default n if ARCH_SUNXI
 	default y
 	help
 	  Automatically start watchdog timer and start servicing it during
