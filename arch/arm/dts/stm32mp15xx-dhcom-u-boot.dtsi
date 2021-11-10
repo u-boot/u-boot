@@ -50,15 +50,6 @@
 	};
 };
 
-&gpiof {
-	snor-nwp {
-		gpio-hog;
-		gpios = <7 0>;
-		output-high;
-		line-name = "spi-nor-nwp";
-	};
-};
-
 &i2c4 {
 	u-boot,dm-pre-reloc;
 };

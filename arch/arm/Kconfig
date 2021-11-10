@@ -1813,7 +1813,6 @@ config ARCH_STM32
 	select CPU_V7M
 	select DM
 	select DM_SERIAL
-	select GPIO_EXTRA_HEADER
 	imply CMD_DM
 
 config ARCH_STI
@@ -1839,7 +1838,6 @@ config ARCH_STM32MP
 	select DM_GPIO
 	select DM_RESET
 	select DM_SERIAL
-	select GPIO_EXTRA_HEADER
 	select MISC
 	select OF_CONTROL
 	select OF_LIBFDT

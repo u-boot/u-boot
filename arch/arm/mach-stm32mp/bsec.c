@@ -295,7 +295,7 @@ static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 	u32 tmp_data = 0;
 	int ret;
 
-	if (IS_ENABLED(CONFIG_TFABOOT))
+	if (IS_ENABLED(CONFIG_ARM_SMCCC) && !IS_ENABLED(CONFIG_SPL_BUILD))
 		return stm32_smc(STM32_SMC_BSEC,
 				 STM32_SMC_READ_OTP,
 				 otp, 0, val);
@@ -326,7 +326,7 @@ static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 {
 	struct stm32mp_bsec_plat *plat;
 
-	if (IS_ENABLED(CONFIG_TFABOOT))
+	if (IS_ENABLED(CONFIG_ARM_SMCCC) && !IS_ENABLED(CONFIG_SPL_BUILD))
 		return stm32_smc(STM32_SMC_BSEC,
 				 STM32_SMC_READ_SHADOW,
 				 otp, 0, val);
@@ -350,7 +350,7 @@ static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 {
 	struct stm32mp_bsec_plat *plat;
 
-	if (IS_ENABLED(CONFIG_TFABOOT))
+	if (IS_ENABLED(CONFIG_ARM_SMCCC) && !IS_ENABLED(CONFIG_SPL_BUILD))
 		return stm32_smc_exec(STM32_SMC_BSEC,
 				      STM32_SMC_PROG_OTP,
 				      otp, val);
@@ -365,7 +365,7 @@ static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 {
 	struct stm32mp_bsec_plat *plat;
 
-	if (IS_ENABLED(CONFIG_TFABOOT))
+	if (IS_ENABLED(CONFIG_ARM_SMCCC) && !IS_ENABLED(CONFIG_SPL_BUILD))
 		return stm32_smc_exec(STM32_SMC_BSEC,
 				      STM32_SMC_WRITE_SHADOW,
 				      otp, val);
@@ -377,7 +377,7 @@ static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 
 static int stm32mp_bsec_write_lock(struct udevice *dev, u32 val, u32 otp)
 {
-	if (!IS_ENABLED(CONFIG_TFABOOT))
+	if (!IS_ENABLED(CONFIG_ARM_SMCCC) || IS_ENABLED(CONFIG_SPL_BUILD))
 		return -ENOTSUPP;
 
 	if (val == 1)
@@ -503,10 +503,9 @@ static int stm32mp_bsec_probe(struct udevice *dev)
 
 	/*
 	 * update unlocked shadow for OTP cleared by the rom code
-	 * only executed in U-Boot proper when TF-A is not used
+	 * only executed in SPL, it is done in TF-A for TFABOOT
 	 */
-
-	if (!IS_ENABLED(CONFIG_TFABOOT) && !IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
 		plat = dev_get_plat(dev);
 
 		for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)

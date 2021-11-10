@@ -21,6 +21,10 @@
 		pinctrl1 = &pinctrl_z;
 	};
 
+	binman: binman {
+		multiple-images;
+	};
+
 	clocks {
 		u-boot,dm-pre-reloc;
 	};
@@ -228,3 +232,28 @@
 	resets = <&rcc UART8_R>;
 };
 
+#if defined(CONFIG_STM32MP15x_STM32IMAGE)
+&binman {
+	u-boot-stm32 {
+		filename = "u-boot.stm32";
+		mkimage {
+			args = "-T stm32image -a 0xC0100000 -e 0xC0100000";
+			u-boot {
+			};
+		};
+	};
+};
+#endif
+
+#if defined(CONFIG_SPL)
+&binman {
+	spl-stm32 {
+		filename = "u-boot-spl.stm32";
+		mkimage {
+			args = "-T stm32image -a 0x2FFC2500 -e 0x2FFC2500";
+			u-boot-spl {
+			};
+		};
+	};
+};
+#endif

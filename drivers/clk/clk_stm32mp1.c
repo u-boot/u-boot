@@ -27,11 +27,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_TFABOOT
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL_BUILD)
 /* activate clock tree initialization in the driver */
 #define STM32MP1_CLOCK_TREE_INIT
-#endif
 #endif
 
 #define MAX_HSI_HZ		64000000

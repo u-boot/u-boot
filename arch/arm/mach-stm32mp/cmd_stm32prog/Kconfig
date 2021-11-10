@@ -1,4 +1,3 @@
-
 config CMD_STM32PROG
 	bool "command stm32prog for STM32CudeProgrammer"
 	select DFU
