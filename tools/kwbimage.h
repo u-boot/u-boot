@@ -42,7 +42,8 @@ struct main_hdr_v0 {
 	uint8_t  nandeccmode;		/* 0x1       */
 	uint16_t nandpagesize;		/* 0x2-0x3   */
 	uint32_t blocksize;		/* 0x4-0x7   */
-	uint32_t rsvd1;			/* 0x8-0xB   */
+	uint8_t  version;		/* 0x8       */
+	uint8_t  rsvd1[3];		/* 0x9-0xB   */
 	uint32_t srcaddr;		/* 0xC-0xF   */
 	uint32_t destaddr;		/* 0x10-0x13 */
 	uint32_t execaddr;		/* 0x14-0x17 */
@@ -189,28 +190,6 @@ struct register_set_hdr_v1 {
 #define OPT_HDR_V1_SECURE_TYPE   0x1
 #define OPT_HDR_V1_BINARY_TYPE   0x2
 #define OPT_HDR_V1_REGISTER_TYPE 0x3
-
-enum kwbimage_cmd {
-	CMD_INVALID,
-	CMD_BOOT_FROM,
-	CMD_NAND_ECC_MODE,
-	CMD_NAND_PAGE_SIZE,
-	CMD_SATA_PIO_MODE,
-	CMD_DDR_INIT_DELAY,
-	CMD_DATA
-};
-
-enum kwbimage_cmd_types {
-	CFG_INVALID = -1,
-	CFG_COMMAND,
-	CFG_DATA0,
-	CFG_DATA1
-};
-
-/*
- * functions
- */
-void init_kwb_image_type (void);
 
 /*
  * Byte 8 of the image header contains the version number. In the v0

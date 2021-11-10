@@ -1073,6 +1073,14 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 
 	hdrsz = kwbheader_size(img);
 
+	/*
+	 * If header size is not aligned to xmodem block size (which applies
+	 * for all images in kwbimage v0 format) then we have to ensure that
+	 * the last xmodem block of header contains beginning of the data
+	 * followed by the header. So align header size to xmodem block size.
+	 */
+	hdrsz += (KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ) % KWBOOT_XM_BLKSZ;
+
 	kwboot_printv("Waiting 2s and flushing tty\n");
 	sleep(2); /* flush isn't effective without it */
 	tcflush(tty, TCIOFLUSH);
@@ -1083,12 +1091,17 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 	if (rc)
 		return rc;
 
-	img += hdrsz;
-	size -= hdrsz;
-
-	rc = kwboot_xmodem_one(tty, &pnum, 0, img, size, 0);
-	if (rc)
-		return rc;
+	/*
+	 * If we have already sent image data as a part of the last
+	 * xmodem header block then we have nothing more to send.
+	 */
+	if (hdrsz < size) {
+		img += hdrsz;
+		size -= hdrsz;
+		rc = kwboot_xmodem_one(tty, &pnum, 0, img, size, 0);
+		if (rc)
+			return rc;
+	}
 
 	rc = kwboot_xm_finish(tty);
 	if (rc)
@@ -1627,7 +1640,6 @@ err:
 static void
 kwboot_usage(FILE *stream, char *progname)
 {
-	fprintf(stream, "kwboot version %s\n", PLAIN_VERSION);
 	fprintf(stream,
 		"Usage: %s [OPTIONS] [-b <image> | -D <image> ] [-B <baud> ] <TTY>\n",
 		progname);
@@ -1671,6 +1683,8 @@ main(int argc, char **argv)
 	size = 0;
 	after_img_rsv = KWBOOT_XM_BLKSZ;
 	baudrate = 115200;
+
+	printf("kwboot version %s\n", PLAIN_VERSION);
 
 	kwboot_verbose = isatty(STDOUT_FILENO);
 

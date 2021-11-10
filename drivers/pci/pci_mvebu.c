@@ -97,7 +97,6 @@ struct mvebu_pcie {
  * and 64K of I/O space when registered.
  */
 static void __iomem *mvebu_pcie_membase = (void __iomem *)MBUS_PCI_MEM_BASE;
-#define PCIE_MEM_SIZE	(128 << 20)
 static void __iomem *mvebu_pcie_iobase = (void __iomem *)MBUS_PCI_IO_BASE;
 
 static inline bool mvebu_pcie_link_up(struct mvebu_pcie *pcie)
@@ -433,14 +432,14 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	mvebu_pcie_set_local_dev_nr(pcie, 1);
 
 	pcie->mem.start = (u32)mvebu_pcie_membase;
-	pcie->mem.end = pcie->mem.start + PCIE_MEM_SIZE - 1;
-	mvebu_pcie_membase += PCIE_MEM_SIZE;
+	pcie->mem.end = pcie->mem.start + MBUS_PCI_MEM_SIZE - 1;
+	mvebu_pcie_membase += MBUS_PCI_MEM_SIZE;
 
 	if (mvebu_mbus_add_window_by_id(pcie->mem_target, pcie->mem_attr,
 					(phys_addr_t)pcie->mem.start,
-					PCIE_MEM_SIZE)) {
+					MBUS_PCI_MEM_SIZE)) {
 		printf("PCIe unable to add mbus window for mem at %08x+%08x\n",
-		       (u32)pcie->mem.start, PCIE_MEM_SIZE);
+		       (u32)pcie->mem.start, MBUS_PCI_MEM_SIZE);
 	}
 
 	pcie->io.start = (u32)mvebu_pcie_iobase;
@@ -459,7 +458,7 @@ static int mvebu_pcie_probe(struct udevice *dev)
 
 	/* PCI memory space */
 	pci_set_region(hose->regions + 0, pcie->mem.start,
-		       pcie->mem.start, PCIE_MEM_SIZE, PCI_REGION_MEM);
+		       pcie->mem.start, MBUS_PCI_MEM_SIZE, PCI_REGION_MEM);
 	pci_set_region(hose->regions + 1,
 		       0, 0,
 		       gd->ram_size,

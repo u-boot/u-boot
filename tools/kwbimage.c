@@ -101,6 +101,8 @@ enum image_cfg_type {
 	IMAGE_CFG_DATA,
 	IMAGE_CFG_DATA_DELAY,
 	IMAGE_CFG_BAUDRATE,
+	IMAGE_CFG_UART_PORT,
+	IMAGE_CFG_UART_MPP,
 	IMAGE_CFG_DEBUG,
 	IMAGE_CFG_KAK,
 	IMAGE_CFG_CSK,
@@ -129,6 +131,8 @@ static const char * const id_strs[] = {
 	[IMAGE_CFG_DATA] = "DATA",
 	[IMAGE_CFG_DATA_DELAY] = "DATA_DELAY",
 	[IMAGE_CFG_BAUDRATE] = "BAUDRATE",
+	[IMAGE_CFG_UART_PORT] = "UART_PORT",
+	[IMAGE_CFG_UART_MPP] = "UART_MPP",
 	[IMAGE_CFG_DEBUG] = "DEBUG",
 	[IMAGE_CFG_KAK] = "KAK",
 	[IMAGE_CFG_CSK] = "CSK",
@@ -161,6 +165,8 @@ struct image_cfg_element {
 		struct ext_hdr_v0_reg regdata;
 		unsigned int regdata_delay;
 		unsigned int baudrate;
+		unsigned int uart_port;
+		unsigned int uart_mpp;
 		unsigned int debug;
 		const char *key_name;
 		int csk_idx;
@@ -258,6 +264,18 @@ static bool image_get_spezialized_img(void)
 		return false;
 
 	return e->sec_specialized_img;
+}
+
+static int image_get_bootfrom(void)
+{
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_BOOT_FROM);
+	if (!e)
+		/* fallback to SPI if no BOOT_FROM is not provided */
+		return IBR_HDR_SPI_ID;
+
+	return e->bootfrom;
 }
 
 /*
@@ -840,6 +858,41 @@ done:
 	return ret;
 }
 
+static size_t image_headersz_align(size_t headersz, uint8_t blockid)
+{
+	/*
+	 * Header needs to be 4-byte aligned, which is already ensured by code
+	 * above. Moreover UART images must have header aligned to 128 bytes
+	 * (xmodem block size), NAND images to 256 bytes (ECC calculation),
+	 * and SATA and SDIO images to 512 bytes (storage block size).
+	 * Note that SPI images do not have to have header size aligned
+	 * to 256 bytes because it is possible to read from SPI storage from
+	 * any offset (read offset does not have to be aligned to block size).
+	 */
+	if (blockid == IBR_HDR_UART_ID)
+		return ALIGN(headersz, 128);
+	else if (blockid == IBR_HDR_NAND_ID)
+		return ALIGN(headersz, 256);
+	else if (blockid == IBR_HDR_SATA_ID || blockid == IBR_HDR_SDIO_ID)
+		return ALIGN(headersz, 512);
+	else
+		return headersz;
+}
+
+static size_t image_headersz_v0(int *hasext)
+{
+	size_t headersz;
+
+	headersz = sizeof(struct main_hdr_v0);
+	if (image_count_options(IMAGE_CFG_DATA) > 0) {
+		headersz += sizeof(struct ext_hdr_v0);
+		if (hasext)
+			*hasext = 1;
+	}
+
+	return image_headersz_align(headersz, image_get_bootfrom());
+}
+
 static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 			     int payloadsz)
 {
@@ -853,12 +906,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	 * Calculate the size of the header and the size of the
 	 * payload
 	 */
-	headersz  = sizeof(struct main_hdr_v0);
-
-	if (image_count_options(IMAGE_CFG_DATA) > 0) {
-		has_ext = 1;
-		headersz += sizeof(struct ext_hdr_v0);
-	}
+	headersz = image_headersz_v0(&has_ext);
 
 	image = malloc(headersz);
 	if (!image) {
@@ -872,15 +920,14 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 
 	/* Fill in the main header */
 	main_hdr->blocksize =
-		cpu_to_le32(payloadsz - headersz);
+		cpu_to_le32(payloadsz);
 	main_hdr->srcaddr   = cpu_to_le32(headersz);
 	main_hdr->ext       = has_ext;
+	main_hdr->version   = 0;
 	main_hdr->destaddr  = cpu_to_le32(params->addr);
 	main_hdr->execaddr  = cpu_to_le32(params->ep);
+	main_hdr->blockid   = image_get_bootfrom();
 
-	e = image_find_option(IMAGE_CFG_BOOT_FROM);
-	if (e)
-		main_hdr->blockid = e->bootfrom;
 	e = image_find_option(IMAGE_CFG_NAND_ECC_MODE);
 	if (e)
 		main_hdr->nandeccmode = e->nandeccmode;
@@ -889,6 +936,28 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 		main_hdr->nandpagesize = cpu_to_le16(e->nandpagesz);
 	main_hdr->checksum = image_checksum8(image,
 					     sizeof(struct main_hdr_v0));
+
+	/*
+	 * For SATA srcaddr is specified in number of sectors starting from
+	 * sector 0. The main header is stored at sector number 1.
+	 * This expects the sector size to be 512 bytes.
+	 * Header size is already aligned.
+	 */
+	if (main_hdr->blockid == IBR_HDR_SATA_ID)
+		main_hdr->srcaddr = cpu_to_le32(headersz / 512 + 1);
+
+	/*
+	 * For SDIO srcaddr is specified in number of sectors starting from
+	 * sector 0. The main header is stored at sector number 0.
+	 * This expects sector size to be 512 bytes.
+	 * Header size is already aligned.
+	 */
+	if (main_hdr->blockid == IBR_HDR_SDIO_ID)
+		main_hdr->srcaddr = cpu_to_le32(headersz / 512);
+
+	/* For PCIe srcaddr is not used and must be set to 0xFFFFFFFF. */
+	if (main_hdr->blockid == IBR_HDR_PEX_ID)
+		main_hdr->srcaddr = cpu_to_le32(0xFFFFFFFF);
 
 	/* Generate the ext header */
 	if (has_ext) {
@@ -977,11 +1046,7 @@ static size_t image_headersz_v1(int *hasext)
 			*hasext = 1;
 	}
 
-	/*
-	 * The payload should be aligned on some reasonable
-	 * boundary
-	 */
-	return ALIGN(headersz, 4096);
+	return image_headersz_align(headersz, image_get_bootfrom());
 }
 
 int add_binary_header_v1(uint8_t **cur, uint8_t **next_ext,
@@ -1186,6 +1251,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 {
 	struct image_cfg_element *e;
 	struct main_hdr_v1 *main_hdr;
+	struct opt_hdr_v1 *ohdr;
 	struct register_set_hdr_v1 *register_set_hdr;
 	struct secure_hdr_v1 *secure_hdr = NULL;
 	size_t headersz;
@@ -1217,7 +1283,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 
 	/* Fill the main header */
 	main_hdr->blocksize    =
-		cpu_to_le32(payloadsz - headersz);
+		cpu_to_le32(payloadsz);
 	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
 	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
 	main_hdr->destaddr     = cpu_to_le32(params->addr);
@@ -1225,9 +1291,8 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	main_hdr->srcaddr      = cpu_to_le32(headersz);
 	main_hdr->ext          = hasext;
 	main_hdr->version      = 1;
-	e = image_find_option(IMAGE_CFG_BOOT_FROM);
-	if (e)
-		main_hdr->blockid = e->bootfrom;
+	main_hdr->blockid      = image_get_bootfrom();
+
 	e = image_find_option(IMAGE_CFG_NAND_BLKSZ);
 	if (e)
 		main_hdr->nandblocksize = e->nandblksz / (64 * 1024);
@@ -1239,7 +1304,13 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		main_hdr->nandbadblklocation = e->nandbadblklocation;
 	e = image_find_option(IMAGE_CFG_BAUDRATE);
 	if (e)
-		main_hdr->options = baudrate_to_option(e->baudrate);
+		main_hdr->options |= baudrate_to_option(e->baudrate);
+	e = image_find_option(IMAGE_CFG_UART_PORT);
+	if (e)
+		main_hdr->options |= (e->uart_port & 3) << 3;
+	e = image_find_option(IMAGE_CFG_UART_MPP);
+	if (e)
+		main_hdr->options |= (e->uart_mpp & 7) << 5;
 	e = image_find_option(IMAGE_CFG_DEBUG);
 	if (e)
 		main_hdr->flags = e->debug ? 0x1 : 0;
@@ -1323,7 +1394,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 			return NULL;
 	}
 
-	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz,
+	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz + headersz,
 					       headersz, image, secure_hdr))
 		return NULL;
 
@@ -1331,6 +1402,14 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	main_hdr->checksum = image_checksum8(main_hdr, headersz);
 
 	*imagesz = headersz;
+
+	/* Fill the real header size without padding into the main header */
+	headersz = sizeof(*main_hdr);
+	for_each_opt_hdr_v1 (ohdr, main_hdr)
+		headersz += opt_hdr_v1_size(ohdr);
+	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
+	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
+
 	return image;
 }
 
@@ -1441,6 +1520,12 @@ static int image_create_config_parse_oneline(char *line,
 	case IMAGE_CFG_BAUDRATE:
 		el->baudrate = strtoul(value1, NULL, 10);
 		break;
+	case IMAGE_CFG_UART_PORT:
+		el->uart_port = strtoul(value1, NULL, 16);
+		break;
+	case IMAGE_CFG_UART_MPP:
+		el->uart_mpp = strtoul(value1, NULL, 16);
+		break;
 	case IMAGE_CFG_DEBUG:
 		el->debug = strtoul(value1, NULL, 10);
 		break;
@@ -1540,17 +1625,6 @@ static int image_get_version(void)
 	return e->version;
 }
 
-static int image_get_bootfrom(void)
-{
-	struct image_cfg_element *e;
-
-	e = image_find_option(IMAGE_CFG_BOOT_FROM);
-	if (!e)
-		return -1;
-
-	return e->bootfrom;
-}
-
 static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 				struct image_tool_params *params)
 {
@@ -1558,8 +1632,21 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	void *image = NULL;
 	int version;
 	size_t headersz = 0;
+	size_t datasz;
 	uint32_t checksum;
+	struct stat s;
 	int ret;
+
+	/*
+	 * Do not use sbuf->st_size as it contains size with padding.
+	 * We need original image data size, so stat original file.
+	 */
+	if (stat(params->datafile, &s)) {
+		fprintf(stderr, "Could not stat data file %s: %s\n",
+			params->datafile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	datasz = ALIGN(s.st_size, 4);
 
 	fcfg = fopen(params->imagename, "r");
 	if (!fcfg) {
@@ -1595,11 +1682,11 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 		 */
 	case -1:
 	case 0:
-		image = image_create_v0(&headersz, params, sbuf->st_size);
+		image = image_create_v0(&headersz, params, datasz + 4);
 		break;
 
 	case 1:
-		image = image_create_v1(&headersz, params, ptr, sbuf->st_size);
+		image = image_create_v1(&headersz, params, ptr, datasz + 4);
 		break;
 
 	default:
@@ -1616,11 +1703,10 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 
 	free(image_cfg);
 
-	/* Build and add image checksum header */
+	/* Build and add image data checksum */
 	checksum = cpu_to_le32(image_checksum32((uint8_t *)ptr + headersz,
-				sbuf->st_size - headersz - sizeof(uint32_t)));
-	memcpy((uint8_t *)ptr + sbuf->st_size - sizeof(uint32_t), &checksum,
-		sizeof(uint32_t));
+						datasz));
+	memcpy((uint8_t *)ptr + headersz + datasz, &checksum, sizeof(uint32_t));
 
 	/* Finally copy the header into the image area */
 	memcpy(ptr, image, headersz);
@@ -1663,6 +1749,9 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 				  struct image_tool_params *params)
 {
 	size_t header_size = kwbheader_size(ptr);
+	uint8_t blockid;
+	uint32_t offset;
+	uint32_t size;
 	uint8_t csum;
 
 	if (header_size > image_size)
@@ -1682,61 +1771,64 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 			if (csum != ext_hdr->checksum)
 				return -FDT_ERR_BADSTRUCTURE;
 		}
+
+		blockid = mhdr->blockid;
+		offset = le32_to_cpu(mhdr->srcaddr);
+		size = le32_to_cpu(mhdr->blocksize);
 	} else if (kwbimage_version(ptr) == 1) {
 		struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
 		const uint8_t *mhdr_end;
 		struct opt_hdr_v1 *ohdr;
-		uint32_t offset;
-		uint32_t size;
 
 		mhdr_end = (uint8_t *)mhdr + header_size;
 		for_each_opt_hdr_v1 (ohdr, ptr)
 			if (!opt_hdr_v1_valid_size(ohdr, mhdr_end))
 				return -FDT_ERR_BADSTRUCTURE;
 
+		blockid = mhdr->blockid;
 		offset = le32_to_cpu(mhdr->srcaddr);
-
-		/*
-		 * For SATA srcaddr is specified in number of sectors.
-		 * The main header is must be stored at sector number 1.
-		 * This expects that sector size is 512 bytes and recalculates
-		 * data offset to bytes relative to the main header.
-		 */
-		if (mhdr->blockid == IBR_HDR_SATA_ID) {
-			if (offset < 1)
-				return -FDT_ERR_BADSTRUCTURE;
-			offset -= 1;
-			offset *= 512;
-		}
-
-		/*
-		 * For SDIO srcaddr is specified in number of sectors.
-		 * This expects that sector size is 512 bytes and recalculates
-		 * data offset to bytes.
-		 */
-		if (mhdr->blockid == IBR_HDR_SDIO_ID)
-			offset *= 512;
-
-		/*
-		 * For PCIe srcaddr is always set to 0xFFFFFFFF.
-		 * This expects that data starts after all headers.
-		 */
-		if (mhdr->blockid == IBR_HDR_PEX_ID && offset == 0xFFFFFFFF)
-			offset = header_size;
-
-		if (offset > image_size || offset % 4 != 0)
-			return -FDT_ERR_BADSTRUCTURE;
-
 		size = le32_to_cpu(mhdr->blocksize);
-		if (size < 4 || offset + size > image_size || size % 4 != 0)
-			return -FDT_ERR_BADSTRUCTURE;
-
-		if (image_checksum32(ptr + offset, size - 4) !=
-		    *(uint32_t *)(ptr + offset + size - 4))
-			return -FDT_ERR_BADSTRUCTURE;
 	} else {
 		return -FDT_ERR_BADSTRUCTURE;
 	}
+
+	/*
+	 * For SATA srcaddr is specified in number of sectors.
+	 * The main header is must be stored at sector number 1.
+	 * This expects that sector size is 512 bytes and recalculates
+	 * data offset to bytes relative to the main header.
+	 */
+	if (blockid == IBR_HDR_SATA_ID) {
+		if (offset < 1)
+			return -FDT_ERR_BADSTRUCTURE;
+		offset -= 1;
+		offset *= 512;
+	}
+
+	/*
+	 * For SDIO srcaddr is specified in number of sectors.
+	 * This expects that sector size is 512 bytes and recalculates
+	 * data offset to bytes.
+	 */
+	if (blockid == IBR_HDR_SDIO_ID)
+		offset *= 512;
+
+	/*
+	 * For PCIe srcaddr is always set to 0xFFFFFFFF.
+	 * This expects that data starts after all headers.
+	 */
+	if (blockid == IBR_HDR_PEX_ID && offset == 0xFFFFFFFF)
+		offset = header_size;
+
+	if (offset > image_size || offset % 4 != 0)
+		return -FDT_ERR_BADSTRUCTURE;
+
+	if (size < 4 || offset + size > image_size || size % 4 != 0)
+		return -FDT_ERR_BADSTRUCTURE;
+
+	if (image_checksum32(ptr + offset, size - 4) !=
+	    *(uint32_t *)(ptr + offset + size - 4))
+		return -FDT_ERR_BADSTRUCTURE;
 
 	return 0;
 }
@@ -1793,8 +1885,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 		 */
 	case -1:
 	case 0:
-		alloc_len = sizeof(struct main_hdr_v0) +
-			sizeof(struct ext_hdr_v0);
+		alloc_len = image_headersz_v0(NULL);
 		break;
 
 	case 1:
@@ -1824,6 +1915,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 	 * The resulting image needs to be 4-byte aligned. At least
 	 * the Marvell hdrparser tool complains if its unaligned.
 	 * After the image data is stored 4-byte checksum.
+	 * Final UART image must be aligned to 128 bytes.
 	 * Final SPI and NAND images must be aligned to 256 bytes.
 	 * Final SATA and SDIO images must be aligned to 512 bytes.
 	 */
@@ -1831,6 +1923,8 @@ static int kwbimage_generate(struct image_tool_params *params,
 		return 4 + (256 - (alloc_len + s.st_size + 4) % 256) % 256;
 	else if (bootfrom == IBR_HDR_SATA_ID || bootfrom == IBR_HDR_SDIO_ID)
 		return 4 + (512 - (alloc_len + s.st_size + 4) % 512) % 512;
+	else if (bootfrom == IBR_HDR_UART_ID)
+		return 4 + (128 - (alloc_len + s.st_size + 4) % 128) % 128;
 	else
 		return 4 + (4 - s.st_size % 4) % 4;
 }
@@ -1893,7 +1987,7 @@ static int kwbimage_check_params(struct image_tool_params *params)
 		char *msg = "Configuration file for kwbimage creation omitted";
 
 		fprintf(stderr, "Error:%s - %s\n", params->cmdname, msg);
-		return CFG_INVALID;
+		return 1;
 	}
 
 	return (params->dflag && (params->fflag || params->lflag)) ||
