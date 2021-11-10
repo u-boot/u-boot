@@ -180,26 +180,6 @@
 				"fdt_addr=0x83000000\0"		\
 				"boot_name=boot.img\0"		\
 				"boot_addr=0x8007f800\0"
-
-#ifndef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND	"if smhload ${boot_name} ${boot_addr}; then " \
-				"  set bootargs; " \
-				"  abootimg addr ${boot_addr}; " \
-				"  abootimg get dtb --index=0 fdt_addr; " \
-				"  bootm ${boot_addr} ${boot_addr} " \
-				"  ${fdt_addr}; " \
-				"else; " \
-				"  set fdt_high 0xffffffffffffffff; " \
-				"  set initrd_high 0xffffffffffffffff; " \
-				"  smhload ${kernel_name} ${kernel_addr}; " \
-				"  smhload ${fdtfile} ${fdt_addr}; " \
-				"  smhload ${initrd_name} ${initrd_addr} "\
-				"  initrd_end; " \
-				"  fdt addr ${fdt_addr}; fdt resize; " \
-				"  fdt chosen ${initrd_addr} ${initrd_end}; " \
-				"  booti $kernel_addr - $fdt_addr; " \
-				"fi"
-#endif
 #endif
 
 /* Monitor Command Prompt */

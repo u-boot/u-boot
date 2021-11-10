@@ -128,6 +128,8 @@ CONFIG_BOOTDELAY=1
 CONFIG_AUTOBOOT_KEYED=y
 CONFIG_AUTOBOOT_PROMPT="Enter password - autoboot in %d seconds...\n"
 CONFIG_AUTOBOOT_DELAY_STR="ids"
+CONFIG_USE_BOOTCOMMAND=y
+CONFIG_BOOTCOMMAND="run boot_cramfs"
 CONFIG_USE_PREBOOT=y
 CONFIG_PREBOOT="echo;echo Type \"run nfsboot\" to mount root filesystem over NFS;echo"
 # CONFIG_DISPLAY_BOARDINFO is not set

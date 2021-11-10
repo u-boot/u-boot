@@ -72,17 +72,4 @@
 		"setenv bootenvrootfstype ${nandrootfstype}; " \
 		"setenv bootenvloadimage ${nandloadimage}\0"
 
-#define CONFIG_BOOTCOMMAND \
-	"if test -n ${bootenv} && usb start; then " \
-		"if run loadbootenv; then " \
-			"echo Loaded environment ${bootenv} from usb;" \
-			"run importbootenv;" \
-		"fi;" \
-		"if test -n ${bootenvcmd}; then " \
-			"echo Running bootenvcmd ...;" \
-			"run bootenvcmd;" \
-		"fi;" \
-	"fi;" \
-	"run setnandbootenv subbootcmd;"
-
 #endif /* _CONFIG_DNS325_H */

@@ -258,7 +258,6 @@
 		"bootm ${kernel_addr_r} - ${fdt_addr};"			\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	""
-#define CONFIG_BOOTCOMMAND	"run boot_nor"
 
 /* pass open firmware flat tree */
 

@@ -622,19 +622,6 @@ The following options need to be configured:
 		Define this variable to enable hw flow control in serial driver.
 		Current user of this option is drivers/serial/nsl16550.c driver
 
-- Autoboot Command:
-		CONFIG_BOOTCOMMAND
-		Only needed when CONFIG_BOOTDELAY is enabled;
-		define a command string that is automatically executed
-		when no character is read on the console interface
-		within "Boot Delay" after reset.
-
-		CONFIG_RAMBOOT and CONFIG_NFSBOOT
-		The value of these goes into the environment as
-		"ramboot" and "nfsboot" respectively, and can be used
-		as a convenience, when switching between booting from
-		RAM and NFS.
-
 - Serial Download Echo Mode:
 		CONFIG_LOADS_ECHO
 		If defined to 1, all characters received during a

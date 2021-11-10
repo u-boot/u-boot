@@ -277,12 +277,6 @@
 		"setenv bl_flash_pending_rfs_imgs;" \
 	"fi; \0"
 
-#define CONFIG_BOOTCOMMAND "run flash_pending_rfs_imgs;" \
-			   "run fastboot_nitro && "\
-			   "run bootcmd_mmc_fits || "\
-			   "run bootcmd_usb || "\
-			   "run bootcmd_pxe"
-
 /* Flashing commands */
 #define TFTP_QSPI_PARAM \
 	"fip_qspi_addr=0x0\0"\

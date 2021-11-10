@@ -125,20 +125,6 @@
 			"fi; " \
 		"fi;\0"
 
-#ifndef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if run loadimage; then " \
-				   "run mmcboot; " \
-			   "else run netboot; " \
-			   "fi; " \
-		   "fi; " \
-	   "fi;"
-#endif
-
 /* Link Definitions */
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000

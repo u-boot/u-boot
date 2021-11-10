@@ -25,10 +25,6 @@
  */
 #define CONFIG_SYS_NS16550_CLK          25000000
 
-#define CONFIG_BOOTCOMMAND              "sf probe;" \
-					"mtdparts default;" \
-					"bootm 0x9f680000"
-
 /* Miscellaneous configurable options */
 
 /*

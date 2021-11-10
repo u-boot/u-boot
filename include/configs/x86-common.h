@@ -39,11 +39,6 @@
  */
 #define CONFIG_SYS_NS16550_PORT_MAPPED
 
-#ifndef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND	\
-	"ext2load scsi 0:3 01000000 /boot/vmlinuz; zboot 01000000"
-#endif
-
 /*
  * Miscellaneous configurable options
  */
@@ -99,23 +94,6 @@
 	"kernel_addr_r=0x1000000\0"			\
 	"ramdisk_addr_r=0x4000000\0"			\
 	"ramdiskfile=initramfs.gz\0"
-
-
-#define RAMBOOTCOMMAND				\
-	"setenv bootargs root=/dev/ram rw "		\
-	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-	"console=$consoledev,$baudrate $othbootargs;"	\
-	"tftpboot $kernel_addr_r $bootfile;"		\
-	"tftpboot $ramdisk_addr_r $ramdiskfile;"	\
-	"zboot $kernel_addr_r 0 $ramdisk_addr_r $filesize"
-
-#define NFSBOOTCOMMAND				\
-	"setenv bootargs root=/dev/nfs rw "		\
-	"nfsroot=$serverip:$rootpath "			\
-	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-	"console=$consoledev,$baudrate $othbootargs;"	\
-	"tftpboot $kernel_addr_r $bootfile;"		\
-	"zboot $kernel_addr_r"
 
 
 #endif	/* __CONFIG_H */

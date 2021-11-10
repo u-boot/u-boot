@@ -124,7 +124,6 @@ u-boot: 'set' command */
 
 #if 0
 
-#define CONFIG_BOOTCOMMAND	"bootm 0xffe80000"	/*Autoboto command, please
 enter a valid image address in flash */
 
 /* User network settings */

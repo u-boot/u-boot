@@ -27,10 +27,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND \
-	"setenv bootargs $(bootargs_console); " \
-	"run bootcmd_usb; " \
-	"bootm 0x00800000 0x01100000"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"mtdparts=mtdparts=orion_nand:1M(u-boot),4M(uImage)," \

@@ -84,8 +84,6 @@
 	"fdtfile=imx6q-dhcom-pdk2.dtb\0"\
 	BOOTENV
 
-#define CONFIG_BOOTCOMMAND		"run distro_bootcmd"
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 2) \

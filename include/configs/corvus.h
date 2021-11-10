@@ -79,10 +79,6 @@
 
 /* bootstrap + u-boot + env in nandflash */
 
-#define CONFIG_BOOTCOMMAND						\
-	"nand read 0x70000000 0x200000 0x300000;"			\
-	"bootm 0x70000000"
-
 /* Defines for SPL */
 #define CONFIG_SPL_MAX_SIZE		(12 * SZ_1K)
 #define CONFIG_SPL_STACK		(SZ_16K)

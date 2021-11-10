@@ -58,11 +58,6 @@
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
 /* Default Environment */
-#define CONFIG_BOOTCOMMAND					\
-	"sf probe; "						\
-	"sf read ${loadaddr} 0xd0000 0x2d0000; "		\
-	"sf read ${ramdisk_addr_r} 0x3a0000 0x430000; "		\
-	"bootm ${loadaddr} ${ramdisk_addr_r}"
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"initrd_high=0xffffffff\0"				\

@@ -173,25 +173,6 @@ unsigned long long get_qixis_addr(void);
 	"console=ttyAMA0,38400n8\0"		\
 	"mcinitcmd=fsl_mc start mc 0x580a00000"	\
 	" 0x580e00000 \0"
-
-#ifndef CONFIG_TFABOOT
-#if defined(CONFIG_QSPI_BOOT)
-#define CONFIG_BOOTCOMMAND	"sf probe 0:0;" \
-				"sf read 0x80001000 0xd00000 0x100000;"\
-				" fsl_mc lazyapply dpl 0x80001000 &&" \
-				" sf read $kernel_load $kernel_start" \
-				" $kernel_size && bootm $kernel_load"
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_BOOTCOMMAND	"mmcinfo;mmc read 0x80001000 0x6800 0x800;"\
-				" fsl_mc lazyapply dpl 0x80001000 &&" \
-				" mmc read $kernel_load $kernel_start" \
-				" $kernel_size && bootm $kernel_load"
-#else /* NOR BOOT*/
-#define CONFIG_BOOTCOMMAND	"fsl_mc lazyapply dpl 0x580d00000 &&" \
-				" cp.b $kernel_start $kernel_load" \
-				" $kernel_size && bootm $kernel_load"
-#endif
-#endif /* CONFIG_TFABOOT  */
 #endif
 
 /* Monitor Command Prompt */

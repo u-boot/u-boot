@@ -29,7 +29,7 @@ CONFIG_SPL_FIT_IMAGE_POST_PROCESS=y
 CONFIG_OF_BOARD_SETUP=y
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="androidboot.serialno=${serial#} console=ttyS0,115200 androidboot.console=ttyS0 androidboot.hardware=jacinto6evmboard"
-# CONFIG_USE_BOOTCOMMAND is not set
+CONFIG_BOOTCOMMAND="if test ${dofastboot} -eq 1; then echo Boot fastboot requested, resetting dofastboot ...;setenv dofastboot 0; saveenv;echo Booting into fastboot ...; fastboot 1;fi;if test ${boot_fit} -eq 1; then run update_to_fit;fi;run findfdt; run finduuid; run distro_bootcmd;run emmc_android_boot; "
 CONFIG_SYS_CONSOLE_INFO_QUIET=y
 CONFIG_BOARD_EARLY_INIT_F=y
 # CONFIG_MISC_INIT_R is not set

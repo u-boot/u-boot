@@ -254,10 +254,4 @@
 		"fi\0"
 #endif
 
-#define CONFIG_BOOTCOMMAND \
-	"for btype in ${bootdevs}; do " \
-		"echo; echo Attempting ${btype} boot...; " \
-		"if run ${btype}_boot; then; fi; " \
-	"done"
-
 #endif			       /* __CONFIG_H */

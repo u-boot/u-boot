@@ -24,8 +24,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-#define CONFIG_BOOTCOMMAND	""
-
 /* Flash settings */
 #define CONFIG_SYS_FLASH_SIZE		0x02000000 /* 32 MiB */
 #define CONFIG_SYS_MAX_FLASH_SECT	128

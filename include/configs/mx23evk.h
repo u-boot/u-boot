@@ -78,19 +78,6 @@
 			"bootz; " \
 		"fi;\0"
 
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadimage; then " \
-				"run mmcboot; " \
-			"else " \
-				"echo ERR: Fail to boot from MMC; " \
-			"fi; " \
-		"fi; " \
-	"else exit; fi"
-
 /* The rest of the configuration is shared */
 #include <configs/mxs.h>
 

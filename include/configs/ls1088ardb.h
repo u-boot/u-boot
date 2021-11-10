@@ -424,7 +424,6 @@
 		"bootm $load_addr#$BOARD\0"
 #endif /* CONFIG_TFABOOT */
 
-#undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #define QSPI_NOR_BOOTCOMMAND					\
 	"sf read 0x80001000 0xd00000 0x100000;"		\
@@ -446,26 +445,8 @@
 #else
 #if defined(CONFIG_QSPI_BOOT)
 /* Try to boot an on-QSPI kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND                                      \
-		"sf read 0x80001000 0xd00000 0x100000;"		\
-		"env exists mcinitcmd && env exists secureboot "	\
-		" && sf read 0x806C0000 0x6C0000 0x100000 "	\
-		"&& esbc_validate 0x806C0000;env exists mcinitcmd "	\
-		"&& fsl_mc lazyapply dpl 0x80001000;"		\
-		"run distro_bootcmd;run qspi_bootcmd;"		\
-		"env exists secureboot && esbc_halt;"
 
 /* Try to boot an on-SD kernel first, then do normal distro boot */
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_BOOTCOMMAND                                      \
-		"env exists mcinitcmd && mmcinfo; "		\
-		"mmc read 0x80001000 0x6800 0x800; "		\
-		"env exists mcinitcmd && env exists secureboot "	\
-		" && mmc read 0x806C0000 0x3600 0x20 "		\
-		"&& esbc_validate 0x806C0000;env exists mcinitcmd "	\
-		"&& fsl_mc lazyapply dpl 0x80001000;"		\
-		"run distro_bootcmd;run sd_bootcmd;"		\
-		"env exists secureboot && esbc_halt;"
 #endif
 #endif /* CONFIG_TFABOOT */
 

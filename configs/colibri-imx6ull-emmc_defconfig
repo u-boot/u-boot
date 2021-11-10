@@ -14,7 +14,6 @@ CONFIG_DEFAULT_DEVICE_TREE="imx6ull-colibri-emmc"
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_FIT=y
 CONFIG_BOOTDELAY=1
-# CONFIG_USE_BOOTCOMMAND is not set
 CONFIG_USE_PREBOOT=y
 CONFIG_PREBOOT="setenv fdtfile imx6ull-colibri${variant}-${fdt_board}.dtb"
 # CONFIG_CONSOLE_MUX is not set

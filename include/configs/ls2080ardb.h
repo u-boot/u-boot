@@ -507,38 +507,12 @@ unsigned long get_board_sys_clk(void);
 			"run distro_bootcmd;run nor_bootcmd; "		\
 			"env exists secureboot && esbc_halt;"
 #else
-#undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_QSPI_BOOT
 /* Try to boot an on-QSPI kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND						\
-			"sf probe 0:0; "				\
-			"sf read 0x806c0000 0x6c0000 0x40000; "		\
-			"env exists mcinitcmd && env exists secureboot "\
-			"&& esbc_validate 0x806C0000; "			\
-			"sf read 0x80d00000 0xd00000 0x100000; "	\
-			"env exists mcinitcmd && "			\
-			"fsl_mc lazyapply dpl 0x80d00000; "		\
-			"run distro_bootcmd;run qspi_bootcmd; "		\
-			"env exists secureboot && esbc_halt;"
 #elif defined(CONFIG_SD_BOOT)
 /* Try to boot an on-SD kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND						\
-			"env exists mcinitcmd && env exists secureboot "\
-			"&& mmcinfo && mmc read $load_addr 0x3600 0x800 " \
-			"&& esbc_validate $load_addr; "			\
-			"env exists mcinitcmd && run mcinitcmd "	\
-			"&& mmc read 0x88000000 0x6800 0x800 "		\
-			"&& fsl_mc lazyapply dpl 0x88000000; "		\
-			"run distro_bootcmd;run sd_bootcmd; "		\
-			"env exists secureboot && esbc_halt;"
 #else
 /* Try to boot an on-NOR kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND						\
-			"env exists mcinitcmd && env exists secureboot "\
-			"&& esbc_validate 0x5806C0000; env exists mcinitcmd "\
-			"&& fsl_mc lazyapply dpl 0x580d00000;"		\
-			"run distro_bootcmd;run nor_bootcmd; "		\
-			"env exists secureboot && esbc_halt;"
 #endif
 #endif
 

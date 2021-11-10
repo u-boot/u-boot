@@ -7,6 +7,8 @@ CONFIG_TARGET_SLIMBOOTLOADER=y
 CONFIG_BOOTSTAGE=y
 CONFIG_BOOTSTAGE_REPORT=y
 CONFIG_BOOTDELAY=10
+CONFIG_USE_BOOTCOMMAND=y
+CONFIG_BOOTCOMMAND="if test ${bootdev} = 'usb'; then ${bootdev} start; fi; if test ${bootdev} = 'scsi'; then ${bootdev} scan; fi; ${bootdev} info; ${bootfsload} ${bootdev} ${bootdevnum}:${bootdevpart} ${loadaddr} ${bootfile}; ${bootfsload} ${bootdev} ${bootdevnum}:${bootdevpart} ${ramdiskaddr} ${ramdiskfile}; zboot ${loadaddr} 0 ${ramdiskaddr} ${filesize}"
 CONFIG_SYS_CONSOLE_INFO_QUIET=y
 CONFIG_BOARD_EARLY_INIT_R=y
 CONFIG_LAST_STAGE_INIT=y

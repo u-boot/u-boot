@@ -17,11 +17,6 @@
 
 #define CONFIG_TIMESTAMP
 
-#define CONFIG_BOOTCOMMAND					\
-	"sf probe 0:1 50000000; "				\
-	"sf read ${loadaddr} 0x100000 ${kern_size}; "		\
-	"bootm ${loadaddr}"
-
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"kern_size=0x700000\0"					\
 	"loadaddr=0x40001000\0"					\

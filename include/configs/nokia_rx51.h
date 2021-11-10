@@ -168,12 +168,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"echo run attachboot - Boot attached kernel image.;" \
 	"echo"
 
-#define CONFIG_BOOTCOMMAND \
-	"run sdboot;" \
-	"run emmcboot;" \
-	"run attachboot;" \
-	"echo"
-
 /*
  * OMAP3 has 12 GP timers, they can be driven by the system clock
  * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).

@@ -79,11 +79,6 @@
 #endif
 
 #define CONFIG_ROOTPATH			"/nfs/root/path"
-#define NFSBOOTCOMMAND						\
-	"setenv bootargs $bootargs root=/dev/nfs rw "			\
-	"nfsroot=$serverip:$rootpath "					\
-	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off;" \
-		"run __nfsboot"
 
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"

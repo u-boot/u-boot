@@ -21,7 +21,7 @@ CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyO2,115200n8 noinitrd earlyprintk"
-# CONFIG_USE_BOOTCOMMAND is not set
+CONFIG_BOOTCOMMAND="mmc rescan;fatload mmc 0 ${loadaddr} uImage;bootm ${loadaddr}"
 CONFIG_SYS_CONSOLE_INFO_QUIET=y
 # CONFIG_DISPLAY_BOARDINFO is not set
 # CONFIG_MISC_INIT_R is not set

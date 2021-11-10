@@ -16,7 +16,6 @@
 
 #undef CONFIG_SYS_AUTOLOAD
 #undef CONFIG_EXTRA_ENV_SETTINGS
-#undef CONFIG_BOOTCOMMAND
 
 /*
  * Use:
@@ -69,8 +68,6 @@
 		"tftp ${fdt_addr} ${fdt_file}; " \
 		"bootz ${loadaddr} - ${fdt_addr}; " \
 		"\0"
-
-#define CONFIG_BOOTCOMMAND "run boot${boot-mode}"
 
 /* Physical Memory Map */
 #define PHYS_SDRAM					MMDC0_ARB_BASE_ADDR

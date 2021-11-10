@@ -362,7 +362,6 @@ unsigned long get_board_sys_clk(void);
  * Environment
  */
 
-#undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #define IFC_NAND_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;;"
@@ -372,20 +371,6 @@ unsigned long get_board_sys_clk(void);
 			   "env exists secureboot && esbc_halt;;"
 #define SD_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;;"
-#else
-#if defined(CONFIG_QSPI_BOOT)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
-			   "env exists secureboot && esbc_halt;;"
-#elif defined(CONFIG_NAND_BOOT)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
-			   "env exists secureboot && esbc_halt;;"
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
-			   "env exists secureboot && esbc_halt;;"
-#else
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
-			   "env exists secureboot && esbc_halt;;"
-#endif
 #endif
 
 #include <asm/fsl_secure_boot.h>

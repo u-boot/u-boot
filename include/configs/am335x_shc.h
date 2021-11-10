@@ -139,64 +139,15 @@
 
 #if defined CONFIG_SHC_NETBOOT
 /* Network Boot */
-# define CONFIG_BOOTCOMMAND \
-	"run fusecmd; " \
-	"if run netboot; then " \
-		"echo Booting from network; " \
-	"else " \
-		"echo ERROR: Cannot boot from network!; " \
-		"panic; " \
-	"fi; "
 
 #elif defined CONFIG_SHC_SDBOOT /* !defined CONFIG_SHC_NETBOOT */
 /* SD-Card Boot */
-# define CONFIG_BOOTCOMMAND \
-	"if mmc dev 0; mmc rescan; then " \
-		"run sd_setup; " \
-	"else " \
-		"echo ERROR: SD/MMC-Card not detected!; " \
-		"panic; " \
-	"fi; " \
-	"if run loaduimage; then " \
-		"echo Bootable SD/MMC-Card inserted, booting from it!; " \
-		"run mmcboot; " \
-	"else " \
-		"echo ERROR: Unable to load uImage from SD/MMC-Card!; " \
-		"panic; " \
-	"fi; "
 
 #elif defined CONFIG_SHC_ICT
 /* ICT adapter boots only u-boot and does HW partitioning */
-# define CONFIG_BOOTCOMMAND \
-	"if mmc dev 0; mmc rescan; then " \
-		"run sd_setup; " \
-	"else " \
-		"echo ERROR: SD/MMC-Card not detected!; " \
-		"panic; " \
-	"fi; " \
-	"run fusecmd; "
 
 #else /* !defined CONFIG_SHC_NETBOOT, !defined CONFIG_SHC_SDBOOT */
 /* Regular Boot from internal eMMC */
-# define CONFIG_BOOTCOMMAND \
-	"if mmc dev 1; mmc rescan; then " \
-		"run emmc_setup; " \
-	"else " \
-		"echo ERROR: eMMC device not detected!; " \
-		"panic; " \
-	"fi; " \
-	"if run loaduimage; then " \
-		"run mmcboot; " \
-	"else " \
-		"echo ERROR Unable to load uImage from eMMC!; " \
-		"echo Performing Rollback!; " \
-		"setenv _active_ ${active_root}; " \
-		"setenv _inactive_ ${inactive_root}; " \
-		"setenv active_root ${_inactive_}; " \
-		"setenv inactive_root ${_active_}; " \
-		"saveenv; " \
-		"reset; " \
-	"fi; "
 
 #endif /* Regular Boot */
 

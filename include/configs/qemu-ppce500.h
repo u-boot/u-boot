@@ -100,7 +100,4 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
 
-#define CONFIG_BOOTCOMMAND		\
-	"test -n \"$qemu_kernel_addr\" && bootm $qemu_kernel_addr - $fdtcontroladdr\0"
-
 #endif	/* __QEMU_PPCE500_H */

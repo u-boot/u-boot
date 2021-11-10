@@ -232,7 +232,6 @@
 
 #define CONFIG_LOADS_ECHO
 #define CONFIG_TIMESTAMP
-#define CONFIG_BOOTCOMMAND		"run boot_cramfs"
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
 
 #define CONFIG_JFFS2_NAND
@@ -271,14 +270,6 @@
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
-
-#define NFSBOOTCOMMAND						\
-	"setenv rootdev /dev/nfs;"					\
-	"run setipargs;run addmtd;"					\
-	"tftp ${loadaddr} ${bootfile};"				\
-	"tftp ${fdtaddr} ${fdtfile};"					\
-	"fdt addr ${fdtaddr};"						\
-	"bootm ${loadaddr} - ${fdtaddr}"
 
 /* UBI Support */
 

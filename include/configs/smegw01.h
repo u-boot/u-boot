@@ -36,11 +36,6 @@
 			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"fi;\0" \
 
-#define CONFIG_BOOTCOMMAND \
-	"if run loadimage; then " \
-		"run mmcboot; " \
-	"fi; " \
-
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 

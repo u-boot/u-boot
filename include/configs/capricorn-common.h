@@ -117,14 +117,6 @@
 	ENV_EMMC \
 	ENV_NET
 
-#define CONFIG_BOOTCOMMAND \
-	"if usrbutton; then " \
-		"run flash_self_test; " \
-		"reset; " \
-	"fi;" \
-	"run flash_self;" \
-	"reset;"
-
 /* Default location for tftp and bootm */
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 

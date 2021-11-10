@@ -56,6 +56,4 @@
 	"optargs=rw rootwait\0" \
 	ENV_MMC \
 	ENV_NAND
-
-#define CONFIG_BOOTCOMMAND "run mmcboot;run nandboot"
 #endif

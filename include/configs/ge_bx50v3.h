@@ -98,15 +98,6 @@
 		"run doboot; " \
 		"run failbootcmd\0" \
 
-#define MMCBOOTCOMMAND \
-	"run doquiet; " \
-	"run tryboot; " \
-
-#ifdef CONFIG_CMD_NFS
-#define CONFIG_BOOTCOMMAND NETWORKBOOTCOMMAND
-#else
-#define CONFIG_BOOTCOMMAND MMCBOOTCOMMAND
-#endif
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR

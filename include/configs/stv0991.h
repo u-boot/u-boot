@@ -34,8 +34,6 @@
 
 /* Misc configuration */
 
-#define CONFIG_BOOTCOMMAND                     "go 0x40040000"
-
 /*
 + * QSPI support
 + */

@@ -82,18 +82,6 @@
 		"${get_cmd} ${loadaddr} ${image}; "			\
 		"booti; "
 
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then "			\
-		"if run loadbootscript; then "				\
-			"run bootscript; "				\
-		"else "							\
-			"if run loadimage; then "			\
-				"run mmcboot; "				\
-			"else run netboot; "				\
-			"fi; "						\
-		"fi; "							\
-	"else booti ${loadaddr} - ${fdt_addr}; fi"
-
 /* Link Definitions */
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000

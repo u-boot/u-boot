@@ -97,9 +97,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND					\
-	"dhcp && run netconsole; "				\
-	"if run usbload || run diskload; then bootm; fi"
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"stdin=serial\0"					\

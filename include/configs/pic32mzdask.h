@@ -99,7 +99,4 @@
 	CONFIG_LEGACY_BOOTCMD_ENV	\
 	BOOTENV
 
-#undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND	"run distro_bootcmd || run legacy_bootcmd"
-
 #endif	/* __PIC32MZDASK_CONFIG_H */

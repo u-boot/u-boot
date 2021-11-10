@@ -646,23 +646,6 @@ __stringify(__SD_RST_CMD)"\0" \
 __stringify(__NAND_RST_CMD)"\0" \
 __stringify(__PCIE_RST_CMD)"\0"
 
-#define NFSBOOTCOMMAND	\
-"setenv bootargs root=/dev/nfs rw "	\
-"nfsroot=$serverip:$rootpath "	\
-"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-"console=$consoledev,$baudrate $othbootargs;" \
-"tftp $loadaddr $bootfile;"	\
-"tftp $fdtaddr $fdtfile;"	\
-"bootm $loadaddr - $fdtaddr"
-
-#define HDBOOT	\
-"setenv bootargs root=/dev/$bdev rw rootdelay=30 "	\
-"console=$consoledev,$baudrate $othbootargs;" \
-"usb start;"	\
-"ext2load usb 0:1 $loadaddr /boot/$bootfile;"	\
-"ext2load usb 0:1 $fdtaddr /boot/$fdtfile;"	\
-"bootm $loadaddr - $fdtaddr"
-
 #define CONFIG_USB_FAT_BOOT	\
 "setenv bootargs root=/dev/ram rw "	\
 "console=$consoledev,$baudrate $othbootargs " \
@@ -687,16 +670,5 @@ __stringify(__PCIE_RST_CMD)"\0"
 "setenv bootargs root=/dev/$jffs2nor rw "	\
 "console=$consoledev,$baudrate rootfstype=jffs2 $othbootargs;"	\
 "bootm $norbootaddr - $norfdtaddr"
-
-#define RAMBOOTCOMMAND	\
-"setenv bootargs root=/dev/ram rw "	\
-"console=$consoledev,$baudrate $othbootargs " \
-"ramdisk_size=$ramdisk_size;"	\
-"tftp $ramdiskaddr $ramdiskfile;"	\
-"tftp $loadaddr $bootfile;"	\
-"tftp $fdtaddr $fdtfile;"	\
-"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_BOOTCOMMAND	HDBOOT
 
 #endif /* __CONFIG_H */
