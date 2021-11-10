@@ -66,13 +66,8 @@ static void dwc3_frame_length_adjustment(struct udevice *dev, struct dwc3 *dwc)
 
 	refclk_fladj = dev_read_bool(dev, "snps,refclk_fladj");
 
-	if (refclk_fladj) {
-		if ((reg & GFLADJ_REFCLK_FLADJ) != (fladj &
-					GFLADJ_REFCLK_FLADJ)) {
-			reg &= ~GFLADJ_REFCLK_FLADJ;
-			reg |= (fladj & GFLADJ_REFCLK_FLADJ);
-		}
-	}
+	if (refclk_fladj)
+		reg &= ~GFLADJ_REFCLK_FLADJ;
 
 	if ((reg & GFLADJ_30MHZ_MASK) != fladj) {
 		reg &= ~GFLADJ_30MHZ_MASK;
