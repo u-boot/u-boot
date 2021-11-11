@@ -12,6 +12,7 @@ Board-specific doc
    allwinner/index
    amlogic/index
    apple/index
+   armltd/index
    atmel/index
    congatec/index
    coreboot/index
