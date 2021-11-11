@@ -52,7 +52,10 @@ static int tpm_atmel_twi_close(struct udevice *dev)
  */
 static int tpm_atmel_twi_get_desc(struct udevice *dev, char *buf, int size)
 {
-	return 0;
+	if (size < 50)
+		return -ENOSPC;
+
+	return snprintf(buf, size, "Atmel AT97SC3204T I2C 1.2 TPM (%s)", dev->name);
 }
 
 /*
