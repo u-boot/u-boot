@@ -88,8 +88,8 @@
 #endif
 #endif /* !CONFIG_GICV3 */
 
-#ifndef CONFIG_TARGET_VEXPRESS64_JUNO
-/* The Vexpress64 simulators use SMSC91C111 */
+#if defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP) && !defined(CONFIG_DM_ETH)
+/* The Vexpress64 BASE_FVP simulator uses SMSC91C111 */
 #define CONFIG_SMC91111			1
 #define CONFIG_SMC91111_BASE		(V2M_PA_BASE + 0x01A000000)
 #endif

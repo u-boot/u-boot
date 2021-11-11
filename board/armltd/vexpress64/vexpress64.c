@@ -18,6 +18,10 @@
 #include <dm/platform_data/serial_pl01x.h>
 #include "pcie.h"
 #include <asm/armv8/mmu.h>
+#ifdef CONFIG_VIRTIO_NET
+#include <virtio_types.h>
+#include <virtio.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -64,6 +68,9 @@ __weak void vexpress64_pcie_init(void)
 int board_init(void)
 {
 	vexpress64_pcie_init();
+#ifdef CONFIG_VIRTIO_NET
+	virtio_init();
+#endif
 	return 0;
 }
 
