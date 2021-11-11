@@ -612,9 +612,6 @@ int show_board_info(void)
 		}
 	}
 
-	if (module_count)
-		printf("\n");
-
 	return 0;
 }
 
