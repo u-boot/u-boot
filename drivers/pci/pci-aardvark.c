@@ -202,7 +202,7 @@ struct pcie_advk {
 	int			sec_busno;
 	struct udevice		*dev;
 	struct gpio_desc	reset_gpio;
-	u32			cfgcache[0x34 - 0x10];
+	u32			cfgcache[(0x34 - 0x10) / 4];
 	bool			cfgcrssve;
 };
 

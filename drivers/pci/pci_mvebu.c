@@ -88,7 +88,7 @@ struct mvebu_pcie {
 	unsigned int mem_attr;
 	unsigned int io_target;
 	unsigned int io_attr;
-	u32 cfgcache[0x34 - 0x10];
+	u32 cfgcache[(0x34 - 0x10) / 4];
 };
 
 /*
