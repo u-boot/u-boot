@@ -7,6 +7,8 @@
 #ifndef __VEXPRESS_AEMV8_H
 #define __VEXPRESS_AEMV8_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_REMAKE_ELF
 
 /* Link Definitions */
@@ -172,15 +174,22 @@
 				BOOTENV
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
+
+#define VEXPRESS_KERNEL_ADDR	0x80080000
+#define VEXPRESS_FDT_ADDR	0x8fc00000
+#define VEXPRESS_BOOT_ADDR	0x8fd00000
+#define VEXPRESS_RAMDISK_ADDR	0x8fe00000
+
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=Image\0"		\
-				"kernel_addr=0x80080000\0"	\
-				"initrd_name=ramdisk.img\0"	\
-				"initrd_addr=0x88000000\0"	\
-				"fdtfile=devtree.dtb\0"		\
-				"fdt_addr=0x83000000\0"		\
-				"boot_name=boot.img\0"		\
-				"boot_addr=0x8007f800\0"
+				"kernel_addr_r=" __stringify(VEXPRESS_KERNEL_ADDR) "\0"	\
+				"ramdisk_name=ramdisk.img\0"	\
+				"ramdisk_addr_r=" __stringify(VEXPRESS_RAMDISK_ADDR) "\0" \
+				"fdtfile=devtree.dtb\0"	\
+				"fdt_addr_r=" __stringify(VEXPRESS_FDT_ADDR) "\0"	\
+				"boot_name=boot.img\0" \
+				"boot_addr_r=" __stringify(VEXPRESS_BOOT_ADDR) "\0"
+
 #endif
 
 /* Monitor Command Prompt */
