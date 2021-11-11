@@ -451,9 +451,9 @@ static int mvebu_pcie_probe(struct udevice *dev)
 
 	if (mvebu_mbus_add_window_by_id(pcie->mem_target, pcie->mem_attr,
 					(phys_addr_t)pcie->mem.start,
-					MBUS_PCI_MEM_SIZE)) {
+					resource_size(&pcie->mem))) {
 		printf("PCIe unable to add mbus window for mem at %08x+%08x\n",
-		       (u32)pcie->mem.start, MBUS_PCI_MEM_SIZE);
+		       (u32)pcie->mem.start, (unsigned)resource_size(&pcie->mem));
 	}
 
 	pcie->io.start = (u32)mvebu_pcie_iobase;
@@ -462,9 +462,9 @@ static int mvebu_pcie_probe(struct udevice *dev)
 
 	if (mvebu_mbus_add_window_by_id(pcie->io_target, pcie->io_attr,
 					(phys_addr_t)pcie->io.start,
-					MBUS_PCI_IO_SIZE)) {
+					resource_size(&pcie->io))) {
 		printf("PCIe unable to add mbus window for IO at %08x+%08x\n",
-		       (u32)pcie->io.start, MBUS_PCI_IO_SIZE);
+		       (u32)pcie->io.start, (unsigned)resource_size(&pcie->io));
 	}
 
 	/* Setup windows and configure host bridge */
@@ -472,13 +472,13 @@ static int mvebu_pcie_probe(struct udevice *dev)
 
 	/* PCI memory space */
 	pci_set_region(hose->regions + 0, pcie->mem.start,
-		       pcie->mem.start, MBUS_PCI_MEM_SIZE, PCI_REGION_MEM);
+		       pcie->mem.start, resource_size(&pcie->mem), PCI_REGION_MEM);
 	pci_set_region(hose->regions + 1,
 		       0, 0,
 		       gd->ram_size,
 		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 	pci_set_region(hose->regions + 2, pcie->io.start,
-		       pcie->io.start, MBUS_PCI_IO_SIZE, PCI_REGION_IO);
+		       pcie->io.start, resource_size(&pcie->io), PCI_REGION_IO);
 	hose->region_count = 3;
 
 	/* PCI Bridge support 32-bit I/O and 64-bit prefetch mem addressing */
