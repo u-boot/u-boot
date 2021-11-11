@@ -9,7 +9,7 @@
 #include "fsl-sch-30842.dtsi"
 };
 
-&enetc2 {
+&enetc_port2 {
 	status = "okay";
 };
 
@@ -20,10 +20,10 @@
 &mscc_felix_port1 {
 	status = "okay";
 	phy-mode = "2500base-x";
-	phy-handle = <&{/i2c@2000000/fpga@66/mux-mdio@54/mdio@50/phy@02}>;
+	phy-handle = <&{/soc/i2c@2000000/fpga@66/mux-mdio@54/mdio@50/phy@02}>;
 };
 
 &mscc_felix_port4 {
-	ethernet = <&enetc2>;
+	ethernet = <&enetc_port2>;
 	status = "okay";
 };

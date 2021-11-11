@@ -8,7 +8,7 @@
  * None of the  four SerDes lanes are used by the module, instead they are
  * all led out to the carrier for customer use.
  *
- * Copyright (C) 2020 Michael Walle <michael@walle.cc>
+ * Copyright (C) 2021 Michael Walle <michael@walle.cc>
  *
  */
 
@@ -21,28 +21,17 @@
 	compatible = "kontron,sl28-var1", "kontron,sl28", "fsl,ls1028a";
 };
 
-&enetc0 {
-	status = "disabled";
-	/delete-property/ phy-handle;
-};
+&enetc_mdio_pf3 {
+	/* Delete unused phy node */
+	/delete-node/ ethernet-phy@5;
 
-&enetc1 {
-	phy-handle = <&phy0>;
-	phy-mode = "rgmii-id";
-	status = "okay";
-};
-
-/delete-node/ &phy0;
-&mdio0 {
 	phy0: ethernet-phy@4 {
 		reg = <0x4>;
 		eee-broken-1000t;
 		eee-broken-100tx;
-
 		qca,clk-out-frequency = <125000000>;
 		qca,clk-out-strength = <AR803X_STRENGTH_FULL>;
 		qca,keep-pll-enabled;
-
 		vddio-supply = <&vddio>;
 
 		vddio: vddio-regulator {
@@ -55,4 +44,16 @@
 			regulator-name = "VDDH";
 		};
 	};
+};
+
+&enetc_port0 {
+	status = "disabled";
+	/* Delete the phy-handle to the old phy0 label */
+	/delete-property/ phy-handle;
+};
+
+&enetc_port1 {
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+	status = "okay";
 };

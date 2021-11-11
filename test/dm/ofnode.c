@@ -333,3 +333,21 @@ static int dm_test_ofnode_conf(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_conf, 0);
+
+static int dm_test_ofnode_for_each_compatible_node(struct unit_test_state *uts)
+{
+	const char compatible[] = "denx,u-boot-fdt-test";
+	bool found = false;
+	ofnode node;
+
+	ofnode_for_each_compatible_node(node, compatible) {
+		ut_assert(ofnode_device_is_compatible(node, compatible));
+		found = true;
+	}
+
+	/* There should be at least one matching node */
+	ut_assert(found);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_for_each_compatible_node, UT_TESTF_SCAN_FDT);

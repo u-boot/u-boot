@@ -390,9 +390,6 @@ unsigned long get_board_sys_clk(void);
 
 #define CONFIG_FSL_DEVICE_DISABLE
 
-
-#define CONFIG_SYS_QE_FW_ADDR     0x60940000
-
 #ifdef CONFIG_LPUART
 #define CONFIG_EXTRA_ENV_SETTINGS       \
 	"bootargs=root=/dev/ram0 rw console=ttyLP0,115200\0" \

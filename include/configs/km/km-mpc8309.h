@@ -13,9 +13,6 @@
 
 /* QE microcode/firmware address */
 /* between the u-boot partition and env */
-#ifndef CONFIG_SYS_QE_FW_ADDR
-#define CONFIG_SYS_QE_FW_ADDR   0xF00C0000
-#endif
 
 /*
  * System IO Config

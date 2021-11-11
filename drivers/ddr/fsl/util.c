@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -75,10 +76,13 @@ unsigned int get_memory_clk_period_ps(const unsigned int ctrl_num)
 
 	/* Round to nearest 10ps, being careful about 64-bit multiply/divide */
 	unsigned long long rem, mclk_ps = ULL_2E12;
-
-	/* Now perform the big divide, the result fits in 32-bits */
-	rem = do_div(mclk_ps, data_rate);
-	result = (rem >= (data_rate >> 1)) ? mclk_ps + 1 : mclk_ps;
+	if (data_rate) {
+		/* Now perform the big divide, the result fits in 32-bits */
+		rem = do_div(mclk_ps, data_rate);
+		result = (rem >= (data_rate >> 1)) ? mclk_ps + 1 : mclk_ps;
+	} else {
+		result = 0;
+	}
 
 	return result;
 }

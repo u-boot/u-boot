@@ -93,7 +93,7 @@
 		#size-cells = <0>;
 		reg = <0x0 0x2100000 0x0 0x10000>;
 		interrupts = <0 26 0x4>; /* Level high type */
-		num-cs = <6>;
+		spi-num-chipselects = <6>;
 	};
 
 	qspi: quadspi@1550000 {

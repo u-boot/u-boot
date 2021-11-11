@@ -172,7 +172,7 @@
 		#size-cells = <0>;
 		reg = <0x0 0x2100000 0x0 0x10000>;
 		interrupts = <0 26 0x4>; /* Level high type */
-		num-cs = <6>;
+		spi-num-chipselects = <6>;
 	};
 
 	dspi1: dspi@2110000 {
@@ -181,7 +181,7 @@
 		#size-cells = <0>;
 		reg = <0x0 0x2110000 0x0 0x10000>;
 		interrupts = <0 26 0x4>; /* Level high type */
-		num-cs = <6>;
+		spi-num-chipselects = <6>;
 	};
 
 	dspi2: dspi@2120000 {
@@ -190,7 +190,7 @@
 		#size-cells = <0>;
 		reg = <0x0 0x2120000 0x0 0x10000>;
 		interrupts = <0 241 0x4>; /* Level high type */
-		num-cs = <6>;
+		spi-num-chipselects = <6>;
 	};
 
 	gpio0: gpio@2300000 {

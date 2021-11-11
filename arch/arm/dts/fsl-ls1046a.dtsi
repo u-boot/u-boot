@@ -52,7 +52,7 @@
 			interrupts = <0 64 0x4>;
 			clock-names = "dspi";
 			clocks = <&clockgen 4 0>;
-			num-cs = <6>;
+			spi-num-chipselects = <6>;
 			big-endian;
 			status = "disabled";
 		};
@@ -65,7 +65,7 @@
 			interrupts = <0 65 0x4>;
 			clock-names = "dspi";
 			clocks = <&clockgen 4 0>;
-			num-cs = <6>;
+			spi-num-chipselects = <6>;
 			big-endian;
 			status = "disabled";
 		};
@@ -367,7 +367,7 @@
 			compatible = "fsl,ls1046a-ahci";
 			reg = <0x0 0x3200000 0x0 0x10000 /* ccsr sata base */
 			       0x0 0x20140520 0x0 0x4>;	 /* ecc sata addr*/
-			reg-names = "sata-base", "ecc-addr";
+			reg-names = "ahci", "sata-ecc";
 			interrupts = <0 69 4>;
 			clocks = <&clockgen 4 1>;
 			status = "disabled";

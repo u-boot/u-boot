@@ -89,7 +89,7 @@
 		#size-cells = <0>;
 		reg = <0x0 0x2100000 0x0 0x10000>;
 		interrupts = <0 26 0x4>; /* Level high type */
-		num-cs = <6>;
+		spi-num-chipselects = <6>;
 	};
 
 	qspi: quadspi@1550000 {
@@ -99,7 +99,7 @@
 		reg = <0x0 0x20c0000 0x0 0x10000>,
 			<0x0 0x20000000 0x0 0x10000000>;
 		reg-names = "QuadSPI", "QuadSPI-memory";
-		num-cs = <4>;
+		status = "disabled";
 	};
 
 	esdhc: esdhc@2140000 {
@@ -226,7 +226,7 @@
 		compatible = "fsl,ls1088a-ahci";
 		reg = <0x0 0x3200000 0x0 0x10000 /* ccsr sata base */
 		       0x7 0x100520  0x0 0x4>;	 /* ecc sata addr*/
-		reg-names = "sata-base", "ecc-addr";
+		reg-names = "ahci", "sata-ecc";
 		interrupts = <0 133 4>;
 		status = "disabled";
 	};

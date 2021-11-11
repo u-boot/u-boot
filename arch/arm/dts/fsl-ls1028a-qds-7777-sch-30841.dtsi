@@ -20,7 +20,7 @@
 #include "fsl-sch-30841.dtsi"
 };
 
-&enetc2 {
+&enetc_port2 {
 	status = "okay";
 };
 
@@ -31,28 +31,28 @@
 &mscc_felix_port0 {
 	status = "okay";
 	phy-mode = "2500base-x";
-	phy-handle = <&{/i2c@2000000/fpga@66/mux-mdio@54/mdio@40/phy@00}>;
+	phy-handle = <&{/soc/i2c@2000000/fpga@66/mux-mdio@54/mdio@40/phy@00}>;
 };
 
 &mscc_felix_port1 {
 	status = "okay";
 	phy-mode = "2500base-x";
-	phy-handle = <&{/i2c@2000000/fpga@66/mux-mdio@54/mdio@40/phy@01}>;
+	phy-handle = <&{/soc/i2c@2000000/fpga@66/mux-mdio@54/mdio@40/phy@01}>;
 };
 
 &mscc_felix_port2 {
 	status = "okay";
 	phy-mode = "2500base-x";
-	phy-handle = <&{/i2c@2000000/fpga@66/mux-mdio@54/mdio@40/phy@02}>;
+	phy-handle = <&{/soc/i2c@2000000/fpga@66/mux-mdio@54/mdio@40/phy@02}>;
 };
 
 &mscc_felix_port3 {
 	status = "okay";
 	phy-mode = "2500base-x";
-	phy-handle = <&{/i2c@2000000/fpga@66/mux-mdio@54/mdio@40/phy@03}>;
+	phy-handle = <&{/soc/i2c@2000000/fpga@66/mux-mdio@54/mdio@40/phy@03}>;
 };
 
 &mscc_felix_port4 {
-	ethernet = <&enetc2>;
+	ethernet = <&enetc_port2>;
 	status = "okay";
 };

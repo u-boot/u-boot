@@ -212,7 +212,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE /* start of monitor */
 #define CONFIG_SYS_MONITOR_LEN		0x100000     /* 1Mbyte */
-#define CONFIG_SYS_QE_FW_ADDR		0x60020000
 
 #define CONFIG_SYS_BOOTCOUNT_BE
 

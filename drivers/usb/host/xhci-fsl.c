@@ -159,6 +159,7 @@ static int xhci_fsl_remove(struct udevice *dev)
 
 static const struct udevice_id xhci_usb_ids[] = {
 	{ .compatible = "fsl,layerscape-dwc3", },
+	{ .compatible = "fsl,ls1028a-dwc3", },
 	{ }
 };
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2017-2020 NXP
+ * Copyright 2017-2021 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  * Layerscape PCIe driver
  */
@@ -23,6 +23,8 @@
 #include <env.h>
 #include "pcie_layerscape.h"
 #include "pcie_layerscape_fixup_common.h"
+
+int next_stream_id;
 
 static int fdt_pcie_get_nodeoffset(void *blob, struct ls_pcie_rc *pcie_rc)
 {
@@ -607,6 +609,9 @@ static void ft_pcie_ls_setup(void *blob, struct ls_pcie_rc *pcie_rc)
 {
 	ft_pcie_ep_fix(blob, pcie_rc);
 	ft_pcie_rc_fix(blob, pcie_rc);
+
+	pcie_rc->stream_id_cur = 0;
+	pcie_rc->next_lut_index = 0;
 }
 
 /* Fixup Kernel DT for PCIe */
@@ -618,6 +623,7 @@ void ft_pci_setup_ls(void *blob, struct bd_info *bd)
 		ft_pcie_ls_setup(blob, pcie_rc);
 
 #if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)
+	next_stream_id = FSL_PEX_STREAM_ID_START;
 	fdt_fixup_pcie_ls(blob);
 #endif
 }

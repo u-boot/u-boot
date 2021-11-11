@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2020 NXP
+ * Copyright 2020,2021 NXP
  * Layerscape PCIe driver
  */
 
@@ -20,6 +20,12 @@
 #include "pcie_layerscape.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+struct ls_pcie_drvdata {
+	u32 lut_offset;
+	u32 ctrl_offset;
+	bool big_endian;
+};
 
 static void ls_pcie_cfg0_set_busdev(struct ls_pcie_rc *pcie_rc, u32 busdev)
 {
@@ -238,11 +244,11 @@ static void ls_pcie_setup_ctrl(struct ls_pcie_rc *pcie_rc)
 	ls_pcie_dbi_ro_wr_dis(pcie);
 
 	ls_pcie_disable_bars(pcie_rc);
-	pcie_rc->stream_id_cur = 0;
 }
 
 static int ls_pcie_probe(struct udevice *dev)
 {
+	const struct ls_pcie_drvdata *drvdata = (void *)dev_get_driver_data(dev);
 	struct ls_pcie_rc *pcie_rc = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
@@ -260,8 +266,12 @@ static int ls_pcie_probe(struct udevice *dev)
 
 	pcie_rc->pcie = pcie;
 
+	/* try resource name of the official binding first */
 	ret = fdt_get_named_resource(fdt, node, "reg", "reg-names",
-				     "dbi", &pcie_rc->dbi_res);
+				     "regs", &pcie_rc->dbi_res);
+	if (ret)
+		ret = fdt_get_named_resource(fdt, node, "reg", "reg-names",
+					     "dbi", &pcie_rc->dbi_res);
 	if (ret) {
 		printf("ls-pcie: resource \"dbi\" not found\n");
 		return ret;
@@ -287,21 +297,29 @@ static int ls_pcie_probe(struct udevice *dev)
 	if (pcie->mode == PCI_HEADER_TYPE_NORMAL)
 		return 0;
 
-	ret = fdt_get_named_resource(fdt, node, "reg", "reg-names",
-				     "lut", &pcie_rc->lut_res);
-	if (!ret)
-		pcie->lut = map_physmem(pcie_rc->lut_res.start,
-					fdt_resource_size(&pcie_rc->lut_res),
-					MAP_NOCACHE);
+	if (drvdata) {
+		pcie->lut = pcie->dbi + drvdata->lut_offset;
+	} else {
+		ret = fdt_get_named_resource(fdt, node, "reg", "reg-names",
+					     "lut", &pcie_rc->lut_res);
+		if (!ret)
+			pcie->lut = map_physmem(pcie_rc->lut_res.start,
+						fdt_resource_size(&pcie_rc->lut_res),
+						MAP_NOCACHE);
+	}
 
-	ret = fdt_get_named_resource(fdt, node, "reg", "reg-names",
-				     "ctrl", &pcie_rc->ctrl_res);
-	if (!ret)
-		pcie->ctrl = map_physmem(pcie_rc->ctrl_res.start,
-					 fdt_resource_size(&pcie_rc->ctrl_res),
-					 MAP_NOCACHE);
-	if (!pcie->ctrl)
-		pcie->ctrl = pcie->lut;
+	if (drvdata) {
+		pcie->ctrl = pcie->lut + drvdata->ctrl_offset;
+	} else {
+		ret = fdt_get_named_resource(fdt, node, "reg", "reg-names",
+					     "ctrl", &pcie_rc->ctrl_res);
+		if (!ret)
+			pcie->ctrl = map_physmem(pcie_rc->ctrl_res.start,
+						 fdt_resource_size(&pcie_rc->ctrl_res),
+						 MAP_NOCACHE);
+		if (!pcie->ctrl)
+			pcie->ctrl = pcie->lut;
+	}
 
 	if (!pcie->ctrl) {
 		printf("%s: NOT find CTRL\n", dev->name);
@@ -343,7 +361,10 @@ static int ls_pcie_probe(struct udevice *dev)
 	pcie_rc->cfg1 = pcie_rc->cfg0 +
 			fdt_resource_size(&pcie_rc->cfg_res) / 2;
 
-	pcie->big_endian = fdtdec_get_bool(fdt, node, "big-endian");
+	if (drvdata)
+		pcie->big_endian = drvdata->big_endian;
+	else
+		pcie->big_endian = fdtdec_get_bool(fdt, node, "big-endian");
 
 	debug("%s dbi:%lx lut:%lx ctrl:0x%lx cfg0:0x%lx, big-endian:%d\n",
 	      dev->name, (unsigned long)pcie->dbi, (unsigned long)pcie->lut,
@@ -373,8 +394,15 @@ static const struct dm_pci_ops ls_pcie_ops = {
 	.write_config	= ls_pcie_write_config,
 };
 
+static const struct ls_pcie_drvdata ls1028a_drvdata = {
+	.lut_offset = 0x80000,
+	.ctrl_offset = 0x40000,
+	.big_endian = false,
+};
+
 static const struct udevice_id ls_pcie_ids[] = {
 	{ .compatible = "fsl,ls-pcie" },
+	{ .compatible = "fsl,ls1028a-pcie", .data = (ulong)&ls1028a_drvdata },
 	{ }
 };
 

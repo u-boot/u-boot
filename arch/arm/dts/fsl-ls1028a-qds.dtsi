@@ -105,7 +105,7 @@
 	};
 };
 
-&esdhc0 {
+&esdhc {
 	status = "okay";
 };
 
@@ -130,7 +130,6 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
 
 	fpga@66 {
 		#address-cells = <1>;
@@ -145,7 +144,7 @@
 			reg = <0x54>;
 			#mux-control-cells = <1>;
 			mux-reg-masks = <0x54 0xf0>;
-			mdio-parent-bus = <&mdio0>;
+			mdio-parent-bus = <&enetc_mdio_pf3>;
 
 			/* on-board MDIO with a single RGMII PHY */
 			mdio@00 {
@@ -233,11 +232,23 @@
 	status = "okay";
 };
 
-&serial0 {
+&duart0 {
 	status = "okay";
 };
 
-&serial1 {
+&duart1 {
+	status = "okay";
+};
+
+&pcie1 {
+	status = "okay";
+};
+
+&pcie2 {
+	status = "okay";
+};
+
+&usb0 {
 	status = "okay";
 };
 
@@ -245,17 +256,13 @@
 	status = "okay";
 };
 
-&usb2 {
-	status = "okay";
-};
-
-&enetc1 {
+&enetc_port1 {
 	status = "okay";
 	phy-mode = "rgmii-id";
 	phy-handle = <&qds_phy0>;
 };
 
-&mdio0 {
+&enetc_mdio_pf3 {
 	status = "okay";
 };
 

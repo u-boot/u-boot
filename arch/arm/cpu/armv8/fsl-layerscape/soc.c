@@ -929,25 +929,23 @@ __weak int fsl_board_late_init(void)
 #define DWC3_GSBUSCFG0_CACHETYPE(n)        (((n) & 0xffff)            \
 	<< DWC3_GSBUSCFG0_CACHETYPE_SHIFT)
 
-void enable_dwc3_snooping(void)
+static void enable_dwc3_snooping(void)
 {
-	int ret;
-	u32 val;
-	struct udevice *bus;
-	struct uclass *uc;
+	static const char * const compatibles[] = {
+	    "fsl,layerscape-dwc3",
+	    "fsl,ls1028a-dwc3",
+	};
 	fdt_addr_t dwc3_base;
+	ofnode node;
+	u32 val;
+	int i;
 
-	ret = uclass_get(UCLASS_USB, &uc);
-	if (ret)
-		return;
-
-	uclass_foreach_dev(bus, uc) {
-		if (!strcmp(bus->driver->of_match->compatible, "fsl,layerscape-dwc3")) {
-			dwc3_base = devfdt_get_addr(bus);
-			if (dwc3_base == FDT_ADDR_T_NONE) {
-				dev_err(bus, "dwc3 regs missing\n");
+	for (i = 0; i < ARRAY_SIZE(compatibles); i++) {
+		ofnode_for_each_compatible_node(node, compatibles[i]) {
+			dwc3_base = ofnode_get_addr(node);
+			if (dwc3_base == FDT_ADDR_T_NONE)
 				continue;
-			}
+
 			val = in_le32(dwc3_base + DWC3_GSBUSCFG0);
 			val &= ~DWC3_GSBUSCFG0_CACHETYPE(~0);
 			val |= DWC3_GSBUSCFG0_CACHETYPE(0x2222);

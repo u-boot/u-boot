@@ -4,17 +4,20 @@
 
 / {
 	aliases {
-		mmc0 = &esdhc1;
-		mmc1 = &esdhc0;
 		i2c0 = &i2c0;
 		i2c1 = &i2c3;
 		i2c2 = &i2c4;
-		rtc0 = &rtc;
-		ethernet2 = &enetc2;
-		ethernet3 = &enetc6;
+		ethernet2 = &enetc_port2;
+		ethernet3 = &enetc_port3;
 	};
 
 	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	u_boot_rom: u-boot-rom {
 		filename = "u-boot.rom";
 		pad-byte = <0xff>;
 
@@ -133,6 +136,31 @@
 	};
 };
 
+&binman {
+	u-boot-update {
+		filename = "u-boot.update";
+
+		fit {
+			description = "FIT update image";
+
+			images {
+				u-boot-bin {
+					description = "U-Boot";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <0>; /* unused */
+
+					blob {
+						filename = "u-boot.rom";
+					};
+				};
+			};
+		};
+	};
+};
+
 #ifdef CONFIG_SL28_ENABLE_SER0_CONSOLE
 / {
 	chosen {
@@ -142,7 +170,7 @@
 #endif
 
 #ifdef CONFIG_SL28_SPL_LOADS_ATF_BL31
-&binman {
+&u_boot_rom {
 	fit {
 		images {
 			bl31 {
@@ -191,7 +219,7 @@
 #endif
 
 #ifdef CONFIG_SL28_SPL_LOADS_OPTEE_BL32
-&binman {
+&u_boot_rom {
 	fit {
 		images {
 			bl32 {
@@ -234,11 +262,6 @@
 };
 #endif
 
-&i2c0 {
-	rtc: rtc@32 {
-	};
-};
-
 &fspi {
 	u-boot,dm-pre-reloc;
 	flash@0 {
@@ -250,7 +273,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&esdhc0 {
+&esdhc {
 	u-boot,dm-pre-reloc;
 };
 
@@ -262,7 +285,28 @@
 	u-boot,dm-pre-reloc;
 };
 
-&serial0 {
+&duart0 {
+	u-boot,dm-pre-reloc;
+};
+
+/*
+ * u-boot will enable the device in the linux device tree in place. Because
+ * we are using the linux device tree, we have to enable the PCI controller
+ * ourselves.
+ */
+&pcie1 {
+	status = "okay";
+};
+
+&pcie2 {
+	status = "okay";
+};
+
+&sata {
+	status = "okay";
+};
+
+&soc {
 	u-boot,dm-pre-reloc;
 };
 

@@ -344,6 +344,16 @@ config FMAN_ENET
 	help
 	  This driver support the Freescale FMan Ethernet controller
 
+config SYS_FMAN_FW_ADDR
+	hex "FMAN Firmware Address"
+	depends on FMAN_ENET
+	default 0x0
+
+config SYS_QE_FMAN_FW_LENGTH
+	hex "FMAN QE Firmware length"
+	depends on FMAN_ENET || QE || U_QE
+	default 0x10000
+
 config FTMAC100
 	bool "Ftmac100 Ethernet Support"
 	help

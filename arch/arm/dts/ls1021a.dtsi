@@ -190,7 +190,7 @@
 			interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "dspi";
 			clocks = <&platform_clk 1>;
-			num-cs = <6>;
+			spi-num-chipselects = <6>;
 			big-endian;
 			status = "disabled";
 		};
@@ -203,7 +203,7 @@
 			interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "dspi";
 			clocks = <&platform_clk 1>;
-			num-cs = <6>;
+			spi-num-chipselects = <6>;
 			big-endian;
 			status = "disabled";
 		};
@@ -469,7 +469,7 @@
 		sata: sata@3200000 {
 			compatible = "fsl,ls1021a-ahci";
 			reg = <0x3200000 0x10000 0x20220520 0x4>;
-			reg-names = "sata-base", "ecc-addr";
+			reg-names = "ahci", "sata-ecc";
 			interrupts = <0 101 4>;
 			status = "disabled";
 		};

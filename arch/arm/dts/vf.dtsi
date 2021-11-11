@@ -70,7 +70,7 @@
 				#size-cells = <0>;
 				compatible = "fsl,vf610-dspi";
 				reg = <0x4002c000 0x1000>;
-				num-cs = <5>;
+				spi-num-chipselects = <5>;
 				status = "disabled";
 			};
 
@@ -79,7 +79,7 @@
 				#size-cells = <0>;
 				compatible = "fsl,vf610-dspi";
 				reg = <0x4002d000 0x1000>;
-				num-cs = <5>;
+				spi-num-chipselects = <5>;
 				status = "disabled";
 			};
 
