@@ -14,7 +14,6 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
-#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/of_access.h>
@@ -26,8 +25,6 @@
 #include <linux/errno.h>
 #include <linux/ioport.h>
 #include <linux/mbus.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* PCIe unit register offsets */
 #define SELECT(x, n)			((x >> n) & 1UL)
