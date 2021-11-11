@@ -101,7 +101,7 @@ controlled by a description in the board device tree.'''
     replace_parser.add_argument('-C', '--compressed', action='store_true',
         help='Input data is already compressed if needed for the entry')
     replace_parser.add_argument('-i', '--image', type=str, required=True,
-                                help='Image filename to extract')
+                                help='Image filename to update')
     replace_parser.add_argument('-f', '--filename', type=str,
                                 help='Input filename to read from')
     replace_parser.add_argument('-F', '--fix-size', action='store_true',
@@ -111,7 +111,7 @@ controlled by a description in the board device tree.'''
     replace_parser.add_argument('-m', '--map', action='store_true',
         default=False, help='Output a map file for the updated image')
     replace_parser.add_argument('paths', type=str, nargs='*',
-                                help='Paths within file to extract (wildcard)')
+                                help='Paths within file to replace (wildcard)')
 
     test_parser = subparsers.add_parser('test', help='Run tests')
     test_parser.add_argument('-P', '--processes', type=int,

@@ -343,10 +343,10 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
 
     Args:
         image_fname: Image filename to process
-        input_fname: Single input ilename to use if replacing one file, None
+        input_fname: Single input filename to use if replacing one file, None
             otherwise
         indir: Input directory to use (for any number of files), else None
-        entry_paths: List of entry paths to extract
+        entry_paths: List of entry paths to replace
         do_compress: True if the input data is uncompressed and may need to be
             compressed if the entry requires it, False if the data is already
             compressed.
