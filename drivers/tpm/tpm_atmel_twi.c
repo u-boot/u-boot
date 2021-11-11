@@ -116,7 +116,7 @@ static int tpm_atmel_twi_xfer(struct udevice *dev,
 		}
 	}
 	if (res) {
-		printf("i2c_read returned %d (rlen=%d)\n", res, *recv_len);
+		printf("i2c_read returned %d (rlen=%zu)\n", res, *recv_len);
 #ifdef DEBUG
 		print_buffer(0, recvbuf, 1, *recv_len, 0);
 #endif
