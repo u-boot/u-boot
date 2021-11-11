@@ -88,7 +88,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0>;
-		spi-tx-bus-width = <1>; /* maybe 4 here */
+		spi-tx-bus-width = <4>; /* maybe 4 here */
 		spi-rx-bus-width = <4>;
 		spi-max-frequency = <108000000>;
 		partition@0 { /* for testing purpose */
