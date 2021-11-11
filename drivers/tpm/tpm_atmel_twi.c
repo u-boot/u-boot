@@ -81,22 +81,15 @@ static int tpm_atmel_twi_xfer(struct udevice *dev,
 	print_buffer(0, (void *)sendbuf, 1, send_size, 0);
 #endif
 
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	res = i2c_write(0x29, 0, 0, (uchar *)sendbuf, send_size);
-#else
 	res = dm_i2c_write(dev, 0, sendbuf, send_size);
-#endif
 	if (res) {
 		printf("i2c_write returned %d\n", res);
 		return -1;
 	}
 
 	start = get_timer(0);
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	while ((res = i2c_read(0x29, 0, 0, recvbuf, 10)))
-#else
+
 	while ((res = dm_i2c_read(dev, 0, recvbuf, 10)))
-#endif
 	{
 		/* TODO Use TIS_TIMEOUT from tpm_tis_infineon.h */
 		if (get_timer(start) > ATMEL_TPM_TIMEOUT_MS) {
@@ -116,12 +109,7 @@ static int tpm_atmel_twi_xfer(struct udevice *dev,
 			return -1;
 		} else {
 			*recv_len = hdr_recv_len;
-#if !CONFIG_IS_ENABLED(DM_I2C)
-			res = i2c_read(0x29, 0, 0, recvbuf, *recv_len);
-#else
 			res = dm_i2c_read(dev, 0, recvbuf, *recv_len);
-#endif
-
 		}
 	}
 	if (res) {
