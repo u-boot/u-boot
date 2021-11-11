@@ -131,6 +131,7 @@ static int tpm_atmel_twi_xfer(struct udevice *dev,
 
 static int tpm_atmel_twi_probe(struct udevice *dev)
 {
+	i2c_set_chip_offset_len(dev, 0);
 	return 0;
 }
 
