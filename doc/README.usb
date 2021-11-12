@@ -18,8 +18,8 @@ How it works:
 -------------
 
 The USB (at least the USB UHCI) needs a frame list (4k), transfer
-descripor and queue headers which are all located in the main memory.
-The UHCI allocates every milisecond the PCI bus and reads the current
+descriptor and queue headers which are all located in the main memory.
+The UHCI allocates every millisecond the PCI bus and reads the current
 frame pointer. This may cause to crash the OS during boot. So the USB
 _MUST_ be stopped during OS boot. This is the reason, why the USB is
 NOT automatically started during start-up. If someone needs the USB
@@ -27,10 +27,10 @@ he has to start it and should therefore be aware that he had to stop
 it before booting the OS.
 
 For USB keyboards this can be done by a script which is automatically
-started after the U-Boot is up and running. To boot an OS with a an
+started after the U-Boot is up and running. To boot an OS with a
 USB keyboard another script is necessary, which first disables the
 USB and then executes the boot command. If the boot command fails,
-the script can reenable the USB kbd.
+the script can re-enable the USB keyboard.
 
 Common USB Commands:
 - usb start:
@@ -40,10 +40,10 @@ Common USB Commands:
 - usb info [dev]:   shows all USB infos of the device dev, or of all
 		    the devices
 - usb stop [f]:	    stops the USB. If f==1 the USB will also stop if
-		    an USB keyboard is assigned as stdin. The stdin
+		    a USB keyboard is assigned as stdin. The stdin
 		    is then switched to serial input.
 Storage USB Commands:
-- usb scan:	    scans the USB for storage devices.The USB must be
+- usb scan:	    scans the USB for storage devices. The USB must be
 		    running for this command (usb start)
 - usb device [dev]: show or set current USB storage device
 - usb part [dev]:   print partition table of one or all USB storage
@@ -57,7 +57,7 @@ Storage USB Commands:
 Config Switches:
 ----------------
 CONFIG_CMD_USB	    enables basic USB support and the usb command
-CONFIG_USB_UHCI	    defines the lowlevel part.A lowlevel part must be defined
+CONFIG_USB_UHCI	    defines the lowlevel part. A lowlevel part must be defined
 		    if using CONFIG_CMD_USB
 CONFIG_USB_KEYBOARD enables the USB Keyboard
 CONFIG_USB_STORAGE  enables the USB storage devices
@@ -124,7 +124,7 @@ bootp
 
 To enable USB Host Ethernet in U-Boot, your platform must of course
 support USB with CONFIG_CMD_USB enabled and working. You will need to
-add some config settings to your board config:
+add some settings to your board configuration:
 
 CONFIG_CMD_USB=y		/* the 'usb' interactive command */
 CONFIG_USB_HOST_ETHER=y		/* Enable USB Ethernet adapters */
@@ -158,14 +158,13 @@ settings should start you off:
 You can also set the default IP address of your board and the server
 as well as the default file to load when a 'bootp' command is issued.
 However note that encoding these individual network settings into a
-common exectuable is discouraged, as it leads to potential conflicts,
+common executable is discouraged, as it leads to potential conflicts,
 and all the parameters can either get stored in the board's external
 environment, or get obtained from the bootp server if not set.
 
 #define CONFIG_IPADDR		10.0.0.2  (replace with your value)
 #define CONFIG_SERVERIP		10.0.0.1  (replace with your value)
 #define CONFIG_BOOTFILE		"uImage"
-
 
 The 'usb start' command should identify the adapter something like this:
 
@@ -211,8 +210,8 @@ MAC Addresses
 
 Most Ethernet dongles have a built-in MAC address which is unique in the
 world. This is important so that devices on the network can be
-distinguised from each other. MAC address conflicts are evil and
-generally result in strange and eratic behaviour.
+distinguished from each other. MAC address conflicts are evil and
+generally result in strange and erratic behaviour.
 
 Some boards have USB Ethernet chips on-board, and these sometimes do not
 have an assigned MAC address. In this case it is up to you to assign
