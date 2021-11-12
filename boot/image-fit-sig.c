@@ -135,7 +135,7 @@ int fit_image_check_sig(const void *fit, int noffset, const void *data,
 
 static int fit_image_verify_sig(const void *fit, int image_noffset,
 				const char *data, size_t size,
-				const void *sig_blob, int sig_offset)
+				const void *key_blob, int key_offset)
 {
 	int noffset;
 	char *err_msg = "";
@@ -184,34 +184,34 @@ error:
 
 int fit_image_verify_required_sigs(const void *fit, int image_noffset,
 				   const char *data, size_t size,
-				   const void *sig_blob, int *no_sigsp)
+				   const void *key_blob, int *no_sigsp)
 {
 	int verify_count = 0;
 	int noffset;
-	int sig_node;
+	int key_node;
 
 	/* Work out what we need to verify */
 	*no_sigsp = 1;
-	sig_node = fdt_subnode_offset(sig_blob, 0, FIT_SIG_NODENAME);
-	if (sig_node < 0) {
+	key_node = fdt_subnode_offset(key_blob, 0, FIT_SIG_NODENAME);
+	if (key_node < 0) {
 		debug("%s: No signature node found: %s\n", __func__,
-		      fdt_strerror(sig_node));
+		      fdt_strerror(key_node));
 		return 0;
 	}
 
-	fdt_for_each_subnode(noffset, sig_blob, sig_node) {
+	fdt_for_each_subnode(noffset, key_blob, key_node) {
 		const char *required;
 		int ret;
 
-		required = fdt_getprop(sig_blob, noffset, FIT_KEY_REQUIRED,
+		required = fdt_getprop(key_blob, noffset, FIT_KEY_REQUIRED,
 				       NULL);
 		if (!required || strcmp(required, "image"))
 			continue;
 		ret = fit_image_verify_sig(fit, image_noffset, data, size,
-					   sig_blob, noffset);
+					   key_blob, noffset);
 		if (ret) {
 			printf("Failed to verify required signature '%s'\n",
-			       fit_get_name(sig_blob, noffset, NULL));
+			       fit_get_name(key_blob, noffset, NULL));
 			return ret;
 		}
 		verify_count++;
@@ -368,8 +368,35 @@ static int fit_config_check_sig(const void *fit, int noffset,
 	return 0;
 }
 
-static int fit_config_verify_sig(const void *fit, int conf_noffset,
-				 const void *sig_blob, int sig_offset)
+/**
+ * fit_config_verify_key() - Verify that a configuration is signed with a key
+ *
+ * Here we are looking at a particular configuration that needs verification:
+ *
+ *	configurations {
+ *		default = "conf-1";
+ *		conf-1 {
+ *			kernel = "kernel-1";
+ *			fdt = "fdt-1";
+ *			signature-1 {
+ *				algo = "sha1,rsa2048";
+ *				value = <...conf 1 signature...>;
+ *			};
+ *		};
+ *
+ * We must check each of the signature subnodes of conf-1. Hopefully one of them
+ * will match the key at key_offset.
+ *
+ * @fit: FIT to check
+ * @conf_noffset: Offset of the configuration node to check (e.g.
+ *	/configurations/conf-1)
+ * @key_blob: Blob containing the keys to check against
+ * @key_offset: Offset of the key to check within @key_blob
+ * @return 0 if OK, -EPERM if any signatures did not verify, or the
+ *	configuration node has an invalid name
+ */
+static int fit_config_verify_key(const void *fit, int conf_noffset,
+				 const void *key_blob, int key_offset)
 {
 	int noffset;
 	char *err_msg = "No 'signature' subnode found";
@@ -382,7 +409,7 @@ static int fit_config_verify_sig(const void *fit, int conf_noffset,
 
 		if (!strncmp(name, FIT_SIG_NODENAME,
 			     strlen(FIT_SIG_NODENAME))) {
-			ret = fit_config_check_sig(fit, noffset, sig_offset,
+			ret = fit_config_check_sig(fit, noffset, key_offset,
 						   conf_noffset, &err_msg);
 			if (ret) {
 				puts("- ");
@@ -409,12 +436,25 @@ error:
 	return -EPERM;
 }
 
-static int fit_config_verify_required_sigs(const void *fit, int conf_noffset,
-					   const void *sig_blob)
+/**
+ * fit_config_verify_required_keys() - verify any required signatures for config
+ *
+ * This looks through all the signatures we expect and verifies that at least
+ * all the required ones are valid signatures for the configuration
+ *
+ * @fit: FIT to check
+ * @conf_noffset: Offset of the configuration node to check (e.g.
+ *	/configurations/conf-1)
+ * @key_blob: Blob containing the keys to check against
+ * @return 0 if OK, -EPERM if any signatures did not verify, or the
+ *	configuration node has an invalid name
+ */
+static int fit_config_verify_required_keys(const void *fit, int conf_noffset,
+					   const void *key_blob)
 {
 	const char *name = fit_get_name(fit, conf_noffset, NULL);
 	int noffset;
-	int sig_node;
+	int key_node;
 	int verified = 0;
 	int reqd_sigs = 0;
 	bool reqd_policy_all = true;
@@ -430,38 +470,45 @@ static int fit_config_verify_required_sigs(const void *fit, int conf_noffset,
 	}
 
 	/* Work out what we need to verify */
-	sig_node = fdt_subnode_offset(sig_blob, 0, FIT_SIG_NODENAME);
-	if (sig_node < 0) {
+	key_node = fdt_subnode_offset(key_blob, 0, FIT_SIG_NODENAME);
+	if (key_node < 0) {
 		debug("%s: No signature node found: %s\n", __func__,
-		      fdt_strerror(sig_node));
+		      fdt_strerror(key_node));
 		return 0;
 	}
 
 	/* Get required-mode policy property from DTB */
-	reqd_mode = fdt_getprop(sig_blob, sig_node, "required-mode", NULL);
+	reqd_mode = fdt_getprop(key_blob, key_node, "required-mode", NULL);
 	if (reqd_mode && !strcmp(reqd_mode, "any"))
 		reqd_policy_all = false;
 
 	debug("%s: required-mode policy set to '%s'\n", __func__,
 	      reqd_policy_all ? "all" : "any");
 
-	fdt_for_each_subnode(noffset, sig_blob, sig_node) {
+	/*
+	 * The algorithm here is a little convoluted due to how we want it to
+	 * work. Here we work through each of the signature nodes in the
+	 * public-key area. These are in the U-Boot control devicetree. Each
+	 * node was created by signing a configuration, so we check if it is
+	 * 'required' and if so, request that it be verified.
+	 */
+	fdt_for_each_subnode(noffset, key_blob, key_node) {
 		const char *required;
 		int ret;
 
-		required = fdt_getprop(sig_blob, noffset, FIT_KEY_REQUIRED,
+		required = fdt_getprop(key_blob, noffset, FIT_KEY_REQUIRED,
 				       NULL);
 		if (!required || strcmp(required, "conf"))
 			continue;
 
 		reqd_sigs++;
 
-		ret = fit_config_verify_sig(fit, conf_noffset, sig_blob,
+		ret = fit_config_verify_key(fit, conf_noffset, key_blob,
 					    noffset);
 		if (ret) {
 			if (reqd_policy_all) {
 				printf("Failed to verify required signature '%s'\n",
-				       fit_get_name(sig_blob, noffset, NULL));
+				       fit_get_name(key_blob, noffset, NULL));
 				return ret;
 			}
 		} else {
@@ -481,6 +528,6 @@ static int fit_config_verify_required_sigs(const void *fit, int conf_noffset,
 
 int fit_config_verify(const void *fit, int conf_noffset)
 {
-	return fit_config_verify_required_sigs(fit, conf_noffset,
+	return fit_config_verify_required_keys(fit, conf_noffset,
 					       gd_fdt_blob());
 }
