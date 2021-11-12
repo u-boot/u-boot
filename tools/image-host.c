@@ -729,7 +729,7 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 			       struct strlist *node_inc, const char *conf_name,
 			       const char *sig_name, const char *iname)
 {
-	char name[200], path[200];
+	char path[200];
 	int noffset;
 	int hash_count;
 	int ret;
@@ -739,9 +739,6 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 		goto err_path;
 	if (strlist_add(node_inc, path))
 		goto err_mem;
-
-	snprintf(name, sizeof(name), "%s/%s", FIT_CONFS_PATH,
-		 conf_name);
 
 	/* Add all this image's hashes */
 	hash_count = 0;
