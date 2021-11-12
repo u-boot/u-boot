@@ -58,9 +58,6 @@
 /*
  * PCI configuration
  */
-#ifdef CONFIG_PCIE_DW_MVEBU
-#define CONFIG_E1000
-#endif
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \

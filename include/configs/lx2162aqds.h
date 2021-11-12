@@ -33,7 +33,6 @@ u8 qixis_esdhc_detect_quirk(void);
 
 /* MAC/PHY configuration */
 #if defined(CONFIG_FSL_MC_ENET)
-#define CONFIG_MII
 #define CONFIG_ETHPRIME		"DPMAC17@rgmii-id"
 #endif
 

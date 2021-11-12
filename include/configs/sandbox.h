@@ -6,14 +6,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef FTRACE
-#define CONFIG_TRACE
-#define CONFIG_TRACE_BUFFER_SIZE	(16 << 20)
-#define CONFIG_TRACE_EARLY_SIZE		(16 << 20)
-#define CONFIG_TRACE_EARLY
-#define CONFIG_TRACE_EARLY_ADDR		0x00100000
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_IO_TRACE
 #endif
@@ -31,8 +23,6 @@
 /* turn on command-line edit/c/auto */
 
 /* SPI - enable all SPI flash types for testing purposes */
-
-#define CONFIG_I2C_EDID
 
 #define CONFIG_SYS_FDT_LOAD_ADDR	        0x100
 

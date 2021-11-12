@@ -19,7 +19,6 @@
 
 /* MAC/PHY configuration */
 #if defined(CONFIG_FSL_MC_ENET)
-#define CONFIG_MII
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
 #endif
 

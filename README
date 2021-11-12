@@ -606,10 +606,6 @@ The following options need to be configured:
 					controller register space
 
 - Serial Ports:
-		CONFIG_PL011_SERIAL
-
-		Define this if you want support for Amba PrimeCell PL011 UARTs.
-
 		CONFIG_PL011_CLOCK
 
 		If you have Amba PrimeCell PL011 UARTs, set this variable to
@@ -825,17 +821,10 @@ The following options need to be configured:
 		SCSI devices found during the last scan.
 
 - NETWORK Support (PCI):
-		CONFIG_E1000
-		Support for Intel 8254x/8257x gigabit chips.
-
 		CONFIG_E1000_SPI
 		Utility code for direct access to the SPI bus on Intel 8257x.
 		This does not do anything useful unless you set at least one
 		of CONFIG_CMD_E1000 or CONFIG_E1000_SPI_GENERIC.
-
-		CONFIG_E1000_SPI_GENERIC
-		Allow generic access to the SPI bus on the Intel 8257x, for
-		example with the "sspi" command.
 
 		CONFIG_NATSEMI
 		Support for National dp83815 chips.
@@ -984,10 +973,6 @@ The following options need to be configured:
 			also needs to be defined by the driver to dynamically poll
 			whether the enumeration has succeded at high speed or full
 			speed.
-
-			CONFIG_SYS_CONSOLE_IS_IN_ENV
-			Define this if you want stdin, stdout &/or stderr to
-			be set to usbtty.
 
 		If you have a USB-IF assigned VendorID then you may wish to
 		define your own vendor specific values either in BoardName.h
@@ -1199,11 +1184,6 @@ The following options need to be configured:
 		CONFIG_LCD_BMP_RLE8
 
 		Support drawing of RLE8-compressed bitmaps on the LCD.
-
-		CONFIG_I2C_EDID
-
-		Enables an 'i2c edid' command which can read EDID
-		information over I2C from an attached LCD display.
 
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)

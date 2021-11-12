@@ -13,10 +13,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
-#ifndef CONFIG_MX7
-#define CONFIG_MX7
-#endif
-
 /* Timer settings */
 #define CONFIG_MXC_GPT_HCLK
 #define CONFIG_SC_TIMER_CLK 8000000 /* 8Mhz */

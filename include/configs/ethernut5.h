@@ -60,7 +60,6 @@
 
 /* Ethernet */
 #define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_MACB
 #define CONFIG_RMII
 #define CONFIG_PHY_ID			0
 #define CONFIG_MACB_SEARCH_PHY

@@ -335,7 +335,6 @@
 #define CONFIG_SYS_CS2_FTIM2	SYS_QRIO_FTIM2
 #define CONFIG_SYS_CS2_FTIM3	SYS_QRIO_FTIM3
 
-#define CONFIG_MISC_INIT_F
 #define CONFIG_HWCONFIG
 
 /* define to use L1 as initial stack */

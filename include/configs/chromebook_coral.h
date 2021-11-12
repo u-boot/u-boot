@@ -31,9 +31,6 @@
 					"stdout=vidconsole,serial\0" \
 					"stderr=vidconsole,serial\0"
 
-#define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_OFFSET		0x003f8000
-
 #define CONFIG_TPL_TEXT_BASE		0xffff8000
 
 #define CONFIG_SYS_NS16550_MEM32

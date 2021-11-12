@@ -122,10 +122,6 @@
  * Environment is embedded in u-boot in the second sector of the flash
  */
 
-#if defined(CONFIG_CF_SBF)
-#define CONFIG_ENV_IS_IN_SPI_FLASH	1
-#endif
-
 /* Cache Configuration */
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - 8)

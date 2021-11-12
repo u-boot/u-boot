@@ -130,7 +130,6 @@
 #define CONFIG_BOARD_SIZE_LIMIT		715776
 
 /* Ethernet Configuration */
-#define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"

@@ -43,9 +43,6 @@
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/* Miscellaneous configurable options */
-#define CONFIG_LAST_STAGE_INIT
-
 /* SDRAM Bank #1 */
 #define DDR_BASE			0x00000000
 #define PHYS_SDRAM_1			DDR_BASE

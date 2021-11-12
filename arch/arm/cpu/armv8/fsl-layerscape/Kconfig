@@ -233,6 +233,7 @@ config ARCH_LS2080A
 config ARCH_LX2162A
 	bool
 	select ARMV8_SET_SMPEN
+	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select GICV3
 	select NXP_LSCH3_2
@@ -266,6 +267,7 @@ config ARCH_LX2162A
 config ARCH_LX2160A
 	bool
 	select ARMV8_SET_SMPEN
+	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select GICV3
 	select HAS_FSL_XHCI_USB if USB_HOST

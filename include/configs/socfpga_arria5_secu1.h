@@ -9,9 +9,6 @@
 #include <asm/arch/base_addr_ac5.h>
 #include <linux/stringify.h>
 
-/* Call misc_init_r */
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_HUSH_INIT_VAR
 /* Eternal oscillator */
 #define CONFIG_SYS_TIMER_RATE	40000000

@@ -68,7 +68,6 @@
 #endif
 
 /* Ethernet */
-#define CONFIG_MACB
 #define CONFIG_RMII
 #define CONFIG_AT91_WANTS_COMMON_PHY
 

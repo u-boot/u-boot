@@ -45,9 +45,6 @@
 
 /** Heap size for U-Boot */
 
-/* Allow environment variable to be overwritten */
-#define CONFIG_ENV_OVERWRITE
-
 /* Autoboot options */
 #define CONFIG_RESET_TO_RETRY
 #define CONFIG_BOOT_RETRY_TIME		-1
@@ -70,11 +67,6 @@
 # define CONFIG_SF_DEFAULT_CS	0
 #endif
 
-/** Environment defines */
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
@@ -82,9 +74,6 @@
 #define CONFIG_SYS_MAXARGS		64	/** max command args */
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
-
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		env_get("prompt")
 
 /** EMMC specific defines */
 #if defined(CONFIG_MMC_OCTEONTX)

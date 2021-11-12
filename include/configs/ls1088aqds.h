@@ -13,10 +13,6 @@
 unsigned long get_board_sys_clk(void);
 #endif
 
-#ifdef CONFIG_TFABOOT
-#define CONFIG_MISC_INIT_R
-#endif
-
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_QIXIS_I2C_ACCESS
 #define SYS_NO_FLASH
@@ -539,7 +535,6 @@ unsigned long get_board_sys_clk(void);
 #define XQSGMII_CARD_PHY4_PORT3_ADDR 0xf
 
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
-#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 
 #endif
 
