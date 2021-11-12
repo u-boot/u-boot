@@ -212,7 +212,8 @@ static int fit_image_setup_sig(struct image_sign_info *info,
  * @comment:	Comment to add to signature nodes
  * @require_keys: Mark all keys as 'required'
  * @engine_id:	Engine to use for signing
- * Return: 0 if ok, -1 on error
+ * Return: keydest node if @keydest is non-NULL, else 0 if none; -ve error code
+ *	on failure
  */
 static int fit_image_process_sig(const char *keydir, const char *keyfile,
 		void *keydest, void *fit, const char *image_name,
@@ -272,6 +273,8 @@ static int fit_image_process_sig(const char *keydir, const char *keyfile,
 			       node_name, image_name);
 			return ret;
 		}
+		/* Return the node that was written to */
+		return ret;
 	}
 
 	return 0;
@@ -649,7 +652,7 @@ int fit_image_add_verification_data(const char *keydir, const char *keyfile,
 				comment, require_keys, engine_id, cmdname,
 				algo_name);
 		}
-		if (ret)
+		if (ret < 0)
 			return ret;
 	}
 
@@ -978,6 +981,24 @@ static int fit_config_get_regions(const void *fit, int conf_noffset,
 	return 0;
 }
 
+/**
+ * fit_config_process_sig - Process a single subnode of the configurations/ node
+ *
+ * Generate a signed hash of the supplied data and store it in the node.
+ *
+ * @keydir:	Directory containing keys to use for signing
+ * @keydest:	Destination FDT blob to write public keys into (NULL if none)
+ * @fit:	pointer to the FIT format image header
+ * @conf_name	name of config being processed (used to display errors)
+ * @conf_noffset: Offset of configuration node, e.g. '/configurations/conf-1'
+ * @noffset:	subnode offset, e.g. '/configurations/conf-1/sig-1'
+ * @comment:	Comment to add to signature nodes
+ * @require_keys: Mark all keys as 'required'
+ * @engine_id:	Engine to use for signing
+ * @cmdname:	Command name used when reporting errors
+ * @return keydest node if @keydest is non-NULL, else 0 if none; -ve error code
+ *	on failure
+ */
 static int fit_config_process_sig(const char *keydir, const char *keyfile,
 		void *keydest, void *fit, const char *conf_name,
 		int conf_noffset, int noffset, const char *comment,
@@ -1041,6 +1062,7 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
 			printf("Failed to add verification data for '%s' signature node in '%s' configuration node\n",
 			       node_name, conf_name);
 		}
+		return ret;
 	}
 
 	return 0;
@@ -1070,7 +1092,7 @@ static int fit_config_add_verification_data(const char *keydir,
 				fit, conf_name, conf_noffset, noffset, comment,
 				require_keys, engine_id, cmdname, algo_name);
 		}
-		if (ret)
+		if (ret < 0)
 			return ret;
 	}
 
