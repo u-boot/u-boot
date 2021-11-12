@@ -44,6 +44,8 @@ int mmap_fdt(const char *cmdname, const char *fname, size_t size_inc,
  *
  * This uses read()/write() to copy file @src to file @dst
  *
+ * If @dst exists, it is overwritten and truncated to the correct size.
+ *
  * @src: Filename to read from
  * @dst: Filename to write to
  * @return 0 if OK, -1 on error

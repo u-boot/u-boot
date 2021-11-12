@@ -134,7 +134,7 @@ int copyfile(const char *src, const char *dst)
 		goto out;
 	}
 
-	fd_dst = open(dst, O_WRONLY | O_CREAT, 0666);
+	fd_dst = open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	if (fd_dst < 0) {
 		printf("Can't open file %s (%s)\n", dst, strerror(errno));
 		goto out;
