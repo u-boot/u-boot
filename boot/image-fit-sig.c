@@ -226,21 +226,34 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
 /**
  * fit_config_check_sig() - Check the signature of a config
  *
+ * Here we are looking at a particular signature that needs verification (here
+ * signature-1):
+ *
+ *	configurations {
+ *		default = "conf-1";
+ *		conf-1 {
+ *			kernel = "kernel-1";
+ *			fdt = "fdt-1";
+ *			signature-1 {
+ *				algo = "sha1,rsa2048";
+ *				value = <...conf 1 signature...>;
+ *			};
+ *		};
+ *
  * @fit: FIT to check
- * @noffset: Offset of configuration node (e.g. /configurations/conf-1)
- * @required_keynode:	Offset in the control FDT of the required key node,
+ * @noffset: Offset of the signature node being checked (e.g.
+ *	 /configurations/conf-1/signature-1)
+ * @conf_noffset: Offset of configuration node (e.g. /configurations/conf-1)
+ * @required_keynode:	Offset in @key_blob of the required key node,
  *			if any. If this is given, then the configuration wil not
  *			pass verification unless that key is used. If this is
  *			-1 then any signature will do.
- * @conf_noffset: Offset of the configuration subnode being checked (e.g.
- *	 /configurations/conf-1/kernel)
  * @err_msgp:		In the event of an error, this will be pointed to a
  *			help error string to display to the user.
  * Return: 0 if all verified ok, <0 on error
  */
-static int fit_config_check_sig(const void *fit, int noffset,
-				int required_keynode, int conf_noffset,
-				char **err_msgp)
+static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
+				int required_keynode, char **err_msgp)
 {
 	static char * const exc_prop[] = {
 		"data",
@@ -409,8 +422,8 @@ static int fit_config_verify_key(const void *fit, int conf_noffset,
 
 		if (!strncmp(name, FIT_SIG_NODENAME,
 			     strlen(FIT_SIG_NODENAME))) {
-			ret = fit_config_check_sig(fit, noffset, key_offset,
-						   conf_noffset, &err_msg);
+			ret = fit_config_check_sig(fit, noffset, conf_noffset,
+						   key_offset, &err_msg);
 			if (ret) {
 				puts("- ");
 			} else {
