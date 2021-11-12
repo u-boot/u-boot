@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ or X11
 /*
- * Copyright (C) 2018 Grinn Sp. z o.o. -- http://www.grinn-global.com/
+ * Copyright (C) 2018-2021 Grinn Sp. z o.o. -- http://www.grinn-global.com/
  * Author: Marcin Niestroj <m.niestroj@grinn-global.com>
  */
 
@@ -9,5 +9,6 @@
 / {
 	chosen {
 		stdout-path = &uart0;
+		tick-timer = &timer2;
 	};
 };

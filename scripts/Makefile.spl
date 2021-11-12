@@ -92,10 +92,10 @@ libs-y += common/init/
 
 # Special handling for a few options which support SPL/TPL
 ifeq ($(CONFIG_TPL_BUILD),y)
-libs-$(CONFIG_TPL_LIBCOMMON_SUPPORT) += common/ cmd/ env/
+libs-$(CONFIG_TPL_LIBCOMMON_SUPPORT) += boot/ common/ cmd/ env/
 libs-$(CONFIG_TPL_LIBGENERIC_SUPPORT) += lib/
 else
-libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/ cmd/ env/
+libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += boot/ common/ cmd/ env/
 libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
 ifdef CONFIG_SPL_FRAMEWORK
 libs-$(CONFIG_PARTITIONS) += disk/

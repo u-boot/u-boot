@@ -138,28 +138,6 @@ static int do_bootm_netbsd(int flag, int argc, char *const argv[],
 }
 #endif /* CONFIG_BOOTM_NETBSD*/
 
-#ifdef CONFIG_LYNXKDI
-static int do_bootm_lynxkdi(int flag, int argc, char *const argv[],
-			    bootm_headers_t *images)
-{
-	image_header_t *hdr = &images->legacy_hdr_os_copy;
-
-	if (flag != BOOTM_STATE_OS_GO)
-		return 0;
-
-#if defined(CONFIG_FIT)
-	if (!images->legacy_hdr_valid) {
-		fit_unsupported_reset("Lynx");
-		return 1;
-	}
-#endif
-
-	lynxkdi_boot((image_header_t *)hdr);
-
-	return 1;
-}
-#endif /* CONFIG_LYNXKDI */
-
 #ifdef CONFIG_BOOTM_RTEMS
 static int do_bootm_rtems(int flag, int argc, char *const argv[],
 			  bootm_headers_t *images)
@@ -569,9 +547,6 @@ static boot_os_fn *boot_os[] = {
 #endif
 #ifdef CONFIG_BOOTM_NETBSD
 	[IH_OS_NETBSD] = do_bootm_netbsd,
-#endif
-#ifdef CONFIG_LYNXKDI
-	[IH_OS_LYNXOS] = do_bootm_lynxkdi,
 #endif
 #ifdef CONFIG_BOOTM_RTEMS
 	[IH_OS_RTEMS] = do_bootm_rtems,

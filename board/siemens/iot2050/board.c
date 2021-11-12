@@ -259,7 +259,8 @@ void show_boot_progress(int progress)
 	struct udevice *dev;
 	int ret;
 
-	if (progress < 0 || progress == BOOTSTAGE_ID_ENTER_CLI_LOOP) {
+	if ((progress < 0 && progress != -BOOTSTAGE_ID_NET_ETH_START) ||
+	    progress == BOOTSTAGE_ID_ENTER_CLI_LOOP) {
 		ret = led_get_by_label("status-led-green", &dev);
 		if (ret == 0)
 			led_set_state(dev, LEDST_OFF);

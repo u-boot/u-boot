@@ -1,5 +1,5 @@
 variables:
-  windows_vm: vs2017-win2016
+  windows_vm: windows-2019
   ubuntu_vm: ubuntu-18.04
   macos_vm: macOS-10.15
   ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20210921-05Oct2021

@@ -76,9 +76,9 @@ hostprogs-$(CONFIG_TOOLS_LIBCRYPTO) += fit_info fit_check_sign
 
 hostprogs-$(CONFIG_CMD_BOOTEFI_SELFTEST) += file2include
 
-FIT_OBJS-y := fit_common.o fit_image.o image-host.o common/image-fit.o
-FIT_SIG_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := image-sig-host.o common/image-fit-sig.o
-FIT_CIPHER_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := common/image-cipher.o
+FIT_OBJS-y := fit_common.o fit_image.o image-host.o boot/image-fit.o
+FIT_SIG_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := image-sig-host.o boot/image-fit-sig.o
+FIT_CIPHER_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := boot/image-cipher.o
 
 # The following files are synced with upstream DTC.
 # Use synced versions from scripts/dtc/libfdt/.
@@ -106,14 +106,14 @@ dumpimage-mkimage-objs := aisimage.o \
 			$(FIT_OBJS-y) \
 			$(FIT_SIG_OBJS-y) \
 			$(FIT_CIPHER_OBJS-y) \
-			common/fdt_region.o \
-			common/bootm.o \
+			boot/fdt_region.o \
+			boot/bootm.o \
 			lib/crc32.o \
 			default_image.o \
 			lib/fdtdec_common.o \
 			lib/fdtdec.o \
-			common/image.o \
-			common/image-host.o \
+			boot/image.o \
+			boot/image-host.o \
 			imagetool.o \
 			imximage.o \
 			imx8image.o \
@@ -227,7 +227,7 @@ hostprogs-$(CONFIG_ARCH_OCTEON) += update_octeon_header
 update_octeon_header-objs := update_octeon_header.o lib/crc32.o
 
 hostprogs-y += fdtgrep
-fdtgrep-objs += $(LIBFDT_OBJS) common/fdt_region.o fdtgrep.o
+fdtgrep-objs += $(LIBFDT_OBJS) boot/fdt_region.o fdtgrep.o
 
 ifneq ($(TOOLS_ONLY),y)
 hostprogs-y += spl_size_limit
@@ -254,7 +254,7 @@ HOSTCFLAGS_sha512.o := -pedantic -DCONFIG_SHA512 -DCONFIG_SHA384
 quiet_cmd_wrap = WRAP    $@
 cmd_wrap = echo "\#include <../$(patsubst $(obj)/%,%,$@)>" >$@
 
-$(obj)/lib/%.c $(obj)/common/%.c $(obj)/env/%.c:
+$(obj)/boot/%.c $(obj)/common/%.c $(obj)/env/%.c $(obj)/lib/%.c:
 	$(call cmd,wrap)
 
 clean-dirs := lib common
