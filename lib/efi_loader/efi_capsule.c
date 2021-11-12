@@ -1108,13 +1108,13 @@ efi_status_t efi_launch_capsules(void)
 				log_err("Applying capsule %ls failed\n",
 					files[i]);
 
+			/* create CapsuleXXXX */
+			set_capsule_result(index, capsule, ret);
+
 			free(capsule);
 		} else {
 			log_err("Reading capsule %ls failed\n", files[i]);
 		}
-		/* create CapsuleXXXX */
-		set_capsule_result(index, capsule, ret);
-
 		/* delete a capsule either in case of success or failure */
 		ret = efi_capsule_delete_file(files[i]);
 		if (ret != EFI_SUCCESS)
