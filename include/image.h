@@ -1025,7 +1025,7 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
  * fit_add_verification_data() - add verification data to FIT image nodes
  *
  * @keydir:	Directory containing keys
- * @kwydest:	FDT blob to write public key information to
+ * @kwydest:	FDT blob to write public key information to (NULL if none)
  * @fit:	Pointer to the FIT format image header
  * @comment:	Comment to add to signature nodes
  * @require_keys: Mark all keys as 'required'

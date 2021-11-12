@@ -48,10 +48,10 @@ static int fit_set_hash_value(void *fit, int noffset, uint8_t *value,
  * fit_image_process_hash - Process a single subnode of the images/ node
  *
  * Check each subnode and process accordingly. For hash nodes we generate
- * a hash of the supplised data and store it in the node.
+ * a hash of the supplied data and store it in the node.
  *
  * @fit:	pointer to the FIT format image header
- * @image_name:	name of image being processes (used to display errors)
+ * @image_name:	name of image being processed (used to display errors)
  * @noffset:	subnode offset
  * @data:	data to process
  * @size:	size of data in bytes
@@ -200,12 +200,12 @@ static int fit_image_setup_sig(struct image_sign_info *info,
  * fit_image_process_sig- Process a single subnode of the images/ node
  *
  * Check each subnode and process accordingly. For signature nodes we
- * generate a signed hash of the supplised data and store it in the node.
+ * generate a signed hash of the supplied data and store it in the node.
  *
  * @keydir:	Directory containing keys to use for signing
- * @keydest:	Destination FDT blob to write public keys into
+ * @keydest:	Destination FDT blob to write public keys into (NULL if none)
  * @fit:	pointer to the FIT format image header
- * @image_name:	name of image being processes (used to display errors)
+ * @image_name:	name of image being processed (used to display errors)
  * @noffset:	subnode offset
  * @data:	data to process
  * @size:	size of data in bytes
@@ -689,14 +689,14 @@ static int strlist_add(struct strlist *list, const char *str)
 	return 0;
 }
 
-static const char *fit_config_get_image_list(void *fit, int noffset,
-		int *lenp, int *allow_missingp)
+static const char *fit_config_get_image_list(const void *fit, int noffset,
+					     int *lenp, int *allow_missingp)
 {
 	static const char default_list[] = FIT_KERNEL_PROP "\0"
 			FIT_FDT_PROP;
 	const char *prop;
 
-	/* If there is an "image" property, use that */
+	/* If there is an "sign-image" property, use that */
 	prop = fdt_getprop(fit, noffset, "sign-images", lenp);
 	if (prop) {
 		*allow_missingp = 0;
@@ -710,8 +710,24 @@ static const char *fit_config_get_image_list(void *fit, int noffset,
 	return default_list;
 }
 
-static int fit_config_add_hash(void *fit, const char *conf_name, const char *sig_name,
-			       struct strlist *node_inc, const char *iname, int image_noffset)
+/**
+ * fit_config_add_hash() - Add a list of nodes to hash for an image
+ *
+ * This adds a list of paths to image nodes (as referred to by a particular
+ * offset) that need to be hashed, to protect a configuration
+ *
+ * @fit:	Pointer to the FIT format image header
+ * @image_noffset: Offset of image to process (e.g. /images/kernel-1)
+ * @node_inc:	List of nodes to add to
+ * @conf_name	Configuration-node name, child of /configurations node (only
+ *	used for error messages)
+ * @sig_name	Signature-node name (only used for error messages)
+ * @iname:	Name of image being processed (e.g. "kernel-1" (only used
+ *	for error messages)
+ */
+static int fit_config_add_hash(const void *fit, int image_noffset,
+			       struct strlist *node_inc, const char *conf_name,
+			       const char *sig_name, const char *iname)
 {
 	char name[200], path[200];
 	int noffset;
@@ -781,7 +797,21 @@ err_path:
 	return -ENOENT;
 }
 
-static int fit_config_get_hash_list(void *fit, int conf_noffset,
+/**
+ * fit_config_get_hash_list() - Get the regions to sign
+ *
+ * This calculates a list of nodes to hash for this particular configuration,
+ * returning it as a string list (struct strlist, not a devicetree string list)
+ *
+ * @fit:	Pointer to the FIT format image header
+ * @conf_noffset: Offset of configuration node to sign (child of
+ *	/configurations node)
+ * @sig_offset:	Offset of signature node containing info about how to sign it
+ *	(child of 'signatures' node)
+ * @return 0 if OK, -ENOENT if an image referred to by the configuration cannot
+ *	be found, -ENOMSG if ther were no images in the configuration
+ */
+static int fit_config_get_hash_list(const void *fit, int conf_noffset,
 				    int sig_offset, struct strlist *node_inc)
 {
 	int allow_missing;
@@ -832,9 +862,8 @@ static int fit_config_get_hash_list(void *fit, int conf_noffset,
 				return -ENOENT;
 			}
 
-			ret = fit_config_add_hash(fit, conf_name,
-						  sig_name, node_inc,
-						  iname, image_noffset);
+			ret = fit_config_add_hash(fit, image_noffset, node_inc,
+						  conf_name, sig_name, iname);
 			if (ret < 0)
 				return ret;
 
@@ -856,9 +885,32 @@ err_mem:
 	return -ENOMEM;
 }
 
-static int fit_config_get_data(void *fit, int conf_noffset, int noffset,
-		struct image_region **regionp, int *region_countp,
-		char **region_propp, int *region_proplen)
+/**
+ * fit_config_get_regions() - Get the regions to sign
+ *
+ * This calculates a list of node to hash for this particular configuration,
+ * then finds which regions of the devicetree they correspond to.
+ *
+ * @fit:	Pointer to the FIT format image header
+ * @conf_noffset: Offset of configuration node to sign (child of
+ *	/configurations node)
+ * @sig_offset:	Offset of signature node containing info about how to sign it
+ *	(child of 'signatures' node)
+ * @regionp: Returns list of regions that need to be hashed (allocated; must be
+ *	freed by the caller)
+ * @region_count: Returns number of regions
+ * @region_propp: Returns string-list property containing the list of nodes
+ *	that correspond to the regions. Each entry is a full path to the node.
+ *	This is in devicetree format, i.e. a \0 between each string. This is
+ *	allocated and must be freed by the caller.
+ * @region_proplen: Returns length of *@@region_propp in bytes
+ * @return 0 if OK, -ENOMEM if out of memory, -EIO if the regions to hash could
+ * not be found, -EINVAL if no registers were found to hash
+ */
+static int fit_config_get_regions(const void *fit, int conf_noffset,
+				  int sig_offset, struct image_region **regionp,
+				  int *region_countp, char **region_propp,
+				  int *region_proplen)
 {
 	char * const exc_prop[] = {"data"};
 	struct strlist node_inc;
@@ -871,11 +923,12 @@ static int fit_config_get_data(void *fit, int conf_noffset, int noffset,
 	int ret, len;
 
 	conf_name = fit_get_name(fit, conf_noffset, NULL);
-	sig_name = fit_get_name(fit, noffset, NULL);
+	sig_name = fit_get_name(fit, sig_offset, NULL);
 	debug("%s: conf='%s', sig='%s'\n", __func__, conf_name, sig_name);
 
 	/* Get a list of nodes we want to hash */
-	ret = fit_config_get_hash_list(fit, conf_noffset, noffset, &node_inc);
+	ret = fit_config_get_hash_list(fit, conf_noffset, sig_offset,
+				       &node_inc);
 	if (ret)
 		return ret;
 
@@ -929,7 +982,7 @@ static int fit_config_get_data(void *fit, int conf_noffset, int noffset,
 }
 
 static int fit_config_process_sig(const char *keydir, const char *keyfile,
-		void *keydest,	void *fit, const char *conf_name,
+		void *keydest, void *fit, const char *conf_name,
 		int conf_noffset, int noffset, const char *comment,
 		int require_keys, const char *engine_id, const char *cmdname,
 		const char *algo_name)
@@ -945,8 +998,9 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
 	int ret;
 
 	node_name = fit_get_name(fit, noffset, NULL);
-	if (fit_config_get_data(fit, conf_noffset, noffset, &region,
-				&region_count, &region_prop, &region_proplen))
+	if (fit_config_get_regions(fit, conf_noffset, noffset, &region,
+				   &region_count, &region_prop,
+				   &region_proplen))
 		return -1;
 
 	if (fit_image_setup_sig(&info, keydir, keyfile, fit, conf_name, noffset,
