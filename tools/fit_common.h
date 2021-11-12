@@ -39,4 +39,15 @@ int mmap_fdt(const char *cmdname, const char *fname, size_t size_inc,
 	     void **blobp, struct stat *sbuf, bool delete_on_error,
 	     bool read_only);
 
+/**
+ * copyfile() - Copy a file
+ *
+ * This uses read()/write() to copy file @src to file @dst
+ *
+ * @src: Filename to read from
+ * @dst: Filename to write to
+ * @return 0 if OK, -1 on error
+ */
+int copyfile(const char *src, const char *dst);
+
 #endif /* _FIT_COMMON_H_ */
