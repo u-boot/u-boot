@@ -65,7 +65,8 @@ struct image_region *fit_region_make_list(const void *fit,
 
 static int fit_image_setup_verify(struct image_sign_info *info,
 				  const void *fit, int noffset,
-				  int required_keynode, char **err_msgp)
+				  const void *key_blob, int required_keynode,
+				  char **err_msgp)
 {
 	const char *algo_name;
 	const char *padding_name;
@@ -91,7 +92,7 @@ static int fit_image_setup_verify(struct image_sign_info *info,
 	info->checksum = image_get_checksum_algo(algo_name);
 	info->crypto = image_get_crypto_algo(algo_name);
 	info->padding = image_get_padding_algo(padding_name);
-	info->fdt_blob = gd_fdt_blob();
+	info->fdt_blob = key_blob;
 	info->required_keynode = required_keynode;
 	printf("%s:%s", algo_name, info->keyname);
 
@@ -104,7 +105,8 @@ static int fit_image_setup_verify(struct image_sign_info *info,
 }
 
 int fit_image_check_sig(const void *fit, int noffset, const void *data,
-			size_t size, int required_keynode, char **err_msgp)
+			size_t size, const void *key_blob, int required_keynode,
+			char **err_msgp)
 {
 	struct image_sign_info info;
 	struct image_region region;
@@ -112,8 +114,8 @@ int fit_image_check_sig(const void *fit, int noffset, const void *data,
 	int fit_value_len;
 
 	*err_msgp = NULL;
-	if (fit_image_setup_verify(&info, fit, noffset, required_keynode,
-				   err_msgp))
+	if (fit_image_setup_verify(&info, fit, noffset, key_blob,
+				   required_keynode, err_msgp))
 		return -1;
 
 	if (fit_image_hash_get_value(fit, noffset, &fit_value,
@@ -156,8 +158,8 @@ static int fit_image_verify_sig(const void *fit, int image_noffset,
 		}
 		if (!strncmp(name, FIT_SIG_NODENAME,
 			     strlen(FIT_SIG_NODENAME))) {
-			ret = fit_image_check_sig(fit, noffset, data,
-						  size, -1, &err_msg);
+			ret = fit_image_check_sig(fit, noffset, data, size,
+						  key_blob, -1, &err_msg);
 			if (ret) {
 				puts("- ");
 			} else {
@@ -244,6 +246,7 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
  * @noffset: Offset of the signature node being checked (e.g.
  *	 /configurations/conf-1/signature-1)
  * @conf_noffset: Offset of configuration node (e.g. /configurations/conf-1)
+ * @key_blob: Blob containing the keys to check against
  * @required_keynode:	Offset in @key_blob of the required key node,
  *			if any. If this is given, then the configuration wil not
  *			pass verification unless that key is used. If this is
@@ -253,7 +256,8 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
  * Return: 0 if all verified ok, <0 on error
  */
 static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
-				int required_keynode, char **err_msgp)
+				const void *key_blob, int required_keynode,
+				char **err_msgp)
 {
 	static char * const exc_prop[] = {
 		"data",
@@ -275,12 +279,12 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
 	int count;
 
 	config_name = fit_get_name(fit, conf_noffset, NULL);
-	debug("%s: fdt=%p, conf='%s', sig='%s'\n", __func__, gd_fdt_blob(),
+	debug("%s: fdt=%p, conf='%s', sig='%s'\n", __func__, key_blob,
 	      fit_get_name(fit, noffset, NULL),
-	      fit_get_name(gd_fdt_blob(), required_keynode, NULL));
+	      fit_get_name(key_blob, required_keynode, NULL));
 	*err_msgp = NULL;
-	if (fit_image_setup_verify(&info, fit, noffset, required_keynode,
-				   err_msgp))
+	if (fit_image_setup_verify(&info, fit, noffset, key_blob,
+				   required_keynode, err_msgp))
 		return -1;
 
 	if (fit_image_hash_get_value(fit, noffset, &fit_value,
@@ -423,7 +427,8 @@ static int fit_config_verify_key(const void *fit, int conf_noffset,
 		if (!strncmp(name, FIT_SIG_NODENAME,
 			     strlen(FIT_SIG_NODENAME))) {
 			ret = fit_config_check_sig(fit, noffset, conf_noffset,
-						   key_offset, &err_msg);
+						   key_blob, key_offset,
+						   &err_msg);
 			if (ret) {
 				puts("- ");
 			} else {

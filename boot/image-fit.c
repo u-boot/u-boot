@@ -1309,7 +1309,8 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 }
 
 int fit_image_verify_with_data(const void *fit, int image_noffset,
-			       const void *data, size_t size)
+			       const void *key_blob, const void *data,
+			       size_t size)
 {
 	int		noffset = 0;
 	char		*err_msg = "";
@@ -1319,7 +1320,7 @@ int fit_image_verify_with_data(const void *fit, int image_noffset,
 	/* Verify all required signatures */
 	if (FIT_IMAGE_ENABLE_VERIFY &&
 	    fit_image_verify_required_sigs(fit, image_noffset, data, size,
-					   gd_fdt_blob(), &verify_all)) {
+					   key_blob, &verify_all)) {
 		err_msg = "Unable to verify required signature";
 		goto error;
 	}
@@ -1342,8 +1343,8 @@ int fit_image_verify_with_data(const void *fit, int image_noffset,
 		} else if (FIT_IMAGE_ENABLE_VERIFY && verify_all &&
 				!strncmp(name, FIT_SIG_NODENAME,
 					strlen(FIT_SIG_NODENAME))) {
-			ret = fit_image_check_sig(fit, noffset, data,
-							size, -1, &err_msg);
+			ret = fit_image_check_sig(fit, noffset, data, size,
+						  gd_fdt_blob(), -1, &err_msg);
 
 			/*
 			 * Show an indication on failure, but do not return
@@ -1406,7 +1407,8 @@ int fit_image_verify(const void *fit, int image_noffset)
 		goto err;
 	}
 
-	return fit_image_verify_with_data(fit, image_noffset, data, size);
+	return fit_image_verify_with_data(fit, image_noffset, gd_fdt_blob(),
+					  data, size);
 
 err:
 	printf("error!\n%s in '%s' image node\n", err_msg,

@@ -1048,8 +1048,19 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
 			      int require_keys, const char *engine_id,
 			      const char *cmdname, const char *algo_name);
 
+/**
+ * fit_image_verify_with_data() - Verify an image with given data
+ *
+ * @fit:	Pointer to the FIT format image header
+ * @image_offset: Offset in @fit of image to verify
+ * @key_blob:	FDT containing public keys
+ * @data:	Image data to verify
+ * @size:	Size of image data
+ */
 int fit_image_verify_with_data(const void *fit, int image_noffset,
-			       const void *data, size_t size);
+			       const void *key_blob, const void *data,
+			       size_t size);
+
 int fit_image_verify(const void *fit, int noffset);
 int fit_config_verify(const void *fit, int conf_noffset);
 int fit_all_image_verify(const void *fit);
@@ -1297,7 +1308,7 @@ struct padding_algo *image_get_padding_algo(const char *name);
  * @image_noffset:	Offset of image node to check
  * @data:		Image data to check
  * @size:		Size of image data
- * @sig_blob:		FDT containing public keys
+ * @key_blob:		FDT containing public keys
  * @no_sigsp:		Returns 1 if no signatures were required, and
  *			therefore nothing was checked. The caller may wish
  *			to fall back to other mechanisms, or refuse to
@@ -1305,7 +1316,7 @@ struct padding_algo *image_get_padding_algo(const char *name);
  * Return: 0 if all verified ok, <0 on error
  */
 int fit_image_verify_required_sigs(const void *fit, int image_noffset,
-		const char *data, size_t size, const void *sig_blob,
+		const char *data, size_t size, const void *key_blob,
 		int *no_sigsp);
 
 /**
@@ -1315,7 +1326,8 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
  * @noffset:		Offset of signature node to check
  * @data:		Image data to check
  * @size:		Size of image data
- * @required_keynode:	Offset in the control FDT of the required key node,
+ * @keyblob:		Key blob to check (typically the control FDT)
+ * @required_keynode:	Offset in the keyblob of the required key node,
  *			if any. If this is given, then the image wil not
  *			pass verification unless that key is used. If this is
  *			-1 then any signature will do.
@@ -1324,7 +1336,8 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
  * Return: 0 if all verified ok, <0 on error
  */
 int fit_image_check_sig(const void *fit, int noffset, const void *data,
-		size_t size, int required_keynode, char **err_msgp);
+			size_t size, const void *key_blob, int required_keynode,
+			char **err_msgp);
 
 int fit_image_decrypt_data(const void *fit,
 			   int image_noffset, int cipher_noffset,
