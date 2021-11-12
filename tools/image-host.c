@@ -1071,7 +1071,8 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
 static int fit_config_add_verification_data(const char *keydir,
 		const char *keyfile, void *keydest, void *fit, int conf_noffset,
 		const char *comment, int require_keys, const char *engine_id,
-		const char *cmdname, const char *algo_name)
+		const char *cmdname, const char *algo_name,
+		struct image_summary *summary)
 {
 	const char *conf_name;
 	int noffset;
@@ -1091,9 +1092,20 @@ static int fit_config_add_verification_data(const char *keydir,
 			ret = fit_config_process_sig(keydir, keyfile, keydest,
 				fit, conf_name, conf_noffset, noffset, comment,
 				require_keys, engine_id, cmdname, algo_name);
+			if (ret < 0)
+				return ret;
+
+			summary->sig_offset = noffset;
+			fdt_get_path(fit, noffset, summary->sig_path,
+				     sizeof(summary->sig_path));
+
+			if (keydest) {
+				summary->keydest_offset = ret;
+				fdt_get_path(keydest, ret,
+					     summary->keydest_path,
+					     sizeof(summary->keydest_path));
+			}
 		}
-		if (ret < 0)
-			return ret;
 	}
 
 	return 0;
@@ -1137,7 +1149,8 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
 int fit_add_verification_data(const char *keydir, const char *keyfile,
 			      void *keydest, void *fit, const char *comment,
 			      int require_keys, const char *engine_id,
-			      const char *cmdname, const char *algo_name)
+			      const char *cmdname, const char *algo_name,
+			      struct image_summary *summary)
 {
 	int images_noffset, confs_noffset;
 	int noffset;
@@ -1186,7 +1199,7 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
 						       fit, noffset, comment,
 						       require_keys,
 						       engine_id, cmdname,
-						       algo_name);
+						       algo_name, summary);
 		if (ret)
 			return ret;
 	}

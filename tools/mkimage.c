@@ -10,6 +10,7 @@
 #include "imagetool.h"
 #include "mkimage.h"
 #include "imximage.h"
+#include <fit_common.h>
 #include <image.h>
 #include <version.h>
 #ifdef __linux__
@@ -472,6 +473,9 @@ int main(int argc, char **argv)
 
 		(void) munmap((void *)ptr, sbuf.st_size);
 		(void) close (ifd);
+		if (!retval)
+			summary_show(&params.summary, params.imagefile,
+				     params.keydest);
 
 		exit (retval);
 	}

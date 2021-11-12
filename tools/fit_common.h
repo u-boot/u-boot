@@ -52,4 +52,14 @@ int mmap_fdt(const char *cmdname, const char *fname, size_t size_inc,
  */
 int copyfile(const char *src, const char *dst);
 
+/**
+ * summary_show() - Show summary information about the signing process
+ *
+ * @summary: Summary info to show
+ * @imagefile: Filename of the output image
+ * @keydest: Filename where the key information is written (NULL if none)
+ */
+void summary_show(struct image_summary *summary, const char *imagefile,
+		  const char *keydest);
+
 #endif /* _FIT_COMMON_H_ */

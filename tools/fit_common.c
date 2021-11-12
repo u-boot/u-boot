@@ -175,3 +175,16 @@ int copyfile(const char *src, const char *dst)
 
 	return ret;
 }
+
+void summary_show(struct image_summary *summary, const char *imagefile,
+		  const char *keydest)
+{
+	if (summary->sig_offset) {
+		printf("Signature written to '%s', node '%s'\n", imagefile,
+		       summary->sig_path);
+		if (keydest) {
+			printf("Public key written to '%s', node '%s'\n",
+			       keydest, summary->keydest_path);
+		}
+	}
+}
