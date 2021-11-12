@@ -61,8 +61,9 @@ int rsa_sign(struct image_sign_info *info,
  *
  * @info:	Specifies key and FIT information
  * @keydest:	Destination FDT blob for public key data
- * @return: 0, on success, -ENOSPC if the keydest FDT blob ran out of space,
-		other -ve value on error
+ * @return: node offset within the FDT blob where the data was written on
+ *	success, -ENOSPC if the keydest FDT blob ran out of space, other -ve
+ *	value on other error
 */
 int rsa_add_verify_data(struct image_sign_info *info, void *keydest);
 

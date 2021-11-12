@@ -1243,7 +1243,8 @@ struct crypto_algo {
 	 *
 	 * @info:	Specifies key and FIT information
 	 * @keydest:	Destination FDT blob for public key data
-	 * @return: 0, on success, -ve on error
+	 * @return: node offset within the FDT blob where the data was written,
+	 *	or -ve on error
 	 */
 	int (*add_verify_data)(struct image_sign_info *info, void *keydest);
 

@@ -267,7 +267,7 @@ static int fit_image_process_sig(const char *keydir, const char *keyfile,
 	 */
 	if (keydest) {
 		ret = info.crypto->add_verify_data(&info, keydest);
-		if (ret) {
+		if (ret < 0) {
 			printf("Failed to add verification data for '%s' signature node in '%s' image node\n",
 			       node_name, image_name);
 			return ret;
@@ -1037,11 +1037,10 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
 	/* Write the public key into the supplied FDT file */
 	if (keydest) {
 		ret = info.crypto->add_verify_data(&info, keydest);
-		if (ret) {
+		if (ret < 0) {
 			printf("Failed to add verification data for '%s' signature node in '%s' configuration node\n",
 			       node_name, conf_name);
 		}
-		return ret;
 	}
 
 	return 0;
