@@ -417,6 +417,15 @@ struct efi_runtime_services {
 	EFI_GUID(0x1e2ed096, 0x30e2, 0x4254, 0xbd, \
 		 0x89, 0x86, 0x3b, 0xbe, 0xf8, 0x23, 0x25)
 
+/**
+ * struct efi_configuration_table - EFI Configuration Table
+ *
+ * This table contains a set of GUID/pointer pairs.
+ * The EFI Configuration Table may contain at most one instance of each table type.
+ *
+ * @guid:		GUID that uniquely identifies the system configuration table
+ * @table:		A pointer to the table associated with guid
+ */
 struct efi_configuration_table {
 	efi_guid_t guid;
 	void *table;
@@ -424,6 +433,29 @@ struct efi_configuration_table {
 
 #define EFI_SYSTEM_TABLE_SIGNATURE ((u64)0x5453595320494249ULL)
 
+/**
+ * struct efi_system_table - EFI System Table
+ *
+ * EFI System Table contains pointers to the runtime and boot services tables.
+ *
+ * @hdr:		The table header for the EFI System Table
+ * @fw_vendor:		A pointer to a null terminated string that identifies the vendor
+ *			that produces the system firmware
+ * @fw_revision:	The revision of the system firmware
+ * @con_in_handle:	The handle for the active console input device
+ * @con_in:		A pointer to the EFI_SIMPLE_TEXT_INPUT_PROTOCOL interface
+ *			that is associated with con_in_handle
+ * @con_out_handle:	The handle for the active console output device
+ * @con_out:		A pointer to the EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL interface
+ *			that is associated with con_out_handle
+ * @stderr_handle:	The handle for the active standard error console device
+ * @std_err:		A pointer to the EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL interface
+ *			that is associated with stderr_handle
+ * @runtime:		A pointer to the EFI Runtime Services Table
+ * @boottime:		A pointer to the EFI Boot Services Table
+ * @nr_tables:		The number of system configuration tables
+ * @tables:		A pointer to the system configuration tables
+ */
 struct efi_system_table {
 	struct efi_table_hdr hdr;
 	u16 *fw_vendor;   /* physical addr of wchar_t vendor string */
