@@ -1355,9 +1355,11 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 	struct pxe_label *label;
 	struct list_head *pos;
 	struct menu *m;
+	char *label_override;
 	int err;
 	int i = 1;
 	char *default_num = NULL;
+	char *override_num = NULL;
 
 	/*
 	 * Create a menu and add items for all the labels.
@@ -1366,6 +1368,8 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 			cfg->prompt, NULL, label_print, NULL, NULL);
 	if (!m)
 		return NULL;
+
+	label_override = env_get("pxe_label_override");
 
 	list_for_each(pos, &cfg->labels) {
 		label = list_entry(pos, struct pxe_label, list);
@@ -1378,6 +1382,17 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 		if (cfg->default_label &&
 		    (strcmp(label->name, cfg->default_label) == 0))
 			default_num = label->num;
+		if (label_override && !strcmp(label->name, label_override))
+			override_num = label->num;
+	}
+
+
+	if (label_override) {
+		if (override_num)
+			default_num = override_num;
+		else
+			printf("Missing override pxe label: %s\n",
+			      label_override);
 	}
 
 	/*
