@@ -8,6 +8,9 @@
 #ifndef __CONFIG_STM32MP15_DH_DHSOM_H__
 #define __CONFIG_STM32MP15_DH_DHSOM_H__
 
+/* PHY needs a longer autoneg timeout */
+#define PHY_ANEG_TIMEOUT		20000
+
 #define STM32MP_BOARD_EXTRA_ENV \
 	"usb_pgood_delay=1000\0" \
 	"update_sf=" /* Erase SPI NOR and install U-Boot from SD */	\
