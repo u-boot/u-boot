@@ -163,6 +163,98 @@ config ECC_INIT_VIA_DDRCONTROLLER
 
 endif
 
+menu "PowerPC / M68K initial memory controller definitions (FLASH, SDRAM, etc)"
+	depends on MCF52x2 || MPC8xx || MPC83xx || MPC85xx
+
+config SYS_BR0_PRELIM_BOOL
+	bool "Define Bank 0"
+
+config SYS_BR0_PRELIM
+	hex "Preliminary value for BR0"
+	depends on SYS_BR0_PRELIM_BOOL
+
+config SYS_OR0_PRELIM
+	hex "Preliminary value for OR0"
+	depends on SYS_BR0_PRELIM_BOOL
+
+config SYS_BR1_PRELIM_BOOL
+	bool "Define Bank 1"
+
+config SYS_BR1_PRELIM
+	hex "Preliminary value for BR1"
+	depends on SYS_BR1_PRELIM_BOOL
+
+config SYS_OR1_PRELIM
+	hex "Preliminary value for OR1"
+	depends on SYS_BR1_PRELIM_BOOL
+
+config SYS_BR2_PRELIM_BOOL
+	bool "Define Bank 2"
+
+config SYS_BR2_PRELIM
+	hex "Preliminary value for BR2"
+	depends on SYS_BR2_PRELIM_BOOL
+
+config SYS_OR2_PRELIM
+	hex "Preliminary value for OR2"
+	depends on SYS_BR2_PRELIM_BOOL
+
+config SYS_BR3_PRELIM_BOOL
+	bool "Define Bank 3"
+
+config SYS_BR3_PRELIM
+	hex "Preliminary value for BR3"
+	depends on SYS_BR3_PRELIM_BOOL
+
+config SYS_OR3_PRELIM
+	hex "Preliminary value for OR3"
+	depends on SYS_BR3_PRELIM_BOOL
+
+config SYS_BR4_PRELIM_BOOL
+	bool "Define Bank 4"
+
+config SYS_BR4_PRELIM
+	hex "Preliminary value for BR4"
+	depends on SYS_BR4_PRELIM_BOOL
+
+config SYS_OR4_PRELIM
+	hex "Preliminary value for OR4"
+	depends on SYS_BR4_PRELIM_BOOL
+
+config SYS_BR5_PRELIM_BOOL
+	bool "Define Bank 5"
+
+config SYS_BR5_PRELIM
+	hex "Preliminary value for BR5"
+	depends on SYS_BR5_PRELIM_BOOL
+
+config SYS_OR5_PRELIM
+	hex "Preliminary value for OR5"
+	depends on SYS_BR5_PRELIM_BOOL
+
+config SYS_BR6_PRELIM_BOOL
+	bool "Define Bank 6"
+
+config SYS_BR6_PRELIM
+	hex "Preliminary value for BR6"
+	depends on SYS_BR6_PRELIM_BOOL
+
+config SYS_OR6_PRELIM
+	hex "Preliminary value for OR6"
+	depends on SYS_BR6_PRELIM_BOOL
+
+config SYS_BR7_PRELIM_BOOL
+	bool "Define Bank 7"
+
+config SYS_BR7_PRELIM
+	hex "Preliminary value for BR7"
+	depends on SYS_BR7_PRELIM_BOOL
+
+config SYS_OR7_PRELIM
+	hex "Preliminary value for OR7"
+	depends on SYS_BR7_PRELIM_BOOL
+endmenu
+
 config SYS_FSL_ERRATUM_A008378
 	bool
 

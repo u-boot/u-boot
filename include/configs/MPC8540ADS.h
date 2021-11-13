@@ -90,9 +90,7 @@
 #define CONFIG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
 
 #define CONFIG_SYS_FLASH_BASE		0xff000000	/* start of FLASH 16M */
-#define CONFIG_SYS_BR0_PRELIM		0xff001801	/* port size 32bit */
 
-#define CONFIG_SYS_OR0_PRELIM		0xff006ff7	/* 16MB Flash */
 #define CONFIG_SYS_MAX_FLASH_BANKS	1		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	64		/* sectors per device */
 #undef	CONFIG_SYS_FLASH_CHECKSUM
@@ -131,8 +129,6 @@
  * FIXME: the top 17 bits of BR2.
  */
 
-#define CONFIG_SYS_BR2_PRELIM		0xf0001861
-
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
  *
@@ -146,8 +142,6 @@
  * 0    4    8    12   16   20   24   28
  * 1111 1100 0000 0000 0110 1001 0000 0001 = fc006901
  */
-
-#define CONFIG_SYS_OR2_PRELIM		0xfc006901
 
 #define CONFIG_SYS_LBC_LCRR		0x00030004    /* LB clock ratio reg */
 #define CONFIG_SYS_LBC_LBCR		0x00000000    /* LB config reg */
@@ -176,8 +170,6 @@
 /*
  * 32KB, 8-bit wide for ADS config reg
  */
-#define CONFIG_SYS_BR4_PRELIM          0xf8000801
-#define CONFIG_SYS_OR4_PRELIM		0xffffe1f1
 #define CONFIG_SYS_BCSR		(CONFIG_SYS_BR4_PRELIM & 0xffff8000)
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1

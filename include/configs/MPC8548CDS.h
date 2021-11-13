@@ -134,14 +134,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 #endif
 
-#define CONFIG_SYS_BR0_PRELIM \
-	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS + 0x800000) | BR_PS_16 | BR_V)
-#define CONFIG_SYS_BR1_PRELIM \
-	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
-
-#define	CONFIG_SYS_OR0_PRELIM		0xff806e65
-#define	CONFIG_SYS_OR1_PRELIM		0xff806e65
-
 #define CONFIG_SYS_FLASH_BANKS_LIST \
 	{CONFIG_SYS_FLASH_BASE_PHYS + 0x800000, CONFIG_SYS_FLASH_BASE_PHYS}
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks */
@@ -185,10 +177,6 @@ extern unsigned long get_clock_freq(void);
  * FIXME: the top 17 bits of BR2.
  */
 
-#define CONFIG_SYS_BR2_PRELIM \
-	(BR_PHYS_ADDR(CONFIG_SYS_LBC_SDRAM_BASE_PHYS) \
-	| BR_PS_32 | (3<<BR_MSEL_SHIFT) | BR_V)
-
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
  *
@@ -202,8 +190,6 @@ extern unsigned long get_clock_freq(void);
  * 0	4    8	  12   16   20	 24   28
  * 1111 1100 0000 0000 0110 1001 0000 0001 = fc006901
  */
-
-#define CONFIG_SYS_OR2_PRELIM		0xfc006901
 
 #define CONFIG_SYS_LBC_LCRR		0x00030004	/* LB clock ratio reg */
 #define CONFIG_SYS_LBC_LBCR		0x00000000	/* LB config reg */
@@ -263,9 +249,6 @@ extern unsigned long get_clock_freq(void);
 #else
 #define CADMUS_BASE_ADDR_PHYS	CADMUS_BASE_ADDR
 #endif
-#define CONFIG_SYS_BR3_PRELIM \
-	(BR_PHYS_ADDR(CADMUS_BASE_ADDR_PHYS) | BR_PS_8 | BR_V)
-#define CONFIG_SYS_OR3_PRELIM	 0xfff00ff7
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */

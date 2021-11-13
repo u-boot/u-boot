@@ -137,9 +137,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CPLD_BASE_PHYS		CPLD_BASE
 #endif
 
-#define CONFIG_SYS_BR3_PRELIM	(BR_PHYS_ADDR(CPLD_BASE_PHYS) | BR_PS_8 | BR_V)
-#define CONFIG_SYS_OR3_PRELIM	0xffffeff7	/* 32KB but only 4k mapped */
-
 #define PIXIS_LBMAP_SWITCH	7
 #define PIXIS_LBMAP_MASK	0xf0
 #define PIXIS_LBMAP_SHIFT	4
@@ -185,21 +182,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 			       | OR_FCM_SCY_1 \
 			       | OR_FCM_TRLX \
 			       | OR_FCM_EHTR)
-
-#ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
-#define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
-#define CONFIG_SYS_BR1_PRELIM  CONFIG_SYS_FLASH_BR_PRELIM /* NOR Base Address */
-#define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_FLASH_OR_PRELIM /* NOR Options */
-#else
-#define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_FLASH_BR_PRELIM /* NOR Base Address */
-#define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_FLASH_OR_PRELIM /* NOR Options */
-#define CONFIG_SYS_BR1_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
-#define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
-#endif
-#else
-#define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_FLASH_BR_PRELIM /* NOR Base Address */
-#define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_FLASH_OR_PRELIM /* NOR Options */
 #endif /* CONFIG_NAND_FSL_ELBC */
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO
