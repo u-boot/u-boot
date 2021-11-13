@@ -81,6 +81,31 @@ can be enabled with the following command line parameters:
 
 These have been tested in QEMU 2.9.0 but should work in at least 2.5.0 as well.
 
+Enabling TPMv2 support
+----------------------
+
+To emulate a TPM the swtpm package may be used. It can be built from the
+following repositories:
+
+     https://github.com/stefanberger/swtpm.git
+
+Swtpm provides a socket for the TPM emulation which can be consumed by QEMU.
+
+In a first console invoke swtpm with::
+
+     swtpm socket --tpmstate dir=/tmp/mytpm1   \
+     --ctrl type=unixio,path=/tmp/mytpm1/swtpm-sock --log level=20
+
+In a second console invoke qemu-system-aarch64 with::
+
+     -chardev socket,id=chrtpm,path=/tmp/mytpm1/swtpm-sock \
+     -tpmdev emulator,id=tpm0,chardev=chrtpm \
+     -device tpm-tis-device,tpmdev=tpm0
+
+Enable the TPM on U-Boot's command line with::
+
+    tpm2 startup TPM2_SU_CLEAR
+
 Debug UART
 ----------
 
