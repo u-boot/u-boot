@@ -19,6 +19,17 @@
 	};
 };
 
+
+&ethernet0 {
+	mdio0 {
+		ethernet-phy@7 {
+			reset-gpios = <&gpioz 2 GPIO_ACTIVE_LOW>;
+			reset-assert-us = <11000>;
+			reset-deassert-us = <1000>;
+		};
+	};
+};
+
 &sdmmc1 {
 	u-boot,dm-spl;
 };
