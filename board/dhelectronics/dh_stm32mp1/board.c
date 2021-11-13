@@ -212,15 +212,15 @@ static void board_get_coding_straps(void)
 	ofnode node;
 	int i, ret;
 
+	brdcode = 0;
+	ddr3code = 0;
+	somcode = 0;
+
 	node = ofnode_path("/config");
 	if (!ofnode_valid(node)) {
 		printf("%s: no /config node?\n", __func__);
 		return;
 	}
-
-	brdcode = 0;
-	ddr3code = 0;
-	somcode = 0;
 
 	ret = gpio_request_list_by_name_nodev(node, "dh,som-coding-gpios",
 					      gpio, ARRAY_SIZE(gpio),
@@ -228,17 +228,23 @@ static void board_get_coding_straps(void)
 	for (i = 0; i < ret; i++)
 		somcode |= !!dm_gpio_get_value(&(gpio[i])) << i;
 
+	gpio_free_list_nodev(gpio, ret);
+
 	ret = gpio_request_list_by_name_nodev(node, "dh,ddr3-coding-gpios",
 					      gpio, ARRAY_SIZE(gpio),
 					      GPIOD_IS_IN);
 	for (i = 0; i < ret; i++)
 		ddr3code |= !!dm_gpio_get_value(&(gpio[i])) << i;
 
+	gpio_free_list_nodev(gpio, ret);
+
 	ret = gpio_request_list_by_name_nodev(node, "dh,board-coding-gpios",
 					      gpio, ARRAY_SIZE(gpio),
 					      GPIOD_IS_IN);
 	for (i = 0; i < ret; i++)
 		brdcode |= !!dm_gpio_get_value(&(gpio[i])) << i;
+
+	gpio_free_list_nodev(gpio, ret);
 
 	printf("Code:  SoM:rev=%d,ddr3=%d Board:rev=%d\n",
 		somcode, ddr3code, brdcode);
