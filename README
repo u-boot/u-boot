@@ -2912,8 +2912,7 @@ details; basically, the header defines the following image properties:
 * Target Operating System (Provisions for OpenBSD, NetBSD, FreeBSD,
   4.4BSD, Linux, SVR4, Esix, Solaris, Irix, SCO, Dell, NCR, VxWorks,
   LynxOS, pSOS, QNX, RTEMS, INTEGRITY;
-  Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, LynxOS,
-  INTEGRITY).
+  Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, INTEGRITY).
 * Target CPU Architecture (Provisions for Alpha, ARM, Intel x86,
   IA64, MIPS, NDS32, Nios II, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
   Currently supported: ARM, Intel x86, MIPS, NDS32, Nios II, PowerPC).

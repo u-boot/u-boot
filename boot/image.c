@@ -102,9 +102,6 @@ static const table_entry_t uimage_os[] = {
 	{	IH_OS_INVALID,	"invalid",	"Invalid OS",		},
 	{       IH_OS_ARM_TRUSTED_FIRMWARE, "arm-trusted-firmware", "ARM Trusted Firmware"  },
 	{	IH_OS_LINUX,	"linux",	"Linux",		},
-#if defined(USE_HOSTCC)
-	{	IH_OS_LYNXOS,	"lynxos",	"LynxOS",		},
-#endif
 	{	IH_OS_NETBSD,	"netbsd",	"NetBSD",		},
 	{	IH_OS_OSE,	"ose",		"Enea OSE",		},
 	{	IH_OS_PLAN9,	"plan9",	"Plan 9",		},
