@@ -701,7 +701,7 @@ struct meson_pinctrl_data meson_gxl_periphs_pinctrl_data = {
 	.num_groups	= ARRAY_SIZE(meson_gxl_periphs_groups),
 	.num_funcs	= ARRAY_SIZE(meson_gxl_periphs_functions),
 	.num_banks	= ARRAY_SIZE(meson_gxl_periphs_banks),
-	.gpio_driver	= &meson_gx_gpio_driver,
+	.gpio_driver	= DM_DRIVER_REF(meson_gx_gpio_driver),
 };
 
 struct meson_pinctrl_data meson_gxl_aobus_pinctrl_data = {
@@ -714,7 +714,7 @@ struct meson_pinctrl_data meson_gxl_aobus_pinctrl_data = {
 	.num_groups	= ARRAY_SIZE(meson_gxl_aobus_groups),
 	.num_funcs	= ARRAY_SIZE(meson_gxl_aobus_functions),
 	.num_banks	= ARRAY_SIZE(meson_gxl_aobus_banks),
-	.gpio_driver	= &meson_gx_gpio_driver,
+	.gpio_driver	= DM_DRIVER_REF(meson_gx_gpio_driver),
 };
 
 static const struct udevice_id meson_gxl_pinctrl_match[] = {
