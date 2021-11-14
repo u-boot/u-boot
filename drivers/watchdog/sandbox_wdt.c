@@ -39,6 +39,7 @@ static int sandbox_wdt_reset(struct udevice *dev)
 static int sandbox_wdt_expire_now(struct udevice *dev, ulong flags)
 {
 	sandbox_wdt_start(dev, 1, flags);
+	sandbox_reset();
 
 	return 0;
 }

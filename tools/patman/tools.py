@@ -349,7 +349,7 @@ def Run(name, *args, **kwargs):
         result = command.RunPipe([all_args], capture=True, capture_stderr=True,
                                  env=env, raise_on_error=False, binary=binary)
         if result.return_code:
-            raise Exception("Error %d running '%s': %s" %
+            raise ValueError("Error %d running '%s': %s" %
                (result.return_code,' '.join(all_args),
                 result.stderr))
         return result.stdout

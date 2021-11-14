@@ -343,10 +343,10 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
 
     Args:
         image_fname: Image filename to process
-        input_fname: Single input ilename to use if replacing one file, None
+        input_fname: Single input filename to use if replacing one file, None
             otherwise
         indir: Input directory to use (for any number of files), else None
-        entry_paths: List of entry paths to extract
+        entry_paths: List of entry paths to replace
         do_compress: True if the input data is uncompressed and may need to be
             compressed if the entry requires it, False if the data is already
             compressed.
@@ -595,6 +595,13 @@ def Binman(args):
             tools.FinaliseOutputDir()
         return 0
 
+    elf_params = None
+    if args.update_fdt_in_elf:
+        elf_params = args.update_fdt_in_elf.split(',')
+        if len(elf_params) != 4:
+            raise ValueError('Invalid args %s to --update-fdt-in-elf: expected infile,outfile,begin_sym,end_sym' %
+                             elf_params)
+
     # Try to figure out which device tree contains our image description
     if args.dt:
         dtb_fname = args.dt
@@ -640,6 +647,10 @@ def Binman(args):
             # Write the updated FDTs to our output files
             for dtb_item in state.GetAllFdts():
                 tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
+
+            if elf_params:
+                data = state.GetFdtForEtype('u-boot-dtb').GetContents()
+                elf.UpdateFile(*elf_params, data)
 
             if missing:
                 tout.Warning("\nSome images are invalid")

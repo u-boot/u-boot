@@ -125,7 +125,7 @@ char *env_get(const char *name)
 	}
 
 	/* restricted capabilities before import */
-	if (env_get_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) > 0)
+	if (env_get_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) >= 0)
 		return (char *)(gd->env_buf);
 
 	return NULL;
@@ -148,23 +148,16 @@ char *from_env(const char *envvar)
 	return ret;
 }
 
-/*
- * Look up variable from environment for restricted C runtime env.
- */
-int env_get_f(const char *name, char *buf, unsigned len)
+static int env_get_from_linear(const char *env, const char *name, char *buf,
+			       unsigned len)
 {
-	const char *env, *p, *end;
+	const char *p, *end;
 	size_t name_len;
 
 	if (name == NULL || *name == '\0')
 		return -1;
 
 	name_len = strlen(name);
-
-	if (gd->env_valid == ENV_INVALID)
-		env = default_environment;
-	else
-		env = (const char *)gd->env_addr;
 
 	for (p = env; *p != '\0'; p = end + 1) {
 		const char *value;
@@ -191,6 +184,21 @@ int env_get_f(const char *name, char *buf, unsigned len)
 	}
 
 	return -1;
+}
+
+/*
+ * Look up variable from environment for restricted C runtime env.
+ */
+int env_get_f(const char *name, char *buf, unsigned len)
+{
+	const char *env;
+
+	if (gd->env_valid == ENV_INVALID)
+		env = default_environment;
+	else
+		env = (const char *)gd->env_addr;
+
+	return env_get_from_linear(env, name, buf, len);
 }
 
 /**
@@ -232,17 +240,12 @@ int env_get_yesno(const char *var)
  */
 char *env_get_default(const char *name)
 {
-	char *ret_val;
-	unsigned long really_valid = gd->env_valid;
-	unsigned long real_gd_flags = gd->flags;
+	if (env_get_from_linear(default_environment, name,
+				(char *)(gd->env_buf),
+				sizeof(gd->env_buf)) >= 0)
+		return (char *)(gd->env_buf);
 
-	/* Pretend that the image is bad. */
-	gd->flags &= ~GD_FLG_ENV_READY;
-	gd->env_valid = ENV_INVALID;
-	ret_val = env_get(name);
-	gd->env_valid = really_valid;
-	gd->flags = real_gd_flags;
-	return ret_val;
+	return NULL;
 }
 
 void env_set_default(const char *s, int flags)
@@ -261,9 +264,11 @@ void env_set_default(const char *s, int flags)
 	flags |= H_DEFAULT;
 	if (himport_r(&env_htab, default_environment,
 			sizeof(default_environment), '\0', flags, 0,
-			0, NULL) == 0)
+			0, NULL) == 0) {
 		pr_err("## Error: Environment import failed: errno = %d\n",
 		       errno);
+		return;
+	}
 
 	gd->flags |= GD_FLG_ENV_READY;
 	gd->flags |= GD_FLG_ENV_DEFAULT;

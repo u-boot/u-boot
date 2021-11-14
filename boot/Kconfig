@@ -704,7 +704,7 @@ config SHOW_BOOT_PROGRESS
 	  151	common/cmd_nand.c	FIT image format OK
 
 config SPL_SHOW_BOOT_PROGRESS
-	bool "Show boot progress in a board-specific manner"
+	bool "Show boot progress in a board-specific manner in SPL"
 	depends on SPL
 	help
 	  Defining this option allows to add some board-specific code (calling
