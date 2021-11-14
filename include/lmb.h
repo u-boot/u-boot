@@ -25,8 +25,9 @@ enum lmb_flags {
 /**
  * struct lmb_property - Description of one region.
  *
- * @base: Base address of the region.
- * @size: Size of the region
+ * @base:	Base address of the region.
+ * @size:	Size of the region
+ * @flags:	memory region attributes
  */
 struct lmb_property {
 	phys_addr_t base;
@@ -83,11 +84,11 @@ extern long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 /**
  * lmb_reserve_flags - Reserve one region with a specific flags bitfield.
  *
- * @lmb		the logical memory block struct
- * @base	base address of the memory region
- * @size	size of the memory region
- * @flags	flags for the memory region
- * @return 0 if OK, > 0 for coalesced region or a negative error code.
+ * @lmb:	the logical memory block struct
+ * @base:	base address of the memory region
+ * @size:	size of the memory region
+ * @flags:	flags for the memory region
+ * Return:	0 if OK, > 0 for coalesced region or a negative error code.
  */
 long lmb_reserve_flags(struct lmb *lmb, phys_addr_t base,
 		       phys_size_t size, enum lmb_flags flags);
@@ -103,10 +104,10 @@ extern int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr);
 /**
  * lmb_is_reserved_flags - test if tha address is in reserved region with a bitfield flag
  *
- * @lmb		the logical memory block struct
- * @addr	address to be tested
- * @flags	flags bitfied to be tested
- * @return 0 if not reserved or reserved without the requested flag else 1
+ * @lmb:	the logical memory block struct
+ * @addr:	address to be tested
+ * @flags:	flags bitfied to be tested
+ * Return:	if not reserved or reserved without the requested flag else 1
  */
 int lmb_is_reserved_flags(struct lmb *lmb, phys_addr_t addr, int flags);
 extern long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size);
