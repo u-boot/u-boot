@@ -1044,10 +1044,6 @@ The following options need to be configured:
 		If CONFIG_LCD_ROTATION is not defined, the console will be
 		initialized with 0degree rotation.
 
-		CONFIG_LCD_BMP_RLE8
-
-		Support drawing of RLE8-compressed bitmaps on the LCD.
-
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 
