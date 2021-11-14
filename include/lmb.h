@@ -124,13 +124,6 @@ void board_lmb_reserve(struct lmb *lmb);
 void arch_lmb_reserve(struct lmb *lmb);
 void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align);
 
-/* Low level functions */
-
-static inline bool lmb_is_nomap(struct lmb_property *m)
-{
-	return m->flags & LMB_NOMAP;
-}
-
 #endif /* __KERNEL__ */
 
 #endif /* _LINUX_LMB_H */
