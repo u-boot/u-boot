@@ -113,12 +113,6 @@ long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 void lmb_dump_all(struct lmb *lmb);
 void lmb_dump_all_force(struct lmb *lmb);
 
-static inline phys_size_t
-lmb_size_bytes(struct lmb_region *type, unsigned long region_nr)
-{
-	return type->region[region_nr].size;
-}
-
 void board_lmb_reserve(struct lmb *lmb);
 void arch_lmb_reserve(struct lmb *lmb);
 void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align);
