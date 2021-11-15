@@ -826,8 +826,12 @@ start:
  */
 
 /* 10. configure PUBL PIR register to specify which training step to run */
-	/* warning : RVTRN  is not supported by this PUBL */
-		stm32mp1_ddrphy_init(priv->phy, DDRPHYC_PIR_QSTRN);
+		/* RVTRN is excuted only on LPDDR2/LPDDR3 */
+		if (config->c_reg.mstr & DDRCTRL_MSTR_DDR3)
+			pir = DDRPHYC_PIR_QSTRN;
+		else
+			pir = DDRPHYC_PIR_QSTRN | DDRPHYC_PIR_RVTRN;
+		stm32mp1_ddrphy_init(priv->phy, pir);
 
 /* 11. monitor PUB PGSR.IDONE to poll cpmpletion of training sequence */
 		ddrphy_idone_wait(priv->phy);
