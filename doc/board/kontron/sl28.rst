@@ -50,21 +50,6 @@ Afterward you can copy this file to your ESP into the /EFI/UpdateCapsule/
 folder. On the next EFI boot this will automatically update your
 bootloader.
 
-Useful I2C tricks
------------------
-
-The board has a board management controller which is not supported in
-u-boot (yet). But you can use the i2c command to access it.
-
-- reset into failsafe bootloader::
-
-  > i2c mw 4a 5.1 0; i2c mw 4a 6.1 6b; i2c mw 4a 4.1 42
-
-- read board management controller version::
-
-  > i2c md 4a 3.1 1
-
-
 Builtin watchdog
 ----------------
 
