@@ -266,6 +266,13 @@ config WDT_SBSA
 	   In the single stage mode, when the timeout is reached, your system
 	   will be reset by WS1. The first signal (WS0) is ignored.
 
+config WDT_SL28CPLD
+	bool "sl28cpld watchdog timer support"
+	depends on WDT && SL28CPLD
+	help
+	  Enable support for the watchdog timer in the Kontron sl28cpld
+	  management controller.
+
 config WDT_SP805
 	bool "SP805 watchdog timer support"
 	depends on WDT

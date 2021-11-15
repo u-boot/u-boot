@@ -1165,6 +1165,7 @@ SL28CLPD
 M:	Michael Walle <michael@walle.cc>
 S:	Maintained
 F:	drivers/misc/sl28cpld.c
+F:	drivers/watchdog/sl28cpld-wdt.c
 
 SPI
 M:	Jagan Teki <jagan@amarulasolutions.com>
