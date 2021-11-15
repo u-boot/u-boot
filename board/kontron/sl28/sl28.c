@@ -47,8 +47,6 @@ int checkboard(void)
 
 void detail_board_ddr_info(void)
 {
-	puts("\nDDR    ");
-	print_size(gd->bd->bi_dram[0].size + gd->bd->bi_dram[1].size, "");
 	print_ddr_info(0);
 }
 
