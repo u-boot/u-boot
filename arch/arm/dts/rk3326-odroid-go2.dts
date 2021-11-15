@@ -14,14 +14,12 @@
 	model = "ODROID-GO Advance";
 	compatible = "hardkernel,rk3326-odroid-go2", "rockchip,rk3326";
 
-	chosen {
-		stdout-path = "serial2:115200n8";
+	aliases {
+		mmc0 = &sdmmc;
 	};
 
-	backlight: backlight {
-		compatible = "pwm-backlight";
-		power-supply = <&vcc_bl>;
-		pwms = <&pwm1 0 25000 0>;
+	chosen {
+		stdout-path = "serial2:115200n8";
 	};
 
 	adc-joystick {
@@ -33,19 +31,25 @@
 
 		axis@0 {
 			reg = <0>;
-			abs-range = <172 772>;
-			abs-fuzz = <10>;
 			abs-flat = <10>;
+			abs-fuzz = <10>;
+			abs-range = <172 772>;
 			linux,code = <ABS_X>;
 		};
 
 		axis@1 {
 			reg = <1>;
-			abs-range = <278 815>;
-			abs-fuzz = <10>;
 			abs-flat = <10>;
+			abs-fuzz = <10>;
+			abs-range = <278 815>;
 			linux,code = <ABS_Y>;
 		};
+	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		power-supply = <&vcc_bl>;
+		pwms = <&pwm1 0 25000 0>;
 	};
 
 	gpio-keys {
@@ -163,25 +167,26 @@
 
 	rk817-sound {
 		compatible = "simple-audio-card";
+		simple-audio-card,name = "Analog";
 		simple-audio-card,format = "i2s";
-		simple-audio-card,name = "rockchip,rk817-codec";
+		simple-audio-card,hp-det-gpio = <&gpio2 RK_PC6 GPIO_ACTIVE_HIGH>;
 		simple-audio-card,mclk-fs = <256>;
 		simple-audio-card,widgets =
 			"Microphone", "Mic Jack",
-			"Headphone", "Headphone Jack";
+			"Headphone", "Headphones",
+			"Speaker", "Speaker";
 		simple-audio-card,routing =
-			"MIC_IN", "Mic Jack",
-			"Headphone Jack", "HPOL",
-			"Headphone Jack", "HPOR";
-		simple-audio-card,hp-det-gpio = <&gpio2 RK_PC6 GPIO_ACTIVE_LOW>;
-		simple-audio-card,codec-hp-det = <1>;
+			"MICL", "Mic Jack",
+			"Headphones", "HPOL",
+			"Headphones", "HPOR",
+			"Speaker", "SPKO";
+
+		simple-audio-card,codec {
+			sound-dai = <&rk817>;
+		};
 
 		simple-audio-card,cpu {
 			sound-dai = <&i2s1_2ch>;
-		};
-
-		simple-audio-card,codec {
-			sound-dai = <&rk817_codec>;
 		};
 	};
 
@@ -202,7 +207,8 @@
 		gpio = <&gpio0 RK_PB7 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		regulator-always-on;
-		vin-supply = <&vccsys>;
+		regulator-boot-on;
+		vin-supply = <&usb_midu>;
 	};
 };
 
@@ -259,6 +265,7 @@
 		backlight = <&backlight>;
 		iovcc-supply = <&vcc_lcd>;
 		reset-gpios = <&gpio3 RK_PC0 GPIO_ACTIVE_LOW>;
+		rotation = <270>;
 		vdd-supply = <&vcc_lcd>;
 
 		port {
@@ -289,16 +296,14 @@
 		reg = <0x20>;
 		interrupt-parent = <&gpio0>;
 		interrupts = <RK_PB2 IRQ_TYPE_LEVEL_LOW>;
-		pinctrl-names = "default", "pmic-sleep",
-				"pmic-power-off", "pmic-reset";
-		pinctrl-0 = <&pmic_int>;
-		pinctrl-1 = <&soc_slppin_slp>, <&rk817_slppin_slp>;
-		pinctrl-2 = <&soc_slppin_gpio>, <&rk817_slppin_pwrdn>;
-		pinctrl-3 = <&soc_slppin_rst>, <&rk817_slppin_rst>;
-		rockchip,system-power-controller;
+		clock-output-names = "rk808-clkout1", "xin32k";
+		clock-names = "mclk";
+		clocks = <&cru SCLK_I2S1_OUT>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pmic_int>, <&i2s1_2ch_mclk>;
 		wakeup-source;
 		#clock-cells = <1>;
-		clock-output-names = "rk808-clkout1", "xin32k";
+		#sound-dai-cells = <0>;
 
 		vcc1-supply = <&vccsys>;
 		vcc2-supply = <&vccsys>;
@@ -307,53 +312,7 @@
 		vcc5-supply = <&vccsys>;
 		vcc6-supply = <&vccsys>;
 		vcc7-supply = <&vccsys>;
-
-		pinctrl_rk8xx: pinctrl_rk8xx {
-			gpio-controller;
-			#gpio-cells = <2>;
-
-			rk817_ts_gpio1: rk817_ts_gpio1 {
-				pins = "gpio_ts";
-				function = "pin_fun1";
-				/* output-low; */
-				/* input-enable; */
-			};
-
-			rk817_gt_gpio2: rk817_gt_gpio2 {
-				pins = "gpio_gt";
-				function = "pin_fun1";
-			};
-
-			rk817_pin_ts: rk817_pin_ts {
-				pins = "gpio_ts";
-				function = "pin_fun0";
-			};
-
-			rk817_pin_gt: rk817_pin_gt {
-				pins = "gpio_gt";
-				function = "pin_fun0";
-			};
-
-			rk817_slppin_null: rk817_slppin_null {
-				pins = "gpio_slp";
-				function = "pin_fun0";
-			};
-
-			rk817_slppin_slp: rk817_slppin_slp {
-				pins = "gpio_slp";
-				function = "pin_fun1";
-			};
-
-			rk817_slppin_pwrdn: rk817_slppin_pwrdn {
-				pins = "gpio_slp";
-				function = "pin_fun2";
-			};
-
-			rk817_slppin_rst: rk817_slppin_rst {
-				pins = "gpio_slp";
-				function = "pin_fun3";
-			};
-		};
+		vcc8-supply = <&vccsys>;
 
 		regulators {
 			vdd_logic: DCDC_REG1 {
@@ -503,66 +462,18 @@
 					regulator-suspend-microvolt = <3000000>;
 				};
 			};
-		};
 
-		battery {
-			compatible = "rk817,battery";
-			ocv_table = <3500 3625 3685 3697 3718 3735 3748
-			3760 3774 3788 3802 3816 3834 3853
-			3877 3908 3946 3975 4018 4071 4106>;
-
-			/* KPL605475 Battery Spec */
-			/*
-				Capacity : 3.7V 3000mA
-				Normal Voltage = 3.7V
-				Cut-Off Voltage : 3.1V
-				Internal Impedance : 180 mOhm
-				Charging Voltage : 4.2V
-				Charging Voltage Max : 4.25V
-				Sample resister : 10 mohm
-			*/
-			design_capacity = <3000>;
-			design_qmax = <3000>;
-			bat_res = <180>;
-			sleep_enter_current = <300>;
-			sleep_exit_current = <300>;
-			sleep_filter_current = <100>;
-			power_off_thresd = <3500>;
-			zero_algorithm_vol = <3700>;
-			max_soc_offset = <60>;
-			monitor_sec = <5>;
-			virtual_power = <0>;
-			sample_res = <10>;
-		};
-
-		charger {
-			compatible = "rk817,charger";
-			min_input_voltage = <4500>;
-			max_input_current = <1500>;
-			max_chrg_current = <2000>;
-			max_chrg_voltage = <4200>;
-			chrg_term_mode = <0>;
-			chrg_finish_cur = <300>;
-			virtual_power = <0>;
-			sample_res = <10>;
-
-			/* P.C.B rev0.2 DC Detect & Charger Status LED GPIO */
-			dc_det_gpio  = <&gpio0 RK_PB3 GPIO_ACTIVE_HIGH>;
-			chg_led_gpio = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
-
-			extcon = <&u2phy>;
+			usb_midu: BOOST {
+				regulator-name = "usb_midu";
+				regulator-min-microvolt = <5000000>;
+				regulator-max-microvolt = <5400000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
 		};
 
 		rk817_codec: codec {
-			#sound-dai-cells = <0>;
-			compatible = "rockchip,rk817-codec";
-			clocks = <&cru SCLK_I2S1_OUT>;
-			clock-names = "mclk";
-			pinctrl-names = "default";
-			pinctrl-0 = <&i2s1_2ch_mclk>;
-			hp-volume = <20>;
-			spk-volume = <3>;
-			status = "okay";
+			rockchip,mic-in-differential;
 		};
 	};
 };
@@ -604,7 +515,6 @@
 };
 
 &sdmmc {
-	bus-width = <4>;
 	cap-sd-highspeed;
 	card-detect-delay = <200>;
 	cd-gpios = <&gpio0 RK_PA3 GPIO_ACTIVE_LOW>; /*[> CD GPIO <]*/

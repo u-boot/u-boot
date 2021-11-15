@@ -9,11 +9,11 @@
 /dts-v1/;
 #include "px30.dtsi"
 #include "px30-engicam-ctouch2.dtsi"
-#include "px30-px30-core.dtsi"
+#include "px30-engicam-px30-core.dtsi"
 
 / {
 	model = "Engicam PX30.Core C.TOUCH 2.0";
-	compatible = "engicam,px30-core-ctouch2", "engicam,px30-px30-core",
+	compatible = "engicam,px30-core-ctouch2", "engicam,px30-core",
 		     "rockchip,px30";
 
 	chosen {

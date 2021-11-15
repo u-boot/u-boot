@@ -10,7 +10,11 @@
 #include <dt-bindings/pinctrl/rockchip.h>
 
 / {
-	compatible = "engicam,px30-px30-core", "rockchip,px30";
+	compatible = "engicam,px30-core", "rockchip,px30";
+
+	aliases {
+		mmc0 = &emmc;
+	};
 };
 
 &cpu0 {
@@ -190,6 +194,11 @@
 					regulator-on-in-suspend;
 					regulator-suspend-microvolt = <3300000>;
 				};
+			};
+
+			vcc3v3_lcd: SWITCH_REG1 {
+				regulator-boot-on;
+				regulator-name = "vcc3v3_lcd";
 			};
 
 			vcc5v0_host: SWITCH_REG2 {
