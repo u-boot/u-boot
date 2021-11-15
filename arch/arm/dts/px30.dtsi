@@ -151,11 +151,6 @@
 		interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
 	};
 
-	dmc: dmc {
-		compatible = "rockchip,px30-dmc", "syscon";
-		reg = <0x0 0xff2a0000 0x0 0x1000>;
-	};
-
 	display_subsystem: display-subsystem {
 		compatible = "rockchip,display-subsystem";
 		ports = <&vopb_out>, <&vopl_out>;
