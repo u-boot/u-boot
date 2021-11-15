@@ -95,26 +95,22 @@ static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 	{	.name = x,						\
 		.offset = offsetof(struct stm32mp1_ddr_config, y),	\
 		.size = sizeof(config.y) / sizeof(u32),			\
-		.present = z,						\
 	}
 
 #define CTL_PARAM(x) PARAM("st,ctl-"#x, c_##x, NULL)
 #define PHY_PARAM(x) PARAM("st,phy-"#x, p_##x, NULL)
-#define PHY_PARAM_OPT(x) PARAM("st,phy-"#x, p_##x, &config.p_##x##_present)
 
 	const struct {
 		const char *name; /* name in DT */
 		const u32 offset; /* offset in config struct */
 		const u32 size;   /* size of parameters */
-		bool * const present;  /* presence indication for opt */
 	} param[] = {
 		CTL_PARAM(reg),
 		CTL_PARAM(timing),
 		CTL_PARAM(map),
 		CTL_PARAM(perf),
 		PHY_PARAM(reg),
-		PHY_PARAM(timing),
-		PHY_PARAM_OPT(cal)
+		PHY_PARAM(timing)
 	};
 
 	config.info.speed = ofnode_read_u32_default(node, "st,mem-speed", 0);
@@ -133,24 +129,10 @@ static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 					 param[idx].size);
 		dev_dbg(dev, "%s: %s[0x%x] = %d\n", __func__,
 			param[idx].name, param[idx].size, ret);
-		if (ret &&
-		    (ret != -FDT_ERR_NOTFOUND || !param[idx].present)) {
+		if (ret) {
 			dev_err(dev, "Cannot read %s, error=%d\n",
 				param[idx].name, ret);
 			return -EINVAL;
-		}
-		if (param[idx].present) {
-			/* save presence of optional parameters */
-			*param[idx].present = true;
-			if (ret == -FDT_ERR_NOTFOUND) {
-				*param[idx].present = false;
-#ifdef CONFIG_STM32MP1_DDR_INTERACTIVE
-				/* reset values if used later */
-				memset((void *)((u32)&config +
-						param[idx].offset),
-					0, param[idx].size * sizeof(u32));
-#endif
-			}
 		}
 	}
 

@@ -140,21 +140,6 @@ struct stm32mp1_ddrphy_timing {
 	u32 mr3;
 };
 
-struct stm32mp1_ddrphy_cal {
-	u32 dx0dllcr;
-	u32 dx0dqtr;
-	u32 dx0dqstr;
-	u32 dx1dllcr;
-	u32 dx1dqtr;
-	u32 dx1dqstr;
-	u32 dx2dllcr;
-	u32 dx2dqtr;
-	u32 dx2dqstr;
-	u32 dx3dllcr;
-	u32 dx3dqtr;
-	u32 dx3dqstr;
-};
-
 struct stm32mp1_ddr_info {
 	const char *name;
 	u32 speed; /* in kHZ */
@@ -169,8 +154,6 @@ struct stm32mp1_ddr_config {
 	struct stm32mp1_ddrctrl_perf c_perf;
 	struct stm32mp1_ddrphy_reg p_reg;
 	struct stm32mp1_ddrphy_timing p_timing;
-	struct stm32mp1_ddrphy_cal p_cal;
-	bool p_cal_present;
 };
 
 int stm32mp1_ddr_clk_enable(struct ddr_info *priv, u32 mem_speed);
