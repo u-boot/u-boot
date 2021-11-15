@@ -89,3 +89,30 @@ int fdt_simplefb_enable_existing_node(void *blob)
 
 	return fdt_simplefb_configure_node(blob, off);
 }
+
+#if CONFIG_IS_ENABLED(DM_VIDEO)
+int fdt_simplefb_enable_and_mem_rsv(void *blob)
+{
+	struct fdt_memory mem;
+	int ret;
+
+	/* nothing to do when video is not active */
+	if (!video_is_active())
+		return 0;
+
+	ret = fdt_simplefb_enable_existing_node(blob);
+	if (ret)
+		return ret;
+
+	/* nothing to do when the frame buffer is not defined */
+	if (gd->video_bottom == gd->video_top)
+		return 0;
+
+	/* reserved with no-map tag the video buffer */
+	mem.start = gd->video_bottom;
+	mem.end = gd->video_top - 1;
+
+	return fdtdec_add_reserved_memory(blob, "framebuffer", &mem, NULL, 0, NULL,
+					  FDTDEC_RESERVED_MEMORY_NO_MAP);
+}
+#endif
