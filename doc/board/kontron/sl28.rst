@@ -23,17 +23,17 @@ Copy u-boot.rom to a TFTP server.
 Install the bootloader on the board
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Please note, this bootloader doesn't support the builtin watchdog (yet),
-therefore you have to disable it, see below. Otherwise you'll end up in
-the failsafe bootloader on every reset::
+To install the bootloader binary use the following command::
 
  > tftp path/to/u-boot.rom
  > sf probe 0
  > sf update $fileaddr 0x210000 $filesize
 
-The board is fully failsafe, you can't break anything. But because you've
-disabled the builtin watchdog you might have to manually enter failsafe
-mode by asserting the ``FORCE_RECOV#`` line during board reset.
+The board is fully failsafe, you can't break anything. If builtin watchdog
+is enabled, you'll automatically end up in the failsafe bootloader if
+something goes wrong. If the watchdog is disabled, you have to manually
+enter failsafe mode by asserting the ``FORCE_RECOV#`` line during board
+reset.
 
 Update image
 ------------

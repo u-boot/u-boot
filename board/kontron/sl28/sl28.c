@@ -15,6 +15,7 @@
 #include <asm/arch/soc.h>
 #include <fsl_immap.h>
 #include <netdev.h>
+#include <wdt.h>
 
 #include <sl28cpld.h>
 #include <fdtdec.h>
@@ -69,6 +70,34 @@ int checkboard(void)
 	printf("EL:    %d\n", current_el());
 	if (CONFIG_IS_ENABLED(SL28CPLD))
 		print_cpld_version();
+
+	return 0;
+}
+
+static void stop_recovery_watchdog(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_WDT,
+					  DM_DRIVER_GET(sl28cpld_wdt), &dev);
+	if (!ret)
+		wdt_stop(dev);
+}
+
+int fsl_board_late_init(void)
+{
+	/*
+	 * Usually, the after a board reset, the watchdog is enabled by
+	 * default. This is to supervise the bootloader boot-up. Therefore,
+	 * to prevent a watchdog reset if we don't actively kick it, we have
+	 * to disable it.
+	 *
+	 * If the watchdog isn't enabled at reset (which is a configuration
+	 * option) disabling it doesn't hurt either.
+	 */
+	if (!CONFIG_IS_ENABLED(WATCHDOG_AUTOSTART))
+		stop_recovery_watchdog();
 
 	return 0;
 }
