@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
+#include <dm.h>
 #include <malloc.h>
 #include <errno.h>
 #include <fsl_ddr.h>
@@ -15,6 +16,7 @@
 #include <fsl_immap.h>
 #include <netdev.h>
 
+#include <sl28cpld.h>
 #include <fdtdec.h>
 #include <miiphy.h>
 
@@ -39,9 +41,35 @@ int board_eth_init(struct bd_info *bis)
 	return pci_eth_init(bis);
 }
 
+static int __sl28cpld_read(uint reg)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_NOP,
+					  DM_DRIVER_GET(sl28cpld), &dev);
+	if (ret)
+		return ret;
+
+	return sl28cpld_read(dev, reg);
+}
+
+static void print_cpld_version(void)
+{
+	int version = __sl28cpld_read(SL28CPLD_VERSION);
+
+	if (version < 0)
+		printf("CPLD:  error reading version (%d)\n", version);
+	else
+		printf("CPLD:  v%d\n", version);
+}
+
 int checkboard(void)
 {
 	printf("EL:    %d\n", current_el());
+	if (CONFIG_IS_ENABLED(SL28CPLD))
+		print_cpld_version();
+
 	return 0;
 }
 
