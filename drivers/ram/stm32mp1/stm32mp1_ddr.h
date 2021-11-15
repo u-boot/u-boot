@@ -157,11 +157,6 @@ struct stm32mp1_ddr_config {
 };
 
 int stm32mp1_ddr_clk_enable(struct ddr_info *priv, u32 mem_speed);
-void stm32mp1_ddrphy_init(struct stm32mp1_ddrphy *phy, u32 pir);
-void stm32mp1_refresh_disable(struct stm32mp1_ddrctl *ctl);
-void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
-			      u32 rfshctl3,
-			      u32 pwrctl);
 
 void stm32mp1_ddr_init(
 	struct ddr_info *priv,

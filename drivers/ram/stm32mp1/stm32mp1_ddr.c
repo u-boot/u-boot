@@ -557,7 +557,7 @@ static void ddrphy_idone_wait(struct stm32mp1_ddrphy *phy)
 		  (u32)&phy->pgsr, pgsr, ret);
 }
 
-void stm32mp1_ddrphy_init(struct stm32mp1_ddrphy *phy, u32 pir)
+static void stm32mp1_ddrphy_init(struct stm32mp1_ddrphy *phy, u32 pir)
 {
 	pir |= DDRPHYC_PIR_INIT;
 	writel(pir, &phy->pir);
@@ -626,7 +626,7 @@ static void wait_operating_mode(struct ddr_info *priv, int mode)
 	log_debug("[0x%08x] stat = 0x%08x\n", (u32)&priv->ctl->stat, stat);
 }
 
-void stm32mp1_refresh_disable(struct stm32mp1_ddrctl *ctl)
+static void stm32mp1_refresh_disable(struct stm32mp1_ddrctl *ctl)
 {
 	start_sw_done(ctl);
 	/* quasi-dynamic register update*/
@@ -637,8 +637,8 @@ void stm32mp1_refresh_disable(struct stm32mp1_ddrctl *ctl)
 	wait_sw_done_ack(ctl);
 }
 
-void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
-			      u32 rfshctl3, u32 pwrctl)
+static void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
+				     u32 rfshctl3, u32 pwrctl)
 {
 	start_sw_done(ctl);
 	if (!(rfshctl3 & DDRCTRL_RFSHCTL3_DIS_AUTO_REFRESH))
