@@ -1188,6 +1188,7 @@ static int musb_gadget_enable(struct usb_ep *ep,
 	} else
 		musb_ep->dma = NULL;
 
+	musb_ep->end_point.desc = desc;
 	musb_ep->desc = desc;
 	musb_ep->busy = 0;
 	musb_ep->wedged = 0;
@@ -1245,9 +1246,7 @@ static int musb_gadget_disable(struct usb_ep *ep)
 	}
 
 	musb_ep->desc = NULL;
-#ifndef __UBOOT__
 	musb_ep->end_point.desc = NULL;
-#endif
 
 	/* abort all pending DMA and requests */
 	nuke(musb_ep, -ESHUTDOWN);
