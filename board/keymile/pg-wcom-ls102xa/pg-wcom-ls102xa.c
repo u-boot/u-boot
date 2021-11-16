@@ -162,19 +162,18 @@ int post_hotkeys_pressed(void)
 	return qrio_get_selftest_pin();
 }
 
+/* POST word is located in the unused SCRATCHRW4 register */
+#define CCSR_SCRATCHRW4_ADDR		0x1ee020c
+
 ulong post_word_load(void)
 {
-	/* POST word is located at the beginning of reserved physical RAM */
-	void *addr = (void *)(CONFIG_SYS_SDRAM_BASE +
-				gd->ram_size - CONFIG_KM_RESERVED_PRAM + 8);
+	void *addr = (void *)CCSR_SCRATCHRW4_ADDR;
 	return in_le32(addr);
 }
 
 void post_word_store(ulong value)
 {
-	/* POST word is located at the beginning of reserved physical RAM */
-	void *addr = (void *)(CONFIG_SYS_SDRAM_BASE +
-				gd->ram_size - CONFIG_KM_RESERVED_PRAM + 8);
+	void *addr = (void *)CCSR_SCRATCHRW4_ADDR;
 	out_le32(addr, value);
 }
 
