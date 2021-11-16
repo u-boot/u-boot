@@ -38,6 +38,7 @@
 &enet2 {
 	phy-handle = <&debug_phy>;
 	phy-connection-type = "rgmii-id";
+	max-speed = <100>;
 	status = "okay";
 };
 
