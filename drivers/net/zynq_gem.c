@@ -60,6 +60,7 @@
 #define ZYNQ_GEM_NWCFG_SPEED100		0x00000001 /* 100 Mbps operation */
 #define ZYNQ_GEM_NWCFG_SPEED1000	0x00000400 /* 1Gbps operation */
 #define ZYNQ_GEM_NWCFG_FDEN		0x00000002 /* Full Duplex mode */
+#define ZYNQ_GEM_NWCFG_NO_BRDC		BIT(5) /* No broadcast */
 #define ZYNQ_GEM_NWCFG_FSREM		0x00020000 /* FCS removal */
 #define ZYNQ_GEM_NWCFG_SGMII_ENBL	0x08000000 /* SGMII Enable */
 #define ZYNQ_GEM_NWCFG_PCS_SEL		0x00000800 /* PCS select */
@@ -77,6 +78,7 @@
 
 #define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_DBUS_WIDTH | \
 					ZYNQ_GEM_NWCFG_FDEN | \
+					ZYNQ_GEM_NWCFG_NO_BRDC | \
 					ZYNQ_GEM_NWCFG_FSREM | \
 					ZYNQ_GEM_NWCFG_MDCCLKDIV)
 
