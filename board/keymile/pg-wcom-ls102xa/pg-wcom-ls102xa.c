@@ -91,8 +91,10 @@ int board_early_init_f(void)
 	qrio_prstcfg(WCOM_CLIPS_RST, PRSTCFG_POWUP_UNIT_RST);
 	qrio_prst(WCOM_CLIPS_RST, false, false);
 #endif
+
+	/* deasset debug phy reset only if piggy is present */
 	qrio_prstcfg(KM_DBG_ETH_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
-	qrio_prst(KM_DBG_ETH_RST, false, false);
+	qrio_prst(KM_DBG_ETH_RST, !qrio_get_pgy_pres_pin(), false);
 
 	i2c_deblock_gpio_cfg();
 
