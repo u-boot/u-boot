@@ -27,6 +27,19 @@ void show_qrio(void)
 	       (id_rev >> 8) & 0xff, id_rev & 0xff);
 }
 
+#define SLFTEST_OFF		0x06
+
+bool qrio_get_selftest_pin(void)
+{
+	u8 slftest;
+
+	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
+
+	slftest = in_8(qrio_base + SLFTEST_OFF);
+
+	return (slftest & 1) > 0;
+}
+
 int qrio_get_gpio(u8 port_off, u8 gpio_nr)
 {
 	u32 gprt;
