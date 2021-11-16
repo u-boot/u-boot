@@ -137,8 +137,7 @@ int board_late_init(void)
 
 int misc_init_r(void)
 {
-	if (IS_ENABLED(CONFIG_FSL_DEVICE_DISABLE))
-		device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
+	device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
 
 	ivm_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN,
 			CONFIG_PIGGY_MAC_ADDRESS_OFFSET);
