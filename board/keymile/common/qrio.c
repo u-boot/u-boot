@@ -40,6 +40,19 @@ bool qrio_get_selftest_pin(void)
 	return (slftest & 1) > 0;
 }
 
+#define BPRTH_OFF		0x04
+
+bool qrio_get_pgy_pres_pin(void)
+{
+	u8 pgy_pres;
+
+	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
+
+	pgy_pres = in_8(qrio_base + BPRTH_OFF);
+
+	return (pgy_pres & 0x80) > 0;
+}
+
 int qrio_get_gpio(u8 port_off, u8 gpio_nr)
 {
 	u32 gprt;
