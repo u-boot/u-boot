@@ -150,9 +150,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #if defined(CONFIG_POST)
 int post_hotkeys_pressed(void)
 {
-	/* DIC26_SELFTEST: GPRTA0, GPA0 */
-	qrio_gpio_direction_input(QRIO_GPIO_A, 0);
-	return qrio_get_gpio(QRIO_GPIO_A, 0);
+	/* DIC26_SELFTEST: QRIO, SLFTEST */
+	return qrio_get_selftest_pin();
 }
 
 ulong post_word_load(void)
