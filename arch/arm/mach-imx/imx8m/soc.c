@@ -1360,19 +1360,4 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	}
 }
 
-#ifndef ENV_IS_EMBEDDED
-long long env_get_offset(long long defautl_offset)
-{
-	enum boot_device dev = get_boot_device();
-
-	switch (dev) {
-	case NAND_BOOT:
-		return (60 << 20);  /* 60MB offset for NAND */
-	default:
-		break;
-	}
-
-	return defautl_offset;
-}
-#endif
 #endif
