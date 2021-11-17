@@ -140,9 +140,7 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd)
 {
-	const char *ep = env_get("autostart");
-
-	if (ep && !strcmp(ep, "yes")) {
+	if (env_get_autostart()) {
 		char *local_args[2];
 		local_args[0] = (char *)cmd;
 		local_args[1] = NULL;

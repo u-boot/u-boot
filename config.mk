@@ -50,8 +50,10 @@ endif
 ifneq ($(BOARD),)
 ifdef	VENDOR
 BOARDDIR = $(VENDOR)/$(BOARD)
+ENVDIR=${vendor}/env
 else
 BOARDDIR = $(BOARD)
+ENVDIR=${board}/env
 endif
 endif
 ifdef	BOARD

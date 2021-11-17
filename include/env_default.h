@@ -10,6 +10,10 @@
 #include <env_callback.h>
 #include <linux/stringify.h>
 
+#ifndef USE_HOSTCC
+#include <generated/environment.h>
+#endif
+
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED
 env_t embedded_environment __UBOOT_ENV_SECTION__(environment) = {
 	ENV_CRC,	/* CRC Sum */
@@ -109,6 +113,13 @@ const char default_environment[] = {
 #endif
 #if defined(CONFIG_BOOTCOUNT_BOOTLIMIT) && (CONFIG_BOOTCOUNT_BOOTLIMIT > 0)
 	"bootlimit="	__stringify(CONFIG_BOOTCOUNT_BOOTLIMIT)"\0"
+#endif
+#ifdef CONFIG_EXTRA_ENV_TEXT
+# ifdef CONFIG_EXTRA_ENV_SETTINGS
+# error "Your board uses a text-file environment, so must not define CONFIG_EXTRA_ENV_SETTINGS"
+# endif
+	/* This is created in the Makefile */
+	CONFIG_EXTRA_ENV_TEXT
 #endif
 #ifdef	CONFIG_EXTRA_ENV_SETTINGS
 	CONFIG_EXTRA_ENV_SETTINGS

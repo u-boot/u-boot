@@ -5,11 +5,13 @@ Use U-Boot
    :maxdepth: 1
 
    dfu
+   environment
    fdt_overlays
    fit
    netconsole
    partitions
    cmdline
+   environment
 
 Shell commands
 --------------
