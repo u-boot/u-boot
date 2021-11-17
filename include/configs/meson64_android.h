@@ -233,16 +233,24 @@
 			"echo Running Android...;" \
 			BOOT_CMD \
 		"fi;" \
-		"echo Failed to boot Android...;" \
-		"reset\0"
+		"echo Failed to boot Android...;\0"
 
 #define BOOTENV_DEV_NAME_SYSTEM(devtypeu, devtypel, instance)	\
 		"system "
+
+#define BOOTENV_DEV_PANIC(devtypeu, devtypel, instance) \
+	"bootcmd_panic=" \
+		"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
+		"reset\0"
+
+#define BOOTENV_DEV_NAME_PANIC(devtypeu, devtypel, instance)	\
+		"panic "
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(FASTBOOT, fastboot, na) \
 	func(RECOVERY, recovery, na) \
 	func(SYSTEM, system, na) \
+	func(PANIC, panic, na) \
 
 #define PREBOOT_LOAD_LOGO \
 	"if test \"${boot_source}\" != \"usb\" && " \
