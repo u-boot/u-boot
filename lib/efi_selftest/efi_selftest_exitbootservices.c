@@ -10,9 +10,34 @@
 
 #include <efi_selftest.h>
 
+static efi_guid_t guid_before_exit_boot_services =
+	EFI_GUID(0x8be0e274, 0x3970, 0x4b44, 0x80, 0xc5,
+		 0x1a, 0xb9, 0x50, 0x2f, 0x3b, 0xfc);
+#define CAPACITY 4
+
+struct notification_record {
+	unsigned int count;
+	unsigned int type[CAPACITY];
+};
+
+struct notification_context {
+	struct notification_record *record;
+	unsigned int type;
+};
+
 static struct efi_boot_services *boottime;
 static struct efi_event *event_notify;
-static unsigned int notification_count;
+struct notification_record record;
+
+struct notification_context context_before = {
+	.record = &record,
+	.type = 1,
+};
+
+struct notification_context context = {
+	.record = &record,
+	.type = 2,
+};
 
 /*
  * Notification function, increments the notification count.
@@ -20,11 +45,15 @@ static unsigned int notification_count;
  * @event	notified event
  * @context	pointer to the notification count
  */
-static void EFIAPI notify(struct efi_event *event, void *context)
+static void EFIAPI ebs_notify(struct efi_event *event, void *context)
 {
-	unsigned int *count = context;
+	struct notification_context *ctx = context;
 
-	++*count;
+	if (ctx->record->count >= CAPACITY)
+		return;
+
+	ctx->record->type[ctx->record->count] = ctx->type;
+	ctx->record->count++;
 }
 
 /*
@@ -43,15 +72,23 @@ static int setup(const efi_handle_t handle,
 
 	boottime = systable->boottime;
 
-	notification_count = 0;
 	ret = boottime->create_event(EVT_SIGNAL_EXIT_BOOT_SERVICES,
-				     TPL_CALLBACK, notify,
-				     (void *)&notification_count,
+				     TPL_CALLBACK, ebs_notify,
+				     &context,
 				     &event_notify);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("could not create event\n");
 		return EFI_ST_FAILURE;
 	}
+	ret = boottime->create_event_ex(0, TPL_CALLBACK, ebs_notify,
+					&context_before,
+					&guid_before_exit_boot_services,
+					&event_notify);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("could not create event\n");
+		return EFI_ST_FAILURE;
+	}
+
 	return EFI_ST_SUCCESS;
 }
 
@@ -68,13 +105,21 @@ static int setup(const efi_handle_t handle,
  */
 static int execute(void)
 {
-	if (notification_count != 1) {
-		efi_st_error("ExitBootServices was not notified\n");
+	if (record.count != 2) {
+		efi_st_error("Incorrect event count %u\n", record.count);
+		return EFI_ST_FAILURE;
+	}
+	if (record.type[0] != 1) {
+		efi_st_error("EFI_GROUP_BEFORE_EXIT_BOOT_SERVICE not notified\n");
+		return EFI_ST_FAILURE;
+	}
+	if (record.type[1] != 2) {
+		efi_st_error("EVT_SIGNAL_EXIT_BOOT_SERVICES was not notified\n");
 		return EFI_ST_FAILURE;
 	}
 	efi_st_exit_boot_services();
-	if (notification_count != 1) {
-		efi_st_error("ExitBootServices was notified twice\n");
+	if (record.count != 2) {
+		efi_st_error("Incorrect event count %u\n", record.count);
 		return EFI_ST_FAILURE;
 	}
 	return EFI_ST_SUCCESS;
