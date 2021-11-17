@@ -20,8 +20,8 @@
 #include <charset.h>
 #include <pe.h>
 
-/* UEFI spec version 2.8 */
-#define EFI_SPECIFICATION_VERSION (2 << 16 | 80)
+/* UEFI spec version 2.9 */
+#define EFI_SPECIFICATION_VERSION (2 << 16 | 90)
 
 /* Types and defines for EFI CreateEvent */
 enum efi_timer_delay {
