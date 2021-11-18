@@ -961,6 +961,7 @@
 		};
 
 		zynqmp_dpsub: display@fd4a0000 {
+			u-boot,dm-pre-reloc;
 			compatible = "xlnx,zynqmp-dpsub-1.7";
 			status = "disabled";
 			reg = <0x0 0xfd4a0000 0x0 0x1000>,
