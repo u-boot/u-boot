@@ -18,6 +18,7 @@
 #include <smbios.h>
 #include <version_string.h>
 #include <tpm-v2.h>
+#include <tpm_api.h>
 #include <u-boot/hash-checksum.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
@@ -1943,11 +1944,19 @@ efi_status_t efi_tcg2_register(void)
 	efi_status_t ret = EFI_SUCCESS;
 	struct udevice *dev;
 	struct efi_event *event;
+	u32 err;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
 		log_warning("Unable to find TPMv2 device\n");
 		return EFI_SUCCESS;
+	}
+
+	/* initialize the TPM as early as possible. */
+	err = tpm_startup(dev, TPM_ST_CLEAR);
+	if (err) {
+		log_err("TPM startup failed\n");
+		goto fail;
 	}
 
 	ret = efi_init_event_log();
