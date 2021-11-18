@@ -112,6 +112,8 @@
 
 #define ZYNQ_GEM_DCFG_DBG6_DMA_64B	BIT(23)
 
+#define MDIO_IDLE_TIMEOUT_MS		100
+
 /* Use MII register 1 (MII status register) to detect PHY */
 #define PHY_DETECT_REG  1
 
@@ -228,7 +230,7 @@ static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	int err;
 
 	err = wait_for_bit_le32(&regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
-				true, 20000, false);
+				true, MDIO_IDLE_TIMEOUT_MS, false);
 	if (err)
 		return err;
 
@@ -241,7 +243,7 @@ static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	writel(mgtcr, &regs->phymntnc);
 
 	err = wait_for_bit_le32(&regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
-				true, 20000, false);
+				true, MDIO_IDLE_TIMEOUT_MS, false);
 	if (err)
 		return err;
 
