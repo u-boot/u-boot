@@ -98,7 +98,6 @@ int ddr3_hw_training(u32 target_freq, u32 ddr_width,
 
 void ddr3_print_version(void);
 void fix_pll_val(u8 target_fab);
-u8 ddr3_get_eprom_fabric(void);
 u32 ddr3_get_fab_opt(void);
 u32 ddr3_get_cpu_freq(void);
 u32 ddr3_get_vco_freq(void);

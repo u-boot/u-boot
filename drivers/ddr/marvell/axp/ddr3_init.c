@@ -943,30 +943,6 @@ int ddr3_check_config(u32 twsi_addr, MV_CONFIG_TYPE config_type)
 	return 0;
 }
 
-#if defined(DB_88F78X60_REV2)
-/*
- * Name:     ddr3_get_eprom_fabric - Get Fabric configuration from EPROM
- * Desc:
- * Args:     twsi Address
- * Notes:    Only Available for ArmadaXP DB Rev2 boards
- * Returns:  None.
- */
-u8 ddr3_get_eprom_fabric(void)
-{
-#ifdef AUTO_DETECTION_SUPPORT
-	u8 data = 0;
-	int ret;
-
-	ret = i2c_read(NEW_FABRIC_TWSI_ADDR, 1, 1, (u8 *)&data, 1);
-	if (!ret)
-		return data & 0x1F;
-#endif
-
-	return 0;
-}
-
-#endif
-
 /*
  * Name:     ddr3_cl_to_valid_cl - this return register matching CL value
  * Desc:
