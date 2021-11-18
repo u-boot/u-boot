@@ -151,6 +151,8 @@ int board_late_init(void)
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@f1050000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
 					      "sdhci@f1050000", &dev)) {
 			puts("Boot from EMMC but without SD1 enabled!\n");
 			return -1;
@@ -162,6 +164,8 @@ int board_late_init(void)
 	case SD_MODE:
 		puts("SD_MODE\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@f1040000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
 					      "sdhci@f1040000", &dev)) {
 			puts("Boot from SD0 but without SD0 enabled!\n");
 			return -1;
@@ -177,6 +181,8 @@ int board_late_init(void)
 	case SD_MODE1:
 		puts("SD_MODE1\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@f1050000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
 					      "sdhci@f1050000", &dev)) {
 			puts("Boot from SD1 but without SD1 enabled!\n");
 			return -1;
