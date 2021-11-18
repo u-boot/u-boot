@@ -17,7 +17,7 @@
 #define ASPEED_MAC_COUNT	4
 #define ASPEED_DRAM_BASE	0x80000000
 #define ASPEED_SRAM_BASE	0x10000000
-#define ASPEED_SRAM_SIZE	0x10000
+#define ASPEED_SRAM_SIZE	0x16000
 #else
 #err "Unrecognized Aspeed platform."
 #endif

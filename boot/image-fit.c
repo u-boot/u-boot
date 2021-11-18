@@ -1202,7 +1202,7 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp)
  * calculate_hash - calculate and return hash for provided input data
  * @data: pointer to the input data
  * @data_len: data length
- * @algo: requested hash algorithm
+ * @name: requested hash algorithm name
  * @value: pointer to the char, will hold hash value data (caller must
  * allocate enough free space)
  * value_len: length of the calculated hash
@@ -1230,7 +1230,7 @@ int calculate_hash(const void *data, int data_len, const char *name,
 		return -1;
 	}
 
-	hash_algo = hash_algo_lookup_by_name(algo);
+	hash_algo = hash_algo_lookup_by_name(name);
 	if (hash_algo == HASH_ALGO_INVALID) {
 		debug("Unsupported hash algorithm\n");
 		return -1;

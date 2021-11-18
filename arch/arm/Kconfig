@@ -927,6 +927,7 @@ config ARCH_APPLE
 	select CLK
 	select CMD_USB
 	select DM
+	select DM_GPIO
 	select DM_KEYBOARD
 	select DM_SERIAL
 	select DM_USB
@@ -935,6 +936,7 @@ config ARCH_APPLE
 	select LINUX_KERNEL_IMAGE_HEADER
 	select OF_CONTROL
 	select OF_BOARD
+	select PINCTRL
 	select POSITION_INDEPENDENT
 	select USB
 	imply CMD_DM
