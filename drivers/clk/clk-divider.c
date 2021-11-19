@@ -9,14 +9,18 @@
  *
  */
 
+#define LOG_CATEGORY UCLASS_CLK
+
 #include <common.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <clk-uclass.h>
+#include <log.h>
 #include <dm/device.h>
 #include <dm/devres.h>
 #include <dm/uclass.h>
 #include <dm/lists.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <linux/bug.h>
 #include <linux/clk-provider.h>
@@ -190,7 +194,7 @@ static struct clk *_register_divider(struct device *dev, const char *name,
 
 	if (clk_divider_flags & CLK_DIVIDER_HIWORD_MASK) {
 		if (width + shift > 16) {
-			pr_warn("divider value exceeds LOWORD field\n");
+			dev_warn(dev, "divider value exceeds LOWORD field\n");
 			return ERR_PTR(-EINVAL);
 		}
 	}

@@ -4,9 +4,12 @@
  * Copyright 2019 NXP
  */
 
+#define LOG_CATEGORY UCLASS_CLK
+
 #include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm/device.h>

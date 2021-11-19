@@ -7,12 +7,16 @@
  * Gated clock implementation
  */
 
+#define LOG_CATEGORY UCLASS_CLK
+
 #include <common.h>
 #include <clk.h>
+#include <log.h>
 #include <clk-uclass.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>
 #include <linux/clk-provider.h>
@@ -124,7 +128,7 @@ struct clk *clk_register_gate(struct device *dev, const char *name,
 
 	if (clk_gate_flags & CLK_GATE_HIWORD_MASK) {
 		if (bit_idx > 15) {
-			pr_err("gate bit exceeds LOWORD field\n");
+			dev_err(dev, "gate bit exceeds LOWORD field\n");
 			return ERR_PTR(-EINVAL);
 		}
 	}

@@ -5,10 +5,14 @@
  *
  * Copyright (C) 2011 Sascha Hauer, Pengutronix <s.hauer@pengutronix.de>
  */
+
+#define LOG_CATEGORY UCLASS_CLK
+
 #include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <div64.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device.h>
 #include <dm/devres.h>
