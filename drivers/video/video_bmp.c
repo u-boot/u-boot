@@ -214,28 +214,10 @@ static void video_splash_align_axis(int *axis, unsigned long panel_size,
 	*axis = max(0, (int)axis_alignment);
 }
 
-static void video_set_cmap(struct udevice *dev,
-			   struct bmp_color_table_entry *cte, unsigned colours)
-{
-	struct video_priv *priv = dev_get_uclass_priv(dev);
-	int i;
-	ushort *cmap = priv->cmap;
-
-	debug("%s: colours=%d\n", __func__, colours);
-	for (i = 0; i < colours; ++i) {
-		*cmap = ((cte->red   << 8) & 0xf800) |
-			((cte->green << 3) & 0x07e0) |
-			((cte->blue  >> 3) & 0x001f);
-		cmap++;
-		cte++;
-	}
-}
-
 int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		      bool align)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
-	ushort *cmap_base = NULL;
 	int i, j;
 	uchar *start, *fb;
 	struct bmp_image *bmp = map_sysmem(bmp_image, 0);
@@ -291,9 +273,6 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	debug("Display-bmp: %d x %d  with %d colours, display %d\n",
 	      (int)width, (int)height, (int)colours, 1 << bpix);
 
-	if (bmp_bpix == 8)
-		video_set_cmap(dev, palette, colours);
-
 	padded_width = (width & 0x3 ? (width & ~0x3) + 4 : width);
 
 	if (align) {
@@ -316,7 +295,6 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	switch (bmp_bpix) {
 	case 1:
 	case 8: {
-		cmap_base = priv->cmap;
 #ifdef CONFIG_VIDEO_BMP_RLE8
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
 		debug("compressed %d %d\n", compression, BMP_BI_RLE8);

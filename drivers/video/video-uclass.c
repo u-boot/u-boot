@@ -319,27 +319,6 @@ int video_sync_copy_all(struct udevice *dev)
 
 #endif
 
-/* Set up the colour map */
-static int video_pre_probe(struct udevice *dev)
-{
-	struct video_priv *priv = dev_get_uclass_priv(dev);
-
-	priv->cmap = calloc(256, sizeof(ushort));
-	if (!priv->cmap)
-		return -ENOMEM;
-
-	return 0;
-}
-
-static int video_pre_remove(struct udevice *dev)
-{
-	struct video_priv *priv = dev_get_uclass_priv(dev);
-
-	free(priv->cmap);
-
-	return 0;
-}
-
 /* Set up the display ready for use */
 static int video_post_probe(struct udevice *dev)
 {
@@ -447,9 +426,7 @@ UCLASS_DRIVER(video) = {
 	.name		= "video",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= video_post_bind,
-	.pre_probe	= video_pre_probe,
 	.post_probe	= video_post_probe,
-	.pre_remove	= video_pre_remove,
 	.priv_auto	= sizeof(struct video_uc_priv),
 	.per_device_auto	= sizeof(struct video_priv),
 	.per_device_plat_auto	= sizeof(struct video_uc_plat),

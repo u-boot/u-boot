@@ -93,7 +93,6 @@ enum video_format {
  * @colour_bg:	Background colour (pixel value)
  * @flush_dcache:	true to enable flushing of the data cache after
  *		the LCD is updated
- * @cmap:	Colour map for 8-bit-per-pixel displays
  * @fg_col_idx:	Foreground color code (bit 3 = bold, bit 0-2 = color)
  * @bg_col_idx:	Background color code (bit 3 = bold, bit 0-2 = color)
  */
@@ -118,7 +117,6 @@ struct video_priv {
 	u32 colour_fg;
 	u32 colour_bg;
 	bool flush_dcache;
-	ushort *cmap;
 	u8 fg_col_idx;
 	u8 bg_col_idx;
 };
