@@ -279,10 +279,10 @@ int video_sync_copy(struct udevice *dev, void *from, void *to)
 		 */
 		if (offset < -priv->fb_size || offset > 2 * priv->fb_size) {
 #ifdef DEBUG
-			char str[80];
+			char str[120];
 
 			snprintf(str, sizeof(str),
-				 "[sync_copy fb=%p, from=%p, to=%p, offset=%lx]",
+				 "[** FAULT sync_copy fb=%p, from=%p, to=%p, offset=%lx]",
 				 priv->fb, from, to, offset);
 			console_puts_select_stderr(true, str);
 #endif
