@@ -100,7 +100,7 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 	}
 
 	nprps = DIV_ROUND_UP(length, page_size);
-	num_pages = DIV_ROUND_UP(nprps + 1, prps_per_page);
+	num_pages = DIV_ROUND_UP(nprps, prps_per_page);
 
 	if (nprps > dev->prp_entry_num) {
 		free(dev->prp_pool);
@@ -119,11 +119,10 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 	prp_pool = dev->prp_pool;
 	i = 0;
 	while (nprps) {
-		if (i == prps_per_page) {
-			*(prp_pool + i) = *(prp_pool + i - 1);
-			*(prp_pool + i - 1) = cpu_to_le64((ulong)prp_pool +
+		if (i == ((page_size >> 3) - 1)) {
+			*(prp_pool + i) = cpu_to_le64((ulong)prp_pool +
 					page_size);
-			i = 1;
+			i = 0;
 			prp_pool += page_size;
 		}
 		*(prp_pool + i++) = cpu_to_le64(dma_addr);
