@@ -55,10 +55,26 @@ static void set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp)
 
 	plat->bpix = l2bpp;
 
-	uc_plat->size = plat->xres * plat->yres * (1 << plat->bpix) / 8;
+	uc_plat->size = plat->xres * plat->yres * VNBYTES(plat->bpix);
+
+	/*
+	 * Set up to the maximum size we'll ever need. This is a strange case.
+	 * The video memory is allocated by video_post_bind() called from
+	 * board_init_r(). If a test changes the reoslution so it needs more
+	 * memory later (with sandbox_sdl_set_bpp()), it is too late to make
+	 * the frame buffer larger.
+	 *
+	 * So use a maximum size here.
+	 */
+	uc_plat->size = max(uc_plat->size, 1920U * 1080 * VNBYTES(VIDEO_BPP32));
 
 	/* Allow space for two buffers, the lower one being the copy buffer */
 	log_debug("Frame buffer size %x\n", uc_plat->size);
+
+	/*
+	 * If a copy framebuffer is used, double the size and use the last half
+	 * as the copy, with the first half as the normal frame buffer.
+	 */
 	if (IS_ENABLED(CONFIG_VIDEO_COPY))
 		uc_plat->size *= 2;
 }
