@@ -66,7 +66,6 @@ static void write_pix8(u8 *fb, uint bpix, struct bmp_color_table_entry *palette,
 	}
 }
 
-#ifdef CONFIG_VIDEO_BMP_RLE8
 static void draw_unencoded_bitmap(u8 **fbp, uint bpix, uchar *bmap,
 				  struct bmp_color_table_entry *palette,
 				  int cnt)
@@ -183,7 +182,6 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 		}
 	}
 }
-#endif
 
 /**
  * video_splash_align_axis() - Align a single coordinate
@@ -294,16 +292,19 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 
 	switch (bmp_bpix) {
 	case 1:
-	case 8: {
-#ifdef CONFIG_VIDEO_BMP_RLE8
-		u32 compression = get_unaligned_le32(&bmp->header.compression);
-		debug("compressed %d %d\n", compression, BMP_BI_RLE8);
-		if (compression == BMP_BI_RLE8) {
-			video_display_rle8_bitmap(dev, bmp, bpix, palette, fb,
-						  x, y, width, height);
-			break;
+	case 8:
+		if (IS_ENABLED(CONFIG_VIDEO_BMP_RLE8)) {
+			u32 compression = get_unaligned_le32(
+				&bmp->header.compression);
+			debug("compressed %d %d\n", compression, BMP_BI_RLE8);
+			if (compression == BMP_BI_RLE8) {
+				video_display_rle8_bitmap(dev, bmp, bpix, palette, fb,
+							  x, y, width, height);
+				break;
+			}
 		}
-#endif
+
+		/* Not compressed */
 		byte_width = width * (bpix / 8);
 		if (!byte_width)
 			byte_width = width;
@@ -319,56 +320,56 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 			fb -= byte_width + priv->line_length;
 		}
 		break;
-	}
-#if defined(CONFIG_BMP_16BPP)
 	case 16:
-		for (i = 0; i < height; ++i) {
-			WATCHDOG_RESET();
-			for (j = 0; j < width; j++) {
-				*fb++ = *bmap++;
-				*fb++ = *bmap++;
-			}
-			bmap += (padded_width - width);
-			fb -= width * 2 + priv->line_length;
-		}
-		break;
-#endif /* CONFIG_BMP_16BPP */
-#if defined(CONFIG_BMP_24BPP)
-	case 24:
-		for (i = 0; i < height; ++i) {
-			for (j = 0; j < width; j++) {
-				if (bpix == 16) {
-					/* 16bit 565RGB format */
-					*(u16 *)fb = ((bmap[2] >> 3) << 11) |
-						((bmap[1] >> 2) << 5) |
-						(bmap[0] >> 3);
-					bmap += 3;
-					fb += 2;
-				} else {
+		if (IS_ENABLED(CONFIG_BMP_16BPP)) {
+			for (i = 0; i < height; ++i) {
+				WATCHDOG_RESET();
+				for (j = 0; j < width; j++) {
 					*fb++ = *bmap++;
 					*fb++ = *bmap++;
-					*fb++ = *bmap++;
-					*fb++ = 0;
 				}
+				bmap += (padded_width - width);
+				fb -= width * 2 + priv->line_length;
 			}
-			fb -= priv->line_length + width * (bpix / 8);
-			bmap += (padded_width - width);
 		}
 		break;
-#endif /* CONFIG_BMP_24BPP */
-#if defined(CONFIG_BMP_32BPP)
+	case 24:
+		if (IS_ENABLED(CONFIG_BMP_24BPP)) {
+			for (i = 0; i < height; ++i) {
+				for (j = 0; j < width; j++) {
+					if (bpix == 16) {
+						/* 16bit 565RGB format */
+						*(u16 *)fb = ((bmap[2] >> 3)
+							<< 11) |
+							((bmap[1] >> 2) << 5) |
+							(bmap[0] >> 3);
+						bmap += 3;
+						fb += 2;
+					} else {
+						*fb++ = *bmap++;
+						*fb++ = *bmap++;
+						*fb++ = *bmap++;
+						*fb++ = 0;
+					}
+				}
+				fb -= priv->line_length + width * (bpix / 8);
+				bmap += (padded_width - width);
+			}
+		}
+		break;
 	case 32:
-		for (i = 0; i < height; ++i) {
-			for (j = 0; j < width; j++) {
-				*fb++ = *bmap++;
-				*fb++ = *bmap++;
-				*fb++ = *bmap++;
-				*fb++ = *bmap++;
+		if (IS_ENABLED(CONFIG_BMP_32BPP)) {
+			for (i = 0; i < height; ++i) {
+				for (j = 0; j < width; j++) {
+					*fb++ = *bmap++;
+					*fb++ = *bmap++;
+					*fb++ = *bmap++;
+					*fb++ = *bmap++;
+				}
+				fb -= priv->line_length + width * (bpix / 8);
 			}
-			fb -= priv->line_length + width * (bpix / 8);
 		}
 		break;
-#endif /* CONFIG_BMP_32BPP */
 	default:
 		break;
 	};
