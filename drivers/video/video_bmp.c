@@ -338,9 +338,9 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		for (i = 0; i < height; ++i) {
 			for (j = 0; j < width; j++) {
 				if (bpix == 16) {
-					/* 16bit 555RGB format */
-					*(u16 *)fb = ((bmap[2] >> 3) << 10) |
-						((bmap[1] >> 3) << 5) |
+					/* 16bit 565RGB format */
+					*(u16 *)fb = ((bmap[2] >> 3) << 11) |
+						((bmap[1] >> 2) << 5) |
 						(bmap[0] >> 3);
 					bmap += 3;
 					fb += 2;

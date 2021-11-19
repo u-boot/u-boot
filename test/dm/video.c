@@ -363,6 +363,52 @@ static int dm_test_video_bmp16(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_video_bmp16, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* Test drawing a 24bpp bitmap file on a 16bpp display */
+static int dm_test_video_bmp24(struct unit_test_state *uts)
+{
+	ulong src, src_len = ~0UL;
+	uint dst_len = ~0U;
+	struct udevice *dev;
+	ulong dst = 0x10000;
+
+	ut_assertok(uclass_find_first_device(UCLASS_VIDEO, &dev));
+	ut_assertnonnull(dev);
+	ut_assertok(sandbox_sdl_set_bpp(dev, VIDEO_BPP16));
+
+	ut_assertok(read_file(uts, "tools/logos/denx-24bpp.bmp.gz", &src));
+	ut_assertok(gunzip(map_sysmem(dst, 0), dst_len, map_sysmem(src, 0),
+			   &src_len));
+
+	ut_assertok(video_bmp_display(dev, dst, 0, 0, false));
+	ut_asserteq(3656, compress_frame_buffer(uts, dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_bmp24, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test drawing a 24bpp bitmap file on a 32bpp display */
+static int dm_test_video_bmp24_32(struct unit_test_state *uts)
+{
+	ulong src, src_len = ~0UL;
+	uint dst_len = ~0U;
+	struct udevice *dev;
+	ulong dst = 0x10000;
+
+	ut_assertok(uclass_find_first_device(UCLASS_VIDEO, &dev));
+	ut_assertnonnull(dev);
+	ut_assertok(sandbox_sdl_set_bpp(dev, VIDEO_BPP32));
+
+	ut_assertok(read_file(uts, "tools/logos/denx-24bpp.bmp.gz", &src));
+	ut_assertok(gunzip(map_sysmem(dst, 0), dst_len, map_sysmem(src, 0),
+			   &src_len));
+
+	ut_assertok(video_bmp_display(dev, dst, 0, 0, false));
+	ut_asserteq(6827, compress_frame_buffer(uts, dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_bmp24_32, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
 /* Test drawing a bitmap file on a 32bpp display */
 static int dm_test_video_bmp32(struct unit_test_state *uts)
 {
