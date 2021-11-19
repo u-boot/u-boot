@@ -373,6 +373,44 @@ static int dm_test_video_bmp_comp(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_video_bmp_comp, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* Test drawing a bitmap file on a 32bpp display */
+static int dm_test_video_comp_bmp32(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ulong addr;
+
+	ut_assertok(uclass_find_first_device(UCLASS_VIDEO, &dev));
+	ut_assertnonnull(dev);
+	ut_assertok(sandbox_sdl_set_bpp(dev, VIDEO_BPP32));
+
+	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
+
+	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
+	ut_asserteq(2024, compress_frame_buffer(uts, dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_comp_bmp32, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test drawing a bitmap file on a 8bpp display */
+static int dm_test_video_comp_bmp8(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ulong addr;
+
+	ut_assertok(uclass_find_first_device(UCLASS_VIDEO, &dev));
+	ut_assertnonnull(dev);
+	ut_assertok(sandbox_sdl_set_bpp(dev, VIDEO_BPP8));
+
+	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
+
+	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
+	ut_asserteq(1247, compress_frame_buffer(uts, dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_comp_bmp8, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
 /* Test TrueType console */
 static int dm_test_video_truetype(struct unit_test_state *uts)
 {

@@ -67,28 +67,37 @@ static void write_pix8(u8 *fb, uint bpix, struct bmp_color_table_entry *palette,
 }
 
 #ifdef CONFIG_VIDEO_BMP_RLE8
-static void draw_unencoded_bitmap(ushort **fbp, uchar *bmap, ushort *cmap,
+static void draw_unencoded_bitmap(u8 **fbp, uint bpix, uchar *bmap,
+				  struct bmp_color_table_entry *palette,
 				  int cnt)
 {
+	u8 *fb = *fbp;
+
 	while (cnt > 0) {
-		*(*fbp)++ = cmap[*bmap++];
+		write_pix8(fb, bpix, palette, bmap++);
+		fb += bpix / 8;
 		cnt--;
 	}
+	*fbp = fb;
 }
 
-static void draw_encoded_bitmap(ushort **fbp, ushort col, int cnt)
+static void draw_encoded_bitmap(u8 **fbp, uint bpix,
+				struct bmp_color_table_entry *palette, u8 *bmap,
+				int cnt)
 {
-	ushort *fb = *fbp;
+	u8 *fb = *fbp;
 
 	while (cnt > 0) {
-		*fb++ = col;
+		write_pix8(fb, bpix, palette, bmap);
+		fb += bpix / 8;
 		cnt--;
 	}
 	*fbp = fb;
 }
 
 static void video_display_rle8_bitmap(struct udevice *dev,
-				      struct bmp_image *bmp, ushort *cmap,
+				      struct bmp_image *bmp, uint bpix,
+				      struct bmp_color_table_entry *palette,
 				      uchar *fb, int x_off, int y_off,
 				      ulong width, ulong height)
 {
@@ -97,6 +106,7 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 	ulong cnt, runlen;
 	int x, y;
 	int decode = 1;
+	uint bytes_per_pixel = bpix / 8;
 
 	debug("%s\n", __func__);
 	bmap = (uchar *)bmp + get_unaligned_le32(&bmp->header.data_offset);
@@ -112,8 +122,8 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 				bmap += 2;
 				x = 0;
 				y--;
-				/* 16bpix, 2-byte per pixel, width should *2 */
-				fb -= (width * 2 + priv->line_length);
+				fb -= width * bytes_per_pixel +
+					priv->line_length;
 				break;
 			case BMP_RLE8_EOBMP:
 				/* end of bitmap */
@@ -123,9 +133,9 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 				/* delta run */
 				x += bmap[2];
 				y -= bmap[3];
-				/* 16bpix, 2-byte per pixel, x should *2 */
-				fb = (uchar *)(priv->fb + (y + y_off - 1)
-					* priv->line_length + (x + x_off) * 2);
+				fb = (uchar *)(priv->fb +
+					(y + y_off - 1) * priv->line_length +
+					(x + x_off) * bytes_per_pixel);
 				bmap += 4;
 				break;
 			default:
@@ -139,8 +149,8 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 						else
 							cnt = runlen;
 						draw_unencoded_bitmap(
-							(ushort **)&fb,
-							bmap, cmap, cnt);
+							&fb, bpix,
+							bmap, palette, cnt);
 					}
 					x += runlen;
 				}
@@ -164,8 +174,8 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 						cnt = width - x;
 					else
 						cnt = runlen;
-					draw_encoded_bitmap((ushort **)&fb,
-						cmap[bmap[1]], cnt);
+					draw_encoded_bitmap(&fb, bpix, palette,
+							    &bmap[1], cnt);
 				}
 				x += runlen;
 			}
@@ -311,13 +321,8 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
 		debug("compressed %d %d\n", compression, BMP_BI_RLE8);
 		if (compression == BMP_BI_RLE8) {
-			if (bpix != 16) {
-				/* TODO implement render code for bpix != 16 */
-				printf("Error: only support 16 bpix");
-				return -EPROTONOSUPPORT;
-			}
-			video_display_rle8_bitmap(dev, bmp, cmap_base, fb, x,
-						  y, width, height);
+			video_display_rle8_bitmap(dev, bmp, bpix, palette, fb,
+						  x, y, width, height);
 			break;
 		}
 #endif
