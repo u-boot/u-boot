@@ -48,22 +48,33 @@ static int sandbox_sdl_probe(struct udevice *dev)
 	return 0;
 }
 
-static int sandbox_sdl_bind(struct udevice *dev)
+static void set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp)
 {
 	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct sandbox_sdl_plat *plat = dev_get_plat(dev);
-	int ret = 0;
 
-	plat->xres = dev_read_u32_default(dev, "xres", LCD_MAX_WIDTH);
-	plat->yres = dev_read_u32_default(dev, "yres", LCD_MAX_HEIGHT);
-	plat->bpix = dev_read_u32_default(dev, "log2-depth", VIDEO_BPP16);
-	plat->rot = dev_read_u32_default(dev, "rotate", 0);
+	plat->bpix = l2bpp;
+
 	uc_plat->size = plat->xres * plat->yres * (1 << plat->bpix) / 8;
 
 	/* Allow space for two buffers, the lower one being the copy buffer */
 	log_debug("Frame buffer size %x\n", uc_plat->size);
 	if (IS_ENABLED(CONFIG_VIDEO_COPY))
 		uc_plat->size *= 2;
+}
+
+static int sandbox_sdl_bind(struct udevice *dev)
+{
+	struct sandbox_sdl_plat *plat = dev_get_plat(dev);
+	enum video_log2_bpp l2bpp;
+	int ret = 0;
+
+	plat->xres = dev_read_u32_default(dev, "xres", LCD_MAX_WIDTH);
+	plat->yres = dev_read_u32_default(dev, "yres", LCD_MAX_HEIGHT);
+	l2bpp = dev_read_u32_default(dev, "log2-depth", VIDEO_BPP16);
+	plat->rot = dev_read_u32_default(dev, "rotate", 0);
+
+	set_bpp(dev, l2bpp);
 
 	return ret;
 }
