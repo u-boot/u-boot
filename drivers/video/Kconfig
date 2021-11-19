@@ -17,6 +17,7 @@ config DM_VIDEO
 config VIDEO_LOGO
 	bool "Show the U-Boot logo on the display"
 	depends on DM_VIDEO
+	select VIDEO_BMP_RLE8
 	help
 	  This enables showing the U-Boot logo on the display when a video
 	  device is probed. It appears at the top right. The logo itself is at

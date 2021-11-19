@@ -30,12 +30,14 @@ struct udevice;
  * @base: Base address of frame buffer, 0 if not yet known
  * @copy_base: Base address of a hardware copy of the frame buffer. See
  *	CONFIG_VIDEO_COPY.
+ * @hide_logo: Hide the logo (used for testing)
  */
 struct video_uc_plat {
 	uint align;
 	uint size;
 	ulong base;
 	ulong copy_base;
+	bool hide_logo;
 };
 
 enum video_polarity {

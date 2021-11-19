@@ -115,6 +115,31 @@ static int select_vidconsole(struct unit_test_state *uts, const char *drv_name)
 	return 0;
 }
 
+/**
+ * video_get_nologo() - Disable the logo on the video device and return it
+ *
+ * @uts: Test state
+ * @devp: Returns video device
+ * @return 0 if OK, -ve on error
+ */
+static int video_get_nologo(struct unit_test_state *uts, struct udevice **devp)
+{
+	struct video_uc_plat *uc_plat;
+	struct udevice *dev;
+
+	ut_assertok(uclass_find_first_device(UCLASS_VIDEO, &dev));
+	ut_assertnonnull(dev);
+	uc_plat = dev_get_uclass_plat(dev);
+	uc_plat->hide_logo = true;
+
+	/* now probe it */
+	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
+	ut_assertnonnull(dev);
+	*devp = dev;
+
+	return 0;
+}
+
 /* Test text output works on the video console */
 static int dm_test_video_text(struct unit_test_state *uts)
 {
@@ -125,7 +150,7 @@ static int dm_test_video_text(struct unit_test_state *uts)
 #define SCROLL_LINES	100
 
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
-	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(video_get_nologo(uts, &dev));
 	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
@@ -157,7 +182,7 @@ static int dm_test_video_chars(struct unit_test_state *uts)
 	const char *test_string = "Well\b\b\b\bxhe is\r \n\ta very \amodest  \bman\n\t\tand Has much to\b\bto be modest about.";
 
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
-	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
 	ut_asserteq(466, compress_frame_buffer(uts, dev));
@@ -174,7 +199,7 @@ static int dm_test_video_ansi(struct unit_test_state *uts)
 	struct udevice *dev, *con;
 
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
-	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 
 	/* reference clear: */
@@ -222,7 +247,7 @@ static int check_vidconsole_output(struct unit_test_state *uts, int rot,
 	plat = dev_get_plat(dev);
 	plat->rot = rot;
 
-	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
@@ -311,7 +336,7 @@ static int dm_test_video_bmp(struct unit_test_state *uts)
 	struct udevice *dev;
 	ulong addr;
 
-	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
@@ -433,7 +458,7 @@ static int dm_test_video_bmp_comp(struct unit_test_state *uts)
 	struct udevice *dev;
 	ulong addr;
 
-	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(read_file(uts, "tools/logos/denx-comp.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
@@ -487,7 +512,7 @@ static int dm_test_video_truetype(struct unit_test_state *uts)
 	struct udevice *dev, *con;
 	const char *test_string = "Criticism may not be agreeable, but it is necessary. It fulfils the same function as pain in the human body. It calls attention to an unhealthy state of things. Some see private enterprise as a predatory target to be shot, others as a cow to be milked, but few are those who see it as a sturdy horse pulling the wagon. The \aprice OF\b\bof greatness\n\tis responsibility.\n\nBye";
 
-	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
 	ut_asserteq(12237, compress_frame_buffer(uts, dev));
@@ -508,7 +533,7 @@ static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
 	plat = dev_get_plat(dev);
 	plat->font_size = 100;
 
-	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
 	ut_asserteq(35030, compress_frame_buffer(uts, dev));
@@ -529,7 +554,7 @@ static int dm_test_video_truetype_bs(struct unit_test_state *uts)
 	plat = dev_get_plat(dev);
 	plat->font_size = 100;
 
-	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
 	ut_asserteq(29018, compress_frame_buffer(uts, dev));

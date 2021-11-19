@@ -82,12 +82,14 @@ static void set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp)
 
 int sandbox_sdl_set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp)
 {
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	int ret;
 
 	if (device_active(dev))
 		return -EINVAL;
 	sandbox_sdl_remove_display();
 
+	uc_plat->hide_logo = true;
 	set_bpp(dev, l2bpp);
 
 	ret = device_probe(dev);

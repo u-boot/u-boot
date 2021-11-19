@@ -319,6 +319,24 @@ int video_sync_copy_all(struct udevice *dev)
 
 #endif
 
+#define SPLASH_DECL(_name) \
+	extern u8 __splash_ ## _name ## _begin[]; \
+	extern u8 __splash_ ## _name ## _end[]
+
+#define SPLASH_START(_name)	__splash_ ## _name ## _begin
+
+SPLASH_DECL(u_boot_logo);
+
+static int show_splash(struct udevice *dev)
+{
+	u8 *data = SPLASH_START(u_boot_logo);
+	int ret;
+
+	ret = video_bmp_display(dev, map_to_sysmem(data), -4, 4, true);
+
+	return 0;
+}
+
 /* Set up the display ready for use */
 static int video_post_probe(struct udevice *dev)
 {
@@ -382,6 +400,14 @@ static int video_post_probe(struct udevice *dev)
 	if (ret) {
 		debug("%s: Cannot probe console driver\n", __func__);
 		return ret;
+	}
+
+	if (IS_ENABLED(CONFIG_VIDEO_LOGO) && !plat->hide_logo) {
+		ret = show_splash(dev);
+		if (ret) {
+			log_debug("Cannot show splash screen\n");
+			return ret;
+		}
 	}
 
 	return 0;
