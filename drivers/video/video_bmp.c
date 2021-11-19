@@ -127,19 +127,6 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 }
 #endif
 
-__weak void fb_put_byte(uchar **fb, uchar **from)
-{
-	*(*fb)++ = *(*from)++;
-}
-
-#if defined(CONFIG_BMP_16BPP)
-__weak void fb_put_word(uchar **fb, uchar **from)
-{
-	*(*fb)++ = *(*from)++;
-	*(*fb)++ = *(*from)++;
-}
-#endif /* CONFIG_BMP_16BPP */
-
 /**
  * video_splash_align_axis() - Align a single coordinate
  *
@@ -295,7 +282,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 			WATCHDOG_RESET();
 			for (j = 0; j < width; j++) {
 				if (bpix == 8) {
-					fb_put_byte(&fb, &bmap);
+					*fb++ = *bmap++;
 				} else if (bpix == 16) {
 					*(uint16_t *)fb = cmap_base[*bmap];
 					bmap++;
@@ -325,9 +312,10 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	case 16:
 		for (i = 0; i < height; ++i) {
 			WATCHDOG_RESET();
-			for (j = 0; j < width; j++)
-				fb_put_word(&fb, &bmap);
-
+			for (j = 0; j < width; j++) {
+				*fb++ = *bmap++;
+				*fb++ = *bmap++;
+			}
 			bmap += (padded_width - width);
 			fb -= width * 2 + priv->line_length;
 		}
