@@ -24,14 +24,15 @@
 #include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
+#include <malloc.h>
+#include <asm/io.h>
 #include <dm/device.h>
 #include <dm/devres.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
-#include <malloc.h>
-#include <asm/io.h>
 #include <linux/clk-provider.h>
 #include <linux/err.h>
+
 #include "clk.h"
 
 #define UBOOT_DM_CLK_CCF_MUX "ccf_clk_mux"

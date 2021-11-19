@@ -5,13 +5,13 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <clk-uclass.h>
 #include <log.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
-#include <clk.h>
 
 int clk_register(struct clk *clk, const char *drv_name,
 		 const char *name, const char *parent_name)
