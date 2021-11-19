@@ -63,6 +63,20 @@ static void set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp)
 		uc_plat->size *= 2;
 }
 
+static int sandbox_sdl_remove(struct udevice *dev)
+{
+	/*
+	 * Removing the display it a bit annoying when running unit tests, since
+	 * they remove all devices. It is nice to be able to see what the test
+	 * wrote onto the display. So this comment is just here to show how to
+	 * do it, if we want to make it optional one day.
+	 *
+	 * sandbox_sdl_remove_display();
+	 */
+
+	return 0;
+}
+
 static int sandbox_sdl_bind(struct udevice *dev)
 {
 	struct sandbox_sdl_plat *plat = dev_get_plat(dev);
@@ -90,5 +104,6 @@ U_BOOT_DRIVER(sandbox_lcd_sdl) = {
 	.of_match = sandbox_sdl_ids,
 	.bind	= sandbox_sdl_bind,
 	.probe	= sandbox_sdl_probe,
+	.remove	= sandbox_sdl_remove,
 	.plat_auto	= sizeof(struct sandbox_sdl_plat),
 };

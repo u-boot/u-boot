@@ -44,6 +44,7 @@ struct buf_info {
  * @stopping: true if audio will stop once it runs out of data
  * @texture: SDL texture to use for U-Boot display contents
  * @renderer: SDL renderer to use
+ * @screen: SDL window to use
  * @src_depth: Number of bits per pixel in the source frame buffer (that we read
  * from and render to SDL)
  */
@@ -63,6 +64,7 @@ static struct sdl_info {
 	bool stopping;
 	SDL_Texture *texture;
 	SDL_Renderer *renderer;
+	SDL_Window *screen;
 	int src_depth;
 } sdl;
 
@@ -101,6 +103,23 @@ static int sandbox_sdl_ensure_init(void)
 	return 0;
 }
 
+int sandbox_sdl_remove_display(void)
+{
+	if (!sdl.renderer) {
+		printf("SDL renderer does not exist\n");
+		return -ENOENT;
+	}
+
+	SDL_DestroyTexture(sdl.texture);
+	SDL_DestroyRenderer(sdl.renderer);
+	SDL_DestroyWindow(sdl.screen);
+	sdl.texture = NULL;
+	sdl.renderer = NULL;
+	sdl.screen = NULL;
+
+	return 0;
+}
+
 int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 			     bool double_size)
 {
@@ -112,6 +131,9 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 	err = sandbox_sdl_ensure_init();
 	if (err)
 		return err;
+	if (sdl.renderer)
+		sandbox_sdl_remove_display();
+
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
 		printf("Unable to initialise SDL LCD: %s\n", SDL_GetError());
 		return -EPERM;
@@ -134,16 +156,15 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 		log2_bpp = 5;
 	sdl.depth = 1 << log2_bpp;
 	sdl.pitch = sdl.width * sdl.depth / 8;
-	SDL_Window *screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
-					      SDL_WINDOWPOS_UNDEFINED,
-					      sdl.vis_width, sdl.vis_height,
-					      SDL_WINDOW_RESIZABLE);
-	if (!screen) {
+	sdl.screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
+				      SDL_WINDOWPOS_UNDEFINED, sdl.vis_width,
+				      sdl.vis_height, SDL_WINDOW_RESIZABLE);
+	if (!sdl.screen) {
 		printf("Unable to initialise SDL screen: %s\n",
 		       SDL_GetError());
 		return -EIO;
 	}
-	sdl.renderer = SDL_CreateRenderer(screen, -1,
+	sdl.renderer = SDL_CreateRenderer(sdl.screen, -1,
 					  SDL_RENDERER_ACCELERATED |
 					  SDL_RENDERER_PRESENTVSYNC);
 	if (!sdl.renderer) {
