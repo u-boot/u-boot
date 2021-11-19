@@ -153,7 +153,6 @@
 /* Environment organization */
 
 /* Framebuffer */
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP

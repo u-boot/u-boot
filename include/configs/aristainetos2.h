@@ -443,7 +443,6 @@
 /* Framebuffer */
 /* check this console not needed, after test remove it */
 #define CONFIG_IMX_VIDEO_SKIP
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 
 #define CONFIG_IMX6_PWM_PER_CLK	66000000

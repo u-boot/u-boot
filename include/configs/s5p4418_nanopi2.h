@@ -131,8 +131,6 @@
  * VIDEO
  */
 
-#define CONFIG_VIDEO_LOGO
-
 #ifdef CONFIG_VIDEO_LOGO
 #ifdef CONFIG_SPLASH_SCREEN
 #define SPLASH_FILE			logo.bmp

@@ -112,7 +112,6 @@
 /*
  * LCD
  */
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)
 
 /* LVDS display */

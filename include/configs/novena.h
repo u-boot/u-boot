@@ -86,7 +86,6 @@
 #endif
 
 /* Video output */
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 

@@ -45,7 +45,6 @@
 #define CONFIG_MXC_USB_FLAGS	MXC_EHCI_POWER_PINS_ENABLED
 
 /* Framebuffer and LCD */
-#define CONFIG_VIDEO_LOGO
 
 #define CONFIG_ETHPRIME		"FEC0"
 

@@ -323,7 +323,6 @@ unsigned long get_board_sys_clk(void);
  * Video
  */
 #ifdef CONFIG_VIDEO_FSL_DCU_FB
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 
 #define CONFIG_FSL_DIU_CH7301

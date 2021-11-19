@@ -14,6 +14,15 @@ config DM_VIDEO
 	  option compiles in the video uclass and routes all LCD/video access
 	  through this.
 
+config VIDEO_LOGO
+	bool "Show the U-Boot logo on the display"
+	depends on DM_VIDEO
+	help
+	  This enables showing the U-Boot logo on the display when a video
+	  device is probed. It appears at the top right. The logo itself is at
+	  tools/logos/u-boot_logo.bmp and looks best when the display has a
+	  black background.
+
 config BACKLIGHT
 	bool "Enable panel backlight uclass support"
 	depends on DM_VIDEO

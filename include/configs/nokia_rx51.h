@@ -75,7 +75,6 @@
  * Framebuffer
  */
 /* Video console */
-#define CONFIG_VIDEO_LOGO
 #define VIDEO_FB_16BPP_PIXEL_SWAP
 #define VIDEO_FB_16BPP_WORD_SWAP
 

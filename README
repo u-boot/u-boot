@@ -1042,7 +1042,6 @@ The following options need to be configured:
 			CONFIG_CFB_CONSOLE
 			CONFIG_VIDEO_SW_CURSOR
 			CONFIG_VGA_AS_SINGLE_DEVICE
-			CONFIG_VIDEO_LOGO
 			CONFIG_VIDEO_BMP_LOGO
 
 		The DIU driver will look for the 'video-mode' environment
