@@ -13,12 +13,60 @@
 #include <watchdog.h>
 #include <asm/unaligned.h>
 
-#ifdef CONFIG_VIDEO_BMP_RLE8
 #define BMP_RLE8_ESCAPE		0
 #define BMP_RLE8_EOL		0
 #define BMP_RLE8_EOBMP		1
 #define BMP_RLE8_DELTA		2
 
+/**
+ * get_bmp_col_16bpp() - Convert a colour-table entry into a 16bpp pixel value
+ *
+ * @return value to write to the 16bpp frame buffer for this palette entry
+ */
+static uint get_bmp_col_16bpp(struct bmp_color_table_entry cte)
+{
+	return ((cte.red   << 8) & 0xf800) |
+		((cte.green << 3) & 0x07e0) |
+		((cte.blue  >> 3) & 0x001f);
+}
+
+/**
+ * write_pix8() - Write a pixel from a BMP image into the framebuffer
+ *
+ * This handles frame buffers with 8, 16, 24 or 32 bits per pixel
+ *
+ * @fb: Place in frame buffer to update
+ * @bpix: Frame buffer bits-per-pixel, which controls how many bytes are written
+ * @palette: BMP palette table
+ * @bmap: Pointer to BMP bitmap position to write. This contains a single byte
+ *	which is either written directly (bpix == 8) or used to look up the
+ *	palette to get a colour to write
+ */
+static void write_pix8(u8 *fb, uint bpix, struct bmp_color_table_entry *palette,
+		       u8 *bmap)
+{
+	if (bpix == 8) {
+		*fb++ = *bmap;
+	} else if (bpix == 16) {
+		*(u16 *)fb = get_bmp_col_16bpp(palette[*bmap]);
+	} else {
+		/* Only support big endian */
+		struct bmp_color_table_entry *cte = &palette[*bmap];
+
+		if (bpix == 24) {
+			*fb++ = cte->red;
+			*fb++ = cte->green;
+			*fb++ = cte->blue;
+		} else {
+			*fb++ = cte->blue;
+			*fb++ = cte->green;
+			*fb++ = cte->red;
+			*fb++ = 0;
+		}
+	}
+}
+
+#ifdef CONFIG_VIDEO_BMP_RLE8
 static void draw_unencoded_bitmap(ushort **fbp, uchar *bmap, ushort *cmap,
 				  int cnt)
 {
@@ -258,7 +306,6 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	switch (bmp_bpix) {
 	case 1:
 	case 8: {
-		struct bmp_color_table_entry *cte;
 		cmap_base = priv->cmap;
 #ifdef CONFIG_VIDEO_BMP_RLE8
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
@@ -281,27 +328,9 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		for (i = 0; i < height; ++i) {
 			WATCHDOG_RESET();
 			for (j = 0; j < width; j++) {
-				if (bpix == 8) {
-					*fb++ = *bmap++;
-				} else if (bpix == 16) {
-					*(uint16_t *)fb = cmap_base[*bmap];
-					bmap++;
-					fb += sizeof(uint16_t) / sizeof(*fb);
-				} else {
-					/* Only support big endian */
-					cte = &palette[*bmap];
-					bmap++;
-					if (bpix == 24) {
-						*(fb++) = cte->red;
-						*(fb++) = cte->green;
-						*(fb++) = cte->blue;
-					} else {
-						*(fb++) = cte->blue;
-						*(fb++) = cte->green;
-						*(fb++) = cte->red;
-						*(fb++) = 0;
-					}
-				}
+				write_pix8(fb, bpix, palette, bmap);
+				bmap++;
+				fb += bpix / 8;
 			}
 			bmap += (padded_width - width);
 			fb -= byte_width + priv->line_length;
