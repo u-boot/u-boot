@@ -345,10 +345,10 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 					bmap += 3;
 					fb += 2;
 				} else {
-					*(fb++) = *(bmap++);
-					*(fb++) = *(bmap++);
-					*(fb++) = *(bmap++);
-					*(fb++) = 0;
+					*fb++ = *bmap++;
+					*fb++ = *bmap++;
+					*fb++ = *bmap++;
+					*fb++ = 0;
 				}
 			}
 			fb -= priv->line_length + width * (bpix / 8);
@@ -360,10 +360,10 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	case 32:
 		for (i = 0; i < height; ++i) {
 			for (j = 0; j < width; j++) {
-				*(fb++) = *(bmap++);
-				*(fb++) = *(bmap++);
-				*(fb++) = *(bmap++);
-				*(fb++) = *(bmap++);
+				*fb++ = *bmap++;
+				*fb++ = *bmap++;
+				*fb++ = *bmap++;
+				*fb++ = *bmap++;
 			}
 			fb -= priv->line_length + width * (bpix / 8);
 		}
