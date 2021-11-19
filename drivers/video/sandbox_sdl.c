@@ -12,6 +12,7 @@
 #include <asm/sdl.h>
 #include <asm/state.h>
 #include <asm/u-boot-sandbox.h>
+#include <dm/device-internal.h>
 #include <dm/test.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -79,6 +80,23 @@ static void set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp)
 		uc_plat->size *= 2;
 }
 
+int sandbox_sdl_set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp)
+{
+	int ret;
+
+	if (device_active(dev))
+		return -EINVAL;
+	sandbox_sdl_remove_display();
+
+	set_bpp(dev, l2bpp);
+
+	ret = device_probe(dev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int sandbox_sdl_remove(struct udevice *dev)
 {
 	/*
@@ -89,7 +107,6 @@ static int sandbox_sdl_remove(struct udevice *dev)
 	 *
 	 * sandbox_sdl_remove_display();
 	 */
-
 	return 0;
 }
 
