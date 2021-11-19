@@ -145,7 +145,7 @@ static const struct dm_gpio_ops meson_gx_gpio_ops = {
 	.direction_output = meson_gpio_direction_output,
 };
 
-const struct driver meson_gx_gpio_driver = {
+U_BOOT_DRIVER(meson_gx_gpio_driver) = {
 	.name	= "meson-gx-gpio",
 	.id	= UCLASS_GPIO,
 	.probe	= meson_gpio_probe,

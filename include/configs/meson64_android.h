@@ -140,24 +140,27 @@
 			"echo Fastboot forced by usb rom boot;" \
 			"setenv run_fastboot 1;" \
 		"fi;" \
-		"if gpt verify mmc ${mmcdev} ${partitions}; then; " \
-		"else " \
-			"echo Broken MMC partition scheme;" \
-			"setenv run_fastboot 1;" \
-		"fi;" \
-		"if bcb load " __stringify(CONFIG_FASTBOOT_FLASH_MMC_DEV) " " \
-		CONTROL_PARTITION "; then " \
-			"if bcb test command = bootonce-bootloader; then " \
-				"echo BCB: Bootloader boot...; " \
-				"bcb clear command; bcb store; " \
+		"if test \"${run_fastboot}\" -eq 0; then " \
+			"if gpt verify mmc ${mmcdev} ${partitions}; then; " \
+			"else " \
+				"echo Broken MMC partition scheme;" \
 				"setenv run_fastboot 1;" \
 			"fi; " \
-			"if bcb test command = boot-fastboot; then " \
-				"echo BCB: fastboot userspace boot...; " \
-				"setenv force_recovery 1;" \
-			"fi; " \
-		"else " \
-			"echo Warning: BCB is corrupted or does not exist; " \
+		"fi;" \
+		"if test \"${run_fastboot}\" -eq 0; then " \
+			"if bcb load " __stringify(CONFIG_FASTBOOT_FLASH_MMC_DEV) " " \
+			CONTROL_PARTITION "; then " \
+				"if bcb test command = bootonce-bootloader; then " \
+					"echo BCB: Bootloader boot...; " \
+					"bcb clear command; bcb store; " \
+					"setenv run_fastboot 1;" \
+				"elif bcb test command = boot-fastboot; then " \
+					"echo BCB: fastboot userspace boot...; " \
+					"setenv force_recovery 1;" \
+				"fi; " \
+			"else " \
+				"echo Warning: BCB is corrupted or does not exist; " \
+			"fi;" \
 		"fi;" \
 		"if test \"${run_fastboot}\" -eq 1; then " \
 			"echo Running Fastboot...;" \
@@ -230,16 +233,24 @@
 			"echo Running Android...;" \
 			BOOT_CMD \
 		"fi;" \
-		"echo Failed to boot Android...;" \
-		"reset\0"
+		"echo Failed to boot Android...;\0"
 
 #define BOOTENV_DEV_NAME_SYSTEM(devtypeu, devtypel, instance)	\
 		"system "
+
+#define BOOTENV_DEV_PANIC(devtypeu, devtypel, instance) \
+	"bootcmd_panic=" \
+		"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
+		"reset\0"
+
+#define BOOTENV_DEV_NAME_PANIC(devtypeu, devtypel, instance)	\
+		"panic "
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(FASTBOOT, fastboot, na) \
 	func(RECOVERY, recovery, na) \
 	func(SYSTEM, system, na) \
+	func(PANIC, panic, na) \
 
 #define PREBOOT_LOAD_LOGO \
 	"if test \"${boot_source}\" != \"usb\" && " \
