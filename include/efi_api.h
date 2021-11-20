@@ -902,8 +902,8 @@ struct efi_hii_package_list_header {
  * @fields:	'fields' replaces the bit-fields defined in the EFI
  *		specification to to avoid possible compiler incompatibilities::
  *
- *		u32 length:24;
- *		u32 type:8;
+ *		    u32 length:24;
+ *		    u32 type:8;
  */
 struct efi_hii_package_header {
 	u32 fields;
@@ -1841,7 +1841,7 @@ struct efi_system_resource_table {
 		 0x34, 0x7d, 0x37, 0x56, 0x65, 0xa7)
 
 /**
- * win_certificate_uefi_guid - A certificate that encapsulates
+ * struct win_certificate_uefi_guid - A certificate that encapsulates
  * a GUID-specific signature
  *
  * @hdr:	Windows certificate header
@@ -1855,7 +1855,7 @@ struct win_certificate_uefi_guid {
 } __attribute__((__packed__));
 
 /**
- * efi_variable_authentication_2 - A time-based authentication method
+ * struct efi_variable_authentication_2 - A time-based authentication method
  * descriptor
  *
  * This structure describes an authentication information for
@@ -1872,7 +1872,7 @@ struct efi_variable_authentication_2 {
 } __attribute__((__packed__));
 
 /**
- * efi_firmware_image_authentication - Capsule authentication method
+ * struct efi_firmware_image_authentication - Capsule authentication method
  * descriptor
  *
  * This structure describes an authentication information for
@@ -1890,7 +1890,7 @@ struct efi_firmware_image_authentication {
 
 
 /**
- * efi_signature_data - A format of signature
+ * struct efi_signature_data - A format of signature
  *
  * This structure describes a single signature in signature database.
  *
@@ -1903,7 +1903,7 @@ struct efi_signature_data {
 } __attribute__((__packed__));
 
 /**
- * efi_signature_list - A format of signature database
+ * struct efi_signature_list - A format of signature database
  *
  * This structure describes a list of signatures with the same type.
  * An authenticated variable's value is a concatenation of one or more
