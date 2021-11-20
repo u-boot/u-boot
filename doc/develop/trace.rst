@@ -4,7 +4,7 @@
 Tracing in U-Boot
 =================
 
-U-Boot supports a simple tracing feature which allows a record of excecution
+U-Boot supports a simple tracing feature which allows a record of execution
 to be collected and sent to a host machine for analysis. At present the
 main use for this is to profile boot time.
 
@@ -161,10 +161,10 @@ limit of the trace buffer size you have specified. Once that is exhausted
 no more data will be collected.
 
 Collecting trace data has an affect on execution time/performance. You
-will notice this particularly with trvial functions - the overhead of
+will notice this particularly with trivial functions - the overhead of
 recording their execution may even exceed their normal execution time.
 In practice this doesn't matter much so long as you are aware of the
-effect. Once you have done your optimisations, turn off tracing before
+effect. Once you have done your optimizations, turn off tracing before
 doing end-to-end timing.
 
 The best time to start tracing is right at the beginning of U-Boot. The
@@ -184,7 +184,7 @@ the OS. In practical terms, U-Boot runs the 'fakegocmd' environment
 variable at this point. This variable should have a short script which
 collects the trace data and writes it somewhere.
 
-Trace data collection relies on a microsecond timer, accesed through
+Trace data collection relies on a microsecond timer, accessed through
 timer_get_us(). So the first think you should do is make sure that
 this produces sensible results for your board. Suitable sources for
 this timer include high resolution timers, PWMs or profile timers if
@@ -285,7 +285,7 @@ Options
     Specify U-Boot map file
 
 -p <trace_file>
-    Specifiy profile/trace file
+    Specify profile/trace file
 
 Commands:
 
@@ -315,11 +315,11 @@ time:
 2. Build U-Boot with tracing and run it. Note the difference in boot time
    (it is common for tracing to add 10% to the time)
 
-3. Collect the trace information as descibed above. Use this to find where
+3. Collect the trace information as described above. Use this to find where
    all the time is being spent.
 
-4. Take a look at that code and see if you can optimise it. Perhaps it is
-   possible to speed up the initialisation of a device, or remove an unused
+4. Take a look at that code and see if you can optimize it. Perhaps it is
+   possible to speed up the initialization of a device, or remove an unused
    feature.
 
 5. Rebuild, run and collect again. Compare your results.

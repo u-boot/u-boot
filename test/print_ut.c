@@ -31,6 +31,7 @@ static int print_guid(struct unit_test_state *uts)
 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 	};
 	char str[40];
+	int ret;
 
 	sprintf(str, "%pUb", guid);
 	ut_assertok(strcmp("01020304-0506-0708-090a-0b0c0d0e0f10", str));
@@ -40,6 +41,9 @@ static int print_guid(struct unit_test_state *uts)
 	ut_assertok(strcmp("04030201-0605-0807-090a-0b0c0d0e0f10", str));
 	sprintf(str, "%pUL", guid);
 	ut_assertok(strcmp("04030201-0605-0807-090A-0B0C0D0E0F10", str));
+	ret = snprintf(str, 4, "%pUL", guid);
+	ut_asserteq(0, str[3]);
+	ut_asserteq(36, ret);
 
 	return 0;
 }
@@ -348,6 +352,20 @@ static int print_itoa(struct unit_test_state *uts)
 	return 0;
 }
 PRINT_TEST(print_itoa, 0);
+
+static int snprint(struct unit_test_state *uts)
+{
+	char buf[10] = "xxxxxxxxx";
+	int ret;
+
+	ret = snprintf(buf, 4, "%s:%s", "abc", "def");
+	ut_asserteq(0, buf[3]);
+	ut_asserteq(7, ret);
+	ret = snprintf(buf, 4, "%s:%d", "abc", 9999);
+	ut_asserteq(8, ret);
+	return 0;
+}
+PRINT_TEST(snprint, 0);
 
 static int print_xtoa(struct unit_test_state *uts)
 {

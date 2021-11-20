@@ -18,6 +18,7 @@
 #include <smbios.h>
 #include <version_string.h>
 #include <tpm-v2.h>
+#include <tpm_api.h>
 #include <u-boot/hash-checksum.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
@@ -27,6 +28,17 @@
 #include <linux/unaligned/generic.h>
 #include <hexdump.h>
 
+/**
+ * struct event_log_buffer - internal eventlog management structure
+ *
+ * @buffer:		eventlog buffer
+ * @final_buffer:	finalevent config table buffer
+ * @pos:		current position of 'buffer'
+ * @final_pos:		current position of 'final_buffer'
+ * @get_event_called:	true if GetEventLog has been invoked at least once
+ * @ebs_called:		true if ExitBootServices has been invoked
+ * @truncated:		true if the 'buffer' is truncated
+ */
 struct event_log_buffer {
 	void *buffer;
 	void *final_buffer;
@@ -34,6 +46,7 @@ struct event_log_buffer {
 	size_t final_pos; /* final events config table position */
 	size_t last_event_size;
 	bool get_event_called;
+	bool ebs_called;
 	bool truncated;
 };
 
@@ -186,39 +199,29 @@ static efi_status_t tcg2_pcr_extend(struct udevice *dev, u32 pcr_index,
 	return EFI_SUCCESS;
 }
 
-/* tcg2_agile_log_append - Append an agile event to out eventlog
+/* put_event - Append an agile event to an eventlog
  *
  * @pcr_index:		PCR index
  * @event_type:		type of event added
  * @digest_list:	list of digest algorithms to add
  * @size:		size of event
  * @event:		event to add
+ * @log:		log buffer to append the event
  *
- * @Return: status code
  */
-static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
-					  struct tpml_digest_values *digest_list,
-					  u32 size, u8 event[])
+static void put_event(u32 pcr_index, u32 event_type,
+		      struct tpml_digest_values *digest_list, u32 size,
+		      u8 event[], void *log)
 {
-	void *log = (void *)((uintptr_t)event_log.buffer + event_log.pos);
 	size_t pos;
 	size_t i;
 	u32 event_size;
-
-	if (event_log.get_event_called)
-		log = (void *)((uintptr_t)event_log.final_buffer +
-			       event_log.final_pos);
 
 	/*
 	 * size refers to the length of event[] only, we need to check against
 	 * the final tcg_pcr_event2 size
 	 */
 	event_size = size + tcg_event_final_size(digest_list);
-	if (event_log.pos + event_size > TPM2_EVENT_LOG_SIZE ||
-	    event_log.final_pos + event_size > TPM2_EVENT_LOG_SIZE) {
-		event_log.truncated = true;
-		return EFI_VOLUME_FULL;
-	}
 
 	put_unaligned_le32(pcr_index, log);
 	pos = offsetof(struct tcg_pcr_event2, event_type);
@@ -242,25 +245,62 @@ static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
 	memcpy((void *)((uintptr_t)log + pos), event, size);
 	pos += size;
 
-	/* make sure the calculated buffer is what we checked against */
+	/*
+	 * make sure the calculated buffer is what we checked against
+	 * This check should never fail.  It checks the code above is
+	 * calculating the right length for the event we are adding
+	 */
 	if (pos != event_size)
-		return EFI_INVALID_PARAMETER;
+		log_err("Appending to the EventLog failed\n");
+}
 
-	/* if GetEventLog hasn't been called update the normal log */
-	if (!event_log.get_event_called) {
-		event_log.pos += pos;
-		event_log.last_event_size = pos;
-	} else {
-	/* if GetEventLog has been called update config table log */
-		struct efi_tcg2_final_events_table *final_event;
+/* tcg2_agile_log_append - Append an agile event to an eventlog
+ *
+ * @pcr_index:		PCR index
+ * @event_type:		type of event added
+ * @digest_list:	list of digest algorithms to add
+ * @size:		size of event
+ * @event:		event to add
+ * @log:		log buffer to append the event
+ *
+ * @Return: status code
+ */
+static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
+					  struct tpml_digest_values *digest_list,
+					  u32 size, u8 event[])
+{
+	void *log = (void *)((uintptr_t)event_log.buffer + event_log.pos);
+	u32 event_size = size + tcg_event_final_size(digest_list);
+	struct efi_tcg2_final_events_table *final_event;
+	efi_status_t ret = EFI_SUCCESS;
 
-		final_event =
-			(struct efi_tcg2_final_events_table *)(event_log.final_buffer);
-		final_event->number_of_events++;
-		event_log.final_pos += pos;
+	/* if ExitBootServices hasn't been called update the normal log */
+	if (!event_log.ebs_called) {
+		if (event_log.truncated ||
+		    event_log.pos + event_size > TPM2_EVENT_LOG_SIZE) {
+			event_log.truncated = true;
+			return EFI_VOLUME_FULL;
+		}
+		put_event(pcr_index, event_type, digest_list, size, event, log);
+		event_log.pos += event_size;
+		event_log.last_event_size = event_size;
 	}
 
-	return EFI_SUCCESS;
+	if (!event_log.get_event_called)
+		return ret;
+
+	/* if GetEventLog has been called update FinalEventLog as well */
+	if (event_log.final_pos + event_size > TPM2_EVENT_LOG_SIZE)
+		return EFI_VOLUME_FULL;
+
+	log = (void *)((uintptr_t)event_log.final_buffer + event_log.final_pos);
+	put_event(pcr_index, event_type, digest_list, size, event, log);
+
+	final_event = event_log.final_buffer;
+	final_event->number_of_events++;
+	event_log.final_pos += event_size;
+
+	return ret;
 }
 
 /**
@@ -1303,6 +1343,7 @@ static efi_status_t efi_init_event_log(void)
 	event_log.pos = 0;
 	event_log.last_event_size = 0;
 	event_log.get_event_called = false;
+	event_log.ebs_called = false;
 	event_log.truncated = false;
 
 	/*
@@ -1472,7 +1513,7 @@ static efi_status_t tcg2_measure_boot_variable(struct udevice *dev)
 				      &var_data_size);
 
 		if (!bootvar) {
-			log_info("%ls not found\n", boot_name);
+			log_debug("%ls not found\n", boot_name);
 			continue;
 		}
 
@@ -1792,6 +1833,7 @@ efi_tcg2_notify_exit_boot_services(struct efi_event *event, void *context)
 
 	EFI_ENTRY("%p, %p", event, context);
 
+	event_log.ebs_called = true;
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
 		goto out;
@@ -1902,11 +1944,19 @@ efi_status_t efi_tcg2_register(void)
 	efi_status_t ret = EFI_SUCCESS;
 	struct udevice *dev;
 	struct efi_event *event;
+	u32 err;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
 		log_warning("Unable to find TPMv2 device\n");
 		return EFI_SUCCESS;
+	}
+
+	/* initialize the TPM as early as possible. */
+	err = tpm_startup(dev, TPM_ST_CLEAR);
+	if (err) {
+		log_err("TPM startup failed\n");
+		goto fail;
 	}
 
 	ret = efi_init_event_log();

@@ -12,6 +12,11 @@
 #include <test/test.h>
 #include <test/ut.h>
 
+static inline bool lmb_is_nomap(struct lmb_property *m)
+{
+	return m->flags & LMB_NOMAP;
+}
+
 static int check_lmb(struct unit_test_state *uts, struct lmb *lmb,
 		     phys_addr_t ram_base, phys_size_t ram_size,
 		     unsigned long num_reserved,
