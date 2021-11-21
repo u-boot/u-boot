@@ -131,6 +131,13 @@ config DA8XX_GPIO
 	help
 	  This driver supports the DA8xx GPIO controller
 
+config FXL6408_GPIO
+	bool "FXL6408 I2C GPIO expander driver"
+	depends on DM_GPIO && DM_I2C
+	help
+	  This driver supports the Fairchild FXL6408 device. FXL6408 is a
+	  fully configurable 8-bit I2C-controlled GPIO expander.
+
 config INTEL_BROADWELL_GPIO
 	bool "Intel Broadwell GPIO driver"
 	depends on DM
