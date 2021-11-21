@@ -72,7 +72,7 @@ struct msg_get_clock_rate {
 #endif
 
 /*
- * https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
+ * https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes
  */
 struct rpi_model {
 	const char *name;
