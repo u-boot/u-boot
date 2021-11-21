@@ -157,6 +157,11 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		DTB_DIR "bcm2711-rpi-4-b.dtb",
 		true,
 	},
+	[0x12] = {
+		"Zero 2 W",
+		DTB_DIR "bcm2837-rpi-zero-2.dtb",
+		false,
+	},
 	[0x13] = {
 		"400",
 		DTB_DIR "bcm2711-rpi-400.dtb",
