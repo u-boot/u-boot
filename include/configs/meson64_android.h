@@ -104,6 +104,12 @@
 	"elif test $board_name = sei610; then " \
 		"echo \"  Reading DTB for sei610...\"; " \
 		"setenv dtb_index 1;" \
+	"elif test $board_name = vim3l; then " \
+		"echo \"  Reading DTB for vim3l...\"; " \
+		"setenv dtb_index 2;" \
+	"elif test $board_name = vim3; then " \
+		"echo \"  Reading DTB for vim3...\"; " \
+		"setenv dtb_index 3;" \
 	"else " \
 		"echo Error: Android boot is not supported for $board_name; " \
 		"exit; " \
@@ -117,6 +123,12 @@
 	"elif test $board_name = sei610; then " \
 		"echo \"  Reading DTBO for sei610...\"; " \
 		"setenv dtbo_index 1;" \
+	"elif test $board_name = vim3l; then " \
+		"echo \"  Reading DTBO for vim3l...\"; " \
+		"setenv dtbo_index 2;" \
+	"elif test $board_name = vim3; then " \
+		"echo \"  Reading DTBO for vim3...\"; " \
+		"setenv dtbo_index 3;" \
 	"else " \
 		"echo Error: Android boot is not supported for $board_name; " \
 		"exit; " \
