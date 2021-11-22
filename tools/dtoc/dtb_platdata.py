@@ -72,7 +72,7 @@ class Ftype(IntEnum):
 
 
 # This holds information about each type of output file dtoc can create
-# type: Type of file (Ftype)
+# ftype: Type of file (Ftype)
 # fname: Filename excluding directory, e.g. 'dt-plat.c'
 # hdr_comment: Comment explaining the purpose of the file
 OutputFile = collections.namedtuple('OutputFile',
