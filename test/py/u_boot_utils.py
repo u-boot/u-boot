@@ -1,17 +1,20 @@
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
 
-# Utility code shared across multiple tests.
+"""
+Utility code shared across multiple tests.
+"""
 
 import hashlib
 import inspect
 import os
 import os.path
-import pytest
+import pathlib
 import signal
 import sys
 import time
 import re
+import pytest
 
 def md5sum_data(data):
     """Calculate the MD5 hash of some data.
@@ -48,7 +51,7 @@ def md5sum_file(fn, max_length=None):
         data = fh.read(*params)
     return md5sum_data(data)
 
-class PersistentRandomFile(object):
+class PersistentRandomFile:
     """Generate and store information about a persistent file containing
     random data."""
 
@@ -144,7 +147,7 @@ def wait_until_file_open_fails(fn, ignore_errors):
         Nothing.
     """
 
-    for i in range(100):
+    for _ in range(100):
         fh = attempt_to_open_file(fn)
         if not fh:
             return
@@ -192,9 +195,9 @@ def run_and_log_expect_exception(u_boot_console, cmd, retcode, msg):
     try:
         runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
         runner.run(cmd)
-    except Exception as e:
-        assert(retcode == runner.exit_status)
-        assert(msg in runner.output)
+    except Exception:
+        assert retcode == runner.exit_status
+        assert msg in runner.output
     else:
         raise Exception("Expected an exception with retcode %d message '%s',"
                         "but it was not raised" % (retcode, msg))
@@ -279,17 +282,17 @@ class PersistentFileHelperCtxMgr(object):
             if filename_timestamp < self.module_timestamp:
                 self.log.action('Removing stale generated file ' +
                     self.filename)
-                os.unlink(self.filename)
+                pathlib.Path(self.filename).unlink()
 
     def __exit__(self, extype, value, traceback):
         if extype:
             try:
-                os.path.unlink(self.filename)
-            except:
+                pathlib.Path(self.filename).unlink()
+            except Exception:
                 pass
             return
         logged = False
-        for i in range(20):
+        for _ in range(20):
             filename_timestamp = os.path.getmtime(self.filename)
             if filename_timestamp > self.module_timestamp:
                 break
