@@ -2,8 +2,10 @@
 # Copyright (c) 2015 Stephen Warren
 # Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
 
-# Logic to interact with U-Boot running on real hardware, typically via a
-# physical serial port.
+"""
+Logic to interact with U-Boot running on real hardware, typically via a
+physical serial port.
+"""
 
 import sys
 from u_boot_spawn import Spawn
