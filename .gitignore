@@ -95,3 +95,6 @@ GTAGS
 
 # Python cache
 __pycache__
+
+# Python code coverage output (python3-coverage html)
+/htmlcov/
