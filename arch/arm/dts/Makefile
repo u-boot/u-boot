@@ -914,6 +914,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mn-ddr4-evk.dtb \
 	imx8mq-cm.dtb \
 	imx8mn-evk.dtb \
+	imx8mn-var-som-symphony.dtb \
 	imx8mq-evk.dtb \
 	imx8mm-beacon-kit.dtb \
 	imx8mn-beacon-kit.dtb \
