@@ -4661,6 +4661,26 @@ class TestFunctional(unittest.TestCase):
             str(e.exception),
             "Not enough space in '.*u_boot_binman_embed_sm' for data length.*")
 
+    def testVersion(self):
+        """Test we can get the binman version"""
+        version = '(unreleased)'
+        self.assertEqual(version, state.GetVersion(self._indir))
+
+        with self.assertRaises(SystemExit):
+            with test_util.capture_sys_output() as (_, stderr):
+                self._DoBinman('-V')
+        self.assertEqual('Binman %s\n' % version, stderr.getvalue())
+
+        # Try running the tool too, just to be safe
+        result = self._RunBinman('-V')
+        self.assertEqual('Binman %s\n' % version, result.stderr)
+
+        # Set up a version file to make sure that works
+        version = 'v2025.01-rc2'
+        tools.WriteFile(os.path.join(self._indir, 'version'), version,
+                        binary=False)
+        self.assertEqual(version, state.GetVersion(self._indir))
+
 
 if __name__ == "__main__":
     unittest.main()

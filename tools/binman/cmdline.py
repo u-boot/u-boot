@@ -5,7 +5,9 @@
 
 """Command-line parser for binman"""
 
+import argparse
 from argparse import ArgumentParser
+import state
 
 def make_extract_parser(subparsers):
     """make_extract_parser: Make a subparser for the 'extract' command
@@ -25,6 +27,32 @@ def make_extract_parser(subparsers):
                                 help='Paths within file to extract (wildcard)')
     extract_parser.add_argument('-U', '--uncompressed', action='store_true',
         help='Output raw uncompressed data for compressed entries')
+
+
+#pylint: disable=R0903
+class BinmanVersion(argparse.Action):
+    """Handles the -V option to binman
+
+    This reads the version information from a file called 'version' in the same
+    directory as this file.
+
+    If not present it assumes this is running from the U-Boot tree and collects
+    the version from the Makefile.
+
+    The format of the version information is three VAR = VALUE lines, for
+    example:
+
+        VERSION = 2022
+        PATCHLEVEL = 01
+        EXTRAVERSION = -rc2
+    """
+    def __init__(self, nargs=0, **kwargs):
+        super().__init__(nargs=nargs, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser._print_message(f'Binman {state.GetVersion()}\n')
+        parser.exit()
+
 
 def ParseArgs(argv):
     """Parse the binman command-line arguments
@@ -59,6 +87,7 @@ controlled by a description in the board device tree.'''
     parser.add_argument('-v', '--verbosity', default=1,
         type=int, help='Control verbosity: 0=silent, 1=warnings, 2=notices, '
         '3=info, 4=detail, 5=debug')
+    parser.add_argument('-V', '--version', nargs=0, action=BinmanVersion)
 
     subparsers = parser.add_subparsers(dest='cmd')
     subparsers.required = True
