@@ -48,4 +48,4 @@ class Entry_blob_phase(Entry_section):
             subnode = state.AddSubnode(self._node, name)
 
         # Read entries again, now that we have some
-        self._ReadEntries()
+        self.ReadEntries()

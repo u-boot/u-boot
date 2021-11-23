@@ -171,7 +171,7 @@ class Entry_cbfs(Entry):
         self._cbfs_arg = fdt_util.GetString(node, 'cbfs-arch', 'x86')
         self.align_default = None
         self._cbfs_entries = OrderedDict()
-        self._ReadSubnodes()
+        self.ReadEntries()
         self.reader = None
 
     def ObtainContents(self, skip=None):
@@ -204,7 +204,7 @@ class Entry_cbfs(Entry):
         self.SetContents(data)
         return True
 
-    def _ReadSubnodes(self):
+    def ReadEntries(self):
         """Read the subnodes to find out what should go in this CBFS"""
         for node in self._node.subnodes:
             entry = Entry.Create(self, node)

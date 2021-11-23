@@ -85,9 +85,9 @@ class Entry_section(Entry):
         if filename:
             self._filename = filename
 
-        self._ReadEntries()
+        self.ReadEntries()
 
-    def _ReadEntries(self):
+    def ReadEntries(self):
         for node in self._node.subnodes:
             if node.name.startswith('hash') or node.name.startswith('signature'):
                 continue
@@ -741,5 +741,5 @@ class Entry_section(Entry):
             missing: List of missing properties / entry args, each a string
         """
         if not self._ignore_missing:
-            entry.Raise('Missing required properties/entry args: %s' %
-                       (', '.join(missing)))
+            missing = ', '.join(missing)
+            entry.Raise(f'Missing required properties/entry args: {missing}')
