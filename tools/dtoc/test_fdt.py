@@ -16,6 +16,12 @@ import unittest
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(1, os.path.join(our_path, '..'))
 
+# Bring in the libfdt module
+sys.path.insert(2, 'scripts/dtc/pylibfdt')
+sys.path.insert(2, os.path.join(our_path, '../../scripts/dtc/pylibfdt'))
+sys.path.insert(2, os.path.join(our_path,
+                '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
+
 from dtoc import fdt
 from dtoc import fdt_util
 from dtoc.fdt_util import fdt32_to_cpu
