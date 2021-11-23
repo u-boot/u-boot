@@ -860,7 +860,8 @@ features to produce new behaviours.
         """Handle writing the data in a child entry
 
         This should be called on the child's parent section after the child's
-        data has been updated. It
+        data has been updated. It should update any data structures needed to
+        validate that the update is successful.
 
         This base-class implementation does nothing, since the base Entry object
         does not have any children.
@@ -870,7 +871,7 @@ features to produce new behaviours.
 
         Returns:
             True if the section could be updated successfully, False if the
-                data is such that the section could not updat
+                data is such that the section could not update
         """
         return True
 
