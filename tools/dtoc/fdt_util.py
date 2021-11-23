@@ -202,6 +202,26 @@ def GetByte(node, propname, default=None):
                          (node.name, propname, len(value), 1))
     return ord(value[0])
 
+def GetBytes(node, propname, size, default=None):
+    """Get a set of bytes from a property
+
+    Args:
+        node (Node): Node object to read from
+        propname (str): property name to read
+        size (int): Number of bytes to expect
+        default (bytes): Default value or None
+
+    Returns:
+        bytes: Bytes value read, or default if none
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    if len(prop.bytes) != size:
+        raise ValueError("Node '%s' property '%s' has length %d, expecting %d" %
+                         (node.name, propname, len(prop.bytes), size))
+    return prop.bytes
+
 def GetPhandleList(node, propname):
     """Get a list of phandles from a property
 

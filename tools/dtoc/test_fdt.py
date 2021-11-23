@@ -635,6 +635,23 @@ class TestFdtUtil(unittest.TestCase):
         self.assertIn("property 'intval' has length 4, expecting 1",
                       str(e.exception))
 
+    def testGetBytes(self):
+        self.assertEqual(bytes([5]), fdt_util.GetBytes(self.node, 'byteval', 1))
+        self.assertEqual(None, fdt_util.GetBytes(self.node, 'missing', 3))
+        self.assertEqual(
+            bytes([3]), fdt_util.GetBytes(self.node, 'missing', 3,  bytes([3])))
+
+        with self.assertRaises(ValueError) as e:
+            fdt_util.GetBytes(self.node, 'longbytearray', 7)
+        self.assertIn(
+            "Node 'spl-test' property 'longbytearray' has length 9, expecting 7",
+             str(e.exception))
+
+        self.assertEqual(
+            bytes([0, 0, 0, 1]), fdt_util.GetBytes(self.node, 'intval', 4))
+        self.assertEqual(
+            bytes([3]), fdt_util.GetBytes(self.node, 'missing', 3,  bytes([3])))
+
     def testGetPhandleList(self):
         dtb = fdt.FdtScan(find_dtb_file('dtoc_test_phandle.dts'))
         node = dtb.GetNode('/phandle-source2')
