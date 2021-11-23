@@ -114,4 +114,18 @@ int ofnode_decode_memory_region(ofnode config_node, const char *mem_type,
  */
 bool ofnode_phy_is_fixed_link(ofnode eth_node, ofnode *phy_node);
 
+/**
+ * ofnode_eth_uses_inband_aneg() - Detect whether MAC should use in-band autoneg
+ *
+ * This function detects whether the Ethernet controller should use IEEE 802.3
+ * clause 37 in-band autonegotiation for serial protocols such as 1000base-x,
+ * SGMII, USXGMII, etc. The property is relevant when the Ethernet controller
+ * is connected to an on-board PHY or an SFP cage, and is not relevant when it
+ * has a fixed link (in that case, in-band autoneg should not be used).
+ *
+ * @param eth_node	ofnode belonging to the Ethernet controller
+ * @return true if in-band autoneg should be used, false otherwise
+ */
+bool ofnode_eth_uses_inband_aneg(ofnode eth_node);
+
 #endif

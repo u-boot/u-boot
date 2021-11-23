@@ -6,6 +6,7 @@
 #ifndef __DSA_H__
 #define __DSA_H__
 
+#include <dm/ofnode.h>
 #include <phy.h>
 #include <net.h>
 
@@ -144,6 +145,17 @@ int dsa_set_tagging(struct udevice *dev, ushort headroom, ushort tailroom);
  * @return Master Eth 'udevice' pointer if OK, NULL on error
  */
 struct udevice *dsa_get_master(struct udevice *dev);
+
+/**
+ * dsa_port_get_ofnode() - Return a reference to the given port's OF node
+ *
+ * Can be called at driver probe time or later.
+ *
+ * @dev:	DSA switch udevice pointer
+ * @port:	Port index
+ * @return OF node reference if OK, NULL on error
+ */
+ofnode dsa_port_get_ofnode(struct udevice *dev, int port);
 
 /**
  * dsa_port_get_pdata() - Helper that returns the platdata of an active

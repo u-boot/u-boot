@@ -16,6 +16,7 @@
  */
 
 #include <dm/device_compat.h>
+#include <dm/of_extra.h>
 #include <linux/delay.h>
 #include <net/dsa.h>
 #include <asm/io.h>
@@ -210,17 +211,14 @@ static int felix_init_sxgmii(struct mii_dev *imdio, int pidx)
 static void felix_start_pcs(struct udevice *dev, int port,
 			    struct phy_device *phy, struct mii_dev *imdio)
 {
-	bool autoneg = true;
-
-	if (phy->phy_id == PHY_FIXED_ID ||
-	    phy->interface == PHY_INTERFACE_MODE_2500BASEX)
-		autoneg = false;
+	ofnode node = dsa_port_get_ofnode(dev, port);
+	bool inband_an = ofnode_eth_uses_inband_aneg(node);
 
 	switch (phy->interface) {
 	case PHY_INTERFACE_MODE_SGMII:
 	case PHY_INTERFACE_MODE_2500BASEX:
 	case PHY_INTERFACE_MODE_QSGMII:
-		felix_init_sgmii(imdio, port, autoneg);
+		felix_init_sgmii(imdio, port, inband_an);
 		break;
 	case PHY_INTERFACE_MODE_10GBASER:
 	case PHY_INTERFACE_MODE_USXGMII:

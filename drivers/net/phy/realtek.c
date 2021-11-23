@@ -12,7 +12,6 @@
 #include <linux/delay.h>
 
 #define PHY_RTL8211x_FORCE_MASTER BIT(1)
-#define PHY_RTL8211E_PINE64_GIGABIT_FIX BIT(2)
 #define PHY_RTL8211F_FORCE_EEE_RXC_ON BIT(3)
 #define PHY_RTL8201F_S700_RMII_TIMINGS BIT(4)
 
@@ -49,10 +48,10 @@
 #define MIIM_RTL8211F_PHYSTAT_SPDDONE  0x0800
 #define MIIM_RTL8211F_PHYSTAT_LINK     0x0004
 
-#define MIIM_RTL8211E_CONFREG           0x1c
-#define MIIM_RTL8211E_CONFREG_TXD		0x0002
-#define MIIM_RTL8211E_CONFREG_RXD		0x0004
-#define MIIM_RTL8211E_CONFREG_MAGIC		0xb400	/* Undocumented */
+#define MIIM_RTL8211E_CONFREG		0x1c
+#define MIIM_RTL8211E_CTRL_DELAY	BIT(13)
+#define MIIM_RTL8211E_TX_DELAY		BIT(12)
+#define MIIM_RTL8211E_RX_DELAY		BIT(11)
 
 #define MIIM_RTL8211E_EXT_PAGE_SELECT  0x1e
 
@@ -108,10 +107,6 @@ static int rtl8211b_probe(struct phy_device *phydev)
 
 static int rtl8211e_probe(struct phy_device *phydev)
 {
-#ifdef CONFIG_RTL8211E_PINE64_GIGABIT_FIX
-	phydev->flags |= PHY_RTL8211E_PINE64_GIGABIT_FIX;
-#endif
-
 	return 0;
 }
 
@@ -154,22 +149,6 @@ static int rtl8211x_config(struct phy_device *phydev)
 		reg |= MIIM_RTL8211x_CTRL1000T_MASTER;
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, reg);
 	}
-	if (phydev->flags & PHY_RTL8211E_PINE64_GIGABIT_FIX) {
-		unsigned int reg;
-
-		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT,
-			  7);
-		phy_write(phydev, MDIO_DEVAD_NONE,
-			  MIIM_RTL8211E_EXT_PAGE_SELECT, 0xa4);
-		reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211E_CONFREG);
-		/* Ensure both internal delays are turned off */
-		reg &= ~(MIIM_RTL8211E_CONFREG_TXD | MIIM_RTL8211E_CONFREG_RXD);
-		/* Flip the magic undocumented bits */
-		reg |= MIIM_RTL8211E_CONFREG_MAGIC;
-		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211E_CONFREG, reg);
-		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT,
-			  0);
-	}
 	/* read interrupt status just to clear it */
 	phy_read(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211x_PHY_INER);
 
@@ -196,6 +175,44 @@ static int rtl8201f_config(struct phy_device *phydev)
 			  0);
 	}
 
+	genphy_config_aneg(phydev);
+
+	return 0;
+}
+
+static int rtl8211e_config(struct phy_device *phydev)
+{
+	int reg, val;
+
+	/* enable TX/RX delay for rgmii-* modes, and disable them for rgmii. */
+	switch (phydev->interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+		val = MIIM_RTL8211E_CTRL_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		val = MIIM_RTL8211E_CTRL_DELAY | MIIM_RTL8211E_TX_DELAY |
+		      MIIM_RTL8211E_RX_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+		val = MIIM_RTL8211E_CTRL_DELAY | MIIM_RTL8211E_RX_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		val = MIIM_RTL8211E_CTRL_DELAY | MIIM_RTL8211E_TX_DELAY;
+		break;
+	default: /* the rest of the modes imply leaving delays as is. */
+		goto default_delay;
+	}
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, 7);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211E_EXT_PAGE_SELECT, 0xa4);
+
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211E_CONFREG);
+	reg &= ~(MIIM_RTL8211E_TX_DELAY | MIIM_RTL8211E_RX_DELAY);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211E_CONFREG, reg | val);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, 0);
+
+default_delay:
 	genphy_config_aneg(phydev);
 
 	return 0;
@@ -410,7 +427,7 @@ static struct phy_driver RTL8211E_driver = {
 	.mask = 0xffffff,
 	.features = PHY_GBIT_FEATURES,
 	.probe = &rtl8211e_probe,
-	.config = &rtl8211x_config,
+	.config = &rtl8211e_config,
 	.startup = &rtl8211e_startup,
 	.shutdown = &genphy_shutdown,
 };
