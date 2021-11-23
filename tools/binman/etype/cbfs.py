@@ -193,7 +193,24 @@ class Entry_cbfs(Entry):
                            (node.name, compress))
             self._entries[entry._cbfs_name] = entry
 
-    def ObtainContents(self, skip=None):
+    def ObtainCfile(self, cbfs, entry):
+        # First get the input data and put it in a file. If not available,
+        # try later.
+        data = entry.GetData()
+        cfile = None
+        if entry._type == 'raw':
+            cfile = cbfs.add_file_raw(entry._cbfs_name, data,
+                                      entry._cbfs_offset,
+                                      entry._cbfs_compress)
+        elif entry._type == 'stage':
+            cfile = cbfs.add_file_stage(entry._cbfs_name, data,
+                                        entry._cbfs_offset)
+        else:
+            entry.Raise("Unknown cbfs-type '%s' (use 'raw', 'stage')" %
+                        entry._type)
+        return cfile
+
+    def ObtainContents(self, skip_entry=None):
         arch = cbfs_util.find_arch(self._cbfs_arg)
         if arch is None:
             self.Raise("Invalid architecture '%s'" % self._cbfs_arg)
@@ -201,22 +218,9 @@ class Entry_cbfs(Entry):
             self.Raise("'cbfs' entry must have a size property")
         cbfs = CbfsWriter(self.size, arch)
         for entry in self._entries.values():
-            # First get the input data and put it in a file. If not available,
-            # try later.
-            if entry != skip and not entry.ObtainContents():
+            if entry != skip_entry and not entry.ObtainContents():
                 return False
-            data = entry.GetData()
-            cfile = None
-            if entry._type == 'raw':
-                cfile = cbfs.add_file_raw(entry._cbfs_name, data,
-                                          entry._cbfs_offset,
-                                          entry._cbfs_compress)
-            elif entry._type == 'stage':
-                cfile = cbfs.add_file_stage(entry._cbfs_name, data,
-                                            entry._cbfs_offset)
-            else:
-                entry.Raise("Unknown cbfs-type '%s' (use 'raw', 'stage')" %
-                            entry._type)
+            cfile = self.ObtainCfile(cbfs, entry)
             if cfile:
                 entry._cbfs_file = cfile
         data = cbfs.get_data()
@@ -285,5 +289,7 @@ class Entry_cbfs(Entry):
         return cfile.data if decomp else cfile.orig_data
 
     def WriteChildData(self, child):
-        self.ObtainContents(skip=child)
+        # Recreate the data structure, leaving the data for this child alone,
+        # so that child.data is used to pack into the FIP.
+        self.ObtainContents(skip_entry=child)
         return True
