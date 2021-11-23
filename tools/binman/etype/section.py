@@ -24,34 +24,130 @@ from patman.tools import ToHexSize
 class Entry_section(Entry):
     """Entry that contains other entries
 
-    Properties / Entry arguments: (see binman README for more information):
-        pad-byte: Pad byte to use when padding
-        sort-by-offset: True if entries should be sorted by offset, False if
-        they must be in-order in the device tree description
+    A section is an entry which can contain other entries, thus allowing
+    hierarchical images to be created. See 'Sections and hierarchical images'
+    in the binman README for more information.
 
-        end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+    The base implementation simply joins the various entries together, using
+    various rules about alignment, etc.
 
-        skip-at-start: Number of bytes before the first entry starts. These
-            effectively adjust the starting offset of entries. For example,
-            if this is 16, then the first entry would start at 16. An entry
-            with offset = 20 would in fact be written at offset 4 in the image
-            file, since the first 16 bytes are skipped when writing.
-        name-prefix: Adds a prefix to the name of every entry in the section
-            when writing out the map
-        align_default: Default alignment for this section, if no alignment is
-            given in the entry
+    Subclassing
+    ~~~~~~~~~~~
 
-    Properties:
-        allow_missing: True if this section permits external blobs to be
-            missing their contents. The second will produce an image but of
-            course it will not work.
+    This class can be subclassed to support other file formats which hold
+    multiple entries, such as CBFS. To do this, override the following
+    functions. The documentation here describes what your function should do.
+    For example code, see etypes which subclass `Entry_section`, or `cbfs.py`
+    for a more involved example::
+
+       $ grep -l \(Entry_section tools/binman/etype/*.py
+
+    ReadNode()
+        Call `super().ReadNode()`, then read any special properties for the
+        section. Then call `self.ReadEntries()` to read the entries.
+
+        Binman calls this at the start when reading the image description.
+
+    ReadEntries()
+        Read in the subnodes of the section. This may involve creating entries
+        of a particular etype automatically, as well as reading any special
+        properties in the entries. For each entry, entry.ReadNode() should be
+        called, to read the basic entry properties. The properties should be
+        added to `self._entries[]`, in the correct order, with a suitable name.
+
+        Binman calls this at the start when reading the image description.
+
+    BuildSectionData(required)
+        Create the custom file format that you want and return it as bytes.
+        This likely sets up a file header, then loops through the entries,
+        adding them to the file. For each entry, call `entry.GetData()` to
+        obtain the data. If that returns None, and `required` is False, then
+        this method must give up and return None. But if `required` is True then
+        it should assume that all data is valid.
+
+        Binman calls this when packing the image, to find out the size of
+        everything. It is called again at the end when building the final image.
+
+    SetImagePos(image_pos):
+        Call `super().SetImagePos(image_pos)`, then set the `image_pos` values
+        for each of the entries. This should use the custom file format to find
+        the `start offset` (and `image_pos`) of each entry. If the file format
+        uses compression in such a way that there is no offset available (other
+        than reading the whole file and decompressing it), then the offsets for
+        affected entries can remain unset (`None`). The size should also be set
+        if possible.
+
+        Binman calls this after the image has been packed, to update the
+        location that all the entries ended up at.
+
+    ReadChildData(child, decomp):
+        The default version of this may be good enough, if you are able to
+        implement SetImagePos() correctly. But that is a bit of a bypass, so
+        you can override this method to read from your custom file format. It
+        should read the entire entry containing the custom file using
+        `super().ReadData(True)`, then parse the file to get the data for the
+        given child, then return that data.
+
+        If your file format supports compression, the `decomp` argument tells
+        you whether to return the compressed data (`decomp` is False) or to
+        uncompress it first, then return the uncompressed data (`decomp` is
+        True). This is used by the `binman extract -U` option.
+
+        Binman calls this when reading in an image, in order to populate all the
+        entries with the data from that image (`binman ls`).
+
+    WriteChildData(child):
+        Binman calls this after `child.data` is updated, to inform the custom
+        file format about this, in case it needs to do updates.
+
+        The default version of this does nothing and probably needs to be
+        overridden for the 'binman replace' command to work. Your version should
+        use `child.data` to update the data for that child in the custom file
+        format.
+
+        Binman calls this when updating an image that has been read in and in
+        particular to update the data for a particular entry (`binman replace`)
+
+    Properties / Entry arguments
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    See :ref:`develop/package/binman:Image description format` for more
+    information.
+
+    align-default
+        Default alignment for this section, if no alignment is given in the
+        entry
+
+    pad-byte
+        Pad byte to use when padding
+
+    sort-by-offset
+        True if entries should be sorted by offset, False if they must be
+        in-order in the device tree description
+
+    end-at-4gb
+        Used to build an x86 ROM which ends at 4GB (2^32)
+
+    name-prefix
+        Adds a prefix to the name of every entry in the section when writing out
+        the map
+
+    skip-at-start
+        Number of bytes before the first entry starts. These effectively adjust
+        the starting offset of entries. For example, if this is 16, then the
+        first entry would start at 16. An entry with offset = 20 would in fact
+        be written at offset 4 in the image file, since the first 16 bytes are
+        skipped when writing.
 
     Since a section is also an entry, it inherits all the properies of entries
     too.
 
-    A section is an entry which can contain other entries, thus allowing
-    hierarchical images to be created. See 'Sections and hierarchical images'
-    in the binman README for more information.
+    Note that the `allow_missing` member controls whether this section permits
+    external blobs to be missing their contents. The option will produce an
+    image but of course it will not work. It is useful to make sure that
+    Continuous Integration systems can build without the binaries being
+    available. This is set by the `SetAllowMissing()` method, if
+    `--allow-missing` is passed to binman.
     """
     def __init__(self, section, etype, node, test=False):
         if not test:
@@ -98,9 +194,9 @@ class Entry_section(Entry):
         """Raises an error for this section
 
         Args:
-            msg: Error message to use in the raise string
+            msg (str): Error message to use in the raise string
         Raises:
-            ValueError()
+            ValueError: always
         """
         raise ValueError("Section '%s': %s" % (self._node.path, msg))
 
