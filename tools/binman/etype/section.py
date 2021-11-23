@@ -143,8 +143,8 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             entry.AddMissingProperties(have_image_pos)
 
-    def ObtainContents(self):
-        return self.GetEntryContents()
+    def ObtainContents(self, skip_entry=None):
+        return self.GetEntryContents(skip_entry=skip_entry)
 
     def GetPaddedDataForEntry(self, entry, entry_data):
         """Get the data for an entry including any padding
@@ -527,12 +527,13 @@ class Entry_section(Entry):
                 return entry
         return None
 
-    def GetEntryContents(self):
+    def GetEntryContents(self, skip_entry=None):
         """Call ObtainContents() for each entry in the section
         """
         def _CheckDone(entry):
-            if not entry.ObtainContents():
-                next_todo.append(entry)
+            if entry != skip_entry:
+                if not entry.ObtainContents():
+                    next_todo.append(entry)
             return entry
 
         todo = self._entries.values()
@@ -620,7 +621,7 @@ class Entry_section(Entry):
 
     def ListEntries(self, entries, indent):
         """List the files in the section"""
-        Entry.AddEntryInfo(entries, indent, self.name, 'section', self.size,
+        Entry.AddEntryInfo(entries, indent, self.name, self.etype, self.size,
                            self.image_pos, None, self.offset, self)
         for entry in self._entries.values():
             entry.ListEntries(entries, indent + 1)
