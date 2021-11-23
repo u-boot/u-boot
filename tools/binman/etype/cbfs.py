@@ -168,11 +168,15 @@ class Entry_cbfs(Entry):
         from binman import state
 
         super().__init__(section, etype, node)
-        self._cbfs_arg = fdt_util.GetString(node, 'cbfs-arch', 'x86')
         self.align_default = None
         self._entries = OrderedDict()
-        self.ReadEntries()
         self.reader = None
+
+    def ReadNode(self):
+        """Read properties from the atf-fip node"""
+        super().ReadNode()
+        self._cbfs_arg = fdt_util.GetString(self._node, 'cbfs-arch', 'x86')
+        self.ReadEntries()
 
     def ReadEntries(self):
         """Read the subnodes to find out what should go in this CBFS"""
