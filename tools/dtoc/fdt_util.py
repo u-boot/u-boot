@@ -27,6 +27,18 @@ def fdt32_to_cpu(val):
     """
     return struct.unpack('>I', val)[0]
 
+def fdt64_to_cpu(val):
+    """Convert a device tree cell to an integer
+
+    Args:
+        val (list): Value to convert (list of 2 4-character strings representing
+            the cell value)
+
+    Return:
+        int: A native-endian integer value
+    """
+    return fdt32_to_cpu(val[0]) << 32 | fdt32_to_cpu(val[1])
+
 def fdt_cells_to_cpu(val, cells):
     """Convert one or two cells to a long integer
 
@@ -106,6 +118,29 @@ def GetInt(node, propname, default=None):
         raise ValueError("Node '%s' property '%s' has list value: expecting "
                          "a single integer" % (node.name, propname))
     value = fdt32_to_cpu(prop.value)
+    return value
+
+def GetInt64(node, propname, default=None):
+    """Get a 64-bit integer from a property
+
+    Args:
+        node (Node): Node object to read from
+        propname (str): property name to read
+        default (int): Default value to use if the node/property do not exist
+
+    Returns:
+        int: value read, or default if none
+
+    Raises:
+        ValueError: Property is not of the correct size
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    if not isinstance(prop.value, list) or len(prop.value) != 2:
+        raise ValueError("Node '%s' property '%s' should be a list with 2 items for 64-bit values" %
+                         (node.name, propname))
+    value = fdt64_to_cpu(prop.value)
     return value
 
 def GetString(node, propname, default=None):

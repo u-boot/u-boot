@@ -24,7 +24,7 @@ sys.path.insert(2, os.path.join(our_path,
 
 from dtoc import fdt
 from dtoc import fdt_util
-from dtoc.fdt_util import fdt32_to_cpu
+from dtoc.fdt_util import fdt32_to_cpu, fdt64_to_cpu
 from fdt import Type, BytesToValue
 import libfdt
 from patman import command
@@ -128,7 +128,7 @@ class TestFdt(unittest.TestCase):
         node = self.dtb.GetNode('/spl-test')
         props = self.dtb.GetProps(node)
         self.assertEqual(['boolval', 'bytearray', 'byteval', 'compatible',
-                          'intarray', 'intval', 'longbytearray',
+                          'int64val', 'intarray', 'intval', 'longbytearray',
                           'maybe-empty-int', 'notstring', 'stringarray',
                           'stringval', 'u-boot,dm-pre-reloc'],
                          sorted(props.keys()))
@@ -334,6 +334,10 @@ class TestProp(unittest.TestCase):
         prop = self._ConvertProp('intval')
         self.assertEqual(Type.INT, prop.type)
         self.assertEqual(1, fdt32_to_cpu(prop.value))
+
+        prop = self._ConvertProp('int64val')
+        self.assertEqual(Type.INT, prop.type)
+        self.assertEqual(0x123456789abcdef0, fdt64_to_cpu(prop.value))
 
         prop = self._ConvertProp('intarray')
         self.assertEqual(Type.INT, prop.type)
@@ -586,9 +590,20 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(3, fdt_util.GetInt(self.node, 'missing', 3))
 
         with self.assertRaises(ValueError) as e:
-            self.assertEqual(3, fdt_util.GetInt(self.node, 'intarray'))
+            fdt_util.GetInt(self.node, 'intarray')
         self.assertIn("property 'intarray' has list value: expecting a single "
                       'integer', str(e.exception))
+
+    def testGetInt64(self):
+        self.assertEqual(0x123456789abcdef0,
+                         fdt_util.GetInt64(self.node, 'int64val'))
+        self.assertEqual(3, fdt_util.GetInt64(self.node, 'missing', 3))
+
+        with self.assertRaises(ValueError) as e:
+            fdt_util.GetInt64(self.node, 'intarray')
+        self.assertIn(
+            "property 'intarray' should be a list with 2 items for 64-bit values",
+            str(e.exception))
 
     def testGetString(self):
         self.assertEqual('message', fdt_util.GetString(self.node, 'stringval'))
