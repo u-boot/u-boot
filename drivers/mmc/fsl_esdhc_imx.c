@@ -130,7 +130,6 @@ struct esdhc_soc_data {
  * @mmc: mmc
  * Following is used when Driver Model is enabled for MMC
  * @dev: pointer for the device
- * @non_removable: 0: removable; 1: non-removable
  * @broken_cd: 0: use GPIO for card detect; 1: Do not use GPIO for card detect
  * @wp_enable: 1: enable checking wp; 0: no check
  * @vs18_enable: 1: use 1.8V voltage; 0: use 3.3V
@@ -154,7 +153,6 @@ struct fsl_esdhc_priv {
 	struct mmc *mmc;
 #endif
 	struct udevice *dev;
-	int non_removable;
 	int broken_cd;
 	int wp_enable;
 	int vs18_enable;
@@ -1086,9 +1084,6 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 #endif
 
 #if CONFIG_IS_ENABLED(DM_MMC)
-	if (priv->non_removable)
-		return 1;
-
 	if (priv->broken_cd)
 		return 1;
 #if CONFIG_IS_ENABLED(DM_GPIO)
@@ -1419,25 +1414,18 @@ static int fsl_esdhc_of_to_plat(struct udevice *dev)
 	if (dev_read_bool(dev, "broken-cd"))
 		priv->broken_cd = 1;
 
-	if (dev_read_bool(dev, "non-removable")) {
-		priv->non_removable = 1;
-	 } else {
-		priv->non_removable = 0;
-#if CONFIG_IS_ENABLED(DM_GPIO)
-		gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
-				     GPIOD_IS_IN);
-#endif
-	}
-
 	if (dev_read_prop(dev, "fsl,wp-controller", NULL)) {
 		priv->wp_enable = 1;
 	} else {
 		priv->wp_enable = 0;
-#if CONFIG_IS_ENABLED(DM_GPIO)
-		gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio,
-				   GPIOD_IS_IN);
-#endif
 	}
+
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
+			     GPIOD_IS_IN);
+	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio,
+			     GPIOD_IS_IN);
+#endif
 
 	priv->vs18_enable = 0;
 
@@ -1481,11 +1469,11 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	priv->esdhc_regs = map_sysmem(dtplat->reg[0], dtplat->reg[1]);
 
 	if (dtplat->non_removable)
-		priv->non_removable = 1;
+		plat->cfg.host_caps |= MMC_CAP_NONREMOVABLE;
 	else
-		priv->non_removable = 0;
+		plat->cfg.host_caps &= ~MMC_CAP_NONREMOVABLE;
 
-	if (CONFIG_IS_ENABLED(DM_GPIO) && !priv->non_removable) {
+	if (CONFIG_IS_ENABLED(DM_GPIO) && !dtplat->non_removable) {
 		struct udevice *gpiodev;
 
 		ret = device_get_by_ofplat_idx(dtplat->cd_gpios->idx, &gpiodev);
@@ -1571,7 +1559,11 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 static int fsl_esdhc_get_cd(struct udevice *dev)
 {
+	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+
+	if (plat->cfg.host_caps & MMC_CAP_NONREMOVABLE)
+		return 1;
 
 	return esdhc_getcd_common(priv);
 }
