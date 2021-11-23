@@ -2251,7 +2251,7 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('107_cbfs_no_size.dts')
         self.assertIn('entry must have a size property', str(e.exception))
 
-    def testCbfsNoCOntents(self):
+    def testCbfsNoContents(self):
         """Test handling of a CBFS entry which does not provide contentsy"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('108_cbfs_no_contents.dts')
