@@ -33,7 +33,7 @@ struct scmi_mbox_channel {
 
 static int scmi_mbox_process_msg(struct udevice *dev, struct scmi_msg *msg)
 {
-	struct scmi_mbox_channel *chan = dev_get_priv(dev);
+	struct scmi_mbox_channel *chan = dev_get_plat(dev);
 	int ret;
 
 	ret = scmi_write_msg_to_smt(dev, &chan->smt, msg);
@@ -62,9 +62,9 @@ out:
 	return ret;
 }
 
-int scmi_mbox_probe(struct udevice *dev)
+int scmi_mbox_of_to_plat(struct udevice *dev)
 {
-	struct scmi_mbox_channel *chan = dev_get_priv(dev);
+	struct scmi_mbox_channel *chan = dev_get_plat(dev);
 	int ret;
 
 	chan->timeout_us = TIMEOUT_US_10MS;
@@ -72,16 +72,12 @@ int scmi_mbox_probe(struct udevice *dev)
 	ret = mbox_get_by_index(dev, 0, &chan->mbox);
 	if (ret) {
 		dev_err(dev, "Failed to find mailbox: %d\n", ret);
-		goto out;
+		return ret;
 	}
 
 	ret = scmi_dt_get_smt_buffer(dev, &chan->smt);
 	if (ret)
 		dev_err(dev, "Failed to get shm resources: %d\n", ret);
-
-out:
-	if (ret)
-		devm_kfree(dev, chan);
 
 	return ret;
 }
@@ -99,7 +95,7 @@ U_BOOT_DRIVER(scmi_mbox) = {
 	.name		= "scmi-over-mailbox",
 	.id		= UCLASS_SCMI_AGENT,
 	.of_match	= scmi_mbox_ids,
-	.priv_auto	= sizeof(struct scmi_mbox_channel),
-	.probe		= scmi_mbox_probe,
+	.plat_auto	= sizeof(struct scmi_mbox_channel),
+	.of_to_plat	= scmi_mbox_of_to_plat,
 	.ops		= &scmi_mbox_ops,
 };
