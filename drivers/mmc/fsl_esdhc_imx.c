@@ -1167,7 +1167,7 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 {
 	struct mmc_config *cfg;
 	struct fsl_esdhc *regs;
-	u32 caps, voltage_caps;
+	u32 caps;
 	int ret;
 
 	if (!priv)
@@ -1206,9 +1206,7 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 	memset(cfg, '\0', sizeof(*cfg));
 #endif
 
-	voltage_caps = 0;
 	caps = esdhc_read32(&regs->hostcapblt);
-
 #ifdef CONFIG_MCF5441x
 	/*
 	 * MCF5441x RM declares in more points that sdhc clock speed must
@@ -1219,31 +1217,24 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC135
-	caps = caps & ~(ESDHC_HOSTCAPBLT_SRS |
-			ESDHC_HOSTCAPBLT_VS18 | ESDHC_HOSTCAPBLT_VS30);
+	caps &= ~(HOSTCAPBLT_SRS | HOSTCAPBLT_VS18 | HOSTCAPBLT_VS30);
 #endif
 
-	if (caps & ESDHC_HOSTCAPBLT_VS18)
-		voltage_caps |= MMC_VDD_165_195;
-	if (caps & ESDHC_HOSTCAPBLT_VS30)
-		voltage_caps |= MMC_VDD_29_30 | MMC_VDD_30_31;
-	if (caps & ESDHC_HOSTCAPBLT_VS33)
-		voltage_caps |= MMC_VDD_32_33 | MMC_VDD_33_34;
+#ifdef CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
+	caps |= HOSTCAPBLT_VS33;
+#endif
+
+	if (caps & HOSTCAPBLT_VS18)
+		cfg->voltages |= MMC_VDD_165_195;
+	if (caps & HOSTCAPBLT_VS30)
+		cfg->voltages |= MMC_VDD_29_30 | MMC_VDD_30_31;
+	if (caps & HOSTCAPBLT_VS33)
+		cfg->voltages |= MMC_VDD_32_33 | MMC_VDD_33_34;
 
 	cfg->name = "FSL_SDHC";
 #if !CONFIG_IS_ENABLED(DM_MMC)
 	cfg->ops = &esdhc_ops;
 #endif
-#ifdef CONFIG_SYS_SD_VOLTAGE
-	cfg->voltages = CONFIG_SYS_SD_VOLTAGE;
-#else
-	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
-#endif
-	if ((cfg->voltages & voltage_caps) == 0) {
-		printf("voltage not supported by controller\n");
-		return -1;
-	}
-
 	if (priv->bus_width == 8)
 		cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
 	else if (priv->bus_width == 4)
@@ -1261,7 +1252,7 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 			cfg->host_caps &= ~MMC_MODE_4BIT;
 	}
 
-	if (caps & ESDHC_HOSTCAPBLT_HSS)
+	if (caps & HOSTCAPBLT_HSS)
 		cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 #ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
