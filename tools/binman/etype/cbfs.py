@@ -170,7 +170,7 @@ class Entry_cbfs(Entry):
         super().__init__(section, etype, node)
         self._cbfs_arg = fdt_util.GetString(node, 'cbfs-arch', 'x86')
         self.align_default = None
-        self._cbfs_entries = OrderedDict()
+        self._entries = OrderedDict()
         self.ReadEntries()
         self.reader = None
 
@@ -187,7 +187,7 @@ class Entry_cbfs(Entry):
             if entry._cbfs_compress is None:
                 self.Raise("Invalid compression in '%s': '%s'" %
                            (node.name, compress))
-            self._cbfs_entries[entry._cbfs_name] = entry
+            self._entries[entry._cbfs_name] = entry
 
     def ObtainContents(self, skip=None):
         arch = cbfs_util.find_arch(self._cbfs_arg)
@@ -196,7 +196,7 @@ class Entry_cbfs(Entry):
         if self.size is None:
             self.Raise("'cbfs' entry must have a size property")
         cbfs = CbfsWriter(self.size, arch)
-        for entry in self._cbfs_entries.values():
+        for entry in self._entries.values():
             # First get the input data and put it in a file. If not available,
             # try later.
             if entry != skip and not entry.ObtainContents():
@@ -230,7 +230,7 @@ class Entry_cbfs(Entry):
         super().SetImagePos(image_pos)
 
         # Now update the entries with info from the CBFS entries
-        for entry in self._cbfs_entries.values():
+        for entry in self._entries.values():
             cfile = entry._cbfs_file
             entry.size = cfile.data_len
             entry.offset = cfile.calced_cbfs_offset
@@ -240,7 +240,7 @@ class Entry_cbfs(Entry):
 
     def AddMissingProperties(self, have_image_pos):
         super().AddMissingProperties(have_image_pos)
-        for entry in self._cbfs_entries.values():
+        for entry in self._entries.values():
             entry.AddMissingProperties(have_image_pos)
             if entry._cbfs_compress:
                 state.AddZeroProp(entry._node, 'uncomp-size')
@@ -252,7 +252,7 @@ class Entry_cbfs(Entry):
     def SetCalculatedProperties(self):
         """Set the value of device-tree properties calculated by binman"""
         super().SetCalculatedProperties()
-        for entry in self._cbfs_entries.values():
+        for entry in self._entries.values():
             state.SetInt(entry._node, 'offset', entry.offset)
             state.SetInt(entry._node, 'size', entry.size)
             state.SetInt(entry._node, 'image-pos', entry.image_pos)
@@ -262,11 +262,11 @@ class Entry_cbfs(Entry):
     def ListEntries(self, entries, indent):
         """Override this method to list all files in the section"""
         super().ListEntries(entries, indent)
-        for entry in self._cbfs_entries.values():
+        for entry in self._entries.values():
             entry.ListEntries(entries, indent + 1)
 
     def GetEntries(self):
-        return self._cbfs_entries
+        return self._entries
 
     def ReadData(self, decomp=True):
         data = super().ReadData(True)
