@@ -95,7 +95,7 @@ class Entry(object):
         self.pad_after = 0
         self.offset_unset = False
         self.image_pos = None
-        self._expand_size = False
+        self.expand_size = False
         self.compress = 'none'
         self.missing = False
         self.external = False
