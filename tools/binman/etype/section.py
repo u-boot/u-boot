@@ -81,9 +81,6 @@ class Entry_section(Entry):
                 self._skip_at_start = 0
         self._name_prefix = fdt_util.GetString(self._node, 'name-prefix')
         self.align_default = fdt_util.GetInt(self._node, 'align-default', 0)
-        filename = fdt_util.GetString(self._node, 'filename')
-        if filename:
-            self._filename = filename
 
         self.ReadEntries()
 
@@ -661,7 +658,7 @@ class Entry_section(Entry):
         return data
 
     def ReadChildData(self, child, decomp=True):
-        tout.Debug("ReadChildData for child '%s'" % child.GetPath())
+        tout.Debug(f"ReadChildData for child '{child.GetPath()}'")
         parent_data = self.ReadData(True)
         offset = child.offset - self._skip_at_start
         tout.Debug("Extract for child '%s': offset %#x, skip_at_start %#x, result %#x" %
