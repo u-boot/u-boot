@@ -174,6 +174,21 @@ class Entry_cbfs(Entry):
         self.ReadEntries()
         self.reader = None
 
+    def ReadEntries(self):
+        """Read the subnodes to find out what should go in this CBFS"""
+        for node in self._node.subnodes:
+            entry = Entry.Create(self, node)
+            entry.ReadNode()
+            entry._cbfs_name = fdt_util.GetString(node, 'cbfs-name', entry.name)
+            entry._type = fdt_util.GetString(node, 'cbfs-type')
+            compress = fdt_util.GetString(node, 'cbfs-compress', 'none')
+            entry._cbfs_offset = fdt_util.GetInt(node, 'cbfs-offset')
+            entry._cbfs_compress = cbfs_util.find_compress(compress)
+            if entry._cbfs_compress is None:
+                self.Raise("Invalid compression in '%s': '%s'" %
+                           (node.name, compress))
+            self._cbfs_entries[entry._cbfs_name] = entry
+
     def ObtainContents(self, skip=None):
         arch = cbfs_util.find_arch(self._cbfs_arg)
         if arch is None:
@@ -203,21 +218,6 @@ class Entry_cbfs(Entry):
         data = cbfs.get_data()
         self.SetContents(data)
         return True
-
-    def ReadEntries(self):
-        """Read the subnodes to find out what should go in this CBFS"""
-        for node in self._node.subnodes:
-            entry = Entry.Create(self, node)
-            entry.ReadNode()
-            entry._cbfs_name = fdt_util.GetString(node, 'cbfs-name', entry.name)
-            entry._type = fdt_util.GetString(node, 'cbfs-type')
-            compress = fdt_util.GetString(node, 'cbfs-compress', 'none')
-            entry._cbfs_offset = fdt_util.GetInt(node, 'cbfs-offset')
-            entry._cbfs_compress = cbfs_util.find_compress(compress)
-            if entry._cbfs_compress is None:
-                self.Raise("Invalid compression in '%s': '%s'" %
-                           (node.name, compress))
-            self._cbfs_entries[entry._cbfs_name] = entry
 
     def SetImagePos(self, image_pos):
         """Override this function to set all the entry properties from CBFS
