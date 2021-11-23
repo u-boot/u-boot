@@ -2,18 +2,38 @@
 # Copyright (c) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
 #
-# Command-line parser for binman
-#
+
+"""Command-line parser for binman"""
 
 from argparse import ArgumentParser
+
+def make_extract_parser(subparsers):
+    """make_extract_parser: Make a subparser for the 'extract' command
+
+    Args:
+        subparsers (ArgumentParser): parser to add this one to
+    """
+    extract_parser = subparsers.add_parser('extract',
+                                           help='Extract files from an image')
+    extract_parser.add_argument('-i', '--image', type=str, required=True,
+                                help='Image filename to extract')
+    extract_parser.add_argument('-f', '--filename', type=str,
+                                help='Output filename to write to')
+    extract_parser.add_argument('-O', '--outdir', type=str, default='',
+        help='Path to directory to use for output files')
+    extract_parser.add_argument('paths', type=str, nargs='*',
+                                help='Paths within file to extract (wildcard)')
+    extract_parser.add_argument('-U', '--uncompressed', action='store_true',
+        help='Output raw uncompressed data for compressed entries')
 
 def ParseArgs(argv):
     """Parse the binman command-line arguments
 
     Args:
-        argv: List of string arguments
+        argv (list of str): List of string arguments
+
     Returns:
-        Tuple (options, args) with the command-line options and arugments.
+        tuple: (options, args) with the command-line options and arugments.
             options provides access to the options (e.g. option.debug)
             args is a list of string arguments
     """
@@ -74,8 +94,8 @@ controlled by a description in the board device tree.'''
     build_parser.add_argument('--update-fdt-in-elf', type=str,
         help='Update an ELF file with the output dtb: infile,outfile,begin_sym,end_sym')
 
-    entry_parser = subparsers.add_parser('entry-docs',
-        help='Write out entry documentation (see entries.rst)')
+    subparsers.add_parser(
+        'entry-docs', help='Write out entry documentation (see entries.rst)')
 
     list_parser = subparsers.add_parser('ls', help='List files in an image')
     list_parser.add_argument('-i', '--image', type=str, required=True,
@@ -83,18 +103,7 @@ controlled by a description in the board device tree.'''
     list_parser.add_argument('paths', type=str, nargs='*',
                              help='Paths within file to list (wildcard)')
 
-    extract_parser = subparsers.add_parser('extract',
-                                           help='Extract files from an image')
-    extract_parser.add_argument('-i', '--image', type=str, required=True,
-                                help='Image filename to extract')
-    extract_parser.add_argument('-f', '--filename', type=str,
-                                help='Output filename to write to')
-    extract_parser.add_argument('-O', '--outdir', type=str, default='',
-        help='Path to directory to use for output files')
-    extract_parser.add_argument('paths', type=str, nargs='*',
-                                help='Paths within file to extract (wildcard)')
-    extract_parser.add_argument('-U', '--uncompressed', action='store_true',
-        help='Output raw uncompressed data for compressed entries')
+    make_extract_parser(subparsers)
 
     replace_parser = subparsers.add_parser('replace',
                                            help='Replace entries in an image')
