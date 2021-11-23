@@ -193,29 +193,32 @@
 	phy-handle = <&phy1>;
 	phy-mode = "rgmii-id";
 
-	mdio: mdio { /* FIXME */
+	mdio: mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reset-gpios = <&slg7xl45106 6 GPIO_ACTIVE_LOW>;
-		reset-delay-us = <2>;
-
 		phy0: ethernet-phy@4 { /* u81 */
 			#phy-cells = <1>;
+			compatible = "ethernet-phy-id2000.a231";
 			reg = <4>;
 			ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 			ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_75_NS>;
 			ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 			ti,dp83867-rxctrl-strap-quirk;
-			/* This is not correct but address depends on GTR settings */
-			/* reset-gpios = <&slg7xl45106 5 GPIO_ACTIVE_LOW>;  */
+			reset-assert-us = <100>;
+			reset-deassert-us = <280>;
+			reset-gpios = <&slg7xl45106 5 GPIO_ACTIVE_LOW>;
 		};
 		phy1: ethernet-phy@8 { /* u36 */
 			#phy-cells = <1>;
+			compatible = "ethernet-phy-id2000.a231";
 			reg = <8>;
 			ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 			ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_75_NS>;
 			ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 			ti,dp83867-rxctrl-strap-quirk;
+			reset-assert-us = <100>;
+			reset-deassert-us = <280>;
+			reset-gpios = <&slg7xl45106 6 GPIO_ACTIVE_LOW>;
 		};
 	};
 };
