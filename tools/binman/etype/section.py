@@ -182,13 +182,16 @@ class Entry_section(Entry):
 
         return data
 
-    def _BuildSectionData(self, required):
+    def BuildSectionData(self, required):
         """Build the contents of a section
 
         This places all entries at the right place, dealing with padding before
         and after entries. It does not do padding for the section itself (the
         pad-before and pad-after properties in the section items) since that is
         handled by the parent section.
+
+        This should be overridden by subclasses which want to build their own
+        data structure for the section.
 
         Args:
             required: True if the data must be present, False if it is OK to
@@ -201,6 +204,9 @@ class Entry_section(Entry):
 
         for entry in self._entries.values():
             entry_data = entry.GetData(required)
+
+            # This can happen when this section is referenced from a collection
+            # earlier in the image description. See testCollectionSection().
             if not required and entry_data is None:
                 return None
             data = self.GetPaddedDataForEntry(entry, entry_data)
@@ -250,7 +256,7 @@ class Entry_section(Entry):
             This excludes any padding. If the section is compressed, the
             compressed data is returned
         """
-        data = self._BuildSectionData(required)
+        data = self.BuildSectionData(required)
         if data is None:
             return None
         self.SetContents(data)
@@ -278,7 +284,7 @@ class Entry_section(Entry):
             self._SortEntries()
         self._ExpandEntries()
 
-        data = self._BuildSectionData(True)
+        data = self.BuildSectionData(True)
         self.SetContents(data)
 
         self.CheckSize()
@@ -735,7 +741,9 @@ class Entry_section(Entry):
         nothing.
 
         Args:
-            missing: List of missing properties / entry args, each a string
+            entry (Entry): Entry to raise the error on
+            missing (list of str): List of missing properties / entry args, each
+            a string
         """
         if not self._ignore_missing:
             missing = ', '.join(missing)

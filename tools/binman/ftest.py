@@ -4533,7 +4533,7 @@ class TestFunctional(unittest.TestCase):
     def testCollectionSection(self):
         """Test a collection where a section must be built first"""
         # Sections never have their contents when GetData() is called, but when
-        # _BuildSectionData() is called with required=True, a section will force
+        # BuildSectionData() is called with required=True, a section will force
         # building the contents, producing an error is anything is still
         # missing.
         data = self._DoReadFile('199_collection_section.dts')
