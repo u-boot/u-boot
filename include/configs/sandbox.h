@@ -18,12 +18,6 @@
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 
-/* turn on command-line edit/c/auto */
-
-/* SPI - enable all SPI flash types for testing purposes */
-
-#define CONFIG_SYS_FDT_LOAD_ADDR	        0x100
-
 #define CONFIG_PHYSMEM
 
 /* Size of our emulated memory */
