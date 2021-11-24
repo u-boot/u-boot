@@ -16,6 +16,10 @@
 		u-boot,dm-spl;
 	};
 
+	config {
+		u-boot,spl-payload-offset = <0x105000>; /* loader2 @1044KB */
+	};
+
 	hfclk {
 		u-boot,dm-spl;
 	};
@@ -28,6 +32,13 @@
 
 &clint {
 	clocks = <&rtcclk>;
+};
+
+&qspi0 {
+	u-boot,dm-spl;
+	flash@0 {
+		u-boot,dm-spl;
+	};
 };
 
 &spi0 {

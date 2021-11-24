@@ -22,6 +22,7 @@
 #define GEM_PHY_RESET	SIFIVE_GENERIC_GPIO_NR(0, 12)
 
 #define MODE_SELECT_REG		0x1000
+#define MODE_SELECT_SPI		0x6
 #define MODE_SELECT_SD		0xb
 #define MODE_SELECT_MASK	GENMASK(3, 0)
 
@@ -123,6 +124,8 @@ u32 spl_boot_device(void)
 	u32 boot_device = mode_select & MODE_SELECT_MASK;
 
 	switch (boot_device) {
+	case MODE_SELECT_SPI:
+		return BOOT_DEVICE_SPI;
 	case MODE_SELECT_SD:
 		return BOOT_DEVICE_MMC1;
 	default:
