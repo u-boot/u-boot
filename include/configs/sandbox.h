@@ -14,8 +14,6 @@
 #define CONFIG_SYS_TIMER_RATE		1000000
 #endif
 
-#define CONFIG_HOST_MAX_DEVICES 4
-
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
