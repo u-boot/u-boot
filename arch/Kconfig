@@ -195,6 +195,7 @@ config SANDBOX
 	imply DM_DSA
 	imply CMD_EXTENSION
 	imply KEYBOARD
+	imply PHYSMEM
 
 config SH
 	bool "SuperH architecture"
@@ -246,6 +247,7 @@ config X86
 	imply USB_ETHER_SMSC95XX
 	imply USB_HOST_ETHER
 	imply PCH
+	imply PHYSMEM
 	imply RTC_MC146818
 	imply ACPIGEN if !QEMU
 	imply SYSINFO if GENERATE_SMBIOS_TABLE

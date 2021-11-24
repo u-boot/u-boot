@@ -14,8 +14,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_PHYSMEM
-
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
 /* SATA AHCI storage */

@@ -15,6 +15,16 @@ config SYS_NUM_ADDR_MAP
 	help
 	  Sets the number of entries in the virtual-physical mapping table.
 
+config PHYSMEM
+	bool "Access to physical memory region (> 4G)"
+	help
+	  Some basic support is provided for operations on memory not
+	  normally accessible to 32-bit U-Boot - e.g. some architectures
+	  support access to more than 4G of memory on 32-bit
+	  machines using physical address extension or similar.
+	  Enable this to access this basic support, which only supports clearing
+	  the memory.
+
 config BCH
 	bool "Enable Software based BCH ECC"
 	help
