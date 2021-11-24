@@ -59,6 +59,7 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
     from binman import elf_test
     from binman import entry_test
     from binman import fdt_test
+    from binman import fip_util_test
     from binman import ftest
     from binman import image_test
     import doctest
@@ -72,7 +73,8 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
         result, debug, verbosity, test_preserve_dirs, processes, test_name,
         toolpath,
         [entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
-         elf_test.TestElf, image_test.TestImage, cbfs_util_test.TestCbfs])
+         elf_test.TestElf, image_test.TestImage, cbfs_util_test.TestCbfs,
+         fip_util_test.TestFip])
 
     return test_util.ReportResult('binman', test_name, result)
 
