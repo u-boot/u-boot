@@ -40,3 +40,16 @@ config SIFIVE_FU740
 	imply DM_I2C
 	imply SYS_I2C_OCORES
 	imply SPL_I2C
+
+if ENV_IS_IN_SPI_FLASH
+
+config ENV_OFFSET
+	default 0x505000
+
+config ENV_SIZE
+	default 0x20000
+
+config ENV_SECT_SIZE
+	default 0x10000
+
+endif # ENV_IS_IN_SPI_FLASH
