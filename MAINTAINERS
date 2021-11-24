@@ -761,6 +761,18 @@ F:	test/env/
 F:	tools/env*
 F:	tools/mkenvimage.c
 
+FASTBOOT
+S:	Orphaned
+F:	cmd/fastboot.c
+F:	doc/android/fastboot*.rst
+F:	include/fastboot.h
+F:	include/fastboot-internal.h
+F:	include/net/fastboot.h
+F:	drivers/fastboot/
+F:	drivers/usb/gadget/f_fastboot.c
+F:	net/fastboot.c
+F:	test/dm/fastboot.c
+
 FPGA
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
