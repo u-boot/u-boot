@@ -45,8 +45,6 @@ struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
-#define ATA_PORT_ADDR(port) (port)
-
 #ifdef CONFIG_IDE_RESET
 extern void ide_set_reset(int idereset);
 
@@ -676,8 +674,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 __weak void ide_outb(int dev, int port, unsigned char val)
 {
 	debug("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
-	      dev, port, val,
-	      (ATA_CURR_BASE(dev) + ATA_PORT_ADDR(port)));
+	      dev, port, val, ATA_CURR_BASE(dev) + port);
 
 #if defined(CONFIG_IDE_AHB)
 	if (port) {
@@ -688,7 +685,7 @@ __weak void ide_outb(int dev, int port, unsigned char val)
 		outb(val, (ATA_CURR_BASE(dev)));
 	}
 #else
-	outb(val, (ATA_CURR_BASE(dev) + ATA_PORT_ADDR(port)));
+	outb(val, ATA_CURR_BASE(dev) + port);
 #endif
 }
 
@@ -699,12 +696,11 @@ __weak unsigned char ide_inb(int dev, int port)
 #if defined(CONFIG_IDE_AHB)
 	val = ide_read_register(dev, port);
 #else
-	val = inb((ATA_CURR_BASE(dev) + ATA_PORT_ADDR(port)));
+	val = inb(ATA_CURR_BASE(dev) + port);
 #endif
 
 	debug("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
-	      dev, port,
-	      (ATA_CURR_BASE(dev) + ATA_PORT_ADDR(port)), val);
+	      dev, port, ATA_CURR_BASE(dev) + port, val);
 	return val;
 }
 
