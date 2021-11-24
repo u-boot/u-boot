@@ -314,6 +314,10 @@ Example output for a simple image with U-Boot and an FDT map::
 If allow-repack is used then 'orig-offset' and 'orig-size' properties are
 added as necessary. See the binman README.
 
+When extracting files, an alternative 'fdt' format is available for fdtmaps.
+Use `binman extract -F fdt ...` to use this. It will export a devicetree,
+without the fdtmap header, so it can be viewed with `fdtdump`.
+
 
 
 Entry: files: A set of files arranged in a section
@@ -855,7 +859,7 @@ SetImagePos(image_pos):
     Binman calls this after the image has been packed, to update the
     location that all the entries ended up at.
 
-ReadChildData(child, decomp):
+ReadChildData(child, decomp, alt_format):
     The default version of this may be good enough, if you are able to
     implement SetImagePos() correctly. But that is a bit of a bypass, so
     you can override this method to read from your custom file format. It
@@ -867,6 +871,11 @@ ReadChildData(child, decomp):
     you whether to return the compressed data (`decomp` is False) or to
     uncompress it first, then return the uncompressed data (`decomp` is
     True). This is used by the `binman extract -U` option.
+
+    If your entry supports alternative formats, the alt_format provides the
+    alternative format that the user has selected. Your function should
+    return data in that format. This is used by the 'binman extract -l'
+    option.
 
     Binman calls this when reading in an image, in order to populate all the
     entries with the data from that image (`binman ls`).

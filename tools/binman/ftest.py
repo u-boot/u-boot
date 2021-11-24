@@ -4681,6 +4681,40 @@ class TestFunctional(unittest.TestCase):
                         binary=False)
         self.assertEqual(version, state.GetVersion(self._indir))
 
+    def testAltFormat(self):
+        """Test that alternative formats can be used to extract"""
+        self._DoReadFileRealDtb('213_fdtmap_alt_format.dts')
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with test_util.capture_sys_output() as (stdout, _):
+                self._DoBinman('extract', '-i', updated_fname, '-F', 'list')
+            self.assertEqual(
+                '''Flag (-F)   Entry type            Description
+fdt         fdtmap                Extract the devicetree blob from the fdtmap
+''',
+                stdout.getvalue())
+
+            dtb = os.path.join(tmpdir, 'fdt.dtb')
+            self._DoBinman('extract', '-i', updated_fname, '-F', 'fdt', '-f',
+                           dtb, 'fdtmap')
+
+            # Check that we can read it and it can be scanning, meaning it does
+            # not have a 16-byte fdtmap header
+            data = tools.ReadFile(dtb)
+            dtb = fdt.Fdt.FromData(data)
+            dtb.Scan()
+
+            # Now check u-boot which has no alt_format
+            fname = os.path.join(tmpdir, 'fdt.dtb')
+            self._DoBinman('extract', '-i', updated_fname, '-F', 'dummy',
+                           '-f', fname, 'u-boot')
+            data = tools.ReadFile(fname)
+            self.assertEqual(U_BOOT_DATA, data)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
 
 if __name__ == "__main__":
     unittest.main()

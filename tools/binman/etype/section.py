@@ -80,7 +80,7 @@ class Entry_section(Entry):
         Binman calls this after the image has been packed, to update the
         location that all the entries ended up at.
 
-    ReadChildData(child, decomp):
+    ReadChildData(child, decomp, alt_format):
         The default version of this may be good enough, if you are able to
         implement SetImagePos() correctly. But that is a bit of a bypass, so
         you can override this method to read from your custom file format. It
@@ -92,6 +92,11 @@ class Entry_section(Entry):
         you whether to return the compressed data (`decomp` is False) or to
         uncompress it first, then return the uncompressed data (`decomp` is
         True). This is used by the `binman extract -U` option.
+
+        If your entry supports alternative formats, the alt_format provides the
+        alternative format that the user has selected. Your function should
+        return data in that format. This is used by the 'binman extract -l'
+        option.
 
         Binman calls this when reading in an image, in order to populate all the
         entries with the data from that image (`binman ls`).
@@ -750,9 +755,9 @@ class Entry_section(Entry):
         """
         return self._sort
 
-    def ReadData(self, decomp=True):
+    def ReadData(self, decomp=True, alt_format=None):
         tout.Info("ReadData path='%s'" % self.GetPath())
-        parent_data = self.section.ReadData(True)
+        parent_data = self.section.ReadData(True, alt_format)
         offset = self.offset - self.section._skip_at_start
         data = parent_data[offset:offset + self.size]
         tout.Info(
@@ -761,9 +766,9 @@ class Entry_section(Entry):
                    self.size, len(data)))
         return data
 
-    def ReadChildData(self, child, decomp=True):
+    def ReadChildData(self, child, decomp=True, alt_format=None):
         tout.Debug(f"ReadChildData for child '{child.GetPath()}'")
-        parent_data = self.ReadData(True)
+        parent_data = self.ReadData(True, alt_format)
         offset = child.offset - self._skip_at_start
         tout.Debug("Extract for child '%s': offset %#x, skip_at_start %#x, result %#x" %
                    (child.GetPath(), child.offset, self._skip_at_start, offset))
@@ -775,6 +780,10 @@ class Entry_section(Entry):
                 tout.Info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
                             (child.GetPath(), len(indata), child.compress,
                             len(data)))
+        if alt_format:
+            new_data = child.GetAltFormat(data, alt_format)
+            if new_data is not None:
+                data = new_data
         return data
 
     def WriteChildData(self, child):
@@ -846,3 +855,7 @@ class Entry_section(Entry):
         if not self._ignore_missing:
             missing = ', '.join(missing)
             entry.Raise(f'Missing required properties/entry args: {missing}')
+
+    def CheckAltFormats(self, alt_formats):
+        for entry in self._entries.values():
+            entry.CheckAltFormats(alt_formats)

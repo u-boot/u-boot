@@ -815,7 +815,7 @@ features to produce new behaviours.
         self.AddEntryInfo(entries, indent, self.name, self.etype, self.size,
                           self.image_pos, self.uncomp_size, self.offset, self)
 
-    def ReadData(self, decomp=True):
+    def ReadData(self, decomp=True, alt_format=None):
         """Read the data for an entry from the image
 
         This is used when the image has been read in and we want to extract the
@@ -832,19 +832,20 @@ features to produce new behaviours.
         # although compressed sections are currently not supported
         tout.Debug("ReadChildData section '%s', entry '%s'" %
                    (self.section.GetPath(), self.GetPath()))
-        data = self.section.ReadChildData(self, decomp)
+        data = self.section.ReadChildData(self, decomp, alt_format)
         return data
 
-    def ReadChildData(self, child, decomp=True):
+    def ReadChildData(self, child, decomp=True, alt_format=None):
         """Read the data for a particular child entry
 
         This reads data from the parent and extracts the piece that relates to
         the given child.
 
         Args:
-            child: Child entry to read data for (must be valid)
-            decomp: True to decompress any compressed data before returning it;
-                False to return the raw, uncompressed data
+            child (Entry): Child entry to read data for (must be valid)
+            decomp (bool): True to decompress any compressed data before
+                returning it; False to return the raw, uncompressed data
+            alt_format (str): Alternative format to read in, or None
 
         Returns:
             Data for the child (bytes)
@@ -856,6 +857,20 @@ features to produce new behaviours.
         self.contents_size = len(data)
         self.ProcessContentsUpdate(data)
         self.Detail('Loaded data size %x' % len(data))
+
+    def GetAltFormat(self, data, alt_format):
+        """Read the data for an extry in an alternative format
+
+        Supported formats are list in the documentation for each entry. An
+        example is fdtmap which provides .
+
+        Args:
+            data (bytes): Data to convert (this should have been produced by the
+                entry)
+            alt_format (str): Format to use
+
+        """
+        pass
 
     def GetImage(self):
         """Get the image containing this entry
@@ -997,3 +1012,13 @@ features to produce new behaviours.
         tout.Info("Node '%s': etype '%s': %s selected" %
                   (node.path, etype, new_etype))
         return True
+
+    def CheckAltFormats(self, alt_formats):
+        """Add any alternative formats supported by this entry type
+
+        Args:
+            alt_formats (dict): Dict to add alt_formats to:
+                key: Name of alt format
+                value: Help text
+        """
+        pass

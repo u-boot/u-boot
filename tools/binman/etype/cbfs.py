@@ -276,13 +276,13 @@ class Entry_cbfs(Entry):
     def GetEntries(self):
         return self._entries
 
-    def ReadData(self, decomp=True):
-        data = super().ReadData(True)
+    def ReadData(self, decomp=True, alt_format=None):
+        data = super().ReadData(True, alt_format)
         return data
 
-    def ReadChildData(self, child, decomp=True):
+    def ReadChildData(self, child, decomp=True, alt_format=None):
         if not self.reader:
-            data = super().ReadData(True)
+            data = super().ReadData(True, alt_format)
             self.reader = cbfs_util.CbfsReader(data)
         reader = self.reader
         cfile = reader.files.get(child.name)

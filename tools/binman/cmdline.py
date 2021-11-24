@@ -17,6 +17,8 @@ def make_extract_parser(subparsers):
     """
     extract_parser = subparsers.add_parser('extract',
                                            help='Extract files from an image')
+    extract_parser.add_argument('-F', '--format', type=str,
+        help='Select an alternative format for extracted data')
     extract_parser.add_argument('-i', '--image', type=str, required=True,
                                 help='Image filename to extract')
     extract_parser.add_argument('-f', '--filename', type=str,
