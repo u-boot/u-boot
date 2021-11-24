@@ -615,6 +615,15 @@ class TestFdtUtil(unittest.TestCase):
         self.assertIn("property 'stringarray' has list value: expecting a "
                       'single string', str(e.exception))
 
+    def testGetStringList(self):
+        self.assertEqual(['message'],
+                         fdt_util.GetStringList(self.node, 'stringval'))
+        self.assertEqual(
+            ['multi-word', 'message'],
+            fdt_util.GetStringList(self.node, 'stringarray'))
+        self.assertEqual(['test'],
+                         fdt_util.GetStringList(self.node, 'missing', ['test']))
+
     def testGetBool(self):
         self.assertEqual(True, fdt_util.GetBool(self.node, 'boolval'))
         self.assertEqual(False, fdt_util.GetBool(self.node, 'missing'))

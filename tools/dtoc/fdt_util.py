@@ -163,6 +163,27 @@ def GetString(node, propname, default=None):
                          "a single string" % (node.name, propname))
     return value
 
+def GetStringList(node, propname, default=None):
+    """Get a string list from a property
+
+    Args:
+        node (Node): Node object to read from
+        propname (str): property name to read
+        default (list of str): Default value to use if the node/property do not
+            exist, or None
+
+    Returns:
+        String value read, or default if none
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    value = prop.value
+    if not isinstance(value, list):
+        strval = GetString(node, propname)
+        return [strval]
+    return value
+
 def GetBool(node, propname, default=False):
     """Get an boolean from a property
 
