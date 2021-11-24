@@ -10,10 +10,6 @@
 #define CONFIG_IO_TRACE
 #endif
 
-#ifndef CONFIG_TIMER
-#define CONFIG_SYS_TIMER_RATE		1000000
-#endif
-
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
