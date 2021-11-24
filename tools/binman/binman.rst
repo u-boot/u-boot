@@ -913,6 +913,11 @@ or with wildcards::
           u-boot-dtb        180   108  u-boot-dtb        80          3b5
       image-header          bf8     8  image-header     bf8
 
+If an older version of binman is used to list images created by a newer one, it
+is possible that it will contain entry types that are not supported. These still
+show with the correct type, but binman just sees them as blobs (plain binary
+data). Any special features of that etype are not supported by the old binman.
+
 
 Extracting files from images
 ----------------------------

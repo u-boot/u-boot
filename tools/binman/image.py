@@ -63,9 +63,13 @@ class Image(section.Entry_section):
             to ignore 'u-boot-bin' in this case, and build it ourselves in
             binman with 'u-boot-dtb.bin' and 'u-boot.dtb'. See
             Entry_u_boot_expanded and Entry_blob_phase for details.
+        missing_etype: Use a default entry type ('blob') if the requested one
+            does not exist in binman. This is useful if an image was created by
+            binman a newer version of binman but we want to list it in an older
+            version which does not support all the entry types.
     """
     def __init__(self, name, node, copy_to_orig=True, test=False,
-                 ignore_missing=False, use_expanded=False):
+                 ignore_missing=False, use_expanded=False, missing_etype=False):
         super().__init__(None, 'section', node, test=test)
         self.copy_to_orig = copy_to_orig
         self.name = 'main-section'
@@ -75,6 +79,7 @@ class Image(section.Entry_section):
         self.fdtmap_data = None
         self.allow_repack = False
         self._ignore_missing = ignore_missing
+        self.missing_etype = missing_etype
         self.use_expanded = use_expanded
         self.test_section_timeout = False
         if not test:
@@ -124,7 +129,8 @@ class Image(section.Entry_section):
 
         # Return an Image with the associated nodes
         root = dtb.GetRoot()
-        image = Image('image', root, copy_to_orig=False, ignore_missing=True)
+        image = Image('image', root, copy_to_orig=False, ignore_missing=True,
+                      missing_etype=True)
 
         image.image_node = fdt_util.GetString(root, 'image-node', 'image')
         image.fdtmap_dtb = dtb
