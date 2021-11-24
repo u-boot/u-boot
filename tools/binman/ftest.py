@@ -23,6 +23,7 @@ from binman import cmdline
 from binman import control
 from binman import elf
 from binman import elf_test
+from binman import fip_util
 from binman import fmap_util
 from binman import state
 from dtoc import fdt
@@ -76,6 +77,7 @@ FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
+ATF_BL2U_DATA         = b'bl2u'
 OPENSBI_DATA          = b'opensbi'
 SCP_DATA              = b'scp'
 TEST_FDT1_DATA        = b'fdt1'
@@ -179,6 +181,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
         TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
+        TestFunctional._MakeInputFile('bl2u.bin', ATF_BL2U_DATA)
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
 
@@ -4734,6 +4737,220 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                              allow_missing=True)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+
+    def testFip(self):
+        """Basic test of generation of an ARM Firmware Image Package (FIP)"""
+        data = self._DoReadFile('203_fip.dts')
+        hdr, fents = fip_util.decode_fip(data)
+        self.assertEqual(fip_util.HEADER_MAGIC, hdr.name)
+        self.assertEqual(fip_util.HEADER_SERIAL, hdr.serial)
+        self.assertEqual(0x123, hdr.flags)
+
+        self.assertEqual(2, len(fents))
+
+        fent = fents[0]
+        self.assertEqual(
+            bytes([0x47,  0xd4, 0x08, 0x6d, 0x4c, 0xfe, 0x98, 0x46,
+                  0x9b, 0x95, 0x29, 0x50, 0xcb, 0xbd, 0x5a, 0x0]), fent.uuid)
+        self.assertEqual('soc-fw', fent.fip_type)
+        self.assertEqual(0x88, fent.offset)
+        self.assertEqual(len(ATF_BL31_DATA), fent.size)
+        self.assertEqual(0x123456789abcdef, fent.flags)
+        self.assertEqual(ATF_BL31_DATA, fent.data)
+        self.assertEqual(True, fent.valid)
+
+        fent = fents[1]
+        self.assertEqual(
+            bytes([0x65, 0x92, 0x27, 0x03, 0x2f, 0x74, 0xe6, 0x44,
+             0x8d, 0xff, 0x57, 0x9a, 0xc1, 0xff, 0x06, 0x10]), fent.uuid)
+        self.assertEqual('scp-fwu-cfg', fent.fip_type)
+        self.assertEqual(0x8c, fent.offset)
+        self.assertEqual(len(ATF_BL31_DATA), fent.size)
+        self.assertEqual(0, fent.flags)
+        self.assertEqual(ATF_BL2U_DATA, fent.data)
+        self.assertEqual(True, fent.valid)
+
+    def testFipOther(self):
+        """Basic FIP with something that isn't a external blob"""
+        data = self._DoReadFile('204_fip_other.dts')
+        hdr, fents = fip_util.decode_fip(data)
+
+        self.assertEqual(2, len(fents))
+        fent = fents[1]
+        self.assertEqual('rot-cert', fent.fip_type)
+        self.assertEqual(b'aa', fent.data)
+
+    def testFipOther(self):
+        """Basic FIP with something that isn't a external blob"""
+        data = self._DoReadFile('204_fip_other.dts')
+        hdr, fents = fip_util.decode_fip(data)
+
+        self.assertEqual(2, len(fents))
+        fent = fents[1]
+        self.assertEqual('rot-cert', fent.fip_type)
+        self.assertEqual(b'aa', fent.data)
+
+    def testFipNoType(self):
+        """FIP with an entry of an unknown type"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('205_fip_no_type.dts')
+        self.assertIn("Must provide a fip-type (node name 'u-boot' is not a known FIP type)",
+                      str(e.exception))
+
+    def testFipUuid(self):
+        """Basic FIP with a manual uuid"""
+        data = self._DoReadFile('206_fip_uuid.dts')
+        hdr, fents = fip_util.decode_fip(data)
+
+        self.assertEqual(2, len(fents))
+        fent = fents[1]
+        self.assertEqual(None, fent.fip_type)
+        self.assertEqual(
+            bytes([0xfc, 0x65, 0x13, 0x92, 0x4a, 0x5b, 0x11, 0xec,
+                   0x94, 0x35, 0xff, 0x2d, 0x1c, 0xfc, 0x79, 0x9c]),
+            fent.uuid)
+        self.assertEqual(U_BOOT_DATA, fent.data)
+
+    def testFipLs(self):
+        """Test listing a FIP"""
+        data = self._DoReadFileRealDtb('207_fip_ls.dts')
+        hdr, fents = fip_util.decode_fip(data)
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with test_util.capture_sys_output() as (stdout, stderr):
+                self._DoBinman('ls', '-i', updated_fname)
+        finally:
+            shutil.rmtree(tmpdir)
+        lines = stdout.getvalue().splitlines()
+        expected = [
+'Name          Image-pos  Size  Entry-type  Offset  Uncomp-size',
+'----------------------------------------------------------------',
+'main-section          0   2d3  section          0',
+'  atf-fip             0    90  atf-fip          0',
+'    soc-fw           88     4  blob-ext        88',
+'    u-boot           8c     4  u-boot          8c',
+'  fdtmap             90   243  fdtmap          90',
+]
+        self.assertEqual(expected, lines)
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        fdtmap = entries['fdtmap']
+
+        fdtmap_data = data[fdtmap.image_pos:fdtmap.image_pos + fdtmap.size]
+        magic = fdtmap_data[:8]
+        self.assertEqual(b'_FDTMAP_', magic)
+        self.assertEqual(tools.GetBytes(0, 8), fdtmap_data[8:16])
+
+        fdt_data = fdtmap_data[16:]
+        dtb = fdt.Fdt.FromData(fdt_data)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS, prefix='/')
+        self.assertEqual({
+            'atf-fip/soc-fw:image-pos': 136,
+            'atf-fip/soc-fw:offset': 136,
+            'atf-fip/soc-fw:size': 4,
+            'atf-fip/u-boot:image-pos': 140,
+            'atf-fip/u-boot:offset': 140,
+            'atf-fip/u-boot:size': 4,
+            'atf-fip:image-pos': 0,
+            'atf-fip:offset': 0,
+            'atf-fip:size': 144,
+            'image-pos': 0,
+            'offset': 0,
+            'fdtmap:image-pos': fdtmap.image_pos,
+            'fdtmap:offset': fdtmap.offset,
+            'fdtmap:size': len(fdtmap_data),
+            'size': len(data),
+        }, props)
+
+    def testFipExtractOneEntry(self):
+        """Test extracting a single entry fron an FIP"""
+        self._DoReadFileRealDtb('207_fip_ls.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        fname = os.path.join(self._indir, 'output.extact')
+        control.ExtractEntries(image_fname, fname, None, ['atf-fip/u-boot'])
+        data = tools.ReadFile(fname)
+        self.assertEqual(U_BOOT_DATA, data)
+
+    def testFipReplace(self):
+        """Test replacing a single file in a FIP"""
+        expected = U_BOOT_DATA + tools.GetBytes(0x78, 50)
+        data = self._DoReadFileRealDtb('208_fip_replace.dts')
+        updated_fname = tools.GetOutputFilename('image-updated.bin')
+        tools.WriteFile(updated_fname, data)
+        entry_name = 'atf-fip/u-boot'
+        control.WriteEntry(updated_fname, entry_name, expected,
+                           allow_resize=True)
+        actual = control.ReadEntry(updated_fname, entry_name)
+        self.assertEqual(expected, actual)
+
+        new_data = tools.ReadFile(updated_fname)
+        hdr, fents = fip_util.decode_fip(new_data)
+
+        self.assertEqual(2, len(fents))
+
+        # Check that the FIP entry is updated
+        fent = fents[1]
+        self.assertEqual(0x8c, fent.offset)
+        self.assertEqual(len(expected), fent.size)
+        self.assertEqual(0, fent.flags)
+        self.assertEqual(expected, fent.data)
+        self.assertEqual(True, fent.valid)
+
+    def testFipMissing(self):
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('209_fip_missing.dts', allow_missing=True)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'main-section'.*missing.*: rmm-fw")
+
+    def testFipSize(self):
+        """Test a FIP with a size property"""
+        data = self._DoReadFile('210_fip_size.dts')
+        self.assertEqual(0x100 + len(U_BOOT_DATA), len(data))
+        hdr, fents = fip_util.decode_fip(data)
+        self.assertEqual(fip_util.HEADER_MAGIC, hdr.name)
+        self.assertEqual(fip_util.HEADER_SERIAL, hdr.serial)
+
+        self.assertEqual(1, len(fents))
+
+        fent = fents[0]
+        self.assertEqual('soc-fw', fent.fip_type)
+        self.assertEqual(0x60, fent.offset)
+        self.assertEqual(len(ATF_BL31_DATA), fent.size)
+        self.assertEqual(ATF_BL31_DATA, fent.data)
+        self.assertEqual(True, fent.valid)
+
+        rest = data[0x60 + len(ATF_BL31_DATA):0x100]
+        self.assertEqual(tools.GetBytes(0xff, len(rest)), rest)
+
+    def testFipBadAlign(self):
+        """Test that an invalid alignment value in a FIP is detected"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('211_fip_bad_align.dts')
+        self.assertIn(
+            "Node \'/binman/atf-fip\': FIP alignment 31 must be a power of two",
+            str(e.exception))
+
+    def testFipCollection(self):
+        """Test using a FIP in a collection"""
+        data = self._DoReadFile('212_fip_collection.dts')
+        entry1 = control.images['image'].GetEntries()['collection']
+        data1 = data[:entry1.size]
+        hdr1, fents2 = fip_util.decode_fip(data1)
+
+        entry2 = control.images['image'].GetEntries()['atf-fip']
+        data2 = data[entry2.offset:entry2.offset + entry2.size]
+        hdr1, fents2 = fip_util.decode_fip(data2)
+
+        # The 'collection' entry should have U-Boot included at the end
+        self.assertEqual(entry1.size - len(U_BOOT_DATA), entry2.size)
+        self.assertEqual(data1, data2 + U_BOOT_DATA)
+        self.assertEqual(U_BOOT_DATA, data1[-4:])
+
+        # There should be a U-Boot after the final FIP
+        self.assertEqual(U_BOOT_DATA, data[-4:])
 
 
 if __name__ == "__main__":
