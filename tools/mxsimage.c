@@ -1595,8 +1595,11 @@ static int sb_load_cmdfile(struct sb_image_ctx *ictx)
 	size_t len;
 
 	fp = fopen(ictx->cfg_filename, "r");
-	if (!fp)
-		goto err_file;
+	if (!fp) {
+		fprintf(stderr, "ERR: Failed to load file \"%s\": \"%s\"\n",
+			ictx->cfg_filename, strerror(errno));
+		return -EINVAL;
+	}
 
 	while ((rlen = getline(&line, &len, fp)) > 0) {
 		memset(&cmd, 0, sizeof(cmd));
@@ -1616,12 +1619,6 @@ static int sb_load_cmdfile(struct sb_image_ctx *ictx)
 	fclose(fp);
 
 	return 0;
-
-err_file:
-	fclose(fp);
-	fprintf(stderr, "ERR: Failed to load file \"%s\"\n",
-		ictx->cfg_filename);
-	return -EINVAL;
 }
 
 static int sb_build_tree_from_cfg(struct sb_image_ctx *ictx)
