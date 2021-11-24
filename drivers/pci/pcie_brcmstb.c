@@ -97,9 +97,6 @@
 #define PCIE_EXT_CFG_DATA				0x8000
 
 #define PCIE_EXT_CFG_INDEX				0x9000
-#define  PCIE_EXT_BUSNUM_SHIFT				20
-#define  PCIE_EXT_SLOT_SHIFT				15
-#define  PCIE_EXT_FUNC_SHIFT				12
 
 #define PCIE_RGR1_SW_INIT_1				0x9210
 #define  RGR1_SW_INIT_1_PERST_MASK			0x1
@@ -227,9 +224,7 @@ static int brcm_pcie_config_address(const struct udevice *dev, pci_dev_t bdf,
 	}
 
 	/* For devices, write to the config space index register */
-	idx = (pci_bus << PCIE_EXT_BUSNUM_SHIFT)
-		| (pci_dev << PCIE_EXT_SLOT_SHIFT)
-		| (pci_func << PCIE_EXT_FUNC_SHIFT);
+	idx = PCIE_ECAM_OFFSET(pci_bus, pci_dev, pci_func, 0);
 
 	writel(idx, pcie->base + PCIE_EXT_CFG_INDEX);
 	*paddress = pcie->base + PCIE_EXT_CFG_DATA + offset;
