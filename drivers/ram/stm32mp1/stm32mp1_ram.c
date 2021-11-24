@@ -88,7 +88,7 @@ static ofnode stm32mp1_ddr_get_ofnode(struct udevice *dev)
 	return dev_ofnode(dev);
 }
 
-static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
+static int stm32mp1_ddr_setup(struct udevice *dev)
 {
 	struct ddr_info *priv = dev_get_priv(dev);
 	int ret;
