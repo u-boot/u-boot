@@ -69,6 +69,20 @@ See 'blob' for Properties / Entry arguments.
 
 
 
+Entry: blob-ext-list: List of externally built binary blobs
+-----------------------------------------------------------
+
+This is like blob-ext except that a number of blobs can be provided,
+typically with some sort of relationship, e.g. all are DDC parameters.
+
+If any of the external files needed by this llist is missing, binman can
+optionally ignore it and produce a broken image with a warning.
+
+Args:
+    filenames: List of filenames to read and include
+
+
+
 Entry: blob-named-by-arg: A blob entry which gets its filename property from its subclass
 -----------------------------------------------------------------------------------------
 

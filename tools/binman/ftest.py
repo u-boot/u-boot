@@ -4715,6 +4715,26 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         finally:
             shutil.rmtree(tmpdir)
 
+    def testExtblobList(self):
+        """Test an image with an external blob list"""
+        data = self._DoReadFile('215_blob_ext_list.dts')
+        self.assertEqual(REFCODE_DATA + FSP_M_DATA, data)
+
+    def testExtblobListMissing(self):
+        """Test an image with a missing external blob"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('216_blob_ext_list_missing.dts')
+        self.assertIn("Filename 'missing-file' not found in input path",
+                      str(e.exception))
+
+    def testExtblobListMissingOk(self):
+        """Test an image with an missing external blob that is allowed"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('216_blob_ext_list_missing.dts',
+                             allow_missing=True)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+
 
 if __name__ == "__main__":
     unittest.main()
