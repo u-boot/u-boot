@@ -1063,14 +1063,6 @@ The following options need to be configured:
 - Keyboard Support:
 		See Kconfig help for available keyboard drivers.
 
-		CONFIG_KEYBOARD
-
-		Define this to enable a custom keyboard support.
-		This simply calls drv_keyboard_init() which must be
-		defined in your board-specific files. This option is deprecated
-		and is only used by novena. For new boards, use driver model
-		instead.
-
 - Video support:
 		CONFIG_FSL_DIU_FB
 		Enable the Freescale DIU video driver.	Reference boards for
