@@ -34,16 +34,13 @@ static int msc01_config_access(struct msc01_pci_controller *msc01,
 	void *cfgdata = msc01->base + MSC01_PCI_CFGDATA_OFS;
 	unsigned int bus = PCI_BUS(bdf);
 	unsigned int dev = PCI_DEV(bdf);
-	unsigned int devfn = PCI_DEV(bdf) << 3 | PCI_FUNC(bdf);
+	unsigned int func = PCI_FUNC(bdf);
 
 	/* clear abort status */
 	__raw_writel(aborts, intstat);
 
 	/* setup address */
-	__raw_writel((bus << MSC01_PCI_CFGADDR_BNUM_SHF) |
-		     (dev << MSC01_PCI_CFGADDR_DNUM_SHF) |
-		     (devfn << MSC01_PCI_CFGADDR_FNUM_SHF) |
-		     ((where / 4) << MSC01_PCI_CFGADDR_RNUM_SHF),
+	__raw_writel((PCI_CONF1_ADDRESS(bus, dev, func, where) & ~PCI_CONF1_ENABLE),
 		     msc01->base + MSC01_PCI_CFGADDR_OFS);
 
 	/* perform access */
