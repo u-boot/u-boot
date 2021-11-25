@@ -197,7 +197,7 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 	dm_pci_read_config16(dev, PCI_COMMAND, &cmdstat);
 	dm_pci_read_config16(dev, PCI_PREF_MEMORY_BASE, &prefechable_64);
 	prefechable_64 &= PCI_PREF_RANGE_TYPE_MASK;
-	dm_pci_read_config8(dev, PCI_IO_LIMIT, &io_32);
+	dm_pci_read_config8(dev, PCI_IO_BASE, &io_32);
 	io_32 &= PCI_IO_RANGE_TYPE_MASK;
 
 	/* Configure bus number registers */
