@@ -20,7 +20,7 @@
 int pci_x86_read_config(pci_dev_t bdf, uint offset, ulong *valuep,
 			enum pci_size_t size)
 {
-	outl(bdf | (offset & 0xfc) | PCI_CFG_EN, PCI_REG_ADDR);
+	outl(PCI_CONF1_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset), PCI_REG_ADDR);
 	switch (size) {
 	case PCI_SIZE_8:
 		*valuep = inb(PCI_REG_DATA + (offset & 3));
@@ -39,7 +39,7 @@ int pci_x86_read_config(pci_dev_t bdf, uint offset, ulong *valuep,
 int pci_x86_write_config(pci_dev_t bdf, uint offset, ulong value,
 			 enum pci_size_t size)
 {
-	outl(bdf | (offset & 0xfc) | PCI_CFG_EN, PCI_REG_ADDR);
+	outl(PCI_CONF1_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset), PCI_REG_ADDR);
 	switch (size) {
 	case PCI_SIZE_8:
 		outb(value, PCI_REG_DATA + (offset & 3));
