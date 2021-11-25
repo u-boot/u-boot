@@ -265,6 +265,14 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 				      (pci_io->bus_lower & 0xffff0000) >> 16);
 
 		cmdstat |= PCI_COMMAND_IO;
+	} else {
+		/* Disable I/O if unsupported */
+		dm_pci_write_config8(dev, PCI_IO_BASE, 0xf0 | io_32);
+		dm_pci_write_config8(dev, PCI_IO_LIMIT, 0x0 | io_32);
+		if (io_32 == PCI_IO_RANGE_TYPE_32) {
+			dm_pci_write_config16(dev, PCI_IO_BASE_UPPER16, 0x0);
+			dm_pci_write_config16(dev, PCI_IO_LIMIT_UPPER16, 0x0);
+		}
 	}
 
 	/* Enable memory and I/O accesses, enable bus master */
