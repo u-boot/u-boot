@@ -645,16 +645,18 @@ On EV1 board, booting from SD card, without OP-TEE_::
   dev: eMMC alt: 15 name: mmc1_rootfs layout: RAW_ADDR
   dev: eMMC alt: 16 name: mmc1_userfs layout: RAW_ADDR
   dev: MTD alt: 17 name: nor0 layout: RAW_ADDR
-  dev: MTD alt: 18 name: nand0 layout: RAW_ADDR
-  dev: VIRT alt: 19 name: OTP layout: RAW_ADDR
-  dev: VIRT alt: 20 name: PMIC layout: RAW_ADDR
+  dev: MTD alt: 18 name: nor1 layout: RAW_ADDR
+  dev: MTD alt: 19 name: nand0 layout: RAW_ADDR
+  dev: VIRT alt: 20 name: OTP layout: RAW_ADDR
+  dev: VIRT alt: 21 name: PMIC layout: RAW_ADDR
 
 All the supported device are exported for dfu-util tool::
 
   $> dfu-util -l
-  Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=20, name="PMIC", serial="002700333338511934383330"
-  Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=19, name="OTP", serial="002700333338511934383330"
-  Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=18, name="nand0", serial="002700333338511934383330"
+  Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=21, name="PMIC", serial="002700333338511934383330"
+  Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=20, name="OTP", serial="002700333338511934383330"
+  Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=19, name="nand0", serial="002700333338511934383330"
+  Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=18, name="nor1", serial="002700333338511934383330"
   Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=17, name="nor0", serial="002700333338511934383330"
   Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=16, name="mmc1_userfs", serial="002700333338511934383330"
   Found DFU: [0483:df11] ver=9999, devnum=99, cfg=1, intf=0, alt=15, name="mmc1_rootfs", serial="002700333338511934383330"
@@ -705,12 +707,12 @@ You can update the boot device:
 When the board is booting for nor0 or nand0,
 only the MTD partition on the boot devices are available, for example:
 
-- NOR (nor0 = alt 20) & NAND (nand0 = alt 26) ::
+- NOR (nor0 = alt 20, nor1 = alt 26) & NAND (nand0 = alt 27) :
 
   $> dfu-util -d 0483:5720 -a 21 -D tf-a-stm32mp157c-ev1.stm32
   $> dfu-util -d 0483:5720 -a 22 -D tf-a-stm32mp157c-ev1.stm32
   $> dfu-util -d 0483:5720 -a 23 -D fip-stm32mp157c-ev1.bin
-  $> dfu-util -d 0483:5720 -a 27 -D st-image-weston-openstlinux-weston-stm32mp1_nand_4_256_multivolume.ubi
+  $> dfu-util -d 0483:5720 -a 28 -D st-image-weston-openstlinux-weston-stm32mp1_nand_4_256_multivolume.ubi
 
 - NAND (nand0 = alt 21)::
 
