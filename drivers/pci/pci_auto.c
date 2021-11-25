@@ -243,7 +243,7 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 		cmdstat |= PCI_COMMAND_MEMORY;
 	} else {
 		/* We don't support prefetchable memory for now, so disable */
-		dm_pci_write_config16(dev, PCI_PREF_MEMORY_BASE, 0x1000 |
+		dm_pci_write_config16(dev, PCI_PREF_MEMORY_BASE, 0xfff0 |
 								prefechable_64);
 		dm_pci_write_config16(dev, PCI_PREF_MEMORY_LIMIT, 0x0 |
 								prefechable_64);
