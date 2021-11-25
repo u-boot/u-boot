@@ -48,15 +48,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PCIE_WIN5_BASE_OFF		0x1884
 #define PCIE_WIN5_REMAP_OFF		0x188c
 #define PCIE_CONF_ADDR_OFF		0x18f8
-#define  PCIE_CONF_ADDR_EN		BIT(31)
-#define  PCIE_CONF_REG(r)		((((r) & 0xf00) << 16) | ((r) & 0xfc))
-#define  PCIE_CONF_BUS(b)		(((b) & 0xff) << 16)
-#define  PCIE_CONF_DEV(d)		(((d) & 0x1f) << 11)
-#define  PCIE_CONF_FUNC(f)		(((f) & 0x7) << 8)
-#define  PCIE_CONF_ADDR(b, d, f, reg) \
-	(PCIE_CONF_BUS(b) | PCIE_CONF_DEV(d)    | \
-	 PCIE_CONF_FUNC(f) | PCIE_CONF_REG(reg) | \
-	 PCIE_CONF_ADDR_EN)
 #define PCIE_CONF_DATA_OFF		0x18fc
 #define PCIE_MASK_OFF			0x1910
 #define  PCIE_MASK_ENABLE_INTS          (0xf << 24)
@@ -188,9 +179,9 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 	 * secondary bus with device number 1.
 	 */
 	if (busno == pcie->first_busno)
-		addr = PCIE_CONF_ADDR(pcie->sec_busno, 1, 0, offset);
+		addr = PCI_CONF1_EXT_ADDRESS(pcie->sec_busno, 1, 0, offset);
 	else
-		addr = PCIE_CONF_ADDR(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
+		addr = PCI_CONF1_EXT_ADDRESS(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 
 	/* write address */
 	writel(addr, pcie->base + PCIE_CONF_ADDR_OFF);
@@ -286,9 +277,9 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 	 * secondary bus with device number 1.
 	 */
 	if (busno == pcie->first_busno)
-		addr = PCIE_CONF_ADDR(pcie->sec_busno, 1, 0, offset);
+		addr = PCI_CONF1_EXT_ADDRESS(pcie->sec_busno, 1, 0, offset);
 	else
-		addr = PCIE_CONF_ADDR(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
+		addr = PCI_CONF1_EXT_ADDRESS(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 
 	/* write address */
 	writel(addr, pcie->base + PCIE_CONF_ADDR_OFF);
