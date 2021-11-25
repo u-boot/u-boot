@@ -182,6 +182,15 @@ config USB_FUNCTION_THOR
 	  Enable Tizen's THOR download protocol support in U-Boot. It
 	  allows downloading images into memory and flash them to target device.
 
+config USB_FUNCTION_ACM
+	bool "Enable CDC ACM gadget"
+	select SYS_STDIO_DEREGISTER
+	select CIRCBUF
+	help
+	  ACM serial link. This function can be used to create a stdio device to
+	  interoperate with MS-Windows hosts or with the Linux-USB "cdc-acm"
+	  driver.
+
 endif # USB_GADGET_DOWNLOAD
 
 config USB_ETHER
