@@ -139,6 +139,18 @@
 	};
 };
 
+&i2c0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+	clock-frequency = <400000>;
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c0_default>;
+	pinctrl-1 = <&pinctrl_i2c0_gpio>;
+	scl-gpios = <&gpio 34 GPIO_ACTIVE_HIGH>;
+	sda-gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+};
+
 &i2c1 { /* i2c1 MIO 24-25 */
 	status = "okay";
 	u-boot,dm-pre-reloc;
@@ -310,6 +322,33 @@
 		mux {
 			groups = "uart1_9_grp";
 			function = "uart1";
+		};
+	};
+
+	pinctrl_i2c0_default: i2c0-default {
+		mux {
+			groups = "i2c0_8_grp";
+			function = "i2c0";
+		};
+
+		conf {
+			groups = "i2c0_8_grp";
+			bias-pull-up;
+			slew-rate = <SLEW_RATE_SLOW>;
+			power-source = <IO_STANDARD_LVCMOS18>;
+		};
+	};
+
+	pinctrl_i2c0_gpio: i2c0-gpio {
+		mux {
+			groups = "gpio0_34_grp", "gpio0_35_grp";
+			function = "gpio0";
+		};
+
+		conf {
+			groups = "gpio0_34_grp", "gpio0_35_grp";
+			slew-rate = <SLEW_RATE_SLOW>;
+			power-source = <IO_STANDARD_LVCMOS18>;
 		};
 	};
 
