@@ -266,11 +266,6 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
-			/* Use for storing information about SC board */
-			eeprom: eeprom@54 { /* u34 - m24128 16kB */
-				compatible = "st,24c128", "atmel,24c128";
-				reg = <0x54>; /* & 0x5c */
-			};
 			ref_clk: clock-generator@5d { /* u32 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
