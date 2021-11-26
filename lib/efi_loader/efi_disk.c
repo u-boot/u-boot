@@ -424,7 +424,7 @@ static efi_status_t efi_disk_add_dev(
 			&efi_block_io_guid, &diskobj->ops,
 			guid, NULL, NULL));
 	if (ret != EFI_SUCCESS)
-		return ret;
+		goto error;
 
 	/*
 	 * On partitions or whole disks without partitions install the
@@ -573,7 +573,7 @@ efi_status_t efi_disk_register(void)
 		if (ret) {
 			log_err("ERROR: failure to add disk device %s, r = %lu\n",
 				dev->name, ret & ~EFI_ERROR_MASK);
-			return ret;
+			continue;
 		}
 		disks++;
 

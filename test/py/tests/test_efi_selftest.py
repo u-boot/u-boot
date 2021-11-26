@@ -73,8 +73,7 @@ def test_efi_selftest_text_input(u_boot_console):
     This function calls the text input EFI selftest.
     """
     u_boot_console.run_command(cmd='setenv efi_selftest text input')
-    output = u_boot_console.run_command(cmd='bootefi selftest',
-                                        wait_for_prompt=False)
+    u_boot_console.run_command(cmd='bootefi selftest', wait_for_prompt=False)
     m = u_boot_console.p.expect([r'To terminate type \'x\''])
     if m != 0:
         raise Exception('No prompt for \'text input\' test')
@@ -143,8 +142,7 @@ def test_efi_selftest_text_input_ex(u_boot_console):
     This function calls the extended text input EFI selftest.
     """
     u_boot_console.run_command(cmd='setenv efi_selftest extended text input')
-    output = u_boot_console.run_command(cmd='bootefi selftest',
-                                        wait_for_prompt=False)
+    u_boot_console.run_command(cmd='bootefi selftest', wait_for_prompt=False)
     m = u_boot_console.p.expect([r'To terminate type \'CTRL\+x\''])
     if m != 0:
         raise Exception('No prompt for \'text input\' test')

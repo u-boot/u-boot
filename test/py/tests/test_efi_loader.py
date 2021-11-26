@@ -6,9 +6,6 @@
 
 # Test efi loader implementation
 
-import pytest
-import u_boot_utils
-
 """
 Note: This test relies on boardenv_* containing configuration values to define
 which network environment is available for testing. Without this, the parts
@@ -50,6 +47,9 @@ env__efi_loader_helloworld_file = {
 }
 """
 
+import pytest
+import u_boot_utils
+
 net_set_up = False
 
 def test_efi_pre_commands(u_boot_console):
@@ -80,7 +80,7 @@ def test_efi_setup_dhcp(u_boot_console):
         env_vars = u_boot_console.config.env.get('env__net_static_env_vars', None)
         if not env_vars:
             pytest.skip('No DHCP server available')
-        return None
+        return
 
     u_boot_console.run_command('setenv autoload no')
     output = u_boot_console.run_command('dhcp')
@@ -193,7 +193,7 @@ def test_efi_grub_net(u_boot_console):
     check_smbios = u_boot_console.config.env.get('env__efi_loader_check_smbios', False)
     if check_smbios:
         u_boot_console.wait_for('grub>')
-        output = u_boot_console.run_command('lsefisystab', wait_for_prompt=False, wait_for_echo=False)
+        u_boot_console.run_command('lsefisystab', wait_for_prompt=False, wait_for_echo=False)
         u_boot_console.wait_for('SMBIOS')
 
     # Then exit cleanly
