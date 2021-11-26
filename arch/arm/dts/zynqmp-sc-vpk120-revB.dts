@@ -82,9 +82,9 @@
 				compatible = "infineon,ir38164";
 				reg = <0x43>; /* i2c addr 0x13 */
 			};
-			ir35221_45: pmic@46 { /* IR35221 - u152 */
+			ir35221_46: pmic@46 { /* IR35221 - u152 */
 				compatible = "infineon,ir35221";
-				reg = <0x46>; /* PMBUS - 0x16 */
+				reg = <0x46>; /* i2c addr - 0x16 */
 			};
 			irps5401_47: pmic5401@47 { /* IRPS5401 - u160 */
 				compatible = "infineon,irps5401";
@@ -100,9 +100,9 @@
 			};
 			irps5401_4d: pmic@4d { /* IRPS5401 - u175 */
 				compatible = "infineon,irps5401";
-				reg = <0x4d>; /* i2c addr 0x1c */
+				reg = <0x4d>; /* i2c addr 0x1d */
 			};
-			ir38164_4e: regulator@4e { /* IR38164 - u184 */
+			ir38164_4e: regulator@4e { /* IR38164 - u185 */
 				compatible = "infineon,ir38164";
 				reg = <0x4e>; /* i2c addr 0x1e */
 			};
