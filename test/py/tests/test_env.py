@@ -2,11 +2,13 @@
 # Copyright (c) 2015 Stephen Warren
 # Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
 
-# Test operation of shell commands relating to environment variables.
+"""
+Test operation of shell commands relating to environment variables.
+"""
 
 import os
 import os.path
-from subprocess import call, check_call, CalledProcessError
+from subprocess import call, CalledProcessError
 import tempfile
 
 import pytest
@@ -192,7 +194,7 @@ def test_env_printenv_non_existent(state_test_env):
     c = state_test_env.u_boot_console
     with c.disable_check('error_notification'):
         response = c.run_command('printenv %s' % var)
-    assert(response == '## Error: "%s" not defined' % var)
+    assert response == '## Error: "%s" not defined' % var
 
 @pytest.mark.buildconfigspec('cmd_echo')
 def test_env_unset_non_existent(state_test_env):
@@ -257,7 +259,7 @@ def test_env_import_checksum_no_size(state_test_env):
 
     with c.disable_check('error_notification'):
         response = c.run_command('env import -c %s -' % addr)
-    assert(response == '## Error: external checksum format must pass size')
+    assert response == '## Error: external checksum format must pass size'
 
 @pytest.mark.buildconfigspec('cmd_importenv')
 def test_env_import_whitelist_checksum_no_size(state_test_env):
@@ -270,7 +272,7 @@ def test_env_import_whitelist_checksum_no_size(state_test_env):
 
     with c.disable_check('error_notification'):
         response = c.run_command('env import -c %s - foo1 foo2 foo4' % addr)
-    assert(response == '## Error: external checksum format must pass size')
+    assert response == '## Error: external checksum format must pass size'
 
 @pytest.mark.buildconfigspec('cmd_exportenv')
 @pytest.mark.buildconfigspec('cmd_importenv')
@@ -359,12 +361,14 @@ def test_env_info(state_test_env):
             assert '= true' in l or '= false' in l
             nb_line += 1
         else:
-            assert true
+            assert True
     assert nb_line == 3
 
     response = c.run_command('env info -p -d')
-    assert 'Default environment is used' in response or "Environment was loaded from persistent storage" in response
-    assert 'Environment can be persisted' in response or "Environment cannot be persisted" in response
+    assert 'Default environment is used' in response or \
+           "Environment was loaded from persistent storage" in response
+    assert 'Environment can be persisted' in response or \
+           "Environment cannot be persisted" in response
 
     response = c.run_command('env info -p -d -q')
     assert response == ""
