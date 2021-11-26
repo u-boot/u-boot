@@ -351,6 +351,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-qspi-x2-stacked.dtb		\
 	zynqmp-sc-revB.dtb			\
 	zynqmp-sc-vpk120-revB.dtbo		\
+	zynqmp-sc-vpk180-revA.dtbo		\
 	zynqmp-sm-k26-revA.dtb			\
 	zynqmp-smk-k26-revA.dtb			\
 	zynqmp-sck-kr-g-revA.dtbo		\
