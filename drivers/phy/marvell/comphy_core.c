@@ -86,11 +86,8 @@ __weak int comphy_update_map(struct comphy_map *serdes_map, int count)
 
 static int comphy_probe(struct udevice *dev)
 {
-	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	struct chip_serdes_phy_config *chip_cfg = dev_get_priv(dev);
-	int subnode;
-	int lane;
 	int last_idx = 0;
 	static int current_idx;
 	int res;
@@ -104,30 +101,14 @@ static int comphy_probe(struct udevice *dev)
 	if (IS_ERR(chip_cfg->hpipe3_base_addr))
 		return PTR_ERR(chip_cfg->hpipe3_base_addr);
 
-	chip_cfg->comphy_lanes_count = fdtdec_get_int(blob, node,
-						      "max-lanes", 0);
-	if (chip_cfg->comphy_lanes_count <= 0) {
-		dev_err(dev, "comphy max lanes is wrong\n");
-		return -EINVAL;
-	}
-
-	chip_cfg->comphy_mux_bitcount = fdtdec_get_int(blob, node,
-						       "mux-bitcount", 0);
-	if (chip_cfg->comphy_mux_bitcount <= 0) {
-		dev_err(dev, "comphy mux bit count is wrong\n");
-		return -EINVAL;
-	}
-
-	chip_cfg->comphy_mux_lane_order =
-		fdtdec_locate_array(blob, node, "mux-lane-order",
-				    chip_cfg->comphy_lanes_count);
-
 	if (device_is_compatible(dev, "marvell,comphy-armada-3700")) {
+		chip_cfg->comphy_init_map = comphy_a3700_init_serdes_map;
 		chip_cfg->ptr_comphy_chip_init = comphy_a3700_init;
 		chip_cfg->rx_training = NULL;
 	}
 
 	if (device_is_compatible(dev, "marvell,comphy-cp110")) {
+		chip_cfg->comphy_init_map = comphy_cp110_init_serdes_map;
 		chip_cfg->ptr_comphy_chip_init = comphy_cp110_init;
 		chip_cfg->rx_training = comphy_cp110_sfi_rx_training;
 	}
@@ -141,39 +122,9 @@ static int comphy_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	lane = 0;
-	fdt_for_each_subnode(subnode, blob, node) {
-		/* Skip disabled ports */
-		if (!fdtdec_get_is_enabled(blob, subnode))
-			continue;
-
-		chip_cfg->comphy_map_data[lane].type =
-			fdtdec_get_int(blob, subnode, "phy-type",
-				       COMPHY_TYPE_INVALID);
-
-		if (chip_cfg->comphy_map_data[lane].type ==
-		    COMPHY_TYPE_INVALID) {
-			printf("no phy type for lane %d, setting lane as unconnected\n",
-			       lane + 1);
-			continue;
-		}
-
-		chip_cfg->comphy_map_data[lane].speed =
-			fdtdec_get_int(blob, subnode, "phy-speed",
-				       COMPHY_SPEED_INVALID);
-
-		chip_cfg->comphy_map_data[lane].invert =
-			fdtdec_get_int(blob, subnode, "phy-invert",
-				       COMPHY_POLARITY_NO_INVERT);
-
-		chip_cfg->comphy_map_data[lane].clk_src =
-			fdtdec_get_bool(blob, subnode, "clk-src");
-
-		chip_cfg->comphy_map_data[lane].end_point =
-			fdtdec_get_bool(blob, subnode, "end_point");
-
-		lane++;
-	}
+	res = chip_cfg->comphy_init_map(node, chip_cfg);
+	if (res < 0)
+		return res;
 
 	res = comphy_update_map(chip_cfg->comphy_map_data, chip_cfg->comphy_lanes_count);
 	if (res < 0)
