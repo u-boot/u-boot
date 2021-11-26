@@ -285,8 +285,13 @@ int fdt_get_dma_range(const void *blob, int node_offset, phys_addr_t *cpu,
 
 int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 					phys_addr_t compat_off);
+int fdt_node_offset_by_pathf(void *blob, const char *fmt, ...)
+	__attribute__ ((format (printf, 2, 3)));
 int fdt_set_phandle(void *fdt, int nodeoffset, uint32_t phandle);
 unsigned int fdt_create_phandle(void *fdt, int nodeoffset);
+unsigned int fdt_create_phandle_by_compatible(void *fdt, const char *compat);
+unsigned int fdt_create_phandle_by_pathf(void *fdt, const char *fmt, ...)
+	__attribute__ ((format (printf, 2, 3)));
 int fdt_add_edid(void *blob, const char *compat, unsigned char *buf);
 
 int fdt_verify_alias_address(void *fdt, int anode, const char *alias,
@@ -328,6 +333,31 @@ static inline int fdt_status_fail_by_alias(void *fdt, const char *alias)
 {
 	return fdt_set_status_by_alias(fdt, alias, FDT_STATUS_FAIL);
 }
+
+int fdt_set_status_by_compatible(void *fdt, const char *compat,
+				 enum fdt_status status);
+static inline int fdt_status_okay_by_compatible(void *fdt, const char *compat)
+{
+	return fdt_set_status_by_compatible(fdt, compat, FDT_STATUS_OKAY);
+}
+static inline int fdt_status_disabled_by_compatible(void *fdt,
+						    const char *compat)
+{
+	return fdt_set_status_by_compatible(fdt, compat, FDT_STATUS_DISABLED);
+}
+static inline int fdt_status_fail_by_compatible(void *fdt, const char *compat)
+{
+	return fdt_set_status_by_compatible(fdt, compat, FDT_STATUS_FAIL);
+}
+
+int fdt_set_status_by_pathf(void *fdt, enum fdt_status status, const char *fmt,
+			    ...) __attribute__ ((format (printf, 3, 4)));
+#define fdt_status_okay_by_pathf(fdt, fmt, ...) \
+	fdt_set_status_by_pathf((fdt), FDT_STATUS_OKAY, (fmt), ##__VA_ARGS__)
+#define fdt_status_disabled_by_pathf(fdt, fmt, ...) \
+	fdt_set_status_by_pathf((fdt), FDT_STATUS_DISABLED, (fmt), ##__VA_ARGS__)
+#define fdt_status_fail_by_pathf(fdt, fmt, ...) \
+	fdt_set_status_by_pathf((fdt), FDT_STATUS_FAIL, (fmt), ##__VA_ARGS__)
 
 /* Helper to read a big number; size is in cells (not bytes) */
 static inline u64 fdt_read_number(const fdt32_t *cell, int size)

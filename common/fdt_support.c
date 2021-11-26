@@ -1463,6 +1463,37 @@ int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 	return -FDT_ERR_NOTFOUND;
 }
 
+static int vnode_offset_by_pathf(void *blob, const char *fmt, va_list ap)
+{
+	char path[512];
+	int len;
+
+	len = vsnprintf(path, sizeof(path), fmt, ap);
+	if (len < 0 || len + 1 > sizeof(path))
+		return -FDT_ERR_NOSPACE;
+
+	return fdt_path_offset(blob, path);
+}
+
+/**
+ * fdt_node_offset_by_pathf: Find node offset by sprintf formatted path
+ *
+ * @blob: ptr to device tree
+ * @fmt: path format
+ * @ap: vsnprintf arguments
+ */
+int fdt_node_offset_by_pathf(void *blob, const char *fmt, ...)
+{
+	va_list ap;
+	int res;
+
+	va_start(ap, fmt);
+	res = vnode_offset_by_pathf(blob, fmt, ap);
+	va_end(ap);
+
+	return res;
+}
+
 /*
  * fdt_set_phandle: Create a phandle property for the given node
  *
@@ -1536,6 +1567,51 @@ unsigned int fdt_create_phandle(void *fdt, int nodeoffset)
 	return phandle;
 }
 
+/**
+ * fdt_create_phandle_by_compatible: Get or create a phandle for first node with
+ *				     given compatible
+ *
+ * @fdt: ptr to device tree
+ * @compat: node's compatible string
+ */
+unsigned int fdt_create_phandle_by_compatible(void *fdt, const char *compat)
+{
+	int offset = fdt_node_offset_by_compatible(fdt, -1, compat);
+
+	if (offset < 0) {
+		printf("Can't find node with compatible \"%s\": %s\n", compat,
+		       fdt_strerror(offset));
+		return 0;
+	}
+
+	return fdt_create_phandle(fdt, offset);
+}
+
+/**
+ * fdt_create_phandle_by_pathf: Get or create a phandle for node given by
+ *				sprintf-formatted path
+ *
+ * @fdt: ptr to device tree
+ * @fmt, ...: path format string and arguments to pass to sprintf
+ */
+unsigned int fdt_create_phandle_by_pathf(void *fdt, const char *fmt, ...)
+{
+	va_list ap;
+	int offset;
+
+	va_start(ap, fmt);
+	offset = vnode_offset_by_pathf(fdt, fmt, ap);
+	va_end(ap);
+
+	if (offset < 0) {
+		printf("Can't find node by given path: %s\n",
+		       fdt_strerror(offset));
+		return 0;
+	}
+
+	return fdt_create_phandle(fdt, offset);
+}
+
 /*
  * fdt_set_node_status: Set status for the given node
  *
@@ -1580,6 +1656,49 @@ int fdt_set_status_by_alias(void *fdt, const char* alias,
 			    enum fdt_status status)
 {
 	int offset = fdt_path_offset(fdt, alias);
+
+	return fdt_set_node_status(fdt, offset, status);
+}
+
+/**
+ * fdt_set_status_by_compatible: Set node status for first node with given
+ *				 compatible
+ *
+ * @fdt: ptr to device tree
+ * @compat: node's compatible string
+ * @status: FDT_STATUS_OKAY, FDT_STATUS_DISABLED, FDT_STATUS_FAIL
+ */
+int fdt_set_status_by_compatible(void *fdt, const char *compat,
+				 enum fdt_status status)
+{
+	int offset = fdt_node_offset_by_compatible(fdt, -1, compat);
+
+	if (offset < 0)
+		return offset;
+
+	return fdt_set_node_status(fdt, offset, status);
+}
+
+/**
+ * fdt_set_status_by_pathf: Set node status for node given by sprintf-formatted
+ *			    path
+ *
+ * @fdt: ptr to device tree
+ * @status: FDT_STATUS_OKAY, FDT_STATUS_DISABLED, FDT_STATUS_FAIL
+ * @fmt, ...: path format string and arguments to pass to sprintf
+ */
+int fdt_set_status_by_pathf(void *fdt, enum fdt_status status, const char *fmt,
+			    ...)
+{
+	va_list ap;
+	int offset;
+
+	va_start(ap, fmt);
+	offset = vnode_offset_by_pathf(fdt, fmt, ap);
+	va_end(ap);
+
+	if (offset < 0)
+		return offset;
 
 	return fdt_set_node_status(fdt, offset, status);
 }
