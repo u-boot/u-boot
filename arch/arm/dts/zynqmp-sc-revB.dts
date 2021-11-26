@@ -259,7 +259,6 @@
 
 &uart1 { /* uart0 MIO36-37 */
 	status = "okay";
-	u-boot,dm-pre-reloc;
 };
 
 &usb0 {
