@@ -1463,24 +1463,6 @@ int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 	return -FDT_ERR_NOTFOUND;
 }
 
-/**
- * fdt_alloc_phandle: Return next free phandle value
- *
- * @blob: ptr to device tree
- */
-int fdt_alloc_phandle(void *blob)
-{
-	int offset;
-	uint32_t phandle = 0;
-
-	for (offset = fdt_next_node(blob, -1, NULL); offset >= 0;
-	     offset = fdt_next_node(blob, offset, NULL)) {
-		phandle = max(phandle, fdt_get_phandle(blob, offset));
-	}
-
-	return phandle + 1;
-}
-
 /*
  * fdt_set_phandle: Create a phandle property for the given node
  *
@@ -1530,13 +1512,19 @@ int fdt_set_phandle(void *fdt, int nodeoffset, uint32_t phandle)
 unsigned int fdt_create_phandle(void *fdt, int nodeoffset)
 {
 	/* see if there is a phandle already */
-	int phandle = fdt_get_phandle(fdt, nodeoffset);
+	uint32_t phandle = fdt_get_phandle(fdt, nodeoffset);
 
 	/* if we got 0, means no phandle so create one */
 	if (phandle == 0) {
 		int ret;
 
-		phandle = fdt_alloc_phandle(fdt);
+		ret = fdt_generate_phandle(fdt, &phandle);
+		if (ret < 0) {
+			printf("Can't generate phandle: %s\n",
+			       fdt_strerror(ret));
+			return 0;
+		}
+
 		ret = fdt_set_phandle(fdt, nodeoffset, phandle);
 		if (ret < 0) {
 			printf("Can't set phandle %u: %s\n", phandle,
