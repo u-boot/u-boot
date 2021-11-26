@@ -749,24 +749,6 @@ static int setup_switch(void *blob, int id)
 	return 0;
 }
 
-static int remove_disabled_nodes(void *blob)
-{
-	while (1) {
-		int res, offset;
-
-		offset = fdt_node_offset_by_prop_value(blob, -1, "status",
-						       "disabled", 9);
-		if (offset < 0)
-			break;
-
-		res = fdt_del_node(blob, offset);
-		if (res < 0)
-			return res;
-	}
-
-	return 0;
-}
-
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int res;
@@ -872,7 +854,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	fdt_fixup_ethernet(blob);
 
 	/* Finally remove disabled nodes, as per Rob Herring's request. */
-	remove_disabled_nodes(blob);
+	fdt_delete_disabled_nodes(blob);
 
 	return 0;
 }

@@ -695,6 +695,29 @@ int fdt_shrink_to_minimum(void *blob, uint extrasize)
 	return actualsize;
 }
 
+/**
+ * fdt_delete_disabled_nodes: Delete all nodes with status == "disabled"
+ *
+ * @blob: ptr to device tree
+ */
+int fdt_delete_disabled_nodes(void *blob)
+{
+	while (1) {
+		int ret, offset;
+
+		offset = fdt_node_offset_by_prop_value(blob, -1, "status",
+						       "disabled", 9);
+		if (offset < 0)
+			break;
+
+		ret = fdt_del_node(blob, offset);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+
 #ifdef CONFIG_PCI
 #define CONFIG_SYS_PCI_NR_INBOUND_WIN 4
 

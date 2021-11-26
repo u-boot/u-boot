@@ -228,6 +228,8 @@ void set_working_fdt_addr(ulong addr);
 int fdt_shrink_to_minimum(void *blob, uint extrasize);
 int fdt_increase_size(void *fdt, int add_len);
 
+int fdt_delete_disabled_nodes(void *blob);
+
 int fdt_fixup_nor_flash_size(void *blob);
 
 struct node_info;
