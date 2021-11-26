@@ -48,7 +48,7 @@ static int gt_config_access(struct gt64120_pci_controller *gt,
 {
 	unsigned int bus = PCI_BUS(bdf);
 	unsigned int dev = PCI_DEV(bdf);
-	unsigned int devfn = PCI_DEV(bdf) << 3 | PCI_FUNC(bdf);
+	unsigned int func = PCI_FUNC(bdf);
 	u32 intr;
 	u32 addr;
 	u32 val;
@@ -65,10 +65,7 @@ static int gt_config_access(struct gt64120_pci_controller *gt,
 	/* Clear cause register bits */
 	writel(~GT_INTRCAUSE_ABORT_BITS, &gt->regs->intrcause);
 
-	addr = GT_PCI0_CFGADDR_CONFIGEN_BIT;
-	addr |=	bus << GT_PCI0_CFGADDR_BUSNUM_SHF;
-	addr |=	devfn << GT_PCI0_CFGADDR_FUNCTNUM_SHF;
-	addr |= (where / 4) << GT_PCI0_CFGADDR_REGNUM_SHF;
+	addr = PCI_CONF1_ADDRESS(bus, dev, func, where);
 
 	/* Setup address */
 	writel(addr, &gt->regs->pci0_cfgaddr);
