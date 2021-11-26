@@ -46,8 +46,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #if defined(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
+	enum fdt_status status_pcie, status_eth1;
 	u8 topology[MAX_MOX_MODULES];
-	enum fdt_status status;
 	int i, size, ret;
 
 	/*
@@ -65,6 +65,9 @@ int board_fix_fdt(void *blob)
 	while (!(readl(ARMADA_37XX_SPI_CTRL) & 0x2))
 		udelay(1);
 
+	status_pcie = FDT_STATUS_DISABLED;
+	status_eth1 = FDT_STATUS_DISABLED;
+
 	for (i = 0; i < MAX_MOX_MODULES; ++i) {
 		writel(0x0, ARMADA_37XX_SPI_DOUT);
 
@@ -76,6 +79,11 @@ int board_fix_fdt(void *blob)
 			break;
 
 		topology[i] &= 0xf;
+
+		if (topology[i] == MOX_MODULE_SFP ||
+		    topology[i] == MOX_MODULE_TOPAZ ||
+		    topology[i] == MOX_MODULE_PERIDOT)
+			status_eth1 = FDT_STATUS_OKAY;
 	}
 
 	size = i;
@@ -83,15 +91,18 @@ int board_fix_fdt(void *blob)
 	/* disable SPI CS1 */
 	clrbits_le32(ARMADA_37XX_SPI_CTRL, BIT(17));
 
+	ret = fdt_set_status_by_alias(blob, "ethernet1", status_eth1);
+	if (ret < 0)
+		printf("Cannot set status for eth1 in U-Boot's device tree: %s!\n",
+		       fdt_strerror(ret));
+
 	if (size > 1 && (topology[1] == MOX_MODULE_PCI ||
 			 topology[1] == MOX_MODULE_USB3 ||
 			 topology[1] == MOX_MODULE_PASSPCI))
-		status = FDT_STATUS_OKAY;
-	else
-		status = FDT_STATUS_DISABLED;
+		status_pcie = FDT_STATUS_OKAY;
 
 	ret = fdt_set_status_by_compatible(blob, "marvell,armada-3700-pcie",
-					   status);
+					   status_pcie);
 	if (ret < 0) {
 		printf("Cannot set status for PCIe in U-Boot's device tree: %s!\n",
 		       fdt_strerror(ret));
