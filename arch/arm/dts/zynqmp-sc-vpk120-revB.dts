@@ -15,7 +15,7 @@
 
 &{/} {
 	compatible = "xlnx,zynqmp-sc-vpk120-revB", "xlnx,zynqmp-vpk120-revB",
-		     "xlnx,zynqmp-vp120", "xlnx,zynqmp";
+		     "xlnx,zynqmp-vpk120", "xlnx,zynqmp";
 
 	si570_user1_fmc_clk: si570_user1_fmc_clk {
 		status = "okay";
