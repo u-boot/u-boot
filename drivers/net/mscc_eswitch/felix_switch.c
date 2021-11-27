@@ -40,7 +40,9 @@
 #define FELIX_IS2			0x060000
 #define FELIX_GMII(port)		(0x100000 + (port) * 0x10000)
 #define FELIX_QSYS			0x200000
-
+#define FELIX_DEVCPU_GCB		0x070000
+#define FELIX_DEVCPU_GCB_SOFT_RST	(FELIX_DEVCPU_GCB + 0x00000004)
+#define SOFT_SWC_RST			BIT(0)
 #define FELIX_SYS_SYSTEM		(FELIX_SYS + 0x00000E00)
 #define  FELIX_SYS_SYSTEM_EN		BIT(0)
 #define FELIX_SYS_RAM_CTRL		(FELIX_SYS + 0x00000F24)
@@ -236,6 +238,15 @@ static void felix_init(struct udevice *dev)
 	struct felix_priv *priv = dev_get_priv(dev);
 	void *base = priv->regs_base;
 	int timeout = 100;
+
+	/* Switch core reset */
+	out_le32(base + FELIX_DEVCPU_GCB_SOFT_RST, SOFT_SWC_RST);
+	while (in_le32(base + FELIX_DEVCPU_GCB_SOFT_RST) & SOFT_SWC_RST &&
+	       --timeout)
+		udelay(10);
+	if (in_le32(base + FELIX_DEVCPU_GCB_SOFT_RST) & SOFT_SWC_RST)
+		dev_err(dev, "Timeout waiting for switch core reset\n");
+	timeout = 100;
 
 	/* Init core memories */
 	out_le32(base + FELIX_SYS_RAM_CTRL, FELIX_SYS_RAM_CTRL_INIT);
