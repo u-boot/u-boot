@@ -65,7 +65,8 @@ can be enabled with the following command line parameters:
 
 - To add a Serial ATA disk via an Intel ICH9 AHCI controller, pass e.g.::
 
-    -drive if=none,file=disk.img,id=mydisk -device ich9-ahci,id=ahci -device ide-drive,drive=mydisk,bus=ahci.0
+    -drive if=none,file=disk.img,format=raw,id=mydisk \
+    -device ich9-ahci,id=ahci -device ide-drive,drive=mydisk,bus=ahci.0
 
 - To add an Intel E1000 network adapter, pass e.g.::
 
@@ -75,9 +76,13 @@ can be enabled with the following command line parameters:
 
     -device usb-ehci,id=ehci
 
-- To add a NVMe disk, pass e.g.::
+- To add an NVMe disk, pass e.g.::
 
     -drive if=none,file=disk.img,id=mydisk -device nvme,drive=mydisk,serial=foo
+
+- To add a random number generator, pass e.g.::
+
+    -device virtio-rng-pci
 
 These have been tested in QEMU 2.9.0 but should work in at least 2.5.0 as well.
 
