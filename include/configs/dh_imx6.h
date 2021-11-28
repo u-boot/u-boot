@@ -75,6 +75,10 @@
 	"ramdisk_addr_r=0x18000000\0"	\
 	"scriptaddr=0x14000000\0"	\
 	"fdtfile=imx6q-dhcom-pdk2.dtb\0"\
+	"update_sf=" /* Erase SPI NOR and install U-Boot from SD */	\
+		"load mmc 0:1 ${loadaddr} /boot/u-boot-with-spl.imx && "\
+		"sf probe && sf erase 0x0 0xa0000 && "			\
+		"sf write ${loadaddr} 0x400 ${filesize}\0"		\
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \
