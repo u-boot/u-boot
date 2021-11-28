@@ -128,6 +128,30 @@ int owl_clk_disable(struct clk *clk)
 	return 0;
 }
 
+static ulong owl_clk_get_rate(struct clk *clk)
+{
+	ulong rate;
+
+	switch (clk->id) {
+	default:
+		return -ENOENT;
+	}
+
+	return rate;
+}
+
+static ulong owl_clk_set_rate(struct clk *clk, ulong rate)
+{
+	ulong new_rate;
+
+	switch (clk->id) {
+	default:
+		return -ENOENT;
+	}
+
+	return new_rate;
+}
+
 static int owl_clk_probe(struct udevice *dev)
 {
 	struct owl_clk_priv *priv = dev_get_priv(dev);
@@ -145,6 +169,8 @@ static int owl_clk_probe(struct udevice *dev)
 static const struct clk_ops owl_clk_ops = {
 	.enable = owl_clk_enable,
 	.disable = owl_clk_disable,
+	.get_rate = owl_clk_get_rate,
+	.set_rate = owl_clk_set_rate,
 };
 
 static const struct udevice_id owl_clk_ids[] = {
