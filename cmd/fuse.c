@@ -45,7 +45,7 @@ static int do_fuse(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	const char *op = argc >= 2 ? argv[1] : NULL;
 	int confirmed = argc >= 3 && !strcmp(argv[2], "-y");
-	u32 bank, word, cnt, val;
+	u32 bank, word, cnt, val, cmp;
 	int ret, i;
 
 	argc -= 2 + confirmed;
@@ -73,6 +73,24 @@ static int do_fuse(struct cmd_tbl *cmdtp, int flag, int argc,
 			printf(" %.8x", val);
 		}
 		putc('\n');
+	} else if (!strcmp(op, "cmp")) {
+		if (argc != 3 || strtou32(argv[2], 0, &cmp))
+			return CMD_RET_USAGE;
+
+		printf("Comparing bank %u:\n", bank);
+		printf("\nWord 0x%.8x:", word);
+		printf("\nValue 0x%.8x:", cmp);
+
+		ret = fuse_read(bank, word, &val);
+		if (ret)
+			goto err;
+
+		printf("0x%.8x\n", val);
+		if (val != cmp) {
+			printf("failed\n");
+			return CMD_RET_FAILURE;
+		}
+		printf("passed\n");
 	} else if (!strcmp(op, "sense")) {
 		if (argc == 2)
 			cnt = 1;
@@ -137,6 +155,8 @@ U_BOOT_CMD(
 	"Fuse sub-system",
 	     "read <bank> <word> [<cnt>] - read 1 or 'cnt' fuse words,\n"
 	"    starting at 'word'\n"
+	"fuse cmp <bank> <word> <hexval> - compare 'hexval' to fuse\n"
+	"    at 'word'\n"
 	"fuse sense <bank> <word> [<cnt>] - sense 1 or 'cnt' fuse words,\n"
 	"    starting at 'word'\n"
 	"fuse prog [-y] <bank> <word> <hexval> [<hexval>...] - program 1 or\n"
