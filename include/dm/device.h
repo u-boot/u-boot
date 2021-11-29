@@ -763,6 +763,18 @@ int device_find_first_child_by_uclass(const struct udevice *parent,
  *
  * @parent:	Parent device to search
  * @name:	Name to look for
+ * @len:	Length of the name
+ * @devp:	Returns device found, if any
+ * @return 0 if found, else -ENODEV
+ */
+int device_find_child_by_namelen(const struct udevice *parent, const char *name,
+				 int len, struct udevice **devp);
+
+/**
+ * device_find_child_by_name() - Find a child by device name
+ *
+ * @parent:	Parent device to search
+ * @name:	Name to look for
  * @devp:	Returns device found, if any
  * @return 0 if found, else -ENODEV
  */

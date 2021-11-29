@@ -320,7 +320,7 @@ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
 	struct blk_desc *desc;
 	struct udevice *dev;
 
-	device_find_first_child(mmc->dev, &dev);
+	device_find_first_child_by_uclass(mmc->dev, UCLASS_BLK, &dev);
 	if (!dev)
 		return NULL;
 	desc = dev_get_uclass_plat(dev);
@@ -425,7 +425,7 @@ int mmc_unbind(struct udevice *dev)
 {
 	struct udevice *bdev;
 
-	device_find_first_child(dev, &bdev);
+	device_find_first_child_by_uclass(dev, UCLASS_BLK, &bdev);
 	if (bdev) {
 		device_remove(bdev, DM_REMOVE_NORMAL);
 		device_unbind(bdev);

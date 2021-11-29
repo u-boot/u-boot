@@ -180,18 +180,23 @@ void uclass_set_priv(struct uclass *uc, void *priv)
 	uc->priv_ = priv;
 }
 
-enum uclass_id uclass_get_by_name(const char *name)
+enum uclass_id uclass_get_by_name_len(const char *name, int len)
 {
 	int i;
 
 	for (i = 0; i < UCLASS_COUNT; i++) {
 		struct uclass_driver *uc_drv = lists_uclass_lookup(i);
 
-		if (uc_drv && !strcmp(uc_drv->name, name))
+		if (uc_drv && !strncmp(uc_drv->name, name, len))
 			return i;
 	}
 
 	return UCLASS_INVALID;
+}
+
+enum uclass_id uclass_get_by_name(const char *name)
+{
+	return uclass_get_by_name_len(name, strlen(name));
 }
 
 int dev_get_uclass_index(struct udevice *dev, struct uclass **ucp)
@@ -682,7 +687,7 @@ err:
 }
 
 #if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
-int uclass_unbind_device(struct udevice *dev)
+int uclass_pre_unbind_device(struct udevice *dev)
 {
 	struct uclass *uc;
 	int ret;
@@ -694,7 +699,13 @@ int uclass_unbind_device(struct udevice *dev)
 			return ret;
 	}
 
+	return 0;
+}
+
+int uclass_unbind_device(struct udevice *dev)
+{
 	list_del(&dev->uclass_node);
+
 	return 0;
 }
 #endif
@@ -781,6 +792,18 @@ int uclass_probe_all(enum uclass_id id)
 	}
 
 	return 0;
+}
+
+int uclass_id_count(enum uclass_id id)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int count = 0;
+
+	uclass_id_foreach_dev(id, dev, uc)
+		count++;
+
+	return count;
 }
 
 UCLASS_DRIVER(nop) = {

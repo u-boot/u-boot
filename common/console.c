@@ -735,7 +735,9 @@ int console_record_init(void)
 	int ret;
 
 	ret = membuff_new((struct membuff *)&gd->console_out,
-			  CONFIG_CONSOLE_RECORD_OUT_SIZE);
+			  gd->flags & GD_FLG_RELOC ?
+				  CONFIG_CONSOLE_RECORD_OUT_SIZE :
+				  CONFIG_CONSOLE_RECORD_OUT_SIZE_F);
 	if (ret)
 		return ret;
 	ret = membuff_new((struct membuff *)&gd->console_in,

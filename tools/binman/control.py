@@ -355,6 +355,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
     Returns:
         List of EntryInfo records that were written
     """
+    image_fname = os.path.abspath(image_fname)
     image = Image.FromFile(image_fname)
 
     # Replace an entry from a single file, as a special case

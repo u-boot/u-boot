@@ -902,21 +902,28 @@ int device_find_first_child_by_uclass(const struct udevice *parent,
 	return -ENODEV;
 }
 
-int device_find_child_by_name(const struct udevice *parent, const char *name,
-			      struct udevice **devp)
+int device_find_child_by_namelen(const struct udevice *parent, const char *name,
+				 int len, struct udevice **devp)
 {
 	struct udevice *dev;
 
 	*devp = NULL;
 
 	list_for_each_entry(dev, &parent->child_head, sibling_node) {
-		if (!strcmp(dev->name, name)) {
+		if (!strncmp(dev->name, name, len) &&
+		    strlen(dev->name) == len) {
 			*devp = dev;
 			return 0;
 		}
 	}
 
 	return -ENODEV;
+}
+
+int device_find_child_by_name(const struct udevice *parent, const char *name,
+			      struct udevice **devp)
+{
+	return device_find_child_by_namelen(parent, name, strlen(name), devp);
 }
 
 int device_first_child_err(struct udevice *parent, struct udevice **devp)

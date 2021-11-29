@@ -211,6 +211,16 @@ int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep)
 	return 0;
 }
 
+int os_unmap(void *buf, int size)
+{
+	if (munmap(buf, size)) {
+		printf("Can't unmap %p %x\n", buf, size);
+		return -EIO;
+	}
+
+	return 0;
+}
+
 /* Restore tty state when we exit */
 static struct termios orig_term;
 static bool term_setup;
