@@ -409,7 +409,7 @@
 			compatible = "xlnx,versal-8.9a", "arasan,sdhci-8.9a";
 			status = "disabled";
 			reg = <0 0xf1040000 0 0x10000>;
-			interrupts = <0 126 4>, <0 126 4>;
+			interrupts = <0 126 4>;
 			clock-names = "clk_xin", "clk_ahb";
 			xlnx,device_id = <0>;
 			#stream-id-cells = <1>;
@@ -423,7 +423,7 @@
 			compatible = "xlnx,versal-8.9a", "arasan,sdhci-8.9a";
 			status = "disabled";
 			reg = <0 0xf1050000 0 0x10000>;
-			interrupts = <0 128 4>, <0 128 4>;
+			interrupts = <0 128 4>;
 			clock-names = "clk_xin", "clk_ahb";
 			xlnx,device_id = <1>;
 			#stream-id-cells = <1>;
