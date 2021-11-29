@@ -1,0 +1,141 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal vpk180 revA
+ *
+ * (C) Copyright 2021, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal.dtsi"
+#include "versal-clk.dtsi"
+
+/ {
+	model = "Xilinx Versal vpk180 Eval board revA";
+	compatible = "xlnx,versal-vpk180-revA", "xlnx,versal-vpk180",
+		     "xlnx,versal";
+
+	memory: memory@0 {
+		device_type = "memory";
+		reg = <0 0 0 0x80000000>, <0x8 0x0 0x2 0x80000000>;
+	};
+
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused";
+		stdout-path = "serial0:115200";
+	};
+
+	aliases {
+		serial0 = &serial0;
+		ethernet0 = &gem0;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		mmc0 = &sdhci1;
+		spi0 = &qspi;
+		usb0 = &usb0;
+		rtc0 = &rtc;
+	};
+	/* Missing any LED for heartbeat */
+};
+
+&qspi { /* PMC_MIO_500 0 - 12 */
+	status = "okay"; /* u93 and u92 */
+	num-cs = <1>;
+	is-dual = <1>;
+	spi-rx-bus-width = <4>;
+	spi-tx-bus-width = <4>;
+
+	flash@0 {
+		compatible = "m25p80", "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <35000000>;
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x8000000>;
+		};
+	};
+};
+
+&usb0 { /* PMC_MIO_500 13 - 25 USB 2.0 */
+	status = "okay";
+	xlnx,usb-polarity = <0>;
+	xlnx,usb-reset-mode = <0>;
+};
+
+&dwc3_0 { /* USB 2.0 host */
+	status = "okay";
+	dr_mode = "host";
+	maximum-speed = "high-speed"; /* FIXME */
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
+	snps,usb3_lpm_capable;
+};
+
+&sdhci1 { /* PMC_MIO_501 26 - 36/51 */
+	status = "okay";
+	xlnx,mio-bank = <1>;
+	no-1-8-v;
+	clk-phase-sd-hs = <111>, <48>;
+	clk-phase-uhs-sdr25 = <114>, <48>;
+	clk-phase-uhs-ddr50 = <126>, <36>;
+};
+
+&serial0 { /* PMC_MIO42/43 */
+	status = "okay";
+};
+
+&i2c0 { /* PMC_MIO46/47 */
+	status = "okay";
+	clock-frequency = <400000>;
+};
+
+&i2c1 { /* PMC_MIO44/45 */
+	status = "okay";
+	clock-frequency = <400000>;
+
+	/* Use for storing information about board */
+	eeprom: eeprom@54 { /* u34 - m24128 16kB */
+		compatible = "st,24c128", "atmel,24c128";
+		reg = <0x54>; /* & 0x5c */
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&gem0 { /* PMC_MIO_48 - reset, LPD_MIO0-11 , mdio LPD_MIO24/25 */
+	status = "okay";
+	phy-handle = <&phy1>; /* u198 */
+	phy-mode = "rgmii-id";
+	phy1: phy@1 {
+		reg = <1>;
+		ti,rx-internal-delay = <0xb>;
+		ti,tx-internal-delay = <0xa>;
+		ti,fifo-depth = <1>;
+		ti,dp83867-rxctrl-strap-quirk;
+	};
+};
+
+&dcc {
+	status = "okay";
+};
+
+&rtc {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+	/* FIXME Fill names when versal starts */
+};
+
+&gpio1 {
+	status = "okay";
+	/* FIXME Fill names when versal starts */
+};
+
+&watchdog {
+	status = "okay";
+};
