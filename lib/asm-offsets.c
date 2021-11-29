@@ -29,6 +29,9 @@ int main(void)
 	DEFINE(GD_SIZE, sizeof(struct global_data));
 
 	DEFINE(GD_BD, offsetof(struct global_data, bd));
+
+	DEFINE(GD_FLAGS, offsetof(struct global_data, flags));
+
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	DEFINE(GD_MALLOC_BASE, offsetof(struct global_data, malloc_base));
 #endif

@@ -14,6 +14,7 @@
 #include <env.h>
 #include <fpga.h>
 #include <image.h>
+#include <init.h>
 #include <mapmem.h>
 #include <rtc.h>
 #include <watchdog.h>

@@ -20,8 +20,8 @@
 #include <charset.h>
 #include <pe.h>
 
-/* UEFI spec version 2.8 */
-#define EFI_SPECIFICATION_VERSION (2 << 16 | 80)
+/* UEFI spec version 2.9 */
+#define EFI_SPECIFICATION_VERSION (2 << 16 | 90)
 
 /* Types and defines for EFI CreateEvent */
 enum efi_timer_delay {
@@ -360,9 +360,14 @@ struct efi_runtime_services {
 };
 
 /* EFI event group GUID definitions */
+
 #define EFI_EVENT_GROUP_EXIT_BOOT_SERVICES \
 	EFI_GUID(0x27abf055, 0xb1b8, 0x4c26, 0x80, 0x48, \
 		 0x74, 0x8f, 0x37, 0xba, 0xa2, 0xdf)
+
+#define EFI_EVENT_GROUP_BEFORE_EXIT_BOOT_SERVICES \
+	EFI_GUID(0x8be0e274, 0x3970, 0x4b44, 0x80, 0xc5, \
+		 0x1a, 0xb9, 0x50, 0x2f, 0x3b, 0xfc)
 
 #define EFI_EVENT_GROUP_VIRTUAL_ADDRESS_CHANGE \
 	EFI_GUID(0x13fa7698, 0xc831, 0x49c7, 0x87, 0xea, \
@@ -375,6 +380,10 @@ struct efi_runtime_services {
 #define EFI_EVENT_GROUP_READY_TO_BOOT \
 	EFI_GUID(0x7ce88fb3, 0x4bd7, 0x4679, 0x87, 0xa8, \
 		 0xa8, 0xd8, 0xde, 0xe5, 0x0d, 0x2b)
+
+#define EFI_EVENT_GROUP_AFTER_READY_TO_BOOT \
+	EFI_GUID(0x3a2a00ad, 0x98b9, 0x4cdf, 0xa4, 0x78, \
+		 0x70, 0x27, 0x77, 0xf1, 0xc1, 0xb)
 
 #define EFI_EVENT_GROUP_RESET_SYSTEM \
 	EFI_GUID(0x62da6a56, 0x13fb, 0x485a, 0xa8, 0xda, \
@@ -417,6 +426,15 @@ struct efi_runtime_services {
 	EFI_GUID(0x1e2ed096, 0x30e2, 0x4254, 0xbd, \
 		 0x89, 0x86, 0x3b, 0xbe, 0xf8, 0x23, 0x25)
 
+/**
+ * struct efi_configuration_table - EFI Configuration Table
+ *
+ * This table contains a set of GUID/pointer pairs.
+ * The EFI Configuration Table may contain at most one instance of each table type.
+ *
+ * @guid:		GUID that uniquely identifies the system configuration table
+ * @table:		A pointer to the table associated with guid
+ */
 struct efi_configuration_table {
 	efi_guid_t guid;
 	void *table;
@@ -424,6 +442,29 @@ struct efi_configuration_table {
 
 #define EFI_SYSTEM_TABLE_SIGNATURE ((u64)0x5453595320494249ULL)
 
+/**
+ * struct efi_system_table - EFI System Table
+ *
+ * EFI System Table contains pointers to the runtime and boot services tables.
+ *
+ * @hdr:		The table header for the EFI System Table
+ * @fw_vendor:		A pointer to a null terminated string that identifies the vendor
+ *			that produces the system firmware
+ * @fw_revision:	The revision of the system firmware
+ * @con_in_handle:	The handle for the active console input device
+ * @con_in:		A pointer to the EFI_SIMPLE_TEXT_INPUT_PROTOCOL interface
+ *			that is associated with con_in_handle
+ * @con_out_handle:	The handle for the active console output device
+ * @con_out:		A pointer to the EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL interface
+ *			that is associated with con_out_handle
+ * @stderr_handle:	The handle for the active standard error console device
+ * @std_err:		A pointer to the EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL interface
+ *			that is associated with stderr_handle
+ * @runtime:		A pointer to the EFI Runtime Services Table
+ * @boottime:		A pointer to the EFI Boot Services Table
+ * @nr_tables:		The number of system configuration tables
+ * @tables:		A pointer to the system configuration tables
+ */
 struct efi_system_table {
 	struct efi_table_hdr hdr;
 	u16 *fw_vendor;   /* physical addr of wchar_t vendor string */
@@ -870,8 +911,8 @@ struct efi_hii_package_list_header {
  * @fields:	'fields' replaces the bit-fields defined in the EFI
  *		specification to to avoid possible compiler incompatibilities::
  *
- *		u32 length:24;
- *		u32 type:8;
+ *		    u32 length:24;
+ *		    u32 type:8;
  */
 struct efi_hii_package_header {
 	u32 fields;
@@ -1809,7 +1850,7 @@ struct efi_system_resource_table {
 		 0x34, 0x7d, 0x37, 0x56, 0x65, 0xa7)
 
 /**
- * win_certificate_uefi_guid - A certificate that encapsulates
+ * struct win_certificate_uefi_guid - A certificate that encapsulates
  * a GUID-specific signature
  *
  * @hdr:	Windows certificate header
@@ -1823,7 +1864,7 @@ struct win_certificate_uefi_guid {
 } __attribute__((__packed__));
 
 /**
- * efi_variable_authentication_2 - A time-based authentication method
+ * struct efi_variable_authentication_2 - A time-based authentication method
  * descriptor
  *
  * This structure describes an authentication information for
@@ -1840,7 +1881,7 @@ struct efi_variable_authentication_2 {
 } __attribute__((__packed__));
 
 /**
- * efi_firmware_image_authentication - Capsule authentication method
+ * struct efi_firmware_image_authentication - Capsule authentication method
  * descriptor
  *
  * This structure describes an authentication information for
@@ -1858,7 +1899,7 @@ struct efi_firmware_image_authentication {
 
 
 /**
- * efi_signature_data - A format of signature
+ * struct efi_signature_data - A format of signature
  *
  * This structure describes a single signature in signature database.
  *
@@ -1871,7 +1912,7 @@ struct efi_signature_data {
 } __attribute__((__packed__));
 
 /**
- * efi_signature_list - A format of signature database
+ * struct efi_signature_list - A format of signature database
  *
  * This structure describes a list of signatures with the same type.
  * An authenticated variable's value is a concatenation of one or more

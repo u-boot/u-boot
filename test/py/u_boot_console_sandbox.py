@@ -2,7 +2,9 @@
 # Copyright (c) 2015 Stephen Warren
 # Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
 
-# Logic to interact with the sandbox port of U-Boot, running as a sub-process.
+"""
+Logic to interact with the sandbox port of U-Boot, running as a sub-process.
+"""
 
 import time
 from u_boot_spawn import Spawn

@@ -4,7 +4,7 @@ config SYS_BOARD
 	default "tqma6"
 
 config SYS_VENDOR
-	default "tqc"
+	default "tq"
 
 config SYS_CONFIG_NAME
 	default "tqma6"
@@ -89,8 +89,8 @@ config SYS_TEXT_BASE
 	default 0x4fc00000 if TQMA6Q || TQMA6DL
 
 config IMX_CONFIG
-	default "board/tqc/tqma6/tqma6q.cfg" if TQMA6Q
-	default "board/tqc/tqma6/tqma6dl.cfg" if TQMA6DL
-	default "board/tqc/tqma6/tqma6s.cfg" if TQMA6S
+	default "board/tq/tqma6/tqma6q.cfg" if TQMA6Q
+	default "board/tq/tqma6/tqma6dl.cfg" if TQMA6DL
+	default "board/tq/tqma6/tqma6s.cfg" if TQMA6S
 
 endif

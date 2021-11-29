@@ -406,9 +406,9 @@ static int do_tpm_load_key_by_sha1(struct cmd_tbl *cmdtp, int flag, int argc,
 	void *key;
 	struct udevice *dev;
 
-	rc = get_tpm(&dev);
-	if (rc)
-		return rc;
+	err = get_tpm(&dev);
+	if (err)
+		return err;
 
 	if (argc < 5)
 		return CMD_RET_USAGE;
@@ -420,7 +420,7 @@ static int do_tpm_load_key_by_sha1(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	parse_byte_string(argv[4], usage_auth, NULL);
 
-	err = tpm_find_key_sha1(usage_auth, parent_hash, &parent_handle);
+	err = tpm1_find_key_sha1(dev, usage_auth, parent_hash, &parent_handle);
 	if (err) {
 		printf("Could not find matching parent key (err = %d)\n", err);
 		return CMD_RET_FAILURE;
@@ -428,7 +428,7 @@ static int do_tpm_load_key_by_sha1(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	printf("Found parent key %08x\n", parent_handle);
 
-	err = tpm_load_key2_oiap(parent_handle, key, key_len, usage_auth,
+	err = tpm1_load_key2_oiap(dev, parent_handle, key, key_len, usage_auth,
 				 &key_handle);
 	if (!err) {
 		printf("Key handle is 0x%x\n", key_handle);
@@ -582,12 +582,17 @@ static int do_tpm_flush(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_tpm_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
+	struct udevice *dev;
 	int type = 0;
 	u16 res_count;
 	u8 buf[288];
 	u8 *ptr;
 	int err;
 	uint i;
+
+	err = get_tpm(&dev);
+	if (err)
+		return err;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -619,7 +624,7 @@ static int do_tpm_list(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	/* fetch list of already loaded resources in the TPM */
-	err = tpm_get_capability(TPM_CAP_HANDLE, type, buf,
+	err = tpm_get_capability(dev, TPM_CAP_HANDLE, type, buf,
 				 sizeof(buf));
 	if (err) {
 		printf("tpm_get_capability returned error %d.\n", err);

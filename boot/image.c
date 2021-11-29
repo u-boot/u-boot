@@ -9,6 +9,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <lmb.h>
 #include <log.h>
 #include <malloc.h>
@@ -28,11 +29,6 @@
 #include <u-boot/sha1.h>
 #include <linux/errno.h>
 #include <asm/io.h>
-
-#ifdef CONFIG_CMD_BDI
-extern int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc,
-		     char *const argv[]);
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 

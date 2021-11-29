@@ -13,6 +13,7 @@
 #include <malloc.h>
 
 #include <asm/global_data.h>
+#include <asm/sections.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -144,6 +145,10 @@ void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align)
 			bank_end = end - 1;
 
 		lmb_reserve(lmb, sp, bank_end - sp + 1);
+
+		if (gd->flags & GD_FLG_SKIP_RELOC)
+			lmb_reserve(lmb, (phys_addr_t)(uintptr_t)_start, gd->mon_len);
+
 		break;
 	}
 }

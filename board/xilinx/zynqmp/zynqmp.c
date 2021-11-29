@@ -358,6 +358,21 @@ static int multi_boot(void)
 	return multiboot;
 }
 
+#if defined(CONFIG_SPL_BUILD)
+static void restore_jtag(void)
+{
+	if (current_el() != 3)
+		return;
+
+	writel(CSU_JTAG_SEC_GATE_DISABLE, &csu_base->jtag_sec);
+	writel(CSU_JTAG_DAP_ENABLE_DEBUG, &csu_base->jtag_dap_cfg);
+	writel(CSU_JTAG_CHAIN_WR_SETUP, &csu_base->jtag_chain_status_wr);
+	writel(CRLAPB_DBG_LPD_CTRL_SETUP_CLK, &crlapb_base->dbg_lpd_ctrl);
+	writel(CRLAPB_RST_LPD_DBG_RESET, &crlapb_base->rst_lpd_dbg);
+	writel(CSU_PCAP_PROG_RELEASE_PL, &csu_base->pcap_prog);
+}
+#endif
+
 #define PS_SYSMON_ANALOG_BUS_VAL	0x3210
 #define PS_SYSMON_ANALOG_BUS_REG	0xFFA50914
 
@@ -377,6 +392,10 @@ int board_init(void)
 		zynqmp_pmufw_load_config_object(zynqmp_pm_cfg_obj,
 						zynqmp_pm_cfg_obj_size);
 	printf("Silicon version:\t%d\n", zynqmp_get_silicon_version());
+
+	/* the CSU disables the JTAG interface when secure boot is enabled */
+	if (CONFIG_IS_ENABLED(ZYNQMP_RESTORE_JTAG))
+		restore_jtag();
 #else
 	if (CONFIG_IS_ENABLED(DM_I2C) && CONFIG_IS_ENABLED(I2C_EEPROM))
 		xilinx_read_eeprom();
@@ -477,7 +496,7 @@ ulong board_get_usable_ram_top(ulong total_size)
 	lmb_init(&lmb);
 	lmb_add(&lmb, gd->ram_base, gd->ram_size);
 	boot_fdt_add_mem_rsv_regions(&lmb, (void *)gd->fdt_blob);
-	size = ALIGN(CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE),
+	size = ALIGN(CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE);
 	reg = lmb_alloc(&lmb, size, MMU_SECTION_SIZE);
 
 	if (!reg)
@@ -621,7 +640,7 @@ int board_late_init(void)
 	const char *mode;
 	char *new_targets;
 	char *env_targets;
-	int ret;
+	int ret, multiboot;
 
 #if defined(CONFIG_USB_ETHER) && !defined(CONFIG_USB_GADGET_DOWNLOAD)
 	usb_ether_init();
@@ -638,6 +657,10 @@ int board_late_init(void)
 	ret = set_fdtfile();
 	if (ret)
 		return ret;
+
+	multiboot = multi_boot();
+	if (multiboot >= 0)
+		env_set_hex("multiboot", multiboot);
 
 	bootmode = zynqmp_get_bootmode();
 
@@ -691,7 +714,7 @@ int board_late_init(void)
 		break;
 	case SD1_LSHFT_MODE:
 		puts("LVL_SHFT_");
-		/* fall through */
+		fallthrough;
 	case SD_MODE1:
 		puts("SD_MODE1\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
@@ -845,6 +868,10 @@ void set_dfu_alt_info(char *interface, char *devstr)
 	memset(buf, 0, sizeof(buf));
 
 	multiboot = multi_boot();
+	if (multiboot < 0)
+		multiboot = 0;
+
+	multiboot = env_get_hex("multiboot", multiboot);
 	debug("Multiboot: %d\n", multiboot);
 
 	switch (zynqmp_get_bootmode()) {
@@ -856,20 +883,23 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		if (!multiboot)
 			snprintf(buf, DFU_ALT_BUF_LEN,
 				 "mmc %d:1=boot.bin fat %d 1;"
-				 "u-boot.itb fat %d 1",
-				 bootseq, bootseq, bootseq);
+				 "%s fat %d 1",
+				 bootseq, bootseq,
+				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME, bootseq);
 		else
 			snprintf(buf, DFU_ALT_BUF_LEN,
 				 "mmc %d:1=boot%04d.bin fat %d 1;"
-				 "u-boot.itb fat %d 1",
-				 bootseq, multiboot, bootseq, bootseq);
+				 "%s fat %d 1",
+				 bootseq, multiboot, bootseq,
+				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME, bootseq);
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
 		snprintf(buf, DFU_ALT_BUF_LEN,
 			 "sf 0:0=boot.bin raw %x 0x1500000;"
-			 "u-boot.itb raw 0x%x 0x500000",
-			 multiboot * SZ_32K, CONFIG_SYS_SPI_U_BOOT_OFFS);
+			 "%s raw 0x%x 0x500000",
+			 multiboot * SZ_32K, CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
+			 CONFIG_SYS_SPI_U_BOOT_OFFS);
 		break;
 	default:
 		return;

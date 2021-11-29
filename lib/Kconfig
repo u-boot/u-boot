@@ -793,7 +793,7 @@ config LMB
 	  Support the library logical memory blocks.
 
 config LMB_USE_MAX_REGIONS
-	bool "Use a commun number of memory and reserved regions in lmb lib"
+	bool "Use a common number of memory and reserved regions in lmb lib"
 	depends on LMB
 	default y
 	help

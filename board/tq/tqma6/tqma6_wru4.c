@@ -3,7 +3,7 @@
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  *
- * Copyright (C) 2013, 2014 TQ Systems (ported SabreSD to TQMa6x)
+ * Copyright (C) 2013, 2014 TQ-Systems (ported SabreSD to TQMa6x)
  * Author: Markus Niebel <markus.niebel@tq-group.com>
  *
  * Copyright (C) 2015 Stefan Roese <sr@denx.de>

@@ -1,7 +1,7 @@
-U-Boot for the TQ Systems TQMa6 modules
+U-Boot for the TQ-Systems TQMa6 modules
 
 This file contains information for the port of
-U-Boot to the TQ Systems TQMa6 modules.
+U-Boot to the TQ-Systems TQMa6 modules.
 
 1. Boot source
 --------------
@@ -14,7 +14,7 @@ The following boot source is supported:
 2. Building
 ------------
 
-To build U-Boot for the TQ Systems TQMa6 modules:
+To build U-Boot for the TQ-Systems TQMa6 modules:
 
 	make tqma6<x>_<baseboard>_<boot>_config
 	make

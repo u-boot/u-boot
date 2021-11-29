@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
 
-# Logic to spawn a sub-process and interact with its stdio.
+"""
+Logic to spawn a sub-process and interact with its stdio.
+"""
 
 import os
 import re
@@ -9,12 +11,12 @@ import pty
 import signal
 import select
 import time
+import traceback
 
 class Timeout(Exception):
     """An exception sub-class that indicates that a timeout occurred."""
-    pass
 
-class Spawn(object):
+class Spawn:
     """Represents the stdio of a freshly created sub-process. Commands may be
     sent to the process, and responses waited for.
 
@@ -58,14 +60,14 @@ class Spawn(object):
                 os.execvp(args[0], args)
             except:
                 print('CHILD EXECEPTION:')
-                import traceback
                 traceback.print_exc()
             finally:
                 os._exit(255)
 
         try:
             self.poll = select.poll()
-            self.poll.register(self.fd, select.POLLIN | select.POLLPRI | select.POLLERR | select.POLLHUP | select.POLLNVAL)
+            self.poll.register(self.fd, select.POLLIN | select.POLLPRI | select.POLLERR |
+                               select.POLLHUP | select.POLLNVAL)
         except:
             self.close()
             raise
@@ -106,7 +108,7 @@ class Spawn(object):
         elif os.WIFSIGNALED(status):
             signum = os.WTERMSIG(status)
             self.exit_code = -signum
-            self.exit_info = 'signal %d (%s)' % (signum, signal.Signals(signum))
+            self.exit_info = 'signal %d (%s)' % (signum, signal.Signals(signum).name)
         self.waited = True
         return False, self.exit_code, self.exit_info
 
@@ -196,13 +198,11 @@ class Spawn(object):
                     # shouldn't and explain why. This is much more friendly than
                     # just dying with an I/O error
                     if err.errno == 5:  # Input/output error
-                        alive, exit_code, info = self.checkalive()
+                        alive, _, info = self.checkalive()
                         if alive:
-                            raise
-                        else:
-                            raise ValueError('U-Boot exited with %s' % info)
-                    else:
-                        raise
+                            raise err
+                        raise ValueError('U-Boot exited with %s' % info)
+                    raise err
                 if self.logfile_read:
                     self.logfile_read.write(c)
                 self.buf += c
@@ -227,7 +227,7 @@ class Spawn(object):
         """
 
         os.close(self.fd)
-        for i in range(100):
+        for _ in range(100):
             if not self.isalive():
                 break
             time.sleep(0.1)
