@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal vmk180 rev1.1
+ *
+ * (C) Copyright 2019 - 2021, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal-vmk180-revA.dts"
+
+/ {
+	compatible = "xlnx,versal-vmk180-rev1.1", "xlnx,versal";
+	model = "Xilinx Versal vmk180 Eval board rev1.1";
+};
+
+&sdhci1 { /* PMC_MIO26-36/51 */
+	/delete-property/ sdhci-caps-mask;
+	/delete-property/ sdhci-caps;
+	/delete-property/ max-frequency;
+	clk-phase-sd-hs = <111>, <48>;
+	clk-phase-uhs-sdr25 = <114>, <48>;
+	clk-phase-uhs-ddr50 = <126>, <36>;
+};

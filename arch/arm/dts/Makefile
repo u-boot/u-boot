@@ -403,6 +403,10 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-vck190-revA-x-ebm-01-revA.dtb \
 	versal-vck190-revA-x-ebm-02-revA.dtb \
 	versal-vck190-revA-x-ebm-03-revA.dtb \
+	versal-vck190-rev1.1.dtb \
+	versal-vck190-rev1.1-x-ebm-01-revA.dtb \
+	versal-vck190-rev1.1-x-ebm-02-revA.dtb \
+	versal-vck190-rev1.1-x-ebm-03-revA.dtb \
 	versal-vck5000-revA.dtb \
 	versal-vc-p-a2197-00-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA.dtb \
@@ -416,6 +420,10 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-vmk180-revA-x-ebm-01-revA.dtb \
 	versal-vmk180-revA-x-ebm-02-revA.dtb \
 	versal-vmk180-revA-x-ebm-03-revA.dtb \
+	versal-vmk180-rev1.1.dtb \
+	versal-vmk180-rev1.1-x-ebm-01-revA.dtb \
+	versal-vmk180-rev1.1-x-ebm-02-revA.dtb \
+	versal-vmk180-rev1.1-x-ebm-03-revA.dtb \
 	versal-vpk120-revA.dtb \
 	versal-vpk120-revB.dtb \
 	versal-vp-x-a2785-00-revA.dtb \
