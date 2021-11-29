@@ -199,6 +199,44 @@ static efi_status_t tcg2_pcr_extend(struct udevice *dev, u32 pcr_index,
 	return EFI_SUCCESS;
 }
 
+/* tcg2_pcr_read - Read PCRs for a TPM2 device for a given tpml_digest_values
+ *
+ * @dev:		device
+ * @pcr_index:		PCR index
+ * @digest_list:	list of digest algorithms to extend
+ *
+ * @Return: status code
+ */
+static efi_status_t tcg2_pcr_read(struct udevice *dev, u32 pcr_index,
+				  struct tpml_digest_values *digest_list)
+{
+	struct tpm_chip_priv *priv;
+	unsigned int updates, pcr_select_min;
+	u32 rc;
+	size_t i;
+
+	priv = dev_get_uclass_priv(dev);
+	if (!priv)
+		return EFI_DEVICE_ERROR;
+
+	pcr_select_min = priv->pcr_select_min;
+
+	for (i = 0; i < digest_list->count; i++) {
+		u16 hash_alg = digest_list->digests[i].hash_alg;
+		u8 *digest = (u8 *)&digest_list->digests[i].digest;
+
+		rc = tpm2_pcr_read(dev, pcr_index, pcr_select_min,
+				   hash_alg, digest, alg_to_len(hash_alg),
+				   &updates);
+		if (rc) {
+			EFI_PRINT("Failed to read PCR\n");
+			return EFI_DEVICE_ERROR;
+		}
+	}
+
+	return EFI_SUCCESS;
+}
+
 /* put_event - Append an agile event to an eventlog
  *
  * @pcr_index:		PCR index
@@ -1458,6 +1496,8 @@ static efi_status_t tcg2_get_fw_eventlog(struct udevice *dev, void *log_buffer,
 	u32 pcr, pos;
 	u64 base;
 	u32 sz;
+	bool extend_pcr = false;
+	int i;
 
 	ret = platform_get_eventlog(dev, &base, &sz);
 	if (ret != EFI_SUCCESS)
@@ -1479,12 +1519,48 @@ static efi_status_t tcg2_get_fw_eventlog(struct udevice *dev, void *log_buffer,
 		return ret;
 	}
 
+	ret = tcg2_pcr_read(dev, 0, &digest_list);
+	if (ret) {
+		log_err("Error reading PCR 0\n");
+		return ret;
+	}
+
+	/*
+	 * If PCR0 is 0, previous firmware didn't have the capability
+	 * to extend the PCR. In this scenario, extend the PCR as
+	 * the eventlog is parsed.
+	 */
+	for (i = 0; i < digest_list.count; i++) {
+		u8 hash_buf[TPM2_SHA512_DIGEST_SIZE] = { 0 };
+		u16 hash_alg = digest_list.digests[i].hash_alg;
+
+		if (!memcmp((u8 *)&digest_list.digests[i].digest, hash_buf,
+			    alg_to_len(hash_alg)))
+			extend_pcr = true;
+	}
+
 	while (pos < sz) {
 		ret = tcg2_parse_event(dev, buffer, sz, &pos, &digest_list,
 				       &pcr);
 		if (ret) {
 			log_err("Error parsing event\n");
 			return ret;
+		}
+		if (extend_pcr) {
+			ret = tcg2_pcr_extend(dev, pcr, &digest_list);
+			if (ret != EFI_SUCCESS) {
+				log_err("Error in extending PCR\n");
+				return ret;
+			}
+
+			/* Clear the digest for next event */
+			for (i = 0; i < digest_list.count; i++) {
+				u16 hash_alg = digest_list.digests[i].hash_alg;
+				u8 *digest =
+				   (u8 *)&digest_list.digests[i].digest;
+
+				memset(digest, 0, alg_to_len(hash_alg));
+			}
 		}
 	}
 
