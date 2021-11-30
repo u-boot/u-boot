@@ -15,7 +15,7 @@
 _start:
 	mts	rmsr, r0	/* disable cache */
 
-	addi	r8, r0, __end
+	addi	r8, r0, _end
 	mts	rslr, r8
 
 #if defined(CONFIG_SPL_BUILD)
@@ -270,7 +270,7 @@ relocate_code:
 	add	r23, r0, r7 /* Move reloc addr to r23 */
 	/* Relocate text and data - r12 temp value */
 	addi	r21, r0, _start
-	addi	r22, r0, __end - 4 /* Include BSS too */
+	addi	r22, r0, _end - 4 /* Include BSS too */
 
 	rsub	r6, r21, r22
 	or	r5, r0, r0
