@@ -120,7 +120,7 @@ static int tpm_tis_remove(struct udevice *dev)
 	struct tpm_tis_chip_data *drv_data = (void *)dev_get_driver_data(dev);
 	int ret;
 
-	ret =  tpm_tis_cleanup(dev);
+	ret = tpm_tis_cleanup(dev);
 
 	iounmap(drv_data->iobase);
 
