@@ -135,6 +135,7 @@
 	phy-names = "usb3-phy";
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 	reset-gpios = <&slg7xl45106 0 GPIO_ACTIVE_LOW>;
+	assigned-clock-rates = <250000000>, <20000000>;
 
 	usbhub0: usb-hub@2d { /* u43 */
 		i2c-bus = <&usbhub_i2c0>;
@@ -162,6 +163,7 @@
 	phy-names = "usb3-phy";
 	phys = <&psgtr 3 PHY_TYPE_USB3 1 2>;
 	reset-gpios = <&slg7xl45106 1 GPIO_ACTIVE_LOW>;
+	assigned-clock-rates = <250000000>, <20000000>;
 
 	usbhub1: usb-hub@2d { /* u84 */
 		i2c-bus = <&usbhub_i2c1>;
