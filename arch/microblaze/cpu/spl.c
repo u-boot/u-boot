@@ -15,9 +15,11 @@
 
 bool boot_linux;
 
-u32 spl_boot_device(void)
+void board_boot_order(u32 *spl_boot_list)
 {
-	return BOOT_DEVICE_NOR;
+	spl_boot_list[0] = BOOT_DEVICE_NOR;
+	spl_boot_list[1] = BOOT_DEVICE_RAM;
+	spl_boot_list[2] = BOOT_DEVICE_SPI;
 }
 
 /* Board initialization after bss clearance */
