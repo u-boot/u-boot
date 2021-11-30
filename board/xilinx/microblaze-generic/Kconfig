@@ -47,4 +47,11 @@ config XILINX_MICROBLAZE0_USR_EXCEP
 	  the exception vector table. The user exception vector is located at
 	  C_BASE_VECTORS + 0x8 address.
 
+config XILINX_MICROBLAZE0_VECTOR_BASE_ADDR
+	hex "Location of MicroBlaze vectors"
+	default 0x0
+	help
+	  Memory address location of the exception vector table. It is
+	  configurable via the C_BASE_VECTORS hdl parameter.
+
 endif
