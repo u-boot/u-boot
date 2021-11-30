@@ -512,13 +512,16 @@ u32 tpm2_nv_write_value(struct udevice *dev, u32 index, const void *data,
  * @dev		TPM device
  * @idx		Index of the PCR
  * @idx_min_sz	Minimum size in bytes of the pcrSelect array
+ * @algorithm	Algorithm used, defined in 'enum tpm2_algorithms'
  * @data	Output buffer for contents of the named PCR
+ * @digest_len  len of the data
  * @updates	Optional out parameter: number of updates for this PCR
  *
  * @return code of the operation
  */
 u32 tpm2_pcr_read(struct udevice *dev, u32 idx, unsigned int idx_min_sz,
-		  void *data, unsigned int *updates);
+		  u16 algorithm, void *data, u32 digest_len,
+		  unsigned int *updates);
 
 /**
  * Issue a TPM2_GetCapability command.  This implementation is limited

@@ -254,7 +254,8 @@ u32 tpm2_nv_write_value(struct udevice *dev, u32 index, const void *data,
 }
 
 u32 tpm2_pcr_read(struct udevice *dev, u32 idx, unsigned int idx_min_sz,
-		  void *data, unsigned int *updates)
+		  u16 algorithm, void *data, u32 digest_len,
+		  unsigned int *updates)
 {
 	u8 idx_array_sz = max(idx_min_sz, DIV_ROUND_UP(idx, 8));
 	u8 command_v2[COMMAND_BUFFER_SIZE] = {
@@ -264,7 +265,7 @@ u32 tpm2_pcr_read(struct udevice *dev, u32 idx, unsigned int idx_min_sz,
 
 		/* TPML_PCR_SELECTION */
 		tpm_u32(1),			/* Number of selections */
-		tpm_u16(TPM2_ALG_SHA256),	/* Algorithm of the hash */
+		tpm_u16(algorithm),		/* Algorithm of the hash */
 		idx_array_sz,			/* Array size for selection */
 		/* bitmap(idx)			   Selected PCR bitmap */
 	};
@@ -283,10 +284,13 @@ u32 tpm2_pcr_read(struct udevice *dev, u32 idx, unsigned int idx_min_sz,
 	if (ret)
 		return ret;
 
+	if (digest_len > response_len)
+		return TPM_LIB_ERROR;
+
 	if (unpack_byte_string(response, response_len, "ds",
 			       10, &counter,
-			       response_len - TPM2_DIGEST_LEN, data,
-			       TPM2_DIGEST_LEN))
+			       response_len - digest_len, data,
+			       digest_len))
 		return TPM_LIB_ERROR;
 
 	if (updates)

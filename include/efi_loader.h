@@ -988,4 +988,6 @@ efi_status_t efi_esrt_register(void);
  */
 efi_status_t efi_esrt_populate(void);
 efi_status_t efi_load_capsule_drivers(void);
+
+efi_status_t platform_get_eventlog(struct udevice *dev, u64 *addr, u32 *sz);
 #endif /* _EFI_LOADER_H */
