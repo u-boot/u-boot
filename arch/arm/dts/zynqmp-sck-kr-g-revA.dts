@@ -134,18 +134,18 @@
 	pinctrl-0 = <&pinctrl_usb0_default>;
 	phy-names = "usb3-phy";
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
-	reset-gpio = <&gpio 76 0>;
+	reset-gpios = <&slg7xl45106 0 GPIO_ACTIVE_LOW>;
 
 	usbhub0: usb5744@2d { /* u43 */
 		i2c-bus = <&usbhub_i2c0>;
 		compatible = "microchip,usb5744";
-		reset-gpios = <&slg7xl45106 3 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&slg7xl45106 3 GPIO_ACTIVE_LOW>;
 	};
 
 	/* usb2244 - u38 - SD_RESET_B via u19 */
 	usbsd: usb2244 {
 		compatible = "microchip,usb2244";
-		reset-gpios = <&slg7xl45106 2 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&slg7xl45106 2 GPIO_ACTIVE_LOW>;
 	};
 };
 
@@ -162,12 +162,12 @@
 	pinctrl-0 = <&pinctrl_usb1_default>;
 	phy-names = "usb3-phy";
 	phys = <&psgtr 3 PHY_TYPE_USB3 1 2>;
-	reset-gpio = <&gpio 77 0>;
+	reset-gpios = <&slg7xl45106 1 GPIO_ACTIVE_LOW>;
 
 	usbhub1: usb5744@2d { /* u84 */
 		i2c-bus = <&usbhub_i2c1>;
 		compatible = "microchip,usb5744";
-		reset-gpios = <&slg7xl45106 4 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&slg7xl45106 4 GPIO_ACTIVE_LOW>;
 	};
 };
 
@@ -196,7 +196,7 @@
 	mdio: mdio { /* FIXME */
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reset-gpios = <&gpio 38 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&slg7xl45106 6 GPIO_ACTIVE_LOW>;
 		reset-delay-us = <2>;
 
 		phy0: ethernet-phy@4 { /* u81 */
@@ -206,6 +206,8 @@
 			ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_75_NS>;
 			ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 			ti,dp83867-rxctrl-strap-quirk;
+			/* This is not correct but address depends on GTR settings */
+			/* reset-gpios = <&slg7xl45106 5 GPIO_ACTIVE_LOW>;  */
 		};
 		phy1: ethernet-phy@8 { /* u36 */
 			#phy-cells = <1>;
