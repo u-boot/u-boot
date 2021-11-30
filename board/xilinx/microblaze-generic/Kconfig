@@ -38,4 +38,13 @@ config XILINX_MICROBLAZE0_HW_VER
 	string "Core version number"
 	default "7.10.d"
 
+config XILINX_MICROBLAZE0_USR_EXCEP
+	bool "MicroBlaze user exception support"
+	default y
+	help
+	  Enable this option in order to install the user exception handler
+	  (_exception_handler routine from arch/microblaze/cpu/exception.c) in
+	  the exception vector table. The user exception vector is located at
+	  C_BASE_VECTORS + 0x8 address.
+
 endif

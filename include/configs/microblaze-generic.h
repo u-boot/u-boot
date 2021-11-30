@@ -54,8 +54,6 @@
 #define	CONFIG_HOSTNAME		"microblaze-generic"
 
 /* architecture dependent code */
-#define	CONFIG_SYS_USR_EXCEP	/* user exception */
-
 #if defined(CONFIG_CMD_PXE) && defined(CONFIG_CMD_DHCP)
 #define BOOT_TARGET_DEVICES_PXE(func)	func(PXE, pxe, na)
 #else

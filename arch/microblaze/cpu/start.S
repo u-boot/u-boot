@@ -144,7 +144,7 @@ __setup_exceptions:
 	rsubi	r8, r10, 0x6
 	sh	r6, r0, r8
 
-#ifdef CONFIG_SYS_USR_EXCEP
+#if CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USR_EXCEP)
 	/* user_vector_exception */
 	swi	r2, r0, 0x8	/* user vector exception - imm opcode */
 	swi	r3, r0, 0xC	/* user vector exception - brai opcode */
