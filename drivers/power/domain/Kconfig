@@ -79,4 +79,13 @@ config TI_POWER_DOMAIN
 	help
 	  Generic power domain implementation for TI K3 devices.
 
+config ZYNQMP_POWER_DOMAIN
+	bool "Enable the Xilinx ZynqMP Power domain driver"
+	depends on POWER_DOMAIN && ZYNQMP_FIRMWARE
+	help
+	  Generic power domain implementation for Xilinx ZynqMP devices.
+	  The driver should be enabled when system starts in very minimal
+	  configuration and it is extended at run time. Then enabling
+	  the driver will ensure that PMUFW enable access to requested IP.
+
 endmenu
