@@ -132,19 +132,17 @@ __setup_exceptions:
 	addi	r2, r0, 0xb0000000	/* hex b000 opcode imm */
 	addi	r3, r0, 0xb8080000	/* hew b808 opcode brai */
 
-#ifdef CONFIG_SYS_RESET_ADDRESS
 	/* reset address */
 	swi	r2, r0, 0x0	/* reset address - imm opcode */
 	swi	r3, r0, 0x4	/* reset address - brai opcode */
 
-	addik	r6, r0, CONFIG_SYS_RESET_ADDRESS
+	addik	r6, r0, CONFIG_SYS_TEXT_BASE
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
 	rsubi	r8, r10, 0x2
 	sh	r7, r0, r8
 	rsubi	r8, r10, 0x6
 	sh	r6, r0, r8
-#endif
 
 #ifdef CONFIG_SYS_USR_EXCEP
 	/* user_vector_exception */
