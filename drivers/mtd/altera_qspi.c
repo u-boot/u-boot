@@ -11,6 +11,7 @@
 #include <flash.h>
 #include <log.h>
 #include <mtd.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 
@@ -48,7 +49,7 @@ struct altera_qspi_regs {
 	u32	chip_select;
 };
 
-struct altera_qspi_platdata {
+struct altera_qspi_plat {
 	struct altera_qspi_regs *regs;
 	void *base;
 	unsigned long size;
@@ -106,7 +107,7 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
 	struct mtd_info *mtd = info->mtd;
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_plat *pdata = dev_get_plat(dev);
 	ulong base = (ulong)pdata->base;
 	loff_t to = addr - base;
 	size_t retlen;
@@ -135,7 +136,7 @@ unsigned long flash_init(void)
 static int altera_qspi_erase(struct mtd_info *mtd, struct erase_info *instr)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_plat *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	size_t addr = instr->addr;
 	size_t len = instr->len;
@@ -152,7 +153,6 @@ static int altera_qspi_erase(struct mtd_info *mtd, struct erase_info *instr)
 				putc('\n');
 			instr->fail_addr = MTD_FAIL_ADDR_UNKNOWN;
 			instr->state = MTD_ERASE_FAILED;
-			mtd_erase_callback(instr);
 			return -EIO;
 		}
 		flash = pdata->base + addr;
@@ -176,7 +176,6 @@ static int altera_qspi_erase(struct mtd_info *mtd, struct erase_info *instr)
 				writel(stat, &regs->isr); /* clear isr */
 				instr->fail_addr = addr;
 				instr->state = MTD_ERASE_FAILED;
-				mtd_erase_callback(instr);
 				return -EIO;
 			}
 			if (flash_verbose)
@@ -188,7 +187,6 @@ static int altera_qspi_erase(struct mtd_info *mtd, struct erase_info *instr)
 		addr += mtd->erasesize;
 	}
 	instr->state = MTD_ERASE_DONE;
-	mtd_erase_callback(instr);
 
 	return 0;
 }
@@ -197,7 +195,7 @@ static int altera_qspi_read(struct mtd_info *mtd, loff_t from, size_t len,
 			    size_t *retlen, u_char *buf)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_plat *pdata = dev_get_plat(dev);
 
 	memcpy_fromio(buf, pdata->base + from, len);
 	*retlen = len;
@@ -209,7 +207,7 @@ static int altera_qspi_write(struct mtd_info *mtd, loff_t to, size_t len,
 			     size_t *retlen, const u_char *buf)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_plat *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	u32 stat;
 
@@ -235,7 +233,7 @@ static void altera_qspi_get_locked_range(struct mtd_info *mtd, loff_t *ofs,
 					 uint64_t *len)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_plat *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	int shift0 = ffs(QUADSPI_SR_BP2_0) - 1;
 	int shift3 = ffs(QUADSPI_SR_BP3) - 1 - 3;
@@ -257,7 +255,7 @@ static void altera_qspi_get_locked_range(struct mtd_info *mtd, loff_t *ofs,
 static int altera_qspi_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_plat *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	u32 sector_start, sector_end;
 	u32 num_sectors;
@@ -291,7 +289,7 @@ static int altera_qspi_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 static int altera_qspi_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	struct udevice *dev = mtd->dev;
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_plat *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	u32 mem_op;
 
@@ -304,7 +302,7 @@ static int altera_qspi_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 
 static int altera_qspi_probe(struct udevice *dev)
 {
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_plat *pdata = dev_get_plat(dev);
 	struct altera_qspi_regs *regs = pdata->regs;
 	unsigned long base = (unsigned long)pdata->base;
 	struct mtd_info *mtd;
@@ -346,9 +344,9 @@ static int altera_qspi_probe(struct udevice *dev)
 	return 0;
 }
 
-static int altera_qspi_ofdata_to_platdata(struct udevice *dev)
+static int altera_qspi_of_to_plat(struct udevice *dev)
 {
-	struct altera_qspi_platdata *pdata = dev_get_platdata(dev);
+	struct altera_qspi_plat *pdata = dev_get_plat(dev);
 	void *blob = (void *)gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	const char *list, *end;
@@ -400,7 +398,7 @@ U_BOOT_DRIVER(altera_qspi) = {
 	.name	= "altera_qspi",
 	.id	= UCLASS_MTD,
 	.of_match = altera_qspi_ids,
-	.ofdata_to_platdata = altera_qspi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_qspi_platdata),
+	.of_to_plat = altera_qspi_of_to_plat,
+	.plat_auto	= sizeof(struct altera_qspi_plat),
 	.probe	= altera_qspi_probe,
 };

@@ -23,8 +23,6 @@
 
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
-#define CONFIG_FSL_VIA
-
 #ifndef __ASSEMBLY__
 #include <linux/stringify.h>
 extern unsigned long get_clock_freq(void);
@@ -47,10 +45,7 @@ extern unsigned long get_clock_freq(void);
 
 /* DDR Setup */
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
-#define CONFIG_DDR_SPD
 
-#define CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
@@ -280,7 +275,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
-#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
@@ -296,25 +290,14 @@ extern unsigned long get_clock_freq(void);
 /*
  * I2C
  */
-#ifndef CONFIG_DM_I2C
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 #else
 #define CONFIG_SYS_SPD_BUS_NUM 0
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
 #endif
-#define CONFIG_SYS_I2C_FSL
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_CCID
-#define CONFIG_SYS_ID_EEPROM
-#define CONFIG_SYS_I2C_EEPROM_ADDR     0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
 
 /*
  * General PCI
@@ -373,23 +356,7 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #if defined(CONFIG_PCI)
-
-#if !defined(CONFIG_DM_PCI)
-#define CONFIG_FSL_PCI_INIT		1	/* Use common FSL init code */
-#define CONFIG_PCI_INDIRECT_BRIDGE	1
-#define CONFIG_SYS_PCIE1_NAME		"Slot"
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
-#else
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
-#endif
-#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000      /* 512M */
-#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
-#endif
-
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-
 #endif	/* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
@@ -439,7 +406,6 @@ extern unsigned long get_clock_freq(void);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*
  * For booting Linux, the board info and command line data
@@ -448,10 +414,6 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial Memory map for Linux*/
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#endif
 
 /*
  * Environment Configuration
@@ -474,8 +436,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_GATEWAYIP 192.168.1.1
 #define CONFIG_NETMASK	 255.255.255.0
 
-#define CONFIG_LOADADDR	1000000	/*default location for tftp and bootm*/
-
 #define	CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:ecc=off\0"		\
 	"netdev=eth0\0"				\
@@ -497,7 +457,7 @@ extern unsigned long get_clock_freq(void);
 	"fdtaddr=1e00000\0"			\
 	"fdtfile=mpc8548cds.dtb\0"
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
    "setenv bootargs root=/dev/nfs rw "					\
       "nfsroot=$serverip:$rootpath "					\
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -506,7 +466,7 @@ extern unsigned long get_clock_freq(void);
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND \
+#define RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "					\
       "console=$consoledev,$baudrate $othbootargs;"			\
    "tftp $ramdiskaddr $ramdiskfile;"					\
@@ -514,6 +474,6 @@ extern unsigned long get_clock_freq(void);
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND	CONFIG_NFSBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND	NFSBOOTCOMMAND
 
 #endif	/* __CONFIG_H */

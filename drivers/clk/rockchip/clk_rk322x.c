@@ -14,6 +14,7 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk322x.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3228-cru.h>
 #include <linux/bitops.h>
@@ -475,7 +476,7 @@ static struct clk_ops rk322x_clk_ops = {
 	.set_parent	= rk322x_clk_set_parent,
 };
 
-static int rk322x_clk_ofdata_to_platdata(struct udevice *dev)
+static int rk322x_clk_of_to_plat(struct udevice *dev)
 {
 	struct rk322x_clk_priv *priv = dev_get_priv(dev);
 
@@ -510,7 +511,7 @@ static int rk322x_clk_bind(struct udevice *dev)
 						    cru_glb_srst_fst_value);
 		priv->glb_srst_snd_value = offsetof(struct rk322x_cru,
 						    cru_glb_srst_snd_value);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
@@ -532,8 +533,8 @@ U_BOOT_DRIVER(rockchip_rk322x_cru) = {
 	.name		= "clk_rk322x",
 	.id		= UCLASS_CLK,
 	.of_match	= rk322x_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk322x_clk_priv),
-	.ofdata_to_platdata = rk322x_clk_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct rk322x_clk_priv),
+	.of_to_plat = rk322x_clk_of_to_plat,
 	.ops		= &rk322x_clk_ops,
 	.bind		= rk322x_clk_bind,
 	.probe		= rk322x_clk_probe,

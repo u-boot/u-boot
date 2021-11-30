@@ -9,6 +9,8 @@
 #include <dm.h>
 #include <sdhci.h>
 #include <clk.h>
+#include <linux/errno.h>
+#include <mach/pic32.h>
 
 struct pic32_sdhci_plat {
 	struct mmc_config cfg;
@@ -18,7 +20,7 @@ struct pic32_sdhci_plat {
 static int pic32_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct pic32_sdhci_plat *plat = dev_get_platdata(dev);
+	struct pic32_sdhci_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 
 	struct clk clk;
@@ -71,7 +73,7 @@ static int pic32_sdhci_probe(struct udevice *dev)
 
 static int pic32_sdhci_bind(struct udevice *dev)
 {
-	struct pic32_sdhci_plat *plat = dev_get_platdata(dev);
+	struct pic32_sdhci_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -88,6 +90,6 @@ U_BOOT_DRIVER(pic32_sdhci_drv) = {
 	.ops			= &sdhci_ops,
 	.bind			= pic32_sdhci_bind,
 	.probe			= pic32_sdhci_probe,
-	.priv_auto_alloc_size	= sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct pic32_sdhci_plat)
+	.priv_auto	= sizeof(struct sdhci_host),
+	.plat_auto	= sizeof(struct pic32_sdhci_plat)
 };

@@ -145,7 +145,7 @@ static void virtio_net_stop(struct udevice *dev)
 static int virtio_net_write_hwaddr(struct udevice *dev)
 {
 	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(dev->parent);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	int i;
 
 	/*
@@ -166,7 +166,7 @@ static int virtio_net_write_hwaddr(struct udevice *dev)
 
 static int virtio_net_read_rom_hwaddr(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	if (!pdata)
 		return -ENOSYS;
@@ -233,7 +233,7 @@ U_BOOT_DRIVER(virtio_net) = {
 	.probe	= virtio_net_probe,
 	.remove = virtio_reset,
 	.ops	= &virtio_net_ops,
-	.priv_auto_alloc_size = sizeof(struct virtio_net_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct virtio_net_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ACTIVE_DMA,
 };

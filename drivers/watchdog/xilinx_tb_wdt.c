@@ -26,7 +26,7 @@ struct watchdog_regs {
 	u32 tbr; /* 0x8 */
 };
 
-struct xlnx_wdt_platdata {
+struct xlnx_wdt_plat {
 	bool enable_once;
 	struct watchdog_regs *regs;
 };
@@ -34,16 +34,16 @@ struct xlnx_wdt_platdata {
 static int xlnx_wdt_reset(struct udevice *dev)
 {
 	u32 reg;
-	struct xlnx_wdt_platdata *platdata = dev_get_platdata(dev);
+	struct xlnx_wdt_plat *plat = dev_get_plat(dev);
 
 	debug("%s ", __func__);
 
 	/* Read the current contents of TCSR0 */
-	reg = readl(&platdata->regs->twcsr0);
+	reg = readl(&plat->regs->twcsr0);
 
 	/* Clear the watchdog WDS bit */
 	if (reg & (XWT_CSR0_EWDT1_MASK | XWT_CSRX_EWDT2_MASK))
-		writel(reg | XWT_CSR0_WDS_MASK, &platdata->regs->twcsr0);
+		writel(reg | XWT_CSR0_WDS_MASK, &plat->regs->twcsr0);
 
 	return 0;
 }
@@ -51,18 +51,18 @@ static int xlnx_wdt_reset(struct udevice *dev)
 static int xlnx_wdt_stop(struct udevice *dev)
 {
 	u32 reg;
-	struct xlnx_wdt_platdata *platdata = dev_get_platdata(dev);
+	struct xlnx_wdt_plat *plat = dev_get_plat(dev);
 
-	if (platdata->enable_once) {
+	if (plat->enable_once) {
 		debug("Can't stop Xilinx watchdog.\n");
 		return -EBUSY;
 	}
 
 	/* Read the current contents of TCSR0 */
-	reg = readl(&platdata->regs->twcsr0);
+	reg = readl(&plat->regs->twcsr0);
 
-	writel(reg & ~XWT_CSR0_EWDT1_MASK, &platdata->regs->twcsr0);
-	writel(~XWT_CSRX_EWDT2_MASK, &platdata->regs->twcsr1);
+	writel(reg & ~XWT_CSR0_EWDT1_MASK, &plat->regs->twcsr0);
+	writel(~XWT_CSRX_EWDT2_MASK, &plat->regs->twcsr1);
 
 	debug("Watchdog disabled!\n");
 
@@ -71,37 +71,37 @@ static int xlnx_wdt_stop(struct udevice *dev)
 
 static int xlnx_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 {
-	struct xlnx_wdt_platdata *platdata = dev_get_platdata(dev);
+	struct xlnx_wdt_plat *plat = dev_get_plat(dev);
 
 	debug("%s:\n", __func__);
 
 	writel((XWT_CSR0_WRS_MASK | XWT_CSR0_WDS_MASK | XWT_CSR0_EWDT1_MASK),
-	       &platdata->regs->twcsr0);
+	       &plat->regs->twcsr0);
 
-	writel(XWT_CSRX_EWDT2_MASK, &platdata->regs->twcsr1);
+	writel(XWT_CSRX_EWDT2_MASK, &plat->regs->twcsr1);
 
 	return 0;
 }
 
 static int xlnx_wdt_probe(struct udevice *dev)
 {
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 
 	return 0;
 }
 
-static int xlnx_wdt_ofdata_to_platdata(struct udevice *dev)
+static int xlnx_wdt_of_to_plat(struct udevice *dev)
 {
-	struct xlnx_wdt_platdata *platdata = dev_get_platdata(dev);
+	struct xlnx_wdt_plat *plat = dev_get_plat(dev);
 
-	platdata->regs = (struct watchdog_regs *)dev_read_addr(dev);
-	if (IS_ERR(platdata->regs))
-		return PTR_ERR(platdata->regs);
+	plat->regs = (struct watchdog_regs *)dev_read_addr(dev);
+	if (IS_ERR(plat->regs))
+		return PTR_ERR(plat->regs);
 
-	platdata->enable_once = dev_read_u32_default(dev,
-						     "xlnx,wdt-enable-once", 0);
+	plat->enable_once = dev_read_u32_default(dev, "xlnx,wdt-enable-once",
+						 0);
 
-	debug("%s: wdt-enable-once %d\n", __func__, platdata->enable_once);
+	debug("%s: wdt-enable-once %d\n", __func__, plat->enable_once);
 
 	return 0;
 }
@@ -123,7 +123,7 @@ U_BOOT_DRIVER(xlnx_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = xlnx_wdt_ids,
 	.probe = xlnx_wdt_probe,
-	.platdata_auto_alloc_size = sizeof(struct xlnx_wdt_platdata),
-	.ofdata_to_platdata = xlnx_wdt_ofdata_to_platdata,
+	.plat_auto	= sizeof(struct xlnx_wdt_plat),
+	.of_to_plat = xlnx_wdt_of_to_plat,
 	.ops = &xlnx_wdt_ops,
 };

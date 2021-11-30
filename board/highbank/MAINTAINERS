@@ -1,5 +1,5 @@
 HIGHBANK BOARD
-M:	Rob Herring <robh@kernel.org>
+M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
 F:	board/highbank/
 F:	include/configs/highbank.h

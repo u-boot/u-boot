@@ -23,6 +23,7 @@
 #include <hang.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/arch/regs-uart.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/platform_data/serial_pxa.h>
@@ -268,7 +269,7 @@ void pxa_serial_initialize(void)
 #ifdef CONFIG_DM_SERIAL
 static int pxa_serial_probe(struct udevice *dev)
 {
-	struct pxa_serial_platdata *plat = dev->platdata;
+	struct pxa_serial_plat *plat = dev_get_plat(dev);
 
 	pxa_setbrg_common((struct pxa_uart_regs *)plat->base, plat->port,
 			  plat->baudrate);
@@ -277,7 +278,7 @@ static int pxa_serial_probe(struct udevice *dev)
 
 static int pxa_serial_putc(struct udevice *dev, const char ch)
 {
-	struct pxa_serial_platdata *plat = dev->platdata;
+	struct pxa_serial_plat *plat = dev_get_plat(dev);
 	struct pxa_uart_regs *uart_regs = (struct pxa_uart_regs *)plat->base;
 
 	/* Wait for last character to go. */
@@ -291,7 +292,7 @@ static int pxa_serial_putc(struct udevice *dev, const char ch)
 
 static int pxa_serial_getc(struct udevice *dev)
 {
-	struct pxa_serial_platdata *plat = dev->platdata;
+	struct pxa_serial_plat *plat = dev_get_plat(dev);
 	struct pxa_uart_regs *uart_regs = (struct pxa_uart_regs *)plat->base;
 
 	/* Wait for a character to arrive. */
@@ -303,7 +304,7 @@ static int pxa_serial_getc(struct udevice *dev)
 
 int pxa_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct pxa_serial_platdata *plat = dev->platdata;
+	struct pxa_serial_plat *plat = dev_get_plat(dev);
 	struct pxa_uart_regs *uart_regs = (struct pxa_uart_regs *)plat->base;
 	int port = plat->port;
 
@@ -314,7 +315,7 @@ int pxa_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int pxa_serial_pending(struct udevice *dev, bool input)
 {
-	struct pxa_serial_platdata *plat = dev->platdata;
+	struct pxa_serial_plat *plat = dev_get_plat(dev);
 	struct pxa_uart_regs *uart_regs = (struct pxa_uart_regs *)plat->base;
 
 	if (input)

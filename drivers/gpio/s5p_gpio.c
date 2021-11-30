@@ -10,6 +10,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <dm/device-internal.h>
@@ -34,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RATE_SET(gpio)			(0x1 << (gpio + 16))
 
 /* Platform data for each bank */
-struct exynos_gpio_platdata {
+struct exynos_gpio_plat {
 	struct s5p_gpio_bank *bank;
 	const char *bank_name;	/* Name of port, e.g. 'gpa0" */
 };
@@ -286,8 +287,8 @@ static const struct dm_gpio_ops gpio_exynos_ops = {
 static int gpio_exynos_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct exynos_bank_info *priv = dev->priv;
-	struct exynos_gpio_platdata *plat = dev->platdata;
+	struct exynos_bank_info *priv = dev_get_priv(dev);
+	struct exynos_gpio_plat *plat = dev_get_plat(dev);
 
 	/* Only child devices have ports */
 	if (!plat)
@@ -307,7 +308,7 @@ static int gpio_exynos_probe(struct udevice *dev)
  */
 static int gpio_exynos_bind(struct udevice *parent)
 {
-	struct exynos_gpio_platdata *plat = parent->platdata;
+	struct exynos_gpio_plat *plat = dev_get_plat(parent);
 	struct s5p_gpio_bank *bank, *base;
 	const void *blob = gd->fdt_blob;
 	int node;
@@ -320,7 +321,7 @@ static int gpio_exynos_bind(struct udevice *parent)
 	for (node = fdt_first_subnode(blob, dev_of_offset(parent)), bank = base;
 	     node > 0;
 	     node = fdt_next_subnode(blob, node), bank++) {
-		struct exynos_gpio_platdata *plat;
+		struct exynos_gpio_plat *plat;
 		struct udevice *dev;
 		fdt_addr_t reg;
 		int ret;
@@ -332,12 +333,10 @@ static int gpio_exynos_bind(struct udevice *parent)
 			return -ENOMEM;
 
 		plat->bank_name = fdt_get_name(blob, node, NULL);
-		ret = device_bind(parent, parent->driver,
-				  plat->bank_name, plat, -1, &dev);
+		ret = device_bind(parent, parent->driver, plat->bank_name, plat,
+				  offset_to_ofnode(node), &dev);
 		if (ret)
 			return ret;
-
-		dev_set_of_offset(dev, node);
 
 		reg = dev_read_addr(dev);
 		if (reg != FDT_ADDR_T_NONE)
@@ -358,6 +357,7 @@ static const struct udevice_id exynos_gpio_ids[] = {
 	{ .compatible = "samsung,exynos4x12-pinctrl" },
 	{ .compatible = "samsung,exynos5250-pinctrl" },
 	{ .compatible = "samsung,exynos5420-pinctrl" },
+	{ .compatible = "samsung,exynos78x0-gpio" },
 	{ }
 };
 
@@ -367,7 +367,7 @@ U_BOOT_DRIVER(gpio_exynos) = {
 	.of_match = exynos_gpio_ids,
 	.bind	= gpio_exynos_bind,
 	.probe = gpio_exynos_probe,
-	.priv_auto_alloc_size = sizeof(struct exynos_bank_info),
+	.priv_auto	= sizeof(struct exynos_bank_info),
 	.ops	= &gpio_exynos_ops,
 };
 #endif

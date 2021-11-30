@@ -10,6 +10,8 @@
  *
  */
 
+#define LOG_CATEGORY UCLASS_W1_EEPROM
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>
@@ -37,40 +39,9 @@ int w1_eeprom_read_buf(struct udevice *dev, unsigned int offset,
 	return ops->read_buf(dev, offset, buf, count);
 }
 
-int w1_eeprom_register_new_device(u64 id)
-{
-	u8 family = id & 0xff;
-	int ret;
-	struct udevice *dev;
-
-	for (ret = uclass_first_device(UCLASS_W1_EEPROM, &dev);
-	     !ret && dev;
-	     uclass_next_device(&dev)) {
-		if (ret || !dev) {
-			debug("cannot find w1 eeprom dev\n");
-			return ret;
-		}
-		if (dev_get_driver_data(dev) == family) {
-			struct w1_device *w1;
-
-			w1 = dev_get_parent_platdata(dev);
-			if (w1->id) /* device already in use */
-				continue;
-			w1->id = id;
-			debug("%s: Match found: %s:%s %llx\n", __func__,
-			      dev->name, dev->driver->name, id);
-			return 0;
-		}
-	}
-
-	debug("%s: No matches found: error %d\n", __func__, ret);
-
-	return ret;
-}
-
 int w1_eeprom_get_id(struct udevice *dev, u64 *id)
 {
-	struct w1_device *w1 = dev_get_parent_platdata(dev);
+	struct w1_device *w1 = dev_get_parent_plat(dev);
 
 	if (!w1)
 		return -ENODEV;

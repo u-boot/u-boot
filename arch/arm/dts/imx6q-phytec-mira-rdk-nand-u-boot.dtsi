@@ -40,3 +40,7 @@
 &m25p80 {
 	u-boot,dm-spl;
 };
+
+&gpmi {
+	fsl,legacy-bch-geometry;
+};

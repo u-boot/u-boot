@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0+ OR X11
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
  * Copyright (c) 2013 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
@@ -6,9 +6,12 @@
 
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
-#include "skeleton.dtsi"
+#include <dt-bindings/soc/rockchip,boot-mode.h>
 
 / {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
 	interrupt-parent = <&gic>;
 
 	aliases {
@@ -18,56 +21,12 @@
 		i2c2 = &i2c2;
 		i2c3 = &i2c3;
 		i2c4 = &i2c4;
-		mshc0 = &emmc;
-		mshc1 = &mmc0;
-		mshc2 = &mmc1;
 		serial0 = &uart0;
 		serial1 = &uart1;
 		serial2 = &uart2;
 		serial3 = &uart3;
 		spi0 = &spi0;
 		spi1 = &spi1;
-	};
-
-	amba {
-		compatible = "simple-bus";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges;
-
-		dmac1_s: dma-controller@20018000 {
-			compatible = "arm,pl330", "arm,primecell";
-			reg = <0x20018000 0x4000>;
-			interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
-			#dma-cells = <1>;
-			arm,pl330-broken-no-flushp;
-			clocks = <&cru ACLK_DMA1>;
-			clock-names = "apb_pclk";
-		};
-
-		dmac1_ns: dma-controller@2001c000 {
-			compatible = "arm,pl330", "arm,primecell";
-			reg = <0x2001c000 0x4000>;
-			interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
-			#dma-cells = <1>;
-			arm,pl330-broken-no-flushp;
-			clocks = <&cru ACLK_DMA1>;
-			clock-names = "apb_pclk";
-			status = "disabled";
-		};
-
-		dmac2: dma-controller@20078000 {
-			compatible = "arm,pl330", "arm,primecell";
-			reg = <0x20078000 0x4000>;
-			interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
-			#dma-cells = <1>;
-			arm,pl330-broken-no-flushp;
-			clocks = <&cru ACLK_DMA2>;
-			clock-names = "apb_pclk";
-		};
 	};
 
 	xin24m: oscillator {
@@ -77,7 +36,30 @@
 		clock-output-names = "xin24m";
 	};
 
-	L2: l2-cache-controller@10138000 {
+	gpu: gpu@10090000 {
+		compatible = "arm,mali-400";
+		reg = <0x10090000 0x10000>;
+		clocks = <&cru ACLK_GPU>, <&cru ACLK_GPU>;
+		clock-names = "bus", "core";
+		assigned-clocks = <&cru ACLK_GPU>;
+		assigned-clock-rates = <100000000>;
+		resets = <&cru SRST_GPU>;
+		status = "disabled";
+	};
+
+	vpu: video-codec@10104000 {
+		compatible = "rockchip,rk3066-vpu";
+		reg = <0x10104000 0x800>;
+		interrupts = <GIC_SPI  9 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "vepu", "vdpu";
+		clocks = <&cru ACLK_VDPU>, <&cru HCLK_VDPU>,
+			 <&cru ACLK_VEPU>, <&cru HCLK_VEPU>;
+		clock-names = "aclk_vdpu", "hclk_vdpu",
+			      "aclk_vepu", "hclk_vepu";
+	};
+
+	L2: cache-controller@10138000 {
 		compatible = "arm,pl310-cache";
 		reg = <0x10138000 0x1000>;
 		cache-unified;
@@ -92,14 +74,14 @@
 	global_timer: global-timer@1013c200 {
 		compatible = "arm,cortex-a9-global-timer";
 		reg = <0x1013c200 0x20>;
-		interrupts = <GIC_PPI 11 0x304>;
+		interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
 		clocks = <&cru CORE_PERI>;
 	};
 
 	local_timer: local-timer@1013c600 {
 		compatible = "arm,cortex-a9-twd-timer";
 		reg = <0x1013c600 0x20>;
-		interrupts = <GIC_PPI 13 0x304>;
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
 		clocks = <&cru CORE_PERI>;
 	};
 
@@ -133,10 +115,44 @@
 		status = "disabled";
 	};
 
-	noc: syscon@10128000 {
-		u-boot,dm-spl;
-		compatible = "rockchip,rk3188-noc", "syscon";
-		reg = <0x10128000 0x2000>;
+	qos_gpu: qos@1012d000 {
+		compatible = "rockchip,rk3066-qos", "syscon";
+		reg = <0x1012d000 0x20>;
+	};
+
+	qos_vpu: qos@1012e000 {
+		compatible = "rockchip,rk3066-qos", "syscon";
+		reg = <0x1012e000 0x20>;
+	};
+
+	qos_lcdc0: qos@1012f000 {
+		compatible = "rockchip,rk3066-qos", "syscon";
+		reg = <0x1012f000 0x20>;
+	};
+
+	qos_cif0: qos@1012f080 {
+		compatible = "rockchip,rk3066-qos", "syscon";
+		reg = <0x1012f080 0x20>;
+	};
+
+	qos_ipp: qos@1012f100 {
+		compatible = "rockchip,rk3066-qos", "syscon";
+		reg = <0x1012f100 0x20>;
+	};
+
+	qos_lcdc1: qos@1012f180 {
+		compatible = "rockchip,rk3066-qos", "syscon";
+		reg = <0x1012f180 0x20>;
+	};
+
+	qos_cif1: qos@1012f200 {
+		compatible = "rockchip,rk3066-qos", "syscon";
+		reg = <0x1012f200 0x20>;
+	};
+
+	qos_rga: qos@1012f280 {
+		compatible = "rockchip,rk3066-qos", "syscon";
+		reg = <0x1012f280 0x20>;
 	};
 
 	usb_otg: usb@10180000 {
@@ -149,7 +165,6 @@
 		g-np-tx-fifo-size = <16>;
 		g-rx-fifo-size = <275>;
 		g-tx-fifo-size = <256 128 128 64 64 32>;
-		g-use-dma;
 		phys = <&usbphy0>;
 		phy-names = "usb2-phy";
 		status = "disabled";
@@ -184,60 +199,99 @@
 		status = "disabled";
 	};
 
-	mmc0: dwmmc@10214000 {
+	mmc0: mmc@10214000 {
 		compatible = "rockchip,rk2928-dw-mshc";
 		reg = <0x10214000 0x1000>;
 		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cru HCLK_SDMMC>, <&cru SCLK_SDMMC>;
 		clock-names = "biu", "ciu";
+		dmas = <&dmac2 1>;
+		dma-names = "rx-tx";
 		fifo-depth = <256>;
+		resets = <&cru SRST_SDMMC>;
+		reset-names = "reset";
 		status = "disabled";
 	};
 
-	mmc1: dwmmc@10218000 {
+	mmc1: mmc@10218000 {
 		compatible = "rockchip,rk2928-dw-mshc";
 		reg = <0x10218000 0x1000>;
 		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cru HCLK_SDIO>, <&cru SCLK_SDIO>;
 		clock-names = "biu", "ciu";
+		dmas = <&dmac2 3>;
+		dma-names = "rx-tx";
 		fifo-depth = <256>;
+		resets = <&cru SRST_SDIO>;
+		reset-names = "reset";
 		status = "disabled";
 	};
 
-	emmc: dwmmc@1021c000 {
+	emmc: mmc@1021c000 {
 		compatible = "rockchip,rk2928-dw-mshc";
 		reg = <0x1021c000 0x1000>;
 		interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cru HCLK_EMMC>, <&cru SCLK_EMMC>;
 		clock-names = "biu", "ciu";
+		dmas = <&dmac2 4>;
+		dma-names = "rx-tx";
 		fifo-depth = <256>;
+		resets = <&cru SRST_EMMC>;
+		reset-names = "reset";
+		status = "disabled";
+	};
+
+	nfc: nand-controller@10500000 {
+		compatible = "rockchip,rk2928-nfc";
+		reg = <0x10500000 0x4000>;
+		interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&cru HCLK_NANDC0>;
+		clock-names = "ahb";
 		status = "disabled";
 	};
 
 	pmu: pmu@20004000 {
-		compatible = "rockchip,rk3066-pmu", "syscon";
+		compatible = "rockchip,rk3066-pmu", "syscon", "simple-mfd";
 		reg = <0x20004000 0x100>;
-		u-boot,dm-spl;
+
+		reboot-mode {
+			compatible = "syscon-reboot-mode";
+			offset = <0x40>;
+			mode-normal = <BOOT_NORMAL>;
+			mode-recovery = <BOOT_RECOVERY>;
+			mode-bootloader = <BOOT_FASTBOOT>;
+			mode-loader = <BOOT_BL_DOWNLOAD>;
+		};
 	};
 
 	grf: grf@20008000 {
-		compatible = "syscon";
+		compatible = "syscon", "simple-mfd";
 		reg = <0x20008000 0x200>;
-		u-boot,dm-spl;
 	};
 
-	dmc: dmc@20020000 {
-		/* unreviewed u-boot-specific binding */
-		compatible = "rockchip,rk3188-dmc", "syscon";
-		rockchip,cru = <&cru>;
-		rockchip,grf = <&grf>;
-		rockchip,pmu = <&pmu>;
-		rockchip,noc = <&noc>;
-		reg = <0x20020000 0x3fc
-		       0x20040000 0x294>;
-		clocks = <&cru PCLK_DDRUPCTL>, <&cru PCLK_PUBL>;
-		clock-names = "pclk_ddrupctl", "pclk_publ";
-		u-boot,dm-spl;
+	dmac1_s: dma-controller@20018000 {
+		compatible = "arm,pl330", "arm,primecell";
+		reg = <0x20018000 0x4000>;
+		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
+		#dma-cells = <1>;
+		arm,pl330-broken-no-flushp;
+		arm,pl330-periph-burst;
+		clocks = <&cru ACLK_DMA1>;
+		clock-names = "apb_pclk";
+	};
+
+	dmac1_ns: dma-controller@2001c000 {
+		compatible = "arm,pl330", "arm,primecell";
+		reg = <0x2001c000 0x4000>;
+		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
+		#dma-cells = <1>;
+		arm,pl330-broken-no-flushp;
+		arm,pl330-periph-burst;
+		clocks = <&cru ACLK_DMA1>;
+		clock-names = "apb_pclk";
+		status = "disabled";
 	};
 
 	i2c0: i2c@2002d000 {
@@ -361,7 +415,6 @@
 		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
 		reg-shift = <2>;
 		reg-io-width = <1>;
-		clock-frequency = <24000000>;
 		clock-names = "baudclk", "apb_pclk";
 		clocks = <&cru SCLK_UART2>, <&cru PCLK_UART2>;
 		status = "disabled";
@@ -385,6 +438,8 @@
 		#io-channel-cells = <1>;
 		clocks = <&cru SCLK_SARADC>, <&cru PCLK_SARADC>;
 		clock-names = "saradc", "apb_pclk";
+		resets = <&cru SRST_SARADC>;
+		reset-names = "saradc-apb";
 		status = "disabled";
 	};
 
@@ -412,5 +467,17 @@
 		dmas = <&dmac2 12>, <&dmac2 13>;
 		dma-names = "tx", "rx";
 		status = "disabled";
+	};
+
+	dmac2: dma-controller@20078000 {
+		compatible = "arm,pl330", "arm,primecell";
+		reg = <0x20078000 0x4000>;
+		interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
+		#dma-cells = <1>;
+		arm,pl330-broken-no-flushp;
+		arm,pl330-periph-burst;
+		clocks = <&cru ACLK_DMA2>;
+		clock-names = "apb_pclk";
 	};
 };

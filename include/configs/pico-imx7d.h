@@ -24,9 +24,6 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR        0x1000  /* 2MB */
 #endif
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 #define CONFIG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
 /* MMC Config */
@@ -74,7 +71,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"splashpos=m,m\0" \
-	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"console=ttymxc4\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -82,11 +79,11 @@
 	"videomode=video=ctfb:x:800,y:480,depth:24,mode:0,pclk:30000,le:46,ri:210,up:22,lo:23,hs:20,vs:10,sync:0,vmode:0\0" \
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x83000000\0" \
 	"ramdiskaddr=0x83000000\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	CONFIG_DFU_ENV_SETTINGS \
 	"findfdt=" \
 		"if test $fdtfile = ask ; then " \
@@ -110,9 +107,6 @@
 #include <config_distro_bootcmd.h>
 #include <linux/stringify.h>
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_SYS_HZ			1000
-
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
@@ -125,23 +119,11 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* I2C configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1
-#define CONFIG_SYS_I2C_MXC_I2C2
-#define CONFIG_SYS_I2C_MXC_I2C3
-#define CONFIG_SYS_I2C_MXC_I2C4
-#define CONFIG_SYS_I2C_SPEED		100000
-
 /* PMIC */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
 
 #ifdef CONFIG_DM_VIDEO
-#define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif

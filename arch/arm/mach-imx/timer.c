@@ -11,6 +11,7 @@
 #include <time.h>
 #include <asm/io.h>
 #include <div64.h>
+#include <asm/global_data.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
@@ -39,18 +40,16 @@ static struct mxc_gpt *cur_gpt = (struct mxc_gpt *)GPT1_BASE_ADDR;
 #define GPTPR_PRESCALER24M_SHIFT 12
 #define GPTPR_PRESCALER24M_MASK (0xF << GPTPR_PRESCALER24M_SHIFT)
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static inline int gpt_has_clk_source_osc(void)
 {
-#if defined(CONFIG_MX6)
 	if (((is_mx6dq()) && (soc_rev() > CHIP_REV_1_0)) ||
 	    is_mx6dqp() || is_mx6sdl() || is_mx6sx() || is_mx6ul() ||
-	    is_mx6ull() || is_mx6sll())
+	    is_mx6ull() || is_mx6sll() || is_mx7())
 		return 1;
 
 	return 0;
-#else
-	return 0;
-#endif
 }
 
 static inline ulong gpt_get_clk(void)
@@ -73,7 +72,8 @@ int timer_init(void)
 	__raw_writel(GPTCR_SWR, &cur_gpt->control);
 
 	/* We have no udelay by now */
-	__raw_writel(0, &cur_gpt->control);
+	for (i = 0; i < 100; i++)
+		__raw_writel(0, &cur_gpt->control);
 
 	i = __raw_readl(&cur_gpt->control);
 	i &= ~GPTCR_CLKSOURCE_MASK;
@@ -87,7 +87,7 @@ int timer_init(void)
 		 * Enable bit and prescaler
 		 */
 		if (is_mx6sdl() || is_mx6sx() || is_mx6ul() || is_mx6ull() ||
-		    is_mx6sll()) {
+		    is_mx6sll() || is_mx7()) {
 			i |= GPTCR_24MEN;
 
 			/* Produce 3Mhz clock */
@@ -102,6 +102,9 @@ int timer_init(void)
 	i |= GPTCR_CLKSOURCE_32 | GPTCR_TEN;
 #endif
 	__raw_writel(i, &cur_gpt->control);
+
+	gd->arch.tbl = __raw_readl(&cur_gpt->counter);
+	gd->arch.tbu = 0;
 
 	return 0;
 }

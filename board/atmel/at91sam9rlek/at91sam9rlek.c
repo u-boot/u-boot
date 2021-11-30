@@ -9,6 +9,7 @@
 #include <debug_uart.h>
 #include <init.h>
 #include <vsprintf.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
 #include <asm/arch/at91sam9rl.h>

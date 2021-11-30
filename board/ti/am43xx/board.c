@@ -10,6 +10,7 @@
 #include <common.h>
 #include <eeprom.h>
 #include <image.h>
+#include <asm/global_data.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <fdt_support.h>
@@ -55,7 +56,7 @@ void do_board_detect(void)
 }
 #endif
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 
 const struct dpll_params dpll_mpu[NUM_CRYSTAL_FREQ][NUM_OPPS] = {
 	{	/* 19.2 MHz */
@@ -392,13 +393,8 @@ void scale_vcores_generic(u32 m)
 {
 	int mpu_vdd, ddr_volt;
 
-#ifndef CONFIG_DM_I2C
-	if (i2c_probe(TPS65218_CHIP_PM))
-		return;
-#else
 	if (power_tps65218_init(0))
 		return;
-#endif
 
 	switch (m) {
 	case 1000:
@@ -450,13 +446,8 @@ void scale_vcores_idk(u32 m)
 {
 	int mpu_vdd;
 
-#ifndef CONFIG_DM_I2C
-	if (i2c_probe(TPS62362_I2C_ADDR))
-		return;
-#else
 	if (power_tps62362_init(0))
 		return;
-#endif
 
 	switch (m) {
 	case 1000:
@@ -491,10 +482,6 @@ void gpi2c_init(void)
 
 	if (first_time) {
 		enable_i2c0_pin_mux();
-#ifndef CONFIG_DM_I2C
-		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
-			 CONFIG_SYS_OMAP24_I2C_SLAVE);
-#endif
 		first_time = false;
 	}
 }
@@ -631,28 +618,15 @@ void sdram_init(void)
 int power_init_board(void)
 {
 	int rc;
-#ifndef CONFIG_DM_I2C
-	struct pmic *p = NULL;
-#endif
 	if (board_is_idk()) {
 		rc = power_tps62362_init(0);
 		if (rc)
 			goto done;
-#ifndef CONFIG_DM_I2C
-		p = pmic_get("TPS62362");
-		if (!p || pmic_probe(p))
-			goto done;
-#endif
 		puts("PMIC:  TPS62362\n");
 	} else {
 		rc = power_tps65218_init(0);
 		if (rc)
 			goto done;
-#ifndef CONFIG_DM_I2C
-		p = pmic_get("TPS65218_PMIC");
-		if (!p || pmic_probe(p))
-			goto done;
-#endif
 		puts("PMIC:  TPS65218\n");
 	}
 done:
@@ -744,7 +718,7 @@ int board_late_init(void)
 #endif
 
 	/* Just probe the potentially supported cdce913 device */
-	uclass_get_device(UCLASS_CLK, 0, &dev);
+	uclass_get_device_by_name(UCLASS_CLK, "cdce913@65", &dev);
 
 	return 0;
 }
@@ -895,7 +869,8 @@ int embedded_dtb_select(void)
 #endif
 
 #ifdef CONFIG_TI_SECURE_DEVICE
-void board_fit_image_post_process(void **p_image, size_t *p_size)
+void board_fit_image_post_process(const void *fit, int node, void **p_image,
+				  size_t *p_size)
 {
 	secure_boot_verify_image(p_image, p_size);
 }

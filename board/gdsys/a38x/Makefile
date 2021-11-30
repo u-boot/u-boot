@@ -4,7 +4,7 @@
 # Copyright (C) 2015 Reinhard Pfau <reinhard.pfau@gdsys.cc>
 # Copyright (C) 2016 Mario Six <mario.six@gdsys.cc>
 
-obj-$(CONFIG_TARGET_CONTROLCENTERDC) += controlcenterdc.o hre.o spl.o keyprogram.o dt_helpers.o
+obj-$(CONFIG_TARGET_CONTROLCENTERDC) += controlcenterdc.o hre.o keyprogram.o dt_helpers.o
 
 ifeq ($(CONFIG_SPL_BUILD),)
 obj-$(CONFIG_TARGET_CONTROLCENTERDC) += hydra.o ihs_phys.o

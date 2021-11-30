@@ -8,6 +8,7 @@
 #include <command.h>
 #include <asm/system.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/sections.h>
 #include <asm/io.h>
 #include <asm/arch/nexell.h>
@@ -87,7 +88,7 @@ int print_cpuinfo(void)
 }
 #endif
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	void *clkpwr_reg = (void *)PHY_BASEADDR_CLKPWR;
 	const u32 sw_rst_enb_bitpos = 3;

@@ -459,7 +459,7 @@ err0:
 static int pxa_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct pxa_mmc_plat *plat = dev_get_platdata(dev);
+	struct pxa_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_config *cfg = &plat->cfg;
 	struct mmc *mmc = &plat->mmc;
 	struct pxa_mmc_priv *priv = dev_get_priv(dev);
@@ -494,7 +494,7 @@ static int pxa_mmc_probe(struct udevice *dev)
 static int pxa_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			    struct mmc_data *data)
 {
-	struct pxa_mmc_plat *plat = dev_get_platdata(dev);
+	struct pxa_mmc_plat *plat = dev_get_plat(dev);
 	struct pxa_mmc_priv *priv = dev_get_priv(dev);
 
 	return pxa_mmc_send_cmd_common(priv, &plat->mmc, cmd, data);
@@ -502,7 +502,7 @@ static int pxa_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 
 static int pxa_mmc_set_ios(struct udevice *dev)
 {
-	struct pxa_mmc_plat *plat = dev_get_platdata(dev);
+	struct pxa_mmc_plat *plat = dev_get_plat(dev);
 	struct pxa_mmc_priv *priv = dev_get_priv(dev);
 
 	return pxa_mmc_set_ios_common(priv, &plat->mmc);
@@ -517,7 +517,7 @@ static const struct dm_mmc_ops pxa_mmc_ops = {
 #if CONFIG_IS_ENABLED(BLK)
 static int pxa_mmc_bind(struct udevice *dev)
 {
-	struct pxa_mmc_plat *plat = dev_get_platdata(dev);
+	struct pxa_mmc_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -530,7 +530,7 @@ U_BOOT_DRIVER(pxa_mmc) = {
 	.id	= UCLASS_MMC,
 	.name	= "pxa_mmc",
 	.ops	= &pxa_mmc_ops,
-	.priv_auto_alloc_size = sizeof(struct pxa_mmc_priv),
+	.priv_auto	= sizeof(struct pxa_mmc_priv),
 	.probe	= pxa_mmc_probe,
 };
 #endif /* !CONFIG_IS_ENABLED(DM_MMC) */

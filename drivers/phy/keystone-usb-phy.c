@@ -130,5 +130,5 @@ U_BOOT_DRIVER(keystone_usb_phy) = {
 	.of_match = keystone_usb_phy_ids,
 	.ops = &keystone_usb_phy_ops,
 	.probe = keystone_usb_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct keystone_usb_phy),
+	.priv_auto	= sizeof(struct keystone_usb_phy),
 };

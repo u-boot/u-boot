@@ -9,6 +9,7 @@ config LDO_ENABLED_MODE
 	  Select this option to enable the PMC1 LDO.
 
 config MX7ULP
+	select HAS_CAAM
 	bool
 
 choice

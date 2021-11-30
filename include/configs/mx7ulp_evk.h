@@ -22,21 +22,10 @@
 
 #define CONFIG_SYS_HZ_CLOCK		1000000 /* Fixed at 1Mhz from TSTMR */
 
-#define CONFIG_INITRD_TAG
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-/*#define CONFIG_REVISION_TAG*/
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(8 * SZ_1M)
-
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
 
-#define CONFIG_SYS_CACHELINE_SIZE      64
-
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_CBSIZE		512
 
 #define CONFIG_SYS_MAXARGS		256
@@ -46,8 +35,6 @@
 #define PHYS_SDRAM			0x60000000
 #define PHYS_SDRAM_SIZE			SZ_1G
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-
-#define CONFIG_LOADADDR             0x60800000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
@@ -123,9 +110,6 @@
 			   "fi; " \
 		   "fi; " \
 	   "fi"
-
-#define CONFIG_SYS_HZ			1000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	SZ_256K

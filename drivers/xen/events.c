@@ -196,4 +196,3 @@ void fini_events(void)
 	/* Dealloc all events */
 	unbind_all_ports();
 }
-

@@ -9,7 +9,7 @@ obj-$(CONFIG_SCSI) += scsi.o
 endif
 
 ifdef CONFIG_SPL_BUILD
-ifdef CONFIG_SPL_SATA_SUPPORT
+ifdef CONFIG_SPL_SATA
 obj-$(CONFIG_DM_SCSI) += scsi-uclass.o
 obj-$(CONFIG_SCSI) += scsi.o
 endif

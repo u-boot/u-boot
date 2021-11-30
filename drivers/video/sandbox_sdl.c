@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <video.h>
+#include <asm/global_data.h>
 #include <asm/sdl.h>
 #include <asm/state.h>
 #include <asm/u-boot-sandbox.h>
@@ -23,8 +24,8 @@ enum {
 
 static int sandbox_sdl_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
-	struct sandbox_sdl_plat *plat = dev_get_platdata(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+	struct sandbox_sdl_plat *plat = dev_get_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct sandbox_state *state = state_get_current();
 	int ret;
@@ -49,8 +50,8 @@ static int sandbox_sdl_probe(struct udevice *dev)
 
 static int sandbox_sdl_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
-	struct sandbox_sdl_plat *plat = dev_get_platdata(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+	struct sandbox_sdl_plat *plat = dev_get_plat(dev);
 	int ret = 0;
 
 	plat->xres = dev_read_u32_default(dev, "xres", LCD_MAX_WIDTH);
@@ -78,5 +79,5 @@ U_BOOT_DRIVER(sandbox_lcd_sdl) = {
 	.of_match = sandbox_sdl_ids,
 	.bind	= sandbox_sdl_bind,
 	.probe	= sandbox_sdl_probe,
-	.platdata_auto_alloc_size	= sizeof(struct sandbox_sdl_plat),
+	.plat_auto	= sizeof(struct sandbox_sdl_plat),
 };

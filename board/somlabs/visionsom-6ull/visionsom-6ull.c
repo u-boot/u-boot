@@ -11,6 +11,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -103,7 +104,7 @@ int board_init(void)
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#ifdef CONFIG_SYS_I2C
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 #endif
 

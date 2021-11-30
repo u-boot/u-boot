@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <memalign.h>
 #include <miiphy.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 #include "dm_qe_uec.h"
@@ -171,8 +172,8 @@ static int uec_set_mac_if_mode(struct uec_priv *uec)
 			break;
 		default:
 			return -EINVAL;
-	}
-	break;
+		}
+		break;
 	case SPEED_1000:
 		maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
 		switch (enet_if_mode) {
@@ -416,7 +417,7 @@ static void qe_uec_stop(struct udevice *dev)
 static int qe_uec_set_hwaddr(struct udevice *dev)
 {
 	struct qe_uec_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct uec_priv *uec = priv->uec;
 	uec_t *uec_regs = uec->uec_regs;
 	uchar *mac = pdata->enetaddr;
@@ -937,7 +938,7 @@ enum qe_clock qe_clock_source(const char *source)
 		return QE_CLK_NONE;
 
 	if (strncasecmp(source, "brg", 3) == 0) {
-		i = simple_strtoul(source + 3, NULL, 10);
+		i = dectoul(source + 3, NULL);
 		if (i >= 1 && i <= 16)
 			return (QE_BRG1 - 1) + i;
 		else
@@ -945,7 +946,7 @@ enum qe_clock qe_clock_source(const char *source)
 	}
 
 	if (strncasecmp(source, "clk", 3) == 0) {
-		i = simple_strtoul(source + 3, NULL, 10);
+		i = dectoul(source + 3, NULL);
 		if (i >= 1 && i <= 24)
 			return (QE_CLK1 - 1) + i;
 		else
@@ -982,7 +983,7 @@ static void qe_uec_set_eth_type(struct udevice *dev)
 static int qe_uec_set_uec_info(struct udevice *dev)
 {
 	struct qe_uec_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct uec_priv *uec = priv->uec;
 	struct uec_inf *uec_info;
 	struct ucc_fast_inf *uf_info;
@@ -1086,7 +1087,7 @@ out:
 static int qe_uec_probe(struct udevice *dev)
 {
 	struct qe_uec_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct uec_priv		*uec;
 	int ret;
 
@@ -1129,9 +1130,9 @@ static int qe_uec_remove(struct udevice *dev)
 	return 0;
 }
 
-static int qe_uec_ofdata_to_platdata(struct udevice *dev)
+static int qe_uec_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
 
 	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
@@ -1158,10 +1159,10 @@ U_BOOT_DRIVER(eth_qe_uec) = {
 	.name	= QE_UEC_DRIVER_NAME,
 	.id	= UCLASS_ETH,
 	.of_match = qe_uec_ids,
-	.ofdata_to_platdata = qe_uec_ofdata_to_platdata,
+	.of_to_plat = qe_uec_of_to_plat,
 	.probe	= qe_uec_probe,
 	.remove = qe_uec_remove,
 	.ops	= &qe_uec_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct qe_uec_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct qe_uec_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

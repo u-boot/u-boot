@@ -26,6 +26,7 @@
 #ifdef USE_HOSTCC
 #define __efi_runtime
 #define __efi_runtime_data
+#define __efi_runtime_rodata
 #endif
 
 #define tole(x) cpu_to_le32(x)
@@ -83,12 +84,12 @@ static void __efi_runtime make_crc_table(void)
   }
   crc_table_empty = 0;
 }
-#else
+#elif !defined(CONFIG_ARM64_CRC32)
 /* ========================================================================
  * Table of CRC-32's of all single-byte values (made by make_crc_table)
  */
 
-static const uint32_t __efi_runtime_data crc_table[256] = {
+static const uint32_t __efi_runtime_rodata crc_table[256] = {
 tole(0x00000000L), tole(0x77073096L), tole(0xee0e612cL), tole(0x990951baL),
 tole(0x076dc419L), tole(0x706af48fL), tole(0xe963a535L), tole(0x9e6495a3L),
 tole(0x0edb8832L), tole(0x79dcb8a4L), tole(0xe0d5e91eL), tole(0x97d2d988L),
@@ -183,6 +184,12 @@ const uint32_t * ZEXPORT get_crc_table()
  */
 uint32_t __efi_runtime crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
 {
+#ifdef CONFIG_ARM64_CRC32
+    crc = cpu_to_le32(crc);
+    while (len--)
+        crc = __builtin_aarch64_crc32b(crc, *buf++);
+    return le32_to_cpu(crc);
+#else
     const uint32_t *tab = crc_table;
     const uint32_t *b =(const uint32_t *)buf;
     size_t rem_len;
@@ -220,6 +227,7 @@ uint32_t __efi_runtime crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
     }
 
     return le32_to_cpu(crc);
+#endif
 }
 #undef DO_CRC
 

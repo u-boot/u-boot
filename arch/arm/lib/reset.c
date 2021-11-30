@@ -39,7 +39,7 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	disable_interrupts();
 
 	reset_misc();
-	reset_cpu(0);
+	reset_cpu();
 
 	/*NOTREACHED*/
 	return 0;

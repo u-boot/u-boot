@@ -11,6 +11,7 @@
 #include <init.h>
 #include <log.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass.h>
@@ -171,7 +172,7 @@ enum boot_device get_boot_device(void)
 	return boot_dev;
 }
 
-#ifdef CONFIG_SERIAL_TAG
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define FUSE_UNIQUE_ID_WORD0 16
 #define FUSE_UNIQUE_ID_WORD1 17
 void get_board_serial(struct tag_serialnr *serialnr)
@@ -200,7 +201,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 	serialnr->low = val1;
 	serialnr->high = val2;
 }
-#endif /*CONFIG_SERIAL_TAG*/
+#endif /*CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG*/
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 __weak int board_mmc_get_env_dev(int devno)

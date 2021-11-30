@@ -15,20 +15,28 @@ void iomux_printdevs(const int console)
 	int i;
 	struct stdio_dev *dev;
 
-	for (i = 0; i < cd_count[console]; i++) {
-		dev = console_devices[console][i];
+	for_each_console_dev(i, console, dev)
 		printf("%s ", dev->name);
-	}
 	printf("\n");
+}
+
+int iomux_match_device(struct stdio_dev **set, const int n, struct stdio_dev *sdev)
+{
+	int i;
+
+	for (i = 0; i < n; i++)
+		if (sdev == set[i])
+			return i;
+	return -ENOENT;
 }
 
 /* This tries to preserve the old list if an error occurs. */
 int iomux_doenv(const int console, const char *arg)
 {
 	char *console_args, *temp, **start;
-	int i, j, k, io_flag, cs_idx, repeat;
+	int i, j, io_flag, cs_idx, repeat;
+	struct stdio_dev **cons_set, **old_set;
 	struct stdio_dev *dev;
-	struct stdio_dev **cons_set;
 
 	console_args = strdup(arg);
 	if (console_args == NULL)
@@ -45,15 +53,14 @@ int iomux_doenv(const int console, const char *arg)
 	i = 0;
 	temp = console_args;
 	for (;;) {
-		temp = strchr(temp, ',');
-		if (temp != NULL) {
-			i++;
-			temp++;
-			continue;
-		}
 		/* There's always one entry more than the number of commas. */
 		i++;
-		break;
+
+		temp = strchr(temp, ',');
+		if (temp == NULL)
+			break;
+
+		temp++;
 	}
 	start = (char **)malloc(i * sizeof(char *));
 	if (start == NULL) {
@@ -76,15 +83,8 @@ int iomux_doenv(const int console, const char *arg)
 		return 1;
 	}
 
-	switch (console) {
-	case stdin:
-		io_flag = DEV_FLAGS_INPUT;
-		break;
-	case stdout:
-	case stderr:
-		io_flag = DEV_FLAGS_OUTPUT;
-		break;
-	default:
+	io_flag = stdio_file_to_flags(console);
+	if (io_flag < 0) {
 		free(start);
 		free(console_args);
 		free(cons_set);
@@ -95,23 +95,17 @@ int iomux_doenv(const int console, const char *arg)
 	for (j = 0; j < i; j++) {
 		/*
 		 * Check whether the device exists and is valid.
-		 * console_assign() also calls search_device(),
+		 * console_assign() also calls console_search_dev(),
 		 * but I need the pointer to the device.
 		 */
-		dev = search_device(io_flag, start[j]);
+		dev = console_search_dev(io_flag, start[j]);
 		if (dev == NULL)
 			continue;
 		/*
 		 * Prevent multiple entries for a device.
 		 */
-		 repeat = 0;
-		 for (k = 0; k < cs_idx; k++) {
-			if (dev == cons_set[k]) {
-				repeat++;
-				break;
-			}
-		 }
-		 if (repeat)
+		 repeat = iomux_match_device(cons_set, cs_idx, dev);
+		 if (repeat >= 0)
 			continue;
 		/*
 		 * Try assigning the specified device.
@@ -127,21 +121,59 @@ int iomux_doenv(const int console, const char *arg)
 	if (cs_idx == 0) {
 		free(cons_set);
 		return 1;
-	} else {
-		/* Works even if console_devices[console] is NULL. */
-		console_devices[console] =
-			(struct stdio_dev **)realloc(console_devices[console],
-			cs_idx * sizeof(struct stdio_dev *));
-		if (console_devices[console] == NULL) {
-			free(cons_set);
-			return 1;
-		}
-		memcpy(console_devices[console], cons_set, cs_idx *
-			sizeof(struct stdio_dev *));
-
-		cd_count[console] = cs_idx;
 	}
-	free(cons_set);
+
+	old_set = console_devices[console];
+	repeat = cd_count[console];
+
+	console_devices[console] = cons_set;
+	cd_count[console] = cs_idx;
+
+	/* Stop dropped consoles */
+	for (i = 0; i < repeat; i++) {
+		j = iomux_match_device(cons_set, cs_idx, old_set[i]);
+		if (j == cs_idx)
+			console_stop(console, old_set[i]);
+	}
+
+	free(old_set);
 	return 0;
+}
+
+int iomux_replace_device(const int console, const char *old, const char *new)
+{
+	struct stdio_dev *dev;
+	char *arg = NULL;	/* Initial empty list */
+	int size = 1;		/* For NUL terminator */
+	int i, ret;
+
+	for_each_console_dev(i, console, dev) {
+		const char *name = strcmp(dev->name, old) ? dev->name : new;
+		char *tmp;
+
+		/* Append name with a ',' (comma) separator */
+		tmp = realloc(arg, size + strlen(name) + 1);
+		if (!tmp) {
+			free(arg);
+			return -ENOMEM;
+		}
+
+		if (arg) {
+			strcat(tmp, ",");
+			strcat(tmp, name);
+		}
+		else
+			strcpy(tmp, name);
+
+		arg = tmp;
+		size = strlen(tmp) + 1;
+	}
+
+	ret = iomux_doenv(console, arg);
+	if (ret)
+		ret = -EINVAL;
+
+	free(arg);
+	return ret;
 }
 #endif /* CONSOLE_MUX */

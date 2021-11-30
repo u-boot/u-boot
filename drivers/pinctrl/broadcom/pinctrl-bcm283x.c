@@ -104,7 +104,7 @@ static const struct udevice_id bcm2835_pinctrl_id[] = {
 	{}
 };
 
-int bcm283x_pinctl_ofdata_to_platdata(struct udevice *dev)
+int bcm283x_pinctl_of_to_plat(struct udevice *dev)
 {
 	struct bcm283x_pinctrl_priv *priv;
 
@@ -126,7 +126,7 @@ int bcm283x_pinctl_probe(struct udevice *dev)
 
 	/* Create GPIO device as well */
 	ret = device_bind(dev, lists_driver_lookup_name("gpio_bcm2835"),
-			  "gpio_bcm2835", NULL, dev_of_offset(dev), &pdev);
+			  "gpio_bcm2835", NULL, dev_ofnode(dev), &pdev);
 	if (ret) {
 		/*
 		 * While we really want the pinctrl driver to work to make
@@ -149,8 +149,8 @@ U_BOOT_DRIVER(pinctrl_bcm283x) = {
 	.name		= "bcm283x_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= of_match_ptr(bcm2835_pinctrl_id),
-	.ofdata_to_platdata = bcm283x_pinctl_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct bcm283x_pinctrl_priv),
+	.of_to_plat = bcm283x_pinctl_of_to_plat,
+	.priv_auto	= sizeof(struct bcm283x_pinctrl_priv),
 	.ops		= &bcm283x_pinctrl_ops,
 	.probe		= bcm283x_pinctl_probe,
 #if CONFIG_IS_ENABLED(OF_BOARD)

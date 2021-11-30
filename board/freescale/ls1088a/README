@@ -42,7 +42,7 @@ Alternately you can use this command to switch from QSPI to SD
  - SERDES Connections, 16 lanes supporting:
       - PCI Express - 3.0
       - SATA 3.0
-      - XFI
+      - 10GBase-R
       - QSGMII
  - DDR Controller
      - One ports of 72-bits (8-bits ECC, 64-bits DATA) DDR4. Each port supports four
@@ -106,7 +106,7 @@ SW12 1111 1111
  - SERDES Connections, 16 lanes supporting:
       - PCI Express - 3.0
       - SATA 3.0
-      - 2 XFI
+      - 2 10GBase-R
       - QSGMII, SGMII with help for Riser card
       - 2 RGMII
       - 5 slot for Riser card or PCIe NIC

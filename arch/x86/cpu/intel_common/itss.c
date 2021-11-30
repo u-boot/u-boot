@@ -17,26 +17,8 @@
 #include <malloc.h>
 #include <p2sb.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <asm/itss.h>
-
-struct itss_platdata {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	/* Put this first since driver model will copy the data here */
-	struct dtd_intel_itss dtplat;
-#endif
-};
-
-/* struct pmc_route - Routing for PMC to GPIO */
-struct pmc_route {
-	u32 pmc;
-	u32 gpio;
-};
-
-struct itss_priv {
-	struct pmc_route *route;
-	uint route_count;
-	u32 irq_snapshot[NUM_IPC_REGS];
-};
 
 static int set_polarity(struct udevice *dev, uint irq, bool active_low)
 {
@@ -171,20 +153,21 @@ static int route_pmc_gpio_gpe(struct udevice *dev, uint pmc_gpe_num)
 
 static int itss_bind(struct udevice *dev)
 {
-	/* This is not set with of-platdata, so set it manually */
-	if (CONFIG_IS_ENABLED(OF_PLATDATA))
+	/* This is not set with basic of-platdata, so set it manually */
+	if (CONFIG_IS_ENABLED(OF_PLATDATA) &&
+	    !CONFIG_IS_ENABLED(OF_PLATDATA_INST))
 		dev->driver_data = X86_IRQT_ITSS;
 
 	return 0;
 }
 
-static int itss_ofdata_to_platdata(struct udevice *dev)
+static int itss_of_to_plat(struct udevice *dev)
 {
 	struct itss_priv *priv = dev_get_priv(dev);
 	int ret;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct itss_platdata *plat = dev_get_platdata(dev);
+	struct itss_plat *plat = dev_get_plat(dev);
 	struct dtd_intel_itss *dtplat = &plat->dtplat;
 
 	/*
@@ -230,18 +213,20 @@ static const struct irq_ops itss_ops = {
 #endif
 };
 
+#if CONFIG_IS_ENABLED(OF_REAL)
 static const struct udevice_id itss_ids[] = {
 	{ .compatible = "intel,itss", .data = X86_IRQT_ITSS },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(intel_itss) = {
 	.name		= "intel_itss",
 	.id		= UCLASS_IRQ,
-	.of_match	= itss_ids,
+	.of_match	= of_match_ptr(itss_ids),
 	.ops		= &itss_ops,
 	.bind		= itss_bind,
-	.ofdata_to_platdata = itss_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct itss_platdata),
-	.priv_auto_alloc_size = sizeof(struct itss_priv),
+	.of_to_plat = itss_of_to_plat,
+	.plat_auto	= sizeof(struct itss_plat),
+	.priv_auto	= sizeof(struct itss_priv),
 };

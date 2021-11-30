@@ -160,7 +160,7 @@ static bool need_reset(const u16 *testname)
 		if (testname && efi_st_strcmp_16_8(testname, test->name))
 			continue;
 		if (test->phase == EFI_SETUP_BEFORE_BOOTTIME_EXIT ||
-		    test->phase == EFI_SETUP_AFTER_BOOTTIME_EXIT)
+		    test->phase == EFI_SETTING_VIRTUAL_ADDRESS_MAP)
 			return true;
 	}
 	return false;
@@ -327,15 +327,16 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	/* Execute mixed tests */
 	efi_st_do_tests(testname, EFI_SETUP_BEFORE_BOOTTIME_EXIT,
 			EFI_ST_SETUP, &failures);
+	efi_st_do_tests(testname, EFI_SETTING_VIRTUAL_ADDRESS_MAP,
+			EFI_ST_SETUP, &failures);
 
 	efi_st_exit_boot_services();
 
 	efi_st_do_tests(testname, EFI_SETUP_BEFORE_BOOTTIME_EXIT,
 			EFI_ST_EXECUTE | EFI_ST_TEARDOWN, &failures);
-
-	/* Execute runtime tests */
-	efi_st_do_tests(testname, EFI_SETUP_AFTER_BOOTTIME_EXIT,
-			EFI_ST_SETUP | EFI_ST_EXECUTE | EFI_ST_TEARDOWN,
+	/* Execute test setting the virtual address map */
+	efi_st_do_tests(testname, EFI_SETTING_VIRTUAL_ADDRESS_MAP,
+			EFI_ST_EXECUTE | EFI_ST_TEARDOWN,
 			&failures);
 
 	/* Give feedback */

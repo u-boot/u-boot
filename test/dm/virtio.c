@@ -122,8 +122,10 @@ static int dm_test_virtio_remove(struct unit_test_state *uts)
 	ut_assertok(virtio_set_status(dev, VIRTIO_CONFIG_S_DRIVER_OK));
 
 	/* check the device can be successfully removed */
-	dev->flags |= DM_FLAG_ACTIVATED;
-	ut_assertok(device_remove(bus, DM_REMOVE_ACTIVE_ALL));
+	dev_or_flags(dev, DM_FLAG_ACTIVATED);
+	ut_asserteq(-EKEYREJECTED, device_remove(bus, DM_REMOVE_ACTIVE_ALL));
+
+	ut_asserteq(false, device_active(dev));
 
 	return 0;
 }

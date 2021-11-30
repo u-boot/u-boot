@@ -71,6 +71,6 @@ U_BOOT_DRIVER(soc_xilinx_versal) = {
 	.id		= UCLASS_SOC,
 	.ops		= &soc_xilinx_versal_ops,
 	.probe		= soc_xilinx_versal_probe,
-	.priv_auto_alloc_size = sizeof(struct soc_xilinx_versal_priv),
+	.priv_auto	= sizeof(struct soc_xilinx_versal_priv),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

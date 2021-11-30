@@ -3,6 +3,8 @@
  * Copyright (C) 2019 DENX Software Engineering GmbH
  */
 
+#include "am33xx-u-boot.dtsi"
+
 / {
 	chosen {
 		#address-cells = <1>;

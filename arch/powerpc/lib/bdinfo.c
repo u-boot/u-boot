@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,9 +48,9 @@ void arch_print_bdinfo(void)
 
 	bdinfo_print_mhz("busfreq", bd->bi_busfreq);
 #if defined(CONFIG_MPC8xx) || defined(CONFIG_E500)
-	bdinfo_print_num("immr_base", bd->bi_immr_base);
+	bdinfo_print_num_l("immr_base", bd->bi_immr_base);
 #endif
-	bdinfo_print_num("bootflags", bd->bi_bootflags);
+	bdinfo_print_num_l("bootflags", bd->bi_bootflags);
 	bdinfo_print_mhz("intfreq", bd->bi_intfreq);
 #ifdef CONFIG_ENABLE_36BIT_PHYS
 	if (IS_ENABLED(CONFIG_PHYS_64BIT))

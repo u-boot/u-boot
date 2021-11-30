@@ -38,7 +38,7 @@ int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr, char *s)
 
 	dfu->dev_type = DFU_DEV_VIRT;
 	dfu->layout = DFU_RAW_ADDR;
-	dfu->data.virt.dev_num = simple_strtoul(devstr, NULL, 10);
+	dfu->data.virt.dev_num = dectoul(devstr, NULL);
 
 	dfu->write_medium = dfu_write_medium_virt;
 	dfu->get_medium_size = dfu_get_medium_size_virt;

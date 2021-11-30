@@ -10,6 +10,7 @@
 #include <net.h>
 #include <status_led.h>
 #include <asm/arch/reset_manager.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <i2c.h>
@@ -22,7 +23,6 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int board_late_init(void)
 {
-	const unsigned int phy_nrst_gpio = 0;
 	const unsigned int usb_nrst_gpio = 35;
 	int ret;
 
@@ -31,12 +31,6 @@ int board_late_init(void)
 
 	/* Address of boot parameters for ATAG (if ATAG is used) */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-
-	ret = gpio_request(phy_nrst_gpio, "phy_nrst_gpio");
-	if (!ret)
-		gpio_direction_output(phy_nrst_gpio, 1);
-	else
-		printf("Cannot remove PHY from reset!\n");
 
 	ret = gpio_request(usb_nrst_gpio, "usb_nrst_gpio");
 	if (!ret)

@@ -8,6 +8,7 @@
 #define __CONSOLE_H
 
 #include <stdbool.h>
+#include <stdio_dev.h>
 #include <linux/errno.h>
 
 extern char console_buffer[];
@@ -15,12 +16,26 @@ extern char console_buffer[];
 /* common/console.c */
 int console_init_f(void);	/* Before relocation; uses the serial  stuff */
 int console_init_r(void);	/* After  relocation; uses the console stuff */
+int console_start(int file, struct stdio_dev *sdev);	/* Start a console device */
+void console_stop(int file, struct stdio_dev *sdev);	/* Stop a console device */
 int console_assign(int file, const char *devname);	/* Assign the console */
 int ctrlc(void);
 int had_ctrlc(void);	/* have we had a Control-C since last clear? */
 void clear_ctrlc(void);	/* clear the Control-C condition */
 int disable_ctrlc(int);	/* 1 to disable, 0 to enable Control-C detect */
 int confirm_yesno(void);        /*  1 if input is "y", "Y", "yes" or "YES" */
+
+/**
+ * console_search_dev() - search for stdio device with given flags and name
+ * @flags: device flags as per input/output/system
+ * @name: device name
+ *
+ * Iterates over registered STDIO devices and match them with given @flags
+ * and @name.
+ *
+ * @return pointer to the &struct stdio_dev if found, or NULL otherwise
+ */
+struct stdio_dev *console_search_dev(int flags, const char *name);
 
 #ifdef CONFIG_CONSOLE_RECORD
 /**
@@ -57,7 +72,8 @@ int console_record_reset_enable(void);
  *
  * @str: Place to put string
  * @maxlen: Maximum length of @str including nul terminator
- * @return length of string returned
+ * @return length of string returned, or -ENOSPC if the console buffer was
+ *	overflowed by the output
  */
 int console_record_readline(char *str, int maxlen);
 
@@ -67,6 +83,17 @@ int console_record_readline(char *str, int maxlen);
  * @return available bytes (0 if empty)
  */
 int console_record_avail(void);
+
+/**
+ * console_in_puts() - Write a string to the console input buffer
+ *
+ * This writes the given string to the console_in buffer which will then be
+ * returned if a function calls e.g. `getc()`
+ *
+ * @str: the string to write
+ * @return  the number of bytes added
+ */
+int console_in_puts(const char *str);
 #else
 static inline int console_record_init(void)
 {
@@ -95,6 +122,12 @@ static inline int console_record_readline(char *str, int maxlen)
 static inline int console_record_avail(void)
 {
 	/* There is never anything available */
+	return 0;
+}
+
+static inline int console_in_puts(const char *str)
+{
+	/* There is never anything written */
 	return 0;
 }
 

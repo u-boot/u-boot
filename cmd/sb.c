@@ -8,6 +8,7 @@
 #include <command.h>
 #include <dm.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <asm/state.h>
 
 static int do_sb_handoff(struct cmd_tbl *cmdtp, int flag, int argc,

@@ -33,4 +33,3 @@ requires no compatible property for probing.
 		reg = <2>;
 	};
 };
-

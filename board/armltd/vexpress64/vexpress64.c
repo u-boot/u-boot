@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <dm/platform_data/serial_pl01x.h>
@@ -20,15 +21,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct pl01x_serial_platdata serial_platdata = {
+static const struct pl01x_serial_plat serial_plat = {
 	.base = V2M_UART0,
 	.type = TYPE_PL011,
 	.clock = CONFIG_PL011_CLOCK,
 };
 
-U_BOOT_DEVICE(vexpress_serials) = {
+U_BOOT_DRVINFO(vexpress_serials) = {
 	.name = "serial_pl01x",
-	.platdata = &serial_platdata,
+	.plat = &serial_plat,
 };
 
 static struct mm_region vexpress64_mem_map[] = {
@@ -130,19 +131,22 @@ static phys_addr_t find_dtb_in_nor_flash(const char *partname)
 	return ~0;
 }
 
-void *board_fdt_blob_setup(void)
+void *board_fdt_blob_setup(int *err)
 {
 	phys_addr_t fdt_rom_addr = find_dtb_in_nor_flash(CONFIG_JUNO_DTB_PART);
 
-	if (fdt_rom_addr == ~0UL)
+	*err = 0;
+	if (fdt_rom_addr == ~0UL) {
+		*err = -ENXIO;
 		return NULL;
+	}
 
 	return (void *)fdt_rom_addr;
 }
 #endif
 
 /* Actual reset is done via PSCI. */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }
 

@@ -15,6 +15,7 @@
 #include <log.h>
 #include <net.h>
 #include <asm/arch/hardware.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
 
@@ -40,33 +41,6 @@ int dram_init_banksize(void)
 #endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC
-/*
- * Read ethernet MAC address from EEPROM for DVEVM compatible boards.
- * Returns 1 if found, 0 otherwise.
- */
-int dvevm_read_mac_address(uint8_t *buf)
-{
-#ifdef CONFIG_SYS_I2C_EEPROM_ADDR
-	/* Read MAC address. */
-	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0x7F00,
-		CONFIG_SYS_I2C_EEPROM_ADDR_LEN, (uint8_t *) &buf[0], 6))
-		goto i2cerr;
-
-	/* Check that MAC address is valid. */
-	if (!is_valid_ethaddr(buf))
-		goto err;
-
-	return 1; /* Found */
-
-i2cerr:
-	printf("Read from EEPROM @ 0x%02x failed\n",
-		CONFIG_SYS_I2C_EEPROM_ADDR);
-err:
-#endif /* CONFIG_SYS_I2C_EEPROM_ADDR */
-
-	return 0;
-}
-
 /*
  * Set the mii mode as MII or RMII
  */

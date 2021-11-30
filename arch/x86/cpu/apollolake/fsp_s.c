@@ -14,6 +14,7 @@
 #include <malloc.h>
 #include <p2sb.h>
 #include <acpi/acpi_s3.h>
+#include <asm/global_data.h>
 #include <asm/intel_pinctrl.h>
 #include <asm/io.h>
 #include <asm/intel_regs.h>

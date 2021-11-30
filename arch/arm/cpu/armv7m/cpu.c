@@ -47,7 +47,7 @@ int cleanup_before_linux(void)
 /*
  * Perform the low-level reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/*
 	 * Perform reset but keep priority group unchanged.

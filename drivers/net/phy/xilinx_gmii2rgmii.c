@@ -5,11 +5,11 @@
  * Copyright (C) 2018 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <phy.h>
-#include <config.h>
-#include <common.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -18,9 +18,38 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int xilinxgmiitorgmii_config(struct phy_device *phydev)
 {
-	struct phy_device *ext_phydev = phydev->priv;
+	ofnode node = phy_get_ofnode(phydev);
+	struct phy_device *ext_phydev;
+	struct ofnode_phandle_args phandle;
+	int ext_phyaddr = -1;
+	int ret;
 
 	debug("%s\n", __func__);
+
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	phydev->addr = ofnode_read_u32_default(node, "reg", -1);
+	ret = ofnode_parse_phandle_with_args(node, "phy-handle",
+					     NULL, 0, 0, &phandle);
+	if (ret)
+		return ret;
+
+	ext_phyaddr = ofnode_read_u32_default(phandle.node, "reg", -1);
+	ext_phydev = phy_find_by_mask(phydev->bus,
+				      1 << ext_phyaddr,
+				      PHY_INTERFACE_MODE_RGMII);
+	if (!ext_phydev) {
+		printf("%s, No external phy device found\n", __func__);
+		return -EINVAL;
+	}
+
+	ext_phydev->node = phandle.node;
+	phydev->priv = ext_phydev;
+
+	debug("%s, gmii2rgmmi:0x%x, extphy:0x%x\n", __func__, phydev->addr,
+	      ext_phyaddr);
+
 	if (ext_phydev->drv->config)
 		ext_phydev->drv->config(ext_phydev);
 
@@ -83,42 +112,12 @@ static int xilinxgmiitorgmii_startup(struct phy_device *phydev)
 
 static int xilinxgmiitorgmii_probe(struct phy_device *phydev)
 {
-	int ofnode = phydev->addr;
-	u32 phy_of_handle;
-	int ext_phyaddr = -1;
-	struct phy_device *ext_phydev;
-
 	debug("%s\n", __func__);
 
 	if (phydev->interface != PHY_INTERFACE_MODE_GMII) {
 		printf("Incorrect interface type\n");
 		return -EINVAL;
 	}
-
-	/*
-	 * Read the phy address again as the one we read in ethernet driver
-	 * was overwritten for the purpose of storing the ofnode
-	 */
-	phydev->addr = fdtdec_get_int(gd->fdt_blob, ofnode, "reg", -1);
-	phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob, ofnode,
-					      "phy-handle");
-	if (phy_of_handle > 0)
-		ext_phyaddr = fdtdec_get_int(gd->fdt_blob,
-					     phy_of_handle,
-					     "reg", -1);
-	ext_phydev = phy_find_by_mask(phydev->bus,
-				      1 << ext_phyaddr,
-				      PHY_INTERFACE_MODE_RGMII);
-	if (!ext_phydev) {
-		printf("%s, No external phy device found\n", __func__);
-		return -EINVAL;
-	}
-
-	ext_phydev->node = offset_to_ofnode(phy_of_handle);
-	phydev->priv = ext_phydev;
-
-	debug("%s, gmii2rgmmi:0x%x, extphy:0x%x\n", __func__, phydev->addr,
-	      ext_phyaddr);
 
 	phydev->flags |= PHY_FLAG_BROKEN_RESET;
 

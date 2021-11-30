@@ -24,11 +24,11 @@ struct esd_mmdc_regs {
 	u32 misc;
 };
 
-#define ESD_MMDC_CTL_GET_ROW(mdctl)	((ctl >> 24) & 7)
-#define ESD_MMDC_CTL_GET_COLUMN(mdctl)	((ctl >> 20) & 7)
-#define ESD_MMDC_CTL_GET_WIDTH(mdctl)	((ctl >> 16) & 3)
-#define ESD_MMDC_CTL_GET_CS1(mdctl)	((ctl >> 30) & 1)
-#define ESD_MMDC_MISC_GET_BANK(mdmisc)	((misc >> 5) & 1)
+#define ESD_MMDC_CTL_GET_ROW(mdctl)    ((mdctl >> 24) & 7)
+#define ESD_MMDC_CTL_GET_COLUMN(mdctl) ((mdctl >> 20) & 7)
+#define ESD_MMDC_CTL_GET_WIDTH(mdctl)  ((mdctl >> 16) & 3)
+#define ESD_MMDC_CTL_GET_CS1(mdctl)    ((mdctl >> 30) & 1)
+#define ESD_MMDC_MISC_GET_BANK(mdmisc) ((mdmisc >> 5) & 1)
 
 /*
  * imx_ddr_size - return size in bytes of DRAM according MMDC config

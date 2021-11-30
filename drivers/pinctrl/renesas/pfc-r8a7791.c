@@ -18,7 +18,7 @@
  * Pins 0-23 assigned to GPIO bank 6 can be used for SD interfaces in
  * which case they support both 3.3V and 1.8V signalling.
  */
-#define CPU_ALL_PORT(fn, sfx)						\
+#define CPU_ALL_GP(fn, sfx)						\
 	PORT_GP_32(0, fn, sfx),						\
 	PORT_GP_26(1, fn, sfx),						\
 	PORT_GP_32(2, fn, sfx),						\
@@ -1703,6 +1703,7 @@ static const struct sh_pfc_pin pinmux_pins[] = {
 	PINMUX_GPIO_GP_ALL(),
 };
 
+#if defined(CONFIG_PINCTRL_PFC_R8A7791) || defined(CONFIG_PINCTRL_PFC_R8A7793)
 /* - ADI -------------------------------------------------------------------- */
 static const unsigned int adi_common_pins[] = {
 	/* ADIDATA, ADICS/SAMP, ADICLK */
@@ -1768,6 +1769,7 @@ static const unsigned int adi_chsel2_b_mux[] = {
 	/* ADICHS B 2 */
 	ADICHS2_B_MARK,
 };
+#endif /* CONFIG_PINCTRL_PFC_R8A7791 || CONFIG_PINCTRL_PFC_R8A7793 */
 
 /* - Audio Clock ------------------------------------------------------------ */
 static const unsigned int audio_clk_a_pins[] = {
@@ -2556,6 +2558,8 @@ static const unsigned int intc_irq3_pins[] = {
 static const unsigned int intc_irq3_mux[] = {
 	IRQ3_MARK,
 };
+
+#if defined(CONFIG_PINCTRL_PFC_R8A7791) || defined(CONFIG_PINCTRL_PFC_R8A7793)
 /* - MLB+ ------------------------------------------------------------------- */
 static const unsigned int mlb_3pin_pins[] = {
 	RCAR_GP_PIN(7, 7), RCAR_GP_PIN(7, 8), RCAR_GP_PIN(7, 9),
@@ -2563,6 +2567,8 @@ static const unsigned int mlb_3pin_pins[] = {
 static const unsigned int mlb_3pin_mux[] = {
 	MLB_CLK_MARK, MLB_SIG_MARK, MLB_DAT_MARK,
 };
+#endif /* CONFIG_PINCTRL_PFC_R8A7791 || CONFIG_PINCTRL_PFC_R8A7793 */
+
 /* - MMCIF ------------------------------------------------------------------ */
 static const unsigned int mmc_data1_pins[] = {
 	/* D[0] */
@@ -4455,7 +4461,9 @@ static const unsigned int vin2_clk_mux[] = {
 
 static const struct {
 	struct sh_pfc_pin_group common[346];
+#if defined(CONFIG_PINCTRL_PFC_R8A7791) || defined(CONFIG_PINCTRL_PFC_R8A7793)
 	struct sh_pfc_pin_group automotive[9];
+#endif
 } pinmux_groups = {
 	.common = {
 		SH_PFC_PIN_GROUP(audio_clk_a),
@@ -4805,6 +4813,7 @@ static const struct {
 		SH_PFC_PIN_GROUP(vin2_clkenb),
 		SH_PFC_PIN_GROUP(vin2_clk),
 	},
+#if defined(CONFIG_PINCTRL_PFC_R8A7791) || defined(CONFIG_PINCTRL_PFC_R8A7793)
 	.automotive = {
 		SH_PFC_PIN_GROUP(adi_common),
 		SH_PFC_PIN_GROUP(adi_chsel0),
@@ -4816,8 +4825,10 @@ static const struct {
 		SH_PFC_PIN_GROUP(adi_chsel2_b),
 		SH_PFC_PIN_GROUP(mlb_3pin),
 	}
+#endif /* CONFIG_PINCTRL_PFC_R8A7791 || CONFIG_PINCTRL_PFC_R8A7793 */
 };
 
+#if defined(CONFIG_PINCTRL_PFC_R8A7791) || defined(CONFIG_PINCTRL_PFC_R8A7793)
 static const char * const adi_groups[] = {
 	"adi_common",
 	"adi_chsel0",
@@ -4828,6 +4839,7 @@ static const char * const adi_groups[] = {
 	"adi_chsel1_b",
 	"adi_chsel2_b",
 };
+#endif /* CONFIG_PINCTRL_PFC_R8A7791 || CONFIG_PINCTRL_PFC_R8A7793 */
 
 static const char * const audio_clk_groups[] = {
 	"audio_clk_a",
@@ -5005,9 +5017,11 @@ static const char * const intc_groups[] = {
 	"intc_irq3",
 };
 
+#if defined(CONFIG_PINCTRL_PFC_R8A7791) || defined(CONFIG_PINCTRL_PFC_R8A7793)
 static const char * const mlb_groups[] = {
 	"mlb_3pin",
 };
+#endif /* CONFIG_PINCTRL_PFC_R8A7791 || CONFIG_PINCTRL_PFC_R8A7793 */
 
 static const char * const mmc_groups[] = {
 	"mmc_data1",
@@ -5362,7 +5376,9 @@ static const char * const vin2_groups[] = {
 
 static const struct {
 	struct sh_pfc_function common[58];
+#if defined(CONFIG_PINCTRL_PFC_R8A7791) || defined(CONFIG_PINCTRL_PFC_R8A7793)
 	struct sh_pfc_function automotive[2];
+#endif
 } pinmux_functions = {
 	.common = {
 		SH_PFC_FUNCTION(audio_clk),
@@ -5424,10 +5440,12 @@ static const struct {
 		SH_PFC_FUNCTION(vin1),
 		SH_PFC_FUNCTION(vin2),
 	},
+#if defined(CONFIG_PINCTRL_PFC_R8A7791) || defined(CONFIG_PINCTRL_PFC_R8A7793)
 	.automotive = {
 		SH_PFC_FUNCTION(adi),
 		SH_PFC_FUNCTION(mlb),
 	}
+#endif /* CONFIG_PINCTRL_PFC_R8A7791 || CONFIG_PINCTRL_PFC_R8A7793 */
 };
 
 static const struct pinmux_cfg_reg pinmux_config_regs[] = {

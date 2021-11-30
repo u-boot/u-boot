@@ -279,7 +279,7 @@ static void mctl_setup_dram_clock(u32 clk, u32 mbus_clk)
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(3));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(11));
-	} else 	{
+	} else {
 		/* any other frequency that is a multiple of 24 */
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(2));

@@ -348,7 +348,7 @@ U_BOOT_DRIVER(mpc83xx_cpu) = {
 	.id = UCLASS_CPU,
 	.of_match = mpc83xx_cpu_ids,
 	.probe = mpc83xx_cpu_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc83xx_cpu_priv),
+	.priv_auto	= sizeof(struct mpc83xx_cpu_priv),
 	.ops = &mpc83xx_cpu_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

@@ -434,9 +434,9 @@ static char *uuid_string(char *buf, char *end, u8 *addr, int field_width,
  * - 'i' [46] for 'raw' IPv4/IPv6 addresses, IPv6 omits the colons, IPv4 is
  *       currently the same
  *
- * Note: The difference between 'S' and 'F' is that on ia64 and ppc64
- * function pointers are really function descriptors, which contain a
- * pointer to the real address.
+ * Note: IPv6 support is currently if(0)'ed out. If you ever need
+ * %pI6, please add an IPV6 Kconfig knob, make your code select or
+ * depend on that, and change the 0 below to CONFIG_IS_ENABLED(IPV6).
  */
 static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		int field_width, int precision, int flags)
@@ -481,7 +481,8 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		flags |= SPECIAL;
 		/* Fallthrough */
 	case 'I':
-		if (fmt[1] == '6')
+		/* %pI6 currently unused */
+		if (0 && fmt[1] == '6')
 			return ip6_addr_string(buf, end, ptr, field_width,
 					       precision, flags);
 		if (fmt[1] == '4')
@@ -787,22 +788,11 @@ int printf(const char *fmt, ...)
 {
 	va_list args;
 	uint i;
-	char printbuffer[CONFIG_SYS_PBSIZE];
 
 	va_start(args, fmt);
-
-	/*
-	 * For this to work, printbuffer must be larger than
-	 * anything we ever want to print.
-	 */
-	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
+	i = vprintf(fmt, args);
 	va_end(args);
 
-	/* Handle error */
-	if (i <= 0)
-		return i;
-	/* Print the string */
-	puts(printbuffer);
 	return i;
 }
 
@@ -826,11 +816,12 @@ int vprintf(const char *fmt, va_list args)
 }
 #endif
 
+static char local_toa[22];
+
 char *simple_itoa(ulong i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	static char local[22];
-	char *p = &local[21];
+	char *p = &local_toa[21];
 
 	*p-- = '\0';
 	do {
@@ -838,6 +829,21 @@ char *simple_itoa(ulong i)
 		i /= 10;
 	} while (i > 0);
 	return p + 1;
+}
+
+char *simple_xtoa(ulong num)
+{
+	/* 16 digits plus nul terminator, good for 64-bit or smaller ints */
+	char *p = &local_toa[17];
+
+	*--p = '\0';
+	do {
+		p -= 2;
+		hex_byte_pack(p, num & 0xff);
+		num >>= 8;
+	} while (num > 0);
+
+	return p;
 }
 
 /* We don't seem to have %'d in U-Boot */
@@ -868,7 +874,7 @@ bool str2long(const char *p, ulong *num)
 {
 	char *endptr;
 
-	*num = simple_strtoul(p, &endptr, 16);
+	*num = hextoul(p, &endptr);
 	return *p != '\0' && *endptr == '\0';
 }
 

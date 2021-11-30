@@ -112,6 +112,7 @@ int mtu3_gpd_ring_alloc(struct mtu3_ep *mep)
 	memset(gpd, 0, QMU_GPD_RING_SIZE);
 	ring->dma = (dma_addr_t)gpd;
 	gpd_ring_init(ring, gpd);
+	mtu3_flush_cache((uintptr_t)gpd, sizeof(*gpd));
 
 	return 0;
 }
@@ -198,6 +199,7 @@ static int mtu3_prepare_tx_gpd(struct mtu3_ep *mep, struct mtu3_request *mreq)
 
 	enq->flag &= ~GPD_FLAGS_HWO;
 	gpd->next_gpd = cpu_to_le32((u32)gpd_virt_to_dma(ring, enq));
+	mtu3_flush_cache((uintptr_t)enq, sizeof(*gpd));
 
 	if (req->zero)
 		gpd->ext_flag |= GPD_EXT_FLAG_ZLP;
@@ -234,6 +236,8 @@ static int mtu3_prepare_rx_gpd(struct mtu3_ep *mep, struct mtu3_request *mreq)
 
 	enq->flag &= ~GPD_FLAGS_HWO;
 	gpd->next_gpd = cpu_to_le32((u32)gpd_virt_to_dma(ring, enq));
+	mtu3_flush_cache((uintptr_t)enq, sizeof(*gpd));
+
 	gpd->flag |= GPD_FLAGS_IOC | GPD_FLAGS_HWO;
 
 	mreq->gpd = gpd;

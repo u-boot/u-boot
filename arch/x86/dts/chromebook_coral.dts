@@ -1,15 +1,17 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /dts-v1/;
 
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/gpio/x86-gpio.h>
 
 /include/ "skeleton.dtsi"
 /include/ "keyboard.dtsi"
 /include/ "reset.dtsi"
 /include/ "rtc.dtsi"
-/include/ "tsc_timer.dtsi"
 
-#ifdef CONFIG_CHROMEOS_VBOOT
+#include "tsc_timer.dtsi"
+
+#if defined(CONFIG_CHROMEOS_VBOOT) && defined(CONFIG_ROM_SIZE)
 #include "chromeos-x86.dtsi"
 #include "flashmap-x86-ro.dtsi"
 #include "flashmap-16mb-rw.dtsi"
@@ -46,6 +48,7 @@
 		i2c5 = &i2c_5;
 		i2c6 = &i2c_6;
 		i2c7 = &i2c_7;
+		mmc0 = &emmc;
 		mmc1 = &sdmmc;
 	};
 
@@ -54,6 +57,17 @@
 		recovery-gpios = <&gpio_nw (-1) GPIO_ACTIVE_LOW>;
 		write-protect-gpios = <&gpio_nw GPIO_75 GPIO_ACTIVE_HIGH>;
 		phase-enforce-gpios = <&gpio_n GPIO_10 GPIO_ACTIVE_HIGH>;
+		memconfig-gpios = <&gpio_nw GPIO_101 GPIO_ACTIVE_HIGH
+			&gpio_nw GPIO_102 GPIO_ACTIVE_HIGH
+			&gpio_n GPIO_38 GPIO_ACTIVE_HIGH
+			&gpio_n GPIO_45 GPIO_ACTIVE_HIGH>;
+
+		/*
+		 * This is used for reef only:
+		 *
+		 * skuconfig-gpios = <&gpio_nw GPIO_16 GPIO_ACTIVE_HIGH
+		 *	&gpio_nw GPIO_17 GPIO_ACTIVE_HIGH>;
+		 */
 		smbios {
 			/* Type 1 table */
 			system {
@@ -99,15 +113,17 @@
 	clk: clock {
 		compatible = "intel,apl-clk";
 		#clock-cells = <1>;
+		u-boot,dm-pre-proper;
 	};
 
 	cpus {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-pre-proper;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
 		cpu_0: cpu@0 {
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
+			u-boot,dm-spl;
 			device_type = "cpu";
 			compatible = "intel,apl-cpu";
 			reg = <0>;
@@ -138,10 +154,16 @@
 	};
 
 	acpi_gpe: general-purpose-events {
+		u-boot,dm-pre-proper;
 		reg = <IOMAP_ACPI_BASE IOMAP_ACPI_SIZE>;
 		compatible = "intel,acpi-gpe";
 		interrupt-controller;
 		#interrupt-cells = <2>;
+	};
+
+	coreboot-video {
+		/* This will only activate when booted from coreboot */
+		compatible = "coreboot-fb";
 	};
 
 	keyboard {
@@ -174,6 +196,9 @@
 			 */
 			fsp_s: fsp-s {
 			};
+			fsp_m: fsp-m {
+				u-boot,dm-spl;
+			};
 
 			nhlt {
 				intel,dmic-channels = <4>;
@@ -181,12 +206,14 @@
 		};
 
 		punit@0,1 {
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
+			u-boot,dm-spl;
 			reg = <0x00000800 0 0 0 0>;
 			compatible = "intel,apl-punit";
 		};
 
 		gma@2,0 {
+			u-boot,dm-pre-proper;
 			reg = <0x00001000 0 0 0 0>;
 			compatible = "fsp-fb";
 		};
@@ -321,7 +348,8 @@
 		};
 
 		spi: fast-spi@d,2 {
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
+			u-boot,dm-spl;
 			reg = <0x02006a10 0 0 0 0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -332,8 +360,10 @@
 			fwstore_spi: spi-flash@0 {
 				#size-cells = <1>;
 				#address-cells = <1>;
-				u-boot,dm-pre-reloc;
+				u-boot,dm-pre-proper;
+				u-boot,dm-spl;
 				reg = <0>;
+				m25p,fast-read;
 				compatible = "winbond,w25q128fw",
 					 "jedec,spi-nor";
 				rw-mrc-cache {
@@ -409,8 +439,10 @@
 		};
 
 		i2c_2: i2c2@16,2 {
-			compatible = "intel,apl-i2c";
+			compatible = "intel,apl-i2c", "snps,designware-i2c-pci";
 			reg = <0x0200b210 0 0 0 0>;
+			early-regs = <IOMAP_I2C2_BASE 0x1000>;
+			u-boot,dm-pre-proper;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			clock-frequency = <400000>;
@@ -421,6 +453,7 @@
 			tpm: tpm@50 {
 				reg = <0x50>;
 				compatible = "google,cr50";
+				u-boot,dm-pre-proper;
 				u-boot,i2c-offset-len = <0>;
 				ready-gpios = <&gpio_n 28 GPIO_ACTIVE_LOW>;
 				interrupts-extended = <&acpi_gpe GPIO_28_IRQ
@@ -557,8 +590,14 @@
 		sdmmc: sdmmc@1b,0 {
 			reg = <0x0000d800 0 0 0 0>;
 			compatible = "intel,apl-sd";
-			cd-gpios = <&gpio_n GPIO_177 GPIO_ACTIVE_LOW>;
+			cd-gpios = <&gpio_sw GPIO_177 GPIO_ACTIVE_LOW>;
 			acpi,name = "SDCD";
+		};
+
+		emmc: emmc@1c,0 {
+			reg = <0x0000e000 0 0 0 0>;
+			compatible = "intel,apl-emmc";
+			non-removable;
 		};
 
 		pch: pch@1f,0 {
@@ -574,7 +613,8 @@
 				#size-cells = <0>;
 				u-boot,dm-pre-reloc;
 				cros_ec: cros-ec {
-					u-boot,dm-pre-reloc;
+					u-boot,dm-pre-proper;
+					u-boot,dm-vpl;
 					compatible = "google,cros-ec-lpc";
 					reg = <0x204 1 0x200 1 0x880 0x80>;
 
@@ -629,6 +669,7 @@
 				PAD_CFG0_TX_DISABLE | PAD_CFG0_ROUTE_IOAPIC |
 				PAD_CFG0_TRIG_LEVEL | PAD_CFG0_RX_POL_INVERT)
 			(PAD_CFG1_PULL_NONE | PAD_CFG1_IOSSTATE_TXD_RXE)
+		PAD_CFG_GPI(GPIO_25, UP_20K, DEEP)	 /* unused */
 
 		/*
 		 * WLAN_PE_RST - default to deasserted just in case FSP
@@ -649,8 +690,15 @@
 		PAD_CFG_NF(LPC_AD3, UP_20K, DEEP, NF1)	 /* LPC_AD3 */
 		PAD_CFG_NF(LPC_CLKRUNB, UP_20K, DEEP, NF1) /* LPC_CLKRUN_N */
 		PAD_CFG_NF(LPC_FRAMEB, NATIVE, DEEP, NF1) /* LPC_FRAME_N */
-		>;
 
+		PAD_CFG_GPI(GPIO_101, NONE, DEEP) /* FST_IO2 -- MEM_CONFIG0 */
+		PAD_CFG_GPI(GPIO_102, NONE, DEEP) /* FST_IO3 -- MEM_CONFIG1 */
+		PAD_CFG_GPI(GPIO_38, NONE, DEEP) /* LPSS_UART0_RXD - MEM_CONFIG2*/
+		PAD_CFG_GPI(GPIO_45, NONE, DEEP) /* LPSS_UART1_CTS - MEM_CONFIG3 */
+		>;
+};
+
+&fsp_m {
 	fspm,package = <PACKAGE_BGA>;
 	fspm,profile = <PROFILE_LPDDR4_2400_24_22_22>;
 	fspm,memory-down = <MEMORY_DOWN_YES>;
@@ -777,6 +825,7 @@
 	 * Refer to EDS-Vol2-22.3
 	 * [14:8] steps of delay for HS400, each 125ps
 	 * [6:0] steps of delay for SDR104/HS200, each 125ps
+	 */
 
 	/*
 	 * EMMC TX DATA Delay 2
@@ -1199,4 +1248,10 @@
 		PAD_CFG_GPI(GPIO_72, UP_20K, DEEP)	 /* GP_CAMERASB10 */
 		PAD_CFG_GPI(GPIO_73, UP_20K, DEEP)	 /* GP_CAMERASB11 */
 	>;
+};
+
+&rtc {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	u-boot,dm-pre-proper;
 };

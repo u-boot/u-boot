@@ -19,7 +19,7 @@
 #include <linux/kernel.h>
 #ifdef __UBOOT__
 #include <crypto/x509_parser.h>
-#include <u-boot/rsa-checksum.h>
+#include <u-boot/hash-checksum.h>
 #else
 #include <linux/slab.h>
 #include <keys/asymmetric-subtype.h>

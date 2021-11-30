@@ -11,6 +11,11 @@
 
 /* This file is included by device trees, so avoid BIT() macros */
 
+#define GPIO_DW_SIZE(x)			(sizeof(u32) * (x))
+#define PAD_CFG_OFFSET(x, dw_num)	((x) + GPIO_DW_SIZE(dw_num))
+#define PAD_CFG0_OFFSET(x)		PAD_CFG_OFFSET(x, 0)
+#define PAD_CFG1_OFFSET(x)		PAD_CFG_OFFSET(x, 1)
+
 #define PAD_CFG0_TX_STATE_BIT		0
 #define PAD_CFG0_TX_STATE		(1 << PAD_CFG0_TX_STATE_BIT)
 #define PAD_CFG0_RX_STATE_BIT		1

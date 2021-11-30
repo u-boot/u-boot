@@ -7,6 +7,38 @@ config HAVE_ARCH_IOREMAP
 config NEEDS_MANUAL_RELOC
 	bool
 
+config SYS_CACHE_SHIFT_4
+	bool
+
+config SYS_CACHE_SHIFT_5
+	bool
+
+config SYS_CACHE_SHIFT_6
+	bool
+
+config SYS_CACHE_SHIFT_7
+	bool
+
+config SYS_CACHELINE_SIZE
+	int
+	default 128 if SYS_CACHE_SHIFT_7
+	default 64 if SYS_CACHE_SHIFT_6
+	default 32 if SYS_CACHE_SHIFT_5
+	default 16 if SYS_CACHE_SHIFT_4
+	# Fall-back for MIPS
+	default 32 if MIPS
+
+config LINKER_LIST_ALIGN
+	int
+	default 32 if SANDBOX
+	default 8 if ARM64 || X86
+	default 4
+	help
+	  Force the each linker list to be aligned to this boundary. This
+	  is required if ll_entry_get() is used, since otherwise the linker
+	  may add padding into the table, thus breaking it.
+	  See linker_lists.rst for full details.
+
 choice
 	prompt "Architecture select"
 	default SANDBOX
@@ -18,10 +50,12 @@ config ARC
 	select DM
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
+	select SYS_CACHE_SHIFT_7
 	select TIMER
 
 config ARM
 	bool "ARM architecture"
+	select ARCH_SUPPORTS_LTO
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC if !ARM64
 	select SUPPORT_OF_CONTROL
@@ -32,6 +66,7 @@ config M68K
 	select NEEDS_MANUAL_RELOC
 	select SYS_BOOT_GET_CMDLINE
 	select SYS_BOOT_GET_KBD
+	select SYS_CACHE_SHIFT_4
 	select SUPPORT_OF_CONTROL
 
 config MICROBLAZE
@@ -85,11 +120,12 @@ config RISCV
 	imply SPL_OF_CONTROL
 	imply SPL_LIBCOMMON_SUPPORT
 	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_SERIAL_SUPPORT
+	imply SPL_SERIAL
 	imply SPL_TIMER
 
 config SANDBOX
 	bool "Sandbox"
+	select ARCH_SUPPORTS_LTO
 	select BOARD_LATE_INIT
 	select BZIP2
 	select CMD_POWEROFF
@@ -109,9 +145,14 @@ config SANDBOX
 	select SPI
 	select SUPPORT_OF_CONTROL
 	select SYSRESET_CMD_POWEROFF
+	select SYS_CACHE_SHIFT_4
+	select IRQ
+	select SUPPORT_EXTENSION_SCAN
 	imply BITREVERSE
 	select BLOBLIST
+	imply LTO
 	imply CMD_DM
+	imply CMD_EXCEPTION
 	imply CMD_GETTIME
 	imply CMD_HASH
 	imply CMD_IO
@@ -130,6 +171,8 @@ config SANDBOX
 	imply AVB_VERIFY
 	imply LIBAVB
 	imply CMD_AVB
+	imply SCP03
+	imply CMD_SCP03
 	imply UDP_FUNCTION_FASTBOOT
 	imply VIRTIO_MMIO
 	imply VIRTIO_PCI
@@ -146,6 +189,11 @@ config SANDBOX
 	imply ACPI_PMC_SANDBOX
 	imply CMD_PMC
 	imply CMD_CLONE
+	imply SILENT_CONSOLE
+	imply BOOTARGS_SUBST
+	imply PHY_FIXED
+	imply DM_DSA
+	imply CMD_EXTENSION
 
 config SH
 	bool "SuperH architecture"
@@ -158,15 +206,16 @@ config X86
 	select SUPPORT_TPL
 	select CREATE_ARCH_SYMLINK
 	select DM
-	select DM_PCI
 	select HAVE_ARCH_IOMAP
 	select HAVE_PRIVATE_LIBGCC
 	select OF_CONTROL
 	select PCI
 	select SUPPORT_OF_CONTROL
+	select SYS_CACHE_SHIFT_6
 	select TIMER
 	select USE_PRIVATE_LIBGCC
 	select X86_TSC_TIMER
+	select IRQ
 	imply HAS_ROM if X86_RESET_VECTOR
 	imply BLK
 	imply CMD_DM
@@ -197,7 +246,6 @@ config X86
 	imply USB_HOST_ETHER
 	imply PCH
 	imply RTC_MC146818
-	imply IRQ
 	imply ACPIGEN if !QEMU
 	imply SYSINFO if GENERATE_SMBIOS_TABLE
 	imply SYSINFO_SMBIOS if GENERATE_SMBIOS_TABLE
@@ -205,26 +253,26 @@ config X86
 	# Thing to enable for when SPL/TPL are enabled: SPL
 	imply SPL_DM
 	imply SPL_OF_LIBFDT
-	imply SPL_DRIVERS_MISC_SUPPORT
-	imply SPL_GPIO_SUPPORT
+	imply SPL_DRIVERS_MISC
+	imply SPL_GPIO
 	imply SPL_PINCTRL
 	imply SPL_LIBCOMMON_SUPPORT
 	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_SERIAL_SUPPORT
+	imply SPL_SERIAL
 	imply SPL_SPI_FLASH_SUPPORT
-	imply SPL_SPI_SUPPORT
+	imply SPL_SPI
 	imply SPL_OF_CONTROL
 	imply SPL_TIMER
 	imply SPL_REGMAP
 	imply SPL_SYSCON
 	# TPL
 	imply TPL_DM
-	imply TPL_DRIVERS_MISC_SUPPORT
-	imply TPL_GPIO_SUPPORT
+	imply TPL_DRIVERS_MISC
+	imply TPL_GPIO
 	imply TPL_PINCTRL
 	imply TPL_LIBCOMMON_SUPPORT
 	imply TPL_LIBGENERIC_SUPPORT
-	imply TPL_SERIAL_SUPPORT
+	imply TPL_SERIAL
 	imply TPL_OF_CONTROL
 	imply TPL_TIMER
 	imply TPL_REGMAP
@@ -301,6 +349,63 @@ config SYS_DISABLE_DCACHE_OPS
 	 operatios are not required, enable this option to avoid them.
 	 Note that, its up to the individual architectures to implement
 	 this functionality.
+
+config SKIP_LOWLEVEL_INIT
+	bool "Skip the calls to certain low level initialization functions"
+	depends on ARM || NDS32 || MIPS || RISCV
+	help
+	  If enabled, then certain low level initializations (like setting up
+	  the memory controller) are omitted and/or U-Boot does not relocate
+	  itself into RAM.
+	  Normally this variable MUST NOT be defined. The only exception is
+	  when U-Boot is loaded (to RAM) by some other boot loader or by a
+	  debugger which performs these initializations itself.
+
+config SPL_SKIP_LOWLEVEL_INIT
+	bool "Skip the calls to certain low level initialization functions"
+	depends on SPL && (ARM || NDS32 || MIPS || RISCV)
+	help
+	  If enabled, then certain low level initializations (like setting up
+	  the memory controller) are omitted and/or U-Boot does not relocate
+	  itself into RAM.
+	  Normally this variable MUST NOT be defined. The only exception is
+	  when U-Boot is loaded (to RAM) by some other boot loader or by a
+	  debugger which performs these initializations itself.
+
+config TPL_SKIP_LOWLEVEL_INIT
+	bool "Skip the calls to certain low level initialization functions"
+	depends on SPL && ARM
+	help
+	  If enabled, then certain low level initializations (like setting up
+	  the memory controller) are omitted and/or U-Boot does not relocate
+	  itself into RAM.
+	  Normally this variable MUST NOT be defined. The only exception is
+	  when U-Boot is loaded (to RAM) by some other boot loader or by a
+	  debugger which performs these initializations itself.
+
+config SKIP_LOWLEVEL_INIT_ONLY
+	bool "Skip the call to lowlevel_init during early boot ONLY"
+	depends on ARM
+	help
+	  This allows just the call to lowlevel_init() to be skipped. The
+	  normal CP15 init (such as enabling the instruction cache) is still
+	  performed.
+
+config SPL_SKIP_LOWLEVEL_INIT_ONLY
+	bool "Skip the call to lowlevel_init during early boot ONLY"
+	depends on SPL && ARM
+	help
+	  This allows just the call to lowlevel_init() to be skipped. The
+	  normal CP15 init (such as enabling the instruction cache) is still
+	  performed.
+
+config TPL_SKIP_LOWLEVEL_INIT_ONLY
+	bool "Skip the call to lowlevel_init during early boot ONLY"
+	depends on TPL && ARM
+	help
+	  This allows just the call to lowlevel_init() to be skipped. The
+	  normal CP15 init (such as enabling the instruction cache) is still
+	  performed.
 
 source "arch/arc/Kconfig"
 source "arch/arm/Kconfig"

@@ -267,9 +267,9 @@ void i2c_clk_enable(void)
 	writel(readl(CKEN) | CKEN14_I2C, CKEN);
 }
 
-void __attribute__((weak)) reset_cpu(ulong ignored) __attribute__((noreturn));
+void __attribute__((weak)) reset_cpu(void) __attribute__((noreturn));
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	uint32_t tmp;
 

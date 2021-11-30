@@ -28,6 +28,8 @@ struct fm_mdio_priv {
 };
 #endif
 
+#define MAX_NUM_RETRIES		1000
+
 static u32 memac_in_32(u32 *reg)
 {
 #ifdef CONFIG_SYS_MEMAC_LITTLE_ENDIAN
@@ -35,6 +37,42 @@ static u32 memac_in_32(u32 *reg)
 #else
 	return in_be32(reg);
 #endif
+}
+
+/*
+ * Wait until the MDIO bus is free
+ */
+static int memac_wait_until_free(struct memac_mdio_controller *regs)
+{
+	unsigned int timeout = MAX_NUM_RETRIES;
+
+	while ((memac_in_32(&regs->mdio_stat) & MDIO_STAT_BSY) && timeout--)
+		;
+
+	if (!timeout) {
+		printf("timeout waiting for MDIO bus to be free\n");
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
+/*
+ * Wait till the MDIO read or write operation is complete
+ */
+static int memac_wait_until_done(struct memac_mdio_controller *regs)
+{
+	unsigned int timeout = MAX_NUM_RETRIES;
+
+	while ((memac_in_32(&regs->mdio_data) & MDIO_DATA_BSY) && timeout--)
+		;
+
+	if (!timeout) {
+		printf("timeout waiting for MDIO operation to complete\n");
+		return -ETIMEDOUT;
+	}
+
+	return 0;
 }
 
 /*
@@ -48,6 +86,7 @@ int memac_mdio_write(struct mii_dev *bus, int port_addr, int dev_addr,
 	struct memac_mdio_controller *regs;
 	u32 mdio_ctl;
 	u32 c45 = 1; /* Default to 10G interface */
+	int err;
 
 #ifndef CONFIG_DM_ETH
 	regs = bus->priv;
@@ -69,9 +108,9 @@ int memac_mdio_write(struct mii_dev *bus, int port_addr, int dev_addr,
 	} else
 		memac_setbits_32(&regs->mdio_stat, MDIO_STAT_ENC);
 
-	/* Wait till the bus is free */
-	while ((memac_in_32(&regs->mdio_stat)) & MDIO_STAT_BSY)
-		;
+	err = memac_wait_until_free(regs);
+	if (err)
+		return err;
 
 	/* Set the port and dev addr */
 	mdio_ctl = MDIO_CTL_PORT_ADDR(port_addr) | MDIO_CTL_DEV_ADDR(dev_addr);
@@ -81,16 +120,16 @@ int memac_mdio_write(struct mii_dev *bus, int port_addr, int dev_addr,
 	if (c45)
 		memac_out_32(&regs->mdio_addr, regnum & 0xffff);
 
-	/* Wait till the bus is free */
-	while ((memac_in_32(&regs->mdio_stat)) & MDIO_STAT_BSY)
-		;
+	err = memac_wait_until_free(regs);
+	if (err)
+		return err;
 
 	/* Write the value to the register */
 	memac_out_32(&regs->mdio_data, MDIO_DATA(value));
 
-	/* Wait till the MDIO write is complete */
-	while ((memac_in_32(&regs->mdio_data)) & MDIO_DATA_BSY)
-		;
+	err = memac_wait_until_done(regs);
+	if (err)
+		return err;
 
 	return 0;
 }
@@ -106,6 +145,7 @@ int memac_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
 	struct memac_mdio_controller *regs;
 	u32 mdio_ctl;
 	u32 c45 = 1;
+	int err;
 
 #ifndef CONFIG_DM_ETH
 	regs = bus->priv;
@@ -129,9 +169,9 @@ int memac_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
 	} else
 		memac_setbits_32(&regs->mdio_stat, MDIO_STAT_ENC);
 
-	/* Wait till the bus is free */
-	while ((memac_in_32(&regs->mdio_stat)) & MDIO_STAT_BSY)
-		;
+	err = memac_wait_until_free(regs);
+	if (err)
+		return err;
 
 	/* Set the Port and Device Addrs */
 	mdio_ctl = MDIO_CTL_PORT_ADDR(port_addr) | MDIO_CTL_DEV_ADDR(dev_addr);
@@ -141,17 +181,17 @@ int memac_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
 	if (c45)
 		memac_out_32(&regs->mdio_addr, regnum & 0xffff);
 
-	/* Wait till the bus is free */
-	while ((memac_in_32(&regs->mdio_stat)) & MDIO_STAT_BSY)
-		;
+	err = memac_wait_until_free(regs);
+	if (err)
+		return err;
 
 	/* Initiate the read */
 	mdio_ctl |= MDIO_CTL_READ;
 	memac_out_32(&regs->mdio_ctl, mdio_ctl);
 
-	/* Wait till the MDIO write is complete */
-	while ((memac_in_32(&regs->mdio_data)) & MDIO_DATA_BSY)
-		;
+	err = memac_wait_until_done(regs);
+	if (err)
+		return err;
 
 	/* Return all Fs if nothing was there */
 	if (memac_in_32(&regs->mdio_stat) & MDIO_STAT_RD_ER)
@@ -297,8 +337,8 @@ U_BOOT_DRIVER(fman_mdio) = {
 	.probe = fm_mdio_probe,
 	.remove = fm_mdio_remove,
 	.ops = &fm_mdio_ops,
-	.priv_auto_alloc_size = sizeof(struct fm_mdio_priv),
-	.platdata_auto_alloc_size = sizeof(struct mdio_perdev_priv),
+	.priv_auto	= sizeof(struct fm_mdio_priv),
+	.plat_auto	= sizeof(struct mdio_perdev_priv),
 };
 #endif /* CONFIG_PHYLIB && CONFIG_DM_MDIO */
 #endif /* CONFIG_DM_ETH */

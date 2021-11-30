@@ -179,27 +179,35 @@ class Toolchain:
         output and possibly unicode encoded output of all build tools by
         adding LC_ALL=C.
 
+        Note that os.environb is used to obtain the environment, since in some
+        cases the environment many contain non-ASCII characters and we see
+        errors like:
+
+          UnicodeEncodeError: 'utf-8' codec can't encode characters in position
+             569-570: surrogates not allowed
+
         Args:
             full_path: Return the full path in CROSS_COMPILE and don't set
                 PATH
         Returns:
-            Dict containing the environemnt to use. This is based on the current
-            environment, with changes as needed to CROSS_COMPILE, PATH and
-            LC_ALL.
+            Dict containing the (bytes) environment to use. This is based on the
+            current environment, with changes as needed to CROSS_COMPILE, PATH
+            and LC_ALL.
         """
-        env = dict(os.environ)
+        env = dict(os.environb)
         wrapper = self.GetWrapper()
 
         if self.override_toolchain:
             # We'll use MakeArgs() to provide this
             pass
         elif full_path:
-            env['CROSS_COMPILE'] = wrapper + os.path.join(self.path, self.cross)
+            env[b'CROSS_COMPILE'] = tools.ToBytes(
+                wrapper + os.path.join(self.path, self.cross))
         else:
-            env['CROSS_COMPILE'] = wrapper + self.cross
-            env['PATH'] = self.path + ':' + env['PATH']
+            env[b'CROSS_COMPILE'] = tools.ToBytes(wrapper + self.cross)
+            env[b'PATH'] = tools.ToBytes(self.path) + b':' + env[b'PATH']
 
-        env['LC_ALL'] = 'C'
+        env[b'LC_ALL'] = b'C'
 
         return env
 
@@ -490,7 +498,7 @@ class Toolchains:
         if arch == 'aarch64':
             arch = 'arm64'
         base = 'https://www.kernel.org/pub/tools/crosstool/files/bin'
-        versions = ['9.2.0', '7.3.0', '6.4.0', '4.9.4']
+        versions = ['11.1.0', '9.2.0', '7.3.0', '6.4.0', '4.9.4']
         links = []
         for version in versions:
             url = '%s/%s/%s/' % (base, arch, version)

@@ -60,16 +60,7 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
-/* Enable passing of ATAGs */
-#define CONFIG_CMDLINE_TAG
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 4 * SZ_1M)
-
 /* NAND support */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 
 #define IMX_FEC1_BASE			ENET1_BASE_ADDR
@@ -80,8 +71,6 @@
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SYS_FSL_QSPI_LE
 #endif
-
-#define CONFIG_LOADADDR	0x82000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
 #define CONFIG_BOARD_SIZE_LIMIT		520192
@@ -229,10 +218,6 @@
 		"echo Finished - Please Power off, REMOVE SDCARD and set boot" \
 			"source to NAND\0" \
 	"active_workset=1\0"
-
-/* Miscellaneous configurable options */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical memory map */
 #define PHYS_SDRAM			(0x80000000)

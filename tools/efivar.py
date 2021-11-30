@@ -51,21 +51,21 @@ var_guids = {
 }
 
 class EfiStruct:
-        # struct efi_var_file
-        var_file_fmt = '<QQLL'
-        var_file_size = struct.calcsize(var_file_fmt)
-        # struct efi_var_entry
-        var_entry_fmt = '<LLQ16s'
-        var_entry_size = struct.calcsize(var_entry_fmt)
-        # struct efi_time
-        var_time_fmt = '<H6BLh2B'
-        var_time_size = struct.calcsize(var_time_fmt)
-        # WIN_CERTIFICATE
-        var_win_cert_fmt = '<L2H'
-        var_win_cert_size = struct.calcsize(var_win_cert_fmt)
-        # WIN_CERTIFICATE_UEFI_GUID
-        var_win_cert_uefi_guid_fmt = var_win_cert_fmt+'16s'
-        var_win_cert_uefi_guid_size = struct.calcsize(var_win_cert_uefi_guid_fmt)
+    # struct efi_var_file
+    var_file_fmt = '<QQLL'
+    var_file_size = struct.calcsize(var_file_fmt)
+    # struct efi_var_entry
+    var_entry_fmt = '<LLQ16s'
+    var_entry_size = struct.calcsize(var_entry_fmt)
+    # struct efi_time
+    var_time_fmt = '<H6BLh2B'
+    var_time_size = struct.calcsize(var_time_fmt)
+    # WIN_CERTIFICATE
+    var_win_cert_fmt = '<L2H'
+    var_win_cert_size = struct.calcsize(var_win_cert_fmt)
+    # WIN_CERTIFICATE_UEFI_GUID
+    var_win_cert_uefi_guid_fmt = var_win_cert_fmt+'16s'
+    var_win_cert_uefi_guid_size = struct.calcsize(var_win_cert_uefi_guid_fmt)
 
 class EfiVariable:
     def __init__(self, size, attrs, time, guid, name, data):
@@ -149,7 +149,7 @@ class EfiVariableStore:
         offs = 0
         while offs < len(self.ents):
             var, loffs = self._next_var(offs)
-            if var.name == name and str(var.guid):
+            if var.name == name and str(var.guid) == guid:
                 if var.attrs != attrs:
                     print("err: attributes don't match")
                     exit(1)
@@ -292,7 +292,7 @@ def pkcs7_sign(cert, key, buf):
 
 # UEFI 2.8 Errata B "8.2.2 Using the EFI_VARIABLE_AUTHENTICATION_2 descriptor"
 def cmd_sign(args):
-    guid, name, attrs, data, size = parse_args(args)
+    guid, name, attrs, data, _ = parse_args(args)
     attrs |= EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS
     efi = EfiStruct()
 
@@ -357,7 +357,10 @@ def main():
     signp.set_defaults(func=cmd_sign)
 
     args = ap.parse_args()
-    args.func(args)
+    if hasattr(args, "func"):
+        args.func(args)
+    else:
+        ap.print_help()
 
 def group(a, *ns):
     for n in ns:

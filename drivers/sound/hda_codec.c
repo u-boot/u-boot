@@ -539,7 +539,7 @@ U_BOOT_DRIVER(hda_codec) = {
 	.name		= "hda_codec",
 	.id		= UCLASS_SOUND,
 	.ops		= &hda_codec_ops,
-	.priv_auto_alloc_size	= sizeof(struct hda_codec_priv),
+	.priv_auto	= sizeof(struct hda_codec_priv),
 	.probe		= hda_codec_init,
 };
 

@@ -13,16 +13,10 @@
 #define _CONFIG_POGO_E02_H
 
 /*
- * Machine type definition and ID
- */
-#define CONFIG_MACH_TYPE		MACH_TYPE_POGO_E02
-
-/*
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
 #define CONFIG_KW88F6281		/* SOC Name */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 #include "mv-common.h"
 

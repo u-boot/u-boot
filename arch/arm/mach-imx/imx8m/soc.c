@@ -10,6 +10,7 @@
 #include <init.h>
 #include <log.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
@@ -104,6 +105,13 @@ static struct mm_region imx8m_mem_map[] = {
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
+		/* OCRAM_S */
+		.virt = 0x180000UL,
+		.phys = 0x180000UL,
+		.size = 0x8000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_OUTER_SHARE
+	}, {
 		/* TCM */
 		.virt = 0x7C0000UL,
 		.phys = 0x7C0000UL,
@@ -153,6 +161,17 @@ static struct mm_region imx8m_mem_map[] = {
 
 struct mm_region *mem_map = imx8m_mem_map;
 
+static unsigned int imx8m_find_dram_entry_in_mem_map(void)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(imx8m_mem_map); i++)
+		if (imx8m_mem_map[i].phys == CONFIG_SYS_SDRAM_BASE)
+			return i;
+
+	hang();	/* Entry not found, this must never happen. */
+}
+
 void enable_caches(void)
 {
 	/* If OPTEE runs, remove OPTEE memory from MMU table to avoid speculative prefetch */
@@ -166,10 +185,11 @@ void enable_caches(void)
 		 * please make sure that entry initial value matches
 		 * imx8m_mem_map for DRAM1
 		 */
-		int entry = 5;
+		int entry = imx8m_find_dram_entry_in_mem_map();
 		u64 attrs = imx8m_mem_map[entry].attrs;
 
-		while (i < CONFIG_NR_DRAM_BANKS && entry < 8) {
+		while (i < CONFIG_NR_DRAM_BANKS &&
+		       entry < ARRAY_SIZE(imx8m_mem_map)) {
 			if (gd->bd->bi_dram[i].start == 0)
 				break;
 			imx8m_mem_map[entry].phys = gd->bd->bi_dram[i].start;
@@ -197,6 +217,7 @@ __weak int board_phys_sdram_size(phys_size_t *size)
 
 int dram_init(void)
 {
+	unsigned int entry = imx8m_find_dram_entry_in_mem_map();
 	phys_size_t sdram_size;
 	int ret;
 
@@ -211,7 +232,7 @@ int dram_init(void)
 		gd->ram_size = sdram_size;
 
 	/* also update the SDRAM size in the mem_map used externally */
-	imx8m_mem_map[5].size = sdram_size;
+	imx8m_mem_map[entry].size = sdram_size;
 
 #ifdef PHYS_SDRAM_2_SIZE
 	gd->ram_size += PHYS_SDRAM_2_SIZE;
@@ -275,6 +296,30 @@ phys_size_t get_effective_memsize(void)
 #endif
 }
 
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	ulong top_addr = PHYS_SDRAM + gd->ram_size;
+
+	/*
+	 * Some IPs have their accessible address space restricted by
+	 * the interconnect. Let's make sure U-Boot only ever uses the
+	 * space below the 4G address boundary (which is 3GiB big),
+	 * even when the effective available memory is bigger.
+	 */
+	if (top_addr > 0x80000000)
+		top_addr = 0x80000000;
+
+	/*
+	 * rom_pointer[0] stores the TEE memory start address.
+	 * rom_pointer[1] stores the size TEE uses.
+	 * We need to reserve the memory region for TEE.
+	 */
+	if (rom_pointer[0] && rom_pointer[1] && top_addr > rom_pointer[0])
+		top_addr = rom_pointer[0];
+
+	return top_addr;
+}
+
 static u32 get_cpu_variant_type(u32 type)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -310,18 +355,30 @@ static u32 get_cpu_variant_type(u32 type)
 	} else if (type == MXC_CPU_IMX8MN) {
 		switch (value & 0x3) {
 		case 2:
-			if (value & 0x1000000)
-				return MXC_CPU_IMX8MNDL;
-			else
+			if (value & 0x1000000) {
+				if (value & 0x10000000)	 /* MIPI DSI */
+					return MXC_CPU_IMX8MNUD;
+				else
+					return MXC_CPU_IMX8MNDL;
+			} else {
 				return MXC_CPU_IMX8MND;
+			}
 		case 3:
-			if (value & 0x1000000)
-				return MXC_CPU_IMX8MNSL;
-			else
+			if (value & 0x1000000) {
+				if (value & 0x10000000)	 /* MIPI DSI */
+					return MXC_CPU_IMX8MNUS;
+				else
+					return MXC_CPU_IMX8MNSL;
+			} else {
 				return MXC_CPU_IMX8MNS;
+			}
 		default:
-			if (value & 0x1000000)
-				return MXC_CPU_IMX8MNL;
+			if (value & 0x1000000) {
+				if (value & 0x10000000)	 /* MIPI DSI */
+					return MXC_CPU_IMX8MNUQ;
+				else
+					return MXC_CPU_IMX8MNL;
+			}
 			break;
 		}
 	} else if (type == MXC_CPU_IMX8MP) {
@@ -384,7 +441,16 @@ u32 get_cpu_rev(void)
 			 * 0xff0055aa is magic number for B1.
 			 */
 			if (readl((void __iomem *)(OCOTP_BASE_ADDR + 0x40)) == 0xff0055aa) {
-				reg = CHIP_REV_2_1;
+				/*
+				 * B2 uses same DIGPROG and OCOTP_READ_FUSE_DATA value with B1,
+				 * so have to check ROM to distinguish them
+				 */
+				rom_version = readl((void __iomem *)ROM_VERSION_B0);
+				rom_version &= 0xff;
+				if (rom_version == CHIP_REV_2_2)
+					reg = CHIP_REV_2_2;
+				else
+					reg = CHIP_REV_2_1;
 			} else {
 				rom_version =
 					readl((void __iomem *)ROM_VERSION_A0);
@@ -454,7 +520,7 @@ int arch_cpu_init(void)
 
 		if (is_imx8md() || is_imx8mmd() || is_imx8mmdl() || is_imx8mms() ||
 		    is_imx8mmsl() || is_imx8mnd() || is_imx8mndl() || is_imx8mns() ||
-		    is_imx8mnsl() || is_imx8mpd()) {
+		    is_imx8mnsl() || is_imx8mpd() || is_imx8mnud() || is_imx8mnus()) {
 			/* Power down cpu core 1, 2 and 3 for iMX8M Dual core or Single core */
 			struct pgc_reg *pgc_core1 = (struct pgc_reg *)(GPC_BASE_ADDR + 0x840);
 			struct pgc_reg *pgc_core2 = (struct pgc_reg *)(GPC_BASE_ADDR + 0x880);
@@ -463,7 +529,7 @@ int arch_cpu_init(void)
 
 			writel(0x1, &pgc_core2->pgcr);
 			writel(0x1, &pgc_core3->pgcr);
-			if (is_imx8mms() || is_imx8mmsl() || is_imx8mns() || is_imx8mnsl()) {
+			if (is_imx8mms() || is_imx8mmsl() || is_imx8mns() || is_imx8mnsl() || is_imx8mnus()) {
 				writel(0x1, &pgc_core1->pgcr);
 				writel(0xE, &gpc->cpu_pgc_dn_trg);
 			} else {
@@ -495,7 +561,7 @@ enum boot_device get_boot_device(void)
 
 	ret = g_rom_api->query_boot_infor(QUERY_BT_DEV, &boot,
 					  ((uintptr_t)&boot) ^ QUERY_BT_DEV);
-	gd = pgd;
+	set_gd(pgd);
 
 	if (ret != ROM_API_OKAY) {
 		puts("ROMAPI: failure at query_boot_info\n");
@@ -526,6 +592,67 @@ enum boot_device get_boot_device(void)
 	}
 
 	return boot_dev;
+}
+#endif
+
+#if defined(CONFIG_IMX8M)
+#include <spl.h>
+int spl_mmc_emmc_boot_partition(struct mmc *mmc)
+{
+	u32 *rom_log_addr = (u32 *)0x9e0;
+	u32 *rom_log;
+	u8 event_id;
+	int i, part;
+
+	part = default_spl_mmc_emmc_boot_partition(mmc);
+
+	/* If the ROM event log pointer is not valid. */
+	if (*rom_log_addr < 0x900000 || *rom_log_addr >= 0xb00000 ||
+	    *rom_log_addr & 0x3)
+		return part;
+
+	/* Parse the ROM event ID version 2 log */
+	rom_log = (u32 *)(uintptr_t)(*rom_log_addr);
+	for (i = 0; i < 128; i++) {
+		event_id = rom_log[i] >> 24;
+		switch (event_id) {
+		case 0x00: /* End of list */
+			return part;
+		/* Log entries with 1 parameter, skip 1 */
+		case 0x80: /* Start to perform the device initialization */
+		case 0x81: /* The boot device initialization completes */
+		case 0x8f: /* The boot device initialization fails */
+		case 0x90: /* Start to read data from boot device */
+		case 0x91: /* Reading data from boot device completes */
+		case 0x9f: /* Reading data from boot device fails */
+			i += 1;
+			continue;
+		/* Log entries with 2 parameters, skip 2 */
+		case 0xa0: /* Image authentication result */
+		case 0xc0: /* Jump to the boot image soon */
+			i += 2;
+			continue;
+		/* Boot from the secondary boot image */
+		case 0x51:
+			/*
+			 * Swap the eMMC boot partitions in case there was a
+			 * fallback event (i.e. primary image was corrupted
+			 * and that corruption was recognized by the BootROM),
+			 * so the SPL loads the rest of the U-Boot from the
+			 * correct eMMC boot partition, since the BootROM
+			 * leaves the boot partition set to the corrupted one.
+			 */
+			if (part == 1)
+				part = 2;
+			else if (part == 2)
+				part = 1;
+			continue;
+		default:
+			continue;
+		}
+	}
+
+	return part;
 }
 #endif
 
@@ -602,7 +729,8 @@ static int disable_mipi_dsi_nodes(void *blob)
 		"/mipi_dsi_bridge@30A00000",
 		"/dsi_phy@30A00300",
 		"/soc@0/bus@30800000/mipi_dsi@30a00000",
-		"/soc@0/bus@30800000/dphy@30a00300"
+		"/soc@0/bus@30800000/dphy@30a00300",
+		"/soc@0/bus@30800000/mipi-dsi@30a00000",
 	};
 
 	return disable_fdt_nodes(blob, nodes_path, ARRAY_SIZE(nodes_path));
@@ -630,7 +758,8 @@ static int check_mipi_dsi_nodes(void *blob)
 {
 	static const char * const lcdif_path[] = {
 		"/lcdif@30320000",
-		"/soc@0/bus@30000000/lcdif@30320000"
+		"/soc@0/bus@30000000/lcdif@30320000",
+		"/soc@0/bus@30000000/lcd-controller@30320000"
 	};
 	static const char * const mipi_dsi_path[] = {
 		"/mipi_dsi@30A00000",
@@ -638,11 +767,13 @@ static int check_mipi_dsi_nodes(void *blob)
 	};
 	static const char * const lcdif_ep_path[] = {
 		"/lcdif@30320000/port@0/mipi-dsi-endpoint",
-		"/soc@0/bus@30000000/lcdif@30320000/port@0/endpoint"
+		"/soc@0/bus@30000000/lcdif@30320000/port@0/endpoint",
+		"/soc@0/bus@30000000/lcd-controller@30320000/port@0/endpoint"
 	};
 	static const char * const mipi_dsi_ep_path[] = {
 		"/mipi_dsi@30A00000/port@1/endpoint",
-		"/soc@0/bus@30800000/mipi_dsi@30a00000/ports/port@0/endpoint"
+		"/soc@0/bus@30800000/mipi_dsi@30a00000/ports/port@0/endpoint",
+		"/soc@0/bus@30800000/mipi-dsi@30a00000/ports/port@0/endpoint@0"
 	};
 
 	int lookup_node;
@@ -712,10 +843,46 @@ int disable_vpu_nodes(void *blob)
 		return -EPERM;
 }
 
+#ifdef CONFIG_IMX8MN_LOW_DRIVE_MODE
+static int low_drive_gpu_freq(void *blob)
+{
+	static const char *nodes_path_8mn[] = {
+		"/gpu@38000000",
+		"/soc@0/gpu@38000000"
+	};
+
+	int nodeoff, cnt, i;
+	u32 assignedclks[7];
+
+	nodeoff = fdt_path_offset(blob, nodes_path_8mn[0]);
+	if (nodeoff < 0)
+		return nodeoff;
+
+	cnt = fdtdec_get_int_array_count(blob, nodeoff, "assigned-clock-rates", assignedclks, 7);
+	if (cnt < 0)
+		return cnt;
+
+	if (cnt != 7)
+		printf("Warning: %s, assigned-clock-rates count %d\n", nodes_path_8mn[0], cnt);
+
+	assignedclks[cnt - 1] = 200000000;
+	assignedclks[cnt - 2] = 200000000;
+
+	for (i = 0; i < cnt; i++) {
+		debug("<%u>, ", assignedclks[i]);
+		assignedclks[i] = cpu_to_fdt32(assignedclks[i]);
+	}
+	debug("\n");
+
+	return fdt_setprop(blob, nodeoff, "assigned-clock-rates", &assignedclks, sizeof(assignedclks));
+}
+#endif
+
 int disable_gpu_nodes(void *blob)
 {
 	static const char * const nodes_path_8mn[] = {
-		"/gpu@38000000"
+		"/gpu@38000000",
+		"/soc@/gpu@38000000"
 	};
 
 	return disable_fdt_nodes(blob, nodes_path_8mn, ARRAY_SIZE(nodes_path_8mn));
@@ -749,6 +916,79 @@ int disable_dsp_nodes(void *blob)
 	return disable_fdt_nodes(blob, nodes_path_8mp, ARRAY_SIZE(nodes_path_8mp));
 }
 
+static void disable_thermal_cpu_nodes(void *blob, u32 disabled_cores)
+{
+	static const char * const thermal_path[] = {
+		"/thermal-zones/cpu-thermal/cooling-maps/map0"
+	};
+
+	int nodeoff, cnt, i, ret, j;
+	u32 cooling_dev[12];
+
+	for (i = 0; i < ARRAY_SIZE(thermal_path); i++) {
+		nodeoff = fdt_path_offset(blob, thermal_path[i]);
+		if (nodeoff < 0)
+			continue; /* Not found, skip it */
+
+		cnt = fdtdec_get_int_array_count(blob, nodeoff, "cooling-device", cooling_dev, 12);
+		if (cnt < 0)
+			continue;
+
+		if (cnt != 12)
+			printf("Warning: %s, cooling-device count %d\n", thermal_path[i], cnt);
+
+		for (j = 0; j < cnt; j++)
+			cooling_dev[j] = cpu_to_fdt32(cooling_dev[j]);
+
+		ret = fdt_setprop(blob, nodeoff, "cooling-device", &cooling_dev,
+				  sizeof(u32) * (12 - disabled_cores * 3));
+		if (ret < 0) {
+			printf("Warning: %s, cooling-device setprop failed %d\n",
+			       thermal_path[i], ret);
+			continue;
+		}
+
+		printf("Update node %s, cooling-device prop\n", thermal_path[i]);
+	}
+}
+
+static void disable_pmu_cpu_nodes(void *blob, u32 disabled_cores)
+{
+	static const char * const pmu_path[] = {
+		"/pmu"
+	};
+
+	int nodeoff, cnt, i, ret, j;
+	u32 irq_affinity[4];
+
+	for (i = 0; i < ARRAY_SIZE(pmu_path); i++) {
+		nodeoff = fdt_path_offset(blob, pmu_path[i]);
+		if (nodeoff < 0)
+			continue; /* Not found, skip it */
+
+		cnt = fdtdec_get_int_array_count(blob, nodeoff, "interrupt-affinity",
+						 irq_affinity, 4);
+		if (cnt < 0)
+			continue;
+
+		if (cnt != 4)
+			printf("Warning: %s, interrupt-affinity count %d\n", pmu_path[i], cnt);
+
+		for (j = 0; j < cnt; j++)
+			irq_affinity[j] = cpu_to_fdt32(irq_affinity[j]);
+
+		ret = fdt_setprop(blob, nodeoff, "interrupt-affinity", &irq_affinity,
+				 sizeof(u32) * (4 - disabled_cores));
+		if (ret < 0) {
+			printf("Warning: %s, interrupt-affinity setprop failed %d\n",
+			       pmu_path[i], ret);
+			continue;
+		}
+
+		printf("Update node %s, interrupt-affinity prop\n", pmu_path[i]);
+	}
+}
+
 static int disable_cpu_nodes(void *blob, u32 disabled_cores)
 {
 	static const char * const nodes_path[] = {
@@ -780,6 +1020,9 @@ static int disable_cpu_nodes(void *blob, u32 disabled_cores)
 			printf("Delete node %s\n", nodes_path[i]);
 		}
 	}
+
+	disable_thermal_cpu_nodes(blob, disabled_cores);
+	disable_pmu_cpu_nodes(blob, disabled_cores);
 
 	return 0;
 }
@@ -881,10 +1124,20 @@ usb_modify_speed:
 #elif defined(CONFIG_IMX8MN)
 	if (is_imx8mnl() || is_imx8mndl() ||  is_imx8mnsl())
 		disable_gpu_nodes(blob);
+#ifdef CONFIG_IMX8MN_LOW_DRIVE_MODE
+	else {
+		int ldm_gpu = low_drive_gpu_freq(blob);
 
-	if (is_imx8mnd() || is_imx8mndl())
+		if (ldm_gpu < 0)
+			printf("Update GPU node assigned-clock-rates failed\n");
+		else
+			printf("Update GPU node assigned-clock-rates ok\n");
+	}
+#endif
+
+	if (is_imx8mnd() || is_imx8mndl() || is_imx8mnud())
 		disable_cpu_nodes(blob, 2);
-	else if (is_imx8mns() || is_imx8mnsl())
+	else if (is_imx8mns() || is_imx8mnsl() || is_imx8mnus())
 		disable_cpu_nodes(blob, 3);
 
 #elif defined(CONFIG_IMX8MP)
@@ -909,7 +1162,7 @@ usb_modify_speed:
 #endif
 
 #if !CONFIG_IS_ENABLED(SYSRESET)
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 

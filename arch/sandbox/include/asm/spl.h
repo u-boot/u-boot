@@ -12,4 +12,17 @@ enum {
 	BOOT_DEVICE_BOARD,
 };
 
+/**
+ * sandbox_find_next_phase() - Find the next phase of U-Boot
+ *
+ * This function is intended to be called from within sandbox SPL. It uses
+ * a few rules to find the filename of the next U-Boot phase. See also
+ * os_find_u_boot().
+ *
+ * @fname:	place to put full path to U-Boot
+ * @maxlen:	maximum size of @fname
+ * @use_img:	select the 'u-boot.img' file instead of the 'u-boot' ELF file
+ */
+int sandbox_find_next_phase(char *fname, int maxlen, bool use_img);
+
 #endif

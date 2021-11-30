@@ -73,7 +73,7 @@ restart_aneg:
 
 		if (!(wol & BIT(12)) ||
 			((exp & EXPANSION_NWAY) && !(lpa & LPA_LPACK))) {
-			
+
 			/* Looks like aneg failed after all */
 			if (!retries) {
 				printf("%s LPA corruption max attempts\n",

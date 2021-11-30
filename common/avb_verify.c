@@ -369,7 +369,7 @@ static struct mmc_part *get_partition(AvbOps *ops, const char *partition)
 	}
 
 	ret = part_get_info_by_name(mmc_blk, partition, &part->info);
-	if (!ret) {
+	if (ret < 0) {
 		printf("Can't find partition '%s'\n", partition);
 		goto err;
 	}

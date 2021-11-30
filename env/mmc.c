@@ -6,6 +6,7 @@
 /* #define DEBUG */
 
 #include <common.h>
+#include <asm/global_data.h>
 
 #include <command.h>
 #include <env.h>
@@ -18,11 +19,24 @@
 #include <part.h>
 #include <search.h>
 #include <errno.h>
+#include <dm/ofnode.h>
 
 #define __STR(X) #X
 #define STR(X) __STR(X)
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * In case the environment is redundant, stored in eMMC hardware boot
+ * partition and the environment and redundant environment offsets are
+ * identical, store the environment and redundant environment in both
+ * eMMC boot partitions, one copy in each.
+ * */
+#if (defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT) && \
+     (CONFIG_SYS_MMC_ENV_PART == 1) && \
+     (CONFIG_ENV_OFFSET == CONFIG_ENV_OFFSET_REDUND))
+#define ENV_MMC_HWPART_REDUND
+#endif
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
@@ -72,7 +86,7 @@ static inline s64 mmc_offset(int copy)
 	int err;
 
 	/* look for the partition in mmc CONFIG_SYS_MMC_ENV_DEV */
-	str = fdtdec_get_config_string(gd->fdt_blob, dt_prop.partition);
+	str = ofnode_conf_read_str(dt_prop.partition);
 	if (str) {
 		/* try to place the environment at end of the partition */
 		err = mmc_offset_try_partition(str, copy, &val);
@@ -89,7 +103,7 @@ static inline s64 mmc_offset(int copy)
 		propname = dt_prop.offset_redund;
 	}
 #endif
-	return fdtdec_get_config_int(gd->fdt_blob, propname, defvalue);
+	return ofnode_conf_read_int(propname, defvalue);
 }
 #else
 static inline s64 mmc_offset(int copy)
@@ -124,13 +138,11 @@ __weak uint mmc_get_env_part(struct mmc *mmc)
 
 static unsigned char env_mmc_orig_hwpart;
 
-static int mmc_set_env_part(struct mmc *mmc)
+static int mmc_set_env_part(struct mmc *mmc, uint part)
 {
-	uint part = mmc_get_env_part(mmc);
 	int dev = mmc_get_env_dev();
 	int ret = 0;
 
-	env_mmc_orig_hwpart = mmc_get_blk_desc(mmc)->hwpart;
 	ret = blk_select_hwpart_devnum(IF_TYPE_MMC, dev, part);
 	if (ret)
 		puts("MMC partition switch failed\n");
@@ -138,7 +150,7 @@ static int mmc_set_env_part(struct mmc *mmc)
 	return ret;
 }
 #else
-static inline int mmc_set_env_part(struct mmc *mmc) {return 0; };
+static inline int mmc_set_env_part(struct mmc *mmc, uint part) {return 0; };
 #endif
 
 static const char *init_mmc_for_env(struct mmc *mmc)
@@ -155,7 +167,8 @@ static const char *init_mmc_for_env(struct mmc *mmc)
 	if (mmc_init(mmc))
 		return "MMC init failed";
 #endif
-	if (mmc_set_env_part(mmc))
+	env_mmc_orig_hwpart = mmc_get_blk_desc(mmc)->hwpart;
+	if (mmc_set_env_part(mmc, mmc_get_env_part(mmc)))
 		return "MMC partition switch failed";
 
 	return NULL;
@@ -207,6 +220,13 @@ static int env_mmc_save(void)
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (gd->env_valid == ENV_VALID)
 		copy = 1;
+
+#ifdef ENV_MMC_HWPART_REDUND
+	ret = mmc_set_env_part(mmc, copy + 1);
+	if (ret)
+		goto fini;
+#endif
+
 #endif
 
 	if (mmc_get_env_addr(mmc, copy, &offset)) {
@@ -232,7 +252,6 @@ fini:
 	return ret;
 }
 
-#if defined(CONFIG_CMD_ERASEENV)
 static inline int erase_env(struct mmc *mmc, unsigned long size,
 			    unsigned long offset)
 {
@@ -262,23 +281,34 @@ static int env_mmc_erase(void)
 		return 1;
 	}
 
-	if (mmc_get_env_addr(mmc, copy, &offset))
-		return CMD_RET_FAILURE;
+	if (mmc_get_env_addr(mmc, copy, &offset)) {
+		ret = CMD_RET_FAILURE;
+		goto fini;
+	}
 
 	ret = erase_env(mmc, CONFIG_ENV_SIZE, offset);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	copy = 1;
 
-	if (mmc_get_env_addr(mmc, copy, &offset))
-		return CMD_RET_FAILURE;
+#ifdef ENV_MMC_HWPART_REDUND
+	ret = mmc_set_env_part(mmc, copy + 1);
+	if (ret)
+		goto fini;
+#endif
+
+	if (mmc_get_env_addr(mmc, copy, &offset)) {
+		ret = CMD_RET_FAILURE;
+		goto fini;
+	}
 
 	ret |= erase_env(mmc, CONFIG_ENV_SIZE, offset);
 #endif
 
+fini:
+	fini_mmc_for_env(mmc);
 	return ret;
 }
-#endif /* CONFIG_CMD_ERASEENV */
 #endif /* CONFIG_CMD_SAVEENV && !CONFIG_SPL_BUILD */
 
 static inline int read_env(struct mmc *mmc, unsigned long size,
@@ -325,7 +355,20 @@ static int env_mmc_load(void)
 		goto fini;
 	}
 
+#ifdef ENV_MMC_HWPART_REDUND
+	ret = mmc_set_env_part(mmc, 1);
+	if (ret)
+		goto fini;
+#endif
+
 	read1_fail = read_env(mmc, CONFIG_ENV_SIZE, offset1, tmp_env1);
+
+#ifdef ENV_MMC_HWPART_REDUND
+	ret = mmc_set_env_part(mmc, 2);
+	if (ret)
+		goto fini;
+#endif
+
 	read2_fail = read_env(mmc, CONFIG_ENV_SIZE, offset2, tmp_env2);
 
 	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
@@ -393,8 +436,6 @@ U_BOOT_ENV_LOCATION(mmc) = {
 	.load		= env_mmc_load,
 #ifndef CONFIG_SPL_BUILD
 	.save		= env_save_ptr(env_mmc_save),
-#if defined(CONFIG_CMD_ERASEENV)
-	.erase		= env_mmc_erase,
-#endif
+	.erase		= ENV_ERASE_PTR(env_mmc_erase)
 #endif
 };

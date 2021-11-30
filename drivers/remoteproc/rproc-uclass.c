@@ -3,10 +3,12 @@
  * (C) Copyright 2015
  * Texas Instruments Incorporated - http://www.ti.com/
  */
+
+#define LOG_CATEGORY UCLASS_REMOTEPROC
+
 #define pr_fmt(fmt) "%s: " fmt, __func__
 #include <common.h>
 #include <errno.h>
-#include <fdtdec.h>
 #include <log.h>
 #include <malloc.h>
 #include <remoteproc.h>
@@ -15,8 +17,6 @@
 #include <dm.h>
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * for_each_remoteproc_device() - iterate through the list of rproc devices
@@ -42,7 +42,7 @@ static int for_each_remoteproc_device(int (*fn) (struct udevice *dev,
 	     ret = uclass_find_next_device(&dev)) {
 		if (ret || dev == skip_dev)
 			continue;
-		uc_pdata = dev_get_uclass_platdata(dev);
+		uc_pdata = dev_get_uclass_plat(dev);
 		ret = fn(dev, uc_pdata, data);
 		if (ret)
 			return ret;
@@ -111,27 +111,19 @@ static int rproc_pre_probe(struct udevice *dev)
 	struct dm_rproc_uclass_pdata *uc_pdata;
 	const struct dm_rproc_ops *ops;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	/* See if we need to populate via fdt */
 
-	if (!dev->platdata) {
+	if (!dev_get_plat(dev)) {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-		int node = dev_of_offset(dev);
-		const void *blob = gd->fdt_blob;
 		bool tmp;
-		if (!blob) {
-			debug("'%s' no dt?\n", dev->name);
-			return -EINVAL;
-		}
 		debug("'%s': using fdt\n", dev->name);
-		uc_pdata->name = fdt_getprop(blob, node,
-					     "remoteproc-name", NULL);
+		uc_pdata->name = dev_read_string(dev, "remoteproc-name");
 
 		/* Default is internal memory mapped */
 		uc_pdata->mem_type = RPROC_INTERNAL_MEMORY_MAPPED;
-		tmp = fdtdec_get_bool(blob, node,
-				      "remoteproc-internal-memory-mapped");
+		tmp = dev_read_bool(dev, "remoteproc-internal-memory-mapped");
 		if (tmp)
 			uc_pdata->mem_type = RPROC_INTERNAL_MEMORY_MAPPED;
 #else
@@ -140,7 +132,7 @@ static int rproc_pre_probe(struct udevice *dev)
 #endif
 
 	} else {
-		struct dm_rproc_uclass_pdata *pdata = dev->platdata;
+		struct dm_rproc_uclass_pdata *pdata = dev_get_plat(dev);
 
 		debug("'%s': using legacy data\n", dev->name);
 		if (pdata->name)
@@ -210,8 +202,7 @@ UCLASS_DRIVER(rproc) = {
 	.flags = DM_UC_FLAG_SEQ_ALIAS,
 	.pre_probe = rproc_pre_probe,
 	.post_probe = rproc_post_probe,
-	.per_device_platdata_auto_alloc_size =
-		sizeof(struct dm_rproc_uclass_pdata),
+	.per_device_plat_auto	= sizeof(struct dm_rproc_uclass_pdata),
 };
 
 /* Remoteproc subsystem access functions */
@@ -248,7 +239,7 @@ static int _rproc_dev_is_probed(struct udevice *dev,
 			    struct dm_rproc_uclass_pdata *uc_pdata,
 			    const void *data)
 {
-	if (dev->flags & DM_FLAG_ACTIVATED)
+	if (dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 		return 0;
 
 	return -EAGAIN;
@@ -306,7 +297,7 @@ int rproc_load(int id, ulong addr, ulong size)
 		return ret;
 	}
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	ops = rproc_get_ops(dev);
 	if (!ops) {
@@ -366,7 +357,7 @@ static int _rproc_ops_wrapper(int id, enum rproc_ops op)
 		return ret;
 	}
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	ops = rproc_get_ops(dev);
 	if (!ops) {

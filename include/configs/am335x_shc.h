@@ -223,10 +223,4 @@
 #endif
 
 #define CONFIG_NET_RETRY_COUNT         10
-
-/* I2C configuration */
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
-#define CONFIG_SYS_I2C_SPEED		400000
-#define CONFIG_SYS_I2C_SLAVE		1
 #endif	/* ! __CONFIG_AM335X_SHC_H */

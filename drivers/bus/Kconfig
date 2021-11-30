@@ -5,6 +5,19 @@
 
 menu "Bus devices"
 
+config TI_PWMSS
+	bool
+	default y if ARCH_OMAP2PLUS && PWM_TI_EHRPWM
+	help
+	  PWM Subsystem driver support for AM33xx SOC.
+
+config TI_SYSC
+	bool "TI sysc interconnect target module driver"
+	depends on ARCH_OMAP2PLUS
+	help
+	  Generic driver for Texas Instruments interconnect target module
+	  found on many TI SoCs.
+
 config UNIPHIER_SYSTEM_BUS
 	bool "UniPhier System Bus driver"
 	depends on ARCH_UNIPHIER

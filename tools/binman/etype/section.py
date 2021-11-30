@@ -9,10 +9,12 @@ images to be created.
 """
 
 from collections import OrderedDict
+import concurrent.futures
 import re
 import sys
 
 from binman.entry import Entry
+from binman import state
 from dtoc import fdt_util
 from patman import tools
 from patman import tout
@@ -22,11 +24,13 @@ from patman.tools import ToHexSize
 class Entry_section(Entry):
     """Entry that contains other entries
 
-    Properties / Entry arguments: (see binman README for more information)
+    Properties / Entry arguments: (see binman README for more information):
         pad-byte: Pad byte to use when padding
         sort-by-offset: True if entries should be sorted by offset, False if
-            they must be in-order in the device tree description
+        they must be in-order in the device tree description
+
         end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+
         skip-at-start: Number of bytes before the first entry starts. These
             effectively adjust the starting offset of entries. For example,
             if this is 16, then the first entry would start at 16. An entry
@@ -34,6 +38,8 @@ class Entry_section(Entry):
             file, since the first 16 bytes are skipped when writing.
         name-prefix: Adds a prefix to the name of every entry in the section
             when writing out the map
+        align_default: Default alignment for this section, if no alignment is
+            given in the entry
 
     Properties:
         allow_missing: True if this section permits external blobs to be
@@ -74,6 +80,7 @@ class Entry_section(Entry):
             if self._skip_at_start is None:
                 self._skip_at_start = 0
         self._name_prefix = fdt_util.GetString(self._node, 'name-prefix')
+        self.align_default = fdt_util.GetInt(self._node, 'align-default', 0)
         filename = fdt_util.GetString(self._node, 'filename')
         if filename:
             self._filename = filename
@@ -84,7 +91,8 @@ class Entry_section(Entry):
         for node in self._node.subnodes:
             if node.name.startswith('hash') or node.name.startswith('signature'):
                 continue
-            entry = Entry.Create(self, node)
+            entry = Entry.Create(self, node,
+                                 expanded=self.GetImage().use_expanded)
             entry.ReadNode()
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
@@ -126,12 +134,6 @@ class Entry_section(Entry):
         return True
 
     def ExpandEntries(self):
-        """Expand out any entries which have calculated sub-entries
-
-        Some entries are expanded out at runtime, e.g. 'files', which produces
-        a section containing a list of files. Process these entries so that
-        this information is added to the device tree.
-        """
         super().ExpandEntries()
         for entry in self._entries.values():
             entry.ExpandEntries()
@@ -164,7 +166,7 @@ class Entry_section(Entry):
         pad_byte = (entry._pad_byte if isinstance(entry, Entry_section)
                     else self._pad_byte)
 
-        data = b''
+        data = bytearray()
         # Handle padding before the entry
         if entry.pad_before:
             data += tools.GetBytes(self._pad_byte, entry.pad_before)
@@ -183,7 +185,7 @@ class Entry_section(Entry):
 
         return data
 
-    def _BuildSectionData(self):
+    def _BuildSectionData(self, required):
         """Build the contents of a section
 
         This places all entries at the right place, dealing with padding before
@@ -191,13 +193,20 @@ class Entry_section(Entry):
         pad-before and pad-after properties in the section items) since that is
         handled by the parent section.
 
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
+
         Returns:
             Contents of the section (bytes)
         """
-        section_data = b''
+        section_data = bytearray()
 
         for entry in self._entries.values():
-            data = self.GetPaddedDataForEntry(entry, entry.GetData())
+            entry_data = entry.GetData(required)
+            if not required and entry_data is None:
+                return None
+            data = self.GetPaddedDataForEntry(entry, entry_data)
             # Handle empty space before the entry
             pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
@@ -229,18 +238,24 @@ class Entry_section(Entry):
             data = self.GetData()
         return section.GetPaddedDataForEntry(self, data)
 
-    def GetData(self):
+    def GetData(self, required=True):
         """Get the contents of an entry
 
         This builds the contents of the section, stores this as the contents of
         the section and returns it
+
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
 
         Returns:
             bytes content of the section, made up for all all of its subentries.
             This excludes any padding. If the section is compressed, the
             compressed data is returned
         """
-        data = self._BuildSectionData()
+        data = self._BuildSectionData(required)
+        if data is None:
+            return None
         self.SetContents(data)
         return data
 
@@ -266,7 +281,7 @@ class Entry_section(Entry):
             self._SortEntries()
         self._ExpandEntries()
 
-        data = self._BuildSectionData()
+        data = self._BuildSectionData(True)
         self.SetContents(data)
 
         self.CheckSize()
@@ -363,16 +378,20 @@ class Entry_section(Entry):
     def GetEntries(self):
         return self._entries
 
-    def GetContentsByPhandle(self, phandle, source_entry):
+    def GetContentsByPhandle(self, phandle, source_entry, required):
         """Get the data contents of an entry specified by a phandle
 
         This uses a phandle to look up a node and and find the entry
-        associated with it. Then it returnst he contents of that entry.
+        associated with it. Then it returns the contents of that entry.
+
+        The node must be a direct subnode of this section.
 
         Args:
             phandle: Phandle to look up (integer)
             source_entry: Entry containing that phandle (used for error
                 reporting)
+            required: True if the data must be present, False if it is OK to
+                return None
 
         Returns:
             data from associated entry (as a string), or None if not found
@@ -382,10 +401,10 @@ class Entry_section(Entry):
             source_entry.Raise("Cannot find node for phandle %d" % phandle)
         for entry in self._entries.values():
             if entry._node == node:
-                return entry.GetData()
+                return entry.GetData(required)
         source_entry.Raise("Cannot find entry for node '%s'" % node.name)
 
-    def LookupSymbol(self, sym_name, optional, msg, base_addr):
+    def LookupSymbol(self, sym_name, optional, msg, base_addr, entries=None):
         """Look up a symbol in an ELF file
 
         Looks up a symbol in an ELF file. Only entry types which come from an
@@ -428,18 +447,20 @@ class Entry_section(Entry):
                              (msg, sym_name))
         entry_name, prop_name = m.groups()
         entry_name = entry_name.replace('_', '-')
-        entry = self._entries.get(entry_name)
+        if not entries:
+            entries = self._entries
+        entry = entries.get(entry_name)
         if not entry:
             if entry_name.endswith('-any'):
                 root = entry_name[:-4]
-                for name in self._entries:
+                for name in entries:
                     if name.startswith(root):
                         rest = name[len(root):]
                         if rest in ['', '-img', '-nodtb']:
-                            entry = self._entries[name]
+                            entry = entries[name]
         if not entry:
             err = ("%s: Entry '%s' not found in list (%s)" %
-                   (msg, entry_name, ','.join(self._entries.keys())))
+                   (msg, entry_name, ','.join(entries.keys())))
             if optional:
                 print('Warning: %s' % err, file=sys.stderr)
                 return None
@@ -506,15 +527,43 @@ class Entry_section(Entry):
     def GetEntryContents(self):
         """Call ObtainContents() for each entry in the section
         """
+        def _CheckDone(entry):
+            if not entry.ObtainContents():
+                next_todo.append(entry)
+            return entry
+
         todo = self._entries.values()
         for passnum in range(3):
+            threads = state.GetThreads()
             next_todo = []
-            for entry in todo:
-                if not entry.ObtainContents():
-                    next_todo.append(entry)
+
+            if threads == 0:
+                for entry in todo:
+                    _CheckDone(entry)
+            else:
+                with concurrent.futures.ThreadPoolExecutor(
+                        max_workers=threads) as executor:
+                    future_to_data = {
+                        entry: executor.submit(_CheckDone, entry)
+                        for entry in todo}
+                    timeout = 60
+                    if self.GetImage().test_section_timeout:
+                        timeout = 0
+                    done, not_done = concurrent.futures.wait(
+                        future_to_data.values(), timeout=timeout)
+                    # Make sure we check the result, so any exceptions are
+                    # generated. Check the results in entry order, since tests
+                    # may expect earlier entries to fail first.
+                    for entry in todo:
+                        job = future_to_data[entry]
+                        job.result()
+                    if not_done:
+                        self.Raise('Timed out obtaining contents')
+
             todo = next_todo
             if not todo:
                 break
+
         if todo:
             self.Raise('Internal error: Could not complete processing of contents: remaining %s' %
                        todo)
@@ -603,10 +652,12 @@ class Entry_section(Entry):
     def ReadData(self, decomp=True):
         tout.Info("ReadData path='%s'" % self.GetPath())
         parent_data = self.section.ReadData(True)
-        tout.Info('%s: Reading data from offset %#x-%#x, size %#x' %
-                  (self.GetPath(), self.offset, self.offset + self.size,
-                   self.size))
-        data = parent_data[self.offset:self.offset + self.size]
+        offset = self.offset - self.section._skip_at_start
+        data = parent_data[offset:offset + self.size]
+        tout.Info(
+            '%s: Reading data from offset %#x-%#x (real %#x), size %#x, got %#x' %
+                  (self.GetPath(), self.offset, self.offset + self.size, offset,
+                   self.size, len(data)))
         return data
 
     def ReadChildData(self, child, decomp=True):
@@ -648,3 +699,47 @@ class Entry_section(Entry):
         """
         for entry in self._entries.values():
             entry.CheckMissing(missing_list)
+
+    def _CollectEntries(self, entries, entries_by_name, add_entry):
+        """Collect all the entries in an section
+
+        This builds up a dict of entries in this section and all subsections.
+        Entries are indexed by path and by name.
+
+        Since all paths are unique, entries will not have any conflicts. However
+        entries_by_name make have conflicts if two entries have the same name
+        (e.g. with different parent sections). In this case, an entry at a
+        higher level in the hierarchy will win over a lower-level entry.
+
+        Args:
+            entries: dict to put entries:
+                key: entry path
+                value: Entry object
+            entries_by_name: dict to put entries
+                key: entry name
+                value: Entry object
+            add_entry: Entry to add
+        """
+        entries[add_entry.GetPath()] = add_entry
+        to_add = add_entry.GetEntries()
+        if to_add:
+            for entry in to_add.values():
+                entries[entry.GetPath()] = entry
+            for entry in to_add.values():
+                self._CollectEntries(entries, entries_by_name, entry)
+        entries_by_name[add_entry.name] = add_entry
+
+    def MissingArgs(self, entry, missing):
+        """Report a missing argument, if enabled
+
+        For entries which require arguments, this reports an error if some are
+        missing. If missing entries are being ignored (e.g. because we read the
+        entry from an image rather than creating it), this function does
+        nothing.
+
+        Args:
+            missing: List of missing properties / entry args, each a string
+        """
+        if not self._ignore_missing:
+            entry.Raise('Missing required properties/entry args: %s' %
+                       (', '.join(missing)))

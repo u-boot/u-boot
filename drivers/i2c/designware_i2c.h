@@ -112,7 +112,7 @@ struct i2c_regs {
 #define IC_TX_EMPTY		0x0010
 #define IC_TX_OVER		0x0008
 #define IC_RX_FULL		0x0004
-#define IC_RX_OVER 		0x0002
+#define IC_RX_OVER		0x0002
 #define IC_RX_UNDER		0x0001
 
 /* fifo threshold register definitions */
@@ -212,7 +212,7 @@ extern const struct dm_i2c_ops designware_i2c_ops;
 
 int designware_i2c_probe(struct udevice *bus);
 int designware_i2c_remove(struct udevice *dev);
-int designware_i2c_ofdata_to_platdata(struct udevice *bus);
+int designware_i2c_of_to_plat(struct udevice *bus);
 
 /**
  * dw_i2c_gen_speed_config() - Calculate config info from requested speed

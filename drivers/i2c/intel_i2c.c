@@ -269,21 +269,11 @@ static int intel_i2c_probe(struct udevice *dev)
 
 static int intel_i2c_bind(struct udevice *dev)
 {
-	static int num_cards __attribute__ ((section(".data")));
 	char name[20];
 
 	/* Create a unique device name for PCI type devices */
 	if (device_is_on_pci_bus(dev)) {
-		/*
-		 * ToDo:
-		 * Setting req_seq in the driver is probably not recommended.
-		 * But without a DT alias the number is not configured. And
-		 * using this driver is impossible for PCIe I2C devices.
-		 * This can be removed, once a better (correct) way for this
-		 * is found and implemented.
-		 */
-		dev->req_seq = num_cards;
-		sprintf(name, "intel_i2c#%u", num_cards++);
+		sprintf(name, "intel_i2c#%u", dev_seq(dev));
 		device_set_name(dev, name);
 	}
 
@@ -306,7 +296,7 @@ U_BOOT_DRIVER(intel_i2c) = {
 	.id	= UCLASS_I2C,
 	.of_match = intel_i2c_ids,
 	.ops	= &intel_i2c_ops,
-	.priv_auto_alloc_size = sizeof(struct intel_i2c),
+	.priv_auto	= sizeof(struct intel_i2c),
 	.bind	= intel_i2c_bind,
 	.probe	= intel_i2c_probe,
 };

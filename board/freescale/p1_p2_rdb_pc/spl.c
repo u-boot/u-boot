@@ -16,6 +16,7 @@
 #include <i2c.h>
 #include <fsl_esdhc.h>
 #include <spi_flash.h>
+#include <asm/global_data.h>
 #include "../common/spl.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -50,7 +51,7 @@ void board_init_f(ulong bootflag)
 	bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
 	gd->bus_clk = bus_clk;
 
-	NS16550_init((NS16550_t)CONFIG_SYS_NS16550_COM1,
+	ns16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM1,
 		     bus_clk / 16 / CONFIG_BAUDRATE);
 #ifdef CONFIG_SPL_MMC_BOOT
 	puts("\nSD boot...\n");
@@ -98,7 +99,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	env_relocate();
 #endif
 
-#ifdef CONFIG_SYS_I2C
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	i2c_init_all();
 #else
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);

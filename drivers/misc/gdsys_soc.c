@@ -71,5 +71,5 @@ U_BOOT_DRIVER(gdsys_soc_bus) = {
 	.id             = UCLASS_SIMPLE_BUS,
 	.of_match       = gdsys_soc_ids,
 	.probe          = gdsys_soc_probe,
-	.priv_auto_alloc_size = sizeof(struct gdsys_soc_priv),
+	.priv_auto	= sizeof(struct gdsys_soc_priv),
 };

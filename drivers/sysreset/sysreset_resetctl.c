@@ -26,7 +26,7 @@ static struct sysreset_ops resetctl_reboot_ops = {
 	.request = resetctl_reboot_request,
 };
 
-int resetctl_reboot_probe(struct udevice *dev)
+static int resetctl_reboot_probe(struct udevice *dev)
 {
 	struct resetctl_reboot_priv *priv = dev_get_priv(dev);
 
@@ -43,6 +43,6 @@ U_BOOT_DRIVER(resetctl_reboot) = {
 	.name = "resetctl_reboot",
 	.of_match = resetctl_reboot_ids,
 	.ops = &resetctl_reboot_ops,
-	.priv_auto_alloc_size = sizeof(struct resetctl_reboot_priv),
+	.priv_auto	= sizeof(struct resetctl_reboot_priv),
 	.probe = resetctl_reboot_probe,
 };

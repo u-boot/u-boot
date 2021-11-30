@@ -9,40 +9,40 @@
 
 &dpmac1 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac2 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac3 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac4 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac5 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac6 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac7 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac8 {
 	status = "okay";
-	phy-connection-type = "xfi";
+	phy-connection-type = "10gbase-r";
 };

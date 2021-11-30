@@ -2,9 +2,9 @@
 /*
  * Copyright (c) 2017 Intel Corporation
  */
-#ifndef _X86_ASM_PMU_IPC_H_
-#define _X86_ASM_PMU_IPC_H_
+#ifndef _X86_ASM_PMU_H_
+#define _X86_ASM_PMU_H_
 
 int pmu_turn_power(unsigned int lss, bool on);
 
-#endif	/* _X86_ASM_PMU_IPC_H_ */
+#endif	/* _X86_ASM_PMU_H_ */

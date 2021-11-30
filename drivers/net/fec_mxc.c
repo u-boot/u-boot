@@ -18,6 +18,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <power/regulator.h>
 
@@ -145,7 +146,7 @@ static int fec_get_clk_rate(void *udev, int idx)
 	    CONFIG_IS_ENABLED(CLK_CCF)) {
 		dev = udev;
 		if (!dev) {
-			ret = uclass_get_device(UCLASS_ETH, idx, &dev);
+			ret = uclass_get_device_by_seq(UCLASS_ETH, idx, &dev);
 			if (ret < 0) {
 				debug("Can't get FEC udev: %d\n", ret);
 				return ret;
@@ -415,7 +416,7 @@ static int fec_set_hwaddr(struct eth_device *dev)
 {
 #ifdef CONFIG_DM_ETH
 	struct fec_priv *fec = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	uchar *mac = pdata->enetaddr;
 #else
 	uchar *mac = dev->enetaddr;
@@ -456,6 +457,9 @@ static void fec_reg_setup(struct fec_priv *fec)
 		rcntrl |= FEC_RCNTRL_RGMII;
 	else if (fec->xcv_type == RMII)
 		rcntrl |= FEC_RCNTRL_RMII;
+
+	if (fec->promisc)
+		rcntrl |= 0x8;
 
 	writel(rcntrl, &fec->eth->r_cntrl);
 }
@@ -517,7 +521,7 @@ static int fec_open(struct eth_device *edev)
 	       &fec->eth->ecntrl);
 #endif
 
-#if defined(CONFIG_MX25) || defined(CONFIG_MX53) || defined(CONFIG_MX6SL)
+#if defined(CONFIG_MX53) || defined(CONFIG_MX6SL)
 	udelay(100);
 
 	/* setup the MII gasket for RMII mode */
@@ -627,7 +631,7 @@ static int fec_init(struct eth_device *dev, struct bd_info *bd)
 	writel(0x00000000, &fec->eth->gaddr2);
 
 	/* Do not access reserved register */
-	if (!is_mx6ul() && !is_mx6ull() && !is_imx8() && !is_imx8m()) {
+	if (!is_mx6ul() && !is_mx6ull() && !is_imx8() && !is_imx8m() && !is_imx8ulp()) {
 		/* clear MIB RAM */
 		for (i = mib_ptr; i <= mib_ptr + 0xfc; i += 4)
 			writel(0, i);
@@ -1272,9 +1276,18 @@ int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int))
 static int fecmxc_read_rom_hwaddr(struct udevice *dev)
 {
 	struct fec_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	return fec_get_hwaddr(priv->dev_id, pdata->enetaddr);
+}
+
+static int fecmxc_set_promisc(struct udevice *dev, bool enable)
+{
+	struct fec_priv *priv = dev_get_priv(dev);
+
+	priv->promisc = enable;
+
+	return 0;
 }
 
 static int fecmxc_free_pkt(struct udevice *dev, uchar *packet, int length)
@@ -1293,21 +1306,29 @@ static const struct eth_ops fecmxc_ops = {
 	.stop			= fecmxc_halt,
 	.write_hwaddr		= fecmxc_set_hwaddr,
 	.read_rom_hwaddr	= fecmxc_read_rom_hwaddr,
+	.set_promisc		= fecmxc_set_promisc,
 };
 
 static int device_get_phy_addr(struct fec_priv *priv, struct udevice *dev)
 {
 	struct ofnode_phandle_args phandle_args;
-	int reg;
+	int reg, ret;
 
-	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
-				       &phandle_args)) {
-		debug("Failed to find phy-handle");
-		return -ENODEV;
+	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+					 &phandle_args);
+	if (ret) {
+		priv->phy_of_node = ofnode_find_subnode(dev_ofnode(dev),
+							"fixed-link");
+		if (ofnode_valid(priv->phy_of_node))
+			return 0;
+		debug("Failed to find phy-handle (err = %d)\n", ret);
+		return ret;
 	}
 
-	priv->phy_of_node = phandle_args.node;
+	if (!ofnode_is_available(phandle_args.node))
+		return -ENOENT;
 
+	priv->phy_of_node = phandle_args.node;
 	reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
 
 	return reg;
@@ -1351,7 +1372,8 @@ static void fec_gpio_reset(struct fec_priv *priv)
 
 static int fecmxc_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	bool dm_mii_bus = true;
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct fec_priv *priv = dev_get_priv(dev);
 	struct mii_dev *bus = NULL;
 	uint32_t start;
@@ -1451,17 +1473,19 @@ static int fecmxc_probe(struct udevice *dev)
 
 	fec_reg_setup(priv);
 
-	priv->dev_id = dev->seq;
+	priv->dev_id = dev_seq(dev);
 
 #ifdef CONFIG_DM_ETH_PHY
 	bus = eth_phy_get_mdio_bus(dev);
 #endif
 
 	if (!bus) {
+		dm_mii_bus = false;
 #ifdef CONFIG_FEC_MXC_MDIO_BASE
-		bus = fec_get_miibus((ulong)CONFIG_FEC_MXC_MDIO_BASE, dev->seq);
+		bus = fec_get_miibus((ulong)CONFIG_FEC_MXC_MDIO_BASE,
+				     dev_seq(dev));
 #else
-		bus = fec_get_miibus((ulong)priv->eth, dev->seq);
+		bus = fec_get_miibus((ulong)priv->eth, dev_seq(dev));
 #endif
 	}
 	if (!bus) {
@@ -1502,8 +1526,10 @@ static int fecmxc_probe(struct udevice *dev)
 	return 0;
 
 err_phy:
-	mdio_unregister(bus);
-	free(bus);
+	if (!dm_mii_bus) {
+		mdio_unregister(bus);
+		free(bus);
+	}
 err_mii:
 err_timeout:
 	fec_free_descs(priv);
@@ -1527,10 +1553,10 @@ static int fecmxc_remove(struct udevice *dev)
 	return 0;
 }
 
-static int fecmxc_ofdata_to_platdata(struct udevice *dev)
+static int fecmxc_of_to_plat(struct udevice *dev)
 {
 	int ret = 0;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct fec_priv *priv = dev_get_priv(dev);
 	const char *phy_mode;
 
@@ -1593,11 +1619,11 @@ U_BOOT_DRIVER(fecmxc_gem) = {
 	.name	= "fecmxc",
 	.id	= UCLASS_ETH,
 	.of_match = fecmxc_ids,
-	.ofdata_to_platdata = fecmxc_ofdata_to_platdata,
+	.of_to_plat = fecmxc_of_to_plat,
 	.probe	= fecmxc_probe,
 	.remove	= fecmxc_remove,
 	.ops	= &fecmxc_ops,
-	.priv_auto_alloc_size = sizeof(struct fec_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct fec_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 #endif

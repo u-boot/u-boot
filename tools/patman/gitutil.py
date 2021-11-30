@@ -305,7 +305,7 @@ def PruneWorktrees(git_dir):
     if result.return_code != 0:
         raise OSError('git worktree prune: %s' % result.stderr)
 
-def CreatePatches(branch, start, count, ignore_binary, series):
+def CreatePatches(branch, start, count, ignore_binary, series, signoff = True):
     """Create a series of patches from the top of the current branch.
 
     The patch files are written to the current directory using
@@ -323,7 +323,9 @@ def CreatePatches(branch, start, count, ignore_binary, series):
     """
     if series.get('version'):
         version = '%s ' % series['version']
-    cmd = ['git', 'format-patch', '-M', '--signoff']
+    cmd = ['git', 'format-patch', '-M' ]
+    if signoff:
+        cmd.append('--signoff')
     if ignore_binary:
         cmd.append('--no-binary')
     if series.get('cover'):
@@ -343,7 +345,7 @@ def CreatePatches(branch, start, count, ignore_binary, series):
     else:
        return None, files
 
-def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
+def BuildEmailList(in_list, tag=None, alias=None, warn_on_error=True):
     """Build a list of email addresses based on an input list.
 
     Takes a list of email addresses and aliases, and turns this into a list
@@ -357,7 +359,7 @@ def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
         in_list:        List of aliases/email addresses
         tag:            Text to put before each address
         alias:          Alias dictionary
-        raise_on_error: True to raise an error when an alias fails to match,
+        warn_on_error: True to raise an error when an alias fails to match,
                 False to just print a message.
 
     Returns:
@@ -380,10 +382,9 @@ def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
     quote = '"' if tag and tag[0] == '-' else ''
     raw = []
     for item in in_list:
-        raw += LookupEmail(item, alias, raise_on_error=raise_on_error)
+        raw += LookupEmail(item, alias, warn_on_error=warn_on_error)
     result = []
     for item in raw:
-        item = tools.FromUnicode(item)
         if not item in result:
             result.append(item)
     if tag:
@@ -415,7 +416,7 @@ def CheckSuppressCCConfig():
 
     return True
 
-def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
+def EmailPatches(series, cover_fname, args, dry_run, warn_on_error, cc_fname,
         self_only=False, alias=None, in_reply_to=None, thread=False,
         smtp_server=None):
     """Email a patch series.
@@ -425,8 +426,8 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
         cover_fname: filename of cover letter
         args: list of filenames of patch files
         dry_run: Just return the command that would be run
-        raise_on_error: True to raise an error when an alias fails to match,
-                False to just print a message.
+        warn_on_error: True to print a warning when an alias fails to match,
+                False to ignore it.
         cc_fname: Filename of Cc file for per-commit Cc
         self_only: True to just email to yourself as a test
         in_reply_to: If set we'll pass this to git as --in-reply-to.
@@ -474,7 +475,7 @@ send --cc-cmd cc-fname" cover p1 p2'
     # Restore argv[0] since we clobbered it.
     >>> sys.argv[0] = _old_argv0
     """
-    to = BuildEmailList(series.get('to'), '--to', alias, raise_on_error)
+    to = BuildEmailList(series.get('to'), '--to', alias, warn_on_error)
     if not to:
         git_config_to = command.Output('git', 'config', 'sendemail.to',
                                        raise_on_error=False)
@@ -486,15 +487,15 @@ send --cc-cmd cc-fname" cover p1 p2'
                   "git config sendemail.to u-boot@lists.denx.de")
             return
     cc = BuildEmailList(list(set(series.get('cc')) - set(series.get('to'))),
-                        '--cc', alias, raise_on_error)
+                        '--cc', alias, warn_on_error)
     if self_only:
-        to = BuildEmailList([os.getenv('USER')], '--to', alias, raise_on_error)
+        to = BuildEmailList([os.getenv('USER')], '--to', alias, warn_on_error)
         cc = []
     cmd = ['git', 'send-email', '--annotate']
     if smtp_server:
         cmd.append('--smtp-server=%s' % smtp_server)
     if in_reply_to:
-        cmd.append('--in-reply-to="%s"' % tools.FromUnicode(in_reply_to))
+        cmd.append('--in-reply-to="%s"' % in_reply_to)
     if thread:
         cmd.append('--thread')
 
@@ -510,7 +511,7 @@ send --cc-cmd cc-fname" cover p1 p2'
     return cmdstr
 
 
-def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
+def LookupEmail(lookup_name, alias=None, warn_on_error=True, level=0):
     """If an email address is an alias, look it up and return the full name
 
     TODO: Why not just use git's own alias feature?
@@ -518,8 +519,8 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
     Args:
         lookup_name: Alias or email address to look up
         alias: Dictionary containing aliases (None to use settings default)
-        raise_on_error: True to raise an error when an alias fails to match,
-                False to just print a message.
+        warn_on_error: True to print a warning when an alias fails to match,
+                False to ignore it.
 
     Returns:
         tuple:
@@ -546,18 +547,16 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
     >>> LookupEmail('all', alias)
     ['f.bloggs@napier.co.nz', 'j.bloggs@napier.co.nz', 'm.poppins@cloud.net']
     >>> LookupEmail('odd', alias)
-    Traceback (most recent call last):
-    ...
-    ValueError: Alias 'odd' not found
+    Alias 'odd' not found
+    []
     >>> LookupEmail('loop', alias)
     Traceback (most recent call last):
     ...
     OSError: Recursive email alias at 'other'
-    >>> LookupEmail('odd', alias, raise_on_error=False)
-    Alias 'odd' not found
+    >>> LookupEmail('odd', alias, warn_on_error=False)
     []
     >>> # In this case the loop part will effectively be ignored.
-    >>> LookupEmail('loop', alias, raise_on_error=False)
+    >>> LookupEmail('loop', alias, warn_on_error=False)
     Recursive email alias at 'other'
     Recursive email alias at 'john'
     Recursive email alias at 'mary'
@@ -575,7 +574,7 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
     out_list = []
     if level > 10:
         msg = "Recursive email alias at '%s'" % lookup_name
-        if raise_on_error:
+        if warn_on_error:
             raise OSError(msg)
         else:
             print(col.Color(col.RED, msg))
@@ -584,18 +583,15 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
     if lookup_name:
         if not lookup_name in alias:
             msg = "Alias '%s' not found" % lookup_name
-            if raise_on_error:
-                raise ValueError(msg)
-            else:
+            if warn_on_error:
                 print(col.Color(col.RED, msg))
-                return out_list
+            return out_list
         for item in alias[lookup_name]:
-            todo = LookupEmail(item, alias, raise_on_error, level + 1)
+            todo = LookupEmail(item, alias, warn_on_error, level + 1)
             for new_item in todo:
                 if not new_item in out_list:
                     out_list.append(new_item)
 
-    #print("No match for alias '%s'" % lookup_name)
     return out_list
 
 def GetTopLevel():

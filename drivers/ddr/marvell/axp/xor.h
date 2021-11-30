@@ -64,7 +64,7 @@ int mv_xor_state_get(u32 chan);
 void mv_sys_xor_init(MV_DRAM_INFO *dram_info);
 void mv_sys_xor_finish(void);
 int mv_xor_transfer(u32 chan, int xor_type, u32 xor_chain_ptr);
-int mv_xor_mem_init(u32 chan, u32 start_ptr, u32 block_size, u32 init_val_high,
-		    u32 init_val_low);
+int mv_xor_mem_init(u32 chan, u32 start_ptr, unsigned long long block_size,
+		    u32 init_val_high, u32 init_val_low);
 
 #endif /* __XOR_H */

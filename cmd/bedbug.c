@@ -6,6 +6,7 @@
 #include <cli.h>
 #include <command.h>
 #include <console.h>
+#include <asm/global_data.h>
 #include <asm/ptrace.h>
 #include <linux/ctype.h>
 #include <net.h>
@@ -38,7 +39,6 @@ int bedbug_puts (const char *str)
 }				/* bedbug_puts */
 
 
-
 /* ======================================================================
  * Initialize the bug_ctx structure used by the bedbug debugger.  This is
  * specific to the CPU since each has different debug registers and
@@ -50,7 +50,6 @@ int bedbug_init(void)
 	/* -------------------------------------------------- */
 	return 0;
 }				/* bedbug_init */
-
 
 
 /* ======================================================================
@@ -74,11 +73,11 @@ int do_bedbug_dis(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
 		/* New command */
-		addr = simple_strtoul (argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 
 		/* If an extra param is given then it is the length */
 		if (argc > 2)
-			len = simple_strtoul (argv[2], NULL, 16);
+			len = hextoul(argv[2], NULL);
 	}
 
 	/* Run the disassembler */
@@ -113,7 +112,7 @@ int do_bedbug_asm(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	printf ("\nEnter '.' when done\n");
-	mem_addr = simple_strtoul (argv[1], NULL, 16);
+	mem_addr = hextoul(argv[1], NULL);
 
 	while (1) {
 		putc ('\n');
@@ -182,7 +181,6 @@ void do_bedbug_breakpoint (struct pt_regs *regs)
 }				/* do_bedbug_breakpoint */
 
 
-
 /* ======================================================================
  * Called from the CPU-specific breakpoint handling routine.  Enter a
  * mini main loop until the stopped flag is cleared from the breakpoint
@@ -238,7 +236,6 @@ void bedbug_main_loop (unsigned long addr, struct pt_regs *regs)
 
 	return;
 }				/* bedbug_main_loop */
-
 
 
 /* ======================================================================

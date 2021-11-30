@@ -1,0 +1,78 @@
+.. SPDX-License-Identifier: GPL-2.0+
+.. sectionauthor:: Jan Kiszka <jan.kiszka@siemens.com>
+
+SIMATIC IOT2050 BASIC and ADVANCED
+==================================
+
+The SIMATIC IOT2050 is an open industrial IoT gateway that is using the TI
+AM6528 GP (Basic variant) or the AM6548 HS (Advanced variant). The Advanced
+variant is prepared for secure boot.
+
+The IOT2050 starts only from OSPI. It loads a Siemens-provided bootloader
+called SE-Boot for the MCU domain (R5F cores), then hands over to ATF and
+OP-TEE, before booting U-Boot on the A53 cores. This describes how to build all
+open artifacts into a flashable image for the OSPI flash. The flash image will
+work on both variants.
+
+Dependencies
+------------
+
+ATF:    Upstream release 2.4 or newer
+OP-TEE: Upstream release 3.10.0 or newer
+
+Binary dependencies can be found in
+https://github.com/siemens/meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild.
+The following binaries from that source need to be present in the build folder:
+
+ - tiboot3.bin
+ - sysfw.itb
+ - sysfw.itb_HS
+ - sysfw_sr2.itb
+ - sysfw_sr2.itb_HS
+
+Building
+--------
+
+Make sure that CROSS_COMPILE is set appropriately:
+
+.. code-block:: text
+
+ $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+ATF:
+
+.. code-block:: text
+
+ $ make PLAT=k3 SPD=opteed K3_USART=1
+
+OP-TEE:
+
+.. code-block:: text
+
+ $ make PLATFORM=k3-am65x CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 CFG_CONSOLE_UART=1 CFG_USER_TA_TARGETS="ta_arm64"
+
+U-Boot:
+
+.. code-block:: text
+
+ $ export ATF=/path/to/bl31.bin
+ $ export TEE=/path/to/tee-pager_v2.bin
+ $ make iot2050_defconfig
+ $ make
+
+Flashing
+--------
+
+Via U-Boot:
+
+.. code-block:: text
+
+ IOT2050> sf probe
+ IOT2050> load mmc 0:1 $loadaddr /path/to/flash.bin
+ IOT2050> sf update $loadaddr 0x0 $filesize
+
+Via external programmer Dediprog SF100 or SF600:
+
+.. code-block:: text
+
+ $ dpcmd --vcc 2 -v -u flash.bin

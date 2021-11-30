@@ -9,6 +9,7 @@
 #include <cros_ec.h>
 #include <errno.h>
 #include <i2c.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,7 +30,7 @@ static int cros_ec_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 	return cros_ec_i2c_tunnel(dev->parent, i2c_bus->remote_bus, msg, nmsgs);
 }
 
-static int cros_ec_i2c_ofdata_to_platdata(struct udevice *dev)
+static int cros_ec_i2c_of_to_plat(struct udevice *dev)
 {
 	struct cros_ec_i2c_bus *i2c_bus = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
@@ -55,7 +56,7 @@ U_BOOT_DRIVER(cros_ec_tunnel) = {
 	.name	= "cros_ec_tunnel",
 	.id	= UCLASS_I2C,
 	.of_match = cros_ec_i2c_ids,
-	.ofdata_to_platdata = cros_ec_i2c_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct cros_ec_i2c_bus),
+	.of_to_plat = cros_ec_i2c_of_to_plat,
+	.priv_auto	= sizeof(struct cros_ec_i2c_bus),
 	.ops	= &cros_ec_i2c_ops,
 };

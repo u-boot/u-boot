@@ -87,7 +87,7 @@ static void ast_i2c_init_bus(struct udevice *dev)
 	       | I2CD_INTR_ABNORMAL, &priv->regs->icr);
 }
 
-static int ast_i2c_ofdata_to_platdata(struct udevice *dev)
+static int ast_i2c_of_to_plat(struct udevice *dev)
 {
 	struct ast_i2c_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -110,7 +110,7 @@ static int ast_i2c_probe(struct udevice *dev)
 {
 	struct ast2500_scu *scu;
 
-	debug("Enabling I2C%u\n", dev->seq);
+	debug("Enabling I2C%u\n", dev_seq(dev));
 
 	/*
 	 * Get all I2C devices out of Reset.
@@ -307,7 +307,7 @@ static int ast_i2c_set_speed(struct udevice *dev, unsigned int speed)
 	struct ast_i2c_regs *regs = priv->regs;
 	ulong i2c_rate, divider;
 
-	debug("Setting speed for I2C%d to <%u>\n", dev->seq, speed);
+	debug("Setting speed for I2C%d to <%u>\n", dev_seq(dev), speed);
 	if (!speed) {
 		debug("No valid speed specified\n");
 		return -EINVAL;
@@ -351,7 +351,7 @@ U_BOOT_DRIVER(ast_i2c) = {
 	.id = UCLASS_I2C,
 	.of_match = ast_i2c_ids,
 	.probe = ast_i2c_probe,
-	.ofdata_to_platdata = ast_i2c_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct ast_i2c_priv),
+	.of_to_plat = ast_i2c_of_to_plat,
+	.priv_auto	= sizeof(struct ast_i2c_priv),
 	.ops = &ast_i2c_ops,
 };

@@ -6,7 +6,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include "version.h"
 #include <asm/cache.h>
 
 #define _START	_start
@@ -253,7 +252,4 @@ _int_handler:
 
 /******************************************************************************/
 
-.globl version_string
-version_string:
-.ascii U_BOOT_VERSION_STRING, "\0"
 .align 4

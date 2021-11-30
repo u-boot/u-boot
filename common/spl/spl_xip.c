@@ -12,7 +12,7 @@
 static int spl_xip(struct spl_image_info *spl_image,
 		   struct spl_boot_device *bootdev)
 {
-#ifdef CONFIG_SPL_OS_BOOT
+#if CONFIG_IS_ENABLED(OS_BOOT)
 	if (!spl_start_uboot()) {
 		spl_image->arg = (void *)CONFIG_SYS_FDT_BASE;
 		spl_image->name = "Linux";

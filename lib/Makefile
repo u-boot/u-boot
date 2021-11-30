@@ -16,7 +16,7 @@ obj-$(CONFIG_FIT) += libfdt/
 obj-$(CONFIG_OF_LIVE) += of_live.o
 obj-$(CONFIG_CMD_DHRYSTONE) += dhry/
 obj-$(CONFIG_ARCH_AT91) += at91/
-obj-$(CONFIG_OPTEE) += optee/
+obj-$(CONFIG_OPTEE_LIB) += optee/
 obj-$(CONFIG_ASN1_DECODER) += asn1_decoder.o
 obj-y += crypto/
 
@@ -25,7 +25,7 @@ obj-$(CONFIG_AES) += aes/
 obj-$(CONFIG_$(SPL_TPL_)BINMAN_FDT) += binman.o
 
 ifndef API_BUILD
-ifneq ($(CONFIG_UT_UNICODE)$(CONFIG_EFI_LOADER),)
+ifneq ($(CONFIG_CHARSET),)
 obj-y += charset.o
 endif
 endif
@@ -53,16 +53,20 @@ endif
 obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm-common.o
 ifeq ($(CONFIG_$(SPL_TPL_)TPM),y)
 obj-y += crc8.o
+obj-$(CONFIG_TPM) += tpm_api.o
 obj-$(CONFIG_TPM_V1) += tpm-v1.o
 obj-$(CONFIG_TPM_V2) += tpm-v2.o
 endif
 
 obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi/
 obj-$(CONFIG_$(SPL_)MD5) += md5.o
+obj-$(CONFIG_ECDSA) += ecdsa/
 obj-$(CONFIG_$(SPL_)RSA) += rsa/
+obj-$(CONFIG_HASH) += hash-checksum.o
 obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SHA256) += sha256.o
-obj-$(CONFIG_SHA512_ALGO) += sha512.o
+obj-$(CONFIG_SHA512) += sha512.o
+obj-$(CONFIG_CRYPT_PW) += crypt/
 
 obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
 obj-$(CONFIG_$(SPL_)ZSTD) += zstd/
@@ -71,17 +75,17 @@ obj-$(CONFIG_$(SPL_)LZO) += lzo/
 obj-$(CONFIG_$(SPL_)LZMA) += lzma/
 obj-$(CONFIG_$(SPL_)LZ4) += lz4_wrapper.o
 
+obj-$(CONFIG_$(SPL_)LIB_RATIONAL) += rational.o
+
 obj-$(CONFIG_LIBAVB) += libavb/
 
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += libfdt/
-ifneq ($(CONFIG_$(SPL_TPL_)BUILD)$(CONFIG_$(SPL_TPL_)OF_PLATDATA),yy)
-obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += fdtdec_common.o
-obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += fdtdec.o
-endif
+obj-$(CONFIG_$(SPL_TPL_)OF_REAL) += fdtdec_common.o fdtdec.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o
-obj-$(CONFIG_$(SPL_TPL_)HASH_SUPPORT) += crc16.o
+obj-$(CONFIG_$(SPL_TPL_)HASH) += crc16.o
+obj-$(CONFIG_MMC_SPI_CRC_ON) += crc16.o
 obj-y += net_utils.o
 endif
 obj-$(CONFIG_ADDR_MAP) += addr_map.o
@@ -92,7 +96,7 @@ obj-y += display_options.o
 CFLAGS_display_options.o := $(if $(BUILD_TAG),-DBUILD_TAG='"$(BUILD_TAG)"')
 obj-$(CONFIG_BCH) += bch.o
 obj-$(CONFIG_MMC_SPI) += crc7.o
-obj-y += crc32.o
+obj-$(CONFIG_$(SPL_TPL_)CRC32) += crc32.o
 obj-$(CONFIG_CRC32C) += crc32c.o
 obj-y += ctype.o
 obj-y += div64.o
@@ -128,7 +132,9 @@ obj-$(CONFIG_OID_REGISTRY) += oid_registry.o
 obj-$(CONFIG_SSCANF) += sscanf.o
 endif
 
+obj-y += abuf.o
 obj-y += date.o
+obj-y += rtc-lib.o
 obj-$(CONFIG_LIB_ELF) += elf.o
 
 #

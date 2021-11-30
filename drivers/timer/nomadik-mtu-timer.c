@@ -67,14 +67,11 @@ static int nomadik_mtu_probe(struct udevice *dev)
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct nomadik_mtu_priv *priv = dev_get_priv(dev);
 	struct nomadik_mtu_regs *mtu;
-	fdt_addr_t addr;
 	u32 prescale;
 
-	addr = dev_read_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
+	mtu = dev_read_addr_ptr(dev);
+	if (!mtu)
 		return -EINVAL;
-
-	mtu = (struct nomadik_mtu_regs *)addr;
 	priv->timer = mtu->timers; /* Use first timer */
 
 	if (!uc_priv->clock_rate)
@@ -107,7 +104,7 @@ U_BOOT_DRIVER(nomadik_mtu) = {
 	.name = "nomadik_mtu",
 	.id = UCLASS_TIMER,
 	.of_match = nomadik_mtu_ids,
-	.priv_auto_alloc_size = sizeof(struct nomadik_mtu_priv),
+	.priv_auto	= sizeof(struct nomadik_mtu_priv),
 	.probe = nomadik_mtu_probe,
 	.ops = &nomadik_mtu_ops,
 };

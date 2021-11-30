@@ -13,6 +13,7 @@ obj-y += version.o
 
 # command
 obj-$(CONFIG_CMD_ACPI) += acpi.o
+obj-$(CONFIG_CMD_ADDRMAP) += addrmap.o
 obj-$(CONFIG_CMD_AES) += aes.o
 obj-$(CONFIG_CMD_AB_SELECT) += ab_select.o
 obj-$(CONFIG_CMD_ADC) += adc.o
@@ -53,6 +54,7 @@ obj-$(CONFIG_CMD_DIAG) += diag.o
 endif
 obj-$(CONFIG_CMD_ADTIMG) += adtimg.o
 obj-$(CONFIG_CMD_ABOOTIMG) += abootimg.o
+obj-$(CONFIG_CMD_EXTENSION) += extension_board.o
 obj-$(CONFIG_CMD_ECHO) += echo.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
 obj-$(CONFIG_CMD_EEPROM) += eeprom.o
@@ -120,7 +122,8 @@ endif
 obj-$(CONFIG_CMD_PINMUX) += pinmux.o
 obj-$(CONFIG_CMD_PMC) += pmc.o
 obj-$(CONFIG_CMD_PSTORE) += pstore.o
-obj-$(CONFIG_CMD_PXE) += pxe.o pxe_utils.o
+obj-$(CONFIG_CMD_PWM) += pwm.o
+obj-$(CONFIG_CMD_PXE) += pxe.o
 obj-$(CONFIG_CMD_WOL) += wol.o
 obj-$(CONFIG_CMD_QFW) += qfw.o
 obj-$(CONFIG_CMD_READ) += read.o
@@ -138,10 +141,12 @@ obj-$(CONFIG_CMD_SF) += sf.o
 obj-$(CONFIG_CMD_SCSI) += scsi.o disk.o
 obj-$(CONFIG_CMD_SHA1SUM) += sha1sum.o
 obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
+obj-$(CONFIG_CMD_SETEXPR_FMT) += printf.o
 obj-$(CONFIG_CMD_SPI) += spi.o
 obj-$(CONFIG_CMD_STRINGS) += strings.o
 obj-$(CONFIG_CMD_SMC) += smccc.o
-obj-$(CONFIG_CMD_SYSBOOT) += sysboot.o pxe_utils.o
+obj-$(CONFIG_CMD_SYSBOOT) += sysboot.o
+obj-$(CONFIG_CMD_STACKPROTECTOR_TEST) += stackprot_test.o
 obj-$(CONFIG_CMD_TERMINAL) += terminal.o
 obj-$(CONFIG_CMD_TIME) += time.o
 obj-$(CONFIG_CMD_TIMER) += timer.o
@@ -178,6 +183,7 @@ obj-$(CONFIG_CMD_ZFS) += zfs.o
 
 obj-$(CONFIG_CMD_DFU) += dfu.o
 obj-$(CONFIG_CMD_GPT) += gpt.o
+obj-$(CONFIG_CMD_MBR) += mbr.o
 obj-$(CONFIG_CMD_ETHSW) += ethsw.o
 obj-$(CONFIG_CMD_AXI) += axi.o
 obj-$(CONFIG_CMD_PVBLOCK) += pvblock.o
@@ -191,8 +197,12 @@ obj-$(CONFIG_CMD_BLOB) += blob.o
 # Android Verified Boot 2.0
 obj-$(CONFIG_CMD_AVB) += avb.o
 
+# Foundries.IO SCP03
+obj-$(CONFIG_CMD_SCP03) += scp03.o
+
 obj-$(CONFIG_ARM) += arm/
 obj-$(CONFIG_RISCV) += riscv/
+obj-$(CONFIG_SANDBOX) += sandbox/
 obj-$(CONFIG_X86) += x86/
 
 obj-$(CONFIG_ARCH_MVEBU) += mvebu/

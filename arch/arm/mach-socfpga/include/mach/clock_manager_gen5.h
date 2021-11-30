@@ -96,11 +96,9 @@ struct cm_config {
 #define CLKMGR_PERPLL_EN			CLKMGR_GEN5_PERPLL_EN
 
 /* Clock speed accessors */
-unsigned long cm_get_mpu_clk_hz(void);
 unsigned long cm_get_sdram_clk_hz(void);
 unsigned int cm_get_l4_sp_clk_hz(void);
 unsigned int cm_get_mmc_controller_clk_hz(void);
-unsigned int cm_get_qspi_controller_clk_hz(void);
 unsigned int cm_get_spi_controller_clk_hz(void);
 const unsigned int cm_get_osc_clk_hz(const int osc);
 const unsigned int cm_get_f2s_per_ref_clk_hz(void);

@@ -1,5 +1,5 @@
 GONI BOARD
-M:	Robert Baldyga <r.baldyga@samsung.com>
+M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
 F:	board/samsung/goni/
 F:	include/configs/s5p_goni.h

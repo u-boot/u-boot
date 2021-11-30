@@ -3,6 +3,7 @@
  * Copyright 2014 Broadcom Corporation.
  */
 
+#include <compiler.h>
 #include <part.h>
 #include <sparse_format.h>
 

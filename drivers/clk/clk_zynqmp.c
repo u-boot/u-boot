@@ -712,7 +712,7 @@ int soc_clk_dump(void)
 	int i, ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-		DM_GET_DRIVER(zynqmp_clk), &dev);
+		DM_DRIVER_GET(zynqmp_clk), &dev);
 	if (ret)
 		return ret;
 
@@ -813,6 +813,7 @@ static int zynqmp_clk_enable(struct clk *clk)
 		mask = 0x3;
 		break;
 	case qspi_ref ... can1_ref:
+	case lpd_lsbus:
 		clkact_shift = 24;
 		mask = 0x1;
 		break;
@@ -853,5 +854,5 @@ U_BOOT_DRIVER(zynqmp_clk) = {
 	.of_match = zynqmp_clk_ids,
 	.probe = zynqmp_clk_probe,
 	.ops = &zynqmp_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct zynqmp_clk_priv),
+	.priv_auto	= sizeof(struct zynqmp_clk_priv),
 };

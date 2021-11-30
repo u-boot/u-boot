@@ -57,7 +57,7 @@
 	};
 };
 
-&sdmmc2_d47_pins_b {
+&sdmmc2_d47_pins_c {
 	u-boot,dm-spl;
 	pins {
 		u-boot,dm-spl;

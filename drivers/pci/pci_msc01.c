@@ -4,7 +4,7 @@
  * Author: Paul Burton <paul.burton@mips.com>
  */
 
-#include <common.h>
+#include <dm.h>
 #include <init.h>
 #include <msc01.h>
 #include <pci.h>
@@ -62,64 +62,70 @@ static int msc01_config_access(struct msc01_pci_controller *msc01,
 	return 0;
 }
 
-static int msc01_read_config_dword(struct pci_controller *hose, pci_dev_t dev,
-				   int where, u32 *value)
+static int msc01_pci_read_config(const struct udevice *dev, pci_dev_t bdf,
+				 uint where, ulong *val, enum pci_size_t size)
 {
-	struct msc01_pci_controller *msc01 = hose_to_msc01(hose);
+	struct msc01_pci_controller *msc01 = dev_get_priv(dev);
+	u32 data = 0;
 
-	*value = 0xffffffff;
-	return msc01_config_access(msc01, PCI_ACCESS_READ, dev, where, value);
+	if (msc01_config_access(msc01, PCI_ACCESS_READ, bdf, where, &data)) {
+		*val = pci_get_ff(size);
+		return 0;
+	}
+
+	*val = pci_conv_32_to_size(data, where, size);
+
+	return 0;
 }
 
-static int msc01_write_config_dword(struct pci_controller *hose, pci_dev_t dev,
-				    int where, u32 value)
+static int msc01_pci_write_config(struct udevice *dev, pci_dev_t bdf,
+				  uint where, ulong val, enum pci_size_t size)
 {
-	struct msc01_pci_controller *gt = hose_to_msc01(hose);
-	u32 data = value;
+	struct msc01_pci_controller *msc01 = dev_get_priv(dev);
+	u32 data = 0;
 
-	return msc01_config_access(gt, PCI_ACCESS_WRITE, dev, where, &data);
+	if (size == PCI_SIZE_32) {
+		data = val;
+	} else {
+		u32 old;
+
+		if (msc01_config_access(msc01, PCI_ACCESS_READ, bdf, where, &old))
+			return 0;
+
+		data = pci_conv_size_to_32(old, val, where, size);
+	}
+
+	msc01_config_access(msc01, PCI_ACCESS_WRITE, bdf, where, &data);
+
+	return 0;
 }
 
-void msc01_pci_init(void *base, unsigned long sys_bus, unsigned long sys_phys,
-		    unsigned long sys_size, unsigned long mem_bus,
-		    unsigned long mem_phys, unsigned long mem_size,
-		    unsigned long io_bus, unsigned long io_phys,
-		    unsigned long io_size)
+static int msc01_pci_probe(struct udevice *dev)
 {
-	static struct msc01_pci_controller global_msc01;
-	struct msc01_pci_controller *msc01;
-	struct pci_controller *hose;
+	struct msc01_pci_controller *msc01 = dev_get_priv(dev);
 
-	msc01 = &global_msc01;
-	msc01->base = base;
+	msc01->base = dev_remap_addr(dev);
+	if (!msc01->base)
+		return -EINVAL;
 
-	hose = &msc01->hose;
-
-	hose->first_busno = 0;
-	hose->last_busno = 0;
-
-	/* System memory space */
-	pci_set_region(&hose->regions[0], sys_bus, sys_phys, sys_size,
-		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-
-	/* PCI memory space */
-	pci_set_region(&hose->regions[1], mem_bus, mem_phys, mem_size,
-		       PCI_REGION_MEM);
-
-	/* PCI I/O space */
-	pci_set_region(&hose->regions[2], io_bus, io_phys, io_size,
-		       PCI_REGION_IO);
-
-	hose->region_count = 3;
-
-	pci_set_ops(hose,
-		    pci_hose_read_config_byte_via_dword,
-		    pci_hose_read_config_word_via_dword,
-		    msc01_read_config_dword,
-		    pci_hose_write_config_byte_via_dword,
-		    pci_hose_write_config_word_via_dword,
-		    msc01_write_config_dword);
-
-	pci_register_hose(hose);
-	hose->last_busno = pci_hose_scan(hose);
+	return 0;
 }
+
+static const struct dm_pci_ops msc01_pci_ops = {
+	.read_config	= msc01_pci_read_config,
+	.write_config	= msc01_pci_write_config,
+};
+
+static const struct udevice_id msc01_pci_ids[] = {
+	{ .compatible = "mips,pci-msc01" },
+	{ }
+};
+
+U_BOOT_DRIVER(msc01_pci) = {
+	.name		= "msc01_pci",
+	.id		= UCLASS_PCI,
+	.of_match	= msc01_pci_ids,
+	.ops		= &msc01_pci_ops,
+	.probe		= msc01_pci_probe,
+	.priv_auto	= sizeof(struct msc01_pci_controller),
+};

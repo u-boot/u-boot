@@ -661,8 +661,8 @@ static int do_ubi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return 1;
 		}
 
-		addr = simple_strtoul(argv[2], NULL, 16);
-		size = simple_strtoul(argv[4], NULL, 16);
+		addr = hextoul(argv[2], NULL);
+		size = hextoul(argv[4], NULL);
 
 		if (strlen(argv[1]) == 10 &&
 		    strncmp(argv[1] + 5, ".part", 5) == 0) {
@@ -671,7 +671,7 @@ static int do_ubi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 						(void *)addr, size);
 			} else {
 				size_t full_size;
-				full_size = simple_strtoul(argv[5], NULL, 16);
+				full_size = hextoul(argv[5], NULL);
 				ret = ubi_volume_begin_write(argv[3],
 						(void *)addr, size, full_size);
 			}
@@ -691,13 +691,13 @@ static int do_ubi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		/* E.g., read volume size */
 		if (argc == 5) {
-			size = simple_strtoul(argv[4], NULL, 16);
+			size = hextoul(argv[4], NULL);
 			argc--;
 		}
 
 		/* E.g., read volume */
 		if (argc == 4) {
-			addr = simple_strtoul(argv[2], NULL, 16);
+			addr = hextoul(argv[2], NULL);
 			argc--;
 		}
 

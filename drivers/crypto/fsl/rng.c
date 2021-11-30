@@ -83,6 +83,6 @@ U_BOOT_DRIVER(caam_rng) = {
 	.id = UCLASS_RNG,
 	.ops = &caam_rng_ops,
 	.probe = caam_rng_probe,
-	.priv_auto_alloc_size = sizeof(struct caam_rng_priv),
+	.priv_auto	= sizeof(struct caam_rng_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

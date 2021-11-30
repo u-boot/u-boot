@@ -14,6 +14,7 @@
 #include <net.h>
 #include <status_led.h>
 #include <cpsw.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #include <asm/arch/sys_proto.h>

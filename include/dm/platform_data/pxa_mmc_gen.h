@@ -9,7 +9,7 @@
 #include <mmc.h>
 
 /*
- * struct pxa_mmc_platdata - information about a PXA MMC controller
+ * struct pxa_mmc_plat - information about a PXA MMC controller
  *
  * @base:	MMC controller base register address
  */

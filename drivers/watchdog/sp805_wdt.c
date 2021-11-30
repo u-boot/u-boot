@@ -6,6 +6,7 @@
  */
 
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <common.h>
 #include <clk.h>
@@ -105,12 +106,12 @@ static int sp805_wdt_expire_now(struct udevice *dev, ulong flags)
 
 static int sp805_wdt_probe(struct udevice *dev)
 {
-	debug("%s: Probing wdt%u (sp805-wdt)\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u (sp805-wdt)\n", __func__, dev_seq(dev));
 
 	return 0;
 }
 
-static int sp805_wdt_ofdata_to_platdata(struct udevice *dev)
+static int sp805_wdt_of_to_plat(struct udevice *dev)
 {
 	struct sp805_wdt_priv *priv = dev_get_priv(dev);
 	struct clk clk;
@@ -133,7 +134,7 @@ static const struct wdt_ops sp805_wdt_ops = {
 };
 
 static const struct udevice_id sp805_wdt_ids[] = {
-	{ .compatible = "arm,sp805-wdt" },
+	{ .compatible = "arm,sp805" },
 	{}
 };
 
@@ -142,7 +143,7 @@ U_BOOT_DRIVER(sp805_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = sp805_wdt_ids,
 	.probe = sp805_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct sp805_wdt_priv),
-	.ofdata_to_platdata = sp805_wdt_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct sp805_wdt_priv),
+	.of_to_plat = sp805_wdt_of_to_plat,
 	.ops = &sp805_wdt_ops,
 };

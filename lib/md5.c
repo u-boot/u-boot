@@ -55,7 +55,7 @@ byteReverse(unsigned char *buf, unsigned longs)
  * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
  * initialization constants.
  */
-static void
+void
 MD5Init(struct MD5Context *ctx)
 {
 	ctx->buf[0] = 0x67452301;
@@ -71,7 +71,7 @@ MD5Init(struct MD5Context *ctx)
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-static void
+void
 MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
 {
 	register __u32 t;
@@ -120,7 +120,7 @@ MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
  * Final wrapup - pad to 64-byte boundary with the bit pattern
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
-static void
+void
 MD5Final(unsigned char digest[16], struct MD5Context *ctx)
 {
 	unsigned int count;
@@ -284,12 +284,12 @@ md5 (unsigned char *input, int len, unsigned char output[16])
  * watchdog every 'chunk_sz' bytes of input processed.
  */
 void
-md5_wd (unsigned char *input, int len, unsigned char output[16],
+md5_wd(const unsigned char *input, unsigned int len, unsigned char output[16],
 	unsigned int chunk_sz)
 {
 	struct MD5Context context;
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	unsigned char *end, *curr;
+	const unsigned char *end, *curr;
 	int chunk;
 #endif
 

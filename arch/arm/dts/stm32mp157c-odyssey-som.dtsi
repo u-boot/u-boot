@@ -258,16 +258,23 @@
 	status = "okay";
 };
 
+&rng1 {
+	status = "okay";
+};
+
 &sdmmc2 {
 	pinctrl-names = "default", "opendrain", "sleep";
-	pinctrl-0 = <&sdmmc2_b4_pins_a>;
-	pinctrl-1 = <&sdmmc2_b4_od_pins_a>;
-	pinctrl-2 = <&sdmmc2_b4_sleep_pins_a>;
-	broken-cd;
-	disable-wp;
+	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_d>;
+	pinctrl-1 = <&sdmmc2_b4_od_pins_a &sdmmc2_d47_pins_d>;
+	pinctrl-2 = <&sdmmc2_b4_sleep_pins_a &sdmmc2_d47_sleep_pins_d>;
+	non-removable;
+	no-sd;
+	no-sdio;
 	st,neg-edge;
-	bus-width = <4>;
+	bus-width = <8>;
 	vmmc-supply = <&v3v3>;
+	vqmmc-supply = <&vdd>;
+	mmc-ddr-3_3v;
 	status = "okay";
 };
 

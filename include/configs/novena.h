@@ -41,8 +41,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-#define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
-
 /* SPL */
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 
@@ -52,20 +50,10 @@
 #endif
 
 /* I2C */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
 /* I2C EEPROM */
-#ifdef CONFIG_CMD_EEPROM
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
-#define CONFIG_SYS_I2C_EEPROM_BUS	2
-#endif
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
@@ -80,8 +68,6 @@
 #endif
 
 /* PMIC */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
@@ -115,10 +101,10 @@
 	"bootdev=/dev/mmcblk0p1\0"					\
 	"rootdev=/dev/mmcblk0p2\0"					\
 	"netdev=eth0\0"							\
-	"kernel_addr_r="__stringify(CONFIG_LOADADDR)"\0"		\
-	"pxefile_addr_r="__stringify(CONFIG_LOADADDR)"\0"		\
-	"scriptaddr="__stringify(CONFIG_LOADADDR)"\0"			\
-	"ramdisk_addr_r=0x28000000\0"		   			\
+	"kernel_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"		\
+	"pxefile_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"		\
+	"scriptaddr="__stringify(CONFIG_SYS_LOAD_ADDR)"\0"			\
+	"ramdisk_addr_r=0x28000000\0"					\
 	"fdt_addr_r=0x18000000\0"					\
 	"fdtfile=imx6q-novena.dtb\0"					\
 	"stdout=serial,vidconsole\0"					\

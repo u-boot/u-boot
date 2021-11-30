@@ -9,6 +9,7 @@
 #include <env.h>
 #include <init.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>

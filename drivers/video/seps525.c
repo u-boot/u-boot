@@ -299,7 +299,7 @@ static int seps525_probe(struct udevice *dev)
 
 static int seps525_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	plat->size = WIDTH * HEIGHT * 16;
 
@@ -320,8 +320,8 @@ U_BOOT_DRIVER(seps525_video) = {
 	.id = UCLASS_VIDEO,
 	.of_match = seps525_ids,
 	.ops = &seps525_ops,
-	.platdata_auto_alloc_size = sizeof(struct video_uc_platdata),
+	.plat_auto = sizeof(struct video_uc_plat),
 	.bind = seps525_bind,
 	.probe = seps525_probe,
-	.priv_auto_alloc_size = sizeof(struct seps525_priv),
+	.priv_auto = sizeof(struct seps525_priv),
 };

@@ -61,6 +61,6 @@ int mscc_pinctrl_probe(struct udevice *dev, int num_func,
 		       const struct mscc_pin_data *mscc_pins, int num_pins,
 		       char * const *function_names,
 		       const unsigned long *mscc_gpios);
-const struct pinctrl_ops mscc_pinctrl_ops;
+extern const struct pinctrl_ops mscc_pinctrl_ops;
 
-const struct dm_gpio_ops mscc_gpio_ops;
+extern const struct dm_gpio_ops mscc_gpio_ops;

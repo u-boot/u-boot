@@ -18,8 +18,8 @@ static int do_pcap_init(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 3)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[1], NULL, 16);
-	size = simple_strtoul(argv[2], NULL, 10);
+	addr = hextoul(argv[1], NULL);
+	size = dectoul(argv[2], NULL);
 
 	return pcap_init(addr, size) ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }

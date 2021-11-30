@@ -44,6 +44,7 @@ struct ehci_hcor {
 #define STS_ASS		(1 << 15)
 #define	STS_PSS		(1 << 14)
 #define STS_HALT	(1 << 12)
+#define STS_IAA		(1 << 5)
 	uint32_t or_usbintr;
 #define INTR_UE         (1 << 0)                /* USB interrupt enable */
 #define INTR_UEE        (1 << 1)                /* USB error interrupt enable */

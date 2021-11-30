@@ -8,6 +8,7 @@
 #include <env.h>
 #include <init.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <stdio.h>
 #include <linux/printk.h>
@@ -65,7 +66,7 @@ static void uniphier_set_env_addr(const char *env, const char *offset_env)
 		if (!str)
 			goto fail;
 
-		offset = simple_strtoul(str, &end, 16);
+		offset = hextoul(str, &end);
 		if (*end)
 			goto fail;
 	}

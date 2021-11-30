@@ -214,6 +214,6 @@ U_BOOT_DRIVER(uniphier_i2c) = {
 	.id = UCLASS_I2C,
 	.of_match = uniphier_i2c_of_match,
 	.probe = uniphier_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_i2c_priv),
+	.priv_auto	= sizeof(struct uniphier_i2c_priv),
 	.ops = &uniphier_i2c_ops,
 };

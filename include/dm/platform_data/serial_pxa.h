@@ -40,13 +40,13 @@
 #endif
 
 /*
- * struct pxa_serial_platdata - information about a PXA port
+ * struct pxa_serial_plat - information about a PXA port
  *
  * @base:	Uart port base register address
  * @port:	Uart port index, for cpu with pinmux for uart / gpio
  * baudrtatre:	Uart port baudrate
  */
-struct pxa_serial_platdata {
+struct pxa_serial_plat {
 	struct pxa_uart_regs *base;
 	int port;
 	int baudrate;

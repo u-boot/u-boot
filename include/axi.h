@@ -7,6 +7,8 @@
 #ifndef _AXI_H_
 #define _AXI_H_
 
+struct udevice;
+
 /**
  * enum axi_size_t - Determine size of AXI transfer
  * @AXI_SIZE_8:  AXI sransfer is 8-bit wide

@@ -7,13 +7,16 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
+#include <button.h>
 #include <clk.h>
 #include <dm.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <led.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <linux/string.h>
@@ -43,6 +46,8 @@
 #define SFP_GPIO_PATH	"/soc/internal-regs@d0000000/spi@10600/moxtet@1/gpio@0"
 #define PCIE_PATH	"/soc/pcie@d0070000"
 #define SFP_PATH	"/sfp"
+#define LED_PATH	"/leds/led"
+#define BUTTON_PATH	"/gpio-keys/reset"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -215,13 +220,13 @@ int comphy_update_map(struct comphy_map *serdes_map, int count)
 
 	if (sfpindex >= 0 && swindex >= 0) {
 		if (sfpindex < swindex)
-			serdes_map[0].speed = PHY_SPEED_1_25G;
+			serdes_map[0].speed = COMPHY_SPEED_1_25G;
 		else
-			serdes_map[0].speed = PHY_SPEED_3_125G;
+			serdes_map[0].speed = COMPHY_SPEED_3_125G;
 	} else if (sfpindex >= 0) {
-		serdes_map[0].speed = PHY_SPEED_1_25G;
+		serdes_map[0].speed = COMPHY_SPEED_1_25G;
 	} else if (swindex >= 0) {
-		serdes_map[0].speed = PHY_SPEED_3_125G;
+		serdes_map[0].speed = COMPHY_SPEED_3_125G;
 	}
 
 	return 0;
@@ -354,62 +359,162 @@ static int get_reset_gpio(struct gpio_desc *reset_gpio)
 
 int misc_init_r(void)
 {
-	int ret;
-	u8 mac1[6], mac2[6];
+	u8 mac[2][6];
+	int i, ret;
 
-	ret = mbox_sp_get_board_info(NULL, mac1, mac2, NULL, NULL);
+	ret = mbox_sp_get_board_info(NULL, mac[0], mac[1], NULL, NULL);
 	if (ret < 0) {
 		printf("Cannot read data from OTP!\n");
 		return 0;
 	}
 
-	if (is_valid_ethaddr(mac1) && !env_get("ethaddr"))
-		eth_env_set_enetaddr("ethaddr", mac1);
+	for (i = 0; i < 2; ++i) {
+		u8 oldmac[6];
 
-	if (is_valid_ethaddr(mac2) && !env_get("eth1addr"))
-		eth_env_set_enetaddr("eth1addr", mac2);
+		if (is_valid_ethaddr(mac[i]) &&
+		    !eth_env_get_enetaddr_by_index("eth", i, oldmac))
+			eth_env_set_enetaddr_by_index("eth", i, mac[i]);
+	}
 
 	return 0;
 }
 
-static void mox_print_info(void)
+static void mox_phy_modify(struct phy_device *phydev, int page, int reg,
+			   u16 mask, u16 set)
 {
-	int ret, board_version, ram_size;
-	u64 serial_number;
+	int val;
+
+	val = phydev->drv->readext(phydev, MDIO_DEVAD_NONE, page, reg);
+	val &= ~mask;
+	val |= set;
+	phydev->drv->writeext(phydev, MDIO_DEVAD_NONE, page, reg, val);
+}
+
+static void mox_phy_leds_start_blinking(void)
+{
+	struct phy_device *phydev;
+	struct mii_dev *bus;
+
+	bus = miiphy_get_dev_by_name("neta@30000");
+	if (!bus) {
+		printf("Cannot get MDIO bus device!\n");
+		return;
+	}
+
+	phydev = phy_find_by_mask(bus, BIT(1), PHY_INTERFACE_MODE_RGMII);
+	if (!phydev) {
+		printf("Cannot get ethernet PHY!\n");
+		return;
+	}
+
+	mox_phy_modify(phydev, 3, 0x12, 0x700, 0x400);
+	mox_phy_modify(phydev, 3, 0x10, 0xff, 0xbb);
+}
+
+static bool read_reset_button(void)
+{
+	struct udevice *button, *led;
+	int i;
+
+	if (device_get_global_by_ofnode(ofnode_path(BUTTON_PATH), &button)) {
+		printf("Cannot find reset button!\n");
+		return false;
+	}
+
+	if (device_get_global_by_ofnode(ofnode_path(LED_PATH), &led)) {
+		printf("Cannot find status LED!\n");
+		return false;
+	}
+
+	led_set_state(led, LEDST_ON);
+
+	for (i = 0; i < 21; ++i) {
+		if (button_get_state(button) != BUTTON_ON)
+			return false;
+		if (i < 20)
+			mdelay(50);
+	}
+
+	led_set_state(led, LEDST_OFF);
+
+	return true;
+}
+
+static void handle_reset_button(void)
+{
+	const char * const vars[1] = { "bootcmd_rescue", };
+
+	/*
+	 * Ensure that bootcmd_rescue has always stock value, so that running
+	 *   run bootcmd_rescue
+	 * always works correctly.
+	 */
+	env_set_default_vars(1, (char * const *)vars, 0);
+
+	if (read_reset_button()) {
+		const char * const vars[2] = {
+			"bootcmd",
+			"distro_bootcmd",
+		};
+
+		/*
+		 * Set the above envs to their default values, in case the user
+		 * managed to break them.
+		 */
+		env_set_default_vars(2, (char * const *)vars, 0);
+
+		/* Ensure bootcmd_rescue is used by distroboot */
+		env_set("boot_targets", "rescue");
+
+		/* start blinking PHY LEDs */
+		mox_phy_leds_start_blinking();
+
+		printf("RESET button was pressed, overwriting boot_targets!\n");
+	} else {
+		/*
+		 * In case the user somehow managed to save environment with
+		 * boot_targets=rescue, reset boot_targets to default value.
+		 * This could happen in subsequent commands if bootcmd_rescue
+		 * failed.
+		 */
+		if (!strcmp(env_get("boot_targets"), "rescue")) {
+			const char * const vars[1] = {
+				"boot_targets",
+			};
+
+			env_set_default_vars(1, (char * const *)vars, 0);
+		}
+	}
+}
+
+int show_board_info(void)
+{
+	int i, ret, board_version, ram_size, is_sd;
 	const char *pub_key;
+	const u8 *topology;
+	u64 serial_number;
+
+	printf("Model: CZ.NIC Turris Mox Board\n");
 
 	ret = mbox_sp_get_board_info(&serial_number, NULL, NULL, &board_version,
 				     &ram_size);
-	if (ret < 0)
-		return;
-
-	printf("Turris Mox:\n");
-	printf("  Board version: %i\n", board_version);
-	printf("  RAM size: %i MiB\n", ram_size);
-	printf("  Serial Number: %016llX\n", serial_number);
+	if (ret < 0) {
+		printf("  Cannot read board info: %i\n", ret);
+	} else {
+		printf("  Board version: %i\n", board_version);
+		printf("  RAM size: %i MiB\n", ram_size);
+		printf("  Serial Number: %016llX\n", serial_number);
+	}
 
 	pub_key = mox_sp_get_ecdsa_public_key();
 	if (pub_key)
 		printf("  ECDSA Public Key: %s\n", pub_key);
 	else
-		printf("Cannot read ECDSA Public Key\n");
-}
-
-int last_stage_init(void)
-{
-	int ret, i;
-	const u8 *topology;
-	int is_sd;
-	struct mii_dev *bus;
-	struct gpio_desc reset_gpio = {};
-
-	mox_print_info();
+		printf("  Cannot read ECDSA Public Key\n");
 
 	ret = mox_get_topology(&topology, &module_count, &is_sd);
-	if (ret) {
+	if (ret)
 		printf("Cannot read module topology!\n");
-		return 0;
-	}
 
 	printf("  SD/eMMC version: %s\n", is_sd ? "SD" : "eMMC");
 
@@ -441,8 +546,7 @@ int last_stage_init(void)
 		}
 	}
 
-	/* now check if modules are connected in supported mode */
-
+	/* check if modules are connected in supported mode */
 	for (i = 0; i < module_count; ++i) {
 		switch (topology[i]) {
 		case MOX_MODULE_SFP:
@@ -503,10 +607,19 @@ int last_stage_init(void)
 		}
 	}
 
-	/* now configure modules */
+	if (module_count)
+		printf("\n");
 
+	return 0;
+}
+
+int last_stage_init(void)
+{
+	struct gpio_desc reset_gpio = {};
+
+	/* configure modules */
 	if (get_reset_gpio(&reset_gpio) < 0)
-		return 0;
+		goto handle_reset_btn;
 
 	if (peridot > 0) {
 		if (configure_peridots(&reset_gpio) < 0) {
@@ -520,16 +633,19 @@ int last_stage_init(void)
 		mdelay(50);
 	}
 
+	/*
+	 * check if the addresses are set by reading Scratch & Misc register
+	 * 0x70 of Peridot (and potentially Topaz) modules
+	 */
 	if (peridot || topaz) {
-		/*
-		 * now check if the addresses are set by reading Scratch & Misc
-		 * register 0x70 of Peridot (and potentially Topaz) modules
-		 */
+		struct mii_dev *bus;
 
 		bus = miiphy_get_dev_by_name("neta@30000");
 		if (!bus) {
 			printf("Cannot get MDIO bus device!\n");
 		} else {
+			int i;
+
 			for (i = 0; i < peridot; ++i)
 				check_switch_address(bus, 0x10 + i);
 
@@ -540,7 +656,8 @@ int last_stage_init(void)
 		}
 	}
 
-	printf("\n");
+handle_reset_btn:
+	handle_reset_button();
 
 	return 0;
 }

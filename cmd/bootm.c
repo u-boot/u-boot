@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <nand.h>
 #include <asm/byteorder.h>
+#include <asm/global_data.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
 #include <u-boot/zlib.h>
@@ -111,7 +112,7 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc > 0) {
 		char *endp;
 
-		simple_strtoul(argv[0], &endp, 16);
+		hextoul(argv[0], &endp);
 		/* endp pointing to NULL means that argv[0] was just a
 		 * valid number, pass it along to the normal bootm processing
 		 *
@@ -239,7 +240,7 @@ static int do_iminfo(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	for (arg = 1; arg < argc; ++arg) {
-		addr = simple_strtoul(argv[arg], NULL, 16);
+		addr = hextoul(argv[arg], NULL);
 		if (image_info(addr) != 0)
 			rcode = 1;
 	}

@@ -20,14 +20,9 @@
  * This can be any arbitrary address as we are using PIE, but
  * please note, that CONFIG_SYS_TEXT_BASE must match the below.
  */
-#define CONFIG_SYS_LOAD_ADDR                    0x40000000
 #define CONFIG_LNX_KRNL_IMG_TEXT_OFFSET_BASE    CONFIG_SYS_LOAD_ADDR
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN         (32 * 1024 * 1024)
-
 /* Monitor Command Prompt */
-#define CONFIG_SYS_PROMPT_HUSH_PS2    "> "
 #define CONFIG_SYS_CBSIZE             1024
 #define CONFIG_SYS_MAXARGS            64
 #define CONFIG_SYS_BARGSIZE           CONFIG_SYS_CBSIZE

@@ -7,6 +7,7 @@
 #include <image.h>
 #include <log.h>
 #include <spl.h>
+#include <asm/arch/spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
@@ -326,10 +327,13 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	int ret = 0;
 	struct image_header *header;
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);
+	int load_offset = readl(SPL_ADDR + 0x10);
+
+	load_offset = max(load_offset, CONFIG_SYS_SPI_U_BOOT_OFFS);
 
 	spi0_init();
 
-	spi0_read_data((void *)header, CONFIG_SYS_SPI_U_BOOT_OFFS, 0x40);
+	spi0_read_data((void *)header, load_offset, 0x40);
 
         if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 		image_get_magic(header) == FDT_MAGIC) {
@@ -342,14 +346,14 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 		load.bl_len = 1;
 		load.read = spi_load_read;
 		ret = spl_load_simple_fit(spl_image, &load,
-					  CONFIG_SYS_SPI_U_BOOT_OFFS, header);
+					  load_offset, header);
 	} else {
 		ret = spl_parse_image_header(spl_image, header);
 		if (ret)
 			return ret;
 
 		spi0_read_data((void *)spl_image->load_addr,
-			       CONFIG_SYS_SPI_U_BOOT_OFFS, spl_image->size);
+			       load_offset, spl_image->size);
 	}
 
 	spi0_deinit();

@@ -531,7 +531,7 @@
 &epwmss2 {
 	status = "okay";
 
-	ecap2: ecap@48304100 {
+	ecap2: ecap@100 {
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&ecap2_pins>;
@@ -723,4 +723,9 @@
 
 &lcdc {
       status = "okay";
+};
+
+&rtc {
+	clocks = <&clk_32768_ck>, <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
+	clock-names = "ext-clk", "int-clk";
 };

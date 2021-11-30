@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "mx6sxsabresd"
 
+config IMX_CONFIG
+	default "board/freescale/mx6sxsabresd/imximage.cfg"
+
 endif

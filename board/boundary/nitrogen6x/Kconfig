@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "nitrogen6x"
 
+config DDR_MB
+	int "Memory size in MB"
+
 endif

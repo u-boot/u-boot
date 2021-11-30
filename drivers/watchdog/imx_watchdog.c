@@ -44,7 +44,7 @@ static void imx_watchdog_expire_now(struct watchdog_regs *wdog, bool ext_reset)
 
 #if !defined(CONFIG_IMX_WATCHDOG) || \
     (defined(CONFIG_IMX_WATCHDOG) && !CONFIG_IS_ENABLED(WDT))
-void __attribute__((weak)) reset_cpu(ulong addr)
+void __attribute__((weak)) reset_cpu(void)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 
@@ -169,7 +169,7 @@ U_BOOT_DRIVER(imx_wdt) = {
 	.of_match	= imx_wdt_ids,
 	.probe		= imx_wdt_probe,
 	.ops		= &imx_wdt_ops,
-	.priv_auto_alloc_size = sizeof(struct imx_wdt_priv),
+	.priv_auto	= sizeof(struct imx_wdt_priv),
 	.flags		= DM_FLAG_PRE_RELOC,
 };
 #endif

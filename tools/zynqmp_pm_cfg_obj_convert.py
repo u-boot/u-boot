@@ -289,7 +289,7 @@ code = in_file.read()
 code = re.sub('//.*?\n|/\*.*?\*/', '', code, flags=re.DOTALL)
 
 # remove everything outside the XPm_ConfigObject array definition
-code = re.search('const u32 XPm_ConfigObject.*= {\n(.*)};',
+code = re.search('const u32 XPm_ConfigObject.*=.*{\n(.*)};',
                  code, flags=re.DOTALL).group(1)
 
 # Process each comma-separated array item

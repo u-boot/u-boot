@@ -24,15 +24,16 @@
 typedef phys_addr_t fdt_addr_t;
 typedef phys_size_t fdt_size_t;
 
-#ifdef CONFIG_PHYS_64BIT
 #define FDT_ADDR_T_NONE (-1U)
+#define FDT_SIZE_T_NONE (-1U)
+
+#ifdef CONFIG_PHYS_64BIT
 #define fdt_addr_to_cpu(reg) be64_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be64_to_cpu(reg)
 #define cpu_to_fdt_addr(reg) cpu_to_be64(reg)
 #define cpu_to_fdt_size(reg) cpu_to_be64(reg)
 typedef fdt64_t fdt_val_t;
 #else
-#define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be32_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be32_to_cpu(reg)
 #define cpu_to_fdt_addr(reg) cpu_to_be32(reg)
@@ -52,10 +53,6 @@ struct bd_info;
 #define SPL_BUILD	1
 #else
 #define SPL_BUILD	0
-#endif
-
-#ifdef CONFIG_OF_PRIOR_STAGE
-extern phys_addr_t prior_stage_fdt_address;
 #endif
 
 /*
@@ -139,8 +136,6 @@ enum fdt_compat_id {
 					/* Tegra124 XUSB pad controller */
 	COMPAT_NVIDIA_TEGRA210_XUSB_PADCTL,
 					/* Tegra210 XUSB pad controller */
-	COMPAT_SMSC_LAN9215,		/* SMSC 10/100 Ethernet LAN9215 */
-	COMPAT_SAMSUNG_EXYNOS5_SROMC,	/* Exynos5 SROMC */
 	COMPAT_SAMSUNG_EXYNOS_USB_PHY,	/* Exynos phy controller for usb2.0 */
 	COMPAT_SAMSUNG_EXYNOS5_USB3_PHY,/* Exynos phy controller for usb3.0 */
 	COMPAT_SAMSUNG_EXYNOS_TMU,	/* Exynos TMU */
@@ -747,39 +742,6 @@ int fdtdec_get_bool(const void *blob, int node, const char *prop_name);
  */
 int fdtdec_get_child_count(const void *blob, int node);
 
-/**
- * Look in the FDT for a config item with the given name and return its value
- * as a 32-bit integer. The property must have at least 4 bytes of data. The
- * value of the first cell is returned.
- *
- * @param blob		FDT blob to use
- * @param prop_name	Node property name
- * @param default_val	default value to return if the property is not found
- * @return integer value, if found, or default_val if not
- */
-int fdtdec_get_config_int(const void *blob, const char *prop_name,
-		int default_val);
-
-/**
- * Look in the FDT for a config item with the given name
- * and return whether it exists.
- *
- * @param blob		FDT blob
- * @param prop_name	property name to look up
- * @return 1, if it exists, or 0 if not
- */
-int fdtdec_get_config_bool(const void *blob, const char *prop_name);
-
-/**
- * Look in the FDT for a config item with the given name and return its value
- * as a string.
- *
- * @param blob          FDT blob
- * @param prop_name     property name to look up
- * @returns property string, NULL on error.
- */
-char *fdtdec_get_config_string(const void *blob, const char *prop_name);
-
 /*
  * Look up a property in a node and return its contents in a byte
  * array of given length. The property must have at least enough data for
@@ -1011,6 +973,9 @@ static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
 	return fdt_setprop_u32(blob, node, "phandle", phandle);
 }
 
+/* add "no-map" property */
+#define FDTDEC_RESERVED_MEMORY_NO_MAP (1 << 0)
+
 /**
  * fdtdec_add_reserved_memory() - add or find a reserved-memory node
  *
@@ -1029,7 +994,8 @@ static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
  *     };
  *     uint32_t phandle;
  *
- *     fdtdec_add_reserved_memory(fdt, "framebuffer", &fb, &phandle, false);
+ *     fdtdec_add_reserved_memory(fdt, "framebuffer", &fb, NULL, 0, &phandle,
+ *                                0);
  *
  * This results in the following subnode being added to the top-level
  * /reserved-memory node:
@@ -1054,14 +1020,17 @@ static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
  * @param blob		FDT blob
  * @param basename	base name of the node to create
  * @param carveout	information about the carveout region
+ * @param compatibles	list of compatible strings for the carveout region
+ * @param count		number of compatible strings for the carveout region
  * @param phandlep	return location for the phandle of the carveout region
  *			can be NULL if no phandle should be added
- * @param no_map	add "no-map" property if true
+ * @param flags		bitmask of flags to set for the carveout region
  * @return 0 on success or a negative error code on failure
  */
 int fdtdec_add_reserved_memory(void *blob, const char *basename,
 			       const struct fdt_memory *carveout,
-			       uint32_t *phandlep, bool no_map);
+			       const char **compatibles, unsigned int count,
+			       uint32_t *phandlep, unsigned long flags);
 
 /**
  * fdtdec_get_carveout() - reads a carveout from an FDT
@@ -1072,14 +1041,21 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
  *
  * @param blob		FDT blob
  * @param node		name of a node
- * @param name		name of the property in the given node that contains
+ * @param prop_name	name of the property in the given node that contains
  *			the phandle for the carveout
  * @param index		index of the phandle for which to read the carveout
  * @param carveout	return location for the carveout information
+ * @param name		return location for the carveout name
+ * @param compatiblesp	return location for compatible strings
+ * @param countp	return location for the number of compatible strings
+ * @param flags		return location for the flags of the carveout
  * @return 0 on success or a negative error code on failure
  */
-int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
-			unsigned int index, struct fdt_memory *carveout);
+int fdtdec_get_carveout(const void *blob, const char *node,
+			const char *prop_name, unsigned int index,
+			struct fdt_memory *carveout, const char **name,
+			const char ***compatiblesp, unsigned int *countp,
+			unsigned long *flags);
 
 /**
  * fdtdec_set_carveout() - sets a carveout region for a given node
@@ -1097,7 +1073,8 @@ int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
  *         .end = 0x934b2fff,
  *     };
  *
- *     fdtdec_set_carveout(fdt, node, "memory-region", 0, "framebuffer", &fb);
+ *     fdtdec_set_carveout(fdt, node, "memory-region", 0, "framebuffer", NULL,
+ *                         0, &fb, 0);
  *
  * dc@54200000 is a display controller and was set up by the bootloader to
  * scan out the framebuffer specified by "fb". This would cause the following
@@ -1134,13 +1111,17 @@ int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
  * @param prop_name	name of the property in which to store the phandle of
  *			the carveout
  * @param index		index of the phandle to store
- * @param name		base name of the reserved-memory node to create
  * @param carveout	information about the carveout to add
+ * @param name		base name of the reserved-memory node to create
+ * @param compatibles	compatible strings to set for the carveout
+ * @param count		number of compatible strings
+ * @param flags		bitmask of flags to set for the carveout
  * @return 0 on success or a negative error code on failure
  */
 int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
-			unsigned int index, const char *name,
-			const struct fdt_memory *carveout);
+			unsigned int index, const struct fdt_memory *carveout,
+			const char *name, const char **compatibles,
+			unsigned int count, unsigned long flags);
 
 /**
  * Set up the device tree ready for use
@@ -1177,8 +1158,10 @@ int fdtdec_resetup(int *rescan);
  * Board-specific FDT initialization. Returns the address to a device tree blob.
  * Called when CONFIG_OF_BOARD is defined, or if CONFIG_OF_SEPARATE is defined
  * and the board implements it.
+ *
+ * @err internal error code if we fail to setup a DTB
  */
-void *board_fdt_blob_setup(void);
+void *board_fdt_blob_setup(int *err);
 
 /*
  * Decode the size of memory

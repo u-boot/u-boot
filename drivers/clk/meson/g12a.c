@@ -120,7 +120,9 @@ static struct meson_gate gates[NUM_CLKS] = {
 	MESON_GATE(CLKID_SD_EMMC_C, HHI_GCLK_MPEG0, 26),
 	MESON_GATE(CLKID_ETH, HHI_GCLK_MPEG1, 3),
 	MESON_GATE(CLKID_UART1, HHI_GCLK_MPEG1, 16),
+	MESON_GATE(CLKID_PCIE_COMB, HHI_GCLK_MPEG1, 24),
 	MESON_GATE(CLKID_USB, HHI_GCLK_MPEG1, 25),
+	MESON_GATE(CLKID_PCIE_PHY, HHI_GCLK_MPEG1, 27),
 	MESON_GATE(CLKID_HTX_PCLK, HHI_GCLK_MPEG2, 4),
 	MESON_GATE(CLKID_USB1_DDR_BRIDGE, HHI_GCLK_MPEG2, 8),
 	MESON_GATE(CLKID_VPU_INTR, HHI_GCLK_MPEG2, 25),
@@ -979,7 +981,7 @@ static int meson_clk_probe(struct udevice *dev)
 {
 	struct meson_clk *priv = dev_get_priv(dev);
 
-	priv->map = syscon_node_to_regmap(dev_get_parent(dev)->node);
+	priv->map = syscon_node_to_regmap(dev_ofnode(dev_get_parent(dev)));
 	if (IS_ERR(priv->map))
 		return PTR_ERR(priv->map);
 
@@ -1014,7 +1016,7 @@ U_BOOT_DRIVER(meson_clk_g12a) = {
 	.name		= "meson_clk_g12a",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct meson_clk),
+	.priv_auto	= sizeof(struct meson_clk),
 	.ops		= &meson_clk_ops,
 	.probe		= meson_clk_probe,
 };

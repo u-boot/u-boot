@@ -88,7 +88,7 @@ clear_var_mtrr:
 	 *  MTRR_PHYS_MASK_HIGH = 0000000FFh  For 40 bit addressing
 	 */
 
-	movl	$0x80000008, %eax 	/* Address sizes leaf */
+	movl	$0x80000008, %eax	/* Address sizes leaf */
 	cpuid
 	sub	$32, %al
 	movzx	%al, %eax

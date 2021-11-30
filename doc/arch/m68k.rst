@@ -72,7 +72,7 @@ A bash script similar to the one below may be used:
 
    export CROSS_COMPILE=/opt/toolchains/m68k/gcc-4.9.0-nolibc/bin/m68k-linux-
 
-   board=M5475DFE
+   board=M5249EVB
 
    make distclean
    make ${board}_defconfig

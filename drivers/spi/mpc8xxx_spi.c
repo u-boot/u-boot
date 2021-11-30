@@ -48,7 +48,7 @@ struct mpc8xxx_priv {
 
 #define SPI_TIMEOUT	1000
 
-static int mpc8xxx_spi_ofdata_to_platdata(struct udevice *dev)
+static int mpc8xxx_spi_of_to_plat(struct udevice *dev)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev);
 	struct clk clk;
@@ -107,17 +107,17 @@ static int mpc8xxx_spi_probe(struct udevice *dev)
 static void mpc8xxx_spi_cs_activate(struct udevice *dev)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev->parent);
-	struct dm_spi_slave_platdata *platdata = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 
-	dm_gpio_set_value(&priv->gpios[platdata->cs], 1);
+	dm_gpio_set_value(&priv->gpios[plat->cs], 1);
 }
 
 static void mpc8xxx_spi_cs_deactivate(struct udevice *dev)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev->parent);
-	struct dm_spi_slave_platdata *platdata = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 
-	dm_gpio_set_value(&priv->gpios[platdata->cs], 0);
+	dm_gpio_set_value(&priv->gpios[plat->cs], 0);
 }
 
 static int mpc8xxx_spi_xfer(struct udevice *dev, uint bitlen,
@@ -126,16 +126,16 @@ static int mpc8xxx_spi_xfer(struct udevice *dev, uint bitlen,
 	struct udevice *bus = dev->parent;
 	struct mpc8xxx_priv *priv = dev_get_priv(bus);
 	spi8xxx_t *spi = priv->spi;
-	struct dm_spi_slave_platdata *platdata = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 	u32 tmpdin = 0, tmpdout = 0, n;
 	const u8 *cout = dout;
 	u8 *cin = din;
 
 	debug("%s: slave %s:%u dout %08X din %08X bitlen %u\n", __func__,
-	      bus->name, platdata->cs, (uint)dout, (uint)din, bitlen);
-	if (platdata->cs >= priv->cs_count) {
+	      bus->name, plat->cs, (uint)dout, (uint)din, bitlen);
+	if (plat->cs >= priv->cs_count) {
 		dev_err(dev, "chip select index %d too large (cs_count=%d)\n",
-			platdata->cs, priv->cs_count);
+			plat->cs, priv->cs_count);
 		return -EINVAL;
 	}
 	if (bitlen % 8) {
@@ -279,7 +279,7 @@ U_BOOT_DRIVER(mpc8xxx_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = mpc8xxx_spi_ids,
 	.ops	= &mpc8xxx_spi_ops,
-	.ofdata_to_platdata = mpc8xxx_spi_ofdata_to_platdata,
+	.of_to_plat = mpc8xxx_spi_of_to_plat,
 	.probe	= mpc8xxx_spi_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc8xxx_priv),
+	.priv_auto	= sizeof(struct mpc8xxx_priv),
 };

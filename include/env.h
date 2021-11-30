@@ -91,17 +91,6 @@ int env_init(void);
 void env_relocate(void);
 
 /**
- * env_match() - Match a name / name=value pair
- *
- * This is used prior to relocation for finding envrionment variables
- *
- * @name: A simple 'name', or a 'name=value' pair.
- * @index: The environment index for a 'name2=value2' pair.
- * @return index for the value if the names match, else -1.
- */
-int env_match(unsigned char *name, int index);
-
-/**
  * env_get() - Look up the value of an environment variable
  *
  * In U-Boot proper this can be called before relocation (which is when the
@@ -131,7 +120,8 @@ char *from_env(const char *envvar);
  * support reading the value (slowly) and some will not.
  *
  * @varname:	Variable to look up
- * @return value of variable, or NULL if not found
+ * @return actual length of the variable value excluding the terminating
+ *	NULL-byte, or -1 if the variable is not found
  */
 int env_get_f(const char *name, char *buf, unsigned int len);
 
@@ -328,8 +318,6 @@ int env_export(struct environment_s *env_out);
  * @buf2_read_fail: 0 if buf2 is valid, non-zero if invalid
  * @return 0 if OK,
  *	-EIO if no environment is valid,
- *	-EINVAL if read of second entry is good
- *	-ENOENT if read of first entry is good
  *	-ENOMSG if the CRC was bad
  */
 
@@ -362,19 +350,24 @@ char *env_get_default(const char *name);
 void env_set_default(const char *s, int flags);
 
 /**
- * env_get_char() - Get a character from the early environment
- *
- * This reads from the pre-relocation environment
- *
- * @index: Index of character to read (0 = first)
- * @return character read, or -ve on error
- */
-int env_get_char(int index);
-
-/**
  * env_reloc() - Relocate the 'env' sub-commands
  *
  * This is used for those unfortunate archs with crappy toolchains
  */
 void env_reloc(void);
+
+
+/**
+ * env_import_fdt() - Import environment values from device tree blob
+ *
+ * This uses the value of the environment variable "env_fdt_path" as a
+ * path to an fdt node, whose property/value pairs are added to the
+ * environment.
+ */
+#ifdef CONFIG_ENV_IMPORT_FDT
+void env_import_fdt(void);
+#else
+static inline void env_import_fdt(void) {}
+#endif
+
 #endif

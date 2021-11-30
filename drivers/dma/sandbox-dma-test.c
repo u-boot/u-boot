@@ -280,5 +280,5 @@ U_BOOT_DRIVER(sandbox_dma) = {
 	.of_match = sandbox_dma_ids,
 	.ops	= &sandbox_dma_ops,
 	.probe = sandbox_dma_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_dma_dev),
+	.priv_auto	= sizeof(struct sandbox_dma_dev),
 };

@@ -109,7 +109,7 @@ static int vexpress_config_probe(struct udevice *dev)
 	if (!priv)
 		return -ENOMEM;
 
-	dev->uclass_priv = priv;
+	dev_get_uclass_priv(dev) = priv;
 	priv->addr = ofnode_get_addr(args.node);
 
 	return dev_read_u32(dev, "arm,vexpress,site", &priv->site);

@@ -11,6 +11,8 @@
 #include <asm/unaligned.h>
 #include <linux/bitops.h>
 #include <u-boot/crc.h>
+#include <u-boot/sha256.h>
+#include "sandbox_common.h"
 
 /* Hierarchies */
 enum tpm2_hierarchy {
@@ -38,28 +40,177 @@ enum tpm2_cap_tpm_property {
 
 #define SANDBOX_TPM_PCR_NB 1
 
-static const u8 sandbox_extended_once_pcr[] = {
-	0xf5, 0xa5, 0xfd, 0x42, 0xd1, 0x6a, 0x20, 0x30,
-	0x27, 0x98, 0xef, 0x6e, 0xd3, 0x09, 0x97, 0x9b,
-	0x43, 0x00, 0x3d, 0x23, 0x20, 0xd9, 0xf0, 0xe8,
-	0xea, 0x98, 0x31, 0xa9, 0x27, 0x59, 0xfb, 0x4b,
-};
-
+/*
+ * Information about our TPM emulation. This is preserved in the sandbox
+ * state file if enabled.
+ *
+ * @valid: true if this is valid (only used in s_state)
+ * @init_done: true if open() has been called
+ * @startup_done: true if TPM2_CC_STARTUP has been processed
+ * @tests_done: true if TPM2_CC_SELF_TEST has be processed
+ * @pw: TPM password per hierarchy
+ * @pw_sz: Size of each password in bytes
+ * @properties: TPM properties
+ * @pcr: TPM Platform Configuration Registers. Each of these holds a hash and
+ *	can be 'extended' a number of times, meaning another hash is added into
+ *	its value (initial value all zeroes)
+ * @pcr_extensions: Number of times each PCR has been extended (starts at 0)
+ * @nvdata: non-volatile data, used to store important things for the platform
+ */
 struct sandbox_tpm2 {
+	bool valid;
 	/* TPM internal states */
 	bool init_done;
 	bool startup_done;
 	bool tests_done;
-	/* TPM password per hierarchy */
 	char pw[TPM2_HIERARCHY_NB][TPM2_DIGEST_LEN + 1];
 	int pw_sz[TPM2_HIERARCHY_NB];
-	/* TPM properties */
 	u32 properties[TPM2_PROPERTY_NB];
-	/* TPM PCRs */
 	u8 pcr[SANDBOX_TPM_PCR_NB][TPM2_DIGEST_LEN];
-	/* TPM PCR extensions */
 	u32 pcr_extensions[SANDBOX_TPM_PCR_NB];
+	struct nvdata_state nvdata[NV_SEQ_COUNT];
 };
+
+static struct sandbox_tpm2 s_state, *g_state;
+
+/**
+ * sandbox_tpm2_read_state() - read the sandbox EC state from the state file
+ *
+ * If data is available, then blob and node will provide access to it. If
+ * not this function sets up an empty TPM.
+ *
+ * @blob: Pointer to device tree blob, or NULL if no data to read
+ * @node: Node offset to read from
+ */
+static int sandbox_tpm2_read_state(const void *blob, int node)
+{
+	struct sandbox_tpm2 *state = &s_state;
+	char prop_name[20];
+	const char *prop;
+	int len;
+	int i;
+
+	if (!blob)
+		return 0;
+	state->tests_done = fdtdec_get_int(blob, node, "tests-done", 0);
+
+	for (i = 0; i < TPM2_HIERARCHY_NB; i++) {
+		snprintf(prop_name, sizeof(prop_name), "pw%d", i);
+
+		prop = fdt_getprop(blob, node, prop_name, &len);
+		if (len > TPM2_DIGEST_LEN)
+			return log_msg_ret("pw", -E2BIG);
+		if (prop) {
+			memcpy(state->pw[i], prop, len);
+			state->pw_sz[i] = len;
+		}
+	}
+
+	for (i = 0; i < TPM2_PROPERTY_NB; i++) {
+		snprintf(prop_name, sizeof(prop_name), "properties%d", i);
+		state->properties[i] = fdtdec_get_uint(blob, node, prop_name,
+						       0);
+	}
+
+	for (i = 0; i < SANDBOX_TPM_PCR_NB; i++) {
+		int subnode;
+
+		snprintf(prop_name, sizeof(prop_name), "pcr%d", i);
+		subnode = fdt_subnode_offset(blob, node, prop_name);
+		if (subnode < 0)
+			continue;
+		prop = fdt_getprop(blob, subnode, "value", &len);
+		if (len != TPM2_DIGEST_LEN)
+			return log_msg_ret("pcr", -E2BIG);
+		memcpy(state->pcr[i], prop, TPM2_DIGEST_LEN);
+		state->pcr_extensions[i] = fdtdec_get_uint(blob, subnode,
+							   "extensions", 0);
+	}
+
+	for (i = 0; i < NV_SEQ_COUNT; i++) {
+		struct nvdata_state *nvd = &state->nvdata[i];
+
+		sprintf(prop_name, "nvdata%d", i);
+		prop = fdt_getprop(blob, node, prop_name, &len);
+		if (len > NV_DATA_SIZE)
+			return log_msg_ret("nvd", -E2BIG);
+		if (prop) {
+			memcpy(nvd->data, prop, len);
+			nvd->length = len;
+			nvd->present = true;
+		}
+	}
+	s_state.valid = true;
+
+	return 0;
+}
+
+/**
+ * sandbox_tpm2_write_state() - Write out our state to the state file
+ *
+ * The caller will ensure that there is a node ready for the state. The node
+ * may already contain the old state, in which case it is overridden.
+ *
+ * @blob: Device tree blob holding state
+ * @node: Node to write our state into
+ */
+static int sandbox_tpm2_write_state(void *blob, int node)
+{
+	const struct sandbox_tpm2 *state = g_state;
+	char prop_name[20];
+	int i;
+
+	if (!state)
+		return 0;
+
+	/*
+	 * We are guaranteed enough space to write basic properties. This is
+	 * SANDBOX_STATE_MIN_SPACE.
+	 *
+	 * We could use fdt_add_subnode() to put each set of data in its
+	 * own node - perhaps useful if we add access information to each.
+	 */
+	fdt_setprop_u32(blob, node, "tests-done", state->tests_done);
+
+	for (i = 0; i < TPM2_HIERARCHY_NB; i++) {
+		if (state->pw_sz[i]) {
+			snprintf(prop_name, sizeof(prop_name), "pw%d", i);
+			fdt_setprop(blob, node, prop_name, state->pw[i],
+				    state->pw_sz[i]);
+		}
+	}
+
+	for (i = 0; i < TPM2_PROPERTY_NB; i++) {
+		snprintf(prop_name, sizeof(prop_name), "properties%d", i);
+		fdt_setprop_u32(blob, node, prop_name, state->properties[i]);
+	}
+
+	for (i = 0; i < SANDBOX_TPM_PCR_NB; i++) {
+		int subnode;
+
+		snprintf(prop_name, sizeof(prop_name), "pcr%d", i);
+		subnode = fdt_add_subnode(blob, node, prop_name);
+		fdt_setprop(blob, subnode, "value", state->pcr[i],
+			    TPM2_DIGEST_LEN);
+		fdt_setprop_u32(blob, subnode, "extensions",
+				state->pcr_extensions[i]);
+	}
+
+	for (i = 0; i < NV_SEQ_COUNT; i++) {
+		const struct nvdata_state *nvd = &state->nvdata[i];
+
+		if (nvd->present) {
+			snprintf(prop_name, sizeof(prop_name), "nvdata%d", i);
+			fdt_setprop(blob, node, prop_name, nvd->data,
+				    nvd->length);
+		}
+	}
+
+	return 0;
+}
+
+SANDBOX_STATE_IO(sandbox_tpm2, "sandbox,tpm2", sandbox_tpm2_read_state,
+		 sandbox_tpm2_write_state);
 
 /*
  * Check the tag validity depending on the command (authentication required or
@@ -93,6 +244,10 @@ static int sandbox_tpm2_check_session(struct udevice *dev, u32 command, u16 tag,
 	case TPM2_CC_DAM_RESET:
 	case TPM2_CC_DAM_PARAMETERS:
 	case TPM2_CC_PCR_EXTEND:
+	case TPM2_CC_NV_READ:
+	case TPM2_CC_NV_WRITE:
+	case TPM2_CC_NV_WRITELOCK:
+	case TPM2_CC_NV_DEFINE_SPACE:
 		if (tag != TPM2_ST_SESSIONS) {
 			printf("Session required for command 0x%x\n", command);
 			return TPM2_RC_AUTH_CONTEXT;
@@ -121,6 +276,10 @@ static int sandbox_tpm2_check_session(struct udevice *dev, u32 command, u16 tag,
 			break;
 		case TPM2_RH_PLATFORM:
 			*hierarchy = TPM2_HIERARCHY_PLATFORM;
+			if (command == TPM2_CC_NV_READ ||
+			    command == TPM2_CC_NV_WRITE ||
+			    command == TPM2_CC_NV_WRITELOCK)
+				*auth += sizeof(u32);
 			break;
 		default:
 			printf("Wrong handle 0x%x\n", handle);
@@ -242,15 +401,17 @@ static int sandbox_tpm2_extend(struct udevice *dev, int pcr_index,
 			       const u8 *extension)
 {
 	struct sandbox_tpm2 *tpm = dev_get_priv(dev);
-	int i;
+	sha256_context ctx;
 
-	/* Only simulate the first extensions from all '0' with only '0' */
-	for (i = 0; i < TPM2_DIGEST_LEN; i++)
-		if (tpm->pcr[pcr_index][i] || extension[i])
-			return TPM2_RC_FAILURE;
+	/* Zero the PCR if this is the first use */
+	if (!tpm->pcr_extensions[pcr_index])
+		memset(tpm->pcr[pcr_index], '\0', TPM2_DIGEST_LEN);
 
-	memcpy(tpm->pcr[pcr_index], sandbox_extended_once_pcr,
-	       TPM2_DIGEST_LEN);
+	sha256_starts(&ctx);
+	sha256_update(&ctx, tpm->pcr[pcr_index], TPM2_DIGEST_LEN);
+	sha256_update(&ctx, extension, TPM2_DIGEST_LEN);
+	sha256_finish(&ctx, tpm->pcr[pcr_index]);
+
 	tpm->pcr_extensions[pcr_index]++;
 
 	return 0;
@@ -285,7 +446,7 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 	length = get_unaligned_be32(sent);
 	sent += sizeof(length);
 	if (length != send_size) {
-		printf("TPM2: Unmatching length, received: %ld, expected: %d\n",
+		printf("TPM2: Unmatching length, received: %zd, expected: %d\n",
 		       send_size, length);
 		rc = TPM2_RC_SIZE;
 		sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
@@ -477,15 +638,8 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 		for (i = 0; i < pcr_array_sz; i++)
 			pcr_map += (u64)sent[i] << (i * 8);
 
-		if (pcr_map >> SANDBOX_TPM_PCR_NB) {
-			printf("Sandbox TPM handles up to %d PCR(s)\n",
-			       SANDBOX_TPM_PCR_NB);
-			rc = TPM2_RC_VALUE;
-			return sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
-		}
-
 		if (!pcr_map) {
-			printf("Empty PCR map.\n");
+			printf("Empty PCR map\n");
 			rc = TPM2_RC_VALUE;
 			return sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
 		}
@@ -493,6 +647,13 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 		for (i = 0; i < SANDBOX_TPM_PCR_NB; i++)
 			if (pcr_map & BIT(i))
 				pcr_index = i;
+
+		if (pcr_index >= SANDBOX_TPM_PCR_NB) {
+			printf("Invalid index %d, sandbox TPM handles up to %d PCR(s)\n",
+			       pcr_index, SANDBOX_TPM_PCR_NB);
+			rc = TPM2_RC_VALUE;
+			return sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
+		}
 
 		/* Write tag */
 		put_unaligned_be16(tag, recv);
@@ -527,9 +688,9 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 		pcr_index = get_unaligned_be32(sendbuf + sizeof(tag) +
 					       sizeof(length) +
 					       sizeof(command));
-		if (pcr_index > SANDBOX_TPM_PCR_NB) {
-			printf("Sandbox TPM handles up to %d PCR(s)\n",
-			       SANDBOX_TPM_PCR_NB);
+		if (pcr_index >= SANDBOX_TPM_PCR_NB) {
+			printf("Invalid index %d, sandbox TPM handles up to %d PCR(s)\n",
+			       pcr_index, SANDBOX_TPM_PCR_NB);
 			rc = TPM2_RC_VALUE;
 		}
 
@@ -557,6 +718,64 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 		sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
 		break;
 
+	case TPM2_CC_NV_READ: {
+		int index, seq;
+
+		index = get_unaligned_be32(sendbuf + TPM2_HDR_LEN + 4);
+		length = get_unaligned_be16(sent);
+		/* ignore offset */
+		seq = sb_tpm_index_to_seq(index);
+		if (seq < 0)
+			return log_msg_ret("index", -EINVAL);
+		printf("tpm: nvread index=%#02x, len=%#02x, seq=%#02x\n", index,
+		       length, seq);
+		*recv_len = TPM2_HDR_LEN + 6 + length;
+		memset(recvbuf, '\0', *recv_len);
+		put_unaligned_be32(length, recvbuf + 2);
+		sb_tpm_read_data(tpm->nvdata, seq, recvbuf,
+				 TPM2_HDR_LEN + 4 + 2, length);
+		break;
+	}
+	case TPM2_CC_NV_WRITE: {
+		int index, seq;
+
+		index = get_unaligned_be32(sendbuf + TPM2_HDR_LEN + 4);
+		length = get_unaligned_be16(sent);
+		sent += sizeof(u16);
+
+		/* ignore offset */
+		seq = sb_tpm_index_to_seq(index);
+		if (seq < 0)
+			return log_msg_ret("index", -EINVAL);
+		printf("tpm: nvwrite index=%#02x, len=%#02x, seq=%#02x\n", index,
+		       length, seq);
+		memcpy(&tpm->nvdata[seq].data, sent, length);
+		tpm->nvdata[seq].present = true;
+		*recv_len = TPM2_HDR_LEN + 2;
+		memset(recvbuf, '\0', *recv_len);
+		break;
+	}
+	case TPM2_CC_NV_DEFINE_SPACE: {
+		int policy_size, index, seq;
+
+		policy_size = get_unaligned_be16(sent + 12);
+		index = get_unaligned_be32(sent + 2);
+		sent += 14 + policy_size;
+		length = get_unaligned_be16(sent);
+		seq = sb_tpm_index_to_seq(index);
+		if (seq < 0)
+			return -EINVAL;
+		printf("tpm: define_space index=%x, len=%x, seq=%x, policy_size=%x\n",
+		       index, length, seq, policy_size);
+		sb_tpm_define_data(tpm->nvdata, seq, length);
+		*recv_len = 12;
+		memset(recvbuf, '\0', *recv_len);
+		break;
+	}
+	case TPM2_CC_NV_WRITELOCK:
+		*recv_len = 12;
+		memset(recvbuf, '\0', *recv_len);
+		break;
 	default:
 		printf("TPM2 command %02x unknown in Sandbox\n", command);
 		rc = TPM2_RC_COMMAND_CODE;
@@ -594,10 +813,12 @@ static int sandbox_tpm2_probe(struct udevice *dev)
 	/* Use the TPM v2 stack */
 	priv->version = TPM_V2;
 
-	memset(tpm, 0, sizeof(*tpm));
-
 	priv->pcr_count = 32;
 	priv->pcr_select_min = 2;
+
+	if (s_state.valid)
+		memcpy(tpm, &s_state, sizeof(*tpm));
+	g_state = tpm;
 
 	return 0;
 }
@@ -625,5 +846,5 @@ U_BOOT_DRIVER(sandbox_tpm2) = {
 	.of_match = sandbox_tpm2_ids,
 	.ops    = &sandbox_tpm2_ops,
 	.probe	= sandbox_tpm2_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_tpm2),
+	.priv_auto	= sizeof(struct sandbox_tpm2),
 };

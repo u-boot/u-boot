@@ -11,9 +11,6 @@
 
 #include <environment/ti/spi.h>
 
-/* Platform type */
-#define CONFIG_SOC_K2HK
-
 #ifdef CONFIG_TI_SECURE_DEVICE
 #define DEFAULT_SEC_BOOT_ENV						\
 	DEFAULT_FIT_TI_ARGS						\
@@ -23,7 +20,7 @@
 #endif
 
 /* U-Boot general configuration */
-#define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+#define ENV_KS2_BOARD_SETTINGS						\
 	DEFAULT_FW_INITRAMFS_BOOT_ENV					\
 	DEFAULT_SEC_BOOT_ENV						\
 	"boot=ubi\0"							\
@@ -45,7 +42,5 @@
 /* Network */
 #define CONFIG_KSNET_NETCP_V1_0
 #define CONFIG_KSNET_CPSW_NUM_PORTS	5
-
-#define CONFIG_DDR_SPD
 
 #endif /* __CONFIG_K2HK_EVM_H */

@@ -22,6 +22,8 @@
 #define NVME_AQ_DEPTH		2
 #define NVME_SQ_SIZE(depth)	(depth * sizeof(struct nvme_command))
 #define NVME_CQ_SIZE(depth)	(depth * sizeof(struct nvme_completion))
+#define NVME_CQ_ALLOCATION	ALIGN(NVME_CQ_SIZE(NVME_Q_DEPTH), \
+				      ARCH_DMA_MINALIGN)
 #define ADMIN_TIMEOUT		60
 #define IO_TIMEOUT		30
 #define MAX_PRP_POOL		512
@@ -79,7 +81,7 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 	u64 *prp_pool;
 	int length = total_len;
 	int i, nprps;
-	u32 prps_per_page = (page_size >> 3) - 1;
+	u32 prps_per_page = page_size >> 3;
 	u32 num_pages;
 
 	length -= (page_size - offset);
@@ -144,12 +146,18 @@ static __le16 nvme_get_cmd_id(void)
 
 static u16 nvme_read_completion_status(struct nvme_queue *nvmeq, u16 index)
 {
-	u64 start = (ulong)&nvmeq->cqes[index];
-	u64 stop = start + sizeof(struct nvme_completion);
+	/*
+	 * Single CQ entries are always smaller than a cache line, so we
+	 * can't invalidate them individually. However CQ entries are
+	 * read only by the CPU, so it's safe to always invalidate all of them,
+	 * as the cache line should never become dirty.
+	 */
+	ulong start = (ulong)&nvmeq->cqes[0];
+	ulong stop = start + NVME_CQ_ALLOCATION;
 
 	invalidate_dcache_range(start, stop);
 
-	return le16_to_cpu(readw(&(nvmeq->cqes[index].status)));
+	return readw(&(nvmeq->cqes[index].status));
 }
 
 /**
@@ -213,7 +221,7 @@ static int nvme_submit_sync_cmd(struct nvme_queue *nvmeq,
 	}
 
 	if (result)
-		*result = le32_to_cpu(readl(&(nvmeq->cqes[head].result)));
+		*result = readl(&(nvmeq->cqes[head].result));
 
 	if (++head == nvmeq->q_depth) {
 		head = 0;
@@ -241,7 +249,7 @@ static struct nvme_queue *nvme_alloc_queue(struct nvme_dev *dev,
 		return NULL;
 	memset(nvmeq, 0, sizeof(*nvmeq));
 
-	nvmeq->cqes = (void *)memalign(4096, NVME_CQ_SIZE(depth));
+	nvmeq->cqes = (void *)memalign(4096, NVME_CQ_ALLOCATION);
 	if (!nvmeq->cqes)
 		goto free_nvmeq;
 	memset((void *)nvmeq->cqes, 0, NVME_CQ_SIZE(depth));
@@ -296,7 +304,7 @@ static int nvme_enable_ctrl(struct nvme_dev *dev)
 {
 	dev->ctrl_config &= ~NVME_CC_SHN_MASK;
 	dev->ctrl_config |= NVME_CC_ENABLE;
-	writel(cpu_to_le32(dev->ctrl_config), &dev->bar->cc);
+	writel(dev->ctrl_config, &dev->bar->cc);
 
 	return nvme_wait_ready(dev, true);
 }
@@ -305,7 +313,7 @@ static int nvme_disable_ctrl(struct nvme_dev *dev)
 {
 	dev->ctrl_config &= ~NVME_CC_SHN_MASK;
 	dev->ctrl_config &= ~NVME_CC_ENABLE;
-	writel(cpu_to_le32(dev->ctrl_config), &dev->bar->cc);
+	writel(dev->ctrl_config, &dev->bar->cc);
 
 	return nvme_wait_ready(dev, false);
 }
@@ -339,7 +347,7 @@ static void nvme_init_queue(struct nvme_queue *nvmeq, u16 qid)
 	nvmeq->q_db = &dev->dbs[qid * 2 * dev->db_stride];
 	memset((void *)nvmeq->cqes, 0, NVME_CQ_SIZE(nvmeq->q_depth));
 	flush_dcache_range((ulong)nvmeq->cqes,
-			   (ulong)nvmeq->cqes + NVME_CQ_SIZE(nvmeq->q_depth));
+			   (ulong)nvmeq->cqes + NVME_CQ_ALLOCATION);
 	dev->online_queues++;
 }
 
@@ -378,7 +386,6 @@ static int nvme_configure_admin_queue(struct nvme_dev *dev)
 	}
 
 	aqa = nvmeq->q_depth - 1;
-	aqa |= aqa << 16;
 	aqa |= aqa << 16;
 
 	dev->page_size = 1 << page_shift;
@@ -481,6 +488,7 @@ int nvme_get_features(struct nvme_dev *dev, unsigned fid, unsigned nsid,
 		      dma_addr_t dma_addr, u32 *result)
 {
 	struct nvme_command c;
+	int ret;
 
 	memset(&c, 0, sizeof(c));
 	c.features.opcode = nvme_admin_get_features;
@@ -488,12 +496,20 @@ int nvme_get_features(struct nvme_dev *dev, unsigned fid, unsigned nsid,
 	c.features.prp1 = cpu_to_le64(dma_addr);
 	c.features.fid = cpu_to_le32(fid);
 
+	ret = nvme_submit_admin_cmd(dev, &c, result);
+
 	/*
-	 * TODO: add cache invalidate operation when the size of
-	 * the DMA buffer is known
+	 * TODO: Add some cache invalidation when a DMA buffer is involved
+	 * in the request, here and before the command gets submitted. The
+	 * buffer size varies by feature, also some features use a different
+	 * field in the command packet to hold the buffer address.
+	 * Section 5.21.1 (Set Features command) in the NVMe specification
+	 * details the buffer requirements for each feature.
+	 *
+	 * At the moment there is no user of this function.
 	 */
 
-	return nvme_submit_admin_cmd(dev, &c, result);
+	return ret;
 }
 
 int nvme_set_features(struct nvme_dev *dev, unsigned fid, unsigned dword11,
@@ -508,8 +524,14 @@ int nvme_set_features(struct nvme_dev *dev, unsigned fid, unsigned dword11,
 	c.features.dword11 = cpu_to_le32(dword11);
 
 	/*
-	 * TODO: add cache flush operation when the size of
-	 * the DMA buffer is known
+	 * TODO: Add a cache clean (aka flush) operation when a DMA buffer is
+	 * involved in the request. The buffer size varies by feature, also
+	 * some features use a different field in the command packet to hold
+	 * the buffer address. Section 5.21.1 (Set Features command) in the
+	 * NVMe specification details the buffer requirements for each
+	 * feature.
+	 * At the moment the only user of this function is not using
+	 * any DMA buffer at all.
 	 */
 
 	return nvme_submit_admin_cmd(dev, &c, result);
@@ -673,20 +695,19 @@ int nvme_scan_namespace(void)
 static int nvme_blk_probe(struct udevice *udev)
 {
 	struct nvme_dev *ndev = dev_get_priv(udev->parent);
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	struct nvme_ns *ns = dev_get_priv(udev);
 	u8 flbas;
-	struct pci_child_platdata *pplat;
+	struct pci_child_plat *pplat;
 	struct nvme_id_ns *id;
 
 	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));
 	if (!id)
 		return -ENOMEM;
 
-	memset(ns, 0, sizeof(*ns));
 	ns->dev = ndev;
 	/* extract the namespace id from the block device name */
-	ns->ns_id = trailing_strtol(udev->name) + 1;
+	ns->ns_id = trailing_strtol(udev->name);
 	if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)(long)id)) {
 		free(id);
 		return -EIO;
@@ -696,15 +717,13 @@ static int nvme_blk_probe(struct udevice *udev)
 	flbas = id->flbas & NVME_NS_FLBAS_LBA_MASK;
 	ns->flbas = flbas;
 	ns->lba_shift = id->lbaf[flbas].ds;
-	ns->mode_select_num_blocks = le64_to_cpu(id->nsze);
-	ns->mode_select_block_len = 1 << ns->lba_shift;
 	list_add(&ns->list, &ndev->namespaces);
 
-	desc->lba = ns->mode_select_num_blocks;
+	desc->lba = le64_to_cpu(id->nsze);
 	desc->log2blksz = ns->lba_shift;
 	desc->blksz = 1 << ns->lba_shift;
 	desc->bdev = udev;
-	pplat = dev_get_parent_platdata(udev->parent);
+	pplat = dev_get_parent_plat(udev->parent);
 	sprintf(desc->vendor, "0x%.4x", pplat->vendor);
 	memcpy(desc->product, ndev->serial, sizeof(ndev->serial));
 	memcpy(desc->revision, ndev->firmware_rev, sizeof(ndev->firmware_rev));
@@ -719,11 +738,12 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	struct nvme_ns *ns = dev_get_priv(udev);
 	struct nvme_dev *dev = ns->dev;
 	struct nvme_command c;
-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	int status;
 	u64 prp2;
 	u64 total_len = blkcnt << desc->log2blksz;
 	u64 temp_len = total_len;
+	uintptr_t temp_buffer = (uintptr_t)buffer;
 
 	u64 slba = blknr;
 	u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
@@ -751,19 +771,19 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 		}
 
 		if (nvme_setup_prps(dev, &prp2,
-				    lbas << ns->lba_shift, (ulong)buffer))
+				    lbas << ns->lba_shift, temp_buffer))
 			return -EIO;
 		c.rw.slba = cpu_to_le64(slba);
 		slba += lbas;
 		c.rw.length = cpu_to_le16(lbas - 1);
-		c.rw.prp1 = cpu_to_le64((ulong)buffer);
+		c.rw.prp1 = cpu_to_le64(temp_buffer);
 		c.rw.prp2 = cpu_to_le64(prp2);
 		status = nvme_submit_sync_cmd(dev->queues[NVME_IO_Q],
 				&c, NULL, IO_TIMEOUT);
 		if (status)
 			break;
 		temp_len -= (u32)lbas << ns->lba_shift;
-		buffer += lbas << ns->lba_shift;
+		temp_buffer += lbas << ns->lba_shift;
 	}
 
 	if (read)
@@ -795,7 +815,7 @@ U_BOOT_DRIVER(nvme_blk) = {
 	.id	= UCLASS_BLK,
 	.probe	= nvme_blk_probe,
 	.ops	= &nvme_blk_ops,
-	.priv_auto_alloc_size = sizeof(struct nvme_ns),
+	.priv_auto	= sizeof(struct nvme_ns),
 };
 
 static int nvme_bind(struct udevice *udev)
@@ -812,6 +832,7 @@ static int nvme_probe(struct udevice *udev)
 {
 	int ret;
 	struct nvme_dev *ndev = dev_get_priv(udev);
+	struct nvme_id_ns *id;
 
 	ndev->instance = trailing_strtol(udev->name);
 
@@ -856,8 +877,46 @@ static int nvme_probe(struct udevice *udev)
 
 	nvme_get_info_from_identify(ndev);
 
+	/* Create a blk device for each namespace */
+
+	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));
+	if (!id) {
+		ret = -ENOMEM;
+		goto free_queue;
+	}
+
+	for (int i = 1; i <= ndev->nn; i++) {
+		struct udevice *ns_udev;
+		char name[20];
+
+		memset(id, 0, sizeof(*id));
+		if (nvme_identify(ndev, i, 0, (dma_addr_t)(long)id)) {
+			ret = -EIO;
+			goto free_id;
+		}
+
+		/* skip inactive namespace */
+		if (!id->nsze)
+			continue;
+
+		/*
+		 * Encode the namespace id to the device name so that
+		 * we can extract it when doing the probe.
+		 */
+		sprintf(name, "blk#%d", i);
+
+		/* The real blksz and size will be set by nvme_blk_probe() */
+		ret = blk_create_devicef(udev, "nvme-blk", name, IF_TYPE_NVME,
+					 -1, 512, 0, &ns_udev);
+		if (ret)
+			goto free_id;
+	}
+
+	free(id);
 	return 0;
 
+free_id:
+	free(id);
 free_queue:
 	free((void *)ndev->queues);
 free_nvme:
@@ -869,7 +928,7 @@ U_BOOT_DRIVER(nvme) = {
 	.id	= UCLASS_NVME,
 	.bind	= nvme_bind,
 	.probe	= nvme_probe,
-	.priv_auto_alloc_size = sizeof(struct nvme_dev),
+	.priv_auto	= sizeof(struct nvme_dev),
 };
 
 struct pci_device_id nvme_supported[] = {

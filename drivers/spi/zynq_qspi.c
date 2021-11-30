@@ -14,6 +14,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <spi-mem.h>
@@ -95,7 +96,7 @@ struct zynq_qspi_regs {
 };
 
 /* zynq qspi platform data */
-struct zynq_qspi_platdata {
+struct zynq_qspi_plat {
 	struct zynq_qspi_regs *regs;
 	u32 frequency;          /* input frequency */
 	u32 speed_hz;
@@ -123,9 +124,9 @@ struct zynq_qspi_priv {
 	unsigned is_strip:1;
 };
 
-static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
+static int zynq_qspi_of_to_plat(struct udevice *bus)
 {
-	struct zynq_qspi_platdata *plat = bus->platdata;
+	struct zynq_qspi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	int is_dual;
@@ -284,7 +285,7 @@ static int zynq_qspi_child_pre_probe(struct udevice *bus)
 {
 	struct spi_slave *slave = dev_get_parent_priv(bus);
 	struct zynq_qspi_priv *priv = dev_get_priv(bus->parent);
-	struct zynq_qspi_platdata *plat = dev_get_platdata(bus->parent);
+	struct zynq_qspi_plat *plat = dev_get_plat(bus->parent);
 
 	slave->option = priv->is_dual;
 	slave->dio = priv->is_dio;
@@ -295,7 +296,7 @@ static int zynq_qspi_child_pre_probe(struct udevice *bus)
 
 static int zynq_qspi_probe(struct udevice *bus)
 {
-	struct zynq_qspi_platdata *plat = dev_get_platdata(bus);
+	struct zynq_qspi_plat *plat = dev_get_plat(bus);
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
 	struct clk clk;
 	unsigned long clock;
@@ -739,7 +740,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	priv->cs = slave_plat->cs;
 	priv->tx_buf = dout;
@@ -747,7 +748,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 	priv->len = bitlen / 8;
 
 	debug("zynq_qspi_xfer: bus:%i cs:%i bitlen:%i len:%i flags:%lx\n",
-	      bus->seq, slave_plat->cs, bitlen, priv->len, flags);
+	      dev_seq(bus), slave_plat->cs, bitlen, priv->len, flags);
 
 	/*
 	 * Festering sore.
@@ -777,7 +778,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 {
-	struct zynq_qspi_platdata *plat = bus->platdata;
+	struct zynq_qspi_plat *plat = dev_get_plat(bus);
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
 	struct zynq_qspi_regs *regs = priv->regs;
 	uint32_t confr;
@@ -865,7 +866,7 @@ static int zynq_qspi_exec_op(struct spi_slave *slave,
 			tx_buf = op->data.buf.out;
 	}
 
-	op_len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
+	op_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 
 	u8 op_buf[op_len];
 
@@ -937,9 +938,9 @@ U_BOOT_DRIVER(zynq_qspi) = {
 	.id     = UCLASS_SPI,
 	.of_match = zynq_qspi_ids,
 	.ops    = &zynq_qspi_ops,
-	.ofdata_to_platdata = zynq_qspi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct zynq_qspi_platdata),
-	.priv_auto_alloc_size = sizeof(struct zynq_qspi_priv),
+	.of_to_plat = zynq_qspi_of_to_plat,
+	.plat_auto	= sizeof(struct zynq_qspi_plat),
+	.priv_auto	= sizeof(struct zynq_qspi_priv),
 	.probe  = zynq_qspi_probe,
 	.child_pre_probe = zynq_qspi_child_pre_probe,
 };

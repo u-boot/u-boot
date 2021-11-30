@@ -81,7 +81,15 @@ struct bb_miiphy_bus {
 extern struct bb_miiphy_bus bb_miiphy_buses[];
 extern int bb_miiphy_buses_num;
 
-void bb_miiphy_init(void);
+/**
+ * bb_miiphy_init() - Initialize bit-banged MII bus driver
+ *
+ * It is called during the generic post-relocation init sequence.
+ *
+ * Return: 0 if OK
+ */
+int bb_miiphy_init(void);
+
 int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg);
 int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
 		    u16 value);

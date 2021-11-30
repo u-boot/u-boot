@@ -24,18 +24,47 @@
 static int dm_test_reset_base(struct unit_test_state *uts)
 {
 	struct udevice *dev;
-	struct reset_ctl reset_method1;
-	struct reset_ctl reset_method2;
+	struct reset_ctl reset_method1, reset_method1_1;
+	struct reset_ctl reset_method2, reset_method2_1;
+	struct reset_ctl reset_method3, reset_method3_1;
+	struct reset_ctl reset_method4, reset_method4_1;
 
 	/* Get the device using the reset device */
 	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "reset-ctl-test",
 					      &dev));
 
 	/* Get the same reset port in 2 different ways and compare */
-	ut_assertok(reset_get_by_index(dev, 1, &reset_method1));
+	ut_assertok(reset_get_by_index(dev, 0, &reset_method1));
+	ut_assertok(reset_get_by_index_nodev(dev_ofnode(dev), 0,
+					     &reset_method1_1));
+	ut_assertok(reset_get_by_index(dev, 1, &reset_method2));
 	ut_assertok(reset_get_by_index_nodev(dev_ofnode(dev), 1,
-					     &reset_method2));
-	ut_asserteq(reset_method1.id, reset_method2.id);
+					     &reset_method2_1));
+	ut_assertok(reset_get_by_index(dev, 2, &reset_method3));
+	ut_assertok(reset_get_by_index_nodev(dev_ofnode(dev), 2,
+					     &reset_method3_1));
+	ut_assertok(reset_get_by_index(dev, 3, &reset_method4));
+	ut_assertok(reset_get_by_index_nodev(dev_ofnode(dev), 3,
+					     &reset_method4_1));
+
+	ut_asserteq(reset_method1.id, reset_method1_1.id);
+	ut_asserteq(reset_method2.id, reset_method2_1.id);
+	ut_asserteq(reset_method3.id, reset_method3_1.id);
+	ut_asserteq(reset_method4.id, reset_method4_1.id);
+
+	ut_asserteq(true, reset_method1.id != reset_method2.id);
+	ut_asserteq(true, reset_method1.id != reset_method3.id);
+	ut_asserteq(true, reset_method1.id != reset_method4.id);
+	ut_asserteq(true, reset_method2.id != reset_method3.id);
+	ut_asserteq(true, reset_method2.id != reset_method4.id);
+	ut_asserteq(true, reset_method3.id != reset_method4.id);
+
+	ut_asserteq(true, reset_method1_1.id != reset_method2_1.id);
+	ut_asserteq(true, reset_method1_1.id != reset_method3_1.id);
+	ut_asserteq(true, reset_method1_1.id != reset_method4_1.id);
+	ut_asserteq(true, reset_method2_1.id != reset_method3_1.id);
+	ut_asserteq(true, reset_method2_1.id != reset_method4_1.id);
+	ut_asserteq(true, reset_method3_1.id != reset_method4_1.id);
 
 	return 0;
 }

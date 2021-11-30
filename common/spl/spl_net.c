@@ -15,7 +15,7 @@
 #include <net.h>
 #include <linux/libfdt.h>
 
-#if defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USB_ETHER)
+#if defined(CONFIG_SPL_ETH) || defined(CONFIG_SPL_USB_ETHER)
 static ulong spl_net_load_read(struct spl_load_info *load, ulong sector,
 			       ulong count, void *buf)
 {
@@ -69,7 +69,7 @@ static int spl_net_load_image(struct spl_image_info *spl_image,
 }
 #endif
 
-#ifdef CONFIG_SPL_ETH_SUPPORT
+#ifdef CONFIG_SPL_ETH
 int spl_net_load_image_cpgmac(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {

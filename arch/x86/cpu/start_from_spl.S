@@ -43,6 +43,10 @@ use_existing_stack:
 
 	call	board_init_f_init_reserve
 
+#ifdef CONFIG_DEBUG_UART
+	call	debug_uart_init
+#endif
+
 	call	x86_cpu_reinit_f
 	xorl	%eax, %eax
 	call	board_init_f

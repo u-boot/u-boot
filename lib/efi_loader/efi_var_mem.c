@@ -10,7 +10,13 @@
 #include <efi_variable.h>
 #include <u-boot/crc.h>
 
-struct efi_var_file __efi_runtime_data *efi_var_buf;
+/*
+ * The variables efi_var_file and efi_var_entry must be static to avoid
+ * referencing them via the global offset table (section .got). The GOT
+ * is neither mapped as EfiRuntimeServicesData nor do we support its
+ * relocation during SetVirtualAddressMap().
+ */
+static struct efi_var_file __efi_runtime_data *efi_var_buf;
 static struct efi_var_entry __efi_runtime_data *efi_current_var;
 
 /**
@@ -128,7 +134,7 @@ void __efi_runtime efi_var_mem_del(struct efi_var_entry *var)
 }
 
 efi_status_t __efi_runtime efi_var_mem_ins(
-				u16 *variable_name,
+				const u16 *variable_name,
 				const efi_guid_t *vendor, u32 attributes,
 				const efi_uintn_t size1, const void *data1,
 				const efi_uintn_t size2, const void *data2,
@@ -268,8 +274,9 @@ efi_status_t efi_var_mem_init(void)
 }
 
 efi_status_t __efi_runtime
-efi_get_variable_mem(u16 *variable_name, const efi_guid_t *vendor, u32 *attributes,
-		     efi_uintn_t *data_size, void *data, u64 *timep)
+efi_get_variable_mem(const u16 *variable_name, const efi_guid_t *vendor,
+		     u32 *attributes, efi_uintn_t *data_size, void *data,
+		     u64 *timep)
 {
 	efi_uintn_t old_size;
 	struct efi_var_entry *var;
@@ -338,4 +345,9 @@ efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size,
 	efi_memcpy_runtime(vendor, &var->guid, sizeof(efi_guid_t));
 
 	return EFI_SUCCESS;
+}
+
+void efi_var_buf_update(struct efi_var_file *var_buf)
+{
+	memcpy(efi_var_buf, var_buf, EFI_VAR_BUF_SIZE);
 }

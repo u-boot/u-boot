@@ -5,4 +5,3 @@ obj-y += fb_getvar.o
 obj-y += fb_command.o
 obj-$(CONFIG_FASTBOOT_FLASH_MMC) += fb_mmc.o
 obj-$(CONFIG_FASTBOOT_FLASH_NAND) += fb_nand.o
-obj-$(CONFIG_FASTBOOT_USE_BCB_SET_REBOOT_FLAG) += fb_bcb_impl.o

@@ -1,4 +1,9 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+
 /dts-v1/;
+
+#include "binman.dtsi"
+#include "ae350-u-boot.dtsi"
 
 / {
 	#address-cells = <1>;
@@ -12,7 +17,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,38400n8  debug loglevel=7";
+		bootargs = "console=ttyS0,38400n8 debug loglevel=7";
 		stdout-path = "uart0:38400n8";
 	};
 
@@ -131,8 +136,7 @@
 
 		plic0: interrupt-controller@e4000000 {
 			compatible = "riscv,plic0";
-			#address-cells = <1>;
-			#interrupt-cells = <1>;
+			#interrupt-cells = <2>;
 			interrupt-controller;
 			reg = <0xe4000000 0x2000000>;
 			riscv,ndev=<71>;
@@ -144,7 +148,6 @@
 
 		plic1: interrupt-controller@e6400000 {
 			compatible = "riscv,plic1";
-			#address-cells = <1>;
 			#interrupt-cells = <1>;
 			interrupt-controller;
 			reg = <0xe6400000 0x400000>;

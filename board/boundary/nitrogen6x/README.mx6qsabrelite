@@ -116,4 +116,3 @@ Note: This will upload and run the U-Boot image in memory, the SPI will not be
 5. Use one of previous descriptions to re-flash the SPI-NOR as required.
 
 6. Ensure SW1 is returned to "00" to boot from the fuses once done.
-

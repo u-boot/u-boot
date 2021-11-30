@@ -12,6 +12,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <env.h>
 #include <errno.h>

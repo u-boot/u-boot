@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "imx8mq_phanbell"
 
+config IMX_CONFIG
+	default "arch/arm/mach-imx/imx8m/imximage.cfg"
+
 endif

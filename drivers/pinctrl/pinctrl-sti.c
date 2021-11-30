@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
 #include <linux/bug.h>
@@ -41,7 +42,7 @@ DECLARE_GLOBAL_DATA_PTR;
 		/* oe = 1, pu = 1, od = 1 */
 #define BIDIR_PU		(OE | PU | OD)
 
-struct sti_pinctrl_platdata {
+struct sti_pinctrl_plat {
 	struct regmap *regmap;
 };
 
@@ -57,7 +58,7 @@ struct sti_pin_desc {
  */
 void sti_alternate_select(struct udevice *dev, struct sti_pin_desc *pin_desc)
 {
-	struct sti_pinctrl_platdata *plat = dev_get_platdata(dev);
+	struct sti_pinctrl_plat *plat = dev_get_plat(dev);
 	unsigned long sysconf, *sysconfreg;
 	int alt = pin_desc->alt;
 	int bank = pin_desc->bank;
@@ -91,7 +92,7 @@ void sti_alternate_select(struct udevice *dev, struct sti_pin_desc *pin_desc)
 /* pin configuration */
 void sti_pin_configure(struct udevice *dev, struct sti_pin_desc *pin_desc)
 {
-	struct sti_pinctrl_platdata *plat = dev_get_platdata(dev);
+	struct sti_pinctrl_plat *plat = dev_get_plat(dev);
 	int bit;
 	int oe = 0, pu = 0, od = 0;
 	unsigned long *sysconfreg;
@@ -277,7 +278,7 @@ static int sti_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 
 static int sti_pinctrl_probe(struct udevice *dev)
 {
-	struct sti_pinctrl_platdata *plat = dev_get_platdata(dev);
+	struct sti_pinctrl_plat *plat = dev_get_plat(dev);
 	struct udevice *syscon;
 	int err;
 
@@ -316,6 +317,6 @@ U_BOOT_DRIVER(pinctrl_sti) = {
 	.of_match = sti_pinctrl_ids,
 	.ops = &sti_pinctrl_ops,
 	.probe = sti_pinctrl_probe,
-	.platdata_auto_alloc_size = sizeof(struct sti_pinctrl_platdata),
+	.plat_auto	= sizeof(struct sti_pinctrl_plat),
 	.ops = &sti_pinctrl_ops,
 };

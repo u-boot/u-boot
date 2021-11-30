@@ -14,6 +14,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <net/tftp.h>
 #include "bootp.h"
 #ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
@@ -553,8 +554,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		for (i = 0; i+8 < len; i++) {
 			if (strcasecmp((char *)pkt + i, "blksize") == 0) {
 				tftp_block_size = (unsigned short)
-					simple_strtoul((char *)pkt + i + 8,
-						       NULL, 10);
+					dectoul((char *)pkt + i + 8, NULL);
 				debug("Blocksize oack: %s, %d\n",
 				      (char *)pkt + i + 8, tftp_block_size);
 				if (tftp_block_size > tftp_block_size_option) {
@@ -565,8 +565,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			}
 			if (strcasecmp((char *)pkt + i, "timeout") == 0) {
 				timeout_val_rcvd = (unsigned short)
-					simple_strtoul((char *)pkt + i + 8,
-						       NULL, 10);
+					dectoul((char *)pkt + i + 8, NULL);
 				debug("Timeout oack: %s, %d\n",
 				      (char *)pkt + i + 8, timeout_val_rcvd);
 				if (timeout_val_rcvd != (timeout_ms / 1000)) {
@@ -577,16 +576,15 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			}
 #ifdef CONFIG_TFTP_TSIZE
 			if (strcasecmp((char *)pkt + i, "tsize") == 0) {
-				tftp_tsize = simple_strtoul((char *)pkt + i + 6,
-							   NULL, 10);
+				tftp_tsize = dectoul((char *)pkt + i + 6,
+						     NULL);
 				debug("size = %s, %d\n",
 				      (char *)pkt + i + 6, tftp_tsize);
 			}
 #endif
 			if (strcasecmp((char *)pkt + i,  "windowsize") == 0) {
 				tftp_windowsize =
-					simple_strtoul((char *)pkt + i + 11,
-						       NULL, 10);
+					dectoul((char *)pkt + i + 11, NULL);
 				debug("windowsize = %s, %d\n",
 				      (char *)pkt + i + 11, tftp_windowsize);
 			}
@@ -630,8 +628,10 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		tftp_cur_block++;
 		tftp_cur_block %= TFTP_SEQUENCE_SIZE;
 
-		if (tftp_state == STATE_SEND_RRQ)
+		if (tftp_state == STATE_SEND_RRQ) {
 			debug("Server did not acknowledge any options!\n");
+			tftp_next_ack = tftp_windowsize;
+		}
 
 		if (tftp_state == STATE_SEND_RRQ || tftp_state == STATE_OACK ||
 		    tftp_state == STATE_RECV_WRQ) {
@@ -666,6 +666,12 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			break;
 		}
 
+		if (len < tftp_block_size) {
+			tftp_send();
+			tftp_complete();
+			break;
+		}
+
 		/*
 		 *	Acknowledge the block just received, which will prompt
 		 *	the remote for the next one.
@@ -673,11 +679,6 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		if (tftp_cur_block == tftp_next_ack) {
 			tftp_send();
 			tftp_next_ack += tftp_windowsize;
-		}
-
-		if (len < tftp_block_size) {
-			tftp_send();
-			tftp_complete();
 		}
 		break;
 
@@ -924,4 +925,3 @@ void tftp_start_server(void)
 	memset(net_server_ethaddr, 0, 6);
 }
 #endif /* CONFIG_CMD_TFTPSRV */
-

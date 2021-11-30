@@ -68,7 +68,8 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 	}
 
 	if (!ret) {
-		ret = fit_add_verification_data(params->keydir, dest_blob, ptr,
+		ret = fit_add_verification_data(params->keydir,
+						params->keyfile, dest_blob, ptr,
 						params->comment,
 						params->require_keys,
 						params->engine_id,
@@ -523,7 +524,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	/* Check if an offset for the external data was set. */
 	if (params->external_offset > 0) {
 		if (params->external_offset < new_size) {
-			debug("External offset %x overlaps FIT length %x",
+			debug("External offset %x overlaps FIT length %x\n",
 			      params->external_offset, new_size);
 			ret = -EINVAL;
 			goto err;
@@ -736,7 +737,7 @@ static int fit_handle_file(struct image_tool_params *params)
 	if (strlen (params->imagefile) +
 		strlen (MKIMAGE_TMPFILE_SUFFIX) + 1 > sizeof (tmpfile)) {
 		fprintf (stderr, "%s: Image file name (%s) too long, "
-				"can't create tmpfile",
+				"can't create tmpfile.\n",
 				params->imagefile, params->cmdname);
 		return (EXIT_FAILURE);
 	}

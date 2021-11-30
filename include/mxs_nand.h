@@ -8,6 +8,7 @@
  */
 
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/cache.h>
 #include <nand.h>
 #include <asm/mach-imx/dma.h>

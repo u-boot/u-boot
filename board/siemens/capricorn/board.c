@@ -232,7 +232,7 @@ static int setup_fec(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }
 

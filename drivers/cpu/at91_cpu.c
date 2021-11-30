@@ -11,7 +11,7 @@
 #include <div64.h>
 #include <linux/clk-provider.h>
 
-struct at91_cpu_platdata {
+struct at91_cpu_plat {
 	const char *name;
 	ulong cpufreq_mhz;
 	ulong mckfreq_mhz;
@@ -27,7 +27,7 @@ const char *at91_cpu_get_name(void)
 
 int at91_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 {
-	struct at91_cpu_platdata *plat = dev_get_platdata(dev);
+	struct at91_cpu_plat *plat = dev_get_plat(dev);
 
 	snprintf(buf, size, "%s\n"
 		 "Crystal frequency: %8lu MHz\n"
@@ -41,7 +41,7 @@ int at91_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 
 static int at91_cpu_get_info(const struct udevice *dev, struct cpu_info *info)
 {
-	struct at91_cpu_platdata *plat = dev_get_platdata(dev);
+	struct at91_cpu_plat *plat = dev_get_plat(dev);
 
 	info->cpu_freq = plat->cpufreq_mhz * 1000000;
 	info->features = BIT(CPU_FEAT_L1_CACHE);
@@ -70,12 +70,13 @@ static const struct cpu_ops at91_cpu_ops = {
 
 static const struct udevice_id at91_cpu_ids[] = {
 	{ .compatible = "arm,cortex-a7" },
+	{ .compatible = "arm,arm926ej-s" },
 	{ /* Sentinel. */ }
 };
 
 static int at91_cpu_probe(struct udevice *dev)
 {
-	struct at91_cpu_platdata *plat = dev_get_platdata(dev);
+	struct at91_cpu_plat *plat = dev_get_plat(dev);
 	struct clk clk;
 	ulong rate;
 	int ret;
@@ -118,6 +119,6 @@ U_BOOT_DRIVER(cpu_at91_drv) = {
 	.of_match	= at91_cpu_ids,
 	.ops		= &at91_cpu_ops,
 	.probe		= at91_cpu_probe,
-	.platdata_auto_alloc_size = sizeof(struct at91_cpu_platdata),
+	.plat_auto	= sizeof(struct at91_cpu_plat),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

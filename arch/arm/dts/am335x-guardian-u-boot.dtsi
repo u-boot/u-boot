@@ -4,18 +4,30 @@
  * Copyright (C) 2018 Robert Bosch Power Tools GmbH
  */
 
+#include "am33xx-u-boot.dtsi"
+
 / {
 	ocp {
-		u-boot,dm-pre-reloc;
-	};
-
-	panel {
 		u-boot,dm-pre-reloc;
 	};
 };
 
 &l4_wkup {
 	u-boot,dm-pre-reloc;
+};
+
+&l4_per {
+
+	segment@300000 {
+
+		target-module@e000 {
+			u-boot,dm-pre-reloc;
+
+			lcdc: lcdc@0 {
+				u-boot,dm-pre-reloc;
+			};
+		};
+	};
 };
 
 &mmc1 {
@@ -26,13 +38,19 @@
 	u-boot,dm-pre-reloc;
 };
 
-&rtc {
-	clocks = <&l4_per_clkctrl AM3_CLKDIV32K_CLKCTRL 0>;
-	clock-names = "int-clk";
-};
-
 &scm {
 	u-boot,dm-pre-reloc;
+};
+
+&spi0 {
+	lcd0: display@0 {
+		compatible = "himax,hx8238d";
+		pinctrl-names = "default";
+		pinctrl-0 = <&lcd0_pins>;
+		reg = <0>;
+		label = "lcd";
+		spi-max-frequency = <100000>;
+	};
 };
 
 &uart0 {

@@ -289,4 +289,3 @@ int ps7_init(void)
 		return ret;
 	return PS7_INIT_SUCCESS;
 }
-

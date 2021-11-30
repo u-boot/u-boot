@@ -3202,13 +3202,6 @@ rw_mgr_mem_calibrate_writes_center(struct socfpga_sdrseq *seq,
 	/* Centre DM */
 	debug_cond(DLEVEL >= 2, "%s:%d write_center: DM\n", __func__, __LINE__);
 
-	/*
-	 * Set the left and right edge of each bit to an illegal value.
-	 * Use (seq->iocfg->io_out1_delay_max + 1) as an illegal value.
-	 */
-	left_edge[0]  = seq->iocfg->io_out1_delay_max + 1;
-	right_edge[0] = seq->iocfg->io_out1_delay_max + 1;
-
 	/* Search for the/part of the window with DM shift. */
 	search_window(seq, 1, rank_bgn, write_group, &bgn_curr, &end_curr,
 		      &bgn_best, &end_best, &win_best, 0);
@@ -3721,7 +3714,7 @@ static void debug_mem_calibrate(struct socfpga_sdrseq *seq, int pass)
 	u32 debug_info;
 
 	if (pass) {
-		debug("%s: CALIBRATION PASSED\n", __FILE__);
+		debug(KBUILD_BASENAME ": CALIBRATION PASSED\n");
 
 		seq->gbl.fom_in /= 2;
 		seq->gbl.fom_out /= 2;
@@ -3740,7 +3733,7 @@ static void debug_mem_calibrate(struct socfpga_sdrseq *seq, int pass)
 		writel(debug_info, &phy_mgr_cfg->cal_debug_info);
 		writel(PHY_MGR_CAL_SUCCESS, &phy_mgr_cfg->cal_status);
 	} else {
-		debug("%s: CALIBRATION FAILED\n", __FILE__);
+		debug(KBUILD_BASENAME ": CALIBRATION FAILED\n");
 
 		debug_info = seq->gbl.error_stage;
 		debug_info |= seq->gbl.error_substage << 8;
@@ -3757,7 +3750,7 @@ static void debug_mem_calibrate(struct socfpga_sdrseq *seq, int pass)
 		writel(debug_info, &sdr_reg_file->failing_stage);
 	}
 
-	debug("%s: Calibration complete\n", __FILE__);
+	debug(KBUILD_BASENAME ": Calibration complete\n");
 }
 
 /**
@@ -3941,7 +3934,7 @@ int sdram_calibration_full(struct socfpga_sdr *sdr)
 
 	initialize_tracking(&seq);
 
-	debug("%s: Preparing to start memory calibration\n", __FILE__);
+	debug(KBUILD_BASENAME ": Preparing to start memory calibration\n");
 
 	debug("%s:%d\n", __func__, __LINE__);
 	debug_cond(DLEVEL >= 1,

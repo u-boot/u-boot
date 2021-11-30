@@ -141,12 +141,12 @@ static int term_read_reply(int *n, int num, char end_char)
  */
 static efi_status_t EFIAPI efi_cout_output_string(
 			struct efi_simple_text_output_protocol *this,
-			const efi_string_t string)
+			const u16 *string)
 {
 	struct simple_text_output_mode *con = &efi_con_mode;
 	struct cout_mode *mode = &efi_cout_modes[con->mode];
 	char *buf, *pos;
-	u16 *p;
+	const u16 *p;
 	efi_status_t ret = EFI_SUCCESS;
 
 	EFI_ENTRY("%p, %p", this, string);
@@ -230,7 +230,7 @@ out:
  */
 static efi_status_t EFIAPI efi_cout_test_string(
 			struct efi_simple_text_output_protocol *this,
-			const efi_string_t string)
+			const u16 *string)
 {
 	EFI_ENTRY("%p, %p", this, string);
 	return EFI_EXIT(EFI_SUCCESS);
@@ -254,7 +254,7 @@ static bool cout_mode_matches(struct cout_mode *mode, int rows, int cols)
 }
 
 /**
- * query_console_serial() - query console size
+ * query_console_serial() - query serial console size
  *
  * When using a serial console or the net console we can only devise the
  * terminal size by querying the terminal using ECMA-48 control sequences.
@@ -300,6 +300,37 @@ out:
 }
 
 /**
+ * query_vidconsole() - query video console size
+ *
+ *
+ * @rows:	pointer to return number of rows
+ * @cols:	pointer to return number of columns
+ * Returns:	0 on success
+ */
+static int __maybe_unused query_vidconsole(int *rows, int *cols)
+{
+	const char *stdout_name = env_get("stdout");
+	struct stdio_dev *stdout_dev;
+	struct udevice *dev;
+	struct vidconsole_priv *priv;
+
+	if (!stdout_name || strncmp(stdout_name, "vidconsole", 10))
+		return -ENODEV;
+	stdout_dev = stdio_get_by_name("vidconsole");
+	if (!stdout_dev)
+		return -ENODEV;
+	dev = stdout_dev->priv;
+	if (!dev)
+		return -ENODEV;
+	priv = dev_get_uclass_priv(dev);
+	if (!priv)
+		return -ENODEV;
+	*rows = priv->rows;
+	*cols = priv->cols;
+	return 0;
+}
+
+/**
  * query_console_size() - update the mode table.
  *
  * By default the only mode available is 80x25. If the console has at least 50
@@ -308,21 +339,15 @@ out:
  */
 static void query_console_size(void)
 {
-	const char *stdout_name = env_get("stdout");
 	int rows = 25, cols = 80;
+	int ret = -ENODEV;
 
-	if (stdout_name && !strcmp(stdout_name, "vidconsole") &&
-	    IS_ENABLED(CONFIG_DM_VIDEO)) {
-		struct stdio_dev *stdout_dev =
-			stdio_get_by_name("vidconsole");
-		struct udevice *dev = stdout_dev->priv;
-		struct vidconsole_priv *priv =
-			dev_get_uclass_priv(dev);
-		rows = priv->rows;
-		cols = priv->cols;
-	} else if (query_console_serial(&rows, &cols)) {
+	if (IS_ENABLED(CONFIG_DM_VIDEO))
+		ret = query_vidconsole(&rows, &cols);
+	if (ret)
+		ret = query_console_serial(&rows, &cols);
+	if (ret)
 		return;
-	}
 
 	/* Test if we can have Mode 1 */
 	if (cols >= 80 && rows >= 50) {

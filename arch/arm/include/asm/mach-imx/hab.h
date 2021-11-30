@@ -18,8 +18,6 @@
  */
 #define IVT_HEADER_MAGIC	0xD1
 #define IVT_TOTAL_LENGTH	0x20
-#define IVT_HEADER_V1		0x40
-#define IVT_HEADER_V2		0x41
 
 struct __packed ivt_header {
 	uint8_t		magic;
@@ -42,6 +40,15 @@ struct __packed hab_hdr {
 	u8 tag;              /* Tag field */
 	u8 len[2];           /* Length field in bytes (big-endian) */
 	u8 par;              /* Parameters field */
+};
+
+/* Default event structure */
+struct __packed evt_def {
+	struct hab_hdr hdr;		/* Header */
+	uint32_t sts;			/* Status */
+	uint32_t ctx;			/* Default context */
+	uint8_t *data;			/* Default data location */
+	size_t bytes;			/* Size of default data */
 };
 
 /* -------- start of HAB API updates ------------*/
@@ -165,6 +172,22 @@ typedef void hapi_clock_init_t(void);
 #define HAB_ENG_RTL		0x77   /* RTL simulation engine */
 #define HAB_ENG_SW		0xff   /* Software engine */
 
+#ifdef CONFIG_ARM64
+#ifdef CONFIG_IMX8MQ
+#define HAB_RVT_BASE                   0x00000880
+#else
+#define HAB_RVT_BASE                   0x00000900
+#endif
+
+#define HAB_RVT_ENTRY			(*(ulong *)(HAB_RVT_BASE + 0x08))
+#define HAB_RVT_EXIT			(*(ulong *)(HAB_RVT_BASE + 0x10))
+#define HAB_RVT_CHECK_TARGET		(*(ulong *)(HAB_RVT_BASE + 0x18))
+#define HAB_RVT_AUTHENTICATE_IMAGE	(*(ulong *)(HAB_RVT_BASE + 0x20))
+#define HAB_RVT_REPORT_EVENT		(*(ulong *)(HAB_RVT_BASE + 0x40))
+#define HAB_RVT_REPORT_STATUS		(*(ulong *)(HAB_RVT_BASE + 0x48))
+#define HAB_RVT_FAILSAFE		(*(ulong *)(HAB_RVT_BASE + 0x50))
+#else
+
 #ifdef CONFIG_ROM_UNIFIED_SECTIONS
 #define HAB_RVT_BASE			0x00000100
 #else
@@ -172,7 +195,7 @@ typedef void hapi_clock_init_t(void);
 #define HAB_RVT_BASE_OLD		0x00000094
 #define HAB_RVT_BASE ((is_mx6dqp()) ?					\
 			HAB_RVT_BASE_NEW :				\
-			(is_mx6dq() && (soc_rev() >= CHIP_REV_1_5)) ?	\
+			(is_mx6dq() && (soc_rev() >= CHIP_REV_1_3)) ?	\
 			HAB_RVT_BASE_NEW :				\
 			(is_mx6sdl() && (soc_rev() >= CHIP_REV_1_2)) ?	\
 			HAB_RVT_BASE_NEW : HAB_RVT_BASE_OLD)
@@ -186,6 +209,8 @@ typedef void hapi_clock_init_t(void);
 #define HAB_RVT_REPORT_STATUS		(*(uint32_t *)(HAB_RVT_BASE + 0x24))
 #define HAB_RVT_FAILSAFE		(*(uint32_t *)(HAB_RVT_BASE + 0x28))
 
+#endif /*CONFIG_ARM64*/
+
 #define HAB_CID_ROM 0 /**< ROM Caller ID */
 #define HAB_CID_UBOOT 1 /**< UBOOT Caller ID*/
 
@@ -198,6 +223,12 @@ typedef void hapi_clock_init_t(void);
 
 #define IVT_SIZE			0x20
 #define CSF_PAD_SIZE			0x2000
+
+#define HAB_TAG_EVT		0xDB
+#define HAB_TAG_EVT_DEF		0x0C
+
+#define HAB_MAJ_VER		0x40
+#define HAB_MAJ_MASK		0xF0
 
 /* ----------- end of HAB API updates ------------*/
 

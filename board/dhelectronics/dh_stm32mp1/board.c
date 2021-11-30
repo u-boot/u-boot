@@ -9,6 +9,7 @@
 #include <net.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <bootm.h>
@@ -41,6 +42,7 @@
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 #include <watchdog.h>
+#include <dm/ofnode.h>
 #include "../../st/common/stpmic1.h"
 
 /* SYSCFG registers */
@@ -85,6 +87,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define KS_CCR_EEPROM	BIT(9)
 #define KS_BE0		BIT(12)
 #define KS_BE1		BIT(13)
+#define KS_CIDER	0xC0
+#define CIDER_ID	0x8870
 
 int setup_mac_address(void)
 {
@@ -122,10 +126,17 @@ int setup_mac_address(void)
 	 * is present. If EEPROM is present, it must contain valid
 	 * MAC address.
 	 */
-	u32 reg, ccr;
+	u32 reg, cider, ccr;
 	reg = fdt_get_base_address(gd->fdt_blob, off);
 	if (!reg)
 		goto out_set_ethaddr;
+
+	writew(KS_BE0 | KS_BE1 | KS_CIDER, reg + 2);
+	cider = readw(reg);
+	if ((cider & 0xfff0) != CIDER_ID) {
+		skip_eth1 = true;
+		goto out_set_ethaddr;
+	}
 
 	writew(KS_BE0 | KS_BE1 | KS_CCR, reg + 2);
 	ccr = readw(reg);
@@ -343,7 +354,7 @@ int g_dnl_board_usb_cable_connected(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_USB_GADGET_GENERIC,
-					  DM_GET_DRIVER(dwc2_udc_otg),
+					  DM_DRIVER_GET(dwc2_udc_otg),
 					  &dwc2_udc_otg);
 	if (!ret)
 		debug("dwc2_udc_otg init failed\n");
@@ -372,10 +383,10 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 #ifdef CONFIG_LED
 static int get_led(struct udevice **dev, char *led_string)
 {
-	char *led_name;
+	const char *led_name;
 	int ret;
 
-	led_name = fdtdec_get_config_string(gd->fdt_blob, led_string);
+	led_name = ofnode_conf_read_str(led_string);
 	if (!led_name) {
 		pr_debug("%s: could not find %s config string\n",
 			 __func__, led_string);
@@ -475,11 +486,11 @@ static void sysconf_init(void)
 	 *      but this value need to be consistent with board design
 	 */
 	ret = uclass_get_device_by_driver(UCLASS_PMIC,
-					  DM_GET_DRIVER(stm32mp_pwr_pmic),
+					  DM_DRIVER_GET(stm32mp_pwr_pmic),
 					  &pwr_dev);
 	if (!ret) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stm32mp_bsec),
+						  DM_DRIVER_GET(stm32mp_bsec),
 						  &dev);
 		if (ret) {
 			pr_err("Can't find stm32mp_bsec driver\n");
@@ -580,12 +591,6 @@ static void board_init_fmc2(void)
 /* board dependent setup after realloc */
 int board_init(void)
 {
-	/* address of boot parameters */
-	gd->bd->bi_boot_params = STM32_DDR_BASE + 0x100;
-
-	if (CONFIG_IS_ENABLED(DM_GPIO_HOG))
-		gpio_hog_probe_all();
-
 	board_key_check();
 
 #ifdef CONFIG_DM_REGULATOR
@@ -650,11 +655,11 @@ int board_interface_eth_init(struct udevice *dev,
 	bool eth_ref_clk_sel_reg = false;
 
 	/* Gigabit Ethernet 125MHz clock selection. */
-	eth_clk_sel_reg = dev_read_bool(dev, "st,eth_clk_sel");
+	eth_clk_sel_reg = dev_read_bool(dev, "st,eth-clk-sel");
 
 	/* Ethernet 50Mhz RMII clock selection */
 	eth_ref_clk_sel_reg =
-		dev_read_bool(dev, "st,eth_ref_clk_sel");
+		dev_read_bool(dev, "st,eth-ref-clk-sel");
 
 	syscfg = (u8 *)syscon_get_first_range(STM32MP_SYSCON_SYSCFG);
 

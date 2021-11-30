@@ -51,7 +51,7 @@ struct nexell_dwmmc_priv {
 
 struct clk *clk_get(const char *id);
 
-static void nx_dw_mmc_clksel(struct dwmci_host *host)
+static int nx_dw_mmc_clksel(struct dwmci_host *host)
 {
 	/* host->priv is pointer to "struct udevice" */
 	struct nexell_dwmmc_priv *priv = dev_get_priv(host->priv);
@@ -65,6 +65,8 @@ static void nx_dw_mmc_clksel(struct dwmci_host *host)
 		      DWMCI_SET_DRV_CLK(DWMCI_SHIFT_0) | DWMCI_SET_DIV_RATIO(3);
 
 	dwmci_writel(host, DWMCI_CLKSEL, val);
+
+	return 0;
 }
 
 static void nx_dw_mmc_reset(int ch)
@@ -139,7 +141,7 @@ static unsigned long nx_dw_mmc_set_clk(struct dwmci_host *host,
 	return rate;
 }
 
-static int nexell_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int nexell_dwmmc_of_to_plat(struct udevice *dev)
 {
 	struct nexell_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -179,7 +181,7 @@ static int nexell_dwmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int nexell_dwmmc_probe(struct udevice *dev)
 {
-	struct nexell_mmc_plat *plat = dev_get_platdata(dev);
+	struct nexell_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct nexell_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -214,7 +216,7 @@ static int nexell_dwmmc_probe(struct udevice *dev)
 
 static int nexell_dwmmc_bind(struct udevice *dev)
 {
-	struct nexell_mmc_plat *plat = dev_get_platdata(dev);
+	struct nexell_mmc_plat *plat = dev_get_plat(dev);
 
 	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -228,10 +230,10 @@ U_BOOT_DRIVER(nexell_dwmmc_drv) = {
 	.name		= "nexell_dwmmc",
 	.id		= UCLASS_MMC,
 	.of_match	= nexell_dwmmc_ids,
-	.ofdata_to_platdata = nexell_dwmmc_ofdata_to_platdata,
+	.of_to_plat = nexell_dwmmc_of_to_plat,
 	.ops		= &dm_dwmci_ops,
 	.bind		= nexell_dwmmc_bind,
 	.probe		= nexell_dwmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct nexell_dwmmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct nexell_mmc_plat),
+	.priv_auto	= sizeof(struct nexell_dwmmc_priv),
+	.plat_auto	= sizeof(struct nexell_mmc_plat),
 };

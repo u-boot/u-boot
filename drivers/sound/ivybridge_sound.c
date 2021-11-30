@@ -19,10 +19,11 @@
 #include <pch.h>
 #include <sound.h>
 #include <linux/bitops.h>
+#include <asm/global_data.h>
 
 static int bd82x6x_azalia_probe(struct udevice *dev)
 {
-	struct pci_child_platdata *plat;
+	struct pci_child_plat *plat;
 	struct hda_codec_priv *priv;
 	struct udevice *pch;
 	u32 codec_mask;
@@ -71,7 +72,7 @@ static int bd82x6x_azalia_probe(struct udevice *dev)
 	dm_pci_clrset_config32(dev, 0xd0, 1U << 31, 0);
 
 	/* Additional step on Panther Point */
-	plat = dev_get_parent_platdata(dev);
+	plat = dev_get_parent_plat(dev);
 	if (plat->device == PCI_DEVICE_ID_INTEL_PANTHERPOINT_HDA)
 		dm_pci_clrset_config32(dev, 0xc4, 0, 1 << 17);
 
@@ -135,5 +136,5 @@ U_BOOT_DRIVER(bd82x6x_azalia_drv) = {
 	.of_match	= bd82x6x_azalia_ids,
 	.probe		= bd82x6x_azalia_probe,
 	.ops		= &bd82x6x_azalia_ops,
-	.priv_auto_alloc_size	= sizeof(struct hda_codec_priv),
+	.priv_auto	= sizeof(struct hda_codec_priv),
 };

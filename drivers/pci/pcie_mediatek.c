@@ -251,7 +251,7 @@ static struct mtk_pcie_port *mtk_pcie_find_port(const struct udevice *bus,
 	struct mtk_pcie *pcie = dev_get_priv(bus);
 	struct mtk_pcie_port *port;
 	struct udevice *dev;
-	struct pci_child_platdata *pplat = NULL;
+	struct pci_child_plat *pplat = NULL;
 	int ret = 0;
 
 	if (PCI_BUS(bdf) != 0) {
@@ -261,10 +261,10 @@ static struct mtk_pcie_port *mtk_pcie_find_port(const struct udevice *bus,
 			return NULL;
 		}
 
-		while (dev->parent->seq != 0)
+		while (dev_seq(dev->parent) != 0)
 			dev = dev->parent;
 
-		pplat = dev_get_parent_platdata(dev);
+		pplat = dev_get_parent_plat(dev);
 	}
 
 	list_for_each_entry(port, &pcie->ports, list) {
@@ -728,7 +728,7 @@ U_BOOT_DRIVER(pcie_mediatek_v1) = {
 	.of_match = mtk_pcie_ids,
 	.ops	= &mtk_pcie_ops,
 	.probe	= mtk_pcie_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_pcie),
+	.priv_auto	= sizeof(struct mtk_pcie),
 };
 
 static const struct udevice_id mtk_pcie_ids_v2[] = {
@@ -742,5 +742,5 @@ U_BOOT_DRIVER(pcie_mediatek_v2) = {
 	.of_match = mtk_pcie_ids_v2,
 	.ops	= &mtk_pcie_ops_v2,
 	.probe	= mtk_pcie_probe_v2,
-	.priv_auto_alloc_size = sizeof(struct mtk_pcie),
+	.priv_auto	= sizeof(struct mtk_pcie),
 };

@@ -249,7 +249,7 @@ struct e1000_phy_stats {
 #define E1000_ERR_MASTER_REQUESTS_PENDING	10
 #define E1000_ERR_HOST_INTERFACE_COMMAND	11
 #define E1000_BLK_PHY_RESET			12
-#define E1000_ERR_SWFW_SYNC 			13
+#define E1000_ERR_SWFW_SYNC			13
 
 /* PCI Device IDs */
 #define E1000_DEV_ID_82542	    0x1000
@@ -1245,6 +1245,7 @@ struct e1000_hw {
 #define E1000_EECD_FLUPD     0x00080000 /* Update FLASH */
 #define E1000_EECD_FLUPD_I210       0x00800000 /* Update FLASH */
 #define E1000_EECD_FLUDONE_I210     0x04000000 /* Update FLASH done*/
+#define E1000_EECD_FLASH_DETECTED_I210	0x00080000 /* FLASH detected */
 #define E1000_FLUDONE_ATTEMPTS      20000
 #define E1000_EECD_AUPDEN    0x00100000 /* Enable Autonomous FLASH update */
 #define E1000_EECD_SHADV     0x00200000 /* Shadow RAM Data Valid */

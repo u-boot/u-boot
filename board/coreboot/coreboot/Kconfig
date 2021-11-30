@@ -1,4 +1,4 @@
-if TARGET_COREBOOT
+if VENDOR_COREBOOT
 
 config SYS_BOARD
 	default "coreboot"
@@ -7,9 +7,6 @@ config SYS_VENDOR
 	default "coreboot"
 
 config SYS_SOC
-	default "coreboot"
-
-config SYS_CONFIG_NAME
 	default "coreboot"
 
 config SYS_TEXT_BASE
@@ -30,5 +27,12 @@ config SYS_CAR_SIZE
 	default 0x4000
 	help
 	  This option specifies the board specific Cache-As-RAM (CAR) size.
+
+endif  # CONFIG_VENDOR_COREBOOT
+
+if TARGET_COREBOOT
+
+config SYS_CONFIG_NAME
+	default "coreboot"
 
 endif

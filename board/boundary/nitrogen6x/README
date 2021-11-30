@@ -74,7 +74,7 @@ board configurations is shown in the boards.cfg file:
 	nitrogen6q		i.MX6Q/6D	1GB
 	nitrogen6dl		i.MX6DL		1GB
 	nitrogen6s		i.MX6S		512MB
-	nitrogen6q2g    	i.MX6Q/6D	2GB
+	nitrogen6q2g		i.MX6Q/6D	2GB
 	nitrogen6dl2g		i.MX6DL		2GB
 	nitrogen6s1g		i.MX6S		1GB
 

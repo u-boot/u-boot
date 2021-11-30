@@ -89,8 +89,8 @@ static u32 acpi_fill_csrt_dma(struct acpi_csrt_group *grp)
 	si->mmio_base_low = 0xff192000;
 	si->mmio_base_high = 0;
 	si->gsi_interrupt = 32;
-	si->interrupt_polarity = 1;
-	si->interrupt_mode = 0;
+	si->interrupt_polarity = 0;	/* Active High */
+	si->interrupt_mode = 0;		/* Level triggered */
 	si->num_channels = 8;
 	si->dma_address_width = 32;
 	si->base_request_line = 0;

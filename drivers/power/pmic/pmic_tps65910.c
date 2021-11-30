@@ -8,11 +8,11 @@
 #include <i2c.h>
 #include <power/tps65910.h>
 
-struct udevice *tps65910_dev __attribute__((section(".data"))) = NULL;
+struct udevice *tps65910_dev __section(".data") = NULL;
 
 static inline int tps65910_read_reg(int addr, uchar *buf)
 {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	return i2c_read(TPS65910_CTRL_I2C_ADDR, addr, 1, buf, 1);
 #else
 	int rc;
@@ -27,7 +27,7 @@ static inline int tps65910_read_reg(int addr, uchar *buf)
 
 static inline int tps65910_write_reg(int addr, uchar *buf)
 {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	return i2c_write(TPS65910_CTRL_I2C_ADDR, addr, 1, buf, 1);
 #else
 	return dm_i2c_reg_write(tps65910_dev, addr, *buf);
@@ -36,7 +36,7 @@ static inline int tps65910_write_reg(int addr, uchar *buf)
 
 int power_tps65910_init(unsigned char bus)
 {
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev = NULL;
 	int rc;
 
@@ -51,7 +51,7 @@ int power_tps65910_init(unsigned char bus)
 
 /*
  * tps65910_set_i2c_control() - Set the TPS65910 to be controlled via the I2C
- * 				interface.
+ *				interface.
  * @return:		       0 on success, not 0 on failure
  */
 int tps65910_set_i2c_control(void)

@@ -302,7 +302,7 @@ static void cm_fx6_setup_uart(void)
 	enable_uart_clk(1);
 }
 
-#ifdef CONFIG_SPL_SPI_SUPPORT
+#ifdef CONFIG_SPL_SPI
 static void cm_fx6_setup_ecspi(void)
 {
 	cm_fx6_set_ecspi_iomux();
@@ -350,7 +350,7 @@ void board_boot_order(u32 *spl_boot_list)
 	}
 }
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 static struct fsl_esdhc_cfg usdhc_cfg = {
 	.esdhc_base = USDHC3_BASE_ADDR,
 	.max_bus_width = 4,

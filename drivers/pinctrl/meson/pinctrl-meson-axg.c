@@ -908,7 +908,7 @@ static struct meson_bank meson_axg_aobus_banks[] = {
 };
 
 static struct meson_pmx_bank meson_axg_periphs_pmx_banks[] = {
-	/*	 name	 first			last	   	      reg  offset  */
+	/*	 name	 first			last		      reg  offset  */
 	BANK_PMX("Z",	 PIN(GPIOZ_0, EE_OFF),	PIN(GPIOZ_10, EE_OFF), 0x2, 0),
 	BANK_PMX("BOOT", PIN(BOOT_0, EE_OFF),	PIN(BOOT_14, EE_OFF),  0x0, 0),
 	BANK_PMX("A",	 PIN(GPIOA_0, EE_OFF),	PIN(GPIOA_20, EE_OFF), 0xb, 0),
@@ -975,6 +975,6 @@ U_BOOT_DRIVER(meson_axg_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(meson_axg_pinctrl_match),
 	.probe = meson_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct meson_pinctrl),
+	.priv_auto	= sizeof(struct meson_pinctrl),
 	.ops = &meson_axg_pinctrl_ops,
 };

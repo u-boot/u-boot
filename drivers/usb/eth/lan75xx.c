@@ -133,7 +133,7 @@ static int lan75xx_basic_reset(struct usb_device *udev,
 int lan75xx_write_hwaddr(struct udevice *dev)
 {
 	struct usb_device *udev = dev_get_parent_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	unsigned char *enetaddr = pdata->enetaddr;
 	u32 addr_lo = get_unaligned_le32(&enetaddr[0]);
 	u32 addr_hi = (u32)get_unaligned_le16(&enetaddr[4]);
@@ -242,7 +242,7 @@ static int lan75xx_eth_start(struct udevice *dev)
 int lan75xx_read_rom_hwaddr(struct udevice *dev)
 {
 	struct usb_device *udev = dev_get_parent_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	/*
@@ -261,7 +261,7 @@ static int lan75xx_eth_probe(struct udevice *dev)
 	struct usb_device *udev = dev_get_parent_priv(dev);
 	struct lan7x_private *priv = dev_get_priv(dev);
 	struct ueth_data *ueth = &priv->ueth;
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
 	/* Do a reset in order to get the MAC address from HW */
@@ -304,8 +304,8 @@ U_BOOT_DRIVER(lan75xx_eth) = {
 	.probe	= lan75xx_eth_probe,
 	.remove	= lan7x_eth_remove,
 	.ops	= &lan75xx_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct lan7x_private),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct lan7x_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };
 
 static const struct usb_device_id lan75xx_eth_id_table[] = {

@@ -50,7 +50,7 @@ static void dtsec_configure_serdes(struct fm_eth *priv)
 	u32 value;
 	struct mii_dev bus;
 	bool sgmii_2500 = (priv->enet_if ==
-			PHY_INTERFACE_MODE_SGMII_2500) ? true : false;
+			PHY_INTERFACE_MODE_2500BASEX) ? true : false;
 	int i = 0, j;
 
 #ifndef CONFIG_DM_ETH
@@ -133,7 +133,7 @@ static void dtsec_init_phy(struct fm_eth *fm_eth)
 
 	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII ||
 	    fm_eth->enet_if == PHY_INTERFACE_MODE_QSGMII ||
-	    fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII_2500)
+	    fm_eth->enet_if == PHY_INTERFACE_MODE_2500BASEX)
 		dtsec_configure_serdes(fm_eth);
 }
 
@@ -288,8 +288,10 @@ static int fm_eth_rx_port_parameter_init(struct fm_eth *fm_eth)
 
 	/* alloc Rx buffer from main memory */
 	rx_buf_pool = malloc(MAX_RXBUF_LEN * RX_BD_RING_SIZE);
-	if (!rx_buf_pool)
+	if (!rx_buf_pool) {
+		free(rx_bd_ring_base);
 		return -ENOMEM;
+	}
 
 	memset(rx_buf_pool, 0, MAX_RXBUF_LEN * RX_BD_RING_SIZE);
 	debug("%s: rx_buf_pool = %p\n", __func__, rx_buf_pool);
@@ -430,7 +432,7 @@ static int fm_eth_startup(struct fm_eth *fm_eth)
 
 	/* For some reason we need to set SPEED_100 */
 	if (((fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII) ||
-	     (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII_2500) ||
+	     (fm_eth->enet_if == PHY_INTERFACE_MODE_2500BASEX) ||
 	     (fm_eth->enet_if == PHY_INTERFACE_MODE_QSGMII)) &&
 	      mac->set_if_mode)
 		mac->set_if_mode(mac, fm_eth->enet_if, SPEED_100);
@@ -472,7 +474,7 @@ static int fm_eth_open(struct udevice *dev)
 #ifndef CONFIG_DM_ETH
 	struct fm_eth *fm_eth = dev->priv;
 #else
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct fm_eth *fm_eth = dev_get_priv(dev);
 #endif
 	unsigned char *enetaddr;
@@ -547,7 +549,11 @@ static void fm_eth_halt(struct udevice *dev)
 	struct fm_eth *fm_eth;
 	struct fsl_enet_mac *mac;
 
+#ifndef CONFIG_DM_ETH
 	fm_eth = (struct fm_eth *)dev->priv;
+#else
+	fm_eth = dev_get_priv(dev);
+#endif
 	mac = fm_eth->mac;
 
 	/* graceful stop the transmission of frames */
@@ -577,7 +583,11 @@ static int fm_eth_send(struct udevice *dev, void *buf, int len)
 	u16 offset_in;
 	int i;
 
+#ifndef CONFIG_DM_ETH
 	fm_eth = (struct fm_eth *)dev->priv;
+#else
+	fm_eth = dev_get_priv(dev);
+#endif
 	pram = fm_eth->tx_pram;
 	txbd = fm_eth->cur_txbd;
 
@@ -664,13 +674,19 @@ static int fm_eth_recv(struct eth_device *dev)
 static int fm_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 #endif
 {
-	struct fm_eth *fm_eth = (struct fm_eth *)dev->priv;
-	struct fm_port_bd *rxbd = fm_eth->cur_rxbd;
+	struct fm_eth *fm_eth;
+	struct fm_port_bd *rxbd;
 	u32 buf_lo, buf_hi;
 	u16 status, len;
 	int ret = -1;
 	u8 *data;
 
+#ifndef CONFIG_DM_ETH
+	fm_eth = (struct fm_eth *)dev->priv;
+#else
+	fm_eth = dev_get_priv(dev);
+#endif
+	rxbd = fm_eth->cur_rxbd;
 	status = muram_readw(&rxbd->status);
 
 	while (!(status & RxBD_EMPTY)) {
@@ -704,7 +720,7 @@ static int fm_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 #ifdef CONFIG_DM_ETH
 static int fm_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
-	struct fm_eth *fm_eth = (struct fm_eth *)dev->priv;
+	struct fm_eth *fm_eth = (struct fm_eth *)dev_get_priv(dev);
 
 	fm_eth->cur_rxbd = fm_eth_free_one(fm_eth, fm_eth->cur_rxbd);
 
@@ -813,7 +829,7 @@ static int init_phy(struct fm_eth *fm_eth)
 
 	if (fm_eth->type == FM_ETH_10G_E)
 		supported = PHY_10G_FEATURES;
-	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII_2500)
+	if (fm_eth->enet_if == PHY_INTERFACE_MODE_2500BASEX)
 		supported |= SUPPORTED_2500baseX_Full;
 #endif
 
@@ -943,7 +959,7 @@ phy_interface_t fman_read_sys_if(struct udevice *dev)
 {
 	const char *if_str;
 
-	if_str = ofnode_read_string(dev->node, "phy-connection-type");
+	if_str = ofnode_read_string(dev_ofnode(dev), "phy-connection-type");
 	debug("MAC system interface mode %s\n", if_str);
 
 	return phy_get_interface_by_name(if_str);
@@ -955,7 +971,7 @@ static int fm_eth_bind(struct udevice *dev)
 	char mac_name[11];
 	u32 fm, num;
 
-	if (ofnode_read_u32(ofnode_get_parent(dev->node), "cell-index", &fm)) {
+	if (ofnode_read_u32(ofnode_get_parent(dev_ofnode(dev)), "cell-index", &fm)) {
 		printf("FMan node property cell-index missing\n");
 		return -EINVAL;
 	}
@@ -1004,7 +1020,7 @@ static struct udevice *fm_get_internal_mdio(struct udevice *dev)
 
 static int fm_eth_probe(struct udevice *dev)
 {
-	struct fm_eth *fm_eth = (struct fm_eth *)dev->priv;
+	struct fm_eth *fm_eth = (struct fm_eth *)dev_get_priv(dev);
 	struct ofnode_phandle_args args;
 	void *reg;
 	int ret, index;
@@ -1074,7 +1090,7 @@ static int fm_eth_probe(struct udevice *dev)
 		if (fm_eth->num != 0)
 			break;
 	case PHY_INTERFACE_MODE_SGMII:
-	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		fm_eth->pcs_mdio = fm_get_internal_mdio(dev);
 		break;
 	default:
@@ -1130,8 +1146,8 @@ U_BOOT_DRIVER(eth_fman) = {
 	.probe = fm_eth_probe,
 	.remove = fm_eth_remove,
 	.ops = &fm_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct fm_eth),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct fm_eth),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* CONFIG_DM_ETH */

@@ -48,7 +48,6 @@ config TDX_APALIS_IMX6_V1_0
 	    This option configures DCE mode unconditionally. Whithout this
 	    option the config block stating V1.0 HW selects DCE mode,
 	    otherwise the UARTs are configuered in DTE mode.
-	default n
 
 source "board/toradex/common/Kconfig"
 

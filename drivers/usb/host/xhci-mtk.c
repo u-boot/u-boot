@@ -61,10 +61,13 @@ struct mtk_xhci {
 	struct phy_bulk phys;
 	int num_u2ports;
 	int num_u3ports;
+	u32 u3p_dis_msk;
+	u32 u2p_dis_msk;
 };
 
 static int xhci_mtk_host_enable(struct mtk_xhci *mtk)
 {
+	int u3_ports_disabed = 0;
 	u32 value;
 	u32 check_val;
 	int ret;
@@ -73,15 +76,23 @@ static int xhci_mtk_host_enable(struct mtk_xhci *mtk)
 	/* power on host ip */
 	clrbits_le32(mtk->ippc + IPPC_IP_PW_CTRL1, CTRL1_IP_HOST_PDN);
 
-	/* power on and enable all u3 ports */
+	/* power on and enable u3 ports except skipped ones */
 	for (i = 0; i < mtk->num_u3ports; i++) {
+		if (BIT(i) & mtk->u3p_dis_msk) {
+			u3_ports_disabed++;
+			continue;
+		}
+
 		clrsetbits_le32(mtk->ippc + IPPC_U3_CTRL(i),
 				CTRL_U3_PORT_PDN | CTRL_U3_PORT_DIS,
 				CTRL_U3_PORT_HOST_SEL);
 	}
 
-	/* power on and enable all u2 ports */
+	/* power on and enable u2 ports except skipped ones */
 	for (i = 0; i < mtk->num_u2ports; i++) {
+		if (BIT(i) & mtk->u2p_dis_msk)
+			continue;
+
 		clrsetbits_le32(mtk->ippc + IPPC_U2_CTRL(i),
 				CTRL_U2_PORT_PDN | CTRL_U2_PORT_DIS,
 				CTRL_U2_PORT_HOST_SEL);
@@ -94,7 +105,7 @@ static int xhci_mtk_host_enable(struct mtk_xhci *mtk)
 	check_val = STS1_SYSPLL_STABLE | STS1_REF_RST |
 			STS1_SYS125_RST | STS1_XHCI_RST;
 
-	if (mtk->num_u3ports)
+	if (mtk->num_u3ports > u3_ports_disabed)
 		check_val |= STS1_U3_MAC_RST;
 
 	ret = readl_poll_timeout(mtk->ippc + IPPC_IP_PW_STS1, value,
@@ -175,6 +186,12 @@ static int xhci_mtk_ofdata_get(struct mtk_xhci *mtk)
 					  &mtk->vbus_supply);
 	if (ret)
 		debug("can't get vbus regulator %d!\n", ret);
+
+	/* optional properties to disable ports, ignore the error */
+	dev_read_u32(dev, "mediatek,u3p-dis-msk", &mtk->u3p_dis_msk);
+	dev_read_u32(dev, "mediatek,u2p-dis-msk", &mtk->u2p_dis_msk);
+	dev_info(dev, "ports disabled mask: u3p-0x%x, u2p-0x%x\n",
+		 mtk->u3p_dis_msk, mtk->u2p_dis_msk);
 
 	return 0;
 }
@@ -300,6 +317,6 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.remove = xhci_mtk_remove,
 	.ops = &xhci_usb_ops,
 	.bind = dm_scan_fdt_dev,
-	.priv_auto_alloc_size = sizeof(struct mtk_xhci),
+	.priv_auto	= sizeof(struct mtk_xhci),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

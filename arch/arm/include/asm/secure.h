@@ -2,9 +2,10 @@
 #define __ASM_SECURE_H
 
 #include <config.h>
+#include <asm/global_data.h>
 
-#define __secure __attribute__ ((section ("._secure.text")))
-#define __secure_data __attribute__ ((section ("._secure.data")))
+#define __secure __section("._secure.text")
+#define __secure_data __section("._secure.data")
 
 #ifndef __ASSEMBLY__
 
@@ -21,7 +22,7 @@ typedef struct secure_svc_tbl {
  */
 #define DECLARE_SECURE_SVC(_name, _id, _fn) \
 	static const secure_svc_tbl_t __secure_svc_ ## _name \
-		__attribute__((used, section("._secure_svc_tbl_entries"))) \
+		__used __section("._secure_svc_tbl_entries") \
 			 = { \
 				.id = _id, \
 				.func = _fn }

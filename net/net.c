@@ -412,7 +412,7 @@ int net_loop(enum proto_t protocol)
 
 	bootstage_mark_name(BOOTSTAGE_ID_ETH_START, "eth_start");
 	net_init();
-	if (eth_is_on_demand_init() || protocol != NETCONS) {
+	if (eth_is_on_demand_init()) {
 		eth_halt();
 		eth_set_current();
 		ret = eth_init();
@@ -1591,7 +1591,7 @@ ushort string_to_vlan(const char *s)
 	if (*s < '0' || *s > '9')
 		id = VLAN_NONE;
 	else
-		id = (ushort)simple_strtoul(s, NULL, 10);
+		id = (ushort)dectoul(s, NULL);
 
 	return htons(id);
 }

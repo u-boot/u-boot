@@ -169,5 +169,5 @@ U_BOOT_DRIVER(ipq4019_reset) = {
 	.of_match = ipq4019_reset_ids,
 	.ops = &ipq4019_reset_ops,
 	.probe = ipq4019_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct ipq4019_reset_priv),
+	.priv_auto	= sizeof(struct ipq4019_reset_priv),
 };

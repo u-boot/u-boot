@@ -11,7 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_REVISION_TAG
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
@@ -24,7 +23,6 @@
 #define PHYS_SDRAM_2			CSD1_BASE_ADDR
 #define PHYS_SDRAM_2_SIZE		(gd->bd->bi_dram[1].size)
 #define PHYS_SDRAM_SIZE			(gd->ram_size)
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
@@ -75,26 +73,14 @@
  * Ethernet on SOC (FEC)
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x0
-#define CONFIG_MII
 #define CONFIG_DISCOVER_PHY
 #define CONFIG_FEC_XCV_TYPE		RMII
 #define CONFIG_ETHPRIME			"FEC0"
 #endif
 
-/*
- * I2C
- */
-#ifdef CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_RTC_BUS_NUM		1 /* I2C2 */
-#endif
 
 /*
  * RTC
@@ -141,14 +127,8 @@
 /*
  * Boot Linux
  */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTFILE		"boot/fitImage"
-#define CONFIG_LOADADDR		0x70800000
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /*
  * NAND SPL
@@ -157,12 +137,7 @@
 #define CONFIG_SPL_PAD_TO		0x8000
 #define CONFIG_SPL_STACK		0x70004000
 
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-#define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 
 /*
  * Extra Environments
@@ -184,6 +159,13 @@
 	"splashfile=boot/usplash.bmp.gz\0"				\
 	"splashimage=0x88000000\0"					\
 	"splashpos=m,m\0"						\
+	"altbootcmd="							\
+		"if test ${mmcpart} -eq 1 ; then "			\
+			"setenv mmcpart 2 ; "				\
+		"else "							\
+			"setenv mmcpart 1 ; "				\
+		"fi ; "							\
+		"boot\0"						\
 	"stdout=serial,vidconsole\0"					\
 	"stderr=serial,vidconsole\0"					\
 	"addcons="							\
@@ -198,14 +180,14 @@
 		"setenv bootargs ${bootargs} ${miscargs}\0"		\
 	"addargs=run addcons addmisc addmtd\0"				\
 	"mmcload="							\
-		"mmc rescan ; load mmc ${mmcdev}:${mmcpart} "		\
-		"${kernel_addr_r} ${bootfile}\0"			\
+		"mmc rescan || reset ; load mmc ${mmcdev}:${mmcpart} "	\
+		"${kernel_addr_r} ${bootfile} || reset\0"		\
 	"miscargs=nohlt panic=1\0"					\
 	"mmcargs=setenv bootargs root=/dev/mmcblk0p${mmcpart} rw "	\
 		"rootwait\0"						\
 	"mmc_mmc="							\
-		"run mmcload mmcargs addargs ; "			\
-		"bootm ${kernel_addr_r}\0"				\
+		"run mmcload mmcargs addargs || reset ; "		\
+		"bootm ${kernel_addr_r} ; reset\0"			\
 	"netload=tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
 	"net_nfs="							\
 		"run netload nfsargs addip addargs ; "			\

@@ -91,7 +91,7 @@ static inline void mci_set_blklen(atmel_mci_t *mci, int blklen)
 #ifdef CONFIG_DM_MMC
 static void mci_set_mode(struct udevice *dev, u32 hz, u32 blklen)
 {
-	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	struct atmel_mci_plat *plat = dev_get_plat(dev);
 	struct atmel_mci_priv *priv = dev_get_priv(dev);
 	struct mmc *mmc = &plat->mmc;
 	u32 bus_hz = priv->bus_clk_rate;
@@ -242,7 +242,7 @@ io_fail:
 static int atmel_mci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
-	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	struct atmel_mci_plat *plat = dev_get_plat(dev);
 	struct atmel_mci_priv *priv = dev_get_priv(dev);
 	atmel_mci_t *mci = plat->mci;
 #else
@@ -373,7 +373,7 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 #ifdef CONFIG_DM_MMC
 static int atmel_mci_set_ios(struct udevice *dev)
 {
-	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	struct atmel_mci_plat *plat = dev_get_plat(dev);
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	atmel_mci_t *mci = plat->mci;
 #else
@@ -424,7 +424,7 @@ static int mci_set_ios(struct mmc *mmc)
 #ifdef CONFIG_DM_MMC
 static int atmel_mci_hw_init(struct udevice *dev)
 {
-	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	struct atmel_mci_plat *plat = dev_get_plat(dev);
 	atmel_mci_t *mci = plat->mci;
 #else
 /* Entered into mmc structure during driver init */
@@ -525,7 +525,7 @@ static const struct dm_mmc_ops atmel_mci_mmc_ops = {
 
 static void atmel_mci_setup_cfg(struct udevice *dev)
 {
-	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	struct atmel_mci_plat *plat = dev_get_plat(dev);
 	struct atmel_mci_priv *priv = dev_get_priv(dev);
 	struct mmc_config *cfg;
 	u32 version;
@@ -584,7 +584,7 @@ failed:
 static int atmel_mci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	struct atmel_mci_plat *plat = dev_get_plat(dev);
 	struct mmc *mmc;
 	int ret;
 
@@ -608,7 +608,7 @@ static int atmel_mci_probe(struct udevice *dev)
 
 static int atmel_mci_bind(struct udevice *dev)
 {
-	struct atmel_mci_plat *plat = dev_get_platdata(dev);
+	struct atmel_mci_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -624,8 +624,8 @@ U_BOOT_DRIVER(atmel_mci) = {
 	.of_match = atmel_mci_ids,
 	.bind = atmel_mci_bind,
 	.probe = atmel_mci_probe,
-	.platdata_auto_alloc_size = sizeof(struct atmel_mci_plat),
-	.priv_auto_alloc_size = sizeof(struct atmel_mci_priv),
+	.plat_auto	= sizeof(struct atmel_mci_plat),
+	.priv_auto	= sizeof(struct atmel_mci_priv),
 	.ops = &atmel_mci_mmc_ops,
 };
 #endif

@@ -123,3 +123,24 @@
 		u-boot,dm-pre-reloc;
 	};
 };
+
+&sdmmc2 {
+	u-boot,dm-spl;
+};
+
+&sdmmc2_b4_pins_a {
+	u-boot,dm-spl;
+	pins1 {
+		u-boot,dm-spl;
+	};
+	pins2 {
+		u-boot,dm-spl;
+	};
+};
+
+&sdmmc2_d47_pins_d {
+	u-boot,dm-spl;
+	pins {
+		u-boot,dm-spl;
+	};
+};

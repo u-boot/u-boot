@@ -53,4 +53,3 @@ void check_time(void)
 	else
 		env_set("rtc_status", "OK");
 }
-

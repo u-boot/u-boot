@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
@@ -135,7 +136,7 @@ static int sdhci_cdns_phy_init(struct sdhci_cdns_plat *plat,
 static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
-	struct sdhci_cdns_plat *plat = dev_get_platdata(mmc->dev);
+	struct sdhci_cdns_plat *plat = dev_get_plat(mmc->dev);
 	unsigned int clock = mmc->clock;
 	u32 mode, tmp;
 
@@ -203,7 +204,7 @@ static int sdhci_cdns_set_tune_val(struct sdhci_cdns_plat *plat,
 static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 						    unsigned int opcode)
 {
-	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+	struct sdhci_cdns_plat *plat = dev_get_plat(dev);
 	struct mmc *mmc = &plat->mmc;
 	int cur_streak = 0;
 	int max_streak = 0;
@@ -246,7 +247,7 @@ static struct dm_mmc_ops sdhci_cdns_mmc_ops;
 
 static int sdhci_cdns_bind(struct udevice *dev)
 {
-	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+	struct sdhci_cdns_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -255,7 +256,7 @@ static int sdhci_cdns_probe(struct udevice *dev)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+	struct sdhci_cdns_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	fdt_addr_t base;
 	int ret;
@@ -309,7 +310,7 @@ U_BOOT_DRIVER(sdhci_cdns) = {
 	.of_match = sdhci_cdns_match,
 	.bind = sdhci_cdns_bind,
 	.probe = sdhci_cdns_probe,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct sdhci_cdns_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.plat_auto	= sizeof(struct sdhci_cdns_plat),
 	.ops = &sdhci_cdns_mmc_ops,
 };

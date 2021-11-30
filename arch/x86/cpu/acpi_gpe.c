@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY	UCLASS_IRQ
+
 #include <common.h>
 #include <dm.h>
 #include <irq.h>
@@ -51,7 +53,7 @@ static int acpi_gpe_read_and_clear(struct irq *irq)
 	return ret;
 }
 
-static int acpi_gpe_ofdata_to_platdata(struct udevice *dev)
+static int acpi_gpe_of_to_plat(struct udevice *dev)
 {
 	struct acpi_gpe_priv *priv = dev_get_priv(dev);
 
@@ -102,11 +104,11 @@ static const struct udevice_id acpi_gpe_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(acpi_gpe_drv) = {
-	.name		= "acpi_gpe",
+U_BOOT_DRIVER(intel_acpi_gpe) = {
+	.name		= "intel_acpi_gpe",
 	.id		= UCLASS_IRQ,
 	.of_match	= acpi_gpe_ids,
 	.ops		= &acpi_gpe_ops,
-	.ofdata_to_platdata	= acpi_gpe_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct acpi_gpe_priv),
+	.of_to_plat	= acpi_gpe_of_to_plat,
+	.priv_auto	= sizeof(struct acpi_gpe_priv),
 };

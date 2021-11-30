@@ -7,6 +7,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/scu_ast2500.h>
 #include <dm/lists.h>
@@ -491,7 +492,7 @@ struct clk_ops ast2500_clk_ops = {
 	.enable = ast2500_clk_enable,
 };
 
-static int ast2500_clk_ofdata_to_platdata(struct udevice *dev)
+static int ast2500_clk_of_to_plat(struct udevice *dev)
 {
 	struct ast2500_clk_priv *priv = dev_get_priv(dev);
 
@@ -523,8 +524,8 @@ U_BOOT_DRIVER(aspeed_ast2500_scu) = {
 	.name		= "aspeed_ast2500_scu",
 	.id		= UCLASS_CLK,
 	.of_match	= ast2500_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct ast2500_clk_priv),
+	.priv_auto	= sizeof(struct ast2500_clk_priv),
 	.ops		= &ast2500_clk_ops,
 	.bind		= ast2500_clk_bind,
-	.ofdata_to_platdata		= ast2500_clk_ofdata_to_platdata,
+	.of_to_plat		= ast2500_clk_of_to_plat,
 };

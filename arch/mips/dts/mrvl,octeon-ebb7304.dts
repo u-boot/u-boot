@@ -6,14 +6,34 @@
 /dts-v1/;
 
 #include "mrvl,cn73xx.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "cavium,ebb7304";
 	compatible = "cavium,ebb7304";
 
 	aliases {
+		mmc0 = &mmc0;
+		mmc1 = &mmc1;
 		serial0 = &uart0;
 		spi0 = &spi;
+	};
+
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		/* Power on GPIO 8, active high */
+		reg_mmc_3v3: regulator@0 {
+			compatible = "regulator-fixed";
+			reg = <0>;
+			regulator-name = "mmc-3v3";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			gpio = <&gpio 8 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+		};
 	};
 
 	chosen {
@@ -92,13 +112,20 @@
 	};
 };
 
-&uart0 {
-	clock-frequency = <1200000000>;
-};
-
 &i2c0 {
 	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
 	clock-frequency = <100000>;
+
+	rtc@68 {
+		compatible = "dallas,ds1337";
+		reg = <0x68>;
+	};
+
+	tlv-eeprom@56 {
+		compatible = "atmel,24c256", "microchip,24lc256";
+		reg = <0x56>;
+		pagesize = <64>;
+	};
 };
 
 &i2c1 {
@@ -136,4 +163,41 @@
 	 * 3) Active high (0) or active low (1)
 	 */
 	power = <&gpio 21 0>;
+};
+
+&mmc {
+	status = "okay";
+
+	/* The board has two MMC slots
+	 * If both are occupied, the speed must be reduced,
+	 * as extra data-line load increases slew time,
+	 * and dat-skew adjustment does not help significantly.
+	 */
+	mmc0: mmc-slot@0 {
+		compatible = "cavium,octeon-6130-mmc-slot", "mmc-slot";
+		reg = <0>;
+		vqmmc-supply = <&reg_mmc_3v3>;
+		voltage-ranges = <3300 3300>;
+		//spi-max-frequency = <52000000>; // just one
+		spi-max-frequency = <37000000>; // both slots
+		/* bus width can be 1, 4 or 8 */
+		bus-width = <8>; /* new std property */
+		cavium,bus-max-width = <8>; /* custom property */
+		wp-gpios = <&gpio 22 0>; /* active high */
+		cd-gpios = <&gpio 23 1>; /* active low */
+	};
+
+	mmc1: mmc-slot@1 {
+		compatible = "cavium,octeon-6130-mmc-slot", "mmc-slot";
+		reg = <1>;
+		vqmmc-supply = <&reg_mmc_3v3>;
+		voltage-ranges = <3300 3300>;
+		//spi-max-frequency = <52000000>; // just one
+		spi-max-frequency = <37000000>; // both slots
+		/* bus width can be 1, 4 or 8 */
+		bus-width = <8>; /* new std property */
+		cavium,bus-max-width = <8>; /* custom property */
+		wp-gpios = <&gpio 24 0>; /* active high */
+		cd-gpios = <&gpio 25 1>; /* active low */
+	};
 };

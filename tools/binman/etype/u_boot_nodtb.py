@@ -12,13 +12,13 @@ class Entry_u_boot_nodtb(Entry_blob):
     """U-Boot flat binary without device tree appended
 
     Properties / Entry arguments:
-        - filename: Filename of u-boot.bin (default 'u-boot-nodtb.bin')
+        - filename: Filename to include (default 'u-boot-nodtb.bin')
 
     This is the U-Boot binary, containing relocation information to allow it
     to relocate itself at runtime. It does not include a device tree blob at
-    the end of it so normally cannot work without it. You can add a u_boot_dtb
-    entry after this one, or use a u_boot entry instead (which contains both
-    U-Boot and the device tree).
+    the end of it so normally cannot work without it. You can add a u-boot-dtb
+    entry after this one, or use a u-boot entry instead, normally expands to a
+    section containing u-boot and u-boot-dtb
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)

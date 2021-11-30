@@ -44,7 +44,7 @@ static unsigned long gpio_ports[] = {
 	[0] = GPIO1_BASE_ADDR,
 	[1] = GPIO2_BASE_ADDR,
 	[2] = GPIO3_BASE_ADDR,
-#if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
+#if defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
 		defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_MX7) || defined(CONFIG_IMX8M) || \
 		defined(CONFIG_ARCH_IMX8) || defined(CONFIG_IMXRT1050)
@@ -281,7 +281,7 @@ static const struct dm_gpio_ops gpio_mxc_ops = {
 static int mxc_gpio_probe(struct udevice *dev)
 {
 	struct mxc_bank_info *bank = dev_get_priv(dev);
-	struct mxc_gpio_plat *plat = dev_get_platdata(dev);
+	struct mxc_gpio_plat *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int banknum;
 	char name[18], *str;
@@ -307,9 +307,9 @@ static int mxc_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int mxc_gpio_ofdata_to_platdata(struct udevice *dev)
+static int mxc_gpio_of_to_plat(struct udevice *dev)
 {
-	struct mxc_gpio_plat *plat = dev_get_platdata(dev);
+	struct mxc_gpio_plat *plat = dev_get_plat(dev);
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		fdt_addr_t addr;
 		addr = dev_read_addr(dev);
@@ -318,7 +318,7 @@ static int mxc_gpio_ofdata_to_platdata(struct udevice *dev)
 
 		plat->regs = (struct gpio_regs *)addr;
 	}
-	plat->bank_index = dev->req_seq;
+	plat->bank_index = dev_seq(dev);
 
 	return 0;
 }
@@ -338,21 +338,21 @@ U_BOOT_DRIVER(gpio_mxc) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_mxc_ops,
 	.probe	= mxc_gpio_probe,
-	.ofdata_to_platdata = mxc_gpio_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mxc_gpio_plat),
-	.priv_auto_alloc_size = sizeof(struct mxc_bank_info),
+	.of_to_plat = mxc_gpio_of_to_plat,
+	.plat_auto	= sizeof(struct mxc_gpio_plat),
+	.priv_auto	= sizeof(struct mxc_bank_info),
 	.of_match = mxc_gpio_ids,
 	.bind	= mxc_gpio_bind,
 };
 
-U_BOOT_DRIVER_ALIAS(gpio_mxc, fsl_imx6q_gpio)
+DM_DRIVER_ALIAS(gpio_mxc, fsl_imx6q_gpio)
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct mxc_gpio_plat mxc_plat[] = {
 	{ 0, (struct gpio_regs *)GPIO1_BASE_ADDR },
 	{ 1, (struct gpio_regs *)GPIO2_BASE_ADDR },
 	{ 2, (struct gpio_regs *)GPIO3_BASE_ADDR },
-#if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
+#if defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
 		defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_IMX8M) || defined(CONFIG_ARCH_IMX8)
 	{ 3, (struct gpio_regs *)GPIO4_BASE_ADDR },
@@ -372,11 +372,11 @@ static const struct mxc_gpio_plat mxc_plat[] = {
 #endif
 };
 
-U_BOOT_DEVICES(mxc_gpios) = {
+U_BOOT_DRVINFOS(mxc_gpios) = {
 	{ "gpio_mxc", &mxc_plat[0] },
 	{ "gpio_mxc", &mxc_plat[1] },
 	{ "gpio_mxc", &mxc_plat[2] },
-#if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
+#if defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
 		defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_IMX8M) || defined(CONFIG_ARCH_IMX8)
 	{ "gpio_mxc", &mxc_plat[3] },

@@ -10,6 +10,7 @@
 #include <i2c.h>
 #include <ram.h>
 #include <time.h>
+#include <asm/global_data.h>
 
 #include <asm/sections.h>
 #include <linux/io.h>
@@ -144,7 +145,7 @@ static void cvmx_l2c_set_big_size(struct ddr_priv *priv, u64 mem_size, int mode)
 		big_ctl.u64 = 0;
 		big_ctl.s.maxdram = bits - 9;
 		big_ctl.cn61xx.disable = mode;
-		l2c_wr(priv, CVMX_L2C_BIG_CTL, big_ctl.u64);
+		l2c_wr(priv, CVMX_L2C_BIG_CTL_REL, big_ctl.u64);
 	}
 }
 
@@ -2273,15 +2274,15 @@ static int octeon_ddr_initialize(struct ddr_priv *priv, u32 cpu_hertz,
 		printf("Disabling L2 ECC based on disable_l2_ecc environment variable\n");
 		union cvmx_l2c_ctl l2c_val;
 
-		l2c_val.u64 = l2c_rd(priv, CVMX_L2C_CTL);
+		l2c_val.u64 = l2c_rd(priv, CVMX_L2C_CTL_REL);
 		l2c_val.s.disecc = 1;
-		l2c_wr(priv, CVMX_L2C_CTL, l2c_val.u64);
+		l2c_wr(priv, CVMX_L2C_CTL_REL, l2c_val.u64);
 	} else {
 		union cvmx_l2c_ctl l2c_val;
 
-		l2c_val.u64 = l2c_rd(priv, CVMX_L2C_CTL);
+		l2c_val.u64 = l2c_rd(priv, CVMX_L2C_CTL_REL);
 		l2c_val.s.disecc = 0;
-		l2c_wr(priv, CVMX_L2C_CTL, l2c_val.u64);
+		l2c_wr(priv, CVMX_L2C_CTL_REL, l2c_val.u64);
 	}
 
 	/*
@@ -2294,17 +2295,17 @@ static int octeon_ddr_initialize(struct ddr_priv *priv, u32 cpu_hertz,
 
 		puts("L2 index aliasing disabled.\n");
 
-		l2c_val.u64 = l2c_rd(priv, CVMX_L2C_CTL);
+		l2c_val.u64 = l2c_rd(priv, CVMX_L2C_CTL_REL);
 		l2c_val.s.disidxalias = 1;
-		l2c_wr(priv, CVMX_L2C_CTL, l2c_val.u64);
+		l2c_wr(priv, CVMX_L2C_CTL_REL, l2c_val.u64);
 	} else {
 		union cvmx_l2c_ctl l2c_val;
 
 		/* Enable L2C index aliasing */
 
-		l2c_val.u64 = l2c_rd(priv, CVMX_L2C_CTL);
+		l2c_val.u64 = l2c_rd(priv, CVMX_L2C_CTL_REL);
 		l2c_val.s.disidxalias = 0;
-		l2c_wr(priv, CVMX_L2C_CTL, l2c_val.u64);
+		l2c_wr(priv, CVMX_L2C_CTL_REL, l2c_val.u64);
 	}
 
 	if (OCTEON_IS_OCTEON3()) {
@@ -2320,7 +2321,7 @@ static int octeon_ddr_initialize(struct ddr_priv *priv, u32 cpu_hertz,
 		u64 rdf_cnt;
 		char *s;
 
-		l2c_ctl.u64 = l2c_rd(priv, CVMX_L2C_CTL);
+		l2c_ctl.u64 = l2c_rd(priv, CVMX_L2C_CTL_REL);
 
 		/*
 		 * It is more convenient to compute the ratio using clock
@@ -2337,7 +2338,7 @@ static int octeon_ddr_initialize(struct ddr_priv *priv, u32 cpu_hertz,
 		debug("%-45s : %d, cpu_hertz:%d, ddr_hertz:%d\n",
 		      "EARLY FILL COUNT  ", l2c_ctl.cn78xx.rdf_cnt, cpu_hertz,
 		      ddr_hertz);
-		l2c_wr(priv, CVMX_L2C_CTL, l2c_ctl.u64);
+		l2c_wr(priv, CVMX_L2C_CTL_REL, l2c_ctl.u64);
 	}
 
 	/* Check for lower DIMM socket populated */
@@ -2543,7 +2544,7 @@ try_again:
 
 	eptr = env_get("limit_dram_mbytes");
 	if (eptr) {
-		unsigned int mbytes = simple_strtoul(eptr, NULL, 10);
+		unsigned int mbytes = dectoul(eptr, NULL);
 
 		if (mbytes > 0) {
 			memsize_mbytes = mbytes;
@@ -2724,5 +2725,5 @@ U_BOOT_DRIVER(octeon_ddr) = {
 	.of_match = octeon_ids,
 	.ops = &octeon_ops,
 	.probe = octeon_ddr_probe,
-	.priv_auto_alloc_size = sizeof(struct ddr_priv),
+	.plat_auto = sizeof(struct ddr_priv),
 };

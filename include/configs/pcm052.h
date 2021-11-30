@@ -12,20 +12,9 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
-/* Enable passing of ATAGs */
-#define CONFIG_CMDLINE_TAG
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * SZ_1M)
-
 /* NAND support */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-
-#define CONFIG_LOADADDR			0x82000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
 #define CONFIG_BOARD_SIZE_LIMIT		520192
@@ -138,8 +127,6 @@
 		"nand write ${ram_addr} root ${filesize}; fi\0"
 
 /* Miscellaneous configurable options */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical memory map */
 #define PHYS_SDRAM			(0x80000000)

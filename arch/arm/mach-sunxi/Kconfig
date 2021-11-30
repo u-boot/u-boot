@@ -48,16 +48,45 @@ config DRAM_SUN50I_H6
 	  Select this dram controller driver for some sun50i platforms,
 	  like H6.
 
-config SUN6I_P2WI
-	bool "Allwinner sun6i internal P2WI controller"
+config DRAM_SUN50I_H616
+	bool
 	help
-	  If you say yes to this option, support will be included for the
-	  P2WI (Push/Pull 2 Wire Interface) controller embedded in some sunxi
-	  SOCs.
-	  The P2WI looks like an SMBus controller (which supports only byte
-	  accesses), except that it only supports one slave device.
-	  This interface is used to connect to specific PMIC devices (like the
-	  AXP221).
+	  Select this dram controller driver for some sun50i platforms,
+	  like H616.
+
+if DRAM_SUN50I_H616
+config DRAM_SUN50I_H616_WRITE_LEVELING
+	bool "H616 DRAM write leveling"
+	---help---
+	  Select this when DRAM on your H616 board needs write leveling.
+
+config DRAM_SUN50I_H616_READ_CALIBRATION
+	bool "H616 DRAM read calibration"
+	---help---
+	  Select this when DRAM on your H616 board needs read calibration.
+
+config DRAM_SUN50I_H616_READ_TRAINING
+	bool "H616 DRAM read training"
+	---help---
+	  Select this when DRAM on your H616 board needs read training.
+
+config DRAM_SUN50I_H616_WRITE_TRAINING
+	bool "H616 DRAM write training"
+	---help---
+	  Select this when DRAM on your H616 board needs write training.
+
+config DRAM_SUN50I_H616_BIT_DELAY_COMPENSATION
+	bool "H616 DRAM bit delay compensation"
+	---help---
+	  Select this when DRAM on your H616 board needs bit delay
+	  compensation.
+
+config DRAM_SUN50I_H616_UNKNOWN_FEATURE
+	bool "H616 DRAM unknown feature"
+	---help---
+	  Select this when DRAM on your H616 board needs this unknown
+	  feature.
+endif
 
 config SUN6I_PRCM
 	bool
@@ -66,23 +95,17 @@ config SUN6I_PRCM
 	  in A31 SoC.
 
 config AXP_PMIC_BUS
-	bool "Sunxi AXP PMIC bus access helpers"
+	bool
+	select DM_PMIC if DM_I2C
+	select PMIC_AXP if DM_I2C
 	help
 	  Select this PMIC bus access helpers for Sunxi platform PRCM or other
 	  AXP family PMIC devices.
 
-config SUN8I_RSB
-	bool "Allwinner sunXi Reduced Serial Bus Driver"
-	help
-	  Say y here to enable support for Allwinner's Reduced Serial Bus
-	  (RSB) support. This controller is responsible for communicating
-	  with various RSB based devices, such as AXP223, AXP8XX PMICs,
-	  and AC100/AC200 ICs.
-
 config SUNXI_SRAM_ADDRESS
 	hex
 	default 0x10000 if MACH_SUN9I || MACH_SUN50I || MACH_SUN50I_H5
-	default 0x20000 if MACH_SUN50I_H6
+	default 0x20000 if SUN50I_GEN_H6
 	default 0x0
 	---help---
 	Older Allwinner SoCs have their mask boot ROM mapped just below 4GB,
@@ -108,6 +131,16 @@ config SUNXI_GEN_SUN6I
 	separate ahb reset control registers, custom pmic bus, new style
 	watchdog, etc.
 
+config SUN50I_GEN_H6
+	bool
+	select FIT
+	select SPL_LOAD_FIT
+	select MMC_SUNXI_HAS_NEW_MODE
+	select SUPPORT_SPL
+	---help---
+	Select this for sunxi SoCs which have H6 like peripherals, clocks
+	and memory map.
+
 config SUNXI_DRAM_DW
 	bool
 	---help---
@@ -132,7 +165,6 @@ endif
 
 config MACH_SUNXI_H3_H5
 	bool
-	select DM_I2C
 	select PHY_SUN4I_USB
 	select SUNXI_DE2
 	select SUNXI_DRAM_DW
@@ -143,6 +175,7 @@ config MACH_SUNXI_H3_H5
 # TODO: try out A80's 8GiB DRAM space
 config SUNXI_DRAM_MAX_SIZE
 	hex
+	default 0x100000000 if MACH_SUN50I_H616
 	default 0xC0000000 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN50I_H6
 	default 0x80000000
 
@@ -158,6 +191,8 @@ config MACH_SUN4I
 	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
+	imply SPL_SYS_I2C_LEGACY
+	imply SYS_I2C_LEGACY
 
 config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
@@ -168,6 +203,8 @@ config MACH_SUN5I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	imply CONS_INDEX_2 if !DM_SERIAL
+	imply SPL_SYS_I2C_LEGACY
+	imply SYS_I2C_LEGACY
 
 config MACH_SUN6I
 	bool "sun6i (Allwinner A31)"
@@ -177,10 +214,11 @@ config MACH_SUN6I
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN6I
 	select PHY_SUN4I_USB
-	select SUN6I_P2WI
+	select SPL_I2C
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select SYS_I2C_SUN6I_P2WI
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN7I
@@ -194,6 +232,8 @@ config MACH_SUN7I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply SPL_SYS_I2C_LEGACY
+	imply SYS_I2C_LEGACY
 
 config MACH_SUN8I_A23
 	bool "sun8i (Allwinner A23)"
@@ -203,8 +243,10 @@ config MACH_SUN8I_A23
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A23
 	select PHY_SUN4I_USB
+	select SPL_I2C
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select SYS_I2C_SUN8I_RSB
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 	imply CONS_INDEX_5 if !DM_SERIAL
 
@@ -216,8 +258,10 @@ config MACH_SUN8I_A33
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A33
 	select PHY_SUN4I_USB
+	select SPL_I2C
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select SYS_I2C_SUN8I_RSB
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 	imply CONS_INDEX_5 if !DM_SERIAL
 
@@ -226,10 +270,12 @@ config MACH_SUN8I_A83T
 	select CPU_V7A
 	select DRAM_SUN8I_A83T
 	select PHY_SUN4I_USB
+	select SPL_I2C
 	select SUNXI_GEN_SUN6I
 	select MMC_SUNXI_HAS_NEW_MODE
 	select MMC_SUNXI_HAS_MODE_SWITCH
 	select SUPPORT_SPL
+	select SYS_I2C_SUN8I_RSB
 
 config MACH_SUN8I_H3
 	bool "sun8i (Allwinner H3)"
@@ -247,10 +293,12 @@ config MACH_SUN8I_R40
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select SUNXI_GEN_SUN6I
+	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
 	select PHY_SUN4I_USB
+	imply SPL_SYS_I2C_LEGACY
 
 config MACH_SUN8I_V3S
 	bool "sun8i (Allwinner V3/V3s/S3/S3L)"
@@ -268,16 +316,15 @@ config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7A
 	select DRAM_SUN9I
+	select SPL_I2C
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
-	select SUN8I_RSB
 	select SUPPORT_SPL
 
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
 	select SPI
-	select DM_I2C
 	select DM_SPI if SPI
 	select DM_SPI_FLASH
 	select PHY_SUN4I_USB
@@ -296,24 +343,28 @@ config MACH_SUN50I_H5
 	bool "sun50i (Allwinner H5)"
 	select ARM64
 	select MACH_SUNXI_H3_H5
+	select MMC_SUNXI_HAS_NEW_MODE
 	select FIT
 	select SPL_LOAD_FIT
 
 config MACH_SUN50I_H6
 	bool "sun50i (Allwinner H6)"
 	select ARM64
-	select SUPPORT_SPL
-	select FIT
 	select PHY_SUN4I_USB
-	select SPL_LOAD_FIT
 	select DRAM_SUN50I_H6
+	select SUN50I_GEN_H6
+
+config MACH_SUN50I_H616
+	bool "sun50i (Allwinner H616)"
+	select ARM64
+	select DRAM_SUN50I_H616
+	select SUN50I_GEN_H6
 
 endchoice
 
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
 config MACH_SUN8I
 	bool
-	select SUN8I_RSB
 	select SUN6I_PRCM
 	default y if MACH_SUN8I_A23
 	default y if MACH_SUN8I_A33
@@ -417,6 +468,7 @@ config DRAM_CLK
 		       MACH_SUN8I_V3S
 	default 672 if MACH_SUN50I
 	default 744 if MACH_SUN50I_H6
+	default 720 if MACH_SUN50I_H616
 	---help---
 	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
 	must be a multiple of 24. For the sun9i (A80), the tested values
@@ -433,6 +485,7 @@ endif
 
 config DRAM_ZQ
 	int "sunxi dram zq value"
+	depends on !MACH_SUN50I_H616
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || \
 		       MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_A83T
 	default 127 if MACH_SUN7I
@@ -450,6 +503,7 @@ config DRAM_ODT_EN
 	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I
 	default y if MACH_SUN50I_H6
+	default y if MACH_SUN50I_H616
 	---help---
 	Select this to enable dram odt (on die termination).
 
@@ -541,6 +595,7 @@ config SYS_CLK_FREQ
 	default 1008000000 if MACH_SUN8I
 	default 1008000000 if MACH_SUN9I
 	default 888000000 if MACH_SUN50I_H6
+	default 1008000000 if MACH_SUN50I_H616
 
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I
@@ -551,6 +606,7 @@ config SYS_CONFIG_NAME
 	default "sun9i" if MACH_SUN9I
 	default "sun50i" if MACH_SUN50I
 	default "sun50i" if MACH_SUN50I_H6
+	default "sun50i" if MACH_SUN50I_H616
 
 config SYS_BOARD
 	default "sunxi"
@@ -560,7 +616,6 @@ config SYS_SOC
 
 config UART0_PORT_F
 	bool "UART0 on MicroSD breakout board"
-	default n
 	---help---
 	Repurpose the SD card slot for getting access to the UART0 serial
 	console. Primarily useful only for low level u-boot debugging on
@@ -571,7 +626,6 @@ config UART0_PORT_F
 
 config OLD_SUNXI_KERNEL_COMPAT
 	bool "Enable workarounds for booting old kernels"
-	default n
 	---help---
 	Set this to enable various workarounds for old kernels, this results in
 	sub-optimal settings for newer kernels, only enable if needed.
@@ -610,24 +664,11 @@ config MMC3_CD_PIN
 	---help---
 	See MMC0_CD_PIN help text.
 
-config MMC1_PINS
-	string "Pins for mmc1"
-	default ""
+config MMC1_PINS_PH
+	bool "Pins for mmc1 are on Port H"
+	depends on MACH_SUN4I || MACH_SUN7I || MACH_SUN8I_R40
 	---help---
-	Set the pins used for mmc1, when applicable. This takes a string in the
-	format understood by sunxi_name_to_gpio_bank, e.g. PH for port H.
-
-config MMC2_PINS
-	string "Pins for mmc2"
-	default ""
-	---help---
-	See MMC1_PINS help text.
-
-config MMC3_PINS
-	string "Pins for mmc3"
-	default ""
-	---help---
-	See MMC1_PINS help text.
+	Select this option for boards where mmc1 uses the Port H pinmux.
 
 config MMC_SUNXI_SLOT_EXTRA
 	int "mmc extra slot number"
@@ -702,14 +743,12 @@ config I2C0_ENABLE
 
 config I2C1_ENABLE
 	bool "Enable I2C/TWI controller 1"
-	default n
 	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 
 config I2C2_ENABLE
 	bool "Enable I2C/TWI controller 2"
-	default n
 	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
@@ -717,13 +756,12 @@ config I2C2_ENABLE
 if MACH_SUN6I || MACH_SUN7I
 config I2C3_ENABLE
 	bool "Enable I2C/TWI controller 3"
-	default n
 	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
 endif
 
-if SUNXI_GEN_SUN6I
+if SUNXI_GEN_SUN6I || SUN50I_GEN_H6
 config R_I2C_ENABLE
 	bool "Enable the PRCM I2C/TWI controller"
 	# This is used for the pmic on H3
@@ -736,7 +774,6 @@ endif
 if MACH_SUN7I
 config I2C4_ENABLE
 	bool "Enable I2C/TWI controller 4"
-	default n
 	select CMD_I2C
 	---help---
 	See I2C0_ENABLE help text.
@@ -744,7 +781,7 @@ endif
 
 config AXP_GPIO
 	bool "Enable support for gpio-s on axp PMICs"
-	default n
+	depends on AXP_PMIC_BUS
 	---help---
 	Say Y here to enable support for the gpio pins of the axp PMIC ICs.
 
@@ -756,14 +793,15 @@ config VIDEO_SUNXI
 	depends on !MACH_SUN8I_V3S
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
-	depends on !MACH_SUN50I_H6
-	select VIDEO
+	depends on !SUN50I_GEN_H6
+	select DM_VIDEO
+	select DISPLAY
 	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---
-	Say Y here to add support for using a cfb console on the HDMI, LCD
-	or VGA output found on most sunxi devices. See doc/README.video for
-	info on how to select the video output and mode.
+	Say Y here to add support for using a graphical console on the HDMI,
+	LCD or VGA output found on older sunxi devices. This will also provide
+	a simple_framebuffer device for Linux.
 
 config VIDEO_HDMI
 	bool "HDMI output support"
@@ -775,14 +813,12 @@ config VIDEO_HDMI
 config VIDEO_VGA
 	bool "VGA output support"
 	depends on VIDEO_SUNXI && (MACH_SUN4I || MACH_SUN7I)
-	default n
 	---help---
 	Say Y here to add support for outputting video over VGA.
 
 config VIDEO_VGA_VIA_LCD
 	bool "VGA via LCD controller support"
 	depends on VIDEO_SUNXI && (MACH_SUN5I || MACH_SUN6I || MACH_SUN8I)
-	default n
 	---help---
 	Say Y here to add support for external DACs connected to the parallel
 	LCD interface driving a VGA connector, such as found on the
@@ -791,7 +827,6 @@ config VIDEO_VGA_VIA_LCD
 config VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
 	bool "Force sync active high for VGA via LCD controller support"
 	depends on VIDEO_VGA_VIA_LCD
-	default n
 	---help---
 	Say Y here if you've a board which uses opendrain drivers for the vga
 	hsync and vsync signals. Opendrain drivers cannot generate steep enough
@@ -809,7 +844,6 @@ config VIDEO_VGA_EXTERNAL_DAC_EN
 config VIDEO_COMPOSITE
 	bool "Composite video output support"
 	depends on VIDEO_SUNXI && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
-	default n
 	---help---
 	Say Y here to add support for outputting composite video.
 
@@ -873,28 +907,17 @@ config VIDEO_LCD_BL_PWM_ACTIVE_LOW
 config VIDEO_LCD_PANEL_I2C
 	bool "LCD panel needs to be configured via i2c"
 	depends on VIDEO_SUNXI
-	default n
-	select CMD_I2C
+	select DM_I2C_GPIO
 	---help---
 	Say y here if the LCD panel needs to be configured via i2c. This
 	will add a bitbang i2c controller using gpios to talk to the LCD.
 
-config VIDEO_LCD_PANEL_I2C_SDA
-	string "LCD panel i2c interface SDA pin"
+config VIDEO_LCD_PANEL_I2C_NAME
+	string "LCD panel i2c interface node name"
 	depends on VIDEO_LCD_PANEL_I2C
-	default "PG12"
+	default "i2c@0"
 	---help---
-	Set the SDA pin for the LCD i2c interface. This takes a string in the
-	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
-
-config VIDEO_LCD_PANEL_I2C_SCL
-	string "LCD panel i2c interface SCL pin"
-	depends on VIDEO_LCD_PANEL_I2C
-	default "PG10"
-	---help---
-	Set the SCL pin for the LCD i2c interface. This takes a string in the
-	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
-
+	Set the device tree node name for the LCD i2c interface.
 
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
@@ -906,13 +929,13 @@ config VIDEO_LCD_IF_LVDS
 
 config SUNXI_DE2
 	bool
-	default n
 
 config VIDEO_DE2
 	bool "Display Engine 2 video driver"
 	depends on SUNXI_DE2
 	select DM_VIDEO
 	select DISPLAY
+	select VIDEO_DW_HDMI
 	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---
@@ -989,7 +1012,7 @@ config SPL_STACK_R_ADDR
 	default 0x4fe00000 if MACH_SUN8I
 	default 0x2fe00000 if MACH_SUN9I
 	default 0x4fe00000 if MACH_SUN50I
-	default 0x4fe00000 if MACH_SUN50I_H6
+	default 0x4fe00000 if SUN50I_GEN_H6
 
 config SPL_SPI_SUNXI
 	bool "Support for SPI Flash on Allwinner SoCs in SPL"
@@ -1016,4 +1039,24 @@ config PINEPHONE_DT_SELECTION
 	  Enable this option to automatically select the device tree for the
 	  correct PinePhone hardware revision during boot.
 
+config BLUETOOTH_DT_DEVICE_FIXUP
+	string "Fixup the Bluetooth controller address"
+	default ""
+	help
+	  This option specifies the DT compatible name of the Bluetooth
+	  controller for which to set the "local-bd-address" property.
+	  Set this option if your device ships with the Bluetooth controller
+	  default address.
+	  The used address is "bdaddr" if set, and "ethaddr" with the LSB
+	  flipped elsewise.
+
 endif
+
+config CHIP_DIP_SCAN
+	bool "Enable DIPs detection for CHIP board"
+	select SUPPORT_EXTENSION_SCAN
+	select W1
+	select W1_GPIO
+	select W1_EEPROM
+	select W1_EEPROM_DS24XXX
+	select CMD_EXTENSION

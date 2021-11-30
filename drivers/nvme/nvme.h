@@ -633,8 +633,6 @@ struct nvme_ns {
 	int devnum;
 	int lba_shift;
 	u8 flbas;
-	u64 mode_select_num_blocks;
-	u32 mode_select_block_len;
 };
 
 #endif /* __DRIVER_NVME_H__ */

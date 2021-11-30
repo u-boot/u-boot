@@ -12,6 +12,7 @@
 #include <command.h>
 #include <hang.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <dm/device.h>
 #include <dm/root.h>
 #include <errno.h>
@@ -35,7 +36,7 @@ void bootm_announce_and_cleanup(void)
 	printf("\nStarting kernel ...\n\n");
 
 #ifdef CONFIG_SYS_COREBOOT
-	timestamp_add_now(TS_U_BOOT_START_KERNEL);
+	timestamp_add_now(TS_START_KERNEL);
 #endif
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
 #if CONFIG_IS_ENABLED(BOOTSTAGE_REPORT)
@@ -221,4 +222,22 @@ int do_bootm_linux(int flag, int argc, char *const argv[],
 		return boot_jump_linux(images);
 
 	return boot_jump_linux(images);
+}
+
+static ulong get_sp(void)
+{
+	ulong ret;
+
+#if CONFIG_IS_ENABLED(X86_64)
+	ret = gd->start_addr_sp;
+#else
+	asm("mov %%esp, %0" : "=r"(ret) : );
+#endif
+
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
 }

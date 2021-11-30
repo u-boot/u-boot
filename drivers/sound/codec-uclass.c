@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_AUDIO_CODEC
+
 #include <common.h>
 #include <dm.h>
 #include <audio_codec.h>

@@ -19,6 +19,13 @@
 
 #define PART_STR_LEN 10
 
+/* GUID used by Shim to store the MOK database */
+#define SHIM_LOCK_GUID \
+	EFI_GUID(0x605dab50, 0xe046, 0x4300, \
+		 0xab, 0xb6, 0x3d, 0xd8, 0x10, 0xdd, 0x8b, 0x23)
+
+static const efi_guid_t shim_lock_guid = SHIM_LOCK_GUID;
+
 /**
  * efi_set_blk_dev_to_system_partition() - select EFI system partition
  *
@@ -35,7 +42,7 @@ static efi_status_t __maybe_unused efi_set_blk_dev_to_system_partition(void)
 		log_err("No EFI system partition\n");
 		return EFI_DEVICE_ERROR;
 	}
-	snprintf(part_str, PART_STR_LEN, "%u:%u",
+	snprintf(part_str, PART_STR_LEN, "%x:%x",
 		 efi_system_partition.devnum, efi_system_partition.part);
 	r = fs_set_blk_dev(blk_get_if_type_name(efi_system_partition.if_type),
 			   part_str, FS_TYPE_ANY);
@@ -148,9 +155,10 @@ error:
 #endif
 }
 
-efi_status_t efi_var_restore(struct efi_var_file *buf)
+efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe)
 {
 	struct efi_var_entry *var, *last_var;
+	u16 *data;
 	efi_status_t ret;
 
 	if (buf->reserved || buf->magic != EFI_VAR_FILE_MAGIC ||
@@ -160,21 +168,30 @@ efi_status_t efi_var_restore(struct efi_var_file *buf)
 		return EFI_INVALID_PARAMETER;
 	}
 
-	var = buf->var;
 	last_var = (struct efi_var_entry *)((u8 *)buf + buf->length);
-	while (var < last_var) {
-		u16 *data = var->name + u16_strlen(var->name) + 1;
+	for (var = buf->var; var < last_var;
+	     var = (struct efi_var_entry *)
+		   ALIGN((uintptr_t)data + var->length, 8)) {
 
-		if (var->attr & EFI_VARIABLE_NON_VOLATILE && var->length) {
-			ret = efi_var_mem_ins(var->name, &var->guid, var->attr,
-					      var->length, data, 0, NULL,
-					      var->time);
-			if (ret != EFI_SUCCESS)
-				log_err("Failed to set EFI variable %ls\n",
-					var->name);
-		}
-		var = (struct efi_var_entry *)
-		      ALIGN((uintptr_t)data + var->length, 8);
+		data = var->name + u16_strlen(var->name) + 1;
+
+		/*
+		 * Secure boot related and non-volatile variables shall only be
+		 * restored from U-Boot's preseed.
+		 */
+		if (!safe &&
+		    (efi_auth_var_get_type(var->name, &var->guid) !=
+		     EFI_AUTH_VAR_NONE ||
+		     !guidcmp(&var->guid, &shim_lock_guid) ||
+		     !(var->attr & EFI_VARIABLE_NON_VOLATILE)))
+			continue;
+		if (!var->length)
+			continue;
+		ret = efi_var_mem_ins(var->name, &var->guid, var->attr,
+				      var->length, data, 0, NULL,
+				      var->time);
+		if (ret != EFI_SUCCESS)
+			log_err("Failed to set EFI variable %ls\n", var->name);
 	}
 	return EFI_SUCCESS;
 }
@@ -213,7 +230,7 @@ efi_status_t efi_var_from_file(void)
 		log_err("Failed to load EFI variables\n");
 		goto error;
 	}
-	if (buf->length != len || efi_var_restore(buf) != EFI_SUCCESS)
+	if (buf->length != len || efi_var_restore(buf, false) != EFI_SUCCESS)
 		log_err("Invalid EFI variables file\n");
 error:
 	free(buf);

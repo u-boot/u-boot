@@ -313,10 +313,10 @@ static int bcm6348_iudma_request(struct dma *dma)
 	ch_priv->desc_id = 0;
 	if (bcm6348_iudma_chan_is_rx(dma->id)) {
 		ch_priv->desc_cnt = 0;
-		ch_priv->busy_desc = calloc(ch_priv->desc_cnt, sizeof(bool));
+		ch_priv->busy_desc = NULL;
 	} else {
 		ch_priv->desc_cnt = ch_priv->dma_ring_size;
-		ch_priv->busy_desc = NULL;
+		ch_priv->busy_desc = calloc(ch_priv->desc_cnt, sizeof(bool));
 	}
 
 	return 0;
@@ -649,6 +649,6 @@ U_BOOT_DRIVER(bcm6348_iudma) = {
 	.id = UCLASS_DMA,
 	.of_match = bcm6348_iudma_ids,
 	.ops = &bcm6348_iudma_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm6348_iudma_priv),
+	.priv_auto	= sizeof(struct bcm6348_iudma_priv),
 	.probe = bcm6348_iudma_probe,
 };

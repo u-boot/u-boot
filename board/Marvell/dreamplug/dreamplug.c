@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2021  Tony Dinh <mibodhi@gmail.com>
  * (C) Copyright 2011
  * Jason Cooper <u-boot@lakedaemon.net>
  *
@@ -15,6 +16,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
+#include <asm/global_data.h>
 #include "dreamplug.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -96,42 +98,75 @@ int board_init(void)
 	return 0;
 }
 
+static int fdt_get_phy_addr(const char *path)
+{
+	const void *fdt = gd->fdt_blob;
+	const u32 *reg;
+	const u32 *val;
+	int node, phandle, addr;
+
+	/* Find the node by its full path */
+	node = fdt_path_offset(fdt, path);
+	if (node >= 0) {
+		/* Look up phy-handle */
+		val = fdt_getprop(fdt, node, "phy-handle", NULL);
+		if (val) {
+			phandle = fdt32_to_cpu(*val);
+			if (!phandle)
+				return -1;
+			/* Follow it to its node */
+			node = fdt_node_offset_by_phandle(fdt, phandle);
+			if (node) {
+				/* Look up reg */
+				reg = fdt_getprop(fdt, node, "reg", NULL);
+				if (reg) {
+					addr = fdt32_to_cpu(*reg);
+					return addr;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
 #ifdef CONFIG_RESET_PHY_R
-void mv_phy_88e1116_init(char *name)
+void mv_phy_88e1116_init(const char *name, const char *path)
 {
 	u16 reg;
-	u16 devadr;
+	int phyaddr;
 
 	if (miiphy_set_current_dev(name))
 		return;
 
-	/* command to read PHY dev address */
-	if (miiphy_read(name, 0xEE, 0xEE, (u16 *) &devadr)) {
-		printf("Err..%s could not read PHY dev address\n",
-			__func__);
+	phyaddr = fdt_get_phy_addr(path);
+	if (phyaddr < 0)
 		return;
-	}
 
 	/*
 	 * Enable RGMII delay on Tx and Rx for CPU port
 	 * Ref: sec 4.7.2 of chip datasheet
 	 */
-	miiphy_write(name, devadr, MV88E1116_PGADR_REG, 2);
-	miiphy_read(name, devadr, MV88E1116_MAC_CTRL2_REG, &reg);
+	miiphy_write(name, phyaddr, MV88E1116_PGADR_REG, 2);
+	miiphy_read(name, phyaddr, MV88E1116_MAC_CTRL2_REG, &reg);
 	reg |= (MV88E1116_RGMII_RXTM_CTRL | MV88E1116_RGMII_TXTM_CTRL);
-	miiphy_write(name, devadr, MV88E1116_MAC_CTRL2_REG, reg);
-	miiphy_write(name, devadr, MV88E1116_PGADR_REG, 0);
+	miiphy_write(name, phyaddr, MV88E1116_MAC_CTRL2_REG, reg);
+	miiphy_write(name, phyaddr, MV88E1116_PGADR_REG, 0);
 
 	/* reset the phy */
-	miiphy_reset(name, devadr);
+	miiphy_reset(name, phyaddr);
 
 	printf("88E1116 Initialized on %s\n", name);
 }
 
 void reset_phy(void)
 {
+	char *eth0_name = "ethernet-controller@72000";
+	char *eth0_path = "/ocp@f1000000/ethernet-controller@72000/ethernet0-port@0";
+	char *eth1_name = "ethernet-controller@76000";
+	char *eth1_path = "/ocp@f1000000/ethernet-controller@76000/ethernet1-port@0";
+
 	/* configure and initialize both PHY's */
-	mv_phy_88e1116_init("egiga0");
-	mv_phy_88e1116_init("egiga1");
+	mv_phy_88e1116_init(eth0_name, eth0_path);
+	mv_phy_88e1116_init(eth1_name, eth1_path);
 }
 #endif /* CONFIG_RESET_PHY_R */

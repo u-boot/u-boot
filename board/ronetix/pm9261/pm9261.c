@@ -10,6 +10,7 @@
 #include <common.h>
 #include <init.h>
 #include <vsprintf.h>
+#include <asm/global_data.h>
 #include <linux/sizes.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -19,10 +20,6 @@
 #include <asm/arch/at91_matrix.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
-#if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_DRIVER_DM9000)
-#include <net.h>
-#endif
-#include <netdev.h>
 #include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -79,36 +76,6 @@ static void pm9261_nand_hw_init(void)
 }
 #endif
 
-
-#ifdef CONFIG_DRIVER_DM9000
-static void pm9261_dm9000_hw_init(void)
-{
-	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
-
-	/* Configure SMC CS2 for DM9000 */
-	writel(AT91_SMC_SETUP_NWE(2) | AT91_SMC_SETUP_NCS_WR(0) |
-		AT91_SMC_SETUP_NRD(2) | AT91_SMC_SETUP_NCS_RD(0),
-		&smc->cs[2].setup);
-
-	writel(AT91_SMC_PULSE_NWE(4) | AT91_SMC_PULSE_NCS_WR(8) |
-		AT91_SMC_PULSE_NRD(4) | AT91_SMC_PULSE_NCS_RD(8),
-		&smc->cs[2].pulse);
-
-	writel(AT91_SMC_CYCLE_NWE(16) | AT91_SMC_CYCLE_NRD(16),
-		&smc->cs[2].cycle);
-
-	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
-		AT91_SMC_MODE_EXNW_DISABLE |
-		AT91_SMC_MODE_BAT | AT91_SMC_MODE_DBW_16 |
-		AT91_SMC_MODE_TDF_CYCLE(1),
-		&smc->cs[2].mode);
-
-	/* Configure Interrupt pin as input, no pull-up */
-	at91_periph_clk_enable(ATMEL_ID_PIOA);
-	at91_set_pio_input(AT91_PIO_PORTA, 24, 0);
-}
-#endif
-
 int board_early_init_f(void)
 {
 	return 0;
@@ -131,13 +98,6 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_DRIVER_DM9000
-int board_eth_init(struct bd_info *bis)
-{
-	return dm9000_initialize(bis);
-}
-#endif
-
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
@@ -153,19 +113,6 @@ int dram_init_banksize(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_RESET_PHY_R
-void reset_phy(void)
-{
-#ifdef CONFIG_DRIVER_DM9000
-	/*
-	 * Initialize ethernet HW addr prior to starting Linux,
-	 * needed for nfsroot
-	 */
-	eth_init();
-#endif
-}
-#endif
 
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard (void)

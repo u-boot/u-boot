@@ -13,9 +13,6 @@
 #include <asm/arch/platform.h>
 
 /* Misc CPU related */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 
 #define CONFIG_SYS_SDRAM_BASE		ASPEED_DRAM_BASE
 
@@ -31,8 +28,6 @@
 					 + CONFIG_SYS_INIT_RAM_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		(SYS_INIT_RAM_END \
 					 - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 
 /*
  * NS16550 Configuration

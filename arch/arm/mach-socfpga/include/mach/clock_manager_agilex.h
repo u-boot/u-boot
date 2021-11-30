@@ -6,8 +6,6 @@
 #ifndef _CLOCK_MANAGER_AGILEX_
 #define _CLOCK_MANAGER_AGILEX_
 
-unsigned long cm_get_mpu_clk_hz(void);
-
 #include <asm/arch/clock_manager_soc64.h>
 #include "../../../../../drivers/clk/altera/clk-agilex.h"
 

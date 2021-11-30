@@ -41,7 +41,17 @@ Documentation/devicetree/bindings/phy/phy-bindings.txt.
   * "2500base-x",
   * "rxaui"
   * "xaui"
-  * "10gbase-kr" (10GBASE-KR, XFI, SFI)
+  * "10gbase-r" (This is the IEEE 802.3 Clause 49 defined 10GBASE-R protocol
+    used with various different mediums. Please refer to the IEEE standard for
+    a definition of this. Note: 10GBASE-R is just one protocol that can be used
+    with XFI and SFI. XFI and SFI permit multiple protocols over a single
+    SERDES lane, and also defines the electrical characteristics of the signals
+    with a host compliance board plugged into the host XFP/SFP connector.
+    Therefore, XFI and SFI are not PHY interface types in their own right.)
+  * "10gbase-kr" (This is the IEEE 802.3 Clause 49 defined 10GBASE-R with
+    Clause 73 autonegotiation. Please refer to the IEEE standard for further
+    information. Note: due to legacy usage, some 10GBASE-R usage incorrectly
+    makes use of this definition).
 - phy-connection-type: the same as "phy-mode" property but described in the
   Devicetree Specification;
 - phy-handle: phandle, specifies a reference to a node representing a PHY

@@ -54,7 +54,7 @@
 #define DoC_Mplus_Configuration		0x100a
 #define DoC_Mplus_OutputControl		0x100c
 #define DoC_Mplus_FlashControl		0x1020
-#define DoC_Mplus_FlashSelect 		0x1022
+#define DoC_Mplus_FlashSelect		0x1022
 #define DoC_Mplus_FlashCmd		0x1024
 #define DoC_Mplus_FlashAddress		0x1026
 #define DoC_Mplus_FlashData0		0x1028
@@ -62,14 +62,14 @@
 #define DoC_Mplus_ReadPipeInit		0x102a
 #define DoC_Mplus_LastDataRead		0x102c
 #define DoC_Mplus_LastDataRead1		0x102d
-#define DoC_Mplus_WritePipeTerm 	0x102e
+#define DoC_Mplus_WritePipeTerm		0x102e
 #define DoC_Mplus_ECCSyndrome0		0x1040
 #define DoC_Mplus_ECCSyndrome1		0x1041
 #define DoC_Mplus_ECCSyndrome2		0x1042
 #define DoC_Mplus_ECCSyndrome3		0x1043
 #define DoC_Mplus_ECCSyndrome4		0x1044
 #define DoC_Mplus_ECCSyndrome5		0x1045
-#define DoC_Mplus_ECCConf 		0x1046
+#define DoC_Mplus_ECCConf		0x1046
 #define DoC_Mplus_Toggle		0x1046
 #define DoC_Mplus_DownloadStatus	0x1074
 #define DoC_Mplus_CtrlConfirm		0x1076

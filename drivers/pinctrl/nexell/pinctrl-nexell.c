@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include "pinctrl-nexell.h"
 #include "pinctrl-s5pxx18.h"
@@ -33,7 +34,7 @@ unsigned long pin_to_bank_base(struct udevice *dev, const char *pin_name,
 		idx++;
 	}
 	bank[idx] = '\0';
-	*pin = (u32)simple_strtoul(&pin_name[++idx], NULL, 10);
+	*pin = (u32)dectoul(&pin_name[++idx], NULL);
 
 	/* lookup the pin bank data using the pin bank name */
 	for (idx = 0; idx < nr_banks; idx++)

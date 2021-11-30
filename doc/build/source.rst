@@ -7,7 +7,7 @@ You can download the source via
 
 .. code-block:: bash
 
-    git clone https://gitlab.denx.de/u-boot/u-boot.git
+    git clone https://source.denx.de/u-boot/u-boot.git
 
 A mirror of the source is maintained on Github
 

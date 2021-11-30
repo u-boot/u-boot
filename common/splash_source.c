@@ -20,6 +20,7 @@
 #include <spi_flash.h>
 #include <splash.h>
 #include <usb.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -36,7 +37,7 @@ static int splash_sf_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 			return -ENODEV;
 	}
 
-	return spi_flash_read(sf, offset, read_size, (void *)bmp_load_addr);
+	return spi_flash_read(sf, offset, read_size, (void *)(uintptr_t)bmp_load_addr);
 }
 #else
 static int splash_sf_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
@@ -97,7 +98,7 @@ static int splash_load_raw(struct splash_location *location, u32 bmp_load_addr)
 	if (res < 0)
 		return res;
 
-	bmp_hdr = (struct bmp_header *)bmp_load_addr;
+	bmp_hdr = (struct bmp_header *)(uintptr_t)bmp_load_addr;
 	bmp_size = le32_to_cpu(bmp_hdr->file_size);
 
 	if (bmp_load_addr + bmp_size >= gd->start_addr_sp)
@@ -413,7 +414,7 @@ int splash_source_load(struct splash_location *locations, uint size)
 	if (env_splashimage_value == NULL)
 		return -ENOENT;
 
-	bmp_load_addr = simple_strtoul(env_splashimage_value, 0, 16);
+	bmp_load_addr = hextoul(env_splashimage_value, 0);
 	if (bmp_load_addr == 0) {
 		printf("Error: bad splashimage address specified\n");
 		return -EFAULT;

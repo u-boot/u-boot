@@ -42,25 +42,20 @@
 #define CONFIG_BOOTP_MAY_FAIL
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		0x8000000
 
 /* Monitor Command Prompt */
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		2048
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_MAXARGS		64
 
 #if defined(CONFIG_CMD_DFU)
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x1800000
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define CONFIG_THOR_RESET_OFF
 #endif
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
-# define CONFIG_NET_MULTI
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 # define PHY_ANEG_TIMEOUT       20000
 #endif

@@ -876,7 +876,7 @@ int sqfs_opendir(const char *filename, struct fs_dir_stream **dirsp)
 	char **token_list = NULL, *path = NULL;
 	u32 *pos_list = NULL;
 
-	dirs = malloc(sizeof(*dirs));
+	dirs = calloc(1, sizeof(*dirs));
 	if (!dirs)
 		return -EINVAL;
 
@@ -1090,7 +1090,7 @@ int sqfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition
 
 	/* Make sure it has a valid SquashFS magic number*/
 	if (get_unaligned_le32(&sblk->s_magic) != SQFS_MAGIC_NUMBER) {
-		printf("Bad magic number for SquashFS image.\n");
+		debug("Bad magic number for SquashFS image.\n");
 		ret = -EINVAL;
 		goto error;
 	}
@@ -1253,7 +1253,7 @@ static int sqfs_get_regfile_info(struct squashfs_reg_inode *reg,
 				       fentry);
 		if (ret < 0)
 			return -EINVAL;
-		finfo->comp = true;
+		finfo->comp = ret;
 		if (fentry->size < 1 || fentry->start == 0x7FFFFFFF)
 			return -EINVAL;
 	} else {
@@ -1291,7 +1291,7 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 				       fentry);
 		if (ret < 0)
 			return -EINVAL;
-		finfo->comp = true;
+		finfo->comp = ret;
 		if (fentry->size < 1 || fentry->start == 0x7FFFFFFF)
 			return -EINVAL;
 	} else {
@@ -1310,7 +1310,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 {
 	char *dir = NULL, *fragment_block, *datablock = NULL, *data_buffer = NULL;
 	char *fragment = NULL, *file = NULL, *resolved, *data;
-	u64 start, n_blks, table_size, data_offset, table_offset;
+	u64 start, n_blks, table_size, data_offset, table_offset, sparse_size;
 	int ret, j, i_number, datablk_count = 0;
 	struct squashfs_super_block *sblk = ctxt.sblk;
 	struct squashfs_fragment_block_entry frag_entry;
@@ -1444,28 +1444,43 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		n_blks = DIV_ROUND_UP(table_size + table_offset,
 				      ctxt.cur_dev->blksz);
 
-		data_buffer = malloc_cache_aligned(n_blks * ctxt.cur_dev->blksz);
+		/* Don't load any data for sparse blocks */
+		if (finfo.blk_sizes[j] == 0) {
+			n_blks = 0;
+			table_offset = 0;
+			data_buffer = NULL;
+			data = NULL;
+		} else {
+			data_buffer = malloc_cache_aligned(n_blks * ctxt.cur_dev->blksz);
 
-		if (!data_buffer) {
-			ret = -ENOMEM;
-			goto out;
+			if (!data_buffer) {
+				ret = -ENOMEM;
+				goto out;
+			}
+
+			ret = sqfs_disk_read(start, n_blks, data_buffer);
+			if (ret < 0) {
+				/*
+				 * Possible causes: too many data blocks or too large
+				 * SquashFS block size. Tip: re-compile the SquashFS
+				 * image with mksquashfs's -b <block_size> option.
+				 */
+				printf("Error: too many data blocks to be read.\n");
+				goto out;
+			}
+
+			data = data_buffer + table_offset;
 		}
-
-		ret = sqfs_disk_read(start, n_blks, data_buffer);
-		if (ret < 0) {
-			/*
-			 * Possible causes: too many data blocks or too large
-			 * SquashFS block size. Tip: re-compile the SquashFS
-			 * image with mksquashfs's -b <block_size> option.
-			 */
-			printf("Error: too many data blocks to be read.\n");
-			goto out;
-		}
-
-		data = data_buffer + table_offset;
 
 		/* Load the data */
-		if (SQFS_COMPRESSED_BLOCK(finfo.blk_sizes[j])) {
+		if (finfo.blk_sizes[j] == 0) {
+			/* This is a sparse block */
+			sparse_size = get_unaligned_le32(&sblk->block_size);
+			if ((*actread + sparse_size) > len)
+				sparse_size = len - *actread;
+			memset(buf + *actread, 0, sparse_size);
+			*actread += sparse_size;
+		} else if (SQFS_COMPRESSED_BLOCK(finfo.blk_sizes[j])) {
 			dest_len = get_unaligned_le32(&sblk->block_size);
 			ret = sqfs_decompress(&ctxt, datablock, &dest_len,
 					      data, table_size);
@@ -1484,7 +1499,8 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		}
 
 		data_offset += table_size;
-		free(data_buffer);
+		if (data_buffer)
+			free(data_buffer);
 		data_buffer = NULL;
 		if (*actread >= len)
 			break;
@@ -1531,20 +1547,16 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 			goto out;
 		}
 
-		for (j = *actread; j < finfo.size; j++) {
-			memcpy(buf + j, &fragment_block[finfo.offset + j], 1);
-			(*actread)++;
-		}
+		memcpy(buf + *actread, &fragment_block[finfo.offset], finfo.size - *actread);
+		*actread = finfo.size;
 
 		free(fragment_block);
 
 	} else if (finfo.frag && !finfo.comp) {
 		fragment_block = (void *)fragment + table_offset;
 
-		for (j = *actread; j < finfo.size; j++) {
-			memcpy(buf + j, &fragment_block[finfo.offset + j], 1);
-			(*actread)++;
-		}
+		memcpy(buf + *actread, &fragment_block[finfo.offset], finfo.size - *actread);
+		*actread = finfo.size;
 	}
 
 out:
@@ -1699,6 +1711,9 @@ void sqfs_close(void)
 void sqfs_closedir(struct fs_dir_stream *dirs)
 {
 	struct squashfs_dir_stream *sqfs_dirs;
+
+	if (!dirs)
+		return;
 
 	sqfs_dirs = (struct squashfs_dir_stream *)dirs;
 	free(sqfs_dirs->inode_table);

@@ -102,7 +102,7 @@ static const struct dm_gpio_ops gpio_bcm2835_ops = {
 static int bcm2835_gpio_probe(struct udevice *dev)
 {
 	struct bcm2835_gpios *gpios = dev_get_priv(dev);
-	struct bcm2835_gpio_platdata *plat = dev_get_platdata(dev);
+	struct bcm2835_gpio_plat *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->bank_name = "GPIO";
@@ -116,9 +116,9 @@ static int bcm2835_gpio_probe(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int bcm2835_gpio_ofdata_to_platdata(struct udevice *dev)
+static int bcm2835_gpio_of_to_plat(struct udevice *dev)
 {
-	struct bcm2835_gpio_platdata *plat = dev_get_platdata(dev);
+	struct bcm2835_gpio_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -133,10 +133,10 @@ static int bcm2835_gpio_ofdata_to_platdata(struct udevice *dev)
 U_BOOT_DRIVER(gpio_bcm2835) = {
 	.name	= "gpio_bcm2835",
 	.id	= UCLASS_GPIO,
-	.ofdata_to_platdata = of_match_ptr(bcm2835_gpio_ofdata_to_platdata),
-	.platdata_auto_alloc_size = sizeof(struct bcm2835_gpio_platdata),
+	.of_to_plat = of_match_ptr(bcm2835_gpio_of_to_plat),
+	.plat_auto	= sizeof(struct bcm2835_gpio_plat),
 	.ops	= &gpio_bcm2835_ops,
 	.probe	= bcm2835_gpio_probe,
 	.flags	= DM_FLAG_PRE_RELOC,
-	.priv_auto_alloc_size = sizeof(struct bcm2835_gpios),
+	.priv_auto	= sizeof(struct bcm2835_gpios),
 };

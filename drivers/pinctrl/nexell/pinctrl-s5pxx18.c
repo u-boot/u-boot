@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
@@ -213,7 +214,7 @@ U_BOOT_DRIVER(pinctrl_s5pxx18) = {
 	.name		= "pinctrl_s5pxx18",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= s5pxx18_pinctrl_ids,
-	.priv_auto_alloc_size = sizeof(struct nexell_pinctrl_priv),
+	.priv_auto	= sizeof(struct nexell_pinctrl_priv),
 	.ops		= &s5pxx18_pinctrl_ops,
 	.probe		= nexell_pinctrl_probe,
 	.flags		= DM_FLAG_PRE_RELOC

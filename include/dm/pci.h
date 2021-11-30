@@ -30,7 +30,7 @@ int pci_get_devfn(struct udevice *dev);
  *
  * This returns an int to avoid a dependency on pci.h
  *
- * @reg: reg value from dt-platdata.c array (first member). This is not a
+ * @reg: reg value from dt-plat.c array (first member). This is not a
  *	pointer type, since the caller may use fdt32_t or fdt64_t depending on
  *	the address sizes.
  * @return device/function for that device (pci_dev_t format)

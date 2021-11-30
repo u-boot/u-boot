@@ -16,6 +16,7 @@
 #include <init.h>
 #include <pci.h>
 #include <uuid.h>
+#include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <ioports.h>
@@ -25,14 +26,12 @@
 #include <fdt_support.h>
 #include <asm/io.h>
 #include <i2c.h>
-#include <mb862xx.h>
 #include <video_fb.h>
 #include "upm_table.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[];	/* FLASH chips info */
-extern GraphicDevice mb862xx;
 
 void local_bus_init (void);
 ulong flash_get_size (ulong base, int banknum);
@@ -54,7 +53,7 @@ int checkboard (void)
 	}
 	putc('\n');
 
-#if defined(CONFIG_PCI) || defined(CONFIG_DM_PCI)
+#if defined(CONFIG_PCI)
 	/* Check the PCI_clk sel bit */
 	if (in_be32(&gur->porpllsr) & (1<<15)) {
 		src = "SYSCLK";
@@ -131,9 +130,7 @@ int misc_init_r (void)
 			       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 	}
 
-#if defined(CONFIG_DM_PCI)
 	pci_init();
-#endif
 
 	return 0;
 }
@@ -206,16 +203,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	val[i++] = gd->bd->bi_flashstart;
 	val[i++] = gd->bd->bi_flashsize;
 
-#if defined(CONFIG_VIDEO_MB862xx)
-	if (mb862xx.frameAdrs == CONFIG_SYS_LIME_BASE) {
-		/* Fixup LIME mapping */
-		val[i++] = 2;			/* chip select number */
-		val[i++] = 0;			/* always 0 */
-		val[i++] = CONFIG_SYS_LIME_BASE;
-		val[i++] = CONFIG_SYS_LIME_SIZE;
-	}
-#endif
-
 	/* Fixup FPGA mapping */
 	val[i++] = 3;				/* chip select number */
 	val[i++] = 0;				/* always 0 */
@@ -233,13 +220,15 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #endif /* CONFIG_OF_BOARD_SETUP */
 
 #if defined(CONFIG_OF_SEPARATE)
-void *board_fdt_blob_setup(void)
+void *board_fdt_blob_setup(int *err)
 {
 	void *fw_dtb;
 
+	*err = 0;
 	fw_dtb = (void *)(CONFIG_SYS_TEXT_BASE - CONFIG_ENV_SECT_SIZE);
 	if (fdt_magic(fw_dtb) != FDT_MAGIC) {
 		printf("DTB is not passed via %x\n", (u32)fw_dtb);
+		*err = -ENXIO;
 		return NULL;
 	}
 

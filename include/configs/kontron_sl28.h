@@ -16,8 +16,6 @@
 #endif
 
 /* DDR */
-#define CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 
 #define CONFIG_VERY_BIG_RAM
@@ -42,26 +40,14 @@
 /* generic timer */
 #define COUNTER_FREQUENCY		25000000
 
-/* size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
-
 /* early heap for SPL DM */
 #define CONFIG_MALLOC_F_ADDR		CONFIG_SYS_FSL_OCRAM_BASE
 
 /* serial port */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE 1
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_SYS_CLK_FREQ		100000000
-#define CONFIG_DDR_CLK_FREQ		100000000
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ / 4)
-
-/* MMC */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-#endif
 
 /* ethernet */
 #define CONFIG_SYS_RX_ETH_BUFFER	8
@@ -78,7 +64,6 @@
 
 /* environment */
 /* see include/configs/ti_armv7_common.h */
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"kernel_addr_r=0x82000000\0" \
@@ -93,6 +78,7 @@
 	func(MMC, mmc, 1) \
 	func(NVME, nvme, 0) \
 	func(USB, usb, 0) \
+	func(SCSI, scsi, 0) \
 	func(DHCP, dhcp, 0) \
 	func(PXE, pxe, 0)
 #include <config_distro_bootcmd.h>
@@ -102,6 +88,8 @@
 	"envload=env import -d -b ${env_addr}\0" \
 	"install_rcw=source 20200000\0" \
 	"fdtfile=freescale/fsl-ls1028a-kontron-sl28.dtb\0" \
+	"dfu_alt_info=sf 0:0=u-boot-bin raw 0x210000 0x1d0000;" \
+			    "u-boot-env raw 0x3e0000 0x20000\0" \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 

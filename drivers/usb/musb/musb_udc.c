@@ -104,6 +104,8 @@ struct usb_endpoint_instance *ep0_endpoint;
 static struct usb_device_instance *udc_device;
 static int enabled;
 
+static u16 pending_intrrx;
+
 #ifdef MUSB_DEBUG
 static void musb_db_regs(void)
 {
@@ -629,7 +631,7 @@ static void musb_peri_ep0(void)
 static void musb_peri_rx_ep(unsigned int ep)
 {
 	u16 peri_rxcount;
-	u8 peri_rxcsr = readw(&musbr->ep[ep].epN.rxcsr);
+	u16 peri_rxcsr = readw(&musbr->ep[ep].epN.rxcsr);
 
 	if (!(peri_rxcsr & MUSB_RXCSR_RXPKTRDY)) {
 		if (debug_level > 0)
@@ -664,7 +666,10 @@ static void musb_peri_rx_ep(unsigned int ep)
 				/* The common musb fifo reader */
 				read_fifo(ep, length, data);
 
-				musb_peri_rx_ack(ep);
+				if (length == peri_rxcount)
+					musb_peri_rx_ack(ep);
+				else
+					pending_intrrx |= (1 << ep);
 
 				/*
 				 * urb's actual_length is updated in
@@ -677,18 +682,24 @@ static void musb_peri_rx_ep(unsigned int ep)
 					serial_printf("ERROR : %s %d no space "
 						      "in rcv buffer\n",
 						      __PRETTY_FUNCTION__, ep);
+
+				pending_intrrx |= (1 << ep);
 			}
 		} else {
 			if (debug_level > 0)
 				serial_printf("ERROR : %s %d problem with "
 					      "endpoint\n",
 					      __PRETTY_FUNCTION__, ep);
+
+			pending_intrrx |= (1 << ep);
 		}
 
 	} else {
 		if (debug_level > 0)
 			serial_printf("ERROR : %s %d with nothing to do\n",
 				      __PRETTY_FUNCTION__, ep);
+
+		musb_peri_rx_ack(ep);
 	}
 }
 
@@ -696,9 +707,7 @@ static void musb_peri_rx(u16 intr)
 {
 	unsigned int ep;
 
-	/* Check for EP0 */
-	if (0x01 & intr)
-		musb_peri_ep0();
+	/* First bit is reserved and does not indicate interrupt for EP0 */
 
 	for (ep = 1; ep < 16; ep++) {
 		if ((1 << ep) & intr)
@@ -708,21 +717,16 @@ static void musb_peri_rx(u16 intr)
 
 static void musb_peri_tx(u16 intr)
 {
-	/* Check for EP0 */
-	if (0x01 & intr)
-		musb_peri_ep0_tx();
+	unsigned int ep;
 
-	/*
-	 * Use this in the future when handling epN tx
-	 *
-	 * u8 ep;
-	 *
-	 * for (ep = 1; ep < 16; ep++) {
-	 *	if ((1 << ep) & intr) {
-	 *		/ * handle tx for this endpoint * /
-	 *	}
-	 * }
-	 */
+	/* Check for EP0: first bit indicates interrupt for both RX and TX */
+	if (0x01 & intr)
+		musb_peri_ep0();
+
+	for (ep = 1; ep < 16; ep++) {
+		if ((1 << ep) & intr)
+			udc_endpoint_write(GET_ENDPOINT(udc_device, ep));
+	}
 }
 
 void udc_irq(void)
@@ -743,8 +747,6 @@ void udc_irq(void)
 					      DEVICE_BUS_ACTIVITY, 0);
 			musb_peri_resume();
 		}
-
-		musb_peri_ep0();
 
 		if (MUSB_INTR_RESET & intrusb) {
 			usbd_device_event_irq(udc_device, DEVICE_RESET, 0);
@@ -775,13 +777,16 @@ void udc_irq(void)
 			intrrx = readw(&musbr->intrrx);
 			intrtx = readw(&musbr->intrtx);
 
+			intrrx |= pending_intrrx;
+			pending_intrrx = 0;
+
 			if (intrrx)
 				musb_peri_rx(intrrx);
 
 			if (intrtx)
 				musb_peri_tx(intrtx);
 		} else {
-			if (MUSB_INTR_SOF & intrusb) {
+			if (readw(&musbr->intrtx) & 0x1) {
 				u8 faddr;
 				faddr = readb(&musbr->faddr);
 				/*
@@ -870,18 +875,8 @@ void udc_setup_ep(struct usb_device_instance *device, unsigned int id,
 		ep0_endpoint->endpoint_address = 0xff;
 		ep0_urb = usbd_alloc_urb(device, endpoint);
 	} else if (MAX_ENDPOINT >= id) {
-		int ep_addr;
-
-		/* Check the direction */
-		ep_addr = endpoint->endpoint_address;
-		if (USB_DIR_IN == (ep_addr & USB_ENDPOINT_DIR_MASK)) {
-			/* IN */
-			epinfo[(id * 2) + 1].epsize = endpoint->tx_packetSize;
-		} else {
-			/* OUT */
-			epinfo[id * 2].epsize = endpoint->rcv_packetSize;
-		}
-
+		epinfo[(id * 2) + 0].epsize = endpoint->rcv_packetSize;
+		epinfo[(id * 2) + 1].epsize = endpoint->tx_packetSize;
 		musb_configure_ep(&epinfo[0], ARRAY_SIZE(epinfo));
 	} else {
 		if (debug_level > 0)

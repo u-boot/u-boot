@@ -9,6 +9,7 @@
 #include <blk.h>
 #include <ide.h>
 #include <uuid.h>
+#include <linker_lists.h>
 #include <linux/list.h>
 
 struct block_drvr {
@@ -74,7 +75,7 @@ struct disk_partition {
 	char	type_guid[UUID_STR_LEN + 1];	/* type GUID as string, if exists	*/
 #endif
 #ifdef CONFIG_DOS_PARTITION
-	uchar	sys_ind;	/* partition type 			*/
+	uchar	sys_ind;	/* partition type			*/
 #endif
 };
 
@@ -226,12 +227,16 @@ int part_get_info_by_name(struct blk_desc *dev_desc,
  * @param[in] dev_part_str Input partition description, like "0#misc" or "0:1"
  * @param[out] dev_desc	Place to store the device description pointer
  * @param[out] part_info Place to store the partition information
- * @return 0 on success, or a negative on error
+ * @param[in] allow_whole_dev true to allow the user to select partition 0
+ *		(which means the whole device), false to require a valid
+ *		partition number >= 1
+ * @return the partition number on success, or negative errno on error
  */
 int part_get_info_by_dev_and_name_or_num(const char *dev_iface,
 					 const char *dev_part_str,
 					 struct blk_desc **dev_desc,
-					 struct disk_partition *part_info);
+					 struct disk_partition *part_info,
+					 int allow_whole_dev);
 
 /**
  * part_set_generic_name() - create generic partition like hda1 or sdb2
@@ -270,6 +275,16 @@ static inline int blk_get_device_part_str(const char *ifname,
 					  struct disk_partition *info,
 					  int allow_whole_dev)
 { *dev_desc = NULL; return -1; }
+static inline int
+part_get_info_by_dev_and_name_or_num(const char *dev_iface,
+				     const char *dev_part_str,
+				     struct blk_desc **dev_desc,
+				     struct disk_partition *part_info,
+				     int allow_whole_dev)
+{
+	*dev_desc = NULL;
+	return -ENOSYS;
+}
 #endif
 
 /*
@@ -465,16 +480,49 @@ int get_disk_guid(struct blk_desc *dev_desc, char *guid);
 int is_valid_dos_buf(void *buf);
 
 /**
- * write_mbr_partition() - write DOS MBR
+ * write_mbr_sector() - write DOS MBR
  *
  * @param dev_desc - block device descriptor
  * @param buf - buffer which contains the MBR
  *
  * @return - '0' on success, otherwise error
  */
-int write_mbr_partition(struct blk_desc *dev_desc, void *buf);
+int write_mbr_sector(struct blk_desc *dev_desc, void *buf);
+
+int write_mbr_partitions(struct blk_desc *dev,
+		struct disk_partition *p, int count, unsigned int disksig);
+int layout_mbr_partitions(struct disk_partition *p, int count,
+			  lbaint_t total_sectors);
 
 #endif
 
+#ifdef CONFIG_PARTITIONS
+/**
+ * part_driver_get_count() - get partition driver count
+ *
+ * @return - number of partition drivers
+ */
+static inline int part_driver_get_count(void)
+{
+	return ll_entry_count(struct part_driver, part_driver);
+}
+
+/**
+ * part_driver_get_first() - get first partition driver
+ *
+ * @return - pointer to first partition driver on success, otherwise NULL
+ */
+static inline struct part_driver *part_driver_get_first(void)
+{
+	return ll_entry_start(struct part_driver, part_driver);
+}
+
+#else
+static inline int part_driver_get_count(void)
+{ return 0; }
+
+static inline struct part_driver *part_driver_get_first(void)
+{ return NULL; }
+#endif /* CONFIG_PARTITIONS */
 
 #endif /* _PART_H */

@@ -10,6 +10,27 @@
 	aliases {
 		spi0 = &spifc;
 	};
+
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "khadas";
+				product = "VIM2";
+			};
+
+			baseboard {
+				manufacturer = "khadas";
+				product = "VIM2";
+			};
+
+			chassis {
+				manufacturer = "khadas";
+				product = "VIM2";
+			};
+		};
+	};
 };
 
 &sd_emmc_c {

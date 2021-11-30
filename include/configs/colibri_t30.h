@@ -24,11 +24,6 @@
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_COLIBRI_T30
-
-/* General networking support */
-#define CONFIG_TFTP_TSIZE
-
 /* Increase console I/O buffer size */
 #undef CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_CBSIZE		1024

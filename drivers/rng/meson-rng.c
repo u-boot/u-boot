@@ -11,7 +11,7 @@
 #include <rng.h>
 #include <asm/io.h>
 
-struct meson_rng_platdata {
+struct meson_rng_plat {
 	fdt_addr_t base;
 	struct clk clk;
 };
@@ -26,7 +26,7 @@ struct meson_rng_platdata {
  */
 static int meson_rng_read(struct udevice *dev, void *data, size_t len)
 {
-	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
+	struct meson_rng_plat *pdata = dev_get_plat(dev);
 	char *buffer = (char *)data;
 
 	while (len) {
@@ -52,7 +52,7 @@ static int meson_rng_read(struct udevice *dev, void *data, size_t len)
  */
 static int meson_rng_probe(struct udevice *dev)
 {
-	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
+	struct meson_rng_plat *pdata = dev_get_plat(dev);
 	int err;
 
 	err = clk_enable(&pdata->clk);
@@ -70,20 +70,20 @@ static int meson_rng_probe(struct udevice *dev)
  */
 static int meson_rng_remove(struct udevice *dev)
 {
-	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
+	struct meson_rng_plat *pdata = dev_get_plat(dev);
 
 	return clk_disable(&pdata->clk);
 }
 
 /**
- * meson_rng_ofdata_to_platdata() - transfer device tree data to plaform data
+ * meson_rng_of_to_plat() - transfer device tree data to plaform data
  *
  * @dev:	device
  * Return:	0 if ok
  */
-static int meson_rng_ofdata_to_platdata(struct udevice *dev)
+static int meson_rng_of_to_plat(struct udevice *dev)
 {
-	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
+	struct meson_rng_plat *pdata = dev_get_plat(dev);
 	int err;
 
 	pdata->base = dev_read_addr(dev);
@@ -116,6 +116,6 @@ U_BOOT_DRIVER(meson_rng) = {
 	.ops = &meson_rng_ops,
 	.probe = meson_rng_probe,
 	.remove = meson_rng_remove,
-	.platdata_auto_alloc_size = sizeof(struct meson_rng_platdata),
-	.ofdata_to_platdata = meson_rng_ofdata_to_platdata,
+	.plat_auto	= sizeof(struct meson_rng_plat),
+	.of_to_plat = meson_rng_of_to_plat,
 };

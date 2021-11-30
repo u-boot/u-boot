@@ -11,13 +11,9 @@
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <mach/octeon-model.h>
-#include <mach/cvmx/cvmx-lmcx-defs.h>
-
-/* Mapping is done starting from 0x11800.80000000 */
-#define CVMX_L2C_CTL		0x00800000
-#define CVMX_L2C_BIG_CTL	0x00800030
-#define CVMX_L2C_TADX_INT(i)	(0x00a00028 + (((i) & 7) * 0x40000))
-#define CVMX_L2C_MCIX_INT(i)	(0x00c00028 + (((i) & 3) * 0x40000))
+#include <mach/cvmx-lmcx-defs.h>
+#include <mach/cvmx-regs.h>
+#include <mach/cvmx-l2c-defs.h>
 
 /* Some "external" (non-LMC) registers */
 #define CVMX_IPD_CLK_COUNT		0x00014F0000000338
@@ -66,34 +62,6 @@ static inline u64 l2c_rd(struct ddr_priv *priv, u64 addr)
 static inline void l2c_wr(struct ddr_priv *priv, u64 addr, u64 val)
 {
 	iowrite64(val, priv->l2c_base + addr);
-}
-
-/* Access other CSR registers not located inside the LMC address space */
-static inline u64 csr_rd(u64 addr)
-{
-	void __iomem *base;
-
-	base = ioremap_nocache(addr, 0x100);
-	return ioread64(base);
-}
-
-static inline void csr_wr(u64 addr, u64 val)
-{
-	void __iomem *base;
-
-	base = ioremap_nocache(addr, 0x100);
-	return iowrite64(val, base);
-}
-
-/* "Normal" access, without any offsets and/or mapping */
-static inline u64 cvmx_read64_uint64(u64 addr)
-{
-	return readq((void *)addr);
-}
-
-static inline void cvmx_write64_uint64(u64 addr, u64 val)
-{
-	writeq(val, (void *)addr);
 }
 
 /* Failsafe mode */
@@ -152,8 +120,6 @@ static inline int ddr_verbose(void)
 #define CVMX_TMP_STR(x) CVMX_TMP_STR2(x)
 #define CVMX_TMP_STR2(x) #x
 
-#define CVMX_SYNC asm volatile ("sync" : : : "memory")
-
 #define CVMX_CACHE(op, address, offset)					\
 	asm volatile ("cache " CVMX_TMP_STR(op) ", "			\
 		      CVMX_TMP_STR(offset) "(%[rbase])"			\
@@ -166,157 +132,6 @@ static inline int ddr_verbose(void)
 /* complete prefetches, invalidate entire dcache */
 #define CVMX_DCACHE_INVALIDATE					\
 	{ CVMX_SYNC; asm volatile ("cache 9, 0($0)" : : ); }
-
-/**
- * cvmx_l2c_cfg
- *
- * Specify the RSL base addresses for the block
- *
- *                  L2C_CFG = L2C Configuration
- *
- * Description:
- */
-union cvmx_l2c_cfg {
-	u64 u64;
-	struct cvmx_l2c_cfg_s {
-		uint64_t reserved_20_63:44;
-		uint64_t bstrun:1;
-		uint64_t lbist:1;
-		uint64_t xor_bank:1;
-		uint64_t dpres1:1;
-		uint64_t dpres0:1;
-		uint64_t dfill_dis:1;
-		uint64_t fpexp:4;
-		uint64_t fpempty:1;
-		uint64_t fpen:1;
-		uint64_t idxalias:1;
-		uint64_t mwf_crd:4;
-		uint64_t rsp_arb_mode:1;
-		uint64_t rfb_arb_mode:1;
-		uint64_t lrf_arb_mode:1;
-	} s;
-};
-
-/**
- * cvmx_l2c_ctl
- *
- * L2C_CTL = L2C Control
- *
- *
- * Notes:
- * (1) If MAXVAB is != 0, VAB_THRESH should be less than MAXVAB.
- *
- * (2) L2DFDBE and L2DFSBE allows software to generate L2DSBE, L2DDBE, VBFSBE,
- * and VBFDBE errors for the purposes of testing error handling code.  When
- * one (or both) of these bits are set a PL2 which misses in the L2 will fill
- * with the appropriate error in the first 2 OWs of the fill. Software can
- * determine which OW pair gets the error by choosing the desired fill order
- * (address<6:5>).  A PL2 which hits in the L2 will not inject any errors.
- * Therefore sending a WBIL2 prior to the PL2 is recommended to make a miss
- * likely (if multiple processors are involved software must be careful to be
- * sure no other processor or IO device can bring the block into the L2).
- *
- * To generate a VBFSBE or VBFDBE, software must first get the cache block
- * into the cache with an error using a PL2 which misses the L2.  Then a
- * store partial to a portion of the cache block without the error must
- * change the block to dirty.  Then, a subsequent WBL2/WBIL2/victim will
- * trigger the VBFSBE/VBFDBE error.
- */
-union cvmx_l2c_ctl {
-	u64 u64;
-	struct cvmx_l2c_ctl_s {
-		uint64_t reserved_29_63:35;
-		uint64_t rdf_fast:1;
-		uint64_t disstgl2i:1;
-		uint64_t l2dfsbe:1;
-		uint64_t l2dfdbe:1;
-		uint64_t discclk:1;
-		uint64_t maxvab:4;
-		uint64_t maxlfb:4;
-		uint64_t rsp_arb_mode:1;
-		uint64_t xmc_arb_mode:1;
-		uint64_t reserved_2_13:12;
-		uint64_t disecc:1;
-		uint64_t disidxalias:1;
-	} s;
-
-	struct cvmx_l2c_ctl_cn73xx {
-		uint64_t reserved_32_63:32;
-		uint64_t ocla_qos:3;
-		uint64_t reserved_28_28:1;
-		uint64_t disstgl2i:1;
-		uint64_t reserved_25_26:2;
-		uint64_t discclk:1;
-		uint64_t reserved_16_23:8;
-		uint64_t rsp_arb_mode:1;
-		uint64_t xmc_arb_mode:1;
-		uint64_t rdf_cnt:8;
-		uint64_t reserved_4_5:2;
-		uint64_t disldwb:1;
-		uint64_t dissblkdty:1;
-		uint64_t disecc:1;
-		uint64_t disidxalias:1;
-	} cn73xx;
-
-	struct cvmx_l2c_ctl_cn73xx cn78xx;
-};
-
-/**
- * cvmx_l2c_big_ctl
- *
- * L2C_BIG_CTL = L2C Big memory control register
- *
- *
- * Notes:
- * (1) BIGRD interrupts can occur during normal operation as the PP's are
- * allowed to prefetch to non-existent memory locations.  Therefore,
- * BIGRD is for informational purposes only.
- *
- * (2) When HOLEWR/BIGWR blocks a store L2C_VER_ID, L2C_VER_PP, L2C_VER_IOB,
- * and L2C_VER_MSC will be loaded just like a store which is blocked by VRTWR.
- * Additionally, L2C_ERR_XMC will be loaded.
- */
-union cvmx_l2c_big_ctl {
-	u64 u64;
-	struct cvmx_l2c_big_ctl_s {
-		uint64_t reserved_8_63:56;
-		uint64_t maxdram:4;
-		uint64_t reserved_0_3:4;
-	} s;
-	struct cvmx_l2c_big_ctl_cn61xx {
-		uint64_t reserved_8_63:56;
-		uint64_t maxdram:4;
-		uint64_t reserved_1_3:3;
-		uint64_t disable:1;
-	} cn61xx;
-	struct cvmx_l2c_big_ctl_cn61xx cn63xx;
-	struct cvmx_l2c_big_ctl_cn61xx cn66xx;
-	struct cvmx_l2c_big_ctl_cn61xx cn68xx;
-	struct cvmx_l2c_big_ctl_cn61xx cn68xxp1;
-	struct cvmx_l2c_big_ctl_cn70xx {
-		uint64_t reserved_8_63:56;
-		uint64_t maxdram:4;
-		uint64_t reserved_1_3:3;
-		uint64_t disbig:1;
-	} cn70xx;
-	struct cvmx_l2c_big_ctl_cn70xx cn70xxp1;
-	struct cvmx_l2c_big_ctl_cn70xx cn73xx;
-	struct cvmx_l2c_big_ctl_cn70xx cn78xx;
-	struct cvmx_l2c_big_ctl_cn70xx cn78xxp1;
-	struct cvmx_l2c_big_ctl_cn61xx cnf71xx;
-	struct cvmx_l2c_big_ctl_cn70xx cnf75xx;
-};
-
-struct rlevel_byte_data {
-	int delay;
-	int loop_total;
-	int loop_count;
-	int best;
-	u64 bm;
-	int bmerrs;
-	int sqerrs;
-	int bestsq;
-};
 
 #define DEBUG_VALIDATE_BITMASK 0
 #if DEBUG_VALIDATE_BITMASK

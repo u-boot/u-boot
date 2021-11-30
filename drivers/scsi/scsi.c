@@ -9,6 +9,7 @@
 #include <bootstage.h>
 #include <dm.h>
 #include <env.h>
+#include <libata.h>
 #include <log.h>
 #include <part.h>
 #include <pci.h>
@@ -149,9 +150,9 @@ static void scsi_setup_write_ext(struct scsi_cmd *pccb, lbaint_t start,
 static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		       void *buffer)
 {
-	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 	struct udevice *bdev = dev->parent;
-	struct scsi_platdata *uc_plat = dev_get_uclass_platdata(bdev);
+	struct scsi_plat *uc_plat = dev_get_uclass_plat(bdev);
 	lbaint_t start, blks, max_blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks = 0;
@@ -219,9 +220,9 @@ static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 static ulong scsi_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			const void *buffer)
 {
-	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 	struct udevice *bdev = dev->parent;
-	struct scsi_platdata *uc_plat = dev_get_uclass_platdata(bdev);
+	struct scsi_plat *uc_plat = dev_get_uclass_plat(bdev);
 	lbaint_t start, blks, max_blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks;
@@ -283,7 +284,6 @@ void scsi_init(void)
 	 */
 	for (i = 0; i < ARRAY_SIZE(scsi_device_list); i++) {
 		/* get PCI Device ID */
-#ifdef CONFIG_DM_PCI
 		struct udevice *dev;
 		int ret;
 
@@ -293,11 +293,6 @@ void scsi_init(void)
 			busdevfunc = dm_pci_get_bdf(dev);
 			break;
 		}
-#else
-		busdevfunc = pci_find_device(scsi_device_list[i].vendor,
-					     scsi_device_list[i].device,
-					     0);
-#endif
 		if (busdevfunc != -1)
 			break;
 	}
@@ -586,7 +581,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 		return ret;
 	}
 
-	bdesc = dev_get_uclass_platdata(bdev);
+	bdesc = dev_get_uclass_plat(bdev);
 	bdesc->target = id;
 	bdesc->lun = lun;
 	bdesc->removable = bd.removable;
@@ -594,6 +589,11 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	memcpy(&bdesc->vendor, &bd.vendor, sizeof(bd.vendor));
 	memcpy(&bdesc->product, &bd.product, sizeof(bd.product));
 	memcpy(&bdesc->revision, &bd.revision,	sizeof(bd.revision));
+	if (IS_ENABLED(CONFIG_SYS_BIG_ENDIAN)) {
+		ata_swap_buf_le16((u16 *)&bdesc->vendor, sizeof(bd.vendor) / 2);
+		ata_swap_buf_le16((u16 *)&bdesc->product, sizeof(bd.product) / 2);
+		ata_swap_buf_le16((u16 *)&bdesc->revision, sizeof(bd.revision) / 2);
+	}
 
 	if (verbose) {
 		printf("  Device %d: ", bdesc->devnum);
@@ -604,7 +604,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 
 int scsi_scan_dev(struct udevice *dev, bool verbose)
 {
-	struct scsi_platdata *uc_plat; /* scsi controller platdata */
+	struct scsi_plat *uc_plat; /* scsi controller plat */
 	int ret;
 	int i;
 	int lun;
@@ -614,8 +614,8 @@ int scsi_scan_dev(struct udevice *dev, bool verbose)
 	if (ret)
 		return ret;
 
-	/* Get controller platdata */
-	uc_plat = dev_get_uclass_platdata(dev);
+	/* Get controller plat */
+	uc_plat = dev_get_uclass_plat(dev);
 
 	for (i = 0; i < uc_plat->max_id; i++)
 		for (lun = 0; lun < uc_plat->max_lun; lun++)

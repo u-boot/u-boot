@@ -5,6 +5,7 @@
 
 #include <clk-uclass.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dt-bindings/clock/octeon-clock.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -68,5 +69,5 @@ U_BOOT_DRIVER(clk_octeon) = {
 	.of_match = octeon_clk_ids,
 	.ops = &octeon_clk_ops,
 	.probe = octeon_clk_probe,
-	.priv_auto_alloc_size = sizeof(struct octeon_clk_priv),
+	.priv_auto	= sizeof(struct octeon_clk_priv),
 };

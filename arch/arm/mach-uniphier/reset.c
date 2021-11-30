@@ -18,7 +18,7 @@
 #define __SECURE
 #endif
 
-void __SECURE reset_cpu(unsigned long ignored)
+void __SECURE reset_cpu(void)
 {
 	u32 tmp;
 

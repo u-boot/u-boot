@@ -8,15 +8,11 @@
 /*
  * System Clock Setup
  */
-#define CONFIG_83XX_CLKIN		66000000
 #define CONFIG_SYS_CLK_FREQ		66000000
 #define CONFIG_83XX_PCICLK		66000000
 
 /* QE microcode/firmware address */
 /* between the u-boot partition and env */
-#ifndef CONFIG_SYS_QE_FW_ADDR
-#define CONFIG_SYS_QE_FW_ADDR   0xF00C0000
-#endif
 
 /*
  * System IO Config
@@ -123,7 +119,6 @@
 #define CONFIG_SYS_KMBEC_FPGA_SIZE	128
 
 /* EEprom support */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
 /* ethernet port connected to piggy (UEC2) */
 #define CONFIG_HAS_ETH1

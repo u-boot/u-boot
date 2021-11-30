@@ -209,5 +209,5 @@ U_BOOT_DRIVER(stm32_adc_core) = {
 	.id = UCLASS_SIMPLE_BUS,
 	.of_match = stm32_adc_core_ids,
 	.probe = stm32_adc_core_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_adc_common),
+	.priv_auto	= sizeof(struct stm32_adc_common),
 };

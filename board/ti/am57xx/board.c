@@ -20,6 +20,7 @@
 #include <serial.h>
 #include <usb.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <asm/omap_common.h>
 #include <asm/omap_sec_common.h>
 #include <asm/emif.h>
@@ -42,6 +43,7 @@
 #include <hang.h>
 
 #include "../common/board_detect.h"
+#include "../common/cape_detect.h"
 #include "mux_data.h"
 
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
@@ -142,13 +144,13 @@ static const struct emif_regs beagle_x15_emif1_ddr3_532mhz_emif_regs = {
 	.read_idle_ctrl			= 0x00050000,
 	.zq_config			= 0x5007190b,
 	.temp_alert_config		= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init 	= 0x0024400b,
+	.emif_ddr_phy_ctlr_1_init	= 0x0024400b,
 	.emif_ddr_phy_ctlr_1		= 0x0e24400b,
-	.emif_ddr_ext_phy_ctrl_1 	= 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2 	= 0x00910091,
-	.emif_ddr_ext_phy_ctrl_3 	= 0x00950095,
-	.emif_ddr_ext_phy_ctrl_4 	= 0x009b009b,
-	.emif_ddr_ext_phy_ctrl_5 	= 0x009e009e,
+	.emif_ddr_ext_phy_ctrl_1	= 0x10040100,
+	.emif_ddr_ext_phy_ctrl_2	= 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3	= 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4	= 0x009b009b,
+	.emif_ddr_ext_phy_ctrl_5	= 0x009e009e,
 	.emif_rd_wr_lvl_rmp_win		= 0x00000000,
 	.emif_rd_wr_lvl_rmp_ctl		= 0x80000000,
 	.emif_rd_wr_lvl_ctl		= 0x00000000,
@@ -206,13 +208,13 @@ static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
 	.read_idle_ctrl			= 0x00050000,
 	.zq_config			= 0x5007190b,
 	.temp_alert_config		= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init 	= 0x0024400b,
+	.emif_ddr_phy_ctlr_1_init	= 0x0024400b,
 	.emif_ddr_phy_ctlr_1		= 0x0e24400b,
-	.emif_ddr_ext_phy_ctrl_1 	= 0x10040100,
-	.emif_ddr_ext_phy_ctrl_2 	= 0x00910091,
-	.emif_ddr_ext_phy_ctrl_3 	= 0x00950095,
-	.emif_ddr_ext_phy_ctrl_4 	= 0x009b009b,
-	.emif_ddr_ext_phy_ctrl_5 	= 0x009e009e,
+	.emif_ddr_ext_phy_ctrl_1	= 0x10040100,
+	.emif_ddr_ext_phy_ctrl_2	= 0x00910091,
+	.emif_ddr_ext_phy_ctrl_3	= 0x00950095,
+	.emif_ddr_ext_phy_ctrl_4	= 0x009b009b,
+	.emif_ddr_ext_phy_ctrl_5	= 0x009e009e,
 	.emif_rd_wr_lvl_rmp_win		= 0x00000000,
 	.emif_rd_wr_lvl_rmp_ctl		= 0x80000000,
 	.emif_rd_wr_lvl_ctl		= 0x00000000,
@@ -1197,7 +1199,8 @@ static int board_bootmode_has_emmc(void)
 #endif
 
 #ifdef CONFIG_TI_SECURE_DEVICE
-void board_fit_image_post_process(void **p_image, size_t *p_size)
+void board_fit_image_post_process(const void *fit, int node, void **p_image,
+				  size_t *p_size)
 {
 	secure_boot_verify_image(p_image, p_size);
 }

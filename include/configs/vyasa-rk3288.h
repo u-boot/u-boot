@@ -21,9 +21,6 @@
 	func(MMC, mmc, 1) \
 
 #ifndef CONFIG_TPL_BUILD
-
-#define CONFIG_SPL_OS_BOOT
-
 /* Falcon Mode */
 #define CONFIG_SPL_FS_LOAD_ARGS_NAME	"args"
 #define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"uImage"

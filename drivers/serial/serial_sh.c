@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <clk.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <serial.h>
@@ -169,7 +170,7 @@ static int sh_serial_getc(struct udevice *dev)
 
 static int sh_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct sh_serial_platdata *plat = dev_get_platdata(dev);
+	struct sh_serial_plat *plat = dev_get_plat(dev);
 	struct uart_port *priv = dev_get_priv(dev);
 
 	sh_serial_setbrg_generic(priv, plat->clk, baudrate);
@@ -179,7 +180,7 @@ static int sh_serial_setbrg(struct udevice *dev, int baudrate)
 
 static int sh_serial_probe(struct udevice *dev)
 {
-	struct sh_serial_platdata *plat = dev_get_platdata(dev);
+	struct sh_serial_plat *plat = dev_get_plat(dev);
 	struct uart_port *priv = dev_get_priv(dev);
 
 	priv->membase	= (unsigned char *)plat->base;
@@ -207,9 +208,9 @@ static const struct udevice_id sh_serial_id[] ={
 	{}
 };
 
-static int sh_serial_ofdata_to_platdata(struct udevice *dev)
+static int sh_serial_of_to_plat(struct udevice *dev)
 {
-	struct sh_serial_platdata *plat = dev_get_platdata(dev);
+	struct sh_serial_plat *plat = dev_get_plat(dev);
 	struct clk sh_serial_clk;
 	fdt_addr_t addr;
 	int ret;
@@ -239,14 +240,14 @@ U_BOOT_DRIVER(serial_sh) = {
 	.name	= "serial_sh",
 	.id	= UCLASS_SERIAL,
 	.of_match = of_match_ptr(sh_serial_id),
-	.ofdata_to_platdata = of_match_ptr(sh_serial_ofdata_to_platdata),
-	.platdata_auto_alloc_size = sizeof(struct sh_serial_platdata),
+	.of_to_plat = of_match_ptr(sh_serial_of_to_plat),
+	.plat_auto	= sizeof(struct sh_serial_plat),
 	.probe	= sh_serial_probe,
 	.ops	= &sh_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif
-	.priv_auto_alloc_size = sizeof(struct uart_port),
+	.priv_auto	= sizeof(struct uart_port),
 };
 
 #else /* CONFIG_DM_SERIAL */

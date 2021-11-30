@@ -2,6 +2,9 @@ source "drivers/net/phy/Kconfig"
 source "drivers/net/pfe_eth/Kconfig"
 source "drivers/net/fsl-mc/Kconfig"
 
+config ETH
+	def_bool y
+
 config DM_ETH
 	bool "Enable Driver Model for Ethernet drivers"
 	depends on DM
@@ -37,6 +40,21 @@ config DM_MDIO_MUX
 	  This is currently implemented in net/mdio-mux-uclass.c
 	  Look in include/miiphy.h for details.
 
+config DM_DSA
+	bool "Enable Driver Model for DSA switches"
+	depends on DM_ETH && DM_MDIO
+	depends on PHY_FIXED
+	help
+	  Enable driver model for DSA switches
+
+	  Adds UCLASS_DSA class supporting switches that follow the Distributed
+	  Switch Architecture (DSA).  These switches rely on the presence of a
+	  management switch port connected to an Ethernet controller capable of
+	  receiving frames from the switch.  This host Ethernet controller is
+	  called the "master" Ethernet interface in DSA terminology.
+	  This is currently implemented in net/dsa-uclass.c, refer to
+	  include/net/dsa.h for API details.
+
 config MDIO_SANDBOX
 	depends on DM_MDIO && SANDBOX
 	default y
@@ -62,6 +80,15 @@ config DM_ETH_PHY
 	depends on DM
 	help
 	  Enable driver model for Ethernet Generic PHY .
+
+config DSA_SANDBOX
+	depends on DM_DSA && SANDBOX
+	default y
+	bool "Sandbox: Mocked DSA driver"
+	help
+	  This driver implements a dummy DSA switch connected to a dummy sandbox
+	  Ethernet device used as DSA master, to test DSA class code, including
+	  exported DSA API and datapath processing of Ethernet traffic.
 
 menuconfig NETDEVICES
 	bool "Network device support"
@@ -149,6 +176,20 @@ config BCMGENET
 	help
 	  This driver supports the BCMGENET Ethernet MAC.
 
+config CORTINA_NI_ENET
+	bool "Cortina-Access Ethernet driver"
+	depends on DM_ETH && CORTINA_PLATFORM
+	help
+	  This driver supports the Cortina-Access Ethernet MAC for
+	  all supported CAxxxx SoCs.
+
+config CALXEDA_XGMAC
+	bool "Calxeda XGMAC support"
+	depends on DM_ETH
+	help
+	  This driver supports the XGMAC in Calxeda Highbank and Midway
+	  machines.
+
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
 	depends on DM_ETH
@@ -168,6 +209,7 @@ config DWC_ETH_QOS_IMX
 config DWC_ETH_QOS_STM32
 	bool "Synopsys DWC Ethernet QOS device support for STM32"
 	depends on DWC_ETH_QOS
+	select DM_ETH_PHY
 	default y if ARCH_STM32MP
 	help
 	  The Synopsys Designware Ethernet QOS IP block with the specific
@@ -183,7 +225,6 @@ config DWC_ETH_QOS_TEGRA186
 
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
-	depends on (DM_ETH && DM_PCI) || !DM_ETH
 	help
 	  This driver supports Intel(R) PRO/1000 gigabit ethernet family of
 	  adapters.  For more information on how to identify your adapter, go
@@ -249,6 +290,14 @@ config ETH_DESIGNWARE
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
 	  provide the PHY (physical media interface).
 
+config ETH_DESIGNWARE_MESON8B
+	bool "Amlogic Meson8b and later glue driver for Synopsys Designware Ethernet MAC"
+	depends on DM_ETH
+	select ETH_DESIGNWARE
+	help
+	  This provides glue layer to use Synopsys Designware Ethernet MAC
+	  present on the Amlogic Meson8b, GX, AXG & G12A SoCs.
+
 config ETH_DESIGNWARE_SOCFPGA
 	select REGMAP
 	select SYSCON
@@ -284,7 +333,7 @@ config FEC_MXC_MDIO_BASE
 
 config FEC_MXC
 	bool "FEC Ethernet controller"
-	depends on MX28 || MX5 || MX6 || MX7 || IMX8 || IMX8M || VF610
+	depends on MX28 || MX5 || MX6 || MX7 || IMX8 || IMX8M || IMX8ULP || VF610
 	help
 	  This driver supports the 10/100 Fast Ethernet controller for
 	  NXP i.MX processors.
@@ -294,6 +343,16 @@ config FMAN_ENET
 	depends on ARM || PPC
 	help
 	  This driver support the Freescale FMan Ethernet controller
+
+config SYS_FMAN_FW_ADDR
+	hex "FMAN Firmware Address"
+	depends on FMAN_ENET
+	default 0x0
+
+config SYS_QE_FMAN_FW_LENGTH
+	hex "FMAN QE Firmware length"
+	depends on FMAN_ENET || QE || U_QE
+	default 0x10000
 
 config FTMAC100
 	bool "Ftmac100 Ethernet Support"
@@ -356,6 +415,13 @@ config KS8851_MLL_BASEADDR
 endif #DM_ETH
 endif #KS8851_MLL
 
+config KSZ9477
+	bool "Microchip KSZ9477 I2C controller driver"
+	depends on DM_DSA && DM_I2C
+	help
+	  This driver implements a DSA switch driver for the KSZ9477 family
+	  of GbE switches using the I2C interface.
+
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on ARCH_KIRKWOOD || ARCH_ORION5X
@@ -384,7 +450,6 @@ config MVPP2
 
 config MACB
 	bool "Cadence MACB/GEM Ethernet Interface"
-	depends on DM_ETH
 	select PHYLIB
 	help
 	  The Cadence MACB ethernet interface is found on many Atmel
@@ -398,6 +463,18 @@ config MACB_ZYNQ
 	help
 	  The Cadence MACB ethernet interface was used on Zynq platform.
 	  Say Y to enable support for the MACB/GEM in Zynq chip.
+
+config MT7620_ETH
+	bool "MediaTek MT7620 Ethernet Interface"
+	depends on SOC_MT7620
+	select PHYLIB
+	select DM_RESET
+	select DM_GPIO
+	select CLK
+	help
+	  The MediaTek MT7620 ethernet interface is used on MT7620 based
+	  boards. It has a built-in switch with two configurable ports which
+	  can connect to external PHY/MACs.
 
 config MT7628_ETH
 	bool "MediaTek MT7628 Ethernet Interface"
@@ -440,7 +517,7 @@ config OCTEONTX2_CGX_INTF
 
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
-	depends on DM_ETH && DM_PCI
+	depends on DM_ETH
 	select PHYLIB
 	help
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
@@ -490,21 +567,13 @@ config SMC911X_BASE
 	  of the device (I/O space)
 endif #DM_ETH
 
-choice
-	prompt "SMC911X bus width"
-	default SMC911X_16_BIT
-
 config SMC911X_32_BIT
-	bool "Enable 32-bit interface"
-
-config SMC911X_16_BIT
-	bool "Enable 16-bit interface"
+	bool "Enable SMC911X 32-bit interface"
 	help
-	  Define this if data bus is 16 bits. If your processor
-	  automatically converts one 32 bit word to two 16 bit
-	  words you may also try CONFIG_SMC911X_32_BIT.
+	  Define this if data bus is 32 bits. If your processor use a
+	  narrower 16 bit bus or cannot convert one 32 bit word to two 16 bit
+	  words, leave this to "n".
 
-endchoice
 endif #SMC911X
 
 config SUN7I_GMAC
@@ -547,7 +616,6 @@ source "drivers/net/ti/Kconfig"
 
 config TULIP
 	bool "DEC Tulip DC2114x Ethernet support"
-	depends on (DM_ETH && DM_PCI) || !DM_ETH
 	help
 	  This driver supports DEC DC2114x Fast ethernet chips.
 
@@ -624,6 +692,14 @@ config SNI_AVE
 	  This driver implements support for the Socionext AVE Ethernet
 	  controller, as found on the Socionext UniPhier family.
 
+config SNI_NETSEC
+	bool "Socionext NETSEC Ethernet support"
+	depends on DM_ETH && SYNQUACER_SPI
+	select PHYLIB
+	help
+	  This driver implements support for the Socionext SynQuacer NETSEC
+	  ethernet controller, as found on the Socionext SynQuacer family.
+
 source "drivers/net/mscc_eswitch/Kconfig"
 
 config ETHER_ON_FEC1
@@ -646,7 +722,6 @@ config FEC1_PHY
 config PHY_NORXERR
 	bool "PHY_NORXERR"
 	depends on ETHER_ON_FEC1
-	default n
 	help
 	  The PHY does not have a RXERR line (RMII only).
 	  (so program the FEC to ignore it).
@@ -671,7 +746,6 @@ config FEC2_PHY
 config FEC2_PHY_NORXERR
 	bool "PHY_NORXERR"
 	depends on ETHER_ON_FEC2
-	default n
 	help
 	  The PHY does not have a RXERR line (RMII only).
 	  (so program the FEC to ignore it).
@@ -683,18 +757,14 @@ config SYS_DPAA_QBMAN
 		     ARCH_B4420 || \
 		     ARCH_P1023 || \
 		     ARCH_P2041 || \
-		     ARCH_T1023 || \
 		     ARCH_T1024 || \
 		     ARCH_T1040 || \
 		     ARCH_T1042 || \
 		     ARCH_T2080 || \
-		     ARCH_T2081 || \
 		     ARCH_T4240 || \
-		     ARCH_T4160 || \
 		     ARCH_P4080 || \
 		     ARCH_P3041 || \
 		     ARCH_P5040 || \
-		     ARCH_P5020 || \
 		     ARCH_LS1043A || \
 		     ARCH_LS1046A
 	help
@@ -728,7 +798,7 @@ config HIGMACV300_ETH
 
 config FSL_ENETC
 	bool "NXP ENETC Ethernet controller"
-	depends on DM_PCI && DM_ETH && DM_MDIO
+	depends on DM_ETH && DM_MDIO
 	help
 	  This driver supports the NXP ENETC Ethernet controller found on some
 	  of the NXP SoCs.
@@ -764,5 +834,19 @@ config FSL_LS_MDIO
 	help
 	  This driver supports the MDIO bus found on the Fman 10G Ethernet MACs and
 	  on the mEMAC (which supports both Clauses 22 and 45).
+
+config MDIO_MUX_MMIOREG
+	bool "MDIO MUX accessed as a MMIO register access"
+	depends on DM_MDIO_MUX
+	help
+	  This driver is used for MDIO muxes driven by writing to a register in
+	  the MMIO physical memory.
+
+config MDIO_MUX_MESON_G12A
+	bool "MDIO MUX for Amlogic Meson G12A SoCs"
+	depends on DM_MDIO_MUX
+	help
+	  This driver is used for the MDIO mux found on the Amlogic G12A & compatible
+	  SoCs.
 
 endif # NETDEVICES

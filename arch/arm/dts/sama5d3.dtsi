@@ -1320,6 +1320,7 @@
 				reg = <0xfffffe30 0xf>;
 				interrupts = <3 IRQ_TYPE_LEVEL_HIGH 5>;
 				clocks = <&mck>;
+				u-boot,dm-pre-reloc;
 			};
 
 			watchdog@fffffe40 {

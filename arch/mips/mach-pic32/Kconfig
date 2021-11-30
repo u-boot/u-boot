@@ -9,7 +9,7 @@ choice
 
 config SOC_PIC32MZDA
 	bool "Microchip PIC32MZ[DA] family"
-	select MIPS_L1_CACHE_SHIFT_4
+	select SYS_CACHE_SHIFT_4
 	select ROM_EXCEPTION_VECTORS
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2

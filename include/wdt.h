@@ -38,6 +38,14 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags);
 int wdt_stop(struct udevice *dev);
 
 /*
+ * Stop all registered watchdog devices.
+ *
+ * @return: 0 if ok, first error encountered otherwise (but wdt_stop()
+ * is still called on following devices)
+ */
+int wdt_stop_all(void);
+
+/*
  * Reset the timer, typically restoring the counter to
  * the value configured by start()
  *

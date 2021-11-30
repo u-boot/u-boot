@@ -9,6 +9,7 @@
 #include <log.h>
 #include <misc.h>
 #include <asm/arch-tegra/bpmp_abi.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -122,6 +123,6 @@ U_BOOT_DRIVER(i2c_gpio) = {
 	.id	= UCLASS_I2C,
 	.of_match = tegra186_bpmp_i2c_ids,
 	.probe	= tegra186_bpmp_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct tegra186_bpmp_i2c),
+	.priv_auto	= sizeof(struct tegra186_bpmp_i2c),
 	.ops	= &tegra186_bpmp_i2c_ops,
 };

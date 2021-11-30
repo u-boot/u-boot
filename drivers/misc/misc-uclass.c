@@ -3,6 +3,8 @@
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
  */
 
+#define LOG_CATEGORY UCLASS_MISC
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -68,7 +70,7 @@ int misc_set_enabled(struct udevice *dev, bool val)
 UCLASS_DRIVER(misc) = {
 	.id		= UCLASS_MISC,
 	.name		= "misc",
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.post_bind	= dm_scan_fdt_dev,
 #endif
 };

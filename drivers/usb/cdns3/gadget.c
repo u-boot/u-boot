@@ -1659,7 +1659,7 @@ cdns3_endpoint *cdns3_find_available_ep(struct cdns3_device *priv_dev,
 		/* ep name pattern likes epXin or epXout */
 		char c[2] = {ep->name[2], '\0'};
 
-		num = simple_strtoul(c, NULL, 10);
+		num = dectoul(c, NULL);
 
 		priv_ep = ep_to_cdns3_ep(ep);
 		if (cdns3_ep_dir_is_correct(desc, priv_ep)) {

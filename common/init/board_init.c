@@ -9,6 +9,7 @@
 #include <common.h>
 #include <bootstage.h>
 #include <init.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -165,7 +166,9 @@ void board_init_f_init_reserve(ulong base)
 		board_init_f_init_stack_protection();
 }
 
+#if CONFIG_IS_ENABLED(SHOW_BOOT_PROGRESS)
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */
 __weak void show_boot_progress(int val) {}
+#endif

@@ -271,11 +271,11 @@ int do_ds4510(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	/* arg2 used as chip addr and pin number */
 	if (argc > 2)
-		ul_arg2 = simple_strtoul(argv[2], NULL, 16);
+		ul_arg2 = hextoul(argv[2], NULL);
 
 	/* arg3 used as output/pullup value */
 	if (argc > 3)
-		ul_arg3 = simple_strtoul(argv[3], NULL, 16);
+		ul_arg3 = hextoul(argv[3], NULL);
 
 	switch ((int)c->cmd) {
 	case DS4510_CMD_DEVICE:
@@ -337,9 +337,9 @@ int do_ds4510(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	else
 		return cmd_usage(cmdtp);
 
-	addr = simple_strtoul(argv[3], NULL, 16);
-	off += simple_strtoul(argv[4], NULL, 16);
-	cnt = simple_strtoul(argv[5], NULL, 16);
+	addr = hextoul(argv[3], NULL);
+	off += hextoul(argv[4], NULL);
+	cnt = hextoul(argv[5], NULL);
 
 	if ((off + cnt) > end) {
 		printf("ERROR: invalid len\n");

@@ -16,6 +16,169 @@ Note that booting U-Boot on APL is already supported by coreboot and
 Slim Bootloader. This documentation refers to a 'bare metal' port.
 
 
+Building
+--------
+
+First, you need the following binary blobs:
+
+   * descriptor.bin - Intel flash descriptor
+   * fitimage.bin - Base flash image structure
+   * fsp_m.bin - FSP-M, for setting up SDRAM
+   * fsp_s.bin - FSP-S, for setting up Silicon
+   * vbt.bin - for setting up display
+
+These binaries do not seem to be available publicly. If you have a ROM image,
+such as santa.bin then you can do this::
+
+  cbfstool santa.bin extract -n fspm.bin -f fsp-m.bin
+  cbfstool santa.bin extract -n fsps.bin -f fsp-s.bin
+  cbfstool santa.bin extract -n vbt-santa.bin -f vbt.bin
+  mkdir tmp
+  cd tmp
+  dump_fmap -x ../santa.bin
+  mv SI_DESC ../descriptor.bin
+  mv IFWI ../fitimage.bin
+
+Put all of these files in `board/google/chromebook_coral` so they can be found
+by the build.
+
+To build::
+
+  make O=/tmp/b/chromebook_coral chromebook_coral_defconfig
+  make O=/tmp/b/chromebook_coral -s -j30 all
+
+That should produce `/tmp/b/chrombook_coral/u-boot.rom` which you can use with
+a Dediprog em100::
+
+  em100 -s -c w25q128fw -d /tmp/b/chromebook_coral/u-boot.rom -r
+
+or you can use flashrom to write it to the board. If you do that, make sure you
+have a way to restore the old ROM without booting the board. Otherwise you may
+brick it. Having said that, you may find these instructions useful if you want
+to unbrick your device:
+
+  https://chromium.googlesource.com/chromiumos/platform/ec/+/cr50_stab/docs/case_closed_debugging.md
+
+You can buy Suzy-Q from Sparkfun:
+
+  https://chromium.googlesource.com/chromiumos/third_party/hdctools/+/main/docs/ccd.md#suzyq-suzyqable
+
+Note that it will hang at the SPL prompt for 21 seconds. When booting into
+Chrome OS it will always select developer mode, so will wipe anything you have
+on the device if you let it proceed. You have two seconds in U-Boot to stop the
+auto-boot prompt and several seconds at the 'developer wipe' screen to stop it
+wiping the disk.
+
+Here is the console output::
+
+  U-Boot TPL 2021.04-rc1-00128-g344eefcdfec-dirty (Feb 11 2021 - 20:13:08 -0700)
+  Trying to boot from Mapped SPI
+
+  U-Boot SPL 2021.04-rc1-00128-g344eefcdfec-dirty (Feb 11 2021 - 20:13:08 -0700)
+  Trying to boot from Mapped SPI
+
+
+  U-Boot 2021.04-rc1-00128-g344eefcdfec-dirty (Feb 11 2021 - 20:13:08 -0700)
+
+  CPU:   Intel(R) Celeron(R) CPU N3450 @ 1.10GHz
+  DRAM:  3.9 GiB
+  MMC:   sdmmc@1b,0: 1, emmc@1c,0: 2
+  Video: 1024x768x32 @ b0000000
+  Model: Google Coral
+  Net:   No ethernet found.
+  SF: Detected w25q128fw with page size 256 Bytes, erase size 4 KiB, total 16 MiB
+  Hit any key to stop autoboot:  0
+  cmdline=console= loglevel=7 init=/sbin/init cros_secure oops=panic panic=-1 root=PARTUUID=${uuid}/PARTNROFF=1 rootwait rw dm_verity.error_behavior=3 dm_verity.max_bios=-1 dm_verity.dev_wait=0 dm="1 vroot none rw 1,0 3788800 verity payload=ROOT_DEV hashtree=HASH_DEV hashstart=3788800 alg=sha1 root_hexdigest=55052b629d3ac889f25a9583ea12cdcd3ea15ff8 salt=a2d4d9e574069f4fed5e3961b99054b7a4905414b60a25d89974a7334021165c" noinitrd vt.global_cursor_default=0 kern_guid=${uuid} add_efi_memmap boot=local noresume noswap i915.modeset=1 Kernel command line: "console= loglevel=7 init=/sbin/init cros_secure oops=panic panic=-1 root=PARTUUID=35c775e7-3735-d745-93e5-d9e0238f7ed0/PARTNROFF=1 rootwait rw dm_verity.error_behavior=3 dm_verity.max_bios=-1 dm_verity.dev_wait=0 dm="1 vroot none rw 1,0 3788800 verity payload=ROOT_DEV hashtree=HASH_DEV hashstart=3788800 alg=sha1 root_hexdigest=55052b629d3ac889f25a9583ea12cdcd3ea15ff8 salt=a2d4d9e574069f4fed5e3961b99054b7a4905414b60a25d89974a7334021165c" noinitrd vt.global_cursor_default=0 kern_guid=35c775e7-3735-d745-93e5-d9e0238f7ed0 add_efi_memmap boot=local noresume noswap i915.modeset=1 tpm_tis.force=1 tpm_tis.interrupts=0 nmi_watchdog=panic,lapic disablevmx=off  "
+  Setup located at 00090000:
+
+  ACPI RSDP addr      : 7991f000
+  E820: 14 entries
+                Addr              Size  Type
+      d0000000     1000000  <NULL>
+             0       a0000  RAM
+         a0000       60000  Reserved
+      7b000000      800000  Reserved
+      7b800000     4800000  Reserved
+      7ac00000      400000  Reserved
+        100000     ff00000  RAM
+      10000000     2151000  Reserved
+      12151000    68aaf000  RAM
+     100000000    80000000  RAM
+      e0000000    10000000  Reserved
+      7991bfd0     12e4030  Reserved
+      d0000000    10000000  Reserved
+      fed10000        8000  Reserved
+  Setup sectors       : 1e
+  Root flags          : 1
+  Sys size            : 63420
+  RAM size            : 0
+  Video mode          : ffff
+  Root dev            : 0
+  Boot flag           : 0
+  Jump                : 66eb
+  Header              : 53726448
+                        Kernel V2
+  Version             : 20d
+  Real mode switch    : 0
+  Start sys           : 1000
+  Kernel version      : 38cc
+     @00003acc:
+  Type of loader      : 80
+                        U-Boot, version 0
+  Load flags          : 81
+                      : loaded-high can-use-heap
+  Setup move size     : 8000
+  Code32 start        : 100000
+  Ramdisk image       : 0
+  Ramdisk size        : 0
+  Bootsect kludge     : 0
+  Heap end ptr        : 8e00
+  Ext loader ver      : 0
+  Ext loader type     : 0
+  Command line ptr    : 99000
+     console= loglevel=7 init=/sbin/init cros_secure oops=panic panic=-1 root=PARTUUID=35c775e7-3735-d745-93e5-d9e0238f7ed0/PARTNROFF=1 rootwait rw dm_verity.error_behavior=3 dm_verity.max_bios=-1 dm_verity.dev_wait=0 dm="1 vroot none rw 1,0 3788800 verity payload=ROOT_DEV hashtree=HASH_DEV hashstart=3788800 alg=sha1 root_hexdigest=55052b629d3ac889f25a9583ea12cdcd3ea15ff8 salt=a2d4d9e574069f4fed5e3961b99054b7a4905414b60a25d89974a7334021165c" noinitrd vt.global_cursor_default=0 kern_guid=35c775e7-3735-d745-93e5-d9e0238f7ed0 add_efi_memmap boot=local noresume noswap i915.modeset=1 tpm_tis.force=1 tpm_tis.interrupts=0 nmi_watchdog=panic,lapic disablevmx=off
+  Initrd addr max     : 7fffffff
+  Kernel alignment    : 200000
+  Relocatable kernel  : 1
+  Min alignment       : 15
+                      : 200000
+  Xload flags         : 3
+                      : 64-bit-entry can-load-above-4gb
+  Cmdline size        : 7ff
+  Hardware subarch    : 0
+  HW subarch data     : 0
+  Payload offset      : 26e
+  Payload length      : 612045
+  Setup data          : 0
+  Pref address        : 1000000
+  Init size           : 1383000
+  Handover offset     : 0
+
+  Starting kernel ...
+
+  Timer summary in microseconds (17 records):
+         Mark    Elapsed  Stage
+            0          0  reset
+      155,279    155,279  TPL
+      237,088     81,809  end phase
+      237,533        445  SPL
+      816,456    578,923  end phase
+      817,357        901  board_init_f
+    1,061,751    244,394  board_init_r
+    1,402,435    340,684  id=64
+    1,430,071     27,636  main_loop
+    5,532,057  4,101,986  start_kernel
+
+  Accumulated time:
+                     685  dm_r
+                   2,817  fast_spi
+                  33,095  dm_spl
+                  52,468  dm_f
+                 208,242  fsp-m
+                 242,221  fsp-s
+                 332,710  mmap_spi
+
+
 Boot flow - TPL
 ---------------
 
@@ -181,7 +344,7 @@ Partial memory map
     ff000000       Bottom of ROM
     fefc0000       Top of CAR region
     fef96000       Stack for FSP-M
-    fef40000 59000 FSP-M
+    fef40000 59000 FSP-M (also VPL loads here)
     fef11000       SPL loaded here
     fef10000       CONFIG_BLOBLIST_ADDR
     fef10000       Stack top in TPL, SPL and U-Boot before relocation
@@ -195,35 +358,72 @@ Partial memory map
      1110000       CONFIG_SYS_TEXT_BASE
 
 
+Speeding up SPL for development
+-------------------------------
+
+The 21-second wait for memory training is annoying during development, since
+every new image incurs this cost when booting. There is no cache to fall back on
+since that area of the image is empty on start-up.
+
+You can add suitable cache contents to the image to fix this, for development
+purposes only, like this::
+
+   # Read the image back after booting through SPL
+   em100 -s -c w25q128fw -u image.bin
+
+   # Extract the two cache regions
+   binman extract -i image.bin extra *cache
+
+   # Move them into the source directory
+   mv *cache board/google/chromebook_coral
+
+Then add something like this to the devicetree::
+
+  #if IS_ENABLED(CONFIG_HAVE_MRC) || IS_ENABLED(CONFIG_FSP_VERSION2)
+     /* Provide initial contents of the MRC data for faster development */
+     rw-mrc-cache {
+        type = "blob";
+        /* Mirror the offset in spi-flash@0 */
+        offset = <0xff8e0000>;
+        size = <0x10000>;
+        filename = "board/google/chromebook_coral/rw-mrc-cache";
+     };
+     rw-var-mrc-cache {
+        type = "blob";
+        size = <0x1000>;
+        filename = "board/google/chromebook_coral/rw-var-mrc-cache";
+     };
+  #endif
+
+This tells binman to put the cache contents in the same place as the
+`rw-mrc-cache` and `rw-var-mrc-cache` regions defined by the SPI-flash driver.
+
+
 Supported peripherals
 ---------------------
 
-- UART
-- SPI flash
-- Video
-- MMC (dev 0) and micro-SD (dev 1)
-- Chrome OS EC
-- Keyboard
-- USB
+The following have U-Boot drivers:
+
+   - UART
+   - SPI flash
+   - Video
+   - MMC (dev 0) and micro-SD (dev 1)
+   - Chrome OS EC
+   - Cr50 (security chip)
+   - Keyboard
+   - USB
 
 
 To do
 -----
 
 - Finish peripherals
-   - left-side USB
-   - USB-C
-   - Cr50 (security chip: a basic driver is running but not included here)
    - Sound (Intel I2S support exists, but need da7219 driver)
-   - Various minor features supported by LPC, etc.
-- Booting Chrome OS, e.g. with verified boot
-- Integrate with Chrome OS vboot
-- Improvements to booting from coreboot (i.e. as a coreboot target)
 - Use FSP-T binary instead of our own CAR implementation
 - Use the official FSP package instead of the coreboot one
-- Enable all CPU cores
 - Suspend / resume
-- ACPI
+- Fix MMC which seems to try to read even though the card is empty
+- Fix USB3 crash "WARN halted endpoint, queueing URB anyway."
 
 
 Credits

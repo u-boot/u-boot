@@ -35,13 +35,14 @@
 #include <palmas.h>
 #endif
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #ifdef CONFIG_OMAP54XX
 #include <asm/arch/mux_dra7xx.h>
 #include <asm/arch/dra7xx_iodelay.h>
 #endif
-#if !defined(CONFIG_SOC_KEYSTONE)
+#if !defined(CONFIG_ARCH_KEYSTONE)
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #endif
@@ -60,7 +61,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* simplify defines to OMAP_HSMMC_USE_GPIO */
 #if (defined(CONFIG_OMAP_GPIO) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
+	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO))
 #define OMAP_HSMMC_USE_GPIO
 #else
 #undef OMAP_HSMMC_USE_GPIO
@@ -180,7 +181,7 @@ static inline struct omap_hsmmc_data *omap_hsmmc_get_data(struct mmc *mmc)
 static inline struct mmc_config *omap_hsmmc_get_cfg(struct mmc *mmc)
 {
 #if CONFIG_IS_ENABLED(DM_MMC)
-	struct omap_hsmmc_plat *plat = dev_get_platdata(mmc->dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(mmc->dev);
 	return &plat->cfg;
 #else
 	return &((struct omap_hsmmc_data *)mmc->priv)->cfg;
@@ -1558,7 +1559,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		priv->base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE;
 #if (defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
 	defined(CONFIG_DRA7XX) || defined(CONFIG_AM33XX) || \
-	defined(CONFIG_AM43XX) || defined(CONFIG_SOC_KEYSTONE)) && \
+	defined(CONFIG_AM43XX) || defined(CONFIG_ARCH_KEYSTONE)) && \
 		defined(CONFIG_HSMMC2_8BIT)
 		/* Enable 8-bit interface for eMMC on OMAP4/5 or DRA7XX */
 		host_caps_val |= MMC_MODE_8BIT;
@@ -1890,7 +1891,7 @@ static int omap_hsmmc_get_pinctrl_state(struct mmc *mmc)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 #ifdef CONFIG_OMAP54XX
 __weak const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 {
@@ -1898,9 +1899,9 @@ __weak const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 }
 #endif
 
-static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
+static int omap_hsmmc_of_to_plat(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	struct omap_mmc_of_data *of_data = (void *)dev_get_driver_data(dev);
 
 	struct mmc_config *cfg = &plat->cfg;
@@ -1949,14 +1950,14 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 
 static int omap_hsmmc_bind(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	plat->mmc = calloc(1, sizeof(struct mmc));
 	return mmc_bind(dev, plat->mmc, &plat->cfg);
 }
 #endif
 static int omap_hsmmc_probe(struct udevice *dev)
 {
-	struct omap_hsmmc_plat *plat = dev_get_platdata(dev);
+	struct omap_hsmmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
@@ -2008,7 +2009,7 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	return omap_hsmmc_init_setup(mmc);
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 
 static const struct omap_mmc_of_data dra7_mmc_of_data = {
 	.controller_flags = OMAP_HSMMC_REQUIRE_IODELAY,
@@ -2026,17 +2027,17 @@ static const struct udevice_id omap_hsmmc_ids[] = {
 U_BOOT_DRIVER(omap_hsmmc) = {
 	.name	= "omap_hsmmc",
 	.id	= UCLASS_MMC,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = omap_hsmmc_ids,
-	.ofdata_to_platdata = omap_hsmmc_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct omap_hsmmc_plat),
+	.of_to_plat = omap_hsmmc_of_to_plat,
+	.plat_auto	= sizeof(struct omap_hsmmc_plat),
 #endif
 #ifdef CONFIG_BLK
 	.bind = omap_hsmmc_bind,
 #endif
 	.ops = &omap_hsmmc_ops,
 	.probe	= omap_hsmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
+	.priv_auto	= sizeof(struct omap_hsmmc_data),
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif

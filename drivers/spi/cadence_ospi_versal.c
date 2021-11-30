@@ -43,7 +43,7 @@ void cadence_qspi_apb_enable_linear_mode(bool enable)
 	}
 }
 
-int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
+int cadence_qspi_apb_dma_read(struct cadence_spi_plat *plat,
 			      unsigned int n_rx, u8 *rxbuf)
 {
 	u32 reg, ret, rx_rem, bytes_to_dma, data;
@@ -129,7 +129,7 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
 	return 0;
 }
 
-int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_platdata *plat)
+int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_plat *plat)
 {
 	u32 timeout = CQSPI_DMA_TIMEOUT;
 

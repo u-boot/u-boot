@@ -7,11 +7,11 @@
 /include/ "serial.dtsi"
 /include/ "reset.dtsi"
 /include/ "rtc.dtsi"
-/include/ "tsc_timer.dtsi"
 
+#include "tsc_timer.dtsi"
 #include "smbios.dtsi"
 
-#ifdef CONFIG_CHROMEOS_VBOOT
+#if defined(CONFIG_CHROMEOS_VBOOT) && defined(CONFIG_ROM_SIZE)
 #include "chromeos-x86.dtsi"
 #include "flashmap-x86-ro.dtsi"
 #include "flashmap-8mb-rw.dtsi"
@@ -594,6 +594,7 @@
 					#size-cells = <1>;
 					#address-cells = <1>;
 					reg = <0>;
+					m25p,fast-read;
 					compatible = "winbond,w25q64",
 							"jedec,spi-nor";
 					memory-map = <0xff800000 0x00800000>;

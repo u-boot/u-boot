@@ -34,7 +34,7 @@ static int do_misc_list(struct cmd_tbl *cmdtp, int flag,
 	for (uclass_first_device(UCLASS_MISC, &dev);
 	     dev;
 	     uclass_next_device(&dev)) {
-		printf("%-20s %5d %10s\n", dev->name, dev->seq,
+		printf("%-20s %5d %10s\n", dev->name, dev_seq(dev),
 		       dev->driver->name);
 	}
 
@@ -57,9 +57,9 @@ static int do_misc_op(struct cmd_tbl *cmdtp, int flag,
 		return ret;
 	}
 
-	offset = simple_strtoul(argv[1], NULL, 16);
-	buf = (void *)simple_strtoul(argv[2], NULL, 16);
-	size = simple_strtoul(argv[3], NULL, 16);
+	offset = hextoul(argv[1], NULL);
+	buf = (void *)hextoul(argv[2], NULL);
+	size = hextoul(argv[3], NULL);
 
 	if (op == MISC_OP_READ)
 		misc_op = misc_read;

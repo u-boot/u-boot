@@ -19,9 +19,3 @@ F:	configs/P5040DS_NAND_defconfig
 F:	configs/P5040DS_SDCARD_defconfig
 F:	configs/P5040DS_SPIFLASH_defconfig
 F:	configs/P5040DS_SECURE_BOOT_defconfig
-
-CORENET_DS_SECURE_BOOT BOARD
-M:	Ruchika Gupta <ruchika.gupta@nxp.com>
-S:	Maintained
-F:	configs/P3041DS_NAND_SECURE_BOOT_defconfig
-F:	configs/P5040DS_NAND_SECURE_BOOT_defconfig

@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <asm/cache.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/hi3660.h>
 #include <asm/armv8/mmu.h>
@@ -26,15 +27,15 @@ DECLARE_GLOBAL_DATA_PTR;
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 #include <dm/platform_data/serial_pl01x.h>
 
-static const struct pl01x_serial_platdata serial_platdata = {
+static const struct pl01x_serial_plat serial_plat = {
 	.base = HI3660_UART6_BASE,
 	.type = TYPE_PL011,
 	.clock = 19200000
 };
 
-U_BOOT_DEVICE(hikey960_serial0) = {
+U_BOOT_DRVINFO(hikey960_serial0) = {
 	.name = "serial_pl01x",
-	.platdata = &serial_platdata,
+	.plat = &serial_plat,
 };
 #endif
 
@@ -184,7 +185,7 @@ int board_init(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	psci_system_reset();
 }

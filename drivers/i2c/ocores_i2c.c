@@ -13,6 +13,7 @@
  */
 
 #include <common.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>
@@ -515,7 +516,7 @@ static int ocores_i2c_probe(struct udevice *dev)
 	u32 clock_frequency_khz;
 	int ret;
 
-	bus->base = (void __iomem *)devfdt_get_addr(dev);
+	bus->base = dev_read_addr_ptr(dev);
 
 	if (dev_read_u32(dev, "reg-shift", &bus->reg_shift)) {
 		/* no 'reg-shift', check for deprecated 'regstep' */
@@ -625,6 +626,7 @@ static const struct udevice_id ocores_i2c_ids[] = {
 { .compatible = "aeroflexgaisler,i2cmst", .data = TYPE_GRLIB },
 { .compatible = "sifive,fu540-c000-i2c" },
 { .compatible = "sifive,i2c0" },
+{ }
 };
 
 U_BOOT_DRIVER(i2c_ocores) = {
@@ -632,6 +634,6 @@ U_BOOT_DRIVER(i2c_ocores) = {
 	.id	= UCLASS_I2C,
 	.of_match = ocores_i2c_ids,
 	.probe = ocores_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct ocores_i2c_bus),
+	.priv_auto = sizeof(struct ocores_i2c_bus),
 	.ops	= &ocores_i2c_ops,
 };

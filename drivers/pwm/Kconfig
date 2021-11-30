@@ -9,6 +9,21 @@ config DM_PWM
 	  frequency/period can be controlled along with the proportion of that
 	  time that the signal is high.
 
+config PWM_AT91
+	bool "Enable support for PWM found on AT91 SoC's"
+	depends on DM_PWM && ARCH_AT91
+	help
+	  Support for PWM hardware on AT91 based SoC.
+
+config PWM_CROS_EC
+	bool "Enable support for the Chrome OS EC PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found on several Chrome OS devices and controlled by
+	  the Chrome OS embedded controller. It may be used to control the
+	  screen brightness and/or the keyboard backlight depending on the
+	  device.
+
 config PWM_EXYNOS
 	bool "Enable support for the Exynos PWM"
 	depends on DM_PWM
@@ -75,3 +90,10 @@ config PWM_SUNXI
 	help
 	  This PWM is found on H3, A64 and other Allwinner SoCs. It supports a
 	  programmable period and duty cycle. A 16-bit counter is used.
+
+config PWM_TI_EHRPWM
+	bool "Enable support for EHRPWM PWM"
+	depends on DM_PWM && ARCH_OMAP2PLUS
+	default y
+	help
+	  PWM driver support for the EHRPWM controller found on TI SOCs.

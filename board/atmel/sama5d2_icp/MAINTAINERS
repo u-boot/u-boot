@@ -4,4 +4,5 @@ S:     Maintained
 F:     board/atmel/sama5d2_icp/
 F:     include/configs/sama5d2_icp.h
 F:     configs/sama5d2_icp_mmc_defconfig
+F:     configs/sama5d2_icp_qspiflash_defconfig
 

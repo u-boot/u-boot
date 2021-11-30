@@ -15,6 +15,11 @@
 #define DOS_PBR_MEDIA_TYPE_OFFSET	0x15
 #define DOS_MBR	0
 #define DOS_PBR	1
+#define DOS_PART_TYPE_EXTENDED		0x05
+#define DOS_PART_TYPE_EXTENDED_LBA	0x0F
+#define DOS_PART_TYPE_EXTENDED_LINUX	0x85
+
+#define DOS_PART_DEFAULT_GAP		2048
 
 typedef struct dos_partition {
 	unsigned char boot_ind;		/* 0x80 - active			*/

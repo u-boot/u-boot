@@ -9,6 +9,8 @@
 
 #include <command.h>
 
+struct udevice;
+
 enum tpm_duration {
 	TPM_SHORT = 0,
 	TPM_MEDIUM = 1,
@@ -53,6 +55,8 @@ enum tpm_version {
  * @buf:		Buffer used during the exchanges with the chip
  * @pcr_count:		Number of PCR per bank
  * @pcr_select_min:	Minimum size in bytes of the pcrSelect array
+ * @plat_hier_disabled:	Platform hierarchy has been disabled (TPM is locked
+ *			down until next reboot)
  */
 struct tpm_chip_priv {
 	enum tpm_version version;
@@ -64,6 +68,7 @@ struct tpm_chip_priv {
 	/* TPM v2 specific data */
 	uint pcr_count;
 	uint pcr_select_min;
+	bool plat_hier_disabled;
 };
 
 /**

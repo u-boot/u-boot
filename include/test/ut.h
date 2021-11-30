@@ -83,6 +83,21 @@ int ut_check_console_linen(struct unit_test_state *uts, const char *fmt, ...)
 int ut_check_skipline(struct unit_test_state *uts);
 
 /**
+ * ut_check_skip_to_line() - skip output until a line is found
+ *
+ * This creates a string and then checks it against the following lines of
+ * console output obtained with console_record_readline() until it is found.
+ *
+ * After the function returns, uts->expect_str holds the expected string and
+ * uts->actual_str holds the actual string read from the console.
+ *
+ * @uts: Test state
+ * @fmt: printf() format string to look for, followed by args
+ * @return 0 if OK, -ENOENT if not found, other value on error
+ */
+int ut_check_skip_to_line(struct unit_test_state *uts, const char *fmt, ...);
+
+/**
  * ut_check_console_end() - Check there is no more console output
  *
  * After the function returns, uts->actual_str holds the actual string read
@@ -156,23 +171,6 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 #expr1 " = " #expr2,				\
 			 "Expected \"%s\", got \"%s\"", _val1, _val2);	\
-		return CMD_RET_FAILURE;					\
-	}								\
-}
-
-/*
- * Assert that two string expressions are equal, up to length of the
- * first
- */
-#define ut_asserteq_strn(expr1, expr2) {				\
-	const char *_val1 = (expr1), *_val2 = (expr2);			\
-	int _len = strlen(_val1);					\
-									\
-	if (memcmp(_val1, _val2, _len)) {				\
-		ut_failf(uts, __FILE__, __LINE__, __func__,		\
-			 #expr1 " = " #expr2,				\
-			 "Expected \"%.*s\", got \"%.*s\"",		\
-			 _len, _val1, _len, _val2);			\
 		return CMD_RET_FAILURE;					\
 	}								\
 }
@@ -303,6 +301,15 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 		return CMD_RET_FAILURE;					\
 	}								\
 
+/* Assert that a following console output line matches */
+#define ut_assert_skip_to_line(fmt, args...)				\
+	if (ut_check_skip_to_line(uts, fmt, ##args)) {			\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 "console", "\nExpected '%s',\n     got to '%s'", \
+			 uts->expect_str, uts->actual_str);		\
+		return CMD_RET_FAILURE;					\
+	}								\
+
 /* Assert that there is no more console output */
 #define ut_assert_console_end()						\
 	if (ut_check_console_end(uts)) {				\
@@ -337,5 +344,68 @@ ulong ut_check_free(void);
  *	allocated, negative means less has been allocated (i.e. some is freed)
  */
 long ut_check_delta(ulong last);
+
+/**
+ * ut_silence_console() - Silence the console if requested by the user
+ *
+ * This stops test output from appear on the console. It is the default on
+ * sandbox, unless the -v flag is given. For other boards, this does nothing.
+ *
+ * @uts: Test state (in case in future we want to keep state here)
+ */
+void ut_silence_console(struct unit_test_state *uts);
+
+/**
+ * ut_unsilence_console() - Unsilence the console after a test
+ *
+ * This restarts console output again and turns off console recording. This
+ * happens on all boards, including sandbox.
+ */
+void ut_unsilence_console(struct unit_test_state *uts);
+
+/**
+ * ut_set_skip_delays() - Sets whether delays should be skipped
+ *
+ * Normally functions like mdelay() cause U-Boot to wait for a while. This
+ * allows all such delays to be skipped on sandbox, to speed up tests
+ *
+ * @uts: Test state (in case in future we want to keep state here)
+ * @skip_delays: true to skip delays, false to process them normally
+ */
+void ut_set_skip_delays(struct unit_test_state *uts, bool skip_delays);
+
+/**
+ * test_get_state() - Get the active test state
+ *
+ * @return the currently active test state, or NULL if none
+ */
+struct unit_test_state *test_get_state(void);
+
+/**
+ * test_set_state() - Set the active test state
+ *
+ * @uts: Test state to use as currently active test state, or NULL if none
+ */
+void test_set_state(struct unit_test_state *uts);
+
+/**
+ * ut_run_tests() - Run a set of tests
+ *
+ * This runs the test, handling any preparation and clean-up needed. It prints
+ * the name of each test before running it.
+ *
+ * @category: Category of these tests. This is a string printed at the start to
+ *	announce the the number of tests
+ * @prefix: String prefix for the tests. Any tests that have this prefix will be
+ *	printed without the prefix, so that it is easier to see the unique part
+ *	of the test name. If NULL, no prefix processing is done
+ * @tests: List of tests to run
+ * @count: Number of tests to run
+ * @select_name: Name of a single test to run (from the list provided). If NULL
+ *	then all tests are run
+ * @return 0 if all tests passed, -1 if any failed
+ */
+int ut_run_list(const char *name, const char *prefix, struct unit_test *tests,
+		int count, const char *select_name);
 
 #endif

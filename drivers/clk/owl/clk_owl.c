@@ -161,6 +161,6 @@ U_BOOT_DRIVER(clk_owl) = {
 	.id		= UCLASS_CLK,
 	.of_match	= owl_clk_ids,
 	.ops		= &owl_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct owl_clk_priv),
+	.priv_auto	= sizeof(struct owl_clk_priv),
 	.probe		= owl_clk_probe,
 };

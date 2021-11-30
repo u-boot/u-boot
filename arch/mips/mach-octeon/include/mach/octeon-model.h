@@ -28,6 +28,8 @@
  * use only, and may change without notice.
  */
 
+#include <asm/mipsregs.h>
+
 #define OCTEON_FAMILY_MASK      0x00ffff00
 #define OCTEON_PRID_MASK	0x00ffffff
 

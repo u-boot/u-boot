@@ -131,7 +131,7 @@ U_BOOT_DRIVER(pinctrl_snapdraon) = {
 	.name		= "pinctrl_msm",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= msm_pinctrl_ids,
-	.priv_auto_alloc_size = sizeof(struct msm_pinctrl_priv),
+	.priv_auto	= sizeof(struct msm_pinctrl_priv),
 	.ops		= &msm_pinctrl_ops,
 	.probe		= msm_pinctrl_probe,
 };

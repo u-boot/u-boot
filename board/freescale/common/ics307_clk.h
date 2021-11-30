@@ -8,7 +8,6 @@
 #ifndef __ASSEMBLY__
 
 extern unsigned long get_board_sys_clk(void);
-extern unsigned long get_board_ddr_clk(void);
 extern unsigned long ics307_sysclk_calculator(unsigned long out_freq);
 #endif
 

@@ -14,15 +14,8 @@
 
 #define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
-
-/* I2C configs */
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
@@ -79,11 +72,11 @@
 	"fdtfile=imx7d-sdb.dtb\0" \
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x83100000\0" \
 	"ramdiskaddr=0x83100000\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"videomode=video=ctfb:x:480,y:272,depth:24,pclk:108695,le:8,ri:4,up:2,lo:4,hs:41,vs:10,sync:0,vmode:0\0" \
 	BOOTENV
 
@@ -93,9 +86,6 @@
 	func(PXE, pxe, na)
 
 #include <config_distro_bootcmd.h>
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
@@ -119,8 +109,6 @@
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 #endif
@@ -136,8 +124,7 @@
 
 #define CONFIG_USBD_HS
 
-#ifdef CONFIG_VIDEO
-#define CONFIG_VIDEO_MXS
+#ifdef CONFIG_DM_VIDEO
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif

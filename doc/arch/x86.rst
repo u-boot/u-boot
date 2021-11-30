@@ -42,17 +42,8 @@ Build Instructions for U-Boot as BIOS replacement (bare mode)
 -------------------------------------------------------------
 Building a ROM version of U-Boot (hereafter referred to as u-boot.rom) is a
 little bit tricky, as generally it requires several binary blobs which are not
-shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build is
-not turned on by default in the U-Boot source tree. Firstly, you need turn it
-on by enabling the ROM build either via an environment variable::
-
-   $ export BUILD_ROM=y
-
-or via configuration::
-
-   CONFIG_BUILD_ROM=y
-
-Both tell the Makefile to build u-boot.rom as a target.
+shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build may
+print some warnings if required binary blobs (e.g.: FSP) are not present.
 
 CPU Microcode
 -------------
@@ -388,24 +379,19 @@ Booting SeaBIOS is done via U-Boot's bootelf command, like below::
    Using e1000#0 device
    TFTP from server 10.10.0.100; our IP address is 10.10.0.108
    ...
-   Bytes transferred = 122124 (1dd0c hex)
-   ## Starting application at 0x000ff06e ...
-   SeaBIOS (version rel-1.9.0)
+   Bytes transferred = 128748 (1f6ec hex)
+   ## Starting application at 0x000fd269 ...
+   SeaBIOS (version rel-1.14.0-0-g155821a)
    ...
 
-bios.bin.elf is the SeaBIOS image built from SeaBIOS source tree.
-Make sure it is built as follows::
+bios.bin.elf is the SeaBIOS image built from SeaBIOS source tree. At the time
+being, SeaBIOS release 1.14.0 has been tested. To build the SeaBIOS image::
 
-   $ make menuconfig
-
-Inside the "General Features" menu, select "Build for coreboot" as the
-"Build Target". Inside the "Debugging" menu, turn on "Serial port debugging"
-so that we can see something as soon as SeaBIOS boots. Leave other options
-as in their default state. Then::
-
+   $ echo -e 'CONFIG_COREBOOT=y\nCONFIG_COREBOOT_FLASH=n\nCONFIG_DEBUG_SERIAL=y\nCONFIG_DEBUG_COREBOOT=n' > .config
+   $ make olddefconfig
    $ make
    ...
-   Total size: 121888  Fixed: 66496  Free: 9184 (used 93.0% of 128KiB rom)
+   Total size: 128512  Fixed: 69216  Free: 2560 (used 98.0% of 128KiB rom)
    Creating out/bios.bin.elf
 
 Currently this is tested on QEMU x86 target with U-Boot chain-loading SeaBIOS
@@ -709,8 +695,8 @@ to load a 'u-boot-payload.efi', see below test logs on QEMU.
   No controllers found
   Hit any key to stop autoboot:  0
 
-See :doc:`../uefi/u-boot_on_efi` and :doc:`../uefi/uefi` for details of
-EFI support in U-Boot.
+See :doc:`../develop/uefi/u-boot_on_efi` and :doc:`../develop/uefi/uefi` for
+details of EFI support in U-Boot.
 
 Chain-loading
 -------------

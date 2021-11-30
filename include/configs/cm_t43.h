@@ -8,7 +8,6 @@
 #ifndef __CONFIG_CM_T43_H
 #define __CONFIG_CM_T43_H
 
-#define CONFIG_CM_T43
 #define CONFIG_MAX_RAM_BANK_SIZE	(2048 << 20)	/* 2GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
@@ -23,17 +22,8 @@
 #endif
 
 /* NAND support */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-#define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	14
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
-#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
-					 CONFIG_SYS_NAND_PAGE_SIZE)
 #define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
 					 10, 11, 12, 13, 14, 15, 16, 17, \
 					 18, 19, 20, 21, 22, 23, 24, 25, \
@@ -45,13 +35,7 @@
 /* CPSW Ethernet support */
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
-/* USB support */
-#define CONFIG_USB_XHCI_OMAP
-#define CONFIG_AM437X_USB2PHY2_HOST
-
 /* Power */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_TPS65218
 
 /* Enabling L2 Cache */
@@ -62,9 +46,6 @@
  * Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
 
 #define CONFIG_HSMMC2_8BIT
 
@@ -114,10 +95,5 @@
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
 /* EEPROM */
-#define CONFIG_ENV_EEPROM_IS_ON_I2C
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
-#define CONFIG_SYS_EEPROM_SIZE			256
 
 #endif	/* __CONFIG_CM_T43_H */

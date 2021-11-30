@@ -18,7 +18,6 @@
  * (easy to change)
  */
 
-#define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
 
 #undef CONFIG_WATCHDOG
@@ -49,17 +48,12 @@
 #define CONFIG_MCFTMR
 
 /* I2C */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_i2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	80000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x00000300
 #define CONFIG_SYS_IMMR		CONFIG_SYS_MBAR
 #define CONFIG_SYS_I2C_PINMUX_REG	(gpio->par_qspi)
 #define CONFIG_SYS_I2C_PINMUX_CLR	~(GPIO_PAR_FECI2C_SCL_MASK | GPIO_PAR_FECI2C_SDA_MASK)
 #define CONFIG_SYS_I2C_PINMUX_SET	(GPIO_PAR_FECI2C_SCL_I2CSCL | GPIO_PAR_FECI2C_SDA_I2CSDA)
 
-/* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
+/* this must be included AFTER the definition of CONFIG COMMANDS (if any) */
 #define CONFIG_BOOTFILE		"u-boot.bin"
 #ifdef CONFIG_MCFFEC
 #	define CONFIG_IPADDR	192.162.1.2
@@ -82,8 +76,6 @@
 	""
 
 #define CONFIG_PRAM		512	/* 512 KB */
-
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE+0x20000)
 
 #define CONFIG_SYS_CLK			75000000
 #define CONFIG_SYS_CPU_CLK		CONFIG_SYS_CLK * 2
@@ -116,7 +108,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
-#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc() */
 
 /*
  * For booting Linux, the board info and command line data
@@ -154,7 +145,6 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CONFIG_SYS_CACHELINE_SIZE	16
 
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - 8)

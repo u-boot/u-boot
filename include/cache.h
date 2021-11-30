@@ -6,6 +6,8 @@
 #ifndef __CACHE_H
 #define __CACHE_H
 
+struct udevice;
+
 /*
  * Structure for the cache controller
  */

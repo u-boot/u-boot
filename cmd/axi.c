@@ -33,9 +33,9 @@ static void show_bus(struct udevice *bus)
 {
 	struct udevice *dev;
 
-	printf("Bus %d:\t%s", bus->req_seq, bus->name);
+	printf("Bus %d:\t%s", dev_seq(bus), bus->name);
 	if (device_active(bus))
-		printf("  (active %d)", bus->seq);
+		printf("  (active)");
 	printf("\n");
 	for (device_find_first_child(bus, &dev);
 	     dev;
@@ -120,7 +120,7 @@ static int do_axi_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 		int i;
 
 		/* show specific bus */
-		i = simple_strtoul(argv[1], NULL, 10);
+		i = dectoul(argv[1], NULL);
 
 		struct udevice *bus;
 		int ret;
@@ -147,13 +147,13 @@ static int do_axi_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 		struct udevice *bus;
 
 		if (!axi_get_cur_bus(&bus))
-			bus_no = bus->seq;
+			bus_no = dev_seq(bus);
 		else
 			bus_no = -1;
 
 		printf("Current bus is %d\n", bus_no);
 	} else {
-		bus_no = simple_strtoul(argv[1], NULL, 10);
+		bus_no = dectoul(argv[1], NULL);
 		printf("Setting bus to %d\n", bus_no);
 
 		ret = axi_set_cur_bus(bus_no);
@@ -193,19 +193,19 @@ static int do_axi_md(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
-		size = simple_strtoul(argv[1], NULL, 10);
+		size = dectoul(argv[1], NULL);
 
 		/*
 		 * Address is specified since argc >= 3
 		 */
-		addr = simple_strtoul(argv[2], NULL, 16);
+		addr = hextoul(argv[2], NULL);
 
 		/*
 		 * If there's another parameter, it is the length to display;
 		 * length is the number of objects, not number of bytes
 		 */
 		if (argc > 3)
-			length = simple_strtoul(argv[3], NULL, 16);
+			length = hextoul(argv[3], NULL);
 	}
 
 	switch (size) {
@@ -273,7 +273,7 @@ static int do_axi_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc <= 3 || argc >= 6)
 		return CMD_RET_USAGE;
 
-	size = simple_strtoul(argv[1], NULL, 10);
+	size = dectoul(argv[1], NULL);
 
 	switch (size) {
 	case 8:
@@ -291,14 +291,14 @@ static int do_axi_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	};
 
 	/* Address is specified since argc > 4 */
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 
 	/* Get the value to write */
-	writeval = simple_strtoul(argv[3], NULL, 16);
+	writeval = hextoul(argv[3], NULL);
 
 	/* Count ? */
 	if (argc == 5)
-		count = simple_strtoul(argv[4], NULL, 16);
+		count = hextoul(argv[4], NULL);
 	else
 		count = 1;
 

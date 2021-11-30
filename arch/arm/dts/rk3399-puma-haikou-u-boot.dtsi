@@ -28,8 +28,7 @@
 	};
 
 	aliases {
-		spi0 = &spi1;
-		spi1 = &spi5;
+		spi5 = &spi5;
 	};
 
 	/*
@@ -48,6 +47,18 @@
 		regulator-boot-on;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
+	};
+
+	vdd_log: vdd-log {
+		compatible = "pwm-regulator";
+		pwms = <&pwm2 0 25000 1>;
+		regulator-name = "vdd_log";
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <800000>;
+		regulator-max-microvolt = <1400000>;
+		regulator-init-microvolt = <950000>;
+		vin-supply = <&vcc5v0_sys>;
 	};
 };
 

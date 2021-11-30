@@ -12,42 +12,18 @@
 #include <linux/sizes.h>
 #include <asm/arch/cpu.h>
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_DEVKIT3250
-
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
-
 /*
  * Memory configurations
  */
-#define CONFIG_SYS_MALLOC_LEN		SZ_1M
 #define CONFIG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
 #define CONFIG_SYS_SDRAM_SIZE		SZ_64M
-
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_32K)
 
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_4K \
 					 - GENERATED_GBL_DATA_SIZE)
 
 /*
- * Serial Driver
- */
-#define CONFIG_SYS_LPC32XX_UART		5   /* UART5 */
-
-/*
  * DMA
  */
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_DMA_LPC32XX
-#endif
-
-/*
- * I2C
- */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_LPC32XX
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /*
  * GPIO
@@ -87,9 +63,6 @@
 #define CONFIG_LPC32XX_NAND_SLC_RWIDTH		66666666
 #define CONFIG_LPC32XX_NAND_SLC_RHOLD		200000000
 #define CONFIG_LPC32XX_NAND_SLC_RSETUP		50000000
-
-#define CONFIG_SYS_NAND_BLOCK_SIZE		0x20000
-#define CONFIG_SYS_NAND_PAGE_SIZE		NAND_LARGE_BLOCK_PAGE_SIZE
 
 /*
  * USB
@@ -131,14 +104,7 @@
  * U-Boot Commands
  */
 
-/*
- * Boot Linux
- */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_LOADADDR			0x80008000
 
 /*
  * SPL specific defines
@@ -161,7 +127,6 @@
 #define CONFIG_SPL_PAD_TO		CONFIG_SPL_MAX_SIZE
 
 /* U-Boot will be 0x60000 bytes, loaded and run at CONFIG_SYS_TEXT_BASE */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x60000
 
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE

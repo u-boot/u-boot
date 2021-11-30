@@ -8,6 +8,7 @@
 #include <common.h>
 #include <init.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/arch/mmc.h>
 #include <dm.h>
@@ -22,11 +23,6 @@
 #include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-u32 get_board_rev(void)
-{
-	return 0;
-}
 
 int board_init(void)
 {

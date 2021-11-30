@@ -53,21 +53,9 @@ config MCF5441x
         select DM_SERIAL
 	bool
 
-config MCF5445x
-	select OF_CONTROL
-	select DM
-        select DM_SERIAL
-	bool
-
 config MCF5227x
 	select OF_CONTROL
 	select DM
-        select DM_SERIAL
-	bool
-
-config MCF547x_8x
-	select OF_CONTROL
-        select DM
         select DM_SERIAL
 	bool
 
@@ -125,33 +113,9 @@ config M54418
 	bool
 	select MCF5441x
 
-config M54451
-	bool
-	select MCF5445x
-
-config M54455
-	bool
-	select MCF5445x
-
-config M52277
-	bool
-	select MCF5227x
-
-config M547x
-	bool
-	select MCF547x_8x
-
-config M548x
-	bool
-	select MCF547x_8x
-
 choice
 	prompt "Target select"
 	optional
-
-config TARGET_M52277EVB
-	bool "Support M52277EVB"
-	select M52277
 
 config TARGET_M5235EVB
 	bool "Support M5235EVB"
@@ -205,26 +169,6 @@ config TARGET_M5373EVB
 	bool "Support M5373EVB"
 	select M5373
 
-config TARGET_M54418TWR
-	bool "Support M54418TWR"
-	select M54418
-
-config TARGET_M54451EVB
-	bool "Support M54451EVB"
-	select M54451
-
-config TARGET_M54455EVB
-	bool "Support M54455EVB"
-	select M54455
-
-config TARGET_M5475EVB
-	bool "Support M5475EVB"
-	select M547x
-
-config TARGET_M5485EVB
-	bool "Support M5485EVB"
-	select M548x
-
 config TARGET_AMCORE
 	bool "Support AMCORE"
 	select M5307
@@ -239,7 +183,6 @@ source "board/BuS/eb_cpu5282/Kconfig"
 source "board/astro/mcf5373l/Kconfig"
 source "board/cobra5272/Kconfig"
 source "board/freescale/m5208evbe/Kconfig"
-source "board/freescale/m52277evb/Kconfig"
 source "board/freescale/m5235evb/Kconfig"
 source "board/freescale/m5249evb/Kconfig"
 source "board/freescale/m5253demo/Kconfig"
@@ -249,11 +192,6 @@ source "board/freescale/m5282evb/Kconfig"
 source "board/freescale/m53017evb/Kconfig"
 source "board/freescale/m5329evb/Kconfig"
 source "board/freescale/m5373evb/Kconfig"
-source "board/freescale/m54418twr/Kconfig"
-source "board/freescale/m54451evb/Kconfig"
-source "board/freescale/m54455evb/Kconfig"
-source "board/freescale/m547xevb/Kconfig"
-source "board/freescale/m548xevb/Kconfig"
 source "board/sysam/amcore/Kconfig"
 source "board/sysam/stmark2/Kconfig"
 

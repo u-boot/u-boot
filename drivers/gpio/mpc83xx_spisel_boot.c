@@ -61,9 +61,9 @@ static int mpc83xx_spisel_boot_get_function(struct udevice *dev, uint gpio)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int mpc83xx_spisel_boot_ofdata_to_platdata(struct udevice *dev)
+static int mpc83xx_spisel_boot_of_to_plat(struct udevice *dev)
 {
-	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 	u32 reg[2];
 
@@ -78,10 +78,10 @@ static int mpc83xx_spisel_boot_ofdata_to_platdata(struct udevice *dev)
 }
 #endif
 
-static int mpc83xx_spisel_boot_platdata_to_priv(struct udevice *dev)
+static int mpc83xx_spisel_boot_plat_to_priv(struct udevice *dev)
 {
 	struct mpc83xx_spisel_boot *priv = dev_get_priv(dev);
-	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	unsigned long size = plat->size;
 	ulong driver_data = dev_get_driver_data(dev);
 
@@ -107,7 +107,7 @@ static int mpc83xx_spisel_boot_probe(struct udevice *dev)
 	struct mpc83xx_spisel_boot *data = dev_get_priv(dev);
 	char name[32], *str;
 
-	mpc83xx_spisel_boot_platdata_to_priv(dev);
+	mpc83xx_spisel_boot_plat_to_priv(dev);
 
 	snprintf(name, sizeof(name), "MPC@%lx_", data->addr);
 	str = strdup(name);
@@ -140,10 +140,10 @@ U_BOOT_DRIVER(spisel_boot_mpc83xx) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &mpc83xx_spisel_boot_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	.ofdata_to_platdata = mpc83xx_spisel_boot_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mpc8xxx_gpio_plat),
+	.of_to_plat = mpc83xx_spisel_boot_of_to_plat,
+	.plat_auto	= sizeof(struct mpc8xxx_gpio_plat),
 	.of_match = mpc83xx_spisel_boot_ids,
 #endif
 	.probe	= mpc83xx_spisel_boot_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc83xx_spisel_boot),
+	.priv_auto	= sizeof(struct mpc83xx_spisel_boot),
 };

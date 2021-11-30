@@ -10,7 +10,7 @@
 UCLASS_DRIVER(lpc) = {
 	.id		= UCLASS_LPC,
 	.name		= "lpc",
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.post_bind	= dm_scan_fdt_dev,
 #endif
 };

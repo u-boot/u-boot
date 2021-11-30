@@ -64,8 +64,7 @@ static int mtk_snfi_adjust_op_size(struct spi_slave *slave,
 	 * or the output+input data must not exceed the GPRAM size.
 	 */
 
-	nbytes = sizeof(op->cmd.opcode) + op->addr.nbytes +
-		op->dummy.nbytes;
+	nbytes = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 
 	if (nbytes + op->data.nbytes <= SNFI_GPRAM_SIZE)
 		return 0;
@@ -313,6 +312,6 @@ U_BOOT_DRIVER(mtk_snfi_spi) = {
 	.id			= UCLASS_SPI,
 	.of_match		= mtk_snfi_spi_ids,
 	.ops			= &mtk_snfi_spi_ops,
-	.priv_auto_alloc_size	= sizeof(struct mtk_snfi_priv),
+	.priv_auto	= sizeof(struct mtk_snfi_priv),
 	.probe			= mtk_snfi_spi_probe,
 };

@@ -8,7 +8,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
-#include <asm/arch/ccu.h>
+#include <clk/sunxi.h>
 #include <dt-bindings/clock/sun4i-a10-ccu.h>
 #include <dt-bindings/reset/sun4i-a10-ccu.h>
 #include <linux/bitops.h>
@@ -31,6 +31,11 @@ static struct ccu_clk_gate a10_gates[] = {
 
 	[CLK_AHB_GMAC]		= GATE(0x064, BIT(17)),
 
+	[CLK_APB1_I2C0]		= GATE(0x06c, BIT(0)),
+	[CLK_APB1_I2C1]		= GATE(0x06c, BIT(1)),
+	[CLK_APB1_I2C2]		= GATE(0x06c, BIT(2)),
+	[CLK_APB1_I2C3]		= GATE(0x06c, BIT(3)),
+	[CLK_APB1_I2C4]		= GATE(0x06c, BIT(15)),
 	[CLK_APB1_UART0]	= GATE(0x06c, BIT(16)),
 	[CLK_APB1_UART1]	= GATE(0x06c, BIT(17)),
 	[CLK_APB1_UART2]	= GATE(0x06c, BIT(18)),
@@ -79,7 +84,7 @@ U_BOOT_DRIVER(clk_sun4i_a10) = {
 	.name		= "sun4i_a10_ccu",
 	.id		= UCLASS_CLK,
 	.of_match	= a10_ccu_ids,
-	.priv_auto_alloc_size	= sizeof(struct ccu_priv),
+	.priv_auto	= sizeof(struct ccu_priv),
 	.ops		= &sunxi_clk_ops,
 	.probe		= sunxi_clk_probe,
 	.bind		= a10_clk_bind,

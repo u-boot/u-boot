@@ -42,6 +42,7 @@ read_eeprom(int bus, struct ventana_board_info *info)
 	}
 
 	/* read eeprom config section */
+	mdelay(10);
 	if (gsc_i2c_read(GSC_EEPROM_ADDR, 0x00, 1, buf, sizeof(*info))) {
 		puts("EEPROM: Failed to read EEPROM\n");
 		return GW_UNKNOWN;
@@ -123,6 +124,12 @@ read_eeprom(int bus, struct ventana_board_info *info)
 			type = GW5908;
 		else if (info->model[4] == '0' && info->model[5] == '9')
 			type = GW5909;
+		else if (info->model[4] == '1' && info->model[5] == '0')
+			type = GW5910;
+		else if (info->model[4] == '1' && info->model[5] == '2')
+			type = GW5912;
+		else if (info->model[4] == '1' && info->model[5] == '3')
+			type = GW5913;
 		break;
 	default:
 		printf("EEPROM: Unknown model in EEPROM: %s\n", info->model);

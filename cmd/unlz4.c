@@ -7,7 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
-#include <lz4.h>
+#include <u-boot/lz4.h>
 
 static int do_unlz4(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[])
@@ -18,9 +18,9 @@ static int do_unlz4(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	switch (argc) {
 	case 4:
-		src = simple_strtoul(argv[1], NULL, 16);
-		dst = simple_strtoul(argv[2], NULL, 16);
-		dst_len = simple_strtoul(argv[3], NULL, 16);
+		src = hextoul(argv[1], NULL);
+		dst = hextoul(argv[2], NULL);
+		dst_len = hextoul(argv[3], NULL);
 		break;
 	default:
 		return CMD_RET_USAGE;

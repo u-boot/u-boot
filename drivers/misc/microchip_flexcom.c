@@ -16,14 +16,14 @@ struct microchip_flexcom_regs {
 	u32 cr;
 };
 
-struct microchip_flexcom_platdata {
+struct microchip_flexcom_plat {
 	struct microchip_flexcom_regs *regs;
 	u32 flexcom_mode;
 };
 
-static int microchip_flexcom_ofdata_to_platdata(struct udevice *dev)
+static int microchip_flexcom_of_to_plat(struct udevice *dev)
 {
-	struct microchip_flexcom_platdata *plat = dev_get_platdata(dev);
+	struct microchip_flexcom_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	plat->regs = map_physmem(dev_read_addr(dev),
@@ -61,6 +61,6 @@ U_BOOT_DRIVER(microchip_flexcom) = {
 	.name	= "microchip_flexcom",
 	.id	= UCLASS_MISC,
 	.of_match = microchip_flexcom_ids,
-	.ofdata_to_platdata = microchip_flexcom_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct microchip_flexcom_platdata),
+	.of_to_plat = microchip_flexcom_of_to_plat,
+	.plat_auto	= sizeof(struct microchip_flexcom_plat),
 };

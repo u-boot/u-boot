@@ -23,7 +23,7 @@ static const char illegal[] = "+,<=>:;\"/\\|?*[]\x7f";
 static const u16 codepage[] = CP1250;
 #else
 /* Unicode code points for code page 437 characters 0x80 - 0xff */
-static const u16 codepage[] = CP437;
+static const u16 *codepage = codepage_437;
 #endif
 
 /* GUID of the EFI_UNICODE_COLLATION_PROTOCOL2 */
@@ -38,7 +38,7 @@ const efi_guid_t efi_guid_unicode_collation_protocol2 =
  * @s2:		second string
  *
  * This function implements the StriColl() service of the
- * EFI_UNICODE_COLLATION_PROTOCOL.
+ * EFI_UNICODE_COLLATION_PROTOCOL2.
  *
  * See the Unified Extensible Firmware Interface (UEFI) specification for
  * details.
@@ -179,7 +179,7 @@ static bool metai_match(const u16 *string, const u16 *pattern)
  *	- [<char1>-<char2>] matches any character in the range
  *
  * This function implements the MetaMatch() service of the
- * EFI_UNICODE_COLLATION_PROTOCOL.
+ * EFI_UNICODE_COLLATION_PROTOCOL2.
  *
  * Return:	true if the string is matched.
  */
@@ -204,7 +204,7 @@ static bool EFIAPI efi_metai_match(struct efi_unicode_collation_protocol *this,
  * same number of words this does not pose a problem.
  *
  * This function implements the StrLwr() service of the
- * EFI_UNICODE_COLLATION_PROTOCOL.
+ * EFI_UNICODE_COLLATION_PROTOCOL2.
  */
 static void EFIAPI efi_str_lwr(struct efi_unicode_collation_protocol *this,
 			       u16 *string)
@@ -225,7 +225,7 @@ static void EFIAPI efi_str_lwr(struct efi_unicode_collation_protocol *this,
  * same number of words this does not pose a problem.
  *
  * This function implements the StrUpr() service of the
- * EFI_UNICODE_COLLATION_PROTOCOL.
+ * EFI_UNICODE_COLLATION_PROTOCOL2.
  */
 static void EFIAPI efi_str_upr(struct efi_unicode_collation_protocol *this,
 			       u16 *string)
@@ -245,7 +245,7 @@ static void EFIAPI efi_str_upr(struct efi_unicode_collation_protocol *this,
  * @string:	converted string
  *
  * This function implements the FatToStr() service of the
- * EFI_UNICODE_COLLATION_PROTOCOL.
+ * EFI_UNICODE_COLLATION_PROTOCOL2.
  */
 static void EFIAPI efi_fat_to_str(struct efi_unicode_collation_protocol *this,
 				  efi_uintn_t fat_size, char *fat, u16 *string)
@@ -276,7 +276,7 @@ static void EFIAPI efi_fat_to_str(struct efi_unicode_collation_protocol *this,
  * @fat:	converted string
  *
  * This function implements the StrToFat() service of the
- * EFI_UNICODE_COLLATION_PROTOCOL.
+ * EFI_UNICODE_COLLATION_PROTOCOL2.
  *
  * Return:	true if an illegal character was substituted by '_'.
  */
@@ -300,23 +300,10 @@ static bool EFIAPI efi_str_to_fat(struct efi_unicode_collation_protocol *this,
 			break;
 		}
 		c = utf_to_upper(c);
-		if (c >= 0x80) {
-			int j;
-
-			/* Look for codepage translation */
-			for (j = 0; j < 0x80; ++j) {
-				if (c == codepage[j]) {
-					c = j + 0x80;
-					break;
-				}
-			}
-			if (j >= 0x80) {
-				c = '_';
-				ret = true;
-			}
-		} else if (c && (c < 0x20 || strchr(illegal, c))) {
-			c = '_';
+		if (utf_to_cp(&c, codepage) ||
+		    (c && (c < 0x20 || strchr(illegal, c)))) {
 			ret = true;
+			c = '_';
 		}
 
 		fat[i] = c;
@@ -337,30 +324,3 @@ const struct efi_unicode_collation_protocol efi_unicode_collation_protocol2 = {
 	.str_to_fat = efi_str_to_fat,
 	.supported_languages = "en",
 };
-
-/*
- * In EFI 1.10 a version of the Unicode collation protocol using ISO 639-2
- * language codes existed. This protocol is not part of the UEFI specification
- * any longer. Unfortunately it is required to run the UEFI Self Certification
- * Test (SCT) II, version 2.6, 2017. So we implement it here for the sole
- * purpose of running the SCT. It can be removed when a compliant SCT is
- * available.
- */
-#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
-
-/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL */
-const efi_guid_t efi_guid_unicode_collation_protocol =
-	EFI_UNICODE_COLLATION_PROTOCOL_GUID;
-
-const struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
-	.stri_coll = efi_stri_coll,
-	.metai_match = efi_metai_match,
-	.str_lwr = efi_str_lwr,
-	.str_upr = efi_str_upr,
-	.fat_to_str = efi_fat_to_str,
-	.str_to_fat = efi_str_to_fat,
-	/* ISO 639-2 language code */
-	.supported_languages = "eng",
-};
-
-#endif

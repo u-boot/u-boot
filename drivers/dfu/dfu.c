@@ -26,6 +26,8 @@ static struct hash_algo *dfu_hash_algo;
 static unsigned long dfu_timeout = 0;
 #endif
 
+bool dfu_reinit_needed = false;
+
 /*
  * The purpose of the dfu_flush_callback() function is to
  * provide callback for dfu user
@@ -39,6 +41,14 @@ __weak void dfu_flush_callback(struct dfu_entity *dfu)
  * provide callback for dfu user
  */
 __weak void dfu_initiated_callback(struct dfu_entity *dfu)
+{
+}
+
+/*
+ * The purpose of the dfu_error_callback() function is to
+ * provide callback for dfu user
+ */
+__weak void dfu_error_callback(struct dfu_entity *dfu, const char *msg)
 {
 }
 
@@ -138,6 +148,8 @@ int dfu_init_env_entities(char *interface, char *devstr)
 	const char *str_env;
 	char *env_bkp;
 	int ret = 0;
+
+	dfu_reinit_needed = false;
 
 #ifdef CONFIG_SET_DFU_ALT_INFO
 	set_dfu_alt_info(interface, devstr);
@@ -338,6 +350,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		printf("%s: Wrong sequence number! [%d] [%d]\n",
 		       __func__, dfu->i_blk_seq_num, blk_seq_num);
 		dfu_transaction_cleanup(dfu);
+		dfu_error_callback(dfu, "Wrong sequence number");
 		return -1;
 	}
 
@@ -362,6 +375,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		ret = dfu_write_buffer_drain(dfu);
 		if (ret) {
 			dfu_transaction_cleanup(dfu);
+			dfu_error_callback(dfu, "DFU write error");
 			return ret;
 		}
 	}
@@ -371,6 +385,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		pr_err("Buffer overflow! (0x%p + 0x%x > 0x%p)\n", dfu->i_buf,
 		      size, dfu->i_buf_end);
 		dfu_transaction_cleanup(dfu);
+		dfu_error_callback(dfu, "Buffer overflow");
 		return -1;
 	}
 
@@ -382,6 +397,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		ret = dfu_write_buffer_drain(dfu);
 		if (ret) {
 			dfu_transaction_cleanup(dfu);
+			dfu_error_callback(dfu, "DFU write error");
 			return ret;
 		}
 	}
@@ -614,7 +630,8 @@ const char *dfu_get_dev_type(enum dfu_device_type t)
 const char *dfu_get_layout(enum dfu_layout l)
 {
 	const char *const dfu_layout[] = {NULL, "RAW_ADDR", "FAT", "EXT2",
-					  "EXT3", "EXT4", "RAM_ADDR" };
+					  "EXT3", "EXT4", "RAM_ADDR", "SKIP",
+					  "SCRIPT" };
 	return dfu_layout[l];
 }
 
@@ -718,6 +735,7 @@ int dfu_write_from_mem_addr(struct dfu_entity *dfu, void *buf, int size)
 	ret = dfu_flush(dfu, NULL, 0, i);
 	if (ret)
 		pr_err("DFU flush failed!");
+	puts("\n");
 
 	return ret;
 }

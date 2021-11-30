@@ -9,4 +9,5 @@ Build U-Boot
    source
    gcc
    clang
+   docker
    tools

@@ -1,0 +1,116 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2019 Kontron Electronics GmbH
+ */
+
+#include "imx8mm-kontron-n801x-s.dts"
+
+/ {
+	model = "Kontron i.MX8MM N801X S LVDS";
+	compatible = "kontron,imx8mm-n801x-s-lvds", "fsl,imx8mm";
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm1 0 50000>; /* period = 5000000 ns => f = 200 Hz */
+		power-supply = <&reg_vdd_24v>;
+		brightness-levels = <0 100>;
+		num-interpolated-steps = <100>;
+		default-brightness-level = <100>;
+		status = "okay";
+	};
+
+	reg_panel_pwr: regpanel-pwr {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_panel_pwr";
+		regulator-always-on;
+		gpio = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_panel_rst: regpanel-rst {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_panel_rst";
+		regulator-always-on;
+		gpio = <&gpio3 20 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_panel_stby: regpanel-stby {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_panel_stby";
+		regulator-always-on;
+		gpio = <&gpio3 21 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_panel_hinv: regpanel-hinv {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_panel_hinv";
+		regulator-always-on;
+		gpio = <&gpio3 24 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_panel_vinv: regpanel-vinv {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_panel_vinv";
+		gpio = <&gpio3 25 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_vdd_24v: regulator-24v {
+		compatible = "regulator-fixed";
+		regulator-name = "reg-vdd-24v";
+		regulator-min-microvolt = <24000000>;
+		regulator-max-microvolt = <24000000>;
+		regulator-boot-on;
+		regulator-always-on;
+		status = "okay";
+	};
+};
+
+&i2c2 {
+	status = "okay";
+
+	gt911@5d {
+		compatible = "goodix,gt928";
+		reg = <0x5d>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_touch>;
+		interrupt-parent = <&gpio3>;
+		interrupts = <22 8>;
+		reset-gpios = <&gpio3 23 0>;
+		irq-gpios = <&gpio3 22 0>;
+	};
+};
+
+&pwm1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pwm1>;
+	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_panel: panelgrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SAI5_RXFS_GPIO3_IO19	0x19 /* TFT-PWR - family */
+			MX8MM_IOMUXC_SAI5_RXC_GPIO3_IO20	0x19 /* RESET family */
+			MX8MM_IOMUXC_SAI5_RXD0_GPIO3_IO21	0x19 /* STBY family */
+			MX8MM_IOMUXC_SAI5_RXD3_GPIO3_IO24	0x19 /* HINV panel */
+			MX8MM_IOMUXC_SAI5_MCLK_GPIO3_IO25	0x19 /* VINV panel */
+		>;
+	};
+
+	pinctrl_pwm1: pwm1grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SPDIF_EXT_CLK_PWM1_OUT	0x6
+		>;
+	};
+
+	pinctrl_touch: touchgrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SAI5_RXD1_GPIO3_IO22	0x19 /* Touch Interrupt */
+			MX8MM_IOMUXC_SAI5_RXD2_GPIO3_IO23	0x19 /* Touch Reset */
+		>;
+	};
+};

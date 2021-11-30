@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/processor.h>
 #include <env.h>
 #include <ioports.h>
@@ -166,7 +167,7 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 	for (i = 1; i < 3; i++) {
 		if (argv[i][0] != '-') {
 			u8 entry = boot_entry_map[i];
-			val = simple_strtoul(argv[i], NULL, 16);
+			val = hextoul(argv[i], NULL);
 			table[entry] = val;
 		}
 	}

@@ -5,9 +5,10 @@
  */
 
 #include <common.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock_manager.h>
-#include <asm/arch/handoff_s10.h>
+#include <asm/arch/handoff_soc64.h>
 #include <asm/arch/system_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -381,12 +382,6 @@ unsigned int cm_get_l4_sp_clk_hz(void)
 			       CLKMGR_S10_MAINPLL_NOCDIV) >>
 			 CLKMGR_NOCDIV_L4SPCLK_OFFSET) & CLKMGR_CLKCNT_MSK));
 	return clock;
-}
-
-unsigned int cm_get_qspi_controller_clk_hz(void)
-{
-	return readl(socfpga_get_sysmgr_addr() +
-		     SYSMGR_SOC64_BOOT_SCRATCH_COLD0);
 }
 
 unsigned int cm_get_spi_controller_clk_hz(void)

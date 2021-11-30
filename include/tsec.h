@@ -25,7 +25,7 @@
 #define TSEC_SIZE		0x40000
 #define TSEC_MDIO_OFFSET	0x40000
 #else
-#define TSEC_SIZE 		0x01000
+#define TSEC_SIZE		0x01000
 #define TSEC_MDIO_OFFSET	0x01000
 #endif
 

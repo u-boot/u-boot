@@ -227,5 +227,5 @@ U_BOOT_DRIVER(scu_ipc) = {
 	.id		= UCLASS_SYSCON,
 	.of_match	= scu_ipc_match,
 	.probe		= scu_ipc_probe,
-	.priv_auto_alloc_size = sizeof(struct scu),
+	.priv_auto	= sizeof(struct scu),
 };

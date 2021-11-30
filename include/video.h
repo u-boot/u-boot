@@ -18,10 +18,10 @@
 struct udevice;
 
 /**
- * struct video_uc_platdata - uclass platform data for a video device
+ * struct video_uc_plat - uclass platform data for a video device
  *
  * This holds information that the uclass needs to know about each device. It
- * is accessed using dev_get_uclass_platdata(dev). See 'Theory of operation' at
+ * is accessed using dev_get_uclass_plat(dev). See 'Theory of operation' at
  * the top of video-uclass.c for details on how this information is set.
  *
  * @align: Frame-buffer alignment, indicating the memory boundary the frame
@@ -31,7 +31,7 @@ struct udevice;
  * @copy_base: Base address of a hardware copy of the frame buffer. See
  *	CONFIG_VIDEO_COPY.
  */
-struct video_uc_platdata {
+struct video_uc_plat {
 	uint align;
 	uint size;
 	ulong base;
@@ -64,6 +64,13 @@ enum video_log2_bpp {
 
 #define VNBITS(bpix)	(1 << (bpix))
 
+enum video_format {
+	VIDEO_UNKNOWN,
+	VIDEO_X8B8G8R8,
+	VIDEO_X8R8G8B8,
+	VIDEO_X2R10G10B10,
+};
+
 /**
  * struct video_priv - Device information used by the video uclass
  *
@@ -71,13 +78,14 @@ enum video_log2_bpp {
  * @ysize:	Number of pixels rows (e.g.. 768)
  * @rot:	Display rotation (0=none, 1=90 degrees clockwise, etc.)
  * @bpix:	Encoded bits per pixel (enum video_log2_bpp)
+ * @format:	Pixel format (enum video_format)
  * @vidconsole_drv_name:	Driver to use for the text console, NULL to
  *		select automatically
  * @font_size:	Font size in pixels (0 to use a default value)
  * @fb:		Frame buffer
  * @fb_size:	Frame buffer size
  * @copy_fb:	Copy of the frame buffer to keep up to date; see struct
- *		video_uc_platdata
+ *		video_uc_plat
  * @line_length:	Length of each frame buffer line, in bytes. This can be
  *		set by the driver, but if not, the uclass will set it after
  *		probing
@@ -95,6 +103,7 @@ struct video_priv {
 	ushort ysize;
 	ushort rot;
 	enum video_log2_bpp bpix;
+	enum video_format format;
 	const char *vidconsole_drv_name;
 	int font_size;
 
@@ -133,7 +142,7 @@ struct video_ops {
  *
  * Note: This function is for internal use.
  *
- * This uses the uclass platdata's @size and @align members to figure out
+ * This uses the uclass plat's @size and @align members to figure out
  * a size and position for each frame buffer as part of the pre-relocation
  * process of determining the post-relocation memory layout.
  *
@@ -246,11 +255,25 @@ void video_set_default_colors(struct udevice *dev, bool invert);
  *	frame buffer start
  */
 int video_sync_copy(struct udevice *dev, void *from, void *to);
+
+/**
+ * video_sync_copy_all() - Sync the entire framebuffer to the copy
+ *
+ * @dev: Vidconsole device being updated
+ * @return 0 (always)
+ */
+int video_sync_copy_all(struct udevice *dev);
 #else
 static inline int video_sync_copy(struct udevice *dev, void *from, void *to)
 {
 	return 0;
 }
+
+static inline int video_sync_copy_all(struct udevice *dev)
+{
+	return 0;
+}
+
 #endif
 
 #ifndef CONFIG_DM_VIDEO

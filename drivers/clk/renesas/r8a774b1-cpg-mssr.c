@@ -39,6 +39,7 @@ enum clk_ids {
 	CLK_S2,
 	CLK_S3,
 	CLK_SDSRC,
+	CLK_RPCSRC,
 	CLK_RINT,
 
 	/* Module Clocks */
@@ -64,6 +65,12 @@ static const struct cpg_core_clk r8a774b1_core_clks[] = {
 	DEF_FIXED(".s2",        CLK_S2,            CLK_PLL1_DIV2,  4, 1),
 	DEF_FIXED(".s3",        CLK_S3,            CLK_PLL1_DIV2,  6, 1),
 	DEF_FIXED(".sdsrc",     CLK_SDSRC,         CLK_PLL1_DIV2,  2, 1),
+	DEF_BASE(".rpcsrc",     CLK_RPCSRC, CLK_TYPE_GEN3_RPCSRC, CLK_PLL1),
+
+	DEF_BASE("rpc",         R8A774B1_CLK_RPC, CLK_TYPE_GEN3_RPC,
+		 CLK_RPCSRC),
+	DEF_BASE("rpcd2",       R8A774B1_CLK_RPCD2, CLK_TYPE_GEN3_RPCD2,
+		 R8A774B1_CLK_RPC),
 
 	DEF_GEN3_OSC(".r",      CLK_RINT,          CLK_EXTAL,      32),
 
@@ -195,6 +202,7 @@ static const struct mssr_mod_clk r8a774b1_mod_clks[] = {
 	DEF_MOD("can-fd",		 914,	R8A774B1_CLK_S3D2),
 	DEF_MOD("can-if1",		 915,	R8A774B1_CLK_S3D4),
 	DEF_MOD("can-if0",		 916,	R8A774B1_CLK_S3D4),
+	DEF_MOD("rpc-if",		 917,	R8A774B1_CLK_RPCD2),
 	DEF_MOD("i2c6",			 918,	R8A774B1_CLK_S0D6),
 	DEF_MOD("i2c5",			 919,	R8A774B1_CLK_S0D6),
 	DEF_MOD("i2c-dvfs",		 926,	R8A774B1_CLK_CP),
@@ -310,6 +318,7 @@ static const struct cpg_mssr_info r8a774b1_cpg_mssr_info = {
 	.mstp_table		= r8a774b1_mstp_table,
 	.mstp_table_size	= ARRAY_SIZE(r8a774b1_mstp_table),
 	.reset_node		= "renesas,r8a774b1-rst",
+	.reset_modemr_offset	= CPG_RST_MODEMR,
 	.extalr_node		= "extalr",
 	.mod_clk_base		= MOD_CLK_BASE,
 	.clk_extal_id		= CLK_EXTAL,
@@ -329,7 +338,7 @@ U_BOOT_DRIVER(clk_r8a774b1) = {
 	.name		= "clk_r8a774b1",
 	.id		= UCLASS_CLK,
 	.of_match	= r8a774b1_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct gen3_clk_priv),
+	.priv_auto	= sizeof(struct gen3_clk_priv),
 	.ops		= &gen3_clk_ops,
 	.probe		= gen3_clk_probe,
 	.remove		= gen3_clk_remove,

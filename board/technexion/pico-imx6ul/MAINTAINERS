@@ -1,6 +1,6 @@
 TechNexion PICO-IMX6UL board
 M:	Richard Hu <richard.hu@technexion.com>
-M:	Fabio Estevam <fabio.estevam@nxp.com>
+M:	Fabio Estevam <festevam@gmail.com>
 S:	Maintained
 F:	board/technexion/pico-imx6ul/
 F:	include/configs/pico-imx6ul.h

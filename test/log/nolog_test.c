@@ -10,6 +10,8 @@
 
 #include <common.h>
 #include <console.h>
+#include <log.h>
+#include <asm/global_data.h>
 #include <test/log.h>
 #include <test/test.h>
 #include <test/suites.h>
@@ -127,8 +129,10 @@ static int log_test_nolog_debug(struct unit_test_state *uts)
 	memset(buf, 0, BUFFSIZE);
 	console_record_reset_enable();
 	log_debug("testing %s\n", "log_debug");
+	log(LOGC_NONE, LOGL_DEBUG, "more %s\n", "log_debug");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_debug"));
+	ut_assertok(ut_check_console_line(uts, "more log_debug"));
 	ut_assertok(ut_check_console_end(uts));
 	return 0;
 }

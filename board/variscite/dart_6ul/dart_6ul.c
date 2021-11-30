@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2015-2019 Variscite Ltd.
  * Copyright (C) 2019 Parthiban Nallathambi <parthitce@gmail.com>
+ * Copyright (C) 2021 Marc Ferland, Amotus Solutions Inc., <ferlandm@amotus.ca>
  */
 
 #include <init.h>
@@ -10,6 +11,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <dm.h>
@@ -18,9 +20,6 @@
 #include <linux/bitops.h>
 #include <malloc.h>
 #include <miiphy.h>
-#include <netdev.h>
-#include <usb.h>
-#include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -97,67 +96,6 @@ static void setup_gpmi_nand(void)
 #endif
 
 #ifdef CONFIG_FEC_MXC
-#define ENET_CLK_PAD_CTRL (PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST)
-#define ENET_PAD_CTRL     (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE       | \
-			   PAD_CTL_SPEED_HIGH  | PAD_CTL_DSE_48ohm | \
-			   PAD_CTL_SRE_FAST)
-#define MDIO_PAD_CTRL     (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE      | \
-			   PAD_CTL_DSE_48ohm   | PAD_CTL_SRE_FAST | \
-			   PAD_CTL_ODE)
-/*
- * pin conflicts for fec1 and fec2, GPIO1_IO06 and GPIO1_IO07 can only
- * be used for ENET1 or ENET2, cannot be used for both.
- */
-static iomux_v3_cfg_t const fec1_pads[] = {
-	MX6_PAD_GPIO1_IO06__ENET1_MDIO | MUX_PAD_CTRL(MDIO_PAD_CTRL),
-	MX6_PAD_GPIO1_IO07__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET1_TX_DATA0__ENET1_TDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET1_TX_DATA1__ENET1_TDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET1_TX_EN__ENET1_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET1_TX_CLK__ENET1_REF_CLK1 | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
-	MX6_PAD_ENET1_RX_DATA0__ENET1_RDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET1_RX_DATA1__ENET1_RDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET1_RX_ER__ENET1_RX_ER | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET1_RX_EN__ENET1_RX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const fec2_pads[] = {
-	MX6_PAD_GPIO1_IO06__ENET2_MDIO | MUX_PAD_CTRL(MDIO_PAD_CTRL),
-	MX6_PAD_GPIO1_IO07__ENET2_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_TX_DATA0__ENET2_TDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_TX_DATA1__ENET2_TDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_TX_EN__ENET2_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_TX_CLK__ENET2_REF_CLK2 | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
-	MX6_PAD_ENET2_RX_DATA0__ENET2_RDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_RX_DATA1__ENET2_RDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_RX_ER__ENET2_RX_ER | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_RX_EN__ENET2_RX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
-};
-
-static void setup_iomux_fec(int fec_id)
-{
-	if (fec_id == 0)
-		imx_iomux_v3_setup_multiple_pads(fec1_pads,
-						 ARRAY_SIZE(fec1_pads));
-	else
-		imx_iomux_v3_setup_multiple_pads(fec2_pads,
-						 ARRAY_SIZE(fec2_pads));
-}
-
-int board_eth_init(struct bd_info *bis)
-{
-	int ret = 0;
-
-	ret = fecmxc_initialize_multi(bis, CONFIG_FEC_ENET_DEV,
-				      CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
-
-#if defined(CONFIG_CI_UDC) && defined(CONFIG_USB_ETHER)
-	/* USB Ethernet Gadget */
-	usb_eth_initialize(bis);
-#endif
-	return ret;
-}
-
 static int setup_fec(int fec_id)
 {
 	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
@@ -203,13 +141,6 @@ int board_phy_config(struct phy_device *phydev)
 }
 #endif /* CONFIG_FEC_MXC */
 
-int board_early_init_f(void)
-{
-	setup_iomux_fec(CONFIG_FEC_ENET_DEV);
-
-	return 0;
-}
-
 int board_init(void)
 {
 	/* Address of boot parameters */
@@ -250,7 +181,7 @@ struct dart6ul_info {
 #define DART6UL_INFO_STORAGE_GET(n) ((n) & 0x3)
 #define DART6UL_INFO_WIFI_GET(n)    ((n) >> 2 & 0x1)
 #define DART6UL_INFO_REV_GET(n)     ((n) >> 3 & 0x3)
-#define DART6UL_DDRSIZE_IN_MIB(n)   ((n) << 8)
+#define DART6UL_DDRSIZE(n)          ((n) * SZ_128M)
 #define DART6UL_INFO_MAGIC          0x32524156
 
 static const char *som_info_storage_to_str(u8 som_info)
@@ -323,7 +254,7 @@ int checkboard(void)
 	       info->date,
 	       som_info_storage_to_str(info->som_info),
 	       DART6UL_INFO_WIFI_GET(info->som_info) ? "yes" : "no",
-	       DART6UL_DDRSIZE_IN_MIB(info->ddr_size),
+	       DART6UL_DDRSIZE(info->ddr_size) / SZ_1M,
 	       som_info_rev_to_str(info->som_info));
 
 	free(info);

@@ -82,7 +82,7 @@
 	PORT_1(fn, pfx##26, sfx), PORT_1(fn, pfx##27, sfx)
 
 #define CPU_32_PORT0_16(fn, pfx, sfx)				\
-	PORT_10(fn, pfx, sfx), 					\
+	PORT_10(fn, pfx, sfx),					\
 	PORT_1(fn, pfx##10, sfx),PORT_1(fn, pfx##11, sfx),	\
 	PORT_1(fn, pfx##12, sfx), PORT_1(fn, pfx##13, sfx),	\
 	PORT_1(fn, pfx##14, sfx), PORT_1(fn, pfx##15, sfx),	\

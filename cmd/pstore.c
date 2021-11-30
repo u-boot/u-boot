@@ -5,6 +5,7 @@
 
 #include <config.h>
 #include <command.h>
+#include <fdtdec.h>
 #include <fs.h>
 #include <log.h>
 #include <mapmem.h>
@@ -171,26 +172,26 @@ static int pstore_set(struct cmd_tbl *cmdtp, int flag,  int argc,
 
 	/* Address is specified since argc > 2
 	 */
-	pstore_addr = simple_strtoul(argv[1], NULL, 16);
+	pstore_addr = hextoul(argv[1], NULL);
 
 	/* Length is specified since argc > 2
 	 */
-	pstore_length = simple_strtoul(argv[2], NULL, 16);
+	pstore_length = hextoul(argv[2], NULL);
 
 	if (argc > 3)
-		pstore_record_size = simple_strtoul(argv[3], NULL, 16);
+		pstore_record_size = hextoul(argv[3], NULL);
 
 	if (argc > 4)
-		pstore_console_size = simple_strtoul(argv[4], NULL, 16);
+		pstore_console_size = hextoul(argv[4], NULL);
 
 	if (argc > 5)
-		pstore_ftrace_size = simple_strtoul(argv[5], NULL, 16);
+		pstore_ftrace_size = hextoul(argv[5], NULL);
 
 	if (argc > 6)
-		pstore_pmsg_size = simple_strtoul(argv[6], NULL, 16);
+		pstore_pmsg_size = hextoul(argv[6], NULL);
 
 	if (argc > 7)
-		pstore_ecc_size = simple_strtoul(argv[7], NULL, 16);
+		pstore_ecc_size = hextoul(argv[7], NULL);
 
 	if (pstore_length < (pstore_record_size + pstore_console_size
 			     + pstore_ftrace_size + pstore_pmsg_size)) {
@@ -278,7 +279,7 @@ static int pstore_display(struct cmd_tbl *cmdtp, int flag,  int argc,
 				- pstore_ftrace_size - pstore_console_size;
 
 		if (argc > 2) {
-			ptr += simple_strtoul(argv[2], NULL, 10)
+			ptr += dectoul(argv[2], NULL)
 				* pstore_record_size;
 			ptr_end = ptr + pstore_record_size;
 		}

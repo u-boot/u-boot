@@ -20,7 +20,7 @@
  */
 #define ENA_DCAC		2UL
 #define DIS_DCAC		~ENA_DCAC
-#define ICAC_MEM_KBF_ISET	(0x07)	 	! I Cache sets per way
+#define ICAC_MEM_KBF_ISET	(0x07)		! I Cache sets per way
 #define ICAC_MEM_KBF_IWAY	(0x07<<3)	! I cache ways
 #define ICAC_MEM_KBF_ISZ	(0x07<<6)	! I cache line size
 #define DCAC_MEM_KBF_DSET	(0x07)		! D Cache sets per way
@@ -174,7 +174,7 @@ set_ivb:
 
 	jal mem_init
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 	jal	lowlevel_init
 /*
  *  gp = ~VMA          for burn mode
@@ -434,21 +434,21 @@ tlb_fill:
 	SAVE_ALL
 	move	$r0, $sp			! To get the kernel stack
 	li	$r1, 1				! Determine interruption type
-	bal 	do_interruption
+	bal	do_interruption
 
 	.align	5
 tlb_not_present:
 	SAVE_ALL
 	move	$r0, $sp			! To get the kernel stack
 	li	$r1, 2				! Determine interruption type
-	bal 	do_interruption
+	bal	do_interruption
 
 	.align	5
 tlb_misc:
 	SAVE_ALL
 	move	$r0, $sp			! To get the kernel stack
 	li	$r1, 3				! Determine interruption type
-	bal 	do_interruption
+	bal	do_interruption
 
 	.align	5
 tlb_vlpt_miss:
@@ -500,25 +500,3 @@ software_interrupt:
 	bal	do_interruption
 
 	.align	5
-
-/*
- * void reset_cpu(ulong addr);
- * $r0: input address to jump to
- */
-.globl reset_cpu
-reset_cpu:
-/* No need to disable MMU because we never enable it */
-
-	bal	invalidate_icac
-	bal	invalidate_dcac
-	mfsr	$p0, $MMU_CFG
-	andi	$p0, $p0, 0x3			! MMPS
-	li	$p1, 0x2			! TLB MMU
-	bne	$p0, $p1, 1f
-	tlbop	flushall			! Flush TLB
-1:
-	mfsr	$p0, MR_CAC_CTL			! Get the $CACHE_CTL reg
-	li	$p1, DIS_DCAC
-	and	$p0, $p0, $p1			! Clear the DC_EN bit
-	mtsr	$p0, MR_CAC_CTL			! Write back the $CACHE_CTL reg
-	br	$r0				! Jump to the input address

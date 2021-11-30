@@ -6,6 +6,7 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/ptrace.h>
 #include <asm/arch/cpu.h>
@@ -13,20 +14,16 @@
 #include <linux/delay.h>
 
 #include "comphy_core.h"
-#include "comphy_hpipe.h"
 #include "sata.h"
 #include "utmi_phy.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define SD_ADDR(base, lane)			(base + 0x1000 * lane)
-#define HPIPE_ADDR(base, lane)			(SD_ADDR(base, lane) + 0x800)
-#define COMPHY_ADDR(base, lane)			(base + 0x28 * lane)
-
 /* Firmware related definitions used for SMC calls */
 #define MV_SIP_COMPHY_POWER_ON	0x82000001
 #define MV_SIP_COMPHY_POWER_OFF	0x82000002
 #define MV_SIP_COMPHY_PLL_LOCK	0x82000003
+#define MV_SIP_COMPHY_XFI_TRAIN	0x82000004
 
 /* Used to distinguish between different possible callers (U-boot/Linux) */
 #define COMPHY_CALLER_UBOOT			(0x1 << 21)
@@ -38,6 +35,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define COMPHY_FW_PCIE_FORMAT(pcie_width, clk_src, mode, speeds)	\
 			(COMPHY_CALLER_UBOOT | ((pcie_width) << 18) |	\
 			((clk_src) << 17) | COMPHY_FW_FORMAT(mode, 0, speeds))
+
+/* Invert polarity are bits 1-0 of the mode */
+#define COMPHY_FW_SATA_FORMAT(mode, invert)	\
+			((invert) | COMPHY_FW_MODE_FORMAT(mode))
 
 #define COMPHY_SATA_MODE	0x1
 #define COMPHY_SGMII_MODE	0x2	/* SGMII 1G */
@@ -58,50 +59,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define COMPHY_UNIT_ID3		3
 
 struct utmi_phy_data {
+	void __iomem *utmi_pll_addr;
 	void __iomem *utmi_base_addr;
 	void __iomem *usb_cfg_addr;
 	void __iomem *utmi_cfg_addr;
 	u32 utmi_phy_port;
-};
-
-/*
- * For CP-110 we have 2 Selector registers "PHY Selectors",
- * and "PIPE Selectors".
- * PIPE selector include USB and PCIe options.
- * PHY selector include the Ethernet and SATA options, every Ethernet
- * option has different options, for example: serdes lane2 had option
- * Eth_port_0 that include (SGMII0, RXAUI0, SFI)
- */
-struct comphy_mux_data cp110_comphy_phy_mux_data[] = {
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII1, 0x1}, /* Lane 0 */
-	     {PHY_TYPE_SATA1, 0x4} } },
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII2, 0x1}, /* Lane 1 */
-	     {PHY_TYPE_SATA0, 0x4} } },
-	{6, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII0, 0x1}, /* Lane 2 */
-	     {PHY_TYPE_RXAUI0, 0x1}, {PHY_TYPE_SFI, 0x1},
-	     {PHY_TYPE_SATA0, 0x4} } },
-	{8, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_RXAUI1, 0x1}, /* Lane 3 */
-	     {PHY_TYPE_SGMII1, 0x2}, {PHY_TYPE_SATA1, 0x4} } },
-	{7, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII0, 0x2}, /* Lane 4 */
-	     {PHY_TYPE_RXAUI0, 0x2}, {PHY_TYPE_SFI, 0x2},
-	     {PHY_TYPE_SGMII1, 0x1} } },
-	{6, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_SGMII2, 0x1}, /* Lane 5 */
-	     {PHY_TYPE_RXAUI1, 0x2}, {PHY_TYPE_SATA1, 0x4} } },
-};
-
-struct comphy_mux_data cp110_comphy_pipe_mux_data[] = {
-	{2, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_PEX0, 0x4} } }, /* Lane 0 */
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, /* Lane 1 */
-	     {PHY_TYPE_USB3_HOST0, 0x1}, {PHY_TYPE_USB3_DEVICE, 0x2},
-	     {PHY_TYPE_PEX0, 0x4} } },
-	{3, {{PHY_TYPE_UNCONNECTED, 0x0}, /* Lane 2 */
-	     {PHY_TYPE_USB3_HOST0, 0x1}, {PHY_TYPE_PEX0, 0x4} } },
-	{3, {{PHY_TYPE_UNCONNECTED, 0x0}, /* Lane 3 */
-	     {PHY_TYPE_USB3_HOST1, 0x1}, {PHY_TYPE_PEX0, 0x4} } },
-	{4, {{PHY_TYPE_UNCONNECTED, 0x0}, /* Lane 4 */
-	     {PHY_TYPE_USB3_HOST1, 0x1},
-	     {PHY_TYPE_USB3_DEVICE, 0x2}, {PHY_TYPE_PEX1, 0x4} } },
-	{2, {{PHY_TYPE_UNCONNECTED, 0x0}, {PHY_TYPE_PEX2, 0x4} } }, /* Lane 5 */
 };
 
 static u32 polling_with_timeout(void __iomem *addr, u32 val,
@@ -118,128 +80,6 @@ static u32 polling_with_timeout(void __iomem *addr, u32 val,
 		return data;
 
 	return 0;
-}
-
-static int comphy_usb3_power_up(u32 lane, void __iomem *hpipe_base,
-				void __iomem *comphy_base)
-{
-	u32 mask, data, ret = 1;
-	void __iomem *hpipe_addr = HPIPE_ADDR(hpipe_base, lane);
-	void __iomem *comphy_addr = COMPHY_ADDR(comphy_base, lane);
-	void __iomem *addr;
-
-	debug_enter();
-	debug("stage: RFU configurations - hard reset comphy\n");
-	/* RFU configurations - hard reset comphy */
-	mask = COMMON_PHY_CFG1_PWR_UP_MASK;
-	data = 0x1 << COMMON_PHY_CFG1_PWR_UP_OFFSET;
-	mask |= COMMON_PHY_CFG1_PIPE_SELECT_MASK;
-	data |= 0x1 << COMMON_PHY_CFG1_PIPE_SELECT_OFFSET;
-	mask |= COMMON_PHY_CFG1_PWR_ON_RESET_MASK;
-	data |= 0x0 << COMMON_PHY_CFG1_PWR_ON_RESET_OFFSET;
-	mask |= COMMON_PHY_CFG1_CORE_RSTN_MASK;
-	data |= 0x0 << COMMON_PHY_CFG1_CORE_RSTN_OFFSET;
-	mask |= COMMON_PHY_PHY_MODE_MASK;
-	data |= 0x1 << COMMON_PHY_PHY_MODE_OFFSET;
-	reg_set(comphy_addr + COMMON_PHY_CFG1_REG, data, mask);
-
-	/* release from hard reset */
-	mask = COMMON_PHY_CFG1_PWR_ON_RESET_MASK;
-	data = 0x1 << COMMON_PHY_CFG1_PWR_ON_RESET_OFFSET;
-	mask |= COMMON_PHY_CFG1_CORE_RSTN_MASK;
-	data |= 0x1 << COMMON_PHY_CFG1_CORE_RSTN_OFFSET;
-	reg_set(comphy_addr + COMMON_PHY_CFG1_REG, data, mask);
-
-	/* Wait 1ms - until band gap and ref clock ready */
-	mdelay(1);
-
-	/* Start comphy Configuration */
-	debug("stage: Comphy configuration\n");
-	/* Set PIPE soft reset */
-	mask = HPIPE_RST_CLK_CTRL_PIPE_RST_MASK;
-	data = 0x1 << HPIPE_RST_CLK_CTRL_PIPE_RST_OFFSET;
-	/* Set PHY datapath width mode for V0 */
-	mask |= HPIPE_RST_CLK_CTRL_FIXED_PCLK_MASK;
-	data |= 0x0 << HPIPE_RST_CLK_CTRL_FIXED_PCLK_OFFSET;
-	/* Set Data bus width USB mode for V0 */
-	mask |= HPIPE_RST_CLK_CTRL_PIPE_WIDTH_MASK;
-	data |= 0x0 << HPIPE_RST_CLK_CTRL_PIPE_WIDTH_OFFSET;
-	/* Set CORE_CLK output frequency for 250Mhz */
-	mask |= HPIPE_RST_CLK_CTRL_CORE_FREQ_SEL_MASK;
-	data |= 0x0 << HPIPE_RST_CLK_CTRL_CORE_FREQ_SEL_OFFSET;
-	reg_set(hpipe_addr + HPIPE_RST_CLK_CTRL_REG, data, mask);
-	/* Set PLL ready delay for 0x2 */
-	reg_set(hpipe_addr + HPIPE_CLK_SRC_LO_REG,
-		0x2 << HPIPE_CLK_SRC_LO_PLL_RDY_DL_OFFSET,
-		HPIPE_CLK_SRC_LO_PLL_RDY_DL_MASK);
-	/* Set reference clock to come from group 1 - 25Mhz */
-	reg_set(hpipe_addr + HPIPE_MISC_REG,
-		0x0 << HPIPE_MISC_REFCLK_SEL_OFFSET,
-		HPIPE_MISC_REFCLK_SEL_MASK);
-	/* Set reference frequcency select - 0x2 */
-	mask = HPIPE_PWR_PLL_REF_FREQ_MASK;
-	data = 0x2 << HPIPE_PWR_PLL_REF_FREQ_OFFSET;
-	/* Set PHY mode to USB - 0x5 */
-	mask |= HPIPE_PWR_PLL_PHY_MODE_MASK;
-	data |= 0x5 << HPIPE_PWR_PLL_PHY_MODE_OFFSET;
-	reg_set(hpipe_addr + HPIPE_PWR_PLL_REG, data, mask);
-	/* Set the amount of time spent in the LoZ state - set for 0x7 */
-	reg_set(hpipe_addr + HPIPE_GLOBAL_PM_CTRL,
-		0x7 << HPIPE_GLOBAL_PM_RXDLOZ_WAIT_OFFSET,
-		HPIPE_GLOBAL_PM_RXDLOZ_WAIT_MASK);
-	/* Set max PHY generation setting - 5Gbps */
-	reg_set(hpipe_addr + HPIPE_INTERFACE_REG,
-		0x1 << HPIPE_INTERFACE_GEN_MAX_OFFSET,
-		HPIPE_INTERFACE_GEN_MAX_MASK);
-	/* Set select data width 20Bit (SEL_BITS[2:0]) */
-	reg_set(hpipe_addr + HPIPE_LOOPBACK_REG,
-		0x1 << HPIPE_LOOPBACK_SEL_OFFSET,
-		HPIPE_LOOPBACK_SEL_MASK);
-	/* select de-emphasize 3.5db */
-	reg_set(hpipe_addr + HPIPE_LANE_CONFIG0_REG,
-		0x1 << HPIPE_LANE_CONFIG0_TXDEEMPH0_OFFSET,
-		HPIPE_LANE_CONFIG0_TXDEEMPH0_MASK);
-	/* override tx margining from the MAC */
-	reg_set(hpipe_addr + HPIPE_TST_MODE_CTRL_REG,
-		0x1 << HPIPE_TST_MODE_CTRL_MODE_MARGIN_OFFSET,
-		HPIPE_TST_MODE_CTRL_MODE_MARGIN_MASK);
-
-	/* Start analog paramters from ETP(HW) */
-	debug("stage: Analog paramters from ETP(HW)\n");
-	/* Set Pin DFE_PAT_DIS -> Bit[1]: PIN_DFE_PAT_DIS = 0x0 */
-	mask = HPIPE_LANE_CFG4_DFE_CTRL_MASK;
-	data = 0x1 << HPIPE_LANE_CFG4_DFE_CTRL_OFFSET;
-	/* Set Override PHY DFE control pins for 0x1 */
-	mask |= HPIPE_LANE_CFG4_DFE_OVER_MASK;
-	data |= 0x1 << HPIPE_LANE_CFG4_DFE_OVER_OFFSET;
-	/* Set Spread Spectrum Clock Enable fot 0x1 */
-	mask |= HPIPE_LANE_CFG4_SSC_CTRL_MASK;
-	data |= 0x1 << HPIPE_LANE_CFG4_SSC_CTRL_OFFSET;
-	reg_set(hpipe_addr + HPIPE_LANE_CFG4_REG, data, mask);
-	/* End of analog parameters */
-
-	debug("stage: Comphy power up\n");
-	/* Release from PIPE soft reset */
-	reg_set(hpipe_addr + HPIPE_RST_CLK_CTRL_REG,
-		0x0 << HPIPE_RST_CLK_CTRL_PIPE_RST_OFFSET,
-		HPIPE_RST_CLK_CTRL_PIPE_RST_MASK);
-
-	/* wait 15ms - for comphy calibration done */
-	debug("stage: Check PLL\n");
-	/* Read lane status */
-	addr = hpipe_addr + HPIPE_LANE_STATUS1_REG;
-	data = HPIPE_LANE_STATUS1_PCLK_EN_MASK;
-	mask = data;
-	data = polling_with_timeout(addr, data, mask, 15000);
-	if (data != 0) {
-		debug("Read from reg = %p - value = 0x%x\n",
-		      hpipe_addr + HPIPE_LANE_STATUS1_REG, data);
-		pr_err("HPIPE_LANE_STATUS1_PCLK_EN_MASK is 0\n");
-		ret = 0;
-	}
-
-	debug_exit();
-	return ret;
 }
 
 static int comphy_smc(u32 function_id, void __iomem *comphy_base_addr,
@@ -260,6 +100,35 @@ static int comphy_smc(u32 function_id, void __iomem *comphy_base_addr,
 	 * u-boot should be change and this conversion removed
 	 */
 	return pregs.regs[0] ? 0 : 1;
+}
+
+/* This function performs RX training for all FFE possible values.
+ * We get the result for each FFE and eventually the best FFE will
+ * be used and set to the HW.
+ *
+ * Return '1' on succsess.
+ * Return '0' on failure.
+ */
+int comphy_cp110_sfi_rx_training(struct chip_serdes_phy_config *ptr_chip_cfg,
+				 u32 lane)
+{
+	int ret;
+	u32 type = ptr_chip_cfg->comphy_map_data[lane].type;
+
+	debug_enter();
+
+	if (type != COMPHY_TYPE_SFI0 && type != COMPHY_TYPE_SFI1) {
+		pr_err("Comphy %d isn't configured to SFI\n", lane);
+		return 0;
+	}
+
+	/* Mode is not relevant for xfi training */
+	ret = comphy_smc(MV_SIP_COMPHY_XFI_TRAIN,
+			 ptr_chip_cfg->comphy_base_addr, lane, 0);
+
+	debug_exit();
+
+	return ret;
 }
 
 static int comphy_sata_power_up(u32 lane, void __iomem *hpipe_base,
@@ -356,184 +225,6 @@ static int comphy_sata_power_up(u32 lane, void __iomem *hpipe_base,
 	return ret;
 }
 
-static int comphy_rxauii_power_up(u32 lane, void __iomem *hpipe_base,
-				  void __iomem *comphy_base)
-{
-	u32 mask, data, ret = 1;
-	void __iomem *hpipe_addr = HPIPE_ADDR(hpipe_base, lane);
-	void __iomem *sd_ip_addr = SD_ADDR(hpipe_base, lane);
-	void __iomem *comphy_addr = COMPHY_ADDR(comphy_base, lane);
-	void __iomem *addr;
-
-	debug_enter();
-	debug("stage: RFU configurations - hard reset comphy\n");
-	/* RFU configurations - hard reset comphy */
-	mask = COMMON_PHY_CFG1_PWR_UP_MASK;
-	data = 0x1 << COMMON_PHY_CFG1_PWR_UP_OFFSET;
-	mask |= COMMON_PHY_CFG1_PIPE_SELECT_MASK;
-	data |= 0x0 << COMMON_PHY_CFG1_PIPE_SELECT_OFFSET;
-	reg_set(comphy_addr + COMMON_PHY_CFG1_REG, data, mask);
-
-	if (lane == 2) {
-		reg_set(comphy_base + COMMON_PHY_SD_CTRL1,
-			0x1 << COMMON_PHY_SD_CTRL1_RXAUI0_OFFSET,
-			COMMON_PHY_SD_CTRL1_RXAUI0_MASK);
-	}
-	if (lane == 4) {
-		reg_set(comphy_base + COMMON_PHY_SD_CTRL1,
-			0x1 << COMMON_PHY_SD_CTRL1_RXAUI1_OFFSET,
-			COMMON_PHY_SD_CTRL1_RXAUI1_MASK);
-	}
-
-	/* Select Baud Rate of Comphy And PD_PLL/Tx/Rx */
-	mask = SD_EXTERNAL_CONFIG0_SD_PU_PLL_MASK;
-	data = 0x0 << SD_EXTERNAL_CONFIG0_SD_PU_PLL_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG0_SD_PHY_GEN_RX_MASK;
-	data |= 0xB << SD_EXTERNAL_CONFIG0_SD_PHY_GEN_RX_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG0_SD_PHY_GEN_TX_MASK;
-	data |= 0xB << SD_EXTERNAL_CONFIG0_SD_PHY_GEN_TX_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG0_SD_PU_RX_MASK;
-	data |= 0x0 << SD_EXTERNAL_CONFIG0_SD_PU_RX_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG0_SD_PU_TX_MASK;
-	data |= 0x0 << SD_EXTERNAL_CONFIG0_SD_PU_TX_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG0_HALF_BUS_MODE_MASK;
-	data |= 0x0 << SD_EXTERNAL_CONFIG0_HALF_BUS_MODE_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG0_MEDIA_MODE_MASK;
-	data |= 0x1 << SD_EXTERNAL_CONFIG0_MEDIA_MODE_OFFSET;
-	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG0_REG, data, mask);
-
-	/* release from hard reset */
-	mask = SD_EXTERNAL_CONFIG1_RESET_IN_MASK;
-	data = 0x0 << SD_EXTERNAL_CONFIG1_RESET_IN_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG1_RESET_CORE_MASK;
-	data |= 0x0 << SD_EXTERNAL_CONFIG1_RESET_CORE_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG1_RF_RESET_IN_MASK;
-	data |= 0x0 << SD_EXTERNAL_CONFIG1_RF_RESET_IN_OFFSET;
-	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG, data, mask);
-
-	mask = SD_EXTERNAL_CONFIG1_RESET_IN_MASK;
-	data = 0x1 << SD_EXTERNAL_CONFIG1_RESET_IN_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG1_RESET_CORE_MASK;
-	data |= 0x1 << SD_EXTERNAL_CONFIG1_RESET_CORE_OFFSET;
-	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG, data, mask);
-
-	/* Wait 1ms - until band gap and ref clock ready */
-	mdelay(1);
-
-	/* Start comphy Configuration */
-	debug("stage: Comphy configuration\n");
-	/* set reference clock */
-	reg_set(hpipe_addr + HPIPE_MISC_REG,
-		0x0 << HPIPE_MISC_REFCLK_SEL_OFFSET,
-		HPIPE_MISC_REFCLK_SEL_MASK);
-	/* Power and PLL Control */
-	mask = HPIPE_PWR_PLL_REF_FREQ_MASK;
-	data = 0x1 << HPIPE_PWR_PLL_REF_FREQ_OFFSET;
-	mask |= HPIPE_PWR_PLL_PHY_MODE_MASK;
-	data |= 0x4 << HPIPE_PWR_PLL_PHY_MODE_OFFSET;
-	reg_set(hpipe_addr + HPIPE_PWR_PLL_REG, data, mask);
-	/* Loopback register */
-	reg_set(hpipe_addr + HPIPE_LOOPBACK_REG,
-		0x1 << HPIPE_LOOPBACK_SEL_OFFSET, HPIPE_LOOPBACK_SEL_MASK);
-	/* rx control 1 */
-	mask = HPIPE_RX_CONTROL_1_RXCLK2X_SEL_MASK;
-	data = 0x1 << HPIPE_RX_CONTROL_1_RXCLK2X_SEL_OFFSET;
-	mask |= HPIPE_RX_CONTROL_1_CLK8T_EN_MASK;
-	data |= 0x1 << HPIPE_RX_CONTROL_1_CLK8T_EN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_RX_CONTROL_1_REG, data, mask);
-	/* DTL Control */
-	reg_set(hpipe_addr + HPIPE_PWR_CTR_DTL_REG,
-		0x0 << HPIPE_PWR_CTR_DTL_FLOOP_EN_OFFSET,
-		HPIPE_PWR_CTR_DTL_FLOOP_EN_MASK);
-
-	/* Set analog paramters from ETP(HW) */
-	debug("stage: Analog paramters from ETP(HW)\n");
-	/* SERDES External Configuration 2 */
-	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG2_REG,
-		0x1 << SD_EXTERNAL_CONFIG2_PIN_DFE_EN_OFFSET,
-		SD_EXTERNAL_CONFIG2_PIN_DFE_EN_MASK);
-	/* 0x7-DFE Resolution control */
-	reg_set(hpipe_addr + HPIPE_DFE_REG0, 0x1 << HPIPE_DFE_RES_FORCE_OFFSET,
-		HPIPE_DFE_RES_FORCE_MASK);
-	/* 0xd-G1_Setting_0 */
-	reg_set(hpipe_addr + HPIPE_G1_SET_0_REG,
-		0xd << HPIPE_G1_SET_0_G1_TX_EMPH1_OFFSET,
-		HPIPE_G1_SET_0_G1_TX_EMPH1_MASK);
-	/* 0xE-G1_Setting_1 */
-	mask = HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
-	data = 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
-	mask |= HPIPE_G1_SET_1_G1_RX_SELMUPP_MASK;
-	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPP_OFFSET;
-	mask |= HPIPE_G1_SET_1_G1_RX_DFE_EN_MASK;
-	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_DFE_EN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_G1_SET_1_REG, data, mask);
-	/* 0xA-DFE_Reg3 */
-	mask = HPIPE_DFE_F3_F5_DFE_EN_MASK;
-	data = 0x0 << HPIPE_DFE_F3_F5_DFE_EN_OFFSET;
-	mask |= HPIPE_DFE_F3_F5_DFE_CTRL_MASK;
-	data |= 0x0 << HPIPE_DFE_F3_F5_DFE_CTRL_OFFSET;
-	reg_set(hpipe_addr + HPIPE_DFE_F3_F5_REG, data, mask);
-
-	/* 0x111-G1_Setting_4 */
-	mask = HPIPE_G1_SETTINGS_4_G1_DFE_RES_MASK;
-	data = 0x1 << HPIPE_G1_SETTINGS_4_G1_DFE_RES_OFFSET;
-	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_4_REG, data, mask);
-
-	debug("stage: RFU configurations- Power Up PLL,Tx,Rx\n");
-	/* SERDES External Configuration */
-	mask = SD_EXTERNAL_CONFIG0_SD_PU_PLL_MASK;
-	data = 0x1 << SD_EXTERNAL_CONFIG0_SD_PU_PLL_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG0_SD_PU_RX_MASK;
-	data |= 0x1 << SD_EXTERNAL_CONFIG0_SD_PU_RX_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG0_SD_PU_TX_MASK;
-	data |= 0x1 << SD_EXTERNAL_CONFIG0_SD_PU_TX_OFFSET;
-	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG0_REG, data, mask);
-
-
-	/* check PLL rx & tx ready */
-	addr = sd_ip_addr + SD_EXTERNAL_STATUS0_REG;
-	data = SD_EXTERNAL_STATUS0_PLL_RX_MASK |
-		SD_EXTERNAL_STATUS0_PLL_TX_MASK;
-	mask = data;
-	data = polling_with_timeout(addr, data, mask, 15000);
-	if (data != 0) {
-		debug("Read from reg = %p - value = 0x%x\n",
-		      sd_ip_addr + SD_EXTERNAL_STATUS0_REG, data);
-		pr_err("SD_EXTERNAL_STATUS0_PLL_RX is %d, SD_EXTERNAL_STATUS0_PLL_TX is %d\n",
-		      (data & SD_EXTERNAL_STATUS0_PLL_RX_MASK),
-		      (data & SD_EXTERNAL_STATUS0_PLL_TX_MASK));
-		ret = 0;
-	}
-
-	/* RX init */
-	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG,
-		0x1 << SD_EXTERNAL_CONFIG1_RX_INIT_OFFSET,
-		SD_EXTERNAL_CONFIG1_RX_INIT_MASK);
-
-	/* check that RX init done */
-	addr = sd_ip_addr + SD_EXTERNAL_STATUS0_REG;
-	data = SD_EXTERNAL_STATUS0_RX_INIT_MASK;
-	mask = data;
-	data = polling_with_timeout(addr, data, mask, 100);
-	if (data != 0) {
-		debug("Read from reg = %p - value = 0x%x\n",
-		      sd_ip_addr + SD_EXTERNAL_STATUS0_REG, data);
-		pr_err("SD_EXTERNAL_STATUS0_RX_INIT is 0\n");
-		ret = 0;
-	}
-
-	debug("stage: RF Reset\n");
-	/* RF Reset */
-	mask =  SD_EXTERNAL_CONFIG1_RX_INIT_MASK;
-	data = 0x0 << SD_EXTERNAL_CONFIG1_RX_INIT_OFFSET;
-	mask |= SD_EXTERNAL_CONFIG1_RF_RESET_IN_MASK;
-	data |= 0x1 << SD_EXTERNAL_CONFIG1_RF_RESET_IN_OFFSET;
-	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG, data, mask);
-
-	debug_exit();
-	return ret;
-}
-
 static void comphy_utmi_power_down(u32 utmi_index, void __iomem *utmi_base_addr,
 				   void __iomem *usb_cfg_addr,
 				   void __iomem *utmi_cfg_addr,
@@ -579,7 +270,8 @@ static void comphy_utmi_power_down(u32 utmi_index, void __iomem *utmi_base_addr,
 	return;
 }
 
-static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
+static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_pll_addr,
+				   void __iomem *utmi_base_addr,
 				   void __iomem *usb_cfg_addr,
 				   void __iomem *utmi_cfg_addr,
 				   u32 utmi_phy_port)
@@ -597,27 +289,37 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
 	/* Select LPFR - 0x0 for 25Mhz/5=5Mhz*/
 	mask |= UTMI_PLL_CTRL_SEL_LPFR_MASK;
 	data |= 0x0 << UTMI_PLL_CTRL_SEL_LPFR_OFFSET;
-	reg_set(utmi_base_addr + UTMI_PLL_CTRL_REG, data, mask);
+	reg_set(utmi_pll_addr + UTMI_PLL_CTRL_REG, data, mask);
 
 	/* Impedance Calibration Threshold Setting */
-	reg_set(utmi_base_addr + UTMI_CALIB_CTRL_REG,
-		0x6 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET,
-		UTMI_CALIB_CTRL_IMPCAL_VTH_MASK);
+	mask = UTMI_CALIB_CTRL_IMPCAL_VTH_MASK;
+	data = 0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET;
+	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG, data, mask);
+
+	/* Start Impedance and PLL Calibration */
+	mask = UTMI_CALIB_CTRL_PLLCAL_START_MASK;
+	data = (0x1 << UTMI_CALIB_CTRL_PLLCAL_START_OFFSET);
+	mask |= UTMI_CALIB_CTRL_IMPCAL_START_MASK;
+	data |= (0x1 << UTMI_CALIB_CTRL_IMPCAL_START_OFFSET);
+	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG, data, mask);
 
 	/* Set LS TX driver strength coarse control */
-	mask = UTMI_TX_CH_CTRL_DRV_EN_LS_MASK;
-	data = 0x3 << UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET;
-	/* Set LS TX driver fine adjustment */
+	mask = UTMI_TX_CH_CTRL_AMP_MASK;
+	data = 0x4 << UTMI_TX_CH_CTRL_AMP_OFFSET;
 	mask |= UTMI_TX_CH_CTRL_IMP_SEL_LS_MASK;
 	data |= 0x3 << UTMI_TX_CH_CTRL_IMP_SEL_LS_OFFSET;
+	mask |= UTMI_TX_CH_CTRL_DRV_EN_LS_MASK;
+	data |= 0x3 << UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET;
 	reg_set(utmi_base_addr + UTMI_TX_CH_CTRL_REG, data, mask);
 
 	/* Enable SQ */
 	mask = UTMI_RX_CH_CTRL0_SQ_DET_MASK;
-	data = 0x0 << UTMI_RX_CH_CTRL0_SQ_DET_OFFSET;
+	data = 0x1 << UTMI_RX_CH_CTRL0_SQ_DET_OFFSET;
 	/* Enable analog squelch detect */
 	mask |= UTMI_RX_CH_CTRL0_SQ_ANA_DTC_MASK;
-	data |= 0x1 << UTMI_RX_CH_CTRL0_SQ_ANA_DTC_OFFSET;
+	data |= 0x0 << UTMI_RX_CH_CTRL0_SQ_ANA_DTC_OFFSET;
+	mask |= UTMI_RX_CH_CTRL0_DISCON_THRESH_MASK;
+	data |= 0x0 << UTMI_RX_CH_CTRL0_DISCON_THRESH_OFFSET;
 	reg_set(utmi_base_addr + UTMI_RX_CH_CTRL0_REG, data, mask);
 
 	/* Set External squelch calibration number */
@@ -640,7 +342,8 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
 	return;
 }
 
-static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
+static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_pll_addr,
+				void __iomem *utmi_base_addr,
 				void __iomem *usb_cfg_addr,
 				void __iomem *utmi_cfg_addr, u32 utmi_phy_port)
 {
@@ -659,7 +362,7 @@ static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
 		UTMI_CTRL_STATUS0_TEST_SEL_MASK);
 
 	debug("stage: Polling for PLL and impedance calibration done, and PLL ready done\n");
-	addr = utmi_base_addr + UTMI_CALIB_CTRL_REG;
+	addr = utmi_pll_addr + UTMI_CALIB_CTRL_REG;
 	data = UTMI_CALIB_CTRL_IMPCAL_DONE_MASK;
 	mask = data;
 	data = polling_with_timeout(addr, data, mask, 100);
@@ -678,7 +381,7 @@ static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
 		ret = 0;
 	}
 
-	addr = utmi_base_addr + UTMI_PLL_CTRL_REG;
+	addr = utmi_pll_addr + UTMI_PLL_CTRL_REG;
 	data = UTMI_PLL_CTRL_PLL_RDY_MASK;
 	mask = data;
 	data = polling_with_timeout(addr, data, mask, 100);
@@ -702,7 +405,7 @@ static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
  * the init split in 3 parts:
  * 1. Power down transceiver and PLL
  * 2. UTMI PHY configure
- * 3. Powe up transceiver and PLL
+ * 3. Power up transceiver and PLL
  * Note: - Power down/up should be once for both UTMI PHYs
  *       - comphy_dedicated_phys_init call this function if at least there is
  *         one UTMI PHY exists in FDT blob. access to cp110_utmi_data[0] is
@@ -729,14 +432,16 @@ static void comphy_utmi_phy_init(u32 utmi_phy_count,
 	}
 	/* UTMI configure */
 	for (i = 0; i < utmi_phy_count; i++) {
-		comphy_utmi_phy_config(i, cp110_utmi_data[i].utmi_base_addr,
+		comphy_utmi_phy_config(i, cp110_utmi_data[i].utmi_pll_addr,
+				       cp110_utmi_data[i].utmi_base_addr,
 				       cp110_utmi_data[i].usb_cfg_addr,
 				       cp110_utmi_data[i].utmi_cfg_addr,
 				       cp110_utmi_data[i].utmi_phy_port);
 	}
 	/* UTMI Power up */
 	for (i = 0; i < utmi_phy_count; i++) {
-		if (!comphy_utmi_power_up(i, cp110_utmi_data[i].utmi_base_addr,
+		if (!comphy_utmi_power_up(i, cp110_utmi_data[i].utmi_pll_addr,
+					  cp110_utmi_data[i].utmi_base_addr,
 					  cp110_utmi_data[i].usb_cfg_addr,
 					  cp110_utmi_data[i].utmi_cfg_addr,
 					  cp110_utmi_data[i].utmi_phy_port)) {
@@ -769,45 +474,61 @@ static void comphy_utmi_phy_init(u32 utmi_phy_count,
 void comphy_dedicated_phys_init(void)
 {
 	struct utmi_phy_data cp110_utmi_data[MAX_UTMI_PHY_COUNT];
-	int node;
-	int i;
+	int node = -1;
+	int node_idx;
+	int parent = -1;
 
 	debug_enter();
 	debug("Initialize USB UTMI PHYs\n");
 
-	/* Find the UTMI phy node in device tree and go over them */
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
-					     "marvell,mvebu-utmi-2.6.0");
+	for (node_idx = 0; node_idx < MAX_UTMI_PHY_COUNT;) {
+		/* Find the UTMI phy node in device tree */
+		node = fdt_node_offset_by_compatible(gd->fdt_blob, node,
+						     "marvell,mvebu-utmi-2.6.0");
+		if (node <= 0)
+			break;
 
-	i = 0;
-	while (node > 0) {
+		/* check if node is enabled */
+		if (!fdtdec_get_is_enabled(gd->fdt_blob, node))
+			continue;
+
+		parent = fdt_parent_offset(gd->fdt_blob, node);
+		if (parent <= 0)
+			break;
+
+		/* get base address of UTMI PLL */
+		cp110_utmi_data[node_idx].utmi_pll_addr =
+			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
+				gd->fdt_blob, parent, "reg", 0, NULL, true);
+		if (!cp110_utmi_data[node_idx].utmi_pll_addr) {
+			pr_err("UTMI PHY PLL address is invalid\n");
+			continue;
+		}
+
 		/* get base address of UTMI phy */
-		cp110_utmi_data[i].utmi_base_addr =
+		cp110_utmi_data[node_idx].utmi_base_addr =
 			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
 				gd->fdt_blob, node, "reg", 0, NULL, true);
-		if (cp110_utmi_data[i].utmi_base_addr == NULL) {
+		if (!cp110_utmi_data[node_idx].utmi_base_addr) {
 			pr_err("UTMI PHY base address is invalid\n");
-			i++;
 			continue;
 		}
 
 		/* get usb config address */
-		cp110_utmi_data[i].usb_cfg_addr =
+		cp110_utmi_data[node_idx].usb_cfg_addr =
 			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
 				gd->fdt_blob, node, "reg", 1, NULL, true);
-		if (cp110_utmi_data[i].usb_cfg_addr == NULL) {
+		if (!cp110_utmi_data[node_idx].usb_cfg_addr) {
 			pr_err("UTMI PHY base address is invalid\n");
-			i++;
 			continue;
 		}
 
 		/* get UTMI config address */
-		cp110_utmi_data[i].utmi_cfg_addr =
+		cp110_utmi_data[node_idx].utmi_cfg_addr =
 			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
 				gd->fdt_blob, node, "reg", 2, NULL, true);
-		if (cp110_utmi_data[i].utmi_cfg_addr == NULL) {
+		if (!cp110_utmi_data[node_idx].utmi_cfg_addr) {
 			pr_err("UTMI PHY base address is invalid\n");
-			i++;
 			continue;
 		}
 
@@ -815,62 +536,22 @@ void comphy_dedicated_phys_init(void)
 		 * get the port number (to check if the utmi connected to
 		 * host/device)
 		 */
-		cp110_utmi_data[i].utmi_phy_port = fdtdec_get_int(
+		cp110_utmi_data[node_idx].utmi_phy_port = fdtdec_get_int(
 			gd->fdt_blob, node, "utmi-port", UTMI_PHY_INVALID);
-		if (cp110_utmi_data[i].utmi_phy_port == UTMI_PHY_INVALID) {
+		if (cp110_utmi_data[node_idx].utmi_phy_port ==
+							UTMI_PHY_INVALID) {
 			pr_err("UTMI PHY port type is invalid\n");
-			i++;
 			continue;
 		}
 
-		node = fdt_node_offset_by_compatible(
-			gd->fdt_blob, node, "marvell,mvebu-utmi-2.6.0");
-		i++;
+		/* count valid UTMI unit */
+		node_idx++;
 	}
 
-	if (i > 0)
-		comphy_utmi_phy_init(i, cp110_utmi_data);
+	if (node_idx > 0)
+		comphy_utmi_phy_init(node_idx, cp110_utmi_data);
 
 	debug_exit();
-}
-
-static void comphy_mux_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
-				  struct comphy_map *serdes_map)
-{
-	void __iomem *comphy_base_addr;
-	struct comphy_map comphy_map_pipe_data[MAX_LANE_OPTIONS];
-	struct comphy_map comphy_map_phy_data[MAX_LANE_OPTIONS];
-	u32 lane, comphy_max_count;
-
-	comphy_max_count = ptr_chip_cfg->comphy_lanes_count;
-	comphy_base_addr = ptr_chip_cfg->comphy_base_addr;
-
-	/*
-	 * Copy the SerDes map configuration for PIPE map and PHY map
-	 * the comphy_mux_init modify the type of the lane if the type
-	 * is not valid because we have 2 selectores run the
-	 * comphy_mux_init twice and after that update the original
-	 * serdes_map
-	 */
-	for (lane = 0; lane < comphy_max_count; lane++) {
-		comphy_map_pipe_data[lane].type = serdes_map[lane].type;
-		comphy_map_pipe_data[lane].speed = serdes_map[lane].speed;
-		comphy_map_phy_data[lane].type = serdes_map[lane].type;
-		comphy_map_phy_data[lane].speed = serdes_map[lane].speed;
-	}
-	ptr_chip_cfg->mux_data = cp110_comphy_phy_mux_data;
-	comphy_mux_init(ptr_chip_cfg, comphy_map_phy_data,
-			comphy_base_addr + COMMON_SELECTOR_PHY_OFFSET);
-
-	ptr_chip_cfg->mux_data = cp110_comphy_pipe_mux_data;
-	comphy_mux_init(ptr_chip_cfg, comphy_map_pipe_data,
-			comphy_base_addr + COMMON_SELECTOR_PIPE_OFFSET);
-	/* Fix the type after check the PHY and PIPE configuration */
-	for (lane = 0; lane < comphy_max_count; lane++) {
-		if ((comphy_map_pipe_data[lane].type == PHY_TYPE_UNCONNECTED) &&
-		    (comphy_map_phy_data[lane].type == PHY_TYPE_UNCONNECTED))
-			serdes_map[lane].type = PHY_TYPE_UNCONNECTED;
-	}
 }
 
 int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
@@ -878,7 +559,7 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 {
 	struct comphy_map *ptr_comphy_map;
 	void __iomem *comphy_base_addr, *hpipe_base_addr;
-	u32 comphy_max_count, lane, ret = 0;
+	u32 comphy_max_count, lane, id, ret = 0;
 	u32 pcie_width = 0;
 	u32 mode;
 
@@ -888,13 +569,10 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 	comphy_base_addr = ptr_chip_cfg->comphy_base_addr;
 	hpipe_base_addr = ptr_chip_cfg->hpipe3_base_addr;
 
-	/* Config Comphy mux configuration */
-	comphy_mux_cp110_init(ptr_chip_cfg, serdes_map);
-
 	/* Check if the first 4 lanes configured as By-4 */
 	for (lane = 0, ptr_comphy_map = serdes_map; lane < 4;
 	     lane++, ptr_comphy_map++) {
-		if (ptr_comphy_map->type != PHY_TYPE_PEX0)
+		if (ptr_comphy_map->type != COMPHY_TYPE_PEX0)
 			break;
 		pcie_width++;
 	}
@@ -911,14 +589,18 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 			pcie_width = 1;
 		}
 		switch (ptr_comphy_map->type) {
-		case PHY_TYPE_UNCONNECTED:
-		case PHY_TYPE_IGNORE:
+		case COMPHY_TYPE_UNCONNECTED:
+			mode = COMPHY_TYPE_UNCONNECTED | COMPHY_CALLER_UBOOT;
+			ret = comphy_smc(MV_SIP_COMPHY_POWER_OFF,
+					 ptr_chip_cfg->comphy_base_addr,
+					 lane, mode);
+		case COMPHY_TYPE_IGNORE:
 			continue;
 			break;
-		case PHY_TYPE_PEX0:
-		case PHY_TYPE_PEX1:
-		case PHY_TYPE_PEX2:
-		case PHY_TYPE_PEX3:
+		case COMPHY_TYPE_PEX0:
+		case COMPHY_TYPE_PEX1:
+		case COMPHY_TYPE_PEX2:
+		case COMPHY_TYPE_PEX3:
 			mode = COMPHY_FW_PCIE_FORMAT(pcie_width,
 						     ptr_comphy_map->clk_src,
 						     COMPHY_PCIE_MODE,
@@ -927,70 +609,61 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 					 ptr_chip_cfg->comphy_base_addr, lane,
 					 mode);
 			break;
-		case PHY_TYPE_SATA0:
-		case PHY_TYPE_SATA1:
-		case PHY_TYPE_SATA2:
-		case PHY_TYPE_SATA3:
-			mode =  COMPHY_FW_MODE_FORMAT(COMPHY_SATA_MODE);
+		case COMPHY_TYPE_SATA0:
+		case COMPHY_TYPE_SATA1:
+			mode = COMPHY_FW_SATA_FORMAT(COMPHY_SATA_MODE,
+						     serdes_map[lane].invert);
 			ret = comphy_sata_power_up(lane, hpipe_base_addr,
 						   comphy_base_addr,
 						   ptr_chip_cfg->cp_index,
 						   mode);
 			break;
-		case PHY_TYPE_USB3_HOST0:
-		case PHY_TYPE_USB3_HOST1:
-		case PHY_TYPE_USB3_DEVICE:
-			ret = comphy_usb3_power_up(lane, hpipe_base_addr,
-						   comphy_base_addr);
-			break;
-		case PHY_TYPE_SGMII0:
-		case PHY_TYPE_SGMII1:
-			if (ptr_comphy_map->speed == PHY_SPEED_INVALID) {
-				debug("Warning: ");
-				debug("SGMII PHY speed in lane %d is invalid,",
-				      lane);
-				debug(" set PHY speed to 1.25G\n");
-				ptr_comphy_map->speed = PHY_SPEED_1_25G;
-			}
-
-			/*
-			 * UINIT_ID not relevant for SGMII0 and SGMII1 - will be
-			 * ignored by firmware
-			 */
-			mode = COMPHY_FW_FORMAT(COMPHY_SGMII_MODE,
-						COMPHY_UNIT_ID0,
-						ptr_comphy_map->speed);
+		case COMPHY_TYPE_USB3_HOST0:
+		case COMPHY_TYPE_USB3_HOST1:
+			mode = COMPHY_FW_MODE_FORMAT(COMPHY_USB3H_MODE);
 			ret = comphy_smc(MV_SIP_COMPHY_POWER_ON,
 					 ptr_chip_cfg->comphy_base_addr, lane,
 					 mode);
 			break;
-		case PHY_TYPE_SGMII2:
-		case PHY_TYPE_SGMII3:
-			if (ptr_comphy_map->speed == PHY_SPEED_INVALID) {
+		case COMPHY_TYPE_USB3_DEVICE:
+			mode = COMPHY_FW_MODE_FORMAT(COMPHY_USB3D_MODE);
+			ret = comphy_smc(MV_SIP_COMPHY_POWER_ON,
+					 ptr_chip_cfg->comphy_base_addr, lane,
+					 mode);
+			break;
+		case COMPHY_TYPE_SGMII0:
+		case COMPHY_TYPE_SGMII1:
+		case COMPHY_TYPE_SGMII2:
+			/* Calculate SGMII ID */
+			id = ptr_comphy_map->type - COMPHY_TYPE_SGMII0;
+
+			if (ptr_comphy_map->speed == COMPHY_SPEED_INVALID) {
 				debug("Warning: SGMII PHY speed in lane %d is invalid, set PHY speed to 1.25G\n",
 				      lane);
-				ptr_comphy_map->speed = PHY_SPEED_1_25G;
+				ptr_comphy_map->speed = COMPHY_SPEED_1_25G;
 			}
 
-			mode = COMPHY_FW_FORMAT(COMPHY_SGMII_MODE,
-						COMPHY_UNIT_ID2,
+			mode = COMPHY_FW_FORMAT(COMPHY_SGMII_MODE, id,
 						ptr_comphy_map->speed);
 			ret = comphy_smc(MV_SIP_COMPHY_POWER_ON,
 					 ptr_chip_cfg->comphy_base_addr, lane,
 					 mode);
 			break;
-		case PHY_TYPE_SFI:
-			mode = COMPHY_FW_FORMAT(COMPHY_SFI_MODE,
-						COMPHY_UNIT_ID0,
+		case COMPHY_TYPE_SFI0:
+		case COMPHY_TYPE_SFI1:
+			/* Calculate SFI id */
+			id = ptr_comphy_map->type - COMPHY_TYPE_SFI0;
+			mode = COMPHY_FW_FORMAT(COMPHY_SFI_MODE, id,
 						ptr_comphy_map->speed);
+			ret = comphy_smc(MV_SIP_COMPHY_POWER_ON,
+				ptr_chip_cfg->comphy_base_addr, lane, mode);
+			break;
+		case COMPHY_TYPE_RXAUI0:
+		case COMPHY_TYPE_RXAUI1:
+			mode = COMPHY_FW_MODE_FORMAT(COMPHY_RXAUI_MODE);
 			ret = comphy_smc(MV_SIP_COMPHY_POWER_ON,
 					 ptr_chip_cfg->comphy_base_addr, lane,
 					 mode);
-			break;
-		case PHY_TYPE_RXAUI0:
-		case PHY_TYPE_RXAUI1:
-			ret = comphy_rxauii_power_up(lane, hpipe_base_addr,
-						     comphy_base_addr);
 			break;
 		default:
 			debug("Unknown SerDes type, skip initialize SerDes %d\n",
@@ -1000,9 +673,9 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		if (ret == 0) {
 			/*
 			 * If interface wans't initialized, set the lane to
-			 * PHY_TYPE_UNCONNECTED state.
+			 * COMPHY_TYPE_UNCONNECTED state.
 			 */
-			ptr_comphy_map->type = PHY_TYPE_UNCONNECTED;
+			ptr_comphy_map->type = COMPHY_TYPE_UNCONNECTED;
 			pr_err("PLL is not locked - Failed to initialize lane %d\n",
 			      lane);
 		}

@@ -251,7 +251,8 @@ static int ks_rcv(struct ks_net *ks, uchar *data)
 	}
 
 	ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_RRXEF);
-	printf(DRIVERNAME ": bad packet\n");
+	printf(DRIVERNAME ": bad packet (sts=0x%04x len=0x%04x)\n", sts, len);
+	ks->rxfc = 0;
 	return 0;
 }
 
@@ -615,7 +616,7 @@ static int ks8851_recv(struct udevice *dev, int flags, uchar **packetp)
 static int ks8851_write_hwaddr(struct udevice *dev)
 {
 	struct ks_net *ks = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	ks8851_mll_write_hwaddr_common(ks, pdata->enetaddr);
 
@@ -625,7 +626,7 @@ static int ks8851_write_hwaddr(struct udevice *dev)
 static int ks8851_read_rom_hwaddr(struct udevice *dev)
 {
 	struct ks_net *ks = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	u16 addrl, addrm, addrh;
 
 	/* No EEPROM means no valid MAC address. */
@@ -665,10 +666,10 @@ static int ks8851_probe(struct udevice *dev)
 	return 0;
 }
 
-static int ks8851_ofdata_to_platdata(struct udevice *dev)
+static int ks8851_of_to_plat(struct udevice *dev)
 {
 	struct ks_net *ks = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	pdata->iobase = dev_read_addr(dev);
 	ks->iobase = pdata->iobase;
@@ -695,11 +696,11 @@ U_BOOT_DRIVER(ks8851) = {
 	.id		= UCLASS_ETH,
 	.of_match	= ks8851_ids,
 	.bind		= ks8851_bind,
-	.ofdata_to_platdata = ks8851_ofdata_to_platdata,
+	.of_to_plat = ks8851_of_to_plat,
 	.probe		= ks8851_probe,
 	.ops		= &ks8851_ops,
-	.priv_auto_alloc_size = sizeof(struct ks_net),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ks_net),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

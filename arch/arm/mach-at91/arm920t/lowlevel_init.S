@@ -10,7 +10,7 @@
 
 #include <config.h>
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_mc.h>
@@ -148,4 +148,4 @@ SMRDATA1:
 	.word CONFIG_SYS_SDRAM_VAL
 SMRDATA1E:
 	/* SMRDATA1 is 176 bytes long */
-#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
+#endif /* CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) */

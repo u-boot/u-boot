@@ -11,6 +11,7 @@
 #include <mmc.h>
 #include <part.h>
 #include <asm/arch/stm32mp1_smc.h>
+#include <asm/global_data.h>
 #include <dm/uclass.h>
 #include <jffs2/load_kernel.h>
 #include <linux/list.h>
@@ -59,8 +60,6 @@ static const efi_guid_t uuid_mmc[3] = {
 	ROOTFS_MMC2_UUID
 };
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* order of column in flash layout file */
 enum stm32prog_col_t {
 	COL_OPTION,
@@ -71,6 +70,16 @@ enum stm32prog_col_t {
 	COL_OFFSET,
 	COL_NB_STM32
 };
+
+#define FIP_TOC_HEADER_NAME	0xAA640001
+
+struct fip_toc_header {
+	u32	name;
+	u32	serial_number;
+	u64	flags;
+};
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* partition handling routines : CONFIG_CMD_MTDPARTS */
 int mtdparts_init(void);
@@ -87,46 +96,57 @@ char *stm32prog_get_error(struct stm32prog_data *data)
 	return data->error;
 }
 
-u8 stm32prog_header_check(struct raw_header_s *raw_header,
-			  struct image_header_s *header)
+static bool stm32prog_is_fip_header(struct fip_toc_header *header)
+{
+	return (header->name == FIP_TOC_HEADER_NAME) && header->serial_number;
+}
+
+void stm32prog_header_check(struct raw_header_s *raw_header,
+			    struct image_header_s *header)
 {
 	unsigned int i;
 
-	header->present = 0;
+	if (!raw_header || !header) {
+		log_debug("%s:no header data\n", __func__);
+		return;
+	}
+
+	header->type = HEADER_NONE;
 	header->image_checksum = 0x0;
 	header->image_length = 0x0;
 
-	if (!raw_header || !header) {
-		pr_debug("%s:no header data\n", __func__);
-		return -1;
+	if (stm32prog_is_fip_header((struct fip_toc_header *)raw_header)) {
+		header->type = HEADER_FIP;
+		return;
 	}
+
 	if (raw_header->magic_number !=
 		(('S' << 0) | ('T' << 8) | ('M' << 16) | (0x32 << 24))) {
-		pr_debug("%s:invalid magic number : 0x%x\n",
-			 __func__, raw_header->magic_number);
-		return -2;
+		log_debug("%s:invalid magic number : 0x%x\n",
+			  __func__, raw_header->magic_number);
+		return;
 	}
 	/* only header v1.0 supported */
 	if (raw_header->header_version != 0x00010000) {
-		pr_debug("%s:invalid header version : 0x%x\n",
-			 __func__, raw_header->header_version);
-		return -3;
+		log_debug("%s:invalid header version : 0x%x\n",
+			  __func__, raw_header->header_version);
+		return;
 	}
 	if (raw_header->reserved1 != 0x0 || raw_header->reserved2) {
-		pr_debug("%s:invalid reserved field\n", __func__);
-		return -4;
+		log_debug("%s:invalid reserved field\n", __func__);
+		return;
 	}
 	for (i = 0; i < (sizeof(raw_header->padding) / 4); i++) {
 		if (raw_header->padding[i] != 0) {
-			pr_debug("%s:invalid padding field\n", __func__);
-			return -5;
+			log_debug("%s:invalid padding field\n", __func__);
+			return;
 		}
 	}
-	header->present = 1;
+	header->type = HEADER_STM32IMAGE;
 	header->image_checksum = le32_to_cpu(raw_header->image_checksum);
 	header->image_length = le32_to_cpu(raw_header->image_length);
 
-	return 0;
+	return;
 }
 
 static u32 stm32prog_header_checksum(u32 addr, struct image_header_s *header)
@@ -233,7 +253,7 @@ static int parse_type(struct stm32prog_data *data,
 				result = -EINVAL;
 			else
 				part->bin_nb =
-					simple_strtoul(&p[7], NULL, 10);
+					dectoul(&p[7], NULL);
 		}
 	} else if (!strcmp(p, "System")) {
 		part->part_type = PART_SYSTEM;
@@ -349,23 +369,24 @@ static int parse_flash_layout(struct stm32prog_data *data,
 	bool end_of_line, eof;
 	char *p, *start, *last, *col;
 	struct stm32prog_part_t *part;
+	struct image_header_s header;
 	int part_list_size;
 	int i;
 
 	data->part_nb = 0;
 
 	/* check if STM32image is detected */
-	if (!stm32prog_header_check((struct raw_header_s *)addr,
-				    &data->header)) {
+	stm32prog_header_check((struct raw_header_s *)addr, &header);
+	if (header.type == HEADER_STM32IMAGE) {
 		u32 checksum;
 
 		addr = addr + BL_HEADER_SIZE;
-		size = data->header.image_length;
+		size = header.image_length;
 
-		checksum = stm32prog_header_checksum(addr, &data->header);
-		if (checksum != data->header.image_checksum) {
+		checksum = stm32prog_header_checksum(addr, &header);
+		if (checksum != header.image_checksum) {
 			stm32prog_err("Layout: invalid checksum : 0x%x expected 0x%x",
-				      checksum, data->header.image_checksum);
+				      checksum, header.image_checksum);
 			return -EIO;
 		}
 	}
@@ -376,7 +397,7 @@ static int parse_flash_layout(struct stm32prog_data *data,
 	last = start + size;
 
 	*last = 0x0; /* force null terminated string */
-	pr_debug("flash layout =\n%s\n", start);
+	log_debug("flash layout =\n%s\n", start);
 
 	/* calculate expected number of partitions */
 	part_list_size = 1;
@@ -584,11 +605,11 @@ static int init_device(struct stm32prog_data *data,
 			last_addr = (u64)(block_dev->lba - GPT_HEADER_SZ - 1) *
 				    block_dev->blksz;
 		}
-		pr_debug("MMC %d: lba=%ld blksz=%ld\n", dev->dev_id,
-			 block_dev->lba, block_dev->blksz);
-		pr_debug(" available address = 0x%llx..0x%llx\n",
-			 first_addr, last_addr);
-		pr_debug(" full_update = %d\n", dev->full_update);
+		log_debug("MMC %d: lba=%ld blksz=%ld\n", dev->dev_id,
+			  block_dev->lba, block_dev->blksz);
+		log_debug(" available address = 0x%llx..0x%llx\n",
+			  first_addr, last_addr);
+		log_debug(" full_update = %d\n", dev->full_update);
 		break;
 	case STM32PROG_NOR:
 	case STM32PROG_NAND:
@@ -598,7 +619,7 @@ static int init_device(struct stm32prog_data *data,
 			return -ENODEV;
 		}
 		get_mtd_by_target(mtd_id, dev->target, dev->dev_id);
-		pr_debug("%s\n", mtd_id);
+		log_debug("%s\n", mtd_id);
 
 		mtdparts_init();
 		mtd = get_mtd_device_nm(mtd_id);
@@ -609,10 +630,10 @@ static int init_device(struct stm32prog_data *data,
 		first_addr = 0;
 		last_addr = mtd->size;
 		dev->erase_size = mtd->erasesize;
-		pr_debug("MTD device %s: size=%lld erasesize=%d\n",
-			 mtd_id, mtd->size, mtd->erasesize);
-		pr_debug(" available address = 0x%llx..0x%llx\n",
-			 first_addr, last_addr);
+		log_debug("MTD device %s: size=%lld erasesize=%d\n",
+			  mtd_id, mtd->size, mtd->erasesize);
+		log_debug(" available address = 0x%llx..0x%llx\n",
+			  first_addr, last_addr);
 		dev->mtd = mtd;
 		break;
 	case STM32PROG_RAM:
@@ -624,13 +645,13 @@ static int init_device(struct stm32prog_data *data,
 		stm32prog_err("unknown device type = %d", dev->target);
 		return -ENODEV;
 	}
-	pr_debug(" erase size = 0x%x\n", dev->erase_size);
-	pr_debug(" full_update = %d\n", dev->full_update);
+	log_debug(" erase size = 0x%x\n", dev->erase_size);
+	log_debug(" full_update = %d\n", dev->full_update);
 
 	/* order partition list in offset order */
 	list_sort(NULL, &dev->part_list, &part_cmp);
 	part_id = 1;
-	pr_debug("id : Opt Phase     Name target.n dev.n addr     size     part_off part_size\n");
+	log_debug("id : Opt Phase     Name target.n dev.n addr     size     part_off part_size\n");
 	list_for_each_entry(part, &dev->part_list, list) {
 		if (part->bin_nb > 1) {
 			if ((dev->target != STM32PROG_NAND &&
@@ -650,10 +671,10 @@ static int init_device(struct stm32prog_data *data,
 				part->size = block_dev->lba * block_dev->blksz;
 			else
 				part->size = last_addr;
-			pr_debug("-- : %1d %02x %14s %02d.%d %02d.%02d %08llx %08llx\n",
-				 part->option, part->id, part->name,
-				 part->part_type, part->bin_nb, part->target,
-				 part->dev_id, part->addr, part->size);
+			log_debug("-- : %1d %02x %14s %02d.%d %02d.%02d %08llx %08llx\n",
+				  part->option, part->id, part->name,
+				  part->part_type, part->bin_nb, part->target,
+				  part->dev_id, part->addr, part->size);
 			continue;
 		}
 		if (part->part_id < 0) { /* boot hw partition for eMMC */
@@ -709,10 +730,10 @@ static int init_device(struct stm32prog_data *data,
 				      part->dev->erase_size);
 			return -EINVAL;
 		}
-		pr_debug("%02d : %1d %02x %14s %02d.%d %02d.%02d %08llx %08llx",
-			 part->part_id, part->option, part->id, part->name,
-			 part->part_type, part->bin_nb, part->target,
-			 part->dev_id, part->addr, part->size);
+		log_debug("%02d : %1d %02x %14s %02d.%d %02d.%02d %08llx %08llx",
+			  part->part_id, part->option, part->id, part->name,
+			  part->part_type, part->bin_nb, part->target,
+			  part->dev_id, part->addr, part->size);
 
 		part_addr = 0;
 		part_size = 0;
@@ -726,7 +747,7 @@ static int init_device(struct stm32prog_data *data,
 			 * created for full update
 			 */
 			if (dev->full_update || part->part_id < 0) {
-				pr_debug("\n");
+				log_debug("\n");
 				continue;
 			}
 			struct disk_partition partinfo;
@@ -770,11 +791,11 @@ static int init_device(struct stm32prog_data *data,
 
 		/* no partition for this device */
 		if (!part_found) {
-			pr_debug("\n");
+			log_debug("\n");
 			continue;
 		}
 
-		pr_debug(" %08llx %08llx\n", part_addr, part_size);
+		log_debug(" %08llx %08llx\n", part_addr, part_size);
 
 		if (part->addr != part_addr) {
 			stm32prog_err("%s (0x%x): Bad address for partition %d (%s) = 0x%llx <> 0x%llx expected",
@@ -803,7 +824,9 @@ static int treat_partition_list(struct stm32prog_data *data)
 		INIT_LIST_HEAD(&data->dev[j].part_list);
 	}
 
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
 	data->tee_detected = false;
+#endif
 	data->fsbl_nor_detected = false;
 	for (i = 0; i < data->part_nb; i++) {
 		part = &data->part_array[i];
@@ -857,10 +880,12 @@ static int treat_partition_list(struct stm32prog_data *data)
 			/* fallthrough */
 		case STM32PROG_NAND:
 		case STM32PROG_SPI_NAND:
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
 			if (!data->tee_detected &&
 			    !strncmp(part->name, "tee", 3))
 				data->tee_detected = true;
 			break;
+#endif
 		default:
 			break;
 		}
@@ -910,8 +935,8 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 				continue;
 
 			if (offset + 100 > buflen) {
-				pr_debug("\n%s: buffer too small, %s skippped",
-					 __func__, part->name);
+				log_debug("\n%s: buffer too small, %s skippped",
+					  __func__, part->name);
 				continue;
 			}
 
@@ -959,7 +984,7 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 
 		if (offset) {
 			offset += snprintf(buf + offset, buflen - offset, "\"");
-			pr_debug("\ncmd: %s\n", buf);
+			log_debug("\ncmd: %s\n", buf);
 			if (run_command(buf, 0)) {
 				stm32prog_err("GPT partitionning fail: %s",
 					      buf);
@@ -974,7 +999,7 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 
 #ifdef DEBUG
 		sprintf(buf, "gpt verify mmc %d", data->dev[i].dev_id);
-		pr_debug("\ncmd: %s", buf);
+		log_debug("\ncmd: %s", buf);
 		if (run_command(buf, 0))
 			printf("fail !\n");
 		else
@@ -1098,10 +1123,10 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 		stm32prog_err("invalid target: %d", part->target);
 		return ret;
 	}
-	pr_debug("dfu_alt_add(%s,%s,%s)\n", dfustr, devstr, buf);
+	log_debug("dfu_alt_add(%s,%s,%s)\n", dfustr, devstr, buf);
 	ret = dfu_alt_add(dfu, dfustr, devstr, buf);
-	pr_debug("dfu_alt_add(%s,%s,%s) result %d\n",
-		 dfustr, devstr, buf, ret);
+	log_debug("dfu_alt_add(%s,%s,%s) result %d\n",
+		  dfustr, devstr, buf, ret);
 
 	return ret;
 }
@@ -1116,7 +1141,7 @@ static int stm32prog_alt_add_virt(struct dfu_entity *dfu,
 	sprintf(devstr, "%d", phase);
 	sprintf(buf, "@%s/0x%02x/1*%dBe", name, phase, size);
 	ret = dfu_alt_add(dfu, "virt", devstr, buf);
-	pr_debug("dfu_alt_add(virt,%s,%s) result %d\n", devstr, buf, ret);
+	log_debug("dfu_alt_add(virt,%s,%s) result %d\n", devstr, buf, ret);
 
 	return ret;
 }
@@ -1129,7 +1154,10 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	struct dfu_entity *dfu;
 	int alt_nb;
 
-	alt_nb = 3; /* number of virtual = CMD, OTP, PMIC*/
+	alt_nb = 2; /* number of virtual = CMD, OTP*/
+	if (CONFIG_IS_ENABLED(DM_PMIC))
+		alt_nb++; /* PMIC NVMEM*/
+
 	if (data->part_nb == 0)
 		alt_nb++;  /* +1 for FlashLayout */
 	else
@@ -1171,17 +1199,17 @@ static int dfu_init_entities(struct stm32prog_data *data)
 		sprintf(buf, "@FlashLayout/0x%02x/1*256Ke ram %x 40000",
 			PHASE_FLASHLAYOUT, STM32_DDR_BASE);
 		ret = dfu_alt_add(dfu, "ram", NULL, buf);
-		pr_debug("dfu_alt_add(ram, NULL,%s) result %d\n", buf, ret);
+		log_debug("dfu_alt_add(ram, NULL,%s) result %d\n", buf, ret);
 	}
 
 	if (!ret)
-		ret = stm32prog_alt_add_virt(dfu, "virtual", PHASE_CMD, 512);
+		ret = stm32prog_alt_add_virt(dfu, "virtual", PHASE_CMD, CMD_SIZE);
 
 	if (!ret)
-		ret = stm32prog_alt_add_virt(dfu, "OTP", PHASE_OTP, 512);
+		ret = stm32prog_alt_add_virt(dfu, "OTP", PHASE_OTP, OTP_SIZE);
 
 	if (!ret && CONFIG_IS_ENABLED(DM_PMIC))
-		ret = stm32prog_alt_add_virt(dfu, "PMIC", PHASE_PMIC, 8);
+		ret = stm32prog_alt_add_virt(dfu, "PMIC", PHASE_PMIC, PMIC_SIZE);
 
 	if (ret)
 		stm32prog_err("dfu init failed: %d", ret);
@@ -1196,7 +1224,7 @@ static int dfu_init_entities(struct stm32prog_data *data)
 int stm32prog_otp_write(struct stm32prog_data *data, u32 offset, u8 *buffer,
 			long *size)
 {
-	pr_debug("%s: %x %lx\n", __func__, offset, *size);
+	log_debug("%s: %x %lx\n", __func__, offset, *size);
 
 	if (!data->otp_part) {
 		data->otp_part = memalign(CONFIG_SYS_CACHELINE_SIZE, OTP_SIZE);
@@ -1226,7 +1254,7 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 		return -1;
 	}
 
-	pr_debug("%s: %x %lx\n", __func__, offset, *size);
+	log_debug("%s: %x %lx\n", __func__, offset, *size);
 	/* alway read for first packet */
 	if (!offset) {
 		if (!data->otp_part)
@@ -1258,7 +1286,7 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 	memcpy(buffer, (void *)((u32)data->otp_part + offset), *size);
 
 end_otp_read:
-	pr_debug("%s: result %i\n", __func__, result);
+	log_debug("%s: result %i\n", __func__, result);
 
 	return result;
 }
@@ -1292,20 +1320,20 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 			result = 0;
 			break;
 		default:
-			pr_err("%s: OTP incorrect value (err = %ld)\n",
-			       __func__, res.a1);
+			log_err("%s: OTP incorrect value (err = %ld)\n",
+				__func__, res.a1);
 			result = -EINVAL;
 			break;
 		}
 	} else {
-		pr_err("%s: Failed to exec svc=%x op=%x in secure mode (err = %ld)\n",
-		       __func__, STM32_SMC_BSEC, STM32_SMC_WRITE_ALL, res.a0);
+		log_err("%s: Failed to exec svc=%x op=%x in secure mode (err = %ld)\n",
+			__func__, STM32_SMC_BSEC, STM32_SMC_WRITE_ALL, res.a0);
 		result = -EINVAL;
 	}
 
 	free(data->otp_part);
 	data->otp_part = NULL;
-	pr_debug("%s: result %i\n", __func__, result);
+	log_debug("%s: result %i\n", __func__, result);
 
 	return result;
 }
@@ -1313,7 +1341,7 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 int stm32prog_pmic_write(struct stm32prog_data *data, u32 offset, u8 *buffer,
 			 long *size)
 {
-	pr_debug("%s: %x %lx\n", __func__, offset, *size);
+	log_debug("%s: %x %lx\n", __func__, offset, *size);
 
 	if (!offset)
 		memset(data->pmic_part, 0, PMIC_SIZE);
@@ -1338,9 +1366,9 @@ int stm32prog_pmic_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 		return -EOPNOTSUPP;
 	}
 
-	pr_debug("%s: %x %lx\n", __func__, offset, *size);
+	log_debug("%s: %x %lx\n", __func__, offset, *size);
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stpmic1_nvm),
+					  DM_DRIVER_GET(stpmic1_nvm),
 					  &dev);
 	if (ret)
 		return ret;
@@ -1351,7 +1379,7 @@ int stm32prog_pmic_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 		memset(data->pmic_part, 0, PMIC_SIZE);
 
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
-						  DM_GET_DRIVER(stpmic1_nvm),
+						  DM_DRIVER_GET(stpmic1_nvm),
 						  &dev);
 		if (ret)
 			return ret;
@@ -1373,7 +1401,7 @@ int stm32prog_pmic_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 	memcpy(buffer, &data->pmic_part[offset], *size);
 
 end_pmic_read:
-	pr_debug("%s: result %i\n", __func__, result);
+	log_debug("%s: result %i\n", __func__, result);
 	return result;
 }
 
@@ -1389,7 +1417,7 @@ int stm32prog_pmic_start(struct stm32prog_data *data)
 	}
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(stpmic1_nvm),
+					  DM_DRIVER_GET(stpmic1_nvm),
 					  &dev);
 	if (ret)
 		return ret;
@@ -1409,7 +1437,7 @@ static int stm32prog_copy_fsbl(struct stm32prog_part_t *part)
 
 	if (part->target != STM32PROG_NAND &&
 	    part->target != STM32PROG_SPI_NAND)
-		return -1;
+		return -EINVAL;
 
 	dfu = dfu_get_entity(part->alt_id);
 
@@ -1419,8 +1447,10 @@ static int stm32prog_copy_fsbl(struct stm32prog_part_t *part)
 	ret = dfu->read_medium(dfu, 0, (void *)&raw_header, &size);
 	if (ret)
 		return ret;
-	if (stm32prog_header_check(&raw_header, &header))
-		return -1;
+
+	stm32prog_header_check(&raw_header, &header);
+	if (header.type != HEADER_STM32IMAGE)
+		return -ENOENT;
 
 	/* read header + payload */
 	size = header.image_length + BL_HEADER_SIZE;
@@ -1429,7 +1459,7 @@ static int stm32prog_copy_fsbl(struct stm32prog_part_t *part)
 	if (!fsbl)
 		return -ENOMEM;
 	ret = dfu->read_medium(dfu, 0, fsbl, &size);
-	pr_debug("%s read size=%lx ret=%d\n", __func__, size, ret);
+	log_debug("%s read size=%lx ret=%d\n", __func__, size, ret);
 	if (ret)
 		goto error;
 
@@ -1439,8 +1469,8 @@ static int stm32prog_copy_fsbl(struct stm32prog_part_t *part)
 		offset += size;
 		/* write to the next erase block */
 		ret = dfu->write_medium(dfu, offset, fsbl, &size);
-		pr_debug("%s copy at ofset=%lx size=%lx ret=%d",
-			 __func__, offset, size, ret);
+		log_debug("%s copy at ofset=%lx size=%lx ret=%d",
+			  __func__, offset, size, ret);
 		if (ret)
 			goto error;
 	}
@@ -1450,7 +1480,7 @@ error:
 	return ret;
 }
 
-static void stm32prog_end_phase(struct stm32prog_data *data)
+static void stm32prog_end_phase(struct stm32prog_data *data, u64 offset)
 {
 	if (data->phase == PHASE_FLASHLAYOUT) {
 		if (parse_flash_layout(data, STM32_DDR_BASE, 0))
@@ -1466,6 +1496,10 @@ static void stm32prog_end_phase(struct stm32prog_data *data)
 			data->uimage = data->cur_part->addr;
 		if (data->cur_part->part_type == PART_FILESYSTEM)
 			data->dtb = data->cur_part->addr;
+		if (data->cur_part->part_type == PART_BINARY) {
+			data->initrd = data->cur_part->addr;
+			data->initrd_size = offset;
+		}
 	}
 
 	if (CONFIG_IS_ENABLED(MMC) &&
@@ -1705,7 +1739,6 @@ void stm32prog_clean(struct stm32prog_data *data)
 	free(data->part_array);
 	free(data->otp_part);
 	free(data->buffer);
-	free(data->header_data);
 }
 
 /* DFU callback: used after serial and direct DFU USB access */
@@ -1725,7 +1758,7 @@ void dfu_flush_callback(struct dfu_entity *dfu)
 	if (dfu->dev_type == DFU_DEV_RAM) {
 		if (dfu->alt == 0 &&
 		    stm32prog_data->phase == PHASE_FLASHLAYOUT) {
-			stm32prog_end_phase(stm32prog_data);
+			stm32prog_end_phase(stm32prog_data, dfu->offset);
 			/* waiting DFU DETACH for reenumeration */
 		}
 	}
@@ -1734,7 +1767,7 @@ void dfu_flush_callback(struct dfu_entity *dfu)
 		return;
 
 	if (dfu->alt == stm32prog_data->cur_part->alt_id) {
-		stm32prog_end_phase(stm32prog_data);
+		stm32prog_end_phase(stm32prog_data, dfu->offset);
 		stm32prog_next_phase(stm32prog_data);
 	}
 }
@@ -1751,6 +1784,20 @@ void dfu_initiated_callback(struct dfu_entity *dfu)
 	if (dfu->alt == stm32prog_data->cur_part->alt_id) {
 		dfu->offset = stm32prog_data->offset;
 		stm32prog_data->dfu_seq = 0;
-		pr_debug("dfu offset = 0x%llx\n", dfu->offset);
+		log_debug("dfu offset = 0x%llx\n", dfu->offset);
 	}
+}
+
+void dfu_error_callback(struct dfu_entity *dfu, const char *msg)
+{
+	struct stm32prog_data *data = stm32prog_data;
+
+	if (!stm32prog_data)
+		return;
+
+	if (!stm32prog_data->cur_part)
+		return;
+
+	if (dfu->alt == stm32prog_data->cur_part->alt_id)
+		stm32prog_err(msg);
 }

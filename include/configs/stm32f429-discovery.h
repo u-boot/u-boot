@@ -14,8 +14,6 @@
 /*
  * Configuration of the external SDRAM memory
  */
-#define CONFIG_SYS_LOAD_ADDR		0x90400000
-#define CONFIG_LOADADDR			0x90400000
 
 #define CONFIG_SYS_MAX_FLASH_SECT	12
 #define CONFIG_SYS_MAX_FLASH_BANKS	2
@@ -23,21 +21,9 @@
 #define CONFIG_RED_LED			110
 #define CONFIG_GREEN_LED		109
 
-#define CONFIG_STM32_FLASH
-
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 #define CONFIG_SYS_CBSIZE		1024
-
-#define CONFIG_SYS_MALLOC_LEN		(2 << 20)
-
-#define CONFIG_BOOTCOMMAND						\
-	"run bootcmd_romfs"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootargs_romfs=uclinux.physaddr=0x08180000 root=/dev/mtdblock0\0" \

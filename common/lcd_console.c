@@ -229,8 +229,8 @@ static int do_lcd_setcursor(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 3)
 		return CMD_RET_USAGE;
 
-	col = simple_strtoul(argv[1], NULL, 10);
-	row = simple_strtoul(argv[2], NULL, 10);
+	col = dectoul(argv[1], NULL);
+	row = dectoul(argv[2], NULL);
 	lcd_position_cursor(col, row);
 
 	return 0;
@@ -258,4 +258,3 @@ U_BOOT_CMD(
 	"print string on lcd-framebuffer",
 	"    <string>"
 );
-

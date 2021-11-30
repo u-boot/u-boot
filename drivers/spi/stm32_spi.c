@@ -4,6 +4,9 @@
  *
  * Driver for STMicroelectronics Serial peripheral interface (SPI)
  */
+
+#define LOG_CATEGORY UCLASS_SPI
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -94,11 +97,14 @@
 #define SPI_SIMPLEX_RX		2
 #define SPI_HALF_DUPLEX		3
 
-struct stm32_spi_priv {
+struct stm32_spi_plat {
 	void __iomem *base;
 	struct clk clk;
 	struct reset_ctl rst_ctl;
 	struct gpio_desc cs_gpios[MAX_CS_COUNT];
+};
+
+struct stm32_spi_priv {
 	ulong bus_clk_rate;
 	unsigned int fifo_size;
 	unsigned int cur_bpw;
@@ -112,38 +118,45 @@ struct stm32_spi_priv {
 	bool cs_high;
 };
 
-static void stm32_spi_write_txfifo(struct stm32_spi_priv *priv)
+static void stm32_spi_write_txfifo(struct udevice *bus)
 {
+	struct stm32_spi_priv *priv = dev_get_priv(bus);
+	struct stm32_spi_plat *plat = dev_get_plat(bus);
+	void __iomem *base = plat->base;
+
 	while ((priv->tx_len > 0) &&
-	       (readl(priv->base + STM32_SPI_SR) & SPI_SR_TXP)) {
+	       (readl(base + STM32_SPI_SR) & SPI_SR_TXP)) {
 		u32 offs = priv->cur_xferlen - priv->tx_len;
 
 		if (priv->tx_len >= sizeof(u32) &&
 		    IS_ALIGNED((uintptr_t)(priv->tx_buf + offs), sizeof(u32))) {
 			const u32 *tx_buf32 = (const u32 *)(priv->tx_buf + offs);
 
-			writel(*tx_buf32, priv->base + STM32_SPI_TXDR);
+			writel(*tx_buf32, base + STM32_SPI_TXDR);
 			priv->tx_len -= sizeof(u32);
 		} else if (priv->tx_len >= sizeof(u16) &&
 			   IS_ALIGNED((uintptr_t)(priv->tx_buf + offs), sizeof(u16))) {
 			const u16 *tx_buf16 = (const u16 *)(priv->tx_buf + offs);
 
-			writew(*tx_buf16, priv->base + STM32_SPI_TXDR);
+			writew(*tx_buf16, base + STM32_SPI_TXDR);
 			priv->tx_len -= sizeof(u16);
 		} else {
 			const u8 *tx_buf8 = (const u8 *)(priv->tx_buf + offs);
 
-			writeb(*tx_buf8, priv->base + STM32_SPI_TXDR);
+			writeb(*tx_buf8, base + STM32_SPI_TXDR);
 			priv->tx_len -= sizeof(u8);
 		}
 	}
 
-	debug("%s: %d bytes left\n", __func__, priv->tx_len);
+	log_debug("%d bytes left\n", priv->tx_len);
 }
 
-static void stm32_spi_read_rxfifo(struct stm32_spi_priv *priv)
+static void stm32_spi_read_rxfifo(struct udevice *bus)
 {
-	u32 sr = readl(priv->base + STM32_SPI_SR);
+	struct stm32_spi_priv *priv = dev_get_priv(bus);
+	struct stm32_spi_plat *plat = dev_get_plat(bus);
+	void __iomem *base = plat->base;
+	u32 sr = readl(base + STM32_SPI_SR);
 	u32 rxplvl = (sr & SPI_SR_RXPLVL) >> SPI_SR_RXPLVL_SHIFT;
 
 	while ((priv->rx_len > 0) &&
@@ -155,7 +168,7 @@ static void stm32_spi_read_rxfifo(struct stm32_spi_priv *priv)
 		    (priv->rx_len >= sizeof(u32) || (sr & SPI_SR_RXWNE))) {
 			u32 *rx_buf32 = (u32 *)(priv->rx_buf + offs);
 
-			*rx_buf32 = readl(priv->base + STM32_SPI_RXDR);
+			*rx_buf32 = readl(base + STM32_SPI_RXDR);
 			priv->rx_len -= sizeof(u32);
 		} else if (IS_ALIGNED((uintptr_t)(priv->rx_buf + offs), sizeof(u16)) &&
 			   (priv->rx_len >= sizeof(u16) ||
@@ -163,38 +176,38 @@ static void stm32_spi_read_rxfifo(struct stm32_spi_priv *priv)
 			    (rxplvl >= 2 || priv->cur_bpw > 8)))) {
 			u16 *rx_buf16 = (u16 *)(priv->rx_buf + offs);
 
-			*rx_buf16 = readw(priv->base + STM32_SPI_RXDR);
+			*rx_buf16 = readw(base + STM32_SPI_RXDR);
 			priv->rx_len -= sizeof(u16);
 		} else {
 			u8 *rx_buf8 = (u8 *)(priv->rx_buf + offs);
 
-			*rx_buf8 = readb(priv->base + STM32_SPI_RXDR);
+			*rx_buf8 = readb(base + STM32_SPI_RXDR);
 			priv->rx_len -= sizeof(u8);
 		}
 
-		sr = readl(priv->base + STM32_SPI_SR);
+		sr = readl(base + STM32_SPI_SR);
 		rxplvl = (sr & SPI_SR_RXPLVL) >> SPI_SR_RXPLVL_SHIFT;
 	}
 
-	debug("%s: %d bytes left\n", __func__, priv->rx_len);
+	log_debug("%d bytes left\n", priv->rx_len);
 }
 
-static int stm32_spi_enable(struct stm32_spi_priv *priv)
+static int stm32_spi_enable(void __iomem *base)
 {
-	debug("%s\n", __func__);
+	log_debug("\n");
 
 	/* Enable the SPI hardware */
-	setbits_le32(priv->base + STM32_SPI_CR1, SPI_CR1_SPE);
+	setbits_le32(base + STM32_SPI_CR1, SPI_CR1_SPE);
 
 	return 0;
 }
 
-static int stm32_spi_disable(struct stm32_spi_priv *priv)
+static int stm32_spi_disable(void __iomem *base)
 {
-	debug("%s\n", __func__);
+	log_debug("\n");
 
 	/* Disable the SPI hardware */
-	clrbits_le32(priv->base + STM32_SPI_CR1, SPI_CR1_SPE);
+	clrbits_le32(base + STM32_SPI_CR1, SPI_CR1_SPE);
 
 	return 0;
 }
@@ -202,45 +215,48 @@ static int stm32_spi_disable(struct stm32_spi_priv *priv)
 static int stm32_spi_claim_bus(struct udevice *slave)
 {
 	struct udevice *bus = dev_get_parent(slave);
-	struct stm32_spi_priv *priv = dev_get_priv(bus);
+	struct stm32_spi_plat *plat = dev_get_plat(bus);
+	void __iomem *base = plat->base;
 
-	debug("%s\n", __func__);
+	dev_dbg(slave, "\n");
 
 	/* Enable the SPI hardware */
-	return stm32_spi_enable(priv);
+	return stm32_spi_enable(base);
 }
 
 static int stm32_spi_release_bus(struct udevice *slave)
 {
 	struct udevice *bus = dev_get_parent(slave);
-	struct stm32_spi_priv *priv = dev_get_priv(bus);
+	struct stm32_spi_plat *plat = dev_get_plat(bus);
+	void __iomem *base = plat->base;
 
-	debug("%s\n", __func__);
+	dev_dbg(slave, "\n");
 
 	/* Disable the SPI hardware */
-	return stm32_spi_disable(priv);
+	return stm32_spi_disable(base);
 }
 
 static void stm32_spi_stopxfer(struct udevice *dev)
 {
-	struct stm32_spi_priv *priv = dev_get_priv(dev);
+	struct stm32_spi_plat *plat = dev_get_plat(dev);
+	void __iomem *base = plat->base;
 	u32 cr1, sr;
 	int ret;
 
-	debug("%s\n", __func__);
+	dev_dbg(dev, "\n");
 
-	cr1 = readl(priv->base + STM32_SPI_CR1);
+	cr1 = readl(base + STM32_SPI_CR1);
 
 	if (!(cr1 & SPI_CR1_SPE))
 		return;
 
 	/* Wait on EOT or suspend the flow */
-	ret = readl_poll_timeout(priv->base + STM32_SPI_SR, sr,
+	ret = readl_poll_timeout(base + STM32_SPI_SR, sr,
 				 !(sr & SPI_SR_EOT), 100000);
 	if (ret < 0) {
 		if (cr1 & SPI_CR1_CSTART) {
-			writel(cr1 | SPI_CR1_CSUSP, priv->base + STM32_SPI_CR1);
-			if (readl_poll_timeout(priv->base + STM32_SPI_SR,
+			writel(cr1 | SPI_CR1_CSUSP, base + STM32_SPI_CR1);
+			if (readl_poll_timeout(base + STM32_SPI_SR,
 					       sr, !(sr & SPI_SR_SUSP),
 					       100000) < 0)
 				dev_err(dev, "Suspend request timeout\n");
@@ -248,33 +264,36 @@ static void stm32_spi_stopxfer(struct udevice *dev)
 	}
 
 	/* clear status flags */
-	setbits_le32(priv->base + STM32_SPI_IFCR, SPI_IFCR_ALL);
+	setbits_le32(base + STM32_SPI_IFCR, SPI_IFCR_ALL);
 }
 
 static int stm32_spi_set_cs(struct udevice *dev, unsigned int cs, bool enable)
 {
+	struct stm32_spi_plat *plat = dev_get_plat(dev);
 	struct stm32_spi_priv *priv = dev_get_priv(dev);
 
-	debug("%s: cs=%d enable=%d\n", __func__, cs, enable);
+	dev_dbg(dev, "cs=%d enable=%d\n", cs, enable);
 
 	if (cs >= MAX_CS_COUNT)
 		return -ENODEV;
 
-	if (!dm_gpio_is_valid(&priv->cs_gpios[cs]))
+	if (!dm_gpio_is_valid(&plat->cs_gpios[cs]))
 		return -EINVAL;
 
 	if (priv->cs_high)
 		enable = !enable;
 
-	return dm_gpio_set_value(&priv->cs_gpios[cs], enable ? 1 : 0);
+	return dm_gpio_set_value(&plat->cs_gpios[cs], enable ? 1 : 0);
 }
 
 static int stm32_spi_set_mode(struct udevice *bus, uint mode)
 {
 	struct stm32_spi_priv *priv = dev_get_priv(bus);
+	struct stm32_spi_plat *plat = dev_get_plat(bus);
+	void __iomem *base = plat->base;
 	u32 cfg2_clrb = 0, cfg2_setb = 0;
 
-	debug("%s: mode=%d\n", __func__, mode);
+	dev_dbg(bus, "mode=%d\n", mode);
 
 	if (mode & SPI_CPOL)
 		cfg2_setb |= SPI_CFG2_CPOL;
@@ -292,7 +311,7 @@ static int stm32_spi_set_mode(struct udevice *bus, uint mode)
 		cfg2_clrb |= SPI_CFG2_LSBFRST;
 
 	if (cfg2_clrb || cfg2_setb)
-		clrsetbits_le32(priv->base + STM32_SPI_CFG2,
+		clrsetbits_le32(base + STM32_SPI_CFG2,
 				cfg2_clrb, cfg2_setb);
 
 	if (mode & SPI_CS_HIGH)
@@ -305,6 +324,8 @@ static int stm32_spi_set_mode(struct udevice *bus, uint mode)
 static int stm32_spi_set_fthlv(struct udevice *dev, u32 xfer_len)
 {
 	struct stm32_spi_priv *priv = dev_get_priv(dev);
+	struct stm32_spi_plat *plat = dev_get_plat(dev);
+	void __iomem *base = plat->base;
 	u32 fthlv, half_fifo;
 
 	/* data packet should not exceed 1/2 of fifo space */
@@ -318,7 +339,7 @@ static int stm32_spi_set_fthlv(struct udevice *dev, u32 xfer_len)
 
 	if (!fthlv)
 		fthlv = 1;
-	clrsetbits_le32(priv->base + STM32_SPI_CFG1, SPI_CFG1_FTHLV,
+	clrsetbits_le32(base + STM32_SPI_CFG1, SPI_CFG1_FTHLV,
 			(fthlv - 1) << SPI_CFG1_FTHLV_SHIFT);
 
 	return 0;
@@ -327,10 +348,12 @@ static int stm32_spi_set_fthlv(struct udevice *dev, u32 xfer_len)
 static int stm32_spi_set_speed(struct udevice *bus, uint hz)
 {
 	struct stm32_spi_priv *priv = dev_get_priv(bus);
+	struct stm32_spi_plat *plat = dev_get_plat(bus);
+	void __iomem *base = plat->base;
 	u32 mbrdiv;
 	long div;
 
-	debug("%s: hz=%d\n", __func__, hz);
+	dev_dbg(bus, "hz=%d\n", hz);
 
 	if (priv->cur_hz == hz)
 		return 0;
@@ -350,7 +373,7 @@ static int stm32_spi_set_speed(struct udevice *bus, uint hz)
 	if (!mbrdiv)
 		return -EINVAL;
 
-	clrsetbits_le32(priv->base + STM32_SPI_CFG1, SPI_CFG1_MBR,
+	clrsetbits_le32(base + STM32_SPI_CFG1, SPI_CFG1_MBR,
 			(mbrdiv - 1) << SPI_CFG1_MBR_SHIFT);
 
 	priv->cur_hz = hz;
@@ -362,8 +385,10 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev_get_parent(slave);
-	struct dm_spi_slave_platdata *slave_plat;
+	struct dm_spi_slave_plat *slave_plat;
 	struct stm32_spi_priv *priv = dev_get_priv(bus);
+	struct stm32_spi_plat *plat = dev_get_plat(bus);
+	void __iomem *base = plat->base;
 	u32 sr;
 	u32 ifcr = 0;
 	u32 xferlen;
@@ -373,7 +398,7 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 	xferlen = bitlen / 8;
 
 	if (xferlen <= SPI_CR2_TSIZE)
-		writel(xferlen, priv->base + STM32_SPI_CR2);
+		writel(xferlen, base + STM32_SPI_CR2);
 	else
 		return -EMSGSIZE;
 
@@ -393,32 +418,32 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 		priv->cur_xferlen = xferlen;
 
 		/* Disable the SPI hardware to unlock CFG1/CFG2 registers */
-		stm32_spi_disable(priv);
+		stm32_spi_disable(base);
 
-		clrsetbits_le32(priv->base + STM32_SPI_CFG2, SPI_CFG2_COMM,
+		clrsetbits_le32(base + STM32_SPI_CFG2, SPI_CFG2_COMM,
 				mode << SPI_CFG2_COMM_SHIFT);
 
 		stm32_spi_set_fthlv(bus, xferlen);
 
 		/* Enable the SPI hardware */
-		stm32_spi_enable(priv);
+		stm32_spi_enable(base);
 	}
 
-	debug("%s: priv->tx_len=%d priv->rx_len=%d\n", __func__,
-	      priv->tx_len, priv->rx_len);
+	dev_dbg(bus, "priv->tx_len=%d priv->rx_len=%d\n",
+		priv->tx_len, priv->rx_len);
 
-	slave_plat = dev_get_parent_platdata(slave);
+	slave_plat = dev_get_parent_plat(slave);
 	if (flags & SPI_XFER_BEGIN)
 		stm32_spi_set_cs(bus, slave_plat->cs, false);
 
 	/* Be sure to have data in fifo before starting data transfer */
 	if (priv->tx_buf)
-		stm32_spi_write_txfifo(priv);
+		stm32_spi_write_txfifo(bus);
 
-	setbits_le32(priv->base + STM32_SPI_CR1, SPI_CR1_CSTART);
+	setbits_le32(base + STM32_SPI_CR1, SPI_CR1_CSTART);
 
 	while (1) {
-		sr = readl(priv->base + STM32_SPI_SR);
+		sr = readl(base + STM32_SPI_SR);
 
 		if (sr & SPI_SR_OVR) {
 			dev_err(bus, "Overrun: RX data lost\n");
@@ -430,7 +455,7 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 			dev_warn(bus, "System too slow is limiting data throughput\n");
 
 			if (priv->rx_buf && priv->rx_len > 0)
-				stm32_spi_read_rxfifo(priv);
+				stm32_spi_read_rxfifo(bus);
 
 			ifcr |= SPI_SR_SUSP;
 		}
@@ -440,23 +465,23 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 
 		if (sr & SPI_SR_TXP)
 			if (priv->tx_buf && priv->tx_len > 0)
-				stm32_spi_write_txfifo(priv);
+				stm32_spi_write_txfifo(bus);
 
 		if (sr & SPI_SR_RXP)
 			if (priv->rx_buf && priv->rx_len > 0)
-				stm32_spi_read_rxfifo(priv);
+				stm32_spi_read_rxfifo(bus);
 
 		if (sr & SPI_SR_EOT) {
 			if (priv->rx_buf && priv->rx_len > 0)
-				stm32_spi_read_rxfifo(priv);
+				stm32_spi_read_rxfifo(bus);
 			break;
 		}
 
-		writel(ifcr, priv->base + STM32_SPI_IFCR);
+		writel(ifcr, base + STM32_SPI_IFCR);
 	}
 
 	/* clear status flags */
-	setbits_le32(priv->base + STM32_SPI_IFCR, SPI_IFCR_ALL);
+	setbits_le32(base + STM32_SPI_IFCR, SPI_IFCR_ALL);
 	stm32_spi_stopxfer(bus);
 
 	if (flags & SPI_XFER_END)
@@ -467,42 +492,72 @@ static int stm32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 
 static int stm32_spi_get_fifo_size(struct udevice *dev)
 {
-	struct stm32_spi_priv *priv = dev_get_priv(dev);
+	struct stm32_spi_plat *plat = dev_get_plat(dev);
+	void __iomem *base = plat->base;
 	u32 count = 0;
 
-	stm32_spi_enable(priv);
+	stm32_spi_enable(base);
 
-	while (readl(priv->base + STM32_SPI_SR) & SPI_SR_TXP)
-		writeb(++count, priv->base + STM32_SPI_TXDR);
+	while (readl(base + STM32_SPI_SR) & SPI_SR_TXP)
+		writeb(++count, base + STM32_SPI_TXDR);
 
-	stm32_spi_disable(priv);
+	stm32_spi_disable(base);
 
-	debug("%s %d x 8-bit fifo size\n", __func__, count);
+	dev_dbg(dev, "%d x 8-bit fifo size\n", count);
 
 	return count;
 }
 
+static int stm32_spi_of_to_plat(struct udevice *dev)
+{
+	struct stm32_spi_plat *plat = dev_get_plat(dev);
+	int ret;
+
+	plat->base = dev_read_addr_ptr(dev);
+	if (!plat->base) {
+		dev_err(dev, "can't get registers base address\n");
+		return -ENOENT;
+	}
+
+	ret = clk_get_by_index(dev, 0, &plat->clk);
+	if (ret < 0)
+		return ret;
+
+	ret = reset_get_by_index(dev, 0, &plat->rst_ctl);
+	if (ret < 0)
+		goto clk_err;
+
+	ret = gpio_request_list_by_name(dev, "cs-gpios", plat->cs_gpios,
+					ARRAY_SIZE(plat->cs_gpios), 0);
+	if (ret < 0) {
+		dev_err(dev, "Can't get %s cs gpios: %d", dev->name, ret);
+		ret = -ENOENT;
+		goto clk_err;
+	}
+
+	return 0;
+
+clk_err:
+	clk_free(&plat->clk);
+
+	return ret;
+}
+
 static int stm32_spi_probe(struct udevice *dev)
 {
+	struct stm32_spi_plat *plat = dev_get_plat(dev);
 	struct stm32_spi_priv *priv = dev_get_priv(dev);
+	void __iomem *base = plat->base;
 	unsigned long clk_rate;
 	int ret;
 	unsigned int i;
 
-	priv->base = dev_remap_addr(dev);
-	if (!priv->base)
-		return -EINVAL;
-
 	/* enable clock */
-	ret = clk_get_by_index(dev, 0, &priv->clk);
+	ret = clk_enable(&plat->clk);
 	if (ret < 0)
 		return ret;
 
-	ret = clk_enable(&priv->clk);
-	if (ret < 0)
-		return ret;
-
-	clk_rate = clk_get_rate(&priv->clk);
+	clk_rate = clk_get_rate(&plat->clk);
 	if (!clk_rate) {
 		ret = -EINVAL;
 		goto clk_err;
@@ -511,46 +566,34 @@ static int stm32_spi_probe(struct udevice *dev)
 	priv->bus_clk_rate = clk_rate;
 
 	/* perform reset */
-	ret = reset_get_by_index(dev, 0, &priv->rst_ctl);
-	if (ret < 0)
-		goto clk_err;
-
-	reset_assert(&priv->rst_ctl);
+	reset_assert(&plat->rst_ctl);
 	udelay(2);
-	reset_deassert(&priv->rst_ctl);
-
-	ret = gpio_request_list_by_name(dev, "cs-gpios", priv->cs_gpios,
-					ARRAY_SIZE(priv->cs_gpios), 0);
-	if (ret < 0) {
-		pr_err("Can't get %s cs gpios: %d", dev->name, ret);
-		goto reset_err;
-	}
+	reset_deassert(&plat->rst_ctl);
 
 	priv->fifo_size = stm32_spi_get_fifo_size(dev);
-
 	priv->cur_mode = SPI_FULL_DUPLEX;
 	priv->cur_xferlen = 0;
 	priv->cur_bpw = SPI_DEFAULT_WORDLEN;
-	clrsetbits_le32(priv->base + STM32_SPI_CFG1, SPI_CFG1_DSIZE,
+	clrsetbits_le32(base + STM32_SPI_CFG1, SPI_CFG1_DSIZE,
 			priv->cur_bpw - 1);
 
-	for (i = 0; i < ARRAY_SIZE(priv->cs_gpios); i++) {
-		if (!dm_gpio_is_valid(&priv->cs_gpios[i]))
+	for (i = 0; i < ARRAY_SIZE(plat->cs_gpios); i++) {
+		if (!dm_gpio_is_valid(&plat->cs_gpios[i]))
 			continue;
 
-		dm_gpio_set_dir_flags(&priv->cs_gpios[i],
+		dm_gpio_set_dir_flags(&plat->cs_gpios[i],
 				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	}
 
 	/* Ensure I2SMOD bit is kept cleared */
-	clrbits_le32(priv->base + STM32_SPI_I2SCFGR, SPI_I2SCFGR_I2SMOD);
+	clrbits_le32(base + STM32_SPI_I2SCFGR, SPI_I2SCFGR_I2SMOD);
 
 	/*
 	 * - SS input value high
 	 * - transmitter half duplex direction
 	 * - automatic communication suspend when RX-Fifo is full
 	 */
-	setbits_le32(priv->base + STM32_SPI_CR1,
+	setbits_le32(base + STM32_SPI_CR1,
 		     SPI_CR1_SSI | SPI_CR1_HDDIR | SPI_CR1_MASRX);
 
 	/*
@@ -559,40 +602,38 @@ static int stm32_spi_probe(struct udevice *dev)
 	 *   SS input value is determined by the SSI bit
 	 * - keep control of all associated GPIOs
 	 */
-	setbits_le32(priv->base + STM32_SPI_CFG2,
+	setbits_le32(base + STM32_SPI_CFG2,
 		     SPI_CFG2_MASTER | SPI_CFG2_SSM | SPI_CFG2_AFCNTR);
 
 	return 0;
 
-reset_err:
-	reset_free(&priv->rst_ctl);
-
 clk_err:
-	clk_disable(&priv->clk);
-	clk_free(&priv->clk);
+	clk_disable(&plat->clk);
+	clk_free(&plat->clk);
 
 	return ret;
 };
 
 static int stm32_spi_remove(struct udevice *dev)
 {
-	struct stm32_spi_priv *priv = dev_get_priv(dev);
+	struct stm32_spi_plat *plat = dev_get_plat(dev);
+	void __iomem *base = plat->base;
 	int ret;
 
 	stm32_spi_stopxfer(dev);
-	stm32_spi_disable(priv);
+	stm32_spi_disable(base);
 
-	ret = reset_assert(&priv->rst_ctl);
+	ret = reset_assert(&plat->rst_ctl);
 	if (ret < 0)
 		return ret;
 
-	reset_free(&priv->rst_ctl);
+	reset_free(&plat->rst_ctl);
 
-	ret = clk_disable(&priv->clk);
+	ret = clk_disable(&plat->clk);
 	if (ret < 0)
 		return ret;
 
-	clk_free(&priv->clk);
+	clk_free(&plat->clk);
 
 	return ret;
 };
@@ -615,7 +656,9 @@ U_BOOT_DRIVER(stm32_spi) = {
 	.id			= UCLASS_SPI,
 	.of_match		= stm32_spi_ids,
 	.ops			= &stm32_spi_ops,
-	.priv_auto_alloc_size	= sizeof(struct stm32_spi_priv),
+	.of_to_plat		= stm32_spi_of_to_plat,
+	.plat_auto		= sizeof(struct stm32_spi_plat),
+	.priv_auto		= sizeof(struct stm32_spi_priv),
 	.probe			= stm32_spi_probe,
 	.remove			= stm32_spi_remove,
 };

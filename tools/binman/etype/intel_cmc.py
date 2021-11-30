@@ -8,7 +8,7 @@
 from binman.etype.blob_ext import Entry_blob_ext
 
 class Entry_intel_cmc(Entry_blob_ext):
-    """Entry containing an Intel Chipset Micro Code (CMC) file
+    """Intel Chipset Micro Code (CMC) file
 
     Properties / Entry arguments:
         - filename: Filename of file to read into entry

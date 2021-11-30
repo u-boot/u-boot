@@ -9,6 +9,7 @@
 #include <net.h>
 #include <vsprintf.h>
 #include <asm/arch/clock.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/cache.h>
@@ -316,6 +317,8 @@ int arch_cpu_init(void)
 	struct ccsr_scfg *scfg = (void *)CONFIG_SYS_FSL_SCFG_ADDR;
 	u32 state;
 
+	icache_enable();
+
 	/*
 	 * The RCPM FSM state may not be reset after power-on.
 	 * So, reset them.
@@ -372,7 +375,7 @@ void smp_kick_all_cpus(void)
 }
 #endif
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 

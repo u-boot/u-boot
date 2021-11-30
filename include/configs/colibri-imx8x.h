@@ -12,19 +12,9 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define USDHC1_BASE_ADDR		0x5b010000
 #define USDHC2_BASE_ADDR		0x5b020000
-#define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
-
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
-/* Networking */
-#define FEC_QUIRK_ENET_MAC
-
-#define CONFIG_TFTP_TSIZE
 
 #define CONFIG_IPADDR			192.168.10.2
 #define CONFIG_NETMASK			255.255.255.0
@@ -107,9 +97,6 @@
 	"vidargs=video=imxdpufb5:off video=imxdpufb6:off video=imxdpufb7:off\0"
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x80280000
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
@@ -122,9 +109,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M /* Increase max gunzip size */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		((CONFIG_ENV_SIZE + (32 * 1024)) * 1024)
-
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
@@ -132,7 +116,6 @@
 #define PHYS_SDRAM_2_SIZE		0x00000000	/* 0 GB */
 
 /* Monitor Command Prompt */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_CBSIZE		SZ_2K
 #define CONFIG_SYS_MAXARGS		64
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE

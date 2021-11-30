@@ -7,6 +7,7 @@
 #include <asm/arch/reset.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/nx_gpio.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #define I2C_WRITE       0
@@ -240,7 +241,7 @@ static int nx_i2c_probe(struct udevice *dev)
 		return -EINVAL;
 	bus->regs = (struct nx_i2c_regs *)addr;
 
-	bus->bus_num = dev->seq;
+	bus->bus_num = dev_seq(dev);
 
 	/* i2c node parsing */
 	i2c_process_node(dev);
@@ -621,6 +622,6 @@ U_BOOT_DRIVER(i2c_nexell) = {
 	.id		= UCLASS_I2C,
 	.of_match	= nx_i2c_ids,
 	.probe		= nx_i2c_probe,
-	.priv_auto_alloc_size	= sizeof(struct nx_i2c_bus),
+	.priv_auto	= sizeof(struct nx_i2c_bus),
 	.ops		= &nx_i2c_ops,
 };

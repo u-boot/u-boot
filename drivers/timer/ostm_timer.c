@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <clk.h>
@@ -63,7 +64,7 @@ static int ostm_probe(struct udevice *dev)
 	return 0;
 }
 
-static int ostm_ofdata_to_platdata(struct udevice *dev)
+static int ostm_of_to_plat(struct udevice *dev)
 {
 	struct ostm_priv *priv = dev_get_priv(dev);
 
@@ -87,6 +88,6 @@ U_BOOT_DRIVER(ostm_timer) = {
 	.ops		= &ostm_ops,
 	.probe		= ostm_probe,
 	.of_match	= ostm_ids,
-	.ofdata_to_platdata = ostm_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct ostm_priv),
+	.of_to_plat = ostm_of_to_plat,
+	.priv_auto	= sizeof(struct ostm_priv),
 };

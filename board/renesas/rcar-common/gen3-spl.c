@@ -55,6 +55,6 @@ void s_init(void)
 {
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }

@@ -13,6 +13,7 @@
 #include <reset-uclass.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <asm/global_data.h>
 #include <dt-bindings/reset/stih407-resets.h>
 #include <linux/bitops.h>
 
@@ -336,6 +337,6 @@ U_BOOT_DRIVER(sti_reset) = {
 	.id = UCLASS_RESET,
 	.of_match = sti_reset_ids,
 	.probe = sti_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct sti_reset),
+	.priv_auto	= sizeof(struct sti_reset),
 	.ops = &sti_reset_ops,
 };

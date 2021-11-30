@@ -7,6 +7,8 @@
 #ifndef __AUDIO_CODEC_H__
 #define __AUDIO_CODEC_H__
 
+struct udevice;
+
 /*
  * An audio codec turns digital data into sound with various parameters to
  * control its operation.

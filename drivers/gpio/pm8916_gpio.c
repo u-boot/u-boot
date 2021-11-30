@@ -187,7 +187,7 @@ static int pm8916_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int pm8916_gpio_ofdata_to_platdata(struct udevice *dev)
+static int pm8916_gpio_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
@@ -202,6 +202,7 @@ static int pm8916_gpio_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id pm8916_gpio_ids[] = {
 	{ .compatible = "qcom,pm8916-gpio" },
 	{ .compatible = "qcom,pm8994-gpio" },	/* 22 GPIO's */
+	{ .compatible = "qcom,pm8998-gpio" },
 	{ }
 };
 
@@ -209,10 +210,10 @@ U_BOOT_DRIVER(gpio_pm8916) = {
 	.name	= "gpio_pm8916",
 	.id	= UCLASS_GPIO,
 	.of_match = pm8916_gpio_ids,
-	.ofdata_to_platdata = pm8916_gpio_ofdata_to_platdata,
+	.of_to_plat = pm8916_gpio_of_to_plat,
 	.probe	= pm8916_gpio_probe,
 	.ops	= &pm8916_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct pm8916_gpio_bank),
+	.priv_auto	= sizeof(struct pm8916_gpio_bank),
 };
 
 
@@ -266,13 +267,13 @@ static int pm8941_pwrkey_probe(struct udevice *dev)
 		return log_msg_ret("bad type", -ENXIO);
 
 	reg = pmic_reg_read(dev->parent, priv->pid + REG_SUBTYPE);
-	if (reg != 0x1)
+	if ((reg & 0x5) == 0)
 		return log_msg_ret("bad subtype", -ENXIO);
 
 	return 0;
 }
 
-static int pm8941_pwrkey_ofdata_to_platdata(struct udevice *dev)
+static int pm8941_pwrkey_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
@@ -287,15 +288,16 @@ static int pm8941_pwrkey_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id pm8941_pwrkey_ids[] = {
 	{ .compatible = "qcom,pm8916-pwrkey" },
 	{ .compatible = "qcom,pm8994-pwrkey" },
+	{ .compatible = "qcom,pm8998-pwrkey" },
 	{ }
 };
 
-U_BOOT_DRIVER(pwrkey_pm8941) = {
-	.name	= "pwrkey_pm8916",
+U_BOOT_DRIVER(pwrkey_pm89xx) = {
+	.name	= "pwrkey_pm89xx",
 	.id	= UCLASS_GPIO,
 	.of_match = pm8941_pwrkey_ids,
-	.ofdata_to_platdata = pm8941_pwrkey_ofdata_to_platdata,
+	.of_to_plat = pm8941_pwrkey_of_to_plat,
 	.probe	= pm8941_pwrkey_probe,
 	.ops	= &pm8941_pwrkey_ops,
-	.priv_auto_alloc_size = sizeof(struct pm8916_gpio_bank),
+	.priv_auto	= sizeof(struct pm8916_gpio_bank),
 };

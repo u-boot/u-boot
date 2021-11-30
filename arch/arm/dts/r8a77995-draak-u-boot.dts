@@ -10,5 +10,5 @@
 
 &rpc {
 	reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0x04000000>;
-	status = "okay";
+	status = "disabled";
 };

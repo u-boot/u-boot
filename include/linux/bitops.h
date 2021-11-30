@@ -6,7 +6,6 @@
 #include <asm/types.h>
 #include <asm-generic/bitsperlong.h>
 #include <linux/compiler.h>
-#include <linux/kernel.h>
 
 #ifdef	__KERNEL__
 #define BIT(nr)			(1UL << (nr))
@@ -18,6 +17,9 @@
 #define BITS_PER_BYTE		8
 #define BITS_TO_LONGS(nr)	DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
 #endif
+
+/* kernel.h includes log.h which include bitops.h */
+#include <linux/kernel.h>
 
 /*
  * Create a contiguous bitmask starting at bit position @l and ending at

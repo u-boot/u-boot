@@ -78,7 +78,7 @@ int rk_hdmi_read_edid(struct udevice *dev, u8 *buf, int buf_size)
 	return dw_hdmi_read_edid(&priv->hdmi, buf, buf_size);
 }
 
-int rk_hdmi_ofdata_to_platdata(struct udevice *dev)
+int rk_hdmi_of_to_plat(struct udevice *dev)
 {
 	struct rk_hdmi_priv *priv = dev_get_priv(dev);
 	struct dw_hdmi *hdmi = &priv->hdmi;

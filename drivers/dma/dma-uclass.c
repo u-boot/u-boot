@@ -9,6 +9,8 @@
  * Author: Mugunthan V N <mugunthanvnm@ti.com>
  */
 
+#define LOG_CATEGORY UCLASS_DMA
+
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
@@ -254,5 +256,5 @@ UCLASS_DRIVER(dma) = {
 	.id		= UCLASS_DMA,
 	.name		= "dma",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-	.per_device_auto_alloc_size = sizeof(struct dma_dev_priv),
+	.per_device_auto	= sizeof(struct dma_dev_priv),
 };

@@ -187,8 +187,8 @@ static int efi_dump_var_all(int argc,  char *const argv[],
 	var_name16[0] = 0;
 	for (;;) {
 		size = buf_size;
-		ret = EFI_CALL(efi_get_next_variable_name(&size, var_name16,
-							  &guid));
+		ret = efi_get_next_variable_name_int(&size, var_name16,
+						     &guid);
 		if (ret == EFI_NOT_FOUND)
 			break;
 		if (ret == EFI_BUFFER_TOO_SMALL) {
@@ -199,9 +199,8 @@ static int efi_dump_var_all(int argc,  char *const argv[],
 				return CMD_RET_FAILURE;
 			}
 			var_name16 = p;
-			ret = EFI_CALL(efi_get_next_variable_name(&size,
-								  var_name16,
-								  &guid));
+			ret = efi_get_next_variable_name_int(&size, var_name16,
+							     &guid);
 		}
 		if (ret != EFI_SUCCESS) {
 			free(var_name16);
@@ -241,6 +240,7 @@ int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
 	const efi_guid_t *guid_p = NULL;
+	efi_guid_t guid;
 	bool verbose = true;
 	efi_status_t ret;
 
@@ -254,8 +254,6 @@ int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	for (argc--, argv++; argc > 0 && argv[0][0] == '-'; argc--, argv++) {
 		if (!strcmp(argv[0], "-guid")) {
-			efi_guid_t guid;
-
 			if (argc == 1)
 				return CMD_RET_USAGE;
 			argc--;
@@ -472,12 +470,12 @@ int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 
 			argc--;
 			argv++;
-			addr = simple_strtoul(argv[0], &ep, 16);
+			addr = hextoul(argv[0], &ep);
 			if (*ep != ':')
 				return CMD_RET_USAGE;
 
 			/* 0 should be allowed for delete */
-			size = simple_strtoul(++ep, NULL, 16);
+			size = hextoul(++ep, NULL);
 
 			value_on_memory = true;
 		} else if (!strcmp(argv[0], "-v")) {

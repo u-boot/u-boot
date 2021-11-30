@@ -18,7 +18,7 @@ struct clk_fixed_factor {
 };
 
 #define to_clk_fixed_factor(dev)	\
-	((struct clk_fixed_factor *)dev_get_platdata(dev))
+	((struct clk_fixed_factor *)dev_get_plat(dev))
 
 static ulong clk_fixed_factor_get_rate(struct clk *clk)
 {
@@ -38,19 +38,19 @@ const struct clk_ops clk_fixed_factor_ops = {
 	.get_rate = clk_fixed_factor_get_rate,
 };
 
-static int clk_fixed_factor_ofdata_to_platdata(struct udevice *dev)
+static int clk_fixed_factor_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	int err;
-	struct clk_fixed_factor *ff = to_clk_fixed_factor(dev);
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		int err;
+		struct clk_fixed_factor *ff = to_clk_fixed_factor(dev);
 
-	err = clk_get_by_index(dev, 0, &ff->parent);
-	if (err)
-		return err;
+		err = clk_get_by_index(dev, 0, &ff->parent);
+		if (err)
+			return err;
 
-	ff->div = dev_read_u32_default(dev, "clock-div", 1);
-	ff->mult = dev_read_u32_default(dev, "clock-mult", 1);
-#endif
+		ff->div = dev_read_u32_default(dev, "clock-div", 1);
+		ff->mult = dev_read_u32_default(dev, "clock-mult", 1);
+	}
 
 	return 0;
 }
@@ -66,7 +66,7 @@ U_BOOT_DRIVER(clk_fixed_factor) = {
 	.name = "fixed_factor_clock",
 	.id = UCLASS_CLK,
 	.of_match = clk_fixed_factor_match,
-	.ofdata_to_platdata = clk_fixed_factor_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct clk_fixed_factor),
+	.of_to_plat = clk_fixed_factor_of_to_plat,
+	.plat_auto	= sizeof(struct clk_fixed_factor),
 	.ops = &clk_fixed_factor_ops,
 };

@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <asm/global_data.h>
 #include "board.h"
 #include <env.h>
 #include <hang.h>
@@ -48,11 +49,11 @@ int dram_init(void)
 	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 				    CONFIG_MAX_RAM_BANK_SIZE);
 #if defined(CONFIG_TI_AEMIF)
-	if (!board_is_k2g_ice())
+	if (!(board_is_k2g_ice() || board_is_k2g_i1()))
 		aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);
 #endif
 
-	if (!board_is_k2g_ice()) {
+	if (!(board_is_k2g_ice() || board_is_k2g_i1())) {
 		if (ddr3_size)
 			ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE, ddr3_size);
 		else

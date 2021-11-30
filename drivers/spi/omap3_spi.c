@@ -20,6 +20,7 @@
 #include <dm.h>
 #include <spi.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <omap3_spi.h>
@@ -37,6 +38,8 @@ struct omap3_spi_priv {
 	unsigned int mode;
 	unsigned int wordlen;
 	unsigned int pin_dir:1;
+
+	bool bus_claimed;
 };
 
 static void omap3_spi_write_chconf(struct omap3_spi_priv *priv, int val)
@@ -372,18 +375,23 @@ static void _omap3_spi_claim_bus(struct omap3_spi_priv *priv)
 	conf |= OMAP3_MCSPI_MODULCTRL_SINGLE;
 
 	writel(conf, &priv->regs->modulctrl);
+
+	priv->bus_claimed = true;
 }
 
 static int omap3_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
 	struct omap3_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	priv->cs = slave_plat->cs;
-	priv->freq = slave_plat->max_hz;
+	if (!priv->freq)
+		priv->freq = slave_plat->max_hz;
 
 	_omap3_spi_claim_bus(priv);
+	_omap3_spi_set_speed(priv);
+	_omap3_spi_set_mode(priv);
 
 	return 0;
 }
@@ -395,6 +403,8 @@ static int omap3_spi_release_bus(struct udevice *dev)
 
 	writel(OMAP3_MCSPI_MODULCTRL_MS, &priv->regs->modulctrl);
 
+	priv->bus_claimed = false;
+
 	return 0;
 }
 
@@ -402,7 +412,7 @@ static int omap3_spi_set_wordlen(struct udevice *dev, unsigned int wordlen)
 {
 	struct udevice *bus = dev->parent;
 	struct omap3_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	priv->cs = slave_plat->cs;
 	priv->wordlen = wordlen;
@@ -414,7 +424,7 @@ static int omap3_spi_set_wordlen(struct udevice *dev, unsigned int wordlen)
 static int omap3_spi_probe(struct udevice *dev)
 {
 	struct omap3_spi_priv *priv = dev_get_priv(dev);
-	struct omap3_spi_plat *plat = dev_get_platdata(dev);
+	struct omap3_spi_plat *plat = dev_get_plat(dev);
 
 	priv->regs = plat->regs;
 	priv->pin_dir = plat->pin_dir;
@@ -440,7 +450,8 @@ static int omap3_spi_set_speed(struct udevice *dev, unsigned int speed)
 	struct omap3_spi_priv *priv = dev_get_priv(dev);
 
 	priv->freq = speed;
-	_omap3_spi_set_speed(priv);
+	if (priv->bus_claimed)
+		_omap3_spi_set_speed(priv);
 
 	return 0;
 }
@@ -451,7 +462,8 @@ static int omap3_spi_set_mode(struct udevice *dev, uint mode)
 
 	priv->mode = mode;
 
-	_omap3_spi_set_mode(priv);
+	if (priv->bus_claimed)
+		_omap3_spi_set_mode(priv);
 
 	return 0;
 }
@@ -469,7 +481,7 @@ static const struct dm_spi_ops omap3_spi_ops = {
 	 */
 };
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static struct omap2_mcspi_platform_config omap2_pdata = {
 	.regs_offset = 0,
 };
@@ -478,11 +490,11 @@ static struct omap2_mcspi_platform_config omap4_pdata = {
 	.regs_offset = OMAP4_MCSPI_REG_OFFSET,
 };
 
-static int omap3_spi_ofdata_to_platdata(struct udevice *dev)
+static int omap3_spi_of_to_plat(struct udevice *dev)
 {
 	struct omap2_mcspi_platform_config *data =
 		(struct omap2_mcspi_platform_config *)dev_get_driver_data(dev);
-	struct omap3_spi_plat *plat = dev_get_platdata(dev);
+	struct omap3_spi_plat *plat = dev_get_plat(dev);
 
 	plat->regs = (struct mcspi *)(dev_read_addr(dev) + data->regs_offset);
 
@@ -504,12 +516,12 @@ U_BOOT_DRIVER(omap3_spi) = {
 	.name   = "omap3_spi",
 	.id     = UCLASS_SPI,
 	.flags	= DM_FLAG_PRE_RELOC,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = omap3_spi_ids,
-	.ofdata_to_platdata = omap3_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct omap3_spi_plat),
+	.of_to_plat = omap3_spi_of_to_plat,
+	.plat_auto	= sizeof(struct omap3_spi_plat),
 #endif
 	.probe = omap3_spi_probe,
 	.ops    = &omap3_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct omap3_spi_priv),
+	.priv_auto	= sizeof(struct omap3_spi_priv),
 };

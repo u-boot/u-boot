@@ -3,13 +3,15 @@
  * Copyright (C) 2020 Linaro Limited.
  */
 
+#define LOG_CATEGORY UCLASS_SCMI_AGENT
+
 #include <common.h>
 #include <dm.h>
-#include <dm/device_compat.h>
 #include <errno.h>
 #include <mailbox.h>
 #include <scmi_agent.h>
 #include <scmi_agent-uclass.h>
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/compat.h>
 
@@ -97,7 +99,7 @@ U_BOOT_DRIVER(scmi_mbox) = {
 	.name		= "scmi-over-mailbox",
 	.id		= UCLASS_SCMI_AGENT,
 	.of_match	= scmi_mbox_ids,
-	.priv_auto_alloc_size = sizeof(struct scmi_mbox_channel),
+	.priv_auto	= sizeof(struct scmi_mbox_channel),
 	.probe		= scmi_mbox_probe,
 	.ops		= &scmi_mbox_ops,
 };

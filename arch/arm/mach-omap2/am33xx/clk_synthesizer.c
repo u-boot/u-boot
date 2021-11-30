@@ -29,7 +29,7 @@ static int clk_synthesizer_reg_read(struct udevice *dev, int addr, u8 *buf)
 	/* Enable Bye read */
 	addr = addr | CLK_SYNTHESIZER_BYTE_MODE;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	/* Send the command byte */
 	rc = i2c_write(CLK_SYNTHESIZER_I2C_ADDR, addr, 1, buf, 1);
 	if (rc)
@@ -72,7 +72,7 @@ static int clk_synthesizer_reg_write(struct udevice *dev, int addr, u8 val)
 	cmd[0] = addr | CLK_SYNTHESIZER_BYTE_MODE;
 	cmd[1] = val;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	rc = i2c_write(CLK_SYNTHESIZER_I2C_ADDR, addr, 1, cmd, 2);
 #else
 	rc = dm_i2c_write(dev, addr, cmd, 2);
@@ -96,7 +96,7 @@ int setup_clock_synthesizer(struct clk_synth *data)
 	int rc;
 	u8 val = 0;
 	struct udevice *dev = NULL;
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	rc =  i2c_probe(CLK_SYNTHESIZER_I2C_ADDR);
 	if (rc) {
 		printf("i2c probe failed at address 0x%x\n",

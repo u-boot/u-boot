@@ -16,7 +16,7 @@ from patman import tools
 
 # Series-xxx tags that we understand
 valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
-                'cover_cc', 'process_log', 'links', 'patchwork_url']
+                'cover_cc', 'process_log', 'links', 'patchwork_url', 'postfix']
 
 class Series(dict):
     """Holds information about a patch series, including all tags.
@@ -133,6 +133,7 @@ class Series(dict):
             print('Cc:\t ', item)
         print('Version: ', self.get('version'))
         print('Prefix:\t ', self.get('prefix'))
+        print('Postfix:\t ', self.get('postfix'))
         if self.cover:
             print('Cover: %d lines' % len(self.cover))
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
@@ -234,7 +235,7 @@ class Series(dict):
             str = 'Change log exists, but no version is set'
             print(col.Color(col.RED, str))
 
-    def MakeCcFile(self, process_tags, cover_fname, raise_on_error,
+    def MakeCcFile(self, process_tags, cover_fname, warn_on_error,
                    add_maintainers, limit):
         """Make a cc file for us to use for per-commit Cc automation
 
@@ -243,8 +244,8 @@ class Series(dict):
         Args:
             process_tags: Process tags as if they were aliases
             cover_fname: If non-None the name of the cover letter.
-            raise_on_error: True to raise an error when an alias fails to match,
-                False to just print a message.
+            warn_on_error: True to print a warning when an alias fails to match,
+                False to ignore it.
             add_maintainers: Either:
                 True/False to call the get_maintainers to CC maintainers
                 List of maintainers to include (for testing)
@@ -261,9 +262,9 @@ class Series(dict):
             cc = []
             if process_tags:
                 cc += gitutil.BuildEmailList(commit.tags,
-                                               raise_on_error=raise_on_error)
+                                               warn_on_error=warn_on_error)
             cc += gitutil.BuildEmailList(commit.cc_list,
-                                           raise_on_error=raise_on_error)
+                                           warn_on_error=warn_on_error)
             if type(add_maintainers) == type(cc):
                 cc += add_maintainers
             elif add_maintainers:
@@ -271,8 +272,7 @@ class Series(dict):
                 cc += get_maintainer.GetMaintainer(dir_list, commit.patch)
             for x in set(cc) & set(settings.bounces):
                 print(col.Color(col.YELLOW, 'Skipping "%s"' % x))
-            cc = set(cc) - set(settings.bounces)
-            cc = [tools.FromUnicode(m) for m in cc]
+            cc = list(set(cc) - set(settings.bounces))
             if limit is not None:
                 cc = cc[:limit]
             all_ccs += cc
@@ -281,11 +281,10 @@ class Series(dict):
 
         if cover_fname:
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
-            cover_cc = [tools.FromUnicode(m) for m in cover_cc]
             cover_cc = list(set(cover_cc + all_ccs))
             if limit is not None:
                 cover_cc = cover_cc[:limit]
-            cc_list = '\0'.join([tools.ToUnicode(x) for x in sorted(cover_cc)])
+            cc_list = '\0'.join([x for x in sorted(cover_cc)])
             print(cover_fname, cc_list, file=fd)
 
         fd.close()
@@ -324,4 +323,8 @@ class Series(dict):
         prefix = ''
         if self.get('prefix'):
             prefix = '%s ' % self['prefix']
-        return '%s%sPATCH%s' % (git_prefix, prefix, version)
+
+        postfix = ''
+        if self.get('postfix'):
+           postfix = ' %s' % self['postfix']
+        return '%s%sPATCH%s%s' % (git_prefix, prefix, postfix, version)

@@ -91,7 +91,7 @@ int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen)
 	path = dev_read_string(dev, "acpi,path");
 	if (path) {
 		if (strlen(path) >= maxlen)
-			return -E2BIG;
+			return -ENOSPC;
 		strcpy(out_path, path);
 		return 0;
 	}
@@ -269,7 +269,7 @@ int acpi_recurse_method(struct acpi_ctx *ctx, struct udevice *parent,
 		void *start = ctx->current;
 
 		log_debug("- method %d, %s %p\n", method, parent->name, func);
-		ret = device_ofdata_to_platdata(parent);
+		ret = device_of_to_plat(parent);
 		if (ret)
 			return log_msg_ret("ofdata", ret);
 		ret = func(parent, ctx);

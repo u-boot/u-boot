@@ -45,7 +45,7 @@
 /*
  * to facilitate the definition, the following macros are provided
  *
- * 				    offset, pull,pF, drv,dF, edge,eF ,afn,aF
+ *				    offset, pull,pF, drv,dF, edge,eF ,afn,aF
  */
 #define MFP_OFFSET_MASK		MFP(0xffff,    0,    0,   0,   0,   0,   0)
 #define MFP_REG(x)		MFP(x,         0,    0,   0,   0,   0,   0)

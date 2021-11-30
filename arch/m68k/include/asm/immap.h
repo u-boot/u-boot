@@ -32,34 +32,6 @@
 #define CONFIG_SYS_NUM_IRQS		(128)
 #endif				/* CONFIG_M520x */
 
-#ifdef CONFIG_M52277
-#include <asm/immap_5227x.h>
-#include <asm/m5227x.h>
-
-#define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CONFIG_SYS_UART_PORT * 0x4000))
-
-#define CONFIG_SYS_MCFRTC_BASE		(MMAP_RTC)
-
-#ifdef CONFIG_LCD
-#define	CONFIG_SYS_LCD_BASE		(MMAP_LCD)
-#endif
-
-/* Timer */
-#ifdef CONFIG_MCFTMR
-#define CONFIG_SYS_UDELAY_BASE		(MMAP_DTMR0)
-#define CONFIG_SYS_TMR_BASE		(MMAP_DTMR1)
-#define CONFIG_SYS_TMRPND_REG		(((volatile int0_t *)(CONFIG_SYS_INTR_BASE))->iprh0)
-#define CONFIG_SYS_TMRINTR_NO		(INT0_HI_DTMR1)
-#define CONFIG_SYS_TMRINTR_MASK	(INTC_IPRH_INT33)
-#define CONFIG_SYS_TMRINTR_PEND	(CONFIG_SYS_TMRINTR_MASK)
-#define CONFIG_SYS_TMRINTR_PRI		(6)
-#define CONFIG_SYS_TIMER_PRESCALER	(((gd->bus_clk / 1000000) - 1) << 8)
-#endif
-
-#define CONFIG_SYS_INTR_BASE		(MMAP_INTC0)
-#define CONFIG_SYS_NUM_IRQS		(128)
-#endif				/* CONFIG_M52277 */
-
 #ifdef CONFIG_M5235
 #include <asm/immap_5235.h>
 #include <asm/m5235.h>
@@ -330,42 +302,6 @@
 
 #endif				/* CONFIG_M54418 */
 
-#if defined(CONFIG_M54451) || defined(CONFIG_M54455)
-#include <asm/immap_5445x.h>
-#include <asm/m5445x.h>
-
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC0)
-#if defined(CONFIG_M54455EVB)
-#define CONFIG_SYS_FEC1_IOBASE		(MMAP_FEC1)
-#endif
-
-#define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CONFIG_SYS_UART_PORT * 0x4000))
-
-#define CONFIG_SYS_MCFRTC_BASE		(MMAP_RTC)
-
-/* Timer */
-#ifdef CONFIG_MCFTMR
-#define CONFIG_SYS_UDELAY_BASE		(MMAP_DTMR0)
-#define CONFIG_SYS_TMR_BASE		(MMAP_DTMR1)
-#define CONFIG_SYS_TMRPND_REG		(((volatile int0_t *)(CONFIG_SYS_INTR_BASE))->iprh0)
-#define CONFIG_SYS_TMRINTR_NO		(INT0_HI_DTMR1)
-#define CONFIG_SYS_TMRINTR_MASK	(INTC_IPRH_INT33)
-#define CONFIG_SYS_TMRINTR_PEND	(CONFIG_SYS_TMRINTR_MASK)
-#define CONFIG_SYS_TMRINTR_PRI		(6)
-#define CONFIG_SYS_TIMER_PRESCALER	(((gd->bus_clk / 1000000) - 1) << 8)
-#endif
-
-#define CONFIG_SYS_INTR_BASE		(MMAP_INTC0)
-#define CONFIG_SYS_NUM_IRQS		(128)
-
-#ifdef CONFIG_PCI
-#define CONFIG_SYS_PCI_BAR0		(CONFIG_SYS_MBAR)
-#define CONFIG_SYS_PCI_BAR5		(CONFIG_SYS_SDRAM_BASE)
-#define CONFIG_SYS_PCI_TBATR0		(CONFIG_SYS_MBAR)
-#define CONFIG_SYS_PCI_TBATR5		(CONFIG_SYS_SDRAM_BASE)
-#endif
-#endif				/* CONFIG_M54451 || CONFIG_M54455 */
-
 #ifdef CONFIG_M547x
 #include <asm/immap_547x_8x.h>
 #include <asm/m547x_8x.h>
@@ -411,52 +347,5 @@
 #define CONFIG_SYS_PCI_TBATR1		(CONFIG_SYS_SDRAM_BASE)
 #endif
 #endif				/* CONFIG_M547x */
-
-#ifdef CONFIG_M548x
-#include <asm/immap_547x_8x.h>
-#include <asm/m547x_8x.h>
-
-#ifdef CONFIG_FSLDMAFEC
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC0)
-#define CONFIG_SYS_FEC1_IOBASE		(MMAP_FEC1)
-
-#define FEC0_RX_TASK		0
-#define FEC0_TX_TASK		1
-#define FEC0_RX_PRIORITY	6
-#define FEC0_TX_PRIORITY	7
-#define FEC0_RX_INIT		16
-#define FEC0_TX_INIT		17
-#define FEC1_RX_TASK		2
-#define FEC1_TX_TASK		3
-#define FEC1_RX_PRIORITY	6
-#define FEC1_TX_PRIORITY	7
-#define FEC1_RX_INIT		30
-#define FEC1_TX_INIT		31
-#endif
-
-#define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CONFIG_SYS_UART_PORT * 0x100))
-
-/* Timer */
-#ifdef CONFIG_SLTTMR
-#define CONFIG_SYS_UDELAY_BASE		(MMAP_SLT1)
-#define CONFIG_SYS_TMR_BASE		(MMAP_SLT0)
-#define CONFIG_SYS_TMRPND_REG		(((volatile int0_t *)(CONFIG_SYS_INTR_BASE))->iprh0)
-#define CONFIG_SYS_TMRINTR_NO		(INT0_HI_SLT0)
-#define CONFIG_SYS_TMRINTR_MASK	(INTC_IPRH_INT54)
-#define CONFIG_SYS_TMRINTR_PEND	(CONFIG_SYS_TMRINTR_MASK)
-#define CONFIG_SYS_TMRINTR_PRI		(0x1E)
-#define CONFIG_SYS_TIMER_PRESCALER	(gd->bus_clk / 1000000)
-#endif
-
-#define CONFIG_SYS_INTR_BASE		(MMAP_INTC0)
-#define CONFIG_SYS_NUM_IRQS		(128)
-
-#ifdef CONFIG_PCI
-#define CONFIG_SYS_PCI_BAR0		(CONFIG_SYS_MBAR)
-#define CONFIG_SYS_PCI_BAR1		(CONFIG_SYS_SDRAM_BASE)
-#define CONFIG_SYS_PCI_TBATR0		(CONFIG_SYS_MBAR)
-#define CONFIG_SYS_PCI_TBATR1		(CONFIG_SYS_SDRAM_BASE)
-#endif
-#endif				/* CONFIG_M548x */
 
 #endif				/* __IMMAP_H */

@@ -32,13 +32,6 @@
 
 #define CONFIG_SYS_HZ_CLOCK		1000000 /* Fixed at 1MHz from TSTMR */
 
-#define CONFIG_INITRD_TAG
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(8 * SZ_1M)
-
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
 
@@ -46,8 +39,6 @@
 
 #define PHYS_SDRAM			0x60000000
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-
-#define CONFIG_LOADADDR			0x60800000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
@@ -68,13 +59,6 @@
 		"if run loadfdt; then " \
 			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"fi;\0" \
-
-#define CONFIG_BOOTCOMMAND \
-	"if run loadimage; then " \
-		"run mmcboot; " \
-	"fi; " \
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	SZ_256K

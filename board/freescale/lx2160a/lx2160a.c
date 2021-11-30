@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  */
 
 #include <common.h>
 #include <clock_legacy.h>
 #include <dm.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <i2c.h>
 #include <malloc.h>
@@ -28,6 +29,8 @@
 #include <asm/arch/config.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
+#include "../common/i2c_mux.h"
+
 #include "../common/qixis.h"
 #include "../common/vid.h"
 #include <fsl_immap.h>
@@ -52,7 +55,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct pl01x_serial_platdata serial0 = {
+static struct pl01x_serial_plat serial0 = {
 #if CONFIG_CONS_INDEX == 0
 	.base = CONFIG_SYS_SERIAL0,
 #elif CONFIG_CONS_INDEX == 1
@@ -63,41 +66,20 @@ static struct pl01x_serial_platdata serial0 = {
 	.type = TYPE_PL011,
 };
 
-U_BOOT_DEVICE(nxp_serial0) = {
+U_BOOT_DRVINFO(nxp_serial0) = {
 	.name = "serial_pl01x",
-	.platdata = &serial0,
+	.plat = &serial0,
 };
 
-static struct pl01x_serial_platdata serial1 = {
+static struct pl01x_serial_plat serial1 = {
 	.base = CONFIG_SYS_SERIAL1,
 	.type = TYPE_PL011,
 };
 
-U_BOOT_DEVICE(nxp_serial1) = {
+U_BOOT_DRVINFO(nxp_serial1) = {
 	.name = "serial_pl01x",
-	.platdata = &serial1,
+	.plat = &serial1,
 };
-
-int select_i2c_ch_pca9547(u8 ch)
-{
-	int ret;
-
-#ifndef CONFIG_DM_I2C
-	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
-#else
-	struct udevice *dev;
-
-	ret = i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev);
-	if (!ret)
-		ret = dm_i2c_write(dev, 0, &ch, 1);
-#endif
-	if (ret) {
-		puts("PCA: failed to select proper channel\n");
-		return ret;
-	}
-
-	return 0;
-}
 
 static void uart_get_clock(void)
 {
@@ -107,17 +89,17 @@ static void uart_get_clock(void)
 
 int board_early_init_f(void)
 {
-#ifdef CONFIG_SYS_I2C_EARLY_INIT
+#if defined(CONFIG_SYS_I2C_EARLY_INIT) && defined(CONFIG_SPL_BUILD)
 	i2c_early_init_f();
 #endif
 	/* get required clock for UART IP */
 	uart_get_clock();
 
 #ifdef CONFIG_EMC2305
-	select_i2c_ch_pca9547(I2C_MUX_CH_EMC2305);
+	select_i2c_ch_pca9547(I2C_MUX_CH_EMC2305, 0);
 	emc2305_init(I2C_EMC2305_ADDR);
 	set_fan_speed(I2C_EMC2305_PWM, I2C_EMC2305_ADDR);
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 #endif
 
 	fsl_lsch3_early_init_f();
@@ -274,7 +256,7 @@ int esdhc_status_fixup(void *blob, const char *compat)
 #if defined(CONFIG_VID)
 int i2c_multiplexer_select_vid_channel(u8 channel)
 {
-	return select_i2c_ch_pca9547(channel);
+	return select_i2c_ch_pca9547(channel, 0);
 }
 
 int init_func_vid(void)
@@ -606,11 +588,8 @@ int board_init(void)
 #if defined(CONFIG_FSL_MC_ENET) && defined(CONFIG_TARGET_LX2160ARDB)
 	u32 __iomem *irq_ccsr = (u32 __iomem *)ISC_BASE;
 #endif
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
-#endif
 
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 
 #if defined(CONFIG_FSL_MC_ENET) && defined(CONFIG_TARGET_LX2160ARDB)
 	/* invert AQR107 IRQ pins polarity */
@@ -648,6 +627,48 @@ int misc_init_r(void)
 }
 #endif
 
+#ifdef CONFIG_VID
+u16 soc_get_fuse_vid(int vid_index)
+{
+	static const u16 vdd[32] = {
+		8250,
+		7875,
+		7750,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		8000,
+		8125,
+		8250,
+		0,      /* reserved */
+		8500,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+	};
+
+	return vdd[vid_index];
+};
+#endif
+
 #ifdef CONFIG_FSL_MC_ENET
 extern int fdt_fixup_board_phy(void *fdt);
 
@@ -683,6 +704,116 @@ void board_quiesce_devices(void)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(TARGET_LX2160ARDB)
+int fdt_fixup_add_thermal(void *blob, int mux_node, int channel, int reg)
+{
+	int err;
+	int noff;
+	int offset;
+	char channel_node_name[50];
+	char thermal_node_name[50];
+	u32 phandle;
+
+	snprintf(channel_node_name, sizeof(channel_node_name),
+		 "i2c@%x", channel);
+	debug("channel_node_name = %s\n", channel_node_name);
+
+	snprintf(thermal_node_name, sizeof(thermal_node_name),
+		 "temperature-sensor@%x", reg);
+	debug("thermal_node_name = %s\n", thermal_node_name);
+
+	err = fdt_increase_size(blob, 200);
+	if (err) {
+		printf("fdt_increase_size: err=%s\n", fdt_strerror(err));
+		return err;
+	}
+
+	noff = fdt_subnode_offset(blob, mux_node, (const char *)
+				  channel_node_name);
+	if (noff < 0) {
+		/* channel node not found - create it */
+		noff = fdt_add_subnode(blob, mux_node, channel_node_name);
+		if (noff < 0) {
+			printf("fdt_add_subnode: err=%s\n", fdt_strerror(err));
+			return err;
+		}
+		fdt_setprop_u32 (blob, noff, "#address-cells", 1);
+		fdt_setprop_u32 (blob, noff, "#size-cells", 0);
+		fdt_setprop_u32 (blob, noff, "reg", channel);
+	}
+
+	/* Create thermal node*/
+	offset = fdt_add_subnode(blob, noff, thermal_node_name);
+	fdt_setprop(blob, offset, "compatible", "nxp,sa56004",
+		    strlen("nxp,sa56004") + 1);
+	fdt_setprop_u32 (blob, offset, "reg", reg);
+
+	/* fixup phandle*/
+	noff = fdt_node_offset_by_compatible(blob, -1, "regulator-fixed");
+	if (noff < 0) {
+		printf("%s : failed to get phandle\n", __func__);
+		return noff;
+	}
+	phandle = fdt_get_phandle(blob, noff);
+	fdt_setprop_u32 (blob, offset, "vcc-supply", phandle);
+
+	return 0;
+}
+
+void fdt_fixup_delete_thermal(void *blob, int mux_node, int channel, int reg)
+{
+	int node;
+	int value;
+	int err;
+	int subnode;
+
+	fdt_for_each_subnode(subnode, blob, mux_node) {
+		value = fdtdec_get_uint(blob, subnode, "reg", -1);
+		if (value == channel) {
+			/* delete thermal node */
+			fdt_for_each_subnode(node, blob, subnode) {
+				value = fdtdec_get_uint(blob, node, "reg", -1);
+				err = fdt_node_check_compatible(blob, node,
+								"nxp,sa56004");
+				if (!err && value == reg) {
+					fdt_del_node(blob, node);
+					break;
+				}
+			}
+		}
+	}
+}
+
+void fdt_fixup_i2c_thermal_node(void *blob)
+{
+	int i2coffset;
+	int mux_node;
+	int reg;
+	int err;
+
+	i2coffset = fdt_node_offset_by_compat_reg(blob, "fsl,vf610-i2c",
+						  0x2000000);
+	if (i2coffset != -FDT_ERR_NOTFOUND) {
+		fdt_for_each_subnode(mux_node, blob, i2coffset) {
+			reg = fdtdec_get_uint(blob, mux_node, "reg", -1);
+			err = fdt_node_check_compatible(blob, mux_node,
+							"nxp,pca9547");
+			if (!err && reg == 0x77) {
+				fdt_fixup_delete_thermal(blob, mux_node,
+							 0x3, 0x4d);
+				err = fdt_fixup_add_thermal(blob, mux_node,
+							    0x3, 0x48);
+				if (err)
+					printf("%s: Add thermal node failed\n",
+					       __func__);
+			}
+		}
+	} else {
+		printf("%s: i2c node not found\n", __func__);
+	}
+}
+#endif
+
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
@@ -694,6 +825,17 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	u64 mc_memory_base = 0;
 	u64 mc_memory_size = 0;
 	u16 total_memory_banks;
+	int err;
+#if CONFIG_IS_ENABLED(TARGET_LX2160ARDB)
+	u8 board_rev;
+#endif
+
+	err = fdt_increase_size(blob, 512);
+	if (err) {
+		printf("%s fdt_increase_size: err=%s\n", __func__,
+		       fdt_strerror(err));
+		return err;
+	}
 
 	ft_cpu_setup(blob, bd);
 
@@ -738,7 +880,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	fdt_fixup_memory_banks(blob, base, size, total_memory_banks);
 
-#ifdef CONFIG_USB
+#ifdef CONFIG_USB_HOST
 	fsl_fdt_fixup_dr_usb(blob, bd);
 #endif
 
@@ -747,6 +889,12 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	fdt_fixup_board_enet(blob);
 #endif
 	fdt_fixup_icid(blob);
+
+#if CONFIG_IS_ENABLED(TARGET_LX2160ARDB)
+	board_rev = (QIXIS_READ(arch) & 0xf) - 1 + 'A';
+	if (board_rev == 'C')
+		fdt_fixup_i2c_thermal_node(blob);
+#endif
 
 	return 0;
 }

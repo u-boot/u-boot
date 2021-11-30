@@ -77,4 +77,3 @@
 #define A_DELAY_PS(val)			((val) & 0xffff)
 #define G_DELAY_PS(val)			((val) & 0xffff)
 #endif
-

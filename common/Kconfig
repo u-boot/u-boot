@@ -1,5 +1,3 @@
-source "common/Kconfig.boot"
-
 menu "Console"
 
 config MENU
@@ -16,6 +14,14 @@ config CONSOLE_RECORD
 	  Console output is recorded even when the console is silent.
 	  To enable console recording, call console_record_reset_enable()
 	  from your code.
+
+config CONSOLE_RECORD_INIT_F
+	bool "Enable console recording during pre-relocation init"
+	depends on CONSOLE_RECORD && SYS_MALLOC_F
+	default y
+	help
+	  This option enables console recording during pre-relocation init.
+	  CONFIG_SYS_MALLOC_F must be enabled to use this feature.
 
 config CONSOLE_RECORD_OUT_SIZE
 	hex "Output buffer size"
@@ -174,8 +180,8 @@ config SYS_CONSOLE_IS_IN_ENV
 	default y if CONSOLE_MUX
 	help
 	  This allows multiple input/output devices to be set at boot time.
-	  For example, if stdout is set to "serial,video" then output will
-	  be sent to both the serial and video devices on boot. The
+	  For example, if stdout is set to "serial,vidconsole" then output
+	  will be sent to both the serial and video devices on boot. The
 	  environment variables can be updated after boot to change the
 	  input/output devices.
 
@@ -313,6 +319,14 @@ config LOGF_FUNC
 	help
 	  Show the function name in log messages by default. This value can
 	  be overridden using the 'log format' command.
+
+config LOGF_FUNC_PAD
+	int "Number of characters to use for function"
+	default 20
+	help
+	  Sets the field width to use when showing the function. Set this to
+	  a larger value if you have lots of long function names, and want
+	  things to line up.
 
 config LOG_SYSLOG
 	bool "Log output to syslog server"
@@ -519,6 +533,12 @@ config LAST_STAGE_INIT
 	  U-Boot calls last_stage_init() before the command-line interpreter is
 	  started.
 
+config MISC_INIT_F
+	bool "Execute pre-relocation misc init"
+	help
+	  Enabling this option calls the 'misc_init_f' function in the init
+	  sequence just before DRAM is inited.
+
 config MISC_INIT_R
 	bool "Execute Misc Init"
 	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx
@@ -526,10 +546,15 @@ config MISC_INIT_R
 	help
 	  Enabling this option calls 'misc_init_r' function
 
+config ID_EEPROM
+	bool "Enable I2C connected system identifier EEPROM"
+	help
+	  A number of different systems and vendors enable a vendor-specified
+	  EEPROM that contains various identifying features.
+
 config PCI_INIT_R
 	bool "Enumerate PCI buses during init"
 	depends on PCI
-	default y if !DM_PCI
 	help
 	  With this option U-Boot will call pci_init() soon after relocation,
 	  which will enumerate PCI buses. This is needed, for instance, in the
@@ -553,6 +578,7 @@ config HASH
 config AVB_VERIFY
 	bool "Build Android Verified Boot operations"
 	depends on LIBAVB
+	depends on MMC
 	depends on PARTITION_UUIDS
 	help
 	  This option enables compilation of bootloader-dependent operations,
@@ -579,6 +605,14 @@ config AVB_BUF_SIZE
 
 endif # AVB_VERIFY
 
+config SCP03
+	bool "Build SCP03 - Secure Channel Protocol O3 - controls"
+	depends on OPTEE || SANDBOX
+	depends on TEE
+	help
+	  This option allows U-Boot to enable and or provision SCP03 on an OPTEE
+	  controlled Secured Element.
+
 config SPL_HASH
 	bool # "Support hashing API (SHA1, SHA256, etc.)"
 	help
@@ -595,13 +629,26 @@ config TPL_HASH
 	  and the algorithms it supports are defined in common/hash.c. See
 	  also CMD_HASH for command-line access.
 
+config STACKPROTECTOR
+	bool "Stack Protector buffer overflow detection"
+	help
+	  Enable stack smash detection through compiler's stack-protector
+	  canary logic
+
+config SPL_STACKPROTECTOR
+	bool "Stack Protector buffer overflow detection for SPL"
+	depends on STACKPROTECTOR && SPL
+
+config TPL_STACKPROTECTOR
+	bool "Stack Protector buffer overflow detection for TPL"
+	depends on STACKPROTECTOR && TPL
+
 endmenu
 
 menu "Update support"
 
 config UPDATE_COMMON
 	bool
-	default n
 	select DFU_WRITE_ALT
 
 config UPDATE_TFTP
@@ -633,7 +680,6 @@ config UPDATE_FIT
 
 config ANDROID_AB
 	bool "Android A/B updates"
-	default n
 	help
 	  If enabled, adds support for the new Android A/B update model. This
 	  allows the bootloader to select which slot to boot from based on the
@@ -684,10 +730,20 @@ config BLOBLIST_SIZE
 config BLOBLIST_ADDR
 	hex "Address of bloblist"
 	depends on BLOBLIST
-	default 0xe000 if SANDBOX
+	default 0xc000 if SANDBOX
 	help
 	  Sets the address of the bloblist, set up by the first part of U-Boot
 	  which runs. Subsequent U-Boot stages typically use the same address.
+
+config BLOBLIST_SIZE_RELOC
+	hex "Size of bloblist after relocation"
+	depends on BLOBLIST
+	default BLOBLIST_SIZE
+	help
+	  Sets the size of the bloblist in bytes after relocation. Since U-Boot
+	  has a lot more memory available then, it is possible to use a larger
+	  size than the one set up by SPL. This bloblist is set up during the
+	  relocation process.
 
 endmenu
 

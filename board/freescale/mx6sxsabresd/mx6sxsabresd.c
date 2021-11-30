@@ -13,6 +13,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
@@ -319,7 +320,10 @@ int board_late_init(void)
 
 int checkboard(void)
 {
+#ifdef CONFIG_NXP_BOARD_REVISION
 	printf("Board: MX6SX SABRE SDB rev%c\n", nxp_board_rev_string());
-
+#else
+       puts("Board: MX6SX SABRE SDB");
+#endif
 	return 0;
 }

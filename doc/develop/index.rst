@@ -3,13 +3,60 @@
 Develop U-Boot
 ==============
 
+Implementation
+--------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   coccinelle
+   bloblist
+   ci_testing
    commands
-   crash_dumps
+   config_binding
+   devicetree/index
+   distro
+   driver-model/index
    global_data
    logging
+   makefiles
+   menus
+   uefi/index
+   version
+
+Debugging
+---------
+
+.. toctree::
+   :maxdepth: 1
+
+   crash_dumps
    trace
+
+Packaging
+---------
+
+.. toctree::
+   :maxdepth: 1
+
+   package/index
+
+Testing
+-------
+
+.. toctree::
+   :maxdepth: 1
+
+   testing
+   py_testing
+   tests_writing
+   tests_sandbox
+
+Refactoring
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   checkpatch
+   coccinelle
+   moveconfig

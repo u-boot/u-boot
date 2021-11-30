@@ -30,6 +30,10 @@ fi
 run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build \
 		-k 'test_ofplatdata or test_handoff or test_spl'
 
+# Run the sane tests with sandbox_noinst (i.e. without OF_PLATDATA_INST)
+run_test "sandbox_spl" ./test/py/test.py --bd sandbox_noinst --build \
+		-k 'test_ofplatdata or test_handoff or test_spl'
+
 if [ -z "$tools_only" ]; then
 	# Run tests for the flat-device-tree version of sandbox. This is a special
 	# build which does not enable CONFIG_OF_LIVE for the live device tree, so we can

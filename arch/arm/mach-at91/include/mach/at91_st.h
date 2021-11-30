@@ -24,6 +24,6 @@ typedef struct at91_st {
 
 #define AT91_ST_WDMR_WDV(x)	(x & 0xFFFF)
 #define AT91_ST_WDMR_RSTEN	0x00010000
-#define AT91_ST_WDMR_EXTEN 	0x00020000
+#define AT91_ST_WDMR_EXTEN	0x00020000
 
 #endif

@@ -57,7 +57,7 @@ static enum led_state_t gpio_led_get_state(struct udevice *dev)
 
 static int led_gpio_probe(struct udevice *dev)
 {
-	struct led_uc_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct led_gpio_priv *priv = dev_get_priv(dev);
 	int ret;
 
@@ -106,7 +106,7 @@ static int led_gpio_bind(struct udevice *parent)
 						 node, &dev);
 		if (ret)
 			return ret;
-		uc_plat = dev_get_uclass_platdata(dev);
+		uc_plat = dev_get_uclass_plat(dev);
 		uc_plat->label = label;
 	}
 
@@ -128,7 +128,7 @@ U_BOOT_DRIVER(led_gpio) = {
 	.id	= UCLASS_LED,
 	.of_match = led_gpio_ids,
 	.ops	= &gpio_led_ops,
-	.priv_auto_alloc_size = sizeof(struct led_gpio_priv),
+	.priv_auto	= sizeof(struct led_gpio_priv),
 	.bind	= led_gpio_bind,
 	.probe	= led_gpio_probe,
 	.remove	= led_gpio_remove,

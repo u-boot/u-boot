@@ -16,16 +16,7 @@
 
 #ifdef CONFIG_SPL_BUILD
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
-#define CONFIG_SPL_WATCHDOG_SUPPORT
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
 #define CONFIG_SPL_STACK		0x187FF0
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_GPIO_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_BSS_START_ADDR	0x00180000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x2000	/* 8 KB */
 #define CONFIG_SYS_SPL_MALLOC_START	0x42200000
@@ -38,17 +29,6 @@
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 
 #undef CONFIG_DM_MMC
-#undef CONFIG_DM_PMIC
-
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 #endif
 
 #define CONFIG_REMAKE_ELF
@@ -56,19 +36,13 @@
 /* ENET Config */
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_MII
 #define CONFIG_ETHPRIME			"FEC"
 
-#define CONFIG_FEC_MXC
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_FEC_MXC_PHYADDR		1
 #define FEC_QUIRK_ENET_MAC
 
-#define CONFIG_PHY_GIGE
 #define IMX_FEC_BASE			0x30BE0000
-
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_ATHEROS
 #endif
 
 /* Initial environment variables */
@@ -121,9 +95,6 @@
 	"else booti ${loadaddr} - ${fdt_addr}; fi"
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0x40480000
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x80000
@@ -133,9 +104,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"	/* USDHC2 */
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		((CONFIG_ENV_SIZE + (2 * 1024)) * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
@@ -154,8 +122,6 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
-#define CONFIG_IMX_BOOTAUX
-
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
@@ -163,14 +129,7 @@
 
 #define CONFIG_MXC_GPIO
 
-/* I2C Configs */
-#define CONFIG_SYS_I2C_SPEED		100000
-
 #define CONFIG_OF_SYSTEM_SETUP
-
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_DM_PMIC
-#endif
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_128M
 

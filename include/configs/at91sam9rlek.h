@@ -16,12 +16,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* main clock xtal */
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
-
 #define CONFIG_ATMEL_LEGACY
 
 /*
@@ -62,10 +56,6 @@
 
 /* Ethernet - not present */
 
-/* USB - not supported */
-
-#define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
-
 #ifdef CONFIG_SYS_USE_DATAFLASH
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
@@ -87,10 +77,4 @@
 				"fatload mmc 0:1 0x22000000 zImage; " \
 				"bootz 0x22000000 - 0x21000000"
 #endif
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN	ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
-
 #endif

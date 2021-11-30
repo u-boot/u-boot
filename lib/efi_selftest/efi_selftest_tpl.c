@@ -55,7 +55,7 @@ static int setup(const efi_handle_t handle,
 		return EFI_ST_FAILURE;
 	}
 	ret = boottime->create_event(EVT_TIMER | EVT_NOTIFY_WAIT,
-				     TPL_HIGH_LEVEL, notify, NULL, &event_wait);
+				     TPL_NOTIFY, notify, NULL, &event_wait);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("could not create event\n");
 		return EFI_ST_FAILURE;

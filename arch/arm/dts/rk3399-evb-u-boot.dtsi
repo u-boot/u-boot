@@ -13,10 +13,6 @@
 	};
 };
 
-&rng {
-	status = "okay";
-};
-
 &i2c0 {
 	u-boot,dm-pre-reloc;
 };
@@ -36,6 +32,10 @@
 &usbdrd_dwc3_1 {
 	dr_mode = "host";
 	status = "okay";
+};
+
+&vdd_center {
+	regulator-init-microvolt = <900000>;
 };
 
 &sdmmc {

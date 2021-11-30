@@ -51,7 +51,7 @@ int do_io_iod(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return 1;
 
 		/* Address is specified since argc > 1 */
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		addr += base_address;
 
 		/*
@@ -59,7 +59,7 @@ int do_io_iod(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		 * Length is the number of objects, not number of bytes.
 		 */
 		if (argc > 2)
-			length = simple_strtoul(argv[2], NULL, 16);
+			length = hextoul(argv[2], NULL);
 	}
 
 	bytes = size * length;
@@ -102,8 +102,8 @@ int do_io_iow(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (size < 0)
 		return 1;
 
-	addr = simple_strtoul(argv[1], NULL, 16);
-	val = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[1], NULL);
+	val = hextoul(argv[2], NULL);
 
 	if (size == 4)
 		outl((u32) val, addr);

@@ -106,5 +106,5 @@ U_BOOT_DRIVER(msm8916_usbphy) = {
 	.of_match	= msm_phy_ids,
 	.ops		= &msm_phy_ops,
 	.probe		= msm_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct msm_phy_priv),
+	.priv_auto	= sizeof(struct msm_phy_priv),
 };

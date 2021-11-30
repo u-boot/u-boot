@@ -26,8 +26,12 @@ int cmd_ut_category(const char *name, const char *prefix,
 		    struct unit_test *tests, int n_ents,
 		    int argc, char *const argv[]);
 
+int do_ut_addrmap(struct cmd_tbl *cmdtp, int flag, int argc,
+		  char *const argv[]);
+int do_ut_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[]);
+int do_ut_common(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_compression(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[]);
 int do_ut_dm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
@@ -37,6 +41,9 @@ int do_ut_log(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]);
 int do_ut_mem(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_optee(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_overlay(struct cmd_tbl *cmdtp, int flag, int argc,
+		  char *const argv[]);
+int do_ut_print(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
+int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 		  char *const argv[]);
 int do_ut_str(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_time(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);

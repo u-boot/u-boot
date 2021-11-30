@@ -312,5 +312,5 @@ U_BOOT_DRIVER(imx7_reset) = {
 	.of_match = imx7_reset_ids,
 	.ops = &imx7_reset_reset_ops,
 	.probe = imx7_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct imx7_reset_priv),
+	.priv_auto	= sizeof(struct imx7_reset_priv),
 };

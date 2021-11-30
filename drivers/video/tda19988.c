@@ -651,5 +651,5 @@ U_BOOT_DRIVER(tda19988) = {
 	.of_match = tda19988_ids,
 	.ops = &tda19988_ops,
 	.probe = tda19988_probe,
-	.priv_auto_alloc_size = sizeof(struct tda19988_priv),
+	.priv_auto	= sizeof(struct tda19988_priv),
 };

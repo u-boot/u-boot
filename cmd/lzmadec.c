@@ -26,11 +26,11 @@ static int do_lzmadec(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	switch (argc) {
 	case 4:
-		dst_len = simple_strtoul(argv[3], NULL, 16);
+		dst_len = hextoul(argv[3], NULL);
 		/* fall through */
 	case 3:
-		src = simple_strtoul(argv[1], NULL, 16);
-		dst = simple_strtoul(argv[2], NULL, 16);
+		src = hextoul(argv[1], NULL);
+		dst = hextoul(argv[2], NULL);
 		break;
 	default:
 		return CMD_RET_USAGE;

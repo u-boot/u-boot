@@ -26,6 +26,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+#include <power/regulator.h>
 
 #define REG_ISCR			0x00
 #define REG_PHYCTL_A10			0x04
@@ -137,6 +138,7 @@ struct sun4i_usb_phy_data {
 	void __iomem *base;
 	const struct sun4i_usb_phy_cfg *cfg;
 	struct sun4i_usb_phy_plat *usb_phy;
+	struct udevice *vbus_power_supply;
 };
 
 static int initial_usb_scan_delay = CONFIG_INITIAL_USB_SCAN_DELAY;
@@ -313,9 +315,21 @@ static int sun4i_usb_phy_init(struct phy *phy)
 				    data->cfg->disc_thresh, PHY_DISCON_TH_LEN);
 	}
 
+#ifdef CONFIG_USB_MUSB_SUNXI
+	/* Needed for HCI and conflicts with MUSB, keep PHY0 on MUSB */
+	if (usb_phy->id != 0)
+		sun4i_usb_phy_passby(phy, true);
+
+	/* Route PHY0 to MUSB to allow USB gadget */
+	if (data->cfg->phy0_dual_route)
+		sun4i_usb_phy0_reroute(data, true);
+#else
 	sun4i_usb_phy_passby(phy, true);
 
-	sun4i_usb_phy0_reroute(data, true);
+	/* Route PHY0 to HCI to allow USB host */
+	if (data->cfg->phy0_dual_route)
+		sun4i_usb_phy0_reroute(data, false);
+#endif
 
 	return 0;
 }
@@ -379,22 +393,21 @@ int sun4i_usb_phy_vbus_detect(struct phy *phy)
 {
 	struct sun4i_usb_phy_data *data = dev_get_priv(phy->dev);
 	struct sun4i_usb_phy_plat *usb_phy = &data->usb_phy[phy->id];
-	int err, retries = 3;
+	int err = 1, retries = 3;
 
-	debug("%s: id_det = %d\n", __func__, usb_phy->gpio_id_det);
-
-	if (usb_phy->gpio_vbus_det < 0)
-		return usb_phy->gpio_vbus_det;
-
-	err = gpio_get_value(usb_phy->gpio_vbus_det);
-	/*
-	 * Vbus may have been provided by the board and just been turned of
-	 * some milliseconds ago on reset, what we're measuring then is a
-	 * residual charge on Vbus, sleep a bit and try again.
-	 */
-	while (err > 0 && retries--) {
-		mdelay(100);
+	if (usb_phy->gpio_vbus_det >= 0) {
 		err = gpio_get_value(usb_phy->gpio_vbus_det);
+		/*
+		 * Vbus may have been provided by the board and just turned off
+		 * some milliseconds ago on reset. What we're measuring then is
+		 * a residual charge on Vbus. Sleep a bit and try again.
+		 */
+		while (err > 0 && retries--) {
+			mdelay(100);
+			err = gpio_get_value(usb_phy->gpio_vbus_det);
+		}
+	} else if (data->vbus_power_supply) {
+		err = regulator_get_enable(data->vbus_power_supply);
 	}
 
 	return err;
@@ -404,8 +417,6 @@ int sun4i_usb_phy_id_detect(struct phy *phy)
 {
 	struct sun4i_usb_phy_data *data = dev_get_priv(phy->dev);
 	struct sun4i_usb_phy_plat *usb_phy = &data->usb_phy[phy->id];
-
-	debug("%s: id_det = %d\n", __func__, usb_phy->gpio_id_det);
 
 	if (usb_phy->gpio_id_det < 0)
 		return usb_phy->gpio_id_det;
@@ -428,7 +439,7 @@ static struct phy_ops sun4i_usb_phy_ops = {
 
 static int sun4i_usb_phy_probe(struct udevice *dev)
 {
-	struct sun4i_usb_phy_plat *plat = dev_get_platdata(dev);
+	struct sun4i_usb_phy_plat *plat = dev_get_plat(dev);
 	struct sun4i_usb_phy_data *data = dev_get_priv(dev);
 	int i, ret;
 
@@ -439,6 +450,9 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 	data->base = (void __iomem *)devfdt_get_addr_name(dev, "phy_ctrl");
 	if (IS_ERR(data->base))
 		return PTR_ERR(data->base);
+
+	device_get_supply_regulator(dev, "usb0_vbus_power-supply",
+				    &data->vbus_power_supply);
 
 	data->usb_phy = plat;
 	for (i = 0; i < data->cfg->num_phys; i++) {
@@ -646,6 +660,6 @@ U_BOOT_DRIVER(sun4i_usb_phy) = {
 	.of_match = sun4i_usb_phy_ids,
 	.ops = &sun4i_usb_phy_ops,
 	.probe = sun4i_usb_phy_probe,
-	.platdata_auto_alloc_size = sizeof(struct sun4i_usb_phy_plat[MAX_PHYS]),
-	.priv_auto_alloc_size = sizeof(struct sun4i_usb_phy_data),
+	.plat_auto	= sizeof(struct sun4i_usb_phy_plat[MAX_PHYS]),
+	.priv_auto	= sizeof(struct sun4i_usb_phy_data),
 };

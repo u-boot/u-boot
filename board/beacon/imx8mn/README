@@ -1,0 +1,38 @@
+U-Boot for the Beacon EmbeddedWorks i.MX8M Nano Devkit
+
+Quick Start
+===========
+- Build the ARM Trusted firmware binary
+- Get ddr firmware
+- Build U-Boot
+- Boot
+
+Get and Build the ARM Trusted firmware
+======================================
+Note: $(srctree) is U-Boot source directory
+
+$ git clone https://source.codeaurora.org/external/imx/imx-atf
+$ git checkout imx_5.4.47_2.2.0
+$ make PLAT=imx8mn bl31 CROSS_COMPILE=aarch64-linux-gnu-
+$ cp build/imx8mm/release/bl31.bin $(srctree)
+
+Get the DDR firmware
+====================
+$ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.9.bin
+$ chmod +x firmware-imx-8.9.bin
+$ ./firmware-imx-8.9
+$ cp firmware-imx-8.9/firmware/ddr/synopsys/lpddr4*.bin $(srctree)
+
+Build U-Boot
+============
+$ make imx8mn_beacon_defconfig
+$ make flash.bin CROSS_COMPILE=aarch64-linux-gnu- ATF_LOAD_ADDR=0x960000
+
+Burn U-Boot to microSD Card
+===========================
+$ sudo dd if=flash.bin of=/dev/sd[x] bs=1024 seek=32
+
+Boot
+====
+Set baseboard DIP switch:
+S17: 1100XXXX

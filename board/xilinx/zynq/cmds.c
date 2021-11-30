@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
@@ -421,7 +422,7 @@ static int do_zynq_rsa(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_FAILURE;
 
-	src_ptr = simple_strtoul(argv[2], &endp, 16);
+	src_ptr = hextoul(argv[2], &endp);
 	if (*argv[2] == 0 || *endp != 0)
 		return CMD_RET_USAGE;
 
@@ -452,26 +453,26 @@ static int zynq_decrypt_image(struct cmd_tbl *cmdtp, int flag, int argc,
 		else
 			return CMD_RET_USAGE;
 
-		srcaddr = simple_strtoul(argv[3], &endp, 16);
+		srcaddr = hextoul(argv[3], &endp);
 		if (*argv[3] == 0 || *endp != 0)
 			return CMD_RET_USAGE;
-		srclen = simple_strtoul(argv[4], &endp, 16);
+		srclen = hextoul(argv[4], &endp);
 		if (*argv[4] == 0 || *endp != 0)
 			return CMD_RET_USAGE;
 
 		dstaddr = 0xFFFFFFFF;
 		dstlen = srclen;
 	} else {
-		srcaddr = simple_strtoul(argv[2], &endp, 16);
+		srcaddr = hextoul(argv[2], &endp);
 		if (*argv[2] == 0 || *endp != 0)
 			return CMD_RET_USAGE;
-		srclen = simple_strtoul(argv[3], &endp, 16);
+		srclen = hextoul(argv[3], &endp);
 		if (*argv[3] == 0 || *endp != 0)
 			return CMD_RET_USAGE;
-		dstaddr = simple_strtoul(argv[4], &endp, 16);
+		dstaddr = hextoul(argv[4], &endp);
 		if (*argv[4] == 0 || *endp != 0)
 			return CMD_RET_USAGE;
-		dstlen = simple_strtoul(argv[5], &endp, 16);
+		dstlen = hextoul(argv[5], &endp);
 		if (*argv[5] == 0 || *endp != 0)
 			return CMD_RET_USAGE;
 	}

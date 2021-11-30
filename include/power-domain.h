@@ -162,8 +162,7 @@ static inline int power_domain_off(struct power_domain *power_domain)
  *
  * @return 0 if OK, or a negative error code.
  */
-#if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) && \
-	CONFIG_IS_ENABLED(POWER_DOMAIN)
+#if CONFIG_IS_ENABLED(OF_REAL) && CONFIG_IS_ENABLED(POWER_DOMAIN)
 int dev_power_domain_on(struct udevice *dev);
 #else
 static inline int dev_power_domain_on(struct udevice *dev)
@@ -179,8 +178,7 @@ static inline int dev_power_domain_on(struct udevice *dev)
  *
  * @return 0 if OK, or a negative error code.
  */
-#if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) && \
-	CONFIG_IS_ENABLED(POWER_DOMAIN)
+#if CONFIG_IS_ENABLED(OF_REAL) && CONFIG_IS_ENABLED(POWER_DOMAIN)
 int dev_power_domain_off(struct udevice *dev);
 #else
 static inline int dev_power_domain_off(struct udevice *dev)

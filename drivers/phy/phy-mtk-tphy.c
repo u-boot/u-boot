@@ -749,5 +749,5 @@ U_BOOT_DRIVER(mtk_tphy) = {
 	.of_match	= mtk_tphy_id_table,
 	.ops		= &mtk_tphy_ops,
 	.probe		= mtk_tphy_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_tphy),
+	.priv_auto	= sizeof(struct mtk_tphy),
 };

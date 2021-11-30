@@ -190,7 +190,7 @@ static int octeon_gpio_probe(struct udevice *dev)
 			GPIO_CONST_GPIOS_MASK;
 	} else {
 		priv->base = dev_remap_addr(dev);
-		uc_priv->gpio_count = ofnode_read_u32_default(dev->node,
+		uc_priv->gpio_count = ofnode_read_u32_default(dev_ofnode(dev),
 							      "nr-gpios", 32);
 	}
 
@@ -202,7 +202,7 @@ static int octeon_gpio_probe(struct udevice *dev)
 
 	uc_priv->bank_name  = strdup(dev->name);
 	end = strchr(uc_priv->bank_name, '@');
-	end[0] = 'A' + dev->seq;
+	end[0] = 'A' + dev_seq(dev);
 	end[1] = '\0';
 
 	debug("%s(%s): base address: %p, pin count: %d\n",
@@ -236,7 +236,7 @@ U_BOOT_DRIVER(octeon_gpio) = {
 	.id	= UCLASS_GPIO,
 	.of_match = of_match_ptr(octeon_gpio_ids),
 	.probe = octeon_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct octeon_gpio),
+	.priv_auto	= sizeof(struct octeon_gpio),
 	.ops	= &octeon_gpio_ops,
 	.flags	= DM_FLAG_PRE_RELOC,
 };

@@ -456,7 +456,7 @@ static void cpsw_set_slave_mac(struct cpsw_slave *slave,
 			       struct cpsw_priv *priv)
 {
 #ifdef CONFIG_DM_ETH
-	struct eth_pdata *pdata = dev_get_platdata(priv->dev);
+	struct eth_pdata *pdata = dev_get_plat(priv->dev);
 
 	writel(mac_hi(pdata->enetaddr), &slave->regs->sa_hi);
 	writel(mac_lo(pdata->enetaddr), &slave->regs->sa_lo);
@@ -1014,7 +1014,7 @@ int cpsw_register(struct cpsw_platform_data *data)
 #else
 static int cpsw_eth_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct cpsw_priv *priv = dev_get_priv(dev);
 
 	return _cpsw_init(priv, pdata->enetaddr);
@@ -1176,7 +1176,7 @@ static void cpsw_phy_sel(struct cpsw_priv *priv, const char *compat,
 static int cpsw_eth_probe(struct udevice *dev)
 {
 	struct cpsw_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	priv->dev = dev;
 	priv->data = pdata->priv_pdata;
@@ -1223,9 +1223,9 @@ static void cpsw_eth_of_parse_slave(struct cpsw_platform_data *data,
 							"max-speed", 0);
 }
 
-static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
+static int cpsw_eth_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct cpsw_platform_data *data;
 	struct gpio_desc *mode_gpios;
 	int slave_index = 0;
@@ -1377,12 +1377,12 @@ U_BOOT_DRIVER(eth_cpsw) = {
 	.id	= UCLASS_ETH,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = cpsw_eth_ids,
-	.ofdata_to_platdata = cpsw_eth_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.of_to_plat = cpsw_eth_of_to_plat,
+	.plat_auto	= sizeof(struct eth_pdata),
 #endif
 	.probe	= cpsw_eth_probe,
 	.ops	= &cpsw_eth_ops,
-	.priv_auto_alloc_size = sizeof(struct cpsw_priv),
+	.priv_auto	= sizeof(struct cpsw_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA | DM_FLAG_PRE_RELOC,
 };
 #endif /* CONFIG_DM_ETH */

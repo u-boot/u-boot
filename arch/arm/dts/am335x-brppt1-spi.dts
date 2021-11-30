@@ -54,8 +54,6 @@
 		bkl-pwm = <&pwmbacklight>;
 		bkl-tps = <&tps_bl>;
 
-		u-boot,dm-pre-reloc;
-
 		panel-info {
 			ac-bias		= <255>;
 			ac-bias-intrpt	= <0>;
@@ -259,8 +257,19 @@
 	status = "okay";
 };
 
-&lcdc {
-	status = "disabled";
+&l4_per {
+
+	segment@300000 {
+
+		target-module@e000 {
+			u-boot,dm-pre-reloc;
+
+			lcdc: lcdc@0 {
+				u-boot,dm-pre-reloc;
+				status = "disabled";
+			};
+		};
+	};
 };
 
 &elm {

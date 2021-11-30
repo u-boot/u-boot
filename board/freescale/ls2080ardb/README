@@ -18,7 +18,7 @@ LS2081A, LS2088A SoC overview.
  - SERDES Connections, 16 lanes supporting:
       - PCI Express - 3.0
       - SATA 3.0
-      - XFI
+      - 10GBase-R
  - DDR Controller
      - Two ports of 72-bits (8-bits ECC) DDR4. Each port supports four
        chip-selects and two DIMM connectors. Support is up to 2133MT/s.
@@ -132,4 +132,3 @@ below:
 => setenv bootargs 'console=ttyS1,115200 root=/dev/ram
    earlycon=uart8250,mmio,0x21c0600,115200 default_hugepagesz=2m hugepagesz=2m
    hugepages=16 mem=2048M'
-

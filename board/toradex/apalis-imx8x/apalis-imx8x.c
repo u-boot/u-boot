@@ -12,6 +12,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <env.h>
@@ -126,7 +127,7 @@ int board_init(void)
 /*
  * Board specific reset that is system reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* TODO */
 }

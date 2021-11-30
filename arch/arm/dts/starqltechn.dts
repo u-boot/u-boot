@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Samsung S9 SM-G9600 (starqltechn) board device tree source
+ *
+ * (C) Copyright 2021 Dzmitry Sankouski <dsankouski@gmail.com>
+ *
+ */
+
+/dts-v1/;
+
+#include "sdm845.dtsi"
+
+/ {
+	model = "Samsung S9 (SM-G9600)";
+	compatible = "qcom,sdm845-mtp", "qcom,sdm845", "qcom,mtp";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	chosen {
+		stdout-path = "serial0:921600n8";
+	};
+
+	aliases {
+		serial0 = &debug_uart;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0 0x80000000 0 0xfe1bffff>;
+	};
+
+	psci {
+		compatible = "arm,psci-1.0";
+		method = "smc";
+	};
+
+	soc: soc {
+		serial@0xa84000 {
+			status = "ok";
+		};
+
+		pinctrl@3900000 {
+			muic_i2c: muic_i2c {
+				pins = "GPIO_33", "GPIO_34";
+				drive-strength = <0x2>;
+				function = "gpio";
+				bias-disable;
+			};
+		};
+	};
+};
+
+#include "starqltechn-uboot.dtsi"

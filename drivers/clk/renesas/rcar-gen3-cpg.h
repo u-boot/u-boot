@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * R-Car Gen3 Clock Pulse Generator
  *
- * Copyright (C) 2015-2016 Glider bvba
+ * Copyright (C) 2015-2018 Glider bvba
+ * Copyright (C) 2018 Renesas Electronics Corp.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 2 of the License.
  */
 
 #ifndef __CLK_RENESAS_RCAR_GEN3_CPG_H__
@@ -22,12 +21,20 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_GEN3_R,
 	CLK_TYPE_GEN3_MDSEL,	/* Select parent/divider using mode pin */
 	CLK_TYPE_GEN3_Z,
-	CLK_TYPE_GEN3_Z2,
 	CLK_TYPE_GEN3_OSC,	/* OSC EXTAL predivider and fixed divider */
 	CLK_TYPE_GEN3_RCKSEL,	/* Select parent/divider using RCKCR.CKSEL */
 	CLK_TYPE_GEN3_RPCSRC,
+	CLK_TYPE_GEN3_E3_RPCSRC,
 	CLK_TYPE_GEN3_RPC,
 	CLK_TYPE_GEN3_RPCD2,
+
+	CLK_TYPE_R8A779A0_MAIN,
+	CLK_TYPE_R8A779A0_PLL1,
+	CLK_TYPE_R8A779A0_PLL2X_3X,	/* PLL[23][01] */
+	CLK_TYPE_R8A779A0_PLL5,
+	CLK_TYPE_R8A779A0_SD,
+	CLK_TYPE_R8A779A0_MDSEL,	/* Select parent/divider using mode pin */
+	CLK_TYPE_R8A779A0_OSC,	/* OSC EXTAL predivider and fixed divider */
 
 	/* SoC specific definitions start here */
 	CLK_TYPE_GEN3_SOC_BASE,
@@ -36,8 +43,8 @@ enum rcar_gen3_clk_types {
 #define DEF_GEN3_SD(_name, _id, _parent, _offset)	\
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_SD, _parent, .offset = _offset)
 
-#define DEF_GEN3_RPC(_name, _id, _parent, _offset)	\
-	DEF_BASE(_name, _id, CLK_TYPE_GEN3_RPC, _parent, .offset = _offset)
+#define DEF_GEN3_RPCD2(_name, _id, _parent, _offset)	\
+	DEF_BASE(_name, _id, CLK_TYPE_GEN3_RPCD2, _parent, .offset = _offset)
 
 #define DEF_GEN3_MDSEL(_name, _id, _md, _parent0, _div0, _parent1, _div1) \
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_MDSEL,	\
@@ -59,6 +66,10 @@ enum rcar_gen3_clk_types {
 #define DEF_GEN3_Z(_name, _id, _type, _parent, _div, _offset)	\
 	DEF_BASE(_name, _id, _type, _parent, .div = _div, .offset = _offset)
 
+#define DEF_FIXED_RPCSRC_E3(_name, _id, _parent0, _parent1)	\
+	DEF_BASE(_name, _id, CLK_TYPE_GEN3_E3_RPCSRC,	\
+		 (_parent0) << 16 | (_parent1), .div = 8)
+
 struct rcar_gen3_cpg_pll_config {
 	u8 extal_div;
 	u8 pll1_mult;
@@ -66,7 +77,11 @@ struct rcar_gen3_cpg_pll_config {
 	u8 pll3_mult;
 	u8 pll3_div;
 	u8 osc_prediv;
+	u8 pll5_mult;
+	u8 pll5_div;
 };
+
+#define CPG_RST_MODEMR	0x060
 
 #define CPG_RPCCKCR	0x238
 #define CPG_RCKCR	0x240

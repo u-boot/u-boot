@@ -1,0 +1,6 @@
+FALCON BOARD
+M:	Marek Vasut <marek.vasut+renesas@gmail.com>
+S:	Maintained
+F:	board/renesas/falcon/
+F:	include/configs/falcon.h
+F:	configs/r8a779a0_falcon_defconfig

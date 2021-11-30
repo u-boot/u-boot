@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/armv7_mpu.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,7 +30,7 @@ int arch_cpu_init(void)
 /*
  * Perform the low-level reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	while (1)
 		;

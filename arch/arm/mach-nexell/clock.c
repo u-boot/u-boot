@@ -99,7 +99,7 @@ static const char * const clk_core[] = {
  * in board_init_f(), respectively! I.e. global variables can not be used!
  */
 static struct clk_dev_peri clk_periphs[]
-	__attribute__((section(".data"))) = {
+	__section(".data") = {
 	CLK_PERI_1S(DEV_NAME_TIMER,	0,	CLK_ID_TIMER_0,
 		    PHY_BASEADDR_CLKGEN14, (I_PLL_0_2)),
 	CLK_PERI_1S(DEV_NAME_TIMER,	1,	CLK_ID_TIMER_1,
@@ -167,7 +167,7 @@ static struct clk_dev_peri clk_periphs[]
 #define	MAX_DIVIDER		((1 << 8) - 1)	/* 256, align 2 */
 
 static struct clk_dev		st_clk_devs[CLK_DEVS_NUM]
-				__attribute__((section(".data")));
+				__section(".data");
 #define	clk_dev_get(n)		((struct clk_dev *)&st_clk_devs[n])
 #define	clk_container(p)	(container_of(p, struct clk_dev, clk))
 
@@ -196,7 +196,7 @@ struct _core_hz_ {
  * in board_init_f(), respectively! I.e. global variables can not be used!
  */
 /* core clock */
-static struct _core_hz_ core_hz __attribute__((section(".data")));
+static struct _core_hz_ core_hz __section(".data");
 
 #define	CORE_HZ_SIZE	(sizeof(core_hz) / 4)
 
@@ -592,7 +592,7 @@ struct clk *clk_get(const char *id)
 			c = strrchr((const char *)str, (int)'.');
 			if (!c || !cdev->peri)
 				break;
-		devid = simple_strtoul(++c, NULL, 10);
+		devid = dectoul(++c, NULL);
 		if (cdev->peri->dev_id == devid)
 			break;
 		}

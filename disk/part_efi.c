@@ -15,6 +15,7 @@
 #include <part.h>
 #include <uuid.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/unaligned.h>
 #include <command.h>
 #include <fdtdec.h>
@@ -22,18 +23,18 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <part_efi.h>
+#include <dm/ofnode.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 #include <u-boot/crc.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
-/*
- * GUID for basic data partions.
- */
-static const efi_guid_t partition_basic_data_guid = PARTITION_BASIC_DATA_GUID;
-
 #ifdef CONFIG_HAVE_BLOCK_DEVICE
+
+/* GUID for basic data partitons */
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
+static const efi_guid_t partition_basic_data_guid = PARTITION_BASIC_DATA_GUID;
+#endif
+
 /**
  * efi_crc32() - EFI version of crc32 function
  * @buf: buffer to calculate crc32 of
@@ -247,10 +248,11 @@ void part_print_efi(struct blk_desc *dev_desc)
 		uuid_bin = (unsigned char *)gpt_pte[i].partition_type_guid.b;
 		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
 		printf("\ttype:\t%s\n", uuid);
-#ifdef CONFIG_PARTITION_TYPE_GUID
-		if (!uuid_guid_get_str(uuid_bin, uuid))
-			printf("\ttype:\t%s\n", uuid);
-#endif
+		if (CONFIG_IS_ENABLED(PARTITION_TYPE_GUID)) {
+			const char *type = uuid_guid_get_str(uuid_bin);
+			if (type)
+				printf("\ttype:\t%s\n", type);
+		}
 		uuid_bin = (unsigned char *)gpt_pte[i].unique_partition_guid.b;
 		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
 		printf("\tguid:\t%s\n", uuid);
@@ -560,9 +562,8 @@ static uint32_t partition_entries_offset(struct blk_desc *dev_desc)
 	 * from the start of the device) to be specified as a property
 	 * of the device tree '/config' node.
 	 */
-	config_offset = fdtdec_get_config_int(gd->fdt_blob,
-					      "u-boot,efi-partition-entries-offset",
-					      -EINVAL);
+	config_offset = ofnode_conf_read_int(
+		"u-boot,efi-partition-entries-offset", -EINVAL);
 	if (config_offset != -EINVAL) {
 		offset_bytes = PAD_TO_BLOCKSIZE(config_offset, dev_desc);
 		offset_blks = offset_bytes / dev_desc->blksz;
@@ -689,6 +690,15 @@ int gpt_verify_headers(struct blk_desc *dev_desc, gpt_header *gpt_head,
 
 	/* Free pte before allocating again */
 	free(*gpt_pte);
+
+	/*
+	 * Check that the alternate_lba entry points to the last LBA
+	 */
+	if (le64_to_cpu(gpt_head->alternate_lba) != (dev_desc->lba - 1)) {
+		printf("%s: *** ERROR: Misplaced Backup GPT ***\n",
+		       __func__);
+		return -1;
+	}
 
 	if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
 			 gpt_head, gpt_pte) != 1) {
@@ -865,6 +875,9 @@ int write_mbr_and_gpt_partitions(struct blk_desc *dev_desc, void *buf)
 		       __func__, "Backup GPT Header", cnt, lba);
 		return 1;
 	}
+
+	/* Update the partition table entries*/
+	part_init(dev_desc);
 
 	return 0;
 }
@@ -1112,4 +1125,4 @@ U_BOOT_PART_TYPE(a_efi) = {
 	.print		= part_print_ptr(part_print_efi),
 	.test		= part_test_efi,
 };
-#endif
+#endif /* CONFIG_HAVE_BLOCK_DEVICE */

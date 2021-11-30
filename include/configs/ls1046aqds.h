@@ -10,13 +10,9 @@
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
-unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-#define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
@@ -24,21 +20,11 @@ unsigned long get_board_ddr_clk(void);
 /* Physical Memory Map */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
-#define CONFIG_DDR_SPD
 #define SPD_EEPROM_ADDRESS		0x51
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
-#define CONFIG_DDR_ECC
 #ifdef CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
-#endif
-
-/* DSPI */
-#ifdef CONFIG_FSL_DSPI
-#define CONFIG_SPI_FLASH_STMICRO	/* cs0 */
-#define CONFIG_SPI_FLASH_SST		/* cs1 */
-#define CONFIG_SPI_FLASH_EON		/* cs2 */
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
@@ -53,26 +39,6 @@ unsigned long get_board_ddr_clk(void);
 #define QSGMII_CARD_PORT2_PHY_ADDR_S2 0x9
 #define QSGMII_CARD_PORT3_PHY_ADDR_S2 0xA
 #define QSGMII_CARD_PORT4_PHY_ADDR_S2 0xB
-#endif
-
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI \
-	board/freescale/ls1046aqds/ls1046aqds_pbi.cfg
-#endif
-
-#ifdef CONFIG_NAND_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW \
-	board/freescale/ls1046aqds/ls1046aqds_rcw_nand.cfg
-#endif
-
-#ifdef CONFIG_SD_BOOT
-#ifdef CONFIG_SD_BOOT_QSPI
-#define CONFIG_SYS_FSL_PBL_RCW \
-	board/freescale/ls1046aqds/ls1046aqds_rcw_sd_qspi.cfg
-#else
-#define CONFIG_SYS_FSL_PBL_RCW \
-	board/freescale/ls1046aqds/ls1046aqds_rcw_sd_ifc.cfg
-#endif
 #endif
 
 /* IFC */
@@ -103,13 +69,8 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 
 /*
  * IFC Definitions
@@ -158,7 +119,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * NAND Flash Definitions
  */
-#define CONFIG_NAND_FSL_IFC
 
 #define CONFIG_SYS_NAND_BASE		0x7e800000
 #define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
@@ -178,8 +138,6 @@ unsigned long get_board_ddr_clk(void);
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(64))	/* 64 Pages Per Block */
 
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x7) | \
 					FTIM0_NAND_TWP(0x18)   | \
 					FTIM0_NAND_TWCHT(0x7) | \
@@ -196,20 +154,16 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
-
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(256 * 1024)
 #endif
 
 #ifdef CONFIG_NAND_BOOT
 #define CONFIG_SPL_PAD_TO		0x40000		/* block aligned */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
 #endif
 
 #if defined(CONFIG_TFABOOT) || \
 	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_QIXIS_I2C_ACCESS
-#define CONFIG_SYS_I2C_EARLY_INIT
 #endif
 
 /*
@@ -399,8 +353,6 @@ unsigned long get_board_ddr_clk(void);
  * Miscellaneous configurable options
  */
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_SYS_INIT_SP_OFFSET \
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
@@ -409,8 +361,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Environment
  */
-
-#define CONFIG_CMDLINE_TAG
 
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT

@@ -7,7 +7,7 @@
 # when kernel configuration changes (which is what happens when
 # .config is included by main Makefile.
 # ---------------------------------------------------------------------------
-# fixdep: 	 Used to generate dependency information during build process
+# fixdep:	 Used to generate dependency information during build process
 
 hostprogs-y	:= fixdep
 always		:= $(hostprogs-y)

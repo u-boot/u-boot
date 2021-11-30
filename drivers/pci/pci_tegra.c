@@ -1092,7 +1092,7 @@ static const struct tegra_pcie_soc pci_tegra_soc[] = {
 	},
 };
 
-static int pci_tegra_ofdata_to_platdata(struct udevice *dev)
+static int pci_tegra_of_to_plat(struct udevice *dev)
 {
 	struct tegra_pcie *pcie = dev_get_priv(dev);
 	enum tegra_pci_id id;
@@ -1197,7 +1197,7 @@ U_BOOT_DRIVER(pci_tegra) = {
 	.id	= UCLASS_PCI,
 	.of_match = pci_tegra_ids,
 	.ops	= &pci_tegra_ops,
-	.ofdata_to_platdata = pci_tegra_ofdata_to_platdata,
+	.of_to_plat = pci_tegra_of_to_plat,
 	.probe	= pci_tegra_probe,
-	.priv_auto_alloc_size = sizeof(struct tegra_pcie),
+	.priv_auto	= sizeof(struct tegra_pcie),
 };

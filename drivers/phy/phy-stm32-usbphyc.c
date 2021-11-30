@@ -3,6 +3,8 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_PHY
+
 #include <common.h>
 #include <clk.h>
 #include <div64.h>
@@ -98,8 +100,8 @@ static int stm32_usbphyc_pll_init(struct stm32_usbphyc *usbphyc)
 	u32 usbphyc_pll;
 
 	if ((clk_rate < PLL_INFF_MIN_RATE) || (clk_rate > PLL_INFF_MAX_RATE)) {
-		pr_debug("%s: input clk freq (%dHz) out of range\n",
-			 __func__, clk_rate);
+		log_debug("input clk freq (%dHz) out of range\n",
+			  clk_rate);
 		return -EINVAL;
 	}
 
@@ -116,8 +118,8 @@ static int stm32_usbphyc_pll_init(struct stm32_usbphyc *usbphyc)
 
 	writel(usbphyc_pll, usbphyc->base + STM32_USBPHYC_PLL);
 
-	pr_debug("%s: input clk freq=%dHz, ndiv=%d, frac=%d\n", __func__,
-		 clk_rate, pll_params.ndiv, pll_params.frac);
+	log_debug("input clk freq=%dHz, ndiv=%d, frac=%d\n",
+		  clk_rate, pll_params.ndiv, pll_params.frac);
 
 	return 0;
 }
@@ -154,7 +156,7 @@ static int stm32_usbphyc_phy_init(struct phy *phy)
 		     true : false;
 	int ret;
 
-	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
 	/* Check if one phy port has already configured the pll */
 	if (pllen && stm32_usbphyc_is_init(usbphyc))
 		goto initialized;
@@ -200,7 +202,7 @@ static int stm32_usbphyc_phy_exit(struct phy *phy)
 	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
 	int ret;
 
-	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
 	usbphyc_phy->init = false;
 
 	/* Check if other phy port requires pllen */
@@ -239,7 +241,7 @@ static int stm32_usbphyc_phy_power_on(struct phy *phy)
 	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
 	int ret;
 
-	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
 	if (usbphyc_phy->vdd) {
 		ret = regulator_set_enable(usbphyc_phy->vdd, true);
 		if (ret)
@@ -262,7 +264,7 @@ static int stm32_usbphyc_phy_power_off(struct phy *phy)
 	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
 	int ret;
 
-	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
 	usbphyc_phy->powered = false;
 
 	if (stm32_usbphyc_is_powered(usbphyc))
@@ -337,8 +339,8 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 {
 	struct stm32_usbphyc *usbphyc = dev_get_priv(dev);
 	struct reset_ctl reset;
-	ofnode node;
-	int i, ret;
+	ofnode node, connector;
+	int ret;
 
 	usbphyc->base = dev_read_addr(dev);
 	if (usbphyc->base == FDT_ADDR_T_NONE)
@@ -376,14 +378,18 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 		return ret;
 	}
 
-	/*
-	 * parse all PHY subnodes in order to populate regulator associated
-	 * to each PHY port
-	 */
-	node = dev_read_first_subnode(dev);
-	for (i = 0; i < MAX_PHYS; i++) {
-		struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + i;
+	/* parse all PHY subnodes to populate regulator associated to each PHY port */
+	dev_for_each_subnode(node, dev) {
+		fdt_addr_t phy_id;
+		struct stm32_usbphyc_phy *usbphyc_phy;
 
+		phy_id = ofnode_read_u32_default(node, "reg", FDT_ADDR_T_NONE);
+		if (phy_id >= MAX_PHYS) {
+			dev_err(dev, "invalid reg value %lx for %s\n",
+				phy_id, ofnode_get_name(node));
+			return -ENOENT;
+		}
+		usbphyc_phy = usbphyc->phys + phy_id;
 		usbphyc_phy->init = false;
 		usbphyc_phy->powered = false;
 		ret = stm32_usbphyc_get_regulator(node, "phy-supply",
@@ -393,12 +399,12 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 			return ret;
 		}
 
-		ret = stm32_usbphyc_get_regulator(node, "vbus-supply",
-						  &usbphyc_phy->vbus);
-		if (ret)
-			usbphyc_phy->vbus = NULL;
-
-		node = dev_read_next_subnode(node);
+		usbphyc_phy->vbus = NULL;
+		connector = ofnode_find_subnode(node, "connector");
+		if (ofnode_valid(connector)) {
+			ret = stm32_usbphyc_get_regulator(connector, "vbus-supply",
+							  &usbphyc_phy->vbus);
+		}
 	}
 
 	/* Check if second port has to be used for host controller */
@@ -419,5 +425,5 @@ U_BOOT_DRIVER(stm32_usb_phyc) = {
 	.of_match = stm32_usbphyc_of_match,
 	.ops = &stm32_usbphyc_phy_ops,
 	.probe = stm32_usbphyc_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32_usbphyc),
+	.priv_auto	= sizeof(struct stm32_usbphyc),
 };

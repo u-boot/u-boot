@@ -128,38 +128,36 @@ static int console_truetype_set_row(struct udevice *dev, uint row, int clr)
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	void *end, *line;
-	int pixels = priv->font_size * vid_priv->line_length;
-	int i, ret;
+	int ret;
 
 	line = vid_priv->fb + row * priv->font_size * vid_priv->line_length;
+	end = line + priv->font_size * vid_priv->line_length;
+
 	switch (vid_priv->bpix) {
 #ifdef CONFIG_VIDEO_BPP8
 	case VIDEO_BPP8: {
-		uint8_t *dst = line;
+		u8 *dst;
 
-		for (i = 0; i < pixels; i++)
-			*dst++ = clr;
-		end = dst;
+		for (dst = line; dst < (u8 *)end; ++dst)
+			*dst = clr;
 		break;
 	}
 #endif
 #ifdef CONFIG_VIDEO_BPP16
 	case VIDEO_BPP16: {
-		uint16_t *dst = line;
+		u16 *dst = line;
 
-		for (i = 0; i < pixels; i++)
-			*dst++ = clr;
-		end = dst;
+		for (dst = line; dst < (u16 *)end; ++dst)
+			*dst = clr;
 		break;
 	}
 #endif
 #ifdef CONFIG_VIDEO_BPP32
 	case VIDEO_BPP32: {
-		uint32_t *dst = line;
+		u32 *dst = line;
 
-		for (i = 0; i < pixels; i++)
-			*dst++ = clr;
-		end = dst;
+		for (dst = line; dst < (u32 *)end; ++dst)
+			*dst = clr;
 		break;
 	}
 #endif
@@ -588,5 +586,5 @@ U_BOOT_DRIVER(vidconsole_truetype) = {
 	.id	= UCLASS_VIDEO_CONSOLE,
 	.ops	= &console_truetype_ops,
 	.probe	= console_truetype_probe,
-	.priv_auto_alloc_size	= sizeof(struct console_tt_priv),
+	.priv_auto	= sizeof(struct console_tt_priv),
 };

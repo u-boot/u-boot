@@ -45,43 +45,45 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 	bool reset = false;
 	struct image_header_s header;
 	struct stm32prog_data *data;
-	u32 uimage, dtb;
 
 	if (argc < 3 ||  argc > 5)
 		return CMD_RET_USAGE;
 
-	if (!strcmp(argv[1], "usb"))
+	if (IS_ENABLED(CONFIG_CMD_STM32PROG_USB) && !strcmp(argv[1], "usb"))
 		link = LINK_USB;
-	else if (!strcmp(argv[1], "serial"))
+	else if (IS_ENABLED(CONFIG_CMD_STM32PROG_SERIAL) && !strcmp(argv[1], "serial"))
 		link = LINK_SERIAL;
 
 	if (link == LINK_UNDEFINED) {
-		pr_err("not supported link=%s\n", argv[1]);
+		log_err("not supported link=%s\n", argv[1]);
 		return CMD_RET_USAGE;
 	}
 
-	dev = (int)simple_strtoul(argv[2], NULL, 10);
+	dev = (int)dectoul(argv[2], NULL);
 
 	addr = STM32_DDR_BASE;
 	size = 0;
 	if (argc > 3) {
-		addr = simple_strtoul(argv[3], NULL, 16);
+		addr = hextoul(argv[3], NULL);
 		if (!addr)
 			return CMD_RET_FAILURE;
 	}
 	if (argc > 4)
-		size = simple_strtoul(argv[4], NULL, 16);
+		size = hextoul(argv[4], NULL);
 
 	/* check STM32IMAGE presence */
-	if (size == 0 &&
-	    !stm32prog_header_check((struct raw_header_s *)addr, &header)) {
-		size = header.image_length + BL_HEADER_SIZE;
+	if (size == 0) {
+		stm32prog_header_check((struct raw_header_s *)addr, &header);
+		if (header.type == HEADER_STM32IMAGE) {
+			size = header.image_length + BL_HEADER_SIZE;
 
-		/* uImage detected in STM32IMAGE, execute the script */
-		if (IMAGE_FORMAT_LEGACY ==
-		    genimg_get_format((void *)(addr + BL_HEADER_SIZE)))
-			return image_source_script(addr + BL_HEADER_SIZE,
-						   "script@1");
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
+			/* uImage detected in STM32IMAGE, execute the script */
+			if (IMAGE_FORMAT_LEGACY ==
+			    genimg_get_format((void *)(addr + BL_HEADER_SIZE)))
+				return image_source_script(addr + BL_HEADER_SIZE, "script@1");
+#endif
+		}
 	}
 
 	if (IS_ENABLED(CONFIG_DM_VIDEO))
@@ -90,14 +92,14 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 	data = (struct stm32prog_data *)malloc(sizeof(*data));
 
 	if (!data) {
-		pr_err("Alloc failed.");
+		log_err("Alloc failed.");
 		return CMD_RET_FAILURE;
 	}
 	stm32prog_data = data;
 
 	ret = stm32prog_init(data, addr, size);
 	if (ret)
-		printf("Invalid or missing layout file.");
+		log_debug("Invalid or missing layout file at 0x%lx.\n", addr);
 
 	/* prepare DFU for device read/write */
 	ret = stm32prog_dfu_init(data);
@@ -118,21 +120,23 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		goto cleanup;
 	}
 
-	uimage = data->uimage;
-	dtb = data->dtb;
-
 	stm32prog_clean(data);
 	free(stm32prog_data);
 	stm32prog_data = NULL;
 
 	puts("Download done\n");
 
-	if (uimage) {
+	if (data->uimage) {
 		char boot_addr_start[20];
 		char dtb_addr[20];
+		char initrd_addr[40];
 		char *bootm_argv[5] = {
 			"bootm", boot_addr_start, "-", dtb_addr, NULL
 		};
+		u32 uimage = data->uimage;
+		u32 dtb = data->dtb;
+		u32 initrd = data->initrd;
+
 		if (!dtb)
 			bootm_argv[3] = env_get("fdtcontroladdr");
 		else
@@ -141,8 +145,15 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		snprintf(boot_addr_start, sizeof(boot_addr_start) - 1,
 			 "0x%x", uimage);
-		printf("Booting kernel at %s - %s...\n\n\n",
-		       boot_addr_start, bootm_argv[3]);
+
+		if (initrd) {
+			snprintf(initrd_addr, sizeof(initrd_addr) - 1, "0x%x:0x%x",
+				 initrd, data->initrd_size);
+			bootm_argv[2] = initrd_addr;
+		}
+
+		printf("Booting kernel at %s %s %s...\n\n\n",
+		       boot_addr_start, bootm_argv[2], bootm_argv[3]);
 		/* Try bootm for legacy and FIT format image */
 		if (genimg_get_format((void *)uimage) != IMAGE_FORMAT_INVALID)
 			do_bootm(cmdtp, 0, 4, bootm_argv);
@@ -166,14 +177,15 @@ cleanup:
 }
 
 U_BOOT_CMD(stm32prog, 5, 0, do_stm32prog,
+	   "start communication with tools STM32Cubeprogrammer",
 	   "<link> <dev> [<addr>] [<size>]\n"
-	   "start communication with tools STM32Cubeprogrammer on <link> with Flashlayout at <addr>",
-	   "<link> = serial|usb\n"
-	   "<dev>  = device instance\n"
-	   "<addr> = address of flashlayout\n"
-	   "<size> = size of flashlayout\n"
+	   "  <link> = serial|usb\n"
+	   "  <dev>  = device instance\n"
+	   "  <addr> = address of flashlayout\n"
+	   "  <size> = size of flashlayout (optional for image with STM32 header)\n"
 );
 
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
 bool stm32prog_get_tee_partitions(void)
 {
 	if (stm32prog_data)
@@ -181,6 +193,7 @@ bool stm32prog_get_tee_partitions(void)
 
 	return false;
 }
+#endif
 
 bool stm32prog_get_fsbl_nor(void)
 {

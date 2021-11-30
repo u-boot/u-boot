@@ -139,7 +139,7 @@ overview on the whole Android 10 boot process can be found at [8]_.
 C API for working with Android Boot Image format
 ------------------------------------------------
 
-.. kernel-doc:: common/image-android.c
+.. kernel-doc:: boot/image-android.c
    :internal:
 
 References

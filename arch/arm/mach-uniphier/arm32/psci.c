@@ -158,5 +158,5 @@ s32 __secure psci_cpu_on(u32 function_id, u32 cpuid, u32 entry_point,
 
 void __secure psci_system_reset(void)
 {
-	reset_cpu(0);
+	reset_cpu();
 }

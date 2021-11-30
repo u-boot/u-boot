@@ -13,7 +13,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc83xx.h>
-#include <version.h>
 
 #define CONFIG_83XX	1		/* needed for Linux kernel header files*/
 
@@ -91,12 +90,6 @@
  * cannot be first in flash like it is in many other processors.
  */
 	.long	0x27051956		/* U-Boot Magic Number */
-
-	.globl	version_string
-version_string:
-	.ascii U_BOOT_VERSION_STRING, "\0"
-
-	.align 2
 
 	.globl enable_addr_trans
 enable_addr_trans:

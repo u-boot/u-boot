@@ -65,6 +65,8 @@
 #define  SDHCI_CARD_STATE_STABLE	BIT(17)
 #define  SDHCI_CARD_DETECT_PIN_LEVEL	BIT(18)
 #define  SDHCI_WRITE_PROTECT	BIT(19)
+#define  SDHCI_DATA_LVL_MASK	0x00F00000
+#define   SDHCI_DATA_0_LVL_MASK BIT(20)
 
 #define SDHCI_HOST_CONTROL	0x28
 #define  SDHCI_CTRL_LED		BIT(0)
@@ -440,10 +442,10 @@ static inline u8 sdhci_readb(struct sdhci_host *host, int reg)
  * ...
  *
  * Inside U_BOOT_DRIVER():
- *	.platdata_auto_alloc_size = sizeof(struct msm_sdhc_plat),
+ *	.plat_auto	= sizeof(struct msm_sdhc_plat),
  *
  * To access platform data:
- *	struct msm_sdhc_plat *plat = dev_get_platdata(dev);
+ *	struct msm_sdhc_plat *plat = dev_get_plat(dev);
  *
  * See msm_sdhci.c for an example.
  *

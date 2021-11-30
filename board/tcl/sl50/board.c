@@ -23,6 +23,7 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
@@ -39,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 
 static const struct ddr_data ddr3_sl50_data = {
 	.datardsratio0 = MT41K256M16HA125E_RD_DQS,
@@ -160,7 +161,7 @@ void am33xx_spl_board_init(void)
 const struct dpll_params *get_dpll_ddr_params(void)
 {
 	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	return &dpll_ddr_sl50;
 }
@@ -249,7 +250,7 @@ int board_late_init(void)
 #endif
 
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
 static void cpsw_control(int enabled)
 {
 	/* VTP can be added here */
@@ -301,7 +302,7 @@ static struct cpsw_platform_data cpsw_data = {
  * Build in only these cases to avoid warnings about unused variables
  * when we build an SPL that has neither option but full U-Boot will.
  */
-#if ((defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USB_ETHER)) \
+#if ((defined(CONFIG_SPL_ETH) || defined(CONFIG_SPL_USB_ETHER)) \
 		&& defined(CONFIG_SPL_BUILD)) || \
 	((defined(CONFIG_DRIVER_TI_CPSW) || \
 	  defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)) && \
@@ -323,7 +324,7 @@ int board_eth_init(struct bd_info *bis)
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
 	if (!env_get("ethaddr")) {
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 

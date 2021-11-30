@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <fsl_ddr_sdram.h>
 

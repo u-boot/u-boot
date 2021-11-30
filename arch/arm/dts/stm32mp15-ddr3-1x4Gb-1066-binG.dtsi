@@ -15,7 +15,7 @@
  * Save Date: 2020.02.20, save Time: 18:45:20
  */
 #define DDR_MEM_COMPATIBLE ddr3-1066-888-bin-g-1x4gb-533mhz
-#define DDR_MEM_NAME	"DDR3-DDR3L 16bits 533000Khz"
+#define DDR_MEM_NAME	"DDR3-DDR3L 16bits 533000kHz"
 #define DDR_MEM_SPEED	533000
 #define DDR_MEM_SIZE	0x20000000
 

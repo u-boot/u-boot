@@ -12,4 +12,3 @@ extern int stv0991_pinmux_config(enum periph_id);
 extern int clock_setup(enum periph_clock);
 
 #endif
-

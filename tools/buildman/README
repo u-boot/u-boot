@@ -1010,14 +1010,14 @@ For example:
     ...
     43: Convert CONFIG_SPL_USBETH_SUPPORT to Kconfig
     arm:
-    + u-boot.cfg: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_NET_SUPPORT=1
-    + u-boot-spl.cfg: CONFIG_SPL_MMC_SUPPORT=1 CONFIG_SPL_NAND_SUPPORT=1
-    + all: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_MMC_SUPPORT=1 CONFIG_SPL_NAND_SUPPORT=1 CONFIG_SPL_NET_SUPPORT=1
+    + u-boot.cfg: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_NET=1
+    + u-boot-spl.cfg: CONFIG_SPL_MMC=1 CONFIG_SPL_NAND_SUPPORT=1
+    + all: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_MMC=1 CONFIG_SPL_NAND_SUPPORT=1 CONFIG_SPL_NET=1
     am335x_evm_usbspl :
-    + u-boot.cfg: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_NET_SUPPORT=1
-    + u-boot-spl.cfg: CONFIG_SPL_MMC_SUPPORT=1 CONFIG_SPL_NAND_SUPPORT=1
-    + all: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_MMC_SUPPORT=1 CONFIG_SPL_NAND_SUPPORT=1 CONFIG_SPL_NET_SUPPORT=1
-    44: Convert CONFIG_SPL_USB_HOST_SUPPORT to Kconfig
+    + u-boot.cfg: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_NET=1
+    + u-boot-spl.cfg: CONFIG_SPL_MMC=1 CONFIG_SPL_NAND_SUPPORT=1
+    + all: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_MMC=1 CONFIG_SPL_NAND_SUPPORT=1 CONFIG_SPL_NET=1
+    44: Convert CONFIG_SPL_USB_HOST to Kconfig
     ...
 
 This shows that commit 44 enabled three new options for the board
@@ -1128,6 +1128,11 @@ If there are both warnings and errors, errors win, so buildman returns 100.
 The -y option is provided (for use with -s) to ignore the bountiful device-tree
 warnings. Similarly, -Y tells buildman to ignore the migration warnings.
 
+Sometimes you might get an error in a thread that is not handled by buildman,
+perhaps due to a failure of a tool that it calls. You might see the output, but
+then buildman hangs. Failing to handle any eventuality is a bug in buildman and
+should be reported. But you can use -T0 to disable threading and hopefully
+figure out the root cause of the build failure.
 
 Build summary
 =============

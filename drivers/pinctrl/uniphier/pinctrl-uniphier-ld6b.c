@@ -153,6 +153,6 @@ U_BOOT_DRIVER(uniphier_ld6b_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(uniphier_ld6b_pinctrl_match),
 	.probe = uniphier_ld6b_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_pinctrl_priv),
+	.priv_auto	= sizeof(struct uniphier_pinctrl_priv),
 	.ops = &uniphier_pinctrl_ops,
 };

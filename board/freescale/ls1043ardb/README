@@ -17,7 +17,7 @@ SoC overview.
       - PCI Express 2.0 with two PCIe connectors supporting: miniPCIe card and
         standard PCIe card
       - QSGMII with x4 RJ45 connector
-      - XFI with x1 RJ45 connector
+      - 10GBase-R with x1 RJ45 connector
  - DDR Controller
      - 2GB 32bits DDR4 SDRAM. Support rates of up to 1600MT/s
  -IFC/Local Bus

@@ -8,6 +8,7 @@
 #include <env.h>
 #include <env_internal.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>
 
@@ -163,19 +164,6 @@ static struct env_driver *env_driver_lookup(enum env_operation op, int prio)
 	}
 
 	return drv;
-}
-
-__weak int env_get_char_spec(int index)
-{
-	return *(uchar *)(gd->env_addr + index);
-}
-
-int env_get_char(int index)
-{
-	if (gd->env_valid == ENV_INVALID)
-		return default_environment[index];
-	else
-		return env_get_char_spec(index);
 }
 
 int env_load(void)
@@ -334,6 +322,9 @@ int env_init(void)
 
 		debug("%s: Environment %s init done (ret=%d)\n", __func__,
 		      drv->name, ret);
+
+		if (gd->env_valid == ENV_INVALID)
+			ret = -ENOENT;
 	}
 
 	if (!prio)

@@ -12,22 +12,11 @@
  */
 #define CONFIG_CUSTOMER_BOARD_SUPPORT
 
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-
 /*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.
  */
-
-#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
-
-#define CONFIG_LOADADDR 		1000000
-
-/*
- * SDIO/MMC Card Configuration
- */
-#define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
 
 /*
  * SATA/SCSI/AHCI configuration
@@ -37,9 +26,6 @@
 #define CONFIG_SYS_SCSI_MAX_LUN		1
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 					 CONFIG_SYS_SCSI_MAX_LUN)
-
-/* USB/EHCI configuration */
-#define CONFIG_EHCI_IS_TDI
 
 /* Environment in SPI NOR flash */
 
@@ -86,22 +72,8 @@
 #define CONFIG_SPL_STACK		(0x40000000 + ((212 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-
-#if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SPI_NOR_FLASH
-/* SPL related SPI defines */
-#define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
-#endif
-
 #if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SDIO_MMC_CARD
 /* SPL related MMC defines */
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION 1
-#define CONFIG_SYS_MMC_U_BOOT_OFFS		(168 << 10)
-#define CONFIG_SYS_U_BOOT_OFFS			CONFIG_SYS_MMC_U_BOOT_OFFS
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	(CONFIG_SYS_U_BOOT_OFFS / 512)
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
 #endif
@@ -150,7 +122,7 @@
 		" gpio clear ${gpio1}; gpio set ${gpio2};"			\
 		" fi; sleep 0.12; done\0"
 
-#define CONFIG_NFSBOOTCOMMAND								\
+#define NFSBOOTCOMMAND								\
 	"setenv bootargs root=/dev/nfs rw "						\
 	"nfsroot=${serverip}:${rootpath} "						\
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:${netdev}:off "	\
@@ -158,7 +130,7 @@
 	"tftpboot ${bootfile_addr} ${bootfile}; "						\
 	"bootm ${bootfile_addr}"
 
-#define CONFIG_MMCBOOTCOMMAND					\
+#define MMCBOOTCOMMAND					\
 	"setenv bootargs root=/dev/mmcblk0p3 rw rootwait "	\
 	"console=${consoledev},${baudrate} ${othbootargs}; "	\
 	"ext2load mmc 0:2 ${bootfile_addr} ${bootfile}; "	\

@@ -10,6 +10,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/compat.h>
 #include <malloc.h>
@@ -236,7 +237,7 @@ static int pic32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 			  const void *tx_buf, void *rx_buf,
 			  unsigned long flags)
 {
-	struct dm_spi_slave_platdata *slave_plat;
+	struct dm_spi_slave_plat *slave_plat;
 	struct udevice *bus = slave->parent;
 	struct pic32_spi_priv *priv;
 	int len = bitlen / 8;
@@ -244,10 +245,10 @@ static int pic32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 	ulong tbase;
 
 	priv = dev_get_priv(bus);
-	slave_plat = dev_get_parent_platdata(slave);
+	slave_plat = dev_get_parent_plat(slave);
 
 	debug("spi_xfer: bus:%i cs:%i flags:%lx\n",
-	      bus->seq, slave_plat->cs, flags);
+	      dev_seq(bus), slave_plat->cs, flags);
 	debug("msg tx %p, rx %p submitted of %d byte(s)\n",
 	      tx_buf, rx_buf, len);
 
@@ -384,7 +385,7 @@ static int pic32_spi_probe(struct udevice *bus)
 	fdt_size_t size;
 	int ret;
 
-	debug("%s: %d, bus: %i\n", __func__, __LINE__, bus->seq);
+	debug("%s: %d, bus: %i\n", __func__, __LINE__, dev_seq(bus));
 	addr = fdtdec_get_addr_size(gd->fdt_blob, node, "reg", &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
@@ -444,6 +445,6 @@ U_BOOT_DRIVER(pic32_spi) = {
 	.id		= UCLASS_SPI,
 	.of_match	= pic32_spi_ids,
 	.ops		= &pic32_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct pic32_spi_priv),
+	.priv_auto	= sizeof(struct pic32_spi_priv),
 	.probe		= pic32_spi_probe,
 };

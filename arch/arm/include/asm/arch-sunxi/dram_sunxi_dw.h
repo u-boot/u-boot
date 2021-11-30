@@ -215,12 +215,17 @@ struct sunxi_mctl_ctl_reg {
 #define NR_OF_BYTE_LANES	(32 / BITS_PER_BYTE)
 /* The eight data lines (DQn) plus DM, DQS and DQSN */
 #define LINES_PER_BYTE_LANE	(BITS_PER_BYTE + 3)
-struct dram_para {
+
+struct rank_para {
 	u16 page_size;
-	u8 bus_full_width;
-	u8 dual_rank;
 	u8 row_bits;
 	u8 bank_bits;
+};
+
+struct dram_para {
+	u8 dual_rank;
+	u8 bus_full_width;
+	struct rank_para ranks[2];
 	const u8 dx_read_delays[NR_OF_BYTE_LANES][LINES_PER_BYTE_LANE];
 	const u8 dx_write_delays[NR_OF_BYTE_LANES][LINES_PER_BYTE_LANE];
 	const u8 ac_delays[31];

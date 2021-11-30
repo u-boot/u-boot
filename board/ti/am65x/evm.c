@@ -15,6 +15,7 @@
 #include <net.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/omap_common.h>
@@ -37,6 +38,10 @@ enum {
 
 /* Max number of MAC addresses that are parsed/processed per daughter card */
 #define DAUGHTER_CARD_NO_OF_MAC_ADDR	8
+
+/* Regiter that controls the SERDES0 lane and clock assignment */
+#define CTRLMMR_SERDES0_CTRL    0x00104080
+#define PCIE_LANE0              0x1
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -311,6 +316,18 @@ static int probe_daughtercards(void)
 						      cards[i].eth_offset + j,
 						      (uchar *)mac_addr[j]);
 		}
+
+		/*
+		 * It has been observed that setting SERDES0 lane mux to USB prevents USB
+		 * 2.0 operation on USB0. Setting SERDES0 lane mux to non-USB when USB0 is
+		 * used in USB 2.0 only mode solves this issue. For USB3.0+2.0 operation
+		 * this issue is not present.
+		 *
+		 * Implement this workaround by writing 1 to LANE_FUNC_SEL field in
+		 * CTRLMMR_SERDES0_CTRL register.
+		 */
+		if (!strncmp(ep.name, "SER-PCIE2LEVM", sizeof(ep.name)))
+			writel(PCIE_LANE0, CTRLMMR_SERDES0_CTRL);
 
 		/* Skip if no overlays are to be added */
 		if (!strlen(cards[i].dtbo_name))

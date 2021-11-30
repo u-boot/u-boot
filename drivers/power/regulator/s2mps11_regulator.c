@@ -305,9 +305,9 @@ static int buck_set_mode(struct udevice *dev, int mode)
 
 static int s2mps11_buck_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	uc_pdata->type = REGULATOR_TYPE_BUCK;
 	uc_pdata->mode = s2mps11_buck_modes;
@@ -581,9 +581,9 @@ static int ldo_set_mode(struct udevice *dev, int mode)
 
 static int s2mps11_ldo_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	uc_pdata->type = REGULATOR_TYPE_LDO;
 	uc_pdata->mode = s2mps11_ldo_modes;
 	uc_pdata->mode_count = ARRAY_SIZE(s2mps11_ldo_modes);

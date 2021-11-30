@@ -214,7 +214,7 @@ void rtc_reset(void)
 	 * the M41T60 documentation for further details.
 	 */
 	if (s) {
-		unsigned long const l = simple_strtoul(s, 0, 16);
+		unsigned long const l = hextoul(s, 0);
 
 		if (l <= 0x3F) {
 			if ((data[RTC_CTRL] & 0x3F) != l) {

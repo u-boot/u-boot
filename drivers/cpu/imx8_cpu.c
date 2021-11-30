@@ -7,6 +7,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <thermal.h>
+#include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/sys_proto.h>
@@ -16,7 +17,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct cpu_imx_platdata {
+struct cpu_imx_plat {
 	const char *name;
 	const char *rev;
 	const char *type;
@@ -55,7 +56,7 @@ const char *get_imx8_rev(u32 rev)
 
 static void set_core_data(struct udevice *dev)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_plat *plat = dev_get_plat(dev);
 
 	if (device_is_compatible(dev, "arm,cortex-a35")) {
 		plat->cpu_rsrc = SC_R_A35;
@@ -73,7 +74,7 @@ static void set_core_data(struct udevice *dev)
 }
 
 #if IS_ENABLED(CONFIG_IMX_SCU_THERMAL)
-static int cpu_imx_get_temp(struct cpu_imx_platdata *plat)
+static int cpu_imx_get_temp(struct cpu_imx_plat *plat)
 {
 	struct udevice *thermal_dev;
 	int cpu_tmp, ret;
@@ -94,7 +95,7 @@ static int cpu_imx_get_temp(struct cpu_imx_platdata *plat)
 	return cpu_tmp;
 }
 #else
-static int cpu_imx_get_temp(struct cpu_imx_platdata *plat)
+static int cpu_imx_get_temp(struct cpu_imx_plat *plat)
 {
 	return 0;
 }
@@ -102,7 +103,7 @@ static int cpu_imx_get_temp(struct cpu_imx_platdata *plat)
 
 int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_plat *plat = dev_get_plat(dev);
 	int ret, temp;
 
 	if (size < 100)
@@ -128,7 +129,7 @@ int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 
 static int cpu_imx_get_info(const struct udevice *dev, struct cpu_info *info)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_plat *plat = dev_get_plat(dev);
 
 	info->cpu_freq = plat->freq_mhz * 1000;
 	info->features = BIT(CPU_FEAT_L1_CACHE) | BIT(CPU_FEAT_MMU);
@@ -165,7 +166,7 @@ static int cpu_imx_get_vendor(const struct udevice *dev,  char *buf, int size)
 
 static int cpu_imx_is_current(struct udevice *dev)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_plat *plat = dev_get_plat(dev);
 
 	if (plat->mpidr == (read_mpidr() & 0xffff))
 		return 1;
@@ -190,7 +191,7 @@ static const struct udevice_id cpu_imx8_ids[] = {
 
 static ulong imx8_get_cpu_rate(struct udevice *dev)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_plat *plat = dev_get_plat(dev);
 	ulong rate;
 	int ret;
 
@@ -206,7 +207,7 @@ static ulong imx8_get_cpu_rate(struct udevice *dev)
 
 static int imx8_cpu_probe(struct udevice *dev)
 {
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct cpu_imx_plat *plat = dev_get_plat(dev);
 	u32 cpurev;
 
 	set_core_data(dev);
@@ -230,6 +231,6 @@ U_BOOT_DRIVER(cpu_imx8_drv) = {
 	.of_match	= cpu_imx8_ids,
 	.ops		= &cpu_imx8_ops,
 	.probe		= imx8_cpu_probe,
-	.platdata_auto_alloc_size = sizeof(struct cpu_imx_platdata),
+	.plat_auto	= sizeof(struct cpu_imx_plat),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

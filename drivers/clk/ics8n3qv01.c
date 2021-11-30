@@ -226,5 +226,5 @@ U_BOOT_DRIVER(ics8n3qv01) = {
 	.ops		= &ics8n3qv01_ops,
 	.of_match       = ics8n3qv01_ids,
 	.probe		= ics8n3qv01_probe,
-	.priv_auto_alloc_size	= sizeof(struct ics8n3qv01_priv),
+	.priv_auto	= sizeof(struct ics8n3qv01_priv),
 };

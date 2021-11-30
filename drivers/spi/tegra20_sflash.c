@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <log.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
@@ -87,9 +88,9 @@ int tegra20_sflash_cs_info(struct udevice *bus, unsigned int cs,
 		return 0;
 }
 
-static int tegra20_sflash_ofdata_to_platdata(struct udevice *bus)
+static int tegra20_sflash_of_to_plat(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = bus->platdata;
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -116,7 +117,7 @@ static int tegra20_sflash_ofdata_to_platdata(struct udevice *bus)
 
 static int tegra20_sflash_probe(struct udevice *bus)
 {
-	struct tegra_spi_platdata *plat = dev_get_platdata(bus);
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	priv->regs = (struct spi_regs *)plat->base;
@@ -173,7 +174,7 @@ static int tegra20_sflash_claim_bus(struct udevice *dev)
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -192,7 +193,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra_spi_plat *pdata = dev_get_plat(bus);
 	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	/* CS is negated on Tegra, so drive a 0 to get a 1 */
@@ -217,7 +218,7 @@ static int tegra20_sflash_xfer(struct udevice *dev, unsigned int bitlen,
 	int ret;
 
 	debug("%s: slave %u:%u dout %p din %p bitlen %u\n",
-	      __func__, bus->seq, spi_chip_select(dev), dout, din, bitlen);
+	      __func__, dev_seq(bus), spi_chip_select(dev), dout, din, bitlen);
 	if (bitlen % 8)
 		return -1;
 	num_bytes = bitlen / 8;
@@ -314,7 +315,7 @@ static int tegra20_sflash_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int tegra20_sflash_set_speed(struct udevice *bus, uint speed)
 {
-	struct tegra_spi_platdata *plat = bus->platdata;
+	struct tegra_spi_plat *plat = dev_get_plat(bus);
 	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	if (speed > plat->frequency)
@@ -353,8 +354,8 @@ U_BOOT_DRIVER(tegra20_sflash) = {
 	.id	= UCLASS_SPI,
 	.of_match = tegra20_sflash_ids,
 	.ops	= &tegra20_sflash_ops,
-	.ofdata_to_platdata = tegra20_sflash_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct tegra_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct tegra20_sflash_priv),
+	.of_to_plat = tegra20_sflash_of_to_plat,
+	.plat_auto	= sizeof(struct tegra_spi_plat),
+	.priv_auto	= sizeof(struct tegra20_sflash_priv),
 	.probe	= tegra20_sflash_probe,
 };

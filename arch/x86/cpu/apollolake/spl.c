@@ -3,6 +3,8 @@
  * Copyright 2019 Google LLC
  */
 
+#define LOG_CATEGORY LOGC_BOOT
+
 #include <common.h>
 #include <binman_sym.h>
 #include <bootstage.h>
@@ -33,12 +35,11 @@ static int rom_load_image(struct spl_image_info *spl_image,
 	int ret;
 
 	spl_image->size = CONFIG_SYS_MONITOR_LEN;  /* We don't know SPL size */
-	spl_image->entry_point = spl_phase() == PHASE_TPL ?
-		CONFIG_SPL_TEXT_BASE : CONFIG_SYS_TEXT_BASE;
+	spl_image->entry_point = spl_get_image_text_base();
 	spl_image->load_addr = spl_image->entry_point;
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
-	debug("Reading from mapped SPI %lx, size %lx", spl_pos, spl_size);
+	log_debug("Reading from mapped SPI %lx, size %lx\n", spl_pos, spl_size);
 
 	if (CONFIG_IS_ENABLED(SPI_FLASH_SUPPORT)) {
 		ret = uclass_find_first_device(UCLASS_SPI_FLASH, &dev);
@@ -56,7 +57,8 @@ static int rom_load_image(struct spl_image_info *spl_image,
 			return ret;
 	}
 	spl_pos += map_base & ~0xff000000;
-	debug(", base %lx, pos %lx\n", map_base, spl_pos);
+	log_debug(", base %lx, pos %lx, load %lx\n", map_base, spl_pos,
+		  spl_image->load_addr);
 	bootstage_start(BOOTSTAGE_ID_ACCUM_MMAP_SPI, "mmap_spi");
 	memcpy((void *)spl_image->load_addr, (void *)spl_pos, spl_size);
 	cpu_flush_l1d_to_l2();
@@ -83,33 +85,6 @@ static int apl_flash_probe(struct udevice *dev)
 	return spi_flash_std_probe(dev);
 }
 
-/*
- * Manually set the parent of the SPI flash to SPI, since dtoc doesn't. We also
- * need to allocate the parent_platdata since by the time this function is
- * called device_bind() has already gone past that step.
- */
-static int apl_flash_bind(struct udevice *dev)
-{
-	if (CONFIG_IS_ENABLED(OF_PLATDATA) &&
-	    !CONFIG_IS_ENABLED(OF_PLATDATA_PARENT)) {
-		struct dm_spi_slave_platdata *plat;
-		struct udevice *spi;
-		int ret;
-
-		ret = uclass_first_device_err(UCLASS_SPI, &spi);
-		if (ret)
-			return ret;
-		dev->parent = spi;
-
-		plat = calloc(sizeof(*plat), 1);
-		if (!plat)
-			return -ENOMEM;
-		dev->parent_platdata = plat;
-	}
-
-	return 0;
-}
-
 static const struct dm_spi_flash_ops apl_flash_ops = {
 	.read		= apl_flash_std_read,
 };
@@ -123,9 +98,8 @@ U_BOOT_DRIVER(winbond_w25q128fw) = {
 	.name		= "winbond_w25q128fw",
 	.id		= UCLASS_SPI_FLASH,
 	.of_match	= apl_flash_ids,
-	.bind		= apl_flash_bind,
 	.probe		= apl_flash_probe,
-	.priv_auto_alloc_size = sizeof(struct spi_flash),
+	.priv_auto	= sizeof(struct spi_nor),
 	.ops		= &apl_flash_ops,
 };
 
@@ -149,7 +123,7 @@ static int spl_fast_spi_load_image(struct spl_image_info *spl_image,
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
 	spl_pos &= ~0xff000000;
-	debug("Reading from flash %lx, size %lx\n", spl_pos, spl_size);
+	log_debug("Reading from flash %lx, size %lx\n", spl_pos, spl_size);
 	ret = spi_flash_read_dm(dev, spl_pos, spl_size,
 				(void *)spl_image->load_addr);
 	cpu_flush_l1d_to_l2();

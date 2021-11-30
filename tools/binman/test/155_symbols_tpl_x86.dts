@@ -24,7 +24,6 @@
 
 		section {
 			u-boot-tpl {
-				type = "u-boot-tpl";
 			};
 		};
 	};

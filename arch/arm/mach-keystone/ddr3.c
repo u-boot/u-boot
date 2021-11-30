@@ -345,7 +345,7 @@ void ddr3_check_ecc_int(u32 base)
 
 		if (!ecc_test) {
 			puts("Reseting the device ...\n");
-			reset_cpu(0);
+			reset_cpu();
 		}
 	}
 
@@ -445,7 +445,7 @@ void ddr3_err_reset_workaround(void)
 		tmp &= ~KS2_RSTYPE_PLL_SOFT;
 		__raw_writel(tmp, KS2_RSTCTRL_RSCFG);
 
-		reset_cpu(0);
+		reset_cpu();
 	}
 }
 #endif

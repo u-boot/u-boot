@@ -9,6 +9,7 @@
 #include <common.h>
 #include <mmc.h>
 #include <asm/arch/misc.h>
+#include <asm/unaligned.h>
 
 /* UNSTUFF_BITS macro taken from Linux Kernel: drivers/mmc/core/sd.c */
 #define UNSTUFF_BITS(resp, start, size) \
@@ -33,21 +34,22 @@ u32 msm_board_serial(void)
 	if (!mmc_dev)
 		return 0;
 
+	if (mmc_init(mmc_dev))
+		return 0;
+
 	return UNSTUFF_BITS(mmc_dev->cid, 16, 32);
 }
 
 void msm_generate_mac_addr(u8 *mac)
 {
-	int i;
-	char sn[9];
-
-	snprintf(sn, 9, "%08x", msm_board_serial());
-
-	/* fill in the mac with serialno, use locally adminstrated pool */
+	/* use locally adminstrated pool */
 	mac[0] = 0x02;
-	mac[1] = 00;
-	for (i = 3; i >= 0; i--) {
-		mac[i + 2] = simple_strtoul(&sn[2 * i], NULL, 16);
-		sn[2 * i] = 0;
-	}
+	mac[1] = 0x00;
+
+	/*
+	 * Put the 32-bit serial number in the last 32-bit of the MAC address.
+	 * Use big endian order so it is consistent with the serial number
+	 * written as a hexadecimal string, e.g. 0x1234abcd -> 02:00:12:34:ab:cd
+	 */
+	put_unaligned_be32(msm_board_serial(), &mac[2]);
 }

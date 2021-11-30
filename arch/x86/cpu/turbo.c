@@ -8,6 +8,7 @@
 #include <common.h>
 #include <log.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/msr.h>
 #include <asm/processor.h>
 #include <asm/turbo.h>
@@ -35,12 +36,15 @@ static inline void set_global_turbo_state(int state)
 }
 #endif
 
+/* gcc 7.3 does not wwant to drop strings, so use #ifdef */
+#ifndef CONFIG_TPL_BUILD
 static const char *const turbo_state_desc[] = {
 	[TURBO_UNKNOWN]		= "unknown",
 	[TURBO_UNAVAILABLE]	= "unavailable",
 	[TURBO_DISABLED]	= "available but hidden",
 	[TURBO_ENABLED]		= "available and visible"
 };
+#endif
 
 /*
  * Determine the current state of Turbo and cache it for later.
@@ -76,7 +80,9 @@ int turbo_get_state(void)
 	}
 
 	set_global_turbo_state(turbo_state);
+#ifndef CONFIG_TPL_BUILD
 	debug("Turbo is %s\n", turbo_state_desc[turbo_state]);
+#endif
 	return turbo_state;
 }
 

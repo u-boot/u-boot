@@ -10,6 +10,8 @@
 #include <pci.h>
 
 #include <linux/sizes.h>
+#include <asm/arch-fsl-layerscape/svr.h>
+#include <asm/arch-ls102xa/svr.h>
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS CONFIG_SYS_SDRAM_BASE
@@ -120,16 +122,6 @@
 
 /* CS2 */
 #define PCIE_CS2_OFFSET		0x1000 /* For PCIe without SR-IOV */
-
-#define SVR_LS102XA		0
-#define SVR_VAR_PER_SHIFT	8
-#define SVR_LS102XA_MASK	0x700
-#define SVR_LS2088A		0x870900
-#define SVR_LS2084A		0x870910
-#define SVR_LS2048A		0x870920
-#define SVR_LS2044A		0x870930
-#define SVR_LS2081A		0x870918
-#define SVR_LS2041A		0x870914
 
 /* LS1021a PCIE space */
 #define LS1021_PCIE_SPACE_OFFSET	0x4000000000ULL

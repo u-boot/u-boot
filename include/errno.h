@@ -8,7 +8,13 @@
 
 #include <linux/errno.h>
 
-extern int errno;
+#ifdef __SANDBOX__
+#define __errno_asm_label asm("__u_boot_errno")
+#else
+#define __errno_asm_label
+#endif
+
+extern int errno __errno_asm_label;
 
 #define __set_errno(val) do { errno = val; } while (0)
 

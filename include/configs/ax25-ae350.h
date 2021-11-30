@@ -12,10 +12,15 @@
 #define CONFIG_SPL_BSS_START_ADDR	0x04000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.itb"
 #endif
 #endif
+
+#define RISCV_MMODE_TIMERBASE           0xe6000000
+#define RISCV_MMODE_TIMER_FREQ          60000000
+
+#define RISCV_SMODE_TIMER_FREQ          60000000
 
 /*
  * CPU and Board Configuration Options
@@ -42,12 +47,6 @@
  */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
-/*
- * Size of malloc() pool
- * 512kB is suggested, (CONFIG_ENV_SIZE + 128 * 1024) was not enough
- */
-#define CONFIG_SYS_MALLOC_LEN   (512 << 10)
-
 /* DT blob (fdt) address */
 #define CONFIG_SYS_FDT_BASE		0x800f0000
 
@@ -73,20 +72,6 @@
 /* Init Stack Pointer */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000000 - \
 					GENERATED_GBL_DATA_SIZE)
-
-/*
- * Load address and memory test area should agree with
- * arch/riscv/config.mk. Be careful not to overwrite U-Boot itself.
- */
-#define CONFIG_SYS_LOAD_ADDR		0x100000	/* SDRAM */
-
-/*
- * memtest works on 512 MB in DRAM
- */
-
-/*
- * FLASH and environment organization
- */
 
 /* use CFI framework */
 

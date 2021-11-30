@@ -5,6 +5,7 @@
  * Copyright 2020 NXP
  */
 
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm/device.h>
@@ -88,12 +89,12 @@ static int sbsa_gwdt_expire_now(struct udevice *dev, ulong flags)
 
 static int sbsa_gwdt_probe(struct udevice *dev)
 {
-	debug("%s: Probing wdt%u (sbsa-gwdt)\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u (sbsa-gwdt)\n", __func__, dev_seq(dev));
 
 	return 0;
 }
 
-static int sbsa_gwdt_ofdata_to_platdata(struct udevice *dev)
+static int sbsa_gwdt_of_to_plat(struct udevice *dev)
 {
 	struct sbsa_gwdt_priv *priv = dev_get_priv(dev);
 
@@ -125,7 +126,7 @@ U_BOOT_DRIVER(sbsa_gwdt) = {
 	.id = UCLASS_WDT,
 	.of_match = sbsa_gwdt_ids,
 	.probe = sbsa_gwdt_probe,
-	.priv_auto_alloc_size = sizeof(struct sbsa_gwdt_priv),
-	.ofdata_to_platdata = sbsa_gwdt_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct sbsa_gwdt_priv),
+	.of_to_plat = sbsa_gwdt_of_to_plat,
 	.ops = &sbsa_gwdt_ops,
 };

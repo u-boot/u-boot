@@ -17,6 +17,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
@@ -489,9 +490,6 @@ do {									\
 #define MVPP22_SMI_MISC_CFG_REG			(MVPP22_SMI + 0x04)
 #define      MVPP22_SMI_POLLING_EN		BIT(10)
 
-#define MVPP22_SMI_PHY_ADDR_REG(port)		(MVPP22_SMI + 0x04 + \
-						 (0x4 * (port)))
-
 #define MVPP2_CAUSE_TXQ_SENT_DESC_ALL_MASK	0xff
 
 /* Descriptor ring Macros */
@@ -519,8 +517,9 @@ do {									\
 /* Net Complex */
 enum mv_netc_topology {
 	MV_NETC_GE_MAC2_SGMII		=	BIT(0),
-	MV_NETC_GE_MAC3_SGMII		=	BIT(1),
-	MV_NETC_GE_MAC3_RGMII		=	BIT(2),
+	MV_NETC_GE_MAC2_RGMII		=	BIT(1),
+	MV_NETC_GE_MAC3_SGMII		=	BIT(2),
+	MV_NETC_GE_MAC3_RGMII		=	BIT(3),
 };
 
 enum mv_netc_phase {
@@ -976,8 +975,6 @@ struct mvpp2_port {
 	unsigned int link;
 	unsigned int duplex;
 	unsigned int speed;
-
-	unsigned int phy_speed;		/* SGMII 1Gbps vs 2.5Gbps */
 
 	struct mvpp2_bm_pool *pool_long;
 	struct mvpp2_bm_pool *pool_short;
@@ -2876,7 +2873,12 @@ static void mvpp2_port_mii_set(struct mvpp2_port *port)
 
 	switch (port->phy_interface) {
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
 		val |= MVPP2_GMAC_INBAND_AN_MASK;
+		break;
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
+		val &= ~MVPP2_GMAC_INBAND_AN_MASK;
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
@@ -2938,7 +2940,10 @@ static void mvpp2_port_loopback_set(struct mvpp2_port *port)
 	else
 		val &= ~MVPP2_GMAC_GMII_LB_EN_MASK;
 
-	if (port->phy_interface == PHY_INTERFACE_MODE_SGMII)
+	if (port->phy_interface == PHY_INTERFACE_MODE_SGMII ||
+	    port->phy_interface == PHY_INTERFACE_MODE_SGMII_2500 ||
+	    port->phy_interface == PHY_INTERFACE_MODE_1000BASEX ||
+	    port->phy_interface == PHY_INTERFACE_MODE_2500BASEX)
 		val |= MVPP2_GMAC_PCS_LB_EN_MASK;
 	else
 		val &= ~MVPP2_GMAC_PCS_LB_EN_MASK;
@@ -3049,10 +3054,10 @@ static void gop_gmac_sgmii2_5_cfg(struct mvpp2_port *port)
 
 	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
 	/*
-	 * Configure GIG MAC to 1000Base-X mode connected to a fiber
+	 * Configure GIG MAC to SGMII mode connected to a fiber
 	 * transceiver
 	 */
-	val |= MVPP2_GMAC_PORT_TYPE_MASK;
+	val &= ~MVPP2_GMAC_PORT_TYPE_MASK;
 	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
 
 	/* configure AN 0x9268 */
@@ -3104,6 +3109,91 @@ static void gop_gmac_sgmii_cfg(struct mvpp2_port *port)
 	writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
 }
 
+static void gop_gmac_2500basex_cfg(struct mvpp2_port *port)
+{
+	u32 val, thresh;
+
+	/*
+	 * Configure minimal level of the Tx FIFO before the lower part
+	 * starts to read a packet
+	 */
+	thresh = MVPP2_SGMII2_5_TX_FIFO_MIN_TH;
+	val = readl(port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+	val &= ~MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK;
+	val |= MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(thresh);
+	writel(val, port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+
+	/* Disable bypass of sync module */
+	val = readl(port->base + MVPP2_GMAC_CTRL_4_REG);
+	val |= MVPP2_GMAC_CTRL4_SYNC_BYPASS_MASK;
+	/* configure DP clock select according to mode */
+	val |= MVPP2_GMAC_CTRL4_DP_CLK_SEL_MASK;
+	/* configure QSGMII bypass according to mode */
+	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
+	/*
+	 * Configure GIG MAC to 2500Base-X mode connected to a fiber
+	 * transceiver
+	 */
+	val |= MVPP2_GMAC_PORT_TYPE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
+
+	/* In 2500BaseX mode, we can't negotiate speed
+	 * and we do not want InBand autoneg
+	 * bypass enabled (link interrupt storm risk
+	 * otherwise).
+	 */
+	val = MVPP2_GMAC_AN_BYPASS_EN |
+		MVPP2_GMAC_EN_PCS_AN |
+		MVPP2_GMAC_CONFIG_GMII_SPEED  |
+		MVPP2_GMAC_CONFIG_FULL_DUPLEX |
+		MVPP2_GMAC_CHOOSE_SAMPLE_TX_CONFIG;
+	writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
+}
+
+static void gop_gmac_1000basex_cfg(struct mvpp2_port *port)
+{
+	u32 val, thresh;
+
+	/*
+	 * Configure minimal level of the Tx FIFO before the lower part
+	 * starts to read a packet
+	 */
+	thresh = MVPP2_SGMII_TX_FIFO_MIN_TH;
+	val = readl(port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+	val &= ~MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK;
+	val |= MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(thresh);
+	writel(val, port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+
+	/* Disable bypass of sync module */
+	val = readl(port->base + MVPP2_GMAC_CTRL_4_REG);
+	val |= MVPP2_GMAC_CTRL4_SYNC_BYPASS_MASK;
+	/* configure DP clock select according to mode */
+	val &= ~MVPP2_GMAC_CTRL4_DP_CLK_SEL_MASK;
+	/* configure QSGMII bypass according to mode */
+	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
+	/* configure GIG MAC to 1000BASEX mode */
+	val |= MVPP2_GMAC_PORT_TYPE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
+
+	/* In 1000BaseX mode, we can't negotiate speed (it's
+	 * only 1000), and we do not want InBand autoneg
+	 * bypass enabled (link interrupt storm risk
+	 * otherwise).
+	 */
+	val = MVPP2_GMAC_AN_BYPASS_EN |
+		MVPP2_GMAC_EN_PCS_AN |
+		MVPP2_GMAC_CONFIG_GMII_SPEED  |
+		MVPP2_GMAC_CONFIG_FULL_DUPLEX |
+		MVPP2_GMAC_CHOOSE_SAMPLE_TX_CONFIG;
+	writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
+}
+
 static void gop_gmac_rgmii_cfg(struct mvpp2_port *port)
 {
 	u32 val, thresh;
@@ -3149,10 +3239,17 @@ static int gop_gmac_mode_cfg(struct mvpp2_port *port)
 	/* Set TX FIFO thresholds */
 	switch (port->phy_interface) {
 	case PHY_INTERFACE_MODE_SGMII:
-		if (port->phy_speed == 2500)
-			gop_gmac_sgmii2_5_cfg(port);
-		else
-			gop_gmac_sgmii_cfg(port);
+		gop_gmac_sgmii_cfg(port);
+		break;
+	case PHY_INTERFACE_MODE_SGMII_2500:
+		gop_gmac_sgmii2_5_cfg(port);
+		break;
+	case PHY_INTERFACE_MODE_1000BASEX:
+		gop_gmac_1000basex_cfg(port);
+		break;
+
+	case PHY_INTERFACE_MODE_2500BASEX:
+		gop_gmac_2500basex_cfg(port);
 		break;
 
 	case PHY_INTERFACE_MODE_RGMII:
@@ -3207,56 +3304,31 @@ static int gop_gpcs_reset(struct mvpp2_port *port, int reset)
 	return 0;
 }
 
-/* Set the internal mux's to the required PCS in the PI */
-static int gop_xpcs_mode(struct mvpp2_port *port, int num_of_lanes)
-{
-	u32 val;
-	int lane;
-
-	switch (num_of_lanes) {
-	case 1:
-		lane = 0;
-		break;
-	case 2:
-		lane = 1;
-		break;
-	case 4:
-		lane = 2;
-		break;
-	default:
-		return -1;
-	}
-
-	/* configure XG MAC mode */
-	val = readl(port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
-	val &= ~MVPP22_XPCS_PCSMODE_MASK;
-	val &= ~MVPP22_XPCS_LANEACTIVE_MASK;
-	val |= (2 * lane) << MVPP22_XPCS_LANEACTIVE_OFFS;
-	writel(val, port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
-
-	return 0;
-}
-
 static int gop_mpcs_mode(struct mvpp2_port *port)
 {
 	u32 val;
 
 	/* configure PCS40G COMMON CONTROL */
-	val = readl(port->priv->mpcs_base + PCS40G_COMMON_CONTROL);
+	val = readl(port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+		    PCS40G_COMMON_CONTROL);
 	val &= ~FORWARD_ERROR_CORRECTION_MASK;
-	writel(val, port->priv->mpcs_base + PCS40G_COMMON_CONTROL);
+	writel(val, port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+	       PCS40G_COMMON_CONTROL);
 
 	/* configure PCS CLOCK RESET */
-	val = readl(port->priv->mpcs_base + PCS_CLOCK_RESET);
+	val = readl(port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+		    PCS_CLOCK_RESET);
 	val &= ~CLK_DIVISION_RATIO_MASK;
 	val |= 1 << CLK_DIVISION_RATIO_OFFS;
-	writel(val, port->priv->mpcs_base + PCS_CLOCK_RESET);
+	writel(val, port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+	       PCS_CLOCK_RESET);
 
 	val &= ~CLK_DIV_PHASE_SET_MASK;
 	val |= MAC_CLK_RESET_MASK;
 	val |= RX_SD_CLK_RESET_MASK;
 	val |= TX_SD_CLK_RESET_MASK;
-	writel(val, port->priv->mpcs_base + PCS_CLOCK_RESET);
+	writel(val, port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+	       PCS_CLOCK_RESET);
 
 	return 0;
 }
@@ -3295,22 +3367,6 @@ static int gop_xlg_mac_mode_cfg(struct mvpp2_port *port, int num_of_act_lanes)
 	val |= MVPP22_XLG_INTERRUPT_LINK_CHANGE;
 	val |= 1; /* unmask summary bit */
 	writel(val, port->base + MVPP22_XLG_INTERRUPT_MASK_REG);
-
-	return 0;
-}
-
-/* Set PCS to reset or exit from reset */
-static int gop_xpcs_reset(struct mvpp2_port *port, int reset)
-{
-	u32 val;
-
-	/* read - modify - write */
-	val = readl(port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
-	if (reset)
-		val &= ~MVPP22_XPCS_PCSRESET;
-	else
-		val |= MVPP22_XPCS_PCSRESET;
-	writel(val, port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
 
 	return 0;
 }
@@ -3368,6 +3424,9 @@ static int gop_port_init(struct mvpp2_port *port)
 		break;
 
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		/* configure PCS */
 		gop_gpcs_mode_cfg(port, 1);
 
@@ -3386,13 +3445,9 @@ static int gop_port_init(struct mvpp2_port *port)
 		num_of_act_lanes = 2;
 		mac_num = 0;
 		/* configure PCS */
-		gop_xpcs_mode(port, num_of_act_lanes);
 		gop_mpcs_mode(port);
 		/* configure MAC */
 		gop_xlg_mac_mode_cfg(port, num_of_act_lanes);
-
-		/* pcs unreset */
-		gop_xpcs_reset(port, 0);
 
 		/* mac unreset */
 		gop_xlg_mac_reset(port, 0);
@@ -3429,6 +3484,9 @@ static void gop_port_enable(struct mvpp2_port *port, int enable)
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		if (enable)
 			mvpp2_port_enable(port);
 		else
@@ -3462,12 +3520,21 @@ static u32 mvpp2_netc_cfg_create(int gop_id, phy_interface_t phy_type)
 	u32 val = 0;
 
 	if (gop_id == 2) {
-		if (phy_type == PHY_INTERFACE_MODE_SGMII)
+		if (phy_type == PHY_INTERFACE_MODE_SGMII ||
+		    phy_type == PHY_INTERFACE_MODE_SGMII_2500 ||
+		    phy_type == PHY_INTERFACE_MODE_1000BASEX ||
+		    phy_type == PHY_INTERFACE_MODE_2500BASEX)
 			val |= MV_NETC_GE_MAC2_SGMII;
+		else if (phy_type == PHY_INTERFACE_MODE_RGMII ||
+			 phy_type == PHY_INTERFACE_MODE_RGMII_ID)
+			val |= MV_NETC_GE_MAC2_RGMII;
 	}
 
 	if (gop_id == 3) {
-		if (phy_type == PHY_INTERFACE_MODE_SGMII)
+		if (phy_type == PHY_INTERFACE_MODE_SGMII ||
+		    phy_type == PHY_INTERFACE_MODE_SGMII_2500 ||
+		    phy_type == PHY_INTERFACE_MODE_1000BASEX ||
+		    phy_type == PHY_INTERFACE_MODE_2500BASEX)
 			val |= MV_NETC_GE_MAC3_SGMII;
 		else if (phy_type == PHY_INTERFACE_MODE_RGMII ||
 			 phy_type == PHY_INTERFACE_MODE_RGMII_ID)
@@ -3655,7 +3722,7 @@ static int gop_netc_init(struct mvpp2 *priv, enum mv_netc_phase phase)
 
 	if (c & MV_NETC_GE_MAC2_SGMII)
 		gop_netc_mac_to_sgmii(priv, 2, phase);
-	else
+	else if (c & MV_NETC_GE_MAC2_RGMII)
 		gop_netc_mac_to_xgmii(priv, 2, phase);
 
 	if (c & MV_NETC_GE_MAC3_SGMII) {
@@ -4382,7 +4449,8 @@ static void mvpp2_link_event(struct mvpp2_port *port)
 			if (phydev->duplex)
 				val |= MVPP2_GMAC_CONFIG_FULL_DUPLEX;
 
-			if (phydev->speed == SPEED_1000)
+			if (phydev->speed == SPEED_1000 ||
+			    phydev->speed == 2500)
 				val |= MVPP2_GMAC_CONFIG_GMII_SPEED;
 			else if (phydev->speed == SPEED_100)
 				val |= MVPP2_GMAC_CONFIG_MII_SPEED;
@@ -4463,6 +4531,9 @@ static void mvpp2_start_dev(struct mvpp2_port *port)
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		mvpp2_gmac_max_rx_size_set(port);
 	default:
 		break;
@@ -4720,16 +4791,25 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	u32 id;
 	u32 phyaddr = 0;
 	int phy_mode = -1;
+	int fixed_link = 0;
 	int ret;
 
 	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
+	fixed_link = fdt_subnode_offset(gd->fdt_blob, port_node, "fixed-link");
 
 	if (phy_node > 0) {
 		int parent;
-		phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
-		if (phyaddr < 0) {
-			dev_err(dev, "could not find phy address\n");
-			return -1;
+
+		if (fixed_link != -FDT_ERR_NOTFOUND) {
+			/* phy_addr is set to invalid value for fixed links */
+			phyaddr = PHY_MAX_ADDR;
+		} else {
+			phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node,
+						 "reg", 0);
+			if (phyaddr < 0) {
+				dev_err(dev, "could not find phy address\n");
+				return -1;
+			}
 		}
 		parent = fdt_parent_offset(gd->fdt_blob, phy_node);
 		ret = uclass_get_device_by_of_offset(UCLASS_MDIO, parent,
@@ -4761,15 +4841,6 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	gpio_request_by_name(dev, "marvell,sfp-tx-disable-gpio", 0,
 			     &port->phy_tx_disable_gpio, GPIOD_IS_OUT);
 #endif
-
-	/*
-	 * ToDo:
-	 * Not sure if this DT property "phy-speed" will get accepted, so
-	 * this might change later
-	 */
-	/* Get phy-speed for SGMII 2.5Gbps vs 1Gbps setup */
-	port->phy_speed = fdtdec_get_int(gd->fdt_blob, port_node,
-					 "phy-speed", 1000);
 
 	port->id = id;
 	if (port->priv->hw_version == MVPP21)
@@ -5186,7 +5257,7 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 
 static int mvpp2_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvpp2_port *port = dev_get_priv(dev);
 
 	/* Load current MAC address */
@@ -5199,6 +5270,9 @@ static int mvpp2_start(struct udevice *dev)
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		mvpp2_port_power_up(port);
 	default:
 		break;
@@ -5223,14 +5297,6 @@ static int mvpp2_write_hwaddr(struct udevice *dev)
 	struct mvpp2_port *port = dev_get_priv(dev);
 
 	return mvpp2_prs_update_mac_da(port, port->dev_addr);
-}
-
-static int mvpp22_smi_phy_addr_cfg(struct mvpp2_port *port)
-{
-	writel(port->phyaddr, port->priv->iface_base +
-	       MVPP22_SMI_PHY_ADDR_REG(port->gop_id));
-
-	return 0;
 }
 
 static int mvpp2_base_probe(struct udevice *dev)
@@ -5355,10 +5421,6 @@ static int mvpp2_probe(struct udevice *dev)
 		port->base = priv->iface_base + MVPP22_PORT_BASE +
 			port->gop_id * MVPP22_PORT_OFFSET;
 
-		/* Set phy address of the port */
-		if (port->phyaddr < PHY_MAX_ADDR)
-			mvpp22_smi_phy_addr_cfg(port);
-
 		/* GoP Init */
 		gop_port_init(port);
 	}
@@ -5424,8 +5486,8 @@ static struct driver mvpp2_driver = {
 	.probe	= mvpp2_probe,
 	.remove = mvpp2_remove,
 	.ops	= &mvpp2_ops,
-	.priv_auto_alloc_size = sizeof(struct mvpp2_port),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct mvpp2_port),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ACTIVE_DMA,
 };
 
@@ -5477,8 +5539,8 @@ static int mvpp2_base_bind(struct udevice *parent)
 		sprintf(name, "mvpp2-%d", id);
 
 		/* Create child device UCLASS_ETH and bind it */
-		device_bind(parent, &mvpp2_driver, name, plat, subnode, &dev);
-		dev_set_of_offset(dev, subnode);
+		device_bind(parent, &mvpp2_driver, name, plat,
+			    offset_to_ofnode(subnode), &dev);
 	}
 
 	return 0;
@@ -5501,5 +5563,5 @@ U_BOOT_DRIVER(mvpp2_base) = {
 	.id	= UCLASS_MISC,
 	.of_match = mvpp2_ids,
 	.bind	= mvpp2_base_bind,
-	.priv_auto_alloc_size = sizeof(struct mvpp2),
+	.priv_auto	= sizeof(struct mvpp2),
 };

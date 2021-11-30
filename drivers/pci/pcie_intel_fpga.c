@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <pci.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
@@ -369,7 +370,7 @@ static int pcie_intel_fpga_probe(struct udevice *dev)
 	struct intel_fpga_pcie *pcie = dev_get_priv(dev);
 
 	pcie->bus = pci_get_controller(dev);
-	pcie->first_busno = dev->seq;
+	pcie->first_busno = dev_seq(dev);
 
 	/* clear all interrupts */
 	cra_writel(pcie, P2A_INT_STS_ALL, P2A_INT_STATUS);
@@ -379,7 +380,7 @@ static int pcie_intel_fpga_probe(struct udevice *dev)
 	return 0;
 }
 
-static int pcie_intel_fpga_ofdata_to_platdata(struct udevice *dev)
+static int pcie_intel_fpga_of_to_plat(struct udevice *dev)
 {
 	struct intel_fpga_pcie *pcie = dev_get_priv(dev);
 	struct fdt_resource reg_res;
@@ -428,7 +429,7 @@ U_BOOT_DRIVER(pcie_intel_fpga) = {
 	.id			= UCLASS_PCI,
 	.of_match		= pcie_intel_fpga_ids,
 	.ops			= &pcie_intel_fpga_ops,
-	.ofdata_to_platdata	= pcie_intel_fpga_ofdata_to_platdata,
+	.of_to_plat	= pcie_intel_fpga_of_to_plat,
 	.probe			= pcie_intel_fpga_probe,
-	.priv_auto_alloc_size	= sizeof(struct intel_fpga_pcie),
+	.priv_auto	= sizeof(struct intel_fpga_pcie),
 };

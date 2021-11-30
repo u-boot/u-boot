@@ -30,6 +30,7 @@
 
 #include <linux/errno.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/rawnand.h>
 #include <nand.h>
 #include <jffs2/jffs2.h>
 
@@ -189,7 +190,7 @@ int nand_erase_opts(struct mtd_info *mtd,
 
 #define NAND_CMD_LOCK_TIGHT     0x2c
 #define NAND_CMD_LOCK_STATUS    0x7a
- 
+
 /******************************************************************************
  * Support for locking / unlocking operations of some NAND devices
  *****************************************************************************/
@@ -544,8 +545,6 @@ int nand_verify(struct mtd_info *mtd, loff_t ofs, size_t len, u_char *buf)
 
 	return rval ? -EIO : 0;
 }
-
-
 
 /**
  * nand_write_skip_bad:

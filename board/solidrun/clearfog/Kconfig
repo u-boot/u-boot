@@ -50,13 +50,8 @@ config ENV_OFFSET
 config ENV_SECT_SIZE
 	hex "Environment Sector-Size"
 	# Use SPI flash erase block size of 4 KiB
-	default 0x1000 if MVEBU_SPL_BOOT_DEVICE_SPI
+	default 0x1000 if MVEBU_SPL_BOOT_DEVICE_SPI || MVEBU_SPL_BOOT_DEVICE_SATA
 	# Use optimistic 64 KiB erase block, will vary between actual media
-	default 0x10000 if MVEBU_SPL_BOOT_DEVICE_MMC
-
-config SYS_SPI_U_BOOT_OFFS
-	hex "address of u-boot payload in SPI flash"
-	default 0x20000
-	depends on MVEBU_SPL_BOOT_DEVICE_SPI
+	default 0x10000 if MVEBU_SPL_BOOT_DEVICE_MMC || MVEBU_SPL_BOOT_DEVICE_UART
 
 endmenu

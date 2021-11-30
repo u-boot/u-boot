@@ -1,5 +1,5 @@
 SMDK5420 BOARD
-M:	Akshay Saraswat <akshay.s@samsung.com>
+M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
 F:	board/samsung/smdk5420/
 F:	include/configs/peach-pit.h

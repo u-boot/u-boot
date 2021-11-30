@@ -224,7 +224,7 @@ static int imxrt_sdram_ipcmd(struct imxrt_semc_regs *regs, u32 mem_addr,
 
 int imxrt_sdram_init(struct udevice *dev)
 {
-	struct imxrt_sdram_params *params = dev_get_platdata(dev);
+	struct imxrt_sdram_params *params = dev_get_plat(dev);
 	struct imxrt_sdram_mux *mux = params->sdram_mux;
 	struct imxrt_sdram_control *ctrl = params->sdram_control;
 	struct imxrt_sdram_timing *time = params->sdram_timing;
@@ -302,9 +302,9 @@ int imxrt_sdram_init(struct udevice *dev)
 	return 0;
 }
 
-static int imxrt_semc_ofdata_to_platdata(struct udevice *dev)
+static int imxrt_semc_of_to_plat(struct udevice *dev)
 {
-	struct imxrt_sdram_params *params = dev_get_platdata(dev);
+	struct imxrt_sdram_params *params = dev_get_plat(dev);
 	ofnode bank_node;
 	u8 bank = 0;
 
@@ -389,7 +389,7 @@ static int imxrt_semc_ofdata_to_platdata(struct udevice *dev)
 
 static int imxrt_semc_probe(struct udevice *dev)
 {
-	struct imxrt_sdram_params *params = dev_get_platdata(dev);
+	struct imxrt_sdram_params *params = dev_get_plat(dev);
 	int ret;
 	fdt_addr_t addr;
 
@@ -439,7 +439,7 @@ U_BOOT_DRIVER(imxrt_semc) = {
 	.id = UCLASS_RAM,
 	.of_match = imxrt_semc_ids,
 	.ops = &imxrt_semc_ops,
-	.ofdata_to_platdata = imxrt_semc_ofdata_to_platdata,
+	.of_to_plat = imxrt_semc_of_to_plat,
 	.probe = imxrt_semc_probe,
-	.platdata_auto_alloc_size = sizeof(struct imxrt_sdram_params),
+	.plat_auto	= sizeof(struct imxrt_sdram_params),
 };

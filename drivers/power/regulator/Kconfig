@@ -18,7 +18,7 @@ config DM_REGULATOR
 
 config SPL_DM_REGULATOR
 	bool "Enable regulators for SPL"
-	depends on DM_REGULATOR
+	depends on DM_REGULATOR && SPL_POWER
 	---help---
 	Regulators are seldom needed in SPL. Even if they are accessed, some
 	code space can be saved by accessing the PMIC registers directly.
@@ -165,7 +165,7 @@ config DM_REGULATOR_GPIO
 
 config SPL_DM_REGULATOR_GPIO
 	bool "Enable Driver Model for GPIO REGULATOR in SPL"
-	depends on DM_REGULATOR_GPIO && SPL_GPIO_SUPPORT
+	depends on DM_REGULATOR_GPIO && SPL_GPIO
 	select SPL_DM_REGULATOR_COMMON
 	---help---
 	This config enables implementation of driver-model regulator uclass
@@ -312,6 +312,16 @@ config DM_REGULATOR_STPMIC1
 	by the PMIC device. This driver is controlled by a device tree node
 	which includes voltage limits.
 
+config DM_REGULATOR_ANATOP
+	bool "Enable driver for ANATOP regulators"
+	depends on DM_REGULATOR
+	select REGMAP
+	select SYSCON
+	help
+	Enable support for the Freescale i.MX on-chip ANATOP LDO
+	regulators. It is recommended that this option be enabled on
+	i.MX6 platform.
+
 config SPL_DM_REGULATOR_STPMIC1
 	bool "Enable driver for STPMIC1 regulators in SPL"
 	depends on SPL_DM_REGULATOR && PMIC_STPMIC1
@@ -353,3 +363,11 @@ config DM_REGULATOR_TPS65941
 	TPS65941 series of PMICs have 5 single phase BUCKs that can also
 	be configured in multi phase modes & 4 LDOs. The driver implements
 	get/set api for value and enable.
+
+config DM_REGULATOR_SCMI
+	bool "Enable driver for SCMI voltage domain regulators"
+	depends on DM_REGULATOR
+	select SCMI_AGENT
+        help
+          Enable this option if you want to support regulators exposed through
+	  the SCMI voltage domain protocol by a SCMI server.

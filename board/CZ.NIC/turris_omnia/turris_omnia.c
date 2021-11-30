@@ -13,8 +13,10 @@
 #include <init.h>
 #include <log.h>
 #include <miiphy.h>
+#include <mtd.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -29,6 +31,8 @@
 #include <../serdes/a38x/high_speed_env_spec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define OMNIA_SPI_NOR_PATH		"/soc/spi@10600/spi-nor@0"
 
 #define OMNIA_I2C_BUS_NAME		"i2c@11000->i2cmux@70->i2c@0"
 
@@ -125,7 +129,6 @@ static int omnia_mcu_read(u8 cmd, void *buf, int len)
 	return dm_i2c_read(chip, cmd, buf, len);
 }
 
-#ifndef CONFIG_SPL_BUILD
 static int omnia_mcu_write(u8 cmd, const void *buf, int len)
 {
 	struct udevice *chip;
@@ -154,7 +157,6 @@ static bool disable_mcu_watchdog(void)
 
 	return true;
 }
-#endif
 
 static bool omnia_detect_sata(void)
 {
@@ -285,6 +287,7 @@ static struct mv_ddr_topology_map board_topology_map_1g = {
 	    MV_DDR_TIM_2T} },		/* timing */
 	BUS_MASK_32BIT,			/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
+	NOT_COMBINED,			/* ddr twin-die combined */
 	{ {0} },			/* raw spd data */
 	{0}				/* timing parameters */
 };
@@ -307,6 +310,7 @@ static struct mv_ddr_topology_map board_topology_map_2g = {
 	    MV_DDR_TIM_2T} },		/* timing */
 	BUS_MASK_32BIT,			/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
+	NOT_COMBINED,			/* ddr twin-die combined */
 	{ {0} },			/* raw spd data */
 	{0}				/* timing parameters */
 };
@@ -319,7 +323,6 @@ struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 		return &board_topology_map_1g;
 }
 
-#ifndef CONFIG_SPL_BUILD
 static int set_regdomain(void)
 {
 	struct omnia_eeprom oep;
@@ -334,28 +337,18 @@ static int set_regdomain(void)
 	return env_set("regdomain", rd);
 }
 
-/*
- * default factory reset bootcommand on Omnia first sets all the front LEDs
- * to green and then tries to load the rescue image from SPI flash memory and
- * boot it
- */
-#define OMNIA_FACTORY_RESET_BOOTCMD \
-	"i2c dev 2; " \
-	"i2c mw 0x2a.1 0x3 0x1c 1; " \
-	"i2c mw 0x2a.1 0x4 0x1c 1; " \
-	"mw.l 0x01000000 0x00ff000c; " \
-	"i2c write 0x01000000 0x2a.1 0x5 4 -s; " \
-	"setenv bootargs \"earlyprintk console=ttyS0,115200" \
-			" omniarescue=$omnia_reset\"; " \
-	"sf probe; " \
-	"sf read 0x1000000 0x100000 0x700000; " \
-	"bootm 0x1000000; " \
-	"bootz 0x1000000"
-
 static void handle_reset_button(void)
 {
+	const char * const vars[1] = { "bootcmd_rescue", };
 	int ret;
 	u8 reset_status;
+
+	/*
+	 * Ensure that bootcmd_rescue has always stock value, so that running
+	 *   run bootcmd_rescue
+	 * always works correctly.
+	 */
+	env_set_default_vars(1, (char * const *)vars, 0);
 
 	ret = omnia_mcu_read(CMD_GET_RESET, &reset_status, 1);
 	if (ret) {
@@ -367,11 +360,37 @@ static void handle_reset_button(void)
 	env_set_ulong("omnia_reset", reset_status);
 
 	if (reset_status) {
+		const char * const vars[2] = {
+			"bootcmd",
+			"distro_bootcmd",
+		};
+
+		/*
+		 * Set the above envs to their default values, in case the user
+		 * managed to break them.
+		 */
+		env_set_default_vars(2, (char * const *)vars, 0);
+
+		/* Ensure bootcmd_rescue is used by distroboot */
+		env_set("boot_targets", "rescue");
+
 		printf("RESET button was pressed, overwriting bootcmd!\n");
-		env_set("bootcmd", OMNIA_FACTORY_RESET_BOOTCMD);
+	} else {
+		/*
+		 * In case the user somehow managed to save environment with
+		 * boot_targets=rescue, reset boot_targets to default value.
+		 * This could happen in subsequent commands if bootcmd_rescue
+		 * failed.
+		 */
+		if (!strcmp(env_get("boot_targets"), "rescue")) {
+			const char * const vars[1] = {
+				"boot_targets",
+			};
+
+			env_set_default_vars(1, (char * const *)vars, 0);
+		}
 	}
 }
-#endif
 
 int board_early_init_f(void)
 {
@@ -400,24 +419,35 @@ int board_early_init_f(void)
 	return 0;
 }
 
+void spl_board_init(void)
+{
+	/*
+	 * If booting from UART, disable MCU watchdog in SPL, since uploading
+	 * U-Boot proper can take too much time and trigger it.
+	 */
+	if (get_boot_device() == BOOT_DEVICE_UART)
+		disable_mcu_watchdog();
+}
+
 int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
-
-#ifndef CONFIG_SPL_BUILD
-	disable_mcu_watchdog();
-#endif
 
 	return 0;
 }
 
 int board_late_init(void)
 {
-#ifndef CONFIG_SPL_BUILD
+	/*
+	 * If not booting from UART, MCU watchdog was not disabled in SPL,
+	 * disable it now.
+	 */
+	if (get_boot_device() != BOOT_DEVICE_UART)
+		disable_mcu_watchdog();
+
 	set_regdomain();
 	handle_reset_button();
-#endif
 	pci_init();
 
 	return 0;
@@ -438,7 +468,7 @@ static struct udevice *get_atsha204a_dev(void)
 	return dev;
 }
 
-int checkboard(void)
+int show_board_info(void)
 {
 	u32 version_num, serial_num;
 	int err = 1;
@@ -466,7 +496,7 @@ int checkboard(void)
 	}
 
 out:
-	printf("Turris Omnia:\n");
+	printf("Model: Turris Omnia\n");
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
 	if (err)
 		printf("  Serial Number: unknown\n");
@@ -486,6 +516,15 @@ static void increment_mac(u8 *mac)
 		if (mac[i])
 			break;
 	}
+}
+
+static void set_mac_if_invalid(int i, u8 *mac)
+{
+	u8 oldmac[6];
+
+	if (is_valid_ethaddr(mac) &&
+	    !eth_env_get_enetaddr_by_index("eth", i, oldmac))
+		eth_env_set_enetaddr_by_index("eth", i, mac);
 }
 
 int misc_init_r(void)
@@ -520,20 +559,103 @@ int misc_init_r(void)
 	mac[4] = mac1[2];
 	mac[5] = mac1[3];
 
-	if (is_valid_ethaddr(mac))
-		eth_env_set_enetaddr("eth1addr", mac);
-
+	set_mac_if_invalid(1, mac);
 	increment_mac(mac);
-
-	if (is_valid_ethaddr(mac))
-		eth_env_set_enetaddr("eth2addr", mac);
-
+	set_mac_if_invalid(2, mac);
 	increment_mac(mac);
-
-	if (is_valid_ethaddr(mac))
-		eth_env_set_enetaddr("ethaddr", mac);
+	set_mac_if_invalid(0, mac);
 
 out:
 	return 0;
 }
 
+#if defined(CONFIG_OF_BOARD_SETUP)
+/*
+ * I plan to generalize this function and move it to common/fdt_support.c.
+ * This will require some more work on multiple boards, though, so for now leave
+ * it here.
+ */
+static bool fixup_mtd_partitions(void *blob, int offset, struct mtd_info *mtd)
+{
+	struct mtd_info *slave;
+	int parts;
+
+	parts = fdt_subnode_offset(blob, offset, "partitions");
+	if (parts < 0)
+		return false;
+
+	if (fdt_del_node(blob, parts) < 0)
+		return false;
+
+	parts = fdt_add_subnode(blob, offset, "partitions");
+	if (parts < 0)
+		return false;
+
+	if (fdt_setprop_u32(blob, parts, "#address-cells", 1) < 0)
+		return false;
+
+	if (fdt_setprop_u32(blob, parts, "#size-cells", 1) < 0)
+		return false;
+
+	if (fdt_setprop_string(blob, parts, "compatible",
+			       "fixed-partitions") < 0)
+		return false;
+
+	mtd_probe_devices();
+
+	list_for_each_entry_reverse(slave, &mtd->partitions, node) {
+		char name[32];
+		int part;
+
+		snprintf(name, sizeof(name), "partition@%llx", slave->offset);
+		part = fdt_add_subnode(blob, parts, name);
+		if (part < 0)
+			return false;
+
+		if (fdt_setprop_u32(blob, part, "reg", slave->offset) < 0)
+			return false;
+
+		if (fdt_appendprop_u32(blob, part, "reg", slave->size) < 0)
+			return false;
+
+		if (fdt_setprop_string(blob, part, "label", slave->name) < 0)
+			return false;
+
+		if (!(slave->flags & MTD_WRITEABLE))
+			if (fdt_setprop_empty(blob, part, "read-only") < 0)
+				return false;
+
+		if (slave->flags & MTD_POWERUP_LOCK)
+			if (fdt_setprop_empty(blob, part, "lock") < 0)
+				return false;
+	}
+
+	return true;
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	struct mtd_info *mtd;
+	int node;
+
+	mtd = get_mtd_device_nm(OMNIA_SPI_NOR_PATH);
+	if (IS_ERR_OR_NULL(mtd))
+		goto fail;
+
+	node = fdt_path_offset(blob, OMNIA_SPI_NOR_PATH);
+	if (node < 0)
+		goto fail;
+
+	if (!fixup_mtd_partitions(blob, node, mtd))
+		goto fail;
+
+	put_mtd_device(mtd);
+	return 0;
+
+fail:
+	printf("Failed fixing SPI NOR partitions!\n");
+	if (!IS_ERR_OR_NULL(mtd))
+		put_mtd_device(mtd);
+	return 0;
+}
+#endif

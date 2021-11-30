@@ -10,6 +10,7 @@
 #include <miiphy.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -70,6 +71,7 @@ static struct mv_ddr_topology_map board_topology_map = {
 	    MV_DDR_TIM_DEFAULT} },	/* timing */
 	BUS_MASK_32BIT_ECC,		/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
+	NOT_COMBINED,			/* ddr twin-die combined */
 	{ {0} },			/* raw spd data */
 	{0}				/* timing parameters */
 };

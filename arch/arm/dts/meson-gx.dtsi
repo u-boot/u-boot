@@ -12,12 +12,19 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/power/meson-gxbb-power.h>
 #include <dt-bindings/thermal/thermal.h>
 
 / {
 	interrupt-parent = <&gic>;
 	#address-cells = <2>;
 	#size-cells = <2>;
+
+	aliases {
+		mmc0 = &sd_emmc_b; /* SD card */
+		mmc1 = &sd_emmc_c; /* eMMC */
+		mmc2 = &sd_emmc_a; /* SDIO */
+	};
 
 	reserved-memory {
 		#address-cells = <2>;
@@ -60,7 +67,7 @@
 			compatible = "amlogic,simple-framebuffer",
 				     "simple-framebuffer";
 			amlogic,pipeline = "vpu-cvbs";
-			power-domains = <&pwrc_vpu>;
+			power-domains = <&pwrc PWRC_GXBB_VPU_ID>;
 			status = "disabled";
 		};
 
@@ -68,7 +75,7 @@
 			compatible = "amlogic,simple-framebuffer",
 				     "simple-framebuffer";
 			amlogic,pipeline = "vpu-hdmi";
-			power-domains = <&pwrc_vpu>;
+			power-domains = <&pwrc PWRC_GXBB_VPU_ID>;
 			status = "disabled";
 		};
 	};
@@ -294,6 +301,7 @@
 				reg = <0x0 0x84c0 0x0 0x18>;
 				interrupts = <GIC_SPI 26 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
+				fifo-size = <128>;
 			};
 
 			uart_B: serial@84dc {
@@ -438,12 +446,6 @@
 				compatible = "amlogic,meson-gx-ao-sysctrl", "simple-mfd", "syscon";
 				reg =  <0x0 0x0 0x0 0x100>;
 
-				pwrc_vpu: power-controller-vpu {
-					compatible = "amlogic,meson-gx-pwrc-vpu";
-					#power-domain-cells = <0>;
-					amlogic,hhi-sysctrl = <&sysctrl>;
-				};
-
 				clkc_AO: clock-controller {
 					compatible = "amlogic,meson-gx-aoclkc";
 					#clock-cells = <1>;
@@ -552,6 +554,12 @@
 			sysctrl: system-controller@0 {
 				compatible = "amlogic,meson-gx-hhi-sysctrl", "simple-mfd", "syscon";
 				reg = <0 0 0 0x400>;
+
+				pwrc: power-controller {
+					compatible = "amlogic,meson-gxbb-pwrc";
+					#power-domain-cells = <1>;
+					amlogic,ao-sysctrl = <&sysctrl_AO>;
+				};
 			};
 
 			mailbox: mailbox@404 {
@@ -574,6 +582,7 @@
 			interrupt-names = "macirq";
 			rx-fifo-depth = <4096>;
 			tx-fifo-depth = <2048>;
+			power-domains = <&pwrc PWRC_GXBB_ETHERNET_MEM_ID>;
 			status = "disabled";
 		};
 

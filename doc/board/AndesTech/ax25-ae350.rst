@@ -58,15 +58,6 @@ Platform Level Interrupt Controller (PLIC)
  - Configurable number of targets:  1-16
  - Preempted interrupt priority stack
 
-Configurations
---------------
-
-CONFIG_SKIP_LOWLEVEL_INIT:
-
-If you want to boot this system from SPI ROM and bypass e-bios (the
-other boot loader on ROM). You should undefine CONFIG_SKIP_LOWLEVEL_INIT
-in "include/configs/ax25-ae350.h".
-
 Build and boot steps
 --------------------
 
@@ -89,12 +80,10 @@ Verification:
 Steps
 -----
 
-1. Define CONFIG_SKIP_LOWLEVEL_INIT to build u-boot which is loaded via gdb from ram.
-2. Undefine CONFIG_SKIP_LOWLEVEL_INIT to build u-boot which is booted from spi rom.
-3. Ping a server by mac driver
-4. Scan sd card and copy u-boot image which is booted from flash to ram by sd driver.
-5. Burn this u-boot image to spi rom by spi driver
-6. Re-boot u-boot from spi flash with power off and power on.
+1. Ping a server by mac driver
+2. Scan sd card and copy u-boot image which is booted from flash to ram by sd driver
+3. Burn this u-boot image to spi rom by spi driver
+4. Re-boot u-boot from spi flash with power off and power on
 
 Messages of U-Boot boot on AE350 board
 --------------------------------------
@@ -343,7 +332,7 @@ cloned and build for AE350 as below:
         cd opensbi
         make PLATFORM=andes/ae350
 
-Copy OpenSBI FW_DYNAMIC image (build\platform\andes\ae350\firmware\fw_dynamic.bin)
+Copy OpenSBI FW_DYNAMIC image (build/platform/andes/ae350/firmware/fw_dynamic.bin)
 into U-Boot root directory
 
 
@@ -532,4 +521,4 @@ Messages of U-Boot SPL boots Kernel on AE350 board
     Sat Apr  6 23:33:53 CST 2019
     nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
 
-~ #
+    ~ #

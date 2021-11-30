@@ -555,28 +555,6 @@ static int spansion_read_cr_quad_enable(struct spi_nor *nor)
 }
 #endif /* CONFIG_SPI_FLASH_SPANSION */
 
-struct spi_nor_read_command {
-	u8			num_mode_clocks;
-	u8			num_wait_states;
-	u8			opcode;
-	enum spi_nor_protocol	proto;
-};
-
-enum spi_nor_read_command_index {
-	SNOR_CMD_READ,
-	SNOR_CMD_READ_FAST,
-
-	/* Quad SPI */
-	SNOR_CMD_READ_1_1_4,
-
-	SNOR_CMD_READ_MAX
-};
-
-struct spi_nor_flash_parameter {
-	struct spi_nor_hwcaps		hwcaps;
-	struct spi_nor_read_command	reads[SNOR_CMD_READ_MAX];
-};
-
 static void
 spi_nor_set_read_settings(struct spi_nor_read_command *read,
 			  u8 num_mode_clocks,
@@ -605,6 +583,12 @@ static int spi_nor_init_params(struct spi_nor *nor,
 		spi_nor_set_read_settings(&params->reads[SNOR_CMD_READ_FAST],
 					  0, 8, SPINOR_OP_READ_FAST,
 					  SNOR_PROTO_1_1_1);
+#ifdef CONFIG_SPI_FLASH_SPANSION
+		if (JEDEC_MFR(info) == SNOR_MFR_CYPRESS &&
+		    (info->id[1] == 0x2a || info->id[1] == 0x2b))
+			/* 0x2a: S25HL (QSPI, 3.3V), 0x2b: S25HS (QSPI, 1.8V) */
+			params->reads[SNOR_CMD_READ_FAST].num_mode_clocks = 8;
+#endif
 	}
 
 	if (info->flags & SPI_NOR_QUAD_READ) {
@@ -751,6 +735,7 @@ int spi_nor_scan(struct spi_nor *nor)
 		return ret;
 
 	mtd->name = "spi-flash";
+	mtd->dev = nor->dev;
 	mtd->priv = nor;
 	mtd->type = MTD_NORFLASH;
 	mtd->writesize = 1;
@@ -808,4 +793,10 @@ int spi_nor_scan(struct spi_nor *nor)
 		return ret;
 
 	return 0;
+}
+
+/* U-Boot specific functions, need to extend MTD to support these */
+int spi_flash_cmd_get_sw_write_prot(struct spi_nor *nor)
+{
+	return -ENOTSUPP;
 }

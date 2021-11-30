@@ -12,13 +12,15 @@
 #include <asm/processor.h>
 #include <clk-uclass.h>
 #include <common.h>
+#include <div64.h>
 #include <dm.h>
 #include <linux/clk-provider.h>
 #include <linux/clk/at91_pmc.h>
 
 #include "pmc.h"
 
-#define UBOOT_DM_CLK_AT91_MASTER		"at91-master-clk"
+#define UBOOT_DM_CLK_AT91_MASTER_PRES		"at91-master-clk-pres"
+#define UBOOT_DM_CLK_AT91_MASTER_DIV		"at91-master-clk-div"
 #define UBOOT_DM_CLK_AT91_SAMA7G5_MASTER	"at91-sama7g5-master-clk"
 
 #define MASTER_PRES_MASK	0x7
@@ -73,7 +75,7 @@ static int clk_master_enable(struct clk *clk)
 	return 0;
 }
 
-static ulong clk_master_get_rate(struct clk *clk)
+static ulong clk_master_pres_get_rate(struct clk *clk)
 {
 	struct clk_master *master = to_clk_master(clk);
 	const struct clk_master_layout *layout = master->layout;
@@ -81,7 +83,7 @@ static ulong clk_master_get_rate(struct clk *clk)
 						master->characteristics;
 	ulong rate = clk_get_parent_rate(clk);
 	unsigned int mckr;
-	u8 pres, div;
+	u8 pres;
 
 	if (!rate)
 		return 0;
@@ -90,29 +92,21 @@ static ulong clk_master_get_rate(struct clk *clk)
 	mckr &= layout->mask;
 
 	pres = (mckr >> layout->pres_shift) & MASTER_PRES_MASK;
-	div = (mckr >> MASTER_DIV_SHIFT) & MASTER_DIV_MASK;
 
 	if (characteristics->have_div3_pres && pres == MASTER_PRES_MAX)
-		rate /= 3;
+		pres = 3;
 	else
-		rate >>= pres;
+		pres = (1 << pres);
 
-	rate /= characteristics->divisors[div];
-
-	if (rate < characteristics->output.min)
-		pr_warn("master clk is underclocked");
-	else if (rate > characteristics->output.max)
-		pr_warn("master clk is overclocked");
-
-	return rate;
+	return DIV_ROUND_CLOSEST_ULL(rate, pres);
 }
 
-static const struct clk_ops master_ops = {
+static const struct clk_ops master_pres_ops = {
 	.enable = clk_master_enable,
-	.get_rate = clk_master_get_rate,
+	.get_rate = clk_master_pres_get_rate,
 };
 
-struct clk *at91_clk_register_master(void __iomem *base,
+struct clk *at91_clk_register_master_pres(void __iomem *base,
 		const char *name, const char * const *parent_names,
 		int num_parents, const struct clk_master_layout *layout,
 		const struct clk_master_characteristics *characteristics,
@@ -140,7 +134,7 @@ struct clk *at91_clk_register_master(void __iomem *base,
 	pmc_read(master->base, master->layout->offset, &val);
 	clk = &master->clk;
 	clk->flags = CLK_GET_RATE_NOCACHE | CLK_IS_CRITICAL;
-	ret = clk_register(clk, UBOOT_DM_CLK_AT91_MASTER, name,
+	ret = clk_register(clk, UBOOT_DM_CLK_AT91_MASTER_PRES, name,
 			   parent_names[val & AT91_PMC_CSS]);
 	if (ret) {
 		kfree(master);
@@ -150,10 +144,81 @@ struct clk *at91_clk_register_master(void __iomem *base,
 	return clk;
 }
 
-U_BOOT_DRIVER(at91_master_clk) = {
-	.name = UBOOT_DM_CLK_AT91_MASTER,
+U_BOOT_DRIVER(at91_master_pres_clk) = {
+	.name = UBOOT_DM_CLK_AT91_MASTER_PRES,
 	.id = UCLASS_CLK,
-	.ops = &master_ops,
+	.ops = &master_pres_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+static ulong clk_master_div_get_rate(struct clk *clk)
+{
+	struct clk_master *master = to_clk_master(clk);
+	const struct clk_master_layout *layout = master->layout;
+	const struct clk_master_characteristics *characteristics =
+						master->characteristics;
+	ulong rate = clk_get_parent_rate(clk);
+	unsigned int mckr;
+	u8 div;
+
+	if (!rate)
+		return 0;
+
+	pmc_read(master->base, master->layout->offset, &mckr);
+	mckr &= layout->mask;
+	div = (mckr >> MASTER_DIV_SHIFT) & MASTER_DIV_MASK;
+
+	rate = DIV_ROUND_CLOSEST_ULL(rate, characteristics->divisors[div]);
+	if (rate < characteristics->output.min)
+		pr_warn("master clk is underclocked");
+	else if (rate > characteristics->output.max)
+		pr_warn("master clk is overclocked");
+
+	return rate;
+}
+
+static const struct clk_ops master_div_ops = {
+	.enable = clk_master_enable,
+	.get_rate = clk_master_div_get_rate,
+};
+
+struct clk *at91_clk_register_master_div(void __iomem *base,
+		const char *name, const char *parent_name,
+		const struct clk_master_layout *layout,
+		const struct clk_master_characteristics *characteristics)
+{
+	struct clk_master *master;
+	struct clk *clk;
+	int ret;
+
+	if (!base || !name || !parent_name || !layout || !characteristics)
+		return ERR_PTR(-EINVAL);
+
+	master = kzalloc(sizeof(*master), GFP_KERNEL);
+	if (!master)
+		return ERR_PTR(-ENOMEM);
+
+	master->layout = layout;
+	master->characteristics = characteristics;
+	master->base = base;
+	master->num_parents = 1;
+
+	clk = &master->clk;
+	clk->flags = CLK_GET_RATE_NOCACHE | CLK_IS_CRITICAL;
+	ret = clk_register(clk, UBOOT_DM_CLK_AT91_MASTER_DIV, name,
+			   parent_name);
+	if (ret) {
+		kfree(master);
+		clk = ERR_PTR(ret);
+	}
+
+	return clk;
+}
+
+U_BOOT_DRIVER(at91_master_div_clk) = {
+	.name = UBOOT_DM_CLK_AT91_MASTER_DIV,
+	.id = UCLASS_CLK,
+	.ops = &master_div_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 

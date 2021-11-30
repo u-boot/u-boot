@@ -71,7 +71,6 @@ menuconfig PHY_AQUANTIA
 
 config PHY_AQUANTIA_UPLOAD_FW
 	bool "Aquantia firmware loading support"
-	default n
 	depends on PHY_AQUANTIA
 	help
 		Aquantia PHYs use firmware which can be either loaded automatically
@@ -102,7 +101,6 @@ config PHY_CORTINA
 
 config SYS_CORTINA_NO_FW_UPLOAD
 	bool "Cortina firmware loading support"
-	default n
 	depends on PHY_CORTINA
 	help
 		Cortina phy has provision to store phy firmware in attached dedicated
@@ -130,6 +128,23 @@ config SYS_CORTINA_FW_IN_SPIFLASH
 	bool "Cortina firmware in SPI flash"
 
 endchoice
+
+config CORTINA_FW_ADDR
+	hex "Cortina Firmware Address"
+	depends on PHY_CORTINA && !SYS_CORTINA_NO_FW_UPLOAD
+	default 0x0
+
+config CORTINA_FW_LENGTH
+	hex "Cortina Firmware Length"
+	depends on PHY_CORTINA && !SYS_CORTINA_NO_FW_UPLOAD
+	default 0x40000
+
+config PHY_CORTINA_ACCESS
+	bool "Cortina Access Ethernet PHYs support"
+	default y
+	depends on CORTINA_NI_ENET
+	help
+		Cortina Access Ethernet PHYs init process
 
 config PHY_DAVICOM
 	bool "Davicom Ethernet PHYs support"
@@ -190,6 +205,12 @@ config PHY_MSCC
 config PHY_NATSEMI
 	bool "National Semiconductor Ethernet PHYs support"
 
+config PHY_NXP_C45_TJA11XX
+	tristate "NXP C45 TJA11XX PHYs"
+	help
+	  Enable support for NXP C45 TJA11XX PHYs.
+	  Currently supports only the TJA1103 PHY.
+
 config PHY_REALTEK
 	bool "Realtek Ethernet PHYs support"
 
@@ -227,7 +248,6 @@ config RTL8211X_PHY_FORCE_MASTER
 config RTL8211F_PHY_FORCE_EEE_RXC_ON
 	bool "Ethernet PHY RTL8211F: do not stop receiving the xMII clock during LPI"
 	depends on PHY_REALTEK
-	default n
 	help
 	  The IEEE 802.3az-2010 (EEE) standard provides a protocol to coordinate
 	  transitions to/from a lower power consumption level (Low Power Idle
@@ -285,6 +305,7 @@ config PHY_XILINX
 
 config PHY_XILINX_GMII2RGMII
 	bool "Xilinx GMII to RGMII Ethernet PHYs support"
+	depends on DM_ETH
 	help
 	  This adds support for Xilinx GMII to RGMII IP core. This IP acts
 	  as bridge between MAC connected over GMII and external phy that

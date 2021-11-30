@@ -11,6 +11,8 @@
  * Jean-Jacques Hiblot <jjhiblot@ti.com>
  */
 
+#define LOG_CATEGORY UCLASS_MUX
+
 #include <common.h>
 #include <dm.h>
 #include <mux-internal.h>
@@ -331,5 +333,5 @@ UCLASS_DRIVER(mux) = {
 	.id		= UCLASS_MUX,
 	.name		= "mux",
 	.post_probe	= mux_uclass_post_probe,
-	.per_device_auto_alloc_size = sizeof(struct mux_chip),
+	.per_device_auto	= sizeof(struct mux_chip),
 };

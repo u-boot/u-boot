@@ -8,9 +8,6 @@
 #ifndef __CONFIGS_MX23EVK_H__
 #define __CONFIGS_MX23EVK_H__
 
-/* System configurations */
-#define CONFIG_MACH_TYPE	MACH_TYPE_MX23EVK
-
 /* U-Boot Commands */
 
 /* Memory configuration */
@@ -29,15 +26,13 @@
 #endif
 
 /* Framebuffer support */
-#ifdef CONFIG_VIDEO
+#ifdef CONFIG_DM_VIDEO
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
 #endif
 
 /* Boot Linux */
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_LOADADDR		0x42000000
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Extra Environments */
 #define CONFIG_EXTRA_ENV_SETTINGS \

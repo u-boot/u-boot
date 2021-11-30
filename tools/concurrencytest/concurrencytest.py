@@ -68,7 +68,7 @@ def fork_for_tests(concurrency_num=CPU_COUNT):
             pid = os.fork()
             if pid == 0:
                 try:
-                    stream = os.fdopen(c2pwrite, 'wb', 1)
+                    stream = os.fdopen(c2pwrite, 'wb')
                     os.close(c2pread)
                     # Leave stderr and stdout open so we can see test noise
                     # Close stdin so that the child goes away if it decides to
@@ -92,7 +92,7 @@ def fork_for_tests(concurrency_num=CPU_COUNT):
                 os._exit(0)
             else:
                 os.close(c2pwrite)
-                stream = os.fdopen(c2pread, 'rb', 1)
+                stream = os.fdopen(c2pread, 'rb')
                 test = ProtocolTestCase(stream)
                 result.append(test)
         return result

@@ -3,6 +3,8 @@
  * Copyright (C) 2020 Linumiz
  */
 
+#include "am33xx-u-boot.dtsi"
+
 / {
 	chosen {
 		#address-cells = <1>;

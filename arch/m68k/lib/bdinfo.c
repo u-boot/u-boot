@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,7 +39,7 @@ void arch_print_bdinfo(void)
 
 	bdinfo_print_mhz("busfreq", bd->bi_busfreq);
 #if defined(CONFIG_SYS_MBAR)
-	bdinfo_print_num("mbar", bd->bi_mbar_base);
+	bdinfo_print_num_l("mbar", bd->bi_mbar_base);
 #endif
 	bdinfo_print_mhz("cpufreq", bd->bi_intfreq);
 	if (IS_ENABLED(CONFIG_PCI))

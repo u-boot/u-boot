@@ -35,3 +35,25 @@
 		};
 	};
 };
+
+/*
+ * This is not done in imx6q-ba16.dtsi, since that file is shared
+ * with the kernel and the kernel should not reset the PHY, since
+ * it lacks support for configuring the reserved registeres to
+ * avoid a board specific voltage peak issue.
+ */
+&fec {
+	phy-reset-gpios = <&gpio1 28 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <1>;
+	phy-reset-post-delay = <0>;
+};
+
+/*
+ * PCIe reset is not done in the file shared with the kernel, since
+ * this GPIO also resets other peripherals (i.e. not just PCIe).
+ * These peripherals are being initialized by U-Boot and should not
+ * be reset by the kernel, so it may not reset PCIe via this GPIO.
+ */
+&pcie {
+	reset-gpio = <&gpio7 12 GPIO_ACTIVE_LOW>;
+};

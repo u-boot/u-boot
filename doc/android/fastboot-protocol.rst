@@ -144,6 +144,11 @@ Command Reference
 
   "powerdown"          Power off the device.
 
+  "ucmd"               execute any bootloader command and wait until it
+                       finishs.
+
+  "acmd"               execute any bootloader command, do not wait.
+
 Client Variables
 ----------------
 

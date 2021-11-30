@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <errno.h>
@@ -24,7 +25,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
- * struct sti_dwc3_glue_platdata - dwc3 STi glue driver private structure
+ * struct sti_dwc3_glue_plat - dwc3 STi glue driver private structure
  * @syscfg_base:	addr for the glue syscfg
  * @glue_base:		addr for the glue registers
  * @syscfg_offset:	usb syscfg control offset
@@ -32,7 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * @softreset_ctl:	reset controller for softreset signal
  * @mode:		drd static host/device config
  */
-struct sti_dwc3_glue_platdata {
+struct sti_dwc3_glue_plat {
 	phys_addr_t syscfg_base;
 	phys_addr_t glue_base;
 	phys_addr_t syscfg_offset;
@@ -41,7 +42,7 @@ struct sti_dwc3_glue_platdata {
 	enum usb_dr_mode mode;
 };
 
-static int sti_dwc3_glue_drd_init(struct sti_dwc3_glue_platdata *plat)
+static int sti_dwc3_glue_drd_init(struct sti_dwc3_glue_plat *plat)
 {
 	unsigned long val;
 
@@ -77,7 +78,7 @@ static int sti_dwc3_glue_drd_init(struct sti_dwc3_glue_platdata *plat)
 	return 0;
 }
 
-static void sti_dwc3_glue_init(struct sti_dwc3_glue_platdata *plat)
+static void sti_dwc3_glue_init(struct sti_dwc3_glue_plat *plat)
 {
 	unsigned long reg;
 
@@ -100,15 +101,16 @@ static void sti_dwc3_glue_init(struct sti_dwc3_glue_platdata *plat)
 	setbits_le32(plat->glue_base + CLKRST_CTRL, SW_PIPEW_RESET_N);
 }
 
-static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
+static int sti_dwc3_glue_of_to_plat(struct udevice *dev)
 {
-	struct sti_dwc3_glue_platdata *plat = dev_get_platdata(dev);
+	struct sti_dwc3_glue_plat *plat = dev_get_plat(dev);
 	struct udevice *syscon;
 	struct regmap *regmap;
 	int ret;
 	u32 reg[4];
 
-	ret = ofnode_read_u32_array(dev->node, "reg", reg, ARRAY_SIZE(reg));
+	ret = ofnode_read_u32_array(dev_ofnode(dev), "reg", reg,
+				    ARRAY_SIZE(reg));
 	if (ret) {
 		pr_err("unable to find st,stih407-dwc3 reg property(%d)\n", ret);
 		return ret;
@@ -150,11 +152,11 @@ static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 
 static int sti_dwc3_glue_bind(struct udevice *dev)
 {
-	struct sti_dwc3_glue_platdata *plat = dev_get_platdata(dev);
+	struct sti_dwc3_glue_plat *plat = dev_get_plat(dev);
 	ofnode node, dwc3_node;
 
 	/* Find snps,dwc3 node from subnode */
-	ofnode_for_each_subnode(node, dev->node) {
+	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		if (ofnode_device_is_compatible(node, "snps,dwc3"))
 			dwc3_node = node;
 	}
@@ -175,7 +177,7 @@ static int sti_dwc3_glue_bind(struct udevice *dev)
 
 static int sti_dwc3_glue_probe(struct udevice *dev)
 {
-	struct sti_dwc3_glue_platdata *plat = dev_get_platdata(dev);
+	struct sti_dwc3_glue_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	/* deassert both powerdown and softreset */
@@ -216,7 +218,7 @@ softreset_err:
 
 static int sti_dwc3_glue_remove(struct udevice *dev)
 {
-	struct sti_dwc3_glue_platdata *plat = dev_get_platdata(dev);
+	struct sti_dwc3_glue_plat *plat = dev_get_plat(dev);
 	int ret;
 
 	/* assert both powerdown and softreset */
@@ -242,10 +244,10 @@ U_BOOT_DRIVER(dwc3_sti_glue) = {
 	.name = "dwc3_sti_glue",
 	.id = UCLASS_NOP,
 	.of_match = sti_dwc3_glue_ids,
-	.ofdata_to_platdata = sti_dwc3_glue_ofdata_to_platdata,
+	.of_to_plat = sti_dwc3_glue_of_to_plat,
 	.probe = sti_dwc3_glue_probe,
 	.remove = sti_dwc3_glue_remove,
 	.bind = sti_dwc3_glue_bind,
-	.platdata_auto_alloc_size = sizeof(struct sti_dwc3_glue_platdata),
+	.plat_auto	= sizeof(struct sti_dwc3_glue_plat),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

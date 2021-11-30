@@ -8,6 +8,7 @@
 #include <log.h>
 #include <pch.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/i8259.h>
 #include <asm/intel_regs.h>

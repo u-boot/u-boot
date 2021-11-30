@@ -7,12 +7,13 @@
 #include <command.h>
 #include <errno.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/image.h>
+#include <asm/mach-imx/image.h>
 #include <console.h>
 #include <cpu_func.h>
 
@@ -160,7 +161,7 @@ static int do_authenticate(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[1], NULL, 16);
+	addr = hextoul(argv[1], NULL);
 
 	printf("Authenticate OS container at 0x%lx\n", addr);
 

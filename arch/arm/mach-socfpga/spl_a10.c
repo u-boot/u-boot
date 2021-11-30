@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/pl310.h>
 #include <asm/u-boot.h>
@@ -39,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 					 SOCFPGA_PHYS_OCRAM_SIZE - \
 					 BOOTROM_SHARED_MEM_SIZE)
 #define RST_STATUS_SHARED_ADDR		(BOOTROM_SHARED_MEM_ADDR + 0x438)
-static u32 rst_mgr_status __section(.data);
+static u32 rst_mgr_status __section(".data");
 
 /*
  * Bootrom will clear the status register in reset manager and stores the
@@ -92,7 +93,7 @@ u32 spl_boot_device(void)
 	}
 }
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 u32 spl_mmc_boot_mode(const u32 boot_device)
 {
 #if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)

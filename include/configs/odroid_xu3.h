@@ -27,7 +27,6 @@
 #define CONFIG_USB_EHCI_EXYNOS
 
 /* DFU */
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_32M
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
@@ -76,7 +75,6 @@
 
 /* Set soc_rev, soc_id, board_rev, board_name, fdtfile */
 #define CONFIG_ODROID_REV_AIN		9
-#define CONFIG_REVISION_TAG
 
 /*
  * Need to override existing one (smdk5420) with odroid so set_board_info will

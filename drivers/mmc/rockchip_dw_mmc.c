@@ -50,11 +50,13 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 	return freq;
 }
 
-static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
+static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
+
+	if (!CONFIG_IS_ENABLED(OF_REAL))
+		return 0;
 
 	host->name = dev->name;
 	host->ioaddr = dev_read_addr_ptr(dev);
@@ -95,17 +97,16 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 		debug("%s: 'clock-freq-min-max' property was deprecated.\n",
 		      __func__);
 	}
-#endif
+
 	return 0;
 }
 
 static int rockchip_dwmmc_probe(struct udevice *dev)
 {
-	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
-	struct udevice *pwr_dev __maybe_unused;
 	int ret;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -122,7 +123,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	priv->minmax[0] = 400000;  /*  400 kHz */
 	priv->minmax[1] = dtplat->max_frequency;
 
-	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_phandle(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 #else
@@ -136,12 +137,11 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 
 	host->fifo_mode = priv->fifo_mode;
 
-#ifdef CONFIG_PWRSEQ
+#ifdef CONFIG_MMC_PWRSEQ
 	/* Enable power if needed */
-	ret = uclass_get_device_by_phandle(UCLASS_PWRSEQ, dev, "mmc-pwrseq",
-					   &pwr_dev);
+	ret = mmc_pwrseq_get_power(dev, &plat->cfg);
 	if (!ret) {
-		ret = pwrseq_set_power(pwr_dev, true);
+		ret = pwrseq_set_power(plat->cfg.pwr_dev, true);
 		if (ret)
 			return ret;
 	}
@@ -157,7 +157,7 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 
 static int rockchip_dwmmc_bind(struct udevice *dev)
 {
-	struct rockchip_mmc_plat *plat = dev_get_platdata(dev);
+	struct rockchip_mmc_plat *plat = dev_get_plat(dev);
 
 	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -172,47 +172,13 @@ U_BOOT_DRIVER(rockchip_rk3288_dw_mshc) = {
 	.name		= "rockchip_rk3288_dw_mshc",
 	.id		= UCLASS_MMC,
 	.of_match	= rockchip_dwmmc_ids,
-	.ofdata_to_platdata = rockchip_dwmmc_ofdata_to_platdata,
+	.of_to_plat = rockchip_dwmmc_of_to_plat,
 	.ops		= &dm_dwmci_ops,
 	.bind		= rockchip_dwmmc_bind,
 	.probe		= rockchip_dwmmc_probe,
-	.priv_auto_alloc_size = sizeof(struct rockchip_dwmmc_priv),
-	.platdata_auto_alloc_size = sizeof(struct rockchip_mmc_plat),
+	.priv_auto	= sizeof(struct rockchip_dwmmc_priv),
+	.plat_auto	= sizeof(struct rockchip_mmc_plat),
 };
 
-U_BOOT_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3328_dw_mshc)
-U_BOOT_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3368_dw_mshc)
-
-#ifdef CONFIG_PWRSEQ
-static int rockchip_dwmmc_pwrseq_set_power(struct udevice *dev, bool enable)
-{
-	struct gpio_desc reset;
-	int ret;
-
-	ret = gpio_request_by_name(dev, "reset-gpios", 0, &reset, GPIOD_IS_OUT);
-	if (ret)
-		return ret;
-	dm_gpio_set_value(&reset, 1);
-	udelay(1);
-	dm_gpio_set_value(&reset, 0);
-	udelay(200);
-
-	return 0;
-}
-
-static const struct pwrseq_ops rockchip_dwmmc_pwrseq_ops = {
-	.set_power	= rockchip_dwmmc_pwrseq_set_power,
-};
-
-static const struct udevice_id rockchip_dwmmc_pwrseq_ids[] = {
-	{ .compatible = "mmc-pwrseq-emmc" },
-	{ }
-};
-
-U_BOOT_DRIVER(rockchip_dwmmc_pwrseq_drv) = {
-	.name		= "mmc_pwrseq_emmc",
-	.id		= UCLASS_PWRSEQ,
-	.of_match	= rockchip_dwmmc_pwrseq_ids,
-	.ops		= &rockchip_dwmmc_pwrseq_ops,
-};
-#endif
+DM_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3328_dw_mshc)
+DM_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3368_dw_mshc)

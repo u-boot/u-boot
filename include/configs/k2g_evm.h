@@ -12,11 +12,8 @@
 #include <environment/ti/mmc.h>
 #include <environment/ti/spi.h>
 
-/* Platform type */
-#define CONFIG_SOC_K2G
-
 /* U-Boot general configuration */
-#define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+#define ENV_KS2_BOARD_SETTINGS						\
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_PMMC_BOOT_ENV						\
 	DEFAULT_FW_INITRAMFS_BOOT_ENV					\
@@ -34,6 +31,8 @@
 		"else if test $board_name = 66AK2GG1; then " \
 			"setenv name_fdt keystone-k2g-evm.dtb; " \
 		"else if test $board_name = 66AK2GIC; then " \
+			 "setenv name_fdt keystone-k2g-ice.dtb; " \
+		"else if test $board_name = 66AK2GI1; then " \
 			 "setenv name_fdt keystone-k2g-ice.dtb; " \
 		"else if test $name_fdt = undefined; then " \
 			"echo WARNING: Could not determine device tree to use;"\

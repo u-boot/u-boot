@@ -27,6 +27,7 @@
 #include <fdt_support.h>
 #include <reset.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 
@@ -122,7 +123,7 @@ struct sun4i_spi_variant {
 	bool has_burst_ctl;
 };
 
-struct sun4i_spi_platdata {
+struct sun4i_spi_plat {
 	struct sun4i_spi_variant *variant;
 	u32 base;
 	u32 max_hz;
@@ -244,7 +245,7 @@ static int sun4i_spi_parse_pins(struct udevice *dev)
 					break;
 			}
 
-			pin = name_to_gpio(pin_name);
+			pin = sunxi_name_to_gpio(pin_name);
 			if (pin < 0)
 				break;
 
@@ -339,7 +340,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct sun4i_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	u32 len = bitlen / 8;
 	u32 rx_fifocnt;
@@ -407,7 +408,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int sun4i_spi_set_speed(struct udevice *dev, uint speed)
 {
-	struct sun4i_spi_platdata *plat = dev_get_platdata(dev);
+	struct sun4i_spi_plat *plat = dev_get_plat(dev);
 	struct sun4i_spi_priv *priv = dev_get_priv(dev);
 	unsigned int div;
 	u32 reg;
@@ -483,7 +484,7 @@ static const struct dm_spi_ops sun4i_spi_ops = {
 
 static int sun4i_spi_probe(struct udevice *bus)
 {
-	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
+	struct sun4i_spi_plat *plat = dev_get_plat(bus);
 	struct sun4i_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
@@ -514,9 +515,9 @@ static int sun4i_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int sun4i_spi_ofdata_to_platdata(struct udevice *bus)
+static int sun4i_spi_of_to_plat(struct udevice *bus)
 {
-	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
+	struct sun4i_spi_plat *plat = dev_get_plat(bus);
 	int node = dev_of_offset(bus);
 
 	plat->base = dev_read_addr(bus);
@@ -630,8 +631,8 @@ U_BOOT_DRIVER(sun4i_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match	= sun4i_spi_ids,
 	.ops	= &sun4i_spi_ops,
-	.ofdata_to_platdata	= sun4i_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size	= sizeof(struct sun4i_spi_platdata),
-	.priv_auto_alloc_size	= sizeof(struct sun4i_spi_priv),
+	.of_to_plat	= sun4i_spi_of_to_plat,
+	.plat_auto	= sizeof(struct sun4i_spi_plat),
+	.priv_auto	= sizeof(struct sun4i_spi_priv),
 	.probe	= sun4i_spi_probe,
 };

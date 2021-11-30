@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dwmmc.h>
 #include <fdtdec.h>
+#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <errno.h>
@@ -44,7 +45,7 @@ struct dwmci_exynos_priv_data {
  * Function used as callback function to initialise the
  * CLKSEL register for every mmc channel.
  */
-static void exynos_dwmci_clksel(struct dwmci_host *host)
+static int exynos_dwmci_clksel(struct dwmci_host *host)
 {
 #ifdef CONFIG_DM_MMC
 	struct dwmci_exynos_priv_data *priv =
@@ -53,6 +54,8 @@ static void exynos_dwmci_clksel(struct dwmci_host *host)
 	struct dwmci_exynos_priv_data *priv = host->priv;
 #endif
 	dwmci_writel(host, DWMCI_CLKSEL, priv->sdr_timing);
+
+	return 0;
 }
 
 unsigned int exynos_dwmci_get_clk(struct dwmci_host *host, uint freq)
@@ -133,8 +136,6 @@ static int exynos_dwmci_core_init(struct dwmci_host *host)
 	return 0;
 }
 
-static struct dwmci_host dwmci_host[DWMMC_MAX_CH_NUM];
-
 static int do_dwmci_init(struct dwmci_host *host)
 {
 	int flag, err;
@@ -206,64 +207,10 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 	return 0;
 }
 
-static int exynos_dwmci_process_node(const void *blob,
-					int node_list[], int count)
-{
-	struct dwmci_exynos_priv_data *priv;
-	struct dwmci_host *host;
-	int i, node, err;
-
-	for (i = 0; i < count; i++) {
-		node = node_list[i];
-		if (node <= 0)
-			continue;
-		host = &dwmci_host[i];
-
-		priv = malloc(sizeof(struct dwmci_exynos_priv_data));
-		if (!priv) {
-			pr_err("dwmci_exynos_priv_data malloc fail!\n");
-			return -ENOMEM;
-		}
-
-		err = exynos_dwmci_get_config(blob, node, host, priv);
-		if (err) {
-			printf("%s: failed to decode dev %d\n", __func__, i);
-			free(priv);
-			return err;
-		}
-		host->priv = priv;
-
-		do_dwmci_init(host);
-	}
-	return 0;
-}
-
-int exynos_dwmmc_init(const void *blob)
-{
-	int node_list[DWMMC_MAX_CH_NUM];
-	int boot_dev_node;
-	int err = 0, count;
-
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-			COMPAT_SAMSUNG_EXYNOS_DWMMC, node_list,
-			DWMMC_MAX_CH_NUM);
-
-	/* For DWMMC always set boot device as mmc 0 */
-	if (count >= 3 && get_boot_mode() == BOOT_MODE_SD) {
-		boot_dev_node = node_list[2];
-		node_list[2] = node_list[0];
-		node_list[0] = boot_dev_node;
-	}
-
-	err = exynos_dwmci_process_node(blob, node_list, count);
-
-	return err;
-}
-
 #ifdef CONFIG_DM_MMC
 static int exynos_dwmmc_probe(struct udevice *dev)
 {
-	struct exynos_mmc_plat *plat = dev_get_platdata(dev);
+	struct exynos_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct dwmci_exynos_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
@@ -288,7 +235,7 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 
 static int exynos_dwmmc_bind(struct udevice *dev)
 {
-	struct exynos_mmc_plat *plat = dev_get_platdata(dev);
+	struct exynos_mmc_plat *plat = dev_get_plat(dev);
 
 	return dwmci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -306,7 +253,7 @@ U_BOOT_DRIVER(exynos_dwmmc_drv) = {
 	.bind		= exynos_dwmmc_bind,
 	.ops		= &dm_dwmci_ops,
 	.probe		= exynos_dwmmc_probe,
-	.priv_auto_alloc_size	= sizeof(struct dwmci_exynos_priv_data),
-	.platdata_auto_alloc_size = sizeof(struct exynos_mmc_plat),
+	.priv_auto	= sizeof(struct dwmci_exynos_priv_data),
+	.plat_auto	= sizeof(struct exynos_mmc_plat),
 };
 #endif

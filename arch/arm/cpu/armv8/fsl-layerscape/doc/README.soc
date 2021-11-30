@@ -31,7 +31,7 @@ The LS1043A SoC includes the following function and features:
    - Hardware buffer management for buffer allocation and de-allocation (BMan)
    - Cryptography acceleration (SEC)
  - Ethernet interfaces by FMan
-   - Up to 1 x XFI supporting 10G interface
+   - Up to 1 x 10GBase-R supporting 10G interface
    - Up to 1 x QSGMII
    - Up to 4 x SGMII supporting 1000Mbps
    - Up to 2 x SGMII supporting 2500Mbps
@@ -190,7 +190,7 @@ The LS1046A SoC includes the following function and features:
    - Two PLLs per four-lane SerDes
    - Support for 10G operation
  - Ethernet interfaces by FMan
-   - Up to 2 x XFI supporting 10G interface (MAC 9, 10)
+   - Up to 2 x 10GBase-R supporting 10G interface (MAC 9, 10)
    - Up to 1 x QSGMII (MAC 5, 6, 10, 1)
    - Up to 4 x SGMII supporting 1000Mbps (MAC 5, 6, 9, 10)
    - Up to 3 x SGMII supporting 2500Mbps (MAC 5, 9, 10)
@@ -295,7 +295,7 @@ The LX2160A SoC includes the following function and features:
   Single WRIOP tile supporting 130Gbps using 18 MACs
   Support for 10G-SXGMII (aka USXGMII).
   Support for SGMII (and 1000Base-KX)
-  Support for XFI (and 10GBase-KR)
+  Support for 10GBase-R (and 10GBase-KR)
   Support for CAUI4 (100G); CAUI2 (50G) and 25G-AUI(25G).
   Support for XLAUI (and 40GBase-KR4) for 40G.
   Support for two RGMII parallel interfaces.
@@ -400,7 +400,7 @@ The LX2162A SoC includes the following function and features:
   Ethernet interfaces
   Support for 10G-SXGMII (aka USXGMII).
   Support for SGMII (and 1000Base-KX)
-  Support for XFI (and 10GBase-KR)
+  Support for 10GBase-R (and 10GBase-KR)
   Support for CAUI2 (50G) and 25G-AUI(25G).
   Support for XLAUI (and 40GBase-KR4) for 40G.
   Support for two RGMII parallel interfaces.

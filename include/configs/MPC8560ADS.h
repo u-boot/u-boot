@@ -27,9 +27,7 @@
  * assume U-Boot is less than 0.5MB
  */
 
-#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#undef CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
 #define CONFIG_RESET_PHY_R	1	/* Call reset_phy() */
 
 /*
@@ -63,7 +61,6 @@
 
 /* DDR Setup */
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
-#define CONFIG_DDR_SPD
 
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
@@ -191,11 +188,9 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)    /* Reserve 256 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN		(128 * 1024)    /* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_ON_SCC	/* define if console on SCC */
-#undef  CONFIG_CONS_NONE	/* define if console on something else */
 
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
@@ -203,11 +198,6 @@
 /*
  * I2C
  */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 
 /* RapidIO MMU */
@@ -238,7 +228,6 @@
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
 
 #endif	/* CONFIG_PCI */
 
@@ -260,50 +249,6 @@
 
 #endif /* CONFIG_TSEC_ENET */
 
-#ifdef CONFIG_ETHER_ON_FCC		/* CPM FCC Ethernet */
-
-#undef  CONFIG_ETHER_NONE		/* define if ether on something else */
-#define CONFIG_ETHER_INDEX      2       /* which channel for ether */
-
-#if (CONFIG_ETHER_INDEX == 2)
-  /*
-   * - Rx-CLK is CLK13
-   * - Tx-CLK is CLK14
-   * - Select bus for bd/buffers
-   * - Full duplex
-   */
-  #define CONFIG_SYS_CMXFCR_MASK2      (CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
-  #define CONFIG_SYS_CMXFCR_VALUE2     (CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
-  #define CONFIG_SYS_CPMFCR_RAMTYPE    0
-  #define CONFIG_SYS_FCC_PSMR          (FCC_PSMR_FDE)
-  #define FETH2_RST		0x01
-#elif (CONFIG_ETHER_INDEX == 3)
-  /* need more definitions here for FE3 */
-  #define FETH3_RST		0x80
-#endif					/* CONFIG_ETHER_INDEX */
-
-/*
- * GPIO pins used for bit-banged MII communications
- */
-#define MDIO_PORT	2		/* Port C */
-#define MDIO_DECLARE	volatile ioport_t *iop = ioport_addr ( \
-				(immap_t *) CONFIG_SYS_IMMR, MDIO_PORT )
-#define MDC_DECLARE	MDIO_DECLARE
-
-#define MDIO_ACTIVE	(iop->pdir |=  0x00400000)
-#define MDIO_TRISTATE	(iop->pdir &= ~0x00400000)
-#define MDIO_READ	((iop->pdat &  0x00400000) != 0)
-
-#define MDIO(bit)	if(bit) iop->pdat |=  0x00400000; \
-			else	iop->pdat &= ~0x00400000
-
-#define MDC(bit)	if(bit) iop->pdat |=  0x00200000; \
-			else	iop->pdat &= ~0x00200000
-
-#define MIIDELAY	udelay(1)
-
-#endif
-
 /*
  * Environment
  */
@@ -321,7 +266,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x1000000	/* default load address */
 
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
@@ -333,14 +277,10 @@
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial Memory map for Linux*/
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#endif
-
 /*
  * Environment Configuration
  */
-#if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
+#if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 #define CONFIG_HAS_ETH2
@@ -357,8 +297,6 @@
 #define CONFIG_GATEWAYIP 192.168.1.1
 #define CONFIG_NETMASK   255.255.255.0
 
-#define CONFIG_LOADADDR  200000	/* default location for tftp and bootm */
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
 	"netdev=eth0\0"							\
 	"consoledev=ttyCPM\0"						\
@@ -367,7 +305,7 @@
 	"fdtaddr=400000\0"						\
 	"fdtfile=mpc8560ads.dtb\0"
 
-#define CONFIG_NFSBOOTCOMMAND	                                        \
+#define NFSBOOTCOMMAND	                                        \
 	"setenv bootargs root=/dev/nfs rw "				\
 		"nfsroot=$serverip:$rootpath "				\
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -376,7 +314,7 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND \
+#define RAMBOOTCOMMAND \
 	"setenv bootargs root=/dev/ram rw "				\
 		"console=$consoledev,$baudrate $othbootargs;"		\
 	"tftp $ramdiskaddr $ramdiskfile;"				\
@@ -384,6 +322,6 @@
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND  NFSBOOTCOMMAND
 
 #endif	/* __CONFIG_H */

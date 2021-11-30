@@ -6,6 +6,8 @@
 #ifndef __POWER_AS3722_H__
 #define __POWER_AS3722_H__
 
+struct udevice;
+
 #define AS3722_GPIO_OUTPUT_VDDH (1 << 0)
 #define AS3722_GPIO_INVERT (1 << 1)
 

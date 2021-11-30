@@ -117,7 +117,7 @@ int mscc_bb_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		     const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 	struct mscc_bb_priv *priv = dev_get_priv(bus);
 	u32             i, count;
 	const u8	*txd = dout;
@@ -232,6 +232,6 @@ U_BOOT_DRIVER(mscc_bb) = {
 	.id	= UCLASS_SPI,
 	.of_match = mscc_bb_ids,
 	.ops	= &mscc_bb_ops,
-	.priv_auto_alloc_size = sizeof(struct mscc_bb_priv),
+	.priv_auto	= sizeof(struct mscc_bb_priv),
 	.probe	= mscc_bb_spi_probe,
 };

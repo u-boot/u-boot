@@ -12,6 +12,7 @@
 #include <spi.h>
 #include <clk.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
@@ -38,13 +39,13 @@ struct spi_reg {
 	u32 din;	/* 0x1060c */
 };
 
-struct mvebu_spi_platdata {
+struct mvebu_spi_plat {
 	struct spi_reg *spireg;
 	struct clk clk;
 	struct gpio_desc cs_gpios[MAX_CS_COUNT];
 };
 
-static void spi_cs_activate(struct mvebu_spi_platdata *plat, int cs)
+static void spi_cs_activate(struct mvebu_spi_plat *plat, int cs)
 {
 	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&plat->cs_gpios[cs]))
 		dm_gpio_set_value(&plat->cs_gpios[cs], 1);
@@ -52,7 +53,7 @@ static void spi_cs_activate(struct mvebu_spi_platdata *plat, int cs)
 		setbits_le32(&plat->spireg->ctrl, MVEBU_SPI_A3700_SPI_EN_0 << cs);
 }
 
-static void spi_cs_deactivate(struct mvebu_spi_platdata *plat, int cs)
+static void spi_cs_deactivate(struct mvebu_spi_plat *plat, int cs)
 {
 	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&plat->cs_gpios[cs]))
 		dm_gpio_set_value(&plat->cs_gpios[cs], 0);
@@ -146,7 +147,7 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct spi_reg *reg = plat->spireg;
 	unsigned int bytelen;
 	int ret;
@@ -186,7 +187,7 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct spi_reg *reg = plat->spireg;
 	u32 data, prescale;
 
@@ -207,7 +208,7 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 
 static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct spi_reg *reg = plat->spireg;
 
 	/*
@@ -229,7 +230,7 @@ static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 
 static int mvebu_spi_probe(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct spi_reg *reg = plat->spireg;
 	u32 data;
 	int ret;
@@ -279,9 +280,9 @@ static int mvebu_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
+static int mvebu_spi_of_to_plat(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	int ret;
 
 	plat->spireg = dev_read_addr_ptr(bus);
@@ -297,7 +298,7 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 
 static int mvebu_spi_remove(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 
 	clk_free(&plat->clk);
 
@@ -324,8 +325,8 @@ U_BOOT_DRIVER(mvebu_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = mvebu_spi_ids,
 	.ops = &mvebu_spi_ops,
-	.ofdata_to_platdata = mvebu_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mvebu_spi_platdata),
+	.of_to_plat = mvebu_spi_of_to_plat,
+	.plat_auto	= sizeof(struct mvebu_spi_plat),
 	.probe = mvebu_spi_probe,
 	.remove = mvebu_spi_remove,
 };

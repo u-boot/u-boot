@@ -1566,9 +1566,9 @@ error_enable:
 	return 0;
 }
 
-static int tegra_dp_ofdata_to_platdata(struct udevice *dev)
+static int tegra_dp_of_to_plat(struct udevice *dev)
 {
-	struct tegra_dp_plat *plat = dev_get_platdata(dev);
+	struct tegra_dp_plat *plat = dev_get_plat(dev);
 
 	plat->base = dev_read_addr(dev);
 
@@ -1594,9 +1594,9 @@ static const struct dm_display_ops dp_tegra_ops = {
 
 static int dp_tegra_probe(struct udevice *dev)
 {
-	struct tegra_dp_plat *plat = dev_get_platdata(dev);
+	struct tegra_dp_plat *plat = dev_get_plat(dev);
 	struct tegra_dp_priv *priv = dev_get_priv(dev);
-	struct display_plat *disp_uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *disp_uc_plat = dev_get_uclass_plat(dev);
 
 	priv->regs = (struct dpaux_ctlr *)plat->base;
 	priv->enabled = false;
@@ -1616,9 +1616,9 @@ U_BOOT_DRIVER(dp_tegra) = {
 	.name	= "dpaux_tegra",
 	.id	= UCLASS_DISPLAY,
 	.of_match = tegra_dp_ids,
-	.ofdata_to_platdata = tegra_dp_ofdata_to_platdata,
+	.of_to_plat = tegra_dp_of_to_plat,
 	.probe	= dp_tegra_probe,
 	.ops	= &dp_tegra_ops,
-	.priv_auto_alloc_size = sizeof(struct tegra_dp_priv),
-	.platdata_auto_alloc_size = sizeof(struct tegra_dp_plat),
+	.priv_auto	= sizeof(struct tegra_dp_priv),
+	.plat_auto	= sizeof(struct tegra_dp_plat),
 };

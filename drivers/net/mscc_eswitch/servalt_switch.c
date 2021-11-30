@@ -323,7 +323,7 @@ static int servalt_mac_table_add(struct servalt_private *priv,
 static int servalt_write_hwaddr(struct udevice *dev)
 {
 	struct servalt_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	return servalt_mac_table_add(priv, pdata->enetaddr, PGID_UNICAST);
 }
@@ -331,7 +331,7 @@ static int servalt_write_hwaddr(struct udevice *dev)
 static int servalt_start(struct udevice *dev)
 {
 	struct servalt_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const unsigned char mac[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff,
 		0xff };
 	int ret;
@@ -412,7 +412,6 @@ static int servalt_probe(struct udevice *dev)
 	struct servalt_private *priv = dev_get_priv(dev);
 	int i;
 	struct resource res;
-	fdt32_t faddr;
 	phys_addr_t addr_base;
 	unsigned long addr_size;
 	ofnode eth_node, node, mdio_node;
@@ -461,9 +460,8 @@ static int servalt_probe(struct udevice *dev)
 
 		if (ofnode_read_resource(mdio_node, 0, &res))
 			return -ENOMEM;
-		faddr = cpu_to_fdt32(res.start);
 
-		addr_base = ofnode_translate_address(mdio_node, &faddr);
+		addr_base = res.start;
 		addr_size = res.end - res.start;
 
 		/* If the bus is new then create a new bus */
@@ -523,6 +521,6 @@ U_BOOT_DRIVER(servalt) = {
 	.probe				= servalt_probe,
 	.remove				= servalt_remove,
 	.ops				= &servalt_ops,
-	.priv_auto_alloc_size		= sizeof(struct servalt_private),
-	.platdata_auto_alloc_size	= sizeof(struct eth_pdata),
+	.priv_auto		= sizeof(struct servalt_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

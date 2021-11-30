@@ -17,17 +17,24 @@ config TARGET_MICROCHIP_ICICLE
 config TARGET_QEMU_VIRT
 	bool "Support QEMU Virt Board"
 
-config TARGET_SIFIVE_FU540
-	bool "Support SiFive FU540 Board"
+config TARGET_SIFIVE_UNLEASHED
+	bool "Support SiFive Unleashed Board"
+
+config TARGET_SIFIVE_UNMATCHED
+	bool "Support SiFive Unmatched Board"
+	select SYS_CACHE_SHIFT_6
 
 config TARGET_SIPEED_MAIX
 	bool "Support Sipeed Maix Board"
+	select SYS_CACHE_SHIFT_6
+
+config TARGET_OPENPITON_RISCV64
+	bool "Support RISC-V cores on OpenPiton SoC"
 
 endchoice
 
 config SYS_ICACHE_OFF
 	bool "Do not enable icache"
-	default n
 	help
 	  Do not enable instruction cache in U-Boot.
 
@@ -40,7 +47,6 @@ config SPL_SYS_ICACHE_OFF
 
 config SYS_DCACHE_OFF
 	bool "Do not enable dcache"
-	default n
 	help
 	  Do not enable data cache in U-Boot.
 
@@ -55,12 +61,15 @@ config SPL_SYS_DCACHE_OFF
 source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
-source "board/sifive/fu540/Kconfig"
+source "board/sifive/unleashed/Kconfig"
+source "board/sifive/unmatched/Kconfig"
+source "board/openpiton/riscv64/Kconfig"
 source "board/sipeed/maix/Kconfig"
 
 # platform-specific options below
 source "arch/riscv/cpu/ax25/Kconfig"
 source "arch/riscv/cpu/fu540/Kconfig"
+source "arch/riscv/cpu/fu740/Kconfig"
 source "arch/riscv/cpu/generic/Kconfig"
 
 # architecture-specific options below
@@ -152,12 +161,28 @@ config 32BIT
 config 64BIT
 	bool
 
+config DMA_ADDR_T_64BIT
+	bool
+	default y if 64BIT
+
 config SIFIVE_CLINT
 	bool
-	depends on RISCV_MMODE || SPL_RISCV_MMODE
+	depends on RISCV_MMODE
 	help
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
+
+config SPL_SIFIVE_CLINT
+	bool
+	depends on SPL_RISCV_MMODE
+	help
+	  The SiFive CLINT block holds memory-mapped control and status registers
+	  associated with software and timer interrupts.
+
+config SIFIVE_CACHE
+	bool
+	help
+	  This enables the operations to configure SiFive cache
 
 config ANDES_PLIC
 	bool
@@ -266,5 +291,87 @@ config STACK_SIZE_SHIFT
 
 config OF_BOARD_FIXUP
 	default y if OF_SEPARATE && RISCV_SMODE
+
+menu "Use assembly optimized implementation of memory routines"
+
+config USE_ARCH_MEMCPY
+	bool "Use an assembly optimized implementation of memcpy"
+	default y
+	help
+	  Enable the generation of an optimized version of memcpy.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config SPL_USE_ARCH_MEMCPY
+	bool "Use an assembly optimized implementation of memcpy for SPL"
+	default y if USE_ARCH_MEMCPY
+	depends on SPL
+	help
+	  Enable the generation of an optimized version of memcpy.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config TPL_USE_ARCH_MEMCPY
+	bool "Use an assembly optimized implementation of memcpy for TPL"
+	default y if USE_ARCH_MEMCPY
+	depends on TPL
+	help
+	  Enable the generation of an optimized version of memcpy.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove"
+	default y
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config SPL_USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove for SPL"
+	default y if USE_ARCH_MEMCPY
+	depends on SPL
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config TPL_USE_ARCH_MEMMOVE
+	bool "Use an assembly optimized implementation of memmove for TPL"
+	default y if USE_ARCH_MEMCPY
+	depends on TPL
+	help
+	  Enable the generation of an optimized version of memmove.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config USE_ARCH_MEMSET
+	bool "Use an assembly optimized implementation of memset"
+	default y
+	help
+	  Enable the generation of an optimized version of memset.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config SPL_USE_ARCH_MEMSET
+	bool "Use an assembly optimized implementation of memset for SPL"
+	default y if USE_ARCH_MEMSET
+	depends on SPL
+	help
+	  Enable the generation of an optimized version of memset.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+config TPL_USE_ARCH_MEMSET
+	bool "Use an assembly optimized implementation of memset for TPL"
+	default y if USE_ARCH_MEMSET
+	depends on TPL
+	help
+	  Enable the generation of an optimized version of memset.
+	  Such an implementation may be faster under some conditions
+	  but may increase the binary size.
+
+endmenu
 
 endmenu

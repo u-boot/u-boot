@@ -9,11 +9,13 @@
 #include <led.h>
 #include <log.h>
 #include <syscon.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/grf_rk3188.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <dm/ofnode.h>
 #include <linux/err.h>
 
 #define GRF_BASE	0x20008000
@@ -106,7 +108,6 @@ int rk_board_late_init(void)
 }
 
 #ifdef CONFIG_SPL_BUILD
-DECLARE_GLOBAL_DATA_PTR;
 static int setup_led(void)
 {
 #ifdef CONFIG_SPL_LED
@@ -114,7 +115,7 @@ static int setup_led(void)
 	char *led_name;
 	int ret;
 
-	led_name = fdtdec_get_config_string(gd->fdt_blob, "u-boot,boot-led");
+	led_name = ofnode_conf_read_str("u-boot,boot-led");
 	if (!led_name)
 		return 0;
 	ret = led_get_by_label(led_name, &dev);

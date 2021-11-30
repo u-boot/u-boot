@@ -13,6 +13,7 @@
 #include <env.h>
 #include <init.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/mach-types.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -72,8 +73,10 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+#ifdef CONFIG_MACH_TYPE
 	/* Machine number */
 	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
+#endif
 
 	/* Boot parameters address */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;

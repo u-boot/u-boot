@@ -12,14 +12,14 @@ from dtoc import fdt_util
 from patman import tools
 
 class Entry_mkimage(Entry):
-    """Entry containing a binary produced by mkimage
+    """Binary produced by mkimage
 
     Properties / Entry arguments:
         - datafile: Filename for -d argument
         - args: Other arguments to pass
 
     The data passed to mkimage is collected from subnodes of the mkimage node,
-    e.g.:
+    e.g.::
 
         mkimage {
             args = "-n test -T imximage";
@@ -36,6 +36,7 @@ class Entry_mkimage(Entry):
         super().__init__(section, etype, node)
         self._args = fdt_util.GetString(self._node, 'args').split(' ')
         self._mkimage_entries = OrderedDict()
+        self.align_default = None
         self._ReadSubnodes()
 
     def ObtainContents(self):

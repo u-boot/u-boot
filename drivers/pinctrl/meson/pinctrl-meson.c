@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
@@ -347,6 +348,7 @@ int meson_pinctrl_probe(struct udevice *dev)
 	int na, ns;
 	char *name;
 
+	/* FIXME: Should use livetree */
 	na = fdt_address_cells(gd->fdt_blob, dev_of_offset(dev->parent));
 	if (na < 1) {
 		debug("bad #address-cells\n");
@@ -419,8 +421,8 @@ int meson_pinctrl_probe(struct udevice *dev)
 	sprintf(name, "meson-gpio");
 
 	/* Create child device UCLASS_GPIO and bind it */
-	device_bind(dev, priv->data->gpio_driver, name, NULL, gpio, &gpio_dev);
-	dev_set_of_offset(gpio_dev, gpio);
+	device_bind(dev, priv->data->gpio_driver, name, NULL,
+		    offset_to_ofnode(gpio), &gpio_dev);
 
 	return 0;
 }

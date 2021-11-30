@@ -106,7 +106,7 @@ struct mtd_write_req {
 #define MTD_NANDECC_PLACE	1	// Use the given placement in the structure (YAFFS1 legacy mode)
 #define MTD_NANDECC_AUTOPLACE	2	// Use the default placement scheme
 #define MTD_NANDECC_PLACEONLY	3	// Use the given placement in the structure (Do not store ecc result on read)
-#define MTD_NANDECC_AUTOPL_USR 	4	// Use the given autoplacement scheme rather than using the default
+#define MTD_NANDECC_AUTOPL_USR	4	// Use the given autoplacement scheme rather than using the default
 
 /* OTP mode selection */
 #define MTD_OTP_OFF		0

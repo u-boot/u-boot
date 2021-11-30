@@ -399,18 +399,24 @@ static void mctl_set_cr(uint16_t socid, struct dram_para *para)
 #else
 #error Unsupported DRAM type!
 #endif
-	       (para->bank_bits == 3 ? MCTL_CR_EIGHT_BANKS : MCTL_CR_FOUR_BANKS) |
+	       (para->ranks[0].bank_bits == 3 ? MCTL_CR_EIGHT_BANKS : MCTL_CR_FOUR_BANKS) |
 	       MCTL_CR_BUS_FULL_WIDTH(para->bus_full_width) |
 	       (para->dual_rank ? MCTL_CR_DUAL_RANK : MCTL_CR_SINGLE_RANK) |
-	       MCTL_CR_PAGE_SIZE(para->page_size) |
-	       MCTL_CR_ROW_BITS(para->row_bits), &mctl_com->cr);
+	       MCTL_CR_PAGE_SIZE(para->ranks[0].page_size) |
+	       MCTL_CR_ROW_BITS(para->ranks[0].row_bits), &mctl_com->cr);
+
+	if (para->dual_rank && (socid == SOCID_A64 || socid == SOCID_R40)) {
+		writel((para->ranks[1].bank_bits == 3 ? MCTL_CR_EIGHT_BANKS : MCTL_CR_FOUR_BANKS) |
+		       MCTL_CR_BUS_FULL_WIDTH(para->bus_full_width) |
+		       MCTL_CR_DUAL_RANK |
+		       MCTL_CR_PAGE_SIZE(para->ranks[1].page_size) |
+		       MCTL_CR_ROW_BITS(para->ranks[1].row_bits), &mctl_com->cr_r1);
+	}
 
 	if (socid == SOCID_R40) {
-		if (para->dual_rank)
-			panic("Dual rank memory not supported\n");
-
 		/* Mux pin to A15 address line for single rank memory. */
-		setbits_le32(&mctl_com->cr_r1, MCTL_CR_R1_MUX_A15);
+		if (!para->dual_rank)
+			setbits_le32(&mctl_com->cr_r1, MCTL_CR_R1_MUX_A15);
 	}
 }
 
@@ -646,33 +652,103 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 	return 0;
 }
 
-static void mctl_auto_detect_dram_size(uint16_t socid, struct dram_para *para)
+/*
+ * Test if memory at offset offset matches memory at a certain base
+ */
+static bool mctl_mem_matches_base(u32 offset, ulong base)
+{
+	/* Try to write different values to RAM at two addresses */
+	writel(0, base);
+	writel(0xaa55aa55, base + offset);
+	dsb();
+	/* Check if the same value is actually observed when reading back */
+	return readl(base) ==
+	       readl(base + offset);
+}
+
+static void mctl_auto_detect_dram_size_rank(uint16_t socid, struct dram_para *para, ulong base, struct rank_para *rank)
 {
 	/* detect row address bits */
-	para->page_size = 512;
-	para->row_bits = 16;
-	para->bank_bits = 2;
+	rank->page_size = 512;
+	rank->row_bits = 16;
+	rank->bank_bits = 2;
 	mctl_set_cr(socid, para);
 
-	for (para->row_bits = 11; para->row_bits < 16; para->row_bits++)
-		if (mctl_mem_matches((1 << (para->row_bits + para->bank_bits)) * para->page_size))
+	for (rank->row_bits = 11; rank->row_bits < 16; rank->row_bits++)
+		if (mctl_mem_matches_base((1 << (rank->row_bits + rank->bank_bits)) * rank->page_size, base))
 			break;
 
 	/* detect bank address bits */
-	para->bank_bits = 3;
+	rank->bank_bits = 3;
 	mctl_set_cr(socid, para);
 
-	for (para->bank_bits = 2; para->bank_bits < 3; para->bank_bits++)
-		if (mctl_mem_matches((1 << para->bank_bits) * para->page_size))
+	for (rank->bank_bits = 2; rank->bank_bits < 3; rank->bank_bits++)
+		if (mctl_mem_matches_base((1 << rank->bank_bits) * rank->page_size, base))
 			break;
 
 	/* detect page size */
-	para->page_size = 8192;
+	rank->page_size = 8192;
 	mctl_set_cr(socid, para);
 
-	for (para->page_size = 512; para->page_size < 8192; para->page_size *= 2)
-		if (mctl_mem_matches(para->page_size))
+	for (rank->page_size = 512; rank->page_size < 8192; rank->page_size *= 2)
+		if (mctl_mem_matches_base(rank->page_size, base))
 			break;
+}
+
+static unsigned long mctl_calc_rank_size(struct rank_para *rank)
+{
+	return (1UL << (rank->row_bits + rank->bank_bits)) * rank->page_size;
+}
+
+/*
+ * Because we cannot do mctl_phy_init(PIR_QSGATE) on R40 now (which leads
+ * to failure), it's needed to detect the rank count of R40 in another way.
+ *
+ * The code here is modelled after time_out_detect() in BSP, which tries to
+ * access the memory and check for error code.
+ *
+ * TODO: auto detect half DQ width here
+ */
+static void mctl_r40_detect_rank_count(struct dram_para *para)
+{
+	ulong rank1_base = (ulong) CONFIG_SYS_SDRAM_BASE +
+			   mctl_calc_rank_size(&para->ranks[0]);
+	struct sunxi_mctl_ctl_reg * const mctl_ctl =
+			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
+
+	/* Enable read time out */
+	setbits_le32(&mctl_ctl->pgcr[0], 0x1 << 25);
+
+	(void) readl((void *) rank1_base);
+	udelay(10);
+
+	if (readl(&mctl_ctl->pgsr[0]) & (0x1 << 13)) {
+		clrsetbits_le32(&mctl_ctl->dtcr, 0xf << 24, 0x1 << 24);
+		para->dual_rank = 0;
+	}
+
+	/* Reset PHY FIFO to clear it */
+	clrbits_le32(&mctl_ctl->pgcr[0], 0x1 << 26);
+	udelay(100);
+	setbits_le32(&mctl_ctl->pgcr[0], 0x1 << 26);
+
+	/* Clear error status */
+	setbits_le32(&mctl_ctl->pgcr[0], 0x1 << 24);
+
+	/* Clear time out flag */
+	clrbits_le32(&mctl_ctl->pgsr[0], 0x1 << 13);
+
+	/* Disable read time out */
+	clrbits_le32(&mctl_ctl->pgcr[0], 0x1 << 25);
+}
+
+static void mctl_auto_detect_dram_size(uint16_t socid, struct dram_para *para)
+{
+	mctl_auto_detect_dram_size_rank(socid, para, (ulong)CONFIG_SYS_SDRAM_BASE, &para->ranks[0]);
+
+	if ((socid == SOCID_A64 || socid == SOCID_R40) && para->dual_rank) {
+		mctl_auto_detect_dram_size_rank(socid, para, (ulong)CONFIG_SYS_SDRAM_BASE + mctl_calc_rank_size(&para->ranks[0]), &para->ranks[1]);
+	}
 }
 
 /*
@@ -769,12 +845,23 @@ unsigned long sunxi_dram_init(void)
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
 
+	unsigned long size;
+
 	struct dram_para para = {
 		.dual_rank = 1,
 		.bus_full_width = 1,
-		.row_bits = 15,
-		.bank_bits = 3,
-		.page_size = 4096,
+		.ranks = {
+			{
+				.row_bits = 15,
+				.bank_bits = 3,
+				.page_size = 4096,
+			},
+			{
+				.row_bits = 15,
+				.bank_bits = 3,
+				.page_size = 4096,
+			}
+		},
 
 #if defined(CONFIG_MACH_SUN8I_H3)
 		.dx_read_delays  = SUN8I_H3_DX_READ_DELAYS,
@@ -807,8 +894,6 @@ unsigned long sunxi_dram_init(void)
 	uint16_t socid = SOCID_H3;
 #elif defined(CONFIG_MACH_SUN8I_R40)
 	uint16_t socid = SOCID_R40;
-	/* Currently we cannot support R40 with dual rank memory */
-	para.dual_rank = 0;
 #elif defined(CONFIG_MACH_SUN8I_V3S)
 	uint16_t socid = SOCID_V3S;
 #elif defined(CONFIG_MACH_SUN50I)
@@ -843,9 +928,21 @@ unsigned long sunxi_dram_init(void)
 	setbits_le32(&mctl_com->cccr, 1 << 31);
 	udelay(10);
 
+	if (socid == SOCID_R40) {
+		mctl_r40_detect_rank_count(&para);
+		mctl_set_cr(SOCID_R40, &para);
+	}
+
 	mctl_auto_detect_dram_size(socid, &para);
 	mctl_set_cr(socid, &para);
 
-	return (1UL << (para.row_bits + para.bank_bits)) * para.page_size *
-	       (para.dual_rank ? 2 : 1);
+	size = mctl_calc_rank_size(&para.ranks[0]);
+	if (socid == SOCID_A64 || socid == SOCID_R40) {
+		if (para.dual_rank)
+			size += mctl_calc_rank_size(&para.ranks[1]);
+	} else if (para.dual_rank) {
+		size *= 2;
+	}
+
+	return size;
 }

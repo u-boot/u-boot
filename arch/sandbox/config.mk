@@ -2,7 +2,6 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 
 PLATFORM_CPPFLAGS += -D__SANDBOX__ -U_FORTIFY_SOURCE
-PLATFORM_CPPFLAGS += -DCONFIG_ARCH_MAP_SYSMEM
 PLATFORM_CPPFLAGS += -fPIC
 PLATFORM_LIBS += -lrt
 SDL_CONFIG ?= sdl2-config
@@ -17,13 +16,21 @@ PLATFORM_CPPFLAGS += $(shell $(SDL_CONFIG) --cflags)
 endif
 
 cmd_u-boot__ = $(CC) -o $@ -Wl,-T u-boot.lds $(u-boot-init) \
-	-Wl,--start-group $(u-boot-main) -Wl,--end-group \
+	$(LTO_FINAL_LDFLAGS) \
+	-Wl,--whole-archive \
+		$(u-boot-main) \
+		$(u-boot-keep-syms-lto) \
+	-Wl,--no-whole-archive \
 	$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot.map
 
 cmd_u-boot-spl = (cd $(obj) && $(CC) -o $(SPL_BIN) -Wl,-T u-boot-spl.lds \
+	$(LTO_FINAL_LDFLAGS) \
 	$(patsubst $(obj)/%,%,$(u-boot-spl-init)) \
-	-Wl,--start-group $(patsubst $(obj)/%,%,$(u-boot-spl-main)) \
-	$(patsubst $(obj)/%,%,$(u-boot-spl-platdata)) -Wl,--end-group \
+	-Wl,--whole-archive \
+		$(patsubst $(obj)/%,%,$(u-boot-spl-main)) \
+		$(patsubst $(obj)/%,%,$(u-boot-spl-platdata)) \
+		$(patsubst $(obj)/%,%,$(u-boot-spl-keep-syms-lto)) \
+	-Wl,--no-whole-archive \
 	$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot-spl.map -Wl,--gc-sections)
 
 CONFIG_ARCH_DEVICE_TREE := sandbox

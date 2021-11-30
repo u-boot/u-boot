@@ -191,7 +191,7 @@ static int do_smhload(struct cmd_tbl *cmdtp, int flag, int argc,
 		int ret;
 		char end_str[64];
 
-		load_addr = simple_strtoul(argv[2], NULL, 16);
+		load_addr = hextoul(argv[2], NULL);
 		if (!load_addr)
 			return -1;
 

@@ -4,3 +4,16 @@
  */
 
 #include "rockchip-u-boot.dtsi"
+
+&global_timer {
+	status = "okay";
+};
+
+&gpio0 {
+	compatible = "rockchip,gpio-bank";
+};
+
+&pmu {
+	compatible = "rockchip,rk3188-pmu", "syscon", "simple-mfd";
+};
+

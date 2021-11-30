@@ -124,12 +124,12 @@ config RENESAS_OSTM_TIMER
 	  Enables support for the Renesas OSTM Timer driver.
 	  This timer is present on Renesas RZ/A1 R7S72100 SoCs.
 
-config X86_TSC_TIMER_EARLY_FREQ
-	int "x86 TSC timer frequency in MHz when used as the early timer"
+config X86_TSC_TIMER_FREQ
+	int "x86 TSC timer frequency in Hz"
 	depends on X86_TSC_TIMER
-	default 1000
+	default 1000000000
 	help
-	  Sets the estimated CPU frequency in MHz when TSC is used as the
+	  Sets the estimated CPU frequency in Hz when TSC is used as the
 	  early timer and the frequency can neither be calibrated via some
 	  hardware ways, nor got from device tree at the time when device
 	  tree is not available yet.
@@ -226,5 +226,12 @@ config MCHP_PIT64B_TIMER
 	help
 	  Select this to enable support for Microchip 64-bit periodic
 	  interval timer.
+
+config IMX_GPT_TIMER
+	bool "NXP i.MX GPT timer support"
+	depends on TIMER
+	help
+	  Select this to enable support for the timer found on
+	  NXP i.MX devices.
 
 endmenu

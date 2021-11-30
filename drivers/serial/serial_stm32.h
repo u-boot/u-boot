@@ -48,7 +48,7 @@ struct stm32_uart_info stm32h7_info = {
 };
 
 /* Information about a serial port */
-struct stm32x7_serial_platdata {
+struct stm32x7_serial_plat {
 	fdt_addr_t base;  /* address of registers in physical memory */
 	struct stm32_uart_info *uart_info;
 	unsigned long int clock_rate;

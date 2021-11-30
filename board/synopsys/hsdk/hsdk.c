@@ -14,6 +14,7 @@
 #include <irq_func.h>
 #include <log.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
@@ -870,7 +871,7 @@ int board_prep_linux(bootm_headers_t *images)
 	if (env_common.core_mask.val == ALL_CPU_MASK)
 		return 0;
 
-	if (!IMAGE_ENABLE_OF_LIBFDT || !images->ft_len) {
+	if (!CONFIG_IS_ENABLED(OF_LIBFDT) || !images->ft_len) {
 		pr_err("WARN: core_mask setup will work properly only with external DTB!\n");
 		return 0;
 	}

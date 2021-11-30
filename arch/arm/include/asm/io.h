@@ -338,6 +338,7 @@ extern void __readwrite_bug(const char *fn);
 
 /* Optimized copy functions to read from/write to IO sapce */
 #ifdef CONFIG_ARM64
+#include <cpu_func.h>
 /*
  * Copy data from IO memory space to "real" memory space.
  */
@@ -351,11 +352,13 @@ void __memcpy_fromio(void *to, const volatile void __iomem *from, size_t count)
 		count--;
 	}
 
-	while (count >= 8) {
-		*(u64 *)to = __raw_readq(from);
-		from += 8;
-		to += 8;
-		count -= 8;
+	if (mmu_status()) {
+		while (count >= 8) {
+			*(u64 *)to = __raw_readq(from);
+			from += 8;
+			to += 8;
+			count -= 8;
+		}
 	}
 
 	while (count) {
@@ -379,11 +382,13 @@ void __memcpy_toio(volatile void __iomem *to, const void *from, size_t count)
 		count--;
 	}
 
-	while (count >= 8) {
-		__raw_writeq(*(u64 *)from, to);
-		from += 8;
-		to += 8;
-		count -= 8;
+	if (mmu_status()) {
+		while (count >= 8) {
+			__raw_writeq(*(u64 *)from, to);
+			from += 8;
+			to += 8;
+			count -= 8;
+		}
 	}
 
 	while (count) {

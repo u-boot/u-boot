@@ -15,15 +15,6 @@
 #include <linux/kernel.h>
 #include "eeprom.h"
 
-#ifndef CONFIG_SYS_I2C_EEPROM_ADDR
-# define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-# define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#endif
-
-#ifndef CONFIG_SYS_I2C_EEPROM_BUS
-#define CONFIG_SYS_I2C_EEPROM_BUS	0
-#endif
-
 #define EEPROM_LAYOUT_VER_OFFSET	44
 #define BOARD_SERIAL_OFFSET		20
 #define BOARD_SERIAL_OFFSET_LEGACY	8
@@ -153,7 +144,7 @@ u32 cl_eeprom_get_board_rev(uint eeprom_bus)
 	 */
 	if (cl_eeprom_layout == LAYOUT_LEGACY) {
 		sprintf(str, "%x", board_rev);
-		board_rev = simple_strtoul(str, NULL, 10);
+		board_rev = dectoul(str, NULL);
 	}
 
 	return board_rev;
@@ -394,42 +385,7 @@ int eeprom_field_update_date(struct eeprom_field *field, char *value)
 #define	LAYOUT_VERSION_VER2 3
 #define	LAYOUT_VERSION_VER3 4
 
-extern struct eeprom_field layout_unknown[1];
-
 #define DEFINE_PRINT_UPDATE(x) eeprom_field_print_##x, eeprom_field_update_##x
-
-#ifdef CONFIG_CM_T3X
-struct eeprom_field layout_legacy[5] = {
-	{ "MAC address",          6, NULL, DEFINE_PRINT_UPDATE(mac) },
-	{ "Board Revision",       2, NULL, DEFINE_PRINT_UPDATE(bin) },
-	{ "Serial Number",        8, NULL, DEFINE_PRINT_UPDATE(bin) },
-	{ "Board Configuration", 64, NULL, DEFINE_PRINT_UPDATE(ascii) },
-	{ RESERVED_FIELDS,      176, NULL, eeprom_field_print_reserved,
-					   eeprom_field_update_ascii },
-};
-#else
-#define layout_legacy layout_unknown
-#endif
-
-#if defined(CONFIG_CM_T3X)
-struct eeprom_field layout_v1[12] = {
-	{ "Major Revision",      2, NULL, DEFINE_PRINT_UPDATE(bin_ver) },
-	{ "Minor Revision",      2, NULL, DEFINE_PRINT_UPDATE(bin_ver) },
-	{ "1st MAC Address",     6, NULL, DEFINE_PRINT_UPDATE(mac) },
-	{ "2nd MAC Address",     6, NULL, DEFINE_PRINT_UPDATE(mac) },
-	{ "Production Date",     4, NULL, DEFINE_PRINT_UPDATE(date) },
-	{ "Serial Number",      12, NULL, DEFINE_PRINT_UPDATE(bin_rev) },
-	{ RESERVED_FIELDS,      96, NULL, DEFINE_PRINT_UPDATE(reserved) },
-	{ "Product Name",       16, NULL, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #1", 16, NULL, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #2", 16, NULL, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #3", 16, NULL, DEFINE_PRINT_UPDATE(ascii) },
-	{ RESERVED_FIELDS,      64, NULL, eeprom_field_print_reserved,
-					  eeprom_field_update_ascii },
-};
-#else
-#define layout_v1 layout_unknown
-#endif
 
 struct eeprom_field layout_v2[15] = {
 	{ "Major Revision",            2, NULL, DEFINE_PRINT_UPDATE(bin_ver) },
@@ -473,14 +429,6 @@ struct eeprom_field layout_v3[16] = {
 void eeprom_layout_assign(struct eeprom_layout *layout, int layout_version)
 {
 	switch (layout->layout_version) {
-	case LAYOUT_VERSION_LEGACY:
-		layout->fields = layout_legacy;
-		layout->num_of_fields = ARRAY_SIZE(layout_legacy);
-		break;
-	case LAYOUT_VERSION_VER1:
-		layout->fields = layout_v1;
-		layout->num_of_fields = ARRAY_SIZE(layout_v1);
-		break;
 	case LAYOUT_VERSION_VER2:
 		layout->fields = layout_v2;
 		layout->num_of_fields = ARRAY_SIZE(layout_v2);

@@ -12,6 +12,7 @@
 #include <ns16550.h>
 #include <spl.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 #include <asm/arch/clock.h>
@@ -44,7 +45,7 @@ enum {
 	UART_COUNT = 5,
 };
 
-static bool from_spl __attribute__ ((section(".data")));
+static bool from_spl __section(".data");
 
 #ifndef CONFIG_SPL_BUILD
 void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
@@ -257,14 +258,14 @@ void board_init_uart_f(void)
 }
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
-static struct ns16550_platdata ns16550_com1_pdata = {
+static struct ns16550_plat ns16550_com1_pdata = {
 	.base = CONFIG_SYS_NS16550_COM1,
 	.reg_shift = 2,
 	.clock = CONFIG_SYS_NS16550_CLK,
 	.fcr = UART_FCR_DEFVAL,
 };
 
-U_BOOT_DEVICE(ns16550_com1) = {
+U_BOOT_DRVINFO(ns16550_com1) = {
 	"ns16550_serial", &ns16550_com1_pdata
 };
 #endif

@@ -27,9 +27,9 @@ void puts(const char *str)
 void putc(char c)
 {
 	if (c == '\n')
-		NS16550_putc((NS16550_t)(CONFIG_SYS_NS16550_COM1), '\r');
+		ns16550_putc((struct ns16550 *)(CONFIG_SYS_NS16550_COM1), '\r');
 
-	NS16550_putc((NS16550_t)(CONFIG_SYS_NS16550_COM1), c);
+	ns16550_putc((struct ns16550 *)(CONFIG_SYS_NS16550_COM1), c);
 }
 #endif /* CONFIG_SPL_LIBCOMMON_SUPPORT */
 
@@ -51,7 +51,7 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_NAND;
 #endif
 
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_MMC
 	case DAVINCI_SD_OR_MMC_BOOT:
 	case DAVINCI_MMC_ONLY_BOOT:
 		return BOOT_DEVICE_MMC1;

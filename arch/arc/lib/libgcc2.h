@@ -35,7 +35,7 @@ typedef		 int HItype	__attribute__ ((mode (HI)));
 typedef unsigned int UHItype	__attribute__ ((mode (HI)));
 #if MIN_UNITS_PER_WORD > 1
 /* These typedefs are usually forbidden on dsp's with UNITS_PER_WORD 1.  */
-typedef 	 int SItype	__attribute__ ((mode (SI)));
+typedef		 int SItype	__attribute__ ((mode (SI)));
 typedef unsigned int USItype	__attribute__ ((mode (SI)));
 #if __SIZEOF_LONG_LONG__ > 4
 /* These typedefs are usually forbidden on archs with UNITS_PER_WORD 2.  */

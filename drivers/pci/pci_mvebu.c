@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/of_access.h>
@@ -35,6 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PCIE_DEV_REV_OFF		0x0008
 #define  PCIE_BAR_LO_OFF(n)		(0x0010 + ((n) << 3))
 #define  PCIE_BAR_HI_OFF(n)		(0x0014 + ((n) << 3))
+#define PCIE_EXP_ROM_BAR_OFF		0x0030
 #define PCIE_CAPAB_OFF			0x0060
 #define PCIE_CTRL_STAT_OFF		0x0068
 #define PCIE_HEADER_LOG_4_OFF		0x0128
@@ -51,15 +53,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #define  PCIE_CONF_BUS(b)		(((b) & 0xff) << 16)
 #define  PCIE_CONF_DEV(d)		(((d) & 0x1f) << 11)
 #define  PCIE_CONF_FUNC(f)		(((f) & 0x7) << 8)
-#define  PCIE_CONF_ADDR(dev, reg) \
-	(PCIE_CONF_BUS(PCI_BUS(dev)) | PCIE_CONF_DEV(PCI_DEV(dev))    | \
-	 PCIE_CONF_FUNC(PCI_FUNC(dev)) | PCIE_CONF_REG(reg) | \
+#define  PCIE_CONF_ADDR(b, d, f, reg) \
+	(PCIE_CONF_BUS(b) | PCIE_CONF_DEV(d)    | \
+	 PCIE_CONF_FUNC(f) | PCIE_CONF_REG(reg) | \
 	 PCIE_CONF_ADDR_EN)
 #define PCIE_CONF_DATA_OFF		0x18fc
 #define PCIE_MASK_OFF			0x1910
 #define  PCIE_MASK_ENABLE_INTS          (0xf << 24)
 #define PCIE_CTRL_OFF			0x1a00
 #define  PCIE_CTRL_X1_MODE		BIT(0)
+#define  PCIE_CTRL_RC_MODE		BIT(1)
 #define PCIE_STAT_OFF			0x1a04
 #define  PCIE_STAT_BUS                  (0xff << 8)
 #define  PCIE_STAT_DEV                  (0x1f << 16)
@@ -73,14 +76,19 @@ struct mvebu_pcie {
 	void __iomem *membase;
 	struct resource mem;
 	void __iomem *iobase;
+	struct resource io;
 	u32 port;
 	u32 lane;
 	int devfn;
 	u32 lane_mask;
-	pci_dev_t dev;
+	int first_busno;
+	int sec_busno;
 	char name[16];
 	unsigned int mem_target;
 	unsigned int mem_attr;
+	unsigned int io_target;
+	unsigned int io_attr;
+	u32 cfgcache[0x34 - 0x10];
 };
 
 /*
@@ -89,7 +97,7 @@ struct mvebu_pcie {
  * and 64K of I/O space when registered.
  */
 static void __iomem *mvebu_pcie_membase = (void __iomem *)MBUS_PCI_MEM_BASE;
-#define PCIE_MEM_SIZE	(128 << 20)
+static void __iomem *mvebu_pcie_iobase = (void __iomem *)MBUS_PCI_IO_BASE;
 
 static inline bool mvebu_pcie_link_up(struct mvebu_pcie *pcie)
 {
@@ -118,67 +126,105 @@ static void mvebu_pcie_set_local_dev_nr(struct mvebu_pcie *pcie, int devno)
 	writel(stat, pcie->base + PCIE_STAT_OFF);
 }
 
-static int mvebu_pcie_get_local_bus_nr(struct mvebu_pcie *pcie)
-{
-	u32 stat;
-
-	stat = readl(pcie->base + PCIE_STAT_OFF);
-	return (stat & PCIE_STAT_BUS) >> 8;
-}
-
-static int mvebu_pcie_get_local_dev_nr(struct mvebu_pcie *pcie)
-{
-	u32 stat;
-
-	stat = readl(pcie->base + PCIE_STAT_OFF);
-	return (stat & PCIE_STAT_DEV) >> 16;
-}
-
 static inline struct mvebu_pcie *hose_to_pcie(struct pci_controller *hose)
 {
 	return container_of(hose, struct mvebu_pcie, hose);
+}
+
+static bool mvebu_pcie_valid_addr(struct mvebu_pcie *pcie,
+				  int busno, int dev, int func)
+{
+	/* On primary bus is only one PCI Bridge */
+	if (busno == pcie->first_busno && (dev != 0 || func != 0))
+		return false;
+
+	/* Access to other buses is possible when link is up */
+	if (busno != pcie->first_busno && !mvebu_pcie_link_up(pcie))
+		return false;
+
+	/* On secondary bus can be only one PCIe device */
+	if (busno == pcie->sec_busno && dev != 0)
+		return false;
+
+	return true;
 }
 
 static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 				  uint offset, ulong *valuep,
 				  enum pci_size_t size)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(bus);
-	int local_bus = PCI_BUS(pcie->dev);
-	int local_dev = PCI_DEV(pcie->dev);
-	u32 reg;
-	u32 data;
+	struct mvebu_pcie *pcie = dev_get_plat(bus);
+	int busno = PCI_BUS(bdf) - dev_seq(bus);
+	u32 addr, data;
 
-	debug("PCIE CFG read:  (b,d,f)=(%2d,%2d,%2d) ",
+	debug("PCIE CFG read: (b,d,f)=(%2d,%2d,%2d) ",
 	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
 
-	/* Only allow one other device besides the local one on the local bus */
-	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) != local_dev) {
-		if (local_dev == 0 && PCI_DEV(bdf) != 1) {
-			debug("- out of range\n");
-			/*
-			 * If local dev is 0, the first other dev can
-			 * only be 1
-			 */
-			*valuep = pci_get_ff(size);
-			return 0;
-		} else if (local_dev != 0 && PCI_DEV(bdf) != 0) {
-			debug("- out of range\n");
-			/*
-			 * If local dev is not 0, the first other dev can
-			 * only be 0
-			 */
-			*valuep = pci_get_ff(size);
-			return 0;
-		}
+	if (!mvebu_pcie_valid_addr(pcie, busno, PCI_DEV(bdf), PCI_FUNC(bdf))) {
+		debug("- out of range\n");
+		*valuep = pci_get_ff(size);
+		return 0;
 	}
 
+	/*
+	 * mvebu has different internal registers mapped into PCI config space
+	 * in range 0x10-0x34 for PCI bridge, so do not access PCI config space
+	 * for this range and instead read content from driver virtual cfgcache
+	 */
+	if (busno == pcie->first_busno && offset >= 0x10 && offset < 0x34) {
+		data = pcie->cfgcache[(offset - 0x10) / 4];
+		debug("(addr,size,val)=(0x%04x, %d, 0x%08x) from cfgcache\n",
+		      offset, size, data);
+		*valuep = pci_conv_32_to_size(data, offset, size);
+		return 0;
+	} else if (busno == pcie->first_busno &&
+		   (offset & ~3) == PCI_ROM_ADDRESS1) {
+		/* mvebu has Expansion ROM Base Address (0x38) at offset 0x30 */
+		offset -= PCI_ROM_ADDRESS1 - PCIE_EXP_ROM_BAR_OFF;
+	}
+
+	/*
+	 * PCI bridge is device 0 at primary bus but mvebu has it mapped on
+	 * secondary bus with device number 1.
+	 */
+	if (busno == pcie->first_busno)
+		addr = PCIE_CONF_ADDR(pcie->sec_busno, 1, 0, offset);
+	else
+		addr = PCIE_CONF_ADDR(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
+
 	/* write address */
-	reg = PCIE_CONF_ADDR(bdf, offset);
-	writel(reg, pcie->base + PCIE_CONF_ADDR_OFF);
-	data = readl(pcie->base + PCIE_CONF_DATA_OFF);
-	debug("(addr,val)=(0x%04x, 0x%08x)\n", offset, data);
-	*valuep = pci_conv_32_to_size(data, offset, size);
+	writel(addr, pcie->base + PCIE_CONF_ADDR_OFF);
+
+	/* read data */
+	switch (size) {
+	case PCI_SIZE_8:
+		data = readb(pcie->base + PCIE_CONF_DATA_OFF + (offset & 3));
+		break;
+	case PCI_SIZE_16:
+		data = readw(pcie->base + PCIE_CONF_DATA_OFF + (offset & 2));
+		break;
+	case PCI_SIZE_32:
+		data = readl(pcie->base + PCIE_CONF_DATA_OFF);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	if (busno == pcie->first_busno &&
+	    (offset & ~3) == (PCI_HEADER_TYPE & ~3)) {
+		/*
+		 * Change Header Type of PCI Bridge device to Type 1
+		 * (0x01, used by PCI Bridges) because mvebu reports
+		 * Type 0 (0x00, used by Upstream and Endpoint devices).
+		 */
+		data = pci_conv_size_to_32(data, 0, offset, size);
+		data &= ~0x007f0000;
+		data |= PCI_HEADER_TYPE_BRIDGE << 16;
+		data = pci_conv_32_to_size(data, offset, size);
+	}
+
+	debug("(addr,size,val)=(0x%04x, %d, 0x%08x)\n", offset, size, data);
+	*valuep = data;
 
 	return 0;
 }
@@ -187,35 +233,80 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 				   uint offset, ulong value,
 				   enum pci_size_t size)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(bus);
-	int local_bus = PCI_BUS(pcie->dev);
-	int local_dev = PCI_DEV(pcie->dev);
-	u32 data;
+	struct mvebu_pcie *pcie = dev_get_plat(bus);
+	int busno = PCI_BUS(bdf) - dev_seq(bus);
+	u32 addr, data;
 
 	debug("PCIE CFG write: (b,d,f)=(%2d,%2d,%2d) ",
 	      PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
-	debug("(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
+	debug("(addr,size,val)=(0x%04x, %d, 0x%08lx)\n", offset, size, value);
 
-	/* Only allow one other device besides the local one on the local bus */
-	if (PCI_BUS(bdf) == local_bus && PCI_DEV(bdf) != local_dev) {
-		if (local_dev == 0 && PCI_DEV(bdf) != 1) {
-			/*
-			 * If local dev is 0, the first other dev can
-			 * only be 1
-			 */
-			return 0;
-		} else if (local_dev != 0 && PCI_DEV(bdf) != 0) {
-			/*
-			 * If local dev is not 0, the first other dev can
-			 * only be 0
-			 */
-			return 0;
-		}
+	if (!mvebu_pcie_valid_addr(pcie, busno, PCI_DEV(bdf), PCI_FUNC(bdf))) {
+		debug("- out of range\n");
+		return 0;
 	}
 
-	writel(PCIE_CONF_ADDR(bdf, offset), pcie->base + PCIE_CONF_ADDR_OFF);
-	data = pci_conv_size_to_32(0, value, offset, size);
-	writel(data, pcie->base + PCIE_CONF_DATA_OFF);
+	/*
+	 * mvebu has different internal registers mapped into PCI config space
+	 * in range 0x10-0x34 for PCI bridge, so do not access PCI config space
+	 * for this range and instead write content to driver virtual cfgcache
+	 */
+	if (busno == pcie->first_busno && offset >= 0x10 && offset < 0x34) {
+		debug("Writing to cfgcache only\n");
+		data = pcie->cfgcache[(offset - 0x10) / 4];
+		data = pci_conv_size_to_32(data, value, offset, size);
+		/* mvebu PCI bridge does not have configurable bars */
+		if ((offset & ~3) == PCI_BASE_ADDRESS_0 ||
+		    (offset & ~3) == PCI_BASE_ADDRESS_1)
+			data = 0x0;
+		pcie->cfgcache[(offset - 0x10) / 4] = data;
+		/* mvebu has its own way how to set PCI primary bus number */
+		if (offset == PCI_PRIMARY_BUS) {
+			pcie->first_busno = data & 0xff;
+			debug("Primary bus number was changed to %d\n",
+			      pcie->first_busno);
+		}
+		/* mvebu has its own way how to set PCI secondary bus number */
+		if (offset == PCI_SECONDARY_BUS ||
+		    (offset == PCI_PRIMARY_BUS && size != PCI_SIZE_8)) {
+			pcie->sec_busno = (data >> 8) & 0xff;
+			mvebu_pcie_set_local_bus_nr(pcie, pcie->sec_busno);
+			debug("Secondary bus number was changed to %d\n",
+			      pcie->sec_busno);
+		}
+		return 0;
+	} else if (busno == pcie->first_busno &&
+		   (offset & ~3) == PCI_ROM_ADDRESS1) {
+		/* mvebu has Expansion ROM Base Address (0x38) at offset 0x30 */
+		offset -= PCI_ROM_ADDRESS1 - PCIE_EXP_ROM_BAR_OFF;
+	}
+
+	/*
+	 * PCI bridge is device 0 at primary bus but mvebu has it mapped on
+	 * secondary bus with device number 1.
+	 */
+	if (busno == pcie->first_busno)
+		addr = PCIE_CONF_ADDR(pcie->sec_busno, 1, 0, offset);
+	else
+		addr = PCIE_CONF_ADDR(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
+
+	/* write address */
+	writel(addr, pcie->base + PCIE_CONF_ADDR_OFF);
+
+	/* write data */
+	switch (size) {
+	case PCI_SIZE_8:
+		writeb(value, pcie->base + PCIE_CONF_DATA_OFF + (offset & 3));
+		break;
+	case PCI_SIZE_16:
+		writew(value, pcie->base + PCIE_CONF_DATA_OFF + (offset & 2));
+		break;
+	case PCI_SIZE_32:
+		writel(value, pcie->base + PCIE_CONF_DATA_OFF);
+		break;
+	default:
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -277,59 +368,114 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 
 static int mvebu_pcie_probe(struct udevice *dev)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(dev);
+	struct mvebu_pcie *pcie = dev_get_plat(dev);
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
-	static int bus;
 	u32 reg;
 
-	debug("%s: PCIe %d.%d - up, base %08x\n", __func__,
-	      pcie->port, pcie->lane, (u32)pcie->base);
+	/* Setup PCIe controller to Root Complex mode */
+	reg = readl(pcie->base + PCIE_CTRL_OFF);
+	reg |= PCIE_CTRL_RC_MODE;
+	writel(reg, pcie->base + PCIE_CTRL_OFF);
 
-	/* Read Id info and local bus/dev */
-	debug("direct conf read %08x, local bus %d, local dev %d\n",
-	      readl(pcie->base), mvebu_pcie_get_local_bus_nr(pcie),
-	      mvebu_pcie_get_local_dev_nr(pcie));
+	/*
+	 * Change Class Code of PCI Bridge device to PCI Bridge (0x600400)
+	 * because default value is Memory controller (0x508000) which
+	 * U-Boot cannot recognize as P2P Bridge.
+	 *
+	 * Note that this mvebu PCI Bridge does not have compliant Type 1
+	 * Configuration Space. Header Type is reported as Type 0 and in
+	 * range 0x10-0x34 it has aliased internal mvebu registers 0x10-0x34
+	 * (e.g. PCIE_BAR_LO_OFF) and register 0x38 is reserved.
+	 *
+	 * Driver for this range redirects access to virtual cfgcache[] buffer
+	 * which avoids changing internal mvebu registers. And changes Header
+	 * Type response value to Type 1.
+	 */
+	reg = readl(pcie->base + PCIE_DEV_REV_OFF);
+	reg &= ~0xffffff00;
+	reg |= (PCI_CLASS_BRIDGE_PCI << 8) << 8;
+	writel(reg, pcie->base + PCIE_DEV_REV_OFF);
 
-	mvebu_pcie_set_local_bus_nr(pcie, bus);
-	mvebu_pcie_set_local_dev_nr(pcie, 0);
-	pcie->dev = PCI_BDF(bus, 0, 0);
+	/*
+	 * mvebu uses local bus number and local device number to determinate
+	 * type of config request. Type 0 is used if target bus number equals
+	 * local bus number and target device number differs from local device
+	 * number. Type 1 is used if target bus number differs from local bus
+	 * number. And when target bus number equals local bus number and
+	 * target device equals local device number then request is routed to
+	 * PCI Bridge which represent local PCIe Root Port.
+	 *
+	 * It means that PCI primary and secondary buses shares one bus number
+	 * which is configured via local bus number. Determination if config
+	 * request should go to primary or secondary bus is done based on local
+	 * device number.
+	 *
+	 * PCIe is point-to-point bus, so at secondary bus is always exactly one
+	 * device with number 0. So set local device number to 1, it would not
+	 * conflict with any device on secondary bus number and will ensure that
+	 * accessing secondary bus and all buses behind secondary would work
+	 * automatically and correctly. Therefore this configuration of local
+	 * device number implies that setting of local bus number configures
+	 * secondary bus number. Set it to 0 as U-Boot CONFIG_PCI_PNP code will
+	 * later configure it via config write requests to the correct value.
+	 * mvebu_pcie_write_config() catches config write requests which tries
+	 * to change primary/secondary bus number and correctly updates local
+	 * bus number based on new secondary bus number.
+	 *
+	 * With this configuration is PCI Bridge available at secondary bus as
+	 * device number 1. But it must be available at primary bus as device
+	 * number 0. So in mvebu_pcie_read_config() and mvebu_pcie_write_config()
+	 * functions rewrite address to the real one when accessing primary bus.
+	 */
+	mvebu_pcie_set_local_bus_nr(pcie, 0);
+	mvebu_pcie_set_local_dev_nr(pcie, 1);
 
 	pcie->mem.start = (u32)mvebu_pcie_membase;
-	pcie->mem.end = pcie->mem.start + PCIE_MEM_SIZE - 1;
-	mvebu_pcie_membase += PCIE_MEM_SIZE;
+	pcie->mem.end = pcie->mem.start + MBUS_PCI_MEM_SIZE - 1;
+	mvebu_pcie_membase += MBUS_PCI_MEM_SIZE;
 
 	if (mvebu_mbus_add_window_by_id(pcie->mem_target, pcie->mem_attr,
 					(phys_addr_t)pcie->mem.start,
-					PCIE_MEM_SIZE)) {
+					MBUS_PCI_MEM_SIZE)) {
 		printf("PCIe unable to add mbus window for mem at %08x+%08x\n",
-		       (u32)pcie->mem.start, PCIE_MEM_SIZE);
+		       (u32)pcie->mem.start, MBUS_PCI_MEM_SIZE);
+	}
+
+	pcie->io.start = (u32)mvebu_pcie_iobase;
+	pcie->io.end = pcie->io.start + MBUS_PCI_IO_SIZE - 1;
+	mvebu_pcie_iobase += MBUS_PCI_IO_SIZE;
+
+	if (mvebu_mbus_add_window_by_id(pcie->io_target, pcie->io_attr,
+					(phys_addr_t)pcie->io.start,
+					MBUS_PCI_IO_SIZE)) {
+		printf("PCIe unable to add mbus window for IO at %08x+%08x\n",
+		       (u32)pcie->io.start, MBUS_PCI_IO_SIZE);
 	}
 
 	/* Setup windows and configure host bridge */
 	mvebu_pcie_setup_wins(pcie);
 
-	/* Master + slave enable. */
-	reg = readl(pcie->base + PCIE_CMD_OFF);
-	reg |= PCI_COMMAND_MEMORY;
-	reg |= PCI_COMMAND_MASTER;
-	reg |= BIT(10);		/* disable interrupts */
-	writel(reg, pcie->base + PCIE_CMD_OFF);
-
 	/* PCI memory space */
 	pci_set_region(hose->regions + 0, pcie->mem.start,
-		       pcie->mem.start, PCIE_MEM_SIZE, PCI_REGION_MEM);
+		       pcie->mem.start, MBUS_PCI_MEM_SIZE, PCI_REGION_MEM);
 	pci_set_region(hose->regions + 1,
 		       0, 0,
 		       gd->ram_size,
 		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-	hose->region_count = 2;
+	pci_set_region(hose->regions + 2, pcie->io.start,
+		       pcie->io.start, MBUS_PCI_IO_SIZE, PCI_REGION_IO);
+	hose->region_count = 3;
 
 	/* Set BAR0 to internal registers */
 	writel(SOC_REGS_PHY_BASE, pcie->base + PCIE_BAR_LO_OFF(0));
 	writel(0, pcie->base + PCIE_BAR_HI_OFF(0));
 
-	bus++;
+	/* PCI Bridge support 32-bit I/O and 64-bit prefetch mem addressing */
+	pcie->cfgcache[(PCI_IO_BASE - 0x10) / 4] =
+		PCI_IO_RANGE_TYPE_32 | (PCI_IO_RANGE_TYPE_32 << 8);
+	pcie->cfgcache[(PCI_PREF_MEMORY_BASE - 0x10) / 4] =
+		PCI_PREF_RANGE_TYPE_64 | (PCI_PREF_RANGE_TYPE_64 << 16);
 
 	return 0;
 }
@@ -410,9 +556,9 @@ static int mvebu_get_tgt_attr(ofnode node, int devfn,
 	return -ENOENT;
 }
 
-static int mvebu_pcie_ofdata_to_platdata(struct udevice *dev)
+static int mvebu_pcie_of_to_plat(struct udevice *dev)
 {
-	struct mvebu_pcie *pcie = dev_get_platdata(dev);
+	struct mvebu_pcie *pcie = dev_get_plat(dev);
 	int ret = 0;
 
 	/* Get port number, lane number and memory target / attr */
@@ -442,17 +588,18 @@ static int mvebu_pcie_ofdata_to_platdata(struct udevice *dev)
 		goto err;
 	}
 
+	ret = mvebu_get_tgt_attr(dev_ofnode(dev->parent), pcie->devfn,
+				 IORESOURCE_IO,
+				 &pcie->io_target, &pcie->io_attr);
+	if (ret < 0) {
+		printf("%s: cannot get tgt/attr for IO window\n", pcie->name);
+		goto err;
+	}
+
 	/* Parse PCIe controller register base from DT */
 	ret = mvebu_pcie_port_parse_dt(dev_ofnode(dev), pcie);
 	if (ret < 0)
 		goto err;
-
-	/* Check link and skip ports that have no link */
-	if (!mvebu_pcie_link_up(pcie)) {
-		debug("%s: %s - down\n", __func__, pcie->name);
-		ret = -ENODEV;
-		goto err;
-	}
 
 	return 0;
 
@@ -470,8 +617,8 @@ static struct driver pcie_mvebu_drv = {
 	.id			= UCLASS_PCI,
 	.ops			= &mvebu_pcie_ops,
 	.probe			= mvebu_pcie_probe,
-	.ofdata_to_platdata	= mvebu_pcie_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mvebu_pcie),
+	.of_to_plat	= mvebu_pcie_of_to_plat,
+	.plat_auto	= sizeof(struct mvebu_pcie),
 };
 
 /*
@@ -485,7 +632,7 @@ static int mvebu_pcie_bind(struct udevice *parent)
 	struct udevice *dev;
 	ofnode subnode;
 
-	/* Lookup eth driver */
+	/* Lookup pci driver */
 	drv = lists_uclass_lookup(UCLASS_PCI);
 	if (!drv) {
 		puts("Cannot find PCI driver\n");
@@ -501,8 +648,8 @@ static int mvebu_pcie_bind(struct udevice *parent)
 			return -ENOMEM;
 
 		/* Create child device UCLASS_PCI and bind it */
-		device_bind_ofnode(parent, &pcie_mvebu_drv, pcie->name, pcie,
-				   subnode, &dev);
+		device_bind(parent, &pcie_mvebu_drv, pcie->name, pcie, subnode,
+			    &dev);
 	}
 
 	return 0;

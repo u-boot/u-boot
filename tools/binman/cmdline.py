@@ -32,6 +32,10 @@ controlled by a description in the board device tree.'''
         default=False, help='Display the README file')
     parser.add_argument('--toolpath', type=str, action='append',
         help='Add a path to the directories containing tools')
+    parser.add_argument('-T', '--threads', type=int,
+          default=None, help='Number of threads to use (0=single-thread)')
+    parser.add_argument('--test-section-timeout', action='store_true',
+          help='Use a zero timeout for section multi-threading (for testing)')
     parser.add_argument('-v', '--verbosity', default=1,
         type=int, help='Control verbosity: 0=silent, 1=warnings, 2=notices, '
         '3=info, 4=detail, 5=debug')
@@ -56,6 +60,9 @@ controlled by a description in the board device tree.'''
         default=False, help='Output a map file for each image')
     build_parser.add_argument('-M', '--allow-missing', action='store_true',
         default=False, help='Allow external blobs to be missing')
+    build_parser.add_argument('-n', '--no-expanded', action='store_true',
+            help="Don't use 'expanded' versions of entries where available; "
+                 "normally 'u-boot' becomes 'u-boot-expanded', for example")
     build_parser.add_argument('-O', '--outdir', type=str,
         action='store', help='Path to directory to use for intermediate and '
         'output files')
@@ -64,9 +71,11 @@ controlled by a description in the board device tree.'''
              'given')
     build_parser.add_argument('-u', '--update-fdt', action='store_true',
         default=False, help='Update the binman node with offset/size info')
+    build_parser.add_argument('--update-fdt-in-elf', type=str,
+        help='Update an ELF file with the output dtb: infile,outfile,begin_sym,end_sym')
 
     entry_parser = subparsers.add_parser('entry-docs',
-        help='Write out entry documentation (see README.entries)')
+        help='Write out entry documentation (see entries.rst)')
 
     list_parser = subparsers.add_parser('ls', help='List files in an image')
     list_parser.add_argument('-i', '--image', type=str, required=True,
@@ -92,7 +101,7 @@ controlled by a description in the board device tree.'''
     replace_parser.add_argument('-C', '--compressed', action='store_true',
         help='Input data is already compressed if needed for the entry')
     replace_parser.add_argument('-i', '--image', type=str, required=True,
-                                help='Image filename to extract')
+                                help='Image filename to update')
     replace_parser.add_argument('-f', '--filename', type=str,
                                 help='Input filename to read from')
     replace_parser.add_argument('-F', '--fix-size', action='store_true',
@@ -102,7 +111,7 @@ controlled by a description in the board device tree.'''
     replace_parser.add_argument('-m', '--map', action='store_true',
         default=False, help='Output a map file for the updated image')
     replace_parser.add_argument('paths', type=str, nargs='*',
-                                help='Paths within file to extract (wildcard)')
+                                help='Paths within file to replace (wildcard)')
 
     test_parser = subparsers.add_parser('test', help='Run tests')
     test_parser.add_argument('-P', '--processes', type=int,

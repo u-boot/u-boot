@@ -128,6 +128,9 @@ class Popen(subprocess.Popen):
                         sys.stdout or sys.stderr.
                 data: a string containing the data
 
+            Returns:
+                True to terminate the process
+
         Note: The data read is buffered in memory, so do not use this
         method if the data size is large or unlimited.
 
@@ -169,12 +172,13 @@ class Popen(subprocess.Popen):
                 self.stdin.close()
         if self.stdout:
             read_set.append(self.stdout)
-            stdout = b''
+            stdout = bytearray()
         if self.stderr and self.stderr != self.stdout:
             read_set.append(self.stderr)
-            stderr = b''
-        combined = b''
+            stderr = bytearray()
+        combined = bytearray()
 
+        stop_now = False
         input_offset = 0
         while read_set or write_set:
             try:
@@ -212,7 +216,7 @@ class Popen(subprocess.Popen):
                     stdout += data
                     combined += data
                     if output:
-                        output(sys.stdout, data)
+                        stop_now = output(sys.stdout, data)
             if self.stderr in rlist:
                 data = b''
                 # We will get an error on read if the pty is closed
@@ -227,7 +231,9 @@ class Popen(subprocess.Popen):
                     stderr += data
                     combined += data
                     if output:
-                        output(sys.stderr, data)
+                        stop_now = output(sys.stderr, data)
+            if stop_now:
+                self.terminate()
 
         # All data exchanged.    Translate lists into strings.
         stdout = self.ConvertData(stdout)

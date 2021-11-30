@@ -44,15 +44,15 @@ static inline phys_addr_t map_to_sysmem(const void *ptr)
  * read/writes.  We define __arch_*[bl] here, and leave __arch_*w
  * to the architecture specific code.
  */
-#define __arch_getb(a)			(*(unsigned char *)(a))
-#define __arch_getw(a)			(*(unsigned short *)(a))
-#define __arch_getl(a)			(*(unsigned int *)(a))
-#define __arch_getq(a)			(*(unsigned long long *)(a))
+#define __arch_getb(a)			(*(volatile unsigned char *)(a))
+#define __arch_getw(a)			(*(volatile unsigned short *)(a))
+#define __arch_getl(a)			(*(volatile unsigned int *)(a))
+#define __arch_getq(a)			(*(volatile unsigned long long *)(a))
 
-#define __arch_putb(v, a)		(*(unsigned char *)(a) = (v))
-#define __arch_putw(v, a)		(*(unsigned short *)(a) = (v))
-#define __arch_putl(v, a)		(*(unsigned int *)(a) = (v))
-#define __arch_putq(v, a)		(*(unsigned long long *)(a) = (v))
+#define __arch_putb(v, a)		(*(volatile unsigned char *)(a) = (v))
+#define __arch_putw(v, a)		(*(volatile unsigned short *)(a) = (v))
+#define __arch_putl(v, a)		(*(volatile unsigned int *)(a) = (v))
+#define __arch_putq(v, a)		(*(volatile unsigned long long *)(a) = (v))
 
 #define __raw_writeb(v, a)		__arch_putb(v, a)
 #define __raw_writew(v, a)		__arch_putw(v, a)
@@ -63,6 +63,10 @@ static inline phys_addr_t map_to_sysmem(const void *ptr)
 #define __raw_readw(a)			__arch_getw(a)
 #define __raw_readl(a)			__arch_getl(a)
 #define __raw_readq(a)			__arch_getq(a)
+
+/* adding for cadence_qspi_apb.c */
+#define memcpy_fromio(a, c, l)		memcpy((a), (c), (l))
+#define memcpy_toio(c, a, l)		memcpy((c), (a), (l))
 
 #define dmb()		mb()
 #define __iormb()	rmb()

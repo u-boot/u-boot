@@ -8,7 +8,7 @@
 
 #include <asm-generic/gpio.h>
 
-struct ich6_bank_platdata {
+struct ich6_bank_plat {
 	uint16_t base_addr;
 	const char *bank_name;
 	int offset;

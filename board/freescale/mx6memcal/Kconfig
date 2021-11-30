@@ -87,12 +87,12 @@ choice
 	help
 	  Select the type of DDR (DDR3 or LPDDR2) used on your design
 
-config	DDR3
+config DDR3
 	bool "DDR3"
 	help
 	  Select this if your board design uses DDR3.
 
-config	LPDDR2
+config LPDDR2
 	bool "LPDDR2"
 	help
 	  Select this if your board design uses LPDDR2.
@@ -223,5 +223,8 @@ config REFR
 	   details.
 
 endmenu
-endif
 
+config IMX_CONFIG
+	default "arch/arm/mach-imx/spl_sd.cfg"
+
+endif

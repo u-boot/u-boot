@@ -9,6 +9,7 @@
 #include <image.h>
 #include <init.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -320,12 +321,14 @@ static void setup_gpmi_nand(void)
 }
 #endif
 
+#ifdef CONFIG_REVISION_TAG
 u32 get_board_rev(void)
 {
 	int rev = nxp_board_rev();
 
 	return (get_cpu_rev() & ~(0xF << 8)) | rev;
 }
+#endif
 
 static int ar8031_phy_fixup(struct phy_device *phydev)
 {

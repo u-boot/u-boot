@@ -55,8 +55,17 @@ config SYS_PROMPT
 	  This string is displayed in the command line to the left of the
 	  cursor.
 
+config SYS_PROMPT_HUSH_PS2
+	string "Hush shell secondary prompt"
+	depends on HUSH_PARSER
+	default "> "
+	help
+	  This defines the secondary prompt string, which is
+	  printed when the command interpreter needs more input
+	  to complete a command. Usually "> ".
+
 config SYS_XTRACE
-	string "Command execution tracer"
+	bool "Command execution tracer"
 	depends on CMDLINE
 	default y if CMDLINE
 	help
@@ -75,7 +84,8 @@ menu "Info commands"
 
 config CMD_ACPI
 	bool "acpi"
-	default y if ACPIGEN
+	depends on ACPIGEN
+	default y
 	help
 	  List and dump ACPI tables. ACPI (Advanced Configuration and Power
 	  Interface) is used mostly on x86 for providing information to the
@@ -86,6 +96,13 @@ config CMD_ACPI
 	  by the Operating Systems. This allows some amount of separation
 	  between the firmware and OS, and is particularly useful when you
 	  want to make hardware changes without the OS needing to be adjusted.
+
+config CMD_ADDRMAP
+	bool "addrmap"
+	depends on ADDR_MAP
+	default y
+	help
+	  List non-identity virtual-physical memory mappings for 32-bit CPUs.
 
 config CMD_BDI
 	bool "bdinfo"
@@ -113,6 +130,7 @@ config CMD_CONSOLE
 
 config CMD_CPU
 	bool "cpu"
+	depends on CPU
 	help
 	  Print information about available CPUs. This normally shows the
 	  number of CPUs, type (e.g. manufacturer, architecture, product or
@@ -149,7 +167,7 @@ config CMD_TLV_EEPROM
 config SPL_CMD_TLV_EEPROM
 	bool "tlv_eeprom for SPL"
 	depends on SPL_I2C_EEPROM
-	select SPL_DRIVERS_MISC_SUPPORT
+	select SPL_DRIVERS_MISC
 	help
 	  Read system EEPROM data block in ONIE Tlvinfo format from SPL.
 
@@ -314,6 +332,18 @@ config CMD_FDT
 	help
 	  Do FDT related setup before booting into the Operating System.
 
+config SUPPORT_EXTENSION_SCAN
+	bool
+
+config CMD_EXTENSION
+	bool "Extension board management command"
+	select CMD_FDT
+	depends on SUPPORT_EXTENSION_SCAN
+	help
+	  Enables the "extension" command, which allows to detect
+	  extension boards connected to the system, and apply
+	  corresponding Device Tree overlays.
+
 config CMD_GO
 	bool "go"
 	default y
@@ -441,7 +471,6 @@ config CMD_SAVEENV
 
 config CMD_ERASEENV
 	bool "eraseenv"
-	default n
 	depends on CMD_SAVEENV
 	help
 	  Erase environment variables from the compiled-in persistent
@@ -584,6 +613,37 @@ config EEPROM_LAYOUT_HELP_STRING
 	    Help printed with the LAYOUT VERSIONS part of the 'eeprom'
 	    command's help.
 
+config SYS_I2C_EEPROM_BUS
+	int "I2C bus of the EEPROM device."
+	depends on CMD_EEPROM
+	default 0
+
+config SYS_I2C_EEPROM_ADDR_LEN
+	int "Length in bytes of the EEPROM memory array address"
+	depends on CMD_EEPROM || ID_EEPROM
+	default 1
+	range 1 2
+	help
+	  Note: This is NOT the chip address length!
+
+config SYS_EEPROM_SIZE
+	depends on CMD_EEPROM
+	int "Size in bytes of the EEPROM device"
+	default 256
+
+config SYS_EEPROM_PAGE_WRITE_BITS
+	int "Number of bits used to address bytes in a single page"
+	depends on CMD_EEPROM
+	default 8
+	help
+	  The EEPROM page size is 2^SYS_EEPROM_PAGE_WRITE_BITS.
+	  A 64 byte page, for example would require six bits.
+
+config SYS_EEPROM_PAGE_WRITE_DELAY_MS
+	int "Number of milliseconds to delay between page writes"
+	depends on CMD_EEPROM || CMD_I2C
+	default 0
+
 config LOOPW
 	bool "loopw"
 	help
@@ -591,14 +651,12 @@ config LOOPW
 
 config CMD_MD5SUM
 	bool "md5sum"
-	default n
 	select MD5
 	help
 	  Compute MD5 checksum.
 
 config MD5SUM_VERIFY
 	bool "md5sum -v"
-	default n
 	depends on CMD_MD5SUM
 	help
 	  Add -v option to verify data against an MD5 checksum.
@@ -918,6 +976,12 @@ config CMD_GPIO
 	help
 	  GPIO support.
 
+config CMD_PWM
+	bool "pwm"
+	depends on DM_PWM
+	help
+	  Control PWM channels, this allows invert/config/enable/disable PWM channels.
+
 config CMD_GPT
 	bool "GPT (GUID Partition Table) command"
 	select EFI_PARTITION
@@ -1025,6 +1089,14 @@ config CMD_LSBLK
 	  Print list of available block device drivers, and for each, the list
 	  of known block devices.
 
+config CMD_MBR
+	bool "MBR (Master Boot Record) command"
+	select DOS_PARTITION
+	select HAVE_BLOCK_DEVICE
+	help
+	  Enable the 'mbr' command to ready and write MBR (Master Boot Record)
+	  style partition tables.
+
 config CMD_MISC
 	bool "misc"
 	depends on MISC
@@ -1035,6 +1107,7 @@ config CMD_MISC
 
 config CMD_MMC
 	bool "mmc"
+	depends on MMC
 	help
 	  MMC memory mapped support.
 
@@ -1043,7 +1116,6 @@ if CMD_MMC
 config CMD_BKOPS_ENABLE
 	bool "mmc bkops enable"
 	depends on CMD_MMC
-	default n
 	help
 	  Enable command for setting manual background operations handshake
 	  on a eMMC device. The feature is optionally available on eMMC devices
@@ -1163,6 +1235,7 @@ config CMD_PCI
 
 config CMD_PINMUX
 	bool "pinmux - show pins muxing"
+	depends on PINCTRL
 	default y if PINCTRL
 	help
 	  Parse all available pin-controllers and show pins muxing. This
@@ -1276,6 +1349,7 @@ config CMD_UNIVERSE
 
 config CMD_USB
 	bool "usb"
+	depends on USB_HOST
 	select HAVE_BLOCK_DEVICE
 	help
 	  USB support.
@@ -1298,9 +1372,13 @@ config CMD_ROCKUSB
 
 config CMD_USB_MASS_STORAGE
 	bool "UMS usb mass storage"
+	depends on USB_GADGET_DOWNLOAD
 	select USB_FUNCTION_MASS_STORAGE
+	depends on BLK && USB_GADGET
 	help
-	  USB mass storage support
+	  Enables the command "ums" and the USB mass storage support to the
+	  export a block device: U-Boot, the USB device, acts as a simple
+	  external hard drive plugged on the host USB port.
 
 config CMD_PVBLOCK
 	bool "Xen para-virtualized block device"
@@ -1312,6 +1390,7 @@ config CMD_PVBLOCK
 config CMD_VIRTIO
 	bool "virtio"
 	depends on VIRTIO
+	depends on HAVE_BLOCK_DEVICE
 	default y if VIRTIO
 	help
 	  VirtIO block device support
@@ -1362,13 +1441,19 @@ config CMD_SETEXPR
 	  Also supports loading the value at a memory location into a variable.
 	  If CONFIG_REGEX is enabled, setexpr also supports a gsub function.
 
+config CMD_SETEXPR_FMT
+	bool "setexpr_fmt"
+	depends on CMD_SETEXPR
+	help
+	  Evaluate format string expression and store result in an environment
+	    variable.
+
 endmenu
 
 menu "Android support commands"
 
 config CMD_AB_SELECT
 	bool "ab_select"
-	default n
 	depends on ANDROID_AB
 	help
 	  On Android devices with more than one boot slot (multiple copies of
@@ -1673,7 +1758,6 @@ config CMD_EFIDEBUG
 	bool "efidebug - display/configure UEFI environment"
 	depends on EFI_LOADER
 	select EFI_DEVICE_PATH_TO_TEXT
-	default n
 	help
 	  Enable the 'efidebug' command which provides a subset of UEFI
 	  shell utility with simplified functionality. It will be useful
@@ -1682,7 +1766,7 @@ config CMD_EFIDEBUG
 
 config CMD_EXCEPTION
 	bool "exception - raise exception"
-	depends on ARM || RISCV || X86
+	depends on ARM || RISCV || SANDBOX || X86
 	help
 	  Enable the 'exception' command which allows to raise an exception.
 
@@ -1908,7 +1992,7 @@ config CMD_REGULATOR
 
 	  The '-f' (force) option can be used for set the value which exceeds
 	  the limits, which are found in device-tree and are kept in regulator's
-	  uclass platdata structure.
+	  uclass plat structure.
 
 endmenu
 
@@ -1925,6 +2009,8 @@ config CMD_AES
 
 config CMD_BLOB
 	bool "Enable the 'blob' command"
+	depends on !MX6ULL && !MX6SLL && !MX6SL
+	select IMX_HAB if ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_IMX8M
 	help
 	  This is used with the Freescale secure boot mechanism.
 
@@ -1996,12 +2082,19 @@ config HASH_VERIFY
 	help
 	  Add -v option to verify data against a hash.
 
+config CMD_SCP03
+	bool "scp03 - SCP03 enable and rotate/provision operations"
+	depends on SCP03
+	help
+	  This command provides access to a Trusted Application
+	  running in a TEE to request Secure Channel Protocol 03
+	  (SCP03) enablement and/or rotation of its SCP03 keys.
+
 config CMD_TPM_V1
 	bool
 
 config CMD_TPM_V2
 	bool
-	select CMD_LOG
 
 config CMD_TPM
 	bool "Enable the 'tpm' command"
@@ -2210,6 +2303,15 @@ config CMD_BEDBUG
 	  for some PowerPC processors. For details please see the
 	  documentation in doc/README.bedbug.
 
+config CMD_CBSYSINFO
+	bool "cbsysinfo"
+	depends on X86
+	default y if SYS_COREBOOT
+	help
+	  This provides information about the coreboot sysinfo table stored in
+	  memory by coreboot before jumping to U-Boot. It can be useful for
+	  debugging the beaaviour of coreboot or U-Boot.
+
 config CMD_DIAG
 	bool "diag - Board diagnostics"
 	help
@@ -2258,7 +2360,6 @@ config CMD_TRACE
 config CMD_AVB
 	bool "avb - Android Verified Boot 2.0 operations"
 	depends on AVB_VERIFY
-	default n
 	help
 	  Enables a "avb" command to perform verification of partitions using
 	  Android Verified Boot 2.0 functionality. It includes such subcommands:
@@ -2271,6 +2372,15 @@ config CMD_AVB
 	    avb read_part_hex - read data from partition and output to stdout
 	    avb write_part - write data to partition
 	    avb verify - run full verification chain
+
+config CMD_STACKPROTECTOR_TEST
+	bool "Test command for stack protector"
+	depends on STACKPROTECTOR
+	help
+	  Enable stackprot_test command
+	  The stackprot_test command will force a stack overrun to test
+	  the stack smashing detection mechanisms.
+
 endmenu
 
 config CMD_UBI
@@ -2289,7 +2399,6 @@ config CMD_UBI
 config CMD_UBI_RENAME
        bool "Enable rename"
        depends on CMD_UBI
-       default n
        help
          Enable a "ubi" command to rename ubi volume:
 	   ubi rename <oldname> <newname>
@@ -2302,4 +2411,14 @@ config CMD_UBIFS
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
 
+config MMC_SPEED_MODE_SET
+	bool "set speed mode using mmc command"
+	depends on CMD_MMC
+	default n
+	help
+	  Enable setting speed mode using mmc rescan and mmc dev commands.
+	  The speed mode is provided as the last argument in these commands
+	  and is indicated using the index from enum bus_mode in
+	  include/mmc.h. A speed mode can be set only if it has already
+	  been enabled in the device tree.
 endmenu

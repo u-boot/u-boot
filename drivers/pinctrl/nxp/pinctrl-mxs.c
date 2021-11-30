@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/io.h>
@@ -185,11 +186,11 @@ U_BOOT_DRIVER(fsl_imx23_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(mxs_pinctrl_match),
 	.probe = mxs_pinctrl_probe,
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.bind		= dm_scan_fdt_dev,
 #endif
-	.priv_auto_alloc_size = sizeof(struct mxs_pinctrl_priv),
+	.priv_auto	= sizeof(struct mxs_pinctrl_priv),
 	.ops = &mxs_pinctrl_ops,
 };
 
-U_BOOT_DRIVER_ALIAS(fsl_imx23_pinctrl, fsl_imx28_pinctrl)
+DM_DRIVER_ALIAS(fsl_imx23_pinctrl, fsl_imx28_pinctrl)

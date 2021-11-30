@@ -19,6 +19,7 @@
 #ifndef CONFIG_DM_ETH
 #include <netdev.h>
 #endif
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
@@ -348,7 +349,7 @@ int board_init(void)
 
 		uclass_find_first_device(UCLASS_VIDEO, &dev);
 		if (dev) {
-			struct atmel_lcd_platdata *plat = dev_get_platdata(dev);
+			struct atmel_lcd_plat *plat = dev_get_plat(dev);
 
 			plat->timing_index = 1;
 		}
@@ -375,7 +376,7 @@ int board_late_init(void)
 		/* Parse MAC address */
 		for (i = 0; i < 6; i++) {
 			env_enetaddr[i] = env_str ?
-				simple_strtoul(env_str, &end, 16) : 0;
+				hextoul(env_str, &end) : 0;
 			if (env_str)
 				env_str = (*end) ? end+1 : end;
 		}
@@ -416,11 +417,11 @@ void reset_phy(void)
 {
 }
 
-static struct atmel_serial_platdata at91sam9260_serial_plat = {
+static struct atmel_serial_plat at91sam9260_serial_plat = {
 	.base_addr = ATMEL_BASE_DBGU,
 };
 
-U_BOOT_DEVICE(at91sam9260_serial) = {
+U_BOOT_DRVINFO(at91sam9260_serial) = {
 	.name	= "serial_atmel",
-	.platdata = &at91sam9260_serial_plat,
+	.plat = &at91sam9260_serial_plat,
 };

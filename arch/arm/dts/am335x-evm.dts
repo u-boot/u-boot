@@ -486,7 +486,7 @@
 &epwmss0 {
 	status = "okay";
 
-	ecap0: ecap@48300100 {
+	ecap0: ecap@100 {
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&ecap0_pins>;
@@ -761,4 +761,9 @@
 	status = "disabled";	/* Enable only if Profile 1 is selected */
 	pinctrl-names = "default";
 	pinctrl-0 = <&dcan1_pins_default>;
+};
+
+&rtc {
+	clocks = <&clk_32768_ck>, <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
+	clock-names = "ext-clk", "int-clk";
 };

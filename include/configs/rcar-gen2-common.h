@@ -10,10 +10,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 #ifdef CONFIG_SPL
 #define CONFIG_SPL_TARGET	"spl/u-boot-spl.srec"
 #endif
@@ -28,12 +24,9 @@
 
 #define CONFIG_SYS_SDRAM_BASE		(RCAR_GEN2_SDRAM_BASE)
 #define CONFIG_SYS_SDRAM_SIZE		(RCAR_GEN2_UBOOT_SDRAM_SIZE)
-#define CONFIG_SYS_LOAD_ADDR		0x50000000
-#define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 
 #define CONFIG_SYS_MONITOR_BASE		0x00000000
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 
 /* ENV setting */
 

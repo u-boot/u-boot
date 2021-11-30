@@ -58,6 +58,13 @@ enum {
 };
 
 /**
+ */
+enum cros_ec_test_t {
+	CROSECT_BREAK_HELLO	= BIT(1),
+	CROSECT_LID_OPEN	= BIT(2),
+};
+
+/**
  * sandbox_i2c_set_test_mode() - set test mode for running unit tests
  *
  * See sandbox_i2c_xfer() for the behaviour changes.
@@ -203,6 +210,22 @@ void sandbox_set_allow_beep(struct udevice *dev, bool allow);
 int sandbox_get_beep_frequency(struct udevice *dev);
 
 /**
+ * sandbox_spi_get_speed() - Get current speed setting of a sandbox spi bus
+ *
+ * @dev: Device to check
+ * @return current bus speed
+ */
+uint sandbox_spi_get_speed(struct udevice *dev);
+
+/**
+ * sandbox_spi_get_mode() - Get current mode setting of a sandbox spi bus
+ *
+ * @dev: Device to check
+ * @return current mode
+ */
+uint sandbox_spi_get_mode(struct udevice *dev);
+
+/**
  * sandbox_get_pch_spi_protect() - Get the PCI SPI protection status
  *
  * @dev: Device to check
@@ -243,5 +266,23 @@ uint sandbox_pci_read_bar(u32 barval, int type, uint size);
  * @enable: true to enable, false to disable
  */
 void sandbox_set_enable_memio(bool enable);
+
+/**
+ * sandbox_cros_ec_set_test_flags() - Set behaviour for testing purposes
+ *
+ * @dev: Device to check
+ * @flags: Flags to control behaviour (CROSECT_...)
+ */
+void sandbox_cros_ec_set_test_flags(struct udevice *dev, uint flags);
+
+/**
+ * sandbox_cros_ec_get_pwm_duty() - Get EC PWM config for testing purposes
+ *
+ * @dev: Device to check
+ * @index: PWM channel index
+ * @duty: Current duty cycle in 0..EC_PWM_MAX_DUTY range.
+ * @return 0 if OK, -ENOSPC if the PWM number is invalid
+ */
+int sandbox_cros_ec_get_pwm_duty(struct udevice *dev, uint index, uint *duty);
 
 #endif

@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2021
+ * Tony Dinh <mibodhi@gmail.com>
+ * Suriyan Ramasami <suriyan.r@gmail.com>
+ *
  * Copyright (C) 2013 Suriyan Ramasami <suriyan.r@gmail.com>
  *
  * Based on dockstar.c originally written by
@@ -16,6 +20,7 @@
 #include <init.h>
 #include <miiphy.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/mach-types.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
@@ -106,41 +111,71 @@ int board_init(void)
 	return 0;
 }
 
+static int fdt_get_phy_addr(const char *path)
+{
+	const void *fdt = gd->fdt_blob;
+	const u32 *reg;
+	const u32 *val;
+	int node, phandle, addr;
+
+	/* Find the node by its full path */
+	node = fdt_path_offset(fdt, path);
+	if (node >= 0) {
+		/* Look up phy-handle */
+		val = fdt_getprop(fdt, node, "phy-handle", NULL);
+		if (val) {
+			phandle = fdt32_to_cpu(*val);
+			if (!phandle)
+				return -1;
+			/* Follow it to its node */
+			node = fdt_node_offset_by_phandle(fdt, phandle);
+			if (node) {
+				/* Look up reg */
+				reg = fdt_getprop(fdt, node, "reg", NULL);
+				if (reg) {
+					addr = fdt32_to_cpu(*reg);
+					return addr;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
 #ifdef CONFIG_RESET_PHY_R
 /* Configure and enable MV88E1116 PHY */
 void reset_phy(void)
 {
 	u16 reg;
-	u16 devadr;
-	char *name = "egiga0";
+	int phyaddr;
+	char *name = "ethernet-controller@72000";
+	char *eth0_path = "/ocp@f1000000/ethernet-controller@72000/ethernet0-port@0";
 
 	if (miiphy_set_current_dev(name))
 		return;
 
-	/* command to read PHY dev address */
-	if (miiphy_read(name, 0xEE, 0xEE, (u16 *)&devadr)) {
-		printf("Err..%s could not read PHY dev address\n",
-		       __func__);
+	phyaddr = fdt_get_phy_addr(eth0_path);
+	if (phyaddr < 0)
 		return;
-	}
 
 	/*
 	 * Enable RGMII delay on Tx and Rx for CPU port
 	 * Ref: sec 4.7.2 of chip datasheet
 	 */
-	miiphy_write(name, devadr, MV88E1116_PGADR_REG, 2);
-	miiphy_read(name, devadr, MV88E1116_MAC_CTRL_REG, &reg);
+	miiphy_write(name, phyaddr, MV88E1116_PGADR_REG, 2);
+	miiphy_read(name, phyaddr, MV88E1116_MAC_CTRL_REG, &reg);
 	reg |= (MV88E1116_RGMII_RXTM_CTRL | MV88E1116_RGMII_TXTM_CTRL);
-	miiphy_write(name, devadr, MV88E1116_MAC_CTRL_REG, reg);
-	miiphy_write(name, devadr, MV88E1116_PGADR_REG, 0);
+	miiphy_write(name, phyaddr, MV88E1116_MAC_CTRL_REG, reg);
+	miiphy_write(name, phyaddr, MV88E1116_PGADR_REG, 0);
 
 	/* reset the phy */
-	miiphy_reset(name, devadr);
+	miiphy_reset(name, phyaddr);
 
 	printf("88E1116 Initialized on %s\n", name);
 }
 #endif /* CONFIG_RESET_PHY_R */
 
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
 #define GREEN_LED	(1 << 14)
 #define ORANGE_LED	(1 << 15)
 #define BOTH_LEDS	(GREEN_LED | ORANGE_LED)
@@ -174,3 +209,4 @@ void show_boot_progress(int val)
 		break;
 	}
 }
+#endif

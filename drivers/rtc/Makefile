@@ -7,7 +7,7 @@
 obj-$(CONFIG_$(SPL_TPL_)DM_RTC) += rtc-uclass.o
 
 obj-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
-obj-y += rtc-lib.o
+obj-$(CONFIG_RTC_ARMADA38X) += armada38x.o
 obj-$(CONFIG_RTC_DAVINCI) += davinci.o
 obj-$(CONFIG_RTC_DS1302) += ds1302.o
 obj-$(CONFIG_RTC_DS1306) += ds1306.o
@@ -46,6 +46,7 @@ obj-$(CONFIG_RTC_PCF2127) += pcf2127.o
 obj-$(CONFIG_RTC_PL031) += pl031.o
 obj-$(CONFIG_RTC_PT7C4338) += pt7c4338.o
 obj-$(CONFIG_RTC_RS5C372A) += rs5c372.o
+obj-$(CONFIG_RTC_RV3028) += rv3028.o
 obj-$(CONFIG_RTC_RV3029) += rv3029.o
 obj-$(CONFIG_RTC_RV8803) += rv8803.o
 obj-$(CONFIG_RTC_RX8025) += rx8025.o
@@ -55,3 +56,5 @@ obj-$(CONFIG_RTC_S35392A) += s35392a.o
 obj-$(CONFIG_RTC_STM32) += stm32_rtc.o
 obj-$(CONFIG_SANDBOX) += sandbox_rtc.o
 obj-$(CONFIG_RTC_X1205) += x1205.o
+obj-$(CONFIG_RTC_ABX80X) += abx80x.o
+obj-$(CONFIG_RTC_ZYNQMP) += zynqmp_rtc.o

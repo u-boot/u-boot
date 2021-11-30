@@ -1,4 +1,5 @@
 MX51EVK BOARD
+M:	Fabio Estevam <festevam@gmail.com>
 M:	Stefano Babic <sbabic@denx.de>
 S:	Maintained
 F:	board/freescale/mx51evk/

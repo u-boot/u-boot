@@ -4,50 +4,42 @@
 #include <command.h>
 #include <env.h>
 #include <fs.h>
-#include "pxe_utils.h"
+#include <pxe_utils.h>
 
-static char *fs_argv[5];
+/**
+ * struct sysboot_info - useful information for sysboot helpers
+ *
+ * @fstype: Filesystem type (FS_TYPE_...)
+ * @ifname: Interface name (e.g. "ide", "scsi")
+ * @dev_part_str is in the format:
+ *	<dev>.<hw_part>:<part> where <dev> is the device number,
+ *	<hw_part> is the optional hardware partition number and
+ *	<part> is the partition number
+ */
+struct sysboot_info {
+	int fstype;
+	const char *ifname;
+	const char *dev_part_str;
+};
 
-static int do_get_ext2(struct cmd_tbl *cmdtp, const char *file_path,
-		       char *file_addr)
+static int sysboot_read_file(struct pxe_context *ctx, const char *file_path,
+			     char *file_addr, ulong *sizep)
 {
-#ifdef CONFIG_CMD_EXT2
-	fs_argv[0] = "ext2load";
-	fs_argv[3] = file_addr;
-	fs_argv[4] = (void *)file_path;
+	struct sysboot_info *info = ctx->userdata;
+	loff_t len_read;
+	ulong addr;
+	int ret;
 
-	if (!do_ext2load(cmdtp, 0, 5, fs_argv))
-		return 1;
-#endif
-	return -ENOENT;
-}
+	addr = simple_strtoul(file_addr, NULL, 16);
+	ret = fs_set_blk_dev(info->ifname, info->dev_part_str, info->fstype);
+	if (ret)
+		return ret;
+	ret = fs_read(file_path, addr, 0, 0, &len_read);
+	if (ret)
+		return ret;
+	*sizep = len_read;
 
-static int do_get_fat(struct cmd_tbl *cmdtp, const char *file_path,
-		      char *file_addr)
-{
-#ifdef CONFIG_CMD_FAT
-	fs_argv[0] = "fatload";
-	fs_argv[3] = file_addr;
-	fs_argv[4] = (void *)file_path;
-
-	if (!do_fat_fsload(cmdtp, 0, 5, fs_argv))
-		return 1;
-#endif
-	return -ENOENT;
-}
-
-static int do_get_any(struct cmd_tbl *cmdtp, const char *file_path,
-		      char *file_addr)
-{
-#ifdef CONFIG_CMD_FS_GENERIC
-	fs_argv[0] = "load";
-	fs_argv[3] = file_addr;
-	fs_argv[4] = (void *)file_path;
-
-	if (!do_load(cmdtp, 0, 5, fs_argv, FS_TYPE_ANY))
-		return 1;
-#endif
-	return -ENOENT;
+	return 0;
 }
 
 /*
@@ -59,12 +51,12 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
 	unsigned long pxefile_addr_r;
-	struct pxe_menu *cfg;
+	struct pxe_context ctx;
 	char *pxefile_addr_str;
+	struct sysboot_info info;
 	char *filename;
 	int prompt = 0;
-
-	is_pxe = false;
+	int ret;
 
 	if (argc > 1 && strstr(argv[1], "-p")) {
 		prompt = 1;
@@ -91,41 +83,39 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	if (strstr(argv[3], "ext2")) {
-		do_getfile = do_get_ext2;
+		info.fstype = FS_TYPE_EXT;
 	} else if (strstr(argv[3], "fat")) {
-		do_getfile = do_get_fat;
+		info.fstype = FS_TYPE_FAT;
 	} else if (strstr(argv[3], "any")) {
-		do_getfile = do_get_any;
+		info.fstype = FS_TYPE_ANY;
 	} else {
 		printf("Invalid filesystem: %s\n", argv[3]);
 		return 1;
 	}
-	fs_argv[1] = argv[1];
-	fs_argv[2] = argv[2];
+	info.ifname = argv[1];
+	info.dev_part_str = argv[2];
 
 	if (strict_strtoul(pxefile_addr_str, 16, &pxefile_addr_r) < 0) {
 		printf("Invalid pxefile address: %s\n", pxefile_addr_str);
 		return 1;
 	}
 
-	if (get_pxe_file(cmdtp, filename, pxefile_addr_r) < 0) {
+	if (pxe_setup_ctx(&ctx, cmdtp, sysboot_read_file, &info, true,
+			  filename)) {
+		printf("Out of memory\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (get_pxe_file(&ctx, filename, pxefile_addr_r) < 0) {
 		printf("Error reading config file\n");
+		pxe_destroy_ctx(&ctx);
 		return 1;
 	}
 
-	cfg = parse_pxefile(cmdtp, pxefile_addr_r);
-
-	if (!cfg) {
-		printf("Error parsing config file\n");
-		return 1;
-	}
-
-	if (prompt)
-		cfg->prompt = 1;
-
-	handle_pxe_menu(cmdtp, cfg);
-
-	destroy_pxe_menu(cfg);
+	ret = pxe_process(&ctx, pxefile_addr_r, prompt);
+	pxe_destroy_ctx(&ctx);
+	if (ret)
+		return CMD_RET_FAILURE;
 
 	return 0;
 }

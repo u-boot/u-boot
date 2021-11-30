@@ -23,7 +23,7 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 
 	if (check_reg(p, reg))
 		return -EINVAL;
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 
@@ -67,7 +67,7 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 		return -EINVAL;
 	}
 
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	return dm_i2c_write(dev, reg, buf, pmic_i2c_tx_num);
 #else
 	return i2c_write(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num);
@@ -83,7 +83,7 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 	if (check_reg(p, reg))
 		return -EINVAL;
 
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(p->bus, pmic_i2c_addr,
@@ -131,7 +131,7 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 int pmic_probe(struct pmic *p)
 {
 	debug("Bus: %d PMIC:%s probed!\n", p->bus, p->name);
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 

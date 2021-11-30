@@ -53,7 +53,7 @@
 			interrupts = <0 64 0x4>;
 			clock-names = "dspi";
 			clocks = <&clockgen 4 0>;
-			num-cs = <6>;
+			spi-num-chipselects = <6>;
 			big-endian;
 			status = "disabled";
 		};
@@ -66,7 +66,7 @@
 			interrupts = <0 65 0x4>;
 			clock-names = "dspi";
 			clocks = <&clockgen 4 0>;
-			num-cs = <6>;
+			spi-num-chipselects = <6>;
 			big-endian;
 			status = "disabled";
 		};
@@ -77,6 +77,46 @@
 			interrupts = <0 62 0x4>;
 			big-endian;
 			bus-width = <4>;
+		};
+
+		gpio0: gpio@2300000 {
+			compatible = "fsl,ls1043a-gpio", "fsl,qoriq-gpio";
+			reg = <0x0 0x2300000 0x0 0x10000>;
+			interrupts = <0 66 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpio1: gpio@2310000 {
+			compatible = "fsl,ls1043a-gpio", "fsl,qoriq-gpio";
+			reg = <0x0 0x2310000 0x0 0x10000>;
+			interrupts = <0 67 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpio2: gpio@2320000 {
+			compatible = "fsl,ls1043a-gpio", "fsl,qoriq-gpio";
+			reg = <0x0 0x2320000 0x0 0x10000>;
+			interrupts = <0 68 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpio3: gpio@2330000 {
+			compatible = "fsl,ls1043a-gpio", "fsl,qoriq-gpio";
+			reg = <0x0 0x2330000 0x0 0x10000>;
+			interrupts = <0 134 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 		};
 
 		ifc: ifc@1530000 {
@@ -291,7 +331,7 @@
 			compatible = "fsl,ls1043a-ahci";
 			reg = <0x0 0x3200000 0x0 0x10000 /* ccsr sata base */
 			       0x0 0x20140520 0x0 0x4>;  /* ecc sata addr*/
-			reg-names = "sata-base", "ecc-addr";
+			reg-names = "ahci", "sata-ecc";
 			interrupts = <0 69 4>;
 			clocks = <&clockgen 4 0>;
 			status = "disabled";

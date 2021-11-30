@@ -15,13 +15,6 @@
 #define CONFIG_SYS_FLASH_BASE		0x08000000
 #define CONFIG_SYS_INIT_SP_ADDR		0x20050000
 
-#ifdef CONFIG_SUPPORT_SPL
-#define CONFIG_SYS_LOAD_ADDR		0x08008000
-#else
-#define CONFIG_SYS_LOAD_ADDR		0xC0400000
-#define CONFIG_LOADADDR			0xC0400000
-#endif
-
 /*
  * Configuration of the external SDRAM memory
  */
@@ -29,21 +22,12 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	8
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 
-#define CONFIG_STM32_FLASH
-
 #define CONFIG_DW_GMAC_DEFAULT_DMA_PBL	(8)
 #define CONFIG_DW_ALTDESCRIPTOR
 
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 #define CONFIG_SYS_CBSIZE		1024
-
-#define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
@@ -57,8 +41,6 @@
 			"pxefile_addr_r=0xC0428000\0" \
 			"ramdisk_addr_r=0xC0438000\0"		\
 			BOOTENV
-
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* For SPL */
 #ifdef CONFIG_SUPPORT_SPL

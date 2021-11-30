@@ -15,8 +15,6 @@
 #define KW_REGS_PHY_BASE		KW88F6281_REGS_PHYS_BASE
 
 /* TCLK Core Clock definition */
-#ifndef CONFIG_SYS_TCLK
 #define CONFIG_SYS_TCLK	200000000 /* 200MHz */
-#endif
 
 #endif /* _ASM_ARCH_KW88F6281_H */

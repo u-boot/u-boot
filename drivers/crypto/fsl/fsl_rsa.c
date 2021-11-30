@@ -55,6 +55,6 @@ U_BOOT_DRIVER(fsl_rsa_mod_exp) = {
 	.ops	= &fsl_mod_exp_ops,
 };
 
-U_BOOT_DEVICE(fsl_rsa) = {
+U_BOOT_DRVINFO(fsl_rsa) = {
 	.name = "fsl_rsa_mod_exp",
 };

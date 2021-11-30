@@ -7,13 +7,13 @@
 #define __serial_coldfire_h
 
 /*
- * struct coldfire_serial_platdata - information about a coldfire port
+ * struct coldfire_serial_plat - information about a coldfire port
  *
  * @base:               Uart port base register address
  * @port:               Uart port index, for cpu with pinmux for uart / gpio
  * baudrtatre:          Uart port baudrate
  */
-struct coldfire_serial_platdata {
+struct coldfire_serial_plat {
 	unsigned long base;
 	int port;
 	int baudrate;

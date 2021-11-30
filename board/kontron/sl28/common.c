@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
-#include <asm/arch-fsl-layerscape/soc.h>
+#include <asm/global_data.h>
 
-int board_early_init_f(void)
+DECLARE_GLOBAL_DATA_PTR;
+
+u32 get_lpuart_clk(void)
 {
-	fsl_lsch3_early_init_f();
-	return 0;
+	return gd->bus_clk / CONFIG_SYS_FSL_LPUART_CLK_DIV;
 }

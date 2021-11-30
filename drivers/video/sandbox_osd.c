@@ -158,5 +158,5 @@ U_BOOT_DRIVER(sandbox_osd_drv) = {
 	.ops		= &sandbox_osd_ops,
 	.of_match       = sandbox_osd_ids,
 	.probe          = sandbox_osd_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_osd_priv),
+	.priv_auto	= sizeof(struct sandbox_osd_priv),
 };

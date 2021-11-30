@@ -281,8 +281,8 @@ static int start_transfer(struct spi_slave *spi, const void *dout, void *din, u3
 
 static void xilinx_spi_startup_block(struct spi_slave *spi)
 {
-	struct dm_spi_slave_platdata *slave_plat =
-				dev_get_parent_platdata(spi->dev);
+	struct dm_spi_slave_plat *slave_plat =
+				dev_get_parent_plat(spi->dev);
 	unsigned char txp;
 	unsigned char rxp[8];
 
@@ -302,8 +302,8 @@ static void xilinx_spi_startup_block(struct spi_slave *spi)
 static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
 				  const struct spi_mem_op *op)
 {
-	struct dm_spi_slave_platdata *slave_plat =
-				dev_get_parent_platdata(spi->dev);
+	struct dm_spi_slave_plat *slave_plat =
+				dev_get_parent_plat(spi->dev);
 	static u32 startup;
 	u32 dummy_len, ret;
 
@@ -419,7 +419,7 @@ U_BOOT_DRIVER(xilinx_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = xilinx_spi_ids,
 	.ops	= &xilinx_spi_ops,
-	.priv_auto_alloc_size = sizeof(struct xilinx_spi_priv),
+	.priv_auto	= sizeof(struct xilinx_spi_priv),
 	.probe	= xilinx_spi_probe,
 	.child_pre_probe = xilinx_spi_child_pre_probe,
 };

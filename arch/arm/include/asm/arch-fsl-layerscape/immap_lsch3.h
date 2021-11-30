@@ -589,5 +589,15 @@ struct ccsr_serdes {
 	u8 res5[0x19fc - 0xa00];
 };
 
+struct ccsr_gpio {
+	u32	gpdir;
+	u32	gpodr;
+	u32	gpdat;
+	u32	gpier;
+	u32	gpimr;
+	u32	gpicr;
+	u32	gpibe;
+};
+
 #endif /*__ASSEMBLY__ */
 #endif /* __ARCH_FSL_LSCH3_IMMAP_H_ */

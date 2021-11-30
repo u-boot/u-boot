@@ -11,6 +11,9 @@
 
 struct udevice;
 
+/* Head of the uclass list if CONFIG_OF_PLATDATA_INST is enabled */
+extern struct list_head uclass_head;
+
 /**
  * dm_root() - Return pointer to the top of the driver tree
  *
@@ -31,15 +34,15 @@ struct global_data;
 void dm_fixup_for_gd_move(struct global_data *new_gd);
 
 /**
- * dm_scan_platdata() - Scan all platform data and bind drivers
+ * dm_scan_plat() - Scan all platform data and bind drivers
  *
- * This scans all available platdata and creates drivers for each
+ * This scans all available plat and creates drivers for each
  *
  * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC
  * flag. If false bind all drivers.
  * @return 0 if OK, -ve on error
  */
-int dm_scan_platdata(bool pre_reloc_only);
+int dm_scan_plat(bool pre_reloc_only);
 
 /**
  * dm_scan_fdt() - Scan the device tree and bind drivers
@@ -47,26 +50,24 @@ int dm_scan_platdata(bool pre_reloc_only);
  * This scans the device tree and creates a driver for each node. Only
  * the top-level subnodes are examined.
  *
- * @blob: Pointer to device tree blob
  * @pre_reloc_only: If true, bind only nodes with special devicetree properties,
  * or drivers with the DM_FLAG_PRE_RELOC flag. If false bind all drivers.
  * @return 0 if OK, -ve on error
  */
-int dm_scan_fdt(const void *blob, bool pre_reloc_only);
+int dm_scan_fdt(bool pre_reloc_only);
 
 /**
- * dm_extended_scan_fdt() - Scan the device tree and bind drivers
+ * dm_extended_scan() - Scan the device tree and bind drivers
  *
  * This calls dm_scna_dft() which scans the device tree and creates a driver
  * for each node. the top-level subnodes are examined and also all sub-nodes
  * of "clocks" node.
  *
- * @blob: Pointer to device tree blob
  * @pre_reloc_only: If true, bind only nodes with special devicetree properties,
  * or drivers with the DM_FLAG_PRE_RELOC flag. If false bind all drivers.
  * @return 0 if OK, -ve on error
  */
-int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only);
+int dm_extended_scan(bool pre_reloc_only);
 
 /**
  * dm_scan_other() - Scan for other devices

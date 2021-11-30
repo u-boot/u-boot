@@ -701,7 +701,7 @@ static int qup_spi_xfer(struct udevice *dev, unsigned int bitlen,
 						const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev_get_parent(dev);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	unsigned int len;
 	const u8 *txp = dout;
 	u8 *rxp = din;
@@ -798,6 +798,6 @@ U_BOOT_DRIVER(spi_qup) = {
 	.id	= UCLASS_SPI,
 	.of_match = qup_spi_ids,
 	.ops	= &qup_spi_ops,
-	.priv_auto_alloc_size	= sizeof(struct qup_spi_priv),
+	.priv_auto	= sizeof(struct qup_spi_priv),
 	.probe	= qup_spi_probe,
 };

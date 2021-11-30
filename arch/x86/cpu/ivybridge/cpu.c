@@ -20,6 +20,7 @@
 #include <pch.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
+#include <asm/global_data.h>
 #include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/lapic.h>
@@ -142,7 +143,7 @@ int checkcpu(void)
 
 		/* System is not happy after keyboard reset... */
 		debug("Issuing CF9 warm reset\n");
-		reset_cpu(0);
+		reset_cpu();
 	}
 
 	ret = cpu_common_init();

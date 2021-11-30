@@ -87,4 +87,3 @@ struct npc {
 }
 
 #endif /* __NPC_H__ */
-

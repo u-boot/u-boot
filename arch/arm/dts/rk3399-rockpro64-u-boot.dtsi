@@ -15,10 +15,6 @@
 	};
 };
 
-&rng {
-	status = "okay";
-};
-
 &spi1 {
 	spi_flash: flash@0 {
 		u-boot,dm-pre-reloc;

@@ -66,7 +66,7 @@ static int dw_apb_timer_probe(struct udevice *dev)
 	return 0;
 }
 
-static int dw_apb_timer_ofdata_to_platdata(struct udevice *dev)
+static int dw_apb_timer_of_to_plat(struct udevice *dev)
 {
 	struct dw_apb_timer_priv *priv = dev_get_priv(dev);
 
@@ -97,7 +97,7 @@ U_BOOT_DRIVER(dw_apb_timer) = {
 	.ops		= &dw_apb_timer_ops,
 	.probe		= dw_apb_timer_probe,
 	.of_match	= dw_apb_timer_ids,
-	.ofdata_to_platdata = dw_apb_timer_ofdata_to_platdata,
+	.of_to_plat = dw_apb_timer_of_to_plat,
 	.remove		= dw_apb_timer_remove,
-	.priv_auto_alloc_size = sizeof(struct dw_apb_timer_priv),
+	.priv_auto	= sizeof(struct dw_apb_timer_priv),
 };

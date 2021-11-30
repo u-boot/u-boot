@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015-2016 Freescale Semiconductor, Inc.
- * Copyright 2017 NXP
+ * Copyright 2017,2021 NXP
  */
 
 /*
@@ -262,7 +262,8 @@ int pfe_firmware_init(void)
 	uintptr_t pfe_img_addr = 0;
 #endif
 	int ret = 0;
-	int fw_count;
+	int fw_count, max_fw_count;
+	const char *p;
 
 	ret = pfe_spi_flash_init();
 	if (ret)
@@ -293,6 +294,61 @@ int pfe_firmware_init(void)
 	}
 #endif
 
+	p = env_get("load_util");
+	if (!p) {
+		max_fw_count = 2;
+	} else {
+		max_fw_count = dectoul(p, NULL);
+		if (max_fw_count)
+			max_fw_count = 3;
+		else
+			max_fw_count = 2;
+	}
+
+	for (fw_count = 0; fw_count < max_fw_count; fw_count++) {
+		switch (fw_count) {
+		case 0:
+			pfe_firmware_name = "class_slowpath";
+			break;
+		case 1:
+			pfe_firmware_name = "tmu_slowpath";
+			break;
+		case 2:
+			pfe_firmware_name = "util_slowpath";
+			break;
+		}
+
+		if (pfe_get_fw(&raw_image_addr, &raw_image_size,
+			       pfe_firmware_name)) {
+			printf("%s firmware couldn't be found in FIT image\n",
+			       pfe_firmware_name);
+			break;
+		}
+		pfe_firmware = malloc(raw_image_size);
+		if (!pfe_firmware)
+			return -ENOMEM;
+		memcpy((void *)pfe_firmware, (void *)raw_image_addr,
+		       raw_image_size);
+
+		switch (fw_count) {
+		case 0:
+			env_set_addr("class_elf_firmware", pfe_firmware);
+			env_set_addr("class_elf_size", (void *)raw_image_size);
+			break;
+		case 1:
+			env_set_addr("tmu_elf_firmware", pfe_firmware);
+			env_set_addr("tmu_elf_size", (void *)raw_image_size);
+			break;
+		case 2:
+			env_set_addr("util_elf_firmware", pfe_firmware);
+			env_set_addr("util_elf_size", (void *)raw_image_size);
+			break;
+		}
+	}
+
+	raw_image_addr = NULL;
+	pfe_firmware = NULL;
+	raw_image_size = 0;
 	for (fw_count = 0; fw_count < 2; fw_count++) {
 		if (fw_count == 0)
 			pfe_firmware_name = "class";

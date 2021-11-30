@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
- * (C) Copyright 2012 Renesas Solutions Corp.
+ * (C) Copyright 2012-2021 Renesas Solutions Corp.
  */
 #include <common.h>
 #include <cpu_func.h>
@@ -31,6 +31,11 @@ void enable_caches(void)
 
 #ifdef CONFIG_DISPLAY_CPUINFO
 #ifndef CONFIG_RZA1
+__weak const u8 *rzg_get_cpu_name(void)
+{
+	return 0;
+}
+
 static u32 __rmobile_get_cpu_type(void)
 {
 	return 0x0;
@@ -52,7 +57,7 @@ static u32 __rmobile_get_cpu_rev_fraction(void)
 u32 rmobile_get_cpu_rev_fraction(void)
 		__attribute__((weak, alias("__rmobile_get_cpu_rev_fraction")));
 
-/* CPU infomation table */
+/* CPU information table */
 static const struct {
 	u16 cpu_type;
 	u8 cpu_name[10];
@@ -71,6 +76,7 @@ static const struct {
 	{ RMOBILE_CPU_TYPE_R8A77980, "R8A77980" },
 	{ RMOBILE_CPU_TYPE_R8A77990, "R8A77990" },
 	{ RMOBILE_CPU_TYPE_R8A77995, "R8A77995" },
+	{ RMOBILE_CPU_TYPE_R8A779A0, "R8A779A0" },
 	{ 0x0, "CPU" },
 };
 
@@ -86,14 +92,22 @@ static int rmobile_cpuinfo_idx(void)
 	return i;
 }
 
+static const u8 *get_cpu_name(int idx)
+{
+	const  u8 *cpu_name = rzg_get_cpu_name();
+
+	return cpu_name ? cpu_name : rmobile_cpuinfo[idx].cpu_name;
+}
+
 #ifdef CONFIG_ARCH_MISC_INIT
 int arch_misc_init(void)
 {
 	int i, idx = rmobile_cpuinfo_idx();
+	const u8 *cpu_name = get_cpu_name(idx);
 	char cpu[10] = { 0 };
 
 	for (i = 0; i < sizeof(cpu); i++)
-		cpu[i] = tolower(rmobile_cpuinfo[idx].cpu_name[i]);
+		cpu[i] = tolower(cpu_name[i]);
 
 	env_set("platform", cpu);
 
@@ -105,8 +119,8 @@ int print_cpuinfo(void)
 {
 	int i = rmobile_cpuinfo_idx();
 
-	printf("CPU: Renesas Electronics %s rev %d.%d\n",
-		rmobile_cpuinfo[i].cpu_name, rmobile_get_cpu_rev_integer(),
+	printf("CPU:   Renesas Electronics %s rev %d.%d\n",
+		get_cpu_name(i), rmobile_get_cpu_rev_integer(),
 		rmobile_get_cpu_rev_fraction());
 
 	return 0;

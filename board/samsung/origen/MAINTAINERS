@@ -1,5 +1,5 @@
 ORIGEN BOARD
-M:	Chander Kashyap <k.chander@samsung.com>
+M:	Minkyu Kang <mk7.kang@samsung.com>
 S:	Maintained
 F:	board/samsung/origen/
 F:	include/configs/origen.h

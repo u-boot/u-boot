@@ -73,7 +73,7 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 #endif
 {
 #if CONFIG_IS_ENABLED(BLK)
-	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 #endif
 	int dev_num = block_dev->devnum;
 	int err = 0;
@@ -193,7 +193,7 @@ ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 #endif
 {
 #if CONFIG_IS_ENABLED(BLK)
-	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
+	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 #endif
 	int dev_num = block_dev->devnum;
 	lbaint_t cur, blocks_todo = blkcnt;

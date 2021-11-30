@@ -290,9 +290,9 @@ U_BOOT_DRIVER(pinctrl_rk3228) = {
 	.name		= "rockchip_rk3228_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= rk3228_pinctrl_ids,
-	.priv_auto_alloc_size = sizeof(struct rockchip_pinctrl_priv),
+	.priv_auto	= sizeof(struct rockchip_pinctrl_priv),
 	.ops		= &rockchip_pinctrl_ops,
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.bind		= dm_scan_fdt_dev,
 #endif
 	.probe		= rockchip_pinctrl_probe,

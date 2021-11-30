@@ -19,8 +19,6 @@
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_PAZ00
-
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 
 #include "tegra-common-post.h"

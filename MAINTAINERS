@@ -75,7 +75,7 @@ M:	Alexey Brodkin <alexey.brodkin@synopsys.com>
 M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 S:	Maintained
 L:	uboot-snps-arc@synopsys.com
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-arc.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-arc.git
 F:	arch/arc/
 F:	board/synopsys/
 
@@ -108,19 +108,28 @@ L:	uboot-snps-arc@synopsys.com
 F:	doc/device-tree-bindings/mmc/snps,dw-mmc.txt
 F:	drivers/mmc/snps_dw_mmc.c
 
+APPLE M1 SOC SUPPORT
+M:	Mark Kettenis <kettenis@openbsd.org>
+S:	Maintained
+F:	arch/arm/include/asm/arch-m1/
+F:	arch/arm/mach-apple/
+F:	configs/apple_m1_defconfig
+F:	drivers/iommu/apple_dart.c
+F:	include/configs/apple.h
+
 ARM
 M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-arm.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-arm.git
 F:	arch/arm/
 F:	cmd/arm/
 
 ARM ALTERA SOCFPGA
 M:	Marek Vasut <marex@denx.de>
 M:	Simon Goldschmidt <simon.k.r.goldschmidt@gmail.com>
-M:	Ley Foon Tan <ley.foon.tan@intel.com>
-S:	Maintainted
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-socfpga.git
+M:	Tien Fong Chee <tien.fong.chee@intel.com>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-socfpga.git
 F:	arch/arm/mach-socfpga/
 F:	drivers/sysreset/sysreset_socfpga*
 
@@ -128,7 +137,7 @@ ARM AMLOGIC SOC SUPPORT
 M:	Neil Armstrong <narmstrong@baylibre.com>
 S:	Maintained
 L:	u-boot-amlogic@groups.io
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-amlogic.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-amlogic.git
 F:	arch/arm/mach-meson/
 F:	arch/arm/include/asm/arch-meson/
 F:	drivers/clk/meson/
@@ -160,7 +169,7 @@ F:	drivers/clk/aspeed/
 F:	drivers/pinctrl/aspeed/
 N:	aspeed
 
-ARM BROADCOM BCM283X
+ARM BROADCOM BCM283X / BCM27XX
 M:	Matthias Brugger <mbrugger@suse.com>
 S:	Maintained
 F:	arch/arm/dts/bcm283*
@@ -175,6 +184,8 @@ F:	drivers/video/bcm2835.c
 F:	include/dm/platform_data/serial_bcm283x_mu.h
 F:	include/dt-bindings/pinctrl/bcm2835.h
 F:	drivers/pinctrl/broadcom/
+F:	configs/rpi_*
+T:	git https://source.denx.de/u-boot/custodians/u-boot-arm.git
 
 ARM BROADCOM BCMSTB
 M:	Thomas Fitzsimmons <fitzsim@fitzsim.org>
@@ -198,6 +209,12 @@ F:	drivers/mmc/ca_dw_mmc.c
 F:	drivers/spi/ca_sflash.c
 F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
+F:	drivers/mtd/nand/raw/cortina_nand.c
+F:	drivers/mtd/nand/raw/cortina_nand.h
+F:	drivers/net/cortina_ni.c
+F:	drivers/net/cortina_ni.h
+F:	drivers/net/phy/ca_phy.c
+F:	configs/cortina_presidio-asic-pnand_defconfig
 
 ARM/CZ.NIC TURRIS MOX SUPPORT
 M:	Marek Behun <marek.behun@nic.cz>
@@ -212,7 +229,7 @@ M:	Stefano Babic <sbabic@denx.de>
 M:	Fabio Estevam <festevam@gmail.com>
 R:	NXP i.MX U-Boot Team <uboot-imx@nxp.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-imx.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-imx.git
 F:	arch/arm/cpu/arm1136/mx*/
 F:	arch/arm/cpu/arm926ejs/mx*/
 F:	arch/arm/cpu/armv7/vf610/
@@ -249,7 +266,7 @@ F:	drivers/rng/msm_rng.c
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-marvell.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
 F:	arch/arm/mach-mvebu/
 F:	drivers/ata/ahci_mvebu.c
@@ -263,7 +280,7 @@ F:	drivers/watchdog/orion_wdt.c
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-pxa.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-pxa.git
 F:	arch/arm/cpu/pxa/
 F:	arch/arm/include/asm/arch-pxa/
 
@@ -299,11 +316,12 @@ N:	mediatek
 ARM MICROCHIP/ATMEL AT91
 M:	Eugen Hristev <eugen.hristev@microchip.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-atmel.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-atmel.git
 F:	arch/arm/mach-at91/
 F:	board/atmel/
 F:	drivers/cpu/at91_cpu.c
 F:	drivers/misc/microchip_flexcom.c
+F:	include/dt-bindings/mfd/atmel-flexcom.h
 F:	drivers/timer/mchp-pit64b-timer.c
 
 ARM NEXELL S5P4418
@@ -339,15 +357,15 @@ ARM RENESAS RMOBILE/R-CAR
 M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 M:	Marek Vasut <marek.vasut+renesas@gmail.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-sh.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-sh.git
 F:	arch/arm/mach-rmobile/
 
 ARM ROCKCHIP
 M:	Simon Glass <sjg@chromium.org>
-M:	Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+M:	Philipp Tomsich <philipp.tomsich@vrull.eu>
 M:	Kever Yang <kever.yang@rock-chips.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-rockchip.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-rockchip.git
 F:	arch/arm/include/asm/arch-rockchip/
 F:	arch/arm/mach-rockchip/
 F:	board/rockchip/
@@ -369,7 +387,7 @@ F:	tools/rkspi.c
 ARM SAMSUNG
 M:	Minkyu Kang <mk7.kang@samsung.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-samsung.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-samsung.git
 F:	arch/arm/mach-exynos/
 F:	arch/arm/mach-s5pc1xx/
 F:	arch/arm/cpu/armv7/s5p-common/
@@ -382,13 +400,15 @@ F:	drivers/gpio/msm_gpio.c
 F:	drivers/mmc/msm_sdhci.c
 F:	drivers/phy/msm8916-usbh-phy.c
 F:	drivers/serial/serial_msm.c
+F:	drivers/serial/serial_msm_geni.c
 F:	drivers/smem/msm_smem.c
+F:	drivers/spmi/spmi-msm.c
 F:	drivers/usb/host/ehci-msm.c
 
 ARM STI
 M:	Patrice Chotard <patrice.chotard@foss.st.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-stm.git
 F:	arch/arm/mach-sti/
 F:	arch/arm/include/asm/arch-sti*/
 F:	drivers/phy/sti_usb_phy.c
@@ -404,18 +424,11 @@ F:	include/dt-bindings/clock/stih407-clks.h
 F:	include/dt-bindings/clock/stih410-clks.h
 F:	include/dt-bindings/reset/stih407-resets.h
 
-ARM STM SPEAR
-#M:	Vipin Kumar <vipin.kumar@st.com>
-S:	Orphaned (Since 2016-02)
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
-F:	arch/arm/cpu/arm926ejs/spear/
-F:	arch/arm/include/asm/arch-spear/
-
 ARM STM STM32MP
 M:	Patrick Delaunay <patrick.delaunay@foss.st.com>
 M:	Patrice Chotard <patrice.chotard@foss.st.com>
 L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-stm.git
 S:	Maintained
 F:	arch/arm/mach-stm32mp/
 F:	doc/board/st/
@@ -465,23 +478,26 @@ ARM SUNXI
 M:	Jagan Teki <jagan@amarulasolutions.com>
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-sunxi.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-sunxi.git
 F:	arch/arm/cpu/armv7/sunxi/
 F:	arch/arm/include/asm/arch-sunxi/
 F:	arch/arm/mach-sunxi/
 F:	board/sunxi/
+F:	drivers/clk/sunxi/
+F:	drivers/phy/allwinner/
+F:	drivers/video/sunxi/
 
 ARM TEGRA
 M:	Tom Warren <twarren@nvidia.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-tegra.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-tegra.git
 F:	arch/arm/mach-tegra/
 F:	arch/arm/include/asm/arch-tegra*/
 
 ARM TI
-M:	Lokesh Vutla <lokeshvutla@ti.com>
+M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-ti.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-ti.git
 F:	arch/arm/mach-davinci/
 F:	arch/arm/mach-k3/
 F:	arch/arm/mach-keystone/
@@ -502,6 +518,7 @@ F:	drivers/phy/phy-ti-am654.c
 F:	drivers/phy/ti-pipe3-phy.c
 F:	drivers/ram/k3*
 F:	drivers/remoteproc/k3_system_controller.c
+F:	drivers/remoteproc/pruc_rpoc.c
 F:	drivers/remoteproc/ti*
 F:	drivers/reset/reset-ti-sci.c
 F:	drivers/rtc/davinci.c
@@ -511,6 +528,7 @@ F:	drivers/sysreset/sysreset-ti-sci.c
 F:	drivers/thermal/ti-bandgap.c
 F:	drivers/timer/omap-timer.c
 F:	drivers/watchdog/omap_wdt.c
+F:	include/linux/pruss_driver.h
 F:	include/linux/soc/ti/
 
 ARM U8500
@@ -519,7 +537,12 @@ R:	Linus Walleij <linus.walleij@linaro.org>
 S:	Maintained
 F:	arch/arm/dts/ste-*
 F:	arch/arm/mach-u8500/
+F:	drivers/gpio/nmk_gpio.c
+F:	drivers/phy/phy-ab8500-usb.c
+F:	drivers/power/pmic/ab8500.c
 F:	drivers/timer/nomadik-mtu-timer.c
+F:	drivers/usb/musb-new/ux500.c
+F:	drivers/video/mcde_simple.c
 
 ARM UNIPHIER
 S:	Orphan (Since 2020-09)
@@ -530,13 +553,12 @@ N:	uniphier
 ARM VERSAL
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-versal/
 F:	drivers/net/xilinx_axi_mrmac.*
 F:	drivers/soc/soc_xilinx_versal.c
 F:	drivers/spi/cadence_ospi_versal.c
 F:	drivers/watchdog/xilinx_wwdt.c
-F:	drivers/gpio/zynqmp_gpio_modepin.c
 N:	(?<!uni)versal
 
 ARM VERSATILE EXPRESS DRIVERS
@@ -549,7 +571,7 @@ N:	vexpress
 ARM ZYNQ
 M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-zynq/
 F:	doc/board/xilinx/
 F:	doc/device-tree-bindings/video/syncoam,seps525.txt
@@ -575,12 +597,13 @@ N:	zynq
 ARM ZYNQMP
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-zynqmp/
 F:	drivers/clk/clk_zynqmp.c
 F:	driver/firmware/firmware-zynqmp.c
 F:	drivers/fpga/zynqpl.c
 F:	drivers/gpio/zynq_gpio.c
+F:	drivers/gpio/zynqmp_gpio_modepin.c
 F:	drivers/i2c/i2c-cdns.c
 F:	drivers/i2c/muxes/pca954x.c
 F:	drivers/i2c/zynq_i2c.c
@@ -590,6 +613,8 @@ F:	drivers/mtd/nand/raw/zynq_nand.c
 F:	drivers/net/phy/xilinx_phy.c
 F:	drivers/net/zynq_gem.c
 F:	drivers/serial/serial_zynq.c
+F:	drivers/reset/reset-zynqmp.c
+F:	drivers/rtc/zynqmp_rtc.c
 F:	drivers/soc/soc_xilinx_zynqmp.c
 F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
@@ -606,7 +631,7 @@ N:	zynqmp
 ARM ZYNQMP R5
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-zynqmp-r5/
 
 ARM PHYTIUM
@@ -638,14 +663,15 @@ F:	tools/buildman/
 CFI FLASH
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-cfi-flash.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-cfi-flash.git
 F:	drivers/mtd/cfi_flash.c
 F:	drivers/mtd/jedec_flash.c
 
 CLOCK
 M:	Lukasz Majewski <lukma@denx.de>
+M:	Sean Anderson <seanga2@gmail.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-clk.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-clk.git
 F:	drivers/clk/
 F:	drivers/clk/imx/
 
@@ -653,20 +679,21 @@ COLDFIRE
 M:	Huan Wang <alison.wang@nxp.com>
 M:	Angelo Dureghello <angelo@sysam.it>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-coldfire.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-coldfire.git
 F:	arch/m68k/
 F:	doc/arch/m68k.rst
 
 DFU
 M:	Lukasz Majewski <lukma@denx.de>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-dfu.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-dfu.git
 F:	cmd/dfu.c
 F:	cmd/usb_*.c
 F:	common/dfu.c
 F:	common/update.c
 F:	common/usb_storage.c
 F:	doc/api/dfu.rst
+F:	doc/usage/dfu.rst
 F:	drivers/dfu/
 F:	drivers/usb/gadget/
 F:	include/dfu.h
@@ -674,19 +701,30 @@ F:	include/dfu.h
 DRIVER MODEL
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-dm.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-dm.git
 F:	doc/driver-model/
 F:	drivers/core/
 F:	include/dm/
 F:	test/dm/
 
+EFI APP
+M:	Simon Glass <sjg@chromium.org>
+M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
+S:	Maintained
+W:	https://u-boot.readthedocs.io/en/latest/develop/uefi/u-boot_on_efi.html
+F:	board/efi/efi-x86_app
+F:	configs/efi-x86_app*
+F:	doc/develop/uefi/u-boot_on_efi.rst
+F:	lib/efi/efi_app.c
+F:	scripts/build-efi.sh
+
 EFI PAYLOAD
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 R:	Alexander Graf <agraf@csgraf.de>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-efi.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
 F:	doc/api/efi.rst
-F:	doc/uefi/*
+F:	doc/develop/uefi/*
 F:	doc/usage/bootefi.rst
 F:	drivers/rtc/emul_rtc.c
 F:	include/capitalization.h
@@ -707,6 +745,7 @@ F:	cmd/efidebug.c
 F:	cmd/nvedit_efi.c
 F:	tools/efivar.py
 F:	tools/file2include.c
+F:	tools/mkeficapsule.c
 
 EFI VARIABLES VIA OP-TEE
 M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
@@ -724,10 +763,22 @@ F:	test/env/
 F:	tools/env*
 F:	tools/mkenvimage.c
 
+FASTBOOT
+S:	Orphaned
+F:	cmd/fastboot.c
+F:	doc/android/fastboot*.rst
+F:	include/fastboot.h
+F:	include/fastboot-internal.h
+F:	include/net/fastboot.h
+F:	drivers/fastboot/
+F:	drivers/usb/gadget/f_fastboot.c
+F:	net/fastboot.c
+F:	test/dm/fastboot.c
+
 FPGA
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	drivers/fpga/
 F:	cmd/fpga.c
 F:	include/fpga.h
@@ -735,36 +786,47 @@ F:	include/fpga.h
 FLATTENED DEVICE TREE
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-fdt.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-fdt.git
 F:	lib/fdtdec*
 F:	lib/libfdt/
 F:	include/fdt*
 F:	include/linux/libfdt*
 F:	cmd/fdt.c
 F:	common/fdt_support.c
+F:	scripts/dtc-version.sh
 
 FREEBSD
 M:	Rafal Jaworowski <raj@semihalf.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-freebsd.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-freebsd.git
 
 FREESCALE QORIQ
 M:	Priyanka Jain <priyanka.jain@nxp.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-fsl-qoriq.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-fsl-qoriq.git
 F:	drivers/watchdog/sp805_wdt.c
 F:	drivers/watchdog/sbsa_gwdt.c
 
 I2C
 M:	Heiko Schocher <hs@denx.de>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-i2c.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-i2c.git
 F:	drivers/i2c/
+
+KWBIMAGE / KWBOOT TOOLS
+M:	Pali Rohár <pali@kernel.org>
+M:	Marek Behún <marek.behun@nic.cz>
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
+F:	doc/README.kwbimage
+F:	doc/kwboot.1
+F:	tools/kwb*
 
 LOGGING
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/u-boot.git
+T:	git https://source.denx.de/u-boot/u-boot.git
 F:	common/log*
 F:	cmd/log.c
 F:	doc/develop/logging.rst
@@ -783,7 +845,7 @@ F:	drivers/i2c/i2c-versatile.c
 MICROBLAZE
 M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/microblaze/
 F:	cmd/mfsl.c
 F:	drivers/gpio/xilinx_gpio.c
@@ -798,7 +860,7 @@ N:	xilinx
 MIPS
 M:	Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-mips.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-mips.git
 F:	arch/mips/
 
 MIPS CORTINA ACCESS CAxxxx
@@ -813,6 +875,32 @@ F:	drivers/mmc/ca_dw_mmc.c
 F:	drivers/spi/ca_sflash.c
 F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
+F:	drivers/net/cortina_ni.c
+F:	drivers/net/cortina_ni.h
+F:	drivers/net/phy/ca_phy.c
+
+MIPS MEDIATEK
+M:	Weijie Gao <weijie.gao@mediatek.com>
+R:	GSS_MTK_Uboot_upstream <GSS_MTK_Uboot_upstream@mediatek.com>
+S:	Maintained
+F:	arch/mips/mach-mtmips/
+F:	arch/mips/dts/mt7620.dtsi
+F:	arch/mips/dts/mt7620-u-boot.dtsi
+F:	include/configs/mt7620.h
+F:	include/dt-bindings/clock/mt7620-clk.h
+F:	include/dt-bindings/clock/mt7628-clk.h
+F:	include/dt-bindings/reset/mt7620-reset.h
+F:	include/dt-bindings/reset/mt7628-reset.h
+F:	drivers/clk/mtmips/
+F:	drivers/pinctrl/mtmips/
+F:	drivers/gpio/mt7620_gpio.c
+F:	drivers/net/mt7620-eth.c
+F:	drivers/phy/mt7620-usb-phy.c
+F:	drivers/reset/reset-mtmips.c
+F:	drivers/serial/serial_mt7620.c
+F:	drivers/spi/mt7620_spi.c
+F:	drivers/sysreset/sysreset_resetctl.c
+F:	drivers/watchdog/mt7620_wdt.c
 
 MIPS MSCC
 M:	Gregory CLEMENT <gregory.clement@bootlin.com>
@@ -848,26 +936,28 @@ F:	arch/mips/dts/mrvl,cn73xx.dtsi
 
 MMC
 M:	Peng Fan <peng.fan@nxp.com>
+M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-mmc.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-mmc.git
 F:	drivers/mmc/
 
 NAND FLASH
 #M:	Scott Wood <oss@buserror.net>
 S:	Orphaned (Since 2018-07)
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-nand-flash.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
 F:	drivers/mtd/nand/raw/
 
 NDS32
 M:	Rick Chen <rick@andestech.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-nds32.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-nds32.git
 F:	arch/nds32/
 
 NETWORK
 M:	Joe Hershberger <joe.hershberger@ni.com>
+M:	Ramon Fried <rfried.dev@gmail.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-net.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-net.git
 F:	drivers/net/
 F:	include/net.h
 F:	net/
@@ -875,14 +965,39 @@ F:	net/
 NIOS
 M:	Thomas Chou <thomas@wytron.com.tw>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-nios.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-nios.git
 F:	arch/nios2/
+
+NVMe
+M:	Bin Meng <bmeng.cn@gmail.com>
+S:	Maintained
+F:	drivers/nvme/
+F:	cmd/nvme.c
+F:	include/nvme.h
+F:	doc/develop/driver-model/nvme.rst
+
+NXP C45 TJA11XX PHY DRIVER
+M:	Radu Pirea <radu-nicolae.pirea@oss.nxp.com>
+S:	Maintained
+F:	drivers/net/phy/nxp-c45-tja11xx.c
 
 ONENAND
 #M:	Lukasz Majewski <l.majewski@majess.pl>
 S:	Orphaned (Since 2017-01)
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-onenand.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-onenand.git
 F:	drivers/mtd/onenand/
+
+OUT4-IMX6ULL-NANO BOARD
+M:	Oleh Kravchenko <oleg@kaa.org.ua>
+S:	Maintained
+T:	git https://github.com/Oleh-Kravchenko/u-boot-out4.git
+F:	arch/arm/dts/ev-imx280-nano-x-mb.dts
+F:	arch/arm/dts/o4-imx-nano.dts
+F:	arch/arm/dts/o4-imx6ull-nano.dtsi
+F:	board/out4
+F:	configs/ev-imx280-nano-x-mb_defconfig
+F:	configs/o4-imx6ull-nano_defconfig
+F:	include/configs/o4-imx6ull-nano.h
 
 PATMAN
 M:	Simon Glass <sjg@chromium.org>
@@ -903,7 +1018,7 @@ F:	drivers/pci/pci_mpc85xx.c
 POWER
 M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-pmic.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-pmic.git
 F:	drivers/power/
 
 POWERPC
@@ -912,15 +1027,15 @@ S:	Maintained
 F:	arch/powerpc/
 
 POWERPC MPC8XX
-M:	Christophe Leroy <christophe.leroy@c-s.fr>
+M:	Christophe Leroy <christophe.leroy@csgroup.eu>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-mpc8xx.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc8xx.git
 F:	arch/powerpc/cpu/mpc8xx/
 
 POWERPC MPC83XX
 M:	Mario Six <mario.six@gdsys.cc>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-mpc83xx.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc83xx.git
 F:	drivers/ram/mpc83xx_sdram.c
 F:	include/dt-bindings/memory/mpc83xx-sdram.h
 F:	drivers/sysreset/sysreset_mpc83xx.c
@@ -938,21 +1053,18 @@ F:	arch/powerpc/include/asm/arch-mpc83xx/
 POWERPC MPC85XX
 M:	Priyanka Jain <priyanka.jain@nxp.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-mpc85xx.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
-
-POWERPC MPC86XX
-M:	Priyanka Jain <priyanka.jain@nxp.com>
-S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-mpc86xx.git
-F:	arch/powerpc/cpu/mpc86xx/
 
 RISC-V
 M:	Rick Chen <rick@andestech.com>
+M:	Leo <ycliang@andestech.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-riscv.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-riscv.git
 F:	arch/riscv/
 F:	cmd/riscv/
+F:	doc/usage/sbi.rst
+F:	drivers/sysreset/sysreset_sbi.c
 F:	drivers/timer/andes_plmt_timer.c
 F:	drivers/timer/sifive_clint_timer.c
 F:	tools/prelink-riscv.c
@@ -962,8 +1074,8 @@ M:	Sean Anderson <seanga2@gmail.com>
 S:	Maintained
 F:	doc/device-tree-bindings/mfd/kendryte,k210-sysctl.txt
 F:	doc/device-tree-bindings/pinctrl/kendryte,k210-fpioa.txt
-F:	drivers/clk/kendryte/
-F:	drivers/pinctrl/kendryte/
+F:	drivers/clk/clk_kendryte.c
+F:	drivers/pinctrl/pinctrl-kendryte.c
 F:	include/kendryte/
 
 RNG
@@ -990,17 +1102,23 @@ F:	arch/sandbox/
 F:	doc/arch/sandbox.rst
 F:	include/dt-bindings/*/sandbox*.h
 
+SETEXPR
+M:	Roland Gaudig <roland.gaudig@weidmueller.com>
+S:	Maintained
+F:	cmd/printf.c
+F:	doc/usage/setexpr.rst
+
 SH
 M:	Marek Vasut <marek.vasut+renesas@gmail.com>
 M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-sh.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-sh.git
 F:	arch/sh/
 
 SPI
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-spi.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-spi.git
 F:	drivers/spi/
 F:	include/spi*
 
@@ -1028,6 +1146,13 @@ F:	fs/squashfs/
 F:	include/sqfs.h
 F:	cmd/sqfs.c
 F:	test/py/tests/test_fs/test_squashfs/
+
+STACKPROTECTOR
+M:	Joel Peshkin <joel.peshkin@broadcom.com>
+S:	Maintained
+F:	common/stackprot.c
+F:	cmd/stackprot_test.c
+F:	test/py/tests/test_stackprotector.py
 
 TARGET_BCMNS3
 M:	Bharat Gooty <bharat.gooty@broadcom.com>
@@ -1077,6 +1202,11 @@ F:	configs/am65x_hs_evm_a53_defconfig
 F:	configs/j721e_hs_evm_r5_defconfig
 F:	configs/j721e_hs_evm_a72_defconfig
 
+TPM DRIVERS
+M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
+S:	Maintained
+F:	drivers/tpm/
+
 TQ GROUP
 #M:	Martin Krause <martin.krause@tq-systems.de>
 S:	Orphaned (Since 2016-02)
@@ -1098,7 +1228,7 @@ UBI
 M:	Kyungmin Park <kmpark@infradead.org>
 M:	Heiko Schocher <hs@denx.de>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-ubi.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-ubi.git
 F:	drivers/mtd/ubi/
 
 UFS
@@ -1109,7 +1239,7 @@ F:	drivers/ufs/
 USB
 M:	Marek Vasut <marex@denx.de>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-usb.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-usb.git
 F:	drivers/usb/
 F:	common/usb.c
 F:	common/usb_kbd.c
@@ -1118,24 +1248,36 @@ F:	include/usb.h
 USB xHCI
 M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-usb.git topic-xhci
+T:	git https://source.denx.de/u-boot/custodians/u-boot-usb.git topic-xhci
 F:	drivers/usb/host/xhci*
 F:	include/usb/xhci.h
 
 VIDEO
 M:	Anatolij Gustschin <agust@denx.de>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-video.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-video.git
 F:	drivers/video/
 F:	common/lcd*.c
 F:	include/lcd*.h
 F:	include/video*.h
 
+VirtIO
+M:	Bin Meng <bmeng.cn@gmail.com>
+S:	Maintained
+F:	drivers/virtio/
+F:	cmd/virtio.c
+F:	include/config/virtio/
+F:	include/config/virtio.h
+F:	include/config/cmd/virtio.h
+F:	include/virtio*.h
+F:	test/dm/virtio.c
+F:	doc/develop/driver-model/virtio.rst
+
 X86
 M:	Simon Glass <sjg@chromium.org>
 M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-x86.git
+T:	git https://source.denx.de/u-boot/custodians/u-boot-x86.git
 F:	arch/x86/
 F:	cmd/x86/
 
@@ -1165,7 +1307,7 @@ M:	Tom Rini <trini@konsulko.com>
 L:	u-boot@lists.denx.de
 Q:	http://patchwork.ozlabs.org/project/uboot/list/
 S:	Maintained
-T:	git https://gitlab.denx.de/u-boot/u-boot.git
+T:	git https://source.denx.de/u-boot/u-boot.git
 F:	configs/tools-only_defconfig
 F:	*
 F:	*/

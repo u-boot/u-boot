@@ -40,7 +40,7 @@ static int do_enterrcm(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	tegra_pmc_writel(2, PMC_SCRATCH0);
 	disable_interrupts();
-	reset_cpu(0);
+	reset_cpu();
 
 	return 0;
 }

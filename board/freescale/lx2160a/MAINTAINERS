@@ -1,6 +1,7 @@
 LX2160ARDB BOARD
 M:	Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
 M:	Priyanka Jain <priyanka.jain@nxp.com>
+M:	Wasim Khan <wasim.khan@nxp.com>
 S:	Maintained
 F:	board/freescale/lx2160a/
 F:	include/configs/lx2160a_common.h
@@ -16,7 +17,7 @@ F:	configs/lx2160ardb_tfa_SECURE_BOOT_defconfig
 
 LX2160AQDS BOARD
 M:	Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
-M:	Pankaj Bansal <pankaj.bansal@nxp.com>
+M:	Wasim Khan <wasim.khan@nxp.com>
 S:	Maintained
 F:	board/freescale/lx2160a/eth_lx2160aqds.h
 F:	include/configs/lx2160aqds.h
@@ -30,6 +31,7 @@ F:	configs/lx2160aqds_tfa_SECURE_BOOT_defconfig
 
 LX2162AQDS BOARD
 M:	Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
+M:	Wasim Khan <wasim.khan@nxp.com>
 S:	Maintained
 F:	board/freescale/lx2160a/eth_lx2162aqds.h
 F:	include/configs/lx2162aqds.h

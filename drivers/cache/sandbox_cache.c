@@ -7,6 +7,7 @@
 #include <cache.h>
 #include <dm.h>
 #include <errno.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,7 +31,7 @@ static int snadbox_disable(struct udevice *dev)
 
 static const struct cache_ops sandbox_cache_ops = {
 	.get_info	= sandbox_get_info,
-	.enable 	= sandbox_enable,
+	.enable		= sandbox_enable,
 	.disable	= snadbox_disable,
 };
 

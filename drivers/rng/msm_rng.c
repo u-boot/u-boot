@@ -139,5 +139,5 @@ U_BOOT_DRIVER(msm_rng) = {
 	.ops = &msm_rng_ops,
 	.probe = msm_rng_probe,
 	.remove = msm_rng_remove,
-	.priv_auto_alloc_size = sizeof(struct msm_rng_priv),
+	.priv_auto	= sizeof(struct msm_rng_priv),
 };

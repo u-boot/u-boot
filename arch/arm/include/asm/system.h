@@ -75,9 +75,30 @@
 /*
  * HCR_EL2 bits definitions
  */
+#define HCR_EL2_API		(1 << 41) /* Trap pointer authentication
+				             instructions                     */
+#define HCR_EL2_APK		(1 << 40) /* Trap pointer authentication
+				             key access                       */
 #define HCR_EL2_RW_AARCH64	(1 << 31) /* EL1 is AArch64                   */
 #define HCR_EL2_RW_AARCH32	(0 << 31) /* Lower levels are AArch32         */
 #define HCR_EL2_HCD_DIS		(1 << 29) /* Hypervisor Call disabled         */
+
+/*
+ * ID_AA64ISAR1_EL1 bits definitions
+ */
+#define ID_AA64ISAR1_EL1_GPI	(0xF << 28) /* Implementation-defined generic
+				               code auth algorithm            */
+#define ID_AA64ISAR1_EL1_GPA	(0xF << 24) /* QARMA generic code auth
+				               algorithm                      */
+#define ID_AA64ISAR1_EL1_API	(0xF << 8)  /* Implementation-defined address
+				               auth algorithm                 */
+#define ID_AA64ISAR1_EL1_APA	(0xF << 4)  /* QARMA address auth algorithm   */
+
+/*
+ * ID_AA64PFR0_EL1 bits definitions
+ */
+#define ID_AA64PFR0_EL1_EL3	(0xF << 12) /* EL3 implemented                */
+#define ID_AA64PFR0_EL1_EL2	(0xF << 8)  /* EL2 implemented                */
 
 /*
  * CPACR_EL1 bits definitions
@@ -397,20 +418,6 @@ static inline void set_cr(unsigned int val)
 	isb();
 }
 
-static inline unsigned int get_dacr(void)
-{
-	unsigned int val;
-	asm("mrc p15, 0, %0, c3, c0, 0	@ get DACR" : "=r" (val) : : "cc");
-	return val;
-}
-
-static inline void set_dacr(unsigned int val)
-{
-	asm volatile("mcr p15, 0, %0, c3, c0, 0	@ set DACR"
-	  : : "r" (val) : "cc");
-	isb();
-}
-
 #ifdef CONFIG_ARMV7_LPAE
 /* Long-Descriptor Translation Table Level 1/2 Bits */
 #define TTB_SECT_XN_MASK	(1ULL << 54)
@@ -475,7 +482,7 @@ enum dcache_option {
 #define TTB_SECT_XN_MASK	(1 << 4)
 #define TTB_SECT_C_MASK		(1 << 3)
 #define TTB_SECT_B_MASK		(1 << 2)
-#define TTB_SECT			(2 << 0)
+#define TTB_SECT		(2 << 0)
 
 /*
  * Short-descriptor format memory region attributes, without TEX remap
@@ -489,7 +496,7 @@ enum dcache_option {
  */
 enum dcache_option {
 	DCACHE_OFF = TTB_SECT_DOMAIN(0) | TTB_SECT_XN_MASK | TTB_SECT,
-	DCACHE_WRITETHROUGH = DCACHE_OFF | TTB_SECT_C_MASK,
+	DCACHE_WRITETHROUGH = TTB_SECT_DOMAIN(0) | TTB_SECT | TTB_SECT_C_MASK,
 	DCACHE_WRITEBACK = DCACHE_WRITETHROUGH | TTB_SECT_B_MASK,
 	DCACHE_WRITEALLOC = DCACHE_WRITEBACK | TTB_SECT_TEX(1),
 };
@@ -559,7 +566,6 @@ s32 psci_affinity_info(u32 function_id, u32 target_affinity,
 u32 psci_migrate_info_type(void);
 void psci_system_off(void);
 void psci_system_reset(void);
-s32 psci_features(u32 function_id, u32 psci_fid);
 #endif
 
 #endif /* __ASSEMBLY__ */
@@ -628,7 +634,18 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option);
 
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
-void noncached_init(void);
+/**
+ * noncached_init() - Initialize non-cached memory region
+ *
+ * Initialize non-cached memory area. This memory region will be typically
+ * located right below the malloc() area and mapped uncached in the MMU.
+ *
+ * It is called during the generic post-relocation init sequence.
+ *
+ * Return: 0 if OK
+ */
+int noncached_init(void);
+
 phys_addr_t noncached_alloc(size_t size, size_t align);
 #endif /* CONFIG_SYS_NONCACHED_MEMORY */
 

@@ -16,7 +16,7 @@
 #ifndef HOST_XHCI_H_
 #define HOST_XHCI_H_
 
-#include <reset.h>
+#include <phys2bus.h>
 #include <asm/types.h>
 #include <asm/cache.h>
 #include <asm/io.h>
@@ -1199,7 +1199,6 @@ struct xhci_ctrl {
 #if CONFIG_IS_ENABLED(DM_USB)
 	struct udevice *dev;
 #endif
-	struct reset_ctl reset;
 	struct xhci_hccr *hccr;	/* R/O registers, not need for volatile */
 	struct xhci_hcor *hcor;
 	struct xhci_doorbell_array *dba;
@@ -1220,6 +1219,12 @@ struct xhci_ctrl {
 	u32 quirks;
 #define XHCI_MTK_HOST		BIT(0)
 };
+
+#if CONFIG_IS_ENABLED(DM_USB)
+#define xhci_to_dev(_ctrl)	_ctrl->dev
+#else
+#define xhci_to_dev(_ctrl)	NULL
+#endif
 
 unsigned long trb_addr(struct xhci_segment *seg, union xhci_trb *trb);
 struct xhci_input_control_ctx
@@ -1250,7 +1255,8 @@ int xhci_check_maxpacket(struct usb_device *udev);
 void xhci_flush_cache(uintptr_t addr, u32 type_len);
 void xhci_inval_cache(uintptr_t addr, u32 type_len);
 void xhci_cleanup(struct xhci_ctrl *ctrl);
-struct xhci_ring *xhci_ring_alloc(unsigned int num_segs, bool link_trbs);
+struct xhci_ring *xhci_ring_alloc(struct xhci_ctrl *ctrl, unsigned int num_segs,
+				  bool link_trbs);
 int xhci_alloc_virt_device(struct xhci_ctrl *ctrl, unsigned int slot_id);
 int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 		  struct xhci_hcor *hcor);
@@ -1277,5 +1283,15 @@ int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
 extern struct dm_usb_ops xhci_usb_ops;
 
 struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev);
+
+static inline dma_addr_t xhci_virt_to_bus(struct xhci_ctrl *ctrl, void *addr)
+{
+	return dev_phys_to_bus(xhci_to_dev(ctrl), virt_to_phys(addr));
+}
+
+static inline void *xhci_bus_to_virt(struct xhci_ctrl *ctrl, dma_addr_t addr)
+{
+	return phys_to_virt(dev_bus_to_phys(xhci_to_dev(ctrl), addr));
+}
 
 #endif /* HOST_XHCI_H_ */

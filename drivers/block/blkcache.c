@@ -9,6 +9,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <part.h>
+#include <asm/global_data.h>
 #include <linux/ctype.h>
 #include <linux/list.h>
 

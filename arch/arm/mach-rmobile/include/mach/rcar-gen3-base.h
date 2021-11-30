@@ -74,9 +74,6 @@
 #define PUEN_USB1_OVC   (1 << 2)
 #define PUEN_USB1_PWEN  (1 << 1)
 
-/* IICDVFS (I2C) */
-#define CONFIG_SYS_I2C_SH_BASE0	0xE60B0000
-
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
 #include <linux/bitops.h>

@@ -13,8 +13,6 @@
 
 #include "imx6_spl.h"
 
-#define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
@@ -38,7 +36,6 @@
 /* Command definition */
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
-#define CONSOLE_DEV	"ttymxc0"
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -47,17 +44,17 @@
 	"fdtfile=undefined\0" \
 	"fdt_addr_r=0x18000000\0" \
 	"fdt_addr=0x18000000\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0"  \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"  \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x13000000\0" \
 	"ramdiskaddr=0x13000000\0" \
 	"initrd_high=0xffffffff\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONSOLE_DEV ",115200\0" \
+	"console=ttymxc0\0" \
 	"bootm_size=0x10000000\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
-	"finduuid=part uuid mmc 0:1 uuid\0" \
+	"finduuid=part uuid mmc 1:1 uuid\0" \
 	"update_sd_firmware=" \
 		"if test ${ip_dyn} = yes; then " \
 			"setenv get_cmd dhcp; " \

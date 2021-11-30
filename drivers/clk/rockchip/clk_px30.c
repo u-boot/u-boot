@@ -14,7 +14,9 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_px30.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/px30-cru.h>
 #include <linux/bitops.h>
@@ -577,6 +579,32 @@ static ulong px30_mmc_set_clk(struct px30_clk_priv *priv,
 		     EMMC_CLK_SEL_EMMC);
 
 	return px30_mmc_get_clk(priv, clk_id);
+}
+
+static ulong px30_sfc_get_clk(struct px30_clk_priv *priv, uint clk_id)
+{
+	struct px30_cru *cru = priv->cru;
+	u32 div, con;
+
+	con = readl(&cru->clksel_con[22]);
+	div = (con & SFC_DIV_CON_MASK) >> SFC_DIV_CON_SHIFT;
+
+	return DIV_TO_RATE(priv->gpll_hz, div);
+}
+
+static ulong px30_sfc_set_clk(struct px30_clk_priv *priv,
+			      ulong clk_id, ulong set_rate)
+{
+	struct px30_cru *cru = priv->cru;
+	int src_clk_div;
+
+	src_clk_div = DIV_ROUND_UP(priv->gpll_hz, set_rate);
+	rk_clrsetreg(&cru->clksel_con[22],
+		     SFC_PLL_SEL_MASK | SFC_DIV_CON_MASK,
+		     0 << SFC_PLL_SEL_SHIFT |
+		     (src_clk_div - 1) << SFC_DIV_CON_SHIFT);
+
+	return px30_sfc_get_clk(priv, clk_id);
 }
 
 static ulong px30_pwm_get_clk(struct px30_clk_priv *priv, ulong clk_id)
@@ -1190,6 +1218,9 @@ static ulong px30_clk_get_rate(struct clk *clk)
 	case SCLK_EMMC_SAMPLE:
 		rate = px30_mmc_get_clk(priv, clk->id);
 		break;
+	case SCLK_SFC:
+		rate = px30_sfc_get_clk(priv, clk->id);
+		break;
 	case SCLK_I2C0:
 	case SCLK_I2C1:
 	case SCLK_I2C2:
@@ -1260,6 +1291,9 @@ static ulong px30_clk_set_rate(struct clk *clk, ulong rate)
 	case PLL_NPLL:
 		ret = px30_clk_set_pll_rate(priv, NPLL, rate);
 		break;
+	case PLL_CPLL:
+		ret = px30_clk_set_pll_rate(priv, CPLL, rate);
+		break;
 	case ARMCLK:
 		ret = px30_armclk_set_clk(priv, rate);
 		break;
@@ -1268,6 +1302,9 @@ static ulong px30_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_SDMMC:
 	case SCLK_EMMC:
 		ret = px30_mmc_set_clk(priv, clk->id, rate);
+		break;
+	case SCLK_SFC:
+		ret = px30_sfc_set_clk(priv, clk->id, rate);
 		break;
 	case SCLK_I2C0:
 	case SCLK_I2C1:
@@ -1333,7 +1370,7 @@ static ulong px30_clk_set_rate(struct clk *clk, ulong rate)
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int px30_gmac_set_parent(struct clk *clk, struct clk *parent)
 {
 	struct px30_clk_priv *priv = dev_get_priv(clk->dev);
@@ -1384,7 +1421,7 @@ static int px30_clk_enable(struct clk *clk)
 static struct clk_ops px30_clk_ops = {
 	.get_rate = px30_clk_get_rate,
 	.set_rate = px30_clk_set_rate,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.set_parent = px30_clk_set_parent,
 #endif
 	.enable = px30_clk_enable,
@@ -1432,7 +1469,7 @@ static int px30_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int px30_clk_ofdata_to_platdata(struct udevice *dev)
+static int px30_clk_of_to_plat(struct udevice *dev)
 {
 	struct px30_clk_priv *priv = dev_get_priv(dev);
 
@@ -1458,7 +1495,7 @@ static int px30_clk_bind(struct udevice *dev)
 						    glb_srst_fst);
 		priv->glb_srst_snd_value = offsetof(struct px30_cru,
 						    glb_srst_snd);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
@@ -1480,8 +1517,8 @@ U_BOOT_DRIVER(rockchip_px30_cru) = {
 	.name		= "rockchip_px30_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= px30_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct px30_clk_priv),
-	.ofdata_to_platdata = px30_clk_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct px30_clk_priv),
+	.of_to_plat = px30_clk_of_to_plat,
 	.ops		= &px30_clk_ops,
 	.bind		= px30_clk_bind,
 	.probe		= px30_clk_probe,
@@ -1609,7 +1646,7 @@ static int px30_pmuclk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int px30_pmuclk_ofdata_to_platdata(struct udevice *dev)
+static int px30_pmuclk_of_to_plat(struct udevice *dev)
 {
 	struct px30_pmuclk_priv *priv = dev_get_priv(dev);
 
@@ -1627,8 +1664,8 @@ U_BOOT_DRIVER(rockchip_px30_pmucru) = {
 	.name		= "rockchip_px30_pmucru",
 	.id		= UCLASS_CLK,
 	.of_match	= px30_pmuclk_ids,
-	.priv_auto_alloc_size = sizeof(struct px30_pmuclk_priv),
-	.ofdata_to_platdata = px30_pmuclk_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct px30_pmuclk_priv),
+	.of_to_plat = px30_pmuclk_of_to_plat,
 	.ops		= &px30_pmuclk_ops,
 	.probe		= px30_pmuclk_probe,
 };

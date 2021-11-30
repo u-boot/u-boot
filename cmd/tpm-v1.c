@@ -11,6 +11,7 @@
 #include <tpm-common.h>
 #include <tpm-v1.h>
 #include "tpm-user-utils.h"
+#include <tpm_api.h>
 
 static int do_tpm_startup(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
@@ -55,7 +56,7 @@ static int do_tpm_nv_define_space(struct cmd_tbl *cmdtp, int flag, int argc,
 	perm = simple_strtoul(argv[2], NULL, 0);
 	size = simple_strtoul(argv[3], NULL, 0);
 
-	return report_return_code(tpm_nv_define_space(dev, index, perm, size));
+	return report_return_code(tpm1_nv_define_space(dev, index, perm, size));
 }
 
 static int do_tpm_nv_read_value(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -130,7 +131,7 @@ static int do_tpm_extend(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	rc = tpm_extend(dev, index, in_digest, out_digest);
+	rc = tpm_pcr_extend(dev, index, in_digest, out_digest);
 	if (!rc) {
 		puts("PCR value after execution of the command:\n");
 		print_byte_string(out_digest, sizeof(out_digest));
@@ -304,7 +305,7 @@ static int do_tpm_nv_define(struct cmd_tbl *cmdtp, int flag, int argc,
 	index = simple_strtoul(argv[2], NULL, 0);
 	perm = simple_strtoul(argv[3], NULL, 0);
 
-	return report_return_code(tpm_nv_define_space(dev, index, perm, size));
+	return report_return_code(tpm1_nv_define_space(dev, index, perm, size));
 }
 
 static int do_tpm_nv_read(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -389,7 +390,7 @@ static int do_tpm_oiap(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (rc)
 		return rc;
 
-	err = tpm_oiap(dev, &auth_handle);
+	err = tpm1_oiap(dev, &auth_handle);
 
 	return report_return_code(err);
 }
@@ -405,9 +406,9 @@ static int do_tpm_load_key_by_sha1(struct cmd_tbl *cmdtp, int flag, int argc,
 	void *key;
 	struct udevice *dev;
 
-	rc = get_tpm(&dev);
-	if (rc)
-		return rc;
+	err = get_tpm(&dev);
+	if (err)
+		return err;
 
 	if (argc < 5)
 		return CMD_RET_USAGE;
@@ -419,7 +420,7 @@ static int do_tpm_load_key_by_sha1(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	parse_byte_string(argv[4], usage_auth, NULL);
 
-	err = tpm_find_key_sha1(usage_auth, parent_hash, &parent_handle);
+	err = tpm1_find_key_sha1(dev, usage_auth, parent_hash, &parent_handle);
 	if (err) {
 		printf("Could not find matching parent key (err = %d)\n", err);
 		return CMD_RET_FAILURE;
@@ -427,7 +428,7 @@ static int do_tpm_load_key_by_sha1(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	printf("Found parent key %08x\n", parent_handle);
 
-	err = tpm_load_key2_oiap(parent_handle, key, key_len, usage_auth,
+	err = tpm1_load_key2_oiap(dev, parent_handle, key, key_len, usage_auth,
 				 &key_handle);
 	if (!err) {
 		printf("Key handle is 0x%x\n", key_handle);
@@ -461,8 +462,8 @@ static int do_tpm_load_key2_oiap(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	parse_byte_string(argv[4], usage_auth, NULL);
 
-	err = tpm_load_key2_oiap(dev, parent_handle, key, key_len, usage_auth,
-				 &key_handle);
+	err = tpm1_load_key2_oiap(dev, parent_handle, key, key_len, usage_auth,
+				  &key_handle);
 	if (!err)
 		printf("Key handle is 0x%x\n", key_handle);
 
@@ -491,8 +492,8 @@ static int do_tpm_get_pub_key_oiap(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	parse_byte_string(argv[2], usage_auth, NULL);
 
-	err = tpm_get_pub_key_oiap(dev, key_handle, usage_auth, pub_key_buffer,
-				   &pub_key_len);
+	err = tpm1_get_pub_key_oiap(dev, key_handle, usage_auth, pub_key_buffer,
+				    &pub_key_len);
 	if (!err) {
 		printf("dump of received pub key structure:\n");
 		print_byte_string(pub_key_buffer, pub_key_len);
@@ -500,7 +501,7 @@ static int do_tpm_get_pub_key_oiap(struct cmd_tbl *cmdtp, int flag, int argc,
 	return report_return_code(err);
 }
 
-TPM_COMMAND_NO_ARG(tpm_end_oiap)
+TPM_COMMAND_NO_ARG(tpm1_end_oiap)
 
 #endif /* CONFIG_TPM_AUTH_SESSIONS */
 
@@ -562,7 +563,7 @@ static int do_tpm_flush(struct cmd_tbl *cmdtp, int flag, int argc,
 		res_count = get_unaligned_be16(buf);
 		ptr = buf + 2;
 		for (i = 0; i < res_count; ++i, ptr += 4)
-			tpm_flush_specific(dev, get_unaligned_be32(ptr), type);
+			tpm1_flush_specific(dev, get_unaligned_be32(ptr), type);
 	} else {
 		u32 handle = simple_strtoul(argv[2], NULL, 0);
 
@@ -570,7 +571,7 @@ static int do_tpm_flush(struct cmd_tbl *cmdtp, int flag, int argc,
 			printf("Illegal resource handle %s\n", argv[2]);
 			return -1;
 		}
-		tpm_flush_specific(dev, cpu_to_be32(handle), type);
+		tpm1_flush_specific(dev, cpu_to_be32(handle), type);
 	}
 
 	return 0;
@@ -581,12 +582,17 @@ static int do_tpm_flush(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_tpm_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
+	struct udevice *dev;
 	int type = 0;
 	u16 res_count;
 	u8 buf[288];
 	u8 *ptr;
 	int err;
 	uint i;
+
+	err = get_tpm(&dev);
+	if (err)
+		return err;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -618,7 +624,7 @@ static int do_tpm_list(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	/* fetch list of already loaded resources in the TPM */
-	err = tpm_get_capability(TPM_CAP_HANDLE, type, buf,
+	err = tpm_get_capability(dev, TPM_CAP_HANDLE, type, buf,
 				 sizeof(buf));
 	if (err) {
 		printf("tpm_get_capability returned error %d.\n", err);
@@ -691,7 +697,7 @@ static struct cmd_tbl tpm1_commands[] = {
 	U_BOOT_CMD_MKENT(oiap, 0, 1,
 			 do_tpm_oiap, "", ""),
 	U_BOOT_CMD_MKENT(end_oiap, 0, 1,
-			 do_tpm_end_oiap, "", ""),
+			 do_tpm1_end_oiap, "", ""),
 	U_BOOT_CMD_MKENT(load_key2_oiap, 0, 1,
 			 do_tpm_load_key2_oiap, "", ""),
 #ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1

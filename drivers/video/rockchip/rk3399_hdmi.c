@@ -23,7 +23,7 @@ static int rk3399_hdmi_enable(struct udevice *dev, int panel_bpp,
 			      const struct display_timing *edid)
 {
 	struct rk_hdmi_priv *priv = dev_get_priv(dev);
-	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	int vop_id = uc_plat->source_id;
 	struct rk3399_grf_regs *grf = priv->grf;
 
@@ -34,7 +34,7 @@ static int rk3399_hdmi_enable(struct udevice *dev, int panel_bpp,
 	return dw_hdmi_enable(&priv->hdmi, edid);
 }
 
-static int rk3399_hdmi_ofdata_to_platdata(struct udevice *dev)
+static int rk3399_hdmi_of_to_plat(struct udevice *dev)
 {
 	struct rk_hdmi_priv *priv = dev_get_priv(dev);
 	struct dw_hdmi *hdmi = &priv->hdmi;
@@ -42,7 +42,7 @@ static int rk3399_hdmi_ofdata_to_platdata(struct udevice *dev)
 	hdmi->i2c_clk_high = 0x7a;
 	hdmi->i2c_clk_low = 0x8d;
 
-	return rk_hdmi_ofdata_to_platdata(dev);
+	return rk_hdmi_of_to_plat(dev);
 }
 
 static const char * const rk3399_regulator_names[] = {
@@ -74,7 +74,7 @@ U_BOOT_DRIVER(rk3399_hdmi_rockchip) = {
 	.id = UCLASS_DISPLAY,
 	.of_match = rk3399_hdmi_ids,
 	.ops = &rk3399_hdmi_ops,
-	.ofdata_to_platdata = rk3399_hdmi_ofdata_to_platdata,
+	.of_to_plat = rk3399_hdmi_of_to_plat,
 	.probe = rk3399_hdmi_probe,
-	.priv_auto_alloc_size = sizeof(struct rk_hdmi_priv),
+	.priv_auto	= sizeof(struct rk_hdmi_priv),
 };

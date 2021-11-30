@@ -87,7 +87,7 @@ static inline void cdns_ti_writel(struct cdns_ti *data, u32 offset, u32 value)
 
 static int cdns_ti_probe(struct udevice *dev)
 {
-	struct cdns_ti *data = dev_get_platdata(dev);
+	struct cdns_ti *data = dev_get_plat(dev);
 	struct clk usb2_refclk;
 	int modestrap_mode;
 	unsigned long rate;
@@ -101,7 +101,7 @@ static int cdns_ti_probe(struct udevice *dev)
 	if (!data->usbss)
 		return -EINVAL;
 
-	ret = clk_get_by_name(dev, "usb2_refclk", &usb2_refclk);
+	ret = clk_get_by_name(dev, "ref", &usb2_refclk);
 	if (ret) {
 		dev_err(dev, "Failed to get usb2_refclk\n");
 		return ret;
@@ -167,7 +167,7 @@ static int cdns_ti_probe(struct udevice *dev)
 
 static int cdns_ti_remove(struct udevice *dev)
 {
-	struct cdns_ti *data = dev_get_platdata(dev);
+	struct cdns_ti *data = dev_get_plat(dev);
 	u32 reg;
 
 	/* put device back to RESET*/
@@ -190,6 +190,6 @@ U_BOOT_DRIVER(cdns_ti) = {
 	.bind = cdns3_bind,
 	.probe = cdns_ti_probe,
 	.remove = cdns_ti_remove,
-	.platdata_auto_alloc_size = sizeof(struct cdns_ti),
+	.plat_auto	= sizeof(struct cdns_ti),
 	.flags = DM_FLAG_OS_PREPARE,
 };

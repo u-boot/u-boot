@@ -130,7 +130,7 @@
 					clock-names = "apb_pclk";
 				};
 
-				mmci@5000 {
+				mmc0: mmci@5000 {
 					compatible = "arm,pl180", "arm,primecell";
 					reg = <0x05000 0x1000>;
 					interrupts = <9>, <10>;
@@ -140,22 +140,6 @@
 					vmmc-supply = <&v2m_fixed_3v3>;
 					clocks = <&v2m_clk24mhz>, <&smbclk>;
 					clock-names = "mclk", "apb_pclk";
-				};
-
-				kmi@6000 {
-					compatible = "arm,pl050", "arm,primecell";
-					reg = <0x06000 0x1000>;
-					interrupts = <12>;
-					clocks = <&v2m_clk24mhz>, <&smbclk>;
-					clock-names = "KMIREFCLK", "apb_pclk";
-				};
-
-				kmi@7000 {
-					compatible = "arm,pl050", "arm,primecell";
-					reg = <0x07000 0x1000>;
-					interrupts = <13>;
-					clocks = <&v2m_clk24mhz>, <&smbclk>;
-					clock-names = "KMIREFCLK", "apb_pclk";
 				};
 
 				v2m_serial0: uart@9000 {
@@ -188,14 +172,6 @@
 					interrupts = <8>;
 					clocks = <&v2m_oscclk2>, <&smbclk>;
 					clock-names = "uartclk", "apb_pclk";
-				};
-
-				wdt@f000 {
-					compatible = "arm,sp805", "arm,primecell";
-					reg = <0x0f000 0x1000>;
-					interrupts = <0>;
-					clocks = <&v2m_refclk32khz>, <&smbclk>;
-					clock-names = "wdogclk", "apb_pclk";
 				};
 
 				v2m_timer01: timer@11000 {

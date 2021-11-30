@@ -462,5 +462,5 @@ U_BOOT_DRIVER(max98095) = {
 	.of_match	= max98095_ids,
 	.probe		= max98095_probe,
 	.ops		= &max98095_ops,
-	.priv_auto_alloc_size	= sizeof(struct maxim_priv),
+	.priv_auto	= sizeof(struct maxim_priv),
 };

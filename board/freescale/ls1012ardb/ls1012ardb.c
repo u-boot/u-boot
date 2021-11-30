@@ -10,6 +10,7 @@
 #include <i2c.h>
 #include <asm/cache.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
@@ -27,6 +28,7 @@
 #include <fsl_mmdc.h>
 #include <netdev.h>
 #include <fsl_sec.h>
+#include <net/pfe_eth/pfe/pfe_hw.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,7 +44,7 @@ int checkboard(void)
 	puts("Board: LS1012ARDB ");
 
 	/* Initialize i2c early for Serial flash bank information */
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_IO_ADDR,
@@ -171,10 +173,6 @@ int board_init(void)
 	erratum_a010315();
 #endif
 
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
-#endif
-
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
 #endif
@@ -185,6 +183,13 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_FSL_PFE
+void board_quiesce_devices(void)
+{
+	pfe_command_stop(0, NULL);
+}
+#endif
+
 #ifdef CONFIG_TARGET_LS1012ARDB
 int esdhc_status_fixup(void *blob, const char *compat)
 {
@@ -194,7 +199,7 @@ int esdhc_status_fixup(void *blob, const char *compat)
 	u8 io = 0;
 	int ret, bus_num = 0;
 
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_IO_ADDR,
@@ -233,7 +238,7 @@ int esdhc_status_fixup(void *blob, const char *compat)
 		 *	10 - eMMC Memory
 		 *	11 - SPI
 		 */
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_read(dev, I2C_MUX_IO_0, &io, 1);
 #else
 		ret = i2c_read(I2C_MUX_IO_ADDR, I2C_MUX_IO_0, 1, &io, 1);
@@ -272,7 +277,7 @@ static int switch_to_bank1(void)
 	u8 data = 0xf4, chip_addr = 0x24, offset_addr = 0x03;
 	int ret, bus_num = 0;
 
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(bus_num, chip_addr,
@@ -337,7 +342,7 @@ static int switch_to_bank2(void)
 	u8 chip_addr = 0x24;
 	int ret, i, bus_num = 0;
 
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(bus_num, chip_addr,
@@ -360,7 +365,7 @@ static int switch_to_bank2(void)
 	 *	  CS routed to SPI memory bank2
 	 */
 	for (i = 0; i < sizeof(data); i++) {
-#if defined(CONFIG_DM_I2C)
+#if CONFIG_IS_ENABLED(DM_I2C)
 		ret = dm_i2c_write(dev, offset_addr[i], &data[i], 1);
 #else /* Non DM I2C support - will be removed */
 		ret = i2c_write(chip_addr, offset_addr[i], 1, &data[i], 1);

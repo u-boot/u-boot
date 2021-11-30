@@ -127,20 +127,25 @@ pie_fixup_done:
 	orr	x0, x0, #0xf			/* SCR_EL3.NS|IRQ|FIQ|EA */
 	msr	scr_el3, x0
 	msr	cptr_el3, xzr			/* Enable FP/SIMD */
-#ifdef COUNTER_FREQUENCY
-	ldr	x0, =COUNTER_FREQUENCY
-	msr	cntfrq_el0, x0			/* Initialize CNTFRQ */
-#endif
 	b	0f
-2:	set_vbar	vbar_el2, x0
+2:	mrs	x1, hcr_el2
+	tbnz	x1, #34, 1f			/* HCR_EL2.E2H */
+	set_vbar vbar_el2, x0
 	mov	x0, #0x33ff
 	msr	cptr_el2, x0			/* Enable FP/SIMD */
 	b	0f
-1:	set_vbar	vbar_el1, x0
+1:	set_vbar vbar_el1, x0
 	mov	x0, #3 << 20
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
-	isb
+
+#ifdef COUNTER_FREQUENCY
+	branch_if_not_highest_el x0, 4f
+	ldr	x0, =COUNTER_FREQUENCY
+	msr	cntfrq_el0, x0			/* Initialize CNTFRQ */
+#endif
+
+4:	isb
 
 	/*
 	 * Enable SMPEN bit for coherency.

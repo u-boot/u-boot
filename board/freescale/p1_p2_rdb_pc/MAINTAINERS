@@ -1,5 +1,5 @@
 P1_P2_RDB_PC BOARD
-#M:	-
+M:	Priyanka Jain <priyanka.jain@nxp.com>
 S:	Maintained
 F:	board/freescale/p1_p2_rdb_pc/
 F:	include/configs/p1_p2_rdb_pc.h

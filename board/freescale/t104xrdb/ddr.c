@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -8,6 +9,7 @@
 #include <hwconfig.h>
 #include <init.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/mmu.h>
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
@@ -82,6 +84,7 @@ found:
 	/* optimize cpo for erratum A-009942 */
 	popts->cpo_sample = 0x59;
 #else
+	popts->cpo_sample = 0x54;
 	popts->half_strength_driver_enable = 0;
 #endif
 	/*

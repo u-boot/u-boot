@@ -13,6 +13,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
@@ -25,7 +26,6 @@
 #include <mmc.h>
 #include <usb.h>
 #include <power/pmic.h>
-#include <power/max77696_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -43,6 +43,53 @@ DECLARE_GLOBAL_DATA_PTR;
 		      PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |	\
 		      PAD_CTL_DSE_40ohm | PAD_CTL_HYS |		\
 		      PAD_CTL_ODE | PAD_CTL_SRE_FAST)
+
+#define CONFIG_POWER_MAX77696_I2C_ADDR	0x3C
+
+enum {
+	L01_CNFG1 =	0x43,
+	L01_CNFG2,
+	L02_CNFG1,
+	L02_CNFG2,
+	L03_CNFG1,
+	L03_CNFG2,
+	L04_CNFG1,
+	L04_CNFG2,
+	L05_CNFG1,
+	L05_CNFG2,
+	L06_CNFG1,
+	L06_CNFG2,
+	L07_CNFG1,
+	L07_CNFG2,
+	L08_CNFG1,
+	L08_CNFG2,
+	L09_CNFG1,
+	L09_CNFG2,
+	L10_CNFG1,
+	L10_CNFG2,
+	LDO_INT1,
+	LDO_INT2,
+	LDO_INT1M,
+	LDO_INT2M,
+	LDO_CNFG3,
+	SW1_CNTRL,
+	SW2_CNTRL,
+	SW3_CNTRL,
+	SW4_CNTRL,
+	EPDCNFG,
+	EPDINTS,
+	EPDINT,
+	EPDINTM,
+	EPDVCOM,
+	EPDVEE,
+	EPDVNEG,
+	EPDVPOS,
+	EPDVDDH,
+	EPDSEQ,
+	EPDOKINTS,
+	CID =	0x9c,
+	PMIC_NUM_OF_REGS,
+};
 
 int dram_init(void)
 {
@@ -112,6 +159,26 @@ struct i2c_pads_info i2c_pad_info1 = {
 		.gp = IMX_GPIO_NR(3, 12),
 	},
 };
+
+static int power_max77696_init(unsigned char bus)
+{
+	static const char name[] = "MAX77696";
+	struct pmic *p = pmic_alloc();
+
+	if (!p) {
+		printf("%s: POWER allocation error!\n", __func__);
+		return -ENOMEM;
+	}
+
+	p->name = name;
+	p->interface = PMIC_I2C;
+	p->number_of_regs = PMIC_NUM_OF_REGS;
+	p->hw.i2c.addr = CONFIG_POWER_MAX77696_I2C_ADDR;
+	p->hw.i2c.tx_num = 1;
+	p->bus = bus;
+
+	return 0;
+}
 
 int power_init_board(void)
 {

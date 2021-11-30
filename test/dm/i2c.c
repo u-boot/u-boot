@@ -28,9 +28,6 @@ static int dm_test_i2c_find(struct unit_test_state *uts)
 	struct udevice *bus, *dev;
 	const int no_chip = 0x10;
 
-	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_I2C, busnum,
-						       false, &bus));
-
 	/*
 	 * The post_bind() method will bind devices to chip selects. Check
 	 * this then remove the emulation and the slave device.
@@ -307,3 +304,32 @@ static int dm_test_i2c_addr_offset(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_i2c_addr_offset, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_i2c_reg_clrset(struct unit_test_state *uts)
+{
+	struct udevice *eeprom;
+	struct udevice *dev;
+	u8 buf[5];
+
+	ut_assertok(i2c_get_chip_for_busnum(busnum, chip, 1, &dev));
+
+	/* Do a transfer so we can find the emulator */
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
+	ut_assertok(uclass_first_device(UCLASS_I2C_EMUL, &eeprom));
+
+	/* Dummy data for the test */
+	ut_assertok(dm_i2c_write(dev, 0, "\xff\x00\xff\x00\x10", 5));
+
+	/* Do some clrset tests */
+	ut_assertok(dm_i2c_reg_clrset(dev, 0, 0xff, 0x10));
+	ut_assertok(dm_i2c_reg_clrset(dev, 1, 0x00, 0x11));
+	ut_assertok(dm_i2c_reg_clrset(dev, 2, 0xed, 0x00));
+	ut_assertok(dm_i2c_reg_clrset(dev, 3, 0xff, 0x13));
+	ut_assertok(dm_i2c_reg_clrset(dev, 4, 0x00, 0x14));
+
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
+	ut_asserteq_mem("\x10\x11\x12\x13\x14", buf, sizeof(buf));
+
+	return 0;
+}
+DM_TEST(dm_test_i2c_reg_clrset, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

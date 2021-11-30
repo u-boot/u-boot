@@ -18,12 +18,13 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/spi.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct exynos_spi_platdata {
+struct exynos_spi_plat {
 	enum periph_id periph_id;
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	struct exynos_spi *regs;
@@ -213,7 +214,7 @@ static int spi_rx_tx(struct exynos_spi_priv *priv, int todo,
 static void spi_cs_activate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct exynos_spi_platdata *pdata = dev_get_platdata(bus);
+	struct exynos_spi_plat *pdata = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	/* If it's too soon to do another transaction, wait */
@@ -239,7 +240,7 @@ static void spi_cs_activate(struct udevice *dev)
 static void spi_cs_deactivate(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct exynos_spi_platdata *pdata = dev_get_platdata(bus);
+	struct exynos_spi_plat *pdata = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	setbits_le32(&priv->regs->cs_reg, SPI_SLAVE_SIG_INACT);
@@ -251,9 +252,9 @@ static void spi_cs_deactivate(struct udevice *dev)
 	debug("Deactivate CS, bus '%s'\n", bus->name);
 }
 
-static int exynos_spi_ofdata_to_platdata(struct udevice *bus)
+static int exynos_spi_of_to_plat(struct udevice *bus)
 {
-	struct exynos_spi_platdata *plat = bus->platdata;
+	struct exynos_spi_plat *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -280,7 +281,7 @@ static int exynos_spi_ofdata_to_platdata(struct udevice *bus)
 
 static int exynos_spi_probe(struct udevice *bus)
 {
-	struct exynos_spi_platdata *plat = dev_get_platdata(bus);
+	struct exynos_spi_plat *plat = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->regs;
@@ -368,7 +369,7 @@ static int exynos_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int exynos_spi_set_speed(struct udevice *bus, uint speed)
 {
-	struct exynos_spi_platdata *plat = bus->platdata;
+	struct exynos_spi_plat *plat = dev_get_plat(bus);
 	struct exynos_spi_priv *priv = dev_get_priv(bus);
 	int ret;
 
@@ -426,8 +427,8 @@ U_BOOT_DRIVER(exynos_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = exynos_spi_ids,
 	.ops	= &exynos_spi_ops,
-	.ofdata_to_platdata = exynos_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct exynos_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct exynos_spi_priv),
+	.of_to_plat = exynos_spi_of_to_plat,
+	.plat_auto	= sizeof(struct exynos_spi_plat),
+	.priv_auto	= sizeof(struct exynos_spi_priv),
 	.probe	= exynos_spi_probe,
 };

@@ -15,13 +15,14 @@ from patman import tools
 
 
 class Entry_files(Entry_section):
-    """Entry containing a set of files
+    """A set of files arranged in a section
 
     Properties / Entry arguments:
         - pattern: Filename pattern to match the files to include
         - files-compress: Compression algorithm to use:
             none: No compression
             lz4: Use lz4 compression (via 'lz4' command-line utility)
+        - files-align: Align each file to the given alignment
 
     This entry reads a number of files and places each in a separate sub-entry
     within this entry. To access these you need to enable device-tree updates
@@ -33,11 +34,15 @@ class Entry_files(Entry_section):
         from binman import state
 
         super().__init__(section, etype, node)
+
+    def ReadNode(self):
+        super().ReadNode()
         self._pattern = fdt_util.GetString(self._node, 'pattern')
         if not self._pattern:
             self.Raise("Missing 'pattern' property")
         self._files_compress = fdt_util.GetString(self._node, 'files-compress',
                                                   'none')
+        self._files_align = fdt_util.GetInt(self._node, 'files-align');
         self._require_matches = fdt_util.GetBool(self._node,
                                                 'require-matches')
 
@@ -55,6 +60,8 @@ class Entry_files(Entry_section):
             state.AddString(subnode, 'type', 'blob')
             state.AddString(subnode, 'filename', fname)
             state.AddString(subnode, 'compress', self._files_compress)
+            if self._files_align:
+                state.AddInt(subnode, 'align', self._files_align)
 
         # Read entries again, now that we have some
         self._ReadEntries()

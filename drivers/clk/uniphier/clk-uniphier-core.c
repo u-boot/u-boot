@@ -342,6 +342,6 @@ U_BOOT_DRIVER(uniphier_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = uniphier_clk_match,
 	.probe = uniphier_clk_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_clk_priv),
+	.priv_auto	= sizeof(struct uniphier_clk_priv),
 	.ops = &uniphier_clk_ops,
 };

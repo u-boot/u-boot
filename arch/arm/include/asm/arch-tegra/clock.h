@@ -8,6 +8,8 @@
 #ifndef _TEGRA_CLOCK_H_
 #define _TEGRA_CLOCK_H_
 
+struct udevice;
+
 /* Set of oscillator frequencies supported in the internal API. */
 enum clock_osc_freq {
 	/* All in MHz, so 13_0 is 13.0MHz */

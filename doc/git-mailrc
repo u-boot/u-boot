@@ -29,7 +29,7 @@ alias jaehoon        Jaehoon Chung <jh80.chung@samsung.com>
 alias jagan          Jagan Teki <jagan@amarulasolutions.com>
 alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
 alias kevery         Kever Yang <kever.yang@rock-chips.com>
-alias leyfoon        Ley Foon Tan <ley.foon.tan@intel.com>
+alias leyfoon        Ley Foon Tan <lftan.linux@gmail.com>
 alias lokeshvutla    Lokesh Vutla <lokeshvutla@ti.com>
 alias lukma          Lukasz Majewski <lukma@denx.de>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
@@ -46,6 +46,7 @@ alias simongoldschmidt Simon Goldschmidt <simon.k.r.goldschmidt@gmail.com>
 alias sjg            Simon Glass <sjg@chromium.org>
 alias smcnutt        Scott McNutt <smcnutt@psyent.com>
 alias stroese        Stefan Roese <sr@denx.de>
+alias tienfong       Tien Fong Chee <tien.fong.chee@intel.com>
 alias trini          Tom Rini <trini@konsulko.com>
 alias wd             Wolfgang Denk <wd@denx.de>
 alias priyankajain   Priyanka Jain <priyanka.jain@nxp.com>
@@ -69,11 +70,11 @@ alias s3c            samsung
 alias s5pc           samsung
 alias samsung        uboot, prom
 alias snapdragon     uboot, mateusz
-alias socfpga        uboot, marex, dinh, simongoldschmidt, leyfoon
+alias socfpga        uboot, marex, dinh, simongoldschmidt, tienfong
 alias sunxi          uboot, jagan, apritzel
 alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra
-alias ti             uboot, lokeshvutla
+alias ti             uboot, trini
 alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
 alias rockchip       uboot, sjg, kevery, ptomsich
@@ -99,7 +100,6 @@ alias ppc            powerpc
 alias mpc8xx         uboot, wd, Christophe Leroy <christophe.leroy@c-s.fr>
 alias mpc83xx        uboot, mariosix
 alias mpc85xx        uboot, afleming, priyankajain
-alias mpc86xx        uboot, afleming, priyankajain
 
 alias sandbox        sjg
 alias sb             sandbox
@@ -119,7 +119,7 @@ alias kerneldoc      uboot, marex
 alias fdt            uboot, sjg
 alias i2c            uboot, hs
 alias kconfig        uboot, masahiro
-alias mmc            uboot, freenix
+alias mmc            uboot, freenix, jaehoon
 alias nand           uboot
 alias net            uboot, jhersh
 alias phy            uboot, jhersh

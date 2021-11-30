@@ -9,6 +9,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <generic-phy.h>
@@ -308,5 +309,5 @@ U_BOOT_DRIVER(rockchip_usb2phy) = {
 	.of_match = rockchip_usb2phy_ids,
 	.probe = rockchip_usb2phy_probe,
 	.bind = rockchip_usb2phy_bind,
-	.priv_auto_alloc_size = sizeof(struct rockchip_usb2phy),
+	.priv_auto	= sizeof(struct rockchip_usb2phy),
 };

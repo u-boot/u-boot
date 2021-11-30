@@ -12,53 +12,110 @@
  * Copyright (C) 2001 Peter Bergner, IBM Corp.
  */
 
-#define MAX_LMB_REGIONS 8
+/**
+ * enum lmb_flags - definition of memory region attributes
+ * @LMB_NONE: no special request
+ * @LMB_NOMAP: don't add to mmu configuration
+ */
+enum lmb_flags {
+	LMB_NONE		= 0x0,
+	LMB_NOMAP		= 0x4,
+};
 
+/**
+ * struct lmb_property - Description of one region.
+ *
+ * @base:	Base address of the region.
+ * @size:	Size of the region
+ * @flags:	memory region attributes
+ */
 struct lmb_property {
 	phys_addr_t base;
 	phys_size_t size;
+	enum lmb_flags flags;
 };
 
+/**
+ * struct lmb_region - Description of a set of region.
+ *
+ * @cnt: Number of regions.
+ * @max: Size of the region array, max value of cnt.
+ * @region: Array of the region properties
+ */
 struct lmb_region {
 	unsigned long cnt;
-	phys_size_t size;
-	struct lmb_property region[MAX_LMB_REGIONS+1];
+	unsigned long max;
+#if IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
+	struct lmb_property region[CONFIG_LMB_MAX_REGIONS];
+#else
+	struct lmb_property *region;
+#endif
 };
 
+/**
+ * struct lmb - Logical memory block handle.
+ *
+ * Clients provide storage for Logical memory block (lmb) handles.
+ * The content of the structure is managed by the lmb library.
+ * A lmb struct is  initialized by lmb_init() functions.
+ * The lmb struct is passed to all other lmb APIs.
+ *
+ * @memory: Description of memory regions.
+ * @reserved: Description of reserved regions.
+ * @memory_regions: Array of the memory regions (statically allocated)
+ * @reserved_regions: Array of the reserved regions (statically allocated)
+ */
 struct lmb {
 	struct lmb_region memory;
 	struct lmb_region reserved;
+#if !IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
+	struct lmb_property memory_regions[CONFIG_LMB_MEMORY_REGIONS];
+	struct lmb_property reserved_regions[CONFIG_LMB_RESERVED_REGIONS];
+#endif
 };
 
-extern void lmb_init(struct lmb *lmb);
-extern void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd,
-				 void *fdt_blob);
-extern void lmb_init_and_reserve_range(struct lmb *lmb, phys_addr_t base,
-				       phys_size_t size, void *fdt_blob);
-extern long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size);
-extern long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size);
-extern phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align);
-extern phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
-			    phys_addr_t max_addr);
-extern phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
-			      phys_addr_t max_addr);
-extern phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base,
-				  phys_size_t size);
-extern phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr);
-extern int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr);
-extern long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size);
+void lmb_init(struct lmb *lmb);
+void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd, void *fdt_blob);
+void lmb_init_and_reserve_range(struct lmb *lmb, phys_addr_t base,
+				phys_size_t size, void *fdt_blob);
+long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size);
+long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size);
+/**
+ * lmb_reserve_flags - Reserve one region with a specific flags bitfield.
+ *
+ * @lmb:	the logical memory block struct
+ * @base:	base address of the memory region
+ * @size:	size of the memory region
+ * @flags:	flags for the memory region
+ * Return:	0 if OK, > 0 for coalesced region or a negative error code.
+ */
+long lmb_reserve_flags(struct lmb *lmb, phys_addr_t base,
+		       phys_size_t size, enum lmb_flags flags);
+phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align);
+phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
+			   phys_addr_t max_addr);
+phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
+			     phys_addr_t max_addr);
+phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size);
+phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr);
+int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr);
+/**
+ * lmb_is_reserved_flags - test if tha address is in reserved region with a bitfield flag
+ *
+ * @lmb:	the logical memory block struct
+ * @addr:	address to be tested
+ * @flags:	flags bitfied to be tested
+ * Return:	if not reserved or reserved without the requested flag else 1
+ */
+int lmb_is_reserved_flags(struct lmb *lmb, phys_addr_t addr, int flags);
+long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 
-extern void lmb_dump_all(struct lmb *lmb);
-extern void lmb_dump_all_force(struct lmb *lmb);
-
-static inline phys_size_t
-lmb_size_bytes(struct lmb_region *type, unsigned long region_nr)
-{
-	return type->region[region_nr].size;
-}
+void lmb_dump_all(struct lmb *lmb);
+void lmb_dump_all_force(struct lmb *lmb);
 
 void board_lmb_reserve(struct lmb *lmb);
 void arch_lmb_reserve(struct lmb *lmb);
+void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align);
 
 #endif /* __KERNEL__ */
 

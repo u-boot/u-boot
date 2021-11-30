@@ -12,8 +12,6 @@
 
 #include "mx6_common.h"
 
-#undef CONFIG_DISPLAY_BOARDINFO
-
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
@@ -21,24 +19,7 @@
 #include "imx6_spl.h"
 #endif
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_SERIAL_TAG
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * 1024 * 1024)
-
 #define CONFIG_MXC_UART_BASE		UART1_BASE
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_MXC_I2C3_SPEED	400000
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
@@ -68,11 +49,8 @@
 #undef CONFIG_SERVERIP
 #define CONFIG_SERVERIP			192.168.10.1
 
-#define CONFIG_LOADADDR			0x12000000
-
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
@@ -143,17 +121,14 @@
 		"load ${interface} ${drive}:1 ${loadaddr} flash_blk.img && " \
 		"source ${loadaddr}\0" \
 	"splashpos=m,m\0" \
-	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
-	"vidargs=video=mxcfb0:dev=lcd,640x480M@60,if=RGB666 " \
-		"video=mxcfb1:off fbmem=8M\0 "
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"vidargs=fbmem=8M\0"
 
 /* Miscellaneous configurable options */
 #undef CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_CBSIZE		1024
 #undef CONFIG_SYS_MAXARGS
 #define CONFIG_SYS_MAXARGS		48
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

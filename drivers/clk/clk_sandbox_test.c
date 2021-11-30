@@ -11,12 +11,6 @@
 #include <dm/device_compat.h>
 #include <linux/err.h>
 
-struct sandbox_clk_test {
-	struct clk clks[SANDBOX_CLK_TEST_NON_DEVM_COUNT];
-	struct clk *clkps[SANDBOX_CLK_TEST_ID_COUNT];
-	struct clk_bulk bulk;
-};
-
 static const char * const sandbox_clk_test_names[] = {
 	[SANDBOX_CLK_TEST_ID_FIXED] = "fixed",
 	[SANDBOX_CLK_TEST_ID_SPI] = "spi",
@@ -84,6 +78,16 @@ ulong sandbox_clk_test_get_rate(struct udevice *dev, int id)
 		return -EINVAL;
 
 	return clk_get_rate(sbct->clkps[id]);
+}
+
+ulong sandbox_clk_test_round_rate(struct udevice *dev, int id, ulong rate)
+{
+	struct sandbox_clk_test *sbct = dev_get_priv(dev);
+
+	if (id < 0 || id >= SANDBOX_CLK_TEST_ID_COUNT)
+		return -EINVAL;
+
+	return clk_round_rate(sbct->clkps[id], rate);
 }
 
 ulong sandbox_clk_test_set_rate(struct udevice *dev, int id, ulong rate)
@@ -189,5 +193,5 @@ U_BOOT_DRIVER(sandbox_clk_test) = {
 	.id = UCLASS_MISC,
 	.of_match = sandbox_clk_test_ids,
 	.probe = sandbox_clk_test_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_clk_test),
+	.priv_auto	= sizeof(struct sandbox_clk_test),
 };

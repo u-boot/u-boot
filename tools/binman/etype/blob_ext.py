@@ -13,7 +13,7 @@ from patman import tools
 from patman import tout
 
 class Entry_blob_ext(Entry_blob):
-    """Entry containing an externally built binary blob
+    """Externally built binary blob
 
     Note: This should not be used by itself. It is normally used as a parent
     class by other entry types.

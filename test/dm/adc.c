@@ -67,7 +67,7 @@ static int dm_test_adc_supply(struct unit_test_state *uts)
 	ut_assertok(regulator_set_value(supply, SANDBOX_BUCK2_SET_UV));
 	ut_asserteq(SANDBOX_BUCK2_SET_UV, regulator_get_value(supply));
 
-	/* Update ADC platdata and get new Vdd value */
+	/* Update ADC plat and get new Vdd value */
 	ut_assertok(adc_vdd_value(dev, &uV));
 	ut_asserteq(SANDBOX_BUCK2_SET_UV, uV);
 

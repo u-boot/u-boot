@@ -1,8 +1,11 @@
 /*
  * Boot a Marvell SoC, with Xmodem over UART0.
- *  supports Kirkwood, Dove, Armada 370, Armada XP
+ *  supports Kirkwood, Dove, Armada 370, Armada XP, Armada 375, Armada 38x and
+ *           Armada 39x
  *
  * (c) 2012 Daniel Stodden <daniel.stodden@gmail.com>
+ * (c) 2021 Pali Rohár <pali@kernel.org>
+ * (c) 2021 Marek Behún <marek.behun@nic.cz>
  *
  * References: marvell.com, "88F6180, 88F6190, 88F6192, and 88F6281
  *   Integrated Controller: Functional Specifications" December 2,
@@ -11,6 +14,7 @@
 
 #include "kwbimage.h"
 #include "mkimage.h"
+#include "version.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,14 +26,13 @@
 #include <errno.h>
 #include <unistd.h>
 #include <stdint.h>
-#include <termios.h>
-#include <sys/mman.h>
+#include <time.h>
 #include <sys/stat.h>
 
-#ifdef __GNUC__
-#define PACKED __attribute((packed))
+#ifdef __linux__
+#include "termios_linux.h"
 #else
-#define PACKED
+#include <termios.h>
 #endif
 
 /*
@@ -62,21 +65,247 @@ static unsigned char kwboot_msg_debug[] = {
 #define NAK	21	/* target block negative ack */
 #define CAN	24	/* target/sender transfer cancellation */
 
+#define KWBOOT_XM_BLKSZ	128 /* xmodem block size */
+
 struct kwboot_block {
 	uint8_t soh;
 	uint8_t pnum;
 	uint8_t _pnum;
-	uint8_t data[128];
+	uint8_t data[KWBOOT_XM_BLKSZ];
 	uint8_t csum;
-} PACKED;
+} __packed;
 
 #define KWBOOT_BLK_RSP_TIMEO 1000 /* ms */
+#define KWBOOT_HDR_RSP_TIMEO 10000 /* ms */
+
+/* ARM code to change baudrate */
+static unsigned char kwboot_baud_code[] = {
+				/* ; #define UART_BASE 0xd0012000             */
+				/* ; #define DLL       0x00                   */
+				/* ; #define DLH       0x04                   */
+				/* ; #define LCR       0x0c                   */
+				/* ; #define   DLAB    0x80                   */
+				/* ; #define LSR       0x14                   */
+				/* ; #define   TEMT    0x40                   */
+				/* ; #define DIV_ROUND(a, b) ((a + b/2) / b)  */
+				/* ;                                          */
+				/* ; u32 set_baudrate(u32 old_b, u32 new_b) { */
+				/* ;   while                                  */
+				/* ;      (!(readl(UART_BASE + LSR) & TEMT)); */
+				/* ;   u32 lcr = readl(UART_BASE + LCR);      */
+				/* ;   writel(UART_BASE + LCR, lcr | DLAB);   */
+				/* ;   u8 old_dll = readl(UART_BASE + DLL);   */
+				/* ;   u8 old_dlh = readl(UART_BASE + DLH);   */
+				/* ;   u16 old_dl = old_dll | (old_dlh << 8); */
+				/* ;   u32 clk = old_b * old_dl;              */
+				/* ;   u16 new_dl = DIV_ROUND(clk, new_b);    */
+				/* ;   u8 new_dll = new_dl & 0xff;            */
+				/* ;   u8 new_dlh = (new_dl >> 8) & 0xff;     */
+				/* ;   writel(UART_BASE + DLL, new_dll);      */
+				/* ;   writel(UART_BASE + DLH, new_dlh);      */
+				/* ;   writel(UART_BASE + LCR, lcr & ~DLAB);  */
+				/* ;   msleep(5);                             */
+				/* ;   return 0;                              */
+				/* ; }                                        */
+
+				/*  ; r0 = UART_BASE                          */
+	0x0d, 0x02, 0xa0, 0xe3, /* mov   r0, #0xd0000000                      */
+	0x12, 0x0a, 0x80, 0xe3, /* orr   r0, r0, #0x12000                     */
+
+				/*  ; Wait until Transmitter FIFO is Empty    */
+				/* .Lloop_txempty:                            */
+				/*  ; r1 = UART_BASE[LSR] & TEMT              */
+	0x14, 0x10, 0x90, 0xe5, /* ldr   r1, [r0, #0x14]                      */
+	0x40, 0x00, 0x11, 0xe3, /* tst   r1, #0x40                            */
+	0xfc, 0xff, 0xff, 0x0a, /* beq   .Lloop_txempty                       */
+
+				/*  ; Set Divisor Latch Access Bit            */
+				/*  ; UART_BASE[LCR] |= DLAB                  */
+	0x0c, 0x10, 0x90, 0xe5, /* ldr   r1, [r0, #0x0c]                      */
+	0x80, 0x10, 0x81, 0xe3, /* orr   r1, r1, #0x80                        */
+	0x0c, 0x10, 0x80, 0xe5, /* str   r1, [r0, #0x0c]                      */
+
+				/*  ; Read current Divisor Latch              */
+				/*  ; r1 = UART_BASE[DLH]<<8 | UART_BASE[DLL] */
+	0x00, 0x10, 0x90, 0xe5, /* ldr   r1, [r0, #0x00]                      */
+	0xff, 0x10, 0x01, 0xe2, /* and   r1, r1, #0xff                        */
+	0x01, 0x20, 0xa0, 0xe1, /* mov   r2, r1                               */
+	0x04, 0x10, 0x90, 0xe5, /* ldr   r1, [r0, #0x04]                      */
+	0xff, 0x10, 0x01, 0xe2, /* and   r1, r1, #0xff                        */
+	0x41, 0x14, 0xa0, 0xe1, /* asr   r1, r1, #8                           */
+	0x02, 0x10, 0x81, 0xe1, /* orr   r1, r1, r2                           */
+
+				/*  ; Read old baudrate value                 */
+				/*  ; r2 = old_baudrate                       */
+	0x74, 0x20, 0x9f, 0xe5, /* ldr   r2, old_baudrate                     */
+
+				/*  ; Calculate base clock                    */
+				/*  ; r1 = r2 * r1                            */
+	0x92, 0x01, 0x01, 0xe0, /* mul   r1, r2, r1                           */
+
+				/*  ; Read new baudrate value                 */
+				/*  ; r2 = new_baudrate                       */
+	0x70, 0x20, 0x9f, 0xe5, /* ldr   r2, new_baudrate                     */
+
+				/*  ; Calculate new Divisor Latch             */
+				/*  ; r1 = DIV_ROUND(r1, r2) =                */
+				/*  ;    = (r1 + r2/2) / r2                   */
+	0xa2, 0x10, 0x81, 0xe0, /* add   r1, r1, r2, lsr #1                   */
+	0x02, 0x40, 0xa0, 0xe1, /* mov   r4, r2                               */
+	0xa1, 0x00, 0x54, 0xe1, /* cmp   r4, r1, lsr #1                       */
+				/* .Lloop_div1:                               */
+	0x84, 0x40, 0xa0, 0x91, /* movls r4, r4, lsl #1                       */
+	0xa1, 0x00, 0x54, 0xe1, /* cmp   r4, r1, lsr #1                       */
+	0xfc, 0xff, 0xff, 0x9a, /* bls   .Lloop_div1                          */
+	0x00, 0x30, 0xa0, 0xe3, /* mov   r3, #0                               */
+				/* .Lloop_div2:                               */
+	0x04, 0x00, 0x51, 0xe1, /* cmp   r1, r4                               */
+	0x04, 0x10, 0x41, 0x20, /* subhs r1, r1, r4                           */
+	0x03, 0x30, 0xa3, 0xe0, /* adc   r3, r3, r3                           */
+	0xa4, 0x40, 0xa0, 0xe1, /* mov   r4, r4, lsr #1                       */
+	0x02, 0x00, 0x54, 0xe1, /* cmp   r4, r2                               */
+	0xf9, 0xff, 0xff, 0x2a, /* bhs   .Lloop_div2                          */
+	0x03, 0x10, 0xa0, 0xe1, /* mov   r1, r3                               */
+
+				/*  ; Set new Divisor Latch Low               */
+				/*  ; UART_BASE[DLL] = r1 & 0xff              */
+	0x01, 0x20, 0xa0, 0xe1, /* mov   r2, r1                               */
+	0xff, 0x20, 0x02, 0xe2, /* and   r2, r2, #0xff                        */
+	0x00, 0x20, 0x80, 0xe5, /* str   r2, [r0, #0x00]                      */
+
+				/*  ; Set new Divisor Latch High              */
+				/*  ; UART_BASE[DLH] = r1>>8 & 0xff           */
+	0x41, 0x24, 0xa0, 0xe1, /* asr   r2, r1, #8                           */
+	0xff, 0x20, 0x02, 0xe2, /* and   r2, r2, #0xff                        */
+	0x04, 0x20, 0x80, 0xe5, /* str   r2, [r0, #0x04]                      */
+
+				/*  ; Clear Divisor Latch Access Bit          */
+				/*  ; UART_BASE[LCR] &= ~DLAB                 */
+	0x0c, 0x10, 0x90, 0xe5, /* ldr   r1, [r0, #0x0c]                      */
+	0x80, 0x10, 0xc1, 0xe3, /* bic   r1, r1, #0x80                        */
+	0x0c, 0x10, 0x80, 0xe5, /* str   r1, [r0, #0x0c]                      */
+
+				/*  ; Loop 0x2dc000 (2998272) cycles          */
+				/*  ; which is about 5ms on 1200 MHz CPU      */
+				/*  ; r1 = 0x2dc000                           */
+	0xb7, 0x19, 0xa0, 0xe3, /* mov   r1, #0x2dc000                        */
+				/* .Lloop_sleep:                              */
+	0x01, 0x10, 0x41, 0xe2, /* sub   r1, r1, #1                           */
+	0x00, 0x00, 0x51, 0xe3, /* cmp   r1, #0                               */
+	0xfc, 0xff, 0xff, 0x1a, /* bne   .Lloop_sleep                         */
+
+				/*  ; Jump to the end of execution            */
+	0x01, 0x00, 0x00, 0xea, /* b     end                                  */
+
+				/*  ; Placeholder for old baudrate value      */
+				/* old_baudrate:                              */
+	0x00, 0x00, 0x00, 0x00, /* .word 0                                    */
+
+				/*  ; Placeholder for new baudrate value      */
+				/* new_baudrate:                              */
+	0x00, 0x00, 0x00, 0x00, /* .word 0                                    */
+
+				/* end:                                       */
+};
+
+/* ARM code from binary header executed by BootROM before changing baudrate */
+static unsigned char kwboot_baud_code_binhdr_pre[] = {
+				/* ; #define UART_BASE 0xd0012000             */
+				/* ; #define THR       0x00                   */
+				/* ; #define LSR       0x14                   */
+				/* ; #define   THRE    0x20                   */
+				/* ;                                          */
+				/* ; void send_preamble(void) {               */
+				/* ;   const u8 *str = "$baudratechange";     */
+				/* ;   u8 c;                                  */
+				/* ;   do {                                   */
+				/* ;       while                              */
+				/* ;       ((readl(UART_BASE + LSR) & THRE)); */
+				/* ;       c = *str++;                        */
+				/* ;       writel(UART_BASE + THR, c);        */
+				/* ;   } while (c);                           */
+				/* ; }                                        */
+
+				/*  ; Preserve registers for BootROM          */
+	0xfe, 0x5f, 0x2d, 0xe9, /* push  { r1 - r12, lr }                     */
+
+				/*  ; r0 = UART_BASE                          */
+	0x0d, 0x02, 0xa0, 0xe3, /* mov   r0, #0xd0000000                      */
+	0x12, 0x0a, 0x80, 0xe3, /* orr   r0, r0, #0x12000                     */
+
+				/*  ; r2 = address of preamble string         */
+	0x00, 0x20, 0x8f, 0xe2, /* adr   r2, .Lstr_preamble                   */
+
+				/*  ; Skip preamble data section              */
+	0x03, 0x00, 0x00, 0xea, /* b     .Lloop_preamble                      */
+
+				/*  ; Preamble string                         */
+				/* .Lstr_preamble:                            */
+	0x24, 0x62, 0x61, 0x75, /* .asciz "$baudratechange"                   */
+	0x64, 0x72, 0x61, 0x74,
+	0x65, 0x63, 0x68, 0x61,
+	0x6e, 0x67, 0x65, 0x00,
+
+				/*  ; Send preamble string over UART          */
+				/* .Lloop_preamble:                           */
+				/*                                            */
+				/*  ; Wait until Transmitter Holding is Empty */
+				/* .Lloop_thre:                               */
+				/*  ; r1 = UART_BASE[LSR] & THRE              */
+	0x14, 0x10, 0x90, 0xe5, /* ldr   r1, [r0, #0x14]                      */
+	0x20, 0x00, 0x11, 0xe3, /* tst   r1, #0x20                            */
+	0xfc, 0xff, 0xff, 0x0a, /* beq   .Lloop_thre                          */
+
+				/*  ; Put character into Transmitter FIFO     */
+				/*  ; r1 = *r2++                              */
+	0x01, 0x10, 0xd2, 0xe4, /* ldrb  r1, [r2], #1                         */
+				/*  ; UART_BASE[THR] = r1                     */
+	0x00, 0x10, 0x80, 0xe5, /* str   r1, [r0, #0x0]                       */
+
+				/*  ; Loop until end of preamble string       */
+	0x00, 0x00, 0x51, 0xe3, /* cmp   r1, #0                               */
+	0xf8, 0xff, 0xff, 0x1a, /* bne   .Lloop_preamble                      */
+};
+
+/* ARM code for returning from binary header back to BootROM */
+static unsigned char kwboot_baud_code_binhdr_post[] = {
+				/*  ; Return 0 - no error                     */
+	0x00, 0x00, 0xa0, 0xe3, /* mov   r0, #0                               */
+	0xfe, 0x9f, 0xbd, 0xe8, /* pop   { r1 - r12, pc }                     */
+};
+
+/* ARM code for jumping to the original image exec_addr */
+static unsigned char kwboot_baud_code_data_jump[] = {
+	0x04, 0xf0, 0x1f, 0xe5, /* ldr   pc, exec_addr                        */
+				/*  ; Placeholder for exec_addr               */
+				/* exec_addr:                                 */
+	0x00, 0x00, 0x00, 0x00, /* .word 0                                    */
+};
+
+static const char kwb_baud_magic[16] = "$baudratechange";
 
 static int kwboot_verbose;
 
 static int msg_req_delay = KWBOOT_MSG_REQ_DELAY;
 static int msg_rsp_timeo = KWBOOT_MSG_RSP_TIMEO;
 static int blk_rsp_timeo = KWBOOT_BLK_RSP_TIMEO;
+
+static ssize_t
+kwboot_write(int fd, const char *buf, size_t len)
+{
+	size_t tot = 0;
+
+	while (tot < len) {
+		ssize_t wr = write(fd, buf + tot, len - tot);
+
+		if (wr < 0)
+			return -1;
+
+		tot += wr;
+	}
+
+	return tot;
+}
 
 static void
 kwboot_printv(const char *fmt, ...)
@@ -128,12 +357,14 @@ __progress(int pct, char c)
 	fputc(c, stdout);
 
 	nl = "]\n";
-	pos++;
+	pos = (pos + 1) % width;
 
 	if (pct == 100) {
-		while (pos++ < width)
+		while (pos && pos++ < width)
 			fputc(' ', stdout);
 		fputs(nl, stdout);
+		nl = "";
+		pos = 0;
 	}
 
 	fflush(stdout);
@@ -150,6 +381,9 @@ kwboot_progress(int _pct, char c)
 
 	if (kwboot_verbose)
 		__progress(pct, c);
+
+	if (pct == 100)
+		pct = 0;
 }
 
 static int
@@ -195,79 +429,279 @@ out:
 }
 
 static int
-kwboot_tty_send(int fd, const void *buf, size_t len)
+kwboot_tty_send(int fd, const void *buf, size_t len, int nodrain)
 {
-	int rc;
-	ssize_t n;
-
 	if (!buf)
 		return 0;
 
-	rc = -1;
+	if (kwboot_write(fd, buf, len) < 0)
+		return -1;
 
-	do {
-		n = write(fd, buf, len);
-		if (n < 0)
-			goto out;
+	if (nodrain)
+		return 0;
 
-		buf = (char *)buf + n;
-		len -= n;
-	} while (len > 0);
-
-	rc = tcdrain(fd);
-out:
-	return rc;
+	return tcdrain(fd);
 }
 
 static int
 kwboot_tty_send_char(int fd, unsigned char c)
 {
-	return kwboot_tty_send(fd, &c, 1);
+	return kwboot_tty_send(fd, &c, 1, 0);
 }
 
 static speed_t
-kwboot_tty_speed(int baudrate)
+kwboot_tty_baudrate_to_speed(int baudrate)
 {
 	switch (baudrate) {
+#ifdef B4000000
+	case 4000000:
+		return B4000000;
+#endif
+#ifdef B3500000
+	case 3500000:
+		return B3500000;
+#endif
+#ifdef B3000000
+	case 3000000:
+		return B3000000;
+#endif
+#ifdef B2500000
+	case 2500000:
+		return B2500000;
+#endif
+#ifdef B2000000
+	case 2000000:
+		return B2000000;
+#endif
+#ifdef B1500000
+	case 1500000:
+		return B1500000;
+#endif
+#ifdef B1152000
+	case 1152000:
+		return B1152000;
+#endif
+#ifdef B1000000
+	case 1000000:
+		return B1000000;
+#endif
+#ifdef B921600
+	case 921600:
+		return B921600;
+#endif
+#ifdef B614400
+	case 614400:
+		return B614400;
+#endif
+#ifdef B576000
+	case 576000:
+		return B576000;
+#endif
+#ifdef B500000
+	case 500000:
+		return B500000;
+#endif
+#ifdef B460800
+	case 460800:
+		return B460800;
+#endif
+#ifdef B307200
+	case 307200:
+		return B307200;
+#endif
+#ifdef B230400
+	case 230400:
+		return B230400;
+#endif
+#ifdef B153600
+	case 153600:
+		return B153600;
+#endif
+#ifdef B115200
 	case 115200:
 		return B115200;
+#endif
+#ifdef B76800
+	case 76800:
+		return B76800;
+#endif
+#ifdef B57600
 	case 57600:
 		return B57600;
+#endif
+#ifdef B38400
 	case 38400:
 		return B38400;
+#endif
+#ifdef B19200
 	case 19200:
 		return B19200;
+#endif
+#ifdef B9600
 	case 9600:
 		return B9600;
+#endif
+#ifdef B4800
+	case 4800:
+		return B4800;
+#endif
+#ifdef B2400
+	case 2400:
+		return B2400;
+#endif
+#ifdef B1800
+	case 1800:
+		return B1800;
+#endif
+#ifdef B1200
+	case 1200:
+		return B1200;
+#endif
+#ifdef B600
+	case 600:
+		return B600;
+#endif
+#ifdef B300
+	case 300:
+		return B300;
+#endif
+#ifdef B200
+	case 200:
+		return B200;
+#endif
+#ifdef B150
+	case 150:
+		return B150;
+#endif
+#ifdef B134
+	case 134:
+		return B134;
+#endif
+#ifdef B110
+	case 110:
+		return B110;
+#endif
+#ifdef B75
+	case 75:
+		return B75;
+#endif
+#ifdef B50
+	case 50:
+		return B50;
+#endif
+	default:
+#ifdef BOTHER
+		return BOTHER;
+#else
+		return B0;
+#endif
+	}
+}
+
+static int
+_is_within_tolerance(int value, int reference, int tolerance)
+{
+	return 100 * value >= reference * (100 - tolerance) &&
+	       100 * value <= reference * (100 + tolerance);
+}
+
+static int
+kwboot_tty_change_baudrate(int fd, int baudrate)
+{
+	struct termios tio;
+	speed_t speed;
+	int rc;
+
+	rc = tcgetattr(fd, &tio);
+	if (rc)
+		return rc;
+
+	speed = kwboot_tty_baudrate_to_speed(baudrate);
+	if (speed == B0) {
+		errno = EINVAL;
+		return -1;
 	}
 
+#ifdef BOTHER
+	if (speed == BOTHER)
+		tio.c_ospeed = tio.c_ispeed = baudrate;
+#endif
+
+	rc = cfsetospeed(&tio, speed);
+	if (rc)
+		return rc;
+
+	rc = cfsetispeed(&tio, speed);
+	if (rc)
+		return rc;
+
+	rc = tcsetattr(fd, TCSANOW, &tio);
+	if (rc)
+		return rc;
+
+	rc = tcgetattr(fd, &tio);
+	if (rc)
+		return rc;
+
+	if (cfgetospeed(&tio) != speed || cfgetispeed(&tio) != speed)
+		goto baud_fail;
+
+#ifdef BOTHER
+	/*
+	 * Check whether set baudrate is within 3% tolerance.
+	 * If BOTHER is defined, Linux always fills out c_ospeed / c_ispeed
+	 * with real values.
+	 */
+	if (!_is_within_tolerance(tio.c_ospeed, baudrate, 3))
+		goto baud_fail;
+
+	if (!_is_within_tolerance(tio.c_ispeed, baudrate, 3))
+		goto baud_fail;
+#endif
+
+	return 0;
+
+baud_fail:
+	fprintf(stderr, "Could not set baudrate to requested value\n");
+	errno = EINVAL;
 	return -1;
 }
 
 static int
-kwboot_open_tty(const char *path, speed_t speed)
+kwboot_open_tty(const char *path, int baudrate)
 {
-	int rc, fd;
+	int rc, fd, flags;
 	struct termios tio;
 
 	rc = -1;
 
-	fd = open(path, O_RDWR|O_NOCTTY|O_NDELAY);
+	fd = open(path, O_RDWR | O_NOCTTY | O_NDELAY);
 	if (fd < 0)
 		goto out;
 
-	memset(&tio, 0, sizeof(tio));
+	rc = tcgetattr(fd, &tio);
+	if (rc)
+		goto out;
 
-	tio.c_iflag = 0;
-	tio.c_cflag = CREAD|CLOCAL|CS8;
-
+	cfmakeraw(&tio);
+	tio.c_cflag |= CREAD | CLOCAL;
+	tio.c_cflag &= ~(CSTOPB | HUPCL | CRTSCTS);
 	tio.c_cc[VMIN] = 1;
-	tio.c_cc[VTIME] = 10;
-
-	cfsetospeed(&tio, speed);
-	cfsetispeed(&tio, speed);
+	tio.c_cc[VTIME] = 0;
 
 	rc = tcsetattr(fd, TCSANOW, &tio);
+	if (rc)
+		goto out;
+
+	flags = fcntl(fd, F_GETFL);
+	if (flags < 0)
+		goto out;
+
+	rc = fcntl(fd, F_SETFL, flags & ~O_NDELAY);
+	if (rc)
+		goto out;
+
+	rc = kwboot_tty_change_baudrate(fd, baudrate);
 	if (rc)
 		goto out;
 
@@ -299,7 +733,7 @@ kwboot_bootmsg(int tty, void *msg)
 			break;
 
 		for (count = 0; count < 128; count++) {
-			rc = kwboot_tty_send(tty, msg, 8);
+			rc = kwboot_tty_send(tty, msg, 8, 0);
 			if (rc) {
 				usleep(msg_req_delay * 1000);
 				continue;
@@ -331,7 +765,7 @@ kwboot_debugmsg(int tty, void *msg)
 		if (rc)
 			break;
 
-		rc = kwboot_tty_send(tty, msg, 8);
+		rc = kwboot_tty_send(tty, msg, 8, 0);
 		if (rc) {
 			usleep(msg_req_delay * 1000);
 			continue;
@@ -348,21 +782,19 @@ kwboot_debugmsg(int tty, void *msg)
 	return rc;
 }
 
-static int
+static size_t
 kwboot_xm_makeblock(struct kwboot_block *block, const void *data,
 		    size_t size, int pnum)
 {
-	const size_t blksz = sizeof(block->data);
-	size_t n;
-	int i;
+	size_t i, n;
 
 	block->soh = SOH;
 	block->pnum = pnum;
 	block->_pnum = ~block->pnum;
 
-	n = size < blksz ? size : blksz;
+	n = size < KWBOOT_XM_BLKSZ ? size : KWBOOT_XM_BLKSZ;
 	memcpy(&block->data[0], data, n);
-	memset(&block->data[n], 0, blksz - n);
+	memset(&block->data[n], 0, KWBOOT_XM_BLKSZ - n);
 
 	block->csum = 0;
 	for (i = 0; i < n; i++)
@@ -371,34 +803,36 @@ kwboot_xm_makeblock(struct kwboot_block *block, const void *data,
 	return n;
 }
 
-static int
-kwboot_xm_sendblock(int fd, struct kwboot_block *block)
+static uint64_t
+_now(void)
 {
-	int rc, retries;
-	char c;
+	struct timespec ts;
 
-	retries = 16;
-	do {
-		rc = kwboot_tty_send(fd, block, sizeof(*block));
-		if (rc)
-			break;
+	if (clock_gettime(CLOCK_MONOTONIC, &ts)) {
+		static int err_print;
 
-		do {
-			rc = kwboot_tty_recv(fd, &c, 1, blk_rsp_timeo);
-			if (rc)
-				break;
+		if (!err_print) {
+			perror("clock_gettime() does not work");
+			err_print = 1;
+		}
 
-			if (c != ACK && c != NAK && c != CAN)
-				printf("%c", c);
+		/* this will just make the timeout not work */
+		return -1ULL;
+	}
 
-		} while (c != ACK && c != NAK && c != CAN);
+	return ts.tv_sec * 1000ULL + (ts.tv_nsec + 500000) / 1000000;
+}
 
-		if (c != ACK)
-			kwboot_progress(-1, '+');
+static int
+_is_xm_reply(char c)
+{
+	return c == ACK || c == NAK || c == CAN;
+}
 
-	} while (c == NAK && retries-- > 0);
-
-	rc = -1;
+static int
+_xm_reply_to_error(int c)
+{
+	int rc = -1;
 
 	switch (c) {
 	case ACK:
@@ -419,59 +853,277 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block)
 }
 
 static int
-kwboot_xmodem(int tty, const void *_data, size_t size)
+kwboot_baud_magic_handle(int fd, char c, int baudrate)
 {
-	const uint8_t *data = _data;
-	int rc, pnum, N, err;
+	static size_t rcv_len;
 
-	pnum = 1;
-	N = 0;
+	if (rcv_len < sizeof(kwb_baud_magic)) {
+		/* try to recognize whole magic word */
+		if (c == kwb_baud_magic[rcv_len]) {
+			rcv_len++;
+		} else {
+			printf("%.*s%c", (int)rcv_len, kwb_baud_magic, c);
+			fflush(stdout);
+			rcv_len = 0;
+		}
+	}
 
-	kwboot_printv("Sending boot image...\n");
+	if (rcv_len == sizeof(kwb_baud_magic)) {
+		/* magic word received */
+		kwboot_printv("\nChanging baudrate to %d Bd\n", baudrate);
 
-	sleep(2); /* flush isn't effective without it */
-	tcflush(tty, TCIOFLUSH);
-
-	do {
-		struct kwboot_block block;
-		int n;
-
-		n = kwboot_xm_makeblock(&block,
-					data + N, size - N,
-					pnum++);
-		if (n < 0)
-			goto can;
-
-		if (!n)
-			break;
-
-		rc = kwboot_xm_sendblock(tty, &block);
-		if (rc)
-			goto out;
-
-		N += n;
-		kwboot_progress(N * 100 / size, '.');
-	} while (1);
-
-	rc = kwboot_tty_send_char(tty, EOT);
-
-out:
-	return rc;
-
-can:
-	err = errno;
-	kwboot_tty_send_char(tty, CAN);
-	errno = err;
-	goto out;
+		return kwboot_tty_change_baudrate(fd, baudrate) ? : 1;
+	} else {
+		return 0;
+	}
 }
 
 static int
-kwboot_term_pipe(int in, int out, char *quit, int *s)
+kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
+		     int allow_non_xm, int *non_xm_print,
+		     int baudrate, int *baud_changed)
 {
-	ssize_t nin, nout;
+	int timeout = allow_non_xm ? KWBOOT_HDR_RSP_TIMEO : blk_rsp_timeo;
+	uint64_t recv_until = _now() + timeout;
+	int rc;
+
+	while (1) {
+		rc = kwboot_tty_recv(fd, c, 1, timeout);
+		if (rc) {
+			if (errno != ETIMEDOUT)
+				return rc;
+			else if (allow_non_xm && *non_xm_print)
+				return -1;
+			else
+				*c = NAK;
+		}
+
+		/* If received xmodem reply, end. */
+		if (_is_xm_reply(*c))
+			break;
+
+		/*
+		 * If receiving/printing non-xmodem text output is allowed and
+		 * such a byte was received, we want to increase receiving time
+		 * and either:
+		 * - print the byte, if it is not part of baudrate change magic
+		 *   sequence while baudrate change was requested (-B option)
+		 * - change baudrate
+		 * Otherwise decrease timeout by time elapsed.
+		 */
+		if (allow_non_xm) {
+			recv_until = _now() + timeout;
+
+			if (baudrate && !*baud_changed) {
+				rc = kwboot_baud_magic_handle(fd, *c, baudrate);
+				if (rc == 1)
+					*baud_changed = 1;
+				else if (!rc)
+					*non_xm_print = 1;
+				else
+					return rc;
+			} else if (!baudrate || !*baud_changed) {
+				putchar(*c);
+				fflush(stdout);
+				*non_xm_print = 1;
+			}
+		} else {
+			if (nak_on_non_xm) {
+				*c = NAK;
+				break;
+			}
+			timeout = recv_until - _now();
+			if (timeout < 0) {
+				errno = ETIMEDOUT;
+				return -1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+static int
+kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
+		    int *done_print, int baudrate)
+{
+	int non_xm_print, baud_changed;
+	int rc, err, retries;
+	char c;
+
+	*done_print = 0;
+	non_xm_print = 0;
+	baud_changed = 0;
+
+	retries = 0;
+	do {
+		rc = kwboot_tty_send(fd, block, sizeof(*block), 1);
+		if (rc)
+			return rc;
+
+		if (allow_non_xm && !*done_print) {
+			kwboot_progress(100, '.');
+			kwboot_printv("Done\n");
+			*done_print = 1;
+		}
+
+		rc = kwboot_xm_recv_reply(fd, &c, retries < 3,
+					  allow_non_xm, &non_xm_print,
+					  baudrate, &baud_changed);
+		if (rc)
+			goto can;
+
+		if (!allow_non_xm && c != ACK)
+			kwboot_progress(-1, '+');
+	} while (c == NAK && retries++ < 16);
+
+	if (non_xm_print)
+		kwboot_printv("\n");
+
+	if (allow_non_xm && baudrate && !baud_changed) {
+		fprintf(stderr, "Baudrate was not changed\n");
+		rc = -1;
+		errno = EPROTO;
+		goto can;
+	}
+
+	return _xm_reply_to_error(c);
+can:
+	err = errno;
+	kwboot_tty_send_char(fd, CAN);
+	kwboot_printv("\n");
+	errno = err;
+	return rc;
+}
+
+static int
+kwboot_xm_finish(int fd)
+{
+	int rc, retries;
+	char c;
+
+	kwboot_printv("Finishing transfer\n");
+
+	retries = 0;
+	do {
+		rc = kwboot_tty_send_char(fd, EOT);
+		if (rc)
+			return rc;
+
+		rc = kwboot_xm_recv_reply(fd, &c, retries < 3,
+					  0, NULL, 0, NULL);
+		if (rc)
+			return rc;
+	} while (c == NAK && retries++ < 16);
+
+	return _xm_reply_to_error(c);
+}
+
+static int
+kwboot_xmodem_one(int tty, int *pnum, int header, const uint8_t *data,
+		  size_t size, int baudrate)
+{
+	int done_print = 0;
+	size_t sent, left;
+	int rc;
+
+	kwboot_printv("Sending boot image %s (%zu bytes)...\n",
+		      header ? "header" : "data", size);
+
+	left = size;
+	sent = 0;
+
+	while (sent < size) {
+		struct kwboot_block block;
+		int last_block;
+		size_t blksz;
+
+		blksz = kwboot_xm_makeblock(&block, data, left, (*pnum)++);
+		data += blksz;
+
+		last_block = (left <= blksz);
+
+		rc = kwboot_xm_sendblock(tty, &block, header && last_block,
+					 &done_print, baudrate);
+		if (rc)
+			goto out;
+
+		sent += blksz;
+		left -= blksz;
+
+		if (!done_print)
+			kwboot_progress(sent * 100 / size, '.');
+	}
+
+	if (!done_print)
+		kwboot_printv("Done\n");
+
+	return 0;
+out:
+	kwboot_printv("\n");
+	return rc;
+}
+
+static int
+kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
+{
+	const uint8_t *img = _img;
+	int rc, pnum;
+	size_t hdrsz;
+
+	hdrsz = kwbheader_size(img);
+
+	/*
+	 * If header size is not aligned to xmodem block size (which applies
+	 * for all images in kwbimage v0 format) then we have to ensure that
+	 * the last xmodem block of header contains beginning of the data
+	 * followed by the header. So align header size to xmodem block size.
+	 */
+	hdrsz += (KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ) % KWBOOT_XM_BLKSZ;
+
+	kwboot_printv("Waiting 2s and flushing tty\n");
+	sleep(2); /* flush isn't effective without it */
+	tcflush(tty, TCIOFLUSH);
+
+	pnum = 1;
+
+	rc = kwboot_xmodem_one(tty, &pnum, 1, img, hdrsz, baudrate);
+	if (rc)
+		return rc;
+
+	/*
+	 * If we have already sent image data as a part of the last
+	 * xmodem header block then we have nothing more to send.
+	 */
+	if (hdrsz < size) {
+		img += hdrsz;
+		size -= hdrsz;
+		rc = kwboot_xmodem_one(tty, &pnum, 0, img, size, 0);
+		if (rc)
+			return rc;
+	}
+
+	rc = kwboot_xm_finish(tty);
+	if (rc)
+		return rc;
+
+	if (baudrate) {
+		kwboot_printv("\nChanging baudrate back to 115200 Bd\n\n");
+		rc = kwboot_tty_change_baudrate(tty, 115200);
+		if (rc)
+			return rc;
+	}
+
+	return 0;
+}
+
+static int
+kwboot_term_pipe(int in, int out, const char *quit, int *s)
+{
+	ssize_t nin;
 	char _buf[128], *buf = _buf;
 
-	nin = read(in, buf, sizeof(buf));
+	nin = read(in, buf, sizeof(_buf));
 	if (nin <= 0)
 		return -1;
 
@@ -485,22 +1137,16 @@ kwboot_term_pipe(int in, int out, char *quit, int *s)
 					return 0;
 				buf++;
 				nin--;
-			} else
-				while (*s > 0) {
-					nout = write(out, quit, *s);
-					if (nout <= 0)
-						return -1;
-					(*s) -= nout;
-				}
+			} else {
+				if (kwboot_write(out, quit, *s) < 0)
+					return -1;
+				*s = 0;
+			}
 		}
 	}
 
-	while (nin > 0) {
-		nout = write(out, buf, nin);
-		if (nout <= 0)
-			return -1;
-		nin -= nout;
-	}
+	if (kwboot_write(out, buf, nin) < 0)
+		return -1;
 
 	return 0;
 }
@@ -509,7 +1155,7 @@ static int
 kwboot_terminal(int tty)
 {
 	int rc, in, s;
-	char *quit = "\34c";
+	const char *quit = "\34c";
 	struct termios otio, tio;
 
 	rc = -1;
@@ -528,7 +1174,7 @@ kwboot_terminal(int tty)
 		}
 
 		kwboot_printv("[Type Ctrl-%c + %c to quit]\r\n",
-			      quit[0]|0100, quit[1]);
+			      quit[0] | 0100, quit[1]);
 	} else
 		in = -1;
 
@@ -539,6 +1185,7 @@ kwboot_terminal(int tty)
 		fd_set rfds;
 		int nfds = 0;
 
+		FD_ZERO(&rfds);
 		FD_SET(tty, &rfds);
 		nfds = nfds < tty ? tty : nfds;
 
@@ -557,24 +1204,27 @@ kwboot_terminal(int tty)
 				break;
 		}
 
-		if (FD_ISSET(in, &rfds)) {
+		if (in >= 0 && FD_ISSET(in, &rfds)) {
 			rc = kwboot_term_pipe(in, tty, quit, &s);
 			if (rc)
 				break;
 		}
 	} while (quit[s] != 0);
 
-	tcsetattr(in, TCSANOW, &otio);
+	if (in >= 0)
+		tcsetattr(in, TCSANOW, &otio);
+	printf("\n");
 out:
 	return rc;
 }
 
 static void *
-kwboot_mmap_image(const char *path, size_t *size, int prot)
+kwboot_read_image(const char *path, size_t *size, size_t reserve)
 {
-	int rc, fd, flags;
+	int rc, fd;
 	struct stat st;
 	void *img;
+	off_t tot;
 
 	rc = -1;
 	img = NULL;
@@ -587,19 +1237,30 @@ kwboot_mmap_image(const char *path, size_t *size, int prot)
 	if (rc)
 		goto out;
 
-	flags = (prot & PROT_WRITE) ? MAP_PRIVATE : MAP_SHARED;
-
-	img = mmap(NULL, st.st_size, prot, flags, fd, 0);
-	if (img == MAP_FAILED) {
-		img = NULL;
+	img = malloc(st.st_size + reserve);
+	if (!img)
 		goto out;
+
+	tot = 0;
+	while (tot < st.st_size) {
+		ssize_t rd = read(fd, img + tot, st.st_size - tot);
+
+		if (rd < 0)
+			goto out;
+
+		tot += rd;
+
+		if (!rd && tot < st.st_size) {
+			errno = EIO;
+			goto out;
+		}
 	}
 
 	rc = 0;
 	*size = st.st_size;
 out:
 	if (rc && img) {
-		munmap(img, st.st_size);
+		free(img);
 		img = NULL;
 	}
 	if (fd >= 0)
@@ -609,9 +1270,13 @@ out:
 }
 
 static uint8_t
-kwboot_img_csum8(void *_data, size_t size)
+kwboot_hdr_csum8(const void *hdr)
 {
-	uint8_t *data = _data, csum;
+	const uint8_t *data = hdr;
+	uint8_t csum;
+	size_t size;
+
+	size = kwbheader_size_for_csum(hdr);
 
 	for (csum = 0; size-- > 0; data++)
 		csum += *data;
@@ -619,64 +1284,357 @@ kwboot_img_csum8(void *_data, size_t size)
 	return csum;
 }
 
-static int
-kwboot_img_patch_hdr(void *img, size_t size)
+static uint32_t *
+kwboot_img_csum32_ptr(void *img)
 {
-	int rc;
-	struct main_hdr_v1 *hdr;
-	uint8_t csum;
-	size_t hdrsz = sizeof(*hdr);
-	int image_ver;
+	struct main_hdr_v1 *hdr = img;
+	uint32_t datasz;
 
-	rc = -1;
+	datasz = le32_to_cpu(hdr->blocksize) - sizeof(uint32_t);
+
+	return img + le32_to_cpu(hdr->srcaddr) + datasz;
+}
+
+static uint32_t
+kwboot_img_csum32(const void *img)
+{
+	const struct main_hdr_v1 *hdr = img;
+	uint32_t datasz, csum = 0;
+	const uint32_t *data;
+
+	datasz = le32_to_cpu(hdr->blocksize) - sizeof(csum);
+	if (datasz % sizeof(uint32_t))
+		return 0;
+
+	data = img + le32_to_cpu(hdr->srcaddr);
+	while (datasz > 0) {
+		csum += le32_to_cpu(*data++);
+		datasz -= 4;
+	}
+
+	return cpu_to_le32(csum);
+}
+
+static int
+kwboot_img_is_secure(void *img)
+{
+	struct opt_hdr_v1 *ohdr;
+
+	for_each_opt_hdr_v1 (ohdr, img)
+		if (ohdr->headertype == OPT_HDR_V1_SECURE_TYPE)
+			return 1;
+
+	return 0;
+}
+
+static void *
+kwboot_img_grow_data_right(void *img, size_t *size, size_t grow)
+{
+	struct main_hdr_v1 *hdr = img;
+	void *result;
+
+	/*
+	 * 32-bit checksum comes after end of image code, so we will be putting
+	 * new code there. So we get this pointer and then increase data size
+	 * (since increasing data size changes kwboot_img_csum32_ptr() return
+	 *  value).
+	 */
+	result = kwboot_img_csum32_ptr(img);
+	hdr->blocksize = cpu_to_le32(le32_to_cpu(hdr->blocksize) + grow);
+	*size += grow;
+
+	return result;
+}
+
+static void
+kwboot_img_grow_hdr(void *img, size_t *size, size_t grow)
+{
+	uint32_t hdrsz, datasz, srcaddr;
+	struct main_hdr_v1 *hdr = img;
+	struct opt_hdr_v1 *ohdr;
+	uint8_t *data;
+
+	srcaddr = le32_to_cpu(hdr->srcaddr);
+
+	/* calculate real used space in kwbimage header */
+	if (kwbimage_version(img) == 0) {
+		hdrsz = kwbheader_size(img);
+	} else {
+		hdrsz = sizeof(*hdr);
+		for_each_opt_hdr_v1 (ohdr, hdr)
+			hdrsz += opt_hdr_v1_size(ohdr);
+	}
+
+	data = (uint8_t *)img + srcaddr;
+	datasz = *size - srcaddr;
+
+	/* only move data if there is not enough space */
+	if (hdrsz + grow > srcaddr) {
+		size_t need = hdrsz + grow - srcaddr;
+
+		/* move data by enough bytes */
+		memmove(data + need, data, datasz);
+
+		hdr->srcaddr = cpu_to_le32(srcaddr + need);
+		*size += need;
+	}
+
+	if (kwbimage_version(img) == 1) {
+		hdrsz += grow;
+		if (hdrsz > kwbheader_size(img)) {
+			hdr->headersz_msb = hdrsz >> 16;
+			hdr->headersz_lsb = cpu_to_le16(hdrsz & 0xffff);
+		}
+	}
+}
+
+static void *
+kwboot_add_bin_ohdr_v1(void *img, size_t *size, uint32_t binsz)
+{
+	struct main_hdr_v1 *hdr = img;
+	struct opt_hdr_v1 *ohdr;
+	uint32_t num_args;
+	uint32_t offset;
+	uint32_t ohdrsz;
+	uint8_t *prev_ext;
+
+	if (hdr->ext & 0x1) {
+		for_each_opt_hdr_v1 (ohdr, img)
+			if (opt_hdr_v1_next(ohdr) == NULL)
+				break;
+
+		prev_ext = opt_hdr_v1_ext(ohdr);
+		ohdr = _opt_hdr_v1_next(ohdr);
+	} else {
+		ohdr = (void *)(hdr + 1);
+		prev_ext = &hdr->ext;
+	}
+
+	/*
+	 * ARM executable code inside the BIN header on some mvebu platforms
+	 * (e.g. A370, AXP) must always be aligned with the 128-bit boundary.
+	 * This requirement can be met by inserting dummy arguments into
+	 * BIN header, if needed.
+	 */
+	offset = &ohdr->data[4] - (char *)img;
+	num_args = ((16 - offset % 16) % 16) / sizeof(uint32_t);
+
+	ohdrsz = sizeof(*ohdr) + 4 + 4 * num_args + binsz + 4;
+	kwboot_img_grow_hdr(hdr, size, ohdrsz);
+
+	*prev_ext |= 1;
+
+	ohdr->headertype = OPT_HDR_V1_BINARY_TYPE;
+	ohdr->headersz_msb = ohdrsz >> 16;
+	ohdr->headersz_lsb = cpu_to_le16(ohdrsz & 0xffff);
+
+	memset(&ohdr->data[0], 0, ohdrsz - sizeof(*ohdr));
+	*(uint32_t *)&ohdr->data[0] = cpu_to_le32(num_args);
+
+	return &ohdr->data[4 + 4 * num_args];
+}
+
+static void
+_inject_baudrate_change_code(void *img, size_t *size, int for_data,
+			     int old_baud, int new_baud)
+{
+	struct main_hdr_v1 *hdr = img;
+	uint32_t orig_datasz;
+	uint32_t codesz;
+	uint8_t *code;
+
+	if (for_data) {
+		orig_datasz = le32_to_cpu(hdr->blocksize) - sizeof(uint32_t);
+
+		codesz = sizeof(kwboot_baud_code) +
+			 sizeof(kwboot_baud_code_data_jump);
+		code = kwboot_img_grow_data_right(img, size, codesz);
+	} else {
+		codesz = sizeof(kwboot_baud_code_binhdr_pre) +
+			 sizeof(kwboot_baud_code) +
+			 sizeof(kwboot_baud_code_binhdr_post);
+		code = kwboot_add_bin_ohdr_v1(img, size, codesz);
+
+		codesz = sizeof(kwboot_baud_code_binhdr_pre);
+		memcpy(code, kwboot_baud_code_binhdr_pre, codesz);
+		code += codesz;
+	}
+
+	codesz = sizeof(kwboot_baud_code) - 2 * sizeof(uint32_t);
+	memcpy(code, kwboot_baud_code, codesz);
+	code += codesz;
+	*(uint32_t *)code = cpu_to_le32(old_baud);
+	code += sizeof(uint32_t);
+	*(uint32_t *)code = cpu_to_le32(new_baud);
+	code += sizeof(uint32_t);
+
+	if (for_data) {
+		codesz = sizeof(kwboot_baud_code_data_jump) - sizeof(uint32_t);
+		memcpy(code, kwboot_baud_code_data_jump, codesz);
+		code += codesz;
+		*(uint32_t *)code = hdr->execaddr;
+		code += sizeof(uint32_t);
+		hdr->execaddr = cpu_to_le32(le32_to_cpu(hdr->destaddr) + orig_datasz);
+	} else {
+		codesz = sizeof(kwboot_baud_code_binhdr_post);
+		memcpy(code, kwboot_baud_code_binhdr_post, codesz);
+		code += codesz;
+	}
+}
+
+static int
+kwboot_img_patch(void *img, size_t *size, int baudrate)
+{
+	struct main_hdr_v1 *hdr;
+	uint32_t srcaddr;
+	uint8_t csum;
+	size_t hdrsz;
+	int image_ver;
+	int is_secure;
+
 	hdr = img;
 
-	if (size < hdrsz) {
-		errno = EINVAL;
-		goto out;
-	}
+	if (*size < sizeof(struct main_hdr_v1))
+		goto err;
 
-	image_ver = image_version(img);
-	if (image_ver < 0) {
+	image_ver = kwbimage_version(img);
+	if (image_ver != 0 && image_ver != 1) {
 		fprintf(stderr, "Invalid image header version\n");
-		errno = EINVAL;
-		goto out;
+		goto err;
 	}
 
-	if (image_ver == 0)
-		hdrsz = sizeof(*hdr);
-	else
-		hdrsz = KWBHEADER_V1_SIZE(hdr);
+	hdrsz = kwbheader_size(hdr);
 
-	csum = kwboot_img_csum8(hdr, hdrsz) - hdr->checksum;
-	if (csum != hdr->checksum) {
-		errno = EINVAL;
-		goto out;
+	if (*size < hdrsz)
+		goto err;
+
+	csum = kwboot_hdr_csum8(hdr) - hdr->checksum;
+	if (csum != hdr->checksum)
+		goto err;
+
+	srcaddr = le32_to_cpu(hdr->srcaddr);
+
+	switch (hdr->blockid) {
+	case IBR_HDR_SATA_ID:
+		if (srcaddr < 1)
+			goto err;
+
+		hdr->srcaddr = cpu_to_le32((srcaddr - 1) * 512);
+		break;
+
+	case IBR_HDR_SDIO_ID:
+		hdr->srcaddr = cpu_to_le32(srcaddr * 512);
+		break;
+
+	case IBR_HDR_PEX_ID:
+		if (srcaddr == 0xFFFFFFFF)
+			hdr->srcaddr = cpu_to_le32(hdrsz);
+		break;
+
+	case IBR_HDR_SPI_ID:
+		if (hdr->destaddr == cpu_to_le32(0xFFFFFFFF)) {
+			kwboot_printv("Patching destination and execution addresses from SPI/NOR XIP area to DDR area 0x00800000\n");
+			hdr->destaddr = cpu_to_le32(0x00800000);
+			hdr->execaddr = cpu_to_le32(0x00800000);
+		}
+		break;
 	}
 
-	if (hdr->blockid == IBR_HDR_UART_ID) {
-		rc = 0;
-		goto out;
+	if (hdrsz > le32_to_cpu(hdr->srcaddr) ||
+	    *size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize))
+		goto err;
+
+	if (kwboot_img_csum32(img) != *kwboot_img_csum32_ptr(img))
+		goto err;
+
+	is_secure = kwboot_img_is_secure(img);
+
+	if (hdr->blockid != IBR_HDR_UART_ID) {
+		if (is_secure) {
+			fprintf(stderr,
+				"Image has secure header with signature for non-UART booting\n");
+			goto err;
+		}
+
+		kwboot_printv("Patching image boot signature to UART\n");
+		hdr->blockid = IBR_HDR_UART_ID;
 	}
 
-	hdr->blockid = IBR_HDR_UART_ID;
-
-	if (image_ver == 0) {
-		struct main_hdr_v0 *hdr_v0 = img;
-
-		hdr_v0->nandeccmode = IBR_HDR_ECC_DISABLED;
-		hdr_v0->nandpagesize = 0;
-
-		hdr_v0->srcaddr = hdr_v0->ext
-			? sizeof(struct kwb_header)
-			: sizeof(*hdr_v0);
+	if (!is_secure) {
+		if (image_ver == 1) {
+			/*
+			 * Tell BootROM to send BootROM messages to UART port
+			 * number 0 (used also for UART booting) with default
+			 * baudrate (which should be 115200) and do not touch
+			 * UART MPP configuration.
+			 */
+			hdr->options &= ~0x1F;
+			hdr->options |= MAIN_HDR_V1_OPT_BAUD_DEFAULT;
+			hdr->options |= 0 << 3;
+		}
+		if (image_ver == 0)
+			((struct main_hdr_v0 *)img)->nandeccmode = IBR_HDR_ECC_DISABLED;
+		hdr->nandpagesize = 0;
 	}
 
-	hdr->checksum = kwboot_img_csum8(hdr, hdrsz) - csum;
+	if (baudrate) {
+		if (image_ver == 0) {
+			fprintf(stderr,
+				"Cannot inject code for changing baudrate into v0 image header\n");
+			goto err;
+		}
 
-	rc = 0;
-out:
-	return rc;
+		if (is_secure) {
+			fprintf(stderr,
+				"Cannot inject code for changing baudrate into image with secure header\n");
+			goto err;
+		}
+
+		/*
+		 * First inject code that changes the baudrate from the default
+		 * value of 115200 Bd to requested value. This code is inserted
+		 * as a new opt hdr, so it is executed by BootROM after the
+		 * header part is received.
+		 */
+		kwboot_printv("Injecting binary header code for changing baudrate to %d Bd\n",
+			      baudrate);
+		_inject_baudrate_change_code(img, size, 0, 115200, baudrate);
+
+		/*
+		 * Now inject code that changes the baudrate back to 115200 Bd.
+		 * This code is appended after the data part of the image, and
+		 * execaddr is changed so that it is executed before U-Boot
+		 * proper.
+		 */
+		kwboot_printv("Injecting code for changing baudrate back\n");
+		_inject_baudrate_change_code(img, size, 1, baudrate, 115200);
+
+		/* Update the 32-bit data checksum */
+		*kwboot_img_csum32_ptr(img) = kwboot_img_csum32(img);
+
+		/* recompute header size */
+		hdrsz = kwbheader_size(hdr);
+	}
+
+	if (hdrsz % KWBOOT_XM_BLKSZ) {
+		size_t grow = KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ;
+
+		if (is_secure) {
+			fprintf(stderr, "Cannot align image with secure header\n");
+			goto err;
+		}
+
+		kwboot_printv("Aligning image header to Xmodem block size\n");
+		kwboot_img_grow_hdr(img, size, grow);
+	}
+
+	hdr->checksum = kwboot_hdr_csum8(hdr) - csum;
+
+	*size = le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize);
+	return 0;
+err:
+	errno = EINVAL;
+	return -1;
 }
 
 static void
@@ -688,7 +1646,6 @@ kwboot_usage(FILE *stream, char *progname)
 	fprintf(stream, "\n");
 	fprintf(stream,
 		"  -b <image>: boot <image> with preamble (Kirkwood, Armada 370/XP)\n");
-	fprintf(stream, "  -p: patch <image> to type 0x69 (uart boot)\n");
 	fprintf(stream,
 		"  -D <image>: boot <image> without preamble (Dove)\n");
 	fprintf(stream, "  -d: enter debug mode\n");
@@ -708,12 +1665,13 @@ int
 main(int argc, char **argv)
 {
 	const char *ttypath, *imgpath;
-	int rv, rc, tty, term, prot, patch;
+	int rv, rc, tty, term;
 	void *bootmsg;
 	void *debugmsg;
 	void *img;
 	size_t size;
-	speed_t speed;
+	size_t after_img_rsv;
+	int baudrate;
 
 	rv = 1;
 	tty = -1;
@@ -722,9 +1680,11 @@ main(int argc, char **argv)
 	imgpath = NULL;
 	img = NULL;
 	term = 0;
-	patch = 0;
 	size = 0;
-	speed = B115200;
+	after_img_rsv = KWBOOT_XM_BLKSZ;
+	baudrate = 115200;
+
+	printf("kwboot version %s\n", PLAIN_VERSION);
 
 	kwboot_verbose = isatty(STDOUT_FILENO);
 
@@ -749,7 +1709,7 @@ main(int argc, char **argv)
 			break;
 
 		case 'p':
-			patch = 1;
+			/* nop, for backward compatibility */
 			break;
 
 		case 't':
@@ -774,9 +1734,7 @@ main(int argc, char **argv)
 			break;
 
 		case 'B':
-			speed = kwboot_tty_speed(atoi(optarg));
-			if (speed == -1)
-				goto usage;
+			baudrate = atoi(optarg);
 			break;
 
 		case 'h':
@@ -789,32 +1747,39 @@ main(int argc, char **argv)
 	if (!bootmsg && !term && !debugmsg)
 		goto usage;
 
-	if (patch && !imgpath)
-		goto usage;
-
 	if (argc - optind < 1)
 		goto usage;
 
 	ttypath = argv[optind++];
 
-	tty = kwboot_open_tty(ttypath, speed);
+	tty = kwboot_open_tty(ttypath, imgpath ? 115200 : baudrate);
 	if (tty < 0) {
 		perror(ttypath);
 		goto out;
 	}
 
-	if (imgpath) {
-		prot = PROT_READ | (patch ? PROT_WRITE : 0);
+	if (baudrate == 115200)
+		/* do not change baudrate during Xmodem to the same value */
+		baudrate = 0;
+	else
+		/* ensure we have enough space for baudrate change code */
+		after_img_rsv += sizeof(struct opt_hdr_v1) + 8 + 16 +
+				 sizeof(kwboot_baud_code_binhdr_pre) +
+				 sizeof(kwboot_baud_code) +
+				 sizeof(kwboot_baud_code_binhdr_post) +
+				 KWBOOT_XM_BLKSZ +
+				 sizeof(kwboot_baud_code) +
+				 sizeof(kwboot_baud_code_data_jump) +
+				 KWBOOT_XM_BLKSZ;
 
-		img = kwboot_mmap_image(imgpath, &size, prot);
+	if (imgpath) {
+		img = kwboot_read_image(imgpath, &size, after_img_rsv);
 		if (!img) {
 			perror(imgpath);
 			goto out;
 		}
-	}
 
-	if (patch) {
-		rc = kwboot_img_patch_hdr(img, size);
+		rc = kwboot_img_patch(img, &size, baudrate);
 		if (rc) {
 			fprintf(stderr, "%s: Invalid image.\n", imgpath);
 			goto out;
@@ -836,7 +1801,7 @@ main(int argc, char **argv)
 	}
 
 	if (img) {
-		rc = kwboot_xmodem(tty, img, size);
+		rc = kwboot_xmodem(tty, img, size, baudrate);
 		if (rc) {
 			perror("xmodem");
 			goto out;
@@ -857,7 +1822,7 @@ out:
 		close(tty);
 
 	if (img)
-		munmap(img, size);
+		free(img);
 
 	return rv;
 

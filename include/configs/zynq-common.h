@@ -52,13 +52,9 @@
 
 #ifdef CONFIG_NAND_ZYNQ
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #endif
 
 #ifdef CONFIG_USB_EHCI_ZYNQ
-# define CONFIG_EHCI_IS_TDI
-
-# define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x600000
 # define DFU_DEFAULT_POLL_TIMEOUT	300
 # define CONFIG_THOR_RESET_OFF
 #endif
@@ -66,7 +62,6 @@
 /* enable preboot to be loaded before CONFIG_BOOTDELAY */
 
 /* Boot configuration */
-#define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
 #ifdef CONFIG_SPL_BUILD
 #define BOOTENV

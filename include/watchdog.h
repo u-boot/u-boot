@@ -53,7 +53,7 @@ int init_func_watchdog_reset(void);
 		#else
 			/* Don't require the watchdog to be enabled in SPL */
 			#if defined(CONFIG_SPL_BUILD) &&		\
-				!defined(CONFIG_SPL_WATCHDOG_SUPPORT)
+				!defined(CONFIG_SPL_WATCHDOG)
 				#define WATCHDOG_RESET() {}
 			#else
 				extern void watchdog_reset(void);

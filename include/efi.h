@@ -20,6 +20,11 @@
 #include <linux/string.h>
 #include <linux/types.h>
 
+/* Type INTN in UEFI specification */
+#define efi_intn_t ssize_t
+/* Type UINTN in UEFI specification*/
+#define efi_uintn_t size_t
+
 /*
  * EFI on x86_64 uses the Microsoft ABI which is not the default for GCC.
  *
@@ -120,8 +125,36 @@ struct efi_table_hdr {
 	u32 reserved;
 };
 
+/* Allocation types for calls to boottime->allocate_pages*/
+/**
+ * enum efi_allocate_type - address restriction for memory allocation
+ */
+enum efi_allocate_type {
+	/**
+	 * @EFI_ALLOCATE_ANY_PAGES:
+	 * Allocate any block of sufficient size. Ignore memory address.
+	 */
+	EFI_ALLOCATE_ANY_PAGES,
+	/**
+	 * @EFI_ALLOCATE_MAX_ADDRESS:
+	 * Allocate a memory block with an uppermost address less or equal
+	 * to the indicated address.
+	 */
+	EFI_ALLOCATE_MAX_ADDRESS,
+	/**
+	 * @EFI_ALLOCATE_ADDRESS:
+	 * Allocate a memory block starting at the indicatged adress.
+	 */
+	EFI_ALLOCATE_ADDRESS,
+	/**
+	 * @EFI_MAX_ALLOCATE_TYPE:
+	 * Value use for range checking.
+	 */
+	EFI_MAX_ALLOCATE_TYPE,
+};
+
 /* Enumeration of memory types introduced in UEFI */
-enum efi_mem_type {
+enum efi_memory_type {
 	EFI_RESERVED_MEMORY_TYPE,
 	/*
 	 * The code portions of a loaded application.
@@ -175,9 +208,13 @@ enum efi_mem_type {
 	 */
 	EFI_PAL_CODE,
 	/*
-	 * Non-volatile memory.
+	 * Byte addressable non-volatile memory.
 	 */
 	EFI_PERSISTENT_MEMORY_TYPE,
+	/*
+	 * Unaccepted memory must be accepted by boot target before usage.
+	 */
+	EFI_UNACCEPTED_MEMORY_TYPE,
 
 	EFI_MAX_MEMORY_TYPE,
 };
@@ -196,6 +233,7 @@ enum efi_mem_type {
 				((u64)0x0000000000010000ULL)	/* higher reliability */
 #define EFI_MEMORY_RO		((u64)0x0000000000020000ULL)	/* read-only */
 #define EFI_MEMORY_SP		((u64)0x0000000000040000ULL)	/* specific-purpose memory (SPM) */
+#define EFI_MEMORY_CPU_CRYPTO	((u64)0x0000000000080000ULL)	/* cryptographically protectable */
 #define EFI_MEMORY_RUNTIME	((u64)0x8000000000000000ULL)	/* range requires runtime mapping */
 #define EFI_MEM_DESC_VERSION	1
 
@@ -213,12 +251,6 @@ struct efi_mem_desc {
 };
 
 #define EFI_MEMORY_DESCRIPTOR_VERSION 1
-
-/* Allocation types for calls to boottime->allocate_pages*/
-#define EFI_ALLOCATE_ANY_PAGES		0
-#define EFI_ALLOCATE_MAX_ADDRESS	1
-#define EFI_ALLOCATE_ADDRESS		2
-#define EFI_MAX_ALLOCATE_TYPE		3
 
 /* Types and defines for Time Services */
 #define EFI_TIME_ADJUST_DAYLIGHT 0x1
@@ -412,8 +444,14 @@ extern char _binary_u_boot_bin_start[], _binary_u_boot_bin_end[];
  *
  * @return pointer to EFI system table
  */
-
 struct efi_system_table *efi_get_sys_table(void);
+
+/**
+ * efi_get_boot() - Get access to the EFI boot services table
+ *
+ * @return pointer to EFI boot services table
+ */
+struct efi_boot_services *efi_get_boot(void);
 
 /**
  * efi_get_ram_base() - Find the base of RAM

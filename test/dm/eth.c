@@ -53,8 +53,8 @@ static int dm_test_eth_alias(struct unit_test_state *uts)
 	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10004000", env_get("ethact"));
 
-	/* Expected to fail since eth2 is not defined in the device tree */
-	env_set("ethact", "eth2");
+	/* Expected to fail since eth1 is not defined in the device tree */
+	env_set("ethact", "eth1");
 	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", env_get("ethact"));
 
@@ -227,7 +227,7 @@ static int _dm_test_net_retry(struct unit_test_state *uts)
 	 * the active device should be eth0
 	 */
 	sandbox_eth_disable_response(1, true);
-	env_set("ethact", "eth@10004000");
+	env_set("ethact", "lan1");
 	env_set("netretry", "yes");
 	sandbox_eth_skip_timeout();
 	ut_assertok(net_loop(PING));
@@ -237,11 +237,11 @@ static int _dm_test_net_retry(struct unit_test_state *uts)
 	 * eth1 is disabled and netretry is no, so the ping should fail and the
 	 * active device should be eth1
 	 */
-	env_set("ethact", "eth@10004000");
+	env_set("ethact", "lan1");
 	env_set("netretry", "no");
 	sandbox_eth_skip_timeout();
 	ut_asserteq(-ENONET, net_loop(PING));
-	ut_asserteq_str("eth@10004000", env_get("ethact"));
+	ut_asserteq_str("lan1", env_get("ethact"));
 
 	return 0;
 }

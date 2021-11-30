@@ -358,6 +358,11 @@ M:	Jelle van der Waa <jelle@vdwaa.nl>
 S:	Maintained
 F:	configs/nanopi_neo_air_defconfig
 
+NANOPI-R1S-H5 BOARD
+M:	Chukun Pan <amadeus@jmu.edu.cn>
+S:	Maintained
+F:	configs/nanopi_r1s_h5_defconfig
+
 NANOPI-A64 BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
@@ -384,6 +389,11 @@ M:	Jonas Smedegaard <dr@jones.dk>
 M:	Icenowy Zheng <icenowy@aosc.io>
 S:	Maintained
 F:	configs/teres_i_defconfig
+
+ORANGEPI 3 BOARD
+M:	Andre Heider <a.heider@gmail.com>
+S:	Maintained
+F:	configs/orangepi_3_defconfig
 
 ORANGEPI LITE2 BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>
@@ -420,6 +430,11 @@ M:	Diego Rondini <diego.rondini@kynetics.com>
 S:	Maintained
 F:	configs/orangepi_zero_plus2_h3_defconfig
 
+ORANGEPI ZERO 2 BOARD
+M:	Jernej Skrabec <jernej.skrabec@siol.net>
+S:	Maintained
+F:	configs/orangepi_zero2_defconfig
+
 ORANGEPI PC 2 BOARD
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
@@ -440,6 +455,11 @@ M:	Vasily Khoruzhick <anarsoul@gmail.com>
 S:	Maintained
 F:	configs/pinebook_defconfig
 
+PINECUBE BOARD:
+M:	Icenowy Zheng <icenowy@aosc.io>
+S:	Maintained
+F:	configs/pinecube_defconfig
+
 PINE64 BOARDS
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
@@ -455,6 +475,11 @@ PINEPHONE BOARD
 M:	Samuel Holland <samuel@sholland.org>
 S:	Maintained
 F:	configs/pinephone_defconfig
+
+PINETAB BOARD
+M:	Arnaud Ferraris <arnaud.ferraris@collabora.com>
+S:	Maintained
+F:	configs/pinetab_defconfig
 
 R16 EVB PARROT BOARD
 M:	Quentin Schulz <quentin.schulz@free-electrons.com>
@@ -489,6 +514,12 @@ S:	Maintained
 F:	configs/Sunchip_CX-A99_defconfig
 W:	https://linux-sunxi.org/Sunchip_CX-A99
 
+TANIX TX6 BOARD
+M:	Jernej Skrabec <jernej.skrabec@siol.net>
+S:	Maintained
+F:	configs/tanix_tx6_defconfig
+W:	https://linux-sunxi.org/Tanix_TX6
+
 TBS A711 BOARD
 M:	Maxime Ripard <mripard@kernel.org>
 S:	Maintained
@@ -508,3 +539,9 @@ YONES TOPTECH BS1078 V2 BOARD
 M:	Peter Korsgaard <peter@korsgaard.com>
 S:	Maintained
 F:	configs/Yones_Toptech_BS1078_V2_defconfig
+
+ZEROPI BOARD
+M:	Yu-Tung Chang <mtwget@gmail.com>
+S:	Maintained
+F:	configs/zeropi_defconfig
+F:	arch/arm/dts/sun8i-h3-zeropi.dts

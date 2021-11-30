@@ -6,7 +6,7 @@
  *    * mezzanine card M11 is connected to IO SLOT1 (usxgmii for DPMAC 3,4)
  *    * mezzanine card M13/M8 is connected to IO SLOT6 (25g-aui for DPMAC 5,6)
  *
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  *
  */
 
@@ -58,4 +58,10 @@
 		compatible = "ethernet-phy-id0210.7440";
 		reg = <0x1>;
 	};
+};
+
+&esdhc1 {
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+	bus-width = <8>;
 };

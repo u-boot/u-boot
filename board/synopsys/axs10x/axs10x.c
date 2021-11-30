@@ -9,6 +9,7 @@
 #include <init.h>
 #include <malloc.h>
 #include <asm/arcregs.h>
+#include <asm/global_data.h>
 #include "axs10x.h"
 #include <asm/cache.h>
 

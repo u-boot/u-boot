@@ -23,13 +23,11 @@
 		gpio4 = &gpio5;
 		mmc0 = &usdhc1;
 		serial0 = &lpuart1;
+		usbphy0 = &usbphy1;
 	};
 
 	clocks {
-		u-boot,dm-spl;
-
-		osc {
-			u-boot,dm-spl;
+		osc: osc {
 			compatible = "fsl,imx-osc", "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <24000000>;
@@ -37,10 +35,7 @@
 	};
 
 	soc {
-		u-boot,dm-spl;
-
 		semc: semc@402f0000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-semc";
 			reg = <0x402f0000 0x4000>;
 			clocks = <&clks IMXRT1050_CLK_SEMC>;
@@ -65,7 +60,6 @@
 		};
 
 		clks: ccm@400fc000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt1050-ccm";
 			reg = <0x400fc000 0x4000>;
 			interrupts = <GIC_SPI 95 IRQ_TYPE_LEVEL_HIGH>,
@@ -74,7 +68,6 @@
 		};
 
 		usdhc1: usdhc@402c0000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-usdhc";
 			reg = <0x402c0000 0x10000>;
 			interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>;
@@ -87,7 +80,6 @@
 		};
 
 		gpio1: gpio@401b8000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
 			reg = <0x401b8000 0x4000>;
 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>,
@@ -99,7 +91,6 @@
 		};
 
 		gpio2: gpio@401bc000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
 			reg = <0x401bc000 0x4000>;
 			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>,
@@ -111,7 +102,6 @@
 		};
 
 		gpio3: gpio@401c0000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
 			reg = <0x401c0000 0x4000>;
 			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_HIGH>,
@@ -123,7 +113,6 @@
 		};
 
 		gpio4: gpio@401c4000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
 			reg = <0x401c4000 0x4000>;
 			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>,
@@ -135,7 +124,6 @@
 		};
 
 		gpio5: gpio@400c0000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
 			reg = <0x400c0000 0x4000>;
 			interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_HIGH>,
@@ -150,8 +138,45 @@
 			compatible = "fsl,imxrt-lcdif";
 			reg = <0x402b8000 0x4000>;
 			interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&clks IMXRT1050_CLK_LCDIF>;
-			clock-names = "per";
+			clocks = <&clks IMXRT1050_CLK_LCDIF_PIX>,
+				 <&clks IMXRT1050_CLK_LCDIF_APB>;
+			clock-names = "pix", "axi";
+			assigned-clocks = <&clks IMXRT1050_CLK_LCDIF_SEL>;
+			assigned-clock-parents = <&clks IMXRT1050_CLK_PLL5_VIDEO>;
+			status = "disabled";
+		};
+
+		gpt1: gpt1@401ec000 {
+			compatible = "fsl,imxrt-gpt";
+			reg = <0x401ec000 0x4000>;
+			interrupts = <100>;
+			clocks = <&osc>;
+			status = "disabled";
+		};
+
+		usbphy1: usbphy@400d9000 {
+			compatible = "fsl,imxrt-usbphy";
+			reg = <0x400d9000 0x1000>;
+			interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+		usbmisc: usbmisc@402e0800 {
+			#index-cells = <1>;
+			compatible = "fsl,imxrt-usbmisc";
+			reg = <0x402e0800 0x200>;
+			clocks = <&clks IMXRT1050_CLK_USBOH3>;
+		};
+
+		usbotg1: usb@402e0000 {
+			compatible = "fsl,imxrt-usb", "fsl,imx27-usb";
+			reg = <0x402e0000 0x200>;
+			interrupts = <GIC_SPI 113 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clks IMXRT1050_CLK_USBOH3>;
+			fsl,usbphy = <&usbphy1>;
+			fsl,usbmisc = <&usbmisc 0>;
+			ahb-burst-config = <0x0>;
+			tx-burst-size-dword = <0x10>;
+			rx-burst-size-dword = <0x10>;
 			status = "disabled";
 		};
 	};

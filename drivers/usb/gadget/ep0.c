@@ -46,6 +46,52 @@
 #define dbg_ep0(lvl,fmt,args...)
 #endif
 
+__maybe_unused static char *usbd_device_descriptors[] = {
+	"UNKNOWN",		/* 0 */
+	"DEVICE",		/* 1 */
+	"CONFIG",		/* 2 */
+	"STRING",		/* 3 */
+	"INTERFACE",		/* 4 */
+	"ENDPOINT",		/* 5 */
+	"DEVICE QUALIFIER",	/* 6 */
+	"OTHER SPEED",		/* 7 */
+	"INTERFACE POWER",	/* 8 */
+};
+
+#define USBD_DEVICE_DESCRIPTORS(x) (((unsigned int)x <= USB_DESCRIPTOR_TYPE_INTERFACE_POWER) ? \
+		usbd_device_descriptors[x] : "UNKNOWN")
+
+__maybe_unused static char *usbd_device_states[] = {
+	"STATE_INIT",
+	"STATE_CREATED",
+	"STATE_ATTACHED",
+	"STATE_POWERED",
+	"STATE_DEFAULT",
+	"STATE_ADDRESSED",
+	"STATE_CONFIGURED",
+	"STATE_UNKNOWN",
+};
+
+#define USBD_DEVICE_STATE(x) (((unsigned int)x <= STATE_UNKNOWN) ? usbd_device_states[x] : "UNKNOWN")
+
+__maybe_unused static char *usbd_device_requests[] = {
+	"GET STATUS",		/* 0 */
+	"CLEAR FEATURE",	/* 1 */
+	"RESERVED",		/* 2 */
+	"SET FEATURE",		/* 3 */
+	"RESERVED",		/* 4 */
+	"SET ADDRESS",		/* 5 */
+	"GET DESCRIPTOR",	/* 6 */
+	"SET DESCRIPTOR",	/* 7 */
+	"GET CONFIGURATION",	/* 8 */
+	"SET CONFIGURATION",	/* 9 */
+	"GET INTERFACE",	/* 10 */
+	"SET INTERFACE",	/* 11 */
+	"SYNC FRAME",		/* 12 */
+};
+
+#define USBD_DEVICE_REQUESTS(x) (((unsigned int)x <= USB_REQ_SYNCH_FRAME) ? usbd_device_requests[x] : "UNKNOWN")
+
 /* EP0 Configuration Set ********************************************************************* */
 
 
@@ -248,7 +294,7 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 		{
 			struct usb_string_descriptor *string_descriptor;
 			if (!(string_descriptor = usbd_get_string (index))) {
-				serial_printf("Invalid string index %d\n", index);
+				dbg_ep0(0, "Invalid string index %d\n", index);
 				return -1;
 			}
 			dbg_ep0(3, "string_descriptor: %p length %d", string_descriptor, string_descriptor->bLength);
@@ -256,14 +302,14 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 		}
 		break;
 	case USB_DESCRIPTOR_TYPE_INTERFACE:
-	serial_printf("USB_DESCRIPTOR_TYPE_INTERFACE - error not implemented\n");
+		dbg_ep0(2, "USB_DESCRIPTOR_TYPE_INTERFACE - error not implemented\n");
 		return -1;
 	case USB_DESCRIPTOR_TYPE_ENDPOINT:
-		serial_printf("USB_DESCRIPTOR_TYPE_ENDPOINT - error not implemented\n");
+		dbg_ep0(2, "USB_DESCRIPTOR_TYPE_ENDPOINT - error not implemented\n");
 		return -1;
 	case USB_DESCRIPTOR_TYPE_HID:
 		{
-			serial_printf("USB_DESCRIPTOR_TYPE_HID - error not implemented\n");
+			dbg_ep0(2, "USB_DESCRIPTOR_TYPE_HID - error not implemented\n");
 			return -1;	/* unsupported at this time */
 #if 0
 			int bNumInterface =
@@ -292,7 +338,7 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 		break;
 	case USB_DESCRIPTOR_TYPE_REPORT:
 		{
-			serial_printf("USB_DESCRIPTOR_TYPE_REPORT - error not implemented\n");
+			dbg_ep0(2, "USB_DESCRIPTOR_TYPE_REPORT - error not implemented\n");
 			return -1;	/* unsupported at this time */
 #if 0
 			int bNumInterface =
@@ -485,7 +531,7 @@ int ep0_recv_setup (struct urb *urb)
 						   le16_to_cpu (request->wValue) & 0xff);
 
 		case USB_REQ_GET_CONFIGURATION:
-			serial_printf("get config %d\n", device->configuration);
+			dbg_ep0(2, "get config %d\n", device->configuration);
 			return ep0_get_one (device, urb,
 					    device->configuration);
 
@@ -575,14 +621,14 @@ int ep0_recv_setup (struct urb *urb)
 			device->interface = device->alternate = 0;
 
 			/*dbg_ep0(2, "set configuration: %d", device->configuration); */
-			/*serial_printf("DEVICE_CONFIGURED.. event?\n"); */
+			/*dbg_ep0(2, "DEVICE_CONFIGURED.. event?\n"); */
 			return 0;
 
 		case USB_REQ_SET_INTERFACE:
 			device->interface = le16_to_cpu (request->wIndex);
 			device->alternate = le16_to_cpu (request->wValue);
 			/*dbg_ep0(2, "set interface: %d alternate: %d", device->interface, device->alternate); */
-			serial_printf("DEVICE_SET_INTERFACE.. event?\n");
+			dbg_ep0(2, "DEVICE_SET_INTERFACE.. event?\n");
 			return 0;
 
 		case USB_REQ_GET_STATUS:

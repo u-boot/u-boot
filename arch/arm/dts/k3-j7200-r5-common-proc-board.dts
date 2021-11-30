@@ -6,7 +6,7 @@
 /dts-v1/;
 
 #include "k3-j7200-som-p0.dtsi"
-#include "k3-j7200-ddr-evm-lp4-1600.dtsi"
+#include "k3-j7200-ddr-evm-lp4-2666.dtsi"
 #include "k3-j721e-ddr.dtsi"
 
 / {
@@ -32,6 +32,7 @@
 		power-domains = <&k3_pds 61 TI_SCI_PD_EXCLUSIVE>,
 				<&k3_pds 202 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 202 0>;
+		clocks = <&k3_clks 61 1>;
 		assigned-clocks = <&k3_clks 202 2>, <&k3_clks 61 1>;
 		assigned-clock-rates = <2000000000>, <200000000>;
 		ti,sci = <&dmsc>;
@@ -77,6 +78,23 @@
 		compatible = "ti,am654-system-controller";
 		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>;
 		mbox-names = "tx", "rx";
+	};
+
+	dm_tifs: dm-tifs {
+		compatible = "ti,j721e-dm-sci";
+		ti,host-id = <3>;
+		ti,secure-host;
+		mbox-names = "rx", "tx";
+		mboxes= <&mcu_secproxy 21>,
+			<&mcu_secproxy 23>;
+		u-boot,dm-spl;
+	};
+
+	wkup_vtm0: vtm@42040000 {
+		compatible = "ti,am654-vtm", "ti,j721e-avs";
+		reg = <0x0 0x42040000 0x0 0x330>;
+		power-domains = <&k3_pds 154 TI_SCI_PD_EXCLUSIVE>;
+		#thermal-sensor-cells = <1>;
 	};
 };
 
@@ -161,6 +179,19 @@
 		>;
 	};
 
+	main_mmc1_pins_default: main_mmc1_pins_default {
+		pinctrl-single,pins = <
+			J721E_IOPAD(0x104, PIN_INPUT, 0) /* (M20) MMC1_CMD */
+			J721E_IOPAD(0x100, PIN_INPUT, 0) /* (P21) MMC1_CLK */
+			J721E_IOPAD(0xfc, PIN_INPUT, 0) /* (P25) MMC1_CLKLB */
+			J721E_IOPAD(0xf8, PIN_INPUT, 0) /* (M19) MMC1_DAT0 */
+			J721E_IOPAD(0xf4, PIN_INPUT, 0) /* (N21) MMC1_DAT1 */
+			J721E_IOPAD(0xf0, PIN_INPUT, 0) /* (N20) MMC1_DAT2 */
+			J721E_IOPAD(0xec, PIN_INPUT, 0) /* (N19) MMC1_DAT3 */
+			J721E_IOPAD(0xe4, PIN_INPUT, 8) /* (V1) TIMER_IO0.MMC1_SDCD */
+		>;
+	};
+
 	main_usbss0_pins_default: main_usbss0_pins_default {
 		pinctrl-single,pins = <
 			J721E_IOPAD(0x120, PIN_OUTPUT, 0) /* (T4) USB0_DRVVBUS */
@@ -197,6 +228,8 @@
 	/delete-property/ power-domains;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
+	pinctrl-0 = <&main_mmc1_pins_default>;
+	pinctrl-names = "default";
 	clock-names = "clk_xin";
 	clocks = <&clk_200mhz>;
 	ti,driver-strength-ohm = <50>;
@@ -211,6 +244,37 @@
 	clock-names = "clk_xin";
 	clocks = <&clk_200mhz>;
 	ti,driver-strength-ohm = <50>;
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
+	lp876441: lp876441@4c {
+		compatible = "ti,lp876441";
+		reg = <0x4c>;
+		u-boot,dm-spl;
+		pinctrl-names = "default";
+		pinctrl-0 = <&wkup_i2c0_pins_default>;
+		clock-frequency = <400000>;
+
+		regulators: regulators {
+			u-boot,dm-spl;
+			buck1_reg: buck1 {
+				/*VDD_CPU_AVS_REG*/
+				regulator-name = "buck1";
+				regulator-min-microvolt = <800000>;
+				regulator-max-microvolt = <1250000>;
+				regulator-always-on;
+				regulator-boot-on;
+				u-boot,dm-spl;
+			};
+		};
+	};
+
+};
+
+&wkup_vtm0 {
+	vdd-supply-2 = <&buck1_reg>;
+	u-boot,dm-spl;
 };
 
 &main_i2c0 {
@@ -260,4 +324,11 @@
 	};
 };
 
+&mcu_ringacc {
+	ti,sci = <&dm_tifs>;
+};
+
+&mcu_udmap {
+	ti,sci = <&dm_tifs>;
+};
 #include "k3-j7200-common-proc-board-u-boot.dtsi"

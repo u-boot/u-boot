@@ -15,6 +15,7 @@
  */
 
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/at91_wdt.h>
 #include <common.h>
@@ -108,7 +109,7 @@ static int at91_wdt_probe(struct udevice *dev)
 	if (!priv->regs)
 		return -EINVAL;
 
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 
 	return 0;
 }
@@ -117,7 +118,7 @@ U_BOOT_DRIVER(atmel_at91sam9260_wdt) = {
 	.name = "atmel_at91sam9260_wdt",
 	.id = UCLASS_WDT,
 	.of_match = at91_wdt_ids,
-	.priv_auto_alloc_size = sizeof(struct at91_wdt_priv),
+	.priv_auto	= sizeof(struct at91_wdt_priv),
 	.ops = &at91_wdt_ops,
 	.probe = at91_wdt_probe,
 };

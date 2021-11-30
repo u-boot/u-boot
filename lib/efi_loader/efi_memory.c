@@ -12,6 +12,7 @@
 #include <mapmem.h>
 #include <watchdog.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <linux/list_sort.h>
 #include <linux/sizes.h>
 
@@ -453,7 +454,8 @@ static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
  * @memory		allocated memory
  * @return		status code
  */
-efi_status_t efi_allocate_pages(int type, int memory_type,
+efi_status_t efi_allocate_pages(enum efi_allocate_type type,
+				enum efi_memory_type memory_type,
 				efi_uintn_t pages, uint64_t *memory)
 {
 	u64 len = pages << EFI_PAGE_SHIFT;
@@ -541,12 +543,62 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 
 	ret = efi_add_memory_map_pg(memory, pages, EFI_CONVENTIONAL_MEMORY,
 				    false);
-	/* Merging of adjacent free regions is missing */
-
 	if (ret != EFI_SUCCESS)
 		return EFI_NOT_FOUND;
 
 	return ret;
+}
+
+/**
+ * efi_alloc_aligned_pages - allocate
+ *
+ * @len:		len in bytes
+ * @memory_type:	usage type of the allocated memory
+ * @align:		alignment in bytes
+ * Return:		aligned memory or NULL
+ */
+void *efi_alloc_aligned_pages(u64 len, int memory_type, size_t align)
+{
+	u64 req_pages = efi_size_in_pages(len);
+	u64 true_pages = req_pages + efi_size_in_pages(align) - 1;
+	u64 free_pages;
+	u64 aligned_mem;
+	efi_status_t r;
+	u64 mem;
+
+	/* align must be zero or a power of two */
+	if (align & (align - 1))
+		return NULL;
+
+	/* Check for overflow */
+	if (true_pages < req_pages)
+		return NULL;
+
+	if (align < EFI_PAGE_SIZE) {
+		r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, memory_type,
+				       req_pages, &mem);
+		return (r == EFI_SUCCESS) ? (void *)(uintptr_t)mem : NULL;
+	}
+
+	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, memory_type,
+			       true_pages, &mem);
+	if (r != EFI_SUCCESS)
+		return NULL;
+
+	aligned_mem = ALIGN(mem, align);
+	/* Free pages before alignment */
+	free_pages = efi_size_in_pages(aligned_mem - mem);
+	if (free_pages)
+		efi_free_pages(mem, free_pages);
+
+	/* Free trailing pages */
+	free_pages = true_pages - (req_pages + free_pages);
+	if (free_pages) {
+		mem = aligned_mem + req_pages * EFI_PAGE_SIZE;
+		efi_free_pages(mem, free_pages);
+	}
+
+	return (void *)(uintptr_t)aligned_mem;
 }
 
 /**
@@ -557,7 +609,7 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
  * @buffer:	allocated memory
  * Return:	status code
  */
-efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
+efi_status_t efi_allocate_pool(enum efi_memory_type pool_type, efi_uintn_t size, void **buffer)
 {
 	efi_status_t r;
 	u64 addr;

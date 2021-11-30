@@ -11,7 +11,7 @@
 
 #if defined(CONFIG_M5235) || defined(CONFIG_M5271) || \
     defined(CONFIG_M5275) || defined(CONFIG_M5282) || \
-    defined(CONFIG_M547x) || defined(CONFIG_M548x)
+    defined(CONFIG_M547x)
 #	define	CONFIG_SYS_CF_INTC_REG1
 #endif
 

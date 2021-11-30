@@ -1284,7 +1284,7 @@ local void check_match(s, start, match, length)
     }
     if (z_verbose > 1) {
         fprintf(stderr,"\\[%d,%d]", start-match, length);
-        do { putc(s->window[start++], stderr); } while (--length != 0);
+	do { putc(s->window[start++]); } while (--length != 0);
     }
 }
 #else

@@ -8,10 +8,148 @@
 #include <log.h>
 #include <watchdog.h>
 #include <asm/arch/mailbox_s10.h>
+#include <asm/arch/smc_api.h>
 #include <linux/delay.h>
+#include <linux/intel-smc.h>
 
 #define RECONFIG_STATUS_POLL_RESP_TIMEOUT_MS		60000
 #define RECONFIG_STATUS_INTERVAL_DELAY_US		1000000
+
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ATF)
+
+#define BITSTREAM_CHUNK_SIZE				0xFFFF0
+#define RECONFIG_STATUS_POLL_RETRY_MAX			100
+
+/*
+ * Polling the FPGA configuration status.
+ * Return 0 for success, non-zero for error.
+ */
+static int reconfig_status_polling_resp(void)
+{
+	int ret;
+	unsigned long start = get_timer(0);
+
+	while (1) {
+		ret = invoke_smc(INTEL_SIP_SMC_FPGA_CONFIG_ISDONE, NULL, 0,
+				 NULL, 0);
+
+		if (!ret)
+			return 0;	/* configuration success */
+
+		if (ret != INTEL_SIP_SMC_STATUS_BUSY)
+			return ret;
+
+		if (get_timer(start) > RECONFIG_STATUS_POLL_RESP_TIMEOUT_MS)
+			return -ETIMEDOUT;	/* time out */
+
+		puts(".");
+		udelay(RECONFIG_STATUS_INTERVAL_DELAY_US);
+		WATCHDOG_RESET();
+	}
+
+	return -ETIMEDOUT;
+}
+
+static int send_bitstream(const void *rbf_data, size_t rbf_size)
+{
+	int i;
+	u64 res_buf[3];
+	u64 args[2];
+	u32 xfer_count = 0;
+	int ret, wr_ret = 0, retry = 0;
+	size_t buf_size = (rbf_size > BITSTREAM_CHUNK_SIZE) ?
+				BITSTREAM_CHUNK_SIZE : rbf_size;
+
+	while (rbf_size || xfer_count) {
+		if (!wr_ret && rbf_size) {
+			args[0] = (u64)rbf_data;
+			args[1] = buf_size;
+			wr_ret = invoke_smc(INTEL_SIP_SMC_FPGA_CONFIG_WRITE,
+					    args, 2, NULL, 0);
+
+			debug("wr_ret = %d, rbf_data = %p, buf_size = %08lx\n",
+			      wr_ret, rbf_data, buf_size);
+
+			if (wr_ret)
+				continue;
+
+			rbf_size -= buf_size;
+			rbf_data += buf_size;
+
+			if (buf_size >= rbf_size)
+				buf_size = rbf_size;
+
+			xfer_count++;
+			puts(".");
+		} else {
+			ret = invoke_smc(
+				INTEL_SIP_SMC_FPGA_CONFIG_COMPLETED_WRITE,
+				NULL, 0, res_buf, ARRAY_SIZE(res_buf));
+			if (!ret) {
+				for (i = 0; i < ARRAY_SIZE(res_buf); i++) {
+					if (!res_buf[i])
+						break;
+					xfer_count--;
+					wr_ret = 0;
+					retry = 0;
+				}
+			} else if (ret !=
+				   INTEL_SIP_SMC_STATUS_BUSY)
+				return ret;
+			else if (!xfer_count)
+				return INTEL_SIP_SMC_STATUS_ERROR;
+
+			if (++retry >= RECONFIG_STATUS_POLL_RETRY_MAX)
+				return -ETIMEDOUT;
+
+			udelay(20000);
+		}
+		WATCHDOG_RESET();
+	}
+
+	return 0;
+}
+
+/*
+ * This is the interface used by FPGA driver.
+ * Return 0 for success, non-zero for error.
+ */
+int intel_sdm_mb_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
+{
+	int ret;
+	u64 arg = 1;
+
+	debug("Invoking FPGA_CONFIG_START...\n");
+
+	ret = invoke_smc(INTEL_SIP_SMC_FPGA_CONFIG_START, &arg, 1, NULL, 0);
+
+	if (ret) {
+		puts("Failure in RECONFIG mailbox command!\n");
+		return ret;
+	}
+
+	ret = send_bitstream(rbf_data, rbf_size);
+	if (ret) {
+		puts("Error sending bitstream!\n");
+		return ret;
+	}
+
+	/* Make sure we don't send MBOX_RECONFIG_STATUS too fast */
+	udelay(RECONFIG_STATUS_INTERVAL_DELAY_US);
+
+	debug("Polling with MBOX_RECONFIG_STATUS...\n");
+	ret = reconfig_status_polling_resp();
+	if (ret) {
+		puts("FPGA reconfiguration failed!");
+		return ret;
+	}
+
+	puts("FPGA reconfiguration OK!\n");
+
+	return ret;
+}
+
+#else
 
 static const struct mbox_cfgstat_state {
 	int			err_no;
@@ -286,3 +424,4 @@ int intel_sdm_mb_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 
 	return ret;
 }
+#endif

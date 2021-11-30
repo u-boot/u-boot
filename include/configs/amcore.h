@@ -11,9 +11,7 @@
 #define CONFIG_HOSTNAME			"AMCORE"
 
 #define CONFIG_MCFTMR
-#define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		0
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_BOOTCOMMAND		"bootm ffc20000"
 #define CONFIG_EXTRA_ENV_SETTINGS				\
@@ -27,12 +25,6 @@
 	"upgrade_jffs2=loady; "					\
 		"erase 0xfff00000 0xffffffff; "			\
 		"cp.b 0x20000 0xfff00000 ${filesize}\0"
-
-/* undef to save memory	*/
-
-#define CONFIG_SYS_LOAD_ADDR		0x20000	/* default load address */
-
-#define CONFIG_SYS_HZ			1000
 
 #define CONFIG_SYS_CLK			45000000
 #define CONFIG_SYS_CPU_CLK		(CONFIG_SYS_CLK * 2)
@@ -58,7 +50,6 @@
 /* reserve 128-4KB */
 #define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_FLASH_BASE + 0x400)
 #define CONFIG_SYS_MONITOR_LEN          ((128 - 4) * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
 
 #define LDS_BOARD_TEXT \
@@ -75,7 +66,6 @@
  * This is a single unified instruction/data cache.
  * sdram - single region - no masks
  */
-#define CONFIG_SYS_CACHELINE_SIZE	16
 
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - 8)
@@ -99,4 +89,3 @@
 #define CONFIG_SYS_CS1_CTRL		0x0100
 
 #endif  /* __AMCORE_CONFIG_H */
-

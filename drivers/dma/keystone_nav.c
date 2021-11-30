@@ -11,20 +11,20 @@
 #include <linux/delay.h>
 
 struct qm_config qm_memmap = {
-	.stat_cfg	= CONFIG_KSNAV_QM_QUEUE_STATUS_BASE,
-	.queue		= (void *)CONFIG_KSNAV_QM_MANAGER_QUEUES_BASE,
-	.mngr_vbusm	= CONFIG_KSNAV_QM_BASE_ADDRESS,
-	.i_lram		= CONFIG_KSNAV_QM_LINK_RAM_BASE,
-	.proxy		= (void *)CONFIG_KSNAV_QM_MANAGER_Q_PROXY_BASE,
-	.status_ram	= CONFIG_KSNAV_QM_STATUS_RAM_BASE,
-	.mngr_cfg	= (void *)CONFIG_KSNAV_QM_CONF_BASE,
-	.intd_cfg	= CONFIG_KSNAV_QM_INTD_CONF_BASE,
-	.desc_mem	= (void *)CONFIG_KSNAV_QM_DESC_SETUP_BASE,
-	.region_num	= CONFIG_KSNAV_QM_REGION_NUM,
-	.pdsp_cmd	= CONFIG_KSNAV_QM_PDSP1_CMD_BASE,
-	.pdsp_ctl	= CONFIG_KSNAV_QM_PDSP1_CTRL_BASE,
-	.pdsp_iram	= CONFIG_KSNAV_QM_PDSP1_IRAM_BASE,
-	.qpool_num	= CONFIG_KSNAV_QM_QPOOL_NUM,
+	.stat_cfg	= KS2_QM_QUEUE_STATUS_BASE,
+	.queue		= (void *)KS2_QM_MANAGER_QUEUES_BASE,
+	.mngr_vbusm	= KS2_QM_BASE_ADDRESS,
+	.i_lram		= KS2_QM_LINK_RAM_BASE,
+	.proxy		= (void *)KS2_QM_MANAGER_Q_PROXY_BASE,
+	.status_ram	= KS2_QM_STATUS_RAM_BASE,
+	.mngr_cfg	= (void *)KS2_QM_CONF_BASE,
+	.intd_cfg	= KS2_QM_INTD_CONF_BASE,
+	.desc_mem	= (void *)KS2_QM_DESC_SETUP_BASE,
+	.region_num	= KS2_QM_REGION_NUM,
+	.pdsp_cmd	= KS2_QM_PDSP1_CMD_BASE,
+	.pdsp_ctl	= KS2_QM_PDSP1_CTRL_BASE,
+	.pdsp_iram	= KS2_QM_PDSP1_IRAM_BASE,
+	.qpool_num	= KS2_QM_QPOOL_NUM,
 };
 
 /*
@@ -252,7 +252,7 @@ int ksnav_init(struct pktdma_cfg *pktdma, struct rx_buff_desc *rx_buffers)
 	writel(0, &pktdma->global->emulation_control);
 
 	/* Set QM base address, only for K2x devices */
-	writel(CONFIG_KSNAV_QM_BASE_ADDRESS, &pktdma->global->qm_base_addr[0]);
+	writel(KS2_QM_BASE_ADDRESS, &pktdma->global->qm_base_addr[0]);
 
 	/* Enable all channels. The current state isn't important */
 	for (j = 0; j < pktdma->tx_ch_num; j++)  {

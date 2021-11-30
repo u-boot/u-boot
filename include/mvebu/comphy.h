@@ -16,7 +16,7 @@ struct comphy_map {
 	bool end_point;
 };
 
+int comphy_rx_training(struct udevice *dev, u32 lane);
 int comphy_update_map(struct comphy_map *serdes_map, int count);
 
 #endif /* _MVEBU_COMPHY_H_ */
-

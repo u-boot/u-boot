@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <init.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
@@ -365,7 +366,7 @@ int board_eth_init(struct bd_info *bis)
 	return ret;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* Soft Power On Reset */
 	writel((1 << 31), RESCNT2);

@@ -11,6 +11,8 @@
 /dts-v1/;
 
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 #include "armada-372x.dtsi"
 
 / {
@@ -32,6 +34,28 @@
 	memory {
 		device_type = "memory";
 		reg = <0x00000000 0x00000000 0x00000000 0x20000000>;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led {
+			gpios = <&gpiosb 21 GPIO_ACTIVE_LOW>;
+			color = <LED_COLOR_ID_RED>;
+			function = LED_FUNCTION_ACTIVITY;
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		reset {
+			compatible = "gpio-keys";
+			label = "reset";
+			linux,code = <KEY_RESTART>;
+			gpios = <&gpiosb 20 GPIO_ACTIVE_LOW>;
+			debounce-interval = <60>;
+		};
 	};
 
 	reg_usb3_vbus: usb3_vbus@0 {
@@ -73,18 +97,18 @@
 &comphy {
 	max-lanes = <3>;
 	phy0 {
-		phy-type = <PHY_TYPE_SGMII1>;
-		phy-speed = <PHY_SPEED_3_125G>;
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_3_125G>;
 	};
 
 	phy1 {
-		phy-type = <PHY_TYPE_PEX0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_PEX0>;
+		phy-speed = <COMPHY_SPEED_5G>;
 	};
 
 	phy2 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+		phy-speed = <COMPHY_SPEED_5G>;
 	};
 };
 
@@ -140,6 +164,37 @@
 		reg = <0>;
 		spi-max-frequency = <20000000>;
 		m25p,fast-read;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "secure-firmware";
+				reg = <0x0 0x20000>;
+			};
+
+			partition@20000 {
+				label = "a53-firmware";
+				reg = <0x20000 0x160000>;
+			};
+
+			partition@180000 {
+				label = "u-boot-env";
+				reg = <0x180000 0x10000>;
+			};
+
+			partition@190000 {
+				label = "Rescue system";
+				reg = <0x190000 0x660000>;
+			};
+
+			partition@7f0000 {
+				label = "dtb";
+				reg = <0x7f0000 0x10000>;
+			};
+		};
 	};
 
 	moxtet@1 {

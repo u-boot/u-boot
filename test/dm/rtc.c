@@ -204,7 +204,7 @@ static int dm_test_rtc_cmd_rw(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	run_command("rtc read 0x30 2", 0);
-	ut_assert_nextline("00000030: aa bb                                              ..");
+	ut_assert_nextline("00000030: aa bb                                            ..");
 	ut_assert_console_end();
 
 	run_command("rtc dev 1", 0);
@@ -215,7 +215,7 @@ static int dm_test_rtc_cmd_rw(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	run_command("rtc read 0x30 2", 0);
-	ut_assert_nextline("00000030: cc dd                                              ..");
+	ut_assert_nextline("00000030: cc dd                                            ..");
 	ut_assert_console_end();
 
 	/*
@@ -227,7 +227,7 @@ static int dm_test_rtc_cmd_rw(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	run_command("rtc read 0x30 2", 0);
-	ut_assert_nextline("00000030: aa bb                                              ..");
+	ut_assert_nextline("00000030: aa bb                                            ..");
 	ut_assert_console_end();
 
 	return 0;

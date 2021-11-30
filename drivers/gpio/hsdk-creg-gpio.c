@@ -165,5 +165,5 @@ U_BOOT_DRIVER(gpio_hsdk_creg) = {
 	.ops	= &hsdk_creg_gpio_ops,
 	.probe	= hsdk_creg_gpio_probe,
 	.of_match = hsdk_creg_gpio_ids,
-	.platdata_auto_alloc_size = sizeof(struct hsdk_creg_gpio),
+	.plat_auto	= sizeof(struct hsdk_creg_gpio),
 };

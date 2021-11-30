@@ -6,7 +6,6 @@
 #include <asm/arch/psu_init_gpl.h>
 #include <xil_io.h>
 
-
 static int serdes_illcalib(u32 lane3_protocol, u32 lane3_rate,
 			   u32 lane2_protocol, u32 lane2_rate,
 			   u32 lane1_protocol, u32 lane1_rate,

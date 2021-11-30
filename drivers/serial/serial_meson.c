@@ -19,7 +19,7 @@ struct meson_uart {
 	u32 misc;
 };
 
-struct meson_serial_platdata {
+struct meson_serial_plat {
 	struct meson_uart *reg;
 };
 
@@ -57,7 +57,7 @@ static void meson_serial_init(struct meson_uart *uart)
 
 static int meson_serial_probe(struct udevice *dev)
 {
-	struct meson_serial_platdata *plat = dev->platdata;
+	struct meson_serial_plat *plat = dev_get_plat(dev);
 	struct meson_uart *const uart = plat->reg;
 
 	meson_serial_init(uart);
@@ -67,7 +67,7 @@ static int meson_serial_probe(struct udevice *dev)
 
 static void meson_serial_rx_error(struct udevice *dev)
 {
-	struct meson_serial_platdata *plat = dev->platdata;
+	struct meson_serial_plat *plat = dev_get_plat(dev);
 	struct meson_uart *const uart = plat->reg;
 	u32 val = readl(&uart->control);
 
@@ -83,7 +83,7 @@ static void meson_serial_rx_error(struct udevice *dev)
 
 static int meson_serial_getc(struct udevice *dev)
 {
-	struct meson_serial_platdata *plat = dev->platdata;
+	struct meson_serial_plat *plat = dev_get_plat(dev);
 	struct meson_uart *const uart = plat->reg;
 	uint32_t status = readl(&uart->status);
 
@@ -100,7 +100,7 @@ static int meson_serial_getc(struct udevice *dev)
 
 static int meson_serial_putc(struct udevice *dev, const char ch)
 {
-	struct meson_serial_platdata *plat = dev->platdata;
+	struct meson_serial_plat *plat = dev_get_plat(dev);
 	struct meson_uart *const uart = plat->reg;
 
 	if (readl(&uart->status) & AML_UART_TX_FULL)
@@ -113,7 +113,7 @@ static int meson_serial_putc(struct udevice *dev, const char ch)
 
 static int meson_serial_pending(struct udevice *dev, bool input)
 {
-	struct meson_serial_platdata *plat = dev->platdata;
+	struct meson_serial_plat *plat = dev_get_plat(dev);
 	struct meson_uart *const uart = plat->reg;
 	uint32_t status = readl(&uart->status);
 
@@ -136,9 +136,9 @@ static int meson_serial_pending(struct udevice *dev, bool input)
 	}
 }
 
-static int meson_serial_ofdata_to_platdata(struct udevice *dev)
+static int meson_serial_of_to_plat(struct udevice *dev)
 {
-	struct meson_serial_platdata *plat = dev->platdata;
+	struct meson_serial_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -168,8 +168,8 @@ U_BOOT_DRIVER(serial_meson) = {
 	.of_match	= meson_serial_ids,
 	.probe		= meson_serial_probe,
 	.ops		= &meson_serial_ops,
-	.ofdata_to_platdata = meson_serial_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct meson_serial_platdata),
+	.of_to_plat = meson_serial_of_to_plat,
+	.plat_auto	= sizeof(struct meson_serial_plat),
 };
 
 #ifdef CONFIG_DEBUG_UART_MESON

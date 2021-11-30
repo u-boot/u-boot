@@ -97,7 +97,8 @@ def ParseArgs():
     parser.add_option('-t', '--test', action='store_true', dest='test',
                       default=False, help='run tests')
     parser.add_option('-T', '--threads', type='int',
-          default=None, help='Number of builder threads to use')
+          default=None,
+          help='Number of builder threads to use (0=single-thread)')
     parser.add_option('-u', '--show_unknown', action='store_true',
           default=False, help='Show boards with unknown build result')
     parser.add_option('-U', '--show-environment', action='store_true',

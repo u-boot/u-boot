@@ -1,5 +1,5 @@
 SHEEVAPLUG BOARD
-M:	Prafulla Wadaskar <prafulla@marvell.com>
+M:	Tony Dinh <mibodhi@gmail.com>
 S:	Maintained
 F:	board/Marvell/sheevaplug/
 F:	include/configs/sheevaplug.h

@@ -44,10 +44,6 @@ config ENV_IS_IN_EEPROM
 	  still be one byte because the extra address bits are hidden
 	  in the chip address.
 
-	  - CONFIG_ENV_EEPROM_IS_ON_I2C
-	  define this, if you have I2C and SPI activated, and your
-	  EEPROM, which holds the environment, is on the I2C bus.
-
 	  - CONFIG_I2C_ENV_EEPROM_BUS
 	  if you have an Environment on an EEPROM reached over
 	  I2C muxes, you can define here, how to reach this
@@ -82,10 +78,10 @@ config ENV_IS_IN_FLASH
 	depends on !CHAIN_OF_TRUST
 	default y if ARCH_CINTEGRATOR
 	default y if ARCH_INTEGRATOR_CP
-	default y if M548x || M547x || M5282 || MCF547x_8x
+	default y if M548x || M547x || M5282
 	default y if MCF532x || MCF52x2
 	default y if MPC86xx || MPC83xx
-	default y if ARCH_MPC8572 || ARCH_MPC8548 || ARCH_MPC8641
+	default y if ARCH_MPC8548
 	default y if SH && !CPU_SH4
 	help
 	  Define this if you have a flash device which you want to use for the
@@ -203,6 +199,11 @@ config ENV_IS_IN_MMC
 
 	  This value may also be positive or negative; this is handled in the
 	  same way as CONFIG_ENV_OFFSET.
+
+	  In case CONFIG_SYS_MMC_ENV_PART is 1 (i.e. environment in eMMC boot
+	  partition) then setting CONFIG_ENV_OFFSET_REDUND to the same value
+	  as CONFIG_ENV_OFFSET makes use of the second eMMC boot partition for
+	  the redundant environment copy.
 
 	  This value is also in units of bytes, but must also be aligned to
 	  an MMC sector boundary.
@@ -324,6 +325,20 @@ config ENV_IS_IN_SPI_FLASH
 	  during a "saveenv" operation. CONFIG_ENV_OFFSET_REDUND must be
 	  aligned to an erase sector boundary.
 
+config ENV_SECT_SIZE_AUTO
+	bool "Use automatically detected sector size"
+	depends on ENV_IS_IN_SPI_FLASH
+	help
+	  Some boards exist in multiple variants, with different
+	  flashes having different sector sizes. In such cases, you
+	  can select this option to make U-Boot use the actual sector
+	  size when figuring out how much to erase, which can thus be
+	  more efficient on the flashes with smaller erase size. Since
+	  the environment must always be aligned on a sector boundary,
+	  CONFIG_ENV_OFFSET must be aligned to the largest of the
+	  different sector sizes, and CONFIG_ENV_SECT_SIZE should be
+	  set to that value.
+
 config USE_ENV_SPI_BUS
 	bool "SPI flash bus for environment"
 	depends on ENV_IS_IN_SPI_FLASH
@@ -432,8 +447,7 @@ config ENV_FAT_DEVICE_AND_PART
 	depends on ENV_IS_IN_FAT
 	default "0:1" if TI_COMMON_CMD_OPTIONS
 	default "0:auto" if ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
-	default "0:auto" if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA = -1
-	default "1:auto" if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA != -1
+	default ":auto" if ARCH_SUNXI
 	default "0" if ARCH_AT91
 	help
 	  Define this to a string to specify the partition of the device. It can
@@ -461,6 +475,14 @@ config ENV_FAT_FILE
 	help
 	  It's a string of the FAT file name. This file use to store the
 	  environment.
+
+config ENV_FAT_FILE_REDUND
+	string "Name of the FAT file to use for the environment"
+	depends on ENV_IS_IN_FAT && SYS_REDUNDAND_ENVIRONMENT
+	default "uboot-redund.env"
+	help
+	  It's a string of the FAT file name. This file use to store the
+	  redundant environment.
 
 config ENV_EXT4_INTERFACE
 	string "Name of the block device for the environment"
@@ -534,6 +556,7 @@ config ENV_OFFSET_REDUND
 	hex "Redundant environment offset"
 	depends on (ENV_IS_IN_EEPROM || ENV_IS_IN_MMC || ENV_IS_IN_NAND || \
 		    ENV_IS_IN_SPI_FLASH) && SYS_REDUNDAND_ENVIRONMENT
+	default 0
 	help
 	  Offset from the start of the device (or partition) of the redundant
 	  environment location.
@@ -594,7 +617,7 @@ config SYS_RELOC_GD_ENV_ADDR
 config SYS_MMC_ENV_DEV
 	int "mmc device number"
 	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT || SYS_LS_PPA_FW_IN_MMC || \
-		CMD_MVEBU_BUBT || FMAN_ENET || QE
+		CMD_MVEBU_BUBT || FMAN_ENET || QE || PHY_CORTINA
 	default 0
 	help
 	  MMC device number on the platform where the environment is stored.
@@ -647,9 +670,26 @@ config DELAY_ENVIRONMENT
 	  later by U-Boot code. With CONFIG_OF_CONTROL this is instead
 	  controlled by the value of /config/load-environment.
 
+config ENV_IMPORT_FDT
+	bool "Amend environment by FDT properties"
+	depends on OF_CONTROL
+	help
+	  If selected, after the environment has been loaded from its
+	  persistent location, the "env_fdt_path" variable is looked
+	  up and used as a path to a node in the control DTB. The
+	  property/value pairs in that node is then used to update the
+	  run-time environment. This can be useful to use the same
+	  U-Boot binary with different board variants.
+
+config ENV_FDT_PATH
+	string "Default value for env_fdt_path variable"
+	depends on ENV_IMPORT_FDT
+	default "/config/environment"
+	help
+	  The initial value of the env_fdt_path variable.
+
 config ENV_APPEND
 	bool "Always append the environment with new data"
-	default n
 	help
 	  If defined, the environment hash table is only ever appended with new
 	  data, but the existing hash table can never be dropped and reloaded
@@ -658,7 +698,6 @@ config ENV_APPEND
 
 config ENV_WRITEABLE_LIST
 	bool "Permit write access only to listed variables"
-	default n
 	help
 	  If defined, only environment variables which explicitly set the 'w'
 	  writeable flag can be written and modified at runtime. No variables
@@ -666,7 +705,6 @@ config ENV_WRITEABLE_LIST
 
 config ENV_ACCESS_IGNORE_FORCE
 	bool "Block forced environment operations"
-	default n
 	help
 	  If defined, don't allow the -f switch to env set override variable
 	  access flags.

@@ -12,6 +12,7 @@
 #include <pwm.h>
 #include <video.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -299,7 +300,7 @@ static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
 
 static int tegra_lcd_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct tegra_lcd_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
@@ -336,7 +337,7 @@ static int tegra_lcd_probe(struct udevice *dev)
 	return 0;
 }
 
-static int tegra_lcd_ofdata_to_platdata(struct udevice *dev)
+static int tegra_lcd_of_to_plat(struct udevice *dev)
 {
 	struct tegra_lcd_priv *priv = dev_get_priv(dev);
 	const void *blob = gd->fdt_blob;
@@ -393,7 +394,7 @@ static int tegra_lcd_ofdata_to_platdata(struct udevice *dev)
 
 static int tegra_lcd_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int rgb;
@@ -423,6 +424,6 @@ U_BOOT_DRIVER(tegra_lcd) = {
 	.ops	= &tegra_lcd_ops,
 	.bind	= tegra_lcd_bind,
 	.probe	= tegra_lcd_probe,
-	.ofdata_to_platdata	= tegra_lcd_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct tegra_lcd_priv),
+	.of_to_plat	= tegra_lcd_of_to_plat,
+	.priv_auto	= sizeof(struct tegra_lcd_priv),
 };

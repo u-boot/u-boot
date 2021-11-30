@@ -6,6 +6,8 @@ config ADDR_MAP
 	  Enables helper code for implementing non-identity virtual-physical
 	  memory mappings for 32bit CPUs.
 
+	  This library only works in the post-relocation phase.
+
 config SYS_NUM_ADDR_MAP
 	int "Size of the address-map table"
 	depends on ADDR_MAP
@@ -22,8 +24,8 @@ config BCH
 
 config BINMAN_FDT
 	bool "Allow access to binman information in the device tree"
-	depends on BINMAN && OF_CONTROL
-	default y
+	depends on BINMAN && DM && OF_CONTROL
+	default y if OF_SEPARATE || OF_EMBED
 	help
 	  This enables U-Boot to access information about binman entries,
 	  stored in the device tree in a binman node. Typical uses are to
@@ -37,6 +39,14 @@ config CC_OPTIMIZE_LIBS_FOR_SPEED
 	  under "lib" directory.
 
 	  If unsure, say N.
+
+config CHARSET
+	bool
+	default y if UT_UNICODE || EFI_LOADER || UFS
+	help
+	  Enables support for various conversions between different
+	  character sets, such as between unicode representations and
+	  different 'code pages'.
 
 config DYNAMIC_CRC_TABLE
 	bool "Enable Dynamic tables for CRC"
@@ -82,7 +92,6 @@ config TPL_SPRINTF
 
 config SSCANF
 	bool
-	default n
 
 config STRTO
 	bool
@@ -168,7 +177,7 @@ config REGEX
 choice
 	prompt "Pseudo-random library support type"
 	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID || \
-		   RNG_SANDBOX || UT_LIB && AES
+		   RNG_SANDBOX || UT_LIB && AES || FAT_WRITE
 	default LIB_RAND
 	help
 	  Select the library to provide pseudo-random number generator
@@ -210,6 +219,7 @@ config BITREVERSE
 config TRACE
 	bool "Support for tracing of function calls and timing"
 	imply CMD_TRACE
+	select TIMER_EARLY
 	help
 	  Enables function tracing within U-Boot. This allows recording of call
 	  traces including timing information. The command can write data to
@@ -292,8 +302,10 @@ config AES
 	  supported by the algorithm but only a 128-bit key is supported at
 	  present.
 
+source lib/ecdsa/Kconfig
 source lib/rsa/Kconfig
 source lib/crypto/Kconfig
+source lib/crypt/Kconfig
 
 config TPM
 	bool "Trusted Platform Module (TPM) Support"
@@ -335,7 +347,6 @@ menu "Android Verified Boot"
 config LIBAVB
 	bool "Android Verified Boot 2.0 support"
 	depends on ANDROID_BOOT_IMAGE
-	default n
 	help
 	  This enables support of Android Verified Boot 2.0 which can be used
 	  to assure the end user of the integrity of the software running on a
@@ -362,14 +373,8 @@ config SHA256
 	  The SHA256 algorithm produces a 256-bit (32-byte) hash value
 	  (digest).
 
-config SHA512_ALGO
-	bool "Enable SHA512 algorithm"
-	help
-	  This option enables support of internal SHA512 algorithm.
-
 config SHA512
 	bool "Enable SHA512 support"
-	depends on SHA512_ALGO
 	help
 	  This option enables support of hashing using SHA512 algorithm.
 	  The hash is calculated in software.
@@ -378,29 +383,100 @@ config SHA512
 
 config SHA384
 	bool "Enable SHA384 support"
-	depends on SHA512_ALGO
+	select SHA512
 	help
 	  This option enables support of hashing using SHA384 algorithm.
-	  The hash is calculated in software.
+	  The hash is calculated in software. This is also selects SHA512,
+	  because these implementations share the bulk of the code..
 	  The SHA384 algorithm produces a 384-bit (48-byte) hash value
 	  (digest).
 
 config SHA_HW_ACCEL
-	bool "Enable hashing using hardware"
+	bool "Enable hardware acceleration for SHA hash functions"
 	help
-	  This option enables hardware acceleration
-	  for SHA1/SHA256 hashing.
-	  This affects the 'hash' command and also the
+	  This option enables hardware acceleration for the SHA1 and SHA256
+	  hashing algorithms. This affects the 'hash' command and also the
+	  hash_lookup_algo() function.
+
+if SPL
+
+config SPL_SHA1
+	bool "Enable SHA1 support in SPL"
+	default y if SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm.
+	  The hash is calculated in software.
+	  The SHA1 algorithm produces a 160-bit (20-byte) hash value
+	  (digest).
+
+config SPL_SHA256
+	bool "Enable SHA256 support in SPL"
+	default y if SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm.
+	  The hash is calculated in software.
+	  The SHA256 algorithm produces a 256-bit (32-byte) hash value
+	  (digest).
+
+config SPL_SHA512
+	bool "Enable SHA512 support in SPL"
+	default y if SHA512
+	help
+	  This option enables support of hashing using SHA512 algorithm.
+	  The hash is calculated in software.
+	  The SHA512 algorithm produces a 512-bit (64-byte) hash value
+	  (digest).
+
+config SPL_SHA384
+	bool "Enable SHA384 support in SPL"
+	default y if SHA384
+	select SPL_SHA512
+	help
+	  This option enables support of hashing using SHA384 algorithm.
+	  The hash is calculated in software. This is also selects SHA512,
+	  because these implementations share the bulk of the code..
+	  The SHA384 algorithm produces a 384-bit (48-byte) hash value
+	  (digest).
+
+config SPL_SHA_HW_ACCEL
+	bool "Enable hardware acceleration for SHA hash functions"
+	default y if SHA_HW_ACCEL
+	help
+	  This option enables hardware acceleration for the SHA1 and SHA256
+	  hashing algorithms. This affects the 'hash' command and also the
+	  hash_lookup_algo() function.
+
+config SPL_SHA_PROG_HW_ACCEL
+	bool "Enable Progressive hashing support using hardware in SPL"
+	depends on SHA_PROG_HW_ACCEL
+	default y
+	help
+	  This option enables hardware-acceleration for SHA progressive
+	  hashing.
+	  Data can be streamed in a block at a time and the hashing is
+	  performed in hardware.
+
+endif
+
+if SHA_HW_ACCEL
+
+config SHA512_HW_ACCEL
+	bool "Enable hardware acceleration for SHA512"
+	depends on SHA512
+	help
+	  This option enables hardware acceleration for the SHA384 and SHA512
+	  hashing algorithms. This affects the 'hash' command and also the
 	  hash_lookup_algo() function.
 
 config SHA_PROG_HW_ACCEL
 	bool "Enable Progressive hashing support using hardware"
-	depends on SHA_HW_ACCEL
 	help
-	  This option enables hardware-acceleration for
-	  SHA1/SHA256 progressive hashing.
-	  Data can be streamed in a block at a time and the hashing
-	  is performed in hardware.
+	  This option enables hardware-acceleration for SHA progressive
+	  hashing.
+	  Data can be streamed in a block at a time and the hashing is
+	  performed in hardware.
+
+endif
 
 config MD5
 	bool "Support MD5 algorithm"
@@ -420,6 +496,11 @@ config SPL_MD5
 	  security applications, but it can be useful for providing a quick
 	  checksum of a block of data.
 
+config CRC32
+	def_bool y
+	help
+	  Enables CRC32 support in U-Boot. This is normally required.
+
 config CRC32C
 	bool
 
@@ -437,7 +518,7 @@ config LZ4
 	  is included. The LZ4 algorithm can run in-place as long as the
 	  compressed image is loaded to the end of the output buffer, and
 	  trades lower compression ratios for much faster decompression.
-	  
+
 	  NOTE: This implements the release version of the LZ4 frame
 	  format as generated by default by the 'lz4' command line tool.
 	  This is not the same as the outdated, less efficient legacy
@@ -455,7 +536,7 @@ config LZMA
 config LZO
 	bool "Enable LZO decompression support"
 	help
-	  This enables support for LZO compression algorithm.r
+	  This enables support for the LZO compression algorithm.
 
 config GZIP
 	bool "Enable gzip decompression support"
@@ -514,7 +595,7 @@ config SPL_GZIP
 	bool "Enable gzip decompression support for SPL build"
 	select SPL_ZLIB
 	help
-	  This enables support for GZIP compression altorithm for SPL boot.
+	  This enables support for the GZIP compression algorithm for SPL boot.
 
 config SPL_ZLIB
 	bool
@@ -544,8 +625,7 @@ config HEXDUMP
 
 config SPL_HEXDUMP
 	bool "Enable hexdump in SPL"
-	depends on HEXDUMP
-	default y
+	depends on SPL && HEXDUMP
 	help
 	  This enables functions for printing dumps of binary data in
 	  SPL.
@@ -639,7 +719,7 @@ menu "System tables"
 
 config BLOBLIST_TABLES
 	bool "Put tables in a bloblist"
-	depends on X86
+	depends on X86 && BLOBLIST
 	help
 	  Normally tables are placed at address 0xf0000 and can be up to 64KB
 	  long. With this option, tables are instead placed in the bloblist
@@ -660,6 +740,13 @@ config GENERATE_SMBIOS_TABLE
 
 	  See also SMBIOS_SYSINFO which allows SMBIOS values to be provided in
 	  the devicetree.
+
+config LIB_RATIONAL
+	bool "enable continued fraction calculation routines"
+
+config SPL_LIB_RATIONAL
+	bool "enable continued fraction calculation routines for SPL"
+	depends on SPL
 
 endmenu
 
@@ -695,7 +782,56 @@ config LIB_DATE
 config LIB_ELF
 	bool
 	help
-	  Supoort basic elf loading/validating functions.
-	  This supports fir 32 bit and 64 bit versions.
+	  Support basic elf loading/validating functions.
+	  This supports for 32 bit and 64 bit versions.
+
+config LMB
+	bool "Enable the logical memory blocks library (lmb)"
+	default y if ARC || ARM || M68K || MICROBLAZE || MIPS || NDS32 || \
+		     NIOS2 || PPC || RISCV || SANDBOX || SH || X86 || XTENSA
+	help
+	  Support the library logical memory blocks.
+
+config LMB_USE_MAX_REGIONS
+	bool "Use a common number of memory and reserved regions in lmb lib"
+	depends on LMB
+	default y
+	help
+	  Define the number of supported memory regions in the library logical
+	  memory blocks.
+	  This feature allow to reduce the lmb library size by using compiler
+	  optimization when LMB_MEMORY_REGIONS == LMB_RESERVED_REGIONS.
+
+config LMB_MAX_REGIONS
+	int "Number of memory and reserved regions in lmb lib"
+	depends on LMB && LMB_USE_MAX_REGIONS
+	default 8
+	help
+	  Define the number of supported regions, memory and reserved, in the
+	  library logical memory blocks.
+
+config LMB_MEMORY_REGIONS
+	int "Number of memory regions in lmb lib"
+	depends on LMB && !LMB_USE_MAX_REGIONS
+	default 8
+	help
+	  Define the number of supported memory regions in the library logical
+	  memory blocks.
+	  The minimal value is CONFIG_NR_DRAM_BANKS.
+
+config LMB_RESERVED_REGIONS
+	int "Number of reserved regions in lmb lib"
+	depends on LMB && !LMB_USE_MAX_REGIONS
+	default 8
+	help
+	  Define the number of supported reserved regions in the library logical
+	  memory blocks.
 
 endmenu
+
+config PHANDLE_CHECK_SEQ
+	bool "Enable phandle check while getting sequence number"
+	help
+	  When there are multiple device tree nodes with same name,
+          enable this config option to distinguish them using
+	  phandles in fdtdec_get_alias_seq() function.

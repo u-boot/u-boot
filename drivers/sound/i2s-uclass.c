@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_I2S
+
 #include <common.h>
 #include <dm.h>
 #include <i2s.h>
@@ -21,5 +23,5 @@ int i2s_tx_data(struct udevice *dev, void *data, uint data_size)
 UCLASS_DRIVER(i2s) = {
 	.id		= UCLASS_I2S,
 	.name		= "i2s",
-	.per_device_auto_alloc_size	= sizeof(struct i2s_uc_priv),
+	.per_device_auto	= sizeof(struct i2s_uc_priv),
 };

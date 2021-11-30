@@ -4,6 +4,8 @@
  * Przemyslaw Marczak <p.marczak@samsung.com>
  */
 
+#define LOG_CATEGORY UCLASS_PMIC
+
 #include <common.h>
 #include <fdtdec.h>
 #include <errno.h>
@@ -196,5 +198,5 @@ UCLASS_DRIVER(pmic) = {
 	.id		= UCLASS_PMIC,
 	.name		= "pmic",
 	.pre_probe	= pmic_pre_probe,
-	.per_device_auto_alloc_size = sizeof(struct uc_pmic_priv),
+	.per_device_auto	= sizeof(struct uc_pmic_priv),
 };

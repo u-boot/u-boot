@@ -53,24 +53,27 @@
  */
 enum efi_test_phase {
 	/**
-	 * @EFI_EXECUTE_BEFORE_BOOTTIME_EXIT: - execute before ExitBootServices
+	 * @EFI_EXECUTE_BEFORE_BOOTTIME_EXIT:
 	 *
 	 * Setup, execute, and teardown are executed before ExitBootServices().
 	 */
 	EFI_EXECUTE_BEFORE_BOOTTIME_EXIT = 1,
 	/**
-	 * @EFI_SETUP_BEFORE_BOOTTIME_EXIT: - setup before ExitBootServices
+	 * @EFI_SETUP_BEFORE_BOOTTIME_EXIT:
 	 *
 	 * Setup is executed before ExitBootServices() while execute, and
 	 * teardown are executed after ExitBootServices().
 	 */
 	EFI_SETUP_BEFORE_BOOTTIME_EXIT,
 	/**
-	 * @EFI_SETUP_AFTER_BOOTTIME_EXIT: - setup after ExitBootServices
+	 * @EFI_SETTING_VIRTUAL_ADDRESS_MAP:
 	 *
-	 * Setup, execute, and teardown are executed after ExitBootServices().
+	 * Execute calls SetVirtualAddressMap(). Setup is executed before
+	 * ExitBootServices() while execute is executed after
+	 * ExitBootServices(), and after the execute of tests marked as
+	 * @EFI_SETUP_BEFORE_BOOTTIME_EXIT. Teardown is executed thereafter.
 	 */
-	EFI_SETUP_AFTER_BOOTTIME_EXIT,
+	EFI_SETTING_VIRTUAL_ADDRESS_MAP,
 };
 
 extern struct efi_simple_text_output_protocol *con_out;

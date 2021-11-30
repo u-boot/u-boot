@@ -1,0 +1,145 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+/dts-v1/;
+
+#include "k3-am642.dtsi"
+#include "k3-am64-sk-lp4-1333MTs.dtsi"
+#include "k3-am64-ddr.dtsi"
+
+/ {
+	chosen {
+		stdout-path = "serial2:115200n8";
+		tick-timer = &timer1;
+	};
+
+	aliases {
+		remoteproc0 = &sysctrler;
+		remoteproc1 = &a53_0;
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		/* 2G RAM */
+		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
+
+	};
+
+	a53_0: a53@0 {
+		compatible = "ti,am654-rproc";
+		reg = <0x00 0x00a90000 0x00 0x10>;
+		power-domains = <&k3_pds 61 TI_SCI_PD_EXCLUSIVE>,
+				<&k3_pds 135 TI_SCI_PD_EXCLUSIVE>;
+		resets = <&k3_reset 135 0>;
+		clocks = <&k3_clks 61 0>;
+		assigned-clocks = <&k3_clks 61 0>, <&k3_clks 135 0>;
+		assigned-clock-parents = <&k3_clks 61 2>;
+		assigned-clock-rates = <200000000>, <1000000000>;
+		ti,sci = <&dmsc>;
+		ti,sci-proc-id = <32>;
+		ti,sci-host-id = <10>;
+		u-boot,dm-spl;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		secure_ddr: optee@9e800000 {
+			reg = <0x00 0x9e800000 0x00 0x01800000>; /* for OP-TEE */
+			alignment = <0x1000>;
+			no-map;
+		};
+	};
+
+	clk_200mhz: dummy-clock-200mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <200000000>;
+		u-boot,dm-spl;
+	};
+};
+
+&cbass_main {
+	sysctrler: sysctrler {
+		compatible = "ti,am654-system-controller";
+		mboxes= <&secure_proxy_main 1>, <&secure_proxy_main 0>;
+		mbox-names = "tx", "rx";
+		u-boot,dm-spl;
+	};
+};
+
+&main_pmx0 {
+	u-boot,dm-spl;
+	main_uart0_pins_default: main-uart0-pins-default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			AM64X_IOPAD(0x0238, PIN_INPUT, 0)		/* (B16) UART0_CTSn */
+			AM64X_IOPAD(0x023c, PIN_OUTPUT, 0)		/* (A16) UART0_RTSn */
+			AM64X_IOPAD(0x0230, PIN_INPUT, 0)		/* (D15) UART0_RXD */
+			AM64X_IOPAD(0x0234, PIN_OUTPUT, 0)		/* (C16) UART0_TXD */
+		>;
+	};
+
+	main_uart1_pins_default: main-uart1-pins-default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			AM64X_IOPAD(0x0248, PIN_INPUT, 0)		/* (D16) UART1_CTSn */
+			AM64X_IOPAD(0x024c, PIN_OUTPUT, 0)		/* (E16) UART1_RTSn */
+			AM64X_IOPAD(0x0240, PIN_INPUT, 0)		/* (E15) UART1_RXD */
+			AM64X_IOPAD(0x0244, PIN_OUTPUT, 0)		/* (E14) UART1_TXD */
+		>;
+	};
+
+	main_mmc1_pins_default: main-mmc1-pins-default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			AM64X_IOPAD(0x0294, PIN_INPUT_PULLUP, 0)	/* (J19) MMC1_CMD */
+			AM64X_IOPAD(0x028c, PIN_INPUT_PULLDOWN, 0)	/* (L20) MMC1_CLK */
+			AM64X_IOPAD(0x0288, PIN_INPUT_PULLUP, 0)	/* (K21) MMC1_DAT0 */
+			AM64X_IOPAD(0x0284, PIN_INPUT_PULLUP, 0)	/* (L21) MMC1_DAT1 */
+			AM64X_IOPAD(0x0280, PIN_INPUT_PULLUP, 0)	/* (K19) MMC1_DAT2 */
+			AM64X_IOPAD(0x027c, PIN_INPUT_PULLUP, 0)	/* (K18) MMC1_DAT3 */
+			AM64X_IOPAD(0x0298, PIN_INPUT_PULLUP, 0)	/* (D19) MMC1_SDCD */
+			AM64X_IOPAD(0x029c, PIN_INPUT_PULLUP, 0)	/* (C20) MMC1_SDWP */
+		>;
+	};
+};
+
+&dmsc {
+	mboxes= <&secure_proxy_main 0>,
+		<&secure_proxy_main 1>,
+		<&secure_proxy_main 0>;
+	mbox-names = "rx", "tx", "notify";
+	ti,host-id = <35>;
+	ti,secure-host;
+};
+
+&main_uart0 {
+	/delete-property/ power-domains;
+	/delete-property/ clocks;
+	/delete-property/ clock-names;
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_uart0_pins_default>;
+	status = "okay";
+};
+
+&main_uart1 {
+	u-boot,dm-spl;
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_uart1_pins_default>;
+};
+
+&sdhci1 {
+	/delete-property/ power-domains;
+	clocks = <&clk_200mhz>;
+	clock-names = "clk_xin";
+	ti,driver-strength-ohm = <50>;
+	disable-wp;
+	pinctrl-0 = <&main_mmc1_pins_default>;
+};
+
+#include "k3-am642-sk-u-boot.dtsi"

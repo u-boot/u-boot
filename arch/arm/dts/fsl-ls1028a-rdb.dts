@@ -15,6 +15,12 @@
 	compatible = "fsl,ls1028a-rdb", "fsl,ls1028a";
 	aliases {
 		spi0 = &fspi;
+		ethernet0 = &enetc_port0;
+		ethernet1 = &enetc_port2;
+		ethernet2 = &mscc_felix_port0;
+		ethernet3 = &mscc_felix_port1;
+		ethernet4 = &mscc_felix_port2;
+		ethernet5 = &mscc_felix_port3;
 	};
 };
 
@@ -30,7 +36,7 @@
 	status = "okay";
 };
 
-&esdhc0 {
+&esdhc {
 	status = "okay";
 };
 
@@ -55,7 +61,6 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
 
 	 i2c-mux@77 {
 
@@ -109,11 +114,23 @@
 	status = "okay";
 };
 
-&serial0 {
+&duart0 {
 	status = "okay";
 };
 
-&serial1 {
+&duart1 {
+	status = "okay";
+};
+
+&pcie1 {
+	status = "okay";
+};
+
+&pcie2 {
+	status = "okay";
+};
+
+&usb0 {
 	status = "okay";
 };
 
@@ -121,19 +138,73 @@
 	status = "okay";
 };
 
-&usb2 {
-	status = "okay";
-};
-
-&enetc0 {
+&enetc_port0 {
 	status = "okay";
 	phy-mode = "sgmii";
 	phy-handle = <&rdb_phy0>;
 };
 
-&mdio0 {
+&enetc_port2 {
+	status = "okay";
+};
+
+&mscc_felix {
+	status = "okay";
+};
+
+&mscc_felix_port0 {
+	label = "swp0";
+	phy-handle = <&sw_phy0>;
+	phy-mode = "qsgmii";
+	status = "okay";
+};
+
+&mscc_felix_port1 {
+	label = "swp1";
+	phy-handle = <&sw_phy1>;
+	phy-mode = "qsgmii";
+	status = "okay";
+};
+
+&mscc_felix_port2 {
+	label = "swp2";
+	phy-handle = <&sw_phy2>;
+	phy-mode = "qsgmii";
+	status = "okay";
+};
+
+&mscc_felix_port3 {
+	label = "swp3";
+	phy-handle = <&sw_phy3>;
+	phy-mode = "qsgmii";
+	status = "okay";
+};
+
+&mscc_felix_port4 {
+	ethernet = <&enetc_port2>;
+	status = "okay";
+};
+
+&enetc_mdio_pf3 {
 	status = "okay";
 	rdb_phy0: phy@2 {
 		reg = <2>;
+	};
+
+	/* VSC8514 QSGMII PHY */
+	sw_phy0: phy@10 {
+		reg = <0x10>;
+	};
+
+	sw_phy1: phy@11 {
+		reg = <0x11>;
+	};
+
+	sw_phy2: phy@12 {
+		reg = <0x12>;
+	};
+
+	sw_phy3: phy@13 {
+		reg = <0x13>;
 	};
 };

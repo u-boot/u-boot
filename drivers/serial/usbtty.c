@@ -500,8 +500,8 @@ void usbtty_puts(struct stdio_dev *dev, const char *str)
 		n = next_nl_pos (str);
 
 		if (str[n] == '\n') {
-			__usbtty_puts("\r", 1);
-			__usbtty_puts(str, n + 1);
+			__usbtty_puts(str, n);
+			__usbtty_puts("\r\n", 2);
 			str += (n + 1);
 			len -= (n + 1);
 		} else {
@@ -849,17 +849,9 @@ static int write_buffer (circbuf_t * buf)
 			&endpoint_instance[tx_endpoint];
 	struct urb *current_urb = NULL;
 
-	current_urb = next_urb (device_instance, endpoint);
-
-	if (!current_urb) {
-		TTYERR ("current_urb is NULL, buf->size %d\n",
-		buf->size);
-		return 0;
-	}
-
 	/* TX data still exists - send it now
 	 */
-	if(endpoint->sent < current_urb->actual_length){
+	if(endpoint->sent < endpoint->tx_urb->actual_length){
 		if(udc_endpoint_write (endpoint)){
 			/* Write pre-empted by RX */
 			return -1;
@@ -877,6 +869,8 @@ static int write_buffer (circbuf_t * buf)
 		 * and link each to the endpoint
 		 */
 		while (buf->size > 0) {
+
+			current_urb = next_urb (device_instance, endpoint);
 
 			dest = (char*)current_urb->buffer +
 				current_urb->actual_length;

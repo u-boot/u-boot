@@ -10,6 +10,7 @@
 /* TODO(sjg@chromium.org): Drop fdtdec.h include */
 #include <fdtdec.h>
 #include <dm/of.h>
+#include <dm/of_access.h>
 #include <log.h>
 
 /* Enable checks to protect against invalid calls */
@@ -218,6 +219,28 @@ static inline ofnode ofnode_null(void)
 	return node;
 }
 
+static inline ofnode ofnode_root(void)
+{
+	ofnode node;
+
+	if (of_live_active())
+		node.np = gd_of_root();
+	else
+		node.of_offset = 0;
+
+	return node;
+}
+
+/**
+ * ofnode_name_eq() - Check if the node name is equivalent to a given name
+ *                    ignoring the unit address
+ *
+ * @node:	valid node reference that has to be compared
+ * @name:	name that has to be compared with the node name
+ * @return true if matches, false if it doesn't match
+ */
+bool ofnode_name_eq(ofnode node, const char *name);
+
 /**
  * ofnode_read_u32() - Read a 32-bit integer from a property
  *
@@ -365,6 +388,51 @@ bool ofnode_read_bool(ofnode node, const char *propname);
  */
 ofnode ofnode_find_subnode(ofnode node, const char *subnode_name);
 
+#if CONFIG_IS_ENABLED(DM_INLINE_OFNODE)
+#include <asm/global_data.h>
+
+static inline bool ofnode_is_enabled(ofnode node)
+{
+	if (ofnode_is_np(node)) {
+		return of_device_is_available(ofnode_to_np(node));
+	} else {
+		return fdtdec_get_is_enabled(gd->fdt_blob,
+					     ofnode_to_offset(node));
+	}
+}
+
+static inline ofnode ofnode_first_subnode(ofnode node)
+{
+	assert(ofnode_valid(node));
+	if (ofnode_is_np(node))
+		return np_to_ofnode(node.np->child);
+
+	return offset_to_ofnode(
+		fdt_first_subnode(gd->fdt_blob, ofnode_to_offset(node)));
+}
+
+static inline ofnode ofnode_next_subnode(ofnode node)
+{
+	assert(ofnode_valid(node));
+	if (ofnode_is_np(node))
+		return np_to_ofnode(node.np->sibling);
+
+	return offset_to_ofnode(
+		fdt_next_subnode(gd->fdt_blob, ofnode_to_offset(node)));
+}
+#else
+/**
+ * ofnode_is_enabled() - Checks whether a node is enabled.
+ * This looks for a 'status' property. If this exists, then returns true if
+ * the status is 'okay' and false otherwise. If there is no status property,
+ * it returns true on the assumption that anything mentioned should be enabled
+ * by default.
+ *
+ * @node: node to examine
+ * @return false (not enabled) or true (enabled)
+ */
+bool ofnode_is_enabled(ofnode node);
+
 /**
  * ofnode_first_subnode() - find the first subnode of a parent node
  *
@@ -382,6 +450,7 @@ ofnode ofnode_first_subnode(ofnode node);
  * has no more siblings)
  */
 ofnode ofnode_next_subnode(ofnode node);
+#endif /* DM_INLINE_OFNODE */
 
 /**
  * ofnode_get_parent() - get the ofnode's parent (enclosing ofnode)
@@ -398,6 +467,16 @@ ofnode ofnode_get_parent(ofnode node);
  * @return name of node
  */
 const char *ofnode_get_name(ofnode node);
+
+/**
+ * ofnode_get_path() - get the full path of a node
+ *
+ * @node: valid node to look up
+ * @buf: buffer to write the node path into
+ * @buflen: buffer size
+ * @return 0 if OK, -ve on error
+ */
+int ofnode_get_path(ofnode node, char *buf, int buflen);
 
 /**
  * ofnode_get_by_phandle() - get ofnode from phandle
@@ -431,6 +510,23 @@ phys_addr_t ofnode_get_addr_size_index(ofnode node, int index,
 				       fdt_size_t *size);
 
 /**
+ * ofnode_get_addr_size_index_notrans() - get an address/size from a node
+ *					  based on index, without address
+ *					  translation
+ *
+ * This reads the register address/size from a node based on index.
+ * The resulting address is not translated. Useful for example for on-disk
+ * addresses.
+ *
+ * @node: node to read from
+ * @index: Index of address to read (0 for first)
+ * @size: Pointer to size of the address
+ * @return address, or FDT_ADDR_T_NONE if not present or invalid
+ */
+phys_addr_t ofnode_get_addr_size_index_notrans(ofnode node, int index,
+					       fdt_size_t *size);
+
+/**
  * ofnode_get_addr_index() - get an address from a node
  *
  * This reads the register address from a node
@@ -450,6 +546,16 @@ phys_addr_t ofnode_get_addr_index(ofnode node, int index);
  * @return address, or FDT_ADDR_T_NONE if not present or invalid
  */
 phys_addr_t ofnode_get_addr(ofnode node);
+
+/**
+ * ofnode_get_size() - get size from a node
+ *
+ * This reads the register size from a node
+ *
+ * @node: node to read from
+ * @return size of the address, or FDT_SIZE_T_NONE if not present or invalid
+ */
+fdt_size_t ofnode_get_size(ofnode node);
 
 /**
  * ofnode_stringlist_search() - find a string in a string list and return index
@@ -904,6 +1010,30 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 	     node = ofnode_next_subnode(node))
 
 /**
+ * ofnode_for_each_compatible_node() - iterate over all nodes with a given
+ *				       compatible string
+ *
+ * @node:       child node (ofnode, lvalue)
+ * @compat:     compatible string to match
+ *
+ * This is a wrapper around a for loop and is used like so:
+ *
+ *	ofnode node;
+ *
+ *	ofnode_for_each_compatible_node(node, parent, compatible) {
+ *		Use node
+ *		...
+ *	}
+ *
+ * Note that this is implemented as a macro and @node is used as
+ * iterator in the loop.
+ */
+#define ofnode_for_each_compatible_node(node, compat) \
+	for (node = ofnode_by_compatible(ofnode_null(), compat); \
+	     ofnode_valid(node); \
+	     node = ofnode_by_compatible(node, compat))
+
+/**
  * ofnode_get_child_count() - get the child count of a ofnode
  *
  * @node: valid node to get its child count
@@ -938,6 +1068,22 @@ u64 ofnode_translate_address(ofnode node, const fdt32_t *in_addr);
  * @return the translated DMA address; OF_BAD_ADDR on error
  */
 u64 ofnode_translate_dma_address(ofnode node, const fdt32_t *in_addr);
+
+/**
+ * ofnode_get_dma_range() - get dma-ranges for a specific DT node
+ *
+ * Get DMA ranges for a specifc node, this is useful to perform bus->cpu and
+ * cpu->bus address translations
+ *
+ * @param blob		Pointer to device tree blob
+ * @param node_offset	Node DT offset
+ * @param cpu		Pointer to variable storing the range's cpu address
+ * @param bus		Pointer to variable storing the range's bus address
+ * @param size		Pointer to variable storing the range's size
+ * @return translated DMA address or OF_BAD_ADDR on error
+ */
+int ofnode_get_dma_range(ofnode node, phys_addr_t *cpu, dma_addr_t *bus,
+			 u64 *size);
 
 /**
  * ofnode_device_is_compatible() - check if the node is compatible with compat
@@ -994,5 +1140,42 @@ int ofnode_write_string(ofnode node, const char *propname, const char *value);
  * @return 0 if successful, -ve on error
  */
 int ofnode_set_enabled(ofnode node, bool value);
+
+/**
+ * ofnode_conf_read_bool() - Read a boolean value from the U-Boot config
+ *
+ * This reads a property from the /config node of the devicetree.
+ *
+ * See doc/config.txt for bindings
+ *
+ * @prop_name	property name to look up
+ * @return true, if it exists, false if not
+ */
+bool ofnode_conf_read_bool(const char *prop_name);
+
+/**
+ * ofnode_conf_read_int() - Read an integer value from the U-Boot config
+ *
+ * This reads a property from the /config node of the devicetree.
+ *
+ * See doc/config.txt for bindings
+ *
+ * @prop_name: property name to look up
+ * @default_val: default value to return if the property is not found
+ * @return integer value, if found, or @default_val if not
+ */
+int ofnode_conf_read_int(const char *prop_name, int default_val);
+
+/**
+ * ofnode_conf_read_str() - Read a string value from the U-Boot config
+ *
+ * This reads a property from the /config node of the devicetree.
+ *
+ * See doc/config.txt for bindings
+ *
+ * @prop_name: property name to look up
+ * @return string value, if found, or NULL if not
+ */
+const char *ofnode_conf_read_str(const char *prop_name);
 
 #endif

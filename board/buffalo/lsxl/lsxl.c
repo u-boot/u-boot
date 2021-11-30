@@ -24,6 +24,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/mpp.h>
 #include <asm/arch/gpio.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #include "lsxl.h"
@@ -270,7 +271,7 @@ int misc_init_r(void)
 }
 #endif
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
 void show_boot_progress(int progress)
 {
 	if (progress > 0)

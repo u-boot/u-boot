@@ -2209,7 +2209,7 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
 		 * BESL value in the LPM token is less than or equal to LPM
 		 * NYET threshold.
 		 */
-		if (dwc->revision < DWC3_REVISION_240A 	&& dwc->has_lpm_erratum)
+		if (dwc->revision < DWC3_REVISION_240A	&& dwc->has_lpm_erratum)
 			WARN(true, "LPM Erratum not available on dwc3 revisisions < 2.40a\n");
 
 		if (dwc->has_lpm_erratum && dwc->revision >= DWC3_REVISION_240A)

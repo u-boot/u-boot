@@ -9,6 +9,7 @@
 #include <init.h>
 #include <miiphy.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/setup.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -106,42 +107,11 @@ void reset_misc(void)
 	printf("Synology reset...");
 	udelay(50000);
 
-	b_d = ns16550_calc_divisor((NS16550_t)CONFIG_SYS_NS16550_COM2,
-		CONFIG_SYS_NS16550_CLK, 9600);
-	NS16550_init((NS16550_t)CONFIG_SYS_NS16550_COM2, b_d);
-	NS16550_putc((NS16550_t)CONFIG_SYS_NS16550_COM2, SOFTWARE_REBOOT);
-}
-
-/* Support old kernels */
-void setup_board_tags(struct tag **in_params)
-{
-	unsigned int boardId;
-	struct tag *params;
-	struct tag_mv_uboot *t;
-	int i;
-
-	printf("Synology board tags...");
-	params = *in_params;
-	t = (struct tag_mv_uboot *)&params->u;
-
-	t->uboot_version = VER_NUM;
-
-	boardId = SYNO_DS109_ID;
-	t->uboot_version |= boardId;
-
-	t->tclk = CONFIG_SYS_TCLK;
-	t->sysclk = CONFIG_SYS_TCLK*2;
-
-	t->isusbhost = 1;
-	for (i = 0; i < 4; i++)	{
-		memset(t->macaddr[i], 0, sizeof(t->macaddr[i]));
-		t->mtu[i] = 0;
-	}
-
-	params->hdr.tag = ATAG_MV_UBOOT;
-	params->hdr.size = tag_size(tag_mv_uboot);
-	params = tag_next(params);
-	*in_params = params;
+	b_d = ns16550_calc_divisor((struct ns16550 *)CONFIG_SYS_NS16550_COM2,
+				   CONFIG_SYS_NS16550_CLK, 9600);
+	ns16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM2, b_d);
+	ns16550_putc((struct ns16550 *)CONFIG_SYS_NS16550_COM2,
+		     SOFTWARE_REBOOT);
 }
 
 #ifdef CONFIG_RESET_PHY_R

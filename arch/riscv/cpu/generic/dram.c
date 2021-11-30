@@ -6,6 +6,7 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -22,7 +23,6 @@ int dram_init_banksize(void)
 
 ulong board_get_usable_ram_top(ulong total_size)
 {
-#ifdef CONFIG_64BIT
 	/*
 	 * Ensure that we run from first 4GB so that all
 	 * addresses used by U-Boot are 32bit addresses.
@@ -31,8 +31,8 @@ ulong board_get_usable_ram_top(ulong total_size)
 	 * devices work fine because DMA mapping APIs will
 	 * provide 32bit DMA addresses only.
 	 */
-	if (gd->ram_top > SZ_4G)
-		return SZ_4G;
-#endif
+	if (gd->ram_top >= SZ_4G)
+		return SZ_4G - 1;
+
 	return gd->ram_top;
 }

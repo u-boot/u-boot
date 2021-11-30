@@ -41,37 +41,52 @@ static int do_dev(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int show_pinmux(struct udevice *dev)
+/**
+ * Print the muxing information for one or all pins of one pinctrl device
+ *
+ * @param dev		pinctrl device
+ * @param name		NULL to display all the pins
+ *			or name of the pin to display
+ * @return 0 on success, non-0 on error
+ */
+static int show_pinmux(struct udevice *dev, char *name)
 {
 	char pin_name[PINNAME_SIZE];
 	char pin_mux[PINMUX_SIZE];
 	int pins_count;
 	int i;
 	int ret;
+	bool found = false;
 
 	pins_count = pinctrl_get_pins_count(dev);
 
 	if (pins_count == -ENOSYS) {
-		printf("Ops get_pins_count not supported\n");
+		printf("Ops get_pins_count not supported by %s\n", dev->name);
 		return pins_count;
 	}
 
 	for (i = 0; i < pins_count; i++) {
 		ret = pinctrl_get_pin_name(dev, i, pin_name, PINNAME_SIZE);
-		if (ret == -ENOSYS) {
-			printf("Ops get_pin_name not supported\n");
+		if (ret) {
+			printf("Ops get_pin_name error (%d) by %s\n", ret, dev->name);
 			return ret;
 		}
-
+		if (name && strcmp(name, pin_name))
+			continue;
+		found = true;
 		ret = pinctrl_get_pin_muxing(dev, i, pin_mux, PINMUX_SIZE);
 		if (ret) {
-			printf("Ops get_pin_muxing error (%d)\n", ret);
+			printf("Ops get_pin_muxing error (%d) by %s in %s\n",
+			       ret, pin_name, dev->name);
 			return ret;
 		}
 
 		printf("%-*s: %-*s\n", PINNAME_SIZE, pin_name,
 		       PINMUX_SIZE, pin_mux);
 	}
+
+	if (!found)
+		return -ENOENT;
 
 	return 0;
 }
@@ -80,25 +95,41 @@ static int do_status(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
 	struct udevice *dev;
-	int ret = CMD_RET_USAGE;
+	char *name;
+	int ret;
 
-	if (currdev && (argc < 2 || strcmp(argv[1], "-a")))
-		return show_pinmux(currdev);
-
-	if (argc < 2 || strcmp(argv[1], "-a"))
-		return ret;
-
-	uclass_foreach_dev_probe(UCLASS_PINCTRL, dev) {
-		/* insert a separator between each pin-controller display */
-		printf("--------------------------\n");
-		printf("%s:\n", dev->name);
-		ret = show_pinmux(dev);
-		if (ret < 0)
-			printf("Can't display pin muxing for %s\n",
-			       dev->name);
+	if (argc < 2) {
+		if (!currdev) {
+			printf("pin-controller device not selected\n");
+			return CMD_RET_FAILURE;
+		}
+		show_pinmux(currdev, NULL);
+		return CMD_RET_SUCCESS;
 	}
 
-	return ret;
+	if (strcmp(argv[1], "-a"))
+		name = argv[1];
+	else
+		name = NULL;
+
+	uclass_foreach_dev_probe(UCLASS_PINCTRL, dev) {
+		if (!name) {
+			/* insert a separator between each pin-controller display */
+			printf("--------------------------\n");
+			printf("%s:\n", dev->name);
+		}
+		ret = show_pinmux(dev, name);
+		/* stop when the status of requested pin is displayed */
+		if (name && !ret)
+			return CMD_RET_SUCCESS;
+	}
+
+	if (name) {
+		printf("%s not found\n", name);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
 }
 
 static int do_list(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -146,5 +177,5 @@ U_BOOT_CMD(pinmux, CONFIG_SYS_MAXARGS, 1, do_pinmux,
 	   "show pin-controller muxing",
 	   "list                     - list UCLASS_PINCTRL devices\n"
 	   "pinmux dev [pincontroller-name] - select pin-controller device\n"
-	   "pinmux status [-a]              - print pin-controller muxing [for all]\n"
+	   "pinmux status [-a | pin-name]   - print pin-controller muxing [for all | for pin-name]\n"
 )

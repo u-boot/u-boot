@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor
+ * Copyright 2021 NXP
  */
 
 /*
@@ -21,7 +22,7 @@ struct cpld_data {
 	u8 boot_or;		/* 0x16 - Boot config override register */
 	u8 boot_cfg1;		/* 0x17 - Boot configuration register 1 */
 	u8 boot_cfg2;		/* 0x18 - Boot configuration register 2 */
-} cpld_data_t;
+};
 
 u8 cpld_read(unsigned int reg);
 void cpld_write(unsigned int reg, u8 value);
@@ -42,3 +43,6 @@ void cpld_write(unsigned int reg, u8 value);
 
 /* RSTCON Register */
 #define CPLD_RSTCON_EDC_RST	0x04
+
+/* MISCCSR Register */
+#define CPLD_MISC_POR_EN	0x30

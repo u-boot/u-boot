@@ -15,6 +15,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/gpio.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/platform_data/serial_pl01x.h>
 
@@ -24,19 +25,19 @@ struct gpio_regs *const gpioa_regs =
 		(struct gpio_regs *) GPIOA_BASE_ADDR;
 
 #ifndef CONFIG_OF_CONTROL
-static const struct pl01x_serial_platdata serial_platdata = {
+static const struct pl01x_serial_plat serial_plat = {
 	.base = 0x80406000,
 	.type = TYPE_PL011,
 	.clock = 2700 * 1000,
 };
 
-U_BOOT_DEVICE(stv09911_serials) = {
+U_BOOT_DRVINFO(stv09911_serials) = {
 	.name = "serial_pl01x",
-	.platdata = &serial_platdata,
+	.plat = &serial_plat,
 };
 #endif
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
 void show_boot_progress(int progress)
 {
 	printf("%i\n", progress);

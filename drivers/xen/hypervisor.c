@@ -232,7 +232,7 @@ void clear_evtchn(uint32_t port)
 	synch_clear_bit(port, &s->evtchn_pending[0]);
 }
 
-void xen_init(void)
+int xen_init(void)
 {
 	debug("%s\n", __func__);
 
@@ -240,6 +240,8 @@ void xen_init(void)
 	init_events();
 	init_xenbus();
 	init_gnttab();
+
+	return 0;
 }
 
 void xen_fini(void)

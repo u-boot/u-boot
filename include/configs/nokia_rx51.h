@@ -23,8 +23,6 @@
  */
 #define CONFIG_SYS_L2CACHE_OFF		/* pretend there is no L2 CACHE */
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_NOKIA_RX51
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 #include <asm/arch/mem.h>
@@ -34,19 +32,7 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#define CONFIG_SKIP_LOWLEVEL_INIT		/* X-Loader set everything up */
-
-#define CONFIG_CMDLINE_TAG	/* enable passing kernel command line string */
-#define CONFIG_INITRD_TAG			/* enable passing initrd */
-#define CONFIG_REVISION_TAG			/* enable passing revision tag*/
-#define CONFIG_SETUP_MEMORY_TAGS		/* enable memory tag */
-
-/*
- * Size of malloc() pool
- */
 #define CONFIG_UBI_SIZE			(512 << 10)
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + CONFIG_UBI_SIZE + \
-					(128 << 10))
 
 /*
  * Hardware drivers
@@ -70,10 +56,12 @@
 
 /* USB device configuration */
 #define CONFIG_USB_DEVICE
+#define CONFIG_USB_TTY
 #define CONFIG_USBD_VENDORID		0x0421
-#define CONFIG_USBD_PRODUCTID		0x01c8
+#define CONFIG_USBD_PRODUCTID_CDCACM	0x01c8
+#define CONFIG_USBD_PRODUCTID_GSERIAL	0x01c8
 #define CONFIG_USBD_MANUFACTURER	"Nokia"
-#define CONFIG_USBD_PRODUCT_NAME	"N900"
+#define CONFIG_USBD_PRODUCT_NAME	"N900 (U-Boot)"
 
 #define GPIO_SLIDE			71
 
@@ -82,9 +70,6 @@
  */
 
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
-
-/* Watchdog support */
-#define CONFIG_HW_WATCHDOG
 
 /*
  * Framebuffer
@@ -108,15 +93,9 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"usbtty=cdc_acm\0" \
-	"stdin=serial,vga\0" \
-	"stdout=serial,vga\0" \
-	"stderr=serial,vga\0" \
-	"setcon=setenv stdin ${con};" \
-		"setenv stdout ${con};" \
-		"setenv stderr ${con}\0" \
-	"sercon=setenv con serial; run setcon\0" \
-	"usbcon=setenv con usbtty; run setcon\0" \
-	"vgacon=setenv con vga; run setcon\0" \
+	"stdin=usbtty,serial,vga\0" \
+	"stdout=usbtty,serial,vga\0" \
+	"stderr=usbtty,serial,vga\0" \
 	"slide=gpio input " __stringify(GPIO_SLIDE) "\0" \
 	"switchmmc=mmc dev ${mmcnum}\0" \
 	"kernaddr=0x82008000\0" \
@@ -136,32 +115,22 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"scriptboot=echo Running ${mmcscriptfile} from mmc " \
 		"${mmcnum}:${mmcpart} ...; source ${scriptaddr}\0" \
 	"kernboot=echo Booting ${mmckernfile} from mmc " \
-		"${mmcnum}:${mmcpart} ...; bootm ${kernaddr}\0" \
+		"${mmcnum}:${mmcpart} ...; bootm ${kernaddr} || " \
+			"bootz ${kernaddr}\0" \
 	"kerninitrdboot=echo Booting ${mmckernfile} ${mmcinitrdfile} from mmc "\
-		"${mmcnum}:${mmcpart} ...; bootm ${kernaddr} ${initrdaddr}\0" \
+		"${mmcnum}:${mmcpart} ...; bootm ${kernaddr} ${initrdaddr} || " \
+			"bootz ${kernaddr} ${initrdaddr}\0" \
 	"attachboot=echo Booting attached kernel image ...;" \
 		"setenv setup_omap_atag 1;" \
-		"bootm ${attkernaddr};" \
+		"bootm ${attkernaddr} || bootz ${attkernaddr};" \
 		"setenv setup_omap_atag\0" \
-	"trymmcscriptboot=if run switchmmc; then " \
-			"if run scriptload; then " \
-				"run scriptboot;" \
-			"fi;" \
-		"fi\0" \
-	"trymmckernboot=if run switchmmc; then " \
-			"if run kernload; then " \
-				"run kernboot;" \
-			"fi;" \
-		"fi\0" \
-	"trymmckerninitrdboot=if run switchmmc; then " \
-			"if run initrdload; then " \
-				"if run kernload; then " \
-					"run kerninitrdboot;" \
-				"fi;" \
-			"fi; " \
-		"fi\0" \
+	"trymmcscriptboot=run switchmmc && run scriptload && run scriptboot\0" \
+	"trymmckernboot=run switchmmc && run kernload && run kernboot\0" \
+	"trymmckerninitrdboot=run switchmmc && run initrdload && " \
+		"run kernload && run kerninitrdboot\0" \
 	"trymmcpartboot=setenv mmcscriptfile boot.scr; run trymmcscriptboot;" \
-		"setenv mmckernfile uImage; run trymmckernboot\0" \
+		"setenv mmckernfile uImage; run trymmckernboot;" \
+		"setenv mmckernfile zImage; run trymmckernboot\0" \
 	"trymmcallpartboot=setenv mmcpart 1; run trymmcpartboot;" \
 		"setenv mmcpart 2; run trymmcpartboot;" \
 		"setenv mmcpart 3; run trymmcpartboot;" \
@@ -169,31 +138,16 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"trymmcboot=if run switchmmc; then " \
 			"setenv mmctype fat;" \
 			"run trymmcallpartboot;" \
-			"setenv mmctype ext2;" \
-			"run trymmcallpartboot;" \
 			"setenv mmctype ext4;" \
 			"run trymmcallpartboot;" \
 		"fi\0" \
 	"emmcboot=setenv mmcnum 1; run trymmcboot\0" \
 	"sdboot=setenv mmcnum 0; run trymmcboot\0" \
-	"preboot=setenv mmcnum 1; setenv mmcpart 1;" \
-		"setenv mmcscriptfile bootmenu.scr;" \
-		"if run switchmmc; then " \
-			"setenv mmcdone true;" \
-			"setenv mmctype fat;" \
-			"if run scriptload; then true; else " \
-				"setenv mmctype ext2;" \
-				"if run scriptload; then true; else " \
-					"setenv mmctype ext4;" \
-					"if run scriptload; then true; else " \
-						"setenv mmcdone false;" \
-					"fi;" \
-				"fi;" \
-			"fi;" \
-			"if ${mmcdone}; then " \
-				"run scriptboot;" \
-			"fi;" \
-		"fi;" \
+	"trymmcbootmenu=setenv mmctype fat && run trymmcscriptboot || " \
+		"setenv mmctype ext4 && run trymmcscriptboot\0" \
+	"preboot=setenv mmcpart 1; setenv mmcscriptfile bootmenu.scr;" \
+		"setenv mmcnum 0 && run trymmcbootmenu || " \
+		"setenv mmcnum 1 && run trymmcbootmenu;" \
 		"if run slide; then true; else " \
 			"setenv bootmenu_delay 0;" \
 			"setenv bootdelay 0;" \
@@ -209,9 +163,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 #define CONFIG_POSTBOOTMENU \
 	"echo;" \
 	"echo Extra commands:;" \
-	"echo run sercon - Use serial port for control.;" \
-	"echo run usbcon - Use usbtty for control.;" \
-	"echo run vgacon - Use framebuffer/keyboard.;" \
 	"echo run sdboot - Boot from SD card slot.;" \
 	"echo run emmcboot - Boot internal eMMC memory.;" \
 	"echo run attachboot - Boot attached kernel image.;" \
@@ -222,9 +173,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"run emmcboot;" \
 	"run attachboot;" \
 	"echo"
-
-/* default load address */
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)
 
 /*
  * OMAP3 has 12 GP timers, they can be driven by the system clock

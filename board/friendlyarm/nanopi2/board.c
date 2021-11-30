@@ -12,6 +12,7 @@
 #ifdef CONFIG_PWM_NX
 #include <pwm.h>
 #endif
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 #include <asm/arch/nexell.h>
@@ -294,12 +295,12 @@ static void set_ether_addr(void)
 	env_set("ethaddr", ethaddr);
 }
 
-#ifdef CONFIG_REVISION_TAG
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 static void set_board_rev(void)
 {
 	char info[64] = {0, };
 
-	snprintf(info, ARRAY_SIZE(info), "%02x", get_board_rev());
+	snprintf(info, ARRAY_SIZE(info), "%02x", get_board_revision());
 	env_set("board_rev", info);
 }
 #endif
@@ -309,7 +310,7 @@ static void set_dtb_name(void)
 	char info[64] = {0, };
 
 	snprintf(info, ARRAY_SIZE(info),
-		 "s5p4418-nanopi2-rev%02x.dtb", get_board_rev());
+		 "s5p4418-nanopi2-rev%02x.dtb", get_board_revision());
 	env_set("dtb_name", info);
 }
 
@@ -435,7 +436,7 @@ int board_late_init(void)
 {
 	bd_update_env();
 
-#ifdef CONFIG_REVISION_TAG
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_rev();
 #endif
 	set_dtb_name();

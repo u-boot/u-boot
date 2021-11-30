@@ -5,4 +5,4 @@
 
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 
-obj-y 	+= cache.o misc.o relocate.o time.o
+obj-y	+= cache.o misc.o relocate.o time.o

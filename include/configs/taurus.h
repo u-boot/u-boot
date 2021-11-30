@@ -33,11 +33,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
 
 /* Misc CPU related */
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
-#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -73,7 +68,6 @@
 #endif
 
 /* Ethernet */
-#define CONFIG_MACB
 #define CONFIG_RMII
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
@@ -92,7 +86,6 @@
 #define CONFIG_USB_GADGET_AT91
 
 /* DFU class support */
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	(SZ_1M)
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 #endif
 
@@ -102,9 +95,6 @@
 #if defined(CONFIG_SPL_BUILD)
 /* SPL related */
 #endif
-
-/* load address */
-#define CONFIG_SYS_LOAD_ADDR			0x22000000
 
 /* bootstrap in spi flash , u-boot + env + linux in nandflash */
 
@@ -158,11 +148,6 @@
 	"upgrade_available=0\0"
 #endif
 #endif /* #ifndef CONFIG_SPL_BUILD */
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN \
-	ROUND(3 * CONFIG_ENV_SIZE + SZ_4M, 0x1000)
 
 /* Defines for SPL */
 #define CONFIG_SPL_MAX_SIZE		(31 * SZ_512)
@@ -178,21 +163,13 @@
 #define CONFIG_SYS_USE_NANDFLASH	1
 #define CONFIG_SPL_NAND_RAW_ONLY
 #define CONFIG_SPL_NAND_SOFTECC
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x20000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	SZ_512K
 #define	CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
 
 #define CONFIG_SYS_NAND_SIZE		(256 * SZ_1M)
-#define CONFIG_SYS_NAND_PAGE_SIZE	SZ_2K
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(SZ_128K)
-#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
-					 CONFIG_SYS_NAND_PAGE_SIZE)
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCSIZE		256
 #define CONFIG_SYS_NAND_ECCBYTES	3
-#define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_ECCPOS		{ 40, 41, 42, 43, 44, 45, 46, 47, \
 					  48, 49, 50, 51, 52, 53, 54, 55, \
 					  56, 57, 58, 59, 60, 61, 62, 63, }

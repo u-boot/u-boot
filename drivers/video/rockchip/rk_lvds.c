@@ -11,6 +11,7 @@
 #include <panel.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
@@ -53,7 +54,7 @@ int rk_lvds_enable(struct udevice *dev, int panel_bpp,
 		   const struct display_timing *edid)
 {
 	struct rk_lvds_priv *priv = dev_get_priv(dev);
-	struct display_plat *uc_plat = dev_get_uclass_platdata(dev);
+	struct display_plat *uc_plat = dev_get_uclass_plat(dev);
 	int ret = 0;
 	unsigned int val = 0;
 
@@ -170,7 +171,7 @@ int rk_lvds_read_timing(struct udevice *dev, struct display_timing *timing)
 	return 0;
 }
 
-static int rk_lvds_ofdata_to_platdata(struct udevice *dev)
+static int rk_lvds_of_to_plat(struct udevice *dev)
 {
 	struct rk_lvds_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -245,7 +246,7 @@ U_BOOT_DRIVER(lvds_rockchip) = {
 	.id	= UCLASS_DISPLAY,
 	.of_match = rockchip_lvds_ids,
 	.ops	= &lvds_rockchip_ops,
-	.ofdata_to_platdata	= rk_lvds_ofdata_to_platdata,
+	.of_to_plat	= rk_lvds_of_to_plat,
 	.probe	= rk_lvds_probe,
-	.priv_auto_alloc_size	= sizeof(struct rk_lvds_priv),
+	.priv_auto	= sizeof(struct rk_lvds_priv),
 };

@@ -4,8 +4,8 @@
  * Watchdog driver for Orion/Kirkwood processors
  *
  * Authors:	Tomas Hlavacek <tmshlvck@gmail.com>
- * 		Sylver Bruneau <sylver.bruneau@googlemail.com>
- * 		Marek Behun <marek.behun@nic.cz>
+ *		Sylver Bruneau <sylver.bruneau@googlemail.com>
+ *		Marek Behun <marek.behun@nic.cz>
  *
  * This file is licensed under  the terms of the GNU General Public
  * License version 2. This program is licensed "as is" without any
@@ -17,6 +17,7 @@
 #include <clk.h>
 #include <log.h>
 #include <wdt.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/kernel.h>
 #include <asm/io.h>
@@ -133,7 +134,7 @@ static inline bool save_reg_from_ofdata(struct udevice *dev, int index,
 	return true;
 }
 
-static int orion_wdt_ofdata_to_platdata(struct udevice *dev)
+static int orion_wdt_of_to_plat(struct udevice *dev)
 {
 	struct orion_wdt_priv *priv = dev_get_priv(dev);
 
@@ -158,7 +159,7 @@ static int orion_wdt_probe(struct udevice *dev)
 	struct orion_wdt_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 	orion_wdt_stop(dev);
 
 	ret = clk_get_by_name(dev, "fixed", &priv->clk);
@@ -186,7 +187,7 @@ U_BOOT_DRIVER(orion_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = orion_wdt_ids,
 	.probe = orion_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct orion_wdt_priv),
-	.ofdata_to_platdata = orion_wdt_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct orion_wdt_priv),
+	.of_to_plat = orion_wdt_of_to_plat,
 	.ops = &orion_wdt_ops,
 };

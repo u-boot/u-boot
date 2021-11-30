@@ -1,0 +1,170 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * sama7g5.dtsi - Device Tree Include file for SAMA7G5 SoC.
+ *
+ * Copyright (C) 2020 Microchip Technology Inc. and its subsidiaries
+ *
+ * Author: Eugen Hristev <eugen.hristev@microchip.com>
+ * Author: Claudiu Beznea <claudiu.beznea@microchip.com>
+ *
+ */
+
+#include "skeleton.dtsi"
+#include <dt-bindings/clk/at91.h>
+
+/ {
+	model = "Microchip SAMA7G5 family SoC";
+	compatible = "microchip,sama7g5";
+
+	clocks {
+		slow_rc_osc: slow_rc_osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <32000>;
+		};
+
+		main_rc: main_rc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <12000000>;
+		};
+
+		slow_xtal: slow_xtal {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+		};
+
+		main_xtal: main_xtal {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+		};
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		A7_0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a7";
+			clocks = <&pmc PMC_TYPE_CORE 8>, <&pmc PMC_TYPE_CORE 22>, <&main_xtal>;
+			clock-names = "cpu", "master", "xtal";
+		};
+	};
+
+	ahb {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		apb {
+			compatible = "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			pioA: pinctrl@e0014000 {
+				compatible = "microchip,sama7g5-gpio";
+				reg = <0xe0014000 0x800>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 11>;
+				status = "okay";
+
+				pinctrl: pinctrl_default {
+					compatible = "microchip,sama7g5-pinctrl";
+				};
+			};
+
+			pmc: pmc@e0018000 {
+				compatible = "microchip,sama7g5-pmc";
+				reg = <0xe0018000 0x200>;
+				#clock-cells = <2>;
+				clocks = <&clk32 1>, <&clk32 0>, <&main_xtal>, <&main_rc>;
+				clock-names = "td_slck", "md_slck", "main_xtal", "main_rc";
+				status = "okay";
+			};
+
+			clk32: sckc@e001d050 {
+				compatible = "microchip,sam9x60-sckc";
+				reg = <0xe001d050 0x4>;
+				clocks = <&slow_rc_osc>, <&slow_xtal>;
+				#clock-cells = <1>;
+			};
+
+			sdmmc0: sdio-host@e1204000 {
+				compatible = "microchip,sama7g5-sdhci";
+				reg = <0xe1204000 0x300>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 80>, <&pmc PMC_TYPE_GCK 80>;
+				clock-names = "hclock", "multclk";
+				assigned-clocks = <&pmc PMC_TYPE_GCK 80>;
+				assigned-clock-rates = <200000000>;
+				assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* sys pll div. */
+				status = "disabled";
+			};
+
+			sdmmc1: sdio-host@e1208000 {
+				compatible = "microchip,sama7g5-sdhci";
+				reg = <0xe1208000 0x300>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 81>, <&pmc PMC_TYPE_GCK 81>;
+				clock-names = "hclock", "multclk";
+				assigned-clocks = <&pmc PMC_TYPE_GCK 81>;
+				assigned-clock-rates = <200000000>;
+				assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* sys pll div. */
+				status = "disabled";
+			};
+
+			pit64b0: timer@e1800000 {
+				compatible = "microchip,sama7g5-pit64b";
+				reg = <0xe1800000 0x4000>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 70>, <&pmc PMC_TYPE_GCK 70>;
+				clock-names = "pclk", "gclk";
+				status = "okay";
+			};
+
+			flx1: flexcom@e181c000 {
+				compatible = "atmel,sama5d2-flexcom";
+				reg = <0xe181c000 0x200>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 39>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				ranges = <0x0 0xe181c000 0x800>;
+				status = "disabled";
+
+				i2c1: i2c@600 {
+					compatible = "atmel,sama5d2-i2c";
+					reg = <0x600 0x200>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 39>;
+				};
+			};
+
+			uart0: serial@e1824200 {
+				compatible = "atmel,at91sam9260-usart";
+				reg = <0xe1824200 0x200>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 41>;
+				clock-names = "usart";
+				status = "disabled";
+			};
+
+			gmac0: ethernet@e2800000 {
+				compatible = "cdns,sama7g5-gem";
+				reg = <0xe2800000 0x4000>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 51>, <&pmc PMC_TYPE_PERIPHERAL 51>, <&pmc PMC_TYPE_GCK 51>;
+				clock-names = "hclk", "pclk", "tx_clk";
+				assigned-clocks = <&pmc PMC_TYPE_GCK 51>;
+				assigned-clock-parents = <&pmc PMC_TYPE_CORE 21>; /* eth pll div. */
+				assigned-clock-rates = <125000000>;
+				status = "disabled";
+			};
+
+			gmac1: ethernet@e2804000 {
+				compatible = "cdns,sama7g5-emac";
+				reg = <0xe2804000 0x1000>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 52>, <&pmc PMC_TYPE_PERIPHERAL 52>;
+				clock-names = "pclk", "hclk";
+				status = "disabled";
+			};
+		};
+	};
+};

@@ -13,6 +13,7 @@
 #include <ram.h>
 #include <spl.h>
 #include <asm/arch-rockchip/bootrom.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 
@@ -150,13 +151,3 @@ void board_init_f(ulong dummy)
 #endif
 	preloader_console_init();
 }
-
-#ifdef CONFIG_SPL_LOAD_FIT
-int __weak board_fit_config_name_match(const char *name)
-{
-	/* Just empty function now - can't decide what to choose */
-	debug("%s: %s\n", __func__, name);
-
-	return 0;
-}
-#endif

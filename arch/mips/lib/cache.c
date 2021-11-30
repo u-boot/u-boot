@@ -9,6 +9,7 @@
 #include <asm/cache.h>
 #include <asm/cacheops.h>
 #include <asm/cm.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mipsregs.h>
 #include <asm/system.h>

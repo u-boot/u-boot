@@ -13,9 +13,6 @@
 
 #include "mx7_common.h"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
-
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #ifdef CONFIG_TARGET_COLIBRI_IMX7_NAND
@@ -23,10 +20,6 @@
 #elif CONFIG_TARGET_COLIBRI_IMX7_EMMC
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #endif
-
-/* I2C configs */
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_IPADDR			192.168.10.2
 #define CONFIG_NETMASK			255.255.255.0
@@ -110,7 +103,7 @@
 		"ubi.fm_autoconvert=1\0" \
 	"ubiboot=run setup; " \
 		"setenv bootargs ${defargs} ${ubiargs} " \
-		"${setupargs} ${vidargs}; echo Booting from NAND...; " \
+		"${setupargs} ${vidargs} ${tdxargs}; echo Booting from NAND...; " \
 		"ubi part ubi && run m4boot && " \
 		"ubi read ${kernel_addr_r} kernel && " \
 		"ubi read ${fdt_addr_r} dtb && " \
@@ -171,14 +164,11 @@
 		"fatload ${interface} 0:1 ${loadaddr} " \
 		"${board}/flash_blk.img && source ${loadaddr}\0" \
 	"splashpos=m,m\0" \
-	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"videomode=video=ctfb:x:640,y:480,depth:18,pclk:39722,le:48,ri:16,up:33,lo:10,hs:96,vs:2,sync:0,vmode:0\0" \
 	"updlevel=2\0"
 
 /* Miscellaneous configurable options */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
@@ -196,8 +186,6 @@
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_NAND_MX7_GPMI_62_ECC_BYTES
 #endif
 
@@ -210,8 +198,7 @@
 
 #define CONFIG_USBD_HS
 
-#if defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
-#define CONFIG_VIDEO_MXS
+#if defined(CONFIG_DM_VIDEO)
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif

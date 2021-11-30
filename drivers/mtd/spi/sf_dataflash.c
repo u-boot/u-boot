@@ -693,6 +693,6 @@ U_BOOT_DRIVER(spi_dataflash) = {
 	.id		= UCLASS_SPI_FLASH,
 	.of_match	= spi_dataflash_ids,
 	.probe		= spi_dataflash_probe,
-	.priv_auto_alloc_size = sizeof(struct dataflash),
+	.priv_auto	= sizeof(struct dataflash),
 	.ops		= &spi_dataflash_ops,
 };

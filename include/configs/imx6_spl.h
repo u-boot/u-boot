@@ -54,12 +54,12 @@
 #endif
 
 /* MMC support */
-#if defined(CONFIG_SPL_MMC_SUPPORT)
+#if defined(CONFIG_SPL_MMC)
 #define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
 #endif
 
 /* SATA support */
-#if defined(CONFIG_SPL_SATA_SUPPORT)
+#if defined(CONFIG_SPL_SATA)
 #define CONFIG_SPL_SATA_BOOT_DEVICE		0
 #define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
 #endif

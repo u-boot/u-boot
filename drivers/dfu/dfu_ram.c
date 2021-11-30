@@ -74,8 +74,8 @@ int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char *s)
 	}
 
 	dfu->layout = DFU_RAM_ADDR;
-	dfu->data.ram.start = simple_strtoul(argv[1], NULL, 16);
-	dfu->data.ram.size = simple_strtoul(argv[2], NULL, 16);
+	dfu->data.ram.start = hextoul(argv[1], NULL);
+	dfu->data.ram.size = hextoul(argv[2], NULL);
 
 	dfu->write_medium = dfu_write_medium_ram;
 	dfu->get_medium_size = dfu_get_medium_size_ram;

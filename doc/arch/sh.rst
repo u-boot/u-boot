@@ -26,10 +26,6 @@ Renesas SH7722
 ^^^^^^^^^^^^^^
 This CPU has the SH4AL-DSP core.
 
-Renesas SH7780
-^^^^^^^^^^^^^^
-This CPU has the SH4A core.
-
 Supported Boards
 ----------------
 
@@ -66,20 +62,6 @@ Support devices are:
    - SDRAM
    - NOR Flash
    - Marubun PCMCIA
-
-Renesas R7780MP
-^^^^^^^^^^^^^^^
-Board specific code is in board/r7780mp
-To use this board, type "make r7780mp_config".
-Support devices are:
-
-   - SCIF
-   - DDR-SDRAM
-   - NOR Flash
-   - Compact Flash
-   - ASIX ethernet
-   - SH7780 PCI bridge
-   - RTL8110 ethernet
 
 In SuperH, S-record and binary of made u-boot work on the memory.
 When u-boot is written in the flash, it is necessary to change the

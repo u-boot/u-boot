@@ -22,6 +22,7 @@
 #else
 #include <common.h>
 #include <errno.h>
+#include <watchdog.h>
 #include <spi.h>
 #include <spi-mem.h>
 #include <dm/device_compat.h>
@@ -578,6 +579,7 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 #endif
 
 	nanddev_io_for_each_page(nand, from, ops, &iter) {
+		WATCHDOG_RESET();
 		ret = spinand_select_target(spinand, iter.req.pos.target);
 		if (ret)
 			break;
@@ -629,6 +631,7 @@ static int spinand_mtd_write(struct mtd_info *mtd, loff_t to,
 #endif
 
 	nanddev_io_for_each_page(nand, to, ops, &iter) {
+		WATCHDOG_RESET();
 		ret = spinand_select_target(spinand, iter.req.pos.target);
 		if (ret)
 			break;
@@ -1165,7 +1168,7 @@ static int spinand_probe(struct udevice *dev)
 		return -ENOMEM;
 	sprintf(mtd->name, "spi-nand%d", spi_nand_idx++);
 	spinand->slave = slave;
-	spinand_set_of_node(spinand, dev->node.np);
+	spinand_set_ofnode(spinand, dev_ofnode(dev));
 #endif
 
 	ret = spinand_init(spinand);
@@ -1247,6 +1250,6 @@ U_BOOT_DRIVER(spinand) = {
 	.name = "spi_nand",
 	.id = UCLASS_MTD,
 	.of_match = spinand_ids,
-	.priv_auto_alloc_size = sizeof(struct spinand_device),
+	.priv_auto	= sizeof(struct spinand_device),
 	.probe = spinand_probe,
 };

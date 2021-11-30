@@ -12,15 +12,9 @@
  *
  * Copyright (C) 2007 David Brownell
  *
- */
-
-/*
- * NOTE: The driver and devicetree bindings are borrowed from Linux
- * Kernel, but driver does not support all PCF857x devices. It currently
- * supports PCF8575 16-bit expander by TI and NXP.
+ * Add support for 8 bit expanders - like pca8574
+ * Copyright (C) 2021 Lukasz Majewski - DENX Software Engineering
  *
- * TODO(vigneshr@ti.com):
- * Support 8 bit PCF857x compatible expanders.
  */
 
 #include <common.h>
@@ -28,13 +22,12 @@
 #include <i2c.h>
 #include <log.h>
 #include <asm-generic/gpio.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 struct pcf8575_chip {
-	int gpio_count;		/* No. GPIOs supported by the chip */
-
 	/* NOTE:  these chips have strange "quasi-bidirectional" I/O pins.
 	 * We can't actually know whether a pin is configured (a) as output
 	 * and driving the signal low, or (b) as input and reporting a low
@@ -48,18 +41,17 @@ struct pcf8575_chip {
 	 * reset state.  Otherwise it flags pins to be driven low.
 	 */
 	unsigned int out;	/* software latch */
-	const char *bank_name;	/* Name of the expander bank */
 };
 
-/* Read/Write to 16-bit I/O expander */
+/* Read/Write to I/O expander */
 
-static int pcf8575_i2c_write_le16(struct udevice *dev, unsigned int word)
+static int pcf8575_i2c_write(struct udevice *dev, unsigned int word)
 {
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	u8 buf[2] = { word & 0xff, word >> 8, };
 	int ret;
 
-	ret = dm_i2c_write(dev, 0, buf, 2);
+	ret = dm_i2c_write(dev, 0, buf, dev_get_driver_data(dev));
 	if (ret)
 		printf("%s i2c write failed to addr %x\n", __func__,
 		       chip->chip_addr);
@@ -67,13 +59,13 @@ static int pcf8575_i2c_write_le16(struct udevice *dev, unsigned int word)
 	return ret;
 }
 
-static int pcf8575_i2c_read_le16(struct udevice *dev)
+static int pcf8575_i2c_read(struct udevice *dev)
 {
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
-	u8 buf[2];
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
+	u8 buf[2] = {0x00, 0x00};
 	int ret;
 
-	ret = dm_i2c_read(dev, 0, buf, 2);
+	ret = dm_i2c_read(dev, 0, buf, dev_get_driver_data(dev));
 	if (ret) {
 		printf("%s i2c read failed from addr %x\n", __func__,
 		       chip->chip_addr);
@@ -85,11 +77,11 @@ static int pcf8575_i2c_read_le16(struct udevice *dev)
 
 static int pcf8575_direction_input(struct udevice *dev, unsigned offset)
 {
-	struct pcf8575_chip *plat = dev_get_platdata(dev);
+	struct pcf8575_chip *plat = dev_get_plat(dev);
 	int status;
 
 	plat->out |= BIT(offset);
-	status = pcf8575_i2c_write_le16(dev, plat->out);
+	status = pcf8575_i2c_write(dev, plat->out);
 
 	return status;
 }
@@ -97,7 +89,7 @@ static int pcf8575_direction_input(struct udevice *dev, unsigned offset)
 static int pcf8575_direction_output(struct udevice *dev,
 				    unsigned int offset, int value)
 {
-	struct pcf8575_chip *plat = dev_get_platdata(dev);
+	struct pcf8575_chip *plat = dev_get_plat(dev);
 	int ret;
 
 	if (value)
@@ -105,7 +97,7 @@ static int pcf8575_direction_output(struct udevice *dev,
 	else
 		plat->out &= ~BIT(offset);
 
-	ret = pcf8575_i2c_write_le16(dev, plat->out);
+	ret = pcf8575_i2c_write(dev, plat->out);
 
 	return ret;
 }
@@ -114,7 +106,7 @@ static int pcf8575_get_value(struct udevice *dev, unsigned int offset)
 {
 	int             value;
 
-	value = pcf8575_i2c_read_le16(dev);
+	value = pcf8575_i2c_read(dev);
 
 	return (value < 0) ? value : ((value & BIT(offset)) >> offset);
 }
@@ -125,15 +117,18 @@ static int pcf8575_set_value(struct udevice *dev, unsigned int offset,
 	return pcf8575_direction_output(dev, offset, value);
 }
 
-static int pcf8575_ofdata_platdata(struct udevice *dev)
+static int pcf8575_ofdata_plat(struct udevice *dev)
 {
-	struct pcf8575_chip *plat = dev_get_platdata(dev);
+	struct pcf8575_chip *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	int n_latch;
 
-	uc_priv->gpio_count = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					     "gpio-count", 16);
+	/*
+	 * Number of pins depends on the expander device and is specified
+	 * in the struct udevice_id (as in the Linue kernel).
+	 */
+	uc_priv->gpio_count = dev_get_driver_data(dev) * 8;
 	uc_priv->bank_name = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 					 "gpio-bank-name", NULL);
 	if (!uc_priv->bank_name)
@@ -165,8 +160,9 @@ static const struct dm_gpio_ops pcf8575_gpio_ops = {
 };
 
 static const struct udevice_id pcf8575_gpio_ids[] = {
-	{ .compatible = "nxp,pcf8575" },
-	{ .compatible = "ti,pcf8575" },
+	{ .compatible = "nxp,pcf8575", .data = 2 },
+	{ .compatible = "ti,pcf8575", .data = 2 },
+	{ .compatible = "nxp,pca8574", .data = 1 },
 	{ }
 };
 
@@ -175,7 +171,7 @@ U_BOOT_DRIVER(gpio_pcf8575) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &pcf8575_gpio_ops,
 	.of_match = pcf8575_gpio_ids,
-	.ofdata_to_platdata = pcf8575_ofdata_platdata,
+	.of_to_plat = pcf8575_ofdata_plat,
 	.probe	= pcf8575_gpio_probe,
-	.platdata_auto_alloc_size = sizeof(struct pcf8575_chip),
+	.plat_auto	= sizeof(struct pcf8575_chip),
 };

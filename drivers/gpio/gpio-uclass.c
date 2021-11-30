@@ -3,8 +3,11 @@
  * Copyright (c) 2013 Google, Inc
  */
 
+#define LOG_CATEGORY	UCLASS_GPIO
+
 #include <common.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <log.h>
 #include <dm/devres.h>
 #include <dm/device_compat.h>
@@ -16,10 +19,12 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <acpi/acpi_device.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <dm/device_compat.h>
 #include <linux/bug.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -118,7 +123,7 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 	int numeric;
 	int ret;
 
-	numeric = isdigit(*name) ? simple_strtoul(name, NULL, 10) : -1;
+	numeric = isdigit(*name) ? dectoul(name, NULL) : -1;
 	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
 	     dev;
 	     ret = uclass_next_device(&dev)) {
@@ -136,7 +141,8 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 
 		if (!strncasecmp(name, uc_priv->bank_name, len)) {
 			if (!strict_strtoul(name + len, 10, &offset))
-				break;
+				if (offset < uc_priv->gpio_count)
+					break;
 		}
 
 		/*
@@ -180,38 +186,50 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	return 0;
 }
 
-int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
-			  struct ofnode_phandle_args *args)
+unsigned long gpio_flags_xlate(uint32_t arg)
 {
-	if (args->args_count < 1)
-		return -EINVAL;
+	unsigned long flags = 0;
 
-	desc->offset = args->args[0];
-
-	if (args->args_count < 2)
-		return 0;
-
-	desc->flags = 0;
-	if (args->args[1] & GPIO_ACTIVE_LOW)
-		desc->flags |= GPIOD_ACTIVE_LOW;
+	if (arg & GPIO_ACTIVE_LOW)
+		flags |= GPIOD_ACTIVE_LOW;
 
 	/*
 	 * need to test 2 bits for gpio output binding:
 	 * OPEN_DRAIN (0x6) = SINGLE_ENDED (0x2) | LINE_OPEN_DRAIN (0x4)
 	 * OPEN_SOURCE (0x2) = SINGLE_ENDED (0x2) | LINE_OPEN_SOURCE (0x0)
 	 */
-	if (args->args[1] & GPIO_SINGLE_ENDED) {
-		if (args->args[1] & GPIO_LINE_OPEN_DRAIN)
-			desc->flags |= GPIOD_OPEN_DRAIN;
+	if (arg & GPIO_SINGLE_ENDED) {
+		if (arg & GPIO_LINE_OPEN_DRAIN)
+			flags |= GPIOD_OPEN_DRAIN;
 		else
-			desc->flags |= GPIOD_OPEN_SOURCE;
+			flags |= GPIOD_OPEN_SOURCE;
 	}
 
-	if (args->args[1] & GPIO_PULL_UP)
-		desc->flags |= GPIOD_PULL_UP;
+	if (arg & GPIO_PULL_UP)
+		flags |= GPIOD_PULL_UP;
 
-	if (args->args[1] & GPIO_PULL_DOWN)
-		desc->flags |= GPIOD_PULL_DOWN;
+	if (arg & GPIO_PULL_DOWN)
+		flags |= GPIOD_PULL_DOWN;
+
+	return flags;
+}
+
+int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
+			  struct ofnode_phandle_args *args)
+{
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	if (args->args_count < 1)
+		return -EINVAL;
+
+	desc->offset = args->args[0];
+	if (desc->offset >= uc_priv->gpio_count)
+		return -EINVAL;
+
+	if (args->args_count < 2)
+		return 0;
+
+	desc->flags = gpio_flags_xlate(args->args[1]);
 
 	return 0;
 }
@@ -219,7 +237,7 @@ int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
 static int gpio_find_and_xlate(struct gpio_desc *desc,
 			       struct ofnode_phandle_args *args)
 {
-	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
+	const struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
 
 	if (ops->xlate)
 		return ops->xlate(desc->dev, desc, args);
@@ -227,7 +245,7 @@ static int gpio_find_and_xlate(struct gpio_desc *desc,
 		return gpio_xlate_offs_flags(desc->dev, desc, args);
 }
 
-#if defined(CONFIG_GPIO_HOG)
+#if CONFIG_IS_ENABLED(GPIO_HOG)
 
 struct gpio_hog_priv {
 	struct gpio_desc gpiod;
@@ -239,9 +257,9 @@ struct gpio_hog_data {
 	u32 val[2];
 };
 
-static int gpio_hog_ofdata_to_platdata(struct udevice *dev)
+static int gpio_hog_of_to_plat(struct udevice *dev)
 {
-	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	struct gpio_hog_data *plat = dev_get_plat(dev);
 	const char *nodename;
 	int ret;
 
@@ -272,7 +290,7 @@ static int gpio_hog_ofdata_to_platdata(struct udevice *dev)
 
 static int gpio_hog_probe(struct udevice *dev)
 {
-	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	struct gpio_hog_data *plat = dev_get_plat(dev);
 	struct gpio_hog_priv *priv = dev_get_priv(dev);
 	int ret;
 
@@ -306,7 +324,7 @@ int gpio_hog_probe_all(void)
 	for (uclass_first_device(UCLASS_NOP, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		if (dev->driver == DM_GET_DRIVER(gpio_hog)) {
+		if (dev->driver == DM_DRIVER_GET(gpio_hog)) {
 			ret = device_probe(dev);
 			if (ret) {
 				printf("Failed to probe device %s err: %d\n",
@@ -338,10 +356,10 @@ int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
 U_BOOT_DRIVER(gpio_hog) = {
 	.name	= "gpio_hog",
 	.id	= UCLASS_NOP,
-	.ofdata_to_platdata = gpio_hog_ofdata_to_platdata,
+	.of_to_plat = gpio_hog_of_to_plat,
 	.probe = gpio_hog_probe,
-	.priv_auto_alloc_size = sizeof(struct gpio_hog_priv),
-	.platdata_auto_alloc_size = sizeof(struct gpio_hog_data),
+	.priv_auto	= sizeof(struct gpio_hog_priv),
+	.plat_auto	= sizeof(struct gpio_hog_data),
 };
 #else
 int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
@@ -352,6 +370,7 @@ int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
 
 int dm_gpio_request(struct gpio_desc *desc, const char *label)
 {
+	const struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
 	struct udevice *dev = desc->dev;
 	struct gpio_dev_priv *uc_priv;
 	char *str;
@@ -363,8 +382,8 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 	str = strdup(label);
 	if (!str)
 		return -ENOMEM;
-	if (gpio_get_ops(dev)->request) {
-		ret = gpio_get_ops(dev)->request(dev, desc->offset, label);
+	if (ops->request) {
+		ret = ops->request(dev, desc->offset, label);
 		if (ret) {
 			free(str);
 			return ret;
@@ -441,14 +460,15 @@ int gpio_requestf(unsigned gpio, const char *fmt, ...)
 
 int _dm_gpio_free(struct udevice *dev, uint offset)
 {
+	const struct dm_gpio_ops *ops = gpio_get_ops(dev);
 	struct gpio_dev_priv *uc_priv;
 	int ret;
 
 	uc_priv = dev_get_uclass_priv(dev);
 	if (!uc_priv->name[offset])
 		return -ENXIO;
-	if (gpio_get_ops(dev)->rfree) {
-		ret = gpio_get_ops(dev)->rfree(dev, offset);
+	if (ops->rfree) {
+		ret = ops->rfree(dev, offset);
 		if (ret)
 			return ret;
 	}
@@ -514,11 +534,8 @@ int gpio_direction_input(unsigned gpio)
 	ret = gpio_to_device(gpio, &desc);
 	if (ret)
 		return ret;
-	ret = check_reserved(&desc, "dir_input");
-	if (ret)
-		return ret;
 
-	return gpio_get_ops(desc.dev)->direction_input(desc.dev, desc.offset);
+	return dm_gpio_clrset_flags(&desc, GPIOD_MASK_DIR, GPIOD_IS_IN);
 }
 
 /**
@@ -533,24 +550,25 @@ int gpio_direction_input(unsigned gpio)
 int gpio_direction_output(unsigned gpio, int value)
 {
 	struct gpio_desc desc;
+	ulong flags;
 	int ret;
 
 	ret = gpio_to_device(gpio, &desc);
 	if (ret)
 		return ret;
-	ret = check_reserved(&desc, "dir_output");
-	if (ret)
-		return ret;
 
-	return gpio_get_ops(desc.dev)->direction_output(desc.dev,
-							desc.offset, value);
+	flags = GPIOD_IS_OUT;
+	if (value)
+		flags |= GPIOD_IS_OUT_ACTIVE;
+	return dm_gpio_clrset_flags(&desc, GPIOD_MASK_DIR, flags);
 }
 
 static int _gpio_get_value(const struct gpio_desc *desc)
 {
+	const struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
 	int value;
 
-	value = gpio_get_ops(desc->dev)->get_value(desc->dev, desc->offset);
+	value = ops->get_value(desc->dev, desc->offset);
 
 	return desc->flags & GPIOD_ACTIVE_LOW ? !value : value;
 }
@@ -568,6 +586,7 @@ int dm_gpio_get_value(const struct gpio_desc *desc)
 
 int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 {
+	const struct dm_gpio_ops *ops;
 	int ret;
 
 	ret = check_reserved(desc, "set_value");
@@ -577,21 +596,33 @@ int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 	if (desc->flags & GPIOD_ACTIVE_LOW)
 		value = !value;
 
+	/* GPIOD_ are directly managed by driver in set_flags */
+	ops = gpio_get_ops(desc->dev);
+	if (ops->set_flags) {
+		ulong flags = desc->flags;
+
+		if (value)
+			flags |= GPIOD_IS_OUT_ACTIVE;
+		else
+			flags &= ~GPIOD_IS_OUT_ACTIVE;
+		return ops->set_flags(desc->dev, desc->offset, flags);
+	}
+
 	/*
 	 * Emulate open drain by not actively driving the line high or
 	 * Emulate open source by not actively driving the line low
 	 */
 	if ((desc->flags & GPIOD_OPEN_DRAIN && value) ||
 	    (desc->flags & GPIOD_OPEN_SOURCE && !value))
-		return gpio_get_ops(desc->dev)->direction_input(desc->dev,
-								desc->offset);
+		return ops->direction_input(desc->dev, desc->offset);
 	else if (desc->flags & GPIOD_OPEN_DRAIN ||
 		 desc->flags & GPIOD_OPEN_SOURCE)
-		return gpio_get_ops(desc->dev)->direction_output(desc->dev,
-								desc->offset,
-								value);
+		return ops->direction_output(desc->dev, desc->offset, value);
 
-	gpio_get_ops(desc->dev)->set_value(desc->dev, desc->offset, value);
+	ret = ops->set_value(desc->dev, desc->offset, value);
+	if (ret)
+		return ret;
+
 	return 0;
 }
 
@@ -619,10 +650,21 @@ static int check_dir_flags(ulong flags)
 	return 0;
 }
 
-static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
+/**
+ * _dm_gpio_set_flags() - Send flags to the driver
+ *
+ * This uses the best available method to send the given flags to the driver.
+ * Note that if flags & GPIOD_ACTIVE_LOW, the driver sees the opposite value
+ * of GPIOD_IS_OUT_ACTIVE.
+ *
+ * @desc:	GPIO description
+ * @flags:	flags value to set
+ * @return 0 if OK, -ve on error
+ */
+static int _dm_gpio_set_flags(struct gpio_desc *desc, ulong flags)
 {
 	struct udevice *dev = desc->dev;
-	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	const struct dm_gpio_ops *ops = gpio_get_ops(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret = 0;
 
@@ -637,84 +679,102 @@ static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 		return ret;
 	}
 
-	/* GPIOD_ are directly managed by driver in set_dir_flags*/
-	if (ops->set_dir_flags) {
-		ret = ops->set_dir_flags(dev, desc->offset, flags);
+	/* If active low, invert the output state */
+	if ((flags & (GPIOD_IS_OUT | GPIOD_ACTIVE_LOW)) ==
+		(GPIOD_IS_OUT | GPIOD_ACTIVE_LOW))
+		flags ^= GPIOD_IS_OUT_ACTIVE;
+
+	/* GPIOD_ are directly managed by driver in set_flags */
+	if (ops->set_flags) {
+		ret = ops->set_flags(dev, desc->offset, flags);
 	} else {
 		if (flags & GPIOD_IS_OUT) {
-			ret = ops->direction_output(dev, desc->offset,
-						    GPIOD_FLAGS_OUTPUT(flags));
+			bool value = flags & GPIOD_IS_OUT_ACTIVE;
+
+			ret = ops->direction_output(dev, desc->offset, value);
 		} else if (flags & GPIOD_IS_IN) {
 			ret = ops->direction_input(dev, desc->offset);
 		}
 	}
 
-	/* save the flags also in descriptor */
-	if (!ret)
-		desc->flags = flags;
-
 	return ret;
 }
 
-int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
+int dm_gpio_clrset_flags(struct gpio_desc *desc, ulong clr, ulong set)
 {
+	ulong flags;
 	int ret;
 
 	ret = check_reserved(desc, "set_dir_flags");
 	if (ret)
 		return ret;
 
-	/* combine the requested flags (for IN/OUT) and the descriptor flags */
-	flags |= desc->flags;
-	ret = _dm_gpio_set_dir_flags(desc, flags);
+	flags = (desc->flags & ~clr) | set;
 
-	return ret;
-}
-
-int dm_gpio_set_dir(struct gpio_desc *desc)
-{
-	int ret;
-
-	ret = check_reserved(desc, "set_dir");
+	ret = _dm_gpio_set_flags(desc, flags);
 	if (ret)
 		return ret;
 
-	return _dm_gpio_set_dir_flags(desc, desc->flags);
+	/* save the flags also in descriptor */
+	desc->flags = flags;
+
+	return 0;
 }
 
-int dm_gpio_get_dir_flags(struct gpio_desc *desc, ulong *flags)
+int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
+{
+	/* combine the requested flags (for IN/OUT) and the descriptor flags */
+	return dm_gpio_clrset_flags(desc, GPIOD_MASK_DIR, flags);
+}
+
+int dm_gpios_clrset_flags(struct gpio_desc *desc, int count, ulong clr,
+			  ulong set)
+{
+	int ret;
+	int i;
+
+	for (i = 0; i < count; i++) {
+		ret = dm_gpio_clrset_flags(&desc[i], clr, set);
+		if (ret)
+			return log_ret(ret);
+	}
+
+	return 0;
+}
+
+int dm_gpio_get_flags(struct gpio_desc *desc, ulong *flagsp)
 {
 	struct udevice *dev = desc->dev;
 	int ret, value;
-	struct dm_gpio_ops *ops = gpio_get_ops(dev);
-	ulong dir_flags;
+	const struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	ulong flags;
 
-	ret = check_reserved(desc, "get_dir_flags");
+	ret = check_reserved(desc, "get_flags");
 	if (ret)
 		return ret;
 
 	/* GPIOD_ are directly provided by driver except GPIOD_ACTIVE_LOW */
-	if (ops->get_dir_flags) {
-		ret = ops->get_dir_flags(dev, desc->offset, &dir_flags);
+	if (ops->get_flags) {
+		ret = ops->get_flags(dev, desc->offset, &flags);
 		if (ret)
 			return ret;
 
 		/* GPIOD_ACTIVE_LOW is saved in desc->flags */
-		value = dir_flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
+		value = flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
 		if (desc->flags & GPIOD_ACTIVE_LOW)
 			value = !value;
-		dir_flags &= ~(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT_ACTIVE);
-		dir_flags |= (desc->flags & GPIOD_ACTIVE_LOW);
+		flags &= ~(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT_ACTIVE);
+		flags |= (desc->flags & GPIOD_ACTIVE_LOW);
 		if (value)
-			dir_flags |= GPIOD_IS_OUT_ACTIVE;
+			flags |= GPIOD_IS_OUT_ACTIVE;
 	} else {
-		dir_flags = desc->flags;
+		flags = desc->flags;
 		/* only GPIOD_IS_OUT_ACTIVE is provided by uclass */
-		dir_flags &= ~GPIOD_IS_OUT_ACTIVE;
+		flags &= ~GPIOD_IS_OUT_ACTIVE;
 		if ((desc->flags & GPIOD_IS_OUT) && _gpio_get_value(desc))
-			dir_flags |= GPIOD_IS_OUT_ACTIVE;
+			flags |= GPIOD_IS_OUT_ACTIVE;
 	}
-	*flags = dir_flags;
+	*flagsp = flags;
 
 	return 0;
 }
@@ -784,7 +844,7 @@ static int get_function(struct udevice *dev, int offset, bool skip_unused,
 			const char **namep)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	const struct dm_gpio_ops *ops = gpio_get_ops(dev);
 
 	BUILD_BUG_ON(GPIOF_COUNT != ARRAY_SIZE(gpio_function));
 	if (!device_active(dev))
@@ -821,7 +881,7 @@ int gpio_get_raw_function(struct udevice *dev, int offset, const char **namep)
 
 int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize)
 {
-	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	const struct dm_gpio_ops *ops = gpio_get_ops(dev);
 	struct gpio_dev_priv *priv;
 	char *str = buf;
 	int func;
@@ -861,7 +921,7 @@ int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize)
 #if CONFIG_IS_ENABLED(ACPIGEN)
 int gpio_get_acpi(const struct gpio_desc *desc, struct acpi_gpio *gpio)
 {
-	struct dm_gpio_ops *ops;
+	const struct dm_gpio_ops *ops;
 
 	memset(gpio, '\0', sizeof(*gpio));
 	if (!dm_gpio_is_valid(desc)) {
@@ -948,6 +1008,71 @@ int dm_gpio_get_values_as_int(const struct gpio_desc *desc_list, int count)
 	return vector;
 }
 
+int dm_gpio_get_values_as_int_base3(struct gpio_desc *desc_list,
+				    int count)
+{
+	static const char tristate[] = "01z";
+	enum {
+		PULLUP,
+		PULLDOWN,
+
+		NUM_OPTIONS,
+	};
+	int vals[NUM_OPTIONS];
+	uint mask;
+	uint vector = 0;
+	int ret, i;
+
+	/*
+	 * Limit to 19 digits which should be plenty. This avoids overflow of a
+	 * 32-bit int
+	 */
+	assert(count < 20);
+
+	for (i = 0; i < NUM_OPTIONS; i++) {
+		uint flags = GPIOD_IS_IN;
+
+		flags |= (i == PULLDOWN) ? GPIOD_PULL_DOWN : GPIOD_PULL_UP;
+		ret = dm_gpios_clrset_flags(desc_list, count, GPIOD_MASK_PULL,
+					    flags);
+		if (ret)
+			return log_msg_ret("pu", ret);
+
+		/* Give the lines time to settle */
+		udelay(10);
+
+		ret = dm_gpio_get_values_as_int(desc_list, count);
+		if (ret < 0)
+			return log_msg_ret("get1", ret);
+		vals[i] = ret;
+	}
+
+	log_debug("values: %x %x, count = %d\n", vals[0], vals[1], count);
+	for (i = count - 1, mask = 1 << i; i >= 0; i--, mask >>= 1) {
+		uint pd = vals[PULLDOWN] & mask ? 1 : 0;
+		uint pu = vals[PULLUP] & mask ? 1 : 0;
+		uint digit;
+
+		/*
+		 * Get value with internal pulldown active. If this is 1 then
+		 * there is a stronger external pullup, which we call 1. If not
+		 * then call it 0.
+		 *
+		 * If the values differ then the pin is floating so we call
+		 * this a 2.
+		 */
+		if (pu == pd)
+			digit = pd;
+		else
+			digit = 2;
+		log_debug("%c ", tristate[digit]);
+		vector = 3 * vector + digit;
+	}
+	log_debug("vector=%d\n", vector);
+
+	return vector;
+}
+
 /**
  * gpio_request_tail: common work for requesting a gpio.
  *
@@ -1010,7 +1135,10 @@ static int gpio_request_tail(int ret, const char *nodename,
 		debug("%s: dm_gpio_requestf failed\n", __func__);
 		goto err;
 	}
-	ret = dm_gpio_set_dir_flags(desc, flags);
+
+	/* Keep any direction flags provided by the devicetree */
+	ret = dm_gpio_set_dir_flags(desc,
+				    flags | (desc->flags & GPIOD_MASK_DIR));
 	if (ret) {
 		debug("%s: dm_gpio_set_dir failed\n", __func__);
 		goto err;
@@ -1023,6 +1151,7 @@ err:
 	return ret;
 }
 
+#if CONFIG_IS_ENABLED(OF_REAL)
 static int _gpio_request_by_name_nodev(ofnode node, const char *list_name,
 				       int index, struct gpio_desc *desc,
 				       int flags, bool add_index)
@@ -1100,16 +1229,37 @@ int gpio_get_list_count(struct udevice *dev, const char *list_name)
 {
 	int ret;
 
-	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev_of_offset(dev),
-					     list_name, "#gpio-cells", 0, -1,
-					     NULL);
-	if (ret) {
+	ret = dev_count_phandle_with_args(dev, list_name, "#gpio-cells",
+					  -ENOENT);
+	if (ret < 0) {
 		debug("%s: Node '%s', property '%s', GPIO count failed: %d\n",
 		      __func__, dev->name, list_name, ret);
 	}
 
 	return ret;
 }
+#endif /* OF_PLATDATA */
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+int gpio_request_by_phandle(struct udevice *dev,
+			    const struct phandle_2_arg *cells,
+			    struct gpio_desc *desc, int flags)
+{
+	struct ofnode_phandle_args args;
+	struct udevice *gpio_dev;
+	const int index = 0;
+	int ret;
+
+	ret = device_get_by_ofplat_idx(cells->idx, &gpio_dev);
+	if (ret)
+		return ret;
+	args.args[0] = cells->arg[0];
+	args.args[1] = cells->arg[1];
+
+	return gpio_request_tail(ret, NULL, &args, NULL, index, desc, flags,
+				 index > 0, gpio_dev);
+}
+#endif
 
 int dm_gpio_free(struct udevice *dev, struct gpio_desc *desc)
 {
@@ -1166,7 +1316,7 @@ int gpio_get_number(const struct gpio_desc *desc)
 
 	if (!dev)
 		return -1;
-	uc_priv = dev->uclass_priv;
+	uc_priv = dev_get_uclass_priv(dev);
 
 	return uc_priv->gpio_base + desc->offset;
 }
@@ -1306,16 +1456,16 @@ static int gpio_post_bind(struct udevice *dev)
 			ops->get_function += gd->reloc_off;
 		if (ops->xlate)
 			ops->xlate += gd->reloc_off;
-		if (ops->set_dir_flags)
-			ops->set_dir_flags += gd->reloc_off;
-		if (ops->get_dir_flags)
-			ops->get_dir_flags += gd->reloc_off;
+		if (ops->set_flags)
+			ops->set_flags += gd->reloc_off;
+		if (ops->get_flags)
+			ops->get_flags += gd->reloc_off;
 
 		reloc_done++;
 	}
 #endif
 
-	if (IS_ENABLED(CONFIG_GPIO_HOG)) {
+	if (CONFIG_IS_ENABLED(OF_REAL) && IS_ENABLED(CONFIG_GPIO_HOG)) {
 		dev_for_each_subnode(node, dev) {
 			if (ofnode_read_bool(node, "gpio-hog")) {
 				const char *name = ofnode_get_name(node);
@@ -1340,5 +1490,5 @@ UCLASS_DRIVER(gpio) = {
 	.post_probe	= gpio_post_probe,
 	.post_bind	= gpio_post_bind,
 	.pre_remove	= gpio_pre_remove,
-	.per_device_auto_alloc_size = sizeof(struct gpio_dev_priv),
+	.per_device_auto	= sizeof(struct gpio_dev_priv),
 };

@@ -134,7 +134,7 @@ typedef struct hd_driveid {
 	unsigned short	cur_capacity1;	/*  (2 words, misaligned int)     */
 	unsigned char	multsect;	/* current multiple sector count */
 	unsigned char	multsect_valid;	/* when (bit0==1) multsect is ok */
-	unsigned int	lba_capacity;	/* total number of sectors */
+	unsigned short  lba_capacity[2];/* two words containing total number of sectors */
 	unsigned short	dma_1word;	/* single-word dma info */
 	unsigned short	dma_mword;	/* multiple-word dma info */
 	unsigned short  eide_pio_modes; /* bits 0:mode3 1:mode4 */

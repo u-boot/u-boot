@@ -1,0 +1,34 @@
+U-Boot for the Gateworks i.MX8M Mini Venice Development Kit boards
+
+Quick Start
+===========
+- Build the ARM Trusted firmware binary
+- Get ddr firmware
+- Build U-Boot
+- Flash to eMMC
+- Boot
+
+Get and Build the ARM Trusted firmware
+======================================
+$ git clone https://source.codeaurora.org/external/imx/imx-atf
+$ git checkout imx_5.4.47_2.2.0
+$ make PLAT=imx8mm CROSS_COMPILE=aarch64-linux-gnu- bl31
+$ cp build/imx8mm/release/bl31.bin .
+
+Get the DDR Firmware
+====================
+$ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.9.bin
+$ chmod +x firmware-imx-8.9.bin
+$ ./firmware-imx-8.9.bin
+$ cp firmware-imx-8.9/firmware/ddr/synopsys/lpddr4*.bin .
+
+Build U-Boot
+============
+$ make imx8mm_venice_defconfig
+$ make flash.bin CROSS_COMPILE=aarch64-linux-gnu- ATF_LOAD_ADDR=0x920000
+
+Update eMMC
+===========
+=> tftpboot $loadaddr flash.bin
+=> setexpr blkcnt $filesize + 0x1ff && setexpr blkcnt $blkcnt / 0x200
+=> mmc dev 2 && mmc write $loadaddr 0x42 $blkcnt

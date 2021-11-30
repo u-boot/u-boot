@@ -41,6 +41,12 @@ config TARGET_OCTEON_EBB7304
 	help
 	 Choose this for the Octeon EBB7304 board
 
+config TARGET_OCTEON_NIC23
+	bool "Marvell Octeon NIC23"
+	select OCTEON_CN73XX
+	help
+	 Choose this for the Octeon NIC23 board
+
 endchoice
 
 config SYS_DCACHE_SIZE
@@ -55,6 +61,11 @@ config SYS_ICACHE_SIZE
 config SYS_ICACHE_LINE_SIZE
 	default 128
 
+config SYS_PCI_64BIT
+	bool
+	default y
+
 source "board/Marvell/octeon_ebb7304/Kconfig"
+source "board/Marvell/octeon_nic23/Kconfig"
 
 endmenu

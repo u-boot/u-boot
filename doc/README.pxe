@@ -89,6 +89,9 @@ pxe boot
      fdt_addr - the location of a fdt blob. 'fdt_addr' will be passed to bootm
      command if it is set and 'fdt_addr_r' is not passed to bootm command.
 
+     fdtoverlay_addr_r - location in RAM at which 'pxe boot' will temporarily store
+     fdt overlay(s) before applying them to the fdt blob stored at 'fdt_addr_r'.
+
 pxe file format
 ===============
 The pxe file format is nearly a subset of the PXELINUX file format; see
@@ -147,6 +150,12 @@ kernel <path>	    - if this label is chosen, use tftp to retrieve the kernel
 		      (see: doc/uImage.FIT/command_syntax_extensions.txt)
 		      It useful for overlay selection in pxe file
 		      (see: doc/uImage.FIT/overlay-fdt-boot.txt)
+
+fdtoverlays <path> [...] - if this label is chosen, use tftp to retrieve the DT
+                      overlay(s) at <path>. it will be temporarily stored at the
+                      address indicated in the fdtoverlay_addr_r environment variable,
+                      and then applied in the load order to the fdt blob stored at the
+                      address indicated in the fdt_addr_r environment variable.
 
 append <string>	    - use <string> as the kernel command line when booting this
 		      label.

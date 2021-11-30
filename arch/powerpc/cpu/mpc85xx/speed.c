@@ -11,7 +11,9 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <clock_legacy.h>
 #include <ppc_asm.tmpl>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/processor.h>
 #include <asm/io.h>
@@ -103,8 +105,8 @@ void get_sys_info(sys_info_t *sys_info)
 		sys_info->freq_ddrbus = CONFIG_SYS_CLK_FREQ;
 	else
 #endif
-#ifdef CONFIG_DDR_CLK_FREQ
-		sys_info->freq_ddrbus = CONFIG_DDR_CLK_FREQ;
+#if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || defined(CONFIG_STATIC_DDR_CLK_FREQ)
+		sys_info->freq_ddrbus = get_board_ddr_clk();
 #else
 		sys_info->freq_ddrbus = sysclk;
 #endif
@@ -125,8 +127,7 @@ void get_sys_info(sys_info_t *sys_info)
 	 * it uses 6.
 	 * T2080 rev 1.1 and later also use half mem_pll comparing with rev 1.0
 	 */
-#if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T4160) || \
-	defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T2081)
+#if defined(CONFIG_ARCH_T4240) || defined(CONFIG_ARCH_T2080)
 	svr = get_svr();
 	switch (SVR_SOC_VER(svr)) {
 	case SVR_T4240:
@@ -197,10 +198,10 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #if defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420) || \
-	defined(CONFIG_ARCH_T2080) || defined(CONFIG_ARCH_T2081)
+	defined(CONFIG_ARCH_T2080)
 #define FM1_CLK_SEL	0xe0000000
 #define FM1_CLK_SHIFT	29
-#elif defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
+#elif defined(CONFIG_ARCH_T1024)
 #define FM1_CLK_SEL	0x00000007
 #define FM1_CLK_SHIFT	0
 #else
@@ -210,7 +211,7 @@ void get_sys_info(sys_info_t *sys_info)
 #define FM1_CLK_SHIFT	26
 #endif
 #if !defined(CONFIG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV)
-#if defined(CONFIG_ARCH_T1024) || defined(CONFIG_ARCH_T1023)
+#if defined(CONFIG_ARCH_T1024)
 	rcw_tmp = in_be32(&gur->rcwsr[15]) - 4;
 #else
 	rcw_tmp = in_be32(&gur->rcwsr[7]);
@@ -538,12 +539,12 @@ void get_sys_info(sys_info_t *sys_info)
 	/* Note: freq_ddrbus is the MCLK frequency, not the data rate. */
 	sys_info->freq_ddrbus = sys_info->freq_systembus;
 
-#ifdef CONFIG_DDR_CLK_FREQ
+#if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || defined(CONFIG_STATIC_DDR_CLK_FREQ)
 	{
 		u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
 			>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 		if (ddr_ratio != 0x7)
-			sys_info->freq_ddrbus = ddr_ratio * CONFIG_DDR_CLK_FREQ;
+			sys_info->freq_ddrbus = ddr_ratio * get_board_ddr_clk();
 	}
 #endif
 
@@ -606,9 +607,7 @@ int get_clocks(void)
 	 * for that SOC. This information is taken from application note
 	 * AN2919.
 	 */
-#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_ARCH_MPC8541) || \
-	defined(CONFIG_ARCH_MPC8560) || defined(CONFIG_ARCH_MPC8555) || \
-	defined(CONFIG_ARCH_P1022)
+#if defined(CONFIG_ARCH_MPC8540) || defined(CONFIG_ARCH_MPC8560)
 	gd->arch.i2c1_clk = sys_info.freq_systembus;
 #elif defined(CONFIG_ARCH_MPC8544)
 	/*
@@ -629,7 +628,7 @@ int get_clocks(void)
 	gd->arch.i2c2_clk = gd->arch.i2c1_clk;
 
 #if defined(CONFIG_FSL_ESDHC)
-#if defined(CONFIG_ARCH_MPC8569) || defined(CONFIG_ARCH_P1010)
+#if defined(CONFIG_ARCH_P1010)
 	gd->arch.sdhc_clk = gd->bus_clk;
 #else
 	gd->arch.sdhc_clk = gd->bus_clk / 2;

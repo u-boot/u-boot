@@ -39,7 +39,7 @@ The T1024 SoC includes the following function and features:
   - One QSGMII interface
   - Four SGMII interface supporting 1000 Mbps
   - Three SGMII interfaces supporting up to 2500 Mbps
-  - 10GbE XFI or 10Base-KR interface
+  - 10GBase-R or 10Base-KR interface
 - Additional peripheral interfaces
   - Two USB 2.0 controllers with integrated PHY
   - SD/eSDHC/eMMC

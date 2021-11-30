@@ -78,22 +78,28 @@ ENDPROC(relocate_vectors)
  */
 
 ENTRY(relocate_code)
-	ldr	r1, =__image_copy_start	/* r1 <- SRC &__image_copy_start */
-	subs	r4, r0, r1		/* r4 <- relocation offset */
-	beq	relocate_done		/* skip relocation */
-	ldr	r2, =__image_copy_end	/* r2 <- SRC &__image_copy_end */
-
+	adr	r3, relocate_code
+	ldr	r1, _image_copy_start_ofs
+	add	r1, r3			/* r1 <- Run &__image_copy_start */
+	subs	r4, r0, r1		/* r4 <- Run to copy offset      */
+	beq	relocate_done		/* skip relocation               */
+	ldr	r1, _image_copy_start_ofs
+	add	r1, r3			/* r1 <- Run &__image_copy_start */
+	ldr	r2, _image_copy_end_ofs
+	add	r2, r3			/* r2 <- Run &__image_copy_end   */
 copy_loop:
-	ldmia	r1!, {r10-r11}		/* copy from source address [r1]    */
-	stmia	r0!, {r10-r11}		/* copy to   target address [r0]    */
-	cmp	r1, r2			/* until source end address [r2]    */
+	ldmia	r1!, {r10-r11}		/* copy from source address [r1] */
+	stmia	r0!, {r10-r11}		/* copy to   target address [r0] */
+	cmp	r1, r2			/* until source end address [r2] */
 	blo	copy_loop
 
 	/*
 	 * fix .rel.dyn relocations
 	 */
-	ldr	r2, =__rel_dyn_start	/* r2 <- SRC &__rel_dyn_start */
-	ldr	r3, =__rel_dyn_end	/* r3 <- SRC &__rel_dyn_end */
+	ldr	r1, _rel_dyn_start_ofs
+	add	r2, r1, r3		/* r2 <- Run &__rel_dyn_start */
+	ldr	r1, _rel_dyn_end_ofs
+	add	r3, r1, r3		/* r3 <- Run &__rel_dyn_end */
 fixloop:
 	ldmia	r2!, {r0-r1}		/* (r0,r1) <- (SRC location,fixup) */
 	and	r1, r1, #0xff
@@ -129,3 +135,12 @@ relocate_done:
 #endif
 
 ENDPROC(relocate_code)
+
+_image_copy_start_ofs:
+	.word	__image_copy_start - relocate_code
+_image_copy_end_ofs:
+	.word	__image_copy_end - relocate_code
+_rel_dyn_start_ofs:
+	.word	__rel_dyn_start - relocate_code
+_rel_dyn_end_ofs:
+	.word	__rel_dyn_end - relocate_code

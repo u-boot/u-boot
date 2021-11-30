@@ -30,7 +30,7 @@
 
 #define RNG_DR 0x08
 
-struct stm32_rng_platdata {
+struct stm32_rng_plat {
 	fdt_addr_t base;
 	struct clk clk;
 	struct reset_ctl rst;
@@ -41,7 +41,7 @@ static int stm32_rng_read(struct udevice *dev, void *data, size_t len)
 	int retval, i;
 	u32 sr, count, reg;
 	size_t increment;
-	struct stm32_rng_platdata *pdata = dev_get_platdata(dev);
+	struct stm32_rng_plat *pdata = dev_get_plat(dev);
 
 	while (len > 0) {
 		retval = readl_poll_timeout(pdata->base + RNG_SR, sr,
@@ -80,7 +80,7 @@ static int stm32_rng_read(struct udevice *dev, void *data, size_t len)
 	return 0;
 }
 
-static int stm32_rng_init(struct stm32_rng_platdata *pdata)
+static int stm32_rng_init(struct stm32_rng_plat *pdata)
 {
 	int err;
 
@@ -97,7 +97,7 @@ static int stm32_rng_init(struct stm32_rng_platdata *pdata)
 	return 0;
 }
 
-static int stm32_rng_cleanup(struct stm32_rng_platdata *pdata)
+static int stm32_rng_cleanup(struct stm32_rng_plat *pdata)
 {
 	writel(0, pdata->base + RNG_CR);
 
@@ -106,7 +106,7 @@ static int stm32_rng_cleanup(struct stm32_rng_platdata *pdata)
 
 static int stm32_rng_probe(struct udevice *dev)
 {
-	struct stm32_rng_platdata *pdata = dev_get_platdata(dev);
+	struct stm32_rng_plat *pdata = dev_get_plat(dev);
 
 	reset_assert(&pdata->rst);
 	udelay(20);
@@ -117,14 +117,14 @@ static int stm32_rng_probe(struct udevice *dev)
 
 static int stm32_rng_remove(struct udevice *dev)
 {
-	struct stm32_rng_platdata *pdata = dev_get_platdata(dev);
+	struct stm32_rng_plat *pdata = dev_get_plat(dev);
 
 	return stm32_rng_cleanup(pdata);
 }
 
-static int stm32_rng_ofdata_to_platdata(struct udevice *dev)
+static int stm32_rng_of_to_plat(struct udevice *dev)
 {
-	struct stm32_rng_platdata *pdata = dev_get_platdata(dev);
+	struct stm32_rng_plat *pdata = dev_get_plat(dev);
 	int err;
 
 	pdata->base = dev_read_addr(dev);
@@ -160,6 +160,6 @@ U_BOOT_DRIVER(stm32_rng) = {
 	.ops = &stm32_rng_ops,
 	.probe = stm32_rng_probe,
 	.remove = stm32_rng_remove,
-	.platdata_auto_alloc_size = sizeof(struct stm32_rng_platdata),
-	.ofdata_to_platdata = stm32_rng_ofdata_to_platdata,
+	.plat_auto	= sizeof(struct stm32_rng_plat),
+	.of_to_plat = stm32_rng_of_to_plat,
 };

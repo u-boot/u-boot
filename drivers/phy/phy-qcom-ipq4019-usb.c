@@ -75,7 +75,7 @@ U_BOOT_DRIVER(ipq4019_usb_ss_phy) = {
 	.of_match	= ipq4019_usb_ss_phy_ids,
 	.ops		= &ipq4019_usb_ss_phy_ops,
 	.probe		= ipq4019_usb_ss_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct ipq4019_usb_phy),
+	.priv_auto	= sizeof(struct ipq4019_usb_phy),
 };
 
 static int ipq4019_hs_phy_power_off(struct phy *_phy)
@@ -141,5 +141,5 @@ U_BOOT_DRIVER(ipq4019_usb_hs_phy) = {
 	.of_match	= ipq4019_usb_hs_phy_ids,
 	.ops		= &ipq4019_usb_hs_phy_ops,
 	.probe		= ipq4019_usb_hs_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct ipq4019_usb_phy),
+	.priv_auto	= sizeof(struct ipq4019_usb_phy),
 };

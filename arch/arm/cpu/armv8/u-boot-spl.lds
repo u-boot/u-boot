@@ -77,6 +77,7 @@ SECTIONS
 		KEEP(*(.__bss_end));
 	} >.sdram
 
+	/DISCARD/ : { *(.rela*) }
 	/DISCARD/ : { *(.dynsym) }
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynamic*) }

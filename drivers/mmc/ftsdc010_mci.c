@@ -15,6 +15,7 @@
 #include <malloc.h>
 #include <part.h>
 #include <mmc.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/errno.h>
@@ -28,8 +29,6 @@
 #include <pwrseq.h>
 #include <syscon.h>
 #include <linux/err.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define CFG_CMD_TIMEOUT (CONFIG_SYS_HZ >> 4) /* 250 ms */
 #define CFG_RST_TIMEOUT CONFIG_SYS_HZ /* 1 sec reset timeout */
@@ -389,42 +388,37 @@ static void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswid
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 }
 
-static int ftsdc010_mmc_ofdata_to_platdata(struct udevice *dev)
+static int ftsdc010_mmc_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct ftsdc_priv *priv = dev_get_priv(dev);
 	struct ftsdc010_chip *chip = &priv->chip;
-	chip->name = dev->name;
-	chip->ioaddr = dev_read_addr_ptr(dev);
-	chip->buswidth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"bus-width", 4);
-	chip->priv = dev;
-	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				    "fifo-depth", 0);
-	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-					  "fifo-mode");
-	if (fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
-			 "clock-freq-min-max", priv->minmax, 2)) {
-		int val = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				  "max-frequency", -EINVAL);
-		if (val < 0)
-			return val;
 
-		priv->minmax[0] = 400000;  /* 400 kHz */
-		priv->minmax[1] = val;
-	} else {
-		debug("%s: 'clock-freq-min-max' property was deprecated.\n",
-		__func__);
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		chip->name = dev->name;
+		chip->ioaddr = dev_read_addr_ptr(dev);
+		chip->buswidth = dev_read_u32_default(dev, "bus-width", 4);
+		chip->priv = dev;
+		priv->fifo_depth = dev_read_u32_default(dev, "fifo-depth", 0);
+		priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
+		if (dev_read_u32_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
+			if (dev_read_u32(dev, "max-frequency", &priv->minmax[1]))
+				return -EINVAL;
+
+			priv->minmax[0] = 400000;  /* 400 kHz */
+		} else {
+			debug("%s: 'clock-freq-min-max' property was deprecated.\n",
+			      __func__);
+		}
 	}
-#endif
 	chip->sclk = priv->minmax[1];
 	chip->regs = chip->ioaddr;
+
 	return 0;
 }
 
 static int ftsdc010_mmc_probe(struct udevice *dev)
 {
-	struct ftsdc010_plat *plat = dev_get_platdata(dev);
+	struct ftsdc010_plat *plat = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct ftsdc_priv *priv = dev_get_priv(dev);
 	struct ftsdc010_chip *chip = &priv->chip;
@@ -439,7 +433,7 @@ static int ftsdc010_mmc_probe(struct udevice *dev)
 	chip->priv = dev;
 	chip->dev_index = 1;
 	memcpy(priv->minmax, dtplat->clock_freq_min_max, sizeof(priv->minmax));
-	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_phandle(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 #endif
@@ -459,7 +453,7 @@ static int ftsdc010_mmc_probe(struct udevice *dev)
 
 int ftsdc010_mmc_bind(struct udevice *dev)
 {
-	struct ftsdc010_plat *plat = dev_get_platdata(dev);
+	struct ftsdc010_plat *plat = dev_get_plat(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -473,10 +467,10 @@ U_BOOT_DRIVER(ftsdc010_mmc) = {
 	.name		= "ftsdc010_mmc",
 	.id		= UCLASS_MMC,
 	.of_match	= ftsdc010_mmc_ids,
-	.ofdata_to_platdata = ftsdc010_mmc_ofdata_to_platdata,
+	.of_to_plat = ftsdc010_mmc_of_to_plat,
 	.ops		= &dm_ftsdc010_mmc_ops,
 	.bind		= ftsdc010_mmc_bind,
 	.probe		= ftsdc010_mmc_probe,
-	.priv_auto_alloc_size = sizeof(struct ftsdc_priv),
-	.platdata_auto_alloc_size = sizeof(struct ftsdc010_plat),
+	.priv_auto	= sizeof(struct ftsdc_priv),
+	.plat_auto	= sizeof(struct ftsdc010_plat),
 };

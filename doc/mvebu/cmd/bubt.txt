@@ -52,4 +52,3 @@ Notes:
 	- NAND:		# nand write <load_address> 0 <ATF Size>
 	- SPI:		# sf write <load_address> 0 <ATF Size>
 	- SD/eMMC:	# mmc write <load_address> [0|1] <ATF Size>/<block_size>
-

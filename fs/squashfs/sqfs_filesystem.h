@@ -231,7 +231,7 @@ union squashfs_inode {
 
 struct squashfs_directory_entry {
 	u16 offset;
-	u16 inode_offset;
+	s16 inode_offset;
 	u16 type;
 	u16 name_size;
 	char name[0];

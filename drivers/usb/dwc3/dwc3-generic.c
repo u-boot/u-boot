@@ -83,9 +83,9 @@ static int dwc3_generic_probe(struct udevice *dev,
 			      struct dwc3_generic_priv *priv)
 {
 	int rc, ret;
-	struct dwc3_generic_plat *plat = dev_get_platdata(dev);
+	struct dwc3_generic_plat *plat = dev_get_plat(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
-	struct dwc3_glue_data *glue = dev_get_platdata(dev->parent);
+	struct dwc3_glue_data *glue = dev_get_plat(dev->parent);
 	struct gpio_desc reset_gpio;
 
 	dwc3->dev = dev;
@@ -153,10 +153,10 @@ static int dwc3_generic_remove(struct udevice *dev,
 	return 0;
 }
 
-static int dwc3_generic_ofdata_to_platdata(struct udevice *dev)
+static int dwc3_generic_of_to_plat(struct udevice *dev)
 {
-	struct dwc3_generic_plat *plat = dev_get_platdata(dev);
-	ofnode node = dev->node;
+	struct dwc3_generic_plat *plat = dev_get_plat(dev);
+	ofnode node = dev_ofnode(dev);
 
 	plat->base = dev_read_addr(dev);
 
@@ -203,15 +203,16 @@ static int dwc3_generic_peripheral_remove(struct udevice *dev)
 U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.name	= "dwc3-generic-peripheral",
 	.id	= UCLASS_USB_GADGET_GENERIC,
-	.ofdata_to_platdata = dwc3_generic_ofdata_to_platdata,
+	.of_to_plat = dwc3_generic_of_to_plat,
 	.probe = dwc3_generic_peripheral_probe,
 	.remove = dwc3_generic_peripheral_remove,
-	.priv_auto_alloc_size = sizeof(struct dwc3_generic_priv),
-	.platdata_auto_alloc_size = sizeof(struct dwc3_generic_plat),
+	.priv_auto	= sizeof(struct dwc3_generic_priv),
+	.plat_auto	= sizeof(struct dwc3_generic_plat),
 };
 #endif
 
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL_USB_HOST) || \
+	!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST)
 static int dwc3_generic_host_probe(struct udevice *dev)
 {
 	struct xhci_hcor *hcor;
@@ -245,11 +246,11 @@ static int dwc3_generic_host_remove(struct udevice *dev)
 U_BOOT_DRIVER(dwc3_generic_host) = {
 	.name	= "dwc3-generic-host",
 	.id	= UCLASS_USB,
-	.ofdata_to_platdata = dwc3_generic_ofdata_to_platdata,
+	.of_to_plat = dwc3_generic_of_to_plat,
 	.probe = dwc3_generic_host_probe,
 	.remove = dwc3_generic_host_remove,
-	.priv_auto_alloc_size = sizeof(struct dwc3_generic_host_priv),
-	.platdata_auto_alloc_size = sizeof(struct dwc3_generic_plat),
+	.priv_auto	= sizeof(struct dwc3_generic_host_priv),
+	.plat_auto	= sizeof(struct dwc3_generic_plat),
 	.ops = &xhci_usb_ops,
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
@@ -286,7 +287,7 @@ enum dwc3_omap_utmi_mode {
 	u32 utmi_mode;
 	u32 utmi_status_offset = USBOTGSS_UTMI_OTG_STATUS;
 
-	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+	struct dwc3_glue_data *glue = dev_get_plat(dev);
 	void *base = map_physmem(glue->regs, 0x10000, MAP_NOCACHE);
 
 	if (device_is_compatible(dev, "ti,am437x-dwc3"))
@@ -349,7 +350,7 @@ static int dwc3_glue_bind(struct udevice *parent)
 	ofnode node;
 	int ret;
 
-	ofnode_for_each_subnode(node, parent->node) {
+	ofnode_for_each_subnode(node, dev_ofnode(parent)) {
 		const char *name = ofnode_get_name(node);
 		enum usb_dr_mode dr_mode;
 		struct udevice *dev;
@@ -367,7 +368,7 @@ static int dwc3_glue_bind(struct udevice *parent)
 			driver = "dwc3-generic-peripheral";
 #endif
 			break;
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL_USB_HOST) || !defined(CONFIG_SPL_BUILD)
 		case USB_DR_MODE_HOST:
 			debug("%s: dr_mode: HOST\n", __func__);
 			driver = "dwc3-generic-host";
@@ -438,7 +439,7 @@ static int dwc3_glue_clk_init(struct udevice *dev,
 static int dwc3_glue_probe(struct udevice *dev)
 {
 	struct dwc3_glue_ops *ops = (struct dwc3_glue_ops *)dev_get_driver_data(dev);
-	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+	struct dwc3_glue_data *glue = dev_get_plat(dev);
 	struct udevice *child = NULL;
 	int index = 0;
 	int ret;
@@ -466,7 +467,7 @@ static int dwc3_glue_probe(struct udevice *dev)
 	while (child) {
 		enum usb_dr_mode dr_mode;
 
-		dr_mode = usb_get_dr_mode(child->node);
+		dr_mode = usb_get_dr_mode(dev_ofnode(child));
 		device_find_next_child(&child);
 		if (ops && ops->select_dr_mode)
 			ops->select_dr_mode(dev, index, dr_mode);
@@ -478,7 +479,7 @@ static int dwc3_glue_probe(struct udevice *dev)
 
 static int dwc3_glue_remove(struct udevice *dev)
 {
-	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+	struct dwc3_glue_data *glue = dev_get_plat(dev);
 
 	reset_release_bulk(&glue->resets);
 
@@ -508,6 +509,6 @@ U_BOOT_DRIVER(dwc3_generic_wrapper) = {
 	.bind = dwc3_glue_bind,
 	.probe = dwc3_glue_probe,
 	.remove = dwc3_glue_remove,
-	.platdata_auto_alloc_size = sizeof(struct dwc3_glue_data),
+	.plat_auto	= sizeof(struct dwc3_glue_data),
 
 };

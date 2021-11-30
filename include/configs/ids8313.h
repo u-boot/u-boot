@@ -129,10 +129,6 @@
  */
 #define CONFIG_SYS_NAND_BASE		0xE1000000
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_MAX_CHIPS	1
-#define CONFIG_NAND_FSL_ELBC
-#define CONFIG_SYS_NAND_PAGE_SIZE	(2048)
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 << 10)
 #define NAND_CACHE_PAGES		64
 
 
@@ -163,11 +159,6 @@
 /*
  * I2C setup
  */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3100
 #define CONFIG_SYS_I2C_RTC_ADDR	0x51
 
 /*
@@ -217,7 +208,6 @@
  */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(8 * 1024 * 1024)
 
 /*
  * Environment Configuration
@@ -229,7 +219,6 @@
 #define CONFIG_BOOTFILE		"ids8313/uImage"
 #define CONFIG_UBOOTPATH		"ids8313/u-boot.bin"
 #define CONFIG_FDTFILE			"ids8313/ids8313.dtb"
-#define CONFIG_LOADADDR		0x400000
 #define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mo,eth1addr:mo"
 
 /* Initial Memory map for Linux*/
@@ -241,7 +230,6 @@
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		0x100000
 #define CONFIG_LOADS_ECHO
 #define CONFIG_TIMESTAMP
 #define CONFIG_BOOTCOMMAND		"run boot_cramfs"
@@ -284,7 +272,7 @@
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
 
-#define CONFIG_NFSBOOTCOMMAND						\
+#define NFSBOOTCOMMAND						\
 	"setenv rootdev /dev/nfs;"					\
 	"run setipargs;run addmtd;"					\
 	"tftp ${loadaddr} ${bootfile};"				\

@@ -10,6 +10,7 @@
 #include <getopt.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 
 static char log_fmt_chars[LOGF_COUNT] = "clFLfm";
 
@@ -351,7 +352,7 @@ static int do_log_rec(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 7)
 		return CMD_RET_USAGE;
 	cat = log_get_cat_by_name(argv[1]);
-	level = simple_strtoul(argv[2], &end, 10);
+	level = dectoul(argv[2], &end);
 	if (end == argv[2]) {
 		level = log_get_level_by_name(argv[2]);
 
@@ -365,7 +366,7 @@ static int do_log_rec(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 	file = argv[3];
-	line = simple_strtoul(argv[4], NULL, 10);
+	line = dectoul(argv[4], NULL);
 	func = argv[5];
 	msg = argv[6];
 	if (_log(cat, level, file, line, func, "%s\n", msg))

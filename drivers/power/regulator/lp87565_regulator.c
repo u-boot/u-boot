@@ -23,9 +23,9 @@ static int lp87565_buck_enable(struct udevice *dev, int op, bool *enable)
 {
 	int ret;
 	unsigned int adr;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	adr = uc_pdata->ctrl_reg;
 
 	ret = pmic_reg_read(dev->parent, adr);
@@ -86,9 +86,9 @@ static int lp87565_buck_val(struct udevice *dev, int op, int *uV)
 {
 	unsigned int hex, adr;
 	int ret;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	if (op == PMIC_OP_GET)
 		*uV = 0;
@@ -123,10 +123,10 @@ static int lp87565_buck_val(struct udevice *dev, int op, int *uV)
 
 static int lp87565_buck_probe(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 	int idx;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	uc_pdata->type = REGULATOR_TYPE_BUCK;
 
 	idx = dev->driver_data;

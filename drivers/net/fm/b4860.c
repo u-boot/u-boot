@@ -100,7 +100,7 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 			env_get_f("hwconfig", buffer, sizeof(buffer));
 			buf = buffer;
 
-			/* check if XFI interface enable in hwconfig for 10g */
+			/* check if 10GBase-R interface enable in hwconfig for 10g */
 			if (hwconfig_subarg_cmp_f("fsl_b4860_serdes2",
 						  "sfp_amc", "sfp", buf)) {
 				if ((port == FM1_10GEC1 ||

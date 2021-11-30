@@ -54,6 +54,6 @@ enum {
 	PCA9450_REG_NUM,
 };
 
-int power_pca9450_init(unsigned char bus);
+int power_pca9450_init(unsigned char bus, unsigned char addr);
 
 #endif

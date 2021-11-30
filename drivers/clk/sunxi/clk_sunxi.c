@@ -11,7 +11,7 @@
 #include <log.h>
 #include <reset.h>
 #include <asm/io.h>
-#include <asm/arch/ccu.h>
+#include <clk/sunxi.h>
 #include <linux/bitops.h>
 #include <linux/log2.h>
 

@@ -185,14 +185,14 @@ int arch_cpu_init(void)
 	 * driver doesn't handle this.
 	 */
 #ifndef CONFIG_DM_SERIAL
-	NS16550_init((NS16550_t)(CONFIG_SYS_NS16550_COM2),
+	ns16550_init((struct ns16550 *)(CONFIG_SYS_NS16550_COM2),
 		     CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
 #endif
 
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	volatile u32 *rstctrl = (volatile u32 *)(KS2_RSTCTRL);
 	u32 tmp;

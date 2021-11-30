@@ -22,7 +22,7 @@ struct sdhci_tangier_plat {
 
 static int sdhci_tangier_bind(struct udevice *dev)
 {
-	struct sdhci_tangier_plat *plat = dev_get_platdata(dev);
+	struct sdhci_tangier_plat *plat = dev_get_plat(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
@@ -30,7 +30,7 @@ static int sdhci_tangier_bind(struct udevice *dev)
 static int sdhci_tangier_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct sdhci_tangier_plat *plat = dev_get_platdata(dev);
+	struct sdhci_tangier_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	fdt_addr_t base;
 	int ret;
@@ -76,6 +76,6 @@ U_BOOT_DRIVER(sdhci_tangier) = {
 	.bind		= sdhci_tangier_bind,
 	.probe		= sdhci_tangier_probe,
 	.ops		= &sdhci_ops,
-	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct sdhci_tangier_plat),
+	.priv_auto	= sizeof(struct sdhci_host),
+	.plat_auto	= sizeof(struct sdhci_tangier_plat),
 };

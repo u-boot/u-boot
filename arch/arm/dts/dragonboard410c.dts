@@ -8,6 +8,7 @@
 /dts-v1/;
 
 #include "skeleton64.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/pinctrl/pinctrl-snapdragon.h>
 
 / {
@@ -91,7 +92,7 @@
 			gpio-controller;
 			gpio-count = <122>;
 			gpio-bank-name="soc";
-			#gpio-cells = <1>;
+			#gpio-cells = <2>;
 		};
 
 		ehci@78d9000 {
@@ -123,6 +124,7 @@
 			bus-width = <0x4>;
 			clock = <&clkc 1>;
 			clock-frequency = <200000000>;
+			cd-gpios = <&soc_gpios 38 GPIO_ACTIVE_LOW>;
 		};
 
 		wcnss {

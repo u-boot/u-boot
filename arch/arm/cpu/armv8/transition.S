@@ -40,7 +40,7 @@ ENTRY(armv8_switch_to_el1)
 	 * now, jump to the address saved in x4.
 	 */
 	br x4
-1:	armv8_switch_to_el1_m x4, x5, x6
+1:	armv8_switch_to_el1_m x4, x5, x6, x7
 ENDPROC(armv8_switch_to_el1)
 .popsection
 

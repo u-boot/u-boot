@@ -24,7 +24,7 @@ config SPL_LIBCOMMON_SUPPORT
 config SPL_LIBGENERIC_SUPPORT
 	default y
 
-config SPL_SERIAL_SUPPORT
+config SPL_SERIAL
 	default y
 
 config TPL_LIBCOMMON_SUPPORT

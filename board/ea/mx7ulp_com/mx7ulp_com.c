@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mx7ulp-pins.h>
@@ -18,6 +19,10 @@ DECLARE_GLOBAL_DATA_PTR;
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
+
+#ifdef CONFIG_OPTEE_TZDRAM_SIZE
+	gd->ram_size -= CONFIG_OPTEE_TZDRAM_SIZE;
+#endif
 
 	return 0;
 }

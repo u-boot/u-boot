@@ -14,7 +14,7 @@
 	compatible = "phytec,imx8mm-phycore-som", "fsl,imx8mm";
 
 	chosen {
-		stdout-patch = &uart3;
+		stdout-path = &uart3;
 	};
 
 	reg_usdhc2_vmmc: regulator-usdhc2 {
@@ -51,6 +51,23 @@
 			ti,clk-output-sel = <DP83867_CLK_O_SEL_OFF>;
 			enet-phy-lane-no-swap;
 		};
+	};
+};
+
+/* SPI nor flash */
+&flexspi {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_flexspi0>;
+	status = "okay";
+
+	flash0: norflash@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <80000000>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
 	};
 };
 
@@ -137,6 +154,17 @@
 			MX8MM_IOMUXC_ENET_RX_CTL_ENET1_RGMII_RX_CTL	0x91
 			MX8MM_IOMUXC_ENET_TX_CTL_ENET1_RGMII_TX_CTL	0x1f
 			MX8MM_IOMUXC_GPIO1_IO07_GPIO1_IO7	0x19
+		>;
+	};
+
+	pinctrl_flexspi0: flexspi0grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_NAND_ALE_QSPI_A_SCLK		0x1c2
+			MX8MM_IOMUXC_NAND_CE0_B_QSPI_A_SS0_B		0x82
+			MX8MM_IOMUXC_NAND_DATA00_QSPI_A_DATA0		0x82
+			MX8MM_IOMUXC_NAND_DATA01_QSPI_A_DATA1		0x82
+			MX8MM_IOMUXC_NAND_DATA02_QSPI_A_DATA2		0x82
+			MX8MM_IOMUXC_NAND_DATA03_QSPI_A_DATA3		0x82
 		>;
 	};
 

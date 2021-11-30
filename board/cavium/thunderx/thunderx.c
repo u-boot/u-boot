@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <errno.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 
 #include <cavium/atf.h>
@@ -18,28 +19,28 @@
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 #include <dm/platform_data/serial_pl01x.h>
 
-static const struct pl01x_serial_platdata serial0 = {
+static const struct pl01x_serial_plat serial0 = {
 	.base = CONFIG_SYS_SERIAL0,
 	.type = TYPE_PL011,
 	.clock = 0,
 	.skip_init = true,
 };
 
-U_BOOT_DEVICE(thunderx_serial0) = {
+U_BOOT_DRVINFO(thunderx_serial0) = {
 	.name = "serial_pl01x",
-	.platdata = &serial0,
+	.plat = &serial0,
 };
 
-static const struct pl01x_serial_platdata serial1 = {
+static const struct pl01x_serial_plat serial1 = {
 	.base = CONFIG_SYS_SERIAL1,
 	.type = TYPE_PL011,
 	.clock = 0,
 	.skip_init = true,
 };
 
-U_BOOT_DEVICE(thunderx_serial1) = {
+U_BOOT_DRVINFO(thunderx_serial1) = {
 	.name = "serial_pl01x",
-	.platdata = &serial1,
+	.plat = &serial1,
 };
 #endif
 
@@ -109,7 +110,7 @@ int dram_init(void)
 /*
  * Board specific reset that is system reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }
 
@@ -122,10 +123,3 @@ int board_eth_init(struct bd_info *bis)
 
 	return rc;
 }
-
-#ifdef CONFIG_PCI
-void pci_init_board(void)
-{
-	printf("DEBUG: PCI Init TODO *****\n");
-}
-#endif

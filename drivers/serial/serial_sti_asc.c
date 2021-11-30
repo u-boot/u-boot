@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <log.h>
 #include <serial.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 
@@ -206,6 +207,5 @@ U_BOOT_DRIVER(serial_sti_asc) = {
 	.of_match = sti_serial_of_match,
 	.ops = &sti_asc_serial_ops,
 	.probe = sti_asc_serial_probe,
-	.priv_auto_alloc_size = sizeof(struct sti_asc_serial),
+	.priv_auto	= sizeof(struct sti_asc_serial),
 };
-

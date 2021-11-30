@@ -619,7 +619,7 @@ void aes_decrypt(u32 key_len, u8 *in, u8 *expkey, u8 *out)
 static void debug_print_vector(char *name, u32 num_bytes, u8 *data)
 {
 #ifdef DEBUG
-	printf("%s [%d] @0x%08x", name, num_bytes, (u32)data);
+	printf("%s [%d] @0x%p", name, num_bytes, data);
 	print_buffer(0, data, 1, num_bytes, 16);
 #endif
 }

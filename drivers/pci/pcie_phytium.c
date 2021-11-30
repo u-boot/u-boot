@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <pci.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 /**
@@ -147,7 +148,7 @@ static int pci_phytium_write_config(struct udevice *bus, pci_dev_t bdf,
 }
 
 /**
- * pci_phytium_ofdata_to_platdata() - Translate from DT to device state
+ * pci_phytium_of_to_plat() - Translate from DT to device state
  * @dev: A pointer to the device being operated on
  *
  * Translate relevant data from the device tree pertaining to device @dev into
@@ -156,7 +157,7 @@ static int pci_phytium_write_config(struct udevice *bus, pci_dev_t bdf,
  *
  * Return: 0 on success, else -EINVAL
  */
-static int pci_phytium_ofdata_to_platdata(struct udevice *dev)
+static int pci_phytium_of_to_plat(struct udevice *dev)
 {
 	struct phytium_pcie *pcie = dev_get_priv(dev);
 	struct fdt_resource reg_res;
@@ -194,6 +195,6 @@ U_BOOT_DRIVER(pci_phytium) = {
 	.id			= UCLASS_PCI,
 	.of_match		= pci_phytium_ids,
 	.ops			= &pci_phytium_ops,
-	.ofdata_to_platdata	= pci_phytium_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct phytium_pcie),
+	.of_to_plat	= pci_phytium_of_to_plat,
+	.priv_auto	= sizeof(struct phytium_pcie),
 };

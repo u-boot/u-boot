@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * (C) Copyright 2021 Rockchip Electronics Co., Ltd
+ */
+
+/ {
+	aliases {
+		mmc0 = &sdhci;
+		mmc1 = &sdmmc0;
+	};
+
+	dmc: dmc {
+		compatible = "rockchip,rk3568-dmc";
+		u-boot,dm-pre-reloc;
+		status = "okay";
+	};
+};
+
+&cru {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&pmucru {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&grf {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&pmugrf {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};

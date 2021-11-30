@@ -94,9 +94,8 @@ OPTEE_TEST(optee_fdt_protected_memory, 0);
 
 int do_ut_optee(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = ll_entry_start(struct unit_test,
-						 optee_test);
-	const int n_ents = ll_entry_count(struct unit_test, optee_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(optee_test);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(optee_test);
 	struct unit_test_state *uts;
 	void *fdt_optee = &__dtb_test_optee_optee_begin;
 	void *fdt_no_optee = &__dtb_test_optee_no_optee_begin;

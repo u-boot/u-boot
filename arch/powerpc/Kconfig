@@ -25,12 +25,6 @@ config MPC85xx
 	imply CMD_IRQ
 	imply USB_EHCI_HCD if USB
 
-config MPC86xx
-	bool "MPC86xx"
-	select SYS_FSL_DDR
-	select SYS_FSL_DDR_BE
-	imply CMD_REGINFO
-
 config MPC8xx
 	bool "MPC8xx"
 	select BOARD_EARLY_INIT_F
@@ -47,7 +41,7 @@ config HIGH_BATS
 
 source "arch/powerpc/cpu/mpc83xx/Kconfig"
 source "arch/powerpc/cpu/mpc85xx/Kconfig"
-source "arch/powerpc/cpu/mpc86xx/Kconfig"
 source "arch/powerpc/cpu/mpc8xx/Kconfig"
+source "arch/powerpc/lib/Kconfig"
 
 endmenu

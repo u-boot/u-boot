@@ -20,7 +20,7 @@ struct vybrid_gpio_regs {
 	u32 gpio_pdir;
 };
 
-struct vybrid_gpio_platdata {
+struct vybrid_gpio_plat {
 	unsigned int chip;
 	u32 base;
 	const char *port_name;

@@ -20,12 +20,8 @@
 #include <charset.h>
 #include <pe.h>
 
-#ifdef CONFIG_EFI_LOADER
-#include <asm/setjmp.h>
-#endif
-
-/* UEFI spec version 2.8 */
-#define EFI_SPECIFICATION_VERSION (2 << 16 | 80)
+/* UEFI spec version 2.9 */
+#define EFI_SPECIFICATION_VERSION (2 << 16 | 90)
 
 /* Types and defines for EFI CreateEvent */
 enum efi_timer_delay {
@@ -34,8 +30,6 @@ enum efi_timer_delay {
 	EFI_TIMER_RELATIVE = 2
 };
 
-#define efi_intn_t ssize_t
-#define efi_uintn_t size_t
 typedef void *efi_hii_handle_t;
 typedef u16 *efi_string_t;
 typedef u16 efi_string_id_t;
@@ -126,7 +120,7 @@ struct efi_boot_services {
 			struct efi_device_path **device_path,
 			efi_handle_t *device);
 	efi_status_t (EFIAPI *install_configuration_table)(
-			efi_guid_t *guid, void *table);
+			const efi_guid_t *guid, void *table);
 
 	efi_status_t (EFIAPI *load_image)(bool boot_policiy,
 			efi_handle_t parent_image,
@@ -217,11 +211,74 @@ enum efi_reset_type {
 #define CAPSULE_FLAGS_POPULATE_SYSTEM_TABLE	0x00020000
 #define CAPSULE_FLAGS_INITIATE_RESET		0x00040000
 
+#define CAPSULE_SUPPORT_AUTHENTICATION		0x0000000000000001
+#define CAPSULE_SUPPORT_DEPENDENCY		0x0000000000000002
+
+#define EFI_CAPSULE_REPORT_GUID \
+	EFI_GUID(0x39b68c46, 0xf7fb, 0x441b, 0xb6, 0xec, \
+		 0x16, 0xb0, 0xf6, 0x98, 0x21, 0xf3)
+
+#define EFI_MEMORY_RANGE_CAPSULE_GUID \
+	EFI_GUID(0xde9f0ec, 0x88b6, 0x428f, 0x97, 0x7a, \
+		 0x25, 0x8f, 0x1d, 0xe, 0x5e, 0x72)
+
+#define EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID \
+	EFI_GUID(0x6dcbd5ed, 0xe82d, 0x4c44, 0xbd, 0xa1, \
+		 0x71, 0x94, 0x19, 0x9a, 0xd9, 0x2a)
+
 struct efi_capsule_header {
 	efi_guid_t capsule_guid;
 	u32 header_size;
 	u32 flags;
 	u32 capsule_image_size;
+} __packed;
+
+struct efi_capsule_result_variable_header {
+	u32 variable_total_size;
+	u32 reserved;
+	efi_guid_t capsule_guid;
+	struct efi_time capsule_processed;
+	efi_status_t capsule_status;
+} __packed;
+
+struct efi_memory_range {
+	efi_physical_addr_t	address;
+	u64			length;
+};
+
+struct efi_memory_range_capsule {
+	struct efi_capsule_header *header;
+	/* EFI_MEMORY_TYPE: 0x80000000-0xFFFFFFFF */
+	enum efi_memory_type os_requested_memory_type;
+	u64 number_of_memory_ranges;
+	struct efi_memory_range memory_ranges[];
+} __packed;
+
+struct efi_firmware_management_capsule_header {
+	u32 version;
+	u16 embedded_driver_count;
+	u16 payload_item_count;
+	u64 item_offset_list[];
+} __packed;
+
+struct efi_firmware_management_capsule_image_header {
+	u32 version;
+	efi_guid_t update_image_type_id;
+	u8 update_image_index;
+	u8 reserved[3];
+	u32 update_image_size;
+	u32 update_vendor_code_size;
+	u64 update_hardware_instance;
+	u64 image_capsule_support;
+} __packed;
+
+struct efi_capsule_result_variable_fmp {
+	u16 version;
+	u8 payload_index;
+	u8 update_image_index;
+	efi_guid_t update_image_type_id;
+	// u16 capsule_file_name[];
+	// u16 capsule_target[];
 } __packed;
 
 #define EFI_RT_SUPPORTED_GET_TIME			0x0001
@@ -303,9 +360,14 @@ struct efi_runtime_services {
 };
 
 /* EFI event group GUID definitions */
+
 #define EFI_EVENT_GROUP_EXIT_BOOT_SERVICES \
 	EFI_GUID(0x27abf055, 0xb1b8, 0x4c26, 0x80, 0x48, \
 		 0x74, 0x8f, 0x37, 0xba, 0xa2, 0xdf)
+
+#define EFI_EVENT_GROUP_BEFORE_EXIT_BOOT_SERVICES \
+	EFI_GUID(0x8be0e274, 0x3970, 0x4b44, 0x80, 0xc5, \
+		 0x1a, 0xb9, 0x50, 0x2f, 0x3b, 0xfc)
 
 #define EFI_EVENT_GROUP_VIRTUAL_ADDRESS_CHANGE \
 	EFI_GUID(0x13fa7698, 0xc831, 0x49c7, 0x87, 0xea, \
@@ -318,6 +380,10 @@ struct efi_runtime_services {
 #define EFI_EVENT_GROUP_READY_TO_BOOT \
 	EFI_GUID(0x7ce88fb3, 0x4bd7, 0x4679, 0x87, 0xa8, \
 		 0xa8, 0xd8, 0xde, 0xe5, 0x0d, 0x2b)
+
+#define EFI_EVENT_GROUP_AFTER_READY_TO_BOOT \
+	EFI_GUID(0x3a2a00ad, 0x98b9, 0x4cdf, 0xa4, 0x78, \
+		 0x70, 0x27, 0x77, 0xf1, 0xc1, 0xb)
 
 #define EFI_EVENT_GROUP_RESET_SYSTEM \
 	EFI_GUID(0x62da6a56, 0x13fb, 0x485a, 0xa8, 0xda, \
@@ -356,6 +422,19 @@ struct efi_runtime_services {
 	EFI_GUID(0x4006c0c1, 0xfcb3, 0x403e, \
 		 0x99, 0x6d, 0x4a, 0x6c, 0x87, 0x24, 0xe0, 0x6d)
 
+#define EFI_TCG2_FINAL_EVENTS_TABLE_GUID \
+	EFI_GUID(0x1e2ed096, 0x30e2, 0x4254, 0xbd, \
+		 0x89, 0x86, 0x3b, 0xbe, 0xf8, 0x23, 0x25)
+
+/**
+ * struct efi_configuration_table - EFI Configuration Table
+ *
+ * This table contains a set of GUID/pointer pairs.
+ * The EFI Configuration Table may contain at most one instance of each table type.
+ *
+ * @guid:		GUID that uniquely identifies the system configuration table
+ * @table:		A pointer to the table associated with guid
+ */
 struct efi_configuration_table {
 	efi_guid_t guid;
 	void *table;
@@ -363,6 +442,29 @@ struct efi_configuration_table {
 
 #define EFI_SYSTEM_TABLE_SIGNATURE ((u64)0x5453595320494249ULL)
 
+/**
+ * struct efi_system_table - EFI System Table
+ *
+ * EFI System Table contains pointers to the runtime and boot services tables.
+ *
+ * @hdr:		The table header for the EFI System Table
+ * @fw_vendor:		A pointer to a null terminated string that identifies the vendor
+ *			that produces the system firmware
+ * @fw_revision:	The revision of the system firmware
+ * @con_in_handle:	The handle for the active console input device
+ * @con_in:		A pointer to the EFI_SIMPLE_TEXT_INPUT_PROTOCOL interface
+ *			that is associated with con_in_handle
+ * @con_out_handle:	The handle for the active console output device
+ * @con_out:		A pointer to the EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL interface
+ *			that is associated with con_out_handle
+ * @stderr_handle:	The handle for the active standard error console device
+ * @std_err:		A pointer to the EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL interface
+ *			that is associated with stderr_handle
+ * @runtime:		A pointer to the EFI Runtime Services Table
+ * @boottime:		A pointer to the EFI Boot Services Table
+ * @nr_tables:		The number of system configuration tables
+ * @tables:		A pointer to the system configuration tables
+ */
 struct efi_system_table {
 	struct efi_table_hdr hdr;
 	u16 *fw_vendor;   /* physical addr of wchar_t vendor string */
@@ -458,9 +560,11 @@ struct efi_device_path_acpi_path {
 #  define DEVICE_PATH_SUB_TYPE_MSG_SCSI		0x02
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB		0x05
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
+#  define DEVICE_PATH_SUB_TYPE_MSG_UART		0x0e
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
 #  define DEVICE_PATH_SUB_TYPE_MSG_SATA		0x12
 #  define DEVICE_PATH_SUB_TYPE_MSG_NVME		0x17
+#  define DEVICE_PATH_SUB_TYPE_MSG_URI		0x18
 #  define DEVICE_PATH_SUB_TYPE_MSG_SD		0x1a
 #  define DEVICE_PATH_SUB_TYPE_MSG_MMC		0x1d
 
@@ -475,6 +579,15 @@ struct efi_device_path_scsi {
 	struct efi_device_path dp;
 	u16 target_id;
 	u16 logical_unit_number;
+} __packed;
+
+struct efi_device_path_uart {
+	struct efi_device_path dp;
+	u32 reserved;
+	u64 baud_rate;
+	u8 data_bits;
+	u8 parity;
+	u8 stop_bits;
 } __packed;
 
 struct efi_device_path_usb {
@@ -514,6 +627,11 @@ struct efi_device_path_nvme {
 	struct efi_device_path dp;
 	u32 ns_id;
 	u8 eui64[8];
+} __packed;
+
+struct efi_device_path_uri {
+	struct efi_device_path dp;
+	u8 uri[];
 } __packed;
 
 #define DEVICE_PATH_TYPE_MEDIA_DEVICE		0x04
@@ -636,10 +754,10 @@ struct efi_simple_text_output_protocol {
 			char extended_verification);
 	efi_status_t (EFIAPI *output_string)(
 			struct efi_simple_text_output_protocol *this,
-			const efi_string_t str);
+			const u16 *str);
 	efi_status_t (EFIAPI *test_string)(
 			struct efi_simple_text_output_protocol *this,
-			const efi_string_t str);
+			const u16 *str);
 	efi_status_t(EFIAPI *query_mode)(
 			struct efi_simple_text_output_protocol *this,
 			unsigned long mode_number, unsigned long *columns,
@@ -793,8 +911,8 @@ struct efi_hii_package_list_header {
  * @fields:	'fields' replaces the bit-fields defined in the EFI
  *		specification to to avoid possible compiler incompatibilities::
  *
- *		u32 length:24;
- *		u32 type:8;
+ *		    u32 length:24;
+ *		    u32 type:8;
  */
 struct efi_hii_package_header {
 	u32 fields;
@@ -1522,35 +1640,35 @@ struct efi_file_io_token {
 
 struct efi_file_handle {
 	u64 rev;
-	efi_status_t (EFIAPI *open)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *open)(struct efi_file_handle *this,
 			struct efi_file_handle **new_handle,
 			u16 *file_name, u64 open_mode, u64 attributes);
-	efi_status_t (EFIAPI *close)(struct efi_file_handle *file);
-	efi_status_t (EFIAPI *delete)(struct efi_file_handle *file);
-	efi_status_t (EFIAPI *read)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *close)(struct efi_file_handle *this);
+	efi_status_t (EFIAPI *delete)(struct efi_file_handle *this);
+	efi_status_t (EFIAPI *read)(struct efi_file_handle *this,
 			efi_uintn_t *buffer_size, void *buffer);
-	efi_status_t (EFIAPI *write)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *write)(struct efi_file_handle *this,
 			efi_uintn_t *buffer_size, void *buffer);
-	efi_status_t (EFIAPI *getpos)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *getpos)(struct efi_file_handle *this,
 				      u64 *pos);
-	efi_status_t (EFIAPI *setpos)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *setpos)(struct efi_file_handle *this,
 				      u64 pos);
-	efi_status_t (EFIAPI *getinfo)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *getinfo)(struct efi_file_handle *this,
 			const efi_guid_t *info_type, efi_uintn_t *buffer_size,
 			void *buffer);
-	efi_status_t (EFIAPI *setinfo)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *setinfo)(struct efi_file_handle *this,
 			const efi_guid_t *info_type, efi_uintn_t buffer_size,
 			void *buffer);
-	efi_status_t (EFIAPI *flush)(struct efi_file_handle *file);
-	efi_status_t (EFIAPI *open_ex)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *flush)(struct efi_file_handle *this);
+	efi_status_t (EFIAPI *open_ex)(struct efi_file_handle *this,
 			struct efi_file_handle **new_handle,
 			u16 *file_name, u64 open_mode, u64 attributes,
 			struct efi_file_io_token *token);
-	efi_status_t (EFIAPI *read_ex)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *read_ex)(struct efi_file_handle *this,
 			struct efi_file_io_token *token);
-	efi_status_t (EFIAPI *write_ex)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *write_ex)(struct efi_file_handle *this,
 			struct efi_file_io_token *token);
-	efi_status_t (EFIAPI *flush_ex)(struct efi_file_handle *file,
+	efi_status_t (EFIAPI *flush_ex)(struct efi_file_handle *this,
 			struct efi_file_io_token *token);
 };
 
@@ -1628,10 +1746,6 @@ struct efi_driver_binding_protocol {
 	efi_handle_t driver_binding_handle;
 };
 
-/* Deprecated version of the Unicode collation protocol */
-#define EFI_UNICODE_COLLATION_PROTOCOL_GUID \
-	EFI_GUID(0x1d85cd7f, 0xf43d, 0x11d2, \
-		 0x9a, 0x0c, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
 /* Current version of the Unicode collation protocol */
 #define EFI_UNICODE_COLLATION_PROTOCOL2_GUID \
 	EFI_GUID(0xa4c751fc, 0x23ae, 0x4c3e, \
@@ -1661,6 +1775,23 @@ struct efi_load_file_protocol {
 					 void *buffer);
 };
 
+struct efi_system_resource_entry {
+	efi_guid_t fw_class;
+	u32 fw_type;
+	u32 fw_version;
+	u32 lowest_supported_fw_version;
+	u32 capsule_flags;
+	u32 last_attempt_version;
+	u32 last_attempt_status;
+} __packed;
+
+struct efi_system_resource_table {
+	u32 fw_resource_count;
+	u32 fw_resource_count_max;
+	u64 fw_resource_version;
+	struct efi_system_resource_entry entries[];
+} __packed;
+
 /* Boot manager load options */
 #define LOAD_OPTION_ACTIVE		0x00000001
 #define LOAD_OPTION_FORCE_RECONNECT	0x00000002
@@ -1678,6 +1809,10 @@ struct efi_load_file_protocol {
 #define ESRT_FW_TYPE_SYSTEMFIRMWARE	0x00000001
 #define ESRT_FW_TYPE_DEVICEFIRMWARE	0x00000002
 #define ESRT_FW_TYPE_UEFIDRIVER		0x00000003
+
+#define EFI_SYSTEM_RESOURCE_TABLE_GUID\
+	EFI_GUID(0xb122a263, 0x3661, 0x4f68,\
+		0x99, 0x29, 0x78, 0xf8, 0xb0, 0xd6, 0x21, 0x80)
 
 /* Last Attempt Status Values */
 #define LAST_ATTEMPT_STATUS_SUCCESS			0x00000000
@@ -1715,7 +1850,7 @@ struct efi_load_file_protocol {
 		 0x34, 0x7d, 0x37, 0x56, 0x65, 0xa7)
 
 /**
- * win_certificate_uefi_guid - A certificate that encapsulates
+ * struct win_certificate_uefi_guid - A certificate that encapsulates
  * a GUID-specific signature
  *
  * @hdr:	Windows certificate header
@@ -1729,7 +1864,7 @@ struct win_certificate_uefi_guid {
 } __attribute__((__packed__));
 
 /**
- * efi_variable_authentication_2 - A time-based authentication method
+ * struct efi_variable_authentication_2 - A time-based authentication method
  * descriptor
  *
  * This structure describes an authentication information for
@@ -1746,7 +1881,25 @@ struct efi_variable_authentication_2 {
 } __attribute__((__packed__));
 
 /**
- * efi_signature_data - A format of signature
+ * struct efi_firmware_image_authentication - Capsule authentication method
+ * descriptor
+ *
+ * This structure describes an authentication information for
+ * a capsule with IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED set
+ * and should be included as part of the capsule.
+ * Only EFI_CERT_TYPE_PKCS7_GUID is accepted.
+ *
+ * @monotonic_count: Count to prevent replay
+ * @auth_info: Authentication info
+ */
+struct efi_firmware_image_authentication {
+	uint64_t monotonic_count;
+	struct win_certificate_uefi_guid auth_info;
+} __attribute__((__packed__));
+
+
+/**
+ * struct efi_signature_data - A format of signature
  *
  * This structure describes a single signature in signature database.
  *
@@ -1759,7 +1912,7 @@ struct efi_signature_data {
 } __attribute__((__packed__));
 
 /**
- * efi_signature_list - A format of signature database
+ * struct efi_signature_list - A format of signature database
  *
  * This structure describes a list of signatures with the same type.
  * An authenticated variable's value is a concatenation of one or more
@@ -1778,5 +1931,108 @@ struct efi_signature_list {
 /*	u8		signature_header[signature_header_size]; */
 /*	struct efi_signature_data signatures[...][signature_size]; */
 } __attribute__((__packed__));
+
+/*
+ * Firmware management protocol
+ */
+#define EFI_FIRMWARE_MANAGEMENT_PROTOCOL_GUID \
+	EFI_GUID(0x86c77a67, 0x0b97, 0x4633, 0xa1, 0x87, \
+		 0x49, 0x10, 0x4d, 0x06, 0x85, 0xc7)
+
+#define EFI_FIRMWARE_IMAGE_TYPE_UBOOT_FIT_GUID \
+	EFI_GUID(0xae13ff2d, 0x9ad4, 0x4e25, 0x9a, 0xc8, \
+		 0x6d, 0x80, 0xb3, 0xb2, 0x21, 0x47)
+
+#define EFI_FIRMWARE_IMAGE_TYPE_UBOOT_RAW_GUID \
+	EFI_GUID(0xe2bb9c06, 0x70e9, 0x4b14, 0x97, 0xa3, \
+		 0x5a, 0x79, 0x13, 0x17, 0x6e, 0x3f)
+
+#define IMAGE_ATTRIBUTE_IMAGE_UPDATABLE		0x0000000000000001
+#define IMAGE_ATTRIBUTE_RESET_REQUIRED		0x0000000000000002
+#define IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED	0x0000000000000004
+#define IMAGE_ATTRIBUTE_IN_USE			0x0000000000000008
+#define IMAGE_ATTRIBUTE_UEFI_IMAGE		0x0000000000000010
+#define IMAGE_ATTRIBUTE_DEPENDENCY		0x0000000000000020
+
+#define IMAGE_COMPATIBILITY_CHECK_SUPPORTED	0x0000000000000001
+
+#define IMAGE_UPDATABLE_VALID			0x0000000000000001
+#define IMAGE_UPDATABLE_INVALID			0x0000000000000002
+#define IMAGE_UPDATABLE_INVALID_TYPE		0x0000000000000004
+#define IMAGE_UPDATABLE_INVALID_OLLD		0x0000000000000008
+#define IMAGE_UPDATABLE_VALID_WITH_VENDOR_CODE	0x0000000000000010
+
+#define PACKAGE_ATTRIBUTE_VERSION_UPDATABLE		0x0000000000000001
+#define PACKAGE_ATTRIBUTE_RESET_REQUIRED		0x0000000000000002
+#define PACKAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED	0x0000000000000004
+
+#define EFI_FIRMWARE_IMAGE_DESCRIPTOR_VERSION	4
+
+typedef struct efi_firmware_image_dependencies {
+	u8 dependencies[0];
+} efi_firmware_image_dep_t;
+
+struct efi_firmware_image_descriptor {
+	u8 image_index;
+	efi_guid_t image_type_id;
+	u64 image_id;
+	u16 *image_id_name;
+	u32 version;
+	u16 *version_name;
+	efi_uintn_t size;
+	u64 attributes_supported;
+	u64 attributes_setting;
+	u64 compatibilities;
+	u32 lowest_supported_image_version;
+	u32 last_attempt_version;
+	u32 last_attempt_status;
+	u64 hardware_instance;
+	efi_firmware_image_dep_t *dependencies;
+};
+
+struct efi_firmware_management_protocol {
+	efi_status_t (EFIAPI *get_image_info)(
+			struct efi_firmware_management_protocol *this,
+			efi_uintn_t *image_info_size,
+			struct efi_firmware_image_descriptor *image_info,
+			u32 *descriptor_version,
+			u8 *descriptor_count,
+			efi_uintn_t *descriptor_size,
+			u32 *package_version,
+			u16 **package_version_name);
+	efi_status_t (EFIAPI *get_image)(
+			struct efi_firmware_management_protocol *this,
+			u8 image_index,
+			void *image,
+			efi_uintn_t *image_size);
+	efi_status_t (EFIAPI *set_image)(
+			struct efi_firmware_management_protocol *this,
+			u8 image_index,
+			const void *image,
+			efi_uintn_t image_size,
+			const void *vendor_code,
+			efi_status_t (*progress)(efi_uintn_t completion),
+			u16 **abort_reason);
+	efi_status_t (EFIAPI *check_image)(
+			struct efi_firmware_management_protocol *this,
+			u8 image_index,
+			const void *image,
+			efi_uintn_t *image_size,
+			u32 *image_updatable);
+	efi_status_t (EFIAPI *get_package_info)(
+			struct efi_firmware_management_protocol *this,
+			u32 *package_version,
+			u16 **package_version_name,
+			u32 *package_version_name_maxlen,
+			u64 *attributes_supported,
+			u64 *attributes_setting);
+	efi_status_t (EFIAPI *set_package_info)(
+			struct efi_firmware_management_protocol *this,
+			const void *image,
+			efi_uintn_t *image_size,
+			const void *vendor_code,
+			u32 package_version,
+			const u16 *package_version_name);
+};
 
 #endif

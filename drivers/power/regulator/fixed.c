@@ -14,26 +14,26 @@
 
 #include "regulator_common.h"
 
-static int fixed_regulator_ofdata_to_platdata(struct udevice *dev)
+static int fixed_regulator_of_to_plat(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
-	struct regulator_common_platdata *dev_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
+	struct regulator_common_plat *dev_pdata;
 
-	dev_pdata = dev_get_platdata(dev);
-	uc_pdata = dev_get_uclass_platdata(dev);
+	dev_pdata = dev_get_plat(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
 
-	return regulator_common_ofdata_to_platdata(dev, dev_pdata, "gpio");
+	return regulator_common_of_to_plat(dev, dev_pdata, "gpio");
 }
 
 static int fixed_regulator_get_value(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
@@ -47,9 +47,9 @@ static int fixed_regulator_get_value(struct udevice *dev)
 
 static int fixed_regulator_get_current(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
@@ -63,12 +63,12 @@ static int fixed_regulator_get_current(struct udevice *dev)
 
 static int fixed_regulator_get_enable(struct udevice *dev)
 {
-	return regulator_common_get_enable(dev, dev_get_platdata(dev));
+	return regulator_common_get_enable(dev, dev_get_plat(dev));
 }
 
 static int fixed_regulator_set_enable(struct udevice *dev, bool enable)
 {
-	return regulator_common_set_enable(dev, dev_get_platdata(dev), enable);
+	return regulator_common_set_enable(dev, dev_get_plat(dev), enable);
 }
 
 static const struct dm_regulator_ops fixed_regulator_ops = {
@@ -88,6 +88,6 @@ U_BOOT_DRIVER(regulator_fixed) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &fixed_regulator_ops,
 	.of_match = fixed_regulator_ids,
-	.ofdata_to_platdata = fixed_regulator_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct regulator_common_platdata),
+	.of_to_plat = fixed_regulator_of_to_plat,
+	.plat_auto	= sizeof(struct regulator_common_plat),
 };

@@ -248,9 +248,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 	debug_cond(DEBUG_SETUP != 0, "%s: %s\n", __func__, "no name");
 
-	if (!driver
-	    || (driver->speed != USB_SPEED_FULL
-		&& driver->speed != USB_SPEED_HIGH)
+	if (!driver || driver->speed < USB_SPEED_FULL
 	    || !driver->bind || !driver->disconnect || !driver->setup)
 		return -EINVAL;
 	if (!dev)
@@ -320,9 +318,7 @@ static int dwc2_gadget_start(struct usb_gadget *g,
 
 	debug_cond(DEBUG_SETUP != 0, "%s: %s\n", __func__, "no name");
 
-	if (!driver ||
-	    (driver->speed != USB_SPEED_FULL &&
-	     driver->speed != USB_SPEED_HIGH) ||
+	if (!driver || driver->speed < USB_SPEED_FULL ||
 	    !driver->bind || !driver->disconnect || !driver->setup)
 		return -EINVAL;
 
@@ -980,48 +976,47 @@ static void dwc2_phy_shutdown(struct udevice *dev, struct phy_bulk *phys)
 	generic_phy_exit_bulk(phys);
 }
 
-static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
+static int dwc2_udc_otg_of_to_plat(struct udevice *dev)
 {
-	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
+	struct dwc2_plat_otg_data *plat = dev_get_plat(dev);
 	ulong drvdata;
 	void (*set_params)(struct dwc2_plat_otg_data *data);
 	int ret;
 
-	if (usb_get_dr_mode(dev->node) != USB_DR_MODE_PERIPHERAL &&
-	    usb_get_dr_mode(dev->node) != USB_DR_MODE_OTG) {
+	if (usb_get_dr_mode(dev_ofnode(dev)) != USB_DR_MODE_PERIPHERAL &&
+	    usb_get_dr_mode(dev_ofnode(dev)) != USB_DR_MODE_OTG) {
 		dev_dbg(dev, "Invalid mode\n");
 		return -ENODEV;
 	}
 
-	platdata->regs_otg = dev_read_addr(dev);
+	plat->regs_otg = dev_read_addr(dev);
 
-	platdata->rx_fifo_sz = dev_read_u32_default(dev, "g-rx-fifo-size", 0);
-	platdata->np_tx_fifo_sz = dev_read_u32_default(dev,
-						       "g-np-tx-fifo-size", 0);
+	plat->rx_fifo_sz = dev_read_u32_default(dev, "g-rx-fifo-size", 0);
+	plat->np_tx_fifo_sz = dev_read_u32_default(dev, "g-np-tx-fifo-size", 0);
 
-	platdata->tx_fifo_sz_nb =
+	plat->tx_fifo_sz_nb =
 		dev_read_size(dev, "g-tx-fifo-size") / sizeof(u32);
-	if (platdata->tx_fifo_sz_nb > DWC2_MAX_HW_ENDPOINTS)
-		platdata->tx_fifo_sz_nb = DWC2_MAX_HW_ENDPOINTS;
-	if (platdata->tx_fifo_sz_nb) {
+	if (plat->tx_fifo_sz_nb > DWC2_MAX_HW_ENDPOINTS)
+		plat->tx_fifo_sz_nb = DWC2_MAX_HW_ENDPOINTS;
+	if (plat->tx_fifo_sz_nb) {
 		ret = dev_read_u32_array(dev, "g-tx-fifo-size",
-					 platdata->tx_fifo_sz_array,
-					 platdata->tx_fifo_sz_nb);
+					 plat->tx_fifo_sz_array,
+					 plat->tx_fifo_sz_nb);
 		if (ret)
 			return ret;
 	}
 
-	platdata->force_b_session_valid =
+	plat->force_b_session_valid =
 		dev_read_bool(dev, "u-boot,force-b-session-valid");
 
-	platdata->force_vbus_detection =
+	plat->force_vbus_detection =
 		dev_read_bool(dev, "u-boot,force-vbus-detection");
 
-	/* force platdata according compatible */
+	/* force plat according compatible */
 	drvdata = dev_get_driver_data(dev);
 	if (drvdata) {
 		set_params = (void *)drvdata;
-		set_params(platdata);
+		set_params(plat);
 	}
 
 	return 0;
@@ -1091,10 +1086,10 @@ static int dwc2_udc_otg_clk_init(struct udevice *dev,
 
 static int dwc2_udc_otg_probe(struct udevice *dev)
 {
-	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
+	struct dwc2_plat_otg_data *plat = dev_get_plat(dev);
 	struct dwc2_priv_data *priv = dev_get_priv(dev);
 	struct dwc2_usbotg_reg *usbotg_reg =
-		(struct dwc2_usbotg_reg *)platdata->regs_otg;
+		(struct dwc2_usbotg_reg *)plat->regs_otg;
 	int ret;
 
 	ret = dwc2_udc_otg_clk_init(dev, &priv->clks);
@@ -1109,10 +1104,10 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	if (platdata->activate_stm_id_vb_detection) {
+	if (plat->activate_stm_id_vb_detection) {
 		if (CONFIG_IS_ENABLED(DM_REGULATOR) &&
-		    (!platdata->force_b_session_valid ||
-		     platdata->force_vbus_detection)) {
+		    (!plat->force_b_session_valid ||
+		     plat->force_vbus_detection)) {
 			ret = device_get_supply_regulator(dev, "usb33d-supply",
 							  &priv->usb33d_supply);
 			if (ret) {
@@ -1126,8 +1121,8 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 			}
 		}
 
-		if (platdata->force_b_session_valid &&
-		    !platdata->force_vbus_detection) {
+		if (plat->force_b_session_valid &&
+		    !plat->force_vbus_detection) {
 			/* Override VBUS detection: enable then value*/
 			setbits_le32(&usbotg_reg->gotgctl, VB_VALOEN);
 			setbits_le32(&usbotg_reg->gotgctl, VB_VALOVAL);
@@ -1136,7 +1131,7 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 			setbits_le32(&usbotg_reg->ggpio,
 				     GGPIO_STM32_OTG_GCCFG_VBDEN);
 		}
-		if (platdata->force_b_session_valid) {
+		if (plat->force_b_session_valid) {
 			/* Override B session bits: enable then value */
 			setbits_le32(&usbotg_reg->gotgctl, A_VALOEN | B_VALOEN);
 			setbits_le32(&usbotg_reg->gotgctl,
@@ -1148,7 +1143,7 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 		}
 	}
 
-	ret = dwc2_udc_probe(platdata);
+	ret = dwc2_udc_probe(plat);
 	if (ret)
 		return ret;
 
@@ -1177,7 +1172,7 @@ static int dwc2_udc_otg_remove(struct udevice *dev)
 static const struct udevice_id dwc2_udc_otg_ids[] = {
 	{ .compatible = "snps,dwc2" },
 	{ .compatible = "brcm,bcm2835-usb" },
-	{ .compatible = "st,stm32mp1-hsotg",
+	{ .compatible = "st,stm32mp15-hsotg",
 	  .data = (ulong)dwc2_set_stm32mp1_hsotg_params },
 	{},
 };
@@ -1186,18 +1181,18 @@ U_BOOT_DRIVER(dwc2_udc_otg) = {
 	.name	= "dwc2-udc-otg",
 	.id	= UCLASS_USB_GADGET_GENERIC,
 	.of_match = dwc2_udc_otg_ids,
-	.ofdata_to_platdata = dwc2_udc_otg_ofdata_to_platdata,
+	.of_to_plat = dwc2_udc_otg_of_to_plat,
 	.probe = dwc2_udc_otg_probe,
 	.remove = dwc2_udc_otg_remove,
-	.platdata_auto_alloc_size = sizeof(struct dwc2_plat_otg_data),
-	.priv_auto_alloc_size = sizeof(struct dwc2_priv_data),
+	.plat_auto	= sizeof(struct dwc2_plat_otg_data),
+	.priv_auto	= sizeof(struct dwc2_priv_data),
 };
 
 int dwc2_udc_B_session_valid(struct udevice *dev)
 {
-	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
+	struct dwc2_plat_otg_data *plat = dev_get_plat(dev);
 	struct dwc2_usbotg_reg *usbotg_reg =
-		(struct dwc2_usbotg_reg *)platdata->regs_otg;
+		(struct dwc2_usbotg_reg *)plat->regs_otg;
 
 	return readl(&usbotg_reg->gotgctl) & B_SESSION_VALID;
 }

@@ -85,11 +85,11 @@ struct mvebu_image_info {
 };
 #endif
 
-/* Structure of the main header, version 1 (Armada 370/38x/XP) */
+/* Structure of the main header, version 1 (Armada 370/XP/375/38x/39x) */
 struct a38x_main_hdr_v1 {
 	u8  blockid;               /* 0x0       */
 	u8  flags;                 /* 0x1       */
-	u16 reserved2;             /* 0x2-0x3   */
+	u16 nandpagesize;          /* 0x2-0x3   */
 	u32 blocksize;             /* 0x4-0x7   */
 	u8  version;               /* 0x8       */
 	u8  headersz_msb;          /* 0x9       */
@@ -137,7 +137,7 @@ static ulong get_load_addr(void)
 
 	addr_str = env_get("loadaddr");
 	if (addr_str)
-		addr = simple_strtoul(addr_str, NULL, 16);
+		addr = hextoul(addr_str, NULL);
 	else
 		addr = CONFIG_SYS_LOAD_ADDR;
 
@@ -798,7 +798,7 @@ struct bubt_dev *find_bubt_dev(char *dev_name)
 #define DEFAULT_BUBT_DST "nand"
 #elif defined(CONFIG_MVEBU_MMC_BOOT)
 #define DEFAULT_BUBT_DST "mmc"
-else
+#else
 #define DEFAULT_BUBT_DST "error"
 #endif
 #endif /* DEFAULT_BUBT_DST */
@@ -874,9 +874,9 @@ U_BOOT_CMD(
 	bubt, 4, 0, do_bubt_cmd,
 	"Burn a u-boot image to flash",
 	"[file-name] [destination [source]]\n"
-	"\t-file-name     The image file name to burn. Default = flash-image.bin\n"
-	"\t-destination   Flash to burn to [spi, nand, mmc]. Default = active boot device\n"
-	"\t-source        The source to load image from [tftp, usb, mmc]. Default = tftp\n"
+	"\t-file-name     The image file name to burn. Default = " CONFIG_MVEBU_UBOOT_DFLT_NAME "\n"
+	"\t-destination   Flash to burn to [spi, nand, mmc]. Default = " DEFAULT_BUBT_DST "\n"
+	"\t-source        The source to load image from [tftp, usb, mmc]. Default = " DEFAULT_BUBT_SRC "\n"
 	"Examples:\n"
 	"\tbubt - Burn flash-image.bin from tftp to active boot device\n"
 	"\tbubt flash-image-new.bin nand - Burn flash-image-new.bin from tftp to NAND flash\n"

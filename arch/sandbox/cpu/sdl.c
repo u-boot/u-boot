@@ -69,14 +69,14 @@ static void sandbox_sdl_poll_events(void)
 	 * We don't want to include common.h in this file since it uses
 	 * system headers. So add a declation here.
 	 */
-	extern void reset_cpu(unsigned long addr);
+	extern void reset_cpu(void);
 	SDL_Event event;
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_QUIT:
 			puts("LCD window closed - quitting\n");
-			reset_cpu(1);
+			reset_cpu();
 			break;
 		}
 	}
@@ -123,6 +123,9 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 		sdl.vis_height = sdl.height;
 	}
 
+	if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
+		printf("Unable to init hinting: %s", SDL_GetError());
+
 	sdl.depth = 1 << log2_bpp;
 	sdl.pitch = sdl.width * sdl.depth / 8;
 	SDL_Window *screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
@@ -164,8 +167,29 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 
 int sandbox_sdl_sync(void *lcd_base)
 {
+	struct SDL_Rect rect;
+	int ret;
+
+	if (!sdl.texture)
+		return 0;
+	SDL_RenderClear(sdl.renderer);
 	SDL_UpdateTexture(sdl.texture, NULL, lcd_base, sdl.pitch);
-	SDL_RenderCopy(sdl.renderer, sdl.texture, NULL, NULL);
+	ret = SDL_RenderCopy(sdl.renderer, sdl.texture, NULL, NULL);
+	if (ret) {
+		printf("SDL copy %d: %s\n", ret, SDL_GetError());
+		return -EIO;
+	}
+
+	/*
+	 * On some machines this does not appear. Draw an empty rectangle which
+	 * seems to fix that.
+	 */
+	rect.x = 0;
+	rect.y = 0;
+	rect.w = 0;
+	rect.h = 0;
+	SDL_RenderDrawRect(sdl.renderer, &rect);
+
 	SDL_RenderPresent(sdl.renderer);
 	sandbox_sdl_poll_events();
 

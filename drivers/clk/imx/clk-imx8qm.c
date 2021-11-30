@@ -133,7 +133,7 @@ ulong imx8_clk_get_rate(struct clk *clk)
 			       __func__, clk->id);
 			return -EINVAL;
 		}
-		return -ENOTSUPP;
+		return -EINVAL;
 	};
 
 	ret = sc_pm_get_clock_rate(-1, resource, pm_clk,
@@ -237,7 +237,7 @@ ulong imx8_clk_set_rate(struct clk *clk, unsigned long rate)
 			       __func__, clk->id);
 			return -EINVAL;
 		}
-		return -ENOTSUPP;
+		return -EINVAL;
 	};
 
 	ret = sc_pm_set_clock_rate(-1, resource, pm_clk, &new_rate);
@@ -337,7 +337,7 @@ int __imx8_clk_enable(struct clk *clk, bool enable)
 			       __func__, clk->id);
 			return -EINVAL;
 		}
-		return -ENOTSUPP;
+		return -EINVAL;
 	}
 
 	ret = sc_pm_clock_enable(-1, resource, pm_clk, enable, 0);

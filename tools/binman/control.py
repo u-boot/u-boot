@@ -28,7 +28,7 @@ images = OrderedDict()
 #    value: Text for the help
 missing_blob_help = {}
 
-def _ReadImageDesc(binman_node):
+def _ReadImageDesc(binman_node, use_expanded):
     """Read the image descriptions from the /binman node
 
     This normally produces a single Image object called 'image'. But if
@@ -36,15 +36,17 @@ def _ReadImageDesc(binman_node):
 
     Args:
         binman_node: Node object of the /binman node
+        use_expanded: True if the FDT will be updated with the entry information
     Returns:
         OrderedDict of Image objects, each of which describes an image
     """
     images = OrderedDict()
     if 'multiple-images' in binman_node.props:
         for node in binman_node.subnodes:
-            images[node.name] = Image(node.name, node)
+            images[node.name] = Image(node.name, node,
+                                      use_expanded=use_expanded)
     else:
-        images['image'] = Image('image', binman_node)
+        images['image'] = Image('image', binman_node, use_expanded=use_expanded)
     return images
 
 def _FindBinmanNode(dtb):
@@ -241,10 +243,11 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
         # If this entry has children, create a directory for it and put its
         # data in a file called 'root' in that directory
         if entry.GetEntries():
-            if not os.path.exists(fname):
+            if fname and not os.path.exists(fname):
                 os.makedirs(fname)
             fname = os.path.join(fname, 'root')
-        tout.Notice("Write entry '%s' to '%s'" % (entry.GetPath(), fname))
+        tout.Notice("Write entry '%s' size %x to '%s'" %
+                    (entry.GetPath(), len(data), fname))
         tools.WriteFile(fname, data)
     return einfos
 
@@ -340,10 +343,10 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
 
     Args:
         image_fname: Image filename to process
-        input_fname: Single input ilename to use if replacing one file, None
+        input_fname: Single input filename to use if replacing one file, None
             otherwise
         indir: Input directory to use (for any number of files), else None
-        entry_paths: List of entry paths to extract
+        entry_paths: List of entry paths to replace
         do_compress: True if the input data is uncompressed and may need to be
             compressed if the entry requires it, False if the data is already
             compressed.
@@ -398,7 +401,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
     return image
 
 
-def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
+def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     """Prepare the images to be processed and select the device tree
 
     This function:
@@ -412,6 +415,9 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
         dtb_fname: Filename of the device tree file to use (.dts or .dtb)
         selected_images: List of images to output, or None for all
         update_fdt: True to update the FDT wth entry offsets, etc.
+        use_expanded: True to use expanded versions of entries, if available.
+            So if 'u-boot' is called for, we use 'u-boot-expanded' instead. This
+            is needed if update_fdt is True (although tests may disable it)
 
     Returns:
         OrderedDict of images:
@@ -437,7 +443,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
         raise ValueError("Device tree '%s' does not have a 'binman' "
                             "node" % dtb_fname)
 
-    images = _ReadImageDesc(node)
+    images = _ReadImageDesc(node, use_expanded)
 
     if select_images:
         skip = []
@@ -559,12 +565,9 @@ def Binman(args):
     global state
 
     if args.full_help:
-        pager = os.getenv('PAGER')
-        if not pager:
-            pager = 'more'
-        fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                            'README')
-        command.Run(pager, fname)
+        tools.PrintFullHelp(
+            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README.rst')
+        )
         return 0
 
     # Put these here so that we can import this module without libfdt
@@ -592,6 +595,13 @@ def Binman(args):
             tools.FinaliseOutputDir()
         return 0
 
+    elf_params = None
+    if args.update_fdt_in_elf:
+        elf_params = args.update_fdt_in_elf.split(',')
+        if len(elf_params) != 4:
+            raise ValueError('Invalid args %s to --update-fdt-in-elf: expected infile,outfile,begin_sym,end_sym' %
+                             elf_params)
+
     # Try to figure out which device tree contains our image description
     if args.dt:
         dtb_fname = args.dt
@@ -610,14 +620,25 @@ def Binman(args):
         elf.debug = args.debug
         cbfs_util.VERBOSE = args.verbosity > 2
         state.use_fake_dtb = args.fake_dtb
+
+        # Normally we replace the 'u-boot' etype with 'u-boot-expanded', etc.
+        # When running tests this can be disabled using this flag. When not
+        # updating the FDT in image, it is not needed by binman, but we use it
+        # for consistency, so that the images look the same to U-Boot at
+        # runtime.
+        use_expanded = not args.no_expanded
         try:
             tools.SetInputDirs(args.indir)
             tools.PrepareOutputDir(args.outdir, args.preserve)
             tools.SetToolPaths(args.toolpath)
             state.SetEntryArgs(args.entry_arg)
+            state.SetThreads(args.threads)
 
             images = PrepareImagesAndDtbs(dtb_fname, args.image,
-                                          args.update_fdt)
+                                          args.update_fdt, use_expanded)
+            if args.test_section_timeout:
+                # Set the first image to timeout, used in testThreadTimeout()
+                images[list(images.keys())[0]].test_section_timeout = True
             missing = False
             for image in images.values():
                 missing |= ProcessImage(image, args.update_fdt, args.map,
@@ -627,8 +648,15 @@ def Binman(args):
             for dtb_item in state.GetAllFdts():
                 tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
 
+            if elf_params:
+                data = state.GetFdtForEtype('u-boot-dtb').GetContents()
+                elf.UpdateFile(*elf_params, data)
+
             if missing:
                 tout.Warning("\nSome images are invalid")
+
+            # Use this to debug the time take to pack the image
+            #state.TimingShow()
         finally:
             tools.FinaliseOutputDir()
     finally:

@@ -38,6 +38,7 @@
 #include <video.h>
 #include <video_fb.h>
 #include <acpi/acpi_s3.h>
+#include <asm/global_data.h>
 #include <linux/screen_info.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -68,7 +69,7 @@ __weak uint32_t board_map_oprom_vendev(uint32_t vendev)
 
 static int pci_rom_probe(struct udevice *dev, struct pci_rom_header **hdrp)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
 	struct pci_rom_header *rom_header;
 	struct pci_rom_data *rom_data;
 	u16 rom_vendor, rom_device;
@@ -236,7 +237,7 @@ void setup_video(struct screen_info *screen_info)
 int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 			int exec_method)
 {
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
 	struct pci_rom_header *rom = NULL, *ram = NULL;
 	int vesa_mode = -1;
 	bool emulate, alloced;
@@ -328,7 +329,7 @@ err:
 #ifdef CONFIG_DM_VIDEO
 int vbe_setup_video_priv(struct vesa_mode_info *vesa,
 			 struct video_priv *uc_priv,
-			 struct video_uc_platdata *plat)
+			 struct video_uc_plat *plat)
 {
 	if (!vesa->x_resolution)
 		return log_msg_ret("No x resolution", -ENXIO);
@@ -348,13 +349,10 @@ int vbe_setup_video_priv(struct vesa_mode_info *vesa,
 	}
 
 	/* Use double buffering if enabled */
-	if (IS_ENABLED(CONFIG_VIDEO_COPY)) {
-		if (!plat->base)
-			return log_msg_ret("copy", -ENFILE);
+	if (IS_ENABLED(CONFIG_VIDEO_COPY) && plat->base)
 		plat->copy_base = vesa->phys_base_ptr;
-	} else {
+	else
 		plat->base = vesa->phys_base_ptr;
-	}
 	log_debug("base = %lx, copy_base = %lx\n", plat->base, plat->copy_base);
 	plat->size = vesa->bytes_per_scanline * vesa->y_resolution;
 
@@ -363,7 +361,7 @@ int vbe_setup_video_priv(struct vesa_mode_info *vesa,
 
 int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void))
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 

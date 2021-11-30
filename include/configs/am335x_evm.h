@@ -25,8 +25,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_16M
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_AM335XEVM
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -49,15 +47,6 @@
 #else
 #define NANDARGS ""
 #endif
-
-#define BOOTENV_DEV_LEGACY_MMC(devtypeu, devtypel, instance) \
-	"bootcmd_" #devtypel #instance "=" \
-	"setenv mmcdev " #instance"; "\
-	"setenv bootpart " #instance":2 ; "\
-	"run mmcboot\0"
-
-#define BOOTENV_DEV_NAME_LEGACY_MMC(devtypeu, devtypel, instance) \
-	#devtypel #instance " "
 
 #define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
 	"bootcmd_" #devtypel "=" \
@@ -86,9 +75,7 @@
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
-	func(LEGACY_MMC, legacy_mmc, 0) \
 	func(MMC, mmc, 1) \
-	func(LEGACY_MMC, legacy_mmc, 1) \
 	func(NAND, nand, 0) \
 	BOOT_TARGET_USB(func) \
 	BOOT_TARGET_PXE(func) \
@@ -98,16 +85,11 @@
 
 #ifndef CONFIG_SPL_BUILD
 #include <environment/ti/dfu.h>
-#include <environment/ti/mmc.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
-	DEFAULT_MMC_TI_ARGS \
-	DEFAULT_FIT_TI_ARGS \
-	"bootpart=0:2\0" \
-	"bootdir=/boot\0" \
-	"bootfile=zImage\0" \
 	"fdtfile=undefined\0" \
+	"finduuid=part uuid mmc 0:2 uuid\0" \
 	"console=ttyO0,115200n8\0" \
 	"partitions=" \
 		"uuid_disk=${uuid_gpt_disk};" \
@@ -184,10 +166,6 @@
 #define CONFIG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 
-#define CONFIG_ENV_EEPROM_IS_ON_I2C
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
-
 /* PMIC support */
 #define CONFIG_POWER_TPS65217
 #define CONFIG_POWER_TPS65910
@@ -202,14 +180,7 @@
 
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
-					 CONFIG_SYS_NAND_PAGE_SIZE)
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-#define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
 /* NAND: driver related configs */
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
 					 10, 11, 12, 13, 14, 15, 16, 17, \
 					 18, 19, 20, 21, 22, 23, 24, 25, \
@@ -220,9 +191,6 @@
 
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	14
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
 /* NAND: SPL related configs */
 #ifdef CONFIG_SPL_OS_BOOT
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00200000 /* kernel offset */
@@ -283,8 +251,6 @@
 /* SPL related */
 #elif defined(CONFIG_EMMC_BOOT)
 #define CONFIG_SYS_MMC_MAX_DEVICE	2
-#elif defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
 #endif
 
 /* Network. */

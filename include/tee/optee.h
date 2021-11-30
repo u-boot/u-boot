@@ -43,21 +43,7 @@ optee_image_get_load_addr(const struct image_header *hdr)
 	return optee_image_get_entry_point(hdr) - sizeof(struct optee_header);
 }
 
-#if defined(CONFIG_OPTEE)
-int optee_verify_image(struct optee_header *hdr, unsigned long tzdram_start,
-		       unsigned long tzdram_len, unsigned long image_len);
-#else
-static inline int optee_verify_image(struct optee_header *hdr,
-				     unsigned long tzdram_start,
-				     unsigned long tzdram_len,
-				     unsigned long image_len)
-{
-	return -EPERM;
-}
-
-#endif
-
-#if defined(CONFIG_OPTEE)
+#if defined(CONFIG_OPTEE_IMAGE)
 int optee_verify_bootm_image(unsigned long image_addr,
 			     unsigned long image_load_addr,
 			     unsigned long image_len);
@@ -70,10 +56,10 @@ static inline int optee_verify_bootm_image(unsigned long image_addr,
 }
 #endif
 
-#if defined(CONFIG_OPTEE) && defined(CONFIG_OF_LIBFDT)
-int optee_copy_fdt_nodes(const void *old_blob, void *new_blob);
+#if defined(CONFIG_OPTEE_LIB) && defined(CONFIG_OF_LIBFDT)
+int optee_copy_fdt_nodes(void *new_blob);
 #else
-static inline int optee_copy_fdt_nodes(const void *old_blob, void *new_blob)
+static inline int optee_copy_fdt_nodes(void *new_blob)
 {
 	return 0;
 }

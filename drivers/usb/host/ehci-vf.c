@@ -11,6 +11,7 @@
 #include <log.h>
 #include <usb.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
@@ -215,14 +216,14 @@ struct ehci_vf_priv_data {
 	u32 portnr;
 };
 
-static int vf_usb_ofdata_to_platdata(struct udevice *dev)
+static int vf_usb_of_to_plat(struct udevice *dev)
 {
 	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
 	const void *dt_blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	const char *mode;
 
-	priv->portnr = dev->seq;
+	priv->portnr = dev_seq(dev);
 
 	priv->ehci = dev_read_addr_ptr(dev);
 	mode = fdt_getprop(dt_blob, node, "dr_mode", NULL);
@@ -296,23 +297,21 @@ static const struct ehci_ops vf_ehci_ops = {
 
 static int vf_usb_bind(struct udevice *dev)
 {
-	static int num_controllers;
-
 	/*
 	 * Without this hack, if we return ENODEV for USB Controller 0, on
 	 * probe for the next controller, USB Controller 1 will be given a
 	 * sequence number of 0. This conflicts with our requirement of
 	 * sequence numbers while initialising the peripherals.
+	 *
+	 * FIXME: Check that this still works OK with the new sequence numbers
 	 */
-	dev->req_seq = num_controllers;
-	num_controllers++;
 
 	return 0;
 }
 
 static int ehci_usb_probe(struct udevice *dev)
 {
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_plat *plat = dev_get_plat(dev);
 	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
 	struct usb_ehci *ehci = priv->ehci;
 	struct ehci_hccr *hccr;
@@ -354,9 +353,9 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.probe = ehci_usb_probe,
 	.remove = ehci_deregister,
 	.ops = &ehci_usb_ops,
-	.ofdata_to_platdata = vf_usb_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct ehci_vf_priv_data),
+	.of_to_plat = vf_usb_of_to_plat,
+	.plat_auto	= sizeof(struct usb_plat),
+	.priv_auto	= sizeof(struct ehci_vf_priv_data),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif

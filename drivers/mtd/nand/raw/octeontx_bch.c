@@ -410,7 +410,7 @@ U_BOOT_DRIVER(octeontx_pci_bchpf) = {
 	.id	= UCLASS_MISC,
 	.probe	= octeontx_pci_bchpf_probe,
 	.remove = octeontx_pci_bchpf_remove,
-	.priv_auto_alloc_size = sizeof(struct bch_device),
+	.priv_auto	= sizeof(struct bch_device),
 	.flags = DM_FLAG_OS_PREPARE,
 };
 
@@ -418,7 +418,7 @@ U_BOOT_DRIVER(octeontx_pci_bchvf) = {
 	.name	= BCHVF_DRIVER_NAME,
 	.id	= UCLASS_MISC,
 	.probe = octeontx_pci_bchvf_probe,
-	.priv_auto_alloc_size = sizeof(struct bch_vf),
+	.priv_auto	= sizeof(struct bch_vf),
 };
 
 U_BOOT_PCI_DEVICE(octeontx_pci_bchpf, octeontx_bchpf_pci_id_table);

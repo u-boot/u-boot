@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <init.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9g45_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
@@ -314,11 +315,11 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	}
 }
 
-static struct atmel_serial_platdata at91sam9260_serial_plat = {
+static struct atmel_serial_plat at91sam9260_serial_plat = {
 	.base_addr = ATMEL_BASE_DBGU,
 };
 
-U_BOOT_DEVICE(at91sam9260_serial) = {
+U_BOOT_DRVINFO(at91sam9260_serial) = {
 	.name	= "serial_atmel",
-	.platdata = &at91sam9260_serial_plat,
+	.plat = &at91sam9260_serial_plat,
 };

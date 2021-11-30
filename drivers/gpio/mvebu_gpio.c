@@ -92,7 +92,7 @@ static int mvebu_gpio_probe(struct udevice *dev)
 
 	priv->regs = dev_read_addr_ptr(dev);
 	uc_priv->gpio_count = MVEBU_GPIOS_PER_BANK;
-	priv->name[0] = 'A' + dev->req_seq;
+	priv->name[0] = 'A' + dev_seq(dev);
 	uc_priv->bank_name = priv->name;
 
 	return 0;
@@ -117,5 +117,5 @@ U_BOOT_DRIVER(gpio_mvebu) = {
 	.of_match		= mvebu_gpio_ids,
 	.ops			= &mvebu_gpio_ops,
 	.probe			= mvebu_gpio_probe,
-	.priv_auto_alloc_size	= sizeof(struct mvebu_gpio_priv),
+	.priv_auto	= sizeof(struct mvebu_gpio_priv),
 };

@@ -140,6 +140,24 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 	return 0;
 }
 
+/**
+ * _log_buffer - Internal function to print data buffer in hex and ascii form
+ *
+ * @cat: Category of log record (indicating which subsystem generated it)
+ * @level: Level of log record (indicating its severity)
+ * @file: File name of file where log record was generated
+ * @line: Line number in file where log record was generated
+ * @func: Function where log record was generated
+ * @addr:	Starting address to display at start of line
+ * @data:	pointer to data buffer
+ * @width:	data value width.  May be 1, 2, or 4.
+ * @count:	number of values to display
+ * @linelen:	Number of values to print per line; specify 0 for default length
+ */
+int _log_buffer(enum log_category_t cat, enum log_level_t level,
+		const char *file, int line, const char *func, ulong addr,
+		const void *data, uint width, uint count, uint linelen);
+
 /* Define this at the top of a file to add a prefix to debug messages */
 #ifndef pr_fmt
 #define pr_fmt(fmt) fmt
@@ -156,6 +174,13 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
  */
 #if CONFIG_IS_ENABLED(LOG)
 #define _LOG_MAX_LEVEL CONFIG_VAL(LOG_MAX_LEVEL)
+#else
+#define _LOG_MAX_LEVEL LOGL_INFO
+#endif
+
+#define log_emer(_fmt...)	log(LOG_CATEGORY, LOGL_EMERG, ##_fmt)
+#define log_alert(_fmt...)	log(LOG_CATEGORY, LOGL_ALERT, ##_fmt)
+#define log_crit(_fmt...)	log(LOG_CATEGORY, LOGL_CRIT, ##_fmt)
 #define log_err(_fmt...)	log(LOG_CATEGORY, LOGL_ERR, ##_fmt)
 #define log_warning(_fmt...)	log(LOG_CATEGORY, LOGL_WARNING, ##_fmt)
 #define log_notice(_fmt...)	log(LOG_CATEGORY, LOGL_NOTICE, ##_fmt)
@@ -163,37 +188,51 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 #define log_debug(_fmt...)	log(LOG_CATEGORY, LOGL_DEBUG, ##_fmt)
 #define log_content(_fmt...)	log(LOG_CATEGORY, LOGL_DEBUG_CONTENT, ##_fmt)
 #define log_io(_fmt...)		log(LOG_CATEGORY, LOGL_DEBUG_IO, ##_fmt)
-#else
-#define _LOG_MAX_LEVEL LOGL_INFO
-#define log_err(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
-#define log_warning(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
-#define log_notice(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
-#define log_info(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
-#define log_debug(_fmt, ...)	debug(_fmt, ##__VA_ARGS__)
-#define log_content(_fmt...)	log_nop(LOG_CATEGORY, \
-					LOGL_DEBUG_CONTENT, ##_fmt)
-#define log_io(_fmt...)		log_nop(LOG_CATEGORY, LOGL_DEBUG_IO, ##_fmt)
-#endif
+#define log_cont(_fmt...)	log(LOGC_CONT, LOGL_CONT, ##_fmt)
 
-#if CONFIG_IS_ENABLED(LOG)
 #ifdef LOG_DEBUG
 #define _LOG_DEBUG	LOGL_FORCE_DEBUG
 #else
 #define _LOG_DEBUG	0
 #endif
 
+#if CONFIG_IS_ENABLED(LOG)
+
 /* Emit a log record if the level is less that the maximum */
 #define log(_cat, _level, _fmt, _args...) ({ \
 	int _l = _level; \
-	if (CONFIG_IS_ENABLED(LOG) && \
-	    (_LOG_DEBUG != 0 || _l <= _LOG_MAX_LEVEL)) \
+	if (_LOG_DEBUG != 0 || _l <= _LOG_MAX_LEVEL) \
 		_log((enum log_category_t)(_cat), \
 		     (enum log_level_t)(_l | _LOG_DEBUG), __FILE__, \
 		     __LINE__, __func__, \
 		      pr_fmt(_fmt), ##_args); \
 	})
+
+/* Emit a dump if the level is less that the maximum */
+#define log_buffer(_cat, _level, _addr, _data, _width, _count, _linelen)  ({ \
+	int _l = _level; \
+	if (_LOG_DEBUG != 0 || _l <= _LOG_MAX_LEVEL) \
+		_log_buffer((enum log_category_t)(_cat), \
+			    (enum log_level_t)(_l | _LOG_DEBUG), __FILE__, \
+			    __LINE__, __func__, _addr, _data, \
+			    _width, _count, _linelen); \
+	})
 #else
-#define log(_cat, _level, _fmt, _args...)
+
+/* Note: _LOG_DEBUG != 0 avoids a warning with clang */
+#define log(_cat, _level, _fmt, _args...) ({ \
+	int _l = _level; \
+	if (_LOG_DEBUG != 0 || _l <= LOGL_INFO || \
+	    (_DEBUG && _l == LOGL_DEBUG)) \
+		printf(_fmt, ##_args); \
+	})
+
+#define log_buffer(_cat, _level, _addr, _data, _width, _count, _linelen)  ({ \
+	int _l = _level; \
+	if (_LOG_DEBUG != 0 || _l <= LOGL_INFO || \
+	    (_DEBUG && _l == LOGL_DEBUG)) \
+		print_buffer(_addr, _data, _width, _count, _linelen); \
+	})
 #endif
 
 #define log_nop(_cat, _level, _fmt, _args...) ({ \
@@ -214,13 +253,15 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 #define _SPL_BUILD	0
 #endif
 
-#if !_DEBUG && CONFIG_IS_ENABLED(LOG)
+#if CONFIG_IS_ENABLED(LOG)
 
-#define debug_cond(cond, fmt, args...)			\
-	do {						\
-		if (1)					\
-			log(LOG_CATEGORY, LOGL_DEBUG, fmt, ##args); \
-	} while (0)
+#define debug_cond(cond, fmt, args...)					\
+({									\
+	if (cond)							\
+		log(LOG_CATEGORY,					\
+		    (enum log_level_t)(LOGL_FORCE_DEBUG | _LOG_DEBUG),	\
+		    fmt, ##args);					\
+})
 
 #else /* _DEBUG */
 
@@ -229,11 +270,11 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
  * computed by a preprocessor in the best case, allowing for the best
  * optimization.
  */
-#define debug_cond(cond, fmt, args...)			\
-	do {						\
-		if (cond)				\
-			printf(pr_fmt(fmt), ##args);	\
-	} while (0)
+#define debug_cond(cond, fmt, args...)		\
+({						\
+	if (cond)				\
+		printf(pr_fmt(fmt), ##args);	\
+})
 
 #endif /* _DEBUG */
 
@@ -309,11 +350,39 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 		    __ret); \
 	__ret; \
 	})
+
+/*
+ * Similar to the above, but any non-zero value is consider an error, not just
+ * values less than 0.
+ */
+#define log_retz(_ret) ({ \
+	int __ret = (_ret); \
+	if (__ret) \
+		log(LOG_CATEGORY, LOGL_ERR, "returning err=%d\n", __ret); \
+	__ret; \
+	})
+#define log_msg_retz(_msg, _ret) ({ \
+	int __ret = (_ret); \
+	if (__ret) \
+		log(LOG_CATEGORY, LOGL_ERR, "%s: returning err=%d\n", _msg, \
+		    __ret); \
+	__ret; \
+	})
 #else
 /* Non-logging versions of the above which just return the error code */
 #define log_ret(_ret) (_ret)
 #define log_msg_ret(_msg, _ret) ((void)(_msg), _ret)
+#define log_retz(_ret) (_ret)
+#define log_msg_retz(_msg, _ret) ((void)(_msg), _ret)
 #endif
+
+/** * enum log_rec_flags - Flags for a log record */
+enum log_rec_flags {
+	/** @LOGRECF_FORCE_DEBUG: Force output of debug record */
+	LOGRECF_FORCE_DEBUG	= BIT(0),
+	/** @LOGRECF_CONT: Continuation of previous log record */
+	LOGRECF_CONT		= BIT(1),
+};
 
 /**
  * struct log_rec - a single log record
@@ -330,18 +399,18 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
  *
  * @cat: Category, representing a uclass or part of U-Boot
  * @level: Severity level, less severe is higher
- * @force_debug: Force output of debug
- * @file: Name of file where the log record was generated (not allocated)
  * @line: Line number where the log record was generated
+ * @flags: Flags for log record (enum log_rec_flags)
+ * @file: Name of file where the log record was generated (not allocated)
  * @func: Function where the log record was generated (not allocated)
  * @msg: Log message (allocated)
  */
 struct log_rec {
 	enum log_category_t cat;
 	enum log_level_t level;
-	bool force_debug;
+	u16 line;
+	u8 flags;
 	const char *file;
-	int line;
 	const char *func;
 	const char *msg;
 };

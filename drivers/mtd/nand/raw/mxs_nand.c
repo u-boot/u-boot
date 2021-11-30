@@ -1379,7 +1379,7 @@ int mxs_nand_init_ctrl(struct mxs_nand_info *nand_info)
 	nand->options |= NAND_NO_SUBPAGE_WRITE;
 
 	if (nand_info->dev)
-		nand->flash_node = dev_of_offset(nand_info->dev);
+		nand->flash_node = dev_ofnode(nand_info->dev);
 
 	nand->cmd_ctrl		= mxs_nand_cmd_ctrl;
 

@@ -260,6 +260,6 @@ U_BOOT_DRIVER(sysinfo_gazerbeam) = {
 	.id             = UCLASS_SYSINFO,
 	.of_match       = sysinfo_gazerbeam_ids,
 	.ops		= &sysinfo_gazerbeam_ops,
-	.priv_auto_alloc_size = sizeof(struct sysinfo_gazerbeam_priv),
+	.priv_auto	= sizeof(struct sysinfo_gazerbeam_priv),
 	.probe          = sysinfo_gazerbeam_probe,
 };

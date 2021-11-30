@@ -50,37 +50,37 @@ class TestFdt(unittest.TestCase):
         self.assertEquals('me.bin', val)
 
         prop = node.props['intval']
-        self.assertEquals(fdt.TYPE_INT, prop.type)
+        self.assertEquals(fdt.Type.INT, prop.type)
         self.assertEquals(3, fdt_util.GetInt(node, 'intval'))
 
         prop = node.props['intarray']
-        self.assertEquals(fdt.TYPE_INT, prop.type)
+        self.assertEquals(fdt.Type.INT, prop.type)
         self.assertEquals(list, type(prop.value))
         self.assertEquals(2, len(prop.value))
         self.assertEquals([5, 6],
                           [fdt_util.fdt32_to_cpu(val) for val in prop.value])
 
         prop = node.props['byteval']
-        self.assertEquals(fdt.TYPE_BYTE, prop.type)
+        self.assertEquals(fdt.Type.BYTE, prop.type)
         self.assertEquals(chr(8), prop.value)
 
         prop = node.props['bytearray']
-        self.assertEquals(fdt.TYPE_BYTE, prop.type)
+        self.assertEquals(fdt.Type.BYTE, prop.type)
         self.assertEquals(list, type(prop.value))
         self.assertEquals(str, type(prop.value[0]))
         self.assertEquals(3, len(prop.value))
         self.assertEquals([chr(1), '#', '4'], prop.value)
 
         prop = node.props['longbytearray']
-        self.assertEquals(fdt.TYPE_INT, prop.type)
+        self.assertEquals(fdt.Type.INT, prop.type)
         self.assertEquals(0x090a0b0c, fdt_util.GetInt(node, 'longbytearray'))
 
         prop = node.props['stringval']
-        self.assertEquals(fdt.TYPE_STRING, prop.type)
+        self.assertEquals(fdt.Type.STRING, prop.type)
         self.assertEquals('message2', fdt_util.GetString(node, 'stringval'))
 
         prop = node.props['stringarray']
-        self.assertEquals(fdt.TYPE_STRING, prop.type)
+        self.assertEquals(fdt.Type.STRING, prop.type)
         self.assertEquals(list, type(prop.value))
         self.assertEquals(3, len(prop.value))
         self.assertEquals(['another', 'multi-word', 'message'], prop.value)

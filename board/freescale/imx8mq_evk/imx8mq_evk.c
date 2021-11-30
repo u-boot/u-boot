@@ -8,6 +8,7 @@
 #include <init.h>
 #include <malloc.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -83,6 +84,10 @@ int board_init(void)
 {
 #ifdef CONFIG_FEC_MXC
 	setup_fec();
+#endif
+
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_DWC3)
+	init_usb_clk();
 #endif
 
 	return 0;

@@ -27,6 +27,7 @@
 #include <asm/control_regs.h>
 #include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/mp.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
@@ -175,7 +176,7 @@ void arch_setup_gd(gd_t *new_gd)
  * Per Intel FSP external architecture specification, before calling any FSP
  * APIs, we need make sure the system is in flat 32-bit mode and both the code
  * and data selectors should have full 4GB access range. Here we reuse the one
- * we used in arch/x86/cpu/start16.S, and reload the segement registers.
+ * we used in arch/x86/cpu/start16.S, and reload the segment registers.
  */
 void setup_fsp_gdt(void)
 {
@@ -422,7 +423,7 @@ static void setup_mtrr(void)
 	u64 mtrr_cap;
 
 	/* Configure fixed range MTRRs for some legacy regions */
-	if (!gd->arch.has_mtrr)
+	if (!gd->arch.has_mtrr || !ll_boot_init())
 		return;
 
 	mtrr_cap = native_read_msr(MTRR_CAP_MSR);

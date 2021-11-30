@@ -2,6 +2,7 @@
 #define TPS659412		0x1
 #define TPS659413		0x2
 #define TPS659414		0x3
+#define  LP876441		0x4
 
 /* I2C device address for pmic tps65941 */
 #define TPS65941_I2C_ADDR	(0x12 >> 1)

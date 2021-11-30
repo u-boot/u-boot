@@ -60,10 +60,6 @@
 
 /* Miscellaneous configurable options */
 
-#define	CONFIG_SYS_LOAD_ADDR		0x200000
-
-#define	CONFIG_SYS_HZ			1000
-
 /* Definitions for initial stack pointer and data area (in DPRAM) */
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_IMMR + 0x2800)
 #define	CONFIG_SYS_INIT_RAM_SIZE	(0x2e00 - 0x2800)
@@ -86,7 +82,6 @@
 #define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)
 #define	CONFIG_SYS_MONITOR_LEN		(320 << 10)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_MALLOC_LEN		(4096 << 10)
 
 /* Environment Configuration */
 
@@ -98,7 +93,6 @@
 
 /* NAND configuration part */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_MAX_CHIPS	1
 #define CONFIG_SYS_NAND_BASE		0x0C000000
 
 #endif /* __CONFIG_H */

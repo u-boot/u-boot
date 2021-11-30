@@ -14,11 +14,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK	24000000	/* 24 MHz crystal */
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 #define CONFIG_USART_BASE   ATMEL_BASE_DBGU
 #define CONFIG_USART_ID     0 /* ignored in arm */
 
@@ -51,10 +46,7 @@
 #define CONFIG_SYS_NAND_MASK_CLE	BIT(22)
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PD4
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PD5
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #endif
-
-#define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
 
 #ifdef CONFIG_SD_BOOT
 /* bootstrap + u-boot + env + linux in sd card */
@@ -77,10 +69,5 @@
 				"sf read 0x22000000 0x200000 0x600000; "	\
 				"bootz 0x22000000 - 0x21000000"
 #endif
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(512 * 1024 + 0x1000)
 
 #endif

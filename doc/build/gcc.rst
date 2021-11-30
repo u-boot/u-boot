@@ -24,10 +24,12 @@ Depending on the build targets further packages maybe needed
 .. code-block:: bash
 
     sudo apt-get install bc bison build-essential coccinelle \
-      device-tree-compiler dfu-util efitools flex gdisk liblz4-tool \
-      libguestfs-tools libncurses-dev libpython3-dev libsdl2-dev libssl-dev \
-      lzma-alone openssl python3 python3-coverage python3-pyelftools \
-      python3-pytest python3-sphinxcontrib.apidoc python3-sphinx-rtd-theme swig
+      device-tree-compiler dfu-util efitools flex gdisk graphviz imagemagick \
+      liblz4-tool libguestfs-tools libncurses-dev libpython3-dev libsdl2-dev \
+      libssl-dev lz4 lzma lzma-alone openssl pkg-config python3 \
+      python3-coverage python3-pkg-resources python3-pycryptodome \
+      python3-pyelftools python3-pytest python3-sphinxcontrib.apidoc \
+      python3-sphinx-rtd-theme python3-virtualenv swig
 
 SUSE based
 ~~~~~~~~~~
@@ -117,6 +119,27 @@ Further important build parameters are
 
 * O=<dir> - generate all output files in directory <dir>, including .config
 * V=1 - verbose build
+
+Devicetree compiler
+~~~~~~~~~~~~~~~~~~~
+
+Boards that use `CONFIG_OF_CONTROL` (i.e. almost all of them) need the
+devicetree compiler (dtc). Those with `CONFIG_PYLIBFDT` need pylibfdt, a Python
+library for accessing devicetree data. Suitable versions of these are included
+in the U-Boot tree in `scripts/dtc` and built automatically as needed.
+
+To use the system versions of these, use the DTC parameter, for example
+
+.. code-block:: bash
+
+    DTC=/usr/bin/dtc make
+
+In this case, dtc and pylibfdt are not built. The build checks that the version
+of dtc is new enough. It also makes sure that pylibfdt is present, if needed
+(see `scripts_dtc` in the Makefile).
+
+Note that the :doc:`tools` are always built with the included version of libfdt
+so it is not possible to build U-Boot tools with a system libfdt, at present.
 
 Other build targets
 ~~~~~~~~~~~~~~~~~~~

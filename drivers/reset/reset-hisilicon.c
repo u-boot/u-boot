@@ -102,5 +102,5 @@ U_BOOT_DRIVER(hisi_reset) = {
 	.of_match = hisi_reset_ids,
 	.ops = &hisi_reset_reset_ops,
 	.probe = hisi_reset_probe,
-	.priv_auto_alloc_size = sizeof(struct hisi_reset_priv),
+	.priv_auto	= sizeof(struct hisi_reset_priv),
 };

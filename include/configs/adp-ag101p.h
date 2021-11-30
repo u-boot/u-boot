@@ -15,8 +15,6 @@
  */
 #define CONFIG_USE_INTERRUPT
 
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 #define CONFIG_ARCH_MAP_SYSMEM
 
 #define CONFIG_BOOTP_SERVERIP
@@ -28,7 +26,6 @@
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #ifdef CONFIG_OF_CONTROL
 #undef CONFIG_OF_SEPARATE
-#define CONFIG_OF_EMBED
 #endif
 #endif
 
@@ -83,12 +80,6 @@
 /*
  * Miscellaneous configurable options
  */
-
-/*
- * Size of malloc() pool
- */
-/* 512kB is suggested, (CONFIG_ENV_SIZE + 128 * 1024) was not enough */
-#define CONFIG_SYS_MALLOC_LEN		(512 << 10)
 
 /*
  * AHB Controller configuration
@@ -215,14 +206,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - \
 					GENERATED_GBL_DATA_SIZE)
 #endif /* CONFIG_MEM_REMAP */
-
-/*
- * Load address and memory test area should agree with
- * arch/nds32/config.mk. Be careful not to overwrite U-Boot itself.
- */
-#define CONFIG_SYS_LOAD_ADDR		0x300000
-
-/* memtest works on 63 MB in DRAM */
 
 /*
  * Static memory controller configuration

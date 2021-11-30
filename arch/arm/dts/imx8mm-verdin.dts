@@ -160,7 +160,7 @@
 &fec1 {
 	fsl,magic-packet;
 	phy-handle = <&ethphy0>;
-	phy-mode = "rgmii";
+	phy-mode = "rgmii-id";
 	phy-supply = <&reg_ethphy>;
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&pinctrl_fec1>;
@@ -193,6 +193,18 @@
 		output-high;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_se050_ena>;
+	};
+};
+
+&gpio5 {
+	ctrl_sleep_moci {
+		gpio-hog;
+		/* Verdin CTRL_SLEEP_MOCI# (SODIMM 256) */
+		gpios = <1 GPIO_ACTIVE_HIGH>;
+		line-name = "CTRL_SLEEP_MOCI#";
+		output-high;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_ctrl_sleep_moci>;
 	};
 };
 
@@ -545,6 +557,12 @@
 	pinctrl_ctrl_force_off_moci: ctrlforceoffgrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_SAI5_RXC_GPIO3_IO20	0x1c4		/* SODIMM 250 */
+		>;
+	};
+
+	pinctrl_ctrl_sleep_moci: ctrlsleepmocigrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SAI3_TXD_GPIO5_IO1		0x1c4		/* SODIMM 256 */
 		>;
 	};
 

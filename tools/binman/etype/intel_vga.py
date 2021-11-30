@@ -8,7 +8,7 @@
 from binman.etype.blob_ext import Entry_blob_ext
 
 class Entry_intel_vga(Entry_blob_ext):
-    """Entry containing an Intel Video Graphics Adaptor (VGA) file
+    """Intel Video Graphics Adaptor (VGA) file
 
     Properties / Entry arguments:
         - filename: Filename of file to read into entry

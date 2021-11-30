@@ -10,7 +10,6 @@
 #define __CONFIG_J721E_EVM_H
 
 #include <linux/sizes.h>
-#include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
 #include <environment/ti/k3_rproc.h>
 #include <environment/ti/ufs.h>
@@ -83,8 +82,6 @@
 #ifdef CONFIG_SYS_K3_SPL_ATF
 #if defined(CONFIG_TARGET_J721E_R5_EVM)
 #define EXTRA_ENV_R5_SPL_RPROC_FW_ARGS_MMC				\
-	"addr_mainr5f0_0load=0x88000000\0"				\
-	"name_mainr5f0_0fw=/lib/firmware/j7-main-r5f0_0-fw\0"		\
 	"addr_mcur5f0_0load=0x89000000\0"				\
 	"name_mcur5f0_0fw=/lib/firmware/j7-mcu-r5f0_0-fw\0"
 #elif defined(CONFIG_TARGET_J7200_R5_EVM)
@@ -130,6 +127,7 @@
 
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 #define DEFAULT_RPROCS	""						\
+		"2 /lib/firmware/j7-main-r5f0_0-fw "			\
 		"3 /lib/firmware/j7-main-r5f0_1-fw "			\
 		"4 /lib/firmware/j7-main-r5f1_0-fw "			\
 		"5 /lib/firmware/j7-main-r5f1_1-fw "			\
@@ -139,14 +137,25 @@
 #endif /* CONFIG_TARGET_J721E_A72_EVM */
 
 #ifdef CONFIG_TARGET_J7200_A72_EVM
+#define EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY				\
+	"do_main_cpsw0_qsgmii_phyinit=1\0"				\
+	"init_main_cpsw0_qsgmii_phy=gpio set gpio@22_17;"		\
+		 "gpio clear gpio@22_16\0"				\
+	"main_cpsw0_qsgmii_phyinit="					\
+	"if test ${do_main_cpsw0_qsgmii_phyinit} -eq 1 && test ${dorprocboot} -eq 1 && " \
+			"test ${boot} = mmc; then "			\
+		"run init_main_cpsw0_qsgmii_phy;"			\
+	"fi;\0"
 #define DEFAULT_RPROCS ""						\
 		"2 /lib/firmware/j7200-main-r5f0_0-fw "			\
 		"3 /lib/firmware/j7200-main-r5f0_1-fw "
 #endif /* CONFIG_TARGET_J7200_A72_EVM */
 
-/* set default dfu_bufsiz to 128KB (sector size of OSPI) */
+#ifndef EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY
+#define EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY
+#endif
+
 #define EXTRA_ENV_DFUARGS \
-	"dfu_bufsiz=0x20000\0" \
 	DFU_ALT_INFO_MMC \
 	DFU_ALT_INFO_EMMC \
 	DFU_ALT_INFO_RAM \
@@ -160,6 +169,26 @@
 #define EXTRA_ENV_J721E_BOARD_SETTINGS_MTD
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_PXE)
+# define BOOT_TARGET_PXE(func) func(PXE, pxe, na)
+#else
+# define BOOT_TARGET_PXE(func)
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_DHCP)
+# define BOOT_TARGET_DHCP(func) func(DHCP, dhcp, na)
+#else
+# define BOOT_TARGET_DHCP(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
+	BOOT_TARGET_PXE(func) \
+	BOOT_TARGET_DHCP(func)
+
+#include <config_distro_bootcmd.h>
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
@@ -170,7 +199,9 @@
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS						\
 	DEFAULT_UFS_TI_ARGS						\
-	EXTRA_ENV_J721E_BOARD_SETTINGS_MTD
+	EXTRA_ENV_J721E_BOARD_SETTINGS_MTD				\
+	EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY				\
+	BOOTENV
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>

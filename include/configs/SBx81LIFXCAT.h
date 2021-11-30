@@ -11,13 +11,11 @@
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
 #define CONFIG_KW88F6281	1	/* SOC Name */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
 
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
 
-#define CONFIG_MD5	/* get_random_hex on krikwood needs MD5 support */
 #define CONFIG_KIRKWOOD_EGIGA_INIT	/* Enable GbePort0/1 for kernel */
 #define CONFIG_KIRKWOOD_PCIE_INIT	/* Enable PCIE Port0 */
 #define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
@@ -38,18 +36,8 @@
  * for your console driver.
  */
 
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs */
-#define CONFIG_INITRD_TAG	1	/* enable INITRD tag */
-#define CONFIG_SETUP_MEMORY_TAGS 1	/* enable memory tag */
-
 #define MTDPARTS_DEFAULT "mtdparts=spi0.0:768K(boot)ro,256K(boot-env),14M(user),1M(errlog)"
 #define MTDPARTS_MTDOOPS "errlog"
-#define CONFIG_DOS_PARTITION
 
 /*
  *  Environment variables configurations
@@ -60,7 +48,6 @@
  */
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for monitor */
-#define CONFIG_SYS_MALLOC_LEN		  (4 << 20)	/* Reserve 4.0 MB for malloc */
 
 /*
  * For booting Linux, the board info and command line data
@@ -76,20 +63,12 @@
 #undef CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 
 /*
- * Other required minimal configurations
- */
-#define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
-
-/*
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_NET_MULTI	/* specify more that one ports available */
 #define CONFIG_MVGBE	/* Enable kirkwood Gbe Controller Driver */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable a single port */
 #define CONFIG_PHY_BASE_ADR	0x01
 #endif /* CONFIG_CMD_NET */
-
-#define CONFIG_SYS_LOAD_ADDR  0x1000000      /* default location for tftp and bootm */
 
 #endif /* _CONFIG_SBX81LIFXCAT_H */

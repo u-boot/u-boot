@@ -3,6 +3,8 @@
  * Copyright (c) 2016, NVIDIA CORPORATION.
  */
 
+#define LOG_CATEGORY UCLASS_MAILBOX
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>

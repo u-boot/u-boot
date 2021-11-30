@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/armv8/mmu.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/board.h>
 
@@ -71,6 +72,6 @@ u64 get_page_table_size(void)
 	return 0x80000;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }

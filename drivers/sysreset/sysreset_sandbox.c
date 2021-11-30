@@ -47,10 +47,10 @@ static int sandbox_sysreset_request(struct udevice *dev, enum sysreset_t type)
 
 	/*
 	 * If we have a device tree, the device we created from platform data
-	 * (see the U_BOOT_DEVICE() declaration below) should not do anything.
+	 * (see the U_BOOT_DRVINFO() declaration below) should not do anything.
 	 * If we are that device, return an error.
 	 */
-	if (state->fdt_fname && !dev_of_valid(dev))
+	if (state->fdt_fname && !dev_has_ofnode(dev))
 		return -ENODEV;
 
 	switch (type) {
@@ -133,9 +133,9 @@ U_BOOT_DRIVER(warm_sysreset_sandbox) = {
 	.ops		= &sandbox_warm_sysreset_ops,
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 /* This is here in case we don't have a device tree */
-U_BOOT_DEVICE(sysreset_sandbox_non_fdt) = {
+U_BOOT_DRVINFO(sysreset_sandbox_non_fdt) = {
 	.name = "sysreset_sandbox",
 };
 #endif

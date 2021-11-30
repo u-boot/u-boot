@@ -40,7 +40,7 @@ struct pl01x_regs {
 
 #ifdef CONFIG_DM_SERIAL
 
-int pl01x_serial_ofdata_to_platdata(struct udevice *dev);
+int pl01x_serial_of_to_plat(struct udevice *dev);
 int pl01x_serial_probe(struct udevice *dev);
 
 /* Needed for external pl01x_serial_ops drivers */

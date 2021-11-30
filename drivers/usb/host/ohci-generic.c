@@ -198,6 +198,6 @@ U_BOOT_DRIVER(ohci_generic) = {
 	.probe = ohci_usb_probe,
 	.remove = ohci_usb_remove,
 	.ops	= &ohci_usb_ops,
-	.priv_auto_alloc_size = sizeof(struct generic_ohci),
+	.priv_auto	= sizeof(struct generic_ohci),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };

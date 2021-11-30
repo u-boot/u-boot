@@ -173,7 +173,7 @@ static int get_ssusb_rscs(struct udevice *dev, struct ssusb_mtk *ssusb)
 		return -ENODEV;
 	}
 
-	ssusb->dr_mode = usb_get_dr_mode(child->node);
+	ssusb->dr_mode = usb_get_dr_mode(dev_ofnode(child));
 
 	if (ssusb->dr_mode == USB_DR_MODE_UNKNOWN ||
 		ssusb->dr_mode == USB_DR_MODE_OTG)
@@ -257,11 +257,11 @@ U_BOOT_DRIVER(mtu3_peripheral) = {
 	.of_match = ssusb_of_match,
 	.probe = mtu3_gadget_probe,
 	.remove = mtu3_gadget_remove,
-	.priv_auto_alloc_size = sizeof(struct mtu3),
+	.priv_auto	= sizeof(struct mtu3),
 };
 #endif
 
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || \
+#if defined(CONFIG_SPL_USB_HOST) || \
 	(!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST))
 static int mtu3_host_probe(struct udevice *dev)
 {
@@ -298,7 +298,7 @@ U_BOOT_DRIVER(mtu3_host) = {
 	.of_match = ssusb_of_match,
 	.probe = mtu3_host_probe,
 	.remove = mtu3_host_remove,
-	.priv_auto_alloc_size = sizeof(struct mtu3_host),
+	.priv_auto	= sizeof(struct mtu3_host),
 	.ops = &xhci_usb_ops,
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
@@ -313,7 +313,7 @@ static int mtu3_glue_bind(struct udevice *parent)
 	ofnode node;
 	int ret;
 
-	node = ofnode_by_compatible(parent->node, "mediatek,ssusb");
+	node = ofnode_by_compatible(dev_ofnode(parent), "mediatek,ssusb");
 	if (!ofnode_valid(node))
 		return -ENODEV;
 
@@ -329,7 +329,7 @@ static int mtu3_glue_bind(struct udevice *parent)
 		break;
 #endif
 
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || \
+#if defined(CONFIG_SPL_USB_HOST) || \
 	(!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST))
 	case USB_DR_MODE_HOST:
 		dev_dbg(parent, "%s: dr_mode: host\n", __func__);
@@ -365,5 +365,5 @@ U_BOOT_DRIVER(mtu3) = {
 	.bind = mtu3_glue_bind,
 	.probe = mtu3_probe,
 	.remove = mtu3_remove,
-	.priv_auto_alloc_size = sizeof(struct ssusb_mtk),
+	.priv_auto	= sizeof(struct ssusb_mtk),
 };

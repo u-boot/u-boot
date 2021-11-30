@@ -25,18 +25,16 @@ int bootz_setup(ulong image, ulong *start, ulong *end)
 
 	if (zi->zi_magic != LINUX_ARM_ZIMAGE_MAGIC &&
 	    zi->zi_magic != BAREBOX_IMAGE_MAGIC) {
-#ifndef CONFIG_SPL_FRAMEWORK
-		puts("zimage: Bad magic!\n");
-#endif
+		if (!IS_ENABLED(CONFIG_SPL_BUILD))
+			puts("zimage: Bad magic!\n");
 		return 1;
 	}
 
 	*start = zi->zi_start;
 	*end = zi->zi_end;
-#ifndef CONFIG_SPL_FRAMEWORK
-	printf("Kernel image @ %#08lx [ %#08lx - %#08lx ]\n",
-	       image, *start, *end);
-#endif
+	if (!IS_ENABLED(CONFIG_SPL_BUILD))
+		printf("Kernel image @ %#08lx [ %#08lx - %#08lx ]\n",
+		       image, *start, *end);
 
 	return 0;
 }

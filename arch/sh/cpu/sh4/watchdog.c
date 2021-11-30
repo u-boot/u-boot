@@ -51,7 +51,7 @@ int watchdog_disable(void)
 }
 #endif
 
-void reset_cpu(unsigned long ignored)
+void reset_cpu(void)
 {
 	/* Address error with SR.BL=1 first. */
 	trigger_address_error();

@@ -894,7 +894,7 @@ bool expr_depends_symbol(struct expr *dep, struct symbol *sym)
 	default:
 		;
 	}
- 	return false;
+	return false;
 }
 
 /*

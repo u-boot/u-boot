@@ -11,6 +11,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <video.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/grf_rk3288.h>
@@ -105,5 +106,5 @@ U_BOOT_DRIVER(rockchip_rk3288_vop) = {
 	.bind	= rk_vop_bind,
 	.probe	= rk3288_vop_probe,
         .remove = rk_vop_remove,
-	.priv_auto_alloc_size	= sizeof(struct rk_vop_priv),
+	.priv_auto	= sizeof(struct rk_vop_priv),
 };

@@ -18,6 +18,8 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <asm/global_data.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3399-cru.h>
 #include <linux/bitops.h>
@@ -1287,7 +1289,7 @@ static int rk3399_clk_disable(struct clk *clk)
 static struct clk_ops rk3399_clk_ops = {
 	.get_rate = rk3399_clk_get_rate,
 	.set_rate = rk3399_clk_set_rate,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.set_parent = rk3399_clk_set_parent,
 #endif
 	.enable = rk3399_clk_enable,
@@ -1378,7 +1380,7 @@ static int rk3399_clk_probe(struct udevice *dev)
 	bool init_clocks = false;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3399_clk_plat *plat = dev_get_platdata(dev);
+	struct rk3399_clk_plat *plat = dev_get_plat(dev);
 
 	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
@@ -1398,13 +1400,14 @@ static int rk3399_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rk3399_clk_ofdata_to_platdata(struct udevice *dev)
+static int rk3399_clk_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3399_clk_priv *priv = dev_get_priv(dev);
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		struct rk3399_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = dev_read_addr_ptr(dev);
-#endif
+		priv->cru = dev_read_addr_ptr(dev);
+	}
+
 	return 0;
 }
 
@@ -1425,7 +1428,7 @@ static int rk3399_clk_bind(struct udevice *dev)
 						    glb_srst_fst_value);
 		priv->glb_srst_snd_value = offsetof(struct rockchip_cru,
 						    glb_srst_snd_value);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
@@ -1447,13 +1450,13 @@ U_BOOT_DRIVER(clk_rk3399) = {
 	.name		= "rockchip_rk3399_cru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3399_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk3399_clk_priv),
-	.ofdata_to_platdata = rk3399_clk_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct rk3399_clk_priv),
+	.of_to_plat = rk3399_clk_of_to_plat,
 	.ops		= &rk3399_clk_ops,
 	.bind		= rk3399_clk_bind,
 	.probe		= rk3399_clk_probe,
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	.platdata_auto_alloc_size = sizeof(struct rk3399_clk_plat),
+	.plat_auto	= sizeof(struct rk3399_clk_plat),
 #endif
 };
 
@@ -1599,7 +1602,7 @@ static int rk3399_pmuclk_probe(struct udevice *dev)
 #endif
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3399_pmuclk_plat *plat = dev_get_platdata(dev);
+	struct rk3399_pmuclk_plat *plat = dev_get_plat(dev);
 
 	priv->pmucru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
@@ -1610,13 +1613,14 @@ static int rk3399_pmuclk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rk3399_pmuclk_ofdata_to_platdata(struct udevice *dev)
+static int rk3399_pmuclk_of_to_plat(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct rk3399_pmuclk_priv *priv = dev_get_priv(dev);
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		struct rk3399_pmuclk_priv *priv = dev_get_priv(dev);
 
-	priv->pmucru = dev_read_addr_ptr(dev);
-#endif
+		priv->pmucru = dev_read_addr_ptr(dev);
+	}
+
 	return 0;
 }
 
@@ -1642,12 +1646,12 @@ U_BOOT_DRIVER(rockchip_rk3399_pmuclk) = {
 	.name		= "rockchip_rk3399_pmucru",
 	.id		= UCLASS_CLK,
 	.of_match	= rk3399_pmuclk_ids,
-	.priv_auto_alloc_size = sizeof(struct rk3399_pmuclk_priv),
-	.ofdata_to_platdata = rk3399_pmuclk_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct rk3399_pmuclk_priv),
+	.of_to_plat = rk3399_pmuclk_of_to_plat,
 	.ops		= &rk3399_pmuclk_ops,
 	.probe		= rk3399_pmuclk_probe,
 	.bind		= rk3399_pmuclk_bind,
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	.platdata_auto_alloc_size = sizeof(struct rk3399_pmuclk_plat),
+	.plat_auto	= sizeof(struct rk3399_pmuclk_plat),
 #endif
 };

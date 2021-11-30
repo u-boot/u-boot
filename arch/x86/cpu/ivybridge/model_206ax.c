@@ -15,6 +15,7 @@
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
 #include <asm/cpu_x86.h>
+#include <asm/global_data.h>
 #include <asm/msr.h>
 #include <asm/msr-index.h>
 #include <asm/mtrr.h>
@@ -425,7 +426,7 @@ static int model_206ax_get_count(const struct udevice *dev)
 
 static int cpu_x86_model_206ax_probe(struct udevice *dev)
 {
-	if (dev->seq == 0)
+	if (dev_seq(dev) == 0)
 		model_206ax_init(dev);
 
 	return 0;

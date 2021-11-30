@@ -29,6 +29,7 @@
 		serial3 = &v2m_serial3;
 		i2c0 = &v2m_i2c_dvi;
 		i2c1 = &v2m_i2c_pcie;
+		mmc0 = &mmc0;
 	};
 
 	cpus {

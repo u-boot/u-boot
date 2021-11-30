@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2020 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -57,7 +58,8 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	struct ccsr_ddr __iomem *ddr;
 	u32 temp32;
 	u32 total_gb_size_per_controller;
-	int timeout;
+	int timeout = 0;
+	int ddr_freq_for_timeout = 0;
 	int mod_bnds = 0;
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
@@ -511,8 +513,14 @@ step2:
 	 */
 	bus_width = 3 - ((ddr_in32(&ddr->sdram_cfg) & SDRAM_CFG_DBW_MASK)
 			>> SDRAM_CFG_DBW_SHIFT);
-	timeout = ((total_gb_size_per_controller << (6 - bus_width)) * 100 /
-		(get_ddr_freq(ctrl_num) >> 20)) << 2;
+	ddr_freq_for_timeout = (get_ddr_freq(ctrl_num) >> 20) << 2;
+	if (ddr_freq_for_timeout) {
+		timeout = ((total_gb_size_per_controller <<
+				       (6 - bus_width)) * 100 /
+				ddr_freq_for_timeout);
+	} else {
+		debug("Error in getting timeout.\n");
+	}
 	total_gb_size_per_controller >>= 4;	/* shift down to gb size */
 	debug("total %d GB\n", total_gb_size_per_controller);
 	debug("Need to wait up to %d * 10ms\n", timeout);

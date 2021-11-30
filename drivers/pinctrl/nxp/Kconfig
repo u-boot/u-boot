@@ -60,6 +60,20 @@ config PINCTRL_IMX7ULP
 	  only parses the 'fsl,pins' property and configure related
 	  registers.
 
+config PINCTRL_IMX8ULP
+	bool "IMX8ULP pinctrl driver"
+	depends on ARCH_IMX8ULP && PINCTRL_FULL
+	select DEVRES
+	select PINCTRL_IMX
+	help
+	  Say Y here to enable the imx8ulp pinctrl driver
+
+	  This provides a simple pinctrl driver for i.MX8ULP SoC familiy.
+	  This feature depends on device tree configuration. This driver
+	  is different from the linux one, this is a simple implementation,
+	  only parses the 'fsl,pins' property and configure related
+	  registers.
+
 config PINCTRL_IMX8
 	bool "IMX8 pinctrl driver"
 	depends on ARCH_IMX8 && PINCTRL_FULL

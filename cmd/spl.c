@@ -10,6 +10,7 @@
 #include <env.h>
 #include <image.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -31,11 +32,7 @@ static const char **subcmd_list[] = {
 		NULL,
 	},
 	[SPL_EXPORT_ATAGS] = (const char * []) {
-#if defined(CONFIG_SETUP_MEMORY_TAGS) || \
-	defined(CONFIG_CMDLINE_TAG) || \
-	defined(CONFIG_INITRD_TAG) || \
-	defined(CONFIG_SERIAL_TAG) || \
-	defined(CONFIG_REVISION_TAG)
+#ifdef CONFIG_SUPPORT_PASSING_ATAGS
 		"start",
 		"loados",
 #ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH

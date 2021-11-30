@@ -14,8 +14,13 @@
 #include <i2c.h>
 #include <linux/ctype.h>
 
+#include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
+
 #include "ventana_eeprom.h"
 #include "gsc.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * The Gateworks System Controller will fail to ACK a master transaction if
@@ -63,24 +68,116 @@ int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	return ret;
 }
 
-static void read_hwmon(const char *name, uint reg, uint size)
+int gsc_get_board_temp(void)
 {
-	unsigned char buf[3];
-	uint ui;
+	const void *fdt = gd->fdt_blob;
+	int node, reg, mode, val;
+	const char *label;
+	u8 buf[2];
+	int ret;
 
-	printf("%-8s:", name);
-	memset(buf, 0, sizeof(buf));
-	if (gsc_i2c_read(GSC_HWMON_ADDR, reg, 1, buf, size)) {
-		puts("fRD\n");
-	} else {
-		ui = buf[0] | (buf[1]<<8) | (buf[2]<<16);
-		if (size == 2 && ui > 0x8000)
-			ui -= 0xffff;
-		if (ui == 0xffffff)
-			puts("invalid\n");
-		else
-			printf("%d\n", ui);
+	node = fdt_node_offset_by_compatible(fdt, -1, "gw,gsc-adc");
+	if (node <= 0)
+		return node;
+	i2c_set_bus_num(0);
+
+	/* iterate over hwmon nodes */
+	node = fdt_first_subnode(fdt, node);
+	while (node > 0) {
+		reg = fdtdec_get_int(fdt, node, "reg", -1);
+		mode = fdtdec_get_int(fdt, node, "gw,mode", -1);
+		label = fdt_stringlist_get(fdt, node, "label", 0, NULL);
+
+		if ((reg == -1) || (mode == -1) || !label) {
+			printf("invalid dt:%s\n", fdt_get_name(fdt, node, NULL));
+			continue;
+		}
+
+		if ((mode != 0) || strcmp(label, "temp"))
+			continue;
+
+		memset(buf, 0, sizeof(buf));
+		ret = gsc_i2c_read(GSC_HWMON_ADDR, reg, 1, buf, sizeof(buf));
+		val = buf[0] | buf[1] << 8;
+		if (val >= 0) {
+			if (val > 0x8000)
+				val -= 0xffff;
+			return val;
+		}
+		node = fdt_next_subnode(fdt, node);
 	}
+
+	return 0;
+}
+
+/* display hardware monitor ADC channels */
+int gsc_hwmon(void)
+{
+	const void *fdt = gd->fdt_blob;
+	int node, reg, mode, len, val, offset;
+	const char *label;
+	u8 buf[2];
+	int ret;
+
+	node = fdt_node_offset_by_compatible(fdt, -1, "gw,gsc-adc");
+	if (node <= 0)
+		return node;
+	i2c_set_bus_num(0);
+
+	/* iterate over hwmon nodes */
+	node = fdt_first_subnode(fdt, node);
+	while (node > 0) {
+		reg = fdtdec_get_int(fdt, node, "reg", -1);
+		mode = fdtdec_get_int(fdt, node, "gw,mode", -1);
+		offset = fdtdec_get_int(fdt, node, "gw,voltage-offset-microvolt", 0);
+		label = fdt_stringlist_get(fdt, node, "label", 0, NULL);
+
+		if ((reg == -1) || (mode == -1) || !label)
+			printf("invalid dt:%s\n", fdt_get_name(fdt, node, NULL));
+
+		memset(buf, 0, sizeof(buf));
+		ret = gsc_i2c_read(GSC_HWMON_ADDR, reg, 1, buf, sizeof(buf));
+		val = buf[0] | buf[1] << 8;
+		if (val >= 0) {
+			const u32 *div;
+			int r[2];
+
+			switch (mode) {
+			case 0: /* temperature (C*10) */
+				if (val > 0x8000)
+					val -= 0xffff;
+				printf("%-8s: %d.%ldC\n", label, val / 10, abs(val % 10));
+				break;
+			case 1: /* prescaled voltage */
+				if (val != 0xffff)
+					printf("%-8s: %d.%03dV\n", label, val / 1000, val % 1000);
+				break;
+			case 2: /* scaled based on ref volt and resolution */
+				val *= 2500;
+				val /= 1 << 12;
+
+				/* apply pre-scaler voltage divider */
+				div  = fdt_getprop(fdt, node, "gw,voltage-divider-ohms", &len);
+				if (div && (len == sizeof(uint32_t) * 2)) {
+					r[0] = fdt32_to_cpu(div[0]);
+					r[1] = fdt32_to_cpu(div[1]);
+					if (r[0] && r[1]) {
+						val *= (r[0] + r[1]);
+						val /= r[1];
+					}
+				}
+
+				/* adjust by offset */
+				val += (offset / 1000);
+
+				printf("%-8s: %d.%03dV\n", label, val / 1000, val % 1000);
+				break;
+			}
+		}
+		node = fdt_next_subnode(fdt, node);
+	}
+
+	return 0;
 }
 
 int gsc_info(int verbose)
@@ -101,54 +198,13 @@ int gsc_info(int verbose)
 		gsc_i2c_write(GSC_SC_ADDR, GSC_SC_STATUS, 1,
 			      &buf[GSC_SC_STATUS], 1);
 	}
-	if (!gsc_i2c_read(GSC_HWMON_ADDR, GSC_HWMON_TEMP, 1, buf, 2)) {
-		int ui = buf[0] | buf[1]<<8;
-		if (ui > 0x8000)
-			ui -= 0xffff;
-		printf(" board temp at %dC", ui / 10);
-	}
+	printf(" board temp at %dC", gsc_get_board_temp() / 10);
 	puts("\n");
 	if (!verbose)
 		return CMD_RET_SUCCESS;
 
-	read_hwmon("Temp",     GSC_HWMON_TEMP, 2);
-	read_hwmon("VIN",      GSC_HWMON_VIN, 3);
-	read_hwmon("VBATT",    GSC_HWMON_VBATT, 3);
-	read_hwmon("VDD_3P3",  GSC_HWMON_VDD_3P3, 3);
-	read_hwmon("VDD_ARM",  GSC_HWMON_VDD_CORE, 3);
-	read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
-	read_hwmon("VDD_HIGH", GSC_HWMON_VDD_HIGH, 3);
-	read_hwmon("VDD_DDR",  GSC_HWMON_VDD_DDR, 3);
-	read_hwmon("VDD_5P0",  GSC_HWMON_VDD_5P0, 3);
-	if (strncasecmp((const char*) ventana_info.model, "GW553", 5))
-		read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3);
-	read_hwmon("VDD_1P8",  GSC_HWMON_VDD_1P8, 3);
-	read_hwmon("VDD_IO2",  GSC_HWMON_VDD_IO2, 3);
-	switch (ventana_info.model[3]) {
-	case '1': /* GW51xx */
-		read_hwmon("VDD_IO3",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
-		break;
-	case '2': /* GW52xx */
-		break;
-	case '3': /* GW53xx */
-		read_hwmon("VDD_IO4",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
-		read_hwmon("VDD_GPS",  GSC_HWMON_VDD_IO3, 3);
-		break;
-	case '4': /* GW54xx */
-		read_hwmon("VDD_IO3",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
-		read_hwmon("VDD_GPS",  GSC_HWMON_VDD_IO3, 3);
-		break;
-	case '5': /* GW55xx */
-		break;
-	case '6': /* GW560x */
-		read_hwmon("VDD_IO4",  GSC_HWMON_VDD_IO4, 3);
-		read_hwmon("VDD_GPS",  GSC_HWMON_VDD_IO3, 3);
-		break;
-	case '9': /* GW590x */
-		read_hwmon("AMONBMON",  GSC_HWMON_VDD_IO3, 3);
-		read_hwmon("BAT_VOLT",  GSC_HWMON_VDD_EXT, 3);
-		read_hwmon("BAT_TEMP",  GSC_HWMON_VDD_IO4, 2);
-	}
+	gsc_hwmon();
+
 	return 0;
 }
 
@@ -179,6 +235,92 @@ int gsc_boot_wd_disable(void)
 	return 1;
 }
 
+/* determine BOM revision from model */
+int get_bom_rev(const char *str)
+{
+	int  rev_bom = 0;
+	int i;
+
+	for (i = strlen(str) - 1; i > 0; i--) {
+		if (str[i] == '-')
+			break;
+		if (str[i] >= '1' && str[i] <= '9') {
+			rev_bom = str[i] - '0';
+			break;
+		}
+	}
+	return rev_bom;
+}
+
+/* determine PCB revision from model */
+char get_pcb_rev(const char *str)
+{
+	char rev_pcb = 'A';
+	int i;
+
+	for (i = strlen(str) - 1; i > 0; i--) {
+		if (str[i] == '-')
+			break;
+		if (str[i] >= 'A') {
+			rev_pcb = str[i];
+			break;
+		}
+	}
+	return rev_pcb;
+}
+
+/*
+ * get dt name based on model and detail level:
+ */
+const char *gsc_get_dtb_name(int level, char *buf, int sz)
+{
+	const char *model = (const char *)ventana_info.model;
+	const char *pre = is_mx6dq() ? "imx6q-" : "imx6dl-";
+	int modelno, rev_pcb, rev_bom;
+
+	/* a few board models are dt equivalents to other models */
+	if (strncasecmp(model, "gw5906", 6) == 0)
+		model = "gw552x-d";
+	else if (strncasecmp(model, "gw5908", 6) == 0)
+		model = "gw53xx-f";
+	else if (strncasecmp(model, "gw5905", 6) == 0)
+		model = "gw5904-a";
+
+	modelno = ((model[2] - '0') * 1000)
+		  + ((model[3] - '0') * 100)
+		  + ((model[4] - '0') * 10)
+		  + (model[5] - '0');
+	rev_pcb = tolower(get_pcb_rev(model));
+	rev_bom = get_bom_rev(model);
+
+	/* compare model/rev/bom in order of most specific to least */
+	snprintf(buf, sz, "%s%04d", pre, modelno);
+	switch (level) {
+	case 0: /* full model first (ie gw5400-a1) */
+		if (rev_bom) {
+			snprintf(buf, sz, "%sgw%04d-%c%d", pre, modelno, rev_pcb, rev_bom);
+			break;
+		}
+		fallthrough;
+	case 1: /* don't care about bom rev (ie gw5400-a) */
+		snprintf(buf, sz, "%sgw%04d-%c", pre, modelno, rev_pcb);
+		break;
+	case 2: /* don't care about the pcb rev (ie gw5400) */
+		snprintf(buf, sz, "%sgw%04d", pre, modelno);
+		break;
+	case 3: /* look for generic model (ie gw540x) */
+		snprintf(buf, sz, "%sgw%03dx", pre, modelno / 10);
+		break;
+	case 4: /* look for more generic model (ie gw54xx) */
+		snprintf(buf, sz, "%sgw%02dxx", pre, modelno / 100);
+		break;
+	default: /* give up */
+		return NULL;
+	}
+
+	return buf;
+}
+
 #if defined(CONFIG_CMD_GSC) && !defined(CONFIG_SPL_BUILD)
 static int do_gsc_sleep(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
@@ -189,7 +331,7 @@ static int do_gsc_sleep(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	secs = simple_strtoul(argv[1], NULL, 10);
+	secs = dectoul(argv[1], NULL);
 	printf("GSC Sleeping for %ld seconds\n", secs);
 
 	i2c_set_bus_num(0);
@@ -234,7 +376,7 @@ static int do_gsc_wd(struct cmd_tbl *cmdtp, int flag, int argc,
 		int timeout = 0;
 
 		if (argc > 2)
-			timeout = simple_strtoul(argv[2], NULL, 10);
+			timeout = dectoul(argv[2], NULL);
 		i2c_set_bus_num(0);
 		if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
 			return CMD_RET_FAILURE;

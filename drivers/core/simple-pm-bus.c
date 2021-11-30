@@ -21,7 +21,7 @@ static int simple_pm_bus_probe(struct udevice *dev)
 		return ret;
 
 	ret = clk_enable_bulk(bulk);
-	if (ret && ret != -ENOSYS && ret != -ENOTSUPP) {
+	if (ret && ret != -ENOSYS) {
 		clk_release_bulk(bulk);
 		return ret;
 	}
@@ -34,7 +34,7 @@ static int simple_pm_bus_remove(struct udevice *dev)
 	struct clk_bulk *bulk = dev_get_priv(dev);
 
 	ret = clk_release_bulk(bulk);
-	if (ret && ret != -ENOSYS && ret != -ENOTSUPP)
+	if (ret && ret != -ENOSYS)
 		return ret;
 	else
 		return 0;
@@ -51,6 +51,6 @@ U_BOOT_DRIVER(simple_pm_bus_drv) = {
 	.of_match = simple_pm_bus_ids,
 	.probe = simple_pm_bus_probe,
 	.remove = simple_pm_bus_remove,
-	.priv_auto_alloc_size = sizeof(struct clk_bulk),
+	.priv_auto	= sizeof(struct clk_bulk),
 	.flags	= DM_FLAG_PRE_RELOC,
 };

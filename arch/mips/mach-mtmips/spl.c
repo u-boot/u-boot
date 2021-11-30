@@ -6,10 +6,10 @@
  */
 
 #include <common.h>
-#include <fdt.h>
 #include <init.h>
 #include <spl.h>
 #include <asm/sections.h>
+#include <linux/libfdt.h>
 #include <linux/sizes.h>
 #include <mach/serial.h>
 
@@ -17,7 +17,7 @@ void __noreturn board_init_f(ulong dummy)
 {
 	spl_init();
 
-#ifdef CONFIG_SPL_SERIAL_SUPPORT
+#ifdef CONFIG_SPL_SERIAL
 	/*
 	 * mtmips_spl_serial_init() is useful if debug uart is enabled,
 	 * or DM based serial is not enabled.

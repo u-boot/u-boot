@@ -130,6 +130,14 @@ ENTRY(_main)
 	ldr	r9, [r9, #GD_NEW_GD]		/* r9 <- gd->new_gd */
 
 	adr	lr, here
+#if defined(CONFIG_POSITION_INDEPENDENT)
+	adr	r0, _main
+	ldr	r1, _start_ofs
+	add	r0, r1
+	ldr	r1, =CONFIG_SYS_TEXT_BASE
+	sub	r1, r0
+	add	lr, r1
+#endif
 	ldr	r0, [r9, #GD_RELOC_OFF]		/* r0 = gd->reloc_off */
 	add	lr, lr, r0
 #if defined(CONFIG_CPU_V7M)
@@ -180,3 +188,6 @@ here:
 #endif
 
 ENDPROC(_main)
+
+_start_ofs:
+	.word	_start - _main

@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/pch_common.h>
 #include <asm/pci.h>

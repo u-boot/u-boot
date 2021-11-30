@@ -468,7 +468,7 @@ static void axi_mrmac_stop(struct udevice *dev)
 
 static int axi_mrmac_probe(struct udevice *dev)
 {
-	struct axi_mrmac_plat *plat = dev_get_platdata(dev);
+	struct axi_mrmac_plat *plat = dev_get_plat(dev);
 	struct eth_pdata *pdata = &plat->eth_pdata;
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
 
@@ -509,9 +509,9 @@ static int axi_mrmac_remove(struct udevice *dev)
 	return 0;
 }
 
-static int axi_mrmac_ofdata_to_platdata(struct udevice *dev)
+static int axi_mrmac_of_to_plat(struct udevice *dev)
 {
-	struct axi_mrmac_plat *plat = dev_get_platdata(dev);
+	struct axi_mrmac_plat *plat = dev_get_plat(dev);
 	struct eth_pdata *pdata = &plat->eth_pdata;
 	struct ofnode_phandle_args phandle_args;
 	int ret = 0;
@@ -555,10 +555,10 @@ U_BOOT_DRIVER(axi_mrmac) = {
 	.name   = "axi_mrmac",
 	.id     = UCLASS_ETH,
 	.of_match = axi_mrmac_ids,
-	.ofdata_to_platdata = axi_mrmac_ofdata_to_platdata,
+	.of_to_plat = axi_mrmac_of_to_plat,
 	.probe  = axi_mrmac_probe,
 	.remove = axi_mrmac_remove,
 	.ops    = &axi_mrmac_ops,
-	.priv_auto_alloc_size = sizeof(struct axi_mrmac_priv),
-	.platdata_auto_alloc_size = sizeof(struct axi_mrmac_plat),
+	.priv_auto = sizeof(struct axi_mrmac_priv),
+	.plat_auto = sizeof(struct axi_mrmac_plat),
 };

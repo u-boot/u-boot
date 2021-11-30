@@ -8,11 +8,15 @@
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
+#include <log.h>
 #include <mtd.h>
 #include <mtd_node.h>
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
 #include <tee.h>
+#endif
 #include <asm/arch/stm32prog.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 
 #define MTDPARTS_LEN		256
 #define MTDIDS_LEN		128
@@ -29,7 +33,9 @@ static void board_set_mtdparts(const char *dev,
 			       char *mtdids,
 			       char *mtdparts,
 			       const char *boot,
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
 			       const char *tee,
+#endif
 			       const char *user)
 {
 	/* mtdids: "<dev>=<dev>, ...." */
@@ -53,10 +59,12 @@ static void board_set_mtdparts(const char *dev,
 		strncat(mtdparts, ",", MTDPARTS_LEN);
 	}
 
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
 	if (tee) {
 		strncat(mtdparts, tee, MTDPARTS_LEN);
 		strncat(mtdparts, ",", MTDPARTS_LEN);
 	}
+#endif
 
 	strncat(mtdparts, user, MTDPARTS_LEN);
 }
@@ -68,7 +76,10 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	static char parts[3 * MTDPARTS_LEN + 1];
 	static char ids[MTDIDS_LEN + 1];
 	static bool mtd_initialized;
-	bool tee, nor, nand, spinand, serial;
+	bool nor, nand, spinand, serial;
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
+	bool tee = false;
+#endif
 
 	if (mtd_initialized) {
 		*mtdids = ids;
@@ -76,7 +87,6 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 		return;
 	}
 
-	tee = false;
 	nor = false;
 	nand = false;
 	spinand = false;
@@ -87,7 +97,9 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	case BOOT_SERIAL_USB:
 		serial = true;
 		if (CONFIG_IS_ENABLED(CMD_STM32PROG)) {
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
 			tee = stm32prog_get_tee_partitions();
+#endif
 			nor = stm32prog_get_fsbl_nor();
 		}
 		nand = true;
@@ -106,9 +118,10 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 		break;
 	}
 
-	if (!serial && CONFIG_IS_ENABLED(OPTEE) &&
-	    tee_find_device(NULL, NULL, NULL, NULL))
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
+	if (!serial && tee_find_device(NULL, NULL, NULL, NULL))
 		tee = true;
+#endif
 
 	memset(parts, 0, sizeof(parts));
 	memset(ids, 0, sizeof(ids));
@@ -117,32 +130,30 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	for (uclass_first_device(UCLASS_MTD, &dev);
 	     dev;
 	     uclass_next_device(&dev)) {
-		pr_debug("mtd device = %s\n", dev->name);
+		log_debug("mtd device = %s\n", dev->name);
 	}
 
-	if (nor || nand) {
+	if (nand) {
 		mtd = get_mtd_device_nm("nand0");
 		if (!IS_ERR_OR_NULL(mtd)) {
-			const char *mtd_boot = CONFIG_MTDPARTS_NAND0_BOOT;
-			const char *mtd_tee = CONFIG_MTDPARTS_NAND0_TEE;
-
 			board_set_mtdparts("nand0", ids, parts,
-					   !nor ? mtd_boot : NULL,
-					   !nor && tee ? mtd_tee : NULL,
+					   CONFIG_MTDPARTS_NAND0_BOOT,
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
+					   !nor && tee ? CONFIG_MTDPARTS_NAND0_TEE : NULL,
+#endif
 					   "-(UBI)");
 			put_mtd_device(mtd);
 		}
 	}
 
-	if (nor || spinand) {
+	if (spinand) {
 		mtd = get_mtd_device_nm("spi-nand0");
 		if (!IS_ERR_OR_NULL(mtd)) {
-			const char *mtd_boot = CONFIG_MTDPARTS_SPINAND0_BOOT;
-			const char *mtd_tee = CONFIG_MTDPARTS_SPINAND0_TEE;
-
 			board_set_mtdparts("spi-nand0", ids, parts,
-					   !nor ? mtd_boot : NULL,
-					   !nor && tee ? mtd_tee : NULL,
+					   CONFIG_MTDPARTS_SPINAND0_BOOT,
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
+					   !nor && tee ? CONFIG_MTDPARTS_SPINAND0_TEE : NULL,
+#endif
 					   "-(UBI)");
 			put_mtd_device(mtd);
 		}
@@ -150,12 +161,11 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 
 	if (nor) {
 		if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev)) {
-			const char *mtd_boot = CONFIG_MTDPARTS_NOR0_BOOT;
-			const char *mtd_tee = CONFIG_MTDPARTS_NOR0_TEE;
-
 			board_set_mtdparts("nor0", ids, parts,
-					   mtd_boot,
-					   tee ? mtd_tee : NULL,
+					   CONFIG_MTDPARTS_NOR0_BOOT,
+#ifdef CONFIG_STM32MP15x_STM32IMAGE
+					   tee ? CONFIG_MTDPARTS_NOR0_TEE : NULL,
+#endif
 					   "-(nor_user)");
 		}
 	}
@@ -163,5 +173,5 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	mtd_initialized = true;
 	*mtdids = ids;
 	*mtdparts = parts;
-	debug("%s:mtdids=%s & mtdparts=%s\n", __func__, ids, parts);
+	log_debug("mtdids=%s & mtdparts=%s\n", ids, parts);
 }

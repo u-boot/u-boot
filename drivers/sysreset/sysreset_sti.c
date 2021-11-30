@@ -9,6 +9,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <sysreset.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 
@@ -79,5 +80,5 @@ U_BOOT_DRIVER(sysreset_sti) = {
 	.ops = &sti_sysreset,
 	.probe = sti_sysreset_probe,
 	.of_match = sti_sysreset_ids,
-	.priv_auto_alloc_size = sizeof(struct sti_sysreset_priv),
+	.priv_auto	= sizeof(struct sti_sysreset_priv),
 };

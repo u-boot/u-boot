@@ -22,8 +22,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	NV_PA_TMRUS_BASE
 #endif
 
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-
 /* Environment */
 
 /*

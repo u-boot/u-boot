@@ -9,6 +9,8 @@
 
 #define SOC_MAX_STR_SIZE	128
 
+struct udevice;
+
 /**
  * struct soc_attr - Contains SoC identify information to be used in
  *		     SoC matching. An array of these structs

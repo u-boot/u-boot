@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  */
 
 /*
@@ -26,7 +26,6 @@
 #endif
 
 #ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xrdb/t1024_pbi.cfg
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_PAD_TO		0x40000
 #define CONFIG_SPL_MAX_SIZE		0x28000
@@ -43,11 +42,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_nand_rcw.cfg
-#elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_nand_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -60,11 +54,6 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_spi_rcw.cfg
-#elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_spi_rcw.cfg
-#endif
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -75,11 +64,6 @@
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(260 << 10)
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
-#endif
-#if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_sd_rcw.cfg
-#elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_sd_rcw.cfg
 #endif
 #endif
 
@@ -134,11 +118,9 @@
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(void);
-unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	100000000
-#define CONFIG_DDR_CLK_FREQ	100000000
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -147,9 +129,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_BACKSIDE_L2_CACHE
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_DDR_ECC
 #ifdef CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
@@ -170,13 +150,8 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 /*
  * DDR Setup
@@ -187,7 +162,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 #if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
@@ -268,7 +242,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* NAND Flash on IFC */
-#define CONFIG_NAND_FSL_IFC
 #define CONFIG_SYS_NAND_BASE		0xff800000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_NAND_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_NAND_BASE)
@@ -290,7 +263,6 @@ unsigned long get_board_ddr_clk(void);
 				| CSOR_NAND_PGS_4K	/* Page Size = 4K */ \
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 #elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_NAND_CSOR	(CSOR_NAND_ECC_ENC_EN   /* ECC on encode */ \
 				| CSOR_NAND_ECC_DEC_EN  /* ECC on decode */ \
@@ -299,10 +271,8 @@ unsigned long get_board_ddr_clk(void);
 				| CSOR_NAND_PGS_2K	/* Page Size = 2K */ \
 				| CSOR_NAND_SPRZ_128	/* Spare size = 128 */ \
 				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 #endif
 
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 /* ONFI NAND Flash mode0 Timing Params */
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x07) | \
 					FTIM0_NAND_TWP(0x18)   | \
@@ -392,7 +362,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
@@ -422,20 +391,7 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* I2C */
-#ifndef CONFIG_DM_I2C
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_FSL_I2C_SPEED	50000	/* I2C speed in Hz */
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_SPEED	50000	/* I2C speed in Hz */
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
-#endif
 
-#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 #define I2C_PCA6408_BUS_NUM		1
 #define I2C_PCA6408_ADDR		0x20
 
@@ -485,23 +441,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_PCIE3_MEM_PHYS	0xc20000000ull
 #define CONFIG_SYS_PCIE3_IO_VIRT	0xf8020000
 #define CONFIG_SYS_PCIE3_IO_PHYS	0xff8020000ull
-#endif
-
-#if !defined(CONFIG_DM_PCI)
-#define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
-#define CONFIG_SYS_PCIE1_MEM_SIZE	0x10000000	/* 256M */
-#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
-#define CONFIG_SYS_PCIE2_MEM_BUS	0xe0000000
-#define CONFIG_SYS_PCIE2_MEM_SIZE	0x10000000 /* 256M */
-#define CONFIG_SYS_PCIE2_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
-#define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
-#define CONFIG_SYS_PCIE3_MEM_SIZE	0x10000000	/* 256M */
-#define CONFIG_SYS_PCIE3_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
-#define CONFIG_PCI_INDIRECT_BRIDGE
 #endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -561,44 +500,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_DPAA_FMAN
 
-/* Default address of microcode for the Linux FMan driver */
-#if defined(CONFIG_SPIFLASH)
-/*
- * env is stored at 0x100000, sector size is 0x10000, ucode is stored after
- * env, so we got 0x110000.
- */
-#define CONFIG_SYS_FMAN_FW_ADDR	0x110000
-#define CONFIG_SYS_QE_FW_ADDR	0x130000
-#elif defined(CONFIG_SDCARD)
-/*
- * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
- * about 1MB (2048 blocks), Env is stored after the image, and the env size is
- * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080(0x820).
- */
-#define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x820)
-#define CONFIG_SYS_QE_FW_ADDR		(512 * 0x920)
-#elif defined(CONFIG_MTD_RAW_NAND)
-#if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_SYS_FMAN_FW_ADDR		(3 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#define CONFIG_SYS_QE_FW_ADDR		(4 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_FMAN_FW_ADDR		(11 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#define CONFIG_SYS_QE_FW_ADDR		(12 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#endif
-#elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
-/*
- * Slave has no ucode locally, it can fetch this from remote. When implementing
- * in two corenet boards, slave's ucode could be stored in master's memory
- * space, the address can be mapped from slave TLB->slave LAW->
- * slave SRIO or PCIE outbound window->master inbound window->
- * master LAW->the ucode address in master's memory space.
- */
-#define CONFIG_SYS_FMAN_FW_ADDR		0xFFE00000
-#else
-#define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
-#define CONFIG_SYS_QE_FW_ADDR		0xEFE00000
-#endif
-#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif /* CONFIG_NOBQFMAN */
 
@@ -632,7 +533,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*
  * For booting Linux, the board info and command line data
@@ -642,17 +542,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial map for Linux*/
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
-#ifdef CONFIG_CMD_KGDB
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#endif
-
 /*
  * Environment Configuration
  */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
-#define CONFIG_LOADADDR		1000000 /* default location for tftp, bootm */
 #define __USB_PHY_TYPE		utmi
 
 #ifdef CONFIG_ARCH_T1024
@@ -685,7 +580,7 @@ unsigned long get_board_ddr_clk(void);
 	"fdtaddr=1e00000\0"					\
 	"bdev=sda3\0"
 
-#define CONFIG_LINUX					\
+#define LINUXBOOTCOMMAND					\
 	"setenv bootargs root=/dev/ram rw "		\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"setenv ramdiskaddr 0x02000000;"		\
@@ -693,7 +588,7 @@ unsigned long get_board_ddr_clk(void);
 	"setenv loadaddr 0x1000000;"			\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_NFSBOOTCOMMAND			\
+#define NFSBOOTCOMMAND			\
 	"setenv bootargs root=/dev/nfs rw "	\
 	"nfsroot=$serverip:$rootpath "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -702,7 +597,7 @@ unsigned long get_board_ddr_clk(void);
 	"tftp $fdtaddr $fdtfile;"		\
 	"bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND	CONFIG_LINUX
+#define CONFIG_BOOTCOMMAND	LINUXBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

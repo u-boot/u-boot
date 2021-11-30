@@ -340,7 +340,7 @@ static int periph_clk_enable(struct clk *clk, int enable)
 		return -EINVAL;
 
 	if (!periph_clk->can_gate)
-		return -ENOTSUPP;
+		return -EINVAL;
 
 	if (enable)
 		clrbits_le32(priv->reg + CLK_DIS, periph_clk->disable_bit);
@@ -408,7 +408,7 @@ static ulong armada_37xx_periph_clk_set_rate(struct clk *clk, ulong req_rate)
 		return old_rate;
 
 	if (!periph_clk->can_gate || !periph_clk->dividers)
-		return -ENOTSUPP;
+		return -EINVAL;
 
 	parent_rate = get_parent_rate(priv, clk->id);
 	if (parent_rate == -EINVAL)
@@ -445,7 +445,7 @@ static int armada_37xx_periph_clk_set_parent(struct clk *clk,
 		return -EINVAL;
 
 	if (!periph_clk->can_mux || !periph_clk->can_gate)
-		return -ENOTSUPP;
+		return -EINVAL;
 
 	ret = clk_get_by_index(clk->dev, 0, &check_parent);
 	if (ret < 0)
@@ -624,6 +624,7 @@ U_BOOT_DRIVER(armada_37xx_periph_clk) = {
 	.id		= UCLASS_CLK,
 	.of_match	= armada_37xx_periph_clk_ids,
 	.ops		= &armada_37xx_periph_clk_ops,
-	.priv_auto_alloc_size = sizeof(struct a37xx_periphclk),
+	.priv_auto	= sizeof(struct a37xx_periphclk),
 	.probe		= armada_37xx_periph_clk_probe,
+	.flags		= DM_FLAG_PRE_RELOC,
 };

@@ -3,7 +3,7 @@
  * include/linux/serial_reg.h
  *
  * Copyright (C) 1992, 1994 by Theodore Ts'o.
- * 
+ *
  * These are the UART port assignments, expressed as offsets from the base
  * register.  These assignments should hold for any serial port based on
  * a 8250, 16450, or 16550(A).
@@ -88,7 +88,7 @@
 
 #define UART_LCR	3	/* Out: Line Control Register */
 /*
- * Note: if the word length is 5 bits (UART_LCR_WLEN5), then setting 
+ * Note: if the word length is 5 bits (UART_LCR_WLEN5), then setting
  * UART_LCR_STOP will select 1.5 stop bits, not 2 stop bits.
  */
 #define UART_LCR_DLAB		0x80 /* Divisor latch access bit */
@@ -257,7 +257,7 @@
  */
 #define UART_ASR	0x01	/* Additional Status Register */
 #define UART_RFL	0x03	/* Receiver FIFO level */
-#define UART_TFL 	0x04	/* Transmitter FIFO level */
+#define UART_TFL	0x04	/* Transmitter FIFO level */
 #define UART_ICR	0x05	/* Index Control Register */
 
 /* The 16950 ICR registers */
@@ -286,7 +286,6 @@
 #define UART_ACR_TLENB	0x20	/* 950 trigger levels enable */
 #define UART_ACR_ICRRD	0x40	/* ICR Read enable */
 #define UART_ACR_ASREN	0x80	/* Additional status enable */
-
 
 
 /*
@@ -384,4 +383,3 @@
 #define UART_EXAR_RXTRG		0x0b	/* Rx FIFO trigger level write-only */
 
 #endif /* _LINUX_SERIAL_REG_H */
-

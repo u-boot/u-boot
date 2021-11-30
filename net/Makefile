@@ -9,6 +9,7 @@ obj-$(CONFIG_NET)      += arp.o
 obj-$(CONFIG_CMD_BOOTP) += bootp.o
 obj-$(CONFIG_CMD_CDP)  += cdp.o
 obj-$(CONFIG_CMD_DNS)  += dns.o
+obj-$(CONFIG_DM_DSA)   += dsa-uclass.o
 ifdef CONFIG_DM_ETH
 obj-$(CONFIG_NET)      += eth-uclass.o
 else

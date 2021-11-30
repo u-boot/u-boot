@@ -11,7 +11,18 @@
 #define SUNXI_SRAM_A1_BASE		0x00000000
 #define SUNXI_SRAM_A1_SIZE		(16 * 1024)	/* 16 kiB */
 
+#if defined(CONFIG_SUNXI_GEN_SUN6I) && \
+    !defined(CONFIG_MACH_SUN8I_R40) && \
+    !defined(CONFIG_MACH_SUN8I_V3S)
+#define SUNXI_SRAM_A2_BASE		0x00040000
+#ifdef CONFIG_MACH_SUN8I_H3
+#define SUNXI_SRAM_A2_SIZE		(48 * 1024)	/* 16+32 kiB */
+#else
+#define SUNXI_SRAM_A2_SIZE		(80 * 1024)	/* 16+64 kiB */
+#endif
+#else
 #define SUNXI_SRAM_A2_BASE		0x00004000	/* 16 kiB */
+#endif
 #define SUNXI_SRAM_A3_BASE		0x00008000	/* 13 kiB */
 #define SUNXI_SRAM_A4_BASE		0x0000b400	/* 3 kiB */
 #define SUNXI_SRAM_D_BASE		0x00010000	/* 4 kiB */

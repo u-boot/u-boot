@@ -31,7 +31,7 @@ const char *symbol_lookup(unsigned long addr, unsigned long *caddr)
 	*caddr = 0;
 
 	while (*sym) {
-		sym_addr = simple_strtoul(sym, &esym, 16);
+		sym_addr = hextoul(sym, &esym);
 		sym = esym;
 		if (sym_addr > addr)
 			break;

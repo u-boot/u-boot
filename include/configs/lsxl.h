@@ -12,12 +12,8 @@
  */
 #if defined(CONFIG_LSCHLV2)
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-lschl.cfg
-#define CONFIG_MACH_TYPE 3006
-#define CONFIG_SYS_TCLK 166666667 /* 166 MHz */
 #elif defined(CONFIG_LSXHL)
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-lsxhl.cfg
-#define CONFIG_MACH_TYPE 2663
-/* CONFIG_SYS_TCLK is 200000000 by default */
 #else
 #error "unknown board"
 #endif
@@ -27,8 +23,6 @@
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
 #define CONFIG_KW88F6281		/* SOC Name */
-
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 #define CONFIG_KIRKWOOD_GPIO
 
@@ -47,7 +41,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_LOADADDR		0x00800000
 
 #if defined(CONFIG_LSXHL)
 #define CONFIG_FDTFILE "kirkwood-lsxhl.dtb"

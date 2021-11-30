@@ -13,9 +13,9 @@
 /* Below are the register offsets and bit definitions
  * of the Lan911x memory space
  */
-#define RX_DATA_FIFO		 		0x00
+#define RX_DATA_FIFO				0x00
 
-#define TX_DATA_FIFO		 		0x20
+#define TX_DATA_FIFO				0x20
 #define	TX_CMD_A_INT_ON_COMP			0x80000000
 #define	TX_CMD_A_INT_BUF_END_ALGN		0x03000000
 #define	TX_CMD_A_INT_4_BYTE_ALGN		0x00000000

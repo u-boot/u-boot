@@ -11,6 +11,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>

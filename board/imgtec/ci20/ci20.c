@@ -11,6 +11,7 @@
 #include <init.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/bitops.h>
@@ -253,7 +254,7 @@ int checkboard(void)
 
 #ifdef CONFIG_SPL_BUILD
 
-#if defined(CONFIG_SPL_MMC_SUPPORT)
+#if defined(CONFIG_SPL_MMC)
 int board_mmc_init(struct bd_info *bd)
 {
 	ci20_mux_mmc();

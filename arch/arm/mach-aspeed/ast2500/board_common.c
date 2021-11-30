@@ -8,6 +8,7 @@
 #include <log.h>
 #include <ram.h>
 #include <timer.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/wdt.h>

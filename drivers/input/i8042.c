@@ -14,6 +14,7 @@
 #include <input.h>
 #include <keyboard.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 
@@ -149,8 +150,8 @@ static int kbd_reset(int quirk)
 	else if ((quirk & QUIRK_DUP_POR) && config == KBD_POR)
 		config = kbd_cmd_read(CMD_RD_CONFIG);
 
-	config |= CONFIG_AT_TRANS;
-	config &= ~(CONFIG_KIRQ_EN | CONFIG_MIRQ_EN);
+	config |= CFG_AT_TRANS;
+	config &= ~(CFG_KIRQ_EN | CFG_MIRQ_EN);
 	if (kbd_cmd_write(CMD_WR_CONFIG, config))
 		goto err;
 
@@ -357,5 +358,5 @@ U_BOOT_DRIVER(i8042_kbd) = {
 	.probe = i8042_kbd_probe,
 	.remove = i8042_kbd_remove,
 	.ops	= &i8042_kbd_ops,
-	.priv_auto_alloc_size = sizeof(struct i8042_kbd_priv),
+	.priv_auto	= sizeof(struct i8042_kbd_priv),
 };

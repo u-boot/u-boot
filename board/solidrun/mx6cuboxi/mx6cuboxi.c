@@ -23,6 +23,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <env.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
@@ -373,7 +374,7 @@ static bool has_emmc(void)
 	mmc = find_mmc_device(2);
 	if (!mmc)
 		return 0;
-	return (mmc_get_op_cond(mmc) < 0) ? 0 : 1;
+	return (mmc_get_op_cond(mmc, true) < 0) ? 0 : 1;
 }
 
 int checkboard(void)

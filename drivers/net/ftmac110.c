@@ -476,7 +476,7 @@ int ftmac110_initialize(struct bd_info *bis)
 	struct mii_dev *mdiodev = mdio_alloc();
 	if (!mdiodev)
 		return -ENOMEM;
-	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	strlcpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
 	mdiodev->read = ftmac110_mdio_read;
 	mdiodev->write = ftmac110_mdio_write;
 

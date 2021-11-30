@@ -40,7 +40,10 @@
  */
 union mv_ddr_spd_data {
 	unsigned char all_bytes[MV_DDR_SPD_DATA_BLOCK0_SIZE +
-				MV_DDR_SPD_DATA_BLOCK1M_SIZE];
+				MV_DDR_SPD_DATA_BLOCK1M_SIZE +
+				MV_DDR_SPD_DATA_BLOCK1H_SIZE +
+				MV_DDR_SPD_DATA_BLOCK2E_SIZE +
+				MV_DDR_SPD_DATA_BLOCK2M_SIZE];
 	struct {
 		/* block 0 */
 		union { /* num of bytes used/num of bytes in spd device/crc coverage */
@@ -271,6 +274,9 @@ union mv_ddr_spd_data {
 			} bit_fields;
 		} byte_131;
 		unsigned char bytes_132_191[60]; /* reserved; all 0s */
+		unsigned char bytes_192_255[MV_DDR_SPD_DATA_BLOCK1H_SIZE];
+		unsigned char bytes_256_319[MV_DDR_SPD_DATA_BLOCK2E_SIZE];
+		unsigned char bytes_320_383[MV_DDR_SPD_DATA_BLOCK2M_SIZE];
 	} byte_fields;
 };
 

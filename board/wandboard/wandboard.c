@@ -17,6 +17,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
@@ -53,7 +54,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define REV_DETECTION		IMX_GPIO_NR(2, 28)
 
 /* Speed defined in Kconfig is only applicable when not using DM_I2C.  */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 #define I2C1_SPEED_NON_DM	0
 #define I2C2_SPEED_NON_DM	0
 #else
@@ -258,7 +259,7 @@ static void do_enable_hdmi(struct display_info_t const *dev)
 
 static int detect_i2c(struct display_info_t const *dev)
 {
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *bus, *udev;
 	int rc;
 

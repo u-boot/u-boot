@@ -20,7 +20,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-gd_t *gd __attribute__((section(".data")));
+gd_t *gd __section(".data");
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 /*

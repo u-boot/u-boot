@@ -13,12 +13,14 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <i2c.h>
 #include <init.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/pinmux_defs.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
 #include <linux/errno.h>
@@ -28,11 +30,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-u8 board_rev;
-
 #define EEPROM_I2C_ADDR		0x50
 #define EEPROM_REV_OFFSET	0x3F00
-#define EEPROM_MAC_OFFSET	0x3F06
+#define EEPROM_BDADDR_OFFSET	0x3F06
 
 const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(spi0_pins_base),
@@ -52,59 +52,46 @@ const struct lpsc_resource lpsc[] = {
 
 const int lpsc_size = ARRAY_SIZE(lpsc);
 
-u32 get_board_rev(void)
-{
-	u8 buf[2];
-
-	if (!board_rev) {
-		if (i2c_read(EEPROM_I2C_ADDR, EEPROM_REV_OFFSET, 2, buf, 2)) {
-			printf("\nBoard revision read failed!\n");
-		} else {
-			/*
-			 * Board rev 3 has MAC address at EEPROM_REV_OFFSET.
-			 * Other revisions have checksum at EEPROM_REV_OFFSET+1
-			 * to detect this.
-			 */
-			if ((buf[0] ^ buf[1]) == 0xFF)
-				board_rev = buf[0];
-			else
-				board_rev = 3;
-		}
-	}
-
-	return board_rev;
-}
-
 /*
- * The Bluetooth MAC address serves as the board serial number.
+ * The Bluetooth address serves as the board serial number.
  */
-void get_board_serial(struct tag_serialnr *serialnr)
+static void setup_serial_number(void)
 {
 	u32 offset;
+	char serial_number[13];
 	u8 buf[6];
+	u8 eeprom_rev;
 
-	if (!board_rev)
-		board_rev = get_board_rev();
+	if (env_get("serial#"))
+		return;
 
-	/* Board rev 3 has MAC address where rev should be */
-	offset = (board_rev == 3) ? EEPROM_REV_OFFSET : EEPROM_MAC_OFFSET;
+	if (i2c_read(EEPROM_I2C_ADDR, EEPROM_REV_OFFSET, 2, buf, 2)) {
+		printf("\nEEPROM revision read failed!\n");
+		return;
+	}
+
+	/*
+	 * EEPROM rev 3 has Bluetooth address at EEPROM_REV_OFFSET.
+	 * Other revisions have checksum at EEPROM_REV_OFFSET+1
+	 * to detect this.
+	 */
+	if ((buf[0] ^ buf[1]) == 0xFF)
+		eeprom_rev = buf[0];
+	else
+		eeprom_rev = 3;
+
+	/* EEPROM rev 3 has Bluetooth address where rev should be */
+	offset = (eeprom_rev == 3) ? EEPROM_REV_OFFSET : EEPROM_BDADDR_OFFSET;
 
 	if (i2c_read(EEPROM_I2C_ADDR, offset, 2, buf, 6)) {
-		printf("\nBoard serial read failed!\n");
-	} else {
-		u8 *nr;
-
-		nr = (u8 *)&serialnr->low;
-		nr[0] = buf[5];
-		nr[1] = buf[4];
-		nr[2] = buf[3];
-		nr[3] = buf[2];
-		nr = (u8 *)&serialnr->high;
-		nr[0] = buf[1];
-		nr[1] = buf[0];
-		nr[2] = 0;
-		nr[3] = 0;
+		printf("\nEEPROM serial read failed!\n");
+		return;
 	}
+
+	sprintf(serial_number, "%02X%02X%02X%02X%02X%02X",
+		buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+
+	env_set("serial#", serial_number);
 }
 
 int board_early_init_f(void)
@@ -130,10 +117,6 @@ int board_init(void)
 {
 	irq_init();
 
-	/* arch number of the board */
-	/* LEGO didn't register for a unique number and uses da850evm */
-	gd->bd->bi_arch_number = MACH_TYPE_DAVINCI_DA850_EVM;
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
 
@@ -147,6 +130,13 @@ int board_init(void)
 	/* configure pinmux settings */
 	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+	setup_serial_number();
 
 	return 0;
 }

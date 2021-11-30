@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
@@ -21,8 +22,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define SITES_MAX	16
-#define FLAGS_VER2 	0x1
-#define FLAGS_VER3 	0x2
+#define FLAGS_VER2	0x1
+#define FLAGS_VER3	0x2
 
 #define TMR_DISABLE	0x0
 #define TMR_ME		0x80000000
@@ -126,7 +127,7 @@ struct imx_tmu_plat {
 
 static int read_temperature(struct udevice *dev, int *temp)
 {
-	struct imx_tmu_plat *pdata = dev_get_platdata(dev);
+	struct imx_tmu_plat *pdata = dev_get_plat(dev);
 	ulong drv_data = dev_get_driver_data(dev);
 	u32 val;
 	u32 retry = 10;
@@ -175,7 +176,7 @@ static int read_temperature(struct udevice *dev, int *temp)
 
 int imx_tmu_get_temp(struct udevice *dev, int *temp)
 {
-	struct imx_tmu_plat *pdata = dev_get_platdata(dev);
+	struct imx_tmu_plat *pdata = dev_get_plat(dev);
 	int cpu_tmp = 0;
 	int ret;
 
@@ -206,7 +207,7 @@ static int imx_tmu_calibration(struct udevice *dev)
 	int i, val, len, ret;
 	u32 range[4];
 	const fdt32_t *calibration;
-	struct imx_tmu_plat *pdata = dev_get_platdata(dev);
+	struct imx_tmu_plat *pdata = dev_get_plat(dev);
 	ulong drv_data = dev_get_driver_data(dev);
 
 	debug("%s\n", __func__);
@@ -248,7 +249,7 @@ void __weak imx_tmu_arch_init(void *reg_base)
 
 static void imx_tmu_init(struct udevice *dev)
 {
-	struct imx_tmu_plat *pdata = dev_get_platdata(dev);
+	struct imx_tmu_plat *pdata = dev_get_plat(dev);
 	ulong drv_data = dev_get_driver_data(dev);
 
 	debug("%s\n", __func__);
@@ -282,7 +283,7 @@ static void imx_tmu_init(struct udevice *dev)
 
 static int imx_tmu_enable_msite(struct udevice *dev)
 {
-	struct imx_tmu_plat *pdata = dev_get_platdata(dev);
+	struct imx_tmu_plat *pdata = dev_get_plat(dev);
 	ulong drv_data = dev_get_driver_data(dev);
 	u32 reg;
 
@@ -338,11 +339,12 @@ static int imx_tmu_enable_msite(struct udevice *dev)
 
 static int imx_tmu_bind(struct udevice *dev)
 {
-	struct imx_tmu_plat *pdata = dev_get_platdata(dev);
+	struct imx_tmu_plat *pdata = dev_get_plat(dev);
 	int ret;
 	ofnode node, offset;
 	const char *name;
 	const void *prop;
+	int minc, maxc;
 
 	debug("%s dev name %s\n", __func__, dev->name);
 
@@ -351,6 +353,10 @@ static int imx_tmu_bind(struct udevice *dev)
 		return 0;
 
 	pdata->zone_node = 1;
+	/* default alert/crit temps based on temp grade */
+	get_cpu_temp_grade(&minc, &maxc);
+	pdata->critical = maxc * 1000;
+	pdata->alert = (maxc - 10) * 1000;
 
 	node = ofnode_path("/thermal-zones");
 	ofnode_for_each_subnode(offset, node) {
@@ -370,7 +376,7 @@ static int imx_tmu_bind(struct udevice *dev)
 
 static int imx_tmu_parse_fdt(struct udevice *dev)
 {
-	struct imx_tmu_plat *pdata = dev_get_platdata(dev), *p_parent_data;
+	struct imx_tmu_plat *pdata = dev_get_plat(dev), *p_parent_data;
 	struct ofnode_phandle_args args;
 	ofnode trips_np;
 	int ret;
@@ -385,7 +391,7 @@ static int imx_tmu_parse_fdt(struct udevice *dev)
 		return 0;
 	}
 
-	p_parent_data = dev_get_platdata(dev->parent);
+	p_parent_data = dev_get_plat(dev->parent);
 	if (p_parent_data->zone_node)
 		pdata->regs = p_parent_data->regs;
 
@@ -430,7 +436,7 @@ static int imx_tmu_parse_fdt(struct udevice *dev)
 
 static int imx_tmu_probe(struct udevice *dev)
 {
-	struct imx_tmu_plat *pdata = dev_get_platdata(dev);
+	struct imx_tmu_plat *pdata = dev_get_plat(dev);
 	int ret;
 
 	ret = imx_tmu_parse_fdt(dev);
@@ -442,6 +448,7 @@ static int imx_tmu_probe(struct udevice *dev)
 	if (pdata->zone_node) {
 		imx_tmu_init(dev);
 		imx_tmu_calibration(dev);
+		imx_tmu_enable_msite(dev);
 	} else {
 		imx_tmu_enable_msite(dev);
 	}
@@ -463,6 +470,6 @@ U_BOOT_DRIVER(imx_tmu) = {
 	.of_match = imx_tmu_ids,
 	.bind = imx_tmu_bind,
 	.probe	= imx_tmu_probe,
-	.platdata_auto_alloc_size = sizeof(struct imx_tmu_plat),
+	.plat_auto	= sizeof(struct imx_tmu_plat),
 	.flags  = DM_FLAG_PRE_RELOC,
 };

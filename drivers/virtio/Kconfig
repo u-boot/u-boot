@@ -31,7 +31,7 @@ config VIRTIO_MMIO
 
 config VIRTIO_PCI
 	bool "PCI driver for virtio devices"
-	depends on DM_PCI
+	depends on PCI
 	select VIRTIO
 	help
 	  This driver provides support for virtio based paravirtual device
@@ -55,6 +55,7 @@ config VIRTIO_NET
 config VIRTIO_BLK
 	bool "virtio block driver"
 	depends on VIRTIO
+	depends on BLK
 	help
 	  This is the virtual block driver for virtio. It can be used with
 	  QEMU based targets.

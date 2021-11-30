@@ -6,40 +6,17 @@
  * FSL DCU Framebuffer driver
  */
 
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <common.h>
 #include <fsl_dcu_fb.h>
 #include <i2c.h>
+#include "../common/i2c_mux.h"
 #include "div64.h"
 #include "../common/diu_ch7301.h"
 #include "ls1021aqds_qixis.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static int select_i2c_ch_pca9547(u8 ch, int bus_num)
-{
-	int ret;
-#ifdef CONFIG_DM_I2C
-	struct udevice *dev;
-
-	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_PCA_ADDR_PRI,
-				      1, &dev);
-	if (ret) {
-		printf("%s: Cannot find udev for a bus %d\n", __func__,
-		       bus_num);
-		return ret;
-	}
-	ret = dm_i2c_write(dev, 0, &ch, 1);
-#else
-	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
-#endif
-	if (ret) {
-		puts("PCA: failed to select proper channel\n");
-		return ret;
-	}
-
-	return 0;
-}
 
 unsigned int dcu_set_pixel_clock(unsigned int pixclock)
 {
@@ -64,7 +41,7 @@ int platform_dcu_init(struct fb_info *fbinfo,
 	u8 ch;
 
 	/* Mux I2C3+I2C4 as HSYNC+VSYNC */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 
 	/* QIXIS device mount on I2C1 bus*/
@@ -112,7 +89,7 @@ int platform_dcu_init(struct fb_info *fbinfo,
 		pixval = 1000000000 / dcu_fb_videomode->pixclock;
 		pixval *= 1000;
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 		i2c_set_bus_num(CONFIG_SYS_I2C_DVI_BUS_NUM);
 #endif
 		select_i2c_ch_pca9547(I2C_MUX_CH_CH7301,

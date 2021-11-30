@@ -15,6 +15,7 @@
 #include <part.h>
 #include <linux/sizes.h>
 #include <asm/arch/mem.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
@@ -43,7 +44,7 @@ bool meson_vpu_is_compatible(struct meson_vpu_priv *priv,
 
 static int meson_vpu_setup_mode(struct udevice *dev, struct udevice *disp)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct display_timing timing;
 	bool is_cvbs = false;
@@ -138,7 +139,7 @@ static int meson_vpu_probe(struct udevice *dev)
 
 static int meson_vpu_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	plat->size = VPU_MAX_WIDTH * VPU_MAX_HEIGHT *
 		(1 << VPU_MAX_LOG2_BPP) / 8;
@@ -211,6 +212,6 @@ U_BOOT_DRIVER(meson_vpu) = {
 	.of_match = meson_vpu_ids,
 	.probe = meson_vpu_probe,
 	.bind = meson_vpu_bind,
-	.priv_auto_alloc_size = sizeof(struct meson_vpu_priv),
-	.flags  = DM_FLAG_PRE_RELOC | DM_FLAG_REMOVE_WITH_PD_ON,
+	.priv_auto	= sizeof(struct meson_vpu_priv),
+	.flags  = DM_FLAG_PRE_RELOC | DM_FLAG_LEAVE_PD_ON,
 };

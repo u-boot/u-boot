@@ -15,6 +15,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm-generic/gpio.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <net.h>
 #include <netdev.h>

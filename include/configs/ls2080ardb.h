@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2017, 2019-2020 NXP
+ * Copyright 2017, 2019-2021 NXP
  * Copyright 2015 Freescale Semiconductor
  */
 
@@ -12,9 +12,6 @@
 #ifdef CONFIG_FSL_QSPI
 #ifdef CONFIG_TARGET_LS2081ARDB
 #define CONFIG_QIXIS_I2C_ACCESS
-#endif
-#ifndef CONFIG_DM_I2C
-#define CONFIG_SYS_I2C_EARLY_INIT
 #endif
 #endif
 
@@ -39,12 +36,8 @@ unsigned long get_board_sys_clk(void);
 #endif
 
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-#define CONFIG_DDR_CLK_FREQ		133333333
 #define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ/4)
 
-#define CONFIG_DDR_SPD
-#define CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS1	0x51
 #define SPD_EEPROM_ADDRESS2	0x52
@@ -115,7 +108,6 @@ unsigned long get_board_sys_clk(void);
 					 CONFIG_SYS_FLASH_BASE + 0x40000000}
 #endif
 
-#define CONFIG_NAND_FSL_IFC
 #define CONFIG_SYS_NAND_MAX_ECCPOS	256
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 
@@ -133,8 +125,6 @@ unsigned long get_board_sys_clk(void);
 				| CSOR_NAND_PGS_4K	/* Page Size = 4K */ \
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(128))	/* Pages Per Block 128*/
-
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* ONFI NAND Flash mode0 Timing Params */
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x0e) | \
@@ -154,7 +144,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 #define CONFIG_FSL_QIXIS	/* use common QIXIS code */
 #define QIXIS_LBMAP_SWITCH		0x06
 #define QIXIS_LBMAP_MASK		0x0f
@@ -213,7 +202,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NAND_FTIM3
 
 #define CONFIG_SPL_PAD_TO		0x80000
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	(1024 * 1024)
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(512 * 1024)
 #else
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NOR0_CSPR_EXT
@@ -286,23 +274,13 @@ unsigned long get_board_sys_clk(void);
 #endif
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 #define CONFIG_FSL_MEMAC
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_SCAN_SHOW
-#endif
-
-/*  MMC  */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
 #define BOOT_TARGET_DEVICES(func) \
@@ -319,11 +297,11 @@ unsigned long get_board_sys_clk(void);
 	"env exists secureboot && "			\
 	"esbc_validate 0x80640000 && "			\
 	"esbc_validate 0x80680000; "			\
-	"sf read 0x80a00000 0xa00000 0x300000; "	\
+	"sf read 0x80a00000 0xa00000 0x200000; "	\
 	"sf read 0x80e00000 0xe00000 0x100000; "	\
 	"fsl_mc start mc 0x80a00000 0x80e00000 \0"
 #define SD_MC_INIT_CMD				\
-	"mmcinfo;mmc read 0x80a00000 0x5000 0x1200;" \
+	"mmcinfo;mmc read 0x80a00000 0x5000 0x1000;" \
 	"mmc read 0x80e00000 0x7000 0x800;"	\
 	"env exists secureboot && "		\
 	"mmc read 0x80640000 0x3200 0x20 && "	\
@@ -344,19 +322,19 @@ unsigned long get_board_sys_clk(void);
 	"env exists secureboot && "			\
 	"esbc_validate 0x80640000 && "			\
 	"esbc_validate 0x80680000; "			\
-	"sf read 0x80a00000 0xa00000 0x300000; "	\
+	"sf read 0x80a00000 0xa00000 0x200000; "	\
 	"sf read 0x80e00000 0xe00000 0x100000; "	\
 	"fsl_mc start mc 0x80a00000 0x80e00000 \0"
 #elif defined(CONFIG_SD_BOOT)
 #define MC_INIT_CMD                             \
-	"mcinitcmd=mmcinfo;mmc read 0x80000000 0x5000 0x800;" \
-	"mmc read 0x80100000 0x7000 0x800;"	\
+	"mcinitcmd=mmcinfo;mmc read 0x80a00000 0x5000 0x1000;" \
+	"mmc read 0x80e00000 0x7000 0x800;"	\
 	"env exists secureboot && "		\
 	"mmc read 0x80640000 0x3200 0x20 && "	\
 	"mmc read 0x80680000 0x3400 0x20 && "	\
 	"esbc_validate 0x80640000 && "		\
 	"esbc_validate 0x80680000 ;"		\
-	"fsl_mc start mc 0x80000000 0x80100000\0" \
+	"fsl_mc start mc 0x80a00000 0x80e00000\0" \
 	"mcmemsize=0x70000000\0"
 #else
 #define MC_INIT_CMD				\
@@ -565,14 +543,6 @@ unsigned long get_board_sys_clk(void);
 #endif
 
 /* MAC/PHY configuration */
-#ifdef CONFIG_FSL_MC_ENET
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_CORTINA_FW_ADDR		0x20980000
-#else
-#define CONFIG_CORTINA_FW_ADDR		0x580980000
-#endif
-#define CONFIG_CORTINA_FW_LENGTH	0x40000
-
 #define CORTINA_PHY_ADDR1	0x10
 #define CORTINA_PHY_ADDR2	0x11
 #define CORTINA_PHY_ADDR3	0x12
@@ -582,9 +552,7 @@ unsigned long get_board_sys_clk(void);
 #define AQ_PHY_ADDR3		0x02
 #define AQ_PHY_ADDR4		0x03
 #define AQR405_IRQ_MASK		0x36
-
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
-#endif
 
 #include <asm/fsl_secure_boot.h>
 

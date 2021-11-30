@@ -21,10 +21,12 @@
 #include <log.h>
 #include <sort.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mp.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
+#include <linux/log2.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -154,12 +156,8 @@ int mtrr_commit(bool do_caches)
 	debug("open done\n");
 	qsort(req, gd->arch.mtrr_req_count, sizeof(*req), h_comp_mtrr);
 	for (i = 0; i < gd->arch.mtrr_req_count; i++, req++)
-		set_var_mtrr(i, req->type, req->start, req->size);
+		mtrr_set_next_var(req->type, req->start, req->size);
 
-	/* Clear the ones that are unused */
-	debug("clear\n");
-	for (; i < mtrr_get_var_count(); i++)
-		wrmsrl(MTRR_PHYS_MASK_MSR(i), 0);
 	debug("close\n");
 	mtrr_close(&state, do_caches);
 	debug("mtrr done\n");
@@ -181,6 +179,9 @@ int mtrr_add_request(int type, uint64_t start, uint64_t size)
 	debug("%s: count=%d\n", __func__, gd->arch.mtrr_req_count);
 	if (!gd->arch.has_mtrr)
 		return -ENOSYS;
+
+	if (!is_power_of_2(size))
+		return -EINVAL;
 
 	if (gd->arch.mtrr_req_count == MAX_MTRR_REQUESTS)
 		return -ENOSPC;
@@ -225,6 +226,9 @@ static int get_free_var_mtrr(void)
 int mtrr_set_next_var(uint type, uint64_t start, uint64_t size)
 {
 	int mtrr;
+
+	if (!is_power_of_2(size))
+		return -EINVAL;
 
 	mtrr = get_free_var_mtrr();
 	if (mtrr < 0)

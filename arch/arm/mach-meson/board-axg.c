@@ -11,6 +11,7 @@
 #include <asm/arch/eth.h>
 #include <asm/arch/axg.h>
 #include <asm/arch/mem.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/armv8/mmu.h>
 #include <linux/sizes.h>
@@ -89,40 +90,6 @@ static struct mm_region axg_mem_map[] = {
 };
 
 struct mm_region *mem_map = axg_mem_map;
-
-/* Configure the Ethernet MAC with the requested interface mode
- * with some optional flags.
- */
-void meson_eth_init(phy_interface_t mode, unsigned int flags)
-{
-	switch (mode) {
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		/* Set RGMII mode */
-		setbits_le32(AXG_ETH_REG_0, AXG_ETH_REG_0_PHY_INTF_RGMII |
-			     AXG_ETH_REG_0_TX_PHASE(1) |
-			     AXG_ETH_REG_0_TX_RATIO(4) |
-			     AXG_ETH_REG_0_PHY_CLK_EN |
-			     AXG_ETH_REG_0_CLK_EN);
-		break;
-
-	case PHY_INTERFACE_MODE_RMII:
-		/* Set RMII mode */
-		out_le32(AXG_ETH_REG_0, AXG_ETH_REG_0_PHY_INTF_RMII |
-					AXG_ETH_REG_0_INVERT_RMII_CLK |
-					AXG_ETH_REG_0_CLK_EN);
-		break;
-
-	default:
-		printf("Invalid Ethernet interface mode\n");
-		return;
-	}
-
-	/* Enable power gate */
-	clrbits_le32(AXG_MEM_PD_REG_0, AXG_MEM_PD_REG_0_ETH_MASK);
-}
 
 #if CONFIG_IS_ENABLED(USB_DWC3_MESON_GXL) && \
 	CONFIG_IS_ENABLED(USB_GADGET_DWC2_OTG)

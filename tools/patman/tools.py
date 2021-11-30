@@ -5,6 +5,7 @@
 
 import glob
 import os
+import shlex
 import shutil
 import struct
 import sys
@@ -94,6 +95,14 @@ def GetOutputFilename(fname):
     """
     return os.path.join(outdir, fname)
 
+def GetOutputDir():
+    """Return the current output directory
+
+    Returns:
+        str: The output directory
+    """
+    return outdir
+
 def _FinaliseForTest():
     """Remove the output directory (for use by tests)"""
     global outdir
@@ -122,8 +131,12 @@ def GetInputFilename(fname, allow_missing=False):
         allow_missing: True if the filename can be missing
 
     Returns:
-        The full path of the filename, within the input directory, or
-        None on error
+        fname, if indir is None;
+        full path of the filename, within the input directory;
+        None, if file is missing and allow_missing is True
+
+    Raises:
+        ValueError if file is missing and allow_missing is False
     """
     if not indir or fname[:1] == '/':
         return fname
@@ -280,8 +293,6 @@ def GetTargetCompileTool(name, cross_compile=None):
 
     if cross_compile is None:
         cross_compile = env.get('CROSS_COMPILE', '')
-    if not cross_compile:
-        return name, []
 
     if name in ('as', 'ar', 'nm', 'ldr', 'strip', 'objcopy', 'objdump'):
         target_name = cross_compile + name
@@ -338,7 +349,7 @@ def Run(name, *args, **kwargs):
         result = command.RunPipe([all_args], capture=True, capture_stderr=True,
                                  env=env, raise_on_error=False, binary=binary)
         if result.return_code:
-            raise Exception("Error %d running '%s': %s" %
+            raise ValueError("Error %d running '%s': %s" %
                (result.return_code,' '.join(all_args),
                 result.stderr))
         return result.stdout
@@ -415,8 +426,6 @@ def WriteFile(fname, data, binary=True):
 def GetBytes(byte, size):
     """Get a string of bytes of a given size
 
-    This handles the unfortunate different between Python 2 and Python 2.
-
     Args:
         byte: Numeric byte value to use
         size: Size of bytes/string to return
@@ -424,81 +433,7 @@ def GetBytes(byte, size):
     Returns:
         A bytes type with 'byte' repeated 'size' times
     """
-    if sys.version_info[0] >= 3:
-        data = bytes([byte]) * size
-    else:
-        data = chr(byte) * size
-    return data
-
-def ToUnicode(val):
-    """Make sure a value is a unicode string
-
-    This allows some amount of compatibility between Python 2 and Python3. For
-    the former, it returns a unicode object.
-
-    Args:
-        val: string or unicode object
-
-    Returns:
-        unicode version of val
-    """
-    if sys.version_info[0] >= 3:
-        return val
-    return val if isinstance(val, unicode) else val.decode('utf-8')
-
-def FromUnicode(val):
-    """Make sure a value is a non-unicode string
-
-    This allows some amount of compatibility between Python 2 and Python3. For
-    the former, it converts a unicode object to a string.
-
-    Args:
-        val: string or unicode object
-
-    Returns:
-        non-unicode version of val
-    """
-    if sys.version_info[0] >= 3:
-        return val
-    return val if isinstance(val, str) else val.encode('utf-8')
-
-def ToByte(ch):
-    """Convert a character to an ASCII value
-
-    This is useful because in Python 2 bytes is an alias for str, but in
-    Python 3 they are separate types. This function converts the argument to
-    an ASCII value in either case.
-
-    Args:
-        ch: A string (Python 2) or byte (Python 3) value
-
-    Returns:
-        integer ASCII value for ch
-    """
-    return ord(ch) if type(ch) == str else ch
-
-def ToChar(byte):
-    """Convert a byte to a character
-
-    This is useful because in Python 2 bytes is an alias for str, but in
-    Python 3 they are separate types. This function converts an ASCII value to
-    a value with the appropriate type in either case.
-
-    Args:
-        byte: A byte or str value
-    """
-    return chr(byte) if type(byte) != str else byte
-
-def ToChars(byte_list):
-    """Convert a list of bytes to a str/bytes type
-
-    Args:
-        byte_list: List of ASCII values representing the string
-
-    Returns:
-        string made by concatenating all the ASCII values
-    """
-    return ''.join([chr(byte) for byte in byte_list])
+    return bytes([byte]) * size
 
 def ToBytes(string):
     """Convert a str type into a bytes type
@@ -507,12 +442,9 @@ def ToBytes(string):
         string: string to convert
 
     Returns:
-        Python 3: A bytes type
-        Python 2: A string type
+        A bytes type
     """
-    if sys.version_info[0] >= 3:
-        return string.encode('utf-8')
-    return string
+    return string.encode('utf-8')
 
 def ToString(bval):
     """Convert a bytes type into a str type
@@ -535,6 +467,9 @@ def Compress(indata, algo, with_header=True):
     This requires 'lz4' and 'lzma_alone' tools. It also requires an output
     directory to be previously set up, by calling PrepareOutputDir().
 
+    Care is taken to use unique temporary files so that this function can be
+    called from multiple threads.
+
     Args:
         indata: Input data to compress
         algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
@@ -544,13 +479,16 @@ def Compress(indata, algo, with_header=True):
     """
     if algo == 'none':
         return indata
-    fname = GetOutputFilename('%s.comp.tmp' % algo)
+    fname = tempfile.NamedTemporaryFile(prefix='%s.comp.tmp' % algo,
+                                        dir=outdir).name
     WriteFile(fname, indata)
     if algo == 'lz4':
-        data = Run('lz4', '--no-frame-crc', '-c', fname, binary=True)
+        data = Run('lz4', '--no-frame-crc', '-B4', '-5', '-c', fname,
+                   binary=True)
     # cbfstool uses a very old version of lzma
     elif algo == 'lzma':
-        outfname = GetOutputFilename('%s.comp.otmp' % algo)
+        outfname = tempfile.NamedTemporaryFile(prefix='%s.comp.otmp' % algo,
+                                               dir=outdir).name
         Run('lzma_alone', 'e', fname, outfname, '-lc1', '-lp0', '-pb0', '-d8')
         data = ReadFile(outfname)
     elif algo == 'gzip':
@@ -644,3 +582,17 @@ def ToHexSize(val):
         hex value of size, or 'None' if the value is None
     """
     return 'None' if val is None else '%#x' % len(val)
+
+def PrintFullHelp(fname):
+    """Print the full help message for a tool using an appropriate pager.
+
+    Args:
+        fname: Path to a file containing the full help message
+    """
+    pager = shlex.split(os.getenv('PAGER', ''))
+    if not pager:
+        lesspath = shutil.which('less')
+        pager = [lesspath] if lesspath else None
+    if not pager:
+        pager = ['more']
+    command.Run(*pager, fname)

@@ -12,6 +12,7 @@
 #include <log.h>
 #include <pci.h>
 #include <usb.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 #include <usb/ehci-ci.h>
@@ -58,7 +59,7 @@ static int usb_phy_clk_valid(struct usb_ehci *ehci)
 }
 
 #if CONFIG_IS_ENABLED(DM_USB)
-static int ehci_fsl_ofdata_to_platdata(struct udevice *dev)
+static int ehci_fsl_of_to_plat(struct udevice *dev)
 {
 	struct ehci_fsl_priv *priv = dev_get_priv(dev);
 	const void *prop;
@@ -141,12 +142,12 @@ U_BOOT_DRIVER(ehci_fsl) = {
 	.name	= "ehci_fsl",
 	.id	= UCLASS_USB,
 	.of_match = ehci_usb_ids,
-	.ofdata_to_platdata = ehci_fsl_ofdata_to_platdata,
+	.of_to_plat = ehci_fsl_of_to_plat,
 	.probe = ehci_fsl_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct ehci_fsl_priv),
+	.plat_auto	= sizeof(struct usb_plat),
+	.priv_auto	= sizeof(struct ehci_fsl_priv),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #else

@@ -83,18 +83,18 @@
 &comphy {
 	max-lanes = <3>;
 	phy0 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+		phy-speed = <COMPHY_SPEED_5G>;
 	};
 
 	phy1 {
-		phy-type = <PHY_TYPE_PEX0>;
-		phy-speed = <PHY_SPEED_2_5G>;
+		phy-type = <COMPHY_TYPE_PEX0>;
+		phy-speed = <COMPHY_SPEED_2_5G>;
 	};
 
 	phy2 {
-		phy-type = <PHY_TYPE_SATA0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_SATA0>;
+		phy-speed = <COMPHY_SPEED_5G>;
 	};
 };
 
@@ -164,6 +164,24 @@
 		reg = <0>; /* Chip select 0 */
 		spi-max-frequency = <50000000>;
 		m25p,fast-read;
+
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@firmware {
+				reg = <0 CONFIG_ENV_OFFSET>;
+				label = "firmware";
+			};
+
+			partition@u-boot-env {
+				reg = <CONFIG_ENV_OFFSET CONFIG_ENV_SIZE>;
+				label = "u-boot-env";
+			};
+		};
+#endif
 	};
 };
 

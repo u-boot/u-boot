@@ -22,47 +22,6 @@
 
 #include "renesas-cpg-mssr.h"
 
-/*
- * Module Standby and Software Reset register offets.
- *
- * If the registers exist, these are valid for SH-Mobile, R-Mobile,
- * R-Car Gen2, R-Car Gen3, and RZ/G1.
- * These are NOT valid for R-Car Gen1 and RZ/A1!
- */
-
-/*
- * Module Stop Status Register offsets
- */
-
-static const u16 mstpsr[] = {
-	0x030, 0x038, 0x040, 0x048, 0x04C, 0x03C, 0x1C0, 0x1C4,
-	0x9A0, 0x9A4, 0x9A8, 0x9AC,
-};
-
-#define	MSTPSR(i)	mstpsr[i]
-
-
-/*
- * System Module Stop Control Register offsets
- */
-
-static const u16 smstpcr[] = {
-	0x130, 0x134, 0x138, 0x13C, 0x140, 0x144, 0x148, 0x14C,
-	0x990, 0x994, 0x998, 0x99C,
-};
-
-#define	SMSTPCR(i)	smstpcr[i]
-
-
-/* Realtime Module Stop Control Register offsets */
-#define RMSTPCR(i)	(smstpcr[i] - 0x20)
-
-/* Modem Module Stop Control Register offsets (r8a73a4) */
-#define MMSTPCR(i)	(smstpcr[i] + 0x20)
-
-/* Software Reset Clearing Register offsets */
-#define	SRSTCLR(i)	(0x940 + (i) * 4)
-
 bool renesas_clk_is_mod(struct clk *clk)
 {
 	return (clk->id >> 16) == CPG_MOD;
@@ -132,7 +91,8 @@ int renesas_clk_get_parent(struct clk *clk, struct cpg_mssr_info *info,
 	return 0;
 }
 
-int renesas_clk_endisable(struct clk *clk, void __iomem *base, bool enable)
+int renesas_clk_endisable(struct clk *clk, void __iomem *base,
+			  struct cpg_mssr_info *info, bool enable)
 {
 	const unsigned long clkid = clk->id & 0xffff;
 	const unsigned int reg = clkid / 100;
@@ -146,11 +106,11 @@ int renesas_clk_endisable(struct clk *clk, void __iomem *base, bool enable)
 	      clkid, reg, bit, enable ? "ON" : "OFF");
 
 	if (enable) {
-		clrbits_le32(base + SMSTPCR(reg), bitmask);
-		return wait_for_bit_le32(base + MSTPSR(reg),
+		clrbits_le32(base + info->control_regs[reg], bitmask);
+		return wait_for_bit_le32(base + info->status_regs[reg],
 				    bitmask, 0, 100, 0);
 	} else {
-		setbits_le32(base + SMSTPCR(reg), bitmask);
+		setbits_le32(base + info->control_regs[reg], bitmask);
 		return 0;
 	}
 }
@@ -164,9 +124,13 @@ int renesas_clk_remove(void __iomem *base, struct cpg_mssr_info *info)
 
 	/* Stop module clock */
 	for (i = 0; i < info->mstp_table_size; i++) {
-		clrsetbits_le32(base + SMSTPCR(i),
+		clrsetbits_le32(base + info->control_regs[i],
 				info->mstp_table[i].sdis,
 				info->mstp_table[i].sen);
+
+		if (info->reg_layout == CLK_REG_LAYOUT_RCAR_V3U)
+			continue;
+
 		clrsetbits_le32(base + RMSTPCR(i),
 				info->mstp_table[i].rdis,
 				info->mstp_table[i].ren);

@@ -23,6 +23,7 @@
 #include <pci.h>
 #include <wait_bit.h>
 #include <linux/bitops.h>
+#include <linux/log2.h>
 
 #define PCIECAR			0x000010
 #define PCIECCTLR		0x000018
@@ -129,7 +130,7 @@ struct rcar_gen3_pcie_priv {
 
 static void rcar_rmw32(struct udevice *dev, int where, u32 mask, u32 data)
 {
-	struct rcar_gen3_pcie_priv *priv = dev_get_platdata(dev);
+	struct rcar_gen3_pcie_priv *priv = dev_get_plat(dev);
 	int shift = 8 * (where & 3);
 
 	clrsetbits_le32(priv->regs + (where & ~3),
@@ -138,7 +139,7 @@ static void rcar_rmw32(struct udevice *dev, int where, u32 mask, u32 data)
 
 static u32 rcar_read_conf(const struct udevice *dev, int where)
 {
-	struct rcar_gen3_pcie_priv *priv = dev_get_platdata(dev);
+	struct rcar_gen3_pcie_priv *priv = dev_get_plat(dev);
 	int shift = 8 * (where & 3);
 
 	return readl(priv->regs + (where & ~3)) >> shift;
@@ -148,8 +149,18 @@ static int rcar_pcie_config_access(const struct udevice *udev,
 				   unsigned char access_type,
 				   pci_dev_t bdf, int where, ulong *data)
 {
-	struct rcar_gen3_pcie_priv *priv = dev_get_platdata(udev);
+	struct rcar_gen3_pcie_priv *priv = dev_get_plat(udev);
 	u32 reg = where & ~3;
+
+	/* Root bus */
+	if (PCI_DEV(bdf) == 0) {
+		if (access_type == RCAR_PCI_ACCESS_READ)
+			*data = readl(priv->regs + PCICONF(where / 4));
+		else
+			writel(*data, priv->regs + PCICONF(where / 4));
+
+		return 0;
+	}
 
 	/* Clear errors */
 	clrbits_le32(priv->regs + PCIEERRFR, 0);
@@ -187,11 +198,14 @@ static int rcar_gen3_pcie_addr_valid(pci_dev_t d, uint where)
 {
 	u32 slot;
 
+	if (PCI_BUS(d))
+		return -EINVAL;
+
 	if (PCI_FUNC(d))
 		return -EINVAL;
 
 	slot = PCI_DEV(d);
-	if (slot != 1)
+	if (slot > 1)
 		return -EINVAL;
 
 	return 0;
@@ -241,7 +255,7 @@ static int rcar_gen3_pcie_write_config(struct udevice *dev, pci_dev_t bdf,
 
 static int rcar_gen3_pcie_wait_for_phyrdy(struct udevice *dev)
 {
-	struct rcar_gen3_pcie_priv *priv = dev_get_platdata(dev);
+	struct rcar_gen3_pcie_priv *priv = dev_get_plat(dev);
 
 	return wait_for_bit_le32((void *)priv->regs + PCIEPHYSR, PHYRDY,
 				 true, 50, false);
@@ -249,7 +263,7 @@ static int rcar_gen3_pcie_wait_for_phyrdy(struct udevice *dev)
 
 static int rcar_gen3_pcie_wait_for_dl(struct udevice *dev)
 {
-	struct rcar_gen3_pcie_priv *priv = dev_get_platdata(dev);
+	struct rcar_gen3_pcie_priv *priv = dev_get_plat(dev);
 
 	return wait_for_bit_le32((void *)priv->regs + PCIETSTR,
 				 DATA_LINK_ACTIVE, true, 50, false);
@@ -257,7 +271,7 @@ static int rcar_gen3_pcie_wait_for_dl(struct udevice *dev)
 
 static int rcar_gen3_pcie_hw_init(struct udevice *dev)
 {
-	struct rcar_gen3_pcie_priv *priv = dev_get_platdata(dev);
+	struct rcar_gen3_pcie_priv *priv = dev_get_plat(dev);
 	int ret;
 
 	/* Begin initialization */
@@ -313,7 +327,7 @@ static int rcar_gen3_pcie_hw_init(struct udevice *dev)
 
 static int rcar_gen3_pcie_probe(struct udevice *dev)
 {
-	struct rcar_gen3_pcie_priv *priv = dev_get_platdata(dev);
+	struct rcar_gen3_pcie_priv *priv = dev_get_plat(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(dev);
 	struct clk pci_clk;
 	u32 mask;
@@ -334,17 +348,19 @@ static int rcar_gen3_pcie_probe(struct udevice *dev)
 		if (hose->regions[i].phys_start == 0)
 			continue;
 
-		mask = (hose->regions[i].size - 1) & ~0xf;
+		mask = (roundup_pow_of_two(hose->regions[i].size) - 1) & ~0xf;
 		mask |= LAR_ENABLE;
-		writel(hose->regions[i].phys_start, priv->regs + PCIEPRAR(0));
-		writel(hose->regions[i].phys_start, priv->regs + PCIELAR(0));
+		writel(rounddown_pow_of_two(hose->regions[i].phys_start),
+			priv->regs + PCIEPRAR(0));
+		writel(rounddown_pow_of_two(hose->regions[i].phys_start),
+			priv->regs + PCIELAR(0));
 		writel(mask, priv->regs + PCIELAMR(0));
 		break;
 	}
 
-	writel(0, priv->regs + PCIEPRAR(4));
-	writel(0, priv->regs + PCIELAR(4));
-	writel(0, priv->regs + PCIELAMR(4));
+	writel(0, priv->regs + PCIEPRAR(1));
+	writel(0, priv->regs + PCIELAR(1));
+	writel(0, priv->regs + PCIELAMR(1));
 
 	ret = rcar_gen3_pcie_hw_init(dev);
 	if (ret)
@@ -372,9 +388,9 @@ static int rcar_gen3_pcie_probe(struct udevice *dev)
 	return 0;
 }
 
-static int rcar_gen3_pcie_ofdata_to_platdata(struct udevice *dev)
+static int rcar_gen3_pcie_of_to_plat(struct udevice *dev)
 {
-	struct rcar_gen3_pcie_priv *priv = dev_get_platdata(dev);
+	struct rcar_gen3_pcie_priv *priv = dev_get_plat(dev);
 
 	priv->regs = devfdt_get_addr_index(dev, 0);
 	if (!priv->regs)
@@ -399,6 +415,6 @@ U_BOOT_DRIVER(rcar_gen3_pcie) = {
 	.of_match		= rcar_gen3_pcie_ids,
 	.ops			= &rcar_gen3_pcie_ops,
 	.probe			= rcar_gen3_pcie_probe,
-	.ofdata_to_platdata	= rcar_gen3_pcie_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct rcar_gen3_pcie_priv),
+	.of_to_plat	= rcar_gen3_pcie_of_to_plat,
+	.plat_auto	= sizeof(struct rcar_gen3_pcie_priv),
 };

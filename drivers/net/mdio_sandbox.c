@@ -90,5 +90,5 @@ U_BOOT_DRIVER(mdio_sandbox) = {
 	.of_match	= mdio_sandbox_ids,
 	.probe		= mdio_sandbox_probe,
 	.ops		= &mdio_sandbox_ops,
-	.priv_auto_alloc_size = sizeof(struct mdio_sandbox_priv),
+	.priv_auto	= sizeof(struct mdio_sandbox_priv),
 };

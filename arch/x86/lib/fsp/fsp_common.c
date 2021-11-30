@@ -13,6 +13,7 @@
 #include <acpi/acpi_s3.h>
 #include <asm/cmos_layout.h>
 #include <asm/early_cmos.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mrccache.h>
 #include <asm/post.h>
@@ -54,22 +55,6 @@ void board_final_init(void)
 	/* call into FspNotify */
 	debug("Calling into FSP (notify phase INIT_PHASE_BOOT): ");
 	status = fsp_notify(NULL, INIT_PHASE_BOOT);
-	if (status)
-		debug("fail, error code %x\n", status);
-	else
-		debug("OK\n");
-}
-
-void board_final_cleanup(void)
-{
-	u32 status;
-
-	/* TODO(sjg@chromium.org): This causes Linux to crash */
-	return;
-
-	/* call into FspNotify */
-	debug("Calling into FSP (notify phase INIT_PHASE_END_FIRMWARE): ");
-	status = fsp_notify(NULL, INIT_PHASE_END_FIRMWARE);
 	if (status)
 		debug("fail, error code %x\n", status);
 	else

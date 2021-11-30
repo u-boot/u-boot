@@ -35,6 +35,6 @@ U_BOOT_DRIVER(mod_exp_sw) = {
 	.flags	= DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DEVICE(mod_exp_sw) = {
+U_BOOT_DRVINFO(mod_exp_sw) = {
 	.name = "mod_exp_sw",
 };

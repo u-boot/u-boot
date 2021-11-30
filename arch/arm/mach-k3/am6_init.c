@@ -9,6 +9,7 @@
 #include <common.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <spl.h>
 #include <asm/arch/hardware.h>
@@ -76,7 +77,7 @@ static void ctrl_mmr_unlock(void)
  * but the .bss is cleared between writing and reading this variable, so move
  * it to the .data section.
  */
-u32 bootindex __attribute__((section(".data")));
+u32 bootindex __section(".data");
 
 static void store_boot_index_from_rom(void)
 {
@@ -150,6 +151,19 @@ int fdtdec_board_setup(const void *fdt_blob)
 	return fixup_usb_boot();
 }
 #endif
+
+static void setup_am654_navss_northbridge(void)
+{
+	/*
+	 * NB0 is bridge to SRAM and NB1 is bridge to DDR.
+	 * To ensure that SRAM transfers are not stalled due to
+	 * delays during DDR refreshes, SRAM traffic should be higher
+	 * priority (threadmap=2) than DDR traffic (threadmap=0).
+	 */
+	writel(0x2, NAVSS0_NBSS_NB0_CFG_BASE + NAVSS_NBSS_THREADMAP);
+	writel(0x0, NAVSS0_NBSS_NB1_CFG_BASE + NAVSS_NBSS_THREADMAP);
+}
+
 void board_init_f(ulong dummy)
 {
 #if defined(CONFIG_K3_LOAD_SYSFW) || defined(CONFIG_K3_AM654_DDRSS)
@@ -166,6 +180,8 @@ void board_init_f(ulong dummy)
 
 	/* Make all control module registers accessible */
 	ctrl_mmr_unlock();
+
+	setup_am654_navss_northbridge();
 
 #ifdef CONFIG_CPU_V7R
 	disable_linefill_optimization();
@@ -208,7 +224,7 @@ void board_init_f(ulong dummy)
 	 * firmware (SYSFW) image for various purposes and SYSFW depends on us
 	 * to initialize its pin settings.
 	 */
-	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 0, true, &dev);
+	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 0, &dev);
 	if (!ret)
 		pinctrl_select_state(dev, "default");
 
@@ -238,7 +254,7 @@ void board_init_f(ulong dummy)
 	do_board_detect();
 
 #if defined(CONFIG_CPU_V7R) && defined(CONFIG_K3_AVS0)
-	ret = uclass_get_device_by_driver(UCLASS_MISC, DM_GET_DRIVER(k3_avs),
+	ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(k3_avs),
 					  &dev);
 	if (ret)
 		printf("AVS init failed: %d\n", ret);

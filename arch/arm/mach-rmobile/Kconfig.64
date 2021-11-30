@@ -4,55 +4,78 @@ menu "Select Target SoC"
 
 config R8A774A1
 	bool "Renesas SoC R8A774A1"
+	select GICV2
+	imply CLK_R8A774A1
+	imply PINCTRL_PFC_R8A774A1
 
 config R8A774B1
 	bool "Renesas SoC R8A774B1"
+	select GICV2
 	imply CLK_R8A774B1
 	imply PINCTRL_PFC_R8A774B1
 
 config R8A774C0
 	bool "Renesas SoC R8A774C0"
+	select GICV2
 	imply CLK_R8A774C0
+	imply PINCTRL_PFC_R8A774C0
 
 config R8A774E1
 	bool "Renesas SoC R8A774E1"
+	select GICV2
 	imply CLK_R8A774E1
 	imply PINCTRL_PFC_R8A774E1
 
 config R8A7795
 	bool "Renesas SoC R8A7795"
+	select GICV2
 	imply CLK_R8A7795
 	imply PINCTRL_PFC_R8A7795
 
 config R8A7796
 	bool "Renesas SoC R8A7796"
+	select GICV2
 	imply CLK_R8A7796
 	imply PINCTRL_PFC_R8A7796
 
 config R8A77965
 	bool "Renesas SoC R8A77965"
+	select GICV2
 	imply CLK_R8A77965
 	imply PINCTRL_PFC_R8A77965
 
 config R8A77970
 	bool "Renesas SoC R8A77970"
+	select GICV2
 	imply CLK_R8A77970
 	imply PINCTRL_PFC_R8A77970
 
 config R8A77980
 	bool "Renesas SoC R8A77980"
+	select GICV2
 	imply CLK_R8A77980
 	imply PINCTRL_PFC_R8A77980
 
 config R8A77990
 	bool "Renesas SoC R8A77990"
+	select GICV2
 	imply CLK_R8A77990
 	imply PINCTRL_PFC_R8A77990
 
 config R8A77995
 	bool "Renesas SoC R8A77995"
+	select GICV2
 	imply CLK_R8A77995
 	imply PINCTRL_PFC_R8A77995
+
+config R8A779A0
+	bool "Renesas SoC R8A779A0"
+	select GICV3
+	imply CLK_R8A779A0
+	imply PINCTRL_PFC_R8A779A0
+
+config RZ_G2
+	bool "Renesas ARM SoCs RZ/G2 (64bit)"
 
 endmenu
 
@@ -61,9 +84,18 @@ choice
 	optional
 
 config TARGET_BEACON_RZG2M
-	bool "Beacon EmbeddedWorks RZ/G2M Dev Kit"
+	bool "Beacon EmbeddedWorks RZ/G2 Dev Kit"
 	select R8A774A1
+	select R8A774B1
+	select R8A774E1
+	select RZ_G2
 	select PINCTRL_PFC_R8A774A1
+	select PINCTRL_PFC_R8A774B1
+	select PINCTRL_PFC_R8A774E1
+	imply MULTI_DTB_FIT
+	imply MULTI_DTB_FIT_USER_DEFINED_AREA
+	imply CLK_VERSACLOCK
+	imply CLK_CCF
 
 config TARGET_CONDOR
 	bool "Condor board"
@@ -88,6 +120,31 @@ config TARGET_EBISU
 	imply R8A77990
 	help
           Support for Renesas R-Car Gen3 Ebisu platform
+
+config TARGET_FALCON
+	bool "Falcon board"
+	imply R8A779A0
+	help
+          Support for Renesas R-Car Gen3 Falcon platform
+
+config TARGET_HIHOPE_RZG2
+	bool "HiHope RZ/G2 board"
+	imply R8A774A1
+	imply R8A774B1
+	imply R8A774E1
+	imply RZ_G2
+	imply SYS_MALLOC_F
+	imply MULTI_DTB_FIT
+	imply MULTI_DTB_FIT_USER_DEFINED_AREA
+	help
+          Support for RZG2 HiHope platform
+
+config TARGET_SILINUX_EK874
+	bool "Silicon Linux EK874 board"
+	imply R8A774C0
+	imply RZ_G2
+	help
+          Support for Silicon Linux EK874 platform
 
 config TARGET_SALVATOR_X
 	bool "Salvator-X board"
@@ -120,15 +177,22 @@ source "board/renesas/condor/Kconfig"
 source "board/renesas/draak/Kconfig"
 source "board/renesas/eagle/Kconfig"
 source "board/renesas/ebisu/Kconfig"
+source "board/renesas/falcon/Kconfig"
 source "board/renesas/salvator-x/Kconfig"
 source "board/renesas/ulcb/Kconfig"
 source "board/beacon/beacon-rzg2m/Kconfig"
+source "board/hoperun/hihope-rzg2/Kconfig"
+source "board/silinux/ek874/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
+	default 0x80000 if TARGET_BEACON_RZG2M
+	default 0x80000 if TARGET_HIHOPE_RZG2
 	default 0x80000 if TARGET_SALVATOR_X
 	default 0x80000 if TARGET_ULCB
 
 config MULTI_DTB_FIT_USER_DEF_ADDR
+	default 0x49000000 if TARGET_BEACON_RZG2M
+	default 0x49000000 if TARGET_HIHOPE_RZG2
 	default 0x49000000 if TARGET_SALVATOR_X
 	default 0x49000000 if TARGET_ULCB
 

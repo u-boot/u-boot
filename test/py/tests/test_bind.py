@@ -33,6 +33,13 @@ def test_bind_unbind_with_node(u_boot_console):
 	assert in_tree(tree, 'bind-test-child1', 'phy', 'phy_sandbox', 1, False)
 	assert in_tree(tree, 'bind-test-child2', 'simple_bus', 'simple_bus', 1, True)
 
+	#bind usb_ether driver (which has no compatible) to usb@1 node.
+	##New entry usb_ether should appear in the dm tree
+	response = u_boot_console.run_command('bind  /usb@1 usb_ether')
+	assert response == ''
+	tree = u_boot_console.run_command('dm tree')
+	assert in_tree(tree, 'usb@1', 'ethernet', 'usb_ether', 1, True)
+
 	#Unbind child #1. No error expected and all devices should be there except for bind-test-child1
 	response = u_boot_console.run_command('unbind  /bind-test/bind-test-child1')
 	assert response == ''

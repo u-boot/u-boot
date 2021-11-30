@@ -21,7 +21,6 @@
 #include <stdio_dev.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
-#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/armv7.h>

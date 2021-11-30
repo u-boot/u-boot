@@ -221,11 +221,11 @@ static int do_pca953x(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* arg2 used as chip number or pin number */
 	if (argc > 2)
-		ul_arg2 = simple_strtoul(argv[2], NULL, 16);
+		ul_arg2 = hextoul(argv[2], NULL);
 
 	/* arg3 used as pin or invert value */
 	if (argc > 3)
-		ul_arg3 = simple_strtoul(argv[3], NULL, 16) & 0x1;
+		ul_arg3 = hextoul(argv[3], NULL) & 0x1;
 
 	switch ((long)c->cmd) {
 	case PCA953X_CMD_INFO:

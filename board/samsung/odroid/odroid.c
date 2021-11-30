@@ -10,6 +10,7 @@
 #include <asm/arch/power.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
@@ -84,7 +85,7 @@ char *get_dfu_alt_boot(char *interface, char *devstr)
 	char *alt_boot;
 	int dev_num;
 
-	dev_num = simple_strtoul(devstr, NULL, 10);
+	dev_num = dectoul(devstr, NULL);
 
 	mmc = find_mmc_device(dev_num);
 	if (!mmc)

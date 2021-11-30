@@ -15,6 +15,9 @@
 #include <configs/x86-common.h>
 #include <configs/x86-chromebook.h>
 
+/* We can rely on running natively, and this saves code size */
+#undef CONFIG_BIOSEMU
+
 #undef CONFIG_STD_DEVICES_SETTINGS
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,i8042-kbd,serial\0" \
 					"stdout=vidconsole,serial\0" \

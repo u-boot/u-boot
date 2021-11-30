@@ -4,10 +4,10 @@
  */
 
 #include "ddr3_init.h"
+#include "mv_ddr_common.h"
 #include "mv_ddr_training_db.h"
 #include "mv_ddr_regs.h"
 #include "mv_ddr_sys_env_lib.h"
-#include <linux/delay.h>
 
 #define DDR_INTERFACES_NUM		1
 #define DDR_INTERFACE_OCTETS_NUM	5
@@ -559,11 +559,7 @@ static int ddr3_tip_a38x_get_medium_freq(int dev_num, enum mv_ddr_freq *freq)
 
 static int ddr3_tip_a38x_get_device_info(u8 dev_num, struct ddr3_device_info *info_ptr)
 {
-#if defined(CONFIG_ARMADA_39X)
-	info_ptr->device_id = 0x6900;
-#else
 	info_ptr->device_id = 0x6800;
-#endif
 	info_ptr->ck_delay = ck_delay;
 
 	return MV_OK;
@@ -666,11 +662,7 @@ static int mv_ddr_sw_db_init(u32 dev_num, u32 board_id)
 	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_TIP_REV, MV_TIP_REV_4);
 	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_PHY_EDGE, MV_DDR_PHY_EDGE_POSITIVE);
 	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_OCTET_PER_INTERFACE, DDR_INTERFACE_OCTETS_NUM);
-#ifdef CONFIG_ARMADA_39X
-	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_INTERLEAVE_WA, 1);
-#else
 	ddr3_tip_dev_attr_set(dev_num, MV_ATTR_INTERLEAVE_WA, 0);
-#endif
 
 	ca_delay = 0;
 	delay_enable = 1;
@@ -1016,7 +1008,7 @@ int ddr3_calc_mem_cs_size(u32 cs, uint64_t *cs_size)
 		return MV_BAD_VALUE;
 	}
 
-	*cs_size = cs_mem_size << 20; /* write cs size in bytes */
+	*cs_size = cs_mem_size;
 
 	return MV_OK;
 }
@@ -1025,8 +1017,10 @@ static int ddr3_fast_path_dynamic_cs_size_config(u32 cs_ena)
 {
 	u32 reg, cs;
 	uint64_t mem_total_size = 0;
+	uint64_t cs_mem_size_mb = 0;
 	uint64_t cs_mem_size = 0;
 	uint64_t mem_total_size_c, cs_mem_size_c;
+
 
 #ifdef DEVICE_MAX_DRAM_ADDRESS_SIZE
 	u32 physical_mem_size;
@@ -1038,8 +1032,9 @@ static int ddr3_fast_path_dynamic_cs_size_config(u32 cs_ena)
 	for (cs = 0; cs < MAX_CS_NUM; cs++) {
 		if (cs_ena & (1 << cs)) {
 			/* get CS size */
-			if (ddr3_calc_mem_cs_size(cs, &cs_mem_size) != MV_OK)
+			if (ddr3_calc_mem_cs_size(cs, &cs_mem_size_mb) != MV_OK)
 				return MV_FAIL;
+			cs_mem_size = cs_mem_size_mb * _1M;
 
 #ifdef DEVICE_MAX_DRAM_ADDRESS_SIZE
 			/*
@@ -1088,6 +1083,7 @@ static int ddr3_fast_path_dynamic_cs_size_config(u32 cs_ena)
 			 */
 			mem_total_size_c = (mem_total_size >> 16) & 0xffffffffffff;
 			cs_mem_size_c = (cs_mem_size >> 16) & 0xffffffffffff;
+
 			/* if the sum less than 2 G - calculate the value */
 			if (mem_total_size_c + cs_mem_size_c < 0x10000)
 				mem_total_size += cs_mem_size;

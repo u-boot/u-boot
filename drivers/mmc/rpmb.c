@@ -480,10 +480,24 @@ int mmc_rpmb_route_frames(struct mmc *mmc, void *req, unsigned long reqlen,
 	 * and possibly just delay an eventual error which will be harder
 	 * to track down.
 	 */
+	void *rpmb_data = NULL;
+	int ret;
 
 	if (reqlen % sizeof(struct s_rpmb) || rsplen % sizeof(struct s_rpmb))
 		return -EINVAL;
 
-	return rpmb_route_frames(mmc, req, reqlen / sizeof(struct s_rpmb),
-				 rsp, rsplen / sizeof(struct s_rpmb));
+	if (!IS_ALIGNED((uintptr_t)req, ARCH_DMA_MINALIGN)) {
+		/* Memory alignment is required by MMC driver */
+		rpmb_data = malloc(reqlen);
+		if (!rpmb_data)
+			return -ENOMEM;
+
+		memcpy(rpmb_data, req, reqlen);
+		req = rpmb_data;
+	}
+
+	ret = rpmb_route_frames(mmc, req, reqlen / sizeof(struct s_rpmb),
+				rsp, rsplen / sizeof(struct s_rpmb));
+	free(rpmb_data);
+	return ret;
 }

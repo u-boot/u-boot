@@ -9,6 +9,8 @@
  * permits accurate timestamping of each.
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <common.h>
 #include <bootstage.h>
 #include <hang.h>
@@ -16,6 +18,7 @@
 #include <malloc.h>
 #include <sort.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <linux/libfdt.h>
 
@@ -126,12 +129,16 @@ ulong bootstage_add_record(enum bootstage_id id, const char *name,
 
 	/* Only record the first event for each */
 	rec = find_id(data, id);
-	if (!rec && data->rec_count < RECORD_COUNT) {
-		rec = &data->record[data->rec_count++];
-		rec->time_us = mark;
-		rec->name = name;
-		rec->flags = flags;
-		rec->id = id;
+	if (!rec) {
+		if (data->rec_count < RECORD_COUNT) {
+			rec = &data->record[data->rec_count++];
+			rec->time_us = mark;
+			rec->name = name;
+			rec->flags = flags;
+			rec->id = id;
+		} else {
+			log_warning("Bootstage space exhasuted\n");
+		}
 	}
 
 	/* Tell the board about this progress */
@@ -348,7 +355,7 @@ void bootstage_report(void)
 	}
 	if (data->rec_count > RECORD_COUNT)
 		printf("Overflowed internal boot id table by %d entries\n"
-		       "Please increase CONFIG_(SPL_)BOOTSTAGE_RECORD_COUNT\n",
+		       "Please increase CONFIG_(SPL_TPL_)BOOTSTAGE_RECORD_COUNT\n",
 		       data->rec_count - RECORD_COUNT);
 
 	puts("\nAccumulated time:\n");

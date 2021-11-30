@@ -6,3 +6,4 @@
 int fsl_qoriq_core_to_cluster(unsigned int core);
 u32 initiator_type(u32 cluster, int init_id);
 u32 cpu_mask(void);
+int check_psci(void);

@@ -110,7 +110,7 @@ static int cdns3_core_init_role(struct cdns3 *cdns)
 	enum usb_dr_mode dr_mode;
 	int ret = 0;
 
-	dr_mode = usb_get_dr_mode(dev->node);
+	dr_mode = usb_get_dr_mode(dev_ofnode(dev));
 	cdns->role = USB_ROLE_NONE;
 
 	/*
@@ -149,7 +149,7 @@ static int cdns3_core_init_role(struct cdns3 *cdns)
 
 	dr_mode = best_dr_mode;
 
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL_USB_HOST) || !defined(CONFIG_SPL_BUILD)
 	if (dr_mode == USB_DR_MODE_OTG || dr_mode == USB_DR_MODE_HOST) {
 		ret = cdns3_host_init(cdns);
 		if (ret) {
@@ -393,7 +393,7 @@ int cdns3_bind(struct udevice *parent)
 	ofnode node;
 	int ret;
 
-	node = ofnode_by_compatible(parent->node, "cdns,usb3");
+	node = ofnode_by_compatible(dev_ofnode(parent), "cdns,usb3");
 	if (!ofnode_valid(node)) {
 		ret = -ENODEV;
 		goto fail;
@@ -403,7 +403,7 @@ int cdns3_bind(struct udevice *parent)
 	dr_mode = usb_get_dr_mode(node);
 
 	switch (dr_mode) {
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || \
+#if defined(CONFIG_SPL_USB_HOST) || \
 	(!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST))
 	case USB_DR_MODE_HOST:
 		debug("%s: dr_mode: HOST\n", __func__);
@@ -461,12 +461,12 @@ U_BOOT_DRIVER(cdns_usb3_peripheral) = {
 	.of_match = cdns3_ids,
 	.probe = cdns3_gadget_probe,
 	.remove = cdns3_gadget_remove,
-	.priv_auto_alloc_size = sizeof(struct cdns3_gadget_priv),
+	.priv_auto	= sizeof(struct cdns3_gadget_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif
 
-#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || \
+#if defined(CONFIG_SPL_USB_HOST) || \
 	(!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST))
 static int cdns3_host_probe(struct udevice *dev)
 {
@@ -492,7 +492,7 @@ U_BOOT_DRIVER(cdns_usb3_host) = {
 	.of_match = cdns3_ids,
 	.probe = cdns3_host_probe,
 	.remove = cdns3_host_remove,
-	.priv_auto_alloc_size = sizeof(struct cdns3_host_priv),
+	.priv_auto	= sizeof(struct cdns3_host_priv),
 	.ops = &xhci_usb_ops,
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

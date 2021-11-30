@@ -8,14 +8,18 @@
 #include <image.h>
 #include <log.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
+#include <asm/ptrace.h>
 #include <asm/system.h>
 #include <asm/arch/mp.h>
 #include <asm/arch/soc.h>
+#include <linux/compat.h>
 #include <linux/delay.h>
+#include <linux/psci.h>
+#include <malloc.h>
 #include "cpu.h"
 #include <asm/arch-fsl-layerscape/soc.h>
-#include <efi_loader.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -80,8 +84,7 @@ int fsl_layerscape_wake_seconday_cores(void)
 	int i, timeout = 10;
 	u64 *table;
 #ifdef CONFIG_EFI_LOADER
-	u64 reloc_addr = U32_MAX;
-	efi_status_t ret;
+	void *reloc_addr;
 #endif
 
 #ifdef COUNTER_FREQUENCY_REAL
@@ -99,27 +102,26 @@ int fsl_layerscape_wake_seconday_cores(void)
 	 * Keep this after the __real_cntfrq update, so we have it when we
 	 * copy the complete section here.
 	 */
-	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
-				 EFI_RESERVED_MEMORY_TYPE,
-				 efi_size_in_pages(secondary_boot_code_size),
-				 &reloc_addr);
-	if (ret == EFI_SUCCESS) {
-		debug("Relocating spin table from %llx to %llx (size %lx)\n",
-		      (u64)secondary_boot_code_start, reloc_addr,
+	reloc_addr = memalign(PAGE_SIZE,
+			      round_up(secondary_boot_code_size, PAGE_SIZE));
+	if (reloc_addr) {
+		debug("Relocating spin table from %p to %p (size %lx)\n",
+		      secondary_boot_code_start, reloc_addr,
 		      secondary_boot_code_size);
-		memcpy((void *)reloc_addr, secondary_boot_code_start,
+		memcpy(reloc_addr, secondary_boot_code_start,
 		       secondary_boot_code_size);
-		flush_dcache_range(reloc_addr,
-				   reloc_addr + secondary_boot_code_size);
+		flush_dcache_range((unsigned long)reloc_addr,
+				   (unsigned long)reloc_addr +
+						  secondary_boot_code_size);
 
 		/* set new entry point for secondary cores */
-		secondary_boot_addr += (void *)reloc_addr -
+		secondary_boot_addr += reloc_addr -
 				       secondary_boot_code_start;
 		flush_dcache_range((unsigned long)&secondary_boot_addr,
 				   (unsigned long)&secondary_boot_addr + 8);
 
 		/* this will be used to reserve the memory */
-		secondary_boot_code_start = (void *)reloc_addr;
+		secondary_boot_code_start = reloc_addr;
 	}
 #endif
 
@@ -300,24 +302,41 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 	u64 *table = get_spin_tbl_addr();
 	int pos;
 
-	pos = core_to_pos(nr);
-	if (pos <= 0)
-		return -1;
-
-	table += pos * WORDS_PER_SPIN_TABLE_ENTRY;
 	boot_addr = simple_strtoull(argv[0], NULL, 16);
-	table[SPIN_TABLE_ELEM_ENTRY_ADDR_IDX] = boot_addr;
-	flush_dcache_range((unsigned long)table,
-			   (unsigned long)table + SPIN_TABLE_ELEM_SIZE);
-	asm volatile("dsb st");
 
-	/*
-	 * The secondary CPUs polling the spin-table above for a non-zero
-	 * value. To save power "wfe" is called. Thus call "sev" here to
-	 * wake the CPUs and let them check the spin-table again (see
-	 * slave_cpu loop in lowlevel.S)
-	 */
-	asm volatile("sev");
+	if (check_psci()) {
+		/* SPIN Table is used */
+		pos = core_to_pos(nr);
+		if (pos <= 0)
+			return -1;
+
+		table += pos * WORDS_PER_SPIN_TABLE_ENTRY;
+		table[SPIN_TABLE_ELEM_ENTRY_ADDR_IDX] = boot_addr;
+		flush_dcache_range((unsigned long)table,
+			   (unsigned long)table + SPIN_TABLE_ELEM_SIZE);
+		asm volatile("dsb st");
+
+		/*
+		 * The secondary CPUs polling the spin-table above for a non-zero
+		 * value. To save power "wfe" is called. Thus call "sev" here to
+		 * wake the CPUs and let them check the spin-table again (see
+		 * slave_cpu loop in lowlevel.S)
+		 */
+		asm volatile("sev");
+	} else {
+		/* Use PSCI to kick the core */
+		struct pt_regs regs;
+
+		printf("begin to kick cpu core #%d to address %llx\n",
+		       nr, boot_addr);
+		regs.regs[0] = PSCI_0_2_FN64_CPU_ON;
+		regs.regs[1] = nr;
+		regs.regs[2] = boot_addr;
+		regs.regs[3] = 0;
+		smc_call(&regs);
+		if (regs.regs[0])
+			return -1;
+	}
 
 	return 0;
 }

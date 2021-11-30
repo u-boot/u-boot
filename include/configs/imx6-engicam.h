@@ -13,9 +13,6 @@
 #include <linux/stringify.h>
 #include "mx6_common.h"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
-
 /* Total Size of Environment Sector */
 
 /* Environment */
@@ -30,7 +27,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"splashpos=m,m\0" \
-	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"image=uImage\0" \
 	"fit_image=fit.itb\0" \
 	"fdt_high=0xffffffff\0" \
@@ -103,13 +100,10 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_SYS_HZ			1000
-
 #ifdef CONFIG_MX6UL
 # define DRAM_OFFSET(x)			0x87##x
 # define FDT_ADDR			__stringify(DRAM_OFFSET(800000))
-#else 
+#else
 # define DRAM_OFFSET(x)			0x1##x
 # define FDT_ADDR			__stringify(DRAM_OFFSET(8000000))
 #endif
@@ -141,10 +135,7 @@
 #ifdef CONFIG_NAND_MXS
 # define CONFIG_SYS_MAX_NAND_DEVICE	1
 # define CONFIG_SYS_NAND_BASE		0x40000000
-# define CONFIG_SYS_NAND_5_ADDR_CYCLE
-# define CONFIG_SYS_NAND_ONFI_DETECTION
 # define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
-# define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
 
 /* MTD device */
 #endif
@@ -171,12 +162,6 @@
 
 /* SPL */
 #ifdef CONFIG_SPL
-# ifdef CONFIG_ENV_IS_IN_NAND
-#  define CONFIG_SPL_NAND_SUPPORT
-# else
-#  define CONFIG_SPL_MMC_SUPPORT
-# endif
-
 # include "imx6_spl.h"
 #endif
 

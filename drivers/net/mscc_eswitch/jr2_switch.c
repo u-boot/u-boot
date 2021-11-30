@@ -235,7 +235,7 @@ static const char * const regs_names[] = {
 	"port36", "port37", "port38", "port39", "port40", "port41", "port42",
 	"port43", "port44", "port45", "port46", "port47",
 	"ana_ac", "ana_cl", "ana_l2", "asm", "hsio", "lrn",
-	"qfwd", "qs", "qsys", "rew",
+	"qfwd", "qs", "qsys", "rew", "gcb", "icpu",
 };
 
 #define REGS_NAMES_COUNT ARRAY_SIZE(regs_names) + 1
@@ -252,6 +252,8 @@ enum jr2_ctrl_regs {
 	QS,
 	QSYS,
 	REW,
+	GCB,
+	ICPU,
 };
 
 #define JR2_MIIM_BUS_COUNT 3
@@ -367,7 +369,6 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 {
 	u32 ib_if_mode = 0;
 	u32 ib_qrate = 0;
-	u32 ib_cal_ena = 0;
 	u32 ib1_tsdet = 0;
 	u32 ob_lev = 0;
 	u32 ob_ena_cas = 0;
@@ -379,7 +380,6 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 	case PHY_INTERFACE_MODE_SGMII:
 		ib_if_mode = 1;
 		ib_qrate = 1;
-		ib_cal_ena = 1;
 		ib1_tsdet = 3;
 		ob_lev = 48;
 		ob_ena_cas = 2;
@@ -401,6 +401,12 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 
 	if (interface == PHY_INTERFACE_MODE_QSGMII)
 		writel(0xfff, base + HSIO_HW_CFGSTAT_HW_CFG);
+
+	writel(HSIO_ANA_SERDES6G_OB_CFG_RESISTOR_CTRL(1) |
+	       HSIO_ANA_SERDES6G_OB_CFG_SR(7) |
+	       HSIO_ANA_SERDES6G_OB_CFG_SR_H |
+	       HSIO_ANA_SERDES6G_OB_CFG_ENA1V_MODE(ob_ena1v_mode) |
+	       HSIO_ANA_SERDES6G_OB_CFG_POL, base + HSIO_ANA_SERDES6G_OB_CFG);
 
 	writel(HSIO_ANA_SERDES6G_COMMON_CFG_IF_MODE(3),
 	       base + HSIO_ANA_SERDES6G_COMMON_CFG);
@@ -431,6 +437,21 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 	       HSIO_ANA_SERDES6G_IB_CFG1_TSDET(3) |
 	       HSIO_ANA_SERDES6G_IB_CFG1_TJTAG(8),
 	       base + HSIO_ANA_SERDES6G_IB_CFG1);
+
+	writel(HSIO_ANA_SERDES6G_IB_CFG2_UREG(4) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_UMAX(2) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_TCALV(12) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_OCALS(32) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_OINFS(7) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_OINFI(0x1f) |
+	       HSIO_ANA_SERDES6G_IB_CFG2_TINFV(3),
+	       base + HSIO_ANA_SERDES6G_IB_CFG2);
+
+	writel(HSIO_ANA_SERDES6G_IB_CFG3_INI_OFFSET(0x1f) |
+	       HSIO_ANA_SERDES6G_IB_CFG3_INI_LP(1) |
+	       HSIO_ANA_SERDES6G_IB_CFG3_INI_MID(0x1f),
+	       base + HSIO_ANA_SERDES6G_IB_CFG3);
+
 	writel(HSIO_DIG_SERDES6G_MISC_CFG_LANE_RST,
 	       base + HSIO_DIG_SERDES6G_MISC_CFG);
 
@@ -505,7 +526,7 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 	writel(HSIO_ANA_SERDES6G_IB_CFG_REG_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_EQZ_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_SAM_ENA |
-	       HSIO_ANA_SERDES6G_IB_CFG_CAL_ENA(ib_cal_ena) |
+	       HSIO_ANA_SERDES6G_IB_CFG_CAL_ENA(1) |
 	       HSIO_ANA_SERDES6G_IB_CFG_CONCUR |
 	       HSIO_ANA_SERDES6G_IB_CFG_SIG_DET_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_REG_PAT_SEL_OFF(0) |
@@ -530,7 +551,7 @@ static void serdes6g_setup(void __iomem *base, uint32_t addr,
 	writel(HSIO_ANA_SERDES6G_IB_CFG_REG_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_EQZ_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_SAM_ENA |
-	       HSIO_ANA_SERDES6G_IB_CFG_CAL_ENA(ib_cal_ena) |
+	       HSIO_ANA_SERDES6G_IB_CFG_CAL_ENA(1) |
 	       HSIO_ANA_SERDES6G_IB_CFG_CONCUR |
 	       HSIO_ANA_SERDES6G_IB_CFG_SIG_DET_ENA |
 	       HSIO_ANA_SERDES6G_IB_CFG_REG_PAT_SEL_OFF(0) |
@@ -726,7 +747,7 @@ static int jr2_mac_table_add(struct jr2_private *priv,
 static int jr2_write_hwaddr(struct udevice *dev)
 {
 	struct jr2_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 
 	return jr2_mac_table_add(priv, pdata->enetaddr, PGID_UNICAST);
 }
@@ -755,7 +776,7 @@ static void serdes_setup(struct jr2_private *priv)
 static int jr2_start(struct udevice *dev)
 {
 	struct jr2_private *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const unsigned char mac[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff,
 		0xff };
 	int ret;
@@ -842,7 +863,6 @@ static int jr2_probe(struct udevice *dev)
 	int i;
 	int ret;
 	struct resource res;
-	fdt32_t faddr;
 	phys_addr_t addr_base;
 	unsigned long addr_size;
 	ofnode eth_node, node, mdio_node;
@@ -850,6 +870,7 @@ static int jr2_probe(struct udevice *dev)
 	struct mii_dev *bus;
 	struct ofnode_phandle_args phandle;
 	struct phy_device *phy;
+	u32 val;
 
 	if (!priv)
 		return -EINVAL;
@@ -864,6 +885,17 @@ static int jr2_probe(struct udevice *dev)
 			return -ENOMEM;
 		}
 	}
+
+	val = readl(priv->regs[ICPU] + ICPU_RESET);
+	val |= ICPU_RESET_CORE_RST_PROTECT;
+	writel(val, priv->regs[ICPU] + ICPU_RESET);
+
+	val = readl(priv->regs[GCB] + PERF_SOFT_RST);
+	val |= PERF_SOFT_RST_SOFT_SWC_RST;
+	writel(val, priv->regs[GCB] + PERF_SOFT_RST);
+
+	while (readl(priv->regs[GCB] + PERF_SOFT_RST) & PERF_SOFT_RST_SOFT_SWC_RST)
+		;
 
 	/* Initialize miim buses */
 	memset(&miim, 0x0, sizeof(struct mscc_miim_dev) * JR2_MIIM_BUS_COUNT);
@@ -893,9 +925,8 @@ static int jr2_probe(struct udevice *dev)
 
 		if (ofnode_read_resource(mdio_node, 0, &res))
 			return -ENOMEM;
-		faddr = cpu_to_fdt32(res.start);
 
-		addr_base = ofnode_translate_address(mdio_node, &faddr);
+		addr_base = res.start;
 		addr_size = res.end - res.start;
 
 		/* If the bus is new then create a new bus */
@@ -964,6 +995,6 @@ U_BOOT_DRIVER(jr2) = {
 	.probe				= jr2_probe,
 	.remove				= jr2_remove,
 	.ops				= &jr2_ops,
-	.priv_auto_alloc_size		= sizeof(struct jr2_private),
-	.platdata_auto_alloc_size	= sizeof(struct eth_pdata),
+	.priv_auto		= sizeof(struct jr2_private),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

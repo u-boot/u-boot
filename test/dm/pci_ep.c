@@ -62,4 +62,3 @@ static int dm_test_pci_ep_base(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_pci_ep_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
-

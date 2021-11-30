@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
@@ -381,5 +382,5 @@ U_BOOT_DRIVER(pinctrl_pic32) = {
 	.ops		= &pic32_pinctrl_ops,
 	.probe		= pic32_pinctrl_probe,
 	.bind		= dm_scan_fdt_dev,
-	.priv_auto_alloc_size = sizeof(struct pic32_pinctrl_priv),
+	.priv_auto	= sizeof(struct pic32_pinctrl_priv),
 };

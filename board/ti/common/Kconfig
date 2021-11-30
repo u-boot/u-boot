@@ -16,6 +16,12 @@ config EEPROM_CHIP_ADDRESS
 	default 0x50
 	depends on TI_I2C_BOARD_DETECT
 
+config CAPE_EEPROM_BUS_NUM
+	int "Cape EEPROM's I2C bus address"
+	range 0 8
+	default 2
+	depends on CMD_EXTENSION
+
 config TI_COMMON_CMD_OPTIONS
 	bool "Enable cmd options on TI platforms"
 	imply CMD_ASKENV

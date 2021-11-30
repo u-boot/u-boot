@@ -73,6 +73,6 @@ U_BOOT_DRIVER(soc_xilinx_zynqmp) = {
 	.id		= UCLASS_SOC,
 	.ops		= &soc_xilinx_zynqmp_ops,
 	.probe		= soc_xilinx_zynqmp_probe,
-	.priv_auto_alloc_size = sizeof(struct soc_xilinx_zynqmp_priv),
+	.priv_auto	= sizeof(struct soc_xilinx_zynqmp_priv),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

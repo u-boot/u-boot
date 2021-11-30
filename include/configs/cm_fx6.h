@@ -14,7 +14,6 @@
 
 /* Machine config */
 #define CONFIG_SYS_LITTLE_ENDIAN
-#define CONFIG_MACH_TYPE		4273
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3
@@ -33,7 +32,6 @@
 
 /* Serial console */
 #define CONFIG_MXC_UART_BASE		UART4_BASE
-#define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /* Environment */
 
@@ -43,9 +41,9 @@
 	"initrd_high=0xffffffff\0" \
 	"fdt_addr_r=0x18000000\0" \
 	"ramdisk_addr_r=0x13000000\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"fdtfile=undefined\0" \
 	"stdin=serial,usbkbd\0" \
 	"stdout=serial,vidconsole\0" \
@@ -144,14 +142,11 @@
 /* NAND */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NAND_BASE		0x40000000
-#define CONFIG_SYS_NAND_MAX_CHIPS	1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 /* APBH DMA is required for NAND support */
 #endif
 
 /* Ethernet */
-#define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC_PHYADDR		0
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -165,19 +160,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 
-/* I2C */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_MXC_I2C3_SPEED	400000
-
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_I2C_EEPROM_BUS	2
-
 /* SATA */
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_LBA48
@@ -186,10 +168,8 @@
 
 /* Boot */
 #define CONFIG_SYS_BOOTMAPSZ	        (8 << 20)
-#define CONFIG_SERIAL_TAG
 
 /* misc */
-#define CONFIG_SYS_MALLOC_LEN			(10 * 1024 * 1024)
 
 /* SPL */
 #include "imx6_spl.h"
@@ -201,10 +181,5 @@
 #define CONFIG_VIDEO_BMP_LOGO
 
 /* EEPROM */
-#define CONFIG_ENV_EEPROM_IS_ON_I2C
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
-#define CONFIG_SYS_EEPROM_SIZE			256
 
 #endif	/* __CONFIG_CM_FX6_H */

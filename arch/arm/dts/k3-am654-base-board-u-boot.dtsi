@@ -1,279 +1,82 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2021 Texas Instruments Incorporated - http://www.ti.com/
  */
 
-#include <dt-bindings/pinctrl/k3.h>
-#include <dt-bindings/net/ti-dp83867.h>
+#include "k3-am654-r5-base-board-u-boot.dtsi"
 
-/ {
-	chosen {
-		stdout-path = "serial2:115200n8";
-	};
-
-	aliases {
-		serial2 = &main_uart0;
-		ethernet0 = &cpsw_port1;
-	};
+&pru0_0 {
+	remoteproc-name = "pru0_0";
 };
 
-&cbass_main{
-	u-boot,dm-spl;
-
-	sdhci1: sdhci@04FA0000 {
-		compatible = "ti,am654-sdhci-5.1";
-		reg = <0x0 0x4FA0000 0x0 0x1000>,
-		      <0x0 0x4FB0000 0x0 0x400>;
-		clocks =<&k3_clks 48 0>, <&k3_clks 48 1>;
-		clock-names = "clk_ahb", "clk_xin";
-		power-domains = <&k3_pds 48 TI_SCI_PD_EXCLUSIVE>;
-		max-frequency = <25000000>;
-		ti,otap-del-sel-legacy = <0x0>;
-		ti,otap-del-sel-mmc-hs = <0x0>;
-		ti,otap-del-sel-sd-hs = <0x0>;
-		ti,otap-del-sel-sdr12 = <0x0>;
-		ti,otap-del-sel-sdr25 = <0x0>;
-		ti,otap-del-sel-sdr50 = <0x8>;
-		ti,otap-del-sel-sdr104 = <0x7>;
-		ti,otap-del-sel-ddr50 = <0x4>;
-		ti,otap-del-sel-ddr52 = <0x4>;
-		ti,otap-del-sel-hs200 = <0x7>;
-		ti,trm-icp = <0x8>;
-	};
-
+&rtu0_0 {
+	remoteproc-name = "rtu0_0";
 };
 
-&cbass_mcu {
-	u-boot,dm-spl;
-
-	mcu_navss {
-		u-boot,dm-spl;
-
-		ringacc@2b800000 {
-			u-boot,dm-spl;
-		};
-
-		dma-controller@285c0000 {
-			u-boot,dm-spl;
-		};
-	};
+&tx_pru0_0 {
+	remoteproc-name = "tx_pru0_0";
 };
 
-&cbass_wakeup {
-	u-boot,dm-spl;
+&pru0_1 {
+	remoteproc-name = "pru0_1";
 };
 
-&secure_proxy_main {
-	u-boot,dm-spl;
+&rtu0_1 {
+	remoteproc-name = "rtu0_1";
 };
 
-&dmsc {
-	u-boot,dm-spl;
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		u-boot,dm-spl;
-	};
+&tx_pru0_1 {
+	remoteproc-name = "tx_pru0_1";
 };
 
-&k3_pds {
-	u-boot,dm-spl;
+&pru1_0 {
+	remoteproc-name = "pru1_0";
 };
 
-&k3_clks {
-	u-boot,dm-spl;
+&rtu1_0 {
+	remoteproc-name = "rtu1_0";
 };
 
-&k3_reset {
-	u-boot,dm-spl;
+&tx_pru1_0 {
+	remoteproc-name = "tx_pru1_0";
 };
 
-&wkup_pmx0 {
-	u-boot,dm-spl;
-
-	wkup_i2c0_pins_default {
-		u-boot,dm-spl;
-	};
+&pru1_1 {
+	remoteproc-name = "pru1_1";
 };
 
-&main_pmx0 {
-	u-boot,dm-spl;
-	main_uart0_pins_default: main_uart0_pins_default {
-		pinctrl-single,pins = <
-			AM65X_IOPAD(0x01e4, PIN_INPUT, 0)	/* (AF11) UART0_RXD */
-			AM65X_IOPAD(0x01e8, PIN_OUTPUT, 0)	/* (AE11) UART0_TXD */
-			AM65X_IOPAD(0x01ec, PIN_INPUT, 0)	/* (AG11) UART0_CTSn */
-			AM65X_IOPAD(0x01f0, PIN_OUTPUT, 0)	/* (AD11) UART0_RTSn */
-		>;
-		u-boot,dm-spl;
-	};
-
-	main_mmc0_pins_default: main_mmc0_pins_default {
-		pinctrl-single,pins = <
-			AM65X_IOPAD(0x01a8, PIN_INPUT_PULLDOWN, 0)	/* (B25) MMC0_CLK */
-			AM65X_IOPAD(0x01aC, PIN_INPUT_PULLUP, 0)	/* (B27) MMC0_CMD */
-			AM65X_IOPAD(0x01a4, PIN_INPUT_PULLUP, 0)	/* (A26) MMC0_DAT0 */
-			AM65X_IOPAD(0x01a0, PIN_INPUT_PULLUP, 0)	/* (E25) MMC0_DAT1 */
-			AM65X_IOPAD(0x019c, PIN_INPUT_PULLUP, 0)	/* (C26) MMC0_DAT2 */
-			AM65X_IOPAD(0x0198, PIN_INPUT_PULLUP, 0)	/* (A25) MMC0_DAT3 */
-			AM65X_IOPAD(0x0194, PIN_INPUT_PULLUP, 0)	/* (E24) MMC0_DAT4 */
-			AM65X_IOPAD(0x0190, PIN_INPUT_PULLUP, 0)	/* (A24) MMC0_DAT5 */
-			AM65X_IOPAD(0x018c, PIN_INPUT_PULLUP, 0)	/* (B26) MMC0_DAT6 */
-			AM65X_IOPAD(0x0188, PIN_INPUT_PULLUP, 0)	/* (D25) MMC0_DAT7 */
-			AM65X_IOPAD(0x01b4, PIN_INPUT_PULLUP, 0)	/* (A23) MMC0_SDCD */
-			AM65X_IOPAD(0x01b0, PIN_INPUT, 0)		/* (C25) MMC0_DS */
-		>;
-		u-boot,dm-spl;
-	};
-
-	main_mmc1_pins_default: main_mmc1_pins_default {
-		pinctrl-single,pins = <
-			AM65X_IOPAD(0x02d4, PIN_INPUT_PULLDOWN, 0)	/* (C27) MMC1_CLK */
-			AM65X_IOPAD(0x02d8, PIN_INPUT_PULLUP, 0)	/* (C28) MMC1_CMD */
-			AM65X_IOPAD(0x02d0, PIN_INPUT_PULLUP, 0)	/* (D28) MMC1_DAT0 */
-			AM65X_IOPAD(0x02cc, PIN_INPUT_PULLUP, 0)	/* (E27) MMC1_DAT1 */
-			AM65X_IOPAD(0x02c8, PIN_INPUT_PULLUP, 0)	/* (D26) MMC1_DAT2 */
-			AM65X_IOPAD(0x02c4, PIN_INPUT_PULLUP, 0)	/* (D27) MMC1_DAT3 */
-			AM65X_IOPAD(0x02dc, PIN_INPUT_PULLUP, 0)	/* (B24) MMC1_SDCD */
-			AM65X_IOPAD(0x02e0, PIN_INPUT, 0)			/* (C24) MMC1_SDWP */
-		>;
-		u-boot,dm-spl;
-	};
-
-	usb0_pins_default: usb0_pins_default {
-		pinctrl-single,pins = <
-			AM65X_IOPAD(0x02bc, PIN_OUTPUT, 0) /* (AD9) USB0_DRVVBUS */
-		>;
-		u-boot,dm-spl;
-	};
+&rtu1_1 {
+	remoteproc-name = "rtu1_1";
 };
 
-&main_pmx1 {
-	u-boot,dm-spl;
+&tx_pru1_1 {
+	remoteproc-name = "tx_pru1_1";
 };
 
-&wkup_pmx0 {
-	mcu_cpsw_pins_default: mcu_cpsw_pins_default {
-		pinctrl-single,pins = <
-			AM65X_WKUP_IOPAD(0x0058, PIN_OUTPUT, 0) /* (N4) MCU_RGMII1_TX_CTL */
-			AM65X_WKUP_IOPAD(0x005c, PIN_INPUT, 0) /* (N5) MCU_RGMII1_RX_CTL */
-			AM65X_WKUP_IOPAD(0x0060, PIN_OUTPUT, 0) /* (M2) MCU_RGMII1_TD3 */
-			AM65X_WKUP_IOPAD(0x0064, PIN_OUTPUT, 0) /* (M3) MCU_RGMII1_TD2 */
-			AM65X_WKUP_IOPAD(0x0068, PIN_OUTPUT, 0) /* (M4) MCU_RGMII1_TD1 */
-			AM65X_WKUP_IOPAD(0x006c, PIN_OUTPUT, 0) /* (M5) MCU_RGMII1_TD0 */
-			AM65X_WKUP_IOPAD(0x0078, PIN_INPUT, 0) /* (L2) MCU_RGMII1_RD3 */
-			AM65X_WKUP_IOPAD(0x007c, PIN_INPUT, 0) /* (L5) MCU_RGMII1_RD2 */
-			AM65X_WKUP_IOPAD(0x0080, PIN_INPUT, 0) /* (M6) MCU_RGMII1_RD1 */
-			AM65X_WKUP_IOPAD(0x0084, PIN_INPUT, 0) /* (L6) MCU_RGMII1_RD0 */
-			AM65X_WKUP_IOPAD(0x0070, PIN_INPUT, 0) /* (N1) MCU_RGMII1_TXC */
-			AM65X_WKUP_IOPAD(0x0074, PIN_INPUT, 0) /* (M1) MCU_RGMII1_RXC */
-		>;
-	};
-
-	mcu_mdio_pins_default: mcu_mdio1_pins_default {
-		pinctrl-single,pins = <
-			AM65X_WKUP_IOPAD(0x008c, PIN_OUTPUT, 0) /* (L1) MCU_MDIO0_MDC */
-			AM65X_WKUP_IOPAD(0x0088, PIN_INPUT, 0) /* (L4) MCU_MDIO0_MDIO */
-		>;
-	};
-
-	mcu-fss0-ospi0-pins-default {
-		u-boot,dm-spl;
-	};
+&pru2_0 {
+	remoteproc-name = "pru2_0";
 };
 
-&main_uart0 {
-	u-boot,dm-spl;
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart0_pins_default>;
-	status = "okay";
+&rtu2_0 {
+	remoteproc-name = "rtu2_0";
 };
 
-&sdhci0 {
-	u-boot,dm-spl;
+&tx_pru2_0 {
+	remoteproc-name = "tx_pru2_0";
 };
 
-&sdhci1 {
-	u-boot,dm-spl;
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_mmc1_pins_default>;
-	sdhci-caps-mask = <0x7 0x0>;
-	ti,driver-strength-ohm = <50>;
+&pru2_1 {
+	remoteproc-name = "pru2_1";
 };
 
-&mcu_cpsw {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mcu_cpsw_pins_default &mcu_mdio_pins_default>;
+&rtu2_1 {
+	remoteproc-name = "rtu2_1";
 };
 
-&davinci_mdio {
-	phy0: ethernet-phy@0 {
-		reg = <0>;
-		/* TODO: phy reset: TCA9555RTWR(i2c:0x21)[p04].GPIO_MCU_RGMII_RSTN */
-		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
-		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
-	};
+&tx_pru2_1 {
+	remoteproc-name = "tx_pru2_1";
 };
 
-&cpsw_port1 {
-	phy-mode = "rgmii-rxid";
-	phy-handle = <&phy0>;
-};
-
-&mcu_cpsw {
-	reg = <0x0 0x46000000 0x0 0x200000>,
-	      <0x0 0x40f00200 0x0 0x2>;
-	reg-names = "cpsw_nuss", "mac_efuse";
-	/delete-property/ ranges;
-
-	cpsw-phy-sel@40f04040 {
-		compatible = "ti,am654-cpsw-phy-sel";
-		reg= <0x0 0x40f04040 0x0 0x4>;
-		reg-names = "gmii-sel";
-	};
-};
-
-&wkup_i2c0 {
-	u-boot,dm-spl;
-};
-
-&usb1 {
-	dr_mode = "peripheral";
-};
-
-&fss {
-	u-boot,dm-spl;
-};
-
-&ospi0 {
-	u-boot,dm-spl;
-
-	 flash@0{
-		u-boot,dm-spl;
-	};
-};
-
-&chipid {
-	u-boot,dm-spl;
-};
-
-&dwc3_0 {
-	status = "okay";
-	u-boot,dm-spl;
-};
-
-&usb0_phy {
-	status = "okay";
-	u-boot,dm-spl;
-};
-
-&usb0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&usb0_pins_default>;
-	dr_mode = "peripheral";
-	u-boot,dm-spl;
-};
-
-&scm_conf {
-	u-boot,dm-spl;
+&mcu_r5fss0 {
+	ti,cluster-mode = <0>;
 };

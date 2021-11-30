@@ -4,10 +4,12 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -19,6 +21,75 @@
 #include <asm/mach-imx/spi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* MX35 and older is CSPI */
+#if defined(CONFIG_MX31)
+#define MXC_CSPI
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+	u32 test;
+};
+
+#define MXC_CSPICTRL_EN			BIT(0)
+#define MXC_CSPICTRL_MODE		BIT(1)
+#define MXC_CSPICTRL_XCH		BIT(2)
+#define MXC_CSPICTRL_SMC		BIT(3)
+#define MXC_CSPICTRL_POL		BIT(4)
+#define MXC_CSPICTRL_PHA		BIT(5)
+#define MXC_CSPICTRL_SSCTL		BIT(6)
+#define MXC_CSPICTRL_SSPOL		BIT(7)
+#define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)
+#define MXC_CSPICTRL_RXOVF		BIT(6)
+#define MXC_CSPIPERIOD_32KHZ		BIT(15)
+#define MAX_SPI_BYTES			4
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 24)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0x1f) << 8)
+#define MXC_CSPICTRL_TC			BIT(8)
+#define MXC_CSPICTRL_MAXBITS		0x1f
+
+#else	/* MX51 and newer is ECSPI */
+#define MXC_ECSPI
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 cfg;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+};
+
+#define MXC_CSPICTRL_EN			BIT(0)
+#define MXC_CSPICTRL_MODE		BIT(1)
+#define MXC_CSPICTRL_XCH		BIT(2)
+#define MXC_CSPICTRL_MODE_MASK		(0xf << 4)
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
+#define MXC_CSPICTRL_PREDIV(x)		(((x) & 0xF) << 12)
+#define MXC_CSPICTRL_POSTDIV(x)		(((x) & 0xF) << 8)
+#define MXC_CSPICTRL_SELCHAN(x)		(((x) & 0x3) << 18)
+#define MXC_CSPICTRL_MAXBITS		0xfff
+#define MXC_CSPICTRL_TC			BIT(7)
+#define MXC_CSPICTRL_RXOVF		BIT(6)
+#define MXC_CSPIPERIOD_32KHZ		BIT(15)
+#define MAX_SPI_BYTES			32
+
+/* Bit position inside CTRL register to be associated with SS */
+#define MXC_CSPICTRL_CHAN	18
+
+/* Bit position inside CON register to be associated with SS */
+#define MXC_CSPICON_PHA		0  /* SCLK phase control */
+#define MXC_CSPICON_POL		4  /* SCLK polarity */
+#define MXC_CSPICON_SSPOL	12 /* SS polarity */
+#define MXC_CSPICON_CTL		20 /* inactive state of SCLK */
+#endif
 
 #ifdef CONFIG_MX27
 /* i.MX27 has a completely wrong register layout and register definitions in the
@@ -69,7 +140,7 @@ static void mxc_spi_cs_activate(struct mxc_spi_slave *mxcs)
 {
 #if CONFIG_IS_ENABLED(DM_SPI)
 	struct udevice *dev = mxcs->dev;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	u32 cs = slave_plat->cs;
 
@@ -87,7 +158,7 @@ static void mxc_spi_cs_deactivate(struct mxc_spi_slave *mxcs)
 {
 #if CONFIG_IS_ENABLED(DM_SPI)
 	struct udevice *dev = mxcs->dev;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	u32 cs = slave_plat->cs;
 
@@ -133,9 +204,6 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs)
 		MXC_CSPICTRL_BITCOUNT(MXC_CSPICTRL_MAXBITS) |
 		MXC_CSPICTRL_DATARATE(div) |
 		MXC_CSPICTRL_EN |
-#ifdef CONFIG_MX35
-		MXC_CSPICTRL_SSCTL |
-#endif
 		MXC_CSPICTRL_MODE;
 
 	if (mode & SPI_CPHA)
@@ -512,9 +580,7 @@ void spi_release_bus(struct spi_slave *slave)
 
 static int mxc_spi_probe(struct udevice *bus)
 {
-	struct mxc_spi_slave *mxcs = dev_get_platdata(bus);
-	int node = dev_of_offset(bus);
-	const void *blob = gd->fdt_blob;
+	struct mxc_spi_slave *mxcs = dev_get_plat(bus);
 	int ret;
 	int i;
 
@@ -541,8 +607,21 @@ static int mxc_spi_probe(struct udevice *bus)
 	if (mxcs->base == FDT_ADDR_T_NONE)
 		return -ENODEV;
 
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk clk;
+	ret = clk_get_by_index(bus, 0, &clk);
+	if (ret)
+		return ret;
+
+	clk_enable(&clk);
+
+	mxcs->max_hz = clk_get_rate(&clk);
+#else
+	int node = dev_of_offset(bus);
+	const void *blob = gd->fdt_blob;
 	mxcs->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency",
 				      20000000);
+#endif
 
 	return 0;
 }
@@ -550,7 +629,7 @@ static int mxc_spi_probe(struct udevice *bus)
 static int mxc_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
-	struct mxc_spi_slave *mxcs = dev_get_platdata(dev->parent);
+	struct mxc_spi_slave *mxcs = dev_get_plat(dev->parent);
 
 
 	return mxc_spi_xfer_internal(mxcs, bitlen, dout, din, flags);
@@ -558,8 +637,8 @@ static int mxc_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int mxc_spi_claim_bus(struct udevice *dev)
 {
-	struct mxc_spi_slave *mxcs = dev_get_platdata(dev->parent);
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct mxc_spi_slave *mxcs = dev_get_plat(dev->parent);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	mxcs->dev = dev;
 
@@ -573,13 +652,16 @@ static int mxc_spi_release_bus(struct udevice *dev)
 
 static int mxc_spi_set_speed(struct udevice *bus, uint speed)
 {
-	/* Nothing to do */
+	struct mxc_spi_slave *mxcs = dev_get_plat(bus);
+
+	mxcs->max_hz = speed;
+
 	return 0;
 }
 
 static int mxc_spi_set_mode(struct udevice *bus, uint mode)
 {
-	struct mxc_spi_slave *mxcs = dev_get_platdata(bus);
+	struct mxc_spi_slave *mxcs = dev_get_plat(bus);
 
 	mxcs->mode = mode;
 	mxcs->ss_pol = (mode & SPI_CS_HIGH) ? 1 : 0;
@@ -605,7 +687,7 @@ U_BOOT_DRIVER(mxc_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = mxc_spi_ids,
 	.ops	= &mxc_spi_ops,
-	.platdata_auto_alloc_size = sizeof(struct mxc_spi_slave),
+	.plat_auto	= sizeof(struct mxc_spi_slave),
 	.probe	= mxc_spi_probe,
 };
 #endif

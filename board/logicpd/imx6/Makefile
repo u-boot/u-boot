@@ -7,4 +7,3 @@
 #
 
 obj-y  := imx6logic.o
-

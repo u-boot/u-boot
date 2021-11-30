@@ -7,7 +7,7 @@ obj-$(CONFIG_CMD_LOG) += log_filter.o
 
 ifdef CONFIG_UT_LOG
 
-obj-y += test-main.o
+obj-y += log_ut.o
 
 ifdef CONFIG_SANDBOX
 obj-$(CONFIG_LOG_SYSLOG) += syslog_test.o
@@ -15,9 +15,12 @@ obj-$(CONFIG_LOG_SYSLOG) += syslog_test_ndebug.o
 endif
 
 ifdef CONFIG_LOG
+obj-y += pr_cont_test.o
 obj-$(CONFIG_CONSOLE_RECORD) += cont_test.o
+obj-y += pr_cont_test.o
 else
 obj-$(CONFIG_CONSOLE_RECORD) += nolog_test.o
+obj-$(CONFIG_CONSOLE_RECORD) += nolog_ndebug.o
 endif
 
 endif # CONFIG_UT_LOG

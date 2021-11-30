@@ -15,6 +15,7 @@
 #include <net.h>
 #include <serial.h>
 #include <vsprintf.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
@@ -207,7 +208,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 		str = strchr(serial, '_');
 		if (str && (strlen(str) >= 4)) {
 			serialnr->high = (*(str + 1) << 8) | *(str + 2);
-			serialnr->low = simple_strtoul(str + 3, NULL, 16);
+			serialnr->low = hextoul(str + 3, NULL);
 		}
 	} else {
 		serialnr->high = 0;

@@ -15,40 +15,14 @@
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.
  */
-#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /* I2C */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MVTWSI
 #define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
-#define CONFIG_SYS_I2C_SLAVE		0x0
-#define CONFIG_SYS_I2C_SPEED		100000
-
-/* Environment in SPI NOR flash */
-
-#define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_RGMII
 
 /* PCIe support */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_PCI_SCAN_SHOW
 #endif
-
-/* USB/EHCI/XHCI configuration */
-
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
-
-/* FIXME: broken XHCI support
- * Below defines should enable support for the two rear USB3 ports. Sadly, this
- * does not work because:
- * - xhci-pci seems to not support DM_USB, so with that enabled it is not
- *   found.
- * - USB init fails, controller does not respond in time */
-
-#if !defined(CONFIG_USB_XHCI_HCD)
-#define CONFIG_EHCI_IS_TDI
-#endif
-
-/* why is this only defined in mv-common.h if CONFIG_DM is undefined? */
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -83,16 +57,25 @@
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
-#if defined(CONFIG_MVEBU_SPL_BOOT_DEVICE_SPI)
-/* SPL related SPI defines */
-#define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
-#endif
-
-/* DS414 bus width is 32bits */
-#define CONFIG_DDR_32BIT
-
 /* Default Environment */
-#define CONFIG_BOOTCOMMAND	"sf read ${loadaddr} 0xd0000 0x700000; bootm"
-#define CONFIG_LOADADDR		0x80000
+#define CONFIG_BOOTCOMMAND					\
+	"sf probe; "						\
+	"sf read ${loadaddr} 0xd0000 0x2d0000; "		\
+	"sf read ${ramdisk_addr_r} 0x3a0000 0x430000; "		\
+	"bootm ${loadaddr} ${ramdisk_addr_r}"
+
+#define CONFIG_EXTRA_ENV_SETTINGS				\
+	"initrd_high=0xffffffff\0"				\
+	"ramdisk_addr_r=0x8000000\0"				\
+	"usb0Mode=host\0usb1Mode=host\0usb2Mode=device\0"	\
+	"ethmtu=1500\0eth1mtu=1500\0"				\
+	"update_uboot=sf probe; dhcp; "				\
+		"mw.b ${loadaddr} 0x0 0xd0000; "		\
+		"tftpboot ${loadaddr} u-boot-spl.kwb; "		\
+		"sf update ${loadaddr} 0x0 0xd0000\0"
+
+
+/* increase autoneg timeout, my NIC sucks */
+#define PHY_ANEG_TIMEOUT	16000
 
 #endif /* _CONFIG_SYNOLOGY_DS414_H */

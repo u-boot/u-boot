@@ -31,173 +31,6 @@ static const struct efi_runtime_services *rs;
  */
 
 /**
- * efi_set_load_options() - set the load options of a loaded image
- *
- * @handle:		the image handle
- * @load_options_size:	size of load options
- * @load_options:	pointer to load options
- * Return:		status code
- */
-efi_status_t efi_set_load_options(efi_handle_t handle,
-				  efi_uintn_t load_options_size,
-				  void *load_options)
-{
-	struct efi_loaded_image *loaded_image_info;
-	efi_status_t ret;
-
-	ret = EFI_CALL(systab.boottime->open_protocol(
-					handle,
-					&efi_guid_loaded_image,
-					(void **)&loaded_image_info,
-					efi_root, NULL,
-					EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL));
-	if (ret != EFI_SUCCESS)
-		return EFI_INVALID_PARAMETER;
-
-	loaded_image_info->load_options = load_options;
-	loaded_image_info->load_options_size = load_options_size;
-
-	return EFI_CALL(systab.boottime->close_protocol(handle,
-							&efi_guid_loaded_image,
-							efi_root, NULL));
-}
-
-
-/**
- * efi_deserialize_load_option() - parse serialized data
- *
- * Parse serialized data describing a load option and transform it to the
- * efi_load_option structure.
- *
- * @lo:		pointer to target
- * @data:	serialized data
- * @size:	size of the load option, on return size of the optional data
- * Return:	status code
- */
-efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
-					 efi_uintn_t *size)
-{
-	efi_uintn_t len;
-
-	len = sizeof(u32);
-	if (*size < len + 2 * sizeof(u16))
-		return EFI_INVALID_PARAMETER;
-	lo->attributes = get_unaligned_le32(data);
-	data += len;
-	*size -= len;
-
-	len = sizeof(u16);
-	lo->file_path_length = get_unaligned_le16(data);
-	data += len;
-	*size -= len;
-
-	lo->label = (u16 *)data;
-	len = u16_strnlen(lo->label, *size / sizeof(u16) - 1);
-	if (lo->label[len])
-		return EFI_INVALID_PARAMETER;
-	len = (len + 1) * sizeof(u16);
-	if (*size < len)
-		return EFI_INVALID_PARAMETER;
-	data += len;
-	*size -= len;
-
-	len = lo->file_path_length;
-	if (*size < len)
-		return EFI_INVALID_PARAMETER;
-	lo->file_path = (struct efi_device_path *)data;
-	if (efi_dp_check_length(lo->file_path, len) < 0)
-		return EFI_INVALID_PARAMETER;
-	data += len;
-	*size -= len;
-
-	lo->optional_data = data;
-
-	return EFI_SUCCESS;
-}
-
-/**
- * efi_serialize_load_option() - serialize load option
- *
- * Serialize efi_load_option structure into byte stream for BootXXXX.
- *
- * @data:	buffer for serialized data
- * @lo:		load option
- * Return:	size of allocated buffer
- */
-unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
-{
-	unsigned long label_len;
-	unsigned long size;
-	u8 *p;
-
-	label_len = (u16_strlen(lo->label) + 1) * sizeof(u16);
-
-	/* total size */
-	size = sizeof(lo->attributes);
-	size += sizeof(lo->file_path_length);
-	size += label_len;
-	size += lo->file_path_length;
-	if (lo->optional_data)
-		size += (utf8_utf16_strlen((const char *)lo->optional_data)
-					   + 1) * sizeof(u16);
-	p = malloc(size);
-	if (!p)
-		return 0;
-
-	/* copy data */
-	*data = p;
-	memcpy(p, &lo->attributes, sizeof(lo->attributes));
-	p += sizeof(lo->attributes);
-
-	memcpy(p, &lo->file_path_length, sizeof(lo->file_path_length));
-	p += sizeof(lo->file_path_length);
-
-	memcpy(p, lo->label, label_len);
-	p += label_len;
-
-	memcpy(p, lo->file_path, lo->file_path_length);
-	p += lo->file_path_length;
-
-	if (lo->optional_data) {
-		utf8_utf16_strcpy((u16 **)&p, (const char *)lo->optional_data);
-		p += sizeof(u16); /* size of trailing \0 */
-	}
-	return size;
-}
-
-/**
- * get_var() - get UEFI variable
- *
- * It is the caller's duty to free the returned buffer.
- *
- * @name:	name of variable
- * @vendor:	vendor GUID of variable
- * @size:	size of allocated buffer
- * Return:	buffer with variable data or NULL
- */
-static void *get_var(u16 *name, const efi_guid_t *vendor,
-		     efi_uintn_t *size)
-{
-	efi_status_t ret;
-	void *buf = NULL;
-
-	*size = 0;
-	ret = efi_get_variable_int(name, vendor, NULL, size, buf, NULL);
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		buf = malloc(*size);
-		ret = efi_get_variable_int(name, vendor, NULL, size, buf, NULL);
-	}
-
-	if (ret != EFI_SUCCESS) {
-		free(buf);
-		*size = 0;
-		return NULL;
-	}
-
-	return buf;
-}
-
-/**
  * try_load_entry() - try to load image for boot option
  *
  * Attempt to load load-option number 'n', returning device_path and file_path
@@ -224,7 +57,7 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 	varname[6] = hexmap[(n & 0x00f0) >> 4];
 	varname[7] = hexmap[(n & 0x000f) >> 0];
 
-	load_option = get_var(varname, &efi_global_variable_guid, &size);
+	load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
 	if (!load_option)
 		return EFI_LOAD_ERROR;
 
@@ -253,11 +86,13 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 		ret = efi_set_variable_int(L"BootCurrent",
 					   &efi_global_variable_guid,
 					   attributes, sizeof(n), &n, false);
-		if (ret != EFI_SUCCESS) {
-			if (EFI_CALL(efi_unload_image(*handle))
-			    != EFI_SUCCESS)
-				log_err("Unloading image failed\n");
-			goto error;
+		if (ret != EFI_SUCCESS)
+			goto unload;
+		/* try to register load file2 for initrd's */
+		if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
+			ret = efi_initrd_register();
+			if (ret != EFI_SUCCESS)
+				goto unload;
 		}
 
 		log_info("Booting: %ls\n", lo.label);
@@ -279,6 +114,13 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 	}
 
 error:
+	free(load_option);
+
+	return ret;
+
+unload:
+	if (EFI_CALL(efi_unload_image(*handle)) != EFI_SUCCESS)
+		log_err("Unloading image failed\n");
 	free(load_option);
 
 	return ret;
@@ -336,7 +178,7 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle, void **load_options)
 	}
 
 	/* BootOrder */
-	bootorder = get_var(L"BootOrder", &efi_global_variable_guid, &size);
+	bootorder = efi_get_var(L"BootOrder", &efi_global_variable_guid, &size);
 	if (!bootorder) {
 		log_info("BootOrder not defined\n");
 		ret = EFI_NOT_FOUND;

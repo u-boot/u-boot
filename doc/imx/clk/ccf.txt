@@ -37,7 +37,7 @@ Design decisions:
   modify clk-uclass.c file and add there struct uc_clk_priv, which would have
   clock related members (like pointer to clk). As of this writing there is no
   such need, so to avoid extra allocations (as it can be auto allocated by
-  setting .per_device_auto_alloc_size = sizeof(struct uc_clk_priv)) the
+  setting .per_device_auto = sizeof(struct uc_clk_priv)) the
   uclass_priv stores the pointer to struct clk.
 
 * Non-CCF clocks do not have a pointer to a clock in clk->dev->priv. In the case

@@ -51,7 +51,6 @@ struct erase_info {
 	u_long retries;
 	unsigned dev;
 	unsigned cell;
-	void (*callback) (struct erase_info *self);
 	u_long priv;
 	u_char state;
 	struct erase_info *next;
@@ -332,15 +331,14 @@ struct mtd_info {
 };
 
 #if IS_ENABLED(CONFIG_DM)
-static inline void mtd_set_of_node(struct mtd_info *mtd,
-				   const struct device_node *np)
+static inline void mtd_set_ofnode(struct mtd_info *mtd, ofnode node)
 {
-	mtd->dev->node.np = np;
+	dev_set_ofnode(mtd->dev, node);
 }
 
-static inline const struct device_node *mtd_get_of_node(struct mtd_info *mtd)
+static inline const ofnode mtd_get_ofnode(struct mtd_info *mtd)
 {
-	return mtd->dev->node.np;
+	return dev_ofnode(mtd->dev);
 }
 #else
 struct device_node;
@@ -536,16 +534,6 @@ extern int unregister_mtd_user (struct mtd_notifier *old);
 #endif
 void *mtd_kmalloc_up_to(const struct mtd_info *mtd, size_t *size);
 
-#ifdef CONFIG_MTD_PARTITIONS
-void mtd_erase_callback(struct erase_info *instr);
-#else
-static inline void mtd_erase_callback(struct erase_info *instr)
-{
-	if (instr->callback)
-		instr->callback(instr);
-}
-#endif
-
 static inline int mtd_is_bitflip(int err) {
 	return err == -EUCLEAN;
 }
@@ -577,6 +565,16 @@ static inline int add_mtd_partitions(struct mtd_info *mtd,
 }
 
 static inline int del_mtd_partitions(struct mtd_info *mtd)
+{
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_MTD_PARTITIONS) && CONFIG_IS_ENABLED(DM) && \
+    CONFIG_IS_ENABLED(OF_CONTROL)
+int add_mtd_partitions_of(struct mtd_info *master);
+#else
+static inline int add_mtd_partitions_of(struct mtd_info *master)
 {
 	return 0;
 }

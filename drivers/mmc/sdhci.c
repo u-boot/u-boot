@@ -74,6 +74,7 @@ static void sdhci_transfer_pio(struct sdhci_host *host, struct mmc_data *data)
 static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 			      int *is_aligned, int trans_bytes)
 {
+	dma_addr_t dma_addr;
 	unsigned char ctrl;
 	void *buf;
 
@@ -104,8 +105,8 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 					  mmc_get_dma_dir(data));
 
 	if (host->flags & USE_SDMA) {
-		sdhci_writel(host, phys_to_bus((ulong)host->start_addr),
-				SDHCI_DMA_ADDRESS);
+		dma_addr = dev_phys_to_bus(mmc_to_dev(host->mmc), host->start_addr);
+		sdhci_writel(host, dma_addr, SDHCI_DMA_ADDRESS);
 	}
 #if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
 	else if (host->flags & (USE_ADMA | USE_ADMA64)) {
@@ -163,8 +164,9 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data)
 				start_addr &=
 				~(SDHCI_DEFAULT_BOUNDARY_SIZE - 1);
 				start_addr += SDHCI_DEFAULT_BOUNDARY_SIZE;
-				sdhci_writel(host, phys_to_bus((ulong)start_addr),
-					     SDHCI_DMA_ADDRESS);
+				start_addr = dev_phys_to_bus(mmc_to_dev(host->mmc),
+							     start_addr);
+				sdhci_writel(host, start_addr, SDHCI_DMA_ADDRESS);
 			}
 		}
 		if (timeout-- > 0)
@@ -175,8 +177,10 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data)
 		}
 	} while (!(stat & SDHCI_INT_DATA_END));
 
+#if (defined(CONFIG_MMC_SDHCI_SDMA) || CONFIG_IS_ENABLED(MMC_SDHCI_ADMA))
 	dma_unmap_single(host->start_addr, data->blocks * data->blocksize,
 			 mmc_get_dma_dir(data));
+#endif
 
 	return 0;
 }
@@ -254,8 +258,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		flags = SDHCI_CMD_RESP_LONG;
 	else if (cmd->resp_type & MMC_RSP_BUSY) {
 		flags = SDHCI_CMD_RESP_SHORT_BUSY;
-		if (data)
-			mask |= SDHCI_INT_DATA_END;
+		mask |= SDHCI_INT_DATA_END;
 	} else
 		flags = SDHCI_CMD_RESP_SHORT;
 
@@ -508,6 +511,9 @@ void sdhci_set_uhs_timing(struct sdhci_host *host)
 	case UHS_SDR104:
 	case MMC_HS_200:
 		reg |= SDHCI_CTRL_UHS_SDR104;
+		break;
+	case MMC_HS_400:
+		reg |= SDHCI_CTRL_HS400;
 		break;
 	default:
 		reg |= SDHCI_CTRL_UHS_SDR12;
@@ -774,6 +780,25 @@ static int sdhci_get_cd(struct udevice *dev)
 		return value;
 }
 
+static int sdhci_wait_dat0(struct udevice *dev, int state,
+			   int timeout_us)
+{
+	int tmp;
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	struct sdhci_host *host = mmc->priv;
+	unsigned long timeout = timer_get_us() + timeout_us;
+
+	// readx_poll_timeout is unsuitable because sdhci_readl accepts
+	// two arguments
+	do {
+		tmp = sdhci_readl(host, SDHCI_PRESENT_STATE);
+		if (!!(tmp & SDHCI_DATA_0_LVL_MASK) == !!state)
+			return 0;
+	} while (!timeout_us || !time_after(timer_get_us(), timeout));
+
+	return -ETIMEDOUT;
+}
+
 const struct dm_mmc_ops sdhci_ops = {
 	.send_cmd	= sdhci_send_command,
 	.set_ios	= sdhci_set_ios,
@@ -782,6 +807,7 @@ const struct dm_mmc_ops sdhci_ops = {
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning	= sdhci_execute_tuning,
 #endif
+	.wait_dat0	= sdhci_wait_dat0,
 };
 #else
 static const struct mmc_ops sdhci_ops = {

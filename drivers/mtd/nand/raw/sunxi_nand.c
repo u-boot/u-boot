@@ -29,6 +29,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <nand.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>
@@ -1710,7 +1711,7 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 	 * in the DT.
 	 */
 	nand->ecc.mode = NAND_ECC_HW;
-	nand->flash_node = node;
+	nand->flash_node = offset_to_ofnode(node);
 	nand->select_chip = sunxi_nfc_select_chip;
 	nand->cmd_ctrl = sunxi_nfc_cmd_ctrl;
 	nand->read_buf = sunxi_nfc_read_buf;

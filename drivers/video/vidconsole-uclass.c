@@ -7,6 +7,8 @@
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  */
 
+#define LOG_CATEGORY UCLASS_VIDEO_CONSOLE
+
 #include <common.h>
 #include <command.h>
 #include <console.h>
@@ -153,9 +155,14 @@ u32 vid_console_color(struct video_priv *priv, unsigned int idx)
 		break;
 	case VIDEO_BPP32:
 		if (CONFIG_IS_ENABLED(VIDEO_BPP32)) {
-			return (colors[idx].r << 16) |
-			       (colors[idx].g <<  8) |
-			       (colors[idx].b <<  0);
+			if (priv->format == VIDEO_X2R10G10B10)
+				return (colors[idx].r << 22) |
+				       (colors[idx].g << 12) |
+				       (colors[idx].b <<  2);
+			else
+				return (colors[idx].r << 16) |
+				       (colors[idx].g <<  8) |
+				       (colors[idx].b <<  0);
 		}
 		break;
 	default:
@@ -626,9 +633,9 @@ static int vidconsole_post_probe(struct udevice *dev)
 	if (!priv->tab_width_frac)
 		priv->tab_width_frac = VID_TO_POS(priv->x_charsize) * 8;
 
-	if (dev->seq) {
+	if (dev_seq(dev)) {
 		snprintf(sdev->name, sizeof(sdev->name), "vidconsole%d",
-			 dev->seq);
+			 dev_seq(dev));
 	} else {
 		strcpy(sdev->name, "vidconsole");
 	}
@@ -646,7 +653,7 @@ UCLASS_DRIVER(vidconsole) = {
 	.name		= "vidconsole0",
 	.pre_probe	= vidconsole_pre_probe,
 	.post_probe	= vidconsole_post_probe,
-	.per_device_auto_alloc_size	= sizeof(struct vidconsole_priv),
+	.per_device_auto	= sizeof(struct vidconsole_priv),
 };
 
 #ifdef CONFIG_VIDEO_COPY
@@ -690,8 +697,8 @@ static int do_video_setcursor(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev))
 		return CMD_RET_FAILURE;
-	col = simple_strtoul(argv[1], NULL, 10);
-	row = simple_strtoul(argv[2], NULL, 10);
+	col = dectoul(argv[1], NULL);
+	row = dectoul(argv[2], NULL);
 	vidconsole_position_cursor(dev, col, row);
 
 	return 0;

@@ -23,6 +23,7 @@
 #include <linux/soc/ti/ti_sci_protocol.h>
 
 #include "ti_sci.h"
+#include "ti_sci_static_data.h"
 
 /* List of all TI SCI devices active in system */
 static LIST_HEAD(ti_sci_list);
@@ -1588,6 +1589,7 @@ static int ti_sci_cmd_core_reboot(const struct ti_sci_handle *handle)
 		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
+	req.domain = 0;
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret) {
@@ -1665,6 +1667,34 @@ static int ti_sci_get_resource_range(const struct ti_sci_handle *handle,
 
 fail:
 	return ret;
+}
+
+static int __maybe_unused
+ti_sci_cmd_get_resource_range_static(const struct ti_sci_handle *handle,
+				     u32 dev_id, u8 subtype,
+				     u16 *range_start, u16 *range_num)
+{
+	struct ti_sci_resource_static_data *data;
+	int i = 0;
+
+	while (1) {
+		data = &rm_static_data[i];
+
+		if (!data->dev_id)
+			return -EINVAL;
+
+		if (data->dev_id != dev_id || data->subtype != subtype) {
+			i++;
+			continue;
+		}
+
+		*range_start = data->range_start;
+		*range_num = data->range_num;
+
+		return 0;
+	}
+
+	return -EINVAL;
 }
 
 /**
@@ -2466,6 +2496,9 @@ static int ti_sci_cmd_rm_udmap_tx_ch_cfg(
 	req.tx_orderid = params->tx_orderid;
 	req.fdepth = params->fdepth;
 	req.tx_sched_priority = params->tx_sched_priority;
+	req.tx_burst_size = params->tx_burst_size;
+	req.tx_tdtype = params->tx_tdtype;
+	req.extended_ch_type = params->extended_ch_type;
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret) {
@@ -3012,6 +3045,58 @@ static int ti_sci_probe(struct udevice *dev)
 	return ret;
 }
 
+/**
+ * ti_sci_dm_probe() - Basic probe for DM to TIFS SCI
+ * @dev:	corresponding system controller interface device
+ *
+ * Return: 0 if all goes good, else appropriate error message.
+ */
+static __maybe_unused int ti_sci_dm_probe(struct udevice *dev)
+{
+	struct ti_sci_rm_core_ops *rm_core_ops;
+	struct ti_sci_rm_udmap_ops *udmap_ops;
+	struct ti_sci_rm_ringacc_ops *rops;
+	struct ti_sci_rm_psil_ops *psilops;
+	struct ti_sci_ops *ops;
+	struct ti_sci_info *info;
+	int ret;
+
+	debug("%s(dev=%p)\n", __func__, dev);
+
+	info = dev_get_priv(dev);
+	info->desc = (void *)dev_get_driver_data(dev);
+
+	ret = ti_sci_of_to_info(dev, info);
+	if (ret) {
+		dev_err(dev, "%s: Probe failed with error %d\n", __func__, ret);
+		return ret;
+	}
+
+	info->dev = dev;
+	info->seq = 0xA;
+
+	list_add_tail(&info->list, &ti_sci_list);
+
+	ops = &info->handle.ops;
+
+	rm_core_ops = &ops->rm_core_ops;
+	rm_core_ops->get_range = ti_sci_cmd_get_resource_range_static;
+
+	rops = &ops->rm_ring_ops;
+	rops->config = ti_sci_cmd_ring_config;
+
+	psilops = &ops->rm_psil_ops;
+	psilops->pair = ti_sci_cmd_rm_psil_pair;
+	psilops->unpair = ti_sci_cmd_rm_psil_unpair;
+
+	udmap_ops = &ops->rm_udmap_ops;
+	udmap_ops->tx_ch_cfg = ti_sci_cmd_rm_udmap_tx_ch_cfg;
+	udmap_ops->rx_ch_cfg = ti_sci_cmd_rm_udmap_rx_ch_cfg;
+	udmap_ops->rx_flow_cfg = ti_sci_cmd_rm_udmap_rx_flow_cfg;
+
+	return ret;
+}
+
 /*
  * ti_sci_get_free_resource() - Get a free resource from TISCI resource.
  * @res:	Pointer to the TISCI resource
@@ -3149,6 +3234,14 @@ static const struct ti_sci_desc ti_sci_pmmc_am654_desc = {
 	.max_msg_size = 60,
 };
 
+/* Description for J721e DM to DMSC communication */
+static const struct ti_sci_desc ti_sci_dm_j721e_desc = {
+	.default_host_id = 3,
+	.max_rx_timeout_ms = 10000,
+	.max_msgs = 20,
+	.max_msg_size = 60,
+};
+
 static const struct udevice_id ti_sci_ids[] = {
 	{
 		.compatible = "ti,k2g-sci",
@@ -3161,10 +3254,28 @@ static const struct udevice_id ti_sci_ids[] = {
 	{ /* Sentinel */ },
 };
 
+static __maybe_unused const struct udevice_id ti_sci_dm_ids[] = {
+	{
+		.compatible = "ti,j721e-dm-sci",
+		.data = (ulong)&ti_sci_dm_j721e_desc
+	},
+	{ /* Sentinel */ },
+};
+
 U_BOOT_DRIVER(ti_sci) = {
 	.name = "ti_sci",
 	.id = UCLASS_FIRMWARE,
 	.of_match = ti_sci_ids,
 	.probe = ti_sci_probe,
-	.priv_auto_alloc_size = sizeof(struct ti_sci_info),
+	.priv_auto	= sizeof(struct ti_sci_info),
 };
+
+#if IS_ENABLED(CONFIG_K3_DM_FW)
+U_BOOT_DRIVER(ti_sci_dm) = {
+	.name = "ti_sci_dm",
+	.id = UCLASS_FIRMWARE,
+	.of_match = ti_sci_dm_ids,
+	.probe = ti_sci_dm_probe,
+	.priv_auto = sizeof(struct ti_sci_info),
+};
+#endif

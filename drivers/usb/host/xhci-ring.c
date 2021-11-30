@@ -275,9 +275,12 @@ void xhci_queue_command(struct xhci_ctrl *ctrl, u8 *ptr, u32 slot_id,
 			u32 ep_index, trb_type cmd)
 {
 	u32 fields[4];
-	u64 val_64 = virt_to_phys(ptr);
+	u64 val_64 = 0;
 
 	BUG_ON(prepare_ring(ctrl, ctrl->cmd_ring, EP_STATE_RUNNING));
+
+	if (ptr)
+		val_64 = xhci_virt_to_bus(ctrl, ptr);
 
 	fields[0] = lower_32_bits(val_64);
 	fields[1] = upper_32_bits(val_64);
@@ -401,7 +404,7 @@ void xhci_acknowledge_event(struct xhci_ctrl *ctrl)
 
 	/* Inform the hardware */
 	xhci_writeq(&ctrl->ir_set->erst_dequeue,
-		    virt_to_phys(ctrl->event_ring->dequeue) | ERST_EHB);
+		    xhci_virt_to_bus(ctrl, ctrl->event_ring->dequeue) | ERST_EHB);
 }
 
 /**
@@ -579,7 +582,7 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	u64 addr;
 	int ret;
 	u32 trb_fields[4];
-	u64 val_64 = virt_to_phys(buffer);
+	u64 val_64 = xhci_virt_to_bus(ctrl, buffer);
 	void *last_transfer_trb_addr;
 	int available_length;
 
@@ -723,8 +726,8 @@ again:
 		return -ETIMEDOUT;
 	}
 
-	if ((uintptr_t)(le64_to_cpu(event->trans_event.buffer))
-			!= (uintptr_t)last_transfer_trb_addr) {
+	if ((uintptr_t)(le64_to_cpu(event->trans_event.buffer)) !=
+	    (uintptr_t)xhci_virt_to_bus(ctrl, last_transfer_trb_addr)) {
 		available_length -=
 			(int)EVENT_TRB_LEN(le32_to_cpu(event->trans_event.transfer_len));
 		xhci_acknowledge_event(ctrl);
@@ -846,12 +849,9 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 		}
 	}
 
-	debug("req->requesttype = %d, req->request = %d,"
-		"le16_to_cpu(req->value) = %d,"
-		"le16_to_cpu(req->index) = %d,"
-		"le16_to_cpu(req->length) = %d\n",
-		req->requesttype, req->request, le16_to_cpu(req->value),
-		le16_to_cpu(req->index), le16_to_cpu(req->length));
+	debug("req->requesttype = %d, req->request = %d, req->value = %d, req->index = %d, req->length = %d\n",
+	      req->requesttype, req->request, le16_to_cpu(req->value),
+	      le16_to_cpu(req->index), le16_to_cpu(req->length));
 
 	trb_fields[0] = req->requesttype | req->request << 8 |
 				le16_to_cpu(req->value) << 16;
@@ -884,7 +884,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	if (length > 0) {
 		if (req->requesttype & USB_DIR_IN)
 			field |= TRB_DIR_IN;
-		buf_64 = virt_to_phys(buffer);
+		buf_64 = xhci_virt_to_bus(ctrl, buffer);
 
 		trb_fields[0] = lower_32_bits(buf_64);
 		trb_fields[1] = upper_32_bits(buf_64);

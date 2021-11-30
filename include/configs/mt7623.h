@@ -12,9 +12,6 @@
 #include <linux/sizes.h>
 
 /* Miscellaneous configurable options */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_CMDLINE_TAG
 
 #define CONFIG_SYS_MAXARGS		8
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
@@ -22,8 +19,6 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +	\
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		SZ_4M
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
 /* Environment */
@@ -31,10 +26,6 @@
 /* Preloader -> Uboot */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + SZ_2M - \
 					 GENERATED_GBL_DATA_SIZE)
-
-/* UBoot -> Kernel */
-#define CONFIG_LOADADDR			0x84000000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* MMC */
 #define MMC_SUPPORTS_TUNING

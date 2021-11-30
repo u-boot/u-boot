@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+ * Copyright (C) 2015, 2021 Tony Dinh <mibodhi@gmail.com>
  * Copyright (C) 2015
  * Gerald Kerma <dreagle@doukki.net>
- * Tony Dinh <mibodhi@gmail.com>
  * Luka Perkov <luka.perkov@sartura.hr>
  */
 
@@ -13,7 +13,6 @@
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
 #define CONFIG_KW88F6192		1	/* SOC Name */
 #define CONFIG_KW88F6702		1	/* SOC Name */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 #include "mv-common.h"
 
@@ -46,12 +45,10 @@
 #endif /* CONFIG_CMD_NET */
 
 /* SATA driver configuration */
-#ifdef CONFIG_IDE
-#define __io
-#define CONFIG_IDE_PREINIT
-#define CONFIG_MVSATA_IDE_USE_PORT0
-#define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
-#endif /* CONFIG_IDE */
+#ifdef CONFIG_SATA
+#define CONFIG_SYS_SATA_MAX_DEVICE	1
+#define CONFIG_LBA48
+#endif /* CONFIG_SATA */
 
 /* RTC driver configuration */
 #ifdef CONFIG_CMD_DATE

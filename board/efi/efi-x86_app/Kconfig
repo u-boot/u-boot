@@ -1,4 +1,4 @@
-if TARGET_EFI_APP
+if EFI_APP
 
 config SYS_BOARD
 	default "efi-x86_app"
@@ -11,5 +11,9 @@ config SYS_SOC
 
 config SYS_CONFIG_NAME
 	default "efi-x86_app"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	imply VIDEO_EFI
 
 endif

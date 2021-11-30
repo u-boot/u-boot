@@ -24,8 +24,14 @@ extern struct stdio_dev **console_devices[MAX_FILES];
  */
 extern int cd_count[MAX_FILES];
 
+#define for_each_console_dev(i, file, dev)		\
+	for (i = 0, dev = console_devices[file][i];	\
+	     i < cd_count[file];			\
+	     i++, dev = console_devices[file][i])
+
+int iomux_match_device(struct stdio_dev **, const int, struct stdio_dev *);
 int iomux_doenv(const int, const char *);
+int iomux_replace_device(const int, const char *, const char *);
 void iomux_printdevs(const int);
-struct stdio_dev *search_device(int, const char *);
 
 #endif /* _IO_MUX_H */

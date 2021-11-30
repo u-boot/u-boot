@@ -1,7 +1,7 @@
 config BLK
 	bool "Support block devices"
 	depends on DM
-	default y if DM_MMC
+	default y if DM_MMC || DM_USB
 	help
 	  Enable support for block devices, such as SCSI, MMC and USB
 	  flash sticks. These provide a block-level interface which permits
@@ -52,14 +52,12 @@ config BLOCK_CACHE
 config SPL_BLOCK_CACHE
 	bool "Use block device cache in SPL"
 	depends on SPL_BLK
-	default n
 	help
 	  This option enables the disk-block cache in SPL
 
 config TPL_BLOCK_CACHE
 	bool "Use block device cache in TPL"
 	depends on TPL_BLK
-	default n
 	help
 	  This option enables the disk-block cache in TPL
 

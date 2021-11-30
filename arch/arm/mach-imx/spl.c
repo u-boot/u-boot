@@ -10,6 +10,7 @@
 #include <hang.h>
 #include <init.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
@@ -18,6 +19,7 @@
 #include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <g_dnl.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -172,6 +174,8 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_NAND;
 	case SPI_NOR_BOOT:
 		return BOOT_DEVICE_SPI;
+	case QSPI_BOOT:
+		return BOOT_DEVICE_NOR;
 	case USB_BOOT:
 		return BOOT_DEVICE_USB;
 	default:
@@ -195,7 +199,7 @@ int g_dnl_get_board_bcd_device_number(int gcnum)
 }
 #endif
 
-#if defined(CONFIG_SPL_MMC_SUPPORT)
+#if defined(CONFIG_SPL_MMC)
 /* called from spl_mmc to see type of boot mode for storage (RAW or FAT) */
 u32 spl_mmc_boot_mode(const u32 boot_device)
 {
@@ -318,11 +322,11 @@ ulong board_spl_fit_size_align(ulong size)
 	return size;
 }
 
-void board_spl_fit_post_load(ulong load_addr, size_t length)
+void board_spl_fit_post_load(const void *fit)
 {
-	u32 offset = length - CONFIG_CSF_SIZE;
+	u32 offset = ALIGN(fdt_totalsize(fit), 0x1000);
 
-	if (imx_hab_authenticate_image(load_addr,
+	if (imx_hab_authenticate_image((uintptr_t)fit,
 				       offset + IVT_SIZE + CSF_PAD_SIZE,
 				       offset)) {
 		panic("spl: ERROR:  image authentication unsuccessful\n");
@@ -330,6 +334,20 @@ void board_spl_fit_post_load(ulong load_addr, size_t length)
 }
 #endif
 
+void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
+{
+	int align_len = ARCH_DMA_MINALIGN - 1;
+
+	/* Some devices like SDP, NOR, NAND, SPI are using bl_len =1, so their fit address
+	 * is different with SD/MMC, this cause mismatch with signed address. Thus, adjust
+	 * the bl_len to align with SD/MMC.
+	 */
+	if (bl_len < 512)
+		bl_len = 512;
+
+	return  (void *)((CONFIG_SYS_TEXT_BASE - fit_size - bl_len -
+			align_len) & ~align_len);
+}
 #endif
 
 #if defined(CONFIG_MX6) && defined(CONFIG_SPL_OS_BOOT)
@@ -341,3 +359,36 @@ int dram_init_banksize(void)
 	return 0;
 }
 #endif
+
+/*
+ * read the address where the IVT header must sit
+ * from IVT image header, loaded from SPL into
+ * an malloced buffer and copy the IVT header
+ * to this address
+ */
+void *spl_load_simple_fit_fix_load(const void *fit)
+{
+	struct ivt *ivt;
+	unsigned long new;
+	unsigned long offset;
+	unsigned long size;
+	u8 *tmp = (u8 *)fit;
+
+	offset = ALIGN(fdt_totalsize(fit), 0x1000);
+	size = ALIGN(fdt_totalsize(fit), 4);
+	size = board_spl_fit_size_align(size);
+	tmp += offset;
+	ivt = (struct ivt *)tmp;
+	if (ivt->hdr.magic != IVT_HEADER_MAGIC) {
+		debug("no IVT header found\n");
+		return (void *)fit;
+	}
+	debug("%s: ivt: %p offset: %lx size: %lx\n", __func__, ivt, offset, size);
+	debug("%s: ivt self: %x\n", __func__, ivt->self);
+	new = ivt->self;
+	new -= offset;
+	debug("%s: new %lx\n", __func__, new);
+	memcpy((void *)new, fit, size);
+
+	return (void *)new;
+}

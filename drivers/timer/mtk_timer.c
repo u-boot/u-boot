@@ -61,6 +61,16 @@ static int mtk_timer_probe(struct udevice *dev)
 	if (!uc_priv->clock_rate)
 		return -EINVAL;
 
+	/*
+	 * Initialize the timer:
+	 * 1. set clock source to system clock with clock divider setting to 1
+	 * 2. set timer mode to free running
+	 * 3. reset timer counter to 0 then enable the timer
+	 */
+	writel(GPT4_CLK_SYS | GPT4_CLK_DIV1, priv->base + MTK_GPT4_CLK);
+	writel(GPT4_FREERUN | GPT4_CLEAR | GPT4_ENABLE,
+	       priv->base + MTK_GPT4_CTRL);
+
 	return 0;
 }
 
@@ -78,7 +88,7 @@ U_BOOT_DRIVER(mtk_timer) = {
 	.name = "mtk_timer",
 	.id = UCLASS_TIMER,
 	.of_match = mtk_timer_ids,
-	.priv_auto_alloc_size = sizeof(struct mtk_timer_priv),
+	.priv_auto	= sizeof(struct mtk_timer_priv),
 	.probe = mtk_timer_probe,
 	.ops = &mtk_timer_ops,
 	.flags = DM_FLAG_PRE_RELOC,

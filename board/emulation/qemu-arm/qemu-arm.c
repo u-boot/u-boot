@@ -65,6 +65,11 @@ struct mm_region *mem_map = qemu_arm64_mem_map;
 
 int board_init(void)
 {
+	return 0;
+}
+
+int board_late_init(void)
+{
 	/*
 	 * Make sure virtio bus is enumerated so that peripherals
 	 * on the virtio bus can be discovered by their drivers
@@ -89,8 +94,9 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-void *board_fdt_blob_setup(void)
+void *board_fdt_blob_setup(int *err)
 {
+	*err = 0;
 	/* QEMU loads a generated DTB for us at the start of RAM. */
 	return (void *)CONFIG_SYS_SDRAM_BASE;
 }

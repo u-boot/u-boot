@@ -17,6 +17,7 @@
 #include <sysinfo.h>
 #include <tpm-v1.h>
 #include <video_osd.h>
+#include <asm/global_data.h>
 
 #include "../common/ihs_mdio.h"
 #include "../../../drivers/sysinfo/gazerbeam.h"
@@ -144,8 +145,8 @@ int last_stage_init(void)
 	env_set_ulong("fpga_hw_rev", fpga_hw_rev);
 
 	ret = get_tpm(&tpm);
-	if (ret || tpm_init(tpm) || tpm_startup(tpm, TPM_ST_CLEAR) ||
-	    tpm_continue_self_test(tpm)) {
+	if (ret || tpm_init(tpm) || tpm1_startup(tpm, TPM_ST_CLEAR) ||
+	    tpm1_continue_self_test(tpm)) {
 		printf("TPM init failed\n");
 	}
 

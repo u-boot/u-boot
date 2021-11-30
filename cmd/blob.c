@@ -9,6 +9,11 @@
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
+#if defined(CONFIG_ARCH_MX6) || defined(CONFIG_ARCH_MX7) || \
+	defined(CONFIG_ARCH_MX7ULP) || defined(CONFIG_ARCH_IMX8M)
+#include <fsl_sec.h>
+#include <asm/arch/clock.h>
+#endif
 
 /**
  * blob_decap() - Decapsulate the data as a blob
@@ -65,14 +70,25 @@ static int do_blob(struct cmd_tbl *cmdtp, int flag, int argc,
 	else
 		return CMD_RET_USAGE;
 
-	src_addr = simple_strtoul(argv[2], NULL, 16);
-	dst_addr = simple_strtoul(argv[3], NULL, 16);
-	len = simple_strtoul(argv[4], NULL, 16);
-	key_addr = simple_strtoul(argv[5], NULL, 16);
+	src_addr = hextoul(argv[2], NULL);
+	dst_addr = hextoul(argv[3], NULL);
+	len = hextoul(argv[4], NULL);
+	key_addr = hextoul(argv[5], NULL);
 
 	km_ptr = (uint8_t *)(uintptr_t)key_addr;
 	src_ptr = (uint8_t *)(uintptr_t)src_addr;
 	dst_ptr = (uint8_t *)(uintptr_t)dst_addr;
+
+#if defined(CONFIG_ARCH_MX6) || defined(CONFIG_ARCH_MX7) || \
+	defined(CONFIG_ARCH_MX7ULP) || defined(CONFIG_ARCH_IMX8M)
+
+	hab_caam_clock_enable(1);
+
+	u32 out_jr_size = sec_in32(CONFIG_SYS_FSL_JR0_ADDR +
+				   FSL_CAAM_ORSR_JRa_OFFSET);
+	if (out_jr_size != FSL_CAAM_MAX_JR_SIZE)
+		sec_init();
+#endif
 
 	if (enc)
 		ret = blob_encap(km_ptr, src_ptr, dst_ptr, len);

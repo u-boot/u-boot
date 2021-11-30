@@ -104,4 +104,3 @@ _GLOBAL(invalidate_dcache_range)
 	sync				/* wait for dcbi's to get to ram */
 #endif
 	blr
-

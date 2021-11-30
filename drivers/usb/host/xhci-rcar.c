@@ -29,7 +29,7 @@
 #define RCAR_USB3_DL_CTRL_FW_SUCCESS	BIT(4)
 #define RCAR_USB3_DL_CTRL_FW_SET_DATA0	BIT(8)
 
-struct rcar_xhci_platdata {
+struct rcar_xhci_plat {
 	fdt_addr_t	hcd_base;
 	struct clk	clk;
 };
@@ -40,7 +40,7 @@ struct rcar_xhci_platdata {
  */
 struct rcar_xhci {
 	struct xhci_ctrl ctrl;	/* Needs to come first in this struct! */
-	struct usb_platdata usb_plat;
+	struct usb_plat usb_plat;
 	struct xhci_hccr *hcd;
 };
 
@@ -76,7 +76,7 @@ static int xhci_rcar_download_fw(struct rcar_xhci *ctx, const u32 *fw_data,
 
 static int xhci_rcar_probe(struct udevice *dev)
 {
-	struct rcar_xhci_platdata *plat = dev_get_platdata(dev);
+	struct rcar_xhci_plat *plat = dev_get_plat(dev);
 	struct rcar_xhci *ctx = dev_get_priv(dev);
 	struct xhci_hcor *hcor;
 	int len, ret;
@@ -122,7 +122,7 @@ err_clk:
 static int xhci_rcar_deregister(struct udevice *dev)
 {
 	int ret;
-	struct rcar_xhci_platdata *plat = dev_get_platdata(dev);
+	struct rcar_xhci_plat *plat = dev_get_plat(dev);
 
 	ret = xhci_deregister(dev);
 
@@ -132,9 +132,9 @@ static int xhci_rcar_deregister(struct udevice *dev)
 	return ret;
 }
 
-static int xhci_rcar_ofdata_to_platdata(struct udevice *dev)
+static int xhci_rcar_of_to_plat(struct udevice *dev)
 {
-	struct rcar_xhci_platdata *plat = dev_get_platdata(dev);
+	struct rcar_xhci_plat *plat = dev_get_plat(dev);
 
 	plat->hcd_base = dev_read_addr(dev);
 	if (plat->hcd_base == FDT_ADDR_T_NONE) {
@@ -160,8 +160,8 @@ U_BOOT_DRIVER(usb_xhci) = {
 	.remove		= xhci_rcar_deregister,
 	.ops		= &xhci_usb_ops,
 	.of_match	= xhci_rcar_ids,
-	.ofdata_to_platdata = xhci_rcar_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct rcar_xhci_platdata),
-	.priv_auto_alloc_size = sizeof(struct rcar_xhci),
+	.of_to_plat = xhci_rcar_of_to_plat,
+	.plat_auto	= sizeof(struct rcar_xhci_plat),
+	.priv_auto	= sizeof(struct rcar_xhci),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };

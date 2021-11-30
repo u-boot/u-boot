@@ -15,6 +15,7 @@
 
 #include <malloc.h>
 #include <spi.h>
+#include <asm/global_data.h>
 #include <asm/immap_85xx.h>
 #include <dm.h>
 #include <errno.h>
@@ -508,7 +509,7 @@ static int fsl_espi_set_mode(struct udevice *bus, uint mode)
 
 static int fsl_espi_child_pre_probe(struct udevice *dev)
 {
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	struct udevice *bus = dev->parent;
 	struct fsl_spi_slave *fsl = dev_get_priv(bus);
 
@@ -520,14 +521,14 @@ static int fsl_espi_child_pre_probe(struct udevice *dev)
 
 static int fsl_espi_probe(struct udevice *bus)
 {
-	struct fsl_espi_platdata *plat = dev_get_platdata(bus);
+	struct fsl_espi_plat *plat = dev_get_plat(bus);
 	struct fsl_spi_slave *fsl = dev_get_priv(bus);
 
 	fsl->espi = (ccsr_espi_t *)((u32)plat->regs_addr);
 	fsl->max_transfer_length = ESPI_MAX_DATA_TRANSFER_LEN;
 	fsl->speed_hz = plat->speed_hz;
 
-	debug("%s probe done, bus-num %d.\n", bus->name, bus->seq);
+	debug("%s probe done, bus-num %d.\n", bus->name, dev_seq(bus));
 
 	return 0;
 }
@@ -540,11 +541,11 @@ static const struct dm_spi_ops fsl_espi_ops = {
 	.set_mode	= fsl_espi_set_mode,
 };
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int fsl_espi_ofdata_to_platdata(struct udevice *bus)
+#if CONFIG_IS_ENABLED(OF_REAL)
+static int fsl_espi_of_to_plat(struct udevice *bus)
 {
 	fdt_addr_t addr;
-	struct fsl_espi_platdata   *plat = bus->platdata;
+	struct fsl_espi_plat   *plat = dev_get_plat(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 
@@ -571,13 +572,13 @@ static const struct udevice_id fsl_espi_ids[] = {
 U_BOOT_DRIVER(fsl_espi) = {
 	.name	= "fsl_espi",
 	.id	= UCLASS_SPI,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.of_match = fsl_espi_ids,
-	.ofdata_to_platdata = fsl_espi_ofdata_to_platdata,
+	.of_to_plat = fsl_espi_of_to_plat,
 #endif
 	.ops	= &fsl_espi_ops,
-	.platdata_auto_alloc_size = sizeof(struct fsl_espi_platdata),
-	.priv_auto_alloc_size = sizeof(struct fsl_spi_slave),
+	.plat_auto	= sizeof(struct fsl_espi_plat),
+	.priv_auto	= sizeof(struct fsl_spi_slave),
 	.probe	= fsl_espi_probe,
 	.child_pre_probe = fsl_espi_child_pre_probe,
 };

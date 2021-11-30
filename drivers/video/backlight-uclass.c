@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_PANEL_BACKLIGHT
+
 #include <common.h>
 #include <dm.h>
 #include <backlight.h>

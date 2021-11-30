@@ -14,4 +14,3 @@ int clear_bss(void)
 	memset((void *)&__bss_start, 0x00, len);
 	return 0;
 }
-

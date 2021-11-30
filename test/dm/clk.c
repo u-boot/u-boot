@@ -117,6 +117,28 @@ static int dm_test_clk(struct unit_test_state *uts)
 	ut_asserteq(20000, sandbox_clk_test_get_rate(dev_test,
 						     SANDBOX_CLK_TEST_ID_I2C));
 
+	ut_asserteq(5000, sandbox_clk_test_round_rate(dev_test,
+						      SANDBOX_CLK_TEST_ID_SPI,
+						      5000));
+	ut_asserteq(7000, sandbox_clk_test_round_rate(dev_test,
+						      SANDBOX_CLK_TEST_ID_I2C,
+						      7000));
+
+	ut_asserteq(10000, sandbox_clk_test_get_rate(dev_test,
+						     SANDBOX_CLK_TEST_ID_SPI));
+	ut_asserteq(20000, sandbox_clk_test_get_rate(dev_test,
+						     SANDBOX_CLK_TEST_ID_I2C));
+
+	rate = sandbox_clk_test_round_rate(dev_test, SANDBOX_CLK_TEST_ID_SPI, 0);
+	ut_assert(IS_ERR_VALUE(rate));
+	rate = sandbox_clk_test_round_rate(dev_test, SANDBOX_CLK_TEST_ID_I2C, 0);
+	ut_assert(IS_ERR_VALUE(rate));
+
+	ut_asserteq(10000, sandbox_clk_test_get_rate(dev_test,
+						     SANDBOX_CLK_TEST_ID_SPI));
+	ut_asserteq(20000, sandbox_clk_test_get_rate(dev_test,
+						     SANDBOX_CLK_TEST_ID_I2C));
+
 	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_SPI));
 	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_I2C));
 	ut_asserteq(10000, sandbox_clk_query_rate(dev_clk, SANDBOX_CLK_ID_SPI));

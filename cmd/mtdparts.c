@@ -75,6 +75,7 @@
 #include <env.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <jffs2/load_kernel.h>
 #include <linux/list.h>
 #include <linux/ctype.h>
@@ -2076,9 +2077,9 @@ static int do_mtdparts(struct cmd_tbl *cmdtp, int flag, int argc,
 /***************************************************/
 U_BOOT_CMD(
 	chpart,	2,	0,	do_chpart,
-	"change active partition",
+	"change active partition of a MTD device",
 	"part-id\n"
-	"    - change active partition (e.g. part-id = nand0,1)"
+	"    - change active partition (e.g. part-id = nand0,1) of a MTD device"
 );
 
 #ifdef CONFIG_SYS_LONGHELP

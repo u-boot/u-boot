@@ -6,6 +6,7 @@
 #include <common.h>
 #include <init.h>
 #include <asm/fsp/fsp_support.h>
+#include <asm/global_data.h>
 
 int dram_init(void)
 {

@@ -587,7 +587,7 @@ int pinctrl_get_pin_muxing(struct udevice *dev, int selector, char *buf,
  *
  * This allows to know the number of pins owned by a given pin-controller
  *
- * Return: Number of pins if OK, or negative error code on failure
+ * Return: Number of pins if OK, or -ENOSYS when not supported
  */
 int pinctrl_get_pins_count(struct udevice *dev);
 

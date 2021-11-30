@@ -74,7 +74,13 @@ static const struct cpg_core_clk r8a77990_core_clks[] = {
 	DEF_FIXED(".s2",       CLK_S2,             CLK_PLL1,       4, 1),
 	DEF_FIXED(".s3",       CLK_S3,             CLK_PLL1,       6, 1),
 	DEF_FIXED(".sdsrc",    CLK_SDSRC,          CLK_PLL1,       2, 1),
-	DEF_FIXED(".rpcsrc",   CLK_RPCSRC,         CLK_PLL1,       2, 1),
+
+	DEF_FIXED_RPCSRC_E3(".rpcsrc", CLK_RPCSRC, CLK_PLL0, CLK_PLL1),
+
+	DEF_BASE("rpc",		R8A77990_CLK_RPC, CLK_TYPE_GEN3_RPC,
+		 CLK_RPCSRC),
+	DEF_BASE("rpcd2",	R8A77990_CLK_RPCD2, CLK_TYPE_GEN3_RPCD2,
+		 R8A77990_CLK_RPC),
 
 	DEF_DIV6_RO(".r",      CLK_RINT,           CLK_EXTAL, CPG_RCKCR, 32),
 
@@ -83,6 +89,7 @@ static const struct cpg_core_clk r8a77990_core_clks[] = {
 	/* Core Clock Outputs */
 	DEF_FIXED("za2",       R8A77990_CLK_ZA2,   CLK_PLL0D24,    1, 1),
 	DEF_FIXED("za8",       R8A77990_CLK_ZA8,   CLK_PLL0D8,     1, 1),
+	DEF_GEN3_Z("z2",       R8A77990_CLK_Z2,    CLK_TYPE_GEN3_Z, CLK_PLL0, 4, 8),
 	DEF_FIXED("ztr",       R8A77990_CLK_ZTR,   CLK_PLL1,       6, 1),
 	DEF_FIXED("zt",        R8A77990_CLK_ZT,    CLK_PLL1,       4, 1),
 	DEF_FIXED("zx",        R8A77990_CLK_ZX,    CLK_PLL1,       3, 1),
@@ -105,9 +112,8 @@ static const struct cpg_core_clk r8a77990_core_clks[] = {
 	DEF_GEN3_SD("sd1",     R8A77990_CLK_SD1,   CLK_SDSRC,	  0x0078),
 	DEF_GEN3_SD("sd3",     R8A77990_CLK_SD3,   CLK_SDSRC,	  0x026c),
 
-	DEF_GEN3_RPC("rpc",    R8A77990_CLK_RPC,   CLK_RPCSRC,    0x238),
-
 	DEF_FIXED("cl",        R8A77990_CLK_CL,    CLK_PLL1,      48, 1),
+	DEF_FIXED("cr",        R8A77990_CLK_CR,    CLK_PLL1D2,     2, 1),
 	DEF_FIXED("cp",        R8A77990_CLK_CP,    CLK_EXTAL,      2, 1),
 	DEF_FIXED("cpex",      R8A77990_CLK_CPEX,  CLK_EXTAL,      4, 1),
 
@@ -126,6 +132,11 @@ static const struct cpg_core_clk r8a77990_core_clks[] = {
 };
 
 static const struct mssr_mod_clk r8a77990_mod_clks[] = {
+	DEF_MOD("tmu4",			 121,	R8A77990_CLK_S0D6C),
+	DEF_MOD("tmu3",			 122,	R8A77990_CLK_S3D2C),
+	DEF_MOD("tmu2",			 123,	R8A77990_CLK_S3D2C),
+	DEF_MOD("tmu1",			 124,	R8A77990_CLK_S3D2C),
+	DEF_MOD("tmu0",			 125,	R8A77990_CLK_CP),
 	DEF_MOD("scif5",		 202,	R8A77990_CLK_S3D4C),
 	DEF_MOD("scif4",		 203,	R8A77990_CLK_S3D4C),
 	DEF_MOD("scif3",		 204,	R8A77990_CLK_S3D4C),
@@ -138,6 +149,7 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] = {
 	DEF_MOD("sys-dmac2",		 217,	R8A77990_CLK_S3D1),
 	DEF_MOD("sys-dmac1",		 218,	R8A77990_CLK_S3D1),
 	DEF_MOD("sys-dmac0",		 219,	R8A77990_CLK_S3D1),
+	DEF_MOD("sceg-pub",		 229,	R8A77990_CLK_CR),
 
 	DEF_MOD("cmt3",			 300,	R8A77990_CLK_R),
 	DEF_MOD("cmt2",			 301,	R8A77990_CLK_R),
@@ -156,15 +168,15 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] = {
 	DEF_MOD("intc-ex",		 407,	R8A77990_CLK_CP),
 	DEF_MOD("intc-ap",		 408,	R8A77990_CLK_S0D3),
 
-	DEF_MOD("audmac0",		 502,	R8A77990_CLK_S3D4),
-	DEF_MOD("drif7",		 508,	R8A77990_CLK_S3D2),
-	DEF_MOD("drif6",		 509,	R8A77990_CLK_S3D2),
-	DEF_MOD("drif5",		 510,	R8A77990_CLK_S3D2),
-	DEF_MOD("drif4",		 511,	R8A77990_CLK_S3D2),
-	DEF_MOD("drif3",		 512,	R8A77990_CLK_S3D2),
-	DEF_MOD("drif2",		 513,	R8A77990_CLK_S3D2),
-	DEF_MOD("drif1",		 514,	R8A77990_CLK_S3D2),
-	DEF_MOD("drif0",		 515,	R8A77990_CLK_S3D2),
+	DEF_MOD("audmac0",		 502,	R8A77990_CLK_S1D2),
+	DEF_MOD("drif31",		 508,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif30",		 509,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif21",		 510,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif20",		 511,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif11",		 512,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif10",		 513,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif01",		 514,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif00",		 515,	R8A77990_CLK_S3D2),
 	DEF_MOD("hscif4",		 516,	R8A77990_CLK_S3D1C),
 	DEF_MOD("hscif3",		 517,	R8A77990_CLK_S3D1C),
 	DEF_MOD("hscif2",		 518,	R8A77990_CLK_S3D1C),
@@ -184,8 +196,10 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] = {
 	DEF_MOD("vspb",			 626,	R8A77990_CLK_S0D1),
 	DEF_MOD("vspi0",		 631,	R8A77990_CLK_S0D1),
 
-	DEF_MOD("ehci0",		 703,	R8A77990_CLK_S3D4),
-	DEF_MOD("hsusb",		 704,	R8A77990_CLK_S3D4),
+	DEF_MOD("ehci0",		 703,	R8A77990_CLK_S3D2),
+	DEF_MOD("hsusb",		 704,	R8A77990_CLK_S3D2),
+	DEF_MOD("cmm1",			 710,	R8A77990_CLK_S1D1),
+	DEF_MOD("cmm0",			 711,	R8A77990_CLK_S1D1),
 	DEF_MOD("csi40",		 716,	R8A77990_CLK_CSI0),
 	DEF_MOD("du1",			 723,	R8A77990_CLK_S1D1),
 	DEF_MOD("du0",			 724,	R8A77990_CLK_S1D1),
@@ -263,18 +277,18 @@ static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[2] = {
 };
 
 static const struct mstp_stop_table r8a77990_mstp_table[] = {
-	{ 0x00200000, 0x0, 0x00200000, 0 },
-	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
-	{ 0x340E2FDC, 0x2040, 0x340E2FDC, 0 },
-	{ 0xFFFFFFDF, 0x400, 0xFFFFFFDF, 0 },
-	{ 0x80000184, 0x180, 0x80000184, 0 },
-	{ 0xC3FFFFFF, 0x0, 0xC3FFFFFF, 0 },
-	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
-	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
-	{ 0x01F1FFF7, 0x0, 0x01F1FFF7, 0 },
-	{ 0xFFFFFFFE, 0x0, 0xFFFFFFFE, 0 },
-	{ 0xFFFEFFE0, 0x0, 0xFFFEFFE0, 0 },
-	{ 0x000000B7, 0x0, 0x000000B7, 0 },
+	{ 0x00210000, 0x0, 0x00210000, 0 },
+	{ 0xc3e81000, 0x0, 0xc3e81000, 0 },
+	{ 0x000e2fdc, 0x2000, 0x000e2fd8, 0 },
+	{ 0xd0c86cd7, 0x400, 0xd0c86cd7, 0 },
+	{ 0x80000004, 0x180, 0x80000004, 0 },
+	{ 0x40dfff44, 0x0, 0x40dfff44, 0 },
+	{ 0x84c8888c, 0x0, 0x84c8888c, 0 },
+	{ 0x09951c18, 0x0, 0x09951c18, 0 },
+	{ 0x008010c7, 0x0, 0x008010c7, 0 },
+	{ 0xfddfdfdc, 0x0, 0xfddfdfdc, 0 },
+	{ 0xfffeffe8, 0x0, 0xfffeffe8, 0 },
+	{ 0x00000000, 0x0, 0x00000000, 0 },
 };
 
 static const void *r8a77990_get_pll_config(const u32 cpg_mode)
@@ -290,6 +304,7 @@ static const struct cpg_mssr_info r8a77990_cpg_mssr_info = {
 	.mstp_table		= r8a77990_mstp_table,
 	.mstp_table_size	= ARRAY_SIZE(r8a77990_mstp_table),
 	.reset_node		= "renesas,r8a77990-rst",
+	.reset_modemr_offset	= CPG_RST_MODEMR,
 	.mod_clk_base		= MOD_CLK_BASE,
 	.clk_extal_id		= CLK_EXTAL,
 	.clk_extalr_id		= ~0,
@@ -308,7 +323,7 @@ U_BOOT_DRIVER(clk_r8a77990) = {
 	.name		= "clk_r8a77990",
 	.id		= UCLASS_CLK,
 	.of_match	= r8a77990_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct gen3_clk_priv),
+	.priv_auto	= sizeof(struct gen3_clk_priv),
 	.ops		= &gen3_clk_ops,
 	.probe		= gen3_clk_probe,
 	.remove		= gen3_clk_remove,

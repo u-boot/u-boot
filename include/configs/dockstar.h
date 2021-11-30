@@ -16,7 +16,6 @@
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
 #define CONFIG_KW88F6281	1	/* SOC Name */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

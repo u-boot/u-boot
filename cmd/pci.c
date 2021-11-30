@@ -47,7 +47,6 @@ static int pci_field_width(enum pci_size_t size)
 	return pci_byte_size(size) * 2;
 }
 
-#ifdef CONFIG_DM_PCI
 static void pci_show_regs(struct udevice *dev, struct pci_reg_info *regs)
 {
 	for (; regs->name; regs++) {
@@ -59,41 +58,8 @@ static void pci_show_regs(struct udevice *dev, struct pci_reg_info *regs)
 		       pci_field_width(regs->size), val);
 	}
 }
-#else
-static unsigned long pci_read_config(pci_dev_t dev, int offset,
-				     enum pci_size_t size)
-{
-	u32 val32;
-	u16 val16;
-	u8 val8;
 
-	switch (size) {
-	case PCI_SIZE_8:
-		pci_read_config_byte(dev, offset, &val8);
-		return val8;
-	case PCI_SIZE_16:
-		pci_read_config_word(dev, offset, &val16);
-		return val16;
-	case PCI_SIZE_32:
-	default:
-		pci_read_config_dword(dev, offset, &val32);
-		return val32;
-	}
-}
-
-static void pci_show_regs(pci_dev_t dev, struct pci_reg_info *regs)
-{
-	for (; regs->name; regs++) {
-		printf("  %s =%*s%#.*lx\n", regs->name,
-		       (int)(28 - strlen(regs->name)), "",
-		       pci_field_width(regs->size),
-		       pci_read_config(dev, regs->offset, regs->size));
-	}
-}
-#endif
-
-#ifdef CONFIG_DM_PCI
-int pci_bar_show(struct udevice *dev)
+static int pci_bar_show(struct udevice *dev)
 {
 	u8 header_type;
 	int bar_cnt, bar_id, mem_type;
@@ -105,9 +71,14 @@ int pci_bar_show(struct udevice *dev)
 	int prefetchable;
 
 	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &header_type);
+	header_type &= 0x7f;
 
 	if (header_type == PCI_HEADER_TYPE_CARDBUS) {
 		printf("CardBus doesn't support BARs\n");
+		return -ENOSYS;
+	} else if (header_type != PCI_HEADER_TYPE_NORMAL &&
+		   header_type != PCI_HEADER_TYPE_BRIDGE) {
+		printf("unknown header type\n");
 		return -ENOSYS;
 	}
 
@@ -162,7 +133,6 @@ int pci_bar_show(struct udevice *dev)
 
 	return 0;
 }
-#endif
 
 static struct pci_reg_info regs_start[] = {
 	{ "vendor ID", PCI_SIZE_16, PCI_VENDOR_ID },
@@ -258,29 +228,18 @@ static struct pci_reg_info regs_cardbus[] = {
  *
  * @dev: Bus+Device+Function number
  */
-#ifdef CONFIG_DM_PCI
-void pci_header_show(struct udevice *dev)
-#else
-void pci_header_show(pci_dev_t dev)
-#endif
+static void pci_header_show(struct udevice *dev)
 {
-#ifdef CONFIG_DM_PCI
 	unsigned long class, header_type;
 
 	dm_pci_read_config(dev, PCI_CLASS_CODE, &class, PCI_SIZE_8);
 	dm_pci_read_config(dev, PCI_HEADER_TYPE, &header_type, PCI_SIZE_8);
-#else
-	u8 class, header_type;
-
-	pci_read_config_byte(dev, PCI_CLASS_CODE, &class);
-	pci_read_config_byte(dev, PCI_HEADER_TYPE, &header_type);
-#endif
 	pci_show_regs(dev, regs_start);
 	printf("  class code =                  0x%.2x (%s)\n", (int)class,
 	       pci_class_str(class));
 	pci_show_regs(dev, regs_rest);
 
-	switch (header_type & 0x03) {
+	switch (header_type & 0x7f) {
 	case PCI_HEADER_TYPE_NORMAL:	/* "normal" PCI device */
 		pci_show_regs(dev, regs_normal);
 		break;
@@ -297,7 +256,7 @@ void pci_header_show(pci_dev_t dev)
     }
 }
 
-void pciinfo_header(int busnum, bool short_listing)
+static void pciinfo_header(int busnum, bool short_listing)
 {
 	printf("Scanning PCI devices on bus %d\n", busnum);
 
@@ -307,7 +266,6 @@ void pciinfo_header(int busnum, bool short_listing)
 	}
 }
 
-#ifdef CONFIG_DM_PCI
 /**
  * pci_header_show_brief() - Show the short-form PCI device header
  *
@@ -334,121 +292,26 @@ static void pciinfo(struct udevice *bus, bool short_listing)
 {
 	struct udevice *dev;
 
-	pciinfo_header(bus->seq, short_listing);
+	pciinfo_header(dev_seq(bus), short_listing);
 
 	for (device_find_first_child(bus, &dev);
 	     dev;
 	     device_find_next_child(&dev)) {
-		struct pci_child_platdata *pplat;
+		struct pci_child_plat *pplat;
 
-		pplat = dev_get_parent_platdata(dev);
+		pplat = dev_get_parent_plat(dev);
 		if (short_listing) {
-			printf("%02x.%02x.%02x   ", bus->seq,
+			printf("%02x.%02x.%02x   ", dev_seq(bus),
 			       PCI_DEV(pplat->devfn), PCI_FUNC(pplat->devfn));
 			pci_header_show_brief(dev);
 		} else {
-			printf("\nFound PCI device %02x.%02x.%02x:\n", bus->seq,
+			printf("\nFound PCI device %02x.%02x.%02x:\n",
+			       dev_seq(bus),
 			       PCI_DEV(pplat->devfn), PCI_FUNC(pplat->devfn));
 			pci_header_show(dev);
 		}
 	}
 }
-
-#else
-
-/**
- * pci_header_show_brief() - Show the short-form PCI device header
- *
- * Reads and prints the header of the specified PCI device in short form.
- *
- * @dev: Bus+Device+Function number
- */
-void pci_header_show_brief(pci_dev_t dev)
-{
-	u16 vendor, device;
-	u8 class, subclass;
-
-	pci_read_config_word(dev, PCI_VENDOR_ID, &vendor);
-	pci_read_config_word(dev, PCI_DEVICE_ID, &device);
-	pci_read_config_byte(dev, PCI_CLASS_CODE, &class);
-	pci_read_config_byte(dev, PCI_CLASS_SUB_CODE, &subclass);
-
-	printf("0x%.4x     0x%.4x     %-23s 0x%.2x\n",
-	       vendor, device,
-	       pci_class_str(class), subclass);
-}
-
-/**
- * pciinfo() - Show a list of devices on the PCI bus
- *
- * Show information about devices on PCI bus. Depending on @short_pci_listing
- * the output will be more or less exhaustive.
- *
- * @bus_num: The number of the bus to be scanned
- * @short_pci_listing: true to use short form, showing only a brief header
- * for each device
- */
-void pciinfo(int bus_num, int short_pci_listing)
-{
-	struct pci_controller *hose = pci_bus_to_hose(bus_num);
-	int device;
-	int function;
-	unsigned char header_type;
-	unsigned short vendor_id;
-	pci_dev_t dev;
-	int ret;
-
-	if (!hose)
-		return;
-
-	pciinfo_header(bus_num, short_pci_listing);
-
-	for (device = 0; device < PCI_MAX_PCI_DEVICES; device++) {
-		header_type = 0;
-		vendor_id = 0;
-		for (function = 0; function < PCI_MAX_PCI_FUNCTIONS;
-		     function++) {
-			/*
-			 * If this is not a multi-function device, we skip
-			 * the rest.
-			 */
-			if (function && !(header_type & 0x80))
-				break;
-
-			dev = PCI_BDF(bus_num, device, function);
-
-			if (pci_skip_dev(hose, dev))
-				continue;
-
-			ret = pci_read_config_word(dev, PCI_VENDOR_ID,
-						   &vendor_id);
-			if (ret)
-				goto error;
-			if ((vendor_id == 0xFFFF) || (vendor_id == 0x0000))
-				continue;
-
-			if (!function) {
-				pci_read_config_byte(dev, PCI_HEADER_TYPE,
-						     &header_type);
-			}
-
-			if (short_pci_listing) {
-				printf("%02x.%02x.%02x   ", bus_num, device,
-				       function);
-				pci_header_show_brief(dev);
-			} else {
-				printf("\nFound PCI device %02x.%02x.%02x:\n",
-				       bus_num, device, function);
-				pci_header_show(dev);
-			}
-		}
-	}
-
-	return;
-error:
-	printf("Cannot read bus configuration: %d\n", ret);
-}
-#endif
 
 /**
  * get_pci_dev() - Convert the "bus.device.function" identifier into a number
@@ -469,25 +332,20 @@ static pci_dev_t get_pci_dev(char *name)
 		if (name[i] == '.') {
 			memcpy(cnum, &name[iold], i - iold);
 			cnum[i - iold] = '\0';
-			bdfs[n++] = simple_strtoul(cnum, NULL, 16);
+			bdfs[n++] = hextoul(cnum, NULL);
 			iold = i + 1;
 		}
 	}
 	strcpy(cnum, &name[iold]);
 	if (n == 0)
 		n = 1;
-	bdfs[n] = simple_strtoul(cnum, NULL, 16);
+	bdfs[n] = hextoul(cnum, NULL);
 
 	return PCI_BDF(bdfs[0], bdfs[1], bdfs[2]);
 }
 
-#ifdef CONFIG_DM_PCI
 static int pci_cfg_display(struct udevice *dev, ulong addr,
 			   enum pci_size_t size, ulong length)
-#else
-static int pci_cfg_display(pci_dev_t bdf, ulong addr, enum pci_size_t size,
-			   ulong length)
-#endif
 {
 #define DISP_LINE_LEN	16
 	ulong i, nbytes, linebytes;
@@ -508,11 +366,7 @@ static int pci_cfg_display(pci_dev_t bdf, ulong addr, enum pci_size_t size,
 		for (i = 0; i < linebytes; i += byte_size) {
 			unsigned long val;
 
-#ifdef CONFIG_DM_PCI
 			dm_pci_read_config(dev, addr, &val, size);
-#else
-			val = pci_read_config(bdf, addr, size);
-#endif
 			printf(" %0*lx", pci_field_width(size), val);
 			addr += byte_size;
 		}
@@ -527,31 +381,8 @@ static int pci_cfg_display(pci_dev_t bdf, ulong addr, enum pci_size_t size,
 	return (rc);
 }
 
-#ifndef CONFIG_DM_PCI
-static int pci_cfg_write (pci_dev_t bdf, ulong addr, ulong size, ulong value)
-{
-	if (size == 4) {
-		pci_write_config_dword(bdf, addr, value);
-	}
-	else if (size == 2) {
-		ushort val = value & 0xffff;
-		pci_write_config_word(bdf, addr, val);
-	}
-	else {
-		u_char val = value & 0xff;
-		pci_write_config_byte(bdf, addr, val);
-	}
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_DM_PCI
 static int pci_cfg_modify(struct udevice *dev, ulong addr, ulong size,
 			  ulong value, int incrflag)
-#else
-static int pci_cfg_modify(pci_dev_t bdf, ulong addr, ulong size, ulong value,
-			  int incrflag)
-#endif
 {
 	ulong	i;
 	int	nbytes;
@@ -562,11 +393,7 @@ static int pci_cfg_modify(pci_dev_t bdf, ulong addr, ulong size, ulong value,
 	 */
 	do {
 		printf("%08lx:", addr);
-#ifdef CONFIG_DM_PCI
 		dm_pci_read_config(dev, addr, &val, size);
-#else
-		val = pci_read_config(bdf, addr, size);
-#endif
 		printf(" %0*lx", pci_field_width(size), val);
 
 		nbytes = cli_readline(" ? ");
@@ -587,17 +414,13 @@ static int pci_cfg_modify(pci_dev_t bdf, ulong addr, ulong size, ulong value,
 #endif
 		else {
 			char *endp;
-			i = simple_strtoul(console_buffer, &endp, 16);
+			i = hextoul(console_buffer, &endp);
 			nbytes = endp - console_buffer;
 			if (nbytes) {
 				/* good enough to not time out
 				 */
 				bootretry_reset_cmd_timeout();
-#ifdef CONFIG_DM_PCI
 				dm_pci_write_config(dev, addr, i, size);
-#else
-				pci_cfg_write(bdf, addr, size, i);
-#endif
 				if (incrflag)
 					addr += size;
 			}
@@ -607,7 +430,6 @@ static int pci_cfg_modify(pci_dev_t bdf, ulong addr, ulong size, ulong value,
 	return 0;
 }
 
-#ifdef CONFIG_DM_PCI
 static const struct pci_flag_info {
 	uint flag;
 	const char *name;
@@ -646,7 +468,6 @@ static void pci_show_regions(struct udevice *bus)
 		printf("\n");
 	}
 }
-#endif
 
 /* PCI Configuration Space access commands
  *
@@ -660,11 +481,7 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ulong addr = 0, value = 0, cmd_size = 0;
 	enum pci_size_t size = PCI_SIZE_32;
-#ifdef CONFIG_DM_PCI
 	struct udevice *dev, *bus;
-#else
-	pci_dev_t dev;
-#endif
 	int busnum = 0;
 	pci_dev_t bdf = 0;
 	char cmd = 's';
@@ -682,23 +499,19 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		cmd_size = cmd_get_data_size(argv[1], 4);
 		size = (cmd_size == 4) ? PCI_SIZE_32 : cmd_size - 1;
 		if (argc > 3)
-			addr = simple_strtoul(argv[3], NULL, 16);
+			addr = hextoul(argv[3], NULL);
 		if (argc > 4)
-			value = simple_strtoul(argv[4], NULL, 16);
+			value = hextoul(argv[4], NULL);
 	case 'h':		/* header */
-#ifdef CONFIG_DM_PCI
 	case 'b':		/* bars */
-#endif
 		if (argc < 3)
 			goto usage;
 		if ((bdf = get_pci_dev(argv[2])) == -1)
 			return 1;
 		break;
-#if defined(CONFIG_DM_PCI)
 	case 'e':
 		pci_init();
 		return 0;
-#endif
 	case 'r': /* no break */
 	default:		/* scan bus */
 		value = 1; /* short listing */
@@ -708,9 +521,8 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 				argc--;
 			}
 			if (argc > 1)
-				busnum = simple_strtoul(argv[1], NULL, 16);
+				busnum = hextoul(argv[1], NULL);
 		}
-#ifdef CONFIG_DM_PCI
 		ret = uclass_get_device_by_seq(UCLASS_PCI, busnum, &bus);
 		if (ret) {
 			printf("No such bus\n");
@@ -720,21 +532,14 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			pci_show_regions(bus);
 		else
 			pciinfo(bus, value);
-#else
-		pciinfo(busnum, value);
-#endif
 		return 0;
 	}
 
-#ifdef CONFIG_DM_PCI
 	ret = dm_pci_bus_find_bdf(bdf, &dev);
 	if (ret) {
 		printf("No such device\n");
 		return CMD_RET_FAILURE;
 	}
-#else
-	dev = bdf;
-#endif
 
 	switch (argv[1][0]) {
 	case 'h':		/* header */
@@ -755,17 +560,10 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	case 'w':		/* write */
 		if (argc < 5)
 			goto usage;
-#ifdef CONFIG_DM_PCI
 		ret = dm_pci_write_config(dev, addr, value, size);
-#else
-		ret = pci_cfg_write(dev, addr, size, value);
-#endif
 		break;
-#ifdef CONFIG_DM_PCI
-
 	case 'b':		/* bars */
 		return pci_bar_show(dev);
-#endif
 	default:
 		ret = CMD_RET_USAGE;
 		break;
@@ -782,18 +580,14 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 static char pci_help_text[] =
 	"[bus] [long]\n"
 	"    - short or long list of PCI devices on bus 'bus'\n"
-#if defined(CONFIG_DM_PCI)
 	"pci enum\n"
 	"    - Enumerate PCI buses\n"
-#endif
 	"pci header b.d.f\n"
 	"    - show header of PCI device 'bus.device.function'\n"
-#ifdef CONFIG_DM_PCI
 	"pci bar b.d.f\n"
 	"    - show BARs base and size for device b.d.f'\n"
 	"pci regions\n"
 	"    - show PCI regions\n"
-#endif
 	"pci display[.b, .w, .l] b.d.f [address] [# of objects]\n"
 	"    - display PCI configuration space (CFG)\n"
 	"pci next[.b, .w, .l] b.d.f address\n"

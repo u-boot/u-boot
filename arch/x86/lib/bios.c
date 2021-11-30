@@ -6,6 +6,7 @@
  * Copyright (C) 2009-2010 coresystems GmbH
  */
 #include <common.h>
+#include <compiler.h>
 #include <bios_emul.h>
 #include <irq_func.h>
 #include <log.h>
@@ -22,7 +23,9 @@
 static int (*int_handler[256])(void);
 
 /* to have a common register file for interrupt handlers */
+#ifndef CONFIG_BIOSEMU
 X86EMU_sysEnv _X86EMU_env;
+#endif
 
 asmlinkage void (*realmode_call)(u32 addr, u32 eax, u32 ebx, u32 ecx, u32 edx,
 				 u32 esi, u32 edi);

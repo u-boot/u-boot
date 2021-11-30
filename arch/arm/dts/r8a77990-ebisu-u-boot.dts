@@ -8,6 +8,29 @@
 #include "r8a77990-ebisu.dts"
 #include "r8a77990-u-boot.dtsi"
 
+/ {
+	sysinfo {
+		compatible = "renesas,rcar-sysinfo";
+		i2c-eeprom = <&sysinfo_eeprom>;
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&i2c_dvfs {
+	compatible = "renesas,iic-r8a77990",
+		     "renesas,rcar-gen3-iic",
+		     "renesas,rmobile-iic";
+	u-boot,dm-pre-reloc;
+
+	sysinfo_eeprom: eeprom@50 {
+		compatible = "rohm,br24t01", "atmel,24c01";
+		reg = <0x50>;
+		pagesize = <8>;
+		u-boot,dm-pre-reloc;
+		status = "okay";
+	};
+};
+
 &pfc {
 	pinctrl-0 = <&scif_clk_pins>;
 	pinctrl-names = "default";
@@ -20,7 +43,7 @@
 
 &rpc {
 	reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0x04000000>;
-	status = "okay";
+	status = "disabled";
 };
 
 &sdhi0 {

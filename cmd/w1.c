@@ -21,7 +21,7 @@ static int w1_bus(void)
 		printf("one wire interface not found\n");
 		return CMD_RET_FAILURE;
 	}
-	printf("Bus %d:\t%s", bus->seq, bus->name);
+	printf("Bus %d:\t%s", dev_seq(bus), bus->name);
 	if (device_active(bus))
 		printf("  (active)");
 	printf("\n");
@@ -31,7 +31,7 @@ static int w1_bus(void)
 	     device_find_next_child(&dev)) {
 		ret = device_probe(dev);
 
-		printf("\t%s (%d) uclass %s : ", dev->name, dev->seq,
+		printf("\t%s (%d) uclass %s : ", dev->name, dev_seq(dev),
 		       dev->uclass->uc_drv->name);
 
 		if (ret)
@@ -51,16 +51,16 @@ static int w1_read(int argc, char *const argv[])
 	u8 buf[512];
 
 	if (argc > 2)
-		bus_n = simple_strtoul(argv[2], NULL, 10);
+		bus_n = dectoul(argv[2], NULL);
 
 	if (argc > 3)
-		dev_n = simple_strtoul(argv[3], NULL, 10);
+		dev_n = dectoul(argv[3], NULL);
 
 	if (argc > 4)
-		offset = simple_strtoul(argv[4], NULL, 10);
+		offset = dectoul(argv[4], NULL);
 
 	if (argc > 5)
-		len = simple_strtoul(argv[5], NULL, 10);
+		len = dectoul(argv[5], NULL);
 
 	if (len > 512) {
 		printf("len needs to be <= 512\n");

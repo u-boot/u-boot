@@ -8,6 +8,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -16,6 +16,8 @@ import sys
 import os
 import sphinx
 
+from subprocess import check_output
+
 # Get Sphinx version
 major, minor, patch = sphinx.version_info[:3]
 
@@ -29,47 +31,99 @@ from load_config import loadConfig
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.3'
-
-latex_engine = 'xelatex'
+needs_sphinx = '2.4.4'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include', 'kfigure']
+extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include',
+              'kfigure', 'sphinx.ext.ifconfig', # 'automarkup',
+              'maintainers_include', 'sphinx.ext.autosectionlabel',
+              'kernel_abi', 'kernel_feat']
 
 #
-# cdomain is badly broken in Sphinx 3+. Leaving it out generates *most*
-# of the docs correctly, but not all.
+# cdomain is badly broken in Sphinx 3+.  Leaving it out generates *most*
+# of the docs correctly, but not all.  Scream bloody murder but allow
+# the process to proceed; hopefully somebody will fix this properly soon.
 #
 if major >= 3:
+    sys.stderr.write('''WARNING: The kernel documentation build process
+        support for Sphinx v3.0 and above is brand new. Be prepared for
+        possible issues in the generated output.
+        ''')
     if (major > 3) or (minor > 0 or patch >= 2):
-        sys.stderr.write('''The build process with Sphinx 3+ is broken.
-You will have to remove -W in doc/Makefile.
-''')
         # Sphinx c function parser is more pedantic with regards to type
         # checking. Due to that, having macros at c:function cause problems.
-        # Those needed to be escaped by using c_id_attributes[] array
+        # Those needed to be scaped by using c_id_attributes[] array
         c_id_attributes = [
+            # GCC Compiler types not parsed by Sphinx:
+            "__restrict__",
 
-            # include/linux/compiler.h
+            # include/linux/compiler_types.h:
+            "__iomem",
+            "__kernel",
+            "noinstr",
+            "notrace",
+            "__percpu",
+            "__rcu",
+            "__user",
+
+            # include/linux/compiler_attributes.h:
+            "__alias",
+            "__aligned",
+            "__aligned_largest",
+            "__always_inline",
+            "__assume_aligned",
+            "__cold",
+            "__attribute_const__",
+            "__copy",
+            "__pure",
+            "__designated_init",
+            "__visible",
+            "__printf",
+            "__scanf",
+            "__gnu_inline",
+            "__malloc",
+            "__mode",
+            "__no_caller_saved_registers",
+            "__noclone",
+            "__nonstring",
+            "__noreturn",
+            "__packed",
+            "__pure",
+            "__section",
+            "__always_unused",
             "__maybe_unused",
+            "__used",
+            "__weak",
+            "noinline",
 
             # include/efi.h
             "EFIAPI",
 
             # include/efi_loader.h
             "__efi_runtime",
+
+            # include/linux/memblock.h:
+            "__init_memblock",
+            "__meminit",
+
+            # include/linux/init.h:
+            "__init",
+            "__ref",
+
+            # include/linux/linkage.h:
+            "asmlinkage",
         ]
 
 else:
     extensions.append('cdomain')
 
-# The name of the math extension changed on Sphinx 1.4
-if (major == 1 and minor > 3) or (major > 1):
-    extensions.append("sphinx.ext.imgmath")
-else:
-    extensions.append("sphinx.ext.pngmath")
+# Ensure that autosectionlabel will produce unique names
+autosectionlabel_prefix_document = True
+autosectionlabel_maxdepth = 2
+
+extensions.append("sphinx.ext.imgmath")
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -229,7 +283,7 @@ html_context = {
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+html_use_smartypants = False
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
@@ -284,94 +338,46 @@ htmlhelp_basename = 'TheUBootdoc'
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-'papersize': 'a4paper',
+    # The paper size ('letterpaper' or 'a4paper').
+    'papersize': 'a4paper',
 
-# The font size ('10pt', '11pt' or '12pt').
-'pointsize': '8pt',
+    # The font size ('10pt', '11pt' or '12pt').
+    'pointsize': '11pt',
 
-# Latex figure (float) alignment
-#'figure_align': 'htbp',
+    # Latex figure (float) alignment
+    #'figure_align': 'htbp',
 
-# Don't mangle with UTF-8 chars
-'inputenc': '',
-'utf8extra': '',
+    # Don't mangle with UTF-8 chars
+    'inputenc': '',
+    'utf8extra': '',
 
-# Additional stuff for the LaTeX preamble.
+    # Set document margins
+    'sphinxsetup': '''
+        hmargin=0.5in, vmargin=1in,
+        parsedliteralwraps=true,
+        verbatimhintsturnover=false,
+    ''',
+
+    # Additional stuff for the LaTeX preamble.
     'preamble': '''
-	% Use some font with UTF-8 support with XeLaTeX
+        % Use some font with UTF-8 support with XeLaTeX
         \\usepackage{fontspec}
-        \\setsansfont{DejaVu Serif}
-        \\setromanfont{DejaVu Sans}
+        \\setsansfont{DejaVu Sans}
+        \\setromanfont{DejaVu Serif}
         \\setmonofont{DejaVu Sans Mono}
-
-     '''
+     ''',
 }
 
-# Fix reference escape troubles with Sphinx 1.4.x
-if major == 1 and minor > 3:
-    latex_elements['preamble']  += '\\renewcommand*{\\DUrole}[2]{ #2 }\n'
+# At least one book (translations) may have Asian characters
+# with are only displayed if xeCJK is used
 
-if major == 1 and minor <= 4:
-    latex_elements['preamble']  += '\\usepackage[margin=0.5in, top=1in, bottom=1in]{geometry}'
-elif major == 1 and (minor > 5 or (minor == 5 and patch >= 3)):
-    latex_elements['sphinxsetup'] = 'hmargin=0.5in, vmargin=1in'
-    latex_elements['preamble']  += '\\fvset{fontsize=auto}\n'
-
-# Customize notice background colors on Sphinx < 1.6:
-if major == 1 and minor < 6:
-   latex_elements['preamble']  += '''
-        \\usepackage{ifthen}
-
-        % Put notes in color and let them be inside a table
-	\\definecolor{NoteColor}{RGB}{204,255,255}
-	\\definecolor{WarningColor}{RGB}{255,204,204}
-	\\definecolor{AttentionColor}{RGB}{255,255,204}
-	\\definecolor{ImportantColor}{RGB}{192,255,204}
-	\\definecolor{OtherColor}{RGB}{204,204,204}
-        \\newlength{\\mynoticelength}
-        \\makeatletter\\newenvironment{coloredbox}[1]{%
-	   \\setlength{\\fboxrule}{1pt}
-	   \\setlength{\\fboxsep}{7pt}
-	   \\setlength{\\mynoticelength}{\\linewidth}
-	   \\addtolength{\\mynoticelength}{-2\\fboxsep}
-	   \\addtolength{\\mynoticelength}{-2\\fboxrule}
-           \\begin{lrbox}{\\@tempboxa}\\begin{minipage}{\\mynoticelength}}{\\end{minipage}\\end{lrbox}%
-	   \\ifthenelse%
-	      {\\equal{\\py@noticetype}{note}}%
-	      {\\colorbox{NoteColor}{\\usebox{\\@tempboxa}}}%
-	      {%
-	         \\ifthenelse%
-	         {\\equal{\\py@noticetype}{warning}}%
-	         {\\colorbox{WarningColor}{\\usebox{\\@tempboxa}}}%
-		 {%
-	            \\ifthenelse%
-	            {\\equal{\\py@noticetype}{attention}}%
-	            {\\colorbox{AttentionColor}{\\usebox{\\@tempboxa}}}%
-		    {%
-	               \\ifthenelse%
-	               {\\equal{\\py@noticetype}{important}}%
-	               {\\colorbox{ImportantColor}{\\usebox{\\@tempboxa}}}%
-	               {\\colorbox{OtherColor}{\\usebox{\\@tempboxa}}}%
-		    }%
-		 }%
-	      }%
-        }\\makeatother
-
-        \\makeatletter
-        \\renewenvironment{notice}[2]{%
-          \\def\\py@noticetype{#1}
-          \\begin{coloredbox}{#1}
-          \\bf\\it
-          \\par\\strong{#2}
-          \\csname py@noticestart@#1\\endcsname
-        }
-	{
-          \\csname py@noticeend@\\py@noticetype\\endcsname
-          \\end{coloredbox}
-        }
-	\\makeatother
-
+cjk_cmd = check_output(['fc-list', '--format="%{family[0]}\n"']).decode('utf-8', 'ignore')
+if cjk_cmd.find("Noto Sans CJK SC") >= 0:
+    print ("enabling CJK for LaTeX builder")
+    latex_elements['preamble']  += '''
+	% This is needed for translations
+        \\usepackage{xeCJK}
+        \\setCJKmainfont{Noto Sans CJK SC}
      '''
 
 # With Sphinx 1.6, it is possible to change the Bg color directly
@@ -401,6 +407,21 @@ latex_documents = [
     ('index', 'u-boot-hacker-manual.tex', 'U-Boot Hacker Manual',
      'The U-Boot development community', 'manual'),
 ]
+
+# Add all other index files from Documentation/ subdirectories
+for fn in os.listdir('.'):
+    doc = os.path.join(fn, "index")
+    if os.path.exists(doc + ".rst"):
+        has = False
+        for l in latex_documents:
+            if l[0] == doc:
+                has = True
+                break
+        if not has:
+            latex_documents.append((doc, fn + '.tex',
+                                    'U-Boot %s Documentation' % fn.capitalize(),
+                                    'The U-Boot development community',
+                                    'manual'))
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -535,7 +556,7 @@ epub_exclude_files = ['search.html']
 # Grouping the document tree into PDF files. List of tuples
 # (source start file, target name, title, author, options).
 #
-# See the Sphinx chapter of http://ralsina.me/static/manual.pdf
+# See the Sphinx chapter of https://ralsina.me/static/manual.pdf
 #
 # FIXME: Do not add the index file here; the result will be too big. Adding
 # multiple PDF files here actually tries to get the cross-referencing right

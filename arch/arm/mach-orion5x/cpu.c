@@ -20,7 +20,7 @@
 
 #define BUFLEN	16
 
-void reset_cpu(unsigned long ignored)
+void reset_cpu(void)
 {
 	struct orion5x_cpu_registers *cpureg =
 	    (struct orion5x_cpu_registers *)ORION5X_CPU_REG_BASE;

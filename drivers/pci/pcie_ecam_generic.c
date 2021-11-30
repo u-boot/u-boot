@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <pci.h>
+#include <asm/global_data.h>
 
 #include <asm/io.h>
 
@@ -113,7 +114,7 @@ static int pci_generic_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
 }
 
 /**
- * pci_generic_ecam_ofdata_to_platdata() - Translate from DT to device state
+ * pci_generic_ecam_of_to_plat() - Translate from DT to device state
  * @dev: A pointer to the device being operated on
  *
  * Translate relevant data from the device tree pertaining to device @dev into
@@ -122,7 +123,7 @@ static int pci_generic_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
  *
  * Return: 0 on success, else -EINVAL
  */
-static int pci_generic_ecam_ofdata_to_platdata(struct udevice *dev)
+static int pci_generic_ecam_of_to_plat(struct udevice *dev)
 {
 	struct generic_ecam_pcie *pcie = dev_get_priv(dev);
 	struct fdt_resource reg_res;
@@ -146,7 +147,7 @@ static int pci_generic_ecam_probe(struct udevice *dev)
 {
 	struct generic_ecam_pcie *pcie = dev_get_priv(dev);
 
-	pcie->first_busno = dev->seq;
+	pcie->first_busno = dev_seq(dev);
 
 	return 0;
 }
@@ -167,6 +168,6 @@ U_BOOT_DRIVER(pci_generic_ecam) = {
 	.of_match		= pci_generic_ecam_ids,
 	.ops			= &pci_generic_ecam_ops,
 	.probe			= pci_generic_ecam_probe,
-	.ofdata_to_platdata	= pci_generic_ecam_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct generic_ecam_pcie),
+	.of_to_plat	= pci_generic_ecam_of_to_plat,
+	.priv_auto	= sizeof(struct generic_ecam_pcie),
 };

@@ -23,6 +23,7 @@
 #define INVALID_ID	0xffff
 
 #define GTC_CNTCR_REG	0x0
+#define GTC_CNTFID0_REG	0x20
 #define GTC_CNTR_EN	0x3
 
 /**
@@ -31,6 +32,7 @@
  * @rproc_rst:		rproc reset control data
  * @sci:		Pointer to TISCI handle
  * @tsp:		TISCI processor control helper structure
+ * @gtc_clk:		GTC clock description
  * @gtc_base:		Timer base address.
  */
 struct k3_arm64_privdata {
@@ -38,6 +40,7 @@ struct k3_arm64_privdata {
 	struct power_domain gtc_pwrdmn;
 	struct reset_ctl rproc_rst;
 	struct ti_sci_proc tsp;
+	struct clk gtc_clk;
 	void *gtc_base;
 };
 
@@ -73,6 +76,7 @@ static int k3_arm64_load(struct udevice *dev, ulong addr, ulong size)
 static int k3_arm64_start(struct udevice *dev)
 {
 	struct k3_arm64_privdata *rproc = dev_get_priv(dev);
+	ulong gtc_rate;
 	int ret;
 
 	dev_dbg(dev, "%s\n", __func__);
@@ -82,6 +86,11 @@ static int k3_arm64_start(struct udevice *dev)
 		dev_err(dev, "power_domain_on() failed: %d\n", ret);
 		return ret;
 	}
+
+	gtc_rate = clk_get_rate(&rproc->gtc_clk);
+	dev_dbg(dev, "GTC RATE= %d\n", (u32) gtc_rate);
+	/* Store the clock frequency down for GTC users to pick  up */
+	writel((u32)gtc_rate, rproc->gtc_base + GTC_CNTFID0_REG);
 
 	/* Enable the timer before starting remote core */
 	writel(GTC_CNTR_EN, rproc->gtc_base + GTC_CNTCR_REG);
@@ -169,6 +178,12 @@ static int k3_arm64_of_to_priv(struct udevice *dev,
 		return ret;
 	}
 
+	ret = clk_get_by_index(dev, 0, &rproc->gtc_clk);
+	if (ret) {
+		dev_err(dev, "clk_get failed: %d\n", ret);
+		return ret;
+	}
+
 	ret = reset_get_by_index(dev, 0, &rproc->rproc_rst);
 	if (ret) {
 		dev_err(dev, "reset_get() failed: %d\n", ret);
@@ -226,6 +241,6 @@ U_BOOT_DRIVER(k3_arm64) = {
 	.id = UCLASS_REMOTEPROC,
 	.ops = &k3_arm64_ops,
 	.probe = k3_arm64_probe,
-	.priv_auto_alloc_size = sizeof(struct k3_arm64_privdata),
+	.priv_auto	= sizeof(struct k3_arm64_privdata),
 	.flags = DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };

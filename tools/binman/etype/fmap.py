@@ -28,8 +28,12 @@ class Entry_fmap(Entry):
 
     When used, this entry will be populated with an FMAP which reflects the
     entries in the current image. Note that any hierarchy is squashed, since
-    FMAP does not support this. Also, CBFS entries appear as a single entry -
-    the sub-entries are ignored.
+    FMAP does not support this. Sections are represented as an area appearing
+    before its contents, so that it is possible to reconstruct the hierarchy
+    from the FMAP by using the offset information. This convention does not
+    seem to be documented, but is used in Chromium OS.
+
+    CBFS entries appear as a single entry, i.e. the sub-entries are ignored.
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)
@@ -45,6 +49,17 @@ class Entry_fmap(Entry):
             tout.Debug("fmap: Add entry '%s' type '%s' (%s subentries)" %
                        (entry.GetPath(), entry.etype, ToHexSize(entries)))
             if entries and entry.etype != 'cbfs':
+                # Create an area for the section, which encompasses all entries
+                # within it
+                if entry.image_pos is None:
+                    pos = 0
+                else:
+                    pos = entry.image_pos - entry.GetRootSkipAtStart()
+
+                # Drop @ symbols in name
+                name = entry.name.replace('@', '')
+                areas.append(
+                    fmap_util.FmapArea(pos, entry.size or 0, name, 0))
                 for subentry in entries.values():
                     _AddEntries(areas, subentry)
             else:
@@ -52,7 +67,7 @@ class Entry_fmap(Entry):
                 if pos is not None:
                     pos -= entry.section.GetRootSkipAtStart()
                 areas.append(fmap_util.FmapArea(pos or 0, entry.size or 0,
-                                            tools.FromUnicode(entry.name), 0))
+                                                entry.name, 0))
 
         entries = self.GetImage().GetEntries()
         areas = []

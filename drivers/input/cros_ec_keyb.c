@@ -251,5 +251,5 @@ U_BOOT_DRIVER(google_cros_ec_keyb) = {
 	.of_match = cros_ec_kbd_ids,
 	.probe = cros_ec_kbd_probe,
 	.ops	= &cros_ec_kbd_ops,
-	.priv_auto_alloc_size = sizeof(struct cros_ec_keyb_priv),
+	.priv_auto	= sizeof(struct cros_ec_keyb_priv),
 };

@@ -9,6 +9,7 @@
 #include <log.h>
 #include <asm/fsp/fsp_support.h>
 #include <asm/e820.h>
+#include <asm/global_data.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
@@ -47,12 +48,28 @@ int dram_init_banksize(void)
 	phys_addr_t mtrr_top;
 	phys_addr_t low_end;
 	uint bank;
+	bool update_mtrr;
+
+	/*
+	 * For FSP1, the system memory and reserved memory used by FSP are
+	 * already programmed in the MTRR by FSP. Also it is observed that
+	 * FSP on Intel Queensbay platform reports the TSEG memory range
+	 * that has the same RES_MEM_RESERVED resource type whose address
+	 * is programmed by FSP to be near the top of 4 GiB space, which is
+	 * not what we want for DRAM.
+	 *
+	 * However it seems FSP2's behavior is different. We need to add the
+	 * DRAM range in MTRR otherwise the boot process goes very slowly,
+	 * which was observed on Chrromebook Coral with FSP2.
+	 */
+	update_mtrr = CONFIG_IS_ENABLED(FSP_VERSION2);
 
 	if (!ll_boot_init()) {
 		gd->bd->bi_dram[0].start = 0;
 		gd->bd->bi_dram[0].size = gd->ram_size;
 
-		mtrr_add_request(MTRR_TYPE_WRBACK, 0, gd->ram_size);
+		if (update_mtrr)
+			mtrr_add_request(MTRR_TYPE_WRBACK, 0, gd->ram_size);
 		return 0;
 	}
 
@@ -75,8 +92,10 @@ int dram_init_banksize(void)
 		} else {
 			gd->bd->bi_dram[bank].start = res_desc->phys_start;
 			gd->bd->bi_dram[bank].size = res_desc->len;
-			mtrr_add_request(MTRR_TYPE_WRBACK, res_desc->phys_start,
-					 res_desc->len);
+			if (update_mtrr)
+				mtrr_add_request(MTRR_TYPE_WRBACK,
+						 res_desc->phys_start,
+						 res_desc->len);
 			log_debug("ram %llx %llx\n",
 				  gd->bd->bi_dram[bank].start,
 				  gd->bd->bi_dram[bank].size);
@@ -91,7 +110,8 @@ int dram_init_banksize(void)
 	 * Set up an MTRR to the top of low, reserved memory. This is necessary
 	 * for graphics to run at full speed in U-Boot.
 	 */
-	mtrr_add_request(MTRR_TYPE_WRBACK, 0, mtrr_top);
+	if (update_mtrr)
+		mtrr_add_request(MTRR_TYPE_WRBACK, 0, mtrr_top);
 
 	return 0;
 }

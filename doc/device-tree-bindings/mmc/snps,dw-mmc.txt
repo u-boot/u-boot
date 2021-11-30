@@ -30,4 +30,3 @@ mmc0@f000a000 {
 	clock-names = "biu", "ciu";
 	max-frequency = <25000000>;
 };
-

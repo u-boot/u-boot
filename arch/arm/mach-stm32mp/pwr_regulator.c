@@ -3,12 +3,15 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_REGULATOR
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <syscon.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <dm/device-internal.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <power/pmic.h>
@@ -59,7 +62,7 @@ static int stm32mp_pwr_read(struct udevice *dev, uint reg, uint8_t *buff,
 	return 0;
 }
 
-static int stm32mp_pwr_ofdata_to_platdata(struct udevice *dev)
+static int stm32mp_pwr_of_to_plat(struct udevice *dev)
 {
 	struct stm32mp_pwr_priv *priv = dev_get_priv(dev);
 
@@ -80,7 +83,7 @@ static int stm32mp_pwr_bind(struct udevice *dev)
 {
 	int children;
 
-	children = pmic_bind_children(dev, dev->node, pwr_children_info);
+	children = pmic_bind_children(dev, dev_ofnode(dev), pwr_children_info);
 	if (!children)
 		dev_dbg(dev, "no child found\n");
 
@@ -103,8 +106,8 @@ U_BOOT_DRIVER(stm32mp_pwr_pmic) = {
 	.of_match = stm32mp_pwr_ids,
 	.bind = stm32mp_pwr_bind,
 	.ops = &stm32mp_pwr_ops,
-	.ofdata_to_platdata = stm32mp_pwr_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct stm32mp_pwr_priv),
+	.of_to_plat = stm32mp_pwr_of_to_plat,
+	.priv_auto	= sizeof(struct stm32mp_pwr_priv),
 };
 
 static const struct stm32mp_pwr_reg_info stm32mp_pwr_reg11 = {
@@ -135,9 +138,9 @@ static const struct stm32mp_pwr_reg_info *stm32mp_pwr_reg_infos[] = {
 static int stm32mp_pwr_regulator_probe(struct udevice *dev)
 {
 	const struct stm32mp_pwr_reg_info **p = stm32mp_pwr_reg_infos;
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 
 	while (*p) {
 		int rc;
@@ -165,16 +168,16 @@ static int stm32mp_pwr_regulator_probe(struct udevice *dev)
 	}
 
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
-	dev->priv = (void *)*p;
+	dev_set_priv(dev, (void *)*p);
 
 	return 0;
 }
 
 static int stm32mp_pwr_regulator_set_value(struct udevice *dev, int uV)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
@@ -188,9 +191,9 @@ static int stm32mp_pwr_regulator_set_value(struct udevice *dev, int uV)
 
 static int stm32mp_pwr_regulator_get_value(struct udevice *dev)
 {
-	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct dm_regulator_uclass_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 

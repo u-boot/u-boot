@@ -28,7 +28,7 @@ enum gpio_state {
 };
 
 /* Details about a GPIO bank */
-struct sifive_gpio_platdata {
+struct sifive_gpio_plat {
 	void *base;     /* address of registers in physical memory */
 };
 

@@ -11,29 +11,14 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 #define CONFIG_SYS_FSL_CLK
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
-
-#define CONFIG_REVISION_TAG
-
 /* USB Configs */
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_MCS7830
-#define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* Command definition */
-
-#define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 
 #define PPD_CONFIG_NFS \
 	"nfsserver=192.168.252.95\0" \
@@ -64,23 +49,25 @@
 		"vt.global_cursor_default=0 bootcause=${bootcause} ${quiet}\0" \
 	"bootargs_emmc=setenv bootargs root=/dev/${rootdev}${partnum} ro " \
 		"rootwait ${bootargs}\0" \
-	"doquiet=if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
-		"then setenv quiet; fi\0" \
+	"doquiet=" \
+		"if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
+			"then setenv quiet; fi\0" \
 	"hasfirstboot=" \
 		"test -e ${dev} ${devnum}:${partnum} /boot/bootcause/firstboot\0" \
-	"swappartitions=setexpr partnum 3 - ${partnum}\0" \
+	"swappartitions=" \
+		"setexpr partnum 3 - ${partnum}\0" \
 	"failbootcmd=" \
 		"cls; " \
 		"setcurs 5 4; " \
 		"lcdputs \"Monitor failed to start. " \
 		"Try again, or contact GE Service for support.\"; " \
-		"bootcount reset; \0" \
+		"bootcount reset; " \
+		"while true; do sleep 1; done; \0" \
 	"altbootcmd=" \
 		"run doquiet; " \
 		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
 		"run hasfirstboot || setenv partnum 0; " \
 		"if test ${partnum} != 0; then " \
-			"setenv bootcause REVERT; " \
 			"run swappartitions loadimage doboot; " \
 		"fi; " \
 		"run failbootcmd\0" \
@@ -100,13 +87,11 @@
 	"video-mode=" \
 		"lcd:800x480-24@60,monitor=lcd\0" \
 
-#define CONFIG_MMCBOOTCOMMAND \
-	"if mmc dev ${devnum}; then " \
-		"run doquiet; " \
-		"run tryboot; " \
-	"fi; " \
+#define MMCBOOTCOMMAND \
+	"run doquiet; " \
+	"run tryboot; " \
 
-#define CONFIG_BOOTCOMMAND CONFIG_MMCBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND MMCBOOTCOMMAND
 
 #define CONFIG_ARP_TIMEOUT	200UL
 
@@ -115,8 +100,6 @@
 
 #define CONFIG_SYS_MAXARGS	48	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
 

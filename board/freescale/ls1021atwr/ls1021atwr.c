@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <init.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>
@@ -40,7 +41,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define VERSION_MASK		0x00FF
 #define BANK_MASK		0x0001
-#define CONFIG_RESET		0x1
+#define CFG_RESET		0x1
 #define INIT_RESET		0x1
 
 #define CPLD_SET_MUX_SERDES	0x20
@@ -282,7 +283,7 @@ static void convert_serdes_mux(int type, int need_reset)
 
 	if (need_reset == 1) {
 		printf("Reset board to enable configuration\n");
-		cpld_data->system_rst = CONFIG_RESET;
+		cpld_data->system_rst = CFG_RESET;
 	}
 }
 
@@ -457,7 +458,7 @@ void ls1twr_program_regulator(void)
 #define MC34VR500_ADDR			0x8
 #define MC34VR500_DEVICEID		0x4
 #define MC34VR500_DEVICEID_MASK		0x0f
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 
@@ -611,7 +612,7 @@ static void convert_flash_bank(char bank)
 	cpld_data->vbank = bank;
 
 	printf("Reset board to enable configuration.\n");
-	cpld_data->system_rst = CONFIG_RESET;
+	cpld_data->system_rst = CFG_RESET;
 }
 
 static int flash_bank_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -643,7 +644,7 @@ static int cpld_reset_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc > 2)
 		return CMD_RET_USAGE;
 	if ((argc == 1) || (strcmp(argv[1], "conf") == 0))
-		cpld_data->system_rst = CONFIG_RESET;
+		cpld_data->system_rst = CFG_RESET;
 	else if (strcmp(argv[1], "init") == 0)
 		cpld_data->global_rst = INIT_RESET;
 	else

@@ -57,7 +57,7 @@
 	};
 
 	onewire_tm: onewire {
-		gpios = <&pioA PIN_PB31 0>;
+		gpios = <&pioA PIN_PB31 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_onewire_tm_default>;
 		status = "okay";
@@ -76,7 +76,7 @@
 			status = "okay";
 		};
 
-		usb1: ohci@00400000 {
+		usb1: ohci@400000 {
 			num-ports = <3>;
 			atmel,vbus-gpio = <0
 					   &pioA PIN_PB12 GPIO_ACTIVE_HIGH
@@ -87,7 +87,7 @@
 			status = "okay";
 		};
 
-		usb2: ehci@00500000 {
+		usb2: ehci@500000 {
 			status = "okay";
 		};
 

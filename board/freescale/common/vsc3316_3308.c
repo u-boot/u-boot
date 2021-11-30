@@ -34,7 +34,7 @@ int vsc_if_enable(unsigned int vsc_addr)
 
 	/* enable 2-wire Serial InterFace (I2C) */
 	data = 0x02;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	int ret, bus_num = 0;
 	struct udevice *dev;
 
@@ -62,7 +62,7 @@ int vsc3316_config(unsigned int vsc_addr, int8_t con_arr[][2],
 	debug("VSC:Initializing VSC3316 at I2C address 0x%2x"
 		" for Tx\n", vsc_addr);
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	int bus_num = 0;
 	struct udevice *dev;
 
@@ -185,7 +185,7 @@ int vsc3308_config_adjust(unsigned int vsc_addr, const int8_t con_arr[][2],
 	debug("VSC:Initializing VSC3308 at I2C address 0x%x for Tx\n",
 	      vsc_addr);
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	int bus_num = 0;
 	struct udevice *dev;
 
@@ -385,7 +385,7 @@ int vsc3308_config(unsigned int vsc_addr, const int8_t con_arr[][2],
 
 	debug("VSC:Initializing VSC3308 at I2C address 0x%x"
 		" for Tx\n", vsc_addr);
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	int bus_num = 0;
 	struct udevice *dev;
 
@@ -509,7 +509,7 @@ void vsc_wp_config(unsigned int vsc_addr)
 
 	/* For new crosspoint configuration to occur, WP bit of
 	 * CORE_CONFIG_REG should be set 1 and then reset to 0 */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	int ret, bus_num = 0;
 	struct udevice *dev;
 

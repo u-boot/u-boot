@@ -16,7 +16,6 @@
 #define PHYS_SDRAM_1			V2M_BASE
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_LOAD_ADDR		(PHYS_SDRAM_1 + 0x80000)
 
 /*
  * Initial SP before reloaction is placed at end of first DRAM bank,
@@ -26,7 +25,6 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(PHYS_SDRAM_1 + 0x80000000)
 /* 12MB Malloc size */
-#define CONFIG_SYS_MALLOC_LEN		(SZ_8M + SZ_4M)
 
 /* console configuration */
 #define CONFIG_SYS_NS16550_CLK		25000000
@@ -44,7 +42,6 @@
 #define CONFIG_SYS_BOOTM_LEN		0x01800000
 
 /* Access eMMC Boot_1 and Boot_2 partitions */
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* enable 64-bit PCI resources */
 #define CONFIG_SYS_PCI_64BIT		1

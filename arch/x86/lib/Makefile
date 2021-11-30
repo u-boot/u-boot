@@ -3,6 +3,7 @@
 # (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
+obj-y	+= bdinfo.o
 ifndef CONFIG_X86_64
 ifndef CONFIG_TPL_BUILD
 obj-y += bios.o
@@ -15,6 +16,7 @@ ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 endif
 obj-y	+= cmd_boot.o
+obj-$(CONFIG_$(SPL_)COREBOOT_SYSINFO)	+= coreboot/
 obj-$(CONFIG_SEABIOS) += coreboot_table.o
 obj-y	+= early_cmos.o
 obj-y	+= e820.o

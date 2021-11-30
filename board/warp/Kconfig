@@ -6,4 +6,7 @@ config SYS_BOARD
 config SYS_CONFIG_NAME
 	default "warp"
 
+config IMX_CONFIG
+	default "board/warp/imximage.cfg"
+
 endif

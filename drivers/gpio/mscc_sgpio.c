@@ -275,5 +275,5 @@ U_BOOT_DRIVER(gpio_mscc_sgpio) = {
 	.of_match		= mscc_sgpio_ids,
 	.ops			= &mscc_sgpio_ops,
 	.probe			= mscc_sgpio_probe,
-	.priv_auto_alloc_size	= sizeof(struct mscc_sgpio_priv),
+	.priv_auto	= sizeof(struct mscc_sgpio_priv),
 };

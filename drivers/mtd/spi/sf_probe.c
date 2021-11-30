@@ -84,7 +84,7 @@ struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 void spi_flash_free(struct spi_flash *flash)
 {
 	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
-		spi_flash_mtd_unregister();
+		spi_flash_mtd_unregister(flash);
 
 	spi_free_slave(flash->spi);
 	free(flash);
@@ -130,6 +130,13 @@ static int spi_flash_std_erase(struct udevice *dev, u32 offset, size_t len)
 	return mtd->_erase(mtd, &instr);
 }
 
+static int spi_flash_std_get_sw_write_prot(struct udevice *dev)
+{
+	struct spi_flash *flash = dev_get_uclass_priv(dev);
+
+	return spi_flash_cmd_get_sw_write_prot(flash);
+}
+
 int spi_flash_std_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parent_priv(dev);
@@ -143,8 +150,15 @@ int spi_flash_std_probe(struct udevice *dev)
 
 static int spi_flash_std_remove(struct udevice *dev)
 {
+	struct spi_flash *flash = dev_get_uclass_priv(dev);
+	int ret;
+
+	ret = spi_nor_remove(flash);
+	if (ret)
+		return ret;
+
 	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
-		spi_flash_mtd_unregister();
+		spi_flash_mtd_unregister(flash);
 
 	return 0;
 }
@@ -153,6 +167,7 @@ static const struct dm_spi_flash_ops spi_flash_std_ops = {
 	.read = spi_flash_std_read,
 	.write = spi_flash_std_write,
 	.erase = spi_flash_std_erase,
+	.get_sw_write_prot = spi_flash_std_get_sw_write_prot,
 };
 
 static const struct udevice_id spi_flash_std_ids[] = {
@@ -166,10 +181,11 @@ U_BOOT_DRIVER(jedec_spi_nor) = {
 	.of_match	= spi_flash_std_ids,
 	.probe		= spi_flash_std_probe,
 	.remove		= spi_flash_std_remove,
-	.priv_auto_alloc_size = sizeof(struct spi_flash),
+	.priv_auto	= sizeof(struct spi_nor),
 	.ops		= &spi_flash_std_ops,
+	.flags		= DM_FLAG_OS_PREPARE,
 };
 
-U_BOOT_DRIVER_ALIAS(jedec_spi_nor, spansion_m25p16)
+DM_DRIVER_ALIAS(jedec_spi_nor, spansion_m25p16)
 
 #endif /* CONFIG_DM_SPI_FLASH */

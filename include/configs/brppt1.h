@@ -16,7 +16,6 @@
 #include <linux/stringify.h>
 /* ------------------------------------------------------------------------- */
 /* memory */
-#define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
 #define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
 /* Clock Defines */
@@ -24,13 +23,6 @@
 #define V_SCLK				(V_OSCK)
 
 #define CONFIG_POWER_TPS65217
-
-/* Support both device trees and ATAGs. */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-/*#define CONFIG_MACH_TYPE		3589*/
-#define CONFIG_MACH_TYPE		0xFFFFFFFF /* TODO: check with kernel*/
 
 /*
  * When we have NAND flash we expect to be making use of mtdparts,
@@ -54,7 +46,6 @@
 
 #ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #endif /* CONFIG_MTD_RAW_NAND */
 
 #ifdef CONFIG_MTD_RAW_NAND
@@ -153,14 +144,6 @@ NANDTGTS \
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x8000000
 /* don't change OMAP_ELM, ECCSCHEME. ROM code only supports this */
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
-					CONFIG_SYS_NAND_PAGE_SIZE)
-#define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9, \
 					10, 11, 12, 13, 14, 15, 16, 17, \
 					18, 19, 20, 21, 22, 23, 24, 25, \

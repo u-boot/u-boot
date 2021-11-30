@@ -12,7 +12,6 @@
 #include "imx6_spl.h"
 #endif
 
-#define CONFIG_MACH_TYPE	3529
 #define CONFIG_MXC_UART_BASE	UART4_BASE
 #define CONSOLE_DEV		"ttymxc3"
 
@@ -50,25 +49,13 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
-/* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_SPEED		100000
-
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
 #define CONFIG_SYS_NAND_BASE           0x40000000
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 
 /* PMIC */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 

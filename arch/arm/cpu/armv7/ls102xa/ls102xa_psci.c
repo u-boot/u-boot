@@ -13,7 +13,7 @@
 #include <fsl_immap.h>
 #include "fsl_epu.h"
 
-#define __secure __attribute__((section("._secure.text")))
+#define __secure __section("._secure.text")
 
 #define CCSR_GICD_CTLR			0x1000
 #define CCSR_GICC_CTLR			0x2000

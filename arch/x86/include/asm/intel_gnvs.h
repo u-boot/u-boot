@@ -9,6 +9,7 @@
 #ifndef _INTEL_GNVS_H_
 #define _INTEL_GNVS_H_
 
+#include <linux/bitops.h>
 /*
  * The chromeos_acpi portion of ACPI GNVS is assumed to live from offset
  * 0x100 - 0x1000.  When defining acpi_global_nvs, use check_member
@@ -19,10 +20,31 @@
 #define GNVS_CHROMEOS_ACPI_OFFSET 0x100
 
 enum {
+	BOOT_REASON_OTHER = 0,
+	BOOT_REASON_S3DIAG = 9
+};
+
+enum {
 	CHSW_RECOVERY_X86 =		BIT(1),
 	CHSW_RECOVERY_EC =		BIT(2),
 	CHSW_DEVELOPER_SWITCH =		BIT(5),
 	CHSW_FIRMWARE_WP =		BIT(9),
+};
+
+enum {
+	RECOVERY_REASON_NONE = 0,
+	RECOVERY_REASON_ME = 1
+};
+
+enum {
+	ACTIVE_ECFW_RO = 0,
+	ACTIVE_ECFW_RW = 1
+};
+
+enum {
+	BINF_RECOVERY = 0,
+	BINF_RW_A = 1,
+	BINF_RW_B = 2
 };
 
 enum {
@@ -40,14 +62,14 @@ struct __packed chromeos_acpi_gnvs {
 	u32	active_main_fw;	/* 04 (0=recovery, 1=A, 2=B) */
 	u32	activeec_fw;	/* 08 (0=RO, 1=RW) */
 	u16	switches;	/* 0c CHSW */
-	u8	vbt4[256];	/* 0e HWID */
-	u8	vbt5[64];	/* 10e FWID */
-	u8	vbt6[64];	/* 14e FRID - 275 */
+	u8	hwid[256];	/* 0e HWID */
+	u8	fwid[64];	/* 10e FWID */
+	u8	frid[64];	/* 14e FRID - 275 */
 	u32	main_fw_type;	/* 18e (2 = developer mode) */
-	u32	vbt8;		/* 192 recovery reason */
-	u32	vbt9;		/* 196 fmap base address */
+	u32	recovery_reason; /* 192 recovery reason */
+	u32	fmap_base;	/* 196 fmap base address */
 	u8	vdat[3072];	/* 19a VDAT space filled by verified boot */
-	u32	vbt10;		/* d9a smbios bios version */
+	u32	fwid_ptr;	/* d9a smbios bios version */
 	u32	mehh[8];	/* d9e management engine hash */
 	u32	ramoops_base;	/* dbe ramoops base address */
 	u32	ramoops_len;	/* dc2 ramoops length */
@@ -85,6 +107,10 @@ struct __packed acpi_global_nvs {
 	u8	unused2[0x1000 - 0x100];	/* Pad out to 4096 bytes */
 #endif
 };
+#ifdef CONFIG_CHROMEOS
 check_member(acpi_global_nvs, chromeos, GNVS_CHROMEOS_ACPI_OFFSET);
+#else
+check_member(acpi_global_nvs, unused2, GNVS_CHROMEOS_ACPI_OFFSET);
+#endif
 
 #endif /* _INTEL_GNVS_H_ */

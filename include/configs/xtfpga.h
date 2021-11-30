@@ -65,8 +65,6 @@
 # define CONFIG_SYS_MONITOR_LEN		0x00040000	/* 256KB */
 #endif
 
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* heap  256KB */
-
 /* Linux boot param area in RAM (used only when booting linux) */
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64  << 10)
 
@@ -97,9 +95,6 @@
 
 #define XTENSA_SYS_TEXT_ADDR		\
 	(MEMADDR(CONFIG_SYS_MEMORY_SIZE) - CONFIG_SYS_MONITOR_LEN)
-
-/* Used by tftpboot; env var 'loadaddr' */
-#define CONFIG_SYS_LOAD_ADDR		MEMADDR(0x02000000)
 
 /*==============================*/
 /* U-Boot general configuration */
@@ -175,7 +170,6 @@
 
 /* Input clk to NS16550 (in Hz; the SYS_CLK_FREQ is in kHz) */
 #define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*======================*/
 /* Ethernet Driver Info */

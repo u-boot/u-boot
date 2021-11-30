@@ -113,5 +113,5 @@ U_BOOT_DRIVER(intel_mid_pmu) = {
 	.id		= UCLASS_SYSCON,
 	.of_match	= pmu_mid_match,
 	.probe		= pmu_mid_probe,
-	.priv_auto_alloc_size = sizeof(struct pmu_mid),
+	.priv_auto	= sizeof(struct pmu_mid),
 };

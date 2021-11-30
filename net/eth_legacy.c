@@ -13,6 +13,7 @@
 #include <log.h>
 #include <net.h>
 #include <phy.h>
+#include <asm/global_data.h>
 #include <linux/bug.h>
 #include <linux/errno.h>
 #include <net/pcap.h>
@@ -113,7 +114,7 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 		return 0;
 
 	/* look for an index after "eth" */
-	index = simple_strtoul(name + 3, NULL, 10);
+	index = dectoul(name + 3, NULL);
 
 	dev = eth_devices;
 	do {
@@ -365,7 +366,7 @@ int eth_send(void *packet, int length)
 	ret = eth_current->send(eth_current, packet, length);
 #if defined(CONFIG_CMD_PCAP)
 	if (ret >= 0)
-		pcap_post(packet, lengeth, true);
+		pcap_post(packet, length, true);
 #endif
 	return ret;
 }

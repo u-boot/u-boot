@@ -1,7 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Devicetree file for running sandbox tests
+ *
+ * This includes lots of extra devices used by various tests.
+ *
+ * Note that SPL use the main sandbox.dts file
+ */
+
 /dts-v1/;
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/gpio/sandbox-gpio.h>
+#include <dt-bindings/input/input.h>
 #include <dt-bindings/pinctrl/sandbox-pinmux.h>
 #include <dt-bindings/mux/mux.h>
 
@@ -13,9 +23,11 @@
 
 	aliases {
 		console = &uart0;
-		eth0 = "/eth@10002000";
-		eth3 = &eth_3;
-		eth5 = &eth_5;
+		ethernet0 = "/eth@10002000";
+		ethernet2 = &swp_0;
+		ethernet3 = &eth_3;
+		ethernet4 = &dsa_eth0;
+		ethernet5 = &eth_5;
 		gpio1 = &gpio_a;
 		gpio2 = &gpio_b;
 		gpio3 = &gpio_c;
@@ -33,10 +45,11 @@
 		testfdt6 = "/e-test";
 		testbus3 = "/some-bus";
 		testfdt0 = "/some-bus/c-test@0";
-		testfdt1 = "/some-bus/c-test@1";
+		testfdt12 = "/some-bus/c-test@1";
 		testfdt3 = "/b-test";
 		testfdt5 = "/some-bus/c-test@5";
 		testfdt8 = "/a-test";
+		testfdtm1 = &testfdtm1;
 		fdt-dummy0 = "/translation-test@8000/dev@0,0";
 		fdt-dummy1 = "/translation-test@8000/dev@1,100";
 		fdt-dummy2 = "/translation-test@8000/dev@2,200";
@@ -46,6 +59,34 @@
 		usb2 = &usb_2;
 		axi0 = &axi;
 		osd0 = "/osd";
+	};
+
+	config {
+		testing-bool;
+		testing-int = <123>;
+		testing-str = "testing";
+		environment {
+			from_fdt = "yes";
+			fdt_env_path = "";
+		};
+	};
+
+	reboot-mode0 {
+		compatible = "reboot-mode-gpio";
+		gpios = <&gpio_c 0 GPIO_ACTIVE_HIGH>, <&gpio_c 1 GPIO_ACTIVE_HIGH>;
+		u-boot,env-variable = "bootstatus";
+		mode-test = <0x01>;
+		mode-download = <0x03>;
+	};
+
+	reboot_mode1: reboot-mode@14 {
+		compatible = "reboot-mode-rtc";
+		rtc = <&rtc_0>;
+		reg = <0x30 4>;
+		u-boot,env-variable = "bootstatus";
+		big-endian;
+		mode-test = <0x21969147>;
+		mode-download = <0x51939147>;
 	};
 
 	audio: audio-codec {
@@ -64,6 +105,30 @@
 		btn2 {
 			gpios = <&gpio_a 4 0>;
 			label = "button2";
+		};
+	};
+
+	buttons2 {
+		compatible = "adc-keys";
+		io-channels = <&adc 3>;
+		keyup-threshold-microvolt = <3000000>;
+
+		button-up {
+			label = "button3";
+			linux,code = <KEY_F3>;
+			press-threshold-microvolt = <1500000>;
+		};
+
+		button-down {
+			label = "button4";
+			linux,code = <KEY_F4>;
+			press-threshold-microvolt = <1000000>;
+		};
+
+		button-enter {
+			label = "button5";
+			linux,code = <KEY_F5>;
+			press-threshold-microvolt = <500000>;
 		};
 	};
 
@@ -88,12 +153,28 @@
 			wp-ro {
 				image-pos = <0xf000>;
 				size = <0x1000>;
+				used = <0x884>;
+				compress = "lz4";
+				uncomp-size = <0xcf8>;
+				hash {
+					algo = "sha256";
+					value = [00 01 02 03 04 05 06 07
+						08 09 0a 0b 0c 0d 0e 0f
+						10 11 12 13 14 15 16 17
+						18 19 1a 1b 1c 1d 1e 1f];
+				};
 			};
 			rw {
 				image-pos = <0x10000>;
 				size = <0x10000>;
 			};
 		};
+
+		cros_ec_pwm: cros-ec-pwm {
+			compatible = "google,cros-ec-pwm";
+			#pwm-cells = <1>;
+		};
+
 	};
 
 	dsi_host: dsi_host {
@@ -140,6 +221,52 @@
 			       <&muxcontroller1>;
 		mux-control-names = "mux0", "mux1", "mux2", "mux3", "mux4";
 		mux-syscon = <&syscon3>;
+		display-timings {
+			timing0: 240x320 {
+				clock-frequency = <6500000>;
+				hactive = <240>;
+				vactive = <320>;
+				hfront-porch = <6>;
+				hback-porch = <7>;
+				hsync-len = <1>;
+				vback-porch = <5>;
+				vfront-porch = <8>;
+				vsync-len = <2>;
+				hsync-active = <1>;
+				vsync-active = <0>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+				interlaced;
+				doublescan;
+				doubleclk;
+			};
+			timing1: 480x800 {
+				clock-frequency = <9000000>;
+				hactive = <480>;
+				vactive = <800>;
+				hfront-porch = <10>;
+				hback-porch = <59>;
+				hsync-len = <12>;
+				vback-porch = <15>;
+				vfront-porch = <17>;
+				vsync-len = <16>;
+				hsync-active = <0>;
+				vsync-active = <1>;
+				de-active = <0>;
+				pixelclk-active = <0>;
+			};
+			timing2: 800x480 {
+				clock-frequency = <33500000>;
+				hactive = <800>;
+				vactive = <480>;
+				hback-porch = <89>;
+				hfront-porch = <164>;
+				vback-porch = <23>;
+				vfront-porch = <10>;
+				hsync-len = <11>;
+				vsync-len = <13>;
+			};
+		};
 	};
 
 	junk {
@@ -292,6 +419,27 @@
 		test5-gpios = <&gpio_a 19>;
 	};
 
+	mmio-bus@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "denx,u-boot-test-bus";
+		dma-ranges = <0x10000000 0x00000000 0x00040000>;
+
+		subnode@0 {
+			compatible = "denx,u-boot-fdt-test";
+		};
+	};
+
+	mmio-bus@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "denx,u-boot-test-bus";
+
+		subnode@0 {
+			compatible = "denx,u-boot-fdt-test";
+		};
+	};
+
 	acpi_test1: acpi-test {
 		compatible = "denx,u-boot-acpi-test";
 		acpi-ssdt-test-data = "ab";
@@ -374,6 +522,48 @@
 		fake-host-hwaddr = [00 00 66 44 22 22];
 	};
 
+	dsa_eth0: dsa-test-eth {
+		compatible = "sandbox,eth";
+		reg = <0x10006000 0x1000>;
+		fake-host-hwaddr = [00 00 66 44 22 66];
+	};
+
+	dsa-test {
+		compatible = "sandbox,dsa";
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			swp_0: port@0 {
+				reg = <0>;
+				label = "lan0";
+				phy-mode = "rgmii-rxid";
+
+				fixed-link {
+					speed = <100>;
+					full-duplex;
+				};
+			};
+
+			swp_1: port@1 {
+				reg = <1>;
+				label = "lan1";
+				phy-mode = "rgmii-txid";
+				fixed-link = <0 1 100 0 0>;
+			};
+
+			port@2 {
+				reg = <2>;
+				ethernet = <&dsa_eth0>;
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+		};
+	};
+
 	firmware {
 		sandbox_firmware: sandbox-firmware {
 			compatible = "sandbox,firmware";
@@ -392,6 +582,27 @@
 			reset_scmi0: protocol@16 {
 				reg = <0x16>;
 				#reset-cells = <1>;
+			};
+
+			protocol@17 {
+				reg = <0x17>;
+
+				regulators {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					regul0_scmi0: reg@0 {
+						reg = <0>;
+						regulator-name = "sandbox-voltd0";
+						regulator-min-microvolt = <1100000>;
+						regulator-max-microvolt = <3300000>;
+					};
+					regul1_scmi0: reg@1 {
+						reg = <0x1>;
+						regulator-name = "sandbox-voltd1";
+						regulator-min-microvolt = <1800000>;
+					};
+				};
 			};
 		};
 
@@ -465,6 +676,9 @@
 		reg = <0 1>;
 		compatible = "sandbox,i2c";
 		clock-frequency = <100000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_i2c0_pins>;
+
 		eeprom@2c {
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
@@ -500,10 +714,10 @@
 				sandbox,size = <256>;
 			};
 			emul0: emul0 {
-				compatible = "sandbox,i2c-rtc";
+				compatible = "sandbox,i2c-rtc-emul";
 			};
 			emul1: emull {
-				compatible = "sandbox,i2c-rtc";
+				compatible = "sandbox,i2c-rtc-emul";
 			};
 		};
 
@@ -529,10 +743,30 @@
 		i2c-eeprom = <&bootcount_i2c>;
 	};
 
-	adc@0 {
+	bootcount_4@0 {
+		compatible = "u-boot,bootcount-syscon";
+		syscon = <&syscon0>;
+		reg = <0x0 0x04>, <0x0 0x04>;
+		reg-names = "syscon_reg", "offset";
+	};
+
+	bootcount_2@0 {
+		compatible = "u-boot,bootcount-syscon";
+		syscon = <&syscon0>;
+		reg = <0x0 0x04>, <0x0 0x02> ;
+		reg-names = "syscon_reg", "offset";
+	};
+
+	adc: adc@0 {
 		compatible = "sandbox,adc";
+		#io-channel-cells = <1>;
 		vdd-supply = <&buck2>;
 		vss-microvolts = <0>;
+	};
+
+	iommu: iommu@0 {
+		compatible = "sandbox,iommu";
+		#iommu-cells = <0>;
 	};
 
 	irq: irq {
@@ -544,6 +778,8 @@
 	lcd {
 		u-boot,dm-pre-reloc;
 		compatible = "sandbox,lcd-sdl";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_lcd_pins>;
 		xres = <1366>;
 		yres = <768>;
 	};
@@ -574,6 +810,13 @@
 		};
 	};
 
+	gpio-wdt {
+		gpios = <&gpio_a 7 0>;
+		compatible = "linux,wdt-gpio";
+		hw_margin_ms = <100>;
+		always-running;
+	};
+
 	mbox: mbox {
 		compatible = "sandbox,mbox";
 		#mbox-cells = <1>;
@@ -586,19 +829,27 @@
 	};
 
 	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
 		timebase-frequency = <2000000>;
-		cpu-test1 {
+		cpu1: cpu@1 {
+			device_type = "cpu";
+			reg = <0x1>;
 			timebase-frequency = <3000000>;
 			compatible = "sandbox,cpu_sandbox";
 			u-boot,dm-pre-reloc;
 		};
 
-		cpu-test2 {
+		cpu2: cpu@2 {
+			device_type = "cpu";
+			reg = <0x2>;
 			compatible = "sandbox,cpu_sandbox";
 			u-boot,dm-pre-reloc;
 		};
 
-		cpu-test3 {
+		cpu3: cpu@3 {
+			device_type = "cpu";
+			reg = <0x3>;
 			compatible = "sandbox,cpu_sandbox";
 			u-boot,dm-pre-reloc;
 		};
@@ -632,6 +883,7 @@
 
 	mmc2 {
 		compatible = "sandbox,mmc";
+		non-removable;
 	};
 
 	mmc1 {
@@ -794,6 +1046,8 @@
 	pwm: pwm {
 		compatible = "sandbox,pwm";
 		#pwm-cells = <2>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_pwm_pins>;
 	};
 
 	pwm2 {
@@ -820,8 +1074,8 @@
 
 	reset-ctl-test {
 		compatible = "sandbox,reset-ctl-test";
-		resets = <&resetc 100>, <&resetc 2>;
-		reset-names = "other", "test";
+		resets = <&resetc 100>, <&resetc 2>, <&resetc 20>, <&resetc 40>;
+		reset-names = "other", "test", "test2", "test3";
 	};
 
 	rng {
@@ -864,12 +1118,23 @@
 		#size-cells = <0>;
 		reg = <0 1>;
 		compatible = "sandbox,spi";
-		cs-gpios = <0>, <&gpio_a 0>;
+		cs-gpios = <0>, <0>, <&gpio_a 0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_spi0_pins>;
+
 		spi.bin@0 {
 			reg = <0>;
 			compatible = "spansion,m25p16", "jedec,spi-nor";
 			spi-max-frequency = <40000000>;
 			sandbox,filename = "spi.bin";
+		};
+		spi.bin@1 {
+			reg = <1>;
+			compatible = "spansion,m25p16", "jedec,spi-nor";
+			spi-max-frequency = <50000000>;
+			sandbox,filename = "spi.bin";
+			spi-cpol;
+			spi-cpha;
 		};
 	};
 
@@ -917,6 +1182,18 @@
 		idle-state = <0xabcd>;
 	};
 
+	testfdtm0 {
+		compatible = "denx,u-boot-fdtm-test";
+	};
+
+	testfdtm1: testfdtm1 {
+		compatible = "denx,u-boot-fdtm-test";
+	};
+
+	testfdtm2 {
+		compatible = "denx,u-boot-fdtm-test";
+	};
+
 	timer@0 {
 		compatible = "sandbox,timer";
 		clock-frequency = <1000000>;
@@ -934,6 +1211,8 @@
 	uart0: serial {
 		compatible = "sandbox,serial";
 		u-boot,dm-pre-reloc;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinmux_uart0_pins>;
 	};
 
 	usb_0: usb@0 {
@@ -952,6 +1231,7 @@
 
 	usb_1: usb@1 {
 		compatible = "sandbox,usb";
+		iommus = <&iommu>;
 		hub {
 			compatible = "usb-hub";
 			usb,device-class = <9>;
@@ -1025,6 +1305,7 @@
 
 	wdt0: wdt@0 {
 		compatible = "sandbox,wdt";
+		hw_margin_ms = <200>;
 	};
 
 	axi: axi@0 {
@@ -1119,6 +1400,8 @@
 		compatible = "sandbox,scmi-devices";
 		clocks = <&clk_scmi0 7>, <&clk_scmi0 3>, <&clk_scmi1 1>;
 		resets = <&reset_scmi0 3>;
+		regul0-supply = <&regul0_scmi0>;
+		regul1-supply = <&regul1_scmi0>;
 	};
 
 	pinctrl {
@@ -1177,6 +1460,66 @@
 				pinmux = <SANDBOX_PINMUX(5, SANDBOX_PINMUX_CS)>,
 					 <SANDBOX_PINMUX(6, SANDBOX_PINMUX_CS)>;
 			};
+		};
+	};
+
+	pinctrl-single-no-width {
+		compatible = "pinctrl-single";
+		reg = <0x0000 0x238>;
+		#pinctrl-cells = <1>;
+		pinctrl-single,function-mask = <0x7f>;
+	};
+
+	pinctrl-single-pins {
+		compatible = "pinctrl-single";
+		reg = <0x0000 0x238>;
+		#pinctrl-cells = <1>;
+		pinctrl-single,register-width = <32>;
+		pinctrl-single,function-mask = <0x7f>;
+
+		pinmux_pwm_pins: pinmux_pwm_pins {
+			pinctrl-single,pins = < 0x48 0x06 >;
+		};
+
+		pinmux_spi0_pins: pinmux_spi0_pins {
+			pinctrl-single,pins = <
+				0x190 0x0c
+				0x194 0x0c
+				0x198 0x23
+				0x19c 0x0c
+			>;
+		};
+
+		pinmux_uart0_pins: pinmux_uart0_pins {
+			pinctrl-single,pins = <
+				0x70 0x30
+				0x74 0x00
+			>;
+		};
+	};
+
+	pinctrl-single-bits {
+		compatible = "pinctrl-single";
+		reg = <0x0000 0x50>;
+		#pinctrl-cells = <2>;
+		pinctrl-single,bit-per-mux;
+		pinctrl-single,register-width = <32>;
+		pinctrl-single,function-mask = <0xf>;
+
+		pinmux_i2c0_pins: pinmux_i2c0_pins {
+			pinctrl-single,bits = <
+				0x10 0x00002200 0x0000ff00
+			>;
+		};
+
+		pinmux_lcd_pins: pinmux_lcd_pins {
+			pinctrl-single,bits = <
+				0x40 0x22222200 0xffffff00
+				0x44 0x22222222 0xffffffff
+				0x48 0x00000022 0x000000ff
+				0x48 0x02000000 0x0f000000
+				0x4c 0x02000022 0x0f0000ff
+			>;
 		};
 	};
 
@@ -1242,6 +1585,13 @@
 		compatible = "sandbox,sysinfo-sandbox";
 	};
 
+	sysinfo-gpio {
+		compatible = "gpio-sysinfo";
+		gpios = <&gpio_a 15>, <&gpio_a 16>, <&gpio_a 17>;
+		revisions = <19>, <5>;
+		names = "rev_a", "foo";
+	};
+
 	some_regmapped-bus {
 		#address-cells = <0x1>;
 		#size-cells = <0x1>;
@@ -1257,3 +1607,4 @@
 };
 
 #include "sandbox_pmic.dtsi"
+#include "cros-ec-keyboard.dtsi"

@@ -34,7 +34,7 @@ static int do_lsblk(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv
 		uclass_foreach_dev(udev, uc) {
 			if (udev->driver != entry)
 				continue;
-			desc = dev_get_uclass_platdata(udev);
+			desc = dev_get_uclass_plat(udev);
 			printf("%c %s %u", i ? ',' : ':',
 			       blk_get_if_type_name(desc->if_type),
 			       desc->devnum);

@@ -14,8 +14,6 @@
 #undef CONFIG_SYS_AT91_MAIN_CLOCK
 #define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
 
-#define CONFIG_MISC_INIT_R
-
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x20000000
@@ -26,8 +24,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 #endif
-
-#define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
 
 /* NAND flash */
 

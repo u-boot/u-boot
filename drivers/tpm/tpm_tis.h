@@ -21,6 +21,73 @@
 #include <linux/compiler.h>
 #include <linux/types.h>
 
+/**
+ * struct tpm_tis_phy_ops - low-level TPM bus operations
+ */
+struct tpm_tis_phy_ops {
+	/* read_bytes() - Read a number of bytes from the device
+	 *
+	 * @udev:   TPM device
+	 * @addr:   offset from device base
+	 * @len:    len to read
+	 * @result: data read
+	 *
+	 * @return: 0 on success, negative on failure
+	 */
+	int (*read_bytes)(struct udevice *udev, u32 addr, u16 len,
+			  u8 *result);
+	/* write_bytes() - Read a number of bytes from the device
+	 *
+	 * @udev:   TPM device
+	 * @addr:   offset from device base
+	 * @len:    len to read
+	 * @value:  data to write
+	 *
+	 * @return: 0 on success, negative on failure
+	 */
+	int (*write_bytes)(struct udevice *udev, u32 addr, u16 len,
+			   const u8 *value);
+	/* read32() - Read a 32bit value of the device
+	 *
+	 * @udev:   TPM device
+	 * @addr:   offset from device base
+	 * @result: data read
+	 *
+	 * @return: 0 on success, negative on failure
+	 */
+	int (*read32)(struct udevice *udev, u32 addr, u32 *result);
+	/* write32() - write a 32bit value to the device
+	 *
+	 * @udev: TPM device
+	 * @addr: offset from device base
+	 * @src:  data to write
+	 *
+	 * @return: 0 on success, negative on failure
+	 */
+	int (*write32)(struct udevice *udev, u32 addr, u32 src);
+};
+
+enum tis_int_flags {
+	TPM_GLOBAL_INT_ENABLE = 0x80000000,
+	TPM_INTF_BURST_COUNT_STATIC = 0x100,
+	TPM_INTF_CMD_READY_INT = 0x080,
+	TPM_INTF_INT_EDGE_FALLING = 0x040,
+	TPM_INTF_INT_EDGE_RISING = 0x020,
+	TPM_INTF_INT_LEVEL_LOW = 0x010,
+	TPM_INTF_INT_LEVEL_HIGH = 0x008,
+	TPM_INTF_LOCALITY_CHANGE_INT = 0x004,
+	TPM_INTF_STS_VALID_INT = 0x002,
+	TPM_INTF_DATA_AVAIL_INT = 0x001,
+};
+
+#define TPM_ACCESS(l)                   (0x0000 | ((l) << 12))
+#define TPM_INT_ENABLE(l)               (0x0008 | ((l) << 12))
+#define TPM_STS(l)                      (0x0018 | ((l) << 12))
+#define TPM_DATA_FIFO(l)                (0x0024 | ((l) << 12))
+#define TPM_DID_VID(l)                  (0x0f00 | ((l) << 12))
+#define TPM_RID(l)                      (0x0f04 | ((l) << 12))
+#define TPM_INTF_CAPS(l)                (0x0014 | ((l) << 12))
+
 enum tpm_timeout {
 	TPM_TIMEOUT_MS			= 5,
 	TIS_SHORT_TIMEOUT_MS		= 750,
@@ -43,6 +110,7 @@ struct tpm_chip {
 	u8 rid;
 	unsigned long timeout_a, timeout_b, timeout_c, timeout_d;  /* msec */
 	ulong chip_type;
+	struct tpm_tis_phy_ops *phy_ops;
 };
 
 struct tpm_input_header {
@@ -130,4 +198,72 @@ enum tis_status {
 };
 #endif
 
+/**
+ * tpm_tis_open - Open the device and request locality 0
+ *
+ * @dev:  TPM device
+ *
+ * @return: 0 on success, negative on failure
+ */
+int tpm_tis_open(struct udevice *udev);
+/**
+ * tpm_tis_close - Close the device and release locality
+ *
+ * @dev:  TPM device
+ *
+ * @return: 0 on success, negative on failure
+ */
+int tpm_tis_close(struct udevice *udev);
+/** tpm_tis_cleanup - Get the device in ready state and release locality
+ *
+ * @dev:  TPM device
+ *
+ * @return: always 0
+ */
+int tpm_tis_cleanup(struct udevice *udev);
+/**
+ * tpm_tis_send - send data to the device
+ *
+ * @dev:  TPM device
+ * @buf:  buffer to send
+ * @len:  size of the buffer
+ *
+ * @return: number of bytes sent or negative on failure
+ */
+int tpm_tis_send(struct udevice *udev, const u8 *buf, size_t len);
+/**
+ * tpm_tis_recv_data - Receive data from a device. Wrapper for tpm_tis_recv
+ *
+ * @dev:  TPM device
+ * @buf:  buffer to copy data
+ * @size: buffer size
+ *
+ * @return: bytes read or negative on failure
+ */
+int tpm_tis_recv(struct udevice *udev, u8 *buf, size_t count);
+/**
+ * tpm_tis_get_desc - Get the TPM description
+ *
+ * @dev:  TPM device
+ * @buf:  buffer to fill data
+ * @size: buffer size
+ *
+ * @return: Number of characters written (or would have been written) in buffer
+ */
+int tpm_tis_get_desc(struct udevice *udev, char *buf, int size);
+/**
+ * tpm_tis_init - inititalize the device
+ *
+ * @dev:  TPM device
+ *
+ * @return: 0 on success, negative on failure
+ */
+int tpm_tis_init(struct udevice *udev);
+/**
+ * tpm_tis_ops_register - register the PHY ops for the device
+ *
+ * @dev: TPM device
+ * @ops: tpm_tis_phy_ops ops for the device
+ */
+void tpm_tis_ops_register(struct udevice *udev, struct tpm_tis_phy_ops *ops);
 #endif

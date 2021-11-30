@@ -411,5 +411,5 @@ U_BOOT_DRIVER(mtk_power_domain) = {
 	.ops = &mtk_power_domain_ops,
 	.probe = mtk_power_domain_probe,
 	.of_match = mtk_power_domain_ids,
-	.priv_auto_alloc_size = sizeof(struct scp_domain),
+	.priv_auto	= sizeof(struct scp_domain),
 };

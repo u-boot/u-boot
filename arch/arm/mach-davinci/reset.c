@@ -12,7 +12,7 @@
 #include <asm/arch/timer_defs.h>
 #include <asm/arch/hardware.h>
 
-void reset_cpu(unsigned long a)
+void reset_cpu(void)
 {
 	struct davinci_timer *const wdttimer =
 		(struct davinci_timer *)DAVINCI_WDOG_BASE;

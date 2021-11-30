@@ -25,7 +25,7 @@ struct max98357a_priv {
 	struct gpio_desc sdmode_gpio;
 };
 
-static int max98357a_ofdata_to_platdata(struct udevice *dev)
+static int max98357a_of_to_plat(struct udevice *dev)
 {
 	struct max98357a_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -155,7 +155,7 @@ U_BOOT_DRIVER(max98357a) = {
 	.name		= "max98357a",
 	.id		= UCLASS_AUDIO_CODEC,
 	.of_match	= max98357a_ids,
-	.ofdata_to_platdata	= max98357a_ofdata_to_platdata,
+	.of_to_plat	= max98357a_of_to_plat,
 	.ops		= &max98357a_ops,
 	ACPI_OPS_PTR(&max98357a_acpi_ops)
 };

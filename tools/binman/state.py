@@ -5,23 +5,31 @@
 # Holds and modifies the state information held by binman
 #
 
+from collections import defaultdict
 import hashlib
 import re
+import time
+import threading
 
 from dtoc import fdt
 import os
 from patman import tools
 from patman import tout
 
+# Map an dtb etype to its expected filename
+DTB_TYPE_FNAME = {
+    'u-boot-spl-dtb': 'spl/u-boot-spl.dtb',
+    'u-boot-tpl-dtb': 'tpl/u-boot-tpl.dtb',
+    }
+
 # Records the device-tree files known to binman, keyed by entry type (e.g.
 # 'u-boot-spl-dtb'). These are the output FDT files, which can be updated by
 # binman. They have been copied to <xxx>.out files.
 #
-#   key: entry type
+#   key: entry type (e.g. 'u-boot-dtb)
 #   value: tuple:
 #       Fdt object
 #       Filename
-#       Entry object, or None if not known
 output_fdt_info = {}
 
 # Prefix to add to an fdtmap path to turn it into a path to the /binman node
@@ -49,6 +57,30 @@ allow_entry_expansion = True
 # result in a larger compressed size than the new ones, but then after updating
 # to the new ones, the compressed size increases, etc.
 allow_entry_contraction = False
+
+# Number of threads to use for binman (None means machine-dependent)
+num_threads = None
+
+
+class Timing:
+    """Holds information about an operation that is being timed
+
+    Properties:
+        name: Operation name (only one of each name is stored)
+        start: Start time of operation in seconds (None if not start)
+        accum:: Amount of time spent on this operation so far, in seconds
+    """
+    def __init__(self, name):
+        self.name = name
+        self.start = None # cause an error if TimingStart() is not called
+        self.accum = 0.0
+
+
+# Holds timing info for each name:
+#    key: name of Timing info (Timing.name)
+#    value: Timing object
+timing_info = {}
+
 
 def GetFdtForEtype(etype):
     """Get the Fdt object for a particular device-tree entry
@@ -118,11 +150,11 @@ def UpdateFdtContents(etype, data):
         etype: Entry type (e.g. 'u-boot-dtb')
         data: Data to replace the DTB with
     """
-    dtb, fname, entry = output_fdt_info[etype]
+    dtb, fname = output_fdt_info[etype]
     dtb_fname = dtb.GetFilename()
     tools.WriteFile(dtb_fname, data)
     dtb = fdt.FdtScan(dtb_fname)
-    output_fdt_info[etype] = [dtb, fname, entry]
+    output_fdt_info[etype] = [dtb, fname]
 
 def SetEntryArgs(args):
     """Set the value of the entry args
@@ -136,12 +168,16 @@ def SetEntryArgs(args):
     global entry_args
 
     entry_args = {}
+    tout.Debug('Processing entry args:')
     if args:
         for arg in args:
             m = re.match('([^=]*)=(.*)', arg)
             if not m:
                 raise ValueError("Invalid entry arguemnt '%s'" % arg)
-            entry_args[m.group(1)] = m.group(2)
+            name, value = m.groups()
+            tout.Debug('   %20s = %s' % (name, value))
+            entry_args[name] = value
+    tout.Debug('Processing entry args done')
 
 def GetEntryArg(name):
     """Get the value of an entry argument
@@ -153,6 +189,19 @@ def GetEntryArg(name):
         String value of argument
     """
     return entry_args.get(name)
+
+def GetEntryArgBool(name):
+    """Get the value of an entry argument as a boolean
+
+    Args:
+        name: Name of argument to retrieve
+
+    Returns:
+        False if the entry argument is consider False (empty, '0' or 'n'), else
+            True
+    """
+    val = GetEntryArg(name)
+    return val and val not in ['n', '0']
 
 def Prepare(images, dtb):
     """Get device tree files ready for use
@@ -177,22 +226,22 @@ def Prepare(images, dtb):
     main_dtb = dtb
     output_fdt_info.clear()
     fdt_path_prefix = ''
-    output_fdt_info['u-boot-dtb'] = [dtb, 'u-boot.dtb', None]
-    output_fdt_info['u-boot-spl-dtb'] = [dtb, 'spl/u-boot-spl.dtb', None]
-    output_fdt_info['u-boot-tpl-dtb'] = [dtb, 'tpl/u-boot-tpl.dtb', None]
-    if not use_fake_dtb:
+    output_fdt_info['u-boot-dtb'] = [dtb, 'u-boot.dtb']
+    if use_fake_dtb:
+        for etype, fname in DTB_TYPE_FNAME.items():
+            output_fdt_info[etype] = [dtb, fname]
+    else:
         fdt_set = {}
-        for image in images.values():
-            fdt_set.update(image.GetFdts())
-        for etype, other in fdt_set.items():
-            entry, other_fname = other
-            infile = tools.GetInputFilename(other_fname)
-            other_fname_dtb = fdt_util.EnsureCompiled(infile)
-            out_fname = tools.GetOutputFilename('%s.out' %
-                    os.path.split(other_fname)[1])
-            tools.WriteFile(out_fname, tools.ReadFile(other_fname_dtb))
-            other_dtb = fdt.FdtScan(out_fname)
-            output_fdt_info[etype] = [other_dtb, out_fname, entry]
+        for etype, fname in DTB_TYPE_FNAME.items():
+            infile = tools.GetInputFilename(fname, allow_missing=True)
+            if infile and os.path.exists(infile):
+                fname_dtb = fdt_util.EnsureCompiled(infile)
+                out_fname = tools.GetOutputFilename('%s.out' %
+                        os.path.split(fname)[1])
+                tools.WriteFile(out_fname, tools.ReadFile(fname_dtb))
+                other_dtb = fdt.FdtScan(out_fname)
+                output_fdt_info[etype] = [other_dtb, out_fname]
+
 
 def PrepareFromLoadedData(image):
     """Get device tree files ready for use with a loaded image
@@ -215,7 +264,7 @@ def PrepareFromLoadedData(image):
     tout.Info('Preparing device trees')
     output_fdt_info.clear()
     fdt_path_prefix = ''
-    output_fdt_info['fdtmap'] = [image.fdtmap_dtb, 'u-boot.dtb', None]
+    output_fdt_info['fdtmap'] = [image.fdtmap_dtb, 'u-boot.dtb']
     main_dtb = None
     tout.Info("   Found device tree type 'fdtmap' '%s'" % image.fdtmap_dtb.name)
     for etype, value in image.GetFdts().items():
@@ -233,7 +282,7 @@ def PrepareFromLoadedData(image):
         if 'multiple-images' in image_node.props:
             image_node = dtb.GetNode('/binman/%s' % image.image_node)
         fdt_path_prefix = image_node.path
-        output_fdt_info[etype] = [dtb, None, entry]
+        output_fdt_info[etype] = [dtb, None]
     tout.Info("   FDT path prefix '%s'" % fdt_path_prefix)
 
 
@@ -268,12 +317,11 @@ def GetUpdateNodes(node, for_repack=False):
             is node, SPL and TPL)
     """
     yield node
-    for dtb, fname, entry in output_fdt_info.values():
+    for entry_type, (dtb, fname) in output_fdt_info.items():
         if dtb != node.GetFdt():
-            if for_repack and entry.etype != 'u-boot-dtb':
+            if for_repack and entry_type != 'u-boot-dtb':
                 continue
             other_node = dtb.GetNode(fdt_path_prefix + node.path)
-            #print('   try', fdt_path_prefix + node.path, other_node)
             if other_node:
                 yield other_node
 
@@ -313,6 +361,16 @@ def AddString(node, prop, value):
     """
     for n in GetUpdateNodes(node):
         n.AddString(prop, value)
+
+def AddInt(node, prop, value):
+    """Add a new string property to affected device trees
+
+    Args:
+        prop_name: Name of property
+        val: Integer value of property
+    """
+    for n in GetUpdateNodes(node):
+        n.AddInt(prop, value)
 
 def SetInt(node, prop, value, for_repack=False):
     """Update an integer property in affected device trees with an integer value
@@ -389,3 +447,71 @@ def AllowEntryContraction():
             raised
     """
     return allow_entry_contraction
+
+def SetThreads(threads):
+    """Set the number of threads to use when building sections
+
+    Args:
+        threads: Number of threads to use (None for default, 0 for
+            single-threaded)
+    """
+    global num_threads
+
+    num_threads = threads
+
+def GetThreads():
+    """Get the number of threads to use when building sections
+
+    Returns:
+        Number of threads to use (None for default, 0 for single-threaded)
+    """
+    return num_threads
+
+def GetTiming(name):
+    """Get the timing info for a particular operation
+
+    The object is created if it does not already exist.
+
+    Args:
+        name: Operation name to get
+
+    Returns:
+        Timing object for the current thread
+    """
+    threaded_name = '%s:%d' % (name, threading.get_ident())
+    timing = timing_info.get(threaded_name)
+    if not timing:
+        timing = Timing(threaded_name)
+        timing_info[threaded_name] = timing
+    return timing
+
+def TimingStart(name):
+    """Start the timer for an operation
+
+    Args:
+        name: Operation name to start
+    """
+    timing = GetTiming(name)
+    timing.start = time.monotonic()
+
+def TimingAccum(name):
+    """Stop and accumlate the time for an operation
+
+    This measures the time since the last TimingStart() and adds that to the
+    accumulated time.
+
+    Args:
+        name: Operation name to start
+    """
+    timing = GetTiming(name)
+    timing.accum += time.monotonic() - timing.start
+
+def TimingShow():
+    """Show all timing information"""
+    duration = defaultdict(float)
+    for threaded_name, timing in timing_info.items():
+        name = threaded_name.split(':')[0]
+        duration[name] += timing.accum
+
+    for name, seconds in duration.items():
+        print('%10s: %10.1fms' % (name, seconds * 1000))

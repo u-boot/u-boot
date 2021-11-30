@@ -115,7 +115,7 @@ enum eth_state_t {
  * @enetaddr: The Ethernet MAC address that is loaded from EEPROM or env
  * @phy_interface: PHY interface to use - see PHY_INTERFACE_MODE_...
  * @max_speed: Maximum speed of Ethernet connection supported by MAC
- * @priv_pdata: device specific platdata
+ * @priv_pdata: device specific plat
  */
 struct eth_pdata {
 	phys_addr_t iobase;
@@ -158,6 +158,7 @@ enum eth_recv_flags {
  *		    ROM on the board. This is how the driver should expose it
  *		    to the network stack. This function should fill in the
  *		    eth_pdata::enetaddr field - optional
+ * set_promisc: Enable or Disable promiscuous mode
  */
 struct eth_ops {
 	int (*start)(struct udevice *dev);
@@ -168,6 +169,7 @@ struct eth_ops {
 	int (*mcast)(struct udevice *dev, const u8 *enetaddr, int join);
 	int (*write_hwaddr)(struct udevice *dev);
 	int (*read_rom_hwaddr)(struct udevice *dev);
+	int (*set_promisc)(struct udevice *dev, bool enable);
 };
 
 #define eth_get_ops(dev) ((struct eth_ops *)(dev)->driver->ops)
@@ -499,7 +501,13 @@ struct icmp_hdr {
  * maximum packet size and multiple of 32 bytes =  1536
  */
 #define PKTSIZE			1522
+#ifndef CONFIG_DM_DSA
 #define PKTSIZE_ALIGN		1536
+#else
+/* Maximum DSA tagging overhead (headroom and/or tailroom) */
+#define DSA_MAX_OVR		256
+#define PKTSIZE_ALIGN		(1536 + DSA_MAX_OVR)
+#endif
 
 /*
  * Maximum receive ring size; that is, the number of packets

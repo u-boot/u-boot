@@ -348,6 +348,6 @@ U_BOOT_DRIVER(xilinx_xiic) = {
 	.id		= UCLASS_I2C,
 	.of_match	= xilinx_xiic_ids,
 	.probe		= xilinx_xiic_probe,
-	.priv_auto_alloc_size = sizeof(struct xilinx_xiic_priv),
+	.priv_auto	= sizeof(struct xilinx_xiic_priv),
 	.ops		= &xilinx_xiic_ops,
 };

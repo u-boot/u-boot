@@ -47,7 +47,7 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 {
 	uint32_t boot_addr;
 
-	boot_addr = simple_strtoul(argv[0], NULL, 16);
+	boot_addr = hextoul(argv[0], NULL);
 
 	switch (nr) {
 	case 1:

@@ -24,21 +24,10 @@
 #endif
 /*---------------------------------------------------------------------*/
 
-#ifndef CONFIG_SYS_I2C_RTC_ADDR
-# define CONFIG_SYS_I2C_RTC_ADDR	0x32
-#endif
-
-#ifdef CONFIG_DM_RTC
-#define DEV_TYPE struct udevice
-#else
-/* Local udevice */
-struct ludevice {
-	u8 chip;
+enum rx_model {
+	model_rx_8025,
+	model_rx_8035,
 };
-
-#define DEV_TYPE struct ludevice
-
-#endif
 
 /*
  * RTC register addresses
@@ -50,6 +39,7 @@ struct ludevice {
 #define RTC_DATE_REG_ADDR	0x04
 #define RTC_MON_REG_ADDR	0x05
 #define RTC_YR_REG_ADDR		0x06
+#define RTC_OFFSET_REG_ADDR	0x07
 
 #define RTC_CTL1_REG_ADDR	0x0e
 #define RTC_CTL2_REG_ADDR	0x0f
@@ -74,39 +64,36 @@ struct ludevice {
  * address in a first cycle that is terminated by
  * a STOP condition. The chips needs a 'restart'
  * sequence (start sequence without a prior stop).
- * This driver has been written for a 4xx board.
- * U-Boot's 4xx i2c driver is currently not capable
- * to generate such cycles to some work arounds
- * are used.
  */
 
-/* static uchar rtc_read (uchar reg); */
-#ifdef CONFIG_DM_RTC
-/*
- * on mpc85xx based board with DM and offset len 1
- * accessing rtc works fine. May we can drop this ?
- */
 #define rtc_read(reg) buf[(reg) & 0xf]
-#else
-#define rtc_read(reg) buf[((reg) + 1) & 0xf]
-#endif
 
-static int rtc_write(DEV_TYPE *dev, uchar reg, uchar val);
+static int rtc_write(struct udevice *dev, uchar reg, uchar val);
+
+static int rx8025_is_osc_stopped(enum rx_model model, int ctrl2)
+{
+	int xstp = ctrl2 & RTC_CTL2_BIT_XST;
+	/* XSTP bit has different polarity on RX-8025 vs RX-8035.
+	 * RX-8025: 0 == oscillator stopped
+	 * RX-8035: 1 == oscillator stopped
+	 */
+
+	if (model == model_rx_8025)
+		xstp = !xstp;
+
+	return xstp;
+}
 
 /*
  * Get the current time from the RTC
  */
-static int rx8025_rtc_get(DEV_TYPE *dev, struct rtc_time *tmp)
+static int rx8025_rtc_get(struct udevice *dev, struct rtc_time *tmp)
 {
 	int rel = 0;
 	uchar sec, min, hour, mday, wday, mon, year, ctl2;
 	uchar buf[16];
 
-#ifdef CONFIG_DM_RTC
 	if (dm_i2c_read(dev, 0, buf, sizeof(buf))) {
-#else
-	if (i2c_read(dev->chip, 0, 0, buf, 16)) {
-#endif
 		printf("Error reading from RTC\n");
 		return -EIO;
 	}
@@ -134,8 +121,7 @@ static int rx8025_rtc_get(DEV_TYPE *dev, struct rtc_time *tmp)
 		printf("RTC: voltage drop detected\n");
 		rel = -1;
 	}
-
-	if (!(ctl2 & RTC_CTL2_BIT_XST)) {
+	if (rx8025_is_osc_stopped(dev->driver_data, ctl2)) {
 		printf("RTC: oscillator stop detected\n");
 		rel = -1;
 	}
@@ -165,8 +151,21 @@ static int rx8025_rtc_get(DEV_TYPE *dev, struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-static int rx8025_rtc_set(DEV_TYPE *dev, const struct rtc_time *tmp)
+static int rx8025_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
 {
+	/* To work around the read/write cycle issue mentioned
+	 * at the top of this file, write all the time registers
+	 * in one I2C transaction
+	 */
+	u8 write_op[8];
+
+	/* 2412 flag must be set before doing a RTC write,
+	 * otherwise the seconds and minute register
+	 * will be cleared when the flag is set
+	 */
+	if (rtc_write(dev, RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412))
+		return -EIO;
+
 	DEBUGR("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
@@ -174,50 +173,38 @@ static int rx8025_rtc_set(DEV_TYPE *dev, const struct rtc_time *tmp)
 	if (tmp->tm_year < 1970 || tmp->tm_year > 2069)
 		printf("WARNING: year should be between 1970 and 2069!\n");
 
-	if (rtc_write(dev, RTC_YR_REG_ADDR, bin2bcd(tmp->tm_year % 100)))
-		return -EIO;
+	write_op[RTC_SEC_REG_ADDR]  = bin2bcd(tmp->tm_sec);
+	write_op[RTC_MIN_REG_ADDR]  = bin2bcd(tmp->tm_min);
+	write_op[RTC_HR_REG_ADDR]   = bin2bcd(tmp->tm_hour);
+	write_op[RTC_DAY_REG_ADDR]	= bin2bcd(tmp->tm_wday);
+	write_op[RTC_DATE_REG_ADDR]	= bin2bcd(tmp->tm_mday);
+	write_op[RTC_MON_REG_ADDR]  = bin2bcd(tmp->tm_mon);
+	write_op[RTC_YR_REG_ADDR]	= bin2bcd(tmp->tm_year % 100);
+	write_op[RTC_OFFSET_REG_ADDR] = 0;
 
-	if (rtc_write(dev, RTC_MON_REG_ADDR, bin2bcd(tmp->tm_mon)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_DAY_REG_ADDR, bin2bcd(tmp->tm_wday)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_DATE_REG_ADDR, bin2bcd(tmp->tm_mday)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_HR_REG_ADDR, bin2bcd(tmp->tm_hour)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_MIN_REG_ADDR, bin2bcd(tmp->tm_min)))
-		return -EIO;
-
-	if (rtc_write(dev, RTC_SEC_REG_ADDR, bin2bcd(tmp->tm_sec)))
-		return -EIO;
-
-	return rtc_write(dev, RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412);
+	return dm_i2c_write(dev, 0, &write_op[0], 8);
 }
 
 /*
  * Reset the RTC
  */
-static int rx8025_rtc_reset(DEV_TYPE *dev)
+static int rx8025_rtc_reset(struct udevice *dev)
 {
 	uchar buf[16];
 	uchar ctl2;
 
-#ifdef CONFIG_DM_RTC
 	if (dm_i2c_read(dev, 0, buf, sizeof(buf))) {
-#else
-	if (i2c_read(dev->chip, 0, 0, buf, 16)) {
-#endif
 		printf("Error reading from RTC\n");
 		return -EIO;
 	}
 
 	ctl2 = rtc_read(RTC_CTL2_REG_ADDR);
 	ctl2 &= ~(RTC_CTL2_BIT_PON | RTC_CTL2_BIT_VDET);
-	ctl2 |= RTC_CTL2_BIT_XST | RTC_CTL2_BIT_VDSL;
+
+	if (dev->driver_data == model_rx_8035)
+		ctl2 &= ~(RTC_CTL2_BIT_XST);
+	else
+		ctl2 |= RTC_CTL2_BIT_XST;
 
 	return rtc_write(dev, RTC_CTL2_REG_ADDR, ctl2);
 }
@@ -225,17 +212,16 @@ static int rx8025_rtc_reset(DEV_TYPE *dev)
 /*
  * Helper functions
  */
-static int rtc_write(DEV_TYPE *dev, uchar reg, uchar val)
+static int rtc_write(struct udevice *dev, uchar reg, uchar val)
 {
-	uchar buf[2];
-	buf[0] = reg << 4;
-	buf[1] = val;
+	/* The RX8025/RX8035 uses the top 4 bits of the
+	 * 'offset' byte as the start register address,
+	 * and the bottom 4 bits as a 'transfer' mode setting
+	 * (only applicable for reads)
+	 */
+	u8 offset = (reg << 4);
 
-#ifdef CONFIG_DM_RTC
-	if (dm_i2c_write(dev, 0, buf, 2)) {
-#else
-	if (i2c_write(dev->chip, 0, 0, buf, 2) != 0) {
-#endif
+	if (dm_i2c_reg_write(dev, offset, val)) {
 		printf("Error writing to RTC\n");
 		return -EIO;
 	}
@@ -243,7 +229,6 @@ static int rtc_write(DEV_TYPE *dev, uchar reg, uchar val)
 	return 0;
 }
 
-#ifdef CONFIG_DM_RTC
 static int rx8025_probe(struct udevice *dev)
 {
 	uchar buf[16];
@@ -265,42 +250,15 @@ static const struct rtc_ops rx8025_rtc_ops = {
 };
 
 static const struct udevice_id rx8025_rtc_ids[] = {
-	{ .compatible = "epson,rx8025" },
+	{ .compatible = "epson,rx8025", .data = model_rx_8025 },
+	{ .compatible = "epson,rx8035", .data = model_rx_8035 },
 	{ }
 };
 
-U_BOOT_DRIVER(rx8010sj_rtc) = {
+U_BOOT_DRIVER(rx8025_rtc) = {
 	.name	  = "rx8025_rtc",
 	.id	      = UCLASS_RTC,
 	.probe    = rx8025_probe,
 	.of_match = rx8025_rtc_ids,
 	.ops	  = &rx8025_rtc_ops,
 };
-#else
-int rtc_get(struct rtc_time *tm)
-{
-	struct ludevice dev = {
-		.chip = CONFIG_SYS_I2C_RTC_ADDR,
-	};
-
-	return rx8025_rtc_get(&dev, tm);
-}
-
-int rtc_set(struct rtc_time *tm)
-{
-	struct ludevice dev = {
-		.chip = CONFIG_SYS_I2C_RTC_ADDR,
-	};
-
-	return rx8025_rtc_set(&dev, tm);
-}
-
-void rtc_reset(void)
-{
-	struct ludevice dev = {
-		.chip = CONFIG_SYS_I2C_RTC_ADDR,
-	};
-
-	rx8025_rtc_reset(&dev);
-}
-#endif

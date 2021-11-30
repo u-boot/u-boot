@@ -19,6 +19,7 @@
 struct efi_system_partition efi_system_partition;
 
 const efi_guid_t efi_block_io_guid = EFI_BLOCK_IO_PROTOCOL_GUID;
+const efi_guid_t efi_system_partition_guid = PARTITION_SYSTEM_GUID;
 
 /**
  * struct efi_disk_obj - EFI disk object
@@ -142,11 +143,12 @@ static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 		return EFI_MEDIA_CHANGED;
 	if (!this->media->media_present)
 		return EFI_NO_MEDIA;
-	/* media->io_align is a power of 2 */
-	if ((uintptr_t)buffer & (this->media->io_align - 1))
+	/* media->io_align is a power of 2 or 0 */
+	if (this->media->io_align &&
+	    (uintptr_t)buffer & (this->media->io_align - 1))
 		return EFI_INVALID_PARAMETER;
 	if (lba * this->media->block_size + buffer_size >
-	    this->media->last_block * this->media->block_size)
+	    (this->media->last_block + 1) * this->media->block_size)
 		return EFI_INVALID_PARAMETER;
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
@@ -209,11 +211,12 @@ static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
 		return EFI_MEDIA_CHANGED;
 	if (!this->media->media_present)
 		return EFI_NO_MEDIA;
-	/* media->io_align is a power of 2 */
-	if ((uintptr_t)buffer & (this->media->io_align - 1))
+	/* media->io_align is a power of 2 or 0 */
+	if (this->media->io_align &&
+	    (uintptr_t)buffer & (this->media->io_align - 1))
 		return EFI_INVALID_PARAMETER;
 	if (lba * this->media->block_size + buffer_size >
-	    this->media->last_block * this->media->block_size)
+	    (this->media->last_block + 1) * this->media->block_size)
 		return EFI_INVALID_PARAMETER;
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
@@ -343,7 +346,7 @@ static int efi_fs_exists(struct blk_desc *desc, int part)
  * @if_typename:	interface name for block device
  * @desc:		internal block device
  * @dev_index:		device index for block device
- * @offset:		offset into disk for simple partitions
+ * @part_info:		partition info
  * @part:		partition
  * @disk:		pointer to receive the created handle
  * Return:		disk object
@@ -354,12 +357,13 @@ static efi_status_t efi_disk_add_dev(
 				const char *if_typename,
 				struct blk_desc *desc,
 				int dev_index,
-				lbaint_t offset,
+				struct disk_partition *part_info,
 				unsigned int part,
 				struct efi_disk_obj **disk)
 {
 	struct efi_disk_obj *diskobj;
 	struct efi_object *handle;
+	const efi_guid_t *guid = NULL;
 	efi_status_t ret;
 
 	/* Don't add empty devices */
@@ -374,13 +378,36 @@ static efi_status_t efi_disk_add_dev(
 	efi_add_handle(&diskobj->header);
 
 	/* Fill in object data */
-	if (part) {
+	if (part_info) {
 		struct efi_device_path *node = efi_dp_part_node(desc, part);
+		struct efi_handler *handler;
+		void *protocol_interface;
+
+		/* Parent must expose EFI_BLOCK_IO_PROTOCOL */
+		ret = efi_search_protocol(parent, &efi_block_io_guid, &handler);
+		if (ret != EFI_SUCCESS)
+			goto error;
+
+		/*
+		 * Link the partition (child controller) to the block device
+		 * (controller).
+		 */
+		ret = efi_protocol_open(handler, &protocol_interface, NULL,
+					&diskobj->header,
+					EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER);
+		if (ret != EFI_SUCCESS)
+				goto error;
 
 		diskobj->dp = efi_dp_append_node(dp_parent, node);
 		efi_free_pool(node);
+		diskobj->offset = part_info->start;
+		diskobj->media.last_block = part_info->size - 1;
+		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION)
+			guid = &efi_system_partition_guid;
 	} else {
 		diskobj->dp = efi_dp_from_part(desc, part);
+		diskobj->offset = 0;
+		diskobj->media.last_block = desc->lba - 1;
 	}
 	diskobj->part = part;
 
@@ -394,9 +421,10 @@ static efi_status_t efi_disk_add_dev(
 	handle = &diskobj->header;
 	ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
 			&handle, &efi_guid_device_path, diskobj->dp,
-			&efi_block_io_guid, &diskobj->ops, NULL));
+			&efi_block_io_guid, &diskobj->ops,
+			guid, NULL, NULL));
 	if (ret != EFI_SUCCESS)
-		return ret;
+		goto error;
 
 	/*
 	 * On partitions or whole disks without partitions install the
@@ -415,7 +443,6 @@ static efi_status_t efi_disk_add_dev(
 	diskobj->ops = block_io_disk_template;
 	diskobj->ifname = if_typename;
 	diskobj->dev_index = dev_index;
-	diskobj->offset = offset;
 	diskobj->desc = desc;
 
 	/* Fill in EFI IO Media info (for read/write callbacks) */
@@ -428,31 +455,36 @@ static efi_status_t efi_disk_add_dev(
 	diskobj->media.media_id = 1;
 	diskobj->media.block_size = desc->blksz;
 	diskobj->media.io_align = desc->blksz;
-	diskobj->media.last_block = desc->lba - offset;
 	if (part)
 		diskobj->media.logical_partition = 1;
 	diskobj->ops.media = &diskobj->media;
 	if (disk)
 		*disk = diskobj;
 
+	EFI_PRINT("BlockIO: part %u, present %d, logical %d, removable %d"
+		  ", offset " LBAF ", last_block %llu\n",
+		  diskobj->part,
+		  diskobj->media.media_present,
+		  diskobj->media.logical_partition,
+		  diskobj->media.removable_media,
+		  diskobj->offset,
+		  diskobj->media.last_block);
+
 	/* Store first EFI system partition */
 	if (part && !efi_system_partition.if_type) {
-		int r;
-		struct disk_partition info;
-
-		r = part_get_info(desc, part, &info);
-		if (r)
-			return EFI_DEVICE_ERROR;
-		if (info.bootable & PART_EFI_SYSTEM_PARTITION) {
+		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION) {
 			efi_system_partition.if_type = desc->if_type;
 			efi_system_partition.devnum = desc->devnum;
 			efi_system_partition.part = part;
-			EFI_PRINT("EFI system partition: %s %d:%d\n",
+			EFI_PRINT("EFI system partition: %s %x:%x\n",
 				  blk_get_if_type_name(desc->if_type),
 				  desc->devnum, part);
 		}
 	}
 	return EFI_SUCCESS;
+error:
+	efi_delete_handle(&diskobj->header);
+	return ret;
 }
 
 /**
@@ -473,7 +505,6 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 {
 	int disks = 0;
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
-	struct disk_partition info;
 	int part;
 	struct efi_device_path *dp = NULL;
 	efi_status_t ret;
@@ -486,12 +517,14 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 
 	/* Add devices for each partition */
 	for (part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
+		struct disk_partition info;
+
 		if (part_get_info(desc, part, &info))
 			continue;
-		snprintf(devname, sizeof(devname), "%s:%d", pdevname,
+		snprintf(devname, sizeof(devname), "%s:%x", pdevname,
 			 part);
 		ret = efi_disk_add_dev(parent, dp, if_typename, desc, diskid,
-				       info.start, part, NULL);
+				       &info, part, NULL);
 		if (ret != EFI_SUCCESS) {
 			log_err("Adding partition %s failed\n", pdevname);
 			continue;
@@ -522,18 +555,17 @@ efi_status_t efi_disk_register(void)
 	struct efi_disk_obj *disk;
 	int disks = 0;
 	efi_status_t ret;
-#ifdef CONFIG_BLK
 	struct udevice *dev;
 
 	for (uclass_first_device_check(UCLASS_BLK, &dev); dev;
 	     uclass_next_device_check(&dev)) {
-		struct blk_desc *desc = dev_get_uclass_platdata(dev);
+		struct blk_desc *desc = dev_get_uclass_plat(dev);
 		const char *if_typename = blk_get_if_type_name(desc->if_type);
 
 		/* Add block device for the full device */
 		log_info("Scanning disk %s...\n", dev->name);
 		ret = efi_disk_add_dev(NULL, NULL, if_typename,
-					desc, desc->devnum, 0, 0, &disk);
+					desc, desc->devnum, NULL, 0, &disk);
 		if (ret == EFI_NOT_READY) {
 			log_notice("Disk %s not ready\n", dev->name);
 			continue;
@@ -541,7 +573,7 @@ efi_status_t efi_disk_register(void)
 		if (ret) {
 			log_err("ERROR: failure to add disk device %s, r = %lu\n",
 				dev->name, ret & ~EFI_ERROR_MASK);
-			return ret;
+			continue;
 		}
 		disks++;
 
@@ -550,54 +582,7 @@ efi_status_t efi_disk_register(void)
 					&disk->header, desc, if_typename,
 					desc->devnum, dev->name);
 	}
-#else
-	int i, if_type;
 
-	/* Search for all available disk devices */
-	for (if_type = 0; if_type < IF_TYPE_COUNT; if_type++) {
-		const struct blk_driver *cur_drvr;
-		const char *if_typename;
-
-		cur_drvr = blk_driver_lookup_type(if_type);
-		if (!cur_drvr)
-			continue;
-
-		if_typename = cur_drvr->if_typename;
-		log_info("Scanning disks on %s...\n", if_typename);
-		for (i = 0; i < 4; i++) {
-			struct blk_desc *desc;
-			char devname[32] = { 0 }; /* dp->str is u16[32] long */
-
-			desc = blk_get_devnum_by_type(if_type, i);
-			if (!desc)
-				continue;
-			if (desc->type == DEV_TYPE_UNKNOWN)
-				continue;
-
-			snprintf(devname, sizeof(devname), "%s%d",
-				 if_typename, i);
-
-			/* Add block device for the full device */
-			ret = efi_disk_add_dev(NULL, NULL, if_typename, desc,
-					       i, 0, 0, &disk);
-			if (ret == EFI_NOT_READY) {
-				log_notice("Disk %s not ready\n", devname);
-				continue;
-			}
-			if (ret) {
-				log_err("ERROR: failure to add disk device %s, r = %lu\n",
-					devname, ret & ~EFI_ERROR_MASK);
-				return ret;
-			}
-			disks++;
-
-			/* Partitions show up as block devices in EFI */
-			disks += efi_disk_create_partitions
-						(&disk->header, desc,
-						 if_typename, i, devname);
-		}
-	}
-#endif
 	log_info("Found %d disks\n", disks);
 
 	return EFI_SUCCESS;

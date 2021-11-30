@@ -1533,7 +1533,7 @@ U_BOOT_DRIVER(mtk_clk_apmixedsys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt8518_apmixed_compat,
 	.probe = mt8518_apmixedsys_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_clk_priv),
+	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_apmixedsys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
@@ -1543,7 +1543,7 @@ U_BOOT_DRIVER(mtk_clk_topckgen) = {
 	.id = UCLASS_CLK,
 	.of_match = mt8518_topckgen_compat,
 	.probe = mt8518_topckgen_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_clk_priv),
+	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
@@ -1553,7 +1553,7 @@ U_BOOT_DRIVER(mtk_clk_topckgen_cg) = {
 	.id = UCLASS_CLK,
 	.of_match = mt8518_topckgen_cg_compat,
 	.probe = mt8518_topckgen_cg_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
+	.priv_auto	= sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

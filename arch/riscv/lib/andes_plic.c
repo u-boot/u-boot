@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
@@ -104,9 +105,11 @@ int riscv_clear_ipi(int hart)
 
 int riscv_get_ipi(int hart, int *pending)
 {
+	unsigned int ipi = (SEND_IPI_TO_HART(hart) << (8 * gd->arch.boot_hart));
+
 	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plic,
 						     gd->arch.boot_hart));
-	*pending = !!(*pending & SEND_IPI_TO_HART(hart));
+	*pending = !!(*pending & ipi);
 
 	return 0;
 }

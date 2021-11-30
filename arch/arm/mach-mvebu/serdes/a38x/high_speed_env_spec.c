@@ -14,13 +14,6 @@
 #include "sys_env_lib.h"
 #include "ctrl_pex.h"
 
-#if defined(CONFIG_ARMADA_38X)
-#elif defined(CONFIG_ARMADA_39X)
-#else
-#error "No device is defined"
-#endif
-
-
 /*
  * serdes_seq_db - holds all serdes sequences, their size and the
  * relevant index in the data array initialized in serdes_seq_init
@@ -79,11 +72,6 @@ u8 selectors_serdes_rev2_map[LAST_SERDES_TYPE][MAX_SERDES_LANES] = {
 	{ NA,    0x6,    NA,	 NA,	 0x4,	 NA,     NA  }, /* USB3_HOST0 */
 	{ NA,    NA,     NA,	 0x5,	 NA,	 0x4,    NA  }, /* USB3_HOST1 */
 	{ NA,    NA,     NA,	 0x6,	 0x5,	 0x5,    NA  }, /* USB3_DEVICE */
-#ifdef CONFIG_ARMADA_39X
-	{ NA,    NA,     0x5,	 NA,	 0x8,	 NA,     0x2 }, /* SGMII3 */
-	{ NA,    NA,     NA,	 0x8,	 0x9,	 0x8,    0x4 }, /* XAUI */
-	{ NA,    NA,     NA,	 NA,	 NA,	 0x8,    0x4 }, /* RXAUI */
-#endif
 	{ 0x0,   0x0,    0x0,	 0x0,	 0x0,	 0x0,    NA  }  /* DEFAULT_SERDES */
 };
 
@@ -798,11 +786,9 @@ struct op_params serdes_power_down_params[] = {
  */
 u8 hws_ctrl_serdes_rev_get(void)
 {
-#ifdef CONFIG_ARMADA_38X
 	/* for A38x-Z1 */
 	if (sys_env_device_rev_get() == MV_88F68XX_Z1_ID)
 		return MV_SERDES_REV_1_2;
-#endif
 
 	/* for A39x-Z1, A38x-A0 */
 	return MV_SERDES_REV_2_1;
@@ -1351,9 +1337,6 @@ enum serdes_seq serdes_type_and_speed_to_speed_seq(enum serdes_type serdes_type,
 	case SGMII0:
 	case SGMII1:
 	case SGMII2:
-#ifdef CONFIG_ARMADA_39X
-	case SGMII3:
-#endif
 		if (baud_rate == SERDES_SPEED_1_25_GBPS)
 			seq_id = SGMII_1_25_SPEED_CONFIG_SEQ;
 		else if (baud_rate == SERDES_SPEED_3_125_GBPS)
@@ -1362,14 +1345,6 @@ enum serdes_seq serdes_type_and_speed_to_speed_seq(enum serdes_type serdes_type,
 	case QSGMII:
 		seq_id = QSGMII_5_SPEED_CONFIG_SEQ;
 		break;
-#ifdef CONFIG_ARMADA_39X
-	case XAUI:
-		seq_id = XAUI_3_125_SPEED_CONFIG_SEQ;
-		break;
-	case RXAUI:
-		seq_id = RXAUI_6_25_SPEED_CONFIG_SEQ;
-		break;
-#endif
 	default:
 		return SERDES_LAST_SEQ;
 	}
@@ -1737,7 +1712,7 @@ int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 				(serdes_mode == PEX_END_POINT_X1);
 			pex_idx = serdes_type - PEX0;
 
-			if ((is_pex_by1 == 1) || (serdes_type == PEX0)) {
+			if (serdes_type == PEX0) {
 				/* For PEX by 4, init only the PEX 0 */
 				reg_data = reg_read(SOC_CONTROL_REG1);
 				if (is_pex_by1 == 1)
@@ -1746,32 +1721,20 @@ int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 					reg_data &= ~0x4000;
 				reg_write(SOC_CONTROL_REG1, reg_data);
 
-				reg_data =
-				    reg_read(((PEX_IF_REGS_BASE(pex_idx)) +
-					      0x6c));
-				reg_data &= ~0x3f0;
-				if (is_pex_by1 == 1)
-					reg_data |= 0x10;
-				else
-					reg_data |= 0x40;
-				reg_write(((PEX_IF_REGS_BASE(pex_idx)) + 0x6c),
-					  reg_data);
-
-				reg_data =
-				    reg_read(((PEX_IF_REGS_BASE(pex_idx)) +
-					      0x6c));
-				reg_data &= ~0xf;
-				reg_data |= 0x2;
-				reg_write(((PEX_IF_REGS_BASE(pex_idx)) + 0x6c),
-					  reg_data);
-
-				reg_data =
-				    reg_read(((PEX_IF_REGS_BASE(pex_idx)) +
-					      0x70));
-				reg_data &= ~0x40;
-				reg_data |= 0x40;
-				reg_write(((PEX_IF_REGS_BASE(pex_idx)) + 0x70),
-					  reg_data);
+				/*
+				 * Set Maximum Link Width to X1 or X4 in Root
+				 * Port's PCIe Link Capability register.
+				 * This register is read-only but if is not set
+				 * correctly then access to PCI config space of
+				 * endpoint card behind this Root Port does not
+				 * work.
+				 */
+				reg_data = reg_read(PEX0_RP_PCIE_CFG_OFFSET +
+						    PCI_EXP_LNKCAP);
+				reg_data &= ~PCI_EXP_LNKCAP_MLW;
+				reg_data |= (is_pex_by1 ? 1 : 4) << 4;
+				reg_write(PEX0_RP_PCIE_CFG_OFFSET +
+					  PCI_EXP_LNKCAP, reg_data);
 			}
 
 			CHECK_STATUS(mv_seq_exec(serdes_num, PEX_POWER_UP_SEQ));
@@ -2054,13 +2017,6 @@ int hws_ref_clock_set(u32 serdes_num, enum serdes_type serdes_type,
 				     (serdes_num,
 				      PEX_CONFIG_REF_CLOCK_100MHZ_SEQ));
 			return MV_OK;
-#ifdef CONFIG_ARMADA_39X
-		case REF_CLOCK_40MHZ:
-			CHECK_STATUS(mv_seq_exec
-				     (serdes_num,
-				      PEX_CONFIG_REF_CLOCK_40MHZ_SEQ));
-			return MV_OK;
-#endif
 		default:
 			printf
 			    ("%s: Error: ref_clock %d for SerDes lane #%d, type %d is not supported\n",
@@ -2104,22 +2060,6 @@ int hws_ref_clock_set(u32 serdes_num, enum serdes_type serdes_type,
 			return MV_BAD_PARAM;
 		}
 		break;
-#ifdef CONFIG_ARMADA_39X
-	case SGMII3:
-	case XAUI:
-	case RXAUI:
-		if (ref_clock == REF_CLOCK_25MHZ) {
-			data1 = POWER_AND_PLL_CTRL_REG_25MHZ_VAL_1;
-		} else if (ref_clock == REF_CLOCK_40MHZ) {
-			data1 = POWER_AND_PLL_CTRL_REG_40MHZ_VAL;
-		} else {
-			printf
-			    ("hws_ref_clock_set: ref clock is not valid for serdes type %d\n",
-			     serdes_type);
-			return MV_BAD_PARAM;
-		}
-		break;
-#endif
 	default:
 		DEBUG_INIT_S("hws_ref_clock_set: not supported serdes type\n");
 		return MV_BAD_PARAM;

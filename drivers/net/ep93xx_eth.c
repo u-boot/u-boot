@@ -427,7 +427,7 @@ int ep93xx_miiphy_initialize(struct bd_info * const bd)
 	struct mii_dev *mdiodev = mdio_alloc();
 	if (!mdiodev)
 		return -ENOMEM;
-	strncpy(mdiodev->name, "ep93xx_eth0", MDIO_NAME_LEN);
+	strlcpy(mdiodev->name, "ep93xx_eth0", MDIO_NAME_LEN);
 	mdiodev->read = ep93xx_miiphy_read;
 	mdiodev->write = ep93xx_miiphy_write;
 

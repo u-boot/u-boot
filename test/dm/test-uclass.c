@@ -17,8 +17,6 @@
 #include <test/test.h>
 #include <test/ut.h>
 
-static struct unit_test_state *uts = &global_dm_test_state;
-
 int test_ping(struct udevice *dev, int pingval, int *pingret)
 {
 	const struct test_ops *ops = device_get_ops(dev);
@@ -31,12 +29,13 @@ int test_ping(struct udevice *dev, int pingval, int *pingret)
 
 static int test_post_bind(struct udevice *dev)
 {
+	struct unit_test_state *uts = test_get_state();
 	struct dm_test_perdev_uc_pdata *uc_pdata;
 
 	dm_testdrv_op_count[DM_TEST_OP_POST_BIND]++;
 	ut_assert(!device_active(dev));
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	ut_assert(uc_pdata);
 
 	uc_pdata->intval1 = TEST_UC_PDATA_INTVAL1;
@@ -56,6 +55,7 @@ static int test_pre_unbind(struct udevice *dev)
 static int test_pre_probe(struct udevice *dev)
 {
 	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
+	struct unit_test_state *uts = test_get_state();
 
 	dm_testdrv_op_count[DM_TEST_OP_PRE_PROBE]++;
 	ut_assert(priv);
@@ -66,23 +66,23 @@ static int test_pre_probe(struct udevice *dev)
 
 static int test_post_probe(struct udevice *dev)
 {
+	struct unit_test_state *uts = test_get_state();
 	struct udevice *prev = list_entry(dev->uclass_node.prev,
 					    struct udevice, uclass_node);
 
 	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
 	struct uclass *uc = dev->uclass;
-	struct dm_test_state *dms = uts->priv;
 
 	dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]++;
 	ut_assert(priv);
 	ut_assert(device_active(dev));
 	priv->base_add = 0;
-	if (dms->skip_post_probe)
+	if (uts->skip_post_probe)
 		return 0;
 	if (&prev->uclass_node != &uc->dev_head) {
 		struct dm_test_uclass_perdev_priv *prev_uc_priv
 				= dev_get_uclass_priv(prev);
-		struct dm_test_pdata *pdata = prev->platdata;
+		struct dm_test_pdata *pdata = dev_get_plat(prev);
 
 		ut_assert(pdata);
 		ut_assert(prev_uc_priv);
@@ -101,8 +101,10 @@ static int test_pre_remove(struct udevice *dev)
 
 static int test_init(struct uclass *uc)
 {
+	struct unit_test_state *uts = test_get_state();
+
 	dm_testdrv_op_count[DM_TEST_OP_INIT]++;
-	ut_assert(uc->priv);
+	ut_assert(uclass_get_priv(uc));
 
 	return 0;
 }
@@ -124,8 +126,7 @@ UCLASS_DRIVER(test) = {
 	.pre_remove	= test_pre_remove,
 	.init		= test_init,
 	.destroy	= test_destroy,
-	.priv_auto_alloc_size	= sizeof(struct dm_test_uclass_priv),
-	.per_device_auto_alloc_size = sizeof(struct dm_test_uclass_perdev_priv),
-	.per_device_platdata_auto_alloc_size =
-					sizeof(struct dm_test_perdev_uc_pdata),
+	.priv_auto	= sizeof(struct dm_test_uclass_priv),
+	.per_device_auto	= sizeof(struct dm_test_uclass_perdev_priv),
+	.per_device_plat_auto	= sizeof(struct dm_test_perdev_uc_pdata),
 };

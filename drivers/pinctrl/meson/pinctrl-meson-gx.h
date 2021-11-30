@@ -43,6 +43,6 @@ struct meson_gx_pmx_data {
 	}
 
 extern const struct pinctrl_ops meson_gx_pinctrl_ops;
-extern const struct driver meson_gx_gpio_driver;
+extern U_BOOT_DRIVER(meson_gx_gpio_driver);
 
 #endif /* __PINCTRL_MESON_GX_H__ */

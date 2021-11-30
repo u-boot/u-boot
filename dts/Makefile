@@ -16,7 +16,8 @@ else
 DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
 endif
 
-$(obj)/dt-spl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
+$(obj)/dt-$(SPL_NAME).dtb: dts/dt.dtb $(objtree)/tools/fdtgrep FORCE
+	mkdir -p $(dir $@)
 	$(call if_changed,fdtgrep)
 
 ifeq ($(CONFIG_OF_DTB_PROPS_REMOVE),y)
@@ -27,12 +28,12 @@ $(obj)/dt.dtb: $(DTB) FORCE
 	$(call if_changed,shipped)
 endif
 
-targets += dt.dtb dt-spl.dtb
+targets += dt.dtb
 
 $(DTB): arch-dtbs
 	$(Q)test -e $@ || (						\
 	echo >&2;							\
-	echo >&2 "Device Tree Source is not correctly specified.";	\
+	echo >&2 "Device Tree Source ($@) is not correctly specified.";	\
 	echo >&2 "Please define 'CONFIG_DEFAULT_DEVICE_TREE'";		\
 	echo >&2 "or build with 'DEVICE_TREE=<device_tree>' argument";	\
 	echo >&2;							\
@@ -51,10 +52,15 @@ else
 obj-$(CONFIG_OF_EMBED) := dt.dtb.o
 endif
 
-dtbs: $(obj)/dt.dtb $(obj)/dt-spl.dtb
+# Target for U-Boot proper
+dtbs: $(obj)/dt.dtb
 	@:
 
-clean-files := dt.dtb.S dt-spl.dtb.S
+# Target for SPL/TPL
+spl_dtbs: $(obj)/dt-$(SPL_NAME).dtb
+	@:
+
+clean-files := dt.dtb.S
 
 # Let clean descend into dts directories
 subdir- += ../arch/arm/dts ../arch/microblaze/dts ../arch/mips/dts ../arch/sandbox/dts ../arch/x86/dts ../arch/powerpc/dts ../arch/riscv/dts

@@ -1019,7 +1019,7 @@ int dwc_ahsata_scan(struct udevice *dev)
 		}
 	}
 
-	desc = dev_get_uclass_platdata(blk);
+	desc = dev_get_uclass_plat(blk);
 	ret = dwc_ahsata_scan_common(uc_priv, desc);
 	if (ret) {
 		debug("%s: Failed to scan bus\n", __func__);
@@ -1054,7 +1054,7 @@ int dwc_ahsata_probe(struct udevice *dev)
 static ulong dwc_ahsata_read(struct udevice *blk, lbaint_t blknr,
 			     lbaint_t blkcnt, void *buffer)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(blk);
+	struct blk_desc *desc = dev_get_uclass_plat(blk);
 	struct udevice *dev = dev_get_parent(blk);
 	struct ahci_uc_priv *uc_priv;
 
@@ -1065,7 +1065,7 @@ static ulong dwc_ahsata_read(struct udevice *blk, lbaint_t blknr,
 static ulong dwc_ahsata_write(struct udevice *blk, lbaint_t blknr,
 			      lbaint_t blkcnt, const void *buffer)
 {
-	struct blk_desc *desc = dev_get_uclass_platdata(blk);
+	struct blk_desc *desc = dev_get_uclass_plat(blk);
 	struct udevice *dev = dev_get_parent(blk);
 	struct ahci_uc_priv *uc_priv;
 

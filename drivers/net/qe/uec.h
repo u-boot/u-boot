@@ -678,7 +678,7 @@ struct uec_priv {
 	int				grace_stopped_tx;
 	int				grace_stopped_rx;
 	int				the_first_run;
-#if !defined(COFIG_DM)
+#if !defined(CONFIG_DM)
 	/* PHY specific */
 	struct uec_mii_info		*mii_info;
 	int				oldspeed;

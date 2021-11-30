@@ -272,5 +272,5 @@ U_BOOT_DRIVER(rtc_ds3232) = {
 	.probe = ds3232_probe,
 	.of_match = ds3232_rtc_ids,
 	.ops = &ds3232_rtc_ops,
-	.priv_auto_alloc_size = sizeof(struct ds3232_priv_data),
+	.priv_auto	= sizeof(struct ds3232_priv_data),
 };

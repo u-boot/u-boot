@@ -28,13 +28,9 @@
 
 /* Network support */
 
-#define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #define CONFIG_FEC_XCV_TYPE		RMII
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
 
 #define CONFIG_MXC_UART_BASE		UART6_BASE_ADDR
 
@@ -49,7 +45,6 @@
 
 #define CONFIG_USBD_HS
 
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
 #define CONFIG_DFU_ENV_SETTINGS \
@@ -83,11 +78,11 @@
 	BOOTMENU_ENV \
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x83000000\0" \
 	"ramdiskaddr=0x83000000\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"mmcautodetect=yes\0" \
 	CONFIG_DFU_ENV_SETTINGS \
 	"findfdt=" \
@@ -112,9 +107,6 @@
 #include <config_distro_bootcmd.h>
 #include <linux/stringify.h>
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_SYS_HZ			1000
-
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
@@ -126,10 +118,6 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-/* I2C configs */
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		100000
 
 /* environment organization */
 /* Environment starts at 768k = 768 * 1024 = 786432 */
@@ -144,8 +132,7 @@
  */
 #define CONFIG_BOARD_SIZE_LIMIT		715776
 
-#ifdef CONFIG_VIDEO
-#define CONFIG_VIDEO_MXS
+#ifdef CONFIG_DM_VIDEO
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR

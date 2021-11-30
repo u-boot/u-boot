@@ -33,11 +33,6 @@
 #define MV_88F68XX_A0_ID	0x4
 #define MV_88F68XX_B0_ID	0xa
 
-/* TCLK Core Clock definition */
-#ifndef CONFIG_SYS_TCLK
-#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
-#endif
-
 /* SOC specific definations */
 #define INTREG_BASE		0xd0000000
 #define INTREG_BASE_ADDR_REG	(INTREG_BASE + 0x20080)
@@ -150,6 +145,9 @@
 
 #define BOOT_FROM_UART		0x30
 #define BOOT_FROM_SPI		0x38
+
+#define CONFIG_SYS_TCLK		((readl(CONFIG_SAR_REG) & BIT(20)) ? \
+				 200000000 : 166000000)
 #elif defined(CONFIG_ARMADA_38X)
 /* SAR values for Armada 38x */
 #define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18600))
@@ -170,6 +168,9 @@
 #define BOOT_FROM_SPI		0x32
 #define BOOT_FROM_MMC		0x30
 #define BOOT_FROM_MMC_ALT	0x31
+
+#define CONFIG_SYS_TCLK		((readl(CONFIG_SAR_REG) & BIT(15)) ? \
+				 200000000 : 250000000)
 #elif defined(CONFIG_ARMADA_MSYS)
 /* SAR values for MSYS */
 #define CONFIG_SAR_REG		(MBUS_DFX_BASE  + 0xf8200)
@@ -186,7 +187,9 @@
 #define BOOT_FROM_NAND		0x1
 #define BOOT_FROM_UART		0x2
 #define BOOT_FROM_SPI		0x3
-#else
+
+#define CONFIG_SYS_TCLK		200000000	/* 200MHz */
+#elif defined(CONFIG_ARMADA_XP)
 /* SAR values for Armada XP */
 #define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18230))
 #define CONFIG_SAR2_REG		(MVEBU_REGISTER(0x18234))
@@ -205,6 +208,8 @@
 
 #define BOOT_FROM_UART		0x2
 #define BOOT_FROM_SPI		0x3
+
+#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 #endif
 
 #endif /* _MVEBU_SOC_H */

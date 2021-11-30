@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>

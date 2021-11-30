@@ -7,25 +7,21 @@
 #ifndef __TEGRA_COMMON_POST_H
 #define __TEGRA_COMMON_POST_H
 
-/*
- * Size of malloc() pool
- */
-#ifdef CONFIG_DFU_OVER_USB
-#define CONFIG_SYS_MALLOC_LEN	(SZ_4M + \
-					CONFIG_SYS_DFU_DATA_BUF_SIZE + \
-					CONFIG_SYS_DFU_MAX_FILE_SIZE)
-#else
-#define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
-#endif
-
 #define CONFIG_SYS_NONCACHED_MEMORY	(1 << 20)	/* 1 MiB */
 
 #ifndef CONFIG_SPL_BUILD
+
+#if CONFIG_IS_ENABLED(CMD_USB)
+# define BOOT_TARGET_USB(func) func(USB, usb, 0)
+#else
+# define BOOT_TARGET_USB(func)
+#endif
+
 #ifndef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
-	func(USB, usb, 0) \
+	BOOT_TARGET_USB(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 #endif
@@ -74,8 +70,6 @@
 #define BOARD_EXTRA_ENV_SETTINGS
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR CONFIG_LOADADDR
-
 #ifndef CONFIG_CHROMEOS_EXTRA_ENV_SETTINGS
 #define CONFIG_CHROMEOS_EXTRA_ENV_SETTINGS
 #endif
@@ -103,13 +97,6 @@
 
 /* overrides for SPL build here */
 #ifdef CONFIG_SPL_BUILD
-
-#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-
-/* remove I2C support */
-#ifdef CONFIG_SYS_I2C_TEGRA
-#undef CONFIG_SYS_I2C_TEGRA
-#endif
 
 /* remove USB */
 #ifdef CONFIG_USB_EHCI_TEGRA

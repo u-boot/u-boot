@@ -436,7 +436,7 @@ static int get_boardmem_size(struct spi_flash *spi)
 	return 1024;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 }
 

@@ -22,11 +22,6 @@
 #define CONFIG_TEGRA_SLINK_CTRLS       6
 #define CONFIG_SPI_FLASH_SIZE          (4 << 20)
 
-/* Tag support */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

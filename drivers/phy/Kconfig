@@ -59,6 +59,17 @@ config SPL_NOP_PHY
 	  This is useful when a driver uses the PHY framework but no real PHY
 	  hardware exists.
 
+config MIPI_DPHY_HELPERS
+	bool "MIPI D-PHY support helpers"
+	help
+	  Provides a number of helpers a core functions for MIPI D-PHY drivers.
+
+config AB8500_USB_PHY
+	bool "AB8500 USB PHY Driver"
+	depends on PHY && PMIC_AB8500
+	help
+	  Support for the USB OTG PHY in ST-Ericsson AB8500.
+
 config BCM6318_USBH_PHY
 	bool "BCM6318 USBH PHY support"
 	depends on PHY && ARCH_BMIPS
@@ -191,6 +202,24 @@ config MESON_G12A_USB_PHY
 	  This is the generic phy driver for the Amlogic Meson G12A
 	  USB2 and USB3 PHYS.
 
+config MESON_AXG_MIPI_DPHY
+	bool "Amlogic Meson AXG MIPI D-PHY"
+	depends on PHY && ARCH_MESON && MESON_AXG
+	select MIPI_DPHY_HELPERS
+	imply REGMAP
+	help
+	  This is the generic phy driver for the Amlogic Meson AXG
+	  MIPI D-PHY.
+
+config MESON_AXG_MIPI_PCIE_ANALOG_PHY
+	bool "Amlogic Meson AXG MIPI PCIe Analog PHY"
+	depends on PHY && ARCH_MESON && MESON_AXG
+	select MIPI_DPHY_HELPERS
+	imply REGMAP
+	help
+	  This is the generic phy driver for the Amlogic Meson AXG
+	  MIPI PCIe Analog PHY.
+
 config MSM8916_USB_PHY
 	bool "Qualcomm MSM8916 USB PHY support"
 	depends on PHY
@@ -218,6 +247,13 @@ config KEYSTONE_USB_PHY
 
 	  This PHY is found on some Keystone (K2) devices supporting USB.
 
+config MT7620_USB_PHY
+	bool "MediaTek MT7620 USB PHY support"
+	depends on PHY
+	depends on SOC_MT7620
+	help
+          Support the intergated USB PHY in MediaTek MT7620 SoC
+
 config MT76X8_USB_PHY
 	bool "MediaTek MT76x8 (7628/88) USB PHY support"
 	depends on PHY
@@ -238,5 +274,15 @@ config PHY_MTK_TPHY
 	  multi-ports is first version, otherwise is second veriosn,
 	  so you can easily distinguish them by banks layout.
 
+config PHY_IMX8MQ_USB
+	bool "NXP i.MX8MQ USB PHY Driver"
+	depends on PHY
+	depends on IMX8MQ
+	help
+	  Support the USB3.0 PHY in NXP i.MX8MQ SoC
+
 source "drivers/phy/rockchip/Kconfig"
+source "drivers/phy/cadence/Kconfig"
+source "drivers/phy/ti/Kconfig"
+
 endmenu

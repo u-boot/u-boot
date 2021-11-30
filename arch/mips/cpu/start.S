@@ -233,7 +233,7 @@ wr_done:
 # endif
 #endif
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 # ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* Initialize any external memory */
 	PTR_LA	t9, lowlevel_init
@@ -254,7 +254,7 @@ wr_done:
 	 nop
 #endif
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 # ifndef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* Initialize any external memory */
 	PTR_LA	t9, lowlevel_init

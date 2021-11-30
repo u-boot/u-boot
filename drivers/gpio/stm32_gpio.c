@@ -4,12 +4,13 @@
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_GPIO
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/stm32.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -17,6 +18,8 @@
 #include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/io.h>
+
+#include "stm32_gpio_priv.h"
 
 #define STM32_GPIOS_PER_BANK		16
 
@@ -189,8 +192,8 @@ static int stm32_gpio_get_function(struct udevice *dev, unsigned int offset)
 	return GPIOF_FUNC;
 }
 
-static int stm32_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
-				    ulong flags)
+static int stm32_gpio_set_flags(struct udevice *dev, unsigned int offset,
+				ulong flags)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
@@ -201,12 +204,13 @@ static int stm32_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
 		return idx;
 
 	if (flags & GPIOD_IS_OUT) {
-		int value = GPIOD_FLAGS_OUTPUT(flags);
+		bool value = flags & GPIOD_IS_OUT_ACTIVE;
 
 		if (flags & GPIOD_OPEN_DRAIN)
 			stm32_gpio_set_otype(regs, idx, STM32_GPIO_OTYPE_OD);
 		else
 			stm32_gpio_set_otype(regs, idx, STM32_GPIO_OTYPE_PP);
+
 		stm32_gpio_set_moder(regs, idx, STM32_GPIO_MODE_OUT);
 		writel(BSRR_BIT(idx, value), &regs->bsrr);
 
@@ -221,8 +225,8 @@ static int stm32_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
 	return 0;
 }
 
-static int stm32_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
-				    ulong *flags)
+static int stm32_gpio_get_flags(struct udevice *dev, unsigned int offset,
+				ulong *flagsp)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
@@ -257,7 +261,7 @@ static int stm32_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
 	default:
 		break;
 	}
-	*flags = dir_flags;
+	*flagsp = dir_flags;
 
 	return 0;
 }
@@ -268,8 +272,8 @@ static const struct dm_gpio_ops gpio_stm32_ops = {
 	.get_value		= stm32_gpio_get_value,
 	.set_value		= stm32_gpio_set_value,
 	.get_function		= stm32_gpio_get_function,
-	.set_dir_flags		= stm32_gpio_set_dir_flags,
-	.get_dir_flags		= stm32_gpio_get_dir_flags,
+	.set_flags		= stm32_gpio_set_flags,
+	.get_flags		= stm32_gpio_get_flags,
 };
 
 static int gpio_stm32_probe(struct udevice *dev)
@@ -331,7 +335,7 @@ static int gpio_stm32_probe(struct udevice *dev)
 		dev_err(dev, "failed to enable clock\n");
 		return ret;
 	}
-	debug("clock enabled for device %s\n", dev->name);
+	dev_dbg(dev, "clock enabled\n");
 
 	return 0;
 }
@@ -342,5 +346,5 @@ U_BOOT_DRIVER(gpio_stm32) = {
 	.probe	= gpio_stm32_probe,
 	.ops	= &gpio_stm32_ops,
 	.flags	= DM_UC_FLAG_SEQ_ALIAS,
-	.priv_auto_alloc_size	= sizeof(struct stm32_gpio_priv),
+	.priv_auto	= sizeof(struct stm32_gpio_priv),
 };

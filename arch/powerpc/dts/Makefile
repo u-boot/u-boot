@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+dtb-$(CONFIG_TARGET_KMCENT2) += kmcent2.dtb
 dtb-$(CONFIG_TARGET_KMCOGE5NE) += kmcoge5ne.dtb
 dtb-$(CONFIG_TARGET_KMETER1) += kmeter1.dtb
 dtb-$(CONFIG_TARGET_KMOPTI2) += kmopti2.dtb
 dtb-$(CONFIG_TARGET_KMSUPX5) += kmsupc5.dtb kmsupm5.dtb
 dtb-$(CONFIG_TARGET_KMTEGR1) += kmtegr1.dtb
 dtb-$(CONFIG_TARGET_KMTEPR2) += kmtepr2.dtb
+dtb-$(CONFIG_TARGET_MPC837XERDB) += mpc8379erdb.dtb
 dtb-$(CONFIG_TARGET_MPC8548CDS) += mpc8548cds.dtb mpc8548cds_36b.dtb
 dtb-$(CONFIG_TARGET_P1010RDB_PA) += p1010rdb-pa.dtb p1010rdb-pa_36b.dtb
 dtb-$(CONFIG_TARGET_P1010RDB_PB) += p1010rdb-pb.dtb p1010rdb-pb_36b.dtb

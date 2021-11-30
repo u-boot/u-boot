@@ -1,6 +1,9 @@
 menu "Sandbox architecture"
 	depends on SANDBOX
 
+config ARCH_MAP_SYSMEM
+	def_bool y
+
 config SYS_ARCH
 	default "sandbox"
 
@@ -50,6 +53,15 @@ config HOST_64BIT
 	bool "64-bit host"
 
 endchoice
+
+config SANDBOX_CRASH_RESET
+	bool "Reset on crash"
+	help
+	  If an illegal instruction or an illegal memory access occurs, the
+	  sandbox by default writes a crash dump and exits. If you set this
+	  flag, the sandbox is reset instead. This may be useful when running
+	  test suites like the UEFI self certification test which continue
+	  with the next test after a crash.
 
 config SANDBOX_BITS_PER_LONG
 	int

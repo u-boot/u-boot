@@ -8,7 +8,7 @@
 #ifndef _PINCTRL_SNAPDRAGON_H
 #define _PINCTRL_SNAPDRAGON_H
 
-#include <common.h>
+struct udevice;
 
 struct msm_pinctrl_data {
 	int pin_count;
@@ -27,5 +27,6 @@ struct pinctrl_function {
 
 extern struct msm_pinctrl_data apq8016_data;
 extern struct msm_pinctrl_data apq8096_data;
+extern struct msm_pinctrl_data sdm845_data;
 
 #endif

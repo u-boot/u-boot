@@ -27,7 +27,7 @@ bool meson_gx_mmc_is_compatible(struct udevice *dev,
 
 static inline void *get_regbase(const struct mmc *mmc)
 {
-	struct meson_mmc_platdata *pdata = mmc->priv;
+	struct meson_mmc_plat *pdata = mmc->priv;
 
 	return pdata->regbase;
 }
@@ -160,7 +160,7 @@ static void meson_mmc_setup_cmd(struct mmc *mmc, struct mmc_data *data,
 
 static void meson_mmc_setup_addr(struct mmc *mmc, struct mmc_data *data)
 {
-	struct meson_mmc_platdata *pdata = mmc->priv;
+	struct meson_mmc_plat *pdata = mmc->priv;
 	unsigned int data_size;
 	uint32_t data_addr = 0;
 
@@ -198,7 +198,7 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 				 struct mmc_data *data)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-	struct meson_mmc_platdata *pdata = mmc->priv;
+	struct meson_mmc_plat *pdata = mmc->priv;
 	uint32_t status;
 	ulong start;
 	int ret = 0;
@@ -241,9 +241,9 @@ static const struct dm_mmc_ops meson_dm_mmc_ops = {
 	.set_ios = meson_dm_mmc_set_ios,
 };
 
-static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
+static int meson_mmc_of_to_plat(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct meson_mmc_plat *pdata = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -257,17 +257,13 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 
 static int meson_mmc_probe(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct meson_mmc_plat *pdata = dev_get_plat(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 	struct mmc_config *cfg = &pdata->cfg;
 	struct clk_bulk clocks;
 	uint32_t val;
 	int ret;
-
-#ifdef CONFIG_PWRSEQ
-	struct udevice *pwr_dev;
-#endif
 
 	/* Enable the clocks feeding the MMC controller */
 	ret = clk_get_bulk(dev, &clocks);
@@ -292,12 +288,11 @@ static int meson_mmc_probe(struct udevice *dev)
 
 	mmc_set_clock(mmc, cfg->f_min, MMC_CLK_ENABLE);
 
-#ifdef CONFIG_PWRSEQ
+#ifdef CONFIG_MMC_PWRSEQ
 	/* Enable power if needed */
-	ret = uclass_get_device_by_phandle(UCLASS_PWRSEQ, dev, "mmc-pwrseq",
-					   &pwr_dev);
+	ret = mmc_pwrseq_get_power(dev, cfg);
 	if (!ret) {
-		ret = pwrseq_set_power(pwr_dev, true);
+		ret = pwrseq_set_power(cfg->pwr_dev, true);
 		if (ret)
 			return ret;
 	}
@@ -320,7 +315,7 @@ static int meson_mmc_probe(struct udevice *dev)
 
 int meson_mmc_bind(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct meson_mmc_plat *pdata = dev_get_plat(dev);
 
 	return mmc_bind(dev, &pdata->mmc, &pdata->cfg);
 }
@@ -339,40 +334,6 @@ U_BOOT_DRIVER(meson_mmc) = {
 	.ops = &meson_dm_mmc_ops,
 	.probe = meson_mmc_probe,
 	.bind = meson_mmc_bind,
-	.ofdata_to_platdata = meson_mmc_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct meson_mmc_platdata),
+	.of_to_plat = meson_mmc_of_to_plat,
+	.plat_auto	= sizeof(struct meson_mmc_plat),
 };
-
-#ifdef CONFIG_PWRSEQ
-static int meson_mmc_pwrseq_set_power(struct udevice *dev, bool enable)
-{
-	struct gpio_desc reset;
-	int ret;
-
-	ret = gpio_request_by_name(dev, "reset-gpios", 0, &reset, GPIOD_IS_OUT);
-	if (ret)
-		return ret;
-	dm_gpio_set_value(&reset, 1);
-	udelay(1);
-	dm_gpio_set_value(&reset, 0);
-	udelay(200);
-
-	return 0;
-}
-
-static const struct pwrseq_ops meson_mmc_pwrseq_ops = {
-	.set_power	= meson_mmc_pwrseq_set_power,
-};
-
-static const struct udevice_id meson_mmc_pwrseq_ids[] = {
-	{ .compatible = "mmc-pwrseq-emmc" },
-	{ }
-};
-
-U_BOOT_DRIVER(meson_mmc_pwrseq_drv) = {
-	.name		= "mmc_pwrseq_emmc",
-	.id		= UCLASS_PWRSEQ,
-	.of_match	= meson_mmc_pwrseq_ids,
-	.ops		= &meson_mmc_pwrseq_ops,
-};
-#endif

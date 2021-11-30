@@ -24,8 +24,18 @@ static int dfu_get_medium_size_sf(struct dfu_entity *dfu, u64 *size)
 static int dfu_read_medium_sf(struct dfu_entity *dfu, u64 offset, void *buf,
 			      long *len)
 {
-	return spi_flash_read(dfu->data.sf.dev, dfu->data.sf.start + offset,
-		*len, buf);
+	long seglen = *len;
+	int ret;
+
+	if (seglen > (16 << 20))
+		seglen = (16 << 20);
+
+	ret = spi_flash_read(dfu->data.sf.dev, dfu->data.sf.start + offset,
+		seglen, buf);
+	if (!ret)
+		*len = seglen;
+
+	return ret;
 }
 
 static u64 find_sector(struct dfu_entity *dfu, u64 start, u64 offset)
@@ -87,7 +97,23 @@ static unsigned int dfu_polltimeout_sf(struct dfu_entity *dfu)
 
 static void dfu_free_entity_sf(struct dfu_entity *dfu)
 {
-	spi_flash_free(dfu->data.sf.dev);
+	/*
+	 * In the DM case it is not necessary to free the SPI device.
+	 * For the non-DM case we must ensure that the the SPI device is only
+	 * freed once.
+	 */
+	if (!CONFIG_IS_ENABLED(DM_SPI_FLASH)) {
+		struct spi_flash *dev = dfu->data.sf.dev;
+
+		if (!dev)
+			return;
+		dfu->data.sf.dev = NULL;
+		list_for_each_entry(dfu, &dfu_list, list) {
+			if (dfu->data.sf.dev == dev)
+				dfu->data.sf.dev = NULL;
+		}
+		spi_flash_free(dev);
+	}
 }
 
 static struct spi_flash *parse_dev(char *devstr)
@@ -131,7 +157,7 @@ static struct spi_flash *parse_dev(char *devstr)
 
 	dev = spi_flash_probe(bus, cs, speed, mode);
 	if (!dev) {
-		printf("Failed to create SPI flash at %d:%d:%d:%d\n",
+		printf("Failed to create SPI flash at %u:%u:%u:%u\n",
 		       bus, cs, speed, mode);
 		return NULL;
 	}
@@ -155,9 +181,9 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 	st = strsep(&s, " ");
 	if (!strcmp(st, "raw")) {
 		dfu->layout = DFU_RAW_ADDR;
-		dfu->data.sf.start = simple_strtoul(s, &s, 16);
+		dfu->data.sf.start = hextoul(s, &s);
 		s++;
-		dfu->data.sf.size = simple_strtoul(s, &s, 16);
+		dfu->data.sf.size = hextoul(s, &s);
 	} else if (CONFIG_IS_ENABLED(DFU_SF_PART) &&
 		   (!strcmp(st, "part") || !strcmp(st, "partubi"))) {
 		char mtd_id[32];
@@ -168,9 +194,9 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 
 		dfu->layout = DFU_RAW_ADDR;
 
-		dev = simple_strtoul(s, &s, 10);
+		dev = dectoul(s, &s);
 		s++;
-		part = simple_strtoul(s, &s, 10);
+		part = dectoul(s, &s);
 
 		sprintf(mtd_id, "%s%d,%d", "nor", dev, part - 1);
 		printf("using id '%s'\n", mtd_id);

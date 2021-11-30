@@ -4,7 +4,7 @@
 
 config USB_MTU3
 	bool "MediaTek USB3 Dual Role controller"
-	depends on USB_HOST || USB_GADGET
+	depends on USB_XHCI_HCD || USB_GADGET
 	depends on ARCH_MEDIATEK
 	help
 	  Say Y here if your system runs on MediaTek SoCs with

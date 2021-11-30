@@ -10,6 +10,6 @@
 
 / {
 	chosen {
-		stdout-path = &serial0;
+		stdout-path = &duart0;
 	};
 };

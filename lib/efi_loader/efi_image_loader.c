@@ -213,7 +213,68 @@ static void efi_set_code_and_data_type(
 	}
 }
 
-#ifdef CONFIG_EFI_SECURE_BOOT
+/**
+ * efi_image_region_add() - add an entry of region
+ * @regs:	Pointer to array of regions
+ * @start:	Start address of region (included)
+ * @end:	End address of region (excluded)
+ * @nocheck:	flag against overlapped regions
+ *
+ * Take one entry of region \[@start, @end\[ and insert it into the list.
+ *
+ * * If @nocheck is false, the list will be sorted ascending by address.
+ *   Overlapping entries will not be allowed.
+ *
+ * * If @nocheck is true, the list will be sorted ascending by sequence
+ *   of adding the entries. Overlapping is allowed.
+ *
+ * Return:	status code
+ */
+efi_status_t efi_image_region_add(struct efi_image_regions *regs,
+				  const void *start, const void *end,
+				  int nocheck)
+{
+	struct image_region *reg;
+	int i, j;
+
+	if (regs->num >= regs->max) {
+		EFI_PRINT("%s: no more room for regions\n", __func__);
+		return EFI_OUT_OF_RESOURCES;
+	}
+
+	if (end < start)
+		return EFI_INVALID_PARAMETER;
+
+	for (i = 0; i < regs->num; i++) {
+		reg = &regs->reg[i];
+		if (nocheck)
+			continue;
+
+		/* new data after registered region */
+		if (start >= reg->data + reg->size)
+			continue;
+
+		/* new data preceding registered region */
+		if (end <= reg->data) {
+			for (j = regs->num - 1; j >= i; j--)
+				memcpy(&regs->reg[j + 1], &regs->reg[j],
+				       sizeof(*reg));
+			break;
+		}
+
+		/* new data overlapping registered region */
+		EFI_PRINT("%s: new region already part of another\n", __func__);
+		return EFI_INVALID_PARAMETER;
+	}
+
+	reg = &regs->reg[i];
+	reg->data = start;
+	reg->size = end - start;
+	regs->num++;
+
+	return EFI_SUCCESS;
+}
+
 /**
  * cmp_pe_section() - compare virtual addresses of two PE image sections
  * @arg1:	pointer to pointer to first section header
@@ -239,6 +300,38 @@ static int cmp_pe_section(const void *arg1, const void *arg2)
 		return 0;
 	else
 		return 1;
+}
+
+/**
+ * efi_prepare_aligned_image() - prepare 8-byte aligned image
+ * @efi:		pointer to the EFI binary
+ * @efi_size:		size of @efi binary
+ *
+ * If @efi is not 8-byte aligned, this function newly allocates
+ * the image buffer.
+ *
+ * Return:	valid pointer to a image, return NULL if allocation fails.
+ */
+void *efi_prepare_aligned_image(void *efi, u64 *efi_size)
+{
+	size_t new_efi_size;
+	void *new_efi;
+
+	/*
+	 * Size must be 8-byte aligned and the trailing bytes must be
+	 * zero'ed. Otherwise hash value may be incorrect.
+	 */
+	if (!IS_ALIGNED(*efi_size, 8)) {
+		new_efi_size = ALIGN(*efi_size, 8);
+		new_efi = calloc(new_efi_size, 1);
+		if (!new_efi)
+			return NULL;
+		memcpy(new_efi, efi, *efi_size);
+		*efi_size = new_efi_size;
+		return new_efi;
+	} else {
+		return efi;
+	}
 }
 
 /**
@@ -422,6 +515,7 @@ err:
 	return false;
 }
 
+#ifdef CONFIG_EFI_SECURE_BOOT
 /**
  * efi_image_unsigned_authenticate() - authenticate unsigned image with
  * SHA256 hash
@@ -499,7 +593,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	struct efi_signature_store *db = NULL, *dbx = NULL;
 	void *new_efi = NULL;
 	u8 *auth, *wincerts_end;
-	size_t new_efi_size, auth_size;
+	size_t auth_size;
 	bool ret = false;
 
 	EFI_PRINT("%s: Enter, %d\n", __func__, ret);
@@ -507,21 +601,11 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	if (!efi_secure_boot_enabled())
 		return true;
 
-	/*
-	 * Size must be 8-byte aligned and the trailing bytes must be
-	 * zero'ed. Otherwise hash value may be incorrect.
-	 */
-	if (efi_size & 0x7) {
-		new_efi_size = (efi_size + 0x7) & ~0x7ULL;
-		new_efi = calloc(new_efi_size, 1);
-		if (!new_efi)
-			return false;
-		memcpy(new_efi, efi, efi_size);
-		efi = new_efi;
-		efi_size = new_efi_size;
-	}
+	new_efi = efi_prepare_aligned_image(efi, (u64 *)&efi_size);
+	if (!new_efi)
+		return false;
 
-	if (!efi_image_parse(efi, efi_size, &regs, &wincerts,
+	if (!efi_image_parse(new_efi, efi_size, &regs, &wincerts,
 			     &wincerts_len)) {
 		EFI_PRINT("Parsing PE executable image failed\n");
 		goto err;
@@ -663,7 +747,8 @@ err:
 	efi_sigstore_free(dbx);
 	pkcs7_free_message(msg);
 	free(regs);
-	free(new_efi);
+	if (new_efi != efi)
+		free(new_efi);
 
 	EFI_PRINT("%s: Exit, %d\n", __func__, ret);
 	return ret;
@@ -713,6 +798,23 @@ efi_status_t efi_check_pe(void *buffer, size_t size, void **nt_header)
 		*nt_header = nt;
 
 	return EFI_SUCCESS;
+}
+
+/**
+ * section_size() - determine size of section
+ *
+ * The size of a section in memory if normally given by VirtualSize.
+ * If VirtualSize is not provided, use SizeOfRawData.
+ *
+ * @sec:	section header
+ * Return:	size of section in memory
+ */
+static u32 section_size(IMAGE_SECTION_HEADER *sec)
+{
+	if (sec->Misc.VirtualSize)
+		return sec->Misc.VirtualSize;
+	else
+		return sec->SizeOfRawData;
 }
 
 /**
@@ -784,8 +886,9 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 	/* Calculate upper virtual address boundary */
 	for (i = num_sections - 1; i >= 0; i--) {
 		IMAGE_SECTION_HEADER *sec = &sections[i];
+
 		virt_size = max_t(unsigned long, virt_size,
-				  sec->VirtualAddress + sec->Misc.VirtualSize);
+				  sec->VirtualAddress + section_size(sec));
 	}
 
 	/* Read 32/64bit specific header bits */
@@ -795,8 +898,9 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		image_base = opt->ImageBase;
 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
 		handle->image_type = opt->Subsystem;
-		efi_reloc = efi_alloc(virt_size,
-				      loaded_image_info->image_code_type);
+		efi_reloc = efi_alloc_aligned_pages(virt_size,
+						    loaded_image_info->image_code_type,
+						    opt->SectionAlignment);
 		if (!efi_reloc) {
 			log_err("Out of memory\n");
 			ret = EFI_OUT_OF_RESOURCES;
@@ -805,14 +909,14 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
-		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
 		image_base = opt->ImageBase;
 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
 		handle->image_type = opt->Subsystem;
-		efi_reloc = efi_alloc(virt_size,
-				      loaded_image_info->image_code_type);
+		efi_reloc = efi_alloc_aligned_pages(virt_size,
+						    loaded_image_info->image_code_type,
+						    opt->SectionAlignment);
 		if (!efi_reloc) {
 			log_err("Out of memory\n");
 			ret = EFI_OUT_OF_RESOURCES;
@@ -821,13 +925,19 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
-		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 	} else {
 		log_err("Invalid optional header magic %x\n",
 			nt->OptionalHeader.Magic);
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}
+
+#if CONFIG_IS_ENABLED(EFI_TCG2_PROTOCOL)
+	/* Measure an PE/COFF image */
+	if (tcg2_measure_pe_image(efi, efi_size, handle,
+				  loaded_image_info))
+		log_err("PE image measurement failed\n");
+#endif
 
 	/* Copy PE headers */
 	memcpy(efi_reloc, efi,
@@ -839,11 +949,16 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 	/* Load sections into RAM */
 	for (i = num_sections - 1; i >= 0; i--) {
 		IMAGE_SECTION_HEADER *sec = &sections[i];
-		memset(efi_reloc + sec->VirtualAddress, 0,
-		       sec->Misc.VirtualSize);
+		u32 copy_size = section_size(sec);
+
+		if (copy_size > sec->SizeOfRawData) {
+			copy_size = sec->SizeOfRawData;
+			memset(efi_reloc + sec->VirtualAddress, 0,
+			       sec->Misc.VirtualSize);
+		}
 		memcpy(efi_reloc + sec->VirtualAddress,
 		       efi + sec->PointerToRawData,
-		       sec->SizeOfRawData);
+		       copy_size);
 	}
 
 	/* Run through relocations */

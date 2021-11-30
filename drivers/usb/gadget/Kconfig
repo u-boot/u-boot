@@ -15,6 +15,8 @@
 
 menuconfig USB_GADGET
 	bool "USB Gadget Support"
+	depends on DM
+	select DM_USB
 	help
 	   USB is a master/slave protocol, organized with one master
 	   host (such as a PC) controlling up to 127 peripheral devices.
@@ -97,6 +99,15 @@ config USB_GADGET_DWC2_OTG_PHY_BUS_WIDTH_8
 	  PHY interface width to 8 bits, rather than the default (16 bits).
 
 endif # USB_GADGET_DWC2_OTG
+
+config USB_GADGET_OS_DESCRIPTORS
+	bool "USB OS Feature Descriptors support"
+	help
+	  This is a porting patch from linux kernel: 37a3a533429e
+	  ("usb: gadget: OS Feature Descriptors support"), the original commit
+	  log see below:
+	  There is a custom (non-USB IF) extension to the USB standard:
+	  http://msdn.microsoft.com/library/windows/hardware/gg463182
 
 config CI_UDC
 	bool "ChipIdea device controller"

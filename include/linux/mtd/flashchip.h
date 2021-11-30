@@ -52,7 +52,6 @@ typedef enum {
 } flstate_t;
 
 
-
 /* NOTE: confusingly, this can be used to refer to more than one chip at a time,
    if they're interleaved.  This can even refer to individual partitions on
    the same physical chip when present. */

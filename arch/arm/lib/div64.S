@@ -34,12 +34,12 @@
  *       This is meant to be used by do_div() from include/asm/div64.h only.
  *
  * Input parameters:
- * 	xh-xl	= dividend (clobbered)
- * 	r4	= divisor (preserved)
+ *	xh-xl	= dividend (clobbered)
+ *	r4	= divisor (preserved)
  *
  * Output values:
- * 	yh-yl	= result
- * 	xh	= remainder
+ *	yh-yl	= result
+ *	xh	= remainder
  *
  * Clobbered regs: xl, ip
  */
@@ -85,7 +85,7 @@ UNWIND(.fnstart)
 #endif
 
 	@ The division loop for needed upper bit positions.
- 	@ Break out early if dividend reaches 0.
+	@ Break out early if dividend reaches 0.
 2:	cmp	xh, yl
 	orrcs	yh, yh, ip
 	subscs	xh, xh, yl

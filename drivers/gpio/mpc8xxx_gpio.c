@@ -6,7 +6,7 @@
  * based on arch/powerpc/include/asm/mpc85xx_gpio.h, which is
  *
  * Copyright 2010 eXMeritus, A Boeing Company
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  */
 
 #include <common.h>
@@ -16,21 +16,11 @@
 #include <asm/io.h>
 #include <dm/of_access.h>
 
-struct ccsr_gpio {
-	u32	gpdir;
-	u32	gpodr;
-	u32	gpdat;
-	u32	gpier;
-	u32	gpimr;
-	u32	gpicr;
-	u32	gpibe;
-};
-
 struct mpc8xxx_gpio_data {
 	/* The bank's register base in memory */
 	struct ccsr_gpio __iomem *base;
 	/* The address of the registers; used to identify the bank */
-	ulong addr;
+	phys_addr_t addr;
 	/* The GPIO count of the bank */
 	uint gpio_count;
 	/* The GPDAT register cannot be used to determine the value of output
@@ -183,46 +173,25 @@ static int mpc8xxx_gpio_get_function(struct udevice *dev, uint gpio)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int mpc8xxx_gpio_ofdata_to_platdata(struct udevice *dev)
+static int mpc8xxx_gpio_of_to_plat(struct udevice *dev)
 {
-	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
-	fdt_addr_t addr;
-	u32 i;
-	u32 reg[4];
 
-	if (ofnode_read_bool(dev->node, "little-endian"))
+	if (dev_read_bool(dev, "little-endian"))
 		data->little_endian = true;
 
-	if (data->little_endian)
-		dev_read_u32_array(dev, "reg", reg, 4);
-	else
-		dev_read_u32_array(dev, "reg", reg, 2);
-
-	if (data->little_endian) {
-		for (i = 0; i < 2; i++)
-			reg[i] = be32_to_cpu(reg[i]);
-	}
-
-	addr = dev_translate_address(dev, reg);
-
-	plat->addr = addr;
-
-	if (data->little_endian)
-		plat->size = reg[3];
-	else
-		plat->size = reg[1];
-
+	plat->addr = dev_read_addr_size_index(dev, 0, (fdt_size_t *)&plat->size);
 	plat->ngpios = dev_read_u32_default(dev, "ngpios", 32);
 
 	return 0;
 }
 #endif
 
-static int mpc8xxx_gpio_platdata_to_priv(struct udevice *dev)
+static int mpc8xxx_gpio_plat_to_priv(struct udevice *dev)
 {
 	struct mpc8xxx_gpio_data *priv = dev_get_priv(dev);
-	struct mpc8xxx_gpio_plat *plat = dev_get_platdata(dev);
+	struct mpc8xxx_gpio_plat *plat = dev_get_plat(dev);
 	unsigned long size = plat->size;
 	ulong driver_data = dev_get_driver_data(dev);
 
@@ -249,19 +218,20 @@ static int mpc8xxx_gpio_probe(struct udevice *dev)
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
 	char name[32], *str;
 
-	mpc8xxx_gpio_platdata_to_priv(dev);
+	mpc8xxx_gpio_plat_to_priv(dev);
 
-	snprintf(name, sizeof(name), "MPC@%lx_", data->addr);
+	snprintf(name, sizeof(name), "MPC@%.8llx",
+		 (unsigned long long)data->addr);
 	str = strdup(name);
 
 	if (!str)
 		return -ENOMEM;
 
-	if (ofnode_device_is_compatible(dev->node, "fsl,qoriq-gpio")) {
-		unsigned long gpibe = data->addr + sizeof(struct ccsr_gpio)
-			- sizeof(u32);
-
-		out_be32((unsigned int *)gpibe, 0xffffffff);
+	if (device_is_compatible(dev, "fsl,qoriq-gpio")) {
+		if (data->little_endian)
+			out_le32(&data->base->gpibe, 0xffffffff);
+		else
+			out_be32(&data->base->gpibe, 0xffffffff);
 	}
 
 	uc_priv->bank_name = str;
@@ -294,10 +264,10 @@ U_BOOT_DRIVER(gpio_mpc8xxx) = {
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_mpc8xxx_ops,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	.ofdata_to_platdata = mpc8xxx_gpio_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mpc8xxx_gpio_plat),
+	.of_to_plat = mpc8xxx_gpio_of_to_plat,
+	.plat_auto	= sizeof(struct mpc8xxx_gpio_plat),
 	.of_match = mpc8xxx_gpio_ids,
 #endif
 	.probe	= mpc8xxx_gpio_probe,
-	.priv_auto_alloc_size = sizeof(struct mpc8xxx_gpio_data),
+	.priv_auto	= sizeof(struct mpc8xxx_gpio_data),
 };

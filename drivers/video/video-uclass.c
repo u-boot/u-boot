@@ -3,6 +3,8 @@
  * Copyright (c) 2015 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_VIDEO
+
 #include <common.h>
 #include <console.h>
 #include <cpu_func.h>
@@ -14,6 +16,7 @@
 #include <video.h>
 #include <video_console.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <dm/lists.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
@@ -26,7 +29,7 @@
  * Theory of operation:
  *
  * Before relocation each device is bound. The driver for each device must
- * set the @align and @size values in struct video_uc_platdata. This
+ * set the @align and @size values in struct video_uc_plat. This
  * information represents the requires size and alignment of the frame buffer
  * for the device. The values can be an over-estimate but cannot be too
  * small. The actual values will be suppled (in the same manner) by the bind()
@@ -69,7 +72,7 @@ void video_set_flush_dcache(struct udevice *dev, bool flush)
 
 static ulong alloc_fb(struct udevice *dev, ulong *addrp)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	ulong base, align, size;
 
 	if (!plat->size)
@@ -290,6 +293,16 @@ int video_sync_copy(struct udevice *dev, void *from, void *to)
 
 	return 0;
 }
+
+int video_sync_copy_all(struct udevice *dev)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+
+	video_sync_copy(dev, priv->fb, priv->fb + priv->fb_size);
+
+	return 0;
+}
+
 #endif
 
 /* Set up the colour map */
@@ -316,7 +329,7 @@ static int video_pre_remove(struct udevice *dev)
 /* Set up the display ready for use */
 static int video_post_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	char name[30], drv[15], *str;
 	const char *drv_name = drv;
@@ -393,7 +406,7 @@ static int video_post_bind(struct udevice *dev)
 		return 0;
 
 	/* Set up the video pointer, if this is the first device */
-	uc_priv = dev->uclass->priv;
+	uc_priv = uclass_get_priv(dev->uclass);
 	if (!uc_priv->video_ptr)
 		uc_priv->video_ptr = gd->video_top;
 
@@ -423,7 +436,7 @@ UCLASS_DRIVER(video) = {
 	.pre_probe	= video_pre_probe,
 	.post_probe	= video_post_probe,
 	.pre_remove	= video_pre_remove,
-	.priv_auto_alloc_size	= sizeof(struct video_uc_priv),
-	.per_device_auto_alloc_size	= sizeof(struct video_priv),
-	.per_device_platdata_auto_alloc_size = sizeof(struct video_uc_platdata),
+	.priv_auto	= sizeof(struct video_uc_priv),
+	.per_device_auto	= sizeof(struct video_priv),
+	.per_device_plat_auto	= sizeof(struct video_uc_plat),
 };

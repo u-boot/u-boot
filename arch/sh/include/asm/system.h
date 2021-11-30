@@ -70,18 +70,6 @@ static inline void sched_cacheflush(void)
 {
 }
 
-#ifdef CONFIG_CPU_SH4A
-#define __icbi()			\
-{					\
-	unsigned long __addr;		\
-	__addr = 0xa8000000;		\
-	__asm__ __volatile__(		\
-		"icbi   %0\n\t"		\
-		: /* no output */	\
-		: "m" (__m(__addr)));	\
-}
-#endif
-
 static inline unsigned long tas(volatile int *m)
 {
 	unsigned long retval;
@@ -100,25 +88,14 @@ static inline unsigned long tas(volatile int *m)
  * effect. On newer cores (like the sh4a and sh5) this is accomplished
  * with icbi.
  *
- * Also note that on sh4a in the icbi case we can forego a synco for the
- * write barrier, as it's not necessary for control registers.
- *
  * Historically we have only done this type of barrier for the MMUCR, but
  * it's also necessary for the CCR, so we make it generic here instead.
  */
-#ifdef CONFIG_CPU_SH4A
-#define mb()		__asm__ __volatile__ ("synco": : :"memory")
-#define rmb()		mb()
-#define wmb()		__asm__ __volatile__ ("synco": : :"memory")
-#define ctrl_barrier()	__icbi()
-#define read_barrier_depends()	do { } while(0)
-#else
 #define mb()		__asm__ __volatile__ ("": : :"memory")
 #define rmb()		mb()
 #define wmb()		__asm__ __volatile__ ("": : :"memory")
 #define ctrl_barrier()	__asm__ __volatile__ ("nop;nop;nop;nop;nop;nop;nop;nop")
 #define read_barrier_depends()	do { } while(0)
-#endif
 
 #ifdef CONFIG_SMP
 #define smp_mb()	mb()

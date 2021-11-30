@@ -9,6 +9,7 @@
 #include <mux-internal.h>
 #include <dm/test.h>
 #include <test/ut.h>
+#include <asm/global_data.h>
 
 struct mux_emul_priv {
 	u32 state;
@@ -60,7 +61,7 @@ U_BOOT_DRIVER(emul_mux) = {
 	.of_match = mux_emul_of_match,
 	.ops = &mux_emul_ops,
 	.probe = mux_emul_probe,
-	.priv_auto_alloc_size = sizeof(struct mux_emul_priv),
+	.priv_auto	= sizeof(struct mux_emul_priv),
 };
 
 static int dm_test_mux_emul_default_state(struct unit_test_state *uts)

@@ -8,7 +8,7 @@
 #define _MACH_SYSMAP_APQ8016_H
 
 #define GICD_BASE			(0x0b000000)
-#define GICC_BASE			(0x0a20c000)
+#define GICC_BASE			(0x0b002000)
 
 /* Clocks: (from CLK_CTL_BASE)  */
 #define GPLL0_STATUS			(0x2101C)

@@ -60,7 +60,7 @@ int tegra_pcie_board_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_PMIC,
-					  DM_GET_DRIVER(pmic_as3722), &dev);
+					  DM_DRIVER_GET(pmic_as3722), &dev);
 	if (ret) {
 		debug("%s: Failed to find PMIC\n", __func__);
 		return ret;

@@ -4,6 +4,7 @@ config MMC
 	bool "MMC/SD/SDIO card support"
 	default ARM || PPC || SANDBOX
 	select HAVE_BLOCK_DEVICE
+	select DM_MMC if DM
 	help
 	  This selects MultiMediaCard, Secure Digital and Secure
 	  Digital I/O support.
@@ -18,6 +19,13 @@ config MMC_WRITE
 	help
 	  Enable write access to MMC and SD Cards
 
+config MMC_PWRSEQ
+	bool "HW reset support for eMMC"
+	depends on PWRSEQ
+	help
+	  Ths select Hardware reset support aka pwrseq-emmc for eMMC
+	  devices.
+
 config MMC_BROKEN_CD
 	bool "Poll for broken card detection case"
 	help
@@ -26,6 +34,7 @@ config MMC_BROKEN_CD
 config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
 	depends on DM
+	select BLK
 	help
 	  This enables the MultiMediaCard (MMC) uclass which supports MMC and
 	  Secure Digital I/O (SDIO) cards. Both removable (SD, micro-SD, etc.)
@@ -114,7 +123,6 @@ config MMC_IO_VOLTAGE
 
 config SPL_MMC_IO_VOLTAGE
 	bool "Support IO voltage configuration in SPL"
-	default n
 	help
 	  IO voltage configuration allows selecting the voltage level of the IO
 	  lines (not the level of main supply). This is required for UHS
@@ -184,7 +192,6 @@ config MMC_VERBOSE
 
 config MMC_TRACE
 	bool "MMC debugging"
-	default n
 	help
 	  This is an option for use by developer. Enable MMC core debugging.
 
@@ -212,7 +219,6 @@ config MMC_DW_CORTINA
 	depends on DM_MMC
 	depends on MMC_DW
 	depends on BLK
-	default n
 	help
 	  This selects support for Cortina SoC specific extensions to the
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
@@ -304,18 +310,28 @@ config MMC_MXS
 
 config MMC_PCI
 	bool "Support for MMC controllers on PCI"
+	depends on MMC_SDHCI
 	help
 	  This selects PCI-based MMC controllers.
 	  If you have an MMC controller on a PCI bus, say Y here.
 
 config MMC_OCTEONTX
-	bool "Marvell OcteonTX Multimedia Card Interface support"
-	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	bool "Marvell Octeon Multimedia Card Interface support"
+	depends on (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	depends on DM_MMC
 	help
-	  This selects the OcteonTX Multimedia card Interface.
-	  If you have an OcteonTX/TX2 board with a Multimedia Card slot,
-	  say Y here.
+	  This selects the Octeon Multimedia card Interface.
+	  If you have an OcteonTX/TX2 or MIPS Octeon board with a
+	  Multimedia Card slot, say Y here.
+
+	  If unsure, say N.
+
+config MVEBU_MMC
+	bool "Kirkwood MMC controller support"
+	depends on DM_MMC && BLK && ARCH_KIRKWOOD
+	help
+	  Support for MMC host controller on Kirkwood SoCs.
+	  If you are on a Kirkwood architecture, say Y here.
 
 	  If unsure, say N.
 
@@ -526,6 +542,7 @@ config MMC_SDHCI_AM654
 	depends on MMC_SDHCI
 	depends on DM_MMC && OF_CONTROL && BLK
 	depends on REGMAP
+	select MMC_SDHCI_IO_ACCESSORS
 	help
 	  Support for Secure Digital Host Controller Interface (SDHCI)
 	  controllers present on TI's AM654 SOCs.
@@ -539,6 +556,16 @@ config MMC_SDHCI_IPROC
 	  If you have a Broadcom IPROC platform with SD or MMC devices,
 	  say Y or M here.
 
+	  If unsure, say N.
+
+config MMC_SDHCI_F_SDH30
+	bool "SDHCI support for Fujitsu Semiconductor F_SDH30"
+	depends on BLK && DM_MMC
+	depends on MMC_SDHCI
+	help
+	  This selects the Secure Digital Host Controller Interface (SDHCI)
+	  Needed by some Fujitsu SoC for MMC / SD / SDIO support.
+	  If you have a controller with this interface, say Y or M here.
 	  If unsure, say N.
 
 config MMC_SDHCI_KONA
@@ -707,6 +734,15 @@ config MMC_SUNXI_HAS_MODE_SWITCH
 	bool
 	depends on MMC_SUNXI
 
+config MMC_PITON
+	bool "MMC support for OpenPiton SoC"
+	depends on DM_MMC && BLK
+	help
+	  This selects support for the SD host controller on OpenPiton SoC.
+	  Note that this SD controller directly exposes the contents of the
+	  SD card as memory mapped, so there is no manual configuration
+	  required
+
 config GENERIC_ATMEL_MCI
 	bool "Atmel Multimedia Card Interface support"
 	depends on DM_MMC && BLK && ARCH_AT91
@@ -731,7 +767,6 @@ config FTSDC010
 
 config FTSDC010_SDIO
 	bool "Support ftsdc010 sdio"
-	default n
 	depends on FTSDC010
 	help
 		This can enable ftsdc010 sdio function.
@@ -766,7 +801,6 @@ config FSL_ESDHC_SUPPORT_ADMA2
 config FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
 	bool "enable eSDHC workaround for 3.3v IO reliability issue"
 	depends on FSL_ESDHC && DM_MMC
-	default n
 	help
 	  When eSDHC operates at 3.3v, damage can accumulate in an internal
 	  level shifter at a higher than expected rate. The faster the interface
@@ -778,6 +812,13 @@ config FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
 	  This option assumes no hotplug, and u-boot has to make all the way to
 	  to linux to use 1.8v UHS-I speed mode if has card.
 
+config FSL_ESDHC_VS33_NOT_SUPPORT
+	bool "3.3V power supply not supported"
+	depends on FSL_ESDHC
+	help
+	  For eSDHC, power supply is through peripheral circuit. 3.3V support is
+	  common. Select this if 3.3V power supply not supported.
+
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
 	help
@@ -786,7 +827,7 @@ config FSL_ESDHC_IMX
 
 config FSL_USDHC
 	bool "Freescale/NXP i.MX uSDHC controller support"
-	depends on MX6 || MX7 ||ARCH_MX7ULP || IMX8 || IMX8M || IMXRT || TARGET_S32V234EVB
+	depends on MX6 || MX7 ||ARCH_MX7ULP || IMX8 || IMX8M || IMX8ULP || IMXRT
 	select FSL_ESDHC_IMX
 	help
 	  This enables the Ultra Secured Digital Host Controller enhancements
@@ -803,4 +844,10 @@ config SYS_FSL_ERRATUM_ESDHC135
 	bool
 
 config SYS_FSL_ERRATUM_ESDHC_A001
+	bool
+
+config SYS_FSL_ERRATUM_A011334
+	bool
+
+config SYS_FSL_ESDHC_UNRELIABLE_PULSE_DETECTION_WORKAROUND
 	bool

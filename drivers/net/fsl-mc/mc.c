@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2017-2018, 2020 NXP
+ * Copyright 2017-2018, 2020-2021 NXP
  */
 #include <common.h>
 #include <command.h>
@@ -11,6 +11,8 @@
 #include <image.h>
 #include <log.h>
 #include <malloc.h>
+#include <mapmem.h>
+#include <asm/global_data.h>
 #include <linux/bug.h>
 #include <asm/io.h>
 #include <linux/delay.h>
@@ -36,6 +38,16 @@
 #define MC_BOOT_TIMEOUT_ENV_VAR	"mcboottimeout"
 #define MC_BOOT_ENV_VAR		"mcinitcmd"
 #define MC_DRAM_BLOCK_DEFAULT_SIZE (512UL * 1024 * 1024)
+
+#define MC_BUFFER_SIZE   (1024 * 1024 * 16)
+#define MAGIC_MC 0x4d430100
+#define MC_FW_ADDR_MASK_LOW 0xE0000000
+#define MC_FW_ADDR_MASK_HIGH 0X1FFFF
+#define MC_STRUCT_BUFFER_OFFSET 0x01000000
+#define MC_OFFSET_DELTA MC_STRUCT_BUFFER_OFFSET
+
+#define LOG_HEADER_FLAG_BUFFER_WRAPAROUND 0x80000000
+#define LAST_BYTE(a) ((a) & ~(LOG_HEADER_FLAG_BUFFER_WRAPAROUND))
 
 DECLARE_GLOBAL_DATA_PTR;
 static int mc_memset_resv_ram;
@@ -185,9 +197,9 @@ static int mc_fixup_mac_addr(void *blob, int nodeoffset,
 			     enum mc_fixup_type type)
 {
 #ifdef CONFIG_DM_ETH
-	struct eth_pdata *plat = dev_get_platdata(eth_dev);
+	struct eth_pdata *plat = dev_get_plat(eth_dev);
 	unsigned char *enetaddr = plat->enetaddr;
-	int eth_index = eth_dev->seq;
+	int eth_index = dev_seq(eth_dev);
 #else
 	unsigned char *enetaddr = eth_dev->enetaddr;
 	int eth_index = eth_dev->index;
@@ -641,7 +653,7 @@ static unsigned long get_mc_boot_timeout_ms(void)
 	char *timeout_ms_env_var = env_get(MC_BOOT_TIMEOUT_ENV_VAR);
 
 	if (timeout_ms_env_var) {
-		timeout_ms = simple_strtoul(timeout_ms_env_var, NULL, 10);
+		timeout_ms = dectoul(timeout_ms_env_var, NULL);
 		if (timeout_ms == 0) {
 			printf("fsl-mc: WARNING: Invalid value for \'"
 			       MC_BOOT_TIMEOUT_ENV_VAR
@@ -955,8 +967,7 @@ unsigned long mc_get_dram_block_size(void)
 	char *dram_block_size_env_var = env_get(MC_MEM_SIZE_ENV_VAR);
 
 	if (dram_block_size_env_var) {
-		dram_block_size = simple_strtoul(dram_block_size_env_var, NULL,
-						 16);
+		dram_block_size = hextoul(dram_block_size_env_var, NULL);
 
 		if (dram_block_size < CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE) {
 			printf("fsl-mc: WARNING: Invalid value for \'"
@@ -1125,7 +1136,7 @@ static int dpio_exit(void)
 		goto err;
 	}
 
-	dpio_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
+	err = dpio_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 	if (err < 0) {
 		printf("dpio_close() failed: %d\n", err);
 		goto err;
@@ -1773,11 +1784,78 @@ err:
 	return err;
 }
 
+static void print_k_bytes(const void *buf, ssize_t *size)
+{
+	while (*size > 0) {
+		int count = printf("%s", (char *)buf);
+
+		buf += count;
+		*size -= count;
+	}
+}
+
+static void mc_dump_log(void)
+{
+	struct mc_ccsr_registers __iomem *mc_ccsr_regs = MC_CCSR_BASE_ADDR;
+	u64 high = in_le64(&mc_ccsr_regs->reg_mcfbahr) & MC_FW_ADDR_MASK_HIGH;
+	u64 low = in_le64(&mc_ccsr_regs->reg_mcfbalr) & MC_FW_ADDR_MASK_LOW;
+	u32 buf_len, wrapped, last_byte, magic, buf_start;
+	u64 mc_addr = (high << 32) | low;
+	struct log_header *header;
+	ssize_t size, bytes_end;
+	const void *end_of_data;
+	const void *map_addr;
+	const void *end_addr;
+	const void *cur_ptr;
+	const void *buf;
+
+	map_addr = map_sysmem(mc_addr + MC_STRUCT_BUFFER_OFFSET,
+			      MC_BUFFER_SIZE);
+	header = (struct log_header *)map_addr;
+	last_byte = in_le32(&header->last_byte);
+	buf_len = in_le32(&header->buf_length);
+	magic = in_le32(&header->magic_word);
+	buf_start = in_le32(&header->buf_start);
+	buf = map_addr + buf_start - MC_OFFSET_DELTA;
+	end_addr = buf + buf_len;
+	wrapped = last_byte & LOG_HEADER_FLAG_BUFFER_WRAPAROUND;
+	end_of_data = buf + LAST_BYTE(last_byte);
+
+	if (magic != MAGIC_MC) {
+		puts("Magic number is not valid\n");
+		printf("expected = %08x, received = %08x\n", MAGIC_MC, magic);
+		goto err_magic;
+	}
+
+	if (wrapped && end_of_data != end_addr)
+		cur_ptr = end_of_data + 1;
+	else
+		cur_ptr = buf;
+
+	if (cur_ptr <= end_of_data)
+		size = end_of_data - cur_ptr;
+	else
+		size = (end_addr - cur_ptr) + (end_of_data - buf);
+
+	bytes_end = end_addr - cur_ptr;
+	if (size > bytes_end) {
+		print_k_bytes(cur_ptr, &bytes_end);
+
+		cur_ptr = buf;
+		size -= bytes_end;
+	}
+
+	print_k_bytes(buf, &size);
+
+err_magic:
+	unmap_sysmem(map_addr);
+}
+
 static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
 	int err = 0;
-	if (argc < 3)
+	if (argc < 2)
 		goto usage;
 
 	switch (argv[1][0]) {
@@ -1787,6 +1865,8 @@ static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 #ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
 			u64 aiop_fw_addr;
 #endif
+			if (argc < 3)
+				goto usage;
 
 			sub_cmd = argv[2][0];
 
@@ -1918,6 +1998,12 @@ static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 		break;
 		}
+	case 'd':
+		if (argc > 2)
+			goto usage;
+
+		mc_dump_log();
+		break;
 	default:
 		printf("Invalid option: %s\n", argv[1]);
 		goto usage;
@@ -1936,6 +2022,7 @@ U_BOOT_CMD(
 	"fsl_mc lazyapply DPL [DPL_addr] - Apply DPL file on exit\n"
 	"fsl_mc apply spb [spb_addr] - Apply SPB Soft Parser Blob\n"
 	"fsl_mc start aiop [FW_addr] - Start AIOP\n"
+	"fsl_mc dump_log - Dump MC Log\n"
 );
 
 void mc_env_boot(void)

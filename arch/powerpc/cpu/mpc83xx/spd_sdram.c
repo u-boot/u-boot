@@ -24,6 +24,7 @@
 #include <asm/mmu.h>
 #include <spd_sdram.h>
 #include <asm/bitops.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -833,12 +834,6 @@ long int spd_sdram()
 #endif
 	debug("   DDRC ECC mode: %s\n", ddrc_ecc_enable ? "ON":"OFF");
 
-#if defined(CONFIG_DDR_2T_TIMING)
-	/*
-	 * Enable 2T timing by setting sdram_cfg[16].
-	 */
-	sdram_cfg |= SDRAM_CFG_2T_EN;
-#endif
 	/* Enable controller, and GO! */
 	ddr->sdram_cfg = sdram_cfg;
 	sync();
@@ -913,16 +908,12 @@ void ddr_enable_ecc(unsigned int dram_size)
 	pattern[0] = 0xdeadbeef;
 	pattern[1] = 0xdeadbeef;
 
-#if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
-	dma_meminit(pattern[0], dram_size);
-#else
 	debug("ddr init: CPU FP write method\n");
 	size = dram_size;
 	for (p = 0; p < (u64*)(size); p++) {
 		ppcDWstore((u32*)p, pattern);
 	}
 	sync();
-#endif
 
 	t_end = get_tbms();
 	icache_disable();

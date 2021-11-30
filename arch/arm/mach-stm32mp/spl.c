@@ -3,16 +3,21 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY LOGC_ARCH
+
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <hang.h>
 #include <init.h>
 #include <log.h>
+#include <ram.h>
 #include <spl.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
+#include <mach/tzc.h>
 #include <linux/libfdt.h>
 
 u32 spl_boot_device(void)
@@ -80,13 +85,103 @@ void spl_display_print(void)
 	 */
 	model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
 	if (model)
-		printf("Model: %s\n", model);
+		log_info("Model: %s\n", model);
 }
 #endif
 
 __weak int board_early_init_f(void)
 {
 	return 0;
+}
+
+uint32_t stm32mp_get_dram_size(void)
+{
+	struct ram_info ram;
+	struct udevice *dev;
+	int ret;
+
+	if (uclass_get_device(UCLASS_RAM, 0, &dev))
+		return 0;
+
+	ret = ram_get_info(dev, &ram);
+	if (ret)
+		return 0;
+
+	return ram.size;
+}
+
+static int optee_get_reserved_memory(uint32_t *start, uint32_t *size)
+{
+	phys_size_t fdt_mem_size;
+	fdt_addr_t fdt_start;
+	ofnode node;
+
+	node = ofnode_path("/reserved-memory/optee");
+	if (!ofnode_valid(node))
+		return 0;
+
+	fdt_start = ofnode_get_addr_size(node, "reg", &fdt_mem_size);
+	*start = fdt_start;
+	*size = fdt_mem_size;
+	return (fdt_start < 0) ? fdt_start : 0;
+}
+
+#define CFG_SHMEM_SIZE			0x200000
+#define STM32_TZC_NSID_ALL		0xffff
+#define STM32_TZC_FILTER_ALL		3
+
+void stm32_init_tzc_for_optee(void)
+{
+	const uint32_t dram_size = stm32mp_get_dram_size();
+	const uintptr_t dram_top = STM32_DDR_BASE + (dram_size - 1);
+	uint32_t optee_base, optee_size, tee_shmem_base;
+	const uintptr_t tzc = STM32_TZC_BASE;
+	int ret;
+
+	if (dram_size == 0)
+		panic("Cannot determine DRAM size from devicetree\n");
+
+	ret = optee_get_reserved_memory(&optee_base, &optee_size);
+	if (ret < 0 || optee_size <= CFG_SHMEM_SIZE)
+		panic("Invalid OPTEE reserved memory in devicetree\n");
+
+	tee_shmem_base = optee_base + optee_size - CFG_SHMEM_SIZE;
+
+	const struct tzc_region optee_config[] = {
+		{
+			.base = STM32_DDR_BASE,
+			.top = optee_base - 1,
+			.sec_mode = TZC_ATTR_SEC_NONE,
+			.nsec_id = STM32_TZC_NSID_ALL,
+			.filters_mask = STM32_TZC_FILTER_ALL,
+		}, {
+			.base = optee_base,
+			.top = tee_shmem_base - 1,
+			.sec_mode = TZC_ATTR_SEC_RW,
+			.nsec_id = 0,
+			.filters_mask = STM32_TZC_FILTER_ALL,
+		}, {
+			.base = tee_shmem_base,
+			.top = dram_top,
+			.sec_mode = TZC_ATTR_SEC_NONE,
+			.nsec_id = STM32_TZC_NSID_ALL,
+			.filters_mask = STM32_TZC_FILTER_ALL,
+		}, {
+			.top = 0,
+		}
+	};
+
+	flush_dcache_all();
+
+	tzc_configure(tzc, optee_config);
+	tzc_dump_config(tzc);
+
+	dcache_disable();
+}
+
+void spl_board_prepare_for_optee(void *fdt)
+{
+	stm32_init_tzc_for_optee();
 }
 
 void board_init_f(ulong dummy)
@@ -98,25 +193,25 @@ void board_init_f(ulong dummy)
 
 	ret = spl_early_init();
 	if (ret) {
-		debug("spl_early_init() failed: %d\n", ret);
+		log_debug("spl_early_init() failed: %d\n", ret);
 		hang();
 	}
 
 	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
 	if (ret) {
-		debug("Clock init failed: %d\n", ret);
+		log_debug("Clock init failed: %d\n", ret);
 		hang();
 	}
 
 	ret = uclass_get_device(UCLASS_RESET, 0, &dev);
 	if (ret) {
-		debug("Reset init failed: %d\n", ret);
+		log_debug("Reset init failed: %d\n", ret);
 		hang();
 	}
 
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &dev);
 	if (ret) {
-		debug("%s: Cannot find pinctrl device\n", __func__);
+		log_debug("%s: Cannot find pinctrl device\n", __func__);
 		hang();
 	}
 
@@ -125,13 +220,13 @@ void board_init_f(ulong dummy)
 
 	ret = board_early_init_f();
 	if (ret) {
-		debug("board_early_init_f() failed: %d\n", ret);
+		log_debug("board_early_init_f() failed: %d\n", ret);
 		hang();
 	}
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
-		printf("DRAM init failed: %d\n", ret);
+		log_err("DRAM init failed: %d\n", ret);
 		hang();
 	}
 

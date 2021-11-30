@@ -34,7 +34,7 @@
 		compatible = "simple-bus";
 		ranges;
 
-		aips0: aips-bus@40000000 {
+		aips0: bus@40000000 {
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -70,7 +70,7 @@
 				#size-cells = <0>;
 				compatible = "fsl,vf610-dspi";
 				reg = <0x4002c000 0x1000>;
-				num-cs = <5>;
+				spi-num-chipselects = <5>;
 				status = "disabled";
 			};
 
@@ -79,7 +79,7 @@
 				#size-cells = <0>;
 				compatible = "fsl,vf610-dspi";
 				reg = <0x4002d000 0x1000>;
-				num-cs = <5>;
+				spi-num-chipselects = <5>;
 				status = "disabled";
 			};
 
@@ -158,7 +158,7 @@
 			};
 		};
 
-		aips1: aips-bus@40080000 {
+		aips1: bus@40080000 {
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;

@@ -12,11 +12,6 @@
 #include <asm/arch/pinmux.h>
 #include <usb.h>
 
-u32 get_board_rev(void)
-{
-	return 0;
-}
-
 int exynos_init(void)
 {
 	return 0;

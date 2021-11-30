@@ -257,13 +257,9 @@ static void parse_config_file(const char *p)
 		/*
 		 * U-Boot also handles
 		 *   CONFIG_IS_ENABLED(...)
-		 *   CONFIG_IS_BUILTIN(...)
-		 *   CONFIG_IS_MODULE(...)
 		 *   CONFIG_VAL(...)
 		 */
 		if ((q - p == 10 && !memcmp(p, "IS_ENABLED(", 11)) ||
-		    (q - p == 10 && !memcmp(p, "IS_BUILTIN(", 11)) ||
-		    (q - p == 9 && !memcmp(p, "IS_MODULE(", 10)) ||
 		    (q - p == 3 && !memcmp(p, "VAL(", 4))) {
 			p = q + 1;
 			q = p;

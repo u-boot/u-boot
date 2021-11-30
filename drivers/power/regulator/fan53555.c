@@ -78,7 +78,7 @@ enum {
 	FAN53555_MONITOR,
 };
 
-struct fan53555_platdata {
+struct fan53555_plat {
 	/* Voltage setting register */
 	unsigned int vol_reg;
 	unsigned int sleep_reg;
@@ -100,11 +100,11 @@ struct fan53555_priv {
 	unsigned int sleep_vol_cache;
 };
 
-static int fan53555_regulator_ofdata_to_platdata(struct udevice *dev)
+static int fan53555_regulator_of_to_plat(struct udevice *dev)
 {
-	struct fan53555_platdata *dev_pdata = dev_get_platdata(dev);
-	struct dm_regulator_uclass_platdata *uc_pdata =
-		dev_get_uclass_platdata(dev);
+	struct fan53555_plat *dev_pdata = dev_get_plat(dev);
+	struct dm_regulator_uclass_plat *uc_pdata =
+		dev_get_uclass_plat(dev);
 	u32 sleep_vsel;
 
 	/* This is a buck regulator */
@@ -136,7 +136,7 @@ static int fan53555_regulator_ofdata_to_platdata(struct udevice *dev)
 
 static int fan53555_regulator_get_value(struct udevice *dev)
 {
-	struct fan53555_platdata *pdata = dev_get_platdata(dev);
+	struct fan53555_plat *pdata = dev_get_plat(dev);
 	struct fan53555_priv *priv = dev_get_priv(dev);
 	int reg;
 	int voltage;
@@ -153,7 +153,7 @@ static int fan53555_regulator_get_value(struct udevice *dev)
 
 static int fan53555_regulator_set_value(struct udevice *dev, int uV)
 {
-	struct fan53555_platdata *pdata = dev_get_platdata(dev);
+	struct fan53555_plat *pdata = dev_get_plat(dev);
 	struct fan53555_priv *priv = dev_get_priv(dev);
 	u8 vol;
 
@@ -238,8 +238,8 @@ U_BOOT_DRIVER(fan53555_regulator) = {
 	.name = "fan53555_regulator",
 	.id = UCLASS_REGULATOR,
 	.ops = &fan53555_regulator_ops,
-	.ofdata_to_platdata = fan53555_regulator_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct fan53555_platdata),
-	.priv_auto_alloc_size = sizeof(struct fan53555_priv),
+	.of_to_plat = fan53555_regulator_of_to_plat,
+	.plat_auto	= sizeof(struct fan53555_plat),
+	.priv_auto	= sizeof(struct fan53555_priv),
 	.probe = fan53555_probe,
 };

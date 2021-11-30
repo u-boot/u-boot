@@ -1,0 +1,203 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * sama7g5ek.dts - Device Tree file for SAMA7G5 EK
+ *		   SAMA7G5 Evaluation Kit
+ *
+ *  Copyright (c) 2020, Microchip Technology Inc.
+ *                2020, Eugen Hristev <eugen.hristev@microchip.com>
+ *		  2020, Claudiu Beznea <claudiu.beznea@microchip.com>
+ */
+/dts-v1/;
+#include <dt-bindings/mfd/atmel-flexcom.h>
+#include "sama7g5.dtsi"
+#include "sama7g5-pinfunc.h"
+
+/ {
+	model = "Microchip SAMA7G5 Evaluation Kit";
+	compatible = "microchip,sama7g5ek", "microchip,sama7g54", "microchip,sama7g5", "microchip,sama7";
+
+	aliases {
+		serial0 = &uart0;
+		i2c0 = &i2c1;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	clocks {
+		slow_xtal: slow_xtal {
+			clock-frequency = <32768>;
+		};
+
+		main_xtal: main_xtal {
+			clock-frequency = <24000000>;
+		};
+	};
+
+	ahb {
+
+		apb {
+			sdmmc0: sdio-host@e1204000 {
+				bus-width = <8>;
+				non-removable;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_sdmmc0_cmd_data_default
+					     &pinctrl_sdmmc0_ck_rstn_ds_cd_default>;
+				status = "okay";
+			};
+
+			sdmmc1: sdio-host@e1208000 {
+				bus-width = <4>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_sdmmc1_cmd_data_default
+					     &pinctrl_sdmmc1_ck_cd_rstn_vddsel_default>;
+				status = "okay";
+			};
+
+			uart0: serial@e1824200 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_flx3_default>;
+				status = "okay";
+			};
+		};
+	};
+};
+
+&flx1 {
+	atmel,flexcom-mode = <ATMEL_FLEXCOM_MODE_TWI>;
+	status = "okay";
+};
+
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_flx1_default>;
+	status = "okay";
+
+	eeprom@52 {
+		compatible = "microchip,24aa02e48";
+		reg = <0x52>;
+		pagesize = <16>;
+	};
+
+	eeprom@53 {
+		compatible = "microchip,24aa02e48";
+		reg = <0x53>;
+		pagesize = <16>;
+	};
+};
+
+&gmac0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_gmac0_default &pinctrl_gmac0_txc_default>;
+	phy-mode = "rgmii-id";
+	status = "okay";
+
+	ethernet-phy@7 {
+		reg = <0x7>;
+	};
+};
+
+&gmac1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_gmac1_default>;
+	phy-mode = "rmii";
+	status = "okay";
+
+	ethernet-phy@0 {
+		reg = <0x0>;
+	};
+};
+
+&pinctrl {
+	pinctrl_flx1_default: flx1_default {
+		pinmux = <PIN_PC9__FLEXCOM1_IO0>,
+			 <PIN_PC10__FLEXCOM1_IO1>;
+		bias-disable;
+	};
+
+	pinctrl_flx3_default: flx3_default {
+		pinmux = <PIN_PD16__FLEXCOM3_IO0>,
+			 <PIN_PD17__FLEXCOM3_IO1>;
+		bias-pull-up;
+	};
+
+	pinctrl_sdmmc0_cmd_data_default: sdmmc0_cmd_data_default {
+		pinmux = <PIN_PA1__SDMMC0_CMD>,
+			 <PIN_PA3__SDMMC0_DAT0>,
+			 <PIN_PA4__SDMMC0_DAT1>,
+			 <PIN_PA5__SDMMC0_DAT2>,
+			 <PIN_PA6__SDMMC0_DAT3>,
+			 <PIN_PA7__SDMMC0_DAT4>,
+			 <PIN_PA8__SDMMC0_DAT5>,
+			 <PIN_PA9__SDMMC0_DAT6>,
+			 <PIN_PA10__SDMMC0_DAT7>;
+		bias-pull-up;
+	};
+
+	pinctrl_sdmmc0_ck_rstn_ds_cd_default: sdmmc0_ck_rstn_ds_cd_default {
+		pinmux = <PIN_PA0__SDMMC0_CK>,
+			 <PIN_PA2__SDMMC0_RSTN>,
+			 <PIN_PA11__SDMMC0_DS>,
+			 <PIN_PA14__SDMMC0_CD>;
+		bias-pull-up;
+	};
+
+	pinctrl_sdmmc1_cmd_data_default: sdmmc1_cmd_data_default {
+		pinmux = <PIN_PB29__SDMMC1_CMD>,
+			 <PIN_PB31__SDMMC1_DAT0>,
+			 <PIN_PC0__SDMMC1_DAT1>,
+			 <PIN_PC1__SDMMC1_DAT2>,
+			 <PIN_PC2__SDMMC1_DAT3>;
+		bias-pull-up;
+	};
+
+	pinctrl_sdmmc1_ck_cd_rstn_vddsel_default: sdmmc1_ck_cd_rstn_vddsel_default {
+		pinmux = <PIN_PB30__SDMMC1_CK>,
+			 <PIN_PB28__SDMMC1_RSTN>,
+			 <PIN_PC5__SDMMC1_1V8SEL>,
+			 <PIN_PC4__SDMMC1_CD>;
+		bias-pull-up;
+	};
+
+	pinctrl_gmac0_default: gmac0_default {
+		pinmux = <PIN_PA16__G0_TX0>,
+			 <PIN_PA17__G0_TX1>,
+			 <PIN_PA26__G0_TX2>,
+			 <PIN_PA27__G0_TX3>,
+			 <PIN_PA19__G0_RX0>,
+			 <PIN_PA20__G0_RX1>,
+			 <PIN_PA28__G0_RX2>,
+			 <PIN_PA29__G0_RX3>,
+			 <PIN_PA15__G0_TXEN>,
+			 <PIN_PA30__G0_RXCK>,
+			 <PIN_PA18__G0_RXDV>,
+			 <PIN_PA22__G0_MDC>,
+			 <PIN_PA23__G0_MDIO>,
+			 <PIN_PA25__G0_125CK>;
+		bias-disable;
+	};
+
+	pinctrl_gmac0_txc_default: gmac0_txc_default {
+		pinmux = <PIN_PA24__G0_TXCK>;
+		bias-pull-up;
+	};
+
+	pinctrl_gmac1_default: gmac1_default {
+		pinmux = <PIN_PD30__G1_TXCK>,
+			 <PIN_PD22__G1_TX0>,
+			 <PIN_PD23__G1_TX1>,
+			 <PIN_PD21__G1_TXEN>,
+			 <PIN_PD25__G1_RX0>,
+			 <PIN_PD26__G1_RX1>,
+			 <PIN_PD27__G1_RXER>,
+			 <PIN_PD24__G1_RXDV>,
+			 <PIN_PD28__G1_MDC>,
+			 <PIN_PD29__G1_MDIO>;
+		bias-disable;
+	};
+};

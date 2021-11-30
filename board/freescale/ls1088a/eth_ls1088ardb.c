@@ -52,9 +52,9 @@ int board_eth_init(struct bd_info *bis)
 	switch (srds_s1) {
 	case 0x1D:
 		/*
-		 * XFI does not need a PHY to work, but to avoid U-boot use
-		 * default PHY address which is zero to a MAC when it found
-		 * a MAC has no PHY address, we give a PHY address to XFI
+		 * 10GBase-R does not need a PHY to work, but to avoid U-boot
+		 * use default PHY address which is zero to a MAC when it found
+		 * a MAC has no PHY address, we give a PHY address to 10GBase-R
 		 * MAC error.
 		 */
 		wriop_set_phy_address(WRIOP1_DPMAC1, 0, 0x0a);

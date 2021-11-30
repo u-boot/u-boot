@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <i2c.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -33,17 +34,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define I2C_IO_REG_0_USB_H1_CL	5
 #define I2C_IO_REG_CL		((1 << I2C_IO_REG_0_USB_H0_CL) | \
 				 (1 << I2C_IO_REG_0_USB_H1_CL))
-
-/*
- * Information specific to the iEi Puzzle-M801 board.
- */
-
-/* Internal configuration registers */
-#define CP1_CONF_REG_BASE 0xf4440000
-#define CONF_REG_MPP0 0x0
-#define CONF_REG_MPP1 0x4
-#define CONF_REG_MPP2 0x8
-#define CONF_REG_MPP3 0xC
 
 static int usb_enabled = 0;
 
@@ -152,14 +142,7 @@ int board_xhci_enable(fdt_addr_t base)
 
 int board_early_init_f(void)
 {
-	/* Initialize some platform specific memory locations */
-	if (of_machine_is_compatible("marvell,armada8040-puzzle-m801")) {
-		/* MPP setup */
-		writel(0x00444444, CP1_CONF_REG_BASE + CONF_REG_MPP0);
-		writel(0x00000000, CP1_CONF_REG_BASE + CONF_REG_MPP1);
-		writel(0x00000000, CP1_CONF_REG_BASE + CONF_REG_MPP2);
-		writel(0x08888000, CP1_CONF_REG_BASE + CONF_REG_MPP3);
-	}
+	/* Nothing to do yet */
 
 	return 0;
 }

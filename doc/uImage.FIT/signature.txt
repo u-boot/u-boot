@@ -142,7 +142,7 @@ public key in U-Boot's control FDT (using CONFIG_OF_CONTROL).
 Public keys should be stored as sub-nodes in a /signature node. Required
 properties are:
 
-- algo: Algorithm name (e.g. "sha1,rsa2048")
+- algo: Algorithm name (e.g. "sha1,rsa2048" or "sha256,ecdsa256")
 
 Optional properties are:
 
@@ -166,6 +166,11 @@ For RSA the following are mandatory:
 - rsa,exponent: Public exponent (E) as a 64 bit unsigned integer
 - rsa,r-squared: (2^num-bits)^2 as a big-endian multi-word integer
 - rsa,n0-inverse: -1 / modulus[0] mod 2^32
+
+For ECDSA the following are mandatory:
+- ecdsa,curve: Name of ECDSA curve (e.g. "prime256v1")
+- ecdsa,x-point: Public key X coordinate as a big-endian multi-word integer
+- ecdsa,y-point: Public key Y coordinate as a big-endian multi-word integer
 
 These parameters can be added to a binary device tree using parameter -K of the
 mkimage command::
@@ -261,14 +266,14 @@ As an example, consider this FIT:
 			data = <data for fdt1>;
 			signature-1 {
 				algo = "sha1,rsa2048";
-				vaue = <...fdt signature 1...>
+				value = <...fdt signature 1...>
 			};
 		};
 		fdt-2 {
 			data = <data for fdt2>;
 			signature-1 {
 				algo = "sha1,rsa2048";
-				vaue = <...fdt signature 2...>
+				value = <...fdt signature 2...>
 			};
 		};
 	};
@@ -467,6 +472,19 @@ Test Verified Boot Run: signed config with bad hash: OK
 Test passed
 
 
+Software signing: keydir vs keyfile
+-----------------------------------
+
+In the simplest case, signing is done by giving mkimage the 'keyfile'. This is
+the path to a file containing the signing key.
+
+The alternative is to pass the 'keydir' argument. In this case the filename of
+the key is derived from the 'keydir' and the "key-name-hint" property in the
+FIT. In this case the "key-name-hint" property is mandatory, and the key must
+exist in "<keydir>/<key-name-hint>.<ext>" Here the extension "ext" is
+specific to the signing algorithm.
+
+
 Hardware Signing with PKCS#11 or with HSM
 -----------------------------------------
 
@@ -515,8 +533,8 @@ Generic engine key ids:
 or
   "<key-name-hint>"
 
-As mkimage does not at this time support prompting for passwords HSM may need
-key preloading wrapper to be used when invoking mkimage.
+In order to set the pin in the HSM, an environment variable "MKIMAGE_SIGN_PIN"
+can be specified.
 
 The following examples use the Nitrokey Pro using pkcs11 engine. Instructions
 for other devices may vary.

@@ -7,4 +7,3 @@
 #include <configs/bmips_bcm6368.h>
 
 #define CONFIG_REMAKE_ELF
-

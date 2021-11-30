@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <spl.h>
 #include <acpi/acpi_s3.h>
 #ifdef CONFIG_X86
 #include <asm/intel_pinctrl.h>
@@ -60,7 +61,8 @@ int pmc_gpe_init(struct udevice *dev)
 	 * are different and if they aren't, use the reset values.
 	 */
 	if (dw[0] == dw[1] || dw[1] == dw[2]) {
-		log_info("PMC: Using default GPE route");
+		if (spl_phase() > PHASE_TPL)
+			log_info("PMC: Using default GPE route");
 		gpio_cfg = readl(upriv->gpe_cfg);
 		for (i = 0; i < upriv->gpe0_count; i++)
 			dw[i] = gpio_cfg >> gpe0_shift(upriv, i);
@@ -204,7 +206,7 @@ void pmc_dump_info(struct udevice *dev)
 	       upriv->gen_pmcon1, upriv->gen_pmcon2, upriv->gen_pmcon3);
 }
 
-int pmc_ofdata_to_uc_platdata(struct udevice *dev)
+int pmc_ofdata_to_uc_plat(struct udevice *dev)
 {
 	struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);
 	int ret;
@@ -231,5 +233,5 @@ int pmc_ofdata_to_uc_platdata(struct udevice *dev)
 UCLASS_DRIVER(acpi_pmc) = {
 	.id		= UCLASS_ACPI_PMC,
 	.name		= "power-mgr",
-	.per_device_auto_alloc_size	= sizeof(struct acpi_pmc_upriv),
+	.per_device_auto	= sizeof(struct acpi_pmc_upriv),
 };

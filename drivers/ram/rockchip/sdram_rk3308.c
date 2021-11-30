@@ -51,5 +51,5 @@ U_BOOT_DRIVER(dmc_rk3308) = {
 	.of_match = rk3308_dmc_ids,
 	.ops = &rk3308_dmc_ops,
 	.probe = rk3308_dmc_probe,
-	.priv_auto_alloc_size = sizeof(struct dram_info),
+	.priv_auto	= sizeof(struct dram_info),
 };

@@ -296,6 +296,6 @@ U_BOOT_DRIVER(sandbox_pinctrl) = {
 	.name = "sandbox_pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = sandbox_pinctrl_match,
-	.priv_auto_alloc_size = sizeof(struct sandbox_pinctrl_priv),
+	.priv_auto	= sizeof(struct sandbox_pinctrl_priv),
 	.ops = &sandbox_pinctrl_ops,
 };

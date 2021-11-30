@@ -30,7 +30,7 @@
  * MR1: DLL enabled, output strength RZQ/6, Rtt_norm RZQ/2,
  *	write levelling disabled, TDQS disabled, output buffer enabled
  * MR2: manual full array self refresh, dynamic ODT off,
- * 	CAS write latency (CWL): 8
+ *	CAS write latency (CWL): 8
  */
 static u32 mr_ddr3[7] = {
 	0x00001c70, 0x00000040, 0x00000018, 0x00000000,

@@ -12,6 +12,7 @@
 #include <hang.h>
 #include <init.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91sam9_matrix.h>
@@ -135,7 +136,7 @@ void board_init_f(ulong dummy)
 	at91_periph_clk_enable(ATMEL_ID_PIOC);
 #endif
 
-#if defined(CONFIG_SPL_SERIAL_SUPPORT)
+#if defined(CONFIG_SPL_SERIAL)
 	/* init console */
 	at91_seriald_hw_init();
 	preloader_console_init();

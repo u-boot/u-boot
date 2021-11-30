@@ -9,6 +9,7 @@
 #include <log.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/clock.h>
+#include <asm/global_data.h>
 #include "ddr.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -86,8 +87,6 @@ found:
 		pbsp->n_ranks, pbsp->datarate_mhz_high, pbsp->rank_gb,
 		pbsp->clk_adjust, pbsp->wrlvl_start, pbsp->wrlvl_ctl_2,
 		pbsp->wrlvl_ctl_3);
-
-
 
 	popts->half_strength_driver_enable = 0;
 	/*

@@ -249,7 +249,7 @@ static int meson_pwm_set_invert(struct udevice *dev, uint channeln, bool polarit
 	return meson_pwm_set_config(dev, channeln, channel->period_ns, channel->duty_ns);
 }
 
-static int meson_pwm_ofdata_to_platdata(struct udevice *dev)
+static int meson_pwm_of_to_plat(struct udevice *dev)
 {
 	struct meson_pwm *priv = dev_get_priv(dev);
 
@@ -304,13 +304,14 @@ static int meson_pwm_probe(struct udevice *dev)
 					if (strcmp(cdev->driver->name, "fixed_rate_clock"))
 						continue;
 
-					str = ofnode_read_string(cdev->node, "clock-output-names");
+					str = ofnode_read_string(dev_ofnode(cdev),
+								 "clock-output-names");
 					if (!str)
 						continue;
 
 					if (!strcmp(str, "xtal")) {
 						err = uclass_get_device_by_ofnode(UCLASS_CLK,
-										  cdev->node,
+										  dev_ofnode(cdev),
 										  &cdev);
 						if (err) {
 							printf("%s%d: Failed to get xtal clk\n", __func__, i);
@@ -345,7 +346,9 @@ static int meson_pwm_probe(struct udevice *dev)
 					return -EINVAL;
 				}
 
-				err = uclass_get_device_by_ofnode(UCLASS_CLK, cdev->node, &cdev);
+				err = uclass_get_device_by_ofnode(UCLASS_CLK,
+								  dev_ofnode(cdev),
+								  &cdev);
 				if (err) {
 					printf("%s%d: Failed to get clk controller\n", __func__, i);
 					return err;
@@ -398,7 +401,7 @@ static const struct pwm_ops meson_pwm_ops = {
 	.set_invert	= meson_pwm_set_invert,
 };
 
-#define XTAL 			-1
+#define XTAL			-1
 
 /* Local clock ids aliases to avoid define conflicts */
 #define GXBB_CLKID_HDMI_PLL		2
@@ -522,7 +525,7 @@ U_BOOT_DRIVER(meson_pwm) = {
 	.id	= UCLASS_PWM,
 	.of_match = meson_pwm_ids,
 	.ops	= &meson_pwm_ops,
-	.ofdata_to_platdata = meson_pwm_ofdata_to_platdata,
+	.of_to_plat = meson_pwm_of_to_plat,
 	.probe	 = meson_pwm_probe,
-	.priv_auto_alloc_size	= sizeof(struct meson_pwm),
+	.priv_auto	= sizeof(struct meson_pwm),
 };

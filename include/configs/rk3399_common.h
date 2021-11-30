@@ -9,7 +9,6 @@
 #include "rockchip-common.h"
 
 #define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define COUNTER_FREQUENCY               24000000
 #define CONFIG_ROCKCHIP_STIMER_BASE	0xff8680a0
@@ -17,7 +16,6 @@
 #define CONFIG_IRAM_BASE		0xff8c0000
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x00300000
-#define CONFIG_SYS_LOAD_ADDR		0x00800800
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_TPL_BOOTROM_SUPPORT)
 #define CONFIG_SPL_STACK		0x00400000
@@ -51,6 +49,7 @@
 	"script_size_f=0x2000\0" \
 	"pxefile_addr_r=0x00600000\0" \
 	"fdt_addr_r=0x01f00000\0" \
+	"fdtoverlay_addr_r=0x02000000\0" \
 	"kernel_addr_r=0x02080000\0" \
 	"ramdisk_addr_r=0x06000000\0" \
 	"kernel_comp_addr_r=0x08000000\0" \
@@ -74,7 +73,5 @@
 		"run distro_bootcmd\0"
 
 #endif
-
-/* enable usb config for usb ether */
 
 #endif

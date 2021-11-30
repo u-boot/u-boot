@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 Freescale Semiconductor
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2021 NXP
  */
 
 #ifndef __LS1043A_COMMON_H
@@ -27,7 +27,6 @@
 #endif
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_GICV2
 
 #include <asm/arch/stream_id_lsch2.h>
 #include <asm/arch/config.h>
@@ -38,8 +37,6 @@
 #else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
 #endif
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
@@ -52,15 +49,10 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
-
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* SD boot SPL */
 #ifdef CONFIG_SD_BOOT
@@ -119,6 +111,13 @@
 
 #endif
 
+/* GPIO */
+#ifdef CONFIG_DM_GPIO
+#ifndef CONFIG_MPC8XXX_GPIO
+#define CONFIG_MPC8XXX_GPIO
+#endif
+#endif
+
 /* IFC */
 #ifndef SPL_NO_IFC
 #if defined(CONFIG_TFABOOT) || \
@@ -142,16 +141,6 @@
 #endif
 
 /* I2C */
-#ifndef CONFIG_DM_I2C
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
-#else
-#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
-#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
-#endif
 
 /* PCIe */
 #ifndef SPL_NO_PCIE
@@ -161,13 +150,6 @@
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_SCAN_SHOW
-#endif
-#endif
-
-/*  MMC  */
-#ifndef SPL_NO_MMC
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 #endif
 
@@ -186,38 +168,11 @@
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
 
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_FMAN_FW_ADDR		0x900000
-#define CONFIG_SYS_QE_FW_ADDR		0x940000
-
-
-#else
-#ifdef CONFIG_NAND_BOOT
-/* Store Fman ucode at offeset 0x900000(72 blocks). */
-#define CONFIG_SYS_FMAN_FW_ADDR		(72 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_SD_BOOT)
-/*
- * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
- * about 1MB (2040 blocks), Env is stored after the image, and the env size is
- * 0x2000 (16 blocks), 8 + 2040 + 16 = 2064, enlarge it to 18432(0x4800).
- */
-#define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x4800)
-#define CONFIG_SYS_QE_FW_ADDR		(512 * 0x4A00)
-#elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_SYS_FMAN_FW_ADDR		0x40900000
-#else
-/* FMan fireware Pre-load address */
-#define CONFIG_SYS_FMAN_FW_ADDR		0x60900000
-#define CONFIG_SYS_QE_FW_ADDR		0x60940000
-#endif
-#endif
-#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif
 #endif
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
@@ -236,7 +191,7 @@
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"fdt_high=0xffffffffffffffff\0"		\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"fdt_addr=0x64f00000\0"		 	\
+	"fdt_addr=0x64f00000\0"			\
 	"kernel_addr=0x61000000\0"		\
 	"scriptaddr=0x80000000\0"		\
 	"scripthdraddr=0x80080000\0"		\

@@ -17,6 +17,7 @@
 #include <fm_eth.h>
 #include <netdev.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <vsc9953.h>
 
@@ -350,10 +351,6 @@ int fixup_cpu(void)
  */
 int cpu_eth_init(struct bd_info *bis)
 {
-#if defined(CONFIG_ETHER_ON_FCC)
-	fec_initialize(bis);
-#endif
-
 #if defined(CONFIG_UEC_ETH)
 	uec_standard_init(bis);
 #endif

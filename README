@@ -58,8 +58,8 @@ Where to get source code:
 =========================
 
 The U-Boot source code is maintained in the Git repository at
-https://gitlab.denx.de/u-boot/u-boot.git ; you can browse it online at
-https://gitlab.denx.de/u-boot/u-boot
+https://source.denx.de/u-boot/u-boot.git ; you can browse it online at
+https://source.denx.de/u-boot/u-boot
 
 The "Tags" links on this page allow you to download tarballs of
 any version you might be interested in. Official releases are also
@@ -128,7 +128,7 @@ Examples:
 Directory Hierarchy:
 ====================
 
-/arch			Architecture specific files
+/arch			Architecture-specific files
   /arc			Files generic to ARC architecture
   /arm			Files generic to ARM architecture
   /m68k			Files generic to m68k architecture
@@ -142,16 +142,17 @@ Directory Hierarchy:
   /sh			Files generic to SH architecture
   /x86			Files generic to x86 architecture
   /xtensa		Files generic to Xtensa architecture
-/api			Machine/arch independent API for external apps
-/board			Board dependent files
+/api			Machine/arch-independent API for external apps
+/board			Board-dependent files
+/boot			Support for images and booting
 /cmd			U-Boot commands functions
-/common			Misc architecture independent functions
+/common			Misc architecture-independent functions
 /configs		Board default configuration files
 /disk			Code for disk drive partition handling
-/doc			Documentation (don't expect too much)
-/drivers		Commonly used device drivers
-/dts			Contains Makefile for building internal U-Boot fdt.
-/env			Environment files
+/doc			Documentation (a mix of ReST and READMEs)
+/drivers		Device drivers
+/dts			Makefile for building internal U-Boot fdt.
+/env			Environment support
 /examples		Example code for standalone applications, etc.
 /fs			Filesystem code (cramfs, ext2, jffs2, etc.)
 /include		Header Files
@@ -161,7 +162,7 @@ Directory Hierarchy:
 /post			Power On Self Test
 /scripts		Various build scripts and Makefiles
 /test			Various unit test files
-/tools			Tools to build S-Record or U-Boot images, etc.
+/tools			Tools to build and sign FIT images, etc.
 
 Software Configuration:
 =======================
@@ -300,7 +301,6 @@ board_init_r():
 	- loads U-Boot or (in falcon mode) Linux
 
 
-
 Configuration Options:
 ----------------------
 
@@ -423,8 +423,7 @@ The following options need to be configured:
 
 		CONFIG_SYS_FSL_DDR
 		Freescale DDR driver in use. This type of DDR controller is
-		found in mpc83xx, mpc85xx, mpc86xx as well as some ARM core
-		SoCs.
+		found in mpc83xx, mpc85xx as well as some ARM core SoCs.
 
 		CONFIG_SYS_FSL_DDR_ADDR
 		Freescale DDR memory-mapped register base.
@@ -466,10 +465,6 @@ The following options need to be configured:
 		Board config to use DDR3L. It can be enabled for SoCs with
 		DDR3L controllers.
 
-		CONFIG_SYS_FSL_DDR4
-		Board config to use DDR4. It can be enabled for SoCs with
-		DDR4 controllers.
-
 		CONFIG_SYS_FSL_IFC_BE
 		Defines the IFC controller register space as Big Endian
 
@@ -481,15 +476,6 @@ The following options need to be configured:
 
 		CONFIG_SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to eLBC controller).
-
-		CONFIG_SYS_FSL_PBL_PBI
-		It enables addition of RCW (Power on reset configuration) in built image.
-		Please refer doc/README.pblimage for more details
-
-		CONFIG_SYS_FSL_PBL_RCW
-		It adds PBI(pre-boot instructions) commands in u-boot build image.
-		PBI commands can be used to configure SoC before it starts the execution.
-		Please refer doc/README.pblimage for more details
 
 		CONFIG_SYS_FSL_DDR_BE
 		Defines the DDR controller register space as Big Endian
@@ -575,7 +561,6 @@ The following options need to be configured:
 		 * The bootm command automatically updates the fdt
 
 		OF_TBCLK - The timebase frequency.
-		OF_STDOUT_PATH - The path to the console device
 
 		boards with QUICC Engines require OF_QE to set UCC MAC
 		addresses
@@ -601,16 +586,6 @@ The following options need to be configured:
 		crash. This is needed for buggy hardware (uc101) where
 		no pull down resistor is connected to the signal IDE5V_DD7.
 
-		CONFIG_MACH_TYPE	[relevant for ARM only][mandatory]
-
-		This setting is mandatory for all boards that have only one
-		machine type and must be used to specify the machine type
-		number as it appears in the ARM machine registry
-		(see https://www.arm.linux.org.uk/developer/machines/).
-		Only boards that have multiple machine types supported
-		in a single configuration file and the machine type is
-		runtime discoverable, do not have to use this setting.
-
 - vxWorks boot parameters:
 
 		bootvx constructs a valid bootline using the following
@@ -631,14 +606,6 @@ The following options need to be configured:
 					controller register space
 
 - Serial Ports:
-		CONFIG_PL010_SERIAL
-
-		Define this if you want support for Amba PrimeCell PL010 UARTs.
-
-		CONFIG_PL011_SERIAL
-
-		Define this if you want support for Amba PrimeCell PL011 UARTs.
-
 		CONFIG_PL011_CLOCK
 
 		If you have Amba PrimeCell PL011 UARTs, set this variable to
@@ -677,11 +644,6 @@ The following options need to be configured:
 		time on others. This setting #define's the initial
 		value of the "loads_echo" environment variable.
 
-- Kgdb Serial Baudrate: (if CONFIG_CMD_KGDB is defined)
-		CONFIG_KGDB_BAUDRATE
-		Select one of the baudrates listed in
-		CONFIG_SYS_BAUDRATE_TABLE, see below.
-
 - Removal of commands
 		If no commands are needed to boot, you can disable
 		CONFIG_CMDLINE to remove them. In this case, the command line
@@ -707,13 +669,6 @@ The following options need to be configured:
 
 		U-Boot needs to get its device tree from somewhere. This can
 		be done using one of the three options below:
-
-		CONFIG_OF_EMBED
-		If this variable is defined, U-Boot will embed a device tree
-		binary in its image. This device tree file should be in the
-		board directory and called <soc>-<board>.dts. The binary file
-		is then picked up in board_init_f() and made available through
-		the global data structure as gd->fdt_blob.
 
 		CONFIG_OF_SEPARATE
 		If this variable is defined, U-Boot will build a device tree
@@ -747,6 +702,15 @@ The following options need to be configured:
 		When using a watchdog circuitry external to the used
 		SoC, then define this variable and provide board
 		specific code for the "hw_watchdog_reset" function.
+
+		CONFIG_SYS_WATCHDOG_FREQ
+		Some platforms automatically call WATCHDOG_RESET()
+		from the timer interrupt handler every
+		CONFIG_SYS_WATCHDOG_FREQ interrupts. If not set by the
+		board configuration file, a default of CONFIG_SYS_HZ/2
+		(i.e. 500) is used. Setting CONFIG_SYS_WATCHDOG_FREQ
+		to 0 disables calling WATCHDOG_RESET() from the timer
+		interrupt.
 
 - Real-Time Clock:
 
@@ -857,17 +821,10 @@ The following options need to be configured:
 		SCSI devices found during the last scan.
 
 - NETWORK Support (PCI):
-		CONFIG_E1000
-		Support for Intel 8254x/8257x gigabit chips.
-
 		CONFIG_E1000_SPI
 		Utility code for direct access to the SPI bus on Intel 8257x.
 		This does not do anything useful unless you set at least one
 		of CONFIG_CMD_E1000 or CONFIG_E1000_SPI_GENERIC.
-
-		CONFIG_E1000_SPI_GENERIC
-		Allow generic access to the SPI bus on the Intel 8257x, for
-		example with the "sspi" command.
 
 		CONFIG_NATSEMI
 		Support for National dp83815 chips.
@@ -876,17 +833,6 @@ The following options need to be configured:
 		Support for National dp8382[01] gigabit chips.
 
 - NETWORK Support (other):
-
-		CONFIG_DRIVER_AT91EMAC
-		Support for AT91RM9200 EMAC.
-
-			CONFIG_RMII
-			Define this to use reduced MII inteface
-
-			CONFIG_DRIVER_AT91EMAC_QUIET
-			If this defined, the driver is quiet.
-			The driver doen't show link status messages.
-
 		CONFIG_CALXEDA_XGMAC
 		Support for the Calxeda XGMAC device
 
@@ -1027,10 +973,6 @@ The following options need to be configured:
 			also needs to be defined by the driver to dynamically poll
 			whether the enumeration has succeded at high speed or full
 			speed.
-
-			CONFIG_SYS_CONSOLE_IS_IN_ENV
-			Define this if you want stdin, stdout &/or stderr to
-			be set to usbtty.
 
 		If you have a USB-IF assigned VendorID then you may wish to
 		define your own vendor specific values either in BoardName.h
@@ -1243,11 +1185,6 @@ The following options need to be configured:
 
 		Support drawing of RLE8-compressed bitmaps on the LCD.
 
-		CONFIG_I2C_EDID
-
-		Enables an 'i2c edid' command which can read EDID
-		information over I2C from an attached LCD display.
-
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 
@@ -1458,126 +1395,7 @@ The following options need to be configured:
 		In such cases CONFIG_GPIO_LED_INVERTED_TABLE may be defined
 		with a list of GPIO LEDs that have inverted polarity.
 
-- I2C Support:	CONFIG_SYS_I2C
-
-		This enable the NEW i2c subsystem, and will allow you to use
-		i2c commands at the u-boot command line (as long as you set
-		    CONFIG_SYS_I2C_SOFT_SPEED and CONFIG_SYS_I2C_SOFT_SLAVE
-		    for defining speed and slave address
-		  - activate second bus with I2C_SOFT_DECLARATIONS2 define
-		    CONFIG_SYS_I2C_SOFT_SPEED_2 and CONFIG_SYS_I2C_SOFT_SLAVE_2
-		    for defining speed and slave address
-		  - activate third bus with I2C_SOFT_DECLARATIONS3 define
-		    CONFIG_SYS_I2C_SOFT_SPEED_3 and CONFIG_SYS_I2C_SOFT_SLAVE_3
-		    for defining speed and slave address
-		  - activate fourth bus with I2C_SOFT_DECLARATIONS4 define
-		    CONFIG_SYS_I2C_SOFT_SPEED_4 and CONFIG_SYS_I2C_SOFT_SLAVE_4
-		    for defining speed and slave address
-
-		- drivers/i2c/fsl_i2c.c:
-		  - activate i2c driver with CONFIG_SYS_I2C_FSL
-		    define CONFIG_SYS_FSL_I2C_OFFSET for setting the register
-		    offset CONFIG_SYS_FSL_I2C_SPEED for the i2c speed and
-		    CONFIG_SYS_FSL_I2C_SLAVE for the slave addr of the first
-		    bus.
-		  - If your board supports a second fsl i2c bus, define
-		    CONFIG_SYS_FSL_I2C2_OFFSET for the register offset
-		    CONFIG_SYS_FSL_I2C2_SPEED for the speed and
-		    CONFIG_SYS_FSL_I2C2_SLAVE for the slave address of the
-		    second bus.
-
-		- drivers/i2c/tegra_i2c.c:
-		  - activate this driver with CONFIG_SYS_I2C_TEGRA
-		  - This driver adds 4 i2c buses with a fix speed from
-		    100000 and the slave addr 0!
-
-		- drivers/i2c/ppc4xx_i2c.c
-		  - activate this driver with CONFIG_SYS_I2C_PPC4XX
-		  - CONFIG_SYS_I2C_PPC4XX_CH0 activate hardware channel 0
-		  - CONFIG_SYS_I2C_PPC4XX_CH1 activate hardware channel 1
-
-		- drivers/i2c/i2c_mxc.c
-		  - activate this driver with CONFIG_SYS_I2C_MXC
-		  - enable bus 1 with CONFIG_SYS_I2C_MXC_I2C1
-		  - enable bus 2 with CONFIG_SYS_I2C_MXC_I2C2
-		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
-		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
-		  - define speed for bus 1 with CONFIG_SYS_MXC_I2C1_SPEED
-		  - define slave for bus 1 with CONFIG_SYS_MXC_I2C1_SLAVE
-		  - define speed for bus 2 with CONFIG_SYS_MXC_I2C2_SPEED
-		  - define slave for bus 2 with CONFIG_SYS_MXC_I2C2_SLAVE
-		  - define speed for bus 3 with CONFIG_SYS_MXC_I2C3_SPEED
-		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
-		  - define speed for bus 4 with CONFIG_SYS_MXC_I2C4_SPEED
-		  - define slave for bus 4 with CONFIG_SYS_MXC_I2C4_SLAVE
-		If those defines are not set, default value is 100000
-		for speed, and 0 for slave.
-
-		- drivers/i2c/rcar_i2c.c:
-		  - activate this driver with CONFIG_SYS_I2C_RCAR
-		  - This driver adds 4 i2c buses
-
-		- drivers/i2c/sh_i2c.c:
-		  - activate this driver with CONFIG_SYS_I2C_SH
-		  - This driver adds from 2 to 5 i2c buses
-
-		  - CONFIG_SYS_I2C_SH_BASE0 for setting the register channel 0
-		  - CONFIG_SYS_I2C_SH_SPEED0 for for the speed channel 0
-		  - CONFIG_SYS_I2C_SH_BASE1 for setting the register channel 1
-		  - CONFIG_SYS_I2C_SH_SPEED1 for for the speed channel 1
-		  - CONFIG_SYS_I2C_SH_BASE2 for setting the register channel 2
-		  - CONFIG_SYS_I2C_SH_SPEED2 for for the speed channel 2
-		  - CONFIG_SYS_I2C_SH_BASE3 for setting the register channel 3
-		  - CONFIG_SYS_I2C_SH_SPEED3 for for the speed channel 3
-		  - CONFIG_SYS_I2C_SH_BASE4 for setting the register channel 4
-		  - CONFIG_SYS_I2C_SH_SPEED4 for for the speed channel 4
-		  - CONFIG_SYS_I2C_SH_NUM_CONTROLLERS for number of i2c buses
-
-		- drivers/i2c/omap24xx_i2c.c
-		  - activate this driver with CONFIG_SYS_I2C_OMAP24XX
-		  - CONFIG_SYS_OMAP24_I2C_SPEED speed channel 0
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE slave addr channel 0
-		  - CONFIG_SYS_OMAP24_I2C_SPEED1 speed channel 1
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE1 slave addr channel 1
-		  - CONFIG_SYS_OMAP24_I2C_SPEED2 speed channel 2
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE2 slave addr channel 2
-		  - CONFIG_SYS_OMAP24_I2C_SPEED3 speed channel 3
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE3 slave addr channel 3
-		  - CONFIG_SYS_OMAP24_I2C_SPEED4 speed channel 4
-		  - CONFIG_SYS_OMAP24_I2C_SLAVE4 slave addr channel 4
-
-		- drivers/i2c/s3c24x0_i2c.c:
-		  - activate this driver with CONFIG_SYS_I2C_S3C24X0
-		  - This driver adds i2c buses (11 for Exynos5250, Exynos5420
-		    9 i2c buses for Exynos4 and 1 for S3C24X0 SoCs from Samsung)
-		    with a fix speed from 100000 and the slave addr 0!
-
-		- drivers/i2c/ihs_i2c.c
-		  - activate this driver with CONFIG_SYS_I2C_IHS
-		  - CONFIG_SYS_I2C_IHS_CH0 activate hardware channel 0
-		  - CONFIG_SYS_I2C_IHS_SPEED_0 speed channel 0
-		  - CONFIG_SYS_I2C_IHS_SLAVE_0 slave addr channel 0
-		  - CONFIG_SYS_I2C_IHS_CH1 activate hardware channel 1
-		  - CONFIG_SYS_I2C_IHS_SPEED_1 speed channel 1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_1 slave addr channel 1
-		  - CONFIG_SYS_I2C_IHS_CH2 activate hardware channel 2
-		  - CONFIG_SYS_I2C_IHS_SPEED_2 speed channel 2
-		  - CONFIG_SYS_I2C_IHS_SLAVE_2 slave addr channel 2
-		  - CONFIG_SYS_I2C_IHS_CH3 activate hardware channel 3
-		  - CONFIG_SYS_I2C_IHS_SPEED_3 speed channel 3
-		  - CONFIG_SYS_I2C_IHS_SLAVE_3 slave addr channel 3
-		  - activate dual channel with CONFIG_SYS_I2C_IHS_DUAL
-		  - CONFIG_SYS_I2C_IHS_SPEED_0_1 speed channel 0_1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_0_1 slave addr channel 0_1
-		  - CONFIG_SYS_I2C_IHS_SPEED_1_1 speed channel 1_1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_1_1 slave addr channel 1_1
-		  - CONFIG_SYS_I2C_IHS_SPEED_2_1 speed channel 2_1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_2_1 slave addr channel 2_1
-		  - CONFIG_SYS_I2C_IHS_SPEED_3_1 speed channel 3_1
-		  - CONFIG_SYS_I2C_IHS_SLAVE_3_1 slave addr channel 3_1
-
-		additional defines:
-
+- I2C Support:
 		CONFIG_SYS_NUM_I2C_BUSES
 		Hold the number of i2c buses you want to use.
 
@@ -1925,13 +1743,6 @@ The following options need to be configured:
 		try longer timeout such as
 		#define CONFIG_NFS_TIMEOUT 10000UL
 
-- Command Interpreter:
-		CONFIG_SYS_PROMPT_HUSH_PS2
-
-		This defines the secondary prompt string, which is
-		printed when the command interpreter needs more input
-		to complete a command. Usually "> ".
-
 	Note:
 
 		In the current implementation, the local variables
@@ -2111,9 +1922,6 @@ The following options need to be configured:
 		CONFIG_SPL
 		Enable building of SPL globally.
 
-		CONFIG_SPL_LDSCRIPT
-		LDSCRIPT for linking the SPL binary.
-
 		CONFIG_SPL_MAX_FOOTPRINT
 		Maximum size in memory allocated to the SPL, BSS included.
 		When defined, the linker checks that the actual memory
@@ -2167,10 +1975,6 @@ The following options need to be configured:
 
 		CONFIG_SYS_SPL_MALLOC_SIZE
 		The size of the malloc pool used in SPL.
-
-		CONFIG_SPL_OS_BOOT
-		Enable booting directly to an OS from SPL.
-		See also: doc/README.falcon
 
 		CONFIG_SPL_DISPLAY_PRINT
 		For ARM, enable an optional function to print more information
@@ -2236,9 +2040,6 @@ The following options need to be configured:
 		CONFIG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
 		to read U-Boot
-
-		CONFIG_SYS_NAND_U_BOOT_OFFS
-		Location in NAND to read U-Boot from
 
 		CONFIG_SYS_NAND_U_BOOT_DST
 		Location in memory to load U-Boot to
@@ -2777,16 +2578,6 @@ Low Level (hardware related) configuration options:
   CONFIG_SYS_OR3_PRELIM, CONFIG_SYS_BR3_PRELIM:
 		Memory Controller Definitions: BR2/3 and OR2/3 (SDRAM)
 
-- CONFIG_PCI_ENUM_ONLY
-		Only scan through and get the devices on the buses.
-		Don't do any setup work, presumably because someone or
-		something has already done it, and we don't need to do it
-		a second time.	Useful for platforms that are pre-booted
-		by coreboot or similar.
-
-- CONFIG_PCI_INDIRECT_BRIDGE:
-		Enable support for indirect PCI bridges.
-
 - CONFIG_SYS_SRIO:
 		Chip has SRIO or not
 
@@ -2883,22 +2674,6 @@ Low Level (hardware related) configuration options:
 
 		This only takes effect if the memory commands are activated
 		globally (CONFIG_CMD_MEMORY).
-
-- CONFIG_SKIP_LOWLEVEL_INIT
-		[ARM, NDS32, MIPS, RISC-V only] If this variable is defined, then certain
-		low level initializations (like setting up the memory
-		controller) are omitted and/or U-Boot does not
-		relocate itself into RAM.
-
-		Normally this variable MUST NOT be defined. The only
-		exception is when U-Boot is loaded (to RAM) by some
-		other boot loader or by a debugger which performs
-		these initializations itself.
-
-- CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-		[ARM926EJ-S only] This allows just the call to lowlevel_init()
-		to be skipped. The normal CP15 init (such as enabling the
-		instruction cache) is still performed.
 
 - CONFIG_SPL_BUILD
 		Set when the currently-running compilation is for an artifact
@@ -3160,6 +2935,7 @@ i2c	- I2C sub-system
 sspi	- SPI utility commands
 base	- print or set address offset
 printenv- print environment variables
+pwm	- control pwm channels
 setenv	- set environment variables
 saveenv - save environment variables to persistent storage
 protect - enable or disable FLASH write protection
@@ -3517,47 +3293,6 @@ The signature of the callback functions is:
 
 The return value is 0 if the variable change is accepted and 1 otherwise.
 
-Command Line Parsing:
-=====================
-
-There are two different command line parsers available with U-Boot:
-the old "simple" one, and the much more powerful "hush" shell:
-
-Old, simple command line parser:
---------------------------------
-
-- supports environment variables (through setenv / saveenv commands)
-- several commands on one line, separated by ';'
-- variable substitution using "... ${name} ..." syntax
-- special characters ('$', ';') can be escaped by prefixing with '\',
-  for example:
-	setenv bootcmd bootm \${address}
-- You can also escape text by enclosing in single apostrophes, for example:
-	setenv addip 'setenv bootargs $bootargs ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off'
-
-Hush shell:
------------
-
-- similar to Bourne shell, with control structures like
-  if...then...else...fi, for...do...done; while...do...done,
-  until...do...done, ...
-- supports environment ("global") variables (through setenv / saveenv
-  commands) and local shell variables (through standard shell syntax
-  "name=value"); only environment variables can be used with "run"
-  command
-
-General rules:
---------------
-
-(1) If a command line (or an environment variable executed by a "run"
-    command) contains several commands separated by semicolon, and
-    one of these commands fails, then the remaining commands will be
-    executed anyway.
-
-(2) If you execute several variables with one call to run (i. e.
-    calling run with a list of variables as arguments), any failing
-    command will cause "run" to terminate, i. e. the remaining
-    variables are not executed.
 
 Note for Redundant Ethernet Interfaces:
 =======================================

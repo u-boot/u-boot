@@ -10,6 +10,7 @@
 #include <serial.h>
 #include <stdio_dev.h>
 #include <post.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <errno.h>
 #include <linux/delay.h>
@@ -60,7 +61,7 @@ static int on_baudrate(const char *name, const char *value, enum env_op op,
 		/*
 		 * Switch to new baudrate if new baudrate is supported
 		 */
-		baudrate = simple_strtoul(value, NULL, 10);
+		baudrate = dectoul(value, NULL);
 
 		/* Not actually changing */
 		if (gd->baudrate == baudrate)

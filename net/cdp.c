@@ -11,9 +11,6 @@
 
 #include <common.h>
 #include <net.h>
-#if defined(CONFIG_CDP_VERSION)
-#include <timestamp.h>
-#endif
 
 #include "cdp.h"
 

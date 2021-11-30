@@ -161,7 +161,7 @@ static int do_abootimg_addr(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	img_addr = simple_strtoul(argv[1], &endp, 16);
+	img_addr = hextoul(argv[1], &endp);
 	if (*endp != '\0') {
 		printf("Error: Wrong image address\n");
 		return CMD_RET_FAILURE;

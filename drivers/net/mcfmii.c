@@ -8,13 +8,10 @@
 #include <config.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 
-#ifdef CONFIG_MCF547x_8x
-#include <asm/fsl_mcdmafec.h>
-#else
 #include <asm/fec.h>
-#endif
 #include <asm/immap.h>
 #include <linux/mii.h>
 
@@ -100,7 +97,11 @@ uint mii_send(uint mii_cmd)
 
 	/* retrieve from register structure */
 	dev = eth_get_dev();
+#ifdef CONFIG_DM_ETH
+	info = dev_get_priv(dev);
+#else
 	info = dev->priv;
+#endif
 
 	ep = (FEC_T *) info->miibase;
 
@@ -216,7 +217,11 @@ void __mii_init(void)
 
 	/* retrieve from register structure */
 	dev = eth_get_dev();
+#ifdef CONFIG_DM_ETH
+	info = dev_get_priv(dev);
+#else
 	info = dev->priv;
+#endif
 
 	fecp = (FEC_T *) info->miibase;
 

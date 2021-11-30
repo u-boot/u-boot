@@ -59,7 +59,7 @@ void dump_regs(struct autosave_regs *regs)
 void bad_mode(void)
 {
 	panic("Resetting CPU ...\n");
-	reset_cpu(0);
+	reset_cpu();
 }
 
 void do_hard_fault(struct autosave_regs *autosave_regs)

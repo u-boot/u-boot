@@ -106,7 +106,7 @@ int board_eth_init(struct bd_info *bis)
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
 	if ((srds_prtcl_s2 == 56) || (srds_prtcl_s2 == 55)) {
-		/* SGMII && XFI */
+		/* SGMII && 10GBase-R */
 		fm_info_set_phy_address(FM2_DTSEC1, SGMII_PHY_ADDR5);
 		fm_info_set_phy_address(FM2_DTSEC2, SGMII_PHY_ADDR6);
 		fm_info_set_phy_address(FM2_DTSEC3, SGMII_PHY_ADDR7);

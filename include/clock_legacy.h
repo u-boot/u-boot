@@ -11,4 +11,15 @@ int get_clocks(void);
 unsigned long get_bus_freq(unsigned long dummy);
 int get_serial_clock(void);
 
+/*
+ * If we have CONFIG_DYNAMIC_DDR_CLK_FREQ then there will be an
+ * implentation of get_board_ddr_clk() somewhere.  Otherwise we have
+ * a static value to use now.
+ */
+#ifdef CONFIG_DYNAMIC_DDR_CLK_FREQ
+unsigned long get_board_ddr_clk(void);
+#else
+#define get_board_ddr_clk()		CONFIG_DDR_CLK_FREQ
+#endif
+
 #endif

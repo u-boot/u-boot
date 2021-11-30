@@ -417,7 +417,7 @@ void omap_die_id(unsigned int *die_id)
 	die_id[3] = readl((*ctrl)->control_std_fuse_die_id_3);
 }
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	u32 omap_rev = omap_revision();
 

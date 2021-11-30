@@ -24,9 +24,6 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
-
 /* Console configs */
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
@@ -35,9 +32,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
 
 /* Miscellaneous configurable options */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

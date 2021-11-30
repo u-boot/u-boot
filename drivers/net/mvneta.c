@@ -21,6 +21,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
@@ -896,7 +897,7 @@ static void mvneta_mac_addr_set(struct mvneta_port *pp, unsigned char *addr,
 static int mvneta_write_hwaddr(struct udevice *dev)
 {
 	mvneta_mac_addr_set(dev_get_priv(dev),
-		((struct eth_pdata *)dev_get_platdata(dev))->enetaddr,
+		((struct eth_pdata *)dev_get_plat(dev))->enetaddr,
 		rxq_def);
 
 	return 0;
@@ -1397,7 +1398,7 @@ static int mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
 /* Device initialization routine */
 static int mvneta_init(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvneta_port *pp = dev_get_priv(dev);
 	int err;
 
@@ -1690,7 +1691,7 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 
 static int mvneta_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvneta_port *pp = dev_get_priv(dev);
 	void *blob = (void *)gd->fdt_blob;
 	int node = dev_of_offset(dev);
@@ -1732,7 +1733,7 @@ static int mvneta_probe(struct udevice *dev)
 	else
 		mvneta_conf_mbus_windows(pp);
 
-	/* PHY interface is already decoded in mvneta_ofdata_to_platdata() */
+	/* PHY interface is already decoded in mvneta_of_to_plat() */
 	pp->phy_interface = pdata->phy_interface;
 
 	/* fetch 'fixed-link' property from 'neta' node */
@@ -1795,9 +1796,9 @@ static const struct eth_ops mvneta_ops = {
 	.write_hwaddr	= mvneta_write_hwaddr,
 };
 
-static int mvneta_ofdata_to_platdata(struct udevice *dev)
+static int mvneta_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
 
 	pdata->iobase = dev_read_addr(dev);
@@ -1827,9 +1828,9 @@ U_BOOT_DRIVER(mvneta) = {
 	.name	= "mvneta",
 	.id	= UCLASS_ETH,
 	.of_match = mvneta_ids,
-	.ofdata_to_platdata = mvneta_ofdata_to_platdata,
+	.of_to_plat = mvneta_of_to_plat,
 	.probe	= mvneta_probe,
 	.ops	= &mvneta_ops,
-	.priv_auto_alloc_size = sizeof(struct mvneta_port),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct mvneta_port),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

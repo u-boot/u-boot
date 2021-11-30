@@ -6,7 +6,7 @@ subdir-y :=
 
 # You can set these variables from the command line.
 SPHINXBUILD   = sphinx-build
-SPHINXOPTS    =
+SPHINXOPTS    = -W
 SPHINXDIRS    = .
 _SPHINXDIRS   = $(patsubst $(srctree)/doc/%/conf.py,%,$(wildcard $(srctree)/doc/*/conf.py))
 SPHINX_CONF   = conf.py
@@ -56,7 +56,6 @@ quiet_cmd_sphinx = SPHINX  $@ --> file://$(abspath $(BUILDDIR)/$3/$4)
 	PYTHONDONTWRITEBYTECODE=1 \
 	BUILDDIR=$(abspath $(BUILDDIR)) SPHINX_CONF=$(abspath $(srctree)/$(src)/$5/$(SPHINX_CONF)) \
 	$(SPHINXBUILD) \
-	-W \
 	-b $2 \
 	-c $(abspath $(srctree)/$(src)) \
 	-d $(abspath $(BUILDDIR)/.doctrees/$3) \
@@ -106,7 +105,7 @@ cleandocs:
 	$(Q)$(MAKE) BUILDDIR=$(abspath $(BUILDDIR)) $(build)=doc/media clean
 
 dochelp:
-	@echo  ' Linux kernel internal documentation in different formats from ReST:'
+	@echo  ' U-Boot documentation in different formats from ReST:'
 	@echo  '  htmldocs        - HTML'
 	@echo  '  latexdocs       - LaTeX'
 	@echo  '  pdfdocs         - PDF'

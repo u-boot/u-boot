@@ -16,12 +16,12 @@ static int do_zip(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	switch (argc) {
 		case 5:
-			dst_len = simple_strtoul(argv[4], NULL, 16);
+			dst_len = hextoul(argv[4], NULL);
 			/* fall through */
 		case 4:
-			src = simple_strtoul(argv[1], NULL, 16);
-			src_len = simple_strtoul(argv[2], NULL, 16);
-			dst = simple_strtoul(argv[3], NULL, 16);
+			src = hextoul(argv[1], NULL);
+			src_len = hextoul(argv[2], NULL);
+			dst = hextoul(argv[3], NULL);
 			break;
 		default:
 			return cmd_usage(cmdtp);

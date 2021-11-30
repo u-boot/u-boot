@@ -19,9 +19,11 @@ choice
 
 config MPC866
 	bool "MPC866"
+	select SYS_CACHE_SHIFT_4
 
 config MPC885
 	bool "MPC885"
+	select SYS_CACHE_SHIFT_4
 
 endchoice
 

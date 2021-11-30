@@ -12,13 +12,9 @@
 
 #undef CONFIG_BOARD_COMMON
 #undef CONFIG_USB_GADGET_DWC2_OTG_PHY
-#undef CONFIG_REVISION_TAG
 
 /* High Level Configuration Options */
 #define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
-
-/* Mach Type */
-#define CONFIG_MACH_TYPE		MACH_TYPE_SMDKV310
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
@@ -28,13 +24,9 @@
 #define S5P_CHECK_LPA			0xABAD0000
 
 /* MMC SPL */
-#define CONFIG_SKIP_LOWLEVEL_INIT
 #define COPY_BL2_FNPTR_ADDR	0x00002488
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
-
-/* memtest works on */
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
 /* SMDKV310 has 4 bank of DRAM */
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */

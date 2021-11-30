@@ -1,0 +1,78 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2021, Bin Meng <bmeng.cn@gmail.com>
+ */
+
+#include <config.h>
+
+/ {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	itb {
+		filename = "u-boot.itb";
+
+		fit {
+			description = "Configuration to load OpenSBI before U-Boot";
+			#address-cells = <1>;
+			fit,fdt-list = "of-list";
+
+			images {
+				uboot {
+					description = "U-Boot";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "riscv";
+					compression = "none";
+					load = <CONFIG_SYS_TEXT_BASE>;
+
+					uboot_blob: blob-ext {
+						filename = "u-boot-nodtb.bin";
+					};
+				};
+
+				opensbi {
+					description = "OpenSBI fw_dynamic Firmware";
+					type = "firmware";
+					os = "opensbi";
+					arch = "riscv";
+					compression = "none";
+					load = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+					entry = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+
+					opensbi_blob: opensbi {
+						filename = "fw_dynamic.bin";
+					};
+				};
+
+#ifndef CONFIG_OF_BOARD
+				@fdt-SEQ {
+					description = "NAME";
+					type = "flat_dt";
+					compression = "none";
+				};
+#endif
+			};
+
+			configurations {
+				default = "conf-1";
+
+#ifndef CONFIG_OF_BOARD
+				@conf-SEQ {
+#else
+				conf-1 {
+#endif
+					description = "NAME";
+					firmware = "opensbi";
+					loadables = "uboot";
+#ifndef CONFIG_OF_BOARD
+					fdt = "fdt-SEQ";
+#endif
+				};
+			};
+		};
+	};
+};

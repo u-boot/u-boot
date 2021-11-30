@@ -125,12 +125,12 @@ static void sgmii_configure_repeater(int serdes_port)
 	};
 
 	int *riser_phy_addr = &xqsgii_riser_phy_addr[0];
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *udev;
 #endif
 
 	/* Set I2c to Slot 1 */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_write(0x77, 0, 0, &a, 1);
 #else
 	ret = i2c_get_chip_for_busnum(0, 0x77, 1, &udev);
@@ -151,7 +151,7 @@ static void sgmii_configure_repeater(int serdes_port)
 			mii_bus = 1;
 			dpmac_id = dpmac + 9;
 			a = 0xb;
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 			ret = i2c_write(0x76, 0, 0, &a, 1);
 #else
 			ret = i2c_get_chip_for_busnum(0, 0x76, 1, &udev);
@@ -198,7 +198,7 @@ static void sgmii_configure_repeater(int serdes_port)
 				reg_pair[6].val = &ch_b_ctl2[j];
 
 				for (k = 0; k < 10; k++) {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 					ret = i2c_write(i2c_addr[dpmac],
 							reg_pair[k].addr,
 							1, reg_pair[k].val, 1);
@@ -277,12 +277,12 @@ static void qsgmii_configure_repeater(int dpmac)
 	const char *dev = "LS2080A_QDS_MDIO0";
 	int ret = 0;
 	unsigned short value;
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *udev;
 #endif
 
 	/* Set I2c to Slot 1 */
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_write(0x77, 0, 0, &a, 1);
 #else
 	ret = i2c_get_chip_for_busnum(0, 0x77, 1, &udev);
@@ -347,7 +347,7 @@ static void qsgmii_configure_repeater(int dpmac)
 			reg_pair[6].val = &ch_b_ctl2[j];
 
 			for (k = 0; k < 10; k++) {
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 				ret = i2c_write(i2c_phy_addr,
 						reg_pair[k].addr,
 						1, reg_pair[k].val, 1);
@@ -874,13 +874,12 @@ void ls2080a_handle_phy_interface_xsgmii(int i)
 	case 0x4B:
 	case 0x4C:
 		/*
-		 * XFI does not need a PHY to work, but to avoid U-Boot use
-		 * default PHY address which is zero to a MAC when it found
-		 * a MAC has no PHY address, we give a PHY address to XFI
-		 * MAC, and should not use a real XAUI PHY address, since
-		 * MDIO can access it successfully, and then MDIO thinks
-		 * the XAUI card is used for the XFI MAC, which will cause
-		 * error.
+		 * 10GBase-R does not need a PHY to work, but to avoid U-Boot
+		 * use default PHY address which is zero to a MAC when it found
+		 * a MAC has no PHY address, we give a PHY address to 10GBase-R
+		 * MAC, and should not use a real XAUI PHY address, since MDIO
+		 * can access it successfully, and then MDIO thinks the XAUI
+		 * card is used for the 10GBase-R MAC, which will cause error.
 		 */
 		wriop_set_phy_address(i, 0, i + 4);
 		ls2080a_qds_enable_SFP_TX(SFP_TX);

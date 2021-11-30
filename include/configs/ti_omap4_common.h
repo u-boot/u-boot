@@ -51,12 +51,6 @@
 #define CONFIG_TWL6030_POWER		1
 #endif
 
-/* USB */
-
-/* USB device configuration */
-#define CONFIG_USB_DEVICE		1
-#define CONFIG_USB_TTY			1
-
 /*
  * Environment setup
  */
@@ -124,7 +118,6 @@
 
 #ifdef CONFIG_SPL_BUILD
 /* No need for i2c in SPL mode as we will use SRI2C for PMIC access on OMAP4 */
-#undef CONFIG_SYS_I2C
 #endif
 
 #endif /* __CONFIG_TI_OMAP4_COMMON_H */

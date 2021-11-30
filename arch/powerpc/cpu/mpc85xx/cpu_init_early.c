@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <asm-offsets.h>
+#include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
@@ -122,7 +123,9 @@ void cpu_init_early_f(void *fdt)
 	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_LCLK_IFC_CS3);
 #endif
 
+#ifdef CONFIG_FSL_LAW
 	init_laws();
+#endif
 
 /*
  * Work Around for IFC Erratum A003399, issue will hit only when execution

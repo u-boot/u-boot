@@ -10,6 +10,7 @@
 #include <i2c.h>
 #include <log.h>
 #include <video_bridge.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <power/regulator.h>
 
@@ -37,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int ps8622_write(struct udevice *dev, unsigned addr_off,
 			unsigned char reg_addr, unsigned char value)
 {
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	uint8_t buf[2];
 	struct i2c_msg msg;
 	int ret;

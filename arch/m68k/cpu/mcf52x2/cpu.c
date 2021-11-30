@@ -19,6 +19,7 @@
 #include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
+#include <asm/global_data.h>
 #include <asm/immap.h>
 #include <asm/io.h>
 #include <netdev.h>
@@ -420,7 +421,7 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #if defined(CONFIG_MCFFEC)
 /* Default initializations for MCFFEC controllers.  To override,
  * create a board-specific function called:
- * 	int board_eth_init(struct bd_info *bis)
+ *	int board_eth_init(struct bd_info *bis)
  */
 
 int cpu_eth_init(struct bd_info *bis)

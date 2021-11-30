@@ -18,6 +18,7 @@
 #include <asm/arch/sci/sci.h>
 #include <asm/arch-imx8/imx8-pins.h>
 #include <asm/arch-imx8/snvs_security_sc.h>
+#include <asm/global_data.h>
 
 /* Access to gd */
 DECLARE_GLOBAL_DATA_PTR;
@@ -637,24 +638,24 @@ static int do_snvs_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != (NB_REGISTERS + 1))
 		return CMD_RET_USAGE;
 
-	conf.hp.lock = simple_strtoul(argv[++idx], NULL, 16);
-	conf.hp.secvio_ctl = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.lock = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.secvio_ctl = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.tamper_filt_cfg = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.tamper_det_cfg = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.tamper_det_cfg2 = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.tamper_filt1_cfg = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.tamper_filt2_cfg = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.act_tamper1_cfg = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.act_tamper2_cfg = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.act_tamper3_cfg = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.act_tamper4_cfg = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.act_tamper5_cfg = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.act_tamper_ctl = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.act_tamper_clk_ctl = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.act_tamper_routing_ctl1 = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.act_tamper_routing_ctl2 = simple_strtoul(argv[++idx], NULL, 16);
+	conf.hp.lock = hextoul(argv[++idx], NULL);
+	conf.hp.secvio_ctl = hextoul(argv[++idx], NULL);
+	conf.lp.lock = hextoul(argv[++idx], NULL);
+	conf.lp.secvio_ctl = hextoul(argv[++idx], NULL);
+	conf.lp.tamper_filt_cfg = hextoul(argv[++idx], NULL);
+	conf.lp.tamper_det_cfg = hextoul(argv[++idx], NULL);
+	conf.lp.tamper_det_cfg2 = hextoul(argv[++idx], NULL);
+	conf.lp.tamper_filt1_cfg = hextoul(argv[++idx], NULL);
+	conf.lp.tamper_filt2_cfg = hextoul(argv[++idx], NULL);
+	conf.lp.act_tamper1_cfg = hextoul(argv[++idx], NULL);
+	conf.lp.act_tamper2_cfg = hextoul(argv[++idx], NULL);
+	conf.lp.act_tamper3_cfg = hextoul(argv[++idx], NULL);
+	conf.lp.act_tamper4_cfg = hextoul(argv[++idx], NULL);
+	conf.lp.act_tamper5_cfg = hextoul(argv[++idx], NULL);
+	conf.lp.act_tamper_ctl = hextoul(argv[++idx], NULL);
+	conf.lp.act_tamper_clk_ctl = hextoul(argv[++idx], NULL);
+	conf.lp.act_tamper_routing_ctl1 = hextoul(argv[++idx], NULL);
+	conf.lp.act_tamper_routing_ctl2 = hextoul(argv[++idx], NULL);
 
 	err = apply_snvs_config(&conf);
 
@@ -689,12 +690,12 @@ static int do_snvs_dgo_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != (6 + 1))
 		return CMD_RET_USAGE;
 
-	conf.tamper_offset_ctl = simple_strtoul(argv[++idx], NULL, 16);
-	conf.tamper_pull_ctl = simple_strtoul(argv[++idx], NULL, 16);
-	conf.tamper_ana_test_ctl = simple_strtoul(argv[++idx], NULL, 16);
-	conf.tamper_sensor_trim_ctl = simple_strtoul(argv[++idx], NULL, 16);
-	conf.tamper_misc_ctl = simple_strtoul(argv[++idx], NULL, 16);
-	conf.tamper_core_volt_mon_ctl = simple_strtoul(argv[++idx], NULL, 16);
+	conf.tamper_offset_ctl = hextoul(argv[++idx], NULL);
+	conf.tamper_pull_ctl = hextoul(argv[++idx], NULL);
+	conf.tamper_ana_test_ctl = hextoul(argv[++idx], NULL);
+	conf.tamper_sensor_trim_ctl = hextoul(argv[++idx], NULL);
+	conf.tamper_misc_ctl = hextoul(argv[++idx], NULL);
+	conf.tamper_core_volt_mon_ctl = hextoul(argv[++idx], NULL);
 
 	err = apply_snvs_dgo_config(&conf);
 
@@ -725,8 +726,8 @@ static int do_tamper_pin_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != (2 + 1))
 		return CMD_RET_USAGE;
 
-	conf.pad = simple_strtoul(argv[++idx], NULL, 10);
-	conf.mux_conf = simple_strtoul(argv[++idx], NULL, 16);
+	conf.pad = dectoul(argv[++idx], NULL);
+	conf.mux_conf = hextoul(argv[++idx], NULL);
 
 	err = apply_tamper_pin_list_config(&conf, 1);
 
@@ -760,8 +761,8 @@ static int do_snvs_clear_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != (2 + 1))
 		return CMD_RET_USAGE;
 
-	conf.lp.status = simple_strtoul(argv[++idx], NULL, 16);
-	conf.lp.tamper_det_status = simple_strtoul(argv[++idx], NULL, 16);
+	conf.lp.status = hextoul(argv[++idx], NULL);
+	conf.lp.tamper_det_status = hextoul(argv[++idx], NULL);
 
 	scierr = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.status),
 					   &conf.lp.status, NULL, NULL, NULL,

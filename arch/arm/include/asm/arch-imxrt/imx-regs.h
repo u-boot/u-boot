@@ -23,4 +23,8 @@
 #include <asm/mach-imx/regs-lcdif.h>
 #endif
 
+#define USB_BASE_ADDR		0x402E0000
+#define USB_PHY0_BASE_ADDR	0x400D9000
+#define USB_PHY1_BASE_ADDR	0x400DA000
+
 #endif /* __ASM_ARCH_IMX_REGS_H__ */

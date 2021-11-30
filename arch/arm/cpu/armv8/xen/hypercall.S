@@ -76,4 +76,3 @@ HYPERCALL2(sched_op);
 HYPERCALL2(event_channel_op);
 HYPERCALL2(hvm_op);
 HYPERCALL2(memory_op);
-

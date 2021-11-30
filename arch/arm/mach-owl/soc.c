@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <linux/arm-smccc.h>
 #include <linux/psci.h>
 #include <common.h>
@@ -73,7 +74,7 @@ int board_init(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	psci_system_reset();
 }

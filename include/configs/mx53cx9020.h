@@ -14,16 +14,7 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
 #define CONFIG_SYS_FSL_CLK
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32 * 1024 * 1024)
-
-#define CONFIG_REVISION_TAG
 
 #define CONFIG_MXC_UART_BASE UART2_BASE
 
@@ -42,8 +33,6 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* Command definition */
-
-#define CONFIG_LOADADDR		0x70010000	/* loadaddr env var */
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
@@ -71,8 +60,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR

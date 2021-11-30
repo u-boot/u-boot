@@ -15,6 +15,7 @@
 #include <asm/arch/pxa.h>
 #include <asm/arch/regs-mmc.h>
 #include <asm/arch/regs-uart.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/platdata.h>
 #include <dm/platform_data/pxa_mmc_gen.h>
@@ -129,24 +130,24 @@ int board_mmc_init(struct bd_info *bis)
 	return 0;
 }
 #else /* !CONFIG_IS_ENABLED(DM_MMC) */
-static const struct pxa_mmc_plat mmc_platdata = {
+static const struct pxa_mmc_plat mmc_plat = {
 	.base = (struct pxa_mmc_regs *)MMC0_BASE,
 };
 
-U_BOOT_DEVICE(pxa_mmcs) = {
+U_BOOT_DRVINFO(pxa_mmcs) = {
 	.name = "pxa_mmc",
-	.platdata = &mmc_platdata,
+	.plat = &mmc_plat,
 };
 #endif /* !CONFIG_IS_ENABLED(DM_MMC) */
 #endif
 
-static const struct pxa_serial_platdata serial_platdata = {
+static const struct pxa_serial_plat serial_plat = {
 	.base = (struct pxa_uart_regs *)FFUART_BASE,
 	.port = FFUART_INDEX,
 	.baudrate = CONFIG_BAUDRATE,
 };
 
-U_BOOT_DEVICE(pxa_serials) = {
+U_BOOT_DRVINFO(pxa_serials) = {
 	.name = "serial_pxa",
-	.platdata = &serial_platdata,
+	.plat = &serial_plat,
 };

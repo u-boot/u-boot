@@ -432,6 +432,7 @@ static int brcm_pcie_probe(struct udevice *dev)
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	struct brcm_pcie *pcie = dev_get_priv(dev);
 	void __iomem *base = pcie->base;
+	struct pci_region region;
 	bool ssc_good = false;
 	int num_out_wins = 0;
 	u64 rc_bar2_offset, rc_bar2_size;
@@ -468,13 +469,10 @@ static int brcm_pcie_probe(struct udevice *dev)
 			MISC_CTRL_SCB_ACCESS_EN_MASK |
 			MISC_CTRL_CFG_READ_UR_MODE_MASK |
 			MISC_CTRL_MAX_BURST_SIZE_128);
-	/*
-	 * TODO: When support for other SoCs than BCM2711 is added we may
-	 * need to use the base address and size(s) provided in the dma-ranges
-	 * property.
-	 */
-	rc_bar2_offset = 0;
-	rc_bar2_size = 0xc0000000;
+
+	pci_get_dma_regions(dev, &region, 0);
+	rc_bar2_offset = region.bus_start - region.phys_start;
+	rc_bar2_size = 1ULL << fls64(region.size - 1);
 
 	tmp = lower_32_bits(rc_bar2_offset);
 	u32p_replace_bits(&tmp, brcm_pcie_encode_ibar_size(rc_bar2_size),
@@ -579,7 +577,25 @@ static int brcm_pcie_probe(struct udevice *dev)
 	return 0;
 }
 
-static int brcm_pcie_ofdata_to_platdata(struct udevice *dev)
+static int brcm_pcie_remove(struct udevice *dev)
+{
+	struct brcm_pcie *pcie = dev_get_priv(dev);
+	void __iomem *base = pcie->base;
+
+	/* Assert fundamental reset */
+	setbits_le32(base + PCIE_RGR1_SW_INIT_1, RGR1_SW_INIT_1_PERST_MASK);
+
+	/* Turn off SerDes */
+	setbits_le32(base + PCIE_MISC_HARD_PCIE_HARD_DEBUG,
+		     PCIE_HARD_DEBUG_SERDES_IDDQ_MASK);
+
+	/* Shutdown bridge */
+	setbits_le32(base + PCIE_RGR1_SW_INIT_1, RGR1_SW_INIT_1_INIT_MASK);
+
+	return 0;
+}
+
+static int brcm_pcie_of_to_plat(struct udevice *dev)
 {
 	struct brcm_pcie *pcie = dev_get_priv(dev);
 	ofnode dn = dev_ofnode(dev);
@@ -618,6 +634,8 @@ U_BOOT_DRIVER(pcie_brcm_base) = {
 	.ops			= &brcm_pcie_ops,
 	.of_match		= brcm_pcie_ids,
 	.probe			= brcm_pcie_probe,
-	.ofdata_to_platdata	= brcm_pcie_ofdata_to_platdata,
-	.priv_auto_alloc_size	= sizeof(struct brcm_pcie),
+	.remove			= brcm_pcie_remove,
+	.of_to_plat	= brcm_pcie_of_to_plat,
+	.priv_auto	= sizeof(struct brcm_pcie),
+	.flags		= DM_FLAG_OS_PREPARE,
 };

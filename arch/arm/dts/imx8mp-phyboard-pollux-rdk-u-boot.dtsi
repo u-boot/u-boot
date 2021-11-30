@@ -1,0 +1,83 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2020 PHYTEC Messtechnik GmbH
+ * Author: Teresa Remmet <t.remmet@phytec.de>
+ */
+
+#include "imx8mp-u-boot.dtsi"
+
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		u-boot,dm-spl;
+	};
+};
+
+&reg_usdhc2_vmmc {
+	u-boot,dm-spl;
+};
+
+&pinctrl_uart1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2_pins {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc3 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_wdog {
+	u-boot,dm-spl;
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&gpio3 {
+	u-boot,dm-spl;
+};
+
+&gpio4 {
+	u-boot,dm-spl;
+};
+
+&gpio5 {
+	u-boot,dm-spl;
+};
+
+&uart1 {
+	u-boot,dm-spl;
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+};
+
+&pmic {
+	u-boot,dm-spl;
+};
+
+&usdhc2 {
+	u-boot,dm-spl;
+};
+
+&usdhc3 {
+	u-boot,dm-spl;
+};
+
+&wdog1 {
+	u-boot,dm-spl;
+};

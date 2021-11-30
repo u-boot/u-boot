@@ -34,7 +34,7 @@ U_BOOT_DRIVER(vf610_pinctrl) = {
 	.of_match = of_match_ptr(vf610_pinctrl_match),
 	.probe = vf610_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
-	.priv_auto_alloc_size = sizeof(struct imx_pinctrl_priv),
+	.priv_auto	= sizeof(struct imx_pinctrl_priv),
 	.ops = &imx_pinctrl_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

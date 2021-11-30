@@ -55,11 +55,11 @@ static int do_aes(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	else
 		return CMD_RET_USAGE;
 
-	key_addr = simple_strtoul(argv[2], NULL, 16);
-	iv_addr = simple_strtoul(argv[3], NULL, 16);
-	src_addr = simple_strtoul(argv[4], NULL, 16);
-	dst_addr = simple_strtoul(argv[5], NULL, 16);
-	len = simple_strtoul(argv[6], NULL, 16);
+	key_addr = hextoul(argv[2], NULL);
+	iv_addr = hextoul(argv[3], NULL);
+	src_addr = hextoul(argv[4], NULL);
+	dst_addr = hextoul(argv[5], NULL);
+	len = hextoul(argv[6], NULL);
 
 	key_ptr = (uint8_t *)map_sysmem(key_addr, key_len);
 	iv_ptr = (uint8_t *)map_sysmem(iv_addr, 128 / 8);

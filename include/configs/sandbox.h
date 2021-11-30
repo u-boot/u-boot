@@ -6,14 +6,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef FTRACE
-#define CONFIG_TRACE
-#define CONFIG_TRACE_BUFFER_SIZE	(16 << 20)
-#define CONFIG_TRACE_EARLY_SIZE		(16 << 20)
-#define CONFIG_TRACE_EARLY
-#define CONFIG_TRACE_EARLY_ADDR		0x00100000
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_IO_TRACE
 #endif
@@ -22,15 +14,9 @@
 #define CONFIG_SYS_TIMER_RATE		1000000
 #endif
 
-#define CONFIG_LMB
-
 #define CONFIG_HOST_MAX_DEVICES 4
 
-/*
- * Size of malloc() pool, before and after relocation
- */
 #define CONFIG_MALLOC_F_ADDR		0x0010000
-#define CONFIG_SYS_MALLOC_LEN		(32 << 20)	/* 32MB  */
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 
@@ -38,10 +24,6 @@
 
 /* SPI - enable all SPI flash types for testing purposes */
 
-#define CONFIG_I2C_EDID
-
-/* Memory things - we don't really want a memory test */
-#define CONFIG_SYS_LOAD_ADDR		0x00000000
 #define CONFIG_SYS_FDT_LOAD_ADDR	        0x100
 
 #define CONFIG_PHYSMEM
@@ -93,7 +75,9 @@
 #endif
 
 #define SANDBOX_ETH_SETTINGS		"ethaddr=00:00:11:22:33:44\0" \
+					"eth2addr=00:00:11:22:33:48\0" \
 					"eth3addr=00:00:11:22:33:45\0" \
+					"eth4addr=00:00:11:22:33:48\0" \
 					"eth5addr=00:00:11:22:33:46\0" \
 					"eth6addr=00:00:11:22:33:47\0" \
 					"ipaddr=1.2.3.4\0"
@@ -129,7 +113,5 @@
 #define CONFIG_SYS_SCSI_MAX_LUN		4
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
-
-#define CONFIG_MISC_INIT_F
 
 #endif

@@ -60,8 +60,8 @@ static int do_set_buffer(int argc, char *const argv[])
 	ulong addr = 0, size = 0;
 
 	if (argc == 2) {
-		addr = simple_strtoul(*argv++, NULL, 16);
-		size = simple_strtoul(*argv++, NULL, 16);
+		addr = hextoul(*argv++, NULL);
+		size = hextoul(*argv++, NULL);
 	} else if (argc != 0) {
 		return CMD_RET_USAGE;
 	}
@@ -76,8 +76,8 @@ static int do_set_region(int argc, char *const argv[])
 	ulong addr = 0, size = 0;
 
 	if (argc == 2) {
-		addr = simple_strtoul(*argv++, NULL, 16);
-		size = simple_strtoul(*argv++, NULL, 16);
+		addr = hextoul(*argv++, NULL);
+		size = hextoul(*argv++, NULL);
 	} else if (argc != 0) {
 		return CMD_RET_USAGE;
 	}

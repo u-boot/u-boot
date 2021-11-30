@@ -3,12 +3,17 @@
 Properties:
 
   - compatible : Should be "fsl,etsec2" or "gianfar"
-  - reg : Offset and length of the register set for the device
+  - reg : Offset and length of the register set for the device. If this is
+    missing, a subnode with a name prefix "queue-group" must be provided to
+    provide the <reg> property.
   - phy-handle : See ethernet.txt file in the same directory.
   - phy-connection-type : See ethernet.txt file in the same directory. This
     property is only really needed if the connection is of type "rgmii-id",
     "rgmii-rxid" and "rgmii-txid" as all other connection types are detected
     by hardware.
+  - ranges : an <empty> value if subnode "queue-group" is present, specifying
+    that no address translation is required between them TSEC parent node and
+    the child "queue-group" node.
 
 Example:
 	ethernet@24000 {
@@ -16,6 +21,18 @@ Example:
 		reg = <0x24000 0x1000>;
 		phy-handle = <&phy0>;
 		phy-connection-type = "sgmii";
+	};
+
+An alternate description with "queue-group" subnode example:
+	ethernet@24000 {
+		compatible = "fsl,etsec2";
+		phy-handle = <&phy0>;
+		phy-connection-type = "sgmii";
+		ranges;
+
+		queue-group {
+			reg = <0x24000 0x1000>;
+		};
 	};
 
 Child nodes of the TSEC controller are typically the individual PHY devices

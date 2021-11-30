@@ -190,9 +190,9 @@ U_BOOT_DRIVER(rockchip_rk805) = {
 #if CONFIG_IS_ENABLED(PMIC_CHILDREN)
 	.bind = rk8xx_bind,
 #endif
-	.priv_auto_alloc_size   = sizeof(struct rk8xx_priv),
+	.priv_auto	  = sizeof(struct rk8xx_priv),
 	.probe = rk8xx_probe,
 	.ops = &rk8xx_ops,
 };
 
-U_BOOT_DRIVER_ALIAS(rockchip_rk805, rockchip_rk808)
+DM_DRIVER_ALIAS(rockchip_rk805, rockchip_rk808)

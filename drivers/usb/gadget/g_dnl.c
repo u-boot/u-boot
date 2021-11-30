@@ -286,6 +286,7 @@ static struct usb_composite_driver g_dnl_driver = {
 	.name = NULL,
 	.dev = &device_desc,
 	.strings = g_dnl_composite_strings,
+	.max_speed = USB_SPEED_SUPER,
 
 	.bind = g_dnl_bind,
 	.unbind = g_dnl_unbind,

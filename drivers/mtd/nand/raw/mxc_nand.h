@@ -29,11 +29,6 @@
 #define is_mxc_nfc_1()		1
 #define is_mxc_nfc_21()		0
 #define is_mxc_nfc_32()		0
-#elif defined(CONFIG_MX25) || defined(CONFIG_MX35)
-#define MXC_NFC_V2_1
-#define is_mxc_nfc_1()		0
-#define is_mxc_nfc_21()		1
-#define is_mxc_nfc_32()		0
 #elif defined(CONFIG_MX51) || defined(CONFIG_MX53)
 #define MXC_NFC_V3
 #define MXC_NFC_V3_2

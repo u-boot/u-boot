@@ -37,6 +37,7 @@
 #include <asm/control_regs.h>
 #include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/lapic.h>
 #include <asm/microcode.h>
 #include <asm/mp.h>
@@ -177,10 +178,12 @@ int default_print_cpuinfo(void)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(SHOW_BOOT_PROGRESS)
 void show_boot_progress(int val)
 {
 	outb(val, POST_PORT);
 }
+#endif
 
 #if !defined(CONFIG_SYS_COREBOOT) && !defined(CONFIG_EFI_STUB)
 /*

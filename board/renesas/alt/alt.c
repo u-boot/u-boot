@@ -12,6 +12,7 @@
 #include <init.h>
 #include <malloc.h>
 #include <dm.h>
+#include <asm/global_data.h>
 #include <dm/platform_data/serial_sh.h>
 #include <env_internal.h>
 #include <asm/processor.h>
@@ -110,7 +111,7 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	struct udevice *dev;
 	const u8 pmic_bus = 7;

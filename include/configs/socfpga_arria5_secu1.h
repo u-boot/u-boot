@@ -9,9 +9,6 @@
 #include <asm/arch/base_addr_ac5.h>
 #include <linux/stringify.h>
 
-/* Call misc_init_r */
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_HUSH_INIT_VAR
 /* Eternal oscillator */
 #define CONFIG_SYS_TIMER_RATE	40000000
@@ -43,7 +40,6 @@
 	"setenv altbootcmd 'setenv bootnum b && saveenv && boot;' && " \
 	"saveenv && saveenv && boot;"
 
-#define CONFIG_CMDLINE_TAG
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* Environment settings */
@@ -56,9 +52,6 @@
  */
 #define CONFIG_BOOT_RETRY_TIME 45
 #define CONFIG_RESET_TO_RETRY
-
-#define CONFIG_LOADADDR		0x01000000
-#define CONFIG_SYS_LOAD_ADDR   CONFIG_KM_KERNEL_ADDR
 
 /*
  * FPGA Remote Update related environment
@@ -114,11 +107,6 @@
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
-
-#ifdef CONFIG_SPL_NAND_SUPPORT
-#undef CONFIG_SYS_NAND_U_BOOT_OFFS
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
-#endif
 
 #undef CONFIG_WATCHDOG_TIMEOUT_MSECS
 #define CONFIG_WATCHDOG_TIMEOUT_MSECS	60000

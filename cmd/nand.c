@@ -17,6 +17,10 @@
  * and/or modified under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
+ *
+ * The function nand_biterror() in this file is inspired from
+ * mtd-utils/nand-utils/nandflipbits.c which was released under GPLv2
+ * only
  */
 
 #include <common.h>
@@ -24,6 +28,7 @@
 #include <image.h>
 #include <asm/cache.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/rawnand.h>
 #include <command.h>
 #include <console.h>
 #include <env.h>
@@ -42,6 +47,116 @@ int mtdparts_init(void);
 int find_dev_and_part(const char *id, struct mtd_device **dev,
 		      u8 *part_num, struct part_info **part);
 #endif
+
+#define MAX_NUM_PAGES 64
+
+static int nand_biterror(struct mtd_info *mtd, ulong off, int bit)
+{
+	int ret = 0;
+	int page = 0;
+	ulong  block_off;
+	u_char *datbuf[MAX_NUM_PAGES]; /* Data and OOB */
+	u_char data;
+	int pages_per_blk = mtd->erasesize / mtd->writesize;
+	struct erase_info einfo;
+
+	if (pages_per_blk > MAX_NUM_PAGES) {
+		printf("Too many pages in one erase block\n");
+		return 1;
+	}
+
+	if (bit < 0 || bit > 7) {
+		printf("bit position 0 to 7 is allowed\n");
+		return 1;
+	}
+
+	/* Allocate memory */
+	memset(datbuf, 0, sizeof(datbuf));
+	for (page = 0; page < pages_per_blk ; page++) {
+		datbuf[page] = malloc(mtd->writesize + mtd->oobsize);
+		if (!datbuf[page]) {
+			printf("No memory for page buffer\n");
+			ret = -ENOMEM;
+			goto free_memory;
+		}
+	}
+
+	/* Align to erase block boundary */
+	block_off = off & (~(mtd->erasesize - 1));
+
+	/* Read out memory as first step */
+	for (page = 0; page < pages_per_blk ; page++) {
+		struct mtd_oob_ops ops;
+		loff_t addr = (loff_t)block_off;
+
+		memset(&ops, 0, sizeof(ops));
+		ops.datbuf = datbuf[page];
+		ops.oobbuf = datbuf[page] + mtd->writesize;
+		ops.len = mtd->writesize;
+		ops.ooblen = mtd->oobsize;
+		ops.mode = MTD_OPS_RAW;
+		ret = mtd_read_oob(mtd, addr, &ops);
+		if (ret < 0) {
+			printf("Error (%d) reading page %08lx\n",
+			       ret, block_off);
+			ret = 1;
+			goto free_memory;
+		}
+		block_off += mtd->writesize;
+	}
+
+	/* Erase the block */
+	memset(&einfo, 0, sizeof(einfo));
+	einfo.mtd = mtd;
+	/* Align to erase block boundary */
+	einfo.addr = (loff_t)(off & (~(mtd->erasesize - 1)));
+	einfo.len = mtd->erasesize;
+	ret = mtd_erase(mtd, &einfo);
+	if (ret < 0) {
+		printf("Error (%d) nand_erase_nand page %08llx\n",
+		       ret, einfo.addr);
+		ret = 1;
+		goto free_memory;
+	}
+
+	/* Twist a bit in data part */
+	block_off = off & (mtd->erasesize - 1);
+	data = datbuf[block_off / mtd->writesize][block_off % mtd->writesize];
+	data ^= (1 << bit);
+	datbuf[block_off / mtd->writesize][block_off % mtd->writesize] = data;
+
+	printf("Flip data at 0x%lx with xor 0x%02x (bit=%d) to value=0x%02x\n",
+	       off, (1 << bit), bit, data);
+
+	/* Write back twisted data and unmodified OOB */
+	/* Align to erase block boundary */
+	block_off = off & (~(mtd->erasesize - 1));
+	for (page = 0; page < pages_per_blk; page++) {
+		struct mtd_oob_ops ops;
+		loff_t addr = (loff_t)block_off;
+
+		memset(&ops, 0, sizeof(ops));
+		ops.datbuf = datbuf[page];
+		ops.oobbuf = datbuf[page] + mtd->writesize;
+		ops.len = mtd->writesize;
+		ops.ooblen = mtd->oobsize;
+		ops.mode = MTD_OPS_RAW;
+		ret = mtd_write_oob(mtd, addr, &ops);
+		if (ret < 0) {
+			printf("Error (%d) write page %08lx\n", ret, block_off);
+			ret = 1;
+			goto free_memory;
+		}
+		block_off += mtd->writesize;
+	}
+
+free_memory:
+	for (page = 0; page < pages_per_blk ; page++) {
+		if (datbuf[page])
+			free(datbuf[page]);
+	}
+	return ret;
+}
 
 static int nand_dump(struct mtd_info *mtd, ulong off, int only_oob,
 		     int repeat)
@@ -424,7 +539,7 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 			return 0;
 		}
 
-		dev = (int)simple_strtoul(argv[2], NULL, 10);
+		dev = (int)dectoul(argv[2], NULL);
 		set_dev(dev);
 
 		return 0;
@@ -543,7 +658,7 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (argc < 3)
 			goto usage;
 
-		off = (int)simple_strtoul(argv[2], NULL, 16);
+		off = (int)hextoul(argv[2], NULL);
 		ret = nand_dump(mtd, off, !strcmp(&cmd[4], ".oob"), repeat);
 
 		return ret == 0 ? 1 : 0;
@@ -559,7 +674,7 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (argc < 4)
 			goto usage;
 
-		addr = (ulong)simple_strtoul(argv[2], NULL, 16);
+		addr = (ulong)hextoul(argv[2], NULL);
 
 		read = strncmp(cmd, "read", 4) == 0; /* 1 = read, 0 = write */
 		printf("\nNAND %s: ", read ? "read" : "write");
@@ -713,7 +828,7 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 			goto usage;
 
 		while (argc > 0) {
-			addr = simple_strtoul(*argv, NULL, 16);
+			addr = hextoul(*argv, NULL);
 
 			if (mtd_block_markbad(mtd, addr)) {
 				printf("block 0x%08lx NOT marked "
@@ -732,8 +847,15 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	if (strcmp(cmd, "biterr") == 0) {
-		/* todo */
-		return 1;
+		int bit;
+
+		if (argc != 4)
+			goto usage;
+
+		off = (int)simple_strtoul(argv[2], NULL, 16);
+		bit = (int)simple_strtoul(argv[3], NULL, 10);
+		ret = nand_biterror(mtd, off, bit);
+		return ret;
 	}
 
 #ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
@@ -824,7 +946,7 @@ static char nand_help_text[] =
 	"nand scrub [-y] off size | scrub.part partition | scrub.chip\n"
 	"    really clean NAND erasing bad blocks (UNSAFE)\n"
 	"nand markbad off [...] - mark bad block(s) at offset (UNSAFE)\n"
-	"nand biterr off - make a bit error at offset (UNSAFE)"
+	"nand biterr off bit - make a bit error at offset and bit position (UNSAFE)"
 #ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
 	"\n"
 	"nand lock [tight] [status]\n"
@@ -957,7 +1079,7 @@ static int do_nandboot(struct cmd_tbl *cmdtp, int flag, int argc,
 			if (argc > 3)
 				goto usage;
 			if (argc == 3)
-				addr = simple_strtoul(argv[1], NULL, 16);
+				addr = hextoul(argv[1], NULL);
 			else
 				addr = CONFIG_SYS_LOAD_ADDR;
 
@@ -975,17 +1097,17 @@ static int do_nandboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		boot_device = env_get("bootdevice");
 		break;
 	case 2:
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		boot_device = env_get("bootdevice");
 		break;
 	case 3:
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		boot_device = argv[2];
 		break;
 	case 4:
-		addr = simple_strtoul(argv[1], NULL, 16);
+		addr = hextoul(argv[1], NULL);
 		boot_device = argv[2];
-		offset = simple_strtoul(argv[3], NULL, 16);
+		offset = hextoul(argv[3], NULL);
 		break;
 	default:
 #if defined(CONFIG_CMD_MTDPARTS)
@@ -1003,7 +1125,7 @@ usage:
 	}
 	bootstage_mark(BOOTSTAGE_ID_NAND_BOOT_DEVICE);
 
-	idx = simple_strtoul(boot_device, NULL, 16);
+	idx = hextoul(boot_device, NULL);
 
 	mtd = get_nand_dev_by_index(idx);
 	if (!mtd) {

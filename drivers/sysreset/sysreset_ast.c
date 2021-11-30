@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <asm/arch/wdt.h>
 #include <linux/err.h>
+#include <hang.h>
 
 static int ast_sysreset_request(struct udevice *dev, enum sysreset_t type)
 {
@@ -33,11 +34,15 @@ static int ast_sysreset_request(struct udevice *dev, enum sysreset_t type)
 		return -EPROTONOSUPPORT;
 	}
 
+#if !defined(CONFIG_SPL_BUILD)
 	ret = wdt_expire_now(wdt, reset_mode);
 	if (ret) {
 		debug("Sysreset failed: %d", ret);
 		return ret;
 	}
+#else
+	hang();
+#endif
 
 	return -EINPROGRESS;
 }

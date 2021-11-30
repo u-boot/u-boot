@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  */
 
 #ifndef __LX2162_QDS_H
@@ -33,18 +33,12 @@ u8 qixis_esdhc_detect_quirk(void);
 
 /* MAC/PHY configuration */
 #if defined(CONFIG_FSL_MC_ENET)
-#define CONFIG_MII
 #define CONFIG_ETHPRIME		"DPMAC17@rgmii-id"
 #endif
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x57
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
@@ -65,7 +59,7 @@ u8 qixis_esdhc_detect_quirk(void);
 		"$kernelhdr_addr_sd $kernelhdr_size_sd "	\
 		" && esbc_validate ${kernelheader_addr_r};"	\
 		"bootm $load_addr#$BOARD\0"			\
-	"emmc_bootcmd=echo Trying load from emmc card..;"	\
+	"sd2_bootcmd=echo Trying load from emmc card..;"	\
 		"mmc dev 1; mmcinfo; mmc read $load_addr "	\
 		"$kernel_addr_sd $kernel_size_sd ;"		\
 		"env exists secureboot && mmc read $kernelheader_addr_r "\

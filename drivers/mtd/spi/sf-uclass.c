@@ -3,12 +3,15 @@
  * Copyright (c) 2014 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_SPI_FLASH
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include "sf_internal.h"
 
@@ -30,6 +33,15 @@ int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len)
 	return log_ret(sf_get_ops(dev)->erase(dev, offset, len));
 }
 
+int spl_flash_get_sw_write_prot(struct udevice *dev)
+{
+	struct dm_spi_flash_ops *ops = sf_get_ops(dev);
+
+	if (!ops->get_sw_write_prot)
+		return -ENOSYS;
+	return log_ret(ops->get_sw_write_prot(dev));
+}
+
 /*
  * TODO(sjg@chromium.org): This is an old-style function. We should remove
  * it when all SPI flash drivers use dm
@@ -43,11 +55,6 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		return NULL;
 
 	return dev_get_uclass_priv(dev);
-}
-
-void spi_flash_free(struct spi_flash *flash)
-{
-	device_remove(flash->spi->dev, DM_REMOVE_NORMAL);
 }
 
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
@@ -100,5 +107,5 @@ UCLASS_DRIVER(spi_flash) = {
 	.id		= UCLASS_SPI_FLASH,
 	.name		= "spi_flash",
 	.post_bind	= spi_flash_post_bind,
-	.per_device_auto_alloc_size = sizeof(struct spi_flash),
+	.per_device_auto	= sizeof(struct spi_nor),
 };

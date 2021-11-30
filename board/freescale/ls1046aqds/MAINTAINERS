@@ -12,7 +12,4 @@ F:	configs/ls1046aqds_qspi_defconfig
 F:	configs/ls1046aqds_lpuart_defconfig
 F:	configs/ls1046aqds_tfa_defconfig
 F:	configs/ls1046aqds_tfa_SECURE_BOOT_defconfig
-
-M:	Sumit Garg <sumit.garg@nxp.com>
-S:	Maintained
 F:	configs/ls1046aqds_SECURE_BOOT_defconfig

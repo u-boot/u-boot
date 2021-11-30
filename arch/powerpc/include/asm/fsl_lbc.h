@@ -294,8 +294,8 @@ void lbc_sdram_init(void);
 #define LBCR_EPAR_SHIFT			16
 #define LBCR_BMT			0x0000FF00
 #define LBCR_BMT_SHIFT			8
-#define LBCR_BMTPS	 		0x0000000F
-#define LBCR_BMTPS_SHIFT 		0
+#define LBCR_BMTPS			0x0000000F
+#define LBCR_BMTPS_SHIFT		0
 
 /* LCRR - Clock Ratio Register
  */
@@ -325,7 +325,6 @@ void lbc_sdram_init(void);
 #define LCRR_CLKDIV			0x0000001F
 #define LCRR_CLKDIV_SHIFT		0
 #if defined(CONFIG_MPC83xx) || defined(CONFIG_ARCH_MPC8540) || \
-	defined(CONFIG_ARCH_MPC8541) || defined(CONFIG_ARCH_MPC8555) || \
 	defined(CONFIG_ARCH_MPC8560)
 #define LCRR_CLKDIV_2			0x00000002
 #define LCRR_CLKDIV_4			0x00000004

@@ -296,8 +296,8 @@ Odroid # usb part 0
 Partition Map for USB device 0  --   Partition Type: DOS
 
 Part	Start Sector	Num Sectors	UUID		Type
-  1	3072      	263168    	000c4046-01	06
-  2	266240    	13457408  	000c4046-02	83
+  1	3072		263168		000c4046-01	06
+  2	266240		13457408	000c4046-02	83
 
 Odroid # ls usb 0:2 /boot
 <DIR>       4096 .

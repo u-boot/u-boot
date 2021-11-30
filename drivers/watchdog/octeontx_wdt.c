@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <wdt.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
 
@@ -137,7 +138,7 @@ U_BOOT_DRIVER(wdt_octeontx) = {
 	.id = UCLASS_WDT,
 	.of_match = octeontx_wdt_ids,
 	.ops = &octeontx_wdt_ops,
-	.priv_auto_alloc_size = sizeof(struct octeontx_wdt),
+	.priv_auto	= sizeof(struct octeontx_wdt),
 	.probe = octeontx_wdt_probe,
 	.remove = octeontx_wdt_remove,
 	.flags = DM_FLAG_OS_PREPARE,

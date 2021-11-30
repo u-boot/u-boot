@@ -7,6 +7,7 @@
 #include <clock_legacy.h>
 #include <command.h>
 #include <div64.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/arch/clock.h>

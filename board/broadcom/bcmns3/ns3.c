@@ -8,14 +8,12 @@
 #include <fdt_support.h>
 #include <asm/io.h>
 #include <asm/gic-v3.h>
+#include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 #include <asm/arch-bcmns3/bl33_info.h>
 #include <dt-bindings/memory/bcm-ns3-mc.h>
 #include <broadcom/chimp.h>
-
-/* Default reset-level = 3 and strap-val = 0 */
-#define L3_RESET	30
 
 #define BANK_OFFSET(bank)      ((u64)BCM_NS3_DDR_INFO_BASE + 8 + ((bank) * 16))
 
@@ -187,25 +185,10 @@ ulong board_get_usable_ram_top(ulong total_size)
 	return BCM_NS3_MEM_END;
 }
 
-void reset_cpu(ulong level)
+void reset_cpu(void)
 {
-	u32 reset_level, strap_val;
-
-	/* Default reset type is L3 reset */
-	if (!level) {
-		/*
-		 * Encoding: U-Boot reset command expects decimal argument,
-		 * Boot strap val: Bits[3:0]
-		 * reset level: Bits[7:4]
-		 */
-		strap_val = L3_RESET % 10;
-		level = L3_RESET / 10;
-		reset_level = level % 10;
-		psci_system_reset2(reset_level, strap_val);
-	} else {
-		/* U-Boot cmd "reset" with any arg will trigger L1 reset */
-		psci_system_reset();
-	}
+	/* Perform a level 3 reset */
+	psci_system_reset2(3, 0);
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
@@ -213,7 +196,8 @@ int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	u32 chimp_hs = CHIMP_HANDSHAKE_WAIT_TIMEOUT;
 
-	gic_lpi_tables_init();
+	/* FIXME: Need to call gic_lpi_tables_init correctly now */
+	printf("%s: failed to init gic-lpi-tables\n", __func__);
 
 	/*
 	 * Check for chimp handshake status.

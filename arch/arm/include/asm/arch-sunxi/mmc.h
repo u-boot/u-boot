@@ -45,7 +45,7 @@ struct sunxi_mmc {
 	u32 chda;		/* 0x90 */
 	u32 cbda;		/* 0x94 */
 	u32 res2[26];
-#if defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_MACH_SUN50I_H6)
+#if defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_SUN50I_GEN_H6)
 	u32 res3[17];
 	u32 samp_dl;
 	u32 res4[46];
@@ -119,6 +119,7 @@ struct sunxi_mmc {
 #define SUNXI_MMC_STATUS_CARD_PRESENT		(0x1 << 8)
 #define SUNXI_MMC_STATUS_CARD_DATA_BUSY		(0x1 << 9)
 #define SUNXI_MMC_STATUS_DATA_FSM_BUSY		(0x1 << 10)
+#define SUNXI_MMC_STATUS_FIFO_LEVEL(reg)	(((reg) >> 17) & 0x3fff)
 
 #define SUNXI_MMC_NTSR_MODE_SEL_NEW		(0x1 << 31)
 

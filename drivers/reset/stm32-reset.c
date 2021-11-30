@@ -4,6 +4,8 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_RESET
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -12,6 +14,7 @@
 #include <reset-uclass.h>
 #include <stm32_rcc.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 
 /* offset of register without set/clear management */
@@ -37,10 +40,11 @@ static int stm32_reset_free(struct reset_ctl *reset_ctl)
 static int stm32_reset_assert(struct reset_ctl *reset_ctl)
 {
 	struct stm32_reset_priv *priv = dev_get_priv(reset_ctl->dev);
-	int bank = (reset_ctl->id / BITS_PER_LONG) * 4;
-	int offset = reset_ctl->id % BITS_PER_LONG;
-	debug("%s: reset id = %ld bank = %d offset = %d)\n", __func__,
-	      reset_ctl->id, bank, offset);
+	int bank = (reset_ctl->id / (sizeof(u32) * BITS_PER_BYTE)) * 4;
+	int offset = reset_ctl->id % (sizeof(u32) * BITS_PER_BYTE);
+
+	dev_dbg(reset_ctl->dev, "reset id = %ld bank = %d offset = %d)\n",
+		reset_ctl->id, bank, offset);
 
 	if (dev_get_driver_data(reset_ctl->dev) == STM32MP1)
 		if (bank != RCC_MP_GCR_OFFSET)
@@ -57,10 +61,11 @@ static int stm32_reset_assert(struct reset_ctl *reset_ctl)
 static int stm32_reset_deassert(struct reset_ctl *reset_ctl)
 {
 	struct stm32_reset_priv *priv = dev_get_priv(reset_ctl->dev);
-	int bank = (reset_ctl->id / BITS_PER_LONG) * 4;
-	int offset = reset_ctl->id % BITS_PER_LONG;
-	debug("%s: reset id = %ld bank = %d offset = %d)\n", __func__,
-	      reset_ctl->id, bank, offset);
+	int bank = (reset_ctl->id / (sizeof(u32) * BITS_PER_BYTE)) * 4;
+	int offset = reset_ctl->id % (sizeof(u32) * BITS_PER_BYTE);
+
+	dev_dbg(reset_ctl->dev, "reset id = %ld bank = %d offset = %d)\n",
+		reset_ctl->id, bank, offset);
 
 	if (dev_get_driver_data(reset_ctl->dev) == STM32MP1)
 		if (bank != RCC_MP_GCR_OFFSET)
@@ -100,6 +105,6 @@ U_BOOT_DRIVER(stm32_rcc_reset) = {
 	.name			= "stm32_rcc_reset",
 	.id			= UCLASS_RESET,
 	.probe			= stm32_reset_probe,
-	.priv_auto_alloc_size	= sizeof(struct stm32_reset_priv),
+	.priv_auto	= sizeof(struct stm32_reset_priv),
 	.ops			= &stm32_reset_ops,
 };

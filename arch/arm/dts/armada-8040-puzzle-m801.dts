@@ -16,14 +16,14 @@
 	};
 
 	aliases {
-		i2c0 = &i2c0;
-		i2c1 = &cpm_i2c0;
-		i2c2 = &cpm_i2c1;
+		i2c0 = &ap_i2c0;
+		i2c1 = &cp0_i2c0;
+		i2c2 = &cp0_i2c1;
 		i2c3 = &i2c_switch;
-		spi0 = &spi0;
+		spi0 = &ap_spi0;
 		gpio0 = &ap_gpio0;
-		gpio1 = &cpm_gpio0;
-		gpio2 = &cpm_gpio1;
+		gpio1 = &cp0_gpio0;
+		gpio2 = &cp0_gpio1;
 		gpio3 = &sfpplus_gpio;
 	};
 
@@ -40,7 +40,7 @@
 		reg_usb3h0_vbus: usb3-vbus0 {
 			compatible = "regulator-fixed";
 			pinctrl-names = "default";
-			pinctrl-0 = <&cpm_xhci_vbus_pins>;
+			pinctrl-0 = <&cp0_xhci_vbus_pins>;
 			regulator-name = "reg-usb3h0-vbus";
 			regulator-min-microvolt = <5000000>;
 			regulator-max-microvolt = <5000000>;
@@ -48,12 +48,12 @@
 			enable-active-high;
 			regulator-always-on;
 			regulator-boot-on;
-			gpio = <&cpm_gpio1 15 GPIO_ACTIVE_HIGH>; /* GPIO[47] */
+			gpio = <&cp0_gpio1 15 GPIO_ACTIVE_HIGH>; /* GPIO[47] */
 		};
 	};
 };
 
-&i2c0 {
+&ap_i2c0 {
 	status = "okay";
 	clock-frequency = <100000>;
 
@@ -83,7 +83,7 @@
 		     0 3 0 0 0 0 0 0 0 3 >;
 };
 
-&cpm_pinctl {
+&cp0_pinctl {
 	/*
 	 * MPP Bus:
 	 * [0-31] = 0xff: Keep default CP0_shared_pins:
@@ -118,35 +118,35 @@
 		     0    0    0    0    0    0    0xe  0xe  0xe  0xe
 		     0xe  0xe  0 >;
 
-	cpm_xhci_vbus_pins: cpm-xhci-vbus-pins {
+	cp0_xhci_vbus_pins: cpm-xhci-vbus-pins {
 		marvell,pins = < 47 >;
 		marvell,function = <0>;
 	};
 
-	cpm_pcie_reset_pins: cpm-pcie-reset-pins {
+	cp0_pcie_reset_pins: cpm-pcie-reset-pins {
 		marvell,pins = < 52 >;
 		marvell,function = <0>;
 	};
 };
 
-&cpm_sdhci0 {
+&cp0_sdhci0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cpm_sdhci_pins>;
+	pinctrl-0 = <&cp0_sdhci_pins>;
 	bus-width= <4>;
 	status = "okay";
 };
 
-&cpm_pcie0 {
+&cp0_pcie0 {
 	num-lanes = <1>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&cpm_pcie_reset_pins>;
-	marvell,reset-gpio = <&cpm_gpio1 20 GPIO_ACTIVE_LOW>; /* GPIO[52] */
+	pinctrl-0 = <&cp0_pcie_reset_pins>;
+	marvell,reset-gpio = <&cp0_gpio1 20 GPIO_ACTIVE_LOW>; /* GPIO[52] */
 	status = "okay";
 };
 
-&cpm_i2c0 {
+&cp0_i2c0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cpm_i2c0_pins>;
+	pinctrl-0 = <&cp0_i2c0_pins>;
 	status = "okay";
 	clock-frequency = <100000>;
 
@@ -158,9 +158,9 @@
 	};
 };
 
-&cpm_i2c1 {
+&cp0_i2c1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cpm_i2c1_pins>;
+	pinctrl-0 = <&cp0_i2c1_pins>;
 	status = "okay";
 	clock-frequency = <100000>;
 
@@ -172,44 +172,44 @@
 	};
 };
 
-&cpm_sata0 {
+&cp0_sata0 {
 	status = "okay";
 };
 
-&cpm_ethernet {
+&cp0_ethernet {
 	pinctrl-names = "default";
 	status = "okay";
 };
 
-&cpm_mdio {
+&cp0_mdio {
 	status = "okay";
-	cpm_ge_phy0: ethernet-phy@1 {
+	cp0_ge_phy0: ethernet-phy@1 {
 		reg = <0>;
 	};
 
-	cpm_ge_phy1: ethernet-phy@2 {
+	cp0_ge_phy1: ethernet-phy@2 {
 		reg = <1>;
 	};
 };
 
-&cpm_eth0 {
+&cp0_eth0 {
 	status = "okay";
 	phy-mode = "sfi";
 };
 
-&cpm_eth1 {
+&cp0_eth1 {
 	status = "okay";
 	phy-mode = "sgmii";
-	phy = <&cpm_ge_phy0>;
+	phy = <&cp0_ge_phy0>;
 };
 
-&cpm_eth2 {
+&cp0_eth2 {
 	status = "okay";
 	phy-mode = "sgmii";
-	phy = <&cpm_ge_phy1>;
+	phy = <&cp0_ge_phy1>;
 };
 
-&cpm_comphy {
+&cp0_comphy {
 	/*
 	 * CP0 Serdes Configuration:
 	 * Lane 0: PCIe0 (x1)
@@ -220,108 +220,102 @@
 	 * Lane 5: SATA1
 	 */
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy1 {
-		phy-type = <PHY_TYPE_SGMII2>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <COMPHY_TYPE_SGMII2>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
 	};
 	phy2 {
-		phy-type = <PHY_TYPE_SATA0>;
+		phy-type = <COMPHY_TYPE_SATA0>;
 	};
 	phy3 {
-		phy-type = <PHY_TYPE_SGMII1>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
 	};
 	phy4 {
-		phy-type = <PHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI0>;
 	};
 	phy5 {
-		phy-type = <PHY_TYPE_SATA1>;
+		phy-type = <COMPHY_TYPE_SATA1>;
 	};
 };
 
-&cps_mdio {
+&cp1_mdio {
 	status = "okay";
-	cps_ge_phy0: ethernet-phy@3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp1_smi_pins>;
+
+	cp1_ge_phy0: ethernet-phy@3 {
 		reg = <1>;
 	};
 
-	cps_ge_phy1: ethernet-phy@4 {
+	cp1_ge_phy1: ethernet-phy@4 {
 		reg = <0>;
 	};
 };
 
-&cps_pcie0 {
+&cp1_pcie0 {
 	num-lanes = <2>;
 	pinctrl-names = "default";
 	status = "okay";
 };
 
-&cps_usb3_0 {
+&cp1_usb3_0 {
 	vbus-supply = <&reg_usb3h0_vbus>;
 	status = "okay";
 };
 
-&cps_utmi0 {
+&cp1_utmi0 {
 	status = "okay";
 };
 
-&cps_ethernet {
+&cp1_ethernet {
 	status = "okay";
 };
 
-&cps_eth0 {
+&cp1_eth0 {
 	status = "okay";
 	phy-mode = "sfi";
 };
 
-&cps_eth1 {
+&cp1_eth1 {
 	status = "okay";
-	phy = <&cps_ge_phy0>;
+	phy = <&cp1_ge_phy0>;
 	phy-mode = "sgmii";
 };
 
-&cps_eth2 {
+&cp1_eth2 {
 	status = "okay";
-	phy = <&cps_ge_phy1>;
+	phy = <&cp1_ge_phy1>;
 	phy-mode = "sgmii";
 };
 
-&cps_pinctl {
+&cp1_pinctl {
 	/*
 	 * MPP Bus:
 	 * [0-5] TDM
-	 * [6,7] CP1_UART 0
-	 * [8]   CP1 10G SFP LOS
-	 * [9]   CP1 10G PHY RESET
-	 * [10]  CP1 10G SFP TX Disable
-	 * [11]  CP1 10G SFP Mode
-	 * [12]  SPI1 CS1n
-	 * [13]  SPI1 MISO (TDM and SPI ROM shared)
-	 * [14]  SPI1 CS0n
-	 * [15]  SPI1 MOSI (TDM and SPI ROM shared)
-	 * [16]  SPI1 CLK (TDM and SPI ROM shared)
-	 * [24]  CP1 2.5G SFP TX Disable
-	 * [26]  CP0 10G SFP TX Fault
-	 * [27]  CP0 10G SFP Mode
-	 * [28]  CP0 10G SFP LOS
-	 * [29]  CP0 10G SFP TX Disable
-	 * [30]  USB Over current indication
-	 * [31]  10G Port 0 phy reset
+	 * [27-28] SMI
+	 * [29-30] CP1 MSS I2C
+	 * [6-26, 31] GPIO
 	 * [32-62] = 0xff: Keep default CP1_shared_pins:
 	 */
 		/*   0    1    2    3    4    5    6    7    8    9 */
-	pin-func = < 0x4  0x4  0x4  0x4  0x4  0x4  0x8  0x8  0x0  0x0
-		     0x0  0x0  0x3  0x3  0x3  0x3  0x3  0xff 0xff 0xff
-		     0xff 0xff 0xff 0xff 0x0  0xff 0x0  0x0  0x0 0x0
-		     0x0  0x0  0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+	pin-func = < 0x4  0x4  0x4  0x4  0x4  0x4  0x0  0x0  0x0  0x0
+		     0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0
+		     0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x8  0x8  0x8
+		     0x8  0x0  0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		     0xff 0xff 0xff>;
+
+	cp1_smi_pins: cp1-smi-pins {
+		marvell,pins = < 27 28 >;
+		marvell,function = <8>;
+	};
 };
 
-&spi0 {
+&ap_spi0 {
 	status = "okay";
 
 	spi-flash@0 {
@@ -356,7 +350,7 @@
 	};
 };
 
-&cps_comphy {
+&cp1_comphy {
 	/*
 	 * CP1 Serdes Configuration:
 	 * Lane 0: PCIe0 (x2)
@@ -367,23 +361,23 @@
 	 * Lane 5: SGMII2
 	 */
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy1 {
-		phy-type = <PHY_TYPE_PEX0>;
+		phy-type = <COMPHY_TYPE_PEX0>;
 	};
 	phy2 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
 	};
 	phy3 {
-		phy-type = <PHY_TYPE_SGMII1>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
 	};
 	phy4 {
-		phy-type = <PHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI0>;
 	};
 	phy5 {
-		phy-type = <PHY_TYPE_SGMII2>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <COMPHY_TYPE_SGMII2>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
 	};
 };

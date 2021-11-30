@@ -10,7 +10,7 @@
  * A64 specific configuration
  */
 
-#ifndef CONFIG_MACH_SUN50I_H6
+#ifndef CONFIG_SUN50I_GEN_H6
 #define GICD_BASE		0x1c81000
 #define GICC_BASE		0x1c82000
 #else

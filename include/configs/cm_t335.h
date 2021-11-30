@@ -10,14 +10,10 @@
 #ifndef __CONFIG_CM_T335_H
 #define __CONFIG_CM_T335_H
 
-#define CONFIG_CM_T335
-
 #include <configs/ti_am335x_common.h>
 
 #undef CONFIG_MAX_RAM_BANK_SIZE
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 512MB */
-
-#define CONFIG_MACH_TYPE		MACH_TYPE_CM_T335
 
 /* Clock Defines */
 #define V_OSCK				25000000  /* Clock output from T2 */
@@ -83,22 +79,12 @@
 #define CONFIG_SYS_NS16550_COM2		0x48022000	/* UART1 */
 
 /* I2C Configuration */
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_I2C_EEPROM_BUS	0
 
 /* SPL */
 
 /* Network. */
 
 /* NAND support */
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
-					 CONFIG_SYS_NAND_PAGE_SIZE)
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-#define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
 					 10, 11, 12, 13, 14, 15, 16, 17, \
 					 18, 19, 20, 21, 22, 23, 24, 25, \
@@ -112,11 +98,7 @@
 
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
-#undef CONFIG_SYS_NAND_U_BOOT_OFFS
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
-
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
 #ifdef CONFIG_SPL_OS_BOOT
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x500000
 #endif
@@ -128,11 +110,6 @@
 /* Status LED polarity is inversed, so init it in the "off" state */
 
 /* EEPROM */
-#define CONFIG_ENV_EEPROM_IS_ON_I2C
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
-#define CONFIG_SYS_EEPROM_SIZE			256
 
 #ifndef CONFIG_SPL_BUILD
 /*
@@ -145,4 +122,3 @@
 #endif /* CONFIG_SPL_BUILD */
 
 #endif	/* __CONFIG_CM_T335_H */
-

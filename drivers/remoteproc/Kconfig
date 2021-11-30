@@ -81,4 +81,15 @@ config REMOTEPROC_TI_POWER
 	help
 	  Say 'y' here to add support for TI power processors such as those
 	  found on certain TI keystone and OMAP generation SoCs.
+
+config REMOTEPROC_TI_PRU
+	bool "Support for TI's K3 based PRU remoteproc driver"
+	select REMOTEPROC
+	depends on DM
+	depends on TI_PRUSS
+	depends on ARCH_K3
+	depends on OF_CONTROL
+	help
+	  Say 'y' here to add support for TI' K3 remoteproc driver.
+
 endmenu

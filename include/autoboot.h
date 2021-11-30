@@ -11,6 +11,42 @@
 #ifndef __AUTOBOOT_H
 #define __AUTOBOOT_H
 
+#include <stdbool.h>
+
+#ifdef CONFIG_SANDBOX
+
+/**
+ * autoboot_keyed() - check whether keyed autoboot should be used
+ *
+ * This is only implemented for sandbox since other platforms don't have a way
+ * of controlling the feature at runtime.
+ *
+ * @return true if enabled, false if not
+ */
+bool autoboot_keyed(void);
+
+/**
+ * autoboot_set_keyed() - set whether keyed autoboot should be used
+ *
+ * @autoboot_keyed: true to enable the feature, false to disable
+ * @return old value of the flag
+ */
+bool autoboot_set_keyed(bool autoboot_keyed);
+#else
+static inline bool autoboot_keyed(void)
+{
+	/* There is no runtime flag, so just use the CONFIG */
+	return IS_ENABLED(CONFIG_AUTOBOOT_KEYED);
+}
+
+static inline bool autoboot_set_keyed(bool autoboot_keyed)
+{
+	/* There is no runtime flag to set */
+	return false;
+}
+
+#endif
+
 #ifdef CONFIG_AUTOBOOT
 /**
  * bootdelay_process() - process the bootd delay

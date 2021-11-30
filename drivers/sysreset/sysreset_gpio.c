@@ -33,7 +33,7 @@ static struct sysreset_ops gpio_reboot_ops = {
 	.request = gpio_reboot_request,
 };
 
-int gpio_reboot_probe(struct udevice *dev)
+static int gpio_reboot_probe(struct udevice *dev)
 {
 	struct gpio_reboot_priv *priv = dev_get_priv(dev);
 
@@ -55,6 +55,6 @@ U_BOOT_DRIVER(gpio_reboot) = {
 	.name = "gpio_restart",
 	.of_match = led_gpio_ids,
 	.ops = &gpio_reboot_ops,
-	.priv_auto_alloc_size = sizeof(struct gpio_reboot_priv),
+	.priv_auto	= sizeof(struct gpio_reboot_priv),
 	.probe = gpio_reboot_probe,
 };

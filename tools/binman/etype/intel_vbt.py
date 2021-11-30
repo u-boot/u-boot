@@ -7,7 +7,7 @@
 from binman.etype.blob_ext import Entry_blob_ext
 
 class Entry_intel_vbt(Entry_blob_ext):
-    """Entry containing an Intel Video BIOS Table (VBT) file
+    """Intel Video BIOS Table (VBT) file
 
     Properties / Entry arguments:
         - filename: Filename of file to read into entry

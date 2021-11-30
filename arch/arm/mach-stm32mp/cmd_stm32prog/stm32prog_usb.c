@@ -47,11 +47,11 @@ static int stm32prog_cmd_write(u64 offset, void *buf, long *len)
 	int ret;
 
 	if (*len < 5) {
-		pr_err("size not allowed\n");
+		log_err("size not allowed\n");
 		return  -EINVAL;
 	}
 	if (offset) {
-		pr_err("invalid offset\n");
+		log_err("invalid offset\n");
 		return  -EINVAL;
 	}
 	phase = pt[0];
@@ -66,7 +66,7 @@ static int stm32prog_cmd_write(u64 offset, void *buf, long *len)
 	/* set phase and offset */
 	ret = stm32prog_set_phase(stm32prog_data, phase, address);
 	if (ret)
-		pr_err("failed: %d\n", ret);
+		log_err("failed: %d\n", ret);
 	return ret;
 }
 
@@ -81,7 +81,7 @@ static int stm32prog_cmd_read(u64 offset, void *buf, long *len)
 	int length;
 
 	if (*len < PHASE_MIN_SIZE) {
-		pr_err("request exceeds allowed area\n");
+		log_err("request exceeds allowed area\n");
 		return  -EINVAL;
 	}
 	if (offset) {
@@ -171,14 +171,14 @@ int stm32prog_get_medium_size_virt(struct dfu_entity *dfu, u64 *size)
 {
 	if (dfu->dev_type != DFU_DEV_VIRT) {
 		*size = 0;
-		pr_debug("%s, invalid dev_type = %d\n",
-			 __func__, dfu->dev_type);
+		log_debug("%s, invalid dev_type = %d\n",
+			  __func__, dfu->dev_type);
 		return -EINVAL;
 	}
 
 	switch (dfu->data.virt.dev_num) {
 	case PHASE_CMD:
-		*size = 512;
+		*size = CMD_SIZE;
 		break;
 	case PHASE_OTP:
 		*size = OTP_SIZE;
@@ -207,13 +207,10 @@ bool stm32prog_usb_loop(struct stm32prog_data *data, int dev)
 
 	if (stm32prog_data->phase == PHASE_FLASHLAYOUT) {
 		ret = run_usb_dnl_gadget(dev, "usb_dnl_dfu");
-		if (ret || stm32prog_data->phase == PHASE_DO_RESET)
+		if (ret || stm32prog_data->phase != PHASE_FLASHLAYOUT)
 			return ret;
 		/* prepare the second enumeration with the FlashLayout */
-		if (stm32prog_data->phase == PHASE_FLASHLAYOUT)
-			stm32prog_dfu_init(data);
-		/* found next selected partition */
-		stm32prog_next_phase(data);
+		stm32prog_dfu_init(data);
 	}
 
 	ret = run_usb_dnl_gadget(dev, "usb_dnl_dfu");
@@ -227,6 +224,6 @@ bool stm32prog_usb_loop(struct stm32prog_data *data, int dev)
 
 int g_dnl_get_board_bcd_device_number(int gcnum)
 {
-	pr_debug("%s\n", __func__);
+	log_debug("%s\n", __func__);
 	return 0x200;
 }

@@ -10,6 +10,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx7-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
@@ -59,7 +60,7 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_POWER
+#if CONFIG_IS_ENABLED(POWER_LEGACY)
 #define I2C_PMIC	3
 int power_init_board(void)
 {
@@ -243,4 +244,3 @@ int board_ehci_hcd_init(int port)
 	}
 	return 0;
 }
-

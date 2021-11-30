@@ -1,0 +1,122 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2020 Compass Electronics Group, LLC
+ */
+
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		u-boot,dm-spl;
+	};
+};
+
+&{/soc@0} {
+	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@4b} {
+	u-boot,dm-spl;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@4b/regulators} {
+	u-boot,dm-spl;
+};
+
+&aips1 {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
+
+&aips2 {
+	u-boot,dm-spl;
+};
+
+&aips3 {
+	u-boot,dm-spl;
+};
+
+&clk {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+};
+
+&iomuxc {
+	u-boot,dm-spl;
+};
+
+&osc_24m {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
+
+&pca6416_0 {
+	compatible = "ti,tca6416";
+};
+
+&pca6416_1 {
+	compatible = "ti,tca6416";
+};
+
+&pinctrl_i2c1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_pmic {
+	u-boot,dm-spl;
+};
+
+&pinctrl_uart2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2_gpio {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc3 {
+	u-boot,dm-spl;
+};
+
+&reg_usdhc2_vmmc {
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&usdhc1 {
+	u-boot,dm-spl;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
+};
+
+&usdhc2 {
+	u-boot,dm-spl;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
+};
+
+&usdhc3 {
+	u-boot,dm-spl;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+};
+
+&wdog1 {
+	u-boot,dm-spl;
+};

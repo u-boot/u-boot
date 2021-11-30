@@ -10,47 +10,34 @@
 static int do_echo(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
-	int i;
-	int putnl = 1;
+	int i = 1;
+	bool space = false;
+	bool newline = true;
 
-	for (i = 1; i < argc; i++) {
-		char *p = argv[i];
-		char *nls; /* new-line suppression */
-
-		if (i > 1)
-			putc(' ');
-
-		nls = strstr(p, "\\c");
-		if (nls) {
-			char *prenls = p;
-
-			putnl = 0;
-			/*
-			 * be paranoid and guess that someone might
-			 * say \c more than once
-			 */
-			while (nls) {
-				*nls = '\0';
-				puts(prenls);
-				*nls = '\\';
-				prenls = nls + 2;
-				nls = strstr(prenls, "\\c");
-			}
-			puts(prenls);
-		} else {
-			puts(p);
+	if (argc > 1) {
+		if (!strcmp(argv[1], "-n")) {
+			newline = false;
+			++i;
 		}
 	}
 
-	if (putnl)
+	for (; i < argc; ++i) {
+		if (space) {
+			putc(' ');
+		}
+		puts(argv[i]);
+		space = true;
+	}
+
+	if (newline)
 		putc('\n');
 
 	return 0;
 }
 
 U_BOOT_CMD(
-	echo,	CONFIG_SYS_MAXARGS,	1,	do_echo,
+	echo, CONFIG_SYS_MAXARGS, 1, do_echo,
 	"echo args to console",
-	"[args..]\n"
-	"    - echo args to console; \\c suppresses newline"
+	"[-n] [args..]\n"
+	"    - echo args to console; -n suppresses newline"
 );

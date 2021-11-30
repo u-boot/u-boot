@@ -194,5 +194,5 @@ U_BOOT_DRIVER(ti_bandgap_thermal) = {
 	.ops	= &ti_thermal_ops,
 	.probe	= ti_bandgap_probe,
 	.of_match = of_ti_bandgap_match,
-	.priv_auto_alloc_size = sizeof(struct ti_bandgap),
+	.priv_auto	= sizeof(struct ti_bandgap),
 };

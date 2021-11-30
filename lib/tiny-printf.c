@@ -9,8 +9,9 @@
  */
 
 #include <common.h>
-#include <stdarg.h>
+#include <log.h>
 #include <serial.h>
+#include <stdarg.h>
 #include <linux/ctype.h>
 
 struct printf_info {
@@ -47,7 +48,7 @@ static void div_out(struct printf_info *info, unsigned long *num,
 		out_dgt(info, dgt);
 }
 
-#ifdef CONFIG_SPL_NET_SUPPORT
+#ifdef CONFIG_SPL_NET
 static void string(struct printf_info *info, char *s)
 {
 	char ch;
@@ -177,7 +178,7 @@ static void __maybe_unused pointer(struct printf_info *info, const char *fmt,
 		}
 		break;
 #endif
-#ifdef CONFIG_SPL_NET_SUPPORT
+#ifdef CONFIG_SPL_NET
 	case 'm':
 		return mac_address_string(info, ptr, false);
 	case 'M':
@@ -269,20 +270,19 @@ static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 				}
 				break;
 			case 'p':
-#ifdef DEBUG
-				pointer(info, fmt, va_arg(va, void *));
-				/*
-				 * Skip this because it pulls in _ctype which is
-				 * 256 bytes, and we don't generally implement
-				 * pointer anyway
-				 */
-				while (isalnum(fmt[0]))
-					fmt++;
-				break;
-#else
+				if (CONFIG_IS_ENABLED(NET) || _DEBUG) {
+					pointer(info, fmt, va_arg(va, void *));
+					/*
+					 * Skip this because it pulls in _ctype which is
+					 * 256 bytes, and we don't generally implement
+					 * pointer anyway
+					 */
+					while (isalnum(fmt[0]))
+						fmt++;
+					break;
+				}
 				islong = true;
 				/* no break */
-#endif
 			case 'x':
 				if (islong) {
 					num = va_arg(va, unsigned long);

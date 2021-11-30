@@ -1,0 +1,15 @@
+if TARGET_SMEGW01
+
+config SYS_BOARD
+	default "smegw01"
+
+config SYS_VENDOR
+	default "storopack"
+
+config SYS_CONFIG_NAME
+	default "smegw01"
+
+config IMX_CONFIG
+	default "board/storopack/smegw01/imximage.cfg"
+
+endif

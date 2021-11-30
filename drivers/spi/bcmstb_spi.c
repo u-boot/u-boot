@@ -5,6 +5,7 @@
  * Author: Thomas Fitzsimmons <fitzsim@fitzsim.org>
  */
 
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <command.h>
 #include <config.h>
@@ -76,7 +77,7 @@ enum bcmstb_base_type {
 	BASE_LAST,
 };
 
-struct bcmstb_spi_platdata {
+struct bcmstb_spi_plat {
 	void *base[4];
 };
 
@@ -94,9 +95,9 @@ struct bcmstb_spi_priv {
 	void *saved_din_addr;
 };
 
-static int bcmstb_spi_ofdata_to_platdata(struct udevice *bus)
+static int bcmstb_spi_of_to_plat(struct udevice *bus)
 {
-	struct bcmstb_spi_platdata *plat = dev_get_platdata(bus);
+	struct bcmstb_spi_plat *plat = dev_get_plat(bus);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(bus);
 	int ret = 0;
@@ -159,7 +160,7 @@ static void bcmstb_spi_clear_interrupt(void *base, u32 mask)
 
 static int bcmstb_spi_probe(struct udevice *bus)
 {
-	struct bcmstb_spi_platdata *plat = dev_get_platdata(bus);
+	struct bcmstb_spi_plat *plat = dev_get_plat(bus);
 	struct bcmstb_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->base[HIF_MSPI];
@@ -432,8 +433,8 @@ U_BOOT_DRIVER(bcmstb_spi) = {
 	.id				= UCLASS_SPI,
 	.of_match			= bcmstb_spi_id,
 	.ops				= &bcmstb_spi_ops,
-	.ofdata_to_platdata		= bcmstb_spi_ofdata_to_platdata,
+	.of_to_plat		= bcmstb_spi_of_to_plat,
 	.probe				= bcmstb_spi_probe,
-	.platdata_auto_alloc_size	= sizeof(struct bcmstb_spi_platdata),
-	.priv_auto_alloc_size		= sizeof(struct bcmstb_spi_priv),
+	.plat_auto	= sizeof(struct bcmstb_spi_plat),
+	.priv_auto		= sizeof(struct bcmstb_spi_priv),
 };

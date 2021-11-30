@@ -741,8 +741,9 @@ void cvmx_coremask_print(const struct cvmx_coremask *pcm);
 
 static inline void cvmx_coremask_dprint(const struct cvmx_coremask *pcm)
 {
-	if (IS_ENABLED(DEBUG))
-		cvmx_coremask_print(pcm);
+#if defined(DEBUG)
+	cvmx_coremask_print(pcm);
+#endif
 }
 
 struct cvmx_coremask *octeon_get_available_coremask(struct cvmx_coremask *pcm);

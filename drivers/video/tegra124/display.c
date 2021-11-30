@@ -351,7 +351,7 @@ static int display_init(struct udevice *dev, void *lcdbase,
 		return ret;
 	}
 
-	disp_uc_plat = dev_get_uclass_platdata(dp_dev);
+	disp_uc_plat = dev_get_uclass_plat(dp_dev);
 	debug("Found device '%s', disp_uc_priv=%p\n", dp_dev->name,
 	      disp_uc_plat);
 	disp_uc_plat->src_dev = dev;
@@ -465,7 +465,7 @@ static int tegra124_lcd_init(struct udevice *dev, void *lcdbase,
 
 static int tegra124_lcd_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	ulong start;
 	int ret;
 
@@ -482,7 +482,7 @@ static int tegra124_lcd_probe(struct udevice *dev)
 
 static int tegra124_lcd_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 	uc_plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
 			(1 << VIDEO_BPP16) / 8;

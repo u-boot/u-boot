@@ -19,8 +19,10 @@ env_t embedded_environment __UBOOT_ENV_SECTION__(environment) = {
 	{
 #elif defined(DEFAULT_ENV_INSTANCE_STATIC)
 static char default_environment[] = {
+#elif defined(DEFAULT_ENV_IS_RW)
+char default_environment[] = {
 #else
-const uchar default_environment[] = {
+const char default_environment[] = {
 #endif
 #ifndef CONFIG_USE_DEFAULT_ENV_FILE
 #ifdef	CONFIG_ENV_CALLBACK_LIST_DEFAULT
@@ -80,8 +82,8 @@ const uchar default_environment[] = {
 #ifdef	CONFIG_BOOTFILE
 	"bootfile="	CONFIG_BOOTFILE			"\0"
 #endif
-#ifdef	CONFIG_LOADADDR
-	"loadaddr="	__stringify(CONFIG_LOADADDR)	"\0"
+#ifdef	CONFIG_SYS_LOAD_ADDR
+	"loadaddr="	__stringify(CONFIG_SYS_LOAD_ADDR)"\0"
 #endif
 #if defined(CONFIG_PCI_BOOTDELAY) && (CONFIG_PCI_BOOTDELAY > 0)
 	"pcidelay="	__stringify(CONFIG_PCI_BOOTDELAY)"\0"
@@ -101,6 +103,9 @@ const uchar default_environment[] = {
 #ifdef CONFIG_SYS_SOC
 	"soc="		CONFIG_SYS_SOC			"\0"
 #endif
+#ifdef CONFIG_ENV_IMPORT_FDT
+	"env_fdt_path="	CONFIG_ENV_FDT_PATH		"\0"
+#endif
 #endif
 #if defined(CONFIG_BOOTCOUNT_BOOTLIMIT) && (CONFIG_BOOTCOUNT_BOOTLIMIT > 0)
 	"bootlimit="	__stringify(CONFIG_BOOTCOUNT_BOOTLIMIT)"\0"
@@ -116,3 +121,9 @@ const uchar default_environment[] = {
 	}
 #endif
 };
+
+#if !defined(USE_HOSTCC) && !defined(DEFAULT_ENV_INSTANCE_EMBEDDED)
+#include <env_internal.h>
+static_assert(sizeof(default_environment) <= ENV_SIZE,
+	      "Default environment is too large");
+#endif

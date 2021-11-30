@@ -14,39 +14,10 @@
 
 #include <configs/ti_omap3_common.h>
 
-/*
- * We are only ever GP parts and will utilize all of the "downloaded image"
- * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB) in
- * order to allow for BCH8 to fit in.
- */
-
-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
-/* Hardware drivers */
-
-/* I2C */
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM AT24C64      */
-
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_USB_EHCI_OMAP
-#endif
-#ifdef CONFIG_USB_EHCI_OMAP
-#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	4
-#endif
-
 /* Board NAND Info. */
 #ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	  /* Max number of */
 						  /* NAND devices */
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_PAGE_COUNT	64
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-#define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, \
 					 13, 14, 16, 17, 18, 19, 20, 21, 22, \
 					 23, 24, 25, 26, 27, 28, 30, 31, 32, \
@@ -56,7 +27,6 @@
 
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	13
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
 #endif

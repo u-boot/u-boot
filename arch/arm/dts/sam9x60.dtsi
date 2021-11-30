@@ -50,6 +50,18 @@
 		};
 	};
 
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ARM9260_0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,arm926ej-s";
+			clocks = <&pmc PMC_TYPE_CORE 19>, <&pmc PMC_TYPE_CORE 11>, <&main_xtal>;
+			clock-names = "cpu", "master", "xtal";
+		};
+	};
+
 	ahb {
 		compatible = "simple-bus";
 		#address-cells = <1>;

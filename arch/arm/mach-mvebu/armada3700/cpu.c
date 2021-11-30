@@ -8,7 +8,9 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <fdt_support.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/libfdt.h>
 #include <asm/io.h>
@@ -51,8 +53,6 @@
 	(PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_INNER_SHARE)
 #define A3700_PTE_BLOCK_DEVICE \
 	(PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_NON_SHARE)
-
-#define PCIE_PATH			"/soc/pcie@d0070000"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -281,39 +281,88 @@ static u32 find_pcie_window_base(void)
 	return -1;
 }
 
+static int fdt_setprop_inplace_u32_partial(void *blob, int node,
+					   const char *name,
+					   u32 idx, u32 val)
+{
+	val = cpu_to_fdt32(val);
+
+	return fdt_setprop_inplace_namelen_partial(blob, node, name,
+						   strlen(name),
+						   idx * sizeof(u32),
+						   &val, sizeof(u32));
+}
+
 int a3700_fdt_fix_pcie_regions(void *blob)
 {
-	u32 new_ranges[14], base;
+	int acells, pacells, scells;
+	u32 base, fix_offset;
 	const u32 *ranges;
-	int node, len;
-
-	node = fdt_path_offset(blob, PCIE_PATH);
-	if (node < 0)
-		return node;
-
-	ranges = fdt_getprop(blob, node, "ranges", &len);
-	if (!ranges)
-		return -ENOENT;
-
-	if (len != sizeof(new_ranges))
-		return -EINVAL;
-
-	memcpy(new_ranges, ranges, len);
+	int node, pnode;
+	int ret, i, len;
 
 	base = find_pcie_window_base();
 	if (base == -1)
 		return -ENOENT;
 
-	new_ranges[2] = cpu_to_fdt32(base);
-	new_ranges[4] = new_ranges[2];
+	node = fdt_node_offset_by_compatible(blob, -1, "marvell,armada-3700-pcie");
+	if (node < 0)
+		return node;
 
-	new_ranges[9] = cpu_to_fdt32(base + 0x1000000);
-	new_ranges[11] = new_ranges[9];
+	ranges = fdt_getprop(blob, node, "ranges", &len);
+	if (!ranges || len % sizeof(u32))
+		return -ENOENT;
 
-	return fdt_setprop_inplace(blob, node, "ranges", new_ranges, len);
+	/*
+	 * The "ranges" property is an array of
+	 * { <child address> <parent address> <size in child address space> }
+	 *
+	 * All 3 elements can span a diffent number of cells. Fetch their sizes.
+	 */
+	pnode = fdt_parent_offset(blob, node);
+	acells = fdt_address_cells(blob, node);
+	pacells = fdt_address_cells(blob, pnode);
+	scells = fdt_size_cells(blob, node);
+
+	/* Child PCI addresses always use 3 cells */
+	if (acells != 3)
+		return -ENOENT;
+
+	/* Calculate fixup offset from first child address (in last cell) */
+	fix_offset = base - fdt32_to_cpu(ranges[2]);
+
+	/* If fixup offset is zero then there is nothing to fix */
+	if (!fix_offset)
+		return 0;
+
+	/*
+	 * Fix address (last cell) of each child address and each parent
+	 * address
+	 */
+	for (i = 0; i < len / sizeof(u32); i += acells + pacells + scells) {
+		int idx;
+
+		/* fix child address */
+		idx = i + acells - 1;
+		ret = fdt_setprop_inplace_u32_partial(blob, node, "ranges", idx,
+						      fdt32_to_cpu(ranges[idx]) +
+						      fix_offset);
+		if (ret)
+			return ret;
+
+		/* fix parent address */
+		idx = i + acells + pacells - 1;
+		ret = fdt_setprop_inplace_u32_partial(blob, node, "ranges", idx,
+						      fdt32_to_cpu(ranges[idx]) +
+						      fix_offset);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	/*
 	 * Write magic number of 0x1d1e to North Bridge Warm Reset register

@@ -306,7 +306,7 @@ static const struct rtc_ops ds1337_rtc_ops = {
 static const struct udevice_id ds1337_rtc_ids[] = {
 	{ .compatible = "ds1337" },
 	{ .compatible = "ds1338" },
-	{ .compatible = "ds1338" },
+	{ .compatible = "ds1339" },
 	{ }
 };
 

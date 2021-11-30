@@ -11,7 +11,7 @@ obj-y	= cpu.o
 obj-y	+= dram.o
 obj-y	+= timer.o
 
-ifndef CONFIG_SKIP_LOWLEVEL_INIT
+ifndef CONFIG_$(SPL_)SKIP_LOWLEVEL_INIT
 obj-y	+= lowlevel_init.o
 endif
 

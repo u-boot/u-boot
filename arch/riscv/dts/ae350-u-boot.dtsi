@@ -1,0 +1,52 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+
+/ {
+	cpus {
+		u-boot,dm-spl;
+		CPU0: cpu@0 {
+			u-boot,dm-spl;
+			CPU0_intc: interrupt-controller {
+				u-boot,dm-spl;
+			};
+		};
+		CPU1: cpu@1 {
+			u-boot,dm-spl;
+			CPU1_intc: interrupt-controller {
+				u-boot,dm-spl;
+			};
+		};
+		CPU2: cpu@2 {
+			u-boot,dm-spl;
+			CPU2_intc: interrupt-controller {
+				u-boot,dm-spl;
+			};
+		};
+		CPU3: cpu@3 {
+			u-boot,dm-spl;
+			CPU3_intc: interrupt-controller {
+				u-boot,dm-spl;
+			};
+		};
+	};
+
+	memory@0 {
+		u-boot,dm-spl;
+	};
+
+	soc {
+		u-boot,dm-spl;
+
+		plic1: interrupt-controller@e6400000 {
+			u-boot,dm-spl;
+		};
+
+		plmt0@e6000000 {
+			u-boot,dm-spl;
+		};
+	};
+
+	serial0: serial@f0300000 {
+		u-boot,dm-spl;
+	};
+
+};

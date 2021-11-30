@@ -9,6 +9,7 @@
 #include <vsprintf.h>
 #include <asm/arcregs.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;

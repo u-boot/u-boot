@@ -119,7 +119,7 @@ U_BOOT_DRIVER(sandbox_axi_store) = {
 	.id             = UCLASS_AXI_EMUL,
 	.of_match       = sandbox_store_ids,
 	.ops		= &sandbox_store_ops,
-	.priv_auto_alloc_size = sizeof(struct sandbox_store_priv),
+	.priv_auto	= sizeof(struct sandbox_store_priv),
 	.probe          = sandbox_store_probe,
 	.remove		= sandbox_store_remove,
 };

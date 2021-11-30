@@ -21,9 +21,10 @@ typedef struct {
 	ulong	flash_id;		/* combined device & manufacturer code	*/
 	ulong	start[CONFIG_SYS_MAX_FLASH_SECT];   /* virtual sector start address */
 	uchar	protect[CONFIG_SYS_MAX_FLASH_SECT]; /* sector protection status	*/
-#ifdef CONFIG_SYS_FLASH_CFI
 	uchar	portwidth;		/* the width of the port		*/
 	uchar	chipwidth;		/* the width of the chip		*/
+	uchar	chip_lsb;		/* extra Least Significant Bit in the */
+					/* address of chip	*/
 	ushort	buffer_size;		/* # of bytes in write buffer		*/
 	ulong	erase_blk_tout;		/* maximum block erase timeout		*/
 	ulong	write_tout;		/* maximum write timeout		*/
@@ -43,7 +44,6 @@ typedef struct {
 	ulong   addr_unlock2;		/* unlock address 2 for AMD flash roms  */
 	uchar   sr_supported;		/* status register supported            */
 	const char *name;		/* human-readable name	                */
-#endif
 #ifdef CONFIG_DM_MTD
 	struct mtd_info *mtd;
 #endif

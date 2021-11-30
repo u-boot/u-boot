@@ -13,10 +13,4 @@
 
 #define dev_WARN(dev, format, arg...)	debug(format, ##arg)
 
-static inline size_t strlcat(char *dest, const char *src, size_t n)
-{
-	strcat(dest, src);
-	return strlen(dest) + strlen(src);
-}
-
 #endif

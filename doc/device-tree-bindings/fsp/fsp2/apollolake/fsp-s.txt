@@ -258,19 +258,20 @@ Optional properties:
 - fsps,pcie-rp-clk-req-detect: CLKREQ# Detection
 - fsps,advanced-error-reportingt: Advanced Error Reporting
 - fsps,pme-interrupt: PME Interrupt
-- fsps,fatal-error-report: URR
-- fsps,no-fatal-error-report: FER
-- fsps,correctable-error-report: NFER
-- fsps,system-error-on-fatal-error: CER
-- fsps,system-error-on-non-fatal-error: SEFE
-- fsps,system-error-on-correctable-error: SENFE
-- fsps,pcie-rp-speed: SECE
-- fsps,physical-slot-number: PCIe Speed
+- fsps,unsupported-request-report: URR
+- fsps,fatal-error-report: FER
+- fsps,no-fatal-error-report: NFER
+- fsps,correctable-error-report: CER
+- fsps,system-error-on-fatal-error: SEFE
+- fsps,system-error-on-non-fatal-error: SENFE
+- fsps,system-error-on-correctable-error: SECE
+- fsps,pcie-rp-speed: PCIe Speed
+- fsps,physical-slot-number: Physical Slot Number
   0: Auto (default)
   1: Gen1
   2: Gen2
   3: Gen3
-- fsps,pcie-rp-completion-timeout: Physical Slot Number
+- fsps,pcie-rp-completion-timeout: CTO
   0x00, 0x01, 0x02, 0x03, 0x04, 0x05 (default)
 - fsps,enable-ptm: PTM Support
 - fsps,pcie-rp-aspm: ASPM

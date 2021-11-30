@@ -12,6 +12,11 @@
 #include <test/test.h>
 #include <test/ut.h>
 
+static inline bool lmb_is_nomap(struct lmb_property *m)
+{
+	return m->flags & LMB_NOMAP;
+}
+
 static int check_lmb(struct unit_test_state *uts, struct lmb *lmb,
 		     phys_addr_t ram_base, phys_size_t ram_size,
 		     unsigned long num_reserved,
@@ -658,4 +663,157 @@ static int lib_test_lmb_get_free_size(struct unit_test_state *uts)
 }
 
 DM_TEST(lib_test_lmb_get_free_size,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int lib_test_lmb_max_regions(struct unit_test_state *uts)
+{
+	const phys_addr_t ram = 0x00000000;
+	const phys_size_t ram_size = 0x8000000;
+	const phys_size_t blk_size = 0x10000;
+	phys_addr_t offset;
+	struct lmb lmb;
+	int ret, i;
+
+	lmb_init(&lmb);
+
+	ut_asserteq(lmb.memory.cnt, 0);
+	ut_asserteq(lmb.memory.max, 8);
+	ut_asserteq(lmb.reserved.cnt, 0);
+	ut_asserteq(lmb.reserved.max, 8);
+
+	/*  Add 8 memory regions */
+	for (i = 0; i < 8; i++) {
+		offset = ram + 2 * i * ram_size;
+		ret = lmb_add(&lmb, offset, ram_size);
+		ut_asserteq(ret, 0);
+	}
+	ut_asserteq(lmb.memory.cnt, 8);
+	ut_asserteq(lmb.reserved.cnt, 0);
+
+	/*  error for the 9th memory regions */
+	offset = ram + 2 * 8 * ram_size;
+	ret = lmb_add(&lmb, offset, ram_size);
+	ut_asserteq(ret, -1);
+
+	ut_asserteq(lmb.memory.cnt, 8);
+	ut_asserteq(lmb.reserved.cnt, 0);
+
+	/*  reserve 8 regions */
+	for (i = 0; i < 8; i++) {
+		offset = ram + 2 * i * blk_size;
+		ret = lmb_reserve(&lmb, offset, blk_size);
+		ut_asserteq(ret, 0);
+	}
+
+	ut_asserteq(lmb.memory.cnt, 8);
+	ut_asserteq(lmb.reserved.cnt, 8);
+
+	/*  error for the 9th reserved blocks */
+	offset = ram + 2 * 8 * blk_size;
+	ret = lmb_reserve(&lmb, offset, blk_size);
+	ut_asserteq(ret, -1);
+
+	ut_asserteq(lmb.memory.cnt, 8);
+	ut_asserteq(lmb.reserved.cnt, 8);
+
+	/*  check each regions */
+	for (i = 0; i < 8; i++)
+		ut_asserteq(lmb.memory.region[i].base, ram + 2 * i * ram_size);
+
+	for (i = 0; i < 8; i++)
+		ut_asserteq(lmb.reserved.region[i].base, ram + 2 * i * blk_size);
+
+	return 0;
+}
+
+DM_TEST(lib_test_lmb_max_regions,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int lib_test_lmb_flags(struct unit_test_state *uts)
+{
+	const phys_addr_t ram = 0x40000000;
+	const phys_size_t ram_size = 0x20000000;
+	struct lmb lmb;
+	long ret;
+
+	lmb_init(&lmb);
+
+	ret = lmb_add(&lmb, ram, ram_size);
+	ut_asserteq(ret, 0);
+
+	/* reserve, same flag */
+	ret = lmb_reserve_flags(&lmb, 0x40010000, 0x10000, LMB_NOMAP);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x10000,
+		   0, 0, 0, 0);
+
+	/* reserve again, same flag */
+	ret = lmb_reserve_flags(&lmb, 0x40010000, 0x10000, LMB_NOMAP);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x10000,
+		   0, 0, 0, 0);
+
+	/* reserve again, new flag */
+	ret = lmb_reserve_flags(&lmb, 0x40010000, 0x10000, LMB_NONE);
+	ut_asserteq(ret, -1);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x10000,
+		   0, 0, 0, 0);
+
+	ut_asserteq(lmb_is_nomap(&lmb.reserved.region[0]), 1);
+
+	/* merge after */
+	ret = lmb_reserve_flags(&lmb, 0x40020000, 0x10000, LMB_NOMAP);
+	ut_asserteq(ret, 1);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x20000,
+		   0, 0, 0, 0);
+
+	/* merge before */
+	ret = lmb_reserve_flags(&lmb, 0x40000000, 0x10000, LMB_NOMAP);
+	ut_asserteq(ret, 1);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40000000, 0x30000,
+		   0, 0, 0, 0);
+
+	ut_asserteq(lmb_is_nomap(&lmb.reserved.region[0]), 1);
+
+	ret = lmb_reserve_flags(&lmb, 0x40030000, 0x10000, LMB_NONE);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 2, 0x40000000, 0x30000,
+		   0x40030000, 0x10000, 0, 0);
+
+	ut_asserteq(lmb_is_nomap(&lmb.reserved.region[0]), 1);
+	ut_asserteq(lmb_is_nomap(&lmb.reserved.region[1]), 0);
+
+	/* test that old API use LMB_NONE */
+	ret = lmb_reserve(&lmb, 0x40040000, 0x10000);
+	ut_asserteq(ret, 1);
+	ASSERT_LMB(&lmb, ram, ram_size, 2, 0x40000000, 0x30000,
+		   0x40030000, 0x20000, 0, 0);
+
+	ut_asserteq(lmb_is_nomap(&lmb.reserved.region[0]), 1);
+	ut_asserteq(lmb_is_nomap(&lmb.reserved.region[1]), 0);
+
+	ret = lmb_reserve_flags(&lmb, 0x40070000, 0x10000, LMB_NOMAP);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 3, 0x40000000, 0x30000,
+		   0x40030000, 0x20000, 0x40070000, 0x10000);
+
+	ret = lmb_reserve_flags(&lmb, 0x40050000, 0x10000, LMB_NOMAP);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 4, 0x40000000, 0x30000,
+		   0x40030000, 0x20000, 0x40050000, 0x10000);
+
+	/* merge with 2 adjacent regions */
+	ret = lmb_reserve_flags(&lmb, 0x40060000, 0x10000, LMB_NOMAP);
+	ut_asserteq(ret, 2);
+	ASSERT_LMB(&lmb, ram, ram_size, 3, 0x40000000, 0x30000,
+		   0x40030000, 0x20000, 0x40050000, 0x30000);
+
+	ut_asserteq(lmb_is_nomap(&lmb.reserved.region[0]), 1);
+	ut_asserteq(lmb_is_nomap(&lmb.reserved.region[1]), 0);
+	ut_asserteq(lmb_is_nomap(&lmb.reserved.region[2]), 1);
+
+	return 0;
+}
+
+DM_TEST(lib_test_lmb_flags,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

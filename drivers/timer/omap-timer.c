@@ -19,8 +19,6 @@
 #define TCLR_PRE_EN			BIT(5)	/* Pre-scaler enable */
 #define TCLR_PTV_SHIFT			(2)	/* Pre-scaler shift value */
 
-#define TIMER_CLOCK             (V_SCLK / (2 << CONFIG_SYS_PTV))
-
 struct omap_gptimer_regs {
 	unsigned int tidr;		/* offset 0x00 */
 	unsigned char res1[12];
@@ -61,7 +59,9 @@ static int omap_timer_probe(struct udevice *dev)
 	struct omap_timer_priv *priv = dev_get_priv(dev);
 
 	if (!uc_priv->clock_rate)
-		uc_priv->clock_rate = TIMER_CLOCK;
+		uc_priv->clock_rate = V_SCLK;
+
+	uc_priv->clock_rate /= (2 << CONFIG_SYS_PTV);
 
 	/* start the counter ticking up, reload value on overflow */
 	writel(0, &priv->regs->tldr);
@@ -73,7 +73,7 @@ static int omap_timer_probe(struct udevice *dev)
 	return 0;
 }
 
-static int omap_timer_ofdata_to_platdata(struct udevice *dev)
+static int omap_timer_of_to_plat(struct udevice *dev)
 {
 	struct omap_timer_priv *priv = dev_get_priv(dev);
 
@@ -99,8 +99,8 @@ U_BOOT_DRIVER(omap_timer) = {
 	.name	= "omap_timer",
 	.id	= UCLASS_TIMER,
 	.of_match = omap_timer_ids,
-	.ofdata_to_platdata = omap_timer_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct omap_timer_priv),
+	.of_to_plat = omap_timer_of_to_plat,
+	.priv_auto	= sizeof(struct omap_timer_priv),
 	.probe = omap_timer_probe,
 	.ops	= &omap_timer_ops,
 };

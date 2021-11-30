@@ -10,6 +10,8 @@
 
 obj-$(CONFIG_DM_PWM)		+= pwm-uclass.o
 
+obj-$(CONFIG_PWM_AT91)		+= pwm-at91.o
+obj-$(CONFIG_PWM_CROS_EC)	+= cros_ec_pwm.o
 obj-$(CONFIG_PWM_EXYNOS)	+= exynos_pwm.o
 obj-$(CONFIG_PWM_IMX)		+= pwm-imx.o pwm-imx-util.o
 obj-$(CONFIG_PWM_MESON)		+= pwm-meson.o
@@ -19,3 +21,4 @@ obj-$(CONFIG_PWM_SANDBOX)	+= sandbox_pwm.o
 obj-$(CONFIG_PWM_SIFIVE)	+= pwm-sifive.o
 obj-$(CONFIG_PWM_TEGRA)		+= tegra_pwm.o
 obj-$(CONFIG_PWM_SUNXI)		+= sunxi_pwm.o
+obj-$(CONFIG_PWM_TI_EHRPWM)	+= pwm-ti-ehrpwm.o

@@ -14,10 +14,10 @@ phys_size_t get_effective_memsize(void)
 	return CONFIG_SYS_SDRAM_SIZE;
 }
 
-int board_init(void)
+static int sram_init(void)
 {
 	int ret, i;
-	const char * const banks[] = { "sram0", "sram1", "airam" };
+	const char * const banks[] = { "sram0", "sram1", "aisram" };
 	ofnode memory;
 	struct clk clk;
 
@@ -37,5 +37,15 @@ int board_init(void)
 			return ret;
 	}
 
+	return 0;
+}
+
+int board_early_init_f(void)
+{
+	return sram_init();
+}
+
+int board_init(void)
+{
 	return 0;
 }

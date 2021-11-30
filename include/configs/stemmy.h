@@ -7,23 +7,43 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* Loaded by another bootloader */
-#define CONFIG_SYS_MALLOC_LEN		SZ_2M
-
-/* Physical Memory Map */
-#define PHYS_SDRAM_1			0x00000000	/* DDR-SDRAM Bank #1 */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_SDRAM_SIZE		SZ_1G
-#define CONFIG_SYS_INIT_RAM_SIZE	0x00100000
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_SDRAM_BASE + \
-					 CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_GBL_DATA_OFFSET
+/*
+ * The "stemmy" U-Boot port is designed to be chainloaded by the Samsung
+ * bootloader on devices based on ST-Ericsson Ux500. Therefore, we skip most
+ * low-level initialization and rely on configuration provided by the Samsung
+ * bootloader. New images are loaded at the same address for compatibility.
+ */
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
 /* FIXME: This should be loaded from device tree... */
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		0xa0412000
 
-#define CONFIG_SYS_LOAD_ADDR		0x00100000
+/* Linux does not boot if FDT / initrd is loaded to end of RAM */
+#define BOOT_ENV \
+	"fdt_high=0x6000000\0" \
+	"initrd_high=0x6000000\0"
+
+#define CONSOLE_ENV \
+	"stdin=serial\0" \
+	"stdout=serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0"
+
+#define FASTBOOT_ENV \
+	"fastboot_partition_alias_boot=Kernel\0" \
+	"fastboot_partition_alias_recovery=Kernel2\0" \
+	"fastboot_partition_alias_system=SYSTEM\0" \
+	"fastboot_partition_alias_cache=CACHEFS\0" \
+	"fastboot_partition_alias_hidden=HIDDEN\0" \
+	"fastboot_partition_alias_userdata=DATAFS\0"
+
+#define BOOTCMD_ENV \
+	"fastbootcmd=echo '*** FASTBOOT MODE ***'; fastboot usb 0\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	BOOT_ENV \
+	CONSOLE_ENV \
+	FASTBOOT_ENV \
+	BOOTCMD_ENV
 
 #endif

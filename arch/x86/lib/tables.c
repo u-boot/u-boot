@@ -3,12 +3,15 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#define LOG_CATEGORY LOGC_BOARD
+
 #include <common.h>
 #include <bloblist.h>
 #include <log.h>
 #include <malloc.h>
 #include <smbios.h>
 #include <acpi/acpi_table.h>
+#include <asm/global_data.h>
 #include <asm/sfi.h>
 #include <asm/mpspec.h>
 #include <asm/tables.h>
@@ -95,13 +98,20 @@ int write_tables(void)
 				return log_msg_ret("bloblist", -ENOBUFS);
 		}
 		rom_table_end = table->write(rom_table_start);
-		rom_table_end = ALIGN(rom_table_end, ROM_TABLE_ALIGN);
+		if (!rom_table_end) {
+			log_err("Can't create configuration table %d\n", i);
+			return -EINTR;
+		}
 
 		if (IS_ENABLED(CONFIG_SEABIOS)) {
 			table_size = rom_table_end - rom_table_start;
 			high_table = (u32)(ulong)high_table_malloc(table_size);
 			if (high_table) {
-				table->write(high_table);
+				if (!table->write(high_table)) {
+					log_err("Can't create configuration table %d\n",
+						i);
+					return -EINTR;
+				}
 
 				cfg_tables[i].start = high_table;
 				cfg_tables[i].size = table_size;

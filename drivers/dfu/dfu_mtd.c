@@ -21,7 +21,7 @@ static bool mtd_is_aligned_with_block_size(struct mtd_info *mtd, u64 size)
 static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
-	u64 off, lim, remaining;
+	u64 off, lim, remaining, lock_ofs, lock_len;
 	struct mtd_info *mtd = dfu->data.mtd.info;
 	struct mtd_oob_ops io_op = {};
 	int ret = 0;
@@ -34,7 +34,7 @@ static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 		return 0;
 	}
 
-	off = dfu->data.mtd.start + offset + dfu->bad_skip;
+	off = lock_ofs = dfu->data.mtd.start + offset + dfu->bad_skip;
 	lim = dfu->data.mtd.start + dfu->data.mtd.size;
 
 	if (off >= lim) {
@@ -56,11 +56,18 @@ static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	if (op == DFU_OP_WRITE) {
 		struct erase_info erase_op = {};
 
-		remaining = round_up(*len, mtd->erasesize);
+		remaining = lock_len = round_up(*len, mtd->erasesize);
 		erase_op.mtd = mtd;
 		erase_op.addr = off;
 		erase_op.len = mtd->erasesize;
 		erase_op.scrub = 0;
+
+		debug("Unlocking the mtd device\n");
+		ret = mtd_unlock(mtd, lock_ofs, lock_len);
+		if (ret && ret != -EOPNOTSUPP) {
+			printf("MTD device unlock failed\n");
+			return 0;
+		}
 
 		while (remaining) {
 			if (erase_op.addr + remaining > lim) {
@@ -139,6 +146,15 @@ static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			io_op.len = mtd->writesize;
 	}
 
+	if (op == DFU_OP_WRITE) {
+		/* Write done, lock again */
+		debug("Locking the mtd device\n");
+		ret = mtd_lock(mtd, lock_ofs, lock_len);
+		if (ret == -EOPNOTSUPP)
+			ret = 0;
+		else if (ret)
+			printf("MTD device lock failed\n");
+	}
 	return ret;
 }
 
@@ -190,7 +206,7 @@ static int dfu_flush_medium_mtd(struct dfu_entity *dfu)
 	int ret;
 
 	/* in case of ubi partition, erase rest of the partition */
-	if (dfu->data.nand.ubi) {
+	if (dfu->data.mtd.ubi) {
 		struct erase_info erase_op = {};
 
 		erase_op.mtd = dfu->data.mtd.info;
@@ -228,7 +244,7 @@ static unsigned int dfu_polltimeout_mtd(struct dfu_entity *dfu)
 	 * ubi partition, as sectors which are not used need
 	 * to be erased
 	 */
-	if (dfu->data.nand.ubi)
+	if (dfu->data.mtd.ubi)
 		return DFU_MANIFEST_POLL_TIMEOUT;
 
 	return DFU_DEFAULT_POLL_TIMEOUT;
@@ -238,7 +254,6 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char *s)
 {
 	char *st;
 	struct mtd_info *mtd;
-	bool has_pages;
 	int ret, part;
 
 	mtd = get_mtd_device_nm(devstr);
@@ -248,16 +263,14 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char *s)
 
 	dfu->dev_type = DFU_DEV_MTD;
 	dfu->data.mtd.info = mtd;
-
-	has_pages = mtd->type == MTD_NANDFLASH || mtd->type == MTD_MLCNANDFLASH;
-	dfu->max_buf_size = has_pages ? mtd->erasesize : 0;
+	dfu->max_buf_size = mtd->erasesize;
 
 	st = strsep(&s, " ");
 	if (!strcmp(st, "raw")) {
 		dfu->layout = DFU_RAW_ADDR;
-		dfu->data.mtd.start = simple_strtoul(s, &s, 16);
+		dfu->data.mtd.start = hextoul(s, &s);
 		s++;
-		dfu->data.mtd.size = simple_strtoul(s, &s, 16);
+		dfu->data.mtd.size = hextoul(s, &s);
 	} else if ((!strcmp(st, "part")) || (!strcmp(st, "partubi"))) {
 		char mtd_id[32];
 		struct mtd_device *mtd_dev;
@@ -266,7 +279,7 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char *s)
 
 		dfu->layout = DFU_RAW_ADDR;
 
-		part = simple_strtoul(s, &s, 10);
+		part = dectoul(s, &s);
 
 		sprintf(mtd_id, "%s,%d", devstr, part - 1);
 		printf("using id '%s'\n", mtd_id);

@@ -162,16 +162,15 @@ extern const struct pinctrl_ops intel_pinctrl_ops;
 int intel_pinctrl_probe(struct udevice *dev);
 
 /**
- * intel_pinctrl_ofdata_to_platdata() - Handle common platdata setup
+ * intel_pinctrl_of_to_plat() - Handle common plat setup
  *
  * @dev: Pinctrl device
  * @comm: Pad community for this device
  * @num_cfgs: Number of configuration words for each pad
  * @return 0 if OK, -EDOM if @comm is NULL, other -ve value on other error
  */
-int intel_pinctrl_ofdata_to_platdata(struct udevice *dev,
-				     const struct pad_community *comm,
-				     int num_cfgs);
+int intel_pinctrl_of_to_plat(struct udevice *dev,
+			     const struct pad_community *comm, int num_cfgs);
 
 /**
  * pinctrl_route_gpe() - set GPIO groups for the general-purpose-event blocks

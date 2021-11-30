@@ -25,7 +25,7 @@ class Entry_text(Entry):
         <text>: The text to place in the entry (overrides the above mechanism).
             This is useful when the text is constant.
 
-    Example node:
+    Example node::
 
         text {
             size = <50>;
@@ -38,7 +38,7 @@ class Entry_text(Entry):
 
     and binman will insert that string into the entry.
 
-    It is also possible to put the string directly in the node:
+    It is also possible to put the string directly in the node::
 
         text {
             size = <8>;
@@ -46,7 +46,7 @@ class Entry_text(Entry):
             message = "a message directly in the node"
         };
 
-    or just:
+    or just::
 
         text {
             size = <8>;

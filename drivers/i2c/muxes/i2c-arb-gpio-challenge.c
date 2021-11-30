@@ -10,6 +10,7 @@
 #include <i2c.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <linux/delay.h>
 
@@ -145,5 +146,5 @@ U_BOOT_DRIVER(i2c_arbitrator) = {
 	.probe = i2c_arbitrator_probe,
 	.remove = i2c_arbitrator_remove,
 	.ops = &i2c_arbitrator_ops,
-	.priv_auto_alloc_size = sizeof(struct i2c_arbitrator_priv),
+	.priv_auto	= sizeof(struct i2c_arbitrator_priv),
 };

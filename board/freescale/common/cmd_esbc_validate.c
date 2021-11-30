@@ -40,7 +40,7 @@ static int do_esbc_validate(struct cmd_tbl *cmdtp, int flag, int argc,
 		hash_str = argv[2];
 
 	/* First argument - header address -32/64bit */
-	haddr = (uintptr_t)simple_strtoul(argv[1], NULL, 16);
+	haddr = (uintptr_t)hextoul(argv[1], NULL);
 
 	/* With esbc_validate command, Image address must be
 	 * part of header. So, the function is called

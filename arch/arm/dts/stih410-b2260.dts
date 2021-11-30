@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (C) 2016 STMicroelectronics (R&D) Limited.
- * Author: Patrice Chotard <patrice.chotard@st.com>
+ * Author: Patrice Chotard <patrice.chotard@foss.st.com>
  */
 /dts-v1/;
 #include "stih410.dtsi"

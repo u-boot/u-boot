@@ -49,7 +49,7 @@ void spl_board_init(void)
 	/* First of all silence buzzer controlled by GPO_20 */
 	writel((1 << 20), &gpio->p3_outp_clr);
 
-	lpc32xx_uart_init(CONFIG_SYS_LPC32XX_UART);
+	lpc32xx_uart_init(CONFIG_CONS_INDEX);
 	preloader_console_init();
 
 	ddr_init(&dram_64mb);

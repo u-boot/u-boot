@@ -15,6 +15,15 @@ ifdef MINIMAL
 # necessary to create built-in.o
 obj- := __dummy__.o
 else
+# include i2c_common.o once if either VID or FSL_USE_PCA9547_MUX
+I2C_COMMON=
+ifdef CONFIG_VID
+I2C_COMMON=y
+endif
+ifdef CONFIG_FSL_USE_PCA9547_MUX
+I2C_COMMON=y
+endif
+
 obj-$(CONFIG_FSL_CADMUS)	+= cadmus.o
 obj-$(CONFIG_FSL_VIA)		+= cds_via.o
 obj-$(CONFIG_FMAN_ENET)	+= fman.o
@@ -22,6 +31,8 @@ obj-$(CONFIG_FSL_PIXIS)	+= pixis.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_FSL_NGPIXIS)	+= ngpixis.o
 endif
+obj-$(I2C_COMMON)		+= i2c_common.o
+obj-$(CONFIG_FSL_USE_PCA9547_MUX)		+= i2c_mux.o
 obj-$(CONFIG_VID)		+= vid.o
 obj-$(CONFIG_FSL_QIXIS)	+= qixis.o
 obj-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o
@@ -43,19 +54,15 @@ endif
 
 obj-$(CONFIG_FSL_DCU_SII9022A)    += dcu_sii9022a.o
 
-obj-$(CONFIG_TARGET_MPC8541CDS)	+= cds_pci_ft.o
 obj-$(CONFIG_TARGET_MPC8548CDS)	+= cds_pci_ft.o
-obj-$(CONFIG_TARGET_MPC8555CDS)	+= cds_pci_ft.o
 
 obj-$(CONFIG_TARGET_MPC8536DS)	+= ics307_clk.o
-obj-$(CONFIG_TARGET_MPC8572DS)	+= ics307_clk.o
 obj-$(CONFIG_TARGET_P1022DS)		+= ics307_clk.o
 obj-$(CONFIG_P2020DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P3041DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P4080DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P5040DS)		+= ics307_clk.o
 obj-$(CONFIG_VSC_CROSSBAR)    += vsc3316_3308.o
-obj-$(CONFIG_IDT8T49N222A)	+= idt8t49n222a_serdes_clk.o
 obj-$(CONFIG_ZM7300)		+= zm7300.o
 obj-$(CONFIG_POWER_PFUZE100)	+= pfuze.o
 obj-$(CONFIG_DM_PMIC_PFUZE100)	+= pfuze.o

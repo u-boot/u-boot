@@ -189,6 +189,6 @@ U_BOOT_DRIVER(tegra_hsp) = {
 	.of_match = tegra_hsp_ids,
 	.bind = tegra_hsp_bind,
 	.probe = tegra_hsp_probe,
-	.priv_auto_alloc_size = sizeof(struct tegra_hsp),
+	.priv_auto	= sizeof(struct tegra_hsp),
 	.ops = &tegra_hsp_mbox_ops,
 };

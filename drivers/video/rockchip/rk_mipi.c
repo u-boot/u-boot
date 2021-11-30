@@ -11,6 +11,7 @@
 #include <log.h>
 #include <panel.h>
 #include <regmap.h>
+#include <asm/global_data.h>
 #include "rk_mipi.h"
 #include <syscon.h>
 #include <asm/gpio.h>
@@ -119,7 +120,7 @@ int rk_mipi_dsi_enable(struct udevice *dev,
 	rk_mipi_dsi_write(regs, VID_PKT_SIZE, 0x4b0);
 
 	/* Set dpi color coding depth 24 bit */
-	timing_node = ofnode_find_subnode(dev->node, "display-timings");
+	timing_node = ofnode_find_subnode(dev_ofnode(dev), "display-timings");
 	node = ofnode_first_subnode(timing_node);
 
 	val = ofnode_read_u32_default(node, "bits-per-pixel", -1);
@@ -327,4 +328,3 @@ int rk_mipi_phy_enable(struct udevice *dev)
 
 	return 0;
 }
-

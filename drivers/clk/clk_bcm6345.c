@@ -70,5 +70,5 @@ U_BOOT_DRIVER(clk_bcm6345) = {
 	.of_match = bcm6345_clk_ids,
 	.ops = &bcm6345_clk_ops,
 	.probe = bcm63xx_clk_probe,
-	.priv_auto_alloc_size = sizeof(struct bcm6345_clk_priv),
+	.priv_auto	= sizeof(struct bcm6345_clk_priv),
 };

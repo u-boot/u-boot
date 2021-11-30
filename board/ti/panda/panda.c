@@ -9,6 +9,7 @@
 #include <log.h>
 #include <net.h>
 #include <serial.h>
+#include <asm/global_data.h>
 #include <asm/mach-types.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
@@ -311,6 +312,7 @@ void board_mmc_power_init(void)
 #endif
 #endif
 
+#ifdef CONFIG_REVISION_TAG
 /*
  * get_board_rev() - get board revision
  */
@@ -318,3 +320,4 @@ u32 get_board_rev(void)
 {
 	return 0x20;
 }
+#endif

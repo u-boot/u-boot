@@ -12,15 +12,35 @@
 #include <dm.h>
 #include <timer.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 #include <linux/err.h>
 
 /* mtime register */
 #define MTIME_REG(base)			((ulong)(base))
 
-static u64 andes_plmt_get_count(struct udevice *dev)
+static u64 notrace andes_plmt_get_count(struct udevice *dev)
 {
-	return readq((void __iomem *)MTIME_REG(dev->priv));
+	return readq((void __iomem *)MTIME_REG(dev_get_priv(dev)));
 }
+
+#if CONFIG_IS_ENABLED(RISCV_MMODE) && IS_ENABLED(CONFIG_TIMER_EARLY)
+/**
+ * timer_early_get_rate() - Get the timer rate before driver model
+ */
+unsigned long notrace timer_early_get_rate(void)
+{
+	return RISCV_MMODE_TIMER_FREQ;
+}
+
+/**
+ * timer_early_get_count() - Get the timer count before driver model
+ *
+ */
+u64 notrace timer_early_get_count(void)
+{
+	return readq((void __iomem *)MTIME_REG(RISCV_MMODE_TIMERBASE));
+}
+#endif
 
 static const struct timer_ops andes_plmt_ops = {
 	.get_count = andes_plmt_get_count,
@@ -28,8 +48,8 @@ static const struct timer_ops andes_plmt_ops = {
 
 static int andes_plmt_probe(struct udevice *dev)
 {
-	dev->priv = dev_read_addr_ptr(dev);
-	if (!dev->priv)
+	dev_set_priv(dev, dev_read_addr_ptr(dev));
+	if (!dev_get_priv(dev))
 		return -EINVAL;
 
 	return timer_timebase_fallback(dev);

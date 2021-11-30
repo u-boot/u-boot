@@ -71,6 +71,20 @@ int binman_entry_find(const char *name, struct binman_entry *entry);
 ofnode binman_section_find_node(const char *name);
 
 /**
+ * binman_select_subnode() - Select a subnode to use to find entries
+ *
+ * Normally binman selects the top-level node for future entry requests, such as
+ * binman_entry_find(). This function allows a subnode to be chosen instead.
+ *
+ * @name: Name of subnode, typically a section. This must be in the top-level
+ *	binman node
+ * @return 0 if OK, -EINVAL if there is no /binman node, -ECHILD if multiple
+ *	images are being used but the first image is not available, -ENOENT if
+ *	the requested subnode cannot be found
+ */
+int binman_select_subnode(const char *name);
+
+/**
  * binman_init() - Set up the binman symbol information
  *
  * This locates the binary symbol information in the device tree ready for use

@@ -17,8 +17,6 @@
 #define CONFIG_TEGRA_ENABLE_UARTD
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_VENTANA
-
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 
 #include "tegra-common-post.h"

@@ -300,7 +300,7 @@ static int jr2_pinctrl_probe(struct udevice *dev)
 		return ret;
 
 	ret = device_bind(dev, &jr2_gpio_driver, "jr2-gpio", NULL,
-			  dev_of_offset(dev), NULL);
+			  dev_ofnode(dev), NULL);
 
 	if (ret)
 		return ret;
@@ -318,6 +318,6 @@ U_BOOT_DRIVER(jr2_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(jr2_pinctrl_of_match),
 	.probe = jr2_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct mscc_pinctrl),
+	.priv_auto	= sizeof(struct mscc_pinctrl),
 	.ops = &mscc_pinctrl_ops,
 };

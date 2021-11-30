@@ -10,8 +10,8 @@
 
 /include/ "skeleton.dtsi"
 /include/ "rtc.dtsi"
-/include/ "tsc_timer.dtsi"
 
+#include "tsc_timer.dtsi"
 #include "smbios.dtsi"
 
 / {
@@ -88,11 +88,18 @@
 	emmc: mmc@ff3fc000 {
 		compatible = "intel,sdhci-tangier";
 		reg = <0xff3fc000 0x1000>;
+		non-removable;
 	};
 
 	sdcard: mmc@ff3fa000 {
 		compatible = "intel,sdhci-tangier";
 		reg = <0xff3fa000 0x1000>;
+		/*
+		 * In the disconnected state of the SD Card Detection pin
+		 * the read value is always the same and inverted to what
+		 * we are expecting in the code.
+		 */
+		cd-inverted;
 	};
 
 	pmu: power@ff00b000 {
@@ -129,6 +136,17 @@
 	pinctrl {
 		compatible = "intel,pinctrl-tangier";
 		reg = <0xff0c0000 0x8000>;
+
+		/*
+		 * Disconnect SD card detection pin, so it won't affect
+		 * the reality on two different PCB designs where it's
+		 * using the opposite signaling: Edison/Arduino uses
+		 * Active Low, while SparkFun went with Active High.
+		 */
+		sd_cd@0 {
+			pad-offset = <37>;
+			mode-func = <3>;
+		};
 
 		/*
 		 * Initial configuration came from the firmware.

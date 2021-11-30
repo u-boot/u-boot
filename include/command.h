@@ -55,8 +55,8 @@ struct cmd_tbl {
 };
 
 #if defined(CONFIG_CMD_RUN)
-extern int do_run(struct cmd_tbl *cmdtp, int flag, int argc,
-		  char *const argv[]);
+int do_run(struct cmd_tbl *cmdtp, int flag, int argc,
+	   char *const argv[]);
 #endif
 
 /* common/command.c */
@@ -69,7 +69,7 @@ int complete_subcmdv(struct cmd_tbl *cmdtp, int count, int argc,
 		     char *const argv[], char last_char, int maxv,
 		     char *cmdv[]);
 
-extern int cmd_usage(const struct cmd_tbl *cmdtp);
+int cmd_usage(const struct cmd_tbl *cmdtp);
 
 /* Dummy ->cmd and ->cmd_rep wrappers. */
 int cmd_always_repeatable(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -85,10 +85,10 @@ static inline bool cmd_is_repeatable(struct cmd_tbl *cmdtp)
 }
 
 #ifdef CONFIG_AUTO_COMPLETE
-extern int var_complete(int argc, char *const argv[], char last_char, int maxv,
-			char *cmdv[]);
-extern int cmd_auto_complete(const char *const prompt, char *buf, int *np,
-			     int *colp);
+int var_complete(int argc, char *const argv[], char last_char, int maxv,
+		 char *cmdv[]);
+int cmd_auto_complete(const char *const prompt, char *buf, int *np,
+		      int *colp);
 #endif
 
 /**
@@ -117,17 +117,41 @@ int cmd_process_error(struct cmd_tbl *cmdtp, int err);
 	defined(CONFIG_CMD_PCI) || \
 	defined(CONFIG_CMD_SETEXPR)
 #define CMD_DATA_SIZE
-extern int cmd_get_data_size(char* arg, int default_size);
+#define CMD_DATA_SIZE_ERR	(-1)
+#define CMD_DATA_SIZE_STR	(-2)
+
+/**
+ * cmd_get_data_size() - Get the data-size specifier from a command
+ *
+ * This reads a '.x' size specifier appended to a command. For example 'md.b'
+ * is the 'md' command with a '.b' specifier, meaning that the command should
+ * use bytes.
+ *
+ * Valid characters are:
+ *
+ *	b - byte
+ *	w - word (16 bits)
+ *	l - long (32 bits)
+ *	q - quad (64 bits)
+ *	s - string
+ *
+ * @arg: Pointers to the command to check. If a valid specifier is present it
+ *	will be the last character of the string, following a '.'
+ * @default_size: Default size to return if there is no specifier
+ * @return data size in bytes (1, 2, 4, 8) or CMD_DATA_SIZE_ERR for an invalid
+ *	character, or CMD_DATA_SIZE_STR for a string
+ */
+int cmd_get_data_size(char *arg, int default_size);
 #endif
 
 #ifdef CONFIG_CMD_BOOTD
-extern int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[]);
+int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
 #endif
 #ifdef CONFIG_CMD_BOOTM
-extern int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[]);
-extern int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd);
+int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
+int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd);
 #else
 static inline int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd)
 {
@@ -135,29 +159,49 @@ static inline int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd)
 }
 #endif
 
-extern int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc,
+int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
+
+int do_booti(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
+
+int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[], int *repeatable);
+
+int common_diskboot(struct cmd_tbl *cmdtp, const char *intf, int argc,
 		    char *const argv[]);
 
-extern int do_booti(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[]);
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc,
+	     char *const argv[]);
+int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc,
+		char *const argv[]);
 
-extern int common_diskboot(struct cmd_tbl *cmdtp, const char *intf, int argc,
-			   char *const argv[]);
-
-extern int do_reset(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[]);
-extern int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[]);
-
-extern unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
-				char *const argv[]);
+unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
+			 char *const argv[]);
 
 #if defined(CONFIG_CMD_NVEDIT_EFI)
-extern int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
-			    char *const argv[]);
-extern int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
-			  char *const argv[]);
+int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[]);
+int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[]);
 #endif
+
+/**
+ * setexpr_regex_sub() - Replace a regex pattern with a string
+ *
+ * @data: Buffer containing the string to update
+ * @data_size: Size of buffer (must be large enough for the new string)
+ * @nbuf: Back-reference buffer
+ * @nbuf_size: Size of back-reference buffer (must be larger enough for @s plus
+ *	all back-reference expansions)
+ * @r: Regular expression to find
+ * @s: String to replace with
+ * @global: true to replace all matches in @data, false to replace just the
+ *	first
+ * @return 0 if OK, 1 on error
+ */
+int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
+		      const char *r, const char *s, bool global);
 
 /*
  * Error codes that commands return to cmd_process(). We use the standard 0
@@ -345,6 +389,14 @@ int run_command_list(const char *cmd, int len, int flag);
 		return 0;						\
 	}
 
+#define _CMD_REMOVE_REP(_name, _cmd)					\
+	int __remove_ ## _name(void)					\
+	{								\
+		if (0)							\
+			_cmd(NULL, 0, 0, NULL, NULL);			\
+		return 0;						\
+	}
+
 #define U_BOOT_CMDREP_MKENT_COMPLETE(_name, _maxargs, _cmd_rep,		\
 				     _usage, _help, _comp)		\
 		{ #_name, _maxargs, 0 ? _cmd_rep : NULL, NULL, _usage,	\
@@ -361,7 +413,7 @@ int run_command_list(const char *cmd, int len, int flag);
 
 #define U_BOOT_CMDREP_COMPLETE(_name, _maxargs, _cmd_rep, _usage,	\
 			       _help, _comp)				\
-	_CMD_REMOVE(sub_ ## _name, _cmd_rep)
+	_CMD_REMOVE_REP(sub_ ## _name, _cmd_rep)
 
 #endif /* CONFIG_CMDLINE */
 

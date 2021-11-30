@@ -14,31 +14,13 @@
 #include <asm/arch/cpu.h>
 
 /*
- * Define work_92105 machine type by hand -- done only for compatibility
- * with original board code
- */
-#define CONFIG_MACH_TYPE		736
-
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
-
-/*
  * Memory configurations
  */
-#define CONFIG_SYS_MALLOC_LEN		SZ_1M
 #define CONFIG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
 #define CONFIG_SYS_SDRAM_SIZE		SZ_128M
 
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_32K)
-
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_512K \
 					 - GENERATED_GBL_DATA_SIZE)
-
-/*
- * Serial Driver
- */
-#define CONFIG_SYS_LPC32XX_UART		5   /* UART5 - NS16550 */
 
 /*
  * Ethernet Driver
@@ -47,25 +29,6 @@
 #define CONFIG_LPC32XX_ETH
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 /* FIXME: remove "Waiting for PHY auto negotiation to complete..." message */
-
-/*
- * I2C driver
- */
-
-#define CONFIG_SYS_I2C_LPC32XX
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_SPEED 350000
-
-/*
- * I2C EEPROM
- */
-
-#define CONFIG_SYS_I2C_EEPROM_ADDR 0x56
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
-
-/*
- * I2C RTC
- */
 
 #define CONFIG_RTC_DS1374
 
@@ -96,7 +59,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 #define CONFIG_SYS_MAX_NAND_CHIPS 1
 #define CONFIG_SYS_NAND_BASE MLC_NAND_BASE
-#define CONFIG_NAND_LPC32XX_MLC
 
 /*
  * GPIO
@@ -111,12 +73,8 @@
 /*
  * Boot Linux
  */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
 
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_LOADADDR			0x80008000
 
 /*
  * SPL
@@ -128,7 +86,6 @@
 /* Use the framework and generic lib */
 /* SPL will use serial */
 /* SPL will load U-Boot from NAND offset 0x40000 */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS  0x00040000
 #define CONFIG_SPL_PAD_TO 0x20000
 /* U-Boot will be 0x40000 bytes, loaded and run at CONFIG_SYS_TEXT_BASE */
 #define CONFIG_SYS_MONITOR_LEN 0x40000 /* actually, MAX size */

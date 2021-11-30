@@ -20,6 +20,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/mach-imx/dma.h>
 #include <asm/io.h>
 
@@ -53,7 +54,7 @@ __weak void mxsfb_system_setup(void)
  * Freescale mx23evk/mx28evk with a Seiko 4.3'' WVGA panel:
  * setenv videomode
  * video=ctfb:x:800,y:480,depth:24,mode:0,pclk:29851,
- * 	 le:89,ri:164,up:23,lo:10,hs:10,vs:10,sync:0,vmode:0
+ *	 le:89,ri:164,up:23,lo:10,hs:10,vs:10,sync:0,vmode:0
  */
 
 static void mxs_lcd_init(struct udevice *dev, u32 fb_addr,
@@ -66,25 +67,47 @@ static void mxs_lcd_init(struct udevice *dev, u32 fb_addr,
 	uint32_t vdctrl0;
 
 #if CONFIG_IS_ENABLED(CLK)
-	struct clk per_clk;
+	struct clk clk;
 	int ret;
 
-	ret = clk_get_by_name(dev, "per", &per_clk);
+	ret = clk_get_by_name(dev, "pix", &clk);
 	if (ret) {
-		dev_err(dev, "Failed to get mxs clk: %d\n", ret);
+		dev_err(dev, "Failed to get mxs pix clk: %d\n", ret);
 		return;
 	}
 
-	ret = clk_set_rate(&per_clk, timings->pixelclock.typ);
+	ret = clk_set_rate(&clk, timings->pixelclock.typ);
 	if (ret < 0) {
-		dev_err(dev, "Failed to set mxs clk: %d\n", ret);
+		dev_err(dev, "Failed to set mxs pix clk: %d\n", ret);
 		return;
 	}
 
-	ret = clk_enable(&per_clk);
+	ret = clk_enable(&clk);
 	if (ret < 0) {
-		dev_err(dev, "Failed to enable mxs clk: %d\n", ret);
+		dev_err(dev, "Failed to enable mxs pix clk: %d\n", ret);
 		return;
+	}
+
+	ret = clk_get_by_name(dev, "axi", &clk);
+	if (!ret) {
+		debug("%s: Failed to get mxs axi clk: %d\n", __func__, ret);
+	} else {
+		ret = clk_enable(&clk);
+		if (ret < 0) {
+			dev_err(dev, "Failed to enable mxs axi clk: %d\n", ret);
+			return;
+		}
+	}
+
+	ret = clk_get_by_name(dev, "disp_axi", &clk);
+	if (!ret) {
+		debug("%s: Failed to get mxs disp_axi clk: %d\n", __func__, ret);
+	} else {
+		ret = clk_enable(&clk);
+		if (ret < 0) {
+			dev_err(dev, "Failed to enable mxs disp_axi clk: %d\n", ret);
+			return;
+		}
 	}
 #else
 	/* Kick in the LCDIF clock */
@@ -356,7 +379,7 @@ static int mxs_of_get_timings(struct udevice *dev,
 
 static int mxs_video_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	struct display_timing timings;
@@ -409,7 +432,7 @@ static int mxs_video_probe(struct udevice *dev)
 
 static int mxs_video_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct display_timing timings;
 	u32 bpp = 0;
 	u32 bytes_pp = 0;
@@ -443,7 +466,7 @@ static int mxs_video_bind(struct udevice *dev)
 
 static int mxs_video_remove(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	mxs_remove_common(plat->base);
 

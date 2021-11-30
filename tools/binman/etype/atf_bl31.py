@@ -2,13 +2,13 @@
 # Copyright 2020 Google LLC
 # Written by Simon Glass <sjg@chromium.org>
 #
-# Entry-type module for Intel Management Engine binary blob
+# Entry-type module for ARM Trusted Firmware binary blob
 #
 
 from binman.etype.blob_named_by_arg import Entry_blob_named_by_arg
 
 class Entry_atf_bl31(Entry_blob_named_by_arg):
-    """Entry containing an ARM Trusted Firmware (ATF) BL31 blob
+    """ARM Trusted Firmware (ATF) BL31 blob
 
     Properties / Entry arguments:
         - atf-bl31-path: Filename of file to read into entry. This is typically

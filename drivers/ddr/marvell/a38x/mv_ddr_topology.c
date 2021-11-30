@@ -127,6 +127,11 @@ int mv_ddr_topology_map_update(void)
 		speed_bin_index = iface_params->speed_bin_index;
 		freq = iface_params->memory_freq;
 
+		if (tm->twin_die_combined == COMBINED) {
+			iface_params->bus_width = MV_DDR_DEV_WIDTH_8BIT;
+			iface_params->memory_size -= 1;
+		}
+
 		if (iface_params->cas_l == 0)
 			iface_params->cas_l = mv_ddr_cl_val_get(speed_bin_index, freq);
 
@@ -144,6 +149,9 @@ unsigned short mv_ddr_bus_bit_mask_get(void)
 	unsigned int octets_per_if_num = ddr3_tip_dev_attr_get(0, MV_ATTR_OCTET_PER_INTERFACE);
 
 	if (tm->cfg_src == MV_DDR_CFG_SPD) {
+		if (tm->bus_act_mask == MV_DDR_32BIT_ECC_PUP8_BUS_MASK)
+			tm->spd_data.byte_fields.byte_13.bit_fields.primary_bus_width = MV_DDR_PRI_BUS_WIDTH_32;
+
 		enum mv_ddr_pri_bus_width pri_bus_width = mv_ddr_spd_pri_bus_width_get(&tm->spd_data);
 		enum mv_ddr_bus_width_ext bus_width_ext = mv_ddr_spd_bus_width_ext_get(&tm->spd_data);
 
@@ -151,7 +159,7 @@ unsigned short mv_ddr_bus_bit_mask_get(void)
 		case MV_DDR_PRI_BUS_WIDTH_16:
 			pri_and_ext_bus_width = BUS_MASK_16BIT;
 			break;
-		case MV_DDR_PRI_BUS_WIDTH_32:
+		case MV_DDR_PRI_BUS_WIDTH_32: /*each bit represents byte, so 0xf-is means 4 bytes-32 bit*/
 			pri_and_ext_bus_width = BUS_MASK_32BIT;
 			break;
 		case MV_DDR_PRI_BUS_WIDTH_64:
@@ -245,7 +253,8 @@ static unsigned int mem_size[] = {
 	ADDR_SIZE_1GB,
 	ADDR_SIZE_2GB,
 	ADDR_SIZE_4GB,
-	ADDR_SIZE_8GB
+	ADDR_SIZE_8GB,
+	ADDR_SIZE_16GB
 	/* TODO: add capacity up to 256GB */
 };
 
@@ -277,7 +286,6 @@ unsigned long long mv_ddr_mem_sz_per_cs_get(void)
 	mem_sz_per_cs = (unsigned long long)mem_size[iface_params->memory_size] *
 			(unsigned long long)sphys /
 			(unsigned long long)sphys_per_dunit;
-
 	return mem_sz_per_cs;
 }
 

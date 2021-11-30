@@ -264,6 +264,7 @@ int axp_get_sid(unsigned int *sid)
 	return 0;
 }
 
+#if !IS_ENABLED(CONFIG_SYSRESET_CMD_POWEROFF)
 int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	pmic_bus_write(AXP221_SHUTDOWN, AXP221_SHUTDOWN_POWEROFF);
@@ -274,3 +275,4 @@ int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	/* not reached */
 	return 0;
 }
+#endif

@@ -10,6 +10,7 @@
 #include <console.h>
 #include <env_internal.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <asm/spl.h>
 #include <malloc.h>
 #include <ns16550.h>
@@ -34,11 +35,6 @@ unsigned long get_board_sys_clk(void)
 	return CONFIG_SYS_CLK_FREQ;
 }
 
-unsigned long get_board_ddr_clk(void)
-{
-	return CONFIG_DDR_CLK_FREQ;
-}
-
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio, sys_clk, ccb_clk;
@@ -60,7 +56,7 @@ void board_init_f(ulong bootflag)
 	plat_ratio = (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
 	ccb_clk = sys_clk * plat_ratio / 2;
 
-	NS16550_init((NS16550_t)CONFIG_SYS_NS16550_COM1,
+	ns16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM1,
 		     ccb_clk / 16 / CONFIG_BAUDRATE);
 
 	puts("\nSD boot...\n");

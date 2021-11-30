@@ -678,9 +678,9 @@ static int k3_r5f_of_to_priv(struct k3_r5f_core *core)
 
 	dev_dbg(core->dev, "%s\n", __func__);
 
-	core->atcm_enable = dev_read_u32_default(core->dev, "atcm-enable", 0);
-	core->btcm_enable = dev_read_u32_default(core->dev, "btcm-enable", 1);
-	core->loczrama = dev_read_u32_default(core->dev, "loczrama", 1);
+	core->atcm_enable = dev_read_u32_default(core->dev, "ti,atcm-enable", 0);
+	core->btcm_enable = dev_read_u32_default(core->dev, "ti,btcm-enable", 1);
+	core->loczrama = dev_read_u32_default(core->dev, "ti,loczrama", 1);
 
 	ret = ti_sci_proc_of_to_priv(core->dev, &core->tsp);
 	if (ret)
@@ -804,19 +804,27 @@ static int k3_r5f_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = core->tsp.sci->ops.dev_ops.is_on(core->tsp.sci, core->tsp.dev_id,
-					       &r_state, &core->in_use);
-	if (ret)
-		return ret;
+	/*
+	 * The PM functionality is not supported by the firmware during
+	 * SPL execution with the separated DM firmware image. The following
+	 * piece of code is not compiled in that case.
+	 */
+	if (!IS_ENABLED(CONFIG_K3_DM_FW)) {
+		ret = core->tsp.sci->ops.dev_ops.is_on(core->tsp.sci,
+						       core->tsp.dev_id,
+						       &r_state, &core->in_use);
+		if (ret)
+			return ret;
 
-	if (core->in_use) {
-		dev_info(dev, "Core %d is already in use. No rproc commands work\n",
-			 core->tsp.proc_id);
-		return 0;
+		if (core->in_use) {
+			dev_info(dev, "Core %d is already in use. No rproc commands work\n",
+				 core->tsp.proc_id);
+			return 0;
+		}
+
+		/* Make sure Local reset is asserted. Redundant? */
+		reset_assert(&core->reset);
 	}
-
-	/* Make sure Local reset is asserted. Redundant? */
-	reset_assert(&core->reset);
 
 	ret = k3_r5f_rproc_configure(core);
 	if (ret) {
@@ -866,7 +874,7 @@ U_BOOT_DRIVER(k3_r5f_rproc) = {
 	.ops = &k3_r5f_rproc_ops,
 	.probe = k3_r5f_probe,
 	.remove = k3_r5f_remove,
-	.priv_auto_alloc_size = sizeof(struct k3_r5f_core),
+	.priv_auto	= sizeof(struct k3_r5f_core),
 };
 
 static int k3_r5f_cluster_probe(struct udevice *dev)
@@ -875,7 +883,7 @@ static int k3_r5f_cluster_probe(struct udevice *dev)
 
 	dev_dbg(dev, "%s\n", __func__);
 
-	cluster->mode = dev_read_u32_default(dev, "lockstep-mode",
+	cluster->mode = dev_read_u32_default(dev, "ti,cluster-mode",
 					     CLUSTER_MODE_LOCKSTEP);
 
 	if (device_get_child_count(dev) != 2) {
@@ -901,6 +909,6 @@ U_BOOT_DRIVER(k3_r5fss) = {
 	.of_match = k3_r5fss_ids,
 	.id = UCLASS_MISC,
 	.probe = k3_r5f_cluster_probe,
-	.priv_auto_alloc_size = sizeof(struct k3_r5f_cluster),
+	.priv_auto	= sizeof(struct k3_r5f_cluster),
 	.flags = DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };

@@ -23,7 +23,6 @@
 	};
 
 	clocks {
-		u-boot,dm-spl;
 		ckil {
 			compatible = "fsl,imx-ckil", "fixed-clock";
 			#clock-cells = <0>;
@@ -36,8 +35,7 @@
 			clock-frequency = <0>;
 		};
 
-		osc {
-			u-boot,dm-spl;
+		osc: osc {
 			compatible = "fsl,imx-osc", "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <24000000>;
@@ -45,10 +43,7 @@
 	};
 
 	soc {
-		u-boot,dm-spl;
-
 		semc: semc@402f0000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-semc";
 			reg = <0x402f0000 0x4000>;
 			clocks = <&clks IMXRT1020_CLK_SEMC>;
@@ -73,7 +68,6 @@
 		};
 
 		clks: ccm@400fc000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt1020-ccm";
 			reg = <0x400fc000 0x4000>;
 			interrupts = <GIC_SPI 95 IRQ_TYPE_LEVEL_HIGH>,
@@ -82,7 +76,6 @@
 		};
 
 		usdhc1: usdhc@402c0000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-usdhc";
 			reg = <0x402c0000 0x10000>;
 			interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>;
@@ -95,7 +88,6 @@
 		};
 
 		gpio1: gpio@401b8000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
 			reg = <0x401b8000 0x4000>;
 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>,
@@ -107,7 +99,6 @@
 		};
 
 		gpio2: gpio@401bc000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
 			reg = <0x401bc000 0x4000>;
 			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>,
@@ -119,7 +110,6 @@
 		};
 
 		gpio3: gpio@401c0000 {
-			u-boot,dm-spl;
 			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
 			reg = <0x401c0000 0x4000>;
 			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_HIGH>,
@@ -128,6 +118,25 @@
 			#gpio-cells = <2>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
+		};
+
+		gpio5: gpio@400c0000 {
+			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
+			reg = <0x400c0000 0x4000>;
+			interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpt1: gpt1@401ec000 {
+			compatible = "fsl,imxrt-gpt";
+			reg = <0x401ec000 0x4000>;
+			interrupts = <100>;
+			clocks = <&osc>;
+			status = "disabled";
 		};
 	};
 };

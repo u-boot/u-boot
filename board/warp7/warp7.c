@@ -10,6 +10,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx7-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -133,7 +134,7 @@ int checkboard(void)
 int board_late_init(void)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
-#ifdef CONFIG_SERIAL_TAG
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	struct tag_serialnr serialnr;
 	char serial_string[0x20];
 #endif
@@ -155,7 +156,7 @@ int board_late_init(void)
 	env_set_ulong(HAB_ENABLED_ENVNAME, 0);
 #endif
 
-#ifdef CONFIG_SERIAL_TAG
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	/* Set serial# standard environment variable based on OTP settings */
 	get_board_serial(&serialnr);
 	snprintf(serial_string, sizeof(serial_string), "WaRP7-0x%08x%08x",

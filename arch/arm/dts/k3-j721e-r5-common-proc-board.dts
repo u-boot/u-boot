@@ -6,15 +6,13 @@
 /dts-v1/;
 
 #include "k3-j721e-som-p0.dtsi"
-#include "k3-j721e-ddr-evm-lp4-3733.dtsi"
+#include "k3-j721e-ddr-evm-lp4-4266.dtsi"
 #include "k3-j721e-ddr.dtsi"
 
 / {
 	aliases {
 		remoteproc0 = &sysctrler;
 		remoteproc1 = &a72_0;
-		remoteproc2 = &main_r5fss0_core0;
-		remoteproc3 = &main_r5fss0_core1;
 	};
 
 	chosen {
@@ -28,6 +26,7 @@
 		power-domains = <&k3_pds 61 TI_SCI_PD_EXCLUSIVE>,
 				<&k3_pds 202 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 202 0>;
+		clocks = <&k3_clks 61 1>;
 		assigned-clocks = <&k3_clks 202 2>, <&k3_clks 61 1>;
 		assigned-clock-rates = <2000000000>, <200000000>;
 		ti,sci = <&dmsc>;
@@ -74,6 +73,16 @@
 		reg = <0x0 0x42040000 0x0 0x330>;
 		power-domains = <&k3_pds 154 TI_SCI_PD_EXCLUSIVE>;
 		#thermal-sensor-cells = <1>;
+	};
+
+	dm_tifs: dm-tifs {
+		compatible = "ti,j721e-dm-sci";
+		ti,host-id = <3>;
+		ti,secure-host;
+		mbox-names = "rx", "tx";
+		mboxes= <&mcu_secproxy 21>,
+			<&mcu_secproxy 23>;
+		u-boot,dm-spl;
 	};
 };
 
@@ -271,7 +280,7 @@
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
 	clocks = <&clk_19_2mhz>;
-	clock-names = "usb2_refclk";
+	clock-names = "ref";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_usbss0_pins_default>;
 	ti,vbus-divider;
@@ -345,4 +354,10 @@
 	};
 };
 
-#include "k3-j721e-common-proc-board-u-boot.dtsi"
+&mcu_ringacc {
+	ti,sci = <&dm_tifs>;
+};
+
+&mcu_udmap {
+	ti,sci = <&dm_tifs>;
+};

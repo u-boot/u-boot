@@ -16,6 +16,7 @@
 #include <asm/fsp/fsp_support.h>
 #include <asm/fsp2/fsp_api.h>
 #include <asm/fsp2/fsp_internal.h>
+#include <asm/global_data.h>
 #include <linux/sizes.h>
 
 int dram_init(void)

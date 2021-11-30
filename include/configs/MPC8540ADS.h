@@ -26,7 +26,6 @@
 #define CONFIG_HAS_FEC		1	/* 8540 has FEC */
 #endif
 
-#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
 /*
@@ -62,7 +61,6 @@
 
 /* DDR Setup */
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
-#define CONFIG_DDR_SPD
 
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
@@ -190,7 +188,6 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)    /* Reserve 256 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN		(128 * 1024)    /* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
@@ -206,11 +203,6 @@
 /*
  * I2C
  */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	400000
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 
 /* RapidIO MMU */
@@ -241,7 +233,6 @@
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
 
 #endif	/* CONFIG_PCI */
 
@@ -288,7 +279,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*
  * For booting Linux, the board info and command line data
@@ -297,10 +287,6 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial Memory map for Linux*/
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#endif
 
 /*
  * Environment Configuration
@@ -323,8 +309,6 @@
 #define CONFIG_GATEWAYIP 192.168.1.1
 #define CONFIG_NETMASK   255.255.255.0
 
-#define CONFIG_LOADADDR  200000	/* default location for tftp and bootm */
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
    "netdev=eth0\0"                                                      \
    "consoledev=ttyS0\0"                                                 \
@@ -333,7 +317,7 @@
    "fdtaddr=400000\0"							\
    "fdtfile=your.fdt.dtb\0"
 
-#define CONFIG_NFSBOOTCOMMAND	                                        \
+#define NFSBOOTCOMMAND	                                        \
    "setenv bootargs root=/dev/nfs rw "                                  \
       "nfsroot=$serverip:$rootpath "                                    \
       "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
@@ -342,7 +326,7 @@
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr - $fdtaddr"
 
-#define CONFIG_RAMBOOTCOMMAND \
+#define RAMBOOTCOMMAND \
    "setenv bootargs root=/dev/ram rw "                                  \
       "console=$consoledev,$baudrate $othbootargs;"                     \
    "tftp $ramdiskaddr $ramdiskfile;"                                    \
@@ -350,6 +334,6 @@
    "tftp $fdtaddr $fdtfile;"						\
    "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
-#define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
+#define CONFIG_BOOTCOMMAND  NFSBOOTCOMMAND
 
 #endif	/* __CONFIG_H */

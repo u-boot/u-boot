@@ -201,7 +201,7 @@ static int execute(void)
 
 EFI_UNIT_TEST(virtaddrmap) = {
 	.name = "virtual address map",
-	.phase = EFI_SETUP_BEFORE_BOOTTIME_EXIT,
+	.phase = EFI_SETTING_VIRTUAL_ADDRESS_MAP,
 	.setup = setup,
 	.execute = execute,
 };

@@ -3,6 +3,8 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_HWSPINLOCK
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -90,5 +92,5 @@ U_BOOT_DRIVER(hwspinlock_stm32mp1) = {
 	.of_match = stm32mp1_hwspinlock_ids,
 	.ops = &stm32mp1_hwspinlock_ops,
 	.probe = stm32mp1_hwspinlock_probe,
-	.priv_auto_alloc_size = sizeof(struct stm32mp1_hws_priv),
+	.priv_auto	= sizeof(struct stm32mp1_hws_priv),
 };

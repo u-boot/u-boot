@@ -26,10 +26,12 @@
 #include <env.h>
 #include <init.h>
 #include <watchdog.h>
+#include <wdt.h>
 #include <malloc.h>
 #include <twl4030.h>
 #include <i2c.h>
 #include <video_fb.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/setup.h>
 #include <asm/bitops.h>
@@ -39,8 +41,23 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 
-#include "rx51.h"
 #include "tag_omap.h"
+
+/* Needed for ROM SMC call */
+struct emu_hal_params_rx51 {
+	u32 num_params;
+	u32 param1;
+	u32 param2;
+	u32 param3;
+	u32 param4;
+};
+
+#define ONENAND_GPMC_CONFIG1_RX51	0xfb001202
+#define ONENAND_GPMC_CONFIG2_RX51	0x00111100
+#define ONENAND_GPMC_CONFIG3_RX51	0x00020200
+#define ONENAND_GPMC_CONFIG4_RX51	0x11001102
+#define ONENAND_GPMC_CONFIG5_RX51	0x03101616
+#define ONENAND_GPMC_CONFIG6_RX51	0x90060000
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -224,6 +241,7 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_REVISION_TAG
 /*
  * Routine: get_board_revision
  * Description: Return board revision.
@@ -232,6 +250,7 @@ u32 get_board_rev(void)
 {
 	return simple_strtol(hw_build_ptr, NULL, 16);
 }
+#endif
 
 /*
  * Routine: setup_board_tags
@@ -415,6 +434,8 @@ int misc_init_r(void)
 
 	/* initialize twl4030 power managment */
 	twl4030_power_init();
+	twl4030_power_mmc_init(0);
+	twl4030_power_mmc_init(1);
 
 	/* set VSIM to 1.8V */
 	twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VSIM_DEDICATED,
@@ -465,35 +486,24 @@ int misc_init_r(void)
 	return 0;
 }
 
-/*
- * Routine: set_muxconf_regs
- * Description: Setting up the configuration Mux registers specific to the
- *		hardware. Many pins need to be moved from protect to primary
- *		mode.
- */
-void set_muxconf_regs(void)
-{
-	MUX_RX51();
-}
-
 static unsigned long int twl_wd_time; /* last time of watchdog reset */
 static unsigned long int twl_i2c_lock;
 
 /*
- * Routine: hw_watchdog_reset
+ * Routine: rx51_watchdog_reset
  * Description: Reset timeout of twl4030 watchdog.
  */
-void hw_watchdog_reset(void)
+static int rx51_watchdog_reset(struct udevice *dev)
 {
 	u8 timeout = 0;
 
 	/* do not reset watchdog too often - max every 4s */
 	if (get_timer(twl_wd_time) < 4 * CONFIG_SYS_HZ)
-		return;
+		return 0;
 
 	/* localy lock twl4030 i2c bus */
 	if (test_and_set_bit(0, &twl_i2c_lock))
-		return;
+		return 0;
 
 	/* read actual watchdog timeout */
 	twl4030_i2c_read_u8(TWL4030_CHIP_PM_RECEIVER,
@@ -510,7 +520,31 @@ void hw_watchdog_reset(void)
 
 	/* localy unlock twl4030 i2c bus */
 	test_and_clear_bit(0, &twl_i2c_lock);
+
+	return 0;
 }
+
+static int rx51_watchdog_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+{
+	return 0;
+}
+
+static int rx51_watchdog_probe(struct udevice *dev)
+{
+	return 0;
+}
+
+static const struct wdt_ops rx51_watchdog_ops = {
+	.start = rx51_watchdog_start,
+	.reset = rx51_watchdog_reset,
+};
+
+U_BOOT_DRIVER(rx51_watchdog) = {
+	.name = "rx51_watchdog",
+	.id = UCLASS_WDT,
+	.ops = &rx51_watchdog_ops,
+	.probe = rx51_watchdog_probe,
+};
 
 /*
  * TWL4030 keypad handler for cfb_console
@@ -686,31 +720,36 @@ int rx51_kp_getc(struct stdio_dev *sdev)
 	return keybuf[keybuf_head++];
 }
 
-/*
- * Routine: board_mmc_init
- * Description: Initialize mmc devices.
- */
-int board_mmc_init(struct bd_info *bis)
-{
-	omap_mmc_init(0, 0, 0, -1, -1);
-	omap_mmc_init(1, 0, 0, -1, -1);
-	return 0;
-}
+static const struct mmc_config rx51_mmc_cfg = {
+	.host_caps = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS,
+	.f_min = 400000,
+	.f_max = 52000000,
+	.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
+	.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195,
+};
 
-void board_mmc_power_init(void)
-{
-	twl4030_power_mmc_init(0);
-	twl4030_power_mmc_init(1);
-}
+static const struct omap_hsmmc_plat rx51_mmc[] = {
+	{ rx51_mmc_cfg, (struct hsmmc *)OMAP_HSMMC1_BASE },
+	{ rx51_mmc_cfg, (struct hsmmc *)OMAP_HSMMC2_BASE },
+};
 
-static const struct omap_i2c_platdata rx51_i2c[] = {
+U_BOOT_DRVINFOS(rx51_mmc) = {
+	{ "omap_hsmmc", &rx51_mmc[0] },
+	{ "omap_hsmmc", &rx51_mmc[1] },
+};
+
+static const struct omap_i2c_plat rx51_i2c[] = {
 	{ I2C_BASE1, 100000, OMAP_I2C_REV_V1 },
 	{ I2C_BASE2, 100000, OMAP_I2C_REV_V1 },
 	{ I2C_BASE3, 100000, OMAP_I2C_REV_V1 },
 };
 
-U_BOOT_DEVICES(rx51_i2c) = {
+U_BOOT_DRVINFOS(rx51_i2c) = {
 	{ "i2c_omap", &rx51_i2c[0] },
 	{ "i2c_omap", &rx51_i2c[1] },
 	{ "i2c_omap", &rx51_i2c[2] },
+};
+
+U_BOOT_DRVINFOS(rx51_watchdog) = {
+	{ "rx51_watchdog" },
 };

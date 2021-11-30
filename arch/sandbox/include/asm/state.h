@@ -93,6 +93,8 @@ struct sandbox_state {
 	bool ram_buf_read;		/* true if we read the RAM buffer */
 	bool run_unittests;		/* Run unit tests */
 	const char *select_unittests;	/* Unit test to run */
+	bool handle_signals;		/* Handle signals within sandbox */
+	bool autoboot_keyed;		/* Use keyed-autoboot feature */
 
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]

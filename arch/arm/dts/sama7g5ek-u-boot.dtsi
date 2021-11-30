@@ -1,0 +1,65 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * sama7g5ek-u-boot.dts - Device Tree file for SAMA7G5 SoC u-boot properties.
+ *
+ * Copyright (C) 2020 Microchip Technology Inc. and its subsidiaries
+ *
+ * Author: Eugen Hristev <eugen.hristev@microchip.com>
+ * Author: Claudiu Beznea <claudiu.beznea@microchip.com>
+ *
+ */
+
+/ {
+	chosen {
+		u-boot,dm-pre-reloc;
+	};
+
+	ahb {
+		u-boot,dm-pre-reloc;
+
+		apb {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&main_rc {
+	u-boot,dm-pre-reloc;
+};
+
+&main_xtal {
+	u-boot,dm-pre-reloc;
+};
+
+&pioA {
+	u-boot,dm-pre-reloc;
+
+	pinctrl {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&pinctrl_flx3_default {
+	u-boot,dm-pre-reloc;
+};
+
+&pit64b0 {
+	u-boot,dm-pre-reloc;
+};
+
+&pmc {
+	u-boot,dm-pre-reloc;
+};
+
+&slow_rc_osc {
+	u-boot,dm-pre-reloc;
+};
+
+&slow_xtal {
+	u-boot,dm-pre-reloc;
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+};
+

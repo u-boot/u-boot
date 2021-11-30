@@ -182,7 +182,7 @@ int ocelot_pinctrl_probe(struct udevice *dev)
 		return ret;
 
 	ret = device_bind(dev, &ocelot_gpio_driver, "ocelot-gpio", NULL,
-			  dev_of_offset(dev), NULL);
+			  dev_ofnode(dev), NULL);
 
 	return ret;
 }
@@ -197,6 +197,6 @@ U_BOOT_DRIVER(ocelot_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(ocelot_pinctrl_of_match),
 	.probe = ocelot_pinctrl_probe,
-	.priv_auto_alloc_size = sizeof(struct mscc_pinctrl),
+	.priv_auto	= sizeof(struct mscc_pinctrl),
 	.ops = &mscc_pinctrl_ops,
 };

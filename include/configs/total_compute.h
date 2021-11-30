@@ -18,14 +18,10 @@
 
 #define UART0_BASE		0x7ff80000
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (8 << 20))
-
 /* PL011 Serial Configuration */
 #define CONFIG_PL011_CLOCK	7372800
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR	0x90000000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1		0x80000000
@@ -34,9 +30,10 @@
 #define PHYS_SDRAM_1_SIZE	0x80000000 - DRAM_SEC_SIZE
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
 
-#define CONFIG_ARM_PL180_MMCI_BASE		0x001c050000
+#define PHYS_SDRAM_2		0x8080000000
+#define PHYS_SDRAM_2_SIZE	0x180000000
+
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT		127
-#define CONFIG_ARM_PL180_MMCI_CLOCK_FREQ	12000000
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"bootm_size=0x20000000\0"	\

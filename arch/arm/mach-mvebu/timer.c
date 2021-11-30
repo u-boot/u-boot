@@ -14,7 +14,7 @@
 
 #define TIMER_LOAD_VAL			0xffffffff
 
-static int init_done __attribute__((section(".data"))) = 0;
+static int init_done __section(".data") = 0;
 
 /*
  * Timer initialization

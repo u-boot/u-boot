@@ -80,7 +80,7 @@ void icache_invalid(void)
 }
 
 /*
- * data cache only for ColdFire V4 such as MCF547x_8x, MCF5445x
+ * data cache only for ColdFire V4 such as MCF5445x
  * the dcache will be dummy in ColdFire V2 and V3
  */
 void dcache_enable(void)

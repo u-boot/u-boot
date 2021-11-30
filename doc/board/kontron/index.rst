@@ -7,3 +7,5 @@ Kontron
    :maxdepth: 2
 
    sl28
+   sl-mx6ul
+   sl-mx8mm

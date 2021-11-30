@@ -22,6 +22,7 @@
 #include <cpu_func.h>
 #include <efi_loader.h>
 #include <irq_func.h>
+#include <asm/global_data.h>
 #include <asm/proc-armv/ptrace.h>
 #include <asm/ptrace.h>
 #include <asm/u-boot-arm.h>
@@ -52,7 +53,7 @@ int disable_interrupts(void)
 void bad_mode (void)
 {
 	panic ("Resetting CPU ...\n");
-	reset_cpu(0);
+	reset_cpu();
 }
 
 static void show_efi_loaded_images(struct pt_regs *regs)

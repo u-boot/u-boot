@@ -7,6 +7,7 @@
 #include <init.h>
 #include <log.h>
 #include <net.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <netdev.h>
@@ -70,15 +71,6 @@ int dram_init_banksize(void)
 							PHYS_SDRAM_4_SIZE);
 
 	return 0;
-}
-
-int board_eth_init(struct bd_info *bis)
-{
-	int rc = 0;
-#ifdef CONFIG_SMC911X
-	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
-#endif
-	return rc;
 }
 
 #ifdef CONFIG_DISPLAY_BOARDINFO

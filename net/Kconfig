@@ -40,7 +40,6 @@ config NETCONSOLE
 
 config IP_DEFRAG
 	bool "Support IP datagram reassembly"
-	default n
 	help
 	  Selecting this will enable IP datagram reassembly according
 	  to the algorithm in RFC815.
@@ -73,5 +72,30 @@ config TFTP_WINDOWSIZE
 	  RFC7440 defines an optional window size of transmits,
 	  before an ack response is required.
 	  The default TFTP implementation implies a window size of 1.
+
+config TFTP_TSIZE
+	bool "Track TFTP transfers based on file size option"
+	depends on CMD_TFTPBOOT
+	default y if (ARCH_OMAP2PLUS || ARCH_K3)
+	help
+	  By default, TFTP progress bar is increased for each received UDP
+	  frame, which can lead into long time being spent for sending
+	  data over the UART. Enabling this option, TFTP queries the file
+	  size from server, and if supported, limits the progress bar to
+	  50 characters total which fits on single line.
+
+config SERVERIP_FROM_PROXYDHCP
+	bool "Get serverip value from Proxy DHCP response"
+	help
+	  Allows bootfile config to be fetched from Proxy DHCP server
+		while IP is obtained from main DHCP server.
+
+config SERVERIP_FROM_PROXYDHCP_DELAY_MS
+	int "# of additional milliseconds to wait for ProxyDHCP response"
+	default 100
+	help
+	  Amount of additional time to wait for ProxyDHCP response after
+		receiving response from main DHCP server. Has no effect if
+		SERVERIP_FROM_PROXYDHCP is false.
 
 endif   # if NET

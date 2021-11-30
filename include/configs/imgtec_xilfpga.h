@@ -11,7 +11,6 @@
 #define __XILFPGA_CONFIG_H
 
 /* BootROM + MIG is pretty smart. DDR and Cache initialized */
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 /*--------------------------------------------
  * CPU configuration
@@ -29,9 +28,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR		\
 	(CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_SDRAM_SIZE - 0x1000)
 
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_LOAD_ADDR		0x80500000 /* default load address */
 
 /*----------------------------------------------------------------------
  * Commands

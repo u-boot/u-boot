@@ -24,21 +24,16 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR        0x1000  /* 2MB */
 #endif
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
-
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configuration */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC3_BASE_ADDR
-#define CONFIG_SUPPORT_EMMC_BOOT
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 
 /* USB Configs */
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
 
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
 #define CONFIG_DFU_ENV_SETTINGS \
@@ -95,11 +90,11 @@
 			"run base_boot;" \
 		"fi; \0" \
 	"base_boot=run findfdt; run finduuid; run distro_bootcmd\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x13000000\0" \
 	"ramdiskaddr=0x13000000\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \
@@ -135,8 +130,6 @@
 #define CONFIG_BOARD_SIZE_LIMIT		715776
 
 /* Ethernet Configuration */
-#define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"

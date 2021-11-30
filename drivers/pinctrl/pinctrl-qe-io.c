@@ -18,12 +18,12 @@
 #include <linux/ioport.h>
 
 /**
- * struct qe_io_platdata
+ * struct qe_io_plat
  *
  * @base:		Base register address
  * @num_par_io_ports	number of io ports
  */
-struct qe_io_platdata {
+struct qe_io_plat {
 	qepio83xx_t *base;
 	u32 num_io_ports;
 };
@@ -120,9 +120,9 @@ void qe_config_iopin(u8 port, u8 pin, int dir, int open_drain, int assign)
 	qe_cfg_iopin(par_io, port, pin, dir, open_drain, assign);
 }
 #else
-static int qe_io_ofdata_to_platdata(struct udevice *dev)
+static int qe_io_of_to_plat(struct udevice *dev)
 {
-	struct qe_io_platdata *plat = dev->platdata;
+	struct qe_io_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -143,7 +143,7 @@ static int qe_io_ofdata_to_platdata(struct udevice *dev)
  */
 static int par_io_of_config_node(struct udevice *dev, ofnode pio)
 {
-	struct qe_io_platdata *plat = dev->platdata;
+	struct qe_io_plat *plat = dev_get_plat(dev);
 	qepio83xx_t *par_io = plat->base;
 	const unsigned int *pio_map;
 	int pio_map_len;
@@ -245,10 +245,10 @@ U_BOOT_DRIVER(par_io_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(par_io_pinctrl_match),
 	.probe = par_io_pinctrl_probe,
-	.ofdata_to_platdata = qe_io_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct qe_io_platdata),
+	.of_to_plat = qe_io_of_to_plat,
+	.plat_auto	= sizeof(struct qe_io_plat),
 	.ops = &par_io_pinctrl_ops,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_REAL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif
 };

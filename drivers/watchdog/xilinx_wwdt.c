@@ -46,7 +46,7 @@ struct xlnx_wwdt_priv {
 	struct clk clk;
 };
 
-struct xlnx_wwdt_platdata {
+struct xlnx_wwdt_plat {
 	bool enable_once;
 };
 
@@ -152,10 +152,10 @@ static int xlnx_wwdt_expire_now(struct udevice *dev, ulong flags)
 static int xlnx_wwdt_probe(struct udevice *dev)
 {
 	int ret;
-	struct xlnx_wwdt_platdata *platdata = dev_get_platdata(dev);
+	struct xlnx_wwdt_plat *plat = dev_get_plat(dev);
 	struct xlnx_wwdt_priv *wdt = dev_get_priv(dev);
 
-	dev_dbg(dev, "%s: Probing wdt%u\n", __func__, dev->seq);
+	dev_dbg(dev, "%s: Probing wdt%u\n", __func__, dev_seq(dev));
 
 	ret = regmap_init_mem(dev_ofnode(dev), &wdt->regs);
 	if (ret) {
@@ -163,7 +163,7 @@ static int xlnx_wwdt_probe(struct udevice *dev)
 		return ret;
 	}
 
-	wdt->enable_once = platdata->enable_once;
+	wdt->enable_once = plat->enable_once;
 
 	ret = clk_get_by_index(dev, 0, &wdt->clk);
 	if (ret < 0)
@@ -172,13 +172,13 @@ static int xlnx_wwdt_probe(struct udevice *dev)
 	return ret;
 }
 
-static int xlnx_wwdt_ofdata_to_platdata(struct udevice *dev)
+static int xlnx_wwdt_of_to_plat(struct udevice *dev)
 {
-	struct xlnx_wwdt_platdata *platdata = dev_get_platdata(dev);
+	struct xlnx_wwdt_plat *plat = dev_get_plat(dev);
 
-	platdata->enable_once = dev_read_u32_default(dev,
-						     "xlnx,wdt-enable-once", 0);
-	dev_dbg(dev, "wdt-enable-once %d\n", platdata->enable_once);
+	plat->enable_once = dev_read_u32_default(dev, "xlnx,wdt-enable-once",
+						 0);
+	dev_dbg(dev, "wdt-enable-once %d\n", plat->enable_once);
 
 	return 0;
 }
@@ -200,8 +200,8 @@ U_BOOT_DRIVER(xlnx_wwdt) = {
 	.id = UCLASS_WDT,
 	.of_match = xlnx_wwdt_ids,
 	.probe = xlnx_wwdt_probe,
-	.priv_auto_alloc_size = sizeof(struct xlnx_wwdt_priv),
-	.platdata_auto_alloc_size = sizeof(struct xlnx_wwdt_platdata),
-	.ofdata_to_platdata = xlnx_wwdt_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct xlnx_wwdt_priv),
+	.plat_auto	= sizeof(struct xlnx_wwdt_plat),
+	.of_to_plat = xlnx_wwdt_of_to_plat,
 	.ops = &xlnx_wwdt_ops,
 };

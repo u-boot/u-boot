@@ -117,6 +117,10 @@ call_board_init_f_0:
 	mv	sp, a0
 #endif
 
+	/* Configure proprietary settings and customized CSRs of harts */
+call_harts_early_init:
+	jal	harts_early_init
+
 #ifndef CONFIG_XIP
 	/*
 	 * Pick hart to initialize global data and run U-Boot. The other harts
@@ -136,11 +140,6 @@ call_board_init_f_0:
 	 */
 	mv	gp, s0
 	bnez	tp, secondary_hart_loop
-#endif
-
-#ifdef CONFIG_OF_PRIOR_STAGE
-	la	t0, prior_stage_fdt_address
-	SREG	s1, 0(t0)
 #endif
 
 	jal	board_init_f_init_reserve

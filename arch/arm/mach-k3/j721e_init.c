@@ -125,8 +125,8 @@ void k3_mmc_restart_clock(void)
  * but the .bss is cleared between writing and reading this variable, so move
  * it to the .data section.
  */
-u32 bootindex __attribute__((section(".data")));
-static struct rom_extended_boot_data bootdata __section(.data);
+u32 bootindex __section(".data");
+static struct rom_extended_boot_data bootdata __section(".data");
 
 static void store_boot_info_from_rom(void)
 {
@@ -167,7 +167,7 @@ void board_init_f(ulong dummy)
 	 * firmware (SYSFW) image for various purposes and SYSFW depends on us
 	 * to initialize its pin settings.
 	 */
-	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 0, true, &dev);
+	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 0, &dev);
 	if (!ret)
 		pinctrl_select_state(dev, "default");
 
@@ -179,6 +179,18 @@ void board_init_f(ulong dummy)
 	 */
 	k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata),
 			k3_mmc_stop_clock, k3_mmc_restart_clock);
+
+	/*
+	 * Force probe of clk_k3 driver here to ensure basic default clock
+	 * configuration is always done.
+	 */
+	if (IS_ENABLED(CONFIG_SPL_CLK_K3)) {
+		ret = uclass_get_device_by_driver(UCLASS_CLK,
+						  DM_DRIVER_GET(ti_clk),
+						  &dev);
+		if (ret)
+			panic("Failed to initialize clk-k3!\n");
+	}
 
 	/* Prepare console output */
 	preloader_console_init();
@@ -206,7 +218,7 @@ void board_init_f(ulong dummy)
 		do_board_detect();
 
 #if defined(CONFIG_CPU_V7R) && defined(CONFIG_K3_AVS0)
-	ret = uclass_get_device_by_driver(UCLASS_MISC, DM_GET_DRIVER(k3_avs),
+	ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(k3_avs),
 					  &dev);
 	if (ret)
 		printf("AVS init failed: %d\n", ret);
@@ -356,41 +368,5 @@ void release_resources_for_core_shutdown(void)
 			panic("Failed sending core %u shutdown message (%d)\n",
 			      id, ret);
 	}
-}
-#endif
-
-#ifdef CONFIG_SYS_K3_SPL_ATF
-void start_non_linux_remote_cores(void)
-{
-	int size = 0, ret;
-	u32 loadaddr = 0;
-
-	if (!soc_is_j721e())
-		return;
-
-	size = load_firmware("name_mainr5f0_0fw", "addr_mainr5f0_0load",
-			     &loadaddr);
-	if (size <= 0)
-		goto err_load;
-
-	/* assuming remoteproc 2 is aliased for the needed remotecore */
-	ret = rproc_load(2, loadaddr, size);
-	if (ret) {
-		printf("Firmware failed to start on rproc (%d)\n", ret);
-		goto err_load;
-	}
-
-	ret = rproc_start(2);
-	if (ret) {
-		printf("Firmware init failed on rproc (%d)\n", ret);
-		goto err_load;
-	}
-
-	printf("Remoteproc 2 started successfully\n");
-
-	return;
-
-err_load:
-	rproc_reset(2);
 }
 #endif

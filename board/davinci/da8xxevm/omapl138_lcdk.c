@@ -14,6 +14,7 @@
 #include <init.h>
 #include <net.h>
 #include <asm/arch/hardware.h>
+#include <asm/global_data.h>
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/io.h>
 #include <ns16550.h>
@@ -142,20 +143,6 @@ const int lpsc_size = ARRAY_SIZE(lpsc);
 #define CONFIG_DA850_EVM_MAX_CPU_CLK	456000000
 #endif
 
-/*
- * get_board_rev() - setup to pass kernel board revision information
- * Returns:
- * bit[0-3]	Maximum cpu clock rate supported by onboard SoC
- *		0000b - 300 MHz
- *		0001b - 372 MHz
- *		0010b - 408 MHz
- *		0011b - 456 MHz
- */
-u32 get_board_rev(void)
-{
-	return 0;
-}
-
 int board_early_init_f(void)
 {
 	/*
@@ -235,12 +222,6 @@ int board_init(void)
 
 #define CFG_MAC_ADDR_OFFSET	(flash->size - SZ_64K)
 
-static int  get_mac_addr(u8 *addr)
-{
-	/* Need to find a way to get MAC ADDRESS */
-	return 0;
-}
-
 void dsp_lpsc_on(unsigned domain, unsigned int id)
 {
 	dv_reg_p mdstat, mdctl, ptstat, ptcmd;
@@ -303,29 +284,6 @@ int rmii_hw_init(void)
 
 int misc_init_r(void)
 {
-	uint8_t tmp[20], addr[10];
-
-
-	if (env_get("ethaddr") == NULL) {
-		/* Read Ethernet MAC address from EEPROM */
-		if (dvevm_read_mac_address(addr)) {
-			/* Set Ethernet MAC address from EEPROM */
-			davinci_sync_env_enetaddr(addr);
-		} else {
-			get_mac_addr(addr);
-		}
-
-		if (!is_multicast_ethaddr(addr) && !is_zero_ethaddr(addr)) {
-			sprintf((char *)tmp, "%02x:%02x:%02x:%02x:%02x:%02x",
-				addr[0], addr[1], addr[2], addr[3], addr[4],
-				addr[5]);
-
-			env_set("ethaddr", (char *)tmp);
-		} else {
-			printf("Invalid MAC address read.\n");
-		}
-	}
-
 #ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
 	/* Select RMII fucntion through the expander */
 	if (rmii_hw_init())
@@ -356,19 +314,19 @@ int board_mmc_init(struct bd_info *bis)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
-static const struct ns16550_platdata serial_pdata = {
+static const struct ns16550_plat serial_pdata = {
 	.base = DAVINCI_UART2_BASE,
 	.reg_shift = 2,
 	.clock = 228000000,
 	.fcr = UART_FCR_DEFVAL,
 };
 
-U_BOOT_DEVICE(omapl138_uart) = {
+U_BOOT_DRVINFO(omapl138_uart) = {
 	.name = "ns16550_serial",
-	.platdata = &serial_pdata,
+	.plat = &serial_pdata,
 };
 
-static const struct davinci_mmc_plat mmc_platdata = {
+static const struct davinci_mmc_plat mmc_plat = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
 	.cfg = {
 		.f_min = 200000,
@@ -379,9 +337,9 @@ static const struct davinci_mmc_plat mmc_platdata = {
 		.name = "da830-mmc",
 	},
 };
-U_BOOT_DEVICE(omapl138_mmc) = {
+U_BOOT_DRVINFO(omapl138_mmc) = {
 	.name = "ti_da830_mmc",
-	.platdata = &mmc_platdata,
+	.plat = &mmc_plat,
 };
 
 void spl_board_init(void)

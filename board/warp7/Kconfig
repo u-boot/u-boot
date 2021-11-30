@@ -20,4 +20,7 @@ config SYS_FDT_ADDR
 	help
 	  The address the FDT file should be loaded to.
 
+config IMX_CONFIG
+	default "board/warp7/imximage.cfg"
+
 endif

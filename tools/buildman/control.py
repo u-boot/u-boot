@@ -16,6 +16,7 @@ from patman import command
 from patman import gitutil
 from patman import patchstream
 from patman import terminal
+from patman import tools
 from patman.terminal import Print
 
 def GetPlural(count):
@@ -110,7 +111,7 @@ def ShowToolchainPrefix(boards, toolchains):
     return None
 
 def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
-               clean_dir=False):
+               clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
 
     Args:
@@ -124,16 +125,18 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
                 arguments. This setting is useful for tests.
         board: Boards() object to use, containing a list of available
                 boards. If this is None it will be created and scanned.
+        clean_dir: Used for tests only, indicates that the existing output_dir
+            should be removed before starting the build
+        test_thread_exceptions: Uses for tests only, True to make the threads
+            raise an exception instead of reporting their result. This simulates
+            a failure in the code somewhere
     """
     global builder
 
     if options.full_help:
-        pager = os.getenv('PAGER')
-        if not pager:
-            pager = 'more'
-        fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                             'README')
-        command.Run(pager, fname)
+        tools.PrintFullHelp(
+            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README')
+        )
         return 0
 
     gitutil.Setup()
@@ -294,7 +297,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
 
     # By default we have one thread per CPU. But if there are not enough jobs
     # we can have fewer threads and use a high '-j' value for make.
-    if not options.threads:
+    if options.threads is None:
         options.threads = min(multiprocessing.cpu_count(), len(selected))
     if not options.jobs:
         options.jobs = max(1, (multiprocessing.cpu_count() +
@@ -328,7 +331,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             config_only=options.config_only,
             squash_config_y=not options.preserve_config_y,
             warnings_as_errors=options.warnings_as_errors,
-            work_in_output=options.work_in_output)
+            work_in_output=options.work_in_output,
+            test_thread_exceptions=test_thread_exceptions)
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func
@@ -368,9 +372,11 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         if options.summary:
             builder.ShowSummary(commits, board_selected)
         else:
-            fail, warned = builder.BuildBoards(commits, board_selected,
-                                options.keep_outputs, options.verbose)
-            if fail:
+            fail, warned, excs = builder.BuildBoards(
+                commits, board_selected, options.keep_outputs, options.verbose)
+            if excs:
+                return 102
+            elif fail:
                 return 100
             elif warned and not options.ignore_warnings:
                 return 101

@@ -12,6 +12,7 @@
 #include <pwm.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/pwm.h>
 #include <linux/bitops.h>
@@ -121,7 +122,7 @@ static int rk_pwm_set_enable(struct udevice *dev, uint channel, bool enable)
 	return 0;
 }
 
-static int rk_pwm_ofdata_to_platdata(struct udevice *dev)
+static int rk_pwm_of_to_plat(struct udevice *dev)
 {
 	struct rk_pwm_priv *priv = dev_get_priv(dev);
 
@@ -146,7 +147,7 @@ static int rk_pwm_probe(struct udevice *dev)
 	priv->data = (struct rockchip_pwm_data *)dev_get_driver_data(dev);
 
 	if (priv->data->supports_polarity)
-		priv->conf_polarity = PWM_DUTY_POSTIVE | PWM_INACTIVE_POSTIVE;
+		priv->conf_polarity = PWM_DUTY_POSTIVE | PWM_INACTIVE_NEGATIVE;
 
 	return 0;
 }
@@ -213,7 +214,7 @@ U_BOOT_DRIVER(rk_pwm) = {
 	.id	= UCLASS_PWM,
 	.of_match = rk_pwm_ids,
 	.ops	= &rk_pwm_ops,
-	.ofdata_to_platdata	= rk_pwm_ofdata_to_platdata,
+	.of_to_plat	= rk_pwm_of_to_plat,
 	.probe		= rk_pwm_probe,
-	.priv_auto_alloc_size	= sizeof(struct rk_pwm_priv),
+	.priv_auto	= sizeof(struct rk_pwm_priv),
 };

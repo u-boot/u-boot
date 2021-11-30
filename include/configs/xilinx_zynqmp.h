@@ -15,7 +15,6 @@
 /* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
 
 /* Generic Interrupt Controller Definitions */
-#define CONFIG_GICV2
 #define GICD_BASE	0xF9010000
 #define GICC_BASE	0xF9020000
 
@@ -25,9 +24,6 @@
 #if !defined(COUNTER_FREQUENCY)
 # define COUNTER_FREQUENCY		100000000
 #endif
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x2000000)
 
 /* Serial setup */
 #define CONFIG_CPU_ARMV8
@@ -41,7 +37,6 @@
 
 #ifdef CONFIG_NAND_ARASAN
 # define CONFIG_SYS_MAX_NAND_DEVICE	1
-# define CONFIG_SYS_NAND_ONFI_DETECTION
 #endif
 
 #if defined(CONFIG_SPL_BUILD)
@@ -49,10 +44,8 @@
 #endif
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		0x8000000
 
 #if defined(CONFIG_ZYNQMP_USB)
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x1800000
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define CONFIG_THOR_RESET_OFF
 
@@ -258,13 +251,12 @@
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
-# define CONFIG_SPL_ENV_SUPPORT
-# define CONFIG_SPL_HASH_SUPPORT
+# define CONFIG_SPL_HASH
 # define CONFIG_ENV_MAX_ENTRIES	10
 #endif
 
 #define CONFIG_SYS_SPL_MALLOC_START	0x20000000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x1000000
 
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 # error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"

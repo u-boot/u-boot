@@ -232,5 +232,5 @@ U_BOOT_DRIVER(meson_gxbb_usb2_phy) = {
 	.probe = meson_gxbb_usb2_phy_probe,
 	.remove = meson_gxbb_usb2_phy_remove,
 	.ops = &meson_gxbb_usb2_phy_ops,
-	.priv_auto_alloc_size = sizeof(struct phy_meson_gxbb_usb2_priv),
+	.priv_auto	= sizeof(struct phy_meson_gxbb_usb2_priv),
 };

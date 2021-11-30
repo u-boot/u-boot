@@ -55,10 +55,10 @@ int write_sparse_image(struct sparse_storage *info,
 	lbaint_t blk;
 	lbaint_t blkcnt;
 	lbaint_t blks;
-	uint32_t bytes_written = 0;
+	uint64_t bytes_written = 0;
 	unsigned int chunk;
 	unsigned int offset;
-	unsigned int chunk_data_sz;
+	uint64_t chunk_data_sz;
 	uint32_t *fill_buf = NULL;
 	uint32_t fill_val;
 	sparse_header_t *sparse_header;
@@ -132,8 +132,8 @@ int write_sparse_image(struct sparse_storage *info,
 				 sizeof(chunk_header_t));
 		}
 
-		chunk_data_sz = sparse_header->blk_sz * chunk_header->chunk_sz;
-		blkcnt = chunk_data_sz / info->blksz;
+		chunk_data_sz = ((u64)sparse_header->blk_sz) * chunk_header->chunk_sz;
+		blkcnt = DIV_ROUND_UP_ULL(chunk_data_sz, info->blksz);
 		switch (chunk_header->chunk_type) {
 		case CHUNK_TYPE_RAW:
 			if (chunk_header->total_sz !=
@@ -162,7 +162,7 @@ int write_sparse_image(struct sparse_storage *info,
 				return -1;
 			}
 			blk += blks;
-			bytes_written += blkcnt * info->blksz;
+			bytes_written += ((u64)blkcnt) * info->blksz;
 			total_blocks += chunk_header->chunk_sz;
 			data += chunk_data_sz;
 			break;
@@ -222,8 +222,9 @@ int write_sparse_image(struct sparse_storage *info,
 				blk += blks;
 				i += j;
 			}
-			bytes_written += blkcnt * info->blksz;
-			total_blocks += chunk_data_sz / sparse_header->blk_sz;
+			bytes_written += ((u64)blkcnt) * info->blksz;
+			total_blocks += DIV_ROUND_UP_ULL(chunk_data_sz,
+							 sparse_header->blk_sz);
 			free(fill_buf);
 			break;
 
@@ -253,7 +254,7 @@ int write_sparse_image(struct sparse_storage *info,
 
 	debug("Wrote %d blocks, expected to write %d blocks\n",
 	      total_blocks, sparse_header->total_blks);
-	printf("........ wrote %u bytes to '%s'\n", bytes_written, part_name);
+	printf("........ wrote %llu bytes to '%s'\n", bytes_written, part_name);
 
 	if (total_blocks != sparse_header->total_blks) {
 		info->mssg("sparse image write failure", response);

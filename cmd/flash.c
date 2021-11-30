@@ -57,7 +57,7 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
 		return 0;
 	*p++ = '\0';
 
-	bank = simple_strtoul (str, &ep, 10);
+	bank = dectoul(str, &ep);
 	if (ep == str || *ep != '\0' ||
 		bank < 1 || bank > CONFIG_SYS_MAX_FLASH_BANKS ||
 		(fp = &flash_info[bank - 1])->flash_id == FLASH_UNKNOWN)
@@ -67,12 +67,12 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
 	if ((p = strchr (str, '-')) != NULL)
 		*p++ = '\0';
 
-	first = simple_strtoul (str, &ep, 10);
+	first = dectoul(str, &ep);
 	if (ep == str || *ep != '\0' || first >= fp->sector_count)
 		return -1;
 
 	if (p != NULL) {
-		last = simple_strtoul (p, &ep, 10);
+		last = dectoul(p, &ep);
 		if (ep == p || *ep != '\0' ||
 			last < first || last >= fp->sector_count)
 			return -1;
@@ -151,7 +151,7 @@ addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 	char *ep;
 	char len_used; /* indicates if the "start +length" form used */
 
-	*addr_first = simple_strtoul(arg1, &ep, 16);
+	*addr_first = hextoul(arg1, &ep);
 	if (ep == arg1 || *ep != '\0')
 		return -1;
 
@@ -161,7 +161,7 @@ addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 		++arg2;
 	}
 
-	*addr_last = simple_strtoul(arg2, &ep, 16);
+	*addr_last = hextoul(arg2, &ep);
 	if (ep == arg2 || *ep != '\0')
 		return -1;
 
@@ -287,7 +287,7 @@ static int do_flinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 		return 0;
 	}
 
-	bank = simple_strtoul(argv[1], NULL, 16);
+	bank = hextoul(argv[1], NULL);
 	if ((bank < 1) || (bank > CONFIG_SYS_MAX_FLASH_BANKS)) {
 		printf ("Only FLASH Banks # 1 ... # %d supported\n",
 			CONFIG_SYS_MAX_FLASH_BANKS);
@@ -366,7 +366,7 @@ static int do_flerase(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	if (strcmp(argv[1], "bank") == 0) {
-		bank = simple_strtoul(argv[2], NULL, 16);
+		bank = hextoul(argv[2], NULL);
 		if ((bank < 1) || (bank > CONFIG_SYS_MAX_FLASH_BANKS)) {
 			printf ("Only FLASH Banks # 1 ... # %d supported\n",
 				CONFIG_SYS_MAX_FLASH_BANKS);
@@ -547,7 +547,7 @@ static int do_protect(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	if (strcmp(argv[2], "bank") == 0) {
-		bank = simple_strtoul(argv[3], NULL, 16);
+		bank = hextoul(argv[3], NULL);
 		if ((bank < 1) || (bank > CONFIG_SYS_MAX_FLASH_BANKS)) {
 			printf ("Only FLASH Banks # 1 ... # %d supported\n",
 				CONFIG_SYS_MAX_FLASH_BANKS);

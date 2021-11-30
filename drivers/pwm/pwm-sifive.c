@@ -18,6 +18,7 @@
 #include <dm.h>
 #include <pwm.h>
 #include <regmap.h>
+#include <asm/global_data.h>
 #include <linux/io.h>
 #include <linux/log2.h>
 #include <linux/bitfield.h>
@@ -36,6 +37,9 @@
 /* PWM_SIFIVE_SIZE_PWMCMP is used to calculate offset for pwmcmpX registers */
 #define PWM_SIFIVE_SIZE_PWMCMP          4
 #define PWM_SIFIVE_CMPWIDTH             16
+
+#define PWM_SIFIVE_CHANNEL_ENABLE_VAL   0
+#define PWM_SIFIVE_CHANNEL_DISABLE_VAL  0xffff
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -76,7 +80,7 @@ static int pwm_sifive_set_config(struct udevice *dev, uint channel,
 	 */
 	scale_pow = lldiv((uint64_t)priv->freq * period_ns, 1000000000);
 	scale = clamp(ilog2(scale_pow) - PWM_SIFIVE_CMPWIDTH, 0, 0xf);
-	val |= FIELD_PREP(PWM_SIFIVE_PWMCFG_SCALE, scale);
+	val |= (FIELD_PREP(PWM_SIFIVE_PWMCFG_SCALE, scale) | PWM_SIFIVE_PWMCFG_EN_ALWAYS);
 
 	/*
 	 * The problem of output producing mixed setting as mentioned at top,
@@ -87,6 +91,7 @@ static int pwm_sifive_set_config(struct udevice *dev, uint channel,
 	num = (u64)duty_ns * (1U << PWM_SIFIVE_CMPWIDTH);
 	frac = DIV_ROUND_CLOSEST_ULL(num, period_ns);
 	frac = min(frac, (1U << PWM_SIFIVE_CMPWIDTH) - 1);
+	frac = (1U << PWM_SIFIVE_CMPWIDTH) - 1 - frac;
 
 	writel(val, priv->base + regs->cfg);
 	writel(frac, priv->base + regs->cmp0 + channel *
@@ -99,23 +104,20 @@ static int pwm_sifive_set_enable(struct udevice *dev, uint channel, bool enable)
 {
 	struct pwm_sifive_priv *priv = dev_get_priv(dev);
 	const struct pwm_sifive_regs *regs = &priv->data->regs;
-	u32 val;
 
 	debug("%s: Enable '%s'\n", __func__, dev->name);
 
-	if (enable) {
-		val = readl(priv->base + regs->cfg);
-		val |= PWM_SIFIVE_PWMCFG_EN_ALWAYS;
-		writel(val, priv->base + regs->cfg);
-	} else {
-		writel(0, priv->base + regs->cmp0 + channel *
-		       PWM_SIFIVE_SIZE_PWMCMP);
-	}
+	if (enable)
+		writel(PWM_SIFIVE_CHANNEL_ENABLE_VAL, priv->base +
+		       regs->cmp0 + channel * PWM_SIFIVE_SIZE_PWMCMP);
+	else
+		writel(PWM_SIFIVE_CHANNEL_DISABLE_VAL, priv->base +
+		       regs->cmp0 + channel * PWM_SIFIVE_SIZE_PWMCMP);
 
 	return 0;
 }
 
-static int pwm_sifive_ofdata_to_platdata(struct udevice *dev)
+static int pwm_sifive_of_to_plat(struct udevice *dev)
 {
 	struct pwm_sifive_priv *priv = dev_get_priv(dev);
 
@@ -166,7 +168,7 @@ U_BOOT_DRIVER(pwm_sifive) = {
 	.id	= UCLASS_PWM,
 	.of_match = pwm_sifive_ids,
 	.ops	= &pwm_sifive_ops,
-	.ofdata_to_platdata     = pwm_sifive_ofdata_to_platdata,
+	.of_to_plat     = pwm_sifive_of_to_plat,
 	.probe		= pwm_sifive_probe,
-	.priv_auto_alloc_size	= sizeof(struct pwm_sifive_priv),
+	.priv_auto	= sizeof(struct pwm_sifive_priv),
 };

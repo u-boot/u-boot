@@ -1,5 +1,5 @@
 WANDBOARD BOARD
-M:	Fabio Estevam <fabio.estevam@nxp.com>
+M:	Fabio Estevam <festevam@gmail.com>
 S:	Maintained
 F:	arch/arm/dts/imx6qdl-wandboard.dtsi
 F:	arch/arm/dts/imx6qdl-wandboard-revb1.dtsi

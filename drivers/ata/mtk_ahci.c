@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/of_access.h>
@@ -20,6 +21,7 @@
 #include <sata.h>
 #include <scsi.h>
 #include <syscon.h>
+#include <dm/device_compat.h>
 
 #define SYS_CFG			0x14
 #define SYS_CFG_SATA_MSK	GENMASK(31, 30)
@@ -40,7 +42,7 @@ static int mtk_ahci_bind(struct udevice *dev)
 	return ahci_bind_scsi(dev, &scsi_dev);
 }
 
-static int mtk_ahci_ofdata_to_platdata(struct udevice *dev)
+static int mtk_ahci_of_to_plat(struct udevice *dev)
 {
 	struct mtk_ahci_priv *priv = dev_get_priv(dev);
 
@@ -68,7 +70,8 @@ static int mtk_ahci_parse_property(struct ahci_uc_priv *hpriv,
 				   SYS_CFG_SATA_MSK, SYS_CFG_SATA_EN);
 	}
 
-	ofnode_read_u32(dev->node, "ports-implemented", &hpriv->port_map);
+	ofnode_read_u32(dev_ofnode(dev), "ports-implemented",
+			&hpriv->port_map);
 	return 0;
 }
 
@@ -121,8 +124,8 @@ U_BOOT_DRIVER(mtk_ahci) = {
 	.id	= UCLASS_AHCI,
 	.of_match = mtk_ahci_ids,
 	.bind	= mtk_ahci_bind,
-	.ofdata_to_platdata = mtk_ahci_ofdata_to_platdata,
+	.of_to_plat = mtk_ahci_of_to_plat,
 	.ops	= &scsi_ops,
 	.probe	= mtk_ahci_probe,
-	.priv_auto_alloc_size = sizeof(struct mtk_ahci_priv),
+	.priv_auto	= sizeof(struct mtk_ahci_priv),
 };

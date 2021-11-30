@@ -39,7 +39,7 @@ static int bootz_start(struct cmd_tbl *cmdtp, int flag, int argc,
 		debug("*  kernel: default image load address = 0x%08lx\n",
 				image_load_addr);
 	} else {
-		images->ep = simple_strtoul(argv[0], NULL, 16);
+		images->ep = hextoul(argv[0], NULL);
 		debug("*  kernel: cmdline image address = 0x%08lx\n",
 			images->ep);
 	}

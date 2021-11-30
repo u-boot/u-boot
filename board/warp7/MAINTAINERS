@@ -1,5 +1,5 @@
 WARP7 BOARD
-M:	Fabio Estevam <fabio.estevam@nxp.com>
+M:	Fabio Estevam <festevam@gmail.com>
 S:	Maintained
 F:	board/warp7/
 F:	include/configs/warp7.h

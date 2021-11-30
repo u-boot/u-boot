@@ -50,15 +50,6 @@
 	};
 };
 
-&gpiof {
-	snor-nwp {
-		gpio-hog;
-		gpios = <7 0>;
-		output-high;
-		line-name = "spi-nor-nwp";
-	};
-};
-
 &i2c4 {
 	u-boot,dm-pre-reloc;
 };
@@ -72,62 +63,22 @@
 
 &pinctrl {
 	/* These should bound to FMC2 bus driver, but we do not have one */
-	pinctrl-0 = <&fmc_pins_b>;
-	pinctrl-1 = <&fmc_sleep_pins_b>;
+	pinctrl-0 = <&fmc_pins_b &mco2_pins_a>;
+	pinctrl-1 = <&fmc_sleep_pins_b &mco2_sleep_pins_a>;
 	pinctrl-names = "default", "sleep";
 
-	fmc_pins_b: fmc-0 {
-		pins1 {
-			pinmux = <STM32_PINMUX('D', 4, AF12)>, /* FMC_NOE */
-				 <STM32_PINMUX('D', 5, AF12)>, /* FMC_NWE */
-				 <STM32_PINMUX('B', 7, AF12)>, /* FMC_NL */
-				 <STM32_PINMUX('D', 14, AF12)>, /* FMC_D0 */
-				 <STM32_PINMUX('D', 15, AF12)>, /* FMC_D1 */
-				 <STM32_PINMUX('D', 0, AF12)>, /* FMC_D2 */
-				 <STM32_PINMUX('D', 1, AF12)>, /* FMC_D3 */
-				 <STM32_PINMUX('E', 7, AF12)>, /* FMC_D4 */
-				 <STM32_PINMUX('E', 8, AF12)>, /* FMC_D5 */
-				 <STM32_PINMUX('E', 9, AF12)>, /* FMC_D6 */
-				 <STM32_PINMUX('E', 10, AF12)>, /* FMC_D7 */
-				 <STM32_PINMUX('E', 11, AF12)>, /* FMC_D8 */
-				 <STM32_PINMUX('E', 12, AF12)>, /* FMC_D9 */
-				 <STM32_PINMUX('E', 13, AF12)>, /* FMC_D10 */
-				 <STM32_PINMUX('E', 14, AF12)>, /* FMC_D11 */
-				 <STM32_PINMUX('E', 15, AF12)>, /* FMC_D12 */
-				 <STM32_PINMUX('D', 8, AF12)>, /* FMC_D13 */
-				 <STM32_PINMUX('D', 9, AF12)>, /* FMC_D14 */
-				 <STM32_PINMUX('D', 10, AF12)>, /* FMC_D15 */
-				 <STM32_PINMUX('G', 9, AF12)>, /* FMC_NE2_FMC_NCE */
-				 <STM32_PINMUX('G', 12, AF12)>; /* FMC_NE4 */
+	mco2_pins_a: mco2-0 {
+		pins {
+			pinmux = <STM32_PINMUX('G', 2, AF1)>; /* MCO2 */
 			bias-disable;
 			drive-push-pull;
-			slew-rate = <3>;
+			slew-rate = <2>;
 		};
 	};
 
-	fmc_sleep_pins_b: fmc-sleep-0 {
+	mco2_sleep_pins_a: mco2-sleep-0 {
 		pins {
-			pinmux = <STM32_PINMUX('D', 4, ANALOG)>, /* FMC_NOE */
-				 <STM32_PINMUX('D', 5, ANALOG)>, /* FMC_NWE */
-				 <STM32_PINMUX('B', 7, ANALOG)>, /* FMC_NL */
-				 <STM32_PINMUX('D', 14, ANALOG)>, /* FMC_D0 */
-				 <STM32_PINMUX('D', 15, ANALOG)>, /* FMC_D1 */
-				 <STM32_PINMUX('D', 0, ANALOG)>, /* FMC_D2 */
-				 <STM32_PINMUX('D', 1, ANALOG)>, /* FMC_D3 */
-				 <STM32_PINMUX('E', 7, ANALOG)>, /* FMC_D4 */
-				 <STM32_PINMUX('E', 8, ANALOG)>, /* FMC_D5 */
-				 <STM32_PINMUX('E', 9, ANALOG)>, /* FMC_D6 */
-				 <STM32_PINMUX('E', 10, ANALOG)>, /* FMC_D7 */
-				 <STM32_PINMUX('E', 11, ANALOG)>, /* FMC_D8 */
-				 <STM32_PINMUX('E', 12, ANALOG)>, /* FMC_D9 */
-				 <STM32_PINMUX('E', 13, ANALOG)>, /* FMC_D10 */
-				 <STM32_PINMUX('E', 14, ANALOG)>, /* FMC_D11 */
-				 <STM32_PINMUX('E', 15, ANALOG)>, /* FMC_D12 */
-				 <STM32_PINMUX('D', 8, ANALOG)>, /* FMC_D13 */
-				 <STM32_PINMUX('D', 9, ANALOG)>, /* FMC_D14 */
-				 <STM32_PINMUX('D', 10, ANALOG)>, /* FMC_D15 */
-				 <STM32_PINMUX('G', 9, ANALOG)>, /* FMC_NE2_FMC_NCE */
-				 <STM32_PINMUX('G', 12, ANALOG)>; /* FMC_NE4 */
+			pinmux = <STM32_PINMUX('G', 2, ANALOG)>; /* MCO2 */
 		};
 	};
 };
@@ -181,7 +132,7 @@
 		CLK_PLL4_HSE
 		CLK_RTC_LSE
 		CLK_MCO1_DISABLED
-		CLK_MCO2_DISABLED
+		CLK_MCO2_PLL4P
 	>;
 
 	st,clkdiv = <
@@ -195,7 +146,7 @@
 		2 /*APB5*/
 		23 /*RTC*/
 		0 /*MCO1*/
-		0 /*MCO2*/
+		1 /*MCO2*/
 	>;
 
 	st,pkcs = <
@@ -258,7 +209,7 @@
 	pll4: st,pll@3 {
 		compatible = "st,stm32mp1-pll";
 		reg = <3>;
-		cfg = < 1 49 11 11 11 PQR(1,1,1) >;
+		cfg = < 1 49 5 11 11 PQR(1,1,1) >;
 		u-boot,dm-pre-reloc;
 	};
 };

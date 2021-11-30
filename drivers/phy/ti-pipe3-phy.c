@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <dm/device.h>
 #include <generic-phy.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <syscon.h>
@@ -604,5 +605,5 @@ U_BOOT_DRIVER(pipe3_phy) = {
 	.of_match = pipe3_phy_ids,
 	.ops = &pipe3_phy_ops,
 	.probe = pipe3_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct omap_pipe3),
+	.priv_auto	= sizeof(struct omap_pipe3),
 };

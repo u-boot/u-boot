@@ -3,38 +3,14 @@
  * Copyright 2020 Compass Electronics Group, LLC
  */
 
+#include "imx8mm-u-boot.dtsi"
+
 / {
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
 		u-boot,dm-spl;
 	};
-};
-
-&{/soc@0} {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
-};
-
-&aips1 {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-};
-
-&aips2 {
-	u-boot,dm-spl;
-};
-
-&aips3 {
-	u-boot,dm-spl;
-};
-
-&clk {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-parents;
-	/delete-property/ assigned-clock-rates;
 };
 
 &reg_usdhc2_vmmc {
@@ -63,15 +39,6 @@
 
 &gpio5 {
 	u-boot,dm-spl;
-};
-
-&iomuxc {
-	u-boot,dm-spl;
-};
-
-&osc_24m {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
 };
 
 &pca6416_0 {

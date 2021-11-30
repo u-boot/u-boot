@@ -4,10 +4,20 @@
  */
 
 / {
+	binman: binman {
+		multiple-images;
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
 		u-boot,dm-spl;
+	};
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
 	};
 };
 
@@ -19,6 +29,9 @@
 &clk {
 	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ assigned-clock-rates;
 };
 
 &osc_24m {
@@ -109,4 +122,106 @@
 
 &wdog1 {
 	u-boot,dm-spl;
+};
+
+&binman {
+	 u-boot-spl-ddr {
+		filename = "u-boot-spl-ddr.bin";
+		pad-byte = <0xff>;
+		align-size = <4>;
+		align = <4>;
+
+		u-boot-spl {
+			align-end = <4>;
+		};
+
+		blob_1: blob-ext@1 {
+			filename = "ddr4_imem_1d_201810.bin";
+			size = <0x8000>;
+		};
+
+		blob_2: blob-ext@2 {
+			filename = "ddr4_dmem_1d_201810.bin";
+			size = <0x4000>;
+		};
+
+		blob_3: blob-ext@3 {
+			filename = "ddr4_imem_2d_201810.bin";
+			size = <0x8000>;
+		};
+
+		blob_4: blob-ext@4 {
+			filename = "ddr4_dmem_2d_201810.bin";
+			size = <0x4000>;
+		};
+	};
+
+
+	flash {
+		mkimage {
+			args = "-n spl/u-boot-spl.cfgout -T imx8mimage -e 0x912000";
+
+			blob {
+				filename = "u-boot-spl-ddr.bin";
+			};
+		};
+	};
+
+	itb {
+		filename = "u-boot.itb";
+
+		fit {
+			description = "Configuration to load ATF before U-Boot";
+			#address-cells = <1>;
+			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+
+			images {
+				uboot {
+					description = "U-Boot (64-bit)";
+					type = "standalone";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SYS_TEXT_BASE>;
+
+					uboot_blob: blob-ext {
+						filename = "u-boot-nodtb.bin";
+					};
+				};
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					load = <0x960000>;
+					entry = <0x960000>;
+
+					atf_blob: blob-ext {
+						filename = "bl31.bin";
+					};
+				};
+
+				fdt {
+					description = "NAME";
+					type = "flat_dt";
+					compression = "none";
+
+					uboot_fdt_blob: blob-ext {
+						filename = "u-boot.dtb";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf";
+
+				conf {
+					description = "NAME";
+					firmware = "uboot";
+					loadables = "atf";
+					fdt = "fdt";
+				};
+			};
+		};
+	};
 };

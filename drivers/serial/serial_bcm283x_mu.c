@@ -55,7 +55,7 @@ static int bcm283x_mu_serial_getc(struct udevice *dev);
 
 static int bcm283x_mu_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
+	struct bcm283x_mu_serial_plat *plat = dev_get_plat(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	struct bcm283x_mu_regs *regs = priv->regs;
 	u32 divider;
@@ -158,7 +158,7 @@ static bool bcm283x_is_serial_muxed(void)
 
 static int bcm283x_mu_serial_probe(struct udevice *dev)
 {
-	struct bcm283x_mu_serial_platdata *plat = dev_get_platdata(dev);
+	struct bcm283x_mu_serial_plat *plat = dev_get_plat(dev);
 	struct bcm283x_mu_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
@@ -167,7 +167,7 @@ static int bcm283x_mu_serial_probe(struct udevice *dev)
 		return -ENODEV;
 
 	/*
-	 * Read the ofdata here rather than in an ofdata_to_platdata() method
+	 * Read the ofdata here rather than in an of_to_plat() method
 	 * since we need the soc simple-bus to be probed so that the 'ranges'
 	 * property is used.
 	 */
@@ -194,11 +194,11 @@ U_BOOT_DRIVER(serial_bcm283x_mu) = {
 	.name = "serial_bcm283x_mu",
 	.id = UCLASS_SERIAL,
 	.of_match = of_match_ptr(bcm283x_mu_serial_id),
-	.platdata_auto_alloc_size = sizeof(struct bcm283x_mu_serial_platdata),
+	.plat_auto	= sizeof(struct bcm283x_mu_serial_plat),
 	.probe = bcm283x_mu_serial_probe,
 	.ops = &bcm283x_mu_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_BOARD)
 	.flags = DM_FLAG_PRE_RELOC,
 #endif
-	.priv_auto_alloc_size = sizeof(struct bcm283x_mu_priv),
+	.priv_auto	= sizeof(struct bcm283x_mu_priv),
 };

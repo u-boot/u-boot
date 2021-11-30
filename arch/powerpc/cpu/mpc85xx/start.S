@@ -14,7 +14,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc85xx.h>
-#include <version.h>
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
@@ -77,7 +76,7 @@
 _start_e500:
 /* Enable debug exception */
 	li	r1,MSR_DE
-	mtmsr 	r1
+	mtmsr	r1
 
 	/*
 	 * If we got an ePAPR device tree pointer passed in as r3, we need that
@@ -343,39 +342,6 @@ l2_disabled:
 	ori	r0,r0,CONFIG_SYS_INIT_DBCR@l
 	mtspr	DBCR0,r0
 #endif
-
-#ifdef CONFIG_ARCH_MPC8569
-#define CONFIG_SYS_LBC_ADDR (CONFIG_SYS_CCSRBAR_DEFAULT + 0x5000)
-#define CONFIG_SYS_LBCR_ADDR (CONFIG_SYS_LBC_ADDR + 0xd0)
-
-	/* MPC8569 Rev.0 silcon needs to set bit 13 of LBCR to allow elBC to
-	 * use address space which is more than 12bits, and it must be done in
-	 * the 4K boot page. So we set this bit here.
-	 */
-
-	/* create a temp mapping TLB0[0] for LBCR  */
-	create_tlb0_entry 0, \
-		0, BOOKE_PAGESZ_4K, \
-		CONFIG_SYS_LBC_ADDR, MAS2_I|MAS2_G, \
-		CONFIG_SYS_LBC_ADDR, MAS3_SW|MAS3_SR, \
-		0, r6
-
-	/* Set LBCR register */
-	lis     r4,CONFIG_SYS_LBCR_ADDR@h
-	ori     r4,r4,CONFIG_SYS_LBCR_ADDR@l
-
-	lis     r5,CONFIG_SYS_LBC_LBCR@h
-	ori     r5,r5,CONFIG_SYS_LBC_LBCR@l
-	stw     r5,0(r4)
-	isync
-
-	/* invalidate this temp TLB */
-	lis	r4,CONFIG_SYS_LBC_ADDR@h
-	ori	r4,r4,CONFIG_SYS_LBC_ADDR@l
-	tlbivax	0,r4
-	isync
-
-#endif /* CONFIG_ARCH_MPC8569 */
 
 /*
  * Search for the TLB that covers the code we're executing, and shrink it
@@ -1171,11 +1137,7 @@ switch_as:
 	.globl	_start
 _start:
 	.long	0x27051956		/* U-BOOT Magic Number */
-	.globl	version_string
-version_string:
-	.ascii U_BOOT_VERSION_STRING, "\0"
 
-	.align	4
 	.globl	_start_cont
 _start_cont:
 	/* Setup the stack in initial RAM,could be L2-as-SRAM or L1 dcache*/
@@ -1197,9 +1159,9 @@ _start_cont:
 
 	li	r0,0
 
-1: 	subi 	r4,r4,4
-	stw 	r0,0(r4)
-	cmplw 	r4,r3
+1:	subi	r4,r4,4
+	stw	r0,0(r4)
+	cmplw	r4,r3
 	bne	1b
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)

@@ -100,7 +100,7 @@ enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane)
 	if (serdes >= ARRAY_SIZE(serdes_cfg_tbl))
 		return 0;
 	/*
-	 * LS1044A/1048A  support only one XFI port
+	 * LS1044A/1048A  support only one 10GBase-R port
 	 * Disable MAC1 for LS1044A/1048A
 	 */
 	if (serdes == FSL_SRDS_1 && lane == 2) {

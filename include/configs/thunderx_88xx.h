@@ -25,9 +25,6 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
-
 /* PL011 Serial Configuration */
 
 #define CONFIG_PL011_CLOCK		24000000
@@ -42,7 +39,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			(MEM_BASE)	  /* SDRAM Bank #1 */
@@ -62,7 +58,6 @@
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS		64		/* max command args */
-#define CONFIG_NO_RELOCATION		1
 #define PLL_REF_CLK			50000000	/* 50 MHz */
 #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
 

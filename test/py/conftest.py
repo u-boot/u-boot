@@ -226,7 +226,7 @@ def pytest_configure(config):
         import u_boot_console_exec_attach
         console = u_boot_console_exec_attach.ConsoleExecAttach(log, ubconfig)
 
-re_ut_test_list = re.compile(r'_u_boot_list_2_(.*)_test_2_\1_test_(.*)\s*$')
+re_ut_test_list = re.compile(r'[^a-zA-Z0-9_]_u_boot_list_2_ut_(.*)_test_2_\1_test_(.*)\s*$')
 def generate_ut_subtest(metafunc, fixture_name, sym_path):
     """Provide parametrization for a ut_subtest fixture.
 
@@ -554,7 +554,10 @@ def pytest_runtest_protocol(item, nextitem):
     """
 
     log.get_and_reset_warning()
+    ihook = item.ihook
+    ihook.pytest_runtest_logstart(nodeid=item.nodeid, location=item.location)
     reports = runtestprotocol(item, nextitem=nextitem)
+    ihook.pytest_runtest_logfinish(nodeid=item.nodeid, location=item.location)
     was_warning = log.get_and_reset_warning()
 
     # In pytest 3, runtestprotocol() may not call pytest_runtest_setup() if
@@ -623,4 +626,4 @@ def pytest_runtest_protocol(item, nextitem):
     if failure_cleanup:
         console.cleanup_spawn()
 
-    return reports
+    return True

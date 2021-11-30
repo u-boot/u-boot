@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <sound.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,9 +41,9 @@ static int do_play(struct cmd_tbl *cmdtp, int flag, int argc,
 	int freq = 400;
 
 	if (argc > 1)
-		msec = simple_strtoul(argv[1], NULL, 10);
+		msec = dectoul(argv[1], NULL);
 	if (argc > 2)
-		freq = simple_strtoul(argv[2], NULL, 10);
+		freq = dectoul(argv[2], NULL);
 
 	ret = uclass_first_device_err(UCLASS_SOUND, &dev);
 	if (!ret)

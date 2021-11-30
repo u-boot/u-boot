@@ -3,7 +3,7 @@
  * Device Tree Include file for Freescale Layerscape-1043A family SoC.
  *
  * Copyright (C) 2015, Freescale Semiconductor
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  *
  * Mingkai Hu <Mingkai.hu@freescale.com>
  */
@@ -117,13 +117,13 @@
 
 	ethernet@e4000 {
 		phy-handle = <&rgmii_phy1>;
-		phy-connection-type = "rgmii-txid";
+		phy-connection-type = "rgmii-id";
 		status = "okay";
 	};
 
 	ethernet@e6000 {
 		phy-handle = <&rgmii_phy2>;
-		phy-connection-type = "rgmii-txid";
+		phy-connection-type = "rgmii-id";
 		status = "okay";
 	};
 

@@ -12,10 +12,12 @@
 #include <log.h>
 #include <malloc.h>
 #include <syscon.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rv1108.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rv1108-cru.h>
 #include <linux/delay.h>
@@ -662,7 +664,7 @@ static void rkclk_init(struct rv1108_cru *cru)
 	       aclk_bus, aclk_peri, hclk_peri, pclk_peri);
 }
 
-static int rv1108_clk_ofdata_to_platdata(struct udevice *dev)
+static int rv1108_clk_of_to_plat(struct udevice *dev)
 {
 	struct rv1108_clk_priv *priv = dev_get_priv(dev);
 
@@ -697,7 +699,7 @@ static int rv1108_clk_bind(struct udevice *dev)
 						    glb_srst_fst_val);
 		priv->glb_srst_snd_value = offsetof(struct rv1108_cru,
 						    glb_srst_snd_val);
-		sys_child->priv = priv;
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
@@ -719,9 +721,9 @@ U_BOOT_DRIVER(clk_rv1108) = {
 	.name		= "clk_rv1108",
 	.id		= UCLASS_CLK,
 	.of_match	= rv1108_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct rv1108_clk_priv),
+	.priv_auto	= sizeof(struct rv1108_clk_priv),
 	.ops		= &rv1108_clk_ops,
 	.bind		= rv1108_clk_bind,
-	.ofdata_to_platdata	= rv1108_clk_ofdata_to_platdata,
+	.of_to_plat	= rv1108_clk_of_to_plat,
 	.probe		= rv1108_clk_probe,
 };

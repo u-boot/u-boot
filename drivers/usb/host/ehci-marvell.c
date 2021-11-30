@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <usb.h>
 #include <linux/delay.h>
@@ -152,8 +153,8 @@ U_BOOT_DRIVER(ehci_mvebu) = {
 	.probe = ehci_mvebu_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct ehci_mvebu_priv),
+	.plat_auto	= sizeof(struct usb_plat),
+	.priv_auto	= sizeof(struct ehci_mvebu_priv),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 

@@ -11,7 +11,7 @@ Required properties for the pinctrl driver:
 		"marvell,armada-8k-cpm-pinctrl",
 		"marvell,armada-8k-cps-pinctrl"
 - bank-name:	A string defining the pinc controller bank name
-- reg: 		A pair of values defining the pin controller base address
+- reg:		A pair of values defining the pin controller base address
 		and the address space
 - pin-count:	Numeric value defining the amount of multi purpose pins
 		included in this bank

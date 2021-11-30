@@ -8,8 +8,15 @@
 #include <common.h>
 #include <charset.h>
 #include <capitalization.h>
+#include <cp437.h>
 #include <efi_loader.h>
+#include <errno.h>
 #include <malloc.h>
+
+/**
+ * codepage_437 - Unicode to codepage 437 translation table
+ */
+const u16 codepage_437[128] = CP437;
 
 static struct capitalization_table capitalization_table[] =
 #ifdef CONFIG_EFI_UNICODE_CAPITALIZATION
@@ -25,7 +32,7 @@ static struct capitalization_table capitalization_table[] =
  *
  * @read_u8:	- stream reader
  * @src:	- string buffer passed to stream reader, optional
- * Return:	- Unicode code point
+ * Return:	- Unicode code point, or -1
  */
 static int get_code(u8 (*read_u8)(void *data), void *data)
 {
@@ -71,7 +78,7 @@ static int get_code(u8 (*read_u8)(void *data), void *data)
 	}
 	return ch;
 error:
-	return '?';
+	return -1;
 }
 
 /**
@@ -113,14 +120,21 @@ static u8 read_console(void *data)
 
 int console_read_unicode(s32 *code)
 {
-	if (!tstc()) {
-		/* No input available */
-		return 1;
-	}
+	for (;;) {
+		s32 c;
 
-	/* Read Unicode code */
-	*code = get_code(read_console, NULL);
-	return 0;
+		if (!tstc()) {
+			/* No input available */
+			return 1;
+		}
+
+		/* Read Unicode code */
+		c = get_code(read_console, NULL);
+		if (c > 0) {
+			*code = c;
+			return 0;
+		}
+	}
 }
 
 s32 utf8_get(const char **src)
@@ -465,4 +479,68 @@ uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size)
 	}
 
 	return dest;
+}
+
+int utf_to_cp(s32 *c, const u16 *codepage)
+{
+	if (*c >= 0x80) {
+		int j;
+
+		/* Look up codepage translation */
+		for (j = 0; j < 0x80; ++j) {
+			if (*c == codepage[j]) {
+				*c = j + 0x80;
+				return 0;
+			}
+		}
+		*c = '?';
+		return -ENOENT;
+	}
+	return 0;
+}
+
+int utf8_to_cp437_stream(u8 c, char *buffer)
+{
+	char *end;
+	const char *pos;
+	s32 s;
+	int ret;
+
+	for (;;) {
+		pos = buffer;
+		end = buffer + strlen(buffer);
+		*end++ = c;
+		*end = 0;
+		s = utf8_get(&pos);
+		if (s > 0) {
+			*buffer = 0;
+			ret = utf_to_cp(&s, codepage_437);
+			return s;
+			}
+		if (pos == end)
+			return 0;
+		*buffer = 0;
+	}
+}
+
+int utf8_to_utf32_stream(u8 c, char *buffer)
+{
+	char *end;
+	const char *pos;
+	s32 s;
+
+	for (;;) {
+		pos = buffer;
+		end = buffer + strlen(buffer);
+		*end++ = c;
+		*end = 0;
+		s = utf8_get(&pos);
+		if (s > 0) {
+			*buffer = 0;
+			return s;
+		}
+		if (pos == end)
+			return 0;
+		*buffer = 0;
+	}
 }

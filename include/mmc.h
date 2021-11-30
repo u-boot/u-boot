@@ -178,6 +178,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define MMC_STATUS_ERROR	(1 << 19)
 
 #define MMC_STATE_PRG		(7 << 9)
+#define MMC_STATE_TRANS		(4 << 9)
 
 #define MMC_VDD_165_195		0x00000080	/* VDD voltage 1.65 - 1.95 */
 #define MMC_VDD_20_21		0x00000100	/* VDD voltage 2.0 ~ 2.1 */
@@ -538,18 +539,6 @@ struct dm_mmc_ops {
 
 #define mmc_get_ops(dev)        ((struct dm_mmc_ops *)(dev)->driver->ops)
 
-int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
-		    struct mmc_data *data);
-int dm_mmc_set_ios(struct udevice *dev);
-int dm_mmc_get_cd(struct udevice *dev);
-int dm_mmc_get_wp(struct udevice *dev);
-int dm_mmc_execute_tuning(struct udevice *dev, uint opcode);
-int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout_us);
-int dm_mmc_host_power_cycle(struct udevice *dev);
-int dm_mmc_deferred_probe(struct udevice *dev);
-int dm_mmc_reinit(struct udevice *dev);
-int dm_mmc_get_b_max(struct udevice *dev, void *dst, lbaint_t blkcnt);
-
 /* Transition functions for compatibility */
 int mmc_set_ios(struct mmc *mmc);
 int mmc_getcd(struct mmc *mmc);
@@ -591,6 +580,9 @@ struct mmc_config {
 	uint f_max;
 	uint b_max;
 	unsigned char part_type;
+#ifdef CONFIG_MMC_PWRSEQ
+	struct udevice *pwr_dev;
+#endif
 };
 
 struct sd_ssr {
@@ -734,7 +726,15 @@ struct mmc {
 				  */
 	u32 quirks;
 	u8 hs400_tuning;
+
+	enum bus_mode user_speed_mode; /* input speed mode from user */
 };
+
+#if CONFIG_IS_ENABLED(DM_MMC)
+#define mmc_to_dev(_mmc)	_mmc->dev
+#else
+#define mmc_to_dev(_mmc)	NULL
+#endif
 
 struct mmc_hwpart_conf {
 	struct {
@@ -785,6 +785,7 @@ int mmc_initialize(struct bd_info *bis);
 int mmc_init_device(int num);
 int mmc_init(struct mmc *mmc);
 int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error);
+int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data);
 
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
@@ -800,6 +801,17 @@ int mmc_deinit(struct mmc *mmc);
  * @return 0 if OK, -ve on error
  */
 int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg);
+
+#ifdef CONFIG_MMC_PWRSEQ
+/**
+ * mmc_pwrseq_get_power() - get a power device from device tree
+ *
+ * @dev:	MMC device
+ * @cfg:	MMC configuration
+ * @return 0 if OK, -ve on error
+ */
+int mmc_pwrseq_get_power(struct udevice *dev, struct mmc_config *cfg);
+#endif
 
 int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
 
@@ -890,9 +902,10 @@ int mmc_set_bkops_enable(struct mmc *mmc);
  * the presence of SD/eMMC when no card detect logic is available.
  *
  * @param mmc	Pointer to a MMC device struct
+ * @param quiet	Be quiet, do not print error messages when card is not detected.
  * @return 0 on success, <0 on error.
  */
-int mmc_get_op_cond(struct mmc *mmc);
+int mmc_get_op_cond(struct mmc *mmc, bool quiet);
 
 /**
  * Start device initialization and return immediately; it does not block on

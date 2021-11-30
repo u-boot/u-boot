@@ -7,8 +7,8 @@ NAND and bricked (empty) board with only a network cable.
 
  I. Building the required images
   1. You have to enable generic SPL configuration options (see
-doc/README.SPL) as well as CONFIG_SPL_NET_SUPPORT,
-CONFIG_ETH_SUPPORT, CONFIG_SPL_LIBGENERIC_SUPPORT and
+doc/README.SPL) as well as CONFIG_SPL_NET,
+CONFIG_SPL_ETH, CONFIG_SPL_LIBGENERIC_SUPPORT and
 CONFIG_SPL_LIBCOMMON_SUPPORT in your board configuration file to build
 SPL with support for booting over the network. Also you have to enable
 the driver for the NIC used and CONFIG_SPL_BOARD_INIT option if your

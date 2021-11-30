@@ -20,14 +20,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_USB_A9263
-
-#define CONFIG_CMDLINE_TAG	/* enable passing of ATAGs      */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /*
  * Hardware drivers
  */
@@ -56,7 +48,6 @@
 #endif
 
 /* Ethernet */
-#define CONFIG_MACB
 #define CONFIG_RMII
 #define CONFIG_NET_RETRY_COUNT			20
 #define CONFIG_AT91_WANTS_COMMON_PHY
@@ -71,16 +62,9 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #endif
 
-#define CONFIG_SYS_LOAD_ADDR			0x22000000
-
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_BOOTCOMMAND	"nboot 21000000 0"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN	ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
 
 #endif

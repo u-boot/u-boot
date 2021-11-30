@@ -8,7 +8,7 @@
 
 #if defined(CONFIG_MACH_SUN9I)
 #include <asm/arch/cpu_sun9i.h>
-#elif defined(CONFIG_MACH_SUN50I_H6)
+#elif defined(CONFIG_SUN50I_GEN_H6)
 #include <asm/arch/cpu_sun50i_h6.h>
 #else
 #include <asm/arch/cpu_sun4i.h>

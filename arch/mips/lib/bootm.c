@@ -12,6 +12,7 @@
 #include <lmb.h>
 #include <log.h>
 #include <asm/addrspace.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -38,14 +39,7 @@ static ulong arch_get_sp(void)
 
 void arch_lmb_reserve(struct lmb *lmb)
 {
-	ulong sp;
-
-	sp = arch_get_sp();
-	debug("## Current stack ends at 0x%08lx\n", sp);
-
-	/* adjust sp by 4K to be safe */
-	sp -= 4096;
-	lmb_reserve(lmb, sp, gd->ram_top - sp);
+	arch_lmb_reserve_generic(lmb, arch_get_sp(), gd->ram_top, 4096);
 }
 
 static void linux_cmdline_init(void)

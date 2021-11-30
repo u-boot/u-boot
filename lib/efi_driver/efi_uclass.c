@@ -238,7 +238,7 @@ static efi_status_t EFIAPI efi_uc_stop(
 	}
 	ret = EFI_CALL(systab.boottime->free_pool(entry_buffer));
 	if (ret != EFI_SUCCESS)
-		printf("%s: ERROR: Cannot free pool\n", __func__);
+		log_err("Cannot free EFI memory pool\n");
 
 	/* Detach driver from controller */
 	ret = EFI_CALL(systab.boottime->close_protocol(
@@ -260,10 +260,10 @@ static efi_status_t efi_add_driver(struct driver *drv)
 	const struct efi_driver_ops *ops = drv->ops;
 	struct efi_driver_binding_extended_protocol *bp;
 
-	debug("EFI: Adding driver '%s'\n", drv->name);
+	log_debug("Adding EFI driver '%s'\n", drv->name);
 	if (!ops->protocol) {
-		printf("EFI: ERROR: protocol GUID missing for driver '%s'\n",
-		       drv->name);
+		log_err("EFI protocol GUID missing for driver '%s'\n",
+			drv->name);
 		return EFI_INVALID_PARAMETER;
 	}
 	bp = calloc(1, sizeof(struct efi_driver_binding_extended_protocol));
@@ -305,14 +305,14 @@ efi_status_t efi_driver_init(void)
 	struct driver *drv;
 	efi_status_t ret = EFI_SUCCESS;
 
-	debug("EFI: Initializing EFI driver framework\n");
+	log_debug("Initializing EFI driver framework\n");
 	for (drv = ll_entry_start(struct driver, driver);
 	     drv < ll_entry_end(struct driver, driver); ++drv) {
 		if (drv->id == UCLASS_EFI) {
 			ret = efi_add_driver(drv);
 			if (ret != EFI_SUCCESS) {
-				printf("EFI: ERROR: failed to add driver %s\n",
-				       drv->name);
+				log_err("Failed to add EFI driver %s\n",
+					drv->name);
 				break;
 			}
 		}
@@ -328,7 +328,7 @@ efi_status_t efi_driver_init(void)
  */
 static int efi_uc_init(struct uclass *class)
 {
-	printf("EFI: Initializing UCLASS_EFI\n");
+	log_debug("Initializing UCLASS_EFI\n");
 	return 0;
 }
 
@@ -340,7 +340,7 @@ static int efi_uc_init(struct uclass *class)
  */
 static int efi_uc_destroy(struct uclass *class)
 {
-	printf("Destroying  UCLASS_EFI\n");
+	log_debug("Destroying UCLASS_EFI\n");
 	return 0;
 }
 

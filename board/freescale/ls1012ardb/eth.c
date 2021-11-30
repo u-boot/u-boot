@@ -29,7 +29,7 @@ static inline void ls1012ardb_reset_phy(void)
 {
 #ifdef CONFIG_TARGET_LS1012ARDB
 	/* Through reset IO expander reset both RGMII and SGMII PHYs */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 
@@ -121,12 +121,12 @@ int pfe_eth_board_init(struct udevice *dev)
 			/* MAC1 */
 			pfe_set_phy_address_mode(priv->gemac_port,
 						 CONFIG_PFE_EMAC1_PHY_ADDR,
-						 PHY_INTERFACE_MODE_SGMII_2500);
+						 PHY_INTERFACE_MODE_2500BASEX);
 		} else {
 			/* MAC2 */
 			pfe_set_phy_address_mode(priv->gemac_port,
 						 CONFIG_PFE_EMAC2_PHY_ADDR,
-						 PHY_INTERFACE_MODE_SGMII_2500);
+						 PHY_INTERFACE_MODE_2500BASEX);
 		}
 		break;
 	default:
@@ -160,12 +160,12 @@ static struct pfe_eth_pdata pfe_pdata1 = {
 	},
 };
 
-U_BOOT_DEVICE(ls1012a_pfe0) = {
+U_BOOT_DRVINFO(ls1012a_pfe0) = {
 	.name = "pfe_eth",
-	.platdata = &pfe_pdata0,
+	.plat = &pfe_pdata0,
 };
 
-U_BOOT_DEVICE(ls1012a_pfe1) = {
+U_BOOT_DRVINFO(ls1012a_pfe1) = {
 	.name = "pfe_eth",
-	.platdata = &pfe_pdata1,
+	.plat = &pfe_pdata1,
 };

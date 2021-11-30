@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "vf610twr"
 
+config IMX_CONFIG
+	default "board/freescale/vf610twr/imximage.cfg"
+
 endif

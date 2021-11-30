@@ -9,11 +9,11 @@
 #include <dm.h>
 #include <ns16550.h>
 #include <serial.h>
-#include <asm/arch/sysinfo.h>
+#include <asm/cb_sysinfo.h>
 
-static int coreboot_ofdata_to_platdata(struct udevice *dev)
+static int coreboot_of_to_plat(struct udevice *dev)
 {
-	struct ns16550_platdata *plat = dev_get_platdata(dev);
+	struct ns16550_plat *plat = dev_get_plat(dev);
 	struct cb_serial *cb_info = lib_sysinfo.serial;
 
 	plat->base = cb_info->baseaddr;
@@ -37,9 +37,9 @@ U_BOOT_DRIVER(coreboot_uart) = {
 	.name	= "coreboot_uart",
 	.id	= UCLASS_SERIAL,
 	.of_match	= coreboot_serial_ids,
-	.priv_auto_alloc_size = sizeof(struct NS16550),
-	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
-	.ofdata_to_platdata  = coreboot_ofdata_to_platdata,
+	.priv_auto	= sizeof(struct ns16550),
+	.plat_auto	= sizeof(struct ns16550_plat),
+	.of_to_plat  = coreboot_of_to_plat,
 	.probe	= ns16550_serial_probe,
 	.ops	= &ns16550_serial_ops,
 	.flags	= DM_FLAG_PRE_RELOC,

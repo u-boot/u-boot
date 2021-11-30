@@ -187,7 +187,7 @@ class TestBuild(unittest.TestCase):
             expect += col.Color(expected_colour, ' %s' % board)
         self.assertEqual(text, expect)
 
-    def _SetupTest(self, echo_lines=False, **kwdisplay_args):
+    def _SetupTest(self, echo_lines=False, threads=1, **kwdisplay_args):
         """Set up the test by running a build and summary
 
         Args:
@@ -199,8 +199,8 @@ class TestBuild(unittest.TestCase):
         Returns:
             Iterator containing the output lines, each a PrintLine() object
         """
-        build = builder.Builder(self.toolchains, self.base_dir, None, 1, 2,
-                                checkout=False, show_unknown=False)
+        build = builder.Builder(self.toolchains, self.base_dir, None, threads,
+                                2, checkout=False, show_unknown=False)
         build.do_make = self.Make
         board_selected = self.boards.GetSelectedDict()
 
@@ -437,6 +437,12 @@ class TestBuild(unittest.TestCase):
         lines = self._SetupTest(show_errors=True,
                                 filter_migration_warnings=True)
         self._CheckOutput(lines, filter_migration_warnings=True)
+
+    def testSingleThread(self):
+        """Test operation without threading"""
+        lines = self._SetupTest(show_errors=True, threads=0)
+        self._CheckOutput(lines, list_error_boards=False,
+                          filter_dtb_warnings=False)
 
     def _testGit(self):
         """Test basic builder operation by building a branch"""

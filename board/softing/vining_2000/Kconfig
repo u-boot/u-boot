@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "vining_2000"
 
+config IMX_CONFIG
+	default "board/softing/vining_2000/imximage.cfg"
+
 endif

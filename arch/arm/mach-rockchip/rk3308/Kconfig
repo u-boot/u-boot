@@ -14,7 +14,7 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x400
 
-config SPL_SERIAL_SUPPORT
+config SPL_SERIAL
 	default y
 
 config ROCKCHIP_BOOT_MODE_REG

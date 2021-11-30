@@ -443,6 +443,7 @@ static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
 	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
 	struct usb_kbd_pdata *data;
+	int epNum;
 
 	if (dev->descriptor.bNumConfigurations != 1)
 		return 0;
@@ -458,19 +459,21 @@ static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
 	if (iface->desc.bInterfaceProtocol != USB_PROT_HID_KEYBOARD)
 		return 0;
 
-	if (iface->desc.bNumEndpoints != 1)
+	for (epNum = 0; epNum < iface->desc.bNumEndpoints; epNum++) {
+		ep = &iface->ep_desc[epNum];
+
+		/* Check if endpoint is interrupt IN endpoint */
+		if ((ep->bmAttributes & 3) != 3)
+			continue;
+
+		if (ep->bEndpointAddress & 0x80)
+			break;
+	}
+
+	if (epNum == iface->desc.bNumEndpoints)
 		return 0;
 
-	ep = &iface->ep_desc[0];
-
-	/* Check if endpoint 1 is interrupt endpoint */
-	if (!(ep->bEndpointAddress & 0x80))
-		return 0;
-
-	if ((ep->bmAttributes & 3) != 3)
-		return 0;
-
-	debug("USB KBD: found set protocol...\n");
+	debug("USB KBD: found interrupt EP: 0x%x\n", ep->bEndpointAddress);
 
 	data = malloc(sizeof(struct usb_kbd_pdata));
 	if (!data) {
@@ -498,13 +501,15 @@ static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
 	data->last_report = -1;
 
 	/* We found a USB Keyboard, install it. */
+	debug("USB KBD: set boot protocol\n");
 	usb_set_protocol(dev, iface->desc.bInterfaceNumber, 0);
 
-	debug("USB KBD: found set idle...\n");
 #if !defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP) && \
     !defined(CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE)
+	debug("USB KBD: set idle interval...\n");
 	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE / 4, 0);
 #else
+	debug("USB KBD: set idle interval=0...\n");
 	usb_set_idle(dev, iface->desc.bInterfaceNumber, 0, 0);
 #endif
 
@@ -617,12 +622,12 @@ int usb_kbd_deregister(int force)
 	if (dev) {
 		usb_kbd_dev = (struct usb_device *)dev->priv;
 		data = usb_kbd_dev->privptr;
-		if (stdio_deregister_dev(dev, force) != 0)
-			return 1;
 #if CONFIG_IS_ENABLED(CONSOLE_MUX)
-		if (iomux_doenv(stdin, env_get("stdin")) != 0)
+		if (iomux_replace_device(stdin, DEVNAME, force ? "nulldev" : ""))
 			return 1;
 #endif
+		if (stdio_deregister_dev(dev, force) != 0)
+			return 1;
 #ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 		destroy_int_queue(usb_kbd_dev, data->intq);
 #endif
@@ -660,16 +665,16 @@ static int usb_kbd_remove(struct udevice *dev)
 		goto err;
 	}
 	data = udev->privptr;
-	if (stdio_deregister_dev(sdev, true)) {
-		ret = -EPERM;
-		goto err;
-	}
 #if CONFIG_IS_ENABLED(CONSOLE_MUX)
-	if (iomux_doenv(stdin, env_get("stdin"))) {
+	if (iomux_replace_device(stdin, DEVNAME, "nulldev")) {
 		ret = -ENOLINK;
 		goto err;
 	}
 #endif
+	if (stdio_deregister_dev(sdev, true)) {
+		ret = -EPERM;
+		goto err;
+	}
 #ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 	destroy_int_queue(udev, data->intq);
 #endif

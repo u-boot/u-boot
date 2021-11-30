@@ -12,6 +12,8 @@
 #define _NETDEV_H_
 #include <phy_interface.h>
 
+struct udevice;
+
 /*
  * Board and CPU-specific initialization functions
  * board_eth_init() has highest priority.  cpu_eth_init() only
@@ -27,11 +29,9 @@ int board_interface_eth_init(struct udevice *dev,
 int cpu_eth_init(struct bd_info *bis);
 
 /* Driver initialization prototypes */
-int at91emac_register(struct bd_info *bis, unsigned long iobase);
 int ax88180_initialize(struct bd_info *bis);
 int bcm_sf2_eth_register(struct bd_info *bis, u8 dev_num);
 int bfin_EMAC_initialize(struct bd_info *bis);
-int calxedaxgmac_initialize(u32 id, ulong base_addr);
 int cs8900_initialize(u8 dev_num, int base_addr);
 int dc21x4x_initialize(struct bd_info *bis);
 int designware_initialize(ulong base_addr, u32 interface);
@@ -69,8 +69,8 @@ int rtl8169_initialize(struct bd_info *bis);
 int scc_initialize(struct bd_info *bis);
 int sh_eth_initialize(struct bd_info *bis);
 int skge_initialize(struct bd_info *bis);
-int smc91111_initialize(u8 dev_num, int base_addr);
-int smc911x_initialize(u8 dev_num, int base_addr);
+int smc91111_initialize(u8 dev_num, phys_addr_t base_addr);
+int smc911x_initialize(u8 dev_num, phys_addr_t base_addr);
 int uec_standard_init(struct bd_info *bis);
 int uli526x_initialize(struct bd_info *bis);
 int armada100_fec_register(unsigned long base_addr);

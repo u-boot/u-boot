@@ -13,6 +13,7 @@ obj-$(CONFIG_USB_MUSB_OMAP2PLUS) += omap2430.o
 obj-$(CONFIG_USB_MUSB_PIC32) += pic32.o
 obj-$(CONFIG_USB_MUSB_SUNXI) += sunxi.o
 obj-$(CONFIG_USB_MUSB_TI) += ti-musb.o
+obj-$(CONFIG_USB_MUSB_UX500) += ux500.o
 
 ccflags-y := $(call cc-option,-Wno-unused-variable) \
 		$(call cc-option,-Wno-unused-but-set-variable) \

@@ -10,14 +10,14 @@
 #define MAX_CTAR_FIELDS		8
 
 /*
- * struct coldfire_spi_platdata - information about a coldfire spi module
+ * struct coldfire_spi_plat - information about a coldfire spi module
  *
  * @regs_addr: base address for module registers
  * @speed_hz: default SCK frequency
  * @mode: default SPI mode
  * @num_cs: number of DSPI chipselect signals
  */
-struct coldfire_spi_platdata {
+struct coldfire_spi_plat {
 	fdt_addr_t regs_addr;
 	uint speed_hz;
 	uint mode;
@@ -26,4 +26,3 @@ struct coldfire_spi_platdata {
 };
 
 #endif /* __spi_coldfire_h */
-

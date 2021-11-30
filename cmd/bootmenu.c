@@ -45,6 +45,7 @@ enum bootmenu_key {
 	KEY_UP,
 	KEY_DOWN,
 	KEY_SELECT,
+	KEY_QUIT,
 };
 
 static char *bootmenu_getoption(unsigned short int n)
@@ -109,6 +110,9 @@ static void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 			case '\r':
 				*key = KEY_SELECT;
 				break;
+			case 0x3: /* ^C */
+				*key = KEY_QUIT;
+				break;
 			default:
 				*key = KEY_NONE;
 				break;
@@ -136,12 +140,24 @@ static void bootmenu_loop(struct bootmenu_data *menu,
 {
 	int c;
 
-	while (!tstc()) {
-		WATCHDOG_RESET();
-		mdelay(10);
+	if (*esc == 1) {
+		if (tstc()) {
+			c = getchar();
+		} else {
+			WATCHDOG_RESET();
+			mdelay(10);
+			if (tstc())
+				c = getchar();
+			else
+				c = '\e';
+		}
+	} else {
+		while (!tstc()) {
+			WATCHDOG_RESET();
+			mdelay(10);
+		}
+		c = getchar();
 	}
-
-	c = getchar();
 
 	switch (*esc) {
 	case 0:
@@ -157,7 +173,9 @@ static void bootmenu_loop(struct bootmenu_data *menu,
 			*esc = 2;
 			*key = KEY_NONE;
 		} else {
-			*esc = 0;
+		/* Alone ESC key was pressed */
+			*key = KEY_QUIT;
+			*esc = (c == '\e') ? 1 : 0;
 		}
 		break;
 	case 2:
@@ -187,6 +205,10 @@ static void bootmenu_loop(struct bootmenu_data *menu,
 	/* enter key was pressed */
 	if (c == '\r')
 		*key = KEY_SELECT;
+
+	/* ^C was pressed */
+	if (c == 0x3)
+		*key = KEY_QUIT;
 }
 
 static char *bootmenu_choice_entry(void *data)
@@ -220,6 +242,12 @@ static char *bootmenu_choice_entry(void *data)
 		case KEY_SELECT:
 			iter = menu->first;
 			for (i = 0; i < menu->active; ++i)
+				iter = iter->next;
+			return iter->key;
+		case KEY_QUIT:
+			/* Quit by choosing the last entry - U-Boot console */
+			iter = menu->first;
+			while (iter->next)
 				iter = iter->next;
 			return iter->key;
 		default:
@@ -389,7 +417,7 @@ static void menu_display_statusline(struct menu *m)
 	printf(ANSI_CURSOR_POSITION, menu->count + 5, 1);
 	puts(ANSI_CLEAR_LINE);
 	printf(ANSI_CURSOR_POSITION, menu->count + 6, 1);
-	puts("  Press UP/DOWN to move, ENTER to select");
+	puts("  Press UP/DOWN to move, ENTER to select, ESC/CTRL+C to quit");
 	puts(ANSI_CLEAR_LINE_TO_END);
 	printf(ANSI_CURSOR_POSITION, menu->count + 7, 1);
 	puts(ANSI_CLEAR_LINE);

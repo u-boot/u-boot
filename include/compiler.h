@@ -68,6 +68,9 @@ typedef uint32_t __u32;
 typedef unsigned int uint;
 typedef unsigned long ulong;
 
+/* Define these on the host so we can build some target code */
+typedef __u32 u32;
+
 #define uswap_16(x) \
 	((((x) & 0xff00) >> 8) | \
 	 (((x) & 0x00ff) << 8))
@@ -151,7 +154,13 @@ typedef unsigned long int uintptr_t;
 #define MEM_SUPPORT_64BIT_DATA	0
 #endif
 
-static inline bool host_build(void) {
+/**
+ * tools_build() - check if we are building host tools
+ *
+ * @return true if building for the host, false if for a target
+ */
+static inline bool tools_build(void)
+{
 #ifdef USE_HOSTCC
 	return true;
 #else

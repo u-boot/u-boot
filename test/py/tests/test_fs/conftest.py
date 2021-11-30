@@ -8,6 +8,7 @@ import pytest
 import re
 from subprocess import call, check_call, check_output, CalledProcessError
 from fstest_defs import *
+import u_boot_utils as util
 
 supported_fs_basic = ['fat16', 'fat32', 'ext4']
 supported_fs_ext = ['fat16', 'fat32']
@@ -159,6 +160,10 @@ def mk_fs(config, fs_type, size, id):
 
     count = (size + 1048576 - 1) / 1048576
 
+    # Some distributions do not add /sbin to the default PATH, where mkfs lives
+    if '/sbin' not in os.environ["PATH"].split(os.pathsep):
+        os.environ["PATH"] += os.pathsep + '/sbin'
+
     try:
         check_call('rm -f %s' % fs_img, shell=True)
         check_call('dd if=/dev/zero of=%s bs=1M count=%d'
@@ -205,24 +210,23 @@ def mount_fs(fs_type, device, mount_point):
     """
     global fuse_mounted
 
-    fuse_mounted = False
     try:
-        if tool_is_in_path('guestmount'):
-            fuse_mounted = True
-            check_call('guestmount -a %s -m /dev/sda %s'
-                % (device, mount_point), shell=True)
-        else:
-            mount_opt = 'loop,rw'
-            if re.match('fat', fs_type):
-                mount_opt += ',umask=0000'
-
-            check_call('sudo mount -o %s %s %s'
-                % (mount_opt, device, mount_point), shell=True)
-
-            # may not be effective for some file systems
-            check_call('sudo chmod a+rw %s' % mount_point, shell=True)
+        check_call('guestmount --pid-file guestmount.pid -a %s -m /dev/sda %s'
+            % (device, mount_point), shell=True)
+        fuse_mounted = True
+        return
     except CalledProcessError:
-        raise
+        fuse_mounted = False
+
+    mount_opt = 'loop,rw'
+    if re.match('fat', fs_type):
+        mount_opt += ',umask=0000'
+
+    check_call('sudo mount -o %s %s %s'
+        % (mount_opt, device, mount_point), shell=True)
+
+    # may not be effective for some file systems
+    check_call('sudo chmod a+rw %s' % mount_point, shell=True)
 
 def umount_fs(mount_point):
     """Unmount a volume.
@@ -236,6 +240,16 @@ def umount_fs(mount_point):
     if fuse_mounted:
         call('sync')
         call('guestunmount %s' % mount_point, shell=True)
+
+        try:
+            with open("guestmount.pid", "r") as pidfile:
+                pid = int(pidfile.read())
+            util.waitpid(pid, kill=True)
+            os.remove("guestmount.pid")
+
+        except FileNotFoundError:
+            pass
+
     else:
         call('sudo umount %s' % mount_point, shell=True)
 
@@ -243,8 +257,7 @@ def umount_fs(mount_point):
 # Fixture for basic fs test
 #     derived from test/fs/fs-test.sh
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_basic(request, u_boot_config):
     """Set up a file system to be used in basic fs test.
 
@@ -271,11 +284,27 @@ def fs_obj_basic(request, u_boot_config):
 
         # 3GiB volume
         fs_img = mk_fs(u_boot_config, fs_type, 0xc0000000, '3GB')
+    except CalledProcessError as err:
+        pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
+        return
 
-        # Mount the image so we can populate it.
+    try:
         check_call('mkdir -p %s' % mount_dir, shell=True)
-        mount_fs(fs_type, fs_img, mount_dir)
+    except CalledProcessError as err:
+        pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+        call('rm -f %s' % fs_img, shell=True)
+        return
 
+    try:
+        # Mount the image so we can populate it.
+        mount_fs(fs_type, fs_img, mount_dir)
+    except CalledProcessError as err:
+        pytest.skip('Mounting to folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+        call('rmdir %s' % mount_dir, shell=True)
+        call('rm -f %s' % fs_img, shell=True)
+        return
+
+    try:
         # Create a subdirectory.
         check_call('mkdir %s/SUBDIR' % mount_dir, shell=True)
 
@@ -336,24 +365,21 @@ def fs_obj_basic(request, u_boot_config):
 	    % big_file, shell=True).decode()
         md5val.append(out.split()[0])
 
-        umount_fs(mount_dir)
     except CalledProcessError as err:
-        pytest.skip('Setup failed for filesystem: ' + fs_type + \
-            '. {}'.format(err))
+        pytest.skip('Setup failed for filesystem: ' + fs_type + '. {}'.format(err))
+        umount_fs(mount_dir)
         return
     else:
+        umount_fs(mount_dir)
         yield [fs_ubtype, fs_img, md5val]
     finally:
-        umount_fs(mount_dir)
         call('rmdir %s' % mount_dir, shell=True)
-        if fs_img:
-            call('rm -f %s' % fs_img, shell=True)
+        call('rm -f %s' % fs_img, shell=True)
 
 #
 # Fixture for extended fs test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_ext(request, u_boot_config):
     """Set up a file system to be used in extended fs test.
 
@@ -380,11 +406,27 @@ def fs_obj_ext(request, u_boot_config):
 
         # 128MiB volume
         fs_img = mk_fs(u_boot_config, fs_type, 0x8000000, '128MB')
+    except CalledProcessError as err:
+        pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
+        return
 
-        # Mount the image so we can populate it.
+    try:
         check_call('mkdir -p %s' % mount_dir, shell=True)
-        mount_fs(fs_type, fs_img, mount_dir)
+    except CalledProcessError as err:
+        pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+        call('rm -f %s' % fs_img, shell=True)
+        return
 
+    try:
+        # Mount the image so we can populate it.
+        mount_fs(fs_type, fs_img, mount_dir)
+    except CalledProcessError as err:
+        pytest.skip('Mounting to folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+        call('rmdir %s' % mount_dir, shell=True)
+        call('rm -f %s' % fs_img, shell=True)
+        return
+
+    try:
         # Create a test directory
         check_call('mkdir %s/dir1' % mount_dir, shell=True)
 
@@ -424,23 +466,21 @@ def fs_obj_ext(request, u_boot_config):
         md5val.append(out.split()[0])
 
         check_call('rm %s' % tmp_file, shell=True)
-        umount_fs(mount_dir)
     except CalledProcessError:
         pytest.skip('Setup failed for filesystem: ' + fs_type)
+        umount_fs(mount_dir)
         return
     else:
+        umount_fs(mount_dir)
         yield [fs_ubtype, fs_img, md5val]
     finally:
-        umount_fs(mount_dir)
         call('rmdir %s' % mount_dir, shell=True)
-        if fs_img:
-            call('rm -f %s' % fs_img, shell=True)
+        call('rm -f %s' % fs_img, shell=True)
 
 #
 # Fixture for mkdir test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_mkdir(request, u_boot_config):
     """Set up a file system to be used in mkdir test.
 
@@ -463,17 +503,15 @@ def fs_obj_mkdir(request, u_boot_config):
         fs_img = mk_fs(u_boot_config, fs_type, 0x8000000, '128MB')
     except:
         pytest.skip('Setup failed for filesystem: ' + fs_type)
+        return
     else:
         yield [fs_ubtype, fs_img]
-    finally:
-        if fs_img:
-            call('rm -f %s' % fs_img, shell=True)
+    call('rm -f %s' % fs_img, shell=True)
 
 #
 # Fixture for unlink test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_unlink(request, u_boot_config):
     """Set up a file system to be used in unlink test.
 
@@ -497,11 +535,27 @@ def fs_obj_unlink(request, u_boot_config):
 
         # 128MiB volume
         fs_img = mk_fs(u_boot_config, fs_type, 0x8000000, '128MB')
+    except CalledProcessError as err:
+        pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
+        return
 
-        # Mount the image so we can populate it.
+    try:
         check_call('mkdir -p %s' % mount_dir, shell=True)
-        mount_fs(fs_type, fs_img, mount_dir)
+    except CalledProcessError as err:
+        pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+        call('rm -f %s' % fs_img, shell=True)
+        return
 
+    try:
+        # Mount the image so we can populate it.
+        mount_fs(fs_type, fs_img, mount_dir)
+    except CalledProcessError as err:
+        pytest.skip('Mounting to folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+        call('rmdir %s' % mount_dir, shell=True)
+        call('rm -f %s' % fs_img, shell=True)
+        return
+
+    try:
         # Test Case 1 & 3
         check_call('mkdir %s/dir1' % mount_dir, shell=True)
         check_call('dd if=/dev/urandom of=%s/dir1/file1 bs=1K count=1'
@@ -523,23 +577,21 @@ def fs_obj_unlink(request, u_boot_config):
         check_call('dd if=/dev/urandom of=%s/dir5/file1 bs=1K count=1'
                                     % mount_dir, shell=True)
 
-        umount_fs(mount_dir)
     except CalledProcessError:
         pytest.skip('Setup failed for filesystem: ' + fs_type)
+        umount_fs(mount_dir)
         return
     else:
+        umount_fs(mount_dir)
         yield [fs_ubtype, fs_img]
     finally:
-        umount_fs(mount_dir)
         call('rmdir %s' % mount_dir, shell=True)
-        if fs_img:
-            call('rm -f %s' % fs_img, shell=True)
+        call('rm -f %s' % fs_img, shell=True)
 
 #
 # Fixture for symlink fs test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_symlink(request, u_boot_config):
     """Set up a file system to be used in symlink fs test.
 
@@ -564,13 +616,29 @@ def fs_obj_symlink(request, u_boot_config):
 
     try:
 
-        # 3GiB volume
+        # 1GiB volume
         fs_img = mk_fs(u_boot_config, fs_type, 0x40000000, '1GB')
+    except CalledProcessError as err:
+        pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
+        return
 
-        # Mount the image so we can populate it.
+    try:
         check_call('mkdir -p %s' % mount_dir, shell=True)
-        mount_fs(fs_type, fs_img, mount_dir)
+    except CalledProcessError as err:
+        pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+        call('rm -f %s' % fs_img, shell=True)
+        return
 
+    try:
+        # Mount the image so we can populate it.
+        mount_fs(fs_type, fs_img, mount_dir)
+    except CalledProcessError as err:
+        pytest.skip('Mounting to folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+        call('rmdir %s' % mount_dir, shell=True)
+        call('rm -f %s' % fs_img, shell=True)
+        return
+
+    try:
         # Create a subdirectory.
         check_call('mkdir %s/SUBDIR' % mount_dir, shell=True)
 
@@ -592,14 +660,13 @@ def fs_obj_symlink(request, u_boot_config):
             % medium_file, shell=True).decode()
         md5val.extend([out.split()[0]])
 
-        umount_fs(mount_dir)
     except CalledProcessError:
         pytest.skip('Setup failed for filesystem: ' + fs_type)
+        umount_fs(mount_dir)
         return
     else:
+        umount_fs(mount_dir)
         yield [fs_ubtype, fs_img, md5val]
     finally:
-        umount_fs(mount_dir)
         call('rmdir %s' % mount_dir, shell=True)
-        if fs_img:
-            call('rm -f %s' % fs_img, shell=True)
+        call('rm -f %s' % fs_img, shell=True)

@@ -59,8 +59,15 @@ static int sandbox_pwm_set_config(struct udevice *dev, uint channel,
 	if (channel >= NUM_CHANNELS)
 		return -ENOSPC;
 	chan = &priv->chan[channel];
-	chan->period_ns = period_ns;
-	chan->duty_ns = duty_ns;
+
+	if (channel == 2) {
+		/* Pretend to have some fixed period */
+		chan->period_ns = 4096;
+		chan->duty_ns =  duty_ns * 4096 / period_ns;
+	} else {
+		chan->period_ns = period_ns;
+		chan->duty_ns = duty_ns;
+	}
 
 	return 0;
 }
@@ -109,5 +116,5 @@ U_BOOT_DRIVER(warm_pwm_sandbox) = {
 	.id		= UCLASS_PWM,
 	.of_match	= sandbox_pwm_ids,
 	.ops		= &sandbox_pwm_ops,
-	.priv_auto_alloc_size	= sizeof(struct sandbox_pwm_priv),
+	.priv_auto	= sizeof(struct sandbox_pwm_priv),
 };

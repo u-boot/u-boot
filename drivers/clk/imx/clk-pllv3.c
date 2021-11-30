@@ -160,7 +160,7 @@ static ulong clk_pllv3_sys_set_rate(struct clk *clk, ulong rate)
 }
 
 static const struct clk_ops clk_pllv3_sys_ops = {
-	.enable 	= clk_pllv3_generic_enable,
+	.enable		= clk_pllv3_generic_enable,
 	.disable	= clk_pllv3_generic_disable,
 	.get_rate	= clk_pllv3_sys_get_rate,
 	.set_rate	= clk_pllv3_sys_set_rate,
@@ -290,7 +290,7 @@ struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 		break;
 	default:
 		kfree(pll);
-		return ERR_PTR(-ENOTSUPP);
+		return ERR_PTR(-EINVAL);
 	}
 
 	pll->base = base;

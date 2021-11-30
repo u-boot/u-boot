@@ -46,6 +46,14 @@
 #define PSCI_0_2_FN64_MIGRATE			PSCI_0_2_FN64(5)
 #define PSCI_0_2_FN64_MIGRATE_INFO_UP_CPU	PSCI_0_2_FN64(7)
 
+#define PSCI_1_0_FN_PSCI_FEATURES		PSCI_0_2_FN(10)
+#define PSCI_1_0_FN_SYSTEM_SUSPEND		PSCI_0_2_FN(14)
+#define PSCI_1_0_FN_SET_SUSPEND_MODE		PSCI_0_2_FN(15)
+#define PSCI_1_1_FN_SYSTEM_RESET2		PSCI_0_2_FN(18)
+
+#define PSCI_1_0_FN64_SYSTEM_SUSPEND		PSCI_0_2_FN64(14)
+#define PSCI_1_1_FN64_SYSTEM_RESET2		PSCI_0_2_FN64(18)
+
 /* PSCI v0.2 power state encoding for CPU_SUSPEND function */
 #define PSCI_0_2_POWER_STATE_ID_MASK		0xffff
 #define PSCI_0_2_POWER_STATE_ID_SHIFT		0
@@ -55,6 +63,13 @@
 #define PSCI_0_2_POWER_STATE_AFFL_SHIFT		24
 #define PSCI_0_2_POWER_STATE_AFFL_MASK		\
 				(0x3 << PSCI_0_2_POWER_STATE_AFFL_SHIFT)
+
+/* PSCI extended power state encoding for CPU_SUSPEND function */
+#define PSCI_1_0_EXT_POWER_STATE_ID_MASK	0xfffffff
+#define PSCI_1_0_EXT_POWER_STATE_ID_SHIFT	0
+#define PSCI_1_0_EXT_POWER_STATE_TYPE_SHIFT	30
+#define PSCI_1_0_EXT_POWER_STATE_TYPE_MASK	\
+				(0x1 << PSCI_1_0_EXT_POWER_STATE_TYPE_SHIFT)
 
 /* PSCI v0.2 affinity level state returned by AFFINITY_INFO */
 #define PSCI_0_2_AFFINITY_LEVEL_ON		0
@@ -75,6 +90,18 @@
 		(((ver) & PSCI_VERSION_MAJOR_MASK) >> PSCI_VERSION_MAJOR_SHIFT)
 #define PSCI_VERSION_MINOR(ver)			\
 		((ver) & PSCI_VERSION_MINOR_MASK)
+#define PSCI_VERSION(maj, min)						\
+	((((maj) << PSCI_VERSION_MAJOR_SHIFT) & PSCI_VERSION_MAJOR_MASK) | \
+	 ((min) & PSCI_VERSION_MINOR_MASK))
+
+/* PSCI features decoding (>=1.0) */
+#define PSCI_1_0_FEATURES_CPU_SUSPEND_PF_SHIFT	1
+#define PSCI_1_0_FEATURES_CPU_SUSPEND_PF_MASK	\
+			(0x1 << PSCI_1_0_FEATURES_CPU_SUSPEND_PF_SHIFT)
+
+#define PSCI_1_0_OS_INITIATED			BIT(0)
+#define PSCI_1_0_SUSPEND_MODE_PC		0
+#define PSCI_1_0_SUSPEND_MODE_OSI		1
 
 /* PSCI return values (inclusive of all PSCI versions) */
 #define PSCI_RET_SUCCESS			0
@@ -86,10 +113,14 @@
 #define PSCI_RET_INTERNAL_FAILURE		-6
 #define PSCI_RET_NOT_PRESENT			-7
 #define PSCI_RET_DISABLED			-8
+#define PSCI_RET_INVALID_ADDRESS		-9
 
 #ifdef CONFIG_ARM_PSCI_FW
 unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
 			     unsigned long a2, unsigned long a3);
+void psci_sys_reset(u32 type);
+void psci_sys_poweroff(void);
+
 #else
 static inline unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
 					   unsigned long a2, unsigned long a3)

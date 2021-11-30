@@ -15,7 +15,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/lcdc.h>
-#include <asm/arch/gpio.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 
 struct sunxi_lcd_priv {
@@ -142,11 +142,11 @@ U_BOOT_DRIVER(sunxi_lcd) = {
 	.id     = UCLASS_DISPLAY,
 	.ops    = &sunxi_lcd_ops,
 	.probe  = sunxi_lcd_probe,
-	.priv_auto_alloc_size = sizeof(struct sunxi_lcd_priv),
+	.priv_auto	= sizeof(struct sunxi_lcd_priv),
 };
 
 #ifdef CONFIG_MACH_SUN50I
-U_BOOT_DEVICE(sunxi_lcd) = {
+U_BOOT_DRVINFO(sunxi_lcd) = {
 	.name = "sunxi_lcd"
 };
 #endif

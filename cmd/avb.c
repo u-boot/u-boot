@@ -22,7 +22,7 @@ int do_avb_init(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	mmc_dev = simple_strtoul(argv[1], NULL, 16);
+	mmc_dev = hextoul(argv[1], NULL);
 
 	if (avb_ops)
 		avb_ops_free(avb_ops);
@@ -53,9 +53,9 @@ int do_avb_read_part(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	part = argv[1];
-	offset = simple_strtoul(argv[2], NULL, 16);
-	bytes = simple_strtoul(argv[3], NULL, 16);
-	buffer = (void *)simple_strtoul(argv[4], NULL, 16);
+	offset = hextoul(argv[2], NULL);
+	bytes = hextoul(argv[3], NULL);
+	buffer = (void *)hextoul(argv[4], NULL);
 
 	if (avb_ops->read_from_partition(avb_ops, part, offset, bytes,
 					 buffer, &bytes_read) ==
@@ -86,8 +86,8 @@ int do_avb_read_part_hex(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	part = argv[1];
-	offset = simple_strtoul(argv[2], NULL, 16);
-	bytes = simple_strtoul(argv[3], NULL, 16);
+	offset = hextoul(argv[2], NULL);
+	bytes = hextoul(argv[3], NULL);
 
 	buffer = malloc(bytes);
 	if (!buffer) {
@@ -132,9 +132,9 @@ int do_avb_write_part(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	part = argv[1];
-	offset = simple_strtoul(argv[2], NULL, 16);
-	bytes = simple_strtoul(argv[3], NULL, 16);
-	buffer = (void *)simple_strtoul(argv[4], NULL, 16);
+	offset = hextoul(argv[2], NULL);
+	bytes = hextoul(argv[3], NULL);
+	buffer = (void *)hextoul(argv[4], NULL);
 
 	if (avb_ops->write_to_partition(avb_ops, part, offset, bytes, buffer) ==
 	    AVB_IO_RESULT_OK) {
@@ -161,7 +161,7 @@ int do_avb_read_rb(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	index = (size_t)simple_strtoul(argv[1], NULL, 16);
+	index = (size_t)hextoul(argv[1], NULL);
 
 	if (avb_ops->read_rollback_index(avb_ops, index, &rb_idx) ==
 	    AVB_IO_RESULT_OK) {
@@ -188,8 +188,8 @@ int do_avb_write_rb(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != 3)
 		return CMD_RET_USAGE;
 
-	index = (size_t)simple_strtoul(argv[1], NULL, 16);
-	rb_idx = simple_strtoul(argv[2], NULL, 16);
+	index = (size_t)hextoul(argv[1], NULL);
+	rb_idx = hextoul(argv[2], NULL);
 
 	if (avb_ops->write_rollback_index(avb_ops, index, rb_idx) ==
 	    AVB_IO_RESULT_OK)
@@ -366,7 +366,7 @@ int do_avb_read_pvalue(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	name = argv[1];
-	bytes = simple_strtoul(argv[2], &endp, 10);
+	bytes = dectoul(argv[2], &endp);
 	if (*endp && *endp != '\n')
 		return CMD_RET_USAGE;
 

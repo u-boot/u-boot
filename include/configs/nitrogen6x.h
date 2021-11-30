@@ -11,23 +11,9 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MACH_TYPE	3769
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
-
 #define CONFIG_USBD_HS
 
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_I2C_EDID
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
@@ -43,7 +29,6 @@
 #define CONFIG_LBA48
 #endif
 
-#define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
@@ -90,14 +75,6 @@
 #define DISTRO_BOOT_DEV_DHCP(func)
 #endif
 
-
-#if defined(CONFIG_SABRELITE)
-#define FDTFILE "fdtfile=imx6q-sabrelite.dtb\0"
-#else
-/* FIXME: nitrogen6x covers multiple configs. Define fdtfile for each supported config. */
-#define FDTFILE
-#endif
-
 #define BOOT_TARGET_DEVICES(func) \
 	DISTRO_BOOT_DEV_MMC(func) \
 	DISTRO_BOOT_DEV_SATA(func) \
@@ -113,10 +90,10 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_addr_r=0x18000000\0" \
-	FDTFILE \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0"  \
-	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	"fdtfile=" __stringify(CONFIG_DEFAULT_DEVICE_TREE) ".dtb\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"  \
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramdisk_addr_r=0x13000000\0" \
 	"ramdiskaddr=0x13000000\0" \
 	"ip_dyn=yes\0" \

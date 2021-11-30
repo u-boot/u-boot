@@ -14,9 +14,6 @@
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
-/* Generic Interrupt Controller */
-#define CONFIG_GICV2
-
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *
@@ -41,17 +38,15 @@
  * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 33M allows
  *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
  */
-#define CONFIG_LOADADDR 0x80080000
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=0x90000000\0" \
 	"pxefile_addr_r=0x90100000\0" \
-	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"fdtfile=" FDTFILE "\0" \
 	"fdt_addr_r=0x83000000\0" \
-	"ramdisk_addr_r=0x83200000\0"
+	"ramdisk_addr_r=0x83420000\0"
 
 /* For USB EHCI controller */
-#define CONFIG_EHCI_IS_TDI
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
 
 /* GPU needs setup */

@@ -13,6 +13,7 @@
 #include <fdt_support.h>
 #include <hang.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <dm/root.h>
 #include <image.h>
 #include <asm/byteorder.h>
@@ -63,7 +64,7 @@ static void announce_and_cleanup(int fake)
 
 static void boot_prep_linux(bootm_headers_t *images)
 {
-	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
 #ifdef CONFIG_OF_LIBFDT
 		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
@@ -95,7 +96,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	announce_and_cleanup(fake);
 
 	if (!fake) {
-		if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+		if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
 #ifdef CONFIG_SMP
 			ret = smp_call_function(images->ep,
 						(ulong)images->ft_addr, 0, 0);
@@ -133,4 +134,17 @@ int do_bootm_vxworks(int flag, int argc, char *const argv[],
 		     bootm_headers_t *images)
 {
 	return do_bootm_linux(flag, argc, argv, images);
+}
+
+static ulong get_sp(void)
+{
+	ulong ret;
+
+	asm("mv %0, sp" : "=r"(ret) : );
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
 }

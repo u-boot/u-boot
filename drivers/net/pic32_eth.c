@@ -14,6 +14,7 @@
 #include <console.h>
 #include <time.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <linux/delay.h>
 #include <linux/mii.h>
@@ -326,7 +327,7 @@ static void pic32_rx_desc_init(struct pic32eth_dev *priv)
 
 static int pic32_eth_start(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct pic32eth_dev *priv = dev_get_priv(dev);
 
 	/* controller */
@@ -531,7 +532,7 @@ static const struct eth_ops pic32_eth_ops = {
 
 static int pic32_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct pic32eth_dev *priv = dev_get_priv(dev);
 	const char *phy_mode;
 	void __iomem *iobase;
@@ -606,6 +607,6 @@ U_BOOT_DRIVER(pic32_ethernet) = {
 	.probe			= pic32_eth_probe,
 	.remove			= pic32_eth_remove,
 	.ops			= &pic32_eth_ops,
-	.priv_auto_alloc_size	= sizeof(struct pic32eth_dev),
-	.platdata_auto_alloc_size	= sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct pic32eth_dev),
+	.plat_auto	= sizeof(struct eth_pdata),
 };

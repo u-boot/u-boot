@@ -16,6 +16,7 @@
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/emif.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <cpsw.h>
 #include <env.h>
@@ -29,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static __maybe_unused struct ctrl_dev *cdev =
 	(struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 static struct module_pin_mux uart0_pin_mux[] = {
 	{OFFSET(uart0_rxd), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* UART0_RXD */
 	{OFFSET(uart0_txd), (MODE(0) | PULLUDEN)},		/* UART0_TXD */
@@ -68,9 +69,7 @@ static void enable_board_pin_mux(void)
 	configure_module_pin_mux(rmii1_pin_mux);
 	configure_module_pin_mux(mmc0_pin_mux);
 }
-#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 void set_uart_mux_conf(void)
 {
 	configure_module_pin_mux(uart0_pin_mux);
@@ -85,7 +84,7 @@ void am33xx_spl_board_init(void)
 {
 	chilisom_spl_board_init();
 }
-#endif
+#endif /* CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) */
 
 /*
  * Basic board specific setup.  Pinmux has been handled already.

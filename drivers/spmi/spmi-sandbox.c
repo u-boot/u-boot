@@ -151,5 +151,5 @@ U_BOOT_DRIVER(msm_spmi) = {
 	.of_match = sandbox_spmi_ids,
 	.ops = &sandbox_spmi_ops,
 	.probe = sandbox_spmi_probe,
-	.priv_auto_alloc_size = sizeof(struct sandbox_spmi_priv),
+	.priv_auto	= sizeof(struct sandbox_spmi_priv),
 };

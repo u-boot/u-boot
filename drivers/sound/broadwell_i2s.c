@@ -304,5 +304,5 @@ U_BOOT_DRIVER(broadwell_i2s) = {
 	.of_match	= broadwell_i2s_ids,
 	.probe		= broadwell_i2s_probe,
 	.ops		= &broadwell_i2s_ops,
-	.priv_auto_alloc_size	= sizeof(struct broadwell_i2s_priv),
+	.priv_auto	= sizeof(struct broadwell_i2s_priv),
 };

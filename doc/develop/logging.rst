@@ -26,8 +26,7 @@ Logging levels
 
 There are a number logging levels available.
 
-.. kernel-doc:: include/log.h
-   :identifiers: log_level_t
+See enum :c:type:`log_level_t`
 
 Logging category
 ----------------
@@ -36,8 +35,7 @@ Logging can come from a wide variety of places within U-Boot. Each log message
 has a category which is intended to allow messages to be filtered according to
 their source.
 
-.. kernel-doc:: include/log.h
-   :identifiers: log_category_t
+See enum :c:type:`log_category_t`
 
 Enabling logging
 ----------------
@@ -54,6 +52,10 @@ If CONFIG_LOG is not set, then no logging will be available.
 The above have SPL and TPL versions also, e.g. CONFIG_SPL_LOG_MAX_LEVEL and
 CONFIG_TPL_LOG_MAX_LEVEL.
 
+If logging is disabled, the default behaviour is to output any message at
+level LOGL_INFO and below. If logging is disabled and DEBUG is defined (at
+the very top of a C file) then any message at LOGL_DEBUG will be written.
+
 Temporary logging within a single file
 --------------------------------------
 
@@ -67,7 +69,7 @@ to enable building in of all logging statements in a single file. Put it at
 the top of the file, before any #includes.
 
 To actually get U-Boot to output this you need to also set the default logging
-level - e.g. set CONFIG_LOG_DEFAULT_LEVEL to 7 (:c:type:`LOGL_DEBUG`) or more.
+level - e.g. set CONFIG_LOG_DEFAULT_LEVEL to 7 (:c:data:`LOGL_DEBUG`) or more.
 Otherwise debug output is suppressed and will not be generated.
 
 Using DEBUG
@@ -98,15 +100,44 @@ Also debug() and error() will generate log records  - these use LOG_CATEGORY
 as the category, so you should #define this right at the top of the source
 file to ensure the category is correct.
 
+Generally each log format_string ends with a newline. If it does not, then the
+next log statement will have the LOGRECF_CONT flag set. This can be used to
+continue the statement on the same line as the previous one without emitting
+new header information (such as category/level). This behaviour is implemented
+with log_console. Here is an example that prints a list all on one line with
+the tags at the start:
+
+.. code-block:: c
+
+   log_debug("Here is a list:");
+   for (i = 0; i < count; i++)
+      log_debug(" item %d", i);
+   log_debug("\n");
+
+Also see the special category LOGL_CONT and level LOGC_CONT.
+
 You can also define CONFIG_LOG_ERROR_RETURN to enable the log_ret() macro. This
 can be used whenever your function returns an error value:
 
 .. code-block:: c
 
-   return log_ret(uclass_first_device(UCLASS_MMC, &dev));
+   return log_ret(uclass_first_device_err(UCLASS_MMC, &dev));
 
 This will write a log record when an error code is detected (a value < 0). This
 can make it easier to trace errors that are generated deep in the call stack.
+
+The log_msg_ret() variant will print a short string if CONFIG_LOG_ERROR_RETURN
+is enabled. So long as the string is unique within the function you can normally
+determine exactly which call failed:
+
+.. code-block:: c
+
+   ret = gpio_request_by_name(dev, "cd-gpios", 0, &desc, GPIOD_IS_IN);
+   if (ret)
+      return log_msg_ret("gpio", ret);
+
+Some functions return 0 for success and any other value is an error. For these,
+log_retz() and log_msg_retz() are available.
 
 Convenience functions
 ~~~~~~~~~~~~~~~~~~~~~
@@ -264,8 +295,6 @@ More logging destinations:
 
 Convert debug() statements in the code to log() statements
 
-Support making printf() emit log statements at L_INFO level
-
 Convert error() statements in the code to log() statements
 
 Figure out what to do with BUG(), BUG_ON() and warn_non_spl()
@@ -290,8 +319,3 @@ number dropped due to them being generated before the log system was ready.
 Add a printf() format string pragma so that log statements are checked properly
 
 Add a command to delete existing log records.
-
-Logging API
------------
-.. kernel-doc:: include/log.h
-   :internal:

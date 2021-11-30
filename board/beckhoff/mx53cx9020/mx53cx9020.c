@@ -13,6 +13,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux-mx53.h>
+#include <asm/global_data.h>
 #include <asm/mach-imx/mx5_video.h>
 #include <ACEX1K.h>
 #include <asm/gpio.h>
@@ -47,6 +48,7 @@ static const u32 CCAT_MODE_RUN = 0x0033DC8F;
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_REVISION_TAG
 u32 get_board_rev(void)
 {
 	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
@@ -58,6 +60,7 @@ u32 get_board_rev(void)
 
 	return (get_cpu_rev() & ~(0xF << 8)) | (rev & 0xF) << 8;
 }
+#endif
 
 /*
  * Set CCAT mode

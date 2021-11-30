@@ -1,0 +1,112 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+/ {
+	chosen {
+		stdout-path = "serial2:115200n8";
+		tick-timer = &timer1;
+	};
+
+	aliases {
+		mmc1 = &sdhci1;
+	};
+};
+
+&cbass_main{
+	u-boot,dm-spl;
+	timer1: timer@2400000 {
+		compatible = "ti,omap5430-timer";
+		reg = <0x0 0x2400000 0x0 0x80>;
+		ti,timer-alwon;
+		clock-frequency = <250000000>;
+		u-boot,dm-spl;
+	};
+};
+
+&main_conf {
+	u-boot,dm-spl;
+	chipid@14 {
+		u-boot,dm-spl;
+	};
+};
+
+&main_pmx0 {
+	u-boot,dm-spl;
+	main_i2c0_pins_default: main-i2c0-pins-default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			AM64X_IOPAD(0x0260, PIN_INPUT_PULLUP, 0) /* (A18) I2C0_SCL */
+			AM64X_IOPAD(0x0264, PIN_INPUT_PULLUP, 0) /* (B18) I2C0_SDA */
+		>;
+	};
+};
+
+&main_i2c0 {
+	u-boot,dm-spl;
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_i2c0_pins_default>;
+	clock-frequency = <400000>;
+};
+
+&main_uart0 {
+	u-boot,dm-spl;
+};
+
+&dmss {
+	u-boot,dm-spl;
+};
+
+&secure_proxy_main {
+	u-boot,dm-spl;
+};
+
+&dmsc {
+	u-boot,dm-spl;
+	k3_sysreset: sysreset-controller {
+		compatible = "ti,sci-sysreset";
+		u-boot,dm-spl;
+	};
+};
+
+&k3_pds {
+	u-boot,dm-spl;
+};
+
+&k3_clks {
+	u-boot,dm-spl;
+};
+
+&k3_reset {
+	u-boot,dm-spl;
+};
+
+&sdhci0 {
+	status = "disabled";
+	u-boot,dm-spl;
+};
+
+&sdhci1 {
+	u-boot,dm-spl;
+};
+
+&main_mmc1_pins_default {
+	u-boot,dm-spl;
+};
+
+&cpsw3g {
+	reg = <0x0 0x8000000 0x0 0x200000>,
+	      <0x0 0x43000200 0x0 0x8>;
+	reg-names = "cpsw_nuss", "mac_efuse";
+	/delete-property/ ranges;
+
+	cpsw-phy-sel@04044 {
+		compatible = "ti,am64-phy-gmii-sel";
+		reg = <0x0 0x43004044 0x0 0x8>;
+	};
+};
+
+&cpsw_port2 {
+	status = "disabled";
+};

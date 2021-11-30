@@ -13,6 +13,11 @@
 #define ASPEED_DRAM_BASE	0x80000000
 #define ASPEED_SRAM_BASE	0x1e720000
 #define ASPEED_SRAM_SIZE	0x9000
+#elif defined(CONFIG_ASPEED_AST2600)
+#define ASPEED_MAC_COUNT	4
+#define ASPEED_DRAM_BASE	0x80000000
+#define ASPEED_SRAM_BASE	0x10000000
+#define ASPEED_SRAM_SIZE	0x10000
 #else
 #err "Unrecognized Aspeed platform."
 #endif

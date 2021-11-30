@@ -9,6 +9,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <command.h>
+#include <asm/global_data.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/immap_qe.h>
@@ -288,7 +289,6 @@ void u_qe_init(void)
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 
 	if (!mmc) {
-		free(addr);
 		printf("\nMMC cannot find device for ucode\n");
 	} else {
 		printf("\nMMC read: dev # %u, block # %u, count %u ...\n",
@@ -794,7 +794,7 @@ static int qe_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return cmd_usage(cmdtp);
 
 	if (strcmp(argv[1], "fw") == 0) {
-		addr = simple_strtoul(argv[2], NULL, 16);
+		addr = hextoul(argv[2], NULL);
 
 		if (!addr) {
 			printf("Invalid address\n");
@@ -807,7 +807,7 @@ static int qe_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		 */
 
 		if (argc > 3) {
-			ulong length = simple_strtoul(argv[3], NULL, 16);
+			ulong length = hextoul(argv[3], NULL);
 			struct qe_firmware *firmware = (void *)addr;
 
 			if (length != be32_to_cpu(firmware->header.length)) {

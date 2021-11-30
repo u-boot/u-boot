@@ -23,7 +23,7 @@ struct mvebu_spi_dev {
 	bool			is_errata_50mhz_ac;
 };
 
-struct mvebu_spi_platdata {
+struct mvebu_spi_plat {
 	struct kwspi_registers *spireg;
 	bool is_errata_50mhz_ac;
 };
@@ -109,14 +109,71 @@ static int _spi_xfer(struct kwspi_registers *reg, unsigned int bitlen,
 
 static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
+	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 	struct kwspi_registers *reg = plat->spireg;
-	u32 data;
+	u32 data, divider;
+	unsigned int spr, sppr;
 
-	/* calculate spi clock prescaller using max_hz */
-	data = ((CONFIG_SYS_TCLK / 2) / hz) + 0x10;
-	data = data < KWSPI_CLKPRESCL_MIN ? KWSPI_CLKPRESCL_MIN : data;
-	data = data > KWSPI_CLKPRESCL_MASK ? KWSPI_CLKPRESCL_MASK : data;
+	if (spi->max_hz && (hz > spi->max_hz)) {
+		debug("%s: limit speed to the max_hz of the bus %d\n",
+		      __func__, spi->max_hz);
+		hz = spi->max_hz;
+	}
+
+	/*
+	 * Calculate spi clock prescaller using max_hz.
+	 * SPPR is SPI Baud Rate Pre-selection, it holds bits 5 and 7:6 in
+	 * SPI Interface Configuration Register;
+	 * SPR is SPI Baud Rate Selection, it holds bits 3:0 in SPI Interface
+	 * Configuration Register.
+	 * The SPR together with the SPPR define the SPI CLK frequency as
+	 * follows:
+	 * SPI actual frequency = core_clk / (SPR * (2 ^ SPPR))
+	 */
+	divider = DIV_ROUND_UP(CONFIG_SYS_TCLK, hz);
+	if (divider < 16) {
+		/* This is the easy case, divider is less than 16 */
+		spr = divider;
+		sppr = 0;
+
+	} else {
+		unsigned int two_pow_sppr;
+		/*
+		 * Find the highest bit set in divider. This and the
+		 * three next bits define SPR (apart from rounding).
+		 * SPPR is then the number of zero bits that must be
+		 * appended:
+		 */
+		sppr = fls(divider) - 4;
+
+		/*
+		 * As SPR only has 4 bits, we have to round divider up
+		 * to the next multiple of 2 ** sppr.
+		 */
+		two_pow_sppr = 1 << sppr;
+		divider = (divider + two_pow_sppr - 1) & -two_pow_sppr;
+
+		/*
+		 * recalculate sppr as rounding up divider might have
+		 * increased it enough to change the position of the
+		 * highest set bit. In this case the bit that now
+		 * doesn't make it into SPR is 0, so there is no need to
+		 * round again.
+		 */
+		sppr = fls(divider) - 4;
+		spr = divider >> sppr;
+
+		/*
+		 * Now do range checking. SPR is constructed to have a
+		 * width of 4 bits, so this is fine for sure. So we
+		 * still need to check for sppr to fit into 3 bits:
+		 */
+		if (sppr > 7)
+			return -EINVAL;
+	}
+
+	data = ((sppr & 0x6) << 5) | ((sppr & 0x1) << 4) | spr;
 
 	/* program spi clock prescaler using max_hz */
 	writel(KWSPI_ADRLEN_3BYTE | data, &reg->cfg);
@@ -127,7 +184,7 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 
 static void mvebu_spi_50mhz_ac_timing_erratum(struct udevice *bus, uint mode)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct kwspi_registers *reg = plat->spireg;
 	u32 data;
 
@@ -160,7 +217,7 @@ static void mvebu_spi_50mhz_ac_timing_erratum(struct udevice *bus, uint mode)
 
 static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct kwspi_registers *reg = plat->spireg;
 	u32 data = readl(&reg->cfg);
 
@@ -185,7 +242,7 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 
 	return _spi_xfer(plat->spireg, bitlen, dout, din, flags);
 }
@@ -198,7 +255,7 @@ __attribute__((weak)) int mvebu_board_spi_claim_bus(struct udevice *dev)
 static int mvebu_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 
 	/* Configure the chip-select in the CTRL register */
 	clrsetbits_le32(&plat->spireg->ctrl,
@@ -220,7 +277,7 @@ static int mvebu_spi_release_bus(struct udevice *dev)
 
 static int mvebu_spi_probe(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	struct kwspi_registers *reg = plat->spireg;
 
 	writel(KWSPI_SMEMRDY, &reg->ctrl);
@@ -230,9 +287,9 @@ static int mvebu_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
+static int mvebu_spi_of_to_plat(struct udevice *bus)
 {
-	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct mvebu_spi_plat *plat = dev_get_plat(bus);
 	const struct mvebu_spi_dev *drvdata =
 		(struct mvebu_spi_dev *)dev_get_driver_data(bus);
 
@@ -295,8 +352,8 @@ U_BOOT_DRIVER(mvebu_spi) = {
 	.id = UCLASS_SPI,
 	.of_match = mvebu_spi_ids,
 	.ops = &mvebu_spi_ops,
-	.ofdata_to_platdata = mvebu_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct mvebu_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct mvebu_spi_priv),
+	.of_to_plat = mvebu_spi_of_to_plat,
+	.plat_auto	= sizeof(struct mvebu_spi_plat),
+	.priv_auto	= sizeof(struct mvebu_spi_priv),
 	.probe = mvebu_spi_probe,
 };

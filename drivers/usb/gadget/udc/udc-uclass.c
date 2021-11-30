@@ -4,6 +4,8 @@
  * Written by Jean-Jacques Hiblot <jjhiblot@ti.com>
  */
 
+#define LOG_CATEGORY UCLASS_USB_GADGET_GENERIC
+
 #include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
@@ -45,7 +47,7 @@ int usb_gadget_release(int index)
 		dev_array[index] = NULL;
 	return ret;
 #else
-	return -ENOTSUPP;
+	return -ENOSYS;
 #endif
 }
 

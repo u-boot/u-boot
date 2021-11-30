@@ -203,18 +203,18 @@ static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[4] = {
 };
 
 static const struct mstp_stop_table r8a77980_mstp_table[] = {
-	{ 0x00230000, 0x0, 0x00230000, 0 },
-	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
-	{ 0x14062FD8, 0x2040, 0x14062FD8, 0 },
-	{ 0xFFFFFFDF, 0x400, 0xFFFFFFDF, 0 },
-	{ 0x80000184, 0x180, 0x80000184, 0 },
-	{ 0x83FFFFFF, 0x0, 0x83FFFFFF, 0 },
-	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
-	{ 0xFFFFFFFF, 0x0, 0xFFFFFFFF, 0 },
-	{ 0x7FF3FFF4, 0x0, 0x7FF3FFF4, 0 },
-	{ 0xFBF7FF97, 0x0, 0xFBF7FF97, 0 },
-	{ 0xFFFEFFE0, 0x0, 0xFFFEFFE0, 0 },
-	{ 0x000000B7, 0x0, 0x000000B7, 0 },
+	{ 0x00230010, 0x0, 0x00230010, 0 },
+	{ 0x0be06c06, 0x0, 0x0be06c06, 0 },
+	{ 0x0006afd8, 0x2080, 0x0006afd8, 0 },
+	{ 0x00c8c0df, 0x0, 0x00c8c0df, 0 },
+	{ 0x80008004, 0x180, 0x80008004, 0 },
+	{ 0xbffe0021, 0x0, 0xbffe0021, 0 },
+	{ 0x1a841138, 0x0, 0x1a841138, 0 },
+	{ 0x090180c0, 0x0, 0x090180c0, 0 },
+	{ 0xfff27ff0, 0x0, 0xfff27ff0, 0 },
+	{ 0xf80a5f84, 0x0, 0xf80a5f84, 0 },
+	{ 0x0000001f, 0x0, 0x0000001f, 0 },
+	{ 0x00030000, 0x0, 0x00030000, 0 },
 };
 
 static const void *r8a77980_get_pll_config(const u32 cpg_mode)
@@ -230,6 +230,7 @@ static const struct cpg_mssr_info r8a77980_cpg_mssr_info = {
 	.mstp_table		= r8a77980_mstp_table,
 	.mstp_table_size	= ARRAY_SIZE(r8a77980_mstp_table),
 	.reset_node		= "renesas,r8a77980-rst",
+	.reset_modemr_offset	= CPG_RST_MODEMR,
 	.extalr_node		= "extalr",
 	.mod_clk_base		= MOD_CLK_BASE,
 	.clk_extal_id		= CLK_EXTAL,
@@ -249,7 +250,7 @@ U_BOOT_DRIVER(clk_r8a77980) = {
 	.name		= "clk_r8a77980",
 	.id		= UCLASS_CLK,
 	.of_match	= r8a77980_clk_ids,
-	.priv_auto_alloc_size = sizeof(struct gen3_clk_priv),
+	.priv_auto	= sizeof(struct gen3_clk_priv),
 	.ops		= &gen3_clk_ops,
 	.probe		= gen3_clk_probe,
 	.remove		= gen3_clk_remove,

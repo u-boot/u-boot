@@ -23,6 +23,7 @@
 #include <jffs2/jffs2.h>
 #include <linux/bch.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/rawnand.h>
 
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/imx-nandbcb.h>
@@ -275,7 +276,8 @@ static int nandbcb_set_boot_config(int argc, char * const argv[],
 			       boot_stream1_address);
 
 	if (boot_cfg->secondary_boot_stream_off_in_MB)
-		boot_stream2_address = boot_cfg->secondary_boot_stream_off_in_MB * 1024 * 1024;
+		boot_stream2_address =
+			(loff_t)boot_cfg->secondary_boot_stream_off_in_MB * 1024 * 1024;
 
 	max_boot_stream_size = boot_stream2_address - boot_stream1_address;
 
@@ -476,7 +478,7 @@ static int fill_dbbt_data(struct mtd_info *mtd, void *buf, int num_blocks)
 	u32 *n_bad_blocksp = buf + 0x4;
 
 	for (n = 0; n < num_blocks; n++) {
-		loff_t offset = n * mtd->erasesize;
+		loff_t offset = (loff_t)n * mtd->erasesize;
 			if (mtd_block_isbad(mtd, offset)) {
 				n_bad_blocks++;
 				*bb = n;
@@ -503,11 +505,16 @@ static int read_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb,
 	int ret = 0;
 
 	mtd = boot_cfg->mtd;
-	fcb_raw_page = kzalloc(mtd->writesize + mtd->oobsize, GFP_KERNEL);
-
 	if (mtd_block_isbad(mtd, off)) {
 		printf("Block %d is bad, skipped\n", (int)CONV_TO_BLOCKS(off));
 		return 1;
+	}
+
+	fcb_raw_page = kzalloc(mtd->writesize + mtd->oobsize, GFP_KERNEL);
+	if (!fcb_raw_page) {
+		debug("failed to allocate fcb_raw_page\n");
+		ret = -ENOMEM;
+		return ret;
 	}
 
 	/*
@@ -563,7 +570,7 @@ static int write_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb)
 {
 	struct mtd_info *mtd;
 	void *fcb_raw_page = NULL;
-	int i, ret;
+	int i, ret = 0;
 	loff_t off;
 	size_t size;
 
@@ -652,8 +659,6 @@ static int write_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb)
 		/* next writing location */
 		off += g_boot_search_stride;
 	}
-
-	return 0;
 
 fcb_raw_page_err:
 	kfree(fcb_raw_page);
@@ -1079,13 +1084,13 @@ static int do_nandbcb_bcbonly(int argc, char *const argv[])
 
 	mtd = cfg.mtd;
 
-	cfg.boot_stream1_address = simple_strtoul(argv[2], NULL, 16);
-	cfg.boot_stream1_size = simple_strtoul(argv[3], NULL, 16);
+	cfg.boot_stream1_address = hextoul(argv[2], NULL);
+	cfg.boot_stream1_size = hextoul(argv[3], NULL);
 	cfg.boot_stream1_size = ALIGN(cfg.boot_stream1_size, mtd->writesize);
 
 	if (argc > 5) {
-		cfg.boot_stream2_address = simple_strtoul(argv[4], NULL, 16);
-		cfg.boot_stream2_size = simple_strtoul(argv[5], NULL, 16);
+		cfg.boot_stream2_address = hextoul(argv[4], NULL);
+		cfg.boot_stream2_size = hextoul(argv[5], NULL);
 		cfg.boot_stream2_size = ALIGN(cfg.boot_stream2_size,
 					      mtd->writesize);
 	}
@@ -1446,7 +1451,7 @@ static int do_nandbcb_init(int argc, char * const argv[])
 	if (nandbcb_set_boot_config(argc, argv, &cfg))
 		return CMD_RET_FAILURE;
 
-	addr = simple_strtoul(argv[1], &endp, 16);
+	addr = hextoul(argv[1], &endp);
 	if (*argv[1] == 0 || *endp != 0)
 		return CMD_RET_FAILURE;
 
@@ -1483,7 +1488,7 @@ static int do_nandbcb(struct cmd_tbl *cmdtp, int flag, int argc,
 		plat_config = imx8mq_plat_config;
 	} else if (is_imx8mm()) {
 		plat_config = imx8mm_plat_config;
-	} else if (is_imx8mn()) {
+	} else if (is_imx8mn() || is_imx8mp()) {
 		plat_config = imx8mn_plat_config;
 	} else if (is_imx8qm() || is_imx8qxp()) {
 		plat_config = imx8q_plat_config;
@@ -1492,13 +1497,13 @@ static int do_nandbcb(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	if (plat_config.misc_flags & BT_SEARCH_CNT_FROM_FUSE) {
-		if (is_imx8qxp()) {
-			g_boot_search_count = fuse_to_search_count(0, 720,
-								   0xc0, 6);
-			printf("search count set to %d from fuse\n",
-			       g_boot_search_count);
-		}
+	if ((plat_config.misc_flags) & BT_SEARCH_CNT_FROM_FUSE) {
+		if (is_imx8qxp())
+			g_boot_search_count = fuse_to_search_count(0, 720, 0xc0, 6);
+		if (is_imx8mn() || is_imx8mp())
+			g_boot_search_count = fuse_to_search_count(2, 2, 0x6000, 13);
+		printf("search count set to %d from fuse\n",
+		       g_boot_search_count);
 	}
 
 	cmd = argv[1];

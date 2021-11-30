@@ -39,12 +39,19 @@ obj-$(CONFIG_$(SPL_TPL_)FRAMEWORK) += spl.o
 obj-$(CONFIG_SPL_FRAMEWORK) += zimage.o
 obj-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
 endif
+ifdef CONFIG_ARM64
+obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMSET) += memset-arm64.o
+obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMCPY) += memcpy-arm64.o
+else
 obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMSET) += memset.o
 obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMCPY) += memcpy.o
+endif
 obj-$(CONFIG_SEMIHOSTING) += semihosting.o
 
 obj-y	+= bdinfo.o
 obj-y	+= sections.o
+CFLAGS_REMOVE_sections.o := $(LTO_CFLAGS)
+
 obj-y	+= stack.o
 ifdef CONFIG_CPU_V7M
 obj-y	+= interrupts_m.o
@@ -64,6 +71,7 @@ endif
 
 obj-y	+= cache.o
 obj-$(CONFIG_SYS_ARM_CACHE_CP15)	+= cache-cp15.o
+CFLAGS_REMOVE_cache-cp15.o := $(LTO_CFLAGS)
 
 obj-y	+= psci-dt.o
 

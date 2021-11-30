@@ -291,7 +291,7 @@ error_out:
 int btrfs_read_dev_super(struct blk_desc *desc, struct disk_partition *part,
 			 struct btrfs_super_block *sb)
 {
-	char tmp[BTRFS_SUPER_INFO_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(char, tmp, BTRFS_SUPER_INFO_SIZE);
 	struct btrfs_super_block *buf = (struct btrfs_super_block *)tmp;
 	int ret;
 
@@ -732,8 +732,7 @@ struct btrfs_root *btrfs_read_fs_root(struct btrfs_fs_info *fs_info,
 		return fs_info->chunk_root;
 	if (location->objectid == BTRFS_CSUM_TREE_OBJECTID)
 		return fs_info->csum_root;
-	BUG_ON(location->objectid == BTRFS_TREE_RELOC_OBJECTID ||
-	       location->offset != (u64)-1);
+	BUG_ON(location->objectid == BTRFS_TREE_RELOC_OBJECTID);
 
 	node = rb_search(&fs_info->fs_root_tree, (void *)&objectid,
 			 btrfs_fs_roots_compare_objectids, NULL);
@@ -805,6 +804,30 @@ static int setup_root_or_create_block(struct btrfs_fs_info *fs_info,
 	return 0;
 }
 
+static int get_default_subvolume(struct btrfs_fs_info *fs_info,
+				 struct btrfs_key *key_ret)
+{
+	struct btrfs_root *root = fs_info->tree_root;
+	struct btrfs_dir_item *dir_item;
+	struct btrfs_path path;
+	int ret = 0;
+
+	btrfs_init_path(&path);
+
+	dir_item = btrfs_lookup_dir_item(NULL, root, &path,
+					 BTRFS_ROOT_TREE_DIR_OBJECTID,
+					 "default", 7, 0);
+	if (IS_ERR(dir_item)) {
+		ret = PTR_ERR(dir_item);
+		goto out;
+	}
+
+	btrfs_dir_item_key_to_cpu(path.nodes[0], dir_item, key_ret);
+out:
+	btrfs_release_path(&path);
+	return ret;
+}
+
 int btrfs_setup_all_roots(struct btrfs_fs_info *fs_info)
 {
 	struct btrfs_super_block *sb = fs_info->super_copy;
@@ -834,9 +857,17 @@ int btrfs_setup_all_roots(struct btrfs_fs_info *fs_info)
 
 	fs_info->last_trans_committed = generation;
 
-	key.objectid = BTRFS_FS_TREE_OBJECTID;
-	key.type = BTRFS_ROOT_ITEM_KEY;
-	key.offset = (u64)-1;
+	ret = get_default_subvolume(fs_info, &key);
+	if (ret) {
+		/*
+		 * The default dir item isn't there. Linux kernel behaviour is
+		 * to silently use the top-level subvolume in this case.
+		 */
+		key.objectid = BTRFS_FS_TREE_OBJECTID;
+		key.type = BTRFS_ROOT_ITEM_KEY;
+		key.offset = (u64)-1;
+	}
+
 	fs_info->fs_root = btrfs_read_fs_root(fs_info, &key);
 
 	if (IS_ERR(fs_info->fs_root))
@@ -887,7 +918,11 @@ static int btrfs_scan_fs_devices(struct blk_desc *desc,
 
 	ret = btrfs_scan_one_device(desc, part, fs_devices, &total_devs);
 	if (ret) {
-		fprintf(stderr, "No valid Btrfs found\n");
+		/*
+		 * Avoid showing this when probing for a possible Btrfs
+		 *
+		 * fprintf(stderr, "No valid Btrfs found\n");
+		 */
 		return ret;
 	}
 	return 0;
@@ -976,7 +1011,7 @@ struct btrfs_fs_info *open_ctree_fs_info(struct blk_desc *desc,
 	disk_super = fs_info->super_copy;
 	ret = btrfs_read_dev_super(desc, part, disk_super);
 	if (ret) {
-		printk("No valid btrfs found\n");
+		debug("No valid btrfs found\n");
 		goto out_devices;
 	}
 
@@ -1030,7 +1065,6 @@ out:
 int close_ctree_fs_info(struct btrfs_fs_info *fs_info)
 {
 	int ret;
-	int err = 0;
 
 	free_fs_roots_tree(&fs_info->fs_root_tree);
 
@@ -1038,9 +1072,7 @@ int close_ctree_fs_info(struct btrfs_fs_info *fs_info)
 	ret = btrfs_close_devices(fs_info->fs_devices);
 	btrfs_cleanup_all_caches(fs_info);
 	btrfs_free_fs_info(fs_info);
-	if (!err)
-		err = ret;
-	return err;
+	return ret;
 }
 
 int btrfs_buffer_uptodate(struct extent_buffer *buf, u64 parent_transid)

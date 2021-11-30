@@ -491,7 +491,7 @@ int do_jffs2_fsload(struct cmd_tbl *cmdtp, int flag, int argc,
 		filename = argv[1];
 	}
 	if (argc == 3) {
-		offset = simple_strtoul(argv[1], NULL, 16);
+		offset = hextoul(argv[1], NULL);
 		image_load_addr = offset;
 		filename = argv[2];
 	}

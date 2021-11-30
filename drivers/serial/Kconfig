@@ -2,7 +2,18 @@
 # Serial device configuration
 #
 
-menu "Serial drivers"
+menuconfig SERIAL
+	bool "Serial"
+	default y
+	help
+	  Enable support for serial drivers. This allows use of a serial UART
+	  for displaying messages while U-Boot is running. It also brings in
+	  printf() and panic() functions. This should normally be enabled
+	  unless there are space reasons not to. If you just need to disable
+	  the console you can adjust the stdout environment variable or use
+	  SILENT_CONSOLE.
+
+if SERIAL
 
 config BAUDRATE
 	int "Default baudrate"
@@ -134,6 +145,21 @@ config SERIAL_SEARCH_ALL
 
 	  If unsure, say N.
 
+config SERIAL_PROBE_ALL
+	bool "Probe all available serial devices"
+	depends on DM_SERIAL
+	help
+	  The serial subsystem only probes for a single serial device,
+	  but does not probe for other remaining serial devices.
+	  With this option set, we make probing and searching for
+	  all available devices optional.
+	  Normally, U-Boot talks to one serial port at a time, but SBSA
+	  compliant UART devices like PL011 require initialization
+	  by firmware and to let the kernel use serial port for sending
+	  and receiving the characters.
+
+	  If unsure, say N.
+
 config SPL_DM_SERIAL
 	bool "Enable Driver Model for serial drivers in SPL"
 	depends on DM_SERIAL && SPL_DM
@@ -254,11 +280,27 @@ config DEBUG_EFI_CONSOLE
 	  U-Boot when running on top of EFI (Extensive Firmware Interface).
 	  This is a type of BIOS used by PCs.
 
+config DEBUG_SBI_CONSOLE
+	bool "SBI"
+	depends on SBI_V01
+	help
+	  Select this to enable a debug console which calls back to SBI to
+	  output to the console. This can be useful for early debugging of
+	  U-Boot when running on top of SBI (Supervisor Binary Interface).
+
 config DEBUG_UART_S5P
 	bool "Samsung S5P"
-	depends on ARCH_EXYNOS || ARCH_S5PC1XX
+	depends on ARCH_APPLE || ARCH_EXYNOS || ARCH_S5PC1XX
 	help
 	  Select this to enable a debug UART using the serial_s5p driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
+config DEBUG_UART_MSM_GENI
+	bool "Qualcomm snapdragon"
+	depends on ARCH_SNAPDRAGON
+	help
+	  Select this to enable a debug UART using the serial_msm driver. You
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver-model serial is running.
 
@@ -325,7 +367,7 @@ config DEBUG_UART_PL010
 
 config DEBUG_UART_PL011
 	bool "pl011"
-	depends on PL011_SERIAL
+	depends on PL01X_SERIAL || PL011_SERIAL
 	help
 	  Select this to enable a debug UART using the pl01x driver with the
 	  PL011 UART type. You will need to provide parameters to make this
@@ -401,11 +443,22 @@ config DEBUG_UART_MTK
 	  driver will be available until the real driver model serial is
 	  running.
 
+config DEBUG_UART_MT7620
+	bool "UART driver for MediaTek MT7620 and earlier SoCs"
+	depends on MT7620_SERIAL
+	help
+	  Select this to enable a debug UART using the UART driver for
+	  MediaTek MT7620 and earlier SoCs.
+	  You will need to provide parameters to make this work. The
+	  driver will be available until the real driver model serial is
+	  running.
+
 endchoice
 
 config DEBUG_UART_BASE
 	hex "Base address of UART"
 	depends on DEBUG_UART
+	default 0 if DEBUG_SBI_CONSOLE
 	default 0 if DEBUG_UART_SANDBOX
 	help
 	  This is the base address of your UART for memory-mapped UARTs.
@@ -416,7 +469,9 @@ config DEBUG_UART_BASE
 config DEBUG_UART_CLOCK
 	int "UART input clock"
 	depends on DEBUG_UART
+	default 0 if DEBUG_SBI_CONSOLE
 	default 0 if DEBUG_UART_SANDBOX
+	default 0 if DEBUG_MVEBU_A3700_UART
 	help
 	  The UART input clock determines the speed of the internal UART
 	  circuitry. The baud rate is derived from this by dividing the input
@@ -594,7 +649,6 @@ config FSL_LPUART
 
 config MVEBU_A3700_UART
 	bool "UART support for Armada 3700"
-	default n
 	help
 	  Choose this option to add support for UART driver on the Marvell
 	  Armada 3700 SoC. The base address is configured via DT.
@@ -609,8 +663,7 @@ config MCFUART
 
 config MXC_UART
 	bool "IMX serial port support"
-	depends on ARCH_MX25 || ARCH_MX31 || TARGET_APF27 || TARGET_FLEA3 || TARGET_MX35PDK \
-		|| MX5 || MX6 || MX7 || IMX8M
+	depends on ARCH_MX31 || MX5 || MX6 || MX7 || IMX8M
 	help
 	  If you have a machine based on a Motorola IMX CPU you
 	  can enable its onboard serial port by enabling this option.
@@ -669,12 +722,6 @@ config INTEL_MID_SERIAL
 	  Select this to enable a UART for Intel MID platforms.
 	  This uses the ns16550 driver as a library.
 
-config PL010_SERIAL
-	bool "ARM PL010 driver"
-	depends on !DM_SERIAL
-	help
-	  Select this to enable a UART for platforms using PL010.
-
 config PL011_SERIAL
 	bool "ARM PL011 driver"
 	depends on !DM_SERIAL
@@ -695,6 +742,13 @@ config ROCKCHIP_SERIAL
 	  CONFIG_SPL_OF_PLATDATA (i.e. a compiled-in device tree replacemenmt).
 	  This uses the ns16550 driver, converting the platdata from of-platdata
 	  to the ns16550 format.
+
+config S5P_SERIAL
+	bool "Support for Samsung S5P UART"
+	depends on ARCH_APPLE || ARCH_EXYNOS || ARCH_S5PC1XX
+	default y
+	help
+	  Select this to enable Samsung S5P UART support.
 
 config SANDBOX_SERIAL
 	bool "Sandbox UART support"
@@ -754,6 +808,40 @@ config MSM_SERIAL
 	  It should support all Qualcomm devices with UARTDM version 1.4,
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
+
+config MSM_GENI_SERIAL
+	bool "Qualcomm on-chip GENI UART"
+	help
+	  Support UART based on Generic Interface (GENI) Serial Engine (SE),
+	  used on Qualcomm Snapdragon SoCs. Should support all qualcomm SOCs
+	  with Qualcomm Universal Peripheral (QUP) Wrapper cores,
+	  i.e. newer ones, starting from SDM845.
+	  Driver works in FIFO mode.
+	  Multiple baudrates supported.
+
+config OCTEON_SERIAL_BOOTCMD
+	bool "MIPS Octeon PCI remote bootcmd input"
+	depends on ARCH_OCTEON
+	depends on DM_SERIAL
+	select SYS_IS_IN_ENV
+	select CONSOLE_MUX
+	help
+	 This driver supports remote input over the PCIe bus from a host
+	 to U-Boot for entering commands.  It is utilized by the host
+	 commands 'oct-remote-load' and 'oct-remote-bootcmd'.
+
+config OCTEON_SERIAL_PCIE_CONSOLE
+	bool "MIPS Octeon PCIe remote console"
+	depends on ARCH_OCTEON
+	depends on (DM_SERIAL && DM_STDIO)
+	select SYS_STDIO_DEREGISTER
+	select SYS_CONSOLE_IS_IN_ENV
+	select CONSOLE_MUX
+	help
+	  This driver supports remote console over the PCIe bus when the
+	  Octeon is running in PCIe target mode. The host program
+	  'oct-remote-console' can be used to connect to this console.
+	  The console number will likely be 0 or 1.
 
 config OMAP_SERIAL
 	bool "Support for OMAP specific UART"
@@ -817,6 +905,16 @@ config MTK_SERIAL
 	  The High-speed UART is compatible with the ns16550a UART and have
 	  its own high-speed registers.
 
+config MT7620_SERIAL
+	bool "UART driver for MediaTek MT7620 and earlier SoCs"
+	depends on DM_SERIAL
+	help
+	  Select this to enable UART support for MediaTek MT7620 and earlier
+	  SoCs. This driver uses driver model and requires a device tree
+	  binding to operate.
+	  The UART driver for MediaTek MT7620 and earlier SoCs is *NOT*
+	  compatible with the ns16550a UART.
+
 config MPC8XX_CONS
 	bool "Console driver for MPC8XX"
 	depends on MPC8xx
@@ -877,4 +975,4 @@ config SYS_SDMR
 	depends on MPC8XX_CONS
 	default 0
 
-endmenu
+endif

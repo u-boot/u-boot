@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <fdtdec.h>
 #include <nand.h>
+#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>
@@ -1937,7 +1938,7 @@ U_BOOT_DRIVER(pxa3xx_nand) = {
 	.id = UCLASS_MTD,
 	.of_match = pxa3xx_nand_dt_ids,
 	.probe = pxa3xx_nand_probe,
-	.priv_auto_alloc_size = sizeof(struct pxa3xx_nand_info) +
+	.priv_auto	= sizeof(struct pxa3xx_nand_info) +
 		sizeof(struct pxa3xx_nand_host) * CONFIG_SYS_MAX_NAND_DEVICE,
 };
 
@@ -1947,7 +1948,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-			DM_GET_DRIVER(pxa3xx_nand), &dev);
+			DM_DRIVER_GET(pxa3xx_nand), &dev);
 	if (ret && ret != -ENODEV) {
 		pr_err("Failed to initialize %s. (error %d)\n", dev->name,
 			   ret);

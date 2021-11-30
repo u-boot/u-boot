@@ -18,7 +18,11 @@ arch-$(CONFIG_CPU_V7A)		=$(call cc-option, -march=armv7-a, \
 				 $(call cc-option, -march=armv7))
 arch-$(CONFIG_CPU_V7M)		=-march=armv7-m
 arch-$(CONFIG_CPU_V7R)		=-march=armv7-r
+ifeq ($(CONFIG_ARM64_CRC32),y)
+arch-$(CONFIG_ARM64)		=-march=armv8-a+crc
+else
 arch-$(CONFIG_ARM64)		=-march=armv8-a
+endif
 
 # On Tegra systems we must build SPL for the armv4 core on the device
 # but otherwise we can use the value in CONFIG_SYS_ARM_ARCH
@@ -51,6 +55,7 @@ PLATFORM_CPPFLAGS += $(arch-y) $(tune-y)
 
 # Machine directory name.  This list is sorted alphanumerically
 # by CONFIG_* macro name.
+machine-$(CONFIG_ARCH_APPLE)		+= apple
 machine-$(CONFIG_ARCH_ASPEED)		+= aspeed
 machine-$(CONFIG_ARCH_AT91)		+= at91
 machine-$(CONFIG_ARCH_BCM283X)		+= bcm283x
@@ -107,11 +112,11 @@ libs-y += arch/arm/cpu/
 libs-y += arch/arm/lib/
 
 ifeq ($(CONFIG_SPL_BUILD),y)
-ifneq (,$(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_MX35)$(filter $(SOC), mx25 mx5 mx6 mx7 mx35 imx8m imx8 imxrt))
+ifneq (,$(CONFIG_MX23)$(CONFIG_MX28)$(filter $(SOC), mx25 mx5 mx6 mx7 mx35 imx8m imx8 imx8ulp imxrt))
 libs-y += arch/arm/mach-imx/
 endif
 else
-ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx7 mx7ulp mx31 mx35 mxs imx8m imx8 imxrt vf610))
+ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx7 mx7ulp mx31 mx35 mxs imx8m imx8 imx8ulp imxrt vf610))
 libs-y += arch/arm/mach-imx/
 endif
 endif

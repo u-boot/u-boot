@@ -11,6 +11,7 @@
 #include <ahci.h>
 #include <log.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/mmc_host_def.h>
@@ -103,7 +104,7 @@ void save_omap_boot_params(void)
 			sys_boot_device = 1;
 			break;
 #endif
-#if defined(BOOT_DEVICE_CPGMAC) && !defined(CONFIG_SPL_ETH_SUPPORT)
+#if defined(BOOT_DEVICE_CPGMAC) && !defined(CONFIG_SPL_ETH)
 		case BOOT_DEVICE_CPGMAC:
 			sys_boot_device = 1;
 			break;
@@ -201,10 +202,10 @@ void spl_board_init(void)
 #if defined(CONFIG_SPL_NAND_SUPPORT) || defined(CONFIG_SPL_ONENAND_SUPPORT)
 	gpmc_init();
 #endif
-#if defined(CONFIG_SPL_I2C_SUPPORT) && !defined(CONFIG_DM_I2C)
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+#if defined(CONFIG_SPL_I2C) && !CONFIG_IS_ENABLED(DM_I2C)
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
-#if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW_SUPPORT)
+#if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW)
 	arch_misc_init();
 #endif
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)

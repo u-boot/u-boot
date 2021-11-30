@@ -97,11 +97,16 @@ sam9x60_clk_register_frac_pll(void __iomem *base, const char *name,
 			const struct clk_pll_characteristics *characteristics,
 			const struct clk_pll_layout *layout, bool critical);
 struct clk *
-at91_clk_register_master(void __iomem *base, const char *name,
+at91_clk_register_master_pres(void __iomem *base, const char *name,
 			const char * const *parent_names, int num_parents,
 			const struct clk_master_layout *layout,
 			const struct clk_master_characteristics *characteristics,
 			const u32 *mux_table);
+struct clk *
+at91_clk_register_master_div(void __iomem *base,
+			const char *name, const char *parent_name,
+			const struct clk_master_layout *layout,
+			const struct clk_master_characteristics *characteristics);
 struct clk *
 at91_clk_sama7g5_register_master(void __iomem *base, const char *name,
 			const char * const *parent_names, int num_parents,

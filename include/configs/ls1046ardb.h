@@ -10,7 +10,6 @@
 #include "ls1046a_common.h"
 
 #define CONFIG_SYS_CLK_FREQ		100000000
-#define CONFIG_DDR_CLK_FREQ		100000000
 
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
@@ -18,27 +17,12 @@
 /* Physical Memory Map */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
-#define CONFIG_DDR_SPD
 #define SPD_EEPROM_ADDRESS		0x51
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
-#define CONFIG_DDR_ECC
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 
-#ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_FSL_PBL_PBI board/freescale/ls1046ardb/ls1046ardb_pbi.cfg
-#ifdef CONFIG_EMMC_BOOT
-#define CONFIG_SYS_FSL_PBL_RCW \
-	board/freescale/ls1046ardb/ls1046ardb_rcw_emmc.cfg
-#else
-#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1046ardb/ls1046ardb_rcw_sd.cfg
-#endif
-#elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_SYS_FSL_PBL_RCW \
-	board/freescale/ls1046ardb/ls1046ardb_rcw_qspi.cfg
-#define CONFIG_SYS_FSL_PBL_PBI \
-	board/freescale/ls1046ardb/ls1046ardb_qspi_pbi.cfg
+#if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_SYS_UBOOT_BASE		0x40100000
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x90000000
 #endif
@@ -49,7 +33,6 @@
 /*
  * NAND Flash Definitions
  */
-#define CONFIG_NAND_FSL_IFC
 #endif
 
 #define CONFIG_SYS_NAND_BASE		0x7e800000
@@ -69,8 +52,6 @@
 				| CSOR_NAND_SPRZ_224	/* Spare size = 224 */ \
 				| CSOR_NAND_PB(64))	/* 64 Pages Per Block */
 
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-
 #define CONFIG_SYS_NAND_FTIM0		(FTIM0_NAND_TCCST(0x7) | \
 					FTIM0_NAND_TWP(0x18)   | \
 					FTIM0_NAND_TWCHT(0x7) | \
@@ -87,8 +68,6 @@
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
-
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
 /*
  * CPLD
@@ -135,20 +114,11 @@
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_CPLD_FTIM3
 
 /* EEPROM */
-#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x53
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 #define I2C_RETIMER_ADDR			0x18
 
 /* PMIC */
-#define CONFIG_POWER
-#ifdef CONFIG_POWER
-#define CONFIG_POWER_I2C
-#endif
 
 /*
  * Environment

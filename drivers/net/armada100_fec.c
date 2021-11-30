@@ -717,7 +717,7 @@ int armada100_fec_register(unsigned long base_addr)
 	struct mii_dev *mdiodev = mdio_alloc();
 	if (!mdiodev)
 		return -ENOMEM;
-	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	strlcpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
 	mdiodev->read = smi_reg_read;
 	mdiodev->write = smi_reg_write;
 

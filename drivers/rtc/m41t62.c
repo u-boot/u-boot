@@ -213,13 +213,13 @@ static int m41t62_rtc_restart_osc(struct udevice *dev)
 
 	/* 1. Set stop bit */
 	val |= M41T62_SEC_ST;
-	ret = dm_i2c_write(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+	ret = dm_i2c_write(dev, M41T62_REG_SEC, &val, sizeof(val));
 	if (ret)
 		return ret;
 
 	/* 2. Clear stop bit */
 	val &= ~M41T62_SEC_ST;
-	ret = dm_i2c_write(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+	ret = dm_i2c_write(dev, M41T62_REG_SEC, &val, sizeof(val));
 	if (ret)
 		return ret;
 

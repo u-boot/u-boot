@@ -40,14 +40,14 @@ static int boco_clear_bits(u8 reg, u8 flags)
 	ret = i2c_read(BOCO_ADDR, reg, 1, &regval, 1);
 	if (ret) {
 		printf("%s: error reading the BOCO @%#x !!\n",
-			__func__, reg);
+		       __func__, reg);
 		return ret;
 	}
 	regval &= ~flags;
 	ret = i2c_write(BOCO_ADDR, reg, 1, &regval, 1);
 	if (ret) {
 		printf("%s: error writing the BOCO @%#x !!\n",
-			__func__, reg);
+		       __func__, reg);
 		return ret;
 	}
 
@@ -63,14 +63,14 @@ static int boco_set_bits(u8 reg, u8 flags)
 	ret = i2c_read(BOCO_ADDR, reg, 1, &regval, 1);
 	if (ret) {
 		printf("%s: error reading the BOCO @%#x !!\n",
-			__func__, reg);
+		       __func__, reg);
 		return ret;
 	}
 	regval |= flags;
 	ret = i2c_write(BOCO_ADDR, reg, 1, &regval, 1);
 	if (ret) {
 		printf("%s: error writing the BOCO @%#x !!\n",
-			__func__, reg);
+		       __func__, reg);
 		return ret;
 	}
 
@@ -113,7 +113,8 @@ int trigger_fpga_config(void)
 	skip = 0;
 #ifndef CONFIG_KM_FPGA_FORCE_CONFIG
 	/* if the FPGA is already configured, we do not want to
-	 * reconfigure it */
+	 * reconfigure it
+	 */
 	skip = 0;
 	if (fpga_done()) {
 		printf("PCIe FPGA config: skipped\n");
@@ -179,7 +180,7 @@ int wait_for_fpga_config(void)
 		ret = i2c_read(BOCO_ADDR, SPI_REG, 1, &spictrl, 1);
 		if (ret) {
 			printf("%s: error reading the BOCO spictrl !!\n",
-				__func__);
+			       __func__);
 			return ret;
 		}
 		if (timeout-- == 0) {
@@ -235,7 +236,8 @@ int fpga_reset(void)
 #endif
 
 /* the FPGA was configured, we configure the BOCO2 so that the EEPROM
- * is available from the Bobcat SPI bus */
+ * is available from the Bobcat SPI bus
+ */
 int toggle_eeprom_spi_bus(void)
 {
 	int ret = 0;

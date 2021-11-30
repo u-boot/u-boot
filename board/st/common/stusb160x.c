@@ -6,6 +6,8 @@
  * Copyright (C) 2020, STMicroelectronics - All Rights Reserved
  */
 
+#define LOG_CATEGORY UCLASS_I2C_GENERIC
+
 #include <common.h>
 #include <dm.h>
 #include <i2c.h>
@@ -22,7 +24,7 @@ int stusb160x_cable_connected(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_I2C_GENERIC,
-					  DM_GET_DRIVER(stusb160x),
+					  DM_DRIVER_GET(stusb160x),
 					  &dev);
 	if (ret < 0)
 		return ret;

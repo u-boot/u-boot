@@ -13,7 +13,4 @@
 
 #define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE
 
-/* Memory Info */
-#define CONFIG_SYS_LOAD_ADDR		0x83000000
-
 #endif	/* __CONFIG_H */

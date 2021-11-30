@@ -22,6 +22,7 @@
 #include <linux/mii.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 
 /* Registers */
@@ -306,7 +307,7 @@ static void ravb_rx_desc_init(struct ravb_priv *eth)
 static int ravb_phy_config(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct phy_device *phydev;
 	int mask = 0xffffffff, reg;
 
@@ -346,7 +347,7 @@ static int ravb_phy_config(struct udevice *dev)
 static int ravb_write_hwaddr(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	unsigned char *mac = pdata->enetaddr;
 
 	writel((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3],
@@ -373,7 +374,7 @@ static int ravb_mac_init(struct ravb_priv *eth)
 static int ravb_dmac_init(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	int ret = 0;
 
 	/* Set CONFIG mode */
@@ -474,7 +475,7 @@ static void ravb_stop(struct udevice *dev)
 
 static int ravb_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
 	struct ofnode_phandle_args phandle_args;
 	struct mii_dev *mdiodev;
@@ -642,9 +643,9 @@ static const struct eth_ops ravb_ops = {
 	.write_hwaddr		= ravb_write_hwaddr,
 };
 
-int ravb_ofdata_to_platdata(struct udevice *dev)
+int ravb_of_to_plat(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
 	const char *phy_mode;
 	const fdt32_t *cell;
 	int ret = 0;
@@ -685,11 +686,11 @@ U_BOOT_DRIVER(eth_ravb) = {
 	.name		= "ravb",
 	.id		= UCLASS_ETH,
 	.of_match	= ravb_ids,
-	.ofdata_to_platdata = ravb_ofdata_to_platdata,
+	.of_to_plat = ravb_of_to_plat,
 	.probe		= ravb_probe,
 	.remove		= ravb_remove,
 	.ops		= &ravb_ops,
-	.priv_auto_alloc_size = sizeof(struct ravb_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.priv_auto	= sizeof(struct ravb_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };

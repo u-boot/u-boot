@@ -23,21 +23,4 @@
 #define MV88E1116_RGMII_TXTM_CTRL	(1 << 4)
 #define MV88E1116_RGMII_RXTM_CTRL	(1 << 5)
 
-/* Marvell uboot parameters */
-#define ATAG_MV_UBOOT 0x41000403
-#define VER_NUM       0x03040400 /* 3.4.4 */
-#define BOARD_ID_BASE 0x0
-#define SYNO_DS109_ID (BOARD_ID_BASE+0x15)
-
-struct tag_mv_uboot {
-	u32 uboot_version;
-	u32 tclk;
-	u32 sysclk;
-	u32 isusbhost;
-	char macaddr[4][6];
-	u16 mtu[4];
-	u32 fw_image_base;
-	u32 fw_image_size;
-};
-
 #endif /* __DS109_H */

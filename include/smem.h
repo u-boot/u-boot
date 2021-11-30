@@ -88,4 +88,3 @@ void *smem_get(struct udevice *dev, unsigned int host, unsigned int item, size_t
 int smem_get_free_space(struct udevice *dev, unsigned int host);
 
 #endif /* _smem_h_ */
-

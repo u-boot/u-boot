@@ -160,4 +160,10 @@ void hif_rx_enable(void);
 void hif_rx_disable(void);
 void hif_rx_desc_disable(void);
 
+#ifdef PFE_RESET_WA
+void pfe_command_stop(int argc, char *const argv[]);
+#else
+static void pfe_command_stop(int argc, char *const argv[]) {}
+#endif
+
 #endif /* _PFE_H_ */

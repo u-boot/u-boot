@@ -109,19 +109,19 @@
 #define STATUS_BYTE1_MASK			0x000000FF
 
 /* NFC_FLASH_CONFIG Field */
-#define CONFIG_ECC_SRAM_ADDR_MASK		0x7FC00000
-#define CONFIG_ECC_SRAM_ADDR_SHIFT		22
-#define CONFIG_ECC_SRAM_REQ_BIT			(1<<21)
-#define CONFIG_DMA_REQ_BIT			(1<<20)
-#define CONFIG_ECC_MODE_MASK			0x000E0000
-#define CONFIG_ECC_MODE_SHIFT			17
-#define CONFIG_FAST_FLASH_BIT			(1<<16)
-#define CONFIG_16BIT				(1<<7)
-#define CONFIG_BOOT_MODE_BIT			(1<<6)
-#define CONFIG_ADDR_AUTO_INCR_BIT		(1<<5)
-#define CONFIG_BUFNO_AUTO_INCR_BIT		(1<<4)
-#define CONFIG_PAGE_CNT_MASK			0xF
-#define CONFIG_PAGE_CNT_SHIFT			0
+#define CFG_ECC_SRAM_ADDR_MASK			0x7FC00000
+#define CFG_ECC_SRAM_ADDR_SHIFT			22
+#define CFG_ECC_SRAM_REQ_BIT			(1<<21)
+#define CFG_DMA_REQ_BIT				(1<<20)
+#define CFG_ECC_MODE_MASK			0x000E0000
+#define CFG_ECC_MODE_SHIFT			17
+#define CFG_FAST_FLASH_BIT			(1<<16)
+#define CFG_16BIT				(1<<7)
+#define CFG_BOOT_MODE_BIT			(1<<6)
+#define CFG_ADDR_AUTO_INCR_BIT			(1<<5)
+#define CFG_BUFNO_AUTO_INCR_BIT			(1<<4)
+#define CFG_PAGE_CNT_MASK			0xF
+#define CFG_PAGE_CNT_SHIFT			0
 
 /* NFC_IRQ_STATUS Field */
 #define IDLE_IRQ_BIT				(1<<29)
@@ -342,8 +342,8 @@ static void vf610_nfc_addr_cycle(struct mtd_info *mtd, int column, int page)
 static inline void vf610_nfc_ecc_mode(struct mtd_info *mtd, int ecc_mode)
 {
 	vf610_nfc_set_field(mtd, NFC_FLASH_CONFIG,
-			    CONFIG_ECC_MODE_MASK,
-			    CONFIG_ECC_MODE_SHIFT, ecc_mode);
+			    CFG_ECC_MODE_MASK,
+			    CFG_ECC_MODE_SHIFT, ecc_mode);
 }
 
 static inline void vf610_nfc_transfer_size(void __iomem *regbase, int size)
@@ -666,16 +666,16 @@ static int vf610_nfc_nand_init(struct vf610_nfc *nfc, int devnum)
 	chip->ecc.size = PAGE_2K;
 
 	/* Set configuration register. */
-	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_16BIT);
-	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_ADDR_AUTO_INCR_BIT);
-	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_BUFNO_AUTO_INCR_BIT);
-	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_BOOT_MODE_BIT);
-	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_DMA_REQ_BIT);
-	vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CONFIG_FAST_FLASH_BIT);
+	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CFG_16BIT);
+	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CFG_ADDR_AUTO_INCR_BIT);
+	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CFG_BUFNO_AUTO_INCR_BIT);
+	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CFG_BOOT_MODE_BIT);
+	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CFG_DMA_REQ_BIT);
+	vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CFG_FAST_FLASH_BIT);
 
 	/* Disable virtual pages, only one elementary transfer unit */
-	vf610_nfc_set_field(mtd, NFC_FLASH_CONFIG, CONFIG_PAGE_CNT_MASK,
-			    CONFIG_PAGE_CNT_SHIFT, 1);
+	vf610_nfc_set_field(mtd, NFC_FLASH_CONFIG, CFG_PAGE_CNT_MASK,
+			    CFG_PAGE_CNT_SHIFT, 1);
 
 	/* first scan to find the device and get the page size */
 	if (nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_DEVICE, NULL)) {
@@ -684,7 +684,7 @@ static int vf610_nfc_nand_init(struct vf610_nfc *nfc, int devnum)
 	}
 
 	if (cfg.width == 16)
-		vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CONFIG_16BIT);
+		vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CFG_16BIT);
 
 	/* Bad block options. */
 	if (cfg.flash_bbt)
@@ -734,12 +734,12 @@ static int vf610_nfc_nand_init(struct vf610_nfc *nfc, int devnum)
 
 		/* Set ECC_STATUS offset */
 		vf610_nfc_set_field(mtd, NFC_FLASH_CONFIG,
-				    CONFIG_ECC_SRAM_ADDR_MASK,
-				    CONFIG_ECC_SRAM_ADDR_SHIFT,
+				    CFG_ECC_SRAM_ADDR_MASK,
+				    CFG_ECC_SRAM_ADDR_SHIFT,
 				    ECC_SRAM_ADDR >> 3);
 
 		/* Enable ECC status in SRAM */
-		vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CONFIG_ECC_SRAM_REQ_BIT);
+		vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CFG_ECC_SRAM_REQ_BIT);
 	}
 
 	/* second phase scan */
@@ -784,7 +784,7 @@ U_BOOT_DRIVER(vf610_nfc_dt) = {
 	.name = "vf610-nfc-dt",
 	.id = UCLASS_MTD,
 	.of_match = vf610_nfc_dt_ids,
-	.priv_auto_alloc_size = sizeof(struct vf610_nfc),
+	.priv_auto	= sizeof(struct vf610_nfc),
 	.probe = vf610_nfc_dt_probe,
 };
 
@@ -794,7 +794,7 @@ void board_nand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
-					  DM_GET_DRIVER(vf610_nfc_dt),
+					  DM_DRIVER_GET(vf610_nfc_dt),
 					  &dev);
 	if (ret && ret != -ENODEV)
 		pr_err("Failed to initialize NAND controller. (error %d)\n",

@@ -31,7 +31,7 @@
 		config-1 {
 			/* DT+SoM+board model */
 			description = "arrow,stm32mp15xx-avenger96_somrev0_boardrev1";
-			loadables = "uboot";
+			firmware = "uboot";
 			fdt = "fdt-1";
 		};
 

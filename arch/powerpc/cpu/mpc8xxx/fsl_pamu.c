@@ -390,7 +390,7 @@ int config_pamu(struct pamu_addr_tbl *tbl, int num_entries, uint32_t liodn)
 		return -1;
 
 	sizebit = __ilog2_roundup_64(size);
-	size = 1 << sizebit;
+	size = 1ull << sizebit;
 	debug("min start_addr is %llx\n", min_addr);
 	debug("max end_addr is %llx\n", max_addr);
 	debug("size found is  %llx\n", size);

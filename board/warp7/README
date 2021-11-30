@@ -19,7 +19,7 @@ $ make
 
 This will generate the U-Boot binary called u-boot-dtb.imx.
 
-Put warp7 board in USB download mode: 
+Put warp7 board in USB download mode:
 
 Remove the CPU board from the base board then put switch 2 in the upper
 position

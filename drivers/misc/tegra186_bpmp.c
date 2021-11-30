@@ -8,6 +8,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <time.h>
+#include <asm/global_data.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <mailbox.h>
@@ -257,5 +258,5 @@ U_BOOT_DRIVER(tegra186_bpmp) = {
 	.probe		= tegra186_bpmp_probe,
 	.remove		= tegra186_bpmp_remove,
 	.ops		= &tegra186_bpmp_ops,
-	.priv_auto_alloc_size = sizeof(struct tegra186_bpmp),
+	.priv_auto	= sizeof(struct tegra186_bpmp),
 };

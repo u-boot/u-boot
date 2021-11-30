@@ -24,6 +24,7 @@ For configuration verification:
 Tests run with both SHA1 and SHA256 hashing.
 """
 
+import os
 import shutil
 import struct
 import pytest
@@ -34,16 +35,16 @@ import vboot_evil
 # Only run the full suite on a few combinations, since it doesn't add any more
 # test coverage.
 TESTDATA = [
-    ['sha1', '', None, False, True],
-    ['sha1', '', '-E -p 0x10000', False, False],
-    ['sha1', '-pss', None, False, False],
-    ['sha1', '-pss', '-E -p 0x10000', False, False],
-    ['sha256', '', None, False, False],
-    ['sha256', '', '-E -p 0x10000', False, False],
-    ['sha256', '-pss', None, False, False],
-    ['sha256', '-pss', '-E -p 0x10000', False, False],
-    ['sha256', '-pss', None, True, False],
-    ['sha256', '-pss', '-E -p 0x10000', True, True],
+    ['sha1-basic', 'sha1', '', None, False, True],
+    ['sha1-pad', 'sha1', '', '-E -p 0x10000', False, False],
+    ['sha1-pss', 'sha1', '-pss', None, False, False],
+    ['sha1-pss-pad', 'sha1', '-pss', '-E -p 0x10000', False, False],
+    ['sha256-basic', 'sha256', '', None, False, False],
+    ['sha256-pad', 'sha256', '', '-E -p 0x10000', False, False],
+    ['sha256-pss', 'sha256', '-pss', None, False, False],
+    ['sha256-pss-pad', 'sha256', '-pss', '-E -p 0x10000', False, False],
+    ['sha256-pss-required', 'sha256', '-pss', None, True, False],
+    ['sha256-pss-pad-required', 'sha256', '-pss', '-E -p 0x10000', True, True],
 ]
 
 @pytest.mark.boardspec('sandbox')
@@ -52,9 +53,9 @@ TESTDATA = [
 @pytest.mark.requiredtool('fdtget')
 @pytest.mark.requiredtool('fdtput')
 @pytest.mark.requiredtool('openssl')
-@pytest.mark.parametrize("sha_algo,padding,sign_options,required,full_test",
+@pytest.mark.parametrize("name,sha_algo,padding,sign_options,required,full_test",
                          TESTDATA)
-def test_vboot(u_boot_console, sha_algo, padding, sign_options, required,
+def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
                full_test):
     """Test verified boot signing with mkimage and verification with 'bootm'.
 
@@ -365,7 +366,9 @@ def test_vboot(u_boot_console, sha_algo, padding, sign_options, required,
         run_bootm(sha_algo, 'multi required key', '', False)
 
     cons = u_boot_console
-    tmpdir = cons.config.result_dir + '/'
+    tmpdir = os.path.join(cons.config.result_dir, name) + '/'
+    if not os.path.exists(tmpdir):
+        os.mkdir(tmpdir)
     datadir = cons.config.source_dir + '/test/py/tests/vboot/'
     fit = '%stest.fit' % tmpdir
     mkimage = cons.config.build_dir + '/tools/mkimage'

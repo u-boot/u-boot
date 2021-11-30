@@ -9,7 +9,6 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
 #include "imx6_spl.h"
 
 #define CONFIG_SYS_UBOOT_BASE (CONFIG_SYS_FLASH_BASE + 0x80000)
@@ -24,9 +23,6 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS (0x80)
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR (0x1000)
 #define CONFIG_SPL_FS_LOAD_KERNEL_NAME "fitImage"
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 

@@ -32,6 +32,7 @@
 /* Values magic to the protocol */
 #define SOH 0x01
 #define STX 0x02
+#define ETX 0x03		/* ^C for interrupt */
 #define EOT 0x04
 #define ACK 0x06
 #define BSP 0x08
@@ -283,6 +284,7 @@ xyzModem_get_hdr (void)
 	      hdr_found = true;
 	      break;
 	    case CAN:
+	    case ETX:
 	      xyz.total_CAN++;
 	      ZM_DEBUG (zm_dump (__LINE__));
 	      if (++can_total == xyzModem_CAN_COUNT)
@@ -494,7 +496,7 @@ xyzModem_stream_read (char *buf, int size, int *err)
   total = 0;
   stat = xyzModem_cancel;
   /* Try and get 'size' bytes into the buffer */
-  while (!xyz.at_eof && (size > 0))
+  while (!xyz.at_eof && xyz.len >= 0 && (size > 0))
     {
       if (xyz.len == 0)
 	{
@@ -572,6 +574,8 @@ xyzModem_stream_read (char *buf, int size, int *err)
 		      CYGACC_COMM_IF_PUTC (*xyz.__chan, ACK);
 		      ZM_DEBUG (zm_dprintf ("FINAL ACK (%d)\n", __LINE__));
 		    }
+		  else
+		    stat = 0;
 		  xyz.at_eof = true;
 		  break;
 		}
@@ -587,7 +591,7 @@ xyzModem_stream_read (char *buf, int size, int *err)
 	    }
 	}
       /* Don't "read" data from the EOF protocol package */
-      if (!xyz.at_eof)
+      if (!xyz.at_eof && xyz.len > 0)
 	{
 	  len = xyz.len;
 	  if (size < len)
@@ -606,10 +610,10 @@ xyzModem_stream_read (char *buf, int size, int *err)
 void
 xyzModem_stream_close (int *err)
 {
-  diag_printf
+  ZM_DEBUG (zm_dprintf
     ("xyzModem - %s mode, %d(SOH)/%d(STX)/%d(CAN) packets, %d retries\n",
      xyz.crc_mode ? "CRC" : "Cksum", xyz.total_SOH, xyz.total_STX,
-     xyz.total_CAN, xyz.total_retries);
+     xyz.total_CAN, xyz.total_retries));
   ZM_DEBUG (zm_flush ());
 }
 

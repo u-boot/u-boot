@@ -1,13 +1,12 @@
 // SPDX-License-Identifier:    GPL-2.0
 /*
  * Copyright (C) 2019 Marvell International Ltd.
- *
- * https://spdx.org/licenses
  */
 
-//#define DEBUG
+#include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <env.h>
 #include <errno.h>
@@ -19,21 +18,30 @@
 #include <part.h>
 #include <pci.h>
 #include <pci_ids.h>
+#include <power/regulator.h>
 #include <time.h>
 #include <watchdog.h>
-
+#include <asm/io.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
 #include <linux/libfdt.h>
 
+#if defined(CONFIG_ARCH_OCTEON)
+#include <mach/octeon-model.h>
+#include <mach/cvmx-regs.h>
+#include <mach/cvmx-mio-emm-defs.h>
+#else
 #include <asm/arch/board.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/csrs/csrs-mio_emm.h>
-#include <asm/io.h>
-
-#include <power/regulator.h>
+#endif
 
 #include "octeontx_hsmmc.h"
+
+/* Use dummy implementation for MIPS Octeon to always return false */
+#if defined(CONFIG_ARCH_OCTEON)
+#define otx_is_soc(ver)		0
+#endif
 
 #define MMC_TIMEOUT_SHORT	20	/* in ms */
 #define MMC_TIMEOUT_LONG	1000
@@ -70,16 +78,18 @@
 #define MMC_DEFAULT_TAP_DELAY			4
 #define TOTAL_NO_OF_TAPS			512
 static void octeontx_mmc_switch_to(struct mmc *mmc);
-static int octeontx_mmc_configure_delay(struct mmc *mmc);
-static void octeontx_mmc_set_timing(struct mmc *mmc);
 static void set_wdog(struct mmc *mmc, u64 us);
 static void do_switch(struct mmc *mmc, union mio_emm_switch emm_switch);
 static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 				 struct mmc_data *data);
-static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay);
+static int octeontx_mmc_configure_delay(struct mmc *mmc);
 static int octeontx_mmc_calibrate_delay(struct mmc *mmc);
+#if !defined(CONFIG_ARCH_OCTEON)
+static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay);
+static void octeontx_mmc_set_timing(struct mmc *mmc);
 static int octeontx_mmc_set_input_bus_timing(struct mmc *mmc);
 static int octeontx_mmc_set_output_bus_timing(struct mmc *mmc);
+#endif
 
 static bool host_probed;
 
@@ -337,6 +347,7 @@ static void mmc_print_status(u32 status)
 }
 #endif
 
+#if !defined(CONFIG_ARCH_OCTEON)
 /**
  * Print out all of the register values where mmc is optional
  *
@@ -686,6 +697,12 @@ static void octeontx_mmc_print_registers(struct mmc *mmc)
 	if (print)
 		octeontx_mmc_print_registers2(mmc, mmc_to_host(mmc));
 }
+#else
+static void octeontx_mmc_print_registers(struct mmc *mmc)
+{
+	return;
+}
+#endif
 
 static const struct octeontx_sd_mods octeontx_cr_types[] = {
 { {0, 0}, {0, 0}, {0, 0} },	/* CMD0 */
@@ -837,14 +854,17 @@ static void octeontx_mmc_track_switch(struct mmc *mmc, u32 cmd_arg)
 		break;
 	case EXT_CSD_HS_TIMING:
 		slot->want_switch.s.hs_timing = 0;
+#if !defined(CONFIG_ARCH_OCTEON)
 		slot->want_switch.s.hs200_timing = 0;
 		slot->want_switch.s.hs400_timing = 0;
+#endif
 		switch (val & 0xf) {
 		case 0:
 			break;
 		case 1:
 			slot->want_switch.s.hs_timing = 1;
 			break;
+#if !defined(CONFIG_ARCH_OCTEON)
 		case 2:
 			if (!slot->is_asim && !slot->is_emul)
 				slot->want_switch.s.hs200_timing = 1;
@@ -853,6 +873,7 @@ static void octeontx_mmc_track_switch(struct mmc *mmc, u32 cmd_arg)
 			if (!slot->is_asim && !slot->is_emul)
 				slot->want_switch.s.hs400_timing = 1;
 			break;
+#endif
 		default:
 			pr_err("%s(%s): Unsupported timing mode 0x%x\n",
 			       __func__, mmc->dev->name, val & 0xf);
@@ -2412,7 +2433,10 @@ static u32 octeontx_mmc_calc_clk_period(struct mmc *mmc)
 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 	struct octeontx_mmc_host *host = slot->host;
 
-	return DIV_ROUND_UP(host->sys_freq, mmc->clock);
+	if (mmc->clock)
+		return DIV_ROUND_UP(host->sys_freq, mmc->clock);
+
+	return 0;
 }
 
 static int octeontx_mmc_set_ios(struct udevice *dev)
@@ -2488,14 +2512,18 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 	case UHS_SDR25:
 	case UHS_SDR50:
 	case UHS_SDR104:
+#if !defined(CONFIG_ARCH_OCTEON)
 		emm_switch.s.hs200_timing = 1;
+#endif
 		break;
 	case MMC_HS_400:
 		is_hs400 = true;
 		fallthrough;
 	case UHS_DDR50:
 	case MMC_DDR_52:
+#if !defined(CONFIG_ARCH_OCTEON)
 		emm_switch.s.hs400_timing = 1;
+#endif
 		break;
 	default:
 		pr_err("%s(%s): Unsupported mode 0x%x\n", __func__, dev->name,
@@ -2521,17 +2549,21 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 		      mmc->selected_mode);
 	}
 
+#if !defined(CONFIG_ARCH_OCTEON)
 	debug(" Trying switch 0x%llx w%d hs:%d hs200:%d hs400:%d\n",
 	      emm_switch.u, emm_switch.s.bus_width, emm_switch.s.hs_timing,
 	      emm_switch.s.hs200_timing, emm_switch.s.hs400_timing);
+#endif
 
 	set_wdog(mmc, 1000);
 	do_switch(mmc, emm_switch);
 	mdelay(100);
 	mode.u = read_csr(mmc, MIO_EMM_MODEX(slot->bus_id));
+#if !defined(CONFIG_ARCH_OCTEON)
 	debug("%s(%s): mode: 0x%llx w:%d, hs:%d, hs200:%d, hs400:%d\n",
 	      __func__, dev->name, mode.u, mode.s.bus_width,
 	      mode.s.hs_timing, mode.s.hs200_timing, mode.s.hs400_timing);
+#endif
 
 	err = octeontx_mmc_configure_delay(mmc);
 
@@ -2577,6 +2609,26 @@ static int octeontx_mmc_get_wp(struct udevice *dev)
 	return val;
 }
 
+#if defined(CONFIG_ARCH_OCTEON)
+static int octeontx_mmc_configure_delay(struct mmc *mmc)
+{
+	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
+	union mio_emm_sample emm_sample;
+
+	debug("%s(%s)\n", __func__, mmc->dev->name);
+
+	emm_sample.u = 0;
+	emm_sample.s.cmd_cnt = slot->cmd_cnt;
+	emm_sample.s.dat_cnt = slot->dat_cnt;
+	write_csr(mmc, MIO_EMM_SAMPLE(), emm_sample.u);
+
+	return 0;
+}
+
+static void octeontx_mmc_io_drive_setup(struct mmc *mmc)
+{
+}
+#else
 static void octeontx_mmc_set_timing(struct mmc *mmc)
 {
 	union mio_emm_timing timing;
@@ -2612,7 +2664,8 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
 
 	debug("%s(%s)\n", __func__, mmc->dev->name);
 
-	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX)) {
+	if (IS_ENABLED(CONFIG_ARCH_OCTEON) ||
+	    IS_ENABLED(CONFIG_ARCH_OCTEONTX)) {
 		union mio_emm_sample emm_sample;
 
 		emm_sample.u = 0;
@@ -2759,6 +2812,28 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
 }
 
 /**
+ * Set the IO drive strength and slew
+ *
+ * @param	mmc	mmc device
+ */
+static void octeontx_mmc_io_drive_setup(struct mmc *mmc)
+{
+	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
+		struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
+		union mio_emm_io_ctl io_ctl;
+
+		if (slot->drive < 0 || slot->slew < 0)
+			return;
+
+		io_ctl.u = 0;
+		io_ctl.s.drive = slot->drive;
+		io_ctl.s.slew = slot->slew;
+		write_csr(mmc, MIO_EMM_IO_CTL(), io_ctl.u);
+	}
+}
+#endif
+
+/**
  * Sets the MMC watchdog timer in microseconds
  *
  * @param	mmc	mmc device
@@ -2781,27 +2856,6 @@ static void set_wdog(struct mmc *mmc, u64 us)
 	wdog.u = 0;
 	wdog.s.clk_cnt = val;
 	write_csr(mmc, MIO_EMM_WDOG(), wdog.u);
-}
-
-/**
- * Set the IO drive strength and slew
- *
- * @param	mmc	mmc device
- */
-static void octeontx_mmc_io_drive_setup(struct mmc *mmc)
-{
-	if (!IS_ENABLED(CONFIG_ARCH_OCTEONTX)) {
-		struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
-		union mio_emm_io_ctl io_ctl;
-
-		if (slot->drive < 0 || slot->slew < 0)
-			return;
-
-		io_ctl.u = 0;
-		io_ctl.s.drive = slot->drive;
-		io_ctl.s.slew = slot->slew;
-		write_csr(mmc, MIO_EMM_IO_CTL(), io_ctl.u);
-	}
 }
 
 /**
@@ -2858,6 +2912,31 @@ static void do_switch(struct mmc *mmc, union mio_emm_switch emm_switch)
 }
 
 /**
+ * Calibrates the delay based on the internal clock
+ *
+ * @param	mmc	Pointer to mmc data structure
+ *
+ * @return	0 for success or -ETIMEDOUT on error
+ *
+ * NOTE: On error a default value will be calculated.
+ */
+#if defined(CONFIG_ARCH_OCTEON)
+static int octeontx_mmc_set_input_bus_timing(struct mmc *mmc)
+{
+	return 0;
+}
+
+static int octeontx_mmc_set_output_bus_timing(struct mmc *mmc)
+{
+	return 0;
+}
+
+static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
+{
+	return 0;
+}
+#else
+/**
  * Given a delay in ps, return the tap delay count
  *
  * @param	mmc	mmc data structure
@@ -2882,15 +2961,6 @@ static int octeontx2_mmc_calc_delay(struct mmc *mmc, int delay)
 	return min_t(int, DIV_ROUND_UP(delay, host->timing_taps), 63);
 }
 
-/**
- * Calibrates the delay based on the internal clock
- *
- * @param	mmc	Pointer to mmc data structure
- *
- * @return	0 for success or -ETIMEDOUT on error
- *
- * NOTE: On error a default value will be calculated.
- */
 static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
 {
 	union mio_emm_calb emm_calb;
@@ -3140,6 +3210,7 @@ static int octeontx_mmc_set_output_bus_timing(struct mmc *mmc)
 
 	return 0;
 }
+#endif
 
 static void octeontx_mmc_set_clock(struct mmc *mmc)
 {
@@ -3388,8 +3459,10 @@ static u32 xlate_voltage(u32 voltage)
 {
 	u32 volt = 0;
 
-	/* Convert to millivolts */
-	voltage /= 1000;
+	/* Convert to millivolts. Only necessary on ARM Octeon TX/TX2 */
+	if (!IS_ENABLED(CONFIG_ARCH_OCTEON))
+		voltage /= 1000;
+
 	if (voltage >= 1650 && voltage <= 1950)
 		volt |= MMC_VDD_165_195;
 	if (voltage >= 2000 && voltage <= 2100)
@@ -3438,7 +3511,7 @@ static u32 xlate_voltage(u32 voltage)
  */
 static bool octeontx_mmc_get_valid(struct udevice *dev)
 {
-	const char *stat = ofnode_read_string(dev->node, "status");
+	const char *stat = ofnode_read_string(dev_ofnode(dev), "status");
 
 	if (!stat || !strncmp(stat, "ok", 2))
 		return true;
@@ -3460,14 +3533,15 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 	uint low, high;
 	char env_name[32];
 	int err;
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 	int bus_width = 1;
 	ulong new_max_freq;
 
 	debug("%s(%s)", __func__, dev->name);
 	slot->cfg.name = dev->name;
 
-	slot->cfg.f_max = ofnode_read_s32_default(dev->node, "max-frequency",
+	slot->cfg.f_max = ofnode_read_s32_default(dev_ofnode(dev),
+						  "max-frequency",
 						  26000000);
 	snprintf(env_name, sizeof(env_name), "mmc_max_frequency%d",
 		 slot->bus_id);
@@ -3485,25 +3559,26 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 
 	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
 		slot->hs400_tuning_block =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs400-tuning-block",
 						-1);
 		debug("%s(%s): mmc HS400 tuning block: %d\n", __func__,
 		      dev->name, slot->hs400_tuning_block);
 
 		slot->hs200_tap_adj =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs200-tap-adjust", 0);
 		debug("%s(%s): hs200-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs200_tap_adj);
 		slot->hs400_tap_adj =
-			ofnode_read_s32_default(dev->node,
+			ofnode_read_s32_default(dev_ofnode(dev),
 						"marvell,hs400-tap-adjust", 0);
 		debug("%s(%s): hs400-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs400_tap_adj);
 	}
 
-	err = ofnode_read_u32_array(dev->node, "voltage-ranges", voltages, 2);
+	err = ofnode_read_u32_array(dev_ofnode(dev), "voltage-ranges",
+				    voltages, 2);
 	if (err) {
 		slot->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	} else {
@@ -3731,9 +3806,10 @@ U_BOOT_DRIVER(octeontx_hsmmc_slot) = {
  */
 static int octeontx_mmc_host_probe(struct udevice *dev)
 {
-	pci_dev_t bdf = dm_pci_get_bdf(dev);
 	struct octeontx_mmc_host *host = dev_get_priv(dev);
 	union mio_emm_int emm_int;
+	struct clk clk;
+	int ret;
 	u8 rev;
 
 	debug("%s(%s): Entry host: %p\n", __func__, dev->name, host);
@@ -3743,28 +3819,38 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 	memset(host, 0, sizeof(*host));
-	host->base_addr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
-					 PCI_REGION_MEM);
-	if (!host->base_addr) {
-		pr_err("%s: Error: MMC base address not found\n", __func__);
-		return -1;
+
+	/* Octeon TX & TX2 use PCI based probing */
+	if (device_is_compatible(dev, "cavium,thunder-8890-mmc")) {
+		host->base_addr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+						 PCI_REGION_MEM);
+		if (!host->base_addr) {
+			pr_err("%s: Error: MMC base address not found\n",
+			       __func__);
+			return -1;
+		}
+	} else {
+		host->base_addr = dev_remap_addr(dev);
 	}
+
 	host->dev = dev;
 	debug("%s(%s): Base address: %p\n", __func__, dev->name,
 	      host->base_addr);
-	if (!dev_has_of_node(dev)) {
+	if (!dev_has_ofnode(dev)) {
 		pr_err("%s: No device tree information found\n", __func__);
 		return -1;
 	}
-	host->node = dev->node;
-	dev->req_seq = PCI_FUNC(bdf);
+	host->node = dev_ofnode(dev);
 	host->last_slotid = -1;
+#if !defined(CONFIG_ARCH_OCTEON)
 	if (otx_is_platform(PLATFORM_ASIM))
 		host->is_asim = true;
 	if (otx_is_platform(PLATFORM_EMULATOR))
 		host->is_emul = true;
+#endif
 	host->dma_wait_delay =
-		ofnode_read_u32_default(dev->node, "marvell,dma-wait-delay", 1);
+		ofnode_read_u32_default(dev_ofnode(dev),
+					"marvell,dma-wait-delay", 1);
 	/* Force reset of eMMC */
 	writeq(0, host->base_addr + MIO_EMM_CFG());
 	debug("%s: Clearing MIO_EMM_CFG\n", __func__);
@@ -3774,7 +3860,15 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	writeq(emm_int.u, host->base_addr + MIO_EMM_INT());
 
 	debug("%s(%s): Getting I/O clock\n", __func__, dev->name);
-	host->sys_freq = octeontx_get_io_clock();
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
+
+	host->sys_freq = clk_get_rate(&clk);
 	debug("%s(%s): I/O clock %llu\n", __func__, dev->name, host->sys_freq);
 
 	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
@@ -3825,7 +3919,7 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	struct octeontx_mmc_host *host = dev_get_priv(dev_get_parent(dev));
 	struct octeontx_mmc_slot *slot;
 	struct mmc_uclass_priv *upriv;
-	ofnode node = dev->node;
+	ofnode node = dev_ofnode(dev);
 	u32 bus_id;
 	char name[16];
 	int err;
@@ -3843,7 +3937,7 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	}
 
 	slot = &host->slots[bus_id];
-	dev->priv = slot;
+	dev_set_priv(dev, slot);
 	slot->host = host;
 	slot->bus_id = bus_id;
 	slot->dev = dev;
@@ -3854,16 +3948,21 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	snprintf(name, sizeof(name), "octeontx-mmc%d", bus_id);
 	err = device_set_name(dev, name);
 
-	if (!dev->uclass_priv) {
+	/* FIXME: This code should not be needed */
+	if (!dev_get_uclass_priv(dev)) {
 		debug("%s(%s): Allocating uclass priv\n", __func__,
 		      dev->name);
 		upriv = calloc(1, sizeof(struct mmc_uclass_priv));
 		if (!upriv)
 			return -ENOMEM;
-		dev->uclass_priv = upriv;
-		dev->uclass->priv = upriv;
+
+		/*
+		 * FIXME: This is not allowed
+		 * dev_set_uclass_priv(dev, upriv);
+		 * uclass_set_priv(dev->uclass, upriv);
+		 */
 	} else {
-		upriv = dev->uclass_priv;
+		upriv = dev_get_uclass_priv(dev);
 	}
 
 	upriv->mmc = &slot->mmc;
@@ -3875,15 +3974,17 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 
 static const struct udevice_id octeontx_hsmmc_host_ids[] = {
 	{ .compatible = "cavium,thunder-8890-mmc" },
+	{ .compatible = "cavium,octeon-7360-mmc" },
 	{ }
 };
 
 U_BOOT_DRIVER(octeontx_hsmmc_host) = {
 	.name	= "octeontx_hsmmc_host",
+	/* FIXME: Why is this not UCLASS_MMC? */
 	.id	= UCLASS_MISC,
 	.of_match = of_match_ptr(octeontx_hsmmc_host_ids),
 	.probe	= octeontx_mmc_host_probe,
-	.priv_auto_alloc_size = sizeof(struct octeontx_mmc_host),
+	.priv_auto	= sizeof(struct octeontx_mmc_host),
 	.child_pre_probe = octeontx_mmc_host_child_pre_probe,
 	.flags	= DM_FLAG_PRE_RELOC,
 };

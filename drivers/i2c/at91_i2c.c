@@ -6,6 +6,7 @@
  */
 
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <common.h>
 #include <clk.h>
@@ -49,6 +50,10 @@ static int at91_i2c_xfer_msg(struct at91_i2c_bus *bus, struct i2c_msg *msg)
 	bool is_read = msg->flags & I2C_M_RD;
 	u32 i;
 	int ret = 0;
+
+	/* if there is no message to send/receive, just exit quietly */
+	if (msg->len == 0)
+		return ret;
 
 	readl(&reg->sr);
 	if (is_read) {
@@ -219,7 +224,7 @@ int at91_i2c_get_bus_speed(struct udevice *dev)
 	return bus->speed;
 }
 
-static int at91_i2c_ofdata_to_platdata(struct udevice *dev)
+static int at91_i2c_of_to_plat(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
 	struct at91_i2c_bus *bus = dev_get_priv(dev);
@@ -317,8 +322,8 @@ U_BOOT_DRIVER(i2c_at91) = {
 	.id	= UCLASS_I2C,
 	.of_match = at91_i2c_ids,
 	.probe = at91_i2c_probe,
-	.ofdata_to_platdata = at91_i2c_ofdata_to_platdata,
-	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
-	.priv_auto_alloc_size = sizeof(struct at91_i2c_bus),
+	.of_to_plat = at91_i2c_of_to_plat,
+	.per_child_auto	= sizeof(struct dm_i2c_chip),
+	.priv_auto	= sizeof(struct at91_i2c_bus),
 	.ops	= &at91_i2c_ops,
 };

@@ -62,7 +62,14 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		 ulong initrd_addr, ulong initrd_size, ulong cmdline_force);
 
-void setup_video(struct screen_info *screen_info);
-void setup_efi_info(struct efi_info *efi_info);
+/**
+ * zimage_dump() - Dump the metadata of a zimage
+ *
+ * This shows all available information in a zimage that has been loaded.
+ *
+ * @base_ptr: Pointer to the boot parameters, typically at address
+ *	DEFAULT_SETUP_BASE
+ */
+void zimage_dump(struct boot_params *base_ptr);
 
 #endif

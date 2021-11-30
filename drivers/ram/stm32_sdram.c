@@ -4,6 +4,8 @@
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  */
 
+#define LOG_CATEGORY UCLASS_RAM
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -161,7 +163,7 @@ struct stm32_sdram_params {
 
 int stm32_sdram_init(struct udevice *dev)
 {
-	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_sdram_params *params = dev_get_plat(dev);
 	struct stm32_sdram_control *control;
 	struct stm32_sdram_timing *timing;
 	struct stm32_fmc_regs *regs = params->base;
@@ -256,9 +258,9 @@ int stm32_sdram_init(struct udevice *dev)
 	return 0;
 }
 
-static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
+static int stm32_fmc_of_to_plat(struct udevice *dev)
 {
-	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_sdram_params *params = dev_get_plat(dev);
 	struct bank_params *bank_params;
 	struct ofnode_phandle_args args;
 	u32 *syscfg_base;
@@ -266,13 +268,14 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 	u32 swp_fmc;
 	ofnode bank_node;
 	char *bank_name;
+	char _bank_name[128] = {0};
 	u8 bank = 0;
 	int ret;
 
 	ret = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
 						 &args);
 	if (ret) {
-		dev_dbg(dev, "%s: can't find syscon device (%d)\n", __func__, ret);
+		dev_dbg(dev, "can't find syscon device (%d)\n", ret);
 	} else {
 		syscfg_base = (u32 *)ofnode_get_addr(args.node);
 
@@ -281,15 +284,15 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 			/* set memory mapping selection */
 			clrsetbits_le32(syscfg_base, MEM_MODE_MASK, mem_remap);
 		} else {
-			dev_dbg(dev, "%s: cannot find st,mem_remap property\n", __func__);
+			dev_dbg(dev, "cannot find st,mem_remap property\n");
 		}
-		
+
 		swp_fmc = dev_read_u32_default(dev, "st,swp_fmc", NOT_FOUND);
 		if (swp_fmc != NOT_FOUND) {
 			/* set fmc swapping selection */
 			clrsetbits_le32(syscfg_base, SWP_FMC_MASK, swp_fmc << SWP_FMC_OFFSET);
 		} else {
-			dev_dbg(dev, "%s: cannot find st,swp_fmc property\n", __func__);
+			dev_dbg(dev, "cannot find st,swp_fmc property\n");
 		}
 
 		dev_dbg(dev, "syscfg %x = %x\n", (u32)syscfg_base, *syscfg_base);
@@ -298,6 +301,8 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 	dev_for_each_subnode(bank_node, dev) {
 		/* extract the bank index from DT */
 		bank_name = (char *)ofnode_get_name(bank_node);
+		strlcpy(_bank_name, bank_name, sizeof(_bank_name));
+		bank_name = (char *)_bank_name;
 		strsep(&bank_name, "@");
 		if (!bank_name) {
 			pr_err("missing sdram bank index");
@@ -348,14 +353,14 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	params->no_sdram_banks = bank;
-	debug("%s, no of banks = %d\n", __func__, params->no_sdram_banks);
+	dev_dbg(dev, "no of banks = %d\n", params->no_sdram_banks);
 
 	return 0;
 }
 
 static int stm32_fmc_probe(struct udevice *dev)
 {
-	struct stm32_sdram_params *params = dev_get_platdata(dev);
+	struct stm32_sdram_params *params = dev_get_plat(dev);
 	int ret;
 	fdt_addr_t addr;
 
@@ -407,7 +412,7 @@ U_BOOT_DRIVER(stm32_fmc) = {
 	.id = UCLASS_RAM,
 	.of_match = stm32_fmc_ids,
 	.ops = &stm32_fmc_ops,
-	.ofdata_to_platdata = stm32_fmc_ofdata_to_platdata,
+	.of_to_plat = stm32_fmc_of_to_plat,
 	.probe = stm32_fmc_probe,
-	.platdata_auto_alloc_size = sizeof(struct stm32_sdram_params),
+	.plat_auto	= sizeof(struct stm32_sdram_params),
 };

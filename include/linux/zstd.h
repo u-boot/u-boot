@@ -1144,4 +1144,15 @@ size_t ZSTD_decompressBlock(ZSTD_DCtx *dctx, void *dst, size_t dstCapacity,
 size_t ZSTD_insertBlock(ZSTD_DCtx *dctx, const void *blockStart,
 	size_t blockSize);
 
+struct abuf;
+
+/**
+ * zstd_decompress() - Decompress Zstandard data
+ *
+ * @in: Input buffer to decompress
+ * @out: Output buffer to hold the results (must be large enough)
+ * @return size of the decompressed data, or -ve on error
+ */
+int zstd_decompress(struct abuf *in, struct abuf *out);
+
 #endif  /* ZSTD_H */

@@ -150,7 +150,7 @@ U_BOOT_DRIVER(serial_efi) = {
 	.name	= "serial_efi",
 	.id	= UCLASS_SERIAL,
 	.of_match = serial_efi_ids,
-	.priv_auto_alloc_size = sizeof(struct serial_efi_priv),
+	.priv_auto	= sizeof(struct serial_efi_priv),
 	.probe = serial_efi_probe,
 	.ops	= &serial_efi_ops,
 };

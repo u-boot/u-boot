@@ -6,12 +6,13 @@
 #
 
 from binman.entry import Entry
+from binman import state
 from dtoc import fdt_util
 from patman import tools
 from patman import tout
 
 class Entry_blob(Entry):
-    """Entry containing an arbitrary binary blob
+    """Arbitrary binary blob
 
     Note: This should not be used by itself. It is normally used as a parent
     class by other entry types.
@@ -24,7 +25,7 @@ class Entry_blob(Entry):
 
     This entry reads data from a file and places it in the entry. The
     default filename is often specified specified by the subclass. See for
-    example the 'u_boot' entry which provides the filename 'u-boot.bin'.
+    example the 'u-boot' entry which provides the filename 'u-boot.bin'.
 
     If compression is enabled, an extra 'uncomp-size' property is written to
     the node (if enabled with -u) which provides the uncompressed size of the
@@ -59,10 +60,18 @@ class Entry_blob(Entry):
         the data in chunks and avoid reading it all at once. For now
         this seems like an unnecessary complication.
         """
+        state.TimingStart('read')
         indata = tools.ReadFile(self._pathname)
+        state.TimingAccum('read')
+        state.TimingStart('compress')
         data = self.CompressData(indata)
+        state.TimingAccum('compress')
         self.SetContents(data)
         return True
 
     def GetDefaultFilename(self):
         return self._filename
+
+    def ProcessContents(self):
+        # The blob may have changed due to WriteSymbols()
+        return self.ProcessContentsUpdate(self.data)

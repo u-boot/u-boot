@@ -7,7 +7,7 @@
 
 /include/ "skeleton.dtsi"
 /include/ "reset.dtsi"
-/include/ "tsc_timer.dtsi"
+#include "tsc_timer.dtsi"
 
 / {
 	model = "slimbootloader x86 payload";

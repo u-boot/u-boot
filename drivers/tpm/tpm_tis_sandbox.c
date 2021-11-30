@@ -9,60 +9,9 @@
 #include <asm/state.h>
 #include <asm/unaligned.h>
 #include <u-boot/crc.h>
-
-/* TPM NVRAM location indices. */
-#define FIRMWARE_NV_INDEX		0x1007
-#define KERNEL_NV_INDEX			0x1008
-#define BACKUP_NV_INDEX                 0x1009
-#define FWMP_NV_INDEX                   0x100a
-#define REC_HASH_NV_INDEX               0x100b
-#define REC_HASH_NV_SIZE                VB2_SHA256_DIGEST_SIZE
+#include "sandbox_common.h"
 
 #define NV_DATA_PUBLIC_PERMISSIONS_OFFSET	60
-
-/* Kernel TPM space - KERNEL_NV_INDEX, locked with physical presence */
-#define ROLLBACK_SPACE_KERNEL_VERSION	2
-#define ROLLBACK_SPACE_KERNEL_UID	0x4752574C  /* 'GRWL' */
-
-struct rollback_space_kernel {
-	/* Struct version, for backwards compatibility */
-	uint8_t struct_version;
-	/* Unique ID to detect space redefinition */
-	uint32_t uid;
-	/* Kernel versions */
-	uint32_t kernel_versions;
-	/* Reserved for future expansion */
-	uint8_t reserved[3];
-	/* Checksum (v2 and later only) */
-	uint8_t crc8;
-} __packed rollback_space_kernel;
-
-/*
- * These numbers derive from adding the sizes of command fields as shown in
- * the TPM commands manual.
- */
-#define TPM_REQUEST_HEADER_LENGTH	10
-#define TPM_RESPONSE_HEADER_LENGTH	10
-
-/* These are the different non-volatile spaces that we emulate */
-enum {
-	NV_GLOBAL_LOCK,
-	NV_SEQ_FIRMWARE,
-	NV_SEQ_KERNEL,
-	NV_SEQ_BACKUP,
-	NV_SEQ_FWMP,
-	NV_SEQ_REC_HASH,
-
-	NV_SEQ_COUNT,
-};
-
-/* Size of each non-volatile space */
-#define NV_DATA_SIZE		0x20
-
-struct nvdata_state {
-	bool present;
-	u8 data[NV_DATA_SIZE];
-};
 
 /*
  * Information about our TPM emulation. This is preserved in the sandbox
@@ -71,7 +20,7 @@ struct nvdata_state {
 static struct tpm_state {
 	bool valid;
 	struct nvdata_state nvdata[NV_SEQ_COUNT];
-} g_state;
+} s_state, *g_state;
 
 /**
  * sandbox_tpm_read_state() - read the sandbox EC state from the state file
@@ -84,6 +33,7 @@ static struct tpm_state {
  */
 static int sandbox_tpm_read_state(const void *blob, int node)
 {
+	struct tpm_state *state = &s_state;
 	const char *prop;
 	int len;
 	int i;
@@ -92,22 +42,27 @@ static int sandbox_tpm_read_state(const void *blob, int node)
 		return 0;
 
 	for (i = 0; i < NV_SEQ_COUNT; i++) {
+		struct nvdata_state *nvd = &state->nvdata[i];
 		char prop_name[20];
 
 		sprintf(prop_name, "nvdata%d", i);
 		prop = fdt_getprop(blob, node, prop_name, &len);
-		if (prop && len == NV_DATA_SIZE) {
-			memcpy(g_state.nvdata[i].data, prop, NV_DATA_SIZE);
-			g_state.nvdata[i].present = true;
+		if (len >= NV_DATA_SIZE)
+			return log_msg_ret("nvd", -E2BIG);
+		if (prop) {
+			memcpy(nvd->data, prop, len);
+			nvd->length = len;
+			nvd->present = true;
 		}
 	}
-	g_state.valid = true;
+
+	s_state.valid = true;
 
 	return 0;
 }
 
 /**
- * cros_ec_write_state() - Write out our state to the state file
+ * sandbox_tpm_write_state() - Write out our state to the state file
  *
  * The caller will ensure that there is a node ready for the state. The node
  * may already contain the old state, in which case it is overridden.
@@ -117,7 +72,11 @@ static int sandbox_tpm_read_state(const void *blob, int node)
  */
 static int sandbox_tpm_write_state(void *blob, int node)
 {
+	const struct tpm_state *state = g_state;
 	int i;
+
+	if (!state)
+		return 0;
 
 	/*
 	 * We are guaranteed enough space to write basic properties.
@@ -125,12 +84,13 @@ static int sandbox_tpm_write_state(void *blob, int node)
 	 * own node - perhaps useful if we add access informaiton to each.
 	 */
 	for (i = 0; i < NV_SEQ_COUNT; i++) {
+		const struct nvdata_state *nvd = &state->nvdata[i];
 		char prop_name[20];
 
-		if (g_state.nvdata[i].present) {
-			sprintf(prop_name, "nvdata%d", i);
-			fdt_setprop(blob, node, prop_name,
-				    g_state.nvdata[i].data, NV_DATA_SIZE);
+		if (nvd->present) {
+			snprintf(prop_name, sizeof(prop_name), "nvdata%d", i);
+			fdt_setprop(blob, node, prop_name, nvd->data,
+				    nvd->length);
 		}
 	}
 
@@ -139,27 +99,6 @@ static int sandbox_tpm_write_state(void *blob, int node)
 
 SANDBOX_STATE_IO(sandbox_tpm, "google,sandbox-tpm", sandbox_tpm_read_state,
 		 sandbox_tpm_write_state);
-
-static int index_to_seq(uint32_t index)
-{
-	switch (index) {
-	case FIRMWARE_NV_INDEX:
-		return NV_SEQ_FIRMWARE;
-	case KERNEL_NV_INDEX:
-		return NV_SEQ_KERNEL;
-	case BACKUP_NV_INDEX:
-		return NV_SEQ_BACKUP;
-	case FWMP_NV_INDEX:
-		return NV_SEQ_FWMP;
-	case REC_HASH_NV_INDEX:
-		return NV_SEQ_REC_HASH;
-	case 0:
-		return NV_GLOBAL_LOCK;
-	}
-
-	printf("Invalid nv index %#x\n", index);
-	return -1;
-}
 
 static void handle_cap_flag_space(u8 **datap, uint index)
 {
@@ -201,16 +140,13 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 			printf("Get flags index %#02x\n", index);
 			*recv_len = 22;
 			memset(recvbuf, '\0', *recv_len);
-			data = recvbuf + TPM_RESPONSE_HEADER_LENGTH +
-					sizeof(uint32_t);
+			data = recvbuf + TPM_HDR_LEN + sizeof(uint32_t);
 			switch (index) {
 			case FIRMWARE_NV_INDEX:
 				break;
 			case KERNEL_NV_INDEX:
 				handle_cap_flag_space(&data, index);
-				*recv_len = data - recvbuf -
-					TPM_RESPONSE_HEADER_LENGTH -
-					sizeof(uint32_t);
+				*recv_len = data - recvbuf;
 				break;
 			case TPM_CAP_FLAG_PERMANENT: {
 				struct tpm_permanent_flags *pflags;
@@ -227,15 +163,12 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 				printf("   ** Unknown flags index %x\n", index);
 				return -ENOSYS;
 			}
-			put_unaligned_be32(*recv_len,
-					   recvbuf +
-					   TPM_RESPONSE_HEADER_LENGTH);
+			put_unaligned_be32(*recv_len, recvbuf + TPM_HDR_LEN);
 			break;
 		case TPM_CAP_NV_INDEX:
 			index = get_unaligned_be32(sendbuf + 18);
 			printf("Get cap nv index %#02x\n", index);
-			put_unaligned_be32(22, recvbuf +
-					   TPM_RESPONSE_HEADER_LENGTH);
+			put_unaligned_be32(22, recvbuf + TPM_HDR_LEN);
 			break;
 		default:
 			printf("   ** Unknown 0x65 command type %#02x\n",
@@ -246,54 +179,42 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 	case TPM_CMD_NV_WRITE_VALUE:
 		index = get_unaligned_be32(sendbuf + 10);
 		length = get_unaligned_be32(sendbuf + 18);
-		seq = index_to_seq(index);
+		seq = sb_tpm_index_to_seq(index);
 		if (seq < 0)
 			return -EINVAL;
 		printf("tpm: nvwrite index=%#02x, len=%#02x\n", index, length);
-		memcpy(&tpm->nvdata[seq].data, sendbuf + 22, length);
-		tpm->nvdata[seq].present = true;
-		*recv_len = 12;
-		memset(recvbuf, '\0', *recv_len);
+		sb_tpm_write_data(tpm->nvdata, seq, sendbuf, 22, length);
 		break;
 	case TPM_CMD_NV_READ_VALUE: /* nvread */
 		index = get_unaligned_be32(sendbuf + 10);
 		length = get_unaligned_be32(sendbuf + 18);
-		seq = index_to_seq(index);
+		seq = sb_tpm_index_to_seq(index);
 		if (seq < 0)
 			return -EINVAL;
 		printf("tpm: nvread index=%#02x, len=%#02x, seq=%#02x\n", index,
 		       length, seq);
-		*recv_len = TPM_RESPONSE_HEADER_LENGTH + sizeof(uint32_t) +
-					length;
+		*recv_len = TPM_HDR_LEN + sizeof(uint32_t) + length;
 		memset(recvbuf, '\0', *recv_len);
-		put_unaligned_be32(length, recvbuf +
-				   TPM_RESPONSE_HEADER_LENGTH);
-		if (seq == NV_SEQ_KERNEL) {
-			struct rollback_space_kernel rsk;
-
-			data = recvbuf + TPM_RESPONSE_HEADER_LENGTH +
-					sizeof(uint32_t);
-			memset(&rsk, 0, sizeof(struct rollback_space_kernel));
-			rsk.struct_version = 2;
-			rsk.uid = ROLLBACK_SPACE_KERNEL_UID;
-			rsk.crc8 = crc8(0, (unsigned char *)&rsk,
-					offsetof(struct rollback_space_kernel,
-						 crc8));
-			memcpy(data, &rsk, sizeof(rsk));
-		} else if (!tpm->nvdata[seq].present) {
-			put_unaligned_be32(TPM_BADINDEX, recvbuf +
-					   sizeof(uint16_t) + sizeof(uint32_t));
-		} else {
-			memcpy(recvbuf + TPM_RESPONSE_HEADER_LENGTH +
-			       sizeof(uint32_t), &tpm->nvdata[seq].data,
-			       length);
-		}
+		put_unaligned_be32(length, recvbuf + TPM_HDR_LEN);
+		sb_tpm_read_data(tpm->nvdata, seq, recvbuf, TPM_HDR_LEN + 4,
+				 length);
 		break;
 	case TPM_CMD_EXTEND:
 		*recv_len = 30;
 		memset(recvbuf, '\0', *recv_len);
 		break;
 	case TPM_CMD_NV_DEFINE_SPACE:
+		index = get_unaligned_be32(sendbuf + 12);
+		length = get_unaligned_be32(sendbuf + 77);
+		seq = sb_tpm_index_to_seq(index);
+		if (seq < 0)
+			return -EINVAL;
+		printf("tpm: define_space index=%#02x, len=%#02x, seq=%#02x\n",
+		       index, length, seq);
+		sb_tpm_define_data(tpm->nvdata, seq, length);
+		*recv_len = 12;
+		memset(recvbuf, '\0', *recv_len);
+		break;
 	case 0x15: /* pcr read */
 	case 0x5d: /* force clear */
 	case 0x6f: /* physical enable */
@@ -328,7 +249,9 @@ static int sandbox_tpm_probe(struct udevice *dev)
 {
 	struct tpm_state *tpm = dev_get_priv(dev);
 
-	memcpy(tpm, &g_state, sizeof(*tpm));
+	if (s_state.valid)
+		memcpy(tpm, &s_state, sizeof(*tpm));
+	g_state = tpm;
 
 	return 0;
 }
@@ -361,5 +284,5 @@ U_BOOT_DRIVER(google_sandbox_tpm) = {
 	.of_match = sandbox_tpm_ids,
 	.ops    = &sandbox_tpm_ops,
 	.probe	= sandbox_tpm_probe,
-	.priv_auto_alloc_size = sizeof(struct tpm_state),
+	.priv_auto	= sizeof(struct tpm_state),
 };

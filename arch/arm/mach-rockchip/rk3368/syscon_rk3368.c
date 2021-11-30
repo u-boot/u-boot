@@ -30,7 +30,7 @@ U_BOOT_DRIVER(syscon_rk3368) = {
 };
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-static int rk3368_syscon_bind_of_platdata(struct udevice *dev)
+static int rk3368_syscon_bind_of_plat(struct udevice *dev)
 {
 	dev->driver_data = dev->driver->of_match->data;
 	debug("syscon: %s %d\n", dev->name, (uint)dev->driver_data);
@@ -42,27 +42,27 @@ U_BOOT_DRIVER(rockchip_rk3368_grf) = {
 	.name = "rockchip_rk3368_grf",
 	.id = UCLASS_SYSCON,
 	.of_match = rk3368_syscon_ids,
-	.bind = rk3368_syscon_bind_of_platdata,
+	.bind = rk3368_syscon_bind_of_plat,
 };
 
 U_BOOT_DRIVER(rockchip_rk3368_pmugrf) = {
 	.name = "rockchip_rk3368_pmugrf",
 	.id = UCLASS_SYSCON,
 	.of_match = rk3368_syscon_ids + 1,
-	.bind = rk3368_syscon_bind_of_platdata,
+	.bind = rk3368_syscon_bind_of_plat,
 };
 
 U_BOOT_DRIVER(rockchip_rk3368_msch) = {
 	.name = "rockchip_rk3368_msch",
 	.id = UCLASS_SYSCON,
 	.of_match = rk3368_syscon_ids + 2,
-	.bind = rk3368_syscon_bind_of_platdata,
+	.bind = rk3368_syscon_bind_of_plat,
 };
 
 U_BOOT_DRIVER(rockchip_rk3368_sgrf) = {
 	.name = "rockchip_rk3368_sgrf",
 	.id = UCLASS_SYSCON,
 	.of_match = rk3368_syscon_ids + 3,
-	.bind = rk3368_syscon_bind_of_platdata,
+	.bind = rk3368_syscon_bind_of_plat,
 };
 #endif

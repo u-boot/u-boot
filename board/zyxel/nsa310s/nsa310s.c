@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2015
- * Gerald Kerma <dreagle@doukki.net>
- * Tony Dinh <mibodhi@gmail.com>
+ * Copyright (C) 2015, 2021 Tony Dinh <mibodhi@gmail.com>
+ * Copyright (C) 2015 Gerald Kerma <dreagle@doukki.net>
  */
 
 #include <common.h>
@@ -12,6 +11,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include "nsa310s.h"
 
@@ -80,21 +80,51 @@ int board_init(void)
 	return 0;
 }
 
+static int fdt_get_phy_addr(const char *path)
+{
+	const void *fdt = gd->fdt_blob;
+	const u32 *reg;
+	const u32 *val;
+	int node, phandle, addr;
+
+	/* Find the node by its full path */
+	node = fdt_path_offset(fdt, path);
+	if (node >= 0) {
+		/* Look up phy-handle */
+		val = fdt_getprop(fdt, node, "phy-handle", NULL);
+		if (val) {
+			phandle = fdt32_to_cpu(*val);
+			if (!phandle)
+				return -1;
+			/* Follow it to its node */
+			node = fdt_node_offset_by_phandle(fdt, phandle);
+			if (node) {
+				/* Look up reg */
+				reg = fdt_getprop(fdt, node, "reg", NULL);
+				if (reg) {
+					addr = fdt32_to_cpu(*reg);
+					return addr;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
 #ifdef CONFIG_RESET_PHY_R
 void reset_phy(void)
 {
 	u16 reg;
 	u16 phyaddr;
-	char *name = "egiga0";
+	char *name = "ethernet-controller@72000";
+	char *eth0_path = "/ocp@f1000000/ethernet-controller@72000/ethernet0-port@0";
 
 	if (miiphy_set_current_dev(name))
 		return;
 
-	/* read PHY dev address */
-	if (miiphy_read(name, 0xee, 0xee, (u16 *) &phyaddr)) {
-		printf("could not read PHY dev address\n");
+	phyaddr = fdt_get_phy_addr(eth0_path);
+	if (phyaddr < 0)
 		return;
-	}
 
 	/* set RGMII delay */
 	miiphy_write(name, phyaddr, MV88E1318_PGADR_REG, MV88E1318_MAC_CTRL_PG);
@@ -130,5 +160,7 @@ void reset_phy(void)
 	/* downshift */
 	miiphy_write(name, phyaddr, 0x10, 0x3860);
 	miiphy_write(name, phyaddr, 0x0, 0x9140);
+
+	printf("MV88E1318 PHY initialized on %s\n", name);
 }
 #endif /* CONFIG_RESET_PHY_R */

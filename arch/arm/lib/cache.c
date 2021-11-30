@@ -11,6 +11,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -86,7 +87,7 @@ void noncached_set_region(void)
 #endif
 }
 
-void noncached_init(void)
+int noncached_init(void)
 {
 	phys_addr_t start, end;
 	size_t size;
@@ -103,6 +104,8 @@ void noncached_init(void)
 	noncached_next = start;
 
 	noncached_set_region();
+
+	return 0;
 }
 
 phys_addr_t noncached_alloc(size_t size, size_t align)

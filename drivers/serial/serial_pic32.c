@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <serial.h>
 #include <wait_bit.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <mach/pic32.h>
 #include <dt-bindings/clock/microchip,clock.h>
@@ -178,7 +179,7 @@ U_BOOT_DRIVER(pic32_serial) = {
 	.of_match	= pic32_uart_ids,
 	.probe		= pic32_uart_probe,
 	.ops		= &pic32_uart_ops,
-	.priv_auto_alloc_size = sizeof(struct pic32_uart_priv),
+	.priv_auto	= sizeof(struct pic32_uart_priv),
 };
 
 #ifdef CONFIG_DEBUG_UART_PIC32

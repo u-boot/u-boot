@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/addrspace.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/sizes.h>
@@ -139,6 +140,9 @@ void mt7628_ddr_init(void)
 	lspd = readl(sysc + SYSCTL_CLKCFG0_REG) &
 	       (CPU_PLL_FROM_BBP | CPU_PLL_FROM_XTAL);
 
+	if (pkg_type == PKG_ID_KN)
+		ddr_type = DRAM_DDR1;
+
 	mt7628_memc_reset(1);
 	__udelay(200);
 
@@ -150,9 +154,6 @@ void mt7628_ddr_init(void)
 	param.mc_reset = mt7628_memc_reset;
 	param.memsize = 0;
 	param.bus_width = 0;
-
-	if (pkg_type == PKG_ID_KN)
-		ddr_type = DRAM_DDR1;
 
 	if (ddr_type == DRAM_DDR1) {
 		if (lspd)

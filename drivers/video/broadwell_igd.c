@@ -14,6 +14,7 @@
 #include <vbe.h>
 #include <video.h>
 #include <asm/cpu.h>
+#include <asm/global_data.h>
 #include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/mtrr.h>
@@ -356,7 +357,7 @@ static int gtt_poll(struct broadwell_igd_priv *priv, u32 reg, u32 mask,
 
 static void igd_setup_panel(struct udevice *dev)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	u32 reg32;
 
@@ -398,7 +399,7 @@ static void igd_setup_panel(struct udevice *dev)
 
 static int igd_cdclk_init_haswell(struct udevice *dev)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	int cdclk = plat->cdclk;
 	u16 devid;
@@ -472,7 +473,7 @@ err:
 
 static int igd_cdclk_init_broadwell(struct udevice *dev)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	int cdclk = plat->cdclk;
 	u32 dpdiv, lpcll, pwctl, cdset;
@@ -567,7 +568,7 @@ u8 systemagent_revision(struct udevice *bus)
 
 static int igd_pre_init(struct udevice *dev, bool is_broadwell)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	u32 rp1_gfx_freq;
 	int ret;
@@ -661,7 +662,7 @@ static int broadwell_igd_int15_handler(void)
 
 static int broadwell_igd_probe(struct udevice *dev)
 {
-	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	bool is_broadwell;
 	ulong fbbase;
@@ -706,9 +707,9 @@ static int broadwell_igd_probe(struct udevice *dev)
 	return 0;
 }
 
-static int broadwell_igd_ofdata_to_platdata(struct udevice *dev)
+static int broadwell_igd_of_to_plat(struct udevice *dev)
 {
-	struct broadwell_igd_plat *plat = dev_get_platdata(dev);
+	struct broadwell_igd_plat *plat = dev_get_plat(dev);
 	struct broadwell_igd_priv *priv = dev_get_priv(dev);
 	int node = dev_of_offset(dev);
 	const void *blob = gd->fdt_blob;
@@ -756,7 +757,7 @@ static int broadwell_igd_ofdata_to_platdata(struct udevice *dev)
 
 static int broadwell_igd_bind(struct udevice *dev)
 {
-	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 	/* Set the maximum supported resolution */
 	uc_plat->size = 2560 * 1600 * 4;
@@ -778,9 +779,9 @@ U_BOOT_DRIVER(broadwell_igd) = {
 	.id	= UCLASS_VIDEO,
 	.of_match = broadwell_igd_ids,
 	.ops	= &broadwell_igd_ops,
-	.ofdata_to_platdata = broadwell_igd_ofdata_to_platdata,
+	.of_to_plat = broadwell_igd_of_to_plat,
 	.bind	= broadwell_igd_bind,
 	.probe	= broadwell_igd_probe,
-	.priv_auto_alloc_size	= sizeof(struct broadwell_igd_priv),
-	.platdata_auto_alloc_size	= sizeof(struct broadwell_igd_plat),
+	.priv_auto	= sizeof(struct broadwell_igd_priv),
+	.plat_auto	= sizeof(struct broadwell_igd_plat),
 };

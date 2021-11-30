@@ -52,7 +52,7 @@ struct ec_host_response_i2c {
 static int cros_ec_i2c_packet(struct udevice *udev, int out_bytes, int in_bytes)
 {
 	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(udev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(udev);
 	struct ec_host_request_i2c *ec_request_i2c =
 		(struct ec_host_request_i2c *)dev->dout;
 	struct ec_host_response_i2c *ec_response_i2c =
@@ -112,7 +112,7 @@ static int cros_ec_i2c_command(struct udevice *udev, uint8_t cmd,
 			       int dout_len, uint8_t **dinp, int din_len)
 {
 	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
-	struct dm_i2c_chip *chip = dev_get_parent_platdata(udev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(udev);
 	struct i2c_msg i2c_msg[2];
 	/* version8, cmd8, arglen8, out8[dout_len], csum8 */
 	int out_bytes = dout_len + 4;

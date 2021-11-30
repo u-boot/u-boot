@@ -15,10 +15,10 @@
 #include <spi_flash.h>
 #include <errno.h>
 #include <spl.h>
+#include <asm/global_data.h>
+#include <dm/ofnode.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
-#ifdef CONFIG_SPL_OS_BOOT
+#if CONFIG_IS_ENABLED(OS_BOOT)
 /*
  * Load the kernel, check for a valid header we can parse, and if found load
  * the kernel and then device tree.
@@ -102,13 +102,12 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-	payload_offs = fdtdec_get_config_int(gd->fdt_blob,
-					     "u-boot,spl-payload-offset",
-					     payload_offs);
-#endif
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		payload_offs = ofnode_conf_read_int("u-boot,spl-payload-offset",
+						    payload_offs);
+	}
 
-#ifdef CONFIG_SPL_OS_BOOT
+#if CONFIG_IS_ENABLED(OS_BOOT)
 	if (spl_start_uboot() || spi_load_image_os(spl_image, flash, header))
 #endif
 	{
@@ -158,7 +157,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			err = spl_parse_image_header(spl_image, header);
 			if (err)
 				return err;
-			err = spi_flash_read(flash, payload_offs,
+			err = spi_flash_read(flash, payload_offs + spl_image->offset,
 					     spl_image->size,
 					     (void *)spl_image->load_addr);
 		}

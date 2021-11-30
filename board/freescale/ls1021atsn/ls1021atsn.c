@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright 2016-2019 NXP Semiconductors
+/* Copyright 2016-2019 NXP
  */
 #include <common.h>
 #include <clock_legacy.h>
@@ -11,6 +11,7 @@
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/ls102xa_soc.h>
 #include <asm/arch/fsl_serdes.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include "../common/sleep.h"
 #include <fsl_validate.h>

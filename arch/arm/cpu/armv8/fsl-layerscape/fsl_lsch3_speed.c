@@ -9,6 +9,7 @@
 #include <common.h>
 #include <clock_legacy.h>
 #include <cpu_func.h>
+#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <fsl_ifc.h>
 #include <asm/processor.h>
@@ -77,10 +78,10 @@ void get_sys_info(struct sys_info *sys_info)
 	void *offset;
 
 	sys_info->freq_systembus = sysclk;
-#ifdef CONFIG_DDR_CLK_FREQ
-	sys_info->freq_ddrbus = CONFIG_DDR_CLK_FREQ;
+#if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || defined(CONFIG_STATIC_DDR_CLK_FREQ)
+	sys_info->freq_ddrbus = get_board_ddr_clk();
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-	sys_info->freq_ddrbus2 = CONFIG_DDR_CLK_FREQ;
+	sys_info->freq_ddrbus2 = get_board_ddr_clk();
 #endif
 #else
 	sys_info->freq_ddrbus = sysclk;

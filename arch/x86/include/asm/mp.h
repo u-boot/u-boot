@@ -10,16 +10,22 @@
 
 #include <asm/atomic.h>
 #include <asm/cache.h>
+#include <linux/bitops.h>
+
+struct udevice;
 
 enum {
-	/* Indicates that the function should run on all CPUs */
-	MP_SELECT_ALL	= -1,
+	/*
+	 * Indicates that the function should run on all CPUs. We use a large
+	 * number, above the number of real CPUs we expect to find.
+	 */
+	MP_SELECT_ALL	= BIT(16),
 
 	/* Run on boot CPUs */
-	MP_SELECT_BSP	= -2,
+	MP_SELECT_BSP,
 
 	/* Run on non-boot CPUs */
-	MP_SELECT_APS	= -3,
+	MP_SELECT_APS,
 };
 
 typedef int (*mp_callback_t)(struct udevice *cpu, void *arg);
@@ -114,7 +120,7 @@ typedef void (*mp_run_func)(void *arg);
  * Running on anything other than the boot CPU is only supported if
  * CONFIG_SMP_AP_WORK is enabled
  *
- * @cpu_select: CPU to run on (its dev->req_seq value), or MP_SELECT_ALL for
+ * @cpu_select: CPU to run on (its dev_seq() value), or MP_SELECT_ALL for
  *	all, or MP_SELECT_BSP for BSP
  * @func: Function to run
  * @arg: Argument to pass to the function

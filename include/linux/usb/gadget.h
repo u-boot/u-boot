@@ -160,14 +160,14 @@ struct usb_ep_caps {
  *	endpoint. It's set once by UDC driver when endpoint is initialized, and
  *	should not be changed. Should not be confused with maxpacket.
  * @max_streams: The maximum number of streams supported
- * 	by this EP (0 - 16, actual number is 2^n)
+ *	by this EP (0 - 16, actual number is 2^n)
  * @maxburst: the maximum number of bursts supported by this EP (for usb3)
  * @driver_data:for use by the gadget driver.  all other fields are
  *	read-only to gadget drivers.
  * @desc: endpoint descriptor.  This pointer is set before the endpoint is
- * 	enabled and remains valid until the endpoint is disabled.
+ *	enabled and remains valid until the endpoint is disabled.
  * @comp_desc: In case of SuperSpeed support, this is the endpoint companion
- * 	descriptor that is used to configure the endpoint
+ *	descriptor that is used to configure the endpoint
  *
  * the bus controller driver lists all the general purpose endpoints in
  * gadget->ep_list.  the control endpoint (gadget->ep0) is not in that list,
@@ -449,6 +449,11 @@ static inline void usb_ep_fifo_flush(struct usb_ep *ep)
 
 /*-------------------------------------------------------------------------*/
 
+struct usb_dcd_config_params {
+	__u8  bU1devExitLat;	/* U1 Device exit Latency */
+	__le16 bU2DevExitLat;	/* U2 Device exit Latency */
+};
+
 struct usb_gadget;
 struct usb_gadget_driver;
 
@@ -464,12 +469,16 @@ struct usb_gadget_ops {
 	int	(*pullup) (struct usb_gadget *, int is_on);
 	int	(*ioctl)(struct usb_gadget *,
 				unsigned code, unsigned long param);
+	void	(*get_config_params)(struct usb_dcd_config_params *);
 	int	(*udc_start)(struct usb_gadget *,
 			     struct usb_gadget_driver *);
 	int	(*udc_stop)(struct usb_gadget *);
 	struct usb_ep *(*match_ep)(struct usb_gadget *,
 			struct usb_endpoint_descriptor *,
 			struct usb_ss_ep_comp_descriptor *);
+	int   (*ep_conf)(struct usb_gadget *,
+			struct usb_ep *,
+			struct usb_endpoint_descriptor *);
 	void	(*udc_set_speed)(struct usb_gadget *gadget,
 				 enum usb_device_speed);
 };

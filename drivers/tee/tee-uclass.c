@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2018 Linaro Limited
+ * Copyright (c) 2018-2020 Linaro Limited
  */
 
+#define LOG_CATEGORY UCLASS_TEE
+
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
 #include <tee.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
@@ -205,7 +209,7 @@ static int tee_pre_remove(struct udevice *dev)
 UCLASS_DRIVER(tee) = {
 	.id = UCLASS_TEE,
 	.name = "tee",
-	.per_device_auto_alloc_size = sizeof(struct tee_uclass_priv),
+	.per_device_auto	= sizeof(struct tee_uclass_priv),
 	.pre_probe = tee_pre_probe,
 	.pre_remove = tee_pre_remove,
 };
@@ -232,4 +236,19 @@ void tee_optee_ta_uuid_to_octets(u8 d[TEE_UUID_LEN],
 	d[6] = s->time_hi_and_version >> 8;
 	d[7] = s->time_hi_and_version;
 	memcpy(d + 8, s->clock_seq_and_node, sizeof(s->clock_seq_and_node));
+}
+
+void tee_flush_all_shm_dcache(struct udevice *dev)
+{
+	struct tee_uclass_priv *priv = dev_get_uclass_priv(dev);
+	struct tee_shm *s;
+
+	list_for_each_entry(s, &priv->list_shm, link) {
+		ulong start = rounddown((ulong)s->addr,
+					CONFIG_SYS_CACHELINE_SIZE);
+		ulong end = roundup((ulong)s->addr + s->size,
+				    CONFIG_SYS_CACHELINE_SIZE);
+
+		flush_dcache_range(start, end);
+	}
 }

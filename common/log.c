@@ -9,6 +9,7 @@
 #include <common.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -152,7 +153,7 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 {
 	struct log_filter *filt;
 
-	if (rec->force_debug)
+	if (rec->flags & LOGRECF_FORCE_DEBUG)
 		return true;
 
 	/* If there are no filters, filter on the default log level */
@@ -198,9 +199,10 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
  * @rec:	log record to dispatch
  * Return:	0 msg sent, 1 msg not sent while already dispatching another msg
  */
-static int log_dispatch(struct log_rec *rec)
+static int log_dispatch(struct log_rec *rec, const char *fmt, va_list args)
 {
 	struct log_device *ldev;
+	char buf[CONFIG_SYS_CBSIZE];
 
 	/*
 	 * When a log driver writes messages (e.g. via the network stack) this
@@ -214,8 +216,16 @@ static int log_dispatch(struct log_rec *rec)
 	gd->processing_msg = true;
 	list_for_each_entry(ldev, &gd->log_head, sibling_node) {
 		if ((ldev->flags & LOGDF_ENABLE) &&
-		    log_passes_filters(ldev, rec))
+		    log_passes_filters(ldev, rec)) {
+			if (!rec->msg) {
+				int len;
+
+				len = vsnprintf(buf, sizeof(buf), fmt, args);
+				rec->msg = buf;
+				gd->log_cont = len && buf[len - 1] != '\n';
+			}
 			ldev->drv->emit(ldev, rec);
+		}
 	}
 	gd->processing_msg = false;
 	return 0;
@@ -224,9 +234,11 @@ static int log_dispatch(struct log_rec *rec)
 int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	 int line, const char *func, const char *fmt, ...)
 {
-	char buf[CONFIG_SYS_CBSIZE];
 	struct log_rec rec;
 	va_list args;
+
+	if (!gd)
+		return -ENOSYS;
 
 	/* Check for message continuation */
 	if (cat == LOGC_CONT)
@@ -236,22 +248,67 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 
 	rec.cat = cat;
 	rec.level = level & LOGL_LEVEL_MASK;
-	rec.force_debug = level & LOGL_FORCE_DEBUG;
+	rec.flags = 0;
+	if (level & LOGL_FORCE_DEBUG)
+		rec.flags |= LOGRECF_FORCE_DEBUG;
+	if (gd->log_cont)
+		rec.flags |= LOGRECF_CONT;
 	rec.file = file;
 	rec.line = line;
 	rec.func = func;
-	va_start(args, fmt);
-	vsnprintf(buf, sizeof(buf), fmt, args);
-	va_end(args);
-	rec.msg = buf;
-	if (!gd || !(gd->flags & GD_FLG_LOG_READY)) {
-		if (gd)
-			gd->log_drop_count++;
+	rec.msg = NULL;
+
+	if (!(gd->flags & GD_FLG_LOG_READY)) {
+		gd->log_drop_count++;
+
+		/* display dropped traces with console puts and DEBUG_UART */
+		if (rec.level <= CONFIG_LOG_DEFAULT_LEVEL ||
+		    rec.flags & LOGRECF_FORCE_DEBUG) {
+			char buf[CONFIG_SYS_CBSIZE];
+
+			va_start(args, fmt);
+			vsnprintf(buf, sizeof(buf), fmt, args);
+			puts(buf);
+			va_end(args);
+		}
+
 		return -ENOSYS;
 	}
-	if (!log_dispatch(&rec)) {
+	va_start(args, fmt);
+	if (!log_dispatch(&rec, fmt, args)) {
 		gd->logc_prev = cat;
 		gd->logl_prev = level;
+	}
+	va_end(args);
+
+	return 0;
+}
+
+#define MAX_LINE_LENGTH_BYTES		64
+#define DEFAULT_LINE_LENGTH_BYTES	16
+
+int _log_buffer(enum log_category_t cat, enum log_level_t level,
+		const char *file, int line, const char *func, ulong addr,
+		const void *data, uint width, uint count, uint linelen)
+{
+	if (linelen * width > MAX_LINE_LENGTH_BYTES)
+		linelen = MAX_LINE_LENGTH_BYTES / width;
+	if (linelen < 1)
+		linelen = DEFAULT_LINE_LENGTH_BYTES / width;
+
+	while (count) {
+		uint thislinelen;
+		char buf[HEXDUMP_MAX_BUF_LENGTH(width * linelen)];
+
+		thislinelen = hexdump_line(addr, data, width, count, linelen,
+					   buf, sizeof(buf));
+		assert(thislinelen >= 0);
+		_log(cat, level, file, line, func, "%s\n", buf);
+
+		/* update references */
+		data += thislinelen * width;
+		addr += thislinelen * width;
+		count -= thislinelen;
 	}
 
 	return 0;

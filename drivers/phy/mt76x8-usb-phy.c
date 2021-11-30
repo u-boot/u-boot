@@ -248,5 +248,5 @@ U_BOOT_DRIVER(mt76x8_usb_phy) = {
 	.of_match	= mt76x8_usb_phy_ids,
 	.ops		= &mt76x8_usb_phy_ops,
 	.probe		= mt76x8_usb_phy_probe,
-	.priv_auto_alloc_size = sizeof(struct mt76x8_usb_phy),
+	.priv_auto	= sizeof(struct mt76x8_usb_phy),
 };

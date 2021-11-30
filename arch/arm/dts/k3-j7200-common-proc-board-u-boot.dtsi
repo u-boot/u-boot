@@ -11,11 +11,11 @@
 
 	aliases {
 		ethernet0 = &cpsw_port1;
+		i2c0 = &wkup_i2c0;
+		i2c1 = &mcu_i2c0;
+		i2c2 = &mcu_i2c1;
+		i2c3 = &main_i2c0;
 	};
-};
-
-&chipid {
-	u-boot,dm-spl;
 };
 
 &cbass_main {
@@ -33,8 +33,40 @@
 		compatible = "ti,omap5430-timer";
 		reg = <0x0 0x40400000 0x0 0x80>;
 		ti,timer-alwon;
-		clock-frequency = <25000000>;
+		clock-frequency = <250000000>;
 		u-boot,dm-spl;
+	};
+
+	chipid@43000014 {
+		u-boot,dm-spl;
+	};
+
+	mcu_navss: bus@28380000 {
+		u-boot,dm-spl;
+		#address-cells = <2>;
+		#size-cells = <2>;
+
+		ringacc@2b800000 {
+			reg =	<0x0 0x2b800000 0x0 0x400000>,
+				<0x0 0x2b000000 0x0 0x400000>,
+				<0x0 0x28590000 0x0 0x100>,
+				<0x0 0x2a500000 0x0 0x40000>,
+				<0x0 0x28440000 0x0 0x40000>;
+			reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target", "cfg";
+			u-boot,dm-spl;
+		};
+
+		dma-controller@285c0000 {
+			reg =	<0x0 0x285c0000 0x0 0x100>,
+				<0x0 0x284c0000 0x0 0x4000>,
+				<0x0 0x2a800000 0x0 0x40000>,
+				<0x0 0x284a0000 0x0 0x4000>,
+				<0x0 0x2aa00000 0x0 0x40000>,
+				<0x0 0x28400000 0x0 0x2000>;
+			reg-names = "gcfg", "rchan", "rchanrt", "tchan",
+					    "tchanrt", "rflow";
+			u-boot,dm-spl;
+		};
 	};
 };
 
@@ -86,10 +118,6 @@
 	u-boot,dm-spl;
 };
 
-&wkup_i2c0_pins_default {
-	u-boot,dm-spl;
-};
-
 &wkup_i2c0 {
 	u-boot,dm-spl;
 };
@@ -110,6 +138,7 @@
 	reg = <0x0 0x46000000 0x0 0x200000>,
 	      <0x0 0x40f00200 0x0 0x8>;
 	reg-names = "cpsw_nuss", "mac_efuse";
+	/delete-property/ ranges;
 
 	cpsw-phy-sel@40f04040 {
 		compatible = "ti,am654-cpsw-phy-sel";
@@ -132,14 +161,6 @@
 	u-boot,dm-spl;
 };
 
-&wkup_gpio_pins_default {
-	u-boot,dm-spl;
-};
-
-&wkup_gpio0 {
-	u-boot,dm-spl;
-};
-
 &mcu_fss0_hpb0_pins_default {
 	u-boot,dm-spl;
 };
@@ -157,5 +178,17 @@
 };
 
 &hbmc_mux {
+	u-boot,dm-spl;
+};
+
+&serdes_ln_ctrl {
+	u-boot,mux-autoprobe;
+};
+
+&usb_serdes_mux {
+	u-boot,mux-autoprobe;
+};
+
+&serdes0 {
 	u-boot,dm-spl;
 };

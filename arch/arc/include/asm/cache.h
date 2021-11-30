@@ -16,9 +16,6 @@
  */
 #define ARCH_DMA_MINALIGN	128
 
-/* CONFIG_SYS_CACHELINE_SIZE is used a lot in drivers */
-#define CONFIG_SYS_CACHELINE_SIZE	ARCH_DMA_MINALIGN
-
 #if defined(ARC_MMU_ABSENT)
 #define CONFIG_ARC_MMU_VER 0
 #elif defined(CONFIG_ARC_MMU_V2)

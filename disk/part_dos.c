@@ -18,6 +18,8 @@
 #include <command.h>
 #include <ide.h>
 #include <memalign.h>
+#include <asm/unaligned.h>
+#include <linux/compiler.h>
 #include "part_dos.h"
 #include <part.h>
 
@@ -29,22 +31,11 @@
  * to use large numbers of partitions */
 #define MAX_EXT_PARTS 256
 
-/* Convert char[4] in little endian format to the host format integer
- */
-static inline unsigned int le32_to_int(unsigned char *le32)
-{
-    return ((le32[3] << 24) +
-	    (le32[2] << 16) +
-	    (le32[1] << 8) +
-	     le32[0]
-	   );
-}
-
 static inline int is_extended(int part_type)
 {
-    return (part_type == 0x5 ||
-	    part_type == 0xf ||
-	    part_type == 0x85);
+    return (part_type == DOS_PART_TYPE_EXTENDED ||
+	    part_type == DOS_PART_TYPE_EXTENDED_LBA ||
+	    part_type == DOS_PART_TYPE_EXTENDED_LINUX);
 }
 
 static int get_bootable(dos_partition_t *p)
@@ -61,8 +52,8 @@ static int get_bootable(dos_partition_t *p)
 static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
 			   int part_num, unsigned int disksig)
 {
-	lbaint_t lba_start = ext_part_sector + le32_to_int (p->start4);
-	lbaint_t lba_size  = le32_to_int (p->size4);
+	lbaint_t lba_start = ext_part_sector + get_unaligned_le32(p->start4);
+	lbaint_t lba_size  = get_unaligned_le32(p->size4);
 
 	printf("%3d\t%-10" LBAFlength "u\t%-10" LBAFlength
 		"u\t%08x-%02x\t%02x%s%s\n",
@@ -171,7 +162,7 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 	}
 
 	if (!ext_part_sector)
-		disksig = le32_to_int(&buffer[DOS_PART_DISKSIG_OFFSET]);
+		disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
 
 	/* Print all primary/logical partitions */
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
@@ -198,7 +189,7 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
 			lbaint_t lba_start
-				= le32_to_int (pt->start4) + relative;
+				= get_unaligned_le32 (pt->start4) + relative;
 
 			print_partition_extended(dev_desc, lba_start,
 				ext_part_sector == 0  ? lba_start : relative,
@@ -244,7 +235,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	if (!ext_part_sector)
-		disksig = le32_to_int(&buffer[DOS_PART_DISKSIG_OFFSET]);
+		disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
 #endif
 
 	/* Print all primary/logical partitions */
@@ -260,8 +251,8 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 		    (ext_part_sector == 0 || is_extended(pt->sys_ind) == 0)) {
 			info->blksz = DOS_PART_DEFAULT_SECTOR;
 			info->start = (lbaint_t)(ext_part_sector +
-					le32_to_int(pt->start4));
-			info->size  = (lbaint_t)le32_to_int(pt->size4);
+					get_unaligned_le32(pt->start4));
+			info->size  = (lbaint_t)get_unaligned_le32(pt->size4);
 			part_set_generic_name(dev_desc, part_num,
 					      (char *)info->name);
 			/* sprintf(info->type, "%d, pt->sys_ind); */
@@ -286,7 +277,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
 			lbaint_t lba_start
-				= le32_to_int (pt->start4) + relative;
+				= get_unaligned_le32 (pt->start4) + relative;
 
 			return part_get_info_extended(dev_desc, lba_start,
 				 ext_part_sector == 0 ? lba_start : relative,
@@ -312,13 +303,13 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 	return -1;
 }
 
-void part_print_dos(struct blk_desc *dev_desc)
+static void __maybe_unused part_print_dos(struct blk_desc *dev_desc)
 {
 	printf("Part\tStart Sector\tNum Sectors\tUUID\t\tType\n");
 	print_partition_extended(dev_desc, 0, 0, 1, 0);
 }
 
-int part_get_info_dos(struct blk_desc *dev_desc, int part,
+static int __maybe_unused part_get_info_dos(struct blk_desc *dev_desc, int part,
 		      struct disk_partition *info)
 {
 	return part_get_info_extended(dev_desc, 0, 0, 1, part, info, 0);
@@ -329,7 +320,177 @@ int is_valid_dos_buf(void *buf)
 	return test_block_type(buf) == DOS_MBR ? 0 : -1;
 }
 
-int write_mbr_partition(struct blk_desc *dev_desc, void *buf)
+#if CONFIG_IS_ENABLED(CMD_MBR)
+static void lba_to_chs(lbaint_t lba, unsigned char *rc, unsigned char *rh,
+		       unsigned char *rs)
+{
+	unsigned int c, h, s;
+	/* use fixed CHS geometry */
+	unsigned int sectpertrack = 63;
+	unsigned int heads = 255;
+
+	c = (lba + 1) / sectpertrack / heads;
+	h = (lba + 1) / sectpertrack - c * heads;
+	s = (lba + 1) - (c * heads + h) * sectpertrack;
+
+	if (c > 1023) {
+		c = 1023;
+		h = 254;
+		s = 63;
+	}
+
+	*rc = c & 0xff;
+	*rh = h;
+	*rs = s + ((c & 0x300) >> 2);
+}
+
+static void mbr_fill_pt_entry(dos_partition_t *pt, lbaint_t start,
+		lbaint_t relative, lbaint_t size, uchar sys_ind, bool bootable)
+{
+	pt->boot_ind = bootable ? 0x80 : 0x00;
+	pt->sys_ind = sys_ind;
+	lba_to_chs(start, &pt->cyl, &pt->head, &pt->sector);
+	lba_to_chs(start + size - 1, &pt->end_cyl, &pt->end_head, &pt->end_sector);
+	put_unaligned_le32(relative, &pt->start4);
+	put_unaligned_le32(size, &pt->size4);
+}
+
+int write_mbr_partitions(struct blk_desc *dev,
+		struct disk_partition *p, int count, unsigned int disksig)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev->blksz);
+	lbaint_t ext_part_start = 0, ext_part_size = 0, ext_part_sect = 0;
+	dos_partition_t *pt;
+	int i;
+
+	memset(buffer, 0, dev->blksz);
+	buffer[DOS_PART_MAGIC_OFFSET] = 0x55;
+	buffer[DOS_PART_MAGIC_OFFSET + 1] = 0xaa;
+	put_unaligned_le32(disksig, &buffer[DOS_PART_DISKSIG_OFFSET]);
+	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
+
+	/* create all primary partitions */
+	for (i = 0; i < 4 && i < count; i++, pt++) {
+		mbr_fill_pt_entry(pt, p[i].start, p[i].start, p[i].size,
+				  p[i].sys_ind, p[i].bootable);
+		if (is_extended(p[i].sys_ind)) {
+			ext_part_start = p[i].start;
+			ext_part_size = p[i].size;
+			ext_part_sect = p[i].start;
+		}
+	}
+
+	if (i < count && !ext_part_start) {
+		printf("%s: extended partition is needed for more than 4 partitions\n",
+		        __func__);
+		return -1;
+	}
+
+	/* write MBR */
+	if (blk_dwrite(dev, 0, 1, buffer) != 1) {
+		printf("%s: failed writing 'MBR' (1 blks at 0x0)\n",
+		       __func__);
+		return -1;
+	}
+
+	/* create extended volumes */
+	for (; i < count; i++) {
+		lbaint_t next_ebr = 0;
+
+		memset(buffer, 0, dev->blksz);
+		buffer[DOS_PART_MAGIC_OFFSET] = 0x55;
+		buffer[DOS_PART_MAGIC_OFFSET + 1] = 0xaa;
+		pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
+
+		mbr_fill_pt_entry(pt, p[i].start, p[i].start - ext_part_sect,
+				  p[i].size, p[i].sys_ind, p[i].bootable);
+
+		if (i + 1 < count) {
+			pt++;
+			next_ebr = p[i].start + p[i].size;
+			mbr_fill_pt_entry(pt, next_ebr,
+					  next_ebr - ext_part_start,
+					  p[i+1].start + p[i+1].size - next_ebr,
+					  DOS_PART_TYPE_EXTENDED, 0);
+		}
+
+		/* write EBR */
+		if (blk_dwrite(dev, ext_part_sect, 1, buffer) != 1) {
+			printf("%s: failed writing 'EBR' (1 blks at 0x%lx)\n",
+			       __func__, ext_part_sect);
+			return -1;
+		}
+		ext_part_sect = next_ebr;
+	}
+
+	/* Update the partition table entries*/
+	part_init(dev);
+
+	return 0;
+}
+
+int layout_mbr_partitions(struct disk_partition *p, int count,
+			  lbaint_t total_sectors)
+{
+	struct disk_partition *ext = NULL;
+	int i, j;
+	lbaint_t ext_vol_start;
+
+	/* calculate primary partitions start and size if needed */
+	if (!p[0].start)
+		p[0].start = DOS_PART_DEFAULT_GAP;
+	for (i = 0; i < 4 && i < count; i++) {
+		if (!p[i].start)
+			p[i].start = p[i - 1].start + p[i - 1].size;
+		if (!p[i].size) {
+			lbaint_t end = total_sectors;
+			lbaint_t allocated = 0;
+
+			for (j = i + 1; j < 4 && j < count; j++) {
+				if (p[j].start) {
+					end = p[j].start;
+					break;
+				}
+				allocated += p[j].size;
+			}
+			p[i].size = end - allocated - p[i].start;
+		}
+		if (p[i].sys_ind == 0x05)
+			ext = &p[i];
+	}
+
+	if (i >= 4 && !ext) {
+		printf("%s: extended partition is needed for more than 4 partitions\n",
+		        __func__);
+		return -1;
+	}
+
+	/* calculate extended volumes start and size if needed */
+	ext_vol_start = ext->start;
+	for (i = 4; i < count; i++) {
+		if (!p[i].start)
+			p[i].start = ext_vol_start + DOS_PART_DEFAULT_GAP;
+		if (!p[i].size) {
+			lbaint_t end = ext->start + ext->size;
+			lbaint_t allocated = 0;
+
+			for (j = i + 1; j < count; j++) {
+				if (p[j].start) {
+					end = p[j].start - DOS_PART_DEFAULT_GAP;
+					break;
+				}
+				allocated += p[j].size + DOS_PART_DEFAULT_GAP;
+			}
+			p[i].size = end - allocated - p[i].start;
+		}
+		ext_vol_start = p[i].start + p[i].size;
+	}
+
+	return 0;
+}
+#endif
+
+int write_mbr_sector(struct blk_desc *dev_desc, void *buf)
 {
 	if (is_valid_dos_buf(buf))
 		return -1;
@@ -340,6 +501,9 @@ int write_mbr_partition(struct blk_desc *dev_desc, void *buf)
 		       __func__, "MBR");
 		return 1;
 	}
+
+	/* Update the partition table entries*/
+	part_init(dev_desc);
 
 	return 0;
 }

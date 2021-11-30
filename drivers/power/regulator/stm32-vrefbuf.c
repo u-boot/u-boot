@@ -6,6 +6,8 @@
  * Originally based on the Linux kernel v4.16 drivers/regulator/stm32-vrefbuf.c
  */
 
+#define LOG_CATEGORY UCLASS_REGULATOR
+
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -165,5 +167,5 @@ U_BOOT_DRIVER(stm32_vrefbuf) = {
 	.of_match = stm32_vrefbuf_ids,
 	.probe = stm32_vrefbuf_probe,
 	.ops = &stm32_vrefbuf_ops,
-	.priv_auto_alloc_size = sizeof(struct stm32_vrefbuf),
+	.priv_auto	= sizeof(struct stm32_vrefbuf),
 };

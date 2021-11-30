@@ -1,0 +1,99 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) Siemens AG, 2018-2021
+ *
+ * Authors:
+ *   Le Jin <le.jin@siemens.com>
+ *   Jan Kiszka <jan.kiszka@siemens.com>
+ *
+ * Common U-Boot bits of the IOT2050 Basic and Advanced variants
+ */
+
+/ {
+	aliases {
+		spi0 = &ospi0;
+	};
+
+	leds {
+		u-boot,dm-spl;
+		status-led-red {
+			u-boot,dm-spl;
+		};
+		status-led-green {
+			u-boot,dm-spl;
+		};
+	};
+};
+
+&cbass_mcu {
+	u-boot,dm-spl;
+};
+
+&cbass_wakeup {
+	u-boot,dm-spl;
+};
+
+&cbass_main {
+	u-boot,dm-spl;
+	main_navss: bus@30800000 {
+		u-boot,dm-spl;
+	};
+};
+
+&wkup_pmx0 {
+	u-boot,dm-spl;
+	mcu-fss0-ospi0-pins-default {
+		u-boot,dm-spl;
+	};
+};
+
+&main_pmx0 {
+	u-boot,dm-spl;
+	main-uart1-pins-default {
+		u-boot,dm-spl;
+	};
+};
+
+&main_uart1 {
+	u-boot,dm-spl;
+	current-speed = <115200>;
+};
+
+&wkup_gpio0 {
+	u-boot,dm-spl;
+};
+
+&ospi0 {
+	u-boot,dm-spl;
+	flash@0 {
+		u-boot,dm-spl;
+	};
+};
+
+&secure_proxy_main {
+	u-boot,dm-spl;
+};
+
+&dmsc {
+	u-boot,dm-spl;
+	k3_sysreset: sysreset-controller {
+		compatible = "ti,sci-sysreset";
+		u-boot,dm-spl;
+	};
+};
+
+&k3_pds {
+	u-boot,dm-spl;
+};
+
+&k3_clks {
+	u-boot,dm-spl;
+};
+
+&k3_reset {
+	u-boot,dm-spl;
+};
+
+&fss {
+	u-boot,dm-spl;
+};

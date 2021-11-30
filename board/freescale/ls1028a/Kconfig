@@ -14,7 +14,6 @@ config SYS_CONFIG_NAME
 
 config EMMC_BOOT
 	bool "Support for booting from EMMC"
-	default n
 
 config SYS_TEXT_BASE
 	default 0x96000000 if SD_BOOT || EMMC_BOOT
@@ -53,7 +52,6 @@ config SYS_CONFIG_NAME
 
 config EMMC_BOOT
 	bool "Support for booting from EMMC"
-	default n
 
 config SYS_TEXT_BASE
 	default 0x96000000 if SD_BOOT || EMMC_BOOT

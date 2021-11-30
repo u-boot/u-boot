@@ -30,7 +30,7 @@ void fsl_pci_config_unlock(struct pci_controller *hose);
 void ft_fsl_pci_setup(void *blob, const char *compat, unsigned long ctrl_addr);
 
 /*
- * Common PCI/PCIE Register structure for mpc85xx and mpc86xx
+ * Common PCI/PCIE Register structure for mpc85xx
  */
 
 /*

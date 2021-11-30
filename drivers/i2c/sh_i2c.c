@@ -10,6 +10,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 
@@ -293,20 +294,20 @@ static unsigned int sh_i2c_set_bus_speed(struct i2c_adapter *adap,
  * Register RCAR i2c adapters
  */
 U_BOOT_I2C_ADAP_COMPLETE(sh_0, sh_i2c_init, sh_i2c_probe, sh_i2c_read,
-	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SH_SPEED0, 0, 0)
+	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SPEED, 0, 0)
 #ifdef CONFIG_SYS_I2C_SH_BASE1
 U_BOOT_I2C_ADAP_COMPLETE(sh_1, sh_i2c_init, sh_i2c_probe, sh_i2c_read,
-	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SH_SPEED1, 0, 1)
+	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SPEED, 0, 1)
 #endif
 #ifdef CONFIG_SYS_I2C_SH_BASE2
 U_BOOT_I2C_ADAP_COMPLETE(sh_2, sh_i2c_init, sh_i2c_probe, sh_i2c_read,
-	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SH_SPEED2, 0, 2)
+	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SPEED, 0, 2)
 #endif
 #ifdef CONFIG_SYS_I2C_SH_BASE3
 U_BOOT_I2C_ADAP_COMPLETE(sh_3, sh_i2c_init, sh_i2c_probe, sh_i2c_read,
-	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SH_SPEED3, 0, 3)
+	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SPEED, 0, 3)
 #endif
 #ifdef CONFIG_SYS_I2C_SH_BASE4
 U_BOOT_I2C_ADAP_COMPLETE(sh_4, sh_i2c_init, sh_i2c_probe, sh_i2c_read,
-	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SH_SPEED4, 0, 4)
+	sh_i2c_write, sh_i2c_set_bus_speed, CONFIG_SYS_I2C_SPEED, 0, 4)
 #endif

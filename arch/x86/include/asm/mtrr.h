@@ -103,7 +103,7 @@ struct mtrr_info {
 void mtrr_open(struct mtrr_state *state, bool do_caches);
 
 /**
- * mtrr_open() - Clean up after adjusting MTRRs, and enable them
+ * mtrr_close() - Clean up after adjusting MTRRs, and enable them
  *
  * This uses the structure containing information returned from mtrr_open().
  *
@@ -119,7 +119,7 @@ void mtrr_close(struct mtrr_state *state, bool do_caches);
  *
  * @type:	Requested type (MTRR_TYPE_)
  * @start:	Start address
- * @size:	Size
+ * @size:	Size, must be power of 2
  *
  * @return:	0 on success, non-zero on failure
  */
@@ -144,8 +144,9 @@ int mtrr_commit(bool do_caches);
  *
  * @type:	Requested type (MTRR_TYPE_)
  * @start:	Start address
- * @size:	Size
- * @return 0 on success, -ENOSPC if there are no more MTRRs
+ * @size:	Size, must be power of 2
+ * @return 0 on success, -EINVAL if size is not power of 2,
+ * -ENOSPC if there are no more MTRRs
  */
 int mtrr_set_next_var(uint type, uint64_t base, uint64_t size);
 
@@ -170,7 +171,7 @@ void mtrr_read_all(struct mtrr_info *info);
 int mtrr_set_valid(int cpu_select, int reg, bool valid);
 
 /**
- * mtrr_set() - Set the valid flag for a selected MTRR and CPU(s)
+ * mtrr_set() - Set the base address and mask for a selected MTRR and CPU(s)
  *
  * @cpu_select: Selected CPUs (either a CPU number or MP_SELECT_...)
  * @reg: MTRR register to write (0-7)

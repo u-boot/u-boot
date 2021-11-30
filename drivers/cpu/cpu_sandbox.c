@@ -38,7 +38,7 @@ static int cpu_sandbox_get_vendor(const struct udevice *dev, char *buf,
 	return 0;
 }
 
-static const char *cpu_current = "cpu-test1";
+static const char *cpu_current = "cpu@1";
 
 void cpu_sandbox_set_current(const char *name)
 {
@@ -64,7 +64,7 @@ static const struct cpu_ops cpu_sandbox_ops = {
 static int cpu_sandbox_bind(struct udevice *dev)
 {
 	int ret;
-	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+	struct cpu_plat *plat = dev_get_parent_plat(dev);
 
 	/* first examine the property in current cpu node */
 	ret = dev_read_u32(dev, "timebase-frequency", &plat->timebase_freq);

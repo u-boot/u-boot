@@ -124,7 +124,7 @@ typedef struct {
 } flash_header_v1_t;
 
 typedef struct {
-	uint32_t length; 	/* Length of data to be read from flash */
+	uint32_t length;	/* Length of data to be read from flash */
 } flash_cfg_parms_t;
 
 typedef struct {

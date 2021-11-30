@@ -20,6 +20,10 @@ For PCI devices the following optional property is available:
 	output to be lost. This should not generally be used in production code,
 	although it is often harmless.
 
+- u-boot,pci-pre-reloc : List of vendor/device IDs to bind before relocation, even
+	if they are not bridges. This is useful if the device is needed (e.g. a
+	UART). The format is 0xvvvvdddd where d is the device ID and v is the
+	vendor ID.
 
 Example:
 
@@ -32,7 +36,8 @@ pci {
 		0x42000000 0x0 0xb0000000 0xb0000000 0 0x10000000
 		0x01000000 0x0 0x1000 0x1000 0 0xefff>;
 	u-boot,skip-auto-config-until-reloc;
-
+	u-boot,pci-pre-reloc = <
+		PCI_VENDEV(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_APL_UART2)>;
 
 	serial: serial@18,2 {
 		reg = <0x0200c210 0 0 0 0>;

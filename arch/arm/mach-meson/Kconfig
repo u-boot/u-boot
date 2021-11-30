@@ -9,6 +9,7 @@ config MESON64_COMMON
 	select SYSCON
 	select REGMAP
 	select PWRSEQ
+	select MMC_PWRSEQ
 	select BOARD_LATE_INIT
 	imply CMD_DM
 

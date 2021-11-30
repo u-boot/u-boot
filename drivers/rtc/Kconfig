@@ -38,6 +38,13 @@ config RTC_ENABLE_32KHZ_OUTPUT
 	   Some real-time clocks support the output of 32kHz square waves (such as ds3231),
 	   the config symbol choose Real Time Clock device 32Khz output feature.
 
+config RTC_ARMADA38X
+	bool "Enable Armada 38x Marvell SoC RTC"
+	depends on DM_RTC && ARCH_MVEBU
+	help
+	  This adds support for the in-chip RTC that can be found in the
+	  Armada 38x Marvell's SoC devices.
+
 config RTC_PCF2127
 	bool "Enable PCF2127 driver"
 	depends on DM_RTC
@@ -95,6 +102,12 @@ config RTC_PCF8563
 	  If you say yes here you get support for the Philips PCF8563 RTC
 	  and compatible chips.
 
+config RTC_RV3028
+	bool "Enable RV3028 driver"
+	depends on DM_RTC
+	help
+	  The MicroCrystal RV3028 is a I2C Real Time Clock (RTC)
+
 config RTC_RV3029
 	bool "Enable RV3029 driver"
 	depends on DM_RTC
@@ -123,6 +136,7 @@ config RTC_RX8010SJ
 
 config RTC_RX8025
 	bool "Enable RX8025 driver"
+	depends on DM_RTC
 	help
 	  Support for Epson RX8025 Real Time Clock devices.
 
@@ -166,4 +180,27 @@ config RTC_STM32
 	help
 	  Enable STM32 RTC driver. This driver supports the rtc that is present
 	  on some STM32 SoCs.
+
+config RTC_ABX80X
+	bool "Enable Abracon ABx80x RTC driver"
+	depends on DM_RTC
+	help
+	  If you say yes here you get support for Abracon AB080X and AB180X
+	  families of ultra-low-power  battery- and capacitor-backed real-time
+	  clock chips.
+
+config RTC_DAVINCI
+	bool "Enable TI OMAP RTC driver"
+	depends on ARCH_DAVINCI || ARCH_OMAP2PLUS
+	help
+	  Say "yes" here to support the on chip real time clock
+	  present on TI OMAP1, AM33xx, DA8xx/OMAP-L13x, AM43xx and DRA7xx.
+
+config RTC_ZYNQMP
+	bool "Enable ZynqMP RTC driver"
+	depends on ARCH_ZYNQMP
+	help
+	  Say "yes" here to support the on chip real time clock
+	  present on Xilinx ZynqMP SoC.
+
 endmenu

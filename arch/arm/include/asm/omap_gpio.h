@@ -25,7 +25,7 @@
 #if CONFIG_IS_ENABLED(DM_GPIO)
 
 /* Information about a GPIO bank */
-struct omap_gpio_platdata {
+struct omap_gpio_plat {
 	int bank_index;
 	ulong base;	/* address of registers in physical memory */
 	const char *port_name;

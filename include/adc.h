@@ -40,7 +40,7 @@ struct adc_channel {
 };
 
 /**
- * struct adc_uclass_platdata - basic ADC info
+ * struct adc_uclass_plat - basic ADC info
  *
  * Note: The positive/negative reference Voltage is only a name and it doesn't
  * provide an information about the value polarity. It is possible, for both
@@ -71,7 +71,7 @@ struct adc_channel {
  * @vdd_microvolts         - positive reference Voltage value
  * @vss_microvolts         - negative reference Voltage value
  */
-struct adc_uclass_platdata {
+struct adc_uclass_plat {
 	int data_format;
 	unsigned int data_mask;
 	unsigned int data_timeout_us;

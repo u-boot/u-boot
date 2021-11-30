@@ -110,7 +110,7 @@ static int waiting_for_cmd_completed(void __iomem *offset,
 	return (i < timeout_msec) ? 0 : -1;
 }
 
-int __weak ahci_link_up(struct ahci_uc_priv *uc_priv, u8 port)
+int __weak ahci_link_up(struct ahci_uc_priv *uc_priv, int port)
 {
 	u32 tmp;
 	int j = 0;
@@ -170,13 +170,8 @@ int ahci_reset(void __iomem *base)
 static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 {
 #if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
-# ifdef CONFIG_DM_PCI
 	struct udevice *dev = uc_priv->dev;
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
-# else
-	pci_dev_t pdev = uc_priv->dev;
-	unsigned short vendor;
-# endif
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
 	u16 tmp16;
 #endif
 	void __iomem *mmio = uc_priv->mmio_base;
@@ -200,23 +195,12 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	writel_with_flush(0xf, mmio + HOST_PORTS_IMPL);
 
 #if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
-# ifdef CONFIG_DM_PCI
 	if (pplat->vendor == PCI_VENDOR_ID_INTEL) {
 		u16 tmp16;
 
 		dm_pci_read_config16(dev, 0x92, &tmp16);
 		dm_pci_write_config16(dev, 0x92, tmp16 | 0xf);
 	}
-# else
-	pci_read_config_word(pdev, PCI_VENDOR_ID, &vendor);
-
-	if (vendor == PCI_VENDOR_ID_INTEL) {
-		u16 tmp16;
-		pci_read_config_word(pdev, 0x92, &tmp16);
-		tmp16 |= 0xf;
-		pci_write_config_word(pdev, 0x92, tmp16);
-	}
-# endif
 #endif
 	uc_priv->cap = readl(mmio + HOST_CAP);
 	uc_priv->port_map = readl(mmio + HOST_PORTS_IMPL);
@@ -331,15 +315,9 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	debug("HOST_CTL 0x%x\n", tmp);
 #if !defined(CONFIG_DM_SCSI)
 #ifndef CONFIG_SCSI_AHCI_PLAT
-# ifdef CONFIG_DM_PCI
 	dm_pci_read_config16(dev, PCI_COMMAND, &tmp16);
 	tmp |= PCI_COMMAND_MASTER;
 	dm_pci_write_config16(dev, PCI_COMMAND, tmp16);
-# else
-	pci_read_config_word(pdev, PCI_COMMAND, &tmp16);
-	tmp |= PCI_COMMAND_MASTER;
-	pci_write_config_word(pdev, PCI_COMMAND, tmp16);
-# endif
 #endif
 #endif
 	return 0;
@@ -349,11 +327,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 {
 #if !defined(CONFIG_SCSI_AHCI_PLAT) && !defined(CONFIG_DM_SCSI)
-# if defined(CONFIG_DM_PCI)
 	struct udevice *dev = uc_priv->dev;
-# else
-	pci_dev_t pdev = uc_priv->dev;
-# endif
 	u16 cc;
 #endif
 	void __iomem *mmio = uc_priv->mmio_base;
@@ -379,11 +353,7 @@ static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 #if defined(CONFIG_SCSI_AHCI_PLAT) || defined(CONFIG_DM_SCSI)
 	scc_s = "SATA";
 #else
-# ifdef CONFIG_DM_PCI
 	dm_pci_read_config16(dev, 0x0a, &cc);
-# else
-	pci_read_config_word(pdev, 0x0a, &cc);
-# endif
 	if (cc == 0x0101)
 		scc_s = "IDE";
 	else if (cc == 0x0106)
@@ -428,11 +398,7 @@ static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 }
 
 #if defined(CONFIG_DM_SCSI) || !defined(CONFIG_SCSI_AHCI_PLAT)
-# if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
 static int ahci_init_one(struct ahci_uc_priv *uc_priv, struct udevice *dev)
-# else
-static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
-# endif
 {
 #if !defined(CONFIG_DM_SCSI)
 	u16 vendor;
@@ -450,7 +416,6 @@ static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
 	uc_priv->udma_mask = 0x7f;	/*Fixme,assume to support UDMA6 */
 
 #if !defined(CONFIG_DM_SCSI)
-#ifdef CONFIG_DM_PCI
 	uc_priv->mmio_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_5,
 					      PCI_REGION_MEM);
 
@@ -462,19 +427,7 @@ static int ahci_init_one(struct ahci_uc_priv *uc_priv, pci_dev_t dev)
 	if (vendor == 0x197b)
 		dm_pci_write_config8(dev, 0x41, 0xa1);
 #else
-	uc_priv->mmio_base = pci_map_bar(dev, PCI_BASE_ADDRESS_5,
-					   PCI_REGION_MEM);
-
-	/* Take from kernel:
-	 * JMicron-specific fixup:
-	 * make sure we're in AHCI mode
-	 */
-	pci_read_config_word(dev, PCI_VENDOR_ID, &vendor);
-	if (vendor == 0x197b)
-		pci_write_config_byte(dev, 0x41, 0xa1);
-#endif
-#else
-	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
+	struct scsi_plat *plat = dev_get_uclass_plat(dev);
 	uc_priv->mmio_base = (void *)plat->base;
 #endif
 
@@ -500,6 +453,7 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 {
 	struct ahci_ioports *pp = &(uc_priv->port[port]);
 	struct ahci_sg *ahci_sg = pp->cmd_tbl_sg;
+	phys_addr_t pa = virt_to_phys(buf);
 	u32 sg_count;
 	int i;
 
@@ -510,9 +464,6 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 	}
 
 	for (i = 0; i < sg_count; i++) {
-		/* We assume virt=phys */
-		phys_addr_t pa = (unsigned long)buf + i * MAX_DATA_BYTE_COUNT;
-
 		ahci_sg->addr = cpu_to_le32(lower_32_bits(pa));
 		ahci_sg->addr_hi = cpu_to_le32(upper_32_bits(pa));
 		if (ahci_sg->addr_hi && !(uc_priv->cap & AHCI_CAP_S64A)) {
@@ -520,25 +471,26 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 			return -1;
 		}
 		ahci_sg->flags_size = cpu_to_le32(0x3fffff &
-					  (buf_len < MAX_DATA_BYTE_COUNT
-					   ? (buf_len - 1)
-					   : (MAX_DATA_BYTE_COUNT - 1)));
+					  (buf_len < MAX_DATA_BYTE_COUNT ?
+					   (buf_len - 1) :
+					   (MAX_DATA_BYTE_COUNT - 1)));
 		ahci_sg++;
 		buf_len -= MAX_DATA_BYTE_COUNT;
+		pa += MAX_DATA_BYTE_COUNT;
 	}
 
 	return sg_count;
 }
 
-
 static void ahci_fill_cmd_slot(struct ahci_ioports *pp, u32 opts)
 {
+	phys_addr_t pa = virt_to_phys((void *)pp->cmd_tbl);
+
 	pp->cmd_slot->opts = cpu_to_le32(opts);
 	pp->cmd_slot->status = 0;
-	pp->cmd_slot->tbl_addr = cpu_to_le32((u32)pp->cmd_tbl & 0xffffffff);
+	pp->cmd_slot->tbl_addr = cpu_to_le32(lower_32_bits(pa));
 #ifdef CONFIG_PHYS_64BIT
-	pp->cmd_slot->tbl_addr_hi =
-	    cpu_to_le32((u32)(((pp->cmd_tbl) >> 16) >> 16));
+	pp->cmd_slot->tbl_addr_hi = cpu_to_le32(upper_32_bits(pa));
 #endif
 }
 
@@ -674,11 +626,11 @@ static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
 
 	ahci_dcache_invalidate_range((unsigned long)buf,
 				     (unsigned long)buf_len);
-	debug("%s: %d byte transferred.\n", __func__, pp->cmd_slot->status);
+	debug("%s: %d byte transferred.\n", __func__,
+	      le32_to_cpu(pp->cmd_slot->status));
 
 	return 0;
 }
-
 
 static char *ata_id_strcpy(u16 *target, u16 *src, int len)
 {
@@ -1007,7 +959,6 @@ void scsi_low_level_init(int busdevfunc)
 		return;
 	}
 	uc_priv = probe_ent;
-# if defined(CONFIG_DM_PCI)
 	struct udevice *dev;
 	int ret;
 
@@ -1015,9 +966,6 @@ void scsi_low_level_init(int busdevfunc)
 	if (ret)
 		return;
 	ahci_init_one(uc_priv, dev);
-# else
-	ahci_init_one(uc_priv, busdevfunc);
-# endif
 #else
 	uc_priv = probe_ent;
 #endif
@@ -1027,14 +975,12 @@ void scsi_low_level_init(int busdevfunc)
 #endif
 
 #ifndef CONFIG_SCSI_AHCI_PLAT
-# if defined(CONFIG_DM_PCI) || defined(CONFIG_DM_SCSI)
 int ahci_init_one_dm(struct udevice *dev)
 {
 	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	return ahci_init_one(uc_priv, dev);
 }
-#endif
 #endif
 
 int ahci_start_ports_dm(struct udevice *dev)
@@ -1163,14 +1109,14 @@ int ahci_bind_scsi(struct udevice *ahci_dev, struct udevice **devp)
 int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 {
 	struct ahci_uc_priv *uc_priv;
-	struct scsi_platdata *uc_plat;
+	struct scsi_plat *uc_plat;
 	struct udevice *dev;
 	int ret;
 
 	device_find_first_child(ahci_dev, &dev);
 	if (!dev)
 		return -ENODEV;
-	uc_plat = dev_get_uclass_platdata(dev);
+	uc_plat = dev_get_uclass_plat(dev);
 	uc_plat->base = base;
 	uc_plat->max_lun = 1;
 	uc_plat->max_id = 2;
@@ -1190,11 +1136,13 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 	 */
 	uc_plat->max_id = max_t(unsigned long, uc_priv->n_ports,
 				uc_plat->max_id);
+	/* If port count is less than max_id, update max_id */
+	if (uc_priv->n_ports < uc_plat->max_id)
+		uc_plat->max_id = uc_priv->n_ports;
 
 	return 0;
 }
 
-#ifdef CONFIG_DM_PCI
 int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 {
 	ulong base;
@@ -1219,7 +1167,6 @@ int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 						 PCI_REGION_MEM);
 	return ahci_probe_scsi(ahci_dev, base);
 }
-#endif
 
 struct scsi_ops scsi_ops = {
 	.exec		= ahci_scsi_exec,

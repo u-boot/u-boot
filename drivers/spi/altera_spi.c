@@ -19,9 +19,7 @@
 #define ALTERA_SPI_STATUS_RRDY_MSK	BIT(7)
 #define ALTERA_SPI_CONTROL_SSO_MSK	BIT(10)
 
-#ifndef CONFIG_ALTERA_SPI_IDLE_VAL
-#define CONFIG_ALTERA_SPI_IDLE_VAL	0xff
-#endif
+#define ALTERA_SPI_IDLE_VAL		0xff
 
 struct altera_spi_regs {
 	u32	rxdata;
@@ -32,7 +30,7 @@ struct altera_spi_regs {
 	u32	slave_sel;
 };
 
-struct altera_spi_platdata {
+struct altera_spi_plat {
 	struct altera_spi_regs *regs;
 };
 
@@ -89,7 +87,7 @@ static int altera_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct udevice *bus = dev->parent;
 	struct altera_spi_priv *priv = dev_get_priv(bus);
 	struct altera_spi_regs *const regs = priv->regs;
-	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	/* assume spi core configured to do 8 bit transfers */
 	unsigned int bytes = bitlen / 8;
@@ -98,7 +96,7 @@ static int altera_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	uint32_t reg, data, start;
 
 	debug("%s: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n", __func__,
-	      bus->seq, slave_plat->cs, bitlen, bytes, flags);
+	      dev_seq(bus), slave_plat->cs, bitlen, bytes, flags);
 
 	if (bitlen == 0)
 		goto done;
@@ -119,7 +117,7 @@ static int altera_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		if (txp)
 			data = *txp++;
 		else
-			data = CONFIG_ALTERA_SPI_IDLE_VAL;
+			data = ALTERA_SPI_IDLE_VAL;
 
 		debug("%s: tx:%x ", __func__, data);
 		writel(data, &regs->txdata);
@@ -161,7 +159,7 @@ static int altera_spi_set_mode(struct udevice *bus, uint mode)
 
 static int altera_spi_probe(struct udevice *bus)
 {
-	struct altera_spi_platdata *plat = dev_get_platdata(bus);
+	struct altera_spi_plat *plat = dev_get_plat(bus);
 	struct altera_spi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->regs;
@@ -169,9 +167,9 @@ static int altera_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int altera_spi_ofdata_to_platdata(struct udevice *bus)
+static int altera_spi_of_to_plat(struct udevice *bus)
 {
-	struct altera_spi_platdata *plat = dev_get_platdata(bus);
+	struct altera_spi_plat *plat = dev_get_plat(bus);
 
 	plat->regs = map_physmem(dev_read_addr(bus),
 				 sizeof(struct altera_spi_regs),
@@ -202,8 +200,8 @@ U_BOOT_DRIVER(altera_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = altera_spi_ids,
 	.ops	= &altera_spi_ops,
-	.ofdata_to_platdata = altera_spi_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_spi_platdata),
-	.priv_auto_alloc_size = sizeof(struct altera_spi_priv),
+	.of_to_plat = altera_spi_of_to_plat,
+	.plat_auto	= sizeof(struct altera_spi_plat),
+	.priv_auto	= sizeof(struct altera_spi_priv),
 	.probe	= altera_spi_probe,
 };

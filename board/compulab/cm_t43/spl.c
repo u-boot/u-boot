@@ -106,7 +106,7 @@ const struct dpll_params *get_dpll_per_params(void)
 void scale_vcores(void)
 {
 	set_i2c_pin_mux();
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	if (i2c_probe(TPS65218_CHIP_PM))
 		return;
 
@@ -133,4 +133,3 @@ void sdram_init(void)
 
 	hang();
 }
-

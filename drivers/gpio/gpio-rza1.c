@@ -7,6 +7,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
@@ -130,6 +131,6 @@ U_BOOT_DRIVER(r7s72100_gpio) = {
 	.name	= "r7s72100-gpio",
 	.id	= UCLASS_GPIO,
 	.ops	= &r7s72100_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct r7s72100_gpio_priv),
+	.priv_auto	= sizeof(struct r7s72100_gpio_priv),
 	.probe	= r7s72100_gpio_probe,
 };

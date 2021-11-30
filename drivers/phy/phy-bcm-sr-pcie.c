@@ -172,6 +172,6 @@ U_BOOT_DRIVER(sr_pcie_phy) = {
 	.probe = sr_pcie_phy_probe,
 	.of_match = sr_pcie_phy_match_table,
 	.ops = &sr_pcie_phy_ops,
-	.platdata_auto_alloc_size = sizeof(struct sr_pcie_phy_core),
-	.priv_auto_alloc_size = sizeof(struct sr_pcie_phy_core),
+	.plat_auto	= sizeof(struct sr_pcie_phy_core),
+	.priv_auto	= sizeof(struct sr_pcie_phy_core),
 };

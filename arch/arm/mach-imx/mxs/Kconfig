@@ -16,9 +16,6 @@ config TARGET_MX23EVK
 	bool "Support mx23evk"
 	select BOARD_EARLY_INIT_F
 
-config TARGET_SANSA_FUZE_PLUS
-	bool "Support sansa_fuze_plus"
-
 config TARGET_XFI3
 	bool "Support xfi3"
 
@@ -29,8 +26,6 @@ config SYS_SOC
 
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/freescale/mx23evk/Kconfig"
-source "board/sandisk/sansa_fuze_plus/Kconfig"
-source "board/creative/xfi3/Kconfig"
 
 endif
 
@@ -44,21 +39,9 @@ choice
 	prompt "MX28 board select"
 	optional
 
-config TARGET_APX4DEVKIT
-	bool "Support apx4devkit"
-
-config TARGET_BG0900
-	bool "Support bg0900"
-
 config TARGET_MX28EVK
 	bool "Support mx28evk"
 	select BOARD_EARLY_INIT_F
-
-config TARGET_SC_SPS_1
-	bool "Support sc_sps_1"
-
-config TARGET_TS4600
-	bool "Support TS4600"
 
 config TARGET_XEA
 	bool "Support XEA"
@@ -68,11 +51,7 @@ endchoice
 config SYS_SOC
 	default "mxs"
 
-source "board/bluegiga/apx4devkit/Kconfig"
 source "board/freescale/mx28evk/Kconfig"
 source "board/liebherr/xea/Kconfig"
-source "board/ppcag/bg0900/Kconfig"
-source "board/schulercontrol/sc_sps_1/Kconfig"
-source "board/technologic/ts4600/Kconfig"
 
 endif

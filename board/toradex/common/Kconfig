@@ -84,4 +84,14 @@ config TDX_CFG_BLOCK_EXTRA
 	  Enables fetching auxilary config blocks from carrier board/display
 	  adapter EEPROMs.
 
+config TDX_CFG_BLOCK_USB_GADGET_PID
+	bool "Use config block product ID as USB product ID"
+	depends on USB_GADGET_DOWNLOAD
+	default y
+	help
+	  Use the Toradex product ID learned from the config block as USB
+	  product ID. An offset of 0x4000 is added to the product ID since
+	  inside the Toradex vendor ID (0x1b67) the range starting from
+	  offset 0x4000 is reserved for Colibri/Apalis modules.
+
 endif

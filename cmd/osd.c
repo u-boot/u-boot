@@ -75,9 +75,9 @@ static int osd_get_osd_cur(struct udevice **osdp)
  */
 static void show_osd(struct udevice *osd)
 {
-	printf("OSD %d:\t%s", osd->req_seq, osd->name);
+	printf("OSD %d:\t%s", dev_seq(osd), osd->name);
 	if (device_active(osd))
-		printf("  (active %d)", osd->seq);
+		printf("  (active)");
 	printf("\n");
 }
 
@@ -99,10 +99,10 @@ static int do_osd_write(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	x = simple_strtoul(argv[1], NULL, 16);
-	y = simple_strtoul(argv[2], NULL, 16);
+	x = hextoul(argv[1], NULL);
+	y = hextoul(argv[2], NULL);
 	hexstr = argv[3];
-	count = (argc > 4) ? simple_strtoul(argv[4], NULL, 16) : 1;
+	count = (argc > 4) ? hextoul(argv[4], NULL) : 1;
 
 	buflen = strlen(hexstr) / 2;
 
@@ -148,9 +148,9 @@ static int do_osd_print(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	x = simple_strtoul(argv[1], NULL, 16);
-	y = simple_strtoul(argv[2], NULL, 16);
-	color = simple_strtoul(argv[3], NULL, 16);
+	x = hextoul(argv[1], NULL);
+	y = hextoul(argv[2], NULL);
+	color = hextoul(argv[3], NULL);
 	text = argv[4];
 
 	res = video_osd_print(osd_cur, x, y, color, text);
@@ -176,8 +176,8 @@ static int do_osd_size(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	x = simple_strtoul(argv[1], NULL, 16);
-	y = simple_strtoul(argv[2], NULL, 16);
+	x = hextoul(argv[1], NULL);
+	y = hextoul(argv[2], NULL);
 
 	res = video_osd_set_size(osd_cur, x, y);
 	if (res) {
@@ -211,7 +211,7 @@ static int do_show_osd(struct cmd_tbl *cmdtp, int flag, int argc,
 		int i, res;
 
 		/* show specific OSD */
-		i = simple_strtoul(argv[1], NULL, 10);
+		i = dectoul(argv[1], NULL);
 
 		res = uclass_get_device_by_seq(UCLASS_VIDEO_OSD, i, &osd);
 		if (res) {
@@ -235,12 +235,12 @@ static int do_osd_num(struct cmd_tbl *cmdtp, int flag, int argc,
 		struct udevice *osd;
 
 		if (!osd_get_osd_cur(&osd))
-			osd_no = osd->seq;
+			osd_no = dev_seq(osd);
 		else
 			osd_no = -1;
 		printf("Current osd is %d\n", osd_no);
 	} else {
-		osd_no = simple_strtoul(argv[1], NULL, 10);
+		osd_no = dectoul(argv[1], NULL);
 		printf("Setting osd to %d\n", osd_no);
 
 		res = cmd_osd_set_osd_num(osd_no);

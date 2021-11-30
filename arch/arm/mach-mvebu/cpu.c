@@ -14,6 +14,7 @@
 #include <asm/pl310.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <asm/spl.h>
 #include <sdhci.h>
 
 #define DDR_BASE_CS_OFF(n)	(0x0000 + ((n) << 3))
@@ -42,7 +43,7 @@ void lowlevel_init(void)
 	 */
 }
 
-void reset_cpu(unsigned long ignored)
+void reset_cpu(void)
 {
 	struct mvebu_system_registers *reg =
 		(struct mvebu_system_registers *)MVEBU_SYSTEM_REG_BASE;
@@ -78,6 +79,65 @@ int mvebu_soc_family(void)
 	}
 
 	return MVEBU_SOC_UNKNOWN;
+}
+
+u32 get_boot_device(void)
+{
+	u32 val;
+	u32 boot_device;
+
+	/*
+	 * First check, if UART boot-mode is active. This can only
+	 * be done, via the bootrom error register. Here the
+	 * MSB marks if the UART mode is active.
+	 */
+	val = readl(CONFIG_BOOTROM_ERR_REG);
+	boot_device = (val & BOOTROM_ERR_MODE_MASK) >> BOOTROM_ERR_MODE_OFFS;
+	debug("BOOTROM_REG=0x%08x boot_device=0x%x\n", val, boot_device);
+	if (boot_device == BOOTROM_ERR_MODE_UART)
+		return BOOT_DEVICE_UART;
+
+#ifdef CONFIG_ARMADA_38X
+	/*
+	 * If the bootrom error code contains any other than zeros it's an
+	 * error condition and the bootROM has fallen back to UART boot
+	 */
+	boot_device = (val & BOOTROM_ERR_CODE_MASK) >> BOOTROM_ERR_CODE_OFFS;
+	if (boot_device)
+		return BOOT_DEVICE_UART;
+#endif
+
+	/*
+	 * Now check the SAR register for the strapped boot-device
+	 */
+	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
+	boot_device = (val & BOOT_DEV_SEL_MASK) >> BOOT_DEV_SEL_OFFS;
+	debug("SAR_REG=0x%08x boot_device=0x%x\n", val, boot_device);
+	switch (boot_device) {
+#ifdef BOOT_FROM_NAND
+	case BOOT_FROM_NAND:
+		return BOOT_DEVICE_NAND;
+#endif
+#ifdef BOOT_FROM_MMC
+	case BOOT_FROM_MMC:
+	case BOOT_FROM_MMC_ALT:
+		return BOOT_DEVICE_MMC1;
+#endif
+	case BOOT_FROM_UART:
+#ifdef BOOT_FROM_UART_ALT
+	case BOOT_FROM_UART_ALT:
+#endif
+		return BOOT_DEVICE_UART;
+#ifdef BOOT_FROM_SATA
+	case BOOT_FROM_SATA:
+	case BOOT_FROM_SATA_ALT:
+		return BOOT_DEVICE_SATA;
+#endif
+	case BOOT_FROM_SPI:
+		return BOOT_DEVICE_SPI;
+	default:
+		return BOOT_DEVICE_BOOTROM;
+	};
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)

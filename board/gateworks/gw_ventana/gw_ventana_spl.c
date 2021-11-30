@@ -729,10 +729,18 @@ void board_boot_order(u32 *spl_boot_list)
 
 /* called from board_init_r after gd setup if CONFIG_SPL_BOARD_INIT defined */
 /* its our chance to print info about boot device */
+static int board_type;
 void spl_board_init(void)
 {
+	u32 boot_device;
+
 	/* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 */
-	u32 boot_device = spl_boot_device();
+	boot_device = spl_boot_device();
+
+	/* read eeprom again now that we have gd */
+	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
+	if (board_type == GW_UNKNOWN)
+		hang();
 
 	switch (boot_device) {
 	case BOOT_DEVICE_MMC1:
@@ -777,3 +785,8 @@ int spl_start_uboot(void)
 	return ret;
 }
 #endif
+
+void spl_perform_fixups(struct spl_image_info *spl_image)
+{
+	ft_early_fixup(spl_image->fdt_addr, board_type);
+}

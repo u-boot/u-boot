@@ -12,6 +12,7 @@
 
 enum efi_auth_var_type {
 	EFI_AUTH_VAR_NONE = 0,
+	EFI_AUTH_MODE,
 	EFI_AUTH_VAR_PK,
 	EFI_AUTH_VAR_KEK,
 	EFI_AUTH_VAR_DB,
@@ -31,7 +32,8 @@ enum efi_auth_var_type {
  * @timep:		authentication time (seconds since start of epoch)
  * Return:		status code
  */
-efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+efi_status_t efi_get_variable_int(const u16 *variable_name,
+				  const efi_guid_t *vendor,
 				  u32 *attributes, efi_uintn_t *data_size,
 				  void *data, u64 *timep);
 
@@ -46,7 +48,8 @@ efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  * @ro_check:		check the read only read only bit in attributes
  * Return:		status code
  */
-efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+efi_status_t efi_set_variable_int(const u16 *variable_name,
+				  const efi_guid_t *vendor,
 				  u32 attributes, efi_uintn_t data_size,
 				  const void *data, bool ro_check);
 
@@ -161,10 +164,13 @@ efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp, loff_t *
 /**
  * efi_var_restore() - restore EFI variables from buffer
  *
+ * Only if @safe is set secure boot related variables will be restored.
+ *
  * @buf:	buffer
+ * @safe:	restoring from tamper-resistant storage
  * Return:	status code
  */
-efi_status_t efi_var_restore(struct efi_var_file *buf);
+efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe);
 
 /**
  * efi_var_from_file() - read variables from file
@@ -220,7 +226,7 @@ void efi_var_mem_del(struct efi_var_entry *var);
  * @time:		time of authentication (as seconds since start of epoch)
  * Result:		status code
  */
-efi_status_t efi_var_mem_ins(u16 *variable_name,
+efi_status_t efi_var_mem_ins(const u16 *variable_name,
 			     const efi_guid_t *vendor, u32 attributes,
 			     const efi_uintn_t size1, const void *data1,
 			     const efi_uintn_t size2, const void *data2,
@@ -247,7 +253,16 @@ efi_status_t efi_init_secure_state(void);
  * @guid:	guid of UEFI variable
  * Return:	identifier for authentication related variables
  */
-enum efi_auth_var_type efi_auth_var_get_type(u16 *name, const efi_guid_t *guid);
+enum efi_auth_var_type efi_auth_var_get_type(const u16 *name,
+					     const efi_guid_t *guid);
+
+/**
+ * efi_auth_var_get_guid() - get the predefined GUID for a variable name
+ *
+ * @name:	name of UEFI variable
+ * Return:	guid of UEFI variable
+ */
+const efi_guid_t *efi_auth_var_get_guid(const u16 *name);
 
 /**
  * efi_get_next_variable_name_mem() - Runtime common code across efi variable
@@ -276,8 +291,9 @@ efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size, u16 *variable_na
  * Return:		status code
  */
 efi_status_t __efi_runtime
-efi_get_variable_mem(u16 *variable_name, const efi_guid_t *vendor, u32 *attributes,
-		     efi_uintn_t *data_size, void *data, u64 *timep);
+efi_get_variable_mem(const u16 *variable_name, const efi_guid_t *vendor,
+		     u32 *attributes, efi_uintn_t *data_size, void *data,
+		     u64 *timep);
 
 /**
  * efi_get_variable_runtime() - runtime implementation of GetVariable()
@@ -305,5 +321,16 @@ efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *guid,
 efi_status_t __efi_runtime EFIAPI
 efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
 				   u16 *variable_name, efi_guid_t *guid);
+
+/**
+ * efi_var_buf_update() - udpate memory buffer for variables
+ *
+ * @var_buf:	source buffer
+ *
+ * This function copies to the memory buffer for UEFI variables. Call this
+ * function in ExitBootServices() if memory backed variables are only used
+ * at runtime to fill the buffer.
+ */
+void efi_var_buf_update(struct efi_var_file *var_buf);
 
 #endif

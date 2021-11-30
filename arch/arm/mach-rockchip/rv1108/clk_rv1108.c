@@ -14,7 +14,7 @@
 int rockchip_get_clk(struct udevice **devp)
 {
 	return uclass_get_device_by_driver(UCLASS_CLK,
-			DM_GET_DRIVER(clk_rv1108), devp);
+			DM_DRIVER_GET(clk_rv1108), devp);
 }
 
 void *rockchip_get_cru(void)

@@ -66,7 +66,7 @@ int disable_interrupts(void)
 void bad_mode(void)
 {
 	panic("Resetting CPU ...\n");
-	reset_cpu(0);
+	reset_cpu();
 }
 
 void show_regs(struct pt_regs *regs)

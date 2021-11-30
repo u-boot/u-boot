@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <linux/bitops.h>
@@ -91,7 +92,7 @@ static int riscv_cpu_get_count(const struct udevice *dev)
 
 static int riscv_cpu_bind(struct udevice *dev)
 {
-	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
+	struct cpu_plat *plat = dev_get_parent_plat(dev);
 	struct driver *drv;
 	int ret;
 

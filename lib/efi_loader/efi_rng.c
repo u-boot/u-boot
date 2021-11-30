@@ -11,6 +11,7 @@
 #include <efi_rng.h>
 #include <log.h>
 #include <rng.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -135,6 +135,6 @@ U_BOOT_DRIVER(ti_sci_pm_domains) = {
 	.id = UCLASS_POWER_DOMAIN,
 	.of_match = ti_sci_power_domain_of_match,
 	.probe = ti_sci_power_domain_probe,
-	.priv_auto_alloc_size = sizeof(struct ti_sci_power_domain_data),
+	.priv_auto	= sizeof(struct ti_sci_power_domain_data),
 	.ops = &ti_sci_power_domain_ops,
 };

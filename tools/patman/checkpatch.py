@@ -10,7 +10,15 @@ import sys
 from patman import command
 from patman import gitutil
 from patman import terminal
-from patman import tools
+
+EMACS_PREFIX = r'(?:[0-9]{4}.*\.patch:[0-9]+: )?'
+TYPE_NAME = r'([A-Z_]+:)?'
+RE_ERROR = re.compile(r'ERROR:%s (.*)' % TYPE_NAME)
+RE_WARNING = re.compile(EMACS_PREFIX + r'WARNING:%s (.*)' % TYPE_NAME)
+RE_CHECK = re.compile(r'CHECK:%s (.*)' % TYPE_NAME)
+RE_FILE = re.compile(r'#(\d+): (FILE: ([^:]*):(\d+):)?')
+RE_NOTE = re.compile(r'NOTE: (.*)')
+
 
 def FindCheckPatch():
     top_level = gitutil.GetTopLevel()
@@ -38,8 +46,148 @@ def FindCheckPatch():
     sys.exit('Cannot find checkpatch.pl - please put it in your ' +
              '~/bin directory or use --no-check')
 
+
+def CheckPatchParseOneMessage(message):
+    """Parse one checkpatch message
+
+    Args:
+        message: string to parse
+
+    Returns:
+        dict:
+            'type'; error or warning
+            'msg': text message
+            'file' : filename
+            'line': line number
+    """
+
+    if RE_NOTE.match(message):
+        return {}
+
+    item = {}
+
+    err_match = RE_ERROR.match(message)
+    warn_match = RE_WARNING.match(message)
+    check_match = RE_CHECK.match(message)
+    if err_match:
+        item['cptype'] = err_match.group(1)
+        item['msg'] = err_match.group(2)
+        item['type'] = 'error'
+    elif warn_match:
+        item['cptype'] = warn_match.group(1)
+        item['msg'] = warn_match.group(2)
+        item['type'] = 'warning'
+    elif check_match:
+        item['cptype'] = check_match.group(1)
+        item['msg'] = check_match.group(2)
+        item['type'] = 'check'
+    else:
+        message_indent = '    '
+        print('patman: failed to parse checkpatch message:\n%s' %
+              (message_indent + message.replace('\n', '\n' + message_indent)),
+              file=sys.stderr)
+        return {}
+
+    file_match = RE_FILE.search(message)
+    # some messages have no file, catch those here
+    no_file_match = any(s in message for s in [
+        '\nSubject:', 'Missing Signed-off-by: line(s)',
+        'does MAINTAINERS need updating'
+    ])
+
+    if file_match:
+        err_fname = file_match.group(3)
+        if err_fname:
+            item['file'] = err_fname
+            item['line'] = int(file_match.group(4))
+        else:
+            item['file'] = '<patch>'
+            item['line'] = int(file_match.group(1))
+    elif no_file_match:
+        item['file'] = '<patch>'
+    else:
+        message_indent = '    '
+        print('patman: failed to find file / line information:\n%s' %
+              (message_indent + message.replace('\n', '\n' + message_indent)),
+              file=sys.stderr)
+
+    return item
+
+
+def CheckPatchParse(checkpatch_output, verbose=False):
+    """Parse checkpatch.pl output
+
+    Args:
+        checkpatch_output: string to parse
+        verbose: True to print out every line of the checkpatch output as it is
+            parsed
+
+    Returns:
+        namedtuple containing:
+            ok: False=failure, True=ok
+            problems: List of problems, each a dict:
+                'type'; error or warning
+                'msg': text message
+                'file' : filename
+                'line': line number
+            errors: Number of errors
+            warnings: Number of warnings
+            checks: Number of checks
+            lines: Number of lines
+            stdout: checkpatch_output
+    """
+    fields = ['ok', 'problems', 'errors', 'warnings', 'checks', 'lines',
+              'stdout']
+    result = collections.namedtuple('CheckPatchResult', fields)
+    result.stdout = checkpatch_output
+    result.ok = False
+    result.errors, result.warnings, result.checks = 0, 0, 0
+    result.lines = 0
+    result.problems = []
+
+    # total: 0 errors, 0 warnings, 159 lines checked
+    # or:
+    # total: 0 errors, 2 warnings, 7 checks, 473 lines checked
+    emacs_stats = r'(?:[0-9]{4}.*\.patch )?'
+    re_stats = re.compile(emacs_stats +
+                          r'total: (\d+) errors, (\d+) warnings, (\d+)')
+    re_stats_full = re.compile(emacs_stats +
+                               r'total: (\d+) errors, (\d+) warnings, (\d+)'
+                               r' checks, (\d+)')
+    re_ok = re.compile(r'.*has no obvious style problems')
+    re_bad = re.compile(r'.*has style problems, please review')
+
+    # A blank line indicates the end of a message
+    for message in result.stdout.split('\n\n'):
+        if verbose:
+            print(message)
+
+        # either find stats, the verdict, or delegate
+        match = re_stats_full.match(message)
+        if not match:
+            match = re_stats.match(message)
+        if match:
+            result.errors = int(match.group(1))
+            result.warnings = int(match.group(2))
+            if len(match.groups()) == 4:
+                result.checks = int(match.group(3))
+                result.lines = int(match.group(4))
+            else:
+                result.lines = int(match.group(3))
+        elif re_ok.match(message):
+            result.ok = True
+        elif re_bad.match(message):
+            result.ok = False
+        else:
+            problem = CheckPatchParseOneMessage(message)
+            if problem:
+                result.problems.append(problem)
+
+    return result
+
+
 def CheckPatch(fname, verbose=False, show_types=False):
-    """Run checkpatch.pl on a file.
+    """Run checkpatch.pl on a file and parse the results.
 
     Args:
         fname: Filename to check
@@ -61,112 +209,14 @@ def CheckPatch(fname, verbose=False, show_types=False):
             lines: Number of lines
             stdout: Full output of checkpatch
     """
-    fields = ['ok', 'problems', 'errors', 'warnings', 'checks', 'lines',
-              'stdout']
-    result = collections.namedtuple('CheckPatchResult', fields)
-    result.ok = False
-    result.errors, result.warnings, result.checks = 0, 0, 0
-    result.lines = 0
-    result.problems = []
     chk = FindCheckPatch()
-    item = {}
     args = [chk, '--no-tree']
     if show_types:
         args.append('--show-types')
-    result.stdout = command.Output(*args, fname, raise_on_error=False)
-    #pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    #stdout, stderr = pipe.communicate()
+    output = command.Output(*args, fname, raise_on_error=False)
 
-    # total: 0 errors, 0 warnings, 159 lines checked
-    # or:
-    # total: 0 errors, 2 warnings, 7 checks, 473 lines checked
-    emacs_prefix = '(?:[0-9]{4}.*\.patch:[0-9]+: )?'
-    emacs_stats = '(?:[0-9]{4}.*\.patch )?'
-    re_stats = re.compile(emacs_stats +
-                          'total: (\\d+) errors, (\d+) warnings, (\d+)')
-    re_stats_full = re.compile(emacs_stats +
-                               'total: (\\d+) errors, (\d+) warnings, (\d+)'
-                               ' checks, (\d+)')
-    re_ok = re.compile('.*has no obvious style problems')
-    re_bad = re.compile('.*has style problems, please review')
-    type_name = '([A-Z_]+:)?'
-    re_error = re.compile('ERROR:%s (.*)' % type_name)
-    re_warning = re.compile(emacs_prefix + 'WARNING:%s (.*)' % type_name)
-    re_check = re.compile('CHECK:%s (.*)' % type_name)
-    re_file = re.compile('#(\d+): (FILE: ([^:]*):(\d+):)?')
-    re_note = re.compile('NOTE: (.*)')
-    re_new_file = re.compile('new file mode .*')
-    indent = ' ' * 6
-    for line in result.stdout.splitlines():
-        if verbose:
-            print(line)
+    return CheckPatchParse(output, verbose)
 
-        # A blank line indicates the end of a message
-        if not line:
-            if item:
-                result.problems.append(item)
-                item = {}
-            continue
-        if re_note.match(line):
-            continue
-        # Skip lines which quote code
-        if line.startswith(indent):
-            continue
-        # Skip code quotes
-        if line.startswith('+'):
-            continue
-        if re_new_file.match(line):
-            continue
-        match = re_stats_full.match(line)
-        if not match:
-            match = re_stats.match(line)
-        if match:
-            result.errors = int(match.group(1))
-            result.warnings = int(match.group(2))
-            if len(match.groups()) == 4:
-                result.checks = int(match.group(3))
-                result.lines = int(match.group(4))
-            else:
-                result.lines = int(match.group(3))
-            continue
-        elif re_ok.match(line):
-            result.ok = True
-            continue
-        elif re_bad.match(line):
-            result.ok = False
-            continue
-        err_match = re_error.match(line)
-        warn_match = re_warning.match(line)
-        file_match = re_file.match(line)
-        check_match = re_check.match(line)
-        subject_match = line.startswith('Subject:')
-        if err_match:
-            item['cptype'] = err_match.group(1)
-            item['msg'] = err_match.group(2)
-            item['type'] = 'error'
-        elif warn_match:
-            item['cptype'] = warn_match.group(1)
-            item['msg'] = warn_match.group(2)
-            item['type'] = 'warning'
-        elif check_match:
-            item['cptype'] = check_match.group(1)
-            item['msg'] = check_match.group(2)
-            item['type'] = 'check'
-        elif file_match:
-            err_fname = file_match.group(3)
-            if err_fname:
-                item['file'] = err_fname
-                item['line'] = int(file_match.group(4))
-            else:
-                item['file'] = '<patch>'
-                item['line'] = int(file_match.group(1))
-        elif subject_match:
-            item['file'] = '<patch subject>'
-            item['line'] = None
-        else:
-            print('bad line "%s", %d' % (line, len(line)))
-
-    return result
 
 def GetWarningMsg(col, msg_type, fname, line, msg):
     '''Create a message for a given file/line

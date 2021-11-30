@@ -52,6 +52,14 @@ off_t os_lseek(int fd, off_t offset, int whence);
 #define OS_SEEK_END	2
 
 /**
+ * os_filesize() - Calculate the size of a file
+ *
+ * @fd:		File descriptor as returned by os_open()
+ * Return:	file size or negative error code
+ */
+int os_filesize(int fd);
+
+/**
  * Access to the OS open() system call
  *
  * @pathname:	Pathname of file to open
@@ -114,7 +122,7 @@ void os_fd_restore(void);
  * os_malloc() - aquires some memory from the underlying os.
  *
  * @length:	Number of bytes to be allocated
- * Return:	Pointer to length bytes or NULL on error
+ * Return:	Pointer to length bytes or NULL if @length is 0 or on error
  */
 void *os_malloc(size_t length);
 
@@ -123,9 +131,22 @@ void *os_malloc(size_t length);
  *
  * This returns the memory to the OS.
  *
- * @ptr:	Pointer to memory block to free
+ * @ptr:	Pointer to memory block to free. If this is NULL then this
+ *		function does nothing
  */
 void os_free(void *ptr);
+
+/**
+ * os_realloc() - reallocate memory
+ *
+ * This follows the semantics of realloc(), so can perform an os_malloc() or
+ * os_free() depending on @ptr and @length.
+ *
+ * @ptr:	pointer to previously allocated memory of NULL
+ * @length:	number of bytes to allocate
+ * Return:	pointer to reallocated memory or NULL if @length is 0
+ */
+void *os_realloc(void *ptr, size_t length);
 
 /**
  * os_usleep() - access to the usleep function of the os
@@ -313,9 +334,13 @@ int os_jump_to_image(const void *dest, int size);
  *
  * @fname:	place to put full path to U-Boot
  * @maxlen:	maximum size of @fname
+ * @use_img:	select the 'u-boot.img' file instead of the 'u-boot' ELF file
+ * @cur_prefix:	prefix of current executable, e.g. "spl" or "tpl"
+ * @next_prefix: prefix of executable to find, e.g. "spl" or ""
  * Return:	0 if OK, -NOSPC if the filename is too large, -ENOENT if not found
  */
-int os_find_u_boot(char *fname, int maxlen);
+int os_find_u_boot(char *fname, int maxlen, bool use_img,
+		   const char *cur_prefix, const char *next_prefix);
 
 /**
  * os_spl_to_uboot() - Run U-Boot proper
@@ -341,7 +366,7 @@ void os_localtime(struct rtc_time *rt);
 /**
  * os_abort() - raise SIGABRT to exit sandbox (e.g. to debugger)
  */
-void os_abort(void);
+void os_abort(void) __attribute__((noreturn));
 
 /**
  * os_mprotect_allow() - Remove write-protection on a region of memory
@@ -381,6 +406,19 @@ int os_write_file(const char *name, const void *buf, int size);
  */
 int os_read_file(const char *name, void **bufp, int *sizep);
 
+/**
+ * os_map_file() - Map a file from the host filesystem into memory
+ *
+ * This can be useful when to provide a backing store for an emulated device
+ *
+ * @pathname:	File pathname to map
+ * @os_flags:	Flags, like OS_O_RDONLY, OS_O_RDWR
+ * @bufp:	Returns buffer containing the file
+ * @sizep:	Returns size of data
+ * Return:	0 if OK, -ve on error
+ */
+int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep);
+
 /*
  * os_find_text_base() - Find the text section in this running process
  *
@@ -406,5 +444,40 @@ void *os_find_text_base(void);
  * @argv:	NULL terminated list of command line parameters
  */
 void os_relaunch(char *argv[]);
+
+/**
+ * os_setup_signal_handlers() - setup signal handlers
+ *
+ * Install signal handlers for SIGBUS and SIGSEGV.
+ *
+ * Return:	0 for success
+ */
+int os_setup_signal_handlers(void);
+
+/**
+ * os_signal_action() - handle a signal
+ *
+ * @sig:	signal
+ * @pc:		program counter
+ */
+void os_signal_action(int sig, unsigned long pc);
+
+/**
+ * os_get_time_offset() - get time offset
+ *
+ * Get the time offset from environment variable UBOOT_SB_TIME_OFFSET.
+ *
+ * Return:	offset in seconds
+ */
+long os_get_time_offset(void);
+
+/**
+ * os_set_time_offset() - set time offset
+ *
+ * Save the time offset in environment variable UBOOT_SB_TIME_OFFSET.
+ *
+ * @offset:	offset in seconds
+ */
+void os_set_time_offset(long offset);
 
 #endif

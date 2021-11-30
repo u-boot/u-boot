@@ -10,6 +10,7 @@
 #include <fdt_support.h>
 #include <log.h>
 #include <mapmem.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,7 +31,6 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 	fdt_addr_t addr;
 	fdt_size_t size;
 	int offset, node, err, rmem_offset;
-	bool nomap = true;
 	char basename[32] = {0};
 	int bname_len;
 	int max_len = sizeof(basename);
@@ -75,14 +75,12 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 		pmp_mem.start = addr;
 		pmp_mem.end = addr + size - 1;
 		err = fdtdec_add_reserved_memory(dst, basename, &pmp_mem,
-						 &phandle, false);
+						 NULL, 0, &phandle, 0);
 		if (err < 0 && err != -FDT_ERR_EXISTS) {
 			log_err("failed to add reserved memory: %d\n", err);
 			return err;
 		}
-		if (!fdt_getprop(src, node, "no-map", NULL))
-			nomap = false;
-		if (nomap) {
+		if (fdt_getprop(src, node, "no-map", NULL)) {
 			rmem_offset = fdt_node_offset_by_phandle(dst, phandle);
 			fdt_setprop_empty(dst, rmem_offset, "no-map");
 		}
@@ -150,14 +148,17 @@ int arch_fixup_fdt(void *blob)
 	}
 	chosen_offset = fdt_path_offset(blob, "/chosen");
 	if (chosen_offset < 0) {
-		err = fdt_add_subnode(blob, 0, "chosen");
-		if (err < 0) {
+		chosen_offset = fdt_add_subnode(blob, 0, "chosen");
+		if (chosen_offset < 0) {
 			log_err("chosen node cannot be added\n");
-			return err;
+			return chosen_offset;
 		}
 	}
 	/* Overwrite the boot-hartid as U-Boot is the last stage BL */
-	fdt_setprop_u32(blob, chosen_offset, "boot-hartid", gd->arch.boot_hart);
+	err = fdt_setprop_u32(blob, chosen_offset, "boot-hartid",
+			      gd->arch.boot_hart);
+	if (err < 0)
+		return log_msg_ret("could not set boot-hartid", err);
 #endif
 
 	/* Copy the reserved-memory node to the DT used by OS */

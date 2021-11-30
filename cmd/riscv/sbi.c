@@ -9,58 +9,74 @@
 #include <command.h>
 #include <asm/sbi.h>
 
+struct sbi_imp {
+	const long id;
+	const char *name;
+};
+
 struct sbi_ext {
 	const u32 id;
 	const char *name;
 };
 
+static struct sbi_imp implementations[] = {
+	{ 0, "Berkeley Boot Loader (BBL)" },
+	{ 1, "OpenSBI" },
+	{ 2, "Xvisor" },
+	{ 3, "KVM" },
+	{ 4, "RustSBI" },
+	{ 5, "Diosix" },
+};
+
 static struct sbi_ext extensions[] = {
-	{ 0x00000000, "sbi_set_timer" },
-	{ 0x00000001, "sbi_console_putchar" },
-	{ 0x00000002, "sbi_console_getchar" },
-	{ 0x00000003, "sbi_clear_ipi" },
-	{ 0x00000004, "sbi_send_ipi" },
-	{ 0x00000005, "sbi_remote_fence_i" },
-	{ 0x00000006, "sbi_remote_sfence_vma" },
-	{ 0x00000007, "sbi_remote_sfence_vma_asid" },
-	{ 0x00000008, "sbi_shutdown" },
-	{ 0x00000010, "SBI Base Functionality" },
-	{ 0x54494D45, "Timer Extension" },
-	{ 0x00735049, "IPI Extension" },
-	{ 0x52464E43, "RFENCE Extension" },
-	{ 0x0048534D, "Hart State Management Extension" },
+	{ SBI_EXT_0_1_SET_TIMER,	      "sbi_set_timer" },
+	{ SBI_EXT_0_1_CONSOLE_PUTCHAR,	      "sbi_console_putchar" },
+	{ SBI_EXT_0_1_CONSOLE_GETCHAR,	      "sbi_console_getchar" },
+	{ SBI_EXT_0_1_CLEAR_IPI,	      "sbi_clear_ipi" },
+	{ SBI_EXT_0_1_SEND_IPI,		      "sbi_send_ipi" },
+	{ SBI_EXT_0_1_REMOTE_FENCE_I,	      "sbi_remote_fence_i" },
+	{ SBI_EXT_0_1_REMOTE_SFENCE_VMA,      "sbi_remote_sfence_vma" },
+	{ SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID, "sbi_remote_sfence_vma_asid" },
+	{ SBI_EXT_0_1_SHUTDOWN,		      "sbi_shutdown" },
+	{ SBI_EXT_BASE,			      "SBI Base Functionality" },
+	{ SBI_EXT_TIME,			      "Timer Extension" },
+	{ SBI_EXT_IPI,			      "IPI Extension" },
+	{ SBI_EXT_RFENCE,		      "RFENCE Extension" },
+	{ SBI_EXT_HSM,			      "Hart State Management Extension" },
+	{ SBI_EXT_SRST,			      "System Reset Extension" },
 };
 
 static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 		  char *const argv[])
 {
-	int i;
+	int i, impl_id;
 	long ret;
 
 	ret = sbi_get_spec_version();
 	if (ret >= 0)
-		printf("SBI %ld.%ld\n", ret >> 24, ret & 0xffffff);
-	ret = sbi_get_impl_id();
-	if (ret >= 0) {
-		switch (ret) {
-		case 0:
-			printf("Berkeley Boot Loader (BBL)\n");
-			break;
-		case 1:
-			printf("OpenSBI\n");
-			break;
-		case 2:
-			printf("Xvisor\n");
-			break;
-		case 3:
-			printf("KVM\n");
-			break;
-		default:
-			printf("Unknown implementation\n");
-			break;
+		printf("SBI %ld.%ld", ret >> 24, ret & 0xffffff);
+	impl_id = sbi_get_impl_id();
+	if (impl_id >= 0) {
+		for (i = 0; i < ARRAY_SIZE(implementations); ++i) {
+			if (impl_id == implementations[i].id) {
+				long vers;
+
+				printf("\n%s ", implementations[i].name);
+				ret = sbi_get_impl_version(&vers);
+				if (ret < 0)
+					break;
+				if (impl_id == 1)
+					printf("%ld.%ld",
+					       vers >> 16, vers & 0xffff);
+				else
+					printf("0x%lx", vers);
+				break;
+			}
 		}
+		if (i == ARRAY_SIZE(implementations))
+			printf("Unknown implementation ID %ld", ret);
 	}
-	printf("Extensions:\n");
+	printf("\nExtensions:\n");
 	for (i = 0; i < ARRAY_SIZE(extensions); ++i) {
 		ret = sbi_probe_extension(extensions[i].id);
 		if (ret > 0)

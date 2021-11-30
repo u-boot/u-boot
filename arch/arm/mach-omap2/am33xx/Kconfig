@@ -34,25 +34,26 @@ config TARGET_AM335X_EVM
 	select DM_GPIO
 	select DM_SERIAL
 	select TI_I2C_BOARD_DETECT
+	select SUPPORT_EXTENSION_SCAN
 	imply CMD_DM
 	imply SPL_DM
 	imply SPL_DM_SEQ_ALIAS
 	imply SPL_ENV_SUPPORT
 	imply SPL_FS_EXT4
 	imply SPL_FS_FAT
-	imply SPL_GPIO_SUPPORT
-	imply SPL_I2C_SUPPORT
+	imply SPL_GPIO
+	imply SPL_I2C
 	imply SPL_LIBCOMMON_SUPPORT
 	imply SPL_LIBDISK_SUPPORT
 	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_MMC_SUPPORT
+	imply SPL_MMC
 	imply SPL_NAND_SUPPORT
 	imply SPL_OF_LIBFDT
-	imply SPL_POWER_SUPPORT
+	imply SPL_POWER
 	imply SPL_SEPARATE_BSS
-	imply SPL_SERIAL_SUPPORT
+	imply SPL_SERIAL
 	imply SPL_SYS_MALLOC_SIMPLE
-	imply SPL_WATCHDOG_SUPPORT
+	imply SPL_WATCHDOG
 	imply SPL_YMODEM_SUPPORT
 	help
 	  This option specifies support for the AM335x
@@ -93,7 +94,8 @@ config TARGET_AM335X_GUARDIAN
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
-	select DM_USB
+	select DM_VIDEO
+	select DM_PANEL_HX8238D
 
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"
@@ -223,16 +225,16 @@ config TARGET_AM43XX_EVM
 	imply SPL_ENV_SUPPORT
 	imply SPL_FS_EXT4
 	imply SPL_FS_FAT
-	imply SPL_GPIO_SUPPORT
-	imply SPL_I2C_SUPPORT
+	imply SPL_GPIO
+	imply SPL_I2C
 	imply SPL_LIBCOMMON_SUPPORT
 	imply SPL_LIBDISK_SUPPORT
 	imply SPL_LIBGENERIC_SUPPORT
-	imply SPL_MMC_SUPPORT
+	imply SPL_MMC
 	imply SPL_NAND_SUPPORT
-	imply SPL_POWER_SUPPORT
-	imply SPL_SERIAL_SUPPORT
-	imply SPL_WATCHDOG_SUPPORT
+	imply SPL_POWER
+	imply SPL_SERIAL
+	imply SPL_WATCHDOG
 	imply SPL_YMODEM_SUPPORT
 	help
 	  This option specifies support for the AM43xx

@@ -173,7 +173,7 @@ int checkboard(void)
 		in_8(&cpld_data->pcba_rev) & 0x0F);
 
 	/* Initialize i2c early for rom_loc and flash bank information */
-	#if defined(CONFIG_DM_I2C)
+	#if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
 	int ret;
 
@@ -239,13 +239,6 @@ int checkboard(void)
 	return 0;
 }
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_DM_PCI)
-void pci_init_board(void)
-{
-	fsl_pcie_init_board(0);
-}
-#endif
-
 int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
@@ -281,7 +274,7 @@ int board_early_init_r(void)
 	/* If a VSC7385 microcode image is present, then upload it. */
 	tmp = env_get("vscfw_addr");
 	if (tmp) {
-		vscfw_addr = simple_strtoul(tmp, NULL, 16);
+		vscfw_addr = hextoul(tmp, NULL);
 		printf("uploading VSC7385 microcode from %x\n", vscfw_addr);
 		if (vsc7385_upload_firmware((void *)vscfw_addr,
 					    CONFIG_VSC7385_IMAGE_SIZE))
@@ -362,10 +355,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	size = env_get_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
-
-#if !defined(CONFIG_DM_PCI)
-	FT_FSL_PCI_SETUP;
-#endif
 
 #ifdef CONFIG_QE
 	do_fixup_by_compat(blob, "fsl,qe", "status", "okay",

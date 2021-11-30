@@ -11,6 +11,7 @@
 #include <asm/arch/boot.h>
 #include <env.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/ptrace.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
@@ -21,10 +22,7 @@
 #include <efi_loader.h>
 #include <u-boot/crc.h>
 
-#if CONFIG_IS_ENABLED(FASTBOOT)
 #include <asm/psci.h>
-#include <fastboot.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -151,38 +149,7 @@ int board_late_init(void)
 	return meson_board_late_init();
 }
 
-#if CONFIG_IS_ENABLED(FASTBOOT)
-static unsigned int reboot_reason = REBOOT_REASON_NORMAL;
-
-int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
-{
-	if (reason != FASTBOOT_REBOOT_REASON_BOOTLOADER)
-		return -ENOTSUPP;
-
-	reboot_reason = REBOOT_REASON_BOOTLOADER;
-
-	printf("Using reboot reason: 0x%x\n", reboot_reason);
-
-	return 0;
-}
-
-void reset_cpu(ulong addr)
-{
-	struct pt_regs regs;
-
-	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_RESET;
-	regs.regs[1] = reboot_reason;
-
-	printf("Rebooting with reason: 0x%lx\n", regs.regs[1]);
-
-	smc_call(&regs);
-
-	while (1)
-		;
-}
-#else
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	psci_system_reset();
 }
-#endif

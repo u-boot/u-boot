@@ -15,6 +15,7 @@
  */
 
 #include <common.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/io.h>
 #ifdef NAND_PLAT_GPIO_DEV_READY
 # include <asm/gpio.h>

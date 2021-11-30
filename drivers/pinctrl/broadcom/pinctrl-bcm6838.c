@@ -157,6 +157,6 @@ U_BOOT_DRIVER(bcm6838_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = bcm6838_pinctrl_match,
 	.ops = &bcm6838_pinctrl_ops,
-	.priv_auto_alloc_size = sizeof(struct bcm6838_pinctrl_priv),
+	.priv_auto	= sizeof(struct bcm6838_pinctrl_priv),
 	.probe = bcm6838_pinctrl_probe,
 };

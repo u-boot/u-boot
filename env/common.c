@@ -14,11 +14,15 @@
 #include <env_internal.h>
 #include <log.h>
 #include <sort.h>
+#include <asm/global_data.h>
 #include <linux/stddef.h>
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>
 #include <u-boot/crc.h>
+#include <dm/ofnode.h>
+#include <net.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,6 +34,192 @@ DECLARE_GLOBAL_DATA_PTR;
 struct hsearch_data env_htab = {
 	.change_ok = env_flags_validate,
 };
+
+/*
+ * This env_set() function is defined in cmd/nvedit.c, since it calls
+ * _do_env_set(), whis is a static function in that file.
+ *
+ * int env_set(const char *varname, const char *varvalue);
+ */
+
+/**
+ * Set an environment variable to an integer value
+ *
+ * @param varname	Environment variable to set
+ * @param value		Value to set it to
+ * @return 0 if ok, 1 on error
+ */
+int env_set_ulong(const char *varname, ulong value)
+{
+	/* TODO: this should be unsigned */
+	char *str = simple_itoa(value);
+
+	return env_set(varname, str);
+}
+
+/**
+ * Set an environment variable to an value in hex
+ *
+ * @param varname	Environment variable to set
+ * @param value		Value to set it to
+ * @return 0 if ok, 1 on error
+ */
+int env_set_hex(const char *varname, ulong value)
+{
+	char str[17];
+
+	sprintf(str, "%lx", value);
+	return env_set(varname, str);
+}
+
+ulong env_get_hex(const char *varname, ulong default_val)
+{
+	const char *s;
+	ulong value;
+	char *endp;
+
+	s = env_get(varname);
+	if (s)
+		value = hextoul(s, &endp);
+	if (!s || endp == s)
+		return default_val;
+
+	return value;
+}
+
+int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr)
+{
+	string_to_enetaddr(env_get(name), enetaddr);
+	return is_valid_ethaddr(enetaddr);
+}
+
+int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr)
+{
+	char buf[ARP_HLEN_ASCII + 1];
+
+	if (eth_env_get_enetaddr(name, (uint8_t *)buf))
+		return -EEXIST;
+
+	sprintf(buf, "%pM", enetaddr);
+
+	return env_set(name, buf);
+}
+
+/*
+ * Look up variable from environment,
+ * return address of storage for that variable,
+ * or NULL if not found
+ */
+char *env_get(const char *name)
+{
+	if (gd->flags & GD_FLG_ENV_READY) { /* after import into hashtable */
+		struct env_entry e, *ep;
+
+		WATCHDOG_RESET();
+
+		e.key	= name;
+		e.data	= NULL;
+		hsearch_r(e, ENV_FIND, &ep, &env_htab, 0);
+
+		return ep ? ep->data : NULL;
+	}
+
+	/* restricted capabilities before import */
+	if (env_get_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) >= 0)
+		return (char *)(gd->env_buf);
+
+	return NULL;
+}
+
+/*
+ * Like env_get, but prints an error if envvar isn't defined in the
+ * environment.  It always returns what env_get does, so it can be used in
+ * place of env_get without changing error handling otherwise.
+ */
+char *from_env(const char *envvar)
+{
+	char *ret;
+
+	ret = env_get(envvar);
+
+	if (!ret)
+		printf("missing environment variable: %s\n", envvar);
+
+	return ret;
+}
+
+static int env_get_from_linear(const char *env, const char *name, char *buf,
+			       unsigned len)
+{
+	const char *p, *end;
+	size_t name_len;
+
+	if (name == NULL || *name == '\0')
+		return -1;
+
+	name_len = strlen(name);
+
+	for (p = env; *p != '\0'; p = end + 1) {
+		const char *value;
+		unsigned res;
+
+		for (end = p; *end != '\0'; ++end)
+			if (end - env >= CONFIG_ENV_SIZE)
+				return -1;
+
+		if (strncmp(name, p, name_len) || p[name_len] != '=')
+			continue;
+		value = &p[name_len + 1];
+
+		res = end - value;
+		memcpy(buf, value, min(len, res + 1));
+
+		if (len <= res) {
+			buf[len - 1] = '\0';
+			printf("env_buf [%u bytes] too small for value of \"%s\"\n",
+			       len, name);
+		}
+
+		return res;
+	}
+
+	return -1;
+}
+
+/*
+ * Look up variable from environment for restricted C runtime env.
+ */
+int env_get_f(const char *name, char *buf, unsigned len)
+{
+	const char *env;
+
+	if (gd->env_valid == ENV_INVALID)
+		env = default_environment;
+	else
+		env = (const char *)gd->env_addr;
+
+	return env_get_from_linear(env, name, buf, len);
+}
+
+/**
+ * Decode the integer value of an environment variable and return it.
+ *
+ * @param name		Name of environment variable
+ * @param base		Number base to use (normally 10, or 16 for hex)
+ * @param default_val	Default value to return if the variable is not
+ *			found
+ * @return the decoded value, or default_val if not found
+ */
+ulong env_get_ulong(const char *name, int base, ulong default_val)
+{
+	/*
+	 * We can use env_get() here, even before relocation, since the
+	 * environment variable value is an integer and thus short.
+	 */
+	const char *str = env_get(name);
+
+	return str ? simple_strtoul(str, NULL, base) : default_val;
+}
 
 /*
  * Read an environment variable as a boolean
@@ -50,26 +240,16 @@ int env_get_yesno(const char *var)
  */
 char *env_get_default(const char *name)
 {
-	char *ret_val;
-	unsigned long really_valid = gd->env_valid;
-	unsigned long real_gd_flags = gd->flags;
+	if (env_get_from_linear(default_environment, name,
+				(char *)(gd->env_buf),
+				sizeof(gd->env_buf)) >= 0)
+		return (char *)(gd->env_buf);
 
-	/* Pretend that the image is bad. */
-	gd->flags &= ~GD_FLG_ENV_READY;
-	gd->env_valid = ENV_INVALID;
-	ret_val = env_get(name);
-	gd->env_valid = really_valid;
-	gd->flags = real_gd_flags;
-	return ret_val;
+	return NULL;
 }
 
 void env_set_default(const char *s, int flags)
 {
-	if (sizeof(default_environment) > ENV_SIZE) {
-		puts("*** Error - default environment is too large\n\n");
-		return;
-	}
-
 	if (s) {
 		if ((flags & H_INTERACTIVE) == 0) {
 			printf("*** Warning - %s, "
@@ -82,11 +262,13 @@ void env_set_default(const char *s, int flags)
 	}
 
 	flags |= H_DEFAULT;
-	if (himport_r(&env_htab, (char *)default_environment,
+	if (himport_r(&env_htab, default_environment,
 			sizeof(default_environment), '\0', flags, 0,
-			0, NULL) == 0)
+			0, NULL) == 0) {
 		pr_err("## Error: Environment import failed: errno = %d\n",
 		       errno);
+		return;
+	}
 
 	gd->flags |= GD_FLG_ENV_READY;
 	gd->flags |= GD_FLG_ENV_DEFAULT;
@@ -101,7 +283,7 @@ int env_set_default_vars(int nvars, char * const vars[], int flags)
 	 * (and use \0 as a separator)
 	 */
 	flags |= H_NOCLEAR | H_DEFAULT;
-	return himport_r(&env_htab, (const char *)default_environment,
+	return himport_r(&env_htab, default_environment,
 				sizeof(default_environment), '\0',
 				flags, 0, nvars, vars);
 }
@@ -144,7 +326,7 @@ static unsigned char env_flags;
 int env_check_redund(const char *buf1, int buf1_read_fail,
 		     const char *buf2, int buf2_read_fail)
 {
-	int crc1_ok, crc2_ok;
+	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
 
 	tmp_env1 = (env_t *)buf1;
@@ -152,25 +334,18 @@ int env_check_redund(const char *buf1, int buf1_read_fail,
 
 	if (buf1_read_fail && buf2_read_fail) {
 		puts("*** Error - No Valid Environment Area found\n");
+		return -EIO;
 	} else if (buf1_read_fail || buf2_read_fail) {
 		puts("*** Warning - some problems detected ");
 		puts("reading environment; recovered successfully\n");
 	}
 
-	if (buf1_read_fail && buf2_read_fail) {
-		return -EIO;
-	} else if (!buf1_read_fail && buf2_read_fail) {
-		gd->env_valid = ENV_VALID;
-		return -EINVAL;
-	} else if (buf1_read_fail && !buf2_read_fail) {
-		gd->env_valid = ENV_REDUND;
-		return -ENOENT;
-	}
-
-	crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) ==
-			tmp_env1->crc;
-	crc2_ok = crc32(0, tmp_env2->data, ENV_SIZE) ==
-			tmp_env2->crc;
+	if (!buf1_read_fail)
+		crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) ==
+				tmp_env1->crc;
+	if (!buf2_read_fail)
+		crc2_ok = crc32(0, tmp_env2->data, ENV_SIZE) ==
+				tmp_env2->crc;
 
 	if (!crc1_ok && !crc2_ok) {
 		return -ENOMSG; /* needed for env_load() */
@@ -207,10 +382,6 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 	if (ret == -EIO) {
 		env_set_default("bad env area", 0);
 		return -EIO;
-	} else if (ret == -EINVAL) {
-		return env_import((char *)buf1, 1, flags);
-	} else if (ret == -ENOENT) {
-		return env_import((char *)buf2, 1, flags);
 	} else if (ret == -ENOMSG) {
 		env_set_default("bad CRC", 0);
 		return -ENOMSG;
@@ -342,5 +513,34 @@ int env_complete(char *var, int maxv, char *cmdv[], int bufsz, char *buf,
 
 	cmdv[found] = NULL;
 	return found;
+}
+#endif
+
+#ifdef CONFIG_ENV_IMPORT_FDT
+void env_import_fdt(void)
+{
+	const char *path;
+	struct ofprop prop;
+	ofnode node;
+	int res;
+
+	path = env_get("env_fdt_path");
+	if (!path || !path[0])
+		return;
+
+	node = ofnode_path(path);
+	if (!ofnode_valid(node)) {
+		printf("Warning: device tree node '%s' not found\n", path);
+		return;
+	}
+
+	for (res = ofnode_get_first_property(node, &prop);
+	     !res;
+	     res = ofnode_get_next_property(&prop)) {
+		const char *name, *val;
+
+		val = ofnode_get_property_by_prop(&prop, &name, NULL);
+		env_set(name, val);
+	}
 }
 #endif

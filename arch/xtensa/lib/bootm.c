@@ -9,6 +9,7 @@
 #include <command.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <asm/global_data.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 #include <asm/addrspace.h>
@@ -196,3 +197,15 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	return 1;
 }
 
+static ulong get_sp(void)
+{
+	ulong ret;
+
+	asm("mov %0, a1" : "=r"(ret) : );
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
+}

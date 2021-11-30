@@ -350,5 +350,5 @@ U_BOOT_DRIVER(tegra_kbd) = {
 	.of_match = tegra_kbd_ids,
 	.probe = tegra_kbd_probe,
 	.ops	= &tegra_kbd_ops,
-	.priv_auto_alloc_size = sizeof(struct tegra_kbd_priv),
+	.priv_auto	= sizeof(struct tegra_kbd_priv),
 };

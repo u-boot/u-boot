@@ -89,11 +89,36 @@ struct clk_bulk {
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(CLK)
 struct phandle_1_arg;
-int clk_get_by_driver_info(struct udevice *dev,
-			   struct phandle_1_arg *cells, struct clk *clk);
+/**
+ * clk_get_by_phandle() - Get a clock by its phandle information (of-platadata)
+ *
+ * This function is used when of-platdata is enabled.
+ *
+ * This looks up a clock using the phandle info. With dtoc, each phandle in the
+ * 'clocks' property is transformed into an idx representing the device. For
+ * example:
+ *
+ *	clocks = <&dpll_mpu_ck 23>;
+ *
+ * might result in:
+ *
+ *	.clocks = {1, {23}},},
+ *
+ * indicating that the clock is udevice idx 1 in dt-plat.c with an argument of
+ * 23. This function can return a valid clock given the above information. In
+ * this example it would return a clock containing the 'dpll_mpu_ck' device and
+ * the clock ID 23.
+ *
+ * @dev: Device containing the phandle
+ * @cells: Phandle info
+ * @clock: A pointer to a clock struct to initialise
+ * @return 0 if OK, or a negative error code.
+ */
+int clk_get_by_phandle(struct udevice *dev, const struct phandle_1_arg *cells,
+		       struct clk *clk);
 
 /**
- * clk_get_by_index - Get/request a clock by integer index.
+ * clk_get_by_index() - Get/request a clock by integer index.
  *
  * This looks up and requests a clock. The index is relative to the client
  * device; each device is assumed to have n clocks associated with it somehow,
@@ -277,19 +302,39 @@ static inline int clk_release_all(struct clk *clk, int count)
 }
 #endif
 
-#if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) && \
-	CONFIG_IS_ENABLED(CLK)
+/**
+ * enum clk_defaults_stage - What stage clk_set_defaults() is called at
+ * @CLK_DEFAULTS_PRE: Called before probe. Setting of defaults for clocks owned
+ *                    by this clock driver will be defered until after probing.
+ * @CLK_DEFAULTS_POST: Called after probe. Only defaults for clocks owned by
+ *                     this clock driver will be set.
+ * @CLK_DEFAULTS_POST_FORCE: Called after probe, and always set defaults, even
+ *                           before relocation. Usually, defaults are not set
+ *                           pre-relocation to avoid setting them twice (when
+ *                           the device is probed again post-relocation). This
+ *                           may incur a performance cost as device tree
+ *                           properties must be parsed for a second time.
+ *                           However, when not using SPL, pre-relocation may be
+ *                           the only time we can set defaults for some clocks
+ *                           (such as those used for the RAM we will relocate
+ *                           into).
+ */
+enum clk_defaults_stage {
+	CLK_DEFAULTS_PRE = 0,
+	CLK_DEFAULTS_POST = 1,
+	CLK_DEFAULTS_POST_FORCE,
+};
+
+#if CONFIG_IS_ENABLED(OF_REAL) && CONFIG_IS_ENABLED(CLK)
 /**
  * clk_set_defaults - Process 'assigned-{clocks/clock-parents/clock-rates}'
  *                    properties to configure clocks
  *
  * @dev:        A device to process (the ofnode associated with this device
  *              will be processed).
- * @stage:	A integer. 0 indicates that this is called before the device
- *		is probed. 1 indicates that this is called just after the
- *		device has been probed
+ * @stage:	The stage of the probing process this function is called during.
  */
-int clk_set_defaults(struct udevice *dev, int stage);
+int clk_set_defaults(struct udevice *dev, enum clk_defaults_stage stage);
 #else
 static inline int clk_set_defaults(struct udevice *dev, int stage)
 {
@@ -365,6 +410,29 @@ struct clk *clk_get_parent(struct clk *clk);
  * @return clock rate in Hz, or -ve error code.
  */
 long long clk_get_parent_rate(struct clk *clk);
+
+/**
+ * clk_round_rate() - Adjust a rate to the exact rate a clock can provide
+ *
+ * This answers the question "if I were to pass @rate to clk_set_rate(),
+ * what clock rate would I end up with?" without changing the hardware
+ * in any way.  In other words:
+ *
+ *   rate = clk_round_rate(clk, r);
+ *
+ * and:
+ *
+ *   rate = clk_set_rate(clk, r);
+ *
+ * are equivalent except the former does not modify the clock hardware
+ * in any way.
+ *
+ * @clk: A clock struct that was previously successfully requested by
+ *       clk_request/get_by_*().
+ * @rate: desired clock rate in Hz.
+ * @return rounded rate in Hz, or -ve error code.
+ */
+ulong clk_round_rate(struct clk *clk, ulong rate);
 
 /**
  * clk_set_rate() - Set current clock rate.
@@ -478,6 +546,11 @@ static inline struct clk *clk_get_parent(struct clk *clk)
 }
 
 static inline long long clk_get_parent_rate(struct clk *clk)
+{
+	return -ENOSYS;
+}
+
+static inline ulong clk_round_rate(struct clk *clk, ulong rate)
 {
 	return -ENOSYS;
 }

@@ -322,5 +322,5 @@ U_BOOT_DRIVER(k3_sysctrler) = {
 	.id = UCLASS_REMOTEPROC,
 	.ops = &k3_sysctrler_ops,
 	.probe = k3_sysctrler_probe,
-	.priv_auto_alloc_size = sizeof(struct k3_sysctrler_privdata),
+	.priv_auto	= sizeof(struct k3_sysctrler_privdata),
 };

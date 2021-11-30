@@ -14,34 +14,11 @@
 
 #include <configs/ti_omap3_common.h>
 
-#define CONFIG_REVISION_TAG
-
-/* Hardware drivers */
-
-/*
- * USB configuration
- * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard
- * Enable CONFIG_USB_MUSB_GADGET for Device functionalities.
- */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_USB_EHCI_OMAP
-#else
-#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	57
-#endif
-
-/* I2C */
-
 /* Ethernet */
 #define CONFIG_NET_RETRY_COUNT		10
 
 /* Board NAND Info. */
 #ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_PAGE_COUNT	64
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-#define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS		{ 2,  3,  4,  5,  6,  7,  8,  9, 10, \
 					 11, 12, 13, 14, 16, 17, 18, 19, 20, \
 					 21, 22, 23, 24, 25, 26, 27, 28, 30, \
@@ -51,11 +28,9 @@
 
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	13
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x2a0000
 /* NAND block size is 128 KiB.  Synchronize these values with
  * corresponding Device Tree entries in Linux:

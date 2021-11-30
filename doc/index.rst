@@ -38,29 +38,6 @@ want to contribute to U-Boot.
 
    develop/index
 
-Unified Extensible Firmware (UEFI)
-----------------------------------
-
-U-Boot provides an implementation of the UEFI API allowing to run UEFI
-compliant software like Linux, GRUB, and iPXE. Furthermore U-Boot itself
-can be run an UEFI payload.
-
-.. toctree::
-   :maxdepth: 2
-
-   uefi/index
-
-Driver-Model documentation
---------------------------
-
-The following holds information on the U-Boot device driver framework:
-driver-model, including the design details of itself and several driver
-subsystems.
-
-.. toctree::
-   :maxdepth: 2
-
-   driver-model/index
 
 U-Boot API documentation
 ------------------------
@@ -109,6 +86,14 @@ Android-specific features available in U-Boot.
    :maxdepth: 2
 
    android/index
+
+Chromium OS-specific doc
+------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   chromium/index
 
 Indices and tables
 ==================

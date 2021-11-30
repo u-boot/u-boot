@@ -26,6 +26,7 @@
 #include <linux/completion.h>
 #include <linux/errno.h>
 #include <linux/log2.h>
+#include <linux/mtd/rawnand.h>
 #include <asm/processor.h>
 #include <dm.h>
 
@@ -2526,10 +2527,7 @@ int brcmnand_probe(struct udevice *dev, struct brcmnand_soc *soc)
 		if (ret)
 			return ret;
 	} else {
-		ret = PTR_ERR(ctrl->clk);
-		if (ret == -EPROBE_DEFER)
-			return ret;
-
+		/* Ignore PTR_ERR(ctrl->clk) */
 		ctrl->clk = NULL;
 	}
 

@@ -13,6 +13,11 @@ obj-$(CONFIG_SH73A0) += lowlevel_init.o cpu_info-sh73a0.o pfc-sh73a0.o
 obj-$(CONFIG_R8A7740) += lowlevel_init.o cpu_info-r8a7740.o pfc-r8a7740.o
 obj-$(CONFIG_RCAR_GEN2) += lowlevel_init_ca15.o cpu_info-rcar.o
 obj-$(CONFIG_RCAR_GEN3) += lowlevel_init_gen3.o cpu_info-rcar.o memmap-gen3.o
+obj-$(CONFIG_RZ_G2) += cpu_info-rzg.o
+
+ifneq ($(CONFIG_R8A779A0),)
+obj-$(CONFIG_ARMV8_PSCI) += psci-r8a779a0.o
+endif
 
 OBJCOPYFLAGS_u-boot-spl.srec := -O srec
 quiet_cmd_objcopy = OBJCOPY $@
@@ -22,7 +27,7 @@ cmd_objcopy = $(OBJCOPY) --gap-fill=0x00 $(OBJCOPYFLAGS) \
 spl/u-boot-spl.srec: spl/u-boot-spl FORCE
 	$(call if_changed,objcopy)
 
-ifneq ($(CONFIG_R8A77990)$(CONFIG_R8A77995),)
+ifneq ($(CONFIG_R8A774C0)$(CONFIG_R8A77990)$(CONFIG_R8A77995),)
 #
 # The first 6 generate statements generate the R-Car Gen3 SCIF loader header.
 # The subsequent generate statements represent the following chunk of assembler

@@ -14,22 +14,10 @@
 #include "imx6_spl.h"
 #endif
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_MX6SL_EVK
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)
-
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_SPEED		  100000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \

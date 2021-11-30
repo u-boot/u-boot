@@ -180,7 +180,7 @@ int pmc_disable_tco(struct udevice *dev);
  */
 int pmc_global_reset_set_enable(struct udevice *dev, bool enable);
 
-int pmc_ofdata_to_uc_platdata(struct udevice *dev);
+int pmc_ofdata_to_uc_plat(struct udevice *dev);
 
 int pmc_disable_tco_base(ulong tco_base);
 

@@ -28,13 +28,13 @@ struct altera_timer_regs {
 	u32	snaph;		/* Snapshot high */
 };
 
-struct altera_timer_platdata {
+struct altera_timer_plat {
 	struct altera_timer_regs *regs;
 };
 
 static u64 altera_timer_get_count(struct udevice *dev)
 {
-	struct altera_timer_platdata *plat = dev->platdata;
+	struct altera_timer_plat *plat = dev_get_plat(dev);
 	struct altera_timer_regs *const regs = plat->regs;
 	u32 val;
 
@@ -49,7 +49,7 @@ static u64 altera_timer_get_count(struct udevice *dev)
 
 static int altera_timer_probe(struct udevice *dev)
 {
-	struct altera_timer_platdata *plat = dev->platdata;
+	struct altera_timer_plat *plat = dev_get_plat(dev);
 	struct altera_timer_regs *const regs = plat->regs;
 
 	writel(0, &regs->status);
@@ -63,9 +63,9 @@ static int altera_timer_probe(struct udevice *dev)
 	return 0;
 }
 
-static int altera_timer_ofdata_to_platdata(struct udevice *dev)
+static int altera_timer_of_to_plat(struct udevice *dev)
 {
-	struct altera_timer_platdata *plat = dev_get_platdata(dev);
+	struct altera_timer_plat *plat = dev_get_plat(dev);
 
 	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct altera_timer_regs),
@@ -87,8 +87,8 @@ U_BOOT_DRIVER(altera_timer) = {
 	.name	= "altera_timer",
 	.id	= UCLASS_TIMER,
 	.of_match = altera_timer_ids,
-	.ofdata_to_platdata = altera_timer_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_timer_platdata),
+	.of_to_plat = altera_timer_of_to_plat,
+	.plat_auto	= sizeof(struct altera_timer_plat),
 	.probe = altera_timer_probe,
 	.ops	= &altera_timer_ops,
 };

@@ -4,20 +4,11 @@
  */
 
 #include <common.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/rcar-mstp.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-void s_init(void)
-{
-}
-
-/* Kconfig forces this on, so just return 0 */
-int board_early_init_f(void)
-{
-	return 0;
-}
 
 int board_init(void)
 {
@@ -27,26 +18,27 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	if (fdtdec_setup_mem_size_base() != 0)
-		return -EINVAL;
-
-	return 0;
-}
-
-int dram_init_banksize(void)
-{
-	fdtdec_setup_memory_banksize();
-
-	return 0;
-}
-
 #define RST_BASE	0xE6160000
 #define RST_CA57RESCNT	(RST_BASE + 0x40)
 #define RST_CODE	0xA5A5000F
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	writel(RST_CODE, RST_CA57RESCNT);
 }
+
+#if IS_ENABLED(CONFIG_MULTI_DTB_FIT)
+int board_fit_config_name_match(const char *name)
+{
+	if (!strcmp(rzg_get_cpu_name(), "R8A774A1") && !strcmp(name, "r8a774a1-beacon-rzg2m-kit"))
+		return 0;
+
+	if (!strcmp(rzg_get_cpu_name(), "R8A774B1") && !strcmp(name, "r8a774b1-beacon-rzg2n-kit"))
+		return 0;
+
+	if (!strcmp(rzg_get_cpu_name(), "R8A774E1") && !strcmp(name, "r8a774e1-beacon-rzg2h-kit"))
+		return 0;
+
+	return -1;
+}
+#endif

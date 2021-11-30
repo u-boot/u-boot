@@ -12,6 +12,7 @@
 #include <log.h>
 #include <ram.h>
 #include <asm/arch/misc.h>
+#include <asm/global_data.h>
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
@@ -40,7 +41,7 @@ int mtk_pll_early_init(void)
 	int ret, i;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-			DM_GET_DRIVER(mtk_clk_apmixedsys), &dev);
+			DM_DRIVER_GET(mtk_clk_apmixedsys), &dev);
 	if (ret)
 		return ret;
 
@@ -59,7 +60,7 @@ int mtk_pll_early_init(void)
 
 	/* setup mcu bus */
 	ret = uclass_get_device_by_driver(UCLASS_SYSCON,
-			DM_GET_DRIVER(mtk_mcucfg), &dev);
+			DM_DRIVER_GET(mtk_mcucfg), &dev);
 	if (ret)
 		return ret;
 

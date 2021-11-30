@@ -93,4 +93,5 @@ U_BOOT_DRIVER(intel_apl_punit) = {
 	.id		= UCLASS_SYSCON,
 	.of_match	= apl_syscon_ids,
 	.probe		= apl_punit_probe,
+	DM_HEADER(<asm/cpu.h>)    /* for X86_SYSCON_PUNIT */
 };

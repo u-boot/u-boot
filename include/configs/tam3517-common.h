@@ -20,16 +20,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10) + \
-					2 * 1024 * 1024)
 /*
  * DDR related
  */
@@ -53,12 +43,7 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
-/* EHCI */
-#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	25
 
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50		/* base address */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1		/* bytes of address */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
 
 /*
@@ -78,10 +63,6 @@
 
 #define CONFIG_SYS_MAXARGS		32	/* max number of command */
 						/* args */
-/* memtest works on */
-
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
-								/* address */
 
 /*
  * AM3517 has 12 GP timers, they can be driven by the system clock
@@ -145,22 +126,14 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
 
 /* NAND boot config */
-#define CONFIG_SYS_NAND_PAGE_COUNT	64
-#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-#define CONFIG_SYS_NAND_OOBSIZE		64
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 #define CONFIG_SYS_NAND_ECCPOS		{40, 41, 42, 43, 44, 45, 46, 47,\
 					 48, 49, 50, 51, 52, 53, 54, 55,\
 					 56, 57, 58, 59, 60, 61, 62, 63}
 #define CONFIG_SYS_NAND_ECCSIZE		256
 #define CONFIG_SYS_NAND_ECCBYTES	3
-#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_SW
 
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x80000
 
 /* Setup MTD for NAND on the SOM */
@@ -249,7 +222,7 @@ struct tam3517_module_info {
 
 #define TAM3517_READ_EEPROM(info, ret) \
 do {								\
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE); \
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE); \
 	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,		\
 		(void *)info, sizeof(*info)))			\
 		ret = 1;					\

@@ -19,7 +19,6 @@
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
 #define CONFIG_KW88F6281	1	/* SOC Name */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
  * Default GPIO configuration and LED status
@@ -72,11 +71,10 @@
 #define CONFIG_PHY_BASE_ADR	0
 #endif /* CONFIG_CMD_NET */
 
-/*
- *  * SATA Driver configuration
- *   */
-#ifdef CONFIG_MVSATA_IDE
-#define CONFIG_SYS_ATA_IDE0_OFFSET      MV_SATA_PORT0_OFFSET
-#endif /*CONFIG_MVSATA_IDE*/
+/* SATA driver configuration */
+#ifdef CONFIG_SATA
+#define CONFIG_SYS_SATA_MAX_DEVICE	1
+#define CONFIG_LBA48
+#endif /* CONFIG_SATA */
 
 #endif /* _CONFIG_GOFLEXHOME_H */

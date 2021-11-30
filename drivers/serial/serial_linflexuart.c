@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <watchdog.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <serial.h>
 #include <linux/compiler.h>
@@ -115,7 +116,7 @@ static int _linflex_serial_init(struct linflex_fsl *base)
 	return 0;
 }
 
-struct linflex_serial_platdata {
+struct linflex_serial_plat {
 	struct linflex_fsl *base_addr;
 	u8 port_id; /* do we need this? */
 };
@@ -168,7 +169,7 @@ static void linflex_serial_init_internal(struct linflex_fsl *lfuart)
 
 static int linflex_serial_probe(struct udevice *dev)
 {
-	struct linflex_serial_platdata *plat = dev->platdata;
+	struct linflex_serial_plat *plat = dev_get_plat(dev);
 	struct linflex_serial_priv *priv = dev_get_priv(dev);
 
 	priv->lfuart = (struct linflex_fsl *)plat->base_addr;
@@ -190,7 +191,7 @@ U_BOOT_DRIVER(serial_linflex) = {
 	.probe = linflex_serial_probe,
 	.ops	= &linflex_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
-	.priv_auto_alloc_size	= sizeof(struct linflex_serial_priv),
+	.priv_auto	= sizeof(struct linflex_serial_priv),
 };
 
 #ifdef CONFIG_DEBUG_UART_LINFLEXUART

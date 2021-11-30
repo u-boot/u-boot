@@ -113,6 +113,5 @@ Start Address	End Address	Description			Size
 
 LS1021a rev1.0 Soc specific Options/Settings
 --------------------------------------------
-If the LS1021a Soc is rev1.0, you need modify the configure file.
-Add the following define in include/configs/ls1021aqds.h:
-#define CONFIG_SKIP_LOWLEVEL_INIT
+If the LS1021a Soc is rev1.0, you need modify the configuration and enable
+CONFIG_SPL_SKIP_LOWLEVEL_INIT in menuconfig or similar.

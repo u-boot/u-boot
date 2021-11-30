@@ -6,11 +6,11 @@
  * Parts of this copied from Linux arch/x86/boot/compressed/head_64.S
  */
 
-#include <asm/global_data.h>
 #include <asm/msr-index.h>
 #include <asm/processor-flags.h>
 
 .code32
+.section .text_call64
 .globl cpu_call64
 cpu_call64:
 	/*

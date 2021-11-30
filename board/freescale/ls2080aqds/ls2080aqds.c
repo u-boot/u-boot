@@ -10,6 +10,7 @@
 #include <netdev.h>
 #include <fsl_ifc.h>
 #include <fsl_ddr.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
@@ -22,7 +23,7 @@
 #include <fsl_sec.h>
 #include <asm/arch/ppa.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
-
+#include "../common/i2c_mux.h"
 
 #include "../common/qixis.h"
 #include "ls2080aqds_qixis.h"
@@ -160,27 +161,6 @@ unsigned long get_board_ddr_clk(void)
 	return 66666666;
 }
 
-int select_i2c_ch_pca9547(u8 ch)
-{
-	int ret;
-#ifdef CONFIG_DM_I2C
-	struct udevice *dev;
-
-	ret = i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev);
-	if (!ret)
-		ret = dm_i2c_write(dev, 0, &ch, 1);
-
-#else
-	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
-#endif
-	if (ret) {
-		puts("PCA: failed to select proper channel\n");
-		return ret;
-	}
-
-	return 0;
-}
-
 int config_board_mux(int ctrl_type)
 {
 	u8 reg5;
@@ -231,13 +211,10 @@ int board_init(void)
 			     FSL_QIXIS_BRDCFG9_QSPI);
 #endif
 
-#ifdef CONFIG_ENV_IS_NOWHERE
-	gd->env_addr = (ulong)&default_environment[0];
-#endif
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 
 #ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	rtc_enable_32khz_output(0, CONFIG_SYS_I2C_RTC_ADDR);
 #else
 	rtc_enable_32khz_output();
@@ -261,7 +238,7 @@ int board_init(void)
 
 int board_early_init_f(void)
 {
-#ifdef CONFIG_SYS_I2C_EARLY_INIT
+#if defined(CONFIG_SYS_I2C_EARLY_INIT)
 	i2c_early_init_f();
 #endif
 	fsl_lsch3_early_init_f();

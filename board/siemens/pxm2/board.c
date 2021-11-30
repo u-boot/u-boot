@@ -171,7 +171,7 @@ int read_eeprom(void)
 }
 
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
 static void cpsw_control(int enabled)
 {
 	/* VTP can be added here */
@@ -220,7 +220,7 @@ int board_eth_init(struct bd_info *bis)
 {
 	int n = 0;
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
 	struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 #ifdef CONFIG_FACTORYSET
 	int rv;

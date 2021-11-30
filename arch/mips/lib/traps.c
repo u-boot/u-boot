@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <asm/global_data.h>
 #include <asm/ptrace.h>
 #include <cpu_func.h>
 #include <hang.h>
@@ -99,7 +100,7 @@ static void set_handler(unsigned long offset, void *addr, unsigned long size)
 	flush_cache(ebase + offset, size);
 }
 
-void trap_init(ulong reloc_addr)
+static void trap_init(ulong reloc_addr)
 {
 	unsigned long ebase = gd->irq_sp;
 
@@ -130,4 +131,11 @@ void trap_restore(void)
 
 	clear_c0_status(ST0_BEV);
 	execution_hazard_barrier();
+}
+
+int arch_initr_trap(void)
+{
+	trap_init(CONFIG_SYS_SDRAM_BASE);
+
+	return 0;
 }

@@ -6,6 +6,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_P2SB
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>
@@ -30,7 +32,7 @@ int p2sb_set_hide(struct udevice *dev, bool hide)
 
 void *pcr_reg_address(struct udevice *dev, uint offset)
 {
-	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
 	struct udevice *p2sb = dev_get_parent(dev);
 	struct p2sb_uc_priv *upriv = dev_get_uclass_priv(p2sb);
 	uintptr_t reg_addr;
@@ -161,34 +163,19 @@ void pcr_clrsetbits8(struct udevice *dev, uint offset, uint clr, uint set)
 
 int p2sb_get_port_id(struct udevice *dev)
 {
-	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
+	struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
 
 	return pplat->pid;
 }
 
 int p2sb_set_port_id(struct udevice *dev, int portid)
 {
-	struct udevice *ps2b;
-	struct p2sb_child_platdata *pplat;
+	struct p2sb_child_plat *pplat;
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
 		return -ENOSYS;
 
-	if (!CONFIG_IS_ENABLED(OF_PLATDATA_PARENT)) {
-		uclass_find_first_device(UCLASS_P2SB, &ps2b);
-		if (!ps2b)
-			return -EDEADLK;
-		dev->parent = ps2b;
-
-		/*
-		 * We must allocate this, since when the device was bound it did
-		 * not have a parent.
-		 */
-		dev->parent_platdata = malloc(sizeof(*pplat));
-		if (!dev->parent_platdata)
-			return -ENOMEM;
-	}
-	pplat = dev_get_parent_platdata(dev);
+	pplat = dev_get_parent_plat(dev);
 	pplat->pid = portid;
 
 	return 0;
@@ -196,16 +183,16 @@ int p2sb_set_port_id(struct udevice *dev, int portid)
 
 static int p2sb_child_post_bind(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
-	int ret;
-	u32 pid;
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		struct p2sb_child_plat *pplat = dev_get_parent_plat(dev);
+		int ret;
+		u32 pid;
 
-	ret = dev_read_u32(dev, "intel,p2sb-port-id", &pid);
-	if (ret)
-		return ret;
-	pplat->pid = pid;
-#endif
+		ret = dev_read_u32(dev, "intel,p2sb-port-id", &pid);
+		if (ret)
+			return ret;
+		pplat->pid = pid;
+	}
 
 	return 0;
 }
@@ -221,9 +208,8 @@ static int p2sb_post_bind(struct udevice *dev)
 UCLASS_DRIVER(p2sb) = {
 	.id		= UCLASS_P2SB,
 	.name		= "p2sb",
-	.per_device_auto_alloc_size = sizeof(struct p2sb_uc_priv),
+	.per_device_auto	= sizeof(struct p2sb_uc_priv),
 	.post_bind	= p2sb_post_bind,
 	.child_post_bind = p2sb_child_post_bind,
-	.per_child_platdata_auto_alloc_size =
-		sizeof(struct p2sb_child_platdata),
+	.per_child_plat_auto = sizeof(struct p2sb_child_plat),
 };

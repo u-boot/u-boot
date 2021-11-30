@@ -12,6 +12,7 @@
 #include <log.h>
 #include <ns16550.h>
 #include <usb.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
@@ -42,7 +43,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SPL_BUILD
 /* TODO(sjg@chromium.org): Remove once SPL supports device tree */
-U_BOOT_DEVICE(tegra_gpios) = {
+U_BOOT_DRVINFO(tegra_gpios) = {
 	"gpio_tegra"
 };
 #endif

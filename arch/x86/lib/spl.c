@@ -17,6 +17,7 @@
 #include <syscon.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
+#include <asm/global_data.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
@@ -95,7 +96,7 @@ static int x86_spl_init(void)
 	}
 #endif
 	preloader_console_init();
-#ifndef CONFIG_TPL
+#if !defined(CONFIG_TPL) && !CONFIG_IS_ENABLED(CPU)
 	ret = print_cpuinfo();
 	if (ret) {
 		debug("%s: print_cpuinfo() failed\n", __func__);
@@ -115,8 +116,8 @@ static int x86_spl_init(void)
 	}
 
 #ifndef CONFIG_SYS_COREBOOT
-# ifndef CONFIG_TPL
 	memset(&__bss_start, 0, (ulong)&__bss_end - (ulong)&__bss_start);
+# ifndef CONFIG_TPL
 
 	/* TODO(sjg@chromium.org): Consider calling cpu_init_r() here */
 	ret = interrupt_init();

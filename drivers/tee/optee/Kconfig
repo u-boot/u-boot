@@ -22,6 +22,21 @@ config OPTEE_TA_AVB
 	  The TA can support the "avb" subcommands "read_rb", "write"rb"
 	  and "is_unlocked".
 
+config OPTEE_TA_RPC_TEST
+	bool "Support RPC TEST TA"
+	depends on SANDBOX_TEE
+	default y
+	help
+	  Enables support for RPC test trusted application emulation, which
+	  permits to test reverse RPC calls to TEE supplicant. Should
+	  be used only in sandbox env.
+
+config OPTEE_TA_SCP03
+	bool "Support SCP03 TA"
+	default y
+	help
+	  Enables support for controlling (enabling, provisioning) the
+	  Secure Channel Protocol 03 operation in the OP-TEE SCP03 TA.
 endmenu
 
 endif

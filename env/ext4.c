@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <ext4fs.h>
 #include <mmc.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -187,6 +188,5 @@ U_BOOT_ENV_LOCATION(ext4) = {
 	ENV_NAME("EXT4")
 	.load		= env_ext4_load,
 	.save		= ENV_SAVE_PTR(env_ext4_save),
-	.erase		= CONFIG_IS_ENABLED(CMD_ERASEENV) ? env_ext4_erase :
-							    NULL,
+	.erase		= ENV_ERASE_PTR(env_ext4_erase),
 };

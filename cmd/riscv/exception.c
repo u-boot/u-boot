@@ -8,6 +8,13 @@
 #include <common.h>
 #include <command.h>
 
+static int do_ebreak(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	asm volatile ("ebreak\n");
+	return CMD_RET_FAILURE;
+}
+
 static int do_unaligned(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
@@ -28,6 +35,8 @@ static int do_undefined(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 static struct cmd_tbl cmd_sub[] = {
+	U_BOOT_CMD_MKENT(ebreak, CONFIG_SYS_MAXARGS, 1, do_ebreak,
+			 "", ""),
 	U_BOOT_CMD_MKENT(unaligned, CONFIG_SYS_MAXARGS, 1, do_unaligned,
 			 "", ""),
 	U_BOOT_CMD_MKENT(undefined, CONFIG_SYS_MAXARGS, 1, do_undefined,
@@ -37,6 +46,7 @@ static struct cmd_tbl cmd_sub[] = {
 static char exception_help_text[] =
 	"<ex>\n"
 	"  The following exceptions are available:\n"
+	"  ebreak    - breakpoint\n"
 	"  undefined - illegal instruction\n"
 	"  unaligned - load address misaligned\n"
 	;

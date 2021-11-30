@@ -25,14 +25,14 @@ struct altera_uart_regs {
 	u32	endofpacket;	/* End-of-packet reg */
 };
 
-struct altera_uart_platdata {
+struct altera_uart_plat {
 	struct altera_uart_regs *regs;
 	unsigned int uartclk;
 };
 
 static int altera_uart_setbrg(struct udevice *dev, int baudrate)
 {
-	struct altera_uart_platdata *plat = dev->platdata;
+	struct altera_uart_plat *plat = dev_get_plat(dev);
 	struct altera_uart_regs *const regs = plat->regs;
 	u32 div;
 
@@ -44,7 +44,7 @@ static int altera_uart_setbrg(struct udevice *dev, int baudrate)
 
 static int altera_uart_putc(struct udevice *dev, const char ch)
 {
-	struct altera_uart_platdata *plat = dev->platdata;
+	struct altera_uart_plat *plat = dev_get_plat(dev);
 	struct altera_uart_regs *const regs = plat->regs;
 
 	if (!(readl(&regs->status) & ALTERA_UART_TRDY))
@@ -57,7 +57,7 @@ static int altera_uart_putc(struct udevice *dev, const char ch)
 
 static int altera_uart_pending(struct udevice *dev, bool input)
 {
-	struct altera_uart_platdata *plat = dev->platdata;
+	struct altera_uart_plat *plat = dev_get_plat(dev);
 	struct altera_uart_regs *const regs = plat->regs;
 	u32 st = readl(&regs->status);
 
@@ -69,7 +69,7 @@ static int altera_uart_pending(struct udevice *dev, bool input)
 
 static int altera_uart_getc(struct udevice *dev)
 {
-	struct altera_uart_platdata *plat = dev->platdata;
+	struct altera_uart_plat *plat = dev_get_plat(dev);
 	struct altera_uart_regs *const regs = plat->regs;
 
 	if (!(readl(&regs->status) & ALTERA_UART_RRDY))
@@ -83,9 +83,9 @@ static int altera_uart_probe(struct udevice *dev)
 	return 0;
 }
 
-static int altera_uart_ofdata_to_platdata(struct udevice *dev)
+static int altera_uart_of_to_plat(struct udevice *dev)
 {
-	struct altera_uart_platdata *plat = dev_get_platdata(dev);
+	struct altera_uart_plat *plat = dev_get_plat(dev);
 
 	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct altera_uart_regs),
@@ -111,8 +111,8 @@ U_BOOT_DRIVER(altera_uart) = {
 	.name	= "altera_uart",
 	.id	= UCLASS_SERIAL,
 	.of_match = altera_uart_ids,
-	.ofdata_to_platdata = altera_uart_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct altera_uart_platdata),
+	.of_to_plat = altera_uart_of_to_plat,
+	.plat_auto	= sizeof(struct altera_uart_plat),
 	.probe = altera_uart_probe,
 	.ops	= &altera_uart_ops,
 };

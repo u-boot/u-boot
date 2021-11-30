@@ -18,7 +18,6 @@
  */
 #define CONFIG_MCFTMR
 
-#define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
 
 #undef CONFIG_WATCHDOG
@@ -75,7 +74,6 @@
 	"save\0"				\
 	""
 
-#define CONFIG_SYS_LOAD_ADDR		0x20000
 #define CONFIG_SYS_CLK			66000000
 
 /*
@@ -111,7 +109,6 @@
 #endif
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
 
 /*
@@ -134,7 +131,6 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CONFIG_SYS_CACHELINE_SIZE	16
 
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - 8)

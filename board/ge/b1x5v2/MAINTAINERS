@@ -1,7 +1,7 @@
 GE B1X5V2 BOARD
 M:	Huan 'Kitty' Wang <HuanWang@ge.com>
 M:	Ian Ray <ian.ray@ge.com>
-M:	Sebastian Reichel <sebastian.reichel@collabora.com>
+M:	Martyn Welch <martyn.welch@collabora.com>
 S:	Maintained
 F:	arch/arm/dts/imx6dl-b1x5v2.dts
 F:	board/ge/b1x5v2/

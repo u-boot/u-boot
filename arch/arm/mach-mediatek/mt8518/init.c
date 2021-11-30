@@ -16,6 +16,7 @@
 #include <asm/arch/misc.h>
 #include <asm/armv8/mmu.h>
 #include <asm/cache.h>
+#include <asm/global_data.h>
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <dt-bindings/clock/mt8518-clk.h>
@@ -41,7 +42,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	psci_system_reset();
 }

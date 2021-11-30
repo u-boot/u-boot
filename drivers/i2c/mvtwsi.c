@@ -10,13 +10,16 @@
 #include <common.h>
 #include <i2c.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/compat.h>
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
+#include <clk.h>
 #include <dm.h>
+#include <reset.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -26,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * settings
  */
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 #if defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>
 #elif (defined(CONFIG_ARCH_KIRKWOOD) || defined(CONFIG_ARCH_MVEBU))
@@ -42,7 +45,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * On SUNXI, we get CONFIG_SYS_TCLK from this include, so we want to
  * always have it.
  */
-#if defined(CONFIG_DM_I2C) && defined(CONFIG_ARCH_SUNXI)
+#if CONFIG_IS_ENABLED(DM_I2C) && defined(CONFIG_ARCH_SUNXI)
 #include <asm/arch/i2c.h>
 #endif
 
@@ -82,7 +85,7 @@ struct  mvtwsi_registers {
 
 #endif
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 struct mvtwsi_i2c_dev {
 	/* TWSI Register base for the device */
 	struct mvtwsi_registers *base;
@@ -121,7 +124,7 @@ enum mvtwsi_ctrl_register_fields {
  * on other platforms, it is a normal r/w bit, which is cleared by writing 0.
  */
 
-#ifdef CONFIG_SUNXI_GEN_SUN6I
+#if defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_SUN50I_GEN_H6)
 #define	MVTWSI_CONTROL_CLEAR_IFLG	0x00000008
 #else
 #define	MVTWSI_CONTROL_CLEAR_IFLG	0x00000000
@@ -183,7 +186,7 @@ inline uint calc_tick(uint speed)
 	return (1000000000u / speed) + 100;
 }
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 
 /*
  * twsi_get_base() - Get controller register base for specified adapter
@@ -480,7 +483,7 @@ static uint __twsi_i2c_set_bus_speed(struct mvtwsi_registers *twsi,
 	writel(baud, &twsi->baudrate);
 
 	/* Wait for controller for one tick */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	ndelay(calc_tick(highest_speed));
 #else
 	ndelay(10000);
@@ -515,7 +518,7 @@ static void __twsi_i2c_init(struct mvtwsi_registers *twsi, int speed,
 	writel(slaveadd, &twsi->slave_address);
 	writel(0, &twsi->xtnd_slave_addr);
 	/* Assert STOP, but don't care for the result */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 	(void) twsi_stop(twsi, calc_tick(*actual_speed));
 #else
 	(void) twsi_stop(twsi, 10000);
@@ -682,7 +685,7 @@ static int __twsi_i2c_write(struct mvtwsi_registers *twsi, uchar chip,
 	return status != 0 ? status : stop_status;
 }
 
-#ifndef CONFIG_DM_I2C
+#if !CONFIG_IS_ENABLED(DM_I2C)
 static void twsi_i2c_init(struct i2c_adapter *adap, int speed,
 			  int slaveadd)
 {
@@ -794,7 +797,7 @@ static int mvtwsi_i2c_set_bus_speed(struct udevice *bus, uint speed)
 	return 0;
 }
 
-static int mvtwsi_i2c_ofdata_to_platdata(struct udevice *bus)
+static int mvtwsi_i2c_of_to_plat(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
 
@@ -823,9 +826,9 @@ static int mvtwsi_i2c_bind(struct udevice *bus)
 	struct mvtwsi_registers *twsi = dev_read_addr_ptr(bus);
 
 	/* Disable the hidden slave in i2c0 of these platforms */
-	if ((IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_ARCH_KIRKWOOD)
-				|| IS_ENABLED(CONFIG_ARMADA_8K))
-			&& bus->req_seq == 0)
+	if ((IS_ENABLED(CONFIG_ARMADA_38X) ||
+	     IS_ENABLED(CONFIG_ARCH_KIRKWOOD) ||
+	     IS_ENABLED(CONFIG_ARMADA_8K)) && !dev_seq(bus))
 		twsi_disable_i2c_slave(twsi);
 
 	return 0;
@@ -834,7 +837,18 @@ static int mvtwsi_i2c_bind(struct udevice *bus)
 static int mvtwsi_i2c_probe(struct udevice *bus)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
+	struct reset_ctl reset;
+	struct clk clk;
 	uint actual_speed;
+	int ret;
+
+	ret = reset_get_by_index(bus, 0, &reset);
+	if (!ret)
+		reset_deassert(&reset);
+
+	ret = clk_get_by_index(bus, 0, &clk);
+	if (!ret)
+		clk_enable(&clk);
 
 	__twsi_i2c_init(dev->base, dev->speed, dev->slaveadd, &actual_speed);
 	dev->speed = actual_speed;
@@ -888,8 +902,8 @@ U_BOOT_DRIVER(i2c_mvtwsi) = {
 	.of_match = mvtwsi_i2c_ids,
 	.bind = mvtwsi_i2c_bind,
 	.probe = mvtwsi_i2c_probe,
-	.ofdata_to_platdata = mvtwsi_i2c_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct mvtwsi_i2c_dev),
+	.of_to_plat = mvtwsi_i2c_of_to_plat,
+	.priv_auto	= sizeof(struct mvtwsi_i2c_dev),
 	.ops = &mvtwsi_i2c_ops,
 };
 #endif /* CONFIG_DM_I2C */

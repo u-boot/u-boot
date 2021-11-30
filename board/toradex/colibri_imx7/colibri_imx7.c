@@ -12,6 +12,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx7-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
@@ -236,7 +237,7 @@ int power_init_board(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	struct udevice *dev;
 
@@ -354,12 +355,22 @@ int board_usb_phy_mode(int port)
 	}
 }
 
+#if defined(CONFIG_BOARD_LATE_INIT)
 int board_late_init(void)
 {
 #if defined(CONFIG_DM_VIDEO)
 	setup_lcd();
 #endif
+
+#if defined(CONFIG_CMD_USB_SDP)
+	if (is_boot_from_usb()) {
+		printf("Serial Downloader recovery mode, using sdp command\n");
+		env_set("bootdelay", "0");
+		env_set("bootcmd", "sdp 0");
+	}
+#endif
 	return 0;
 }
+#endif /* CONFIG_BOARD_LATE_INIT */
 
 #endif

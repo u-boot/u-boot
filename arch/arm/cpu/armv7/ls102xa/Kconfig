@@ -20,6 +20,7 @@ config ARCH_LS1021A
 	select SYS_FSL_SEC_LE
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
+	select SYS_I2C_MXC
 	imply CMD_PCI
 	imply SCSI
 	imply SCSI_AHCI

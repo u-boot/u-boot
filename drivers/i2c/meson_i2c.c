@@ -308,6 +308,6 @@ U_BOOT_DRIVER(i2c_meson) = {
 	.id   = UCLASS_I2C,
 	.of_match = meson_i2c_ids,
 	.probe = meson_i2c_probe,
-	.priv_auto_alloc_size = sizeof(struct meson_i2c),
+	.priv_auto	= sizeof(struct meson_i2c),
 	.ops = &meson_i2c_ops,
 };

@@ -152,8 +152,8 @@ static int mv_xor_ctrl_set(u32 chan, u32 xor_ctrl)
 	return MV_OK;
 }
 
-int mv_xor_mem_init(u32 chan, u32 start_ptr, u32 block_size, u32 init_val_high,
-		    u32 init_val_low)
+int mv_xor_mem_init(u32 chan, u32 start_ptr, unsigned long long block_size,
+		    u32 init_val_high, u32 init_val_low)
 {
 	u32 tmp;
 

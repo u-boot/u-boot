@@ -242,7 +242,7 @@ static int omap3_wdt_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->wdt_trgr_pattern = 0x1234;
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 	return 0;
 }
 
@@ -263,6 +263,6 @@ U_BOOT_DRIVER(omap3_wdt) = {
 	.of_match = omap3_wdt_ids,
 	.ops = &omap3_wdt_ops,
 	.probe = omap3_wdt_probe,
-	.priv_auto_alloc_size = sizeof(struct omap3_wdt_priv),
+	.priv_auto	= sizeof(struct omap3_wdt_priv),
 };
 #endif /* !CONFIG_IS_ENABLED(WDT) */

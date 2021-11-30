@@ -12,7 +12,6 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/sys_proto.h>
 
 #ifdef CONFIG_SPL_BUILD

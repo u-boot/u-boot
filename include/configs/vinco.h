@@ -30,8 +30,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
-
 /* SerialFlash */
 
 #ifdef CONFIG_CMD_SF
@@ -53,7 +51,6 @@
 /* USB device */
 
 /* Ethernet Hardware */
-#define CONFIG_MACB
 #define CONFIG_RMII
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB_SEARCH_PHY

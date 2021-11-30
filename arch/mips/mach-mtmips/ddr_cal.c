@@ -8,6 +8,7 @@
 #include <common.h>
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
+#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <mach/mc.h>

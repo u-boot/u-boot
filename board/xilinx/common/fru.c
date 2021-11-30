@@ -19,7 +19,7 @@ static int do_fru_capture(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[2], &endp, 16);
+	addr = hextoul(argv[2], &endp);
 	if (*argv[1] == 0 || *endp != 0)
 		return -1;
 
@@ -41,7 +41,7 @@ static int do_fru_generate(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 
 	return fru_generate(addr, argv[3], argv[4], argv[5], argv[6], argv[7]);
 }

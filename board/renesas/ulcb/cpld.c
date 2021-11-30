@@ -91,7 +91,7 @@ static int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_SYSRESET,
-					  DM_GET_DRIVER(sysreset_renesas_ulcb),
+					  DM_DRIVER_GET(sysreset_renesas_ulcb),
 					  &dev);
 	if (ret)
 		return ret;
@@ -111,7 +111,7 @@ static int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 	if (!(addr == CPLD_ADDR_VERSION || addr == CPLD_ADDR_MODE ||
 	      addr == CPLD_ADDR_MUX || addr == CPLD_ADDR_DIPSW6 ||
 	      addr == CPLD_ADDR_RESET)) {
@@ -122,7 +122,7 @@ static int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc == 3 && strcmp(argv[1], "read") == 0) {
 		printf("0x%x\n", cpld_read(dev, addr));
 	} else if (argc == 4 && strcmp(argv[1], "write") == 0) {
-		val = simple_strtoul(argv[3], NULL, 16);
+		val = hextoul(argv[3], NULL);
 		cpld_write(dev, addr, val);
 	}
 
@@ -188,5 +188,5 @@ U_BOOT_DRIVER(sysreset_renesas_ulcb) = {
 	.ops		= &renesas_ulcb_sysreset,
 	.probe		= renesas_ulcb_sysreset_probe,
 	.of_match	= renesas_ulcb_sysreset_ids,
-	.priv_auto_alloc_size = sizeof(struct renesas_ulcb_sysreset_priv),
+	.priv_auto	= sizeof(struct renesas_ulcb_sysreset_priv),
 };

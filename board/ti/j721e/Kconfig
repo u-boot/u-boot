@@ -23,7 +23,7 @@ config TARGET_J721E_R5_EVM
 	select K3_LOAD_SYSFW
 	select RAM
 	select SPL_RAM
-	select K3_J721E_DDRSS
+	select K3_DDRSS
 	imply SYS_K3_SPL_ATF
 	imply TI_I2C_BOARD_DETECT
 
@@ -43,7 +43,7 @@ config TARGET_J7200_R5_EVM
 	select K3_LOAD_SYSFW
 	select RAM
 	select SPL_RAM
-	select K3_J721E_DDRSS
+	select K3_DDRSS
 	imply SYS_K3_SPL_ATF
 	imply TI_I2C_BOARD_DETECT
 

@@ -1,0 +1,173 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) Siemens AG, 2020-2021
+ *
+ * Authors:
+ *   Jan Kiszka <jan.kiszka@siemens.com>
+ *   Chao Zeng <chao.zeng@siemens.com>
+ */
+
+#include <config.h>
+
+/ {
+	binman {
+		filename = "flash.bin";
+		pad-byte = <0xff>;
+		size = <0x8c0000>;
+
+		blob-ext@0x000000 {
+			offset = <0x000000>;
+			filename = "tiboot3.bin";
+		};
+
+		blob@0x080000 {
+			offset = <0x080000>;
+			filename = "tispl.bin";
+		};
+
+		fit@0x280000 {
+			description = "U-Boot for IOT2050";
+			offset = <0x280000>;
+			images {
+				u-boot {
+					description = "U-Boot";
+					type = "standalone";
+					arch = "arm64";
+					os = "u-boot";
+					compression = "none";
+					load = <0x80800000>;
+					entry = <0x80800000>;
+					u-boot-nodtb {
+					};
+				};
+
+				fdt-iot2050-basic {
+					description = "k3-am6528-iot2050-basic.dtb";
+					type = "flat_dt";
+					arch = "arm64";
+					compression = "none";
+					blob {
+						filename = "arch/arm/dts/k3-am6528-iot2050-basic.dtb";
+					};
+				};
+
+				fdt-iot2050-basic-pg2 {
+					description = "k3-am6528-iot2050-basic-pg2.dtb";
+					type = "flat_dt";
+					arch = "arm64";
+					compression = "none";
+					blob {
+						filename = "arch/arm/dts/k3-am6528-iot2050-basic-pg2.dtb";
+					};
+				};
+
+				fdt-iot2050-advanced {
+					description = "k3-am6548-iot2050-advanced.dtb";
+					type = "flat_dt";
+					arch = "arm64";
+					compression = "none";
+					blob {
+						filename = "arch/arm/dts/k3-am6548-iot2050-advanced.dtb";
+					};
+				};
+
+				fdt-iot2050-advanced-pg2 {
+					description = "k3-am6548-iot2050-advanced-pg2.dtb";
+					type = "flat_dt";
+					arch = "arm64";
+					compression = "none";
+					blob {
+						filename = "arch/arm/dts/k3-am6548-iot2050-advanced-pg2.dtb";
+					};
+				};
+
+#ifdef CONFIG_WDT_K3_RTI_FW_FILE
+				k3-rti-wdt-firmware {
+					type = "firmware";
+					load = <0x82000000>;
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+						filename = CONFIG_WDT_K3_RTI_FW_FILE;
+						missing-msg = "k3-rti-wdt-firmware";
+					};
+				};
+#endif
+			};
+
+			configurations {
+				default = "conf-iot2050-basic";
+
+				conf-iot2050-basic {
+					description = "iot2050-basic";
+					firmware = "u-boot";
+					fdt = "fdt-iot2050-basic";
+#ifdef CONFIG_WDT_K3_RTI_FW_FILE
+					loadables = "k3-rti-wdt-firmware";
+#endif
+				};
+
+				conf-iot2050-basic-pg2 {
+					description = "iot2050-basic-pg2";
+					firmware = "u-boot";
+					fdt = "fdt-iot2050-basic-pg2";
+#ifdef CONFIG_WDT_K3_RTI_FW_FILE
+					loadables = "k3-rti-wdt-firmware";
+#endif
+				};
+
+				conf-iot2050-advanced {
+					description = "iot2050-advanced";
+					firmware = "u-boot";
+					fdt = "fdt-iot2050-advanced";
+#ifdef CONFIG_WDT_K3_RTI_FW_FILE
+					loadables = "k3-rti-wdt-firmware";
+#endif
+				};
+
+				conf-iot2050-advanced-pg2 {
+					description = "iot2050-advanced-pg2";
+					firmware = "u-boot";
+					fdt = "fdt-iot2050-advanced-pg2";
+#ifdef CONFIG_WDT_K3_RTI_FW_FILE
+					loadables = "k3-rti-wdt-firmware";
+#endif
+				};
+			};
+		};
+
+		/* primary env */
+		fill@0x680000 {
+			offset = <0x680000>;
+			size   = <0x020000>;
+			fill-byte = [00];
+		};
+		/* secondary env */
+		fill@0x6a0000 {
+			offset = <0x6a0000>;
+			size   = <0x020000>;
+			fill-byte = [00];
+		};
+
+		/* PG1 sysfw, basic variant */
+		blob-ext@0x6c0000 {
+			offset = <0x6c0000>;
+			filename = "sysfw.itb";
+		};
+		/* PG1 sysfw, advanced variant */
+		blob-ext@0x740000 {
+			offset = <0x740000>;
+			filename = "sysfw.itb_HS";
+		};
+		/* PG2 sysfw, basic variant */
+		blob-ext@0x7c0000 {
+			offset = <0x7c0000>;
+			filename = "sysfw_sr2.itb";
+		};
+		/* PG2 sysfw, advanced variant */
+		blob-ext@0x840000 {
+			offset = <0x840000>;
+			filename = "sysfw_sr2.itb_HS";
+		};
+	};
+};

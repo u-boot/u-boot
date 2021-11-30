@@ -45,12 +45,10 @@
 
 /* SPL */
 #ifndef CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_NO_CPU_SUPPORT
 #define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
 #endif
 
 /* Memory sizes */
-#define CONFIG_SYS_MALLOC_LEN		0x00400000	/* 4 MB for malloc */
 
 /* OCRAM at 0x0 ; 32kB on MX23 ; 128kB on MX28 */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x00000000
@@ -85,10 +83,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
 
-/* Booting Linux */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-
 /*
  * Drivers
  */
@@ -110,16 +104,10 @@
 #endif
 #endif
 
-/* LCD */
-#ifdef CONFIG_VIDEO
-#define CONFIG_VIDEO_MXS
-#endif
-
 /* NAND */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x60000000
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #endif
 
 /* OCOTP */
@@ -130,12 +118,6 @@
 /* SPI */
 #ifdef CONFIG_CMD_SPI
 #define CONFIG_SPI_HALF_DUPLEX
-#endif
-
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_EHCI_MXS
-#define CONFIG_EHCI_IS_TDI
 #endif
 
 #endif	/* __CONFIGS_MXS_H__ */

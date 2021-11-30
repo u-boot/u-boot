@@ -2,12 +2,18 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/prcm.h>
 
 #ifdef CONFIG_SPL_BUILD
 void clock_init_safe(void)
 {
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	/* this seems to enable PLLs on H616 */
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616))
+		setbits_le32(SUNXI_PRCM_BASE + 0x250, 0x10);
+
 	clock_set_pll1(408000000);
 
 	writel(CCM_PLL6_DEFAULT, &ccm->pll6_cfg);
@@ -67,6 +73,9 @@ void clock_set_pll1(unsigned int clk)
 
 	/* clk = 24*n/p, p is ignored if clock is >288MHz */
 	writel(CCM_PLL1_CTRL_EN | CCM_PLL1_LOCK_EN | CCM_PLL1_CLOCK_TIME_2 |
+#ifdef CONFIG_MACH_SUN50I_H616
+	       CCM_PLL1_OUT_EN |
+#endif
 	       CCM_PLL1_CTRL_N(clk / 24000000), &ccm->pll1_cfg);
 	while (!(readl(&ccm->pll1_cfg) & CCM_PLL1_LOCK)) {}
 
@@ -82,13 +91,42 @@ unsigned int clock_get_pll6(void)
 {
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	int m = IS_ENABLED(CONFIG_MACH_SUN50I_H6) ? 4 : 2;
 
 	uint32_t rval = readl(&ccm->pll6_cfg);
-	int n = ((rval & CCM_PLL6_CTRL_N_MASK) >> CCM_PLL6_CTRL_N_SHIFT);
+	int n = ((rval & CCM_PLL6_CTRL_N_MASK) >> CCM_PLL6_CTRL_N_SHIFT) + 1;
 	int div1 = ((rval & CCM_PLL6_CTRL_DIV1_MASK) >>
 			CCM_PLL6_CTRL_DIV1_SHIFT) + 1;
 	int div2 = ((rval & CCM_PLL6_CTRL_DIV2_MASK) >>
 			CCM_PLL6_CTRL_DIV2_SHIFT) + 1;
-	/* The register defines PLL6-4X, not plain PLL6 */
-	return 24000000 / 4 * n / div1 / div2;
+	/* The register defines PLL6-2X or PLL6-4X, not plain PLL6 */
+	return 24000000 / m * n / div1 / div2;
+}
+
+int clock_twi_onoff(int port, int state)
+{
+	struct sunxi_ccm_reg *const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_prcm_reg *const prcm =
+		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
+	u32 value, *ptr;
+	int shift;
+
+	value = BIT(GATE_SHIFT) | BIT (RESET_SHIFT);
+
+	if (port == 5) {
+		shift = 0;
+		ptr = &prcm->twi_gate_reset;
+	} else {
+		shift = port;
+		ptr = &ccm->twi_gate_reset;
+	}
+
+	/* set the apb clock gate and reset for twi */
+	if (state)
+		setbits_le32(ptr, value << shift);
+	else
+		clrbits_le32(ptr, value << shift);
+
+	return 0;
 }

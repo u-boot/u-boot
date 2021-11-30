@@ -1,6 +1,6 @@
 LS1012AQDS BOARD
-M:	Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
 M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
+M:	Pramod Kumar <pramod.kumar_1@nxp.com>
 S:	Maintained
 F:	board/freescale/ls1012aqds/
 F:	include/configs/ls1012aqds.h

@@ -11,6 +11,7 @@
 #include <acpi/acpi_table.h>
 #include <asm/cpu_common.h>
 #include <asm/cpu_x86.h>
+#include <asm/global_data.h>
 #include <asm/intel_acpi.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
@@ -18,6 +19,7 @@
 #include <asm/arch/iomap.h>
 #include <dm/acpi.h>
 
+#ifdef CONFIG_ACPIGEN
 #define CSTATE_RES(address_space, width, offset, address)		\
 	{								\
 	.space_id = address_space,					\
@@ -56,14 +58,9 @@ static struct acpi_cstate cstate_map[] = {
 	},
 };
 
-static int apl_get_info(const struct udevice *dev, struct cpu_info *info)
-{
-	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
-}
-
 static int acpi_cpu_fill_ssdt(const struct udevice *dev, struct acpi_ctx *ctx)
 {
-	uint core_id = dev->req_seq;
+	uint core_id = dev_seq(dev);
 	int cores_per_package;
 	int ret;
 
@@ -87,6 +84,12 @@ static int acpi_cpu_fill_ssdt(const struct udevice *dev, struct acpi_ctx *ctx)
 	}
 
 	return 0;
+}
+#endif /* CONFIG_ACPIGEN */
+
+static int apl_get_info(const struct udevice *dev, struct cpu_info *info)
+{
+	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 }
 
 static void update_fixed_mtrrs(void)
@@ -169,9 +172,11 @@ static int cpu_apl_probe(struct udevice *dev)
 	return 0;
 }
 
+#ifdef CONFIG_ACPIGEN
 struct acpi_ops apl_cpu_acpi_ops = {
 	.fill_ssdt	= acpi_cpu_fill_ssdt,
 };
+#endif
 
 static const struct cpu_ops cpu_x86_apl_ops = {
 	.get_desc	= cpu_x86_get_desc,

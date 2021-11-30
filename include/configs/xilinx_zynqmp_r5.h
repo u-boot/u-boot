@@ -17,11 +17,8 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /* Boot configuration */
-#define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
-
-#define CONFIG_SYS_MALLOC_LEN		0x1400000
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
@@ -31,7 +28,5 @@
 
 /* Extend size of kernel image for uncompression */
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #endif /* __CONFIG_ZYNQ_ZYNQMP_R5_H */

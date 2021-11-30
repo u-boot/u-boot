@@ -37,7 +37,7 @@ struct rockchip_efuse_regs {
 		       /* 0x14	efuse strobe finish control register */
 };
 
-struct rockchip_efuse_platdata {
+struct rockchip_efuse_plat {
 	void __iomem *base;
 	struct clk *clk;
 };
@@ -58,7 +58,7 @@ static int dump_efuses(struct cmd_tbl *cmdtp, int flag,
 
 	/* retrieve the device */
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_GET_DRIVER(rockchip_efuse), &dev);
+					  DM_DRIVER_GET(rockchip_efuse), &dev);
 	if (ret) {
 		printf("%s: no misc-device found\n", __func__);
 		return 0;
@@ -86,7 +86,7 @@ U_BOOT_CMD(
 static int rockchip_rk3399_efuse_read(struct udevice *dev, int offset,
 				      void *buf, int size)
 {
-	struct rockchip_efuse_platdata *plat = dev_get_platdata(dev);
+	struct rockchip_efuse_plat *plat = dev_get_plat(dev);
 	struct rockchip_efuse_regs *efuse =
 		(struct rockchip_efuse_regs *)plat->base;
 
@@ -137,9 +137,9 @@ static const struct misc_ops rockchip_efuse_ops = {
 	.read = rockchip_efuse_read,
 };
 
-static int rockchip_efuse_ofdata_to_platdata(struct udevice *dev)
+static int rockchip_efuse_of_to_plat(struct udevice *dev)
 {
-	struct rockchip_efuse_platdata *plat = dev_get_platdata(dev);
+	struct rockchip_efuse_plat *plat = dev_get_plat(dev);
 
 	plat->base = dev_read_addr_ptr(dev);
 	return 0;
@@ -154,7 +154,7 @@ U_BOOT_DRIVER(rockchip_efuse) = {
 	.name = "rockchip_efuse",
 	.id = UCLASS_MISC,
 	.of_match = rockchip_efuse_ids,
-	.ofdata_to_platdata = rockchip_efuse_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct rockchip_efuse_platdata),
+	.of_to_plat = rockchip_efuse_of_to_plat,
+	.plat_auto	= sizeof(struct rockchip_efuse_plat),
 	.ops = &rockchip_efuse_ops,
 };

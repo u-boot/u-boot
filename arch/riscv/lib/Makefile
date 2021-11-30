@@ -10,8 +10,9 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_BOOTI) += bootm.o image.o
 obj-$(CONFIG_CMD_GO) += boot.o
 obj-y	+= cache.o
+obj-$(CONFIG_SIFIVE_CACHE) += sifive_cache.o
 ifeq ($(CONFIG_$(SPL_)RISCV_MMODE),y)
-obj-$(CONFIG_SIFIVE_CLINT) += sifive_clint.o
+obj-$(CONFIG_$(SPL_)SIFIVE_CLINT) += sifive_clint.o
 obj-$(CONFIG_ANDES_PLIC) += andes_plic.o
 else
 obj-$(CONFIG_SBI) += sbi.o
@@ -27,6 +28,7 @@ obj-$(CONFIG_SPL_BUILD)	+= spl.o
 obj-y   += fdt_fixup.o
 
 # For building EFI apps
+CFLAGS_NON_EFI := -fstack-protector-strong
 CFLAGS_$(EFI_CRT0) := $(CFLAGS_EFI)
 CFLAGS_REMOVE_$(EFI_CRT0) := $(CFLAGS_NON_EFI)
 
@@ -36,3 +38,7 @@ CFLAGS_REMOVE_$(EFI_RELOC) := $(CFLAGS_NON_EFI)
 extra-$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE) += $(EFI_CRT0) $(EFI_RELOC)
 extra-$(CONFIG_CMD_BOOTEFI_SELFTEST) += $(EFI_CRT0) $(EFI_RELOC)
 extra-$(CONFIG_EFI) += $(EFI_CRT0) $(EFI_RELOC)
+
+obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMSET) += memset.o
+obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMMOVE) += memmove.o
+obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMCPY) += memcpy.o

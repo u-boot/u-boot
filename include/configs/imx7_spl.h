@@ -18,20 +18,28 @@
  *  - Set the stack at the end of the free area section, at 0x00946BB8.
  *  - The BOOT ROM loads what they consider the firmware image
  *    which consists of a 4K header in front of us that contains the IVT, DCD
- *    and some padding thus 'our' max size is really 0x00946BB8 - 0x00911000.
- *    64KB is more then enough for the SPL.
+ *    and some padding. However, the manual also states that the ROM uses the
+ *    OCRAM_EPCD and OCRAM_PXP areas for itself. While the SPL is free to use
+ *    this range for stack and malloc, the SPL itself must fit below 0x920000,
+ *    or the image will be truncated in at least some boot modes like USB SDP.
+ *    Thus our max size is really 0x00920000 - 0x00912000. If necessary,
+ *    CONFIG_SPL_TEXT_BASE could be moved to 0x00911000 to gain 4KB of space
+ *    for the SPL, but 56KB should be more than enough for the SPL.
  */
-#define CONFIG_SPL_MAX_SIZE		0x10000
+#define CONFIG_SPL_MAX_SIZE		0xE000
 #define CONFIG_SPL_STACK		0x00946BB8
 /*
- * Pad SPL to 68KB (4KB header + 64KB max size). This allows to write the
- * SPL/U-Boot combination generated with u-boot-with-spl.imx directly to a
- * boot media (given that boot media specific offset is configured properly).
+ * Pad SPL to 68KB (4KB header + 56KB max size + 8KB extra padding)
+ * The extra padding could be removed, but this value was used historically
+ * based on an incorrect CONFIG_SPL_MAX_SIZE definition.
+ * This allows to write the SPL/U-Boot combination generated with
+ * u-boot-with-spl.imx directly to a boot media (given that boot media specific
+ * offset is configured properly).
  */
 #define CONFIG_SPL_PAD_TO		0x11000
 
 /* MMC support */
-#if defined(CONFIG_SPL_MMC_SUPPORT)
+#if defined(CONFIG_SPL_MMC)
 #define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
 #endif
 

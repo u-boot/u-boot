@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  *
  * PCIe Gen4 driver for NXP Layerscape SoCs
  * Author: Hou Zhiqiang <Minder.Hou@gmail.com>
@@ -166,7 +166,7 @@ static void fdt_fixup_pcie_ls_gen4(void *blob)
 		}
 
 		/* the DT fixup must be relative to the hose first_busno */
-		bdf = dm_pci_get_bdf(dev) - PCI_BDF(bus->seq, 0, 0);
+		bdf = dm_pci_get_bdf(dev) - PCI_BDF(dev_seq(bus), 0, 0);
 		/* map PCI b.d.f to streamID in LUT */
 		ls_pcie_g4_lut_set_mapping(pcie, index, bdf >> 8, streamid);
 		/* update msi-map in device tree */
@@ -223,6 +223,9 @@ static void ft_pcie_layerscape_gen4_setup(void *blob, struct ls_pcie_g4 *pcie)
 {
 	ft_pcie_rc_layerscape_gen4_fix(blob, pcie);
 	ft_pcie_ep_layerscape_gen4_fix(blob, pcie);
+
+	pcie->stream_id_cur = 0;
+	pcie->next_lut_index = 0;
 }
 
 /* Fixup Kernel DT for PCIe */

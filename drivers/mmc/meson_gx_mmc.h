@@ -84,7 +84,7 @@ enum meson_gx_mmc_compatible {
 #define MESON_SD_EMMC_CMD_RSP2		0x64
 #define MESON_SD_EMMC_CMD_RSP3		0x68
 
-struct meson_mmc_platdata {
+struct meson_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
 	void *regbase;

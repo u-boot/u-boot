@@ -1101,13 +1101,50 @@ enum ec_feature_code {
 	EC_FEATURE_DEVICE_EVENT = 31,
 	/* EC supports the unified wake masks for LPC/eSPI systems */
 	EC_FEATURE_UNIFIED_WAKE_MASKS = 32,
+	/* EC supports 64-bit host events */
+	EC_FEATURE_HOST_EVENT64 = 33,
+	/* EC runs code in RAM (not in place, a.k.a. XIP) */
+	EC_FEATURE_EXEC_IN_RAM = 34,
+	/* EC supports CEC commands */
+	EC_FEATURE_CEC = 35,
+	/* EC supports tight sensor timestamping. */
+	EC_FEATURE_MOTION_SENSE_TIGHT_TIMESTAMPS = 36,
+	/*
+	 * EC supports tablet mode detection aligned to Chrome and allows
+	 * setting of threshold by host command using
+	 * MOTIONSENSE_CMD_TABLET_MODE_LID_ANGLE.
+	 */
+	EC_FEATURE_REFINED_TABLET_MODE_HYSTERESIS = 37,
+	/*
+	 * Early Firmware Selection ver.2. Enabled by CONFIG_VBOOT_EFS2.
+	 * Note this is a RO feature. So, a query (EC_CMD_GET_FEATURES) should
+	 * be sent to RO to be precise.
+	 */
+	EC_FEATURE_EFS2 = 38,
+	/* The MCU is a System Companion Processor (SCP). */
+	EC_FEATURE_SCP = 39,
+	/* The MCU is an Integrated Sensor Hub */
+	EC_FEATURE_ISH = 40,
+	/* New TCPMv2 TYPEC_ prefaced commands supported */
+	EC_FEATURE_TYPEC_CMD = 41,
+	/*
+	 * The EC will wait for direction from the AP to enter Type-C alternate
+	 * modes or USB4.
+	 */
+	EC_FEATURE_TYPEC_REQUIRE_AP_MODE_ENTRY = 42,
+	/*
+	 * The EC will wait for an acknowledge from the AP after setting the
+	 * mux.
+	 */
+	EC_FEATURE_TYPEC_MUX_REQUIRE_AP_ACK = 43,
 };
 
-#define EC_FEATURE_MASK_0(event_code) (1UL << (event_code % 32))
-#define EC_FEATURE_MASK_1(event_code) (1UL << (event_code - 32))
-struct __ec_align4 ec_response_get_features {
+#define EC_FEATURE_MASK_0(event_code) BIT(event_code % 32)
+#define EC_FEATURE_MASK_1(event_code) BIT(event_code - 32)
+
+struct ec_response_get_features {
 	uint32_t flags[2];
-};
+} __ec_align4;
 
 /*****************************************************************************/
 /* Get the board's SKU ID from EC */

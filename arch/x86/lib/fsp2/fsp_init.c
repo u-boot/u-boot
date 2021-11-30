@@ -84,7 +84,8 @@ static int get_cbfs_fsp(enum fsp_type_t type, ulong map_base,
 	struct cbfs_priv *cbfs;
 	int ret;
 
-	ret = cbfs_init_mem(map_base + cbfs_base, &cbfs);
+	ret = cbfs_init_mem(map_base + cbfs_base, CBFS_SIZE_UNKNOWN, true,
+			    &cbfs);
 	if (ret)
 		return ret;
 	if (!ret) {

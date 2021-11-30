@@ -29,11 +29,6 @@
 #include <asm/immap_85xx.h>
 #define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PIC_OFFSET + \
 				offsetof(ccsr_pic_t, tfrr))
-
-#elif defined (CONFIG_MPC86xx)
-#include <asm/immap_86xx.h>
-#define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC86xx_PIC_OFFSET + \
-				offsetof(ccsr_pic_t, tfrr))
 #endif
 
 #ifndef _POST_WORD_ADDR
@@ -107,7 +102,6 @@ int post_init_f (void);
 void post_bootmode_init (void);
 int post_bootmode_get (unsigned int * last_test);
 void post_bootmode_clear (void);
-void post_output_backlog ( void );
 int post_run (char *name, int flags);
 int post_info (char *name);
 int post_log (char *format, ...);
@@ -115,6 +109,16 @@ int post_log (char *format, ...);
 void post_reloc (void);
 #endif
 unsigned long post_time_ms (unsigned long base);
+
+/**
+ * post_output_backlog() - Print POST results
+ *
+ * Print POST results during the generic board init sequence, after
+ * relocation.
+ *
+ * Return: 0 if OK
+ */
+int post_output_backlog(void);
 
 extern struct post_test post_list[];
 extern unsigned int post_list_size;

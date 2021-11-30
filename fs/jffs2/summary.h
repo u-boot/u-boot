@@ -39,7 +39,7 @@ struct jffs2_sum_inode_flash
 	__u32 inode;		/* inode number */
 	__u32 version;	/* inode version */
 	__u32 offset;	/* offset on jeb */
-	__u32 totlen; 	/* record length */
+	__u32 totlen;	/* record length */
 } __attribute__((packed));
 
 struct jffs2_sum_dirent_flash
@@ -49,7 +49,7 @@ struct jffs2_sum_dirent_flash
 	__u32 offset;	/* offset on jeb */
 	__u32 pino;		/* parent inode */
 	__u32 version;	/* dirent version */
-	__u32 ino; 		/* == zero for unlink */
+	__u32 ino;		/* == zero for unlink */
 	uint8_t nsize;		/* dirent name size */
 	uint8_t type;		/* dirent type */
 	uint8_t name[0];	/* dirent name */
@@ -94,7 +94,7 @@ struct jffs2_sum_inode_mem
 	__u32 inode;		/* inode number */
 	__u32 version;	/* inode version */
 	__u32 offset;	/* offset on jeb */
-	__u32 totlen; 	/* record length */
+	__u32 totlen;	/* record length */
 } __attribute__((packed));
 
 struct jffs2_sum_dirent_mem
@@ -105,7 +105,7 @@ struct jffs2_sum_dirent_mem
 	__u32 offset;	/* ofset on jeb */
 	__u32 pino;		/* parent inode */
 	__u32 version;	/* dirent version */
-	__u32 ino; 		/* == zero for unlink */
+	__u32 ino;		/* == zero for unlink */
 	uint8_t nsize;		/* dirent name size */
 	uint8_t type;		/* dirent type */
 	uint8_t name[0];	/* dirent name */
@@ -155,7 +155,7 @@ struct jffs2_summary
 struct jffs2_sum_marker
 {
 	__u32 offset;	/* offset of the summary node in the jeb */
-	__u32 magic; 	/* == JFFS2_SUM_MAGIC */
+	__u32 magic;	/* == JFFS2_SUM_MAGIC */
 };
 
 #define JFFS2_SUMMARY_FRAME_SIZE (sizeof(struct jffs2_raw_summary) + sizeof(struct jffs2_sum_marker))

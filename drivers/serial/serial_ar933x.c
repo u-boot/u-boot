@@ -188,7 +188,7 @@ U_BOOT_DRIVER(serial_ar933x) = {
 	.name   = "serial_ar933x",
 	.id = UCLASS_SERIAL,
 	.of_match = ar933x_serial_ids,
-	.priv_auto_alloc_size = sizeof(struct ar933x_serial_priv),
+	.priv_auto	= sizeof(struct ar933x_serial_priv),
 	.probe = ar933x_serial_probe,
 	.ops    = &ar933x_serial_ops,
 };

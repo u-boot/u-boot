@@ -140,7 +140,7 @@ static int do_part_info(int argc, char *const argv[], enum cmd_part_info param)
 			return 1;
 	} else {
 		part = part_get_info_by_name(desc, argv[2], &info);
-		if (part == -1)
+		if (part < 0)
 			return 1;
 	}
 

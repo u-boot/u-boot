@@ -38,50 +38,6 @@ endchoice
 
 endif
 
-if ARCH_MPC8349
-
-choice
-	prompt "TSEC1 emergency priority"
-
-config SPCR_TSEC1EP_UNSET
-	bool "Don't set value"
-
-config SPCR_TSEC1EP_0
-	bool "Level 0 (lowest priority)"
-
-config SPCR_TSEC1EP_1
-	bool "Level 1"
-
-config SPCR_TSEC1EP_2
-	bool "Level 2"
-
-config SPCR_TSEC1EP_3
-	bool "Level 3 (highest priority)"
-
-endchoice
-
-choice
-	prompt "TSEC2 emergency priority"
-
-config SPCR_TSEC2EP_UNSET
-	bool "Don't set value"
-
-config SPCR_TSEC2EP_0
-	bool "Level 0 (lowest priority)"
-
-config SPCR_TSEC2EP_1
-	bool "Level 1"
-
-config SPCR_TSEC2EP_2
-	bool "Level 2"
-
-config SPCR_TSEC2EP_3
-	bool "Level 3 (highest priority)"
-
-endchoice
-
-endif
-
 config SPCR_OPT
 	hex
 	default 0x0 if SPCR_OPT_UNSET

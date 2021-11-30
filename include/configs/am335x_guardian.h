@@ -22,13 +22,12 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 #ifndef CONFIG_SPL_BUILD
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=0x80000000\0" \
 	"pxefile_addr_r=0x80100000\0" \
+	"tftp_load_addr=0x82000000\0" \
 	"kernel_addr_r=0x82000000\0" \
 	"fdt_addr_r=0x88000000\0" \
 	"ramdisk_addr_r=0x88080000\0" \
@@ -57,19 +56,20 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
 	GUARDIAN_DEFAULT_PROD_ENV \
+	"autoload=no\0" \
+	"backlight_brightness=50\0" \
 	"bootubivol=rootfs\0" \
 	"distro_bootcmd=" \
-		"setenv autoload no; " \
 		"setenv rootflags \"bulk_read,chk_data_crc\"; " \
 		"setenv ethact usb_ether; " \
 		"if test \"${swi_status}\" -eq 1; then " \
-		  "setenv extrabootargs \"swi_attached\"; " \
 		  "if dhcp; then " \
 		    "sleep 1; " \
 		    "if tftp \"${tftp_load_addr}\" \"bootscript.scr\"; then " \
 		      "source \"${tftp_load_addr}\"; " \
 		    "fi; " \
 		  "fi; " \
+		  "setenv extrabootargs $extrabootargs \"swi_attached\"; " \
 		"fi;" \
 		"run bootcmd_ubifs0;\0" \
 	"altbootcmd=" \
@@ -79,6 +79,16 @@
 		"run bootcmd_ubifs0;\0"
 
 #endif /* ! CONFIG_SPL_BUILD */
+
+#define SPLASH_SCREEN_NAND_PART "nand0,10"
+#define SPLASH_SCREEN_BMP_FILE_SIZE 0x26000
+#define SPLASH_SCREEN_BMP_LOAD_ADDR 0x82000000
+#define SPLASH_SCREEN_TEXT "U-Boot"
+
+/* BGR 16Bit Color Definitions */
+#define CONSOLE_COLOR_BLACK 0x0000
+#define CONSOLE_COLOR_WHITE 0xFFFF
+#define CONSOLE_COLOR_RED 0x001F
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
@@ -95,14 +105,6 @@
 #define CONFIG_SYS_BOOTCOUNT_LE
 
 #ifdef CONFIG_MTD_RAW_NAND
-
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_PAGE_COUNT      (CONFIG_SYS_NAND_BLOCK_SIZE / \
-					CONFIG_SYS_NAND_PAGE_SIZE)
-#define CONFIG_SYS_NAND_PAGE_SIZE       4096
-#define CONFIG_SYS_NAND_OOBSIZE         256
-#define CONFIG_SYS_NAND_BLOCK_SIZE      (256 * 1024)
-
 #define CONFIG_SYS_NAND_ECCPOS  {   2,   3,   4,   5,   6,   7,   8,   9, \
 			 10,  11,  12,  13,  14,  15,  16,  17,  18,  19, \
 			 20,  21,  22,  23,  24,  25,  26,  27,  28,  29, \
@@ -127,11 +129,7 @@
 			}
 #define CONFIG_SYS_NAND_ECCSIZE         512
 #define CONFIG_SYS_NAND_ECCBYTES        26
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_NAND_OMAP_ECCSCHEME      OMAP_ECC_BCH16_CODE_HW
 #define MTDIDS_DEFAULT                  "nand0=nand.0"
-
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS   NAND_LARGE_BADBLOCK_POS
 
 #endif /* CONFIG_MTD_RAW_NAND */
 

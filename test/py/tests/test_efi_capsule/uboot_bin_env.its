@@ -1,0 +1,36 @@
+/*
+ * Automatic software update for U-Boot
+ * Make sure the flashing addresses ('load' prop) is correct for your board!
+ */
+
+/dts-v1/;
+
+/ {
+	description = "Automatic U-Boot environment update";
+	#address-cells = <2>;
+
+	images {
+		u-boot-bin {
+			description = "U-Boot binary on SPI Flash";
+			data = /incbin/("BINFILE1");
+			compression = "none";
+			type = "firmware";
+			arch = "sandbox";
+			load = <0>;
+			hash-1 {
+				algo = "sha1";
+			};
+		};
+		u-boot-env {
+			description = "U-Boot environment on SPI Flash";
+			data = /incbin/("BINFILE2");
+			compression = "none";
+			type = "firmware";
+			arch = "sandbox";
+			load = <0>;
+			hash-1 {
+				algo = "sha1";
+			};
+		};
+	};
+};

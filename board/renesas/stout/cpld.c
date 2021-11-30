@@ -133,7 +133,7 @@ static int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[2], NULL, 16);
+	addr = hextoul(argv[2], NULL);
 	if (!(addr == CPLD_ADDR_VERSION || addr == CPLD_ADDR_MODE ||
 	      addr == CPLD_ADDR_MUX || addr == CPLD_ADDR_HDMI ||
 	      addr == CPLD_ADDR_DIPSW || addr == CPLD_ADDR_RESET)) {
@@ -144,7 +144,7 @@ static int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc == 3 && strcmp(argv[1], "read") == 0) {
 		printf("0x%x\n", cpld_read(addr));
 	} else if (argc == 4 && strcmp(argv[1], "write") == 0) {
-		val = simple_strtoul(argv[3], NULL, 16);
+		val = hextoul(argv[3], NULL);
 		if (addr == CPLD_ADDR_MUX) {
 			/* never mask SCIFA0 console */
 			val &= ~MUX_MSK_SCIFA0_USB;
@@ -163,7 +163,7 @@ U_BOOT_CMD(
 	"cpld write addr val\n"
 );
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	cpld_write(CPLD_ADDR_RESET, 1);
 }

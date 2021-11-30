@@ -8,6 +8,7 @@
 #include <env.h>
 #include <errno.h>
 #include <init.h>
+#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fsl_esdhc_imx.h>
@@ -128,7 +129,7 @@ int board_init(void)
 /*
  * Board specific reset that is system reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* TODO */
 }

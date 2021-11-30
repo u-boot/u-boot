@@ -43,7 +43,7 @@
 #define MMC_SDHC1_BASE_ADDR	(SPBA0_BASE_ADDR + 0x00004000)
 #define MMC_SDHC2_BASE_ADDR	(SPBA0_BASE_ADDR + 0x00008000)
 #define UART3_BASE		(SPBA0_BASE_ADDR + 0x0000C000)
-#define CSPI1_BASE_ADDR 	(SPBA0_BASE_ADDR + 0x00010000)
+#define CSPI1_BASE_ADDR		(SPBA0_BASE_ADDR + 0x00010000)
 #define SSI2_BASE_ADDR		(SPBA0_BASE_ADDR + 0x00014000)
 #define MMC_SDHC3_BASE_ADDR	(SPBA0_BASE_ADDR + 0x00020000)
 #define MMC_SDHC4_BASE_ADDR	(SPBA0_BASE_ADDR + 0x00024000)
@@ -97,7 +97,7 @@
 #define IIM_BASE_ADDR		(AIPS2_BASE_ADDR + 0x00098000)
 #define CSU_BASE_ADDR		(AIPS2_BASE_ADDR + 0x0009C000)
 #define ARM_BASE_ADDR		(AIPS2_BASE_ADDR + 0x000A0000)
-#define OWIRE_BASE_ADDR 	(AIPS2_BASE_ADDR + 0x000A4000)
+#define OWIRE_BASE_ADDR		(AIPS2_BASE_ADDR + 0x000A4000)
 #define FIRI_BASE_ADDR		(AIPS2_BASE_ADDR + 0x000A8000)
 #define CSPI2_BASE_ADDR		(AIPS2_BASE_ADDR + 0x000AC000)
 #define SDMA_BASE_ADDR		(AIPS2_BASE_ADDR + 0x000B0000)
@@ -204,30 +204,6 @@
 /*
  * CSPI register definitions
  */
-#define MXC_ECSPI
-#define MXC_CSPICTRL_EN		(1 << 0)
-#define MXC_CSPICTRL_MODE	(1 << 1)
-#define MXC_CSPICTRL_XCH	(1 << 2)
-#define MXC_CSPICTRL_MODE_MASK	(0xf << 4)
-#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
-#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
-#define MXC_CSPICTRL_PREDIV(x)	(((x) & 0xF) << 12)
-#define MXC_CSPICTRL_POSTDIV(x)	(((x) & 0xF) << 8)
-#define MXC_CSPICTRL_SELCHAN(x)	(((x) & 0x3) << 18)
-#define MXC_CSPICTRL_MAXBITS	0xfff
-#define MXC_CSPICTRL_TC		(1 << 7)
-#define MXC_CSPICTRL_RXOVF	(1 << 6)
-#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
-#define MAX_SPI_BYTES	32
-
-/* Bit position inside CTRL register to be associated with SS */
-#define MXC_CSPICTRL_CHAN	18
-
-/* Bit position inside CON register to be associated with SS */
-#define MXC_CSPICON_PHA		0  /* SCLK phase control */
-#define MXC_CSPICON_POL		4  /* SCLK polarity */
-#define MXC_CSPICON_SSPOL	12 /* SS polarity */
-#define MXC_CSPICON_CTL		20 /* inactive state of SCLK */
 #define MXC_SPI_BASE_ADDRESSES \
 	CSPI1_BASE_ADDR, \
 	CSPI2_BASE_ADDR, \
@@ -474,18 +450,6 @@ struct srtc_regs {
 	u32	hpcr;		/* 0x30 */
 	u32	hpisr;		/* 0x34 */
 	u32	hpienr;		/* 0x38 */
-};
-
-/* CSPI registers */
-struct cspi_regs {
-	u32 rxdata;
-	u32 txdata;
-	u32 ctrl;
-	u32 cfg;
-	u32 intr;
-	u32 dma;
-	u32 stat;
-	u32 period;
 };
 
 struct iim_regs {
