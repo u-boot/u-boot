@@ -43,6 +43,23 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OMNIA_I2C_EEPROM_CHIP_LEN	2
 #define OMNIA_I2C_EEPROM_MAGIC		0x0341a034
 
+#define SYS_RSTOUT_MASK			MVEBU_REGISTER(0x18260)
+#define   SYS_RSTOUT_MASK_WD		BIT(10)
+
+#define A385_WDT_GLOBAL_CTRL		MVEBU_REGISTER(0x20300)
+#define   A385_WDT_GLOBAL_RATIO_MASK	GENMASK(18, 16)
+#define   A385_WDT_GLOBAL_RATIO_SHIFT	16
+#define   A385_WDT_GLOBAL_25MHZ		BIT(10)
+#define   A385_WDT_GLOBAL_ENABLE	BIT(8)
+
+#define A385_WDT_GLOBAL_STATUS		MVEBU_REGISTER(0x20304)
+#define   A385_WDT_GLOBAL_EXPIRED	BIT(31)
+
+#define A385_WDT_DURATION		MVEBU_REGISTER(0x20334)
+
+#define A385_WD_RSTOUT_UNMASK		MVEBU_REGISTER(0x20704)
+#define   A385_WD_RSTOUT_UNMASK_GLOBAL	BIT(8)
+
 enum mcu_commands {
 	CMD_GET_STATUS_WORD	= 0x01,
 	CMD_GET_RESET		= 0x09,
@@ -139,6 +156,47 @@ static int omnia_mcu_write(u8 cmd, const void *buf, int len)
 		return -ENODEV;
 
 	return dm_i2c_write(chip, cmd, buf, len);
+}
+
+static void enable_a385_watchdog(unsigned int timeout_minutes)
+{
+	struct sar_freq_modes sar_freq;
+	u32 watchdog_freq;
+
+	printf("Enabling A385 watchdog with %u minutes timeout...\n",
+	       timeout_minutes);
+
+	/*
+	 * Use NBCLK clock (a.k.a. L2 clock) as watchdog input clock with
+	 * its maximal ratio 7 instead of default fixed 25 MHz clock.
+	 * It allows to set watchdog duration up to the 22 minutes.
+	 */
+	clrsetbits_32(A385_WDT_GLOBAL_CTRL,
+		      A385_WDT_GLOBAL_25MHZ | A385_WDT_GLOBAL_RATIO_MASK,
+		      7 << A385_WDT_GLOBAL_RATIO_SHIFT);
+
+	/*
+	 * Calculate watchdog clock frequency. It is defined by formula:
+	 *   freq = NBCLK / 2 / (2 ^ ratio)
+	 * We set ratio to the maximal possible value 7.
+	 */
+	get_sar_freq(&sar_freq);
+	watchdog_freq = sar_freq.nb_clk * 1000000 / 2 / (1 << 7);
+
+	/* Set watchdog duration */
+	writel(timeout_minutes * 60 * watchdog_freq, A385_WDT_DURATION);
+
+	/* Clear the watchdog expiration bit */
+	clrbits_32(A385_WDT_GLOBAL_STATUS, A385_WDT_GLOBAL_EXPIRED);
+
+	/* Enable watchdog timer */
+	setbits_32(A385_WDT_GLOBAL_CTRL, A385_WDT_GLOBAL_ENABLE);
+
+	/* Enable reset on watchdog */
+	setbits_32(A385_WD_RSTOUT_UNMASK, A385_WD_RSTOUT_UNMASK_GLOBAL);
+
+	/* Unmask reset for watchdog */
+	clrbits_32(SYS_RSTOUT_MASK, SYS_RSTOUT_MASK_WD);
 }
 
 static bool disable_mcu_watchdog(void)
@@ -423,10 +481,13 @@ void spl_board_init(void)
 {
 	/*
 	 * If booting from UART, disable MCU watchdog in SPL, since uploading
-	 * U-Boot proper can take too much time and trigger it.
+	 * U-Boot proper can take too much time and trigger it. Instead enable
+	 * A385 watchdog with very high timeout (10 minutes) to prevent hangup.
 	 */
-	if (get_boot_device() == BOOT_DEVICE_UART)
+	if (get_boot_device() == BOOT_DEVICE_UART) {
+		enable_a385_watchdog(10);
 		disable_mcu_watchdog();
+	}
 }
 
 int board_init(void)
