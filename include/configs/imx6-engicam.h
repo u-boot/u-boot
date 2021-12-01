@@ -96,8 +96,6 @@
 			"run nandboot; " \
 		"fi\0"
 
-#define CONFIG_BOOTCOMMAND		"run $modeboot"
-
 /* Miscellaneous configurable options */
 
 #ifdef CONFIG_MX6UL

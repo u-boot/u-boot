@@ -118,9 +118,6 @@
 /* File systems */
 
 /* Boot command */
-#define CONFIG_BOOTCOMMAND	"sf probe 0:0; " \
-				"sf read 0x22000000 0xc6000 0x294000; " \
-				"bootm 0x22000000"
 
 /* Misc. u-boot settings */
 

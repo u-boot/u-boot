@@ -87,12 +87,6 @@
 	"video-mode=" \
 		"lcd:800x480-24@60,monitor=lcd\0" \
 
-#define MMCBOOTCOMMAND \
-	"run doquiet; " \
-	"run tryboot; " \
-
-#define CONFIG_BOOTCOMMAND MMCBOOTCOMMAND
-
 #define CONFIG_ARP_TIMEOUT	200UL
 
 /* Miscellaneous configurable options */

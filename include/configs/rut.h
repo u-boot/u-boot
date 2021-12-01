@@ -63,34 +63,6 @@
 
 #ifndef CONFIG_RESTORE_FLASH
 /* set to negative value for no autoboot */
-
-#define CONFIG_BOOTCOMMAND \
-	"if mmc rescan; then " \
-		"echo SD/MMC found on device ${mmc_dev};" \
-		"if run loadbootenv; then " \
-			"echo Loaded environment from ${bootenv};" \
-			"run importbootenv;" \
-		"fi;" \
-		"if test -n $uenvcmd; then " \
-			"echo Running uenvcmd ...;" \
-			"run uenvcmd;" \
-		"fi;" \
-		"if run mmc_load_uimage; then " \
-			"run mmc_args;" \
-			"bootm ${kloadaddr};" \
-		"fi;" \
-	"fi;" \
-	"run nand_boot;" \
-	"reset;"
-
-#else
-
-#define CONFIG_BOOTCOMMAND			\
-	"setenv autoload no; "			\
-	"dhcp; "				\
-	"if tftp 80000000 debrick.scr; then "	\
-		"source 80000000; "		\
-	"fi"
 #endif
 
 #endif /* CONFIG_SPL_BUILD */

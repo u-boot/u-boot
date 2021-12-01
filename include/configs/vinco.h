@@ -60,11 +60,6 @@
 /* Use our own mapping for the VInCo platform */
 
 /* Update the bootcommand according to our mapping for the VInCo platform */
-#undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND  "mmc dev 0 0;" \
-			    "mmc read ${loadaddr} ${k_offset} ${k_blksize};" \
-			    "mmc read ${oftaddr} ${dtb_offset} ${dtb_blksize};" \
-			    "bootz ${loadaddr} -  ${oftaddr}"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel_start=0x20000\0" \

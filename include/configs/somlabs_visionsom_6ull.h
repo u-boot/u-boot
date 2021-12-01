@@ -53,19 +53,6 @@
 		"run setrootmmc; " \
 		"run setloadmmc; " \
 
-#define CONFIG_BOOTCOMMAND \
-	"run setfdtfile; " \
-	"run checkbootdev; " \
-	"run loadfdt;" \
-	"if run loadbootscript; then " \
-		"run bootscript; " \
-	"else " \
-		"if run loadimage; then " \
-			"run setbootargs; " \
-			"bootz ${loadaddr} - ${fdt_addr}; " \
-		"fi; " \
-	"fi"
-
 /* Miscellaneous configurable options */
 
 /* Physical Memory Map */

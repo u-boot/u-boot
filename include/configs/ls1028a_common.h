@@ -60,8 +60,6 @@
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
-#undef CONFIG_BOOTCOMMAND
-
 #define XSPI_NOR_BOOTCOMMAND	\
 	"run xspi_hdploadcmd; run distro_bootcmd; run xspi_bootcmd; " \
 	"env exists secureboot && esbc_halt;;"

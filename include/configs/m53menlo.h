@@ -128,7 +128,6 @@
  * Boot Linux
  */
 #define CONFIG_BOOTFILE		"boot/fitImage"
-#define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 
 /*
  * NAND SPL

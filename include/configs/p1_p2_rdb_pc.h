@@ -352,22 +352,6 @@
 				 OR_GPCM_SCY | OR_GPCM_TRLX | OR_GPCM_EHTR | \
 				 OR_GPCM_EAD)
 
-#ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SYS_BR0_PRELIM	CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Addr */
-#define CONFIG_SYS_OR0_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
-#define CONFIG_SYS_BR1_PRELIM	CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
-#define CONFIG_SYS_OR1_PRELIM	CONFIG_FLASH_OR_PRELIM	/* NOR Options */
-#else
-#define CONFIG_SYS_BR0_PRELIM	CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
-#define CONFIG_SYS_OR0_PRELIM	CONFIG_FLASH_OR_PRELIM	/* NOR Options */
-#ifdef CONFIG_NAND_FSL_ELBC
-#define CONFIG_SYS_BR1_PRELIM	CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Addr */
-#define CONFIG_SYS_OR1_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
-#endif
-#endif
-#define CONFIG_SYS_BR3_PRELIM	CONFIG_CPLD_BR_PRELIM	/* CPLD Base Address */
-#define CONFIG_SYS_OR3_PRELIM	CONFIG_CPLD_OR_PRELIM	/* CPLD Options */
-
 /* Vsc7385 switch */
 #ifdef CONFIG_VSC7385_ENET
 #define __VSCFW_ADDR			"vscfw_addr=ef000000"
@@ -384,9 +368,6 @@
 #define CONFIG_SYS_VSC7385_OR_PRELIM	(OR_AM_128KB | OR_GPCM_CSNT | \
 			OR_GPCM_XACS |  OR_GPCM_SCY_15 | OR_GPCM_SETA | \
 			OR_GPCM_TRLX |  OR_GPCM_EHTR | OR_GPCM_EAD)
-
-#define CONFIG_SYS_BR2_PRELIM	CONFIG_SYS_VSC7385_BR_PRELIM
-#define CONFIG_SYS_OR2_PRELIM	CONFIG_SYS_VSC7385_OR_PRELIM
 
 /* The size of the VSC7385 firmware image */
 #define CONFIG_VSC7385_IMAGE_SIZE	8192
@@ -646,23 +627,6 @@ __stringify(__SD_RST_CMD)"\0" \
 __stringify(__NAND_RST_CMD)"\0" \
 __stringify(__PCIE_RST_CMD)"\0"
 
-#define NFSBOOTCOMMAND	\
-"setenv bootargs root=/dev/nfs rw "	\
-"nfsroot=$serverip:$rootpath "	\
-"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-"console=$consoledev,$baudrate $othbootargs;" \
-"tftp $loadaddr $bootfile;"	\
-"tftp $fdtaddr $fdtfile;"	\
-"bootm $loadaddr - $fdtaddr"
-
-#define HDBOOT	\
-"setenv bootargs root=/dev/$bdev rw rootdelay=30 "	\
-"console=$consoledev,$baudrate $othbootargs;" \
-"usb start;"	\
-"ext2load usb 0:1 $loadaddr /boot/$bootfile;"	\
-"ext2load usb 0:1 $fdtaddr /boot/$fdtfile;"	\
-"bootm $loadaddr - $fdtaddr"
-
 #define CONFIG_USB_FAT_BOOT	\
 "setenv bootargs root=/dev/ram rw "	\
 "console=$consoledev,$baudrate $othbootargs " \
@@ -687,16 +651,5 @@ __stringify(__PCIE_RST_CMD)"\0"
 "setenv bootargs root=/dev/$jffs2nor rw "	\
 "console=$consoledev,$baudrate rootfstype=jffs2 $othbootargs;"	\
 "bootm $norbootaddr - $norfdtaddr"
-
-#define RAMBOOTCOMMAND	\
-"setenv bootargs root=/dev/ram rw "	\
-"console=$consoledev,$baudrate $othbootargs " \
-"ramdisk_size=$ramdisk_size;"	\
-"tftp $ramdiskaddr $ramdiskfile;"	\
-"tftp $loadaddr $bootfile;"	\
-"tftp $fdtaddr $fdtfile;"	\
-"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_BOOTCOMMAND	HDBOOT
 
 #endif /* __CONFIG_H */

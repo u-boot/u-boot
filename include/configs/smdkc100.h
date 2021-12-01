@@ -36,8 +36,6 @@
 /* PWM */
 #define CONFIG_PWM			1
 
-#define CONFIG_BOOTCOMMAND	"run ubifsboot"
-
 #define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext2" \
 				" console=ttySAC0,115200n8" \
 				" mem=128M"

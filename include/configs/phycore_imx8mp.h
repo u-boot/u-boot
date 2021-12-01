@@ -70,14 +70,6 @@
 			"echo WARN: Cannot load the DT; " \
 		"fi;\0" \
 
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadimage; then " \
-			"run mmcboot; " \
-		"else run netboot; " \
-		"fi; " \
-	"fi;"
-
 /* Link Definitions */
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000

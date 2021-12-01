@@ -142,9 +142,6 @@
 	"nandboot=run nandbootcommon; "\
 		"bootm ${loadaddr} - ${fdtaddr}\0"\
 
-#define CONFIG_BOOTCOMMAND \
-	"run autoboot"
-
 /* Miscellaneous configurable options */
 
 /* memtest works on */

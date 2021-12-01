@@ -18,8 +18,6 @@
 
 #undef	CONFIG_MONITOR_IS_IN_RAM		/* starts uboot direct */
 
-#define CONFIG_BOOTCOMMAND "printenv"
-
 /*----------------------------------------------------------------------*
  * Options								*
  *----------------------------------------------------------------------*/

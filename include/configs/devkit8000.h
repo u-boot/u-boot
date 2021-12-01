@@ -126,8 +126,6 @@
 			"fi; " \
 		"else run nandboot; fi\0"
 
-#define CONFIG_BOOTCOMMAND "run autoboot"
-
 /* Boot Argument Buffer Size */
 
 /* Defines for SPL */

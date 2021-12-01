@@ -40,7 +40,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND ""
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootargs=console=ttyS0,115200\0" \

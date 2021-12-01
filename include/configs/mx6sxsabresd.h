@@ -107,19 +107,6 @@
 		"if test test $board_rev = REVA ; then " \
 			"setenv fdt_file imx6sx-sdb-reva.dtb; fi; " \
 
-#define CONFIG_BOOTCOMMAND \
-	   "run findfdt; " \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if run loadimage; then " \
-				   "run mmcboot; " \
-			   "else run netboot; " \
-			   "fi; " \
-		   "fi; " \
-	   "else run netboot; fi"
-
 /* Miscellaneous configurable options */
 
 /* Physical Memory Map */

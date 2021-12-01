@@ -17,6 +17,8 @@ CONFIG_NAND_BOOT=y
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="fbcon=rotate:3 console=tty0 console=ttyS0,115200 root=/dev/mtdblock4 mtdparts=atmel_nand:128k(bootstrap)ro,256k(uboot)ro,1664k(env),2M(linux)ro,-(root) rw rootfstype=jffs2"
+CONFIG_USE_BOOTCOMMAND=y
+CONFIG_BOOTCOMMAND="nand read 0x70000000 0x200000 0x300000;bootm 0x70000000"
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_HUSH_PARSER=y

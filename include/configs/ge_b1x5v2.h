@@ -119,6 +119,4 @@
 		"run showsplashscreen; sleep 1; " \
 		"run doboot; run failbootcmd;\0" \
 
-#define CONFIG_BOOTCOMMAND "run tryboot;"
-
 #endif /* __GE_B1X5V2_CONFIG_H */

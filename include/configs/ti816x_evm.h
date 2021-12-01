@@ -17,11 +17,6 @@
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 
-#define CONFIG_BOOTCOMMAND			\
-	"mmc rescan;"				\
-	"fatload mmc 0 ${loadaddr} uImage;"	\
-	"bootm ${loadaddr}"			\
-
 /* Clock Defines */
 #define V_OSCK          24000000    /* Clock output from T2 */
 #define V_SCLK          (V_OSCK >> 1)

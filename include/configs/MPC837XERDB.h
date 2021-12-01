@@ -365,20 +365,4 @@
 							"$netdev:off "	\
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0"
 
-#define NFSBOOTCOMMAND						\
-	"setenv rootdev /dev/nfs;"					\
-	"run setbootargs;"						\
-	"run setipargs;"						\
-	"tftp $loadaddr $bootfile;"					\
-	"tftp $fdtaddr $fdtfile;"					\
-	"bootm $loadaddr - $fdtaddr"
-
-#define RAMBOOTCOMMAND						\
-	"setenv rootdev /dev/ram;"					\
-	"run setbootargs;"						\
-	"tftp $ramdiskaddr $ramdiskfile;"				\
-	"tftp $loadaddr $bootfile;"					\
-	"tftp $fdtaddr $fdtfile;"					\
-	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
 #endif	/* __CONFIG_H */

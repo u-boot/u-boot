@@ -42,7 +42,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_BOOTCOMMAND	"run ${bootpri} ; run ${bootsec}"
 
 /* Extra Environment */
 #define CONFIG_HOSTNAME		"xea"

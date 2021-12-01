@@ -19,14 +19,6 @@
 /*
  * Environment settings
  */
-#define	CONFIG_BOOTCOMMAND						\
-	"if fatload mmc 0 0xa0000000 uImage; then "			\
-		"bootm 0xa0000000; "					\
-	"fi; "								\
-	"if usb reset && fatload usb 0 0xa0000000 uImage; then "	\
-		"bootm 0xa0000000; "					\
-	"fi; "								\
-	"bootm 0xc0000;"
 #define	CONFIG_TIMESTAMP
 
 /*

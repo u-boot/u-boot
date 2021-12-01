@@ -23,15 +23,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND \
-	"setenv bootargs ${console} ${mtdparts} ${bootargs_root}; "	\
-	"ubi part root; "						\
-	"ubifsmount ubi:rootfs; "					\
-	"ubifsload 0x800000 ${kernel}; "				\
-	"ubifsload 0x700000 ${fdt}; "					\
-	"ubifsumount; "							\
-	"fdt addr 0x700000; fdt resize; fdt chosen; "			\
-	"bootz 0x800000 - 0x700000"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0"				\

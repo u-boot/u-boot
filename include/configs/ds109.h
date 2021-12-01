@@ -30,10 +30,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND		"setenv ethact egiga0; " \
-	"${x_bootcmd_ethernet}; ${x_bootcmd_usb}; ${x_bootcmd_kernel}; "\
-	"setenv bootargs ${x_bootargs} ${x_bootargs_root}; "	\
-	"bootm 0x6400000;"
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"x_bootcmd_ethernet=ping 192.168.1.2\0"	\

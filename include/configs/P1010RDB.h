@@ -681,16 +681,6 @@ extern unsigned long get_sdram_size(void);
 	"i2c mw 19 1 4; i2c mw 19 3 f3; reset\0"
 #endif
 
-#define RAMBOOTCOMMAND		\
-	"setenv bootargs root=/dev/ram rw "	\
-	"console=$consoledev,$baudrate $othbootargs; "	\
-	"tftp $ramdiskaddr $ramdiskfile;"	\
-	"tftp $loadaddr $bootfile;"		\
-	"tftp $fdtaddr $fdtfile;"		\
-	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_BOOTCOMMAND RAMBOOTCOMMAND
-
 #include <asm/fsl_secure_boot.h>
 
 #endif	/* __CONFIG_H */

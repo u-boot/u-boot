@@ -18,7 +18,6 @@
 #define CONFIG_SYS_FLASH_BASE		0x20000000
 
 /* DDR */
-#define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
 #define CONFIG_SYS_FSL_DDR_INTLV_256B	/* force 256 byte interleaving */
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE		0x80000000UL
@@ -38,7 +37,6 @@
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD on I2C bus 0 */
 #define CONFIG_DIMM_SLOTS_PER_CTLR	2
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
-#define CONFIG_FSL_DDR_BIST	/* enable built-in memory test */
 #define CONFIG_SYS_MONITOR_LEN		(936 * 1024)
 
 /* Miscellaneous configurable options */

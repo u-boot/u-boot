@@ -13,7 +13,6 @@
 #define CONFIG_MCFTMR
 #define CONFIG_SYS_UART_PORT		0
 
-#define CONFIG_BOOTCOMMAND		"bootm ffc20000"
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"upgrade_uboot=loady; "					\
 		"protect off 0xffc00000 0xffc1ffff; "		\

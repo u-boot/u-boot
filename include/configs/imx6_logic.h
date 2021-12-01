@@ -108,8 +108,6 @@
 		"fi; " \
 	"fi; " \
 	"else run netboot; fi"
-#define CONFIG_BOOTCOMMAND \
-	"run autoboot"
 
 #define CONFIG_ARP_TIMEOUT     200UL
 

@@ -378,18 +378,6 @@
 		"bootm $load_addr#$board\0"
 #endif
 
-#undef CONFIG_BOOTCOMMAND
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
-			   "env exists secureboot && esbc_halt"
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
-			   "env exists secureboot && esbc_halt;"
-#else
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd;"	\
-			   "env exists secureboot && esbc_halt;"
-#endif
-
 /*
  * Miscellaneous configurable options
  */
