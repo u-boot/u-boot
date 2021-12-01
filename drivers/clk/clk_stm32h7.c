@@ -835,7 +835,7 @@ static int stm32_clk_of_xlate(struct clk *clk,
 			struct ofnode_phandle_args *args)
 {
 	if (args->args_count != 1) {
-		dev_dbg(clk->dev, "Invaild args_count: %d\n", args->args_count);
+		dev_dbg(clk->dev, "Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 

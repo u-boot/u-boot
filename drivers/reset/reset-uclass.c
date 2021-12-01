@@ -26,7 +26,7 @@ static int reset_of_xlate_default(struct reset_ctl *reset_ctl,
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
 	if (args->args_count != 1) {
-		debug("Invaild args_count: %d\n", args->args_count);
+		debug("Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 

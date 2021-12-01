@@ -35,7 +35,7 @@ static int dma_of_xlate_default(struct dma *dma,
 	debug("%s(dma=%p)\n", __func__, dma);
 
 	if (args->args_count > 1) {
-		pr_err("Invaild args_count: %d\n", args->args_count);
+		pr_err("Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 

@@ -130,7 +130,7 @@ static int mux_of_xlate_default(struct mux_chip *mux_chip,
 	log_debug("%s(muxp=%p)\n", __func__, muxp);
 
 	if (args->args_count > 1) {
-		debug("Invaild args_count: %d\n", args->args_count);
+		debug("Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 

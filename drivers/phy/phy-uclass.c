@@ -23,7 +23,7 @@ static int generic_phy_xlate_offs_flags(struct phy *phy,
 	debug("%s(phy=%p)\n", __func__, phy);
 
 	if (args->args_count > 1) {
-		debug("Invaild args_count: %d\n", args->args_count);
+		debug("Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 
