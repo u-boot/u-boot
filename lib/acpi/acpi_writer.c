@@ -102,6 +102,14 @@ int write_dev_tables(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	return 0;
 }
 ACPI_WRITER(8dev, NULL, write_dev_tables, 0);
+
+ulong acpi_get_rsdp_addr(void)
+{
+	if (!gd->acpi_ctx)
+		return 0;
+
+	return map_to_sysmem(gd->acpi_ctx->rsdp);
+}
 #endif /* QEMU */
 
 void acpi_setup_ctx(struct acpi_ctx *ctx, ulong start)

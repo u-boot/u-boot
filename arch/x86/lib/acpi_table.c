@@ -29,9 +29,6 @@
 #include <dm/acpi.h>
 #include <linux/err.h>
 
-/* ACPI RSDP address to be used in boot parameters */
-static ulong acpi_rsdp_addr;
-
 static int acpi_create_madt_lapic(struct acpi_madt_lapic *lapic,
 				  u8 cpu, u8 apic)
 {
@@ -512,24 +509,6 @@ int acpi_write_mcfg(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	return 0;
 }
 ACPI_WRITER(5mcfg, "MCFG", acpi_write_mcfg, 0);
-
-/*
- * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
- */
-int write_acpi_tables_x86(struct acpi_ctx *ctx,
-			  const struct acpi_writer *entry)
-{
-	acpi_rsdp_addr = (unsigned long)ctx->rsdp;
-	debug("ACPI: done\n");
-
-	return 0;
-}
-ACPI_WRITER(9x86, NULL, write_acpi_tables_x86, 0);
-
-ulong acpi_get_rsdp_addr(void)
-{
-	return acpi_rsdp_addr;
-}
 
 /**
  * acpi_write_hpet() - Write out a HPET table
