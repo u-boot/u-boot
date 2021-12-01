@@ -88,9 +88,9 @@ struct bd_info;
 #define IMX6_SRC_GPR10_PERSIST_SECONDARY_BOOT	BIT(30)
 
 #define IMX6_BMODE_MASK			GENMASK(7, 0)
-#define	IMX6_BMODE_SHIFT		4
-#define IMX6_BMODE_EMI_MASK		BIT(3)
-#define IMX6_BMODE_EMI_SHIFT		3
+#define IMX6_BMODE_SHIFT		4
+#define IMX6_BMODE_EIM_MASK		BIT(3)
+#define IMX6_BMODE_EIM_SHIFT		3
 #define IMX6_BMODE_SERIAL_ROM_MASK	GENMASK(26, 24)
 #define IMX6_BMODE_SERIAL_ROM_SHIFT	24
 
@@ -105,13 +105,13 @@ enum imx6_bmode_serial_rom {
 	IMX6_BMODE_I2C3,
 };
 
-enum imx6_bmode_emi {
+enum imx6_bmode_eim {
 	IMX6_BMODE_NOR,
 	IMX6_BMODE_ONENAND,
 };
 
 enum imx6_bmode {
-	IMX6_BMODE_EMI,
+	IMX6_BMODE_EIM,
 #if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
 	IMX6_BMODE_QSPI,
 	IMX6_BMODE_RESERVED,
