@@ -519,8 +519,6 @@ ACPI_WRITER(5mcfg, "MCFG", acpi_write_mcfg, 0);
 int write_acpi_tables_x86(struct acpi_ctx *ctx,
 			  const struct acpi_writer *entry)
 {
-	acpi_write_dev_tables(ctx);
-
 	acpi_rsdp_addr = (unsigned long)ctx->rsdp;
 	debug("ACPI: done\n");
 

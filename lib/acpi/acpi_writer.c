@@ -90,6 +90,18 @@ ulong write_acpi_tables(ulong start_addr)
 
 	return addr;
 }
+
+int write_dev_tables(struct acpi_ctx *ctx, const struct acpi_writer *entry)
+{
+	int ret;
+
+	ret = acpi_write_dev_tables(ctx);
+	if (ret)
+		return log_msg_ret("write", ret);
+
+	return 0;
+}
+ACPI_WRITER(8dev, NULL, write_dev_tables, 0);
 #endif /* QEMU */
 
 void acpi_setup_ctx(struct acpi_ctx *ctx, ulong start)
