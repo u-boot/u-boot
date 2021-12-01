@@ -16,6 +16,12 @@
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include "stm32mp1_ddr.h"
+#include "stm32mp1_ddr_regs.h"
+
+/* DDR subsystem configuration */
+struct stm32mp1_ddr_cfg {
+	u8 nb_bytes;	/* MEMC_DRAM_DATA_WIDTH */
+};
 
 static const char *const clkname[] = {
 	"ddrc1",
@@ -82,7 +88,7 @@ static ofnode stm32mp1_ddr_get_ofnode(struct udevice *dev)
 	return dev_ofnode(dev);
 }
 
-static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
+static int stm32mp1_ddr_setup(struct udevice *dev)
 {
 	struct ddr_info *priv = dev_get_priv(dev);
 	int ret;
@@ -95,26 +101,22 @@ static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 	{	.name = x,						\
 		.offset = offsetof(struct stm32mp1_ddr_config, y),	\
 		.size = sizeof(config.y) / sizeof(u32),			\
-		.present = z,						\
 	}
 
 #define CTL_PARAM(x) PARAM("st,ctl-"#x, c_##x, NULL)
 #define PHY_PARAM(x) PARAM("st,phy-"#x, p_##x, NULL)
-#define PHY_PARAM_OPT(x) PARAM("st,phy-"#x, p_##x, &config.p_##x##_present)
 
 	const struct {
 		const char *name; /* name in DT */
 		const u32 offset; /* offset in config struct */
 		const u32 size;   /* size of parameters */
-		bool * const present;  /* presence indication for opt */
 	} param[] = {
 		CTL_PARAM(reg),
 		CTL_PARAM(timing),
 		CTL_PARAM(map),
 		CTL_PARAM(perf),
 		PHY_PARAM(reg),
-		PHY_PARAM(timing),
-		PHY_PARAM_OPT(cal)
+		PHY_PARAM(timing)
 	};
 
 	config.info.speed = ofnode_read_u32_default(node, "st,mem-speed", 0);
@@ -133,24 +135,10 @@ static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 					 param[idx].size);
 		dev_dbg(dev, "%s: %s[0x%x] = %d\n", __func__,
 			param[idx].name, param[idx].size, ret);
-		if (ret &&
-		    (ret != -FDT_ERR_NOTFOUND || !param[idx].present)) {
+		if (ret) {
 			dev_err(dev, "Cannot read %s, error=%d\n",
 				param[idx].name, ret);
 			return -EINVAL;
-		}
-		if (param[idx].present) {
-			/* save presence of optional parameters */
-			*param[idx].present = true;
-			if (ret == -FDT_ERR_NOTFOUND) {
-				*param[idx].present = false;
-#ifdef CONFIG_STM32MP1_DDR_INTERACTIVE
-				/* reset values if used later */
-				memset((void *)((u32)&config +
-						param[idx].offset),
-					0, param[idx].size * sizeof(u32));
-#endif
-			}
 		}
 	}
 
@@ -183,6 +171,183 @@ static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 	return 0;
 }
 
+static u8 get_data_bus_width(struct stm32mp1_ddrctl *ctl)
+{
+	u32 reg = readl(&ctl->mstr) & DDRCTRL_MSTR_DATA_BUS_WIDTH_MASK;
+	u8 data_bus_width = reg >> DDRCTRL_MSTR_DATA_BUS_WIDTH_SHIFT;
+
+	return data_bus_width;
+}
+
+static u8 get_nb_bank(struct stm32mp1_ddrctl *ctl)
+{
+	/* Count bank address bits */
+	u8 bits = 0;
+	u32 reg, val;
+
+	reg = readl(&ctl->addrmap1);
+	/* addrmap1.addrmap_bank_b1 */
+	val = (reg & GENMASK(5, 0)) >> 0;
+	if (val <= 31)
+		bits++;
+	/* addrmap1.addrmap_bank_b2 */
+	val = (reg & GENMASK(13, 8)) >> 8;
+	if (val <= 31)
+		bits++;
+	/* addrmap1.addrmap_bank_b3 */
+	val = (reg & GENMASK(21, 16)) >> 16;
+	if (val <= 31)
+		bits++;
+
+	return bits;
+}
+
+static u8 get_nb_col(struct stm32mp1_ddrctl *ctl, u8 data_bus_width)
+{
+	u8 bits;
+	u32 reg, val;
+
+	/* Count column address bits, start at 2 for b0 and b1 (fixed) */
+	bits = 2;
+
+	reg = readl(&ctl->addrmap2);
+	/* addrmap2.addrmap_col_b2 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap2.addrmap_col_b3 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+	/* addrmap2.addrmap_col_b4 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 7)
+		bits++;
+	/* addrmap2.addrmap_col_b5 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 7)
+		bits++;
+
+	reg = readl(&ctl->addrmap3);
+	/* addrmap3.addrmap_col_b6 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap3.addrmap_col_b7 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+	/* addrmap3.addrmap_col_b8 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 7)
+		bits++;
+	/* addrmap3.addrmap_col_b9 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 7)
+		bits++;
+
+	reg = readl(&ctl->addrmap4);
+	/* addrmap4.addrmap_col_b10 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap4.addrmap_col_b11 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+
+	/*
+	 * column bits shift up:
+	 * 1 when half the data bus is used (data_bus_width = 1)
+	 * 2 when a quarter the data bus is used (data_bus_width = 2)
+	 * nothing to do for full data bus (data_bus_width = 0)
+	 */
+	bits += data_bus_width;
+
+	return bits;
+}
+
+static u8 get_nb_row(struct stm32mp1_ddrctl *ctl)
+{
+	/* Count row address bits */
+	u8 bits = 0;
+	u32 reg, val;
+
+	reg = readl(&ctl->addrmap5);
+	/* addrmap5.addrmap_row_b0 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 11)
+		bits++;
+	/* addrmap5.addrmap_row_b1 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 11)
+		bits++;
+	/* addrmap5.addrmap_row_b2_10 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 11)
+		bits += 9;
+	else
+		printf("warning: addrmap5.addrmap_row_b2_10 not supported\n");
+	/* addrmap5.addrmap_row_b11 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 11)
+		bits++;
+
+	reg = readl(&ctl->addrmap6);
+	/* addrmap6.addrmap_row_b12 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap6.addrmap_row_b13 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+	/* addrmap6.addrmap_row_b14 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 7)
+		bits++;
+	/* addrmap6.addrmap_row_b15 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 7)
+		bits++;
+
+	return bits;
+}
+
+/*
+ * stm32mp1_ddr_size
+ *
+ * Get the current DRAM size from the DDR CTL registers
+ *
+ * @return: DRAM size
+ */
+u32 stm32mp1_ddr_size(struct udevice *dev)
+{
+	u8 nb_bit;
+	u32 ddr_size;
+	u8 data_bus_width;
+	struct ddr_info *priv = dev_get_priv(dev);
+	struct stm32mp1_ddrctl *ctl = priv->ctl;
+	struct stm32mp1_ddr_cfg *cfg = (struct stm32mp1_ddr_cfg *)dev_get_driver_data(dev);
+	const u8 nb_bytes = cfg->nb_bytes;
+
+	data_bus_width = get_data_bus_width(ctl);
+	nb_bit = get_nb_bank(ctl) + get_nb_col(ctl, data_bus_width) +
+		 get_nb_row(ctl);
+	if (nb_bit > 32) {
+		nb_bit = 32;
+		debug("invalid DDR configuration: %d bits\n", nb_bit);
+	}
+
+	ddr_size = (nb_bytes >> data_bus_width) << nb_bit;
+	if (ddr_size > STM32_DDR_SIZE) {
+		ddr_size = STM32_DDR_SIZE;
+		debug("invalid DDR configuration: size = %x\n", ddr_size);
+	}
+
+	return ddr_size;
+}
+
 static int stm32mp1_ddr_probe(struct udevice *dev)
 {
 	struct ddr_info *priv = dev_get_priv(dev);
@@ -209,8 +374,8 @@ static int stm32mp1_ddr_probe(struct udevice *dev)
 		return log_ret(ret);
 	}
 
-	ofnode node = stm32mp1_ddr_get_ofnode(dev);
-	priv->info.size = ofnode_read_u32_default(node, "st,mem-size", 0);
+	priv->info.size = stm32mp1_ddr_size(dev);
+
 	return 0;
 }
 
@@ -227,8 +392,12 @@ static struct ram_ops stm32mp1_ddr_ops = {
 	.get_info = stm32mp1_ddr_get_info,
 };
 
+static const struct stm32mp1_ddr_cfg stm32mp15x_ddr_cfg = {
+	.nb_bytes = 4,
+};
+
 static const struct udevice_id stm32mp1_ddr_ids[] = {
-	{ .compatible = "st,stm32mp1-ddr" },
+	{ .compatible = "st,stm32mp1-ddr", .data = (ulong)&stm32mp15x_ddr_cfg},
 	{ }
 };
 

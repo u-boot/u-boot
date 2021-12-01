@@ -459,7 +459,10 @@ static int stm32_ltdc_bind(struct udevice *dev)
 	uc_plat->size = CONFIG_VIDEO_STM32_MAX_XRES *
 			CONFIG_VIDEO_STM32_MAX_YRES *
 			(CONFIG_VIDEO_STM32_MAX_BPP >> 3);
-	dev_dbg(dev, "frame buffer max size %d bytes\n", uc_plat->size);
+	/* align framebuffer on kernel MMU_SECTION_SIZE = max 2MB for LPAE */
+	uc_plat->align = SZ_2M;
+	dev_dbg(dev, "frame buffer max size %d bytes align %x\n",
+		uc_plat->size, uc_plat->align);
 
 	return 0;
 }

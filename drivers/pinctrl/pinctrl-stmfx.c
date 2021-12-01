@@ -5,8 +5,12 @@
  * Driver for STMicroelectronics Multi-Function eXpander (STMFX) GPIO expander
  * based on Linux driver : pinctrl/pinctrl-stmfx.c
  */
+
+#define LOG_CATEGORY UCLASS_PINCTRL
+
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <i2c.h>
 #include <asm/gpio.h>
 #include <dm/device.h>

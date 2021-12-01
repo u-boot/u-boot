@@ -228,6 +228,20 @@ void video_sync_all(void)
 	}
 }
 
+bool video_is_active(void)
+{
+	struct udevice *dev;
+
+	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
+	     dev;
+	     uclass_find_next_device(&dev)) {
+		if (device_active(dev))
+			return true;
+	}
+
+	return false;
+}
+
 int video_get_xsize(struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);

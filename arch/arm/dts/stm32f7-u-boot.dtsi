@@ -7,7 +7,7 @@
 
 		fmc: fmc@A0000000 {
 			compatible = "st,stm32-fmc";
-			reg = <0xA0000000 0x1000>;
+			reg = <0xa0000000 0x1000>;
 			clocks = <&rcc 0 STM32F7_AHB3_CLOCK(FMC)>;
 			pinctrl-0 = <&fmc_pins>;
 			pinctrl-names = "default";
@@ -46,7 +46,7 @@
 			compatible = "st,stm32f469-qspi";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0xA0001000 0x1000>, <0x90000000 0x10000000>;
+			reg = <0xa0001000 0x1000>, <0x90000000 0x10000000>;
 			reg-names = "qspi", "qspi_mm";
 			interrupts = <92>;
 			spi-max-frequency = <108000000>;
