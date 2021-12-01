@@ -202,6 +202,24 @@ config LIB_HW_RAND
 
 endchoice
 
+config SUPPORT_ACPI
+	bool
+	help
+	  Enable this if your arch or board can support generating ACPI
+	  (Advanced Configuration and Power Interface) tables. In this case
+	  U-Boot can generate these tables and pass them to the Operating
+	  System.
+
+config GENERATE_ACPI_TABLE
+	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
+	depends on SUPPORT_ACPI
+	select QFW if QEMU
+	help
+	  The Advanced Configuration and Power Interface (ACPI) specification
+	  provides an open standard for device configuration and management
+	  by the operating system. It defines platform-independent interfaces
+	  for configuration and power management monitoring.
+
 config SPL_TINY_MEMSET
 	bool "Use a very small memset() in SPL"
 	help
