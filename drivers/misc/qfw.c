@@ -14,6 +14,7 @@
 #include <qfw.h>
 #include <dm.h>
 #include <misc.h>
+#include <tables_csum.h>
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 #include <asm/tables.h>
 #endif
