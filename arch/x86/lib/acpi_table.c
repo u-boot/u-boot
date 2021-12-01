@@ -523,13 +523,27 @@ int acpi_write_gnvs(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 }
 ACPI_WRITER(4gnvs, "GNVS", acpi_write_gnvs, 0);
 
+static int acpi_write_fadt(struct acpi_ctx *ctx,
+			   const struct acpi_writer *entry)
+{
+	struct acpi_fadt *fadt;
+
+	fadt = ctx->current;
+	acpi_create_fadt(fadt, ctx->facs, ctx->dsdt);
+	acpi_add_table(ctx, fadt);
+
+	acpi_inc(ctx, sizeof(struct acpi_fadt));
+
+	return 0;
+}
+ACPI_WRITER(5fact, "FADT", acpi_write_fadt, 0);
+
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
 int write_acpi_tables_x86(struct acpi_ctx *ctx,
 			  const struct acpi_writer *entry)
 {
-	struct acpi_fadt *fadt;
 	struct acpi_table_header *ssdt;
 	struct acpi_mcfg *mcfg;
 	struct acpi_tcpa *tcpa;
@@ -537,12 +551,6 @@ int write_acpi_tables_x86(struct acpi_ctx *ctx,
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
 	int ret;
-
-	debug("ACPI:    * FADT\n");
-	fadt = ctx->current;
-	acpi_inc_align(ctx, sizeof(struct acpi_fadt));
-	acpi_create_fadt(fadt, ctx->facs, ctx->dsdt);
-	acpi_add_table(ctx, fadt);
 
 	debug("ACPI:     * SSDT\n");
 	ssdt = (struct acpi_table_header *)ctx->current;
