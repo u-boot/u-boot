@@ -109,11 +109,14 @@ static u32 acpi_fill_csrt_dma(struct acpi_csrt_group *grp)
 	return grp->length;
 }
 
-u32 acpi_fill_csrt(u32 current)
+int acpi_fill_csrt(struct acpi_ctx *ctx)
 {
-	current += acpi_fill_csrt_dma((struct acpi_csrt_group *)current);
+	int size;
 
-	return current;
+	size = acpi_fill_csrt_dma(ctx->current);
+	acpi_inc(ctx, size);
+
+	return 0;
 }
 
 int acpi_create_gnvs(struct acpi_global_nvs *gnvs)

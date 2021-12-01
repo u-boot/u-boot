@@ -696,6 +696,18 @@ void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
  */
 void acpi_fill_header(struct acpi_table_header *header, char *signature);
 
+/**
+ * acpi_fill_csrt() - Fill out the body of the CSRT
+ *
+ * This should write the contents of the Core System Resource Table (CSRT)
+ * to the context. The header (struct acpi_table_header) has already been
+ * written.
+ *
+ * @ctx: ACPI context to write to
+ * @return 0 if OK, -ve on error
+ */
+int acpi_fill_csrt(struct acpi_ctx *ctx);
+
 #endif /* !__ACPI__*/
 
 #include <asm/acpi_table.h>

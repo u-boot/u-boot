@@ -13,7 +13,7 @@
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
 
-__weak u32 acpi_fill_csrt(u32 current)
+__weak int acpi_fill_csrt(struct acpi_ctx *ctx)
 {
 	return 0;
 }
@@ -22,7 +22,7 @@ int acpi_write_csrt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
 	struct acpi_table_header *header;
 	struct acpi_csrt *csrt;
-	uint ptr;
+	int ret;
 
 	csrt = ctx->current;
 	header = &csrt->header;
@@ -31,19 +31,18 @@ int acpi_write_csrt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 
 	/* Fill out header fields */
 	acpi_fill_header(header, "CSRT");
-	header->length = sizeof(struct acpi_csrt);
 	header->revision = 0;
+	acpi_inc(ctx, sizeof(*header));
 
-	ptr = acpi_fill_csrt(map_to_sysmem(csrt));
-	if (!ptr)
-		return log_msg_ret("fill", -ENOENT);
+	ret = acpi_fill_csrt(ctx);
+	if (ret)
+		return log_msg_ret("fill", ret);
 
 	/* (Re)calculate length and checksum */
 	header->length = (ulong)ctx->current - (ulong)csrt;
 	header->checksum = table_compute_checksum(csrt, header->length);
 
 	acpi_add_table(ctx, csrt);
-	acpi_inc(ctx, csrt->header.length);
 
 	return 0;
 }
