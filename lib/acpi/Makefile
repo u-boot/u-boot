@@ -10,4 +10,5 @@ obj-y += acpi_writer.o
 # With QEMU the ACPI tables come from there, not from U-Boot
 ifndef CONFIG_QEMU
 obj-y += base.o
+obj-y += facs.o
 endif

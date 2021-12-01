@@ -38,21 +38,6 @@ extern const unsigned char AmlCode[];
 /* ACPI RSDP address to be used in boot parameters */
 static ulong acpi_rsdp_addr;
 
-static void acpi_create_facs(struct acpi_facs *facs)
-{
-	memset((void *)facs, 0, sizeof(struct acpi_facs));
-
-	memcpy(facs->signature, "FACS", 4);
-	facs->length = sizeof(struct acpi_facs);
-	facs->hardware_signature = 0;
-	facs->firmware_waking_vector = 0;
-	facs->global_lock = 0;
-	facs->flags = 0;
-	facs->x_firmware_waking_vector_l = 0;
-	facs->x_firmware_waking_vector_h = 0;
-	facs->version = 1;
-}
-
 static int acpi_create_madt_lapic(struct acpi_madt_lapic *lapic,
 				  u8 cpu, u8 apic)
 {
@@ -507,7 +492,6 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 				 const struct acpi_writer *entry)
 {
 	const int thl = sizeof(struct acpi_table_header);
-	struct acpi_facs *facs;
 	struct acpi_table_header *dsdt;
 	struct acpi_fadt *fadt;
 	struct acpi_table_header *ssdt;
@@ -520,12 +504,6 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 	ulong addr;
 	int ret;
 	int i;
-
-	debug("ACPI:    * FACS\n");
-	facs = ctx->current;
-	acpi_inc_align(ctx, sizeof(struct acpi_facs));
-
-	acpi_create_facs(facs);
 
 	debug("ACPI:    * DSDT\n");
 	dsdt = ctx->current;
@@ -599,7 +577,7 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 	debug("ACPI:    * FADT\n");
 	fadt = ctx->current;
 	acpi_inc_align(ctx, sizeof(struct acpi_fadt));
-	acpi_create_fadt(fadt, facs, dsdt);
+	acpi_create_fadt(fadt, ctx->facs, dsdt);
 	acpi_add_table(ctx, fadt);
 
 	debug("ACPI:     * SSDT\n");
@@ -666,7 +644,7 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 
 	return 0;
 }
-ACPI_WRITER(x86, NULL, write_acpi_tables_x86, 0);
+ACPI_WRITER(2x86, NULL, write_acpi_tables_x86, 0);
 
 ulong acpi_get_rsdp_addr(void)
 {
