@@ -479,11 +479,55 @@ static int acpi_create_ssdt(struct acpi_ctx *ctx,
 	return 0;
 }
 
+int acpi_write_gnvs(struct acpi_ctx *ctx, const struct acpi_writer *entry)
+{
+	ulong addr;
+
+	if (!IS_ENABLED(CONFIG_ACPI_GNVS_EXTERNAL)) {
+		int i;
+
+		/* We need the DSDT to be done */
+		if (!ctx->dsdt)
+			return log_msg_ret("dsdt", -EAGAIN);
+
+		/* Pack GNVS into the ACPI table area */
+		for (i = 0; i < ctx->dsdt->length; i++) {
+			u32 *gnvs = (u32 *)((u32)ctx->dsdt + i);
+
+			if (*gnvs == ACPI_GNVS_ADDR) {
+				*gnvs = map_to_sysmem(ctx->current);
+				log_debug("Fix up global NVS in DSDT to %#08x\n",
+					  *gnvs);
+				break;
+			}
+		}
+
+		/*
+		 * Recalculate the length and update the DSDT checksum since we
+		 * patched the GNVS address. Set the checksum to zero since it
+		 * is part of the region being checksummed.
+		 */
+		ctx->dsdt->checksum = 0;
+		ctx->dsdt->checksum = table_compute_checksum((void *)ctx->dsdt,
+							     ctx->dsdt->length);
+	}
+
+	/* Fill in platform-specific global NVS variables */
+	addr = acpi_create_gnvs(ctx->current);
+	if (IS_ERR_VALUE(addr))
+		return log_msg_ret("gnvs", (int)addr);
+
+	acpi_inc_align(ctx, sizeof(struct acpi_global_nvs));
+
+	return 0;
+}
+ACPI_WRITER(4gnvs, "GNVS", acpi_write_gnvs, 0);
+
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
-static int write_acpi_tables_x86(struct acpi_ctx *ctx,
-				 const struct acpi_writer *entry)
+int write_acpi_tables_x86(struct acpi_ctx *ctx,
+			  const struct acpi_writer *entry)
 {
 	struct acpi_fadt *fadt;
 	struct acpi_table_header *ssdt;
@@ -492,52 +536,7 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 	struct acpi_madt *madt;
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
-	ulong addr;
 	int ret;
-	int i;
-
-	if (!IS_ENABLED(CONFIG_ACPI_GNVS_EXTERNAL)) {
-		/* Pack GNVS into the ACPI table area */
-		for (i = 0; i < ctx->dsdt->length; i++) {
-			u32 *gnvs = (u32 *)((u32)ctx->dsdt + i);
-
-			if (*gnvs == ACPI_GNVS_ADDR) {
-				*gnvs = map_to_sysmem(ctx->current);
-				debug("Fix up global NVS in DSDT to %#08x\n",
-				      *gnvs);
-				break;
-			}
-		}
-
-		/*
-		 * Fill in platform-specific global NVS variables. If this fails
-		 * we cannot return the error but this should only happen while
-		 * debugging.
-		 */
-		addr = acpi_create_gnvs(ctx->current);
-		if (IS_ERR_VALUE(addr))
-			printf("Error: Gailed to create GNVS\n");
-		acpi_inc_align(ctx, sizeof(struct acpi_global_nvs));
-	}
-
-	/*
-	 * Recalculate the length and update the DSDT checksum since we patched
-	 * the GNVS address. Set the checksum to zero since it is part of the
-	 * region being checksummed.
-	 */
-	ctx->dsdt->checksum = 0;
-	ctx->dsdt->checksum = table_compute_checksum((void *)ctx->dsdt,
-						     ctx->dsdt->length);
-
-	/*
-	 * Fill in platform-specific global NVS variables. If this fails we
-	 * cannot return the error but this should only happen while debugging.
-	 */
-	addr = acpi_create_gnvs(ctx->current);
-	if (IS_ERR_VALUE(addr))
-		printf("Error: Failed to create GNVS\n");
-
-	acpi_inc_align(ctx, sizeof(struct acpi_global_nvs));
 
 	debug("ACPI:    * FADT\n");
 	fadt = ctx->current;
