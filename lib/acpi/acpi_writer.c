@@ -40,6 +40,7 @@ int acpi_write_one(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	return 0;
 }
 
+#ifndef CONFIG_QEMU
 static int acpi_write_all(struct acpi_ctx *ctx)
 {
 	const struct acpi_writer *writer =
@@ -60,7 +61,7 @@ static int acpi_write_all(struct acpi_ctx *ctx)
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
-ulong new_write_acpi_tables(ulong start_addr)
+ulong write_acpi_tables(ulong start_addr)
 {
 	struct acpi_ctx *ctx;
 	ulong addr;
@@ -86,6 +87,7 @@ ulong new_write_acpi_tables(ulong start_addr)
 
 	return addr;
 }
+#endif /* QEMU */
 
 void acpi_setup_ctx(struct acpi_ctx *ctx, ulong start)
 {

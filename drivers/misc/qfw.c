@@ -19,7 +19,7 @@
 #include <asm/tables.h>
 #endif
 
-#ifdef CONFIG_GENERATE_ACPI_TABLE
+#if defined(CONFIG_GENERATE_ACPI_TABLE) && !defined(CONFIG_SANDBOX)
 /*
  * This function allocates memory for ACPI tables
  *

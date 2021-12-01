@@ -503,10 +503,10 @@ static int acpi_create_ssdt(struct acpi_ctx *ctx,
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
-ulong write_acpi_tables(ulong start_addr)
+static int write_acpi_tables_x86(struct acpi_ctx *ctx,
+				 const struct acpi_writer *entry)
 {
 	const int thl = sizeof(struct acpi_table_header);
-	struct acpi_ctx *ctx;
 	struct acpi_facs *facs;
 	struct acpi_table_header *dsdt;
 	struct acpi_fadt *fadt;
@@ -516,22 +516,11 @@ ulong write_acpi_tables(ulong start_addr)
 	struct acpi_madt *madt;
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
-	void *start;
 	int aml_len;
 	ulong addr;
 	int ret;
 	int i;
 
-	ctx = malloc(sizeof(*ctx));
-	if (!ctx)
-		return log_msg_ret("mem", -ENOMEM);
-
-	start = map_sysmem(start_addr, 0);
-
-	debug("ACPI: Writing ACPI tables at %lx\n", start_addr);
-
-	acpi_reset_items();
-	acpi_setup_ctx(ctx, start);
 	acpi_setup_base_tables(ctx);
 
 	debug("ACPI:    * FACS\n");
@@ -674,14 +663,12 @@ ulong write_acpi_tables(ulong start_addr)
 
 	acpi_write_dev_tables(ctx);
 
-	addr = map_to_sysmem(ctx->current);
-	debug("current = %lx\n", addr);
-
 	acpi_rsdp_addr = (unsigned long)ctx->rsdp;
 	debug("ACPI: done\n");
 
-	return addr;
+	return 0;
 }
+ACPI_WRITER(x86, NULL, write_acpi_tables_x86, 0);
 
 ulong acpi_get_rsdp_addr(void)
 {
