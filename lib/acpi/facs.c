@@ -5,6 +5,8 @@
  * Copyright 2021 Google LLC
  */
 
+#define LOG_CATEGORY LOGC_ACPI
+
 #include <common.h>
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>

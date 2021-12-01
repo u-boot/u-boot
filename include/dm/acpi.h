@@ -53,6 +53,7 @@ enum acpi_dump_option {
  * @rsdt: Pointer to the Root System Description Table
  * @xsdt: Pointer to the Extended System Description Table
  * @facs: Pointer to the Firmware ACPI Control Structure
+ * @dsdt: Pointer to the Differentiated System Description Table
  * @nhlt: Intel Non-High-Definition-Audio Link Table (NHLT) pointer, used to
  *	build up information that audio codecs need to provide in the NHLT ACPI
  *	table
@@ -67,6 +68,7 @@ struct acpi_ctx {
 	struct acpi_rsdt *rsdt;
 	struct acpi_xsdt *xsdt;
 	struct acpi_facs *facs;
+	struct acpi_table_header *dsdt;
 	struct nhlt *nhlt;
 	char *len_stack[ACPIGEN_LENSTACK_SIZE];
 	int ltop;

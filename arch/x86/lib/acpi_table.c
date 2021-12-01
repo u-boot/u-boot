@@ -29,12 +29,6 @@
 #include <dm/acpi.h>
 #include <linux/err.h>
 
-/*
- * IASL compiles the dsdt entries and writes the hex values
- * to a C array AmlCode[] (see dsdt.c).
- */
-extern const unsigned char AmlCode[];
-
 /* ACPI RSDP address to be used in boot parameters */
 static ulong acpi_rsdp_addr;
 
@@ -491,8 +485,6 @@ static int acpi_create_ssdt(struct acpi_ctx *ctx,
 static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 				 const struct acpi_writer *entry)
 {
-	const int thl = sizeof(struct acpi_table_header);
-	struct acpi_table_header *dsdt;
 	struct acpi_fadt *fadt;
 	struct acpi_table_header *ssdt;
 	struct acpi_mcfg *mcfg;
@@ -500,42 +492,14 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 	struct acpi_madt *madt;
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
-	int aml_len;
 	ulong addr;
 	int ret;
 	int i;
 
-	debug("ACPI:    * DSDT\n");
-	dsdt = ctx->current;
-
-	/* Put the table header first */
-	memcpy(dsdt, &AmlCode, thl);
-	acpi_inc(ctx, thl);
-	log_debug("DSDT starts at %p, hdr ends at %p\n", dsdt, ctx->current);
-
-	/* If the table is not empty, allow devices to inject things */
-	aml_len = dsdt->length - thl;
-	if (aml_len) {
-		void *base = ctx->current;
-
-		acpi_inject_dsdt(ctx);
-		log_debug("Added %x bytes from inject_dsdt, now at %p\n",
-			  ctx->current - base, ctx->current);
-		log_debug("Copy AML code size %x to %p\n", aml_len,
-			  ctx->current);
-		memcpy(ctx->current, AmlCode + thl, aml_len);
-		acpi_inc(ctx, aml_len);
-	}
-
-	dsdt->length = ctx->current - (void *)dsdt;
-	acpi_align(ctx);
-	log_debug("Updated DSDT length to %x, total %x\n", dsdt->length,
-		  ctx->current - (void *)dsdt);
-
 	if (!IS_ENABLED(CONFIG_ACPI_GNVS_EXTERNAL)) {
 		/* Pack GNVS into the ACPI table area */
-		for (i = 0; i < dsdt->length; i++) {
-			u32 *gnvs = (u32 *)((u32)dsdt + i);
+		for (i = 0; i < ctx->dsdt->length; i++) {
+			u32 *gnvs = (u32 *)((u32)ctx->dsdt + i);
 
 			if (*gnvs == ACPI_GNVS_ADDR) {
 				*gnvs = map_to_sysmem(ctx->current);
@@ -561,8 +525,9 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 	 * the GNVS address. Set the checksum to zero since it is part of the
 	 * region being checksummed.
 	 */
-	dsdt->checksum = 0;
-	dsdt->checksum = table_compute_checksum((void *)dsdt, dsdt->length);
+	ctx->dsdt->checksum = 0;
+	ctx->dsdt->checksum = table_compute_checksum((void *)ctx->dsdt,
+						     ctx->dsdt->length);
 
 	/*
 	 * Fill in platform-specific global NVS variables. If this fails we
@@ -577,7 +542,7 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 	debug("ACPI:    * FADT\n");
 	fadt = ctx->current;
 	acpi_inc_align(ctx, sizeof(struct acpi_fadt));
-	acpi_create_fadt(fadt, ctx->facs, dsdt);
+	acpi_create_fadt(fadt, ctx->facs, ctx->dsdt);
 	acpi_add_table(ctx, fadt);
 
 	debug("ACPI:     * SSDT\n");
@@ -644,7 +609,7 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 
 	return 0;
 }
-ACPI_WRITER(2x86, NULL, write_acpi_tables_x86, 0);
+ACPI_WRITER(9x86, NULL, write_acpi_tables_x86, 0);
 
 ulong acpi_get_rsdp_addr(void)
 {
