@@ -57,9 +57,9 @@ u32 spl_boot_device(void)
 	/* BOOT_CFG1[7:4] - see IMX6DQRM Table 8-8 */
 	switch ((reg & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT) {
 	 /* EIM: See 8.5.1, Table 8-9 */
-	case IMX6_BMODE_EMI:
+	case IMX6_BMODE_EIM:
 		/* BOOT_CFG1[3]: NOR/OneNAND Selection */
-		switch ((reg & IMX6_BMODE_EMI_MASK) >> IMX6_BMODE_EMI_SHIFT) {
+		switch ((reg & IMX6_BMODE_EIM_MASK) >> IMX6_BMODE_EIM_SHIFT) {
 		case IMX6_BMODE_ONENAND:
 			return BOOT_DEVICE_ONENAND;
 		case IMX6_BMODE_NOR:
