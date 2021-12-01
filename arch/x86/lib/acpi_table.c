@@ -521,8 +521,6 @@ static int write_acpi_tables_x86(struct acpi_ctx *ctx,
 	int ret;
 	int i;
 
-	acpi_setup_base_tables(ctx);
-
 	debug("ACPI:    * FACS\n");
 	facs = ctx->current;
 	acpi_inc_align(ctx, sizeof(struct acpi_facs));

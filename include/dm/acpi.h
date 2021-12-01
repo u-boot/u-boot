@@ -72,9 +72,11 @@ struct acpi_ctx {
 
 /**
  * enum acpi_writer_flags_t - flags to use for the ACPI writers
+ *
+ * ACPIWF_ALIGN64 - align to 64 bytes after writing this one (default is 16)
  */
 enum acpi_writer_flags_t {
-	ACPIWF_ALIGN64_,
+	ACPIWF_ALIGN64	= 1 << 0,
 };
 
 struct acpi_writer;
@@ -103,7 +105,7 @@ struct acpi_writer {
 	int flags;
 };
 
-/* Declare a new ACPI table writer */
+/* Declare a new ACPI-table writer */
 #define ACPI_WRITER(_name, _table, _write, _flags)					\
 	ll_entry_declare(struct acpi_writer, _name, acpi_writer) = {	\
 		.name = #_name,						\
@@ -111,6 +113,10 @@ struct acpi_writer {
 		.h_write = _write,					\
 		.flags = _flags,					\
 	}
+
+/* Get a pointer to a given ACPI-table writer */
+#define ACPI_WRITER_GET(_name)						\
+	ll_entry_get(struct acpi_writer, _name, acpi_writer)
 
 /**
  * struct acpi_ops - ACPI operations supported by driver model
@@ -308,6 +314,19 @@ int acpi_write_one(struct acpi_ctx *ctx, const struct acpi_writer *entry);
  * @start: Start address for ACPI table
  */
 void acpi_setup_ctx(struct acpi_ctx *ctx, ulong start);
+
+/**
+ * acpi_write_one() - Call a single ACPI writer entry
+ *
+ * This handles aligning the context afterwards, if the entry flags indicate
+ * that.
+ *
+ * @ctx: ACPI context to use
+ * @entry: Entry to call
+ * @return 0 if OK, -ENOENT if this writer produced an empty entry, other -ve
+ * value on error
+ */
+int acpi_write_one(struct acpi_ctx *ctx, const struct acpi_writer *entry);
 
 #endif /* __ACPI__ */
 

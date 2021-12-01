@@ -679,16 +679,6 @@ void acpi_inc_align(struct acpi_ctx *ctx, uint amount);
 int acpi_add_table(struct acpi_ctx *ctx, void *table);
 
 /**
- * acpi_setup_base_tables() - Set up base tables - RSDP, RSDT and XSDT
- *
- * Writes the basic tables to the given context, which must first be set up with
- * acpi_setup_ctx().
- *
- * @ctx: Context to write base tables to
- */
-void acpi_setup_base_tables(struct acpi_ctx *ctx);
-
-/**
  * acpi_write_rsdp() - Write out an RSDP indicating where the ACPI tables are
  *
  * @rsdp: Address to write RSDP
