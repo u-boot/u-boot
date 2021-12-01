@@ -523,21 +523,6 @@ int acpi_write_gnvs(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 }
 ACPI_WRITER(4gnvs, "GNVS", acpi_write_gnvs, 0);
 
-static int acpi_write_fadt(struct acpi_ctx *ctx,
-			   const struct acpi_writer *entry)
-{
-	struct acpi_fadt *fadt;
-
-	fadt = ctx->current;
-	acpi_create_fadt(fadt, ctx->facs, ctx->dsdt);
-	acpi_add_table(ctx, fadt);
-
-	acpi_inc(ctx, sizeof(struct acpi_fadt));
-
-	return 0;
-}
-ACPI_WRITER(5fact, "FADT", acpi_write_fadt, 0);
-
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
