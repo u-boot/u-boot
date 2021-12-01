@@ -17,4 +17,5 @@ obj-y += dsdt.o
 endif
 
 obj-y += facs.o
+obj-y += ssdt.o
 endif

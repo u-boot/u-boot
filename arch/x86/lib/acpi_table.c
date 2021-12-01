@@ -176,26 +176,6 @@ __weak u32 acpi_fill_mcfg(u32 current)
 	return current;
 }
 
-/* MCFG is defined in the PCI Firmware Specification 3.0 */
-static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
-{
-	struct acpi_table_header *header = &(mcfg->header);
-	u32 current = (u32)mcfg + sizeof(struct acpi_mcfg);
-
-	memset((void *)mcfg, 0, sizeof(struct acpi_mcfg));
-
-	/* Fill out header fields */
-	acpi_fill_header(header, "MCFG");
-	header->length = sizeof(struct acpi_mcfg);
-	header->revision = 1;
-
-	current = acpi_fill_mcfg(current);
-
-	/* (Re)calculate length and checksum */
-	header->length = current - (u32)mcfg;
-	header->checksum = table_compute_checksum((void *)mcfg, header->length);
-}
-
 /**
  * acpi_create_tcpa() - Create a TCPA table
  *
@@ -449,36 +429,6 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	header->checksum = table_compute_checksum((void *)spcr, header->length);
 }
 
-static int acpi_create_ssdt(struct acpi_ctx *ctx,
-			    struct acpi_table_header *ssdt,
-			    const char *oem_table_id)
-{
-	memset((void *)ssdt, '\0', sizeof(struct acpi_table_header));
-
-	acpi_fill_header(ssdt, "SSDT");
-	ssdt->revision = acpi_get_table_revision(ACPITAB_SSDT);
-	ssdt->aslc_revision = 1;
-	ssdt->length = sizeof(struct acpi_table_header);
-
-	acpi_inc(ctx, sizeof(struct acpi_table_header));
-
-	acpi_fill_ssdt(ctx);
-
-	/* (Re)calculate length and checksum */
-	ssdt->length = ctx->current - (void *)ssdt;
-	ssdt->checksum = table_compute_checksum((void *)ssdt, ssdt->length);
-	log_debug("SSDT at %p, length %x\n", ssdt, ssdt->length);
-
-	/* Drop the table if it is empty */
-	if (ssdt->length == sizeof(struct acpi_table_header)) {
-		ctx->current = ssdt;
-		return -ENOENT;
-	}
-	acpi_align(ctx);
-
-	return 0;
-}
-
 int acpi_write_gnvs(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
 	ulong addr;
@@ -523,30 +473,47 @@ int acpi_write_gnvs(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 }
 ACPI_WRITER(4gnvs, "GNVS", acpi_write_gnvs, 0);
 
+/* MCFG is defined in the PCI Firmware Specification 3.0 */
+int acpi_write_mcfg(struct acpi_ctx *ctx, const struct acpi_writer *entry)
+{
+	struct acpi_table_header *header;
+	struct acpi_mcfg *mcfg;
+	u32 current;
+
+	mcfg = ctx->current;
+	header = &mcfg->header;
+
+	current = (u32)mcfg + sizeof(struct acpi_mcfg);
+
+	memset(mcfg, '\0', sizeof(struct acpi_mcfg));
+
+	/* Fill out header fields */
+	acpi_fill_header(header, "MCFG");
+	header->length = sizeof(struct acpi_mcfg);
+	header->revision = 1;
+
+	/* (Re)calculate length and checksum */
+	header->length = current - (u32)mcfg;
+	header->checksum = table_compute_checksum(mcfg, header->length);
+
+	acpi_inc(ctx, mcfg->header.length);
+	acpi_add_table(ctx, mcfg);
+
+	return 0;
+}
+ACPI_WRITER(5mcfg, "MCFG", acpi_write_mcfg, 0);
+
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
 int write_acpi_tables_x86(struct acpi_ctx *ctx,
 			  const struct acpi_writer *entry)
 {
-	struct acpi_table_header *ssdt;
-	struct acpi_mcfg *mcfg;
 	struct acpi_tcpa *tcpa;
 	struct acpi_madt *madt;
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
 	int ret;
-
-	debug("ACPI:     * SSDT\n");
-	ssdt = (struct acpi_table_header *)ctx->current;
-	if (!acpi_create_ssdt(ctx, ssdt, OEM_TABLE_ID))
-		acpi_add_table(ctx, ssdt);
-
-	debug("ACPI:    * MCFG\n");
-	mcfg = ctx->current;
-	acpi_create_mcfg(mcfg);
-	acpi_inc_align(ctx, mcfg->header.length);
-	acpi_add_table(ctx, mcfg);
 
 	if (IS_ENABLED(CONFIG_TPM_V2)) {
 		struct acpi_tpm2 *tpm2;
