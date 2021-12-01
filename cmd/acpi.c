@@ -24,10 +24,10 @@ static void dump_hdr(struct acpi_table_header *hdr)
 {
 	bool has_hdr = memcmp(hdr->signature, "FACS", ACPI_NAME_LEN);
 
-	printf("%.*s %08lx %06x", ACPI_NAME_LEN, hdr->signature,
+	printf("%.*s  %08lx  %5x", ACPI_NAME_LEN, hdr->signature,
 	       (ulong)map_to_sysmem(hdr), hdr->length);
 	if (has_hdr) {
-		printf(" (v%02d %.6s %.8s %x %.4s %x)\n", hdr->revision,
+		printf("  v%02d %.6s %.8s %x %.4s %x\n", hdr->revision,
 		       hdr->oem_id, hdr->oem_table_id, hdr->oem_revision,
 		       hdr->aslc_id, hdr->aslc_revision);
 	} else {
@@ -129,7 +129,7 @@ static int list_rsdp(struct acpi_rsdp *rsdp)
 	struct acpi_rsdt *rsdt;
 	struct acpi_xsdt *xsdt;
 
-	printf("RSDP %08lx %06x (v%02d %.6s)\n", (ulong)map_to_sysmem(rsdp),
+	printf("RSDP  %08lx  %5x  v%02d %.6s\n", (ulong)map_to_sysmem(rsdp),
 	       rsdp->length, rsdp->revision, rsdp->oem_id);
 	rsdt = map_sysmem(rsdp->rsdt_address, 0);
 	xsdt = map_sysmem(rsdp->xsdt_address, 0);
@@ -148,7 +148,8 @@ static int do_acpi_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("No ACPI tables present\n");
 		return 0;
 	}
-	printf("ACPI tables start at %lx\n", gd_acpi_start());
+	printf("Name      Base   Size  Detail\n");
+	printf("----  --------  -----  ------\n");
 	list_rsdp(rsdp);
 
 	return 0;
