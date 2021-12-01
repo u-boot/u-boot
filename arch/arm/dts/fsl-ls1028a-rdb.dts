@@ -45,33 +45,33 @@
 };
 
 &enetc_mdio_pf3 {
-	status = "okay";
-	rdb_phy0: phy@2 {
-		reg = <2>;
+	sgmii_phy0: ethernet-phy@2 {
+		reg = <0x2>;
 	};
 
-	/* VSC8514 QSGMII PHY */
-	sw_phy0: phy@10 {
+	/* VSC8514 QSGMII quad PHY */
+	qsgmii_phy0: ethernet-phy@10 {
 		reg = <0x10>;
 	};
 
-	sw_phy1: phy@11 {
+	qsgmii_phy1: ethernet-phy@11 {
 		reg = <0x11>;
 	};
 
-	sw_phy2: phy@12 {
+	qsgmii_phy2: ethernet-phy@12 {
 		reg = <0x12>;
 	};
 
-	sw_phy3: phy@13 {
+	qsgmii_phy3: ethernet-phy@13 {
 		reg = <0x13>;
 	};
 };
 
 &enetc_port0 {
-	status = "okay";
+	phy-handle = <&sgmii_phy0>;
 	phy-mode = "sgmii";
-	phy-handle = <&rdb_phy0>;
+	managed = "in-band-status";
+	status = "okay";
 };
 
 &enetc_port2 {
@@ -158,28 +158,32 @@
 
 &mscc_felix_port0 {
 	label = "swp0";
-	phy-handle = <&sw_phy0>;
+	managed = "in-band-status";
+	phy-handle = <&qsgmii_phy0>;
 	phy-mode = "qsgmii";
 	status = "okay";
 };
 
 &mscc_felix_port1 {
 	label = "swp1";
-	phy-handle = <&sw_phy1>;
+	managed = "in-band-status";
+	phy-handle = <&qsgmii_phy1>;
 	phy-mode = "qsgmii";
 	status = "okay";
 };
 
 &mscc_felix_port2 {
 	label = "swp2";
-	phy-handle = <&sw_phy2>;
+	managed = "in-band-status";
+	phy-handle = <&qsgmii_phy2>;
 	phy-mode = "qsgmii";
 	status = "okay";
 };
 
 &mscc_felix_port3 {
 	label = "swp3";
-	phy-handle = <&sw_phy3>;
+	managed = "in-band-status";
+	phy-handle = <&qsgmii_phy3>;
 	phy-mode = "qsgmii";
 	status = "okay";
 };
