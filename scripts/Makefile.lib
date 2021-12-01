@@ -461,7 +461,8 @@ quiet_cmd_acpi_c_asl= ASL     $<
 cmd_acpi_c_asl=         \
 	$(CPP) -x assembler-with-cpp -D__ASSEMBLY__ -D__ACPI__ \
 		-P $(UBOOTINCLUDE) -o $(ASL_TMP) $< && \
-	iasl -p $@ -tc $(ASL_TMP) $(if $(KBUILD_VERBOSE:1=), >/dev/null) && \
+	iasl -p $@ -I $(srctree)/board/$(BOARDDIR) -tc $(ASL_TMP) \
+		$(if $(KBUILD_VERBOSE:1=), >/dev/null) && \
 	mv $(patsubst %.c,%.hex,$@) $@
 
 $(obj)/dsdt.c:    $(src)/dsdt.asl
