@@ -266,19 +266,18 @@ int acpi_recurse_method(struct acpi_ctx *ctx, struct udevice *parent,
 
 	func = acpi_get_method(parent, method);
 	if (func) {
-		void *start = ctx->current;
-
 		log_debug("- method %d, %s %p\n", method, parent->name, func);
 		ret = device_of_to_plat(parent);
 		if (ret)
 			return log_msg_ret("ofdata", ret);
+		ctx->tab_start = ctx->current;
 		ret = func(parent, ctx);
 		if (ret)
 			return log_msg_ret("func", ret);
 
 		/* Add the item to the internal list */
 		if (type != TYPE_NONE) {
-			ret = acpi_add_item(ctx, parent, type, start);
+			ret = acpi_add_item(ctx, parent, type, ctx->tab_start);
 			if (ret)
 				return log_msg_ret("add", ret);
 		}

@@ -43,6 +43,9 @@ enum acpi_dump_option {
  *
  * @base: Base address of ACPI tables
  * @current: Current address for writing
+ * @tab_start: Address of start of the table being written. This is set up
+ * before the writer or driver method is called. It must not be changed by the
+ * method
  * @rsdp: Pointer to the Root System Description Pointer, typically used when
  *	adding a new table. The RSDP holds pointers to the RSDT and XSDT.
  * @rsdt: Pointer to the Root System Description Table
@@ -56,6 +59,7 @@ enum acpi_dump_option {
 struct acpi_ctx {
 	void *base;
 	void *current;
+	void *tab_start;
 	struct acpi_rsdp *rsdp;
 	struct acpi_rsdt *rsdt;
 	struct acpi_xsdt *xsdt;
