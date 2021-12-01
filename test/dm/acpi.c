@@ -566,18 +566,22 @@ DM_TEST(dm_test_acpi_inject_dsdt, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
 {
 	struct acpi_ctx ctx;
+	ulong addr;
 	void *buf;
 
 	buf = malloc(BUF_SIZE);
 	ut_assertnonnull(buf);
+	addr = map_to_sysmem(buf);
 
 	acpi_reset_items();
 	ctx.current = buf;
 	ut_assertok(acpi_fill_ssdt(&ctx));
 	console_record_reset();
 	run_command("acpi items", 0);
-	ut_assert_nextline("dev 'acpi-test', type 1, size 2");
-	ut_assert_nextline("dev 'acpi-test2', type 1, size 2");
+	ut_assert_nextline("Seq  Type       Base   Size  Device/Writer");
+	ut_assert_nextline("---  -----  --------   ----  -------------");
+	ut_assert_nextline("  0  ssdt   %8lx      2  acpi-test", addr);
+	ut_assert_nextline("  1  ssdt   %8lx      2  acpi-test2", addr + 2);
 	ut_assert_console_end();
 
 	acpi_reset_items();
@@ -585,16 +589,20 @@ static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
 	ut_assertok(acpi_inject_dsdt(&ctx));
 	console_record_reset();
 	run_command("acpi items", 0);
-	ut_assert_nextline("dev 'acpi-test', type 2, size 2");
-	ut_assert_nextline("dev 'acpi-test2', type 2, size 2");
+	ut_assert_nextlinen("Seq");
+	ut_assert_nextlinen("---");
+	ut_assert_nextline("  0  dsdt   %8lx      2  acpi-test", addr);
+	ut_assert_nextline("  1  dsdt   %8lx      2  acpi-test2", addr + 2);
 	ut_assert_console_end();
 
 	console_record_reset();
 	run_command("acpi items -d", 0);
-	ut_assert_nextline("dev 'acpi-test', type 2, size 2");
+	ut_assert_nextlinen("Seq");
+	ut_assert_nextlinen("---");
+	ut_assert_nextline("  0  dsdt   %8lx      2  acpi-test", addr);
 	ut_assert_nextlines_are_dump(2);
 	ut_assert_nextline("%s", "");
-	ut_assert_nextline("dev 'acpi-test2', type 2, size 2");
+	ut_assert_nextline("  1  dsdt   %8lx      2  acpi-test2", addr + 2);
 	ut_assert_nextlines_are_dump(2);
 	ut_assert_nextline("%s", "");
 	ut_assert_console_end();

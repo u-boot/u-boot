@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <acpi/acpi_device.h>
 #include <dm/acpi.h>
 #include <dm/device-internal.h>
@@ -34,6 +35,13 @@ enum gen_type_t {
 	TYPE_OTHER,
 };
 
+const char *gen_type_str[] = {
+	"-",
+	"ssdt",
+	"dsdt",
+	"other",
+};
+
 /* Type of method to call */
 enum method_t {
 	METHOD_WRITE_TABLES,
@@ -51,13 +59,15 @@ typedef int (*acpi_method)(const struct udevice *dev, struct acpi_ctx *ctx);
  * @dev: Device that generated this data
  * @type: Table type it refers to
  * @writer: Writer that wrote this table
- * @buf: Buffer containing the data
+ * @base: Pointer to base of table in its original location
+ * @buf: Buffer allocated to contain the data (NULL if not allocated)
  * @size: Size of the data in bytes
  */
 struct acpi_item {
 	struct udevice *dev;
 	const struct acpi_writer *writer;
 	enum gen_type_t type;
+	const char *base;
 	char *buf;
 	int size;
 };
@@ -139,6 +149,7 @@ static int add_item(struct acpi_ctx *ctx, struct udevice *dev,
 	item->writer = writer;
 	item->type = type;
 	item->size = end - start;
+	item->base = start;
 	if (!item->size)
 		return 0;
 	if (type != TYPE_OTHER) {
@@ -164,13 +175,18 @@ void acpi_dump_items(enum acpi_dump_option option)
 {
 	int i;
 
+	printf("Seq  Type       Base   Size  Device/Writer\n");
+	printf("---  -----  --------   ----  -------------\n");
 	for (i = 0; i < item_count; i++) {
 		struct acpi_item *item = &acpi_item[i];
 
-		printf("dev '%s', type %d, size %x\n", item->dev->name,
-		       item->type, item->size);
+		printf("%3x  %-5s  %8lx  %5x  %s\n", i,
+		       gen_type_str[item->type],
+		       (ulong)map_to_sysmem(item->base), item->size,
+		       item->dev ? item->dev->name : item->writer->name);
 		if (option == ACPI_DUMP_CONTENTS) {
-			print_buffer(0, item->buf, 1, item->size, 0);
+			print_buffer(0, item->buf ? item->buf : item->base, 1,
+				     item->size, 0);
 			printf("\n");
 		}
 	}
