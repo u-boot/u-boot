@@ -203,6 +203,7 @@ config SANDBOX
 	imply CMD_EXTENSION
 	imply KEYBOARD
 	imply PHYSMEM
+	imply GENERATE_ACPI_TABLE
 
 config SH
 	bool "SuperH architecture"

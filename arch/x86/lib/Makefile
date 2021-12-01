@@ -41,7 +41,7 @@ obj-y	+= acpi.o
 obj-$(CONFIG_HAVE_ACPI_RESUME) += acpi_s3.o
 ifndef CONFIG_QEMU
 obj-y += acpigen.o
-obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
+obj-$(CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE) += acpi_table.o
 endif
 obj-y	+= tables.o
 ifndef CONFIG_SPL_BUILD
