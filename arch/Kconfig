@@ -62,6 +62,7 @@ config ARM
 	select ARCH_SUPPORTS_LTO
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC if !ARM64
+	select SUPPORT_ACPI
 	select SUPPORT_OF_CONTROL
 
 config M68K
