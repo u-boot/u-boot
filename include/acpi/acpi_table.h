@@ -162,6 +162,9 @@ enum acpi_pm_profile {
 #define ACPI_FADT_HW_REDUCED_ACPI	BIT(20)
 #define ACPI_FADT_LOW_PWR_IDLE_S0	BIT(21)
 
+/* ARM boot flags */
+#define ACPI_ARM_PSCI_COMPLIANT		BIT(0)
+
 enum acpi_address_space_type {
 	ACPI_ADDRESS_SPACE_MEMORY = 0,	/* System memory */
 	ACPI_ADDRESS_SPACE_IO,		/* System I/O */
@@ -237,6 +240,9 @@ struct __packed acpi_fadt {
 	struct acpi_gen_regaddr x_pm_tmr_blk;
 	struct acpi_gen_regaddr x_gpe0_blk;
 	struct acpi_gen_regaddr x_gpe1_blk;
+	struct acpi_gen_regaddr sleep_control_reg;
+	struct acpi_gen_regaddr sleep_status_reg;
+	u64 hyp_vendor_id;
 };
 
 /* FADT TABLE Revision values - note these do not match the ACPI revision */
@@ -302,6 +308,8 @@ enum acpi_apic_types {
 	ACPI_APIC_PLATFORM_IRQ_SRC,	/* Platform interrupt sources */
 	ACPI_APIC_LX2APIC,		/* Processor local x2APIC */
 	ACPI_APIC_LX2APIC_NMI,		/* Local x2APIC NMI */
+	ACPI_APIC_GICC,			/* Generic Interrupt Ctlr CPU i/f */
+	ACPI_APIC_GICD			/* Generic Interrupt Ctlr Distributor */
 };
 
 /* MADT: Processor Local APIC Structure */
@@ -345,6 +353,57 @@ struct __packed acpi_madt_lapic_nmi {
 	u8 lint;		/* Local APIC LINT# */
 };
 
+/* flags for acpi_madr_gicc flags word */
+enum {
+	ACPI_MADRF_ENABLED	= BIT(0),
+	ACPI_MADRF_PERF		= BIT(1),
+	ACPI_MADRF_VGIC		= BIT(2),
+};
+
+/**
+ * struct __packed acpi_madr_gicc - GIC CPU interface (type 0xb)
+ *
+ * This holds information about the Generic Interrupt Controller (GIC) CPU
+ * interface. See ACPI Spec v6.3 section 5.2.12.14
+ */
+struct __packed acpi_madr_gicc {
+	u8 type;
+	u8 length;
+	u16 reserved;
+	u32 cpu_if_num;
+	u32 processor_id;
+	u32 flags;
+	u32 parking_proto;
+	u32 perf_gsiv;
+	u64 parked_addr;
+	u64 phys_base;
+	u64 gicv;
+	u64 gich;
+	u32 vgic_maint_irq;
+	u64 gicr_base;
+	u64 mpidr;
+	u8 efficiency;
+	u8 reserved2;
+	u16 spi_overflow_irq;
+};
+
+/**
+ * struct __packed acpi_madr_gicc - GIC distributor (type 0xc)
+ *
+ * This holds information about the Generic Interrupt Controller (GIC)
+ * Distributor interface. See ACPI Spec v6.3 section 5.2.12.15
+ */
+struct __packed acpi_madr_gicd {
+	u8 type;
+	u8 length;
+	u16 reserved;
+	u32 gic_id;
+	u64 phys_base;
+	u32 reserved2;
+	u8 gic_version;
+	u8 reserved3[3];
+};
+
 /* MCFG (PCI Express MMIO config space BAR description table) */
 struct acpi_mcfg {
 	struct acpi_table_header header;
@@ -371,6 +430,19 @@ struct acpi_csrt {
 	struct acpi_table_header header;
 };
 
+/**
+ * struct acpi_csrt_group - header for a group within the CSRT
+ *
+ * The CSRT consists of one or more groups and this is the header for each
+ *
+ * See Core System Resources Table (CSRT), March 13, 2017, Microsoft Corporation
+ * for details
+ *
+ * https://uefi.org/sites/default/files/resources/CSRT%20v2.pdf
+ *
+ * @shared_info_length indicates the number of shared-info bytes following this
+ * struct (which may be 0)
+ */
 struct acpi_csrt_group {
 	u32 length;
 	u32 vendor_id;
@@ -382,6 +454,25 @@ struct acpi_csrt_group {
 	u32 shared_info_length;
 };
 
+/**
+ * struct acpi_csrt_descriptor - describes the information that follows
+ *
+ * See the spec as above for details
+ */
+struct acpi_csrt_descriptor {
+	u32 length;
+	u16 type;
+	u16 subtype;
+	u32 uid;
+};
+
+/**
+ * struct acpi_csrt_shared_info - shared info for Intel tangier
+ *
+ * This provides the shared info for this particular board. Notes that the CSRT
+ * does not describe the format of data, so this format may not be used by any
+ * other board.
+ */
 struct acpi_csrt_shared_info {
 	u16 major_version;
 	u16 minor_version;
@@ -557,6 +648,120 @@ struct __packed acpi_spcr {
 	u32 pci_flags;
 	u8 pci_segment;
 	u32 reserved2;
+};
+
+/**
+ * struct acpi_gtdt - Generic Timer Description Table (GTDT)
+ *
+ * See ACPI Spec v6.3 section 5.2.24 for details
+ */
+struct __packed acpi_gtdt {
+	struct acpi_table_header header;
+	u64 cnt_ctrl_base;
+	u32 reserved0;
+	u32 sec_el1_gsiv;
+	u32 sec_el1_flags;
+	u32 el1_gsiv;
+	u32 el1_flags;
+	u32 virt_el1_gsiv;
+	u32 virt_el1_flags;
+	u32 el2_gsiv;
+	u32 el2_flags;
+	u64 cnt_read_base;
+	u32 plat_timer_count;
+	u32 plat_timer_offset;
+	u32 virt_el2_gsiv;
+	u32 virt_el2_flags;
+};
+
+/**
+ * struct acpi_bgrt -  Boot Graphics Resource Table (BGRT)
+ *
+ * Optional table that provides a mechanism to indicate that an image was drawn
+ * on the screen during boot, and some information about the image.
+ *
+ * See ACPI Spec v6.3 section 5.2.22 for details
+ */
+struct __packed acpi_bgrt {
+	struct acpi_table_header header;
+	u16 version;
+	u8 status;
+	u8 image_type;
+	u64 addr;
+	u32 offset_x;
+	u32 offset_y;
+};
+
+/* Types for PPTT */
+#define ACPI_PPTT_TYPE_PROC		0
+#define ACPI_PPTT_TYPE_CACHE		1
+
+/* Flags for PPTT */
+#define ACPI_PPTT_PHYSICAL_PACKAGE	BIT(0)
+#define ACPI_PPTT_PROC_ID_VALID		BIT(1)
+#define ACPI_PPTT_PROC_IS_THREAD	BIT(2)
+#define ACPI_PPTT_NODE_IS_LEAF		BIT(3)
+#define ACPI_PPTT_CHILDREN_IDENTICAL	BIT(4)
+
+/**
+ * struct acpi_pptt_header - Processor Properties Topology Table (PPTT) header
+ *
+ * Describes the topological structure of processors and their shared resources,
+ * such as caches.
+ *
+ * See ACPI Spec v6.3 section 5.2.29 for details
+ */
+struct __packed acpi_pptt_header {
+	u8 type;	/* ACPI_PPTT_TYPE_... */
+	u8 length;
+	u16 reserved;
+};
+
+/**
+ * struct acpi_pptt_proc - a processor as described by PPTT
+ */
+struct __packed acpi_pptt_proc {
+	struct acpi_pptt_header hdr;
+	u32 flags;
+	u32 parent;
+	u32 proc_id;
+	u32 num_resources;
+};
+
+/* Cache flags for acpi_pptt_cache */
+#define ACPI_PPTT_SIZE_VALID		BIT(0)
+#define ACPI_PPTT_SETS_VALID		BIT(1)
+#define ACPI_PPTT_ASSOC_VALID		BIT(2)
+#define ACPI_PPTT_ALLOC_TYPE_VALID	BIT(3)
+#define ACPI_PPTT_CACHE_TYPE_VALID	BIT(4)
+#define ACPI_PPTT_WRITE_POLICY_VALID	BIT(5)
+#define ACPI_PPTT_LINE_SIZE_VALID	BIT(6)
+
+#define ACPI_PPTT_ALL_VALID		0x7f
+#define ACPI_PPTT_ALL_BUT_WRITE_POL	0x5f
+
+#define ACPI_PPTT_READ_ALLOC		BIT(0)
+#define ACPI_PPTT_WRITE_ALLOC		BIT(1)
+#define ACPI_PPTT_CACHE_TYPE_SHIFT	2
+#define ACPI_PPTT_CACHE_TYPE_MASK	(3 << ACPI_PPTT_CACHE_TYPE_SHIFT)
+#define ACPI_PPTT_CACHE_TYPE_DATA	0
+#define ACPI_PPTT_CACHE_TYPE_INSTR	1
+#define ACPI_PPTT_CACHE_TYPE_UNIFIED	2
+#define ACPI_PPTT_CACHE_TYPE_DATA	0
+#define ACPI_PPTT_WRITE_THROUGH		BIT(4)
+
+/**
+ * struct acpi_pptt_cache - a cache as described by PPTT
+ */
+struct __packed acpi_pptt_cache {
+	struct acpi_pptt_header hdr;
+	u32 flags;
+	u32 next_cache_level;
+	u32 size;
+	u32 sets;
+	u8 assoc;
+	u8 attributes;
+	u16 line_size;
 };
 
 /* Tables defined/reserved by ACPI and generated by U-Boot */
