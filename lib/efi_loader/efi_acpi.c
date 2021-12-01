@@ -34,7 +34,7 @@ efi_status_t efi_acpi_register(void)
 	 * a 4k-aligned address, so it is safe to assume that
 	 * write_acpi_tables() will write the table at that address.
 	 */
-	write_acpi_tables(acpi);
+	write_acpi_tables((ulong)acpi);
 
 	/* And expose them to our EFI payload */
 	return efi_install_configuration_table(&acpi_guid,
