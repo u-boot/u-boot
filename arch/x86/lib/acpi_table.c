@@ -189,22 +189,26 @@ __weak u32 acpi_fill_mcfg(u32 current)
 /**
  * acpi_create_tcpa() - Create a TCPA table
  *
- * @tcpa: Pointer to place to put table
- *
  * Trusted Computing Platform Alliance Capabilities Table
  * TCPA PC Specific Implementation SpecificationTCPA is defined in the PCI
  * Firmware Specification 3.0
  */
-static int acpi_create_tcpa(struct acpi_tcpa *tcpa)
+int acpi_write_tcpa(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
-	struct acpi_table_header *header = &tcpa->header;
-	u32 current = (u32)tcpa + sizeof(struct acpi_tcpa);
+	struct acpi_table_header *header;
+	struct acpi_tcpa *tcpa;
+	u32 current;
 	int size = 0x10000;	/* Use this as the default size */
 	void *log;
 	int ret;
 
+	if (!IS_ENABLED(CONFIG_TPM_V1))
+		return -ENOENT;
 	if (!CONFIG_IS_ENABLED(BLOBLIST))
 		return -ENXIO;
+
+	tcpa = ctx->current;
+	header = &tcpa->header;
 	memset(tcpa, '\0', sizeof(struct acpi_tcpa));
 
 	/* Fill out header fields */
@@ -218,14 +222,19 @@ static int acpi_create_tcpa(struct acpi_tcpa *tcpa)
 
 	tcpa->platform_class = 0;
 	tcpa->laml = size;
-	tcpa->lasa = (ulong)log;
+	tcpa->lasa = map_to_sysmem(log);
 
 	/* (Re)calculate length and checksum */
+	current = (u32)tcpa + sizeof(struct acpi_tcpa);
 	header->length = current - (u32)tcpa;
-	header->checksum = table_compute_checksum((void *)tcpa, header->length);
+	header->checksum = table_compute_checksum(tcpa, header->length);
+
+	acpi_inc(ctx, tcpa->header.length);
+	acpi_add_table(ctx, tcpa);
 
 	return 0;
 }
+ACPI_WRITER(5tcpa, "TCPA", acpi_write_tcpa, 0);
 
 static int get_tpm2_log(void **ptrp, int *sizep)
 {
@@ -530,23 +539,8 @@ ACPI_WRITER(5mcfg, "MCFG", acpi_write_mcfg, 0);
 int write_acpi_tables_x86(struct acpi_ctx *ctx,
 			  const struct acpi_writer *entry)
 {
-	struct acpi_tcpa *tcpa;
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
-	int ret;
-
-	if (IS_ENABLED(CONFIG_TPM_V1)) {
-		debug("ACPI:    * TCPA\n");
-		tcpa = (struct acpi_tcpa *)ctx->current;
-		ret = acpi_create_tcpa(tcpa);
-		if (ret) {
-			log_warning("Failed to create TCPA table (err=%d)\n",
-				    ret);
-		} else {
-			acpi_inc_align(ctx, tcpa->header.length);
-			acpi_add_table(ctx, tcpa);
-		}
-	}
 
 	debug("ACPI:    * CSRT\n");
 	csrt = ctx->current;
