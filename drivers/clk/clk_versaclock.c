@@ -618,24 +618,6 @@ static int vc5_clk_out_set_parent(struct vc5_driver_data *vc, u8 num, u8 index)
 	return vc5_update_bits(vc->i2c, VC5_OUT_DIV_CONTROL(num), mask, src);
 }
 
-/*
- * The device references to the Versaclock point to the head, so xlate needs to
- * redirect it to clk_out[idx]
- */
-static int vc5_clk_out_xlate(struct clk *hw, struct ofnode_phandle_args *args)
-{
-	unsigned int idx = args->args[0];
-
-	if (args->args_count != 1) {
-		debug("Invalid args_count: %d\n", args->args_count);
-		return -EINVAL;
-	}
-
-	hw->id = idx;
-
-	return 0;
-}
-
 static unsigned long vc5_clk_out_set_rate(struct clk *hw, unsigned long rate)
 {
 	struct udevice *dev;
@@ -671,7 +653,6 @@ static const struct clk_ops vc5_clk_out_sel_ops = {
 static const struct clk_ops vc5_clk_ops = {
 	.enable	= vc5_clk_out_prepare,
 	.disable	= vc5_clk_out_unprepare,
-	.of_xlate	= vc5_clk_out_xlate,
 	.set_rate	= vc5_clk_out_set_rate,
 	.get_rate	= vc5_clk_out_get_rate,
 };
