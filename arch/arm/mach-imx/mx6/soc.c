@@ -498,8 +498,7 @@ __weak int board_mmc_get_env_dev(int devno)
 
 static int mmc_get_boot_dev(void)
 {
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-	u32 soc_sbmr = readl(&src_regs->sbmr1);
+	u32 soc_sbmr = imx6_src_get_boot_mode();
 	u32 bootsel;
 	int devno;
 
