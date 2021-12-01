@@ -5,3 +5,4 @@ obj-$(CONFIG_$(SPL_)ACPIGEN) += acpigen.o
 obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi_device.o
 obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi_dp.o
 obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi_table.o
+obj-y += acpi_writer.o

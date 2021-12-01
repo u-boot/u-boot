@@ -297,6 +297,18 @@ void acpi_reset_items(void);
  */
 int acpi_write_one(struct acpi_ctx *ctx, const struct acpi_writer *entry);
 
+/**
+ * acpi_setup_ctx() - Set up a new ACPI context
+ *
+ * This zeros the context and sets up the base and current pointers, ensuring
+ * that they are aligned. Then it writes the acpi_start and acpi_ctx values in
+ * global_data
+ *
+ * @ctx: ACPI context to set up
+ * @start: Start address for ACPI table
+ */
+void acpi_setup_ctx(struct acpi_ctx *ctx, ulong start);
+
 #endif /* __ACPI__ */
 
 #endif

@@ -60,23 +60,20 @@ static int acpi_write_all(struct acpi_ctx *ctx)
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
-ulong write_acpi_tables(ulong start_addr)
+ulong new_write_acpi_tables(ulong start_addr)
 {
 	struct acpi_ctx *ctx;
 	ulong addr;
-	void *start;
 	int ret;
 
-	ctx = calloc(1, sizeof(*ctx));
+	ctx = malloc(sizeof(*ctx));
 	if (!ctx)
 		return log_msg_ret("mem", -ENOMEM);
-	gd->acpi_ctx = ctx;
-
-	start = map_sysmem(start_addr, 0);
 
 	log_debug("ACPI: Writing ACPI tables at %lx\n", start_addr);
 
 	acpi_reset_items();
+	acpi_setup_ctx(ctx, start_addr);
 
 	ret = acpi_write_all(ctx);
 	if (ret) {
@@ -88,4 +85,17 @@ ulong write_acpi_tables(ulong start_addr)
 	log_debug("ACPI current = %lx\n", addr);
 
 	return addr;
+}
+
+void acpi_setup_ctx(struct acpi_ctx *ctx, ulong start)
+{
+	gd->acpi_ctx = ctx;
+	memset(ctx, '\0', sizeof(*ctx));
+
+	/* Align ACPI tables to 16-byte boundary */
+	start = ALIGN(start, 16);
+	ctx->base = map_sysmem(start, 0);
+	ctx->current = ctx->base;
+
+	gd_set_acpi_start(start);
 }

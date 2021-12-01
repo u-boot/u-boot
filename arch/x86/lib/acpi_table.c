@@ -522,17 +522,17 @@ ulong write_acpi_tables(ulong start_addr)
 	int ret;
 	int i;
 
-	ctx = calloc(1, sizeof(*ctx));
+	ctx = malloc(sizeof(*ctx));
 	if (!ctx)
 		return log_msg_ret("mem", -ENOMEM);
-	gd->acpi_ctx = ctx;
 
 	start = map_sysmem(start_addr, 0);
 
 	debug("ACPI: Writing ACPI tables at %lx\n", start_addr);
 
 	acpi_reset_items();
-	acpi_setup_base_tables(ctx, start);
+	acpi_setup_ctx(ctx, start);
+	acpi_setup_base_tables(ctx);
 
 	debug("ACPI:    * FACS\n");
 	facs = ctx->current;

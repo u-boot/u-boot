@@ -45,6 +45,22 @@ struct testacpi_plat {
 	bool no_name;
 };
 
+/**
+ * setup_ctx_and_base_tables() - Set up context along with RSDP, RSDT and XSDT
+ *
+ * Set up the context with the given start position. Some basic tables are
+ * always needed, so set them up as well.
+ *
+ * @ctx: Context to set up
+ */
+static int setup_ctx_and_base_tables(struct acpi_ctx *ctx, ulong start)
+{
+	acpi_setup_ctx(ctx, start);
+	acpi_setup_base_tables(ctx);
+
+	return 0;
+}
+
 static int testacpi_write_tables(const struct udevice *dev,
 				 struct acpi_ctx *ctx)
 {
@@ -240,13 +256,15 @@ static int dm_test_acpi_write_tables(struct unit_test_state *uts)
 {
 	struct acpi_dmar *dmar;
 	struct acpi_ctx ctx;
+	ulong addr;
 	void *buf;
 	int i;
 
 	buf = malloc(BUF_SIZE);
 	ut_assertnonnull(buf);
+	addr = map_to_sysmem(buf);
 
-	acpi_setup_base_tables(&ctx, buf);
+	setup_ctx_and_base_tables(&ctx, addr);
 	dmar = ctx.current;
 	ut_assertok(acpi_write_dev_tables(&ctx));
 
@@ -312,6 +330,7 @@ static int dm_test_acpi_setup_base_tables(struct unit_test_state *uts)
 	struct acpi_xsdt *xsdt;
 	struct acpi_ctx ctx;
 	void *buf, *end;
+	ulong addr;
 
 	/*
 	 * Use an unaligned address deliberately, by allocating an aligned
@@ -319,7 +338,8 @@ static int dm_test_acpi_setup_base_tables(struct unit_test_state *uts)
 	 */
 	buf = memalign(64, BUF_SIZE);
 	ut_assertnonnull(buf);
-	acpi_setup_base_tables(&ctx, buf + 4);
+	addr = map_to_sysmem(buf);
+	setup_ctx_and_base_tables(&ctx, addr + 4);
 	ut_asserteq(map_to_sysmem(PTR_ALIGN(buf + 4, 16)), gd_acpi_start());
 
 	rsdp = buf + 16;
@@ -361,13 +381,13 @@ static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
 
 	buf = memalign(16, BUF_SIZE);
 	ut_assertnonnull(buf);
-	acpi_setup_base_tables(&ctx, buf);
+	addr = map_to_sysmem(buf);
+	setup_ctx_and_base_tables(&ctx, addr);
 
 	ut_assertok(acpi_write_dev_tables(&ctx));
 
 	console_record_reset();
 	run_command("acpi list", 0);
-	addr = (ulong)map_to_sysmem(buf);
 	ut_assert_nextline("ACPI tables start at %lx", addr);
 	ut_assert_nextline("RSDP %08lx %06zx (v02 U-BOOT)", addr,
 			   sizeof(struct acpi_rsdp));
@@ -403,7 +423,8 @@ static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
 
 	buf = memalign(16, BUF_SIZE);
 	ut_assertnonnull(buf);
-	acpi_setup_base_tables(&ctx, buf);
+	addr = map_to_sysmem(buf);
+	setup_ctx_and_base_tables(&ctx, addr);
 
 	ut_assertok(acpi_write_dev_tables(&ctx));
 
