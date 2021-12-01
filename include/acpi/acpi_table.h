@@ -698,6 +698,14 @@ void acpi_setup_base_tables(struct acpi_ctx *ctx, void *start);
 void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
 		     struct acpi_xsdt *xsdt);
 
+/**
+ * acpi_fill_header() - Set up a table header
+ *
+ * @header: Pointer to header to set up
+ * @signature: 4-character signature to use (e.g. "FACS")
+ */
+void acpi_fill_header(struct acpi_table_header *header, char *signature);
+
 #endif /* !__ACPI__*/
 
 #include <asm/acpi_table.h>
