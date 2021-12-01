@@ -19,11 +19,19 @@
 
 #define MAX_ACPI_ITEMS	100
 
-/* Type of table that we collected */
+/**
+ * Type of table that we collected
+ *
+ * @TYPE_NONE: Not yet known
+ * @TYPE_SSDT: Items in the Secondary System Description Table
+ * @TYPE_DSDT: Items in the Differentiated System Description Table
+ * @TYPE_OTHER: Other (whole)
+ */
 enum gen_type_t {
 	TYPE_NONE,
 	TYPE_SSDT,
 	TYPE_DSDT,
+	TYPE_OTHER,
 };
 
 /* Type of method to call */
@@ -42,11 +50,13 @@ typedef int (*acpi_method)(const struct udevice *dev, struct acpi_ctx *ctx);
  *
  * @dev: Device that generated this data
  * @type: Table type it refers to
+ * @writer: Writer that wrote this table
  * @buf: Buffer containing the data
  * @size: Size of the data in bytes
  */
 struct acpi_item {
 	struct udevice *dev;
+	const struct acpi_writer *writer;
 	enum gen_type_t type;
 	char *buf;
 	int size;
@@ -103,16 +113,18 @@ int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen)
 }
 
 /**
- * acpi_add_item() - Add a new item to the list of data collected
+ * add_item() - Add a new item to the list of data collected
  *
  * @ctx: ACPI context
- * @dev: Device that generated the data
+ * @dev: Device that generated the data, if type != TYPE_OTHER
+ * @writer: Writer entry that generated the data, if type == TYPE_OTHER
  * @type: Table type it refers to
  * @start: The start of the data (the end is obtained from ctx->current)
  * Return: 0 if OK, -ENOSPC if too many items, -ENOMEM if out of memory
  */
-static int acpi_add_item(struct acpi_ctx *ctx, struct udevice *dev,
-			 enum gen_type_t type, void *start)
+static int add_item(struct acpi_ctx *ctx, struct udevice *dev,
+		    const struct acpi_writer *writer, enum gen_type_t type,
+		    void *start)
 {
 	struct acpi_item *item;
 	void *end = ctx->current;
@@ -124,19 +136,28 @@ static int acpi_add_item(struct acpi_ctx *ctx, struct udevice *dev,
 
 	item = &acpi_item[item_count];
 	item->dev = dev;
+	item->writer = writer;
 	item->type = type;
 	item->size = end - start;
 	if (!item->size)
 		return 0;
-	item->buf = malloc(item->size);
-	if (!item->buf)
-		return log_msg_ret("mem", -ENOMEM);
-	memcpy(item->buf, start, item->size);
+	if (type != TYPE_OTHER) {
+		item->buf = malloc(item->size);
+		if (!item->buf)
+			return log_msg_ret("mem", -ENOMEM);
+		memcpy(item->buf, start, item->size);
+	}
 	item_count++;
 	log_debug("* %s: Added type %d, %p, size %x\n", dev->name, type, start,
 		  item->size);
 
 	return 0;
+}
+
+int acpi_add_other_item(struct acpi_ctx *ctx, const struct acpi_writer *writer,
+			void *start)
+{
+	return add_item(ctx, NULL, writer, TYPE_OTHER, start);
 }
 
 void acpi_dump_items(enum acpi_dump_option option)
@@ -162,7 +183,7 @@ static struct acpi_item *find_acpi_item(const char *devname)
 	for (i = 0; i < item_count; i++) {
 		struct acpi_item *item = &acpi_item[i];
 
-		if (!strcmp(devname, item->dev->name))
+		if (item->dev && !strcmp(devname, item->dev->name))
 			return item;
 	}
 
@@ -277,7 +298,7 @@ int acpi_recurse_method(struct acpi_ctx *ctx, struct udevice *parent,
 
 		/* Add the item to the internal list */
 		if (type != TYPE_NONE) {
-			ret = acpi_add_item(ctx, parent, type, ctx->tab_start);
+			ret = add_item(ctx, parent, NULL, type, ctx->tab_start);
 			if (ret)
 				return log_msg_ret("add", ret);
 		}

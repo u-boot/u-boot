@@ -40,6 +40,11 @@ int acpi_write_one(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	else
 		acpi_align(ctx);
 
+	/* Add the item to the internal list */
+	ret = acpi_add_other_item(ctx, entry, ctx->tab_start);
+	if (ret)
+		return log_msg_ret("add", ret);
+
 	return 0;
 }
 
