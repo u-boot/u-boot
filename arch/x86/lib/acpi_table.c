@@ -131,12 +131,16 @@ __weak u32 acpi_fill_madt(u32 current)
 	return current;
 }
 
-static void acpi_create_madt(struct acpi_madt *madt)
+int acpi_write_madt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
-	struct acpi_table_header *header = &(madt->header);
-	u32 current = (u32)madt + sizeof(struct acpi_madt);
+	struct acpi_table_header *header;
+	struct acpi_madt *madt;
+	u32 current;
 
-	memset((void *)madt, 0, sizeof(struct acpi_madt));
+	madt = ctx->current;
+
+	memset(madt, '\0', sizeof(struct acpi_madt));
+	header = &madt->header;
 
 	/* Fill out header fields */
 	acpi_fill_header(header, "APIC");
@@ -146,13 +150,19 @@ static void acpi_create_madt(struct acpi_madt *madt)
 	madt->lapic_addr = LAPIC_DEFAULT_BASE;
 	madt->flags = ACPI_MADT_PCAT_COMPAT;
 
+	current = (u32)madt + sizeof(struct acpi_madt);
 	current = acpi_fill_madt(current);
 
 	/* (Re)calculate length and checksum */
 	header->length = current - (u32)madt;
 
 	header->checksum = table_compute_checksum((void *)madt, header->length);
+	acpi_add_table(ctx, madt);
+	acpi_inc(ctx, madt->header.length);
+
+	return 0;
 }
+ACPI_WRITER(5x86, NULL, acpi_write_madt, 0);
 
 int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
 			      u16 seg_nr, u8 start, u8 end)
@@ -521,16 +531,9 @@ int write_acpi_tables_x86(struct acpi_ctx *ctx,
 			  const struct acpi_writer *entry)
 {
 	struct acpi_tcpa *tcpa;
-	struct acpi_madt *madt;
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
 	int ret;
-
-	debug("ACPI:    * MADT\n");
-	madt = ctx->current;
-	acpi_create_madt(madt);
-	acpi_inc_align(ctx, madt->header.length);
-	acpi_add_table(ctx, madt);
 
 	if (IS_ENABLED(CONFIG_TPM_V1)) {
 		debug("ACPI:    * TCPA\n");
