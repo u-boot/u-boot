@@ -305,41 +305,12 @@ static int acpi_write_tpm2(struct acpi_ctx *ctx,
 }
 ACPI_WRITER(5tpm2, "TPM2", acpi_write_tpm2, 0);
 
-__weak u32 acpi_fill_csrt(u32 current)
+int acpi_write_spcr(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
-	return 0;
-}
-
-static int acpi_create_csrt(struct acpi_csrt *csrt)
-{
-	struct acpi_table_header *header = &(csrt->header);
-	u32 current = (u32)csrt + sizeof(struct acpi_csrt);
-	uint ptr;
-
-	memset((void *)csrt, 0, sizeof(struct acpi_csrt));
-
-	/* Fill out header fields */
-	acpi_fill_header(header, "CSRT");
-	header->length = sizeof(struct acpi_csrt);
-	header->revision = 0;
-
-	ptr = acpi_fill_csrt(current);
-	if (!ptr)
-		return -ENOENT;
-	current = ptr;
-
-	/* (Re)calculate length and checksum */
-	header->length = current - (u32)csrt;
-	header->checksum = table_compute_checksum((void *)csrt, header->length);
-
-	return 0;
-}
-
-static void acpi_create_spcr(struct acpi_spcr *spcr)
-{
-	struct acpi_table_header *header = &(spcr->header);
 	struct serial_device_info serial_info = {0};
 	ulong serial_address, serial_offset;
+	struct acpi_table_header *header;
+	struct acpi_spcr *spcr;
 	struct udevice *dev;
 	uint serial_config;
 	uint serial_width;
@@ -347,7 +318,10 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	int space_id;
 	int ret = -ENODEV;
 
-	memset((void *)spcr, 0, sizeof(struct acpi_spcr));
+	spcr = ctx->current;
+	header = &spcr->header;
+
+	memset(spcr, '\0', sizeof(struct acpi_spcr));
 
 	/* Fill out header fields */
 	acpi_fill_header(header, "SPCR");
@@ -457,7 +431,13 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 
 	/* Fix checksum */
 	header->checksum = table_compute_checksum((void *)spcr, header->length);
+
+	acpi_add_table(ctx, spcr);
+	acpi_inc(ctx, spcr->header.length);
+
+	return 0;
 }
+ACPI_WRITER(5spcr, "SPCR", acpi_write_spcr, 0);
 
 int acpi_write_gnvs(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
@@ -539,22 +519,6 @@ ACPI_WRITER(5mcfg, "MCFG", acpi_write_mcfg, 0);
 int write_acpi_tables_x86(struct acpi_ctx *ctx,
 			  const struct acpi_writer *entry)
 {
-	struct acpi_csrt *csrt;
-	struct acpi_spcr *spcr;
-
-	debug("ACPI:    * CSRT\n");
-	csrt = ctx->current;
-	if (!acpi_create_csrt(csrt)) {
-		acpi_inc_align(ctx, csrt->header.length);
-		acpi_add_table(ctx, csrt);
-	}
-
-	debug("ACPI:    * SPCR\n");
-	spcr = ctx->current;
-	acpi_create_spcr(spcr);
-	acpi_inc_align(ctx, spcr->header.length);
-	acpi_add_table(ctx, spcr);
-
 	acpi_write_dev_tables(ctx);
 
 	acpi_rsdp_addr = (unsigned long)ctx->rsdp;
