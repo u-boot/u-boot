@@ -27,6 +27,8 @@
 
 #if !defined(__ACPI__)
 
+#include <linker_lists.h>
+
 struct nhlt;
 struct udevice;
 
@@ -67,6 +69,48 @@ struct acpi_ctx {
 	char *len_stack[ACPIGEN_LENSTACK_SIZE];
 	int ltop;
 };
+
+/**
+ * enum acpi_writer_flags_t - flags to use for the ACPI writers
+ */
+enum acpi_writer_flags_t {
+	ACPIWF_ALIGN64_,
+};
+
+struct acpi_writer;
+
+/**
+ * acpi_writer_func() - Function that can write an ACPI table
+ *
+ * @ctx: ACPI context to use for writing
+ * @entry: Linker-list entry for this writer
+ * @return 0 if OK, -ve on error
+ */
+typedef int (*acpi_writer_func)(struct acpi_ctx *ctx,
+				const struct acpi_writer *entry);
+
+/**
+ * struct acpi_writer - an ACPI table that can be written
+ *
+ * @name: Name of the writer
+ * @table: Table name that is generated (e.g. "DSDT")
+ * @h_write: Writer function
+ */
+struct acpi_writer {
+	const char *name;
+	const char *table;
+	acpi_writer_func h_write;
+	int flags;
+};
+
+/* Declare a new ACPI table writer */
+#define ACPI_WRITER(_name, _table, _write, _flags)					\
+	ll_entry_declare(struct acpi_writer, _name, acpi_writer) = {	\
+		.name = #_name,						\
+		.table = _table,					\
+		.h_write = _write,					\
+		.flags = _flags,					\
+	}
 
 /**
  * struct acpi_ops - ACPI operations supported by driver model
@@ -239,6 +283,19 @@ int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen);
  * to empty the list, before writing new items.
  */
 void acpi_reset_items(void);
+
+/**
+ * acpi_write_one() - Call a single ACPI writer entry
+ *
+ * This handles aligning the context afterwards, if the entry flags indicate
+ * that.
+ *
+ * @ctx: ACPI context to use
+ * @entry: Entry to call
+ * @return 0 if OK, -ENOENT if this writer produced an empty entry, other -ve
+ * value on error
+ */
+int acpi_write_one(struct acpi_ctx *ctx, const struct acpi_writer *entry);
 
 #endif /* __ACPI__ */
 
