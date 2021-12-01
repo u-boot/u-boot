@@ -320,7 +320,7 @@ static int dm_test_acpi_setup_base_tables(struct unit_test_state *uts)
 	buf = memalign(64, BUF_SIZE);
 	ut_assertnonnull(buf);
 	acpi_setup_base_tables(&ctx, buf + 4);
-	ut_asserteq(map_to_sysmem(PTR_ALIGN(buf + 4, 16)), gd->arch.acpi_start);
+	ut_asserteq(map_to_sysmem(PTR_ALIGN(buf + 4, 16)), gd_acpi_start());
 
 	rsdp = buf + 16;
 	ut_asserteq_ptr(rsdp, ctx.rsdp);

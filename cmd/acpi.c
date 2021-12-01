@@ -47,7 +47,7 @@ struct acpi_table_header *find_table(const char *sig)
 	struct acpi_rsdt *rsdt;
 	int len, i, count;
 
-	rsdp = map_sysmem(gd->arch.acpi_start, 0);
+	rsdp = map_sysmem(gd_acpi_start(), 0);
 	if (!rsdp)
 		return NULL;
 	rsdt = map_sysmem(rsdp->rsdt_address, 0);
@@ -143,12 +143,12 @@ static int do_acpi_list(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	struct acpi_rsdp *rsdp;
 
-	rsdp = map_sysmem(gd->arch.acpi_start, 0);
+	rsdp = map_sysmem(gd_acpi_start(), 0);
 	if (!rsdp) {
 		printf("No ACPI tables present\n");
 		return 0;
 	}
-	printf("ACPI tables start at %lx\n", gd->arch.acpi_start);
+	printf("ACPI tables start at %lx\n", gd_acpi_start());
 	list_rsdp(rsdp);
 
 	return 0;
