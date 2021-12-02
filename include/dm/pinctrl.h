@@ -495,7 +495,7 @@ int pinctrl_generic_set_state(struct udevice *pctldev, struct udevice *config);
 static inline int pinctrl_generic_set_state(struct udevice *pctldev,
 					    struct udevice *config)
 {
-	return -EINVAL;
+	return -ENOSYS;
 }
 #endif
 
@@ -512,7 +512,7 @@ int pinctrl_select_state(struct udevice *dev, const char *statename);
 static inline int pinctrl_select_state(struct udevice *dev,
 				       const char *statename)
 {
-	return -EINVAL;
+	return -ENOSYS;
 }
 #endif
 
