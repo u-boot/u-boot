@@ -119,8 +119,6 @@
 	status = "okay";
 	phy-mode = "rgmii-id";
 	phy-handle = <&phy0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_gem1_default>;
 
 	mdio: mdio {
 		#address-cells = <1>;
@@ -144,9 +142,6 @@
 	#size-cells = <0>;
 	status = "okay";
 	clock-frequency = <400000>;
-	pinctrl-names = "default", "gpio";
-	pinctrl-0 = <&pinctrl_i2c0_default>;
-	pinctrl-1 = <&pinctrl_i2c0_gpio>;
 	scl-gpios = <&gpio 34 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
 };
@@ -155,9 +150,6 @@
 	status = "okay";
 	u-boot,dm-pre-reloc;
 	clock-frequency = <400000>;
-	pinctrl-names = "default", "gpio";
-	pinctrl-0 = <&pinctrl_i2c1_default>;
-	pinctrl-1 = <&pinctrl_i2c1_gpio>;
 	scl-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio 25 GPIO_ACTIVE_HIGH>;
 
@@ -279,14 +271,10 @@
 
 &uart1 { /* uart0 MIO36-37 */
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart1_default>;
 };
 
 &usb0 {
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usb0_default>;
 	phy-names = "usb3-phy";
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 };
@@ -296,154 +284,4 @@
 	dr_mode = "host";
 	snps,usb3_lpm_capable;
 	maximum-speed = "super-speed";
-};
-
-&pinctrl0 { /* required by spec */
-	status = "okay";
-
-	pinctrl_uart1_default: uart1-default {
-		conf {
-			groups = "uart1_9_grp";
-			slew-rate = <SLEW_RATE_SLOW>;
-			power-source = <IO_STANDARD_LVCMOS18>;
-			drive-strength = <12>;
-		};
-
-		conf-rx {
-			pins = "MIO37";
-			bias-high-impedance;
-		};
-
-		conf-tx {
-			pins = "MIO36";
-			bias-disable;
-		};
-
-		mux {
-			groups = "uart1_9_grp";
-			function = "uart1";
-		};
-	};
-
-	pinctrl_i2c0_default: i2c0-default {
-		mux {
-			groups = "i2c0_8_grp";
-			function = "i2c0";
-		};
-
-		conf {
-			groups = "i2c0_8_grp";
-			bias-pull-up;
-			slew-rate = <SLEW_RATE_SLOW>;
-			power-source = <IO_STANDARD_LVCMOS18>;
-		};
-	};
-
-	pinctrl_i2c0_gpio: i2c0-gpio {
-		mux {
-			groups = "gpio0_34_grp", "gpio0_35_grp";
-			function = "gpio0";
-		};
-
-		conf {
-			groups = "gpio0_34_grp", "gpio0_35_grp";
-			slew-rate = <SLEW_RATE_SLOW>;
-			power-source = <IO_STANDARD_LVCMOS18>;
-		};
-	};
-
-	pinctrl_i2c1_default: i2c1-default {
-		conf {
-			groups = "i2c1_6_grp";
-			bias-pull-up;
-			slew-rate = <SLEW_RATE_SLOW>;
-			power-source = <IO_STANDARD_LVCMOS18>;
-		};
-
-		mux {
-			groups = "i2c1_6_grp";
-			function = "i2c1";
-		};
-	};
-
-	pinctrl_i2c1_gpio: i2c1-gpio {
-		conf {
-			groups = "gpio0_24_grp", "gpio0_25_grp";
-			slew-rate = <SLEW_RATE_SLOW>;
-			power-source = <IO_STANDARD_LVCMOS18>;
-		};
-
-		mux {
-			groups = "gpio0_24_grp", "gpio0_25_grp";
-			function = "gpio0";
-		};
-	};
-
-	pinctrl_gem1_default: gem1-default {
-		conf {
-			groups = "ethernet1_0_grp";
-			slew-rate = <SLEW_RATE_SLOW>;
-			power-source = <IO_STANDARD_LVCMOS18>;
-		};
-
-		conf-rx {
-			pins = "MIO44", "MIO46", "MIO48";
-			bias-high-impedance;
-			low-power-disable;
-		};
-
-		conf-bootstrap {
-			pins = "MIO45", "MIO47", "MIO49";
-			bias-disable;
-			low-power-disable;
-		};
-
-		conf-tx {
-			pins = "MIO38", "MIO39", "MIO40",
-				"MIO41", "MIO42", "MIO43";
-			bias-disable;
-			low-power-enable;
-		};
-
-		conf-mdio {
-			groups = "mdio1_0_grp";
-			slew-rate = <SLEW_RATE_SLOW>;
-			power-source = <IO_STANDARD_LVCMOS18>;
-			bias-disable;
-		};
-
-		mux-mdio {
-			function = "mdio1";
-			groups = "mdio1_0_grp";
-		};
-
-		mux {
-			function = "ethernet1";
-			groups = "ethernet1_0_grp";
-		};
-	};
-
-	pinctrl_usb0_default: usb0-default {
-		conf {
-			groups = "usb0_0_grp";
-			slew-rate = <SLEW_RATE_SLOW>;
-			power-source = <IO_STANDARD_LVCMOS18>;
-		};
-
-		conf-rx {
-			pins = "MIO52", "MIO53", "MIO55";
-			bias-high-impedance;
-		};
-
-		conf-tx {
-			pins = "MIO54", "MIO56", "MIO57", "MIO58", "MIO59",
-			"MIO60", "MIO61", "MIO62", "MIO63";
-			bias-disable;
-		};
-
-		mux {
-			groups = "usb0_0_grp";
-			function = "usb0";
-		};
-	};
 };
