@@ -34,7 +34,7 @@ if [ -z "${ip}" ] || [ -n "$4" ] ; then
 	usage "Invalid number of arguments"
 fi
 
-for nc in netcat nc ; do
+for nc in socat netcat nc ; do
 	type ${nc} >/dev/null 2>&1 && break
 done
 
@@ -46,6 +46,10 @@ stty -icanon -echo intr ^T
 if type ncb 2>/dev/null ; then
 	# see if ncb is in $PATH
 	exec ncb ${board_out_port}
+
+elif [ "${nc}" = "socat" ] ; then
+	# socat does support broadcast
+	while ${nc} STDIO "UDP4-LISTEN:${board_out_port}"; do :; done
 
 elif [ -x ${0%/*}/ncb ] ; then
 	# maybe it's in the same dir as the netconsole script
@@ -59,5 +63,9 @@ else
 fi
 ) &
 pid=$!
-${nc} -u ${ip} ${board_in_port}
+if [ "${nc}" = "socat" ] ; then
+	${nc} - "UDP4:${ip}:${board_in_port}"
+else
+	${nc} -u ${ip} ${board_in_port}
+fi
 kill ${pid} 2>/dev/null
