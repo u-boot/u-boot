@@ -9,6 +9,7 @@
 /dts-v1/;
 
 #include "fsl-ls1028a.dtsi"
+#include "fsl-ls1028a-rdb-u-boot.dtsi"
 
 / {
 	model = "NXP Layerscape 1028a RDB Board";
@@ -150,14 +151,6 @@
 
 &mscc_felix_port4 {
 	ethernet = <&enetc_port2>;
-	status = "okay";
-};
-
-&pcie1 {
-	status = "okay";
-};
-
-&pcie2 {
 	status = "okay";
 };
 
