@@ -102,7 +102,7 @@ Manually Loading and Applying Overlays
 
 ::
 
-    => fdtaddr $fdtaddr
+    => fdt addr $fdtaddr
 
 4. Grow it enough so it can encompass all applied overlays
 
