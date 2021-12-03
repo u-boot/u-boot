@@ -119,12 +119,23 @@
 /* Increase max gunzip size */
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 
+/* Support autoboot from RAM (kernel image is loaded via debug port) */
+#define KERNEL_IMAGE_ADDR	"0x2000000 "
+#define BOOTENV_DEV_NAME_RAM(devtypeu, devtypel, instance) \
+	"ram "
+#define BOOTENV_DEV_RAM(devtypeu, devtypel, instance) \
+	"bootcmd_ram=" \
+	"booti " \
+	KERNEL_IMAGE_ADDR \
+	"- $fdtcontroladdr\0"
+
 /* When we use RAM as ENV */
 
 /* Enable distro boot */
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
-	func(DHCP, dhcp, na)
+	func(DHCP, dhcp, na) \
+	func(RAM, ram, na)
 #include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\

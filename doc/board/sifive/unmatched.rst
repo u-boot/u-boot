@@ -534,3 +534,34 @@ Sample boot log from HiFive Unmatched board
 	OpenEmbedded nodistro.0 unmatched ttySIF0
 
 	unmatched login:
+
+
+Booting from SPI
+----------------
+
+Use Building steps from "Booting from uSD using U-Boot SPL" section.
+
+Partition the SPI in Linux via mtdblock.  The partition types here are
+"HiFive Unleashed FSBL", "HiFive Unleashed BBL", and "U-Boot environment"
+for partitions one through three respectively.
+
+.. code-block:: none
+
+	sgdisk --clear -a 1 \
+	    --new=1:40:2087     --change-name=1:spl   --typecode=1:5B193300-FC78-40CD-8002-E86C45580B47 \
+	    --new=2:2088:10279  --change-name=2:uboot --typecode=2:2E54B353-1271-4842-806F-E436D6AF6985 \
+	    --new=3:10280:10535 --change-name=3:env   --typecode=3:3DE21764-95BD-54BD-A5C3-4ABE786F38A8 \
+	    /dev/mtdblock0
+
+Write U-boot SPL and U-boot to their partitions.
+
+.. code-block:: none
+
+	dd if=u-boot-spl.bin of=/dev/mtdblock0 bs=4096 seek=5 conv=sync
+	dd if=u-boot.itb  of=/dev/mtdblock0 bs=4096 seek=261 conv=sync
+
+Power off the board.
+
+Change DIP switches MSEL[3:0] to 0110.
+
+Power up the board.

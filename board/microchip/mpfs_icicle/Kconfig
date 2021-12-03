@@ -45,5 +45,10 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply MMC_WRITE
 	imply MMC_SDHCI
 	imply MMC_SDHCI_CADENCE
+	imply MMC_SDHCI_ADMA
+	imply MMC_HS200_SUPPORT
+	imply CMD_I2C
+	imply DM_I2C
+	imply SYS_I2C_MICROCHIP
 
 endif

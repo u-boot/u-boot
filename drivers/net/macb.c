@@ -1348,7 +1348,7 @@ static const struct macb_usrio_cfg macb_default_usrio = {
 	.clken = MACB_BIT(CLKEN),
 };
 
-static const struct macb_config default_gem_config = {
+static struct macb_config default_gem_config = {
 	.dma_burst_length = 16,
 	.hw_dma_cap = HW_DMA_CAP_32B,
 	.clk_init = NULL,
@@ -1383,8 +1383,13 @@ static int macb_eth_probe(struct udevice *dev)
 	macb->is_big_endian = (cpu_to_be32(0x12345678) == 0x12345678);
 
 	macb->config = (struct macb_config *)dev_get_driver_data(dev);
-	if (!macb->config)
+	if (!macb->config) {
+		if (IS_ENABLED(CONFIG_DMA_ADDR_T_64BIT)) {
+			if (GEM_BFEXT(DAW64, gem_readl(macb, DCFG6)))
+				default_gem_config.hw_dma_cap = HW_DMA_CAP_64B;
+		}
 		macb->config = &default_gem_config;
+	}
 
 #ifdef CONFIG_CLK
 	ret = macb_enable_clk(dev);
@@ -1453,13 +1458,6 @@ static const struct macb_usrio_cfg sama7g5_usrio = {
 	.clken = BIT(2),
 };
 
-static const struct macb_config microchip_config = {
-	.dma_burst_length = 16,
-	.hw_dma_cap = HW_DMA_CAP_64B,
-	.clk_init = NULL,
-	.usrio = &macb_default_usrio,
-};
-
 static const struct macb_config sama5d4_config = {
 	.dma_burst_length = 4,
 	.hw_dma_cap = HW_DMA_CAP_32B,
@@ -1502,8 +1500,6 @@ static const struct udevice_id macb_eth_ids[] = {
 	{ .compatible = "cdns,zynq-gem" },
 	{ .compatible = "sifive,fu540-c000-gem",
 	  .data = (ulong)&sifive_config },
-	{ .compatible = "microchip,mpfs-mss-gem",
-	  .data = (ulong)&microchip_config },
 	{ }
 };
 
