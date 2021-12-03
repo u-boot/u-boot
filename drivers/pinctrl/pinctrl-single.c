@@ -28,6 +28,7 @@ struct single_pdata {
 	int offset;
 	u32 mask;
 	u32 width;
+	u32 args_count;
 	bool bits_per_mux;
 };
 
@@ -76,20 +77,6 @@ struct single_priv {
 	char pin_name[PINNAME_SIZE];
 	struct list_head functions;
 	struct list_head gpiofuncs;
-};
-
-/**
- * struct single_fdt_pin_cfg - pin configuration
- *
- * This structure is used for the pin configuration parameters in case
- * the register controls only one pin.
- *
- * @reg: configuration register offset
- * @val: configuration register value
- */
-struct single_fdt_pin_cfg {
-	fdt32_t reg;
-	fdt32_t val;
 };
 
 /**
@@ -314,25 +301,28 @@ static int single_pin_compare(const void *s1, const void *s2)
  * @dev: Pointer to single pin configuration device which is the parent of
  *       the pins node holding the pin configuration data.
  * @pins: Pointer to the first element of an array of register/value pairs
- *        of type 'struct single_fdt_pin_cfg'. Each such pair describes the
- *        the pin to be configured and the value to be used for configuration.
+ *        of type 'u32'. Each such pair describes the pin to be configured 
+ *        and the value to be used for configuration.
+ *        The value can either be a simple value if #pinctrl-cells = 1
+ *        or a configuration value and a pin mux mode value if it is 2
  *        This pointer points to a 'pinctrl-single,pins' property in the
  *        device-tree.
  * @size: Size of the 'pins' array in bytes.
- *        The number of register/value pairs in the 'pins' array therefore
- *        equals to 'size / sizeof(struct single_fdt_pin_cfg)'.
+ *        The number of cells in the array therefore equals to
+ *        'size / sizeof(u32)'.
  * @fname: Function name.
  */
 static int single_configure_pins(struct udevice *dev,
-				 const struct single_fdt_pin_cfg *pins,
+				 const u32 *pins,
 				 int size, const char *fname)
 {
 	struct single_pdata *pdata = dev_get_plat(dev);
 	struct single_priv *priv = dev_get_priv(dev);
-	int n, pin, count = size / sizeof(struct single_fdt_pin_cfg);
+	int stride = pdata->args_count + 1;
+	int n, pin, count = size / sizeof(u32);
 	struct single_func *func;
 	phys_addr_t reg;
-	u32 offset, val;
+	u32 offset, val, mux;
 
 	/* If function mask is null, needn't enable it. */
 	if (!pdata->mask)
@@ -344,16 +334,22 @@ static int single_configure_pins(struct udevice *dev,
 
 	func->name = fname;
 	func->npins = 0;
-	for (n = 0; n < count; n++, pins++) {
-		offset = fdt32_to_cpu(pins->reg);
+	for (n = 0; n < count; n += stride) {
+		offset = fdt32_to_cpu(pins[n]);
 		if (offset > pdata->offset) {
 			dev_err(dev, "  invalid register offset 0x%x\n",
 				offset);
 			continue;
 		}
 
+		/* if the pinctrl-cells is 2 then the second cell contains the mux */
+		if (stride == 3)
+			mux = fdt32_to_cpu(pins[n + 2]);
+		else
+			mux = 0;
+
 		reg = pdata->base + offset;
-		val = fdt32_to_cpu(pins->val) & pdata->mask;
+		val = (fdt32_to_cpu(pins[n + 1]) | mux) & pdata->mask;
 		pin = single_get_pin_by_offset(dev, offset);
 		if (pin < 0) {
 			dev_err(dev, "  failed to get pin by offset %x\n",
@@ -453,7 +449,7 @@ static int single_configure_bits(struct udevice *dev,
 static int single_set_state(struct udevice *dev,
 			    struct udevice *config)
 {
-	const struct single_fdt_pin_cfg *prop;
+	const u32 *prop;
 	const struct single_fdt_bits_cfg *prop_bits;
 	int len;
 
@@ -461,7 +457,7 @@ static int single_set_state(struct udevice *dev,
 
 	if (prop) {
 		dev_dbg(dev, "configuring pins for %s\n", config->name);
-		if (len % sizeof(struct single_fdt_pin_cfg)) {
+		if (len % sizeof(u32)) {
 			dev_dbg(dev, "  invalid pin configuration in fdt\n");
 			return -FDT_ERR_BADSTRUCTURE;
 		}
@@ -611,6 +607,13 @@ static int single_of_to_plat(struct udevice *dev)
 	}
 
 	pdata->bits_per_mux = dev_read_bool(dev, "pinctrl-single,bit-per-mux");
+
+	/* If no pinctrl-cells is present, default to old style of 2 cells with
+	 * bits per mux and 1 cell otherwise.
+	 */
+	ret = dev_read_u32(dev, "#pinctrl-cells", &pdata->args_count);
+	if (ret)
+		pdata->args_count = pdata->bits_per_mux ? 2 : 1;
 
 	return 0;
 }
