@@ -620,12 +620,12 @@ EFI_DRIVER_BINDING_PROTOCOL implementation for the UEFI drivers.
 
 A linker created list is used to keep track of the UEFI drivers. To create an
 entry in the list the UEFI driver uses the U_BOOT_DRIVER macro specifying
-UCLASS_EFI as the ID of its uclass, e.g::
+UCLASS_EFI_LOADER as the ID of its uclass, e.g::
 
     /* Identify as UEFI driver */
     U_BOOT_DRIVER(efi_block) = {
         .name  = "EFI block driver",
-        .id    = UCLASS_EFI,
+        .id    = UCLASS_EFI_LOADER,
         .ops   = &driver_ops,
     };
 
@@ -651,8 +651,8 @@ UEFI block IO driver
 The UEFI block IO driver supports devices exposing the EFI_BLOCK_IO_PROTOCOL.
 
 When connected it creates a new U-Boot block IO device with interface type
-IF_TYPE_EFI, adds child controllers mapping the partitions, and installs the
-EFI_SIMPLE_FILE_SYSTEM_PROTOCOL on these. This can be used together with the
+IF_TYPE_EFI_LOADER, adds child controllers mapping the partitions, and installs
+the EFI_SIMPLE_FILE_SYSTEM_PROTOCOL on these. This can be used together with the
 software iPXE to boot from iSCSI network drives [4].
 
 This driver is only available if U-Boot is configured with::
