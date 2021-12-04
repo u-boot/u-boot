@@ -10,10 +10,18 @@
 / {
 	aliases {
 		spi0 = &spi0;
+		qspi0 = &qspi0;
 	};
 
 	memory@80000000 {
 		u-boot,dm-spl;
+	};
+
+	config {
+		/* second partition @2082*512 = 0x104400
+		   see board/sifive/unmatched/genimage_spi-nor.cfg
+		*/
+		u-boot,spl-payload-offset = <0x104400>;
 	};
 
 	hfclk {
@@ -28,6 +36,12 @@
 
 &clint {
 	clocks = <&rtcclk>;
+};
+
+&qspi0 {
+	flash@0 {
+		u-boot,dm-spl;
+	};
 };
 
 &spi0 {

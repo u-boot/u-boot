@@ -89,22 +89,33 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	 * taken from DT when available
 	 */
 
-	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
-				CONFIG_SF_DEFAULT_CS,
-				CONFIG_SF_DEFAULT_SPEED,
-				CONFIG_SF_DEFAULT_MODE);
-	if (!flash) {
+	log_info("Loading SPI image from dev %s (%d)\n",
+			bootdev->boot_device_name, bootdev->boot_device);
+
+	struct udevice *flash_dev;
+
+	if (spi_flash_probe_bus_cs(CONFIG_SF_DEFAULT_BUS,
+			CONFIG_SF_DEFAULT_CS,
+			CONFIG_SF_DEFAULT_SPEED,
+			CONFIG_SF_DEFAULT_MODE,
+			&flash_dev)) {
 		puts("SPI probe failed.\n");
 		return -ENODEV;
 	}
 
-	payload_offs = spl_spi_get_uboot_offs(flash);
+	flash = dev_get_uclass_priv(flash_dev);
+	if (!flash) {
+		puts("Device init failed.\n");
+		return -ENODEV;
+	}
 
+	payload_offs = spl_spi_get_uboot_offs(flash);
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
 	if (CONFIG_IS_ENABLED(OF_REAL)) {
 		payload_offs = ofnode_conf_read_int("u-boot,spl-payload-offset",
 						    payload_offs);
+		log_debug("payload offset determined by dtb: %u\n", payload_offs);
 	}
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
@@ -112,21 +123,25 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 #endif
 	{
 		/* Load u-boot, mkimage header is 64 bytes. */
-		err = spi_flash_read(flash, payload_offs, sizeof(*header),
-				     (void *)header);
+		log_debug("reading spi flash\n");
+		err = spi_flash_read_dm(flash_dev, payload_offs,
+				sizeof(*header), (void *)header);
 		if (err) {
-			debug("%s: Failed to read from SPI flash (err=%d)\n",
-			      __func__, err);
+			log_err("Failed to read from SPI flash (err=%d)\n", err);
 			return err;
 		}
 
+		log_info("SPI Flash read header successfully\n");
+
 		if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL) &&
 		    image_get_magic(header) == FDT_MAGIC) {
-			err = spi_flash_read(flash, payload_offs,
+			err = spi_flash_read_dm(flash_dev, payload_offs,
 					     roundup(fdt_totalsize(header), 4),
 					     (void *)CONFIG_SYS_LOAD_ADDR);
-			if (err)
+			if (err) {
+				log_err("Could not read FIT FULL from SPI Flash (err=%d)\n", err);
 				return err;
+			}
 			err = spl_parse_image_header(spl_image,
 					(struct image_header *)CONFIG_SYS_LOAD_ADDR);
 		} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
@@ -154,10 +169,13 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			err = spl_load_imx_container(spl_image, &load,
 						     payload_offs);
 		} else {
+			log_notice("Magic header of image not found in SPI Flash.\n");
 			err = spl_parse_image_header(spl_image, header);
-			if (err)
+			if (err) {
+				printf("Could not parse image header (%d)\n", err);
 				return err;
-			err = spi_flash_read(flash, payload_offs + spl_image->offset,
+			}
+			err = spi_flash_read_dm(flash_dev, payload_offs + spl_image->offset,
 					     spl_image->size,
 					     (void *)spl_image->load_addr);
 		}

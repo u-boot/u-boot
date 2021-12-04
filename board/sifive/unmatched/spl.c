@@ -23,6 +23,7 @@
 
 #define MODE_SELECT_REG		0x1000
 #define MODE_SELECT_SD		0xb
+#define MODE_SELECT_QSPI	0x6
 #define MODE_SELECT_MASK	GENMASK(3, 0)
 
 static inline int spl_reset_device_by_gpio(const char *label, int pin, int low_width)
@@ -125,12 +126,23 @@ u32 spl_boot_device(void)
 	switch (boot_device) {
 	case MODE_SELECT_SD:
 		return BOOT_DEVICE_MMC1;
+	case MODE_SELECT_QSPI:
+		return BOOT_DEVICE_SPI;
 	default:
 		debug("Unsupported boot device 0x%x but trying MMC1\n",
 		      boot_device);
 		return BOOT_DEVICE_MMC1;
 	}
 }
+
+// overriding spl.c
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+	// enable fallback to booting from SD-Card
+	spl_boot_list[1] = BOOT_DEVICE_MMC1;
+}
+
 
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
