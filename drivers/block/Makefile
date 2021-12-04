@@ -17,3 +17,4 @@ obj-$(CONFIG_$(SPL_TPL_)BLOCK_CACHE) += blkcache.o
 
 obj-$(CONFIG_EFI_MEDIA) += efi-media-uclass.o
 obj-$(CONFIG_EFI_MEDIA_SANDBOX) += sb_efi_media.o
+obj-$(CONFIG_EFI_MEDIA_BLK) += efi_blk.o

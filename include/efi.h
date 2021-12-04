@@ -414,6 +414,17 @@ struct efi_priv {
 	void *next_hdr;
 };
 
+/*
+ * EFI attributes of the udevice handled by efi_media driver
+ *
+ * @handle: handle of the controller on which this driver is installed
+ * @blkio: block io protocol proxied by this driver
+ */
+struct efi_media_plat {
+	efi_handle_t		handle;
+	struct efi_block_io	*blkio;
+};
+
 /* Base address of the EFI image */
 extern char image_base[];
 

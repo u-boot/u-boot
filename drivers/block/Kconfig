@@ -82,6 +82,16 @@ config EFI_MEDIA_SANDBOX
 	  EFI_MEDIA uclass. It does not do anything useful, since sandbox does
 	  not actually support running on top of UEFI.
 
+config EFI_MEDIA_BLK
+	bool "EFI media block driver"
+	depends on EFI_APP
+	default y
+	help
+	  Enables a block driver for providing access to UEFI devices. This
+	  allows use of block devices detected by the underlying UEFI
+	  implementation. With this it is possible to use filesystems on these
+	  devices, for example.
+
 endif  # EFI_MEDIA
 
 config IDE
