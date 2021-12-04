@@ -466,6 +466,8 @@ static int dsa_pre_probe(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct dsa_priv *priv = dev_get_uclass_priv(dev);
+	struct dsa_ops *ops = dsa_get_ops(dev);
+	int err;
 
 	priv->num_ports = pdata->num_ports;
 	priv->cpu_port = pdata->cpu_port;
@@ -477,6 +479,15 @@ static int dsa_pre_probe(struct udevice *dev)
 
 	uclass_find_device_by_ofnode(UCLASS_ETH, pdata->master_node,
 				     &priv->master_dev);
+
+	/* Simulate a probing event for the CPU port */
+	if (ops->port_probe) {
+		err = ops->port_probe(dev, priv->cpu_port,
+				      priv->cpu_port_fixed_phy);
+		if (err)
+			return err;
+	}
+
 	return 0;
 }
 
