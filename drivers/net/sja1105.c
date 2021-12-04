@@ -3276,12 +3276,6 @@ static int sja1105_check_device_id(struct sja1105_private *priv)
 	sja1105_packing(packed_buf, &device_id, 31, 0, SJA1105_SIZE_DEVICE_ID,
 			UNPACK);
 
-	if (device_id != priv->info->device_id) {
-		printf("Expected device ID 0x%llx but read 0x%llx\n",
-		       priv->info->device_id, device_id);
-		return -ENODEV;
-	}
-
 	rc = sja1105_xfer_buf(priv, SPI_READ, regs->prod_id, packed_buf,
 			      SJA1105_SIZE_DEVICE_ID);
 	if (rc < 0)
