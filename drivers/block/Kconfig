@@ -61,6 +61,29 @@ config TPL_BLOCK_CACHE
 	help
 	  This option enables the disk-block cache in TPL
 
+config EFI_MEDIA
+	bool "Support EFI media drivers"
+	default y if EFI || SANDBOX
+	help
+	  Enable this to support media devices on top of UEFI. This enables
+	  just the uclass so you also need a specific driver to make this do
+	  anything.
+
+	  For sandbox there is a test driver.
+
+if EFI_MEDIA
+
+config EFI_MEDIA_SANDBOX
+	bool "Sandbox EFI media driver"
+	depends on SANDBOX
+	default y
+	help
+	  Enables a simple sandbox media driver, used for testing just the
+	  EFI_MEDIA uclass. It does not do anything useful, since sandbox does
+	  not actually support running on top of UEFI.
+
+endif  # EFI_MEDIA
+
 config IDE
 	bool "Support IDE controllers"
 	select HAVE_BLOCK_DEVICE

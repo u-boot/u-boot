@@ -296,8 +296,11 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 	case IF_TYPE_VIRTIO:
 		puts("VirtIO");
 		break;
+	case IF_TYPE_EFI_MEDIA:
+		puts("EFI");
+		break;
 	default:
-		puts ("UNKNOWN");
+		puts("UNKNOWN");
 		break;
 	}
 	printf (" device %d  --   Partition Type: %s\n\n",
