@@ -78,7 +78,7 @@ static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 1 || argc > 2)
 		return CMD_RET_USAGE;
 	int min_dev = 0;
-	int max_dev = CONFIG_HOST_MAX_DEVICES - 1;
+	int max_dev = SANDBOX_HOST_MAX_DEVICES - 1;
 	if (argc >= 2) {
 		char *ep;
 		char *dev_str = argv[1];

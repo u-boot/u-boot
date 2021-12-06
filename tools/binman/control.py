@@ -200,8 +200,24 @@ def ReadEntry(image_fname, entry_path, decomp=True):
     return entry.ReadData(decomp)
 
 
+def ShowAltFormats(image):
+    """Show alternative formats available for entries in the image
+
+    This shows a list of formats available.
+
+    Args:
+        image (Image): Image to check
+    """
+    alt_formats = {}
+    image.CheckAltFormats(alt_formats)
+    print('%-10s  %-20s  %s' % ('Flag (-F)', 'Entry type', 'Description'))
+    for name, val in alt_formats.items():
+        entry, helptext = val
+        print('%-10s  %-20s  %s' % (name, entry.etype, helptext))
+
+
 def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
-                   decomp=True):
+                   decomp=True, alt_format=None):
     """Extract the data from one or more entries and write it to files
 
     Args:
@@ -217,6 +233,10 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
     """
     image = Image.FromFile(image_fname)
 
+    if alt_format == 'list':
+        ShowAltFormats(image)
+        return
+
     # Output an entry to a single file, as a special case
     if output_fname:
         if not entry_paths:
@@ -224,7 +244,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
         if len(entry_paths) != 1:
             raise ValueError('Must specify exactly one entry path to write with -f')
         entry = image.FindEntryPath(entry_paths[0])
-        data = entry.ReadData(decomp)
+        data = entry.ReadData(decomp, alt_format)
         tools.WriteFile(output_fname, data)
         tout.Notice("Wrote %#x bytes to file '%s'" % (len(data), output_fname))
         return
@@ -236,7 +256,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
     tout.Notice('%d entries match and will be written' % len(einfos))
     for einfo in einfos:
         entry = einfo.entry
-        data = entry.ReadData(decomp)
+        data = entry.ReadData(decomp, alt_format)
         path = entry.GetPath()[1:]
         fname = os.path.join(outdir, path)
 
@@ -584,7 +604,7 @@ def Binman(args):
 
             if args.cmd == 'extract':
                 ExtractEntries(args.image, args.filename, args.outdir, args.paths,
-                               not args.uncompressed)
+                               not args.uncompressed, args.format)
 
             if args.cmd == 'replace':
                 ReplaceEntries(args.image, args.filename, args.indir, args.paths,

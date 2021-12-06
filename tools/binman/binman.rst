@@ -913,6 +913,11 @@ or with wildcards::
           u-boot-dtb        180   108  u-boot-dtb        80          3b5
       image-header          bf8     8  image-header     bf8
 
+If an older version of binman is used to list images created by a newer one, it
+is possible that it will contain entry types that are not supported. These still
+show with the correct type, but binman just sees them as blobs (plain binary
+data). Any special features of that etype are not supported by the old binman.
+
 
 Extracting files from images
 ----------------------------
@@ -937,12 +942,41 @@ or just a selection::
 
     $ binman extract -i image.bin "*u-boot*" -O outdir
 
+Some entry types have alternative formats, for example fdtmap which allows
+extracted just the devicetree binary without the fdtmap header::
+
+    $ binman extract -i /tmp/b/odroid-c4/image.bin -f out.dtb -F fdt fdtmap
+    $ fdtdump out.dtb
+    /dts-v1/;
+    // magic:               0xd00dfeed
+    // totalsize:           0x8ab (2219)
+    // off_dt_struct:       0x38
+    // off_dt_strings:      0x82c
+    // off_mem_rsvmap:      0x28
+    // version:             17
+    // last_comp_version:   2
+    // boot_cpuid_phys:     0x0
+    // size_dt_strings:     0x7f
+    // size_dt_struct:      0x7f4
+
+    / {
+        image-node = "binman";
+        image-pos = <0x00000000>;
+        size = <0x0011162b>;
+        ...
+
+Use `-F list` to see what alternative formats are available::
+
+    $ binman extract -i /tmp/b/odroid-c4/image.bin -F list
+    Flag (-F)   Entry type            Description
+    fdt         fdtmap                Extract the devicetree blob from the fdtmap
+
 
 Replacing files in an image
 ---------------------------
 
 You can replace files in an existing firmware image created by binman, provided
-that there is an 'fdtmap' entry in the image. For example:
+that there is an 'fdtmap' entry in the image. For example::
 
     $ binman replace -i image.bin section/cbfs/u-boot
 
@@ -1081,6 +1115,35 @@ the tool's output will be used for the target or for the host machine. If those
 aren't given, it will also try to derive target-specific versions from the
 CROSS_COMPILE environment variable during a cross-compilation.
 
+If the tool is not available in the path you can use BINMAN_TOOLPATHS to specify
+a space-separated list of paths to search, e.g.::
+
+   BINMAN_TOOLPATHS="/tools/g12a /tools/tegra" binman ...
+
+
+External blobs
+--------------
+
+Binary blobs, even if the source code is available, complicate building
+firmware. The instructions can involve multiple steps and the binaries may be
+hard to build or obtain. Binman at least provides a unified description of how
+to build the final image, no matter what steps are needed to get there.
+
+Binman also provides a `blob-ext` entry type that pulls in a binary blob from an
+external file. If the file is missing, binman can optionally complete the build
+and just report a warning. Use the `-M/--allow-missing` option to enble this.
+This is useful in CI systems which want to check that everything is correct but
+don't have access to the blobs.
+
+If the blobs are in a different directory, you can specify this with the `-I`
+option.
+
+For U-Boot, you can use set the BINMAN_INDIRS environment variable to provide a
+space-separated list of directories to search for binary blobs::
+
+   BINMAN_INDIRS="odroid-c4/fip/g12a \
+       odroid-c4/build/board/hardkernel/odroidc4/firmware \
+       odroid-c4/build/scp_task" binman ...
 
 Code coverage
 -------------

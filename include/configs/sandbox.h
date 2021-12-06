@@ -10,21 +10,9 @@
 #define CONFIG_IO_TRACE
 #endif
 
-#ifndef CONFIG_TIMER
-#define CONFIG_SYS_TIMER_RATE		1000000
-#endif
-
-#define CONFIG_HOST_MAX_DEVICES 4
-
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-
-/* turn on command-line edit/c/auto */
-
-/* SPI - enable all SPI flash types for testing purposes */
-
-#define CONFIG_SYS_FDT_LOAD_ADDR	        0x100
 
 #define CONFIG_PHYSMEM
 
@@ -46,14 +34,6 @@
 
 #ifndef SANDBOX_NO_SDL
 #define CONFIG_SANDBOX_SDL
-#endif
-
-/* LCD and keyboard require SDL support */
-#ifdef CONFIG_SANDBOX_SDL
-#define LCD_BPP			LCD_COLOR16
-#define CONFIG_LCD_BMP_RLE8
-
-#define CONFIG_KEYBOARD
 #endif
 
 #ifndef CONFIG_SPL_BUILD

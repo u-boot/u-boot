@@ -67,8 +67,6 @@
  */
 #ifdef CONFIG_IDE
 #define __io
-/* Needs byte-swapping for ATA data register */
-#define CONFIG_IDE_SWAP_IO
 /* Data, registers and alternate blocks are at the same offset */
 #define CONFIG_SYS_ATA_DATA_OFFSET	(0x0100)
 #define CONFIG_SYS_ATA_REG_OFFSET	(0x0100)

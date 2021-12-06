@@ -296,6 +296,7 @@ struct dtd_sandbox_spl_test {
 \tbool\t\tboolval;
 \tunsigned char\tbytearray[3];
 \tunsigned char\tbyteval;
+\tfdt32_t\t\tint64val[2];
 \tfdt32_t\t\tintarray[3];
 \tfdt32_t\t\tintval;
 \tunsigned char\tlongbytearray[9];
@@ -355,6 +356,7 @@ static struct dtd_sandbox_spl_test dtv_spl_test = {
 \t.boolval\t\t= true,
 \t.bytearray\t\t= {0x6, 0x0, 0x0},
 \t.byteval\t\t= 0x5,
+\t.int64val\t\t= {0x12345678, 0x9abcdef0},
 \t.intarray\t\t= {0x2, 0x3, 0x4},
 \t.intval\t\t\t= 0x1,
 \t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10,

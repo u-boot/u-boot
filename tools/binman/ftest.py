@@ -2251,7 +2251,7 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('107_cbfs_no_size.dts')
         self.assertIn('entry must have a size property', str(e.exception))
 
-    def testCbfsNoCOntents(self):
+    def testCbfsNoContents(self):
         """Test handling of a CBFS entry which does not provide contentsy"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('108_cbfs_no_contents.dts')
@@ -4533,7 +4533,7 @@ class TestFunctional(unittest.TestCase):
     def testCollectionSection(self):
         """Test a collection where a section must be built first"""
         # Sections never have their contents when GetData() is called, but when
-        # _BuildSectionData() is called with required=True, a section will force
+        # BuildSectionData() is called with required=True, a section will force
         # building the contents, producing an error is anything is still
         # missing.
         data = self._DoReadFile('199_collection_section.dts')
@@ -4660,6 +4660,80 @@ class TestFunctional(unittest.TestCase):
         self.assertRegex(
             str(e.exception),
             "Not enough space in '.*u_boot_binman_embed_sm' for data length.*")
+
+    def testVersion(self):
+        """Test we can get the binman version"""
+        version = '(unreleased)'
+        self.assertEqual(version, state.GetVersion(self._indir))
+
+        with self.assertRaises(SystemExit):
+            with test_util.capture_sys_output() as (_, stderr):
+                self._DoBinman('-V')
+        self.assertEqual('Binman %s\n' % version, stderr.getvalue())
+
+        # Try running the tool too, just to be safe
+        result = self._RunBinman('-V')
+        self.assertEqual('Binman %s\n' % version, result.stderr)
+
+        # Set up a version file to make sure that works
+        version = 'v2025.01-rc2'
+        tools.WriteFile(os.path.join(self._indir, 'version'), version,
+                        binary=False)
+        self.assertEqual(version, state.GetVersion(self._indir))
+
+    def testAltFormat(self):
+        """Test that alternative formats can be used to extract"""
+        self._DoReadFileRealDtb('213_fdtmap_alt_format.dts')
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with test_util.capture_sys_output() as (stdout, _):
+                self._DoBinman('extract', '-i', updated_fname, '-F', 'list')
+            self.assertEqual(
+                '''Flag (-F)   Entry type            Description
+fdt         fdtmap                Extract the devicetree blob from the fdtmap
+''',
+                stdout.getvalue())
+
+            dtb = os.path.join(tmpdir, 'fdt.dtb')
+            self._DoBinman('extract', '-i', updated_fname, '-F', 'fdt', '-f',
+                           dtb, 'fdtmap')
+
+            # Check that we can read it and it can be scanning, meaning it does
+            # not have a 16-byte fdtmap header
+            data = tools.ReadFile(dtb)
+            dtb = fdt.Fdt.FromData(data)
+            dtb.Scan()
+
+            # Now check u-boot which has no alt_format
+            fname = os.path.join(tmpdir, 'fdt.dtb')
+            self._DoBinman('extract', '-i', updated_fname, '-F', 'dummy',
+                           '-f', fname, 'u-boot')
+            data = tools.ReadFile(fname)
+            self.assertEqual(U_BOOT_DATA, data)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def testExtblobList(self):
+        """Test an image with an external blob list"""
+        data = self._DoReadFile('215_blob_ext_list.dts')
+        self.assertEqual(REFCODE_DATA + FSP_M_DATA, data)
+
+    def testExtblobListMissing(self):
+        """Test an image with a missing external blob"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('216_blob_ext_list_missing.dts')
+        self.assertIn("Filename 'missing-file' not found in input path",
+                      str(e.exception))
+
+    def testExtblobListMissingOk(self):
+        """Test an image with an missing external blob that is allowed"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('216_blob_ext_list_missing.dts',
+                             allow_missing=True)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
 
 
 if __name__ == "__main__":

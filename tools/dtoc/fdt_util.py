@@ -27,6 +27,18 @@ def fdt32_to_cpu(val):
     """
     return struct.unpack('>I', val)[0]
 
+def fdt64_to_cpu(val):
+    """Convert a device tree cell to an integer
+
+    Args:
+        val (list): Value to convert (list of 2 4-character strings representing
+            the cell value)
+
+    Return:
+        int: A native-endian integer value
+    """
+    return fdt32_to_cpu(val[0]) << 32 | fdt32_to_cpu(val[1])
+
 def fdt_cells_to_cpu(val, cells):
     """Convert one or two cells to a long integer
 
@@ -108,6 +120,29 @@ def GetInt(node, propname, default=None):
     value = fdt32_to_cpu(prop.value)
     return value
 
+def GetInt64(node, propname, default=None):
+    """Get a 64-bit integer from a property
+
+    Args:
+        node (Node): Node object to read from
+        propname (str): property name to read
+        default (int): Default value to use if the node/property do not exist
+
+    Returns:
+        int: value read, or default if none
+
+    Raises:
+        ValueError: Property is not of the correct size
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    if not isinstance(prop.value, list) or len(prop.value) != 2:
+        raise ValueError("Node '%s' property '%s' should be a list with 2 items for 64-bit values" %
+                         (node.name, propname))
+    value = fdt64_to_cpu(prop.value)
+    return value
+
 def GetString(node, propname, default=None):
     """Get a string from a property
 
@@ -126,6 +161,27 @@ def GetString(node, propname, default=None):
     if isinstance(value, list):
         raise ValueError("Node '%s' property '%s' has list value: expecting "
                          "a single string" % (node.name, propname))
+    return value
+
+def GetStringList(node, propname, default=None):
+    """Get a string list from a property
+
+    Args:
+        node (Node): Node object to read from
+        propname (str): property name to read
+        default (list of str): Default value to use if the node/property do not
+            exist, or None
+
+    Returns:
+        String value read, or default if none
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    value = prop.value
+    if not isinstance(value, list):
+        strval = GetString(node, propname)
+        return [strval]
     return value
 
 def GetBool(node, propname, default=False):
@@ -166,6 +222,26 @@ def GetByte(node, propname, default=None):
         raise ValueError("Node '%s' property '%s' has length %d, expecting %d" %
                          (node.name, propname, len(value), 1))
     return ord(value[0])
+
+def GetBytes(node, propname, size, default=None):
+    """Get a set of bytes from a property
+
+    Args:
+        node (Node): Node object to read from
+        propname (str): property name to read
+        size (int): Number of bytes to expect
+        default (bytes): Default value or None
+
+    Returns:
+        bytes: Bytes value read, or default if none
+    """
+    prop = node.props.get(propname)
+    if not prop:
+        return default
+    if len(prop.bytes) != size:
+        raise ValueError("Node '%s' property '%s' has length %d, expecting %d" %
+                         (node.name, propname, len(prop.bytes), size))
+    return prop.bytes
 
 def GetPhandleList(node, propname):
     """Get a list of phandles from a property

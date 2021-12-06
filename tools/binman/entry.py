@@ -95,14 +95,14 @@ class Entry(object):
         self.pad_after = 0
         self.offset_unset = False
         self.image_pos = None
-        self._expand_size = False
+        self.expand_size = False
         self.compress = 'none'
         self.missing = False
         self.external = False
         self.allow_missing = False
 
     @staticmethod
-    def Lookup(node_path, etype, expanded):
+    def FindEntryClass(etype, expanded):
         """Look up the entry class for a node.
 
         Args:
@@ -113,10 +113,9 @@ class Entry(object):
 
         Returns:
             The entry class object if found, else None if not found and expanded
-                is True
-
-        Raise:
-            ValueError if expanded is False and the class is not found
+                is True, else a tuple:
+                    module name that could not be found
+                    exception received
         """
         # Convert something like 'u-boot@0' to 'u_boot' since we are only
         # interested in the type.
@@ -137,30 +136,66 @@ class Entry(object):
             except ImportError as e:
                 if expanded:
                     return None
-                raise ValueError("Unknown entry type '%s' in node '%s' (expected etype/%s.py, error '%s'" %
-                                 (etype, node_path, module_name, e))
+                return module_name, e
             modules[module_name] = module
 
         # Look up the expected class name
         return getattr(module, 'Entry_%s' % module_name)
 
     @staticmethod
-    def Create(section, node, etype=None, expanded=False):
+    def Lookup(node_path, etype, expanded, missing_etype=False):
+        """Look up the entry class for a node.
+
+        Args:
+            node_node (str): Path name of Node object containing information
+                about the entry to create (used for errors)
+            etype (str):   Entry type to use
+            expanded (bool): Use the expanded version of etype
+            missing_etype (bool): True to default to a blob etype if the
+                requested etype is not found
+
+        Returns:
+            The entry class object if found, else None if not found and expanded
+                is True
+
+        Raise:
+            ValueError if expanded is False and the class is not found
+        """
+        # Convert something like 'u-boot@0' to 'u_boot' since we are only
+        # interested in the type.
+        cls = Entry.FindEntryClass(etype, expanded)
+        if cls is None:
+            return None
+        elif isinstance(cls, tuple):
+            if missing_etype:
+                cls = Entry.FindEntryClass('blob', False)
+            if isinstance(cls, tuple): # This should not fail
+                module_name, e = cls
+                raise ValueError(
+                    "Unknown entry type '%s' in node '%s' (expected etype/%s.py, error '%s'" %
+                    (etype, node_path, module_name, e))
+        return cls
+
+    @staticmethod
+    def Create(section, node, etype=None, expanded=False, missing_etype=False):
         """Create a new entry for a node.
 
         Args:
-            section:  Section object containing this node
-            node:     Node object containing information about the entry to
-                      create
-            etype:    Entry type to use, or None to work it out (used for tests)
-            expanded: True to use expanded versions of entries, where available
+            section (entry_Section):  Section object containing this node
+            node (Node): Node object containing information about the entry to
+                create
+            etype (str): Entry type to use, or None to work it out (used for
+                tests)
+            expanded (bool): Use the expanded version of etype
+            missing_etype (bool): True to default to a blob etype if the
+                requested etype is not found
 
         Returns:
             A new Entry object of the correct type (a subclass of Entry)
         """
         if not etype:
             etype = fdt_util.GetString(node, 'type', node.name)
-        obj = Entry.Lookup(node.path, etype, expanded)
+        obj = Entry.Lookup(node.path, etype, expanded, missing_etype)
         if obj and expanded:
             # Check whether to use the expanded entry
             new_etype = etype + '-expanded'
@@ -170,7 +205,7 @@ class Entry(object):
             else:
                 obj = None
         if not obj:
-            obj = Entry.Lookup(node.path, etype, False)
+            obj = Entry.Lookup(node.path, etype, False, missing_etype)
 
         # Call its constructor to get the object we want.
         return obj(section, etype, node)
@@ -780,7 +815,7 @@ features to produce new behaviours.
         self.AddEntryInfo(entries, indent, self.name, self.etype, self.size,
                           self.image_pos, self.uncomp_size, self.offset, self)
 
-    def ReadData(self, decomp=True):
+    def ReadData(self, decomp=True, alt_format=None):
         """Read the data for an entry from the image
 
         This is used when the image has been read in and we want to extract the
@@ -797,19 +832,20 @@ features to produce new behaviours.
         # although compressed sections are currently not supported
         tout.Debug("ReadChildData section '%s', entry '%s'" %
                    (self.section.GetPath(), self.GetPath()))
-        data = self.section.ReadChildData(self, decomp)
+        data = self.section.ReadChildData(self, decomp, alt_format)
         return data
 
-    def ReadChildData(self, child, decomp=True):
+    def ReadChildData(self, child, decomp=True, alt_format=None):
         """Read the data for a particular child entry
 
         This reads data from the parent and extracts the piece that relates to
         the given child.
 
         Args:
-            child: Child entry to read data for (must be valid)
-            decomp: True to decompress any compressed data before returning it;
-                False to return the raw, uncompressed data
+            child (Entry): Child entry to read data for (must be valid)
+            decomp (bool): True to decompress any compressed data before
+                returning it; False to return the raw, uncompressed data
+            alt_format (str): Alternative format to read in, or None
 
         Returns:
             Data for the child (bytes)
@@ -821,6 +857,20 @@ features to produce new behaviours.
         self.contents_size = len(data)
         self.ProcessContentsUpdate(data)
         self.Detail('Loaded data size %x' % len(data))
+
+    def GetAltFormat(self, data, alt_format):
+        """Read the data for an extry in an alternative format
+
+        Supported formats are list in the documentation for each entry. An
+        example is fdtmap which provides .
+
+        Args:
+            data (bytes): Data to convert (this should have been produced by the
+                entry)
+            alt_format (str): Format to use
+
+        """
+        pass
 
     def GetImage(self):
         """Get the image containing this entry
@@ -860,7 +910,8 @@ features to produce new behaviours.
         """Handle writing the data in a child entry
 
         This should be called on the child's parent section after the child's
-        data has been updated. It
+        data has been updated. It should update any data structures needed to
+        validate that the update is successful.
 
         This base-class implementation does nothing, since the base Entry object
         does not have any children.
@@ -870,7 +921,7 @@ features to produce new behaviours.
 
         Returns:
             True if the section could be updated successfully, False if the
-                data is such that the section could not updat
+                data is such that the section could not update
         """
         return True
 
@@ -961,3 +1012,13 @@ features to produce new behaviours.
         tout.Info("Node '%s': etype '%s': %s selected" %
                   (node.path, etype, new_etype))
         return True
+
+    def CheckAltFormats(self, alt_formats):
+        """Add any alternative formats supported by this entry type
+
+        Args:
+            alt_formats (dict): Dict to add alt_formats to:
+                key: Name of alt format
+                value: Help text
+        """
+        pass

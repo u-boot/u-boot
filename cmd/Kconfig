@@ -2350,6 +2350,8 @@ config CMD_LOG
 
 config CMD_TRACE
 	bool "trace - Support tracing of function calls and timing"
+	depends on TRACE
+	default y
 	help
 	  Enables a command to control using of function tracing within
 	  U-Boot. This allows recording of call traces including timing

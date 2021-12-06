@@ -1123,6 +1123,7 @@ endif
 		$(CONFIG_WATCHDOG)$(CONFIG_HW_WATCHDOG))
 	$(call deprecated,CONFIG_DM_ETH,Ethernet drivers,v2020.07,$(CONFIG_NET))
 	$(call deprecated,CONFIG_DM_I2C,I2C drivers,v2022.04,$(CONFIG_SYS_I2C_LEGACY))
+	$(call deprecated,CONFIG_DM_KEYBOARD,Keyboard drivers,v2022.10,$(CONFIG_KEYBOARD))
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
@@ -1303,11 +1304,13 @@ default_dt := $(if $(DEVICE_TREE),$(DEVICE_TREE),$(CONFIG_DEFAULT_DEVICE_TREE))
 
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
+		$(foreach f,$(BINMAN_TOOLPATHS),--toolpath $(f)) \
                 --toolpath $(objtree)/tools \
 		$(if $(BINMAN_VERBOSE),-v$(BINMAN_VERBOSE)) \
 		build -u -d u-boot.dtb -O . -m --allow-missing \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
 		-I arch/$(ARCH)/dts -a of-list=$(CONFIG_OF_LIST) \
+		$(foreach f,$(BINMAN_INDIRS),-I $(f)) \
 		-a atf-bl31-path=${BL31} \
 		-a opensbi-path=${OPENSBI} \
 		-a default-dt=$(default_dt) \
