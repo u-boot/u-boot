@@ -1,34 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright 2020 Compass Electronics Group, LLC
+ * Copyright 2021 LogicPD dba Beacon EmbeddedWorks
  */
 
-/ {
-	soc {
-		u-boot,dm-pre-reloc;
-	};
-};
-
-&cpg {
-	u-boot,dm-pre-reloc;
-};
-
-&extal_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&prr {
-	u-boot,dm-pre-reloc;
-};
-
-&extalr_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&sdhi0 {
-	/delete-property/ cd-gpios;
-};
-
-&sdhi2 {
-	status = "disabled";
-};
+#include "rz-g2-beacon-u-boot.dtsi"
