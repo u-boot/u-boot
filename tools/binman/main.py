@@ -21,24 +21,26 @@ our_path = os.path.dirname(os.path.realpath(__file__))
 our1_path = os.path.dirname(our_path)
 our2_path = os.path.dirname(our1_path)
 
+# Extract $(srctree) from Kbuild environment, or use relative paths below
+srctree = os.environ.get('srctree', our2_path)
+
 #
 # Do not pollute source tree with cache files:
 # https://stackoverflow.com/a/60024195/2511795
 # https://bugs.python.org/issue33499
 #
-sys.pycache_prefix = os.path.relpath(our_path, os.environ.get('srctree', our2_path))
+sys.pycache_prefix = os.path.relpath(our_path, srctree)
 
 # Bring in the patman and dtoc libraries (but don't override the first path
 # in PYTHONPATH)
-sys.path.insert(2, os.path.join(our_path, '..'))
+sys.path.insert(2, our1_path)
 
 from patman import test_util
 
 # Bring in the libfdt module
 sys.path.insert(2, 'scripts/dtc/pylibfdt')
-sys.path.insert(2, os.path.join(our_path, '../../scripts/dtc/pylibfdt'))
-sys.path.insert(2, os.path.join(our_path,
-                '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
+sys.path.insert(2, os.path.join(srctree, 'scripts/dtc/pylibfdt'))
+sys.path.insert(2, os.path.join(srctree, 'build-sandbox_spl/scripts/dtc/pylibfdt'))
 
 # When running under python-coverage on Ubuntu 16.04, the dist-packages
 # directories are dropped from the python path. Add them in so that we can find
