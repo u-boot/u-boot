@@ -11,6 +11,13 @@
 /* PHY needs a longer autoneg timeout */
 #define PHY_ANEG_TIMEOUT		20000
 
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	"dfu_alt_info_ram=u-boot.itb ram "				\
+			__stringify(CONFIG_SPL_LOAD_FIT_ADDRESS)	\
+			" 0x800000\0"
+#endif
+
 #define STM32MP_BOARD_EXTRA_ENV \
 	"usb_pgood_delay=1000\0" \
 	"update_sf=" /* Erase SPI NOR and install U-Boot from SD */	\
