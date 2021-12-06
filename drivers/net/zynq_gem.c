@@ -802,6 +802,9 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 							  SPEED_1000);
 
 		parent = ofnode_get_parent(phandle_args.node);
+		if (ofnode_name_eq(parent, "mdio"))
+			parent = ofnode_get_parent(parent);
+
 		addr = ofnode_get_addr(parent);
 		if (addr != FDT_ADDR_T_NONE) {
 			debug("MDIO bus not found %s\n", dev->name);
