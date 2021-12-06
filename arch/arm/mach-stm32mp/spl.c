@@ -43,7 +43,7 @@ u32 spl_boot_device(void)
 	case BOOT_SERIAL_UART_8:
 		return BOOT_DEVICE_UART;
 	case BOOT_SERIAL_USB_OTG:
-		return BOOT_DEVICE_USB;
+		return BOOT_DEVICE_DFU;
 	case BOOT_FLASH_NAND_FMC:
 		return BOOT_DEVICE_NAND;
 	case BOOT_FLASH_NOR_QSPI:
