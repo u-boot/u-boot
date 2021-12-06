@@ -16,9 +16,20 @@ import sys
 import traceback
 import unittest
 
+# Get the absolute path to this file at run-time
+our_path = os.path.dirname(os.path.realpath(__file__))
+our1_path = os.path.dirname(our_path)
+our2_path = os.path.dirname(our1_path)
+
+#
+# Do not pollute source tree with cache files:
+# https://stackoverflow.com/a/60024195/2511795
+# https://bugs.python.org/issue33499
+#
+sys.pycache_prefix = os.path.relpath(our_path, os.environ.get('srctree', our2_path))
+
 # Bring in the patman and dtoc libraries (but don't override the first path
 # in PYTHONPATH)
-our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(2, os.path.join(our_path, '..'))
 
 from patman import test_util
