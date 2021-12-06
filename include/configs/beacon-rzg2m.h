@@ -23,7 +23,7 @@
 	"boot_fdt=try\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"initrd_addr=0x43800000\0"		\
-	"mmcdev=0\0" \
+	"mmcdev=1\0" \
 	"mmcpart=1\0" \
 	"mmcrootpart=2\0" \
 	"finduuid=part uuid mmc ${mmcdev}:${mmcrootpart} uuid\0" \
