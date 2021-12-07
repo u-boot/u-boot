@@ -68,9 +68,7 @@ choice
 config TARGET_ST_STM32MP15x
 	bool "STMicroelectronics STM32MP15x boards"
 	select STM32MP15x
-	imply BOOTCOUNT_LIMIT
 	imply BOOTSTAGE
-	imply CMD_BOOTCOUNT
 	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
 	imply DISABLE_CONSOLE
@@ -85,9 +83,7 @@ config TARGET_ST_STM32MP15x
 config TARGET_MICROGEA_STM32MP1
 	bool "Engicam MicroGEA STM32MP1 SOM"
 	select STM32MP15x
-	imply BOOTCOUNT_LIMIT
 	imply BOOTSTAGE
-	imply CMD_BOOTCOUNT
 	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
 	imply DISABLE_CONSOLE
@@ -112,9 +108,7 @@ config TARGET_MICROGEA_STM32MP1
 config TARGET_ICORE_STM32MP1
 	bool "Engicam i.Core STM32MP1 SOM"
 	select STM32MP15x
-	imply BOOTCOUNT_LIMIT
 	imply BOOTSTAGE
-	imply CMD_BOOTCOUNT
 	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
 	imply DISABLE_CONSOLE
@@ -136,8 +130,6 @@ config TARGET_ICORE_STM32MP1
 config TARGET_DH_STM32MP1_PDK2
 	bool "DH STM32MP1 PDK2"
 	select STM32MP15x
-	imply BOOTCOUNT_LIMIT
-	imply CMD_BOOTCOUNT
 	help
 		Target the DH PDK2 development kit with STM32MP15x SoM.
 
