@@ -977,7 +977,7 @@ efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
-		return ret;
+		return EFI_SECURITY_VIOLATION;
 
 	switch (handle->image_type) {
 	case IMAGE_SUBSYSTEM_EFI_APPLICATION:
@@ -2200,7 +2200,7 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *ha
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
-		return ret;
+		return EFI_SECURITY_VIOLATION;
 
 	ret = tcg2_measure_boot_variable(dev);
 	if (ret != EFI_SUCCESS)
