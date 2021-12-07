@@ -43,6 +43,7 @@ struct dwc3_generic_priv {
 	void *base;
 	struct dwc3 dwc3;
 	struct phy_bulk phys;
+	struct gpio_desc ulpi_reset;
 };
 
 struct dwc3_generic_host_priv {
@@ -86,7 +87,6 @@ static int dwc3_generic_probe(struct udevice *dev,
 	struct dwc3_generic_plat *plat = dev_get_plat(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
 	struct dwc3_glue_data *glue = dev_get_plat(dev->parent);
-	struct gpio_desc reset_gpio;
 
 	dwc3->dev = dev;
 	dwc3->maximum_speed = plat->maximum_speed;
@@ -110,14 +110,14 @@ static int dwc3_generic_probe(struct udevice *dev,
 
 	if (device_is_compatible(dev->parent, "xlnx,zynqmp-dwc3")) {
 		ret = gpio_request_by_name(dev->parent, "reset-gpios", 0,
-					   &reset_gpio, GPIOD_ACTIVE_LOW);
+					   &priv->ulpi_reset, GPIOD_ACTIVE_LOW);
 		if (ret != -EBUSY && ret)
 			return ret;
 
 		/* Toggle ulpi to reset the phy. */
-		dm_gpio_set_value(&reset_gpio, 1);
+		dm_gpio_set_value(&priv->ulpi_reset, 1);
 		mdelay(5);
-		dm_gpio_set_value(&reset_gpio, 0);
+		dm_gpio_set_value(&priv->ulpi_reset, 0);
 		mdelay(5);
 	}
 
@@ -146,6 +146,11 @@ static int dwc3_generic_remove(struct udevice *dev,
 {
 	struct dwc3 *dwc3 = &priv->dwc3;
 
+	if (device_is_compatible(dev->parent, "xlnx,zynqmp-dwc3")) {
+		struct gpio_desc *ulpi_reset = &priv->ulpi_reset;
+
+		dm_gpio_free(ulpi_reset->dev, ulpi_reset);
+	}
 	dwc3_remove(dwc3);
 	dwc3_shutdown_phy(dev, &priv->phys);
 	unmap_physmem(dwc3->regs, MAP_NOCACHE);
