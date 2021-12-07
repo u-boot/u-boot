@@ -972,6 +972,9 @@ efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 	IMAGE_NT_HEADERS32 *nt;
 	struct efi_handler *handler;
 
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
 		return ret;
@@ -2189,6 +2192,9 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *ha
 	u32 event = 0;
 	struct smbios_entry *entry;
 
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
 	if (tcg2_efi_app_invoked)
 		return EFI_SUCCESS;
 
@@ -2239,6 +2245,9 @@ efi_status_t efi_tcg2_measure_efi_app_exit(void)
 	efi_status_t ret;
 	struct udevice *dev;
 
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
 		return ret;
@@ -2264,6 +2273,12 @@ efi_tcg2_notify_exit_boot_services(struct efi_event *event, void *context)
 	EFI_ENTRY("%p, %p", event, context);
 
 	event_log.ebs_called = true;
+
+	if (!is_tcg2_protocol_installed()) {
+		ret = EFI_SUCCESS;
+		goto out;
+	}
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
 		goto out;
@@ -2292,6 +2307,9 @@ efi_status_t efi_tcg2_notify_exit_boot_services_failed(void)
 {
 	struct udevice *dev;
 	efi_status_t ret;
+
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
