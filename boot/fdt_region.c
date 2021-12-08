@@ -185,6 +185,8 @@ static int fdt_add_region(struct fdt_region_state *info, int offset, int size)
 			reg++;
 			reg->offset = offset;
 			reg->size = size;
+			if (!(offset - fdt_off_dt_struct(info->fdt)))
+				info->have_node = true;
 		}
 	} else {
 		return -1;
@@ -342,13 +344,19 @@ static int fdt_include_supernodes(struct fdt_region_state *info, int depth)
 	return 0;
 }
 
+/*
+ * Tracks the progress through the device tree. Everything fdt_next_region() is
+ * called it picks up at the same state as last time, looks at info->start and
+ * decides what region to add next
+ */
 enum {
-	FDT_DONE_NOTHING,
-	FDT_DONE_MEM_RSVMAP,
-	FDT_DONE_STRUCT,
-	FDT_DONE_END,
-	FDT_DONE_STRINGS,
-	FDT_DONE_ALL,
+	FDT_DONE_NOTHING,	/* Starting */
+	FDT_DONE_MEM_RSVMAP,	/* Completed mem_rsvmap region */
+	FDT_DONE_STRUCT,	/* Completed struct region */
+	FDT_DONE_EMPTY,		/* Completed checking for empty struct region */
+	FDT_DONE_END,		/* Completed the FDT_END tag */
+	FDT_DONE_STRINGS,	/* Completed the strings */
+	FDT_DONE_ALL,		/* All done */
 };
 
 int fdt_first_region(const void *fdt,
@@ -365,6 +373,7 @@ int fdt_first_region(const void *fdt,
 	info->can_merge = 1;
 	info->max_regions = 1;
 	info->start = -1;
+	info->have_node = false;
 	p->want = WANT_NOTHING;
 	p->end = path;
 	*p->end = '\0';
@@ -633,6 +642,8 @@ int fdt_next_region(const void *fdt,
 		 * region.
 		 */
 		if (!include && info->start != -1) {
+			if (!info->start)
+				info->have_node = true;
 			if (fdt_add_region(info, base + info->start,
 					   stop_at - info->start))
 				return 0;
@@ -644,10 +655,30 @@ int fdt_next_region(const void *fdt,
 		info->ptrs = p;
 	}
 
+	if (info->ptrs.done < FDT_DONE_EMPTY) {
+		/*
+		 * Handle a special case where no nodes have been written. Write
+		 * the first { so we have at least something, since
+		 * FDT_REG_SUPERNODES means that a valid tree is required. A
+		 * tree with no nodes is not valid
+		 */
+		if ((flags & FDT_REG_SUPERNODES) && !info->have_node &&
+		    info->start) {
+			/* Output the FDT_BEGIN_NODE and the empty name */
+			if (fdt_add_region(info, base, 8))
+				return 0;
+		}
+		info->ptrs.done++;
+	}
+
 	/* Add a region for the END tag and a separate one for string table */
 	if (info->ptrs.done < FDT_DONE_END) {
 		if (info->ptrs.nextoffset != fdt_size_dt_struct(fdt))
 			return -FDT_ERR_BADSTRUCTURE;
+
+		/* Output the } before the end tag to finish it off */
+		if (info->start == fdt_size_dt_struct(fdt) - 4)
+			info->start -= 4;
 
 		if (fdt_add_region(info, base + info->start,
 				   info->ptrs.nextoffset - info->start))
