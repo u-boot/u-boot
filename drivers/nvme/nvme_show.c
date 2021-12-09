@@ -106,24 +106,41 @@ int nvme_print_info(struct udevice *udev)
 {
 	struct nvme_ns *ns = dev_get_priv(udev);
 	struct nvme_dev *dev = ns->dev;
-	ALLOC_CACHE_ALIGN_BUFFER(char, buf_ns, sizeof(struct nvme_id_ns));
-	struct nvme_id_ns *id = (struct nvme_id_ns *)buf_ns;
-	ALLOC_CACHE_ALIGN_BUFFER(char, buf_ctrl, sizeof(struct nvme_id_ctrl));
-	struct nvme_id_ctrl *ctrl = (struct nvme_id_ctrl *)buf_ctrl;
+	struct nvme_id_ctrl *ctrl;
+	struct nvme_id_ns *id;
+	int ret = 0;
 
-	if (nvme_identify(dev, 0, 1, (dma_addr_t)(long)ctrl))
-		return -EIO;
+	ctrl = memalign(dev->page_size, sizeof(struct nvme_id_ctrl));
+	if (!ctrl)
+		return -ENOMEM;
+
+	if (nvme_identify(dev, 0, 1, (dma_addr_t)(long)ctrl)) {
+		ret = -EIO;
+		goto free_ctrl;
+	}
 
 	print_optional_admin_cmd(le16_to_cpu(ctrl->oacs), ns->devnum);
 	print_optional_nvm_cmd(le16_to_cpu(ctrl->oncs), ns->devnum);
 	print_format_nvme_attributes(ctrl->fna, ns->devnum);
 
-	if (nvme_identify(dev, ns->ns_id, 0, (dma_addr_t)(long)id))
-		return -EIO;
+	id = memalign(dev->page_size, sizeof(struct nvme_id_ns));
+	if (!id) {
+		ret = -ENOMEM;
+		goto free_ctrl;
+	}
+
+	if (nvme_identify(dev, ns->ns_id, 0, (dma_addr_t)(long)id)) {
+		ret = -EIO;
+		goto free_id;
+	}
 
 	print_formats(id, ns);
 	print_data_protect_cap(id->dpc, ns->devnum);
 	print_metadata_cap(id->mc, ns->devnum);
 
-	return 0;
+free_id:
+	free(id);
+free_ctrl:
+	free(ctrl);
+	return ret;
 }
