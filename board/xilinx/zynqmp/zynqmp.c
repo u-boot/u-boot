@@ -430,6 +430,22 @@ static int do_multi_boot(struct cmd_tbl *cmdtp, int flag,
 		printf("Incorrect value of multiboot offset\n");
 		return CMD_RET_USAGE;
 	}
+#if defined(CONFIG_SPL_SPI_SUPPORT)
+	if (!strcmp(env_get("modeboot"), "qspiboot")) {
+		u32 boot_image_offset = golden_image_boundary * multiboot;
+
+		if (boot_image_offset != CONFIG_SYS_SPI_BOOT_IMAGE_OFFS &&
+		    boot_image_offset != CONFIG_SYS_SPI_BOOT_IMAGE_OFFS2) {
+			printf("Invalid value of multiboot register"
+			       "supported values are: %d, %d\n",
+			       (CONFIG_SYS_SPI_BOOT_IMAGE_OFFS /
+				golden_image_boundary),
+			       (CONFIG_SYS_SPI_BOOT_IMAGE_OFFS2 /
+				golden_image_boundary));
+			return CMD_RET_FAILURE;
+		}
+	}
+#endif
 
 	printf("Set multiboot offset to: \t%d\n", multiboot);
 
