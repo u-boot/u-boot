@@ -18,6 +18,7 @@
 		blob-ext@0x000000 {
 			offset = <0x000000>;
 			filename = "tiboot3.bin";
+			missing-msg = "iot2050-seboot";
 		};
 
 		blob@0x080000 {
@@ -153,21 +154,25 @@
 		blob-ext@0x6c0000 {
 			offset = <0x6c0000>;
 			filename = "sysfw.itb";
+			missing-msg = "iot2050-sysfw";
 		};
 		/* PG1 sysfw, advanced variant */
 		blob-ext@0x740000 {
 			offset = <0x740000>;
 			filename = "sysfw.itb_HS";
+			missing-msg = "iot2050-sysfw";
 		};
 		/* PG2 sysfw, basic variant */
 		blob-ext@0x7c0000 {
 			offset = <0x7c0000>;
 			filename = "sysfw_sr2.itb";
+			missing-msg = "iot2050-sysfw";
 		};
 		/* PG2 sysfw, advanced variant */
 		blob-ext@0x840000 {
 			offset = <0x840000>;
 			filename = "sysfw_sr2.itb_HS";
+			missing-msg = "iot2050-sysfw";
 		};
 	};
 };
