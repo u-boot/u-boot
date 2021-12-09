@@ -210,11 +210,47 @@
 			interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
-		mdio: ethernet@1e650000 {
-			compatible = "aspeed,aspeed-mdio";
-			reg = <0x1e650000 0x40>;
-			resets = <&rst ASPEED_RESET_MII>;
-			status = "disabled";
+		mdio: bus@1e650000 {
+			compatible = "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0 0x1e650000 0x100>;
+
+			mdio0: mdio@0 {
+				compatible = "aspeed,ast2600-mdio";
+				reg = <0 0x8>;
+				resets = <&rst ASPEED_RESET_MII>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_mdio1_default>;
+				status = "disabled";
+			};
+
+			mdio1: mdio@8 {
+				compatible = "aspeed,ast2600-mdio";
+				reg = <0x8 0x8>;
+				resets = <&rst ASPEED_RESET_MII>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_mdio2_default>;
+				status = "disabled";
+			};
+
+			mdio2: mdio@10 {
+				compatible = "aspeed,ast2600-mdio";
+				reg = <0x10 0x8>;
+				resets = <&rst ASPEED_RESET_MII>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_mdio3_default>;
+				status = "disabled";
+			};
+
+			mdio3: mdio@18 {
+				compatible = "aspeed,ast2600-mdio";
+				reg = <0x18 0x8>;
+				resets = <&rst ASPEED_RESET_MII>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_mdio4_default>;
+				status = "disabled";
+			};
 		};
 
 		mac0: ftgmac@1e660000 {

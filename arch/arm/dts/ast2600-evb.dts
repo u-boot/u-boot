@@ -163,6 +163,74 @@
 	pinctrl-0 = <&pinctrl_i2c9_default>;
 };
 
+&mdio0 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	ethphy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+&mdio1 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	ethphy1: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+&mdio2 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	ethphy2: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+&mdio3 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	ethphy3: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+&mac0 {
+	status = "okay";
+	phy-mode = "rgmii-rxid";
+	phy-handle = <&ethphy0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_rgmii1_default>;
+};
+
+&mac1 {
+	status = "okay";
+	phy-mode = "rgmii-rxid";
+	phy-handle = <&ethphy1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_rgmii2_default>;
+};
+
+&mac2 {
+	status = "okay";
+	phy-mode = "rgmii";
+	phy-handle = <&ethphy2>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_rgmii3_default>;
+};
+
+&mac3 {
+	status = "okay";
+	phy-mode = "rgmii";
+	phy-handle = <&ethphy3>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_rgmii4_default>;
+};
+
 &scu {
 	mac0-clk-delay = <0x1d 0x1c
 			  0x10 0x17
