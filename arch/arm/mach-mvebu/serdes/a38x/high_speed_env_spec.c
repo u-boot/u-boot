@@ -1204,7 +1204,7 @@ int hws_serdes_seq_db_init(void)
 		    sizeof(usb3_electrical_config_serdes_rev2_params) /
 		    sizeof(struct op_params);
 	}
-	serdes_seq_db[USB3_ELECTRICAL_CONFIG_SEQ].data_arr_idx = USB3;
+	serdes_seq_db[USB3_ELECTRICAL_CONFIG_SEQ].data_arr_idx = 0;
 
 	/* USB3_TX_CONFIG_SEQ sequence init */
 	serdes_seq_db[USB3_TX_CONFIG_SEQ1].op_params_ptr =
