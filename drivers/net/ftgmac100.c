@@ -644,6 +644,7 @@ static const struct eth_ops ftgmac100_ops = {
 static const struct udevice_id ftgmac100_ids[] = {
 	{ .compatible = "faraday,ftgmac100",  .data = FTGMAC100_MODEL_FARADAY },
 	{ .compatible = "aspeed,ast2500-mac", .data = FTGMAC100_MODEL_ASPEED  },
+	{ .compatible = "aspeed,ast2600-mac", .data = FTGMAC100_MODEL_ASPEED  },
 	{ }
 };
 
