@@ -220,7 +220,11 @@ static int ftgmac100_phy_init(struct udevice *dev)
 	struct phy_device *phydev;
 	int ret;
 
-	phydev = phy_connect(priv->bus, priv->phy_addr, dev, priv->phy_mode);
+	if (IS_ENABLED(CONFIG_DM_MDIO))
+		phydev = dm_eth_phy_connect(dev);
+	else
+		phydev = phy_connect(priv->bus, priv->phy_addr, dev, priv->phy_mode);
+
 	if (!phydev)
 		return -ENODEV;
 
@@ -589,10 +593,16 @@ static int ftgmac100_probe(struct udevice *dev)
 	if (ret)
 		goto out;
 
-	ret = ftgmac100_mdio_init(dev);
-	if (ret) {
-		dev_err(dev, "Failed to initialize mdiobus: %d\n", ret);
-		goto out;
+	/*
+	 * If DM MDIO is enabled, the MDIO bus will be initialized later in
+	 * dm_eth_phy_connect
+	 */
+	if (!IS_ENABLED(CONFIG_DM_MDIO)) {
+		ret = ftgmac100_mdio_init(dev);
+		if (ret) {
+			dev_err(dev, "Failed to initialize mdiobus: %d\n", ret);
+			goto out;
+		}
 	}
 
 	ret = ftgmac100_phy_init(dev);
