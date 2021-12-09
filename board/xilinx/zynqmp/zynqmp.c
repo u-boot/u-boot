@@ -54,6 +54,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Golden image boundary:
+ * Boot images can be located every 32 KB in the boot memory device,
+ * which allows for more than one boot image to be in the memory
+ * device.
+ */
+const u32 golden_image_boundary = 0x8000;
+
 #if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
 static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
 
@@ -1018,32 +1026,32 @@ unsigned int spl_spi_get_uboot_offs(struct spi_flash *flash)
 {
 	int ret;
 	u32 multiboot;
-	u32 spi_offset = 0;
+	u32 payload_offset = 0;
+	u32 boot_image_offset = 0x0;
 
 	multiboot = multi_boot_get();
+	boot_image_offset = golden_image_boundary * multiboot;
 
 	/*
+	 * Default values are:
 	 * Primary boot.bin offset   - 0x0 (multiboot == 0)
 	 * Secondary boot.bin offset - 0x50000 (multiboot == 10,
 	 *                             as 10 * 32KB == 0x50000)
 	 */
-	switch(multiboot) {
-	case 0:
-		spi_offset = CONFIG_SYS_SPI_U_BOOT_OFFS;
-		break;
-	case 10:
-		spi_offset = CONFIG_SYS_SPI_U_BOOT_OFFS2;
-		break;
-	default:
+	if (boot_image_offset == CONFIG_SYS_SPI_BOOT_IMAGE_OFFS) {
+		payload_offset = CONFIG_SYS_SPI_U_BOOT_OFFS;
+	} else if (boot_image_offset == CONFIG_SYS_SPI_BOOT_IMAGE_OFFS2) {
+		payload_offset = CONFIG_SYS_SPI_U_BOOT_OFFS2;
+	} else {
 		printf("Invalid value of multiboot register, value = %d\n",
 		       multiboot);
 		hang();
-		break;
 	}
 
-	printf("SPL: Booting next image from 0x%x SPI offset\n", spi_offset);
+	printf("SPL: Booting next image from 0x%x SPI offset\n",
+	       payload_offset);
 
-	return spi_offset;
+	return payload_offset;
 }
 #endif
 

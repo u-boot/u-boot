@@ -24,6 +24,22 @@ config SPL_SPI_FLASH_SUPPORT
 config SPL_SPI
 	default y if ZYNQ_QSPI
 
+config SYS_SPI_BOOT_IMAGE_OFFS
+	default 0x0
+	hex "address of primary boot image in SPI flash"
+	depends on SPL_SPI_LOAD
+	help
+	  Address within SPI-Flash from where the primary boot image
+	  is fetched from by BootROM. Must be a multiple of 32Kb (0x8000).
+
+config SYS_SPI_BOOT_IMAGE_OFFS2
+	default 0x50000
+	hex "address of secondary boot image in SPI flash"
+	depends on SPL_SPI_LOAD
+	help
+	  Address within SPI-Flash from where the secondary boot image
+	  is fetched from by BootROM. Must be a multiple of 32Kb (0x8000).
+
 config SYS_SPI_U_BOOT_OFFS2
 	default 0xaa0000
 	hex "address of secondary u-boot payload in SPI flash"
