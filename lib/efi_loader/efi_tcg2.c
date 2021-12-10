@@ -153,6 +153,15 @@ static u16 alg_to_len(u16 hash_alg)
 	return 0;
 }
 
+static bool is_tcg2_protocol_installed(void)
+{
+	struct efi_handler *handler;
+	efi_status_t ret;
+
+	ret = efi_search_protocol(efi_root, &efi_guid_tcg2_protocol, &handler);
+	return ret == EFI_SUCCESS;
+}
+
 static u32 tcg_event_final_size(struct tpml_digest_values *digest_list)
 {
 	u32 len;
@@ -963,9 +972,12 @@ efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 	IMAGE_NT_HEADERS32 *nt;
 	struct efi_handler *handler;
 
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
-		return ret;
+		return EFI_SECURITY_VIOLATION;
 
 	switch (handle->image_type) {
 	case IMAGE_SUBSYSTEM_EFI_APPLICATION:
@@ -1664,6 +1676,14 @@ void tcg2_uninit(void)
 	event_log.buffer = NULL;
 	efi_free_pool(event_log.final_buffer);
 	event_log.final_buffer = NULL;
+
+	if (!is_tcg2_protocol_installed())
+		return;
+
+	ret = efi_remove_protocol(efi_root, &efi_guid_tcg2_protocol,
+				  (void *)&efi_tcg2_protocol);
+	if (ret != EFI_SUCCESS)
+		log_err("Failed to remove EFI TCG2 protocol\n");
 }
 
 /**
@@ -2172,12 +2192,15 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *ha
 	u32 event = 0;
 	struct smbios_entry *entry;
 
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
 	if (tcg2_efi_app_invoked)
 		return EFI_SUCCESS;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
-		return ret;
+		return EFI_SECURITY_VIOLATION;
 
 	ret = tcg2_measure_boot_variable(dev);
 	if (ret != EFI_SUCCESS)
@@ -2222,6 +2245,9 @@ efi_status_t efi_tcg2_measure_efi_app_exit(void)
 	efi_status_t ret;
 	struct udevice *dev;
 
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
 		return ret;
@@ -2247,6 +2273,12 @@ efi_tcg2_notify_exit_boot_services(struct efi_event *event, void *context)
 	EFI_ENTRY("%p, %p", event, context);
 
 	event_log.ebs_called = true;
+
+	if (!is_tcg2_protocol_installed()) {
+		ret = EFI_SUCCESS;
+		goto out;
+	}
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
 		goto out;
@@ -2275,6 +2307,9 @@ efi_status_t efi_tcg2_notify_exit_boot_services_failed(void)
 {
 	struct udevice *dev;
 	efi_status_t ret;
+
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
@@ -2346,11 +2381,36 @@ error:
 }
 
 /**
+ * efi_tcg2_do_initial_measurement() - do initial measurement
+ *
+ * Return:	status code
+ */
+efi_status_t efi_tcg2_do_initial_measurement(void)
+{
+	efi_status_t ret;
+	struct udevice *dev;
+
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		return EFI_SECURITY_VIOLATION;
+
+	ret = tcg2_measure_secure_boot_variable(dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+out:
+	return ret;
+}
+
+/**
  * efi_tcg2_register() - register EFI_TCG2_PROTOCOL
  *
  * If a TPM2 device is available, the TPM TCG2 Protocol is registered
  *
- * Return:	An error status is only returned if adding the protocol fails.
+ * Return:	status code
  */
 efi_status_t efi_tcg2_register(void)
 {
@@ -2373,8 +2433,10 @@ efi_status_t efi_tcg2_register(void)
 	}
 
 	ret = efi_init_event_log();
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS) {
+		tcg2_uninit();
 		goto fail;
+	}
 
 	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 			       (void *)&efi_tcg2_protocol);
@@ -2391,24 +2453,9 @@ efi_status_t efi_tcg2_register(void)
 		goto fail;
 	}
 
-	ret = tcg2_measure_secure_boot_variable(dev);
-	if (ret != EFI_SUCCESS) {
-		tcg2_uninit();
-		goto fail;
-	}
-
 	return ret;
 
 fail:
 	log_err("Cannot install EFI_TCG2_PROTOCOL\n");
-	/*
-	 * Return EFI_SUCCESS and don't stop the EFI subsystem.
-	 * That's done for 2 reasons
-	 * - If the protocol is not installed the PCRs won't be extended.  So
-	 *   someone later in the boot flow will notice that and take the
-	 *   necessary actions.
-	 * - The TPM sandbox is limited and we won't be able to run any efi
-	 *   related tests with TCG2 enabled
-	 */
-	return EFI_SUCCESS;
+	return ret;
 }

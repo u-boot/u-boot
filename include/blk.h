@@ -34,9 +34,10 @@ enum if_type {
 	IF_TYPE_SATA,
 	IF_TYPE_HOST,
 	IF_TYPE_NVME,
-	IF_TYPE_EFI,
+	IF_TYPE_EFI_LOADER,
 	IF_TYPE_PVBLOCK,
 	IF_TYPE_VIRTIO,
+	IF_TYPE_EFI_MEDIA,
 
 	IF_TYPE_COUNT,			/* Number of interface types */
 };
