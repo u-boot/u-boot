@@ -772,18 +772,6 @@ int board_late_init(void)
 	usb_ether_init();
 #endif
 
-	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
-		debug("Saved variables - Skipping\n");
-		return 0;
-	}
-
-	if (!CONFIG_IS_ENABLED(ENV_VARS_UBOOT_RUNTIME_CONFIG))
-		return 0;
-
-	ret = set_fdtfile();
-	if (ret)
-		return ret;
-
 	multiboot = multi_boot_get();
 
 	if (multiboot >= 0)
@@ -873,6 +861,18 @@ int board_late_init(void)
 		debug("Bootseq len: %x\n", bootseq_len);
 		env_set_hex("bootseq", bootseq);
 	}
+
+	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
+		debug("Saved variables - Skipping\n");
+		return 0;
+	}
+
+	if (!CONFIG_IS_ENABLED(ENV_VARS_UBOOT_RUNTIME_CONFIG))
+		return 0;
+
+	ret = set_fdtfile();
+	if (ret)
+		return ret;
 
 	/*
 	 * One terminating char + one byte for space between mode
