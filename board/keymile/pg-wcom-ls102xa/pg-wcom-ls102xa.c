@@ -109,6 +109,13 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int misc_init_f(void)
+{
+	if (IS_ENABLED(CONFIG_PG_WCOM_UBOOT_UPDATE_SUPPORTED))
+		check_for_uboot_update();
+	return 0;
+}
+
 int board_init(void)
 {
 	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_A010315))
