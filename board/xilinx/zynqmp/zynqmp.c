@@ -436,7 +436,7 @@ static int do_multi_boot(struct cmd_tbl *cmdtp, int flag,
 
 		if (boot_image_offset != CONFIG_SYS_SPI_BOOT_IMAGE_OFFS &&
 		    boot_image_offset != CONFIG_SYS_SPI_BOOT_IMAGE_OFFS2) {
-			printf("Invalid value of multiboot register"
+			printf("Invalid value of multiboot register, "
 			       "supported values are: %d, %d\n",
 			       (CONFIG_SYS_SPI_BOOT_IMAGE_OFFS /
 				golden_image_boundary),
