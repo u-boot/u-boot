@@ -672,6 +672,19 @@ int blk_create_devicef(struct udevice *parent, const char *drv_name,
 	return 0;
 }
 
+int blk_probe_or_unbind(struct udevice *dev)
+{
+	int ret;
+
+	ret = device_probe(dev);
+	if (ret) {
+		log_debug("probing %s failed\n", dev->name);
+		device_unbind(dev);
+	}
+
+	return ret;
+}
+
 int blk_unbind_all(int if_type)
 {
 	struct uclass *uc;
