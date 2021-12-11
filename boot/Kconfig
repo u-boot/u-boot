@@ -762,6 +762,13 @@ config SD_BOOT
 	  booted via SD/EMMC. This is not a must, some SoCs need this,
 	  some not.
 
+config SD_BOOT_QSPI
+	bool "Support for booting from SD/EMMC and enable QSPI"
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via SD/EMMC while enabling QSPI on the platform as well. This
+	  is not a must, some SoCs need this, some not.
+
 config SPI_BOOT
 	bool "Support for booting from SPI flash"
 	help
