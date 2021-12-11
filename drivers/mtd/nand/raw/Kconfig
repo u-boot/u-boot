@@ -10,9 +10,9 @@ config SYS_NAND_SELF_INIT
 	  NAND initialization process.
 
 config SYS_NAND_DRIVER_ECC_LAYOUT
-	bool
+	bool "Omit standard ECC layouts to save space"
 	help
-	  Omit standard ECC layouts to safe space. Select this if your driver
+	  Omit standard ECC layouts to save space. Select this if your driver
 	  is known to provide its own ECC layout.
 
 config SYS_NAND_USE_FLASH_BBT
