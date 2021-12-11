@@ -27,14 +27,6 @@
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x90000000
 #endif
 
-#ifndef SPL_NO_IFC
-/* IFC */
-#define CONFIG_FSL_IFC
-/*
- * NAND Flash Definitions
- */
-#endif
-
 #define CONFIG_SYS_NAND_BASE		0x7e800000
 #define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
 

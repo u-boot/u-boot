@@ -134,6 +134,7 @@ config NAND_FSL_ELBC
 
 config NAND_FSL_IFC
 	bool "Support Freescale Integrated Flash Controller NAND driver"
+	select FSL_IFC
 	help
 	  Enable the Freescale Integrated Flash Controller NAND driver.
 

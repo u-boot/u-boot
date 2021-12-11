@@ -63,11 +63,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE     1
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
 
-#if !defined(SPL_NO_IFC) || defined(CONFIG_TARGET_LS1088AQDS)
-/* IFC */
-#define CONFIG_FSL_IFC
-#endif
-
 /*
  * During booting, IFC is mapped at the region of 0x30000000.
  * But this region is limited to 256MB. To accommodate NOR, promjet

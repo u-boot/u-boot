@@ -1,5 +1,6 @@
 config ARCH_LS1021A
 	bool
+	select FSL_IFC if !QSPI_BOOT && !SD_BOOT_QSPI
 	select SYS_FSL_DDR_BE if SYS_FSL_DDR
 	select SYS_FSL_DDR_VER_50 if SYS_FSL_DDR
 	select SYS_FSL_ERRATUM_A008378

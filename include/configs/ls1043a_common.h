@@ -122,7 +122,6 @@
 #ifndef SPL_NO_IFC
 #if defined(CONFIG_TFABOOT) || \
 	(!defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI))
-#define CONFIG_FSL_IFC
 /*
  * CONFIG_SYS_FLASH_BASE has the final address (core view)
  * CONFIG_SYS_FLASH_BASE_PHYS has the final address (IFC view)

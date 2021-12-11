@@ -40,7 +40,6 @@
  * IFC Definitions
  */
 /* NOR Flash Definitions */
-#define CONFIG_FSL_IFC
 #define CONFIG_SYS_FLASH_BASE		0x60000000
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 

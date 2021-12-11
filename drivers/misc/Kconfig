@@ -500,4 +500,7 @@ config ESM_PMIC
 	  Support ESM (Error Signal Monitor) on PMIC devices. ESM is used
 	  typically to reboot the board in error condition.
 
+config FSL_IFC
+	bool
+
 endmenu

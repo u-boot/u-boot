@@ -17,8 +17,6 @@
 
 #define CONFIG_SYS_UBOOT_BASE		0x40100000
 
-/* IFC */
-#define CONFIG_FSL_IFC
 /*
  * NAND Flash Definitions
  */

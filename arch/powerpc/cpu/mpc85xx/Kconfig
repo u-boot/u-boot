@@ -1084,9 +1084,6 @@ config SYS_PPC64
 config SYS_PPC_E500_USE_DEBUG_TLB
 	bool
 
-config FSL_IFC
-	bool
-
 config FSL_ELBC
 	bool
 
