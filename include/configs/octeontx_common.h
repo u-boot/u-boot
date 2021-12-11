@@ -70,9 +70,6 @@
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
 
 /** EMMC specific defines */
-#if defined(CONFIG_MMC_OCTEONTX)
-#define CONFIG_SUPPORT_EMMC_RPMB
-#endif
 
 #if defined(CONFIG_NAND_OCTEONTX)
 /*#define CONFIG_MTD_CONCAT */

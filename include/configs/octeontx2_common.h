@@ -41,7 +41,6 @@
 #if defined(CONFIG_MMC_OCTEONTX)
 #define MMC_SUPPORTS_TUNING
 /** EMMC specific defines */
-#define CONFIG_SUPPORT_EMMC_RPMB
 #endif
 
 #endif /* __OCTEONTX2_COMMON_H__ */
