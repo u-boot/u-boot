@@ -30,12 +30,6 @@
 
 #endif
 
-#ifdef CONFIG_QSPI_BOOT
-#undef CONFIG_ENV_SPI_BUS
-#define CONFIG_ENV_SPI_BUS	1
-
-#endif
-
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_BSS_START_ADDR	0x20000000

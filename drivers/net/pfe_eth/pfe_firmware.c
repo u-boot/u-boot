@@ -179,10 +179,10 @@ int pfe_spi_flash_init(void)
 	if (!addr)
 		return -ENOMEM;
 
-	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS,
-				     CONFIG_ENV_SPI_CS,
-				     CONFIG_ENV_SPI_MAX_HZ,
-				     CONFIG_ENV_SPI_MODE,
+	ret = spi_flash_probe_bus_cs(CONFIG_SYS_FSL_PFE_SPI_BUS,
+				     CONFIG_SYS_FSL_PFE_SPI_CS,
+				     CONFIG_SYS_FSL_PFE_SPI_MAX_HZ,
+				     CONFIG_SYS_FSL_PFE_SPI_MODE,
 				     &new);
 	if (ret) {
 		printf("SF: failed to probe spi\n");
