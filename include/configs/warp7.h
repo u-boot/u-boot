@@ -16,7 +16,6 @@
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=boot raw 0x2 0x1000 mmcpart 1\0" \
@@ -45,7 +44,7 @@
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
+	"mmcpart=1\0" \
 	"rootpart=" __stringify(CONFIG_WARP7_ROOT_PART) "\0" \
 	"finduuid=part uuid mmc 0:${rootpart} uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \

@@ -61,7 +61,7 @@
 	"fdtfile=imx8ulp-evk.dtb\0" \
 	"initrd_addr=0x83800000\0"		\
 	"bootm_size=0x10000000\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
+	"mmcpart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 
 /* Link Definitions */

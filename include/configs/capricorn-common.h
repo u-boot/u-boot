@@ -116,7 +116,6 @@
 
 /* On CCP board, USDHC1 is for eMMC */
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* eMMC */
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
