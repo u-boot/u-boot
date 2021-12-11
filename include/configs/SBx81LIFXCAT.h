@@ -24,7 +24,6 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
@@ -66,7 +65,6 @@
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_MVGBE	/* Enable kirkwood Gbe Controller Driver */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable a single port */
 #define CONFIG_PHY_BASE_ADR	0x01
 #endif /* CONFIG_CMD_NET */

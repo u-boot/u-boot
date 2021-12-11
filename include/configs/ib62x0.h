@@ -50,11 +50,4 @@
 #define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
 #endif /* CONFIG_IDE */
 
-/*
- * RTC driver configuration
- */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
-
 #endif /* _CONFIG_IB62x0_H */

@@ -61,12 +61,6 @@
 # define CONFIG_SYS_64BIT_LBA
 #endif
 
-/***** SPI Defines *********/
-#ifdef CONFIG_DM_SPI_FLASH
-# define CONFIG_SF_DEFAULT_BUS	0
-# define CONFIG_SF_DEFAULT_CS	0
-#endif
-
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE

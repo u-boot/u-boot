@@ -11,15 +11,12 @@
 #include <asm/arch/imx-regs.h>
 
 #include "siemens-env-common.h"
-#include "siemens-ccp-common.h"
 
 /* SPL config */
 #ifdef CONFIG_SPL_BUILD
 
 #define CONFIG_SPL_MAX_SIZE		(124 * 1024)
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0x800
 
 #define CONFIG_SPL_STACK		0x013E000
 #define CONFIG_SPL_BSS_START_ADDR	0x00128000
@@ -34,9 +31,6 @@
 #endif /* CONFIG_SPL_BUILD */
 
 #define CONFIG_FACTORYSET
-
-#undef CONFIG_IDENT_STRING
-#define CONFIG_IDENT_STRING		GENERATE_CCP_VERSION("01", "07")
 
 #define CONFIG_REMAKE_ELF
 

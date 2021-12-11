@@ -67,23 +67,6 @@
 #define PHYS_SDRAM_12		(CONFIG_SYS_SDRAM_BASE + (11 * SDRAM_BANK_SIZE))
 #define PHYS_SDRAM_12_SIZE	SDRAM_BANK_SIZE
 
-#define CONFIG_DEBUG_UART_CLOCK	132710400
-
-#define CONFIG_PREBOOT \
-"echo Read pressed buttons status;" \
-"KEY_VOLUMEUP=gpa20;" \
-"KEY_HOME=gpa17;" \
-"KEY_VOLUMEDOWN=gpa21;" \
-"KEY_POWER=gpa00;" \
-"PRESSED=0;" \
-"RELEASED=1;" \
-"if gpio input $KEY_VOLUMEUP; then setenv VOLUME_UP $PRESSED; " \
-"else setenv VOLUME_UP $RELEASED; fi;" \
-"if gpio input $KEY_VOLUMEDOWN; then setenv VOLUME_DOWN $PRESSED; " \
-"else setenv VOLUME_DOWN $RELEASED; fi;" \
-"if gpio input $KEY_HOME; then setenv HOME $PRESSED; else setenv HOME $RELEASED; fi;" \
-"if gpio input $KEY_POWER; then setenv POWER $PRESSED; else setenv POWER $RELEASED; fi;"
-
 #ifndef MEM_LAYOUT_ENV_SETTINGS
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \

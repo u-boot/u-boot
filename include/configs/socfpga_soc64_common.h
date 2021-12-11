@@ -60,7 +60,6 @@
 /* Flash device info */
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_MTD_PARTITIONS
 #define MTDIDS_DEFAULT			"nor0=ff705000.spi.0"
 #endif /* CONFIG_SPL_BUILD */
 

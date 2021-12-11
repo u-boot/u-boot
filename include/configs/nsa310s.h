@@ -41,9 +41,4 @@
 #define CONFIG_LBA48
 #endif /* CONFIG_SATA */
 
-/* RTC driver configuration */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
-
 #endif /* _CONFIG_NSA310S_H */

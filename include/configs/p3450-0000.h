@@ -26,8 +26,6 @@
 /* Environment at end of QSPI, in the VER partition */
 #define CONFIG_SPI_FLASH_SIZE		(4 << 20)
 
-#define CONFIG_PREBOOT
-
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"preboot=if test -e mmc 1:1 /u-boot-preboot.scr; then " \
 		"load mmc 1:1 ${scriptaddr} /u-boot-preboot.scr; " \

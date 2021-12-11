@@ -45,7 +45,6 @@
 #define CONFIG_USBD_HS
 
 /* Framebuffer and LCD */
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI

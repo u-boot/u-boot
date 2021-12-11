@@ -109,8 +109,6 @@
 /* Board info register */
 #define SYS_ID				V2M_SYSREGS
 
-#define CONFIG_SYS_L2CACHE_OFF		1
-
 #define SCTL_BASE			V2M_SYSCTL
 #define VEXPRESS_FLASHPROG_FLVPPEN	(1 << 0)
 

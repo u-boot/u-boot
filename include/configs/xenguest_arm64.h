@@ -11,16 +11,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS
 
-#undef CONFIG_NR_DRAM_BANKS
 #undef CONFIG_SYS_SDRAM_BASE
-
-#define CONFIG_NR_DRAM_BANKS          1
-
-/*
- * This can be any arbitrary address as we are using PIE, but
- * please note, that CONFIG_SYS_TEXT_BASE must match the below.
- */
-#define CONFIG_LNX_KRNL_IMG_TEXT_OFFSET_BASE    CONFIG_SYS_LOAD_ADDR
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE             1024
@@ -28,8 +19,6 @@
 #define CONFIG_SYS_BARGSIZE           CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE             (CONFIG_SYS_CBSIZE + \
 				      sizeof(CONFIG_SYS_PROMPT) + 16)
-
-#define CONFIG_OF_SYSTEM_SETUP
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\

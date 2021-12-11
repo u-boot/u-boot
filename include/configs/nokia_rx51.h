@@ -21,7 +21,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_SYS_L2CACHE_OFF		/* pretend there is no L2 CACHE */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>

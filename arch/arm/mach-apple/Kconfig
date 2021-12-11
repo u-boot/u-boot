@@ -15,4 +15,7 @@ config SYS_MALLOC_LEN
 config SYS_MALLOC_F_LEN
 	default 0x4000
 
+config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	default SYS_TEXT_BASE
+
 endif

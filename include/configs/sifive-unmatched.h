@@ -72,10 +72,6 @@
 	"partitions=" PARTS_DEFAULT "\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	BOOTENV
-
-#define CONFIG_PREBOOT \
-	"setenv fdt_addr ${fdtcontroladdr};" \
-	"fdt addr ${fdtcontroladdr};"
 #endif /* CONFIG_SPL_BUILD */
 
 #define CONFIG_SYS_EEPROM_BUS_NUM		0

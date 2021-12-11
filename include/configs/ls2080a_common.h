@@ -61,11 +61,6 @@
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
 /* GPIO */
-#ifdef CONFIG_DM_GPIO
-#ifndef CONFIG_MPC8XXX_GPIO
-#define CONFIG_MPC8XXX_GPIO
-#endif
-#endif
 
 /* I2C */
 

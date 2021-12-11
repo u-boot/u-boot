@@ -124,8 +124,6 @@
 
 #define CONFIG_IOMUX_LPSR
 
-#define CONFIG_SOFT_SPI
-
 #ifdef CONFIG_CMD_NET
 #define CONFIG_FEC_ENET_DEV		1
 #if (CONFIG_FEC_ENET_DEV == 0)

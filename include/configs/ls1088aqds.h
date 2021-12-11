@@ -321,9 +321,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
 
 #ifdef CONFIG_FSL_DSPI
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_SST
-#define CONFIG_SPI_FLASH_EON
 #if !defined(CONFIG_TFABOOT) && \
 	!defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 #endif

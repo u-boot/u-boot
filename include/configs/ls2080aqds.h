@@ -256,15 +256,7 @@ unsigned long get_board_sys_clk(void);
 #define I2C_MUX_CH_DEFAULT      0x8
 
 /* SPI */
-#ifdef CONFIG_FSL_DSPI
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_SST
-#define CONFIG_SPI_FLASH_EON
-#endif
 
-#ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH_SPANSION
-#endif
 /*
  * Verify QSPI when boot from NAND, QIXIS brdcfg9 need configure.
  * If boot from on-board NAND, ISO1 = 1, ISO2 = 0, IBOOT = 0
@@ -285,9 +277,7 @@ unsigned long get_board_sys_clk(void);
  */
 #define RTC
 #define CONFIG_RTC_DS3231               1
-#define CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
-#define CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 
 /* EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_NXID

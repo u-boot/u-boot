@@ -41,6 +41,7 @@ config ARCH_LS1028A
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
 	select FSL_TZASC_1
+	select FSL_TZPC_BP147
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
@@ -241,6 +242,7 @@ config ARCH_LX2162A
 	select FSL_DDR_INTERACTIVE
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select FSL_TZPC_BP147
 	select GICV3
 	select NXP_LSCH3_2
 	select SYS_HAS_SERDES
@@ -277,6 +279,7 @@ config ARCH_LX2160A
 	select FSL_DDR_INTERACTIVE
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select FSL_TZPC_BP147
 	select GICV3
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select NXP_LSCH3_2

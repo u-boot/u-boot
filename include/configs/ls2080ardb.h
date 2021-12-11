@@ -258,9 +258,6 @@ unsigned long get_board_sys_clk(void);
 #define I2C_MUX_CH_DEFAULT      0x8
 
 /* SPI */
-#if defined(CONFIG_FSL_DSPI)
-#define CONFIG_SPI_FLASH_STMICRO
-#endif
 
 /*
  * RTC configuration

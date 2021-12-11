@@ -48,8 +48,6 @@
 #define SDRAM_CFG_BI			0x00000001
 
 #ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0xe8
-
 #define CONFIG_SPL_MAX_SIZE		0x1a000
 #define CONFIG_SPL_STACK		0x1001d000
 #define CONFIG_SPL_PAD_TO		0x1c000
@@ -100,9 +98,6 @@
 		CONFIG_SYS_SCSI_MAX_LUN)
 
 /* SPI */
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_SPI_FLASH_SPANSION
-#endif
 
 /*
  * eTSEC
@@ -173,9 +168,6 @@
 /* start of monitor */
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE
 #endif
-
-#define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_STDOUT_VIA_ALIAS
 
 #include <asm/fsl_secure_boot.h>
 

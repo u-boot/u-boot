@@ -28,7 +28,6 @@
 /*
  * GPIO
  */
-#define CONFIG_LPC32XX_GPIO
 
 /*
  * Ethernet
