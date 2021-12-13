@@ -11,8 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_FSL_CLK
-
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* MMC Configs */

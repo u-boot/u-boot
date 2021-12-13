@@ -530,10 +530,6 @@ endmenu
 menu "Layerscape clock tree configuration"
 	depends on FSL_LSCH2 || FSL_LSCH3
 
-config SYS_FSL_CLK
-	bool "Enable clock tree initialization"
-	default y
-
 config CLUSTER_CLK_FREQ
 	int "Reference clock of core cluster"
 	depends on ARCH_LS1012A

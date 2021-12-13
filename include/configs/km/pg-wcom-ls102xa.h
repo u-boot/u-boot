@@ -6,8 +6,6 @@
 #ifndef __CONFIG_PG_WCOM_LS102XA_H
 #define __CONFIG_PG_WCOM_LS102XA_H
 
-#define CONFIG_SYS_FSL_CLK
-
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 

@@ -12,8 +12,6 @@
 
  /* High Level Configuration Options */
 
-#define CONFIG_SYS_FSL_CLK
-
 #include <asm/arch/imx-regs.h>
 
 /*
