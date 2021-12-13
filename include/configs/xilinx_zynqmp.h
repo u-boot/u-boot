@@ -39,10 +39,6 @@
 # define CONFIG_SYS_MAX_NAND_DEVICE	1
 #endif
 
-#if defined(CONFIG_SPL_BUILD)
-#define CONFIG_ZYNQMP_PSU_INIT_ENABLED
-#endif
-
 /* Miscellaneous configurable options */
 
 #if defined(CONFIG_ZYNQMP_USB)
