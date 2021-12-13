@@ -115,9 +115,6 @@ disable_addr_trans:
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
 #endif /* CONFIG_DEFAULT_IMMR */
-#ifndef CONFIG_SYS_IMMR
-#define CONFIG_SYS_IMMR CONFIG_DEFAULT_IMMR
-#endif /* CONFIG_SYS_IMMR */
 
 /*
  * After configuration, a system reset exception is executed using the

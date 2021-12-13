@@ -58,7 +58,6 @@
 #define CONFIG_MCFTMR
 
 /* I2C */
-#define CONFIG_SYS_IMMR			CONFIG_SYS_MBAR
 
 /*
  * Defines processor clock - important for correct timings concerning serial

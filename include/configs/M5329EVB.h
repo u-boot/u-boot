@@ -47,7 +47,6 @@
 #define CONFIG_MCFTMR
 
 /* I2C */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_MBAR
 
 #define CONFIG_UDP_CHECKSUM
 
