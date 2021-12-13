@@ -476,6 +476,14 @@ config ROCKCHIP_NAND
 	    NFC v800: RK3308, RV1108
 	    NFC v900: PX30, RK3326
 
+config TEGRA_NAND
+	bool "Support for NAND controller on Tegra SoCs"
+	depends on ARCH_TEGRA
+	select SYS_NAND_SELF_INIT
+	imply CMD_NAND
+	help
+	  Enables support for NAND Flash chips on Tegra SoCs platforms.
+
 comment "Generic NAND options"
 
 config SYS_NAND_BLOCK_SIZE
