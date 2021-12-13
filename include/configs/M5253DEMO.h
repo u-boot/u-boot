@@ -12,8 +12,6 @@
 
 #define CONFIG_SYS_UART_PORT		(0)
 
-#undef CONFIG_WATCHDOG		/* disable watchdog */
-
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash

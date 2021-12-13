@@ -314,13 +314,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* Watchdog */
-#if defined(CONFIG_SPL_BUILD)
-#undef CONFIG_WDT
-#undef CONFIG_WATCHDOG
-#define CONFIG_HW_WATCHDOG
-#endif
-
 /* ENV config */
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 /* The 0x120000 value corresponds to above SPI-NOR memory MAP */

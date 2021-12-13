@@ -153,7 +153,6 @@
 /*
  * HW-Watchdog
  */
-#define CONFIG_WATCHDOG		1
 #define CONFIG_SYS_WATCHDOG_VALUE	0xFFFF
 
 /*

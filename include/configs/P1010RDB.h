@@ -595,8 +595,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
-#undef CONFIG_WATCHDOG			/* watchdog disabled */
-
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI_HCD) \
 		 || defined(CONFIG_FSL_SATA)
 #endif

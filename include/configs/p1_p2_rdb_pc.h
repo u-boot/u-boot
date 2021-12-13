@@ -545,8 +545,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
-#undef CONFIG_WATCHDOG	/* watchdog disabled */
-
 /*
  * Miscellaneous configurable options
  */

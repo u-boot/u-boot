@@ -384,8 +384,6 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-#undef CONFIG_WATCHDOG			/* watchdog disabled */
-
 /*
  * Miscellaneous configurable options
  */

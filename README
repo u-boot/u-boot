@@ -639,20 +639,6 @@ The following options need to be configured:
 		example "env grep" and "setexpr".
 
 - Watchdog:
-		CONFIG_WATCHDOG
-		If this variable is defined, it enables watchdog
-		support for the SoC. There must be support in the SoC
-		specific code for a watchdog. For the 8xx
-		CPUs, the SIU Watchdog feature is enabled in the SYPCR
-		register.  When supported for a specific SoC is
-		available, then no further board specific code should
-		be needed to use it.
-
-		CONFIG_HW_WATCHDOG
-		When using a watchdog circuitry external to the used
-		SoC, then define this variable and provide board
-		specific code for the "hw_watchdog_reset" function.
-
 		CONFIG_SYS_WATCHDOG_FREQ
 		Some platforms automatically call WATCHDOG_RESET()
 		from the timer interrupt handler every

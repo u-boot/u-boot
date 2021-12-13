@@ -20,7 +20,6 @@
 
 #define CONFIG_SYS_UART_PORT		(0)
 
-#undef CONFIG_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
 #define CONFIG_SYS_UNIFY_CACHE

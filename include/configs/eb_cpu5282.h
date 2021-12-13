@@ -25,8 +25,6 @@
 #define CONFIG_BOOT_RETRY_TIME	-1
 #define CONFIG_RESET_TO_RETRY
 
-#define CONFIG_HW_WATCHDOG
-
 #define STATUS_LED_ACTIVE		0
 
 /*----------------------------------------------------------------------*

@@ -91,7 +91,6 @@
  */
 
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT 3355	/* timeout in milliseconds */
 #endif
 
