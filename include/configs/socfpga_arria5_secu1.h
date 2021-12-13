@@ -95,7 +95,4 @@
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 
-#undef CONFIG_WATCHDOG_TIMEOUT_MSECS
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS	60000
-
 #endif	/* __CONFIG_SOCFPGA_SECU1_H__ */
