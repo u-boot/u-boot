@@ -142,6 +142,10 @@
 	"env_check=if env info -p -d -q; then env save; fi\0" \
 	"boot_net_usb_start=true\0"
 
+#ifndef STM32MP_BOARD_EXTRA_ENV
+#define STM32MP_BOARD_EXTRA_ENV
+#endif
+
 #include <config_distro_bootcmd.h>
 
 /*
@@ -169,7 +173,8 @@
 	STM32MP_BOOTCMD \
 	STM32MP_PARTS_DEFAULT \
 	BOOTENV \
-	STM32MP_EXTRA
+	STM32MP_EXTRA \
+	STM32MP_BOARD_EXTRA_ENV
 
 #endif /* ifndef CONFIG_SPL_BUILD */
 #endif /* ifdef CONFIG_DISTRO_DEFAULTS*/
