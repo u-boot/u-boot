@@ -32,8 +32,6 @@
 
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
 
-#define CONFIG_SYS_PCI_64BIT		1	/* enable 64-bit resources */
-
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	4
 
 /* Environment options */

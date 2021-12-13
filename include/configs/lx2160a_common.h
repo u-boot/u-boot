@@ -104,7 +104,6 @@
 
 /* PCI */
 #ifdef CONFIG_PCI
-#define CONFIG_SYS_PCI_64BIT
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 

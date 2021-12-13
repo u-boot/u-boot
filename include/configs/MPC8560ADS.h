@@ -27,7 +27,6 @@
  * assume U-Boot is less than 0.5MB
  */
 
-#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_RESET_PHY_R	1	/* Call reset_phy() */
 
 /*

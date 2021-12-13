@@ -46,7 +46,6 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
-/* #define CONFIG_SYS_PCI_64BIT		1 */
 
 #define DEFAULT_DFU_ALT_INFO "dfu_alt_info="				\
 			"mtd nor1=u-boot.bin raw 200000 100000;"	\

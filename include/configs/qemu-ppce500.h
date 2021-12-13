@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_RAMBOOT
 
-#define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
-
 #define CONFIG_ENABLE_36BIT_PHYS
 
 /* Needed to fill the ccsrbar pointer */

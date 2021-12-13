@@ -262,6 +262,7 @@ config ARCH_LX2162A
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
+	select SYS_PCI_64BIT if PCI
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
@@ -301,6 +302,7 @@ config ARCH_LX2160A
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
+	select SYS_PCI_64BIT if PCI
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC

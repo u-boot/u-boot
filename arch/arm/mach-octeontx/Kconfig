@@ -16,8 +16,4 @@ config SYS_SOC
 	string
 	default "octeontx"
 
-config SYS_PCI_64BIT
-	bool
-	default y
-
 endif

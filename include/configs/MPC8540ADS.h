@@ -26,8 +26,6 @@
 #define CONFIG_HAS_FEC		1	/* 8540 has FEC */
 #endif
 
-#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-
 /*
  * sysclk for MPC85xx
  *
