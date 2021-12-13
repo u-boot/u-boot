@@ -39,7 +39,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=imx7s-warp.dtb\0" \
-	"fdt_addr=" __stringify(CONFIG_SYS_FDT_ADDR)"\0" \
+	"fdt_addr=0x83000000\0" \
 	"fdtovaddr=0x83100000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
