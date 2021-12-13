@@ -788,7 +788,7 @@ static void davinci_nand_init(struct nand_chip *nand)
 	nand->dev_ready = nand_davinci_dev_ready;
 }
 
-#ifdef CONFIG_SYS_NAND_SELF_INIT
+#if CONFIG_IS_ENABLED(SYS_NAND_SELF_INIT)
 static int davinci_nand_probe(struct udevice *dev)
 {
 	struct nand_chip *nand = dev_get_priv(dev);

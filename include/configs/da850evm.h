@@ -136,10 +136,6 @@
 				59, 60, 61, 62, 63 }
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	10
-
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_NAND_SELF_INIT
-#endif
 #endif
 
 /*
