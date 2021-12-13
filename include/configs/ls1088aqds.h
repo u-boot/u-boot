@@ -298,15 +298,9 @@ unsigned long get_board_sys_clk(void);
 #define I2C_VOL_MONITOR_BUS_V_SHIFT    3
 #define I2C_SVDD_MONITOR_ADDR           0x4F
 
-#define CONFIG_VID_FLS_ENV              "ls1088aqds_vdd_mv"
-#define CONFIG_VID
-
 /* The lowest and highest voltage allowed for LS1088AQDS */
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
-
-#define CONFIG_VOL_MONITOR_LTC3882_SET
-#define CONFIG_VOL_MONITOR_LTC3882_READ
 
 #define PWM_CHANNEL0                    0x0
 
