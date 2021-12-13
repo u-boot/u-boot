@@ -30,10 +30,6 @@
 /* early stack pointer */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xeff0)
 
-/* memtest command */
-#define CONFIG_SYS_MEMTEST_START        0x80000000
-#define CONFIG_SYS_MEMTEST_END          0x9fffffff
-
 /* SMP */
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 

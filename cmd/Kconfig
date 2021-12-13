@@ -741,7 +741,7 @@ endif
 
 config SYS_MEMTEST_START
 	hex "default start address for mtest"
-	default 0
+	default 0x0
 	help
 	  This is the default start address for mtest for simple read/write
 	  test. If no arguments are given to mtest, default address is used
