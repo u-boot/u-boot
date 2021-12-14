@@ -29,7 +29,6 @@
 /*
  * SuperH Clock setting
  */
-#define CONFIG_SYS_CLK_FREQ	60000000
 #define	CONFIG_SYS_PLL_SETTLING_TIME	100/* in us */
 
 /*

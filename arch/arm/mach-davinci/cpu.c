@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <init.h>
 #include <asm/arch/hardware.h>
 #include <asm/global_data.h>

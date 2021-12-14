@@ -92,8 +92,6 @@
 #endif
 #endif
 
-#define CONFIG_SYS_CLK_FREQ	100000000
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

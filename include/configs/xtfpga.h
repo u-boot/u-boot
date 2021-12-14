@@ -22,12 +22,6 @@
 
 #define CONFIG_XTFPGA
 
-/* FPGA CPU freq after init */
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-
 /*===================*/
 /* RAM Layout        */
 /*===================*/
@@ -172,7 +166,7 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_SYS_NS16550_COM1		IOADDR(0x0D050020) /* Base address */
 
 /* Input clk to NS16550 (in Hz; the SYS_CLK_FREQ is in kHz) */
-#define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_CLK_FREQ
+#define CONFIG_SYS_NS16550_CLK		get_board_sys_clk()
 
 /*======================*/
 /* Ethernet Driver Info */

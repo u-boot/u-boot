@@ -25,12 +25,7 @@
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
 
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
-#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-#define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ/4)
+#define COUNTER_FREQUENCY_REAL		(get_board_sys_clk()/4)
 
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS1	0x51

@@ -88,8 +88,6 @@
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
-#define CONFIG_SYS_CLK_FREQ	66660000
-
 /*
  * Config the L3 Cache as L3 SRAM
  */

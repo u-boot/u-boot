@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -136,7 +137,7 @@ static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 	/* SDIV [2:0] */
 	s = r & 0x7;
 
-	freq = CONFIG_SYS_CLK_FREQ;
+	freq = get_board_sys_clk();
 
 	if (pllreg == EPLL || pllreg == RPLL) {
 		k = k & 0xffff;
@@ -1051,7 +1052,7 @@ static unsigned long exynos5800_get_lcd_clk(void)
 									RPLL};
 		sclk = get_pll_clk(reg_map[sel]);
 	} else
-		sclk = CONFIG_SYS_CLK_FREQ;
+		sclk = get_board_sys_clk();
 	/*
 	 * CLK_DIV_DISP10
 	 * FIMD1_RATIO [3:0]

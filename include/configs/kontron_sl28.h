@@ -42,8 +42,7 @@
 /* serial port */
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
 
-#define CONFIG_SYS_CLK_FREQ		100000000
-#define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ / 4)
+#define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
 /* ethernet */
 #define CONFIG_SYS_RX_ETH_BUFFER	8

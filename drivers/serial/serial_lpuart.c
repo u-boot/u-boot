@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <clk.h>
 #include <dm.h>
 #include <fsl_lpuart.h>
@@ -102,13 +103,9 @@ static void lpuart_write32(u32 flags, u32 *addr, u32 val)
 }
 
 
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	0
-#endif
-
 u32 __weak get_lpuart_clk(void)
 {
-	return CONFIG_SYS_CLK_FREQ;
+	return get_board_sys_clk();
 }
 
 #if CONFIG_IS_ENABLED(CLK)

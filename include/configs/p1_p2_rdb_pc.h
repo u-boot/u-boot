@@ -141,12 +141,6 @@
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_LBA48
 
-#if defined(CONFIG_TARGET_P2020RDB)
-#define CONFIG_SYS_CLK_FREQ	100000000
-#else
-#define CONFIG_SYS_CLK_FREQ	66666666
-#endif
-
 #define CONFIG_HWCONFIG
 /*
  * These can be toggled for performance analysis, otherwise use default.

@@ -38,10 +38,6 @@
  * in the README.mpc85xxads.
  */
 
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	66666666
-#endif
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

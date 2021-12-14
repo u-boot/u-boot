@@ -72,7 +72,7 @@ void get_sys_info(struct sys_info *sys_info)
 #endif
 	uint freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
-	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
+	unsigned long sysclk = get_board_sys_clk();
 	int cc_group[12] = CONFIG_SYS_FSL_CLUSTER_CLOCKS;
 	u32 c_pll_sel, cplx_pll;
 	void *offset;

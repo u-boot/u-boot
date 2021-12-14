@@ -3,6 +3,7 @@
  * Copyright 2015 Freescale Semiconductor
  */
 #include <common.h>
+#include <clock_legacy.h>
 #include <env.h>
 #include <init.h>
 #include <malloc.h>

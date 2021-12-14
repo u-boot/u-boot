@@ -44,10 +44,6 @@
  * Note that PCI-X won't work at 33MHz.
  */
 
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	33000000
-#endif
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

@@ -8,12 +8,6 @@
 
 #include "ls1043a_common.h"
 
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
-#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1

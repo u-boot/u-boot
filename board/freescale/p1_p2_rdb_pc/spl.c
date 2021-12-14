@@ -48,7 +48,7 @@ void board_init_f(ulong bootflag)
 	/* initialize selected port with appropriate baud rate */
 	plat_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_PLAT_RATIO;
 	plat_ratio >>= 1;
-	bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
+	bus_clk = get_board_sys_clk() * plat_ratio;
 	gd->bus_clk = bus_clk;
 
 	ns16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM1,

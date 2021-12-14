@@ -8,7 +8,6 @@
 /*
  * System Clock Setup
  */
-#define CONFIG_SYS_CLK_FREQ		66000000
 #define CONFIG_83XX_PCICLK		66000000
 
 /* QE microcode/firmware address */

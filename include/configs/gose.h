@@ -30,7 +30,6 @@
 #define CONFIG_BITBANGMII_MULTI
 
 /* Board Clock */
-#define CONFIG_SYS_CLK_FREQ	20000000
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootm_size=0x10000000\0"

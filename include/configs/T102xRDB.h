@@ -115,8 +115,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
 #endif
 
-#define CONFIG_SYS_CLK_FREQ	100000000
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

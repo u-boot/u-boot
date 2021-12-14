@@ -53,8 +53,6 @@
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #endif
 
-#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk() /* sysclk for MPC85xx */
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

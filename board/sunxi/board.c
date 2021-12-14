@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <dm.h>
 #include <env.h>
 #include <hang.h>
@@ -667,7 +668,7 @@ void sunxi_board_init(void)
 	 * assured it's being powered with suitable core voltage
 	 */
 	if (!power_failed)
-		clock_set_pll1(CONFIG_SYS_CLK_FREQ);
+		clock_set_pll1(get_board_sys_clk());
 	else
 		printf("Failed to set core voltage! Can't set CPU frequency\n");
 }

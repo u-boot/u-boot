@@ -146,8 +146,6 @@
 #define CONFIG_ENV_TOTAL_SIZE		0x040000
 #define ENV_DEL_ADDR		0xebf00000	/*direct for newenv*/
 
-#define CONFIG_SYS_CLK_FREQ	66666666
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

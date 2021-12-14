@@ -45,7 +45,6 @@
 #endif
 
 /* Board Clock */
-#define CONFIG_SYS_CLK_FREQ	20000000
 
 /* ENV setting */
 

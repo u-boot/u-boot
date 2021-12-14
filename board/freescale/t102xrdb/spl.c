@@ -69,7 +69,7 @@ void board_init_f(ulong bootflag)
 #endif
 
 	/* initialize selected port with appropriate baud rate */
-	sys_clk = CONFIG_SYS_CLK_FREQ;
+	sys_clk = get_board_sys_clk();
 	plat_ratio = (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
 	ccb_clk = sys_clk * plat_ratio / 2;
 

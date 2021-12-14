@@ -49,10 +49,8 @@
 #endif
 
 #ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
 #include <linux/stringify.h>
 #endif
-#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk()
 
 /*
  * These can be toggled for performance analysis, otherwise use default.

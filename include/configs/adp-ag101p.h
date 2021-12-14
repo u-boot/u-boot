@@ -30,8 +30,7 @@
 /*
  * Timer
  */
-#define CONFIG_SYS_CLK_FREQ	39062500
-#define VERSION_CLOCK		CONFIG_SYS_CLK_FREQ
+#define VERSION_CLOCK		get_board_sys_clk()
 
 /*
  * Use Externel CLOCK or PCLK

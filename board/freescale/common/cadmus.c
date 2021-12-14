@@ -5,7 +5,7 @@
 
 
 #include <common.h>
-
+#include <clock_legacy.h>
 
 /*
  * CADMUS Board System Registers

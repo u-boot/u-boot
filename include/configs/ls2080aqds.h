@@ -9,18 +9,13 @@
 
 #include "ls2080a_common.h"
 
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_QIXIS_I2C_ACCESS
 #define CONFIG_SYS_I2C_IFDR_DIV		0x7e
 #endif
 
 #define CONFIG_SYS_I2C_FPGA_ADDR	0x66
-#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-#define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ/4)
+#define COUNTER_FREQUENCY_REAL		(get_board_sys_clk()/4)
 
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS1	0x51

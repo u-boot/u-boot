@@ -146,8 +146,6 @@
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif
 
-#define CONFIG_SYS_CLK_FREQ	66666666 /* SYSCLK for P1010 RDB */
-
 #define CONFIG_HWCONFIG
 /*
  * These can be toggled for performance analysis, otherwise use default.
