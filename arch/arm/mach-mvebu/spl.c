@@ -117,22 +117,39 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 	 * (including SPL content) which is not included in U-Boot image_header.
 	 */
 	if (mhdr->version != 1 ||
-	    ((mhdr->headersz_msb << 16) | mhdr->headersz_lsb) < sizeof(*mhdr) ||
-	    (
-#ifdef CONFIG_SPL_SPI_FLASH_SUPPORT
-	     mhdr->blockid != IBR_HDR_SPI_ID &&
-#endif
-#ifdef CONFIG_SPL_SATA
-	     mhdr->blockid != IBR_HDR_SATA_ID &&
-#endif
-#ifdef CONFIG_SPL_MMC
-	     mhdr->blockid != IBR_HDR_SDIO_ID &&
-#endif
-	     1
-	    )) {
-		printf("ERROR: Not valid SPI/NAND/SATA/SDIO kwbimage v1\n");
+	    ((mhdr->headersz_msb << 16) | mhdr->headersz_lsb) < sizeof(*mhdr)) {
+		printf("ERROR: Invalid kwbimage v1\n");
 		return -EINVAL;
 	}
+
+#ifdef CONFIG_SPL_SPI_FLASH_SUPPORT
+	if (bootdev->boot_device == BOOT_DEVICE_SPI &&
+	    mhdr->blockid != IBR_HDR_SPI_ID) {
+		printf("ERROR: Wrong blockid (0x%x) in SPI kwbimage\n",
+		       mhdr->blockid);
+		return -EINVAL;
+	}
+#endif
+
+#ifdef CONFIG_SPL_SATA
+	if (bootdev->boot_device == BOOT_DEVICE_SATA &&
+	    mhdr->blockid != IBR_HDR_SATA_ID) {
+		printf("ERROR: Wrong blockid (0x%x) in SATA kwbimage\n",
+		       mhdr->blockid);
+		return -EINVAL;
+	}
+#endif
+
+#ifdef CONFIG_SPL_MMC
+	if ((bootdev->boot_device == BOOT_DEVICE_MMC1 ||
+	     bootdev->boot_device == BOOT_DEVICE_MMC2 ||
+	     bootdev->boot_device == BOOT_DEVICE_MMC2_2) &&
+	    mhdr->blockid != IBR_HDR_SDIO_ID) {
+		printf("ERROR: Wrong blockid (0x%x) in SDIO kwbimage\n",
+		       mhdr->blockid);
+		return -EINVAL;
+	}
+#endif
 
 	spl_image->offset = mhdr->srcaddr;
 
