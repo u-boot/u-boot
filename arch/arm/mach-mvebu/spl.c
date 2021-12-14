@@ -189,7 +189,8 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 	 */
 	if (mhdr->blockid == IBR_HDR_SATA_ID) {
 		if (spl_image->offset < 1) {
-			printf("ERROR: Wrong SATA srcaddr in kwbimage\n");
+			printf("ERROR: Wrong srcaddr (0x%08x) in SATA kwbimage\n",
+			       spl_image->offset);
 			return -EINVAL;
 		}
 		spl_image->offset -= 1;
