@@ -149,26 +149,24 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 		return -EINVAL;
 	}
 
-#ifdef CONFIG_SPL_SPI_FLASH_SUPPORT
-	if (bootdev->boot_device == BOOT_DEVICE_SPI &&
+	if (IS_ENABLED(CONFIG_SPL_SPI_FLASH_SUPPORT) &&
+	    bootdev->boot_device == BOOT_DEVICE_SPI &&
 	    mhdr->blockid != IBR_HDR_SPI_ID) {
 		printf("ERROR: Wrong blockid (0x%x) in SPI kwbimage\n",
 		       mhdr->blockid);
 		return -EINVAL;
 	}
-#endif
 
-#ifdef CONFIG_SPL_SATA
-	if (bootdev->boot_device == BOOT_DEVICE_SATA &&
+	if (IS_ENABLED(CONFIG_SPL_SATA) &&
+	    bootdev->boot_device == BOOT_DEVICE_SATA &&
 	    mhdr->blockid != IBR_HDR_SATA_ID) {
 		printf("ERROR: Wrong blockid (0x%x) in SATA kwbimage\n",
 		       mhdr->blockid);
 		return -EINVAL;
 	}
-#endif
 
-#ifdef CONFIG_SPL_MMC
-	if ((bootdev->boot_device == BOOT_DEVICE_MMC1 ||
+	if (IS_ENABLED(CONFIG_SPL_MMC) &&
+	    (bootdev->boot_device == BOOT_DEVICE_MMC1 ||
 	     bootdev->boot_device == BOOT_DEVICE_MMC2 ||
 	     bootdev->boot_device == BOOT_DEVICE_MMC2_2) &&
 	    mhdr->blockid != IBR_HDR_SDIO_ID) {
@@ -176,18 +174,16 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 		       mhdr->blockid);
 		return -EINVAL;
 	}
-#endif
 
 	spl_image->offset = mhdr->srcaddr;
 
-#ifdef CONFIG_SPL_SATA
 	/*
 	 * For SATA srcaddr is specified in number of sectors.
 	 * The main header is must be stored at sector number 1.
 	 * This expects that sector size is 512 bytes and recalculates
 	 * data offset to bytes relative to the main header.
 	 */
-	if (mhdr->blockid == IBR_HDR_SATA_ID) {
+	if (IS_ENABLED(CONFIG_SPL_SATA) && mhdr->blockid == IBR_HDR_SATA_ID) {
 		if (spl_image->offset < 1) {
 			printf("ERROR: Wrong srcaddr (0x%08x) in SATA kwbimage\n",
 			       spl_image->offset);
@@ -196,17 +192,14 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 		spl_image->offset -= 1;
 		spl_image->offset *= 512;
 	}
-#endif
 
-#ifdef CONFIG_SPL_MMC
 	/*
 	 * For SDIO (eMMC) srcaddr is specified in number of sectors.
 	 * This expects that sector size is 512 bytes and recalculates
 	 * data offset to bytes.
 	 */
-	if (mhdr->blockid == IBR_HDR_SDIO_ID)
+	if (IS_ENABLED(CONFIG_SPL_MMC) && mhdr->blockid == IBR_HDR_SDIO_ID)
 		spl_image->offset *= 512;
-#endif
 
 	if (spl_image->offset % 4 != 0) {
 		printf("ERROR: Wrong srcaddr (0x%08x) in kwbimage\n",
