@@ -546,6 +546,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 	return 0;
 }
 
+#if defined(CONFIG_LMB)
 /**
  * boot_ramdisk_high - relocate init ramdisk
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -639,6 +640,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 error:
 	return -1;
 }
+#endif
 
 int boot_get_setup(bootm_headers_t *images, u8 arch,
 		   ulong *setup_start, ulong *setup_len)
@@ -832,6 +834,7 @@ int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
 	return 0;
 }
 
+#if defined(CONFIG_LMB)
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -939,6 +942,7 @@ int image_setup_linux(bootm_headers_t *images)
 
 	return 0;
 }
+#endif
 
 void genimg_print_size(uint32_t size)
 {
