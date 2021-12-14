@@ -1,9 +1,6 @@
 menu "Sandbox architecture"
 	depends on SANDBOX
 
-config ARCH_MAP_SYSMEM
-	def_bool y
-
 config SYS_ARCH
 	default "sandbox"
 
