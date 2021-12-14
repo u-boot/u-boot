@@ -398,6 +398,7 @@ unsigned long get_board_sys_clk(void)
 	return 66666666;
 }
 
+#ifdef CONFIG_DYNAMIC_DDR_CLK_FREQ
 unsigned long get_board_ddr_clk(void)
 {
 	u8 ddrclk_conf = QIXIS_READ(brdcfg[1]);
@@ -415,6 +416,7 @@ unsigned long get_board_ddr_clk(void)
 
 	return 66666666;
 }
+#endif
 
 #if !defined(CONFIG_SPL_BUILD)
 void board_retimer_init(void)
