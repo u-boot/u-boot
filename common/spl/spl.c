@@ -589,6 +589,12 @@ static struct spl_image_loader *spl_ll_find_loader(uint boot_device)
 	return NULL;
 }
 
+__weak int spl_check_board_image(struct spl_image_info *spl_image,
+				 const struct spl_boot_device *bootdev)
+{
+	return 0;
+}
+
 static int spl_load_image(struct spl_image_info *spl_image,
 			  struct spl_image_loader *loader)
 {
@@ -610,6 +616,9 @@ static int spl_load_image(struct spl_image_info *spl_image,
 		}
 	}
 #endif
+	if (!ret)
+		ret = spl_check_board_image(spl_image, &bootdev);
+
 	return ret;
 }
 
