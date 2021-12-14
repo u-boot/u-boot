@@ -137,6 +137,7 @@ unsigned long get_board_sys_clk(void)
 			in_8(&fpga_reg->sclk[2]));
 }
 
+#ifdef CONFIG_DYNAMIC_DDR_CLK_FREQ
 unsigned long get_board_ddr_clk(void)
 {
 	return ics307_clk_freq(
@@ -144,3 +145,4 @@ unsigned long get_board_ddr_clk(void)
 			in_8(&fpga_reg->dclk[1]),
 			in_8(&fpga_reg->dclk[2]));
 }
+#endif
