@@ -73,23 +73,23 @@
 
 /* Structure of the main header, version 1 (Armada 370/XP/375/38x/39x) */
 struct kwbimage_main_hdr_v1 {
-	uint8_t  blockid;               /* 0x0       */
-	uint8_t  flags;                 /* 0x1       */
-	uint16_t nandpagesize;          /* 0x2-0x3   */
-	uint32_t blocksize;             /* 0x4-0x7   */
-	uint8_t  version;               /* 0x8       */
-	uint8_t  headersz_msb;          /* 0x9       */
-	uint16_t headersz_lsb;          /* 0xA-0xB   */
-	uint32_t srcaddr;               /* 0xC-0xF   */
-	uint32_t destaddr;              /* 0x10-0x13 */
-	uint32_t execaddr;              /* 0x14-0x17 */
-	uint8_t  options;               /* 0x18      */
-	uint8_t  nandblocksize;         /* 0x19      */
-	uint8_t  nandbadblklocation;    /* 0x1A      */
-	uint8_t  reserved4;             /* 0x1B      */
-	uint16_t reserved5;             /* 0x1C-0x1D */
-	uint8_t  ext;                   /* 0x1E      */
-	uint8_t  checksum;              /* 0x1F      */
+	u8  blockid;               /* 0x0       */
+	u8  flags;                 /* 0x1       */
+	u16 nandpagesize;          /* 0x2-0x3   */
+	u32 blocksize;             /* 0x4-0x7   */
+	u8  version;               /* 0x8       */
+	u8  headersz_msb;          /* 0x9       */
+	u16 headersz_lsb;          /* 0xA-0xB   */
+	u32 srcaddr;               /* 0xC-0xF   */
+	u32 destaddr;              /* 0x10-0x13 */
+	u32 execaddr;              /* 0x14-0x17 */
+	u8  options;               /* 0x18      */
+	u8  nandblocksize;         /* 0x19      */
+	u8  nandbadblklocation;    /* 0x1A      */
+	u8  reserved4;             /* 0x1B      */
+	u16 reserved5;             /* 0x1C-0x1D */
+	u8  ext;                   /* 0x1E      */
+	u8  checksum;              /* 0x1F      */
 } __packed;
 
 #ifdef CONFIG_SPL_MMC
