@@ -348,7 +348,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 		ret = spl_load_simple_fit(spl_image, &load,
 					  load_offset, header);
 	} else {
-		ret = spl_parse_image_header(spl_image, header);
+		ret = spl_parse_image_header(spl_image, bootdev, header);
 		if (ret)
 			return ret;
 

@@ -70,7 +70,7 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 		}
 		header = (struct image_header *)map_sysmem(u_boot_pos, 0);
 
-		spl_parse_image_header(spl_image, header);
+		spl_parse_image_header(spl_image, bootdev, header);
 	}
 
 	return 0;

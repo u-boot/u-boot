@@ -100,6 +100,7 @@ u32 spl_mmc_boot_mode(const u32 boot_device)
 #endif
 
 int spl_parse_board_header(struct spl_image_info *spl_image,
+			   const struct spl_boot_device *bootdev,
 			   const void *image_header, size_t size)
 {
 	const struct kwbimage_main_hdr_v1 *mhdr = image_header;
