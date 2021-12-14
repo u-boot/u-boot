@@ -14,12 +14,8 @@
 #define CLK_D	1
 #define CLK_P	2
 
-#ifndef CONFIG_SYS_CLK_FREQ_C100
-#define CONFIG_SYS_CLK_FREQ_C100	12000000
-#endif
-#ifndef CONFIG_SYS_CLK_FREQ_C110
-#define CONFIG_SYS_CLK_FREQ_C110	24000000
-#endif
+#define CFG_SYS_CLK_FREQ_C100	12000000
+#define CFG_SYS_CLK_FREQ_C110	24000000
 
 /* s5pc110: return pll clock frequency */
 static unsigned long s5pc100_get_pll_clk(int pllreg)
@@ -66,7 +62,7 @@ static unsigned long s5pc100_get_pll_clk(int pllreg)
 	s = r & 0x7;
 
 	/* FOUT = MDIV * FIN / (PDIV * 2^SDIV) */
-	freq = CONFIG_SYS_CLK_FREQ_C100;
+	freq = CFG_SYS_CLK_FREQ_C100;
 	fout = m * (freq / (p * (1 << s)));
 
 	return fout;
@@ -116,7 +112,7 @@ static unsigned long s5pc110_get_pll_clk(int pllreg)
 	/* SDIV [2:0] */
 	s = r & 0x7;
 
-	freq = CONFIG_SYS_CLK_FREQ_C110;
+	freq = CFG_SYS_CLK_FREQ_C110;
 	if (pllreg == APLL) {
 		if (s < 1)
 			s = 1;

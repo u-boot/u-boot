@@ -18,9 +18,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
-/* input clock of PLL: has 24MHz input clock at S5PC110 */
-#define CONFIG_SYS_CLK_FREQ_C110	24000000
-
 /* DRAM Base */
 #define CONFIG_SYS_SDRAM_BASE		0x30000000
 
