@@ -673,7 +673,7 @@ static int xpsgtr_get_ref_clocks(struct udevice *dev)
 	struct xpsgtr_dev *gtr_dev = dev_get_priv(dev);
 	int ret;
 
-	for (refclk = 0; refclk < 4; ++refclk) {
+	for (refclk = 0; refclk < NUM_LANES; ++refclk) {
 		int i;
 		u32 rate;
 		char name[8];
@@ -682,8 +682,15 @@ static int xpsgtr_get_ref_clocks(struct udevice *dev)
 		snprintf(name, sizeof(name), "ref%u", refclk);
 		dev_dbg(dev, "Checking name: %s\n", name);
 		ret = clk_get_by_name(dev, name, clk);
-		if (ret)
+		if (ret == -ENODATA) {
+			dev_dbg(dev, "%s clock not specified (err %d)\n",
+				name, ret);
 			continue;
+		} else if (ret) {
+			dev_dbg(dev, "couldn't get clock %s (err %d)\n",
+				name, ret);
+			return ret;
+		}
 
 		rate = clk_get_rate(clk);
 
@@ -719,11 +726,11 @@ static int xpsgtr_probe(struct udevice *dev)
 {
 	struct xpsgtr_dev *gtr_dev = dev_get_priv(dev);
 
-	gtr_dev->serdes = (u8 *)dev_read_addr_name(dev, "serdes");
+	gtr_dev->serdes = dev_remap_addr_name(dev, "serdes");
 	if (!gtr_dev->serdes)
 		return -ENODEV;
 
-	gtr_dev->siou = (u8 *)dev_read_addr_name(dev, "siou");
+	gtr_dev->siou = dev_remap_addr_name(dev, "siou");
 	if (!gtr_dev->siou)
 		return -ENODEV;
 
