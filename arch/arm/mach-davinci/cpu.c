@@ -91,3 +91,8 @@ int set_cpu_clk_info(void)
 	gd->bd->bi_dsp_freq = 0;
 	return 0;
 }
+
+unsigned long get_board_sys_clk(void)
+{
+	return clk_get(DAVINCI_ARM_CLKID);
+}

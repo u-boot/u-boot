@@ -148,7 +148,7 @@ int board_early_init_r(void)
 	return 0;
 }
 
-unsigned long get_board_sys_clk(unsigned long dummy)
+unsigned long get_board_sys_clk(void)
 {
 	u8 sysclk_conf = CPLD_READ(sysclk_sw1);
 

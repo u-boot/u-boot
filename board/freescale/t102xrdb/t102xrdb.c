@@ -162,11 +162,6 @@ int board_early_init_r(void)
 	return 0;
 }
 
-unsigned long get_board_sys_clk(void)
-{
-	return CONFIG_SYS_CLK_FREQ;
-}
-
 #ifdef CONFIG_TARGET_T1024RDB
 void board_reset(void)
 {

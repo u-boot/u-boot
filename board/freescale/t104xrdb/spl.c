@@ -25,11 +25,6 @@ phys_size_t get_effective_memsize(void)
 	return CONFIG_SYS_L3_SIZE;
 }
 
-unsigned long get_board_sys_clk(void)
-{
-	return CONFIG_SYS_CLK_FREQ;
-}
-
 #define FSL_CORENET_CCSR_PORSR1_RCW_MASK	0xFF800000
 void board_init_f(ulong bootflag)
 {
@@ -73,7 +68,7 @@ void board_init_f(ulong bootflag)
 	console_init_f();
 
 	/* initialize selected port with appropriate baud rate */
-	sys_clk = get_board_sys_clk();
+	sys_clk = CONFIG_SYS_CLK_FREQ;
 	plat_ratio = (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
 	uart_clk = sys_clk * plat_ratio / 2;
 

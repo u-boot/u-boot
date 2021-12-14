@@ -17,8 +17,11 @@
 /*
  * SoC Configuration
  */
+#ifndef __ASSEMBLY__
+unsigned long get_board_sys_clk(void);
+#endif
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
-#define CONFIG_SYS_CLK_FREQ		clk_get(DAVINCI_ARM_CLKID)
+#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #define CONFIG_SYS_OSCIN_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)

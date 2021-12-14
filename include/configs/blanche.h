@@ -45,8 +45,7 @@
 #endif
 
 /* Board Clock */
-#define RMOBILE_XTAL_CLK	20000000u
-#define CONFIG_SYS_CLK_FREQ	RMOBILE_XTAL_CLK
+#define CONFIG_SYS_CLK_FREQ	20000000
 
 /* ENV setting */
 

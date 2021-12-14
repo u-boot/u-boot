@@ -25,11 +25,6 @@ phys_size_t get_effective_memsize(void)
 	return CONFIG_SYS_L3_SIZE;
 }
 
-unsigned long get_board_sys_clk(void)
-{
-	return CONFIG_SYS_CLK_FREQ;
-}
-
 #if defined(CONFIG_SPL_MMC_BOOT)
 #define GPIO1_SD_SEL 0x00020000
 int board_mmc_getcd(struct mmc *mmc)
@@ -74,7 +69,7 @@ void board_init_f(ulong bootflag)
 #endif
 
 	/* initialize selected port with appropriate baud rate */
-	sys_clk = get_board_sys_clk();
+	sys_clk = CONFIG_SYS_CLK_FREQ;
 	plat_ratio = (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
 	ccb_clk = sys_clk * plat_ratio / 2;
 

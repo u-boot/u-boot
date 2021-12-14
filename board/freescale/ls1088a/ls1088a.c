@@ -374,6 +374,7 @@ bool if_board_diff_clk(void)
 #endif
 }
 
+#ifdef CONFIG_DYNAMIC_SYS_CLK_FREQ
 unsigned long get_board_sys_clk(void)
 {
 	u8 sysclk_conf = QIXIS_READ(brdcfg[1]);
@@ -397,6 +398,7 @@ unsigned long get_board_sys_clk(void)
 
 	return 66666666;
 }
+#endif
 
 #ifdef CONFIG_DYNAMIC_DDR_CLK_FREQ
 unsigned long get_board_ddr_clk(void)

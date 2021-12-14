@@ -115,10 +115,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
 #endif
 
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
 #define CONFIG_SYS_CLK_FREQ	100000000
 
 /*

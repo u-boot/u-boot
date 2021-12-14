@@ -24,11 +24,6 @@ phys_size_t get_effective_memsize(void)
 	return CONFIG_SYS_L3_SIZE;
 }
 
-unsigned long get_board_sys_clk(void)
-{
-	return CONFIG_SYS_CLK_FREQ;
-}
-
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio, sys_clk, ccb_clk;
@@ -43,7 +38,7 @@ void board_init_f(ulong bootflag)
 	console_init_f();
 
 	/* initialize selected port with appropriate baud rate */
-	sys_clk = get_board_sys_clk();
+	sys_clk = CONFIG_SYS_CLK_FREQ;
 	plat_ratio = (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
 	ccb_clk = sys_clk * plat_ratio / 2;
 

@@ -24,9 +24,9 @@
 
 #ifndef __ASSEMBLY__
 #include <linux/stringify.h>
-extern unsigned long get_clock_freq(void);
+extern unsigned long get_board_sys_clk(void);
 #endif
-#define CONFIG_SYS_CLK_FREQ	get_clock_freq() /* sysclk for MPC85xx */
+#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk() /* sysclk for MPC85xx */
 
 /*
  * These can be toggled for performance analysis, otherwise use default.

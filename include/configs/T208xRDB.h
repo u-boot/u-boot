@@ -88,10 +88,6 @@
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
 #define CONFIG_SYS_CLK_FREQ	66660000
 
 /*

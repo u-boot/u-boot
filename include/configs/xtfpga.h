@@ -23,7 +23,10 @@
 #define CONFIG_XTFPGA
 
 /* FPGA CPU freq after init */
-#define CONFIG_SYS_CLK_FREQ		(gd->cpu_clk)
+#ifndef __ASSEMBLY__
+unsigned long get_board_sys_clk(void);
+#endif
+#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 
 /*===================*/
 /* RAM Layout        */

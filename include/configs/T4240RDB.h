@@ -226,10 +226,6 @@
 
 #define CONFIG_SYS_CLK_FREQ	66666666
 
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
 /*
  * DDR Setup
  */
