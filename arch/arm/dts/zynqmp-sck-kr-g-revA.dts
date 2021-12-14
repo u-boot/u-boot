@@ -120,7 +120,7 @@
 
 &zynqmp_dpsub {
 	status = "okay";
-	phy-names = "dp-phy0", "dp-phy1";
+	phy-names = "dp-phy0";
 	phys = <&psgtr 1 PHY_TYPE_DP 0 1>;
 };
 
