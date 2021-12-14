@@ -729,6 +729,9 @@ static int zynq_gem_probe(struct udevice *dev)
 			ret = generic_phy_power_on(&phy);
 			if (ret)
 				return ret;
+		} else if (ret != -ENOENT) {
+			debug("could not get phy (err %d)\n", ret);
+			return ret;
 		}
 	}
 
