@@ -1351,14 +1351,6 @@ config TPL_LDSCRIPT
 	  May be left empty to trigger the Makefile infrastructure to
 	  fall back to the linker-script used for the SPL stage.
 
-config TPL_NEEDS_SEPARATE_TEXT_BASE
-	bool "TPL needs a separate text-base"
-	depends on TPL
-	help
-	  Enable, if the TPL stage should not inherit its text-base
-	  from the SPL stage.  When enabled, a base address for the
-	  .text sections of the TPL stage has to be set below.
-
 config TPL_NEEDS_SEPARATE_STACK
 	bool "TPL needs a separate initial stack-pointer"
 	depends on TPL
@@ -1380,7 +1372,6 @@ config TPL_POWER
 
 config TPL_TEXT_BASE
 	hex "Base address for the .text section of the TPL stage"
-	depends on TPL_NEEDS_SEPARATE_TEXT_BASE
 	help
 	  The base address for the .text section of the TPL stage.
 
