@@ -2617,7 +2617,7 @@ sub u_boot_line {
 	}
 
 	# Do not disable fdt / initrd relocation
-	if ($rawline =~ /.*(fdt|initrd)_high=0xffffffff/) {
+	if ($rawline =~ /^\+.*(fdt|initrd)_high=0xffffffff/) {
 		ERROR("DISABLE_FDT_OR_INITRD_RELOC",
 		     "fdt or initrd relocation disabled at boot time\n" . $herecurr);
 	}
