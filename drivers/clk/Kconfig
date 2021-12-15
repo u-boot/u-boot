@@ -80,7 +80,7 @@ config CLK_CDCE9XX
 	   Enable the clock synthesizer driver for CDCE913/925/937/949
 	   series of chips.
 
-config ICS8N3QV01
+config CLK_ICS8N3QV01
 	bool "Enable ICS8N3QV01 VCXO driver"
 	depends on CLK
 	help
