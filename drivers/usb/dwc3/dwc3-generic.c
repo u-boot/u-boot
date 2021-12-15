@@ -455,10 +455,9 @@ static int dwc3_glue_probe(struct udevice *dev)
 		ret = generic_phy_init(&phy);
 		if (ret)
 			return ret;
-
-		ret = generic_phy_power_on(&phy);
-		if (ret)
-			return ret;
+	} else if (ret != -ENOENT) {
+		debug("could not get phy (err %d)\n", ret);
+		return ret;
 	}
 
 	glue->regs = dev_read_addr(dev);
@@ -470,6 +469,12 @@ static int dwc3_glue_probe(struct udevice *dev)
 	ret = dwc3_glue_reset_init(dev, glue);
 	if (ret)
 		return ret;
+
+	if (phy.dev) {
+		ret = generic_phy_power_on(&phy);
+		if (ret)
+			return ret;
+	}
 
 	ret = device_find_first_child(dev, &child);
 	if (ret)
