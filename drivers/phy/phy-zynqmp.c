@@ -437,7 +437,69 @@ static int xpsgtr_init(struct phy *x)
 	case ICM_PROTOCOL_SATA:
 		return -EINVAL;
 	}
+
+	dev_dbg(gtr_dev->dev, "lane %u (type %u, protocol %u): init done\n",
+		gtr_phy->lane, gtr_phy->type, gtr_phy->protocol);
+
 	return 0;
+}
+
+/* Wait for the PLL to lock (with a timeout). */
+static int xpsgtr_wait_pll_lock(struct phy *phy)
+{
+	struct xpsgtr_dev *gtr_dev = dev_get_priv(phy->dev);
+	struct xpsgtr_phy *gtr_phy;
+	u32 phy_lane = phy->id;
+	int ret = 0;
+	unsigned int timeout = TIMEOUT_US;
+
+	gtr_phy = &gtr_dev->phys[phy_lane];
+
+	dev_dbg(gtr_dev->dev, "Waiting for PLL lock\n");
+
+	while (1) {
+		u32 reg = xpsgtr_read_phy(gtr_phy, L0_PLL_STATUS_READ_1);
+
+		if ((reg & PLL_STATUS_LOCKED) == PLL_STATUS_LOCKED) {
+			ret = 0;
+			break;
+		}
+
+		if (--timeout == 0) {
+			ret = -ETIMEDOUT;
+			break;
+		}
+
+		udelay(1);
+	}
+
+	if (ret == -ETIMEDOUT)
+		dev_err(gtr_dev->dev,
+			"lane %u (type %u, protocol %u): PLL lock timeout\n",
+			gtr_phy->lane, gtr_phy->type, gtr_phy->protocol);
+
+	return ret;
+}
+
+static int xpsgtr_power_on(struct phy *phy)
+{
+	struct xpsgtr_dev *gtr_dev = dev_get_priv(phy->dev);
+	struct xpsgtr_phy *gtr_phy;
+	u32 phy_lane = phy->id;
+	int ret = 0;
+
+	gtr_phy = &gtr_dev->phys[phy_lane];
+
+	/*
+	 * Wait for the PLL to lock. For DP, only wait on DP0 to avoid
+	 * cumulating waits for both lanes. The user is expected to initialize
+	 * lane 0 last.
+	 */
+	if (gtr_phy->protocol != ICM_PROTOCOL_DP ||
+	    gtr_phy->type == XPSGTR_TYPE_DP_0)
+		ret = xpsgtr_wait_pll_lock(phy);
+
+	return ret;
 }
 
 /*
@@ -678,6 +740,7 @@ static const struct udevice_id xpsgtr_phy_ids[] = {
 static const struct phy_ops xpsgtr_phy_ops = {
 	.init = xpsgtr_init,
 	.of_xlate = xpsgtr_of_xlate,
+	.power_on = xpsgtr_power_on,
 };
 
 U_BOOT_DRIVER(psgtr_phy) = {
