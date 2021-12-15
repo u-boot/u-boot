@@ -715,17 +715,12 @@ static int zynq_gem_probe(struct udevice *dev)
 	void *bd_space;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	int ret;
+	struct phy phy;
 
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
-		struct phy phy;
-
 		ret = generic_phy_get_by_index(dev, 0, &phy);
 		if (!ret) {
 			ret = generic_phy_init(&phy);
-			if (ret)
-				return ret;
-
-			ret = generic_phy_power_on(&phy);
 			if (ret)
 				return ret;
 		} else if (ret != -ENOENT) {
@@ -788,6 +783,12 @@ static int zynq_gem_probe(struct udevice *dev)
 	ret = zynq_phy_init(dev);
 	if (ret)
 		goto err3;
+
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII && phy.dev) {
+		ret = generic_phy_power_on(&phy);
+		if (ret)
+			return ret;
+	}
 
 	return ret;
 
