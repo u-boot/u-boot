@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <generic-phy.h>
 #include <log.h>
 #include <net.h>
 #include <netdev.h>
@@ -713,6 +714,19 @@ static int zynq_gem_probe(struct udevice *dev)
 	void *bd_space;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	int ret;
+	struct phy phy;
+
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
+		ret = generic_phy_get_by_index(dev, 0, &phy);
+		if (!ret) {
+			ret = generic_phy_init(&phy);
+			if (ret)
+				return ret;
+		} else if (ret != -ENOENT) {
+			debug("could not get phy (err %d)\n", ret);
+			return ret;
+		}
+	}
 
 	ret = zynq_gem_reset_init(dev);
 	if (ret)
@@ -768,6 +782,12 @@ static int zynq_gem_probe(struct udevice *dev)
 	ret = zynq_phy_init(dev);
 	if (ret)
 		goto err3;
+
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII && phy.dev) {
+		ret = generic_phy_power_on(&phy);
+		if (ret)
+			return ret;
+	}
 
 	return ret;
 
