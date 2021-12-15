@@ -5,10 +5,13 @@
  * Author: Anup Patel <anup.patel@wdc.com>
  */
 
+#define LOG_CATEGORY UCLASS_CLK
+
 #include <common.h>
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
+#include <log.h>
 #include <linux/err.h>
 
 struct clk_fixed_factor {

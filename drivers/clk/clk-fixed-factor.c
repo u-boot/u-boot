@@ -5,16 +5,21 @@
  *
  * Copyright (C) 2011 Sascha Hauer, Pengutronix <s.hauer@pengutronix.de>
  */
+
+#define LOG_CATEGORY UCLASS_CLK
+
 #include <common.h>
-#include <malloc.h>
+#include <clk.h>
 #include <clk-uclass.h>
+#include <div64.h>
+#include <log.h>
+#include <malloc.h>
 #include <dm/device.h>
 #include <dm/devres.h>
 #include <linux/clk-provider.h>
-#include <div64.h>
-#include <clk.h>
-#include "clk.h"
 #include <linux/err.h>
+
+#include "clk.h"
 
 #define UBOOT_DM_CLK_IMX_FIXED_FACTOR "ccf_clk_fixed_factor"
 

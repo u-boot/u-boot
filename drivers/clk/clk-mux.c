@@ -21,17 +21,22 @@
  * clock.
  */
 
+#define LOG_CATEGORY UCLASS_CLK
+
 #include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
+#include <log.h>
+#include <malloc.h>
+#include <asm/io.h>
 #include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
-#include <malloc.h>
-#include <asm/io.h>
 #include <linux/clk-provider.h>
 #include <linux/err.h>
+
 #include "clk.h"
 
 #define UBOOT_DM_CLK_CCF_MUX "ccf_clk_mux"
@@ -123,7 +128,7 @@ static int clk_mux_set_parent(struct clk *clk, struct clk *parent)
 
 	index = clk_fetch_parent_index(clk, parent);
 	if (index < 0) {
-		printf("Could not fetch index\n");
+		log_err("Could not fetch index\n");
 		return index;
 	}
 
@@ -169,7 +174,7 @@ struct clk *clk_hw_register_mux_table(struct device *dev, const char *name,
 	if (clk_mux_flags & CLK_MUX_HIWORD_MASK) {
 		width = fls(mask) - ffs(mask) + 1;
 		if (width + shift > 16) {
-			pr_err("mux value exceeds LOWORD field\n");
+			dev_err(dev, "mux value exceeds LOWORD field\n");
 			return ERR_PTR(-EINVAL);
 		}
 	}
