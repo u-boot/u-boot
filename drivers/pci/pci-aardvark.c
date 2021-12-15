@@ -202,7 +202,7 @@ struct pcie_advk {
 	int			sec_busno;
 	struct udevice		*dev;
 	struct gpio_desc	reset_gpio;
-	u32			cfgcache[0x34 - 0x10];
+	u32			cfgcache[(0x3c - 0x10) / 4];
 	bool			cfgcrssve;
 };
 
@@ -389,20 +389,19 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 	}
 
 	/*
-	 * The configuration space of the PCI Bridge on primary (local) bus is
+	 * The configuration space of the PCI Bridge on primary (first) bus is
 	 * not accessible via PIO transfers like all other PCIe devices. PCI
 	 * Bridge config registers are available directly in Aardvark memory
-	 * space starting at offset zero. Moreover PCI Bridge registers in the
-	 * range 0x10 - 0x34 are not available and register 0x38 (Expansion ROM
-	 * Base Address) is at offset 0x30.
-	 * We therefore read configuration space content of the primary PCI
-	 * Bridge from our virtual cache.
+	 * space starting at offset zero. The PCI Bridge config space is of
+	 * Type 0, but the BAR registers (including ROM BAR) don't have the same
+	 * meaning as in the PCIe specification. Therefore do not access BAR
+	 * registers and non-common registers (those which have different
+	 * meaning for Type 0 and Type 1 config space) of the primary PCI Bridge
+	 * and instead read their content from driver virtual cfgcache[].
 	 */
 	if (busno == pcie->first_busno) {
-		if (offset >= 0x10 && offset < 0x34)
+		if ((offset >= 0x10 && offset < 0x34) || (offset >= 0x38 && offset < 0x3c))
 			data = pcie->cfgcache[(offset - 0x10) / 4];
-		else if ((offset & ~3) == PCI_ROM_ADDRESS1)
-			data = advk_readl(pcie, PCIE_CORE_EXP_ROM_BAR_REG);
 		else
 			data = advk_readl(pcie, offset & ~3);
 
@@ -576,23 +575,22 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 	}
 
 	/*
-	 * As explained in pcie_advk_read_config(), for the configuration
-	 * space of the primary PCI Bridge, we write the content into virtual
-	 * cache.
+	 * As explained in pcie_advk_read_config(), PCI Bridge config registers
+	 * are available directly in Aardvark memory space starting at offset
+	 * zero. Type 1 specific registers are not available, so we write their
+	 * content only into driver virtual cfgcache[].
 	 */
 	if (busno == pcie->first_busno) {
-		if (offset >= 0x10 && offset < 0x34) {
+		if ((offset >= 0x10 && offset < 0x34) ||
+		    (offset >= 0x38 && offset < 0x3c)) {
 			data = pcie->cfgcache[(offset - 0x10) / 4];
 			data = pci_conv_size_to_32(data, value, offset, size);
 			/* This PCI bridge does not have configurable bars */
 			if ((offset & ~3) == PCI_BASE_ADDRESS_0 ||
-			    (offset & ~3) == PCI_BASE_ADDRESS_1)
+			    (offset & ~3) == PCI_BASE_ADDRESS_1 ||
+			    (offset & ~3) == PCI_ROM_ADDRESS1)
 				data = 0x0;
 			pcie->cfgcache[(offset - 0x10) / 4] = data;
-		} else if ((offset & ~3) == PCI_ROM_ADDRESS1) {
-			data = advk_readl(pcie, PCIE_CORE_EXP_ROM_BAR_REG);
-			data = pci_conv_size_to_32(data, value, offset, size);
-			advk_writel(pcie, data, PCIE_CORE_EXP_ROM_BAR_REG);
 		} else {
 			data = advk_readl(pcie, offset & ~3);
 			data = pci_conv_size_to_32(data, value, offset, size);
@@ -830,12 +828,20 @@ static int pcie_advk_setup_hw(struct pcie_advk *pcie)
 	 *
 	 * Note that this Aardvark PCI Bridge does not have a compliant Type 1
 	 * Configuration Space and it even cannot be accessed via Aardvark's
-	 * PCI config space access method. Something like config space is
+	 * PCI config space access method. Aardvark PCI Bridge Config space is
 	 * available in internal Aardvark registers starting at offset 0x0
-	 * and is reported as Type 0. In range 0x10 - 0x34 it has totally
-	 * different registers. So our driver reports Header Type as Type 1 and
-	 * for the above mentioned range redirects access to the virtual
-	 * cfgcache[] buffer, which avoids changing internal Aardvark registers.
+	 * and has format of Type 0 config space.
+	 *
+	 * Moreover Type 0 BAR registers (ranges 0x10 - 0x28 and 0x30 - 0x34)
+	 * have the same format in Marvell's specification as in PCIe
+	 * specification, but their meaning is totally different (and not even
+	 * the same meaning as explained in the corresponding comment in the
+	 * pci_mvebu driver; aardvark is still different).
+	 *
+	 * So our driver converts Type 0 config space to Type 1 and reports
+	 * Header Type as Type 1. Access to BAR registers and to non-existent
+	 * Type 1 registers is redirected to the virtual cfgcache[] buffer,
+	 * which avoids changing unrelated registers.
 	 */
 	reg = advk_readl(pcie, PCIE_CORE_DEV_REV_REG);
 	reg &= ~0xffffff00;
