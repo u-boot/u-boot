@@ -15,6 +15,7 @@
 #include <cpu_func.h>
 #include <exports.h>
 #include <flash.h>
+#include <fwu.h>
 #include <hang.h>
 #include <image.h>
 #include <irq_func.h>
@@ -790,6 +791,9 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_EFI_SETUP_EARLY
 	(init_fnc_t)efi_init_obj_list,
+#endif
+#ifdef CONFIG_FWU_MULTI_BANK_UPDATE
+	fwu_boottime_checks,
 #endif
 	run_main_loop,
 };
