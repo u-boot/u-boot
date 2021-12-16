@@ -7,6 +7,7 @@
  * Ported to U-Boot by:
  * Anton Schubert <anton.schubert@gmx.de>
  * Stefan Roese <sr@denx.de>
+ * Pali Rohár <pali@kernel.org>
  */
 
 #include <common.h>

@@ -274,9 +274,16 @@ F:	drivers/ata/ahci_mvebu.c
 F:	drivers/ddr/marvell/
 F:	drivers/gpio/mvebu_gpio.c
 F:	drivers/spi/kirkwood_spi.c
-F:	drivers/pci/pci_mvebu.c
 F:	drivers/pci/pcie_dw_mvebu.c
 F:	drivers/watchdog/orion_wdt.c
+
+ARM MARVELL PCIE CONTROLLER DRIVERS
+M:	Pali Rohár <pali@kernel.org>
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
+F:	drivers/pci/pci-aardvark.c
+F:	drivers/pci/pci_mvebu.c
 
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>
