@@ -298,11 +298,11 @@ KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 # Some Linux distributions (including RHEL7, SLES13, Debian 8) still
 # have older compilers as their default, so we make it explicit for
 # these that our host tools are GNU11 (i.e. C11 w/ GNU extensions).
-CSTD_FLAG := -std=gnu11
+CSTD_FLAG := -std=gnu11 -Wno-char-subscripts
 KBUILD_HOSTCFLAGS += $(CSTD_FLAG)
 
 ifeq ($(HOSTOS),cygwin)
-KBUILD_HOSTCFLAGS	+= -ansi
+KBUILD_HOSTCFLAGS	+= -D__kernel_daddr_t=int -D__kernel_ino_t="unsigned long"
 endif
 
 # Mac OS X / Darwin's C preprocessor is Apple specific.  It

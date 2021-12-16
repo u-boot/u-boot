@@ -12,7 +12,9 @@
 #include <stdint.h>
 
 #ifdef __GNUC__
+#ifndef __packed
 #define __packed __attribute((packed))
+#endif
 #else
 #define __packed
 #endif
