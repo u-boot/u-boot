@@ -112,6 +112,32 @@ u8 fwu_update_checks_pass(void)
 	return !trial_state && boottime_check;
 }
 
+int fwu_trial_state_ctr_start(void)
+{
+	int ret;
+	u32 var_attributes;
+	efi_status_t status;
+	efi_uintn_t var_size;
+	u16 trial_state_ctr;
+
+	var_size = (efi_uintn_t)sizeof(trial_state_ctr);
+	var_attributes = EFI_VARIABLE_NON_VOLATILE |
+		EFI_VARIABLE_BOOTSERVICE_ACCESS;
+
+	trial_state_ctr = ret = 0;
+	status = efi_set_variable_int(L"TrialStateCtr",
+				      &efi_global_variable_guid,
+				      var_attributes,
+				      var_size,
+				      &trial_state_ctr, false);
+	if (status != EFI_SUCCESS) {
+		log_err("Unable to increment TrialStateCtr variable\n");
+		ret = -1;
+	}
+
+	return ret;
+}
+
 int fwu_boottime_checks(void)
 {
 	int ret;
