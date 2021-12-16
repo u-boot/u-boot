@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2021 Pali Rohár <pali@kernel.org>
  */
 
 #include <common.h>
