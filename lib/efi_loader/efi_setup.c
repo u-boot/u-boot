@@ -346,7 +346,8 @@ efi_status_t efi_init_obj_list(void)
 		goto out;
 
 	/* Execute capsules after reboot */
-	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK) &&
+	if (!IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE) &&
+	    IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK) &&
 	    !IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY))
 		ret = efi_launch_capsules();
 out:
