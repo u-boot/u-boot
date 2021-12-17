@@ -1149,7 +1149,10 @@ dtb-$(CONFIG_TARGET_GE_BX50V3) += \
 dtb-$(CONFIG_TARGET_GE_B1X5V2) += imx6dl-b1x5v2.dtb
 dtb-$(CONFIG_TARGET_MX53PPD) += imx53-ppd.dtb
 
+# TODO(Linus Walleij <linus.walleij@linaro.org>): Should us a single vexpress
+# Kconfig option to build all of these. See examples above.
 dtb-$(CONFIG_TARGET_VEXPRESS_CA9X4) += vexpress-v2p-ca9.dtb
+dtb-$(CONFIG_TARGET_VEXPRESS64_JUNO) += juno-r2.dtb
 
 dtb-$(CONFIG_TARGET_TOTAL_COMPUTE) += total_compute.dtb
 
