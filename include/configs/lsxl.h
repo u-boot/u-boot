@@ -21,8 +21,6 @@
 /*
  * General configuration options
  */
-#define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KW88F6281		/* SOC Name */
 
 #define CONFIG_KIRKWOOD_GPIO
 

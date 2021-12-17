@@ -9,20 +9,7 @@
 #ifndef _CONFIG_GURUPLUG_H
 #define _CONFIG_GURUPLUG_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-
-/*
- * Standard filesystems
- */
-
-/*
- * mv-plug-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
-#include "mv-plug-common.h"
+#include "mv-common.h"
 
 /*
  *  Environment variables configurations

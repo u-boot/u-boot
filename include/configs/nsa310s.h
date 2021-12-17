@@ -9,11 +9,6 @@
 #ifndef _CONFIG_NSA310S_H
 #define _CONFIG_NSA310S_H
 
-/* high level configuration options */
-#define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
-#define CONFIG_KW88F6192		1	/* SOC Name */
-#define CONFIG_KW88F6702		1	/* SOC Name */
-
 #include "mv-common.h"
 
 /* environment variables configuration */

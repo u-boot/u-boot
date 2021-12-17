@@ -7,17 +7,6 @@
 #define _CONFIG_LACIE_KW_H
 
 /*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-/* SoC name */
-#if defined(CONFIG_NETSPACE_LITE_V2) || defined(CONFIG_NETSPACE_MINI_V2)
-#define CONFIG_KW88F6192
-#else
-#define CONFIG_KW88F6281
-#endif
-
-/*
  * SDRAM configuration
  */
 

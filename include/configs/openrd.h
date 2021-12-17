@@ -13,12 +13,6 @@
 #ifndef _CONFIG_OPENRD_H
 #define _CONFIG_OPENRD_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-#define CONFIG_KW88F6281	1	/* SOC Name */
-
 #include "mv-common.h"
 
 /*

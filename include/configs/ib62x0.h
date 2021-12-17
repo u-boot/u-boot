@@ -8,12 +8,6 @@
 #ifndef _CONFIG_IB62x0_H
 #define _CONFIG_IB62x0_H
 
-/*
- * High level configuration options
- */
-#define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KW88F6281		/* SOC Name */
-
 #include "mv-common.h"
 
 /*

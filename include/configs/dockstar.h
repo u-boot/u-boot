@@ -12,12 +12,6 @@
 #define _CONFIG_DOCKSTAR_H
 
 /*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
-#define CONFIG_KW88F6281	1	/* SOC Name */
-
-/*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */

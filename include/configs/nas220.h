@@ -11,12 +11,6 @@
 #ifndef _CONFIG_NAS220_H
 #define _CONFIG_NAS220_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_FEROCEON_88FR131		/* #define CPU Core subversion */
-#define CONFIG_KW88F6192		/* SOC Name */
-
 /* power-on led, regulator, sata0, sata1 */
 #define NAS220_GE_OE_VAL_LOW ((1 << 12)|(1 << 14)|(1 << 24)|(1 << 28))
 #define NAS220_GE_OE_VAL_HIGH (0)
