@@ -14,8 +14,6 @@
 #include <config.h>
 #include <mpc83xx.h>
 
-#define CONFIG_83XX	1		/* needed for Linux kernel header files*/
-
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 

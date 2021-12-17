@@ -1,9 +1,4 @@
 /*
- * High Level Configuration Options
- */
-#define CONFIG_KM8321	/* Keymile PBEC8321 board specific */
-
-/*
  * System IO Config
  */
 #define CONFIG_SYS_SICRL	SICRL_IRQ_CKS
