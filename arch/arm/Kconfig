@@ -635,6 +635,7 @@ config ARCH_BCMSTB
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	imply CMD_DM
+	imply OF_HAS_PRIOR_STAGE
 	help
 	  This enables support for Broadcom ARM-based set-top box
 	  chipsets, including the 7445 family of chips.
@@ -707,12 +708,12 @@ config ARCH_HIGHBANK
 	select DM
 	select DM_SERIAL
 	select OF_CONTROL
-	select OF_BOARD
 	select CLK
 	select CLK_CCF
 	select AHCI
 	select DM_ETH
 	select PHYS_64BIT
+	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"
@@ -935,13 +936,13 @@ config ARCH_APPLE
 	select IOMMU
 	select LINUX_KERNEL_IMAGE_HEADER
 	select OF_CONTROL
-	select OF_BOARD
 	select PINCTRL
 	select POSITION_INDEPENDENT
 	select USB
 	imply CMD_DM
 	imply CMD_GPT
 	imply DISTRO_DEFAULTS
+	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_OWL
 	bool "Actions Semi OWL SoCs"
@@ -966,6 +967,7 @@ config ARCH_QEMU
 	imply DM_RNG
 	imply DM_RTC
 	imply RTC_PL031
+	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
@@ -1243,7 +1245,6 @@ config TARGET_VEXPRESS64_JUNO
 	select PL01X_SERIAL
 	select DM
 	select OF_CONTROL
-	select OF_BOARD
 	select CLK
 	select DM_SERIAL
 	select ARM_PSCI_FW
@@ -1251,6 +1252,7 @@ config TARGET_VEXPRESS64_JUNO
 	select DM_ETH
 	select BLK
 	select USB
+	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_TOTAL_COMPUTE
 	bool "Support Total Compute Platform"
@@ -1907,6 +1909,7 @@ config ARCH_OCTEONTX
 	select OF_LIVE
 	select BOARD_LATE_INIT
 	select SYS_CACHE_SHIFT_7
+	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_OCTEONTX2
 	bool "Support OcteonTX2 SoCs"
@@ -1918,6 +1921,7 @@ config ARCH_OCTEONTX2
 	select OF_LIVE
 	select BOARD_LATE_INIT
 	select SYS_CACHE_SHIFT_7
+	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
@@ -1954,6 +1958,8 @@ config TARGET_XENGUEST_ARM64
 	select LINUX_KERNEL_IMAGE_HEADER
 	select XEN_SERIAL
 	select SSCANF
+	imply OF_HAS_PRIOR_STAGE
+
 endchoice
 
 config SUPPORT_PASSING_ATAGS
