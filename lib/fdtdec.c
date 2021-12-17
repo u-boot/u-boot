@@ -1203,7 +1203,6 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 	return 0;
 }
 
-#if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 /*
  * For CONFIG_OF_SEPARATE, the board may optionally implement this to
  * provide and/or fixup the fdt.
@@ -1226,7 +1225,6 @@ __weak void *board_fdt_blob_setup(int *err)
 
 	return fdt_blob;
 }
-#endif
 
 int fdtdec_set_ethernet_mac_address(void *fdt, const u8 *mac, size_t size)
 {
