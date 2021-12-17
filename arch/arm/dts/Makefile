@@ -871,6 +871,8 @@ dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-com.dtb \
 	imx7ulp-evk.dtb
 
+dtb-$(CONFIG_ARCH_HIGHBANK) += highbank.dtb
+
 dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8qm-apalis.dtb \
 	fsl-imx8qm-mek.dtb \
