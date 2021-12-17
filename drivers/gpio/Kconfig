@@ -177,6 +177,11 @@ config HSDK_CREG_GPIO
 	help
 	  This driver supports CREG GPIOs on Synopsys HSDK SOC.
 
+config KIRKWOOD_GPIO
+	bool "Kirkwood GPIO driver"
+	help
+	  This drdiver supports GPIOs on Kirkwood platforms
+
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
 	depends on DM

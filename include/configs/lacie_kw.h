@@ -41,7 +41,6 @@
 /*
  * Enable GPI0 support
  */
-#define CONFIG_KIRKWOOD_GPIO
 
 /*
  * Enable I2C support

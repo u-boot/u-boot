@@ -11,8 +11,6 @@
  * General configuration options
  */
 
-#define CONFIG_KIRKWOOD_GPIO
-
 #include "mv-common.h"
 
 /* loading initramfs images without uimage header */

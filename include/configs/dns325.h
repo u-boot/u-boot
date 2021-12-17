@@ -26,7 +26,6 @@
 /*
  * Enable GPI0 support
  */
-#define CONFIG_KIRKWOOD_GPIO
 
 /*
  * Environment variables configurations
