@@ -131,4 +131,12 @@ int dm_remove_devices_flags(uint flags);
 static inline int dm_remove_devices_flags(uint flags) { return 0; }
 #endif
 
+/**
+ * dm_get_stats() - Get some stats for driver mode
+ *
+ * @device_countp: Returns total number of devices that are bound
+ * @uclass_countp: Returns total number of uclasses in use
+ */
+void dm_get_stats(int *device_countp, int *uclass_countp);
+
 #endif
