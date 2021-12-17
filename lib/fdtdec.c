@@ -1624,16 +1624,15 @@ static void setup_multi_dtb_fit(void)
 int fdtdec_setup(void)
 {
 	int ret;
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-# ifdef CONFIG_OF_EMBED
+#ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
 	gd->fdt_blob = dtb_dt_embedded();
-# elif defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
+#elif defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 	/* Allow the board to override the fdt address. */
 	gd->fdt_blob = board_fdt_blob_setup(&ret);
 	if (ret)
 		return ret;
-# endif
+#endif
 	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
 		/* Allow the early environment to override the fdt address */
 		gd->fdt_blob = map_sysmem(env_get_ulong("fdtcontroladdr", 16,
@@ -1642,7 +1641,6 @@ int fdtdec_setup(void)
 
 	if (CONFIG_IS_ENABLED(MULTI_DTB_FIT))
 		setup_multi_dtb_fit();
-#endif
 
 	ret = fdtdec_prepare_fdt();
 	if (!ret)
