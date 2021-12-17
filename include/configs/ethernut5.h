@@ -54,9 +54,6 @@
 #endif
 
 /* JFFS2 */
-#ifdef CONFIG_CMD_JFFS2
-#define CONFIG_JFFS2_NAND
-#endif
 
 /* Ethernet */
 #define CONFIG_NET_RETRY_COUNT		20

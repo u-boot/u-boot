@@ -233,9 +233,6 @@
 #define CONFIG_TIMESTAMP
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
 
-#define CONFIG_JFFS2_NAND
-#define CONFIG_JFFS2_DEV		"0"
-
 /* mtdparts command line support */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \

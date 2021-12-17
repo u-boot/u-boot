@@ -5,3 +5,15 @@ config FS_JFFS2
 	  Flash File System version 2). JFFS2 is a log-structured file system
 	  for use with flash memory devices. It supports raw NAND devices,
 	  hard links and compression.
+
+config JFFS2_LZO
+	bool "Enable LZO compression in JFFS2"
+	depends on FS_JFFS2
+	help
+	  Enable LZO compression in the JFFS2 filesystem
+
+config JFFS2_NAND
+	bool "Enable JFFS2 support for NAND flash"
+	depends on FS_JFFS2
+	help
+	  Enable support for NAND flash as the backing store for JFFS2.

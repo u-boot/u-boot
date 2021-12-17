@@ -999,9 +999,6 @@ The following options need to be configured:
 		sending again an USB request to the device.
 
 - Journaling Flash filesystem support:
-		CONFIG_JFFS2_NAND
-		Define these for a default partition on a NAND device
-
 		CONFIG_SYS_JFFS2_FIRST_SECTOR,
 		CONFIG_SYS_JFFS2_FIRST_BANK, CONFIG_SYS_JFFS2_NUM_BANKS
 		Define these for a default partition on a NOR device

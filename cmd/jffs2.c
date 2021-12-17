@@ -360,11 +360,7 @@ int mtdparts_init(void)
 		/* id */
 		id->mtd_id = "single part";
 
-#if defined(CONFIG_JFFS2_DEV)
 		dev_name = CONFIG_JFFS2_DEV;
-#else
-		dev_name = "nor0";
-#endif
 
 		if ((mtd_id_parse(dev_name, NULL, &id->type, &id->num) != 0) ||
 				(mtd_device_validate(id->type, id->num, &size) != 0)) {
@@ -382,17 +378,9 @@ int mtdparts_init(void)
 		part->name = "static";
 		part->auto_name = 0;
 
-#if defined(CONFIG_JFFS2_PART_SIZE)
 		part->size = CONFIG_JFFS2_PART_SIZE;
-#else
-		part->size = SIZE_REMAINING;
-#endif
 
-#if defined(CONFIG_JFFS2_PART_OFFSET)
 		part->offset = CONFIG_JFFS2_PART_OFFSET;
-#else
-		part->offset = 0x00000000;
-#endif
 
 		part->dev = current_mtd_dev;
 		INIT_LIST_HEAD(&part->link);

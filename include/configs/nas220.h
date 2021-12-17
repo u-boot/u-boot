@@ -54,12 +54,6 @@
 #endif /* CONFIG_CMD_NET */
 
 /*
- * File system
- */
-#define CONFIG_JFFS2_NAND
-#define CONFIG_JFFS2_LZO
-
-/*
  * EFI partition
  */
 
