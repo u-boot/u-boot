@@ -129,6 +129,16 @@ config OF_HAS_PRIOR_STAGE
 	  Note: This option must be set in Kconfig and cannot be enabled or
 	  disabled in the board's defconfig file.
 
+config OF_OMIT_DTB
+	bool "Omit the device tree output when building"
+	default y if OF_HAS_PRIOR_STAGE && !BINMAN
+	help
+	  As a special case, avoid writing a device tree file u-boot.dtb when
+	  building. Also don't include that file in u-boot.bin
+
+	  This is used for boards which normally provide a devicetree via a
+	  runtime mechanism (such as OF_BOARD), to avoid confusion.
+
 config DEFAULT_DEVICE_TREE
 	string "Default Device Tree for DT control"
 	depends on OF_CONTROL
