@@ -175,7 +175,9 @@ u_boot_dtsi_options_raw = $(warning Automatic .dtsi inclusion: options: \
 
 # Uncomment for debugging
 # This shows all the files that were considered and the one that we chose.
-# u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
+ifdef DEVICE_TREE_DEBUG
+u_boot_dtsi_options_debug = $(warning $(u_boot_dtsi_options_raw))
+endif
 
 # We use the first match
 u_boot_dtsi = $(strip $(u_boot_dtsi_options_debug) \

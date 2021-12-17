@@ -790,12 +790,14 @@ Binman will search for the following files in arch/<arch>/dts::
 
 U-Boot will only use the first one that it finds. If you need to include a
 more general file you can do that from the more specific file using #include.
-If you are having trouble figuring out what is going on, you can uncomment
-the 'warning' line in scripts/Makefile.lib to see what it has found::
+If you are having trouble figuring out what is going on, you can use
+`DEVICE_TREE_DEBUG=1` with your build::
 
-   # Uncomment for debugging
-   # This shows all the files that were considered and the one that we chose.
-   # u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
+   make DEVICE_TREE_DEBUG=1
+   scripts/Makefile.lib:334: Automatic .dtsi inclusion: options:
+     arch/arm/dts/juno-r2-u-boot.dtsi arch/arm/dts/-u-boot.dtsi
+     arch/arm/dts/armv8-u-boot.dtsi arch/arm/dts/armltd-u-boot.dtsi
+     arch/arm/dts/u-boot.dtsi ... found: "arch/arm/dts/juno-r2-u-boot.dtsi"
 
 
 Updating an ELF file
