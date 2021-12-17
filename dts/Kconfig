@@ -16,24 +16,6 @@ config BINMAN
 	bool
 	select DTOC
 
-config BINMAN_STANDALONE_FDT
-	bool
-	depends on BINMAN
-	default y if OF_BOARD
-	help
-	  This option tells U-Boot build system that a standalone device tree
-	  source is explicitly required when using binman to package U-Boot.
-
-	  This is not necessary in a common scenario where a device tree source
-	  that contains the binman node is provided in the arch/<arch>/dts
-	  directory for a specific board. Such device tree sources are built for
-	  OF_SEPARATE or OF_EMBED. However for a scenario like the board device
-	  tree blob is not provided in the U-Boot build tree, but fed to U-Boot
-	  in the runtime, e.g.: in the OF_BOARD case that it is passed by
-	  a prior stage bootloader. For such scenario, a standalone device tree
-	  blob containing binman node to describe how to package U-Boot should
-	  be provided explicitly.
-
 menu "Device Tree Control"
 	depends on SUPPORT_OF_CONTROL
 

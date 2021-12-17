@@ -232,26 +232,6 @@ You can use other, more specific CONFIG options - see 'Automatic .dtsi
 inclusion' below.
 
 
-Using binman with OF_BOARD
---------------------------------------------
-
-Normally binman is used with a board configured with OF_SEPARATE or OF_EMBED.
-This is a typical scenario where a device tree source that contains the binman
-node is provided in the arch/<arch>/dts directory for a specific board.
-
-However for a board configured with OF_BOARD, no device tree blob is provided
-in the U-Boot build phase hence the binman node information is not available.
-In order to support such use case, a new Kconfig option BINMAN_STANDALONE_FDT
-is introduced, to tell the build system that a standalone device tree blob
-containing binman node is explicitly required.
-
-Note there is a Kconfig option BINMAN_FDT which enables U-Boot run time to
-access information about binman entries, stored in the device tree in a binman
-node. Generally speaking, this option makes sense for OF_SEPARATE or OF_EMBED.
-For the other OF_CONTROL methods, it's quite possible binman node is not
-available as binman is invoked during the build phase, thus this option is not
-turned on by default for these OF_CONTROL methods.
-
 Access to binman entry offsets at run time (symbols)
 ----------------------------------------------------
 
