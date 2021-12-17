@@ -260,7 +260,7 @@ void board_init_f(ulong dummy)
 
 	ret = spl_init();
 	if (ret) {
-		debug("spl_init() failed: %d\n", ret);
+		printf("spl_init() failed: %d\n", ret);
 		hang();
 	}
 
@@ -276,7 +276,7 @@ void board_init_f(ulong dummy)
 	/* Setup DDR */
 	ret = ddr3_init();
 	if (ret) {
-		debug("ddr3_init() failed: %d\n", ret);
+		printf("ddr3_init() failed: %d\n", ret);
 		hang();
 	}
 #endif
