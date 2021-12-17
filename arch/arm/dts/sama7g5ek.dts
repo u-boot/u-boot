@@ -11,6 +11,7 @@
 #include <dt-bindings/mfd/atmel-flexcom.h>
 #include "sama7g5.dtsi"
 #include "sama7g5-pinfunc.h"
+#include <dt-bindings/pinctrl/at91.h>
 
 / {
 	model = "Microchip SAMA7G5 Evaluation Kit";
@@ -61,6 +62,24 @@
 				status = "okay";
 			};
 		};
+	};
+};
+
+&qspi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_qspi>;
+	status = "okay";
+
+	flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <133000000>;
+		spi-tx-bus-width = <8>;
+		spi-rx-bus-width = <8>;
+		m25p,fast-read;
+
 	};
 };
 
@@ -124,6 +143,25 @@
 		pinmux = <PIN_PD16__FLEXCOM3_IO0>,
 			 <PIN_PD17__FLEXCOM3_IO1>;
 		bias-pull-up;
+	};
+
+	pinctrl_qspi: qspi {
+		pinmux = <PIN_PB12__QSPI0_IO0>,
+			 <PIN_PB11__QSPI0_IO1>,
+			 <PIN_PB10__QSPI0_IO2>,
+			 <PIN_PB9__QSPI0_IO3>,
+			 <PIN_PB16__QSPI0_IO4>,
+			 <PIN_PB17__QSPI0_IO5>,
+			 <PIN_PB18__QSPI0_IO6>,
+			 <PIN_PB19__QSPI0_IO7>,
+			 <PIN_PB13__QSPI0_CS>,
+			 <PIN_PB14__QSPI0_SCK>,
+			 <PIN_PB15__QSPI0_SCKN>,
+			 <PIN_PB20__QSPI0_DQS>,
+			 <PIN_PB21__QSPI0_INT>;
+		bias-disable;
+		slew-rate = <0>;
+		atmel,drive-strength = <ATMEL_PIO_DRVSTR_HI>;
 	};
 
 	pinctrl_sdmmc0_cmd_data_default: sdmmc0_cmd_data_default {
