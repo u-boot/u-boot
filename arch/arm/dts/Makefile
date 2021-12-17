@@ -1142,6 +1142,9 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 
 dtb-$(CONFIG_XEN) += xenguest-arm64.dtb
 
+dtb-$(CONFIG_ARCH_OCTEONTX) += octeontx.dtb
+dtb-$(CONFIG_ARCH_OCTEONTX2) += octeontx.dtb
+
 dtb-$(CONFIG_TARGET_GE_BX50V3) += \
 	imx6q-bx50v3.dtb \
 	imx6q-b850v3.dtb \
