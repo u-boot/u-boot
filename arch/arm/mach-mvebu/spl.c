@@ -5,7 +5,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <debug_uart.h>
 #include <fdtdec.h>
 #include <hang.h>
 #include <image.h>
@@ -249,18 +248,6 @@ void board_init_f(ulong dummy)
 	 * to work.
 	 */
 	board_early_init_f();
-
-	/* Example code showing how to enable the debug UART on MVEBU */
-#ifdef EARLY_UART
-	/*
-	 * Debug UART can be used from here if required:
-	 *
-	 * debug_uart_init();
-	 * printch('a');
-	 * printhex8(0x1234);
-	 * printascii("string");
-	 */
-#endif
 
 	/*
 	 * Use special translation offset for SPL. This needs to be
