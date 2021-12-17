@@ -29,7 +29,6 @@
 #define STDIN_CFG "serial"
 #endif
 
-#define CONFIG_CPU_ARMV8
 #define CONFIG_REMAKE_ELF
 #define CONFIG_SYS_MAXARGS		32
 #define CONFIG_SYS_CBSIZE		1024
