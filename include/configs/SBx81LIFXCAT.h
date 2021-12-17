@@ -6,11 +6,6 @@
 #ifndef _CONFIG_SBX81LIFXCAT_H
 #define _CONFIG_SBX81LIFXCAT_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
-
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
 

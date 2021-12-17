@@ -2052,6 +2052,14 @@ config ISW_ENTRY_ADDR
 	  image headers.
 endif
 
+config SYS_KWD_CONFIG
+	string "kwbimage config file path"
+	depends on ARCH_KIRKWOOD || ARCH_MVEBU
+	default "arch/arm/mach-mvebu/kwbimage.cfg"
+	help
+	  Path within the source directory to the kwbimage.cfg file to use
+	  when packaging the U-Boot image for use.
+
 source "arch/arm/mach-apple/Kconfig"
 
 source "arch/arm/mach-aspeed/Kconfig"
