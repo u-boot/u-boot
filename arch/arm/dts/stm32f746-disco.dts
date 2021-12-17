@@ -19,9 +19,9 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	memory@c0000000 {
+	memory@d0000000 {
 		device_type = "memory";
-		reg = <0xC0000000 0x800000>;
+		reg = <0xD0000000 0x800000>;
 	};
 
 	aliases {
@@ -74,7 +74,7 @@
 };
 
 &usart1 {
-	pinctrl-0 = <&usart1_pins_b>;
+	pinctrl-0 = <&usart1_pins_a>;
 	pinctrl-names = "default";
 	status = "okay";
 };

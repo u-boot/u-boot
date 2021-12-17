@@ -36,7 +36,7 @@
 
 	led1 {
 		compatible = "st,led1";
-		led-gpio = <&gpioi 1 0>;
+		led-gpio = <&gpiod 11 0>;
 	};
 
 	panel-rgb@0 {
@@ -80,7 +80,7 @@
 
 &fmc {
 	/* Memory configuration from sdram datasheet MT48LC_4M32_B2B5-6A */
-	bank1: bank@0 {
+	bank2: bank@1 {
 		u-boot,dm-pre-reloc;
 		st,sdram-control = /bits/ 8 <NO_COL_8
 					     NO_ROW_12
@@ -156,11 +156,11 @@
 				 <STM32_PINMUX('F', 1, AF12)>, /* A1 */
 				 <STM32_PINMUX('F', 0, AF12)>, /* A0 */
 
-				 <STM32_PINMUX('H', 3, AF12)>, /* SDNE0 */
-				 <STM32_PINMUX('H', 5, AF12)>, /* SDNWE */
+				 <STM32_PINMUX('H', 6, AF12)>, /* SDNE1 */
+				 <STM32_PINMUX('C', 0, AF12)>, /* SDNWE */
 				 <STM32_PINMUX('F',11, AF12)>, /* SDNRAS */
 				 <STM32_PINMUX('G',15, AF12)>, /* SDNCAS */
-				 <STM32_PINMUX('C', 3, AF12)>, /* SDCKE0 */
+				 <STM32_PINMUX('H', 7, AF12)>, /* SDCKE1 */
 				 <STM32_PINMUX('G', 8, AF12)>; /* SDCLK> */
 			slew-rate = <2>;
 		};
@@ -204,10 +204,10 @@
 		pins {
 			pinmux = <STM32_PINMUX('B', 2, AF9)>, /* CLK */
 				 <STM32_PINMUX('B', 6, AF10)>, /* BK1_NCS */
-				 <STM32_PINMUX('D',11, AF9)>, /* BK1_IO0 */
-				 <STM32_PINMUX('D',12, AF9)>, /* BK1_IO1 */
-				 <STM32_PINMUX('D',13, AF9)>, /* BK1_IO3 */
-				 <STM32_PINMUX('E', 2, AF9)>; /* BK1_IO2 */
+				 <STM32_PINMUX('F', 8, AF10)>, /* BK1_IO0 */
+				 <STM32_PINMUX('F', 9, AF10)>, /* BK1_IO1 */
+				 <STM32_PINMUX('F', 6, AF9)>, /* BK1_IO3 */
+				 <STM32_PINMUX('F', 7, AF9)>; /* BK1_IO2 */
 			slew-rate = <2>;
 		};
 	};
@@ -229,7 +229,7 @@
 
 &qspi {
 	reg = <0xA0001000 0x1000>, <0x90000000 0x1000000>;
-	qflash0: n25q128a@0 {
+	qflash0: w25q128fw@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";

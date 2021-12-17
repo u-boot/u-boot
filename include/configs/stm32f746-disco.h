@@ -16,10 +16,10 @@
 #define CONFIG_SYS_INIT_SP_ADDR		0x20050000
 
 #ifdef CONFIG_SUPPORT_SPL
-#define CONFIG_SYS_LOAD_ADDR		0x08008000
+#define CONFIG_SYS_LOAD_ADDR           0x08008000
 #else
-#define CONFIG_SYS_LOAD_ADDR		0xC0400000
-#define CONFIG_LOADADDR			0xC0400000
+#define CONFIG_SYS_LOAD_ADDR           0xD0400000
+#define CONFIG_LOADADDR                0xD0400000
 #endif
 
 /*
@@ -43,22 +43,20 @@
 
 #define CONFIG_SYS_CBSIZE		1024
 
-#define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN          (1 * 1024 * 1024)
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 
 #include <config_distro_bootcmd.h>
 #define CONFIG_EXTRA_ENV_SETTINGS				\
-			"kernel_addr_r=0xC0008000\0"		\
+			"kernel_addr_r=0xD0008000\0"		\
 			"fdtfile=stm32f746-disco.dtb\0"	\
-			"fdt_addr_r=0xC0408000\0"		\
-			"scriptaddr=0xC0418000\0"		\
-			"pxefile_addr_r=0xC0428000\0" \
-			"ramdisk_addr_r=0xC0438000\0"		\
+			"fdt_addr_r=0xD0408000\0"		\
+			"scriptaddr=0xD0418000\0"		\
+			"pxefile_addr_r=0xD0428000\0" \
+			"ramdisk_addr_r=0xD0438000\0"		\
 			BOOTENV
-
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* For SPL */
 #ifdef CONFIG_SUPPORT_SPL
