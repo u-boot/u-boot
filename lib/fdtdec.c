@@ -76,6 +76,19 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(ALTERA_SOCFPGA_CLK_INIT, "altr,socfpga-a10-clk-init")
 };
 
+static const char *const fdt_src_name[] = {
+	[FDTSRC_SEPARATE] = "separate",
+	[FDTSRC_FIT] = "fit",
+	[FDTSRC_BOARD] = "board",
+	[FDTSRC_EMBED] = "embed",
+	[FDTSRC_ENV] = "env",
+};
+
+const char *fdtdec_get_srcname(void)
+{
+	return fdt_src_name[gd->fdt_src];
+}
+
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
 {
 	/* We allow reading of the 'unknown' ID for testing purposes */
