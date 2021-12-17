@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2016-2017 Intel Corporation <www.intel.com>
+ * Copyright (C) 2016-2021 Intel Corporation <www.intel.com>
  */
 
 #ifndef _SYSTEM_MANAGER_ARRIA10_H_
@@ -31,6 +31,11 @@
 #define SYSMGR_A10_NOC_IDLEACK			0xd0
 #define SYSMGR_A10_NOC_IDLESTATUS		0xd4
 #define SYSMGR_A10_FPGA2SOC_CTRL		0xd8
+#define SYSMGR_A10_ROMCODE_CTRL			0x204
+#define SYSMGR_A10_ROMCODE_INITSWSTATE	0x20C
+#define SYSMGR_A10_ROMCODE_QSPIRESETCOMMAND	0x208
+#define SYSMGR_A10_ISW_HANDOFF_BASE		0x230
+#define SYSMGR_A10_ISW_HANDOFF_7		0x1c
 
 #define SYSMGR_SDMMC				SYSMGR_A10_SDMMC
 

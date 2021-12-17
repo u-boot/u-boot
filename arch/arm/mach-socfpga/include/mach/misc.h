@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2016-2017 Intel Corporation
+ * Copyright (C) 2016-2021 Intel Corporation
  */
 
 #ifndef _SOCFPGA_MISC_H_
@@ -45,7 +45,12 @@ int is_fpga_config_ready(void);
 #endif
 
 void do_bridge_reset(int enable, unsigned int mask);
+void force_periph_program(unsigned int status);
+bool is_regular_boot_valid(void);
+bool is_periph_program_force(void);
+void set_regular_boot(unsigned int status);
 void socfpga_pl310_clear(void);
 void socfpga_get_managers_addr(void);
+int qspi_flash_software_reset(void);
 
 #endif /* _SOCFPGA_MISC_H_ */

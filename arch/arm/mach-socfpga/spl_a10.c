@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  Copyright (C) 2012-2019 Altera Corporation <www.altera.com>
+ *  Copyright (C) 2012-2021 Altera Corporation <www.altera.com>
  */
 
 #include <common.h>
@@ -30,8 +30,13 @@
 #include <asm/arch/fpga_manager.h>
 #include <mmc.h>
 #include <memalign.h>
+#include <linux/delay.h>
 
 #define FPGA_BUFSIZ	16 * 1024
+#define FSBL_IMAGE_IS_VALID	0x49535756
+
+#define FSBL_IMAGE_IS_INVALID	0x0
+#define BOOTROM_CONFIGURES_IO_PINMUX	0x3
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -106,6 +111,8 @@ u32 spl_mmc_boot_mode(const u32 boot_device)
 
 void spl_board_init(void)
 {
+	int ret;
+
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, FPGA_BUFSIZ);
 
 	/* enable console uart printing */
@@ -116,8 +123,7 @@ void spl_board_init(void)
 
 	/* If the full FPGA is already loaded, ie.from EPCQ, config fpga pins */
 	if (is_fpgamgr_user_mode()) {
-		int ret = config_pins(gd->fdt_blob, "shared");
-
+		ret = config_pins(gd->fdt_blob, "shared");
 		if (ret)
 			return;
 
@@ -127,11 +133,110 @@ void spl_board_init(void)
 	} else if (!is_fpgamgr_early_user_mode()) {
 		/* Program IOSSM(early IO release) or full FPGA */
 		fpgamgr_program(buf, FPGA_BUFSIZ, 0);
+
+		/* Skipping double program for combined RBF */
+		if (!is_fpgamgr_user_mode()) {
+			/*
+			 * Expect FPGA entered early user mode, so
+			 * the flag is set to re-program IOSSM
+			 */
+			force_periph_program(true);
+
+			/* Re-program IOSSM to stabilize IO system */
+			fpgamgr_program(buf, FPGA_BUFSIZ, 0);
+
+			force_periph_program(false);
+		}
 	}
 
 	/* If the IOSSM/full FPGA is already loaded, start DDR */
-	if (is_fpgamgr_early_user_mode() || is_fpgamgr_user_mode())
+	if (is_fpgamgr_early_user_mode() || is_fpgamgr_user_mode()) {
+		if (!is_regular_boot_valid()) {
+			/*
+			 * Ensure all signals in stable state before triggering
+			 * warm reset. This value is recommended from stress
+			 * test.
+			 */
+			mdelay(10);
+
+#if IS_ENABLED(CONFIG_CADENCE_QSPI)
+			/*
+			 * Trigger software reset to QSPI flash.
+			 * On some boards, the QSPI flash reset may not be
+			 * connected to the HPS warm reset.
+			 */
+			qspi_flash_software_reset();
+#endif
+
+			ret = readl(socfpga_get_rstmgr_addr() +
+				    RSTMGR_A10_SYSWARMMASK);
+			/*
+			 * Masking s2f & FPGA manager module reset from warm
+			 * reset
+			 */
+			writel(ret & (~(ALT_RSTMGR_SYSWARMMASK_S2F_SET_MSK |
+			       ALT_RSTMGR_FPGAMGRWARMMASK_S2F_SET_MSK)),
+			       socfpga_get_rstmgr_addr() +
+			       RSTMGR_A10_SYSWARMMASK);
+
+			/*
+			 * BootROM will configure both IO and pin mux after a
+			 * warm reset
+			 */
+			ret = readl(socfpga_get_sysmgr_addr() +
+				    SYSMGR_A10_ROMCODE_CTRL);
+			writel(ret | BOOTROM_CONFIGURES_IO_PINMUX,
+			       socfpga_get_sysmgr_addr() +
+			       SYSMGR_A10_ROMCODE_CTRL);
+
+			/*
+			 * Up to here, image is considered valid and should be
+			 * set as valid before warm reset is triggered
+			 */
+			writel(FSBL_IMAGE_IS_VALID, socfpga_get_sysmgr_addr() +
+			       SYSMGR_A10_ROMCODE_INITSWSTATE);
+
+			/*
+			 * Set this flag to scratch register, so that a proper
+			 * boot progress before / after warm reset can be
+			 * tracked by FSBL
+			 */
+			set_regular_boot(true);
+
+			WATCHDOG_RESET();
+
+			reset_cpu();
+		}
+
+		/*
+		 * Reset this flag to scratch register, so that a proper
+		 * boot progress before / after warm reset can be
+		 * tracked by FSBL
+		 */
+		set_regular_boot(false);
+
+		ret = readl(socfpga_get_rstmgr_addr() +
+			    RSTMGR_A10_SYSWARMMASK);
+
+		/*
+		 * Unmasking s2f & FPGA manager module reset from warm
+		 * reset
+		 */
+		writel(ret | ALT_RSTMGR_SYSWARMMASK_S2F_SET_MSK |
+			ALT_RSTMGR_FPGAMGRWARMMASK_S2F_SET_MSK,
+			socfpga_get_rstmgr_addr() + RSTMGR_A10_SYSWARMMASK);
+
+		/*
+		 * Up to here, MPFE hang workaround is considered done and
+		 * should be reset as invalid until FSBL successfully loading
+		 * SSBL, and prepare jumping to SSBL, then only setting as
+		 * valid
+		 */
+		writel(FSBL_IMAGE_IS_INVALID, socfpga_get_sysmgr_addr() +
+		       SYSMGR_A10_ROMCODE_INITSWSTATE);
+
 		ddr_calibration_sequence();
+	}
 
 	if (!is_fpgamgr_user_mode())
 		fpgamgr_program(buf, FPGA_BUFSIZ, 0);
@@ -168,4 +273,11 @@ void board_init_f(ulong dummy)
 
 	config_dedicated_pins(gd->fdt_blob);
 	WATCHDOG_RESET();
+}
+
+/* board specific function prior loading SSBL / U-Boot proper */
+void spl_board_prepare_for_boot(void)
+{
+	writel(FSBL_IMAGE_IS_VALID, socfpga_get_sysmgr_addr() +
+	       SYSMGR_A10_ROMCODE_INITSWSTATE);
 }
