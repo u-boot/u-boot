@@ -311,6 +311,10 @@ config CPU_PXA
 	select SYS_CACHE_SHIFT_5
 	imply SYS_ARM_MMU
 
+config CPU_PXA27X
+	bool
+	select CPU_PXA
+
 config CPU_SA1100
 	bool
 	select SYS_CACHE_SHIFT_5
@@ -1767,7 +1771,7 @@ config TARGET_SL28
 
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
-	select CPU_PXA
+	select CPU_PXA27X
 	select GPIO_EXTRA_HEADER
 
 config ARCH_UNIPHIER
