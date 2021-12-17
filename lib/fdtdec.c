@@ -1624,15 +1624,17 @@ static void setup_multi_dtb_fit(void)
 int fdtdec_setup(void)
 {
 	int ret;
-#ifdef CONFIG_OF_EMBED
-	/* Get a pointer to the FDT */
-	gd->fdt_blob = dtb_dt_embedded();
-#elif defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
-	/* Allow the board to override the fdt address. */
-	gd->fdt_blob = board_fdt_blob_setup(&ret);
-	if (ret)
-		return ret;
-#endif
+
+	/* The devicetree is typically appended to U-Boot */
+	if (IS_ENABLED(CONFIG_OF_SEPARATE) || IS_ENABLED(CONFIG_OF_BOARD)) {
+		/* Allow the board to override the fdt address. */
+		gd->fdt_blob = board_fdt_blob_setup(&ret);
+		if (ret)
+			return ret;
+	} else { /* embed dtb in ELF file for testing / development */
+		gd->fdt_blob = dtb_dt_embedded();
+	}
+
 	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
 		/* Allow the early environment to override the fdt address */
 		gd->fdt_blob = map_sysmem(env_get_ulong("fdtcontroladdr", 16,
