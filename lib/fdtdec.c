@@ -1203,15 +1203,15 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 	return 0;
 }
 
-/*
- * For CONFIG_OF_SEPARATE, the board may optionally implement this to
- * provide and/or fixup the fdt.
+/**
+ * fdt_find_separate() - Find a devicetree at the end of the image
+ *
+ * @return pointer to FDT blob
  */
-__weak void *board_fdt_blob_setup(int *err)
+static void *fdt_find_separate(void)
 {
 	void *fdt_blob = NULL;
 
-	*err = 0;
 #ifdef CONFIG_SPL_BUILD
 	/* FDT is at end of BSS unless it is in a different memory region */
 	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
@@ -1626,13 +1626,16 @@ int fdtdec_setup(void)
 	int ret;
 
 	/* The devicetree is typically appended to U-Boot */
-	if (IS_ENABLED(CONFIG_OF_SEPARATE) || IS_ENABLED(CONFIG_OF_BOARD)) {
-		/* Allow the board to override the fdt address. */
+	if (IS_ENABLED(CONFIG_OF_SEPARATE))
+		gd->fdt_blob = fdt_find_separate();
+	else /* embed dtb in ELF file for testing / development */
+		gd->fdt_blob = dtb_dt_embedded();
+
+	/* Allow the board to override the fdt address. */
+	if (IS_ENABLED(CONFIG_OF_BOARD)) {
 		gd->fdt_blob = board_fdt_blob_setup(&ret);
 		if (ret)
 			return ret;
-	} else { /* embed dtb in ELF file for testing / development */
-		gd->fdt_blob = dtb_dt_embedded();
 	}
 
 	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
