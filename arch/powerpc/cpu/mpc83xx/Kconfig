@@ -188,6 +188,13 @@ source "arch/powerpc/cpu/mpc83xx/sysio/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/arbiter/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/initreg/Kconfig"
 
+config 83XX_PCICLK
+	hex "PCI clock frequency"
+	default 0xDEADBEEF
+	help
+	  If required, the PCI clock frequency to use when configuring
+	  the host bridge.
+
 config FSL_ELBC
 	bool
 

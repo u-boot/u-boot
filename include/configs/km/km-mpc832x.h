@@ -4,11 +4,6 @@
 #define CONFIG_KM8321	/* Keymile PBEC8321 board specific */
 
 /*
- * System Clock Setup
- */
-#define CONFIG_83XX_PCICLK		66000000
-
-/*
  * System IO Config
  */
 #define CONFIG_SYS_SICRL	SICRL_IRQ_CKS
