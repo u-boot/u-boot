@@ -1595,6 +1595,7 @@ int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 	return 0;
 }
 
+/* TODO(sjg@chromium.org): This function should not be weak */
 __weak int fdtdec_board_setup(const void *fdt_blob)
 {
 	return 0;

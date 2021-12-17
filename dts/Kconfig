@@ -98,13 +98,36 @@ endchoice
 
 config OF_BOARD
 	bool "Provided by the board (e.g a previous loader) at runtime"
-	default y if SANDBOX
+	default y if SANDBOX || OF_HAS_PRIOR_STAGE
 	help
-	  If this option is enabled, the device tree will be provided by
-	  the board at runtime if the board supports it. The device tree bundled
-	  with the image (if any) will be overridden / ignored.
+	  If this option is enabled, the device tree is provided at runtime by
+	  a custom function called board_fdt_blob_setup(). The board must
+	  implement this function if it wishes to provide special behaviour.
 
-	  A device tree file must be provided in the tree.
+	  With this option, the device tree build by U-Boot may be overridden or
+	  ignored. See OF_HAS_PRIOR_STAGE.
+
+	  Note: Boards which use this to handle a device tree passed from an
+	  earlier stage should enable OF_HAS_PRIOR_STAGE.
+
+config OF_HAS_PRIOR_STAGE
+	bool
+	help
+	  Indicates that a prior stage of the firmware (before U-Boot proper)
+	  makes use of device tree and this board normally boots with that prior
+	  stage, that provides a devicetree to U-Boot.
+
+	  This means that the device tree built in U-Boot should not be packaged
+	  in the firmware image. Instead, the prior stage's device tree should
+	  be so packaged. At runtime, the prior stage reads this, does any
+	  necessary fix-ups, then passes it to U-Boot. See OF_BOARD.
+
+	  This option does not preclude using the U-Boot device tree, e.g. for
+	  development purposes, but it is not recommended, and likely will not
+	  even work, for production systems.
+
+	  Note: This option must be set in Kconfig and cannot be enabled or
+	  disabled in the board's defconfig file.
 
 config DEFAULT_DEVICE_TREE
 	string "Default Device Tree for DT control"
