@@ -1634,12 +1634,11 @@ int fdtdec_setup(void)
 	if (ret)
 		return ret;
 # endif
-# ifndef CONFIG_SPL_BUILD
-	/* Allow the early environment to override the fdt address */
-	gd->fdt_blob = map_sysmem
-		(env_get_ulong("fdtcontroladdr", 16,
+	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+		/* Allow the early environment to override the fdt address */
+		gd->fdt_blob = map_sysmem(env_get_ulong("fdtcontroladdr", 16,
 			       (unsigned long)map_to_sysmem(gd->fdt_blob)), 0);
-# endif
+	}
 
 	if (CONFIG_IS_ENABLED(MULTI_DTB_FIT))
 		setup_multi_dtb_fit();
