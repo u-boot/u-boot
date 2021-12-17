@@ -14,8 +14,6 @@
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 
-#define CONFIG_PHYSMEM
-
 /* Size of our emulated memory */
 #define SB_CONCAT(x, y) x ## y
 #define SB_TO_UL(s) SB_CONCAT(s, UL)
