@@ -41,14 +41,15 @@ The minimal QEMU command line to get U-Boot up and running is:
 
 - For ARM::
 
-    qemu-system-arm -machine virt -bios u-boot.bin
+    qemu-system-arm -machine virt -nographic -bios u-boot.bin
 
 - For AArch64::
 
-    qemu-system-aarch64 -machine virt -cpu cortex-a57 -bios u-boot.bin
+    qemu-system-aarch64 -machine virt -nographic -cpu cortex-a57 -bios u-boot.bin
 
 Note that for some odd reason qemu-system-aarch64 needs to be explicitly
-told to use a 64-bit CPU or it will boot in 32-bit mode.
+told to use a 64-bit CPU or it will boot in 32-bit mode. The -nographic argument
+ensures that output appears on the terminal. Use Ctrl-A X to quit.
 
 Additional persistent U-boot environment support can be added as follows:
 
