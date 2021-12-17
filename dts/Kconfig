@@ -177,7 +177,6 @@ endchoice
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	hex "Size of memory reserved to uncompress the DTBs"
-	depends on (MULTI_DTB_FIT_GZIP || MULTI_DTB_FIT_LZO)
 	default 0x8000
 	help
 	   This is the size of this area where the DTBs are uncompressed.

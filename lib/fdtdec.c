@@ -1146,11 +1146,10 @@ int fdtdec_setup_mem_size_base_lowest(void)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
-# if CONFIG_IS_ENABLED(MULTI_DTB_FIT_GZIP) ||\
-	CONFIG_IS_ENABLED(MULTI_DTB_FIT_LZO)
 static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 {
+#if CONFIG_IS_ENABLED(MULTI_DTB_FIT_GZIP) ||\
+	CONFIG_IS_ENABLED(MULTI_DTB_FIT_LZO)
 	size_t sz_out = CONFIG_VAL(MULTI_DTB_FIT_UNCOMPRESS_SZ);
 	bool gzip = 0, lzo = 0;
 	ulong sz_in = sz_src;
@@ -1175,11 +1174,11 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 			return -ENOMEM;
 		}
 	} else  {
-#  if CONFIG_IS_ENABLED(MULTI_DTB_FIT_USER_DEFINED_AREA)
+# if CONFIG_IS_ENABLED(MULTI_DTB_FIT_USER_DEFINED_AREA)
 		dst = (void *)CONFIG_VAL(MULTI_DTB_FIT_USER_DEF_ADDR);
-#  else
+# else
 		return -ENOTSUPP;
-#  endif
+# endif
 	}
 
 	if (CONFIG_IS_ENABLED(GZIP) && gzip)
@@ -1197,16 +1196,12 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 		return -EBADMSG;
 	}
 	*dstp = dst;
-	return 0;
-}
-# else
-static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
-{
+#else
 	*dstp = (void *)src;
+	*dstp = (void *)src;
+#endif
 	return 0;
 }
-# endif
-#endif
 
 #if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 /*
@@ -1606,7 +1601,6 @@ __weak int fdtdec_board_setup(const void *fdt_blob)
  */
 static void setup_multi_dtb_fit(void)
 {
-# if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 	void *blob;
 
 	/*
@@ -1624,10 +1618,9 @@ static void setup_multi_dtb_fit(void)
 	 */
 	blob = locate_dtb_in_fit(gd->fdt_blob);
 	if (blob) {
-		gd->multi_dtb_fit = gd->fdt_blob;
+		gd_set_multi_dtb_fit(gd->fdt_blob);
 		gd->fdt_blob = blob;
 	}
-#endif /* # MULTI_DTB_FIT */
 }
 
 int fdtdec_setup(void)
@@ -1664,7 +1657,6 @@ int fdtdec_setup(void)
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 int fdtdec_resetup(int *rescan)
 {
 	void *fdt_blob;
@@ -1675,8 +1667,8 @@ int fdtdec_resetup(int *rescan)
 	 * FIT image stillpresent there. Save the time and space
 	 * required to uncompress it again.
 	 */
-	if (gd->multi_dtb_fit) {
-		fdt_blob = locate_dtb_in_fit(gd->multi_dtb_fit);
+	if (gd_multi_dtb_fit()) {
+		fdt_blob = locate_dtb_in_fit(gd_multi_dtb_fit());
 
 		if (fdt_blob == gd->fdt_blob) {
 			/*
@@ -1700,7 +1692,6 @@ int fdtdec_resetup(int *rescan)
 	*rescan = 0;
 	return 0;
 }
-#endif
 
 int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 			   phys_addr_t *basep, phys_size_t *sizep,

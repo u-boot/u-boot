@@ -512,6 +512,14 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_acpi_ctx()		NULL
 #endif
 
+#if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
+#define gd_multi_dtb_fit()	gd->multi_dtb_fit
+#define gd_set_multi_dtb_fit(_dtb)	gd->multi_dtb_fit = _dtb
+#else
+#define gd_multi_dtb_fit()	NULL
+#define gd_set_multi_dtb_fit(_dtb)
+#endif
+
 /**
  * enum gd_flags - global data flags
  *
