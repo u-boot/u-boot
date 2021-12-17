@@ -1594,13 +1594,46 @@ __weak int fdtdec_board_setup(const void *fdt_blob)
 	return 0;
 }
 
+/**
+ * setup_multi_dtb_fit() - locate the correct dtb from a FIT
+ *
+ * This supports the CONFIG_MULTI_DTB_FIT feature, looking for the dtb in a
+ * supplied FIT
+ *
+ * It accepts the current value of gd->fdt_blob, which points to the FIT, then
+ * updates that gd->fdt_blob, to point to the chosen dtb so that U-Boot uses the
+ * correct one
+ */
+static void setup_multi_dtb_fit(void)
+{
+# if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
+	void *blob;
+
+	/*
+	 * Try and uncompress the blob.
+	 * Unfortunately there is no way to know how big the input blob really
+	 * is. So let us set the maximum input size arbitrarily high. 16MB
+	 * ought to be more than enough for packed DTBs.
+	 */
+	if (uncompress_blob(gd->fdt_blob, 0x1000000, &blob) == 0)
+		gd->fdt_blob = blob;
+
+	/*
+	 * Check if blob is a FIT images containings DTBs.
+	 * If so, pick the most relevant
+	 */
+	blob = locate_dtb_in_fit(gd->fdt_blob);
+	if (blob) {
+		gd->multi_dtb_fit = gd->fdt_blob;
+		gd->fdt_blob = blob;
+	}
+#endif /* # MULTI_DTB_FIT */
+}
+
 int fdtdec_setup(void)
 {
 	int ret;
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-# if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
-	void *fdt_blob;
-# endif
 # ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
 #  ifdef CONFIG_SPL_BUILD
@@ -1621,27 +1654,8 @@ int fdtdec_setup(void)
 			       (unsigned long)map_to_sysmem(gd->fdt_blob)), 0);
 # endif
 
-# if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
-	/*
-	 * Try and uncompress the blob.
-	 * Unfortunately there is no way to know how big the input blob really
-	 * is. So let us set the maximum input size arbitrarily high. 16MB
-	 * ought to be more than enough for packed DTBs.
-	 */
-	if (uncompress_blob(gd->fdt_blob, 0x1000000, &fdt_blob) == 0)
-		gd->fdt_blob = fdt_blob;
-
-	/*
-	 * Check if blob is a FIT images containings DTBs.
-	 * If so, pick the most relevant
-	 */
-	fdt_blob = locate_dtb_in_fit(gd->fdt_blob);
-	if (fdt_blob) {
-		gd->multi_dtb_fit = gd->fdt_blob;
-		gd->fdt_blob = fdt_blob;
-	}
-
-# endif
+	if (CONFIG_IS_ENABLED(MULTI_DTB_FIT))
+		setup_multi_dtb_fit();
 #endif
 
 	ret = fdtdec_prepare_fdt();
