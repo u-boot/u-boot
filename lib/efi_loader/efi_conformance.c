@@ -12,6 +12,8 @@
 #include <malloc.h>
 
 static const efi_guid_t efi_ecpt_guid = EFI_CONFORMANCE_PROFILES_TABLE_GUID;
+static const efi_guid_t efi_ebbr_2_0_guid =
+	EFI_CONFORMANCE_PROFILE_EBBR_2_0_GUID;
 
 /**
  * efi_ecpt_register() - Install the ECPT system table.
@@ -35,6 +37,10 @@ efi_status_t efi_ecpt_register(void)
 
 		return ret;
 	}
+
+	if (CONFIG_IS_ENABLED(EFI_EBBR_2_0_CONFORMANCE))
+		guidcpy(&ecpt->conformance_profiles[num_entries++],
+			&efi_ebbr_2_0_guid);
 
 	ecpt->version = EFI_CONFORMANCE_PROFILES_TABLE_VERSION;
 	ecpt->number_of_profiles = num_entries;
