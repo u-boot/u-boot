@@ -598,6 +598,12 @@ static int dm_announce(void)
 		if (CONFIG_IS_ENABLED(OF_REAL))
 			printf(", devicetree: %s", fdtdec_get_srcname());
 		printf("\n");
+		if (IS_ENABLED(CONFIG_OF_HAS_PRIOR_STAGE) &&
+		    (gd->fdt_src == FDTSRC_SEPARATE ||
+		     gd->fdt_src == FDTSRC_EMBED)) {
+			printf("Warning: Unexpected devicetree source (not from a prior stage)");
+			printf("Warning: U-Boot may not function properly\n");
+		}
 	}
 
 	return 0;
