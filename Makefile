@@ -1053,6 +1053,10 @@ quiet_cmd_cfgcheck = CFGCHK  $2
 cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 		$(srctree)/scripts/config_whitelist.txt $(srctree)
 
+quiet_cmd_ofcheck = OFCHK   $2
+cmd_ofcheck = $(srctree)/scripts/check-of.sh $2 \
+		$(srctree)/scripts/of_allowlist.txt
+
 # Concat the value of all the CONFIGs (result is 'y' or 'yy', etc. )
 got = $(foreach cfg,$(1),$($(cfg)))
 
@@ -1127,6 +1131,9 @@ endif
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
 	$(call cmd,cfgcheck,u-boot.cfg)
+	@# Check that this build does not override OF_HAS_PRIOR_STAGE by
+	@# disabling OF_BOARD.
+	$(call cmd,ofcheck,$(KCONFIG_CONFIG))
 
 PHONY += dtbs
 dtbs: dts/dt.dtb
