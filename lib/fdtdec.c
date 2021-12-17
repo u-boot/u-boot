@@ -1629,11 +1629,7 @@ int fdtdec_setup(void)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 # ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
-#  ifdef CONFIG_SPL_BUILD
-	gd->fdt_blob = __dtb_dt_spl_begin;
-#  else
-	gd->fdt_blob = __dtb_dt_begin;
-#  endif
+	gd->fdt_blob = dtb_dt_embedded();
 # elif defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 	/* Allow the board to override the fdt address. */
 	gd->fdt_blob = board_fdt_blob_setup(&ret);

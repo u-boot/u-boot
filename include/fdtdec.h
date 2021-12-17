@@ -111,6 +111,20 @@ struct fdt_pci_addr {
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
 
+/* Get a pointer to the embedded devicetree, if there is one, else NULL */
+static inline u8 *dtb_dt_embedded(void)
+{
+#ifdef CONFIG_OF_EMBED
+# ifdef CONFIG_SPL_BUILD
+	return __dtb_dt_spl_begin;
+# else
+	return __dtb_dt_begin;
+# endif
+#else
+	return NULL;
+#endif
+}
+
 /**
  * Compute the size of a resource.
  *
