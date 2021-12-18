@@ -14,6 +14,7 @@ import asteval
 import collections
 import copy
 import difflib
+import doctest
 import filecmp
 import fnmatch
 import glob
@@ -28,6 +29,7 @@ import sys
 import tempfile
 import threading
 import time
+import unittest
 
 from buildman import bsettings
 from buildman import kconfiglib
@@ -1620,6 +1622,13 @@ def main():
     parser.usage += ' CONFIG ...'
 
     (options, configs) = parser.parse_args()
+
+    if options.test:
+        sys.argv = [sys.argv[0]]
+        fail, count = doctest.testmod()
+        if fail:
+            return 1
+        unittest.main()
 
     if len(configs) == 0 and not any((options.force_sync, options.build_db,
                                       options.imply)):
