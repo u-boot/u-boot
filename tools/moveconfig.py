@@ -91,14 +91,6 @@ SIZES = {
 }
 
 ### helper functions ###
-def get_devnull():
-    """Get the file object of '/dev/null' device."""
-    try:
-        devnull = subprocess.DEVNULL # py3k
-    except AttributeError:
-        devnull = open(os.devnull, 'wb')
-    return devnull
-
 def check_top_directory():
     """Exit if we are not at the top of source directory."""
     for f in ('README', 'Licenses'):
@@ -1083,7 +1075,7 @@ class Slots:
         """
         self.args = args
         self.slots = []
-        devnull = get_devnull()
+        devnull = subprocess.DEVNULL
         make_cmd = get_make_cmd()
         for i in range(args.jobs):
             self.slots.append(Slot(toolchains, configs, args, progress,
