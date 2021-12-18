@@ -99,4 +99,13 @@ config SERVERIP_FROM_PROXYDHCP_DELAY_MS
 		receiving response from main DHCP server. Has no effect if
 		SERVERIP_FROM_PROXYDHCP is false.
 
+config KEEP_SERVERADDR
+	bool "Write the server's MAC address to 'serveraddr'"
+	default y if SANDBOX
+	help
+	  Keeps the server's MAC address, in the env 'serveraddr'
+	  for passing to bootargs (like Linux's netconsole option). If this is
+	  enabled, when an ARP reply is received, the server's IP address is
+	  written there.
+
 endif   # if NET
