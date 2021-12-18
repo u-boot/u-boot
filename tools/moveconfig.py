@@ -13,6 +13,7 @@ See doc/develop/moveconfig.rst for documentation.
 from argparse import ArgumentParser
 import asteval
 import collections
+from contextlib import ExitStack
 import copy
 import difflib
 import doctest
@@ -93,14 +94,14 @@ SIZES = {
 ### helper functions ###
 def check_top_directory():
     """Exit if we are not at the top of source directory."""
-    for f in ('README', 'Licenses'):
-        if not os.path.exists(f):
+    for fname in 'README', 'Licenses':
+        if not os.path.exists(fname):
             sys.exit('Please run at the top of source directory.')
 
 def check_clean_directory():
     """Exit if the source tree is not clean."""
-    for f in ('.config', 'include/config'):
-        if os.path.exists(f):
+    for fname in '.config', 'include/config':
+        if os.path.exists(fname):
             sys.exit("source tree is not clean, please run 'make mrproper'")
 
 def get_make_cmd():
@@ -110,22 +111,22 @@ def get_make_cmd():
     necessarily "make". (for example, "gmake" on FreeBSD).
     Returns the most appropriate command name on your system.
     """
-    process = subprocess.Popen([SHOW_GNU_MAKE], stdout=subprocess.PIPE)
-    ret = process.communicate()
-    if process.returncode:
-        sys.exit('GNU Make not found')
+    with subprocess.Popen([SHOW_GNU_MAKE], stdout=subprocess.PIPE) as proc:
+        ret = proc.communicate()
+        if proc.returncode:
+            sys.exit('GNU Make not found')
     return ret[0].rstrip()
 
 def get_matched_defconfig(line):
     """Get the defconfig files that match a pattern
 
     Args:
-        line: Path or filename to match, e.g. 'configs/snow_defconfig' or
+        line (str): Path or filename to match, e.g. 'configs/snow_defconfig' or
             'k2*_defconfig'. If no directory is provided, 'configs/' is
             prepended
 
     Returns:
-        a list of matching defconfig files
+        list of str: a list of matching defconfig files
     """
     dirname = os.path.dirname(line)
     if dirname:
@@ -138,38 +139,43 @@ def get_matched_defconfigs(defconfigs_file):
     """Get all the defconfig files that match the patterns in a file.
 
     Args:
-        defconfigs_file: File containing a list of defconfigs to process, or
-            '-' to read the list from stdin
+        defconfigs_file (str): File containing a list of defconfigs to process,
+            or '-' to read the list from stdin
 
     Returns:
-        A list of paths to defconfig files, with no duplicates
+        list of str: A list of paths to defconfig files, with no duplicates
     """
     defconfigs = []
-    if defconfigs_file == '-':
-        fd = sys.stdin
-        defconfigs_file = 'stdin'
-    else:
-        fd = open(defconfigs_file)
-    for i, line in enumerate(fd):
-        line = line.strip()
-        if not line:
-            continue # skip blank lines silently
-        if ' ' in line:
-            line = line.split(' ')[0]  # handle 'git log' input
-        matched = get_matched_defconfig(line)
-        if not matched:
-            print("warning: %s:%d: no defconfig matched '%s'" % \
-                                                 (defconfigs_file, i + 1, line), file=sys.stderr)
+    with ExitStack() as stack:
+        if defconfigs_file == '-':
+            inf = sys.stdin
+            defconfigs_file = 'stdin'
+        else:
+            inf = stack.enter_context(open(defconfigs_file, encoding='utf-8'))
+        for i, line in enumerate(inf):
+            line = line.strip()
+            if not line:
+                continue # skip blank lines silently
+            if ' ' in line:
+                line = line.split(' ')[0]  # handle 'git log' input
+            matched = get_matched_defconfig(line)
+            if not matched:
+                print(f"warning: {defconfigs_file}:{i + 1}: no defconfig matched '{line}'",
+                      file=sys.stderr)
 
-        defconfigs += matched
+            defconfigs += matched
 
     # use set() to drop multiple matching
-    return [ defconfig[len('configs') + 1:]  for defconfig in set(defconfigs) ]
+    return [defconfig[len('configs') + 1:]  for defconfig in set(defconfigs)]
 
 def get_all_defconfigs():
-    """Get all the defconfig files under the configs/ directory."""
+    """Get all the defconfig files under the configs/ directory.
+
+    Returns:
+        list of str: List of paths to defconfig files
+    """
     defconfigs = []
-    for (dirpath, dirnames, filenames) in os.walk('configs'):
+    for (dirpath, _, filenames) in os.walk('configs'):
         dirpath = dirpath[len('configs') + 1:]
         for filename in fnmatch.filter(filenames, '*_defconfig'):
             defconfigs.append(os.path.join(dirpath, filename))
@@ -183,20 +189,18 @@ def color_text(color_enabled, color, string):
         # Otherwise, additional whitespace or line-feed might be printed.
         return '\n'.join([ '\033[' + color + 'm' + s + '\033[0m' if s else ''
                            for s in string.split('\n') ])
-    else:
-        return string
+    return string
 
-def show_diff(a, b, file_path, color_enabled):
+def show_diff(alines, blines, file_path, color_enabled):
     """Show unidified diff.
 
-    Arguments:
-      a: A list of lines (before)
-      b: A list of lines (after)
-      file_path: Path to the file
-      color_enabled: Display the diff in color
+    Args:
+       alines (list of str): A list of lines (before)
+       blines (list of str): A list of lines (after)
+       file_path (str): Path to the file
+       color_enabled (bool): Display the diff in color
     """
-
-    diff = difflib.unified_diff(a, b,
+    diff = difflib.unified_diff(alines, blines,
                                 fromfile=os.path.join('a', file_path),
                                 tofile=os.path.join('b', file_path))
 
@@ -208,21 +212,23 @@ def show_diff(a, b, file_path, color_enabled):
         else:
             print(line, end=' ')
 
-def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre,
-                         extend_post):
+def extend_matched_lines(lines, matched, pre_patterns, post_patterns,
+                         extend_pre, extend_post):
     """Extend matched lines if desired patterns are found before/after already
     matched lines.
 
-    Arguments:
-      lines: A list of lines handled.
-      matched: A list of line numbers that have been already matched.
-               (will be updated by this function)
-      pre_patterns: A list of regular expression that should be matched as
-                    preamble.
-      post_patterns: A list of regular expression that should be matched as
-                     postamble.
-      extend_pre: Add the line number of matched preamble to the matched list.
-      extend_post: Add the line number of matched postamble to the matched list.
+    Args:
+      lines (list of str): list of lines handled.
+      matched (list of int): list of line numbers that have been already
+          matched (will be updated by this function)
+      pre_patterns (list of re.Pattern): list of regular expression that should
+          be matched as preamble
+      post_patterns (list of re.Pattern): list of regular expression that should
+          be matched as postamble
+      extend_pre (bool): Add the line number of matched preamble to the matched
+          list
+      extend_post (bool): Add the line number of matched postamble to the
+          matched list
     """
     extended_matched = []
 
@@ -237,15 +243,15 @@ def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre
         if j >= len(lines):
             break
 
-        for p in pre_patterns:
-            if p.search(lines[i - 1]):
+        for pat in pre_patterns:
+            if pat.search(lines[i - 1]):
                 break
         else:
             # not matched
             continue
 
-        for p in post_patterns:
-            if p.search(lines[j]):
+        for pat in post_patterns:
+            if pat.search(lines[j]):
                 break
         else:
             # not matched
@@ -260,12 +266,20 @@ def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre
     matched.sort()
 
 def confirm(args, prompt):
+    """Ask the user to confirm something
+
+    Args:
+        args (Namespace ): program arguments
+
+    Returns:
+        bool: True to confirm, False to cancel/stop
+    """
     if not args.yes:
         while True:
-            choice = input('{} [y/n]: '.format(prompt))
+            choice = input(f'{prompt} [y/n]: ')
             choice = choice.lower()
             print(choice)
-            if choice == 'y' or choice == 'n':
+            if choice in ('y', 'n'):
                 break
 
         if choice == 'n':
@@ -319,9 +333,9 @@ def read_file(fname, as_lines=True, skip_unicode=False):
 def cleanup_empty_blocks(header_path, args):
     """Clean up empty conditional blocks
 
-    Arguments:
-      header_path: path to the cleaned file.
-      args: program arguments
+    Args:
+      header_path (str): path to the cleaned file.
+      args (Namespace): program arguments
     """
     pattern = re.compile(r'^\s*#\s*if.*$\n^\s*#\s*endif.*$\n*', flags=re.M)
     data = read_file(header_path, as_lines=False, skip_unicode=True)
@@ -342,11 +356,11 @@ def cleanup_empty_blocks(header_path, args):
 def cleanup_one_header(header_path, patterns, args):
     """Clean regex-matched lines away from a file.
 
-    Arguments:
+    Args:
       header_path: path to the cleaned file.
       patterns: list of regex patterns.  Any lines matching to these
                 patterns are deleted.
-      args: program arguments
+      args (Namespace): program arguments
     """
     lines = read_file(header_path, skip_unicode=True)
     if lines is None:
@@ -401,9 +415,9 @@ def cleanup_one_header(header_path, patterns, args):
 def cleanup_headers(configs, args):
     """Delete config defines from board headers.
 
-    Arguments:
+    Args:
       configs: A list of CONFIGs to remove.
-      args: program arguments
+      args (Namespace): program arguments
     """
     if not confirm(args, 'Clean up headers?'):
         return
@@ -430,10 +444,10 @@ def cleanup_headers(configs, args):
 def cleanup_one_extra_option(defconfig_path, configs, args):
     """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in one defconfig file.
 
-    Arguments:
+    Args:
       defconfig_path: path to the cleaned defconfig file.
       configs: A list of CONFIGs to remove.
-      args: program arguments
+      args (Namespace): program arguments
     """
 
     start = 'CONFIG_SYS_EXTRA_OPTIONS="'
@@ -476,9 +490,9 @@ def cleanup_one_extra_option(defconfig_path, configs, args):
 def cleanup_extra_options(configs, args):
     """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in defconfig files.
 
-    Arguments:
+    Args:
       configs: A list of CONFIGs to remove.
-      args: program arguments
+      args (Namespace): program arguments
     """
     if not confirm(args, 'Clean up CONFIG_SYS_EXTRA_OPTIONS?'):
         return
@@ -494,9 +508,9 @@ def cleanup_extra_options(configs, args):
 def cleanup_whitelist(configs, args):
     """Delete config whitelist entries
 
-    Arguments:
+    Args:
       configs: A list of CONFIGs to remove.
-      args: program arguments
+      args (Namespace): program arguments
     """
     if not confirm(args, 'Clean up whitelist entries?'):
         return
@@ -516,9 +530,9 @@ def find_matching(patterns, line):
 def cleanup_readme(configs, args):
     """Delete config description in README
 
-    Arguments:
+    Args:
       configs: A list of CONFIGs to remove.
-      args: program arguments
+      args (Namespace): program arguments
     """
     if not confirm(args, 'Clean up README?'):
         return
@@ -574,7 +588,7 @@ class Progress:
     def __init__(self, total):
         """Create a new progress indicator.
 
-        Arguments:
+        Args:
           total: A number of defconfig files to process.
         """
         self.current = 0
@@ -613,9 +627,9 @@ class KconfigParser:
     def __init__(self, configs, args, build_dir):
         """Create a new parser.
 
-        Arguments:
+        Args:
           configs: A list of CONFIGs to move.
-          args: program arguments
+          args (Namespace): program arguments
           build_dir: Build directory.
         """
         self.configs = configs
@@ -660,7 +674,7 @@ class KconfigParser:
         defconfig, .config, and include/autoconf.mk in order to decide
         which action should be taken for this defconfig.
 
-        Arguments:
+        Args:
           config: CONFIG name to parse.
           dotconfig_lines: lines from the .config file.
           autoconf_lines: lines from the include/autoconf.mk file.
@@ -710,7 +724,7 @@ class KconfigParser:
         searching the target options.
         Move the config option(s) to the .config as needed.
 
-        Arguments:
+        Args:
           defconfig: defconfig name.
 
         Returns:
@@ -771,10 +785,10 @@ class KconfigParser:
 
             log += color_text(self.args.color, log_color, actlog) + '\n'
 
-        with open(self.dotconfig, 'a') as f:
+        with open(self.dotconfig, 'a', encoding='utf-8') as out:
             for (action, value) in results:
                 if action == ACTION_MOVE:
-                    f.write(value + '\n')
+                    out.write(value + '\n')
                     updated = True
 
         self.results = results
@@ -846,7 +860,7 @@ class Slot:
 		 make_cmd, reference_src_dir, db_queue):
         """Create a new process slot.
 
-        Arguments:
+        Args:
           toolchains: Toolchains object containing toolchains.
           configs: A list of CONFIGs to move.
           args: Program arguments
@@ -892,7 +906,7 @@ class Slot:
         given defconfig and add it to the slot.  Just returns False if
         the slot is occupied (i.e. the current subprocess is still running).
 
-        Arguments:
+        Args:
           defconfig: defconfig name.
 
         Returns:
@@ -1047,7 +1061,7 @@ class Slot:
     def finish(self, success):
         """Display log along with progress and go to the idle state.
 
-        Arguments:
+        Args:
           success: Should be True when the defconfig was processed
                    successfully, or False when it fails.
         """
@@ -1088,7 +1102,7 @@ class Slots:
 		 reference_src_dir, db_queue):
         """Create a new slots controller.
 
-        Arguments:
+        Args:
           toolchains: Toolchains object containing toolchains.
           configs: A list of CONFIGs to move.
           args: Program arguments
@@ -1109,7 +1123,7 @@ class Slots:
     def add(self, defconfig):
         """Add a new subprocess if a vacant slot is found.
 
-        Arguments:
+        Args:
           defconfig: defconfig name to be put into.
 
         Returns:
@@ -1187,7 +1201,7 @@ class ReferenceSource:
     def __init__(self, commit):
         """Create a reference source directory based on a specified commit.
 
-        Arguments:
+        Args:
           commit: commit to git-clone
         """
         self.src_dir = tempfile.mkdtemp()
@@ -1217,7 +1231,7 @@ class ReferenceSource:
 def move_config(toolchains, configs, args, db_queue):
     """Move config options to defconfig files.
 
-    Arguments:
+    Args:
       configs: A list of CONFIGs to move.
       args: Program arguments
     """
@@ -1245,7 +1259,7 @@ def move_config(toolchains, configs, args, db_queue):
 
     progress = Progress(len(defconfigs))
     slots = Slots(toolchains, configs, args, progress, reference_src_dir,
-		  db_queue)
+                  db_queue)
 
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
@@ -1351,7 +1365,7 @@ IMPLY_FLAGS = {
     'non-arch-board': [
         IMPLY_NON_ARCH_BOARD,
         'Allow Kconfig options outside arch/ and /board/ to imply'],
-};
+}
 
 
 def read_database():
@@ -1470,10 +1484,10 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
         for imply_config in rest_configs:
             if 'ERRATUM' in imply_config:
                 continue
-            if not (imply_flags & IMPLY_CMD):
+            if not imply_flags & IMPLY_CMD:
                 if 'CONFIG_CMD' in imply_config:
                     continue
-            if not (imply_flags & IMPLY_TARGET):
+            if not imply_flags & IMPLY_TARGET:
                 if 'CONFIG_TARGET' in imply_config:
                     continue
 
@@ -1556,7 +1570,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                     in_arch_board = not sym or (fname.startswith('arch') or
                                                 fname.startswith('board'))
                     if (not in_arch_board and
-                        not (imply_flags & IMPLY_NON_ARCH_BOARD)):
+                        not imply_flags & IMPLY_NON_ARCH_BOARD):
                         continue
 
                     if add_imply and (add_imply == 'all' or
@@ -1788,7 +1802,7 @@ doc/develop/moveconfig.rst for documentation.'''
         subprocess.call(['git', 'commit', '-s', '-m', msg])
 
     if args.build_db:
-        with open(CONFIG_DATABASE, 'w') as fd:
+        with open(CONFIG_DATABASE, 'w', encoding='utf-8') as fd:
             for defconfig, configs in config_db.items():
                 fd.write('%s\n' % defconfig)
                 for config in sorted(configs.keys()):
