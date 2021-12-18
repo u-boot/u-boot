@@ -273,6 +273,21 @@ def confirm(args, prompt):
 
     return True
 
+def write_file(fname, data):
+    """Write data to a file
+
+    Args:
+        fname (str): Filename to write to
+        data (list of str): Lines to write (with or without trailing newline);
+            or str to write
+    """
+    with open(fname, 'w', encoding='utf-8') as out:
+        if isinstance(data, list):
+            for line in data:
+                print(line.rstrip('\n'), file=out)
+        else:
+            out.write(data)
+
 def cleanup_empty_blocks(header_path, args):
     """Clean up empty conditional blocks
 
@@ -296,8 +311,7 @@ def cleanup_empty_blocks(header_path, args):
     if args.dry_run:
         return
 
-    with open(header_path, 'w') as f:
-        f.write(new_data)
+    write_file(header_path, new_data)
 
 def cleanup_one_header(header_path, patterns, args):
     """Clean regex-matched lines away from a file.
@@ -359,9 +373,7 @@ def cleanup_one_header(header_path, patterns, args):
     if args.dry_run:
         return
 
-    with open(header_path, 'w') as f:
-        for line in tolines:
-            f.write(line)
+    write_file(header_path, tolines)
 
 def cleanup_headers(configs, args):
     """Delete config defines from board headers.
@@ -437,9 +449,7 @@ def cleanup_one_extra_option(defconfig_path, configs, args):
     if args.dry_run:
         return
 
-    with open(defconfig_path, 'w') as f:
-        for line in tolines:
-            f.write(line)
+    write_file(defconfig_path, tolines)
 
 def cleanup_extra_options(configs, args):
     """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in defconfig files.
@@ -474,8 +484,7 @@ def cleanup_whitelist(configs, args):
 
     lines = [x for x in lines if x.strip() not in configs]
 
-    with open(os.path.join('scripts', 'config_whitelist.txt'), 'w') as f:
-        f.write(''.join(lines))
+    write_file(os.path.join('scripts', 'config_whitelist.txt'), lines)
 
 def find_matching(patterns, line):
     for pat in patterns:
@@ -514,8 +523,7 @@ def cleanup_readme(configs, args):
         if not found:
             newlines.append(line)
 
-    with open('README', 'w') as f:
-        f.write(''.join(newlines))
+    write_file('README', newlines)
 
 def try_expand(line):
     """If value looks like an expression, try expanding it
@@ -1135,8 +1143,7 @@ class Slots:
             print(color_text(self.args.color, COLOR_LIGHT_RED,
                                             msg), file=sys.stderr)
 
-            with open(output_file, 'w') as f:
-                f.write(boards)
+            write_file(output_file, boards)
 
     def show_suspicious_boards(self):
         """Display all boards (defconfigs) with possible misconversion."""
@@ -1155,8 +1162,7 @@ class Slots:
             print(color_text(self.args.color, COLOR_YELLOW,
                                             msg), file=sys.stderr)
 
-            with open(output_file, 'w') as f:
-                f.write(boards)
+            write_file(output_file, boards)
 
 class ReferenceSource:
 
@@ -1315,8 +1321,7 @@ def add_imply_rule(config, fname, linenum):
     for offset, line in enumerate(data[linenum:]):
         if line.strip().startswith('help') or not line:
             data.insert(linenum + offset, '\timply %s' % config)
-            with open(fname, 'w') as fd:
-                fd.write('\n'.join(data) + '\n')
+            write_file(fname, data)
             return 'added%s' % file_line
 
     return 'could not insert%s'
