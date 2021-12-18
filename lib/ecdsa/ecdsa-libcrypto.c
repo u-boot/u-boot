@@ -18,6 +18,8 @@
  * Copyright (c) 2020,2021, Alexandru Gagniuc <mr.nuke.me@gmail.com>
  */
 
+#define OPENSSL_API_COMPAT 0x10101000L
+
 #include <u-boot/ecdsa.h>
 #include <u-boot/fdt-libcrypto.h>
 #include <openssl/ssl.h>
