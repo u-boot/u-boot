@@ -588,6 +588,7 @@ config TARGET_UDOO
 	depends on MX6QDL
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_UDOO_NEO
 	bool "UDOO Neo"
