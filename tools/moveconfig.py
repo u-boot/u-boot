@@ -288,6 +288,34 @@ def write_file(fname, data):
         else:
             out.write(data)
 
+def read_file(fname, as_lines=True, skip_unicode=False):
+    """Read a file and return the contents
+
+    Args:
+        fname (str): Filename to read from
+        as_lines: Return file contents as a list of lines
+        skip_unicode (bool): True to report unicode errors and continue
+
+    Returns:
+        iter of str: List of ;ines from the file with newline removed; str if
+            as_lines is False with newlines intact; or None if a unicode error
+            occurred
+
+    Raises:
+        UnicodeDecodeError: Unicode error occurred when reading
+    """
+    with open(fname, encoding='utf-8') as inf:
+        try:
+            if as_lines:
+                return [line.rstrip('\n') for line in inf.readlines()]
+            else:
+                return inf.read()
+        except UnicodeDecodeError as e:
+            if not skip_unicode:
+                raises
+            print("Failed on file %s': %s" % (fname, e))
+            return None
+
 def cleanup_empty_blocks(header_path, args):
     """Clean up empty conditional blocks
 
@@ -296,12 +324,9 @@ def cleanup_empty_blocks(header_path, args):
       args: program arguments
     """
     pattern = re.compile(r'^\s*#\s*if.*$\n^\s*#\s*endif.*$\n*', flags=re.M)
-    with open(header_path) as f:
-        try:
-            data = f.read()
-        except UnicodeDecodeError as e:
-            print("Failed on file %s': %s" % (header_path, e))
-            return
+    data = read_file(header_path, as_lines=False, skip_unicode=True)
+    if data is None:
+        return
 
     new_data = pattern.sub('\n', data)
 
@@ -311,7 +336,8 @@ def cleanup_empty_blocks(header_path, args):
     if args.dry_run:
         return
 
-    write_file(header_path, new_data)
+    if new_data != data:
+        write_file(header_path, new_data)
 
 def cleanup_one_header(header_path, patterns, args):
     """Clean regex-matched lines away from a file.
@@ -322,12 +348,9 @@ def cleanup_one_header(header_path, patterns, args):
                 patterns are deleted.
       args: program arguments
     """
-    with open(header_path) as f:
-        try:
-            lines = f.readlines()
-        except UnicodeDecodeError as e:
-            print("Failed on file %s': %s" % (header_path, e))
-            return
+    lines = read_file(header_path, skip_unicode=True)
+    if lines is None:
+        return
 
     matched = []
     for i, line in enumerate(lines):
@@ -416,8 +439,7 @@ def cleanup_one_extra_option(defconfig_path, configs, args):
     start = 'CONFIG_SYS_EXTRA_OPTIONS="'
     end = '"\n'
 
-    with open(defconfig_path) as f:
-        lines = f.readlines()
+    lines = read_file(defconfig_path)
 
     for i, line in enumerate(lines):
         if line.startswith(start) and line.endswith(end):
@@ -479,8 +501,7 @@ def cleanup_whitelist(configs, args):
     if not confirm(args, 'Clean up whitelist entries?'):
         return
 
-    with open(os.path.join('scripts', 'config_whitelist.txt')) as f:
-        lines = f.readlines()
+    lines = read_file(os.path.join('scripts', 'config_whitelist.txt'))
 
     lines = [x for x in lines if x.strip() not in configs]
 
@@ -506,8 +527,7 @@ def cleanup_readme(configs, args):
     for config in configs:
         patterns.append(re.compile(r'^\s+%s' % config))
 
-    with open('README') as f:
-        lines = f.readlines()
+    lines = read_file('README')
 
     found = False
     newlines = []
@@ -615,7 +635,7 @@ class KconfigParser:
         """
         arch = ''
         cpu = ''
-        for line in open(self.dotconfig):
+        for line in read_file(self.dotconfig):
             m = self.re_arch.match(line)
             if m:
                 arch = m.group(1)
@@ -717,11 +737,9 @@ class KconfigParser:
         else:
             autoconf_path = self.autoconf
 
-        with open(self.dotconfig) as f:
-            dotconfig_lines = f.readlines()
+        dotconfig_lines = read_file(self.dotconfig)
 
-        with open(autoconf_path) as f:
-            autoconf_lines = f.readlines()
+        autoconf_lines = read_file(autoconf_path)
 
         for config in self.configs:
             result = self.parse_one_config(config, dotconfig_lines,
@@ -775,8 +793,7 @@ class KconfigParser:
 
         log = ''
 
-        with open(self.defconfig) as f:
-            defconfig_lines = f.readlines()
+        defconfig_lines = read_file(self.defconfig)
 
         for (action, value) in self.results:
             if action != ACTION_MOVE:
@@ -978,11 +995,10 @@ class Slot:
     def do_build_db(self):
         """Add the board to the database"""
         configs = {}
-        with open(os.path.join(self.build_dir, AUTO_CONF_PATH)) as fd:
-            for line in fd.readlines():
-                if line.startswith('CONFIG'):
-                    config, value = line.split('=', 1)
-                    configs[config] = value.rstrip()
+        for line in read_file(os.path.join(self.build_dir, AUTO_CONF_PATH)):
+            if line.startswith('CONFIG'):
+                config, value = line.split('=', 1)
+                configs[config] = value.rstrip()
         self.db_queue.put([self.defconfig, configs])
         self.finish(True)
 
@@ -1297,8 +1313,7 @@ def check_imply_rule(kconf, config, imply_config):
     if cwd and fname.startswith(cwd):
         fname = fname[len(cwd) + 1:]
     file_line = ' at %s:%d' % (fname, linenum)
-    with open(fname) as fd:
-        data = fd.read().splitlines()
+    data = read_file(fname)
     if data[linenum - 1] != 'config %s' % imply_config:
         return None, 0, 'bad sym format %s%s' % (data[linenum], file_line)
     return fname, linenum, 'adding%s' % file_line
@@ -1315,7 +1330,7 @@ def add_imply_rule(config, fname, linenum):
         Message indicating the result
     """
     file_line = ' at %s:%d' % (fname, linenum)
-    data = open(fname).read().splitlines()
+    data = read_file(fname)
     linenum -= 1
 
     for offset, line in enumerate(data[linenum:]):
@@ -1368,20 +1383,19 @@ def read_database():
     all_defconfigs = set()
 
     defconfig_db = collections.defaultdict(set)
-    with open(CONFIG_DATABASE) as fd:
-        for line in fd.readlines():
-            line = line.rstrip()
-            if not line:  # Separator between defconfigs
-                config_db[defconfig] = configs
-                all_defconfigs.add(defconfig)
-                configs = {}
-            elif line[0] == ' ':  # CONFIG line
-                config, value = line.strip().split('=', 1)
-                configs[config] = value
-                defconfig_db[config].add(defconfig)
-                all_configs.add(config)
-            else:  # New defconfig
-                defconfig = line
+    for line in read_file(CONFIG_DATABASE):
+        line = line.rstrip()
+        if not line:  # Separator between defconfigs
+            config_db[defconfig] = configs
+            all_defconfigs.add(defconfig)
+            configs = {}
+        elif line[0] == ' ':  # CONFIG line
+            config, value = line.strip().split('=', 1)
+            configs[config] = value
+            defconfig_db[config].add(defconfig)
+            all_configs.add(config)
+        else:  # New defconfig
+            defconfig = line
 
     return all_configs, all_defconfigs, config_db, defconfig_db
 
@@ -1578,8 +1592,7 @@ def do_find_config(config_list):
     all_configs, all_defconfigs, config_db, defconfig_db = read_database()
 
     # Get the whitelist
-    with open('scripts/config_whitelist.txt') as inf:
-        adhoc_configs = set(inf.read().splitlines())
+    adhoc_configs = set(read_file('scripts/config_whitelist.txt'))
 
     # Start with all defconfigs
     out = all_defconfigs
