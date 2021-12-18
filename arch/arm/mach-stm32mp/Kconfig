@@ -173,6 +173,7 @@ config STM32_ETZPC
 	bool "STM32 Extended TrustZone Protection"
 	depends on STM32MP15x
 	default y
+	imply BOOTP_SERVERIP
 	help
 	  Say y to enable STM32 Extended TrustZone Protection
 

@@ -1203,9 +1203,6 @@ The following options need to be configured:
 		CONFIG_BOOTP_VENDOREX
 		CONFIG_BOOTP_MAY_FAIL
 
-		CONFIG_BOOTP_SERVERIP - TFTP server will be the serverip
-		environment variable, not the BOOTP server.
-
 		CONFIG_BOOTP_MAY_FAIL - If the DHCP server is not found
 		after the configured retry count, the call will fail
 		instead of starting over.  This can be used to fail over
