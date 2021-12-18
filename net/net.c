@@ -1264,8 +1264,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 			   "received UDP (to=%pI4, from=%pI4, len=%d)\n",
 			   &dst_ip, &src_ip, len);
 
-#ifdef CONFIG_UDP_CHECKSUM
-		if (ip->udp_xsum != 0) {
+		if (IS_ENABLED(CONFIG_UDP_CHECKSUM) && ip->udp_xsum != 0) {
 			ulong   xsum;
 			u8 *sumptr;
 			ushort  sumlen;
@@ -1298,7 +1297,6 @@ void net_process_received_packet(uchar *in_packet, int len)
 				return;
 			}
 		}
-#endif
 
 #if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_SPL_BUILD)
 		nc_input_packet((uchar *)ip + IP_UDP_HDR_SIZE,
