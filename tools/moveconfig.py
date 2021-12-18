@@ -10,6 +10,7 @@ Move config options from headers to defconfig files.
 See doc/develop/moveconfig.rst for documentation.
 """
 
+from argparse import ArgumentParser
 import asteval
 import collections
 import copy
@@ -19,7 +20,6 @@ import filecmp
 import fnmatch
 import glob
 import multiprocessing
-import optparse
 import os
 import queue
 import re
@@ -267,8 +267,8 @@ def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre
     matched += extended_matched
     matched.sort()
 
-def confirm(options, prompt):
-    if not options.yes:
+def confirm(args, prompt):
+    if not args.yes:
         while True:
             choice = input('{} [y/n]: '.format(prompt))
             choice = choice.lower()
@@ -281,12 +281,12 @@ def confirm(options, prompt):
 
     return True
 
-def cleanup_empty_blocks(header_path, options):
+def cleanup_empty_blocks(header_path, args):
     """Clean up empty conditional blocks
 
     Arguments:
       header_path: path to the cleaned file.
-      options: option flags.
+      args: program arguments
     """
     pattern = re.compile(r'^\s*#\s*if.*$\n^\s*#\s*endif.*$\n*', flags=re.M)
     with open(header_path) as f:
@@ -299,22 +299,22 @@ def cleanup_empty_blocks(header_path, options):
     new_data = pattern.sub('\n', data)
 
     show_diff(data.splitlines(True), new_data.splitlines(True), header_path,
-              options.color)
+              args.color)
 
-    if options.dry_run:
+    if args.dry_run:
         return
 
     with open(header_path, 'w') as f:
         f.write(new_data)
 
-def cleanup_one_header(header_path, patterns, options):
+def cleanup_one_header(header_path, patterns, args):
     """Clean regex-matched lines away from a file.
 
     Arguments:
       header_path: path to the cleaned file.
       patterns: list of regex patterns.  Any lines matching to these
                 patterns are deleted.
-      options: option flags.
+      args: program arguments
     """
     with open(header_path) as f:
         try:
@@ -362,23 +362,23 @@ def cleanup_one_header(header_path, patterns, options):
     for i in reversed(matched):
         tolines.pop(i)
 
-    show_diff(lines, tolines, header_path, options.color)
+    show_diff(lines, tolines, header_path, args.color)
 
-    if options.dry_run:
+    if args.dry_run:
         return
 
     with open(header_path, 'w') as f:
         for line in tolines:
             f.write(line)
 
-def cleanup_headers(configs, options):
+def cleanup_headers(configs, args):
     """Delete config defines from board headers.
 
     Arguments:
       configs: A list of CONFIGs to remove.
-      options: option flags.
+      args: program arguments
     """
-    if not confirm(options, 'Clean up headers?'):
+    if not confirm(args, 'Clean up headers?'):
         return
 
     patterns = []
@@ -397,16 +397,16 @@ def cleanup_headers(configs, options):
                     # This file contains UTF-16 data and no CONFIG symbols
                     if header_path == 'include/video_font_data.h':
                         continue
-                    cleanup_one_header(header_path, patterns, options)
-                    cleanup_empty_blocks(header_path, options)
+                    cleanup_one_header(header_path, patterns, args)
+                    cleanup_empty_blocks(header_path, args)
 
-def cleanup_one_extra_option(defconfig_path, configs, options):
+def cleanup_one_extra_option(defconfig_path, configs, args):
     """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in one defconfig file.
 
     Arguments:
       defconfig_path: path to the cleaned defconfig file.
       configs: A list of CONFIGs to remove.
-      options: option flags.
+      args: program arguments
     """
 
     start = 'CONFIG_SYS_EXTRA_OPTIONS="'
@@ -440,23 +440,23 @@ def cleanup_one_extra_option(defconfig_path, configs, options):
     else:
         tolines.pop(i)
 
-    show_diff(lines, tolines, defconfig_path, options.color)
+    show_diff(lines, tolines, defconfig_path, args.color)
 
-    if options.dry_run:
+    if args.dry_run:
         return
 
     with open(defconfig_path, 'w') as f:
         for line in tolines:
             f.write(line)
 
-def cleanup_extra_options(configs, options):
+def cleanup_extra_options(configs, args):
     """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in defconfig files.
 
     Arguments:
       configs: A list of CONFIGs to remove.
-      options: option flags.
+      args: program arguments
     """
-    if not confirm(options, 'Clean up CONFIG_SYS_EXTRA_OPTIONS?'):
+    if not confirm(args, 'Clean up CONFIG_SYS_EXTRA_OPTIONS?'):
         return
 
     configs = [ config[len('CONFIG_'):] for config in configs ]
@@ -465,16 +465,16 @@ def cleanup_extra_options(configs, options):
 
     for defconfig in defconfigs:
         cleanup_one_extra_option(os.path.join('configs', defconfig), configs,
-                                 options)
+                                 args)
 
-def cleanup_whitelist(configs, options):
+def cleanup_whitelist(configs, args):
     """Delete config whitelist entries
 
     Arguments:
       configs: A list of CONFIGs to remove.
-      options: option flags.
+      args: program arguments
     """
-    if not confirm(options, 'Clean up whitelist entries?'):
+    if not confirm(args, 'Clean up whitelist entries?'):
         return
 
     with open(os.path.join('scripts', 'config_whitelist.txt')) as f:
@@ -491,14 +491,14 @@ def find_matching(patterns, line):
             return True
     return False
 
-def cleanup_readme(configs, options):
+def cleanup_readme(configs, args):
     """Delete config description in README
 
     Arguments:
       configs: A list of CONFIGs to remove.
-      options: option flags.
+      args: program arguments
     """
-    if not confirm(options, 'Clean up README?'):
+    if not confirm(args, 'Clean up README?'):
         return
 
     patterns = []
@@ -590,16 +590,16 @@ class KconfigParser:
     re_arch = re.compile(r'CONFIG_SYS_ARCH="(.*)"')
     re_cpu = re.compile(r'CONFIG_SYS_CPU="(.*)"')
 
-    def __init__(self, configs, options, build_dir):
+    def __init__(self, configs, args, build_dir):
         """Create a new parser.
 
         Arguments:
           configs: A list of CONFIGs to move.
-          options: option flags.
+          args: program arguments
           build_dir: Build directory.
         """
         self.configs = configs
-        self.options = options
+        self.args = args
         self.dotconfig = os.path.join(build_dir, '.config')
         self.autoconf = os.path.join(build_dir, 'include', 'autoconf.mk')
         self.spl_autoconf = os.path.join(build_dir, 'spl', 'include',
@@ -704,7 +704,7 @@ class KconfigParser:
         suspicious = False
         rm_files = [self.config_autoconf, self.autoconf]
 
-        if self.options.spl:
+        if self.args.spl:
             if os.path.exists(self.spl_autoconf):
                 autoconf_path = self.spl_autoconf
                 rm_files.append(self.spl_autoconf)
@@ -712,7 +712,7 @@ class KconfigParser:
                 for f in rm_files:
                     os.remove(f)
                 return (updated, suspicious,
-                        color_text(self.options.color, COLOR_BROWN,
+                        color_text(self.args.color, COLOR_BROWN,
                                    "SPL is not enabled.  Skipped.") + '\n')
         else:
             autoconf_path = self.autoconf
@@ -751,7 +751,7 @@ class KconfigParser:
             else:
                 sys.exit('Internal Error. This should not happen.')
 
-            log += color_text(self.options.color, log_color, actlog) + '\n'
+            log += color_text(self.args.color, log_color, actlog) + '\n'
 
         with open(self.dotconfig, 'a') as f:
             for (action, value) in results:
@@ -782,7 +782,7 @@ class KconfigParser:
             if action != ACTION_MOVE:
                 continue
             if not value + '\n' in defconfig_lines:
-                log += color_text(self.options.color, COLOR_YELLOW,
+                log += color_text(self.args.color, COLOR_YELLOW,
                                   "'%s' was removed by savedefconfig.\n" %
                                   value)
 
@@ -825,14 +825,14 @@ class Slot:
     for faster processing.
     """
 
-    def __init__(self, toolchains, configs, options, progress, devnull,
+    def __init__(self, toolchains, configs, args, progress, devnull,
 		 make_cmd, reference_src_dir, db_queue):
         """Create a new process slot.
 
         Arguments:
           toolchains: Toolchains object containing toolchains.
           configs: A list of CONFIGs to move.
-          options: option flags.
+          args: Program arguments
           progress: A progress indicator.
           devnull: A file object of '/dev/null'.
           make_cmd: command name of GNU Make.
@@ -841,14 +841,14 @@ class Slot:
           db_queue: output queue to write config info for the database
         """
         self.toolchains = toolchains
-        self.options = options
+        self.args = args
         self.progress = progress
         self.build_dir = tempfile.mkdtemp()
         self.devnull = devnull
         self.make_cmd = (make_cmd, 'O=' + self.build_dir)
         self.reference_src_dir = reference_src_dir
         self.db_queue = db_queue
-        self.parser = KconfigParser(configs, options, self.build_dir)
+        self.parser = KconfigParser(configs, args, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = set()
         self.suspicious_boards = set()
@@ -923,7 +923,7 @@ class Slot:
             if self.current_src_dir:
                 self.current_src_dir = None
                 self.do_defconfig()
-            elif self.options.build_db:
+            elif self.args.build_db:
                 self.do_build_db()
             else:
                 self.do_savedefconfig()
@@ -937,10 +937,10 @@ class Slot:
     def handle_error(self):
         """Handle error cases."""
 
-        self.log += color_text(self.options.color, COLOR_LIGHT_RED,
+        self.log += color_text(self.args.color, COLOR_LIGHT_RED,
                                'Failed to process.\n')
-        if self.options.verbose:
-            self.log += color_text(self.options.color, COLOR_LIGHT_CYAN,
+        if self.args.verbose:
+            self.log += color_text(self.args.color, COLOR_LIGHT_CYAN,
                                    self.ps.stderr.read().decode())
         self.finish(False)
 
@@ -961,7 +961,7 @@ class Slot:
         try:
             toolchain = self.toolchains.Select(arch)
         except ValueError:
-            self.log += color_text(self.options.color, COLOR_YELLOW,
+            self.log += color_text(self.args.color, COLOR_YELLOW,
                     "Tool chain for '%s' is missing.  Do nothing.\n" % arch)
             self.finish(False)
             return
@@ -994,11 +994,11 @@ class Slot:
             self.suspicious_boards.add(self.defconfig)
         self.log += log
 
-        if not self.options.force_sync and not updated:
+        if not self.args.force_sync and not updated:
             self.finish(True)
             return
         if updated:
-            self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
+            self.log += color_text(self.args.color, COLOR_LIGHT_GREEN,
                                    'Syncing by savedefconfig...\n')
         else:
             self.log += 'Syncing by savedefconfig (forced by option)...\n'
@@ -1021,10 +1021,10 @@ class Slot:
         updated = not filecmp.cmp(orig_defconfig, new_defconfig)
 
         if updated:
-            self.log += color_text(self.options.color, COLOR_LIGHT_BLUE,
+            self.log += color_text(self.args.color, COLOR_LIGHT_BLUE,
                                    'defconfig was updated.\n')
 
-        if not self.options.dry_run and updated:
+        if not self.args.dry_run and updated:
             shutil.move(new_defconfig, orig_defconfig)
         self.finish(True)
 
@@ -1044,7 +1044,7 @@ class Slot:
         print(log, file=(sys.stdout if success else sys.stderr))
 
         if not success:
-            if self.options.exit_on_error:
+            if self.args.exit_on_error:
                 sys.exit('Exit on error.')
             # If --exit-on-error flag is not set, skip this board and continue.
             # Record the failed board.
@@ -1068,25 +1068,25 @@ class Slots:
 
     """Controller of the array of subprocess slots."""
 
-    def __init__(self, toolchains, configs, options, progress,
+    def __init__(self, toolchains, configs, args, progress,
 		 reference_src_dir, db_queue):
         """Create a new slots controller.
 
         Arguments:
           toolchains: Toolchains object containing toolchains.
           configs: A list of CONFIGs to move.
-          options: option flags.
+          args: Program arguments
           progress: A progress indicator.
           reference_src_dir: Determine the true starting config state from this
                              source tree.
           db_queue: output queue to write config info for the database
         """
-        self.options = options
+        self.args = args
         self.slots = []
         devnull = get_devnull()
         make_cmd = get_make_cmd()
-        for i in range(options.jobs):
-            self.slots.append(Slot(toolchains, configs, options, progress,
+        for i in range(args.jobs):
+            self.slots.append(Slot(toolchains, configs, args, progress,
 				   devnull, make_cmd, reference_src_dir,
 				   db_queue))
 
@@ -1140,7 +1140,7 @@ class Slots:
             msg = 'The following boards were not processed due to error:\n'
             msg += boards
             msg += '(the list has been saved in %s)\n' % output_file
-            print(color_text(self.options.color, COLOR_LIGHT_RED,
+            print(color_text(self.args.color, COLOR_LIGHT_RED,
                                             msg), file=sys.stderr)
 
             with open(output_file, 'w') as f:
@@ -1160,7 +1160,7 @@ class Slots:
             msg += 'It is highly recommended to check them manually:\n'
             msg += boards
             msg += '(the list has been saved in %s)\n' % output_file
-            print(color_text(self.options.color, COLOR_YELLOW,
+            print(color_text(self.args.color, COLOR_YELLOW,
                                             msg), file=sys.stderr)
 
             with open(output_file, 'w') as f:
@@ -1200,37 +1200,37 @@ class ReferenceSource:
 
         return self.src_dir
 
-def move_config(toolchains, configs, options, db_queue):
+def move_config(toolchains, configs, args, db_queue):
     """Move config options to defconfig files.
 
     Arguments:
       configs: A list of CONFIGs to move.
-      options: option flags
+      args: Program arguments
     """
     if len(configs) == 0:
-        if options.force_sync:
+        if args.force_sync:
             print('No CONFIG is specified. You are probably syncing defconfigs.', end=' ')
-        elif options.build_db:
+        elif args.build_db:
             print('Building %s database' % CONFIG_DATABASE)
         else:
             print('Neither CONFIG nor --force-sync is specified. Nothing will happen.', end=' ')
     else:
         print('Move ' + ', '.join(configs), end=' ')
-    print('(jobs: %d)\n' % options.jobs)
+    print('(jobs: %d)\n' % args.jobs)
 
-    if options.git_ref:
-        reference_src = ReferenceSource(options.git_ref)
+    if args.git_ref:
+        reference_src = ReferenceSource(args.git_ref)
         reference_src_dir = reference_src.get_dir()
     else:
         reference_src_dir = None
 
-    if options.defconfigs:
-        defconfigs = get_matched_defconfigs(options.defconfigs)
+    if args.defconfigs:
+        defconfigs = get_matched_defconfigs(args.defconfigs)
     else:
         defconfigs = get_all_defconfigs()
 
     progress = Progress(len(defconfigs))
-    slots = Slots(toolchains, configs, options, progress, reference_src_dir,
+    slots = Slots(toolchains, configs, args, progress, reference_src_dir,
 		  db_queue)
 
     # Main loop to process defconfig files:
@@ -1648,65 +1648,69 @@ def main():
     except NotImplementedError:
         cpu_count = 1
 
-    parser = optparse.OptionParser()
-    # Add options here
-    parser.add_option('-a', '--add-imply', type='string', default='',
+    epilog = '''Move config options from headers to defconfig files. See
+doc/develop/moveconfig.rst for documentation.'''
+
+    parser = ArgumentParser(epilog=epilog)
+    # Add arguments here
+    parser.add_argument('-a', '--add-imply', type=str, default='',
                       help='comma-separated list of CONFIG options to add '
                       "an 'imply' statement to for the CONFIG in -i")
-    parser.add_option('-A', '--skip-added', action='store_true', default=False,
+    parser.add_argument('-A', '--skip-added', action='store_true', default=False,
                       help="don't show options which are already marked as "
                       'implying others')
-    parser.add_option('-b', '--build-db', action='store_true', default=False,
+    parser.add_argument('-b', '--build-db', action='store_true', default=False,
                       help='build a CONFIG database')
-    parser.add_option('-c', '--color', action='store_true', default=False,
+    parser.add_argument('-c', '--color', action='store_true', default=False,
                       help='display the log in color')
-    parser.add_option('-C', '--commit', action='store_true', default=False,
+    parser.add_argument('-C', '--commit', action='store_true', default=False,
                       help='Create a git commit for the operation')
-    parser.add_option('-d', '--defconfigs', type='string',
+    parser.add_argument('-d', '--defconfigs', type=str,
                       help='a file containing a list of defconfigs to move, '
                       "one per line (for example 'snow_defconfig') "
                       "or '-' to read from stdin")
-    parser.add_option('-e', '--exit-on-error', action='store_true',
+    parser.add_argument('-e', '--exit-on-error', action='store_true',
                       default=False,
                       help='exit immediately on any error')
-    parser.add_option('-f', '--find', action='store_true', default=False,
+    parser.add_argument('-f', '--find', action='store_true', default=False,
                       help='Find boards with a given config combination')
-    parser.add_option('-H', '--headers-only', dest='cleanup_headers_only',
+    parser.add_argument('-H', '--headers-only', dest='cleanup_headers_only',
                       action='store_true', default=False,
                       help='only cleanup the headers')
-    parser.add_option('-i', '--imply', action='store_true', default=False,
+    parser.add_argument('-i', '--imply', action='store_true', default=False,
                       help='find options which imply others')
-    parser.add_option('-I', '--imply-flags', type='string', default='',
+    parser.add_argument('-I', '--imply-flags', type=str, default='',
                       help="control the -i option ('help' for help")
-    parser.add_option('-j', '--jobs', type='int', default=cpu_count,
+    parser.add_argument('-j', '--jobs', type=int, default=cpu_count,
                       help='the number of jobs to run simultaneously')
-    parser.add_option('-n', '--dry-run', action='store_true', default=False,
+    parser.add_argument('-n', '--dry-run', action='store_true', default=False,
                       help='perform a trial run (show log with no changes)')
-    parser.add_option('-r', '--git-ref', type='string',
+    parser.add_argument('-r', '--git-ref', type=str,
                       help='the git ref to clone for building the autoconf.mk')
-    parser.add_option('-s', '--force-sync', action='store_true', default=False,
+    parser.add_argument('-s', '--force-sync', action='store_true', default=False,
                       help='force sync by savedefconfig')
-    parser.add_option('-S', '--spl', action='store_true', default=False,
+    parser.add_argument('-S', '--spl', action='store_true', default=False,
                       help='parse config options defined for SPL build')
-    parser.add_option('-t', '--test', action='store_true', default=False,
+    parser.add_argument('-t', '--test', action='store_true', default=False,
                       help='run unit tests')
-    parser.add_option('-y', '--yes', action='store_true', default=False,
+    parser.add_argument('-y', '--yes', action='store_true', default=False,
                       help="respond 'yes' to any prompts")
-    parser.add_option('-v', '--verbose', action='store_true', default=False,
+    parser.add_argument('-v', '--verbose', action='store_true', default=False,
                       help='show any build errors as boards are built')
-    parser.usage += ' CONFIG ...'
+    parser.add_argument('configs', nargs='*')
 
-    (options, configs) = parser.parse_args()
+    args = parser.parse_args()
+    configs = args.configs
 
-    if options.test:
+    if args.test:
         sys.argv = [sys.argv[0]]
         fail, count = doctest.testmod()
         if fail:
             return 1
         unittest.main()
 
-    if len(configs) == 0 and not any((options.force_sync, options.build_db,
-                                      options.imply, options.find)):
+    if not any((len(configs), args.force_sync, args.build_db, args.imply,
+                args.find)):
         parser.print_usage()
         sys.exit(1)
 
@@ -1715,13 +1719,13 @@ def main():
 
     check_top_directory()
 
-    if options.imply:
+    if args.imply:
         imply_flags = 0
-        if options.imply_flags == 'all':
+        if args.imply_flags == 'all':
             imply_flags = -1
 
-        elif options.imply_flags:
-            for flag in options.imply_flags.split(','):
+        elif args.imply_flags:
+            for flag in args.imply_flags.split(','):
                 bad = flag not in IMPLY_FLAGS
                 if bad:
                     print("Invalid flag '%s'" % flag)
@@ -1733,11 +1737,10 @@ def main():
                     sys.exit(1)
                 imply_flags |= IMPLY_FLAGS[flag][0]
 
-        do_imply_config(configs, options.add_imply, imply_flags,
-                        options.skip_added)
+        do_imply_config(configs, args.add_imply, imply_flags, args.skip_added)
         return
 
-    if options.find:
+    if args.find:
         do_find_config(configs)
         return
 
@@ -1747,22 +1750,22 @@ def main():
     t.setDaemon(True)
     t.start()
 
-    if not options.cleanup_headers_only:
+    if not args.cleanup_headers_only:
         check_clean_directory()
         bsettings.Setup('')
         toolchains = toolchain.Toolchains()
         toolchains.GetSettings()
         toolchains.Scan(verbose=False)
-        move_config(toolchains, configs, options, db_queue)
+        move_config(toolchains, configs, args, db_queue)
         db_queue.join()
 
     if configs:
-        cleanup_headers(configs, options)
-        cleanup_extra_options(configs, options)
-        cleanup_whitelist(configs, options)
-        cleanup_readme(configs, options)
+        cleanup_headers(configs, args)
+        cleanup_extra_options(configs, args)
+        cleanup_whitelist(configs, args)
+        cleanup_readme(configs, args)
 
-    if options.commit:
+    if args.commit:
         subprocess.call(['git', 'add', '-u'])
         if configs:
             msg = 'Convert %s %sto Kconfig' % (configs[0],
@@ -1774,7 +1777,7 @@ def main():
             msg += '\n\nRsync all defconfig files using moveconfig.py'
         subprocess.call(['git', 'commit', '-s', '-m', msg])
 
-    if options.build_db:
+    if args.build_db:
         with open(CONFIG_DATABASE, 'w') as fd:
             for defconfig, configs in config_db.items():
                 fd.write('%s\n' % defconfig)
