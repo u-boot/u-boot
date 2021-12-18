@@ -371,6 +371,18 @@ int blk_create_devicef(struct udevice *parent, const char *drv_name,
 		       lbaint_t lba, struct udevice **devp);
 
 /**
+ * blk_probe_or_unbind() - Try to probe
+ *
+ * Try to probe the device, primarily for enumerating partitions.
+ * If it fails, the device itself is unbound since it means that it won't
+ * work any more.
+ *
+ * @dev:	The device to probe
+ * Return:	0 if OK, -ve on error
+ */
+int blk_probe_or_unbind(struct udevice *dev);
+
+/**
  * blk_unbind_all() - Unbind all device of the given interface type
  *
  * The devices are removed and then unbound.
