@@ -1569,6 +1569,79 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                 add_imply_rule(config[CONFIG_LEN:], fname, linenum)
 
 
+def do_find_config(config_list):
+    """Find boards with a given combination of CONFIGs
+
+    Params:
+        config_list: List of CONFIG options to check (each a string consisting
+            of a config option, with or without a CONFIG_ prefix. If an option
+            is preceded by a tilde (~) then it must be false, otherwise it must
+            be true)
+    """
+    all_configs, all_defconfigs, config_db, defconfig_db = read_database()
+
+    # Get the whitelist
+    with open('scripts/config_whitelist.txt') as inf:
+        adhoc_configs = set(inf.read().splitlines())
+
+    # Start with all defconfigs
+    out = all_defconfigs
+
+    # Work through each config in turn
+    adhoc = []
+    for item in config_list:
+        # Get the real config name and whether we want this config or not
+        cfg = item
+        want = True
+        if cfg[0] == '~':
+            want = False
+            cfg = cfg[1:]
+
+        if cfg in adhoc_configs:
+            adhoc.append(cfg)
+            continue
+
+        # Search everything that is still in the running. If it has a config
+        # that we want, or doesn't have one that we don't, add it into the
+        # running for the next stage
+        in_list = out
+        out = set()
+        for defc in in_list:
+            has_cfg = cfg in config_db[defc]
+            if has_cfg == want:
+                out.add(defc)
+    if adhoc:
+        print(f"Error: Not in Kconfig: %s" % ' '.join(adhoc))
+    else:
+        print(f'{len(out)} matches')
+        print(' '.join(out))
+
+
+def prefix_config(cfg):
+    """Prefix a config with CONFIG_ if needed
+
+    This handles ~ operator, which indicates that the CONFIG should be disabled
+
+    >>> prefix_config('FRED')
+    'CONFIG_FRED'
+    >>> prefix_config('CONFIG_FRED')
+    'CONFIG_FRED'
+    >>> prefix_config('~FRED')
+    '~CONFIG_FRED'
+    >>> prefix_config('~CONFIG_FRED')
+    '~CONFIG_FRED'
+    >>> prefix_config('A123')
+    'CONFIG_A123'
+    """
+    op = ''
+    if cfg[0] == '~':
+        op = cfg[0]
+        cfg = cfg[1:]
+    if not cfg.startswith('CONFIG_'):
+        cfg = 'CONFIG_' + cfg
+    return op + cfg
+
+
 def main():
     try:
         cpu_count = multiprocessing.cpu_count()
@@ -1596,6 +1669,8 @@ def main():
     parser.add_option('-e', '--exit-on-error', action='store_true',
                       default=False,
                       help='exit immediately on any error')
+    parser.add_option('-f', '--find', action='store_true', default=False,
+                      help='Find boards with a given config combination')
     parser.add_option('-H', '--headers-only', dest='cleanup_headers_only',
                       action='store_true', default=False,
                       help='only cleanup the headers')
@@ -1631,13 +1706,12 @@ def main():
         unittest.main()
 
     if len(configs) == 0 and not any((options.force_sync, options.build_db,
-                                      options.imply)):
+                                      options.imply, options.find)):
         parser.print_usage()
         sys.exit(1)
 
     # prefix the option name with CONFIG_ if missing
-    configs = [ config if config.startswith('CONFIG_') else 'CONFIG_' + config
-                for config in configs ]
+    configs = [prefix_config(cfg) for cfg in configs]
 
     check_top_directory()
 
@@ -1661,6 +1735,10 @@ def main():
 
         do_imply_config(configs, options.add_imply, imply_flags,
                         options.skip_added)
+        return
+
+    if options.find:
+        do_find_config(configs)
         return
 
     config_db = {}
@@ -1705,4 +1783,4 @@ def main():
                 fd.write('\n')
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
