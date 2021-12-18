@@ -39,8 +39,6 @@
 #define BOOTENV
 #endif
 
-#define CONFIG_TIMESTAMP
-
 #define CONFIG_SYS_MONITOR_BASE		0
 #define CONFIG_SYS_MONITOR_LEN		0x00200000	/* 2MB */
 

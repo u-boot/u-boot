@@ -256,6 +256,7 @@ config X86
 	imply ACPIGEN if !QEMU
 	imply SYSINFO if GENERATE_SMBIOS_TABLE
 	imply SYSINFO_SMBIOS if GENERATE_SMBIOS_TABLE
+	imply TIMESTAMP
 
 	# Thing to enable for when SPL/TPL are enabled: SPL
 	imply SPL_DM

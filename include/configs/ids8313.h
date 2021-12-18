@@ -230,7 +230,6 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_LOADS_ECHO
-#define CONFIG_TIMESTAMP
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
 
 /* mtdparts command line support */

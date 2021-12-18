@@ -110,6 +110,7 @@ config KEEP_SERVERADDR
 
 config UDP_CHECKSUM
 	bool "Check the UDP checksum"
+	default y if SANDBOX
 	help
 	  Enable this to verify the checksum on UDP packets. If the checksum
 	  is wrong then the packet is discussed and an error is shown, like

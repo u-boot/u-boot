@@ -381,6 +381,7 @@ config ARCH_P1010
 	imply CMD_PCI
 	imply CMD_REGINFO
 	imply FSL_SATA
+	imply TIMESTAMP
 
 config ARCH_P1011
 	bool
@@ -512,6 +513,7 @@ config ARCH_P2020
 	imply CMD_EEPROM
 	imply CMD_NAND
 	imply CMD_REGINFO
+	imply TIMESTAMP
 
 config ARCH_P2041
 	bool

@@ -57,7 +57,6 @@
 	NANDARGS
 #endif /* CONFIG_SPL_BUILD */
 
-#define CONFIG_TIMESTAMP
 #define CONFIG_SYS_AUTOLOAD		"no"
 
 /* Serial console configuration */

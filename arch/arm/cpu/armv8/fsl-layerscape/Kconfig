@@ -21,6 +21,7 @@ config ARCH_LS1012A
 	select SYS_I2C_MXC_I2C1 if !DM_I2C
 	select SYS_I2C_MXC_I2C2 if !DM_I2C
 	imply PANIC_HANG
+	imply TIMESTAMP
 
 config ARCH_LS1028A
 	bool

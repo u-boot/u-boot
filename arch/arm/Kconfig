@@ -1869,6 +1869,7 @@ config ARCH_STM32MP
 	imply OF_LIBFDT_OVERLAY
 	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
 	imply USE_PREBOOT
+	imply TIMESTAMP
 	help
 	  Support for STM32MP SoC family developed by STMicroelectronics,
 	  MPUs based on ARM cortex A core

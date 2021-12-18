@@ -18,7 +18,6 @@
 /*
  * Environment settings
  */
-#define	CONFIG_TIMESTAMP
 
 /*
  * Serial Console Configuration

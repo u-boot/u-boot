@@ -170,8 +170,6 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-#define	CONFIG_TIMESTAMP		/* Print image info with ts	*/
-
 /*
  * BOOTP options
  */

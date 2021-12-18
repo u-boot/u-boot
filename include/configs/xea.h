@@ -14,8 +14,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_TIMESTAMP		/* Print image info with timestamp */
-
 /* SPL */
 #define CONFIG_SPL_STACK		0x20000
 

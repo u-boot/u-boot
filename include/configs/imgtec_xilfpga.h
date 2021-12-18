@@ -46,6 +46,5 @@
 /* ---------------------------------------------------------------------
  * Board boot configuration
  */
-#define CONFIG_TIMESTAMP	/* Print image info with timestamp */
 
 #endif	/* __XILFPGA_CONFIG_H */
