@@ -90,6 +90,14 @@ int mx6_rgmii_rework(struct phy_device *phydev)
 
 static void setup_iomux_enet(void)
 {
+	gpio_request(IMX_GPIO_NR(2, 31), "eth_power");
+	gpio_request(IMX_GPIO_NR(3, 23), "eth_phy_reset");
+	gpio_request(IMX_GPIO_NR(6, 24), "strap1");
+	gpio_request(IMX_GPIO_NR(6, 25), "strap2");
+	gpio_request(IMX_GPIO_NR(6, 27), "strap3");
+	gpio_request(IMX_GPIO_NR(6, 28), "strap4");
+	gpio_request(IMX_GPIO_NR(6, 29), "strap5");
+
 	gpio_direction_output(IMX_GPIO_NR(2, 31), 1); /* Power supply on */
 
 	gpio_direction_output(IMX_GPIO_NR(3, 23), 0); /* assert PHY rst */
