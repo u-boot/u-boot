@@ -71,23 +71,23 @@ CONFIG_DATABASE = 'moveconfig.db'
 CONFIG_LEN = len('CONFIG_')
 
 SIZES = {
-    "SZ_1":    0x00000001, "SZ_2":    0x00000002,
-    "SZ_4":    0x00000004, "SZ_8":    0x00000008,
-    "SZ_16":   0x00000010, "SZ_32":   0x00000020,
-    "SZ_64":   0x00000040, "SZ_128":  0x00000080,
-    "SZ_256":  0x00000100, "SZ_512":  0x00000200,
-    "SZ_1K":   0x00000400, "SZ_2K":   0x00000800,
-    "SZ_4K":   0x00001000, "SZ_8K":   0x00002000,
-    "SZ_16K":  0x00004000, "SZ_32K":  0x00008000,
-    "SZ_64K":  0x00010000, "SZ_128K": 0x00020000,
-    "SZ_256K": 0x00040000, "SZ_512K": 0x00080000,
-    "SZ_1M":   0x00100000, "SZ_2M":   0x00200000,
-    "SZ_4M":   0x00400000, "SZ_8M":   0x00800000,
-    "SZ_16M":  0x01000000, "SZ_32M":  0x02000000,
-    "SZ_64M":  0x04000000, "SZ_128M": 0x08000000,
-    "SZ_256M": 0x10000000, "SZ_512M": 0x20000000,
-    "SZ_1G":   0x40000000, "SZ_2G":   0x80000000,
-    "SZ_4G":  0x100000000
+    'SZ_1':    0x00000001, 'SZ_2':    0x00000002,
+    'SZ_4':    0x00000004, 'SZ_8':    0x00000008,
+    'SZ_16':   0x00000010, 'SZ_32':   0x00000020,
+    'SZ_64':   0x00000040, 'SZ_128':  0x00000080,
+    'SZ_256':  0x00000100, 'SZ_512':  0x00000200,
+    'SZ_1K':   0x00000400, 'SZ_2K':   0x00000800,
+    'SZ_4K':   0x00001000, 'SZ_8K':   0x00002000,
+    'SZ_16K':  0x00004000, 'SZ_32K':  0x00008000,
+    'SZ_64K':  0x00010000, 'SZ_128K': 0x00020000,
+    'SZ_256K': 0x00040000, 'SZ_512K': 0x00080000,
+    'SZ_1M':   0x00100000, 'SZ_2M':   0x00200000,
+    'SZ_4M':   0x00400000, 'SZ_8M':   0x00800000,
+    'SZ_16M':  0x01000000, 'SZ_32M':  0x02000000,
+    'SZ_64M':  0x04000000, 'SZ_128M': 0x08000000,
+    'SZ_256M': 0x10000000, 'SZ_512M': 0x20000000,
+    'SZ_1G':   0x40000000, 'SZ_2G':   0x80000000,
+    'SZ_4G':  0x100000000
 }
 
 ### helper functions ###
@@ -536,12 +536,12 @@ def try_expand(line):
         aeval = asteval.Interpreter( usersyms=SIZES, minimal=True )
         cfg, val = re.split("=", line)
         val= val.strip('\"')
-        if re.search("[*+-/]|<<|SZ_+|\(([^\)]+)\)", val):
+        if re.search(r'[*+-/]|<<|SZ_+|\(([^\)]+)\)', val):
             newval = hex(aeval(val))
-            print("\tExpanded expression %s to %s" % (val, newval))
+            print('\tExpanded expression %s to %s' % (val, newval))
             return cfg+'='+newval
     except:
-        print("\tFailed to expand expression in %s" % line)
+        print('\tFailed to expand expression in %s' % line)
 
     return line
 
@@ -735,10 +735,10 @@ class KconfigParser:
                 actlog = "Move '%s'" % value
                 log_color = COLOR_LIGHT_GREEN
             elif action == ACTION_NO_ENTRY:
-                actlog = "%s is not defined in Kconfig.  Do nothing." % value
+                actlog = '%s is not defined in Kconfig.  Do nothing.' % value
                 log_color = COLOR_LIGHT_BLUE
             elif action == ACTION_NO_ENTRY_WARN:
-                actlog = "%s is not defined in Kconfig (suspicious).  Do nothing." % value
+                actlog = '%s is not defined in Kconfig (suspicious).  Do nothing.' % value
                 log_color = COLOR_YELLOW
                 suspicious = True
             elif action == ACTION_NO_CHANGE:
@@ -746,10 +746,10 @@ class KconfigParser:
                          % value
                 log_color = COLOR_LIGHT_PURPLE
             elif action == ACTION_SPL_NOT_EXIST:
-                actlog = "SPL is not enabled for this defconfig.  Skip."
+                actlog = 'SPL is not enabled for this defconfig.  Skip.'
                 log_color = COLOR_PURPLE
             else:
-                sys.exit("Internal Error. This should not happen.")
+                sys.exit('Internal Error. This should not happen.')
 
             log += color_text(self.options.color, log_color, actlog) + '\n'
 
@@ -930,7 +930,7 @@ class Slot:
         elif self.state == STATE_SAVEDEFCONFIG:
             self.update_defconfig()
         else:
-            sys.exit("Internal Error. This should not happen.")
+            sys.exit('Internal Error. This should not happen.')
 
         return True if self.state == STATE_IDLE else False
 
@@ -938,7 +938,7 @@ class Slot:
         """Handle error cases."""
 
         self.log += color_text(self.options.color, COLOR_LIGHT_RED,
-                               "Failed to process.\n")
+                               'Failed to process.\n')
         if self.options.verbose:
             self.log += color_text(self.options.color, COLOR_LIGHT_CYAN,
                                    self.ps.stderr.read().decode())
@@ -999,9 +999,9 @@ class Slot:
             return
         if updated:
             self.log += color_text(self.options.color, COLOR_LIGHT_GREEN,
-                                   "Syncing by savedefconfig...\n")
+                                   'Syncing by savedefconfig...\n')
         else:
-            self.log += "Syncing by savedefconfig (forced by option)...\n"
+            self.log += 'Syncing by savedefconfig (forced by option)...\n'
 
         cmd = list(self.make_cmd)
         cmd.append('savedefconfig')
@@ -1022,7 +1022,7 @@ class Slot:
 
         if updated:
             self.log += color_text(self.options.color, COLOR_LIGHT_BLUE,
-                                   "defconfig was updated.\n")
+                                   'defconfig was updated.\n')
 
         if not self.options.dry_run and updated:
             shutil.move(new_defconfig, orig_defconfig)
@@ -1045,7 +1045,7 @@ class Slot:
 
         if not success:
             if self.options.exit_on_error:
-                sys.exit("Exit on error.")
+                sys.exit('Exit on error.')
             # If --exit-on-error flag is not set, skip this board and continue.
             # Record the failed board.
             self.failed_boards.add(self.defconfig)
@@ -1137,9 +1137,9 @@ class Slots:
 
         if boards:
             boards = '\n'.join(boards) + '\n'
-            msg = "The following boards were not processed due to error:\n"
+            msg = 'The following boards were not processed due to error:\n'
             msg += boards
-            msg += "(the list has been saved in %s)\n" % output_file
+            msg += '(the list has been saved in %s)\n' % output_file
             print(color_text(self.options.color, COLOR_LIGHT_RED,
                                             msg), file=sys.stderr)
 
@@ -1156,10 +1156,10 @@ class Slots:
 
         if boards:
             boards = '\n'.join(boards) + '\n'
-            msg = "The following boards might have been converted incorrectly.\n"
-            msg += "It is highly recommended to check them manually:\n"
+            msg = 'The following boards might have been converted incorrectly.\n'
+            msg += 'It is highly recommended to check them manually:\n'
             msg += boards
-            msg += "(the list has been saved in %s)\n" % output_file
+            msg += '(the list has been saved in %s)\n' % output_file
             print(color_text(self.options.color, COLOR_YELLOW,
                                             msg), file=sys.stderr)
 
@@ -1177,7 +1177,7 @@ class ReferenceSource:
           commit: commit to git-clone
         """
         self.src_dir = tempfile.mkdtemp()
-        print("Cloning git repo to a separate work directory...")
+        print('Cloning git repo to a separate work directory...')
         subprocess.check_output(['git', 'clone', os.getcwd(), '.'],
                                 cwd=self.src_dir)
         print("Checkout '%s' to build the original autoconf.mk." % \
