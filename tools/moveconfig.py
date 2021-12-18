@@ -1263,7 +1263,7 @@ def find_kconfig_rules(kconf, config, imply_config):
     sym = kconf.syms.get(imply_config)
     if sym:
         for sel, cond in (sym.selects + sym.implies):
-            if sel == config:
+            if sel.name == config:
                 return sym
     return None
 
@@ -1291,7 +1291,8 @@ def check_imply_rule(kconf, config, imply_config):
     nodes = sym.nodes
     if len(nodes) != 1:
         return '%d locations' % len(nodes)
-    fname, linenum = nodes[0].filename, nodes[0].linern
+    node = nodes[0]
+    fname, linenum = node.filename, node.linenr
     cwd = os.getcwd()
     if cwd and fname.startswith(cwd):
         fname = fname[len(cwd) + 1:]
@@ -1382,7 +1383,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
     """
     kconf = KconfigScanner().conf if check_kconfig else None
     if add_imply and add_imply != 'all':
-        add_imply = add_imply.split()
+        add_imply = add_imply.split(',')
 
     # key is defconfig name, value is dict of (CONFIG_xxx, value)
     config_db = {}
@@ -1414,7 +1415,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
             else:  # New defconfig
                 defconfig = line
 
-    # Work through each target config option in tern, independently
+    # Work through each target config option in turn, independently
     for config in config_list:
         defconfigs = defconfig_db.get(config)
         if not defconfigs:
