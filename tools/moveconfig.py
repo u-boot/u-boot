@@ -1591,26 +1591,28 @@ def main():
                       help='a file containing a list of defconfigs to move, '
                       "one per line (for example 'snow_defconfig') "
                       "or '-' to read from stdin")
+    parser.add_option('-e', '--exit-on-error', action='store_true',
+                      default=False,
+                      help='exit immediately on any error')
+    parser.add_option('-H', '--headers-only', dest='cleanup_headers_only',
+                      action='store_true', default=False,
+                      help='only cleanup the headers')
     parser.add_option('-i', '--imply', action='store_true', default=False,
                       help='find options which imply others')
     parser.add_option('-I', '--imply-flags', type='string', default='',
                       help="control the -i option ('help' for help")
+    parser.add_option('-j', '--jobs', type='int', default=cpu_count,
+                      help='the number of jobs to run simultaneously')
     parser.add_option('-n', '--dry-run', action='store_true', default=False,
                       help='perform a trial run (show log with no changes)')
-    parser.add_option('-e', '--exit-on-error', action='store_true',
-                      default=False,
-                      help='exit immediately on any error')
+    parser.add_option('-r', '--git-ref', type='string',
+                      help='the git ref to clone for building the autoconf.mk')
     parser.add_option('-s', '--force-sync', action='store_true', default=False,
                       help='force sync by savedefconfig')
     parser.add_option('-S', '--spl', action='store_true', default=False,
                       help='parse config options defined for SPL build')
-    parser.add_option('-H', '--headers-only', dest='cleanup_headers_only',
-                      action='store_true', default=False,
-                      help='only cleanup the headers')
-    parser.add_option('-j', '--jobs', type='int', default=cpu_count,
-                      help='the number of jobs to run simultaneously')
-    parser.add_option('-r', '--git-ref', type='string',
-                      help='the git ref to clone for building the autoconf.mk')
+    parser.add_option('-t', '--test', action='store_true', default=False,
+                      help='run unit tests')
     parser.add_option('-y', '--yes', action='store_true', default=False,
                       help="respond 'yes' to any prompts")
     parser.add_option('-v', '--verbose', action='store_true', default=False,
