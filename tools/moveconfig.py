@@ -1339,6 +1339,54 @@ IMPLY_FLAGS = {
         'Allow Kconfig options outside arch/ and /board/ to imply'],
 };
 
+
+def read_database():
+    """Read in the config database
+
+    Returns:
+        tuple:
+            set of all config options seen (each a str)
+            set of all defconfigs seen (each a str)
+            dict of configs for each defconfig:
+                key: defconfig name, e.g. "MPC8548CDS_legacy_defconfig"
+                value: dict:
+                    key: CONFIG option
+                    value: Value of option
+            dict of defconfigs for each config:
+                key: CONFIG option
+                value: set of boards using that option
+
+    """
+    configs = {}
+
+    # key is defconfig name, value is dict of (CONFIG_xxx, value)
+    config_db = {}
+
+    # Set of all config options we have seen
+    all_configs = set()
+
+    # Set of all defconfigs we have seen
+    all_defconfigs = set()
+
+    defconfig_db = collections.defaultdict(set)
+    with open(CONFIG_DATABASE) as fd:
+        for line in fd.readlines():
+            line = line.rstrip()
+            if not line:  # Separator between defconfigs
+                config_db[defconfig] = configs
+                all_defconfigs.add(defconfig)
+                configs = {}
+            elif line[0] == ' ':  # CONFIG line
+                config, value = line.strip().split('=', 1)
+                configs[config] = value
+                defconfig_db[config].add(defconfig)
+                all_configs.add(config)
+            else:  # New defconfig
+                defconfig = line
+
+    return all_configs, all_defconfigs, config_db, defconfig_db
+
+
 def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                     check_kconfig=True, find_superset=False):
     """Find CONFIG options which imply those in the list
@@ -1385,35 +1433,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
     if add_imply and add_imply != 'all':
         add_imply = add_imply.split(',')
 
-    # key is defconfig name, value is dict of (CONFIG_xxx, value)
-    config_db = {}
-
-    # Holds a dict containing the set of defconfigs that contain each config
-    # key is config, value is set of defconfigs using that config
-    defconfig_db = collections.defaultdict(set)
-
-    # Set of all config options we have seen
-    all_configs = set()
-
-    # Set of all defconfigs we have seen
-    all_defconfigs = set()
-
-    # Read in the database
-    configs = {}
-    with open(CONFIG_DATABASE) as fd:
-        for line in fd.readlines():
-            line = line.rstrip()
-            if not line:  # Separator between defconfigs
-                config_db[defconfig] = configs
-                all_defconfigs.add(defconfig)
-                configs = {}
-            elif line[0] == ' ':  # CONFIG line
-                config, value = line.strip().split('=', 1)
-                configs[config] = value
-                defconfig_db[config].add(defconfig)
-                all_configs.add(config)
-            else:  # New defconfig
-                defconfig = line
+    all_configs, all_defconfigs, config_db, defconfig_db = read_database()
 
     # Work through each target config option in turn, independently
     for config in config_list:
