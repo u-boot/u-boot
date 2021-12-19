@@ -11,6 +11,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/delay.h>
+#include <phy.h>
 
 #include "comphy_a3700.h"
 
@@ -980,6 +981,138 @@ void comphy_dedicated_phys_init(void)
 	}
 
 	debug_exit();
+}
+
+static int find_available_node_by_compatible(int offset, const char *compatible)
+{
+	do {
+		offset = fdt_node_offset_by_compatible(gd->fdt_blob, offset,
+						       compatible);
+	} while (offset > 0 && !fdtdec_get_is_enabled(gd->fdt_blob, offset));
+
+	return offset;
+}
+
+static bool comphy_a3700_find_lane(const int nodes[3], int node,
+				   int port, int *lane, int *invert)
+{
+	int res, i, j;
+
+	for (i = 0; ; i++) {
+		struct fdtdec_phandle_args args;
+
+		res = fdtdec_parse_phandle_with_args(gd->fdt_blob, node, "phys",
+						     "#phy-cells", 0, i, &args);
+		if (res)
+			return false;
+
+		for (j = 0; j < 3; j++) {
+			if (nodes[j] >= 0 && args.node == nodes[j] &&
+			    (args.args_count >= 1 ? args.args[0] : 0) == port) {
+				*lane = j;
+				*invert = args.args_count >= 2 ? args.args[1]
+							       : 0;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+static void comphy_a3700_fill_cfg(struct chip_serdes_phy_config *cfg,
+				  const int nodes[3], const char *compatible,
+				  int type)
+{
+	int node, lane, port, speed, invert;
+
+	port = (type == COMPHY_TYPE_SGMII1) ? 1 : 0;
+
+	node = -1;
+	while (1) {
+		node = find_available_node_by_compatible(node, compatible);
+		if (node < 0)
+			return;
+
+		if (comphy_a3700_find_lane(nodes, node, port, &lane, &invert))
+			break;
+	}
+
+	if (cfg->comphy_map_data[lane].type != COMPHY_TYPE_UNCONNECTED) {
+		printf("Error: More PHYs defined for lane %d, skipping\n",
+		       lane);
+		return;
+	}
+
+	if (type == COMPHY_TYPE_SGMII0 || type == COMPHY_TYPE_SGMII1) {
+		const char *phy_mode;
+
+		phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
+		if (phy_mode &&
+		    !strcmp(phy_mode,
+			    phy_string_for_interface(PHY_INTERFACE_MODE_2500BASEX)))
+			speed = COMPHY_SPEED_3_125G;
+		else
+			speed = COMPHY_SPEED_1_25G;
+	} else if (type == COMPHY_TYPE_SATA0) {
+		speed = COMPHY_SPEED_6G;
+	} else {
+		speed = COMPHY_SPEED_5G;
+	}
+
+	cfg->comphy_map_data[lane].type = type;
+	cfg->comphy_map_data[lane].speed = speed;
+	cfg->comphy_map_data[lane].invert = invert;
+}
+
+static const fdt32_t comphy_a3700_mux_lane_order[3] = {
+	__constant_cpu_to_be32(1),
+	__constant_cpu_to_be32(0),
+	__constant_cpu_to_be32(2),
+};
+
+int comphy_a3700_init_serdes_map(int node, struct chip_serdes_phy_config *cfg)
+{
+	int comphy_nodes[3];
+	int child, i;
+
+	for (i = 0; i < ARRAY_SIZE(comphy_nodes); i++)
+		comphy_nodes[i] = -FDT_ERR_NOTFOUND;
+
+	fdt_for_each_subnode(child, gd->fdt_blob, node) {
+		if (!fdtdec_get_is_enabled(gd->fdt_blob, child))
+			continue;
+
+		i = fdtdec_get_int(gd->fdt_blob, child, "reg", -1);
+		if (i < 0 || i >= ARRAY_SIZE(comphy_nodes))
+			continue;
+
+		comphy_nodes[i] = child;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(comphy_nodes); i++) {
+		cfg->comphy_map_data[i].type = COMPHY_TYPE_UNCONNECTED;
+		cfg->comphy_map_data[i].speed = COMPHY_SPEED_INVALID;
+	}
+
+	comphy_a3700_fill_cfg(cfg, comphy_nodes, "marvell,armada3700-u3d",
+			      COMPHY_TYPE_USB3_DEVICE);
+	comphy_a3700_fill_cfg(cfg, comphy_nodes, "marvell,armada3700-xhci",
+			      COMPHY_TYPE_USB3_HOST0);
+	comphy_a3700_fill_cfg(cfg, comphy_nodes, "marvell,armada-3700-pcie",
+			      COMPHY_TYPE_PEX0);
+	comphy_a3700_fill_cfg(cfg, comphy_nodes, "marvell,armada-3700-ahci",
+			      COMPHY_TYPE_SATA0);
+	comphy_a3700_fill_cfg(cfg, comphy_nodes, "marvell,armada-3700-neta",
+			      COMPHY_TYPE_SGMII0);
+	comphy_a3700_fill_cfg(cfg, comphy_nodes, "marvell,armada-3700-neta",
+			      COMPHY_TYPE_SGMII1);
+
+	cfg->comphy_lanes_count = 3;
+	cfg->comphy_mux_bitcount = 4;
+	cfg->comphy_mux_lane_order = comphy_a3700_mux_lane_order;
+
+	return 0;
 }
 
 int comphy_a3700_init(struct chip_serdes_phy_config *chip_cfg,

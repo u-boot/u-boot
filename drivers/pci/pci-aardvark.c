@@ -21,6 +21,7 @@
  *
  * Author: Victor Gu <xigu@marvell.com>
  *         Hezi Shahmoon <hezi.shahmoon@marvell.com>
+ *         Pali Rohár <pali@kernel.org>
  *
  */
 

@@ -80,24 +80,6 @@
 	};
 };
 
-&comphy {
-	max-lanes = <3>;
-	phy0 {
-		phy-type = <COMPHY_TYPE_USB3_HOST0>;
-		phy-speed = <COMPHY_SPEED_5G>;
-	};
-
-	phy1 {
-		phy-type = <COMPHY_TYPE_PEX0>;
-		phy-speed = <COMPHY_SPEED_2_5G>;
-	};
-
-	phy2 {
-		phy-type = <COMPHY_TYPE_SATA0>;
-		phy-speed = <COMPHY_SPEED_5G>;
-	};
-};
-
 &eth0 {
 	status = "okay";
 	pinctrl-names = "default";
@@ -119,6 +101,7 @@
 /* CON3 */
 &sata {
 	status = "okay";
+	phys = <&comphy2 0>;
 };
 
 &sdhci0 {
@@ -200,6 +183,7 @@
 /* CON31 */
 &usb3 {
 	status = "okay";
+	phys = <&comphy0 0>;
 };
 
 &pcie0 {
@@ -207,4 +191,5 @@
 	pinctrl-0 = <&pcie_pins>;
 	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
 	status = "okay";
+	phys = <&comphy1 0>;
 };

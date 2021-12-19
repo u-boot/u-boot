@@ -98,11 +98,10 @@ int ddr3_hw_training(u32 target_freq, u32 ddr_width,
 
 void ddr3_print_version(void);
 void fix_pll_val(u8 target_fab);
-u8 ddr3_get_eprom_fabric(void);
 u32 ddr3_get_fab_opt(void);
 u32 ddr3_get_cpu_freq(void);
 u32 ddr3_get_vco_freq(void);
-int ddr3_check_config(u32 addr, MV_CONFIG_TYPE config_type);
+int ddr3_check_config(struct udevice *udev, MV_CONFIG_TYPE config_type);
 u32 ddr3_get_static_mc_value(u32 reg_addr, u32 offset1, u32 mask1, u32 offset2,
 			     u32 mask2);
 u32 ddr3_cl_to_valid_cl(u32 cl);

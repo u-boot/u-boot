@@ -71,6 +71,8 @@
 		spi0 = &spi0;
 		spi1 = &spi1;
 		ethernet0 = &eth0;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
 	};
 
 	memory {
@@ -154,6 +156,16 @@
 			};
 		};
 	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <100000>;
 };
 
 &spi0 {

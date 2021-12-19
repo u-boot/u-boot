@@ -584,9 +584,9 @@ static void ft_pcie_rc_fix(void *blob, struct ls_pcie_rc *pcie_rc)
 		return;
 
 	if (pcie_rc->enabled && pcie->mode == PCI_HEADER_TYPE_BRIDGE)
-		fdt_set_node_status(blob, off, FDT_STATUS_OKAY, 0);
+		fdt_set_node_status(blob, off, FDT_STATUS_OKAY);
 	else
-		fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+		fdt_set_node_status(blob, off, FDT_STATUS_DISABLED);
 }
 
 static void ft_pcie_ep_fix(void *blob, struct ls_pcie_rc *pcie_rc)
@@ -600,9 +600,9 @@ static void ft_pcie_ep_fix(void *blob, struct ls_pcie_rc *pcie_rc)
 		return;
 
 	if (pcie_rc->enabled && pcie->mode == PCI_HEADER_TYPE_NORMAL)
-		fdt_set_node_status(blob, off, FDT_STATUS_OKAY, 0);
+		fdt_set_node_status(blob, off, FDT_STATUS_OKAY);
 	else
-		fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+		fdt_set_node_status(blob, off, FDT_STATUS_DISABLED);
 }
 
 static void ft_pcie_ls_setup(void *blob, struct ls_pcie_rc *pcie_rc)
