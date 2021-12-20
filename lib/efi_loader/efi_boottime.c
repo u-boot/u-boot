@@ -3016,9 +3016,12 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
 		if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION) {
 			ret = efi_tcg2_measure_efi_app_invocation(image_obj);
-			if (ret != EFI_SUCCESS) {
-				log_warning("tcg2 measurement fails(0x%lx)\n",
-					    ret);
+			if (ret == EFI_SECURITY_VIOLATION) {
+				/*
+				 * TCG2 Protocol is installed but no TPM device found,
+				 * this is not expected.
+				 */
+				return EFI_EXIT(EFI_SECURITY_VIOLATION);
 			}
 		}
 	}

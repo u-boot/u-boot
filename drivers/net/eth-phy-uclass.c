@@ -138,7 +138,7 @@ static int eth_phy_of_to_plat(struct udevice *dev)
 	ret = gpio_request_by_name(dev, "reset-gpios", 0,
 				   &uc_priv->reset_gpio,
 				   GPIOD_IS_OUT);
-	if (ret != -ENOENT)
+	if (ret && ret != -ENOENT)
 		return ret;
 
 	uc_priv->reset_assert_delay = dev_read_u32_default(dev, "reset-assert-us", 0);

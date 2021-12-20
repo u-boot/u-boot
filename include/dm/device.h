@@ -971,8 +971,8 @@ static inline bool device_is_on_pci_bus(const struct udevice *dev)
  * @parent: parent device to scan
  */
 #define device_foreach_child_of_to_plat(pos, parent)	\
-	for (int _ret = device_first_child_ofdata_err(parent, &dev); !_ret; \
-	     _ret = device_next_child_ofdata_err(&dev))
+	for (int _ret = device_first_child_ofdata_err(parent, &pos); !_ret; \
+	     _ret = device_next_child_ofdata_err(&pos))
 
 /**
  * device_foreach_child_probe() - iterate through children, probing them
@@ -988,8 +988,8 @@ static inline bool device_is_on_pci_bus(const struct udevice *dev)
  * @parent: parent device to scan
  */
 #define device_foreach_child_probe(pos, parent)	\
-	for (int _ret = device_first_child_err(parent, &dev); !_ret; \
-	     _ret = device_next_child_err(&dev))
+	for (int _ret = device_first_child_err(parent, &pos); !_ret; \
+	     _ret = device_next_child_err(&pos))
 
 /**
  * dm_scan_fdt_dev() - Bind child device in the device tree

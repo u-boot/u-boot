@@ -1083,12 +1083,6 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 	}
 
 	erase.length = erasesize;
-	if (DEVTYPE(dev) != MTD_ABSENT) {
-		was_locked = ioctl(fd, MEMISLOCKED, &erase);
-		/* treat any errors as unlocked flash */
-		if (was_locked < 0)
-			was_locked = 0;
-	}
 
 	/* This only runs once on NOR flash and SPI-dataflash */
 	while (processed < write_total) {
@@ -1108,6 +1102,10 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 
 		if (DEVTYPE(dev) != MTD_ABSENT) {
 			erase.start = blockstart;
+			was_locked = ioctl(fd, MEMISLOCKED, &erase);
+			/* treat any errors as unlocked flash */
+			if (was_locked < 0)
+					was_locked = 0;
 			if (was_locked)
 				ioctl(fd, MEMUNLOCK, &erase);
 			/* These do not need an explicit erase cycle */
@@ -1163,7 +1161,6 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 	char tmp = ENV_REDUND_OBSOLETE;
 	int was_locked;	/* flash lock flag */
 
-	was_locked = ioctl(fd, MEMISLOCKED, &erase);
 	erase.start = DEVOFFSET(dev);
 	erase.length = DEVESIZE(dev);
 	/* This relies on the fact, that ENV_REDUND_OBSOLETE == 0 */
@@ -1173,6 +1170,10 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 			DEVNAME(dev));
 		return rc;
 	}
+	was_locked = ioctl(fd, MEMISLOCKED, &erase);
+	/* treat any errors as unlocked flash */
+	if (was_locked < 0)
+		was_locked = 0;
 	if (was_locked)
 		ioctl(fd, MEMUNLOCK, &erase);
 	rc = write(fd, &tmp, sizeof(tmp));

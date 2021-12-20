@@ -934,9 +934,16 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 
 #if CONFIG_IS_ENABLED(EFI_TCG2_PROTOCOL)
 	/* Measure an PE/COFF image */
-	if (tcg2_measure_pe_image(efi, efi_size, handle,
-				  loaded_image_info))
-		log_err("PE image measurement failed\n");
+	ret = tcg2_measure_pe_image(efi, efi_size, handle, loaded_image_info);
+	if (ret == EFI_SECURITY_VIOLATION) {
+		/*
+		 * TCG2 Protocol is installed but no TPM device found,
+		 * this is not expected.
+		 */
+		log_err("PE image measurement failed, no tpm device found\n");
+		goto err;
+	}
+
 #endif
 
 	/* Copy PE headers */

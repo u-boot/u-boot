@@ -241,6 +241,10 @@ efi_status_t efi_init_obj_list(void)
 		ret = efi_tcg2_register();
 		if (ret != EFI_SUCCESS)
 			goto out;
+
+		ret = efi_tcg2_do_initial_measurement();
+		if (ret == EFI_SECURITY_VIOLATION)
+			goto out;
 	}
 
 	/* Secure boot */

@@ -28,7 +28,8 @@ static const char *if_typename_str[IF_TYPE_COUNT] = {
 	[IF_TYPE_SATA]		= "sata",
 	[IF_TYPE_HOST]		= "host",
 	[IF_TYPE_NVME]		= "nvme",
-	[IF_TYPE_EFI]		= "efi",
+	[IF_TYPE_EFI_MEDIA]	= "efi",
+	[IF_TYPE_EFI_LOADER]	= "efiloader",
 	[IF_TYPE_VIRTIO]	= "virtio",
 	[IF_TYPE_PVBLOCK]	= "pvblock",
 };
@@ -44,7 +45,8 @@ static enum uclass_id if_type_uclass_id[IF_TYPE_COUNT] = {
 	[IF_TYPE_SATA]		= UCLASS_AHCI,
 	[IF_TYPE_HOST]		= UCLASS_ROOT,
 	[IF_TYPE_NVME]		= UCLASS_NVME,
-	[IF_TYPE_EFI]		= UCLASS_EFI,
+	[IF_TYPE_EFI_MEDIA]	= UCLASS_EFI_MEDIA,
+	[IF_TYPE_EFI_LOADER]	= UCLASS_EFI_LOADER,
 	[IF_TYPE_VIRTIO]	= UCLASS_VIRTIO,
 	[IF_TYPE_PVBLOCK]	= UCLASS_PVBLOCK,
 };
@@ -668,6 +670,19 @@ int blk_create_devicef(struct udevice *parent, const char *drv_name,
 	device_set_name_alloced(*devp);
 
 	return 0;
+}
+
+int blk_probe_or_unbind(struct udevice *dev)
+{
+	int ret;
+
+	ret = device_probe(dev);
+	if (ret) {
+		log_debug("probing %s failed\n", dev->name);
+		device_unbind(dev);
+	}
+
+	return ret;
 }
 
 int blk_unbind_all(int if_type)

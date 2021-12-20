@@ -10,6 +10,7 @@
 #include <serial.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
+#include <mach/soc.h>
 
 struct mvebu_plat {
 	void __iomem *base;
@@ -214,6 +215,7 @@ static int mvebu_serial_remove(struct udevice *dev)
 	u32 new_oversampling;
 	u32 oversampling;
 	u32 d1, d2;
+	u32 nb_rst;
 
 	/*
 	 * Switch UART base clock back to XTAL because older Linux kernel
@@ -261,11 +263,21 @@ static int mvebu_serial_remove(struct udevice *dev)
 			return 0;
 	}
 
+	/* wait until TX empty */
 	while (!(readl(base + UART_STATUS_REG) & UART_STATUS_TX_EMPTY))
 		;
 
+	/* external reset of UART via North Bridge Peripheral */
+	nb_rst = readl(MVEBU_REGISTER(0x12400));
+	writel(nb_rst & ~BIT(3), MVEBU_REGISTER(0x12400));
+	writel(nb_rst | BIT(3), MVEBU_REGISTER(0x12400));
+
+	/* set baudrate and oversampling */
 	writel(new_divider, base + UART_BAUD_REG);
 	writel(new_oversampling, base + UART_POSSR_REG);
+
+	/* No Parity, 1 Stop */
+	writel(0, base + UART_CTRL_REG);
 
 	return 0;
 }
@@ -306,7 +318,6 @@ U_BOOT_DRIVER(serial_mvebu) = {
 #ifdef CONFIG_DEBUG_MVEBU_A3700_UART
 
 #include <debug_uart.h>
-#include <mach/soc.h>
 
 static inline void _debug_uart_init(void)
 {

@@ -698,13 +698,7 @@ int g_dnl_board_usb_cable_connected(void)
 		return ret;
 	}
 
-	ret = sun4i_usb_phy_vbus_detect(&phy);
-	if (ret == 1) {
-		pr_err("A charger is plugged into the OTG\n");
-		return -ENODEV;
-	}
-
-	return ret;
+	return sun4i_usb_phy_vbus_detect(&phy);
 }
 #endif
 

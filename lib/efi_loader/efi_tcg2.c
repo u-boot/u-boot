@@ -153,6 +153,15 @@ static u16 alg_to_len(u16 hash_alg)
 	return 0;
 }
 
+static bool is_tcg2_protocol_installed(void)
+{
+	struct efi_handler *handler;
+	efi_status_t ret;
+
+	ret = efi_search_protocol(efi_root, &efi_guid_tcg2_protocol, &handler);
+	return ret == EFI_SUCCESS;
+}
+
 static u32 tcg_event_final_size(struct tpml_digest_values *digest_list)
 {
 	u32 len;
@@ -192,6 +201,44 @@ static efi_status_t tcg2_pcr_extend(struct udevice *dev, u32 pcr_index,
 				     alg_to_len(alg));
 		if (rc) {
 			EFI_PRINT("Failed to extend PCR\n");
+			return EFI_DEVICE_ERROR;
+		}
+	}
+
+	return EFI_SUCCESS;
+}
+
+/* tcg2_pcr_read - Read PCRs for a TPM2 device for a given tpml_digest_values
+ *
+ * @dev:		device
+ * @pcr_index:		PCR index
+ * @digest_list:	list of digest algorithms to extend
+ *
+ * @Return: status code
+ */
+static efi_status_t tcg2_pcr_read(struct udevice *dev, u32 pcr_index,
+				  struct tpml_digest_values *digest_list)
+{
+	struct tpm_chip_priv *priv;
+	unsigned int updates, pcr_select_min;
+	u32 rc;
+	size_t i;
+
+	priv = dev_get_uclass_priv(dev);
+	if (!priv)
+		return EFI_DEVICE_ERROR;
+
+	pcr_select_min = priv->pcr_select_min;
+
+	for (i = 0; i < digest_list->count; i++) {
+		u16 hash_alg = digest_list->digests[i].hash_alg;
+		u8 *digest = (u8 *)&digest_list->digests[i].digest;
+
+		rc = tpm2_pcr_read(dev, pcr_index, pcr_select_min,
+				   hash_alg, digest, alg_to_len(hash_alg),
+				   &updates);
+		if (rc) {
+			EFI_PRINT("Failed to read PCR\n");
 			return EFI_DEVICE_ERROR;
 		}
 	}
@@ -322,6 +369,45 @@ __weak efi_status_t platform_get_tpm2_device(struct udevice **dev)
 	}
 
 	return EFI_NOT_FOUND;
+}
+
+/**
+ * platform_get_eventlog() - retrieve the eventlog address and size
+ *
+ * This function retrieves the eventlog address and size if the underlying
+ * firmware has done some measurements and passed them.
+ *
+ * This function may be overridden based on platform specific method of
+ * passing the eventlog address and size.
+ *
+ * @dev:	udevice
+ * @addr:	eventlog address
+ * @sz:		eventlog size
+ * Return:	status code
+ */
+__weak efi_status_t platform_get_eventlog(struct udevice *dev, u64 *addr,
+					  u32 *sz)
+{
+	const u64 *basep;
+	const u32 *sizep;
+
+	basep = dev_read_prop(dev, "tpm_event_log_addr", NULL);
+	if (!basep)
+		return EFI_NOT_FOUND;
+
+	*addr = be64_to_cpup((__force __be64 *)basep);
+
+	sizep = dev_read_prop(dev, "tpm_event_log_size", NULL);
+	if (!sizep)
+		return EFI_NOT_FOUND;
+
+	*sz = be32_to_cpup((__force __be32 *)sizep);
+	if (*sz == 0) {
+		log_debug("event log empty\n");
+		return EFI_NOT_FOUND;
+	}
+
+	return EFI_SUCCESS;
 }
 
 /**
@@ -886,9 +972,12 @@ efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 	IMAGE_NT_HEADERS32 *nt;
 	struct efi_handler *handler;
 
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
-		return ret;
+		return EFI_SECURITY_VIOLATION;
 
 	switch (handle->image_type) {
 	case IMAGE_SUBSYSTEM_EFI_APPLICATION:
@@ -1182,6 +1271,318 @@ static const struct efi_tcg2_protocol efi_tcg2_protocol = {
 };
 
 /**
+ * parse_event_log_header() -  Parse and verify the event log header fields
+ *
+ * @buffer:			Pointer to the start of the eventlog
+ * @size:			Size of the eventlog
+ * @pos:			Return offset of the next event in buffer right
+ *				after the event header i.e specID
+ *
+ * Return:	status code
+ */
+static efi_status_t parse_event_log_header(void *buffer, u32 size, u32 *pos)
+{
+	struct tcg_pcr_event *event_header = (struct tcg_pcr_event *)buffer;
+	int i = 0;
+
+	if (size < sizeof(*event_header))
+		return EFI_COMPROMISED_DATA;
+
+	if (get_unaligned_le32(&event_header->pcr_index) != 0 ||
+	    get_unaligned_le32(&event_header->event_type) != EV_NO_ACTION)
+		return EFI_COMPROMISED_DATA;
+
+	for (i = 0; i < sizeof(event_header->digest); i++) {
+		if (event_header->digest[i])
+			return EFI_COMPROMISED_DATA;
+	}
+
+	*pos += sizeof(*event_header);
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * parse_specid_event() -  Parse and verify the specID Event in the eventlog
+ *
+ * @dev:		udevice
+ * @buffer:		Pointer to the start of the eventlog
+ * @log_size:		Size of the eventlog
+ * @pos:		[in] Offset of specID event in the eventlog buffer
+ *			[out] Return offset of the next event in the buffer
+ *			after the specID
+ * @digest_list:	list of digests in the event
+ *
+ * Return:		status code
+ * @pos			Offset in the eventlog where the specID event ends
+ * @digest_list:	list of digests in the event
+ */
+static efi_status_t parse_specid_event(struct udevice *dev, void *buffer,
+				       u32 log_size, u32 *pos,
+				       struct tpml_digest_values *digest_list)
+{
+	struct tcg_efi_spec_id_event *spec_event;
+	struct tcg_pcr_event *event_header = (struct tcg_pcr_event *)buffer;
+	size_t spec_event_size;
+	u32 active = 0, supported = 0, pcr_count = 0, alg_count = 0;
+	u32 spec_active = 0;
+	u16 hash_alg;
+	u8 vendor_sz;
+	int err, i;
+
+	if (*pos >= log_size || (*pos + sizeof(*spec_event)) > log_size)
+		return EFI_COMPROMISED_DATA;
+
+	/* Check specID event data */
+	spec_event = (struct tcg_efi_spec_id_event *)((uintptr_t)buffer + *pos);
+	/* Check for signature */
+	if (memcmp(spec_event->signature, TCG_EFI_SPEC_ID_EVENT_SIGNATURE_03,
+		   sizeof(TCG_EFI_SPEC_ID_EVENT_SIGNATURE_03))) {
+		log_err("specID Event: Signature mismatch\n");
+		return EFI_COMPROMISED_DATA;
+	}
+
+	if (spec_event->spec_version_minor !=
+			TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_MINOR_TPM2 ||
+	    spec_event->spec_version_major !=
+			TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_MAJOR_TPM2)
+		return EFI_COMPROMISED_DATA;
+
+	if (spec_event->number_of_algorithms > MAX_HASH_COUNT ||
+	    spec_event->number_of_algorithms < 1) {
+		log_err("specID Event: Number of algorithms incorrect\n");
+		return EFI_COMPROMISED_DATA;
+	}
+
+	alg_count = spec_event->number_of_algorithms;
+
+	err = tpm2_get_pcr_info(dev, &supported, &active, &pcr_count);
+	if (err)
+		return EFI_DEVICE_ERROR;
+
+	digest_list->count = 0;
+	/*
+	 * We have to take care that the sequence of algorithms that we record
+	 * in digest_list matches the sequence in eventlog.
+	 */
+	for (i = 0; i < alg_count; i++) {
+		hash_alg =
+		  get_unaligned_le16(&spec_event->digest_sizes[i].algorithm_id);
+
+		if (!(supported & alg_to_mask(hash_alg))) {
+			log_err("specID Event: Unsupported algorithm\n");
+			return EFI_COMPROMISED_DATA;
+		}
+		digest_list->digests[digest_list->count++].hash_alg = hash_alg;
+
+		spec_active |= alg_to_mask(hash_alg);
+	}
+
+	/*
+	 * TCG specification expects the event log to have hashes for all
+	 * active PCR's
+	 */
+	if (spec_active != active) {
+		/*
+		 * Previous stage bootloader should know all the active PCR's
+		 * and use them in the Eventlog.
+		 */
+		log_err("specID Event: All active hash alg not present\n");
+		return EFI_COMPROMISED_DATA;
+	}
+
+	/*
+	 * the size of the spec event and placement of vendor_info_size
+	 * depends on supported algoriths
+	 */
+	spec_event_size =
+		offsetof(struct tcg_efi_spec_id_event, digest_sizes) +
+		alg_count * sizeof(spec_event->digest_sizes[0]);
+
+	if (*pos + spec_event_size >= log_size)
+		return EFI_COMPROMISED_DATA;
+
+	vendor_sz = *(uint8_t *)((uintptr_t)buffer + *pos + spec_event_size);
+
+	spec_event_size += sizeof(vendor_sz) + vendor_sz;
+	*pos += spec_event_size;
+
+	if (get_unaligned_le32(&event_header->event_size) != spec_event_size) {
+		log_err("specID event: header event size mismatch\n");
+		/* Right way to handle this can be to call SetActive PCR's */
+		return EFI_COMPROMISED_DATA;
+	}
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * tcg2_parse_event() -  Parse the event in the eventlog
+ *
+ * @dev:		udevice
+ * @buffer:		Pointer to the start of the eventlog
+ * @log_size:		Size of the eventlog
+ * @offset:		[in] Offset of the event in the eventlog buffer
+ *			[out] Return offset of the next event in the buffer
+ * @digest_list:	list of digests in the event
+ * @pcr			Index of the PCR in the event
+ *
+ * Return:		status code
+ */
+static efi_status_t tcg2_parse_event(struct udevice *dev, void *buffer,
+				     u32 log_size, u32 *offset,
+				     struct tpml_digest_values *digest_list,
+				     u32 *pcr)
+{
+	struct tcg_pcr_event2 *event = NULL;
+	u32 count, size, event_size;
+	size_t pos;
+
+	event_size = tcg_event_final_size(digest_list);
+	if (*offset >= log_size || *offset + event_size > log_size) {
+		log_err("Event exceeds log size\n");
+		return EFI_COMPROMISED_DATA;
+	}
+
+	event = (struct tcg_pcr_event2 *)((uintptr_t)buffer + *offset);
+	*pcr = get_unaligned_le32(&event->pcr_index);
+
+	/* get the count */
+	count = get_unaligned_le32(&event->digests.count);
+	if (count != digest_list->count)
+		return EFI_COMPROMISED_DATA;
+
+	pos = offsetof(struct tcg_pcr_event2, digests);
+	pos += offsetof(struct tpml_digest_values, digests);
+
+	for (int i = 0; i < digest_list->count; i++) {
+		u16 alg;
+		u16 hash_alg = digest_list->digests[i].hash_alg;
+		u8 *digest = (u8 *)&digest_list->digests[i].digest;
+
+		alg = get_unaligned_le16((void *)((uintptr_t)event + pos));
+
+		if (alg != hash_alg)
+			return EFI_COMPROMISED_DATA;
+
+		pos += offsetof(struct tpmt_ha, digest);
+		memcpy(digest, (void *)((uintptr_t)event + pos), alg_to_len(hash_alg));
+		pos += alg_to_len(hash_alg);
+	}
+
+	size = get_unaligned_le32((void *)((uintptr_t)event + pos));
+	event_size += size;
+	pos += sizeof(u32); /* tcg_pcr_event2 event_size*/
+	pos += size;
+
+	/* make sure the calculated buffer is what we checked against */
+	if (pos != event_size)
+		return EFI_COMPROMISED_DATA;
+
+	if (pos > log_size)
+		return EFI_COMPROMISED_DATA;
+
+	*offset += pos;
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * tcg2_get_fw_eventlog() -  Get the eventlog address and size
+ *
+ * If the previous firmware has passed some eventlog, this function get it's
+ * location and check for it's validity.
+ *
+ * @dev:		udevice
+ * @log_buffer:		eventlog address
+ * @log_sz:		eventlog size
+ *
+ * Return:	status code
+ */
+static efi_status_t tcg2_get_fw_eventlog(struct udevice *dev, void *log_buffer,
+					 size_t *log_sz)
+{
+	struct tpml_digest_values digest_list;
+	void *buffer;
+	efi_status_t ret;
+	u32 pcr, pos;
+	u64 base;
+	u32 sz;
+	bool extend_pcr = false;
+	int i;
+
+	ret = platform_get_eventlog(dev, &base, &sz);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	if (sz > TPM2_EVENT_LOG_SIZE)
+		return EFI_VOLUME_FULL;
+
+	buffer = (void *)(uintptr_t)base;
+	pos = 0;
+	/* Parse the eventlog to check for its validity */
+	ret = parse_event_log_header(buffer, sz, &pos);
+	if (ret)
+		return ret;
+
+	ret = parse_specid_event(dev, buffer, sz, &pos, &digest_list);
+	if (ret) {
+		log_err("Error parsing SPEC ID Event\n");
+		return ret;
+	}
+
+	ret = tcg2_pcr_read(dev, 0, &digest_list);
+	if (ret) {
+		log_err("Error reading PCR 0\n");
+		return ret;
+	}
+
+	/*
+	 * If PCR0 is 0, previous firmware didn't have the capability
+	 * to extend the PCR. In this scenario, extend the PCR as
+	 * the eventlog is parsed.
+	 */
+	for (i = 0; i < digest_list.count; i++) {
+		u8 hash_buf[TPM2_SHA512_DIGEST_SIZE] = { 0 };
+		u16 hash_alg = digest_list.digests[i].hash_alg;
+
+		if (!memcmp((u8 *)&digest_list.digests[i].digest, hash_buf,
+			    alg_to_len(hash_alg)))
+			extend_pcr = true;
+	}
+
+	while (pos < sz) {
+		ret = tcg2_parse_event(dev, buffer, sz, &pos, &digest_list,
+				       &pcr);
+		if (ret) {
+			log_err("Error parsing event\n");
+			return ret;
+		}
+		if (extend_pcr) {
+			ret = tcg2_pcr_extend(dev, pcr, &digest_list);
+			if (ret != EFI_SUCCESS) {
+				log_err("Error in extending PCR\n");
+				return ret;
+			}
+
+			/* Clear the digest for next event */
+			for (i = 0; i < digest_list.count; i++) {
+				u16 hash_alg = digest_list.digests[i].hash_alg;
+				u8 *digest =
+				   (u8 *)&digest_list.digests[i].digest;
+
+				memset(digest, 0, alg_to_len(hash_alg));
+			}
+		}
+	}
+
+	memcpy(log_buffer, buffer, sz);
+	*log_sz = sz;
+
+	return ret;
+}
+
+/**
  * create_specid_event() - Create the first event in the eventlog
  *
  * @dev:			tpm device
@@ -1275,6 +1676,14 @@ void tcg2_uninit(void)
 	event_log.buffer = NULL;
 	efi_free_pool(event_log.final_buffer);
 	event_log.final_buffer = NULL;
+
+	if (!is_tcg2_protocol_installed())
+		return;
+
+	ret = efi_remove_protocol(efi_root, &efi_guid_tcg2_protocol,
+				  (void *)&efi_tcg2_protocol);
+	if (ret != EFI_SUCCESS)
+		log_err("Failed to remove EFI TCG2 protocol\n");
 }
 
 /**
@@ -1309,69 +1718,6 @@ static efi_status_t create_final_event(void)
 	}
 
 out:
-	return ret;
-}
-
-/**
- * efi_init_event_log() - initialize an eventlog
- */
-static efi_status_t efi_init_event_log(void)
-{
-	/*
-	 * vendor_info_size is currently set to 0, we need to change the length
-	 * and allocate the flexible array member if this changes
-	 */
-	struct tcg_pcr_event *event_header = NULL;
-	struct udevice *dev;
-	size_t spec_event_size;
-	efi_status_t ret;
-
-	ret = platform_get_tpm2_device(&dev);
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, TPM2_EVENT_LOG_SIZE,
-				(void **)&event_log.buffer);
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	/*
-	 * initialize log area as 0xff so the OS can easily figure out the
-	 * last log entry
-	 */
-	memset(event_log.buffer, 0xff, TPM2_EVENT_LOG_SIZE);
-	event_log.pos = 0;
-	event_log.last_event_size = 0;
-	event_log.get_event_called = false;
-	event_log.ebs_called = false;
-	event_log.truncated = false;
-
-	/*
-	 * The log header is defined to be in SHA1 event log entry format.
-	 * Setup event header
-	 */
-	event_header =  (struct tcg_pcr_event *)event_log.buffer;
-	put_unaligned_le32(0, &event_header->pcr_index);
-	put_unaligned_le32(EV_NO_ACTION, &event_header->event_type);
-	memset(&event_header->digest, 0, sizeof(event_header->digest));
-	ret = create_specid_event(dev, (void *)((uintptr_t)event_log.buffer + sizeof(*event_header)),
-				  &spec_event_size);
-	if (ret != EFI_SUCCESS)
-		goto free_pool;
-	put_unaligned_le32(spec_event_size, &event_header->event_size);
-	event_log.pos = spec_event_size + sizeof(*event_header);
-	event_log.last_event_size = event_log.pos;
-
-	ret = create_final_event();
-	if (ret != EFI_SUCCESS)
-		goto free_pool;
-
-out:
-	return ret;
-
-free_pool:
-	efi_free_pool(event_log.buffer);
-	event_log.buffer = NULL;
 	return ret;
 }
 
@@ -1424,6 +1770,93 @@ static efi_status_t efi_append_scrtm_version(struct udevice *dev)
 				 strlen(version_string) + 1,
 				 (u8 *)version_string);
 
+	return ret;
+}
+
+/**
+ * efi_init_event_log() - initialize an eventlog
+ *
+ * Return:		status code
+ */
+static efi_status_t efi_init_event_log(void)
+{
+	/*
+	 * vendor_info_size is currently set to 0, we need to change the length
+	 * and allocate the flexible array member if this changes
+	 */
+	struct tcg_pcr_event *event_header = NULL;
+	struct udevice *dev;
+	size_t spec_event_size;
+	efi_status_t ret;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, TPM2_EVENT_LOG_SIZE,
+				(void **)&event_log.buffer);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	/*
+	 * initialize log area as 0xff so the OS can easily figure out the
+	 * last log entry
+	 */
+	memset(event_log.buffer, 0xff, TPM2_EVENT_LOG_SIZE);
+
+	/*
+	 * The log header is defined to be in SHA1 event log entry format.
+	 * Setup event header
+	 */
+	event_header =  (struct tcg_pcr_event *)event_log.buffer;
+	event_log.pos = 0;
+	event_log.last_event_size = 0;
+	event_log.get_event_called = false;
+	event_log.ebs_called = false;
+	event_log.truncated = false;
+
+	/*
+	 * Check if earlier firmware have passed any eventlog. Different
+	 * platforms can use different ways to do so.
+	 */
+	ret = tcg2_get_fw_eventlog(dev, event_log.buffer, &event_log.pos);
+	/*
+	 * If earlier firmware hasn't passed any eventlog, go ahead and
+	 * create the eventlog header.
+	 */
+	if (ret == EFI_NOT_FOUND) {
+		put_unaligned_le32(0, &event_header->pcr_index);
+		put_unaligned_le32(EV_NO_ACTION, &event_header->event_type);
+		memset(&event_header->digest, 0, sizeof(event_header->digest));
+		ret = create_specid_event(dev,
+					  (void *)((uintptr_t)event_log.buffer +
+						   sizeof(*event_header)),
+					  &spec_event_size);
+		if (ret != EFI_SUCCESS)
+			goto free_pool;
+		put_unaligned_le32(spec_event_size, &event_header->event_size);
+		event_log.pos = spec_event_size + sizeof(*event_header);
+		event_log.last_event_size = event_log.pos;
+
+		/*
+		 * Add SCRTM version to the log if previous firmmware
+		 * doesn't pass an eventlog.
+		 */
+		ret = efi_append_scrtm_version(dev);
+	}
+
+	if (ret != EFI_SUCCESS)
+		goto free_pool;
+
+	ret = create_final_event();
+	if (ret != EFI_SUCCESS)
+		goto free_pool;
+
+	return ret;
+
+free_pool:
+	efi_free_pool(event_log.buffer);
+	event_log.buffer = NULL;
 	return ret;
 }
 
@@ -1759,12 +2192,15 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *ha
 	u32 event = 0;
 	struct smbios_entry *entry;
 
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
 	if (tcg2_efi_app_invoked)
 		return EFI_SUCCESS;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
-		return ret;
+		return EFI_SECURITY_VIOLATION;
 
 	ret = tcg2_measure_boot_variable(dev);
 	if (ret != EFI_SUCCESS)
@@ -1809,6 +2245,9 @@ efi_status_t efi_tcg2_measure_efi_app_exit(void)
 	efi_status_t ret;
 	struct udevice *dev;
 
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
 		return ret;
@@ -1834,6 +2273,12 @@ efi_tcg2_notify_exit_boot_services(struct efi_event *event, void *context)
 	EFI_ENTRY("%p, %p", event, context);
 
 	event_log.ebs_called = true;
+
+	if (!is_tcg2_protocol_installed()) {
+		ret = EFI_SUCCESS;
+		goto out;
+	}
+
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
 		goto out;
@@ -1862,6 +2307,9 @@ efi_status_t efi_tcg2_notify_exit_boot_services_failed(void)
 {
 	struct udevice *dev;
 	efi_status_t ret;
+
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS)
@@ -1933,11 +2381,36 @@ error:
 }
 
 /**
+ * efi_tcg2_do_initial_measurement() - do initial measurement
+ *
+ * Return:	status code
+ */
+efi_status_t efi_tcg2_do_initial_measurement(void)
+{
+	efi_status_t ret;
+	struct udevice *dev;
+
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		return EFI_SECURITY_VIOLATION;
+
+	ret = tcg2_measure_secure_boot_variable(dev);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+out:
+	return ret;
+}
+
+/**
  * efi_tcg2_register() - register EFI_TCG2_PROTOCOL
  *
  * If a TPM2 device is available, the TPM TCG2 Protocol is registered
  *
- * Return:	An error status is only returned if adding the protocol fails.
+ * Return:	status code
  */
 efi_status_t efi_tcg2_register(void)
 {
@@ -1960,10 +2433,6 @@ efi_status_t efi_tcg2_register(void)
 	}
 
 	ret = efi_init_event_log();
-	if (ret != EFI_SUCCESS)
-		goto fail;
-
-	ret = efi_append_scrtm_version(dev);
 	if (ret != EFI_SUCCESS) {
 		tcg2_uninit();
 		goto fail;
@@ -1984,24 +2453,9 @@ efi_status_t efi_tcg2_register(void)
 		goto fail;
 	}
 
-	ret = tcg2_measure_secure_boot_variable(dev);
-	if (ret != EFI_SUCCESS) {
-		tcg2_uninit();
-		goto fail;
-	}
-
 	return ret;
 
 fail:
 	log_err("Cannot install EFI_TCG2_PROTOCOL\n");
-	/*
-	 * Return EFI_SUCCESS and don't stop the EFI subsystem.
-	 * That's done for 2 reasons
-	 * - If the protocol is not installed the PCRs won't be extended.  So
-	 *   someone later in the boot flow will notice that and take the
-	 *   necessary actions.
-	 * - The TPM sandbox is limited and we won't be able to run any efi
-	 *   related tests with TCG2 enabled
-	 */
-	return EFI_SUCCESS;
+	return ret;
 }

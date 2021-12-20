@@ -7,19 +7,10 @@
 #include <dt-bindings/clk/versaclock.h>
 
 / {
-	aliases {
-		spi0 = &rpc;
-	};
-
 	memory@48000000 {
 		device_type = "memory";
 		/* first 128MB is reserved for secure area. */
-		reg = <0x0 0x48000000 0x0 0xc000000>;
-	};
-
-	memory@57000000 {
-		device_type = "memory";
-		reg = <0x0 0x57000000 0x0 0x29000000>;
+		reg = <0x0 0x48000000 0x0 0x78000000>;
 	};
 
 	osc_32k: osc_32k {
@@ -59,12 +50,17 @@
 &avb {
 	pinctrl-0 = <&avb_pins>;
 	pinctrl-names = "default";
+	phy-mode = "rgmii-rxid";
 	phy-handle = <&phy0>;
 	rx-internal-delay-ps = <1800>;
 	tx-internal-delay-ps = <2000>;
+	clocks = <&cpg CPG_MOD 812>, <&versaclock5 4>;
+	clock-names = "fck", "refclk";
 	status = "okay";
 
 	phy0: ethernet-phy@0 {
+		compatible = "ethernet-phy-id004d.d074",
+			     "ethernet-phy-ieee802.3-c22";
 		reg = <0>;
 		interrupt-parent = <&gpio2>;
 		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
@@ -153,7 +149,7 @@
 	};
 
 	eeprom@50 {
-		compatible = "microchip,at24c64", "atmel,24c64";
+		compatible = "microchip,24c64", "atmel,24c64";
 		pagesize = <32>;
 		read-only;	/* Manufacturing EEPROM programmed at factory */
 		reg = <0x50>;
@@ -279,25 +275,6 @@
 	};
 };
 
-&rpc {
-	compatible = "renesas,rcar-gen3-rpc";
-	num-cs = <1>;
-	spi-max-frequency = <40000000>;
-	#address-cells = <1>;
-	#size-cells = <0>;
-	status = "okay";
-
-	flash0: spi-flash@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		reg = <0>;
-		compatible = "spi-flash", "jedec,spi-nor";
-		spi-max-frequency = <40000000>;
-		spi-tx-bus-width = <1>;
-		spi-rx-bus-width = <1>;
-	};
-};
-
 &scif_clk {
 	clock-frequency = <14745600>;
 };
@@ -340,17 +317,17 @@
 	vqmmc-supply = <&reg_1p8v>;
 	bus-width = <8>;
 	mmc-hs200-1_8v;
+	no-sd;
+	no-sdio;
 	non-removable;
 	fixed-emmc-driver-type = <1>;
 	status = "okay";
 };
 
 &usb2_clksel {
-	status = "okay";
 	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>,
-		 <&versaclock5 3>, <&usb3s0_clk>;
-	clock-names = "ehci_ohci", "hs-usb-if",
-		      "usb_extal", "usb_xtal";
+		  <&versaclock5 3>, <&usb3s0_clk>;
+	status = "okay";
 };
 
 &usb3s0_clk {

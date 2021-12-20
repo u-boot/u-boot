@@ -308,7 +308,7 @@ efi_status_t efi_driver_init(void)
 	log_debug("Initializing EFI driver framework\n");
 	for (drv = ll_entry_start(struct driver, driver);
 	     drv < ll_entry_end(struct driver, driver); ++drv) {
-		if (drv->id == UCLASS_EFI) {
+		if (drv->id == UCLASS_EFI_LOADER) {
 			ret = efi_add_driver(drv);
 			if (ret != EFI_SUCCESS) {
 				log_err("Failed to add EFI driver %s\n",
@@ -328,7 +328,7 @@ efi_status_t efi_driver_init(void)
  */
 static int efi_uc_init(struct uclass *class)
 {
-	log_debug("Initializing UCLASS_EFI\n");
+	log_debug("Initializing UCLASS_EFI_LOADER\n");
 	return 0;
 }
 
@@ -340,13 +340,13 @@ static int efi_uc_init(struct uclass *class)
  */
 static int efi_uc_destroy(struct uclass *class)
 {
-	log_debug("Destroying UCLASS_EFI\n");
+	log_debug("Destroying UCLASS_EFI_LOADER\n");
 	return 0;
 }
 
 UCLASS_DRIVER(efi) = {
 	.name		= "efi",
-	.id		= UCLASS_EFI,
+	.id		= UCLASS_EFI_LOADER,
 	.init		= efi_uc_init,
 	.destroy	= efi_uc_destroy,
 };
