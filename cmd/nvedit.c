@@ -1018,6 +1018,45 @@ sep_err:
 }
 #endif
 
+#if defined(CONFIG_CMD_NVEDIT_INDIRECT)
+static int do_env_indirect(struct cmd_tbl *cmdtp, int flag,
+		       int argc, char *const argv[])
+{
+	char *to = argv[1];
+	char *from = argv[2];
+	char *default_value = NULL;
+	int ret = 0;
+
+	if (argc < 3 || argc > 4) {
+		return CMD_RET_USAGE;
+	}
+
+	if (argc == 4) {
+		default_value = argv[3];
+	}
+
+	if (env_get(from) == NULL && default_value == NULL) {
+		printf("## env indirect: Environment variable for <from> (%s) does not exist.\n", from);
+
+		return CMD_RET_FAILURE;
+	}
+
+	if (env_get(from) == NULL) {
+		ret = env_set(to, default_value);
+	}
+	else {
+		ret = env_set(to, env_get(from));
+	}
+
+	if (ret == 0) {
+		return CMD_RET_SUCCESS;
+	}
+	else {
+		return CMD_RET_FAILURE;
+	}
+}
+#endif
+
 #if defined(CONFIG_CMD_NVEDIT_INFO)
 /*
  * print_env_info - print environment information
@@ -1181,6 +1220,9 @@ static struct cmd_tbl cmd_env_sub[] = {
 #if defined(CONFIG_CMD_IMPORTENV)
 	U_BOOT_CMD_MKENT(import, 5, 0, do_env_import, "", ""),
 #endif
+#if defined(CONFIG_CMD_NVEDIT_INDIRECT)
+	U_BOOT_CMD_MKENT(indirect, 3, 0, do_env_indirect, "", ""),
+#endif
 #if defined(CONFIG_CMD_NVEDIT_INFO)
 	U_BOOT_CMD_MKENT(info, 3, 0, do_env_info, "", ""),
 #endif
@@ -1264,6 +1306,9 @@ static char env_help_text[] =
 #endif
 #if defined(CONFIG_CMD_IMPORTENV)
 	"env import [-d] [-t [-r] | -b | -c] addr [size] [var ...] - import environment\n"
+#endif
+#if defined(CONFIG_CMD_NVEDIT_INDIRECT)
+	"env indirect <to> <from> [default] - sets <to> to the value of <from>, using [default] when unset\n"
 #endif
 #if defined(CONFIG_CMD_NVEDIT_INFO)
 	"env info - display environment information\n"
