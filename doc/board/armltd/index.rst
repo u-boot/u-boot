@@ -6,4 +6,5 @@ Arm Ltd
 .. toctree::
    :maxdepth: 2
 
+   juno
    vexpress64.rst
