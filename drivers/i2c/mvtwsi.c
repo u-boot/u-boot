@@ -860,6 +860,9 @@ static int mvtwsi_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
 {
 	struct mvtwsi_i2c_dev *dev = dev_get_priv(bus);
 	struct i2c_msg *dmsg, *omsg, dummy;
+	u8 *addr_buf_ptr;
+	u8 addr_buf[4];
+	int i;
 
 	memset(&dummy, 0, sizeof(struct i2c_msg));
 
@@ -873,12 +876,17 @@ static int mvtwsi_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
 	omsg = nmsgs == 1 ? &dummy : msg;
 	dmsg = nmsgs == 1 ? msg : msg + 1;
 
+	/* We need to swap the register address if its size is > 1 */
+	addr_buf_ptr = &addr_buf[0];
+	for (i = omsg->len; i > 0; i--)
+		*addr_buf_ptr++ = omsg->buf[i - 1];
+
 	if (dmsg->flags & I2C_M_RD)
-		return __twsi_i2c_read(dev->base, dmsg->addr, omsg->buf,
+		return __twsi_i2c_read(dev->base, dmsg->addr, addr_buf,
 				       omsg->len, dmsg->buf, dmsg->len,
 				       dev->tick);
 	else
-		return __twsi_i2c_write(dev->base, dmsg->addr, omsg->buf,
+		return __twsi_i2c_write(dev->base, dmsg->addr, addr_buf,
 					omsg->len, dmsg->buf, dmsg->len,
 					dev->tick);
 }
