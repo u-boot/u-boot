@@ -355,17 +355,30 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 	writel(0, pcie->base + PCIE_BAR_HI_OFF(0));
 }
 
-static int mvebu_pcie_probe(struct udevice *dev)
+/* Only enable PCIe link, do not setup it */
+static int mvebu_pcie_enable_link(struct mvebu_pcie *pcie, ofnode node)
 {
-	struct mvebu_pcie *pcie = dev_get_plat(dev);
-	struct udevice *ctlr = pci_get_controller(dev);
-	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
+	/* PCIe link is currently automatically enabled in SerDes code */
+	return 0;
+}
+
+/* Setup PCIe link but do not enable it */
+static void mvebu_pcie_setup_link(struct mvebu_pcie *pcie)
+{
 	u32 reg;
 
 	/* Setup PCIe controller to Root Complex mode */
 	reg = readl(pcie->base + PCIE_CTRL_OFF);
 	reg |= PCIE_CTRL_RC_MODE;
 	writel(reg, pcie->base + PCIE_CTRL_OFF);
+}
+
+static int mvebu_pcie_probe(struct udevice *dev)
+{
+	struct mvebu_pcie *pcie = dev_get_plat(dev);
+	struct udevice *ctlr = pci_get_controller(dev);
+	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
+	u32 reg;
 
 	/*
 	 * Change Class Code of PCI Bridge device to PCI Bridge (0x600400)
@@ -431,7 +444,8 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	    mvebu_mbus_add_window_by_id(pcie->mem_target, pcie->mem_attr,
 					(phys_addr_t)pcie->mem.start,
 					resource_size(&pcie->mem))) {
-		printf("PCIe unable to add mbus window for mem at %08x+%08x\n",
+		printf("%s: unable to add mbus window for mem at %08x+%08x\n",
+		       pcie->name,
 		       (u32)pcie->mem.start, (unsigned)resource_size(&pcie->mem));
 		pcie->mem.start = 0;
 		pcie->mem.end = -1;
@@ -441,7 +455,8 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	    mvebu_mbus_add_window_by_id(pcie->io_target, pcie->io_attr,
 					(phys_addr_t)pcie->io.start,
 					resource_size(&pcie->io))) {
-		printf("PCIe unable to add mbus window for IO at %08x+%08x\n",
+		printf("%s: unable to add mbus window for IO at %08x+%08x\n",
+		       pcie->name,
 		       (u32)pcie->io.start, (unsigned)resource_size(&pcie->io));
 		pcie->io.start = 0;
 		pcie->io.end = -1;
@@ -540,33 +555,34 @@ static int mvebu_get_tgt_attr(ofnode node, int devfn,
 	return -ENOENT;
 }
 
-static int mvebu_pcie_of_to_plat(struct udevice *dev)
+static int mvebu_pcie_port_parse_dt(ofnode node, ofnode parent, struct mvebu_pcie *pcie)
 {
-	struct mvebu_pcie *pcie = dev_get_plat(dev);
+	struct fdt_pci_addr pci_addr;
 	const u32 *addr;
 	int ret = 0;
 	int len;
 
 	/* Get port number, lane number and memory target / attr */
-	if (ofnode_read_u32(dev_ofnode(dev), "marvell,pcie-port",
+	if (ofnode_read_u32(node, "marvell,pcie-port",
 			    &pcie->port)) {
 		ret = -ENODEV;
 		goto err;
 	}
 
-	if (ofnode_read_u32(dev_ofnode(dev), "marvell,pcie-lane", &pcie->lane))
+	if (ofnode_read_u32(node, "marvell,pcie-lane", &pcie->lane))
 		pcie->lane = 0;
 
 	sprintf(pcie->name, "pcie%d.%d", pcie->port, pcie->lane);
 
-	/* pci_get_devfn() returns devfn in bits 15..8, see PCI_DEV usage */
-	pcie->devfn = pci_get_devfn(dev);
-	if (pcie->devfn < 0) {
-		ret = -ENODEV;
+	/* devfn is in bits [15:8], see PCI_DEV usage */
+	ret = ofnode_read_pci_addr(node, FDT_PCI_SPACE_CONFIG, "reg", &pci_addr);
+	if (ret < 0) {
+		printf("%s: property \"reg\" is invalid\n", pcie->name);
 		goto err;
 	}
+	pcie->devfn = pci_addr.phys_hi & 0xff00;
 
-	ret = mvebu_get_tgt_attr(dev_ofnode(dev->parent), pcie->devfn,
+	ret = mvebu_get_tgt_attr(parent, pcie->devfn,
 				 IORESOURCE_MEM,
 				 &pcie->mem_target, &pcie->mem_attr);
 	if (ret < 0) {
@@ -574,7 +590,7 @@ static int mvebu_pcie_of_to_plat(struct udevice *dev)
 		goto err;
 	}
 
-	ret = mvebu_get_tgt_attr(dev_ofnode(dev->parent), pcie->devfn,
+	ret = mvebu_get_tgt_attr(parent, pcie->devfn,
 				 IORESOURCE_IO,
 				 &pcie->io_target, &pcie->io_attr);
 	if (ret < 0) {
@@ -583,14 +599,14 @@ static int mvebu_pcie_of_to_plat(struct udevice *dev)
 	}
 
 	/* Parse PCIe controller register base from DT */
-	addr = ofnode_get_property(dev_ofnode(dev), "assigned-addresses", &len);
+	addr = ofnode_get_property(node, "assigned-addresses", &len);
 	if (!addr) {
 		printf("%s: property \"assigned-addresses\" not found\n", pcie->name);
 		ret = -FDT_ERR_NOTFOUND;
 		goto err;
 	}
 
-	pcie->base = (void *)(u32)ofnode_translate_address(dev_ofnode(dev), addr);
+	pcie->base = (void *)(u32)ofnode_translate_address(node, addr);
 	pcie->intregs = (u32)pcie->base - fdt32_to_cpu(addr[2]);
 
 	return 0;
@@ -609,7 +625,6 @@ static struct driver pcie_mvebu_drv = {
 	.id			= UCLASS_PCI,
 	.ops			= &mvebu_pcie_ops,
 	.probe			= mvebu_pcie_probe,
-	.of_to_plat	= mvebu_pcie_of_to_plat,
 	.plat_auto	= sizeof(struct mvebu_pcie),
 };
 
@@ -619,11 +634,14 @@ static struct driver pcie_mvebu_drv = {
  */
 static int mvebu_pcie_bind(struct udevice *parent)
 {
+	struct mvebu_pcie **ports_pcie;
 	struct mvebu_pcie *pcie;
 	struct uclass_driver *drv;
 	struct udevice *dev;
 	struct resource mem;
 	struct resource io;
+	int ports_count, i;
+	ofnode *ports_nodes;
 	ofnode subnode;
 
 	/* Lookup pci driver */
@@ -633,18 +651,34 @@ static int mvebu_pcie_bind(struct udevice *parent)
 		return -ENOENT;
 	}
 
+	ports_count = ofnode_get_child_count(dev_ofnode(parent));
+	ports_pcie = calloc(ports_count, sizeof(*ports_pcie));
+	ports_nodes = calloc(ports_count, sizeof(*ports_nodes));
+	if (!ports_pcie || !ports_nodes) {
+		free(ports_pcie);
+		free(ports_nodes);
+		return -ENOMEM;
+	}
+	ports_count = 0;
+
 	mem.start = MBUS_PCI_MEM_BASE;
 	mem.end = MBUS_PCI_MEM_BASE + MBUS_PCI_MEM_SIZE - 1;
 	io.start = MBUS_PCI_IO_BASE;
 	io.end = MBUS_PCI_IO_BASE + MBUS_PCI_IO_SIZE - 1;
 
+	/* First phase: Fill mvebu_pcie struct for each port */
 	ofnode_for_each_subnode(subnode, dev_ofnode(parent)) {
 		if (!ofnode_is_available(subnode))
 			continue;
 
 		pcie = calloc(1, sizeof(*pcie));
 		if (!pcie)
-			return -ENOMEM;
+			continue;
+
+		if (mvebu_pcie_port_parse_dt(subnode, dev_ofnode(parent), pcie) < 0) {
+			free(pcie);
+			continue;
+		}
 
 		/*
 		 * MVEBU PCIe controller needs MEMORY and I/O BARs to be mapped
@@ -657,7 +691,7 @@ static int mvebu_pcie_bind(struct udevice *parent)
 			pcie->mem.end = mem.start + SZ_128M - 1;
 			mem.start += SZ_128M;
 		} else {
-			printf("PCIe unable to assign mbus window for mem\n");
+			printf("%s: unable to assign mbus window for mem\n", pcie->name);
 			pcie->mem.start = 0;
 			pcie->mem.end = -1;
 		}
@@ -667,15 +701,43 @@ static int mvebu_pcie_bind(struct udevice *parent)
 			pcie->io.end = io.start + SZ_64K - 1;
 			io.start += SZ_64K;
 		} else {
-			printf("PCIe unable to assign mbus window for io\n");
+			printf("%s: unable to assign mbus window for io\n", pcie->name);
 			pcie->io.start = 0;
 			pcie->io.end = -1;
+		}
+
+		ports_pcie[ports_count] = pcie;
+		ports_nodes[ports_count] = subnode;
+		ports_count++;
+	}
+
+	/* Second phase: Setup all PCIe links (do not enable them yet) */
+	for (i = 0; i < ports_count; i++)
+		mvebu_pcie_setup_link(ports_pcie[i]);
+
+	/* Third phase: Enable all PCIe links and create for each UCLASS_PCI device */
+	for (i = 0; i < ports_count; i++) {
+		pcie = ports_pcie[i];
+		subnode = ports_nodes[i];
+
+		/*
+		 * PCIe link can be enabled only after all PCIe links were
+		 * properly configured. This is because more PCIe links shares
+		 * one enable bit and some PCIe links cannot be enabled
+		 * individually.
+		 */
+		if (mvebu_pcie_enable_link(pcie, subnode) < 0) {
+			free(pcie);
+			continue;
 		}
 
 		/* Create child device UCLASS_PCI and bind it */
 		device_bind(parent, &pcie_mvebu_drv, pcie->name, pcie, subnode,
 			    &dev);
 	}
+
+	free(ports_pcie);
+	free(ports_nodes);
 
 	return 0;
 }
