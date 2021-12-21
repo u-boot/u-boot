@@ -303,6 +303,8 @@ int board_init(void)
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 #endif
 
+	setup_fec();
+
 	return 0;
 }
 
@@ -337,7 +339,6 @@ static int get_board_value(void)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-	setup_fec();
 
 	return 0;
 }
