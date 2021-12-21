@@ -1430,7 +1430,7 @@ int fdt_get_dma_range(const void *blob, int node, phys_addr_t *cpu,
 	node = parent;
 	parent = fdt_parent_offset(blob, node);
 	if (parent < 0) {
-		printf("Found dma-ranges in root node, shoudln't happen\n");
+		printf("Found dma-ranges in root node, shouldn't happen\n");
 		ret = -EINVAL;
 		goto out;
 	}
