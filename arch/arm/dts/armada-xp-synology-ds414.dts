@@ -187,6 +187,7 @@
 	pcie@1,0 {
 		/* Port 0, Lane 0 */
 		status = "okay";
+		num-lanes = <4>;
 	};
 
 	/*

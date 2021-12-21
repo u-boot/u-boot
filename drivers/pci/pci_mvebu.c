@@ -18,6 +18,7 @@
 #include <dm/lists.h>
 #include <dm/of_access.h>
 #include <pci.h>
+#include <reset.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
@@ -74,6 +75,7 @@ struct mvebu_pcie {
 	u32 intregs;
 	u32 port;
 	u32 lane;
+	bool is_x4;
 	int devfn;
 	u32 lane_mask;
 	int first_busno;
@@ -379,7 +381,30 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 /* Only enable PCIe link, do not setup it */
 static int mvebu_pcie_enable_link(struct mvebu_pcie *pcie, ofnode node)
 {
-	/* PCIe link is currently automatically enabled in SerDes code */
+	struct reset_ctl rst;
+	int ret;
+
+	ret = reset_get_by_index_nodev(node, 0, &rst);
+	if (ret == -ENOENT) {
+		return 0;
+	} else if (ret < 0) {
+		printf("%s: cannot get reset controller: %d\n", pcie->name, ret);
+		return ret;
+	}
+
+	ret = reset_request(&rst);
+	if (ret) {
+		printf("%s: cannot request reset controller: %d\n", pcie->name, ret);
+		return ret;
+	}
+
+	ret = reset_deassert(&rst);
+	reset_free(&rst);
+	if (ret) {
+		printf("%s: cannot enable PCIe port: %d\n", pcie->name, ret);
+		return ret;
+	}
+
 	return 0;
 }
 
@@ -392,6 +417,18 @@ static void mvebu_pcie_setup_link(struct mvebu_pcie *pcie)
 	reg = readl(pcie->base + PCIE_CTRL_OFF);
 	reg |= PCIE_CTRL_RC_MODE;
 	writel(reg, pcie->base + PCIE_CTRL_OFF);
+
+	/*
+	 * Set Maximum Link Width to X1 or X4 in Root Port's PCIe Link
+	 * Capability register. This register is defined by PCIe specification
+	 * as read-only but this mvebu controller has it as read-write and must
+	 * be set to number of SerDes PCIe lanes (1 or 4). If this register is
+	 * not set correctly then link with endpoint card is not established.
+	 */
+	reg = readl(pcie->base + PCIE_CAPAB_OFF + PCI_EXP_LNKCAP);
+	reg &= ~PCI_EXP_LNKCAP_MLW;
+	reg |= (pcie->is_x4 ? 4 : 1) << 4;
+	writel(reg, pcie->base + PCIE_CAPAB_OFF + PCI_EXP_LNKCAP);
 }
 
 static int mvebu_pcie_probe(struct udevice *dev)
@@ -582,6 +619,7 @@ static int mvebu_pcie_port_parse_dt(ofnode node, ofnode parent, struct mvebu_pci
 {
 	struct fdt_pci_addr pci_addr;
 	const u32 *addr;
+	u32 num_lanes;
 	int ret = 0;
 	int len;
 
@@ -596,6 +634,9 @@ static int mvebu_pcie_port_parse_dt(ofnode node, ofnode parent, struct mvebu_pci
 		pcie->lane = 0;
 
 	sprintf(pcie->name, "pcie%d.%d", pcie->port, pcie->lane);
+
+	if (!ofnode_read_u32(node, "num-lanes", &num_lanes) && num_lanes == 4)
+		pcie->is_x4 = true;
 
 	/* devfn is in bits [15:8], see PCI_DEV usage */
 	ret = ofnode_read_pci_addr(node, FDT_PCI_SPACE_CONFIG, "reg", &pci_addr);

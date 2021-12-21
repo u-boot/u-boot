@@ -85,6 +85,7 @@
 				marvell,pcie-port = <0>;
 				marvell,pcie-lane = <0>;
 				clocks = <&gateclk 5>;
+				resets = <&systemc 0 0>;
 				status = "disabled";
 			};
 		};

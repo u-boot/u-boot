@@ -12,7 +12,6 @@
 
 #include "high_speed_env_spec.h"
 #include "sys_env_lib.h"
-#include "ctrl_pex.h"
 
 /*
  * serdes_seq_db - holds all serdes sequences, their size and the
@@ -1555,9 +1554,6 @@ int hws_power_up_serdes_lanes(struct serdes_map *serdes_map, u8 count)
 		   After finish the Power_up sequence for all lanes,
 		   the lanes should be released from reset state.       */
 		CHECK_STATUS(hws_pex_tx_config_seq(serdes_map, count));
-
-		/* PEX configuration */
-		CHECK_STATUS(hws_pex_config(serdes_map, count));
 	}
 
 	/* USB2 configuration */
@@ -1743,21 +1739,6 @@ int serdes_power_up_ctrl(u32 serdes_num, int serdes_power_up,
 				else
 					reg_data &= ~0x4000;
 				reg_write(SOC_CONTROL_REG1, reg_data);
-
-				/*
-				 * Set Maximum Link Width to X1 or X4 in Root
-				 * Port's PCIe Link Capability register.
-				 * This register is read-only but if is not set
-				 * correctly then access to PCI config space of
-				 * endpoint card behind this Root Port does not
-				 * work.
-				 */
-				reg_data = reg_read(PEX0_RP_PCIE_CFG_OFFSET +
-						    PCI_EXP_LNKCAP);
-				reg_data &= ~PCI_EXP_LNKCAP_MLW;
-				reg_data |= (is_pex_by1 ? 1 : 4) << 4;
-				reg_write(PEX0_RP_PCIE_CFG_OFFSET +
-					  PCI_EXP_LNKCAP, reg_data);
 			}
 
 			CHECK_STATUS(mv_seq_exec(serdes_num, PEX_POWER_UP_SEQ));

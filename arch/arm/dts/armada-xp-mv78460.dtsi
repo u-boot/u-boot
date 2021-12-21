@@ -128,6 +128,7 @@
 				marvell,pcie-port = <0>;
 				marvell,pcie-lane = <0>;
 				clocks = <&gateclk 5>;
+				resets = <&systemc 0 0>;
 				status = "disabled";
 			};
 
@@ -146,6 +147,7 @@
 				marvell,pcie-port = <0>;
 				marvell,pcie-lane = <1>;
 				clocks = <&gateclk 6>;
+				resets = <&systemc 0 0>;
 				status = "disabled";
 			};
 
@@ -164,6 +166,7 @@
 				marvell,pcie-port = <0>;
 				marvell,pcie-lane = <2>;
 				clocks = <&gateclk 7>;
+				resets = <&systemc 0 0>;
 				status = "disabled";
 			};
 
@@ -182,6 +185,7 @@
 				marvell,pcie-port = <0>;
 				marvell,pcie-lane = <3>;
 				clocks = <&gateclk 8>;
+				resets = <&systemc 0 0>;
 				status = "disabled";
 			};
 
@@ -200,6 +204,7 @@
 				marvell,pcie-port = <1>;
 				marvell,pcie-lane = <0>;
 				clocks = <&gateclk 9>;
+				resets = <&systemc 0 1>;
 				status = "disabled";
 			};
 
@@ -218,6 +223,7 @@
 				marvell,pcie-port = <1>;
 				marvell,pcie-lane = <1>;
 				clocks = <&gateclk 10>;
+				resets = <&systemc 0 1>;
 				status = "disabled";
 			};
 
@@ -236,6 +242,7 @@
 				marvell,pcie-port = <1>;
 				marvell,pcie-lane = <2>;
 				clocks = <&gateclk 11>;
+				resets = <&systemc 0 1>;
 				status = "disabled";
 			};
 
@@ -254,6 +261,7 @@
 				marvell,pcie-port = <1>;
 				marvell,pcie-lane = <3>;
 				clocks = <&gateclk 12>;
+				resets = <&systemc 0 1>;
 				status = "disabled";
 			};
 
@@ -272,6 +280,7 @@
 				marvell,pcie-port = <2>;
 				marvell,pcie-lane = <0>;
 				clocks = <&gateclk 26>;
+				resets = <&systemc 0 2>;
 				status = "disabled";
 			};
 
@@ -290,6 +299,7 @@
 				marvell,pcie-port = <3>;
 				marvell,pcie-lane = <0>;
 				clocks = <&gateclk 27>;
+				resets = <&systemc 0 3>;
 				status = "disabled";
 			};
 		};
