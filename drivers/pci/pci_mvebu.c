@@ -67,6 +67,7 @@ struct mvebu_pcie {
 	struct resource mem;
 	void __iomem *iobase;
 	struct resource io;
+	u32 intregs;
 	u32 port;
 	u32 lane;
 	int devfn;
@@ -350,7 +351,7 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 	       pcie->base + PCIE_BAR_CTRL_OFF(1));
 
 	/* Setup BAR[0] to internal registers. */
-	writel(SOC_REGS_PHY_BASE, pcie->base + PCIE_BAR_LO_OFF(0));
+	writel(pcie->intregs, pcie->base + PCIE_BAR_LO_OFF(0));
 	writel(0, pcie->base + PCIE_BAR_HI_OFF(0));
 }
 
@@ -589,7 +590,8 @@ static int mvebu_pcie_of_to_plat(struct udevice *dev)
 		goto err;
 	}
 
-	pcie->base = (void *)(fdt32_to_cpu(addr[2]) + SOC_REGS_PHY_BASE);
+	pcie->base = (void *)(u32)ofnode_translate_address(dev_ofnode(dev), addr);
+	pcie->intregs = (u32)pcie->base - fdt32_to_cpu(addr[2]);
 
 	return 0;
 
