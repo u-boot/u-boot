@@ -50,6 +50,7 @@
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
+	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
