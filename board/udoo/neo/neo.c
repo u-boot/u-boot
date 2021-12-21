@@ -249,6 +249,7 @@ static int setup_fec(void)
 					 ARRAY_SIZE(phy_control_pads));
 
 	/* Reset PHY */
+	gpio_request(IMX_GPIO_NR(2, 1), "enet_rst");
 	gpio_direction_output(IMX_GPIO_NR(2, 1) , 0);
 	udelay(10000);
 	gpio_set_value(IMX_GPIO_NR(2, 1), 1);
@@ -280,6 +281,7 @@ int board_init(void)
 					 ARRAY_SIZE(peri_3v3_pads));
 
 	/* Active high for ncp692 */
+	gpio_request(IMX_GPIO_NR(4, 16), "ncp692");
 	gpio_direction_output(IMX_GPIO_NR(4, 16) , 1);
 
 #ifdef CONFIG_SYS_I2C_MXC
@@ -296,6 +298,8 @@ static int get_board_value(void)
 	imx_iomux_v3_setup_multiple_pads(board_recognition_pads,
 					 ARRAY_SIZE(board_recognition_pads));
 
+	gpio_request(IMX_GPIO_NR(4, 13), "r184");
+	gpio_request(IMX_GPIO_NR(4, 0), "r185");
 	gpio_direction_input(IMX_GPIO_NR(4, 13));
 	gpio_direction_input(IMX_GPIO_NR(4, 0));
 
