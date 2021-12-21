@@ -23,6 +23,5 @@
 #define PCIE4_ENABLE_MASK		(0x1 << PCIE3_ENABLE_OFFS)
 
 int hws_pex_config(const struct serdes_map *serdes_map, u8 count);
-void board_pex_config(void);
 
 #endif

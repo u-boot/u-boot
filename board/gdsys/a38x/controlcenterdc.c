@@ -94,7 +94,7 @@ int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 	return 0;
 }
 
-void board_pex_config(void)
+void spl_board_init(void)
 {
 #ifdef CONFIG_SPL_BUILD
 	uint k;

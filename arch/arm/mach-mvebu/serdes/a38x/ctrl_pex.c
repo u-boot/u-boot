@@ -14,11 +14,6 @@
 #include "ctrl_pex.h"
 #include "sys_env_lib.h"
 
-__weak void board_pex_config(void)
-{
-	/* nothing in this weak default implementation */
-}
-
 int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 {
 	enum serdes_type serdes_type;
@@ -57,8 +52,6 @@ int hws_pex_config(const struct serdes_map *serdes_map, u8 count)
 	}
 
 	reg_write(SOC_CONTROL_REG1, tmp);
-
-	board_pex_config();
 
 	return MV_OK;
 }
