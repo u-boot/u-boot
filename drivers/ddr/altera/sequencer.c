@@ -2770,7 +2770,7 @@ rw_mgr_mem_calibrate_dqs_enable_calibration(struct socfpga_sdrseq *seq,
 	ret = rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(seq, rw_group);
 
 	debug_cond(DLEVEL >= 1,
-		   "%s:%d: g=%u found=%u; Reseting delay chain to zero\n",
+		   "%s:%d: g=%u found=%u; Resetting delay chain to zero\n",
 		   __func__, __LINE__, rw_group, !ret);
 
 	for (r = 0; r < seq->rwcfg->mem_number_of_ranks;
