@@ -100,6 +100,10 @@ void spl_board_init(void)
 	uint k;
 	struct gpio_desc gpio = {};
 
+	/* Enable PCIe link 2 */
+	setbits_32(MVEBU_REGISTER(0x18204), BIT(2));
+	mdelay(10);
+
 	if (!request_gpio_by_name(&gpio, "pca9698@22", 31, "fpga-program-gpio")) {
 		/* prepare FPGA reconfiguration */
 		dm_gpio_set_dir_flags(&gpio, GPIOD_IS_OUT);
