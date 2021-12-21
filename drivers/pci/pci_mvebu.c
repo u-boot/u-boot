@@ -22,6 +22,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/ioport.h>
 #include <linux/mbus.h>
@@ -60,6 +61,9 @@
 #define PCIE_DEBUG_CTRL			0x1a60
 #define  PCIE_DEBUG_SOFT_RESET		BIT(20)
 
+#define LINK_WAIT_RETRIES	100
+#define LINK_WAIT_TIMEOUT	1000
+
 struct mvebu_pcie {
 	struct pci_controller hose;
 	void __iomem *base;
@@ -87,6 +91,23 @@ static inline bool mvebu_pcie_link_up(struct mvebu_pcie *pcie)
 	u32 val;
 	val = readl(pcie->base + PCIE_STAT_OFF);
 	return !(val & PCIE_STAT_LINK_DOWN);
+}
+
+static void mvebu_pcie_wait_for_link(struct mvebu_pcie *pcie)
+{
+	int retries;
+
+	/* check if the link is up or not */
+	for (retries = 0; retries < LINK_WAIT_RETRIES; retries++) {
+		if (mvebu_pcie_link_up(pcie)) {
+			printf("%s: Link up\n", pcie->name);
+			return;
+		}
+
+		udelay(LINK_WAIT_TIMEOUT);
+	}
+
+	printf("%s: Link down\n", pcie->name);
 }
 
 static void mvebu_pcie_set_local_bus_nr(struct mvebu_pcie *pcie, int busno)
@@ -491,6 +512,8 @@ static int mvebu_pcie_probe(struct udevice *dev)
 		PCI_IO_RANGE_TYPE_32 | (PCI_IO_RANGE_TYPE_32 << 8);
 	pcie->cfgcache[(PCI_PREF_MEMORY_BASE - 0x10) / 4] =
 		PCI_PREF_RANGE_TYPE_64 | (PCI_PREF_RANGE_TYPE_64 << 16);
+
+	mvebu_pcie_wait_for_link(pcie);
 
 	return 0;
 }
