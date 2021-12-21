@@ -479,22 +479,6 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	return 0;
 }
 
-static int mvebu_pcie_port_parse_dt(ofnode node, struct mvebu_pcie *pcie)
-{
-	const u32 *addr;
-	int len;
-
-	addr = ofnode_get_property(node, "assigned-addresses", &len);
-	if (!addr) {
-		pr_err("property \"assigned-addresses\" not found");
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	pcie->base = (void *)(fdt32_to_cpu(addr[2]) + SOC_REGS_PHY_BASE);
-
-	return 0;
-}
-
 #define DT_FLAGS_TO_TYPE(flags)       (((flags) >> 24) & 0x03)
 #define    DT_TYPE_IO                 0x1
 #define    DT_TYPE_MEM32              0x2
@@ -558,7 +542,9 @@ static int mvebu_get_tgt_attr(ofnode node, int devfn,
 static int mvebu_pcie_of_to_plat(struct udevice *dev)
 {
 	struct mvebu_pcie *pcie = dev_get_plat(dev);
+	const u32 *addr;
 	int ret = 0;
+	int len;
 
 	/* Get port number, lane number and memory target / attr */
 	if (ofnode_read_u32(dev_ofnode(dev), "marvell,pcie-port",
@@ -596,9 +582,14 @@ static int mvebu_pcie_of_to_plat(struct udevice *dev)
 	}
 
 	/* Parse PCIe controller register base from DT */
-	ret = mvebu_pcie_port_parse_dt(dev_ofnode(dev), pcie);
-	if (ret < 0)
+	addr = ofnode_get_property(dev_ofnode(dev), "assigned-addresses", &len);
+	if (!addr) {
+		printf("%s: property \"assigned-addresses\" not found\n", pcie->name);
+		ret = -FDT_ERR_NOTFOUND;
 		goto err;
+	}
+
+	pcie->base = (void *)(fdt32_to_cpu(addr[2]) + SOC_REGS_PHY_BASE);
 
 	return 0;
 
