@@ -25,6 +25,7 @@
 #include <linux/errno.h>
 #include <linux/ioport.h>
 #include <linux/mbus.h>
+#include <linux/sizes.h>
 
 /* PCIe unit register offsets */
 #define SELECT(x, n)			((x >> n) & 1UL)
@@ -79,14 +80,6 @@ struct mvebu_pcie {
 	unsigned int io_attr;
 	u32 cfgcache[(0x3c - 0x10) / 4];
 };
-
-/*
- * MVEBU PCIe controller needs MEMORY and I/O BARs to be mapped
- * into SoCs address space. Each controller will map 128M of MEM
- * and 64K of I/O space when registered.
- */
-static void __iomem *mvebu_pcie_membase = (void __iomem *)MBUS_PCI_MEM_BASE;
-static void __iomem *mvebu_pcie_iobase = (void __iomem *)MBUS_PCI_IO_BASE;
 
 static inline bool mvebu_pcie_link_up(struct mvebu_pcie *pcie)
 {
@@ -433,26 +426,24 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	mvebu_pcie_set_local_bus_nr(pcie, 0);
 	mvebu_pcie_set_local_dev_nr(pcie, 1);
 
-	pcie->mem.start = (u32)mvebu_pcie_membase;
-	pcie->mem.end = pcie->mem.start + MBUS_PCI_MEM_SIZE - 1;
-	mvebu_pcie_membase += MBUS_PCI_MEM_SIZE;
-
-	if (mvebu_mbus_add_window_by_id(pcie->mem_target, pcie->mem_attr,
+	if (resource_size(&pcie->mem) &&
+	    mvebu_mbus_add_window_by_id(pcie->mem_target, pcie->mem_attr,
 					(phys_addr_t)pcie->mem.start,
 					resource_size(&pcie->mem))) {
 		printf("PCIe unable to add mbus window for mem at %08x+%08x\n",
 		       (u32)pcie->mem.start, (unsigned)resource_size(&pcie->mem));
+		pcie->mem.start = 0;
+		pcie->mem.end = -1;
 	}
 
-	pcie->io.start = (u32)mvebu_pcie_iobase;
-	pcie->io.end = pcie->io.start + MBUS_PCI_IO_SIZE - 1;
-	mvebu_pcie_iobase += MBUS_PCI_IO_SIZE;
-
-	if (mvebu_mbus_add_window_by_id(pcie->io_target, pcie->io_attr,
+	if (resource_size(&pcie->io) &&
+	    mvebu_mbus_add_window_by_id(pcie->io_target, pcie->io_attr,
 					(phys_addr_t)pcie->io.start,
 					resource_size(&pcie->io))) {
 		printf("PCIe unable to add mbus window for IO at %08x+%08x\n",
 		       (u32)pcie->io.start, (unsigned)resource_size(&pcie->io));
+		pcie->io.start = 0;
+		pcie->io.end = -1;
 	}
 
 	/* Setup windows and configure host bridge */
@@ -461,13 +452,23 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	/* PCI memory space */
 	pci_set_region(hose->regions + 0, pcie->mem.start,
 		       pcie->mem.start, resource_size(&pcie->mem), PCI_REGION_MEM);
-	pci_set_region(hose->regions + 1,
-		       0, 0,
-		       gd->ram_size,
-		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-	pci_set_region(hose->regions + 2, pcie->io.start,
-		       pcie->io.start, resource_size(&pcie->io), PCI_REGION_IO);
-	hose->region_count = 3;
+	hose->region_count = 1;
+
+	if (resource_size(&pcie->mem)) {
+		pci_set_region(hose->regions + hose->region_count,
+			       pcie->mem.start, pcie->mem.start,
+			       resource_size(&pcie->mem),
+			       PCI_REGION_MEM);
+		hose->region_count++;
+	}
+
+	if (resource_size(&pcie->io)) {
+		pci_set_region(hose->regions + hose->region_count,
+			       pcie->io.start, pcie->io.start,
+			       resource_size(&pcie->io),
+			       PCI_REGION_IO);
+		hose->region_count++;
+	}
 
 	/* PCI Bridge support 32-bit I/O and 64-bit prefetch mem addressing */
 	pcie->cfgcache[(PCI_IO_BASE - 0x10) / 4] =
@@ -628,6 +629,8 @@ static int mvebu_pcie_bind(struct udevice *parent)
 	struct mvebu_pcie *pcie;
 	struct uclass_driver *drv;
 	struct udevice *dev;
+	struct resource mem;
+	struct resource io;
 	ofnode subnode;
 
 	/* Lookup pci driver */
@@ -637,6 +640,11 @@ static int mvebu_pcie_bind(struct udevice *parent)
 		return -ENOENT;
 	}
 
+	mem.start = MBUS_PCI_MEM_BASE;
+	mem.end = MBUS_PCI_MEM_BASE + MBUS_PCI_MEM_SIZE - 1;
+	io.start = MBUS_PCI_IO_BASE;
+	io.end = MBUS_PCI_IO_BASE + MBUS_PCI_IO_SIZE - 1;
+
 	ofnode_for_each_subnode(subnode, dev_ofnode(parent)) {
 		if (!ofnode_is_available(subnode))
 			continue;
@@ -644,6 +652,32 @@ static int mvebu_pcie_bind(struct udevice *parent)
 		pcie = calloc(1, sizeof(*pcie));
 		if (!pcie)
 			return -ENOMEM;
+
+		/*
+		 * MVEBU PCIe controller needs MEMORY and I/O BARs to be mapped
+		 * into SoCs address space. Each controller will map 128M of MEM
+		 * and 64K of I/O space when registered.
+		 */
+
+		if (resource_size(&mem) >= SZ_128M) {
+			pcie->mem.start = mem.start;
+			pcie->mem.end = mem.start + SZ_128M - 1;
+			mem.start += SZ_128M;
+		} else {
+			printf("PCIe unable to assign mbus window for mem\n");
+			pcie->mem.start = 0;
+			pcie->mem.end = -1;
+		}
+
+		if (resource_size(&io) >= SZ_64K) {
+			pcie->io.start = io.start;
+			pcie->io.end = io.start + SZ_64K - 1;
+			io.start += SZ_64K;
+		} else {
+			printf("PCIe unable to assign mbus window for io\n");
+			pcie->io.start = 0;
+			pcie->io.end = -1;
+		}
 
 		/* Create child device UCLASS_PCI and bind it */
 		device_bind(parent, &pcie_mvebu_drv, pcie->name, pcie, subnode,
