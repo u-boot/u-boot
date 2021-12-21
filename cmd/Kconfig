@@ -1012,7 +1012,7 @@ config CMD_IDE
 	select IDE
 	help
 	  Provides an 'ide' command which allows accessing the IDE drive,
-	  reseting the IDE interface, printing the partition table and
+	  resetting the IDE interface, printing the partition table and
 	  geting device info. It also enables the 'diskboot' command which
 	  permits booting from an IDE drive.
 
