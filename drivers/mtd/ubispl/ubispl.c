@@ -953,7 +953,7 @@ retry:
 	 * Check, if the total number of blocks is correct
 	 */
 	if (be32_to_cpu(vh->used_ebs) != last) {
-		ubi_dbg("Block count missmatch.");
+		ubi_dbg("Block count mismatch.");
 		ubi_dbg("vh->used_ebs: %d nrblocks: %d",
 			be32_to_cpu(vh->used_ebs), last);
 		generic_set_bit(pnum, ubi->corrupt);
