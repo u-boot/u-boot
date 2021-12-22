@@ -194,22 +194,6 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
 int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk);
 
 /**
- * clk_get_by_name_nodev_optional - Get/request an optinonal clock by name
- *		without a device.
- * @node:	The client ofnode.
- * @name:	The name of the clock to request.
- * @name:	The name of the clock to request, within the client's list of
- *		clocks.
- * @clock:	A pointer to a clock struct to initialize.
- *
- * Behaves the same as clk_get_by_name_nodev() except where there is
- * no clock producer, in this case, skip the error number -ENODATA, and
- * the function returns 0.
- */
-int clk_get_by_name_nodev_optional(ofnode node, const char *name,
-				   struct clk *clk);
-
-/**
  * devm_clk_get - lookup and obtain a managed reference to a clock producer.
  * @dev: device for clock "consumer"
  * @id: clock consumer ID
@@ -238,7 +222,16 @@ struct clk *devm_clk_get(struct udevice *dev, const char *id);
  * Behaves the same as devm_clk_get() except where there is no clock producer.
  * In this case, instead of returning -ENOENT, the function returns NULL.
  */
-struct clk *devm_clk_get_optional(struct udevice *dev, const char *id);
+static inline struct clk *devm_clk_get_optional(struct udevice *dev,
+						const char *id)
+{
+	struct clk *clk = devm_clk_get(dev, id);
+
+	if (PTR_ERR(clk) == -ENODATA)
+		return NULL;
+
+	return clk;
+}
 
 /**
  * clk_release_all() - Disable (turn off)/Free an array of previously
@@ -291,17 +284,36 @@ clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 	return -ENOSYS;
 }
 
-static inline int
-clk_get_by_name_nodev_optional(ofnode node, const char *name, struct clk *clk)
-{
-	return -ENOSYS;
-}
-
 static inline int clk_release_all(struct clk *clk, int count)
 {
 	return -ENOSYS;
 }
 #endif
+
+/**
+ * clk_get_by_name_nodev_optional - Get/request an optinonal clock by name
+ *		without a device.
+ * @node:	The client ofnode.
+ * @name:	The name of the clock to request.
+ * @name:	The name of the clock to request, within the client's list of
+ *		clocks.
+ * @clock:	A pointer to a clock struct to initialize.
+ *
+ * Behaves the same as clk_get_by_name_nodev() except where there is
+ * no clock producer, in this case, skip the error number -ENODATA, and
+ * the function returns 0.
+ */
+static inline int clk_get_by_name_nodev_optional(ofnode node, const char *name,
+						 struct clk *clk)
+{
+	int ret;
+
+	ret = clk_get_by_name_nodev(node, name, clk);
+	if (ret == -ENODATA)
+		return 0;
+
+	return ret;
+}
 
 /**
  * enum clk_defaults_stage - What stage clk_set_defaults() is called at
