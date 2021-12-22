@@ -29,6 +29,7 @@ obj-$(CONFIG_PHY_SMSC) += smsc.o
 obj-$(CONFIG_PHY_TERANETICS) += teranetics.o
 obj-$(CONFIG_PHY_TI) += ti_phy_init.o
 obj-$(CONFIG_PHY_TI_DP83867) += dp83867.o
+obj-$(CONFIG_PHY_TI_DP83869) += dp83869.o
 obj-$(CONFIG_PHY_XILINX) += xilinx_phy.o
 obj-$(CONFIG_PHY_XILINX_GMII2RGMII) += xilinx_gmii2rgmii.o
 obj-$(CONFIG_PHY_VITESSE) += vitesse.o

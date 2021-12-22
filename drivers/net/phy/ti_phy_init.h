@@ -11,5 +11,6 @@
 #define _TI_GEN_PHY_H
 
 int phy_dp83867_init(void);
+int phy_dp83869_init(void);
 
 #endif /* _TI_GEN_PHY_H */
