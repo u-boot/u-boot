@@ -50,6 +50,66 @@ static int ehci_mxs_toggle_clock(const struct ehci_mxs_port *port, int enable)
 	return 0;
 }
 
+static int __ehci_hcd_init(struct ehci_mxs_port *port, enum usb_init_type init,
+			   struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+{
+	u32 usb_base, cap_base;
+	int ret;
+
+	/* Reset the PHY block */
+	writel(USBPHY_CTRL_SFTRST, &port->phy_regs->hw_usbphy_ctrl_set);
+	udelay(10);
+	writel(USBPHY_CTRL_SFTRST | USBPHY_CTRL_CLKGATE,
+	       &port->phy_regs->hw_usbphy_ctrl_clr);
+
+	/* Enable USB clock */
+	ret = ehci_mxs_toggle_clock(port, 1);
+	if (ret)
+		return ret;
+
+	/* Start USB PHY */
+	writel(0, &port->phy_regs->hw_usbphy_pwd);
+
+	/* Enable UTMI+ Level 2 and Level 3 compatibility */
+	writel(USBPHY_CTRL_ENUTMILEVEL3 | USBPHY_CTRL_ENUTMILEVEL2 | 1,
+	       &port->phy_regs->hw_usbphy_ctrl_set);
+
+	usb_base = port->usb_regs + 0x100;
+	*hccr = (struct ehci_hccr *)usb_base;
+
+	cap_base = ehci_readl(&(*hccr)->cr_capbase);
+	*hcor = (struct ehci_hcor *)(usb_base + HC_LENGTH(cap_base));
+
+	return 0;
+}
+
+static int __ehci_hcd_stop(struct ehci_mxs_port *port)
+{
+	u32 usb_base, cap_base, tmp;
+	struct ehci_hccr *hccr;
+	struct ehci_hcor *hcor;
+
+	/* Stop the USB port */
+	usb_base = port->usb_regs + 0x100;
+	hccr = (struct ehci_hccr *)usb_base;
+	cap_base = ehci_readl(&hccr->cr_capbase);
+	hcor = (struct ehci_hcor *)(usb_base + HC_LENGTH(cap_base));
+
+	tmp = ehci_readl(&hcor->or_usbcmd);
+	tmp &= ~CMD_RUN;
+	ehci_writel(&hcor->or_usbcmd, tmp);
+
+	/* Disable the PHY */
+	tmp = USBPHY_PWD_RXPWDRX | USBPHY_PWD_RXPWDDIFF |
+		USBPHY_PWD_RXPWD1PT1 | USBPHY_PWD_RXPWDENV |
+		USBPHY_PWD_TXPWDV2I | USBPHY_PWD_TXPWDIBIAS |
+		USBPHY_PWD_TXPWDFS;
+	writel(tmp, &port->phy_regs->hw_usbphy_pwd);
+
+	/* Disable USB clock */
+	return ehci_mxs_toggle_clock(port, 0);
+}
+
 static const struct ehci_mxs_port mxs_port[] = {
 #ifdef CONFIG_EHCI_MXS_PORT0
 	{
@@ -92,7 +152,6 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 {
 
 	int ret;
-	uint32_t usb_base, cap_base;
 	const struct ehci_mxs_port *port;
 
 	if ((index < 0) || (index >= ARRAY_SIZE(mxs_port))) {
@@ -105,40 +164,12 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		return ret;
 
 	port = &mxs_port[index];
-
-	/* Reset the PHY block */
-	writel(USBPHY_CTRL_SFTRST, &port->phy_regs->hw_usbphy_ctrl_set);
-	udelay(10);
-	writel(USBPHY_CTRL_SFTRST | USBPHY_CTRL_CLKGATE,
-		&port->phy_regs->hw_usbphy_ctrl_clr);
-
-	/* Enable USB clock */
-	ret = ehci_mxs_toggle_clock(port, 1);
-	if (ret)
-		return ret;
-
-	/* Start USB PHY */
-	writel(0, &port->phy_regs->hw_usbphy_pwd);
-
-	/* Enable UTMI+ Level 2 and Level 3 compatibility */
-	writel(USBPHY_CTRL_ENUTMILEVEL3 | USBPHY_CTRL_ENUTMILEVEL2 | 1,
-		&port->phy_regs->hw_usbphy_ctrl_set);
-
-	usb_base = port->usb_regs + 0x100;
-	*hccr = (struct ehci_hccr *)usb_base;
-
-	cap_base = ehci_readl(&(*hccr)->cr_capbase);
-	*hcor = (struct ehci_hcor *)(usb_base + HC_LENGTH(cap_base));
-
-	return 0;
+	return __ehci_hcd_init(port, init, hccr, hcor);
 }
 
 int ehci_hcd_stop(int index)
 {
 	int ret;
-	uint32_t usb_base, cap_base, tmp;
-	struct ehci_hccr *hccr;
-	struct ehci_hcor *hcor;
 	const struct ehci_mxs_port *port;
 
 	if ((index < 0) || (index >= ARRAY_SIZE(mxs_port))) {
@@ -148,26 +179,7 @@ int ehci_hcd_stop(int index)
 
 	port = &mxs_port[index];
 
-	/* Stop the USB port */
-	usb_base = port->usb_regs + 0x100;
-	hccr = (struct ehci_hccr *)usb_base;
-	cap_base = ehci_readl(&hccr->cr_capbase);
-	hcor = (struct ehci_hcor *)(usb_base + HC_LENGTH(cap_base));
-
-	tmp = ehci_readl(&hcor->or_usbcmd);
-	tmp &= ~CMD_RUN;
-	ehci_writel(&hcor->or_usbcmd, tmp);
-
-	/* Disable the PHY */
-	tmp = USBPHY_PWD_RXPWDRX | USBPHY_PWD_RXPWDDIFF |
-		USBPHY_PWD_RXPWD1PT1 | USBPHY_PWD_RXPWDENV |
-		USBPHY_PWD_TXPWDV2I | USBPHY_PWD_TXPWDIBIAS |
-		USBPHY_PWD_TXPWDFS;
-	writel(tmp, &port->phy_regs->hw_usbphy_pwd);
-
-	/* Disable USB clock */
-	ret = ehci_mxs_toggle_clock(port, 0);
-
+	ret = __ehci_hcd_stop(port);
 	board_ehci_hcd_exit(index);
 
 	return ret;
