@@ -29,6 +29,27 @@ struct ehci_mxs_port {
 	uint32_t		gate_bits;
 };
 
+static int ehci_mxs_toggle_clock(const struct ehci_mxs_port *port, int enable)
+{
+	struct mxs_register_32 *digctl_ctrl =
+		(struct mxs_register_32 *)HW_DIGCTL_CTRL;
+	int pll_offset, dig_offset;
+
+	if (enable) {
+		pll_offset = offsetof(struct mxs_register_32, reg_set);
+		dig_offset = offsetof(struct mxs_register_32, reg_clr);
+		writel(port->gate_bits, (u32)&digctl_ctrl->reg + dig_offset);
+		writel(port->pll_en_bits, (u32)port->pll + pll_offset);
+	} else {
+		pll_offset = offsetof(struct mxs_register_32, reg_clr);
+		dig_offset = offsetof(struct mxs_register_32, reg_set);
+		writel(port->pll_dis_bits, (u32)port->pll + pll_offset);
+		writel(port->gate_bits, (u32)&digctl_ctrl->reg + dig_offset);
+	}
+
+	return 0;
+}
+
 static const struct ehci_mxs_port mxs_port[] = {
 #ifdef CONFIG_EHCI_MXS_PORT0
 	{
@@ -55,27 +76,6 @@ static const struct ehci_mxs_port mxs_port[] = {
 	},
 #endif
 };
-
-static int ehci_mxs_toggle_clock(const struct ehci_mxs_port *port, int enable)
-{
-	struct mxs_register_32 *digctl_ctrl =
-		(struct mxs_register_32 *)HW_DIGCTL_CTRL;
-	int pll_offset, dig_offset;
-
-	if (enable) {
-		pll_offset = offsetof(struct mxs_register_32, reg_set);
-		dig_offset = offsetof(struct mxs_register_32, reg_clr);
-		writel(port->gate_bits, (u32)&digctl_ctrl->reg + dig_offset);
-		writel(port->pll_en_bits, (u32)port->pll + pll_offset);
-	} else {
-		pll_offset = offsetof(struct mxs_register_32, reg_clr);
-		dig_offset = offsetof(struct mxs_register_32, reg_set);
-		writel(port->pll_dis_bits, (u32)port->pll + pll_offset);
-		writel(port->gate_bits, (u32)&digctl_ctrl->reg + dig_offset);
-	}
-
-	return 0;
-}
 
 int __weak board_ehci_hcd_init(int port)
 {
