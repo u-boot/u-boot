@@ -2184,7 +2184,9 @@ CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
 	       u-boot* MLO* SPL System.map fit-dtb.blob* \
 	       u-boot-ivt.img.log u-boot-dtb.imx.log SPL.log u-boot.imx.log \
 	       lpc32xx-* bl31.c bl31.elf bl31_*.bin image.map tispl.bin* \
-	       idbloader.img flash.bin flash.log defconfig keep-syms-lto.c
+	       idbloader.img flash.bin flash.log defconfig keep-syms-lto.c \
+	       mkimage-out.spl.mkimage mkimage.spl.mkimage imx-boot.map \
+	       itb.fit.fit itb.fit.itb itb.map spl.map
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
