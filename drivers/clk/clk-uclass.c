@@ -432,7 +432,8 @@ int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 	return clk_get_by_index_nodev(node, index, clk);
 }
 
-int clk_get_optional_nodev(ofnode node, const char *name, struct clk *clk)
+int clk_get_by_name_nodev_optional(ofnode node, const char *name,
+				   struct clk *clk)
 {
 	int ret;
 

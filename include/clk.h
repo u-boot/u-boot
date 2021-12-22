@@ -194,7 +194,7 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
 int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk);
 
 /**
- * clk_get_optional_nodev - Get/request an optinonal clock by name
+ * clk_get_by_name_nodev_optional - Get/request an optinonal clock by name
  *		without a device.
  * @node:	The client ofnode.
  * @name:	The name of the clock to request.
@@ -206,7 +206,8 @@ int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk);
  * no clock producer, in this case, skip the error number -ENODATA, and
  * the function returns 0.
  */
-int clk_get_optional_nodev(ofnode node, const char *name, struct clk *clk);
+int clk_get_by_name_nodev_optional(ofnode node, const char *name,
+				   struct clk *clk);
 
 /**
  * devm_clk_get - lookup and obtain a managed reference to a clock producer.
@@ -291,7 +292,7 @@ clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 }
 
 static inline int
-clk_get_optional_nodev(ofnode node, const char *name, struct clk *clk)
+clk_get_by_name_nodev_optional(ofnode node, const char *name, struct clk *clk)
 {
 	return -ENOSYS;
 }
