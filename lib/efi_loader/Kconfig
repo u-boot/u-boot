@@ -385,6 +385,12 @@ config EFI_ESRT
 	help
 	  Enabling this option creates the ESRT UEFI system table.
 
+config EFI_ECPT
+	bool "Enable the UEFI ECPT generation"
+	default y
+	help
+	  Enabling this option created the ECPT UEFI table.
+
 config EFI_RISCV_BOOT_PROTOCOL
 	bool "RISCV_EFI_BOOT_PROTOCOL support"
 	default y
