@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Empty device tree for versal-virt board
+ *
+ * Copyright 2021 Google LLC
+ */
+
+/dts-v1/;
+
+/ {
+};

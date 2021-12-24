@@ -944,8 +944,9 @@ INPUTS-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 endif
 endif
 INPUTS-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
-INPUTS-$(CONFIG_OF_SEPARATE) += u-boot.dtb
-INPUTS-$(CONFIG_BINMAN_STANDALONE_FDT) += u-boot.dtb
+
+# Allow omitting the .dtb output if it is not normally used
+INPUTS-$(CONFIG_OF_SEPARATE) += $(if $(CONFIG_OF_OMIT_DTB),dts/dt.dtb,u-boot.dtb)
 ifeq ($(CONFIG_SPL_FRAMEWORK),y)
 INPUTS-$(CONFIG_OF_SEPARATE) += u-boot-dtb.img
 endif
@@ -1054,6 +1055,10 @@ quiet_cmd_cfgcheck = CFGCHK  $2
 cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 		$(srctree)/scripts/config_whitelist.txt $(srctree)
 
+quiet_cmd_ofcheck = OFCHK   $2
+cmd_ofcheck = $(srctree)/scripts/check-of.sh $2 \
+		$(srctree)/scripts/of_allowlist.txt
+
 # Concat the value of all the CONFIGs (result is 'y' or 'yy', etc. )
 got = $(foreach cfg,$(1),$($(cfg)))
 
@@ -1128,6 +1133,9 @@ endif
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
 	$(call cmd,cfgcheck,u-boot.cfg)
+	@# Check that this build does not override OF_HAS_PRIOR_STAGE by
+	@# disabling OF_BOARD.
+	$(call cmd,ofcheck,$(KCONFIG_CONFIG))
 
 PHONY += dtbs
 dtbs: dts/dt.dtb
@@ -1181,7 +1189,7 @@ u-boot.bin: u-boot-fit-dtb.bin FORCE
 u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 
-else ifeq ($(CONFIG_OF_SEPARATE),y)
+else ifeq ($(CONFIG_OF_SEPARATE).$(CONFIG_OF_OMIT_DTB),y.)
 u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 
@@ -1415,7 +1423,7 @@ u-boot-lzma.img: u-boot.bin.lzma FORCE
 
 u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl u-boot-ivt.img: \
 		$(if $(CONFIG_SPL_LOAD_FIT),u-boot-nodtb.bin \
-			$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SANDBOX)$(CONFIG_BINMAN_STANDALONE_FDT),dts/dt.dtb) \
+			$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SANDBOX),dts/dt.dtb) \
 		,$(UBOOT_BIN)) FORCE
 	$(call if_changed,mkimage)
 	$(BOARD_SIZE_CHECK)

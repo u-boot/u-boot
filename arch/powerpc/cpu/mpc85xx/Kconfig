@@ -109,6 +109,7 @@ config TARGET_QEMU_PPCE500
 	bool "Support qemu-ppce500"
 	select ARCH_QEMU_E500
 	select PHYS_64BIT
+	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_T1024RDB
 	bool "Support T1024RDB"

@@ -739,6 +739,17 @@ int device_get_child_count(const struct udevice *parent)
 	return count;
 }
 
+int device_get_decendent_count(const struct udevice *parent)
+{
+	const struct udevice *dev;
+	int count = 1;
+
+	list_for_each_entry(dev, &parent->child_head, sibling_node)
+		count += device_get_decendent_count(dev);
+
+	return count;
+}
+
 int device_find_child_by_seq(const struct udevice *parent, int seq,
 			     struct udevice **devp)
 {

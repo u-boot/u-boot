@@ -307,6 +307,13 @@ static inline int uclass_pre_remove_device(struct udevice *dev) { return 0; }
 #endif
 
 /**
+ * uclass_get_count() - Get the number of uclasses
+ *
+ * Returns the number of uclasses instantiated in driver model
+ */
+int uclass_get_count(void);
+
+/**
  * uclass_find() - Find uclass by its id
  *
  * @id:		Id to serach for

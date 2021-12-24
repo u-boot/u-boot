@@ -643,6 +643,19 @@ int uclass_next_device_check(struct udevice **devp)
 	return device_probe(*devp);
 }
 
+int uclass_get_count(void)
+{
+	const struct uclass *uc;
+	int count = 0;
+
+	if (gd->dm_root) {
+		list_for_each_entry(uc, gd->uclass_root, sibling_node)
+			count++;
+	}
+
+	return count;
+}
+
 int uclass_first_device_drvdata(enum uclass_id id, ulong driver_data,
 				struct udevice **devp)
 {

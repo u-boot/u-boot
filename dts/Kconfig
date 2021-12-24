@@ -16,24 +16,6 @@ config BINMAN
 	bool
 	select DTOC
 
-config BINMAN_STANDALONE_FDT
-	bool
-	depends on BINMAN
-	default y if OF_BOARD
-	help
-	  This option tells U-Boot build system that a standalone device tree
-	  source is explicitly required when using binman to package U-Boot.
-
-	  This is not necessary in a common scenario where a device tree source
-	  that contains the binman node is provided in the arch/<arch>/dts
-	  directory for a specific board. Such device tree sources are built for
-	  OF_SEPARATE or OF_EMBED. However for a scenario like the board device
-	  tree blob is not provided in the U-Boot build tree, but fed to U-Boot
-	  in the runtime, e.g.: in the OF_BOARD case that it is passed by
-	  a prior stage bootloader. For such scenario, a standalone device tree
-	  blob containing binman node to describe how to package U-Boot should
-	  be provided explicitly.
-
 menu "Device Tree Control"
 	depends on SUPPORT_OF_CONTROL
 
@@ -97,11 +79,9 @@ config OF_LIVE
 choice
 	prompt "Provider of DTB for DT control"
 	depends on OF_CONTROL
-	default OF_BOARD if SANDBOX
 
 config OF_SEPARATE
 	bool "Separate DTB for DT control"
-	depends on !SANDBOX
 	help
 	  If this option is enabled, the device tree will be built and
 	  placed as a separate u-boot.dtb file alongside the U-Boot image.
@@ -114,14 +94,50 @@ config OF_EMBED
 	  and development only and is not recommended for production devices.
 	  Boards in the mainline U-Boot tree should not use it.
 
+endchoice
+
 config OF_BOARD
 	bool "Provided by the board (e.g a previous loader) at runtime"
+	default y if SANDBOX || OF_HAS_PRIOR_STAGE
 	help
-	  If this option is enabled, the device tree will be provided by
-	  the board at runtime if the board supports it, instead of being
-	  bundled with the image.
+	  If this option is enabled, the device tree is provided at runtime by
+	  a custom function called board_fdt_blob_setup(). The board must
+	  implement this function if it wishes to provide special behaviour.
 
-endchoice
+	  With this option, the device tree build by U-Boot may be overridden or
+	  ignored. See OF_HAS_PRIOR_STAGE.
+
+	  Note: Boards which use this to handle a device tree passed from an
+	  earlier stage should enable OF_HAS_PRIOR_STAGE.
+
+config OF_HAS_PRIOR_STAGE
+	bool
+	help
+	  Indicates that a prior stage of the firmware (before U-Boot proper)
+	  makes use of device tree and this board normally boots with that prior
+	  stage, that provides a devicetree to U-Boot.
+
+	  This means that the device tree built in U-Boot should not be packaged
+	  in the firmware image. Instead, the prior stage's device tree should
+	  be so packaged. At runtime, the prior stage reads this, does any
+	  necessary fix-ups, then passes it to U-Boot. See OF_BOARD.
+
+	  This option does not preclude using the U-Boot device tree, e.g. for
+	  development purposes, but it is not recommended, and likely will not
+	  even work, for production systems.
+
+	  Note: This option must be set in Kconfig and cannot be enabled or
+	  disabled in the board's defconfig file.
+
+config OF_OMIT_DTB
+	bool "Omit the device tree output when building"
+	default y if OF_HAS_PRIOR_STAGE && !BINMAN
+	help
+	  As a special case, avoid writing a device tree file u-boot.dtb when
+	  building. Also don't include that file in u-boot.bin
+
+	  This is used for boards which normally provide a devicetree via a
+	  runtime mechanism (such as OF_BOARD), to avoid confusion.
 
 config DEFAULT_DEVICE_TREE
 	string "Default Device Tree for DT control"
@@ -194,7 +210,6 @@ endchoice
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	hex "Size of memory reserved to uncompress the DTBs"
-	depends on (MULTI_DTB_FIT_GZIP || MULTI_DTB_FIT_LZO)
 	default 0x8000
 	help
 	   This is the size of this area where the DTBs are uncompressed.
