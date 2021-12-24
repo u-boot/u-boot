@@ -597,7 +597,7 @@ static int am65_cpsw_phy_init(struct udevice *dev)
 	return ret;
 }
 
-static int am65_cpsw_ofdata_parse_phy(struct udevice *dev, ofnode port_np)
+static int am65_cpsw_ofdata_parse_phy(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
@@ -605,7 +605,9 @@ static int am65_cpsw_ofdata_parse_phy(struct udevice *dev, ofnode port_np)
 	const char *phy_mode;
 	int ret = 0;
 
-	phy_mode = ofnode_read_string(port_np, "phy-mode");
+	dev_read_u32(dev, "reg", &priv->port_id);
+
+	phy_mode = dev_read_string(dev, "phy-mode");
 	if (phy_mode) {
 		pdata->phy_interface =
 				phy_get_interface_by_name(phy_mode);
@@ -617,13 +619,13 @@ static int am65_cpsw_ofdata_parse_phy(struct udevice *dev, ofnode port_np)
 		}
 	}
 
-	ofnode_read_u32(port_np, "max-speed", (u32 *)&pdata->max_speed);
+	dev_read_u32(dev, "max-speed", (u32 *)&pdata->max_speed);
 	if (pdata->max_speed)
 		dev_err(dev, "Port %u speed froced to %uMbit\n",
 			priv->port_id, pdata->max_speed);
 
 	priv->has_phy  = true;
-	ret = ofnode_parse_phandle_with_args(port_np, "phy-handle",
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev), "phy-handle",
 					     NULL, 0, 0, &out_args);
 	if (ret) {
 		dev_err(dev, "can't parse phy-handle port %u (%d)\n",
@@ -646,20 +648,45 @@ out:
 	return ret;
 }
 
-static int am65_cpsw_probe_cpsw(struct udevice *dev)
+static int am65_cpsw_port_probe(struct udevice *dev)
 {
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct am65_cpsw_common *cpsw_common;
-	ofnode ports_np, node;
-	int ret, i;
+	char portname[15];
+	int ret;
 
 	priv->dev = dev;
 
-	cpsw_common = calloc(1, sizeof(*priv->cpsw_common));
-	if (!cpsw_common)
-		return -ENOMEM;
+	cpsw_common = dev_get_priv(dev->parent);
 	priv->cpsw_common = cpsw_common;
+
+	sprintf(portname, "%s%s", dev->parent->name, dev->name);
+	device_set_name(dev, portname);
+
+	ret = am65_cpsw_ofdata_parse_phy(dev);
+	if (ret)
+		goto out;
+
+	am65_cpsw_gmii_sel_k3(priv, pdata->phy_interface, priv->port_id);
+
+	ret = am65_cpsw_mdio_init(dev);
+	if (ret)
+		goto out;
+
+	ret = am65_cpsw_phy_init(dev);
+	if (ret)
+		goto out;
+out:
+	return ret;
+}
+
+static int am65_cpsw_probe_nuss(struct udevice *dev)
+{
+	struct am65_cpsw_common *cpsw_common = dev_get_priv(dev);
+	ofnode ports_np, node;
+	int ret, i;
+	struct udevice *port_dev;
 
 	cpsw_common->dev = dev;
 	cpsw_common->ss_base = dev_read_addr(dev);
@@ -723,10 +750,9 @@ static int am65_cpsw_probe_cpsw(struct udevice *dev)
 		if (disabled)
 			continue;
 
-		priv->port_id = port_id;
-		ret = am65_cpsw_ofdata_parse_phy(dev, node);
+		ret = device_bind_driver_to_node(dev, "am65_cpsw_nuss_port", ofnode_get_name(node), node, &port_dev);
 		if (ret)
-			goto out;
+			printf("SCREEEM\n");
 	}
 
 	for (i = 0; i < AM65_CPSW_CPSWNU_MAX_PORTS; i++) {
@@ -756,16 +782,6 @@ static int am65_cpsw_probe_cpsw(struct udevice *dev)
 			dev_read_u32_default(dev, "bus_freq",
 					     AM65_CPSW_MDIO_BUS_FREQ_DEF);
 
-	am65_cpsw_gmii_sel_k3(priv, pdata->phy_interface, priv->port_id);
-
-	ret = am65_cpsw_mdio_init(dev);
-	if (ret)
-		goto out;
-
-	ret = am65_cpsw_phy_init(dev);
-	if (ret)
-		goto out;
-
 	dev_info(dev, "K3 CPSW: nuss_ver: 0x%08X cpsw_ver: 0x%08X ale_ver: 0x%08X Ports:%u mdio_freq:%u\n",
 		 readl(cpsw_common->ss_base),
 		 readl(cpsw_common->cpsw_base),
@@ -786,11 +802,18 @@ static const struct udevice_id am65_cpsw_nuss_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(am65_cpsw_nuss_slave) = {
-	.name	= "am65_cpsw_nuss_slave",
-	.id	= UCLASS_ETH,
+U_BOOT_DRIVER(am65_cpsw_nuss) = {
+	.name	= "am65_cpsw_nuss",
+	.id	= UCLASS_MISC,
 	.of_match = am65_cpsw_nuss_ids,
-	.probe	= am65_cpsw_probe_cpsw,
+	.probe	= am65_cpsw_probe_nuss,
+	.priv_auto = sizeof(struct am65_cpsw_common),
+};
+
+U_BOOT_DRIVER(am65_cpsw_nuss_port) = {
+	.name	= "am65_cpsw_nuss_port",
+	.id	= UCLASS_ETH,
+	.probe	= am65_cpsw_port_probe,
 	.ops	= &am65_cpsw_ops,
 	.priv_auto	= sizeof(struct am65_cpsw_priv),
 	.plat_auto	= sizeof(struct eth_pdata),
