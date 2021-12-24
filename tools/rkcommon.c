@@ -18,6 +18,10 @@ enum {
 	RK_MAGIC		= 0x0ff0aa55,
 };
 
+enum {
+	RK_HEADER_V1	= 1,
+};
+
 /**
  * struct header0_info - header block for boot ROM
  *
@@ -55,27 +59,28 @@ struct header1_info {
  * @spl_hdr:		Boot ROM requires a 4-bytes spl header
  * @spl_size:		Spl size(include extra 4-bytes spl header)
  * @spl_rc4:		RC4 encode the SPL binary (same key as header)
+ * @header_ver:		header block version
  */
-
 struct spl_info {
 	const char *imagename;
 	const char *spl_hdr;
 	const uint32_t spl_size;
 	const bool spl_rc4;
+	const uint32_t header_ver;
 };
 
 static struct spl_info spl_infos[] = {
-	{ "px30", "RK33", 0x2800, false },
-	{ "rk3036", "RK30", 0x1000, false },
-	{ "rk3128", "RK31", 0x1800, false },
-	{ "rk3188", "RK31", 0x8000 - 0x800, true },
-	{ "rk322x", "RK32", 0x8000 - 0x1000, false },
-	{ "rk3288", "RK32", 0x8000, false },
-	{ "rk3308", "RK33", 0x40000 - 0x1000, false},
-	{ "rk3328", "RK32", 0x8000 - 0x1000, false },
-	{ "rk3368", "RK33", 0x8000 - 0x1000, false },
-	{ "rk3399", "RK33", 0x30000 - 0x2000, false },
-	{ "rv1108", "RK11", 0x1800, false },
+	{ "px30", "RK33", 0x2800, false, RK_HEADER_V1 },
+	{ "rk3036", "RK30", 0x1000, false, RK_HEADER_V1 },
+	{ "rk3128", "RK31", 0x1800, false, RK_HEADER_V1 },
+	{ "rk3188", "RK31", 0x8000 - 0x800, true, RK_HEADER_V1 },
+	{ "rk322x", "RK32", 0x8000 - 0x1000, false, RK_HEADER_V1 },
+	{ "rk3288", "RK32", 0x8000, false, RK_HEADER_V1 },
+	{ "rk3308", "RK33", 0x40000 - 0x1000, false, RK_HEADER_V1 },
+	{ "rk3328", "RK32", 0x8000 - 0x1000, false, RK_HEADER_V1 },
+	{ "rk3368", "RK33", 0x8000 - 0x1000, false, RK_HEADER_V1 },
+	{ "rk3399", "RK33", 0x30000 - 0x2000, false, RK_HEADER_V1 },
+	{ "rv1108", "RK11", 0x1800, false, RK_HEADER_V1 },
 };
 
 /**
