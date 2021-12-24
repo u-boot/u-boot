@@ -15,7 +15,6 @@
 #include <malloc.h>
 #include <mm_communication.h>
 
-#define OPTEE_PAGE_SIZE BIT(12)
 extern struct efi_var_file __efi_runtime_data *efi_var_buf;
 static efi_uintn_t max_buffer_size;	/* comm + var + func + data */
 static efi_uintn_t max_payload_size;	/* func + data */
@@ -114,7 +113,11 @@ static efi_status_t optee_mm_communicate(void *comm_buf, ulong dsize)
 	rc = tee_invoke_func(conn.tee, &arg, 2, param);
 	tee_shm_free(shm);
 	tee_close_session(conn.tee, conn.session);
-	if (rc || arg.ret != TEE_SUCCESS)
+	if (rc)
+		return EFI_DEVICE_ERROR;
+	if (arg.ret == TEE_ERROR_EXCESS_DATA)
+		log_err("Variable payload too large\n");
+	if (arg.ret != TEE_SUCCESS)
 		return EFI_DEVICE_ERROR;
 
 	switch (param[1].u.value.a) {
@@ -255,15 +258,6 @@ efi_status_t EFIAPI get_max_payload(efi_uintn_t *size)
 		goto out;
 	}
 	*size = var_payload->size;
-	/*
-	 * Although the max payload is configurable on StMM, we only share a
-	 * single page from OP-TEE for the non-secure buffer used to communicate
-	 * with StMM. Since OP-TEE will reject to map anything bigger than that,
-	 * make sure we are in bounds.
-	 */
-	if (*size > OPTEE_PAGE_SIZE)
-		*size = OPTEE_PAGE_SIZE - MM_COMMUNICATE_HEADER_SIZE  -
-			MM_VARIABLE_COMMUNICATE_SIZE;
 	/*
 	 * There seems to be a bug in EDK2 miscalculating the boundaries and
 	 * size checks, so deduct 2 more bytes to fulfill this requirement. Fix
