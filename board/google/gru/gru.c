@@ -26,7 +26,7 @@ void gru_dummy_function(int i)
 
 int board_early_init_f(void)
 {
-# ifdef CONFIG_TARGET_CHROMEBOOK_BOB
+# if defined(CONFIG_TARGET_CHROMEBOOK_BOB) || defined(CONFIG_TARGET_CHROMEBOOK_KEVIN)
 	int sum, i;
 
 	/*
