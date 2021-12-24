@@ -15,7 +15,7 @@
 #include "rkcommon.h"
 
 enum {
-	RK_SIGNATURE		= 0x0ff0aa55,
+	RK_MAGIC		= 0x0ff0aa55,
 };
 
 /**
@@ -24,14 +24,14 @@ enum {
  * This is stored at SD card block 64 (where each block is 512 bytes, or at
  * the start of SPI flash. It is encoded with RC4.
  *
- * @signature:		Signature (must be RKSD_SIGNATURE)
+ * @magic:		Magic (must be RK_MAGIC)
  * @disable_rc4:	0 to use rc4 for boot image,  1 to use plain binary
  * @init_offset:	Offset in blocks of the SPL code from this header
  *			block. E.g. 4 means 2KB after the start of this header.
  * Other fields are not used by U-Boot
  */
 struct header0_info {
-	uint32_t signature;
+	uint32_t magic;
 	uint8_t reserved[4];
 	uint32_t disable_rc4;
 	uint16_t init_offset;
@@ -224,7 +224,7 @@ static void rkcommon_set_header0(void *buf, struct image_tool_params *params)
 	uint32_t init_boot_size;
 
 	memset(buf, '\0', RK_INIT_OFFSET * RK_BLK_SIZE);
-	hdr->signature   = cpu_to_le32(RK_SIGNATURE);
+	hdr->magic = cpu_to_le32(RK_MAGIC);
 	hdr->disable_rc4 = cpu_to_le32(!rkcommon_need_rc4_spl(params));
 	hdr->init_offset = cpu_to_le16(RK_INIT_OFFSET);
 	hdr->init_size   = cpu_to_le16(spl_params.init_size / RK_BLK_SIZE);
@@ -294,7 +294,7 @@ static int rkcommon_parse_header(const void *buf, struct header0_info *header0,
 	memcpy((void *)header0, buf, sizeof(struct header0_info));
 	rc4_encode((void *)header0, sizeof(struct header0_info), rc4_key);
 
-	if (le32_to_cpu(header0->signature) != RK_SIGNATURE)
+	if (le32_to_cpu(header0->magic) != RK_MAGIC)
 		return -EPROTO;
 
 	/* We don't support RC4 encoded image payloads here, yet... */
