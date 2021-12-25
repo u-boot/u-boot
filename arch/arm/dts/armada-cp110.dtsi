@@ -231,7 +231,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				clocks = <&CP110_LABEL(syscon0) 1 2>;
-				nand-enable-arbiter;
+				marvell,nand-enable-arbiter;
 				num-cs = <1>;
 				nand-ecc-strength = <8>;
 				nand-ecc-step-size = <512>;
