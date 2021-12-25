@@ -73,8 +73,7 @@ def test_efi_selftest_text_input(u_boot_console):
     This function calls the text input EFI selftest.
     """
     u_boot_console.run_command(cmd='setenv efi_selftest text input')
-    output = u_boot_console.run_command(cmd='bootefi selftest',
-                                        wait_for_prompt=False)
+    u_boot_console.run_command(cmd='bootefi selftest', wait_for_prompt=False)
     m = u_boot_console.p.expect([r'To terminate type \'x\''])
     if m != 0:
         raise Exception('No prompt for \'text input\' test')
@@ -143,8 +142,7 @@ def test_efi_selftest_text_input_ex(u_boot_console):
     This function calls the extended text input EFI selftest.
     """
     u_boot_console.run_command(cmd='setenv efi_selftest extended text input')
-    output = u_boot_console.run_command(cmd='bootefi selftest',
-                                        wait_for_prompt=False)
+    u_boot_console.run_command(cmd='bootefi selftest', wait_for_prompt=False)
     m = u_boot_console.p.expect([r'To terminate type \'CTRL\+x\''])
     if m != 0:
         raise Exception('No prompt for \'text input\' test')
@@ -208,6 +206,26 @@ def test_efi_selftest_text_input_ex(u_boot_console):
     u_boot_console.drain_console()
     u_boot_console.run_command(cmd=chr(24), wait_for_echo=False, send_nl=False,
                                wait_for_prompt=False)
+    m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
+    if m != 0:
+        raise Exception('Failures occurred during the EFI selftest')
+    u_boot_console.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_bootefi_selftest')
+@pytest.mark.buildconfigspec('efi_tcg2_protocol')
+def test_efi_selftest_tcg2(u_boot_console):
+    """Test the EFI_TCG2 PROTOCOL
+
+    :param u_boot_console: U-Boot console
+
+    This function executes the 'tcg2' unit test.
+    """
+    u_boot_console.restart_uboot()
+    u_boot_console.run_command(cmd='setenv efi_selftest list')
+    output = u_boot_console.run_command('bootefi selftest')
+    assert '\'tcg2\'' in output
+    u_boot_console.run_command(cmd='setenv efi_selftest tcg2')
+    u_boot_console.run_command(cmd='bootefi selftest', wait_for_prompt=False)
     m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
     if m != 0:
         raise Exception('Failures occurred during the EFI selftest')

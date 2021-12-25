@@ -667,6 +667,7 @@ F:	drivers/mtd/jedec_flash.c
 
 CLOCK
 M:	Lukasz Majewski <lukma@denx.de>
+M:	Sean Anderson <seanga2@gmail.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-clk.git
 F:	drivers/clk/
@@ -712,8 +713,11 @@ W:	https://u-boot.readthedocs.io/en/latest/develop/uefi/u-boot_on_efi.html
 F:	board/efi/efi-x86_app
 F:	configs/efi-x86_app*
 F:	doc/develop/uefi/u-boot_on_efi.rst
+F:	drivers/block/efi-media-uclass.c
+F:	drivers/block/sb_efi_media.c
 F:	lib/efi/efi_app.c
 F:	scripts/build-efi.sh
+F:	test/dm/efi_media.c
 
 EFI PAYLOAD
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -759,6 +763,18 @@ F:	include/env*
 F:	test/env/
 F:	tools/env*
 F:	tools/mkenvimage.c
+
+FASTBOOT
+S:	Orphaned
+F:	cmd/fastboot.c
+F:	doc/android/fastboot*.rst
+F:	include/fastboot.h
+F:	include/fastboot-internal.h
+F:	include/net/fastboot.h
+F:	drivers/fastboot/
+F:	drivers/usb/gadget/f_fastboot.c
+F:	net/fastboot.c
+F:	test/dm/fastboot.c
 
 FPGA
 M:	Michal Simek <michal.simek@xilinx.com>

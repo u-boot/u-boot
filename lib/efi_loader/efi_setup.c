@@ -176,43 +176,13 @@ static efi_status_t efi_init_os_indications(void)
 
 
 /**
- * efi_clear_os_indications() - clear OsIndications
- *
- * Clear EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED
- */
-static efi_status_t efi_clear_os_indications(void)
-{
-	efi_uintn_t size;
-	u64 os_indications;
-	efi_status_t ret;
-
-	size = sizeof(os_indications);
-	ret = efi_get_variable_int(L"OsIndications", &efi_global_variable_guid,
-				   NULL, &size, &os_indications, NULL);
-	if (ret != EFI_SUCCESS)
-		os_indications = 0;
-	else
-		os_indications &=
-			~EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED;
-	ret = efi_set_variable_int(L"OsIndications", &efi_global_variable_guid,
-				   EFI_VARIABLE_NON_VOLATILE |
-				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				   EFI_VARIABLE_RUNTIME_ACCESS,
-				   sizeof(os_indications), &os_indications,
-				   false);
-	if (ret != EFI_SUCCESS)
-		log_err("Setting %ls failed\n", L"OsIndications");
-	return ret;
-}
-
-/**
  * efi_init_obj_list() - Initialize and populate EFI object list
  *
  * Return:	status code
  */
 efi_status_t efi_init_obj_list(void)
 {
-	efi_status_t r, ret = EFI_SUCCESS;
+	efi_status_t ret = EFI_SUCCESS;
 
 	/* Initialize once only */
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
@@ -270,6 +240,10 @@ efi_status_t efi_init_obj_list(void)
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
 		ret = efi_tcg2_register();
 		if (ret != EFI_SUCCESS)
+			goto out;
+
+		ret = efi_tcg2_do_initial_measurement();
+		if (ret == EFI_SECURITY_VIOLATION)
 			goto out;
 	}
 
@@ -331,11 +305,7 @@ efi_status_t efi_init_obj_list(void)
 	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK) &&
 	    !IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY))
 		ret = efi_launch_capsules();
-
 out:
-	r = efi_clear_os_indications();
-	if (ret == EFI_SUCCESS)
-		ret = r;
 	efi_obj_list_initialized = ret;
 	return ret;
 }

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2016-2017 Intel Corporation
+ * Copyright (C) 2016-2021 Intel Corporation
  */
 
 #ifndef _RESET_MANAGER_ARRIA10_H_
@@ -22,6 +22,7 @@ int socfpga_bridges_reset(void);
 #define RSTMGR_A10_PER1MODRST	0x28
 #define RSTMGR_A10_BRGMODRST	0x2c
 #define RSTMGR_A10_SYSMODRST	0x30
+#define RSTMGR_A10_SYSWARMMASK	0x50
 
 #define RSTMGR_CTRL		RSTMGR_A10_CTRL
 
@@ -114,5 +115,8 @@ int socfpga_bridges_reset(void);
 #define ALT_RSTMGR_HDSKEN_FPGAMGRHSEN_SET_MSK	BIT(1)
 #define ALT_RSTMGR_HDSKEN_FPGAHSEN_SET_MSK	BIT(2)
 #define ALT_RSTMGR_HDSKEN_ETRSTALLEN_SET_MSK	BIT(3)
+
+#define ALT_RSTMGR_FPGAMGRWARMMASK_S2F_SET_MSK	BIT(3)
+#define ALT_RSTMGR_SYSWARMMASK_S2F_SET_MSK	BIT(4)
 
 #endif /* _RESET_MANAGER_ARRIA10_H_ */

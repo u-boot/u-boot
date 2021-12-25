@@ -378,8 +378,14 @@ out:
 int tpm_tis_cleanup(struct udevice *dev)
 {
 	struct tpm_chip *chip = dev_get_priv(dev);
+	int ret;
+
+	ret = tpm_tis_request_locality(dev, 0);
+	if (ret)
+		return ret;
 
 	tpm_tis_ready(dev);
+
 	tpm_tis_release_locality(dev, chip->locality);
 
 	return 0;

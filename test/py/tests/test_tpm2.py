@@ -186,6 +186,7 @@ def test_tpm2_change_auth(u_boot_console):
     u_boot_console.run_command('tpm2 clear TPM2_RH_PLATFORM')
     assert output.endswith('0')
 
+@pytest.mark.buildconfigspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
 def test_tpm2_get_capability(u_boot_console):
     """Execute a TPM_GetCapability command.

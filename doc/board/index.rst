@@ -16,6 +16,7 @@ Board-specific doc
    coreboot/index
    emulation/index
    google/index
+   highbank/index
    intel/index
    kontron/index
    microchip/index

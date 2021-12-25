@@ -23,23 +23,24 @@ static const char *fdt;
 static const efi_guid_t fdt_guid = EFI_FDT_GUID;
 static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
 
-/*
- * Convert FDT value to host endianness.
+/**
+ * f2h() - convert FDT value to host endianness.
  *
- * @val		FDT value
- * @return	converted value
+ * UEFI code is always low endian. The FDT is big endian.
+ *
+ * @val:	FDT value
+ * Return:	converted value
  */
 static uint32_t f2h(fdt32_t val)
 {
 	char *buf = (char *)&val;
 	char i;
 
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 	/* Swap the bytes */
 	i = buf[0]; buf[0] = buf[3]; buf[3] = i;
 	i = buf[1]; buf[1] = buf[2]; buf[2] = i;
-#endif
-	return *(uint32_t *)buf;
+
+	return val;
 }
 
 /**

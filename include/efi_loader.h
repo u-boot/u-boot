@@ -525,6 +525,8 @@ efi_status_t efi_disk_register(void);
 efi_status_t efi_rng_register(void);
 /* Called by efi_init_obj_list() to install EFI_TCG2_PROTOCOL */
 efi_status_t efi_tcg2_register(void);
+/* Called by efi_init_obj_list() to do initial measurement */
+efi_status_t efi_tcg2_do_initial_measurement(void);
 /* measure the pe-coff image, extend PCR and add Event Log */
 efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 				   struct efi_loaded_image_obj *handle,
@@ -988,4 +990,6 @@ efi_status_t efi_esrt_register(void);
  */
 efi_status_t efi_esrt_populate(void);
 efi_status_t efi_load_capsule_drivers(void);
+
+efi_status_t platform_get_eventlog(struct udevice *dev, u64 *addr, u32 *sz);
 #endif /* _EFI_LOADER_H */

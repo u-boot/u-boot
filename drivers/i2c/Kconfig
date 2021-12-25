@@ -250,6 +250,12 @@ config SYS_I2C_MESON
 	  internal buffer holding up to 8 bytes for transfers and supports
 	  both 7-bit and 10-bit addresses.
 
+config SYS_I2C_MICROCHIP
+	bool "Microchip I2C driver"
+	help
+	  Add support for the Microchip I2C driver. This is operating on
+	  standard mode up to 100 kbits/s and fast mode up to 400 kbits/s.
+
 config SYS_I2C_MXC
 	bool "NXP MXC I2C driver"
 	help

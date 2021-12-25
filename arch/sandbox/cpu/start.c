@@ -434,8 +434,10 @@ void __efi_runtime EFIAPI efi_reset_system(
 		efi_status_t reset_status,
 		unsigned long data_size, void *reset_data)
 {
-	os_fd_restore();
-	os_relaunch(os_argv);
+	if (reset_type == EFI_RESET_SHUTDOWN)
+		sandbox_exit();
+	else
+		sandbox_reset();
 }
 
 void sandbox_reset(void)

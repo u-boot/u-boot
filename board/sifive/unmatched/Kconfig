@@ -26,6 +26,7 @@ config SPL_OPENSBI_LOAD_ADDR
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select SIFIVE_FU740
+	select ENV_IS_IN_SPI_FLASH
 	select SUPPORT_SPL
 	select RESET_SIFIVE
 	select BINMAN
