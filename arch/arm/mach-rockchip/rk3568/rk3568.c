@@ -11,9 +11,18 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <dt-bindings/clock/rk3568-cru.h>
 
-#define PMUGRF_BASE		0xfdc20000
-#define GRF_BASE		0xfdc60000
-
+#define PMUGRF_BASE			0xfdc20000
+#define GRF_BASE			0xfdc60000
+#define GRF_GPIO1B_DS_2			0x218
+#define GRF_GPIO1B_DS_3			0x21c
+#define GRF_GPIO1C_DS_0			0x220
+#define GRF_GPIO1C_DS_1			0x224
+#define GRF_GPIO1C_DS_2			0x228
+#define GRF_GPIO1C_DS_3			0x22c
+#define SGRF_BASE			0xFDD18000
+#define SGRF_SOC_CON4			0x10
+#define EMMC_HPROT_SECURE_CTRL		0x03
+#define SDMMC0_HPROT_SECURE_CTRL	0x01
 /* PMU_GRF_GPIO0D_IOMUX_L */
 enum {
 	GPIO0D1_SHIFT		= 4,
@@ -81,5 +90,17 @@ void board_debug_uart_init(void)
 
 int arch_cpu_init(void)
 {
+#ifdef CONFIG_SPL_BUILD
+	/* Set the emmc sdmmc0 to secure */
+	rk_clrreg(SGRF_BASE + SGRF_SOC_CON4, (EMMC_HPROT_SECURE_CTRL << 11
+		| SDMMC0_HPROT_SECURE_CTRL << 4));
+	/* set the emmc driver strength to level 2 */
+	writel(0x3f3f0707, GRF_BASE + GRF_GPIO1B_DS_2);
+	writel(0x3f3f0707, GRF_BASE + GRF_GPIO1B_DS_3);
+	writel(0x3f3f0707, GRF_BASE + GRF_GPIO1C_DS_0);
+	writel(0x3f3f0707, GRF_BASE + GRF_GPIO1C_DS_1);
+	writel(0x3f3f0707, GRF_BASE + GRF_GPIO1C_DS_2);
+	writel(0x3f3f0707, GRF_BASE + GRF_GPIO1C_DS_3);
+#endif
 	return 0;
 }

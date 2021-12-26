@@ -128,6 +128,20 @@ config DM_PMIC_FAN53555
 	  The driver implements read/write operations for use with the FAN53555
 	  regulator driver and binds the regulator driver to its node.
 
+config SPL_DM_PMIC_FAN53555
+	bool "Enable support for OnSemi FAN53555 in SPL"
+	depends on SPL_DM_REGULATOR && SPL_DM_I2C
+	select SPL_DM_REGULATOR_FAN53555
+	help
+	  This config enables implementation of driver-model PMIC
+	  uclass features for the FAN53555 regulator. The FAN53555 is
+	  a (family of) single-output regulators that supports
+	  transitioning between two different output voltages based on
+	  an voltage selection pin.
+
+	  The driver implements read/write operations for use with the FAN53555
+	  regulator driver and binds the regulator driver to its node.
+
 config DM_PMIC_MP5416
 	bool "Enable Driver Model for PMIC MP5416"
 	help

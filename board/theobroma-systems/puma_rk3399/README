@@ -26,25 +26,17 @@ RK3399-Q7 features:
 
 Here is the step-by-step to boot to U-Boot on rk3399.
 
-Get the Source and build ATF/Cortex-M0 binaries
-===============================================
+Get the Source and build ATF binary
+===================================
 
-  > git clone git://git.theobroma-systems.com/arm-trusted-firmware.git
-  > git clone git://git.theobroma-systems.com/rk3399-cortex-m0.git
+  > git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 
 Compile the ATF
 ===============
 
-  > cd arm-trusted-firmware
+  > cd trusted-firmware-a
   > make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
-  > cp build/rk3399/release/bl31.bin ../u-boot/bl31-rk3399.bin
-
-Compile the M0 firmware
-=======================
-
-  > cd ../rk3399-cortex-m0
-  > make CROSS_COMPILE=arm-cortex_m0-eabi-
-  > cp rk3399m0.bin ../u-boot
+  > cp build/rk3399/release/bl31/bl31.elf ../u-boot/bl31.elf
 
 Compile the U-Boot
 ==================
@@ -55,23 +47,22 @@ Compile the U-Boot
 Package the image
 =================
 
-Creating a SPL image for SD-Card/eMMC
-  > tools/mkimage -n rk3399 -T rksd -d spl/u-boot-spl.bin spl_mmc.img
-Creating a SPL image for SPI-NOR
-  > tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin spl_nor.img
-Create the FIT image containing U-Boot proper, ATF, M0 Firmware, devicetree
-  > make CROSS_COMPILE=aarch64-linux-gnu-
+The SPL image for SD-Card/eMMC is readily available in idbloader.img at the
+root of U-Boot after compilation.
+
+Creating an SPL image for SPI-NOR:
+  > tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin idbloader-spi.img
 
 Flash the image
 ===============
 
 Copy the SPL to offset 32k for SD/eMMC, offset 0 for NOR-Flash and the FIT
-image to offset 256k card.
+image to offset 256k.
 
 SD-Card
 -------
 
-  > dd if=spl_mmc.img of=/dev/sdb seek=64
+  > dd if=idbloader.img of=/dev/sdb seek=64
   > dd if=u-boot.itb of=/dev/sdb seek=512
 
 eMMC
@@ -84,24 +75,27 @@ help of the Rockchip loader binary.
   > cd rkdeveloptool
   > autoreconf -i && ./configure && make
   > git clone https://github.com/rockchip-linux/rkbin.git
-  > ./rkdeveloptool db rkbin/rk33/rk3399_loader_v1.08.106.bin
-  > ./rkdeveloptool wl 64 ../spl_mmc.img
+  > cd rkbin
+  > ./tools/boot_merger RKBOOT/RK3399MINIALL.ini
+  > cd ..
+  > ./rkdeveloptool db rkbin/rk3399_loader_v1.25.126.bin
+  > ./rkdeveloptool wl 64 ../idbloader.img
   > ./rkdeveloptool wl 512 ../u-boot.itb
 
 NOR-Flash
 ---------
 
-Writing the SPI NOR Flash requires a running U-Boot. For the sake of simplicity
-we assume you have a SD-Card with a partition containing the required files
-ready.
+rkdeveloptool allows to flash the on-board SPI via the USB OTG interface with
+help of the Rockchip loader binary.
 
-  > load mmc 1:1 ${kernel_addr_r} spl_nor.img
-  > sf probe
-  > sf erase 0 +$filesize
-  > sf write $kernel_addr_r 0 ${filesize}
-  > load mmc 1:1 ${kernel_addr_r} u-boot.itb
-  > sf erase 0x40000 +$filesize
-  > sf write $kernel_addr_r 0x40000 ${filesize}
-
-
-Reboot the system and you should see a U-Boot console on UART0 (115200n8).
+  > git clone https://github.com/rockchip-linux/rkdeveloptool
+  > cd rkdeveloptool
+  > autoreconf -i && ./configure && make
+  > git clone https://github.com/rockchip-linux/rkbin.git
+  > cd rkbin
+  > ./tools/boot_merger RKBOOT/RK3399MINIALL_SPINOR.ini
+  > cd ..
+  > ./rkdeveloptool db rkbin/rk3399_loader_spinor_v1.25.114.bin
+  > ./rkdeveloptool ef
+  > ./rkdeveloptool wl 0 ../idbloader-spi.img
+  > ./rkdeveloptool wl 512 ../u-boot.itb
