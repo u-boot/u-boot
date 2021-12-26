@@ -858,6 +858,14 @@ cadence_qspi_apb_indirect_read_execute(struct cadence_spi_plat *plat,
 	writel(CQSPI_REG_INDIRECTRD_DONE,
 	       plat->regbase + CQSPI_REG_INDIRECTRD);
 
+	/* Check indirect done status */
+	ret = wait_for_bit_le32(plat->regbase + CQSPI_REG_INDIRECTRD,
+				CQSPI_REG_INDIRECTRD_DONE, 0, 10, 0);
+	if (ret) {
+		printf("Indirect read clear completion error (%i)\n", ret);
+		goto failrd;
+	}
+
 	return 0;
 
 failrd:
@@ -1012,6 +1020,15 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_plat *plat,
 	/* Clear indirect completion status */
 	writel(CQSPI_REG_INDIRECTWR_DONE,
 	       plat->regbase + CQSPI_REG_INDIRECTWR);
+
+	/* Check indirect done status */
+	ret = wait_for_bit_le32(plat->regbase + CQSPI_REG_INDIRECTWR,
+				CQSPI_REG_INDIRECTWR_DONE, 0, 10, 0);
+	if (ret) {
+		printf("Indirect write clear completion error (%i)\n", ret);
+		goto failwr;
+	}
+
 	if (bounce_buf)
 		free(bounce_buf);
 	return 0;
