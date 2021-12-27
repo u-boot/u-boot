@@ -717,6 +717,14 @@ int btrfs_file_read(struct btrfs_root *root, u64 ino, u64 file_offset, u64 len,
 				ret = 0;
 				goto out;
 			}
+			/*
+			 * Find a extent gap, mostly caused by NO_HOLE feature.
+			 * Just to next offset directly.
+			 */
+			if (next_offset > cur) {
+				cur = next_offset;
+				continue;
+			}
 		}
 		fi = btrfs_item_ptr(path.nodes[0], path.slots[0],
 				    struct btrfs_file_extent_item);
