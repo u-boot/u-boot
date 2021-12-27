@@ -290,6 +290,12 @@ u32 mxs_dram_vals[] = {
 	0x00000000, 0xffffffff
 };
 
+#ifndef CONFIG_SPL_FRAMEWORK
+void board_init_ll(const u32 arg, const uint32_t *resptr)
+{
+	mxs_common_spl_init(arg, resptr, iomux_setup, ARRAY_SIZE(iomux_setup));
+}
+#else
 void lowlevel_init(void)
 {
 	struct mxs_pinctrl_regs *pinctrl_regs =
@@ -301,3 +307,4 @@ void lowlevel_init(void)
 
 	mxs_common_spl_init(0, NULL, iomux_setup, ARRAY_SIZE(iomux_setup));
 }
+#endif
