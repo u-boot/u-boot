@@ -161,7 +161,7 @@ void fsl_fdt_disable_usb(void *blob)
 	 * controller is used, SYSCLK must meet the additional requirement
 	 * of 100 MHz.
 	 */
-	if (CONFIG_SYS_CLK_FREQ != 100000000) {
+	if (get_board_sys_clk() != 100000000) {
 		off = fdt_node_offset_by_compatible(blob, -1, "snps,dwc3");
 		while (off != -FDT_ERR_NOTFOUND) {
 			fdt_status_disabled(blob, off);
@@ -655,7 +655,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 #endif
 
 	do_fixup_by_path_u32(blob, "/sysclk", "clock-frequency",
-			     CONFIG_SYS_CLK_FREQ, 1);
+			     get_board_sys_clk(), 1);
 
 #ifdef CONFIG_GIC_V3_ITS
 	ls_gic_rd_tables_init(blob);

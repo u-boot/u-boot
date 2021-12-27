@@ -25,8 +25,6 @@
 #define CONFIG_BOOT_RETRY_TIME	-1
 #define CONFIG_RESET_TO_RETRY
 
-#define CONFIG_HW_WATCHDOG
-
 #define STATUS_LED_ACTIVE		0
 
 /*----------------------------------------------------------------------*
@@ -186,8 +184,6 @@
 /*-----------------------------------------------------------------------
  * I2C
  */
-
-#define CONFIG_SYS_IMMR			CONFIG_SYS_MBAR
 
 #ifdef CONFIG_CMD_DATE
 #define CONFIG_RTC_DS1338

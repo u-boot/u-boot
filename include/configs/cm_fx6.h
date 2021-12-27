@@ -13,7 +13,6 @@
 #include "mx6_common.h"
 
 /* Machine config */
-#define CONFIG_SYS_LITTLE_ENDIAN
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3

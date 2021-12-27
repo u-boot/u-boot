@@ -12,12 +12,6 @@
 #ifndef _CONFIG_POGO_E02_H
 #define _CONFIG_POGO_E02_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KW88F6281		/* SOC Name */
-
 #include "mv-common.h"
 
 /*

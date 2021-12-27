@@ -28,9 +28,6 @@
  * High Level Configuration Options (easy to change)
  */
 
-#define CONFIG_FEROCEON		1	/* CPU Core subversion */
-#define CONFIG_88F5182		1	/* SOC Name */
-
 #include <asm/arch/orion5x.h>
 /*
  * CLKs configurations

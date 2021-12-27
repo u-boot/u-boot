@@ -77,7 +77,7 @@
 	"mmcargs=setenv bootargs ${consoleargs} " \
 		"root=PARTUUID=${uuid} rootwait " \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
+	"mmcpart=1\0" \
 	"netargs=setenv bootargs ${consoleargs} " \
 		"root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp " \
 		"${vidargs}\0" \
@@ -98,8 +98,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
-
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 /* On Apalis iMX8X USDHC1 is eMMC, USDHC2 is 4-bit SD */
 #define CONFIG_SYS_FSL_USDHC_NUM	2

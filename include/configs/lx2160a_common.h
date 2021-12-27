@@ -11,7 +11,6 @@
 #include <asm/arch/soc.h>
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_FSL_TZPC_BP147
 #define CONFIG_FSL_MEMAC
 
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
@@ -105,7 +104,6 @@
 
 /* PCI */
 #ifdef CONFIG_PCI
-#define CONFIG_SYS_PCI_64BIT
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
@@ -128,19 +126,7 @@
 #endif
 #endif
 
-/* GPIO */
-#ifdef CONFIG_DM_GPIO
-#ifndef CONFIG_MPC8XXX_GPIO
-#define CONFIG_MPC8XXX_GPIO
-#endif
-#endif
-
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
-#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-#define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ / 4)
+#define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128

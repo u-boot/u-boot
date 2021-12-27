@@ -68,9 +68,8 @@
 
 /* Clock */
 #define CONFIG_GLOBAL_TIMER
-#define CONFIG_SYS_CLK_FREQ	(48000000)
 #define CONFIG_SYS_CPU_CLK	(1196000000)
-#define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
+#define CONFIG_SH_SCIF_CLK_FREQ get_board_sys_clk()
 #define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
 
 #define CONFIG_NFS_TIMEOUT 10000UL

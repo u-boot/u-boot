@@ -11,12 +11,7 @@
 #ifndef _CONFIG_DS109_H
 #define _CONFIG_DS109_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-
-#include "mv-plug-common.h"
+#include "mv-common.h"
 
 /*
  *  Environment variables configurations

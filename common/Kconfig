@@ -534,6 +534,15 @@ config BOARD_LATE_INIT
 	  So this config enable the late init code with the help of board_late_init
 	  function which should defined on respective boards.
 
+config SYS_FSL_CLK
+	bool
+	depends on ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3 || \
+		(FSL_ESDHC_IMX && (ARCH_MX5 || ARCH_MX6 || ARCH_MX7))
+	default y
+	help
+	  Enable to call get_clocks() in board_init_f() for platforms other
+	  than PowerPC or M68k.  This is a legacy option.  If not TARGET_BRPPT2
+
 config LAST_STAGE_INIT
 	bool "Call board-specific as last setup step"
 	help

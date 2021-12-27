@@ -26,7 +26,6 @@
 
 /* Board Clock */
 /* XTAL_CLK : 16.66MHz */
-#define CONFIG_SYS_CLK_FREQ	16666666u
 
 /* Generic Timer Definitions (use in assembler source) */
 #define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */

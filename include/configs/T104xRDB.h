@@ -40,7 +40,6 @@
 #endif
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -85,8 +84,6 @@
 #define CONFIG_PCIE3			/* PCIE controller 3 */
 #define CONFIG_PCIE4			/* PCIE controller 4 */
 
-#define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
-
 #if defined(CONFIG_SPIFLASH)
 #elif defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_NXP_ESBC
@@ -94,8 +91,6 @@
 #define CONFIG_BOOTSCRIPT_COPY_RAM
 #endif
 #endif
-
-#define CONFIG_SYS_CLK_FREQ	100000000
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -460,7 +455,6 @@
 
 #ifdef CONFIG_HAS_FSL_DR_USB
 #ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
 #endif
@@ -498,8 +492,6 @@
 
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
-
-#define CONFIG_U_QE
 
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif /* CONFIG_NOBQFMAN */

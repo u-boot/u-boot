@@ -15,12 +15,6 @@
 #define _CONFIG_GOFLEXHOME_H
 
 /*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
-#define CONFIG_KW88F6281	1	/* SOC Name */
-
-/*
  * Default GPIO configuration and LED status
  */
 #define GOFLEXHOME_OE_LOW               (~(0))

@@ -741,7 +741,7 @@ endif
 
 config SYS_MEMTEST_START
 	hex "default start address for mtest"
-	default 0
+	default 0x0
 	help
 	  This is the default start address for mtest for simple read/write
 	  test. If no arguments are given to mtest, default address is used
@@ -2218,6 +2218,27 @@ config CMD_JFFS2
 	  version 2) filesystem. This enables fsload, ls and fsinfo which
 	  provide the ability to load files, list directories and obtain
 	  filesystem information.
+
+config JFFS2_DEV
+	string "Default device for JFFS2"
+	depends on CMD_JFFS2
+	default "nor0"
+	help
+	  The default device to use with the jffs2 command.
+
+config JFFS2_PART_OFFSET
+	hex "Default offset within flash to locate the JFFS2 image"
+	depends on CMD_JFFS2
+	default 0x0
+	help
+	  The default offset within flash to locate the JFFS2 image.
+
+config JFFS2_PART_SIZE
+	hex "Default size of JFFS2 partition"
+	depends on CMD_JFFS2
+	default 0xFFFFFFFF
+	help
+	  The default size of the JFFS2 partition
 
 config CMD_MTDPARTS
 	bool "MTD partition support"

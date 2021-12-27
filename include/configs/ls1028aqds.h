@@ -8,8 +8,7 @@
 
 #include "ls1028a_common.h"
 
-#define CONFIG_SYS_CLK_FREQ		100000000
-#define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ / 4)
+#define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
 /* DDR */
 #define CONFIG_DIMM_SLOTS_PER_CTLR		2

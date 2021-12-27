@@ -9,15 +9,9 @@
 #ifndef __CONFIG_ZYNQ_COMMON_H
 #define __CONFIG_ZYNQ_COMMON_H
 
-/* CPU clock */
-#ifndef CONFIG_CPU_FREQ_HZ
-# define CONFIG_CPU_FREQ_HZ	800000000
-#endif
-
 #define CONFIG_REMAKE_ELF
 
 /* Cache options */
-#define CONFIG_SYS_L2CACHE_OFF
 #ifndef CONFIG_SYS_L2CACHE_OFF
 # define CONFIG_SYS_L2_PL310
 # define CONFIG_SYS_PL310_BASE		0xf8f02000

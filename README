@@ -565,11 +565,6 @@ The following options need to be configured:
 		boards with QUICC Engines require OF_QE to set UCC MAC
 		addresses
 
-		CONFIG_OF_BOARD_SETUP
-
-		Board code has addition modification that it wants to make
-		to the flat device tree before handing it off to the kernel
-
 		CONFIG_OF_SYSTEM_SETUP
 
 		Other code has addition modification that it wants to make
@@ -595,9 +590,6 @@ The following options need to be configured:
 
 		Note: If a "bootargs" environment is defined, it will override
 		the defaults discussed just above.
-
-- Cache Configuration:
-		CONFIG_SYS_L2CACHE_OFF- Do not enable L2 cache in U-Boot
 
 - Cache Configuration for ARM:
 		CONFIG_SYS_L2_PL310 - Enable support for ARM PL310 L2 cache
@@ -647,20 +639,6 @@ The following options need to be configured:
 		example "env grep" and "setexpr".
 
 - Watchdog:
-		CONFIG_WATCHDOG
-		If this variable is defined, it enables watchdog
-		support for the SoC. There must be support in the SoC
-		specific code for a watchdog. For the 8xx
-		CPUs, the SIU Watchdog feature is enabled in the SYPCR
-		register.  When supported for a specific SoC is
-		available, then no further board specific code should
-		be needed to use it.
-
-		CONFIG_HW_WATCHDOG
-		When using a watchdog circuitry external to the used
-		SoC, then define this variable and provide board
-		specific code for the "hw_watchdog_reset" function.
-
 		CONFIG_SYS_WATCHDOG_FREQ
 		Some platforms automatically call WATCHDOG_RESET()
 		from the timer interrupt handler every
@@ -1021,9 +999,6 @@ The following options need to be configured:
 		sending again an USB request to the device.
 
 - Journaling Flash filesystem support:
-		CONFIG_JFFS2_NAND
-		Define these for a default partition on a NAND device
-
 		CONFIG_SYS_JFFS2_FIRST_SECTOR,
 		CONFIG_SYS_JFFS2_FIRST_BANK, CONFIG_SYS_JFFS2_NUM_BANKS
 		Define these for a default partition on a NOR device
@@ -1520,16 +1495,6 @@ The following options need to be configured:
 		SPI EEPROM, also an instance works with Crystal A/D and
 		D/As on the SACSng board)
 
-		CONFIG_SOFT_SPI
-
-		Enables a software (bit-bang) SPI driver rather than
-		using hardware support. This is a general purpose
-		driver that only requires three general I/O port pins
-		(two outputs, one input) to function. If this is
-		defined, the board configuration must define several
-		SPI configuration items (port pins to use, etc). For
-		an example, see include/configs/sacsng.h.
-
 		CONFIG_SYS_SPI_MXC_WAIT
 		Timeout for waiting until spi transfer completed.
 		default: (CONFIG_SYS_HZ/100)     /* 10 ms */
@@ -1594,13 +1559,6 @@ The following options need to be configured:
 
 		Time to wait after FPGA configuration. The default is
 		200 ms.
-
-- Configuration Management:
-
-		CONFIG_IDENT_STRING
-
-		If defined, this string will be added to the U-Boot
-		version information (U_BOOT_VERSION)
 
 - Vendor Parameter Protection:
 
@@ -1921,10 +1879,6 @@ The following options need to be configured:
 
 		CONFIG_SPL_INIT_MINIMAL
 		Arch init code should be built for a very small image
-
-		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
-		Partition on the MMC to load U-Boot from when the MMC is being
-		used in raw mode
 
 		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR
 		Sector to load kernel uImage from when MMC is being

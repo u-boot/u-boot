@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_RAMBOOT
 
-#define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
-
 #define CONFIG_ENABLE_36BIT_PHYS
 
 /* Needed to fill the ccsrbar pointer */
@@ -46,8 +44,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_CHIP_SELECTS_PER_CTRL	0
-
-#define CONFIG_SYS_CLK_FREQ        33000000
 
 #define CONFIG_SYS_BOOT_BLOCK		0x00000000	/* boot TLB */
 

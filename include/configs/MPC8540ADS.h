@@ -26,8 +26,6 @@
 #define CONFIG_HAS_FEC		1	/* 8540 has FEC */
 #endif
 
-#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-
 /*
  * sysclk for MPC85xx
  *
@@ -45,10 +43,6 @@
  * 33MHz to accommodate, based on a PCI pin.
  * Note that PCI-X won't work at 33MHz.
  */
-
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	33000000
-#endif
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -265,8 +259,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-#undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 /*
  * Miscellaneous configurable options

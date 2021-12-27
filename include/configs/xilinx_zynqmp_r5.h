@@ -8,9 +8,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS
 
-/* CPU clock */
-#define CONFIG_CPU_FREQ_HZ	500000000
-
 /* Serial drivers */
 /* The following table includes the supported baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE  \

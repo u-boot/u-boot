@@ -8,8 +8,6 @@
 
 #define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
 
-#define CONFIG_SYS_FSL_CLK
-
 #define CONFIG_DEEP_SLEEP
 
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
@@ -17,8 +15,6 @@
 
 /* XHCI Support - enabled by default */
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
-
-#define CONFIG_SYS_CLK_FREQ		100000000
 
 #define DDR_SDRAM_CFG			0x470c0008
 #define DDR_CS0_BNDS			0x008000bf
@@ -75,7 +71,6 @@
 #endif /* ifdef CONFIG_U_BOOT_HDR_SIZE */
 #endif
 
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			0x80000000
 #define PHYS_SDRAM_SIZE			(1u * 1024 * 1024 * 1024)
 

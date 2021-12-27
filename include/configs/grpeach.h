@@ -9,7 +9,6 @@
 #define __GRPEACH_H
 
 /* Board Clock , P1 clock frequency (XTAL=13.33MHz) */
-#define CONFIG_SYS_CLK_FREQ	66666666
 
 /* Miscellaneous */
 #define CONFIG_SYS_PBSIZE	256

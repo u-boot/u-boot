@@ -90,7 +90,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * CONFIG_SYS_LOAD_ADDR - 1 MiB.
  */
-#define CONFIG_SYS_FDT_SAVE_ADDRESS	0x1f00000
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		32
 
@@ -104,7 +103,6 @@ extern phys_addr_t prior_stage_fdt_address;
  */
 #define V_NS16550_CLK			81000000
 
-#define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
@@ -126,8 +124,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Flash configuration.
  */
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_MACRONIX
 
 /*
  * Filesystem configuration.

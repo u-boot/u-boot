@@ -19,15 +19,12 @@
 #define CONFIG_PCI1		/* PCI controller 1 */
 #define CONFIG_PCIE1		/* PCIE controller 1 (slot 1) */
 #undef CONFIG_PCI2
-#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #ifndef __ASSEMBLY__
 #include <linux/stringify.h>
-extern unsigned long get_clock_freq(void);
 #endif
-#define CONFIG_SYS_CLK_FREQ	get_clock_freq() /* sysclk for MPC85xx */
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -383,8 +380,6 @@ extern unsigned long get_clock_freq(void);
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-#undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 /*
  * Miscellaneous configurable options

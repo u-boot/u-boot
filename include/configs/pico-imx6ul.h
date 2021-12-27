@@ -64,8 +64,6 @@
 	"bootmenu_2=Boot using PICO-Pi baseboard=" \
 		"setenv fdtfile imx6ul-pico-pi.dtb\0" \
 
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \

@@ -179,11 +179,6 @@
 
 #endif
 
-#define CONFIG_JFFS2_NAND		1
-#define CONFIG_JFFS2_DEV		"nand0" /* NAND device jffs2 lives on */
-#define CONFIG_JFFS2_PART_OFFSET	0	/* start of jffs2 partition */
-#define CONFIG_JFFS2_PART_SIZE		(256 * 1024 * 1024) /* partition size*/
-
 /* PSRAM */
 #define	PHYS_PSRAM			0x70000000
 #define	PHYS_PSRAM_SIZE			0x00400000	/* 4MB */

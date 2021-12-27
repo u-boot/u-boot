@@ -311,6 +311,10 @@ config CPU_PXA
 	select SYS_CACHE_SHIFT_5
 	imply SYS_ARM_MMU
 
+config CPU_PXA27X
+	bool
+	select CPU_PXA
+
 config CPU_SA1100
 	bool
 	select SYS_CACHE_SHIFT_5
@@ -1767,7 +1771,7 @@ config TARGET_SL28
 
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
-	select CPU_PXA
+	select CPU_PXA27X
 	select GPIO_EXTRA_HEADER
 
 config ARCH_UNIPHIER
@@ -1909,6 +1913,7 @@ config ARCH_OCTEONTX
 	select OF_LIVE
 	select BOARD_LATE_INIT
 	select SYS_CACHE_SHIFT_7
+	select SYS_PCI_64BIT if PCI
 	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_OCTEONTX2
@@ -1921,6 +1926,7 @@ config ARCH_OCTEONTX2
 	select OF_LIVE
 	select BOARD_LATE_INIT
 	select SYS_CACHE_SHIFT_7
+	select SYS_PCI_64BIT if PCI
 	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_THUNDERX_88XX
@@ -2045,6 +2051,14 @@ config ISW_ENTRY_ADDR
 	  on the device type (secure/non-secure), boot media (xip/non-xip) and
 	  image headers.
 endif
+
+config SYS_KWD_CONFIG
+	string "kwbimage config file path"
+	depends on ARCH_KIRKWOOD || ARCH_MVEBU
+	default "arch/arm/mach-mvebu/kwbimage.cfg"
+	help
+	  Path within the source directory to the kwbimage.cfg file to use
+	  when packaging the U-Boot image for use.
 
 source "arch/arm/mach-apple/Kconfig"
 

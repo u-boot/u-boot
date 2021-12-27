@@ -187,10 +187,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 #endif
-#else
-#ifndef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION	1
-#endif
 #endif
 
 /* SPL QSPI boot support */

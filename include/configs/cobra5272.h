@@ -54,7 +54,6 @@
  */
 
 #if 0
-#define CONFIG_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT 10000	/* timeout in milliseconds */
 #endif
 

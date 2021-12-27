@@ -44,7 +44,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -93,12 +92,6 @@
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
-
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
-#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk()
 
 /*
  * Config the L3 Cache as L3 SRAM
@@ -360,12 +353,6 @@ unsigned long get_board_sys_clk(void);
 #define I2C_VOL_MONITOR_BUS_V_OVF      0x1
 #define I2C_VOL_MONITOR_BUS_V_SHIFT    3
 
-#define CONFIG_VID_FLS_ENV		"t208xqds_vdd_mv"
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_VID
-#endif
-#define CONFIG_VOL_MONITOR_IR36021_SET
-#define CONFIG_VOL_MONITOR_IR36021_READ
 /* The lowest and highest voltage allowed for T208xQDS */
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
@@ -420,7 +407,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE3		/* PCIE controller 3 */
 #define CONFIG_PCIE4		/* PCIE controller 4 */
-#define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
 /* controller 1, direct to uli, tgtid 3, Base address 20000 */
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0x80000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xc00000000ull
@@ -517,7 +503,6 @@ unsigned long get_board_sys_clk(void);
  * USB
  */
 #ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_HAS_FSL_DR_USB
 #endif

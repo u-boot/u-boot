@@ -41,9 +41,6 @@
 #define CONFIG_RTC_MCFRRTC
 #define CONFIG_SYS_MCFRRTC_BASE		0xFC0A8000
 
-/* spi not partitions */
-#define CONFIG_JFFS2_DEV		"nor0"
-
 /* Timer */
 #define CONFIG_MCFTMR
 

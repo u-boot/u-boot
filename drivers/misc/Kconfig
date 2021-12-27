@@ -416,7 +416,7 @@ if I2C_EEPROM
 
 config SYS_I2C_EEPROM_ADDR_OVERFLOW
 	hex "EEPROM Address Overflow"
-	default 0
+	default 0x0
 	help
 	  EEPROM chips that implement "address overflow" are ones
 	  like Catalyst 24WC04/08/16 which has 9/10/11 bits of
@@ -499,5 +499,8 @@ config ESM_PMIC
 	help
 	  Support ESM (Error Signal Monitor) on PMIC devices. ESM is used
 	  typically to reboot the board in error condition.
+
+config FSL_IFC
+	bool
 
 endmenu

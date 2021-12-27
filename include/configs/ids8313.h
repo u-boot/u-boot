@@ -153,7 +153,6 @@
 /*
  * HW-Watchdog
  */
-#define CONFIG_WATCHDOG		1
 #define CONFIG_SYS_WATCHDOG_VALUE	0xFFFF
 
 /*
@@ -233,9 +232,6 @@
 #define CONFIG_LOADS_ECHO
 #define CONFIG_TIMESTAMP
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
-
-#define CONFIG_JFFS2_NAND
-#define CONFIG_JFFS2_DEV		"0"
 
 /* mtdparts command line support */
 

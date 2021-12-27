@@ -6,8 +6,6 @@
 #ifndef __CONFIG_PG_WCOM_LS102XA_H
 #define __CONFIG_PG_WCOM_LS102XA_H
 
-#define CONFIG_SYS_FSL_CLK
-
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
@@ -17,8 +15,6 @@
 #define CONFIG_PRAM			((CONFIG_KM_PNVRAM + \
 					  CONFIG_KM_PHRAM + \
 					  CONFIG_KM_RESERVED_PRAM) >> 10)
-
-#define CONFIG_SYS_CLK_FREQ		66666666
 
 #define PHYS_SDRAM			0x80000000
 #define PHYS_SDRAM_SIZE			(1u * 1024 * 1024 * 1024)
@@ -40,7 +36,6 @@
  * IFC Definitions
  */
 /* NOR Flash Definitions */
-#define CONFIG_FSL_IFC
 #define CONFIG_SYS_FLASH_BASE		0x60000000
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 

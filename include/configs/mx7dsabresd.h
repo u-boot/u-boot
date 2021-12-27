@@ -17,8 +17,6 @@
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
 #ifdef CONFIG_IMX_BOOTAUX
 /* Set to QSPI1 A flash at default */
 #define CONFIG_SYS_AUXCORE_BOOTDATA 0x60000000

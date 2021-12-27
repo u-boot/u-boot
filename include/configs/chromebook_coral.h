@@ -18,8 +18,6 @@
 					"stdout=vidconsole,serial\0" \
 					"stderr=vidconsole,serial\0"
 
-#define CONFIG_TPL_TEXT_BASE		0xffff8000
-
 #define CONFIG_SYS_NS16550_MEM32
 #undef CONFIG_SYS_NS16550_PORT_MAPPED
 

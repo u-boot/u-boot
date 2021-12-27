@@ -84,9 +84,6 @@ config SYS_DER
 	help
 	  Debug Event Register (37-47)
 
-config SYS_IMMR
-	hex "Value for IMMR"
-
 source "board/cssi/MCR3000/Kconfig"
 
 endmenu

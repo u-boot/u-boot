@@ -25,11 +25,6 @@
 	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 #endif
 
-/* NAND flash */
-
-/* SPI flash */
-#define CONFIG_SF_DEFAULT_SPEED		66000000
-
 #ifdef CONFIG_SD_BOOT
 /* u-boot env in sd/mmc card */
 #define FAT_ENV_INTERFACE	"mmc"

@@ -5,7 +5,7 @@
 
 
 #include <common.h>
-
+#include <clock_legacy.h>
 
 /*
  * CADMUS Board System Registers
@@ -37,7 +37,7 @@ get_board_version(void)
 
 
 unsigned long
-get_clock_freq(void)
+get_board_sys_clk(void)
 {
 	volatile cadmus_reg_t *cadmus = (cadmus_reg_t *)CONFIG_SYS_CADMUS_BASE_REG;
 

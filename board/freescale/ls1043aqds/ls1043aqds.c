@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <i2c.h>
 #include <fdt_support.h>
 #include <fsl_ddr_sdram.h>

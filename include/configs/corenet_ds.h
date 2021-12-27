@@ -47,14 +47,11 @@
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE2			/* PCIE controller 2 */
-#define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 #if defined(CONFIG_SPIFLASH)
 #elif defined(CONFIG_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #endif
-
-#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk() /* sysclk for MPC85xx */
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -392,7 +389,6 @@
 #define CONFIG_HAS_FSL_MPH_USB
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
-#define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
 

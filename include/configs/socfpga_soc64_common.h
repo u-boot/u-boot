@@ -60,7 +60,6 @@
 /* Flash device info */
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_MTD_PARTITIONS
 #define MTDIDS_DEFAULT			"nor0=ff705000.spi.0"
 #endif /* CONFIG_SPL_BUILD */
 
@@ -148,7 +147,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * L4 Watchdog
  */
 #ifndef CONFIG_SPL_BUILD
-#undef CONFIG_HW_WATCHDOG
 #undef CONFIG_DESIGNWARE_WATCHDOG
 #endif
 #define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS

@@ -10,8 +10,6 @@
 #include <asm/arch/stream_id_lsch2.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_CLK_FREQ		125000000
-
 #ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_INIT_SP_ADDR                CONFIG_SYS_TEXT_BASE
 #else
@@ -45,11 +43,6 @@
 /* I2C */
 
 /* GPIO */
-#ifdef CONFIG_DM_GPIO
-#ifndef CONFIG_MPC8XXX_GPIO
-#define CONFIG_MPC8XXX_GPIO
-#endif
-#endif
 
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE     1

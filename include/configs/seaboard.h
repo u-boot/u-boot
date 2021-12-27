@@ -27,7 +27,6 @@
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 
 /* NAND support */
-#define CONFIG_TEGRA_NAND
 
 /* Max number of NAND devices */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

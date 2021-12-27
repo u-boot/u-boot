@@ -39,7 +39,7 @@ void get_sys_info(struct sys_info *sys_info)
 	uint i;
 	uint freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
-	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
+	unsigned long sysclk = get_board_sys_clk();
 
 	sys_info->freq_systembus = sysclk;
 #if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || defined(CONFIG_STATIC_DDR_CLK_FREQ)

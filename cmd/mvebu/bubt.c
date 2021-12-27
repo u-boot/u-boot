@@ -271,8 +271,8 @@ static int spi_burn_image(size_t image_size)
 	u32 erase_bytes;
 
 	/* Probe the SPI bus to get the flash device */
-	flash = spi_flash_probe(CONFIG_ENV_SPI_BUS,
-				CONFIG_ENV_SPI_CS,
+	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
+				CONFIG_SF_DEFAULT_CS,
 				CONFIG_SF_DEFAULT_SPEED,
 				CONFIG_SF_DEFAULT_MODE);
 	if (!flash) {

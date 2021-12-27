@@ -11,8 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_FSL_CLK
-
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 /*
@@ -203,10 +201,5 @@
 			"source ${kernel_addr_r} ; "			\
 		"fi ; "							\
 		"fi\0"
-
-#if defined(CONFIG_SPL_BUILD)
-#undef CONFIG_WATCHDOG
-#define CONFIG_HW_WATCHDOG
-#endif
 
 #endif	/* __M53MENLO_CONFIG_H__ */

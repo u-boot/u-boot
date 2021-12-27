@@ -60,7 +60,6 @@
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE2			/* PCIE controller 2 */
 #define CONFIG_PCIE3			/* PCIE controller 3 */
-#define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -224,12 +223,6 @@
 #define HVBOOT					\
 	"setenv bootargs config-addr=0x60000000; "	\
 	"bootm 0x01000000 - 0x00f00000"
-
-#define CONFIG_SYS_CLK_FREQ	66666666
-
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
 
 /*
  * DDR Setup
@@ -408,12 +401,6 @@ unsigned long get_board_sys_clk(void);
 #define I2C_VOL_MONITOR_BUS_V_OVF	0x1
 #define I2C_VOL_MONITOR_BUS_V_SHIFT	3
 
-#define CONFIG_VID_FLS_ENV		"t4240rdb_vdd_mv"
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_VID
-#endif
-#define CONFIG_VOL_MONITOR_IR36021_SET
-#define CONFIG_VOL_MONITOR_IR36021_READ
 /* The lowest and highest voltage allowed for T4240RDB */
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
@@ -498,7 +485,6 @@ unsigned long get_board_sys_clk(void);
 /*
 * USB
 */
-#define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_HAS_FSL_DR_USB
 

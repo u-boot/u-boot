@@ -84,9 +84,6 @@
 */
 
 /* nedded by compliance test in read mode */
-#if defined(CONFIG_SPL_CMT)
-#define CONFIG_SYS_DCACHE_OFF
-#endif
 
 /* Define own nand partitions */
 #define CONFIG_ENV_RANGE		(4 * CONFIG_SYS_ENV_SECT_SIZE)

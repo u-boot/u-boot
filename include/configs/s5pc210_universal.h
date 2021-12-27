@@ -14,7 +14,6 @@
 #define CONFIG_TIZEN			/* TIZEN lib */
 
 /* Keep L2 Cache Disabled */
-#define CONFIG_SYS_L2CACHE_OFF		1
 
 /* Universal has 2 banks of DRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
@@ -103,11 +102,6 @@
 #define CONFIG_SYS_ONENAND_BASE		0x0C000000
 
 #define CONFIG_USB_GADGET_DWC2_OTG_PHY
-
-/*
- * SPI Settings
- */
-#define CONFIG_SOFT_SPI
 
 #ifndef	__ASSEMBLY__
 void universal_spi_scl(int bit);

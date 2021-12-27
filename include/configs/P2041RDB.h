@@ -36,7 +36,6 @@
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE2			/* PCIE controller 2 */
 #define CONFIG_PCIE3			/* PCIE controller 3 */
-#define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
@@ -50,10 +49,8 @@
 #endif
 
 #ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(unsigned long dummy);
 #include <linux/stringify.h>
 #endif
-#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -395,7 +392,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_HAS_FSL_MPH_USB
 
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
-#define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
 

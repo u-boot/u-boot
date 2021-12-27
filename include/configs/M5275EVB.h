@@ -58,7 +58,6 @@
 #endif
 
 /* I2C */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_MBAR
 #define CONFIG_SYS_I2C_PINMUX_REG	(gpio_reg->par_feci2c)
 #define CONFIG_SYS_I2C_PINMUX_CLR	(0xFFF0)
 #define CONFIG_SYS_I2C_PINMUX_SET	(0x000F)

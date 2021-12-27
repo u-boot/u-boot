@@ -22,7 +22,6 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 /* input clock of PLL: SMDKC100 has 12MHz input clock */
-#define CONFIG_SYS_CLK_FREQ		12000000
 
 /* DRAM Base */
 #define CONFIG_SYS_SDRAM_BASE		0x30000000

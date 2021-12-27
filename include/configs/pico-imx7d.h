@@ -65,9 +65,6 @@
 	BOOTENV
 #endif
 
-
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"splashpos=m,m\0" \
