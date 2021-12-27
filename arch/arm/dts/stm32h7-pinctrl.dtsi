@@ -239,14 +239,14 @@
 
 	usart3_pins: usart3-0 {
 		pins1 {
-			pinmux = <STM32_PINMUX('B', 10, AF7)>, /* USART3_TX */
+			pinmux = <STM32_PINMUX('D', 8, AF7)>, /* USART3_TX */
 				 <STM32_PINMUX('D', 12, AF7)>; /* USART3_RTS_DE */
 			bias-disable;
 			drive-push-pull;
 			slew-rate = <0>;
 		};
 		pins2 {
-			pinmux = <STM32_PINMUX('B', 11, AF7)>, /* USART3_RX */
+			pinmux = <STM32_PINMUX('D', 9, AF7)>, /* USART3_RX */
 				 <STM32_PINMUX('D', 11, AF7)>; /* USART3_CTS_NSS */
 			bias-disable;
 		};

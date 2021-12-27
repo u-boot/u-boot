@@ -26,7 +26,7 @@
 #include <config_distro_bootcmd.h>
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0xD0008000\0"		\
-			"fdtfile=stm32h743i-disco.dtb\0"	\
+			"fdtfile=stm32h743i-nucleo.dtb\0"	\
 			"fdt_addr_r=0xD0408000\0"		\
 			"scriptaddr=0xD0418000\0"		\
 			"pxefile_addr_r=0xD0428000\0" \
