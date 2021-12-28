@@ -123,7 +123,6 @@
 #define CONFIG_USBD_HS
 
 #ifdef CONFIG_DM_VIDEO
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
 

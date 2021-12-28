@@ -81,9 +81,14 @@
 #define DISTRO_BOOTENV
 #endif
 
+#ifndef SPLASH_SETTINGS
+#define SPLASH_SETTINGS
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS			\
 	DISTRO_BOOTENV					\
 	CONFIG_STD_DEVICES_SETTINGS			\
+	SPLASH_SETTINGS					\
 	"pciconfighost=1\0"				\
 	"netdev=eth0\0"					\
 	"consoledev=ttyS0\0"				\

@@ -176,7 +176,6 @@
 /* Display */
 #define CONFIG_IMX_HDMI
 
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 
 /* EEPROM */

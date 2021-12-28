@@ -154,7 +154,6 @@
 #ifdef CONFIG_VIDEO_IPUV3
 # define CONFIG_IMX_VIDEO_SKIP
 
-# define CONFIG_VIDEO_LOGO
 # define CONFIG_VIDEO_BMP_LOGO
 #endif
 

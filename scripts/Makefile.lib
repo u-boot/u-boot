@@ -374,6 +374,27 @@ cmd_S_ttf=						\
 $(obj)/%.S: $(src)/%.ttf
 	$(call cmd,S_ttf)
 
+# Splash logos
+# ---------------------------------------------------------------------------
+
+# Generate an assembly file to wrap the splash data
+quiet_cmd_S_splash= TTF     $@
+# Modified for U-Boot
+cmd_S_splash=						\
+(							\
+	echo '.section .rodata.splash.init,"a"';		\
+	echo '.balign 16';				\
+	echo '.global __splash_$(*F)_begin';		\
+	echo '__splash_$(*F)_begin:';			\
+	echo '.incbin "$<" ';				\
+	echo '__splash_$(*F)_end:';			\
+	echo '.global __splash_$(*F)_end';			\
+	echo '.balign 16';				\
+) > $@
+
+$(obj)/%.S: $(src)/%.bmp
+	$(call cmd,S_splash)
+
 # EFI applications
 # A Makefile target *.efi is built as EFI application.
 # A Makefile target *_efi.S wraps *.efi as built-in EFI application.
