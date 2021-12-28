@@ -89,7 +89,7 @@ static void mxs_lcd_init(struct udevice *dev, u32 fb_addr,
 	}
 
 	ret = clk_get_by_name(dev, "axi", &clk);
-	if (!ret) {
+	if (ret < 0) {
 		debug("%s: Failed to get mxs axi clk: %d\n", __func__, ret);
 	} else {
 		ret = clk_enable(&clk);
@@ -100,7 +100,7 @@ static void mxs_lcd_init(struct udevice *dev, u32 fb_addr,
 	}
 
 	ret = clk_get_by_name(dev, "disp_axi", &clk);
-	if (!ret) {
+	if (ret < 0) {
 		debug("%s: Failed to get mxs disp_axi clk: %d\n", __func__, ret);
 	} else {
 		ret = clk_enable(&clk);
