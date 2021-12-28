@@ -113,11 +113,10 @@ ENTRY(_main)
 	CLEAR_BSS
 #endif
 
-	mov	r0, #0x800
+	mov	r0, #0
 	bl	board_init_f
 
-    #if 0
-    #if ! defined(CONFIG_SPL_BUILD)
+#if ! defined(CONFIG_SPL_BUILD)
 
 /*
  * Set up intermediate environment (new sp and gd) and call
@@ -157,15 +156,12 @@ here:
 
 	bl	c_runtime_cpu_setup	/* we still call old routine here */
 #endif
-#endif
-
 #if !defined(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(FRAMEWORK)
 
 #if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL_EARLY_BSS)
 	CLEAR_BSS
 #endif
 
-#if 0
 # ifdef CONFIG_SPL_BUILD
 	/* Use a DRAM stack for the rest of SPL, if requested */
 	bl	spl_relocate_stack_gd
@@ -173,7 +169,6 @@ here:
 	movne	sp, r0
 	movne	r9, r0
 # endif
-#endif
 
 #if ! defined(CONFIG_SPL_BUILD)
 	bl coloured_LED_init
