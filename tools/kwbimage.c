@@ -8,6 +8,8 @@
  * <thomas.petazzoni@free-electrons.com>
  */
 
+#define OPENSSL_API_COMPAT 0x10101000L
+
 #include "imagetool.h"
 #include <limits.h>
 #include <image.h>
