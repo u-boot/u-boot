@@ -402,7 +402,6 @@ static inline struct efi_mem_desc *efi_get_next_mem_desc(
 
 struct efi_priv {
 	efi_handle_t parent_image;
-	struct efi_device_path *device_path;
 	struct efi_system_table *sys_table;
 	struct efi_boot_services *boot;
 	struct efi_runtime_services *run;
