@@ -269,7 +269,7 @@ This work could be extended in a number of ways:
 
 - Avoid turning off boot services in the stub. Instead allow U-Boot to make
   use of boot services in case it wants to. It is unclear what it might want
-  though.
+  though. It is better to use the app.
 
 Where is the code?
 ------------------

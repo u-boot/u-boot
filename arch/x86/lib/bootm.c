@@ -179,10 +179,14 @@ int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit)
 		* U-Boot is setting them up that way for itself in
 		* arch/i386/cpu/cpu.c.
 		*
-		* Note that we cannot currently boot a kernel while running as
-		* an EFI application. Please use the payload option for that.
+		* Note: this is incomplete for EFI kernels!
+		*
+		* This can boot a kernel while running as an EFI application,
+		* but if the kernel requires EFI support then that support needs
+		* to be enabled first (see EFI_LOADER). Also the EFI information
+		* must enabled with setup_efi_info(). See setup_zimage() for
+		* how this is done with the stub.
 		*/
-#ifndef CONFIG_EFI_APP
 		__asm__ __volatile__ (
 		"movl $0, %%ebp\n"
 		"cli\n"
@@ -191,7 +195,6 @@ int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit)
 		[boot_params] "S"(setup_base),
 		"b"(0), "D"(0)
 		);
-#endif
 	}
 
 	/* We can't get to here */
