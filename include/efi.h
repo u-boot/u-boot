@@ -419,10 +419,12 @@ struct efi_priv {
  *
  * @handle: handle of the controller on which this driver is installed
  * @blkio: block io protocol proxied by this driver
+ * @device_path: EFI path to the device
  */
 struct efi_media_plat {
-	efi_handle_t		handle;
-	struct efi_block_io	*blkio;
+	efi_handle_t handle;
+	struct efi_block_io *blkio;
+	struct efi_device_path *device_path;
 };
 
 /* Base address of the EFI image */
