@@ -554,6 +554,64 @@ void comphy_dedicated_phys_init(void)
 	debug_exit();
 }
 
+int comphy_cp110_init_serdes_map(int node, struct chip_serdes_phy_config *cfg)
+{
+	int lane, subnode;
+
+	cfg->comphy_lanes_count = fdtdec_get_int(gd->fdt_blob, node,
+						 "max-lanes", 0);
+	if (cfg->comphy_lanes_count <= 0) {
+		printf("comphy max lanes is wrong\n");
+		return -EINVAL;
+	}
+
+	cfg->comphy_mux_bitcount = fdtdec_get_int(gd->fdt_blob, node,
+						  "mux-bitcount", 0);
+	if (cfg->comphy_mux_bitcount <= 0) {
+		printf("comphy mux bit count is wrong\n");
+		return -EINVAL;
+	}
+
+	cfg->comphy_mux_lane_order = fdtdec_locate_array(gd->fdt_blob, node,
+							 "mux-lane-order",
+							 cfg->comphy_lanes_count);
+
+	lane = 0;
+	fdt_for_each_subnode(subnode, gd->fdt_blob, node) {
+		/* Skip disabled ports */
+		if (!fdtdec_get_is_enabled(gd->fdt_blob, subnode))
+			continue;
+
+		cfg->comphy_map_data[lane].type =
+			fdtdec_get_int(gd->fdt_blob, subnode, "phy-type",
+				       COMPHY_TYPE_INVALID);
+
+		if (cfg->comphy_map_data[lane].type == COMPHY_TYPE_INVALID) {
+			printf("no phy type for lane %d, setting lane as unconnected\n",
+			       lane + 1);
+			continue;
+		}
+
+		cfg->comphy_map_data[lane].speed =
+			fdtdec_get_int(gd->fdt_blob, subnode, "phy-speed",
+				       COMPHY_SPEED_INVALID);
+
+		cfg->comphy_map_data[lane].invert =
+			fdtdec_get_int(gd->fdt_blob, subnode, "phy-invert",
+				       COMPHY_POLARITY_NO_INVERT);
+
+		cfg->comphy_map_data[lane].clk_src =
+			fdtdec_get_bool(gd->fdt_blob, subnode, "clk-src");
+
+		cfg->comphy_map_data[lane].end_point =
+			fdtdec_get_bool(gd->fdt_blob, subnode, "end_point");
+
+		lane++;
+	}
+
+	return 0;
+}
+
 int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		      struct comphy_map *serdes_map)
 {
