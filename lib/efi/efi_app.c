@@ -106,13 +106,14 @@ static efi_status_t setup_memory(struct efi_priv *priv)
 	ret = boot->allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
 				   priv->image_data_type, pages, &addr);
 	if (ret) {
-		printf("(using pool %lx) ", ret);
+		log_info("(using pool %lx) ", ret);
 		priv->ram_base = (ulong)efi_malloc(priv, CONFIG_EFI_RAM_SIZE,
 						   &ret);
 		if (!priv->ram_base)
 			return ret;
 		priv->use_pool_for_malloc = true;
 	} else {
+		log_info("(using allocated RAM address %lx) ", (ulong)addr);
 		priv->ram_base = addr;
 	}
 	gd->ram_size = pages << 12;
