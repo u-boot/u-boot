@@ -27,23 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct efi_priv *global_priv;
-
-struct efi_system_table *efi_get_sys_table(void)
-{
-	return global_priv->sys_table;
-}
-
-struct efi_boot_services *efi_get_boot(void)
-{
-	return global_priv->boot;
-}
-
-unsigned long efi_get_ram_base(void)
-{
-	return global_priv->ram_base;
-}
-
 int efi_info_get(enum efi_entry_t type, void **datap, int *sizep)
 {
 	return -ENOSYS;
@@ -319,7 +302,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 	/* Set up access to EFI data structures */
 	efi_init(priv, "App", image, sys_table);
 
-	global_priv = priv;
+	efi_set_priv(priv);
 
 	/*
 	 * Set up the EFI debug UART so that printf() works. This is
@@ -345,7 +328,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 
 static void efi_exit(void)
 {
-	struct efi_priv *priv = global_priv;
+	struct efi_priv *priv = efi_get_priv();
 
 	free_memory(priv);
 	printf("U-Boot EFI exiting\n");

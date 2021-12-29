@@ -475,6 +475,27 @@ extern char _binary_u_boot_bin_start[], _binary_u_boot_bin_end[];
 				EFI_VARIABLE_APPEND_WRITE)
 
 /**
+ * efi_get_priv() - Get access to the EFI-private information
+ *
+ * This struct it used by both the stub and the app to record things about the
+ * EFI environment. It is not available in U-Boot proper after the stub has
+ * jumped there. Use efi_info_get() to obtain info in that case.
+ *
+ * Return: pointer to private info
+ */
+struct efi_priv *efi_get_priv(void);
+
+/**
+ * efi_set_priv() - Set up a pointer to the EFI-private information
+ *
+ * This is called in the stub and app to record the location of this
+ * information.
+ *
+ * @priv: New location of private data
+ */
+void efi_set_priv(struct efi_priv *priv);
+
+/**
  * efi_get_sys_table() - Get access to the main EFI system table
  *
  * @return pointer to EFI system table

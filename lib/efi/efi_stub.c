@@ -31,7 +31,6 @@
 #error "This file needs to be ported for use on architectures"
 #endif
 
-static struct efi_priv *global_priv;
 static bool use_uart;
 
 struct __packed desctab_info {
@@ -63,6 +62,8 @@ void _debug_uart_init(void)
 
 void putc(const char ch)
 {
+	struct efi_priv *priv = efi_get_priv();
+
 	if (ch == '\n')
 		putc('\r');
 
@@ -73,7 +74,7 @@ void putc(const char ch)
 			;
 		outb(ch, (ulong)&com_port->thr);
 	} else {
-		efi_putc(global_priv, ch);
+		efi_putc(priv, ch);
 	}
 }
 
@@ -320,7 +321,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 		puts(" efi_init() failed\n");
 		return ret;
 	}
-	global_priv = priv;
+	efi_set_priv(priv);
 
 	cs32 = get_codeseg32();
 	if (cs32 < 0)
