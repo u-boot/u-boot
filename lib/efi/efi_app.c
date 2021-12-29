@@ -300,8 +300,11 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 	efi_status_t ret;
 
 	/* Set up access to EFI data structures */
-	efi_init(priv, "App", image, sys_table);
-
+	ret = efi_init(priv, "App", image, sys_table);
+	if (ret) {
+		printf("Failed to set up U-Boot: err=%lx\n", ret);
+		return ret;
+	}
 	efi_set_priv(priv);
 
 	/*
