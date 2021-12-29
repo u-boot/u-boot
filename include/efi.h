@@ -400,14 +400,37 @@ static inline struct efi_mem_desc *efi_get_next_mem_desc(
 	return (struct efi_mem_desc *)((ulong)desc + map->desc_size);
 }
 
+/**
+ * struct efi_priv - Information about the environment provided by EFI
+ *
+ * @parent_image: image passed into the EFI app or stub
+ * @sys_table: Pointer to system table
+ * @boot: Pointer to boot-services table
+ * @run: Pointer to runtime-services table
+ *
+ * @use_pool_for_malloc: true if all allocation should go through the EFI 'pool'
+ *	methods allocate_pool() and free_pool(); false to use 'pages' methods
+ *	allocate_pages() and free_pages()
+ * @ram_base: Base address of RAM (size CONFIG_EFI_RAM_SIZE)
+ * @image_data_type: Type of the loaded image (e.g. EFI_LOADER_CODE)
+ *
+ * @info: Header of the info list, holding info collected by the stub and passed
+ *	to U-Boot
+ * @info_size: Size of the info list @info in bytes
+ * @next_hdr: Pointer to where to put the next header when adding to the list
+ */
 struct efi_priv {
 	efi_handle_t parent_image;
 	struct efi_system_table *sys_table;
 	struct efi_boot_services *boot;
 	struct efi_runtime_services *run;
+
+	/* app: */
 	bool use_pool_for_malloc;
 	unsigned long ram_base;
 	unsigned int image_data_type;
+
+	/* stub: */
 	struct efi_info_hdr *info;
 	unsigned int info_size;
 	void *next_hdr;
