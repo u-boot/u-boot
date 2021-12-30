@@ -1871,10 +1871,6 @@ The following options need to be configured:
 		CONFIG_SPL_INIT_MINIMAL
 		Arch init code should be built for a very small image
 
-		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR
-		Sector to load kernel uImage from when MMC is being
-		used in raw mode (for Falcon mode)
-
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS
 		Sector and number of sectors to load kernel argument

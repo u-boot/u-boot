@@ -236,7 +236,6 @@
 #ifdef CONFIG_MMC_SDHCI_ZYNQ
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
-# define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0 /* unused */
 # if defined(CONFIG_SPL_LOAD_FIT)
 #  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.itb"
 # else
