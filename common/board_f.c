@@ -149,8 +149,9 @@ static int display_text_info(void)
 	text_base = CONFIG_SYS_MONITOR_BASE;
 #endif
 
-	debug("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
-	      text_base, bss_start, bss_end);
+	printf("U-Boot code: %08lX -> %08lX\n", (ulong)&__image_copy_start, (ulong)&__image_copy_end);
+	printf("U-Boot data: %08lX -> %08lX\n", (ulong)&_sdata, (ulong)&_edata);
+	printf("U-Boot  bss: %08lX -> %08lX\n", bss_start, bss_end);
 #endif
 
 	return 0;
@@ -218,16 +219,14 @@ static int show_dram_config(void)
 	unsigned long long size;
 	int i;
 
-	debug("\nRAM Configuration:\n");
+	printf("\nRAM Configuration:\n");
 	for (i = size = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size += gd->bd->bi_dram[i].size;
-		debug("Bank #%d: %llx ", i,
+		printf("Bank #%d: %llx ", i,
 		      (unsigned long long)(gd->bd->bi_dram[i].start));
-#ifdef DEBUG
 		print_size(gd->bd->bi_dram[i].size, "\n");
-#endif
 	}
-	debug("\nDRAM:  ");
+	printf("\nDRAM:  ");
 
 	print_size(size, "");
 	board_add_ram_info(0);
@@ -264,7 +263,7 @@ __weak int init_func_vid(void)
 static int setup_mon_len(void)
 {
 #if defined(__ARM__) || defined(__MICROBLAZE__)
-	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
+	gd->mon_len = (ulong)&_etext - (ulong)_stext;
 #elif defined(CONFIG_SANDBOX)
 	gd->mon_len = 0;
 #elif defined(CONFIG_EFI_APP)
@@ -321,11 +320,11 @@ __weak ulong board_get_usable_ram_top(ulong total_size)
 
 static int setup_dest_addr(void)
 {
-	debug("Monitor len: %08lX\n", gd->mon_len);
+	printf("Monitor len: %08lX\n", gd->mon_len);
 	/*
 	 * Ram is setup, size stored in gd !!
 	 */
-	debug("Ram size: %08lX\n", (ulong)gd->ram_size);
+	printf("Ram size: %08lX\n", (ulong)gd->ram_size);
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
@@ -345,7 +344,7 @@ static int setup_dest_addr(void)
 	gd->ram_top = gd->ram_base + get_effective_memsize();
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
 	gd->relocaddr = gd->ram_top;
-	debug("Ram top: %08lX\n", (ulong)gd->ram_top);
+	printf("Ram top: %08lX\n", (ulong)gd->ram_top);
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
 	/*
 	 * We need to make sure the location we intend to put secondary core

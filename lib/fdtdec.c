@@ -1044,8 +1044,9 @@ int fdtdec_setup_mem_size_base(void)
 
 	gd->ram_size = (phys_size_t)(res.end - res.start + 1);
 	gd->ram_base = (unsigned long)res.start;
-	debug("%s: Initial DRAM size %llx\n", __func__,
-	      (unsigned long long)gd->ram_size);
+	printf("%s: DRAM at %llx size %llx\n", __func__,
+           (unsigned long long)gd->ram_base,
+           (unsigned long long)gd->ram_size);
 
 	return 0;
 }

@@ -4,6 +4,11 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+/* This file defines target specific routines,
+ * and stubs that override weak functions that need to be nop-ed out.
+ */
+
+
 #include <common.h>
 #include <dm.h>
 #include <init.h>
@@ -40,3 +45,7 @@ int board_init(void)
 {
 	return 0;
 }
+
+int arm_reserve_mmu(void)
+    {
+    }
