@@ -9,6 +9,8 @@
 #include "stm32mp15-ddr3-dhsom-2x2Gb-1066-binG.dtsi"
 #include "stm32mp15-ddr3-dhsom-2x4Gb-1066-binG.dtsi"
 
+/delete-node/ &ksz8851;
+
 / {
 	aliases {
 		i2c1 = &i2c2;
@@ -18,7 +20,8 @@
 		mmc1 = &sdmmc2;
 		spi0 = &qspi;
 		usb0 = &usbotg_hs;
-		ethernet1 = &ksz8851;
+		eeprom0 = &eeprom0;
+		ethernet1 = &ks8851;
 	};
 
 	config {
@@ -30,28 +33,34 @@
 		dh,ddr3-coding-gpios = <&gpioz 6 0>, <&gpioz 7 0>;
 	};
 
-	led {
-		red {
-			label = "error";
-			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
-			default-state = "off";
-			status = "okay";
-		};
-
-		blue {
-			default-state = "on";
-		};
-	};
-
 	/* This is actually on FMC2, but we do not have bus driver for that */
-	ksz8851: ks8851mll@64000000 {
+	ks8851: ks8851mll@64000000 {
 		compatible = "micrel,ks8851-mll";
 		reg = <0x64000000 0x20000>;
 	};
 };
 
+&ethernet0 {
+	phy-reset-gpios = <&gpioh 3 GPIO_ACTIVE_LOW>;
+	/delete-property/ st,eth-ref-clk-sel;
+};
+
+&ethernet0_rmii_pins_a {
+	pins1 {
+		pinmux = <STM32_PINMUX('G', 13, AF11)>, /* ETH1_RMII_TXD0 */
+			 <STM32_PINMUX('G', 14, AF11)>, /* ETH1_RMII_TXD1 */
+			 <STM32_PINMUX('B', 11, AF11)>, /* ETH1_RMII_TX_EN */
+			 <STM32_PINMUX('A', 1, AF11)>,  /* ETH1_RMII_REF_CLK */
+			 <STM32_PINMUX('A', 2, AF11)>,  /* ETH1_MDIO */
+			 <STM32_PINMUX('C', 1, AF11)>;  /* ETH1_MDC */
+	};
+};
+
 &i2c4 {
 	u-boot,dm-pre-reloc;
+
+	eeprom0: eeprom@50 {
+	};
 };
 
 &i2c4_pins_a {
@@ -59,6 +68,10 @@
 	pins {
 		u-boot,dm-pre-reloc;
 	};
+};
+
+&phy0 {
+	/delete-property/ reset-gpios;
 };
 
 &pinctrl {
