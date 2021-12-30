@@ -15,6 +15,11 @@
 
 / {
 	u-boot,dm-pre-reloc;
+
+	aliases {
+		eeprom0 = &eeprom0;
+	};
+
 	config {
 		dh,ddr3-coding-gpios = <&gpiog 0 0>, <&gpiog 1 0>;
 		dh,som-coding-gpios = <&gpioz 7 0>, <&gpiof 3 0>;
@@ -28,6 +33,9 @@
 &i2c4 {
 	u-boot,dm-pre-reloc;
 	u-boot,dm-spl;
+
+	eeprom0: eeprom@53 {
+	};
 };
 
 &i2c4_pins_a {
