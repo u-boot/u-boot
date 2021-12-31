@@ -482,7 +482,7 @@ static int reserve_noncached(void)
 static int reserve_malloc(void)
 {
 	gd->start_addr_sp = reserve_stack_aligned(TOTAL_MALLOC_LEN);
-	debug("Reserving %dk for malloc() at: %08lx\n",
+	printf("Reserving %dk for malloc() at: %08lx\n",
 	      TOTAL_MALLOC_LEN >> 10, gd->start_addr_sp);
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 	reserve_noncached();
@@ -581,7 +581,7 @@ static int reserve_bloblist(void)
 
 static int display_new_sp(void)
 {
-	debug("New Stack Pointer is: %08lx\n", gd->start_addr_sp);
+	printf("New Stack Pointer is: %08lx\n", gd->start_addr_sp);
 
 	return 0;
 }
@@ -691,10 +691,10 @@ static int setup_reloc(void)
 	memcpy(gd->new_gd, (char *)gd, sizeof(gd_t));
 
 	if (gd->flags & GD_FLG_SKIP_RELOC) {
-		debug("Skipping relocation due to flag\n");
+		printf("Skipping relocation due to flag\n");
 	} else {
-		debug("Relocation Offset is: %08lx\n", gd->reloc_off);
-		debug("Relocating to %08lx, new gd at %08lx, sp at %08lx\n",
+		printf("Relocation Offset is: %08lx\n", gd->reloc_off);
+		printf("Relocating to %08lx, new gd at %08lx, sp at %08lx\n",
 		      gd->relocaddr, (ulong)map_to_sysmem(gd->new_gd),
 		      gd->start_addr_sp);
 	}

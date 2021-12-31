@@ -25,7 +25,7 @@ SECTIONS
 	.text :
 	{
         _stext = .;
-		*(.__image_copy_start)
+        __image_copy_start = .;
 		*(.vectors)
 		CPUDIR/start.o (.text*)
 	} > FLASH
@@ -42,6 +42,15 @@ SECTIONS
     }  > FLASH
 
 	. = ALIGN(4);
+	.u_boot_list :
+    {
+		KEEP(*(SORT(.u_boot_list*)));
+        _etext = .;
+        __image_copy_end = .;
+	} > FLASH
+
+
+	. = ALIGN(4);
     __data_in_flash = .;
 	.data :
     {
@@ -50,26 +59,13 @@ SECTIONS
         _edata = .;
 	} > RAM AT > FLASH
 
-	. = ALIGN(4);
-
-	. = .;
-
-	. = ALIGN(4);
-	.u_boot_list :
-    {
-		KEEP(*(SORT(.u_boot_list*)));
-    _etext = .;
-	} > FLASH
-
-	. = ALIGN(4);
-
-
 
 /*
  * Compiler-generated __bss_start and __bss_end, see arch/arm/lib/bss.c
  * __bss_base and __bss_limit are for linker only (overlay ordering)
  */
 
+	. = ALIGN(4);
 	.bss_start :
     {
 		KEEP(*(.__bss_start));

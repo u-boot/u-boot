@@ -47,5 +47,18 @@ int board_init(void)
 }
 
 int arm_reserve_mmu(void)
+{
+        return 0;
+}
+
+phys_size_t get_effective_memsize(void)
     {
+    return 0x00080000;          // for now, use the 512K at 0x24000000
     }
+
+ulong board_get_usable_ram_top(ulong total_size)
+    {
+    return 0x24080000;          // for now use the RAM at 0x24000000
+    }
+
+
