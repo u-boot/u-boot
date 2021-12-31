@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Functions shared by the app and stub
+ *
  * Copyright (c) 2015 Google, Inc
  *
  * EFI information obtained here:
@@ -16,6 +18,33 @@
 #include <linux/types.h>
 #include <efi.h>
 #include <efi_api.h>
+
+static struct efi_priv *global_priv;
+
+struct efi_priv *efi_get_priv(void)
+{
+	return global_priv;
+}
+
+void efi_set_priv(struct efi_priv *priv)
+{
+	global_priv = priv;
+}
+
+struct efi_system_table *efi_get_sys_table(void)
+{
+	return global_priv->sys_table;
+}
+
+struct efi_boot_services *efi_get_boot(void)
+{
+	return global_priv->boot;
+}
+
+unsigned long efi_get_ram_base(void)
+{
+	return global_priv->ram_base;
+}
 
 /*
  * Global declaration of gd.

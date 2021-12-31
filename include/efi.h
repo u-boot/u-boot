@@ -321,7 +321,7 @@ struct efi_info_hdr {
  * struct efi_entry_hdr - Header for a table entry
  *
  * @type:	enum eft_entry_t
- * @size	size of entry bytes excluding header and padding
+ * @size:	size of entry bytes excluding header and padding
  * @addr:	address of this entry (0 if it follows the header )
  * @link:	size of entry including header and padding
  * @spare1:	Spare space for expansion
@@ -400,15 +400,37 @@ static inline struct efi_mem_desc *efi_get_next_mem_desc(
 	return (struct efi_mem_desc *)((ulong)desc + map->desc_size);
 }
 
+/**
+ * struct efi_priv - Information about the environment provided by EFI
+ *
+ * @parent_image: image passed into the EFI app or stub
+ * @sys_table: Pointer to system table
+ * @boot: Pointer to boot-services table
+ * @run: Pointer to runtime-services table
+ *
+ * @use_pool_for_malloc: true if all allocation should go through the EFI 'pool'
+ *	methods allocate_pool() and free_pool(); false to use 'pages' methods
+ *	allocate_pages() and free_pages()
+ * @ram_base: Base address of RAM (size CONFIG_EFI_RAM_SIZE)
+ * @image_data_type: Type of the loaded image (e.g. EFI_LOADER_CODE)
+ *
+ * @info: Header of the info list, holding info collected by the stub and passed
+ *	to U-Boot
+ * @info_size: Size of the info list @info in bytes
+ * @next_hdr: Pointer to where to put the next header when adding to the list
+ */
 struct efi_priv {
 	efi_handle_t parent_image;
-	struct efi_device_path *device_path;
 	struct efi_system_table *sys_table;
 	struct efi_boot_services *boot;
 	struct efi_runtime_services *run;
+
+	/* app: */
 	bool use_pool_for_malloc;
 	unsigned long ram_base;
 	unsigned int image_data_type;
+
+	/* stub: */
 	struct efi_info_hdr *info;
 	unsigned int info_size;
 	void *next_hdr;
@@ -419,10 +441,12 @@ struct efi_priv {
  *
  * @handle: handle of the controller on which this driver is installed
  * @blkio: block io protocol proxied by this driver
+ * @device_path: EFI path to the device
  */
 struct efi_media_plat {
-	efi_handle_t		handle;
-	struct efi_block_io	*blkio;
+	efi_handle_t handle;
+	struct efi_block_io *blkio;
+	struct efi_device_path *device_path;
 };
 
 /* Base address of the EFI image */
@@ -449,6 +473,27 @@ extern char _binary_u_boot_bin_start[], _binary_u_boot_bin_end[];
 				EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS | \
 				EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS | \
 				EFI_VARIABLE_APPEND_WRITE)
+
+/**
+ * efi_get_priv() - Get access to the EFI-private information
+ *
+ * This struct it used by both the stub and the app to record things about the
+ * EFI environment. It is not available in U-Boot proper after the stub has
+ * jumped there. Use efi_info_get() to obtain info in that case.
+ *
+ * Return: pointer to private info
+ */
+struct efi_priv *efi_get_priv(void);
+
+/**
+ * efi_set_priv() - Set up a pointer to the EFI-private information
+ *
+ * This is called in the stub and app to record the location of this
+ * information.
+ *
+ * @priv: New location of private data
+ */
+void efi_set_priv(struct efi_priv *priv);
 
 /**
  * efi_get_sys_table() - Get access to the main EFI system table
@@ -520,6 +565,10 @@ void efi_putc(struct efi_priv *priv, const char ch);
 
 /**
  * efi_info_get() - get an entry from an EFI table
+ *
+ * This function is called from U-Boot proper to read information set up by the
+ * EFI stub. It can only be used when running from the EFI stub, not when U-Boot
+ * is running as an app.
  *
  * @type:	Entry type to search for
  * @datap:	Returns pointer to entry data

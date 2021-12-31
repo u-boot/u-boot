@@ -7,6 +7,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <efi.h>
+#include <efi_api.h>
 #include <errno.h>
 #include <init.h>
 #include <log.h>
@@ -296,8 +297,14 @@ void setup_efi_info(struct efi_info *efi_info)
 void efi_show_bdinfo(void)
 {
 	struct efi_entry_systable *table = NULL;
+	struct efi_system_table *sys_table;
 	int size, ret;
 
 	ret = efi_info_get(EFIET_SYS_TABLE, (void **)&table, &size);
-	bdinfo_print_num_l("efi_table", (ulong)table);
+	if (!ret) {
+		bdinfo_print_num_l("efi_table", table->sys_table);
+		sys_table = (struct efi_system_table *)(uintptr_t)
+			table->sys_table;
+		bdinfo_print_num_l(" revision", sys_table->fw_revision);
+	}
 }

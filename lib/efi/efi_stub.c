@@ -31,7 +31,6 @@
 #error "This file needs to be ported for use on architectures"
 #endif
 
-static struct efi_priv *global_priv;
 static bool use_uart;
 
 struct __packed desctab_info {
@@ -63,6 +62,8 @@ void _debug_uart_init(void)
 
 void putc(const char ch)
 {
+	struct efi_priv *priv = efi_get_priv();
+
 	if (ch == '\n')
 		putc('\r');
 
@@ -73,7 +74,7 @@ void putc(const char ch)
 			;
 		outb(ch, (ulong)&com_port->thr);
 	} else {
-		efi_putc(global_priv, ch);
+		efi_putc(priv, ch);
 	}
 }
 
@@ -225,6 +226,22 @@ static int get_codeseg32(void)
 	return cs32;
 }
 
+/**
+ * setup_info_table() - sets up a table containing information from EFI
+ *
+ * We must call exit_boot_services() before jumping out of the stub into U-Boot
+ * proper, so that U-Boot has full control of peripherals, memory, etc.
+ *
+ * Once we do this, we cannot call any boot-services functions so we must find
+ * out everything we need to before doing that.
+ *
+ * Set up a struct efi_info_hdr table which can hold various records (e.g.
+ * struct efi_entry_memmap) with information obtained from EFI.
+ *
+ * @priv: Pointer to our private information which contains the list
+ * @size: Size of the table to allocate
+ * Return: 0 if OK, non-zero on error
+ */
 static int setup_info_table(struct efi_priv *priv, int size)
 {
 	struct efi_info_hdr *info;
@@ -248,6 +265,19 @@ static int setup_info_table(struct efi_priv *priv, int size)
 	return 0;
 }
 
+/**
+ * add_entry_addr() - Add a new entry to the efi_info list
+ *
+ * This adds an entry, consisting of a tag and two lots of data. This avoids the
+ * caller having to coalesce the data first
+ *
+ * @priv: Pointer to our private information which contains the list
+ * @type: Type of the entry to add
+ * @ptr1: Pointer to first data block to add
+ * @size1: Size of first data block in bytes (can be 0)
+ * @ptr2: Pointer to second data block to add
+ * @size2: Size of second data block in bytes (can be 0)
+ */
 static void add_entry_addr(struct efi_priv *priv, enum efi_entry_t type,
 			   void *ptr1, int size1, void *ptr2, int size2)
 {
@@ -291,7 +321,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 		puts(" efi_init() failed\n");
 		return ret;
 	}
-	global_priv = priv;
+	efi_set_priv(priv);
 
 	cs32 = get_codeseg32();
 	if (cs32 < 0)
