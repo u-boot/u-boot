@@ -33,16 +33,11 @@
 #include <ide.h>
 #include <init.h>
 #include <initcall.h>
-/* TODO: can we just include all these headers whether needed or not? */
-#if defined(CONFIG_CMD_KGDB)
 #include <kgdb.h>
-#endif
 #include <irq_func.h>
 #include <malloc.h>
 #include <mapmem.h>
-#ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
-#endif
 #include <mmc.h>
 #include <mux.h>
 #include <nand.h>
@@ -56,9 +51,7 @@
 #include <timer.h>
 #include <trace.h>
 #include <watchdog.h>
-#ifdef CONFIG_XEN
 #include <xen.h>
-#endif
 #include <asm/sections.h>
 #include <dm/root.h>
 #include <dm/ofnode.h>
@@ -67,9 +60,7 @@
 #include <efi_loader.h>
 #include <wdt.h>
 #include <asm-generic/gpio.h>
-#ifdef CONFIG_EFI_SETUP_EARLY
 #include <efi_loader.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
