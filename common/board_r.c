@@ -498,15 +498,6 @@ static int initr_ethaddr(void)
 }
 #endif /* CONFIG_CMD_NET */
 
-#ifdef CONFIG_CMD_KGDB
-static int initr_kgdb(void)
-{
-	puts("KGDB:  ");
-	kgdb_init();
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_LED_STATUS)
 static int initr_status_led(void)
 {
@@ -769,7 +760,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 #ifdef CONFIG_CMD_KGDB
-	initr_kgdb,
+	kgdb_init,
 #endif
 	interrupt_init,
 #if defined(CONFIG_MICROBLAZE) || defined(CONFIG_M68K)
