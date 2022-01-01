@@ -138,7 +138,7 @@ extern void _tlbie(unsigned long va);	/* invalidate a TLB entry */
 extern void _tlbia(void);		/* invalidate all TLB entries */
 
 #ifdef CONFIG_ADDR_MAP
-extern void init_addr_map(void);
+extern int init_addr_map(void);
 #endif
 
 typedef enum {

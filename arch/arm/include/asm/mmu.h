@@ -3,6 +3,6 @@
 #ifndef __ASM_ARM_MMU_H
 #define __ASM_ARM_MMU_H
 
-void init_addr_map(void);
+int init_addr_map(void);
 
 #endif

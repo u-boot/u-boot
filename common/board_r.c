@@ -186,15 +186,6 @@ __weak int arch_initr_trap(void)
 	return 0;
 }
 
-#ifdef CONFIG_ADDR_MAP
-static int initr_addr_map(void)
-{
-	init_addr_map();
-
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 static int initr_unlock_ram_in_cache(void)
 {
@@ -646,7 +637,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_dm,
 #endif
 #ifdef CONFIG_ADDR_MAP
-	initr_addr_map,
+	init_addr_map,
 #endif
 #if defined(CONFIG_ARM) || defined(CONFIG_NDS32) || defined(CONFIG_RISCV) || \
 	defined(CONFIG_SANDBOX)
