@@ -15,7 +15,8 @@ OUTPUT_ARCH(arm)
 MEMORY
     {
     FLASH : ORIGIN = 0x08000000, LENGTH = 0x00200000
-    RAM:   ORIGIN = 0x24000000, LENGTH = 0x00080000
+    RAM:    ORIGIN = 0x24000000, LENGTH = 0x00080000
+    RAM2:   ORIGIN = 0x30000000, LENGTH = 0x00048000
     }
 
 ENTRY(_start)
@@ -57,7 +58,7 @@ SECTIONS
         _sdata = .;
 		*(.data*)
         _edata = .;
-	} > RAM AT > FLASH
+	} > RAM2 AT > FLASH
 
 
 /*
@@ -70,18 +71,18 @@ SECTIONS
     {
 		KEEP(*(.__bss_start));
 		__bss_base = .;
-	} > RAM
+	} > RAM2
 
 	.bss :
     {
 		*(.bss*)
 		 . = ALIGN(4);
 		 __bss_limit = .;
-	} > RAM
+	} > RAM2
 
 	.bss_end :
     {
 		KEEP(*(.__bss_end));
-	} > RAM
+	} > RAM2
 
 }

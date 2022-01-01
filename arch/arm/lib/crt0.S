@@ -81,6 +81,13 @@ clbss_l:cmp	r0, r1			/* while not at end of BSS */
 
 ENTRY(_main)
 
+/* Enable Domain 2 RAMs. SRAM1 through SRAM3 are where .data, /bss. the stack, etc. a located, so it has to be turned on first thing. */
+
+    ldr r0,=0x580244DC      /* RCC_AHB2ENR |= SRAM1EN | SRAM2EN | SRAM3 EN; */
+    ldr r1, [r0]
+    orr r1, #0xE0000000
+    str r1, [r0]
+
 /*
  * Set up initial C runtime environment and call board_init_f(0).
  */
