@@ -23,10 +23,6 @@
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <u-boot/crc.h>
-/* TODO: can we just include all these headers whether needed or not? */
-#if defined(CONFIG_CMD_BEDBUG)
-#include <bedbug/type.h>
-#endif
 #include <binman.h>
 #include <command.h>
 #include <console.h>
@@ -37,6 +33,7 @@
 #include <ide.h>
 #include <init.h>
 #include <initcall.h>
+/* TODO: can we just include all these headers whether needed or not? */
 #if defined(CONFIG_CMD_KGDB)
 #include <kgdb.h>
 #endif
@@ -819,10 +816,6 @@ static init_fnc_t init_sequence_r[] = {
 	 * keyboard).
 	 */
 	last_stage_init,
-#endif
-#ifdef CONFIG_CMD_BEDBUG
-	INIT_FUNC_WATCHDOG_RESET
-	bedbug_init,
 #endif
 #if defined(CONFIG_PRAM)
 	initr_mem,
