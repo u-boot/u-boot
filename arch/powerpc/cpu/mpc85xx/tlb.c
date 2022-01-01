@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/bitops.h>
 #include <asm/global_data.h>
 #include <asm/processor.h>

@@ -311,6 +311,16 @@ int board_early_init_r(void);
 int arch_initr_trap(void);
 
 /**
+ * init_addr_map()
+ *
+ * Initialize non-identity virtual-physical memory mappings for 32bit CPUs.
+ * It is called during the generic board init sequence, after relocation.
+ *
+ * Return: 0 if OK
+ */
+int init_addr_map(void);
+
+/**
  * main_loop() - Enter the main loop of U-Boot
  *
  * This normally runs the command line.
