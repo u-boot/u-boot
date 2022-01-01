@@ -66,9 +66,7 @@
 #include <linux/err.h>
 #include <efi_loader.h>
 #include <wdt.h>
-#if defined(CONFIG_GPIO_HOG)
-#include <asm/gpio.h>
-#endif
+#include <asm-generic/gpio.h>
 #ifdef CONFIG_EFI_SETUP_EARLY
 #include <efi_loader.h>
 #endif
