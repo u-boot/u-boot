@@ -14,6 +14,7 @@
 #include <asm/mach-imx/rdc-sema.h>
 #include <asm/arch/imx-rdc.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/bootm.h>
 #include <dm.h>
@@ -322,6 +323,8 @@ int arch_cpu_init(void)
 	init_snvs();
 
 	imx_gpcv2_init();
+
+	enable_ca7_smp();
 
 	return 0;
 }

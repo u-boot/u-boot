@@ -487,6 +487,9 @@ int arch_cpu_init(void)
 	if (is_mx6dqp())
 		noc_setup();
 #endif
+
+	enable_ca7_smp();
+
 	return 0;
 }
 

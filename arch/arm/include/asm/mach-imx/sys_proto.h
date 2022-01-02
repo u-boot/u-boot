@@ -236,4 +236,9 @@ unsigned long call_imx_sip_ret2(unsigned long id, unsigned long reg0,
 				unsigned long reg3);
 
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
+
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7) || defined(CONFIG_MX7ULP)
+void enable_ca7_smp(void);
+#endif
+
 #endif
