@@ -92,3 +92,10 @@ int board_init(void)
 
 	return 0;
 }
+
+int board_late_init(void)
+{
+	/* Do late init to ensure successful enumeration of PCIe devices */
+	pci_init();
+	return 0;
+}
