@@ -24,18 +24,6 @@
 	};
 };
 
-&dspi0 {
-	status = "okay";
-};
-
-&dspi1 {
-	status = "okay";
-};
-
-&dspi2 {
-	status = "okay";
-};
-
 &duart0 {
 	status = "okay";
 };
