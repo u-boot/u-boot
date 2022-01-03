@@ -350,7 +350,8 @@ static char *board_string(int type)
 	return "UNDEFINED";
 }
 
-int checkboard(void)
+/* Override the default implementation, DT model is not accurate */
+int show_board_info(void)
 {
 	int *board_type = (int *)OCRAM_START;
 
