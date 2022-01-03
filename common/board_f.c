@@ -149,9 +149,14 @@ static int display_text_info(void)
 	text_base = CONFIG_SYS_MONITOR_BASE;
 #endif
 
+#if defined(CONFIG_SYS_EXEC_IN_PLACE)
 	printf("U-Boot code: %08lX -> %08lX\n", (ulong)&__image_copy_start, (ulong)&__image_copy_end);
 	printf("U-Boot data: %08lX -> %08lX\n", (ulong)&_sdata, (ulong)&_edata);
 	printf("U-Boot  bss: %08lX -> %08lX\n", bss_start, bss_end);
+#else
+	debug("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
+	      text_base, bss_start, bss_end);
+#endif
 #endif
 
 	return 0;
@@ -219,14 +224,16 @@ static int show_dram_config(void)
 	unsigned long long size;
 	int i;
 
-	printf("\nRAM Configuration:\n");
+	debug("\nRAM Configuration:\n");
 	for (i = size = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size += gd->bd->bi_dram[i].size;
-		printf("Bank #%d: %llx ", i,
+		debug("Bank #%d: %llx ", i,
 		      (unsigned long long)(gd->bd->bi_dram[i].start));
+#ifdef DEBUG
 		print_size(gd->bd->bi_dram[i].size, "\n");
+#endif
 	}
-	printf("\nDRAM:  ");
+	debug("\nDRAM:  ");
 
 	print_size(size, "");
 	board_add_ram_info(0);
@@ -262,8 +269,10 @@ __weak int init_func_vid(void)
 
 static int setup_mon_len(void)
 {
-#if defined(__ARM__) || defined(__MICROBLAZE__)
+#if defined(CONFIG_SYS_EXEC_IN_PLACE)
 	gd->mon_len = (ulong)&_etext - (ulong)_stext;
+#elif defined(__ARM__) || defined(__MICROBLAZE__)
+	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX)
 	gd->mon_len = 0;
 #elif defined(CONFIG_EFI_APP)
@@ -320,11 +329,11 @@ __weak ulong board_get_usable_ram_top(ulong total_size)
 
 static int setup_dest_addr(void)
 {
-	printf("Monitor len: %08lX\n", gd->mon_len);
+	debug("Monitor len: %08lX\n", gd->mon_len);
 	/*
 	 * Ram is setup, size stored in gd !!
 	 */
-	printf("Ram size: %08lX\n", (ulong)gd->ram_size);
+	debug("Ram size: %08lX\n", (ulong)gd->ram_size);
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
@@ -344,7 +353,7 @@ static int setup_dest_addr(void)
 	gd->ram_top = gd->ram_base + get_effective_memsize();
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
 	gd->relocaddr = gd->ram_top;
-	printf("Ram top: %08lX\n", (ulong)gd->ram_top);
+	debug("Ram top: %08lX\n", (ulong)gd->ram_top);
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
 	/*
 	 * We need to make sure the location we intend to put secondary core
@@ -482,7 +491,7 @@ static int reserve_noncached(void)
 static int reserve_malloc(void)
 {
 	gd->start_addr_sp = reserve_stack_aligned(TOTAL_MALLOC_LEN);
-	printf("Reserving %dk for malloc() at: %08lx\n",
+	debug("Reserving %dk for malloc() at: %08lx\n",
 	      TOTAL_MALLOC_LEN >> 10, gd->start_addr_sp);
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 	reserve_noncached();
@@ -581,7 +590,7 @@ static int reserve_bloblist(void)
 
 static int display_new_sp(void)
 {
-	printf("New Stack Pointer is: %08lx\n", gd->start_addr_sp);
+	debug("New Stack Pointer is: %08lx\n", gd->start_addr_sp);
 
 	return 0;
 }
@@ -691,10 +700,10 @@ static int setup_reloc(void)
 	memcpy(gd->new_gd, (char *)gd, sizeof(gd_t));
 
 	if (gd->flags & GD_FLG_SKIP_RELOC) {
-		printf("Skipping relocation due to flag\n");
+		debug("Skipping relocation due to flag\n");
 	} else {
-		printf("Relocation Offset is: %08lx\n", gd->reloc_off);
-		printf("Relocating to %08lx, new gd at %08lx, sp at %08lx\n",
+		debug("Relocation Offset is: %08lx\n", gd->reloc_off);
+		debug("Relocating to %08lx, new gd at %08lx, sp at %08lx\n",
 		      gd->relocaddr, (ulong)map_to_sysmem(gd->new_gd),
 		      gd->start_addr_sp);
 	}

@@ -66,6 +66,14 @@
 
 .macro CLEAR_BSS
 	ldr	r0, =__bss_start	/* this is auto-relocated! */
+
+#ifdef CONFIG_USE_ARCH_MEMSET
+	ldr	r3, =__bss_end		/* this is auto-relocated! */
+	mov	r1, #0x00000000		/* prepare zero to clear BSS */
+
+	subs	r2, r3, r0		/* r2 = memset len */
+	bl	memset
+#else
 	ldr	r1, =__bss_end		/* this is auto-relocated! */
 	mov	r2, #0x00000000		/* prepare zero to clear BSS */
 
@@ -73,6 +81,7 @@ clbss_l:cmp	r0, r1			/* while not at end of BSS */
 	strlo	r2, [r0]		/* clear 32-bit BSS word */
 	addlo	r0, r0, #4		/* move to next */
 	blo	clbss_l
+#endif
 .endm
 
 /*
@@ -133,12 +142,8 @@ ENTRY(_main)
 	mov     r0, r9                  /* gd_t */
 	ldr	r1, [r9, #GD_RELOCADDR]	/* dest_addr */
 	/* call board_init_r */
-#if CONFIG_IS_ENABLED(SYS_THUMB_BUILD)
 	ldr	lr, =board_init_r	/* this is auto-relocated! */
 	bx	lr
-#else
-	ldr	pc, =board_init_r	/* this is auto-relocated! */
-#endif
 	/* we should not return here. */
 
 ENDPROC(_main)
