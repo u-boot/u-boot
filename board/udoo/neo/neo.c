@@ -75,6 +75,8 @@ enum {
 #define BOARD_DETECT_PAD_CFG (MUX_PAD_CTRL(BOARD_DETECT_PAD_CTRL) |	\
 	MUX_MODE_SION)
 
+#define OCRAM_START	0x8f8000
+
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
@@ -235,13 +237,6 @@ static iomux_v3_cfg_t const phy_control_pads[] = {
 	MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const board_recognition_pads[] = {
-	/*Connected to R184*/
-	MX6_PAD_NAND_READY_B__GPIO4_IO_13 | BOARD_DETECT_PAD_CFG,
-	/*Connected to R185*/
-	MX6_PAD_NAND_ALE__GPIO4_IO_0 | BOARD_DETECT_PAD_CFG,
-};
-
 static iomux_v3_cfg_t const wdog_b_pad = {
 	MX6_PAD_GPIO1_IO13__GPIO1_IO_13 | MUX_PAD_CTRL(WDOG_PAD_CTRL),
 };
@@ -308,34 +303,6 @@ int board_init(void)
 	return 0;
 }
 
-static int get_board_value(void)
-{
-	int r184, r185;
-
-	imx_iomux_v3_setup_multiple_pads(board_recognition_pads,
-					 ARRAY_SIZE(board_recognition_pads));
-
-	gpio_request(IMX_GPIO_NR(4, 13), "r184");
-	gpio_request(IMX_GPIO_NR(4, 0), "r185");
-	gpio_direction_input(IMX_GPIO_NR(4, 13));
-	gpio_direction_input(IMX_GPIO_NR(4, 0));
-
-	r184 = gpio_get_value(IMX_GPIO_NR(4, 13));
-	r185 = gpio_get_value(IMX_GPIO_NR(4, 0));
-
-	/*
-	 * Machine selection -
-	 * Machine          r184,    r185
-	 * ---------------------------------
-	 * Basic              0        0
-	 * Basic Ks           0        1
-	 * Full               1        0
-	 * Extended           1        1
-	 */
-
-	return (r184 << 1) + r185;
-}
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -368,9 +335,9 @@ int board_mmc_init(struct bd_info *bis)
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 
-static char *board_string(void)
+static char *board_string(int type)
 {
-	switch (get_board_value()) {
+	switch (type) {
 	case UDOO_NEO_TYPE_BASIC:
 		return "BASIC";
 	case UDOO_NEO_TYPE_BASIC_KS:
@@ -385,14 +352,18 @@ static char *board_string(void)
 
 int checkboard(void)
 {
-	printf("Board: UDOO Neo %s\n", board_string());
+	int *board_type = (int *)OCRAM_START;
+
+	printf("Board: UDOO Neo %s\n", board_string(*board_type));
 	return 0;
 }
 
 int board_late_init(void)
 {
+	int *board_type = (int *)OCRAM_START;
+
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	env_set("board_name", board_string());
+	env_set("board_name", board_string(*board_type));
 #endif
 
 	return 0;
@@ -402,6 +373,41 @@ int board_late_init(void)
 
 #include <linux/libfdt.h>
 #include <asm/arch/mx6-ddr.h>
+
+static const iomux_v3_cfg_t board_recognition_pads[] = {
+	/*Connected to R184*/
+	MX6_PAD_NAND_READY_B__GPIO4_IO_13 | BOARD_DETECT_PAD_CFG,
+	/*Connected to R185*/
+	MX6_PAD_NAND_ALE__GPIO4_IO_0 | BOARD_DETECT_PAD_CFG,
+};
+
+static int get_board_value(void)
+{
+	int r184, r185;
+
+	imx_iomux_v3_setup_multiple_pads(board_recognition_pads,
+					 ARRAY_SIZE(board_recognition_pads));
+
+	gpio_request(IMX_GPIO_NR(4, 13), "r184");
+	gpio_request(IMX_GPIO_NR(4, 0), "r185");
+	gpio_direction_input(IMX_GPIO_NR(4, 13));
+	gpio_direction_input(IMX_GPIO_NR(4, 0));
+
+	r184 = gpio_get_value(IMX_GPIO_NR(4, 13));
+	r185 = gpio_get_value(IMX_GPIO_NR(4, 0));
+
+	/*
+	 * Machine selection -
+	 * Machine          r184,    r185
+	 * ---------------------------------
+	 * Basic              0        0
+	 * Basic Ks           0        1
+	 * Full               1        0
+	 * Extended           1        1
+	 */
+
+	return (r184 << 1) + r185;
+}
 
 static const struct mx6sx_iomux_ddr_regs mx6_ddr_ioregs = {
 	.dram_dqm0 = 0x00000028,
@@ -498,7 +504,7 @@ static void ccgr_init(void)
 
 static void spl_dram_init(void)
 {
-	int board = get_board_value();
+	int *board_type = (int *)OCRAM_START;
 
 	struct mx6_ddr_sysinfo sysinfo = {
 		.dsize = 1, /* width of data bus: 1 = 32 bits */
@@ -515,8 +521,11 @@ static void spl_dram_init(void)
 		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
 	};
 
+	*board_type = get_board_value();
+
 	mx6sx_dram_iocfg(32, &mx6_ddr_ioregs, &mx6_grp_ioregs);
-	if (board == UDOO_NEO_TYPE_BASIC || board == UDOO_NEO_TYPE_BASIC_KS)
+	if (*board_type == UDOO_NEO_TYPE_BASIC ||
+	    *board_type == UDOO_NEO_TYPE_BASIC_KS)
 		mx6_dram_cfg(&sysinfo, &neo_basic_mmcd_calib,
 			     &neo_basic_mem_ddr);
 	else
