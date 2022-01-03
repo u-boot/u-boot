@@ -36,6 +36,48 @@
 	status = "okay";
 };
 
+&duart0 {
+	status = "okay";
+};
+
+&duart1 {
+	status = "okay";
+};
+
+&enetc_mdio_pf3 {
+	status = "okay";
+	rdb_phy0: phy@2 {
+		reg = <2>;
+	};
+
+	/* VSC8514 QSGMII PHY */
+	sw_phy0: phy@10 {
+		reg = <0x10>;
+	};
+
+	sw_phy1: phy@11 {
+		reg = <0x11>;
+	};
+
+	sw_phy2: phy@12 {
+		reg = <0x12>;
+	};
+
+	sw_phy3: phy@13 {
+		reg = <0x13>;
+	};
+};
+
+&enetc_port0 {
+	status = "okay";
+	phy-mode = "sgmii";
+	phy-handle = <&rdb_phy0>;
+};
+
+&enetc_port2 {
+	status = "okay";
+};
+
 &esdhc {
 	status = "okay";
 };
@@ -110,44 +152,6 @@
 	status = "okay";
 };
 
-&sata {
-	status = "okay";
-};
-
-&duart0 {
-	status = "okay";
-};
-
-&duart1 {
-	status = "okay";
-};
-
-&pcie1 {
-	status = "okay";
-};
-
-&pcie2 {
-	status = "okay";
-};
-
-&usb0 {
-	status = "okay";
-};
-
-&usb1 {
-	status = "okay";
-};
-
-&enetc_port0 {
-	status = "okay";
-	phy-mode = "sgmii";
-	phy-handle = <&rdb_phy0>;
-};
-
-&enetc_port2 {
-	status = "okay";
-};
-
 &mscc_felix {
 	status = "okay";
 };
@@ -185,26 +189,22 @@
 	status = "okay";
 };
 
-&enetc_mdio_pf3 {
+&pcie1 {
 	status = "okay";
-	rdb_phy0: phy@2 {
-		reg = <2>;
-	};
+};
 
-	/* VSC8514 QSGMII PHY */
-	sw_phy0: phy@10 {
-		reg = <0x10>;
-	};
+&pcie2 {
+	status = "okay";
+};
 
-	sw_phy1: phy@11 {
-		reg = <0x11>;
-	};
+&sata {
+	status = "okay";
+};
 
-	sw_phy2: phy@12 {
-		reg = <0x12>;
-	};
+&usb0 {
+	status = "okay";
+};
 
-	sw_phy3: phy@13 {
-		reg = <0x13>;
-	};
+&usb1 {
+	status = "okay";
 };
