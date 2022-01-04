@@ -60,7 +60,7 @@ abbrev_spec(char *str, flash_info_t **pinfo, int *psf, int *psl)
 
 	bank = dectoul(str, &ep);
 	if (ep == str || *ep != '\0' ||
-	    bank < 1 || bank > CONFIG_SYS_MAX_FLASH_BANKS)
+	    bank < 1 || bank > CFI_FLASH_BANKS)
 		return -1;
 
 	fp = &flash_info[bank - 1];
@@ -104,7 +104,7 @@ int flash_sect_roundb(ulong *addr)
 
 	/* find the end addr of the sector where the *addr is */
 	found = 0;
-	for (bank = 0; bank < CONFIG_SYS_MAX_FLASH_BANKS && !found; ++bank) {
+	for (bank = 0; bank < CFI_FLASH_BANKS && !found; ++bank) {
 		info = &flash_info[bank];
 		for (i = 0; i < info->sector_count && !found; ++i) {
 			/* get the end address of the sector */
@@ -201,13 +201,13 @@ flash_fill_sect_ranges(ulong addr_first, ulong addr_last,
 
 	*s_count = 0;
 
-	for (bank = 0; bank < CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
+	for (bank = 0; bank < CFI_FLASH_BANKS; ++bank) {
 		s_first[bank] = -1;	/* first sector to erase	*/
 		s_last[bank] = -1;	/* last  sector to erase	*/
 	}
 
 	for (bank = 0, info = &flash_info[0];
-	     (bank < CONFIG_SYS_MAX_FLASH_BANKS) && (addr_first <= addr_last);
+	     (bank < CFI_FLASH_BANKS) && (addr_first <= addr_last);
 	     ++bank, ++info) {
 		ulong b_end;
 		int sect;
@@ -278,7 +278,7 @@ static int do_flinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 
 #ifdef CONFIG_MTD_NOR_FLASH
 	if (argc == 1) {	/* print info for all FLASH banks */
-		for (bank = 0; bank < CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
+		for (bank = 0; bank < CFI_FLASH_BANKS; ++bank) {
 			printf("\nBank # %ld: ", bank + 1);
 
 			flash_print_info(&flash_info[bank]);
@@ -287,9 +287,9 @@ static int do_flinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	bank = hextoul(argv[1], NULL);
-	if (bank < 1 || bank > CONFIG_SYS_MAX_FLASH_BANKS) {
+	if (bank < 1 || bank > CFI_FLASH_BANKS) {
 		printf("Only FLASH Banks # 1 ... # %d supported\n",
-		       CONFIG_SYS_MAX_FLASH_BANKS);
+		       CFI_FLASH_BANKS);
 		return 1;
 	}
 	printf("\nBank # %ld: ", bank);
@@ -316,7 +316,7 @@ static int do_flerase(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	if (strcmp(argv[1], "all") == 0) {
-		for (bank = 1; bank <= CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
+		for (bank = 1; bank <= CFI_FLASH_BANKS; ++bank) {
 			printf("Erase Flash Bank # %ld ", bank);
 			info = &flash_info[bank - 1];
 			rcode = flash_erase(info, 0, info->sector_count - 1);
@@ -366,9 +366,9 @@ static int do_flerase(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (strcmp(argv[1], "bank") == 0) {
 		bank = hextoul(argv[2], NULL);
-		if (bank < 1 || bank > CONFIG_SYS_MAX_FLASH_BANKS) {
+		if (bank < 1 || bank > CFI_FLASH_BANKS) {
 			printf("Only FLASH Banks # 1 ... # %d supported\n",
-			       CONFIG_SYS_MAX_FLASH_BANKS);
+			       CFI_FLASH_BANKS);
 			return 1;
 		}
 		printf("Erase Flash Bank # %ld ", bank);
@@ -397,7 +397,7 @@ int flash_sect_erase(ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
 	ulong bank;
-	int s_first[CONFIG_SYS_MAX_FLASH_BANKS], s_last[CONFIG_SYS_MAX_FLASH_BANKS];
+	int s_first[CFI_FLASH_BANKS], s_last[CFI_FLASH_BANKS];
 	int erased = 0;
 	int planned;
 	int rcode = 0;
@@ -406,7 +406,7 @@ int flash_sect_erase(ulong addr_first, ulong addr_last)
 
 	if (planned && rcode == 0) {
 		for (bank = 0, info = &flash_info[0];
-		     bank < CONFIG_SYS_MAX_FLASH_BANKS && rcode == 0;
+		     bank < CFI_FLASH_BANKS && rcode == 0;
 		     ++bank, ++info) {
 			if (s_first[bank] >= 0) {
 				erased += s_last[bank] - s_first[bank] + 1;
@@ -463,7 +463,7 @@ static int do_protect(struct cmd_tbl *cmdtp, int flag, int argc,
 
 #ifdef CONFIG_MTD_NOR_FLASH
 	if (strcmp(argv[2], "all") == 0) {
-		for (bank = 1; bank <= CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
+		for (bank = 1; bank <= CFI_FLASH_BANKS; ++bank) {
 			info = &flash_info[bank - 1];
 			if (info->flash_id == FLASH_UNKNOWN)
 				continue;
@@ -547,9 +547,9 @@ static int do_protect(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (strcmp(argv[2], "bank") == 0) {
 		bank = hextoul(argv[3], NULL);
-		if (bank < 1 || bank > CONFIG_SYS_MAX_FLASH_BANKS) {
+		if (bank < 1 || bank > CFI_FLASH_BANKS) {
 			printf("Only FLASH Banks # 1 ... # %d supported\n",
-			       CONFIG_SYS_MAX_FLASH_BANKS);
+			       CFI_FLASH_BANKS);
 			return 1;
 		}
 		printf("%sProtect Flash Bank # %ld\n",
@@ -596,7 +596,7 @@ int flash_sect_protect(int p, ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
 	ulong bank;
-	int s_first[CONFIG_SYS_MAX_FLASH_BANKS], s_last[CONFIG_SYS_MAX_FLASH_BANKS];
+	int s_first[CFI_FLASH_BANKS], s_last[CFI_FLASH_BANKS];
 	int protected, i;
 	int planned;
 	int rcode;
@@ -607,7 +607,7 @@ int flash_sect_protect(int p, ulong addr_first, ulong addr_last)
 
 	if (planned && rcode == 0) {
 		for (bank = 0, info = &flash_info[0];
-		     bank < CONFIG_SYS_MAX_FLASH_BANKS; ++bank, ++info) {
+		     bank < CFI_FLASH_BANKS; ++bank, ++info) {
 			if (info->flash_id == FLASH_UNKNOWN)
 				continue;
 
