@@ -63,6 +63,7 @@ SECTIONS
 		*(.rela.data*)
 		*(.rela.got)
 		*(.rela.stab)
+                *(.rela.u_boot_list*)
 	}
 
 	. = ALIGN(4096);
@@ -70,9 +71,11 @@ SECTIONS
 	. = ALIGN(4096);
 	.dynstr : { *(.dynstr) }
 	. = ALIGN(4096);
+
+        /DISCARD/ : { *(.eh_frame) }
+
 	.ignored.reloc : {
 		*(.rela.reloc)
-		*(.eh_frame)
 		*(.note.GNU-stack)
 	}
 
