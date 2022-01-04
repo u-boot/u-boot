@@ -510,14 +510,14 @@ void efi_set_priv(struct efi_priv *priv);
 /**
  * efi_get_sys_table() - Get access to the main EFI system table
  *
- * @return pointer to EFI system table
+ * Returns: pointer to EFI system table
  */
 struct efi_system_table *efi_get_sys_table(void);
 
 /**
  * efi_get_boot() - Get access to the EFI boot services table
  *
- * @return pointer to EFI boot services table
+ * Returns: pointer to EFI boot services table
  */
 struct efi_boot_services *efi_get_boot(void);
 
@@ -526,7 +526,7 @@ struct efi_boot_services *efi_get_boot(void);
  *
  * This is used when U-Boot is built as an EFI application.
  *
- * @return the base of RAM as known to U-Boot
+ * Returns: the base of RAM as known to U-Boot
  */
 unsigned long efi_get_ram_base(void);
 
@@ -537,6 +537,7 @@ unsigned long efi_get_ram_base(void);
  * @banner:	Banner to display when starting
  * @image:	The image handle passed to efi_main()
  * @sys_table:	The EFI system table pointer passed to efi_main()
+ * Return: 0 on succcess, EFI error code on failure
  */
 int efi_init(struct efi_priv *priv, const char *banner, efi_handle_t image,
 	     struct efi_system_table *sys_table);
@@ -547,7 +548,7 @@ int efi_init(struct efi_priv *priv, const char *banner, efi_handle_t image,
  * @priv:	Pointer to private EFI structure
  * @size:	Number of bytes to allocate
  * @retp:	Return EFI status result
- * @return pointer to memory allocated, or NULL on error
+ * Returns: pointer to memory allocated, or NULL on error
  */
 void *efi_malloc(struct efi_priv *priv, int size, efi_status_t *retp);
 
@@ -584,8 +585,8 @@ void efi_putc(struct efi_priv *priv, const char ch);
  *
  * @type:	Entry type to search for
  * @datap:	Returns pointer to entry data
- * @sizep:	Returns pointer to entry size
- * @return 0 if OK, -ENODATA if there is no table, -ENOENT if there is no entry
+ * @sizep:	Returns entry size
+ * Return: 0 if OK, -ENODATA if there is no table, -ENOENT if there is no entry
  * of the requested type, -EPROTONOSUPPORT if the table has the wrong version
  */
 int efi_info_get(enum efi_entry_t type, void **datap, int *sizep);
@@ -597,7 +598,7 @@ int efi_info_get(enum efi_entry_t type, void **datap, int *sizep);
  * exit_boot_services()
  *
  * @priv:	Pointer to private EFI structure
- * @return 0 if OK, non-zero on error
+ * Returns: 0 if OK, non-zero on error
  */
 int efi_store_memory_map(struct efi_priv *priv);
 
@@ -620,7 +621,7 @@ int efi_call_exit_boot_services(void);
  * @keyp:	Returns memory-map key
  * @desc_sizep:	Returns size of each @desc_base record
  * @versionp:	Returns version number of memory map
- * @return 0 on success, -ve on error
+ * Returns: 0 on success, -ve on error
  */
 int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
 		 int *desc_sizep, uint *versionp);
