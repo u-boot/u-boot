@@ -80,7 +80,7 @@
 
 /* support JEDEC */
 #ifdef CONFIG_CFI_FLASH
-#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT	1
+#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT
 #endif/* Do not use CONFIG_FLASH_CFI_LEGACY to detect on board flash */
 #define PHYS_FLASH_1			0x88000000	/* BANK 0 */
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
@@ -95,9 +95,7 @@
  * There are 4 banks supported for this Controller,
  * but we have only 1 bank connected to flash on board
 */
-#ifndef CONFIG_SYS_MAX_FLASH_BANKS_DETECT
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
-#endif
 #define CONFIG_SYS_FLASH_BANKS_SIZES {0x4000000}
 
 /* max number of sectors on one chip */
