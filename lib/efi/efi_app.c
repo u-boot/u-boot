@@ -321,6 +321,15 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 		return ret;
 	}
 
+	/*
+	 * We could store the EFI memory map here, but it changes all the time,
+	 * so this is only useful for debugging.
+	 *
+	 * ret = efi_store_memory_map(priv);
+	 * if (ret)
+	 *	return ret;
+	 */
+
 	printf("starting\n");
 
 	board_init_f(GD_FLG_SKIP_RELOC);

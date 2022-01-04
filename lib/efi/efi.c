@@ -135,3 +135,75 @@ void efi_free(struct efi_priv *priv, void *ptr)
 
 	boot->free_pool(ptr);
 }
+
+int efi_store_memory_map(struct efi_priv *priv)
+{
+	struct efi_boot_services *boot = priv->sys_table->boottime;
+	efi_uintn_t size, desc_size;
+	efi_status_t ret;
+
+	/* Get the memory map so we can switch off EFI */
+	size = 0;
+	ret = boot->get_memory_map(&size, NULL, &priv->memmap_key,
+				   &priv->memmap_desc_size,
+				   &priv->memmap_version);
+	if (ret != EFI_BUFFER_TOO_SMALL) {
+		/*
+		 * Note this function avoids using printf() since it is not
+		 * available in the stub
+		 */
+		printhex2(EFI_BITS_PER_LONG);
+		putc(' ');
+		printhex2(ret);
+		puts(" No memory map\n");
+		return ret;
+	}
+	/*
+	 * Since doing a malloc() may change the memory map and also we want to
+	 * be able to read the memory map in efi_call_exit_boot_services()
+	 * below, after more changes have happened
+	 */
+	priv->memmap_alloc = size + 1024;
+	priv->memmap_size = priv->memmap_alloc;
+	priv->memmap_desc = efi_malloc(priv, size, &ret);
+	if (!priv->memmap_desc) {
+		printhex2(ret);
+		puts(" No memory for memory descriptor\n");
+		return ret;
+	}
+
+	ret = boot->get_memory_map(&priv->memmap_size, priv->memmap_desc,
+				   &priv->memmap_key, &desc_size,
+				   &priv->memmap_version);
+	if (ret) {
+		printhex2(ret);
+		puts(" Can't get memory map\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+int efi_call_exit_boot_services(void)
+{
+	struct efi_priv *priv = efi_get_priv();
+	const struct efi_boot_services *boot = priv->boot;
+	efi_uintn_t size;
+	u32 version;
+	efi_status_t ret;
+
+	size = priv->memmap_alloc;
+	ret = boot->get_memory_map(&size, priv->memmap_desc,
+				   &priv->memmap_key,
+				   &priv->memmap_desc_size, &version);
+	if (ret) {
+		printhex2(ret);
+		puts(" Can't get memory map\n");
+		return ret;
+	}
+	ret = boot->exit_boot_services(priv->parent_image, priv->memmap_key);
+	if (ret)
+		return ret;
+
+	return 0;
+}

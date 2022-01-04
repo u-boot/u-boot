@@ -407,6 +407,12 @@ static inline struct efi_mem_desc *efi_get_next_mem_desc(
  * @sys_table: Pointer to system table
  * @boot: Pointer to boot-services table
  * @run: Pointer to runtime-services table
+ * @memmap_key: Key returned from get_memory_map()
+ * @memmap_desc: List of memory-map records
+ * @memmap_alloc: Amount of memory allocated for memory map list
+ * @memmap_size Size of memory-map list in bytes
+ * @memmap_desc_size: Size of an individual memory-map record, in bytes
+ * @memmap_version: Memory-map version
  *
  * @use_pool_for_malloc: true if all allocation should go through the EFI 'pool'
  *	methods allocate_pool() and free_pool(); false to use 'pages' methods
@@ -424,6 +430,12 @@ struct efi_priv {
 	struct efi_system_table *sys_table;
 	struct efi_boot_services *boot;
 	struct efi_runtime_services *run;
+	efi_uintn_t memmap_key;
+	struct efi_mem_desc *memmap_desc;
+	efi_uintn_t memmap_alloc;
+	efi_uintn_t memmap_size;
+	efi_uintn_t memmap_desc_size;
+	u32 memmap_version;
 
 	/* app: */
 	bool use_pool_for_malloc;
@@ -577,5 +589,25 @@ void efi_putc(struct efi_priv *priv, const char ch);
  * of the requested type, -EPROTONOSUPPORT if the table has the wrong version
  */
 int efi_info_get(enum efi_entry_t type, void **datap, int *sizep);
+
+/**
+ * efi_store_memory_map() - Collect the memory-map info from EFI
+ *
+ * Collect the memory info and store it for later use, e.g. in calling
+ * exit_boot_services()
+ *
+ * @priv:	Pointer to private EFI structure
+ * @return 0 if OK, non-zero on error
+ */
+int efi_store_memory_map(struct efi_priv *priv);
+
+/**
+ * efi_call_exit_boot_services() - Handle the exit-boot-service procedure
+ *
+ * Tell EFI we don't want their boot services anymore
+ *
+ * Return: 0 if OK, non-zero on error
+ */
+int efi_call_exit_boot_services(void);
 
 #endif /* _LINUX_EFI_H */
