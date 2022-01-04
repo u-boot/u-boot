@@ -30,7 +30,6 @@
 /*
  * Flash configurations
  */
-#define CONFIG_SYS_MAX_FLASH_BANKS     1
 
 /* SPL memory allocation configuration, this is for FAT implementation */
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00015000
