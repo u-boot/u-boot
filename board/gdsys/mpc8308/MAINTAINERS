@@ -1,5 +1,5 @@
 MPC8308 BOARD
-M:	Dirk Eibach <dirk.eibach@gdsys.cc>
+M:	Mario Six <mario.six@gdsys.cc>
 S:	Maintained
 F:	board/gdsys/mpc8308/
 F:	include/configs/gazerbeam.h
