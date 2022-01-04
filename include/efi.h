@@ -610,4 +610,19 @@ int efi_store_memory_map(struct efi_priv *priv);
  */
 int efi_call_exit_boot_services(void);
 
+/**
+ * efi_get_mmap() - Get the memory map from EFI
+ *
+ * This is used in the app. The caller must free *@descp when done
+ *
+ * @descp:	Returns allocated pointer to EFI memory map table
+ * @sizep:	Returns size of table in bytes
+ * @keyp:	Returns memory-map key
+ * @desc_sizep:	Returns size of each @desc_base record
+ * @versionp:	Returns version number of memory map
+ * @return 0 on success, -ve on error
+ */
+int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
+		 int *desc_sizep, uint *versionp);
+
 #endif /* _LINUX_EFI_H */

@@ -32,6 +32,39 @@ int efi_info_get(enum efi_entry_t type, void **datap, int *sizep)
 	return -ENOSYS;
 }
 
+int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
+		 int *desc_sizep, uint *versionp)
+{
+	struct efi_priv *priv = efi_get_priv();
+	struct efi_boot_services *boot = priv->sys_table->boottime;
+	efi_uintn_t size, desc_size, key;
+	struct efi_mem_desc *desc;
+	efi_status_t ret;
+	u32 version;
+
+	/* Get the memory map so we can switch off EFI */
+	size = 0;
+	ret = boot->get_memory_map(&size, NULL, &key, &desc_size, &version);
+	if (ret != EFI_BUFFER_TOO_SMALL)
+		return log_msg_ret("get", -ENOMEM);
+
+	desc = malloc(size);
+	if (!desc)
+		return log_msg_ret("mem", -ENOMEM);
+
+	ret = boot->get_memory_map(&size, desc, &key, &desc_size, &version);
+	if (ret)
+		return log_msg_ret("get", -EINVAL);
+
+	*descp = desc;
+	*sizep = size;
+	*desc_sizep = desc_size;
+	*versionp = version;
+	*keyp = key;
+
+	return 0;
+}
+
 /**
  * efi_bind_block() - bind a new block device to an EFI device
  *

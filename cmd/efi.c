@@ -13,6 +13,8 @@
 #include <sort.h>
 #include <asm/global_data.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static const char *const type_name[] = {
 	"reserved",
 	"loader_code",
@@ -217,37 +219,53 @@ static void efi_print_mem_table(struct efi_mem_desc *desc, int desc_size,
 static int do_efi_mem(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
-	struct efi_mem_desc *desc;
-	struct efi_entry_memmap *map;
+	struct efi_mem_desc *orig, *desc;
+	uint version, key;
+	int desc_size;
 	int size, ret;
 	bool skip_bs;
 
 	skip_bs = !argc || *argv[0] != 'a';
-	ret = efi_info_get(EFIET_MEMORY_MAP, (void **)&map, &size);
-	switch (ret) {
-	case -ENOENT:
-		printf("No EFI table available\n");
-		goto done;
-	case -EPROTONOSUPPORT:
-		printf("Incorrect EFI table version\n");
-		goto done;
+	if (IS_ENABLED(CONFIG_EFI_APP)) {
+		ret = efi_get_mmap(&orig, &size, &key, &desc_size, &version);
+		if (ret) {
+			printf("Cannot read memory map (err=%d)\n", ret);
+			return CMD_RET_FAILURE;
+		}
+	} else {
+		struct efi_entry_memmap *map;
+
+		ret = efi_info_get(EFIET_MEMORY_MAP, (void **)&map, &size);
+		switch (ret) {
+		case -ENOENT:
+			printf("No EFI table available\n");
+			goto done;
+		case -EPROTONOSUPPORT:
+			printf("Incorrect EFI table version\n");
+			goto done;
+		}
+		orig = map->desc;
+		desc_size = map->desc_size;
+		version = map->version;
 	}
-	printf("EFI table at %lx, memory map %p, size %x, version %x, descr. size %#x\n",
-	       gd->arch.table, map, size, map->version, map->desc_size);
-	if (map->version != EFI_MEM_DESC_VERSION) {
+	printf("EFI table at %lx, memory map %p, size %x, key %x, version %x, descr. size %#x\n",
+	       gd->arch.table, orig, size, key, version, desc_size);
+	if (version != EFI_MEM_DESC_VERSION) {
 		printf("Incorrect memory map version\n");
 		ret = -EPROTONOSUPPORT;
 		goto done;
 	}
 
-	desc = efi_build_mem_table(map->desc, size, map->desc_size, skip_bs);
+	desc = efi_build_mem_table(orig, size, desc_size, skip_bs);
 	if (!desc) {
 		ret = -ENOMEM;
 		goto done;
 	}
 
-	efi_print_mem_table(desc, map->desc_size, skip_bs);
+	efi_print_mem_table(desc, desc_size, skip_bs);
 	free(desc);
+	if (IS_ENABLED(CONFIG_EFI_APP))
+		free(orig);
 done:
 	if (ret)
 		printf("Error: %d\n", ret);
