@@ -331,10 +331,10 @@ static int dm_test_pci_addr_live(struct unit_test_state *uts)
 	struct udevice *swap1f, *swap1;
 
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap1f));
-	ut_asserteq(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1f));
+	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1f));
 
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1, 0), &swap1));
-	ut_asserteq(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1));
+	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1));
 
 	return 0;
 }

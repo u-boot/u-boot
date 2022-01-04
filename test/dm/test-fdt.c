@@ -768,7 +768,7 @@ static int dm_test_fdt_livetree_writing(struct unit_test_state *uts)
 	/* Test setting generic properties */
 
 	/* Non-existent in DTB */
-	ut_asserteq(FDT_ADDR_T_NONE, dev_read_addr(dev));
+	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr(dev));
 	/* reg = 0x42, size = 0x100 */
 	ut_assertok(ofnode_write_prop(node, "reg", 8,
 				      "\x00\x00\x00\x42\x00\x00\x01\x00"));
