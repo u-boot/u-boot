@@ -14,7 +14,7 @@
 void *board_fdt_blob_setup(int *err)
 {
 	*err = 0;
-	if (IS_ENABLED(CONFIG_OF_SEPARATE)) {
+	if (IS_ENABLED(CONFIG_OF_SEPARATE) || IS_ENABLED(CONFIG_OF_BOARD)) {
 		if (gd->arch.firmware_fdt_addr)
 			return (ulong *)(uintptr_t)gd->arch.firmware_fdt_addr;
 	}
