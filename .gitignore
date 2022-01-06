@@ -110,3 +110,4 @@ __pycache__
 /tools/boot/image.c
 /uboot.und/id.txt
 /uboot.und/settings.xml
+/H743.jdebug.user

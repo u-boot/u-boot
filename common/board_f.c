@@ -878,8 +878,9 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_VID) && !defined(CONFIG_SPL)
 	init_func_vid,
 #endif
-	announce_dram_init,
-	dram_init,		/* configure available RAM banks */
+//	announce_dram_init,
+//	dram_init,		/* configure available RAM banks */
+	fdtdec_setup_mem_size_base,
 #ifdef CONFIG_POST
 	post_init_f,
 #endif
