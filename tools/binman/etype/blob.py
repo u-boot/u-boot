@@ -5,6 +5,8 @@
 # Entry-type module for blobs, which are binary objects read from files
 #
 
+import pathlib
+
 from binman.entry import Entry
 from binman import state
 from dtoc import fdt_util
@@ -36,6 +38,11 @@ class Entry_blob(Entry):
         self._filename = fdt_util.GetString(self._node, 'filename', self.etype)
 
     def ObtainContents(self):
+        if self.allow_fake and not pathlib.Path(self._filename).is_file():
+            with open(self._filename, "wb") as out:
+                out.truncate(1024)
+            self.faked = True
+
         self._filename = self.GetDefaultFilename()
         self._pathname = tools.GetInputFilename(self._filename,
             self.external and self.section.GetAllowMissing())
@@ -75,3 +82,14 @@ class Entry_blob(Entry):
     def ProcessContents(self):
         # The blob may have changed due to WriteSymbols()
         return self.ProcessContentsUpdate(self.data)
+
+    def CheckFakedBlobs(self, faked_blobs_list):
+        """Check if any entries in this section have faked external blobs
+
+        If there are faked blobs, the entries are added to the list
+
+        Args:
+            fake_blobs_list: List of Entry objects to be added to
+        """
+        if self.faked:
+            faked_blobs_list.append(self)

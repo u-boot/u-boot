@@ -61,3 +61,23 @@ class Entry_mkimage(Entry):
             entry = Entry.Create(self, node)
             entry.ReadNode()
             self._mkimage_entries[entry.name] = entry
+
+    def SetAllowFakeBlob(self, allow_fake):
+        """Set whether the sub nodes allows to create a fake blob
+
+        Args:
+            allow_fake: True if allowed, False if not allowed
+        """
+        for entry in self._mkimage_entries.values():
+            entry.SetAllowFakeBlob(allow_fake)
+
+    def CheckFakedBlobs(self, faked_blobs_list):
+        """Check if any entries in this section have faked external blobs
+
+        If there are faked blobs, the entries are added to the list
+
+        Args:
+            faked_blobs_list: List of Entry objects to be added to
+        """
+        for entry in self._mkimage_entries.values():
+            entry.CheckFakedBlobs(faked_blobs_list)

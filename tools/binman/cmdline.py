@@ -52,6 +52,8 @@ controlled by a description in the board device tree.'''
             help='Configuration file (.dtb) to use')
     build_parser.add_argument('--fake-dtb', action='store_true',
             help='Use fake device tree contents (for testing only)')
+    build_parser.add_argument('--fake-ext-blobs', action='store_true',
+            help='Create fake ext blobs with dummy content (for testing only)')
     build_parser.add_argument('-i', '--image', type=str, action='append',
             help='Image filename to build (if not specified, build all)')
     build_parser.add_argument('-I', '--indir', action='append',
