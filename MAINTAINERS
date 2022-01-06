@@ -611,6 +611,7 @@ F:	drivers/mmc/zynq_sdhci.c
 F:	drivers/mtd/nand/raw/zynq_nand.c
 F:	drivers/net/phy/xilinx_phy.c
 F:	drivers/net/zynq_gem.c
+F:	drivers/phy/phy-zynqmp.c
 F:	drivers/serial/serial_zynq.c
 F:	drivers/reset/reset-zynqmp.c
 F:	drivers/rtc/zynqmp_rtc.c
