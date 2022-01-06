@@ -424,12 +424,8 @@ void __octeon_fixup_fdt_mac_addr(void)
 		}
 
 	/* Assign 78XX addresses in the order they appear in the device tree. */
-	node = fdt_node_offset_by_compatible(working_fdt, -1, "cavium,octeon-7890-bgx-port");
-	while (node != -FDT_ERR_NOTFOUND) {
+	fdt_for_each_node_by_compatible(node, working_fdt, -1, "cavium,octeon-7890-bgx-port")
 		octeon_set_one_fdt_mac(node, &mac);
-		node = fdt_node_offset_by_compatible(working_fdt, node,
-						     "cavium,octeon-7890-bgx-port");
-	}
 }
 #endif
 
@@ -450,11 +446,8 @@ void __octeon_fixup_fdt_uart(void)
 	/* Device trees already have good values for fast simulator
 	 * output, real boards need the correct value.
 	 */
-	node = fdt_node_offset_by_compatible(working_fdt, -1, "cavium,octeon-3860-uart");
-	while (node != -FDT_ERR_NOTFOUND) {
+	fdt_for_each_node_by_compatible(node, working_fdt, -1, "cavium,octeon-3860-uart")
 		fdt_setprop_inplace_cell(working_fdt, node, "clock-frequency", clk);
-		node = fdt_node_offset_by_compatible(working_fdt, node, "cavium,octeon-3860-uart");
-	}
 }
 
 /**

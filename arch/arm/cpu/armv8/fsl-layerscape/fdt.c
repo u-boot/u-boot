@@ -161,14 +161,9 @@ void fsl_fdt_disable_usb(void *blob)
 	 * controller is used, SYSCLK must meet the additional requirement
 	 * of 100 MHz.
 	 */
-	if (get_board_sys_clk() != 100000000) {
-		off = fdt_node_offset_by_compatible(blob, -1, "snps,dwc3");
-		while (off != -FDT_ERR_NOTFOUND) {
+	if (get_board_sys_clk() != 100000000)
+		fdt_for_each_node_by_compatible(off, blob, -1, "snps,dwc3")
 			fdt_status_disabled(blob, off);
-			off = fdt_node_offset_by_compatible(blob, off,
-							    "snps,dwc3");
-		}
-	}
 }
 
 #ifdef CONFIG_HAS_FEATURE_GIC64K_ALIGN

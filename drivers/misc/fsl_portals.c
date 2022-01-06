@@ -208,8 +208,7 @@ void fdt_fixup_qportals(void *blob)
 			     maj, min, ip_cfg) + 1;
 	compat_len += sprintf(compat + compat_len, "fsl,qman-portal") + 1;
 
-	off = fdt_node_offset_by_compatible(blob, -1, "fsl,qman-portal");
-	while (off != -FDT_ERR_NOTFOUND) {
+	fdt_for_each_node_by_compatible(off, blob, -1, "fsl,qman-portal") {
 #if defined(CONFIG_PPC) || defined(CONFIG_ARCH_LS1043A) || \
 defined(CONFIG_ARCH_LS1046A)
 #ifdef CONFIG_FSL_CORENET
@@ -295,9 +294,6 @@ err:
 			       fdt_strerror(err));
 			return;
 		}
-
-		off = fdt_node_offset_by_compatible(blob, off,
-						    "fsl,qman-portal");
 	}
 }
 
