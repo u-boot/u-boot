@@ -3,8 +3,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_SDRAM_BASE	0x880000000
-
 /* Environment */
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial,usbkbd\0" \

@@ -4,35 +4,38 @@
  *   configurations.
  */
 
-#ifndef __VEXPRESS_AEMV8A_H
-#define __VEXPRESS_AEMV8A_H
+#ifndef __VEXPRESS_AEMV8_H
+#define __VEXPRESS_AEMV8_H
+
+#include <linux/stringify.h>
 
 #define CONFIG_REMAKE_ELF
 
 /* Link Definitions */
-#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
+#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+#else
 /* ATF loads u-boot here for BASE_FVP model */
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x03f00000)
-#elif CONFIG_TARGET_VEXPRESS64_JUNO
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */
 
 /* CS register bases for the original memory map. */
-#define V2M_PA_CS0			0x00000000
-#define V2M_PA_CS1			0x14000000
-#define V2M_PA_CS2			0x18000000
-#define V2M_PA_CS3			0x1c000000
-#define V2M_PA_CS4			0x0c000000
-#define V2M_PA_CS5			0x10000000
+#define V2M_BASE			0x80000000
+#define V2M_PA_BASE			0x00000000
+
+#define V2M_PA_CS0			(V2M_PA_BASE + 0x00000000)
+#define V2M_PA_CS1			(V2M_PA_BASE + 0x14000000)
+#define V2M_PA_CS2			(V2M_PA_BASE + 0x18000000)
+#define V2M_PA_CS3			(V2M_PA_BASE + 0x1c000000)
+#define V2M_PA_CS4			(V2M_PA_BASE + 0x0c000000)
+#define V2M_PA_CS5			(V2M_PA_BASE + 0x10000000)
 
 #define V2M_PERIPH_OFFSET(x)		(x << 16)
 #define V2M_SYSREGS			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(1))
 #define V2M_SYSCTL			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(2))
 #define V2M_SERIAL_BUS_PCI		(V2M_PA_CS3 + V2M_PERIPH_OFFSET(3))
-
-#define V2M_BASE			0x80000000
 
 /* Common peripherals relative to CS7. */
 #define V2M_AACI			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(4))
@@ -72,23 +75,23 @@
 
 /* Generic Interrupt Controller Definitions */
 #ifdef CONFIG_GICV3
-#define GICD_BASE			(0x2f000000)
-#define GICR_BASE			(0x2f100000)
+#define GICD_BASE			(V2M_PA_BASE + 0x2f000000)
+#define GICR_BASE			(V2M_PA_BASE + 0x2f100000)
 #else
 
-#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
-#define GICD_BASE			(0x2f000000)
-#define GICC_BASE			(0x2c000000)
-#elif CONFIG_TARGET_VEXPRESS64_JUNO
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 #define GICD_BASE			(0x2C010000)
 #define GICC_BASE			(0x2C02f000)
+#else
+#define GICD_BASE			(V2M_PA_BASE + 0x2f000000)
+#define GICC_BASE			(V2M_PA_BASE + 0x2c000000)
 #endif
 #endif /* !CONFIG_GICV3 */
 
-#ifndef CONFIG_TARGET_VEXPRESS64_JUNO
-/* The Vexpress64 simulators use SMSC91C111 */
+#if defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP) && !defined(CONFIG_DM_ETH)
+/* The Vexpress64 BASE_FVP simulator uses SMSC91C111 */
 #define CONFIG_SMC91111			1
-#define CONFIG_SMC91111_BASE		(0x01A000000)
+#define CONFIG_SMC91111_BASE		(V2M_PA_BASE + 0x01A000000)
 #endif
 
 /* PL011 Serial Configuration */
@@ -113,7 +116,7 @@
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 #define PHYS_SDRAM_2			(0x880000000)
 #define PHYS_SDRAM_2_SIZE		0x180000000
-#elif CONFIG_TARGET_VEXPRESS64_BASE_FVP && CONFIG_NR_DRAM_BANKS == 2
+#elif CONFIG_NR_DRAM_BANKS == 2
 #define PHYS_SDRAM_2			(0x880000000)
 #define PHYS_SDRAM_2_SIZE		0x80000000
 #endif
@@ -171,15 +174,22 @@
 				BOOTENV
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
+
+#define VEXPRESS_KERNEL_ADDR	0x80080000
+#define VEXPRESS_FDT_ADDR	0x8fc00000
+#define VEXPRESS_BOOT_ADDR	0x8fd00000
+#define VEXPRESS_RAMDISK_ADDR	0x8fe00000
+
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=Image\0"		\
-				"kernel_addr=0x80080000\0"	\
-				"initrd_name=ramdisk.img\0"	\
-				"initrd_addr=0x88000000\0"	\
-				"fdtfile=devtree.dtb\0"		\
-				"fdt_addr=0x83000000\0"		\
-				"boot_name=boot.img\0"		\
-				"boot_addr=0x8007f800\0"
+				"kernel_addr_r=" __stringify(VEXPRESS_KERNEL_ADDR) "\0"	\
+				"ramdisk_name=ramdisk.img\0"	\
+				"ramdisk_addr_r=" __stringify(VEXPRESS_RAMDISK_ADDR) "\0" \
+				"fdtfile=devtree.dtb\0"	\
+				"fdt_addr_r=" __stringify(VEXPRESS_FDT_ADDR) "\0"	\
+				"boot_name=boot.img\0" \
+				"boot_addr_r=" __stringify(VEXPRESS_BOOT_ADDR) "\0"
+
 #endif
 
 /* Monitor Command Prompt */
@@ -193,7 +203,7 @@
 /* Store environment at top of flash in the same location as blank.img */
 /* in the Juno firmware. */
 #else
-#define CONFIG_SYS_FLASH_BASE		0x0C000000
+#define CONFIG_SYS_FLASH_BASE		(V2M_PA_BASE + 0x0C000000)
 /* 256 x 256KiB sectors */
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 /* Store environment at top of flash */
@@ -210,4 +220,4 @@
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000
 
-#endif /* __VEXPRESS_AEMV8A_H */
+#endif /* __VEXPRESS_AEMV8_H */
