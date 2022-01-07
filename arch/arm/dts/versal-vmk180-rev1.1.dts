@@ -15,9 +15,6 @@
 };
 
 &sdhci1 { /* PMC_MIO26-36/51 */
-	/delete-property/ sdhci-caps-mask;
-	/delete-property/ sdhci-caps;
-	/delete-property/ max-frequency;
 	clk-phase-sd-hs = <111>, <48>;
 	clk-phase-uhs-sdr25 = <114>, <48>;
 	clk-phase-uhs-ddr50 = <126>, <36>;
