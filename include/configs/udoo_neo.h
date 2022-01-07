@@ -29,7 +29,7 @@
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
 	"ip_dyn=yes\0" \
-	"mmcdev=0\0" \
+	"mmcdev=1\0" \
 	"mmcrootfstype=ext4\0" \
 	"findfdt="\
 		"if test $board_name = BASIC; then " \
@@ -49,7 +49,8 @@
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
