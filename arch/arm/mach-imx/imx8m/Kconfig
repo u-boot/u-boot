@@ -73,6 +73,7 @@ config TARGET_IMX8MM_ICORE_MX8MM
 
 config TARGET_IMX8MM_VENICE
 	bool "Support Gateworks Venice iMX8M Mini module"
+	select BINMAN
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
