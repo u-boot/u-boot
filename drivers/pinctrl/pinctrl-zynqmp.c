@@ -604,7 +604,7 @@ static const struct pinconf_param zynqmp_conf_params[] = {
 	{ "skew-delay", PIN_CONFIG_SKEW_DELAY, 0 },
 	/* zynqmp specific */
 	{"io-standard", PIN_CONFIG_IOSTANDARD, IO_STANDARD_LVCMOS18},
-	{"schmitt-cmos", PIN_CONFIG_SCHMITTCMOS, PIN_INPUT_TYPE_SCHMITT},
+	{"schmitt-cmos", PIN_CONFIG_SCHMITTCMOS, PM_PINCTRL_INPUT_TYPE_SCHMITT},
 };
 
 static struct pinctrl_ops zynqmp_pinctrl_ops = {
@@ -633,7 +633,7 @@ U_BOOT_DRIVER(pinctrl_zynqmp) = {
 	.name = "zynqmp-pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = zynqmp_pinctrl_ids,
-	.priv_auto_alloc_size = sizeof(struct zynqmp_pinctrl_priv),
+	.priv_auto = sizeof(struct zynqmp_pinctrl_priv),
 	.ops = &zynqmp_pinctrl_ops,
 	.probe = zynqmp_pinctrl_probe,
 };
