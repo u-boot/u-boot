@@ -900,6 +900,7 @@ static const struct dm_i2c_ops mvtwsi_i2c_ops = {
 static const struct udevice_id mvtwsi_i2c_ids[] = {
 	{ .compatible = "marvell,mv64xxx-i2c", },
 	{ .compatible = "marvell,mv78230-i2c", },
+	{ .compatible = "allwinner,sun4i-a10-i2c", },
 	{ .compatible = "allwinner,sun6i-a31-i2c", },
 	{ /* sentinel */ }
 };
