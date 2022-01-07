@@ -21,6 +21,7 @@
 #define PMUFW_PAYLOAD_ARG_CNT	8
 
 #define XST_PM_NO_ACCESS	2002L
+#define XST_PM_ALREADY_CONFIGURED	2009L
 
 struct zynqmp_power {
 	struct mbox_chan tx_chan;
@@ -159,6 +160,11 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 				0, ret_payload);
 	if (err == XST_PM_NO_ACCESS) {
 		printf("PMUFW no permission to change config object\n");
+		return;
+	}
+
+	if (err == XST_PM_ALREADY_CONFIGURED) {
+		debug("PMUFW Node is already configured\n");
 		return;
 	}
 
