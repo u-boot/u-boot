@@ -150,7 +150,8 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 	int err;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	printf("Loading new PMUFW cfg obj (%ld bytes)\n", size);
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		printf("Loading new PMUFW cfg obj (%ld bytes)\n", size);
 
 	flush_dcache_range((ulong)cfg_obj, (ulong)(cfg_obj + size));
 
