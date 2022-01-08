@@ -70,6 +70,8 @@ class Entry(object):
         missing: True if this entry is missing its contents
         allow_missing: Allow children of this entry to be missing (used by
             subclasses such as Entry_section)
+        allow_fake: Allow creating a dummy fake file if the blob file is not
+            available. This is mainly used for testing.
         external: True if this entry contains an external binary blob
     """
     def __init__(self, section, etype, node, name_prefix=''):
@@ -98,8 +100,10 @@ class Entry(object):
         self._expand_size = False
         self.compress = 'none'
         self.missing = False
+        self.faked = False
         self.external = False
         self.allow_missing = False
+        self.allow_fake = False
 
     @staticmethod
     def Lookup(node_path, etype, expanded):
@@ -898,6 +902,14 @@ features to produce new behaviours.
         # This is meaningless for anything other than sections
         pass
 
+    def SetAllowFakeBlob(self, allow_fake):
+        """Set whether a section allows to create a fake blob
+
+        Args:
+            allow_fake: True if allowed, False if not allowed
+        """
+        pass
+
     def CheckMissing(self, missing_list):
         """Check if any entries in this section have missing external blobs
 
@@ -908,6 +920,17 @@ features to produce new behaviours.
         """
         if self.missing:
             missing_list.append(self)
+
+    def CheckFakedBlobs(self, faked_blobs_list):
+        """Check if any entries in this section have faked external blobs
+
+        If there are faked blobs, the entries are added to the list
+
+        Args:
+            fake_blobs_list: List of Entry objects to be added to
+        """
+        # This is meaningless for anything other than blobs
+        pass
 
     def GetAllowMissing(self):
         """Get whether a section allows missing external blobs

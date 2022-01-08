@@ -10,6 +10,5 @@ config SYS_CONFIG_NAME
 	default "imx8mm_venice"
 
 config IMX_CONFIG
-	default "arch/arm/mach-imx/imx8m/imximage-8mm-lpddr4.cfg"
-
+	default "board/gateworks/venice/imximage-8mm-lpddr4.cfg"
 endif

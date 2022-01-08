@@ -3,14 +3,20 @@
  * Copyright (C) 2020 Jagan Teki <jagan@amarulasolutions.com>
  */
 
+/ {
+	binman: binman {
+		multiple-images;
+	};
+};
+
 &{/soc@0} {
 	u-boot,dm-pre-reloc;
 	u-boot,dm-spl;
 };
 
 &aips1 {
-	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
 &aips2 {
@@ -21,9 +27,146 @@
 	u-boot,dm-spl;
 };
 
+&binman {
+	u-boot-spl-ddr {
+		align = <4>;
+		align-size = <4>;
+		filename = "u-boot-spl-ddr.bin";
+		pad-byte = <0xff>;
+
+		u-boot-spl {
+			align-end = <4>;
+			filename = "u-boot-spl.bin";
+		};
+
+		1d-imem {
+			filename = "lpddr4_pmu_train_1d_imem.bin";
+			size = <0x8000>;
+			type = "blob-ext";
+		};
+
+		1d_dmem {
+			filename = "lpddr4_pmu_train_1d_dmem.bin";
+			size = <0x4000>;
+			type = "blob-ext";
+		};
+
+		2d_imem {
+			filename = "lpddr4_pmu_train_2d_imem.bin";
+			size = <0x8000>;
+			type = "blob-ext";
+		};
+
+		2d_dmem {
+			filename = "lpddr4_pmu_train_2d_dmem.bin";
+			size = <0x4000>;
+			type = "blob-ext";
+		};
+	};
+
+	spl {
+		filename = "spl.bin";
+
+		mkimage {
+			args = "-n spl/u-boot-spl.cfgout -T imx8mimage -e 0x7e1000";
+
+			blob {
+				filename = "u-boot-spl-ddr.bin";
+			};
+		};
+	};
+
+	itb {
+		filename = "u-boot.itb";
+
+		fit {
+			description = "Configuration to load ATF before U-Boot";
+			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+			fit,fdt-list = "of-list";
+			#address-cells = <1>;
+
+			images {
+				uboot {
+					arch = "arm64";
+					compression = "none";
+					description = "U-Boot (64-bit)";
+					load = <CONFIG_SYS_TEXT_BASE>;
+					type = "standalone";
+
+					uboot_blob {
+						filename = "u-boot-nodtb.bin";
+						type = "blob-ext";
+					};
+				};
+
+				atf {
+					arch = "arm64";
+					compression = "none";
+					description = "ARM Trusted Firmware";
+					entry = <0x920000>;
+					load = <0x920000>;
+					type = "firmware";
+
+					atf_blob {
+						filename = "bl31.bin";
+						type = "blob-ext";
+					};
+				};
+
+				binman_fip: fip {
+					arch = "arm64";
+					compression = "none";
+					description = "Trusted Firmware FIP";
+					load = <0x40310000>;
+					type = "firmware";
+				};
+
+				@fdt-SEQ {
+					compression = "none";
+					description = "NAME";
+					type = "flat_dt";
+
+					uboot_fdt_blob {
+						filename = "u-boot.dtb";
+						type = "blob-ext";
+					};
+				};
+			};
+
+			configurations {
+				default = "@config-DEFAULT-SEQ";
+
+				binman_configuration: @config-SEQ {
+					description = "NAME";
+					fdt = "fdt-SEQ";
+					firmware = "uboot";
+					loadables = "atf";
+				};
+			};
+		};
+	};
+
+	imx-boot {
+		filename = "flash.bin";
+		pad-byte = <0x00>;
+
+		spl {
+			filename = "spl.bin";
+			offset = <0x0>;
+			type = "blob-ext";
+		};
+
+		binman_uboot: uboot {
+			filename = "u-boot.itb";
+			offset = <0x57c00>;
+			type = "blob-ext";
+		};
+	};
+};
+
 &clk {
-	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
 	/delete-property/ assigned-clock-rates;
@@ -34,6 +177,6 @@
 };
 
 &osc_24m {
-	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };

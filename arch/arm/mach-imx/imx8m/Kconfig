@@ -36,13 +36,15 @@ config TARGET_IMX8MQ_CM
 
 config TARGET_IMX8MQ_EVK
 	bool "imx8mq_evk"
+	select BINMAN
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
 config TARGET_IMX8MQ_PHANBELL
-        bool "imx8mq_phanbell"
-        select IMX8MQ
-        select IMX8M_LPDDR4
+	bool "imx8mq_phanbell"
+	select BINMAN
+	select IMX8MQ
+	select IMX8M_LPDDR4
 
 config TARGET_IMX8MM_EVK
 	bool "imx8mm LPDDR4 EVK board"
@@ -71,6 +73,7 @@ config TARGET_IMX8MM_ICORE_MX8MM
 
 config TARGET_IMX8MM_VENICE
 	bool "Support Gateworks Venice iMX8M Mini module"
+	select BINMAN
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
@@ -105,6 +108,7 @@ config TARGET_IMX8MP_EVK
 
 config TARGET_PICO_IMX8MQ
 	bool "Support Technexion Pico iMX8MQ"
+	select BINMAN
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
@@ -117,12 +121,14 @@ config TARGET_VERDIN_IMX8MM
 
 config TARGET_IMX8MM_BEACON
 	bool "imx8mm Beacon Embedded devkit"
+	select BINMAN
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
 config TARGET_IMX8MN_BEACON
 	bool "imx8mn Beacon Embedded devkit"
+	select BINMAN
 	select IMX8MN
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4

@@ -308,7 +308,7 @@ class TestFunctional(unittest.TestCase):
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
                     entry_args=None, images=None, use_real_dtb=False,
                     use_expanded=False, verbosity=None, allow_missing=False,
-                    extra_indirs=None, threads=None,
+                    allow_fake_blobs=False, extra_indirs=None, threads=None,
                     test_section_timeout=False, update_fdt_in_elf=None):
         """Run binman with a given test file
 
@@ -331,6 +331,7 @@ class TestFunctional(unittest.TestCase):
             verbosity: Verbosity level to use (0-3, None=don't set it)
             allow_missing: Set the '--allow-missing' flag so that missing
                 external binaries just produce a warning instead of an error
+            allow_fake_blobs: Set the '--fake-ext-blobs' flag
             extra_indirs: Extra input directories to add using -I
             threads: Number of threads to use (None for default, 0 for
                 single-threaded)
@@ -369,6 +370,8 @@ class TestFunctional(unittest.TestCase):
                 args.append('-a%s=%s' % (arg, value))
         if allow_missing:
             args.append('-M')
+        if allow_fake_blobs:
+            args.append('--fake-ext-blobs')
         if update_fdt_in_elf:
             args += ['--update-fdt-in-elf', update_fdt_in_elf]
         if images:
@@ -4660,6 +4663,16 @@ class TestFunctional(unittest.TestCase):
         self.assertRegex(
             str(e.exception),
             "Not enough space in '.*u_boot_binman_embed_sm' for data length.*")
+
+    def testFakeBlob(self):
+        """Test handling of faking an external blob"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('203_fake_blob.dts', allow_missing=True,
+                             allow_fake_blobs=True)
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image '.*' has faked external blobs and is non-functional: .*")
+        os.remove('binman_faking_test_blob')
 
 
 if __name__ == "__main__":
