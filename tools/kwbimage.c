@@ -8,6 +8,8 @@
  * <thomas.petazzoni@free-electrons.com>
  */
 
+#define OPENSSL_API_COMPAT 0x10101000L
+
 #include "imagetool.h"
 #include <limits.h>
 #include <image.h>
@@ -1398,9 +1400,6 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 					       headersz, image, secure_hdr))
 		return NULL;
 
-	/* Calculate and set the header checksum */
-	main_hdr->checksum = image_checksum8(main_hdr, headersz);
-
 	*imagesz = headersz;
 
 	/* Fill the real header size without padding into the main header */
@@ -1409,6 +1408,9 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		headersz += opt_hdr_v1_size(ohdr);
 	main_hdr->headersz_lsb = cpu_to_le16(headersz & 0xFFFF);
 	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
+
+	/* Calculate and set the header checksum */
+	main_hdr->checksum = image_checksum8(main_hdr, headersz);
 
 	return image;
 }

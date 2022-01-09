@@ -27,6 +27,14 @@ config TARGET_PX30_CORE
 	  * PX30.Core needs to mount on top of CTOUCH2.0 for creating complete
 	    PX30.Core C.TOUCH Carrier board.
 
+	  PX30.Core CTOUCH2-OF10:
+	  * PX30.Core is an EDIMM SOM based on Rockchip PX30 from Engicam.
+	  * CTOUCH2.0 is a general purpose Carrier board with capacitive
+	    touch interface support.
+	  * 10.1" OF is a capacitive touch 10.1" Open Frame panel solutions.
+	  * PX30.Core needs to mount on top of C.TOUCH 2.0 carrier with pluged
+            10.1" OF for creating complete PX30.Core C.TOUCH 2.0 10.1" Open Frame.
+
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xff010200
 

@@ -1814,6 +1814,13 @@ config CMD_RNG
 	help
 	  Print bytes from the hardware random number generator.
 
+config CMD_KASLRSEED
+	bool "kaslrseed"
+	depends on DM_RNG
+	help
+	  Set the kaslr-seed in the chosen node with entropy provided by a
+	  hardware random number generator.
+
 config CMD_SLEEP
 	bool "sleep"
 	default y

@@ -4,7 +4,7 @@
 # Lukasz Majewski <l.majewski@samsung.com>
 
 obj-$(CONFIG_$(SPL_TPL_)DM_PMIC) += pmic-uclass.o
-obj-$(CONFIG_DM_PMIC_FAN53555) += fan53555.o
+obj-$(CONFIG_$(SPL_)DM_PMIC_FAN53555) += fan53555.o
 obj-$(CONFIG_$(SPL_)DM_PMIC_DA9063) += da9063.o
 obj-$(CONFIG_DM_PMIC_MAX77686) += max77686.o
 obj-$(CONFIG_DM_PMIC_MAX8998) += max8998.o
