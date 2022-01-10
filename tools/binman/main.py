@@ -68,6 +68,7 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
             name to execute (as in 'binman test testSections', for example)
         toolpath: List of paths to use for tools
     """
+    from binman import bintool_test
     from binman import cbfs_util_test
     from binman import elf_test
     from binman import entry_test
@@ -85,9 +86,9 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
     test_util.RunTestSuites(
         result, debug, verbosity, test_preserve_dirs, processes, test_name,
         toolpath,
-        [entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
-         elf_test.TestElf, image_test.TestImage, cbfs_util_test.TestCbfs,
-         fip_util_test.TestFip])
+        [bintool_test.TestBintool, entry_test.TestEntry, ftest.TestFunctional,
+         fdt_test.TestFdt, elf_test.TestElf, image_test.TestImage,
+         cbfs_util_test.TestCbfs, fip_util_test.TestFip])
 
     return test_util.ReportResult('binman', test_name, result)
 
