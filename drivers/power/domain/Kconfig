@@ -9,6 +9,15 @@ config POWER_DOMAIN
 	  domains). This may be used to save power. This API provides the
 	  means to control such power management hardware.
 
+config APPLE_PMGR_POWER_DOMAIN
+	bool "Enable the Apple PMGR power domain driver"
+	depends on POWER_DOMAIN
+	default y if ARCH_APPLE
+	help
+	  Enable support for manipulating power domains on Apple SoCs.
+	  This driver is needed to power on parts of the SoC that have
+	  not been powered on by previous boot stages.
+
 config BCM6328_POWER_DOMAIN
 	bool "Enable the BCM6328 power domain driver"
 	depends on POWER_DOMAIN && ARCH_BMIPS
