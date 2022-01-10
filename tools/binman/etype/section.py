@@ -776,7 +776,7 @@ class Entry_section(Entry):
         data = parent_data[offset:offset + child.size]
         if decomp:
             indata = data
-            data = comp_util.Decompress(indata, child.compress)
+            data = comp_util.decompress(indata, child.compress)
             if child.uncomp_size:
                 tout.Info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
                             (child.GetPath(), len(indata), child.compress,

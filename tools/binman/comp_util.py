@@ -8,7 +8,7 @@ import tempfile
 
 from patman import tools
 
-def Compress(indata, algo, with_header=True):
+def compress(indata, algo, with_header=True):
     """Compress some data using a given algorithm
 
     Note that for lzma this uses an old version of the algorithm, not that
@@ -21,11 +21,11 @@ def Compress(indata, algo, with_header=True):
     called from multiple threads.
 
     Args:
-        indata: Input data to compress
-        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
+        indata (bytes): Input data to compress
+        algo (str): Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
 
     Returns:
-        Compressed data
+        bytes: Compressed data
     """
     if algo == 'none':
         return indata
@@ -51,7 +51,7 @@ def Compress(indata, algo, with_header=True):
         data = hdr + data
     return data
 
-def Decompress(indata, algo, with_header=True):
+def decompress(indata, algo, with_header=True):
     """Decompress some data using a given algorithm
 
     Note that for lzma this uses an old version of the algorithm, not that
@@ -61,11 +61,11 @@ def Decompress(indata, algo, with_header=True):
     directory to be previously set up, by calling PrepareOutputDir().
 
     Args:
-        indata: Input data to decompress
-        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
+        indata (bytes): Input data to decompress
+        algo (str): Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
 
     Returns:
-        Compressed data
+        (bytes) Compressed data
     """
     if algo == 'none':
         return indata
@@ -73,8 +73,7 @@ def Decompress(indata, algo, with_header=True):
         data_len = struct.unpack('<I', indata[:4])[0]
         indata = indata[4:4 + data_len]
     fname = tools.GetOutputFilename('%s.decomp.tmp' % algo)
-    with open(fname, 'wb') as fd:
-        fd.write(indata)
+    tools.WriteFile(fname, indata)
     if algo == 'lz4':
         data = tools.Run('lz4', '-dc', fname, binary=True)
     elif algo == 'lzma':
