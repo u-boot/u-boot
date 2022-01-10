@@ -18,6 +18,7 @@ import sys
 import tempfile
 import unittest
 
+from binman import bintool
 from binman import cbfs_util
 from binman import cmdline
 from binman import control

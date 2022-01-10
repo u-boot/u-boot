@@ -167,4 +167,11 @@ controlled by a description in the board device tree.'''
     test_parser.add_argument('tests', nargs='*',
                              help='Test names to run (omit for all)')
 
+    tool_parser = subparsers.add_parser('tool', help='Check bintools')
+    tool_parser.add_argument('-l', '--list', action='store_true',
+                             help='List all known bintools')
+    tool_parser.add_argument('-f', '--fetch', action='store_true',
+                             help='fetch a bintool from a known location (or: all/missing)')
+    tool_parser.add_argument('bintools', type=str, nargs='*')
+
     return parser.parse_args(argv)
