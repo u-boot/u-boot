@@ -578,10 +578,9 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.CheckFakedBlobs(faked_list)
     if faked_list:
         tout.Warning(
-            "Image '%s:%s' has faked external blobs and is non-functional: %s" %
-            (image.name, image.image_name,
-             ' '.join([os.path.basename(e.GetDefaultFilename())
-                       for e in faked_list])))
+            "Image '%s' has faked external blobs and is non-functional: %s" %
+            (image.name, ' '.join([os.path.basename(e.GetDefaultFilename())
+                                   for e in faked_list])))
     return bool(missing_list) or bool(faked_list)
 
 
