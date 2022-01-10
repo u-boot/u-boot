@@ -861,27 +861,3 @@ class CbfsReader(object):
                 val += data[:pos]
                 break
         return val.decode('utf-8')
-
-
-def cbfstool(fname, *cbfs_args, **kwargs):
-    """Run cbfstool with provided arguments
-
-    If the tool fails then this function raises an exception and prints out the
-    output and stderr.
-
-    Args:
-        fname: Filename of CBFS
-        *cbfs_args: List of arguments to pass to cbfstool
-
-    Returns:
-        CommandResult object containing the results
-    """
-    args = ['cbfstool', fname] + list(cbfs_args)
-    if kwargs.get('base') is not None:
-        args += ['-b', '%#x' % kwargs['base']]
-    result = command.RunPipe([args], capture=not VERBOSE,
-                             capture_stderr=not VERBOSE, raise_on_error=False)
-    if result.return_code:
-        print(result.stderr, file=sys.stderr)
-        raise Exception("Failed to run (error %d): '%s'" %
-                        (result.return_code, ' '.join(args)))
