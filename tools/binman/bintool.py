@@ -387,6 +387,51 @@ class Bintool:
         tools.Run(*args)
         return True
 
+    @staticmethod
+    def WriteDocs(modules, test_missing=None):
+        """Write out documentation about the various bintools to stdout
+
+        Args:
+            modules: List of modules to include
+            test_missing: Used for testing. This is a module to report
+                as missing
+        """
+        print('''.. SPDX-License-Identifier: GPL-2.0+
+
+Binman bintool Documentation
+============================
+
+This file describes the bintools (binary tools) supported by binman. Bintools
+are binman's name for external executables that it runs to generate or process
+binaries. It is fairly easy to create new bintools. Just add a new file to the
+'btool' directory. You can use existing bintools as examples.
+
+
+''')
+        modules = sorted(modules)
+        missing = []
+        for name in modules:
+            module = Bintool.find_bintool_class(name)
+            docs = getattr(module, '__doc__')
+            if test_missing == name:
+                docs = None
+            if docs:
+                lines = docs.splitlines()
+                first_line = lines[0]
+                rest = [line[4:] for line in lines[1:]]
+                hdr = 'Bintool: %s: %s' % (name, first_line)
+                print(hdr)
+                print('-' * len(hdr))
+                print('\n'.join(rest))
+                print()
+                print()
+            else:
+                missing.append(name)
+
+        if missing:
+            raise ValueError('Documentation is missing for modules: %s' %
+                             ', '.join(missing))
+
     # pylint: disable=W0613
     def fetch(self, method):
         """Fetch handler for a bintool

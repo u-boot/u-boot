@@ -5085,6 +5085,21 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             comp_util.decompress(b'1234', 'invalid')
         self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
 
+    def testBintoolDocs(self):
+        """Test for creation of bintool documentation"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            control.write_bintool_docs(control.bintool.Bintool.get_tool_list())
+        self.assertTrue(len(stdout.getvalue()) > 0)
+
+    def testBintoolDocsMissing(self):
+        """Test handling of missing bintool documentation"""
+        with self.assertRaises(ValueError) as e:
+            with test_util.capture_sys_output() as (stdout, stderr):
+                control.write_bintool_docs(
+                    control.bintool.Bintool.get_tool_list(), 'mkimage')
+        self.assertIn('Documentation is missing for modules: mkimage',
+                      str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

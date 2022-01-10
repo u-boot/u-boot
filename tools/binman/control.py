@@ -140,12 +140,24 @@ def WriteEntryDocs(modules, test_missing=None):
 
     Args:
         modules: List of Module objects to get docs for
-        test_missing: Used for testing only, to force an entry's documeentation
+        test_missing: Used for testing only, to force an entry's documentation
             to show as missing even if it is present. Should be set to None in
             normal use.
     """
     from binman.entry import Entry
     Entry.WriteDocs(modules, test_missing)
+
+
+def write_bintool_docs(modules, test_missing=None):
+    """Write out documentation for all bintools
+
+    Args:
+        modules: List of Module objects to get docs for
+        test_missing: Used for testing only, to force an entry's documentation
+            to show as missing even if it is present. Should be set to None in
+            normal use.
+    """
+    bintool.Bintool.WriteDocs(modules, test_missing)
 
 
 def ListEntries(image_fname, entry_paths):

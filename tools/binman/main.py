@@ -35,6 +35,7 @@ sys.pycache_prefix = os.path.relpath(our_path, srctree)
 # in PYTHONPATH)
 sys.path.insert(2, our1_path)
 
+from binman import bintool
 from patman import test_util
 
 # Bring in the libfdt module
@@ -128,6 +129,9 @@ def RunBinman(args):
             ret_code = RunTests(args.debug, args.verbosity, args.processes,
                                 args.test_preserve_dirs, args.tests,
                                 args.toolpath)
+
+    elif args.cmd == 'bintool-docs':
+        control.write_bintool_docs(bintool.Bintool.get_tool_list())
 
     elif args.cmd == 'entry-docs':
         control.WriteEntryDocs(control.GetEntryModules())

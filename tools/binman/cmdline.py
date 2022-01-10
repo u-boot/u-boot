@@ -130,6 +130,9 @@ controlled by a description in the board device tree.'''
         help='Update an ELF file with the output dtb: infile,outfile,begin_sym,end_sym')
 
     subparsers.add_parser(
+        'bintool-docs', help='Write out bintool documentation (see bintool.rst)')
+
+    subparsers.add_parser(
         'entry-docs', help='Write out entry documentation (see entries.rst)')
 
     list_parser = subparsers.add_parser('ls', help='List files in an image')
