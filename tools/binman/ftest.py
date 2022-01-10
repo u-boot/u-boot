@@ -3713,11 +3713,28 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('162_fit_external.dts')
         fit_data = data[len(U_BOOT_DATA):-2]  # _testing is 2 bytes
 
+        # Size of the external-data region as set up by mkimage
+        external_data_size = len(U_BOOT_DATA) + 2
+        expected_size = (len(U_BOOT_DATA) + 0x400 +
+                         tools.Align(external_data_size, 4) +
+                         len(U_BOOT_NODTB_DATA))
+
         # The data should be outside the FIT
         dtb = fdt.Fdt.FromData(fit_data)
         dtb.Scan()
         fnode = dtb.GetNode('/images/kernel')
         self.assertNotIn('data', fnode.props)
+        self.assertEqual(len(U_BOOT_DATA),
+                         fdt_util.fdt32_to_cpu(fnode.props['data-size'].value))
+        fit_pos = 0x400;
+        self.assertEqual(
+            fit_pos,
+            fdt_util.fdt32_to_cpu(fnode.props['data-position'].value))
+
+        self.assertEquals(expected_size, len(data))
+        actual_pos = len(U_BOOT_DATA) + fit_pos
+        self.assertEqual(U_BOOT_DATA + b'aa',
+                         data[actual_pos:actual_pos + external_data_size])
 
     def testSectionIgnoreHashSignature(self):
         """Test that sections ignore hash, signature nodes for its data"""
