@@ -7,7 +7,6 @@ import glob
 import os
 import shlex
 import shutil
-import struct
 import sys
 import tempfile
 import urllib.request
@@ -517,84 +516,6 @@ def ToString(bval):
         Python 2: A string type
     """
     return bval.decode('utf-8')
-
-def Compress(indata, algo, with_header=True):
-    """Compress some data using a given algorithm
-
-    Note that for lzma this uses an old version of the algorithm, not that
-    provided by xz.
-
-    This requires 'lz4' and 'lzma_alone' tools. It also requires an output
-    directory to be previously set up, by calling PrepareOutputDir().
-
-    Care is taken to use unique temporary files so that this function can be
-    called from multiple threads.
-
-    Args:
-        indata: Input data to compress
-        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
-
-    Returns:
-        Compressed data
-    """
-    if algo == 'none':
-        return indata
-    fname = tempfile.NamedTemporaryFile(prefix='%s.comp.tmp' % algo,
-                                        dir=outdir).name
-    WriteFile(fname, indata)
-    if algo == 'lz4':
-        data = Run('lz4', '--no-frame-crc', '-B4', '-5', '-c', fname,
-                   binary=True)
-    # cbfstool uses a very old version of lzma
-    elif algo == 'lzma':
-        outfname = tempfile.NamedTemporaryFile(prefix='%s.comp.otmp' % algo,
-                                               dir=outdir).name
-        Run('lzma_alone', 'e', fname, outfname, '-lc1', '-lp0', '-pb0', '-d8')
-        data = ReadFile(outfname)
-    elif algo == 'gzip':
-        data = Run('gzip', '-c', fname, binary=True)
-    else:
-        raise ValueError("Unknown algorithm '%s'" % algo)
-    if with_header:
-        hdr = struct.pack('<I', len(data))
-        data = hdr + data
-    return data
-
-def Decompress(indata, algo, with_header=True):
-    """Decompress some data using a given algorithm
-
-    Note that for lzma this uses an old version of the algorithm, not that
-    provided by xz.
-
-    This requires 'lz4' and 'lzma_alone' tools. It also requires an output
-    directory to be previously set up, by calling PrepareOutputDir().
-
-    Args:
-        indata: Input data to decompress
-        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
-
-    Returns:
-        Compressed data
-    """
-    if algo == 'none':
-        return indata
-    if with_header:
-        data_len = struct.unpack('<I', indata[:4])[0]
-        indata = indata[4:4 + data_len]
-    fname = GetOutputFilename('%s.decomp.tmp' % algo)
-    with open(fname, 'wb') as fd:
-        fd.write(indata)
-    if algo == 'lz4':
-        data = Run('lz4', '-dc', fname, binary=True)
-    elif algo == 'lzma':
-        outfname = GetOutputFilename('%s.decomp.otmp' % algo)
-        Run('lzma_alone', 'd', fname, outfname)
-        data = ReadFile(outfname, binary=True)
-    elif algo == 'gzip':
-        data = Run('gzip', '-cd', fname, binary=True)
-    else:
-        raise ValueError("Unknown algorithm '%s'" % algo)
-    return data
 
 def ToHex(val):
     """Convert an integer value (or None) to a string

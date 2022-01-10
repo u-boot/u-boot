@@ -13,6 +13,7 @@ import concurrent.futures
 import re
 import sys
 
+from binman import comp_util
 from binman.entry import Entry
 from binman import state
 from dtoc import fdt_util
@@ -775,7 +776,7 @@ class Entry_section(Entry):
         data = parent_data[offset:offset + child.size]
         if decomp:
             indata = data
-            data = tools.Decompress(indata, child.compress)
+            data = comp_util.Decompress(indata, child.compress)
             if child.uncomp_size:
                 tout.Info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
                             (child.GetPath(), len(indata), child.compress,

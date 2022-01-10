@@ -20,6 +20,7 @@ import io
 import struct
 import sys
 
+from binman import comp_util
 from binman import elf
 from patman import command
 from patman import tools
@@ -240,9 +241,9 @@ class CbfsFile(object):
         """Handle decompressing data if necessary"""
         indata = self.data
         if self.compress == COMPRESS_LZ4:
-            data = tools.Decompress(indata, 'lz4', with_header=False)
+            data = comp_util.Decompress(indata, 'lz4', with_header=False)
         elif self.compress == COMPRESS_LZMA:
-            data = tools.Decompress(indata, 'lzma', with_header=False)
+            data = comp_util.Decompress(indata, 'lzma', with_header=False)
         else:
             data = indata
         self.memlen = len(data)
@@ -361,9 +362,9 @@ class CbfsFile(object):
         elif self.ftype == TYPE_RAW:
             orig_data = data
             if self.compress == COMPRESS_LZ4:
-                data = tools.Compress(orig_data, 'lz4', with_header=False)
+                data = comp_util.Compress(orig_data, 'lz4', with_header=False)
             elif self.compress == COMPRESS_LZMA:
-                data = tools.Compress(orig_data, 'lzma', with_header=False)
+                data = comp_util.Compress(orig_data, 'lzma', with_header=False)
             self.memlen = len(orig_data)
             self.data_len = len(data)
             attr = struct.pack(ATTR_COMPRESSION_FORMAT,

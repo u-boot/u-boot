@@ -23,6 +23,7 @@ import urllib.error
 from binman import bintool
 from binman import cbfs_util
 from binman import cmdline
+from binman import comp_util
 from binman import control
 from binman import elf
 from binman import elf_test
@@ -1926,7 +1927,7 @@ class TestFunctional(unittest.TestCase):
             self._ResetDtbs()
 
     def _decompress(self, data):
-        return tools.Decompress(data, 'lz4')
+        return comp_util.Decompress(data, 'lz4')
 
     def testCompress(self):
         """Test compression of blobs"""
@@ -2805,7 +2806,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractCbfsRaw(self):
         """Test extracting CBFS compressed data without decompressing it"""
         data = self._RunExtractCmd('section/cbfs/u-boot-dtb', decomp=False)
-        dtb = tools.Decompress(data, 'lzma', with_header=False)
+        dtb = comp_util.Decompress(data, 'lzma', with_header=False)
         self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
 
     def testExtractBadEntry(self):
@@ -4232,13 +4233,13 @@ class TestFunctional(unittest.TestCase):
 
         # Check compressed data
         section1 = self._decompress(rest)
-        expect1 = tools.Compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
+        expect1 = comp_util.Compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
         self.assertEquals(expect1, rest[:len(expect1)])
         self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, section1)
         rest1 = rest[len(expect1):]
 
         section2 = self._decompress(rest1)
-        expect2 = tools.Compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
+        expect2 = comp_util.Compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
         self.assertEquals(expect2, rest1[:len(expect2)])
         self.assertEquals(COMPRESS_DATA + COMPRESS_DATA, section2)
         rest2 = rest1[len(expect2):]
