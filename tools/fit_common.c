@@ -26,9 +26,17 @@
 int fit_verify_header(unsigned char *ptr, int image_size,
 			struct image_tool_params *params)
 {
-	if (fdt_check_header(ptr) != EXIT_SUCCESS ||
-	    fit_check_format(ptr, IMAGE_SIZE_INVAL))
+	int ret;
+
+	if (fdt_check_header(ptr) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
+
+	ret = fit_check_format(ptr, IMAGE_SIZE_INVAL);
+	if (ret) {
+		if (ret != -EADDRNOTAVAIL)
+			return EXIT_FAILURE;
+		fprintf(stderr, "Image contains unit addresses @, this will break signing\n");
+	}
 
 	return EXIT_SUCCESS;
 }
