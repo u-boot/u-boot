@@ -134,6 +134,7 @@ class Entry_fit(Entry):
                 self._fdts = fdts.split()
         self._fit_default_dt = self.GetEntryArgsOrProps([EntryArg('default-dt',
                                                                   str)])[0]
+        self.mkimage = None
 
     def ReadNode(self):
         self.ReadEntries()
@@ -250,13 +251,21 @@ class Entry_fit(Entry):
         tools.WriteFile(input_fname, data)
         tools.WriteFile(output_fname, data)
 
-        args = []
+        args = {}
         ext_offset = self._fit_props.get('fit,external-offset')
         if ext_offset is not None:
-            args += ['-E', '-p', '%x' % fdt_util.fdt32_to_cpu(ext_offset.value)]
-        tools.Run('mkimage', '-t', '-F', output_fname, *args)
+            args = {
+                'external': True,
+                'pad': fdt_util.fdt32_to_cpu(ext_offset.value)
+                }
+        if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
+                            **args) is not None:
+            self.SetContents(tools.ReadFile(output_fname))
+        else:
+            # Bintool is missing; just use empty data as the output
+            self.record_missing_bintool(self.mkimage)
+            self.SetContents(tools.GetBytes(0, 1024))
 
-        self.SetContents(tools.ReadFile(output_fname))
         return True
 
     def _BuildInput(self, fdt):
@@ -295,3 +304,6 @@ class Entry_fit(Entry):
     def SetAllowMissing(self, allow_missing):
         for section in self._fit_sections.values():
             section.SetAllowMissing(allow_missing)
+
+    def AddBintools(self, tools):
+        self.mkimage = self.AddBintool(tools, 'mkimage')
