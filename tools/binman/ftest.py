@@ -5076,6 +5076,15 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                 self._DoBinman(*args)
         self.assertIn('failed to fetch with all methods', stdout.getvalue())
 
+    def testInvalidCompress(self):
+        with self.assertRaises(ValueError) as e:
+            comp_util.compress(b'', 'invalid')
+        self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
+
+        with self.assertRaises(ValueError) as e:
+            comp_util.decompress(b'1234', 'invalid')
+        self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
