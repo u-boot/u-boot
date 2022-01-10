@@ -884,11 +884,6 @@ static int fit_extract_contents(void *ptr, struct image_tool_params *params)
 	/* Indent string is defined in header image.h */
 	p = IMAGE_INDENT_STRING;
 
-	if (fit_check_format(fit, IMAGE_SIZE_INVAL)) {
-		printf("Bad FIT image format\n");
-		return -1;
-	}
-
 	/* Find images parent node offset */
 	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
 	if (images_noffset < 0) {
