@@ -185,13 +185,36 @@ Binman is intended to replace all of this, with ifdtool left to handle only
 the configuration of the Intel-format descriptor.
 
 
-Running binman
---------------
+Installing binman
+-----------------
 
 First install prerequisites, e.g::
 
     sudo apt-get install python-pyelftools python3-pyelftools lzma-alone \
         liblz4-tool
+
+You can run binman directly if you put it on your PATH. But if you want to
+install into your `~/.local` Python directory, use::
+
+    pip install tools/patman tools/dtoc tools/binman
+
+Note that binman makes use of libraries from patman and dtoc, which is why these
+need to be installed. Also you need `libfdt` and `pylibfdt` which can be
+installed like this::
+
+   git clone git://git.kernel.org/pub/scm/utils/dtc/dtc.git
+   cd dtc
+   pip install .
+   make NO_PYTHON=1 install
+
+This installs the `libfdt.so` library into `~/lib` so you can use
+`LD_LIBRARY_PATH=~/lib` when running binman. If you want to install it in the
+system-library directory, replace the last line with::
+
+   make NO_PYTHON=1 PREFIX=/ install
+
+Running binman
+--------------
 
 Type::
 
