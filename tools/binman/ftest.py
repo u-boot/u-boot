@@ -310,7 +310,8 @@ class TestFunctional(unittest.TestCase):
                     entry_args=None, images=None, use_real_dtb=False,
                     use_expanded=False, verbosity=None, allow_missing=False,
                     allow_fake_blobs=False, extra_indirs=None, threads=None,
-                    test_section_timeout=False, update_fdt_in_elf=None):
+                    test_section_timeout=False, update_fdt_in_elf=None,
+                    force_missing_bintools=''):
         """Run binman with a given test file
 
         Args:
@@ -339,6 +340,8 @@ class TestFunctional(unittest.TestCase):
             test_section_timeout: True to force the first time to timeout, as
                 used in testThreadTimeout()
             update_fdt_in_elf: Value to pass with --update-fdt-in-elf=xxx
+            force_missing_tools (str): comma-separated list of bintools to
+                regard as missing
 
         Returns:
             int return code, 0 on success
@@ -373,6 +376,8 @@ class TestFunctional(unittest.TestCase):
             args.append('-M')
         if allow_fake_blobs:
             args.append('--fake-ext-blobs')
+        if force_missing_bintools:
+            args += ['--force-missing-bintools', force_missing_bintools]
         if update_fdt_in_elf:
             args += ['--update-fdt-in-elf', update_fdt_in_elf]
         if images:
@@ -1713,6 +1718,18 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Node '/binman/gbb': GBB must have a fixed size",
                       str(e.exception))
 
+    def testGbbMissing(self):
+        """Test that binman still produces an image if futility is missing"""
+        entry_args = {
+            'keydir': 'devkeys',
+        }
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('071_gbb.dts', force_missing_bintools='futility',
+                             entry_args=entry_args)
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: futility")
+
     def _HandleVblockCommand(self, pipe_list):
         """Fake calls to the futility utility
 
@@ -1797,6 +1814,19 @@ class TestFunctional(unittest.TestCase):
         m.update(expected_data)
         expected_hashval = m.digest()
         self.assertEqual(expected_hashval, hashval)
+
+    def testVblockMissing(self):
+        """Test that binman still produces an image if futility is missing"""
+        entry_args = {
+            'keydir': 'devkeys',
+        }
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('074_vblock.dts',
+                             force_missing_bintools='futility',
+                             entry_args=entry_args)
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: futility")
 
     def testTpl(self):
         """Test that an image with TPL and its device tree can be created"""
@@ -2334,6 +2364,16 @@ class TestFunctional(unittest.TestCase):
             data = self._DoReadFile('113_x86_rom_ifwi_nodata.dts')
         self.assertIn('Could not complete processing of contents',
                       str(e.exception))
+
+    def testIfwiMissing(self):
+        """Test that binman still produces an image if ifwitool is missing"""
+        self._SetupIfwi('fitimage.bin')
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('111_x86_rom_ifwi.dts',
+                             force_missing_bintools='ifwitool')
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: ifwitool")
 
     def testCbfsOffset(self):
         """Test a CBFS with files at particular offsets
@@ -3614,6 +3654,15 @@ class TestFunctional(unittest.TestCase):
         # Just check that the data appears in the file somewhere
         self.assertIn(U_BOOT_SPL_DATA, data)
 
+    def testMkimageMissing(self):
+        """Test that binman still produces an image if mkimage is missing"""
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('156_mkimage.dts',
+                             force_missing_bintools='mkimage')
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: mkimage")
+
     def testExtblob(self):
         """Test an image with an external blob"""
         data = self._DoReadFile('157_blob_ext.dts')
@@ -3733,6 +3782,15 @@ class TestFunctional(unittest.TestCase):
         actual_pos = len(U_BOOT_DATA) + fit_pos
         self.assertEqual(U_BOOT_DATA + b'aa',
                          data[actual_pos:actual_pos + external_data_size])
+
+    def testFitMissing(self):
+        """Test that binman still produces a FIT image if mkimage is missing"""
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('162_fit_external.dts',
+                             force_missing_bintools='mkimage')
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: mkimage")
 
     def testSectionIgnoreHashSignature(self):
         """Test that sections ignore hash, signature nodes for its data"""

@@ -832,6 +832,17 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             entry.CheckFakedBlobs(faked_blobs_list)
 
+    def check_missing_bintools(self, missing_list):
+        """Check if any entries in this section have missing bintools
+
+        If there are missing bintools, these are added to the list
+
+        Args:
+            missing_list: List of Bintool objects to be added to
+        """
+        for entry in self._entries.values():
+            entry.check_missing_bintools(missing_list)
+
     def _CollectEntries(self, entries, entries_by_name, add_entry):
         """Collect all the entries in an section
 

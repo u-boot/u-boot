@@ -77,6 +77,7 @@ class Entry(object):
             available. This is mainly used for testing.
         external: True if this entry contains an external binary blob
         bintools: Bintools used by this entry (only populated for Image)
+        missing_bintools: List of missing bintools for this entry
     """
     def __init__(self, section, etype, node, name_prefix=''):
         # Put this here to allow entry-docs and help to work without libfdt
@@ -109,6 +110,7 @@ class Entry(object):
         self.allow_missing = False
         self.allow_fake = False
         self.bintools = {}
+        self.missing_bintools = []
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -1014,6 +1016,24 @@ features to produce new behaviours.
             True if allowed, False if not allowed
         """
         return self.allow_missing
+
+    def record_missing_bintool(self, bintool):
+        """Record a missing bintool that was needed to produce this entry
+
+        Args:
+            bintool (Bintool): Bintool that was missing
+        """
+        self.missing_bintools.append(bintool)
+
+    def check_missing_bintools(self, missing_list):
+        """Check if any entries in this section have missing bintools
+
+        If there are missing bintools, these are added to the list
+
+        Args:
+            missing_list: List of Bintool objects to be added to
+        """
+        missing_list += self.missing_bintools
 
     def GetHelpTags(self):
         """Get the tags use for missing-blob help

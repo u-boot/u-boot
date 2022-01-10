@@ -583,7 +583,14 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
             "Image '%s' has faked external blobs and is non-functional: %s" %
             (image.name, ' '.join([os.path.basename(e.GetDefaultFilename())
                                    for e in faked_list])))
-    return bool(missing_list) or bool(faked_list)
+    missing_bintool_list = []
+    image.check_missing_bintools(missing_bintool_list)
+    if missing_bintool_list:
+        tout.Warning(
+            "Image '%s' has missing bintools and is non-functional: %s" %
+            (image.name, ' '.join([os.path.basename(bintool.name)
+                                   for bintool in missing_bintool_list])))
+    return any([missing_list, faked_list, missing_bintool_list])
 
 
 def Binman(args):
@@ -688,6 +695,9 @@ def Binman(args):
                 # Set the first image to timeout, used in testThreadTimeout()
                 images[list(images.keys())[0]].test_section_timeout = True
             invalid = False
+            bintool.Bintool.set_missing_list(
+                args.force_missing_bintools.split(',') if
+                args.force_missing_bintools else None)
             for image in images.values():
                 invalid |= ProcessImage(image, args.update_fdt, args.map,
                                        allow_missing=args.allow_missing,

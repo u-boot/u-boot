@@ -105,6 +105,8 @@ controlled by a description in the board device tree.'''
             help='Use fake device tree contents (for testing only)')
     build_parser.add_argument('--fake-ext-blobs', action='store_true',
             help='Create fake ext blobs with dummy content (for testing only)')
+    build_parser.add_argument('--force-missing-bintools', type=str,
+            help='Comma-separated list of bintools to consider missing (for testing)')
     build_parser.add_argument('-i', '--image', type=str, action='append',
             help='Image filename to build (if not specified, build all)')
     build_parser.add_argument('-I', '--indir', action='append',
