@@ -805,6 +805,7 @@ class Entry_section(Entry):
         Args:
             allow_fake_blob: True if allowed, False if not allowed
         """
+        super().SetAllowFakeBlob(allow_fake)
         for entry in self._entries.values():
             entry.SetAllowFakeBlob(allow_fake)
 

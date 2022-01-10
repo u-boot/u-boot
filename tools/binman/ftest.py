@@ -4982,6 +4982,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             err,
             "Image '.*' has faked external blobs and is non-functional: .*")
 
+    def testExtblobListFaked(self):
+        """Test an extblob with missing external blob that are faked"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('216_blob_ext_list_missing.dts',
+                             allow_fake_blobs=True)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'main-section'.*faked.*: blob-ext-list")
+
 
 if __name__ == "__main__":
     unittest.main()

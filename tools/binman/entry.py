@@ -960,7 +960,7 @@ features to produce new behaviours.
         Args:
             allow_fake: True if allowed, False if not allowed
         """
-        pass
+        self.allow_fake = allow_fake
 
     def CheckMissing(self, missing_list):
         """Check if any entries in this section have missing external blobs
