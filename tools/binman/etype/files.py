@@ -64,4 +64,4 @@ class Entry_files(Entry_section):
                 state.AddInt(subnode, 'align', self._files_align)
 
         # Read entries again, now that we have some
-        self._ReadEntries()
+        self.ReadEntries()

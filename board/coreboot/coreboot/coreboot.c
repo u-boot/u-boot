@@ -4,10 +4,11 @@
  */
 
 #include <common.h>
-#include <asm/cb_sysinfo.h>
-#include <asm/global_data.h>
+#include <splash.h>
 #include <init.h>
 #include <smbios.h>
+#include <asm/cb_sysinfo.h>
+#include <asm/global_data.h>
 
 int board_early_init_r(void)
 {
@@ -65,3 +66,18 @@ fallback:
 	return checkboard();
 }
 #endif
+
+static struct splash_location coreboot_splash_locations[] = {
+	{
+		.name = "virtio_fs",
+		.storage = SPLASH_STORAGE_VIRTIO,
+		.flags = SPLASH_STORAGE_RAW,
+		.devpart = "0",
+	},
+};
+
+int splash_screen_prepare(void)
+{
+	return splash_source_load(coreboot_splash_locations,
+				  ARRAY_SIZE(coreboot_splash_locations));
+}

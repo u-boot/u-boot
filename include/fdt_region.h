@@ -77,6 +77,7 @@ struct fdt_region_state {
 	int max_regions;		/* Maximum regions to find */
 	int can_merge;		/* 1 if we can merge with previous region */
 	int start;			/* Start position of current region */
+	bool have_node;			/* True if any node is included */
 	struct fdt_region_ptrs ptrs;	/* Pointers for what we are up to */
 };
 

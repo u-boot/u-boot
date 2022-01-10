@@ -5,6 +5,7 @@ Use U-Boot
    :maxdepth: 1
 
    dfu
+   environment
    fdt_overlays
    fit
    netconsole
@@ -43,6 +44,7 @@ Shell commands
    qfw
    reset
    sbi
+   sf
    scp03
    setexpr
    size

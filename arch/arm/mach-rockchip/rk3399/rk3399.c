@@ -118,10 +118,6 @@ void board_debug_uart_init(void)
 #define GPIO0_BASE	0xff720000
 #define PMUGRF_BASE	0xff320000
 	struct rk3399_grf_regs * const grf = (void *)GRF_BASE;
-#ifdef CONFIG_TARGET_CHROMEBOOK_BOB
-	struct rk3399_pmugrf_regs * const pmugrf = (void *)PMUGRF_BASE;
-	struct rockchip_gpio_regs * const gpio = (void *)GPIO0_BASE;
-#endif
 
 #if defined(CONFIG_DEBUG_UART_BASE) && (CONFIG_DEBUG_UART_BASE == 0xff180000)
 	/* Enable early UART0 on the RK3399 */
@@ -140,19 +136,25 @@ void board_debug_uart_init(void)
 		     GRF_GPIO3B7_SEL_MASK,
 		     GRF_UART3_SOUT << GRF_GPIO3B7_SEL_SHIFT);
 #else
-# ifdef CONFIG_TARGET_CHROMEBOOK_BOB
-	rk_setreg(&grf->io_vsel, 1 << 0);
+	struct rk3399_pmugrf_regs * const pmugrf = (void *)PMUGRF_BASE;
+	struct rockchip_gpio_regs * const gpio = (void *)GPIO0_BASE;
 
-	/*
-	 * Let's enable these power rails here, we are already running the SPI
-	 * Flash based code.
-	 */
-	spl_gpio_output(gpio, GPIO(BANK_B, 2), 1);  /* PP1500_EN */
-	spl_gpio_set_pull(&pmugrf->gpio0_p, GPIO(BANK_B, 2), GPIO_PULL_NORMAL);
+	if (IS_ENABLED(CONFIG_SPL_BUILD) &&
+	    IS_ENABLED(CONFIG_TARGET_CHROMEBOOK_BOB)) {
+		rk_setreg(&grf->io_vsel, 1 << 0);
 
-	spl_gpio_output(gpio, GPIO(BANK_B, 4), 1);  /* PP3000_EN */
-	spl_gpio_set_pull(&pmugrf->gpio0_p, GPIO(BANK_B, 4), GPIO_PULL_NORMAL);
-#endif /* CONFIG_TARGET_CHROMEBOOK_BOB */
+		/*
+		 * Let's enable these power rails here, we are already running
+		 * the SPI-Flash-based code.
+		 */
+		spl_gpio_output(gpio, GPIO(BANK_B, 2), 1);  /* PP1500_EN */
+		spl_gpio_set_pull(&pmugrf->gpio0_p, GPIO(BANK_B, 2),
+				  GPIO_PULL_NORMAL);
+
+		spl_gpio_output(gpio, GPIO(BANK_B, 4), 1);  /* PP3000_EN */
+		spl_gpio_set_pull(&pmugrf->gpio0_p, GPIO(BANK_B, 4),
+				  GPIO_PULL_NORMAL);
+	}
 
 	/* Enable early UART2 channel C on the RK3399 */
 	rk_clrsetreg(&grf->gpio4c_iomux,

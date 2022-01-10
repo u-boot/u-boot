@@ -155,3 +155,15 @@ bool ofnode_phy_is_fixed_link(ofnode eth_node, ofnode *phy_node)
 
 	return true;
 }
+
+bool ofnode_eth_uses_inband_aneg(ofnode eth_node)
+{
+	bool inband_aneg = false;
+	const char *managed;
+
+	managed = ofnode_read_string(eth_node, "managed");
+	if (managed && !strcmp(managed, "in-band-status"))
+		inband_aneg = true;
+
+	return inband_aneg;
+}

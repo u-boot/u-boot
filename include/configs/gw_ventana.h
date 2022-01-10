@@ -72,7 +72,6 @@
 #define CONFIG_USBD_HS
 
 /* Framebuffer and LCD */
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 #define CONFIG_VIDEO_BMP_LOGO
@@ -253,11 +252,5 @@
 			"fi; " \
 		"fi\0"
 #endif
-
-#define CONFIG_BOOTCOMMAND \
-	"for btype in ${bootdevs}; do " \
-		"echo; echo Attempting ${btype} boot...; " \
-		"if run ${btype}_boot; then; fi; " \
-	"done"
 
 #endif			       /* __CONFIG_H */

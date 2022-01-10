@@ -106,36 +106,21 @@
 	};
 };
 
-&comphy {
-	phy0 {
-		phy-type = <COMPHY_TYPE_SGMII1>;
-		phy-speed = <COMPHY_SPEED_1_25G>;
-	};
-
-	phy1 {
-		phy-type = <COMPHY_TYPE_SGMII0>;
-		phy-speed = <COMPHY_SPEED_1_25G>;
-	};
-
-	phy2 {
-		phy-type = <COMPHY_TYPE_USB3_HOST1>;
-		phy-speed = <COMPHY_SPEED_5G>;
-	};
-};
-
 &eth0 {
 	pinctrl-0 = <&pcie_pins>;
 	status = "okay";
-	phy-mode = "2500base-x";
+	phy-mode = "sgmii";
 	managed = "in-band-status";
 	phy = <&ethphy0>;
+	phys = <&comphy1 0>;
 };
 
 &eth1 {
 	status = "okay";
-	phy-mode = "2500base-x";
+	phy-mode = "sgmii";
 	managed = "in-band-status";
 	phy = <&ethphy1>;
+	phys = <&comphy0 1>;
 };
 
 &i2c0 {

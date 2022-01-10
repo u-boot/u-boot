@@ -41,7 +41,6 @@ int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	unsigned long addr; /* Address of the ELF image */
 	unsigned long rc; /* Return value from user code */
 	char *sload = NULL;
-	const char *ep = env_get("autostart");
 	int rcode = 0;
 
 	/* Consume 'bootelf' */
@@ -69,7 +68,7 @@ int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	else
 		addr = load_elf_image_shdr(addr);
 
-	if (ep && !strcmp(ep, "no"))
+	if (!env_get_autostart())
 		return rcode;
 
 	printf("## Starting application at 0x%08lx ...\n", addr);

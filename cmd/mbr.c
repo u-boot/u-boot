@@ -244,12 +244,12 @@ static int do_verify_mbr(struct blk_desc *dev, const char *str)
 	for (i = 0; i < count; i++) {
 		struct disk_partition p;
 
-		if (part_get_info(dev, i+1, &p))
+		if (part_get_info(dev, i + 1, &p))
 			goto fail;
 
-		if ((partitions[i].size && p.size < partitions[i].size) ||
-		    (partitions[i].start && p.start < partitions[i].start) ||
-		    (p.sys_ind != partitions[i].sys_ind))
+		if ((partitions[i].size && p.size != partitions[i].size) ||
+		    (partitions[i].start && p.start != partitions[i].start) ||
+		    p.sys_ind != partitions[i].sys_ind)
 			goto fail;
 	}
 	ret = 0;

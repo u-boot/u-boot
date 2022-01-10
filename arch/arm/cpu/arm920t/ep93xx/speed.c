@@ -6,12 +6,13 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <asm/arch/ep93xx.h>
 #include <asm/io.h>
 #include <div64.h>
 
 /*
- * CONFIG_SYS_CLK_FREQ should be defined as the input frequency of the PLL.
+ * get_board_sys_clk() should be defined as the input frequency of the PLL.
  *
  * get_FCLK(), get_HCLK(), get_PCLK() and get_UCLK() return the clock of
  * the specified bus in HZ.
@@ -20,14 +21,14 @@
 /*
  * return the PLL output frequency
  *
- * PLL rate = CONFIG_SYS_CLK_FREQ * (X1FBD + 1) * (X2FBD + 1)
+ * PLL rate = get_board_sys_clk() * (X1FBD + 1) * (X2FBD + 1)
  * / (X2IPD + 1) / 2^PS
  */
 static ulong get_PLLCLK(uint32_t *pllreg)
 {
 	uint8_t i;
 	const uint32_t clkset = readl(pllreg);
-	uint64_t rate = CONFIG_SYS_CLK_FREQ;
+	uint64_t rate = get_board_sys_clk();
 	rate *= ((clkset >> SYSCON_CLKSET_PLL_X1FBD1_SHIFT) & 0x1f) + 1;
 	rate *= ((clkset >> SYSCON_CLKSET_PLL_X2FBD2_SHIFT) & 0x3f) + 1;
 	do_div(rate, (clkset  & 0x1f) + 1);			/* X2IPD */
@@ -87,9 +88,9 @@ ulong get_UCLK(void)
 
 	const uint32_t value = readl(&syscon->pwrcnt);
 	if (value & SYSCON_PWRCNT_UART_BAUD)
-		uclk_rate = CONFIG_SYS_CLK_FREQ;
+		uclk_rate = get_board_sys_clk();
 	else
-		uclk_rate = CONFIG_SYS_CLK_FREQ / 2;
+		uclk_rate = get_board_sys_clk() / 2;
 
 	return uclk_rate;
 }

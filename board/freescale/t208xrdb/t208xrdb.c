@@ -109,11 +109,6 @@ int board_early_init_r(void)
 	return 0;
 }
 
-unsigned long get_board_sys_clk(void)
-{
-	return CONFIG_SYS_CLK_FREQ;
-}
-
 int misc_init_r(void)
 {
 	u8 reg;

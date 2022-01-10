@@ -1,3 +1,7 @@
+config ARCH_MAP_SYSMEM
+	depends on SANDBOX || NDS32
+	def_bool y
+
 config CREATE_ARCH_SYMLINK
 	bool
 
@@ -194,6 +198,8 @@ config SANDBOX
 	imply PHY_FIXED
 	imply DM_DSA
 	imply CMD_EXTENSION
+	imply KEYBOARD
+	imply PHYSMEM
 
 config SH
 	bool "SuperH architecture"
@@ -245,6 +251,7 @@ config X86
 	imply USB_ETHER_SMSC95XX
 	imply USB_HOST_ETHER
 	imply PCH
+	imply PHYSMEM
 	imply RTC_MC146818
 	imply ACPIGEN if !QEMU
 	imply SYSINFO if GENERATE_SMBIOS_TABLE
@@ -349,6 +356,18 @@ config SYS_DISABLE_DCACHE_OPS
 	 operatios are not required, enable this option to avoid them.
 	 Note that, its up to the individual architectures to implement
 	 this functionality.
+
+config SYS_IMMR
+	hex
+	depends on PPC || FSL_LSCH2 || FSL_LSCH3 || ARCH_LS1021A
+	default 0xFF000000 if MPC8xx
+	default 0xF0000000 if ARCH_MPC8313
+	default 0xE0000000 if MPC83xx && !ARCH_MPC8313
+	default 0x01000000 if ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3
+	default SYS_CCSRBAR_DEFAULT
+	help
+	  Address for the Internal Memory-Mapped Registers (IMMR) window used
+	  to configure the features of many Freescale / NXP SoCs.
 
 config SKIP_LOWLEVEL_INIT
 	bool "Skip the calls to certain low level initialization functions"

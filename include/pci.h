@@ -522,6 +522,32 @@
 
 #include <pci_ids.h>
 
+/*
+ * Enhanced Configuration Access Mechanism (ECAM)
+ *
+ * See PCI Express Base Specification, Revision 5.0, Version 1.0,
+ * Section 7.2.2, Table 7-1, p. 677.
+ */
+#define PCIE_ECAM_BUS_SHIFT	20 /* Bus number */
+#define PCIE_ECAM_DEV_SHIFT	15 /* Device number */
+#define PCIE_ECAM_FUNC_SHIFT	12 /* Function number */
+
+#define PCIE_ECAM_BUS_MASK	0xff
+#define PCIE_ECAM_DEV_MASK	0x1f
+#define PCIE_ECAM_FUNC_MASK	0x7
+#define PCIE_ECAM_REG_MASK	0xfff /* Limit offset to a maximum of 4K */
+
+#define PCIE_ECAM_BUS(x)	(((x) & PCIE_ECAM_BUS_MASK) << PCIE_ECAM_BUS_SHIFT)
+#define PCIE_ECAM_DEV(x)	(((x) & PCIE_ECAM_DEV_MASK) << PCIE_ECAM_DEV_SHIFT)
+#define PCIE_ECAM_FUNC(x)	(((x) & PCIE_ECAM_FUNC_MASK) << PCIE_ECAM_FUNC_SHIFT)
+#define PCIE_ECAM_REG(x)	((x) & PCIE_ECAM_REG_MASK)
+
+#define PCIE_ECAM_OFFSET(bus, dev, func, where) \
+	(PCIE_ECAM_BUS(bus) | \
+	 PCIE_ECAM_DEV(dev) | \
+	 PCIE_ECAM_FUNC(func) | \
+	 PCIE_ECAM_REG(where))
+
 #ifndef __ASSEMBLY__
 
 #include <dm/pci.h>

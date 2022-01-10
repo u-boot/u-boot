@@ -116,24 +116,6 @@
 			DDR_MR3
 		>;
 
-#ifdef DDR_PHY_CAL_SKIP
-		st,phy-cal = <
-			DDR_DX0DLLCR
-			DDR_DX0DQTR
-			DDR_DX0DQSTR
-			DDR_DX1DLLCR
-			DDR_DX1DQTR
-			DDR_DX1DQSTR
-			DDR_DX2DLLCR
-			DDR_DX2DQTR
-			DDR_DX2DQSTR
-			DDR_DX3DLLCR
-			DDR_DX3DQTR
-			DDR_DX3DQSTR
-		>;
-
-#endif
-
 		status = "okay";
 	};
 };
@@ -224,18 +206,6 @@
 #undef DDR_ODTCR
 #undef DDR_ZQ0CR1
 #undef DDR_DX0GCR
-#undef DDR_DX0DLLCR
-#undef DDR_DX0DQTR
-#undef DDR_DX0DQSTR
 #undef DDR_DX1GCR
-#undef DDR_DX1DLLCR
-#undef DDR_DX1DQTR
-#undef DDR_DX1DQSTR
 #undef DDR_DX2GCR
-#undef DDR_DX2DLLCR
-#undef DDR_DX2DQTR
-#undef DDR_DX2DQSTR
 #undef DDR_DX3GCR
-#undef DDR_DX3DLLCR
-#undef DDR_DX3DQTR
-#undef DDR_DX3DQSTR

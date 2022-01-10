@@ -94,9 +94,4 @@
 	EXTRA_ENV_USB \
 	DFU_ALT_INFO
 
-#undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND	"if mmcinfo; then " \
-	"if fatload mmc 0 0x1900000 ${bootscript}; then source 0x1900000; " \
-	"fi; fi; run $modeboot"
-
 #endif /* __CONFIG_TOPIC_MIAMI_H */

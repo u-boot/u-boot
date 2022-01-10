@@ -23,7 +23,7 @@ CONFIG_AUTOBOOT_KEYED=y
 CONFIG_AUTOBOOT_PROMPT="Enter 'shc' to enter prompt (times out) %d \nEnter 'noautoboot' to enter prompt without timeout\n"
 CONFIG_AUTOBOOT_DELAY_STR="shc"
 CONFIG_AUTOBOOT_STOP_STR="noautoboot"
-# CONFIG_USE_BOOTCOMMAND is not set
+CONFIG_BOOTCOMMAND="if mmc dev 0; mmc rescan; then run sd_setup; else echo ERROR: SD/MMC-Card not detected!; panic; fi; if run loaduimage; then echo Bootable SD/MMC-Card inserted, booting from it!; run mmcboot; else echo ERROR: Unable to load uImage from SD/MMC-Card!; panic; fi; "
 CONFIG_DEFAULT_FDT_FILE="am335x-shc"
 CONFIG_SYS_CONSOLE_INFO_QUIET=y
 CONFIG_SPL_SYS_MALLOC_SIMPLE=y

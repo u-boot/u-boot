@@ -274,6 +274,27 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	 */
 	for (row = 0; row < height; row++) {
 		switch (vid_priv->bpix) {
+		case VIDEO_BPP8:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				u8 *dst = line + xoff;
+				int i;
+
+				for (i = 0; i < width; i++) {
+					int val = *bits;
+					int out;
+
+					if (vid_priv->colour_bg)
+						val = 255 - val;
+					out = val;
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+					bits++;
+				}
+				end = dst;
+			}
+			break;
 #ifdef CONFIG_VIDEO_BPP16
 		case VIDEO_BPP16: {
 			uint16_t *dst = (uint16_t *)line + xoff;

@@ -40,7 +40,6 @@
 #endif
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -85,8 +84,6 @@
 #define CONFIG_PCIE3			/* PCIE controller 3 */
 #define CONFIG_PCIE4			/* PCIE controller 4 */
 
-#define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
-
 #if defined(CONFIG_SPIFLASH)
 #elif defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_NXP_ESBC
@@ -94,8 +91,6 @@
 #define CONFIG_BOOTSCRIPT_COPY_RAM
 #endif
 #endif
-
-#define CONFIG_SYS_CLK_FREQ	100000000
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -367,7 +362,6 @@
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_FSL_DIU_CH7301
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
 #endif
@@ -460,7 +454,6 @@
 
 #ifdef CONFIG_HAS_FSL_DR_USB
 #ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
 #endif
@@ -498,8 +491,6 @@
 
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
-
-#define CONFIG_U_QE
 
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif /* CONFIG_NOBQFMAN */
@@ -608,40 +599,6 @@
 	"fdtaddr=1e00000\0"					\
 	"fdtfile=" __stringify(FDTFILE) "\0"			\
 	"bdev=sda3\0"
-
-#define LINUXBOOTCOMMAND                       \
-	"setenv bootargs root=/dev/ram rw "            \
-	"console=$consoledev,$baudrate $othbootargs;"  \
-	"setenv ramdiskaddr 0x02000000;"               \
-	"setenv fdtaddr 0x00c00000;"		       \
-	"setenv loadaddr 0x1000000;"		       \
-	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define HDBOOT					\
-	"setenv bootargs root=/dev/$bdev rw "		\
-	"console=$consoledev,$baudrate $othbootargs;"	\
-	"tftp $loadaddr $bootfile;"			\
-	"tftp $fdtaddr $fdtfile;"			\
-	"bootm $loadaddr - $fdtaddr"
-
-#define NFSBOOTCOMMAND			\
-	"setenv bootargs root=/dev/nfs rw "	\
-	"nfsroot=$serverip:$rootpath "		\
-	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-	"console=$consoledev,$baudrate $othbootargs;"	\
-	"tftp $loadaddr $bootfile;"		\
-	"tftp $fdtaddr $fdtfile;"		\
-	"bootm $loadaddr - $fdtaddr"
-
-#define RAMBOOTCOMMAND				\
-	"setenv bootargs root=/dev/ram rw "		\
-	"console=$consoledev,$baudrate $othbootargs;"	\
-	"tftp $ramdiskaddr $ramdiskfile;"		\
-	"tftp $loadaddr $bootfile;"			\
-	"tftp $fdtaddr $fdtfile;"			\
-	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_BOOTCOMMAND		LINUXBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

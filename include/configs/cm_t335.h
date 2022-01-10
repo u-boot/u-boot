@@ -55,18 +55,6 @@
 	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	MMCARGS \
 	NANDARGS
-
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"else run nandboot; " \
-			"fi; " \
-		"fi; " \
-	"else run nandboot; fi"
 #endif /* CONFIG_SPL_BUILD */
 
 #define CONFIG_TIMESTAMP

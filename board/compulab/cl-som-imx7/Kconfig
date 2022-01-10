@@ -17,10 +17,6 @@ config SYS_USB_DEV
 	int
 	default 0
 
-config SYS_MMC_IMG_LOAD_PART
-	int
-	default 1
-
 config SYS_USB_IMG_LOAD_PART
 	int
 	default 1

@@ -8,9 +8,6 @@
 
 #include "ls1012a_common.h"
 
-#undef CONFIG_SYS_BOARD
-#define CONFIG_SYS_BOARD "ls1012afrwy"
-
 /* Board Rev*/
 #define BOARD_REV_A_B			0x0
 #define BOARD_REV_C			0x00080000
@@ -92,14 +89,10 @@
 		" && esbc_validate ${kernelheader_addr_r};"	\
 		"bootm $load_addr#$BOARD\0"
 
-#undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "\
 			     "env exists secureboot && esbc_halt;"
-#else
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "\
-			   "env exists secureboot && esbc_halt;"
 #endif
 
 #include <asm/fsl_secure_boot.h>

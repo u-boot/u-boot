@@ -83,8 +83,6 @@
 	"fit_addr=0x82000000\0" \
 	ENV_MMC
 
-#define CONFIG_BOOTCOMMAND		"run mmc_mmc_fit"
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \

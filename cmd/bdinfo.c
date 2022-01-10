@@ -128,6 +128,8 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
 		lmb_dump_all_force(&lmb);
+		if (IS_ENABLED(CONFIG_OF_REAL))
+			printf("devicetree  = %s\n", fdtdec_get_srcname());
 	}
 
 	arch_print_bdinfo();

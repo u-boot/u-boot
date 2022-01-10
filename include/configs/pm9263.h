@@ -179,11 +179,6 @@
 
 #endif
 
-#define CONFIG_JFFS2_NAND		1
-#define CONFIG_JFFS2_DEV		"nand0" /* NAND device jffs2 lives on */
-#define CONFIG_JFFS2_PART_OFFSET	0	/* start of jffs2 partition */
-#define CONFIG_JFFS2_PART_SIZE		(256 * 1024 * 1024) /* partition size*/
-
 /* PSRAM */
 #define	PHYS_PSRAM			0x70000000
 #define	PHYS_PSRAM_SIZE			0x00400000	/* 4MB */
@@ -209,14 +204,10 @@
 #ifdef CONFIG_SYS_USE_DATAFLASH
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_BOOTCOMMAND	"sf probe 0; " \
-				"sf read 0x22000000 0x84000 0x294000; " \
-				"bootm 0x22000000"
 
 #elif defined(CONFIG_SYS_USE_NANDFLASH) /* CFG_USE_NANDFLASH */
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0xA0000 0x200000; bootm"
 
 #elif defined(CONFIG_SYS_USE_FLASH) /* CFG_USE_FLASH */
 /* JFFS Partition offset set */
@@ -226,7 +217,6 @@
 /* 512k reserved for u-boot */
 #define CONFIG_SYS_JFFS2_FIRST_SECTOR	11
 
-#define CONFIG_BOOTCOMMAND		"run flashboot"
 #define CONFIG_ROOTPATH			"/ronetix/rootfs"
 
 #define CONFIG_CON_ROT			"fbcon=rotate:3 "

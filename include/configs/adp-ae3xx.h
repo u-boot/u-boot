@@ -17,8 +17,6 @@
 
 #define CONFIG_SKIP_TRUNOFF_WATCHDOG
 
-#define CONFIG_ARCH_MAP_SYSMEM
-
 #define CONFIG_BOOTP_SERVERIP
 
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
@@ -30,8 +28,7 @@
 /*
  * Timer
  */
-#define CONFIG_SYS_CLK_FREQ	39062500
-#define VERSION_CLOCK		CONFIG_SYS_CLK_FREQ
+#define VERSION_CLOCK		get_board_sys_clk()
 
 /*
  * Use Externel CLOCK or PCLK

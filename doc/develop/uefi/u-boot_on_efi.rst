@@ -265,13 +265,11 @@ This work could be extended in a number of ways:
 
 - Figure out how to solve the interrupt problem
 
-- Add more drivers to the application side (e.g. block devices, USB,
-  environment access). This would mostly be an academic exercise as a strong
-  use case is not readily apparent, but it might be fun.
+- Add more drivers to the application side (e.g.USB, environment access).
 
 - Avoid turning off boot services in the stub. Instead allow U-Boot to make
   use of boot services in case it wants to. It is unclear what it might want
-  though.
+  though. It is better to use the app.
 
 Where is the code?
 ------------------

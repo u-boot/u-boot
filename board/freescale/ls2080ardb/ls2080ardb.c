@@ -4,6 +4,7 @@
  * Copyright 2017 NXP
  */
 #include <common.h>
+#include <clock_legacy.h>
 #include <env.h>
 #include <init.h>
 #include <malloc.h>

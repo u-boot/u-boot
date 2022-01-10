@@ -33,6 +33,12 @@ config TARGET_NANOPI2
 
 endchoice
 
+config SYS_PLLFIN
+	int
+
+config TIMER_SYS_TICK_CH
+	int
+
 config SYS_BOARD
 	default "nanopi2"
 
@@ -45,13 +51,13 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "s5p4418_nanopi2"
 
-endmenu
-
 config SYS_PLLFIN
-	int
+	default 24000000
 
 config TIMER_SYS_TICK_CH
-	int
+	default 0
+
+endmenu
 
 source "board/friendlyarm/Kconfig"
 

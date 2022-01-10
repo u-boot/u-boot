@@ -235,6 +235,11 @@ int env_get_yesno(const char *var)
 		1 : 0;
 }
 
+bool env_get_autostart(void)
+{
+	return env_get_yesno("autostart") == 1;
+}
+
 /*
  * Look up the variable from the default environment
  */

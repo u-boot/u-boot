@@ -16,6 +16,8 @@
 #ifndef __FTWDT010_H
 #define __FTWDT010_H
 
+#include <clock_legacy.h>
+
 struct ftwdt010_wdt {
 	unsigned int	wdcounter;	/* Counter Reg		- 0x00 */
 	unsigned int	wdload;		/* Counter Auto Reload Reg - 0x04 */
@@ -82,10 +84,10 @@ struct ftwdt010_wdt {
 
 /*
  * Variable timeout should be set in ms.
- * (CONFIG_SYS_CLK_FREQ/1000) equals 1 ms.
+ * (get_board_sys_clk()/1000) equals 1 ms.
  * WDLOAD = timeout * TIMEOUT_FACTOR.
  */
-#define FTWDT010_TIMEOUT_FACTOR		(CONFIG_SYS_CLK_FREQ / 1000) /* 1 ms */
+#define FTWDT010_TIMEOUT_FACTOR		(get_board_sys_clk() / 1000) /* 1 ms */
 
 void ftwdt010_wdt_reset(void);
 void ftwdt010_wdt_disable(void);

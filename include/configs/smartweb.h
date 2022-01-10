@@ -91,11 +91,6 @@
 
 /* BOOTP and DHCP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define NFSBOOTCOMMAND						\
-	"setenv autoload yes; setenv autoboot yes; "			\
-	"setenv bootargs ${basicargs} ${mtdparts} "			\
-	"root=/dev/nfs ip=dhcp nfsroot=${serverip}:/srv/nfs/rootfs; "	\
-	"dhcp"
 
 #if !defined(CONFIG_SPL_BUILD)
 /* USB configuration */
@@ -116,7 +111,6 @@
 #endif
 
 /* General Boot Parameter */
-#define CONFIG_BOOTCOMMAND		"run flashboot"
 #define CONFIG_SYS_CBSIZE		512
 
 /*

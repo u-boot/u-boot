@@ -19,12 +19,6 @@
 #ifndef _CONFIG_KM_ARM_H
 #define _CONFIG_KM_ARM_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KW88F6281		/* SOC Name */
-
 #define CONFIG_NAND_ECC_BCH
 
 /* include common defines/options for all Keymile boards */
@@ -74,7 +68,6 @@
 #undef CONFIG_I2C_MVTWSI
 #define CONFIG_SYS_I2C_INIT_BOARD
 
-#define	CONFIG_KIRKWOOD_GPIO		/* Enable GPIO Support */
 #define CONFIG_SYS_NUM_I2C_BUSES	6
 #define CONFIG_SYS_I2C_MAX_HOPS		1
 #define CONFIG_SYS_I2C_BUSES	{	{0, {I2C_NULL_HOP} }, \

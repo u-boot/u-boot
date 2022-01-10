@@ -419,6 +419,15 @@ int os_read_file(const char *name, void **bufp, int *sizep);
  */
 int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep);
 
+/**
+ * os_unmap() - Unmap a file previously mapped
+ *
+ * @buf: Mapped address
+ * @size: Size in bytes
+ * Return:	0 if OK, -ve on error
+ */
+int os_unmap(void *buf, int size);
+
 /*
  * os_find_text_base() - Find the text section in this running process
  *

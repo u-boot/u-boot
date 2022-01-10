@@ -593,13 +593,22 @@ int device_get_child(const struct udevice *parent, int index,
 		     struct udevice **devp);
 
 /**
- * device_get_child_count() - Get the available child count of a device
+ * device_get_child_count() - Get the child count of a device
  *
  * Returns the number of children to a device.
  *
  * @parent:	Parent device to check
  */
 int device_get_child_count(const struct udevice *parent);
+
+/**
+ * device_get_decendent_count() - Get the total number of decendents of a device
+ *
+ * Returns the total number of decendents, including all children
+ *
+ * @parent:	Parent device to check
+ */
+int device_get_decendent_count(const struct udevice *parent);
 
 /**
  * device_find_child_by_seq() - Find a child device based on a sequence
@@ -757,6 +766,18 @@ int device_find_first_inactive_child(const struct udevice *parent,
 int device_find_first_child_by_uclass(const struct udevice *parent,
 				      enum uclass_id uclass_id,
 				      struct udevice **devp);
+
+/**
+ * device_find_child_by_name() - Find a child by device name
+ *
+ * @parent:	Parent device to search
+ * @name:	Name to look for
+ * @len:	Length of the name
+ * @devp:	Returns device found, if any
+ * @return 0 if found, else -ENODEV
+ */
+int device_find_child_by_namelen(const struct udevice *parent, const char *name,
+				 int len, struct udevice **devp);
 
 /**
  * device_find_child_by_name() - Find a child by device name

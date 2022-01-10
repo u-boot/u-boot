@@ -209,13 +209,19 @@ static u32 ddr3_get_dimm_num(u32 *dimm_addr)
 	/* Read the dimm eeprom */
 	for (dimm_cur_addr = MAX_DIMM_ADDR; dimm_cur_addr > MIN_DIMM_ADDR;
 	     dimm_cur_addr--) {
+		struct udevice *udev;
+
 		data[SPD_DEV_TYPE_BYTE] = 0;
 
 		/* Far-End DIMM must be connected */
 		if ((dimm_num == 0) && (dimm_cur_addr < FAR_END_DIMM_ADDR))
 			return 0;
 
-		ret = i2c_read(dimm_cur_addr, 0, 1, (uchar *)data, 3);
+		ret = i2c_get_chip_for_busnum(0, dimm_cur_addr, 1, &udev);
+		if (ret)
+			continue;
+
+		ret = dm_i2c_read(udev, 0, data, 3);
 		if (!ret) {
 			if (data[SPD_DEV_TYPE_BYTE] == SPD_MEM_TYPE_DDR3) {
 				dimm_addr[dimm_num] = dimm_cur_addr;
@@ -245,9 +251,15 @@ int ddr3_spd_init(MV_DIMM_INFO *info, u32 dimm_addr, u32 dimm_width)
 	__maybe_unused u8 vendor_high, vendor_low;
 
 	if (dimm_addr != 0) {
+		struct udevice *udev;
+
 		memset(spd_data, 0, SPD_SIZE * sizeof(u8));
 
-		ret = i2c_read(dimm_addr, 0, 1, (uchar *)spd_data, SPD_SIZE);
+		ret = i2c_get_chip_for_busnum(0, dimm_addr, 1, &udev);
+		if (ret)
+			return MV_DDR3_TRAINING_ERR_TWSI_FAIL;
+
+		ret = dm_i2c_read(udev, 0, spd_data, SPD_SIZE);
 		if (ret)
 			return MV_DDR3_TRAINING_ERR_TWSI_FAIL;
 	}

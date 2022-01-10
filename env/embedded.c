@@ -66,6 +66,7 @@
 #endif
 
 #define DEFAULT_ENV_INSTANCE_EMBEDDED
+#include <config.h>
 #include <env_default.h>
 
 #ifdef CONFIG_ENV_ADDR_REDUND

@@ -50,27 +50,6 @@
 	"get_mon_mmc=load mmc ${bootpart} ${addr_mon} ${bootdir}/${name_mon}\0"\
 	"name_fs=arago-base-tisdk-image-k2g-evm.cpio\0"
 
-#ifndef CONFIG_TI_SECURE_DEVICE
-#define CONFIG_BOOTCOMMAND						\
-	"run findfdt; "							\
-	"run envboot; "							\
-	"run init_${boot}; "						\
-	"run get_mon_${boot} run_mon; "					\
-	"run set_name_pmmc get_pmmc_${boot} run_pmmc; "			\
-	"run get_kern_${boot}; "					\
-	"run init_fw_rd_${boot}; "					\
-	"run get_fdt_${boot}; "						\
-	"run run_kern"
-#else
-#define CONFIG_BOOTCOMMAND						\
-	"run findfdt; "							\
-	"run envboot; "							\
-	"run run_mon_hs; "						\
-	"run init_${boot}; "						\
-	"run get_fit_${boot}; "						\
-	"bootm ${addr_fit}#${name_fdt}"
-#endif
-
 /* NAND Configuration */
 #define CONFIG_SYS_NAND_PAGE_2K
 

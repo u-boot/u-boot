@@ -10,22 +10,6 @@
 
 #include <config.h>
 
-/*
- * All boards using a given driver must convert to self-init
- * at the same time, so do it here.  When all drivers are
- * converted, this will go away.
- */
-#ifdef CONFIG_SPL_BUILD
-#if defined(CONFIG_NAND_FSL_ELBC) || defined(CONFIG_NAND_FSL_IFC)
-#define CONFIG_SYS_NAND_SELF_INIT
-#endif
-#else
-#if defined(CONFIG_NAND_FSL_ELBC) || defined(CONFIG_NAND_ATMEL)\
-	|| defined(CONFIG_NAND_FSL_IFC)
-#define CONFIG_SYS_NAND_SELF_INIT
-#endif
-#endif
-
 extern void nand_init(void);
 unsigned long nand_size(void);
 
@@ -34,7 +18,7 @@ unsigned long nand_size(void);
 
 int nand_mtd_to_devnum(struct mtd_info *mtd);
 
-#ifdef CONFIG_SYS_NAND_SELF_INIT
+#if CONFIG_IS_ENABLED(SYS_NAND_SELF_INIT)
 void board_nand_init(void);
 int nand_register(int devnum, struct mtd_info *mtd);
 #else

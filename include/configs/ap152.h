@@ -25,12 +25,6 @@
  */
 #define CONFIG_SYS_NS16550_CLK          25000000
 
-#define CONFIG_BOOTCOMMAND              "sf probe;" \
-					"mtdparts default;" \
-					"bootm 0x9f060000"
-
-#define CONFIG_ENV_SPI_MAX_HZ           25000000
-
 /* Miscellaneous configurable options */
 
 /*

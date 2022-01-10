@@ -10,6 +10,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define SPLASH_SETTINGS "splashsource=virtio_fs\0" \
+	"splashimage=0x1000000\0"
+
 #include <configs/x86-common.h>
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)

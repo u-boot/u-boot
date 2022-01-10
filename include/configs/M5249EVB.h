@@ -21,8 +21,6 @@
 
 #define CONFIG_SYS_UART_PORT		(0)
 
-#undef  CONFIG_WATCHDOG
-
 #undef CONFIG_MONITOR_IS_IN_RAM		/* no pre-loader required!!! ;-) */
 
 /*

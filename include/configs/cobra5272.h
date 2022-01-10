@@ -54,7 +54,6 @@
  */
 
 #if 0
-#define CONFIG_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT 10000	/* timeout in milliseconds */
 #endif
 
@@ -124,7 +123,6 @@ u-boot: 'set' command */
 
 #if 0
 
-#define CONFIG_BOOTCOMMAND	"bootm 0xffe80000"	/*Autoboto command, please
 enter a valid image address in flash */
 
 /* User network settings */
@@ -245,36 +243,6 @@ enter a valid image address in flash */
 					 CF_CACR_DISD | CF_CACR_INVI | \
 					 CF_CACR_CEIB | CF_CACR_DCM | \
 					 CF_CACR_EUSP)
-
-/*-----------------------------------------------------------------------
- * Memory bank definitions
- *
- * Please refer also to Motorola Coldfire user manual - Chapter XXX
- * <http://e-www.motorola.com/files/dsp/doc/ref_manual/MCF5272UM.pdf>
- */
-#define CONFIG_SYS_BR0_PRELIM		0xFFE00201
-#define CONFIG_SYS_OR0_PRELIM		0xFFE00014
-
-#define CONFIG_SYS_BR1_PRELIM		0
-#define CONFIG_SYS_OR1_PRELIM		0
-
-#define CONFIG_SYS_BR2_PRELIM		0
-#define CONFIG_SYS_OR2_PRELIM		0
-
-#define CONFIG_SYS_BR3_PRELIM		0
-#define CONFIG_SYS_OR3_PRELIM		0
-
-#define CONFIG_SYS_BR4_PRELIM		0
-#define CONFIG_SYS_OR4_PRELIM		0
-
-#define CONFIG_SYS_BR5_PRELIM		0
-#define CONFIG_SYS_OR5_PRELIM		0
-
-#define CONFIG_SYS_BR6_PRELIM		0
-#define CONFIG_SYS_OR6_PRELIM		0
-
-#define CONFIG_SYS_BR7_PRELIM		0x00000701
-#define CONFIG_SYS_OR7_PRELIM		0xFF00007C
 
 /*-----------------------------------------------------------------------
  * LED config

@@ -11,12 +11,7 @@
 #ifndef _CONFIG_DS109_H
 #define _CONFIG_DS109_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-
-#include "mv-plug-common.h"
+#include "mv-common.h"
 
 /*
  *  Environment variables configurations
@@ -30,10 +25,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND		"setenv ethact egiga0; " \
-	"${x_bootcmd_ethernet}; ${x_bootcmd_usb}; ${x_bootcmd_kernel}; "\
-	"setenv bootargs ${x_bootargs} ${x_bootargs_root}; "	\
-	"bootm 0x6400000;"
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"x_bootcmd_ethernet=ping 192.168.1.2\0"	\

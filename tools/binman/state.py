@@ -16,6 +16,8 @@ import os
 from patman import tools
 from patman import tout
 
+OUR_PATH = os.path.dirname(os.path.realpath(__file__))
+
 # Map an dtb etype to its expected filename
 DTB_TYPE_FNAME = {
     'u-boot-spl-dtb': 'spl/u-boot-spl.dtb',
@@ -515,3 +517,19 @@ def TimingShow():
 
     for name, seconds in duration.items():
         print('%10s: %10.1fms' % (name, seconds * 1000))
+
+def GetVersion(path=OUR_PATH):
+    """Get the version string for binman
+
+    Args:
+        path: Path to 'version' file
+
+    Returns:
+        str: String version, e.g. 'v2021.10'
+    """
+    version_fname = os.path.join(path, 'version')
+    if os.path.exists(version_fname):
+        version = tools.ReadFile(version_fname, binary=False)
+    else:
+        version = '(unreleased)'
+    return version

@@ -9,10 +9,24 @@ config SYS_NAND_SELF_INIT
 	  This option, if enabled, provides more flexible and linux-like
 	  NAND initialization process.
 
-config SYS_NAND_DRIVER_ECC_LAYOUT
+config SPL_SYS_NAND_SELF_INIT
 	bool
+	depends on !SPL_NAND_SIMPLE
 	help
-	  Omit standard ECC layouts to safe space. Select this if your driver
+	  This option, if enabled, provides more flexible and linux-like
+	  NAND initialization process, in SPL.
+
+config TPL_SYS_NAND_SELF_INIT
+	bool
+	depends on TPL_NAND_SUPPORT
+	help
+	  This option, if enabled, provides more flexible and linux-like
+	  NAND initialization process, in SPL.
+
+config SYS_NAND_DRIVER_ECC_LAYOUT
+	bool "Omit standard ECC layouts to save space"
+	help
+	  Omit standard ECC layouts to save space. Select this if your driver
 	  is known to provide its own ECC layout.
 
 config SYS_NAND_USE_FLASH_BBT
@@ -22,6 +36,7 @@ config SYS_NAND_USE_FLASH_BBT
 
 config NAND_ATMEL
 	bool "Support Atmel NAND controller"
+	select SYS_NAND_SELF_INIT
 	imply SYS_NAND_USE_FLASH_BBT
 	help
 	  Enable this driver for NAND flash platforms using an Atmel NAND
@@ -65,6 +80,7 @@ endif
 config NAND_BRCMNAND
 	bool "Support Broadcom NAND controller"
 	depends on OF_CONTROL && DM && DM_MTD
+	select SYS_NAND_SELF_INIT
 	help
 	  Enable the driver for NAND flash on platforms using a Broadcom NAND
 	  controller.
@@ -101,6 +117,7 @@ config NAND_BRCMNAND_63158
 
 config NAND_DAVINCI
 	bool "Support TI Davinci NAND controller"
+	select SYS_NAND_SELF_INIT if TARGET_DA850EVM
 	help
 	  Enable this driver for NAND flash controllers available in TI Davinci
 	  and Keystone2 platforms
@@ -128,17 +145,25 @@ config NAND_DENALI_DT
 
 config NAND_FSL_ELBC
 	bool "Support Freescale Enhanced Local Bus Controller FCM NAND driver"
+	select TPL_SYS_NAND_SELF_INIT if TPL_NAND_SUPPORT
+	select SPL_SYS_NAND_SELF_INIT
+	select SYS_NAND_SELF_INIT
 	depends on FSL_ELBC
 	help
 	  Enable the Freescale Enhanced Local Bus Controller FCM NAND driver.
 
 config NAND_FSL_IFC
 	bool "Support Freescale Integrated Flash Controller NAND driver"
+	select TPL_SYS_NAND_SELF_INIT if TPL_NAND_SUPPORT
+	select SPL_SYS_NAND_SELF_INIT
+	select SYS_NAND_SELF_INIT
+	select FSL_IFC
 	help
 	  Enable the Freescale Integrated Flash Controller NAND driver.
 
 config NAND_LPC32XX_MLC
 	bool "Support LPC32XX_MLC controller"
+	select SYS_NAND_SELF_INIT
 	help
 	  Enable the LPC32XX MLC NAND controller.
 
@@ -330,6 +355,7 @@ config NAND_SUNXI
 	select SYS_NAND_SELF_INIT
 	select SYS_NAND_U_BOOT_LOCATIONS
 	select SPL_NAND_SUPPORT
+	select SPL_SYS_NAND_SELF_INIT
 	imply CMD_NAND
 	---help---
 	Enable support for NAND. This option enables the standard and
@@ -374,6 +400,7 @@ config NAND_MXC
 config NAND_MXS
 	bool "MXS NAND support"
 	depends on MX23 || MX28 || MX6 || MX7 || IMX8 || IMX8M
+	select SPL_SYS_NAND_SELF_INIT
 	select SYS_NAND_SELF_INIT
 	imply CMD_NAND
 	select APBH_DMA
@@ -406,6 +433,7 @@ config NAND_MXIC
 
 config NAND_ZYNQ
 	bool "Support for Zynq Nand controller"
+	select SPL_SYS_NAND_SELF_INIT
 	select SYS_NAND_SELF_INIT
 	select DM_MTD
 	imply CMD_NAND
@@ -474,6 +502,14 @@ config ROCKCHIP_NAND
 	    NFC v622: RK3036, RK3128
 	    NFC v800: RK3308, RV1108
 	    NFC v900: PX30, RK3326
+
+config TEGRA_NAND
+	bool "Support for NAND controller on Tegra SoCs"
+	depends on ARCH_TEGRA
+	select SYS_NAND_SELF_INIT
+	imply CMD_NAND
+	help
+	  Enables support for NAND Flash chips on Tegra SoCs platforms.
 
 comment "Generic NAND options"
 

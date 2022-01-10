@@ -31,11 +31,6 @@
 		"nand read ${loadaddr} NAND.kernel; " \
 		"bootz ${loadaddr} - ${fdt_addr}\0"
 
-#define CONFIG_BOOTCOMMAND \
-	"run mmcboot; " \
-	"run nandboot; " \
-	"run netboot"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"fdt_addr=0x87800000\0" \

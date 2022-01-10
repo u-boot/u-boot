@@ -586,6 +586,29 @@ int initr_mem(void)
 }
 #endif
 
+static int dm_announce(void)
+{
+	int device_count;
+	int uclass_count;
+
+	if (IS_ENABLED(CONFIG_DM)) {
+		dm_get_stats(&device_count, &uclass_count);
+		printf("Core:  %d devices, %d uclasses", device_count,
+		       uclass_count);
+		if (CONFIG_IS_ENABLED(OF_REAL))
+			printf(", devicetree: %s", fdtdec_get_srcname());
+		printf("\n");
+		if (IS_ENABLED(CONFIG_OF_HAS_PRIOR_STAGE) &&
+		    (gd->fdt_src == FDTSRC_SEPARATE ||
+		     gd->fdt_src == FDTSRC_EMBED)) {
+			printf("Warning: Unexpected devicetree source (not from a prior stage)");
+			printf("Warning: U-Boot may not function properly\n");
+		}
+	}
+
+	return 0;
+}
+
 static int run_main_loop(void)
 {
 #ifdef CONFIG_SANDBOX
@@ -661,6 +684,7 @@ static init_fnc_t init_sequence_r[] = {
 	stdio_init_tables,
 	serial_initialize,
 	initr_announce,
+	dm_announce,
 #if CONFIG_IS_ENABLED(WDT)
 	initr_watchdog,
 #endif
@@ -817,9 +841,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	 * TODO(sjg@chromium.org): Consider doing this for all archs, or
 	 * dropping the new_gd parameter.
 	 */
-#if CONFIG_IS_ENABLED(X86_64)
-	arch_setup_gd(new_gd);
-#endif
+	if (CONFIG_IS_ENABLED(X86_64) && !IS_ENABLED(CONFIG_EFI_APP))
+		arch_setup_gd(new_gd);
 
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	int i;

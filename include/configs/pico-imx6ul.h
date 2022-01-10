@@ -64,8 +64,6 @@
 	"bootmenu_2=Boot using PICO-Pi baseboard=" \
 		"setenv fdtfile imx6ul-pico-pi.dtb\0" \
 
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -133,7 +131,6 @@
 #define CONFIG_BOARD_SIZE_LIMIT		715776
 
 #ifdef CONFIG_DM_VIDEO
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 #endif

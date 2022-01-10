@@ -16,6 +16,7 @@
 #include <asm/bitops.h>
 #include <asm/cache.h>
 #include <dm/device_compat.h>
+#include <dm/pinctrl.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
@@ -645,6 +646,66 @@ static const struct dm_mmc_ops stm32_sdmmc2_ops = {
 	.host_power_cycle = stm32_sdmmc2_host_power_cycle,
 };
 
+static int stm32_sdmmc2_probe_level_translator(struct udevice *dev)
+{
+	struct stm32_sdmmc2_priv *priv = dev_get_priv(dev);
+	struct gpio_desc cmd_gpio;
+	struct gpio_desc ck_gpio;
+	struct gpio_desc ckin_gpio;
+	int clk_hi, clk_lo, ret;
+
+	/*
+	 * Assume the level translator is present if st,use-ckin is set.
+	 * This is to cater for DTs which do not implement this test.
+	 */
+	priv->clk_reg_msk |= SDMMC_CLKCR_SELCLKRX_CKIN;
+
+	ret = gpio_request_by_name(dev, "st,cmd-gpios", 0, &cmd_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	if (ret)
+		goto exit_cmd;
+
+	ret = gpio_request_by_name(dev, "st,ck-gpios", 0, &ck_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	if (ret)
+		goto exit_ck;
+
+	ret = gpio_request_by_name(dev, "st,ckin-gpios", 0, &ckin_gpio,
+				   GPIOD_IS_IN);
+	if (ret)
+		goto exit_ckin;
+
+	/* All GPIOs are valid, test whether level translator works */
+
+	/* Sample CKIN */
+	clk_hi = !!dm_gpio_get_value(&ckin_gpio);
+
+	/* Set CK low */
+	dm_gpio_set_value(&ck_gpio, 0);
+
+	/* Sample CKIN */
+	clk_lo = !!dm_gpio_get_value(&ckin_gpio);
+
+	/* Tristate all */
+	dm_gpio_set_dir_flags(&cmd_gpio, GPIOD_IS_IN);
+	dm_gpio_set_dir_flags(&ck_gpio, GPIOD_IS_IN);
+
+	/* Level translator is present if CK signal is propagated to CKIN */
+	if (!clk_hi || clk_lo)
+		priv->clk_reg_msk &= ~SDMMC_CLKCR_SELCLKRX_CKIN;
+
+	dm_gpio_free(dev, &ckin_gpio);
+
+exit_ckin:
+	dm_gpio_free(dev, &ck_gpio);
+exit_ck:
+	dm_gpio_free(dev, &cmd_gpio);
+exit_cmd:
+	pinctrl_select_state(dev, "default");
+
+	return 0;
+}
+
 static int stm32_sdmmc2_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
@@ -662,7 +723,7 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 	if (dev_read_bool(dev, "st,sig-dir"))
 		priv->pwr_reg_msk |= SDMMC_POWER_DIRPOL;
 	if (dev_read_bool(dev, "st,use-ckin"))
-		priv->clk_reg_msk |= SDMMC_CLKCR_SELCLKRX_CKIN;
+		stm32_sdmmc2_probe_level_translator(dev);
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret)

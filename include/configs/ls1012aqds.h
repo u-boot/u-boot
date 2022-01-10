@@ -75,19 +75,16 @@
 				DSPI_CTAR_PASC(0) | DSPI_CTAR_PDT(0) | \
 				DSPI_CTAR_CSSCK(2) | DSPI_CTAR_ASC(0) | \
 				DSPI_CTAR_DT(0))
-#define CONFIG_SPI_FLASH_SST /* cs1 */
 
 #define CONFIG_SYS_DSPI_CTAR2	(DSPI_CTAR_TRSZ(7) | DSPI_CTAR_PCSSCK_1CLK |\
 				DSPI_CTAR_PASC(0) | DSPI_CTAR_PDT(0) | \
 				DSPI_CTAR_CSSCK(0) | DSPI_CTAR_ASC(0) | \
 				DSPI_CTAR_DT(0))
-#define CONFIG_SPI_FLASH_STMICRO /* cs2 */
 
 #define CONFIG_SYS_DSPI_CTAR3	(DSPI_CTAR_TRSZ(7) | DSPI_CTAR_PCSSCK_1CLK |\
 				DSPI_CTAR_PASC(0) | DSPI_CTAR_PDT(0) | \
 				DSPI_CTAR_CSSCK(2) | DSPI_CTAR_ASC(0) | \
 				DSPI_CTAR_DT(0))
-#define CONFIG_SPI_FLASH_EON /* cs3 */
 
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 
@@ -138,14 +135,10 @@
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
 		"bootm $load_addr#$board\0"
 
-#undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "\
 			     "env exists secureboot && esbc_halt;"
-#else
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "\
-			   "env exists secureboot && esbc_halt;"
 #endif
 
 #include <asm/fsl_secure_boot.h>

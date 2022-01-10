@@ -104,16 +104,6 @@
 					 (void *)PHY_BASEADDR_UART3}
 
 /*-----------------------------------------------------------------------
- * PLL
- */
-#define CONFIG_SYS_PLLFIN		24000000UL
-
-/*-----------------------------------------------------------------------
- * Timer
- */
-#define CONFIG_TIMER_SYS_TICK_CH	0
-
-/*-----------------------------------------------------------------------
  * BACKLIGHT
  */
 #ifndef CONFIG_S5P4418_ONEWIRE
@@ -130,8 +120,6 @@
 /*-----------------------------------------------------------------------
  * VIDEO
  */
-
-#define CONFIG_VIDEO_LOGO
 
 #ifdef CONFIG_VIDEO_LOGO
 #ifdef CONFIG_SPLASH_SCREEN

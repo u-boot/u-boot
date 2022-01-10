@@ -1,7 +1,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_CPU_SH7751	1
 #define __LITTLE_ENDIAN__	1
 
 /* SCIF */
@@ -29,7 +28,6 @@
 /*
  * SuperH Clock setting
  */
-#define CONFIG_SYS_CLK_FREQ	60000000
 #define	CONFIG_SYS_PLL_SETTLING_TIME	100/* in us */
 
 /*
@@ -44,7 +42,6 @@
 #define CONFIG_SYS_ATA_DATA_OFFSET	0x1000	/* data reg offset */
 #define CONFIG_SYS_ATA_REG_OFFSET	0x1000	/* reg offset */
 #define CONFIG_SYS_ATA_ALT_OFFSET	0x800	/* alternate register offset */
-#define CONFIG_IDE_SWAP_IO
 
 /*
  * SuperH PCI Bridge Configration

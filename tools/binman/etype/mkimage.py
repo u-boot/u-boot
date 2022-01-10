@@ -37,7 +37,7 @@ class Entry_mkimage(Entry):
         self._args = fdt_util.GetString(self._node, 'args').split(' ')
         self._mkimage_entries = OrderedDict()
         self.align_default = None
-        self._ReadSubnodes()
+        self.ReadEntries()
 
     def ObtainContents(self):
         data = b''
@@ -55,7 +55,7 @@ class Entry_mkimage(Entry):
         self.SetContents(tools.ReadFile(output_fname))
         return True
 
-    def _ReadSubnodes(self):
+    def ReadEntries(self):
         """Read the subnodes to find out what should go in this image"""
         for node in self._node.subnodes:
             entry = Entry.Create(self, node)

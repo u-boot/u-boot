@@ -348,7 +348,8 @@ static void console_puts_select(int file, bool serial_only, const char *s)
 
 void console_puts_select_stderr(bool serial_only, const char *s)
 {
-	console_puts_select(stderr, serial_only, s);
+	if (gd->flags & GD_FLG_DEVINIT)
+		console_puts_select(stderr, serial_only, s);
 }
 
 static void console_puts(int file, const char *s)
@@ -401,7 +402,8 @@ static inline void console_putc(int file, const char c)
 
 void console_puts_select(int file, bool serial_only, const char *s)
 {
-	if (serial_only == console_dev_is_serial(stdio_devices[file]))
+	if ((gd->flags & GD_FLG_DEVINIT) &&
+	    serial_only == console_dev_is_serial(stdio_devices[file]))
 		stdio_devices[file]->puts(stdio_devices[file], s);
 }
 
@@ -735,7 +737,9 @@ int console_record_init(void)
 	int ret;
 
 	ret = membuff_new((struct membuff *)&gd->console_out,
-			  CONFIG_CONSOLE_RECORD_OUT_SIZE);
+			  gd->flags & GD_FLG_RELOC ?
+				  CONFIG_CONSOLE_RECORD_OUT_SIZE :
+				  CONFIG_CONSOLE_RECORD_OUT_SIZE_F);
 	if (ret)
 		return ret;
 	ret = membuff_new((struct membuff *)&gd->console_in,

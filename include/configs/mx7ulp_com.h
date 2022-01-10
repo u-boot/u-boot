@@ -25,7 +25,6 @@
  */
 #define CONFIG_BOARD_SIZE_LIMIT		785408
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 /* Using ULP WDOG for reset */
 #define WDOG_BASE_ADDR			WDG1_RBASE
@@ -48,7 +47,7 @@
 	"fdt_file=imx7ulp-com.dtb\0" \
 	"fdt_addr=0x63000000\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
+	"mmcpart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \

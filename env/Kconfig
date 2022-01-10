@@ -3,6 +3,24 @@ menu "Environment"
 config ENV_SUPPORT
 	def_bool y
 
+config ENV_SOURCE_FILE
+	string "Environment file to use"
+	default ""
+	help
+	  This sets the basename to use to generate the default environment.
+	  This a text file as described in doc/usage/environment.rst
+
+	  The file must be in the board directory and have a .env extension, so
+	  the resulting filename is typically
+	  board/<vendor>/<board>/<CONFIG_ENV_SOURCE_FILE>.env
+
+	  If the file is not present, an error is produced.
+
+	  If this CONFIG is empty, U-Boot uses CONFIG SYS_BOARD as a default, if
+	  the file board/<vendor>/<board>/<SYS_BOARD>.env exists. Otherwise the
+	  environment is assumed to come from the ad-hoc
+	  CONFIG_EXTRA_ENV_SETTINGS #define
+
 config SAVEENV
 	def_bool y if CMD_SAVEENV
 
@@ -339,54 +357,31 @@ config ENV_SECT_SIZE_AUTO
 	  different sector sizes, and CONFIG_ENV_SECT_SIZE should be
 	  set to that value.
 
-config USE_ENV_SPI_BUS
-	bool "SPI flash bus for environment"
-	depends on ENV_IS_IN_SPI_FLASH
-	help
-	  Force the SPI bus for environment.
-	  If not defined, use CONFIG_SF_DEFAULT_BUS.
-
 config ENV_SPI_BUS
 	int "Value of SPI flash bus for environment"
-	depends on USE_ENV_SPI_BUS
+	depends on ENV_IS_IN_SPI_FLASH
+	default SF_DEFAULT_BUS
 	help
 	  Value the SPI bus and chip select for environment.
 
-config USE_ENV_SPI_CS
-	bool "SPI flash chip select for environment"
-	depends on ENV_IS_IN_SPI_FLASH
-	help
-	  Force the SPI chip select for environment.
-	  If not defined, use CONFIG_SF_DEFAULT_CS.
-
 config ENV_SPI_CS
 	int "Value of SPI flash chip select for environment"
-	depends on USE_ENV_SPI_CS
+	depends on ENV_IS_IN_SPI_FLASH
+	default SF_DEFAULT_CS
 	help
 	  Value of the SPI chip select for environment.
 
-config USE_ENV_SPI_MAX_HZ
-	bool "SPI flash max frequency for environment"
-	depends on ENV_IS_IN_SPI_FLASH
-	help
-	  Force the SPI max work clock for environment.
-	  If not defined, use CONFIG_SF_DEFAULT_SPEED.
-
 config ENV_SPI_MAX_HZ
 	int "Value of SPI flash max frequency for environment"
-	depends on USE_ENV_SPI_MAX_HZ
+	depends on ENV_IS_IN_SPI_FLASH
+	default SF_DEFAULT_SPEED
 	help
 	  Value of the SPI max work clock for environment.
 
-config USE_ENV_SPI_MODE
-	bool "SPI flash mode for environment"
-	depends on ENV_IS_IN_SPI_FLASH
-	help
-	  Force the SPI work mode for environment.
-
 config ENV_SPI_MODE
 	hex "Value of SPI flash work mode for environment"
-	depends on USE_ENV_SPI_MODE
+	depends on ENV_IS_IN_SPI_FLASH
+	default SF_DEFAULT_MODE
 	help
 	  Value of the SPI work mode for environment.
 	  See include/spi.h for value.

@@ -8,12 +8,6 @@
 
 #include "ls1046a_common.h"
 
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
-#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
@@ -43,7 +37,6 @@ unsigned long get_board_sys_clk(void);
 
 /* IFC */
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
-#define	CONFIG_FSL_IFC
 /*
  * CONFIG_SYS_FLASH_BASE has the final address (core view)
  * CONFIG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
@@ -339,12 +332,6 @@ unsigned long get_board_sys_clk(void);
 #define I2C_VOL_MONITOR_BUS_V_OVF      0x1
 #define I2C_VOL_MONITOR_BUS_V_SHIFT    3
 
-#define CONFIG_VID_FLS_ENV		"ls1046aqds_vdd_mv"
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_VID
-#endif
-#define CONFIG_VOL_MONITOR_IR36021_SET
-#define CONFIG_VOL_MONITOR_INA220
 /* The lowest and highest voltage allowed for LS1046AQDS */
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
@@ -362,7 +349,6 @@ unsigned long get_board_sys_clk(void);
  * Environment
  */
 
-#undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #define IFC_NAND_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;;"
@@ -372,20 +358,6 @@ unsigned long get_board_sys_clk(void);
 			   "env exists secureboot && esbc_halt;;"
 #define SD_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;;"
-#else
-#if defined(CONFIG_QSPI_BOOT)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
-			   "env exists secureboot && esbc_halt;;"
-#elif defined(CONFIG_NAND_BOOT)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
-			   "env exists secureboot && esbc_halt;;"
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
-			   "env exists secureboot && esbc_halt;;"
-#else
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
-			   "env exists secureboot && esbc_halt;;"
-#endif
 #endif
 
 #include <asm/fsl_secure_boot.h>

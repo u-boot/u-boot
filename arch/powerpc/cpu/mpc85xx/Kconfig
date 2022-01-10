@@ -109,6 +109,7 @@ config TARGET_QEMU_PPCE500
 	bool "Support qemu-ppce500"
 	select ARCH_QEMU_E500
 	select PHYS_64BIT
+	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_T1024RDB
 	bool "Support T1024RDB"
@@ -353,6 +354,7 @@ config ARCH_P1010
 	bool
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
+	select SYS_HAS_SERDES
 	select SYS_FSL_ERRATUM_A004477
 	select SYS_FSL_ERRATUM_A004508
 	select SYS_FSL_ERRATUM_A005125
@@ -1000,6 +1002,9 @@ config SYS_FSL_ERRATUM_SRIO_A004034
 config SYS_FSL_ERRATUM_USB14
 	bool
 
+config SYS_HAS_SERDES
+	bool
+
 config SYS_P4080_ERRATUM_CPU22
 	bool
 
@@ -1081,9 +1086,6 @@ config SYS_PPC64
 	bool
 
 config SYS_PPC_E500_USE_DEBUG_TLB
-	bool
-
-config FSL_IFC
 	bool
 
 config FSL_ELBC

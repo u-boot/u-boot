@@ -65,9 +65,6 @@
 	BOOTENV
 #endif
 
-
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"splashpos=m,m\0" \
@@ -124,7 +121,6 @@
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
 
 #ifdef CONFIG_DM_VIDEO
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
 

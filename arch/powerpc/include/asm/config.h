@@ -51,9 +51,6 @@
 
 /* The FMAN driver uses the PHYLIB infrastructure */
 
-/* All PPC boards must swap IDE bytes */
-#define CONFIG_IDE_SWAP_IO
-
 #if defined(CONFIG_DM_SERIAL) && !defined(CONFIG_CLK_MPC83XX)
 /*
  * TODO: Convert this to a clock driver exists that can give us the UART

@@ -41,15 +41,11 @@
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE}
 
-#define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE + (512 * 1024))
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + PHYS_SDRAM_SIZE)
-
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_MAXARGS		128
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
-/* #define CONFIG_SYS_PCI_64BIT		1 */
 
 #define DEFAULT_DFU_ALT_INFO "dfu_alt_info="				\
 			"mtd nor1=u-boot.bin raw 200000 100000;"	\

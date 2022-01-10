@@ -91,12 +91,6 @@
 			"echo WARNING: Could not determine device tree to use; fi; \0"
 #endif
 
-#define CONFIG_BOOTCOMMAND \
-	"run findfdt;" \
-	"run mmcboot;" \
-	"run nandboot;" \
-	"run netboot;"
-
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
 

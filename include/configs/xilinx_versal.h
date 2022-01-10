@@ -26,8 +26,6 @@
 #endif
 
 /* Serial setup */
-#define CONFIG_CPU_ARMV8
-
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 

@@ -361,7 +361,8 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-mini.dtb \
 	versal-mini-emmc0.dtb \
-	versal-mini-emmc1.dtb
+	versal-mini-emmc1.dtb \
+	xilinx-versal-virt.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
 dtb-$(CONFIG_AM33XX) += \
@@ -871,6 +872,8 @@ dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-com.dtb \
 	imx7ulp-evk.dtb
 
+dtb-$(CONFIG_ARCH_HIGHBANK) += highbank.dtb
+
 dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8qm-apalis.dtb \
 	fsl-imx8qm-mek.dtb \
@@ -1078,7 +1081,8 @@ dtb-$(CONFIG_ARCH_BCM283X) += \
 	bcm2837-rpi-3-a-plus.dtb \
 	bcm2837-rpi-3-b.dtb \
 	bcm2837-rpi-3-b-plus.dtb \
-	bcm2837-rpi-cm3-io3.dtb
+	bcm2837-rpi-cm3-io3.dtb \
+	bcm2711-rpi-4-b.dtb
 
 dtb-$(CONFIG_ARCH_BCM63158) += \
 	bcm963158.dtb
@@ -1090,6 +1094,8 @@ dtb-$(CONFIG_ARCH_BCM6858) += \
 	bcm968580xref.dtb
 
 dtb-$(CONFIG_TARGET_BCMNS3) += ns3-board.dtb
+
+dtb-$(CONFIG_ARCH_BCMSTB) += bcm7xxx.dtb
 
 dtb-$(CONFIG_ASPEED_AST2500) += ast2500-evb.dtb
 dtb-$(CONFIG_ASPEED_AST2600) += ast2600-evb.dtb
@@ -1140,6 +1146,11 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt8516-pumpkin.dtb \
 	mt8518-ap1-emmc.dtb
 
+dtb-$(CONFIG_XEN) += xenguest-arm64.dtb
+
+dtb-$(CONFIG_ARCH_OCTEONTX) += octeontx.dtb
+dtb-$(CONFIG_ARCH_OCTEONTX2) += octeontx.dtb
+
 dtb-$(CONFIG_TARGET_GE_BX50V3) += \
 	imx6q-bx50v3.dtb \
 	imx6q-b850v3.dtb \
@@ -1149,7 +1160,10 @@ dtb-$(CONFIG_TARGET_GE_BX50V3) += \
 dtb-$(CONFIG_TARGET_GE_B1X5V2) += imx6dl-b1x5v2.dtb
 dtb-$(CONFIG_TARGET_MX53PPD) += imx53-ppd.dtb
 
+# TODO(Linus Walleij <linus.walleij@linaro.org>): Should us a single vexpress
+# Kconfig option to build all of these. See examples above.
 dtb-$(CONFIG_TARGET_VEXPRESS_CA9X4) += vexpress-v2p-ca9.dtb
+dtb-$(CONFIG_TARGET_VEXPRESS64_JUNO) += juno-r2.dtb
 
 dtb-$(CONFIG_TARGET_TOTAL_COMPUTE) += total_compute.dtb
 
@@ -1162,6 +1176,8 @@ dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE) += imx8mm-cl-iot-gate.dtb
 dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE_OPTEE) += imx8mm-cl-iot-gate-optee.dtb
 
 dtb-$(CONFIG_TARGET_EA_LPC3250DEVKITV2) += lpc3250-ea3250.dtb
+
+dtb-$(CONFIG_ARCH_QEMU) += qemu-arm.dtb qemu-arm64.dtb
 
 targets += $(dtb-y)
 

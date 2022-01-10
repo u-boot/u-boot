@@ -27,15 +27,6 @@
 #define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
 #define CONFIG_KIRKWOOD_PCIE_INIT       /* Enable PCIE Port0 for kernel */
 
-/*
- * By default kwbimage.cfg from board specific folder is used
- * If for some board, different configuration file need to be used,
- * CONFIG_SYS_KWD_CONFIG should be defined in board specific header file
- */
-#ifndef CONFIG_SYS_KWD_CONFIG
-#define	CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
-#endif /* CONFIG_SYS_KWD_CONFIG */
-
 /* Kirkwood has 2k of Security SRAM, use it for SP */
 #define CONFIG_SYS_INIT_SP_ADDR		0xC8012000
 
@@ -67,8 +58,6 @@
  */
 #ifdef CONFIG_IDE
 #define __io
-/* Needs byte-swapping for ATA data register */
-#define CONFIG_IDE_SWAP_IO
 /* Data, registers and alternate blocks are at the same offset */
 #define CONFIG_SYS_ATA_DATA_OFFSET	(0x0100)
 #define CONFIG_SYS_ATA_REG_OFFSET	(0x0100)

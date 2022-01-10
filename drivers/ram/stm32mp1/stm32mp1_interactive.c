@@ -32,7 +32,6 @@ enum ddr_command {
 	DDR_CMD_NEXT,
 	DDR_CMD_GO,
 	DDR_CMD_TEST,
-	DDR_CMD_TUNING,
 	DDR_CMD_UNKNOWN,
 };
 
@@ -60,9 +59,6 @@ enum ddr_command stm32mp1_get_command(char *cmd, int argc)
 #ifdef CONFIG_STM32MP1_DDR_TESTS
 		[DDR_CMD_TEST] = "test",
 #endif
-#ifdef CONFIG_STM32MP1_DDR_TUNING
-		[DDR_CMD_TUNING] = "tuning",
-#endif
 	};
 	/* min and max number of argument */
 	const char cmd_arg[DDR_CMD_UNKNOWN][2] = {
@@ -78,9 +74,6 @@ enum ddr_command stm32mp1_get_command(char *cmd, int argc)
 		[DDR_CMD_GO] = { 0, 0 },
 #ifdef CONFIG_STM32MP1_DDR_TESTS
 		[DDR_CMD_TEST] = { 0, 255 },
-#endif
-#ifdef CONFIG_STM32MP1_DDR_TUNING
-		[DDR_CMD_TUNING] = { 0, 255 },
 #endif
 	};
 	int i;
@@ -111,7 +104,7 @@ static void stm32mp1_do_usage(void)
 		"help                       displays help\n"
 		"info                       displays DDR information\n"
 		"info  <param> <val>        changes DDR information\n"
-		"      with <param> = step, name, size, speed or cal\n"
+		"      with <param> = step, name, size or speed\n"
 		"freq                       displays the DDR PHY frequency in kHz\n"
 		"freq  <freq>               changes the DDR PHY frequency\n"
 		"param [type|reg]           prints input parameters\n"
@@ -126,13 +119,10 @@ static void stm32mp1_do_usage(void)
 #ifdef CONFIG_STM32MP1_DDR_TESTS
 		"test [help] | <n> [...]    lists (with help) or executes test <n>\n"
 #endif
-#ifdef CONFIG_STM32MP1_DDR_TUNING
-		"tuning [help] | <n> [...]  lists (with help) or execute tuning <n>\n"
-#endif
 		"\nwith for [type|reg]:\n"
 		"  all registers if absent\n"
 		"  <type> = ctl, phy\n"
-		"           or one category (static, timing, map, perf, cal, dyn)\n"
+		"           or one category (static, timing, map, perf, dyn)\n"
 		"  <reg> = name of the register\n"
 	};
 
@@ -165,7 +155,6 @@ static void stm32mp1_do_info(struct ddr_info *priv,
 		printf("name = %s\n", config->info.name);
 		printf("size = 0x%x\n", config->info.size);
 		printf("speed = %d kHz\n", config->info.speed);
-		printf("cal = %d\n", config->p_cal_present);
 		return;
 	}
 
@@ -211,16 +200,6 @@ static void stm32mp1_do_info(struct ddr_info *priv,
 			printf("speed = %d kHz\n", config->info.speed);
 			value = clk_get_rate(&priv->clk);
 			printf("DDRPHY = %ld kHz\n", value / 1000);
-		}
-		return;
-	}
-	if (!strcmp(argv[1], "cal")) {
-		if (strict_strtoul(argv[2], 10, &value) < 0 ||
-		    (value != 0 && value != 1)) {
-			printf("invalid value %s\n", argv[2]);
-		} else {
-			config->p_cal_present = value;
-			printf("cal = %d\n", config->p_cal_present);
 		}
 		return;
 	}
@@ -322,7 +301,7 @@ end:
 	return step;
 }
 
-#if defined(CONFIG_STM32MP1_DDR_TESTS) || defined(CONFIG_STM32MP1_DDR_TUNING)
+#if defined(CONFIG_STM32MP1_DDR_TESTS)
 static const char * const s_result[] = {
 		[TEST_PASSED] = "Pass",
 		[TEST_FAILED] = "Failed",
@@ -479,16 +458,6 @@ bool stm32mp1_ddr_interactive(void *priv,
 			stm32mp1_ddr_subcmd(priv, argc, argv, test, test_nb);
 			break;
 #endif
-
-#ifdef CONFIG_STM32MP1_DDR_TUNING
-		case DDR_CMD_TUNING:
-			if (!stm32mp1_check_step(step, STEP_DDR_READY))
-				continue;
-			stm32mp1_ddr_subcmd(priv, argc, argv,
-					    tuning, tuning_nb);
-			break;
-#endif
-
 		default:
 			break;
 		}

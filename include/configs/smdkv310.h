@@ -26,8 +26,6 @@
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x00002488
 
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
-
 /* SMDKV310 has 4 bank of DRAM */
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE

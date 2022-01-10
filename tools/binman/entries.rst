@@ -25,6 +25,160 @@ about ATF.
 
 
 
+Entry: atf-fip: ARM Trusted Firmware's Firmware Image Package (FIP)
+-------------------------------------------------------------------
+
+A FIP_ provides a way to group binaries in a firmware image, used by ARM's
+Trusted Firmware A (TF-A) code. It is a simple format consisting of a
+table of contents with information about the type, offset and size of the
+binaries in the FIP. It is quite similar to FMAP, with the major difference
+that it uses UUIDs to indicate the type of each entry.
+
+Note: It is recommended to always add an fdtmap to every image, as well as
+any FIPs so that binman and other tools can access the entire image
+correctly.
+
+The UUIDs correspond to useful names in `fiptool`, provided by ATF to
+operate on FIPs. Binman uses these names to make it easier to understand
+what is going on, although it is possible to provide a UUID if needed.
+
+The contents of the FIP are defined by subnodes of the atf-fip entry, e.g.::
+
+    atf-fip {
+        soc-fw {
+            filename = "bl31.bin";
+        };
+
+        scp-fwu-cfg {
+            filename = "bl2u.bin";
+        };
+
+        u-boot {
+            fip-type = "nt-fw";
+        };
+    };
+
+This describes a FIP with three entries: soc-fw, scp-fwu-cfg and nt-fw.
+You can use normal (non-external) binaries like U-Boot simply by adding a
+FIP type, with the `fip-type` property, as above.
+
+Since FIP exists to bring blobs together, Binman assumes that all FIP
+entries are external binaries. If a binary may not exist, you can use the
+`--allow-missing` flag to Binman, in which case the image is still created,
+even though it will not actually work.
+
+The size of the FIP depends on the size of the binaries. There is currently
+no way to specify a fixed size. If the `atf-fip` node has a `size` entry,
+this affects the space taken up by the `atf-fip` entry, but the FIP itself
+does not expand to use that space.
+
+Some other FIP features are available with Binman. The header and the
+entries have 64-bit flag works. The flag flags do not seem to be defined
+anywhere, but you can use `fip-hdr-flags` and fip-flags` to set the values
+of the header and entries respectively.
+
+FIP entries can be aligned to a particular power-of-two boundary. Use
+fip-align for this.
+
+Binman only understands the entry types that are included in its
+implementation. It is possible to specify a 16-byte UUID instead, using the
+fip-uuid property. In this case Binman doesn't know what its type is, so
+just uses the UUID. See the `u-boot` node in this example::
+
+    binman {
+        atf-fip {
+            fip-hdr-flags = /bits/ 64 <0x123>;
+            fip-align = <16>;
+            soc-fw {
+                fip-flags = /bits/ 64 <0x456>;
+                filename = "bl31.bin";
+            };
+
+            scp-fwu-cfg {
+                filename = "bl2u.bin";
+            };
+
+            u-boot {
+                fip-uuid = [fc 65 13 92 4a 5b 11 ec
+                            94 35 ff 2d 1c fc 79 9c];
+            };
+        };
+        fdtmap {
+        };
+    };
+
+Binman allows reading and updating FIP entries after the image is created,
+provided that an FDPMAP is present too. Updates which change the size of a
+FIP entry will cause it to be expanded or contracted as needed.
+
+Properties for top-level atf-fip node
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+fip-hdr-flags (64 bits)
+    Sets the flags for the FIP header.
+
+Properties for subnodes
+~~~~~~~~~~~~~~~~~~~~~~~
+
+fip-type (str)
+    FIP type to use for this entry. This is needed if the entry
+    name is not a valid type. Value types are defined in `fip_util.py`.
+    The FIP type defines the UUID that is used (they map 1:1).
+
+fip-uuid (16 bytes)
+    If there is no FIP-type name defined, or it is not supported by Binman,
+    this property sets the UUID. It should be a 16-byte value, following the
+    hex digits of the UUID.
+
+fip-flags (64 bits)
+    Set the flags for a FIP entry. Use in one of the subnodes of the
+    7atf-fip entry.
+
+fip-align
+    Set the alignment for a FIP entry, FIP entries can be aligned to a
+    particular power-of-two boundary. The default is 1.
+
+Adding new FIP-entry types
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When new FIP entries are defined by TF-A they appear in the
+`TF-A source tree`_. You can use `fip_util.py` to update Binman to support
+new types, then `send a patch`_ to the U-Boot mailing list. There are two
+source files that the tool examples:
+
+- `include/tools_share/firmware_image_package.h` has the UUIDs
+- `tools/fiptool/tbbr_config.c` has the name and descripion for each UUID
+
+To run the tool::
+
+    $ tools/binman/fip_util.py  -s /path/to/arm-trusted-firmware
+    Warning: UUID 'UUID_NON_TRUSTED_WORLD_KEY_CERT' is not mentioned in tbbr_config.c file
+    Existing code in 'tools/binman/fip_util.py' is up-to-date
+
+If it shows there is an update, it writes a new version of `fip_util.py`
+to `fip_util.py.out`. You can change the output file using the `-i` flag.
+If you have a problem, use `-D` to enable traceback debugging.
+
+FIP commentary
+~~~~~~~~~~~~~~
+
+As a side effect of use of UUIDs, FIP does not support multiple
+entries of the same type, such as might be used to store fonts or graphics
+icons, for example. For verified boot it could be used for each part of the
+image (e.g. separate FIPs for A and B) but cannot describe the whole
+firmware image. As with FMAP there is no hierarchy defined, although FMAP
+works around this by having 'section' areas which encompass others. A
+similar workaround would be possible with FIP but is not currently defined.
+
+It is recommended to always add an fdtmap to every image, as well as any
+FIPs so that binman and other tools can access the entire image correctly.
+
+.. _FIP: https://trustedfirmware-a.readthedocs.io/en/latest/design/firmware-design.html#firmware-image-package-fip
+.. _`TF-A source tree`: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+.. _`send a patch`: https://www.denx.de/wiki/U-Boot/Patches
+
+
+
 Entry: blob: Arbitrary binary blob
 ----------------------------------
 
@@ -66,6 +220,20 @@ If the file providing this blob is missing, binman can optionally ignore it
 and produce a broken image with a warning.
 
 See 'blob' for Properties / Entry arguments.
+
+
+
+Entry: blob-ext-list: List of externally built binary blobs
+-----------------------------------------------------------
+
+This is like blob-ext except that a number of blobs can be provided,
+typically with some sort of relationship, e.g. all are DDC parameters.
+
+If any of the external files needed by this llist is missing, binman can
+optionally ignore it and produce a broken image with a warning.
+
+Args:
+    filenames: List of filenames to read and include
 
 
 
@@ -313,6 +481,10 @@ Example output for a simple image with U-Boot and an FDT map::
 
 If allow-repack is used then 'orig-offset' and 'orig-size' properties are
 added as necessary. See the binman README.
+
+When extracting files, an alternative 'fdt' format is available for fdtmaps.
+Use `binman extract -F fdt ...` to use this. It will export a devicetree,
+without the fdtmap header, so it can be viewed with `fdtdump`.
 
 
 
@@ -799,39 +971,135 @@ This entry holds firmware for an external platform-specific coprocessor.
 Entry: section: Entry that contains other entries
 -------------------------------------------------
 
-Properties / Entry arguments: (see binman README for more information):
-    pad-byte: Pad byte to use when padding
-    sort-by-offset: True if entries should be sorted by offset, False if
-    they must be in-order in the device tree description
+A section is an entry which can contain other entries, thus allowing
+hierarchical images to be created. See 'Sections and hierarchical images'
+in the binman README for more information.
 
-    end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+The base implementation simply joins the various entries together, using
+various rules about alignment, etc.
 
-    skip-at-start: Number of bytes before the first entry starts. These
-        effectively adjust the starting offset of entries. For example,
-        if this is 16, then the first entry would start at 16. An entry
-        with offset = 20 would in fact be written at offset 4 in the image
-        file, since the first 16 bytes are skipped when writing.
-    name-prefix: Adds a prefix to the name of every entry in the section
-        when writing out the map
-    align_default: Default alignment for this section, if no alignment is
-        given in the entry
+Subclassing
+~~~~~~~~~~~
 
-Properties:
-    allow_missing: True if this section permits external blobs to be
-        missing their contents. The second will produce an image but of
-        course it will not work.
+This class can be subclassed to support other file formats which hold
+multiple entries, such as CBFS. To do this, override the following
+functions. The documentation here describes what your function should do.
+For example code, see etypes which subclass `Entry_section`, or `cbfs.py`
+for a more involved example::
 
-Properties:
-    _allow_missing: True if this section permits external blobs to be
-        missing their contents. The second will produce an image but of
-        course it will not work.
+   $ grep -l \(Entry_section tools/binman/etype/*.py
+
+ReadNode()
+    Call `super().ReadNode()`, then read any special properties for the
+    section. Then call `self.ReadEntries()` to read the entries.
+
+    Binman calls this at the start when reading the image description.
+
+ReadEntries()
+    Read in the subnodes of the section. This may involve creating entries
+    of a particular etype automatically, as well as reading any special
+    properties in the entries. For each entry, entry.ReadNode() should be
+    called, to read the basic entry properties. The properties should be
+    added to `self._entries[]`, in the correct order, with a suitable name.
+
+    Binman calls this at the start when reading the image description.
+
+BuildSectionData(required)
+    Create the custom file format that you want and return it as bytes.
+    This likely sets up a file header, then loops through the entries,
+    adding them to the file. For each entry, call `entry.GetData()` to
+    obtain the data. If that returns None, and `required` is False, then
+    this method must give up and return None. But if `required` is True then
+    it should assume that all data is valid.
+
+    Binman calls this when packing the image, to find out the size of
+    everything. It is called again at the end when building the final image.
+
+SetImagePos(image_pos):
+    Call `super().SetImagePos(image_pos)`, then set the `image_pos` values
+    for each of the entries. This should use the custom file format to find
+    the `start offset` (and `image_pos`) of each entry. If the file format
+    uses compression in such a way that there is no offset available (other
+    than reading the whole file and decompressing it), then the offsets for
+    affected entries can remain unset (`None`). The size should also be set
+    if possible.
+
+    Binman calls this after the image has been packed, to update the
+    location that all the entries ended up at.
+
+ReadChildData(child, decomp, alt_format):
+    The default version of this may be good enough, if you are able to
+    implement SetImagePos() correctly. But that is a bit of a bypass, so
+    you can override this method to read from your custom file format. It
+    should read the entire entry containing the custom file using
+    `super().ReadData(True)`, then parse the file to get the data for the
+    given child, then return that data.
+
+    If your file format supports compression, the `decomp` argument tells
+    you whether to return the compressed data (`decomp` is False) or to
+    uncompress it first, then return the uncompressed data (`decomp` is
+    True). This is used by the `binman extract -U` option.
+
+    If your entry supports alternative formats, the alt_format provides the
+    alternative format that the user has selected. Your function should
+    return data in that format. This is used by the 'binman extract -l'
+    option.
+
+    Binman calls this when reading in an image, in order to populate all the
+    entries with the data from that image (`binman ls`).
+
+WriteChildData(child):
+    Binman calls this after `child.data` is updated, to inform the custom
+    file format about this, in case it needs to do updates.
+
+    The default version of this does nothing and probably needs to be
+    overridden for the 'binman replace' command to work. Your version should
+    use `child.data` to update the data for that child in the custom file
+    format.
+
+    Binman calls this when updating an image that has been read in and in
+    particular to update the data for a particular entry (`binman replace`)
+
+Properties / Entry arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`develop/package/binman:Image description format` for more
+information.
+
+align-default
+    Default alignment for this section, if no alignment is given in the
+    entry
+
+pad-byte
+    Pad byte to use when padding
+
+sort-by-offset
+    True if entries should be sorted by offset, False if they must be
+    in-order in the device tree description
+
+end-at-4gb
+    Used to build an x86 ROM which ends at 4GB (2^32)
+
+name-prefix
+    Adds a prefix to the name of every entry in the section when writing out
+    the map
+
+skip-at-start
+    Number of bytes before the first entry starts. These effectively adjust
+    the starting offset of entries. For example, if this is 16, then the
+    first entry would start at 16. An entry with offset = 20 would in fact
+    be written at offset 4 in the image file, since the first 16 bytes are
+    skipped when writing.
 
 Since a section is also an entry, it inherits all the properies of entries
 too.
 
-A section is an entry which can contain other entries, thus allowing
-hierarchical images to be created. See 'Sections and hierarchical images'
-in the binman README for more information.
+Note that the `allow_missing` member controls whether this section permits
+external blobs to be missing their contents. The option will produce an
+image but of course it will not work. It is useful to make sure that
+Continuous Integration systems can build without the binaries being
+available. This is set by the `SetAllowMissing()` method, if
+`--allow-missing` is passed to binman.
 
 
 

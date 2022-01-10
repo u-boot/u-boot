@@ -25,11 +25,6 @@ phys_size_t get_effective_memsize(void)
 	return CONFIG_SYS_L3_SIZE;
 }
 
-unsigned long get_board_sys_clk(void)
-{
-	return CONFIG_SYS_CLK_FREQ;
-}
-
 #define FSL_CORENET_CCSR_PORSR1_RCW_MASK	0xFF800000
 void board_init_f(ulong bootflag)
 {

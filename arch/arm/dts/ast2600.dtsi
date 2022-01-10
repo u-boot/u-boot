@@ -187,6 +187,23 @@
 			};
 		};
 
+		hace: hace@1e6d0000 {
+			compatible = "aspeed,ast2600-hace";
+			reg = <0x1e6d0000 0x200>;
+			interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&scu ASPEED_CLK_GATE_YCLK>;
+			status = "disabled";
+		};
+
+		acry: acry@1e6fa000 {
+			compatible = "aspeed,ast2600-acry";
+			reg = <0x1e6fa000 0x1000>,
+			      <0x1e710000 0x10000>;
+			interrupts = <GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&scu ASPEED_CLK_GATE_RSACLK>;
+			status = "disabled";
+		};
+
 		edac: sdram@1e6e0000 {
 			compatible = "aspeed,ast2600-sdram-edac";
 			reg = <0x1e6e0000 0x174>;

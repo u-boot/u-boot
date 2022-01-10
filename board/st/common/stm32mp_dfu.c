@@ -132,6 +132,10 @@ void set_dfu_alt_info(char *interface, char *devstr)
 			mtd = get_mtd_device_nm("nor0");
 			if (!IS_ERR_OR_NULL(mtd))
 				board_get_alt_info_mtd(mtd, buf);
+
+			mtd = get_mtd_device_nm("nor1");
+			if (!IS_ERR_OR_NULL(mtd))
+				board_get_alt_info_mtd(mtd, buf);
 		}
 
 		mtd = get_mtd_device_nm("nand0");

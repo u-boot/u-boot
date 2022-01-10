@@ -18,11 +18,4 @@
 	"serverip=172.16.12.69\0"					\
 	""
 
-#undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND						\
-	"sf probe;"							\
-	"sf read 0x62000000 0x140800 0x500000;"				\
-	"dcache off;"							\
-	"go 0x62000000"
-
 #endif

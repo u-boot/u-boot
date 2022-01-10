@@ -19,7 +19,6 @@
 #define CONFIG_LCD_LOGO
 
 /* NAND support */
-#define CONFIG_TEGRA_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 #define UBOOT_UPDATE \

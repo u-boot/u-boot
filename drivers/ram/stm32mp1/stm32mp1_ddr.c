@@ -68,7 +68,6 @@ struct reg_desc {
 
 #define DDRPHY_REG_REG_SIZE	11	/* st,phy-reg */
 #define	DDRPHY_REG_TIMING_SIZE	10	/* st,phy-timing */
-#define	DDRPHY_REG_CAL_SIZE	12	/* st,phy-cal */
 
 #define DDRCTL_REG_REG(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_reg)
 static const struct reg_desc ddr_reg[DDRCTL_REG_REG_SIZE] = {
@@ -178,22 +177,6 @@ static const struct reg_desc ddrphy_timing[DDRPHY_REG_TIMING_SIZE] = {
 	DDRPHY_REG_TIMING(mr3),
 };
 
-#define DDRPHY_REG_CAL(x)	DDRPHY_REG(x, stm32mp1_ddrphy_cal)
-static const struct reg_desc ddrphy_cal[DDRPHY_REG_CAL_SIZE] = {
-	DDRPHY_REG_CAL(dx0dllcr),
-	DDRPHY_REG_CAL(dx0dqtr),
-	DDRPHY_REG_CAL(dx0dqstr),
-	DDRPHY_REG_CAL(dx1dllcr),
-	DDRPHY_REG_CAL(dx1dqtr),
-	DDRPHY_REG_CAL(dx1dqstr),
-	DDRPHY_REG_CAL(dx2dllcr),
-	DDRPHY_REG_CAL(dx2dqtr),
-	DDRPHY_REG_CAL(dx2dqstr),
-	DDRPHY_REG_CAL(dx3dllcr),
-	DDRPHY_REG_CAL(dx3dqtr),
-	DDRPHY_REG_CAL(dx3dqstr),
-};
-
 /**************************************************************
  * DYNAMIC REGISTERS: only used for debug purpose (read/modify)
  **************************************************************/
@@ -218,12 +201,24 @@ static const struct reg_desc ddrphy_dyn[] = {
 	DDRPHY_REG_DYN(zq0sr1),
 	DDRPHY_REG_DYN(dx0gsr0),
 	DDRPHY_REG_DYN(dx0gsr1),
+	DDRPHY_REG_DYN(dx0dllcr),
+	DDRPHY_REG_DYN(dx0dqtr),
+	DDRPHY_REG_DYN(dx0dqstr),
 	DDRPHY_REG_DYN(dx1gsr0),
 	DDRPHY_REG_DYN(dx1gsr1),
+	DDRPHY_REG_DYN(dx1dllcr),
+	DDRPHY_REG_DYN(dx1dqtr),
+	DDRPHY_REG_DYN(dx1dqstr),
 	DDRPHY_REG_DYN(dx2gsr0),
 	DDRPHY_REG_DYN(dx2gsr1),
+	DDRPHY_REG_DYN(dx2dllcr),
+	DDRPHY_REG_DYN(dx2dqtr),
+	DDRPHY_REG_DYN(dx2dqstr),
 	DDRPHY_REG_DYN(dx3gsr0),
 	DDRPHY_REG_DYN(dx3gsr1),
+	DDRPHY_REG_DYN(dx3dllcr),
+	DDRPHY_REG_DYN(dx3dqtr),
+	DDRPHY_REG_DYN(dx3dqstr),
 };
 
 #define DDRPHY_REG_DYN_SIZE	ARRAY_SIZE(ddrphy_dyn)
@@ -240,7 +235,6 @@ enum reg_type {
 	REG_MAP,
 	REGPHY_REG,
 	REGPHY_TIMING,
-	REGPHY_CAL,
 #ifdef CONFIG_STM32MP1_DDR_INTERACTIVE
 /* dynamic registers => managed in driver or not changed,
  * can be dumped in interactive mode
@@ -264,8 +258,6 @@ struct ddr_reg_info {
 	enum base_type base;
 };
 
-#define DDRPHY_REG_CAL(x)	DDRPHY_REG(x, stm32mp1_ddrphy_cal)
-
 const struct ddr_reg_info ddr_registers[REG_TYPE_NB] = {
 [REG_REG] = {
 	"static", ddr_reg, DDRCTL_REG_REG_SIZE, DDR_BASE},
@@ -279,8 +271,6 @@ const struct ddr_reg_info ddr_registers[REG_TYPE_NB] = {
 	"static", ddrphy_reg, DDRPHY_REG_REG_SIZE, DDRPHY_BASE},
 [REGPHY_TIMING] = {
 	"timing", ddrphy_timing, DDRPHY_REG_TIMING_SIZE, DDRPHY_BASE},
-[REGPHY_CAL] = {
-	"cal", ddrphy_cal, DDRPHY_REG_CAL_SIZE, DDRPHY_BASE},
 #ifdef CONFIG_STM32MP1_DDR_INTERACTIVE
 [REG_DYN] = {
 	"dyn", ddr_dyn, DDR_REG_DYN_SIZE, DDR_BASE},
@@ -456,9 +446,6 @@ static u32 get_par_addr(const struct stm32mp1_ddr_config *config,
 	case REGPHY_TIMING:
 		par_addr = (u32)&config->p_timing;
 		break;
-	case REGPHY_CAL:
-		par_addr = (u32)&config->p_cal;
-		break;
 	case REG_DYN:
 	case REGPHY_DYN:
 	case REG_TYPE_NB:
@@ -570,7 +557,7 @@ static void ddrphy_idone_wait(struct stm32mp1_ddrphy *phy)
 		  (u32)&phy->pgsr, pgsr, ret);
 }
 
-void stm32mp1_ddrphy_init(struct stm32mp1_ddrphy *phy, u32 pir)
+static void stm32mp1_ddrphy_init(struct stm32mp1_ddrphy *phy, u32 pir)
 {
 	pir |= DDRPHYC_PIR_INIT;
 	writel(pir, &phy->pir);
@@ -639,7 +626,7 @@ static void wait_operating_mode(struct ddr_info *priv, int mode)
 	log_debug("[0x%08x] stat = 0x%08x\n", (u32)&priv->ctl->stat, stat);
 }
 
-void stm32mp1_refresh_disable(struct stm32mp1_ddrctl *ctl)
+static void stm32mp1_refresh_disable(struct stm32mp1_ddrctl *ctl)
 {
 	start_sw_done(ctl);
 	/* quasi-dynamic register update*/
@@ -650,8 +637,8 @@ void stm32mp1_refresh_disable(struct stm32mp1_ddrctl *ctl)
 	wait_sw_done_ack(ctl);
 }
 
-void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
-			      u32 rfshctl3, u32 pwrctl)
+static void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
+				     u32 rfshctl3, u32 pwrctl)
 {
 	start_sw_done(ctl);
 	if (!(rfshctl3 & DDRCTRL_RFSHCTL3_DIS_AUTO_REFRESH))
@@ -774,8 +761,6 @@ start:
  */
 	set_reg(priv, REGPHY_REG, &config->p_reg);
 	set_reg(priv, REGPHY_TIMING, &config->p_timing);
-	if (config->p_cal_present)
-		set_reg(priv, REGPHY_CAL, &config->p_cal);
 
 	if (INTERACTIVE(STEP_PHY_INIT))
 		goto start;
@@ -810,32 +795,32 @@ start:
 
 	wait_operating_mode(priv, DDRCTRL_STAT_OPERATING_MODE_NORMAL);
 
-	if (config->p_cal_present) {
-		log_debug("DDR DQS training skipped.\n");
-	} else {
-		log_debug("DDR DQS training : ");
+	log_debug("DDR DQS training : ");
 /*  8. Disable Auto refresh and power down by setting
  *    - RFSHCTL3.dis_au_refresh = 1
  *    - PWRCTL.powerdown_en = 0
  *    - DFIMISC.dfiinit_complete_en = 0
  */
-		stm32mp1_refresh_disable(priv->ctl);
+	stm32mp1_refresh_disable(priv->ctl);
 
 /*  9. Program PUBL PGCR to enable refresh during training and rank to train
  *     not done => keep the programed value in PGCR
  */
 
 /* 10. configure PUBL PIR register to specify which training step to run */
-	/* warning : RVTRN  is not supported by this PUBL */
-		stm32mp1_ddrphy_init(priv->phy, DDRPHYC_PIR_QSTRN);
+	/* RVTRN is excuted only on LPDDR2/LPDDR3 */
+	if (config->c_reg.mstr & DDRCTRL_MSTR_DDR3)
+		pir = DDRPHYC_PIR_QSTRN;
+	else
+		pir = DDRPHYC_PIR_QSTRN | DDRPHYC_PIR_RVTRN;
+	stm32mp1_ddrphy_init(priv->phy, pir);
 
 /* 11. monitor PUB PGSR.IDONE to poll cpmpletion of training sequence */
-		ddrphy_idone_wait(priv->phy);
+	ddrphy_idone_wait(priv->phy);
 
 /* 12. set back registers in step 8 to the orginal values if desidered */
-		stm32mp1_refresh_restore(priv->ctl, config->c_reg.rfshctl3,
-					 config->c_reg.pwrctl);
-	} /* if (config->p_cal_present) */
+	stm32mp1_refresh_restore(priv->ctl, config->c_reg.rfshctl3,
+				 config->c_reg.pwrctl);
 
 	/* enable uMCTL2 AXI port 0 and 1 */
 	setbits_le32(&priv->ctl->pctrl_0, DDRCTRL_PCTRL_N_PORT_EN);

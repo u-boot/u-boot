@@ -153,7 +153,6 @@
 /*
  * HW-Watchdog
  */
-#define CONFIG_WATCHDOG		1
 #define CONFIG_SYS_WATCHDOG_VALUE	0xFFFF
 
 /*
@@ -232,11 +231,7 @@
 
 #define CONFIG_LOADS_ECHO
 #define CONFIG_TIMESTAMP
-#define CONFIG_BOOTCOMMAND		"run boot_cramfs"
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
-
-#define CONFIG_JFFS2_NAND
-#define CONFIG_JFFS2_DEV		"0"
 
 /* mtdparts command line support */
 
@@ -271,14 +266,6 @@
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
-
-#define NFSBOOTCOMMAND						\
-	"setenv rootdev /dev/nfs;"					\
-	"run setipargs;run addmtd;"					\
-	"tftp ${loadaddr} ${bootfile};"				\
-	"tftp ${fdtaddr} ${fdtfile};"					\
-	"fdt addr ${fdtaddr};"						\
-	"bootm ${loadaddr} - ${fdtaddr}"
 
 /* UBI Support */
 

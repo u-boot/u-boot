@@ -311,6 +311,10 @@ config CPU_PXA
 	select SYS_CACHE_SHIFT_5
 	imply SYS_ARM_MMU
 
+config CPU_PXA27X
+	bool
+	select CPU_PXA
+
 config CPU_SA1100
 	bool
 	select SYS_CACHE_SHIFT_5
@@ -635,6 +639,7 @@ config ARCH_BCMSTB
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	imply CMD_DM
+	imply OF_HAS_PRIOR_STAGE
 	help
 	  This enables support for Broadcom ARM-based set-top box
 	  chipsets, including the 7445 family of chips.
@@ -707,12 +712,12 @@ config ARCH_HIGHBANK
 	select DM
 	select DM_SERIAL
 	select OF_CONTROL
-	select OF_BOARD
 	select CLK
 	select CLK_CCF
 	select AHCI
 	select DM_ETH
 	select PHYS_64BIT
+	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"
@@ -927,6 +932,7 @@ config ARCH_APPLE
 	select CLK
 	select CMD_USB
 	select DM
+	select DM_GPIO
 	select DM_KEYBOARD
 	select DM_SERIAL
 	select DM_USB
@@ -934,12 +940,13 @@ config ARCH_APPLE
 	select IOMMU
 	select LINUX_KERNEL_IMAGE_HEADER
 	select OF_CONTROL
-	select OF_BOARD
+	select PINCTRL
 	select POSITION_INDEPENDENT
 	select USB
 	imply CMD_DM
 	imply CMD_GPT
 	imply DISTRO_DEFAULTS
+	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_OWL
 	bool "Actions Semi OWL SoCs"
@@ -964,6 +971,7 @@ config ARCH_QEMU
 	imply DM_RNG
 	imply DM_RTC
 	imply RTC_PL031
+	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
@@ -1241,7 +1249,6 @@ config TARGET_VEXPRESS64_JUNO
 	select PL01X_SERIAL
 	select DM
 	select OF_CONTROL
-	select OF_BOARD
 	select CLK
 	select DM_SERIAL
 	select ARM_PSCI_FW
@@ -1249,6 +1256,7 @@ config TARGET_VEXPRESS64_JUNO
 	select DM_ETH
 	select BLK
 	select USB
+	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_TOTAL_COMPUTE
 	bool "Support Total Compute Platform"
@@ -1763,7 +1771,7 @@ config TARGET_SL28
 
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
-	select CPU_PXA
+	select CPU_PXA27X
 	select GPIO_EXTRA_HEADER
 
 config ARCH_UNIPHIER
@@ -1905,6 +1913,8 @@ config ARCH_OCTEONTX
 	select OF_LIVE
 	select BOARD_LATE_INIT
 	select SYS_CACHE_SHIFT_7
+	select SYS_PCI_64BIT if PCI
+	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_OCTEONTX2
 	bool "Support OcteonTX2 SoCs"
@@ -1916,6 +1926,8 @@ config ARCH_OCTEONTX2
 	select OF_LIVE
 	select BOARD_LATE_INIT
 	select SYS_CACHE_SHIFT_7
+	select SYS_PCI_64BIT if PCI
+	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
@@ -1952,6 +1964,8 @@ config TARGET_XENGUEST_ARM64
 	select LINUX_KERNEL_IMAGE_HEADER
 	select XEN_SERIAL
 	select SSCANF
+	imply OF_HAS_PRIOR_STAGE
+
 endchoice
 
 config SUPPORT_PASSING_ATAGS
@@ -2037,6 +2051,14 @@ config ISW_ENTRY_ADDR
 	  on the device type (secure/non-secure), boot media (xip/non-xip) and
 	  image headers.
 endif
+
+config SYS_KWD_CONFIG
+	string "kwbimage config file path"
+	depends on ARCH_KIRKWOOD || ARCH_MVEBU
+	default "arch/arm/mach-mvebu/kwbimage.cfg"
+	help
+	  Path within the source directory to the kwbimage.cfg file to use
+	  when packaging the U-Boot image for use.
 
 source "arch/arm/mach-apple/Kconfig"
 

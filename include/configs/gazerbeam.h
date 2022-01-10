@@ -100,22 +100,4 @@
 		__stringify(CONFIG_SYS_MONITOR_BASE) " ${filesize}\0"	\
 	"upd=run load update\0"						\
 
-#define NFSBOOTCOMMAND						\
-	"setenv bootargs root=/dev/nfs rw "				\
-	"nfsroot=$serverip:$rootpath "					\
-	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-	"console=$consoledev,$baudrate $othbootargs;"			\
-	"tftp ${kernel_addr} $bootfile;"				\
-	"tftp ${fdt_addr} $fdtfile;"					\
-	"bootm ${kernel_addr} - ${fdt_addr}"
-
-#define MMCBOOTCOMMAND						\
-	"setenv bootargs root=/dev/mmcblk0p3 rw rootwait "		\
-	"console=$consoledev,$baudrate $othbootargs;"			\
-	"ext2load mmc 0:2 ${kernel_addr} $bootfile;"			\
-	"ext2load mmc 0:2 ${fdt_addr} $fdtfile;"			\
-	"bootm ${kernel_addr} - ${fdt_addr}"
-
-#define CONFIG_BOOTCOMMAND		MMCBOOTCOMMAND
-
 #endif	/* __CONFIG_H */

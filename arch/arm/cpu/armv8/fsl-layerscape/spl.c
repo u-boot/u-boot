@@ -93,7 +93,9 @@ void board_init_f(ulong dummy)
 	i2c_init_all();
 #endif
 #endif
-#ifdef CONFIG_VID
+#if defined(CONFIG_VID) && (defined(CONFIG_ARCH_LS1088A) || \
+			    defined(CONFIG_ARCH_LX2160A) || \
+			    defined(CONFIG_ARCH_LX2162A))
 	init_func_vid();
 #endif
 	dram_init();

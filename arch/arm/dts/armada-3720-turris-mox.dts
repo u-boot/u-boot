@@ -94,30 +94,17 @@
 	};
 };
 
-&comphy {
-	max-lanes = <3>;
-	phy0 {
-		phy-type = <COMPHY_TYPE_SGMII1>;
-		phy-speed = <COMPHY_SPEED_3_125G>;
-	};
-
-	phy1 {
-		phy-type = <COMPHY_TYPE_PEX0>;
-		phy-speed = <COMPHY_SPEED_5G>;
-	};
-
-	phy2 {
-		phy-type = <COMPHY_TYPE_USB3_HOST0>;
-		phy-speed = <COMPHY_SPEED_5G>;
-	};
-};
-
 &eth0 {
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&rgmii_pins>, <&smi_pins>;
 	phy-mode = "rgmii";
 	phy = <&eth_phy1>;
+};
+
+&eth1 {
+	phy-mode = "2500base-x";
+	phys = <&comphy0 1>;
 };
 
 &i2c0 {
@@ -222,6 +209,7 @@
 &usb3 {
 	vbus-supply = <&reg_usb3_vbus>;
 	status = "okay";
+	phys = <&comphy2 0>;
 };
 
 &pcie0 {
@@ -229,4 +217,5 @@
 	pinctrl-0 = <&pcie_pins>;
 	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
 	status = "disabled";
+	phys = <&comphy1 0>;
 };

@@ -16,6 +16,7 @@ Implementation
    devicetree/index
    distro
    driver-model/index
+   environment
    global_data
    logging
    makefiles

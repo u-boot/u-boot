@@ -13,7 +13,6 @@
 #include "mx6_common.h"
 
 /* Machine config */
-#define CONFIG_SYS_LITTLE_ENDIAN
 
 /* MMC */
 #define CONFIG_SYS_FSL_USDHC_NUM	3
@@ -177,7 +176,6 @@
 /* Display */
 #define CONFIG_IMX_HDMI
 
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 
 /* EEPROM */

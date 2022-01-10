@@ -44,7 +44,6 @@
 /* Access eMMC Boot_1 and Boot_2 partitions */
 
 /* enable 64-bit PCI resources */
-#define CONFIG_SYS_PCI_64BIT		1
 
 #define CONSOLE_ARGS "console_args=console=ttyS0,115200n8\0"
 #define MAX_CPUS "max_cpus=maxcpus=8\0"
@@ -276,12 +275,6 @@
 		"fi;" \
 		"setenv bl_flash_pending_rfs_imgs;" \
 	"fi; \0"
-
-#define CONFIG_BOOTCOMMAND "run flash_pending_rfs_imgs;" \
-			   "run fastboot_nitro && "\
-			   "run bootcmd_mmc_fits || "\
-			   "run bootcmd_usb || "\
-			   "run bootcmd_pxe"
 
 /* Flashing commands */
 #define TFTP_QSPI_PARAM \

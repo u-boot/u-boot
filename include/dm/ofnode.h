@@ -590,11 +590,11 @@ int ofnode_stringlist_search(ofnode node, const char *propname,
  *
  * @node: node to check
  * @propname: name of the property containing the string list
- * @index: index of the string to return
+ * @index: index of the string to return (cannot be negative)
  * @lenp: return location for the string length or an error code on failure
  *
  * @return:
- *   length of string, if found or -ve error value if not found
+ *   0 if found or -ve error value if not found
  */
 int ofnode_read_string_index(ofnode node, const char *propname, int index,
 			     const char **outp);
@@ -608,6 +608,26 @@ int ofnode_read_string_index(ofnode node, const char *propname, int index,
  *   number of strings in the list, or -ve error value if not found
  */
 int ofnode_read_string_count(ofnode node, const char *property);
+
+/**
+ * ofnode_read_string_list() - read a list of strings
+ *
+ * This produces a list of string pointers with each one pointing to a string
+ * in the string list. If the property does not exist, it returns {NULL}.
+ *
+ * The data is allocated and the caller is reponsible for freeing the return
+ * value (the list of string pointers). The strings themselves may not be
+ * changed as they point directly into the devicetree property.
+ *
+ * @node: node to check
+ * @listp: returns an allocated, NULL-terminated list of strings if the return
+ *	value is > 0, else is set to NULL
+ * @return number of strings in list, 0 if none, -ENOMEM if out of memory,
+ *	-EINVAL if no such property, -EENODATA if property is empty
+ * @return: NULL-terminated list of strings (NULL if no property or empty)
+ */
+int ofnode_read_string_list(ofnode node, const char *property,
+			    const char ***listp);
 
 /**
  * ofnode_parse_phandle_with_args() - Find a node pointed by phandle in a list

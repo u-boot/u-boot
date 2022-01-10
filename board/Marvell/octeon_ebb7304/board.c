@@ -205,7 +205,7 @@ static int fdt_fix_mix(const void *fdt)
 		int env_lmac = -1;
 		int lmac_fdt_node = -1;
 		int mix_fdt_node = -1;
-		int lmac_phandle;
+		unsigned int lmac_phandle;
 		char *compat;
 
 		/* Get the lmac for this environment variable */
@@ -229,8 +229,7 @@ static int fdt_fix_mix(const void *fdt)
 			}
 		}
 
-		lmac_phandle = fdt_alloc_phandle((void *)fdt);
-		fdt_set_phandle((void *)fdt, lmac_fdt_node, lmac_phandle);
+		lmac_phandle = fdt_create_phandle((void *)fdt, lmac_fdt_node);
 
 		/* Get the fdt mix node corresponding to this lmac */
 		mix_fdt_node = get_mix_fdt_node(fdt, env_node, env_lmac);

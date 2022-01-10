@@ -50,8 +50,8 @@
 
 			compatible = "st,stm32mp1-ddr";
 
-			reg = <0x5A003000 0x550
-			       0x5A004000 0x234>;
+			reg = <0x5a003000 0x550
+			       0x5a004000 0x234>;
 
 			clocks = <&rcc AXIDCG>,
 				 <&rcc DDRC1>,
@@ -237,7 +237,7 @@
 	u-boot-stm32 {
 		filename = "u-boot.stm32";
 		mkimage {
-			args = "-T stm32image -a 0xC0100000 -e 0xC0100000";
+			args = "-T stm32image -a 0xc0100000 -e 0xc0100000";
 			u-boot {
 			};
 		};
@@ -250,7 +250,7 @@
 	spl-stm32 {
 		filename = "u-boot-spl.stm32";
 		mkimage {
-			args = "-T stm32image -a 0x2FFC2500 -e 0x2FFC2500";
+			args = "-T stm32image -a 0x2ffc2500 -e 0x2ffc2500";
 			u-boot-spl {
 			};
 		};

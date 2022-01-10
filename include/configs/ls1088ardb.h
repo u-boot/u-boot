@@ -16,7 +16,6 @@
 #define SYS_NO_FLASH
 #endif
 
-#define CONFIG_SYS_CLK_FREQ		100000000
 #define COUNTER_FREQUENCY_REAL		25000000	/* 25MHz */
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
@@ -197,15 +196,9 @@
 #define I2C_VOL_MONITOR_BUS_V_SHIFT    3
 #define I2C_SVDD_MONITOR_ADDR		0x4F
 
-#define CONFIG_VID_FLS_ENV              "ls1088ardb_vdd_mv"
-#define CONFIG_VID
-
 /* The lowest and highest voltage allowed for LS1088ARDB */
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
-
-#define CONFIG_VOL_MONITOR_LTC3882_SET
-#define CONFIG_VOL_MONITOR_LTC3882_READ
 
 #define PWM_CHANNEL0                    0x0
 
@@ -424,7 +417,6 @@
 		"bootm $load_addr#$BOARD\0"
 #endif /* CONFIG_TFABOOT */
 
-#undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #define QSPI_NOR_BOOTCOMMAND					\
 	"sf read 0x80001000 0xd00000 0x100000;"		\
@@ -446,26 +438,8 @@
 #else
 #if defined(CONFIG_QSPI_BOOT)
 /* Try to boot an on-QSPI kernel first, then do normal distro boot */
-#define CONFIG_BOOTCOMMAND                                      \
-		"sf read 0x80001000 0xd00000 0x100000;"		\
-		"env exists mcinitcmd && env exists secureboot "	\
-		" && sf read 0x806C0000 0x6C0000 0x100000 "	\
-		"&& esbc_validate 0x806C0000;env exists mcinitcmd "	\
-		"&& fsl_mc lazyapply dpl 0x80001000;"		\
-		"run distro_bootcmd;run qspi_bootcmd;"		\
-		"env exists secureboot && esbc_halt;"
 
 /* Try to boot an on-SD kernel first, then do normal distro boot */
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_BOOTCOMMAND                                      \
-		"env exists mcinitcmd && mmcinfo; "		\
-		"mmc read 0x80001000 0x6800 0x800; "		\
-		"env exists mcinitcmd && env exists secureboot "	\
-		" && mmc read 0x806C0000 0x3600 0x20 "		\
-		"&& esbc_validate 0x806C0000;env exists mcinitcmd "	\
-		"&& fsl_mc lazyapply dpl 0x80001000;"		\
-		"run distro_bootcmd;run sd_bootcmd;"		\
-		"env exists secureboot && esbc_halt;"
 #endif
 #endif /* CONFIG_TFABOOT */
 

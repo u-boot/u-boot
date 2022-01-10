@@ -14,7 +14,8 @@ Required properties:
 
 The scmi node with the following properties shall be under the /firmware/ node.
 
-- compatible : shall be "arm,scmi" or "arm,scmi-smc" for smc/hvc transports
+- compatible : shall be "arm,scmi" or "arm,scmi-smc" for smc/hvc transports,
+	  or "linaro,scmi-optee" for OP-TEE transport.
 - mboxes: List of phandle and mailbox channel specifiers. It should contain
 	  exactly one or two mailboxes, one for transmitting messages("tx")
 	  and another optional for receiving the notifications("rx") if
@@ -26,6 +27,8 @@ The scmi node with the following properties shall be under the /firmware/ node.
 - #size-cells : should be '0' as 'reg' property doesn't have any size
 	  associated with it.
 - arm,smc-id : SMC id required when using smc or hvc transports
+- linaro,optee-channel-id : Channel specifier required when using OP-TEE
+	  transport.
 
 Optional properties:
 
@@ -33,16 +36,16 @@ Optional properties:
 
 See Documentation/devicetree/bindings/mailbox/mailbox.txt for more details
 about the generic mailbox controller and client driver bindings.
-
-The mailbox is the only permitted method of calling the SCMI firmware.
 Mailbox doorbell is used as a mechanism to alert the presence of a
 messages and/or notification.
 
 Each protocol supported shall have a sub-node with corresponding compatible
 as described in the following sections. If the platform supports dedicated
-communication channel for a particular protocol, the 3 properties namely:
-mboxes, mbox-names and shmem shall be present in the sub-node corresponding
-to that protocol.
+communication channel for a particular protocol, properties shall be present
+in the sub-node corresponding to that protocol. These properties are:
+- mboxes, mbox-names and shmem for mailbox transport
+- arm,smc-id and shmem for smc/hvc transport
+- linaro,optee-channel-id and possibly shmem for OP-TEE transport
 
 Clock/Performance bindings for the clocks/OPPs based on SCMI Message Protocol
 ------------------------------------------------------------

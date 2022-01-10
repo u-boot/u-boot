@@ -12,8 +12,6 @@
 
 #define CONFIG_SYS_UART_PORT		(0)
 
-#undef CONFIG_WATCHDOG		/* disable watchdog */
-
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
@@ -69,7 +67,6 @@
 #define CONFIG_HOSTNAME		"M5253DEMO"
 
 /* I2C */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_MBAR
 #define CONFIG_SYS_I2C_PINMUX_REG	(*(u32 *) (CONFIG_SYS_MBAR+0x19C))
 #define CONFIG_SYS_I2C_PINMUX_CLR	(0xFFFFE7FF)
 #define CONFIG_SYS_I2C_PINMUX_SET	(0)

@@ -45,7 +45,7 @@ struct cmd_tbl {
 			       char *const argv[]);
 	char		*usage;		/* Usage message	(short)	*/
 #ifdef	CONFIG_SYS_LONGHELP
-	char		*help;		/* Help  message	(long)	*/
+	const char	*help;		/* Help  message	(long)	*/
 #endif
 #ifdef CONFIG_AUTO_COMPLETE
 	/* do auto completion on the arguments */

@@ -55,6 +55,31 @@ struct bd_info;
 #define SPL_BUILD	0
 #endif
 
+/**
+ * enum fdt_source_t - indicates where the devicetree came from
+ *
+ * These are listed in approximate order of desirability after FDTSRC_NONE
+ *
+ * @FDTSRC_SEPARATE: Appended to U-Boot. This is the normal approach if U-Boot
+ *	is the only firmware being booted
+ * @FDTSRC_FIT: Found in a multi-dtb FIT. This should be used when U-Boot must
+ *	select a devicetree from many options
+ * @FDTSRC_BOARD: Located by custom board code. This should only be used when
+ *	the prior stage does not support FDTSRC_PASSAGE
+ * @FDTSRC_EMBED: Embedded into U-Boot executable. This should onyl be used when
+ *	U-Boot is packaged as an ELF file, e.g. for debugging purposes
+ * @FDTSRC_ENV: Provided by the fdtcontroladdr environment variable. This should
+ *	be used for debugging/development only
+ * @FDTSRC_NONE: No devicetree at all
+ */
+enum fdt_source_t {
+	FDTSRC_SEPARATE,
+	FDTSRC_FIT,
+	FDTSRC_BOARD,
+	FDTSRC_EMBED,
+	FDTSRC_ENV,
+};
+
 /*
  * Information about a resource. start is the first address of the resource
  * and end is the last address (inclusive). The length of the resource will
@@ -110,6 +135,20 @@ struct fdt_pci_addr {
 
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
+
+/* Get a pointer to the embedded devicetree, if there is one, else NULL */
+static inline u8 *dtb_dt_embedded(void)
+{
+#ifdef CONFIG_OF_EMBED
+# ifdef CONFIG_SPL_BUILD
+	return __dtb_dt_spl_begin;
+# else
+	return __dtb_dt_begin;
+# endif
+#else
+	return NULL;
+#endif
+}
 
 /**
  * Compute the size of a resource.
@@ -1156,10 +1195,13 @@ int fdtdec_resetup(int *rescan);
 
 /**
  * Board-specific FDT initialization. Returns the address to a device tree blob.
- * Called when CONFIG_OF_BOARD is defined, or if CONFIG_OF_SEPARATE is defined
- * and the board implements it.
+ *
+ * Called when CONFIG_OF_BOARD is defined.
+ *
+ * The existing devicetree is available at gd->fdt_blob
  *
  * @err internal error code if we fail to setup a DTB
+ * @returns new devicetree blob pointer
  */
 void *board_fdt_blob_setup(int *err);
 
@@ -1197,5 +1239,12 @@ void *board_fdt_blob_setup(int *err);
 int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 			   phys_addr_t *basep, phys_size_t *sizep,
 			   struct bd_info *bd);
+
+/**
+ * fdtdec_get_srcname() - Get the name of where the devicetree comes from
+ *
+ * @return source name
+ */
+const char *fdtdec_get_srcname(void);
 
 #endif

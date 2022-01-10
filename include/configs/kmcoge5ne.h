@@ -24,12 +24,6 @@
 #include "km/km-mpc83xx.h"
 #include "km/km-mpc8360.h"
 
-/*
- * System Clock Setup
- */
-#define CONFIG_SYS_CLK_FREQ		66000000
-#define CONFIG_83XX_PCICLK		66000000
-
 /**
  * KMCOGE5NE has 512 MB RAM
  */
