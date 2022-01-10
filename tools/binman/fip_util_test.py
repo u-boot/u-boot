@@ -22,7 +22,7 @@ sys.path.insert(2, os.path.join(OUR_PATH, '..'))
 # pylint: disable=C0413
 from patman import test_util
 from patman import tools
-import fip_util
+from binman import fip_util
 
 HAVE_FIPTOOL = True
 try:
