@@ -12,6 +12,9 @@ from patman import tools
 LZ4 = bintool.Bintool.create('lz4')
 HAVE_LZ4 = LZ4.is_present()
 
+LZMA_ALONE = bintool.Bintool.create('lzma_alone')
+HAVE_LZMA_ALONE = LZMA_ALONE.is_present()
+
 
 def compress(indata, algo, with_header=True):
     """Compress some data using a given algorithm
@@ -41,11 +44,7 @@ def compress(indata, algo, with_header=True):
         data = LZ4.compress(indata)
     # cbfstool uses a very old version of lzma
     elif algo == 'lzma':
-        outfname = tempfile.NamedTemporaryFile(prefix='%s.comp.otmp' % algo,
-                                               dir=tools.GetOutputDir()).name
-        tools.Run('lzma_alone', 'e', fname, outfname, '-lc1', '-lp0', '-pb0',
-                  '-d8')
-        data = tools.ReadFile(outfname)
+        data = LZMA_ALONE.compress(indata)
     elif algo == 'gzip':
         data = tools.Run('gzip', '-c', fname, binary=True)
     else:
@@ -81,9 +80,7 @@ def decompress(indata, algo, with_header=True):
     if algo == 'lz4':
         data = LZ4.decompress(indata)
     elif algo == 'lzma':
-        outfname = tools.GetOutputFilename('%s.decomp.otmp' % algo)
-        tools.Run('lzma_alone', 'd', fname, outfname)
-        data = tools.ReadFile(outfname, binary=True)
+        data = LZMA_ALONE.decompress(indata)
     elif algo == 'gzip':
         data = tools.Run('gzip', '-cd', fname, binary=True)
     else:
