@@ -22,13 +22,11 @@ sys.path.insert(2, os.path.join(OUR_PATH, '..'))
 # pylint: disable=C0413
 from patman import test_util
 from patman import tools
+from binman import bintool
 from binman import fip_util
 
-HAVE_FIPTOOL = True
-try:
-    tools.Run('which', 'fiptool')
-except ValueError:
-    HAVE_FIPTOOL = False
+FIPTOOL = bintool.Bintool.create('fiptool')
+HAVE_FIPTOOL = FIPTOOL.is_present()
 
 # pylint: disable=R0902,R0904
 class TestFip(unittest.TestCase):
@@ -286,13 +284,13 @@ blah blah''', binary=False)
         data = fip.get_data()
         fname = tools.GetOutputFilename('data.fip')
         tools.WriteFile(fname, data)
-        result = fip_util.fiptool('info', fname)
+        result = FIPTOOL.info(fname)
         self.assertEqual(
             '''Firmware Updater NS_BL2U: offset=0xB0, size=0x7, cmdline="--fwu"
 Trusted Boot Firmware BL2: offset=0xC0, size=0xE, cmdline="--tb-fw"
 00010203-0405-0607-0809-0A0B0C0D0E0F: offset=0xD0, size=0xE, cmdline="--blob"
 ''',
-            result.stdout)
+            result)
 
     fwu_data = b'my data'
     tb_fw_data = b'some more data'
@@ -315,11 +313,7 @@ Trusted Boot Firmware BL2: offset=0xC0, size=0xE, cmdline="--tb-fw"
 
         fname = tools.GetOutputFilename('data.fip')
         uuid = 'e3b78d9e-4a64-11ec-b45c-fba2b9b49788'
-        fip_util.fiptool('create', '--align', '8', '--plat-toc-flags', '0x123',
-                         '--fwu', fwu,
-                         '--tb-fw', tb_fw,
-                         '--blob', f'uuid={uuid},file={other_fw}',
-                          fname)
+        FIPTOOL.create_new(fname, 8, 0x123, fwu, tb_fw, uuid, other_fw)
 
         return fip_util.FipReader(tools.ReadFile(fname))
 
@@ -396,9 +390,8 @@ Trusted Boot Firmware BL2: offset=0xC0, size=0xE, cmdline="--tb-fw"
         """Check some error reporting from fiptool"""
         with self.assertRaises(Exception) as err:
             with test_util.capture_sys_output():
-                fip_util.fiptool('create', '--fred')
-        self.assertIn("Failed to run (error 1): 'fiptool create --fred'",
-                      str(err.exception))
+                FIPTOOL.create_bad()
+        self.assertIn("unrecognized option '--fred'", str(err.exception))
 
 
 if __name__ == '__main__':
