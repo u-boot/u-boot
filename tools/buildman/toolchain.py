@@ -515,50 +515,6 @@ class Toolchains:
             return arch, links
         return None
 
-    def Download(self, url):
-        """Download a file to a temporary directory
-
-        Args:
-            url: URL to download
-        Returns:
-            Tuple:
-                Temporary directory name
-                Full path to the downloaded archive file in that directory,
-                    or None if there was an error while downloading
-        """
-        print('Downloading: %s' % url)
-        leaf = url.split('/')[-1]
-        tmpdir = tempfile.mkdtemp('.buildman')
-        response = urllib.request.urlopen(url)
-        fname = os.path.join(tmpdir, leaf)
-        fd = open(fname, 'wb')
-        meta = response.info()
-        size = int(meta.get('Content-Length'))
-        done = 0
-        block_size = 1 << 16
-        status = ''
-
-        # Read the file in chunks and show progress as we go
-        while True:
-            buffer = response.read(block_size)
-            if not buffer:
-                print(chr(8) * (len(status) + 1), '\r', end=' ')
-                break
-
-            done += len(buffer)
-            fd.write(buffer)
-            status = r'%10d MiB  [%3d%%]' % (done // 1024 // 1024,
-                                             done * 100 // size)
-            status = status + chr(8) * (len(status) + 1)
-            print(status, end=' ')
-            sys.stdout.flush()
-        fd.close()
-        if done != size:
-            print('Error, failed to download')
-            os.remove(fname)
-            fname = None
-        return tmpdir, fname
-
     def Unpack(self, fname, dest):
         """Unpack a tar file
 
@@ -615,7 +571,7 @@ class Toolchains:
             os.mkdir(dest)
 
         # Download the tar file for this toolchain and unpack it
-        tmpdir, tarfile = self.Download(url)
+        tmpdir, tarfile = tools.Download(url)
         if not tarfile:
             return 1
         print(col.Color(col.GREEN, 'Unpacking to: %s' % dest), end=' ')
