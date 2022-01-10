@@ -1320,6 +1320,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
                 --toolpath $(objtree)/tools \
 		$(if $(BINMAN_VERBOSE),-v$(BINMAN_VERBOSE)) \
 		build -u -d u-boot.dtb -O . -m --allow-missing \
+		--fake-ext-blobs \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
 		-I arch/$(ARCH)/dts -a of-list=$(CONFIG_OF_LIST) \
 		$(foreach f,$(BINMAN_INDIRS),-I $(f)) \
@@ -1331,7 +1332,6 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-a tpl-bss-pad=$(if $(CONFIG_TPL_SEPARATE_BSS),,1) \
 		-a spl-dtb=$(CONFIG_SPL_OF_REAL) \
 		-a tpl-dtb=$(CONFIG_TPL_OF_REAL) \
-		$(if $(BINMAN_FAKE_EXT_BLOBS),--fake-ext-blobs) \
 		$(BINMAN_$(@F))
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
