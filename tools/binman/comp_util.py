@@ -6,7 +6,12 @@
 import struct
 import tempfile
 
+from binman import bintool
 from patman import tools
+
+LZ4 = bintool.Bintool.create('lz4')
+HAVE_LZ4 = LZ4.is_present()
+
 
 def compress(indata, algo, with_header=True):
     """Compress some data using a given algorithm
@@ -33,8 +38,7 @@ def compress(indata, algo, with_header=True):
                                         dir=tools.GetOutputDir()).name
     tools.WriteFile(fname, indata)
     if algo == 'lz4':
-        data = tools.Run('lz4', '--no-frame-crc', '-B4', '-5', '-c', fname,
-                         binary=True)
+        data = LZ4.compress(indata)
     # cbfstool uses a very old version of lzma
     elif algo == 'lzma':
         outfname = tempfile.NamedTemporaryFile(prefix='%s.comp.otmp' % algo,
@@ -75,7 +79,7 @@ def decompress(indata, algo, with_header=True):
     fname = tools.GetOutputFilename('%s.decomp.tmp' % algo)
     tools.WriteFile(fname, indata)
     if algo == 'lz4':
-        data = tools.Run('lz4', '-dc', fname, binary=True)
+        data = LZ4.decompress(indata)
     elif algo == 'lzma':
         outfname = tools.GetOutputFilename('%s.decomp.otmp' % algo)
         tools.Run('lzma_alone', 'd', fname, outfname)

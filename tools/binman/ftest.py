@@ -197,13 +197,7 @@ class TestFunctional(unittest.TestCase):
 
         TestFunctional._MakeInputFile('env.txt', ENV_DATA)
 
-        # Travis-CI may have an old lz4
-        cls.have_lz4 = True
-        try:
-            tools.Run('lz4', '--no-frame-crc', '-c',
-                      os.path.join(cls._indir, 'u-boot.bin'), binary=True)
-        except:
-            cls.have_lz4 = False
+        cls.have_lz4 = comp_util.HAVE_LZ4
 
     @classmethod
     def tearDownClass(cls):
