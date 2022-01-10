@@ -634,20 +634,22 @@ def PrintFullHelp(fname):
         pager = ['more']
     command.Run(*pager, fname)
 
-def Download(url):
+def Download(url, tmpdir_pattern='.patman'):
     """Download a file to a temporary directory
 
     Args:
-        url: URL to download
+        url (str): URL to download
+        tmpdir_pattern (str): pattern to use for the temporary directory
+
     Returns:
         Tuple:
-            Temporary directory name
             Full path to the downloaded archive file in that directory,
                 or None if there was an error while downloading
+            Temporary directory name
     """
-    print('Downloading: %s' % url)
+    print('- downloading: %s' % url)
     leaf = url.split('/')[-1]
-    tmpdir = tempfile.mkdtemp('.buildman')
+    tmpdir = tempfile.mkdtemp(tmpdir_pattern)
     response = urllib.request.urlopen(url)
     fname = os.path.join(tmpdir, leaf)
     fd = open(fname, 'wb')
@@ -671,9 +673,11 @@ def Download(url):
         status = status + chr(8) * (len(status) + 1)
         print(status, end=' ')
         sys.stdout.flush()
+    print('\r', end='')
+    sys.stdout.flush()
     fd.close()
     if done != size:
         print('Error, failed to download')
         os.remove(fname)
         fname = None
-    return tmpdir, fname
+    return fname, tmpdir

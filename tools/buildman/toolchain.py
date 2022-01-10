@@ -571,7 +571,7 @@ class Toolchains:
             os.mkdir(dest)
 
         # Download the tar file for this toolchain and unpack it
-        tmpdir, tarfile = tools.Download(url)
+        tarfile, tmpdir = tools.Download(url, '.buildman')
         if not tarfile:
             return 1
         print(col.Color(col.GREEN, 'Unpacking to: %s' % dest), end=' ')
