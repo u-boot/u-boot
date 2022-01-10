@@ -30,6 +30,8 @@ dtb-$(CONFIG_TARGET_TUXX1) += kmtuxa1.dtb
 dtb-$(CONFIG_TARGET_MCR3000) += mcr3000.dtb
 dtb-$(CONFIG_TARGET_GAZERBEAM) += gazerbeam.dtb
 
+include $(srctree)/scripts/Makefile.dts
+
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here

@@ -157,8 +157,8 @@ config DEVICE_TREE_INCLUDES
 	  .dtsi files that will also be used.
 
 config OF_LIST
-	string "List of device tree files to include for DT control"
-	depends on SPL_LOAD_FIT || MULTI_DTB_FIT
+	string "List of device tree files to include for DT control" if SPL_LOAD_FIT || MULTI_DTB_FIT
+	depends on OF_CONTROL
 	default DEFAULT_DEVICE_TREE
 	help
 	  This option specifies a list of device tree files to use for DT
@@ -264,8 +264,8 @@ config SPL_MULTI_DTB_FIT
 	  capabilities, pad configurations).
 
 config SPL_OF_LIST
-	string "List of device tree files to include for DT control in SPL"
-	depends on SPL_MULTI_DTB_FIT
+	string "List of device tree files to include for DT control in SPL" if SPL_MULTI_DTB_FIT
+	depends on SPL_OF_CONTROL
 	default OF_LIST
 	help
 	  This option specifies a list of device tree files to use for DT

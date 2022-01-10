@@ -18,6 +18,8 @@ dtb-$(CONFIG_TARGET_M5373EVB) += M5373EVB.dtb
 dtb-$(CONFIG_TARGET_AMCORE) += amcore.dtb
 dtb-$(CONFIG_TARGET_STMARK2) += stmark2.dtb
 
+include $(srctree)/scripts/Makefile.dts
+
 targets += $(dtb-y)
 
 DTC_FLAGS += -R 4 -p 0x1000
