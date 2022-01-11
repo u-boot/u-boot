@@ -84,7 +84,7 @@ static int dm_fsl_ls_mdio_read(struct udevice *dev, int addr,
 	memac_out_32(&regs->mdio_ctl, mdio_ctl);
 
 	/* Wait till the MDIO write is complete */
-	while ((memac_in_32(&regs->mdio_data)) & MDIO_DATA_BSY)
+	while ((memac_in_32(&regs->mdio_stat)) & MDIO_STAT_BSY)
 		;
 
 	/* Return all Fs if nothing was there */
@@ -107,7 +107,7 @@ static int dm_fsl_ls_mdio_write(struct udevice *dev, int addr, int devad,
 	memac_out_32(&regs->mdio_data, MDIO_DATA(val));
 
 	/* Wait till the MDIO write is complete */
-	while ((memac_in_32(&regs->mdio_data)) & MDIO_DATA_BSY)
+	while ((memac_in_32(&regs->mdio_stat)) & MDIO_STAT_BSY)
 		;
 
 	return 0;
