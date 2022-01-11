@@ -14,7 +14,7 @@
 #define CONFIG_SYS_BOOTMAPSZ		SZ_16M
 
 #define CONFIG_SYS_FLASH_BASE		0x08000000
-#define CONFIG_SYS_INIT_SP_ADDR		0x24040000
+#define CONFIG_SYS_INIT_SP_ADDR		0x30040000
 
 #define CONFIG_SYS_HZ_CLOCK		1000000
 
@@ -25,12 +25,7 @@
 
 #include <config_distro_bootcmd.h>
 #define CONFIG_EXTRA_ENV_SETTINGS				\
-			"kernel_addr_r=0xD0008000\0"		\
-			"fdtfile=stm32h743i-eval.dtb\0"	\
-			"fdt_addr_r=0xD0408000\0"		\
-			"scriptaddr=0xD0418000\0"		\
-			"pxefile_addr_r=0xD0428000\0" \
-			"ramdisk_addr_r=0xD0438000\0"		\
+			"fdtfile=stm32h743i-nucleo.dtb\0"	\
 			BOOTENV
 
 #endif /* __CONFIG_H */

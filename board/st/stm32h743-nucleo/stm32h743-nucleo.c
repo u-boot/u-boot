@@ -4,6 +4,11 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+/* This file defines target specific routines,
+ * and stubs that override weak functions that need to be nop-ed out.
+ */
+
+
 #include <common.h>
 #include <dm.h>
 #include <init.h>
@@ -14,19 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	struct udevice *dev;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
-	if (ret) {
-		debug("DRAM init failed: %d\n", ret);
-		return ret;
-	}
-
-	if (fdtdec_setup_mem_size_base() != 0)
-		ret = -EINVAL;
-
-	return ret;
+	return 0;
 }
 
 int dram_init_banksize(void)
@@ -40,3 +33,20 @@ int board_init(void)
 {
 	return 0;
 }
+
+int arm_reserve_mmu(void)
+{
+        return 0;
+}
+
+phys_size_t get_effective_memsize(void)
+    {
+    return 0x00048000;          // use the 256K+32K at 0x30000000
+    }
+
+ulong board_get_usable_ram_top(ulong total_size)
+    {
+    return 0x30048000;          // use the RAM at 0x30000000
+    }
+
+
