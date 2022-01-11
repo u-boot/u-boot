@@ -89,10 +89,10 @@ static int do_part_list(int argc, char *const argv[])
 
 	if (var != NULL) {
 		int p;
-		char str[512] = { '\0', };
+		char str[3 * MAX_SEARCH_PARTITIONS] = { '\0', };
 		struct disk_partition info;
 
-		for (p = 1; p < MAX_SEARCH_PARTITIONS; p++) {
+		for (p = 1; p <= MAX_SEARCH_PARTITIONS; p++) {
 			char t[5];
 			int r = part_get_info(desc, p, &info);
 
