@@ -240,10 +240,10 @@ int atsha204a_wakeup(struct udevice *dev)
 		}
 
 		debug("success\n");
-		break;
+		return 0;
 	}
 
-	return 0;
+	return -ETIMEDOUT;
 }
 
 int atsha204a_idle(struct udevice *dev)
