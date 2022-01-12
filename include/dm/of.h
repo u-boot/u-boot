@@ -58,14 +58,13 @@ struct device_node {
  * struct of_phandle_args - structure to hold phandle and arguments
  *
  * This is used when decoding a phandle in a device tree property. Typically
- * these look like this:
+ * these look like this::
  *
- * wibble {
- *    phandle = <5>;
- * };
- *
- * ...
- * some-prop = <&wibble 1 2 3>
+ *   wibble {
+ *     phandle = <5>;
+ *   };
+ *   ...
+ *   some-prop = <&wibble 1 2 3>
  *
  * Here &node is the phandle of the node 'wibble', i.e. 5. There are three
  * arguments: 1, 2, 3.

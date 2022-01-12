@@ -17,3 +17,12 @@ Device
 .. kernel-doc:: include/dm/device.h
 .. kernel-doc:: include/dm/devres.h
 .. kernel-doc:: include/dm/read.h
+
+Device tree
+-----------
+
+.. kernel-doc:: include/dm/of.h
+.. kernel-doc:: include/dm/ofnode.h
+.. kernel-doc:: include/dm/of_extra.h
+.. kernel-doc:: include/dm/of_access.h
+.. kernel-doc:: include/dm/of_addr.h
