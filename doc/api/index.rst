@@ -7,6 +7,7 @@ U-Boot API documentation
    :maxdepth: 2
 
    dfu
+   dm
    efi
    getopt
    linker_lists
