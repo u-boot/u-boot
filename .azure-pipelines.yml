@@ -9,7 +9,9 @@ variables:
   container_option: -u 0
   work_dir: /u
 
-jobs:
+stages:
+- stage: testsuites
+  jobs:
   - job: tools_only_windows
     displayName: 'Ensure host tools build for Windows'
     pool:
@@ -199,6 +201,8 @@ jobs:
           export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
 
+- stage: test_py
+  jobs:
   - job: test_py
     displayName: 'test.py'
     pool:
@@ -381,6 +385,8 @@ jobs:
           # Some tests using libguestfs-tools need the fuse device to run
           docker run "$@" --device /dev/fuse:/dev/fuse -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
 
+- stage: world_build
+  jobs:
   - job: build_the_world
     displayName: 'Build the World'
     pool:
