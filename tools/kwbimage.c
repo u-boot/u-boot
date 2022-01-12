@@ -2029,6 +2029,10 @@ static int kwbimage_generate(struct image_tool_params *params,
 
 	case 1:
 		alloc_len = image_headersz_v1(NULL);
+		if (!alloc_len) {
+			free(image_cfg);
+			exit(EXIT_FAILURE);
+		}
 		break;
 
 	default:
