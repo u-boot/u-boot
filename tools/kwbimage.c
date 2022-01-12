@@ -214,6 +214,17 @@ static int image_boot_mode_id(const char *boot_mode_name)
 	return -1;
 }
 
+static const char *image_nand_ecc_mode_name(unsigned int id)
+{
+	int i;
+
+	for (i = 0; nand_ecc_modes[i].name; i++)
+		if (nand_ecc_modes[i].id == id)
+			return nand_ecc_modes[i].name;
+
+	return NULL;
+}
+
 static int image_nand_ecc_mode_id(const char *nand_ecc_mode_name)
 {
 	int i;
@@ -357,6 +368,29 @@ static uint32_t image_checksum32(void *start, uint32_t len)
 	} while (len > 0);
 
 	return csum;
+}
+
+static unsigned int options_to_baudrate(uint8_t options)
+{
+	switch (options & 0x7) {
+	case MAIN_HDR_V1_OPT_BAUD_2400:
+		return 2400;
+	case MAIN_HDR_V1_OPT_BAUD_4800:
+		return 4800;
+	case MAIN_HDR_V1_OPT_BAUD_9600:
+		return 9600;
+	case MAIN_HDR_V1_OPT_BAUD_19200:
+		return 19200;
+	case MAIN_HDR_V1_OPT_BAUD_38400:
+		return 38400;
+	case MAIN_HDR_V1_OPT_BAUD_57600:
+		return 57600;
+	case MAIN_HDR_V1_OPT_BAUD_115200:
+		return 115200;
+	case MAIN_HDR_V1_OPT_BAUD_DEFAULT:
+	default:
+		return 0;
+	}
 }
 
 static uint8_t baudrate_to_option(unsigned int baudrate)
@@ -2088,6 +2122,144 @@ static int kwbimage_generate(struct image_tool_params *params,
 		return 4 + (4 - s.st_size % 4) % 4;
 }
 
+static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
+{
+	struct main_hdr_v0 *mhdr0 = (struct main_hdr_v0 *)ptr;
+	struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
+	size_t header_size = kwbheader_size(ptr);
+	struct register_set_hdr_v1 *regset_hdr;
+	struct ext_hdr_v0_reg *regdata;
+	struct ext_hdr_v0 *ehdr0;
+	struct opt_hdr_v1 *ohdr;
+	unsigned offset;
+	int cur_idx;
+	int version;
+	FILE *f;
+	int i;
+
+	f = fopen(params->outfile, "w");
+	if (!f) {
+		fprintf(stderr, "Can't open \"%s\": %s\n", params->outfile, strerror(errno));
+		return -1;
+	}
+
+	version = kwbimage_version(ptr);
+
+	if (version != 0)
+		fprintf(f, "VERSION %d\n", version);
+
+	fprintf(f, "BOOT_FROM %s\n", image_boot_mode_name(mhdr->blockid) ?: "<unknown>");
+
+	if (version == 0 && mhdr->blockid == IBR_HDR_NAND_ID)
+		fprintf(f, "NAND_ECC_MODE %s\n", image_nand_ecc_mode_name(mhdr0->nandeccmode));
+
+	if (mhdr->blockid == IBR_HDR_NAND_ID)
+		fprintf(f, "NAND_PAGE_SIZE 0x%x\n", (unsigned)mhdr->nandpagesize);
+
+	if (version != 0 && mhdr->blockid == IBR_HDR_NAND_ID) {
+		fprintf(f, "NAND_BLKSZ 0x%x\n", (unsigned)mhdr->nandblocksize);
+		fprintf(f, "NAND_BADBLK_LOCATION 0x%x\n", (unsigned)mhdr->nandbadblklocation);
+	}
+
+	if (version == 0 && mhdr->blockid == IBR_HDR_SATA_ID)
+		fprintf(f, "SATA_PIO_MODE %u\n", (unsigned)mhdr0->satapiomode);
+
+	/*
+	 * Addresses and sizes which are specified by mkimage command line
+	 * arguments and not in kwbimage config file
+	 */
+
+	if (version != 0)
+		fprintf(f, "#HEADER_SIZE 0x%x\n",
+			((unsigned)mhdr->headersz_msb << 8) | le16_to_cpu(mhdr->headersz_lsb));
+
+	fprintf(f, "#SRC_ADDRESS 0x%x\n", le32_to_cpu(mhdr->srcaddr));
+	fprintf(f, "#BLOCK_SIZE 0x%x\n", le32_to_cpu(mhdr->blocksize));
+	fprintf(f, "#DEST_ADDRESS 0x%08x\n", le32_to_cpu(mhdr->destaddr));
+	fprintf(f, "#EXEC_ADDRESS 0x%08x\n", le32_to_cpu(mhdr->execaddr));
+
+	if (version != 0) {
+		if (options_to_baudrate(mhdr->options))
+			fprintf(f, "BAUDRATE %u\n", options_to_baudrate(mhdr->options));
+		if (options_to_baudrate(mhdr->options) ||
+		    ((mhdr->options >> 3) & 0x3) || ((mhdr->options >> 5) & 0x7)) {
+			fprintf(f, "UART_PORT %u\n", (unsigned)((mhdr->options >> 3) & 0x3));
+			fprintf(f, "UART_MPP 0x%x\n", (unsigned)((mhdr->options >> 5) & 0x7));
+		}
+		if (mhdr->flags & 0x1)
+			fprintf(f, "DEBUG 1\n");
+	}
+
+	cur_idx = 1;
+	for_each_opt_hdr_v1(ohdr, ptr) {
+		if (ohdr->headertype == OPT_HDR_V1_SECURE_TYPE) {
+			fprintf(f, "#SECURE_HEADER\n");
+		} else if (ohdr->headertype == OPT_HDR_V1_BINARY_TYPE) {
+			fprintf(f, "BINARY binary%d.bin", cur_idx);
+			for (i = 0; i < ohdr->data[0]; i++)
+				fprintf(f, " 0x%x", le32_to_cpu(((uint32_t *)ohdr->data)[i + 1]));
+			offset = (unsigned)((uint8_t *)ohdr - (uint8_t *)mhdr) + 8 + 4 * ohdr->data[0];
+			fprintf(f, " LOAD_ADDRESS 0x%08x\n", 0x40000000 + offset);
+			fprintf(f, " # for CPU SHEEVA: LOAD_ADDRESS 0x%08x\n", 0x40004000 + offset);
+			cur_idx++;
+		} else if (ohdr->headertype == OPT_HDR_V1_REGISTER_TYPE) {
+			regset_hdr = (struct register_set_hdr_v1 *)ohdr;
+			for (i = 0;
+			     i < opt_hdr_v1_size(ohdr) - sizeof(struct opt_hdr_v1) -
+				 sizeof(regset_hdr->data[0].last_entry);
+			     i++)
+				fprintf(f, "DATA 0x%08x 0x%08x\n",
+					le32_to_cpu(regset_hdr->data[i].entry.address),
+					le32_to_cpu(regset_hdr->data[i].entry.value));
+			if (opt_hdr_v1_size(ohdr) - sizeof(struct opt_hdr_v1) >=
+			    sizeof(regset_hdr->data[0].last_entry)) {
+				if (regset_hdr->data[0].last_entry.delay)
+					fprintf(f, "DATA_DELAY %u\n",
+						(unsigned)regset_hdr->data[0].last_entry.delay);
+				else
+					fprintf(f, "DATA_DELAY SDRAM_SETUP\n");
+			}
+		}
+	}
+
+	if (version == 0 && mhdr0->ext) {
+		ehdr0 = (struct ext_hdr_v0 *)(mhdr0 + 1);
+		if (ehdr0->offset) {
+			for (regdata = (struct ext_hdr_v0_reg *)((uint8_t *)ptr + ehdr0->offset);
+			     (uint8_t *)regdata < (uint8_t *)ptr + header_size && regdata->raddr &&
+			     regdata->rdata;
+			     regdata++)
+				fprintf(f, "DATA 0x%08x 0x%08x\n", le32_to_cpu(regdata->raddr),
+					le32_to_cpu(regdata->rdata));
+		}
+	}
+
+	if (version == 0 && le16_to_cpu(mhdr0->ddrinitdelay))
+		fprintf(f, "DDR_INIT_DELAY %u\n", (unsigned)le16_to_cpu(mhdr0->ddrinitdelay));
+
+	/* Undocumented reserved fields */
+
+	if (version == 0 && (mhdr0->rsvd1[0] || mhdr0->rsvd1[1] || mhdr0->rsvd1[2]))
+		fprintf(f, "#RSVD1 0x%x 0x%x 0x%x\n", (unsigned)mhdr0->rsvd1[0],
+			(unsigned)mhdr0->rsvd1[1], (unsigned)mhdr0->rsvd1[2]);
+
+	if (version == 0 && mhdr0->rsvd3)
+		fprintf(f, "#RSVD3 0x%x\n", (unsigned)mhdr0->rsvd3);
+
+	if (version == 0 && le16_to_cpu(mhdr0->rsvd2))
+		fprintf(f, "#RSVD2 0x%x\n", (unsigned)le16_to_cpu(mhdr0->rsvd2));
+
+	if (version != 0 && mhdr->reserved4)
+		fprintf(f, "#RESERVED4 0x%x\n", (unsigned)mhdr->reserved4);
+
+	if (version != 0 && mhdr->reserved5)
+		fprintf(f, "#RESERVED5 0x%x\n", (unsigned)le16_to_cpu(mhdr->reserved5));
+
+	fclose(f);
+
+	return 0;
+}
+
 static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params)
 {
 	struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
@@ -2098,6 +2270,10 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
 	uint32_t offset;
 	ulong image;
 	ulong size;
+
+	/* Generate kwbimage config file when '-p -1' is specified */
+	if (idx == -1)
+		return kwbimage_generate_config(ptr, params);
 
 	for_each_opt_hdr_v1 (ohdr, ptr) {
 		if (ohdr->headertype != OPT_HDR_V1_BINARY_TYPE)
