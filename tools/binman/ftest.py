@@ -4667,16 +4667,6 @@ class TestFunctional(unittest.TestCase):
             str(e.exception),
             "Not enough space in '.*u_boot_binman_embed_sm' for data length.*")
 
-    def testFakeBlob(self):
-        """Test handling of faking an external blob"""
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoTestFile('203_fake_blob.dts', allow_missing=True,
-                             allow_fake_blobs=True)
-        err = stderr.getvalue()
-        self.assertRegex(err,
-                         "Image '.*' has faked external blobs and is non-functional: .*")
-        os.remove('binman_faking_test_blob')
-
     def testVersion(self):
         """Test we can get the binman version"""
         version = '(unreleased)'
@@ -4964,6 +4954,18 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         # There should be a U-Boot after the final FIP
         self.assertEqual(U_BOOT_DATA, data[-4:])
+
+    def testFakeBlob(self):
+        """Test handling of faking an external blob"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('217_fake_blob.dts', allow_missing=True,
+                             allow_fake_blobs=True)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' has faked external blobs and is non-functional: .*")
+        os.remove('binman_faking_test_blob')
+
 
 if __name__ == "__main__":
     unittest.main()
