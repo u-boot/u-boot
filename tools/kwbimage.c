@@ -1948,7 +1948,7 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 	if (kwbimage_version(ptr) == 0) {
 		struct main_hdr_v0 *mhdr = (struct main_hdr_v0 *)ptr;
 
-		if (mhdr->ext & 0x1) {
+		if (mhdr->ext) {
 			struct ext_hdr_v0 *ext_hdr = (void *)(mhdr + 1);
 
 			csum = image_checksum8(ext_hdr, sizeof(*ext_hdr) - 1);
