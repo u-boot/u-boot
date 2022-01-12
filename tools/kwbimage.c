@@ -2266,7 +2266,7 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
 	size_t header_size = kwbheader_size(ptr);
 	struct opt_hdr_v1 *ohdr;
 	int idx = params->pflag;
-	int cur_idx = 0;
+	int cur_idx;
 	uint32_t offset;
 	ulong image;
 	ulong size;
@@ -2275,41 +2275,54 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
 	if (idx == -1)
 		return kwbimage_generate_config(ptr, params);
 
-	for_each_opt_hdr_v1 (ohdr, ptr) {
-		if (ohdr->headertype != OPT_HDR_V1_BINARY_TYPE)
-			continue;
+	image = 0;
+	size = 0;
 
-		if (idx == cur_idx) {
-			image = (ulong)&ohdr->data[4 + 4 * ohdr->data[0]];
-			size = opt_hdr_v1_size(ohdr) - 12 - 4 * ohdr->data[0];
-			goto extract;
+	if (idx == 0) {
+		/* Extract data image when -p is not specified or when '-p 0' is specified */
+		offset = le32_to_cpu(mhdr->srcaddr);
+
+		if (mhdr->blockid == IBR_HDR_SATA_ID) {
+			offset -= 1;
+			offset *= 512;
 		}
 
-		++cur_idx;
+		if (mhdr->blockid == IBR_HDR_SDIO_ID)
+			offset *= 512;
+
+		if (mhdr->blockid == IBR_HDR_PEX_ID && offset == 0xFFFFFFFF)
+			offset = header_size;
+
+		image = (ulong)((uint8_t *)ptr + offset);
+		size = le32_to_cpu(mhdr->blocksize) - 4;
+	} else {
+		/* Extract N-th binary header executabe image when other '-p N' is specified */
+		cur_idx = 1;
+		for_each_opt_hdr_v1(ohdr, ptr) {
+			if (ohdr->headertype != OPT_HDR_V1_BINARY_TYPE)
+				continue;
+
+			if (idx == cur_idx) {
+				image = (ulong)&ohdr->data[4 + 4 * ohdr->data[0]];
+				size = opt_hdr_v1_size(ohdr) - 12 - 4 * ohdr->data[0];
+				break;
+			}
+
+			++cur_idx;
+		}
+
+		if (!image) {
+			fprintf(stderr, "Argument -p %d is invalid\n", idx);
+			fprintf(stderr, "Available subimages:\n");
+			fprintf(stderr, " -p -1  - kwbimage config file\n");
+			fprintf(stderr, " -p 0   - data image\n");
+			if (cur_idx - 1 > 0)
+				fprintf(stderr, " -p N   - Nth binary header image (totally: %d)\n",
+					cur_idx - 1);
+			return -1;
+		}
 	}
 
-	if (idx != cur_idx) {
-		printf("Image %d is not present\n", idx);
-		return -1;
-	}
-
-	offset = le32_to_cpu(mhdr->srcaddr);
-
-	if (mhdr->blockid == IBR_HDR_SATA_ID) {
-		offset -= 1;
-		offset *= 512;
-	}
-
-	if (mhdr->blockid == IBR_HDR_SDIO_ID)
-		offset *= 512;
-
-	if (mhdr->blockid == IBR_HDR_PEX_ID && offset == 0xFFFFFFFF)
-		offset = header_size;
-
-	image = (ulong)((uint8_t *)ptr + offset);
-	size = le32_to_cpu(mhdr->blocksize) - 4;
-
-extract:
 	return imagetool_save_subimage(params->outfile, image, size);
 }
 
