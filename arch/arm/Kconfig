@@ -942,6 +942,9 @@ config ARCH_APPLE
 	select OF_CONTROL
 	select PINCTRL
 	select POSITION_INDEPENDENT
+	select SYSRESET
+	select SYSRESET_WATCHDOG
+	select SYSRESET_WATCHDOG_AUTO
 	select USB
 	imply CMD_DM
 	imply CMD_GPT
