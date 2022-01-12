@@ -99,6 +99,7 @@ enum image_cfg_type {
 	IMAGE_CFG_NAND_BADBLK_LOCATION,
 	IMAGE_CFG_NAND_ECC_MODE,
 	IMAGE_CFG_NAND_PAGESZ,
+	IMAGE_CFG_CPU,
 	IMAGE_CFG_BINARY,
 	IMAGE_CFG_DATA,
 	IMAGE_CFG_DATA_DELAY,
@@ -129,6 +130,7 @@ static const char * const id_strs[] = {
 	[IMAGE_CFG_NAND_BADBLK_LOCATION] = "NAND_BADBLK_LOCATION",
 	[IMAGE_CFG_NAND_ECC_MODE] = "NAND_ECC_MODE",
 	[IMAGE_CFG_NAND_PAGESZ] = "NAND_PAGE_SIZE",
+	[IMAGE_CFG_CPU] = "CPU",
 	[IMAGE_CFG_BINARY] = "BINARY",
 	[IMAGE_CFG_DATA] = "DATA",
 	[IMAGE_CFG_DATA_DELAY] = "DATA_DELAY",
@@ -152,6 +154,7 @@ struct image_cfg_element {
 	enum image_cfg_type type;
 	union {
 		unsigned int version;
+		unsigned int cpu_sheeva;
 		unsigned int bootfrom;
 		struct {
 			const char *file;
@@ -278,6 +281,17 @@ static int image_get_bootfrom(void)
 		return IBR_HDR_SPI_ID;
 
 	return e->bootfrom;
+}
+
+static int image_is_cpu_sheeva(void)
+{
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_CPU);
+	if (!e)
+		return 0;
+
+	return e->cpu_sheeva;
 }
 
 /*
@@ -1488,6 +1502,18 @@ static int image_create_config_parse_oneline(char *line,
 	switch (keyword_id) {
 	case IMAGE_CFG_VERSION:
 		el->version = atoi(value1);
+		break;
+	case IMAGE_CFG_CPU:
+		if (strcmp(value1, "FEROCEON") == 0)
+			el->cpu_sheeva = 0;
+		else if (strcmp(value1, "SHEEVA") == 0)
+			el->cpu_sheeva = 1;
+		else if (strcmp(value1, "A9") == 0)
+			el->cpu_sheeva = 0;
+		else {
+			fprintf(stderr, "Invalid CPU %s\n", value1);
+			return -1;
+		}
 		break;
 	case IMAGE_CFG_BOOT_FROM:
 		ret = image_boot_mode_id(value1);
