@@ -1017,7 +1017,8 @@ static size_t image_headersz_v1(int *hasext)
 		if (e->type == IMAGE_CFG_DATA)
 			count++;
 
-		if (e->type == IMAGE_CFG_DATA_DELAY) {
+		if (e->type == IMAGE_CFG_DATA_DELAY ||
+		    (e->type == IMAGE_CFG_BINARY && count > 0)) {
 			headersz += sizeof(struct register_set_hdr_v1) + 8 * count + 4;
 			count = 0;
 		}
@@ -1289,6 +1290,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	int hasext = 0;
 	uint8_t *next_ext = NULL;
 	int cfgi, datai;
+	uint8_t delay;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -1382,34 +1384,50 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	for (cfgi = 0; cfgi < cfgn; cfgi++) {
 		e = &image_cfg[cfgi];
 		if (e->type != IMAGE_CFG_DATA &&
-		    e->type != IMAGE_CFG_DATA_DELAY)
+		    e->type != IMAGE_CFG_DATA_DELAY &&
+		    e->type != IMAGE_CFG_BINARY)
 			continue;
+
 		if (datai == 0)
 			register_set_hdr = (struct register_set_hdr_v1 *)cur;
-		if (e->type == IMAGE_CFG_DATA_DELAY) {
+
+		/* If delay is not specified, use the smallest possible value. */
+		if (e->type == IMAGE_CFG_DATA_DELAY)
+			delay = e->regdata_delay;
+		else
+			delay = REGISTER_SET_HDR_OPT_DELAY_MS(0);
+
+		/*
+		 * DATA_DELAY command is the last entry in the register set
+		 * header and BINARY command inserts new binary header.
+		 * Therefore BINARY command requires to finish register set
+		 * header if some DATA command was specified. And DATA_DELAY
+		 * command automatically finish register set header even when
+		 * there was no DATA command.
+		 */
+		if (e->type == IMAGE_CFG_DATA_DELAY ||
+		    (e->type == IMAGE_CFG_BINARY && datai != 0))
 			finish_register_set_header_v1(&cur, &next_ext, register_set_hdr,
-						      &datai, e->regdata_delay);
-			continue;
+						      &datai, delay);
+
+		if (e->type == IMAGE_CFG_DATA) {
+			register_set_hdr->data[datai].entry.address =
+				cpu_to_le32(e->regdata.raddr);
+			register_set_hdr->data[datai].entry.value =
+				cpu_to_le32(e->regdata.rdata);
+			datai++;
 		}
-		register_set_hdr->data[datai].entry.address =
-			cpu_to_le32(e->regdata.raddr);
-		register_set_hdr->data[datai].entry.value =
-			cpu_to_le32(e->regdata.rdata);
-		datai++;
+
+		if (e->type == IMAGE_CFG_BINARY) {
+			if (add_binary_header_v1(&cur, &next_ext, e, main_hdr))
+				return NULL;
+		}
 	}
 	if (datai != 0) {
 		/* Set delay to the smallest possible value. */
+		delay = REGISTER_SET_HDR_OPT_DELAY_MS(0);
 		finish_register_set_header_v1(&cur, &next_ext, register_set_hdr,
-					      &datai, REGISTER_SET_HDR_OPT_DELAY_MS(0));
-	}
-
-	for (cfgi = 0; cfgi < cfgn; cfgi++) {
-		e = &image_cfg[cfgi];
-		if (e->type != IMAGE_CFG_BINARY)
-			continue;
-
-		if (add_binary_header_v1(&cur, &next_ext, e, main_hdr))
-			return NULL;
+					      &datai, delay);
 	}
 
 	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz + headersz,
