@@ -70,6 +70,13 @@ KWB_REPLACE += SEC_FUSE_DUMP
 KWB_CFG_SEC_FUSE_DUMP = a38x
 endif
 
+ifdef CONFIG_ARMADA_38X
+# BootROM output is by default enabled on pre-A38x and disabled on A38x
+# DEBUG flag on A38x for non-UART boot source only enable BootROM output and nothing more
+KWB_REPLACE += DEBUG
+KWB_CFG_DEBUG = 1
+endif
+
 quiet_cmd_kwbcfg = KWBCFG  $@
 cmd_kwbcfg = sed -ne '$(foreach V,$(KWB_REPLACE),s/\#@$(V)/$(V) $(KWB_CFG_$(V))/;)p' \
 	<$< >$(dir $@)$(@F)

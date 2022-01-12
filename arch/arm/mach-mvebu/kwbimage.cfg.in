@@ -11,5 +11,8 @@ VERSION		1
 # Boot Media configurations
 #@BOOT_FROM
 
+# Enable BootROM output via DEBUG flag on SoCs which require it
+#@DEBUG
+
 # Include U-Boot SPL with DDR3 training code into Binary Header
 BINARY spl/u-boot-spl.bin #@LOAD_ADDRESS
