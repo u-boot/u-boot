@@ -235,11 +235,11 @@ static inline int opt_hdr_v1_valid_size(const struct opt_hdr_v1 *ohdr,
 {
 	uint32_t ohdr_size;
 
-	if ((void *)(ohdr + 1) > mhdr_end)
+	if ((const void *)(ohdr + 1) > mhdr_end)
 		return 0;
 
 	ohdr_size = opt_hdr_v1_size(ohdr);
-	if (ohdr_size < 8 || (void *)((uint8_t *)ohdr + ohdr_size) > mhdr_end)
+	if (ohdr_size < 8 || (const void *)((const uint8_t *)ohdr + ohdr_size) > mhdr_end)
 		return 0;
 
 	return 1;
