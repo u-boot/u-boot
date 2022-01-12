@@ -1659,6 +1659,10 @@ static int image_create_config_parse_oneline(char *line,
 			el->regdata_delay = REGISTER_SET_HDR_OPT_DELAY_SDRAM_SETUP;
 		else
 			el->regdata_delay = REGISTER_SET_HDR_OPT_DELAY_MS(strtoul(value1, NULL, 10));
+		if (el->regdata_delay > 255) {
+			fprintf(stderr, "Maximal DATA_DELAY is 255\n");
+			return -1;
+		}
 		break;
 	case IMAGE_CFG_BAUDRATE:
 		el->baudrate = strtoul(value1, NULL, 10);
