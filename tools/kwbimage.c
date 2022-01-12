@@ -993,7 +993,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 
 static size_t image_headersz_v1(int *hasext)
 {
-	struct image_cfg_element *binarye;
+	struct image_cfg_element *binarye, *e;
 	unsigned int count;
 	size_t headersz;
 	int cfgi;
@@ -1010,7 +1010,18 @@ static size_t image_headersz_v1(int *hasext)
 			*hasext = 1;
 	}
 
-	count = image_count_options(IMAGE_CFG_DATA);
+	count = 0;
+	for (cfgi = 0; cfgi < cfgn; cfgi++) {
+		e = &image_cfg[cfgi];
+
+		if (e->type == IMAGE_CFG_DATA)
+			count++;
+
+		if (e->type == IMAGE_CFG_DATA_DELAY) {
+			headersz += sizeof(struct register_set_hdr_v1) + 8 * count + 4;
+			count = 0;
+		}
+	}
 	if (count > 0)
 		headersz += sizeof(struct register_set_hdr_v1) + 8 * count + 4;
 
@@ -1368,12 +1379,13 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	}
 
 	datai = 0;
-	register_set_hdr = (struct register_set_hdr_v1 *)cur;
 	for (cfgi = 0; cfgi < cfgn; cfgi++) {
 		e = &image_cfg[cfgi];
 		if (e->type != IMAGE_CFG_DATA &&
 		    e->type != IMAGE_CFG_DATA_DELAY)
 			continue;
+		if (datai == 0)
+			register_set_hdr = (struct register_set_hdr_v1 *)cur;
 		if (e->type == IMAGE_CFG_DATA_DELAY) {
 			finish_register_set_header_v1(&cur, &next_ext, register_set_hdr,
 						      &datai, e->regdata_delay);
