@@ -10,3 +10,8 @@ Uclass and Driver
 .. kernel-doc:: include/dm/root.h
 .. kernel-doc:: include/dm/lists.h
 .. kernel-doc:: include/dm/platdata.h
+
+Device
+------
+
+.. kernel-doc:: include/dm/device.h
