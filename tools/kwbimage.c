@@ -1101,8 +1101,10 @@ static size_t image_headersz_v1(int *hasext)
 				return 0;
 			}
 			headersz = e->binary.loadaddr - base_addr;
-		} else {
+		} else if (cpu_sheeva) {
 			headersz = ALIGN(headersz, 16);
+		} else {
+			headersz = ALIGN(headersz, 4);
 		}
 
 		headersz += ALIGN(s.st_size, 4) + sizeof(uint32_t);
@@ -1158,8 +1160,8 @@ static int add_binary_header_v1(uint8_t **cur, uint8_t **next_ext,
 	*cur += (binarye->binary.nargs + 1) * sizeof(uint32_t);
 
 	/*
-	 * ARM executable code inside the BIN header on some mvebu platforms
-	 * (e.g. A370, AXP) must always be aligned with the 128-bit boundary.
+	 * ARM executable code inside the BIN header on platforms with Sheeva
+	 * CPU (A370 and AXP) must always be aligned with the 128-bit boundary.
 	 * In the case when this code is not position independent (e.g. ARM
 	 * SPL), it must be placed at fixed load and execute address.
 	 * This requirement can be met by inserting dummy arguments into
@@ -1170,8 +1172,10 @@ static int add_binary_header_v1(uint8_t **cur, uint8_t **next_ext,
 	offset = *cur - (uint8_t *)main_hdr;
 	if (binarye->binary.loadaddr)
 		add_args = (binarye->binary.loadaddr - base_addr - offset) / sizeof(uint32_t);
-	else
+	else if (cpu_sheeva)
 		add_args = ((16 - offset % 16) % 16) / sizeof(uint32_t);
+	else
+		add_args = 0;
 	if (add_args) {
 		*(args - 1) = cpu_to_le32(binarye->binary.nargs + add_args);
 		*cur += add_args * sizeof(uint32_t);
