@@ -5,8 +5,6 @@
 # Entry-type module for blobs, which are binary objects read from files
 #
 
-import pathlib
-
 from binman.entry import Entry
 from binman import state
 from dtoc import fdt_util
@@ -38,16 +36,12 @@ class Entry_blob(Entry):
         self._filename = fdt_util.GetString(self._node, 'filename', self.etype)
 
     def ObtainContents(self):
-        if self.allow_fake and not pathlib.Path(self._filename).is_file():
-            with open(self._filename, "wb") as out:
-                out.truncate(1024)
-            self.faked = True
-
         self._filename = self.GetDefaultFilename()
         self._pathname = tools.GetInputFilename(self._filename,
             self.external and self.section.GetAllowMissing())
         # Allow the file to be missing
         if not self._pathname:
+            self._pathname = self.check_fake_fname(self._filename)
             self.SetContents(b'')
             self.missing = True
             return True
