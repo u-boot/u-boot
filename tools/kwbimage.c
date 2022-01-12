@@ -2331,7 +2331,8 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
  */
 static int kwbimage_check_params(struct image_tool_params *params)
 {
-	if (!params->iflag && (!params->imagename || !strlen(params->imagename))) {
+	if (!params->lflag && !params->iflag &&
+	    (!params->imagename || !strlen(params->imagename))) {
 		char *msg = "Configuration file for kwbimage creation omitted";
 
 		fprintf(stderr, "Error:%s - %s\n", params->cmdname, msg);
