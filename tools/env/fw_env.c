@@ -1421,9 +1421,6 @@ int fw_env_open(struct env_opts *opts)
 
 	int ret;
 
-	struct env_image_single *single;
-	struct env_image_redundant *redundant;
-
 	if (!opts)
 		opts = &default_opts;
 
@@ -1439,40 +1436,37 @@ int fw_env_open(struct env_opts *opts)
 		goto open_cleanup;
 	}
 
-	/* read environment from FLASH to local buffer */
-	environment.image = addr0;
-
-	if (have_redund_env) {
-		redundant = addr0;
-		environment.crc = &redundant->crc;
-		environment.flags = &redundant->flags;
-		environment.data = redundant->data;
-	} else {
-		single = addr0;
-		environment.crc = &single->crc;
-		environment.flags = NULL;
-		environment.data = single->data;
-	}
-
 	dev_current = 0;
-	if (flash_io(O_RDONLY, environment.image, CUR_ENVSIZE)) {
+	if (flash_io(O_RDONLY, addr0, CUR_ENVSIZE)) {
 		ret = -EIO;
 		goto open_cleanup;
 	}
 
-	crc0 = crc32(0, (uint8_t *)environment.data, ENV_SIZE);
-
-	crc0_ok = (crc0 == *environment.crc);
 	if (!have_redund_env) {
+		struct env_image_single *single = addr0;
+
+		crc0 = crc32(0, (uint8_t *)single->data, ENV_SIZE);
+		crc0_ok = (crc0 == single->crc);
 		if (!crc0_ok) {
 			fprintf(stderr,
 				"Warning: Bad CRC, using default environment\n");
-			memcpy(environment.data, default_environment,
+			memcpy(single->data, default_environment,
 			       sizeof(default_environment));
 			environment.dirty = 1;
 		}
+
+		environment.image = addr0;
+		environment.crc = &single->crc;
+		environment.flags = NULL;
+		environment.data = single->data;
 	} else {
-		flag0 = *environment.flags;
+		struct env_image_redundant *redundant0 = addr0;
+		struct env_image_redundant *redundant1;
+
+		crc0 = crc32(0, (uint8_t *)redundant0->data, ENV_SIZE);
+		crc0_ok = (crc0 == redundant0->crc);
+
+		flag0 = redundant0->flags;
 
 		dev_current = 1;
 		addr1 = calloc(1, CUR_ENVSIZE);
@@ -1483,14 +1477,9 @@ int fw_env_open(struct env_opts *opts)
 			ret = -ENOMEM;
 			goto open_cleanup;
 		}
-		redundant = addr1;
+		redundant1 = addr1;
 
-		/*
-		 * have to set environment.image for flash_read(), careful -
-		 * other pointers in environment still point inside addr0
-		 */
-		environment.image = addr1;
-		if (flash_io(O_RDONLY, environment.image, CUR_ENVSIZE)) {
+		if (flash_io(O_RDONLY, addr1, CUR_ENVSIZE)) {
 			ret = -EIO;
 			goto open_cleanup;
 		}
@@ -1518,18 +1507,12 @@ int fw_env_open(struct env_opts *opts)
 			goto open_cleanup;
 		}
 
-		crc1 = crc32(0, (uint8_t *)redundant->data, ENV_SIZE);
+		crc1 = crc32(0, (uint8_t *)redundant1->data, ENV_SIZE);
 
-		crc1_ok = (crc1 == redundant->crc);
-		flag1 = redundant->flags;
+		crc1_ok = (crc1 == redundant1->crc);
+		flag1 = redundant1->flags;
 
-		/*
-		 * environment.data still points to ((struct
-		 * env_image_redundant *)addr0)->data. If the two
-		 * environments differ, or one has bad crc, force a
-		 * write-out by marking the environment dirty.
-		 */
-		if (memcmp(environment.data, redundant->data, ENV_SIZE) ||
+		if (memcmp(redundant0->data, redundant1->data, ENV_SIZE) ||
 		    !crc0_ok || !crc1_ok)
 			environment.dirty = 1;
 
@@ -1540,7 +1523,7 @@ int fw_env_open(struct env_opts *opts)
 		} else if (!crc0_ok && !crc1_ok) {
 			fprintf(stderr,
 				"Warning: Bad CRC, using default environment\n");
-			memcpy(environment.data, default_environment,
+			memcpy(redundant0->data, default_environment,
 			       sizeof(default_environment));
 			environment.dirty = 1;
 			dev_current = 0;
@@ -1586,13 +1569,15 @@ int fw_env_open(struct env_opts *opts)
 		 */
 		if (dev_current) {
 			environment.image = addr1;
-			environment.crc = &redundant->crc;
-			environment.flags = &redundant->flags;
-			environment.data = redundant->data;
+			environment.crc = &redundant1->crc;
+			environment.flags = &redundant1->flags;
+			environment.data = redundant1->data;
 			free(addr0);
 		} else {
 			environment.image = addr0;
-			/* Other pointers are already set */
+			environment.crc = &redundant0->crc;
+			environment.flags = &redundant0->flags;
+			environment.data = redundant0->data;
 			free(addr1);
 		}
 #ifdef DEBUG
