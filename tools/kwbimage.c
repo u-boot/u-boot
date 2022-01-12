@@ -158,6 +158,7 @@ struct image_cfg_element {
 		unsigned int bootfrom;
 		struct {
 			const char *file;
+			unsigned int loadaddr;
 			unsigned int args[BINARY_MAX_ARGS];
 			unsigned int nargs;
 		} binary;
@@ -1007,10 +1008,13 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 
 static size_t image_headersz_v1(int *hasext)
 {
-	struct image_cfg_element *binarye, *e;
+	struct image_cfg_element *e;
 	unsigned int count;
 	size_t headersz;
+	int cpu_sheeva;
+	struct stat s;
 	int cfgi;
+	int ret;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -1024,6 +1028,8 @@ static size_t image_headersz_v1(int *hasext)
 			*hasext = 1;
 	}
 
+	cpu_sheeva = image_is_cpu_sheeva();
+
 	count = 0;
 	for (cfgi = 0; cfgi < cfgn; cfgi++) {
 		e = &image_cfg[cfgi];
@@ -1036,19 +1042,11 @@ static size_t image_headersz_v1(int *hasext)
 			headersz += sizeof(struct register_set_hdr_v1) + 8 * count + 4;
 			count = 0;
 		}
-	}
-	if (count > 0)
-		headersz += sizeof(struct register_set_hdr_v1) + 8 * count + 4;
 
-	for (cfgi = 0; cfgi < cfgn; cfgi++) {
-		int ret;
-		struct stat s;
-
-		binarye = &image_cfg[cfgi];
-		if (binarye->type != IMAGE_CFG_BINARY)
+		if (e->type != IMAGE_CFG_BINARY)
 			continue;
 
-		ret = stat(binarye->binary.file, &s);
+		ret = stat(e->binary.file, &s);
 		if (ret < 0) {
 			char cwd[PATH_MAX];
 			char *dir = cwd;
@@ -1063,17 +1061,57 @@ static size_t image_headersz_v1(int *hasext)
 				"Didn't find the file '%s' in '%s' which is mandatory to generate the image\n"
 				"This file generally contains the DDR3 training code, and should be extracted from an existing bootable\n"
 				"image for your board. Use 'dumpimage -T kwbimage -p 0' to extract it from an existing image.\n",
-				binarye->binary.file, dir);
+				e->binary.file, dir);
 			return 0;
 		}
 
 		headersz += sizeof(struct opt_hdr_v1) + sizeof(uint32_t) +
-			(binarye->binary.nargs) * sizeof(uint32_t);
-		headersz = ALIGN(headersz, 16);
+			(e->binary.nargs) * sizeof(uint32_t);
+
+		if (e->binary.loadaddr) {
+			/*
+			 * BootROM loads kwbimage header (in which the
+			 * executable code is also stored) to address
+			 * 0x40004000 or 0x40000000. Thus there is
+			 * restriction for the load address of the N-th
+			 * BINARY image.
+			 */
+			unsigned int base_addr, low_addr, high_addr;
+
+			base_addr = cpu_sheeva ? 0x40004000 : 0x40000000;
+			low_addr = base_addr + headersz;
+			high_addr = low_addr +
+				    (BINARY_MAX_ARGS - e->binary.nargs) * sizeof(uint32_t);
+
+			if (cpu_sheeva && e->binary.loadaddr % 16) {
+				fprintf(stderr,
+					"Invalid LOAD_ADDRESS 0x%08x for BINARY %s with %d args.\n"
+					"Address for CPU SHEEVA must be 16-byte aligned.\n",
+					e->binary.loadaddr, e->binary.file, e->binary.nargs);
+				return 0;
+			}
+
+			if (e->binary.loadaddr % 4 || e->binary.loadaddr < low_addr ||
+			    e->binary.loadaddr > high_addr) {
+				fprintf(stderr,
+					"Invalid LOAD_ADDRESS 0x%08x for BINARY %s with %d args.\n"
+					"Address must be 4-byte aligned and in range 0x%08x-0x%08x.\n",
+					e->binary.loadaddr, e->binary.file,
+					e->binary.nargs, low_addr, high_addr);
+				return 0;
+			}
+			headersz = e->binary.loadaddr - base_addr;
+		} else {
+			headersz = ALIGN(headersz, 16);
+		}
+
 		headersz += ALIGN(s.st_size, 4) + sizeof(uint32_t);
 		if (hasext)
 			*hasext = 1;
 	}
+
+	if (count > 0)
+		headersz += sizeof(struct register_set_hdr_v1) + 8 * count + 4;
 
 	return image_headersz_align(headersz, image_get_bootfrom());
 }
@@ -1083,10 +1121,12 @@ static int add_binary_header_v1(uint8_t **cur, uint8_t **next_ext,
 				struct main_hdr_v1 *main_hdr)
 {
 	struct opt_hdr_v1 *hdr = (struct opt_hdr_v1 *)*cur;
+	uint32_t base_addr;
 	uint32_t add_args;
 	uint32_t offset;
 	uint32_t *args;
 	size_t binhdrsz;
+	int cpu_sheeva;
 	struct stat s;
 	int argi;
 	FILE *bin;
@@ -1120,11 +1160,18 @@ static int add_binary_header_v1(uint8_t **cur, uint8_t **next_ext,
 	/*
 	 * ARM executable code inside the BIN header on some mvebu platforms
 	 * (e.g. A370, AXP) must always be aligned with the 128-bit boundary.
+	 * In the case when this code is not position independent (e.g. ARM
+	 * SPL), it must be placed at fixed load and execute address.
 	 * This requirement can be met by inserting dummy arguments into
 	 * BIN header, if needed.
 	 */
+	cpu_sheeva = image_is_cpu_sheeva();
+	base_addr = cpu_sheeva ? 0x40004000 : 0x40000000;
 	offset = *cur - (uint8_t *)main_hdr;
-	add_args = ((16 - offset % 16) % 16) / sizeof(uint32_t);
+	if (binarye->binary.loadaddr)
+		add_args = (binarye->binary.loadaddr - base_addr - offset) / sizeof(uint32_t);
+	else
+		add_args = ((16 - offset % 16) % 16) / sizeof(uint32_t);
 	if (add_args) {
 		*(args - 1) = cpu_to_le32(binarye->binary.nargs + add_args);
 		*cur += add_args * sizeof(uint32_t);
@@ -1548,10 +1595,40 @@ static int image_create_config_parse_oneline(char *line,
 		el->binary.file = strdup(value1);
 		while (1) {
 			char *value = strtok_r(NULL, delimiters, &saveptr);
+			char *endptr;
 
 			if (!value)
 				break;
-			el->binary.args[argi] = strtoul(value, NULL, 16);
+
+			if (!strcmp(value, "LOAD_ADDRESS")) {
+				value = strtok_r(NULL, delimiters, &saveptr);
+				if (!value) {
+					fprintf(stderr,
+						"Missing address argument for BINARY LOAD_ADDRESS\n");
+					return -1;
+				}
+				el->binary.loadaddr = strtoul(value, &endptr, 16);
+				if (*endptr) {
+					fprintf(stderr,
+						"Invalid argument '%s' for BINARY LOAD_ADDRESS\n",
+						value);
+					return -1;
+				}
+				value = strtok_r(NULL, delimiters, &saveptr);
+				if (value) {
+					fprintf(stderr,
+						"Unexpected argument '%s' after BINARY LOAD_ADDRESS\n",
+						value);
+					return -1;
+				}
+				break;
+			}
+
+			el->binary.args[argi] = strtoul(value, &endptr, 16);
+			if (*endptr) {
+				fprintf(stderr, "Invalid argument '%s' for BINARY\n", value);
+				return -1;
+			}
 			argi++;
 			if (argi >= BINARY_MAX_ARGS) {
 				fprintf(stderr,
