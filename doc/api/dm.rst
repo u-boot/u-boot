@@ -26,3 +26,4 @@ Device tree
 .. kernel-doc:: include/dm/of_extra.h
 .. kernel-doc:: include/dm/of_access.h
 .. kernel-doc:: include/dm/of_addr.h
+.. kernel-doc:: include/dm/fdtaddr.h

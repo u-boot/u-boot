@@ -19,7 +19,7 @@ struct udevice;
  *
  * @dev: Pointer to a device
  *
- * @return addr
+ * Return: addr
  */
 fdt_addr_t devfdt_get_addr(const struct udevice *dev);
 
@@ -29,7 +29,7 @@ fdt_addr_t devfdt_get_addr(const struct udevice *dev);
  *
  * @dev: Pointer to a device
  *
- * @return Pointer to addr, or NULL if there is no such property
+ * Return: Pointer to addr, or NULL if there is no such property
  */
 void *devfdt_get_addr_ptr(const struct udevice *dev);
 
@@ -39,7 +39,7 @@ void *devfdt_get_addr_ptr(const struct udevice *dev);
  *
  * @dev: Pointer to a device
  *
- * @return Pointer to addr, or NULL if there is no such property
+ * Return: Pointer to addr, or NULL if there is no such property
  */
 void *devfdt_remap_addr(const struct udevice *dev);
 
@@ -51,7 +51,7 @@ void *devfdt_remap_addr(const struct udevice *dev);
  *
  * @dev: Pointer to a device
  *
- * @return Pointer to addr, or NULL if there is no such property
+ * Return: Pointer to addr, or NULL if there is no such property
  */
 void *devfdt_remap_addr_index(const struct udevice *dev, int index);
 
@@ -64,7 +64,7 @@ void *devfdt_remap_addr_index(const struct udevice *dev, int index);
  *
  * @dev: Pointer to a device
  *
- * @return Pointer to addr, or NULL if there is no such property
+ * Return: Pointer to addr, or NULL if there is no such property
  */
 void *devfdt_remap_addr_name(const struct udevice *dev, const char *name);
 
@@ -76,8 +76,7 @@ void *devfdt_remap_addr_name(const struct udevice *dev, const char *name);
  * @dev: Pointer to device
  * @size: size of the memory to map
  *
- * @return  mapped address, or NULL if the device does not have reg
- *          property.
+ * Return: mapped address, or NULL if the device does not have reg property.
  */
 void *devfdt_map_physmem(const struct udevice *dev, unsigned long size);
 
@@ -88,7 +87,7 @@ void *devfdt_map_physmem(const struct udevice *dev, unsigned long size);
  * @index: the 'reg' property can hold a list of <addr, size> pairs
  *	   and @index is used to select which one is required
  *
- * @return addr
+ * Return: addr
  */
 fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index);
 
@@ -100,7 +99,7 @@ fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index);
  * @index: the 'reg' property can hold a list of <addr, size> pairs
  *	   and @index is used to select which one is required
  *
- * @return Pointer to addr, or NULL if there is no such property
+ * Return: Pointer to addr, or NULL if there is no such property
  */
 void *devfdt_get_addr_index_ptr(const struct udevice *dev, int index);
 
@@ -115,7 +114,7 @@ void *devfdt_get_addr_index_ptr(const struct udevice *dev, int index);
  * @size: Pointer to size varible - this function returns the size
  *        specified in the 'reg' property here
  *
- * @return addr
+ * Return: addr
  */
 fdt_addr_t devfdt_get_addr_size_index(const struct udevice *dev, int index,
 				      fdt_size_t *size);
@@ -128,7 +127,7 @@ fdt_addr_t devfdt_get_addr_size_index(const struct udevice *dev, int index,
  *	  'reg-names' property providing named-based identification. @index
  *	  indicates the value to search for in 'reg-names'.
  *
- * @return addr
+ * Return: addr
  */
 fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name);
 
@@ -145,7 +144,7 @@ fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name);
  * @size: Pointer to size variable - this function returns the size
  *        specified in the 'reg' property here
  *
- * @return addr
+ * Return: addr
  */
 fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
 				     const char *name, fdt_size_t *size);
@@ -154,7 +153,7 @@ fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
  * devfdt_get_addr_pci() - Read an address and handle PCI address translation
  *
  * @dev: Device to read from
- * @return address or FDT_ADDR_T_NONE if not found
+ * Return: address or FDT_ADDR_T_NONE if not found
  */
 fdt_addr_t devfdt_get_addr_pci(const struct udevice *dev);
 
