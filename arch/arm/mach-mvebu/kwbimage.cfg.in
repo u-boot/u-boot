@@ -5,6 +5,9 @@
 # Armada 38x uses version 1 image format
 VERSION		1
 
+# Type of the CPU core
+#@CPU
+
 # Boot Media configurations
 #@BOOT_FROM
 
