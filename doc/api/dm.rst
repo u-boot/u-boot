@@ -7,3 +7,4 @@ Uclass and Driver
 -----------------
 
 .. kernel-doc:: include/dm/uclass.h
+.. kernel-doc:: include/dm/root.h
