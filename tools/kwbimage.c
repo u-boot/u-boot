@@ -2033,6 +2033,11 @@ static int kwbimage_generate(struct image_tool_params *params,
 			free(image_cfg);
 			exit(EXIT_FAILURE);
 		}
+		if (alloc_len > 192*1024) {
+			fprintf(stderr, "Header is too big (%u bytes), maximal kwbimage header size is %u bytes\n", alloc_len, 192*1024);
+			free(image_cfg);
+			exit(EXIT_FAILURE);
+		}
 		break;
 
 	default:
