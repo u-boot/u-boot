@@ -7,7 +7,9 @@ lib-$(CONFIG_USE_PRIVATE_LIBGCC) += ashldi3.o ashrdi3.o lshrdi3.o \
 				    lib1funcs.o uldivmod.o div0.o \
 				    div64.o muldi3.o
 
-ifdef CONFIG_CPU_V7M
+ifdef CONFIG_TARGET_STM32H743_NUCLEO
+obj-y	+= vectors_m.o crt0_nucleo.o
+else ifdef CONFIG_CPU_V7M
 obj-y	+= vectors_m.o crt0.o
 else ifdef CONFIG_ARM64
 obj-y	+= crt0_64.o
@@ -24,6 +26,8 @@ endif
 ifndef CONFIG_SPL_BUILD
 ifdef CONFIG_ARM64
 obj-y	+= relocate_64.o
+else ifdef CONFIG_SYS_EXEC_IN_PLACE
+obj-y	+= relocate_data.o
 else
 obj-y	+= relocate.o
 endif

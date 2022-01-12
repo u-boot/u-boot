@@ -90,40 +90,62 @@ clbss_l:cmp	r0, r1			/* while not at end of BSS */
 
 ENTRY(_main)
 
-/* Enable Domain 2 RAMs. SRAM1 through SRAM3 are where .data, /bss. the stack, etc. a located, so it has to be turned on first thing. */
-
-    ldr r0,=0x580244DC      /* RCC_AHB2ENR |= SRAM1EN | SRAM2EN | SRAM3 EN; */
-    ldr r1, [r0]
-    orr r1, #0xE0000000
-    str r1, [r0]
-
 /*
  * Set up initial C runtime environment and call board_init_f(0).
  */
 
+#if defined(CONFIG_TPL_BUILD) && defined(CONFIG_TPL_NEEDS_SEPARATE_STACK)
+	ldr	r0, =(CONFIG_TPL_STACK)
+#elif defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
+	ldr	r0, =(CONFIG_SPL_STACK)
+#else
 	ldr	r0, =(CONFIG_SYS_INIT_SP_ADDR)
+#endif
 	bic	r0, r0, #7	/* 8-byte alignment for ABI compliance */
 	mov	sp, r0
-
- 	bl	relocate_data
-
-	CLEAR_BSS
-
-    mov r0, sp
 	bl	board_init_f_alloc_reserve
 	mov	sp, r0
 	/* set up gd here, outside any C code */
 	mov	r9, r0
 	bl	board_init_f_init_reserve
 
-	mov	r0, #0x800 /* GD_FLG_SKIP_RELOC */
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_EARLY_BSS)
+	CLEAR_BSS
+#endif
+
+	mov	r0, #0
 	bl	board_init_f
+
+#if ! defined(CONFIG_SPL_BUILD)
+
+/*
+ * Set up intermediate environment (new sp and gd) and call
+ * relocate_code(addr_moni). Trick here is that we'll return
+ * 'here' but relocated.
+ */
 
 	ldr	r0, [r9, #GD_START_ADDR_SP]	/* sp = gd->start_addr_sp */
 	bic	r0, r0, #7	/* 8-byte alignment for ABI compliance */
 	mov	sp, r0
 	ldr	r9, [r9, #GD_NEW_GD]		/* r9 <- gd->new_gd */
 
+	adr	lr, here
+#if defined(CONFIG_POSITION_INDEPENDENT)
+	adr	r0, _main
+	ldr	r1, _start_ofs
+	add	r0, r1
+	ldr	r1, =CONFIG_SYS_TEXT_BASE
+	sub	r1, r0
+	add	lr, r1
+#endif
+	ldr	r0, [r9, #GD_RELOC_OFF]		/* r0 = gd->reloc_off */
+	add	lr, lr, r0
+#if defined(CONFIG_CPU_V7M)
+	orr	lr, #1				/* As required by Thumb-only */
+#endif
+	ldr	r0, [r9, #GD_RELOCADDR]		/* r0 = gd->relocaddr */
+	b	relocate_code
+here:
 /*
  * now relocate vectors
  */
@@ -133,18 +155,37 @@ ENTRY(_main)
 /* Set up final (full) environment */
 
 	bl	c_runtime_cpu_setup	/* we still call old routine here */
+#endif
+#if !defined(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(FRAMEWORK)
 
+#if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL_EARLY_BSS)
+	CLEAR_BSS
+#endif
 
+# ifdef CONFIG_SPL_BUILD
+	/* Use a DRAM stack for the rest of SPL, if requested */
+	bl	spl_relocate_stack_gd
+	cmp	r0, #0
+	movne	sp, r0
+	movne	r9, r0
+# endif
+
+#if ! defined(CONFIG_SPL_BUILD)
 	bl coloured_LED_init
 	bl red_led_on
-
+#endif
 	/* call board_init_r(gd_t *id, ulong dest_addr) */
 	mov     r0, r9                  /* gd_t */
 	ldr	r1, [r9, #GD_RELOCADDR]	/* dest_addr */
 	/* call board_init_r */
+#if CONFIG_IS_ENABLED(SYS_THUMB_BUILD)
 	ldr	lr, =board_init_r	/* this is auto-relocated! */
 	bx	lr
+#else
+	ldr	pc, =board_init_r	/* this is auto-relocated! */
+#endif
 	/* we should not return here. */
+#endif
 
 ENDPROC(_main)
 

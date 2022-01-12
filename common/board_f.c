@@ -213,11 +213,13 @@ static int print_cpuinfo(void)
 }
 #endif
 
+#ifndef CONFIG_TARGET_STM32H743_NUCLEO
 static int announce_dram_init(void)
 {
 	puts("DRAM:  ");
 	return 0;
 }
+#endif
 
 static int show_dram_config(void)
 {
@@ -887,8 +889,11 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_VID) && !defined(CONFIG_SPL)
 	init_func_vid,
 #endif
-//	announce_dram_init,
-//	dram_init,		/* configure available RAM banks */
+
+#ifndef CONFIG_TARGET_STM32H743_NUCLEO
+	announce_dram_init,
+	dram_init,		/* configure available RAM banks */
+#endif
 	fdtdec_setup_mem_size_base,
 #ifdef CONFIG_POST
 	post_init_f,
