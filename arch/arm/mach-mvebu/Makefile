@@ -39,6 +39,9 @@ else ifneq ($(CONFIG_ARMADA_375)$(CONFIG_ARMADA_38X)$(CONFIG_ARMADA_39X),)
 	KWB_CFG_CPU = A9
 endif
 
+KWB_REPLACE += LOAD_ADDRESS
+KWB_CFG_LOAD_ADDRESS = $(CONFIG_SPL_TEXT_BASE)
+
 KWB_REPLACE += BOOT_FROM
 ifneq ($(CONFIG_MVEBU_SPL_BOOT_DEVICE_SPI),)
 	KWB_CFG_BOOT_FROM=spi
@@ -68,7 +71,7 @@ KWB_CFG_SEC_FUSE_DUMP = a38x
 endif
 
 quiet_cmd_kwbcfg = KWBCFG  $@
-cmd_kwbcfg = sed -ne '$(foreach V,$(KWB_REPLACE),s/^\#@$(V)/$(V) $(KWB_CFG_$(V))/;)p' \
+cmd_kwbcfg = sed -ne '$(foreach V,$(KWB_REPLACE),s/\#@$(V)/$(V) $(KWB_CFG_$(V))/;)p' \
 	<$< >$(dir $@)$(@F)
 
 $(obj)/kwbimage.cfg: $(src)/kwbimage.cfg.in include/autoconf.mk \
