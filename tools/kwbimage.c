@@ -1249,6 +1249,22 @@ static int add_secure_header_v1(struct image_tool_params *params, uint8_t *ptr,
 	return 0;
 }
 
+static void finish_register_set_header_v1(uint8_t **cur, uint8_t **next_ext,
+					  struct register_set_hdr_v1 *register_set_hdr,
+					  int *datai, uint8_t delay)
+{
+	int size = sizeof(struct register_set_hdr_v1) + 8 * (*datai) + 4;
+
+	register_set_hdr->headertype = OPT_HDR_V1_REGISTER_TYPE;
+	register_set_hdr->headersz_lsb = cpu_to_le16(size & 0xFFFF);
+	register_set_hdr->headersz_msb = size >> 16;
+	register_set_hdr->data[*datai].last_entry.delay = delay;
+	*cur += size;
+	**next_ext = 1;
+	*next_ext = &register_set_hdr->data[*datai].last_entry.next;
+	*datai = 0;
+}
+
 static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 			     uint8_t *ptr, int payloadsz)
 {
@@ -1261,7 +1277,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	uint8_t *image, *cur;
 	int hasext = 0;
 	uint8_t *next_ext = NULL;
-	int cfgi, datai, size;
+	int cfgi, datai;
 
 	/*
 	 * Calculate the size of the header and the size of the
@@ -1359,15 +1375,8 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		    e->type != IMAGE_CFG_DATA_DELAY)
 			continue;
 		if (e->type == IMAGE_CFG_DATA_DELAY) {
-			size = sizeof(struct register_set_hdr_v1) + 8 * datai + 4;
-			register_set_hdr->headertype = OPT_HDR_V1_REGISTER_TYPE;
-			register_set_hdr->headersz_lsb = cpu_to_le16(size & 0xFFFF);
-			register_set_hdr->headersz_msb = size >> 16;
-			register_set_hdr->data[datai].last_entry.delay = e->regdata_delay;
-			cur += size;
-			*next_ext = 1;
-			next_ext = &register_set_hdr->data[datai].last_entry.next;
-			datai = 0;
+			finish_register_set_header_v1(&cur, &next_ext, register_set_hdr,
+						      &datai, e->regdata_delay);
 			continue;
 		}
 		register_set_hdr->data[datai].entry.address =
@@ -1377,15 +1386,9 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		datai++;
 	}
 	if (datai != 0) {
-		size = sizeof(struct register_set_hdr_v1) + 8 * datai + 4;
-		register_set_hdr->headertype = OPT_HDR_V1_REGISTER_TYPE;
-		register_set_hdr->headersz_lsb = cpu_to_le16(size & 0xFFFF);
-		register_set_hdr->headersz_msb = size >> 16;
-		/* Set delay to the smallest possible value 1ms. */
-		register_set_hdr->data[datai].last_entry.delay = 1;
-		cur += size;
-		*next_ext = 1;
-		next_ext = &register_set_hdr->data[datai].last_entry.next;
+		/* Set delay to the smallest possible value. */
+		finish_register_set_header_v1(&cur, &next_ext, register_set_hdr,
+					      &datai, REGISTER_SET_HDR_OPT_DELAY_MS(0));
 	}
 
 	for (cfgi = 0; cfgi < cfgn; cfgi++) {
