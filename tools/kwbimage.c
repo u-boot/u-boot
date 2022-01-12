@@ -199,7 +199,7 @@ static const char *image_boot_mode_name(unsigned int id)
 	return NULL;
 }
 
-int image_boot_mode_id(const char *boot_mode_name)
+static int image_boot_mode_id(const char *boot_mode_name)
 {
 	int i;
 
@@ -210,7 +210,7 @@ int image_boot_mode_id(const char *boot_mode_name)
 	return -1;
 }
 
-int image_nand_ecc_mode_id(const char *nand_ecc_mode_name)
+static int image_nand_ecc_mode_id(const char *nand_ecc_mode_name)
 {
 	int i;
 
@@ -602,7 +602,8 @@ static int kwb_export_pubkey(RSA *key, struct pubkey_der_v1 *dst, FILE *hashf,
 	return 0;
 }
 
-int kwb_sign(RSA *key, void *data, int datasz, struct sig_v1 *sig, char *signame)
+static int kwb_sign(RSA *key, void *data, int datasz, struct sig_v1 *sig,
+		    char *signame)
 {
 	EVP_PKEY *evp_key;
 	EVP_MD_CTX *ctx;
@@ -662,8 +663,8 @@ err_key:
 	return ret;
 }
 
-int kwb_verify(RSA *key, void *data, int datasz, struct sig_v1 *sig,
-	       char *signame)
+static int kwb_verify(RSA *key, void *data, int datasz, struct sig_v1 *sig,
+		      char *signame)
 {
 	EVP_PKEY *evp_key;
 	EVP_MD_CTX *ctx;
@@ -722,8 +723,8 @@ err_key:
 	return ret;
 }
 
-int kwb_sign_and_verify(RSA *key, void *data, int datasz, struct sig_v1 *sig,
-			char *signame)
+static int kwb_sign_and_verify(RSA *key, void *data, int datasz,
+			       struct sig_v1 *sig, char *signame)
 {
 	if (kwb_sign(key, data, datasz, sig, signame) < 0)
 		return -1;
@@ -735,7 +736,7 @@ int kwb_sign_and_verify(RSA *key, void *data, int datasz, struct sig_v1 *sig,
 }
 
 
-int kwb_dump_fuse_cmds_38x(FILE *out, struct secure_hdr_v1 *sec_hdr)
+static int kwb_dump_fuse_cmds_38x(FILE *out, struct secure_hdr_v1 *sec_hdr)
 {
 	struct hash_v1 kak_pub_hash;
 	struct image_cfg_element *e;
@@ -1051,9 +1052,9 @@ static size_t image_headersz_v1(int *hasext)
 	return image_headersz_align(headersz, image_get_bootfrom());
 }
 
-int add_binary_header_v1(uint8_t **cur, uint8_t **next_ext,
-			 struct image_cfg_element *binarye,
-			 struct main_hdr_v1 *main_hdr)
+static int add_binary_header_v1(uint8_t **cur, uint8_t **next_ext,
+				struct image_cfg_element *binarye,
+				struct main_hdr_v1 *main_hdr)
 {
 	struct opt_hdr_v1 *hdr = (struct opt_hdr_v1 *)*cur;
 	uint32_t add_args;
@@ -1135,7 +1136,7 @@ err_close:
 	return -1;
 }
 
-int export_pub_kak_hash(RSA *kak, struct secure_hdr_v1 *secure_hdr)
+static int export_pub_kak_hash(RSA *kak, struct secure_hdr_v1 *secure_hdr)
 {
 	FILE *hashf;
 	int res;
@@ -1154,8 +1155,8 @@ int export_pub_kak_hash(RSA *kak, struct secure_hdr_v1 *secure_hdr)
 	return res < 0 ? 1 : 0;
 }
 
-int kwb_sign_csk_with_kak(struct image_tool_params *params,
-			  struct secure_hdr_v1 *secure_hdr, RSA *csk)
+static int kwb_sign_csk_with_kak(struct image_tool_params *params,
+				 struct secure_hdr_v1 *secure_hdr, RSA *csk)
 {
 	RSA *kak = NULL;
 	RSA *kak_pub = NULL;
@@ -1196,9 +1197,9 @@ int kwb_sign_csk_with_kak(struct image_tool_params *params,
 	return 0;
 }
 
-int add_secure_header_v1(struct image_tool_params *params, uint8_t *ptr,
-			 int payloadsz, size_t headersz, uint8_t *image,
-			 struct secure_hdr_v1 *secure_hdr)
+static int add_secure_header_v1(struct image_tool_params *params, uint8_t *ptr,
+				int payloadsz, size_t headersz, uint8_t *image,
+				struct secure_hdr_v1 *secure_hdr)
 {
 	struct image_cfg_element *e_jtagdelay;
 	struct image_cfg_element *e_boxid;
@@ -1415,7 +1416,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	return image;
 }
 
-int recognize_keyword(char *keyword)
+static int recognize_keyword(char *keyword)
 {
 	int kw_id;
 
