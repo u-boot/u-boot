@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_DEBUG
 #define LOG_CATEGORY	LOGC_BLOBLIST
 
 #include <common.h>
@@ -360,6 +361,8 @@ int bloblist_finish(void)
 	struct bloblist_hdr *hdr = gd->bloblist;
 
 	hdr->chksum = bloblist_calc_chksum(hdr);
+	log_debug("Finished bloblist size %lx at %lx\n", (ulong)hdr->size,
+		  (ulong)map_to_sysmem(hdr));
 
 	return 0;
 }
@@ -415,8 +418,9 @@ void bloblist_reloc(void *to, uint to_size, void *from, uint from_size)
 
 int bloblist_init(void)
 {
-	bool expected;
 	int ret = -ENOENT;
+	ulong addr, size;
+	bool expected;
 
 	/**
 	 * Wed expect to find an existing bloblist in the first phase of U-Boot
@@ -425,27 +429,32 @@ int bloblist_init(void)
 	expected = !u_boot_first_phase();
 	if (spl_prev_phase() == PHASE_TPL && !IS_ENABLED(CONFIG_TPL_BLOBLIST))
 		expected = false;
-	if (expected)
-		ret = bloblist_check(CONFIG_BLOBLIST_ADDR,
-				     CONFIG_BLOBLIST_SIZE);
+	addr = bloblist_addr();
+	size = CONFIG_BLOBLIST_SIZE;
+	if (expected) {
+		ret = bloblist_check(addr, size);
+		if (ret) {
+			log_warning("Expected bloblist at %lx not found (err=%d)\n",
+				    addr, ret);
+		} else {
+			/* Get the real size, if it is not what we expected */
+			size = gd->bloblist->size;
+		}
+	}
 	if (ret) {
-		ulong addr;
-
-		log(LOGC_BLOBLIST, expected ? LOGL_WARNING : LOGL_DEBUG,
-		    "Existing bloblist not found: creating new bloblist\n");
-		if (IS_ENABLED(CONFIG_BLOBLIST_ALLOC)) {
-			void *ptr = memalign(BLOBLIST_ALIGN,
-					     CONFIG_BLOBLIST_SIZE);
+		if (CONFIG_IS_ENABLED(BLOBLIST_ALLOC)) {
+			void *ptr = memalign(BLOBLIST_ALIGN, size);
 
 			if (!ptr)
 				return log_msg_ret("alloc", -ENOMEM);
 			addr = map_to_sysmem(ptr);
-		} else {
-			addr = CONFIG_BLOBLIST_ADDR;
 		}
-		ret = bloblist_new(addr, CONFIG_BLOBLIST_SIZE, 0);
+		log_debug("Creating new bloblist size %lx at %lx\n", size,
+			  addr);
+		ret = bloblist_new(addr, size, 0);
 	} else {
-		log_debug("Found existing bloblist\n");
+		log_debug("Found existing bloblist size %lx at %lx\n", size,
+			  addr);
 	}
 
 	return ret;
