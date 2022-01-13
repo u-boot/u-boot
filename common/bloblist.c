@@ -32,7 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static const char *const tag_name[] = {
 	[BLOBLISTT_NONE]		= "(none)",
 	[BLOBLISTT_EC_HOSTEVENT]	= "EC host event",
-	[BLOBLISTT_SPL_HANDOFF]		= "SPL hand-off",
+	[BLOBLISTT_U_BOOT_SPL_HANDOFF]		= "SPL hand-off",
 	[BLOBLISTT_VBOOT_CTX]		= "Chrome OS vboot context",
 	[BLOBLISTT_VBOOT_HANDOFF]	= "Chrome OS vboot hand-off",
 	[BLOBLISTT_ACPI_GNVS]		= "ACPI GNVS",

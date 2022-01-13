@@ -27,7 +27,7 @@ enum bloblist_tag_t {
 
 	/* Vendor-specific tags are permitted here */
 	BLOBLISTT_EC_HOSTEVENT,		/* Chromium OS EC host-event mask */
-	BLOBLISTT_SPL_HANDOFF,		/* Hand-off info from SPL */
+	BLOBLISTT_U_BOOT_SPL_HANDOFF,		/* Hand-off info from SPL */
 	BLOBLISTT_VBOOT_CTX,		/* Chromium OS verified boot context */
 	BLOBLISTT_VBOOT_HANDOFF,	/* Chromium OS internal handoff info */
 	/*

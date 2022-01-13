@@ -283,7 +283,7 @@ static int setup_mon_len(void)
 static int setup_spl_handoff(void)
 {
 #if CONFIG_IS_ENABLED(HANDOFF)
-	gd->spl_handoff = bloblist_find(BLOBLISTT_SPL_HANDOFF,
+	gd->spl_handoff = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF,
 					sizeof(struct spl_handoff));
 	debug("Found SPL hand-off info %p\n", gd->spl_handoff);
 #endif

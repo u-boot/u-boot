@@ -23,7 +23,7 @@ int dram_init(void)
 {
 	struct spl_handoff *ho;
 
-	ho = bloblist_find(BLOBLISTT_SPL_HANDOFF, sizeof(*ho));
+	ho = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF, sizeof(*ho));
 	if (!ho)
 		return log_msg_ret("Missing SPL hand-off info", -ENOENT);
 	handoff_load_dram_size(ho);
@@ -56,7 +56,7 @@ int dram_init_banksize(void)
 {
 	struct spl_handoff *ho;
 
-	ho = bloblist_find(BLOBLISTT_SPL_HANDOFF, sizeof(*ho));
+	ho = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF, sizeof(*ho));
 	if (!ho)
 		return log_msg_ret("Missing SPL hand-off info", -ENOENT);
 	handoff_load_dram_banks(ho);
