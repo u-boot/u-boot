@@ -41,10 +41,6 @@
 #define PCIE_BAR_ENABLE		BIT(0)
 #define PCIE_REVISION_ID	BIT(0)
 #define PCIE_CLASS_CODE		(0x60400 << 8)
-#define PCIE_CONF_REG(regn)	(((regn) & GENMASK(7, 2)) | \
-				((((regn) >> 8) & GENMASK(3, 0)) << 24))
-#define PCIE_CONF_ADDR(regn, bdf) \
-				(PCIE_CONF_REG(regn) | (bdf))
 
 /* MediaTek specific configuration registers */
 #define PCIE_FTS_NUM		0x70c
@@ -147,8 +143,11 @@ static int mtk_pcie_config_address(const struct udevice *udev, pci_dev_t bdf,
 				   uint offset, void **paddress)
 {
 	struct mtk_pcie *pcie = dev_get_priv(udev);
+	u32 val;
 
-	writel(PCIE_CONF_ADDR(offset, bdf), pcie->base + PCIE_CFG_ADDR);
+	val = PCI_CONF1_EXT_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf),
+				    PCI_FUNC(bdf), offset) & ~PCI_CONF1_ENABLE;
+	writel(val, pcie->base + PCIE_CFG_ADDR);
 	*paddress = pcie->base + PCIE_CFG_DATA + (offset & 3);
 
 	return 0;
@@ -330,7 +329,6 @@ static void mtk_pcie_port_free(struct mtk_pcie_port *port)
 static int mtk_pcie_startup_port(struct mtk_pcie_port *port)
 {
 	struct mtk_pcie *pcie = port->pcie;
-	u32 slot = PCI_DEV(port->slot << 11);
 	u32 val;
 	int err;
 
@@ -357,13 +355,14 @@ static int mtk_pcie_startup_port(struct mtk_pcie_port *port)
 	writel(PCIE_CLASS_CODE | PCIE_REVISION_ID, port->base + PCIE_CLASS);
 
 	/* configure FC credit */
-	writel(PCIE_CONF_ADDR(PCIE_FC_CREDIT, slot),
-	       pcie->base + PCIE_CFG_ADDR);
+	val = PCI_CONF1_EXT_ADDRESS(0, port->slot, 0, PCIE_FC_CREDIT) & ~PCI_CONF1_ENABLE;
+	writel(val, pcie->base + PCIE_CFG_ADDR);
 	clrsetbits_le32(pcie->base + PCIE_CFG_DATA, PCIE_FC_CREDIT_MASK,
 			PCIE_FC_CREDIT_VAL(0x806c));
 
 	/* configure RC FTS number to 250 when it leaves L0s */
-	writel(PCIE_CONF_ADDR(PCIE_FTS_NUM, slot), pcie->base + PCIE_CFG_ADDR);
+	val = PCI_CONF1_EXT_ADDRESS(0, port->slot, 0, PCIE_FTS_NUM) & ~PCI_CONF1_ENABLE;
+	writel(val, pcie->base + PCIE_CFG_ADDR);
 	clrsetbits_le32(pcie->base + PCIE_CFG_DATA, PCIE_FTS_NUM_MASK,
 			PCIE_FTS_NUM_L0(0x50));
 

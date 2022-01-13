@@ -56,10 +56,6 @@
 #define XR3PCI_ATR_TRSLID_PCIE_IO	(0x020000)
 #define XR3PCI_ATR_TRSLID_PCIE_MEMORY	(0x000000)
 
-#define XR3PCI_ECAM_OFFSET(b, d, o)	(((b) << 20) | \
-					(PCI_SLOT(d) << 15) | \
-					(PCI_FUNC(d) << 12) | o)
-
 #define JUNO_RESET_CTRL			0x1004
 #define JUNO_RESET_CTRL_PHY		BIT(0)
 #define JUNO_RESET_CTRL_RC		BIT(1)

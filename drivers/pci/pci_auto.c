@@ -197,7 +197,7 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 	dm_pci_read_config16(dev, PCI_COMMAND, &cmdstat);
 	dm_pci_read_config16(dev, PCI_PREF_MEMORY_BASE, &prefechable_64);
 	prefechable_64 &= PCI_PREF_RANGE_TYPE_MASK;
-	dm_pci_read_config8(dev, PCI_IO_LIMIT, &io_32);
+	dm_pci_read_config8(dev, PCI_IO_BASE, &io_32);
 	io_32 &= PCI_IO_RANGE_TYPE_MASK;
 
 	/* Configure bus number registers */
@@ -243,7 +243,7 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 		cmdstat |= PCI_COMMAND_MEMORY;
 	} else {
 		/* We don't support prefetchable memory for now, so disable */
-		dm_pci_write_config16(dev, PCI_PREF_MEMORY_BASE, 0x1000 |
+		dm_pci_write_config16(dev, PCI_PREF_MEMORY_BASE, 0xfff0 |
 								prefechable_64);
 		dm_pci_write_config16(dev, PCI_PREF_MEMORY_LIMIT, 0x0 |
 								prefechable_64);
@@ -265,6 +265,14 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 				      (pci_io->bus_lower & 0xffff0000) >> 16);
 
 		cmdstat |= PCI_COMMAND_IO;
+	} else {
+		/* Disable I/O if unsupported */
+		dm_pci_write_config8(dev, PCI_IO_BASE, 0xf0 | io_32);
+		dm_pci_write_config8(dev, PCI_IO_LIMIT, 0x0 | io_32);
+		if (io_32 == PCI_IO_RANGE_TYPE_32) {
+			dm_pci_write_config16(dev, PCI_IO_BASE_UPPER16, 0x0);
+			dm_pci_write_config16(dev, PCI_IO_LIMIT_UPPER16, 0x0);
+		}
 	}
 
 	/* Enable memory and I/O accesses, enable bus master */

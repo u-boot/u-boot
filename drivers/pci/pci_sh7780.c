@@ -34,9 +34,9 @@
 int pci_sh4_read_config_dword(struct pci_controller *hose,
 				    pci_dev_t dev, int offset, u32 *value)
 {
-	u32 par_data = 0x80000000 | dev;
+	u32 par_data = PCI_CONF1_ADDRESS(PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev), offset);
 
-	p4_out(par_data | (offset & 0xfc), SH7780_PCIPAR);
+	p4_out(par_data, SH7780_PCIPAR);
 	*value = p4_in(SH7780_PCIPDR);
 
 	return 0;
@@ -45,9 +45,9 @@ int pci_sh4_read_config_dword(struct pci_controller *hose,
 int pci_sh4_write_config_dword(struct pci_controller *hose,
 				     pci_dev_t dev, int offset, u32 value)
 {
-	u32 par_data = 0x80000000 | dev;
+	u32 par_data = PCI_CONF1_ADDRESS(PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev), offset);
 
-	p4_out(par_data | (offset & 0xfc), SH7780_PCIPAR);
+	p4_out(par_data, SH7780_PCIPAR);
 	p4_out(value, SH7780_PCIPDR);
 	return 0;
 }
