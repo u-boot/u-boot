@@ -12,10 +12,10 @@
 
 &binman {
 	u-boot-spl-ddr {
+		align = <4>;
+		align-size = <4>;
 		filename = "u-boot-spl-ddr.bin";
 		pad-byte = <0xff>;
-		align-size = <4>;
-		align = <4>;
 
 		u-boot-spl {
 			align-end = <4>;
@@ -69,16 +69,16 @@
 
 		fit {
 			description = "Configuration to load ATF before U-Boot";
-			#address-cells = <1>;
 			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+			#address-cells = <1>;
 
 			images {
 				uboot {
-					description = "U-Boot (64-bit)";
-					type = "standalone";
 					arch = "arm64";
 					compression = "none";
+					description = "U-Boot (64-bit)";
 					load = <CONFIG_SYS_TEXT_BASE>;
+					type = "standalone";
 
 					uboot_blob: blob-ext {
 						filename = "u-boot-nodtb.bin";
@@ -86,12 +86,12 @@
 				};
 
 				atf {
-					description = "ARM Trusted Firmware";
-					type = "firmware";
 					arch = "arm64";
 					compression = "none";
-					load = <0x910000>;
+					description = "ARM Trusted Firmware";
 					entry = <0x910000>;
+					load = <0x910000>;
+					type = "firmware";
 
 					atf_blob: blob-ext {
 						filename = "bl31.bin";
@@ -99,9 +99,9 @@
 				};
 
 				fdt {
+					compression = "none";
 					description = "NAME";
 					type = "flat_dt";
-					compression = "none";
 
 					uboot_fdt_blob: blob-ext {
 						filename = "u-boot.dtb";
@@ -114,9 +114,9 @@
 
 				conf {
 					description = "NAME";
+					fdt = "fdt";
 					firmware = "uboot";
 					loadables = "atf";
-					fdt = "fdt";
 				};
 			};
 		};
@@ -127,13 +127,13 @@
 		pad-byte = <0x00>;
 
 		spl: blob-ext@1 {
-			offset = <0x0>;
 			filename = "spl.bin";
+			offset = <0x0>;
 		};
 
 		uboot: blob-ext@2 {
-			offset = <0x57c00>;
 			filename = "u-boot.itb";
+			offset = <0x57c00>;
 		};
 	};
 };
