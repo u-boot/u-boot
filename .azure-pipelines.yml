@@ -2,14 +2,16 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-18.04
   macos_vm: macOS-10.15
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20211006-14Nov2021
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20220105-10Jan2022
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
   container_option: -u 0
   work_dir: /u
 
-jobs:
+stages:
+- stage: testsuites
+  jobs:
   - job: tools_only_windows
     displayName: 'Ensure host tools build for Windows'
     pool:
@@ -199,6 +201,8 @@ jobs:
           export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
 
+- stage: test_py
+  jobs:
   - job: test_py
     displayName: 'test.py'
     pool:
@@ -381,6 +385,8 @@ jobs:
           # Some tests using libguestfs-tools need the fuse device to run
           docker run "$@" --device /dev/fuse:/dev/fuse -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
 
+- stage: world_build
+  jobs:
   - job: build_the_world
     displayName: 'Build the World'
     pool:

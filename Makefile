@@ -1129,6 +1129,10 @@ endif
 	$(call deprecated,CONFIG_DM_ETH,Ethernet drivers,v2020.07,$(CONFIG_NET))
 	$(call deprecated,CONFIG_DM_I2C,I2C drivers,v2022.04,$(CONFIG_SYS_I2C_LEGACY))
 	$(call deprecated,CONFIG_DM_KEYBOARD,Keyboard drivers,v2022.10,$(CONFIG_KEYBOARD))
+	@# CONFIG_SYS_TIMER_RATE has brackets in it for some boards which
+	@# confuses this rule. Use if() to send just a single character which
+	@# is enable to tell 'deprecated' that one of these symbols exists
+	$(call deprecated,CONFIG_TIMER,Timer drivers,v2023.01,$(if $(strip $(CONFIG_SYS_TIMER_RATE)$(CONFIG_SYS_TIMER_COUNTER)),x))
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
@@ -2184,7 +2188,9 @@ CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
 	       u-boot* MLO* SPL System.map fit-dtb.blob* \
 	       u-boot-ivt.img.log u-boot-dtb.imx.log SPL.log u-boot.imx.log \
 	       lpc32xx-* bl31.c bl31.elf bl31_*.bin image.map tispl.bin* \
-	       idbloader.img flash.bin flash.log defconfig keep-syms-lto.c
+	       idbloader.img flash.bin flash.log defconfig keep-syms-lto.c \
+	       mkimage-out.spl.mkimage mkimage.spl.mkimage imx-boot.map \
+	       itb.fit.fit itb.fit.itb itb.map spl.map
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
