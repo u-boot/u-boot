@@ -717,7 +717,7 @@ config BLOBLIST
 	  from TPL to SPL to U-Boot proper (and potentially to Linux). The
 	  blob list supports multiple binary blobs of data, each with a tag,
 	  so that different U-Boot components can store data which can survive
-	  through to the next stage of the boot.
+	  through to the next phase of the boot.
 
 config SPL_BLOBLIST
 	bool "Support for a bloblist in SPL"
@@ -746,7 +746,7 @@ config BLOBLIST_SIZE
 	  Sets the size of the bloblist in bytes. This must include all
 	  overhead (alignment, bloblist header, record header). The bloblist
 	  is set up in the first part of U-Boot to run (TPL, SPL or U-Boot
-	  proper), and this sane bloblist is used for subsequent stages.
+	  proper), and this sane bloblist is used for subsequent phases.
 
 config BLOBLIST_ALLOC
 	bool "Allocate bloblist"
@@ -760,7 +760,7 @@ config BLOBLIST_ADDR
 	default 0xc000 if SANDBOX
 	help
 	  Sets the address of the bloblist, set up by the first part of U-Boot
-	  which runs. Subsequent U-Boot stages typically use the same address.
+	  which runs. Subsequent U-Boot phases typically use the same address.
 
 	  This is not used if BLOBLIST_ALLOC is selected.
 
