@@ -13,6 +13,8 @@
 #ifndef __BLOBLIST_H
 #define __BLOBLIST_H
 
+#include <mapmem.h>
+
 enum {
 	BLOBLIST_VERSION	= 0,
 	BLOBLIST_MAGIC		= 0xb00757a3,
@@ -59,11 +61,11 @@ enum bloblist_tag_t {
  * Each bloblist record is aligned to a 16-byte boundary and follows immediately
  * from the last.
  *
+ * @magic: BLOBLIST_MAGIC
  * @version: BLOBLIST_VERSION
  * @hdr_size: Size of this header, normally sizeof(struct bloblist_hdr). The
  *	first bloblist_rec starts at this offset from the start of the header
  * @flags: Space for BLOBLISTF_... flags (none yet)
- * @magic: BLOBLIST_MAGIC
  * @size: Total size of the bloblist (non-zero if valid) including this header.
  *	The bloblist extends for this many bytes from the start of this header.
  *	When adding new records, the bloblist can grow up to this size.
@@ -78,10 +80,10 @@ enum bloblist_tag_t {
  *	calculation.
  */
 struct bloblist_hdr {
+	u32 magic;
 	u32 version;
 	u32 hdr_size;
 	u32 flags;
-	u32 magic;
 
 	u32 size;
 	u32 alloced;
@@ -110,6 +112,25 @@ struct bloblist_rec {
 	u32 size;
 	u32 spare;
 };
+
+/**
+ * bloblist_check_magic() - return a bloblist if the magic matches
+ *
+ * @addr: Address to check
+ * @return pointer to bloblist, if the magic matches, else NULL
+ */
+static inline void *bloblist_check_magic(ulong addr)
+{
+	u32 *ptr;
+
+	if (!addr)
+		return NULL;
+	ptr = map_sysmem(addr, 0);
+	if (*ptr != BLOBLIST_MAGIC)
+		return NULL;
+
+	return ptr;
+}
 
 /**
  * bloblist_find() - Find a blob

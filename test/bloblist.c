@@ -71,7 +71,9 @@ static int bloblist_test_init(struct unit_test_state *uts)
 
 	hdr = clear_bloblist();
 	ut_asserteq(-ENOENT, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
+	ut_asserteq_ptr(NULL, bloblist_check_magic(TEST_ADDR));
 	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	ut_asserteq_ptr(hdr, bloblist_check_magic(TEST_ADDR));
 	hdr->version++;
 	ut_asserteq(-EPROTONOSUPPORT, bloblist_check(TEST_ADDR,
 						     TEST_BLOBLIST_SIZE));
@@ -83,6 +85,11 @@ static int bloblist_test_init(struct unit_test_state *uts)
 	ut_asserteq(-EIO, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
 	ut_assertok(bloblist_finish());
 	ut_assertok(bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
+
+	hdr->magic++;
+	ut_asserteq_ptr(NULL, bloblist_check_magic(TEST_ADDR));
+	hdr->magic--;
+
 	hdr->flags++;
 	ut_asserteq(-EIO, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
 
