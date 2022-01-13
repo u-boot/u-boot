@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY	LOGC_BLOBLIST
+
 #include <common.h>
 #include <bloblist.h>
 #include <log.h>
@@ -133,9 +135,8 @@ static int bloblist_addrec(uint tag, int size, int align,
 	new_alloced = data_start + ALIGN(size, align);
 
 	if (new_alloced > hdr->size) {
-		log(LOGC_BLOBLIST, LOGL_ERR,
-		    "Failed to allocate %x bytes size=%x, need size=%x\n",
-		    size, hdr->size, new_alloced);
+		log_err("Failed to allocate %x bytes size=%x, need size=%x\n",
+			size, hdr->size, new_alloced);
 		return log_msg_ret("bloblist add", -ENOSPC);
 	}
 	rec = (void *)hdr + hdr->alloced;
@@ -249,14 +250,13 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 	expand_by = ALIGN(new_size - rec->size, BLOBLIST_ALIGN);
 	new_alloced = ALIGN(hdr->alloced + expand_by, BLOBLIST_ALIGN);
 	if (new_size < 0) {
-		log(LOGC_BLOBLIST, LOGL_DEBUG,
-		    "Attempt to shrink blob size below 0 (%x)\n", new_size);
+		log_debug("Attempt to shrink blob size below 0 (%x)\n",
+			  new_size);
 		return log_msg_ret("size", -EINVAL);
 	}
 	if (new_alloced > hdr->size) {
-		log(LOGC_BLOBLIST, LOGL_ERR,
-		    "Failed to allocate %x bytes size=%x, need size=%x\n",
-		    new_size, hdr->size, new_alloced);
+		log_err("Failed to allocate %x bytes size=%x, need size=%x\n",
+			new_size, hdr->size, new_alloced);
 		return log_msg_ret("alloc", -ENOSPC);
 	}
 
@@ -347,8 +347,7 @@ int bloblist_check(ulong addr, uint size)
 		return log_msg_ret("Bad size", -EFBIG);
 	chksum = bloblist_calc_chksum(hdr);
 	if (hdr->chksum != chksum) {
-		log(LOGC_BLOBLIST, LOGL_ERR, "Checksum %x != %x\n", hdr->chksum,
-		    chksum);
+		log_err("Checksum %x != %x\n", hdr->chksum, chksum);
 		return log_msg_ret("Bad checksum", -EIO);
 	}
 	gd->bloblist = hdr;
@@ -446,7 +445,7 @@ int bloblist_init(void)
 		}
 		ret = bloblist_new(addr, CONFIG_BLOBLIST_SIZE, 0);
 	} else {
-		log(LOGC_BLOBLIST, LOGL_DEBUG, "Found existing bloblist\n");
+		log_debug("Found existing bloblist\n");
 	}
 
 	return ret;
