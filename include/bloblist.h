@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: GPL-2.0+ BSD-3-Clause */
 /*
  * This provides a standard way of passing information between boot phases
  * (TPL -> SPL -> U-Boot proper.)
