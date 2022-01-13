@@ -19,9 +19,9 @@ DECLARE_GLOBAL_DATA_PTR;
 		UNIT_TEST(_name, _flags, bloblist_test)
 
 enum {
-	TEST_TAG		= 1,
-	TEST_TAG2		= 2,
-	TEST_TAG_MISSING	= 3,
+	TEST_TAG		= BLOBLISTT_U_BOOT_SPL_HANDOFF,
+	TEST_TAG2		= BLOBLISTT_VBOOT_CTX,
+	TEST_TAG_MISSING	= 0x10000,
 
 	TEST_SIZE		= 10,
 	TEST_SIZE2		= 20,
@@ -288,10 +288,10 @@ static int bloblist_test_cmd_list(struct unit_test_state *uts)
 	ut_silence_console(uts);
 	console_record_reset();
 	run_command("bloblist list", 0);
-	ut_assert_nextline("Address       Size  Tag Name");
-	ut_assert_nextline("%08lx  %8x    1 SPL hand-off",
+	ut_assert_nextline("Address       Size   Tag Name");
+	ut_assert_nextline("%08lx  %8x  8000 SPL hand-off",
 			   (ulong)map_to_sysmem(data), TEST_SIZE);
-	ut_assert_nextline("%08lx  %8x    2 Chrome OS vboot context",
+	ut_assert_nextline("%08lx  %8x   106 Chrome OS vboot context",
 			   (ulong)map_to_sysmem(data2), TEST_SIZE2);
 	ut_assert_console_end();
 	ut_unsilence_console(uts);

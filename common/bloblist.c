@@ -29,24 +29,39 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const char *const tag_name[] = {
-	[BLOBLISTT_NONE]		= "(none)",
-	[BLOBLISTT_U_BOOT_SPL_HANDOFF]	= "SPL hand-off",
-	[BLOBLISTT_VBOOT_CTX]		= "Chrome OS vboot context",
-	[BLOBLISTT_ACPI_GNVS]		= "ACPI GNVS",
-	[BLOBLISTT_INTEL_VBT]		= "Intel Video-BIOS table",
-	[BLOBLISTT_TPM2_TCG_LOG]	= "TPM v2 log space",
-	[BLOBLISTT_TCPA_LOG]		= "TPM log space",
-	[BLOBLISTT_ACPI_TABLES]		= "ACPI tables for x86",
-	[BLOBLISTT_SMBIOS_TABLES]	= "SMBIOS tables for x86",
+static struct tag_name {
+	enum bloblist_tag_t tag;
+	const char *name;
+} tag_name[] = {
+	{ BLOBLISTT_NONE, "(none)" },
+
+	/* BLOBLISTT_AREA_FIRMWARE_TOP */
+
+	/* BLOBLISTT_AREA_FIRMWARE */
+	{ BLOBLISTT_ACPI_GNVS, "ACPI GNVS" },
+	{ BLOBLISTT_INTEL_VBT, "Intel Video-BIOS table" },
+	{ BLOBLISTT_TPM2_TCG_LOG, "TPM v2 log space" },
+	{ BLOBLISTT_TCPA_LOG, "TPM log space" },
+	{ BLOBLISTT_ACPI_TABLES, "ACPI tables for x86" },
+	{ BLOBLISTT_SMBIOS_TABLES, "SMBIOS tables for x86" },
+	{ BLOBLISTT_VBOOT_CTX, "Chrome OS vboot context" },
+
+	/* BLOBLISTT_PROJECT_AREA */
+	{ BLOBLISTT_U_BOOT_SPL_HANDOFF, "SPL hand-off" },
+
+	/* BLOBLISTT_VENDOR_AREA */
 };
 
 const char *bloblist_tag_name(enum bloblist_tag_t tag)
 {
-	if (tag < 0 || tag >= BLOBLISTT_COUNT)
-		return "invalid";
+	int i;
 
-	return tag_name[tag];
+	for (i = 0; i < ARRAY_SIZE(tag_name); i++) {
+		if (tag_name[i].tag == tag)
+			return tag_name[i].name;
+	}
+
+	return "invalid";
 }
 
 static struct bloblist_rec *bloblist_first_blob(struct bloblist_hdr *hdr)
@@ -381,10 +396,10 @@ void bloblist_show_list(void)
 	struct bloblist_hdr *hdr = gd->bloblist;
 	struct bloblist_rec *rec;
 
-	printf("%-8s  %8s  Tag Name\n", "Address", "Size");
+	printf("%-8s  %8s   Tag Name\n", "Address", "Size");
 	for (rec = bloblist_first_blob(hdr); rec;
 	     rec = bloblist_next_blob(hdr, rec)) {
-		printf("%08lx  %8x  %3d %s\n",
+		printf("%08lx  %8x  %4x %s\n",
 		       (ulong)map_to_sysmem((void *)rec + rec->hdr_size),
 		       rec->size, rec->tag, bloblist_tag_name(rec->tag));
 	}

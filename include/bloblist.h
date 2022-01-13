@@ -25,21 +25,57 @@ enum {
 enum bloblist_tag_t {
 	BLOBLISTT_NONE = 0,
 
-	/* Vendor-specific tags are permitted here */
-	BLOBLISTT_U_BOOT_SPL_HANDOFF,		/* Hand-off info from SPL */
-	BLOBLISTT_VBOOT_CTX,		/* Chromium OS verified boot context */
+	/*
+	 * Standard area to allocate blobs used across firmware components, for
+	 * things that are very commonly used, particularly in multiple
+	 * projects.
+	 */
+	BLOBLISTT_AREA_FIRMWARE_TOP = 0x1,
+
+	/* Standard area to allocate blobs used across firmware components */
+	BLOBLISTT_AREA_FIRMWARE = 0x100,
 	/*
 	 * Advanced Configuration and Power Interface Global Non-Volatile
 	 * Sleeping table. This forms part of the ACPI tables passed to Linux.
 	 */
-	BLOBLISTT_ACPI_GNVS,
-	BLOBLISTT_INTEL_VBT,		/* Intel Video-BIOS table */
-	BLOBLISTT_TPM2_TCG_LOG,		/* TPM v2 log space */
-	BLOBLISTT_TCPA_LOG,		/* TPM log space */
-	BLOBLISTT_ACPI_TABLES,		/* ACPI tables for x86 */
-	BLOBLISTT_SMBIOS_TABLES,	/* SMBIOS tables for x86 */
+	BLOBLISTT_ACPI_GNVS = 0x100,
+	BLOBLISTT_INTEL_VBT = 0x101,	/* Intel Video-BIOS table */
+	BLOBLISTT_TPM2_TCG_LOG = 0x102,	/* TPM v2 log space */
+	BLOBLISTT_TCPA_LOG = 0x103,	/* TPM log space */
+	BLOBLISTT_ACPI_TABLES = 0x104,	/* ACPI tables for x86 */
+	BLOBLISTT_SMBIOS_TABLES = 0x105, /* SMBIOS tables for x86 */
+	BLOBLISTT_VBOOT_CTX = 0x106,	/* Chromium OS verified boot context */
 
-	BLOBLISTT_COUNT
+	/*
+	 * Project-specific tags are permitted here. Projects can be open source
+	 * or not, but the format of the data must be fuily documented in an
+	 * open source project, including all fields, bits, etc. Naming should
+	 * be: BLOBLISTT_<project>_<purpose_here>
+	 */
+	BLOBLISTT_PROJECT_AREA = 0x8000,
+	BLOBLISTT_U_BOOT_SPL_HANDOFF = 0x8000, /* Hand-off info from SPL */
+
+	/*
+	 * Vendor-specific tags are permitted here. Projects can be open source
+	 * or not, but the format of the data must be fuily documented in an
+	 * open source project, including all fields, bits, etc. Naming should
+	 * be BLOBLISTT_<vendor>_<purpose_here>
+	 */
+	BLOBLISTT_VENDOR_AREA = 0xc000,
+
+	/* Tags after this are not allocated for now */
+	BLOBLISTT_EXPANSION = 0x10000,
+
+	/*
+	 * Tags from here are on reserved for private use within a single
+	 * firmware binary (i.e. a single executable or phase of a project).
+	 * These tags can be passed between binaries within a local
+	 * implementation, but cannot be used in upstream code. Allocate a
+	 * tag in one of the areas above if you want that.
+	 *
+	 * This area may move in future.
+	 */
+	BLOBLISTT_PRIVATE_AREA = 0xffff0000,
 };
 
 /**
