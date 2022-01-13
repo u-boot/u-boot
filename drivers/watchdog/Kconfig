@@ -81,6 +81,15 @@ config WDT
 	  What exactly happens when the timer expires is up to a particular
 	  device/driver.
 
+config WDT_APPLE
+	bool "Apple watchdog timer support"
+	depends on WDT
+	default y if ARCH_APPLE
+	help
+	  Enable support for the watchdog timer on Apple SoCs.
+	  The watchdog will perform a full SoC reset resulting in a
+	  reboot of the entire system.
+
 config WDT_ARMADA_37XX
 	bool "Marvell Armada 37xx watchdog timer support"
 	depends on WDT && ARMADA_3700

@@ -328,6 +328,14 @@
 				     <AIC_IRQ 336 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
+		wdt: watchdog@23d2b0000 {
+			compatible = "apple,t8103-wdt", "apple,wdt";
+			reg = <0x2 0x3d2b0000 0x0 0x4000>;
+			clocks = <&clkref>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 338 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
 		pinctrl_smc: pinctrl@23e820000 {
 			compatible = "apple,t8103-pinctrl", "apple,pinctrl";
 			reg = <0x2 0x3e820000 0x0 0x4000>;
@@ -527,11 +535,6 @@
 			dr_mode = "host";
 			iommus = <&dwc3_1_dart_0 0>, <&dwc3_1_dart_1 1>;
 			status = "disabled";
-		};
-
-		reboot@23d2b0000 {
-			compatible = "apple,reboot-v0";
-			reg = <0x2 0x3d2b0000 0x0 0x4000>;
 		};
 
 		spi@23510c000 {

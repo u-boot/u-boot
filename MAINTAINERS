@@ -116,6 +116,7 @@ F:	arch/arm/mach-apple/
 F:	configs/apple_m1_defconfig
 F:	drivers/iommu/apple_dart.c
 F:	drivers/pinctrl/pinctrl-apple.c
+F:	drivers/watchdog/apple_wdt.c
 F:	include/configs/apple.h
 
 ARM
