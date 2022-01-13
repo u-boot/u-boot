@@ -49,12 +49,6 @@ struct fdt_memory {
 
 struct bd_info;
 
-#ifdef CONFIG_SPL_BUILD
-#define SPL_BUILD	1
-#else
-#define SPL_BUILD	0
-#endif
-
 /**
  * enum fdt_source_t - indicates where the devicetree came from
  *

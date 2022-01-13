@@ -266,7 +266,7 @@ const char *os_dirent_get_typename(enum os_dirent_t type);
  * @size:	size of file is returned if no error
  * Return:	0 on success or -1 if an error ocurred
  */
-int os_get_filesize(const char *fname, loff_t *size);
+int os_get_filesize(const char *fname, long long *size);
 
 /**
  * os_putc() - write a character to the controlling OS terminal

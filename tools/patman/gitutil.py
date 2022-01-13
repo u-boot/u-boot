@@ -616,9 +616,14 @@ def GetAliasFile():
     """
     fname = command.OutputOneLine('git', 'config', 'sendemail.aliasesfile',
             raise_on_error=False)
-    if fname:
-        fname = os.path.join(GetTopLevel(), fname.strip())
-    return fname
+    if not fname:
+        return None
+
+    fname = os.path.expanduser(fname.strip())
+    if os.path.isabs(fname):
+        return fname
+
+    return os.path.join(GetTopLevel(), fname)
 
 def GetDefaultUserName():
     """Gets the user.name from .gitconfig file.

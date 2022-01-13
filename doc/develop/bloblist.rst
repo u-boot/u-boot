@@ -31,7 +31,7 @@ Blobs
 While each blob in the bloblist can be of any length, bloblists are designed to
 hold small amounts of data, typically a few KB at most. It is not possible to
 change the length of a blob once it has been written. Each blob is normally
-created from a C structure which can beused to access its fields.
+created from a C structure which can be used to access its fields.
 
 
 Blob tags
@@ -91,6 +91,12 @@ Future work
 Bootstage has a mechanism to 'stash' its records for passing to the next part.
 This should move to using bloblist, to avoid having its own mechanism for
 passing information between U-Boot parts.
+
+
+API documentation
+-----------------
+
+.. kernel-doc:: include/bloblist.h
 
 
 Simon Glass
