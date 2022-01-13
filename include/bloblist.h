@@ -86,8 +86,8 @@ enum bloblist_tag_t {
  * same place in memory as SPL and U-Boot execute, but it can be safely moved
  * around.
  *
- * None of the bloblist structures contain pointers but it is possible to put
- * pointers inside a bloblist record if desired. This is not encouraged,
+ * None of the bloblist headers themselves contain pointers but it is possible
+ * to put pointers inside a bloblist record if desired. This is not encouraged,
  * since it can make part of the bloblist inaccessible if the pointer is
  * no-longer valid. It is better to just store all the data inside a bloblist
  * record.
@@ -99,7 +99,7 @@ enum bloblist_tag_t {
  * @version: BLOBLIST_VERSION
  * @hdr_size: Size of this header, normally sizeof(struct bloblist_hdr). The
  *	first bloblist_rec starts at this offset from the start of the header
- * @flags: Space for BLOBLISTF_... flags (none yet)
+ * @flags: Space for BLOBLISTF... flags (none yet)
  * @size: Total size of the bloblist (non-zero if valid) including this header.
  *	The bloblist extends for this many bytes from the start of this header.
  *	When adding new records, the bloblist can grow up to this size.
@@ -110,8 +110,8 @@ enum bloblist_tag_t {
  * @chksum: CRC32 for the entire bloblist allocated area. Since any of the
  *	blobs can be altered after being created, this checksum is only valid
  *	when the bloblist is finalised before jumping to the next stage of boot.
- *	Note: @chksum is last to make it easier to exclude it from the checksum
- *	calculation.
+ *	Note that chksum is last to make it easier to exclude it from the
+ *	checksum calculation.
  */
 struct bloblist_hdr {
 	u32 magic;
@@ -128,10 +128,10 @@ struct bloblist_hdr {
 /**
  * struct bloblist_rec - record for the bloblist
  *
- * NOTE: Only exported for testing purposes. Do not use this struct.
- *
  * The bloblist contains a number of records each consisting of this record
  * structure followed by the data contained. Each records is 16-byte aligned.
+ *
+ * NOTE: Only exported for testing purposes. Do not use this struct.
  *
  * @tag: Tag indicating what the record contains
  * @hdr_size: Size of this header, normally sizeof(struct bloblist_rec). The
@@ -161,7 +161,7 @@ static inline ulong bloblist_addr(void)
  * bloblist_check_magic() - return a bloblist if the magic matches
  *
  * @addr: Address to check
- * @return pointer to bloblist, if the magic matches, else NULL
+ * Return: pointer to bloblist, if the magic matches, else NULL
  */
 static inline void *bloblist_check_magic(ulong addr)
 {
@@ -183,8 +183,8 @@ static inline void *bloblist_check_magic(ulong addr)
  *
  * @tag:	Tag to search for (enum bloblist_tag_t)
  * @size:	Expected size of the blob, or 0 for any size
- * @return pointer to blob if found, or NULL if not found, or a blob was found
- *	but it is the wrong size
+ * Return: pointer to blob if found, or NULL if not found, or a blob was found
+ * but it is the wrong size
  */
 void *bloblist_find(uint tag, int size);
 
@@ -200,8 +200,8 @@ void *bloblist_find(uint tag, int size);
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @size:	Size of the blob
  * @align:	Alignment of the blob (in bytes), 0 for default
- * @return pointer to the newly added block, or NULL if there is not enough
- *	space for the blob
+ * Return: pointer to the newly added block, or NULL if there is not enough
+ * space for the blob
  */
 void *bloblist_add(uint tag, int size, int align);
 
@@ -214,8 +214,8 @@ void *bloblist_add(uint tag, int size, int align);
  * @size:	Size of the blob
  * @blobp:	Returns a pointer to blob on success
  * @align:	Alignment of the blob (in bytes), 0 for default
- * @return 0 if OK, -ENOSPC if it is missing and could not be added due to lack
- *	of space, or -ESPIPE it exists but has the wrong size
+ * Return: 0 if OK, -ENOSPC if it is missing and could not be added due to lack
+ * of space, or -ESPIPE it exists but has the wrong size
  */
 int bloblist_ensure_size(uint tag, int size, int align, void **blobp);
 
@@ -226,8 +226,8 @@ int bloblist_ensure_size(uint tag, int size, int align, void **blobp);
  *
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @size:	Size of the blob
- * @return pointer to blob, or NULL if it is missing and could not be added due
- *	to lack of space, or it exists but has the wrong size
+ * Return: pointer to blob, or NULL if it is missing and could not be added due
+ * to lack of space, or it exists but has the wrong size
  */
 void *bloblist_ensure(uint tag, int size);
 
@@ -239,8 +239,8 @@ void *bloblist_ensure(uint tag, int size);
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @sizep:	Size of the blob to create; returns size of actual blob
  * @blobp:	Returns a pointer to blob on success
- * @return 0 if OK, -ENOSPC if it is missing and could not be added due to lack
- *	of space
+ * Return: 0 if OK, -ENOSPC if it is missing and could not be added due to lack
+ * of space
  */
 int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp);
 
@@ -252,8 +252,8 @@ int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp);
  *
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @new_size:	New size of the blob (>0 to expand, <0 to contract)
- * @return 0 if OK, -ENOSPC if the bloblist does not have enough space, -ENOENT
- *	if the tag is not found
+ * Return: 0 if OK, -ENOSPC if the bloblist does not have enough space, -ENOENT
+ * if the tag is not found
  */
 int bloblist_resize(uint tag, int new_size);
 
@@ -263,8 +263,8 @@ int bloblist_resize(uint tag, int new_size);
  * @addr: Address of bloblist
  * @size: Initial size for bloblist
  * @flags: Flags to use for bloblist
- * @return 0 if OK, -EFAULT if addr is not aligned correctly, -ENOSPC is the
- *	area is not large enough
+ * Return: 0 if OK, -EFAULT if addr is not aligned correctly, -ENOSPC is the
+ * area is not large enough
  */
 int bloblist_new(ulong addr, uint size, uint flags);
 
@@ -273,11 +273,11 @@ int bloblist_new(ulong addr, uint size, uint flags);
  *
  * @addr: Address of bloblist
  * @size: Expected size of blobsize, or 0 to detect the size
- * @return 0 if OK, -ENOENT if the magic number doesn't match (indicating that
- *	there problem is no bloblist at the given address), -EPROTONOSUPPORT
- *	if the version does not match, -EIO if the checksum does not match,
- *	-EFBIG if the expected size does not match the detected size, -ENOSPC
- *	if the size is not large enough to hold the headers
+ * Return: 0 if OK, -ENOENT if the magic number doesn't match (indicating that
+ * there problem is no bloblist at the given address), -EPROTONOSUPPORT
+ * if the version does not match, -EIO if the checksum does not match,
+ * -EFBIG if the expected size does not match the detected size, -ENOSPC
+ * if the size is not large enough to hold the headers
  */
 int bloblist_check(ulong addr, uint size);
 
@@ -287,7 +287,7 @@ int bloblist_check(ulong addr, uint size);
  * This sets the correct checksum for the bloblist. This ensures that the
  * bloblist will be detected correctly by the next phase of U-Boot.
  *
- * @return 0
+ * Return: 0
  */
 int bloblist_finish(void);
 
@@ -305,14 +305,14 @@ void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp);
 /**
  * bloblist_get_base() - Get the base address of the bloblist
  *
- * @returns base address of bloblist
+ * Return: base address of bloblist
  */
 ulong bloblist_get_base(void);
 
 /**
  * bloblist_get_size() - Get the size of the bloblist
  *
- * @returns the size in bytes
+ * Return: the size in bytes
  */
 ulong bloblist_get_size(void);
 
@@ -334,7 +334,7 @@ void bloblist_show_list(void);
  * bloblist_tag_name() - Get the name for a tag
  *
  * @tag: Tag to check
- * @return name of tag, or "invalid" if an invalid tag is provided
+ * Return: name of tag, or "invalid" if an invalid tag is provided
  */
 const char *bloblist_tag_name(enum bloblist_tag_t tag);
 
@@ -342,7 +342,7 @@ const char *bloblist_tag_name(enum bloblist_tag_t tag);
  * bloblist_reloc() - Relocate the bloblist and optionally resize it
  *
  * @to: Pointer to new bloblist location (must not overlap old location)
- * @to:size: New size for bloblist (must be larger than from_size)
+ * @to_size: New size for bloblist (must be larger than from_size)
  * @from: Pointer to bloblist to relocate
  * @from_size: Size of bloblist to relocate
  */
@@ -351,8 +351,19 @@ void bloblist_reloc(void *to, uint to_size, void *from, uint from_size);
 /**
  * bloblist_init() - Init the bloblist system with a single bloblist
  *
- * This uses CONFIG_BLOBLIST_ADDR and CONFIG_BLOBLIST_SIZE to set up a bloblist
- * for use by U-Boot.
+ * This locates and sets up the blocklist for use.
+ *
+ * If CONFIG_BLOBLIST_FIXED is selected, it uses CONFIG_BLOBLIST_ADDR and
+ * CONFIG_BLOBLIST_SIZE to set up a bloblist for use by U-Boot.
+ *
+ * If CONFIG_BLOBLIST_ALLOC is selected, it allocates memory for a bloblist of
+ * size CONFIG_BLOBLIST_SIZE.
+ *
+ * If CONFIG_BLOBLIST_PASSAGE is selected, it uses the bloblist in the incoming
+ * standard passage. The size is detected automatically so CONFIG_BLOBLIST_SIZE
+ * can be 0.
+ *
+ * Return: 0 if OK, -ve on error
  */
 int bloblist_init(void);
 
