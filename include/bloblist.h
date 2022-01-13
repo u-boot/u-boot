@@ -303,6 +303,20 @@ int bloblist_finish(void);
 void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp);
 
 /**
+ * bloblist_get_base() - Get the base address of the bloblist
+ *
+ * @returns base address of bloblist
+ */
+ulong bloblist_get_base(void);
+
+/**
+ * bloblist_get_size() - Get the size of the bloblist
+ *
+ * @returns the size in bytes
+ */
+ulong bloblist_get_size(void);
+
+/**
  * bloblist_show_stats() - Show information about the bloblist
  *
  * This shows useful information about the bloblist on the console

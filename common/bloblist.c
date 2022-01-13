@@ -367,6 +367,18 @@ int bloblist_finish(void)
 	return 0;
 }
 
+ulong bloblist_get_base(void)
+{
+	return map_to_sysmem(gd->bloblist);
+}
+
+ulong bloblist_get_size(void)
+{
+	struct bloblist_hdr *hdr = gd->bloblist;
+
+	return hdr->size;
+}
+
 void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp)
 {
 	struct bloblist_hdr *hdr = gd->bloblist;
