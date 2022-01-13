@@ -83,7 +83,7 @@ static int clk_ti_ctrl_of_xlate(struct clk *clk,
 				struct ofnode_phandle_args *args)
 {
 	if (args->args_count != 2) {
-		dev_err(clk->dev, "invaild args_count: %d\n", args->args_count);
+		dev_err(clk->dev, "invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 

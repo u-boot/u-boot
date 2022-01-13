@@ -627,7 +627,7 @@ static int vc5_clk_out_xlate(struct clk *hw, struct ofnode_phandle_args *args)
 	unsigned int idx = args->args[0];
 
 	if (args->args_count != 1) {
-		debug("Invaild args_count: %d\n", args->args_count);
+		debug("Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 

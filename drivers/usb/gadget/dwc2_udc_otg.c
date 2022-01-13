@@ -461,7 +461,7 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	u32 max_hw_ep;
 	int pdata_hw_ep;
 
-	debug("Reseting OTG controller\n");
+	debug("Resetting OTG controller\n");
 
 	dflt_gusbcfg =
 		0<<15		/* PHY Low Power Clock sel*/

@@ -89,7 +89,7 @@ static int irq_of_xlate_default(struct irq *irq,
 	log_debug("(irq=%p)\n", irq);
 
 	if (args->args_count > 1) {
-		log_debug("Invaild args_count: %d\n", args->args_count);
+		log_debug("Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 

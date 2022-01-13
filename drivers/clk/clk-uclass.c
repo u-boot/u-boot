@@ -57,7 +57,7 @@ static int clk_of_xlate_default(struct clk *clk,
 	debug("%s(clk=%p)\n", __func__, clk);
 
 	if (args->args_count > 1) {
-		debug("Invaild args_count: %d\n", args->args_count);
+		debug("Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 

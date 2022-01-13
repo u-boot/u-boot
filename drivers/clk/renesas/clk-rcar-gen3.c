@@ -365,7 +365,7 @@ static ulong gen3_clk_set_rate(struct clk *clk, ulong rate)
 static int gen3_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
 {
 	if (args->args_count != 2) {
-		debug("Invaild args_count: %d\n", args->args_count);
+		debug("Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
 
