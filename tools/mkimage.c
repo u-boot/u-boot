@@ -146,7 +146,6 @@ static int add_content(int type, const char *fname)
 	return 0;
 }
 
-#define OPT_STRING "a:A:b:B:c:C:d:D:e:Ef:Fk:i:K:ln:N:p:O:rR:qstT:vVx"
 static void process_args(int argc, char **argv)
 {
 	char *ptr;
