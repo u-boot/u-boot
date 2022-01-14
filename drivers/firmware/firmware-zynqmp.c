@@ -49,6 +49,25 @@ static unsigned int xpm_configobject[] = {
 	PM_CONFIG_IPI_PSU_CORTEXR5_1_MASK, /* IPI Mask */
 };
 
+static unsigned int xpm_configobject_close[] = {
+	/**********************************************************************/
+	/* HEADER */
+	2,	/* Number of remaining words in the header */
+	1,	/* Number of sections included in config object */
+	PM_CONFIG_OBJECT_TYPE_OVERLAY,	/* Type of Config object as overlay */
+	/**********************************************************************/
+	/* SET CONFIG SECTION */
+	PM_CONFIG_SET_CONFIG_SECTION_ID,
+	0U,	/* Loading permission to Overlay config object */
+};
+
+int zynqmp_pmufw_config_close(void)
+{
+	zynqmp_pmufw_load_config_object(xpm_configobject_close,
+					sizeof(xpm_configobject_close));
+	return 0;
+}
+
 int zynqmp_pmufw_node(u32 id)
 {
 	/* Record power domain id */

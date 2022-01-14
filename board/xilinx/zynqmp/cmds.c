@@ -209,6 +209,19 @@ static int do_zynqmp_pmufw(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
+	if (!strncmp(argv[2], "node", 4)) {
+		u32 id;
+
+		if (!strncmp(argv[3], "close", 5))
+			return zynqmp_pmufw_config_close();
+
+		id = dectoul(argv[3], NULL);
+
+		printf("Enable permission for node ID %d\n", id);
+
+		return zynqmp_pmufw_node(id);
+	}
+
 	addr = hextoul(argv[2], NULL);
 	size = hextoul(argv[3], NULL);
 
@@ -416,6 +429,9 @@ static char zynqmp_help_text[] =
 	"		       lock(0)/split(1)\n"
 #endif
 	"zynqmp pmufw address size - load PMU FW configuration object\n"
+	"zynqmp pmufw node <id> - load PMU FW configuration object\n"
+	"zynqmp pmufw node close - disable config object loading\n"
+	"	node: keyword, id: NODE_ID in decimal format\n"
 	"zynqmp rsa srcaddr srclen mod exp rsaop -\n"
 	"	Performs RSA encryption and RSA decryption on blob of data\n"
 	"	at srcaddr and puts it back in srcaddr using modulus and\n"
