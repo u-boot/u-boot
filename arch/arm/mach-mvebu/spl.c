@@ -162,6 +162,18 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 		spl_image->offset *= 512;
 #endif
 
+	if (spl_image->offset % 4 != 0) {
+		printf("ERROR: Wrong srcaddr (0x%08x) in kwbimage\n",
+		       spl_image->offset);
+		return -EINVAL;
+	}
+
+	if (mhdr->blocksize <= 4 || mhdr->blocksize % 4 != 0) {
+		printf("ERROR: Wrong blocksize (0x%08x) in kwbimage\n",
+		       mhdr->blocksize);
+		return -EINVAL;
+	}
+
 	spl_image->size = mhdr->blocksize;
 	spl_image->entry_point = mhdr->execaddr;
 	spl_image->load_addr = mhdr->destaddr;
