@@ -367,6 +367,7 @@ enum pm_ioctl_id {
 #define PAYLOAD_ARG_CNT	5U
 
 unsigned int zynqmp_firmware_version(void);
+int zynqmp_pmufw_node(u32 id);
 void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
 int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		      u32 arg3, u32 *ret_payload);
