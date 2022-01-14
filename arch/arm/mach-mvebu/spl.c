@@ -99,6 +99,33 @@ u32 spl_mmc_boot_mode(const u32 boot_device)
 }
 #endif
 
+static u32 checksum32(void *start, u32 len)
+{
+	u32 csum = 0;
+	u32 *p = start;
+
+	while (len > 0) {
+		csum += *p++;
+		len -= sizeof(u32);
+	};
+
+	return csum;
+}
+
+int spl_check_board_image(struct spl_image_info *spl_image,
+			  const struct spl_boot_device *bootdev)
+{
+	u32 csum = *(u32 *)(spl_image->load_addr + spl_image->size - 4);
+
+	if (checksum32((void *)spl_image->load_addr,
+		       spl_image->size - 4) != csum) {
+		printf("ERROR: Invalid data checksum in kwbimage\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 int spl_parse_board_header(struct spl_image_info *spl_image,
 			   const struct spl_boot_device *bootdev,
 			   const void *image_header, size_t size)
