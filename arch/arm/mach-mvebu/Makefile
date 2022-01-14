@@ -21,6 +21,7 @@ else # CONFIG_ARCH_KIRKWOOD
 
 obj-y	= cpu.o
 obj-y	+= dram.o
+obj-$(CONFIG_DM_RESET) += system-controller.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_ARMADA_375) += ../../../drivers/ddr/marvell/axp/xor.o
 obj-$(CONFIG_ARMADA_38X) += ../../../drivers/ddr/marvell/a38x/xor.o
@@ -29,6 +30,17 @@ obj-$(CONFIG_ARMADA_MSYS) += ../../../drivers/ddr/marvell/axp/xor.o
 obj-$(CONFIG_MVEBU_EFUSE) += efuse.o
 
 extra-y += kwbimage.cfg
+
+ifneq ($(CONFIG_ARMADA_370)$(CONFIG_ARMADA_XP),)
+	KWB_REPLACE += CPU
+	KWB_CFG_CPU = SHEEVA
+else ifneq ($(CONFIG_ARMADA_375)$(CONFIG_ARMADA_38X)$(CONFIG_ARMADA_39X),)
+	KWB_REPLACE += CPU
+	KWB_CFG_CPU = A9
+endif
+
+KWB_REPLACE += LOAD_ADDRESS
+KWB_CFG_LOAD_ADDRESS = $(CONFIG_SPL_TEXT_BASE)
 
 KWB_REPLACE += BOOT_FROM
 ifneq ($(CONFIG_MVEBU_SPL_BOOT_DEVICE_SPI),)
@@ -58,10 +70,20 @@ KWB_REPLACE += SEC_FUSE_DUMP
 KWB_CFG_SEC_FUSE_DUMP = a38x
 endif
 
+ifdef CONFIG_ARMADA_38X
+# BootROM output is by default enabled on pre-A38x and disabled on A38x
+# DEBUG flag on A38x for non-UART boot source only enable BootROM output and nothing more
+KWB_REPLACE += DEBUG
+KWB_CFG_DEBUG = 1
+endif
+
+quiet_cmd_kwbcfg = KWBCFG  $@
+cmd_kwbcfg = sed -ne '$(foreach V,$(KWB_REPLACE),s/\#@$(V)/$(V) $(KWB_CFG_$(V))/;)p' \
+	<$< >$(dir $@)$(@F)
+
 $(obj)/kwbimage.cfg: $(src)/kwbimage.cfg.in include/autoconf.mk \
 		include/config/auto.conf
-	$(Q)sed -ne '$(foreach V,$(KWB_REPLACE),s/^#@$(V)/$(V) $(KWB_CFG_$(V))/;)p' \
-	<$< >$(dir $@)$(@F)
+	$(call cmd,kwbcfg)
 
 endif # CONFIG_SPL_BUILD
 obj-y	+= gpio.o

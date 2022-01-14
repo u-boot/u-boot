@@ -5,8 +5,14 @@
 # Armada 38x uses version 1 image format
 VERSION		1
 
+# Type of the CPU core
+#@CPU
+
 # Boot Media configurations
 #@BOOT_FROM
 
-# Binary Header (bin_hdr) with DDR3 training code
-BINARY spl/u-boot-spl.bin
+# Enable BootROM output via DEBUG flag on SoCs which require it
+#@DEBUG
+
+# Include U-Boot SPL with DDR3 training code into Binary Header
+BINARY spl/u-boot-spl.bin #@LOAD_ADDRESS

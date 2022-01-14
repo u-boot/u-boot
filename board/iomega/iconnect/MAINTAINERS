@@ -1,4 +1,5 @@
 ICONNECT BOARD
+M:      Tony Dinh <mibodhi@gmail.com>
 M:	Luka Perkov <luka@openwrt.org>
 S:	Maintained
 F:	board/iomega/iconnect/

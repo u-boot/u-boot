@@ -167,8 +167,6 @@ static u16 a38x_vco_freq_per_sar_ref_clk_40_mhz[] = {
 };
 
 
-static u32 async_mode_at_tf;
-
 static u32 dq_bit_map_2_phy_pin[] = {
 	1, 0, 2, 6, 9, 8, 3, 7,	/* 0 */
 	8, 9, 1, 7, 2, 6, 3, 0,	/* 1 */
@@ -734,7 +732,8 @@ static int ddr3_tip_a38x_set_divider(u8 dev_num, u32 if_id,
 	u32 divider = 0;
 	u32 sar_val, ref_clk_satr;
 	u32 async_val;
-	u32 freq = mv_ddr_freq_get(frequency);
+	u32 cpu_freq;
+	u32 ddr_freq = mv_ddr_freq_get(frequency);
 
 	if (if_id != 0) {
 		DEBUG_TRAINING_ACCESS(DEBUG_LEVEL_ERROR,
@@ -751,11 +750,14 @@ static int ddr3_tip_a38x_set_divider(u8 dev_num, u32 if_id,
 	ref_clk_satr = reg_read(DEVICE_SAMPLE_AT_RESET2_REG);
 	if (((ref_clk_satr >> DEVICE_SAMPLE_AT_RESET2_REG_REFCLK_OFFSET) & 0x1) ==
 	    DEVICE_SAMPLE_AT_RESET2_REG_REFCLK_25MHZ)
-		divider = a38x_vco_freq_per_sar_ref_clk_25_mhz[sar_val] / freq;
+		cpu_freq = a38x_vco_freq_per_sar_ref_clk_25_mhz[sar_val];
 	else
-		divider = a38x_vco_freq_per_sar_ref_clk_40_mhz[sar_val] / freq;
+		cpu_freq = a38x_vco_freq_per_sar_ref_clk_40_mhz[sar_val];
 
-	if ((async_mode_at_tf == 1) && (freq > 400)) {
+	divider = cpu_freq / ddr_freq;
+
+	if (((cpu_freq % ddr_freq != 0) || (divider != 2 && divider != 3)) &&
+	    (ddr_freq > 400)) {
 		/* Set async mode */
 		dunit_write(0x20220, 0x1000, 0x1000);
 		dunit_write(0xe42f4, 0x200, 0x200);
@@ -869,8 +871,6 @@ int ddr3_tip_ext_write(u32 dev_num, u32 if_id, u32 reg_addr,
 
 int mv_ddr_early_init(void)
 {
-	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
-
 	/* FIXME: change this configuration per ddr type
 	 * configure a380 and a390 to work with receiver odt timing
 	 * the odt_config is defined:
@@ -881,9 +881,6 @@ int mv_ddr_early_init(void)
 	 */
 
 	mv_ddr_sw_db_init(0, 0);
-
-	if (tm->interface_params[0].memory_freq != MV_DDR_FREQ_SAR)
-		async_mode_at_tf = 1;
 
 	return MV_OK;
 }
