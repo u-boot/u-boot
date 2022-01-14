@@ -63,7 +63,7 @@ static int fit_image_process_hash(void *fit, const char *image_name,
 	uint8_t value[FIT_MAX_HASH_LEN];
 	const char *node_name;
 	int value_len;
-	char *algo;
+	const char *algo;
 	int ret;
 
 	node_name = fit_get_name(fit, noffset, NULL);
@@ -160,7 +160,7 @@ static int fit_image_setup_sig(struct image_sign_info *info,
 		const char *engine_id)
 {
 	const char *node_name;
-	char *algo_name;
+	const char *algo_name;
 	const char *padding_name;
 
 	node_name = fit_get_name(fit, noffset, NULL);
