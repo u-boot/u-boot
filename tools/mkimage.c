@@ -341,6 +341,44 @@ static void process_args(int argc, char **argv)
 		usage("Missing output filename");
 }
 
+static void verify_image(const struct image_type_params *tparams)
+{
+	struct stat sbuf;
+	void *ptr;
+	int ifd;
+
+	ifd = open(params.imagefile, O_RDONLY | O_BINARY);
+	if (ifd < 0) {
+		fprintf(stderr, "%s: Can't open %s: %s\n",
+			params.cmdname, params.imagefile,
+			strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	if (fstat(ifd, &sbuf) < 0) {
+		fprintf(stderr, "%s: Can't stat %s: %s\n",
+			params.cmdname, params.imagefile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	params.file_size = sbuf.st_size;
+
+	ptr = mmap(0, params.file_size, PROT_READ, MAP_SHARED, ifd, 0);
+	if (ptr == MAP_FAILED) {
+		fprintf(stderr, "%s: Can't map %s: %s\n",
+			params.cmdname, params.imagefile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	if (tparams->verify_header((unsigned char *)ptr, params.file_size, &params) != 0) {
+		fprintf(stderr, "%s: Failed to verify header of %s\n",
+			params.cmdname, params.imagefile);
+		exit(EXIT_FAILURE);
+	}
+
+	(void)munmap(ptr, params.file_size);
+	(void)close(ifd);
+}
+
 int main(int argc, char **argv)
 {
 	int ifd = -1;
@@ -702,6 +740,9 @@ int main(int argc, char **argv)
 			params.cmdname, params.imagefile, strerror(errno));
 		exit (EXIT_FAILURE);
 	}
+
+	if (tparams->verify_header)
+		verify_image(tparams);
 
 	exit (EXIT_SUCCESS);
 }
