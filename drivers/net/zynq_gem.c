@@ -336,7 +336,8 @@ static int zynq_phy_init(struct udevice *dev)
 				  ADVERTISED_Asym_Pause;
 
 	priv->phydev->advertising = priv->phydev->supported;
-	priv->phydev->node = priv->phy_of_node;
+	if (!ofnode_valid(priv->phydev->node))
+		priv->phydev->node = priv->phy_of_node;
 
 	return phy_config(priv->phydev);
 }
