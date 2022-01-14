@@ -55,7 +55,7 @@ int spl_ubi_load_image(struct spl_image_info *spl_image,
 		ret = ubispl_load_volumes(&info, volumes, 2);
 		if (!ret) {
 			header = (struct image_header *)volumes[0].load_addr;
-			spl_parse_image_header(spl_image, header);
+			spl_parse_image_header(spl_image, bootdev, header);
 			puts("Linux loaded.\n");
 			goto out;
 		}
@@ -75,7 +75,7 @@ int spl_ubi_load_image(struct spl_image_info *spl_image,
 
 	ret = ubispl_load_volumes(&info, volumes, 1);
 	if (!ret)
-		spl_parse_image_header(spl_image, header);
+		spl_parse_image_header(spl_image, bootdev, header);
 out:
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	if (bootdev->boot_device == BOOT_DEVICE_NAND)

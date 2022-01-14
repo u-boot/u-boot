@@ -39,7 +39,7 @@ static int spl_sdp_load_image(struct spl_image_info *spl_image,
 	 * or it loads a FIT image and returns it to be handled by the SPL
 	 * code.
 	 */
-	ret = spl_sdp_handle(controller_index, spl_image);
+	ret = spl_sdp_handle(controller_index, spl_image, bootdev);
 	debug("SDP ended\n");
 
 	usb_gadget_release(controller_index);

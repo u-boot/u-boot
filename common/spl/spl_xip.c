@@ -24,7 +24,7 @@ static int spl_xip(struct spl_image_info *spl_image,
 		return 0;
 	}
 #endif
-	return(spl_parse_image_header(spl_image, (const struct image_header *)
-	       CONFIG_SYS_UBOOT_BASE));
+	return(spl_parse_image_header(spl_image, bootdev,
+	       (const struct image_header *)CONFIG_SYS_UBOOT_BASE));
 }
 SPL_LOAD_IMAGE_METHOD("XIP", 0, BOOT_DEVICE_XIP, spl_xip);

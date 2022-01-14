@@ -49,10 +49,10 @@ int spl_usb_load(struct spl_image_info *spl_image,
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
 	if (spl_start_uboot() ||
-	    spl_load_image_fat_os(spl_image, stor_dev, partition))
+	    spl_load_image_fat_os(spl_image, bootdev, stor_dev, partition))
 #endif
 	{
-		err = spl_load_image_fat(spl_image, stor_dev, partition, filename);
+		err = spl_load_image_fat(spl_image, bootdev, stor_dev, partition, filename);
 	}
 
 	if (err) {

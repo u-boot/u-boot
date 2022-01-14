@@ -29,6 +29,7 @@ struct image_header;
 
 struct blk_desc;
 struct image_header;
+struct spl_boot_device;
 
 /*
  * u_boot_first_phase() - check if this is the first U-Boot phase
@@ -340,6 +341,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
  * Returns 0 on success.
  */
 int spl_load_legacy_img(struct spl_image_info *spl_image,
+			struct spl_boot_device *bootdev,
 			struct spl_load_info *load, ulong header);
 
 /**
@@ -438,6 +440,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image);
  * @return 0 if a header was correctly parsed, -ve on error
  */
 int spl_parse_image_header(struct spl_image_info *spl_image,
+			   const struct spl_boot_device *bootdev,
 			   const struct image_header *header);
 
 void spl_board_prepare_for_linux(void);
@@ -574,18 +577,22 @@ static inline const char *spl_loader_name(const struct spl_image_loader *loader)
 
 /* SPL FAT image functions */
 int spl_load_image_fat(struct spl_image_info *spl_image,
+		       struct spl_boot_device *bootdev,
 		       struct blk_desc *block_dev, int partition,
 		       const char *filename);
 int spl_load_image_fat_os(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev,
 			  struct blk_desc *block_dev, int partition);
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image);
 
 /* SPL EXT image functions */
 int spl_load_image_ext(struct spl_image_info *spl_image,
+		       struct spl_boot_device *bootdev,
 		       struct blk_desc *block_dev, int partition,
 		       const char *filename);
 int spl_load_image_ext_os(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev,
 			  struct blk_desc *block_dev, int partition);
 
 /**
