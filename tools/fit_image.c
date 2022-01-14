@@ -73,7 +73,8 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 						params->comment,
 						params->require_keys,
 						params->engine_id,
-						params->cmdname);
+						params->cmdname,
+						params->algo_name);
 	}
 
 	if (dest_blob) {

@@ -1031,6 +1031,7 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
  * @require_keys: Mark all keys as 'required'
  * @engine_id:	Engine to use for signing
  * @cmdname:	Command name used when reporting errors
+ * @algo_name:	Algorithm name, or NULL if to be read from FIT
  *
  * Adds hash values for all component images in the FIT blob.
  * Hashes are calculated for all component images which have hash subnodes
@@ -1045,7 +1046,7 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
 int fit_add_verification_data(const char *keydir, const char *keyfile,
 			      void *keydest, void *fit, const char *comment,
 			      int require_keys, const char *engine_id,
-			      const char *cmdname);
+			      const char *cmdname, const char *algo_name);
 
 int fit_image_verify_with_data(const void *fit, int image_noffset,
 			       const void *data, size_t size);

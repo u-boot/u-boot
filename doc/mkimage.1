@@ -156,6 +156,11 @@ verification. Typically the file here is the device tree binary used by
 CONFIG_OF_CONTROL in U-Boot.
 
 .TP
+.BI "\-o [" "signing algorithm" "]"
+Specifies the algorithm to be used for signing a FIT image. The default is
+taken from the target signature nodes 'algo' properties.
+
+.TP
 .BI "\-p [" "external position" "]"
 Place external data at a static external position. See \-E. Instead of writing
 a 'data-offset' property defining the offset from the end of the FIT, \-p will

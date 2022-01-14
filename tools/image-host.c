@@ -107,7 +107,7 @@ static int fit_image_process_hash(void *fit, const char *image_name,
  */
 static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
 		int value_len, const char *comment, const char *region_prop,
-		int region_proplen, const char *cmdname)
+		int region_proplen, const char *cmdname, const char *algo_name)
 {
 	int string_size;
 	int ret;
@@ -150,6 +150,8 @@ static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
 					  strdata, sizeof(strdata));
 		}
 	}
+	if (algo_name && !ret)
+		ret = fdt_setprop_string(fit, noffset, "algo", algo_name);
 
 	return ret;
 }
@@ -157,17 +159,18 @@ static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
 static int fit_image_setup_sig(struct image_sign_info *info,
 		const char *keydir, const char *keyfile, void *fit,
 		const char *image_name, int noffset, const char *require_keys,
-		const char *engine_id)
+		const char *engine_id, const char *algo_name)
 {
 	const char *node_name;
-	const char *algo_name;
 	const char *padding_name;
 
 	node_name = fit_get_name(fit, noffset, NULL);
-	if (fit_image_hash_get_algo(fit, noffset, &algo_name)) {
-		printf("Can't get algo property for '%s' signature node in '%s' image node\n",
-		       node_name, image_name);
-		return -1;
+	if (!algo_name) {
+		if (fit_image_hash_get_algo(fit, noffset, &algo_name)) {
+			printf("Can't get algo property for '%s' signature node in '%s' image node\n",
+			       node_name, image_name);
+			return -1;
+		}
 	}
 
 	padding_name = fdt_getprop(fit, noffset, "padding", NULL);
@@ -215,7 +218,7 @@ static int fit_image_process_sig(const char *keydir, const char *keyfile,
 		void *keydest, void *fit, const char *image_name,
 		int noffset, const void *data, size_t size,
 		const char *comment, int require_keys, const char *engine_id,
-		const char *cmdname)
+		const char *cmdname, const char *algo_name)
 {
 	struct image_sign_info info;
 	struct image_region region;
@@ -226,7 +229,7 @@ static int fit_image_process_sig(const char *keydir, const char *keyfile,
 
 	if (fit_image_setup_sig(&info, keydir, keyfile, fit, image_name,
 				noffset, require_keys ? "image" : NULL,
-				engine_id))
+				engine_id, algo_name))
 		return -1;
 
 	node_name = fit_get_name(fit, noffset, NULL);
@@ -244,7 +247,7 @@ static int fit_image_process_sig(const char *keydir, const char *keyfile,
 	}
 
 	ret = fit_image_write_sig(fit, noffset, value, value_len, comment,
-			NULL, 0, cmdname);
+			NULL, 0, cmdname, algo_name);
 	if (ret) {
 		if (ret == -FDT_ERR_NOSPACE)
 			return -ENOSPC;
@@ -606,7 +609,7 @@ int fit_image_cipher_data(const char *keydir, void *keydest,
 int fit_image_add_verification_data(const char *keydir, const char *keyfile,
 		void *keydest, void *fit, int image_noffset,
 		const char *comment, int require_keys, const char *engine_id,
-		const char *cmdname)
+		const char *cmdname, const char* algo_name)
 {
 	const char *image_name;
 	const void *data;
@@ -643,7 +646,8 @@ int fit_image_add_verification_data(const char *keydir, const char *keyfile,
 				strlen(FIT_SIG_NODENAME))) {
 			ret = fit_image_process_sig(keydir, keyfile, keydest,
 				fit, image_name, noffset, data, size,
-				comment, require_keys, engine_id, cmdname);
+				comment, require_keys, engine_id, cmdname,
+				algo_name);
 		}
 		if (ret)
 			return ret;
@@ -927,7 +931,8 @@ static int fit_config_get_data(void *fit, int conf_noffset, int noffset,
 static int fit_config_process_sig(const char *keydir, const char *keyfile,
 		void *keydest,	void *fit, const char *conf_name,
 		int conf_noffset, int noffset, const char *comment,
-		int require_keys, const char *engine_id, const char *cmdname)
+		int require_keys, const char *engine_id, const char *cmdname,
+		const char *algo_name)
 {
 	struct image_sign_info info;
 	const char *node_name;
@@ -945,7 +950,8 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
 		return -1;
 
 	if (fit_image_setup_sig(&info, keydir, keyfile, fit, conf_name, noffset,
-				require_keys ? "conf" : NULL, engine_id))
+				require_keys ? "conf" : NULL, engine_id,
+				algo_name))
 		return -1;
 
 	ret = info.crypto->sign(&info, region, region_count, &value,
@@ -962,7 +968,8 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
 	}
 
 	ret = fit_image_write_sig(fit, noffset, value, value_len, comment,
-				region_prop, region_proplen, cmdname);
+				  region_prop, region_proplen, cmdname,
+				  algo_name);
 	if (ret) {
 		if (ret == -FDT_ERR_NOSPACE)
 			return -ENOSPC;
@@ -992,7 +999,7 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
 static int fit_config_add_verification_data(const char *keydir,
 		const char *keyfile, void *keydest, void *fit, int conf_noffset,
 		const char *comment, int require_keys, const char *engine_id,
-		const char *cmdname)
+		const char *cmdname, const char *algo_name)
 {
 	const char *conf_name;
 	int noffset;
@@ -1011,7 +1018,7 @@ static int fit_config_add_verification_data(const char *keydir,
 			     strlen(FIT_SIG_NODENAME))) {
 			ret = fit_config_process_sig(keydir, keyfile, keydest,
 				fit, conf_name, conf_noffset, noffset, comment,
-				require_keys, engine_id, cmdname);
+				require_keys, engine_id, cmdname, algo_name);
 		}
 		if (ret)
 			return ret;
@@ -1058,7 +1065,7 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
 int fit_add_verification_data(const char *keydir, const char *keyfile,
 			      void *keydest, void *fit, const char *comment,
 			      int require_keys, const char *engine_id,
-			      const char *cmdname)
+			      const char *cmdname, const char *algo_name)
 {
 	int images_noffset, confs_noffset;
 	int noffset;
@@ -1082,7 +1089,7 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
 		 */
 		ret = fit_image_add_verification_data(keydir, keyfile, keydest,
 				fit, noffset, comment, require_keys, engine_id,
-				cmdname);
+				cmdname, algo_name);
 		if (ret)
 			return ret;
 	}
@@ -1106,7 +1113,8 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
 		ret = fit_config_add_verification_data(keydir, keyfile, keydest,
 						       fit, noffset, comment,
 						       require_keys,
-						       engine_id, cmdname);
+						       engine_id, cmdname,
+						       algo_name);
 		if (ret)
 			return ret;
 	}

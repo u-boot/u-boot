@@ -154,7 +154,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-		   "a:A:b:B:c:C:d:D:e:Ef:FG:k:i:K:ln:N:p:O:rR:qstT:vVx")) != -1) {
+		   "a:A:b:B:c:C:d:D:e:Ef:FG:k:i:K:ln:N:p:o:O:rR:qstT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -249,6 +249,9 @@ static void process_args(int argc, char **argv)
 			break;
 		case 'N':
 			params.engine_id = optarg;
+			break;
+		case 'o':
+			params.algo_name = optarg;
 			break;
 		case 'O':
 			params.os = genimg_get_os_id(optarg);
