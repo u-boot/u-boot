@@ -101,15 +101,15 @@ static int sandbox_clk_request(struct clk *clk)
 	return 0;
 }
 
-static int sandbox_clk_free(struct clk *clk)
+static void sandbox_clk_free(struct clk *clk)
 {
 	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
 
 	if (clk->id >= SANDBOX_CLK_ID_COUNT)
-		return -EINVAL;
+		return;
 
 	priv->requested[clk->id] = false;
-	return 0;
+	return;
 }
 
 static struct clk_ops sandbox_clk_ops = {
