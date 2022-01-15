@@ -447,9 +447,7 @@ int clk_release_all(struct clk *clk, int count)
 		if (ret && ret != -ENOSYS)
 			return ret;
 
-		ret = clk_free(&clk[i]);
-		if (ret && ret != -ENOSYS)
-			return ret;
+		clk_free(&clk[i]);
 	}
 
 	return 0;
@@ -472,18 +470,18 @@ int clk_request(struct udevice *dev, struct clk *clk)
 	return ops->request(clk);
 }
 
-int clk_free(struct clk *clk)
+void clk_free(struct clk *clk)
 {
 	const struct clk_ops *ops;
 
 	debug("%s(clk=%p)\n", __func__, clk);
 	if (!clk_valid(clk))
-		return 0;
+		return;
 	ops = clk_dev_ops(clk->dev);
 
 	if (ops->rfree)
 		ops->rfree(clk);
-	return 0;
+	return;
 }
 
 ulong clk_get_rate(struct clk *clk)
