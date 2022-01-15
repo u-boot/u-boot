@@ -40,7 +40,7 @@ struct driver_info {
 #endif
 
 /**
- * driver_rt - runtime information set up by U-Boot
+ * struct driver_rt - runtime information set up by U-Boot
  *
  * There is one of these for every driver_info in the linker list, indexed by
  * the driver_info idx value.
@@ -51,7 +51,7 @@ struct driver_rt {
 	struct udevice *dev;
 };
 
-/**
+/*
  * NOTE: Avoid using these except in extreme circumstances, where device tree
  * is not feasible (e.g. serial driver in SPL where <8KB of SRAM is
  * available). U-Boot's driver model uses device tree for configuration.

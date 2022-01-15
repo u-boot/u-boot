@@ -128,8 +128,11 @@ static efi_status_t efi_get_dfu_info(
 	size_t names_len, total_size;
 	int dfu_num, i;
 	u16 *name, *next;
+	int ret;
 
-	dfu_init_env_entities(NULL, NULL);
+	ret = dfu_init_env_entities(NULL, NULL);
+	if (ret)
+		return EFI_SUCCESS;
 
 	names_len = 0;
 	dfu_num = 0;
@@ -138,7 +141,7 @@ static efi_status_t efi_get_dfu_info(
 		dfu_num++;
 	}
 	if (!dfu_num) {
-		log_warning("Probably dfu_alt_info not defined\n");
+		log_warning("No entities in dfu_alt_info\n");
 		*image_info_size = 0;
 		dfu_free_entities();
 

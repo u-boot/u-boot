@@ -65,9 +65,8 @@ endif
 
 lib-$(CONFIG_USE_PRIVATE_LIBGCC) += div64.o
 
-ifeq ($(CONFIG_$(SPL_)X86_64),)
-obj-$(CONFIG_EFI_APP) += crt0_ia32_efi.o reloc_ia32_efi.o
-endif
+obj-$(CONFIG_EFI_APP_32BIT) += crt0_ia32_efi.o reloc_ia32_efi.o
+obj-$(CONFIG_EFI_APP_64BIT) += crt0_x86_64_efi.o reloc_x86_64_efi.o
 
 ifneq ($(CONFIG_EFI_STUB),)
 

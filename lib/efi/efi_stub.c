@@ -304,15 +304,12 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 {
 	struct efi_priv local_priv, *priv = &local_priv;
 	struct efi_boot_services *boot = sys_table->boottime;
-	struct efi_mem_desc *desc;
 	struct efi_entry_memmap map;
 	struct efi_gop *gop;
 	struct efi_entry_gopmode mode;
 	struct efi_entry_systable table;
 	efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
-	efi_uintn_t key, desc_size, size;
 	efi_status_t ret;
-	u32 version;
 	int cs32;
 
 	ret = efi_init(priv, "Payload", image, sys_table);
@@ -327,24 +324,11 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 	if (cs32 < 0)
 		return EFI_UNSUPPORTED;
 
-	/* Get the memory map so we can switch off EFI */
-	size = 0;
-	ret = boot->get_memory_map(&size, NULL, &key, &desc_size, &version);
-	if (ret != EFI_BUFFER_TOO_SMALL) {
-		printhex2(EFI_BITS_PER_LONG);
-		putc(' ');
-		printhex2(ret);
-		puts(" No memory map\n");
+	ret = efi_store_memory_map(priv);
+	if (ret)
 		return ret;
-	}
-	size += 1024;	/* Since doing a malloc() may change the memory map! */
-	desc = efi_malloc(priv, size, &ret);
-	if (!desc) {
-		printhex2(ret);
-		puts(" No memory for memory descriptor\n");
-		return ret;
-	}
-	ret = setup_info_table(priv, size + 128);
+
+	ret = setup_info_table(priv, priv->memmap_size + 128);
 	if (ret)
 		return ret;
 
@@ -360,48 +344,20 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 			       sizeof(struct efi_gop_mode_info));
 	}
 
-	ret = boot->get_memory_map(&size, desc, &key, &desc_size, &version);
-	if (ret) {
-		printhex2(ret);
-		puts(" Can't get memory map\n");
-		return ret;
-	}
-
 	table.sys_table = (ulong)sys_table;
 	add_entry_addr(priv, EFIET_SYS_TABLE, &table, sizeof(table), NULL, 0);
 
-	ret = boot->exit_boot_services(image, key);
-	if (ret) {
-		/*
-		 * Unfortunately it happens that we cannot exit boot services
-		 * the first time. But the second time it work. I don't know
-		 * why but this seems to be a repeatable problem. To get
-		 * around it, just try again.
-		 */
-		printhex2(ret);
-		puts(" Can't exit boot services\n");
-		size = sizeof(desc);
-		ret = boot->get_memory_map(&size, desc, &key, &desc_size,
-					   &version);
-		if (ret) {
-			printhex2(ret);
-			puts(" Can't get memory map\n");
-			return ret;
-		}
-		ret = boot->exit_boot_services(image, key);
-		if (ret) {
-			printhex2(ret);
-			puts(" Can't exit boot services 2\n");
-			return ret;
-		}
-	}
+	ret = efi_call_exit_boot_services();
+	if (ret)
+		return ret;
 
 	/* The EFI UART won't work now, switch to a debug one */
 	use_uart = true;
 
-	map.version = version;
-	map.desc_size = desc_size;
-	add_entry_addr(priv, EFIET_MEMORY_MAP, &map, sizeof(map), desc, size);
+	map.version = priv->memmap_version;
+	map.desc_size = priv->memmap_desc_size;
+	add_entry_addr(priv, EFIET_MEMORY_MAP, &map, sizeof(map),
+		       priv->memmap_desc, priv->memmap_size);
 	add_entry_addr(priv, EFIET_END, NULL, 0, 0, 0);
 
 	memcpy((void *)CONFIG_SYS_TEXT_BASE, _binary_u_boot_bin_start,

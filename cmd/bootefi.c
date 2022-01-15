@@ -310,6 +310,8 @@ efi_status_t efi_install_fdt(void *fdt)
 	/* Create memory reservations as indicated by the device tree */
 	efi_carve_out_dt_rsv(fdt);
 
+	efi_try_purge_kaslr_seed(fdt);
+
 	/* Install device tree as UEFI table */
 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
 	if (ret != EFI_SUCCESS) {

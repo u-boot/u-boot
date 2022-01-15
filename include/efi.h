@@ -395,9 +395,9 @@ struct efi_entry_systable {
 };
 
 static inline struct efi_mem_desc *efi_get_next_mem_desc(
-		struct efi_entry_memmap *map, struct efi_mem_desc *desc)
+		struct efi_mem_desc *desc, int desc_size)
 {
-	return (struct efi_mem_desc *)((ulong)desc + map->desc_size);
+	return (struct efi_mem_desc *)((ulong)desc + desc_size);
 }
 
 /**
@@ -407,6 +407,12 @@ static inline struct efi_mem_desc *efi_get_next_mem_desc(
  * @sys_table: Pointer to system table
  * @boot: Pointer to boot-services table
  * @run: Pointer to runtime-services table
+ * @memmap_key: Key returned from get_memory_map()
+ * @memmap_desc: List of memory-map records
+ * @memmap_alloc: Amount of memory allocated for memory map list
+ * @memmap_size Size of memory-map list in bytes
+ * @memmap_desc_size: Size of an individual memory-map record, in bytes
+ * @memmap_version: Memory-map version
  *
  * @use_pool_for_malloc: true if all allocation should go through the EFI 'pool'
  *	methods allocate_pool() and free_pool(); false to use 'pages' methods
@@ -424,6 +430,12 @@ struct efi_priv {
 	struct efi_system_table *sys_table;
 	struct efi_boot_services *boot;
 	struct efi_runtime_services *run;
+	efi_uintn_t memmap_key;
+	struct efi_mem_desc *memmap_desc;
+	efi_uintn_t memmap_alloc;
+	efi_uintn_t memmap_size;
+	efi_uintn_t memmap_desc_size;
+	u32 memmap_version;
 
 	/* app: */
 	bool use_pool_for_malloc;
@@ -498,14 +510,14 @@ void efi_set_priv(struct efi_priv *priv);
 /**
  * efi_get_sys_table() - Get access to the main EFI system table
  *
- * @return pointer to EFI system table
+ * Returns: pointer to EFI system table
  */
 struct efi_system_table *efi_get_sys_table(void);
 
 /**
  * efi_get_boot() - Get access to the EFI boot services table
  *
- * @return pointer to EFI boot services table
+ * Returns: pointer to EFI boot services table
  */
 struct efi_boot_services *efi_get_boot(void);
 
@@ -514,7 +526,7 @@ struct efi_boot_services *efi_get_boot(void);
  *
  * This is used when U-Boot is built as an EFI application.
  *
- * @return the base of RAM as known to U-Boot
+ * Returns: the base of RAM as known to U-Boot
  */
 unsigned long efi_get_ram_base(void);
 
@@ -525,6 +537,7 @@ unsigned long efi_get_ram_base(void);
  * @banner:	Banner to display when starting
  * @image:	The image handle passed to efi_main()
  * @sys_table:	The EFI system table pointer passed to efi_main()
+ * Return: 0 on succcess, EFI error code on failure
  */
 int efi_init(struct efi_priv *priv, const char *banner, efi_handle_t image,
 	     struct efi_system_table *sys_table);
@@ -535,7 +548,7 @@ int efi_init(struct efi_priv *priv, const char *banner, efi_handle_t image,
  * @priv:	Pointer to private EFI structure
  * @size:	Number of bytes to allocate
  * @retp:	Return EFI status result
- * @return pointer to memory allocated, or NULL on error
+ * Returns: pointer to memory allocated, or NULL on error
  */
 void *efi_malloc(struct efi_priv *priv, int size, efi_status_t *retp);
 
@@ -572,10 +585,45 @@ void efi_putc(struct efi_priv *priv, const char ch);
  *
  * @type:	Entry type to search for
  * @datap:	Returns pointer to entry data
- * @sizep:	Returns pointer to entry size
- * @return 0 if OK, -ENODATA if there is no table, -ENOENT if there is no entry
+ * @sizep:	Returns entry size
+ * Return: 0 if OK, -ENODATA if there is no table, -ENOENT if there is no entry
  * of the requested type, -EPROTONOSUPPORT if the table has the wrong version
  */
 int efi_info_get(enum efi_entry_t type, void **datap, int *sizep);
+
+/**
+ * efi_store_memory_map() - Collect the memory-map info from EFI
+ *
+ * Collect the memory info and store it for later use, e.g. in calling
+ * exit_boot_services()
+ *
+ * @priv:	Pointer to private EFI structure
+ * Returns: 0 if OK, non-zero on error
+ */
+int efi_store_memory_map(struct efi_priv *priv);
+
+/**
+ * efi_call_exit_boot_services() - Handle the exit-boot-service procedure
+ *
+ * Tell EFI we don't want their boot services anymore
+ *
+ * Return: 0 if OK, non-zero on error
+ */
+int efi_call_exit_boot_services(void);
+
+/**
+ * efi_get_mmap() - Get the memory map from EFI
+ *
+ * This is used in the app. The caller must free *@descp when done
+ *
+ * @descp:	Returns allocated pointer to EFI memory map table
+ * @sizep:	Returns size of table in bytes
+ * @keyp:	Returns memory-map key
+ * @desc_sizep:	Returns size of each @desc_base record
+ * @versionp:	Returns version number of memory map
+ * Returns: 0 on success, -ve on error
+ */
+int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
+		 int *desc_sizep, uint *versionp);
 
 #endif /* _LINUX_EFI_H */
