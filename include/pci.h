@@ -5,6 +5,7 @@
  *
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * Copyright (c) 2021  Maciej W. Rozycki <macro@orcam.me.uk>
  */
 
 #ifndef _PCI_H
@@ -475,16 +476,24 @@
 
 /* PCI Express capabilities */
 #define PCI_EXP_FLAGS		2	/* Capabilities register */
+#define  PCI_EXP_FLAGS_VERS	0x000f	/* Capability Version */
 #define  PCI_EXP_FLAGS_TYPE	0x00f0	/* Device/Port type */
-#define  PCI_EXP_TYPE_ROOT_PORT 0x4	/* Root Port */
+#define   PCI_EXP_TYPE_ROOT_PORT   0x4	/* Root Port */
+#define   PCI_EXP_TYPE_DOWNSTREAM  0x6	/* Downstream Port */
+#define   PCI_EXP_TYPE_PCIE_BRIDGE 0x8	/* PCI/PCI-X to PCIe Bridge */
 #define PCI_EXP_DEVCAP		4	/* Device capabilities */
 #define  PCI_EXP_DEVCAP_FLR	0x10000000 /* Function Level Reset */
 #define PCI_EXP_DEVCTL		8	/* Device Control */
 #define  PCI_EXP_DEVCTL_BCR_FLR	0x8000  /* Bridge Configuration Retry / FLR */
 #define PCI_EXP_LNKCAP		12	/* Link Capabilities */
 #define  PCI_EXP_LNKCAP_SLS	0x0000000f /* Supported Link Speeds */
+#define  PCI_EXP_LNKCAP_SLS_2_5GB 0x00000001 /* LNKCAP2 SLS Vector bit 0 */
+#define  PCI_EXP_LNKCAP_SLS_5_0GB 0x00000002 /* LNKCAP2 SLS Vector bit 1 */
+#define  PCI_EXP_LNKCAP_SLS_8_0GB 0x00000003 /* LNKCAP2 SLS Vector bit 2 */
 #define  PCI_EXP_LNKCAP_MLW	0x000003f0 /* Maximum Link Width */
 #define  PCI_EXP_LNKCAP_DLLLARC	0x00100000 /* Data Link Layer Link Active Reporting Capable */
+#define PCI_EXP_LNKCTL		16	/* Link Control */
+#define  PCI_EXP_LNKCTL_RL	0x0020	/* Retrain Link */
 #define PCI_EXP_LNKSTA		18	/* Link Status */
 #define  PCI_EXP_LNKSTA_CLS	0x000f	/* Current Link Speed */
 #define  PCI_EXP_LNKSTA_CLS_2_5GB 0x0001 /* Current Link Speed 2.5GT/s */
@@ -492,7 +501,9 @@
 #define  PCI_EXP_LNKSTA_CLS_8_0GB 0x0003 /* Current Link Speed 8.0GT/s */
 #define  PCI_EXP_LNKSTA_NLW	0x03f0	/* Negotiated Link Width */
 #define  PCI_EXP_LNKSTA_NLW_SHIFT 4	/* start of NLW mask in link status */
+#define  PCI_EXP_LNKSTA_LT	0x0800	/* Link Training */
 #define  PCI_EXP_LNKSTA_DLLLA	0x2000	/* Data Link Layer Link Active */
+#define  PCI_EXP_LNKSTA_LBMS	0x4000	/* Link Bandwidth Management Status */
 #define PCI_EXP_SLTCAP		20	/* Slot Capabilities */
 #define  PCI_EXP_SLTCAP_PSN	0xfff80000 /* Physical Slot Number */
 #define PCI_EXP_RTCTL		28	/* Root Control */
@@ -503,8 +514,14 @@
 #define  PCI_EXP_DEVCAP2_ARI	0x00000020 /* ARI Forwarding Supported */
 #define PCI_EXP_DEVCTL2		40	/* Device Control 2 */
 #define  PCI_EXP_DEVCTL2_ARI	0x0020 /* Alternative Routing-ID */
-
+#define PCI_EXP_LNKCAP2		44	/* Link Capability 2 */
+#define  PCI_EXP_LNKCAP2_SLS	0x000000fe /* Supported Link Speeds Vector */
 #define PCI_EXP_LNKCTL2		48	/* Link Control 2 */
+#define  PCI_EXP_LNKCTL2_TLS	0x000f	/* Target Link Speed */
+#define  PCI_EXP_LNKCTL2_TLS_2_5GT 0x0001 /* Target Link Speed 2.5GT/s */
+#define  PCI_EXP_LNKCTL2_TLS_5_0GT 0x0002 /* Target Link Speed 5.0GT/s */
+#define  PCI_EXP_LNKCTL2_TLS_8_0GT 0x0003 /* Target Link Speed 8.0GT/s */
+
 /* Single Root I/O Virtualization Registers */
 #define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */
 #define PCI_SRIOV_CTRL		0x08	/* SR-IOV Control */

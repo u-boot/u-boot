@@ -77,7 +77,7 @@ static int env_fat_save(void)
 		 * This printf is embedded in the messages from env_save that
 		 * will calling it. The missing \n is intentional.
 		 */
-		printf("Unable to use %s %d:%d... ",
+		printf("Unable to use %s %d:%d... \n",
 		       CONFIG_ENV_FAT_INTERFACE, dev, part);
 		return 1;
 	}
@@ -93,7 +93,7 @@ static int env_fat_save(void)
 		 * This printf is embedded in the messages from env_save that
 		 * will calling it. The missing \n is intentional.
 		 */
-		printf("Unable to write \"%s\" from %s%d:%d... ",
+		printf("Unable to write \"%s\" from %s%d:%d... \n",
 			file, CONFIG_ENV_FAT_INTERFACE, dev, part);
 		return 1;
 	}
@@ -135,7 +135,7 @@ static int env_fat_load(void)
 		 * This printf is embedded in the messages from env_save that
 		 * will calling it. The missing \n is intentional.
 		 */
-		printf("Unable to use %s %d:%d... ",
+		printf("Unable to use %s %d:%d... \n",
 		       CONFIG_ENV_FAT_INTERFACE, dev, part);
 		goto err_env_relocate;
 	}
@@ -153,7 +153,7 @@ static int env_fat_load(void)
 		 * This printf is embedded in the messages from env_save that
 		 * will calling it. The missing \n is intentional.
 		 */
-		printf("Unable to read \"%s\" from %s%d:%d... ",
+		printf("Unable to read \"%s\" from %s%d:%d... \n",
 			CONFIG_ENV_FAT_FILE, CONFIG_ENV_FAT_INTERFACE, dev, part);
 		goto err_env_relocate;
 	}
