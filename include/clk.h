@@ -288,6 +288,30 @@ static inline int clk_release_all(struct clk *clk, int count)
 #endif
 
 /**
+ * clk_get_by_name_optional() - Get/request a optional clock by name.
+ * @dev:	The client device.
+ * @name:	The name of the clock to request, within the client's list of
+ *		clocks.
+ * @clk:	A pointer to a clock struct to initialize.
+ *
+ * Behaves the same as clk_get_by_name(), except when there is no clock
+ * provider. In the latter case, return 0.
+ *
+ * Return: 0 if OK, or a negative error code.
+ */
+static inline int clk_get_by_name_optional(struct udevice *dev,
+					   const char *name, struct clk *clk)
+{
+	int ret;
+
+	ret = clk_get_by_name(dev, name, clk);
+	if (ret == -ENODATA)
+		return 0;
+
+	return ret;
+}
+
+/**
  * clk_get_by_name_nodev_optional - Get/request an optinonal clock by name
  *		without a device.
  * @node:	The client ofnode.
