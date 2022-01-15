@@ -435,11 +435,12 @@ int main(int argc, char **argv)
 				params.cmdname, params.imagefile);
 			exit (EXIT_FAILURE);
 #endif
-		} else if ((unsigned)sbuf.st_size < tparams->header_size) {
+		} else if (sbuf.st_size < (off_t)tparams->header_size) {
 			fprintf (stderr,
-				"%s: Bad size: \"%s\" is not valid image: size %ld < %u\n",
+				"%s: Bad size: \"%s\" is not valid image: size %llu < %u\n",
 				params.cmdname, params.imagefile,
-				sbuf.st_size, tparams->header_size);
+				(unsigned long long) sbuf.st_size,
+				tparams->header_size);
 			exit (EXIT_FAILURE);
 		} else {
 			size = sbuf.st_size;
