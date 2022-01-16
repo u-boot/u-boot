@@ -62,7 +62,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 {
 	efi_status_t ret;
 
-	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
+	EFI_ENTRY("\"%ls\" %pUs %p %p %p", variable_name, vendor, attributes,
 		  data_size, data);
 
 	ret = efi_get_variable_int(variable_name, vendor, attributes,
@@ -96,7 +96,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 {
 	efi_status_t ret;
 
-	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
+	EFI_ENTRY("\"%ls\" %pUs %x %zu %p", variable_name, vendor, attributes,
 		  data_size, data);
 
 	/* Make sure that the EFI_VARIABLE_READ_ONLY flag is not set */
@@ -127,7 +127,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 {
 	efi_status_t ret;
 
-	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
+	EFI_ENTRY("%p \"%ls\" %pUs", variable_name_size, variable_name, vendor);
 
 	ret = efi_get_next_variable_name_int(variable_name_size, variable_name,
 					     vendor);

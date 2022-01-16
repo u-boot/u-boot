@@ -453,7 +453,7 @@ static efi_status_t efi_capsule_update_firmware(
 				   image->update_hardware_instance,
 				   handles, no_handles);
 		if (!fmp) {
-			log_err("FMP driver not found for firmware type %pUl, hardware instance %lld\n",
+			log_err("FMP driver not found for firmware type %pUs, hardware instance %lld\n",
 				&image->update_image_type_id,
 				image->update_hardware_instance);
 			ret = EFI_UNSUPPORTED;
@@ -548,13 +548,13 @@ efi_status_t EFIAPI efi_update_capsule(
 			continue;
 		}
 
-		log_debug("Capsule[%d] (guid:%pUl)\n",
+		log_debug("Capsule[%d] (guid:%pUs)\n",
 			  i, &capsule->capsule_guid);
 		if (!guidcmp(&capsule->capsule_guid,
 			     &efi_guid_firmware_management_capsule_id)) {
 			ret  = efi_capsule_update_firmware(capsule);
 		} else {
-			log_err("Unsupported capsule type: %pUl\n",
+			log_err("Unsupported capsule type: %pUs\n",
 				&capsule->capsule_guid);
 			ret = EFI_UNSUPPORTED;
 		}
