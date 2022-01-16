@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <efi_api.h>
 #include <env.h>
 #include <rand.h>
 #include <time.h>
@@ -100,6 +101,121 @@ static const struct {
 	{"swap",	PARTITION_LINUX_SWAP_GUID},
 	{"lvm",		PARTITION_LINUX_LVM_GUID},
 	{"u-boot-env",	PARTITION_U_BOOT_ENVIRONMENT},
+#endif
+#ifdef CONFIG_CMD_EFIDEBUG
+	{
+		"Device Path",
+		EFI_DEVICE_PATH_PROTOCOL_GUID,
+	},
+	{
+		"Device Path To Text",
+		EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID,
+	},
+	{
+		"Device Path Utilities",
+		EFI_DEVICE_PATH_UTILITIES_PROTOCOL_GUID,
+	},
+	{
+		"Unicode Collation 2",
+		EFI_UNICODE_COLLATION_PROTOCOL2_GUID,
+	},
+	{
+		"Driver Binding",
+		EFI_DRIVER_BINDING_PROTOCOL_GUID,
+	},
+	{
+		"Simple Text Input",
+		EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID,
+	},
+	{
+		"Simple Text Input Ex",
+		EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID,
+	},
+	{
+		"Simple Text Output",
+		EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID,
+	},
+	{
+		"Block IO",
+		EFI_BLOCK_IO_PROTOCOL_GUID,
+	},
+	{
+		"Simple File System",
+		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID,
+	},
+	{
+		"Loaded Image",
+		EFI_LOADED_IMAGE_PROTOCOL_GUID,
+	},
+	{
+		"Graphics Output",
+		EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID,
+	},
+	{
+		"HII String",
+		EFI_HII_STRING_PROTOCOL_GUID,
+	},
+	{
+		"HII Database",
+		EFI_HII_DATABASE_PROTOCOL_GUID,
+	},
+	{
+		"HII Config Routing",
+		EFI_HII_CONFIG_ROUTING_PROTOCOL_GUID,
+	},
+	{
+		"Load File2",
+		EFI_LOAD_FILE2_PROTOCOL_GUID,
+	},
+	{
+		"Random Number Generator",
+		EFI_RNG_PROTOCOL_GUID,
+	},
+	{
+		"Simple Network",
+		EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
+	},
+	{
+		"PXE Base Code",
+		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
+	},
+	{
+		"Device-Tree Fixup",
+		EFI_DT_FIXUP_PROTOCOL_GUID,
+	},
+	{
+		"System Partition",
+		PARTITION_SYSTEM_GUID
+	},
+	{
+		"Firmware Management",
+		EFI_FIRMWARE_MANAGEMENT_PROTOCOL_GUID
+	},
+	/* Configuration table GUIDs */
+	{
+		"ACPI table",
+		EFI_ACPI_TABLE_GUID,
+	},
+	{
+		"EFI System Resource Table",
+		EFI_SYSTEM_RESOURCE_TABLE_GUID,
+	},
+	{
+		"device tree",
+		EFI_FDT_GUID,
+	},
+	{
+		"SMBIOS table",
+		SMBIOS_TABLE_GUID,
+	},
+	{
+		"Runtime properties",
+		EFI_RT_PROPERTIES_TABLE_GUID,
+	},
+	{
+		"TCG2 Final Events Table",
+		EFI_TCG2_FINAL_EVENTS_TABLE_GUID,
+	},
 #endif
 };
 

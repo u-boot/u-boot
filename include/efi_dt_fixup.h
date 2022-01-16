@@ -7,10 +7,6 @@
 
 #include <efi_api.h>
 
-#define EFI_DT_FIXUP_PROTOCOL_GUID \
-	EFI_GUID(0xe617d64c, 0xfe08, 0x46da, 0xf4, 0xdc, \
-		 0xbb, 0xd5, 0x87, 0x0c, 0x73, 0x00)
-
 #define EFI_DT_FIXUP_PROTOCOL_REVISION 0x00010000
 
 /* Add nodes and update properties */
