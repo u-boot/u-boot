@@ -30,17 +30,29 @@ static int print_guid(struct unit_test_state *uts)
 	unsigned char guid[16] = {
 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 	};
+	unsigned char guid_esp[16] = {
+		0x28, 0x73, 0x2a, 0xc1, 0x1f, 0xf8, 0xd2, 0x11,
+		0xBA, 0x4B, 0x00, 0xA0, 0xC9, 0x3E, 0xC9, 0x3B
+	};
 	char str[40];
 	int ret;
 
 	sprintf(str, "%pUb", guid);
-	ut_assertok(strcmp("01020304-0506-0708-090a-0b0c0d0e0f10", str));
+	ut_asserteq_str("01020304-0506-0708-090a-0b0c0d0e0f10", str);
 	sprintf(str, "%pUB", guid);
-	ut_assertok(strcmp("01020304-0506-0708-090A-0B0C0D0E0F10", str));
+	ut_asserteq_str("01020304-0506-0708-090A-0B0C0D0E0F10", str);
 	sprintf(str, "%pUl", guid);
-	ut_assertok(strcmp("04030201-0605-0807-090a-0b0c0d0e0f10", str));
+	ut_asserteq_str("04030201-0605-0807-090a-0b0c0d0e0f10", str);
+	sprintf(str, "%pUs", guid);
+	ut_asserteq_str("04030201-0605-0807-090a-0b0c0d0e0f10", str);
 	sprintf(str, "%pUL", guid);
-	ut_assertok(strcmp("04030201-0605-0807-090A-0B0C0D0E0F10", str));
+	ut_asserteq_str("04030201-0605-0807-090A-0B0C0D0E0F10", str);
+	sprintf(str, "%pUs", guid_esp);
+	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID)) { /* brace needed */
+		ut_asserteq_str("system", str);
+	} else {
+		ut_asserteq_str("c12a7328-f81f-11d2-ba4b-00a0c93ec93b", str);
+	}
 	ret = snprintf(str, 4, "%pUL", guid);
 	ut_asserteq(0, str[3]);
 	ut_asserteq(36, ret);
