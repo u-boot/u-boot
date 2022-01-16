@@ -184,6 +184,10 @@ static const struct {
 		EFI_DT_FIXUP_PROTOCOL_GUID,
 	},
 	{
+		"TCG2",
+		EFI_TCG2_PROTOCOL_GUID,
+		},
+	{
 		"System Partition",
 		PARTITION_SYSTEM_GUID
 	},
