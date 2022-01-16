@@ -217,6 +217,30 @@ static const struct {
 		EFI_TCG2_FINAL_EVENTS_TABLE_GUID,
 	},
 #endif
+#ifdef CONFIG_CMD_NVEDIT_EFI
+	/* signature database */
+	{
+		"EFI_GLOBAL_VARIABLE_GUID",
+		EFI_GLOBAL_VARIABLE_GUID,
+	},
+	{
+		"EFI_IMAGE_SECURITY_DATABASE_GUID",
+		EFI_IMAGE_SECURITY_DATABASE_GUID,
+	},
+	/* certificate types */
+	{
+		"EFI_CERT_SHA256_GUID",
+		EFI_CERT_SHA256_GUID,
+	},
+	{
+		"EFI_CERT_X509_GUID",
+		EFI_CERT_X509_GUID,
+	},
+	{
+		"EFI_CERT_TYPE_PKCS7_GUID",
+		EFI_CERT_TYPE_PKCS7_GUID,
+	},
+#endif
 };
 
 /*
