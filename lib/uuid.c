@@ -86,11 +86,11 @@ int uuid_str_valid(const char *uuid)
 	return 1;
 }
 
-#ifdef CONFIG_PARTITION_TYPE_GUID
 static const struct {
 	const char *string;
 	efi_guid_t guid;
 } list_guid[] = {
+#ifdef CONFIG_PARTITION_TYPE_GUID
 	{"system",	PARTITION_SYSTEM_GUID},
 	{"mbr",		LEGACY_MBR_PARTITION_GUID},
 	{"msft",	PARTITION_MSFT_RESERVED_GUID},
@@ -100,6 +100,7 @@ static const struct {
 	{"swap",	PARTITION_LINUX_SWAP_GUID},
 	{"lvm",		PARTITION_LINUX_LVM_GUID},
 	{"u-boot-env",	PARTITION_U_BOOT_ENVIRONMENT},
+#endif
 };
 
 /*
@@ -139,7 +140,6 @@ const char *uuid_guid_get_str(const unsigned char *guid_bin)
 	}
 	return NULL;
 }
-#endif
 
 /*
  * uuid_str_to_bin() - convert string UUID or GUID to big endian binary data.
