@@ -507,19 +507,45 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	/* check calculated ecc */
 	for (i = 0; i < ecc->bytes && !ecc_flag; i++) {
 		if (calc_ecc[i] != 0x00)
-			ecc_flag = 1;
+			goto not_ecc_match;
 	}
-	if (!ecc_flag)
-		return 0;
+	return 0;
+not_ecc_match:
 
-	/* check for whether its a erased-page */
-	ecc_flag = 0;
-	for (i = 0; i < ecc->bytes && !ecc_flag; i++) {
+	/* check for whether it's an erased-page */
+	for (i = 0; i < ecc->bytes; i++) {
 		if (read_ecc[i] != 0xff)
-			ecc_flag = 1;
+			goto not_erased;
 	}
-	if (!ecc_flag)
-		return 0;
+	for (i = 0; i < SECTOR_BYTES; i++) {
+		if (dat[i] != 0xff)
+			goto not_erased;
+	}
+	return 0;
+not_erased:
+
+	/*
+	 * Check for whether it's an erased page with a correctable
+	 * number of bitflips. Erased pages have all 1's in the data,
+	 * so we just compute the number of 0 bits in the data and
+	 * see if it's under the correction threshold.
+	 *
+	 * NOTE: The check for a perfect erased page above is faster for
+	 * the more common case, even though it's logically redundant.
+	 */
+	for (i = 0; i < ecc->bytes; i++)
+		error_count += hweight8(~read_ecc[i]);
+
+	for (i = 0; i < SECTOR_BYTES; i++)
+		error_count += hweight8(~dat[i]);
+
+	if (error_count <= ecc->strength) {
+		memset(read_ecc, 0xFF, ecc->bytes);
+		memset(dat, 0xFF, SECTOR_BYTES);
+		debug("nand: %u bit-flip(s) corrected in erased page\n",
+		      error_count);
+		return error_count;
+	}
 
 	/*
 	 * while reading ECC result we read it in big endian.
@@ -539,6 +565,7 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	}
 	/* use elm module to check for errors */
 	elm_config(bch_type);
+	error_count = 0;
 	err = elm_check_error(calc_ecc, bch_type, &error_count, error_loc);
 	if (err)
 		return err;

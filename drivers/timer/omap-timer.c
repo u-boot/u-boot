@@ -83,6 +83,27 @@ static int omap_timer_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
+ulong timer_get_boot_us(void)
+{
+	u64 ticks = 0;
+	u32 rate = 1;
+	u64 us;
+	int ret;
+
+	ret = dm_timer_init();
+	if (!ret) {
+		/* The timer is available */
+		rate = timer_get_rate(gd->timer);
+		timer_get_count(gd->timer, &ticks);
+	} else {
+		return 0;
+	}
+
+	us = (ticks * 1000) / rate;
+	return us;
+}
+#endif
 
 static const struct timer_ops omap_timer_ops = {
 	.get_count = omap_timer_get_count,

@@ -196,5 +196,8 @@ void spl_board_init(void)
 	val = readl(CTRLMMR_USB0_PHY_CTRL);
 	val &= ~(CORE_VOLTAGE);
 	writel(val, CTRLMMR_USB0_PHY_CTRL);
+
+	/* Init DRAM size for R5/A53 SPL */
+	dram_init_banksize();
 }
 #endif

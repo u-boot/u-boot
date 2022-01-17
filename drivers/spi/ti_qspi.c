@@ -30,7 +30,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* ti qpsi register bit masks */
 #define QSPI_TIMEOUT                    2000000
-#define QSPI_FCLK			192000000
+/* AM4372: QSPI gets SPI_GCLK from PRCM unit as PER_CLKOUTM2 divided by 4. */
+#define QSPI_FCLK                       (192000000 / 4)
 #define QSPI_DRA7XX_FCLK                76800000
 #define QSPI_WLEN_MAX_BITS		128
 #define QSPI_WLEN_MAX_BYTES		(QSPI_WLEN_MAX_BITS >> 3)

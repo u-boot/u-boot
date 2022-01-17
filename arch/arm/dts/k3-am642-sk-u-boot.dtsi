@@ -100,15 +100,53 @@
 	      <0x0 0x43000200 0x0 0x8>;
 	reg-names = "cpsw_nuss", "mac_efuse";
 	/delete-property/ ranges;
+	u-boot,dm-spl;
 
 	cpsw-phy-sel@04044 {
 		compatible = "ti,am64-phy-gmii-sel";
 		reg = <0x0 0x43004044 0x0 0x8>;
+		u-boot,dm-spl;
+	};
+
+	ethernet-ports {
+		u-boot,dm-spl;
 	};
 };
 
 &cpsw_port2 {
-	status = "disabled";
+	u-boot,dm-spl;
+};
+
+&cpsw_port1 {
+	u-boot,dm-spl;
+};
+
+&main_bcdma {
+	u-boot,dm-spl;
+};
+
+&main_pktdma {
+	u-boot,dm-spl;
+};
+
+&rgmii1_pins_default {
+	u-boot,dm-spl;
+};
+
+&rgmii2_pins_default {
+	u-boot,dm-spl;
+};
+
+&mdio1_pins_default {
+	u-boot,dm-spl;
+};
+
+&cpsw3g_phy0 {
+	u-boot,dm-spl;
+};
+
+&cpsw3g_phy1 {
+	u-boot,dm-spl;
 };
 
 &main_usb0_pins_default {

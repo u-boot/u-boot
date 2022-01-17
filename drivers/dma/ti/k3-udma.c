@@ -165,7 +165,6 @@ struct udma_dev {
 	unsigned long *rchan_map;
 	unsigned long *rflow_map;
 	unsigned long *rflow_map_reserved;
-	unsigned long *rflow_in_use;
 	unsigned long *tflow_map;
 
 	struct udma_bchan *bchans;
@@ -1448,15 +1447,11 @@ static int bcdma_setup_resources(struct udma_dev *ud)
 					   sizeof(unsigned long), GFP_KERNEL);
 	ud->rchans = devm_kcalloc(dev, ud->rchan_cnt, sizeof(*ud->rchans),
 				  GFP_KERNEL);
-	/* BCDMA do not really have flows, but the driver expect it */
-	ud->rflow_in_use = devm_kcalloc(dev, BITS_TO_LONGS(ud->rchan_cnt),
-					sizeof(unsigned long),
-					GFP_KERNEL);
 	ud->rflows = devm_kcalloc(dev, ud->rchan_cnt, sizeof(*ud->rflows),
 				  GFP_KERNEL);
 
 	if (!ud->bchan_map || !ud->tchan_map || !ud->rchan_map ||
-	    !ud->rflow_in_use || !ud->bchans || !ud->tchans || !ud->rchans ||
+	    !ud->bchans || !ud->tchans || !ud->rchans ||
 	    !ud->rflows)
 		return -ENOMEM;
 
@@ -1535,16 +1530,16 @@ static int pktdma_setup_resources(struct udma_dev *ud)
 					   sizeof(unsigned long), GFP_KERNEL);
 	ud->rchans = devm_kcalloc(dev, ud->rchan_cnt, sizeof(*ud->rchans),
 				  GFP_KERNEL);
-	ud->rflow_in_use = devm_kcalloc(dev, BITS_TO_LONGS(ud->rflow_cnt),
-					sizeof(unsigned long),
-					GFP_KERNEL);
+	ud->rflow_map = devm_kcalloc(dev, BITS_TO_LONGS(ud->rflow_cnt),
+				     sizeof(unsigned long),
+				     GFP_KERNEL);
 	ud->rflows = devm_kcalloc(dev, ud->rflow_cnt, sizeof(*ud->rflows),
 				  GFP_KERNEL);
 	ud->tflow_map = devm_kmalloc_array(dev, BITS_TO_LONGS(ud->tflow_cnt),
 					   sizeof(unsigned long), GFP_KERNEL);
 
 	if (!ud->tchan_map || !ud->rchan_map || !ud->tflow_map || !ud->tchans ||
-	    !ud->rchans || !ud->rflows || !ud->rflow_in_use)
+	    !ud->rchans || !ud->rflows || !ud->rflow_map)
 		return -ENOMEM;
 
 	/* Get resource ranges from tisci */
@@ -1592,12 +1587,12 @@ static int pktdma_setup_resources(struct udma_dev *ud)
 	rm_res = tisci_rm->rm_ranges[RM_RANGE_RFLOW];
 	if (IS_ERR(rm_res)) {
 		/* all rflows are assigned exclusively to Linux */
-		bitmap_zero(ud->rflow_in_use, ud->rflow_cnt);
+		bitmap_zero(ud->rflow_map, ud->rflow_cnt);
 	} else {
-		bitmap_fill(ud->rflow_in_use, ud->rflow_cnt);
+		bitmap_fill(ud->rflow_map, ud->rflow_cnt);
 		for (i = 0; i < rm_res->sets; i++) {
 			rm_desc = &rm_res->desc[i];
-			bitmap_clear(ud->rflow_in_use, rm_desc->start,
+			bitmap_clear(ud->rflow_map, rm_desc->start,
 				     rm_desc->num);
 			dev_dbg(dev, "ti-sci-res: rflow: %d:%d\n",
 				rm_desc->start, rm_desc->num);

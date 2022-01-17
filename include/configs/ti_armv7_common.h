@@ -37,6 +37,7 @@
 	"fdtaddr=0x88000000\0" \
 	"dtboaddr=0x89000000\0" \
 	"fdt_addr_r=0x88000000\0" \
+	"fdtoverlay_addr_r=0x89000000\0" \
 	"rdaddr=0x88080000\0" \
 	"ramdisk_addr_r=0x88080000\0" \
 	"scriptaddr=0x80000000\0" \
