@@ -174,6 +174,11 @@ __weak void spl_board_prepare_for_optee(void *fdt)
 {
 }
 
+__weak const char *spl_board_loader_name(u32 boot_device)
+{
+	return NULL;
+}
+
 #if CONFIG_IS_ENABLED(OPTEE_IMAGE)
 __weak void __noreturn jump_to_image_optee(struct spl_image_info *spl_image)
 {

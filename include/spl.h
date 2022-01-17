@@ -463,6 +463,17 @@ int spl_board_ubi_load_image(u32 boot_device);
 int spl_board_boot_device(u32 boot_device);
 
 /**
+ * spl_board_loader_name() - Return a name for the loader
+ *
+ * This is a weak function which might be overridden by the board code. With
+ * that a board specific value for the device where the U-Boot will be loaded
+ * from can be set. By default it returns NULL.
+ *
+ * @boot_device:	ID of the device which SPL wants to load U-Boot from.
+ */
+const char *spl_board_loader_name(u32 boot_device);
+
+/**
  * jump_to_image_linux() - Jump to a Linux kernel from SPL
  *
  * This jumps into a Linux kernel using the information in @spl_image.
@@ -544,7 +555,9 @@ struct spl_image_loader {
 static inline const char *spl_loader_name(const struct spl_image_loader *loader)
 {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-	return loader->name;
+	const char *name;
+	name = spl_board_loader_name(loader->boot_device);
+	return name ?: loader->name;
 #else
 	return NULL;
 #endif
