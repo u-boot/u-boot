@@ -443,7 +443,7 @@ static const struct pci_flag_info {
 
 static void pci_show_regions(struct udevice *bus)
 {
-	struct pci_controller *hose = dev_get_uclass_priv(bus);
+	struct pci_controller *hose = dev_get_uclass_priv(pci_get_controller(bus));
 	const struct pci_region *reg;
 	int i, j;
 
@@ -452,6 +452,7 @@ static void pci_show_regions(struct udevice *bus)
 		return;
 	}
 
+	printf("Buses %02x-%02x\n", hose->first_busno, hose->last_busno);
 	printf("#   %-18s %-18s %-18s  %s\n", "Bus start", "Phys start", "Size",
 	       "Flags");
 	for (i = 0, reg = hose->regions; i < hose->region_count; i++, reg++) {
@@ -520,8 +521,9 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 				value = 0;
 				argc--;
 			}
-			if (argc > 1)
-				busnum = hextoul(argv[1], NULL);
+			if (argc > 2 || (argc > 1 && cmd != 'r' && argv[1][0] != 's')) {
+				busnum = hextoul(argv[argc - 1], NULL);
+			}
 		}
 		ret = uclass_get_device_by_seq(UCLASS_PCI, busnum, &bus);
 		if (ret) {
@@ -586,7 +588,7 @@ static char pci_help_text[] =
 	"    - show header of PCI device 'bus.device.function'\n"
 	"pci bar b.d.f\n"
 	"    - show BARs base and size for device b.d.f'\n"
-	"pci regions\n"
+	"pci regions [bus]\n"
 	"    - show PCI regions\n"
 	"pci display[.b, .w, .l] b.d.f [address] [# of objects]\n"
 	"    - display PCI configuration space (CFG)\n"
