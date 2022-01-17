@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+ OR MIT
 /*
- * Apple Mac mini (M1, 2020)
+ * Apple iMac (24-inch, 4x USB-C, M1, 2020)
  *
- * target-type: J274
+ * target-type: J456
  *
  * Copyright The Asahi Linux Contributors
  */
@@ -13,8 +13,8 @@
 #include "t8103-jxxx.dtsi"
 
 / {
-	compatible = "apple,j274", "apple,t8103", "apple,arm-platform";
-	model = "Apple Mac mini (M1, 2020)";
+	compatible = "apple,j456", "apple,t8103", "apple,arm-platform";
+	model = "Apple iMac (24-inch, 4x USB-C, M1, 2020)";
 
 	aliases {
 		ethernet0 = &ethernet0;
@@ -22,7 +22,25 @@
 };
 
 &wifi0 {
-	brcm,board-type = "apple,atlantisb";
+	brcm,board-type = "apple,capri";
+};
+
+&i2c0 {
+	hpm2: usb-pd@3b {
+		compatible = "apple,cd321x";
+		reg = <0x3b>;
+		interrupt-parent = <&pinctrl_ap>;
+		interrupts = <106 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "irq";
+	};
+
+	hpm3: usb-pd@3c {
+		compatible = "apple,cd321x";
+		reg = <0x3c>;
+		interrupt-parent = <&pinctrl_ap>;
+		interrupts = <106 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "irq";
+	};
 };
 
 /*
@@ -30,11 +48,11 @@
  */
 
 &typec0 {
-	label = "USB-C Back-left";
+	label = "USB-C Back-right";
 };
 
 &typec1 {
-	label = "USB-C Back-right";
+	label = "USB-C Back-right-middle";
 };
 
 /*
@@ -59,19 +77,6 @@
 &i2c1 {
 	clock-frequency = <50000>;
 
-	speaker_amp: codec@31 {
-		compatible = "ti,tas5770l", "ti,tas2770";
-		reg = <0x31>;
-		reset-gpios = <&pinctrl_ap 181 GPIO_ACTIVE_HIGH>;
-		#sound-dai-cells = <0>;
-	};
-};
-
-&i2c2 {
-	status = "okay";
-
-	clock-frequency = <50000>;
-
 	jack_codec: codec@48 {
 		compatible = "cirrus,cs42l83", "cirrus,cs42l42";
 		reg = <0x48>;
@@ -86,42 +91,25 @@
 / {
 	sound {
 		compatible = "simple-audio-card";
-		simple-audio-card,name = "Mac mini integrated audio";
+		simple-audio-card,name = "iMac integrated audio";
 		#address-cells = <1>;
 		#size-cells = <0>;
 
 		simple-audio-card,dai-link@0 {
-			reg = <0>;
-			format = "left_j";
-			tdm-slot-width = <32>;
-			mclk-fs = <64>;
-
-			link0_cpu: cpu {
-				sound-dai = <&mca 0>;
-				bitclock-master;
-				frame-master;
-			};
-
-			link0_codec: codec {
-				sound-dai = <&speaker_amp>;
-			};
-		};
-
-		simple-audio-card,dai-link@1 {
 			bitclock-inversion;
 			frame-inversion;
-			reg = <1>;
+			reg = <0>;
 			format = "i2s";
 			mclk-fs = <64>;
 			tdm-slot-width = <32>;
 
-			link1_cpu: cpu {
+			link0_cpu: cpu {
 				sound-dai = <&mca 2>;
 				bitclock-master;
 				frame-master;
 			};
 
-			link1_codec: codec {
+			link0_codec: codec {
 				sound-dai = <&jack_codec>;
 			};
 		};

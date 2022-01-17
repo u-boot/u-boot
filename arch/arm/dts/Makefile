@@ -34,7 +34,10 @@ dtb-$(CONFIG_TARGET_A7Y17LTE) += exynos78x0-axy17lte.dtb
 
 dtb-$(CONFIG_ARCH_APPLE) += \
 	t8103-j274.dtb \
-	t8103-j293.dtb
+	t8103-j293.dtb \
+	t8103-j313.dtb \
+	t8103-j456.dtb \
+	t8103-j457.dtb
 
 dtb-$(CONFIG_ARCH_DAVINCI) += \
 	da850-evm.dtb \

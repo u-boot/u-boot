@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+
+&serial0 {
+	u-boot,dm-pre-reloc;
+};
+
+&pmgr {
+	u-boot,dm-pre-reloc;
+};
+
+&ps_sio_busif {
+	u-boot,dm-pre-reloc;
+};
+
+&ps_sio {
+	u-boot,dm-pre-reloc;
+};
+
+&ps_uart_p {
+	u-boot,dm-pre-reloc;
+};
+
+&ps_uart0 {
+	u-boot,dm-pre-reloc;
+};

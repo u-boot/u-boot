@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+ OR MIT
 /*
- * Apple MacBook Pro (13-inch, M1, 2020)
+ * Apple MacBook Air (M1, 2020)
  *
- * target-type: J293
+ * target-type: J313
  *
  * Copyright The Asahi Linux Contributors
  */
@@ -13,12 +13,12 @@
 #include "t8103-jxxx.dtsi"
 
 / {
-	compatible = "apple,j293", "apple,t8103", "apple,arm-platform";
-	model = "Apple MacBook Pro (13-inch, M1, 2020)";
+	compatible = "apple,j313", "apple,t8103", "apple,arm-platform";
+	model = "Apple MacBook Air (M1, 2020)";
 };
 
 &wifi0 {
-	brcm,board-type = "apple,honshu";
+	brcm,board-type = "apple,shikoku";
 };
 
 /*
@@ -68,8 +68,7 @@
 /delete-node/ &port01;
 /delete-node/ &port02;
 
-&i2c2 {
-	status = "okay";
+&i2c3 {
 	clock-frequency = <50000>;
 
 	jack_codec: codec@48 {
@@ -81,10 +80,6 @@
 		#sound-dai-cells = <0>;
 		cirrus,ts-inv = <1>;
 	};
-};
-
-&i2c4 {
-	status = "okay";
 };
 
 / {
