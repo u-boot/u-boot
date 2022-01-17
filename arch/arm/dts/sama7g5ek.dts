@@ -20,6 +20,7 @@
 	aliases {
 		serial0 = &uart0;
 		i2c0 = &i2c1;
+		i2c1 = &i2c8;
 	};
 
 	chosen {
@@ -92,17 +93,31 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_flx1_default>;
 	status = "okay";
+};
 
-	eeprom@52 {
-		compatible = "microchip,24aa02e48";
-		reg = <0x52>;
-		pagesize = <16>;
-	};
+&flx8 {
+	atmel,flexcom-mode = <ATMEL_FLEXCOM_MODE_TWI>;
+	status = "okay";
 
-	eeprom@53 {
-		compatible = "microchip,24aa02e48";
-		reg = <0x53>;
-		pagesize = <16>;
+	i2c8: i2c@600 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c8_default>;
+		i2c-analog-filter;
+		i2c-digital-filter;
+		i2c-digital-filter-width-ns = <35>;
+		status = "okay";
+
+		eeprom@52 {
+			compatible = "microchip,24aa02e48";
+			reg = <0x52>;
+			pagesize = <16>;
+		};
+
+		eeprom@53 {
+			compatible = "microchip,24aa02e48";
+			reg = <0x53>;
+			pagesize = <16>;
+		};
 	};
 };
 
@@ -143,6 +158,12 @@
 		pinmux = <PIN_PD16__FLEXCOM3_IO0>,
 			 <PIN_PD17__FLEXCOM3_IO1>;
 		bias-pull-up;
+	};
+
+	pinctrl_i2c8_default: i2c8_default {
+		pinmux = <PIN_PC14__FLEXCOM8_IO0>,
+			 <PIN_PC13__FLEXCOM8_IO1>;
+		bias-disable;
 	};
 
 	pinctrl_qspi: qspi {
