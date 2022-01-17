@@ -523,7 +523,12 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			}
 			if (argc > 2 || (argc > 1 && cmd != 'r' && argv[1][0] != 's')) {
 				busnum = hextoul(argv[argc - 1], NULL);
+				argc--;
 			}
+			if (cmd == 'r' && argc > 2)
+				goto usage;
+			else if (cmd != 'r' && (argc > 2 || (argc == 2 && argv[1][0] != 's')))
+				goto usage;
 		}
 		ret = uclass_get_device_by_seq(UCLASS_PCI, busnum, &bus);
 		if (ret) {
