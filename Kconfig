@@ -454,6 +454,12 @@ config SYS_SRAM_SIZE
 	default 0x10000 if TARGET_TRICORDER
 	default 0x0
 
+config MP
+	bool "Support for multiprocessor"
+	help
+	  This provides an option to bringup different processors
+	  in multiprocessor cases.
+
 config EXAMPLES
 	bool "Compile API examples"
 	depends on !SANDBOX
