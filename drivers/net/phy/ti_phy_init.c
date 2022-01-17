@@ -88,6 +88,10 @@ int phy_ti_init(void)
 	phy_dp83867_init();
 #endif
 
+#ifdef CONFIG_PHY_TI_DP83869
+	phy_dp83869_init();
+#endif
+
 #ifdef CONFIG_PHY_TI_GENERIC
 	phy_register(&dp83822_driver);
 	phy_register(&dp83825s_driver);

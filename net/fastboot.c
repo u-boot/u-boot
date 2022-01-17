@@ -9,9 +9,6 @@
 #include <net.h>
 #include <net/fastboot.h>
 
-/* Fastboot port # defined in spec */
-#define WELL_KNOWN_PORT 5554
-
 enum {
 	FASTBOOT_ERROR = 0,
 	FASTBOOT_QUERY = 1,
@@ -310,7 +307,7 @@ void fastboot_start_server(void)
 	printf("Using %s device\n", eth_get_name());
 	printf("Listening for fastboot command on %pI4\n", &net_ip);
 
-	fastboot_our_port = WELL_KNOWN_PORT;
+	fastboot_our_port = CONFIG_UDP_FUNCTION_FASTBOOT_PORT;
 
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	fastboot_set_progress_callback(fastboot_timed_send_info);

@@ -21,6 +21,13 @@ config UDP_FUNCTION_FASTBOOT
 	help
 	  This enables the fastboot protocol over UDP.
 
+config UDP_FUNCTION_FASTBOOT_PORT
+	depends on UDP_FUNCTION_FASTBOOT
+	int "Define FASTBOOT UDP port"
+	default 5554
+	help
+	  The fastboot protocol requires a UDP port number.
+
 if FASTBOOT
 
 config FASTBOOT_BUF_ADDR
