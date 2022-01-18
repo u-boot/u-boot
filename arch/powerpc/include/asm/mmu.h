@@ -137,10 +137,6 @@ typedef struct _MMU_context {
 extern void _tlbie(unsigned long va);	/* invalidate a TLB entry */
 extern void _tlbia(void);		/* invalidate all TLB entries */
 
-#ifdef CONFIG_ADDR_MAP
-extern void init_addr_map(void);
-#endif
-
 typedef enum {
 	IBAT0 = 0, IBAT1, IBAT2, IBAT3,
 	DBAT0, DBAT1, DBAT2, DBAT3,

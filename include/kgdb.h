@@ -39,7 +39,16 @@ typedef
 kgdb_data;
 
 /* these functions are provided by the generic kgdb support */
-extern void kgdb_init(void);
+/**
+ * kgdb_init()
+ *
+ * Perform initializations to allow debugging U-Boot with gdb over a serial
+ * link. It is called during the generic board init sequence.
+ *
+ * Return: 0 if OK
+ */
+int kgdb_init(void);
+
 extern void kgdb_error(int);
 extern int kgdb_output_string(const char *, unsigned int);
 extern void breakpoint(void);

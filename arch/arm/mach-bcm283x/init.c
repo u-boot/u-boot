@@ -152,7 +152,7 @@ int mach_cpu_init(void)
 #include <addr_map.h>
 #include <asm/system.h>
 
-void init_addr_map(void)
+int init_addr_map(void)
 {
 	mmu_set_region_dcache_behaviour_phys(BCM2711_RPI4_PCIE_XHCI_MMIO_VIRT,
 					     BCM2711_RPI4_PCIE_XHCI_MMIO_PHYS,
@@ -165,6 +165,8 @@ void init_addr_map(void)
 	addrmap_set_entry(BCM2711_RPI4_PCIE_XHCI_MMIO_VIRT,
 			  BCM2711_RPI4_PCIE_XHCI_MMIO_PHYS,
 			  BCM2711_RPI4_PCIE_XHCI_MMIO_SIZE, 1);
+
+	return 0;
 }
 #endif
 

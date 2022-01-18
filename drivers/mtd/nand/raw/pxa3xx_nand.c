@@ -1913,6 +1913,7 @@ static int pxa3xx_nand_probe(struct udevice *dev)
 		 * user's mtd partitions configuration would get broken.
 		 */
 		mtd->name = "pxa3xx_nand-0";
+		mtd->dev = dev;
 		info->cs = cs;
 		ret = pxa3xx_nand_scan(mtd);
 		if (ret) {

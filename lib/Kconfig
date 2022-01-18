@@ -367,6 +367,14 @@ endmenu
 
 menu "Hashing Support"
 
+config BLAKE2
+	bool "Enable BLAKE2 support"
+	help
+	  This option enables support of hashing using BLAKE2B algorithm.
+	  The hash is calculated in software.
+	  The BLAKE2 algorithm produces a hash value (digest) between 1 and
+	  64 bytes.
+
 config SHA1
 	bool "Enable SHA1 support"
 	help

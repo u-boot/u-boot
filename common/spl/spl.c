@@ -770,9 +770,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			       ret);
 	}
 
-#ifdef CONFIG_CPU_V7M
-	spl_image.entry_point |= 0x1;
-#endif
 	switch (spl_image.os) {
 	case IH_OS_U_BOOT:
 		debug("Jumping to %s...\n", spl_phase_name(spl_next_phase()));

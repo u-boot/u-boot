@@ -23,10 +23,6 @@
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <u-boot/crc.h>
-/* TODO: can we just include all these headers whether needed or not? */
-#if defined(CONFIG_CMD_BEDBUG)
-#include <bedbug/type.h>
-#endif
 #include <binman.h>
 #include <command.h>
 #include <console.h>
@@ -37,15 +33,11 @@
 #include <ide.h>
 #include <init.h>
 #include <initcall.h>
-#if defined(CONFIG_CMD_KGDB)
 #include <kgdb.h>
-#endif
 #include <irq_func.h>
 #include <malloc.h>
 #include <mapmem.h>
-#ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
-#endif
 #include <mmc.h>
 #include <mux.h>
 #include <nand.h>
@@ -59,12 +51,7 @@
 #include <timer.h>
 #include <trace.h>
 #include <watchdog.h>
-#ifdef CONFIG_XEN
 #include <xen.h>
-#endif
-#ifdef CONFIG_ADDR_MAP
-#include <asm/mmu.h>
-#endif
 #include <asm/sections.h>
 #include <dm/root.h>
 #include <dm/ofnode.h>
@@ -72,12 +59,8 @@
 #include <linux/err.h>
 #include <efi_loader.h>
 #include <wdt.h>
-#if defined(CONFIG_GPIO_HOG)
-#include <asm/gpio.h>
-#endif
-#ifdef CONFIG_EFI_SETUP_EARLY
+#include <asm-generic/gpio.h>
 #include <efi_loader.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -188,15 +171,6 @@ __weak int arch_initr_trap(void)
 {
 	return 0;
 }
-
-#ifdef CONFIG_ADDR_MAP
-static int initr_addr_map(void)
-{
-	init_addr_map();
-
-	return 0;
-}
-#endif
 
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 static int initr_unlock_ram_in_cache(void)
@@ -501,15 +475,6 @@ static int initr_ethaddr(void)
 }
 #endif /* CONFIG_CMD_NET */
 
-#ifdef CONFIG_CMD_KGDB
-static int initr_kgdb(void)
-{
-	puts("KGDB:  ");
-	kgdb_init();
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_LED_STATUS)
 static int initr_status_led(void)
 {
@@ -658,7 +623,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_dm,
 #endif
 #ifdef CONFIG_ADDR_MAP
-	initr_addr_map,
+	init_addr_map,
 #endif
 #if defined(CONFIG_ARM) || defined(CONFIG_NDS32) || defined(CONFIG_RISCV) || \
 	defined(CONFIG_SANDBOX)
@@ -772,7 +737,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 #ifdef CONFIG_CMD_KGDB
-	initr_kgdb,
+	kgdb_init,
 #endif
 	interrupt_init,
 #if defined(CONFIG_MICROBLAZE) || defined(CONFIG_M68K)
@@ -819,10 +784,6 @@ static init_fnc_t init_sequence_r[] = {
 	 * keyboard).
 	 */
 	last_stage_init,
-#endif
-#ifdef CONFIG_CMD_BEDBUG
-	INIT_FUNC_WATCHDOG_RESET
-	bedbug_init,
 #endif
 #if defined(CONFIG_PRAM)
 	initr_mem,
