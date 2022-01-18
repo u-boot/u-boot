@@ -21,7 +21,6 @@
 #include <linux/libfdt.h>
 #include <linux/string.h>
 #include <miiphy.h>
-#include <mvebu/comphy.h>
 #include <spi.h>
 
 #include "mox_sp.h"
@@ -49,6 +48,7 @@ int board_fix_fdt(void *blob)
 	enum fdt_status status_pcie, status_eth1;
 	u8 topology[MAX_MOX_MODULES];
 	int i, size, ret;
+	bool eth1_sgmii;
 
 	/*
 	 * SPI driver is not loaded in driver model yet, but we have to find out
@@ -69,6 +69,7 @@ int board_fix_fdt(void *blob)
 
 	status_pcie = FDT_STATUS_DISABLED;
 	status_eth1 = FDT_STATUS_DISABLED;
+	eth1_sgmii = false;
 
 	for (i = 0; i < MAX_MOX_MODULES; ++i) {
 		writel(0x0, ARMADA_37XX_SPI_DOUT);
@@ -81,6 +82,10 @@ int board_fix_fdt(void *blob)
 			break;
 
 		topology[i] &= 0xf;
+
+		if (topology[i] == MOX_MODULE_SFP &&
+		    status_pcie == FDT_STATUS_DISABLED)
+			eth1_sgmii = true;
 
 		if (topology[i] == MOX_MODULE_SFP ||
 		    topology[i] == MOX_MODULE_TOPAZ ||
@@ -97,6 +102,15 @@ int board_fix_fdt(void *blob)
 	if (ret < 0)
 		printf("Cannot set status for eth1 in U-Boot's device tree: %s!\n",
 		       fdt_strerror(ret));
+
+	if (eth1_sgmii) {
+		ret = fdt_path_offset(blob, "ethernet1");
+		if (ret >= 0)
+			ret = fdt_setprop_string(blob, ret, "phy-mode", "sgmii");
+		if (ret < 0)
+			printf("Cannot set phy-mode for eth1 to sgmii in U-Boot device tree: %s!\n",
+			       fdt_strerror(ret));
+	}
 
 	if (size > 1 && (topology[1] == MOX_MODULE_PCI ||
 			 topology[1] == MOX_MODULE_USB3 ||
@@ -195,38 +209,6 @@ static int mox_get_topology(const u8 **ptopology, int *psize, int *pis_sd)
 		*psize = size;
 	if (pis_sd)
 		*pis_sd = is_sd;
-
-	return 0;
-}
-
-int comphy_update_map(struct comphy_map *serdes_map, int count)
-{
-	int ret, i, size, sfpindex = -1, swindex = -1;
-	const u8 *topology;
-
-	ret = mox_get_topology(&topology, &size, NULL);
-	if (ret)
-		return ret;
-
-	for (i = 0; i < size; ++i) {
-		if (topology[i] == MOX_MODULE_SFP && sfpindex == -1)
-			sfpindex = i;
-		else if ((topology[i] == MOX_MODULE_TOPAZ ||
-			  topology[i] == MOX_MODULE_PERIDOT) &&
-			 swindex == -1)
-			swindex = i;
-	}
-
-	if (sfpindex >= 0 && swindex >= 0) {
-		if (sfpindex < swindex)
-			serdes_map[0].speed = COMPHY_SPEED_1_25G;
-		else
-			serdes_map[0].speed = COMPHY_SPEED_3_125G;
-	} else if (sfpindex >= 0) {
-		serdes_map[0].speed = COMPHY_SPEED_1_25G;
-	} else if (swindex >= 0) {
-		serdes_map[0].speed = COMPHY_SPEED_3_125G;
-	}
 
 	return 0;
 }
