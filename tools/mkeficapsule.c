@@ -81,21 +81,22 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 
 	g = fopen(bin, "r");
 	if (!g) {
-		printf("cannot open %s\n", bin);
+		fprintf(stderr, "cannot open %s\n", bin);
 		return -1;
 	}
 	if (stat(bin, &bin_stat) < 0) {
-		printf("cannot determine the size of %s\n", bin);
+		fprintf(stderr, "cannot determine the size of %s\n", bin);
 		goto err_1;
 	}
 	data = malloc(bin_stat.st_size);
 	if (!data) {
-		printf("cannot allocate memory: %zx\n", (size_t)bin_stat.st_size);
+		fprintf(stderr, "cannot allocate memory: %zx\n",
+			(size_t)bin_stat.st_size);
 		goto err_1;
 	}
 	f = fopen(path, "w");
 	if (!f) {
-		printf("cannot open %s\n", path);
+		fprintf(stderr, "cannot open %s\n", path);
 		goto err_2;
 	}
 	header.capsule_guid = efi_guid_fm_capsule;
@@ -109,7 +110,7 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 
 	size = fwrite(&header, 1, sizeof(header), f);
 	if (size < sizeof(header)) {
-		printf("write failed (%zx)\n", size);
+		fprintf(stderr, "write failed (%zx)\n", size);
 		goto err_3;
 	}
 
@@ -118,13 +119,13 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	capsule.payload_item_count = 1;
 	size = fwrite(&capsule, 1, sizeof(capsule), f);
 	if (size < (sizeof(capsule))) {
-		printf("write failed (%zx)\n", size);
+		fprintf(stderr, "write failed (%zx)\n", size);
 		goto err_3;
 	}
 	offset = sizeof(capsule) + sizeof(u64);
 	size = fwrite(&offset, 1, sizeof(offset), f);
 	if (size < sizeof(offset)) {
-		printf("write failed (%zx)\n", size);
+		fprintf(stderr, "write failed (%zx)\n", size);
 		goto err_3;
 	}
 
@@ -141,17 +142,17 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 
 	size = fwrite(&image, 1, sizeof(image), f);
 	if (size < sizeof(image)) {
-		printf("write failed (%zx)\n", size);
+		fprintf(stderr, "write failed (%zx)\n", size);
 		goto err_3;
 	}
 	size = fread(data, 1, bin_stat.st_size, g);
 	if (size < bin_stat.st_size) {
-		printf("read failed (%zx)\n", size);
+		fprintf(stderr, "read failed (%zx)\n", size);
 		goto err_3;
 	}
 	size = fwrite(data, 1, bin_stat.st_size, f);
 	if (size < bin_stat.st_size) {
-		printf("write failed (%zx)\n", size);
+		fprintf(stderr, "write failed (%zx)\n", size);
 		goto err_3;
 	}
 
@@ -194,7 +195,7 @@ int main(int argc, char **argv)
 		switch (c) {
 		case 'f':
 			if (file) {
-				printf("Image already specified\n");
+				fprintf(stderr, "Image already specified\n");
 				return -1;
 			}
 			file = optarg;
@@ -202,7 +203,7 @@ int main(int argc, char **argv)
 			break;
 		case 'r':
 			if (file) {
-				printf("Image already specified\n");
+				fprintf(stderr, "Image already specified\n");
 				return -1;
 			}
 			file = optarg;
@@ -234,7 +235,7 @@ int main(int argc, char **argv)
 
 	if (create_fwbin(argv[optind], file, guid, index, instance)
 			< 0) {
-		printf("Creating firmware capsule failed\n");
+		fprintf(stderr, "Creating firmware capsule failed\n");
 		exit(EXIT_FAILURE);
 	}
 
