@@ -8,6 +8,7 @@
 
 #include <fdtdec.h>
 #include <mvebu/comphy.h>
+#include <dt-bindings/comphy/comphy_data.h>
 
 #if defined(DEBUG)
 #define debug_enter()	printf("----> Enter %s\n", __func__);
@@ -19,6 +20,14 @@
 
 #define MAX_LANE_OPTIONS			10
 #define MAX_UTMI_PHY_COUNT			6
+
+struct comphy_map {
+	u32 type;
+	u32 speed;
+	u32 invert;
+	bool clk_src;
+	bool end_point;
+};
 
 struct comphy_mux_options {
 	u32 type;
