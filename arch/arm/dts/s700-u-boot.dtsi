@@ -19,6 +19,16 @@
 			status = "okay";
                 };
 
+		mmc0: mmc@e0210000 {
+			compatible = "actions,s700-mmc", "actions,owl-mmc";
+			reg = <0x0 0xe0210000 0x0 0x4000>;
+			interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&cmu CLK_SD0>;
+			dmas = <&dma 2>;
+			dma-names = "mmc";
+			bus-width = <4>;
+			status = "okay";
+		};
 	};
 };
 
