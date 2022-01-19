@@ -8,7 +8,7 @@ mkeficapsule \- Generate EFI capsule file for U-Boot
 
 .SH SYNOPSIS
 .B mkeficapsule
-.RI [ options "] " image-blob " " capsule-file
+.RI [ options ] " " [ image-blob ] " " capsule-file
 
 .SH "DESCRIPTION"
 .B mkeficapsule
@@ -23,8 +23,13 @@ Optionally, a capsule file can be signed with a given private key.
 In this case, the update will be authenticated by verifying the signature
 before applying.
 
+Additionally, an empty capsule file can be generated for acceptance or
+rejection of firmware images by a governing component like an Operating
+System. The empty capsules do not require an image-blob input file.
+
+
 .B mkeficapsule
-takes any type of image files, including:
+takes any type of image files when generating non empty capsules, including:
 .TP
 .I raw image
 format is a single binary blob of any type of firmware.
@@ -43,7 +48,7 @@ specify a guid for the FMP driver.
 .SH "OPTIONS"
 One of
 .BR --fit ", " --raw " or " --guid
-option must be specified.
+option must be specified for non empty capsules.
 
 .TP
 .BR -f ", " --fit
@@ -68,6 +73,18 @@ Specify an image index
 .TP
 .BI "-I\fR,\fB --instance " instance
 Specify a hardware instance
+
+.PP
+For generation of firmware accept empty capsule
+.BR --guid
+is mandatory
+.TP
+.BI "-A\fR,\fB --fw-accept "
+Generate a firmware acceptance empty capsule
+
+.TP
+.BI "-R\fR,\fB --fw-revert "
+Generate a firmware revert empty capsule
 
 .TP
 .BR -h ", " --help
