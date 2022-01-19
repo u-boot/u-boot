@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-#include <stm32h7-u-boot.dtsi>
+#include <stm32h7-nucleo-u-boot.dtsi>
 
 &fmc {
 

@@ -1,0 +1,134 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+#include <dt-bindings/memory/stm32-sdram.h>
+
+/{
+	clocks {
+		u-boot,dm-pre-reloc;
+	};
+
+	aliases {
+		gpio0 = &gpioa;
+		gpio1 = &gpiob;
+		gpio2 = &gpioc;
+		gpio3 = &gpiod;
+		gpio4 = &gpioe;
+		gpio5 = &gpiof;
+		gpio6 = &gpiog;
+		gpio7 = &gpioh;
+		gpio8 = &gpioi;
+		gpio9 = &gpioj;
+		gpio10 = &gpiok;
+		mmc0 = &sdmmc1;
+		pinctrl0 = &pinctrl;
+	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+		pin-controller {
+			u-boot,dm-pre-reloc;
+		};
+
+		fmc: fmc@52004000 {
+			compatible = "st,stm32h7-fmc";
+			reg = <0x52004000 0x1000>;
+			clocks = <&rcc FMC_CK>;
+
+			pinctrl-0 = <&fmc_pins>;
+			pinctrl-names = "default";
+			status = "disabled";
+		};
+	};
+};
+
+&clk_hse {
+	u-boot,dm-pre-reloc;
+};
+
+&clk_i2s {
+	u-boot,dm-pre-reloc;
+};
+
+&clk_lse {
+	u-boot,dm-pre-reloc;
+};
+
+
+&fmc {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioa {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpiob {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpioc {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpiod {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpioe {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpiof {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpiog {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpioh {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpioi {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpioj {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&gpiok {
+	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
+};
+
+&pwrcfg {
+	u-boot,dm-pre-reloc;
+};
+
+&rcc {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc1 {
+	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
+};
+
+&timer5 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+};

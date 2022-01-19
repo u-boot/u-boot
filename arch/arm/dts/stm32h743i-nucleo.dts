@@ -42,24 +42,29 @@
 
 /dts-v1/;
 #include "stm32h743.dtsi"
-#include "stm32h7-pinctrl.dtsi"
+#include "stm32h7-nucleo-pinctrl.dtsi"
 
 / {
-	model = "STMicroelectronics STM32H743i-EVAL board";
-	compatible = "st,stm32h743i-eval", "st,stm32h743";
+	model = "STMicroelectronics STM32H743i-Nucleo board";
+	compatible = "st,stm32h743i-nucleo", "st,stm32h743";
 
 	chosen {
 		bootargs = "root=/dev/ram";
 		stdout-path = "serial0:115200n8";
 	};
 
-	memory@d0000000 {
+	memory@30000000 {
 		device_type = "memory";
-		reg = <0xd0000000 0x2000000>;
+		reg = <0x30000000 0x00048000>;
+	};
+
+	memory@24000000 {
+		device_type = "memory";
+		reg = <0x24000000 0x00080000>;
 	};
 
 	aliases {
-		serial0 = &usart1;
+		serial0 = &usart3;
 	};
 
 	vdda: regulator-vdda {
@@ -98,7 +103,7 @@
 };
 
 &clk_hse {
-	clock-frequency = <25000000>;
+	clock-frequency = <8000000>;
 };
 
 &i2c1 {
@@ -144,8 +149,8 @@
 	status = "okay";
 };
 
-&usart1 {
-	pinctrl-0 = <&usart1_pins>;
+&usart3 {
+	pinctrl-0 = <&usart3_pins>;
 	pinctrl-names = "default";
 	status = "okay";
 };
