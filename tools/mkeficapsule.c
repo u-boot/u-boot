@@ -29,7 +29,13 @@ static const char *tool_name = "mkeficapsule";
 efi_guid_t efi_guid_fm_capsule = EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
 efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
-static const char *opts_short = "g:i:I:v:p:c:m:dh";
+static const char *opts_short = "g:i:I:v:p:c:m:dhAR";
+
+enum {
+	CAPSULE_NORMAL_BLOB = 0,
+	CAPSULE_ACCEPT,
+	CAPSULE_REVERT,
+} capsule_type;
 
 static struct option options[] = {
 	{"guid", required_argument, NULL, 'g'},
@@ -39,6 +45,8 @@ static struct option options[] = {
 	{"certificate", required_argument, NULL, 'c'},
 	{"monotonic-count", required_argument, NULL, 'm'},
 	{"dump-sig", no_argument, NULL, 'd'},
+	{"fw-accept", no_argument, NULL, 'A'},
+	{"fw-revert", no_argument, NULL, 'R'},
 	{"help", no_argument, NULL, 'h'},
 	{NULL, 0, NULL, 0},
 };
@@ -55,6 +63,8 @@ static void print_usage(void)
 		"\t-c, --certificate <cert file>     signer's certificate file\n"
 		"\t-m, --monotonic-count <count>     monotonic count\n"
 		"\t-d, --dump_sig              dump signature (*.p7)\n"
+		"\t-A, --fw-accept  firmware accept capsule, requires GUID, no image blob\n"
+		"\t-R, --fw-revert  firmware revert capsule, takes no GUID, no image blob\n"
 		"\t-h, --help                  print a help message\n",
 		tool_name);
 }
@@ -564,6 +574,49 @@ void convert_uuid_to_guid(unsigned char *buf)
 	buf[7] = c;
 }
 
+static int create_empty_capsule(char *path, efi_guid_t *guid, bool fw_accept)
+{
+	struct efi_capsule_header header = { 0 };
+	FILE *f = NULL;
+	int ret = -1;
+	efi_guid_t fw_accept_guid = FW_ACCEPT_OS_GUID;
+	efi_guid_t fw_revert_guid = FW_REVERT_OS_GUID;
+	efi_guid_t capsule_guid;
+
+	f = fopen(path, "w");
+	if (!f) {
+		fprintf(stderr, "cannot open %s\n", path);
+		goto err;
+	}
+
+	capsule_guid = fw_accept ? fw_accept_guid : fw_revert_guid;
+
+	memcpy(&header.capsule_guid, &capsule_guid, sizeof(efi_guid_t));
+	header.header_size = sizeof(header);
+	header.flags = 0;
+
+	header.capsule_image_size = fw_accept ?
+		sizeof(header) + sizeof(efi_guid_t) : sizeof(header);
+
+	if (write_capsule_file(f, &header, sizeof(header),
+			       "Capsule header"))
+		goto err;
+
+	if (fw_accept) {
+		if (write_capsule_file(f, guid, sizeof(*guid),
+				       "FW Accept Capsule Payload"))
+			goto err;
+	}
+
+	ret = 0;
+
+err:
+	if (f)
+		fclose(f);
+
+	return ret;
+}
+
 /**
  * main - main entry function of mkeficapsule
  * @argc:	Number of arguments
@@ -592,6 +645,7 @@ int main(int argc, char **argv)
 	privkey_file = NULL;
 	cert_file = NULL;
 	dump_sig = 0;
+	capsule_type = CAPSULE_NORMAL_BLOB;
 	for (;;) {
 		c = getopt_long(argc, argv, opts_short, options, &idx);
 		if (c == -1)
@@ -639,22 +693,50 @@ int main(int argc, char **argv)
 		case 'd':
 			dump_sig = 1;
 			break;
-		case 'h':
+		case 'A':
+			if (capsule_type) {
+				fprintf(stderr,
+					"Select either of Accept or Revert capsule generation\n");
+				exit(1);
+			}
+			capsule_type = CAPSULE_ACCEPT;
+			break;
+		case 'R':
+			if (capsule_type) {
+				fprintf(stderr,
+					"Select either of Accept or Revert capsule generation\n");
+				exit(1);
+			}
+			capsule_type = CAPSULE_REVERT;
+			break;
+		default:
 			print_usage();
 			exit(EXIT_SUCCESS);
 		}
 	}
 
 	/* check necessary parameters */
-	if ((argc != optind + 2) || !guid ||
-	    ((privkey_file && !cert_file) ||
-	     (!privkey_file && cert_file))) {
+	if ((capsule_type == CAPSULE_NORMAL_BLOB &&
+	    ((argc != optind + 2) || !guid ||
+	     ((privkey_file && !cert_file) ||
+	      (!privkey_file && cert_file)))) ||
+	    (capsule_type != CAPSULE_NORMAL_BLOB &&
+	    ((argc != optind + 1) ||
+	     ((capsule_type == CAPSULE_ACCEPT) && !guid) ||
+	     ((capsule_type == CAPSULE_REVERT) && guid)))) {
 		print_usage();
 		exit(EXIT_FAILURE);
 	}
 
-	if (create_fwbin(argv[argc - 1], argv[argc - 2], guid, index, instance,
-			 mcount, privkey_file, cert_file) < 0) {
+	if (capsule_type != CAPSULE_NORMAL_BLOB) {
+		if (create_empty_capsule(argv[argc - 1], guid,
+					 capsule_type == CAPSULE_ACCEPT) < 0) {
+			fprintf(stderr, "Creating empty capsule failed\n");
+			exit(EXIT_FAILURE);
+		}
+	} else 	if (create_fwbin(argv[argc - 1], argv[argc - 2], guid,
+				 index, instance, mcount, privkey_file,
+				 cert_file) < 0) {
 		fprintf(stderr, "Creating firmware capsule failed\n");
 		exit(EXIT_FAILURE);
 	}
