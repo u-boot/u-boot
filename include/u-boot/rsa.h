@@ -111,6 +111,7 @@ int padding_pss_verify(struct image_sign_info *info,
 #define RSA_DEFAULT_PADDING_NAME		"pkcs-1.5"
 
 #define RSA2048_BYTES	(2048 / 8)
+#define RSA3072_BYTES	(3072 / 8)
 #define RSA4096_BYTES	(4096 / 8)
 
 /* This is the minimum/maximum key size we support, in bits */
