@@ -55,7 +55,7 @@ static int fit_set_hash_value(void *fit, int noffset, uint8_t *value,
  * @noffset:	subnode offset
  * @data:	data to process
  * @size:	size of data in bytes
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 static int fit_image_process_hash(void *fit, const char *image_name,
 		int noffset, const void *data, size_t size)
@@ -209,7 +209,7 @@ static int fit_image_setup_sig(struct image_sign_info *info,
  * @comment:	Comment to add to signature nodes
  * @require_keys: Mark all keys as 'required'
  * @engine_id:	Engine to use for signing
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 static int fit_image_process_sig(const char *keydir, const char *keyfile,
 		void *keydest, void *fit, const char *image_name,

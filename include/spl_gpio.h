@@ -36,7 +36,7 @@
  * @regs: Pointer to GPIO registers
  * @gpio: GPIO to adjust (SoC-specific)
  * @pull: Pull value (SoC-specific)
- * @return return 0 if OK, -ve on error
+ * Return: return 0 if OK, -ve on error
  */
 int spl_gpio_set_pull(void *regs, uint gpio, int pull);
 
@@ -46,7 +46,7 @@ int spl_gpio_set_pull(void *regs, uint gpio, int pull);
  * @regs: Pointer to GPIO registers
  * @gpio: GPIO to adjust (SoC-specific)
  * @value: 0 to set the output low, 1 to set it high
- * @return return 0 if OK, -ve on error
+ * Return: return 0 if OK, -ve on error
  */
 int spl_gpio_output(void *regs, uint gpio, int value);
 
@@ -55,7 +55,7 @@ int spl_gpio_output(void *regs, uint gpio, int value);
  *
  * @regs: Pointer to GPIO registers
  * @gpio: GPIO to adjust (SoC-specific)
- * @return return 0 if OK, -ve on error
+ * Return: return 0 if OK, -ve on error
  */
 int spl_gpio_input(void *regs, uint gpio);
 

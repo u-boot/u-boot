@@ -66,7 +66,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
  * @linelen:	Number of values to print per line; specify 0 for default length
  * @out:	Output buffer to hold the dump
  * @size:	Size of output buffer in bytes
- * @return number of bytes processed, if OK, -ENOSPC if buffer too small
+ * Return: number of bytes processed, if OK, -ENOSPC if buffer too small
  *
  */
 int hexdump_line(ulong addr, const void *data, uint width, uint count,
@@ -91,7 +91,7 @@ int display_options(void);
  * @newlines: true to include two newlines at the start
  * @buf: place to put string
  * @size: Size of buf (string is truncated to fit)
- * @return buf
+ * Return: buf
  */
 char *display_options_get_banner(bool newlines, char *buf, int size);
 

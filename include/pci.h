@@ -812,7 +812,7 @@ void pciauto_config_init(struct pci_controller *hose);
  * @size:		Amount of bytes to allocate
  * @bar:		Returns the PCI bus address of the allocated resource
  * @supports_64bit:	Whether to allow allocations above the 32-bit boundary
- * @return 0 if successful, -1 on failure
+ * Return: 0 if successful, -1 on failure
  */
 int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
 			    pci_addr_t *bar, bool supports_64bit);
@@ -898,7 +898,7 @@ void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
  * @hose:	PCI hose to use
  * @dev:	PCI device to inspect
  * @barnum:	BAR number (0-5)
- * @return address of the bar, masking out any control bits
+ * Return: address of the bar, masking out any control bits
  * */
 u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
 
@@ -998,7 +998,7 @@ struct dm_pci_ops {
  * dm_pci_get_bdf() - Get the BDF value for a device
  *
  * @dev:	Device to check
- * @return bus/device/function value (see PCI_BDF())
+ * Return: bus/device/function value (see PCI_BDF())
  */
 pci_dev_t dm_pci_get_bdf(const struct udevice *dev);
 
@@ -1015,7 +1015,7 @@ pci_dev_t dm_pci_get_bdf(const struct udevice *dev);
  * driver interface.
  *
  * @bus:	Bus containing devices to bind
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_bind_bus_devices(struct udevice *bus);
 
@@ -1030,7 +1030,7 @@ int pci_bind_bus_devices(struct udevice *bus);
  * devices are mapped into memory and I/O space ready for use.
  *
  * @bus:	Bus containing devices to bind
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_auto_config_devices(struct udevice *bus);
 
@@ -1039,7 +1039,7 @@ int pci_auto_config_devices(struct udevice *bus);
  *
  * @bdf:	PCI device address: bus, device and function -see PCI_BDF()
  * @devp:	Returns the device for this address, if found
- * @return 0 if OK, -ENODEV if not found
+ * Return: 0 if OK, -ENODEV if not found
  */
 int dm_pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp);
 
@@ -1048,7 +1048,7 @@ int dm_pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp);
  *
  * @find_devfn:		PCI device address (device and function only)
  * @devp:	Returns the device for this address, if found
- * @return 0 if OK, -ENODEV if not found
+ * Return: 0 if OK, -ENODEV if not found
  */
 int pci_bus_find_devfn(const struct udevice *bus, pci_dev_t find_devfn,
 		       struct udevice **devp);
@@ -1062,7 +1062,7 @@ int pci_bus_find_devfn(const struct udevice *bus, pci_dev_t find_devfn,
  *
  * @devp:	Set to the first available device, or NULL if no more are left
  *		or we got an error
- * @return 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
+ * Return: 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
  */
 int pci_find_first_device(struct udevice **devp);
 
@@ -1074,7 +1074,7 @@ int pci_find_first_device(struct udevice **devp);
  *
  * @devp:	On entry, the last device returned. Set to the next available
  *		device, or NULL if no more are left or we got an error
- * @return 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
+ * Return: 0 if all is OK, -ve on error (e.g. a bus/bridge failed to probe)
  */
 int pci_find_next_device(struct udevice **devp);
 
@@ -1082,7 +1082,7 @@ int pci_find_next_device(struct udevice **devp);
  * pci_get_ff() - Returns a mask for the given access size
  *
  * @size:	Access size
- * @return 0xff for PCI_SIZE_8, 0xffff for PCI_SIZE_16, 0xffffffff for
+ * Return: 0xff for PCI_SIZE_8, 0xffff for PCI_SIZE_16, 0xffffffff for
  * PCI_SIZE_32
  */
 int pci_get_ff(enum pci_size_t size);
@@ -1097,7 +1097,7 @@ int pci_get_ff(enum pci_size_t size);
  *		parameter is decremented for each non-matching device so
  *		can be called repeatedly.
  * @devp:	Returns matching device if found
- * @return 0 if found, -ENODEV if not
+ * Return: 0 if found, -ENODEV if not
  */
 int pci_bus_find_devices(struct udevice *bus, const struct pci_device_id *ids,
 			 int *indexp, struct udevice **devp);
@@ -1109,7 +1109,7 @@ int pci_bus_find_devices(struct udevice *bus, const struct pci_device_id *ids,
  * @index:	Index number of device to find, 0 for the first match, 1 for
  *		the second, etc.
  * @devp:	Returns matching device if found
- * @return 0 if found, -ENODEV if not
+ * Return: 0 if found, -ENODEV if not
  */
 int pci_find_device_id(const struct pci_device_id *ids, int index,
 		       struct udevice **devp);
@@ -1126,7 +1126,7 @@ int pci_find_device_id(const struct pci_device_id *ids, int index,
  *
  * @hose:	PCI hose to scan
  * @bdf:	PCI bus address to scan (PCI_BUS(bdf) is the bus number)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_pci_hose_probe_bus(struct udevice *bus);
 
@@ -1141,7 +1141,7 @@ int dm_pci_hose_probe_bus(struct udevice *bus);
  * @offset:	Register offset to read
  * @valuep:	Place to put the returned value
  * @size:	Access size
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_bus_read_config(const struct udevice *bus, pci_dev_t bdf, int offset,
 			unsigned long *valuep, enum pci_size_t size);
@@ -1154,7 +1154,7 @@ int pci_bus_read_config(const struct udevice *bus, pci_dev_t bdf, int offset,
  * @offset:	Register offset to write
  * @value:	Value to write
  * @size:	Access size
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
 			 unsigned long value, enum pci_size_t size);
@@ -1169,7 +1169,7 @@ int pci_bus_write_config(struct udevice *bus, pci_dev_t bdf, int offset,
  * @offset:	Register offset to update
  * @clr:	Bits to clear
  * @set:	Bits to set
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_bus_clrset_config32(struct udevice *bus, pci_dev_t bdf, int offset,
 			    u32 clr, u32 set);
@@ -1271,7 +1271,7 @@ int pci_generic_mmap_read_config(
  *
  * @pdev:	Physical Function udevice handle
  * @vf_en:	Number of Virtual Function devices to enable
- * @return 0 on success, -ve on error
+ * Return: 0 on success, -ve on error
  */
 int pci_sriov_init(struct udevice *pdev, int vf_en);
 
@@ -1279,7 +1279,7 @@ int pci_sriov_init(struct udevice *pdev, int vf_en);
  * pci_sriov_get_totalvfs() - Get total available Virtual Function devices
  *
  * @pdev:	Physical Function udevice handle
- * @return count on success, -ve on error
+ * Return: count on success, -ve on error
  */
 int pci_sriov_get_totalvfs(struct udevice *pdev);
 #endif
@@ -1335,7 +1335,7 @@ static inline int pci_read_config_byte(pci_dev_t pcidev, int offset,
  * devices are mapped into memory and I/O space ready for use.
  *
  * @dev:	Device to configure
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_pciauto_config_device(struct udevice *dev);
 
@@ -1349,7 +1349,7 @@ int dm_pciauto_config_device(struct udevice *dev);
  * @value:	Value to transform (32-bit value read from @offset & ~3)
  * @offset:	Register offset that was read
  * @size:	Required size of the result
- * @return the value that would have been obtained if the read had been
+ * Return: the value that would have been obtained if the read had been
  * performed at the given offset with the correct size
  */
 ulong pci_conv_32_to_size(ulong value, uint offset, enum pci_size_t size);
@@ -1365,7 +1365,7 @@ ulong pci_conv_32_to_size(ulong value, uint offset, enum pci_size_t size);
  * @value:	Value to transform (32-bit value read from @offset & ~3)
  * @offset:	Register offset that should be written
  * @size:	Required size of the write
- * @return the value that should be written as a 32-bit access to @offset & ~3.
+ * Return: the value that should be written as a 32-bit access to @offset & ~3.
  */
 ulong pci_conv_size_to_32(ulong old, ulong value, uint offset,
 			  enum pci_size_t size);
@@ -1374,7 +1374,7 @@ ulong pci_conv_size_to_32(ulong old, ulong value, uint offset,
  * pci_get_controller() - obtain the controller to use for a bus
  *
  * @dev:	Device to check
- * @return pointer to the controller device for this bus
+ * Return: pointer to the controller device for this bus
  */
 struct udevice *pci_get_controller(struct udevice *dev);
 
@@ -1385,7 +1385,7 @@ struct udevice *pci_get_controller(struct udevice *dev);
  * @iop:	Returns a pointer to the I/O region, or NULL if none
  * @memp:	Returns a pointer to the memory region, or NULL if none
  * @prefp:	Returns a pointer to the pre-fetch region, or NULL if none
- * @return the number of non-NULL regions returned, normally 3
+ * Return: the number of non-NULL regions returned, normally 3
  */
 int pci_get_regions(struct udevice *dev, struct pci_region **iop,
 		    struct pci_region **memp, struct pci_region **prefp);
@@ -1417,7 +1417,7 @@ u32 dm_pci_read_bar32(const struct udevice *dev, int barnum);
  * @dev:	Device containing the PCI address
  * @addr:	PCI address to convert
  * @flags:	Flags for the region type (PCI_REGION_...)
- * @return physical address corresponding to that PCI bus address
+ * Return: physical address corresponding to that PCI bus address
  */
 phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t addr,
 			       unsigned long flags);
@@ -1428,7 +1428,7 @@ phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t addr,
  * @dev:	Device containing the bus address
  * @addr:	Physical address to convert
  * @flags:	Flags for the region type (PCI_REGION_...)
- * @return PCI bus address corresponding to that physical address
+ * Return: PCI bus address corresponding to that physical address
  */
 pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
 			      unsigned long flags);
@@ -1582,7 +1582,7 @@ int dm_pci_flr(struct udevice *dev);
  * @device:	Device ID
  * @index:	0 to find the first match, 1 for second, etc.
  * @devp:	Returns pointer to the device, if found
- * @return 0 if found, -ve on error
+ * Return: 0 if found, -ve on error
  */
 int dm_pci_find_device(unsigned int vendor, unsigned int device, int index,
 		       struct udevice **devp);
@@ -1593,7 +1593,7 @@ int dm_pci_find_device(unsigned int vendor, unsigned int device, int index,
  * @find_class: 3-byte (24-bit) class value to find
  * @index:	0 to find the first match, 1 for second, etc.
  * @devp:	Returns pointer to the device, if found
- * @return 0 if found, -ve on error
+ * Return: 0 if found, -ve on error
  */
 int dm_pci_find_class(uint find_class, int index, struct udevice **devp);
 
@@ -1705,7 +1705,7 @@ struct dm_pci_emul_ops {
  * @find_devfn:	PCI device and function address (PCI_DEVFN())
  * @containerp:	Returns container device if found
  * @emulp:	Returns emulated device if found
- * @return 0 if found, -ENODEV if not found
+ * Return: 0 if found, -ENODEV if not found
  */
 int sandbox_pci_get_emul(const struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **containerp, struct udevice **emulp);
@@ -1715,7 +1715,7 @@ int sandbox_pci_get_emul(const struct udevice *bus, pci_dev_t find_devfn,
  *
  * @emul:	Emulation device to check
  * @devp:	Returns the client device emulated by this device
- * @return 0 if OK, -ENOENT if the device has no client yet
+ * Return: 0 if OK, -ENOENT if the device has no client yet
  */
 int sandbox_pci_get_client(struct udevice *emul, struct udevice **devp);
 

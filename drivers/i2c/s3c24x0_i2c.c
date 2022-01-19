@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * Wait til the byte transfer is completed.
  *
  * @param i2c- pointer to the appropriate i2c register bank.
- * @return I2C_OK, if transmission was ACKED
+ * Return: I2C_OK, if transmission was ACKED
  *         I2C_NACK, if transmission was NACKED
  *         I2C_NOK_TIMEOUT, if transaction did not complete in I2C_TIMEOUT_MS
  */

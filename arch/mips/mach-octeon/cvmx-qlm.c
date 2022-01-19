@@ -64,7 +64,7 @@ static qlm_jtag_uint32_t *__cvmx_qlm_jtag_xor_ref;
 /**
  * Return the number of QLMs supported by the chip
  *
- * @return  Number of QLMs
+ * Return:  Number of QLMs
  */
 int cvmx_qlm_get_num(void)
 {
@@ -92,7 +92,7 @@ int cvmx_qlm_get_num(void)
  *
  * @param xiface  interface to look up
  *
- * @return the qlm number based on the xiface
+ * Return: the qlm number based on the xiface
  */
 int cvmx_qlm_interface(int xiface)
 {
@@ -130,7 +130,7 @@ int cvmx_qlm_interface(int xiface)
  * @param xiface  interface to look up
  * @param index  index in an interface
  *
- * @return the qlm number based on the xiface
+ * Return: the qlm number based on the xiface
  */
 int cvmx_qlm_lmac(int xiface, int index)
 {
@@ -281,7 +281,7 @@ int cvmx_qlm_lmac(int xiface, int index)
  *
  * @param BGX  BGX to search for.
  *
- * @return muxes used 0 = DLM5+DLM6, 1 = DLM5, 2 = DLM6.
+ * Return: muxes used 0 = DLM5+DLM6, 1 = DLM5, 2 = DLM6.
  */
 int cvmx_qlm_mux_interface(int bgx)
 {
@@ -322,7 +322,7 @@ int cvmx_qlm_mux_interface(int bgx)
  *
  * @param qlm    QLM to examine
  *
- * @return  Number of lanes
+ * Return:  Number of lanes
  */
 int cvmx_qlm_get_lanes(int qlm)
 {
@@ -340,7 +340,7 @@ int cvmx_qlm_get_lanes(int qlm)
 /**
  * Get the QLM JTAG fields based on Octeon model on the supported chips.
  *
- * @return  qlm_jtag_field_t structure
+ * Return:  qlm_jtag_field_t structure
  */
 const __cvmx_qlm_jtag_field_t *cvmx_qlm_jtag_get_field(void)
 {
@@ -361,7 +361,7 @@ const __cvmx_qlm_jtag_field_t *cvmx_qlm_jtag_get_field(void)
  * Get the QLM JTAG length by going through qlm_jtag_field for each
  * Octeon model that is supported
  *
- * @return return the length.
+ * Return: return the length.
  */
 int cvmx_qlm_jtag_get_length(void)
 {
@@ -394,7 +394,7 @@ void cvmx_qlm_init(void)
  *
  * @param name   Name to lookup
  *
- * @return Field info, or NULL on failure
+ * Return: Field info, or NULL on failure
  */
 static const __cvmx_qlm_jtag_field_t *__cvmx_qlm_lookup_field(const char *name)
 {
@@ -417,7 +417,7 @@ static const __cvmx_qlm_jtag_field_t *__cvmx_qlm_lookup_field(const char *name)
  * @param lane   Lane in QLM to get
  * @param name   String name of field
  *
- * @return JTAG field value
+ * Return: JTAG field value
  */
 uint64_t cvmx_qlm_jtag_get(int qlm, int lane, const char *name)
 {
@@ -620,7 +620,7 @@ void __cvmx_qlm_pcie_cfg_rxd_set_tweak(int qlm, int lane)
  * @param node   node of the QLM
  * @param qlm    QLM to examine
  *
- * @return Speed in Mhz
+ * Return: Speed in Mhz
  */
 int cvmx_qlm_get_gbaud_mhz_node(int node, int qlm)
 {
@@ -723,7 +723,7 @@ int cvmx_qlm_get_gbaud_mhz_node(int node, int qlm)
  *
  * @param qlm    QLM to examine
  *
- * @return Speed in Mhz
+ * Return: Speed in Mhz
  */
 int cvmx_qlm_get_gbaud_mhz(int qlm)
 {
@@ -1021,7 +1021,7 @@ static enum cvmx_qlm_mode __cvmx_qlm_get_mode_cn70xx(int qlm)
  *                         1 - PCIe
  *                         2 - SATA
  * @param interface        interface to use
- * @return  the qlm mode the interface is
+ * Return:  the qlm mode the interface is
  */
 enum cvmx_qlm_mode cvmx_qlm_get_dlm_mode(int interface_type, int interface)
 {
@@ -1875,7 +1875,7 @@ int cvmx_qlm_measure_clock_cn7xxx(int node, int qlm)
  * @param node   node to measure
  * @param qlm    QLM to measure
  *
- * @return Clock rate in Hz
+ * Return: Clock rate in Hz
  */
 int cvmx_qlm_measure_clock_node(int node, int qlm)
 {
@@ -1890,7 +1890,7 @@ int cvmx_qlm_measure_clock_node(int node, int qlm)
  *
  * @param qlm    QLM to measure
  *
- * @return Clock rate in Hz
+ * Return: Clock rate in Hz
  */
 int cvmx_qlm_measure_clock(int qlm)
 {
@@ -1972,7 +1972,7 @@ int cvmx_qlm_measure_clock(int qlm)
  * @param qlm	QLM to perform RX equalization on
  * @param lane	Lane to use, or -1 for all lanes
  *
- * @return Zero on success, negative if any lane failed RX equalization
+ * Return: Zero on success, negative if any lane failed RX equalization
  */
 int __cvmx_qlm_rx_equalization(int node, int qlm, int lane)
 {

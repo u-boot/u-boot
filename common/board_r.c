@@ -418,7 +418,7 @@ static int initr_pvblock(void)
  * NOTE: Loading the environment early can be a bad idea if security is
  *       important, since no verification is done on the environment.
  *
- * @return 0 if environment should not be loaded, !=0 if it is ok to load
+ * Return: 0 if environment should not be loaded, !=0 if it is ok to load
  */
 static int should_load_env(void)
 {

@@ -49,7 +49,7 @@ struct reboot_mode_ops {
  * dm_reboot_mode_update() - Update the reboot mode env variable.
  *
  * @dev:	Device to read from
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_reboot_mode_update(struct udevice *dev);
 

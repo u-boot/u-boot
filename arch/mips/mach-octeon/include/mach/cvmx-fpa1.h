@@ -38,7 +38,7 @@ typedef union {
  *
  * @param pool	  FPA pool to allocate/reserve. If -1 it
  *                finds an empty pool to allocate.
- * @return        Alloctaed pool number or CVMX_FPA1_POOL_INVALID
+ * Return:        Alloctaed pool number or CVMX_FPA1_POOL_INVALID
  *                if fails to allocate the pool
  */
 cvmx_fpa1_pool_t cvmx_fpa1_reserve_pool(cvmx_fpa1_pool_t pool);
@@ -46,7 +46,7 @@ cvmx_fpa1_pool_t cvmx_fpa1_reserve_pool(cvmx_fpa1_pool_t pool);
 /**
  * Free the specified fpa pool.
  * @param pool	   Pool to free
- * @return         0 for success -1 failure
+ * Return:         0 for success -1 failure
  */
 int cvmx_fpa1_release_pool(cvmx_fpa1_pool_t pool);
 
@@ -173,7 +173,7 @@ static inline void cvmx_fpa1_async_alloc(u64 scr_addr, cvmx_fpa1_pool_t pool)
  * @param pool Pool the block came from.  Must be the same value
  * passed to cvmx_fpa_async_alloc.
  *
- * @return Pointer to the block or NULL on failure
+ * Return: Pointer to the block or NULL on failure
  */
 static inline void *cvmx_fpa1_async_alloc_finish(u64 scr_addr, cvmx_fpa1_pool_t pool)
 {

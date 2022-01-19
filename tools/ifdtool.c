@@ -43,7 +43,7 @@ struct input_file {
  *
  * @image:	Pointer to image
  * @size:	Size of image in bytes
- * @return pointer to structure, or NULL if not found
+ * Return: pointer to structure, or NULL if not found
  */
 static struct fdbar_t *find_fd(char *image, int size)
 {
@@ -72,7 +72,7 @@ static struct fdbar_t *find_fd(char *image, int size)
  * @frba:		Flash region list
  * @region_type:	Type of region (0..MAX_REGIONS-1)
  * @region:		Region information is written here
- * @return 0 if OK, else -ve
+ * Return: 0 if OK, else -ve
  */
 static int get_region(struct frba_t *frba, int region_type,
 		      struct region_t *region)
@@ -380,7 +380,7 @@ static void dump_oem(uint8_t *oem)
  *
  * @image:	Pointer to image
  * @size:	Size of image in bytes
- * @return 0 if OK, -1 on error
+ * Return: 0 if OK, -1 on error
  */
 static int dump_fd(char *image, int size)
 {
@@ -432,7 +432,7 @@ static int dump_fd(char *image, int size)
  *
  * @image:	Pointer to image
  * @size:	Size of image in bytes
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int write_regions(char *image, int size)
 {
@@ -487,7 +487,7 @@ static int perror_fname(const char *fmt, const char *fname)
  * @filename:	Filename to use for the image
  * @image:	Pointer to image
  * @size:	Size of image in bytes
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int write_image(char *filename, char *image, int size)
 {
@@ -595,7 +595,7 @@ static void unlock_descriptor(char *image, int size)
  *
  * @fname:	Filename to open
  * @sizep:	Returns file size in bytes
- * @return 0 if OK, -1 on error
+ * Return: 0 if OK, -1 on error
  */
 int open_for_read(const char *fname, int *sizep)
 {
@@ -622,7 +622,7 @@ int open_for_read(const char *fname, int *sizep)
  * @size:		Size of image in bytes
  * @region_type:	Region where the file should be added
  * @region_fname:	Filename to add to the image
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int inject_region(char *image, int size, int region_type, char *region_fname)
 {
@@ -701,7 +701,7 @@ int inject_region(char *image, int size, int region_type, char *region_fname)
  * @write_fname:	Filename to add to the image
  * @offset_uboot_top:	Offset of the top of U-Boot
  * @offset_uboot_start:	Offset of the start of U-Boot
- * @return number of bytes written if OK, -ve on error
+ * Return: number of bytes written if OK, -ve on error
  */
 static int write_data(char *image, int size, unsigned int addr,
 		      const char *write_fname, int offset_uboot_top,
@@ -792,7 +792,7 @@ static void print_usage(const char *name)
  * @str:	String to split
  * @firstp:	Returns first string
  * @secondp:	Returns second string
- * @return 0 if OK, -ve if @str does not have a :
+ * Return: 0 if OK, -ve if @str does not have a :
  */
 static int get_two_words(const char *str, char **firstp, char **secondp)
 {

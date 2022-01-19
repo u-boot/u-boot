@@ -78,7 +78,7 @@ static int kbd_output_full(void)
  * check_leds() - Check the keyboard LEDs and update them it needed
  *
  * @ret:	Value to return
- * @return value of @ret
+ * Return: value of @ret
  */
 static int i8042_kbd_update_leds(struct udevice *dev, int leds)
 {
@@ -199,7 +199,7 @@ static void i8042_flush(void)
  * Disables the keyboard so that key strokes no longer generate scancodes to
  * the host.
  *
- * @return 0 if ok, -1 if keyboard input was found while disabling
+ * Return: 0 if ok, -1 if keyboard input was found while disabling
  */
 static int i8042_disable(void)
 {
@@ -312,7 +312,7 @@ static int i8042_kbd_remove(struct udevice *dev)
  * wait for the keyboard to init. We do this only when a key is first
  * read - see kbd_wait_for_fifo_init().
  *
- * @return 0 if ok, -ve on error
+ * Return: 0 if ok, -ve on error
  */
 static int i8042_kbd_probe(struct udevice *dev)
 {

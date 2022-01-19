@@ -167,7 +167,7 @@ int intel_pinctrl_probe(struct udevice *dev);
  * @dev: Pinctrl device
  * @comm: Pad community for this device
  * @num_cfgs: Number of configuration words for each pad
- * @return 0 if OK, -EDOM if @comm is NULL, other -ve value on other error
+ * Return: 0 if OK, -EDOM if @comm is NULL, other -ve value on other error
  */
 int intel_pinctrl_of_to_plat(struct udevice *dev,
 			     const struct pad_community *comm, int num_cfgs);
@@ -185,7 +185,7 @@ int intel_pinctrl_of_to_plat(struct udevice *dev,
  * @gpe0b: Value for GPE0B
  * @gpe0c: Value for GPE0C
  * @gpe0d: Value for GPE0D
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pinctrl_route_gpe(struct udevice *dev, uint gpe0b, uint gpe0c, uint gpe0d);
 
@@ -198,7 +198,7 @@ int pinctrl_route_gpe(struct udevice *dev, uint gpe0b, uint gpe0c, uint gpe0d);
  * @pads: Pad data, consisting of a pad number followed by num_cfgs entries
  *	containing the data for that pad (num_cfgs is set by the pinctrl device)
  * @pads_count: Number of pads to configure
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pinctrl_config_pads(struct udevice *dev, u32 *pads, int pads_count);
 
@@ -207,7 +207,7 @@ int pinctrl_config_pads(struct udevice *dev, u32 *pads, int pads_count);
  *
  * This enables the interrupt inputs and clears the status register bits
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pinctrl_gpi_clear_int_cfg(void);
 
@@ -218,7 +218,7 @@ int pinctrl_gpi_clear_int_cfg(void);
  *
  * @dev: pinctrl device (any will do)
  * @node: Node containing the 'pads' property with the data in it
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pinctrl_config_pads_for_node(struct udevice *dev, ofnode node);
 
@@ -255,7 +255,7 @@ int pinctrl_read_pads(struct udevice *dev, ofnode node, const char *prop,
  * @dev: pinctrl device (any will do)
  * @pads: Array of pad data
  * @size: Size of pad data in bytes
- * @return number of pads represented by the data
+ * Return: number of pads represented by the data
  */
 int pinctrl_count_pads(struct udevice *dev, u32 *pads, int size);
 
@@ -266,7 +266,7 @@ int pinctrl_count_pads(struct udevice *dev, u32 *pads, int size);
  *
  * @dev: Pinctrl device
  * @offset: GPIO offset within this device
- * @return register offset of first register within the GPIO p2sb region
+ * Return: register offset of first register within the GPIO p2sb region
  */
 u32 intel_pinctrl_get_config_reg_offset(struct udevice *dev, uint offset);
 
@@ -276,7 +276,7 @@ u32 intel_pinctrl_get_config_reg_offset(struct udevice *dev, uint offset);
  * This works out the absolute address of the registers for a pin
  * @dev: Pinctrl device
  * @offset: GPIO offset within this device
- * @return register address of first register within the GPIO p2sb region
+ * Return: register address of first register within the GPIO p2sb region
  */
 u32 intel_pinctrl_get_config_reg_addr(struct udevice *dev, uint offset);
 
@@ -285,7 +285,7 @@ u32 intel_pinctrl_get_config_reg_addr(struct udevice *dev, uint offset);
  *
  * @dev: Pinctrl device
  * @offset: GPIO offset within this device
- * @return register value within the GPIO p2sb region
+ * Return: register value within the GPIO p2sb region
  */
 u32 intel_pinctrl_get_config_reg(struct udevice *dev, uint offset);
 
@@ -297,7 +297,7 @@ u32 intel_pinctrl_get_config_reg(struct udevice *dev, uint offset);
  * @pad: Pad to check
  * @devp: Returns pinctrl device containing that pad
  * @offsetp: Returns offset of pad within that pinctrl device
- * @return 0 if OK, -ENOTBLK if pad number is invalid
+ * Return: 0 if OK, -ENOTBLK if pad number is invalid
  */
 int intel_pinctrl_get_pad(uint pad, struct udevice **devp, uint *offsetp);
 
@@ -309,7 +309,7 @@ int intel_pinctrl_get_pad(uint pad, struct udevice **devp, uint *offsetp);
  *
  * @dev: Pinctrl device to check
  * @offset: Offset of pin within that device (0 = first)
- * @return associated ACPI GPIO pin-table entry, or standard pin number if the
+ * Return: associated ACPI GPIO pin-table entry, or standard pin number if the
  *	ACPI pad base is not set
  */
 int intel_pinctrl_get_acpi_pin(struct udevice *dev, uint offset);

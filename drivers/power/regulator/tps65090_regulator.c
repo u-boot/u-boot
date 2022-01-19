@@ -45,7 +45,7 @@ static int tps65090_fet_get_enable(struct udevice *dev)
  * @param pmic		pmic structure for the tps65090
  * @param fet_id	FET number to set (1..MAX_FET_NUM)
  * @param set		1 to power on FET, 0 to power off
- * @return -EIO if we got a comms error, -EAGAIN if the FET failed to
+ * Return: -EIO if we got a comms error, -EAGAIN if the FET failed to
  * change state. If all is ok, returns 0.
  */
 static int tps65090_fet_set(struct udevice *pmic, int fet_id, bool set)

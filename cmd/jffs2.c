@@ -149,7 +149,7 @@ extern int cramfs_info (struct part_info *info);
  * Check device number to be within valid range for given device type.
  *
  * @param dev device to validate
- * @return 0 if device is valid, 1 otherwise
+ * Return: 0 if device is valid, 1 otherwise
  */
 static int mtd_device_validate(u8 type, u8 num, u32 *size)
 {
@@ -201,7 +201,7 @@ static int mtd_device_validate(u8 type, u8 num, u32 *size)
  * @param ret_id output pointer to next char after parse completes (output)
  * @param dev_type parsed device type (output)
  * @param dev_num parsed device number (output)
- * @return 0 on success, 1 otherwise
+ * Return: 0 on success, 1 otherwise
  */
 static int mtd_id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *dev_num)
 {
@@ -241,7 +241,7 @@ static int mtd_id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *d
 /**
  * Calculate sector size.
  *
- * @return sector size
+ * Return: sector size
  */
 static inline u32 get_part_sector_size_nand(struct mtdids *id)
 {
@@ -329,7 +329,7 @@ static inline u32 get_part_sector_size(struct mtdids *id, struct part_info *part
  * 'Static' version of command line mtdparts_init() routine. Single partition on
  * a single device configuration.
  *
- * @return 0 on success, 1 otherwise
+ * Return: 0 on success, 1 otherwise
  */
 int mtdparts_init(void)
 {
@@ -412,7 +412,7 @@ int mtdparts_init(void)
  *
  * @param dev device that is to be searched for a partition
  * @param part_num requested partition number
- * @return pointer to the part_info, NULL otherwise
+ * Return: pointer to the part_info, NULL otherwise
  */
 static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int part_num)
 {
@@ -459,7 +459,7 @@ static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int pa
  * @param flag command flag
  * @param argc number of arguments supplied to the command
  * @param argv arguments list
- * @return 0 on success, 1 otherwise
+ * Return: 0 on success, 1 otherwise
  */
 int do_jffs2_fsload(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[])
@@ -522,7 +522,7 @@ int do_jffs2_fsload(struct cmd_tbl *cmdtp, int flag, int argc,
  * @param flag command flag
  * @param argc number of arguments supplied to the command
  * @param argv arguments list
- * @return 0 on success, 1 otherwise
+ * Return: 0 on success, 1 otherwise
  */
 int do_jffs2_ls(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
@@ -560,7 +560,7 @@ int do_jffs2_ls(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
  * @param flag command flag
  * @param argc number of arguments supplied to the command
  * @param argv arguments list
- * @return 0 on success, 1 otherwise
+ * Return: 0 on success, 1 otherwise
  */
 int do_jffs2_fsinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[])

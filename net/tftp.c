@@ -230,7 +230,7 @@ static void new_transfer(void)
  * @param block	Block number to send
  * @param dst	Destination buffer for data
  * @param len	Number of bytes in block (this one and every other)
- * @return number of bytes loaded
+ * Return: number of bytes loaded
  */
 static int load_block(unsigned block, uchar *dst, unsigned len)
 {

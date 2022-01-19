@@ -329,7 +329,7 @@ typedef struct cvmx_phy_info {
  *
  * @param ipd_port Octeon IPD port to get the MII address for.
  *
- * @return MII PHY address and bus number or -1.
+ * Return: MII PHY address and bus number or -1.
  */
 int cvmx_helper_board_get_mii_address(int ipd_port);
 
@@ -346,7 +346,7 @@ int cvmx_helper_board_get_mii_address(int ipd_port);
  * @param link_info Link speed to program. If the speed is zero and autonegotiation
  *                  is enabled, all possible negotiation speeds are advertised.
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_helper_board_link_set_phy(int phy_addr,
 				   cvmx_helper_board_set_phy_link_flags_types_t link_flags,
@@ -368,7 +368,7 @@ int cvmx_helper_board_link_set_phy(int phy_addr,
  * @param ipd_port IPD input port associated with the port we want to get link
  *                 status for.
  *
- * @return The ports link status. If the link isn't fully resolved, this must
+ * Return: The ports link status. If the link isn't fully resolved, this must
  *         return zero.
  */
 cvmx_helper_link_info_t __cvmx_helper_board_link_get(int ipd_port);
@@ -392,7 +392,7 @@ cvmx_helper_link_info_t __cvmx_helper_board_link_get(int ipd_port);
  * @param supported_ports
  *                  Number of ports Octeon supports.
  *
- * @return Number of ports the actual board supports. Many times this will
+ * Return: Number of ports the actual board supports. Many times this will
  *         simple be "support_ports".
  */
 int __cvmx_helper_board_interface_probe(int interface, int supported_ports);
@@ -406,7 +406,7 @@ int __cvmx_helper_board_interface_probe(int interface, int supported_ports);
  *
  * @param interface Interface to enable
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_board_hardware_enable(int interface);
 
@@ -415,7 +415,7 @@ int __cvmx_helper_board_hardware_enable(int interface);
  * Gets the clock type used for the USB block based on board type.
  * Used by the USB code for auto configuration of clock type.
  *
- * @return USB clock type enumeration
+ * Return: USB clock type enumeration
  */
 cvmx_helper_board_usb_clock_types_t __cvmx_helper_board_usb_get_clock_type(void);
 
@@ -427,7 +427,7 @@ cvmx_helper_board_usb_clock_types_t __cvmx_helper_board_usb_get_clock_type(void)
  * @param supported_ports expected number of ports based on chip type;
  *
  *
- * @return number of available usb ports, based on board specifics.
+ * Return: number of available usb ports, based on board specifics.
  *         Return value is supported_ports if function does not
  *         override.
  */
@@ -440,7 +440,7 @@ int __cvmx_helper_board_usb_get_num_ports(int supported_ports);
  * @param fdt_addr - address fo flat device tree
  * @param ipd_port - IPD port number
  *
- * @return 1 if port is present, 0 if not present, -1 if error
+ * Return: 1 if port is present, 0 if not present, -1 if error
  */
 int __cvmx_helper_board_get_port_from_dt(void *fdt_addr, int ipd_port);
 
@@ -450,7 +450,7 @@ int __cvmx_helper_board_get_port_from_dt(void *fdt_addr, int ipd_port);
  *
  * @param ipd_port - ipd port number to get the host mode for
  *
- * @return host mode for phy
+ * Return: host mode for phy
  */
 cvmx_phy_host_mode_t cvmx_helper_board_get_phy_host_mode(int ipd_port);
 
@@ -462,7 +462,7 @@ cvmx_phy_host_mode_t cvmx_helper_board_get_phy_host_mode(int ipd_port);
  * @param[out] - phy_info - phy info data structure
  * @param ipd_port - port to get phy info for
  *
- * @return 0 for success, -1 if info not available
+ * Return: 0 for success, -1 if info not available
  *
  * NOTE: The phy_info data structure is subject to change.
  */
@@ -474,7 +474,7 @@ int cvmx_helper_board_get_phy_info(cvmx_phy_info_t *phy_info, int ipd_port);
  *
  * @param fdt_addr	Pointer to device tree
  *
- * @return 0 for success, -1 on error.
+ * Return: 0 for success, -1 on error.
  */
 int __cvmx_helper_parse_bgx_dt(const void *fdt_addr);
 
@@ -484,7 +484,7 @@ int __cvmx_helper_parse_bgx_dt(const void *fdt_addr);
  *
  * @param fdt_addr	Pointer to device tree
  *
- * @return 0 for success, -1 on error.
+ * Return: 0 for success, -1 on error.
  */
 int __cvmx_helper_parse_bgx_rgmii_dt(const void *fdt_addr);
 
@@ -513,7 +513,7 @@ void cvmx_update_rx_activity_led(int xiface, int index, bool check_time);
  * @param	xiface	xinterface number
  * @param	index	port index on interface
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  *
  * This function figures out the proper mod_abs_changed function to use and
  * registers the appropriate function.  This should be called after the device
@@ -529,7 +529,7 @@ int cvmx_helper_phy_register_mod_abs_changed(int xiface, int index);
  * @param	xiface	xinterface number
  * @param	index	port index on interface
  *
- * @return	0 if signal present, 1 if loss of signal.
+ * Return:	0 if signal present, 1 if loss of signal.
  *
  * @NOTE:	A result of 0 is possible in some cases where the signal is
  *		not present.

@@ -1151,7 +1151,7 @@ struct abuf;
  *
  * @in: Input buffer to decompress
  * @out: Output buffer to hold the results (must be large enough)
- * @return size of the decompressed data, or -ve on error
+ * Return: size of the decompressed data, or -ve on error
  */
 int zstd_decompress(struct abuf *in, struct abuf *out);
 

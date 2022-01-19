@@ -51,7 +51,7 @@ static uint32_t f2h(fdt32_t val)
  *
  * @property	name of the property
  * @node	name of the node or NULL for root node
- * @return	value of the property
+ * Return:	value of the property
  */
 static char *get_property(const u16 *property, const u16 *node)
 {

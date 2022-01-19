@@ -18,7 +18,7 @@
  * Defined in arch/$(ARCH)/lib/bootm-fdt.c
  *
  * @blob:	FDT blob to write to
- * @return 0 if ok, or -ve FDT_ERR_... on failure
+ * Return: 0 if ok, or -ve FDT_ERR_... on failure
  */
 int arch_fixup_fdt(void *blob);
 
@@ -37,7 +37,7 @@ u32 fdt_getprop_u32_default(const void *fdt, const char *path,
  * See doc/device-tree-bindings/root.txt
  *
  * @param fdt		FDT address in memory
- * @return 0 if ok, or -FDT_ERR_... on error
+ * Return: 0 if ok, or -FDT_ERR_... on error
  */
 int fdt_root(void *fdt);
 
@@ -47,7 +47,7 @@ int fdt_root(void *fdt);
  * In particular, this adds the kernel command line (bootargs) to the FDT.
  *
  * @param fdt		FDT address in memory
- * @return 0 if ok, or -FDT_ERR_... on error
+ * Return: 0 if ok, or -FDT_ERR_... on error
  */
 int fdt_chosen(void *fdt);
 
@@ -55,7 +55,7 @@ int fdt_chosen(void *fdt);
  * Add initrd information to the FDT before booting the OS.
  *
  * @param fdt		FDT address in memory
- * @return 0 if ok, or -FDT_ERR_... on error
+ * Return: 0 if ok, or -FDT_ERR_... on error
  */
 int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end);
 
@@ -89,7 +89,7 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
  * @param blob		FDT blob to update
  * @param start		Begin of DRAM mapping in physical memory
  * @param size		Size of the single memory bank
- * @return 0 if ok, or -1 or -FDT_ERR_... on error
+ * Return: 0 if ok, or -1 or -FDT_ERR_... on error
  */
 int fdt_fixup_memory(void *blob, u64 start, u64 size);
 
@@ -105,7 +105,7 @@ int fdt_fixup_memory(void *blob, u64 start, u64 size);
  * @param size		Array of size <banks> to hold the size of each region.
  * @param banks		Number of memory banks to create. If 0, the reg
  *			property will be left untouched.
- * @return 0 if ok, or -1 or -FDT_ERR_... on error
+ * Return: 0 if ok, or -1 or -FDT_ERR_... on error
  */
 #ifdef CONFIG_ARCH_FIXUP_FDT_MEMORY
 int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks);
@@ -132,7 +132,7 @@ void fdt_fixup_qe_firmware(void *fdt);
  * @param blob		FDT blob to update
  * @param path		path within dt
  * @param display	name of display timing to match
- * @return 0 if ok, or -FDT_ERR_... on error
+ * Return: 0 if ok, or -FDT_ERR_... on error
  */
 int fdt_fixup_display(void *blob, const char *path, const char *display);
 
@@ -161,7 +161,7 @@ static inline void fdt_fixup_crypto_node(void *blob, int sec_rev) {}
  * @param type          type (if specified, otherwise pass NULL)
  * @param os            os-type (if specified, otherwise pass NULL)
  * @param arch		architecture (if specified, otherwise pass NULL)
- * @return 0 if ok, or -1 or -FDT_ERR_... on error
+ * Return: 0 if ok, or -1 or -FDT_ERR_... on error
  */
 int fdt_record_loadable(void *blob, u32 index, const char *name,
 			uintptr_t load_addr, u32 size, uintptr_t entry_point,
@@ -182,7 +182,7 @@ int fdt_find_or_add_subnode(void *fdt, int parentoffset, const char *name);
  *
  * @param blob		FDT blob to update
  * @param bd		Pointer to board data
- * @return 0 if ok, or -FDT_ERR_... on error
+ * Return: 0 if ok, or -FDT_ERR_... on error
  */
 int ft_board_setup(void *blob, struct bd_info *bd);
 
@@ -212,7 +212,7 @@ void ft_board_setup_ex(void *blob, struct bd_info *bd);
  *
  * @param blob		FDT blob to update
  * @param bd		Pointer to board data
- * @return 0 if ok, or -FDT_ERR_... on error
+ * Return: 0 if ok, or -FDT_ERR_... on error
  */
 int ft_system_setup(void *blob, struct bd_info *bd);
 
@@ -223,7 +223,7 @@ void set_working_fdt_addr(ulong addr);
  *
  * @param blob		FDT blob to update
  * @param extrasize	additional bytes needed
- * @return 0 if ok, or -FDT_ERR_... on error
+ * Return: 0 if ok, or -FDT_ERR_... on error
  */
 int fdt_shrink_to_minimum(void *blob, uint extrasize);
 int fdt_increase_size(void *fdt, int add_len);
@@ -254,7 +254,7 @@ void fdt_del_node_and_alias(void *blob, const char *alias);
  * @param blob		Pointer to device tree blob
  * @param node_offset	Node DT offset
  * @param in_addr	Pointer to the address to translate
- * @return translated address or OF_BAD_ADDR on error
+ * Return: translated address or OF_BAD_ADDR on error
  */
 u64 fdt_translate_address(const void *blob, int node_offset,
 			  const __be32 *in_addr);
@@ -266,7 +266,7 @@ u64 fdt_translate_address(const void *blob, int node_offset,
  * @param blob		Pointer to device tree blob
  * @param node_offset	Node DT offset
  * @param in_addr	Pointer to the DMA address to translate
- * @return translated DMA address or OF_BAD_ADDR on error
+ * Return: translated DMA address or OF_BAD_ADDR on error
  */
 u64 fdt_translate_dma_address(const void *blob, int node_offset,
 			      const __be32 *in_addr);
@@ -280,7 +280,7 @@ u64 fdt_translate_dma_address(const void *blob, int node_offset,
  * @param cpu		Pointer to variable storing the range's cpu address
  * @param bus		Pointer to variable storing the range's bus address
  * @param size		Pointer to variable storing the range's size
- * @return translated DMA address or OF_BAD_ADDR on error
+ * Return: translated DMA address or OF_BAD_ADDR on error
  */
 int fdt_get_dma_range(const void *blob, int node_offset, phys_addr_t *cpu,
 		      dma_addr_t *bus, u64 *size);
@@ -403,7 +403,7 @@ int fdtdec_get_int(const void *blob, int node, const char *prop_name,
  *
  * @param blob	FDT blob
  * @param node	parent node
- * @return number of child node; 0 if there is not child node
+ * Return: number of child node; 0 if there is not child node
  */
 int fdtdec_get_child_count(const void *blob, int node);
 #endif

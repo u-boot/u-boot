@@ -271,7 +271,7 @@ char *smbios_string(const struct smbios_header *header, int index);
  * main loop has started) to update the BIOS version string (SMBIOS table 0).
  *
  * @version: New version string to use
- * @return 0 if OK, -ENOENT if no version string was previously written,
+ * Return: 0 if OK, -ENOENT if no version string was previously written,
  *	-ENOSPC if the new string is too large to fit
  */
 int smbios_update_version(const char *version);
@@ -287,7 +287,7 @@ int smbios_update_version(const char *version);
  *
  * @smbios_tab: Start of SMBIOS tables
  * @version: New version string to use
- * @return 0 if OK, -ENOENT if no version string was previously written,
+ * Return: 0 if OK, -ENOENT if no version string was previously written,
  *	-ENOSPC if the new string is too large to fit
  */
 int smbios_update_version_full(void *smbios_tab, const char *version);

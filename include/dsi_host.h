@@ -54,7 +54,7 @@ struct dsi_host_ops {
  * @timing: Display timings
  * @max_data_lanes: maximum number of data lines
  * @phy_ops: set of function pointers for performing physical operations
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dsi_host_init(struct udevice *dev,
 		  struct mipi_dsi_device *device,
@@ -66,7 +66,7 @@ int dsi_host_init(struct udevice *dev,
  * dsi_host_enable
  *
  * @dev:	dsi host device
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dsi_host_enable(struct udevice *dev);
 

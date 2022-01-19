@@ -272,7 +272,7 @@ struct cvmx_fdt_gpio_led {
  * @param[in]	fdt_addr	Pointer to FDT
  * @param	phandle		phandle of GPIO entry
  *
- * @return	Pointer to op function or NULL if not found.
+ * Return:	Pointer to op function or NULL if not found.
  */
 cvmx_fdt_gpio_op_func_t cvmx_fdt_gpio_get_op_func(const void *fdt_addr, int phandle);
 
@@ -283,7 +283,7 @@ cvmx_fdt_gpio_op_func_t cvmx_fdt_gpio_get_op_func(const void *fdt_addr, int phan
  * @param	phandle		phandle to GPIO
  * @param[out]	size		Number of pins (optional, may be NULL)
  *
- * @return	Type of GPIO device or PIN_ERROR if error
+ * Return:	Type of GPIO device or PIN_ERROR if error
  */
 enum cvmx_gpio_type cvmx_fdt_get_gpio_type(const void *fdt_addr, int phandle, int *size);
 
@@ -294,7 +294,7 @@ enum cvmx_gpio_type cvmx_fdt_get_gpio_type(const void *fdt_addr, int phandle, in
  * @param	of_offset	node offset of GPIO device
  * @param	prop_name	name of property
  *
- * @return	pointer to GPIO handle or NULL if error
+ * Return:	pointer to GPIO handle or NULL if error
  */
 struct cvmx_fdt_gpio_info *cvmx_fdt_gpio_get_info(const void *fdt_addr, int of_offset,
 						  const char *prop_name);
@@ -306,7 +306,7 @@ struct cvmx_fdt_gpio_info *cvmx_fdt_gpio_get_info(const void *fdt_addr, int of_o
  * @param	of_offset	node offset for property
  * @param	prop_name	name of property
  *
- * @return	pointer to GPIO handle or NULL if error
+ * Return:	pointer to GPIO handle or NULL if error
  */
 struct cvmx_fdt_gpio_info *cvmx_fdt_gpio_get_info_phandle(const void *fdt_addr, int of_offset,
 							  const char *prop_name);
@@ -320,7 +320,7 @@ struct cvmx_fdt_gpio_info *cvmx_fdt_gpio_get_info_phandle(const void *fdt_addr, 
  * @param	flags		flags set (1 = invert)
  * @param[out]	gpio		GPIO info data structure
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  */
 int cvmx_fdt_parse_gpio(const void *fdt_addr, int phandle, int pin, u32 flags,
 			struct cvmx_fdt_gpio_info *gpio);
@@ -336,7 +336,7 @@ void cvmx_fdt_gpio_set_timer(struct cvmx_fdt_gpio_info *gpio, int timer);
  *
  * @param	pin	GPIO pin descriptor
  *
- * @return	0 if low, 1 if high, -1 on error.  Note that the input will be
+ * Return:	0 if low, 1 if high, -1 on error.  Note that the input will be
  *		inverted if the CVMX_GPIO_ACTIVE_LOW flag bit is set.
  */
 int cvmx_fdt_gpio_get(struct cvmx_fdt_gpio_info *pin);
@@ -347,7 +347,7 @@ int cvmx_fdt_gpio_get(struct cvmx_fdt_gpio_info *pin);
  * @param	gpio	GPIO pin descriptor
  * @param	value	value to set it to, 0 or 1
  *
- * @return	0 on success, -1 on error.
+ * Return:	0 on success, -1 on error.
  *
  * NOTE: If the CVMX_GPIO_ACTIVE_LOW flag is set then the output value will be
  * inverted.
@@ -368,7 +368,7 @@ void cvmx_fdt_gpio_set_freq(struct cvmx_fdt_gpio_info *gpio, int freq);
  * @param	gpio	GPIO handle
  * @param	blink	True to start blinking, false to stop
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  * NOTE: Not all GPIO types support blinking.
  */
 int cvmx_fdt_gpio_set_blink(struct cvmx_fdt_gpio_info *gpio, bool blink);
@@ -379,7 +379,7 @@ int cvmx_fdt_gpio_set_blink(struct cvmx_fdt_gpio_info *gpio, bool blink);
  * @param	gpio	GPIO handle
  * @param	blink	True to start blinking, false to use link status
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  * NOTE: Not all GPIO types support this.
  */
 int cvmx_fdt_gpio_set_link_blink(struct cvmx_fdt_gpio_info *gpio, bool blink);
@@ -404,7 +404,7 @@ void cvmx_fdt_gpio_set_output(struct cvmx_fdt_gpio_info *gpio, bool output);
  * @param	gpio		GPIO assigned to LED (can be NULL)
  * @param	last		Previous LED to build a list
  *
- * @return	pointer to LED data structure or NULL if out of memory
+ * Return:	pointer to LED data structure or NULL if out of memory
  */
 struct cvmx_fdt_gpio_led *cvmx_alloc_led(const char *name, int of_offset,
 					 struct cvmx_fdt_gpio_info *gpio,
@@ -418,7 +418,7 @@ struct cvmx_fdt_gpio_led *cvmx_alloc_led(const char *name, int of_offset,
  * @param	gpio			GPIO data structure to use (can be NULL)
  * @param	last			Previous LED if this is a group of LEDs
  *
- * @return	Pointer to LED data structure or NULL if error
+ * Return:	Pointer to LED data structure or NULL if error
  */
 struct cvmx_fdt_gpio_led *cvmx_fdt_parse_led(const void *fdt_addr, int led_of_offset,
 					     struct cvmx_fdt_gpio_info *gpio,

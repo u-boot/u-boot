@@ -113,7 +113,7 @@ int __cvmx_pko3_ipd_dq_unregister(int xiface, int index);
  * The channel assignment applies to L2 or L3 Shaper Queues depending
  * on the setting of channel credit level.
  *
- * @return returns none.
+ * Return: returns none.
  */
 void cvmx_pko3_map_channel(unsigned int node, unsigned int pq_num, unsigned int l2_l3_q_num,
 			   u16 channel);

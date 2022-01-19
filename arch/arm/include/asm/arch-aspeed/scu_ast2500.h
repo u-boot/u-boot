@@ -217,14 +217,14 @@ struct ast2500_scu {
  * ast_get_clk() - get a pointer to Clock Driver
  *
  * @devp, OUT - pointer to Clock Driver
- * @return zero on success, error code (< 0) otherwise.
+ * Return: zero on success, error code (< 0) otherwise.
  */
 int ast_get_clk(struct udevice **devp);
 
 /**
  * ast_get_scu() - get a pointer to SCU registers
  *
- * @return pointer to struct ast2500_scu on success, ERR_PTR otherwise
+ * Return: pointer to struct ast2500_scu on success, ERR_PTR otherwise
  */
 void *ast_get_scu(void);
 

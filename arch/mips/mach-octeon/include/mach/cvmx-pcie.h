@@ -74,7 +74,7 @@ typedef union {
  *
  * @param pcie_port PCIe port the IO is for
  *
- * @return 64bit Octeon IO base address for read/write
+ * Return: 64bit Octeon IO base address for read/write
  */
 u64 cvmx_pcie_get_io_base_address(int pcie_port);
 
@@ -84,7 +84,7 @@ u64 cvmx_pcie_get_io_base_address(int pcie_port);
  *
  * @param pcie_port PCIe port the IO is for
  *
- * @return Size of the IO window
+ * Return: Size of the IO window
  */
 u64 cvmx_pcie_get_io_size(int pcie_port);
 
@@ -94,7 +94,7 @@ u64 cvmx_pcie_get_io_size(int pcie_port);
  *
  * @param pcie_port PCIe port the IO is for
  *
- * @return 64bit Octeon IO base address for read/write
+ * Return: 64bit Octeon IO base address for read/write
  */
 u64 cvmx_pcie_get_mem_base_address(int pcie_port);
 
@@ -104,7 +104,7 @@ u64 cvmx_pcie_get_mem_base_address(int pcie_port);
  *
  * @param pcie_port PCIe port the IO is for
  *
- * @return Size of the Mem window
+ * Return: Size of the Mem window
  */
 u64 cvmx_pcie_get_mem_size(int pcie_port);
 
@@ -113,7 +113,7 @@ u64 cvmx_pcie_get_mem_size(int pcie_port);
  *
  * @param pcie_port PCIe port to initialize
  *
- * @return Zero on success
+ * Return: Zero on success
  */
 int cvmx_pcie_rc_initialize(int pcie_port);
 
@@ -122,7 +122,7 @@ int cvmx_pcie_rc_initialize(int pcie_port);
  *
  * @param pcie_port PCIe port to shutdown
  *
- * @return Zero on success
+ * Return: Zero on success
  */
 int cvmx_pcie_rc_shutdown(int pcie_port);
 
@@ -135,7 +135,7 @@ int cvmx_pcie_rc_shutdown(int pcie_port);
  * @param fn        Device sub function
  * @param reg       Register to access
  *
- * @return Result of the read
+ * Return: Result of the read
  */
 u8 cvmx_pcie_config_read8(int pcie_port, int bus, int dev, int fn, int reg);
 
@@ -148,7 +148,7 @@ u8 cvmx_pcie_config_read8(int pcie_port, int bus, int dev, int fn, int reg);
  * @param fn        Device sub function
  * @param reg       Register to access
  *
- * @return Result of the read
+ * Return: Result of the read
  */
 u16 cvmx_pcie_config_read16(int pcie_port, int bus, int dev, int fn, int reg);
 
@@ -161,7 +161,7 @@ u16 cvmx_pcie_config_read16(int pcie_port, int bus, int dev, int fn, int reg);
  * @param fn        Device sub function
  * @param reg       Register to access
  *
- * @return Result of the read
+ * Return: Result of the read
  */
 u32 cvmx_pcie_config_read32(int pcie_port, int bus, int dev, int fn, int reg);
 
@@ -208,7 +208,7 @@ void cvmx_pcie_config_write32(int pcie_port, int bus, int dev, int fn, int reg, 
  * @param pcie_port  PCIe port to read from
  * @param cfg_offset Address to read
  *
- * @return Value read
+ * Return: Value read
  */
 u32 cvmx_pcie_cfgx_read(int pcie_port, u32 cfg_offset);
 u32 cvmx_pcie_cfgx_read_node(int node, int pcie_port, u32 cfg_offset);
@@ -240,7 +240,7 @@ static inline void cvmx_pcie_npei_write32(u64 address, u32 val)
  * Read a 32bit value from the Octeon NPEI register space
  *
  * @param address Address to read
- * @return The result
+ * Return: The result
  */
 static inline u32 cvmx_pcie_npei_read32(u64 address)
 {
@@ -252,7 +252,7 @@ static inline u32 cvmx_pcie_npei_read32(u64 address)
  *
  * @param pcie_port PCIe port to initialize
  *
- * @return Zero on success
+ * Return: Zero on success
  */
 int cvmx_pcie_ep_initialize(int pcie_port);
 
@@ -272,7 +272,7 @@ void cvmx_pcie_wait_for_pending(int pcie_port);
  *
  * @param pcie_port PCIe port number (PEM number)
  *
- * @return 0 if PCIe port is in target mode, !0 if in host mode.
+ * Return: 0 if PCIe port is in target mode, !0 if in host mode.
  */
 int cvmx_pcie_is_host_mode(int pcie_port);
 

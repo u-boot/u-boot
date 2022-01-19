@@ -139,7 +139,7 @@ struct acpi_ops {
  * @dev: Device to check
  * @out_name: Place to put the name, must hold at least ACPI_NAME_MAX
  *	bytes
- * @return 0 if OK, -ENOENT if no name is available, other -ve value on
+ * Return: 0 if OK, -ENOENT if no name is available, other -ve value on
  *	other error
  */
 int acpi_get_name(const struct udevice *dev, char *out_name);
@@ -159,7 +159,7 @@ int acpi_get_name(const struct udevice *dev, char *out_name);
  *
  * @out_name: Place to put the name
  * @name: Name to copy
- * @return 0 (always)
+ * Return: 0 (always)
  */
 int acpi_copy_name(char *out_name, const char *name);
 
@@ -169,7 +169,7 @@ int acpi_copy_name(char *out_name, const char *name);
  * This scans through all devices and tells them to write any tables they want
  * to write.
  *
- * @return 0 if OK, -ve if any device returned an error
+ * Return: 0 if OK, -ve if any device returned an error
  */
 int acpi_write_dev_tables(struct acpi_ctx *ctx);
 
@@ -179,7 +179,7 @@ int acpi_write_dev_tables(struct acpi_ctx *ctx);
  * This is called to create the SSDT code for all devices.
  *
  * @ctx: ACPI context to use
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_fill_ssdt(struct acpi_ctx *ctx);
 
@@ -189,7 +189,7 @@ int acpi_fill_ssdt(struct acpi_ctx *ctx);
  * This is called to create the DSDT code for all devices.
  *
  * @ctx: ACPI context to use
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_inject_dsdt(struct acpi_ctx *ctx);
 
@@ -200,7 +200,7 @@ int acpi_inject_dsdt(struct acpi_ctx *ctx);
  *
  * @ctx: ACPI context to use
  * @nhlt: Pointer to nhlt information to add to
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_setup_nhlt(struct acpi_ctx *ctx, struct nhlt *nhlt);
 
@@ -223,7 +223,7 @@ void acpi_dump_items(enum acpi_dump_option option);
  * @dev: Device to check
  * @out_path: Buffer to place the path in (should be ACPI_PATH_MAX long)
  * @maxlen: Size of buffer (typically ACPI_PATH_MAX)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen);
 

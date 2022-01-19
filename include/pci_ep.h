@@ -255,7 +255,7 @@ struct pci_ep_ops {
  * @dev:	device to write to
  * @func_num:	EP function to fill
  * @hdr:	header to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_write_header(struct udevice *dev, uint func_num,
 			struct pci_ep_header *hdr);
@@ -266,7 +266,7 @@ int pci_ep_write_header(struct udevice *dev, uint func_num,
  * @dev:	device to write to
  * @func_num:	EP function to fill
  * @hdr:	header to read to
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_read_header(struct udevice *dev, uint func_num,
 		       struct pci_ep_header *hdr);
@@ -276,7 +276,7 @@ int pci_ep_read_header(struct udevice *dev, uint func_num,
  * @dev:	device to set
  * @func_num:	EP function to set
  * @bar:	bar data
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_set_bar(struct udevice *dev, uint func_num, struct pci_bar *bar);
 
@@ -287,7 +287,7 @@ int pci_ep_set_bar(struct udevice *dev, uint func_num, struct pci_bar *bar);
  * @func_num:	EP function to read
  * @bar:	struct to copy data to
  * @barno:	bar number to read
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_read_bar(struct udevice *dev, uint func_no, struct pci_bar *ep_bar,
 		    enum pci_barno barno);
@@ -298,7 +298,7 @@ int pci_ep_read_bar(struct udevice *dev, uint func_no, struct pci_bar *ep_bar,
  * @dev:	device to clear
  * @func_num:	EP function to clear
  * @bar:	bar number
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_clear_bar(struct udevice *dev, uint func_num, enum pci_barno bar);
 /**
@@ -312,7 +312,7 @@ int pci_ep_clear_bar(struct udevice *dev, uint func_num, enum pci_barno bar);
  * @addr:	local physical address base
  * @pci_addr:	pci address to translate to
  * @size:	region size
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_map_addr(struct udevice *dev, uint func_num, phys_addr_t addr,
 		    u64 pci_addr, size_t size);
@@ -324,7 +324,7 @@ int pci_ep_map_addr(struct udevice *dev, uint func_num, phys_addr_t addr,
  * @dev:	device to set
  * @func_num:	EP function to set
  * @addr:	local physical address base
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_unmap_addr(struct udevice *dev, uint func_num, phys_addr_t addr);
 
@@ -337,7 +337,7 @@ int pci_ep_unmap_addr(struct udevice *dev, uint func_num, phys_addr_t addr);
  * @dev:	device to set
  * @func_num:	EP function to set
  * @interrupts:	required interrupts count
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_set_msi(struct udevice *dev, uint func_num, uint interrupts);
 
@@ -349,7 +349,7 @@ int pci_ep_set_msi(struct udevice *dev, uint func_num, uint interrupts);
  *
  * @dev:	device to use
  * @func_num:	EP function to use
- * @return msi count if OK, -EINVAL if msi were not enabled at host.
+ * Return: msi count if OK, -EINVAL if msi were not enabled at host.
  */
 int pci_ep_get_msi(struct udevice *dev, uint func_num);
 
@@ -362,7 +362,7 @@ int pci_ep_get_msi(struct udevice *dev, uint func_num);
  * @dev:	device to set
  * @func_num:	EP function to set
  * @interrupts:	required interrupts count
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_set_msix(struct udevice *dev, uint func_num, uint interrupts);
 
@@ -374,7 +374,7 @@ int pci_ep_set_msix(struct udevice *dev, uint func_num, uint interrupts);
  *
  * @dev:	device to use
  * @func_num:	EP function to use
- * @return msi count if OK, -EINVAL if msi were not enabled at host.
+ * Return: msi count if OK, -EINVAL if msi were not enabled at host.
  */
 int pci_ep_get_msix(struct udevice *dev, uint func_num);
 
@@ -385,7 +385,7 @@ int pci_ep_get_msix(struct udevice *dev, uint func_num);
  * @func_num:	EP function to set
  * @type:	type of irq to send
  * @interrupt_num: interrupt vector to use
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_raise_irq(struct udevice *dev, uint func_num,
 		     enum pci_ep_irq_type type, uint interrupt_num);
@@ -396,7 +396,7 @@ int pci_ep_raise_irq(struct udevice *dev, uint func_num,
  * process.
  *
  * @dev:	device to set
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_start(struct udevice *dev);
 
@@ -407,7 +407,7 @@ int pci_ep_start(struct udevice *dev);
  * link.
  *
  * @dev:	device to set
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_ep_stop(struct udevice *dev);
 

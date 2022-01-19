@@ -39,7 +39,7 @@ static int pch_type = -1;
  * pch_silicon_revision() - Read silicon revision ID from the PCH
  *
  * @dev:	PCH device
- * @return silicon revision ID
+ * Return: silicon revision ID
  */
 static int pch_silicon_revision(struct udevice *dev)
 {
@@ -71,7 +71,7 @@ int pch_silicon_type(struct udevice *dev)
  * @dev:	PCH device
  * @type:	PCH type
  * @rev:	Minimum required resion
- * @return 0 if not supported, 1 if supported
+ * Return: 0 if not supported, 1 if supported
  */
 static int pch_silicon_supported(struct udevice *dev, int type, int rev)
 {

@@ -380,7 +380,7 @@
  * pch_silicon_revision() - Read silicon device ID from the PCH
  *
  * @dev:	PCH device
- * @return silicon device ID
+ * Return: silicon device ID
  */
 int pch_silicon_type(struct udevice *dev);
 

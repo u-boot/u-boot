@@ -52,7 +52,7 @@ extern struct srcfile_state *current_srcfile; /* = NULL */
  * @param fullnamep	If non-NULL, it is set to the allocated filename of the
  *			file that was opened. The caller is then responsible
  *			for freeing the pointer.
- * @return pointer to opened FILE
+ * Return: pointer to opened FILE
  */
 FILE *srcfile_relative_open(const char *fname, char **fullnamep);
 

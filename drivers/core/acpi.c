@@ -109,7 +109,7 @@ int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen)
  * @dev: Device that generated the data
  * @type: Table type it refers to
  * @start: The start of the data (the end is obtained from ctx->current)
- * @return 0 if OK, -ENOSPC if too many items, -ENOMEM if out of memory
+ * Return: 0 if OK, -ENOSPC if too many items, -ENOMEM if out of memory
  */
 static int acpi_add_item(struct acpi_ctx *ctx, struct udevice *dev,
 			 enum gen_type_t type, void *start)
@@ -179,7 +179,7 @@ static struct acpi_item *find_acpi_item(const char *devname)
  * @start: Start position to put the sorted items. The items will follow each
  *	other in sorted order
  * @type: Type of items to sort
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int sort_acpi_item_type(struct acpi_ctx *ctx, void *start,
 			       enum gen_type_t type)

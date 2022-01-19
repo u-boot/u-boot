@@ -57,7 +57,7 @@ int arch_fsps_preinit(void);
  *
  * @dev: Hostbridge device containing config
  * @upd: Config data to fill in
- * @return 0 if OK, -ENOENT if OK but no MRC-cache data was found, other -ve on
+ * Return: 0 if OK, -ENOENT if OK but no MRC-cache data was found, other -ve on
  *	error
  */
 int fspm_update_config(struct udevice *dev, struct fspm_upd *upd);
@@ -69,7 +69,7 @@ int fspm_update_config(struct udevice *dev, struct fspm_upd *upd);
  * continue.
  *
  * @dev: Hostbridge device
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int fspm_done(struct udevice *dev);
 
@@ -79,7 +79,7 @@ int fspm_done(struct udevice *dev);
  * @dev: Hostbridge device containing config
  * @rom_offset: Value to add to convert from ROM offset to memory-mapped address
  * @upd: Config data to fill in
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int fsps_update_config(struct udevice *dev, ulong rom_offset,
 		       struct fsps_upd *upd);
@@ -90,7 +90,7 @@ int fsps_update_config(struct udevice *dev, ulong rom_offset,
  * This looks for cached Memory-reference code (MRC) data and stores it into
  * @upd for use by the FSP-M binary.
  *
- * @return 0 if OK, -ENOENT if no data (whereupon the caller can continue and
+ * Return: 0 if OK, -ENOENT if no data (whereupon the caller can continue and
  *	expect a slower boot), other -ve value on other error
  */
 int prepare_mrc_cache(struct fspm_upd *upd);

@@ -193,7 +193,7 @@ static int twsi_stop(void *base);
  *
  * @code	status code
  * @final_read	true if this is the final read operation
- * @return	true if arbitration has been lost, false if it hasn't been lost.
+ * Return:	true if arbitration has been lost, false if it hasn't been lost.
  */
 static int twsi_i2c_lost_arb(u8 code, int final_read)
 {
@@ -249,7 +249,7 @@ static int twsi_i2c_lost_arb(u8 code, int final_read)
  *
  * @base	Base address of i2c registers
  * @val		value to write
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 static u64 twsi_write_sw(void __iomem *base, u64 val)
 {
@@ -274,7 +274,7 @@ static u64 twsi_write_sw(void __iomem *base, u64 val)
  *
  * @base	Base address of i2c registers
  * @val		value for eia and op, etc. to read
- * @return	value of the register
+ * Return:	value of the register
  */
 static u64 twsi_read_sw(void __iomem *base, u64 val)
 {
@@ -316,7 +316,7 @@ static void twsi_write_ctl(void __iomem *base, u8 data)
  * Reads the TWSI Control Register
  *
  * @base	Base address for i2c
- * @return	8-bit TWSI control register
+ * Return:	8-bit TWSI control register
  */
 static u8 twsi_read_ctl(void __iomem *base)
 {
@@ -334,7 +334,7 @@ static u8 twsi_read_ctl(void __iomem *base)
  * Read i2c status register
  *
  * @base	Base address of i2c registers
- * @return	value of status register
+ * Return:	value of status register
  */
 static u8 twsi_read_status(void __iomem *base)
 {
@@ -350,7 +350,7 @@ static u8 twsi_read_status(void __iomem *base)
  * Waits for an i2c operation to complete
  *
  * @param	base	Base address of registers
- * @return	0 for success, 1 if timeout
+ * Return:	0 for success, 1 if timeout
  */
 static int twsi_wait(void __iomem *base)
 {
@@ -384,7 +384,7 @@ static int twsi_start_unstick(void __iomem *base)
  * Sends an i2c start condition
  *
  * @base	base address of registers
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 static int twsi_start(void __iomem *base)
 {
@@ -415,7 +415,7 @@ static int twsi_start(void __iomem *base)
  * Sends an i2c stop condition
  *
  * @base	register base address
- * @return	0 for success, -1 if error
+ * Return:	0 for success, -1 if error
  */
 static int twsi_stop(void __iomem *base)
 {
@@ -439,7 +439,7 @@ static int twsi_stop(void __iomem *base)
  * @slave_addr	address of slave to write to
  * @buffer	Pointer to buffer to write
  * @length	Number of bytes in buffer to write
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 static int twsi_write_data(void __iomem *base, u8  slave_addr,
 			   u8 *buffer, unsigned int length)
@@ -537,7 +537,7 @@ static void twsi_unblock(void __iomem *base)
  * @slave_addr	i2c bus address to read from
  * @buffer	buffer to read into
  * @length	number of bytes to read
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 static int twsi_read_data(void __iomem *base, u8 slave_addr,
 			  u8 *buffer, unsigned int length)
@@ -605,7 +605,7 @@ static int twsi_read_data(void __iomem *base, u8 slave_addr,
  * @speed	Speed to set
  * @m_div	Pointer to M divisor
  * @n_div	Pointer to N divisor
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 static void twsi_calc_div(struct udevice *bus, ulong sclk, unsigned int speed,
 			  int *m_div, int *n_div)
@@ -651,7 +651,7 @@ static void twsi_calc_div(struct udevice *bus, ulong sclk, unsigned int speed,
  *
  * @base	Base address of twsi registers
  * @slave_addr	I2C slave address to configure this controller to
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 static int twsi_init(void __iomem *base, int slaveaddr)
 {
@@ -681,7 +681,7 @@ static int twsi_init(void __iomem *base, int slaveaddr)
  * @bus		i2c bus to transfer data over
  * @msg		Array of i2c messages
  * @nmsgs	Number of messages to send/receive
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 static int octeon_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 			   int nmsgs)
@@ -718,7 +718,7 @@ static int octeon_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
  *
  * @bus		i2c bus to transfer data over
  * @speed	Speed in Hz to set
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 static int octeon_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 {
@@ -773,7 +773,7 @@ static const struct octeon_i2c_data i2c_octeontx2_data = {
  * Driver probe function
  *
  * @dev		I2C device to probe
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 static int octeon_i2c_probe(struct udevice *dev)
 {

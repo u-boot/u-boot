@@ -17,7 +17,7 @@
  *
  * @param xiface Interface to probe
  *
- * @return Number of ports on the interface. Zero to disable.
+ * Return: Number of ports on the interface. Zero to disable.
  */
 int __cvmx_helper_xaui_probe(int xiface);
 int __cvmx_helper_xaui_enumerate(int xiface);
@@ -30,7 +30,7 @@ int __cvmx_helper_xaui_enumerate(int xiface);
  *
  * @param xiface Interface to bring up
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_xaui_enable(int xiface);
 
@@ -47,7 +47,7 @@ int __cvmx_helper_xaui_enable(int xiface);
  *
  * @param interface Interface to retrain
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_helper_xaui_link_retrain(int interface);
 
@@ -57,7 +57,7 @@ int cvmx_helper_xaui_link_retrain(int interface);
  *
  * @param interface	Interface to reinitialize
  *
- * @return	0 on success, negative on failure
+ * Return:	0 on success, negative on failure
  */
 int cvmx_helper_xaui_link_reinit(int interface);
 
@@ -70,7 +70,7 @@ int cvmx_helper_xaui_link_reinit(int interface);
  *
  * @param ipd_port IPD/PKO port to query
  *
- * @return Link state
+ * Return: Link state
  */
 cvmx_helper_link_info_t __cvmx_helper_xaui_link_get(int ipd_port);
 
@@ -85,7 +85,7 @@ cvmx_helper_link_info_t __cvmx_helper_xaui_link_get(int ipd_port);
  * @param ipd_port  IPD/PKO port to configure
  * @param link_info The new link state
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_xaui_link_set(int ipd_port, cvmx_helper_link_info_t link_info);
 
@@ -101,7 +101,7 @@ int __cvmx_helper_xaui_link_set(int ipd_port, cvmx_helper_link_info_t link_info)
  * @param enable_external
  *                 Non zero if you want external loopback
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int __cvmx_helper_xaui_configure_loopback(int ipd_port, int enable_internal, int enable_external);
 

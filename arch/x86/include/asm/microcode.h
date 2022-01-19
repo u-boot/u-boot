@@ -17,7 +17,7 @@ extern u32 ucode_size;
  *
  * Applies any microcode updates in the device tree.
  *
- * @return 0 if OK, -EEXIST if the updates were already applied, -ENOENT if
+ * Return: 0 if OK, -EEXIST if the updates were already applied, -ENOENT if
  * not updates were found, -EINVAL if an update was invalid
  */
 int microcode_update_intel(void);
@@ -27,7 +27,7 @@ int microcode_update_intel(void);
  *
  * This reads the microcode version of the currently running CPU
  *
- * @return microcode version number
+ * Return: microcode version number
  */
 int microcode_read_rev(void);
 #endif /* __ASSEMBLY__ */

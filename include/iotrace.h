@@ -81,7 +81,7 @@ void iotrace_reset_checksum(void);
 /**
  * iotrace_get_checksum() - Get the current checksum value
  *
- * @return currect checksum value
+ * Return: currect checksum value
  */
 u32 iotrace_get_checksum(void);
 
@@ -122,7 +122,7 @@ void iotrace_set_enabled(int enable);
 /**
  * iotrace_get_enabled() - Get whether iotracing is enabled or not
  *
- * @return true if enabled, false if disabled
+ * Return: true if enabled, false if disabled
  */
 int iotrace_get_enabled(void);
 

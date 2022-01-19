@@ -60,7 +60,7 @@
  *
  * @comm: Community to search
  * @gpio: Pad number to look up (assumed to be valid)
- * @return offset, 0 for first GPIO in community
+ * Return: offset, 0 for first GPIO in community
  */
 static size_t relative_pad_in_comm(const struct pad_community *comm,
 				   uint gpio)
@@ -75,7 +75,7 @@ static size_t relative_pad_in_comm(const struct pad_community *comm,
  *
  * @comm: Community to search
  * @relative_pad: Pad to look up
- * @return group number if found (see community_n_groups, etc.), or
+ * Return: group number if found (see community_n_groups, etc.), or
  *	-ESPIPE if no groups, or -ENOENT if not found
  */
 static int pinctrl_group_index(const struct pad_community *comm,
@@ -135,7 +135,7 @@ static u32 pinctrl_bitmask_within_group(const struct pad_community *comm,
  *
  * @pad: Pad to check
  * @devp: Returns the device for that pad
- * @return 0 if OK, -ENOTBLK if no device was found for the given pin
+ * Return: 0 if OK, -ENOTBLK if no device was found for the given pin
  */
 static int pinctrl_get_device(uint pad, struct udevice **devp)
 {
@@ -346,7 +346,7 @@ static const int mask[4] = {
  *
  * @dev: Pinctrl device containing the pad (see pinctrl_get_device())
  * @cfg: Configuration to apply
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int pinctrl_configure_pad(struct udevice *dev,
 				 const struct pad_config *cfg)

@@ -70,7 +70,7 @@ static void pamu_setup_default_xfer_to_host_spaace(struct paace *spaace)
 				then snoopid not defined
  * @param[in] subwin_cnt number of sub-windows
  *
- * @return Returns 0 upon success else error code < 0 returned
+ * Return: Returns 0 upon success else error code < 0 returned
  */
 static int pamu_config_ppaace(uint32_t liodn, uint64_t win_addr,
 	uint64_t win_size, uint32_t omi,

@@ -86,7 +86,7 @@ int hmatch_r(const char *match, int last_idx, struct env_entry **retval,
  * @key: Name of entry to delete
  * @htab: Hash table
  * @flag: Flags to use (H_...)
- * @return 0 on success, -ENOENT if not found, -EPERM if the hash table callback
+ * Return: 0 on success, -ENOENT if not found, -EPERM if the hash table callback
  *	rejected changing the variable, -EINVAL if the hash table refused to
  *	delete the variable
  */

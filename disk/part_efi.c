@@ -331,7 +331,7 @@ static int part_test_efi(struct blk_desc *dev_desc)
  * set_protective_mbr(): Set the EFI protective MBR
  * @param dev_desc - block device descriptor
  *
- * @return - zero on success, otherwise error
+ * Return: - zero on success, otherwise error
  */
 static int set_protective_mbr(struct blk_desc *dev_desc)
 {

@@ -101,7 +101,7 @@ static int pfe_eth_write_hwaddr(struct udevice *dev)
  *
  * @param[in]   edev    Pointer to eth device structure.
  *
- * @return      none
+ * Return:      none
  */
 static inline void pfe_eth_stop(struct udevice *dev)
 {

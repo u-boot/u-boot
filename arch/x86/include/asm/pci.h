@@ -26,7 +26,7 @@
  * @offset:	Register offset to read
  * @valuep:	Place to put the returned value
  * @size:	Access size
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_x86_read_config(pci_dev_t bdf, uint offset, ulong *valuep,
 			enum pci_size_t size);
@@ -40,7 +40,7 @@ int pci_x86_read_config(pci_dev_t bdf, uint offset, ulong *valuep,
  * @offset:	Register offset to write
  * @value:	Value to write
  * @size:	Access size
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_x86_write_config(pci_dev_t bdf, uint offset, ulong value,
 			 enum pci_size_t size);
@@ -55,7 +55,7 @@ int pci_x86_write_config(pci_dev_t bdf, uint offset, ulong value,
  * @offset:	Register offset to update
  * @clr:	Bits to clear
  * @set:	Bits to set
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_x86_clrset_config(pci_dev_t bdf, uint offset, ulong clr, ulong set,
 			  enum pci_size_t size);

@@ -72,7 +72,7 @@ static int sf_parse_len_arg(char *arg, ulong *len)
  *
  * @param len		amount of bytes currently processed
  * @param start_ms	start time of processing in ms
- * @return bytes per second if OK, 0 on error
+ * Return: bytes per second if OK, 0 on error
  */
 static ulong bytes_per_second(unsigned int len, ulong start_ms)
 {
@@ -166,7 +166,7 @@ static int do_spi_flash_probe(int argc, char *const argv[])
  * @param buf		buffer to write from
  * @param cmp_buf	read buffer to use to compare data
  * @param skipped	Count of skipped data (incremented by this function)
- * @return NULL if OK, else a string containing the stage which failed
+ * Return: NULL if OK, else a string containing the stage which failed
  */
 static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
 		size_t len, const char *buf, char *cmp_buf, size_t *skipped)
@@ -208,7 +208,7 @@ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
  * @param offset	flash offset to write
  * @param len		number of bytes to write
  * @param buf		buffer to write from
- * @return 0 if ok, 1 on error
+ * Return: 0 if ok, 1 on error
  */
 static int spi_flash_update(struct spi_flash *flash, u32 offset,
 		size_t len, const char *buf)
@@ -438,7 +438,7 @@ static void spi_test_next_stage(struct test_info *test)
  * @param len		Size of data to read/write
  * @param offset	Offset within flash to check
  * @param vbuf		Verification buffer
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 static int spi_flash_test(struct spi_flash *flash, uint8_t *buf, ulong len,
 			   ulong offset, uint8_t *vbuf)

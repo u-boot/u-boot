@@ -186,7 +186,7 @@ SANDBOX_STATE_IO(cros_ec, "google,cros-ec", cros_ec_read_state,
  *
  * @param ec	Current emulated EC state
  * @param entry	Flash map entry containing the image to check
- * @return actual image size in bytes, 0 if the image contains no content or
+ * Return: actual image size in bytes, 0 if the image contains no content or
  * error.
  */
 static int get_image_used(struct ec_state *ec, struct fmap_entry *entry)
@@ -214,7 +214,7 @@ static int get_image_used(struct ec_state *ec, struct fmap_entry *entry)
  *
  * @param ec	Current emulated EC state
  * @param node	Keyboard node of device tree containing keyscan information
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 static int keyscan_read_fdt_matrix(struct ec_state *ec, ofnode node)
 {
@@ -263,7 +263,7 @@ static int keyscan_read_fdt_matrix(struct ec_state *ec, ofnode node)
  * @param ec	Current emulated EC state
  * @param scan	Place to put keyscan bytes for the keyscan message (must hold
  *		enough space for a full keyscan)
- * @return number of bytes of valid scan data
+ * Return: number of bytes of valid scan data
  */
 static int cros_ec_keyscan(struct ec_state *ec, uint8_t *scan)
 {
@@ -305,7 +305,7 @@ static int cros_ec_keyscan(struct ec_state *ec, uint8_t *scan)
  * @param req_data	Pointer to body of request
  * @param resp_hdr	Pointer to place to put response header
  * @param resp_data	Pointer to place to put response data, if any
- * @return length of response data, or 0 for no response data, or -1 on error
+ * Return: length of response data, or 0 for no response data, or -1 on error
  */
 static int process_cmd(struct ec_state *ec,
 		       struct ec_host_request *req_hdr, const void *req_data,

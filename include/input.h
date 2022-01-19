@@ -71,7 +71,7 @@ struct stdio_dev;
  * @param config	Input state
  * @param keycode	List of key codes to examine
  * @param num_keycodes	Number of key codes
- * @return number of ascii characters sent, or 0 if none, or -1 for an
+ * Return: number of ascii characters sent, or 0 if none, or -1 for an
  *	internal error
  */
 int input_send_keycodes(struct input_config *config, int keycode[], int count);
@@ -90,7 +90,7 @@ int input_send_keycodes(struct input_config *config, int keycode[], int count);
  * @param config	Input state
  * @param new_keycode	New keycode to add/remove
  * @param release	true if this key was released, false if depressed
- * @return number of ascii characters sent, or 0 if none, or -1 for an
+ * Return: number of ascii characters sent, or 0 if none, or -1 for an
  *	internal error
  */
 int input_add_keycode(struct input_config *config, int new_keycode,
@@ -112,7 +112,7 @@ int input_add_table(struct input_config *config, int left_keycode,
  * Test if keys are available to be read
  *
  * @param config	Input state
- * @return 0 if no keys available, 1 if keys are available
+ * Return: 0 if no keys available, 1 if keys are available
  */
 int input_tstc(struct input_config *config);
 
@@ -122,7 +122,7 @@ int input_tstc(struct input_config *config);
  * TODO: U-Boot wants 0 for no key, but Ctrl-@ is a valid key...
  *
  * @param config	Input state
- * @return key, or 0 if no key, or -1 if error
+ * Return: key, or 0 if no key, or -1 if error
  */
 int input_getc(struct input_config *config);
 
@@ -130,7 +130,7 @@ int input_getc(struct input_config *config);
  * Register a new device with stdio and switch to it if wanted
  *
  * @param dev	Pointer to device
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int input_stdio_register(struct stdio_dev *dev);
 
@@ -168,7 +168,7 @@ void input_allow_repeats(struct input_config *config, bool allow_repeats);
  * updating.
  *
  * @param config	Input state
- * @return -1 if no LEDs need updating, other value if they do
+ * Return: -1 if no LEDs need updating, other value if they do
  */
 int input_leds_changed(struct input_config *config);
 
@@ -179,7 +179,7 @@ int input_leds_changed(struct input_config *config);
  *
  * @param config	Input state
  * @param german	true to use German keyboard layout, false for US
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int input_add_tables(struct input_config *config, bool german);
 
@@ -188,7 +188,7 @@ int input_add_tables(struct input_config *config, bool german);
  *
  * @param config	Input state
  * @param leds		Initial LED value (INPUT_LED_ mask), 0 suggested
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int input_init(struct input_config *config, int leds);
 

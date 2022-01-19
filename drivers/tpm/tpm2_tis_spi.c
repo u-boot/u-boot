@@ -60,7 +60,7 @@ struct tpm_tis_chip_data {
  * NOTE: TPM is big-endian for multi-byte values. Multi-byte
  * values have to be swapped.
  *
- * @return -EIO on error, 0 on success.
+ * Return: -EIO on error, 0 on success.
  */
 static int tpm_tis_spi_xfer(struct udevice *dev, u32 addr, const u8 *out,
 			    u8 *in, u16 len)

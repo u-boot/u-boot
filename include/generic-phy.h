@@ -79,7 +79,7 @@ struct phy_ops {
 	* If power_off() is not implemented, it must power down the phy.
 	*
 	* @phy:	PHY port to be de-initialized
-	* @return 0 if OK, or a negative error code
+	* Return: 0 if OK, or a negative error code
 	*/
 	int	(*exit)(struct phy *phy);
 
@@ -91,7 +91,7 @@ struct phy_ops {
 	* During runtime, the PHY may need to be reset in order to
 	* re-establish connection etc without being shut down or exit.
 	*
-	* @return 0 if OK, or a negative error code
+	* Return: 0 if OK, or a negative error code
 	*/
 	int	(*reset)(struct phy *phy);
 
@@ -105,7 +105,7 @@ struct phy_ops {
 	* setup done in init(). If init() is not implemented, it must take care
 	* of setting up the context (PLLs, ...)
 	*
-	* @return 0 if OK, or a negative error code
+	* Return: 0 if OK, or a negative error code
 	*/
 	int	(*power_on)(struct phy *phy);
 
@@ -119,7 +119,7 @@ struct phy_ops {
 	* init()/deinit() are not implemented, it must not de-initialize
 	* everything.
 	*
-	* @return 0 if OK, or a negative error code
+	* Return: 0 if OK, or a negative error code
 	*/
 	int	(*power_off)(struct phy *phy);
 
@@ -133,7 +133,7 @@ struct phy_ops {
 	* This function configures the PHY for it's main function following
 	* power_on/off() after beeing initialized.
 	*
-	* @return 0 if OK, or a negative error code
+	* Return: 0 if OK, or a negative error code
 	*/
 	int	(*configure)(struct phy *phy, void *params);
 };
@@ -161,7 +161,7 @@ struct phy_bulk {
  * generic_phy_init() - initialize the PHY port
  *
  * @phy:	the PHY port to initialize
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int generic_phy_init(struct phy *phy);
 
@@ -169,7 +169,7 @@ int generic_phy_init(struct phy *phy);
  * generic_phy_init() - de-initialize the PHY device
  *
  * @phy:	PHY port to be de-initialized
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int generic_phy_exit(struct phy *phy);
 
@@ -177,7 +177,7 @@ int generic_phy_exit(struct phy *phy);
  * generic_phy_reset() - resets a PHY device without shutting down
  *
  * @phy:	PHY port to be reset
- *@return 0 if OK, or a negative error code
+ *Return: 0 if OK, or a negative error code
  */
 int generic_phy_reset(struct phy *phy);
 
@@ -185,7 +185,7 @@ int generic_phy_reset(struct phy *phy);
  * generic_phy_power_on() - power on a PHY device
  *
  * @phy:	PHY port to be powered on
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int generic_phy_power_on(struct phy *phy);
 
@@ -193,7 +193,7 @@ int generic_phy_power_on(struct phy *phy);
  * generic_phy_power_off() - power off a PHY device
  *
  * @phy:	PHY port to be powered off
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int generic_phy_power_off(struct phy *phy);
 
@@ -202,7 +202,7 @@ int generic_phy_power_off(struct phy *phy);
  *
  * @phy:	PHY port to be configured
  * @params:	PHY Parameters, underlying data is specific to the PHY function
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int generic_phy_configure(struct phy *phy, void *params);
 
@@ -230,7 +230,7 @@ int generic_phy_configure(struct phy *phy, void *params);
  * the USB2 phy can be accessed by passing index '0' and the USB3 phy can
  * be accessed by passing index '1'
  *
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int generic_phy_get_by_index(struct udevice *user, int index,
 			     struct phy *phy);
@@ -261,7 +261,7 @@ int generic_phy_get_by_index(struct udevice *user, int index,
  * the USB2 phy can be accessed by passing index '0' and the USB3 phy can
  * be accessed by passing index '1'
  *
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int generic_phy_get_by_index_nodev(ofnode node, int index, struct phy *phy);
 
@@ -288,7 +288,7 @@ int generic_phy_get_by_index_nodev(ofnode node, int index, struct phy *phy);
  * };
  * the USB3 phy can be accessed using "usb3phy", and USB2 by using "usb2phy"
  *
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int generic_phy_get_by_name(struct udevice *user, const char *phy_name,
 			    struct phy *phy);
@@ -302,7 +302,7 @@ int generic_phy_get_by_name(struct udevice *user, const char *phy_name,
  *
  * @dev:	The consumer device.
  * @bulk	A pointer to a phy bulk struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk);
 
@@ -311,7 +311,7 @@ int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk);
  *
  * @bulk:	A phy bulk struct that was previously successfully requested
  *		by generic_phy_get_bulk().
- * @return 0 if OK, or negative error code.
+ * Return: 0 if OK, or negative error code.
  */
 int generic_phy_init_bulk(struct phy_bulk *bulk);
 
@@ -320,7 +320,7 @@ int generic_phy_init_bulk(struct phy_bulk *bulk);
  *
  * @bulk:	A phy bulk struct that was previously successfully requested
  *		by generic_phy_get_bulk().
- * @return 0 if OK, or negative error code.
+ * Return: 0 if OK, or negative error code.
  */
 int generic_phy_exit_bulk(struct phy_bulk *bulk);
 
@@ -329,7 +329,7 @@ int generic_phy_exit_bulk(struct phy_bulk *bulk);
  *
  * @bulk:	A phy bulk struct that was previously successfully requested
  *		by generic_phy_get_bulk().
- * @return 0 if OK, or negative error code.
+ * Return: 0 if OK, or negative error code.
  */
 int generic_phy_power_on_bulk(struct phy_bulk *bulk);
 
@@ -338,7 +338,7 @@ int generic_phy_power_on_bulk(struct phy_bulk *bulk);
  *
  * @bulk:	A phy bulk struct that was previously successfully requested
  *		by generic_phy_get_bulk().
- * @return 0 if OK, or negative error code.
+ * Return: 0 if OK, or negative error code.
  */
 int generic_phy_power_off_bulk(struct phy_bulk *bulk);
 
@@ -413,7 +413,7 @@ static inline int generic_phy_power_off_bulk(struct phy_bulk *bulk)
  * generic_phy_valid() - check if PHY port is valid
  *
  * @phy:	the PHY port to check
- * @return TRUE if valid, or FALSE
+ * Return: TRUE if valid, or FALSE
  */
 static inline bool generic_phy_valid(struct phy *phy)
 {

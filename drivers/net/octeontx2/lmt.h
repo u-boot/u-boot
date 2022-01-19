@@ -15,7 +15,7 @@
  * @param ptr    address in memory to add incr to
  * @param incr   amount to increment memory location by (signed)
  *
- * @return Value of memory location before increment
+ * Return: Value of memory location before increment
  */
 static inline s64 atomic_fetch_and_add64_nosync(s64 *ptr, s64 incr)
 {

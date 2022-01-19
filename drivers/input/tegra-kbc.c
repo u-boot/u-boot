@@ -66,7 +66,7 @@ struct tegra_kbd_priv {
  * @param priv		Keyboard private data
  * @param fifo		Place to put fifo results
  * @param max_keycodes	Maximum number of key codes to put in the fifo
- * @return number of items put into fifo
+ * Return: number of items put into fifo
  */
 static int tegra_kbc_find_keys(struct tegra_kbd_priv *priv, int *fifo,
 			       int max_keycodes)
@@ -179,7 +179,7 @@ static void kbd_wait_for_fifo_init(struct tegra_kbd_priv *priv)
  * characters
  *
  * @param input		Input configuration
- * @return 1, to indicate that we have something to look at
+ * Return: 1, to indicate that we have something to look at
  */
 static int tegra_kbc_check(struct input_config *input)
 {
@@ -281,7 +281,7 @@ static int tegra_kbd_start(struct udevice *dev)
  * wait for the keyboard to init. We do this only when a key is first
  * read - see kbd_wait_for_fifo_init().
  *
- * @return 0 if ok, -ve on error
+ * Return: 0 if ok, -ve on error
  */
 static int tegra_kbd_probe(struct udevice *dev)
 {

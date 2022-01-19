@@ -91,7 +91,7 @@ static ulong ast2500_get_clkin(struct ast2500_scu *scu)
  * @scu SCU registers
  * @uart_index UART index, 1-5
  *
- * @return current setting for uart clock rate
+ * Return: current setting for uart clock rate
  */
 static ulong ast2500_get_uart_clk_rate(struct ast2500_scu *scu, int uart_index)
 {
@@ -216,7 +216,7 @@ static bool ast2500_get_clock_config_default(ulong input_rate,
  * The result (the best config we could find), would also be returned
  * in this structure.
  *
- * @return The clock rate, when the resulting div_config is used.
+ * Return: The clock rate, when the resulting div_config is used.
  */
 static ulong ast2500_calc_clock_config(ulong input_rate, ulong requested_rate,
 				       struct ast2500_div_config *cfg)

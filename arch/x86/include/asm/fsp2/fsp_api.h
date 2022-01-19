@@ -38,7 +38,7 @@ struct __packed fsp_upd_header {
  *	from scatch since we will lose its contents
  * @use_spi_flash: true to use the fast SPI driver to read FSP, otherwise use
  *	mapped SPI
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int fsp_memory_init(bool s3wake, bool use_spi_flash);
 
@@ -54,7 +54,7 @@ typedef asmlinkage int (*fsp_memory_init_func)(struct fspm_upd *params,
  *	from scatch since we will lose its contents
  * @use_spi_flash: true to use the fast SPI driver to read FSP, otherwise use
  *	mapped SPI
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int fsp_silicon_init(bool s3wake, bool use_spi_flash);
 

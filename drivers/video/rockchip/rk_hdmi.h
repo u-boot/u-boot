@@ -33,7 +33,7 @@ struct rk_hdmi_priv {
  * @dev:	device
  * @buf:	output buffer for the EDID
  * @buf_size:	number of bytes in the buffer
- * @return number of bytes read if OK, -ve if something went wrong
+ * Return: number of bytes read if OK, -ve if something went wrong
  */
 int rk_hdmi_read_edid(struct udevice *dev, u8 *buf, int buf_size);
 
@@ -55,7 +55,7 @@ void rk_hdmi_probe_regulators(struct udevice *dev,
  * rk_hdmi_of_to_plat() - common of_to_plat implementation
  *
  * @dev:	device
- * @return 0 if OK, -ve if something went wrong
+ * Return: 0 if OK, -ve if something went wrong
  */
 int rk_hdmi_of_to_plat(struct udevice *dev);
 
@@ -68,7 +68,7 @@ int rk_hdmi_of_to_plat(struct udevice *dev);
  * 3. initialises the Designware HDMI PHY
  *
  * @dev:	device
- * @return 0 if OK, -ve if something went wrong
+ * Return: 0 if OK, -ve if something went wrong
  */
 int rk_hdmi_probe(struct udevice *dev);
 

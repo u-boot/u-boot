@@ -93,7 +93,7 @@ struct mrc_data_container *mrccache_find_current(struct mrc_region *entry)
  * @data_size:	Required data size of the new entry. Note that we assume that
  *	all cache entries are the same size
  *
- * @return next cache entry if found, NULL if we got to the end
+ * Return: next cache entry if found, NULL if we got to the end
  */
 static struct mrc_data_container *find_next_mrc_cache(struct mrc_region *entry,
 		struct mrc_data_container *prev, int data_size)
@@ -130,7 +130,7 @@ static struct mrc_data_container *find_next_mrc_cache(struct mrc_region *entry,
  * @sf:		SPI flash to write to
  * @entry:	Position and size of MRC cache in SPI flash
  * @cur:	Record to write
- * @return 0 if updated, -EEXIST if the record is the same as the latest
+ * Return: 0 if updated, -EEXIST if the record is the same as the latest
  * record, -EINVAL if the record is not valid, other error if SPI write failed
  */
 static int mrccache_update(struct udevice *sf, struct mrc_region *entry,

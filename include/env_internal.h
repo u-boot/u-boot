@@ -220,7 +220,7 @@ extern struct hsearch_data env_htab;
  * It is a weak function allowing board to overidde the default interface for
  * U-Boot env in EXT4: CONFIG_ENV_EXT4_INTERFACE
  *
- * @return string of interface, empty if not supported
+ * Return: string of interface, empty if not supported
  */
 const char *env_ext4_get_intf(void);
 
@@ -230,7 +230,7 @@ const char *env_ext4_get_intf(void);
  * It is a weak function allowing board to overidde the default device and
  * partition used for U-Boot env in EXT4: CONFIG_ENV_EXT4_DEVICE_AND_PART
  *
- * @return string of device and partition
+ * Return: string of device and partition
  */
 const char *env_ext4_get_dev_part(void);
 
@@ -242,7 +242,7 @@ const char *env_ext4_get_dev_part(void);
  * @op: operations performed on the environment
  * @prio: priority between the multiple environments, 0 being the
  *        highest priority
- * @return  an enum env_location value on success, or -ve error code.
+ * Return:  an enum env_location value on success, or -ve error code.
  */
 enum env_location env_get_location(enum env_operation op, int prio);
 #endif /* DO_DEPS_ONLY */

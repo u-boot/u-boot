@@ -49,7 +49,7 @@ struct cache_ops {
  *
  * @dev:	Device to check (UCLASS_CACHE)
  * @info:	Returns cache info
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cache_get_info(struct udevice *dev, struct cache_info *info);
 
@@ -57,7 +57,7 @@ int cache_get_info(struct udevice *dev, struct cache_info *info);
  * cache_enable() - Enable cache
  *
  * @dev:	Device to check (UCLASS_CACHE)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cache_enable(struct udevice *dev);
 
@@ -65,7 +65,7 @@ int cache_enable(struct udevice *dev);
  * cache_disable() - Flush and disable cache
  *
  * @dev:	Device to check (UCLASS_CACHE)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cache_disable(struct udevice *dev);
 #endif

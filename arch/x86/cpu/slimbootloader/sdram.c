@@ -46,7 +46,7 @@ static struct sbl_memory_map_info *get_memory_map_info(void)
  * The memory map entries from Slim Bootloader hob are already sorted.
  *
  * @total_size: The memory size that u-boot occupies
- * @return    : The top available memory address lower than 4GB
+ * Return:    : The top available memory address lower than 4GB
  */
 ulong board_get_usable_ram_top(ulong total_size)
 {

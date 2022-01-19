@@ -46,7 +46,7 @@ struct udevice;
  * for setting up SDRAM
  *
  * @entry:	Position and size of MRC cache in SPI flash
- * @return pointer to latest record, or NULL if none
+ * Return: pointer to latest record, or NULL if none
  */
 struct mrc_data_container *mrccache_find_current(struct mrc_region *entry);
 
@@ -60,7 +60,7 @@ struct mrc_data_container *mrccache_find_current(struct mrc_region *entry);
  * This routine should be called by reserve_arch() before U-Boot is relocated
  * when MRC cache is enabled.
  *
- * @return 0 always
+ * Return: 0 always
  */
 int mrccache_reserve(void);
 
@@ -75,7 +75,7 @@ int mrccache_reserve(void);
  * @type:	Type of MRC data to use
  * @devp:	Returns pointer to the SPI flash device, if found
  * @entry:	Position and size of MRC cache in SPI flash
- * @return 0 if success, -ENOENT if SPI flash node does not exist in the
+ * Return: 0 if success, -ENOENT if SPI flash node does not exist in the
  * device tree, -EPERM if MRC region subnode does not exist in the device
  * tree, -EINVAL if MRC region properties format is incorrect, other error
  * if SPI flash probe failed.
@@ -89,7 +89,7 @@ int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
  * This saves MRC data stored previously by gd->arch.mrc_output to a proper
  * place within the MRC region on the SPI flash.
  *
- * @return 0 if saved to SPI flash successfully, other error if failed
+ * Return: 0 if saved to SPI flash successfully, other error if failed
  */
 int mrccache_save(void);
 
@@ -100,7 +100,7 @@ int mrccache_save(void);
  * data in SPL to avoid needing to pass it up to U-Boot proper to save. This
  * function handles that.
  *
- * @return 0 if saved to SPI flash successfully, other error if failed
+ * Return: 0 if saved to SPI flash successfully, other error if failed
  */
 int mrccache_spl_save(void);
 

@@ -154,7 +154,7 @@ cvmx_cmd_queue_result_t __cvmx_cmd_queue_write_raw(cvmx_cmd_queue_id_t queue_id,
  * @param fpa_pool  FPA pool the command queues should come from.
  * @param pool_size Size of each buffer in the FPA pool (bytes)
  *
- * @return CVMX_CMD_QUEUE_SUCCESS or a failure code
+ * Return: CVMX_CMD_QUEUE_SUCCESS or a failure code
  */
 cvmx_cmd_queue_result_t cvmx_cmd_queue_initialize(cvmx_cmd_queue_id_t queue_id, int max_depth,
 						  int fpa_pool, int pool_size);
@@ -166,7 +166,7 @@ cvmx_cmd_queue_result_t cvmx_cmd_queue_initialize(cvmx_cmd_queue_id_t queue_id, 
  *
  * @param queue_id Queue to shutdown
  *
- * @return CVMX_CMD_QUEUE_SUCCESS or a failure code
+ * Return: CVMX_CMD_QUEUE_SUCCESS or a failure code
  */
 cvmx_cmd_queue_result_t cvmx_cmd_queue_shutdown(cvmx_cmd_queue_id_t queue_id);
 
@@ -176,7 +176,7 @@ cvmx_cmd_queue_result_t cvmx_cmd_queue_shutdown(cvmx_cmd_queue_id_t queue_id);
  *
  * @param queue_id Hardware command queue to query
  *
- * @return Number of outstanding commands
+ * Return: Number of outstanding commands
  */
 int cvmx_cmd_queue_length(cvmx_cmd_queue_id_t queue_id);
 
@@ -188,7 +188,7 @@ int cvmx_cmd_queue_length(cvmx_cmd_queue_id_t queue_id);
  *
  * @param queue_id Command queue to query
  *
- * @return Command buffer or NULL on failure
+ * Return: Command buffer or NULL on failure
  */
 void *cvmx_cmd_queue_buffer(cvmx_cmd_queue_id_t queue_id);
 
@@ -204,7 +204,7 @@ cvmx_cmd_queue_result_t __cvmx_cmd_queue_init_state_ptr(unsigned int node);
  *
  * @param queue_id Queue ID to get an index for
  *
- * @return Index into the state arrays
+ * Return: Index into the state arrays
  */
 static inline unsigned int __cvmx_cmd_queue_get_index(cvmx_cmd_queue_id_t queue_id)
 {
@@ -270,7 +270,7 @@ static inline void __cvmx_cmd_queue_lock_init(cvmx_cmd_queue_id_t queue_id)
  *
  * @param queue_id Queue id to get
  *
- * @return Queue structure or NULL on failure
+ * Return: Queue structure or NULL on failure
  */
 static inline __cvmx_cmd_queue_state_t *__cvmx_cmd_queue_get_state(cvmx_cmd_queue_id_t queue_id)
 {
@@ -301,7 +301,7 @@ static inline __cvmx_cmd_queue_state_t *__cvmx_cmd_queue_get_state(cvmx_cmd_queu
  * @param cmd_count Number of command words to write
  * @param cmds      Array of commands to write
  *
- * @return CVMX_CMD_QUEUE_SUCCESS or a failure code
+ * Return: CVMX_CMD_QUEUE_SUCCESS or a failure code
  */
 static inline cvmx_cmd_queue_result_t
 cvmx_cmd_queue_write(cvmx_cmd_queue_id_t queue_id, bool use_locking, int cmd_count, const u64 *cmds)
@@ -348,7 +348,7 @@ cvmx_cmd_queue_write(cvmx_cmd_queue_id_t queue_id, bool use_locking, int cmd_cou
  * @param cmd1     Command
  * @param cmd2     Command
  *
- * @return CVMX_CMD_QUEUE_SUCCESS or a failure code
+ * Return: CVMX_CMD_QUEUE_SUCCESS or a failure code
  */
 static inline cvmx_cmd_queue_result_t cvmx_cmd_queue_write2(cvmx_cmd_queue_id_t queue_id,
 							    bool use_locking, u64 cmd1, u64 cmd2)
@@ -399,7 +399,7 @@ static inline cvmx_cmd_queue_result_t cvmx_cmd_queue_write2(cvmx_cmd_queue_id_t 
  * @param cmd2     Command
  * @param cmd3     Command
  *
- * @return CVMX_CMD_QUEUE_SUCCESS or a failure code
+ * Return: CVMX_CMD_QUEUE_SUCCESS or a failure code
  */
 static inline cvmx_cmd_queue_result_t
 cvmx_cmd_queue_write3(cvmx_cmd_queue_id_t queue_id, bool use_locking, u64 cmd1, u64 cmd2, u64 cmd3)

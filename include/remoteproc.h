@@ -134,20 +134,20 @@ struct dm_rproc_ops {
 #if CONFIG_IS_ENABLED(REMOTEPROC)
 /**
  * rproc_init() - Initialize all bound remote proc devices
- * @return 0 if all ok, else appropriate error value.
+ * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_init(void);
 
 /**
  * rproc_dev_init() - Initialize a remote proc device based on id
  * @id:		id of the remote processor
- * @return 0 if all ok, else appropriate error value.
+ * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_dev_init(int id);
 
 /**
  * rproc_is_initialized() - check to see if remoteproc devices are initialized
- * @return true if all devices are initialized, false otherwise.
+ * Return: true if all devices are initialized, false otherwise.
  */
 bool rproc_is_initialized(void);
 
@@ -156,35 +156,35 @@ bool rproc_is_initialized(void);
  * @id:		id of the remote processor
  * @addr:	address in memory where the image is located
  * @size:	size of the image
- * @return 0 if all ok, else appropriate error value.
+ * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_load(int id, ulong addr, ulong size);
 
 /**
  * rproc_start() - Start a remote processor
  * @id:		id of the remote processor
- * @return 0 if all ok, else appropriate error value.
+ * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_start(int id);
 
 /**
  * rproc_stop() - Stop a remote processor
  * @id:		id of the remote processor
- * @return 0 if all ok, else appropriate error value.
+ * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_stop(int id);
 
 /**
  * rproc_reset() - reset a remote processor
  * @id:		id of the remote processor
- * @return 0 if all ok, else appropriate error value.
+ * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_reset(int id);
 
 /**
  * rproc_ping() - ping a remote processor to check if it can communicate
  * @id:		id of the remote processor
- * @return 0 if all ok, else appropriate error value.
+ * Return: 0 if all ok, else appropriate error value.
  *
  * NOTE: this might need communication path available, which is not implemented
  * as part of remoteproc framework - hook on to appropriate bus architecture to
@@ -195,7 +195,7 @@ int rproc_ping(int id);
 /**
  * rproc_is_running() - check to see if remote processor is running
  * @id:		id of the remote processor
- * @return 0 if running, 1 if not running, -ve on error.
+ * Return: 0 if running, 1 if not running, -ve on error.
  *
  * NOTE: this may not involve actual communication capability of the remote
  * processor, but just ensures that it is out of reset and executing code.
@@ -210,7 +210,7 @@ int rproc_is_running(int id);
  *
  * @addr:	address of the image to verify
  * @size:	size of the image
- * @return 0 if the image looks good, else appropriate error value.
+ * Return: 0 if the image looks good, else appropriate error value.
  */
 int rproc_elf32_sanity_check(ulong addr, ulong size);
 
@@ -222,7 +222,7 @@ int rproc_elf32_sanity_check(ulong addr, ulong size);
  *
  * @addr:	address of the image to verify
  * @size:	size of the image
- * @return 0 if the image looks good, else appropriate error value.
+ * Return: 0 if the image looks good, else appropriate error value.
  */
 int rproc_elf64_sanity_check(ulong addr, ulong size);
 
@@ -231,7 +231,7 @@ int rproc_elf64_sanity_check(ulong addr, ulong size);
  * @dev:	device loading the ELF32 image
  * @addr:	valid ELF32 image address
  * @size:	size of the image
- * @return 0 if the image is successfully loaded, else appropriate error value.
+ * Return: 0 if the image is successfully loaded, else appropriate error value.
  */
 int rproc_elf32_load_image(struct udevice *dev, unsigned long addr, ulong size);
 
@@ -240,7 +240,7 @@ int rproc_elf32_load_image(struct udevice *dev, unsigned long addr, ulong size);
  * @dev:	device loading the ELF64 image
  * @addr:	valid ELF64 image address
  * @size:	size of the image
- * @return 0 if the image is successfully loaded, else appropriate error value.
+ * Return: 0 if the image is successfully loaded, else appropriate error value.
  */
 int rproc_elf64_load_image(struct udevice *dev, ulong addr, ulong size);
 
@@ -251,7 +251,7 @@ int rproc_elf64_load_image(struct udevice *dev, ulong addr, ulong size);
  * @size:	size of the image
  *
  * Auto detects if the image is ELF32 or ELF64 image and load accordingly.
- * @return 0 if the image is successfully loaded, else appropriate error value.
+ * Return: 0 if the image is successfully loaded, else appropriate error value.
  */
 int rproc_elf_load_image(struct udevice *dev, unsigned long addr, ulong size);
 
@@ -279,7 +279,7 @@ ulong rproc_elf_get_boot_addr(struct udevice *dev, ulong addr);
  * @rsc_size:	pointer to the found resource table size. Updated on operation
  *		success
  *
- * @return 0 if a valid resource table is successfully loaded, -ENODATA if there
+ * Return: 0 if a valid resource table is successfully loaded, -ENODATA if there
  * is no resource table (which is optional), or another appropriate error value.
  */
 int rproc_elf32_load_rsc_table(struct udevice *dev, ulong fw_addr,
@@ -298,7 +298,7 @@ int rproc_elf32_load_rsc_table(struct udevice *dev, ulong fw_addr,
  * @rsc_size:	pointer to the found resource table size. Updated on operation
  *		success
  *
- * @return 0 if a valid resource table is successfully loaded, -ENODATA if there
+ * Return: 0 if a valid resource table is successfully loaded, -ENODATA if there
  * is no resource table (which is optional), or another appropriate error value.
  */
 int rproc_elf64_load_rsc_table(struct udevice *dev, ulong fw_addr,
@@ -317,7 +317,7 @@ int rproc_elf64_load_rsc_table(struct udevice *dev, ulong fw_addr,
  * @rsc_size:	pointer to the found resource table size. Updated on operation
  *		success
  *
- * @return 0 if a valid resource table is successfully loaded, -ENODATA if there
+ * Return: 0 if a valid resource table is successfully loaded, -ENODATA if there
  * is no resource table (which is optional), or another appropriate error value.
  */
 int rproc_elf_load_rsc_table(struct udevice *dev, ulong fw_addr,

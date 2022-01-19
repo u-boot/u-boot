@@ -70,7 +70,7 @@ static int tegra_ahub_apbif_is_full(struct udevice *dev)
 /**
  * tegra_ahub_wait_for_space() - Wait for space in the FIFO
  *
- * @return 0 if OK, -ETIMEDOUT if no space was available in time
+ * Return: 0 if OK, -ETIMEDOUT if no space was available in time
  */
 static int tegra_ahub_wait_for_space(struct udevice *dev)
 {

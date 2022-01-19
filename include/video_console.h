@@ -170,7 +170,7 @@ struct vidconsole_ops {
  *		is the X position multipled by VID_FRAC_DIV.
  * @y:		Pixel Y position (0=top-most pixel)
  * @ch:		Character to write
- * @return number of fractional pixels that the cursor should move,
+ * Return: number of fractional pixels that the cursor should move,
  * if all is OK, -EAGAIN if we ran out of space on this line, other -ve
  * on error
  */
@@ -183,7 +183,7 @@ int vidconsole_putc_xy(struct udevice *dev, uint x, uint y, char ch);
  * @rowdst:	Destination text row (0=top)
  * @rowsrc:	Source start text row
  * @count:	Number of text rows to move
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int vidconsole_move_rows(struct udevice *dev, uint rowdst, uint rowsrc,
 			 uint count);
@@ -196,7 +196,7 @@ int vidconsole_move_rows(struct udevice *dev, uint rowdst, uint rowsrc,
  * @dev:	Device to adjust
  * @row:	Text row to adjust (0=top)
  * @clr:	Raw colour (pixel value) to write to each pixel
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int vidconsole_set_row(struct udevice *dev, uint row, int clr);
 
@@ -212,7 +212,7 @@ int vidconsole_set_row(struct udevice *dev, uint row, int clr);
  *
  * @dev:	Device to adjust
  * @ch:		Character to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int vidconsole_put_char(struct udevice *dev, char ch);
 
@@ -228,7 +228,7 @@ int vidconsole_put_char(struct udevice *dev, char ch);
  *
  * @dev:	Device to adjust
  * @str:	String to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int vidconsole_put_string(struct udevice *dev, const char *str);
 
@@ -238,7 +238,7 @@ int vidconsole_put_string(struct udevice *dev, const char *str);
  * @dev:	Device to adjust
  * @col:	New cursor text column
  * @row:	New cursor text row
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 void vidconsole_position_cursor(struct udevice *dev, unsigned col,
 				unsigned row);
@@ -252,7 +252,7 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col,
  *
  * @priv	private data of the console device
  * @idx		color index
- * @return	color value
+ * Return:	color value
  */
 u32 vid_console_color(struct video_priv *priv, unsigned int idx);
 
@@ -268,7 +268,7 @@ u32 vid_console_color(struct video_priv *priv, unsigned int idx);
  * @dev: Vidconsole device being updated
  * @from: Start/end address within the framebuffer (->fb)
  * @to: Other address within the frame buffer
- * @return 0 if OK, -EFAULT if the start address is before the start of the
+ * Return: 0 if OK, -EFAULT if the start address is before the start of the
  *	frame buffer start
  */
 int vidconsole_sync_copy(struct udevice *dev, void *from, void *to);
@@ -283,7 +283,7 @@ int vidconsole_sync_copy(struct udevice *dev, void *from, void *to);
  * @dst: Destination address within the framebuffer (->fb)
  * @src: Source address within the framebuffer (->fb)
  * @size: Number of bytes to transfer
- * @return 0 if OK, -EFAULT if the start address is before the start of the
+ * Return: 0 if OK, -EFAULT if the start address is before the start of the
  *	frame buffer start
  */
 int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,

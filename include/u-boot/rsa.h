@@ -75,7 +75,7 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest);
  * @hash:	Hash according to algorithm specified in @info
  * @sig:	Signature
  * @sig_len:	Number of bytes in signature
- * @return 0 if verified, -ve on error
+ * Return: 0 if verified, -ve on error
  */
 int rsa_verify_hash(struct image_sign_info *info,
 		    const uint8_t *hash, uint8_t *sig, uint sig_len);
@@ -90,7 +90,7 @@ int rsa_verify_hash(struct image_sign_info *info,
  * @data_len:	Data length
  * @sig:	Signature
  * @sig_len:	Number of bytes in signature
- * @return 0 if verified, -ve on error
+ * Return: 0 if verified, -ve on error
  */
 int rsa_verify(struct image_sign_info *info,
 	       const struct image_region region[], int region_count,

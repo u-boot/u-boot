@@ -45,7 +45,7 @@ int is_core_valid(unsigned int core);
  * This is used on PowerPC, SH and X86 machines as a CPU init mechanism. It is
  * called during the pre-relocation init sequence in board_init_f().
  *
- * @return 0 if oK, -ve on error
+ * Return: 0 if oK, -ve on error
  */
 int checkcpu(void);
 

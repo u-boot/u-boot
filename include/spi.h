@@ -561,7 +561,7 @@ struct dm_spi_emul_ops {
  * @cs:		Chip select to look for
  * @busp:	Returns bus device
  * @devp:	Return slave device
- * @return 0 if found, -ENODEV on error
+ * Return: 0 if found, -ENODEV on error
  */
 int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
 			struct udevice **devp);
@@ -586,7 +586,7 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
  * @dev_name:	Name of the new device thus created
  * @busp:	Returns bus device
  * @devp:	Return slave device
- * @return 0 if found, -ve on error
+ * Return: 0 if found, -ve on error
  */
 int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 			const char *drv_name, const char *dev_name,
@@ -595,7 +595,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 /**
  * spi_chip_select() - Get the chip select for a slave
  *
- * @return the chip select this slave is attached to
+ * Return: the chip select this slave is attached to
  */
 int spi_chip_select(struct udevice *slave);
 
@@ -605,7 +605,7 @@ int spi_chip_select(struct udevice *slave);
  * @bus:	SPI bus to search
  * @cs:		Chip select to look for
  * @devp:	Returns the slave device if found
- * @return 0 if found, -EINVAL if cs is invalid, -ENODEV if no device attached,
+ * Return: 0 if found, -EINVAL if cs is invalid, -ENODEV if no device attached,
  *	   other -ve value on error
  */
 int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp);
@@ -630,7 +630,7 @@ int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat);
  * @bus:	The SPI bus
  * @cs:		The chip select (0..n-1)
  * @info:	Returns information about the chip select, if valid
- * @return 0 if OK (and @info is set up), -ENODEV if the chip select
+ * Return: 0 if OK (and @info is set up), -ENODEV if the chip select
  *	   is invalid, other -ve value on error
  */
 int spi_cs_info(struct udevice *bus, uint cs, struct spi_cs_info *info);
@@ -649,7 +649,7 @@ struct sandbox_state;
  * @bus:	SPI bus requesting the emulator
  * @slave:	SPI slave device requesting the emulator
  * @emuip:	Returns pointer to emulator
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int sandbox_spi_get_emul(struct sandbox_state *state,
 			 struct udevice *bus, struct udevice *slave,
@@ -715,7 +715,7 @@ int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
  * @map_sizep:	Returns size of mapped SPI
  * @offsetp:	Returns start offset of SPI flash where the map works
  *	correctly (offsets before this are not visible)
- * @return 0 if OK, -ENOSYS if no operation, -EFAULT if memory mapping is not
+ * Return: 0 if OK, -ENOSYS if no operation, -EFAULT if memory mapping is not
  *	available
  */
 int dm_spi_get_mmap(struct udevice *dev, ulong *map_basep, uint *map_sizep,

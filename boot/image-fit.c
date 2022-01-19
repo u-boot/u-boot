@@ -1595,7 +1595,7 @@ int fit_image_check_comp(const void *fit, int noffset, uint8_t comp)
  *
  * @fit: FIT to check
  * @parent: Parent node to check
- * @return 0 if OK, -EADDRNOTAVAIL is a node has a name containing '@'
+ * Return: 0 if OK, -EADDRNOTAVAIL is a node has a name containing '@'
  */
 static int fdt_check_no_at(const void *fit, int parent)
 {
@@ -1961,7 +1961,7 @@ int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 /**
  * fit_get_image_type_property() - get property name for IH_TYPE_...
  *
- * @return the properly name where we expect to find the image in the
+ * Return: the properly name where we expect to find the image in the
  * config node
  */
 static const char *fit_get_image_type_property(int type)

@@ -21,7 +21,7 @@
  * This is only implemented for sandbox since other platforms don't have a way
  * of controlling the feature at runtime.
  *
- * @return true if enabled, false if not
+ * Return: true if enabled, false if not
  */
 bool autoboot_keyed(void);
 
@@ -29,7 +29,7 @@ bool autoboot_keyed(void);
  * autoboot_set_keyed() - set whether keyed autoboot should be used
  *
  * @autoboot_keyed: true to enable the feature, false to disable
- * @return old value of the flag
+ * Return: old value of the flag
  */
 bool autoboot_set_keyed(bool autoboot_keyed);
 #else
@@ -55,7 +55,7 @@ static inline bool autoboot_set_keyed(bool autoboot_keyed)
  * bootcmd, failbootcmd or altbootcmd depending on the current state.
  * Return this command so it can be executed.
  *
- * @return command to executed
+ * Return: command to executed
  */
 const char *bootdelay_process(void);
 

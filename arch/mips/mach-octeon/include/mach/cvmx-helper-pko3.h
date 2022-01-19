@@ -12,7 +12,7 @@
  * Covers the common hardware, memory and global configuration.
  * Per-interface initialization is performed separately.
  *
- * @return 0 on success.
+ * Return: 0 on success.
  *
  */
 int cvmx_helper_pko3_init_global(unsigned int node);
@@ -29,7 +29,7 @@ int __cvmx_pko3_config_gen_interface(int xiface, u8 subif, u8 num_queues, bool p
  * Configure and initialize PKO3 for an interface
  *
  * @param interface is the interface number to configure
- * @return 0 on success.
+ * Return: 0 on success.
  *
  */
 int cvmx_helper_pko3_init_interface(int xiface);

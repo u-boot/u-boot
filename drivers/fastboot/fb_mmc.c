@@ -289,7 +289,7 @@ static void fb_mmc_boot_ops(struct blk_desc *dev_desc, void *buffer,
  * @param[in] info Boot partition info
  * @param[out] hdr Where to store read boot image header
  *
- * @return Boot image header sectors count or 0 on error
+ * Return: Boot image header sectors count or 0 on error
  */
 static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
 				       struct disk_partition *info,
@@ -336,7 +336,7 @@ static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
  * @param download_buffer Address to fastboot buffer with zImage in it
  * @param download_bytes Size of fastboot buffer, in bytes
  *
- * @return 0 on success or -1 on error
+ * Return: 0 on success or -1 on error
  */
 static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 				void *download_buffer,

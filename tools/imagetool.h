@@ -176,7 +176,7 @@ struct image_type_params *imagetool_get_type(int type);
  * supported image type. If verification is successful, this prints
  * the respective header.
  *
- * @return 0 on success, negative if input image format does not match with
+ * Return: 0 on success, negative if input image format does not match with
  * any of supported image types
  */
 int imagetool_verify_print_header(
@@ -195,7 +195,7 @@ int imagetool_verify_print_header(
  * @tparams: image type parameters
  * @params: mkimage parameters
  *
- * @return 0 on success, negative if input image format does not match with
+ * Return: 0 on success, negative if input image format does not match with
  * the given image type
  */
 int imagetool_verify_print_header_by_type(
@@ -229,7 +229,7 @@ int imagetool_save_subimage(
  *
  * @params:	mkimage parameters
  * @fname:	filename to check
- * @return size of file, or -ve value on error
+ * Return: size of file, or -ve value on error
  */
 int imagetool_get_filesize(struct image_tool_params *params, const char *fname);
 
@@ -243,7 +243,7 @@ int imagetool_get_filesize(struct image_tool_params *params, const char *fname);
  *
  * @cmdname:	command name
  * @fallback:	timestamp to use if SOURCE_DATE_EPOCH isn't set
- * @return timestamp based on SOURCE_DATE_EPOCH
+ * Return: timestamp based on SOURCE_DATE_EPOCH
  */
 time_t imagetool_get_source_date(
 	const char *cmdname,

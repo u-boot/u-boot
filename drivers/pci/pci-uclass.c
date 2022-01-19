@@ -76,7 +76,7 @@ pci_dev_t dm_pci_get_bdf(const struct udevice *dev)
 /**
  * pci_get_bus_max() - returns the bus number of the last active bus
  *
- * @return last bus number, or -1 if no active buses
+ * Return: last bus number, or -1 if no active buses
  */
 static int pci_get_bus_max(void)
 {
@@ -700,7 +700,7 @@ static bool pci_match_one_id(const struct pci_device_id *id,
  * @bus: Bus to check
  * @vendor: Vendor ID to check
  * @device: Device ID to check
- * @return true if the vendor/device is in the list, false if not
+ * Return: true if the vendor/device is in the list, false if not
  */
 static bool pci_need_device_pre_reloc(struct udevice *bus, uint vendor,
 				      uint device)
@@ -728,7 +728,7 @@ static bool pci_need_device_pre_reloc(struct udevice *bus, uint vendor,
  * @find_id:	Specification of the driver to find
  * @bdf:	Bus/device/function addreess - see PCI_BDF()
  * @devp:	Returns a pointer to the device created
- * @return 0 if OK, -EPERM if the device is not needed before relocation and
+ * Return: 0 if OK, -EPERM if the device is not needed before relocation and
  *	   therefore was not created, other -ve value on error
  */
 static int pci_find_and_bind_driver(struct udevice *parent,

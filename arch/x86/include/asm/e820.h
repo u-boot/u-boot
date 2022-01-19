@@ -34,7 +34,7 @@ unsigned int install_e820_map(unsigned int max_entries,
  *
  * @max_entries: Maximum number of entries to write
  * @entries: Place to put entires
- * @return number of entries written
+ * Return: number of entries written
  */
 unsigned int cb_install_e820_map(unsigned int max_entries,
 				 struct e820_entry *entries);

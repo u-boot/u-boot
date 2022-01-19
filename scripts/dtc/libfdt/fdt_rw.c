@@ -123,7 +123,7 @@ static int fdt_splice_string_(void *fdt, int newlen)
  * @s: string to find/add
  * @allocated: Set to 0 if the string was found, 1 if not found and so
  *	allocated. Ignored if !fdt_chk_basic()
- * @return offset of string in the string table (whether found or added)
+ * Return: offset of string in the string table (whether found or added)
  */
 static int fdt_find_add_string_(void *fdt, const char *s, int *allocated)
 {

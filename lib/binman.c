@@ -37,7 +37,7 @@ static struct binman_info *binman;
  * depends on whether multiple-images is in use.
  *
  * @nodep: Returns the node found, on success
- * @return 0 if OK, , -EINVAL if there is no /binman node, -ECHILD if multiple
+ * Return: 0 if OK, , -EINVAL if there is no /binman node, -ECHILD if multiple
  * images are being used but the first image is not available
  */
 static int find_image_node(ofnode *nodep)

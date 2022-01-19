@@ -57,7 +57,7 @@ int ecdsa_add_verify_data(struct image_sign_info *info, void *keydest);
  * @data_len:	Data length
  * @sig:	Signature
  * @sig_len:	Number of bytes in signature
- * @return 0 if verified, -ve on error
+ * Return: 0 if verified, -ve on error
  */
 int ecdsa_verify(struct image_sign_info *info,
 		 const struct image_region region[], int region_count,

@@ -91,7 +91,7 @@ static inline void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
 /**
  * mmc_get_next_devnum() - Get the next available MMC device number
  *
- * @return next available device number (0 = first), or -ve on error
+ * Return: next available device number (0 = first), or -ve on error
  */
 int mmc_get_next_devnum(void);
 
@@ -117,7 +117,7 @@ void mmc_list_add(struct mmc *mmc);
  *
  * @mmc:	MMC device
  * @part_num:	Hardware partition number
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int mmc_switch_part(struct mmc *mmc, unsigned int part_num);
 
@@ -128,7 +128,7 @@ int mmc_switch_part(struct mmc *mmc, unsigned int part_num);
  * @set:	Unused
  * @index:	Cmdarg index
  * @value:	Cmdarg value
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value);
 

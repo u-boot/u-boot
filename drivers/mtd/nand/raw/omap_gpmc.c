@@ -117,7 +117,7 @@ static uint32_t gen_true_ecc(uint8_t *ecc_buf)
  * @read_ecc:		 ecc read from nand flash
  * @calc_ecc:		 ecc read from ECC registers
  *
- * @return 0 if data is OK or corrected, else returns -1
+ * Return: 0 if data is OK or corrected, else returns -1
  */
 static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 				uint8_t *read_ecc, uint8_t *calc_ecc)
@@ -488,7 +488,7 @@ static void omap_reverse_list(u8 *list, unsigned int length)
  * @read_ecc:	ecc read from nand flash (ignored)
  * @calc_ecc:	ecc read from ECC registers
  *
- * @return 0 if data is OK or corrected, else returns -1
+ * Return: 0 if data is OK or corrected, else returns -1
  */
 static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 				uint8_t *read_ecc, uint8_t *calc_ecc)

@@ -735,7 +735,7 @@ static int fat_itr_isdir(fat_itr *itr);
  *
  * @itr: iterator to initialize
  * @fsdata: filesystem data for the partition
- * @return 0 on success, else -errno
+ * Return: 0 on success, else -errno
  */
 static int fat_itr_root(fat_itr *itr, fsdata *fsdata)
 {
@@ -954,7 +954,7 @@ static dir_entry *extract_vfat_name(fat_itr *itr)
  * Must be called once on a new iterator before the cursor is valid.
  *
  * @itr: the iterator to iterate
- * @return boolean, 1 if success or 0 if no more entries in the
+ * Return: boolean, 1 if success or 0 if no more entries in the
  *    current directory
  */
 static int fat_itr_next(fat_itr *itr)
@@ -1024,7 +1024,7 @@ static int fat_itr_next(fat_itr *itr)
  * fat_itr_isdir() - is current cursor position pointing to a directory
  *
  * @itr: the iterator
- * @return true if cursor is at a directory
+ * Return: true if cursor is at a directory
  */
 static int fat_itr_isdir(fat_itr *itr)
 {
@@ -1052,7 +1052,7 @@ static int fat_itr_isdir(fat_itr *itr)
  * @itr: iterator initialized to root
  * @path: the requested path
  * @type: bitmask of allowable file types
- * @return 0 on success or -errno
+ * Return: 0 on success or -errno
  */
 static int fat_itr_resolve(fat_itr *itr, const char *path, unsigned type)
 {

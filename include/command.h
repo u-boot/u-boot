@@ -96,7 +96,7 @@ int cmd_auto_complete(const char *const prompt, char *buf, int *np,
  *
  * @cmdtp: Command which caused the error
  * @err: Error code (0 if none, -ve for error, like -EIO)
- * @return 0 (CMD_RET_SUCCESS) if there is not error,
+ * Return: 0 (CMD_RET_SUCCESS) if there is not error,
  *	   1 (CMD_RET_FAILURE) if an error is found
  *	   -1 (CMD_RET_USAGE) if 'usage' error is found
  */
@@ -138,7 +138,7 @@ int cmd_process_error(struct cmd_tbl *cmdtp, int err);
  * @arg: Pointers to the command to check. If a valid specifier is present it
  *	will be the last character of the string, following a '.'
  * @default_size: Default size to return if there is no specifier
- * @return data size in bytes (1, 2, 4, 8) or CMD_DATA_SIZE_ERR for an invalid
+ * Return: data size in bytes (1, 2, 4, 8) or CMD_DATA_SIZE_ERR for an invalid
  *	character, or CMD_DATA_SIZE_STR for a string
  */
 int cmd_get_data_size(char *arg, int default_size);
@@ -198,7 +198,7 @@ int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
  * @s: String to replace with
  * @global: true to replace all matches in @data, false to replace just the
  *	first
- * @return 0 if OK, 1 on error
+ * Return: 0 if OK, 1 on error
  */
 int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
 		      const char *r, const char *s, bool global);
@@ -229,7 +229,7 @@ enum command_ret_t {
  *			is left unchanged.
  * @param ticks		If ticks is not null, this function set it to the
  *			number of ticks the command took to complete.
- * @return 0 if the command succeeded, 1 if it failed
+ * Return: 0 if the command succeeded, 1 if it failed
  */
 int cmd_process(int flag, int argc, char *const argv[], int *repeatable,
 		unsigned long *ticks);
@@ -250,7 +250,7 @@ void fixup_cmdtable(struct cmd_tbl *cmdtp, int size);
  * simply hang.
  *
  * @cmdline:	Command line string to execute
- * @return 0 if OK, 1 for error
+ * Return: 0 if OK, 1 for error
  */
 int board_run_command(const char *cmdline);
 
@@ -266,7 +266,7 @@ int run_command_repeatable(const char *cmd, int flag);
  * @param cmd	List of commands to run, each separated bu semicolon
  * @param len	Length of commands excluding terminator if known (-1 if not)
  * @param flag	Execution flags (CMD_FLAG_...)
- * @return 0 on success, or != 0 on error.
+ * Return: 0 on success, or != 0 on error.
  */
 int run_command_list(const char *cmd, int len, int flag);
 #endif	/* __ASSEMBLY__ */

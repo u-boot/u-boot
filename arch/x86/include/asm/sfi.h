@@ -148,7 +148,7 @@ typedef int (*sfi_table_handler) (struct sfi_table_header *table);
  * write_sfi_table() - Write Simple Firmware Interface tables
  *
  * @base:	Address to write table to
- * @return address to use for the next table
+ * Return: address to use for the next table
  */
 ulong write_sfi_table(ulong base);
 

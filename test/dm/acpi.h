@@ -17,7 +17,7 @@
  *
  * @ctxp: Returns allocated context
  * @size: Size to allocate in bytes
- * @return 0 if OK, -ENOMEM if out of memory
+ * Return: 0 if OK, -ENOMEM if out of memory
  */
 int acpi_test_alloc_context_size(struct acpi_ctx **ctxp, int size);
 
@@ -25,7 +25,7 @@ int acpi_test_alloc_context_size(struct acpi_ctx **ctxp, int size);
  * acpi_test_get_length() - decode a three-byte length field
  *
  * @ptr: Length encoded as per ACPI
- * @return decoded length, or -EINVAL on error
+ * Return: decoded length, or -EINVAL on error
  */
 int acpi_test_get_length(u8 *ptr);
 

@@ -284,7 +284,7 @@ void dwmci_setup_cfg(struct mmc_config *cfg, struct dwmci_host *host,
  * @cfg:	Empty configuration structure (generally &plat->cfg). This is
  *		normally all zeroes at this point. The only purpose of passing
  *		this in is to set mmc->cfg to it.
- * @return 0 if OK, -ve if the block device could not be created
+ * Return: 0 if OK, -ve if the block device could not be created
  */
 int dwmci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg);
 
@@ -297,7 +297,7 @@ int dwmci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg);
  * @host:	DWMMC host structure
  * @max_clk:	Maximum supported clock speed in HZ (e.g. 150000000)
  * @min_clk:	Minimum supported clock speed in HZ (e.g. 400000)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk);
 #endif /* !CONFIG_BLK */

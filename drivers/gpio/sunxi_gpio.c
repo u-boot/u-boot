@@ -225,7 +225,7 @@ static const struct dm_gpio_ops gpio_sunxi_ops = {
  * GPIO banks are named A, B, C, ...
  *
  * @bank:	Bank number (0, 1..n-1)
- * @return allocated string containing the name
+ * Return: allocated string containing the name
  */
 static char *gpio_bank_name(int bank)
 {

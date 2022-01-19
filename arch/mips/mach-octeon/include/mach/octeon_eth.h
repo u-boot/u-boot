@@ -115,7 +115,7 @@ void octeon_eth_register_phy_port_check(struct eth_device *dev,
  *
  * @param	dev	Ethernet device for phy
  *
- * @return	0 to continue, or -1 for error to stop setting up the phy
+ * Return:	0 to continue, or -1 for error to stop setting up the phy
  */
 int octeon_eth_board_post_setup_phy(struct eth_device *dev);
 

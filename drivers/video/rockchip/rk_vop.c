@@ -238,7 +238,7 @@ static void rkvop_mode_set(struct udevice *dev,
  * @fbbase:	Frame buffer address
  * @ep_node:	Device tree node to process - this is the offset of an endpoint
  *		node within the VOP's 'port' list.
- * @return 0 if OK, -ve if something went wrong
+ * Return: 0 if OK, -ve if something went wrong
  */
 static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 {

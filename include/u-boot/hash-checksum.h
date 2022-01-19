@@ -21,7 +21,7 @@ struct image_region;
  * @region_count: Number of regions in the region array
  * @checksum: Buffer contanining the output hash
  *
- * @return 0 if OK, < 0 if error
+ * Return: 0 if OK, < 0 if error
  */
 int hash_calculate(const char *name,
 		   const struct image_region *region, int region_count,

@@ -57,7 +57,7 @@ enum {
  *
  * @ic_clk: Input clock in Hz
  * @period_ns: Period to represent, in ns
- * @return calculated count
+ * Return: calculated count
  */
 static uint calc_counts(uint ic_clk, uint period_ns)
 {
@@ -123,7 +123,7 @@ static const struct i2c_mode_info info_for_mode[] = {
  * @ic_clk: IC clock speed in Hz
  * @spk_cnt: Spike-suppression count
  * @config: Returns value to use
- * @return 0 if OK, -EINVAL if the calculation failed due to invalid data
+ * Return: 0 if OK, -EINVAL if the calculation failed due to invalid data
  */
 static int dw_i2c_calc_timing(struct dw_i2c *priv, enum i2c_speed_mode mode,
 			      int ic_clk, int spk_cnt,
@@ -202,7 +202,7 @@ static int dw_i2c_calc_timing(struct dw_i2c *priv, enum i2c_speed_mode mode,
  * @speed: Required i2c speed in Hz
  * @bus_clk: Input clock to the I2C controller in Hz (e.g. IC_CLK)
  * @config: Returns the config to use for this speed
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int calc_bus_speed(struct dw_i2c *priv, struct i2c_regs *regs, int speed,
 			  ulong bus_clk, struct dw_i2c_speed_config *config)
@@ -271,7 +271,7 @@ static int calc_bus_speed(struct dw_i2c *priv, struct i2c_regs *regs, int speed,
  * @i2c_base: Registers for the I2C controller
  * @speed: Required i2c speed in Hz
  * @bus_clk: Input clock to the I2C controller in Hz (e.g. IC_CLK)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int _dw_i2c_set_bus_speed(struct dw_i2c *priv, struct i2c_regs *i2c_base,
 				 unsigned int speed, unsigned int bus_clk)

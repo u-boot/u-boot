@@ -264,7 +264,7 @@ static const struct dm_gpio_ops gpio_tegra_ops = {
  * GPIOs are named A, B, C, ..., Z, AA, BB, CC, ...
  *
  * @base_port: Base port number (0, 1..n-1)
- * @return allocated string containing the name
+ * Return: allocated string containing the name
  */
 static char *gpio_port_name(int base_port)
 {

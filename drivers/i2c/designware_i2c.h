@@ -223,7 +223,7 @@ int designware_i2c_of_to_plat(struct udevice *bus);
  * @dev: I2C bus to check
  * @speed_hz: Requested speed in Hz
  * @config: Returns config to use for that speed
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dw_i2c_gen_speed_config(const struct udevice *dev, int speed_hz,
 			    struct dw_i2c_speed_config *config);

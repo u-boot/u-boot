@@ -36,7 +36,7 @@
  *				1: QLMC_REF_CLK0
  *				2: QLMC_REF_CLK1
  *
- * @return	Return 0 on success or -1.
+ * Return:	Return 0 on success or -1.
  *
  * @note	When the 161MHz clock is used it can only be used for
  *		XLAUI mode with a 6316 speed or XFI mode with a 103125 speed.

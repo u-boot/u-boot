@@ -27,7 +27,7 @@
  *
  * @param cmd	Command to run
  * @param flag	Execution flags (CMD_FLAG_...)
- * @return 0 on success, or != 0 on error.
+ * Return: 0 on success, or != 0 on error.
  */
 int run_command(const char *cmd, int flag)
 {
@@ -54,7 +54,7 @@ int run_command(const char *cmd, int flag)
  *
  * @param cmd	Command to run
  * @param flag	Execution flags (CMD_FLAG_...)
- * @return 0 (not repeatable) or 1 (repeatable) on success, -1 on error.
+ * Return: 0 (not repeatable) or 1 (repeatable) on success, -1 on error.
  */
 int run_command_repeatable(const char *cmd, int flag)
 {

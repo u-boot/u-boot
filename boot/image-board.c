@@ -321,7 +321,7 @@ int genimg_has_config(bootm_headers_t *images)
  * @arch: expected ramdisk architecture
  * @rd_datap: pointer to a ulong variable, will hold ramdisk pointer
  * @rd_lenp: pointer to a ulong variable, will hold ramdisk length
- * @return 0 if OK, -ENOPKG if no ramdisk (but an error should not be reported),
+ * Return: 0 if OK, -ENOPKG if no ramdisk (but an error should not be reported),
  *	other -ve value on other error
  */
 static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,

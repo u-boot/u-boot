@@ -140,7 +140,7 @@ struct acpi_tstate {
  * acpigen_get_current() - Get the current ACPI code output pointer
  *
  * @ctx: ACPI context pointer
- * @return output pointer
+ * Return: output pointer
  */
 u8 *acpigen_get_current(struct acpi_ctx *ctx);
 
@@ -428,7 +428,7 @@ void acpigen_write_scope(struct acpi_ctx *ctx, const char *scope);
  *
  * @ctx: ACPI context pointer
  * @uuid: UUID to write in the form aabbccdd-eeff-gghh-iijj-kkllmmnnoopp
- * @return 0 if OK, -EINVAL if the format is incorrect
+ * Return: 0 if OK, -EINVAL if the format is incorrect
  */
 int acpigen_write_uuid(struct acpi_ctx *ctx, const char *uuid);
 

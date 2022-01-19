@@ -85,7 +85,7 @@ static void swap_file_header(struct cbfs_fileheader *dest,
  * @node: Node to fill
  * @start: Pointer to the start of the CBFS file in memory
  * @header: Pointer to the header information (in our enddianess)
- * @return 0 if OK, -EBADF if the header is too small
+ * Return: 0 if OK, -EBADF if the header is too small
  */
 static int fill_node(struct cbfs_cachenode *node, void *start,
 		     struct cbfs_fileheader *header)
@@ -142,7 +142,7 @@ static int fill_node(struct cbfs_cachenode *node, void *start,
  * @param used		A pointer to the count of of bytes scanned through,
  *			including the file if one is found.
  *
- * @return 0 if a file is found, -ENOENT if one isn't, -EBADF if a bad header
+ * Return: 0 if a file is found, -ENOENT if one isn't, -EBADF if a bad header
  *	is found.
  */
 static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
@@ -234,7 +234,7 @@ static int file_cbfs_fill_cache(struct cbfs_priv *priv, int size, int align)
  *
  * @priv: Private data, which is inited by this function
  * @addr: Address of CBFS header in memory-mapped SPI flash
- * @return 0 if OK, -ENXIO if the header is bad
+ * Return: 0 if OK, -ENXIO if the header is bad
  */
 static int load_header(struct cbfs_priv *priv, ulong addr)
 {
@@ -259,7 +259,7 @@ static int load_header(struct cbfs_priv *priv, ulong addr)
  *
  * @priv: Private data, which is inited by this function
  * @end_of_rom: Address of the last byte of the ROM (typically 0xffffffff)
- * @return 0 if OK, -ENXIO if the header is bad
+ * Return: 0 if OK, -ENXIO if the header is bad
  */
 static int file_cbfs_load_header(struct cbfs_priv *priv, ulong end_of_rom)
 {
@@ -279,7 +279,7 @@ static int file_cbfs_load_header(struct cbfs_priv *priv, ulong end_of_rom)
  *
  * @priv: Private data, which is inited by this function
  * @base: Address of the first byte of the ROM (e.g. 0xff000000)
- * @return 0 if OK, -ENXIO if the header is bad
+ * Return: 0 if OK, -ENXIO if the header is bad
  */
 static int cbfs_load_header_ptr(struct cbfs_priv *priv, ulong base)
 {

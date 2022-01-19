@@ -207,7 +207,7 @@ extern struct scsi_ops scsi_ops;
  *
  * @dev:	SCSI bus
  * @cmd:	Command to execute
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int scsi_exec(struct udevice *dev, struct scsi_cmd *cmd);
 
@@ -215,7 +215,7 @@ int scsi_exec(struct udevice *dev, struct scsi_cmd *cmd);
  * scsi_bus_reset() - reset the bus
  *
  * @dev:	SCSI bus to reset
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int scsi_bus_reset(struct udevice *dev);
 

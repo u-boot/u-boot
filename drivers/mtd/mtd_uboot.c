@@ -54,7 +54,7 @@ static const char *get_mtdids(void)
  * @altname: Alternate name to return
  * @max_len: Length of the alternate name buffer
  *
- * @return 0 on success, an error otherwise.
+ * Return: 0 on success, an error otherwise.
  */
 int mtd_search_alternate_name(const char *mtdname, char *altname,
 			      unsigned int max_len)

@@ -467,7 +467,7 @@ out_err:
  * TPM finished reset processing.
  *
  * @dev: Cr50 device
- * @return 0 if OK, -EPERM if locality could not be taken
+ * Return: 0 if OK, -EPERM if locality could not be taken
  */
 static int process_reset(struct udevice *dev)
 {

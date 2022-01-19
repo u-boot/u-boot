@@ -86,7 +86,7 @@ void abuf_map_sysmem(struct abuf *abuf, ulong addr, size_t size);
  *	if less than the current size, the abuf is contracted and the data at
  *	   the end is lost. If @new_size is 0, this sets the alloced member to
  *	   false
- * @return true if OK, false if out of memory
+ * Return: true if OK, false if out of memory
  */
 bool abuf_realloc(struct abuf *abuf, size_t new_size);
 
@@ -109,7 +109,7 @@ bool abuf_realloc(struct abuf *abuf, size_t new_size);
  *
  * @abuf: abuf to uninit
  * @sizep: if non-NULL, returns the size of the returned data
- * @return data contents, allocated with malloc(), or NULL if the data could not
+ * Return: data contents, allocated with malloc(), or NULL if the data could not
  *	be allocated, or the data size is 0
  */
 void *abuf_uninit_move(struct abuf *abuf, size_t *sizep);

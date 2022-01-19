@@ -141,7 +141,7 @@ struct mem_timings {
  *
  * This function can be called from SPL or the main U-Boot.
  *
- * @return pointer to the memory timings that we should use
+ * Return: pointer to the memory timings that we should use
  */
 struct mem_timings *clock_get_mem_timings(void);
 

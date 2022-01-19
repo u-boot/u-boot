@@ -53,7 +53,7 @@ static void gpio_desc_init(struct gpio_desc *desc,
  *
  * @gpio:	The numeric representation of the GPIO
  * @desc:	Returns description (desc->flags will always be 0)
- * @return 0 if found, -ENOENT if not found
+ * Return: 0 if found, -ENOENT if not found
  */
 static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 {
@@ -659,7 +659,7 @@ static int check_dir_flags(ulong flags)
  *
  * @desc:	GPIO description
  * @flags:	flags value to set
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int _dm_gpio_set_flags(struct gpio_desc *desc, ulong flags)
 {

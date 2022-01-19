@@ -41,7 +41,7 @@ struct backlight_ops {
  * backlight_enable() - Enable a backlight
  *
  * @dev:	Backlight device to enable
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int backlight_enable(struct udevice *dev);
 
@@ -50,7 +50,7 @@ int backlight_enable(struct udevice *dev);
  *
  * @dev:	Backlight device to update
  * @percent:	Brightness value (0 to 100, or BACKLIGHT_... value)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int backlight_set_brightness(struct udevice *dev, int percent);
 

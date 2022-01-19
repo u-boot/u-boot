@@ -384,7 +384,7 @@ int video_get_option_int(const char *options, const char *name, int def)
  * @param t		The EDID detailed timing to be converted
  * @param mode		Returns the converted timing
  *
- * @return 0 on success, or a negative errno on error
+ * Return: 0 on success, or a negative errno on error
  */
 int video_edid_dtd_to_ctfb_res_modes(struct edid_detailed_timing *t,
 				     struct ctfb_res_modes *mode)

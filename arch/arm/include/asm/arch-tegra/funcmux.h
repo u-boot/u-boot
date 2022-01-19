@@ -21,7 +21,7 @@
  *
  * @param id		Peripheral id
  * @param config	Configuration to use (FUNCMUX_...), 0 for default
- * @return 0 if ok, -1 on error (e.g. incorrect id or config)
+ * Return: 0 if ok, -1 on error (e.g. incorrect id or config)
  */
 int funcmux_select(enum periph_id id, int config);
 

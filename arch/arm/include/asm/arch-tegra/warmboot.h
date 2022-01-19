@@ -121,7 +121,7 @@ union scratch3_reg {
 /**
  * Save warmboot memory settings for a later resume
  *
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int warmboot_save_sdram_params(void);
 

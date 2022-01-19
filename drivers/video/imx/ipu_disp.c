@@ -822,7 +822,7 @@ static int ipu_pixfmt_to_map(uint32_t fmt)
  *
  * @param       sig             Bitfield of signal polarities for LCD interface.
  *
- * @return      This function returns 0 on success or negative error code on
+ * Return:      This function returns 0 on success or negative error code on
  *              fail.
  */
 
@@ -1171,7 +1171,7 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
  *
  * @param       alpha           Global alpha value.
  *
- * @return      Returns 0 on success or negative error code on fail
+ * Return:      Returns 0 on success or negative error code on fail
  */
 int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
 				  uint8_t alpha)
@@ -1226,7 +1226,7 @@ int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
  *
  * @param       colorKey        24-bit RGB color for transparent color key.
  *
- * @return      Returns 0 on success or negative error code on fail
+ * Return:      Returns 0 on success or negative error code on fail
  */
 int32_t ipu_disp_set_color_key(ipu_channel_t channel, unsigned char enable,
 			       uint32_t color_key)

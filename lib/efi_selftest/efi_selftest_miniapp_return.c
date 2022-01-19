@@ -16,7 +16,7 @@
  *
  * @handle	handle of the loaded image
  * @systable	system table
- * @return	status code
+ * Return:	status code
  */
 efi_status_t EFIAPI efi_main(efi_handle_t handle,
 			     struct efi_system_table *systable)

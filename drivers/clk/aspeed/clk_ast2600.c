@@ -481,7 +481,7 @@ static ulong ast2600_clk_get_rate(struct clk *clk)
 /**
  * @brief	lookup PLL divider config by input/output rate
  * @param[in]	*pll - PLL descriptor
- * @return	true - if PLL divider config is found, false - else
+ * Return:	true - if PLL divider config is found, false - else
  * The function caller shall fill "pll->in" and "pll->out",
  * then this function will search the lookup table
  * to find a valid PLL divider configuration.

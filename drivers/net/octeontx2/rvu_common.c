@@ -41,7 +41,7 @@ void qmem_free(struct qmem *q)
  * @param	inst_size	Size of each instruction
  * @param	res_size	Size of each result
  *
- * @return	-ENOMEM on error, 0 on success
+ * Return:	-ENOMEM on error, 0 on success
  */
 int rvu_aq_alloc(struct admin_queue *aq, unsigned int qsize,
 		 size_t inst_size, size_t res_size)

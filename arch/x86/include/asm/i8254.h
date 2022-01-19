@@ -42,7 +42,7 @@
  * after a delay with i8254_disable_beep().
  *
  * @frequency_hz: Frequency of beep in Hz
- * @return 0 if OK, -EINVAL if frequency_hz is 0
+ * Return: 0 if OK, -EINVAL if frequency_hz is 0
  */
 int i8254_enable_beep(uint frequency_hz);
 

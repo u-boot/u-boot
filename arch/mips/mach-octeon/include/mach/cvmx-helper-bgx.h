@@ -29,7 +29,7 @@ void cvmx_helper_bgx_disable(int xipd_port);
  *
  * @param xiface Interface to probe
  *
- * @return Number of ports on the interface. Zero to disable.
+ * Return: Number of ports on the interface. Zero to disable.
  */
 int __cvmx_helper_bgx_probe(int xiface);
 
@@ -42,7 +42,7 @@ int __cvmx_helper_bgx_probe(int xiface);
  *
  * @param xiface Interface to bring up
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_bgx_sgmii_enable(int xiface);
 
@@ -56,7 +56,7 @@ int __cvmx_helper_bgx_sgmii_enable(int xiface);
  *
  * @param xipd_port IPD/PKO port to query
  *
- * @return Link state
+ * Return: Link state
  */
 cvmx_helper_link_info_t __cvmx_helper_bgx_sgmii_link_get(int xipd_port);
 
@@ -72,7 +72,7 @@ cvmx_helper_link_info_t __cvmx_helper_bgx_sgmii_link_get(int xipd_port);
  * @param xipd_port  IPD/PKO port to configure
  * @param link_info The new link state
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_bgx_sgmii_link_set(int xipd_port, cvmx_helper_link_info_t link_info);
 
@@ -89,7 +89,7 @@ int __cvmx_helper_bgx_sgmii_link_set(int xipd_port, cvmx_helper_link_info_t link
  * @param enable_external
  *                 Non zero if you want external loopback
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int __cvmx_helper_bgx_sgmii_configure_loopback(int xipd_port, int enable_internal,
 					       int enable_external);
@@ -103,7 +103,7 @@ int __cvmx_helper_bgx_sgmii_configure_loopback(int xipd_port, int enable_interna
  *
  * @param xiface Interface to bring up
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_bgx_xaui_enable(int xiface);
 
@@ -117,7 +117,7 @@ int __cvmx_helper_bgx_xaui_enable(int xiface);
  *
  * @param xipd_port IPD/PKO port to query
  *
- * @return Link state
+ * Return: Link state
  */
 cvmx_helper_link_info_t __cvmx_helper_bgx_xaui_link_get(int xipd_port);
 
@@ -133,7 +133,7 @@ cvmx_helper_link_info_t __cvmx_helper_bgx_xaui_link_get(int xipd_port);
  * @param xipd_port  IPD/PKO port to configure
  * @param link_info The new link state
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_bgx_xaui_link_set(int xipd_port, cvmx_helper_link_info_t link_info);
 
@@ -150,7 +150,7 @@ int __cvmx_helper_bgx_xaui_link_set(int xipd_port, cvmx_helper_link_info_t link_
  * @param enable_external
  *                 Non zero if you want external loopback
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int __cvmx_helper_bgx_xaui_configure_loopback(int xipd_port, int enable_internal,
 					      int enable_external);
@@ -239,7 +239,7 @@ int __cvmx_helper_bgx_fifo_size(int xiface, unsigned int lmac);
  * @param xiface	xinterface to check
  * @param index		port index (must be 0 for rgmii)
  *
- * @return	true if RGMII, false otherwise
+ * Return:	true if RGMII, false otherwise
  */
 static inline bool cvmx_helper_bgx_is_rgmii(int xiface, int index)
 {
@@ -257,7 +257,7 @@ static inline bool cvmx_helper_bgx_is_rgmii(int xiface, int index)
  * @param xiface	global interface number
  * @param index		interface index
  *
- * @return	true, if Super-MAC/PCS mode, false -- otherwise
+ * Return:	true, if Super-MAC/PCS mode, false -- otherwise
  */
 bool cvmx_helper_bgx_is_smu(int xiface, int index);
 
@@ -271,7 +271,7 @@ bool cvmx_helper_bgx_is_smu(int xiface, int index);
  * @param type			PAUSE packet type.
  * @param time			Pause time for PAUSE packets (number of 512 bit-times).
  * @param interval		Interval between PAUSE packets (number of 512 bit-times).
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_bgx_set_pause_pkt_param(int xipd_port, u64 smac, u64 dmac, unsigned int type,
 				 unsigned int time, unsigned int interval);
@@ -283,7 +283,7 @@ int cvmx_bgx_set_pause_pkt_param(int xipd_port, u64 smac, u64 dmac, unsigned int
  * @param xipd_port		Global IPD port (node + IPD port).
  * @param type			Flow-control type/protocol.
  * @param mode			Flow-control mode.
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_bgx_set_flowctl_mode(int xipd_port, cvmx_qos_proto_t qos, cvmx_qos_pkt_mode_t mode);
 
@@ -294,7 +294,7 @@ int cvmx_bgx_set_flowctl_mode(int xipd_port, cvmx_qos_proto_t qos, cvmx_qos_pkt_
  * @param	index	port index
  * @param	enable	true to enable autonegotiation, false to disable it
  *
- * @return	0 for success, -1 on error.
+ * Return:	0 for success, -1 on error.
  */
 int cvmx_helper_set_autonegotiation(int xiface, int index, bool enable);
 
@@ -305,7 +305,7 @@ int cvmx_helper_set_autonegotiation(int xiface, int index, bool enable);
  * @param	index	port index
  * @param	enable	set to true to enable FEC, false to disable
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  *
  * @NOTE:	If autonegotiation is enabled then autonegotiation will be
  *		restarted for negotiating FEC.

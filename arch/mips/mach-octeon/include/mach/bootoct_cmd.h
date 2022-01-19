@@ -42,7 +42,7 @@ struct octeon_boot_args {
  * @param cmd			command type
  * @param[out] boot_args	parsed values
  *
- * @return number of arguments parsed
+ * Return: number of arguments parsed
  */
 int octeon_parse_bootopts(int argc, char *const argv[],
 			  enum octeon_boot_cmd_type cmd,

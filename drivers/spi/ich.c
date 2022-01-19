@@ -504,7 +504,7 @@ static int wait_for_hwseq_xfer(struct fast_spi_regs *regs, uint offset)
  * @hsfsts_cycle: Cycle type (enum hsfsts_cycle_t)
  * @offset: Offset to access
  * @len: Number of bytes to transfer (can be 0)
- * @return 0 if OK, -EIO on flash-cycle error (FCERR), -EPERM on access error
+ * Return: 0 if OK, -EIO on flash-cycle error (FCERR), -EPERM on access error
  *	(AEL), -ETIMEDOUT on timeout
  */
 static int exec_sync_hwseq_xfer(struct fast_spi_regs *regs, uint hsfsts_cycle,
@@ -615,7 +615,7 @@ static int ich_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
  * @pchp: Returns a pointer to the pch, or NULL if not found
  * @ich_versionp: Returns ICH version detected on success
  * @mmio_basep: Returns the address of the SPI registers on success
- * @return 0 if OK, -EPROTOTYPE if the PCH could not be found, -EAGAIN if
+ * Return: 0 if OK, -EPROTOTYPE if the PCH could not be found, -EAGAIN if
  *	the function cannot success without probing, possible another error if
  *	pch_get_spi_base() fails
  */

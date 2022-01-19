@@ -16,7 +16,7 @@
  * @ptr: image header to be verified
  * @image_size: size of while image
  * @params: mkimage parameters
- * @return 0 if OK, -1 on error
+ * Return: 0 if OK, -1 on error
  */
 int fit_verify_header(unsigned char *ptr, int image_size,
 			struct image_tool_params *params);
@@ -33,7 +33,7 @@ int fit_check_image_types(uint8_t type);
  * @sbuf:	File status information is stored here
  * @delete_on_error:	true to delete the file if we get an error
  * @read_only:	true to open in read-only mode
- * @return 0 if OK, -1 on error.
+ * Return: 0 if OK, -1 on error.
  */
 int mmap_fdt(const char *cmdname, const char *fname, size_t size_inc,
 	     void **blobp, struct stat *sbuf, bool delete_on_error,
