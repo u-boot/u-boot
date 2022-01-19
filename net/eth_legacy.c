@@ -164,6 +164,8 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		net_random_ethaddr(dev->enetaddr);
 		printf("\nWarning: %s (eth%d) using random MAC address - %pM\n",
 		       dev->name, eth_number, dev->enetaddr);
+		eth_env_set_enetaddr_by_index("eth", eth_number,
+					      dev->enetaddr);
 #else
 		printf("\nError: %s address not set.\n",
 		       dev->name);

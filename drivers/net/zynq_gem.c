@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <generic-phy.h>
 #include <log.h>
 #include <net.h>
 #include <netdev.h>
@@ -21,6 +22,7 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <phy.h>
+#include <reset.h>
 #include <miiphy.h>
 #include <wait_bit.h>
 #include <watchdog.h>
@@ -60,7 +62,6 @@
 #define ZYNQ_GEM_NWCFG_SPEED100		0x00000001 /* 100 Mbps operation */
 #define ZYNQ_GEM_NWCFG_SPEED1000	0x00000400 /* 1Gbps operation */
 #define ZYNQ_GEM_NWCFG_FDEN		0x00000002 /* Full Duplex mode */
-#define ZYNQ_GEM_NWCFG_NO_BRDC		BIT(5) /* No broadcast */
 #define ZYNQ_GEM_NWCFG_FSREM		0x00020000 /* FCS removal */
 #define ZYNQ_GEM_NWCFG_SGMII_ENBL	0x08000000 /* SGMII Enable */
 #define ZYNQ_GEM_NWCFG_PCS_SEL		0x00000800 /* PCS select */
@@ -78,7 +79,6 @@
 
 #define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_DBUS_WIDTH | \
 					ZYNQ_GEM_NWCFG_FDEN | \
-					ZYNQ_GEM_NWCFG_NO_BRDC | \
 					ZYNQ_GEM_NWCFG_FSREM | \
 					ZYNQ_GEM_NWCFG_MDCCLKDIV)
 
@@ -109,6 +109,8 @@
 #define ZYNQ_GEM_PCS_CTL_ANEG_ENBL	0x1000
 
 #define ZYNQ_GEM_DCFG_DBG6_DMA_64B	BIT(23)
+
+#define MDIO_IDLE_TIMEOUT_MS		100
 
 /* Use MII register 1 (MII status register) to detect PHY */
 #define PHY_DETECT_REG  1
@@ -215,6 +217,7 @@ struct zynq_gem_priv {
 	bool int_pcs;
 	bool dma_64bit;
 	u32 clk_en_info;
+	struct reset_ctl_bulk resets;
 };
 
 static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
@@ -225,7 +228,7 @@ static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	int err;
 
 	err = wait_for_bit_le32(&regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
-				true, 20000, false);
+				true, MDIO_IDLE_TIMEOUT_MS, false);
 	if (err)
 		return err;
 
@@ -238,7 +241,7 @@ static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	writel(mgtcr, &regs->phymntnc);
 
 	err = wait_for_bit_le32(&regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
-				true, 20000, false);
+				true, MDIO_IDLE_TIMEOUT_MS, false);
 	if (err)
 		return err;
 
@@ -333,7 +336,8 @@ static int zynq_phy_init(struct udevice *dev)
 				  ADVERTISED_Asym_Pause;
 
 	priv->phydev->advertising = priv->phydev->supported;
-	priv->phydev->node = priv->phy_of_node;
+	if (!ofnode_valid(priv->phydev->node))
+		priv->phydev->node = priv->phy_of_node;
 
 	return phy_config(priv->phydev);
 }
@@ -686,11 +690,48 @@ static int zynq_gem_miiphy_write(struct mii_dev *bus, int addr, int devad,
 	return phywrite(priv, addr, reg, value);
 }
 
+static int zynq_gem_reset_init(struct udevice *dev)
+{
+	struct zynq_gem_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = reset_get_bulk(dev, &priv->resets);
+	if (ret == -ENOTSUPP || ret == -ENOENT)
+		return 0;
+	else if (ret)
+		return ret;
+
+	ret = reset_deassert_bulk(&priv->resets);
+	if (ret) {
+		reset_release_bulk(&priv->resets);
+		return ret;
+	}
+
+	return 0;
+}
+
 static int zynq_gem_probe(struct udevice *dev)
 {
 	void *bd_space;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	int ret;
+	struct phy phy;
+
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
+		ret = generic_phy_get_by_index(dev, 0, &phy);
+		if (!ret) {
+			ret = generic_phy_init(&phy);
+			if (ret)
+				return ret;
+		} else if (ret != -ENOENT) {
+			debug("could not get phy (err %d)\n", ret);
+			return ret;
+		}
+	}
+
+	ret = zynq_gem_reset_init(dev);
+	if (ret)
+		return ret;
 
 	/* Align rxbuffers to ARCH_DMA_MINALIGN */
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
@@ -742,6 +783,12 @@ static int zynq_gem_probe(struct udevice *dev)
 	ret = zynq_phy_init(dev);
 	if (ret)
 		goto err3;
+
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII && phy.dev) {
+		ret = generic_phy_power_on(&phy);
+		if (ret)
+			return ret;
+	}
 
 	return ret;
 
@@ -802,6 +849,9 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 							  SPEED_1000);
 
 		parent = ofnode_get_parent(phandle_args.node);
+		if (ofnode_name_eq(parent, "mdio"))
+			parent = ofnode_get_parent(parent);
+
 		addr = ofnode_get_addr(parent);
 		if (addr != FDT_ADDR_T_NONE) {
 			debug("MDIO bus not found %s\n", dev->name);

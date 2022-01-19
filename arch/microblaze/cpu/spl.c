@@ -12,12 +12,15 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/u-boot.h>
+#include <linux/stringify.h>
 
 bool boot_linux;
 
-u32 spl_boot_device(void)
+void board_boot_order(u32 *spl_boot_list)
 {
-	return BOOT_DEVICE_NOR;
+	spl_boot_list[0] = BOOT_DEVICE_NOR;
+	spl_boot_list[1] = BOOT_DEVICE_RAM;
+	spl_boot_list[2] = BOOT_DEVICE_SPI;
 }
 
 /* Board initialization after bss clearance */
@@ -52,8 +55,9 @@ int spl_start_uboot(void)
 
 int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	__asm__ __volatile__ ("mts rmsr, r0;" \
-			      "bra r0");
+	__asm__ __volatile__ (
+	    "mts rmsr, r0;" \
+	    "brai " __stringify(CONFIG_XILINX_MICROBLAZE0_VECTOR_BASE_ADDR));
 
 	return 0;
 }

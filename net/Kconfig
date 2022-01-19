@@ -27,10 +27,11 @@ config BOOTP_SEND_HOSTNAME
 config NET_RANDOM_ETHADDR
 	bool "Random ethaddr if unset"
 	help
-	  Selecting this will allow the Ethernet interface to function
-	  even when the ethaddr variable for that interface is unset.
-	  A new MAC address will be generated on every boot and it will
-	  not be added to the environment.
+	  Selecting this will allow the Ethernet interface to function even
+	  when the ethaddr variable for that interface is unset.  In this case,
+	  a random MAC address in the locally administered address space is
+	  generated. It will be saved to the appropriate environment variable,
+	  too.
 
 config NETCONSOLE
 	bool "NetConsole support"

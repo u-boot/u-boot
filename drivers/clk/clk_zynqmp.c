@@ -130,8 +130,8 @@ enum zynqmp_clk {
 	csu_spb, csu_pll, pcap,
 	iou_switch,
 	gem_tsu_ref, gem_tsu,
-	gem0_ref, gem1_ref, gem2_ref, gem3_ref,
 	gem0_tx, gem1_tx, gem2_tx, gem3_tx,
+	gem0_rx, gem1_rx, gem2_rx, gem3_rx,
 	qspi_ref,
 	sdio0_ref, sdio1_ref,
 	uart0_ref, uart1_ref,
@@ -144,6 +144,8 @@ enum zynqmp_clk {
 	ams_ref,
 	pl0, pl1, pl2, pl3,
 	wdt,
+	gem0_ref = 104,
+	gem1_ref, gem2_ref, gem3_ref,
 	clk_max,
 };
 
@@ -161,14 +163,18 @@ static const char * const clk_names[clk_max] = {
 	"usb1_bus_ref", "usb3_dual_ref", "usb0",
 	"usb1", "cpu_r5", "cpu_r5_core", "csu_spb",
 	"csu_pll", "pcap", "iou_switch", "gem_tsu_ref",
-	"gem_tsu", "gem0_ref", "gem1_ref", "gem2_ref",
-	"gem3_ref", "gem0_tx", "gem1_tx", "gem2_tx",
-	"gem3_tx", "qspi_ref", "sdio0_ref", "sdio1_ref",
+	"gem_tsu", "gem0_tx", "gem1_tx", "gem2_tx",
+	"gem3_tx", "gem0_rx", "gem1_rx", "gem2_rx",
+	"gem3_rx", "qspi_ref", "sdio0_ref", "sdio1_ref",
 	"uart0_ref", "uart1_ref", "spi0_ref",
 	"spi1_ref", "nand_ref", "i2c0_ref", "i2c1_ref",
 	"can0_ref", "can1_ref", "can0", "can1",
 	"dll_ref", "adma_ref", "timestamp_ref",
-	"ams_ref", "pl0", "pl1", "pl2", "pl3", "wdt"
+	"ams_ref", "pl0", "pl1", "pl2", "pl3", "wdt",
+	NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL, "gem0_ref", "gem1_ref", "gem2_ref", "gem3_ref",
 };
 
 static const u32 pll_src[][4] = {
@@ -258,12 +264,16 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		return CRL_APB_USB3_DUAL_REF_CTRL;
 	case gem_tsu_ref:
 		return CRL_APB_GEM_TSU_REF_CTRL;
+	case gem0_tx:
 	case gem0_ref:
 		return CRL_APB_GEM0_REF_CTRL;
+	case gem1_tx:
 	case gem1_ref:
 		return CRL_APB_GEM1_REF_CTRL;
+	case gem2_tx:
 	case gem2_ref:
 		return CRL_APB_GEM2_REF_CTRL;
+	case gem3_tx:
 	case gem3_ref:
 		return CRL_APB_GEM3_REF_CTRL;
 	case usb0_bus_ref:
@@ -665,6 +675,7 @@ static ulong zynqmp_clk_get_rate(struct clk *clk)
 	case gem_tsu_ref:
 	case pl0 ... pl3:
 	case gem0_ref ... gem3_ref:
+	case gem0_tx ... gem3_tx:
 	case qspi_ref ... can1_ref:
 	case usb0_bus_ref ... usb3_dual_ref:
 		two_divs = true;
@@ -698,7 +709,9 @@ static ulong zynqmp_clk_set_rate(struct clk *clk, ulong rate)
 
 	switch (id) {
 	case gem0_ref ... gem3_ref:
+	case gem0_tx ... gem3_tx:
 	case qspi_ref ... can1_ref:
+	case usb0_bus_ref ... usb3_dual_ref:
 		return zynqmp_clk_set_peripheral_rate(priv, id,
 						      rate, two_divs);
 	default:
@@ -808,6 +821,7 @@ static int zynqmp_clk_enable(struct clk *clk)
 		clkact_shift = 25;
 		mask = 0x1;
 		break;
+	case gem0_tx ... gem3_tx:
 	case gem0_ref ... gem3_ref:
 		clkact_shift = 25;
 		mask = 0x3;
