@@ -1307,7 +1307,7 @@ F:	arch/x86/
 F:	cmd/x86/
 
 XEN
-M:	Anastasiia Lukianenko <anastasiia_lukianenko@epam.com>
+M:	Anastasiia Lukianenko <vicooodin@gmail.com>
 M:	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 S:	Maintained
 F:	arch/arm/cpu/armv8/xen/
