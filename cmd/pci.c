@@ -317,7 +317,7 @@ static void pciinfo(struct udevice *bus, bool short_listing)
  * get_pci_dev() - Convert the "bus.device.function" identifier into a number
  *
  * @name: Device string in the form "bus.device.function" where each is in hex
- * @return encoded pci_dev_t or -1 if the string was invalid
+ * Return: encoded pci_dev_t or -1 if the string was invalid
  */
 static pci_dev_t get_pci_dev(char *name)
 {

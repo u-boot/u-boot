@@ -25,7 +25,7 @@ const struct omap_sysinfo sysinfo = {
 /**
  * @brief board_init
  *
- * @return 0
+ * Return: 0
  */
 int board_init(void)
 {
@@ -46,7 +46,7 @@ int board_eth_init(struct bd_info *bis)
  * such as power configurations, ethernet initialization as phase2 of
  * boot sequence
  *
- * @return 0
+ * Return: 0
  */
 int misc_init_r(void)
 {

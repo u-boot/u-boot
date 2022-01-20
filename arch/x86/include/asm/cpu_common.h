@@ -22,7 +22,7 @@ struct udevice;
  * This reports BIST failure, enables the LAPIC, updates microcode, enables
  * the upper 128-bytes of CROM RAM, probes the northbridge, PCH, LPC and SATA.
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cpu_common_init(void);
 
@@ -35,7 +35,7 @@ int cpu_common_init(void);
  * Some details are available here:
  * http://forum.hwbot.org/showthread.php?t=76092
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cpu_set_flex_ratio_to_tdp_nominal(void);
 
@@ -49,7 +49,7 @@ int cpu_set_flex_ratio_to_tdp_nominal(void);
  * @info:	cpu_info struct to fill in
  * @bclk_mz:	the base clock in MHz
  *
- * @return 0 always
+ * Return: 0 always
  */
 int cpu_intel_get_info(struct cpu_info *info, int bclk_mz);
 
@@ -60,7 +60,7 @@ int cpu_intel_get_info(struct cpu_info *info, int bclk_mz);
  * MSR_TEMPERATURE_TARGET value.
  *
  * @dev: CPU device
- * @return 0 if OK, -ENOENT if no target is given in device tree
+ * Return: 0 if OK, -ENOENT if no target is given in device tree
  */
 int cpu_configure_thermal_target(struct udevice *dev);
 
@@ -76,7 +76,7 @@ void cpu_set_perf_control(uint clk_ratio);
 /**
  * cpu_config_tdp_levels() - Check for configurable TDP option
  *
- * @return true if the CPU has configurable TDP (Thermal-design power)
+ * Return: true if the CPU has configurable TDP (Thermal-design power)
  */
 bool cpu_config_tdp_levels(void);
 
@@ -95,7 +95,7 @@ enum burst_mode_t {
  * Bit 38 - TURBO_MODE_DISABLE Bit to get state ENABLED / DISABLED.
  * Also checks cpuid 0x6 to see whether burst mode is supported.
  *
- * @return current burst mode status
+ * Return: current burst mode status
  */
 enum burst_mode_t cpu_get_burst_mode_state(void);
 
@@ -134,14 +134,14 @@ void cpu_set_p_state_to_turbo_ratio(void);
  *
  * See ACPI spec v6.3 section 8.4.6.5 _PSD (P-State Dependency)
  *
- * @return HW_ALL (always)
+ * Return: HW_ALL (always)
  */
 int cpu_get_coord_type(void);
 
 /**
  * cpu_get_min_ratio() - get minimum support frequency ratio for CPU
  *
- * @return minimum ratio
+ * Return: minimum ratio
  */
 int cpu_get_min_ratio(void);
 
@@ -151,7 +151,7 @@ int cpu_get_min_ratio(void);
  * If a nominal TDP ratio is available, it is returned. Otherwise this returns
  * the  maximum non-turbo frequency ratio for this processor
  *
- * @return max ratio
+ * Return: max ratio
  */
 int cpu_get_max_ratio(void);
 
@@ -160,28 +160,28 @@ int cpu_get_max_ratio(void);
  *
  * This is the value the clock ratio is multiplied with
  *
- * @return bus-block frequency in KHz
+ * Return: bus-block frequency in KHz
  */
 int cpu_get_bus_clock_khz(void);
 
 /**
  * cpu_get_power_max() - Get maximum CPU TDP
  *
- * @return maximum CPU TDP (Thermal-design power) in mW
+ * Return: maximum CPU TDP (Thermal-design power) in mW
  */
 int cpu_get_power_max(void);
 
 /**
  * cpu_get_max_turbo_ratio() - Get maximum turbo ratio
  *
- * @return maximum ratio
+ * Return: maximum ratio
  */
 int cpu_get_max_turbo_ratio(void);
 
 /**
  * cpu_get_cores_per_package() - Get the number of CPU cores in each package
  *
- * @return number of cores
+ * Return: number of cores
  */
 int cpu_get_cores_per_package(void);
 

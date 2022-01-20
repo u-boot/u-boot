@@ -186,7 +186,7 @@ int cros_ec_lpc_command(struct udevice *udev, uint8_t cmd, int cmd_version,
  *
  * @param dev		CROS_EC device
  * @param blob		Device tree blob
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_lpc_init(struct cros_ec_dev *dev, const void *blob)
 {

@@ -39,7 +39,7 @@ static void dump_hdr(struct acpi_table_header *hdr)
  * find_table() - Look up an ACPI table
  *
  * @sig: Signature of table (4 characters, upper case)
- * @return pointer to table header, or NULL if not found
+ * Return: pointer to table header, or NULL if not found
  */
 struct acpi_table_header *find_table(const char *sig)
 {

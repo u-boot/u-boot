@@ -47,7 +47,7 @@ struct hsearch_data env_htab = {
  *
  * @param varname	Environment variable to set
  * @param value		Value to set it to
- * @return 0 if ok, 1 on error
+ * Return: 0 if ok, 1 on error
  */
 int env_set_ulong(const char *varname, ulong value)
 {
@@ -62,7 +62,7 @@ int env_set_ulong(const char *varname, ulong value)
  *
  * @param varname	Environment variable to set
  * @param value		Value to set it to
- * @return 0 if ok, 1 on error
+ * Return: 0 if ok, 1 on error
  */
 int env_set_hex(const char *varname, ulong value)
 {
@@ -208,7 +208,7 @@ int env_get_f(const char *name, char *buf, unsigned len)
  * @param base		Number base to use (normally 10, or 16 for hex)
  * @param default_val	Default value to return if the variable is not
  *			found
- * @return the decoded value, or default_val if not found
+ * Return: the decoded value, or default_val if not found
  */
 ulong env_get_ulong(const char *name, int base, ulong default_val)
 {

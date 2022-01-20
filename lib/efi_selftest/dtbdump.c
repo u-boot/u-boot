@@ -160,7 +160,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
  * Convert FDT value to host endianness.
  *
  * @val		FDT value
- * @return	converted value
+ * Return:	converted value
  */
 static u32 f2h(fdt32_t val)
 {

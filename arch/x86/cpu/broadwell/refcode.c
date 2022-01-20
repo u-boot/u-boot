@@ -65,7 +65,7 @@ struct rmodule_header {
  * platform controller hub (PCH). This function should be implemented by the
  * CPU-specific code.
  *
- * @return 0 on success, -ve on failure
+ * Return: 0 on success, -ve on failure
  */
 static int cpu_run_reference_code(void)
 {

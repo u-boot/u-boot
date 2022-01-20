@@ -11,7 +11,7 @@
  * sun4i_usb_phy_id_detect - detect ID pin of USB PHY
  *
  * @phy:	USB PHY port to detect ID pin
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int sun4i_usb_phy_id_detect(struct phy *phy);
 
@@ -19,7 +19,7 @@ int sun4i_usb_phy_id_detect(struct phy *phy);
  * sun4i_usb_phy_vbus_detect - detect VBUS pin of USB PHY
  *
  * @phy:	USB PHY port to detect VBUS pin
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int sun4i_usb_phy_vbus_detect(struct phy *phy);
 

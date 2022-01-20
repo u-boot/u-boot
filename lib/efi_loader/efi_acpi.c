@@ -15,7 +15,7 @@ static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
 /*
  * Install the ACPI table as a configuration table.
  *
- * @return	status code
+ * Return:	status code
  */
 efi_status_t efi_acpi_register(void)
 {

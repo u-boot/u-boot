@@ -134,7 +134,7 @@ enum cvmx_pko_padding {
  * IPD configuration changes are made if CVMX_HELPER_ENABLE_IPD
  * is not set in the executive-config.h file.
  *
- * @return 0 on success
+ * Return: 0 on success
  *         -1 on failure
  */
 int cvmx_helper_ipd_and_packet_input_enable_node(int node);
@@ -146,7 +146,7 @@ int cvmx_helper_ipd_and_packet_input_enable(void);
  * @param wqe_entries The maximum number of work queue entries to be
  * supported.
  *
- * @return Zero on success, non-zero on failure.
+ * Return: Zero on success, non-zero on failure.
  */
 int cvmx_helper_initialize_sso(int wqe_entries);
 
@@ -157,14 +157,14 @@ int cvmx_helper_initialize_sso(int wqe_entries);
  * @param wqe_entries The maximum number of work queue entries to be
  * supported.
  *
- * @return Zero on success, non-zero on failure.
+ * Return: Zero on success, non-zero on failure.
  */
 int cvmx_helper_initialize_sso_node(unsigned int node, int wqe_entries);
 
 /**
  * Undo the effect of cvmx_helper_initialize_sso().
  *
- * @return Zero on success, non-zero on failure.
+ * Return: Zero on success, non-zero on failure.
  */
 int cvmx_helper_uninitialize_sso(void);
 
@@ -173,7 +173,7 @@ int cvmx_helper_uninitialize_sso(void);
  *
  * @param node Node SSO to initialize
  *
- * @return Zero on success, non-zero on failure.
+ * Return: Zero on success, non-zero on failure.
  */
 int cvmx_helper_uninitialize_sso_node(unsigned int node);
 
@@ -184,7 +184,7 @@ int cvmx_helper_uninitialize_sso_node(unsigned int node);
  * on CVMX_PKO_QUEUES_PER_PORT_* where each queue is lower
  * priority than the previous.
  *
- * @return Zero on success, non-zero on failure
+ * Return: Zero on success, non-zero on failure
  */
 int cvmx_helper_initialize_packet_io_global(void);
 /**
@@ -196,14 +196,14 @@ int cvmx_helper_initialize_packet_io_global(void);
  *
  * @param node Node on which to initialize packet io hardware
  *
- * @return Zero on success, non-zero on failure
+ * Return: Zero on success, non-zero on failure
  */
 int cvmx_helper_initialize_packet_io_node(unsigned int node);
 
 /**
  * Does core local initialization for packet io
  *
- * @return Zero on success, non-zero on failure
+ * Return: Zero on success, non-zero on failure
  */
 int cvmx_helper_initialize_packet_io_local(void);
 
@@ -216,7 +216,7 @@ int cvmx_helper_initialize_packet_io_local(void);
  * buffers used by the packet IO hardware to the FPA so a function emptying the
  * FPA after shutdown should find all packet buffers in the FPA.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_helper_shutdown_packet_io_global(void);
 
@@ -228,7 +228,7 @@ int cvmx_helper_shutdown_packet_io_global_cn78xx(int node);
 /**
  * Does core local shutdown of packet io
  *
- * @return Zero on success, non-zero on failure
+ * Return: Zero on success, non-zero on failure
  */
 int cvmx_helper_shutdown_packet_io_local(void);
 
@@ -239,7 +239,7 @@ int cvmx_helper_shutdown_packet_io_local(void);
  *
  * @param interface Which interface to return port count for.
  *
- * @return Port count for interface
+ * Return: Port count for interface
  *         -1 for uninitialized interface
  */
 int cvmx_helper_ports_on_interface(int interface);
@@ -250,7 +250,7 @@ int cvmx_helper_ports_on_interface(int interface);
  * but the CNX0XX and CNX1XX are exceptions. These only support
  * one interface.
  *
- * @return Number of interfaces on chip
+ * Return: Number of interfaces on chip
  */
 int cvmx_helper_get_number_of_interfaces(void);
 
@@ -261,7 +261,7 @@ int cvmx_helper_get_number_of_interfaces(void);
  *
  * @param xiface Interface to probe
  *
- * @return Mode of the interface. Unknown or unsupported interfaces return
+ * Return: Mode of the interface. Unknown or unsupported interfaces return
  *         DISABLED.
  */
 cvmx_helper_interface_mode_t cvmx_helper_interface_get_mode(int xiface);
@@ -273,7 +273,7 @@ cvmx_helper_interface_mode_t cvmx_helper_interface_get_mode(int xiface);
  *
  * @param ipd_port IPD/PKO port to auto configure
  *
- * @return Link state after configure
+ * Return: Link state after configure
  */
 cvmx_helper_link_info_t cvmx_helper_link_autoconf(int ipd_port);
 
@@ -285,7 +285,7 @@ cvmx_helper_link_info_t cvmx_helper_link_autoconf(int ipd_port);
  *
  * @param ipd_port IPD/PKO port to query
  *
- * @return Link state
+ * Return: Link state
  */
 cvmx_helper_link_info_t cvmx_helper_link_get(int ipd_port);
 
@@ -299,7 +299,7 @@ cvmx_helper_link_info_t cvmx_helper_link_get(int ipd_port);
  * @param ipd_port  IPD/PKO port to configure
  * @param link_info The new link state
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_helper_link_set(int ipd_port, cvmx_helper_link_info_t link_info);
 
@@ -312,7 +312,7 @@ int cvmx_helper_link_set(int ipd_port, cvmx_helper_link_info_t link_info);
  *
  * @param xiface Interface to probe
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_helper_interface_probe(int xiface);
 
@@ -322,7 +322,7 @@ int cvmx_helper_interface_probe(int xiface);
  *
  * @param xiface Interface to enumerate
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_helper_interface_enumerate(int xiface);
 
@@ -337,7 +337,7 @@ int cvmx_helper_interface_enumerate(int xiface);
  * @param enable_external
  *                 Non zero if you want external loopback
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_helper_configure_loopback(int ipd_port, int enable_internal, int enable_external);
 
@@ -346,7 +346,7 @@ int cvmx_helper_configure_loopback(int ipd_port, int enable_internal, int enable
  *
  * @param interface Which interface to return port count for.
  *
- * @return Port count for interface
+ * Return: Port count for interface
  *         -1 for uninitialized interface
  */
 int __cvmx_helper_early_ports_on_interface(int interface);
@@ -404,7 +404,7 @@ static inline u8 cvmx_helper_prio2qos(u8 prio)
  *
  * @param xiface
  *
- * @return the number of ipd_ports on the interface and -1 for error.
+ * Return: the number of ipd_ports on the interface and -1 for error.
  */
 int __cvmx_helper_get_num_ipd_ports(int xiface);
 
@@ -419,7 +419,7 @@ enum cvmx_pko_padding __cvmx_helper_get_pko_padding(int xiface);
  * @param pad The padding that PKO should apply.
  * interface.
  *
- * @return 0 for success and -1 for failure
+ * Return: 0 for success and -1 for failure
  */
 int __cvmx_helper_init_interface(int xiface, int num_ipd_ports, int has_fcs,
 				 enum cvmx_pko_padding pad);
@@ -434,14 +434,14 @@ void __cvmx_helper_shutdown_interfaces(void);
  * hardware ports. PKO should still be disabled to make sure packets
  * aren't sent out partially setup hardware.
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_packet_hardware_enable(int xiface);
 
 /*
  * @INTERNAL
  *
- * @return 0 for success and -1 for failure
+ * Return: 0 for success and -1 for failure
  */
 int __cvmx_helper_set_link_info(int xiface, int index, cvmx_helper_link_info_t link_info);
 
@@ -451,7 +451,7 @@ int __cvmx_helper_set_link_info(int xiface, int index, cvmx_helper_link_info_t l
  * @param xiface
  * @param port
  *
- * @return valid link_info on success or -1 on failure
+ * Return: valid link_info on success or -1 on failure
  */
 cvmx_helper_link_info_t __cvmx_helper_get_link_info(int xiface, int port);
 
@@ -460,7 +460,7 @@ cvmx_helper_link_info_t __cvmx_helper_get_link_info(int xiface, int port);
  *
  * @param xiface
  *
- * @return 0 if PKO does not do FCS and 1 otherwise.
+ * Return: 0 if PKO does not do FCS and 1 otherwise.
  */
 int __cvmx_helper_get_has_fcs(int xiface);
 
@@ -513,7 +513,7 @@ typedef struct cvmx_qos_config {
  * Initialize QoS configuraiton with the SDK defaults.
  *
  * @param qos_cfg   User QOS configuration parameters.
- * @return Zero on success, negative number otherwise.
+ * Return: Zero on success, negative number otherwise.
  */
 int cvmx_helper_qos_config_init(cvmx_qos_proto_t qos_proto, cvmx_qos_config_t *qos_cfg);
 
@@ -523,7 +523,7 @@ int cvmx_helper_qos_config_init(cvmx_qos_proto_t qos_proto, cvmx_qos_config_t *q
  *
  * @param xipdport  Global IPD port
  * @param qos_cfg   User QOS configuration parameters.
- * @return Zero on success, negative number otherwise.
+ * Return: Zero on success, negative number otherwise.
  */
 int cvmx_helper_qos_port_config_update(int xipdport, cvmx_qos_config_t *qos_cfg);
 
@@ -534,7 +534,7 @@ int cvmx_helper_qos_port_config_update(int xipdport, cvmx_qos_config_t *qos_cfg)
  *
  * @param xipdport  Global IPD port
  * @param qos_cfg   User QOS configuration parameters.
- * @return Zero on success, negative number otherwise.
+ * Return: Zero on success, negative number otherwise.
  */
 int cvmx_helper_qos_port_setup(int xipdport, cvmx_qos_config_t *qos_cfg);
 
@@ -545,7 +545,7 @@ int cvmx_helper_qos_port_setup(int xipdport, cvmx_qos_config_t *qos_cfg);
  *
  * @param node      OCTEON3 node number.
  * @param qos_cfg   User QOS configuration parameters.
- * @return Zero on success, negative number otherwise.
+ * Return: Zero on success, negative number otherwise.
  */
 int cvmx_helper_qos_sso_setup(int node, cvmx_qos_config_t *qos_cfg);
 
@@ -554,7 +554,7 @@ int cvmx_helper_qos_sso_setup(int node, cvmx_qos_config_t *qos_cfg);
  * @param chan     Channel index.
  * @param namebuf  Name buffer (output).
  * @param buflen   Name maximum length.
- * @return Length of name (in bytes) on success, negative number otherwise.
+ * Return: Length of name (in bytes) on success, negative number otherwise.
  */
 int cvmx_helper_get_chan_e_name(int chan, char *namebuf, int buflen);
 

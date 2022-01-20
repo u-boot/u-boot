@@ -236,7 +236,7 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
  *	 /configurations/conf-1/kernel)
  * @err_msgp:		In the event of an error, this will be pointed to a
  *			help error string to display to the user.
- * @return 0 if all verified ok, <0 on error
+ * Return: 0 if all verified ok, <0 on error
  */
 static int fit_config_check_sig(const void *fit, int noffset,
 				int required_keynode, int conf_noffset,

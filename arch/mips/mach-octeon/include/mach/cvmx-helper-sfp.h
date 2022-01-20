@@ -264,7 +264,7 @@ struct cvmx_sfp_mod_info {
  * @param	i2c_bus		i2c bus number to read from for SFP port
  * @param	i2c_addr	i2c address to use, 0 for default
  *
- * @return	-1 if invalid bus or i2c read error, 0 for success
+ * Return:	-1 if invalid bus or i2c read error, 0 for success
  */
 int cvmx_phy_sfp_read_i2c_eeprom(u8 *buffer, int i2c_bus, int i2c_addr);
 
@@ -275,7 +275,7 @@ int cvmx_phy_sfp_read_i2c_eeprom(u8 *buffer, int i2c_bus, int i2c_addr);
  * @param[out]	sfp_info	Info about SFP module
  * @param[in]	buffer		SFP EEPROM buffer to parse
  *
- * @return	0 on success, -1 if error reading EEPROM or if EEPROM corrupt
+ * Return:	0 on success, -1 if error reading EEPROM or if EEPROM corrupt
  */
 int cvmx_phy_sfp_parse_eeprom(struct cvmx_sfp_mod_info *sfp_info, const u8 *buffer);
 
@@ -291,7 +291,7 @@ void cvmx_phy_sfp_print_info(const struct cvmx_sfp_mod_info *sfp_info);
  *
  * @param	sfp	sfp handle to read
  *
- * @return	0 for success, -1 on error.
+ * Return:	0 for success, -1 on error.
  */
 int cvmx_sfp_read_i2c_eeprom(struct cvmx_fdt_sfp_info *sfp);
 
@@ -300,7 +300,7 @@ int cvmx_sfp_read_i2c_eeprom(struct cvmx_fdt_sfp_info *sfp);
  *
  * @param       sfp             sfp handle
  *
- * @return      sfp_info        Pointer sfp mod info data structure
+ * Return:      sfp_info        Pointer sfp mod info data structure
  */
 const struct cvmx_sfp_mod_info *cvmx_phy_get_sfp_mod_info(const struct cvmx_fdt_sfp_info *sfp);
 
@@ -311,7 +311,7 @@ const struct cvmx_sfp_mod_info *cvmx_phy_get_sfp_mod_info(const struct cvmx_fdt_
  * @param	sfp	Handle to SFP information.
  * @param	data	User-defined data passed to the function
  *
- * @return	0 if absent, 1 if present, -1 on error
+ * Return:	0 if absent, 1 if present, -1 on error
  */
 int cvmx_sfp_check_mod_abs(struct cvmx_fdt_sfp_info *sfp, void *data);
 
@@ -323,7 +323,7 @@ int cvmx_sfp_check_mod_abs(struct cvmx_fdt_sfp_info *sfp, void *data);
  * @param	check_mod_abs	Function to be called or NULL to remove
  * @param	mod_abs_data	User-defined data to be passed to check_mod_abs
  *
- * @return	0 for success
+ * Return:	0 for success
  */
 int cvmx_sfp_register_check_mod_abs(struct cvmx_fdt_sfp_info *sfp,
 				    int (*check_mod_abs)(struct cvmx_fdt_sfp_info *sfp, void *data),
@@ -339,7 +339,7 @@ int cvmx_sfp_register_check_mod_abs(struct cvmx_fdt_sfp_info *sfp,
  * @param	mod_abs_changed_data	User-defined data passed to
  *					mod_abs_changed
  *
- * @return	0 for success
+ * Return:	0 for success
  */
 int cvmx_sfp_register_mod_abs_changed(struct cvmx_fdt_sfp_info *sfp,
 				      int (*mod_abs_changed)(struct cvmx_fdt_sfp_info *sfp, int val,
@@ -352,7 +352,7 @@ int cvmx_sfp_register_mod_abs_changed(struct cvmx_fdt_sfp_info *sfp,
  * @param	sfp	Handle to SFP information.
  * @param	data	User-defined data passed to the function
  *
- * @return	0 if signal present, 1 if signal absent, -1 on error
+ * Return:	0 if signal present, 1 if signal absent, -1 on error
  */
 int cvmx_sfp_check_tx_fault(struct cvmx_fdt_sfp_info *sfp, void *data);
 
@@ -362,7 +362,7 @@ int cvmx_sfp_check_tx_fault(struct cvmx_fdt_sfp_info *sfp, void *data);
  * @param	sfp	Handle to SFP information.
  * @param	data	User-defined data passed to the function
  *
- * @return	0 if signal present, 1 if signal absent, -1 on error
+ * Return:	0 if signal present, 1 if signal absent, -1 on error
  */
 int cvmx_sfp_check_rx_los(struct cvmx_fdt_sfp_info *sfp, void *data);
 
@@ -375,7 +375,7 @@ int cvmx_sfp_check_rx_los(struct cvmx_fdt_sfp_info *sfp, void *data);
  * @param	rx_los_changed_data	User-defined data passed to
  *					rx_los_changed
  *
- * @return	0 for success
+ * Return:	0 for success
  */
 int cvmx_sfp_register_rx_los_changed(struct cvmx_fdt_sfp_info *sfp,
 				     int (*rx_los_changed)(struct cvmx_fdt_sfp_info *sfp, int val,
@@ -387,7 +387,7 @@ int cvmx_sfp_register_rx_los_changed(struct cvmx_fdt_sfp_info *sfp,
  *
  * @param	fdt_addr	Address of flat device-tree
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  */
 int cvmx_sfp_parse_device_tree(const void *fdt_addr);
 
@@ -396,7 +396,7 @@ int cvmx_sfp_parse_device_tree(const void *fdt_addr);
  *
  * @param	ipd_port	IPD port number to search for
  *
- * @return	pointer to SFP data structure or NULL if not found
+ * Return:	pointer to SFP data structure or NULL if not found
  */
 struct cvmx_fdt_sfp_info *cvmx_sfp_find_slot_by_port(int ipd_port);
 
@@ -405,14 +405,14 @@ struct cvmx_fdt_sfp_info *cvmx_sfp_find_slot_by_port(int ipd_port);
  *
  * @param	of_offset	flat device tree node offset
  *
- * @return	pointer to SFP data structure or NULL if not found
+ * Return:	pointer to SFP data structure or NULL if not found
  */
 struct cvmx_fdt_sfp_info *cvmx_sfp_find_slot_by_fdt_node(int of_offset);
 
 /**
  * Reads the EEPROMs of all SFP modules.
  *
- * @return 0 for success
+ * Return: 0 for success
  */
 int cvmx_sfp_read_all_modules(void);
 
@@ -422,7 +422,7 @@ int cvmx_sfp_read_all_modules(void);
  * @param[in]	sfp	SFP port to check
  * @param	mode	interface mode
  *
- * @return	true if module is valid, false if invalid
+ * Return:	true if module is valid, false if invalid
  * NOTE: This will also toggle the error LED, if present
  */
 bool cvmx_sfp_validate_module(struct cvmx_fdt_sfp_info *sfp, int mode);

@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
  *
  * @test_name: Name of single test to run (e.g. "dm_test_fdt_pre_reloc" or just
  *	"fdt_pre_reloc"), or NULL to run all
- * @return 0 if all tests passed, 1 if not
+ * Return: 0 if all tests passed, 1 if not
  */
 static int dm_test_run(const char *test_name)
 {

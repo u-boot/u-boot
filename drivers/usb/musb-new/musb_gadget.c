@@ -1966,7 +1966,7 @@ void musb_gadget_cleanup(struct musb *musb)
  * -ENOMEM no memory to perform the operation
  *
  * @param driver the gadget driver
- * @return <0 if error, 0 if everything is fine
+ * Return: <0 if error, 0 if everything is fine
  */
 #ifndef __UBOOT__
 static int musb_gadget_start(struct usb_gadget *g,

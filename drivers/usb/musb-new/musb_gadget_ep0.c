@@ -147,7 +147,7 @@ static int service_tx_status_request(
  * that is supposed to be a standard control request. Assumes the fifo to
  * be at least 2 bytes long.
  *
- * @return 0 if the request was NOT HANDLED,
+ * Return: 0 if the request was NOT HANDLED,
  * < 0 when error
  * > 0 when the request is processed
  *

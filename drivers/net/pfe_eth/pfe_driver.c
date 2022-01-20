@@ -25,7 +25,7 @@ static struct rx_desc_s *g_rx_desc;
  * @param[out] pkt_ptr - Pointer to store rx packet
  * @param[out] phy_port - Pointer to store recv phy port
  *
- * @return -1 if no packet, else return length of packet.
+ * Return: -1 if no packet, else return length of packet.
  */
 int pfe_recv(uchar **pkt_ptr, int *phy_port)
 {
@@ -121,7 +121,7 @@ int pfe_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
  * @param[in] data	Pointer to the data
  * @param[in] length	Length of the ethernet packet to be transferred.
  *
- * @return -1 if tx Q is full, else returns the tx location where the pkt is
+ * Return: -1 if tx Q is full, else returns the tx location where the pkt is
  * placed.
  */
 int pfe_send(int phy_port, void *data, int length)
@@ -190,7 +190,7 @@ int pfe_send(int phy_port, void *data, int length)
  *  locations
  *  if success, moves the tx_to_send to next location.
  *
- * @return -1 if TX ownership bit is not cleared by hw.
+ * Return: -1 if TX ownership bit is not cleared by hw.
  * else on success (tx done completion) return zero.
  */
 int pfe_tx_done(void)
@@ -557,7 +557,7 @@ static int pfe_hif_init(struct pfe_ddr_address *pfe_addr)
  *
  * @param[in]	edev	Pointer to eth device structure.
  *
- * @return 0, on success.
+ * Return: 0, on success.
  */
 static int pfe_hw_init(struct pfe_ddr_address *pfe_addr)
 {

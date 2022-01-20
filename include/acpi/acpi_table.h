@@ -595,7 +595,7 @@ enum acpi_tables {
  * This keeps the version-number information in one place
  *
  * @table: ACPI table to check
- * @return version number that U-Boot generates
+ * Return: version number that U-Boot generates
  */
 int acpi_get_table_revision(enum acpi_tables table);
 
@@ -604,7 +604,7 @@ int acpi_get_table_revision(enum acpi_tables table);
  *
  * @dmar: Place to put the table
  * @flags: DMAR flags to use
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
 
@@ -674,7 +674,7 @@ void acpi_inc_align(struct acpi_ctx *ctx, uint amount);
  *
  * @ctx: ACPI context
  * @table: Table to add
- * @return 0 if OK, -E2BIG if too many tables
+ * Return: 0 if OK, -E2BIG if too many tables
  */
 int acpi_add_table(struct acpi_ctx *ctx, void *table);
 

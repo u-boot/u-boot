@@ -17,7 +17,7 @@
  * @INTERNAL
  * Function to adjust internal IPD pointer alignments
  *
- * @return 0 on success
+ * Return: 0 on success
  *         !0 on failure
  */
 int __cvmx_helper_errata_fix_ipd_ptr_alignment(void);
@@ -35,7 +35,7 @@ int __cvmx_helper_errata_fix_ipd_ptr_alignment(void);
  *        in each buffer).
  *
  * @param work   Work queue entry to fix
- * @return Zero on success. Negative on failure
+ * Return: Zero on success. Negative on failure
  */
 int cvmx_helper_fix_ipd_packet_chain(cvmx_wqe_t *work);
 

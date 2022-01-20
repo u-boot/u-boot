@@ -47,7 +47,7 @@
  * @msg:	Padded message
  * @pad_len:	Number of expected padding bytes
  * @algo:	Checksum algo structure having information on DER encoding etc.
- * @return 0 on success, != 0 on failure
+ * Return: 0 on success, != 0 on failure
  */
 static int rsa_verify_padding(const uint8_t *msg, const int pad_len,
 			      struct checksum_algo *algo)
@@ -122,7 +122,7 @@ static void u32_i2osp(uint32_t val, uint8_t *buf)
  * @seed_len:	Size of the input octet string
  * @output:	Specifies the output octet string
  * @output_len:	Size of the output octet string
- * @return 0 if the octet string was correctly generated, others on error
+ * Return: 0 if the octet string was correctly generated, others on error
  */
 static int mask_generation_function1(struct checksum_algo *checksum,
 				     uint8_t *seed, int seed_len,
@@ -325,7 +325,7 @@ U_BOOT_PADDING_ALGO(pss) = {
  * @sig_len:	Number of bytes in signature
  * @hash:	Pointer to the expected hash
  * @key_len:	Number of bytes in rsa key
- * @return 0 if verified, -ve on error
+ * Return: 0 if verified, -ve on error
  */
 static int rsa_verify_key(struct image_sign_info *info,
 			  struct key_prop *prop, const uint8_t *sig,
@@ -437,7 +437,7 @@ int rsa_verify_with_pkey(struct image_sign_info *info,
  * @sig:	Signature
  * @sig_len:	Number of bytes in signature
  * @node:	Node having the RSA Key properties
- * @return 0 if verified, -ve on error
+ * Return: 0 if verified, -ve on error
  */
 static int rsa_verify_with_keynode(struct image_sign_info *info,
 				   const void *hash, uint8_t *sig,

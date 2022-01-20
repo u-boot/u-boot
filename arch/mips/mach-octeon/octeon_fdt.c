@@ -121,7 +121,7 @@ static const char * const octeon_gpio_list[] = {
  * reg = <0> then the interface will be renamed after this function to
  * interface@0.
  *
- * @return 0 for success.
+ * Return: 0 for success.
  */
 int __octeon_fdt_patch(void *fdt, const char *fdt_key, const char *trim_name)
 {
@@ -164,7 +164,7 @@ int octeon_fdt_patch(void *fdt, const char *fdt_key, const char *trim_name)
  * reg = <0> then the interface will be renamed after this function to
  * interface@0.
  *
- * @return 0 for success.
+ * Return: 0 for success.
  */
 int octeon_fdt_patch_rename(void *fdt, const char *fdt_key,
 			    const char *trim_name, bool rename,
@@ -648,7 +648,7 @@ int octeon_fdt_compat_vendor(const void *fdt, int nodeoffset, const char *vendor
  * @param fdt		pointer to flat device tree
  * @param nodeoffset	node offset to get OCX node for
  *
- * @return the Octeon OCX node number
+ * Return: the Octeon OCX node number
  */
 int octeon_fdt_get_soc_node(const void *fdt, int nodeoffset)
 {
@@ -662,7 +662,7 @@ int octeon_fdt_get_soc_node(const void *fdt, int nodeoffset)
  * @param	node_offset	Node offset in device tree
  * @param[in]	strlist		Array of FDT devices to check, end must be NULL
  *
- * @return	0 if at least one device is compatible, 1 if not compatible.
+ * Return:	0 if at least one device is compatible, 1 if not compatible.
  */
 int octeon_fdt_node_check_compatible(const void *fdt, int node_offset,
 				     const char *const *strlist)
@@ -685,7 +685,7 @@ int octeon_fdt_node_check_compatible(const void *fdt, int node_offset,
  * @param[in]	fdt	Pointer to flat device tree
  * @param	node_offset	Node offset in device tree
  *
- * @return	i2c bus number or -1 if error
+ * Return:	i2c bus number or -1 if error
  */
 int octeon_fdt_i2c_get_bus(const void *fdt, int node_offset)
 {
@@ -742,7 +742,7 @@ int octeon_fdt_i2c_get_bus(const void *fdt, int node_offset)
  * @param[out]	bus	i2c bus number of device
  * @param[out]	addr	address of device on i2c bus
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  */
 int octeon_fdt_get_i2c_bus_addr(const void *fdt, int node, int *bus, int *addr)
 {
@@ -765,7 +765,7 @@ int octeon_fdt_get_i2c_bus_addr(const void *fdt, int node, int *bus, int *addr)
  * @param	phandle	phandle of GPIO node
  * @param	pin	pin number to read
  *
- * @return	0 = pin is low, 1 = pin is high, -1 = error
+ * Return:	0 = pin is low, 1 = pin is high, -1 = error
  */
 int octeon_fdt_read_gpio(const void *fdt, int phandle, int pin)
 {
@@ -847,7 +847,7 @@ int octeon_fdt_read_gpio(const void *fdt, int phandle, int pin)
  * @param	pin	pin number to read
  * @param	val	value to write (1 = high, 0 = low)
  *
- * @return	0 = success, -1 = error
+ * Return:	0 = success, -1 = error
  */
 int octeon_fdt_set_gpio(const void *fdt, int phandle, int pin, int val)
 {
@@ -918,7 +918,7 @@ int octeon_fdt_set_gpio(const void *fdt, int phandle, int pin, int val)
  * @param[out]	i2c_bus		For i2c GPIO expanders, the i2c bus number
  * @param[out]	i2c_addr	For i2c GPIO expanders, the i2c address
  *
- * @return	0 for success, -1 for errors
+ * Return:	0 for success, -1 for errors
  *
  * NOTE: It is up to the caller to determine the pin number.
  */
@@ -988,7 +988,7 @@ int octeon_fdt_get_gpio_info(int fdt_node, enum octeon_gpio_type *type,
  *
  * @param	fdt_node	FDT node in device tree
  *
- * @return	pointer to PHY device or NULL if none found.
+ * Return:	pointer to PHY device or NULL if none found.
  */
 static struct phy_device *octeon_fdt_get_phy_device_from_node(int fdt_node)
 {
@@ -1014,7 +1014,7 @@ static struct phy_device *octeon_fdt_get_phy_device_from_node(int fdt_node)
  * @param	fdt_node	FDT node of phy
  * @param[out]	type		Type of GPIO
  *
- * @return	pointer to phy device or NULL if no match found.
+ * Return:	pointer to phy device or NULL if no match found.
  */
 struct phy_device *octeon_fdt_get_phy_gpio_info(int fdt_node, enum octeon_gpio_type *type)
 {

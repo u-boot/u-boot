@@ -2179,7 +2179,7 @@ int octeontx_pci_nand_disable(struct udevice *dev)
  * In this case, the initial probe returns success but the actual probing
  * is deferred until the BCH VF has been probed.
  *
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 int octeontx_pci_nand_deferred_probe(void)
 {

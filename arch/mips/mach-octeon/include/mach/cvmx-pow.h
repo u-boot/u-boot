@@ -906,7 +906,7 @@ static inline unsigned int cvmx_sso_num_maskset(void)
  * If a tag switch is pending this routine returns the tag before
  * the tag switch, not after.
  *
- * @return Current tag
+ * Return: Current tag
  */
 static inline cvmx_pow_tag_info_t cvmx_pow_get_current_tag(void)
 {
@@ -967,7 +967,7 @@ static inline cvmx_pow_tag_info_t cvmx_pow_get_current_tag(void)
  * Get the POW WQE for this core. This returns the work queue
  * entry currently associated with this core.
  *
- * @return WQE pointer
+ * Return: WQE pointer
  */
 static inline cvmx_wqe_t *cvmx_pow_get_current_wqp(void)
 {
@@ -1059,7 +1059,7 @@ static inline void cvmx_pow_tag_sw_wait(void)
  * @param wait   When set, call stalls until work becomes available, or
  *               times out. If not set, returns immediately.
  *
- * @return Returns the WQE pointer from POW. Returns NULL if no work was
+ * Return: Returns the WQE pointer from POW. Returns NULL if no work was
  * available.
  */
 static inline cvmx_wqe_t *cvmx_pow_work_request_sync_nocheck(cvmx_pow_wait_t wait)
@@ -1099,7 +1099,7 @@ static inline cvmx_wqe_t *cvmx_pow_work_request_sync_nocheck(cvmx_pow_wait_t wai
  * @param wait   When set, call stalls until work becomes available, or
  *               times out. If not set, returns immediately.
  *
- * @return Returns the WQE pointer from POW. Returns NULL if no work was
+ * Return: Returns the WQE pointer from POW. Returns NULL if no work was
  * available.
  */
 static inline cvmx_wqe_t *cvmx_pow_work_request_sync(cvmx_pow_wait_t wait)
@@ -1114,7 +1114,7 @@ static inline cvmx_wqe_t *cvmx_pow_work_request_sync(cvmx_pow_wait_t wait)
  * This function waits for any previous tag switch to complete before
  * requesting the null_rd.
  *
- * @return Returns the POW state of type cvmx_pow_tag_type_t.
+ * Return: Returns the POW state of type cvmx_pow_tag_type_t.
  */
 static inline cvmx_pow_tag_type_t cvmx_pow_work_request_null_rd(void)
 {
@@ -1204,7 +1204,7 @@ static inline void cvmx_pow_work_request_async(int scr_addr, cvmx_pow_wait_t wai
  *
  * @param scr_addr Scratch memory address to get result from
  *                  Byte address, must be 8 byte aligned.
- * @return Returns the WQE from the scratch register, or NULL if no work was
+ * Return: Returns the WQE from the scratch register, or NULL if no work was
  *         available.
  */
 static inline cvmx_wqe_t *cvmx_pow_work_response_async(int scr_addr)
@@ -1226,7 +1226,7 @@ static inline cvmx_wqe_t *cvmx_pow_work_response_async(int scr_addr)
  *
  * @param wqe_ptr pointer to a work queue entry returned by the POW
  *
- * @return 0 if pointer is valid
+ * Return: 0 if pointer is valid
  *         1 if invalid (no work was returned)
  */
 static inline u64 cvmx_pow_work_invalid(cvmx_wqe_t *wqe_ptr)
@@ -1735,7 +1735,7 @@ static inline void cvmx_pow_set_group_mask(u64 core_num, u64 mask)
  * indicates which groups each core will accept work from.
  *
  * @param core_num   core to apply mask to
- * @return	Group mask, one bit for up to 64 groups.
+ * Return:	Group mask, one bit for up to 64 groups.
  *               Each 1 bit in the mask enables the core to accept work from
  *               the corresponding group.
  *               The CN68XX supports 64 groups, earlier models only support
@@ -2364,7 +2364,7 @@ static inline void cvmx_sso_work_request_grp_async_nocheck(int scr_addr, cvmx_xg
  * @param wait When set, call stalls until work becomes available, or times out.
  *     If not set, returns immediately.
  *
- * @return Returns the WQE pointer from SSO.
+ * Return: Returns the WQE pointer from SSO.
  *     Returns NULL if no work was available.
  */
 static inline void *cvmx_sso_work_request_grp_sync_nocheck(unsigned int lgrp, cvmx_pow_wait_t wait)
@@ -2403,7 +2403,7 @@ static inline void *cvmx_sso_work_request_grp_sync_nocheck(unsigned int lgrp, cv
  * @param wait When set, call stalls until work becomes available, or times out.
  *     If not set, returns immediately.
  *
- * @return The WQE pointer or NULL, if work is not available.
+ * Return: The WQE pointer or NULL, if work is not available.
  */
 static inline void *cvmx_sso_work_request_grp_sync(unsigned int lgrp, cvmx_pow_wait_t wait)
 {
@@ -2829,7 +2829,7 @@ static inline void cvmx_sso_update_wqp_group(cvmx_wqe_t *wqp, u8 xgrp)
  * @param hw_bits The lower bits (number depends on configuration) are set
  *     to this value.  The remainder of bits are set by the sw_bits parameter.
  *
- * @return 32 bit value of the combined hw and sw bits.
+ * Return: 32 bit value of the combined hw and sw bits.
  */
 static inline u32 cvmx_pow_tag_compose(u64 sw_bits, u64 hw_bits)
 {
@@ -2842,7 +2842,7 @@ static inline u32 cvmx_pow_tag_compose(u64 sw_bits, u64 hw_bits)
  *
  * @param tag    32 bit tag value
  *
- * @return N bit software tag value, where N is configurable with
+ * Return: N bit software tag value, where N is configurable with
  *     the CVMX_TAG_SW_BITS define
  */
 static inline u32 cvmx_pow_tag_get_sw_bits(u64 tag)
@@ -2856,7 +2856,7 @@ static inline u32 cvmx_pow_tag_get_sw_bits(u64 tag)
  *
  * @param tag    32 bit tag value
  *
- * @return (32 - N) bit software tag value, where N is configurable with
+ * Return: (32 - N) bit software tag value, where N is configurable with
  *     the CVMX_TAG_SW_BITS define
  */
 static inline u32 cvmx_pow_tag_get_hw_bits(u64 tag)
@@ -2905,7 +2905,7 @@ static inline u64 cvmx_sso_get_total_wqe_count(void)
  * @param buffer Buffer to store capture into
  * @param buffer_size The size of the supplied buffer
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_pow_capture(void *buffer, int buffer_size);
 
@@ -2920,7 +2920,7 @@ void cvmx_pow_display(void *buffer, int buffer_size);
 /**
  * Return the number of POW entries supported by this chip
  *
- * @return Number of POW entries
+ * Return: Number of POW entries
  */
 int cvmx_pow_get_num_entries(void);
 int cvmx_pow_get_dump_size(void);
@@ -2932,7 +2932,7 @@ int cvmx_pow_get_dump_size(void);
  * @param node The numa node for the allocation.
  * @param base_group Pointer to the initial group, -1 to allocate anywhere.
  * @param count  The number of consecutive groups to allocate.
- * @return 0 on success and -1 on failure.
+ * Return: 0 on success and -1 on failure.
  */
 int cvmx_sso_reserve_group_range(int node, int *base_group, int count);
 #define cvmx_sso_allocate_group_range cvmx_sso_reserve_group_range

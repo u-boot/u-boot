@@ -26,7 +26,7 @@ struct dm_test_pdata {
  *	@dev: Device to operate on
  *	@pingval: Value to ping the device with
  *	@pingret: Returns resulting value from driver
- *	@return 0 if OK, -ve on error
+ *	Return: 0 if OK, -ve on error
  */
 struct test_ops {
 	int (*ping)(struct udevice *dev, int pingval, int *pingret);
@@ -189,7 +189,7 @@ int testfdt_ping(struct udevice *dev, int pingval, int *pingret);
  * @dev: Device to test
  * @base: Base address, used to check ping return value
  * @priv: Pointer to private test information
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_check_operations(struct unit_test_state *uts, struct udevice *dev,
 			uint32_t base, struct dm_test_priv *priv);
@@ -199,7 +199,7 @@ int dm_check_operations(struct unit_test_state *uts, struct udevice *dev,
  *
  * @dms: Overall test state
  * @num_devices: Number of test devices to check
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_check_devices(struct unit_test_state *uts, int num_devices);
 

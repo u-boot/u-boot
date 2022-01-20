@@ -231,7 +231,7 @@ static int region_list_contains_offset(struct fdt_region_state *info,
  *	function)
  * @max_regions: Maximum number of regions in @region list
  * @info: Place to put the region state
- * @return number of regions after processing, or -FDT_ERR_NOSPACE if we did
+ * Return: number of regions after processing, or -FDT_ERR_NOSPACE if we did
  * not have enough room in the regions table for the regions we wanted to add.
  */
 int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,

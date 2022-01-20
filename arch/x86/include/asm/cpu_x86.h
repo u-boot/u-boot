@@ -13,7 +13,7 @@
  * like the processor local apic id.
  *
  * @dev:	Device to check (UCLASS_CPU)
- * @return	0 always
+ * Return:	0 always
  */
 int cpu_x86_bind(struct udevice *dev);
 

@@ -16,7 +16,7 @@
 /*
  * Install the SMBIOS table as a configuration table.
  *
- * @return	status code
+ * Return:	status code
  */
 efi_status_t efi_smbios_register(void)
 {

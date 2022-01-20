@@ -63,7 +63,7 @@ struct pwm_ops {
  * @channel:	PWM channel to update
  * @period_ns:	PWM period in nanoseconds
  * @duty_ns:	PWM duty period in nanoseconds
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pwm_set_config(struct udevice *dev, uint channel, uint period_ns,
 		   uint duty_ns);
@@ -74,7 +74,7 @@ int pwm_set_config(struct udevice *dev, uint channel, uint period_ns,
  * @dev:	PWM device to update
  * @channel:	PWM channel to update
  * @enable:	true to enable, false to disable
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pwm_set_enable(struct udevice *dev, uint channel, bool enable);
 
@@ -84,7 +84,7 @@ int pwm_set_enable(struct udevice *dev, uint channel, bool enable);
  * @dev:	PWM device to update
  * @channel:	PWM channel to update
  * @polarity:	true to invert, false to keep normal polarity
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pwm_set_invert(struct udevice *dev, uint channel, bool polarity);
 

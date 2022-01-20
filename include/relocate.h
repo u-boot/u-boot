@@ -16,7 +16,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /**
  * copy_uboot_to_ram() - Copy U-Boot to its new relocated position
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int copy_uboot_to_ram(void);
 
@@ -25,7 +25,7 @@ int copy_uboot_to_ram(void);
  *
  * This clears the memory used by global variables
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int clear_bss(void);
 
@@ -35,7 +35,7 @@ int clear_bss(void);
  * This processes the relocation tables to ensure that the code can run in its
  * new location.
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int do_elf_reloc_fixups(void);
 
@@ -46,7 +46,7 @@ int do_elf_reloc_fixups(void);
  * which need to manually relocate some things.
  *
  * @ptr: Pointer to relocate
- * @return new pointer value
+ * Return: new pointer value
  */
 static inline void *manual_reloc(void *ptr)
 {

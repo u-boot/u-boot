@@ -163,7 +163,7 @@ int cvmx_helper_pki_set_qpg_entry(int node, struct cvmx_pki_qpg_config *qpg_cfg)
  * @param bp_thresh     backpressure threshold.
  * @param ena_drop      enable tail drop.
  *			1:enable 0:disable
- * @return Zero on success. Negative on failure
+ * Return: Zero on success. Negative on failure
  */
 int cvmx_helper_setup_aura_qos(int node, int aura, bool ena_red, bool ena_drop, u64 pass_thresh,
 			       u64 drop_thresh, bool ena_bp, u64 bp_thresh);
@@ -177,7 +177,7 @@ int cvmx_helper_setup_aura_qos(int node, int aura, bool ena_red, bool ena_drop, 
  * @param bpid          bpid to map.
  * @param chl_map       array of channels to map to that bpid.
  * @param chl_cnt	number of channel/ports to map to that bpid.
- * @return Zero on success. Negative on failure
+ * Return: Zero on success. Negative on failure
  */
 int cvmx_helper_pki_map_aura_chl_bpid(int node, u16 aura, u16 bpid, u16 chl_map[], u16 chl_cnt);
 

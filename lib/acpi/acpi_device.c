@@ -27,7 +27,7 @@
  * @buf: Buffer to hold the path
  * @buf_len: Length of buffer
  * @cur: Current position in the buffer
- * @return new position in buffer after adding @dev, or -ve on error
+ * Return: new position in buffer after adding @dev, or -ve on error
  */
 static int acpi_device_path_fill(const struct udevice *dev, char *buf,
 				 size_t buf_len, int cur)
@@ -97,7 +97,7 @@ enum acpi_dev_status acpi_device_status(const struct udevice *dev)
  *
  * Write a forward length for a large resource (2 bytes)
  *
- * @return pointer to the zero word (for fixing up later)
+ * Return: pointer to the zero word (for fixing up later)
  */
 static void *largeres_write_len_f(struct acpi_ctx *ctx)
 {
@@ -597,7 +597,7 @@ static void acpi_device_write_i2c(struct acpi_ctx *ctx,
  * @dev: I2C device to convert
  * @i2c: Place to put the new structure
  * @scope: Scope of the I2C device (this is the controller path)
- * @return chip address of device
+ * Return: chip address of device
  */
 static int acpi_device_set_i2c(const struct udevice *dev, struct acpi_i2c *i2c,
 			       const char *scope)
@@ -719,7 +719,7 @@ static void acpi_device_write_spi(struct acpi_ctx *ctx, const struct acpi_spi *s
  * @dev: SPI device to convert
  * @spi: Place to put the new structure
  * @scope: Scope of the SPI device (this is the controller path)
- * @return 0 (always)
+ * Return: 0 (always)
  */
 static int acpi_device_set_spi(const struct udevice *dev, struct acpi_spi *spi,
 			       const char *scope)

@@ -370,7 +370,7 @@ static efi_status_t EFIAPI flush(struct efi_file_handle *this)
  * Decompress the disk image.
  *
  * @image	decompressed disk image
- * @return	status code
+ * Return:	status code
  */
 static efi_status_t decompress(u8 **image)
 {

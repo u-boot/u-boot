@@ -42,7 +42,7 @@ static const char *_parse_integer_fixup_radix(const char *s, uint *basep)
  * This ignore case
  *
  * @ch: Character to convert (expects '0'..'9', 'a'..'f' or 'A'..'F')
- * @return value of digit (0..0xf) or 255 if the character is invalid
+ * Return: value of digit (0..0xf) or 255 if the character is invalid
  */
 static uint decode_digit(int ch)
 {

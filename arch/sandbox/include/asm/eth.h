@@ -23,7 +23,7 @@ void sandbox_eth_skip_timeout(void);
  * @dev: device that received the packet
  * @packet: pointer to the received pacaket buffer
  * @len: length of received packet
- * @return 0 if injected, -EAGAIN if not
+ * Return: 0 if injected, -EAGAIN if not
  */
 int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
 				 unsigned int len);
@@ -36,7 +36,7 @@ int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
  * @dev: device that received the packet
  * @packet: pointer to the received pacaket buffer
  * @len: length of received packet
- * @return 0 if injected, -EAGAIN if not
+ * Return: 0 if injected, -EAGAIN if not
  */
 int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 				  unsigned int len);
@@ -47,7 +47,7 @@ int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
  * Inject an ARP request for this target
  *
  * @dev: device that received the packet
- * @return 0 if injected, -EOVERFLOW if not
+ * Return: 0 if injected, -EOVERFLOW if not
  */
 int sandbox_eth_recv_arp_req(struct udevice *dev);
 
@@ -57,7 +57,7 @@ int sandbox_eth_recv_arp_req(struct udevice *dev);
  * Inject a ping request for this target
  *
  * @dev: device that received the packet
- * @return 0 if injected, -EOVERFLOW if not
+ * Return: 0 if injected, -EOVERFLOW if not
  */
 int sandbox_eth_recv_ping_req(struct udevice *dev);
 

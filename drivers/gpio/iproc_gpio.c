@@ -123,7 +123,7 @@ static u32 iproc_get_pctrl_from_gpio(struct iproc_gpio_plat *plat, u32 gpio)
  * in private data structure to use it later while enabling gpio.
  *
  * @dev: pointer to GPIO device
- * @return 0 on success and -ENOMEM on failure
+ * Return: 0 on success and -ENOMEM on failure
  */
 static int iproc_get_gpio_pctrl_mapping(struct udevice *dev)
 {

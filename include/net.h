@@ -67,7 +67,7 @@ struct in_addr {
  * @flag: Command flags (CMD_FLAG_...)
  * @argc: Number of arguments
  * @argv: List of arguments
- * @return result (see enum command_ret_t)
+ * Return: result (see enum command_ret_t)
  */
 int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
@@ -274,7 +274,7 @@ int eth_get_dev_index(void);		/* get the device index */
  * @base_name:  Base name for variable, typically "eth"
  * @index:      Index of interface being updated (>=0)
  * @enetaddr:   Pointer to MAC address to put into the variable
- * @return 0 if OK, other value on error
+ * Return: 0 if OK, other value on error
  */
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr);
@@ -628,7 +628,7 @@ void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport,
  *
  * @addr:	Address to check (must be 16-bit aligned)
  * @nbytes:	Number of bytes to check (normally a multiple of 2)
- * @return 16-bit IP checksum
+ * Return: 16-bit IP checksum
  */
 unsigned compute_ip_checksum(const void *addr, unsigned nbytes);
 
@@ -638,7 +638,7 @@ unsigned compute_ip_checksum(const void *addr, unsigned nbytes);
  * @offset:	Offset of first sum (if odd we do a byte-swap)
  * @sum:	First checksum
  * @new_sum:	New checksum to add
- * @return updated 16-bit IP checksum
+ * Return: updated 16-bit IP checksum
  */
 unsigned add_ip_checksums(unsigned offset, unsigned sum, unsigned new_sum);
 
@@ -649,7 +649,7 @@ unsigned add_ip_checksums(unsigned offset, unsigned sum, unsigned new_sum);
  *
  * @addr:	Address to check (must be 16-bit aligned)
  * @nbytes:	Number of bytes to check (normally a multiple of 2)
- * @return true if the checksum matches, false if not
+ * Return: true if the checksum matches, false if not
  */
 int ip_checksum_ok(const void *addr, unsigned nbytes);
 
@@ -917,7 +917,7 @@ int net_parse_bootfile(struct in_addr *ipaddr, char *filename, int max_len);
  * @param interface - the DFU medium name - e.g. "mmc"
  * @param devstring - the DFU medium number - e.g. "1"
  *
- * @return - 0 on success, other value on failure
+ * Return: - 0 on success, other value on failure
  */
 int update_tftp(ulong addr, char *interface, char *devstring);
 
@@ -927,7 +927,7 @@ int update_tftp(ulong addr, char *interface, char *devstring);
  * @var: Environment variable to convert. The value of this variable must be
  *	in the format format a.b.c.d, where each value is a decimal number from
  *	0 to 255
- * @return IP address, or 0 if invalid
+ * Return: IP address, or 0 if invalid
  */
 static inline struct in_addr env_get_ip(char *var)
 {

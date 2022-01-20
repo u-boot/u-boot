@@ -470,7 +470,7 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
  * @cfg:	Empty configuration structure (generally &plat->cfg). This is
  *		normally all zeroes at this point. The only purpose of passing
  *		this in is to set mmc->cfg to it.
- * @return 0 if OK, -ve if the block device could not be created
+ * Return: 0 if OK, -ve if the block device could not be created
  */
 int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg);
 #else
@@ -483,7 +483,7 @@ int sdhci_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg);
  * @host:	SDHCI host structure
  * @f_max:	Maximum supported clock frequency in HZ (0 for default)
  * @f_min:	Minimum supported clock frequency in HZ (0 for default)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int add_sdhci(struct sdhci_host *host, u32 f_max, u32 f_min);
 #endif /* !CONFIG_BLK */

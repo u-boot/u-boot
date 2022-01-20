@@ -113,7 +113,7 @@ enum {
  * @param blob		Device tree blob
  * @param node		EMC node (nvidia,tegra20-emc compatible string)
  * @param ram_code	RAM code to select (0-3, or -1 if unknown)
- * @return 0 if ok, otherwise a -ve ERR_ code (see enum above)
+ * Return: 0 if ok, otherwise a -ve ERR_ code (see enum above)
  */
 static int find_emc_tables(const void *blob, int node, int ram_code)
 {
@@ -167,7 +167,7 @@ static int find_emc_tables(const void *blob, int node, int ram_code)
  * @param tablep Returns pointer to table to program into EMC. There are
  *		TEGRA_EMC_NUM_REGS entries, destined for offsets as per the
  *		emc_reg_addr array.
- * @return 0 if ok, otherwise a -ve error code which will allow someone to
+ * Return: 0 if ok, otherwise a -ve error code which will allow someone to
  * figure out roughly what went wrong by looking at this code.
  */
 static int decode_emc(const void *blob, unsigned rate, struct emc_ctlr **emcp,

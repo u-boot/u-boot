@@ -550,7 +550,7 @@ static const char *unknown_msg(enum ih_category category)
  * This will scan the translation table trying to find the entry that matches
  * the given id.
  *
- * @return long entry name if translation succeeds; error string on failure
+ * Return: long entry name if translation succeeds; error string on failure
  */
 const char *genimg_get_cat_name(enum ih_category category, uint id)
 {
@@ -570,7 +570,7 @@ const char *genimg_get_cat_name(enum ih_category category, uint id)
  * This will scan the translation table trying to find the entry that matches
  * the given id.
  *
- * @return short entry name if translation succeeds; error string on failure
+ * Return: short entry name if translation succeeds; error string on failure
  */
 const char *genimg_get_cat_short_name(enum ih_category category, uint id)
 {
@@ -600,7 +600,7 @@ const char *genimg_get_cat_desc(enum ih_category category)
  * This will scan the translation table trying to find the entry that matches
  * the given id.
  *
- * @return true if category has entry id; false if not
+ * Return: true if category has entry id; false if not
  */
 bool genimg_cat_has_id(enum ih_category category, uint id)
 {

@@ -38,7 +38,7 @@ void handoff_load_dram_banks(struct spl_handoff *ho);
  * write_spl_handoff().
  *
  * @ho: Handoff area to fill in
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int handoff_arch_save(struct spl_handoff *ho);
 

@@ -166,7 +166,7 @@ struct efi_device_path *dp_lf2_file_remainder = &dp_lf2_file.f.dp;
  * Decompress the disk image.
  *
  * @image	decompressed disk image
- * @return	status code
+ * Return:	status code
  */
 static efi_status_t decompress(u8 **image)
 {

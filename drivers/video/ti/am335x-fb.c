@@ -139,7 +139,7 @@ struct dpll_data {
  *
  * @dpll_data: struct dpll_data pointer for the DPLL
  * @rate:      New DPLL clock rate
- * @return rounded rate and the computed m, n and div values in the dpll_data
+ * Return: rounded rate and the computed m, n and div values in the dpll_data
  *         structure, or -ve error code.
  */
 static ulong am335x_dpll_round_rate(struct dpll_data *dd, ulong rate)
@@ -189,7 +189,7 @@ static ulong am335x_dpll_round_rate(struct dpll_data *dd, ulong rate)
  *
  * @am335x_lcdhw: Base address of the LCD controller registers.
  * @rate:         New clock rate in Hz.
- * @return new rate, or -ve error code.
+ * Return: new rate, or -ve error code.
  */
 static ulong am335x_fb_set_pixel_clk_rate(struct am335x_lcdhw *regs, ulong rate)
 {

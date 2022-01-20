@@ -21,7 +21,7 @@
 /**
  * get_bmp_col_16bpp() - Convert a colour-table entry into a 16bpp pixel value
  *
- * @return value to write to the 16bpp frame buffer for this palette entry
+ * Return: value to write to the 16bpp frame buffer for this palette entry
  */
 static uint get_bmp_col_16bpp(struct bmp_color_table_entry cte)
 {

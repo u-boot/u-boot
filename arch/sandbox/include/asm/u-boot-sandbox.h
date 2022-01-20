@@ -44,7 +44,7 @@ struct udevice;
  * @devp:	Returns the device which mapped into this space
  * @ptrp:	Returns a pointer to the mapped address. The device's space
  *		can be accessed as @lenp bytes starting here
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_map_physmem(phys_addr_t paddr, unsigned long *lenp,
 		    struct udevice **devp, void **ptrp);
@@ -57,7 +57,7 @@ int pci_map_physmem(phys_addr_t paddr, unsigned long *lenp,
  * @paddr:	Physical memory address, as passed to pci_map_physmem()
  * @len:	Size of area mapped, as returned by pci_map_physmem()
  * @dev:	Device to unmap, as returned by pci_map_physmem()
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int pci_unmap_physmem(const void *addr, unsigned long len,
 		      struct udevice *dev);

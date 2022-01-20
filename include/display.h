@@ -27,7 +27,7 @@ struct display_plat {
  * display_read_timing() - Read timing information
  *
  * @dev:	Device to read from
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int display_read_timing(struct udevice *dev, struct display_timing *timing);
 
@@ -37,7 +37,7 @@ int display_read_timing(struct udevice *dev, struct display_timing *timing);
  * @dev:	Device to enable
  * @panel_bpp:	Number of bits per pixel for panel
  * @timing:	Display timings
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int display_enable(struct udevice *dev, int panel_bpp,
 		   const struct display_timing *timing);
@@ -45,7 +45,7 @@ int display_enable(struct udevice *dev, int panel_bpp,
 /**
  * display_in_use() - Check if a display is in use by any device
  *
- * @return true if the device is in use (display_enable() has been called
+ * Return: true if the device is in use (display_enable() has been called
  * successfully), else false
  */
 bool display_in_use(struct udevice *dev);

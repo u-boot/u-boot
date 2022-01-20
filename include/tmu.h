@@ -31,7 +31,7 @@ enum tmu_status_t {
  * Monitors status of the TMU device and exynos temperature
  *
  * @param temp	pointer to the current temperature value
- * @return	enum tmu_status_t value, code indicating event to execute
+ * Return:	enum tmu_status_t value, code indicating event to execute
  *		and -1 on error
  */
 enum tmu_status_t tmu_monitor(int *temp);
@@ -40,7 +40,7 @@ enum tmu_status_t tmu_monitor(int *temp);
  * Initialize TMU device
  *
  * @param blob  FDT blob
- * @return	int value, 0 for success
+ * Return:	int value, 0 for success
  */
 int tmu_init(const void *blob);
 #endif	/* _THERMAL_H_ */

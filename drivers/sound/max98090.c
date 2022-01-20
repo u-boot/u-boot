@@ -25,7 +25,7 @@
  * @rate: Sampling rate
  * @bits_per_sample: Bits per sample
  *
- * @return -EIO for error, 0 for success.
+ * Return: -EIO for error, 0 for success.
  */
 int max98090_hw_params(struct maxim_priv *priv, unsigned int rate,
 		       unsigned int bits_per_sample)
@@ -77,7 +77,7 @@ int max98090_hw_params(struct maxim_priv *priv, unsigned int rate,
  * @priv: max98090 information
  * @freq: Sampling frequency in Hz
  *
- * @return -EIO for error, 0 for success.
+ * Return: -EIO for error, 0 for success.
  */
 int max98090_set_sysclk(struct maxim_priv *priv, unsigned int freq)
 {
@@ -122,7 +122,7 @@ int max98090_set_sysclk(struct maxim_priv *priv, unsigned int freq)
  * @priv: max98090 information
  * @fmt: i2S format - supports a subset of the options defined in i2s.h.
  *
- * @return -EIO for error, 0 for success.
+ * Return: -EIO for error, 0 for success.
  */
 int max98090_set_fmt(struct maxim_priv *priv, int fmt)
 {
@@ -205,7 +205,7 @@ int max98090_set_fmt(struct maxim_priv *priv, int fmt)
  * resets the audio codec
  *
  * @priv: max98090 information
- * @return -EIO for error, 0 for success.
+ * Return: -EIO for error, 0 for success.
  */
 static int max98090_reset(struct maxim_priv *priv)
 {
@@ -231,7 +231,7 @@ static int max98090_reset(struct maxim_priv *priv)
  *
  * @priv: max98090 information
  *
- * @return -EIO for error, 0 for success.
+ * Return: -EIO for error, 0 for success.
  */
 int max98090_device_init(struct maxim_priv *priv)
 {

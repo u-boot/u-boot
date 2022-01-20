@@ -35,7 +35,7 @@ static efi_handle_t handle_driver;
  * @handle	handle on which child controllers are installed
  * @protocol	protocol for which the child controllers were installed
  * @count	number of child controllers
- * @return	status code
+ * Return:	status code
  */
 static efi_status_t count_child_controllers(efi_handle_t handle,
 					    efi_guid_t *protocol,
@@ -69,7 +69,7 @@ static efi_status_t count_child_controllers(efi_handle_t handle,
  * @this			driver binding protocol
  * @controller_handle		handle of the controller
  * @remaining_device_path	path specifying the child controller
- * @return			status code
+ * Return:			status code
  */
 static efi_status_t EFIAPI supported(
 		struct efi_driver_binding_protocol *this,
@@ -106,7 +106,7 @@ static efi_status_t EFIAPI supported(
  * @this			driver binding protocol
  * @controller_handle		handle of the controller
  * @remaining_device_path	path specifying the child controller
- * @return			status code
+ * Return:			status code
  */
 static efi_status_t EFIAPI start(
 		struct efi_driver_binding_protocol *this,
@@ -161,7 +161,7 @@ static efi_status_t EFIAPI start(
  *
  * @controller_handle	parent controller
  * @child_handle	child controller
- * @return		status code
+ * Return:		status code
  */
 static efi_status_t disconnect_child(efi_handle_t controller_handle,
 				     efi_handle_t child_handle)
@@ -191,7 +191,7 @@ static efi_status_t disconnect_child(efi_handle_t controller_handle,
  * @controller_handle		handle of the controller
  * @number_of_children		number of child controllers to remove
  * @child_handle_buffer		handles of the child controllers to remove
- * @return			status code
+ * Return:			status code
  */
 static efi_status_t EFIAPI stop(
 		struct efi_driver_binding_protocol *this,

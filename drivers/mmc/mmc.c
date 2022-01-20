@@ -215,7 +215,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
  * @data:	additional data to send/receive
  * @retries:	how many times to retry; mmc_send_cmd is always called at least
  *              once
- * @return 0 if ok, -ve on error
+ * Return: 0 if ok, -ve on error
  */
 static int mmc_send_cmd_retry(struct mmc *mmc, struct mmc_cmd *cmd,
 			      struct mmc_data *data, uint retries)
@@ -239,7 +239,7 @@ static int mmc_send_cmd_retry(struct mmc *mmc, struct mmc_cmd *cmd,
  * @quirk:	retry only if this quirk is enabled
  * @retries:	how many times to retry; mmc_send_cmd is always called at least
  *              once
- * @return 0 if ok, -ve on error
+ * Return: 0 if ok, -ve on error
  */
 static int mmc_send_cmd_quirks(struct mmc *mmc, struct mmc_cmd *cmd,
 			       struct mmc_data *data, u32 quirk, uint retries)

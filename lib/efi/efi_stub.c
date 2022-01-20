@@ -152,7 +152,7 @@ static inline unsigned long read_cr3(void)
  * EFI we must first change to 32-bit mode. To do this we need to find the
  * correct code segment to use (an entry in the Global Descriptor Table).
  *
- * @return code segment GDT offset, or 0 for 32-bit EFI, -ENOENT if not found
+ * Return: code segment GDT offset, or 0 for 32-bit EFI, -ENOENT if not found
  */
 static int get_codeseg32(void)
 {

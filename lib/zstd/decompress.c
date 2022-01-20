@@ -306,7 +306,7 @@ unsigned long long ZSTD_getFrameContentSize(const void *src, size_t srcSize)
  *  compatible with legacy mode
  *  `srcSize` must be the exact length of some number of ZSTD compressed and/or
  *      skippable frames
- *  @return : decompressed size of the frames contained */
+ *  Return: decompressed size of the frames contained */
 unsigned long long ZSTD_findDecompressedSize(const void *src, size_t srcSize)
 {
 	{
@@ -1497,7 +1497,7 @@ size_t ZSTD_generateNxBytes(void *dst, size_t dstCapacity, BYTE byte, size_t len
  *  compatible with legacy mode
  *  `src` must point to the start of a ZSTD frame, ZSTD legacy frame, or skippable frame
  *  `srcSize` must be at least as large as the frame contained
- *  @return : the compressed size of the frame starting at `src` */
+ *  Return: the compressed size of the frame starting at `src` */
 size_t ZSTD_findFrameCompressedSize(const void *src, size_t srcSize)
 {
 	if (srcSize >= ZSTD_skippableHeaderSize && (ZSTD_readLE32(src) & 0xFFFFFFF0U) == ZSTD_MAGIC_SKIPPABLE_START) {
@@ -1860,7 +1860,7 @@ static size_t ZSTD_refDictContent(ZSTD_DCtx *dctx, const void *dict, size_t dict
 
 /* ZSTD_loadEntropy() :
  * dict : must point at beginning of a valid zstd dictionary
- * @return : size of entropy tables read */
+ * Return: size of entropy tables read */
 static size_t ZSTD_loadEntropy(ZSTD_entropyTables_t *entropy, const void *const dict, size_t const dictSize)
 {
 	const BYTE *dictPtr = (const BYTE *)dict;

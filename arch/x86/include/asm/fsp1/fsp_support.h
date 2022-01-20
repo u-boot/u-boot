@@ -33,7 +33,7 @@ void fsp_init_done(void *hob_list);
  * @status:      Always 0
  * @hob_list:    HOB list pointer
  *
- * @return Never returns
+ * Return: Never returns
  */
 void fsp_continue(u32 status, void *hob_list);
 
@@ -53,8 +53,8 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf);
  * @len:           A pointer to the bootloader temporary stack length.
  *                 If the HOB is located, the length will be updated.
  *
- * @return NULL:   Failed to find the bootloader temporary stack HOB.
- * @return others: Bootloader temporary stackbuffer pointer.
+ * Return: NULL:   Failed to find the bootloader temporary stack HOB.
+ * Return: others: Bootloader temporary stackbuffer pointer.
  */
 void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len);
 
@@ -64,7 +64,7 @@ void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len);
  * @config:  A pointer to the FSP configuration data structure
  * @rt_buf:  A pointer to the FSP runtime buffer data structure
  *
- * @return None
+ * Return: None
  */
 void fsp_update_configs(struct fsp_config_data *config,
 			struct fspinit_rtbuf *rt_buf);

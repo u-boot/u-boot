@@ -19,7 +19,7 @@ struct extension {
 /**
  * extension_board_scan - Add system-specific function to scan extension board.
  * @param extension_list	List of extension board information to update.
- * @return the number of extension.
+ * Return: the number of extension.
  *
  * This function is called if CONFIG_CMD_EXTENSION is defined.
  * Needs to fill the list extension_list with elements.

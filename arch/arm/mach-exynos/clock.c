@@ -1403,7 +1403,7 @@ int exynos5_set_i2s_clk_prescaler(unsigned int src_frq,
  * @param target_freq		Desired clock frequency in Hz
  * @param best_fine_scalar	Pointer to store the fine stage divisor
  *
- * @return best_main_scalar	Main scalar for desired frequency or -1 if none
+ * Return: best_main_scalar	Main scalar for desired frequency or -1 if none
  * found
  */
 static int clock_calc_best_scalar(unsigned int main_scaler_bits,

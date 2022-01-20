@@ -170,7 +170,7 @@ void device_free(struct udevice *dev)
  *
  * @flags: Flags passed to device_remove()
  * @drv_flags: Driver flags
- * @return 0 if the device should be removed,
+ * Return: 0 if the device should be removed,
  * -EKEYREJECTED if @flags includes a flag in DM_REMOVE_ACTIVE_ALL but
  *	@drv_flags does not (indicates that this device has nothing to do for
  *	DMA shutdown or OS prepare)

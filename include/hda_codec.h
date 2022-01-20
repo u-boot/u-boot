@@ -27,7 +27,7 @@ struct hda_codec_priv {
  *  hda_wait_for_ready() - Wait for the codec to indicate it is ready
  *
  * @regs: HDA registers
- * @return 0 if OK -ETIMEDOUT if codec did not respond in time
+ * Return: 0 if OK -ETIMEDOUT if codec did not respond in time
  */
 int hda_wait_for_ready(struct hda_regs *regs);
 
@@ -35,7 +35,7 @@ int hda_wait_for_ready(struct hda_regs *regs);
  *  hda_wait_for_valid() - Wait for the codec to accept the last command
  *
  * @regs: HDA registers
- * @return 0 if OK -ETIMEDOUT if codec did not respond in time
+ * Return: 0 if OK -ETIMEDOUT if codec did not respond in time
  */
 int hda_wait_for_valid(struct hda_regs *regs);
 
@@ -43,8 +43,8 @@ int hda_wait_for_valid(struct hda_regs *regs);
  * hda_codec_detect() - Detect which codecs are present
  *
  * @regs: HDA registers
- * @return bit mask of active codecs (0 if none)
- * @return 0 if OK, -ve on error
+ * Return: bit mask of active codecs (0 if none)
+ * Return: 0 if OK, -ve on error
  */
 int hda_codec_detect(struct hda_regs *regs);
 
@@ -54,7 +54,7 @@ int hda_codec_detect(struct hda_regs *regs);
  * @dev: Sound device
  * @regs: HDA registers
  * @codec_mask: Mask of codecs to init (bits 3:0)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int hda_codecs_init(struct udevice *dev, struct hda_regs *regs, u32 codec_mask);
 
@@ -66,7 +66,7 @@ int hda_codecs_init(struct udevice *dev, struct hda_regs *regs, u32 codec_mask);
  *
  * @dev: Sound device
  * @frequency_hz: Beep frequency in hertz
- * @return if OK, -ve on error
+ * Return: if OK, -ve on error
  */
 int hda_codec_start_beep(struct udevice *dev, int frequency_hz);
 
@@ -76,7 +76,7 @@ int hda_codec_start_beep(struct udevice *dev, int frequency_hz);
  * This tells the sound hardware to stop a previously started beep.
  *
  * @dev: Sound device
- * @return if OK, -ve on error
+ * Return: if OK, -ve on error
  */
 int hda_codec_stop_beep(struct udevice *dev);
 
@@ -86,7 +86,7 @@ int hda_codec_stop_beep(struct udevice *dev);
  * This should be called at the start of the probe() method.
  *
  * @dev: Sound device
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int hda_codec_init(struct udevice *dev);
 
@@ -96,7 +96,7 @@ int hda_codec_init(struct udevice *dev);
  * This should be called at the end of the probe() method.
  *
  * @dev: Sound device
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int hda_codec_finish_init(struct udevice *dev);
 

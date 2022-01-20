@@ -75,7 +75,7 @@ done:
  * @param dinp		Returns pointer to response data. This will be
  *			untouched unless we return a value > 0.
  * @param din_len	Maximum size of response in bytes
- * @return number of bytes in response, or -1 on error
+ * Return: number of bytes in response, or -1 on error
  */
 int cros_ec_spi_command(struct udevice *udev, uint8_t cmd, int cmd_version,
 		     const uint8_t *dout, int dout_len,

@@ -763,7 +763,7 @@ static inline void cvmx_wqe_set_len(cvmx_wqe_t *work, int len)
  *
  * @param work	pointer to work queue entry
  *
- * @return	0 if packet had no error, non-zero to indicate error code.
+ * Return:	0 if packet had no error, non-zero to indicate error code.
  *
  * Please refer to HRM for the specific model for full enumaration of error codes.
  * With Octeon1/Octeon2 models, the returned code indicates L1/L2 errors.
@@ -1042,7 +1042,7 @@ static inline int cvmx_wqe_is_l3_mcast(cvmx_wqe_t *work)
  * For older chips if PIP_GBL_CTL was proviosned to flag ip4_otions and
  * ipv6 extension, it will be flag them.
  * @param work	pointer to work queue entry
- * @return	1 -- If IP error was found in packet
+ * Return:	1 -- If IP error was found in packet
  *          0 -- If no IP error was found in packet.
  */
 static inline int cvmx_wqe_is_ip_exception(cvmx_wqe_t *work)
@@ -1221,7 +1221,7 @@ static inline cvmx_buf_ptr_pki_t cvmx_wqe_get_pki_pkt_ptr(cvmx_wqe_t *work)
 /**
  * Set the buffer segment count for a packet.
  *
- * @return Returns the actual resulting value in the WQE fielda
+ * Return: Returns the actual resulting value in the WQE fielda
  *
  */
 static inline unsigned int cvmx_wqe_set_bufs(cvmx_wqe_t *work, unsigned int bufs)
@@ -1239,7 +1239,7 @@ static inline unsigned int cvmx_wqe_set_bufs(cvmx_wqe_t *work, unsigned int bufs
  * Get the offset of Layer-3 header,
  * only supported when Layer-3 protocol is IPv4 or IPv6.
  *
- * @return Returns the offset, or 0 if the offset is not known or unsupported.
+ * Return: Returns the offset, or 0 if the offset is not known or unsupported.
  *
  * FIXME: Assuming word4 is present.
  */
@@ -1263,7 +1263,7 @@ static inline unsigned int cvmx_wqe_get_l3_offset(cvmx_wqe_t *work)
  * or when the Layer-2 header length is modified, and
  * a subsequent recalculation of checksums is anticipated.
  *
- * @return Returns the actual value of the work entry offset field.
+ * Return: Returns the actual value of the work entry offset field.
  *
  * FIXME: Assuming word4 is present.
  */

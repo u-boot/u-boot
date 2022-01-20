@@ -161,7 +161,7 @@ int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
  * @param of_match:	List of compatible strings to match
  * @param of_idp:	Returns the match that was found
  * @param compat:	The compatible string to search for
- * @return 0 if there is a match, -ENOENT if no match
+ * Return: 0 if there is a match, -ENOENT if no match
  */
 static int driver_check_compatible(const struct udevice_id *of_match,
 				   const struct udevice_id **of_idp,

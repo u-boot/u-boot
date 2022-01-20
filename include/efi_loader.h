@@ -553,7 +553,7 @@ void efi_initrd_deregister(void);
  *
  * Called by bootefi to make ACPI tables available
  *
- * @return 0 if OK, -ENOMEM if no memory is available for the tables
+ * Return: 0 if OK, -ENOMEM if no memory is available for the tables
  */
 efi_status_t efi_acpi_register(void);
 /**
@@ -561,7 +561,7 @@ efi_status_t efi_acpi_register(void);
  *
  * Called by bootefi to make SMBIOS tables available
  *
- * @return 0 if OK, -ENOMEM if no memory is available for the tables
+ * Return: 0 if OK, -ENOMEM if no memory is available for the tables
  */
 efi_status_t efi_smbios_register(void);
 
@@ -976,7 +976,7 @@ efi_status_t efi_capsule_authenticate(const void *capsule,
 /**
  * Install the ESRT system table.
  *
- * @return	status code
+ * Return:	status code
  */
 efi_status_t efi_esrt_register(void);
 

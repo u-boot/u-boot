@@ -39,7 +39,7 @@
  * @kernel_size: Size of kernel including setup block (or 0 if the kernel is
  *	new enough to have a 'syssize' value)
  * @load_addressp: Returns the address where the kernel has been loaded
- * @return address of setup block, or NULL if something went wrong
+ * Return: address of setup block, or NULL if something went wrong
  */
 struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 				ulong *load_addressp);
@@ -57,7 +57,7 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
  *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
  * @cmdline_force: Address of 'override' command line, or 0 to use the one in
  *	the *	setup block
- * @return 0 (always)
+ * Return: 0 (always)
  */
 int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		 ulong initrd_addr, ulong initrd_size, ulong cmdline_force);

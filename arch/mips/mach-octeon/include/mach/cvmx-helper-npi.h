@@ -17,7 +17,7 @@
  *
  * @param interface Interface to probe
  *
- * @return Number of ports on the interface. Zero to disable.
+ * Return: Number of ports on the interface. Zero to disable.
  */
 int __cvmx_helper_npi_probe(int interface);
 
@@ -29,7 +29,7 @@ int __cvmx_helper_npi_probe(int interface);
  *
  * @param xiface Interface to bring up
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_npi_enable(int xiface);
 

@@ -82,7 +82,7 @@ static inline u64 cgx_read(struct cgx *cgx, u8 lmac, u64 offset)
  *
  * @param instance	instance to find
  *
- * @return	pointer to lmac data structure or NULL if not found
+ * Return:	pointer to lmac data structure or NULL if not found
  */
 struct lmac *nix_get_cgx_lmac(int lmac_instance);
 

@@ -152,7 +152,7 @@ int fdt_next_node(const void *fdt, int offset, int *depth);
  *
  * @fdt:	FDT blob
  * @offset:	Offset of node to check
- * @return offset of first subnode, or -FDT_ERR_NOTFOUND if there is none
+ * Return: offset of first subnode, or -FDT_ERR_NOTFOUND if there is none
  */
 int fdt_first_subnode(const void *fdt, int offset);
 
@@ -164,7 +164,7 @@ int fdt_first_subnode(const void *fdt, int offset);
  *
  * @fdt:	FDT blob
  * @offset:	Offset of previous subnode
- * @return offset of next subnode, or -FDT_ERR_NOTFOUND if there are no more
+ * Return: offset of next subnode, or -FDT_ERR_NOTFOUND if there are no more
  * subnodes
  */
 int fdt_next_subnode(const void *fdt, int offset);

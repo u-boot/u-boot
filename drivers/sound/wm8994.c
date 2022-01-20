@@ -71,7 +71,7 @@ static int bclk_divs[] = {
  * @param reg	reg number to be write
  * @param data	data to be writen to the above registor
  *
- * @return	int value 1 for change, 0 for no change or negative error code.
+ * Return:	int value 1 for change, 0 for no change or negative error code.
  */
 static int wm8994_i2c_write(struct wm8994_priv *priv, unsigned int reg,
 			    unsigned short data)
@@ -92,7 +92,7 @@ static int wm8994_i2c_write(struct wm8994_priv *priv, unsigned int reg,
  * @param reg	reg number to be read
  * @param data	address of read data to be stored
  *
- * @return	int value 0 for success, -1 in case of error.
+ * Return:	int value 0 for success, -1 in case of error.
  */
 static unsigned int wm8994_i2c_read(struct wm8994_priv *priv, unsigned int reg,
 				    unsigned short *data)
@@ -122,7 +122,7 @@ static unsigned int wm8994_i2c_read(struct wm8994_priv *priv, unsigned int reg,
  * @param mask	register mask
  * @param value	new value
  *
- * @return int value 1 if change in the register value,
+ * Return: int value 1 if change in the register value,
  * 0 for no change or negative error code.
  */
 static int wm8994_bic_or(struct wm8994_priv *priv, unsigned int reg,
@@ -150,7 +150,7 @@ static int wm8994_bic_or(struct wm8994_priv *priv, unsigned int reg,
  * @param aif_id	Interface ID
  * @param fmt		i2S format
  *
- * @return -1 for error and 0  Success.
+ * Return: -1 for error and 0  Success.
  */
 static int wm8994_set_fmt(struct wm8994_priv *priv, int aif_id, uint fmt)
 {
@@ -274,7 +274,7 @@ static int wm8994_set_fmt(struct wm8994_priv *priv, int aif_id, uint fmt)
  * @param bits_per_sample	Bits per sample
  * @param Channels		Channels in the given audio input
  *
- * @return -1 for error  and 0  Success.
+ * Return: -1 for error  and 0  Success.
  */
 static int wm8994_hw_params(struct wm8994_priv *priv, int aif_id,
 			    uint sampling_rate, uint bits_per_sample,
@@ -417,7 +417,7 @@ static int wm8994_hw_params(struct wm8994_priv *priv, int aif_id,
  * @param priv		wm8994 information pointer
  * @param aif		Audio Interface ID
  *
- * @return -1 for error  and 0  Success.
+ * Return: -1 for error  and 0  Success.
  */
 static int configure_aif_clock(struct wm8994_priv *priv, int aif)
 {
@@ -497,7 +497,7 @@ static int configure_aif_clock(struct wm8994_priv *priv, int aif)
  * @param clk_id	Input Clock ID
  * @param freq		Sampling frequency in Hz
  *
- * @return -1 for error and 0 success.
+ * Return: -1 for error and 0 success.
  */
 static int wm8994_set_sysclk(struct wm8994_priv *priv, int aif_id, int clk_id,
 			     unsigned int freq)

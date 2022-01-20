@@ -28,7 +28,7 @@ struct disk_partition;
  *
  * @param[in] dev_desc Place to store the device description pointer
  * @param[in] part_info Place to store the partition information
- * @return The slot number (>= 0) on success, or a negative on error
+ * Return: The slot number (>= 0) on success, or a negative on error
  */
 int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info);
 

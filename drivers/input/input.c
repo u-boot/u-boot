@@ -253,7 +253,7 @@ int input_getc(struct input_config *config)
  * @param config	Input state
  * @param key		Key code to process
  * @param release	0 if a press, 1 if a release
- * @return pointer to keycode->ascii translation table that should be used
+ * Return: pointer to keycode->ascii translation table that should be used
  */
 static struct input_key_xlate *process_modifier(struct input_config *config,
 						int key, int release)
@@ -322,7 +322,7 @@ static struct input_key_xlate *process_modifier(struct input_config *config,
  * @param array	Array to search
  * @param count	Number of elements in array
  * @param key	Key value to find
- * @return element where value was first found, -1 if none
+ * Return: element where value was first found, -1 if none
  */
 static int array_search(int *array, int count, int key)
 {
@@ -347,7 +347,7 @@ static int array_search(int *array, int count, int key)
  * @param count		Number of elements to sort
  * @param order		Array containing ordering elements
  * @param ocount	Number of ordering elements
- * @return number of elements in dest that are in order (these will be at the
+ * Return: number of elements in dest that are in order (these will be at the
  *	start of dest).
  */
 static int sort_array_by_ordering(int *dest, int count, int *order,
@@ -417,7 +417,7 @@ static int input_check_keycodes(struct input_config *config,
  *			be at least ANSI_CHAR_MAX bytes long, to allow for
  *			an ANSI sequence.
  * @param max_chars	Maximum number of characters to add to output_ch
- * @return number of characters output, if the key was converted, otherwise 0.
+ * Return: number of characters output, if the key was converted, otherwise 0.
  *	This may be larger than max_chars, in which case the overflow
  *	characters are not output.
  */
@@ -462,7 +462,7 @@ static int input_keycode_to_ansi364(struct input_config *config,
  *			ANSI sequences.
  * @param max_chars	Maximum number of characters to add to output_ch
  * @param same		Number of key codes which are the same
- * @return number of characters written into output_ch, or -1 if we would
+ * Return: number of characters written into output_ch, or -1 if we would
  *	exceed max_chars chars.
  */
 static int input_keycodes_to_ascii(struct input_config *config,

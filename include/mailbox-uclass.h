@@ -62,7 +62,7 @@ struct mbox_ops {
 	*
 	* @chan:	The channel to send to the message to.
 	* @data:	A pointer to the message to send.
-	* @return 0 if OK, or a negative error code.
+	* Return: 0 if OK, or a negative error code.
 	*/
 	int (*send)(struct mbox_chan *chan, const void *data);
 	/**
@@ -73,7 +73,7 @@ struct mbox_ops {
 	*
 	* @chan:	The channel to receive to the message from.
 	* @data:	A pointer to the buffer to hold the received message.
-	* @return 0 if OK, -ENODATA if no message was available, or a negative
+	* Return: 0 if OK, -ENODATA if no message was available, or a negative
 	* error code.
 	*/
 	int (*recv)(struct mbox_chan *chan, void *data);

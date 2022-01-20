@@ -137,7 +137,7 @@ static void octeon_spi_wait_ready(struct udevice *dev)
  *
  * @param	dev	SPI bus
  *
- * @return	0 for success, -EINVAL if chip select is invalid
+ * Return:	0 for success, -EINVAL if chip select is invalid
  */
 static int octeon_spi_claim_bus(struct udevice *dev)
 {
@@ -168,7 +168,7 @@ static int octeon_spi_claim_bus(struct udevice *dev)
  *
  * @param	dev	SPI bus
  *
- * @return	0 for success, -EINVAL if chip select is invalid
+ * Return:	0 for success, -EINVAL if chip select is invalid
  */
 static int octeon_spi_release_bus(struct udevice *dev)
 {

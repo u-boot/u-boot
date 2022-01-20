@@ -98,7 +98,7 @@ static int get_memconfig(struct udevice *dev)
  *     EC              - reading from the EC (backup)
  *
  * @dev: sysinfo device to use
- * @return SKU ID, or -ve error if not found
+ * Return: SKU ID, or -ve error if not found
  */
 static int get_skuconfig(struct udevice *dev)
 {

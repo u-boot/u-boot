@@ -84,7 +84,7 @@ struct ast_wdt {
  * gets Reset Mode value from it.
  *
  * @flags: flags parameter passed into wdt_reset or wdt_start
- * @return Reset Mode value
+ * Return: Reset Mode value
  */
 u32 ast_reset_mode_from_flags(ulong flags);
 
@@ -93,7 +93,7 @@ u32 ast_reset_mode_from_flags(ulong flags);
  * gets Reset Mask value from it. Reset Mask is only supported on ast2500
  *
  * @flags: flags parameter passed into wdt_reset or wdt_start
- * @return Reset Mask value
+ * Return: Reset Mask value
  */
 u32 ast_reset_mask_from_flags(ulong flags);
 

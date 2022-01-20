@@ -380,7 +380,7 @@ static int virtio_pci_notify(struct udevice *udev, struct virtqueue *vq)
  * @udev:	the transport device
  * @cfg_type:	the VIRTIO_PCI_CAP_* value we seek
  *
- * @return offset of the configuration structure
+ * Return: offset of the configuration structure
  */
 static int virtio_pci_find_capability(struct udevice *udev, u8 cfg_type)
 {
@@ -413,7 +413,7 @@ static int virtio_pci_find_capability(struct udevice *udev, u8 cfg_type)
  * @udev:	the transport device
  * @off:	offset of the configuration structure
  *
- * @return base address of the capability
+ * Return: base address of the capability
  */
 static void __iomem *virtio_pci_map_capability(struct udevice *udev, int off)
 {

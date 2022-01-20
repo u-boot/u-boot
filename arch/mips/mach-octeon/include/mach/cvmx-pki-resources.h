@@ -14,7 +14,7 @@
  * @param style	 style to allocate, if -1 it will be allocated
 		 first available style from style resource. If index is positive
 		 number and in range, it will try to allocate specified style.
- * @return	 style number on success, -1 on failure.
+ * Return:	 style number on success, -1 on failure.
  */
 int cvmx_pki_style_alloc(int node, int style);
 
@@ -24,7 +24,7 @@ int cvmx_pki_style_alloc(int node, int style);
  * @param node		node to allocate cluster group from.
    @param cl_grp	cluster group to allocate/reserve, if -1 ,
 			allocate any available cluster group.
- * @return		cluster group number or -1 on failure
+ * Return:		cluster group number or -1 on failure
  */
 int cvmx_pki_cluster_grp_alloc(int node, int cl_grp);
 
@@ -45,7 +45,7 @@ int cvmx_pki_cluster_alloc(int node, int num_clusters, u64 *cluster_mask);
 			allocate any available pcam entry.
  * @param bank		pcam bank where to allocate/reserve pcan entry from
  * @param cluster_mask  mask of clusters from which pcam entry is needed.
- * @return		pcam entry of -1 on failure
+ * Return:		pcam entry of -1 on failure
  */
 int cvmx_pki_pcam_entry_alloc(int node, int index, int bank, u64 cluster_mask);
 
@@ -57,7 +57,7 @@ int cvmx_pki_pcam_entry_alloc(int node, int index, int bank, u64 cluster_mask);
 			number and in range, it will try to allocate specified base_offset.
    @param count		number of consecutive qpg entries to allocate. They will be consecutive
 			from base offset.
- * @return		qpg table base offset number on success, -1 on failure.
+ * Return:		qpg table base offset number on success, -1 on failure.
  */
 int cvmx_pki_qpg_entry_alloc(int node, int base_offset, int count);
 
@@ -65,7 +65,7 @@ int cvmx_pki_qpg_entry_alloc(int node, int base_offset, int count);
  * This function frees a style from pool of global styles per node.
  * @param node	 node to free style from.
  * @param style	 style to free
- * @return	 0 on success, -1 on failure.
+ * Return:	 0 on success, -1 on failure.
  */
 int cvmx_pki_style_free(int node, int style);
 
@@ -74,7 +74,7 @@ int cvmx_pki_style_free(int node, int style);
    cluster group resources.
  * @param node		node to free cluster group from.
    @param cl_grp	cluster group to free
- * @return		0 on success or -1 on failure
+ * Return:		0 on success or -1 on failure
  */
 int cvmx_pki_cluster_grp_free(int node, int cl_grp);
 
@@ -86,7 +86,7 @@ int cvmx_pki_cluster_grp_free(int node, int cl_grp);
  *			number and in range, it will try to allocate specified base_offset.
  * @param count		number of consecutive qpg entries to allocate. They will be consecutive
  *			from base offset.
- * @return		qpg table base offset number on success, -1 on failure.
+ * Return:		qpg table base offset number on success, -1 on failure.
  */
 int cvmx_pki_qpg_entry_free(int node, int base_offset, int count);
 
@@ -95,7 +95,7 @@ int cvmx_pki_qpg_entry_free(int node, int base_offset, int count);
    clusters resources.
  * @param node		node to free clusters from.
  * @param cluster_mask  mask of clusters need freeing
- * @return		0 on success or -1 on failure
+ * Return:		0 on success or -1 on failure
  */
 int cvmx_pki_cluster_free(int node, u64 cluster_mask);
 
@@ -105,7 +105,7 @@ int cvmx_pki_cluster_free(int node, u64 cluster_mask);
    @param index	index of pacm entry (0-191) needs to be freed.
  * @param bank		pcam bank where to free pcam entry from
  * @param cluster_mask  mask of clusters from which pcam entry is freed.
- * @return		0 on success OR -1 on failure
+ * Return:		0 on success OR -1 on failure
  */
 int cvmx_pki_pcam_entry_free(int node, int index, int bank, u64 cluster_mask);
 
@@ -115,7 +115,7 @@ int cvmx_pki_pcam_entry_free(int node, int index, int bank, u64 cluster_mask);
  * @param bpid	bpid  to allocate, if -1 it will be allocated
  *		first available boid from bpid resource. If index is positive
  *		number and in range, it will try to allocate specified bpid.
- * @return	bpid number on success,
+ * Return:	bpid number on success,
  *		-1 on alloc failure.
  *		-2 on resource already reserved.
  */
@@ -125,7 +125,7 @@ int cvmx_pki_bpid_alloc(int node, int bpid);
  * This function frees a bpid from pool of global bpid per node.
  * @param node	 node to free bpid from.
  * @param bpid	 bpid to free
- * @return	 0 on success, -1 on failure or
+ * Return:	 0 on success, -1 on failure or
  */
 int cvmx_pki_bpid_free(int node, int bpid);
 
@@ -138,7 +138,7 @@ int cvmx_pki_bpid_free(int node, int bpid);
  * This function allocates/reserves an index from pool of global MTAG-IDX per node.
  * @param node	node to allocate index from.
  * @param idx	index  to allocate, if -1 it will be allocated
- * @return	MTAG index number on success,
+ * Return:	MTAG index number on success,
  *		-1 on alloc failure.
  *		-2 on resource already reserved.
  */
@@ -148,7 +148,7 @@ int cvmx_pki_mtag_idx_alloc(int node, int idx);
  * This function frees an index from pool of global MTAG-IDX per node.
  * @param node	 node to free bpid from.
  * @param bpid	 bpid to free
- * @return	 0 on success, -1 on failure or
+ * Return:	 0 on success, -1 on failure or
  */
 int cvmx_pki_mtag_idx_free(int node, int idx);
 

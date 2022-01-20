@@ -29,7 +29,7 @@
  * @param dfa_buffers
  *               DFA command buffer. A relatively small (32 for example)
  *               number should work.
- * @return Zero on success, non-zero if out of memory
+ * Return: Zero on success, non-zero if out of memory
  */
 int cvmx_helper_initialize_fpa(int packet_buffers, int work_queue_entries, int pko_buffers,
 			       int tim_buffers, int dfa_buffers);

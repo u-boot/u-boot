@@ -346,7 +346,7 @@ static void *alloc_priv(int size, uint flags)
  * device_alloc_priv() - Allocate priv/plat data required by the device
  *
  * @dev: Device to process
- * @return 0 if OK, -ENOMEM if out of memory
+ * Return: 0 if OK, -ENOMEM if out of memory
  */
 static int device_alloc_priv(struct udevice *dev)
 {

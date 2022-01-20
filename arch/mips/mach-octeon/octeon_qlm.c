@@ -176,7 +176,7 @@ static void __set_qlm_pcie_mode_61xx(int pcie_port, int root_complex)
  *               SPEED value is ignored in this mode. QLM_SPD is set based on
  *               pcie2x1 value in this mode.
  *
- * @return       Return 0 on success or -1.
+ * Return:       Return 0 on success or -1.
  */
 static int octeon_configure_qlm_cn61xx(int qlm, int speed, int mode, int rc, int pcie2x1)
 {
@@ -1882,7 +1882,7 @@ static int __dlmx_setup_pcie_cn70xx(int qlm, enum cvmx_qlm_mode mode, int gen2, 
  * @param ref_clk_input  The reference-clock input to use to configure QLM
  * @param ref_clk_sel    The reference-clock selection to use to configure QLM
  *
- * @return       Return 0 on success or -1.
+ * Return:       Return 0 on success or -1.
  */
 static int octeon_configure_qlm_cn70xx(int qlm, int speed, int mode, int rc, int gen2,
 				       int ref_clk_sel, int ref_clk_input)
@@ -2168,7 +2168,7 @@ void octeon_qlm_dfe_disable(int node, int qlm, int lane, int baud_mhz, int mode)
  * @param  ctle_zero      Equalizer Peaking control
  * @param  agc_pre_ctle   Pre-CTLE gain
  * @param  agc_post_ctle  Post-CTLE gain
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 
 int octeon_qlm_dfe_disable_ctle_agc(int node, int qlm, int lane, int baud_mhz, int mode,
@@ -3278,7 +3278,7 @@ static const struct refclk_settings_cn78xx refclk_settings_cn78xx[R_NUM_LANE_MOD
  * @param ref_clk_sel	0 = 100MHz, 1 = 125MHz, 2 = 156.25MHz,
  *			3 = 161.1328125MHz
  *
- * @return 0 for success or -1 if the reference clock selector is not supported
+ * Return: 0 for success or -1 if the reference clock selector is not supported
  *
  * NOTE: This must be called before __qlm_setup_pll_cn78xx.
  */
@@ -3624,7 +3624,7 @@ static void __qlm_setup_pll_cn78xx(int node, int qlm)
  * @param[out] alt_pll_settings	If non-NULL this will be set if non-default PLL
  *				settings are required for the mode.
  *
- * @return lane mode to use or -1 on error
+ * Return: lane mode to use or -1 on error
  *
  * NOTE: In some modes
  */
@@ -4103,7 +4103,7 @@ static void __setup_pem_reset(int node, int pem, int is_endpoint)
  *			 3 = REF_161MHZ
  * @param ref_clk_input  The reference-clock input to use to configure QLM
  *
- * @return       Return 0 on success or -1.
+ * Return:       Return 0 on success or -1.
  */
 int octeon_configure_qlm_cn78xx(int node, int qlm, int baud_mhz, int mode, int rc, int gen3,
 				int ref_clk_sel, int ref_clk_input)
@@ -4629,7 +4629,7 @@ static int __is_qlm_valid_bgx_cn73xx(int qlm)
  *			 1 = common reference clock input 0
  *			 2 = common reference clock input 1
  *
- * @return       Return 0 on success or -1.
+ * Return:       Return 0 on success or -1.
  */
 static int octeon_configure_qlm_cn73xx(int qlm, int baud_mhz, int mode, int rc, int gen3,
 				       int ref_clk_sel, int ref_clk_input)
@@ -5339,7 +5339,7 @@ static int __rmac_pll_config(int baud_mhz, int qlm, int mode)
  *			 3 = REF_122MHZ
  * @param ref_clk_input  The reference-clock input to use to configure QLM
  *
- * @return       Return 0 on success or -1.
+ * Return:       Return 0 on success or -1.
  */
 static int octeon_configure_qlm_cnf75xx(int qlm, int baud_mhz, int mode, int rc, int gen3,
 					int ref_clk_sel, int ref_clk_input)
@@ -5788,7 +5788,7 @@ static int octeon_configure_qlm_cnf75xx(int qlm, int baud_mhz, int mode, int rc,
  *				1: QLMC_REF_CLK0
  *				2: QLMC_REF_CLK1
  *
- * @return       Return 0 on success or -1.
+ * Return:       Return 0 on success or -1.
  */
 int octeon_configure_qlm(int qlm, int speed, int mode, int rc, int pcie_mode, int ref_clk_sel,
 			 int ref_clk_input)

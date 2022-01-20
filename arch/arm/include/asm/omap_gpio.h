@@ -43,7 +43,7 @@ extern const struct gpio_bank *const omap_gpio_bank;
  * Check if gpio is valid.
  *
  * @param gpio	GPIO number
- * @return 1 if ok, 0 on error
+ * Return: 1 if ok, 0 on error
  */
 int gpio_is_valid(int gpio);
 #endif

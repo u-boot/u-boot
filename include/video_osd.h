@@ -125,7 +125,7 @@ struct video_osd_ops {
  * @dev:	OSD instance to query.
  * @info:	Pointer to a structure that takes the information read from the
  *		OSD instance.
- * @return 0 if OK, -ve on error.
+ * Return: 0 if OK, -ve on error.
  */
 int video_osd_get_info(struct udevice *dev, struct video_osd_info *info);
 
@@ -155,7 +155,7 @@ int video_osd_get_info(struct udevice *dev, struct video_osd_info *info);
  *		coordinate on the OSD screen.
  * @buflen:	Length of the data in the passed buffer (in byte).
  * @count:	Write count many repetitions of the given text data
- * @return 0 if OK, -ve on error.
+ * Return: 0 if OK, -ve on error.
  */
 int video_osd_set_mem(struct udevice *dev, uint col, uint row, u8 *buf,
 		      size_t buflen, uint count);
@@ -167,7 +167,7 @@ int video_osd_set_mem(struct udevice *dev, uint col, uint row, u8 *buf,
  * @dev:	OSD instance to write to.
  * @col		The number of characters in the window's columns
  * @row		The number of characters in the window's rows
- * @return 0 if OK, -ve on error.
+ * Return: 0 if OK, -ve on error.
  */
 int video_osd_set_size(struct udevice *dev, uint col, uint row);
 
@@ -184,7 +184,7 @@ int video_osd_set_size(struct udevice *dev, uint col, uint row);
  *		interpretation of the value is driver-specific, and possible
  *		values should be defined e.g. in a driver include file.
  * @text:	The string data that should be printed on the OSD
- * @return 0 if OK, -ve on error.
+ * Return: 0 if OK, -ve on error.
  */
 int video_osd_print(struct udevice *dev, uint col, uint row, ulong color,
 		    char *text);

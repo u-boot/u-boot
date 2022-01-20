@@ -225,7 +225,7 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
  *
  * @s		output buffer
  * @dp		device path node
- * @return	next unused buffer address
+ * Return:	next unused buffer address
  */
 static char *dp_media(char *s, struct efi_device_path *dp)
 {
@@ -310,7 +310,7 @@ static char *dp_media(char *s, struct efi_device_path *dp)
  *
  * @buffer		output buffer
  * @dp			device path or node
- * @return		end of string
+ * Return:		end of string
  */
 static char *efi_convert_single_device_node_to_text(
 		char *buffer,
@@ -350,7 +350,7 @@ static char *efi_convert_single_device_node_to_text(
  * device_node		device node to be converted
  * display_only		true if the shorter text representation shall be used
  * allow_shortcuts	true if shortcut forms may be used
- * @return		text representation of the device path
+ * Return:		text representation of the device path
  *			NULL if out of memory of device_path is NULL
  */
 static uint16_t EFIAPI *efi_convert_device_node_to_text(
@@ -383,7 +383,7 @@ out:
  * device_path		device path to be converted
  * display_only		true if the shorter text representation shall be used
  * allow_shortcuts	true if shortcut forms may be used
- * @return		text representation of the device path
+ * Return:		text representation of the device path
  *			NULL if out of memory of device_path is NULL
  */
 static uint16_t EFIAPI *efi_convert_device_path_to_text(

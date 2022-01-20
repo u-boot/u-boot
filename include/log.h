@@ -660,7 +660,7 @@ int log_remove_filter(const char *drv_name, int filter_num);
  *
  * @drv: Driver of device to enable
  * @enable: true to enable, false to disable
- * @return 0 if OK, -ENOENT if the driver was not found
+ * Return: 0 if OK, -ENOENT if the driver was not found
  */
 int log_device_set_enable(struct log_driver *drv, bool enable);
 

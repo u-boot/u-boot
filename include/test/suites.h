@@ -20,7 +20,7 @@ struct unit_test;
  * @argc:	Argument count provided. Must be >= 1. If this is 1 then all
  *		tests are run, otherwise only the one named @argv[1] is run.
  * @argv:	Arguments: argv[1] is the test to run (if @argc >= 2)
- * @return 0 if OK, CMD_RET_FAILURE on failure
+ * Return: 0 if OK, CMD_RET_FAILURE on failure
  */
 int cmd_ut_category(const char *name, const char *prefix,
 		    struct unit_test *tests, int n_ents,

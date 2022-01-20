@@ -2049,7 +2049,7 @@ int fdt_overlay_apply_verbose(void *fdt, void *fdto)
  * fdt_valid() - Check if an FDT is valid. If not, change it to NULL
  *
  * @blobp: Pointer to FDT pointer
- * @return 1 if OK, 0 if bad (in which case *blobp is set to NULL)
+ * Return: 1 if OK, 0 if bad (in which case *blobp is set to NULL)
  */
 int fdt_valid(struct fdt_header **blobp)
 {

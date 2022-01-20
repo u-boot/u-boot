@@ -91,7 +91,7 @@ extern struct clk_ops sunxi_clk_ops;
  *
  * @dev:       reset device
  * @count:     reset count
- * @return 0 success, or error value
+ * Return: 0 success, or error value
  */
 int sunxi_reset_bind(struct udevice *dev, ulong count);
 

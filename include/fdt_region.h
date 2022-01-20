@@ -131,7 +131,7 @@ struct fdt_region_state {
  * @path_len:	Length of path, must be large enough to hold the longest
  *		path in the tree
  * @add_string_tab:	1 to add a region for the string table
- * @return number of regions in list. If this is >max_regions then the
+ * Return: number of regions in list. If this is >max_regions then the
  * region array was exhausted. You should increase max_regions and try
  * the call again.
  */
@@ -232,7 +232,7 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
  *		@data: Pointer to data (node name, property name, compatible
  *			string, value (not yet supported)
  *		@size: Size of data, or 0 if none
- *		@return 0 to exclude, 1 to include, -1 if no information is
+ *		Return: 0 to exclude, 1 to include, -1 if no information is
  *		available
  * @priv:	Private pointer passed to h_include
  * @region:	Returns list of regions, sorted by offset
@@ -243,7 +243,7 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
  *		path in the tree
  * @flags:	Various flags that control the region algortihm, see
  *		FDT_REG_...
- * @return number of regions in list. If this is >max_regions then the
+ * Return: number of regions in list. If this is >max_regions then the
  * region array was exhausted. You should increase max_regions and try
  * the call again. Only the first max_regions elements are available in the
  * array.
@@ -295,7 +295,7 @@ int fdt_next_region(const void *fdt,
  * @count:	Number of regions
  * @max_regions: Number of entries that can fit in @region
  * @info:	Region state as returned from fdt_next_region()
- * @return new number of regions in @region (i.e. count + the number added)
+ * Return: new number of regions in @region (i.e. count + the number added)
  * or -FDT_ERR_NOSPACE if there was not enough space.
  */
 int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,

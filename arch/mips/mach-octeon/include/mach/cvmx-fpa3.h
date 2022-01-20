@@ -206,7 +206,7 @@ static inline cvmx_fpa3_pool_t cvmx_fpa3_aura_to_pool(cvmx_fpa3_gaura_t aura)
  * Get a new block from the FPA pool
  *
  * @param aura  - aura number
- * @return pointer to the block or NULL on failure
+ * Return: pointer to the block or NULL on failure
  */
 static inline void *cvmx_fpa3_alloc(cvmx_fpa3_gaura_t aura)
 {
@@ -267,7 +267,7 @@ static inline void cvmx_fpa3_async_alloc(u64 scr_addr, cvmx_fpa3_gaura_t aura)
  * @param aura Global aura the block came from.  Must be the same value
  * passed to cvmx_fpa_async_alloc.
  *
- * @return Pointer to the block or NULL on failure
+ * Return: Pointer to the block or NULL on failure
  */
 static inline void *cvmx_fpa3_async_alloc_finish(u64 scr_addr, cvmx_fpa3_gaura_t aura)
 {
@@ -376,7 +376,7 @@ static inline int cvmx_fpa3_config_red_params(unsigned int node, int qos_avg_en,
  * Gets the buffer size of the specified pool,
  *
  * @param aura Global aura number
- * @return Returns size of the buffers in the specified pool.
+ * Return: Returns size of the buffers in the specified pool.
  */
 static inline int cvmx_fpa3_get_aura_buf_size(cvmx_fpa3_gaura_t aura)
 {
@@ -395,7 +395,7 @@ static inline int cvmx_fpa3_get_aura_buf_size(cvmx_fpa3_gaura_t aura)
  * Return the number of available buffers in an AURA
  *
  * @param aura to receive count for
- * @return available buffer count
+ * Return: available buffer count
  */
 static inline long long cvmx_fpa3_get_available(cvmx_fpa3_gaura_t aura)
 {
@@ -500,7 +500,7 @@ cvmx_fpa3_pool_t cvmx_fpa3_setup_fill_pool(int node, int desired_pool, const cha
  * @param block_size - size of buffers to use
  * @param num_blocks - number of blocks to allocate
  *
- * @return configured gaura on success, CVMX_FPA3_INVALID_GAURA on failure
+ * Return: configured gaura on success, CVMX_FPA3_INVALID_GAURA on failure
  */
 cvmx_fpa3_gaura_t cvmx_fpa3_set_aura_for_pool(cvmx_fpa3_pool_t pool, int desired_aura,
 					      const char *name, unsigned int block_size,

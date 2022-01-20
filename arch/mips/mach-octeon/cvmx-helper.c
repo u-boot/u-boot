@@ -512,7 +512,7 @@ cvmx_helper_link_info_t __cvmx_helper_get_link_info(int xiface, int port)
  *
  * @param xiface - interface to check
  *
- * @return zero if FCS is not used, otherwise FCS is used.
+ * Return: zero if FCS is not used, otherwise FCS is used.
  */
 int __cvmx_helper_get_has_fcs(int xiface)
 {
@@ -562,7 +562,7 @@ void (*cvmx_override_ipd_port_setup)(int ipd_port) = NULL;
  * but the CNX0XX and CNX1XX are exceptions. These only support
  * one interface.
  *
- * @return Number of interfaces on chip
+ * Return: Number of interfaces on chip
  */
 int cvmx_helper_get_number_of_interfaces(void)
 {
@@ -609,7 +609,7 @@ int __cvmx_helper_early_ports_on_interface(int interface)
  *
  * @param xiface xiface to get the port count for
  *
- * @return Number of ports on interface. Can be Zero.
+ * Return: Number of ports on interface. Can be Zero.
  */
 int cvmx_helper_ports_on_interface(int xiface)
 {
@@ -1158,7 +1158,7 @@ static cvmx_helper_interface_mode_t __cvmx_get_mode_octeon2(int interface)
  *
  * @param xiface Interface to probe
  *
- * @return Mode of the interface. Unknown or unsupported interfaces return
+ * Return: Mode of the interface. Unknown or unsupported interfaces return
  *         DISABLED.
  */
 cvmx_helper_interface_mode_t cvmx_helper_interface_get_mode(int xiface)
@@ -1239,7 +1239,7 @@ cvmx_helper_interface_mode_t cvmx_helper_interface_get_mode(int xiface)
  *
  * @param xiface Interface to enumerate
  *
- * @return The number of ports on the interface, negative on failure
+ * Return: The number of ports on the interface, negative on failure
  */
 int cvmx_helper_interface_enumerate(int xiface)
 {
@@ -1262,7 +1262,7 @@ int cvmx_helper_interface_enumerate(int xiface)
  *
  * @param xiface Interface to probe
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_helper_interface_probe(int xiface)
 {
@@ -1365,7 +1365,7 @@ int cvmx_helper_interface_probe(int xiface)
  * @INTERNAL
  * Setup backpressure.
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 static int __cvmx_helper_global_setup_backpressure(int node)
 {
@@ -1441,7 +1441,7 @@ static int __cvmx_helper_global_setup_backpressure(int node)
 /**
  * @INTERNAL
  * Verify the per port IPD backpressure is aligned properly.
- * @return Zero if working, non zero if misaligned
+ * Return: Zero if working, non zero if misaligned
  */
 int __cvmx_helper_backpressure_is_misaligned(void)
 {
@@ -1458,7 +1458,7 @@ int __cvmx_helper_backpressure_is_misaligned(void)
  *
  * @param xiface Interface to enable
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_packet_hardware_enable(int xiface)
 {
@@ -1480,7 +1480,7 @@ int cvmx_helper_ipd_and_packet_input_enable(void)
  * Called after all internal packet IO paths are setup. This
  * function enables IPD/PIP and begins packet input and output.
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_helper_ipd_and_packet_input_enable_node(int node)
 {
@@ -1526,7 +1526,7 @@ int cvmx_helper_ipd_and_packet_input_enable_node(int node)
  * on CVMX_PKO_QUEUES_PER_PORT_* where each queue is lower
  * priority than the previous.
  *
- * @return Zero on success, non-zero on failure
+ * Return: Zero on success, non-zero on failure
  */
 int cvmx_helper_initialize_packet_io_node(unsigned int node)
 {
@@ -1645,7 +1645,7 @@ int cvmx_helper_initialize_packet_io_node(unsigned int node)
  * on CVMX_PKO_QUEUES_PER_PORT_* where each queue is lower
  * priority than the previous.
  *
- * @return Zero on success, non-zero on failure
+ * Return: Zero on success, non-zero on failure
  */
 int cvmx_helper_initialize_packet_io_global(void)
 {
@@ -1657,7 +1657,7 @@ int cvmx_helper_initialize_packet_io_global(void)
 /**
  * Does core local initialization for packet io
  *
- * @return Zero on success, non-zero on failure
+ * Return: Zero on success, non-zero on failure
  */
 int cvmx_helper_initialize_packet_io_local(void)
 {
@@ -1681,7 +1681,7 @@ struct cvmx_buffer_list {
  *                  1 => disable backpressure
  *                  0 => enable backpressure
  *
- * @return 0 on success
+ * Return: 0 on success
  *         -1 on error
  */
 int cvmx_gmx_set_backpressure_override(u32 interface, uint32_t port_mask)
@@ -1710,7 +1710,7 @@ int cvmx_gmx_set_backpressure_override(u32 interface, uint32_t port_mask)
  *                  1 => disable backpressure
  *                  0 => enable backpressure
  *
- * @return 0 on success
+ * Return: 0 on success
  *         -1 on error
  */
 int cvmx_agl_set_backpressure_override(u32 interface, uint32_t port_mask)
@@ -1852,7 +1852,7 @@ int cvmx_helper_shutdown_packet_io_global_cn78xx(int node)
  * buffers used by the packet IO hardware to the FPA so a function emptying the
  * FPA after shutdown should find all packet buffers in the FPA.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_helper_shutdown_packet_io_global(void)
 {
@@ -2158,7 +2158,7 @@ int cvmx_helper_shutdown_packet_io_global(void)
 /**
  * Does core local shutdown of packet io
  *
- * @return Zero on success, non-zero on failure
+ * Return: Zero on success, non-zero on failure
  */
 int cvmx_helper_shutdown_packet_io_local(void)
 {
@@ -2176,7 +2176,7 @@ int cvmx_helper_shutdown_packet_io_local(void)
  *
  * @param xipd_port IPD/PKO port to auto configure
  *
- * @return Link state after configure
+ * Return: Link state after configure
  */
 cvmx_helper_link_info_t cvmx_helper_link_autoconf(int xipd_port)
 {
@@ -2215,7 +2215,7 @@ cvmx_helper_link_info_t cvmx_helper_link_autoconf(int xipd_port)
  *
  * @param xipd_port IPD/PKO port to query
  *
- * @return Link state
+ * Return: Link state
  */
 cvmx_helper_link_info_t cvmx_helper_link_get(int xipd_port)
 {
@@ -2264,7 +2264,7 @@ cvmx_helper_link_info_t cvmx_helper_link_get(int xipd_port)
  * @param xipd_port  IPD/PKO port to configure
  * @param link_info The new link state
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_helper_link_set(int xipd_port, cvmx_helper_link_info_t link_info)
 {
@@ -2301,7 +2301,7 @@ int cvmx_helper_link_set(int xipd_port, cvmx_helper_link_info_t link_info)
  * @param enable_external
  *                 Non zero if you want external loopback
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_helper_configure_loopback(int xipd_port, int enable_internal, int enable_external)
 {

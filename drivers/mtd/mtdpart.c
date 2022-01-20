@@ -89,7 +89,7 @@ bool mtd_partitions_used(struct mtd_info *master)
  * @mtdparts: String describing the partition with mtdparts command syntax
  * @partition: MTD partition structure to fill
  *
- * @return 0 on success, an error otherwise.
+ * Return: 0 on success, an error otherwise.
  */
 static int mtd_parse_partition(const char **_mtdparts,
 			       struct mtd_partition *partition)
@@ -200,7 +200,7 @@ static int mtd_parse_partition(const char **_mtdparts,
  *          caller.
  * @_nparts: Size of @_parts array.
  *
- * @return 0 on success, an error otherwise.
+ * Return: 0 on success, an error otherwise.
  */
 int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
 			 struct mtd_partition **_parts, int *_nparts)

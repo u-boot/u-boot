@@ -30,7 +30,7 @@ int menu_default_choice(struct menu *m, void **choice);
  *
  * @bootdelay: Delay to wait before running the default menu option (0 to run
  *		the entry immediately)
- * @return If it returns, it always returns -1 to indicate that the boot should
+ * Return: If it returns, it always returns -1 to indicate that the boot should
  *	be aborted and the command prompt should be provided
  */
 int menu_show(int bootdelay);

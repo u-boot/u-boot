@@ -23,7 +23,7 @@
  *
  * @param address byte address to read from
  *
- * @return value read
+ * Return: value read
  */
 static inline u8 cvmx_scratch_read8(u64 address)
 {
@@ -35,7 +35,7 @@ static inline u8 cvmx_scratch_read8(u64 address)
  *
  * @param address byte address to read from
  *
- * @return value read
+ * Return: value read
  */
 static inline u16 cvmx_scratch_read16(u64 address)
 {
@@ -47,7 +47,7 @@ static inline u16 cvmx_scratch_read16(u64 address)
  *
  * @param address byte address to read from
  *
- * @return value read
+ * Return: value read
  */
 static inline u32 cvmx_scratch_read32(u64 address)
 {
@@ -59,7 +59,7 @@ static inline u32 cvmx_scratch_read32(u64 address)
  *
  * @param address byte address to read from
  *
- * @return value read
+ * Return: value read
  */
 static inline u64 cvmx_scratch_read64(u64 address)
 {

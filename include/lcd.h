@@ -76,42 +76,42 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y);
 /**
  * Get the width of the LCD in pixels
  *
- * @return width of LCD in pixels
+ * Return: width of LCD in pixels
  */
 int lcd_get_pixel_width(void);
 
 /**
  * Get the height of the LCD in pixels
  *
- * @return height of LCD in pixels
+ * Return: height of LCD in pixels
  */
 int lcd_get_pixel_height(void);
 
 /**
  * Get the number of text lines/rows on the LCD
  *
- * @return number of rows
+ * Return: number of rows
  */
 int lcd_get_screen_rows(void);
 
 /**
  * Get the number of text columns on the LCD
  *
- * @return number of columns
+ * Return: number of columns
  */
 int lcd_get_screen_columns(void);
 
 /**
  * Get the background color of the LCD
  *
- * @return background color value
+ * Return: background color value
  */
 int lcd_getbgcolor(void);
 
 /**
  * Get the foreground color of the LCD
  *
- * @return foreground color value
+ * Return: foreground color value
  */
 int lcd_getfgcolor(void);
 

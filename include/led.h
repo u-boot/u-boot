@@ -78,7 +78,7 @@ struct led_ops {
  *
  * @label:	LED label to look up
  * @devp:	Returns the associated device, if found
- * @return 0 if found, -ENODEV if not found, other -ve on error
+ * Return: 0 if found, -ENODEV if not found, other -ve on error
  */
 int led_get_by_label(const char *label, struct udevice **devp);
 
@@ -87,7 +87,7 @@ int led_get_by_label(const char *label, struct udevice **devp);
  *
  * @dev:	LED device to change
  * @state:	LED state to set
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int led_set_state(struct udevice *dev, enum led_state_t state);
 
@@ -95,7 +95,7 @@ int led_set_state(struct udevice *dev, enum led_state_t state);
  * led_get_state() - get the state of an LED
  *
  * @dev:	LED device to change
- * @return LED state led_state_t, or -ve on error
+ * Return: LED state led_state_t, or -ve on error
  */
 enum led_state_t led_get_state(struct udevice *dev);
 
@@ -104,7 +104,7 @@ enum led_state_t led_get_state(struct udevice *dev);
  *
  * @dev:	LED device to change
  * @period_ms:	LED blink period in milliseconds
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int led_set_period(struct udevice *dev, int period_ms);
 

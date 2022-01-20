@@ -117,7 +117,7 @@ void cros_ec_dump_data(const char *name, int cmd, const uint8_t *data, int len)
  *
  * @param data	Data block to checksum
  * @param size	Size of data block in bytes
- * @return checksum value (0 to 255)
+ * Return: checksum value (0 to 255)
  */
 int cros_ec_calc_checksum(const uint8_t *data, int size)
 {
@@ -138,7 +138,7 @@ int cros_ec_calc_checksum(const uint8_t *data, int size)
  * @param cmd_version	Version of command to send (EC_VER_...)
  * @param dout          Output data (may be NULL If dout_len=0)
  * @param dout_len      Size of output data in bytes
- * @return packet size in bytes, or <0 if error.
+ * Return: packet size in bytes, or <0 if error.
  */
 static int create_proto3_request(struct cros_ec_dev *cdev,
 				 int cmd, int cmd_version,
@@ -178,7 +178,7 @@ static int create_proto3_request(struct cros_ec_dev *cdev,
  *
  * @param dev		CROS-EC device
  * @param din_len       Maximum size of response in bytes
- * @return maximum expected number of bytes in response, or <0 if error.
+ * Return: maximum expected number of bytes in response, or <0 if error.
  */
 static int prepare_proto3_response_buffer(struct cros_ec_dev *cdev, int din_len)
 {
@@ -202,7 +202,7 @@ static int prepare_proto3_response_buffer(struct cros_ec_dev *cdev, int din_len)
  * @param dev		CROS-EC device
  * @param dinp          Returns pointer to response data
  * @param din_len       Maximum size of response in bytes
- * @return number of bytes of response data, or <0 if error. Note that error
+ * Return: number of bytes of response data, or <0 if error. Note that error
  * codes can be from errno.h or -ve EC_RES_INVALID_CHECKSUM values (and they
  * overlap!)
  */
@@ -318,7 +318,7 @@ static int send_command(struct cros_ec_dev *dev, uint cmd, int cmd_version,
  *			If not NULL, it will be updated to point to the data
  *			and will always be double word aligned (64-bits)
  * @param din_len       Maximum size of response in bytes
- * @return number of bytes in response, or -ve on error
+ * Return: number of bytes in response, or -ve on error
  */
 static int ec_command_inptr(struct udevice *dev, uint cmd,
 			    int cmd_version, const void *dout, int dout_len,
@@ -385,7 +385,7 @@ static int ec_command_inptr(struct udevice *dev, uint cmd,
  *			It not NULL, it is a place for ec_command() to copy the
  *      data to.
  * @param din_len       Maximum size of response in bytes
- * @return number of bytes in response, or -ve on error
+ * Return: number of bytes in response, or -ve on error
  */
 static int ec_command(struct udevice *dev, uint cmd, int cmd_version,
 		      const void *dout, int dout_len,
@@ -872,7 +872,7 @@ int cros_ec_flash_erase(struct udevice *dev, uint32_t offset, uint32_t size)
  * @param data		Pointer to data buffer to write
  * @param offset	Offset within flash to write to.
  * @param size		Number of bytes to write
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 static int cros_ec_flash_write_block(struct udevice *dev, const uint8_t *data,
 				     uint32_t offset, uint32_t size)
@@ -913,7 +913,7 @@ static int cros_ec_flash_write_burst_size(struct udevice *dev)
  *
  * @param data		Pointer to data to check (must be word-aligned)
  * @param size		Number of bytes to check (must be word-aligned)
- * @return 0 if erased, non-zero if any word is not erased
+ * Return: 0 if erased, non-zero if any word is not erased
  */
 static int cros_ec_data_is_erased(const uint32_t *data, int size)
 {
@@ -985,7 +985,7 @@ int cros_ec_flash_write(struct udevice *dev, const uint8_t *data,
  *
  * @param me     CrosEc instance
  * @param region Region to run verification on
- * @return 0 if success or not applicable. Non-zero if verification failed.
+ * Return: 0 if success or not applicable. Non-zero if verification failed.
  */
 int cros_ec_efs_verify(struct udevice *dev, enum ec_flash_region region)
 {
@@ -1022,7 +1022,7 @@ int cros_ec_efs_verify(struct udevice *dev, enum ec_flash_region region)
  * @param data		Pointer to data buffer to read into
  * @param offset	Offset within flash to read from
  * @param size		Number of bytes to read
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 static int cros_ec_flash_read_block(struct udevice *dev, uint8_t *data,
 				    uint32_t offset, uint32_t size)

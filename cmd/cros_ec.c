@@ -23,7 +23,7 @@ static const char * const ec_current_image_name[] = {"unknown", "RO", "RW"};
  *
  * @param argc Number of params remaining
  * @param argv List of remaining parameters
- * @return flash region (EC_FLASH_REGION_...) or -1 on error
+ * Return: flash region (EC_FLASH_REGION_...) or -1 on error
  */
 static int cros_ec_decode_region(int argc, char *const argv[])
 {
@@ -48,7 +48,7 @@ static int cros_ec_decode_region(int argc, char *const argv[])
  * @param is_write	1 do to a write, 0 to do a read
  * @param argc		Number of arguments
  * @param argv		Arguments (2 is region, 3 is address)
- * @return 0 for ok, 1 for a usage error or -ve for ec command error
+ * Return: 0 for ok, 1 for a usage error or -ve for ec command error
  *	(negative EC_RES_...)
  */
 static int do_read_write(struct udevice *dev, int is_write, int argc,

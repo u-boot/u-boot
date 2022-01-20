@@ -147,7 +147,7 @@ struct irq_ops {
  *
  * @irq:	IRQ description containing device and ID, e.g. previously
  *		returned by irq_get_by_index()
- * @return true if valid, false if not
+ * Return: true if valid, false if not
  */
 static inline bool irq_is_valid(const struct irq *irq)
 {
@@ -169,7 +169,7 @@ int irq_route_pmc_gpio_gpe(struct udevice *dev, uint pmc_gpe_num);
  * @dev: IRQ device
  * @irq: Interrupt number to set
  * @active_low: true if active low, false for active high
- * @return 0 if OK, -EINVAL if @irq is invalid
+ * Return: 0 if OK, -EINVAL if @irq is invalid
  */
 int irq_set_polarity(struct udevice *dev, uint irq, bool active_low);
 
@@ -177,7 +177,7 @@ int irq_set_polarity(struct udevice *dev, uint irq, bool active_low);
  * irq_snapshot_polarities() - record IRQ polarities for later restore
  *
  * @dev: IRQ device
- * @return 0
+ * Return: 0
  */
 int irq_snapshot_polarities(struct udevice *dev);
 
@@ -185,7 +185,7 @@ int irq_snapshot_polarities(struct udevice *dev);
  * irq_restore_polarities() - restore IRQ polarities
  *
  * @dev: IRQ device
- * @return 0
+ * Return: 0
  */
 int irq_restore_polarities(struct udevice *dev);
 
@@ -195,7 +195,7 @@ int irq_restore_polarities(struct udevice *dev);
  * Clears the interrupt if pending
  *
  * @dev: IRQ device
- * @return 0 if interrupt is not pending, 1 if it was (and so has been
+ * Return: 0 if interrupt is not pending, 1 if it was (and so has been
  *	cleared), -ve on error
  */
 int irq_read_and_clear(struct irq *irq);
@@ -224,7 +224,7 @@ struct phandle_2_arg;
  * @dev: Device containing the phandle
  * @cells: Phandle info
  * @irq: A pointer to a irq struct to initialise
- * @return 0 if OK, or a negative error code
+ * Return: 0 if OK, or a negative error code
  */
 int irq_get_by_phandle(struct udevice *dev, const struct phandle_2_arg *cells,
 		       struct irq *irq);
@@ -242,7 +242,7 @@ int irq_get_by_phandle(struct udevice *dev, const struct phandle_2_arg *cells,
  * @index:	The index of the irq to request, within the client's list of
  *		irqs.
  * @irq:	A pointer to a irq struct to initialise.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int irq_get_by_index(struct udevice *dev, int index, struct irq *irq);
 
@@ -258,7 +258,7 @@ int irq_get_by_index(struct udevice *dev, int index, struct irq *irq);
  * @irq:	A pointer to a irq struct to initialise. The caller must
  *		have already initialised any field in this struct which the
  *		irq provider uses to identify the irq.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int irq_request(struct udevice *dev, struct irq *irq);
 
@@ -267,7 +267,7 @@ int irq_request(struct udevice *dev, struct irq *irq);
  *
  * @irq:	A irq struct that was previously successfully requested by
  *		irq_request/get_by_*().
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int irq_free(struct irq *irq);
 
@@ -278,7 +278,7 @@ int irq_free(struct irq *irq);
  *
  * @type: Type to find
  * @devp: Returns the device, if found
- * @return 0 if OK, -ENODEV if not found, other -ve error if uclass failed to
+ * Return: 0 if OK, -ENODEV if not found, other -ve error if uclass failed to
  *	probe
  */
 int irq_first_device_type(enum irq_dev_t type, struct udevice **devp);
@@ -291,7 +291,7 @@ int irq_first_device_type(enum irq_dev_t type, struct udevice **devp);
  *
  * @irq:	irq to convert
  * @acpi_irq:	Output ACPI interrupt information
- * @return ACPI pin number or -ve on error
+ * Return: ACPI pin number or -ve on error
  */
 int irq_get_acpi(const struct irq *irq, struct acpi_irq *acpi_irq);
 

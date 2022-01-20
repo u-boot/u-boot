@@ -366,7 +366,7 @@ static u8 stm32prog_start(struct stm32prog_data *data, u32 address)
  * get_address() - Get address if it is valid
  *
  * @tmp_xor:		Current xor value to update
- * @return The address area
+ * Return: The address area
  */
 static u32 get_address(u8 *tmp_xor)
 {
@@ -791,7 +791,7 @@ error:
  * stm32prog_serial_loop() - USART bootloader Loop routine
  *
  * @data:		Current command context
- * @return true if reset is needed after loop
+ * Return: true if reset is needed after loop
  */
 bool stm32prog_serial_loop(struct stm32prog_data *data)
 {

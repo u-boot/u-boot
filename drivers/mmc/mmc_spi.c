@@ -83,7 +83,7 @@ struct mmc_spi_priv {
  * @resp_match:	if true, compare each of received bytes with @resp_match_value
  * @resp_match_value:	a value to be compared with each of received bytes
  * @r1b:	if true, receive additional bytes for busy signal token
- * @return 0 if OK, -ETIMEDOUT if no card response is received, -ve on error
+ * Return: 0 if OK, -ETIMEDOUT if no card response is received, -ve on error
  */
 static int mmc_spi_sendcmd(struct udevice *dev,
 			   ushort cmdidx, u32 cmdarg, u32 resp_type,
@@ -181,7 +181,7 @@ static int mmc_spi_sendcmd(struct udevice *dev,
  * @xbuf:	buffer of the actual data (excluding token and crc) to read
  * @bcnt:	number of data blocks to transfer
  * @bsize:	size of the actual data (excluding token and crc) in bytes
- * @return 0 if OK, -ECOMM if crc error, -ETIMEDOUT on other errors
+ * Return: 0 if OK, -ECOMM if crc error, -ETIMEDOUT on other errors
  */
 static int mmc_spi_readdata(struct udevice *dev,
 			    void *xbuf, u32 bcnt, u32 bsize)
@@ -239,7 +239,7 @@ static int mmc_spi_readdata(struct udevice *dev,
  * @bcnt:	number of data blocks to transfer
  * @bsize:	size of actual data (excluding token and crc) in bytes
  * @multi:	indicate a transfer by multiple block write command (CMD25)
- * @return 0 if OK, -ECOMM if crc error, -ETIMEDOUT on other errors
+ * Return: 0 if OK, -ECOMM if crc error, -ETIMEDOUT on other errors
  */
 static int mmc_spi_writedata(struct udevice *dev, const void *xbuf,
 			     u32 bcnt, u32 bsize, int multi)

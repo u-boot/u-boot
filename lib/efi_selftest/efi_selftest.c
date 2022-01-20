@@ -75,7 +75,7 @@ void efi_st_exit_boot_services(void)
  *
  * @test	the test to be executed
  * @failures	counter that will be incremented if a failure occurs
- * @return	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int setup(struct efi_unit_test *test, unsigned int *failures)
 {
@@ -100,7 +100,7 @@ static int setup(struct efi_unit_test *test, unsigned int *failures)
  *
  * @test	the test to be executed
  * @failures	counter that will be incremented if a failure occurs
- * @return	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int execute(struct efi_unit_test *test, unsigned int *failures)
 {
@@ -125,7 +125,7 @@ static int execute(struct efi_unit_test *test, unsigned int *failures)
  *
  * @test	the test to be torn down
  * @failures	counter that will be incremented if a failure occurs
- * @return	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int teardown(struct efi_unit_test *test, unsigned int *failures)
 {

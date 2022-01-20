@@ -31,7 +31,7 @@
  * @param size		size of output string
  * @param format	format string
  * @param ...		data points
- * @return 0 on success, non-0 on error
+ * Return: 0 on success, non-0 on error
  */
 int pack_byte_string(u8 *str, size_t size, const char *format, ...);
 
@@ -46,7 +46,7 @@ int pack_byte_string(u8 *str, size_t size, const char *format, ...);
  * @param size		size of output string
  * @param format	format string
  * @param ...		data points
- * @return 0 on success, non-0 on error
+ * Return: 0 on success, non-0 on error
  */
 int unpack_byte_string(const u8 *str, size_t size, const char *format, ...);
 
@@ -54,7 +54,7 @@ int unpack_byte_string(const u8 *str, size_t size, const char *format, ...);
  * Get TPM command size.
  *
  * @param command	byte string of TPM command
- * @return command size of the TPM command
+ * Return: command size of the TPM command
  */
 u32 tpm_command_size(const void *command);
 
@@ -62,7 +62,7 @@ u32 tpm_command_size(const void *command);
  * Get TPM response return code, which is one of TPM_RESULT values.
  *
  * @param response	byte string of TPM response
- * @return return code of the TPM response
+ * Return: return code of the TPM response
  */
 u32 tpm_return_code(const void *response);
 
@@ -76,7 +76,7 @@ u32 tpm_return_code(const void *response);
  * @param size_ptr	output buffer size (input parameter) and TPM
  *			response length (output parameter); this parameter
  *			is a bidirectional
- * @return return code of the TPM response
+ * Return: return code of the TPM response
  */
 u32 tpm_sendrecv_command(struct udevice *dev, const void *command,
 			 void *response, size_t *size_ptr);

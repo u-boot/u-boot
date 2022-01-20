@@ -832,7 +832,7 @@ struct usb_device *usb_get_dev_index(struct udevice *bus, int index);
  * @do_read:	true to read the device descriptor before an address is set
  *		(should be false for XHCI buses, true otherwise)
  * @parent:	Parent device (either UCLASS_USB or UCLASS_USB_HUB)
- * @return 0 if OK, -ve on error */
+ * Return: 0 if OK, -ve on error */
 int usb_setup_device(struct usb_device *dev, bool do_read,
 		     struct usb_device *parent);
 
@@ -862,7 +862,7 @@ int usb_hub_scan(struct udevice *hub);
  * @port:	Hub port number (numbered from 1)
  * @speed:	USB speed to use for this device
  * @devp:	Returns pointer to device if all is well
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int usb_scan_device(struct udevice *parent, int port,
 		    enum usb_device_speed speed, struct udevice **devp);
@@ -874,7 +874,7 @@ int usb_scan_device(struct udevice *parent, int port,
  * will be a device with uclass UCLASS_USB.
  *
  * @dev:	Device to check
- * @return The bus, or NULL if not found (this indicates a critical error in
+ * Return: The bus, or NULL if not found (this indicates a critical error in
  *	the USB stack
  */
 struct udevice *usb_get_bus(struct udevice *dev);
@@ -967,7 +967,7 @@ void usb_find_usb2_hub_address_port(struct usb_device *udev,
  * @devp: returns a pointer of a new device structure. With driver model this
  *		is a device pointer, but with legacy USB this pointer is
  *		driver-specific.
- * @return 0 if OK, -ENOSPC if we have found out of room for new devices
+ * Return: 0 if OK, -ENOSPC if we have found out of room for new devices
  */
 int usb_alloc_new_device(struct udevice *controller, struct usb_device **devp);
 
@@ -990,7 +990,7 @@ int usb_alloc_device(struct usb_device *dev);
  * representation of this hub can be updated.
  *
  * @dev:		Hub device
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int usb_update_hub_device(struct usb_device *dev);
 
@@ -1002,7 +1002,7 @@ int usb_update_hub_device(struct usb_device *dev);
  *
  * @dev:		USB device
  * @size:		maximum transfer bytes
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int usb_get_max_xfer_size(struct usb_device *dev, size_t *size);
 
@@ -1018,7 +1018,7 @@ int usb_get_max_xfer_size(struct usb_device *dev, size_t *size);
  * @desc_list:		List of points or USB descriptors, terminated by NULL.
  *			The first entry must be struct usb_device_descriptor,
  *			and others follow on after that.
- * @return 0 if OK, -ENOSYS if not implemented, other -ve on error
+ * Return: 0 if OK, -ENOSYS if not implemented, other -ve on error
  */
 int usb_emul_setup_device(struct udevice *dev, struct usb_string *strings,
 			  void **desc_list);
@@ -1029,7 +1029,7 @@ int usb_emul_setup_device(struct udevice *dev, struct usb_string *strings,
  * @emul:	Emulator device
  * @udev:	USB device (which the emulator is causing to appear)
  * See struct dm_usb_ops for details on other parameters
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int usb_emul_control(struct udevice *emul, struct usb_device *udev,
 		     unsigned long pipe, void *buffer, int length,
@@ -1041,7 +1041,7 @@ int usb_emul_control(struct udevice *emul, struct usb_device *udev,
  * @emul:	Emulator device
  * @udev:	USB device (which the emulator is causing to appear)
  * See struct dm_usb_ops for details on other parameters
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int usb_emul_bulk(struct udevice *emul, struct usb_device *udev,
 		  unsigned long pipe, void *buffer, int length);
@@ -1052,7 +1052,7 @@ int usb_emul_bulk(struct udevice *emul, struct usb_device *udev,
  * @emul:	Emulator device
  * @udev:	USB device (which the emulator is causing to appear)
  * See struct dm_usb_ops for details on other parameters
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int usb_emul_int(struct udevice *emul, struct usb_device *udev,
 		  unsigned long pipe, void *buffer, int length, int interval,
@@ -1067,7 +1067,7 @@ int usb_emul_int(struct udevice *emul, struct usb_device *udev,
  * @pipe:	Describes pipe being used, and includes the device number
  * @port1:	Describes port number on the parent hub
  * @emulp:	Returns pointer to emulator, or NULL if not found
- * @return 0 if found, -ve on error
+ * Return: 0 if found, -ve on error
  */
 int usb_emul_find(struct udevice *bus, ulong pipe, int port1,
 		  struct udevice **emulp);
@@ -1077,7 +1077,7 @@ int usb_emul_find(struct udevice *bus, ulong pipe, int port1,
  *
  * @dev:	USB device to check
  * @emulp:	Returns pointer to emulator, or NULL if not found
- * @return 0 if found, -ve on error
+ * Return: 0 if found, -ve on error
  */
 int usb_emul_find_for_dev(struct udevice *dev, struct udevice **emulp);
 
@@ -1087,7 +1087,7 @@ int usb_emul_find_for_dev(struct udevice *dev, struct udevice **emulp);
  * @ptr:	a pointer to a list of USB descriptor pointers
  * @type:	type of USB descriptor to find
  * @index:	if @type is USB_DT_CONFIG, this is the configuration value
- * @return a pointer to the USB descriptor found, NULL if not found
+ * Return: a pointer to the USB descriptor found, NULL if not found
  */
 struct usb_generic_descriptor **usb_emul_find_descriptor(
 		struct usb_generic_descriptor **ptr, int type, int index);

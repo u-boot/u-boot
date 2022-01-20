@@ -428,7 +428,7 @@ static int mxcfb_unmap_video_memory(struct fb_info *fbi)
  * structures.  This includes information such as bits per pixel,
  * color maps, screen width/height and RGBA offsets.
  *
- * @return      Framebuffer structure initialized with our information
+ * Return:      Framebuffer structure initialized with our information
  */
 static struct fb_info *mxcfb_init_fbinfo(void)
 {
@@ -479,7 +479,7 @@ extern struct clk *g_ipu_clk;
  * this routine: Framebuffer initialization, Memory allocation and
  * mapping, Framebuffer registration, IPU initialization.
  *
- * @return      Appropriate error code to the kernel common code
+ * Return:      Appropriate error code to the kernel common code
  */
 static int mxcfb_probe(struct udevice *dev, u32 interface_pix_fmt,
 		       uint8_t disp, struct fb_videomode const *mode)

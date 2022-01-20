@@ -140,7 +140,7 @@ static char *memstr(const char *s1, int l1, const char *s2, int l2)
  * @olen: Length of @old excluding terminator
  * @new: New string to replace @old with
  * @nlen: Length of @new excluding terminator
- * @return pointer to immediately after the copied @new in @string, or NULL if
+ * Return: pointer to immediately after the copied @new in @string, or NULL if
  *	no replacement took place
  */
 static char *substitute(char *string, int *slen, int ssize,

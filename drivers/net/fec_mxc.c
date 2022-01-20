@@ -331,7 +331,7 @@ static int fec_tx_task_disable(struct fec_priv *fec)
  * @param[in] fec all we know about the device yet
  * @param[in] count receive buffer count to be allocated
  * @param[in] dsize desired size of each receive buffer
- * @return 0 on success
+ * Return: 0 on success
  *
  * Init all RX descriptors to default values.
  */
@@ -703,7 +703,7 @@ static void fec_halt(struct eth_device *dev)
  * @param[in] dev Our ethernet device to handle
  * @param[in] packet Pointer to the data to be transmitted
  * @param[in] length Data count in bytes
- * @return 0 on success
+ * Return: 0 on success
  */
 #ifdef CONFIG_DM_ETH
 static int fecmxc_send(struct udevice *dev, void *packet, int length)
@@ -854,7 +854,7 @@ out:
 /**
  * Pull one frame from the card
  * @param[in] dev Our ethernet device to handle
- * @return Length of packet read
+ * Return: Length of packet read
  */
 #ifdef CONFIG_DM_ETH
 static int fecmxc_recv(struct udevice *dev, int flags, uchar **packetp)

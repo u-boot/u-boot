@@ -128,7 +128,7 @@ int cvmx_bootmem_init(u64 mem_desc_addr);
  * @param size      Size in bytes of block to allocate
  * @param alignment Alignment required - must be power of 2
  *
- * @return pointer to block of memory, NULL on error
+ * Return: pointer to block of memory, NULL on error
  */
 void *cvmx_bootmem_alloc(u64 size, u64 alignment);
 
@@ -141,7 +141,7 @@ void *cvmx_bootmem_alloc(u64 size, u64 alignment);
  * @param size  Size in bytes of block to allocate
  * @param alignment Alignment required - must be power of 2
  *
- * @return pointer to block of memory, NULL on error
+ * Return: pointer to block of memory, NULL on error
  */
 void *cvmx_bootmem_alloc_node(u64 node, u64 size, u64 alignment);
 
@@ -156,7 +156,7 @@ void *cvmx_bootmem_alloc_node(u64 node, u64 size, u64 alignment);
  * @param address   Physical address to allocate memory at.  If this
  *                  memory is not available, the allocation fails.
  * @param alignment Alignment required - must be power of 2
- * @return pointer to block of memory, NULL on error
+ * Return: pointer to block of memory, NULL on error
  */
 void *cvmx_bootmem_alloc_address(u64 size, u64 address,
 				 u64 alignment);
@@ -172,7 +172,7 @@ void *cvmx_bootmem_alloc_address(u64 size, u64 address,
  * @param min_addr  defines the minimum address of the range
  * @param max_addr  defines the maximum address of the range
  * @param alignment Alignment required - must be power of 2
- * @return pointer to block of memory, NULL on error
+ * Return: pointer to block of memory, NULL on error
  */
 void *cvmx_bootmem_alloc_range(u64 size, u64 alignment,
 			       u64 min_addr, u64 max_addr);
@@ -187,7 +187,7 @@ void *cvmx_bootmem_alloc_range(u64 size, u64 alignment,
  * @param alignment Alignment required - must be power of 2
  * @param name  name of block - must be less than CVMX_BOOTMEM_NAME_LEN bytes
  *
- * @return pointer to block of memory, NULL on error
+ * Return: pointer to block of memory, NULL on error
  */
 void *cvmx_bootmem_alloc_named(u64 size, u64 alignment,
 			       const char *name);
@@ -203,7 +203,7 @@ void *cvmx_bootmem_alloc_named(u64 size, u64 alignment,
  * @param name name of block - must be less than CVMX_BOOTMEM_NAME_LEN bytes
  * @param flags     Flags to control options for the allocation.
  *
- * @return pointer to block of memory, NULL on error
+ * Return: pointer to block of memory, NULL on error
  */
 void *cvmx_bootmem_alloc_named_flags(u64 size, u64 alignment,
 				     const char *name, u32 flags);
@@ -219,7 +219,7 @@ void *cvmx_bootmem_alloc_named_flags(u64 size, u64 alignment,
  *                memory is not available, the allocation fails.
  * @param name    name of block - must be less than CVMX_BOOTMEM_NAME_LEN bytes
  *
- * @return pointer to block of memory, NULL on error
+ * Return: pointer to block of memory, NULL on error
  */
 void *cvmx_bootmem_alloc_named_address(u64 size, u64 address,
 				       const char *name);
@@ -238,7 +238,7 @@ void *cvmx_bootmem_alloc_named_address(u64 size, u64 address,
  * @param align  Alignment of memory to be allocated. (must be a power of 2)
  * @param name   name of block - must be less than CVMX_BOOTMEM_NAME_LEN bytes
  *
- * @return pointer to block of memory, NULL on error
+ * Return: pointer to block of memory, NULL on error
  */
 void *cvmx_bootmem_alloc_named_range(u64 size, u64 min_addr,
 				     u64 max_addr, u64 align,
@@ -263,7 +263,7 @@ void *cvmx_bootmem_alloc_named_range(u64 size, u64 min_addr,
  * The initialization function is optional, if omitted the named block
  * is initialized to all zeros when it is created, i.e. once.
  *
- * @return pointer to block of memory, NULL on error
+ * Return: pointer to block of memory, NULL on error
  */
 void *cvmx_bootmem_alloc_named_range_once(u64 size,
 					  u64 min_addr,
@@ -282,7 +282,7 @@ void *cvmx_bootmem_alloc_named_range_once(u64 size,
  * @param name        Name to assign to reserved blocks
  * @param flags       Flags to use when reserving memory
  *
- * @return 0 on failure,
+ * Return: 0 on failure,
  *         !0 on success
  */
 int cvmx_bootmem_reserve_memory(u64 start_addr, u64 size,
@@ -293,7 +293,7 @@ int cvmx_bootmem_reserve_memory(u64 start_addr, u64 size,
  *
  * @param name   name of block to free
  *
- * @return 0 on failure,
+ * Return: 0 on failure,
  *         !0 on success
  */
 int cvmx_bootmem_free_named(const char *name);
@@ -303,7 +303,7 @@ int cvmx_bootmem_free_named(const char *name);
  *
  * @param name   name of block to free
  *
- * @return pointer to named block descriptor on success
+ * Return: pointer to named block descriptor on success
  *         0 on failure
  */
 const struct cvmx_bootmem_named_block_desc *
@@ -317,7 +317,7 @@ cvmx_bootmem_find_named_block(const char *name);
  * @param min_block_size
  *               Minimum block size to count in total.
  *
- * @return Number of bytes available for allocation that meet the
+ * Return: Number of bytes available for allocation that meet the
  * block size requirement
  */
 u64 cvmx_bootmem_available_mem(u64 min_block_size);
@@ -350,7 +350,7 @@ void cvmx_bootmem_print_named(void);
  *                  CVMX_BOOTMEM_ALIGNMENT_SIZE.)
  * @param flags     Flags to control options for the allocation.
  *
- * @return physical address of block allocated, or -1 on failure
+ * Return: physical address of block allocated, or -1 on failure
  */
 s64 cvmx_bootmem_phy_alloc(u64 req_size, u64 address_min, u64 address_max,
 			   u64 alignment, u32 flags);
@@ -379,7 +379,7 @@ s64 cvmx_bootmem_phy_alloc(u64 req_size, u64 address_min, u64 address_max,
  *
  * @param flags     Flags to control options for the allocation.
  *
- * @return physical address of block allocated, or -1 on failure
+ * Return: physical address of block allocated, or -1 on failure
  */
 s64 cvmx_bootmem_phy_named_block_alloc(u64 size, u64 min_addr, u64 max_addr,
 				       u64 alignment, const char *name,
@@ -394,7 +394,7 @@ s64 cvmx_bootmem_phy_named_block_alloc(u64 size, u64 min_addr, u64 max_addr,
  *
  * @param flags  Flags to control options for the allocation.
  *
- * @return Physical address of the memory block descriptor, zero if not
+ * Return: Physical address of the memory block descriptor, zero if not
  *         found. If zero returned when name parameter is NULL, then no
  *         memory block descriptors are available.
  */
@@ -408,7 +408,7 @@ u64 cvmx_bootmem_phy_named_block_find(const char *name, u32 flags);
  * @param min_block_size
  *               Minimum block size to count in total.
  *
- * @return Number of bytes available for allocation that meet the
+ * Return: Number of bytes available for allocation that meet the
  * block size requirement
  */
 u64 cvmx_bootmem_phy_available_mem(u64 min_block_size);
@@ -419,7 +419,7 @@ u64 cvmx_bootmem_phy_available_mem(u64 min_block_size);
  * @param name   name of block to free
  * @param flags  flags for passing options
  *
- * @return 0 on failure
+ * Return: 0 on failure
  *         1 on success
  */
 int cvmx_bootmem_phy_named_block_free(const char *name, u32 flags);
@@ -438,7 +438,7 @@ int cvmx_bootmem_phy_named_block_free(const char *name, u32 flags);
  * @param size     size of block in bytes.
  * @param flags    flags for passing options
  *
- * @return 1 on success,
+ * Return: 1 on success,
  *         0 on failure
  */
 int __cvmx_bootmem_phy_free(u64 phy_addr, u64 size, u32 flags);
@@ -467,7 +467,7 @@ void cvmx_bootmem_phy_list_print(void);
  * @param desc_buffer Buffer for the bootmem descriptor.  This must be
  *                 a 32 bit addressable address.
  *
- * @return 1 on success
+ * Return: 1 on success
  *         0 on failure
  */
 s64 cvmx_bootmem_phy_mem_list_init(u64 mem_size, u32 low_reserved_bytes,
@@ -487,7 +487,7 @@ s64 cvmx_bootmem_phy_mem_list_init(u64 mem_size, u32 low_reserved_bytes,
  * @param desc_buffer Buffer for the bootmem descriptor.  This must be
  *                 a 32 bit addressable address.
  *
- * @return 1 on success
+ * Return: 1 on success
  *         0 on failure
  */
 s64 cvmx_bootmem_phy_mem_list_init_multi(u8 nodemask, u32 mem_size[],

@@ -61,7 +61,7 @@ check_member(fast_spi_regs, ptdata, 0xd0);
  * @map_sizep:	Returns size of mapped SPI
  * @offsetp:	Returns start offset of SPI flash where the map works
  *	correctly (offsets before this are not visible)
- * @return 0 (always)
+ * Return: 0 (always)
  */
 int fast_spi_get_bios_mmap(pci_dev_t pdev, ulong *map_basep, uint *map_sizep,
 			   uint *offsetp);
@@ -74,7 +74,7 @@ int fast_spi_get_bios_mmap(pci_dev_t pdev, ulong *map_basep, uint *map_sizep,
  * @map_sizep:	Returns size of mapped SPI
  * @offsetp:	Returns start offset of SPI flash where the map works
  *	correctly (offsets before this are not visible)
- * @return 0 (always)
+ * Return: 0 (always)
  */
 int fast_spi_get_bios_mmap_regs(struct fast_spi_regs *regs, ulong *map_basep,
 				uint *map_sizep, uint *offsetp);

@@ -90,7 +90,7 @@ typedef struct cvmx_error_info {
  *
  * @param flags  Optional flags.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_error_initialize(void);
 
@@ -99,7 +99,7 @@ int cvmx_error_initialize(void);
  * handlers. This should be called in the RSL interrupt handler
  * for your application or operating system.
  *
- * @return Number of error handlers called. Zero means this call
+ * Return: Number of error handlers called. Zero means this call
  *         found no errors and was spurious.
  */
 int cvmx_error_poll(void);
@@ -116,7 +116,7 @@ int cvmx_error_poll(void);
  *                 call. All members of the structure must be populated, even the
  *                 parent information.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_error_add(const cvmx_error_info_t *new_info);
 
@@ -136,7 +136,7 @@ int cvmx_error_add(const cvmx_error_info_t *new_info);
  * @param old_info If not NULL, this is filled with information about the handler
  *                 that was removed.
  *
- * @return Zero on success, negative on failure (not found).
+ * Return: Zero on success, negative on failure (not found).
  */
 int cvmx_error_remove(cvmx_error_register_t reg_type, u64 status_addr, u64 status_mask,
 		      cvmx_error_info_t *old_info);
@@ -160,7 +160,7 @@ int cvmx_error_remove(cvmx_error_register_t reg_type, u64 status_addr, u64 statu
  * @param old_user_info
  *                 If not NULL, the old user info parameter.
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_error_change_handler(cvmx_error_register_t reg_type, u64 status_addr, u64 status_mask,
 			      cvmx_error_func_t new_func, u64 new_user_info,
@@ -175,7 +175,7 @@ int cvmx_error_change_handler(cvmx_error_register_t reg_type, u64 status_addr, u
  *               Index for the group as defined in the cvmx_error_group_t
  *               comments.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 /*
  * Rather than conditionalize the calls throughout the executive to not enable
@@ -197,7 +197,7 @@ static inline int cvmx_error_enable_group(cvmx_error_group_t group, int group_in
  *               Index for the group as defined in the cvmx_error_group_t
  *               comments.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 /*
  * Rather than conditionalize the calls throughout the executive to not disable
@@ -218,7 +218,7 @@ static inline int cvmx_error_disable_group(cvmx_error_group_t group, int group_i
  *                 All handlers for this status register with this mask will be
  *                 enabled.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_error_enable(cvmx_error_register_t reg_type, u64 status_addr, u64 status_mask);
 
@@ -232,7 +232,7 @@ int cvmx_error_enable(cvmx_error_register_t reg_type, u64 status_addr, u64 statu
  *                 All handlers for this status register with this mask will be
  *                 disabled.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_error_disable(cvmx_error_register_t reg_type, u64 status_addr, u64 status_mask);
 
@@ -244,7 +244,7 @@ int cvmx_error_disable(cvmx_error_register_t reg_type, u64 status_addr, u64 stat
  *
  * @param info   Error register to check
  *
- * @return Number of error status bits found or zero if no bits were set.
+ * Return: Number of error status bits found or zero if no bits were set.
  */
 int __cvmx_error_decode(const cvmx_error_info_t *info);
 
@@ -264,7 +264,7 @@ int __cvmx_error_display(const cvmx_error_info_t *info);
  * @param status_addr
  *                Status register address
  *
- * @return  Return the handler on success or null on failure.
+ * Return:  Return the handler on success or null on failure.
  */
 cvmx_error_info_t *cvmx_error_get_index(u64 status_addr);
 
@@ -279,7 +279,7 @@ void __cvmx_install_gmx_error_handler_for_xaui(void);
  * @param key INTSN value to search for
  * @param data current entry from the searched array
  *
- * @return Negative, 0 or positive when respectively key is less than,
+ * Return: Negative, 0 or positive when respectively key is less than,
  *		equal or greater than data.
  */
 int cvmx_error_intsn_cmp(const void *key, const void *data);
@@ -291,7 +291,7 @@ int cvmx_error_intsn_cmp(const void *key, const void *data);
  *
  * @param node Node number
  *
- * @return Zero on success, -1 on error
+ * Return: Zero on success, -1 on error
  */
 int cvmx_error_intsn_display_v3(int node, u32 intsn);
 
@@ -302,7 +302,7 @@ int cvmx_error_intsn_display_v3(int node, u32 intsn);
  *
  * @param node Node number
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_error_initialize_cn78xx(int node);
 
@@ -312,7 +312,7 @@ int cvmx_error_initialize_cn78xx(int node);
  * @param node Node number
  * @param intsn Interrupt source number
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_error_intsn_enable_v3(int node, u32 intsn);
 
@@ -322,7 +322,7 @@ int cvmx_error_intsn_enable_v3(int node, u32 intsn);
  * @param node Node number
  * @param intsn Interrupt source number
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_error_intsn_disable_v3(int node, u32 intsn);
 
@@ -331,7 +331,7 @@ int cvmx_error_intsn_disable_v3(int node, u32 intsn);
  *
  * @param intsn Interrupt source number
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_error_intsn_clear_v3(int node, u32 intsn);
 
@@ -341,7 +341,7 @@ int cvmx_error_intsn_clear_v3(int node, u32 intsn);
  * @param node Node number
  * @param csr_address CSR address
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int cvmx_error_csr_enable_v3(int node, u64 csr_address);
 
@@ -351,7 +351,7 @@ int cvmx_error_csr_enable_v3(int node, u64 csr_address);
  * @param node Node number
  * @param csr_address CSR address
  *
- * @return Zero
+ * Return: Zero
  */
 int cvmx_error_csr_disable_v3(int node, u64 csr_address);
 
@@ -362,7 +362,7 @@ int cvmx_error_csr_disable_v3(int node, u64 csr_address);
  * @param group  Logical group to enable
  * @param xipd_port  The IPD port value
  *
- * @return Zero.
+ * Return: Zero.
  */
 int cvmx_error_enable_group_v3(cvmx_error_group_t group, int xipd_port);
 
@@ -372,7 +372,7 @@ int cvmx_error_enable_group_v3(cvmx_error_group_t group, int xipd_port);
  * @param group  Logical group to enable
  * @param xipd_port  The IPD port value
  *
- * @return Zero.
+ * Return: Zero.
  */
 int cvmx_error_disable_group_v3(cvmx_error_group_t group, int xipd_port);
 
@@ -384,7 +384,7 @@ int cvmx_error_disable_group_v3(cvmx_error_group_t group, int xipd_port);
  * @param type   Category in a logical group to enable
  * @param xipd_port  The IPD port value
  *
- * @return Zero.
+ * Return: Zero.
  */
 int cvmx_error_enable_group_type_v3(cvmx_error_group_t group, cvmx_error_type_t type,
 				    int xipd_port);
@@ -397,7 +397,7 @@ int cvmx_error_enable_group_type_v3(cvmx_error_group_t group, cvmx_error_type_t 
  * @param type   Category in a logical group to disable
  * @param xipd_port  The IPD port value
  *
- * @return Zero.
+ * Return: Zero.
  */
 int cvmx_error_disable_group_type_v3(cvmx_error_group_t group, cvmx_error_type_t type,
 				     int xipd_port);
@@ -408,7 +408,7 @@ int cvmx_error_disable_group_type_v3(cvmx_error_group_t group, cvmx_error_type_t
  * @param group  Logical group to disable
  * @param xipd_port  The IPD port value
  *
- * @return Zero.
+ * Return: Zero.
  */
 int cvmx_error_clear_group_v3(cvmx_error_group_t group, int xipd_port);
 
@@ -418,7 +418,7 @@ int cvmx_error_clear_group_v3(cvmx_error_group_t group, int xipd_port);
  * @param node  CCPI node
  * @param type  category to enable
  *
- *@return Zero.
+ *Return: Zero.
  */
 int cvmx_error_enable_type_v3(int node, cvmx_error_type_t type);
 
@@ -428,7 +428,7 @@ int cvmx_error_enable_type_v3(int node, cvmx_error_type_t type);
  * @param node  CCPI node
  * @param type  category to disable
  *
- *@return Zero.
+ *Return: Zero.
  */
 int cvmx_error_disable_type_v3(int node, cvmx_error_type_t type);
 
@@ -449,7 +449,7 @@ int __cvmx_cn7xxx_l2c_l2d_ecc_error_display(int node, int intsn);
  * @param	intsn	intsn from error array.
  * @param	remote	true for remote node (cn78xx only)
  *
- * @return	1 if handled, 0 if not handled
+ * Return:	1 if handled, 0 if not handled
  */
 int __cvmx_cn7xxx_l2c_tag_error_display(int node, int intsn, bool remote);
 

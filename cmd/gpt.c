@@ -38,7 +38,7 @@ static LIST_HEAD(disk_partitions);
  * @param str - pointer to string
  * @param env - pointer to pointer to extracted env
  *
- * @return - zero on successful expand and env is set
+ * Return: - zero on successful expand and env is set
  */
 static int extract_env(const char *str, char **env)
 {
@@ -97,7 +97,7 @@ static int extract_env(const char *str, char **env)
  * @param str - pointer to string with key=values pairs
  * @param key - pointer to the key to search for
  *
- * @return - pointer to allocated string with the value
+ * Return: - pointer to allocated string with the value
  */
 static char *extract_val(const char *str, const char *key)
 {
@@ -134,7 +134,7 @@ static char *extract_val(const char *str, const char *key)
  * @param str - pointer to string with key
  * @param key - pointer to the key to search for
  *
- * @return - true on found key
+ * Return: - true on found key
  */
 static bool found_key(const char *str, const char *key)
 {
@@ -403,7 +403,7 @@ static int do_get_gpt_info(struct blk_desc *dev_desc, char * const namestr)
  * @param partitions - pointer to pointer to allocated partitions array
  * @param parts_count - number of partitions
  *
- * @return - zero on success, otherwise error
+ * Return: - zero on success, otherwise error
  *
  */
 static int set_gpt_info(struct blk_desc *dev_desc,
@@ -969,7 +969,7 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
  * @param argc
  * @param argv
  *
- * @return zero on success; otherwise error
+ * Return: zero on success; otherwise error
  */
 static int do_gpt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

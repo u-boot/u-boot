@@ -47,7 +47,7 @@ struct dm_spi_flash_ops {
  * @offset:	Offset into device in bytes to read from
  * @len:	Number of bytes to read
  * @buf:	Buffer to put the data that is read
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int spi_flash_read_dm(struct udevice *dev, u32 offset, size_t len, void *buf);
 
@@ -58,7 +58,7 @@ int spi_flash_read_dm(struct udevice *dev, u32 offset, size_t len, void *buf);
  * @offset:	Offset into device in bytes to write to
  * @len:	Number of bytes to write
  * @buf:	Buffer containing bytes to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int spi_flash_write_dm(struct udevice *dev, u32 offset, size_t len,
 		       const void *buf);
@@ -71,7 +71,7 @@ int spi_flash_write_dm(struct udevice *dev, u32 offset, size_t len,
  * @dev:	SPI flash device
  * @offset:	Offset into device in bytes to start erasing
  * @len:	Number of bytes to erase
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len);
 
@@ -83,7 +83,7 @@ int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len);
  * defined.
  *
  * @dev:	SPI flash device
- * @return 0 if no region is write-protected, 1 if a region is
+ * Return: 0 if no region is write-protected, 1 if a region is
  *	write-protected, -ENOSYS if the driver does not implement this,
  *	other -ve value on error
  */
@@ -97,7 +97,7 @@ int spl_flash_get_sw_write_prot(struct udevice *dev);
  * do this, typically with of-platdata
  *
  * @dev: SPI-flash device to probe
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int spi_flash_std_probe(struct udevice *dev);
 

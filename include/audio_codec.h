@@ -42,7 +42,7 @@ struct audio_codec_ops {
  * @mclk_freq: Codec clock frequency in Hz
  * @bits_per_sample: Must be 16 or 24
  * @channels: Number of channels to use (1=mono, 2=stereo)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int audio_codec_set_params(struct udevice *dev, int interface, int rate,
 			   int mclk_freq, int bits_per_sample, uint channels);

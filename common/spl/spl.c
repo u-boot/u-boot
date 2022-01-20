@@ -446,7 +446,7 @@ static inline int write_spl_handoff(void) { return 0; }
  * get_bootstage_id() - Get the bootstage ID to emit
  *
  * @start: true if this is for starting SPL, false for ending it
- * @return bootstage ID to use
+ * Return: bootstage ID to use
  */
 static enum bootstage_id get_bootstage_id(bool start)
 {
@@ -617,7 +617,7 @@ static int spl_load_image(struct spl_image_info *spl_image,
  * @spl_image: Place to put the image details if successful
  * @spl_boot_list: List of boot devices to try
  * @count: Number of elements in spl_boot_list
- * @return 0 if OK, -ENODEV if there were no boot devices
+ * Return: 0 if OK, -ENODEV if there were no boot devices
  *	if CONFIG_SHOW_ERRORS is enabled, returns -ENXIO if there were
  *	devices but none worked
  */
@@ -883,7 +883,7 @@ __weak void spl_relocate_stack_check(void)
  * All of this is done using the same layout and alignments as done in
  * board_init_f_init_reserve() / board_init_f_alloc_reserve().
  *
- * @return new stack location, or 0 to use the same stack
+ * Return: new stack location, or 0 to use the same stack
  */
 ulong spl_relocate_stack_gd(void)
 {

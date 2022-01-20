@@ -57,7 +57,7 @@ static u8 *image;
  * Reset service of the block IO protocol.
  *
  * @this	block IO protocol
- * @return	status code
+ * Return:	status code
  */
 static efi_status_t EFIAPI reset(
 			struct efi_block_io *this,
@@ -74,7 +74,7 @@ static efi_status_t EFIAPI reset(
  * @lba		start of the read in logical blocks
  * @buffer_size	number of bytes to read
  * @buffer	target buffer
- * @return	status code
+ * Return:	status code
  */
 static efi_status_t EFIAPI read_blocks(
 			struct efi_block_io *this, u32 media_id, u64 lba,
@@ -99,7 +99,7 @@ static efi_status_t EFIAPI read_blocks(
  * @lba		start of the write in logical blocks
  * @buffer_size	number of bytes to read
  * @buffer	source buffer
- * @return	status code
+ * Return:	status code
  */
 static efi_status_t EFIAPI write_blocks(
 			struct efi_block_io *this, u32 media_id, u64 lba,
@@ -120,7 +120,7 @@ static efi_status_t EFIAPI write_blocks(
  * Flush service of the block IO protocol.
  *
  * @this	block IO protocol
- * @return	status code
+ * Return:	status code
  */
 static efi_status_t EFIAPI flush_blocks(struct efi_block_io *this)
 {
@@ -131,7 +131,7 @@ static efi_status_t EFIAPI flush_blocks(struct efi_block_io *this)
  * Decompress the disk image.
  *
  * @image	decompressed disk image
- * @return	status code
+ * Return:	status code
  */
 static efi_status_t decompress(u8 **image)
 {
@@ -278,7 +278,7 @@ static int teardown(void)
  * Get length of device path without end tag.
  *
  * @dp		device path
- * @return	length of device path in bytes
+ * Return:	length of device path in bytes
  */
 static efi_uintn_t dp_size(struct efi_device_path *dp)
 {

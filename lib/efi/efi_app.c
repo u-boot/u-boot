@@ -79,7 +79,7 @@ int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
  * @device_path: EFI device path structure for this
  * @len: Length of @device_path in bytes
  * @devp: Returns the bound device
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int efi_bind_block(efi_handle_t handle, struct efi_block_io *blkio,
 		   struct efi_device_path *device_path, int len,

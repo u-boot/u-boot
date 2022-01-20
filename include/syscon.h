@@ -43,7 +43,7 @@ struct syscon_base_plat {
  *
  * @dev:	Device to check (UCLASS_SCON)
  * @info:	Returns regmap for the device
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 struct regmap *syscon_get_regmap(struct udevice *dev);
 
@@ -56,7 +56,7 @@ struct regmap *syscon_get_regmap(struct udevice *dev);
  *
  * @driver_data:	Driver data value to look up
  * @devp:		Returns the controller correponding to @driver_data
- * @return 0 on success, -ENODEV if the ID was not found, or other -ve error
+ * Return: 0 on success, -ENODEV if the ID was not found, or other -ve error
  *	   code
  */
 int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp);
@@ -69,7 +69,7 @@ int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp);
  * are in use. This function looks up the regmap given this driver data.
  *
  * @driver_data:	Driver data value to look up
- * @return register map correponding to @driver_data, or -ve error code
+ * Return: register map correponding to @driver_data, or -ve error code
  */
 struct regmap *syscon_get_regmap_by_driver_data(ulong driver_data);
 
@@ -81,7 +81,7 @@ struct regmap *syscon_get_regmap_by_driver_data(ulong driver_data);
  *
  * @dev:	Device using the system controller
  * @name:	Name of property referring to the system controller
- * @return	A pointer to the regmap if found, ERR_PTR(-ve) on error
+ * Return:	A pointer to the regmap if found, ERR_PTR(-ve) on error
  */
 struct regmap *syscon_regmap_lookup_by_phandle(struct udevice *dev,
 					       const char *name);
@@ -90,7 +90,7 @@ struct regmap *syscon_regmap_lookup_by_phandle(struct udevice *dev,
  * syscon_get_first_range() - get the first memory range from a syscon regmap
  *
  * @driver_data:	Driver data value to look up
- * @return first region of register map correponding to @driver_data, or
+ * Return: first region of register map correponding to @driver_data, or
  *			-ve error code
  */
 void *syscon_get_first_range(ulong driver_data);

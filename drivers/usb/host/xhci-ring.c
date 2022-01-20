@@ -33,7 +33,7 @@
  * @param ring	pointer to the ring
  * @param seg	poniter to the segment to which TRB belongs
  * @param trb	poniter to the ring trb
- * @return 1 if this TRB a link TRB else 0
+ * Return: 1 if this TRB a link TRB else 0
  */
 static int last_trb(struct xhci_ctrl *ctrl, struct xhci_ring *ring,
 			struct xhci_segment *seg, union xhci_trb *trb)
@@ -52,7 +52,7 @@ static int last_trb(struct xhci_ctrl *ctrl, struct xhci_ring *ring,
  * @param ring	pointer to the ring
  * @param seg	poniter to the segment to which TRB belongs
  * @param trb	poniter to the ring trb
- * @return 1 if this TRB is the last TRB on the last segment else 0
+ * Return: 1 if this TRB is the last TRB on the last segment else 0
  */
 static bool last_trb_on_last_seg(struct xhci_ctrl *ctrl,
 				 struct xhci_ring *ring,
@@ -86,7 +86,7 @@ static bool last_trb_on_last_seg(struct xhci_ctrl *ctrl,
  *				are expected or NOT.
  *				Will you enqueue more TRBs before calling
  *				prepare_ring()?
- * @return none
+ * Return: none
  */
 static void inc_enq(struct xhci_ctrl *ctrl, struct xhci_ring *ring,
 						bool more_trbs_coming)
@@ -178,7 +178,7 @@ static void inc_deq(struct xhci_ctrl *ctrl, struct xhci_ring *ring)
  * @param ring	pointer to the ring
  * @param more_trbs_coming	flag to indicate whether more trbs
  * @param trb_fields	pointer to trb field array containing TRB contents
- * @return pointer to the enqueued trb
+ * Return: pointer to the enqueued trb
  */
 static struct xhci_generic_trb *queue_trb(struct xhci_ctrl *ctrl,
 					  struct xhci_ring *ring,
@@ -207,7 +207,7 @@ static struct xhci_generic_trb *queue_trb(struct xhci_ctrl *ctrl,
  * @param ctrl		Host controller data structure
  * @param ep_ring	pointer to the EP Transfer Ring
  * @param ep_state	State of the End Point
- * @return error code in case of invalid ep_state, 0 on success
+ * Return: error code in case of invalid ep_state, 0 on success
  */
 static int prepare_ring(struct xhci_ctrl *ctrl, struct xhci_ring *ep_ring,
 							u32 ep_state)
@@ -269,7 +269,7 @@ static int prepare_ring(struct xhci_ctrl *ctrl, struct xhci_ring *ep_ring,
  * @param slot_id	Slot ID to encode in the flags field (opt.)
  * @param ep_index	Endpoint index to encode in the flags field (opt.)
  * @param cmd		Command type to enqueue
- * @return none
+ * Return: none
  */
 void xhci_queue_command(struct xhci_ctrl *ctrl, u8 *ptr, u32 slot_id,
 			u32 ep_index, trb_type cmd)
@@ -327,7 +327,7 @@ void xhci_queue_command(struct xhci_ctrl *ctrl, u8 *ptr, u32 slot_id,
  * @param td_total_len	total packet count
  * @param maxp	max packet size of current pipe
  * @param more_trbs_coming	indicate last trb in TD
- * @return remainder
+ * Return: remainder
  */
 static u32 xhci_td_remainder(struct xhci_ctrl *ctrl, int transferred,
 			     int trb_buff_len, unsigned int td_total_len,
@@ -361,7 +361,7 @@ static u32 xhci_td_remainder(struct xhci_ctrl *ctrl, int transferred,
  * @param ep_index	index of the endpoint
  * @param start_cycle	cycle flag of the first TRB
  * @param start_trb	pionter to the first TRB
- * @return none
+ * Return: none
  */
 static void giveback_first_trb(struct usb_device *udev, int ep_index,
 				int start_cycle,
@@ -395,7 +395,7 @@ static void giveback_first_trb(struct usb_device *udev, int ep_index,
  * the end of each event handler, and not touch the TRB again afterwards.
  *
  * @param ctrl	Host controller data structure
- * @return none
+ * Return: none
  */
 void xhci_acknowledge_event(struct xhci_ctrl *ctrl)
 {
@@ -411,7 +411,7 @@ void xhci_acknowledge_event(struct xhci_ctrl *ctrl)
  * Checks if there is a new event to handle on the event ring.
  *
  * @param ctrl	Host controller data structure
- * @return 0 if failure else 1 on success
+ * Return: 0 if failure else 1 on success
  */
 static int event_ready(struct xhci_ctrl *ctrl)
 {
@@ -437,7 +437,7 @@ static int event_ready(struct xhci_ctrl *ctrl)
  *
  * @param ctrl		Host controller data structure
  * @param expected	TRB type expected from Event TRB
- * @return pointer to event trb
+ * Return: pointer to event trb
  */
 union xhci_trb *xhci_wait_for_event(struct xhci_ctrl *ctrl, trb_type expected)
 {
@@ -557,7 +557,7 @@ static void record_transfer_result(struct usb_device *udev,
  * @param pipe		contains the DIR_IN or OUT , devnum
  * @param length	length of the buffer
  * @param buffer	buffer to be read/written based on the request
- * @return returns 0 if successful else -1 on failure
+ * Return: returns 0 if successful else -1 on failure
  */
 int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 			int length, void *buffer)
@@ -753,7 +753,7 @@ again:
  * @param req		request type
  * @param length	length of the buffer
  * @param buffer	buffer to be read/written based on the request
- * @return returns 0 if successful else error code on failure
+ * Return: returns 0 if successful else error code on failure
  */
 int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 			struct devrequest *req,	int length,

@@ -257,7 +257,7 @@ int dm_scan_plat(bool pre_reloc_only)
  * @node: Node to scan
  * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC
  * flag. If false bind all drivers.
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int dm_scan_fdt_node(struct udevice *parent, ofnode parent_node,
 			    bool pre_reloc_only)

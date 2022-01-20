@@ -322,7 +322,7 @@ struct acpi_i2c_priv {
  * @dev: Device to check
  * @buf: Buffer to place the path in (should be ACPI_PATH_MAX long)
  * @maxlen: Size of buffer (typically ACPI_PATH_MAX)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_device_path(const struct udevice *dev, char *buf, int maxlen);
 
@@ -335,7 +335,7 @@ int acpi_device_path(const struct udevice *dev, char *buf, int maxlen);
  * @dev: Device to check
  * @buf: Buffer to place the path in (should be ACPI_PATH_MAX long)
  * @maxlen: Size of buffer (typically ACPI_PATH_MAX)
- * @return 0 if OK, -EINVAL if the device has no parent, other -ve on other
+ * Return: 0 if OK, -EINVAL if the device has no parent, other -ve on other
  *	error
  */
 int acpi_device_scope(const struct udevice *dev, char *scope, int maxlen);
@@ -347,7 +347,7 @@ int acpi_device_scope(const struct udevice *dev, char *scope, int maxlen);
  * inactive or hidden devices.
  *
  * @dev: Device to check
- * @return device status, as ACPI_DSTATUS_...
+ * Return: device status, as ACPI_DSTATUS_...
  */
 enum acpi_dev_status acpi_device_status(const struct udevice *dev);
 
@@ -359,7 +359,7 @@ enum acpi_dev_status acpi_device_status(const struct udevice *dev);
  *
  * @ctx: ACPI context pointer
  * @req_irq: Interrupt to output
- * @return IRQ pin number if OK, -ve on error
+ * Return: IRQ pin number if OK, -ve on error
  */
 int acpi_device_write_interrupt_irq(struct acpi_ctx *ctx,
 				    const struct irq *req_irq);
@@ -368,7 +368,7 @@ int acpi_device_write_interrupt_irq(struct acpi_ctx *ctx,
  * acpi_device_write_gpio() - Write GpioIo() or GpioInt() descriptor
  *
  * @gpio: GPIO information to write
- * @return GPIO pin number of first GPIO if OK, -ve on error
+ * Return: GPIO pin number of first GPIO if OK, -ve on error
  */
 int acpi_device_write_gpio(struct acpi_ctx *ctx, const struct acpi_gpio *gpio);
 
@@ -380,7 +380,7 @@ int acpi_device_write_gpio(struct acpi_ctx *ctx, const struct acpi_gpio *gpio);
  *
  * @ctx: ACPI context pointer
  * @desc: GPIO to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_device_write_gpio_desc(struct acpi_ctx *ctx,
 				const struct gpio_desc *desc);
@@ -394,7 +394,7 @@ int acpi_device_write_gpio_desc(struct acpi_ctx *ctx,
  * If an interrupt is found, an ACPI interrupt descriptor is written to the ACPI
  * output. If not, but if a GPIO is found, a GPIO descriptor is written.
  *
- * @return irq or GPIO pin number if OK, -ve if neither an interrupt nor a GPIO
+ * Return: irq or GPIO pin number if OK, -ve if neither an interrupt nor a GPIO
  *	could be found, or some other error occurred
  */
 int acpi_device_write_interrupt_or_gpio(struct acpi_ctx *ctx,
@@ -419,7 +419,7 @@ int acpi_device_write_dsm_i2c_hid(struct acpi_ctx *ctx,
  *
  * @ctx: ACPI context pointer
  * @dev: I2C device to write
- * @return I2C address of device if OK, -ve on error
+ * Return: I2C address of device if OK, -ve on error
  */
 int acpi_device_write_i2c_dev(struct acpi_ctx *ctx, const struct udevice *dev);
 
@@ -431,7 +431,7 @@ int acpi_device_write_i2c_dev(struct acpi_ctx *ctx, const struct udevice *dev);
  *
  * @ctx: ACPI context pointer
  * @dev: SPI device to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_device_write_spi_dev(struct acpi_ctx *ctx, const struct udevice *dev);
 
@@ -466,7 +466,7 @@ int acpi_device_write_spi_dev(struct acpi_ctx *ctx, const struct udevice *dev);
  * @stop_off_delay_ms: Delay to be inserted after enabling stop.
  *	(_OFF method delay)
  *
- * @return 0 if OK, -ve if at least one GPIO is not provided
+ * Return: 0 if OK, -ve if at least one GPIO is not provided
  */
 int acpi_device_add_power_res(struct acpi_ctx *ctx, u32 tx_state_val,
 			      const char *dw0_read, const char *dw0_write,
@@ -490,7 +490,7 @@ int acpi_device_add_power_res(struct acpi_ctx *ctx, u32 tx_state_val,
  *
  * @dev: Device to check
  * @out_name: Place to put the name (must hold ACPI_NAME_MAX bytes)
- * @return 0 if a name was found, -ENOENT if not found, -ENXIO if the device
+ * Return: 0 if a name was found, -ENOENT if not found, -ENXIO if the device
  *	sequence number could not be determined
  */
 int acpi_device_infer_name(const struct udevice *dev, char *out_name);
