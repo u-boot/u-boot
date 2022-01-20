@@ -7,22 +7,19 @@
  * (C) Copyright 2017 Icenowy Zheng <icenowy@aosc.io>
  */
 
-#include <fdtdec.h>
+#include <fdt_support.h>
 
 int meson_simplefb_fdt_match(void *blob, const char *pipeline)
 {
 	int offset, ret;
 
 	/* Find a prefilled simpefb node, matching out pipeline config */
-	offset = fdt_node_offset_by_compatible(blob, -1,
-					       "amlogic,simple-framebuffer");
-	while (offset >= 0) {
+	fdt_for_each_node_by_compatible(offset, blob, -1,
+					"amlogic,simple-framebuffer") {
 		ret = fdt_stringlist_search(blob, offset, "amlogic,pipeline",
 					    pipeline);
 		if (ret == 0)
 			break;
-		offset = fdt_node_offset_by_compatible(blob, offset,
-						"amlogic,simple-framebuffer");
 	}
 
 	return offset;

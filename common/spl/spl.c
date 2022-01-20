@@ -312,6 +312,7 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 #endif
 
 __weak int spl_parse_board_header(struct spl_image_info *spl_image,
+				  const struct spl_boot_device *bootdev,
 				  const void *image_header, size_t size)
 {
 	return -EINVAL;
@@ -326,6 +327,7 @@ __weak int spl_parse_legacy_header(struct spl_image_info *spl_image,
 }
 
 int spl_parse_image_header(struct spl_image_info *spl_image,
+			   const struct spl_boot_device *bootdev,
 			   const struct image_header *header)
 {
 #if CONFIG_IS_ENABLED(LOAD_FIT_FULL)
@@ -369,7 +371,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 		}
 #endif
 
-		if (!spl_parse_board_header(spl_image, (const void *)header, sizeof(*header)))
+		if (!spl_parse_board_header(spl_image, bootdev, (const void *)header, sizeof(*header)))
 			return 0;
 
 #ifdef CONFIG_SPL_RAW_IMAGE_SUPPORT
@@ -587,6 +589,12 @@ static struct spl_image_loader *spl_ll_find_loader(uint boot_device)
 	return NULL;
 }
 
+__weak int spl_check_board_image(struct spl_image_info *spl_image,
+				 const struct spl_boot_device *bootdev)
+{
+	return 0;
+}
+
 static int spl_load_image(struct spl_image_info *spl_image,
 			  struct spl_image_loader *loader)
 {
@@ -608,6 +616,9 @@ static int spl_load_image(struct spl_image_info *spl_image,
 		}
 	}
 #endif
+	if (!ret)
+		ret = spl_check_board_image(spl_image, &bootdev);
+
 	return ret;
 }
 

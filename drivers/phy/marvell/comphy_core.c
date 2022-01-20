@@ -79,11 +79,6 @@ int comphy_rx_training(struct udevice *dev, u32 lane)
 	return 0;
 }
 
-__weak int comphy_update_map(struct comphy_map *serdes_map, int count)
-{
-	return 0;
-}
-
 static int comphy_probe(struct udevice *dev)
 {
 	int node = dev_of_offset(dev);
@@ -123,10 +118,6 @@ static int comphy_probe(struct udevice *dev)
 	}
 
 	res = chip_cfg->comphy_init_map(node, chip_cfg);
-	if (res < 0)
-		return res;
-
-	res = comphy_update_map(chip_cfg->comphy_map_data, chip_cfg->comphy_lanes_count);
 	if (res < 0)
 		return res;
 

@@ -490,6 +490,86 @@ void spl_board_init(void)
 	}
 }
 
+#if IS_ENABLED(CONFIG_OF_BOARD_FIXUP) || IS_ENABLED(CONFIG_OF_BOARD_SETUP)
+
+static void fixup_serdes_0_nodes(void *blob)
+{
+	bool mode_sata;
+	int node;
+
+	/*
+	 * Determine if SerDes 0 is configured to SATA mode.
+	 * We do this instead of calling omnia_detect_sata() to avoid another
+	 * call to the MCU. By this time the common PHYs are initialized (it is
+	 * done in SPL), so we can read this common PHY register.
+	 */
+	mode_sata = (readl(MVEBU_REGISTER(0x183fc)) & GENMASK(3, 0)) == 2;
+
+	/*
+	 * We're either adding status = "disabled" property, or changing
+	 * status = "okay" to status = "disabled". In both cases we'll need more
+	 * space. Increase the size a little.
+	 */
+	if (fdt_increase_size(blob, 32) < 0) {
+		printf("Cannot increase FDT size!\n");
+		return;
+	}
+
+	/* If mSATA card is not present, disable SATA DT node */
+	if (!mode_sata) {
+		fdt_for_each_node_by_compatible(node, blob, -1,
+						"marvell,armada-380-ahci") {
+			if (!fdtdec_get_is_enabled(blob, node))
+				continue;
+
+			if (fdt_status_disabled(blob, node) < 0)
+				printf("Cannot disable SATA DT node!\n");
+			else
+				debug("Disabled SATA DT node\n");
+
+			break;
+		}
+
+		return;
+	}
+
+	/* Otherwise disable PCIe port 0 DT node (MiniPCIe / mSATA port) */
+	fdt_for_each_node_by_compatible(node, blob, -1,
+					"marvell,armada-370-pcie") {
+		int port;
+
+		if (!fdtdec_get_is_enabled(blob, node))
+			continue;
+
+		fdt_for_each_subnode (port, blob, node) {
+			if (!fdtdec_get_is_enabled(blob, port))
+				continue;
+
+			if (fdtdec_get_int(blob, port, "marvell,pcie-port",
+					   -1) != 0)
+				continue;
+
+			if (fdt_status_disabled(blob, port) < 0)
+				printf("Cannot disable PCIe port 0 DT node!\n");
+			else
+				debug("Disabled PCIe port 0 DT node\n");
+
+			return;
+		}
+	}
+}
+
+#endif
+
+#if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
+int board_fix_fdt(void *blob)
+{
+	fixup_serdes_0_nodes(blob);
+
+	return 0;
+}
+#endif
+
 int board_init(void)
 {
 	/* address of boot parameters */
@@ -694,7 +774,7 @@ static bool fixup_mtd_partitions(void *blob, int offset, struct mtd_info *mtd)
 	return true;
 }
 
-int ft_board_setup(void *blob, struct bd_info *bd)
+static void fixup_spi_nor_partitions(void *blob)
 {
 	struct mtd_info *mtd;
 	int node;
@@ -711,12 +791,19 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		goto fail;
 
 	put_mtd_device(mtd);
-	return 0;
+	return;
 
 fail:
 	printf("Failed fixing SPI NOR partitions!\n");
 	if (!IS_ERR_OR_NULL(mtd))
 		put_mtd_device(mtd);
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	fixup_spi_nor_partitions(blob);
+	fixup_serdes_0_nodes(blob);
+
 	return 0;
 }
 #endif

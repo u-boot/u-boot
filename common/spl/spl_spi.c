@@ -24,6 +24,7 @@
  * the kernel and then device tree.
  */
 static int spi_load_image_os(struct spl_image_info *spl_image,
+			     struct spl_boot_device *bootdev,
 			     struct spi_flash *flash,
 			     struct image_header *header)
 {
@@ -36,7 +37,7 @@ static int spi_load_image_os(struct spl_image_info *spl_image,
 	if (image_get_magic(header) != IH_MAGIC)
 		return -1;
 
-	err = spl_parse_image_header(spl_image, header);
+	err = spl_parse_image_header(spl_image, bootdev, header);
 	if (err)
 		return err;
 
@@ -108,7 +109,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	}
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
-	if (spl_start_uboot() || spi_load_image_os(spl_image, flash, header))
+	if (spl_start_uboot() || spi_load_image_os(spl_image, bootdev, flash, header))
 #endif
 	{
 		/* Load u-boot, mkimage header is 64 bytes. */
@@ -127,7 +128,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 					     (void *)CONFIG_SYS_LOAD_ADDR);
 			if (err)
 				return err;
-			err = spl_parse_image_header(spl_image,
+			err = spl_parse_image_header(spl_image, bootdev,
 					(struct image_header *)CONFIG_SYS_LOAD_ADDR);
 		} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 			   image_get_magic(header) == FDT_MAGIC) {
@@ -154,7 +155,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			err = spl_load_imx_container(spl_image, &load,
 						     payload_offs);
 		} else {
-			err = spl_parse_image_header(spl_image, header);
+			err = spl_parse_image_header(spl_image, bootdev, header);
 			if (err)
 				return err;
 			err = spi_flash_read(flash, payload_offs + spl_image->offset,

@@ -2050,7 +2050,7 @@ static int compute_vref_val(struct ddr_priv *priv, int if_num, int rankx,
 		lmc_control.u64 = lmc_rd(priv, CVMX_LMCX_CONTROL(if_num));
 
 		/*
-		 *  New computed vref = existing computed vref – X
+		 *  New computed vref = existing computed vref - X
 		 *
 		 * The value of X is depending on different conditions.
 		 * Both #122 and #139 are 2Rx4 RDIMM, while #124 is stacked
@@ -2058,7 +2058,7 @@ static int compute_vref_val(struct ddr_priv *priv, int if_num, int rankx,
 		 *
 		 * 1. Stacked Die: 2Rx4
 		 * 1-slot: offset = 7. i, e New computed vref = existing
-		 * computed vref – 7
+		 * computed vref - 7
 		 * 2-slot: offset = 6
 		 *
 		 * 2. Regular: 2Rx4
@@ -9941,11 +9941,11 @@ static int test_dram_byte_hw(struct ddr_priv *priv, int if_num, u64 p,
 	 * NOTE: this step done in the calling routine(s)...
 	 * 3) Setup GENERAL_PURPOSE[0-2] registers with the data pattern
 	 * of choice.
-	 * a. GENERAL_PURPOSE0[DATA<63:0>] – sets the initial lower
+	 * a. GENERAL_PURPOSE0[DATA<63:0>] - sets the initial lower
 	 * (rising edge) 64 bits of data.
-	 * b. GENERAL_PURPOSE1[DATA<63:0>] – sets the initial upper
+	 * b. GENERAL_PURPOSE1[DATA<63:0>] - sets the initial upper
 	 * (falling edge) 64 bits of data.
-	 * c. GENERAL_PURPOSE2[DATA<15:0>] – sets the initial lower
+	 * c. GENERAL_PURPOSE2[DATA<15:0>] - sets the initial lower
 	 * (rising edge <7:0>) and upper (falling edge <15:8>) ECC data.
 	 */
 
@@ -9980,8 +9980,8 @@ static int test_dram_byte_hw(struct ddr_priv *priv, int if_num, u64 p,
 
 	/*
 	 * 7) Set PHY_CTL[PHY_RESET] = 1 (LMC automatically clears this as
-	 * it’s a one-shot operation). This is to get into the habit of
-	 * resetting PHY’s SILO to the original 0 location.
+	 * it's a one-shot operation). This is to get into the habit of
+	 * resetting PHY's SILO to the original 0 location.
 	 */
 	phy_ctl.u64 = lmc_rd(priv, CVMX_LMCX_PHY_CTL(if_num));
 	phy_ctl.s.phy_reset = 1;
@@ -10013,9 +10013,9 @@ static int test_dram_byte_hw(struct ddr_priv *priv, int if_num, u64 p,
 		 * a. COL, ROW, BA, BG, PRANK points to the starting point
 		 * of the address.
 		 * You can just set them to all 0.
-		 * b. RW_TRAIN – set this to 1.
-		 * c. TCCD_L – set this to 0.
-		 * d. READ_CMD_COUNT – instruct the sequence to the how many
+		 * b. RW_TRAIN - set this to 1.
+		 * c. TCCD_L - set this to 0.
+		 * d. READ_CMD_COUNT - instruct the sequence to the how many
 		 * writes/reads.
 		 * It is 5 bits field, so set to 31 of maximum # of r/w.
 		 */
@@ -10063,9 +10063,9 @@ static int test_dram_byte_hw(struct ddr_priv *priv, int if_num, u64 p,
 
 			/*
 			 * 6) Read MPR_DATA0 and MPR_DATA1 for results.
-			 * a. MPR_DATA0[MPR_DATA<63:0>] – comparison results
+			 * a. MPR_DATA0[MPR_DATA<63:0>] - comparison results
 			 *    for DQ63:DQ0. (1 means MATCH, 0 means FAIL).
-			 * b. MPR_DATA1[MPR_DATA<7:0>] – comparison results
+			 * b. MPR_DATA1[MPR_DATA<7:0>] - comparison results
 			 *    for ECC bit7:0.
 			 */
 			mpr_data0 = lmc_rd(priv, CVMX_LMCX_MPR_DATA0(if_num));
@@ -10073,8 +10073,8 @@ static int test_dram_byte_hw(struct ddr_priv *priv, int if_num, u64 p,
 
 			/*
 			 * 7) Set PHY_CTL[PHY_RESET] = 1 (LMC automatically
-			 * clears this as it’s a one-shot operation).
-			 * This is to get into the habit of resetting PHY’s
+			 * clears this as it's a one-shot operation).
+			 * This is to get into the habit of resetting PHY's
 			 * SILO to the original 0 location.
 			 */
 			phy_ctl.u64 = lmc_rd(priv, CVMX_LMCX_PHY_CTL(if_num));
@@ -10163,11 +10163,11 @@ static void setup_hw_pattern(struct ddr_priv *priv, int lmc,
 	/*
 	 * 3) Setup GENERAL_PURPOSE[0-2] registers with the data pattern
 	 * of choice.
-	 * a. GENERAL_PURPOSE0[DATA<63:0>] â sets the initial lower
+	 * a. GENERAL_PURPOSE0[DATA<63:0>] - sets the initial lower
 	 *    (rising edge) 64 bits of data.
-	 * b. GENERAL_PURPOSE1[DATA<63:0>] â sets the initial upper
+	 * b. GENERAL_PURPOSE1[DATA<63:0>] - sets the initial upper
 	 *    (falling edge) 64 bits of data.
-	 * c. GENERAL_PURPOSE2[DATA<15:0>] â sets the initial lower
+	 * c. GENERAL_PURPOSE2[DATA<15:0>] - sets the initial lower
 	 *    (rising edge <7:0>) and upper
 	 * (falling edge <15:8>) ECC data.
 	 */

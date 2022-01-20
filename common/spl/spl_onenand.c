@@ -27,7 +27,7 @@ static int spl_onenand_load_image(struct spl_image_info *spl_image,
 	/* Load u-boot */
 	onenand_spl_load_image(CONFIG_SYS_ONENAND_U_BOOT_OFFS,
 		CONFIG_SYS_ONENAND_PAGE_SIZE, (void *)header);
-	ret = spl_parse_image_header(spl_image, header);
+	ret = spl_parse_image_header(spl_image, bootdev, header);
 	if (ret)
 		return ret;
 	onenand_spl_load_image(CONFIG_SYS_ONENAND_U_BOOT_OFFS,
