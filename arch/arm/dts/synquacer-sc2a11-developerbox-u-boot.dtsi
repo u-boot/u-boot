@@ -56,7 +56,7 @@
 				};
 
 				partition@180000 {
-					label = "FIP-TFA";
+					label = "LegacyFIP";
 					reg = <0x180000 0x78000>;
 				};
 
@@ -66,18 +66,28 @@
 				};
 
 				partition@200000 {
-					label = "U-Boot";
-					reg = <0x200000 0x100000>;
+					label = "EDK2";
+					reg = <0x200000 0x200000>;
 				};
 
-				partition@300000 {
-					label = "UBoot-Env";
-					reg = <0x300000 0x100000>;
+				partition@400000 {
+					label = "EDK2-Env";
+					reg = <0x400000 0x100000>;
 				};
 
 				partition@500000 {
-					label = "Ex-OPTEE";
-					reg = <0x500000 0x200000>;
+					label = "Metadata";
+					reg = <0x500000 0x80000>;
+				};
+
+				partition@580000 {
+					label = "UBoot-Env";
+					reg = <0x580000 0x80000>;
+				};
+
+				partition@600000 {
+					label = "FIP";
+					reg = <0x600000 0x400000>;
 				};
 			};
 		};

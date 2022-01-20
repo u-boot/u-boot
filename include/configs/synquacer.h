@@ -47,9 +47,7 @@
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 
 #define DEFAULT_DFU_ALT_INFO "dfu_alt_info="				\
-			"mtd nor1=u-boot.bin raw 200000 100000;"	\
-			"fip.bin raw 180000 78000;"			\
-			"optee.bin raw 500000 100000\0"
+			"mtd nor1=fip.bin raw 600000 400000\0"
 
 /* GUIDs for capsule updatable firmware images */
 #define DEVELOPERBOX_UBOOT_IMAGE_GUID \
