@@ -14,3 +14,11 @@ config FWU_MDATA_GPT_BLK
 	help
 	  Enable support for accessing FWU Metadata on GPT partitioned
 	  block devices.
+
+config FWU_MDATA_MTD
+	bool "FWU Metadata access for non-GPT MTD devices"
+	depends on DM_FWU_MDATA && MTD
+	help
+	  Enable support for accessing FWU Metadata on non-partitioned
+	  (or non-GPT partitioned, e.g. partition nodes in devicetree)
+	  MTD devices.
