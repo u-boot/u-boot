@@ -377,7 +377,7 @@ int board_late_init_xilinx(void)
 	u32 ret = 0;
 	int i, id, macid = 0;
 	struct xilinx_board_description *desc;
-	phys_size_t bootm_size = gd->ram_size;
+	phys_size_t bootm_size = gd->ram_top - gd->ram_base;
 
 	if (!CONFIG_IS_ENABLED(MICROBLAZE)) {
 		ulong scriptaddr;
