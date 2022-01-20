@@ -495,7 +495,7 @@ efi_status_t do_save(u16 *filename)
  *
  * @handle:	handle of the loaded image
  * @systab:	system table
- * @return:	status code
+ * Return:	status code
  */
 efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 			     struct efi_system_table *systab)

@@ -19,7 +19,7 @@ struct aligned_buffer {
  * occurs.
  *
  * @addr:	address to read
- * @return:	value at the address
+ * Return:	value at the address
  */
 static inline u32 deref(u32 *addr)
 {
@@ -37,7 +37,7 @@ static inline u32 deref(u32 *addr)
  * Execute unit test.
  * An unaligned memory access is executed. The result is checked.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int execute(void)
 {

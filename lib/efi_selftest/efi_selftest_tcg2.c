@@ -612,7 +612,7 @@ static efi_status_t setup_smbios_table(const struct efi_system_table *systable)
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	status code
+ * Return:	status code
  */
 static int efi_st_tcg2_setup(const efi_handle_t img_handle,
 			     const struct efi_system_table *systable)
@@ -949,7 +949,7 @@ static int efi_st_tcg2_execute(void)
 /*
  * efi_st_tcg2_teardown() - Tear down unit test
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int efi_st_tcg2_teardown(void)
 {

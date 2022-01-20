@@ -77,7 +77,7 @@ static unsigned int net_ip_id;
  *
  * @buf:	IP header
  * @len:	length of header in bytes
- * @return:	checksum
+ * Return:	checksum
  */
 static unsigned int efi_ip_checksum(const void *buf, size_t len)
 {
@@ -175,7 +175,7 @@ static efi_status_t send_dhcp_discover(void)
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int setup(const efi_handle_t handle,
 		 const struct efi_system_table *systable)
@@ -282,7 +282,7 @@ static int setup(const efi_handle_t handle,
  * A DHCP discover message is sent. The test is successful if a
  * DHCP reply is received within 10 seconds.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int execute(void)
 {
@@ -422,7 +422,7 @@ received:
  * Close the timer event created in setup.
  * Shut down the network adapter.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int teardown(void)
 {

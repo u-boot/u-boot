@@ -407,7 +407,7 @@ out:
  * @width:	width of rectangle
  * @height:	height of rectangle
  * @delta:	length in bytes of a line in the pixel buffer (optional)
- * @return:	status code
+ * Return:	status code
  */
 efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 			    u32 operation, efi_uintn_t sx,
