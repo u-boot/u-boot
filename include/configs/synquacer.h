@@ -46,8 +46,16 @@
 
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 
+#ifdef CONFIG_FWU_MULTI_BANK_UPDATE
+#define DEFAULT_DFU_ALT_NUM  2
+#define DEFAULT_DFU_ALT_INFO "dfu_alt_info="				\
+				"mtd nor1=bank0 raw  600000 400000;"	\
+					 "bank1 raw  a00000 400000\0"
+#else
+#define DEFAULT_DFU_ALT_NUM  1
 #define DEFAULT_DFU_ALT_INFO "dfu_alt_info="				\
 			"mtd nor1=fip.bin raw 600000 400000\0"
+#endif
 
 /* GUIDs for capsule updatable firmware images */
 #define DEVELOPERBOX_FIP_IMAGE_GUID \

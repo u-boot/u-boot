@@ -23,7 +23,7 @@
 		active_clk_edges;
 		chipselect_num = <1>;
 
-		spi-flash@0 {
+		spi_flash: spi-flash@0 {
 			#address-cells = <1>;
 			#size-cells = <1>;
 			compatible = "jedec,spi-nor";
@@ -84,10 +84,14 @@
 					label = "UBoot-Env";
 					reg = <0x580000 0x80000>;
 				};
-
+				/* FWU Multi bank update partitions */
 				partition@600000 {
-					label = "FIP";
+					label = "FIP-Bank0";
 					reg = <0x600000 0x400000>;
+				};
+				partition@a00000 {
+					label = "FIP-Bank1";
+					reg = <0xa00000 0x400000>;
 				};
 			};
 		};
@@ -113,6 +117,11 @@
 	firmware {
 		optee {
 			status = "okay";
+		};
+		fwu-mdata {
+			compatible = "u-boot,fwu-mdata-mtd";
+			fwu-mdata-store = <&spi_flash>;
+			mdata-offsets = <0x500000 0x530000>;
 		};
 	};
 };
