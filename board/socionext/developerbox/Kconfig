@@ -32,4 +32,17 @@ config SYS_CONFIG_NAME
 	default "synquacer"
 
 endif
+
+config FWU_MULTI_BANK_UPDATE
+	select FWU_MDATA_MTD
+	select DM_SPI_FLASH
+	select DM_FWU_MDATA
+	select BOARD_LATE_INIT
+
+config FWU_NUM_BANKS
+	default 2
+
+config FWU_NUM_IMAGES_PER_BANK
+	default 1
+
 endif

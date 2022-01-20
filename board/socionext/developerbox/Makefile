@@ -7,3 +7,4 @@
 #
 
 obj-y	:= developerbox.o
+obj-$(CONFIG_FWU_MULTI_BANK_UPDATE) += fwu_plat.o
