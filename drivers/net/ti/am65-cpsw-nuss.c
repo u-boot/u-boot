@@ -752,7 +752,7 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 
 		ret = device_bind_driver_to_node(dev, "am65_cpsw_nuss_port", ofnode_get_name(node), node, &port_dev);
 		if (ret)
-			printf("SCREEEM\n");
+			dev_err(dev, "Failed to bind to %s node\n", ofnode_get_name(node));
 	}
 
 	for (i = 0; i < AM65_CPSW_CPSWNU_MAX_PORTS; i++) {
