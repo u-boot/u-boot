@@ -246,7 +246,6 @@
 /* More NOR Flash params */
 #define CONFIG_SYS_FLASH_QUIET_TEST
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* sectors per device */
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO

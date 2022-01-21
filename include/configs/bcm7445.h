@@ -28,6 +28,4 @@
  * Environment configuration for SPI flash.
  */
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	1
-
 #endif	/* __CONFIG_H */

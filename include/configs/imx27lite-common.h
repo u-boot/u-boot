@@ -77,7 +77,6 @@
  */
 /* Use buffered writes (~10x faster) */
 /* Use hardware sector protection */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of flash banks */
 /* CS2 Base address */
 #define PHYS_FLASH_1			0xc0000000
 /* Flash Base for U-Boot */

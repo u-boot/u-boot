@@ -302,6 +302,14 @@ config ATMEL_SFR
 config SYS_SOC
 	default "at91"
 
+config AT91_EFLASH
+	bool "Support AT91 flash driver"
+	depends on AT91SAM9XE
+	select USE_SYS_MAX_FLASH_BANKS
+	help
+	  Enable the driver for the embedded flash used in the Atmel
+	  AT91SAM9XE devices.
+
 source "board/atmel/at91sam9260ek/Kconfig"
 source "board/atmel/at91sam9261ek/Kconfig"
 source "board/atmel/at91sam9263ek/Kconfig"

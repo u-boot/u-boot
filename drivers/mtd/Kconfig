@@ -31,6 +31,7 @@ config SYS_MTDPARTS_RUNTIME
 
 config FLASH_CFI_DRIVER
 	bool "Enable CFI Flash driver"
+	select USE_SYS_MAX_FLASH_BANKS
 	help
 	  The Common Flash Interface specification was developed by Intel,
 	  AMD and other flash manufactures. It provides a universal method
@@ -82,6 +83,7 @@ config SYS_FLASH_CFI
 config ALTERA_QSPI
 	bool "Altera Generic Quad SPI Controller"
 	depends on DM_MTD
+	select USE_SYS_MAX_FLASH_BANKS
 	help
 	  This enables access to Altera EPCQ/EPCS flash chips using the
 	  Altera Generic Quad SPI Controller. The controller converts SPI
@@ -91,6 +93,7 @@ config ALTERA_QSPI
 config FLASH_PIC32
 	bool "Microchip PIC32 Flash driver"
 	depends on MACH_PIC32 && DM_MTD
+	select USE_SYS_MAX_FLASH_BANKS
 	help
 	  This enables access to Microchip PIC32 internal non-CFI flash
 	  chips through PIC32 Non-Volatile-Memory Controller.
@@ -112,9 +115,33 @@ config HBMC_AM654
 config STM32_FLASH
 	bool "STM32 MCU Flash driver"
 	depends on ARCH_STM32
+	select USE_SYS_MAX_FLASH_BANKS
 	help
 	 This is the driver of embedded flash for some STMicroelectronics
 	 STM32 MCU.
+
+config USE_SYS_MAX_FLASH_BANKS
+	bool "Enable Max number of Flash memory banks"
+	help
+	  When this option is enabled, the CONFIG_SYS_MAX_FLASH_BANKS
+	  will be defined.
+
+config SYS_MAX_FLASH_BANKS
+	int "Max number of Flash memory banks"
+	depends on USE_SYS_MAX_FLASH_BANKS
+	default 1
+	help
+	 Max number of Flash memory banks using by the MTD framework, in the
+	 flash CFI driver and in some other driver to define the flash_info
+	 struct declaration.
+
+config SYS_MAX_FLASH_BANKS_DETECT
+	bool "Detection of flash banks number in CFI driver"
+	depends on CFI_FLASH && FLASH_CFI_DRIVER
+	help
+	 This enables detection of number of flash banks in CFI driver,
+	 to reduce the effective number of flash bank, between 0 and
+	 CONFIG_SYS_MAX_FLASH_BANKS
 
 source "drivers/mtd/nand/Kconfig"
 

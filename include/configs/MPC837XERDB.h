@@ -155,7 +155,6 @@
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* display empty sectors */
 
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	256 /* max sectors per device */
 
 #undef	CONFIG_SYS_FLASH_CHECKSUM

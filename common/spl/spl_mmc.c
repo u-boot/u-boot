@@ -222,7 +222,7 @@ static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
 }
 #endif
 
-#if CONFIG_IS_ENABLED(OS_BOOT)
+#if CONFIG_IS_ENABLED(FALCON_BOOT_MMCSD)
 static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 				 struct spl_boot_device *bootdev,
 				 struct mmc *mmc)
@@ -257,15 +257,18 @@ static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 	return 0;
 }
 #else
-int spl_start_uboot(void)
-{
-	return 1;
-}
 static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 				 struct spl_boot_device *bootdev,
 				 struct mmc *mmc)
 {
 	return -ENOSYS;
+}
+#endif
+
+#ifndef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	return 1;
 }
 #endif
 

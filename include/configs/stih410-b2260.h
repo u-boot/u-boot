@@ -51,8 +51,6 @@
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	1
-
 /* USB Configs */
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2

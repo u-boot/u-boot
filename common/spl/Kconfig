@@ -919,6 +919,22 @@ config SYS_OS_BASE
 
 endif # SPL_OS_BOOT
 
+config SPL_FALCON_BOOT_MMCSD
+	bool "Enable Falcon boot from MMC or SD media"
+	depends on SPL_OS_BOOT && SPL_MMC
+	help
+	  Select this if the Falcon mode OS image mode is on MMC or SD media.
+
+config SYS_MMCSD_RAW_MODE_KERNEL_SECTOR
+	hex "Falcon mode: Sector to load kernel uImage from MMC"
+	depends on SPL_FALCON_BOOT_MMCSD
+	help
+	  When Falcon mode is used with an MMC or SD media, SPL needs to know
+	  where to look for the kernel uImage. The image is expected to begin
+	  at the raw MMC specified in this config.
+	  Note that the Falcon mode image can also be a FIT, if FIT support is
+	  enabled.
+
 config SPL_PAYLOAD
 	string "SPL payload"
 	default "tpl/u-boot-with-tpl.bin" if TPL

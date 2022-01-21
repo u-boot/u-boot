@@ -35,7 +35,6 @@
 
 /* NOR */
 #ifdef CONFIG_MTD_NOR_FLASH
-# define CONFIG_SYS_MAX_FLASH_BANKS	1
 # define CONFIG_SYS_MAX_FLASH_SECT	512
 # define CONFIG_SYS_FLASH_ERASE_TOUT	1000
 # define CONFIG_SYS_FLASH_WRITE_TOUT	5000
@@ -228,7 +227,6 @@
 /* Not using MMC raw mode - just for compilation purpose */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0
-#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0
 
 /* qspi mode is working fine */
 #ifdef CONFIG_ZYNQ_QSPI

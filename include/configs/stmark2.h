@@ -15,8 +15,6 @@
 #define LDS_BOARD_TEXT						\
 	board/sysam/stmark2/sbf_dram_init.o (.text*)
 
-#define CONFIG_TIMESTAMP
-
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"kern_size=0x700000\0"					\
 	"loadaddr=0x40001000\0"					\

@@ -223,7 +223,6 @@ enter a valid image address in flash */
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
 #define CONFIG_SYS_MAX_FLASH_SECT	11	/* max number of sectors on one chip	*/
 #define CONFIG_SYS_FLASH_ERASE_TOUT	1000	/* flash timeout */
 

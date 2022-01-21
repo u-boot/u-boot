@@ -126,7 +126,6 @@
 #else
 #	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #endif
-#	define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #	define CONFIG_SYS_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
 #endif
 

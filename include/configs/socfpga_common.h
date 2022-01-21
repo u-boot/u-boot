@@ -12,8 +12,6 @@
  */
 #define CONFIG_CLOCKS
 
-#define CONFIG_TIMESTAMP		/* Print image info with timestamp */
-
 /*
  * Memory configurations
  */

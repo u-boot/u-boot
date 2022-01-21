@@ -85,7 +85,6 @@
 
 #define CONFIG_SYS_FLASH_BASE		0xff000000	/* start of FLASH 16M */
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	64		/* sectors per device */
 #undef	CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */

@@ -97,7 +97,6 @@
 					FTIM2_NOR_TWP(0x1c))
 #define CONFIG_SYS_NOR_FTIM3		0
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	1024	/* sectors per device */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */

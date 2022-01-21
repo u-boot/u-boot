@@ -125,7 +125,6 @@
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		(CONFIG_SYS_CS0_BASE)
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	2048	/* max number of sectors on one chip */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	1000
 

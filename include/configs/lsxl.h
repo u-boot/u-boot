@@ -19,7 +19,6 @@
  *  Environment variables configurations
  */
 #ifdef CONFIG_SPI_FLASH
-#define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	8
 #endif
 

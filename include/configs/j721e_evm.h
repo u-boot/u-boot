@@ -60,7 +60,6 @@
 #define CONFIG_CQSPI_REF_CLK		133333333
 
 /* HyperFlash related configuration */
-#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 1
 
 /* U-Boot general configuration */
 #define EXTRA_ENV_J721E_BOARD_SETTINGS					\

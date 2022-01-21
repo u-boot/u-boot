@@ -73,7 +73,6 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x100  /* 128 KiB */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(CONFIG_CMD_SPL_WRITE_SIZE / 512)
 /* U-Boot proper stored by default at 0x200 (256 KiB) */
-#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x1000 /* 2MB */
 #define CONFIG_SYS_SPL_ARGS_ADDR		0x22000000
 
 /* Falcon boot support on FAT on MMC */
