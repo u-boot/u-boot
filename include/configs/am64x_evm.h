@@ -33,7 +33,7 @@
  * our memory footprint. The less we use for BSS the more we have available
  * for everything else.
  */
-#define CONFIG_SPL_BSS_MAX_SIZE		0x1000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x4000
 /*
  * Link BSS to be within SPL in a dedicated region located near the top of
  * the MCU SRAM, this way making it available also before relocation. Note
