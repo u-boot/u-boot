@@ -28,6 +28,7 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/prcm.h>
+#include <asm/arch/pmic_bus.h>
 #include <asm/arch/spl.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
@@ -601,6 +602,16 @@ void sunxi_board_init(void)
 	defined CONFIG_AXP221_POWER || defined CONFIG_AXP305_POWER || \
 	defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
 	power_failed = axp_init();
+
+	if (IS_ENABLED(CONFIG_AXP_DISABLE_BOOT_ON_POWERON) && !power_failed) {
+		u8 boot_reason;
+
+		pmic_bus_read(AXP_POWER_STATUS, &boot_reason);
+		if (boot_reason & AXP_POWER_STATUS_ALDO_IN) {
+			printf("Power on by plug-in, shutting down.\n");
+			pmic_bus_write(0x32, BIT(7));
+		}
+	}
 
 #if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
 	defined CONFIG_AXP818_POWER
