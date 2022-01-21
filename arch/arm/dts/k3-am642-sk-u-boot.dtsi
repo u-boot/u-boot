@@ -117,10 +117,6 @@
 	u-boot,dm-spl;
 };
 
-&cpsw_port1 {
-	u-boot,dm-spl;
-};
-
 &main_bcdma {
 	u-boot,dm-spl;
 };
@@ -138,10 +134,6 @@
 };
 
 &mdio1_pins_default {
-	u-boot,dm-spl;
-};
-
-&cpsw3g_phy0 {
 	u-boot,dm-spl;
 };
 
