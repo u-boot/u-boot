@@ -932,6 +932,7 @@ config ARCH_APPLE
 	select DM_GPIO
 	select DM_KEYBOARD
 	select DM_MAILBOX
+	select DM_RESET
 	select DM_SERIAL
 	select DM_USB
 	select DM_VIDEO
