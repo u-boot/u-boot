@@ -12,9 +12,9 @@ Get and Build the ARM Trusted firmware
 Note: $(srctree) is U-Boot source directory
 
 $ git clone https://source.codeaurora.org/external/imx/imx-atf
-$ git checkout imx_5.4.47_2.2.0
+$ git lf-5.10.72-2.2.0
 $ make PLAT=imx8mn bl31 CROSS_COMPILE=aarch64-linux-gnu-
-$ cp build/imx8mm/release/bl31.bin $(srctree)
+$ cp build/imx8mn/release/bl31.bin $(srctree)
 
 Get the DDR firmware
 ====================
@@ -26,7 +26,7 @@ $ cp firmware-imx-8.9/firmware/ddr/synopsys/lpddr4*.bin $(srctree)
 Build U-Boot
 ============
 $ make imx8mn_beacon_defconfig
-$ make flash.bin CROSS_COMPILE=aarch64-linux-gnu- ATF_LOAD_ADDR=0x960000
+$ make CROSS_COMPILE=aarch64-linux-gnu-
 
 Burn U-Boot to microSD Card
 ===========================
