@@ -608,6 +608,7 @@ struct nvme_dev {
 	u32 ctrl_config;
 	struct nvme_bar __iomem *bar;
 	struct list_head namespaces;
+	char vendor[8];
 	char serial[20];
 	char model[40];
 	char firmware_rev[8];
@@ -634,5 +635,7 @@ struct nvme_ns {
 	int lba_shift;
 	u8 flbas;
 };
+
+int nvme_init(struct udevice *udev);
 
 #endif /* __DRIVER_NVME_H__ */

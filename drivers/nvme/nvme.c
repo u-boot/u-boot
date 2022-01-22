@@ -12,7 +12,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <memalign.h>
-#include <pci.h>
 #include <time.h>
 #include <dm/device-internal.h>
 #include <linux/compat.h>
@@ -698,7 +697,6 @@ static int nvme_blk_probe(struct udevice *udev)
 	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	struct nvme_ns *ns = dev_get_priv(udev);
 	u8 flbas;
-	struct pci_child_plat *pplat;
 	struct nvme_id_ns *id;
 
 	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));
@@ -723,8 +721,7 @@ static int nvme_blk_probe(struct udevice *udev)
 	desc->log2blksz = ns->lba_shift;
 	desc->blksz = 1 << ns->lba_shift;
 	desc->bdev = udev;
-	pplat = dev_get_parent_plat(udev->parent);
-	sprintf(desc->vendor, "0x%.4x", pplat->vendor);
+	memcpy(desc->vendor, ndev->vendor, sizeof(ndev->vendor));
 	memcpy(desc->product, ndev->serial, sizeof(ndev->serial));
 	memcpy(desc->revision, ndev->firmware_rev, sizeof(ndev->firmware_rev));
 
@@ -818,27 +815,13 @@ U_BOOT_DRIVER(nvme_blk) = {
 	.priv_auto	= sizeof(struct nvme_ns),
 };
 
-static int nvme_bind(struct udevice *udev)
+int nvme_init(struct udevice *udev)
 {
-	static int ndev_num;
-	char name[20];
-
-	sprintf(name, "nvme#%d", ndev_num++);
-
-	return device_set_name(udev, name);
-}
-
-static int nvme_probe(struct udevice *udev)
-{
-	int ret;
 	struct nvme_dev *ndev = dev_get_priv(udev);
 	struct nvme_id_ns *id;
-
-	ndev->instance = trailing_strtol(udev->name);
+	int ret;
 
 	INIT_LIST_HEAD(&ndev->namespaces);
-	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0,
-			PCI_REGION_MEM);
 	if (readl(&ndev->bar->csts) == -1) {
 		ret = -ENODEV;
 		printf("Error: %s: Out of memory!\n", udev->name);
@@ -922,18 +905,3 @@ free_queue:
 free_nvme:
 	return ret;
 }
-
-U_BOOT_DRIVER(nvme) = {
-	.name	= "nvme",
-	.id	= UCLASS_NVME,
-	.bind	= nvme_bind,
-	.probe	= nvme_probe,
-	.priv_auto	= sizeof(struct nvme_dev),
-};
-
-struct pci_device_id nvme_supported[] = {
-	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, ~0) },
-	{}
-};
-
-U_BOOT_PCI_DEVICE(nvme, nvme_supported);
