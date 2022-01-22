@@ -30,11 +30,6 @@
 #define	CONFIG_SYS_PLL_SETTLING_TIME	100/* in us */
 
 /*
- * IDE support
- */
-#define CONFIG_SYS_PIO_MODE		1
-
-/*
  * SuperH PCI Bridge Configration
  */
 #define CONFIG_SH7751_PCI
