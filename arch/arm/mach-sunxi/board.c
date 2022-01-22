@@ -75,6 +75,7 @@ ulong board_get_usable_ram_top(ulong total_size)
 }
 #endif
 
+#ifdef CONFIG_SPL_BUILD
 static int gpio_init(void)
 {
 	__maybe_unused uint val;
@@ -172,7 +173,6 @@ static int gpio_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_SPL_BOARD_LOAD_IMAGE) && defined(CONFIG_SPL_BUILD)
 static int spl_board_load_image(struct spl_image_info *spl_image,
 				struct spl_boot_device *bootdev)
 {
@@ -227,18 +227,6 @@ void s_init(void)
 		"mcr p15, 0, r0, c1, c0, 1\n"
 		::: "r0");
 #endif
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_H3
-	/* Enable non-secure access to some peripherals */
-	tzpc_init();
-#endif
-
-	clock_init();
-	timer_init();
-	gpio_init();
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	i2c_init_board();
-#endif
-	eth_init_board();
 }
 
 #define SUNXI_INVALID_BOOT_SOURCE	-1
@@ -335,11 +323,22 @@ u32 spl_boot_device(void)
 
 void board_init_f(ulong dummy)
 {
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_H3
+	/* Enable non-secure access to some peripherals */
+	tzpc_init();
+#endif
+
+	clock_init();
+	timer_init();
+	gpio_init();
+	eth_init_board();
+
 	spl_init();
 	preloader_console_init();
 
 #if CONFIG_IS_ENABLED(I2C) && CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	/* Needed early by sunxi_board_init if PMU is enabled */
+	i2c_init_board();
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 	sunxi_board_init();
