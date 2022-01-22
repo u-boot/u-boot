@@ -54,6 +54,9 @@ def RunTests(skip_net_tests):
 
 options, args = cmdline.ParseArgs()
 
+if not options.debug:
+    sys.tracebacklimit = 0
+
 # Run our meagre tests
 if options.test:
     RunTests(options.skip_net_tests)
