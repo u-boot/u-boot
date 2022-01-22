@@ -134,23 +134,11 @@ if args.cmd == 'test':
     import doctest
     from patman import func_test
 
-    sys.argv = [sys.argv[0]]
     result = unittest.TestResult()
-    suite = unittest.TestSuite()
-    loader = unittest.TestLoader()
-    for module in (test_checkpatch.TestPatch, func_test.TestFunctional):
-        if args.testname:
-            try:
-                suite.addTests(loader.loadTestsFromName(args.testname, module))
-            except AttributeError:
-                continue
-        else:
-            suite.addTests(loader.loadTestsFromTestCase(module))
-    suite.run(result)
-
-    for module in ['gitutil', 'settings', 'terminal']:
-        suite = doctest.DocTestSuite(module)
-        suite.run(result)
+    test_util.RunTestSuites(
+        result, False, False, False, None, None, None,
+        [test_checkpatch.TestPatch, func_test.TestFunctional,
+         'gitutil', 'settings', 'terminal'])
 
     sys.exit(test_util.ReportResult('patman', args.testname, result))
 

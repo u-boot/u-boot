@@ -58,7 +58,7 @@ def run_tests(processes, args):
     test_util.RunTestSuites(
         result, debug=True, verbosity=1, test_preserve_dirs=False,
         processes=processes, test_name=test_name, toolpath=[],
-        test_class_list=[test_dtoc.TestDtoc,test_src_scan.TestSrcScan])
+        class_and_module_list=[test_dtoc.TestDtoc,test_src_scan.TestSrcScan])
 
     return test_util.ReportResult('binman', test_name, result)
 

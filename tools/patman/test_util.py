@@ -4,6 +4,7 @@
 #
 
 from contextlib import contextmanager
+import doctest
 import glob
 import multiprocessing
 import os
@@ -139,7 +140,7 @@ def ReportResult(toolname:str, test_name: str, result: unittest.TestResult):
 
 
 def RunTestSuites(result, debug, verbosity, test_preserve_dirs, processes,
-                  test_name, toolpath, test_class_list):
+                  test_name, toolpath, class_and_module_list):
     """Run a series of test suites and collect the results
 
     Args:
@@ -154,11 +155,13 @@ def RunTestSuites(result, debug, verbosity, test_preserve_dirs, processes,
         processes: Number of processes to use to run tests (None=same as #CPUs)
         test_name: Name of test to run, or None for all
         toolpath: List of paths to use for tools
-        test_class_list: List of test classes to run
+        class_and_module_list: List of test classes (type class) and module
+           names (type str) to run
     """
-    for module in []:
-        suite = doctest.DocTestSuite(module)
-        suite.run(result)
+    for module in class_and_module_list:
+        if isinstance(module, str) and (not test_name or test_name == module):
+            suite = doctest.DocTestSuite(module)
+            suite.run(result)
 
     sys.argv = [sys.argv[0]]
     if debug:
@@ -171,7 +174,9 @@ def RunTestSuites(result, debug, verbosity, test_preserve_dirs, processes,
 
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
-    for module in test_class_list:
+    for module in class_and_module_list:
+        if isinstance(module, str):
+            continue
         # Test the test module about our arguments, if it is interested
         if hasattr(module, 'setup_test_args'):
             setup_test_args = getattr(module, 'setup_test_args')
