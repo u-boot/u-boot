@@ -453,7 +453,7 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 
 	/* Send the command */
 	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
-	if IS_ENABLED(CONFIG_FSL_USDHC) {
+	if (IS_ENABLED(CONFIG_FSL_USDHC)) {
 		u32 mixctrl = esdhc_read32(&regs->mixctrl);
 
 		esdhc_write32(&regs->mixctrl,
