@@ -38,7 +38,7 @@ static void probe_l2(void)
 			l2c = read_c0_config5() & MIPS_CONF5_L2C;
 	}
 
-	if (l2c && config_enabled(CONFIG_MIPS_CM)) {
+	if (l2c && IS_ENABLED(CONFIG_MIPS_CM)) {
 		gd->arch.l2_line_size = mips_cm_l2_line_size();
 	} else if (l2c) {
 		/* We don't know how to retrieve L2 config on this system */
