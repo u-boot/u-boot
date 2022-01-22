@@ -27,33 +27,6 @@
 #define IO_TIMEOUT		30
 #define MAX_PRP_POOL		512
 
-enum nvme_queue_id {
-	NVME_ADMIN_Q,
-	NVME_IO_Q,
-	NVME_Q_NUM,
-};
-
-/*
- * An NVM Express queue. Each device has at least two (one for admin
- * commands and one for I/O commands).
- */
-struct nvme_queue {
-	struct nvme_dev *dev;
-	struct nvme_command *sq_cmds;
-	struct nvme_completion *cqes;
-	wait_queue_head_t sq_full;
-	u32 __iomem *q_db;
-	u16 q_depth;
-	s16 cq_vector;
-	u16 sq_head;
-	u16 sq_tail;
-	u16 cq_head;
-	u16 qid;
-	u8 cq_phase;
-	u8 cqe_seen;
-	unsigned long cmdid_data[];
-};
-
 static int nvme_wait_ready(struct nvme_dev *dev, bool enabled)
 {
 	u32 bit = enabled ? NVME_CSTS_RDY : 0;
@@ -167,11 +140,18 @@ static u16 nvme_read_completion_status(struct nvme_queue *nvmeq, u16 index)
  */
 static void nvme_submit_cmd(struct nvme_queue *nvmeq, struct nvme_command *cmd)
 {
+	struct nvme_ops *ops;
 	u16 tail = nvmeq->sq_tail;
 
 	memcpy(&nvmeq->sq_cmds[tail], cmd, sizeof(*cmd));
 	flush_dcache_range((ulong)&nvmeq->sq_cmds[tail],
 			   (ulong)&nvmeq->sq_cmds[tail] + sizeof(*cmd));
+
+	ops = (struct nvme_ops *)nvmeq->dev->udev->driver->ops;
+	if (ops && ops->submit_cmd) {
+		ops->submit_cmd(nvmeq, cmd);
+		return;
+	}
 
 	if (++tail == nvmeq->q_depth)
 		tail = 0;
@@ -183,6 +163,7 @@ static int nvme_submit_sync_cmd(struct nvme_queue *nvmeq,
 				struct nvme_command *cmd,
 				u32 *result, unsigned timeout)
 {
+	struct nvme_ops *ops;
 	u16 head = nvmeq->cq_head;
 	u16 phase = nvmeq->cq_phase;
 	u16 status;
@@ -202,6 +183,10 @@ static int nvme_submit_sync_cmd(struct nvme_queue *nvmeq,
 		    >= timeout_us)
 			return -ETIMEDOUT;
 	}
+
+	ops = (struct nvme_ops *)nvmeq->dev->udev->driver->ops;
+	if (ops && ops->complete_cmd)
+		ops->complete_cmd(nvmeq, cmd);
 
 	status >>= 1;
 	if (status) {
@@ -243,6 +228,7 @@ static int nvme_submit_admin_cmd(struct nvme_dev *dev, struct nvme_command *cmd,
 static struct nvme_queue *nvme_alloc_queue(struct nvme_dev *dev,
 					   int qid, int depth)
 {
+	struct nvme_ops *ops;
 	struct nvme_queue *nvmeq = malloc(sizeof(*nvmeq));
 	if (!nvmeq)
 		return NULL;
@@ -267,6 +253,10 @@ static struct nvme_queue *nvme_alloc_queue(struct nvme_dev *dev,
 	nvmeq->qid = qid;
 	dev->queue_count++;
 	dev->queues[qid] = nvmeq;
+
+	ops = (struct nvme_ops *)dev->udev->driver->ops;
+	if (ops && ops->setup_queue)
+		ops->setup_queue(nvmeq);
 
 	return nvmeq;
 
@@ -821,6 +811,7 @@ int nvme_init(struct udevice *udev)
 	struct nvme_id_ns *id;
 	int ret;
 
+	ndev->udev = udev;
 	INIT_LIST_HEAD(&ndev->namespaces);
 	if (readl(&ndev->bar->csts) == -1) {
 		ret = -ENODEV;
