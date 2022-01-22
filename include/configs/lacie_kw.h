@@ -9,8 +9,6 @@
 #include "mv-common.h"
 
 /* Remove or override few declarations from mv-common.h */
-#undef CONFIG_SYS_IDE_MAXBUS
-#undef CONFIG_SYS_IDE_MAXDEVICE
 
 /*
  * Enable platform initialisation via misc_init_r() function

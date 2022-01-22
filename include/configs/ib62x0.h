@@ -40,8 +40,6 @@
  */
 #ifdef CONFIG_IDE
 #define __io
-#define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
-#define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
 #endif /* CONFIG_IDE */
 
 #endif /* _CONFIG_IB62x0_H */

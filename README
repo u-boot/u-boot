@@ -720,17 +720,6 @@ The following options need to be configured:
 		CONFIG_SCSI) you must configure support for at
 		least one non-MTD partition type as well.
 
-- IDE Reset method:
-		CONFIG_IDE_RESET - is this is defined, IDE Reset will
-		be performed by calling the function
-			ide_set_reset(int reset)
-		which has to be defined in a board specific file
-
-- ATAPI Support:
-		CONFIG_ATAPI
-
-		Set this to enable ATAPI support.
-
 - LBA48 Support
 		CONFIG_LBA48
 
