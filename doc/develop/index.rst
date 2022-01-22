@@ -21,6 +21,7 @@ Implementation
    logging
    makefiles
    menus
+   printf
    uefi/index
    version
 

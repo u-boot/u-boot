@@ -747,7 +747,7 @@ efi_status_t EFIAPI efi_create_event_ex(uint32_t type, efi_uintn_t notify_tpl,
 {
 	efi_status_t ret;
 
-	EFI_ENTRY("%d, 0x%zx, %p, %p, %pUl", type, notify_tpl, notify_function,
+	EFI_ENTRY("%d, 0x%zx, %p, %p, %pUs", type, notify_tpl, notify_function,
 		  notify_context, event_group);
 
 	/*
@@ -1180,7 +1180,7 @@ static efi_status_t EFIAPI efi_install_protocol_interface(
 {
 	efi_status_t r;
 
-	EFI_ENTRY("%p, %pUl, %d, %p", handle, protocol, protocol_interface_type,
+	EFI_ENTRY("%p, %pUs, %d, %p", handle, protocol, protocol_interface_type,
 		  protocol_interface);
 
 	if (!handle || !protocol ||
@@ -1383,7 +1383,7 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface
 {
 	efi_status_t ret;
 
-	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
+	EFI_ENTRY("%p, %pUs, %p", handle, protocol, protocol_interface);
 
 	ret = efi_uninstall_protocol(handle, protocol, protocol_interface);
 	if (ret != EFI_SUCCESS)
@@ -1418,7 +1418,7 @@ efi_status_t EFIAPI efi_register_protocol_notify(const efi_guid_t *protocol,
 	struct efi_register_notify_event *item;
 	efi_status_t ret = EFI_SUCCESS;
 
-	EFI_ENTRY("%pUl, %p, %p", protocol, event, registration);
+	EFI_ENTRY("%pUs, %p, %p", protocol, event, registration);
 
 	if (!protocol || !event || !registration) {
 		ret = EFI_INVALID_PARAMETER;
@@ -1601,7 +1601,7 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
 			const efi_guid_t *protocol, void *search_key,
 			efi_uintn_t *buffer_size, efi_handle_t *buffer)
 {
-	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
+	EFI_ENTRY("%d, %pUs, %p, %p, %p", search_type, protocol, search_key,
 		  buffer_size, buffer);
 
 	return EFI_EXIT(efi_locate_handle(search_type, protocol, search_key,
@@ -1699,7 +1699,7 @@ static efi_status_t
 EFIAPI efi_install_configuration_table_ext(const efi_guid_t *guid,
 					   void *table)
 {
-	EFI_ENTRY("%pUl, %p", guid, table);
+	EFI_ENTRY("%pUs, %p", guid, table);
 	return EFI_EXIT(efi_install_configuration_table(guid, table));
 }
 
@@ -1814,7 +1814,7 @@ static efi_status_t EFIAPI efi_locate_device_path(
 	u8 *remainder;
 	efi_status_t ret;
 
-	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
+	EFI_ENTRY("%pUs, %p, %p", protocol, device_path, device);
 
 	if (!protocol || !device_path || !*device_path) {
 		ret = EFI_INVALID_PARAMETER;
@@ -2303,7 +2303,7 @@ efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
 	struct efi_open_protocol_info_item *pos;
 	efi_status_t r;
 
-	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, agent_handle,
+	EFI_ENTRY("%p, %pUs, %p, %p", handle, protocol, agent_handle,
 		  controller_handle);
 
 	if (!efi_search_obj(agent_handle) ||
@@ -2353,7 +2353,7 @@ static efi_status_t EFIAPI efi_open_protocol_information(
 	struct efi_open_protocol_info_item *item;
 	efi_status_t r;
 
-	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, entry_buffer,
+	EFI_ENTRY("%p, %pUs, %p, %p", handle, protocol, entry_buffer,
 		  entry_count);
 
 	/* Check parameters */
@@ -2477,7 +2477,7 @@ efi_status_t EFIAPI efi_locate_handle_buffer(
 	efi_status_t r;
 	efi_uintn_t buffer_size = 0;
 
-	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
+	EFI_ENTRY("%d, %pUs, %p, %p, %p", search_type, protocol, search_key,
 		  no_handles, buffer);
 
 	if (!no_handles || !buffer) {
@@ -2523,7 +2523,7 @@ static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
 	efi_status_t ret;
 	struct efi_object *efiobj;
 
-	EFI_ENTRY("%pUl, %p, %p", protocol, registration, protocol_interface);
+	EFI_ENTRY("%pUs, %p, %p", protocol, registration, protocol_interface);
 
 	/*
 	 * The UEFI spec explicitly requires a protocol even if a registration
@@ -2914,7 +2914,7 @@ static efi_status_t EFIAPI efi_open_protocol
 	struct efi_handler *handler;
 	efi_status_t r = EFI_INVALID_PARAMETER;
 
-	EFI_ENTRY("%p, %pUl, %p, %p, %p, 0x%x", handle, protocol,
+	EFI_ENTRY("%p, %pUs, %p, %p, %p, 0x%x", handle, protocol,
 		  protocol_interface, agent_handle, controller_handle,
 		  attributes);
 
@@ -3531,7 +3531,7 @@ static efi_status_t EFIAPI efi_reinstall_protocol_interface(
 {
 	efi_status_t ret;
 
-	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, old_interface,
+	EFI_ENTRY("%p, %pUs, %p, %p", handle, protocol, old_interface,
 		  new_interface);
 
 	/* Uninstall protocol but do not delete handle */

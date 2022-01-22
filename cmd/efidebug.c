@@ -502,149 +502,6 @@ static int do_efi_show_drivers(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
-static const struct {
-	const char *text;
-	const efi_guid_t guid;
-} guid_list[] = {
-	{
-		"Device Path",
-		EFI_DEVICE_PATH_PROTOCOL_GUID,
-	},
-	{
-		"Device Path To Text",
-		EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID,
-	},
-	{
-		"Device Path Utilities",
-		EFI_DEVICE_PATH_UTILITIES_PROTOCOL_GUID,
-	},
-	{
-		"Unicode Collation 2",
-		EFI_UNICODE_COLLATION_PROTOCOL2_GUID,
-	},
-	{
-		"Driver Binding",
-		EFI_DRIVER_BINDING_PROTOCOL_GUID,
-	},
-	{
-		"Simple Text Input",
-		EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID,
-	},
-	{
-		"Simple Text Input Ex",
-		EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID,
-	},
-	{
-		"Simple Text Output",
-		EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID,
-	},
-	{
-		"Block IO",
-		EFI_BLOCK_IO_PROTOCOL_GUID,
-	},
-	{
-		"Simple File System",
-		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID,
-	},
-	{
-		"Loaded Image",
-		EFI_LOADED_IMAGE_PROTOCOL_GUID,
-	},
-	{
-		"Graphics Output",
-		EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID,
-	},
-	{
-		"HII String",
-		EFI_HII_STRING_PROTOCOL_GUID,
-	},
-	{
-		"HII Database",
-		EFI_HII_DATABASE_PROTOCOL_GUID,
-	},
-	{
-		"HII Config Routing",
-		EFI_HII_CONFIG_ROUTING_PROTOCOL_GUID,
-	},
-	{
-		"Load File2",
-		EFI_LOAD_FILE2_PROTOCOL_GUID,
-	},
-	{
-		"Random Number Generator",
-		EFI_RNG_PROTOCOL_GUID,
-	},
-	{
-		"Simple Network",
-		EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
-	},
-	{
-		"PXE Base Code",
-		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
-	},
-	{
-		"Device-Tree Fixup",
-		EFI_DT_FIXUP_PROTOCOL_GUID,
-	},
-	{
-		"System Partition",
-		PARTITION_SYSTEM_GUID
-	},
-	{
-		"Firmware Management",
-		EFI_FIRMWARE_MANAGEMENT_PROTOCOL_GUID
-	},
-	/* Configuration table GUIDs */
-	{
-		"ACPI table",
-		EFI_ACPI_TABLE_GUID,
-	},
-	{
-		"EFI System Resource Table",
-		EFI_SYSTEM_RESOURCE_TABLE_GUID,
-	},
-	{
-		"device tree",
-		EFI_FDT_GUID,
-	},
-	{
-		"SMBIOS table",
-		SMBIOS_TABLE_GUID,
-	},
-	{
-		"Runtime properties",
-		EFI_RT_PROPERTIES_TABLE_GUID,
-	},
-	{
-		"TCG2 Final Events Table",
-		EFI_TCG2_FINAL_EVENTS_TABLE_GUID,
-	},
-};
-
-/**
- * get_guid_text - get string of GUID
- *
- * Return description of GUID.
- *
- * @guid:	GUID
- * Return:	description of GUID or NULL
- */
-static const char *get_guid_text(const void *guid)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(guid_list); i++) {
-		/*
-		 * As guidcmp uses memcmp() we can safely accept unaligned
-		 * GUIDs.
-		 */
-		if (!guidcmp(&guid_list[i].guid, guid))
-			return guid_list[i].text;
-	}
-
-	return NULL;
-}
-
 /**
  * do_efi_show_handles() - show UEFI handles
  *
@@ -664,7 +521,6 @@ static int do_efi_show_handles(struct cmd_tbl *cmdtp, int flag,
 	efi_handle_t *handles;
 	efi_guid_t **guid;
 	efi_uintn_t num, count, i, j;
-	const char *guid_text;
 	efi_status_t ret;
 
 	ret = EFI_CALL(efi_locate_handle_buffer(ALL_HANDLES, NULL, NULL,
@@ -692,11 +548,7 @@ static int do_efi_show_handles(struct cmd_tbl *cmdtp, int flag,
 			else
 				putc(' ');
 
-			guid_text = get_guid_text(guid[j]);
-			if (guid_text)
-				puts(guid_text);
-			else
-				printf("%pUl", guid[j]);
+			printf("%pUs", guid[j]);
 		}
 		putc('\n');
 	}
@@ -873,14 +725,10 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
 			      int argc, char *const argv[])
 {
 	efi_uintn_t i;
-	const char *guid_str;
 
-	for (i = 0; i < systab.nr_tables; ++i) {
-		guid_str = get_guid_text(&systab.tables[i].guid);
-		if (!guid_str)
-			guid_str = "";
-		printf("%pUl %s\n", &systab.tables[i].guid, guid_str);
-	}
+	for (i = 0; i < systab.nr_tables; ++i)
+		printf("%pUl (%pUs)\n",
+		       &systab.tables[i].guid, &systab.tables[i].guid);
 
 	return CMD_RET_SUCCESS;
 }

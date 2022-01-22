@@ -676,7 +676,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 				continue;
 			}
 			if (guidcmp(auth, &efi_guid_cert_type_pkcs7)) {
-				EFI_PRINT("Certificate type not supported: %pUl\n",
+				EFI_PRINT("Certificate type not supported: %pUs\n",
 					  auth);
 				continue;
 			}

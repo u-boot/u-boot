@@ -372,7 +372,7 @@ add_packages(struct efi_hii_packagelist *hii,
 	end = ((void *)package_list)
 		+ get_unaligned_le32(&package_list->package_length);
 
-	EFI_PRINT("package_list: %pUl (%u)\n", &package_list->package_list_guid,
+	EFI_PRINT("package_list: %pUs (%u)\n", &package_list->package_list_guid,
 		  get_unaligned_le32(&package_list->package_length));
 
 	package = ((void *)package_list) + sizeof(*package_list);
@@ -504,7 +504,7 @@ update_package_list(const struct efi_hii_database_protocol *this,
 	if (!package_list)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	EFI_PRINT("package_list: %pUl (%u)\n", &package_list->package_list_guid,
+	EFI_PRINT("package_list: %pUs (%u)\n", &package_list->package_list_guid,
 		  get_unaligned_le32(&package_list->package_length));
 
 	package = ((void *)package_list) + sizeof(*package_list);
@@ -583,7 +583,7 @@ list_package_lists(const struct efi_hii_database_protocol *this,
 	int package_cnt, package_max;
 	efi_status_t ret = EFI_NOT_FOUND;
 
-	EFI_ENTRY("%p, %u, %pUl, %p, %p", this, package_type, package_guid,
+	EFI_ENTRY("%p, %u, %pUs, %p, %p", this, package_type, package_guid,
 		  handle_buffer_length, handle);
 
 	if (!handle_buffer_length ||
@@ -598,7 +598,7 @@ list_package_lists(const struct efi_hii_database_protocol *this,
 		goto out;
 	}
 
-	EFI_PRINT("package type=%x, guid=%pUl, length=%zu\n", (int)package_type,
+	EFI_PRINT("package type=%x, guid=%pUs, length=%zu\n", (int)package_type,
 		  package_guid, *handle_buffer_length);
 
 	package_cnt = 0;
@@ -658,7 +658,7 @@ register_package_notify(const struct efi_hii_database_protocol *this,
 			efi_uintn_t notify_type,
 			efi_handle_t *notify_handle)
 {
-	EFI_ENTRY("%p, %u, %pUl, %p, %zu, %p", this, package_type,
+	EFI_ENTRY("%p, %u, %pUs, %p, %zu, %p", this, package_type,
 		  package_guid, package_notify_fn, notify_type,
 		  notify_handle);
 
@@ -721,7 +721,7 @@ get_keyboard_layout(const struct efi_hii_database_protocol *this,
 	struct efi_keyboard_layout_data *layout_data;
 	u16 layout_length;
 
-	EFI_ENTRY("%p, %pUl, %p, %p", this, key_guid, keyboard_layout_length,
+	EFI_ENTRY("%p, %pUs, %p, %p", this, key_guid, keyboard_layout_length,
 		  keyboard_layout);
 
 	if (!keyboard_layout_length ||
@@ -756,7 +756,7 @@ static efi_status_t EFIAPI
 set_keyboard_layout(const struct efi_hii_database_protocol *this,
 		    efi_guid_t *key_guid)
 {
-	EFI_ENTRY("%p, %pUl", this, key_guid);
+	EFI_ENTRY("%p, %pUs", this, key_guid);
 
 	return EFI_EXIT(EFI_NOT_FOUND);
 }

@@ -174,7 +174,7 @@ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
 	for (siglist = db; siglist; siglist = siglist->next) {
 		/* TODO: support other hash algorithms */
 		if (guidcmp(&siglist->sig_type, &efi_guid_sha256)) {
-			EFI_PRINT("Digest algorithm is not supported: %pUl\n",
+			EFI_PRINT("Digest algorithm is not supported: %pUs\n",
 				  &siglist->sig_type);
 			break;
 		}

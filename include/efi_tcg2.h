@@ -19,10 +19,6 @@
 #include <efi_api.h>
 #include <tpm-v2.h>
 
-#define EFI_TCG2_PROTOCOL_GUID \
-	EFI_GUID(0x607f766c, 0x7455, 0x42be, 0x93, \
-		 0x0b, 0xe4, 0xd7, 0x6d, 0xb2, 0x72, 0x0f)
-
 /* TPMV2 only */
 #define TCG2_EVENT_LOG_FORMAT_TCG_2 0x00000002
 #define EFI_TCG2_EXTEND_ONLY 0x0000000000000001

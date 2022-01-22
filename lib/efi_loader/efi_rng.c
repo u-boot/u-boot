@@ -122,7 +122,7 @@ static efi_status_t EFIAPI getrng(struct efi_rng_protocol *this,
 	}
 
 	if (rng_algorithm) {
-		EFI_PRINT("RNG algorithm %pUl\n", rng_algorithm);
+		EFI_PRINT("RNG algorithm %pUs\n", rng_algorithm);
 		if (guidcmp(rng_algorithm, &rng_raw_guid)) {
 			status = EFI_UNSUPPORTED;
 			goto back;
