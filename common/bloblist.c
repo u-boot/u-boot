@@ -430,18 +430,23 @@ void bloblist_reloc(void *to, uint to_size, void *from, uint from_size)
 
 int bloblist_init(void)
 {
+	bool fixed = IS_ENABLED(CONFIG_BLOBLIST_FIXED);
 	int ret = -ENOENT;
 	ulong addr, size;
 	bool expected;
 
 	/**
-	 * Wed expect to find an existing bloblist in the first phase of U-Boot
-	 * that runs
+	 * We don't expect to find an existing bloblist in the first phase of
+	 * U-Boot that runs. Also we have no way to receive the address of an
+	 * allocated bloblist from a previous stage, so it must be at a fixed
+	 * address.
 	 */
-	expected = !u_boot_first_phase();
+	expected = fixed && !u_boot_first_phase();
 	if (spl_prev_phase() == PHASE_TPL && !IS_ENABLED(CONFIG_TPL_BLOBLIST))
 		expected = false;
-	addr = bloblist_addr();
+	if (fixed)
+		addr = IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED,
+				      CONFIG_BLOBLIST_ADDR);
 	size = CONFIG_BLOBLIST_SIZE;
 	if (expected) {
 		ret = bloblist_check(addr, size);
@@ -460,6 +465,8 @@ int bloblist_init(void)
 			if (!ptr)
 				return log_msg_ret("alloc", -ENOMEM);
 			addr = map_to_sysmem(ptr);
+		} else if (!fixed) {
+			return log_msg_ret("!fixed", ret);
 		}
 		log_debug("Creating new bloblist size %lx at %lx\n", size,
 			  addr);
