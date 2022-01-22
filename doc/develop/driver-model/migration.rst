@@ -118,3 +118,11 @@ other base driver model options in time for inclusion in the 2022.10 release.
 There is only one method to implement, unless you want to support bootstage,
 in which case you need an early timer also. For example drivers, see
 sandbox_timer.c and rockchip_timer.c
+
+CONFIG_DM_SERIAL
+----------------
+Deadline: 2023.04
+
+The serial subsystem has supported the driver model since late 2014.
+Maintainers should submit patches switching over to using CONFIG_DM_SERIAL and
+other base driver model options in time for inclusion in the 2022.10 release.
