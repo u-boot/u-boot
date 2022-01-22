@@ -41,13 +41,6 @@ int ide_preinit(void);
 int ide_device_present(int dev);
 #endif
 
-#if defined(CONFIG_IDE_AHB)
-unsigned char ide_read_register(int dev, unsigned int port);
-void ide_write_register(int dev, unsigned int port, unsigned char val);
-void ide_read_data(int dev, ulong *sect_buf, int words);
-void ide_write_data(int dev, const ulong *sect_buf, int words);
-#endif
-
 /*
  * I/O function overrides
  */
