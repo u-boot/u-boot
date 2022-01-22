@@ -182,11 +182,11 @@ class TestFunctional(unittest.TestCase):
         self._buildman_pathname = sys.argv[0]
         self._buildman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
         command.test_result = self._HandleCommand
+        bsettings.Setup(None)
+        bsettings.AddFile(settings_data)
         self.setupToolchains()
         self._toolchains.Add('arm-gcc', test=False)
         self._toolchains.Add('powerpc-gcc', test=False)
-        bsettings.Setup(None)
-        bsettings.AddFile(settings_data)
         self._boards = board.Boards()
         for brd in boards:
             self._boards.AddBoard(board.Board(*brd))
