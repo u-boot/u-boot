@@ -623,4 +623,6 @@ class TestFunctional(unittest.TestCase):
         with test_util.capture_sys_output() as (stdout, stderr):
             self.assertEqual(102, self._RunControl('-o', self._output_dir,
                                                    test_thread_exceptions=True))
-        self.assertIn('Thread exception: test exception', stdout.getvalue())
+        self.assertIn(
+            'Thread exception (use -T0 to run without threads): test exception',
+            stdout.getvalue())

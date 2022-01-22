@@ -557,6 +557,6 @@ class BuilderThread(threading.Thread):
             try:
                 self.RunJob(job)
             except Exception as e:
-                print('Thread exception:', e)
+                print('Thread exception (use -T0 to run without threads):', e)
                 self.builder.thread_exceptions.append(e)
             self.builder.queue.task_done()
