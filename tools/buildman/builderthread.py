@@ -9,6 +9,7 @@ import shutil
 import sys
 import threading
 
+from buildman import cfgutil
 from patman import command
 from patman import gitutil
 
@@ -130,7 +131,8 @@ class BuilderThread(threading.Thread):
                 **kwargs)
 
     def RunCommit(self, commit_upto, brd, work_dir, do_config, config_only,
-                  force_build, force_build_failures, work_in_output):
+                  force_build, force_build_failures, work_in_output,
+                  adjust_cfg):
         """Build a particular commit.
 
         If the build is already done, and we are not forcing a build, we skip
@@ -147,6 +149,13 @@ class BuilderThread(threading.Thread):
                 failure
             work_in_output: Use the output directory as the work directory and
                 don't write to a separate output directory.
+            adjust_cfg (list of str): List of changes to make to .config file
+                before building. Each is one of (where C is either CONFIG_xxx
+                or just xxx):
+                     C to enable C
+                     ~C to disable C
+                     C=val to set the value of C (val must have quotes if C is
+                         a string Kconfig
 
         Returns:
             tuple containing:
@@ -261,7 +270,8 @@ class BuilderThread(threading.Thread):
                         os.remove(fname)
 
                 # If we need to reconfigure, do that now
-                if do_config:
+                cfg_file = os.path.join(out_dir, '.config')
+                if do_config or adjust_cfg:
                     config_out = ''
                     if self.mrproper:
                         result = self.Make(commit, brd, 'mrproper', cwd,
@@ -271,11 +281,19 @@ class BuilderThread(threading.Thread):
                             *(args + config_args), env=env)
                     config_out += result.combined
                     do_config = False   # No need to configure next time
+                    if adjust_cfg:
+                        cfgutil.adjust_cfg_file(cfg_file, adjust_cfg)
                 if result.return_code == 0:
                     if config_only:
                         args.append('cfg')
                     result = self.Make(commit, brd, 'build', cwd, *args,
                             env=env)
+                    if adjust_cfg:
+                        errs = cfgutil.check_cfg_file(cfg_file, adjust_cfg)
+                        if errs:
+                            print('errs', errs)
+                            result.stderr += errs
+                            result.return_code = 1
                 result.stderr = result.stderr.replace(src_dir + '/', '')
                 if self.builder.verbose_build:
                     result.stdout = config_out + result.stdout
@@ -486,7 +504,7 @@ class BuilderThread(threading.Thread):
                         work_dir, do_config, self.builder.config_only,
                         force_build or self.builder.force_build,
                         self.builder.force_build_failures,
-                        work_in_output=job.work_in_output)
+                        job.work_in_output, job.adjust_cfg)
                 failed = result.return_code or result.stderr
                 did_config = do_config
                 if failed and not do_config:
@@ -495,7 +513,7 @@ class BuilderThread(threading.Thread):
                     if self.builder.force_config_on_failure:
                         result, request_config = self.RunCommit(commit_upto,
                             brd, work_dir, True, False, True, False,
-                            work_in_output=job.work_in_output)
+                            job.work_in_output, job.adjust_cfg)
                         did_config = True
                 if not self.builder.force_reconfig:
                     do_config = request_config
@@ -540,8 +558,8 @@ class BuilderThread(threading.Thread):
             # Just build the currently checked-out build
             result, request_config = self.RunCommit(None, brd, work_dir, True,
                         self.builder.config_only, True,
-                        self.builder.force_build_failures,
-                        work_in_output=job.work_in_output)
+                        self.builder.force_build_failures, job.work_in_output,
+                        job.adjust_cfg)
             result.commit_upto = 0
             self._WriteResult(result, job.keep_outputs, job.work_in_output)
             self._SendResult(result)
