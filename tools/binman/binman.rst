@@ -1232,6 +1232,35 @@ To enable Python test coverage on Debian-type distributions (e.g. Ubuntu)::
    $ sudo apt-get install python-coverage python3-coverage python-pytest
 
 
+Error messages
+--------------
+
+This section provides some guidance for some of the less obvious error messages
+produced by binman.
+
+
+Expected __bss_size symbol
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Example::
+
+   binman: Node '/binman/u-boot-spl-ddr/u-boot-spl/u-boot-spl-bss-pad':
+      Expected __bss_size symbol in spl/u-boot-spl
+
+This indicates that binman needs the `__bss_size` symbol to be defined in the
+SPL binary, where `spl/u-boot-spl` is the ELF file containing the symbols. The
+symbol tells binman the size of the BSS region, in bytes. It needs this to be
+able to pad the image so that the following entries do not overlap the BSS,
+which would cause them to be overwritte by variable access in SPL.
+
+This symbols is normally defined in the linker script, immediately after
+_bss_start and __bss_end are defined, like this::
+
+    __bss_size = __bss_end - __bss_start;
+
+You may need to add it to your linker script if you get this error.
+
+
 Concurrent tests
 ----------------
 
