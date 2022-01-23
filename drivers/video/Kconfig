@@ -708,67 +708,15 @@ config VIDEO
 	  model. Video drivers typically provide a colour text console and
 	  cursor.
 
-config VGA_AS_SINGLE_DEVICE
-	bool "Set the video as an output-only device"
-	depends on CFB_CONSOLE
-	default y
-	help
-	  If enable the framebuffer device will be initialized as an
-	  output-only device. The Keyboard driver will not be set up. This
-	  may be used if you have no keyboard device, or more than one
-	  (USB Keyboard, AT Keyboard).
-
-config VIDEO_SW_CURSOR
-	bool "Enable a software cursor"
-	depends on CFB_CONSOLE
-	default y if CFB_CONSOLE
-	help
-	  This draws a cursor after the last character. No blinking is
-	  provided. This makes it possible to see the current cursor
-	  position when entering text on the console. It is recommended to
-	  enable this.
-
-config CONSOLE_EXTRA_INFO
-	bool "Display additional board information"
-	depends on CFB_CONSOLE
-	help
-	  Display additional board information strings that normally go to
-	  the serial port. When this option is enabled, a board-specific
-	  function video_get_info_str() is called to get the string for
-	  each line of the display. The function should return the string,
-	  which can be empty if there is nothing to display for that line.
-
 config CONSOLE_SCROLL_LINES
 	int "Number of lines to scroll the console by"
-	depends on CFB_CONSOLE || DM_VIDEO || LCD
+	depends on DM_VIDEO || LCD
 	default 1
 	help
 	  When the console need to be scrolled, this is the number of
 	  lines to scroll by. It defaults to 1. Increasing this makes the
 	  console jump but can help speed up operation when scrolling
 	  is slow.
-
-config SYS_CONSOLE_BG_COL
-	hex "Background colour"
-	depends on CFB_CONSOLE
-	default 0x00
-	help
-	  Defines the background colour for the console. The value is from
-	  0x00 to 0xff and the meaning depends on the graphics card.
-	  Typically, 0x00 means black and 0xff means white. Do not set
-	  the background and foreground to the same colour or you will see
-	  nothing.
-
-config SYS_CONSOLE_FG_COL
-	hex "Foreground colour"
-	depends on CFB_CONSOLE
-	default 0xa0
-	help
-	  Defines the foreground colour for the console. The value is from
-	  0x00 to 0xff and the meaning depends on the graphics card.
-	  Typically, 0x00 means black and 0xff means white. Do not set
-	  the background and foreground to the same colour or you will see
-	  nothing.
 
 config LCD
 	bool "Enable legacy LCD support"
@@ -967,7 +915,7 @@ config VIDEO_BMP_GZIP
 
 config VIDEO_BMP_RLE8
 	bool "Run length encoded BMP image (RLE8) support"
-	depends on DM_VIDEO || CFB_CONSOLE
+	depends on DM_VIDEO
 	help
 	  If this option is set, the 8-bit RLE compressed BMP images
 	  is supported.

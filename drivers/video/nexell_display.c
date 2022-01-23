@@ -562,7 +562,6 @@ static int nx_display_probe(struct udevice *dev)
 	}
 
 	struct nx_display_dev *dp;
-	/* unsigned int pp_index = 0; */
 
 	dp = nx_display_setup();
 	if (!dp) {
@@ -572,9 +571,7 @@ static int nx_display_probe(struct udevice *dev)
 	}
 
 	switch (dp->depth) {
-#if 0 /* GDF_16BIT_565RGB is not defined in video.h */
 	case 2:
-		pp_index = GDF_16BIT_565RGB;
 		uc_priv->bpix = VIDEO_BPP16;
 		break;
 	case 3:
@@ -582,10 +579,8 @@ static int nx_display_probe(struct udevice *dev)
 		 * type video_log2_bpp
 		 */
 	case 4:
-		pp_index = GDF_32BIT_X888RGB;
 		uc_priv->bpix = VIDEO_BPP32;
 		break;
-#endif
 	default:
 		printf("fail : not support LCD bit per pixel %d\n",
 		       dp->depth * 8);
@@ -598,8 +593,7 @@ static int nx_display_probe(struct udevice *dev)
 
 	/*
 	 * set environment variable "fb_addr" (frame buffer address), required
-	 * for splash image. Because drv_video_init() in common/stdio.c is only
-	 * called when CONFIG_VIDEO is set (and not if CONFIG_DM_VIDEO is set).
+	 * for splash image, which is not set if CONFIG_DM_VIDEO is enabled).
 	 */
 	sprintf(addr, "0x%x", dp->fb_addr);
 	debug("%s(): env_set(\"fb_addr\", %s) ...\n", __func__, addr);

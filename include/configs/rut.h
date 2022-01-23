@@ -67,13 +67,4 @@
 
 #endif /* CONFIG_SPL_BUILD */
 
-#if defined(CONFIG_VIDEO)
-#define CONFIG_VIDEO_DA8XX
-#define DA8XX_LCD_CNTL_BASE	LCD_CNTL_BASE
-
-#define BOARD_LCD_RESET		115	/* Bank 3 pin 19 */
-#define CONFIG_FORMIKE
-#define DISPL_PLL_SPREAD_SPECTRUM
-#endif
-
 #endif	/* ! __CONFIG_RUT_H */

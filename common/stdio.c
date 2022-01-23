@@ -367,8 +367,7 @@ int stdio_add_devices(void)
 	} else {
 		if (IS_ENABLED(CONFIG_LCD))
 			drv_lcd_init();
-		if (IS_ENABLED(CONFIG_VIDEO) ||
-		    IS_ENABLED(CONFIG_VIDEO_VCXK))
+		if (IS_ENABLED(CONFIG_VIDEO_VCXK))
 			drv_video_init();
 	}
 

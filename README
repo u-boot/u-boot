@@ -977,9 +977,6 @@ The following options need to be configured:
 		support, and should also define these other macros:
 
 			CONFIG_SYS_DIU_ADDR
-			CONFIG_VIDEO
-			CONFIG_VIDEO_SW_CURSOR
-			CONFIG_VGA_AS_SINGLE_DEVICE
 
 		The DIU driver will look for the 'video-mode' environment
 		variable, and if defined, enable the DIU as a console during

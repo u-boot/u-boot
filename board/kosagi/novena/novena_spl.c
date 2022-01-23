@@ -379,30 +379,7 @@ static void novena_spl_setup_iomux_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart4_pads, ARRAY_SIZE(uart4_pads));
 }
 
-/*
- * Video
- */
-#ifdef CONFIG_VIDEO
-static iomux_v3_cfg_t hdmi_pads[] = {
-	/* "Ghost HPD" pin */
-	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
-
-	/* LCD_PWR_CTL */
-	MX6_PAD_CSI0_DAT10__GPIO5_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* LCD_BL_ON */
-	MX6_PAD_KEY_ROW4__GPIO4_IO15 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* GPIO_PWM1 */
-	MX6_PAD_DISP0_DAT8__GPIO4_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static void novena_spl_setup_iomux_video(void)
-{
-	imx_iomux_v3_setup_multiple_pads(hdmi_pads, ARRAY_SIZE(hdmi_pads));
-	gpio_direction_input(NOVENA_HDMI_GHOST_HPD);
-}
-#else
 static inline void novena_spl_setup_iomux_video(void) {}
-#endif
 
 /*
  * SPL boots from uSDHC card

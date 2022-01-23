@@ -18,7 +18,6 @@ config EFI_LOADER
 	select PARTITION_UUIDS
 	select HAVE_BLOCK_DEVICE
 	select REGEX
-	imply CFB_CONSOLE_ANSI
 	imply FAT
 	imply FAT_WRITE
 	imply USB_KEYBOARD_FN_KEYS
