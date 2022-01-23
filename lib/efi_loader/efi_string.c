@@ -16,7 +16,7 @@
  * @index:	Index
  *
  * Create a utf-16 string with @name, appending @index.
- * For example, L"Capsule0001"
+ * For example, u"Capsule0001"
  *
  * The caller must ensure that the buffer has enough space for the resulting
  * string including the trailing L'\0'.

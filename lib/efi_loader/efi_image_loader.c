@@ -532,13 +532,13 @@ static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
 	struct efi_signature_store *db = NULL, *dbx = NULL;
 	bool ret = false;
 
-	dbx = efi_sigstore_parse_sigdb(L"dbx");
+	dbx = efi_sigstore_parse_sigdb(u"dbx");
 	if (!dbx) {
 		EFI_PRINT("Getting signature database(dbx) failed\n");
 		goto out;
 	}
 
-	db = efi_sigstore_parse_sigdb(L"db");
+	db = efi_sigstore_parse_sigdb(u"db");
 	if (!db) {
 		EFI_PRINT("Getting signature database(db) failed\n");
 		goto out;
@@ -621,13 +621,13 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	/*
 	 * verify signature using db and dbx
 	 */
-	db = efi_sigstore_parse_sigdb(L"db");
+	db = efi_sigstore_parse_sigdb(u"db");
 	if (!db) {
 		EFI_PRINT("Getting signature database(db) failed\n");
 		goto err;
 	}
 
-	dbx = efi_sigstore_parse_sigdb(L"dbx");
+	dbx = efi_sigstore_parse_sigdb(u"dbx");
 	if (!dbx) {
 		EFI_PRINT("Getting signature database(dbx) failed\n");
 		goto err;

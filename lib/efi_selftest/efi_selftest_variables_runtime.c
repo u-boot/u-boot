@@ -58,7 +58,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
-	ret = runtime->set_variable(L"efi_st_var0", &guid_vendor0,
+	ret = runtime->set_variable(u"efi_st_var0", &guid_vendor0,
 				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
 				    EFI_VARIABLE_RUNTIME_ACCESS,
 				    3, v + 4);
@@ -67,7 +67,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	len = EFI_ST_MAX_DATA_SIZE;
-	ret = runtime->get_variable(L"PlatformLangCodes", &guid_vendor0,
+	ret = runtime->get_variable(u"PlatformLangCodes", &guid_vendor0,
 				    &attr, &len, data);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("GetVariable failed\n");

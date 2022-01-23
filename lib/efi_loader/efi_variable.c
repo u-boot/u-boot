@@ -145,15 +145,15 @@ static efi_status_t efi_variable_authenticate(const u16 *variable,
 	case EFI_AUTH_VAR_PK:
 	case EFI_AUTH_VAR_KEK:
 		/* with PK */
-		truststore = efi_sigstore_parse_sigdb(L"PK");
+		truststore = efi_sigstore_parse_sigdb(u"PK");
 		if (!truststore)
 			goto err;
 		break;
 	case EFI_AUTH_VAR_DB:
 	case EFI_AUTH_VAR_DBX:
 		/* with PK and KEK */
-		truststore = efi_sigstore_parse_sigdb(L"KEK");
-		truststore2 = efi_sigstore_parse_sigdb(L"PK");
+		truststore = efi_sigstore_parse_sigdb(u"KEK");
+		truststore2 = efi_sigstore_parse_sigdb(u"PK");
 		if (!truststore) {
 			if (!truststore2)
 				goto err;

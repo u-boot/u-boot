@@ -31,7 +31,7 @@ static struct {
 		DEVICE_PATH_SUB_TYPE_FILE_PATH,
 		sizeof(dp.dp) + sizeof(dp.filename),
 	},
-	L"bug.efi",
+	u"bug.efi",
 	{
 		DEVICE_PATH_TYPE_END,
 		DEVICE_PATH_SUB_TYPE_END,

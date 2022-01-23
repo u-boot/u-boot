@@ -974,7 +974,7 @@ efi_status_t efi_capsule_authenticate(const void *capsule,
 				      efi_uintn_t capsule_size,
 				      void **image, efi_uintn_t *image_size);
 
-#define EFI_CAPSULE_DIR L"\\EFI\\UpdateCapsule\\"
+#define EFI_CAPSULE_DIR u"\\EFI\\UpdateCapsule\\"
 
 /**
  * Install the ESRT system table.

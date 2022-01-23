@@ -18,7 +18,7 @@ static const struct efi_system_table *systable;
 static const struct efi_boot_services *boottime;
 static const struct efi_runtime_services *runtime;
 static efi_handle_t handle;
-static u16 reset_message[] = L"Selftest completed";
+static u16 reset_message[] = u"Selftest completed";
 static int *setup_status;
 
 /*
