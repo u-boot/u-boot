@@ -184,10 +184,6 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 SPL_LOAD_IMAGE_METHOD("FEL", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
 #endif
 
-void s_init(void)
-{
-}
-
 #define SUNXI_INVALID_BOOT_SOURCE	-1
 
 static int sunxi_get_boot_source(void)
