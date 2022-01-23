@@ -226,6 +226,7 @@ void sunxi_board_init(void);
 void sunxi_reset(void);
 int sunxi_get_ss_bonding_id(void);
 int sunxi_get_sid(unsigned int *sid);
+unsigned int sunxi_get_sram_id(void);
 #endif /* __ASSEMBLY__ */
 
 #endif /* _SUNXI_CPU_SUN4I_H */
