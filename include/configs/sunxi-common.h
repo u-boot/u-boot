@@ -93,13 +93,9 @@
 #endif
 
 /* mmc config */
-#ifdef CONFIG_MMC
 #define CONFIG_MMC_SUNXI_SLOT		0
-#endif
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
-
-#ifdef CONFIG_ARM64
 /*
  * This is actually (CONFIG_ENV_OFFSET -
  * (CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)), but the value will be used
@@ -109,7 +105,6 @@
 #endif
 
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
-#endif
 
 /*
  * Miscellaneous configurable options
@@ -123,8 +118,6 @@
 /* FLASH and environment organization */
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
-
-#define CONFIG_SPL_BOARD_LOAD_IMAGE
 
 /*
  * We cannot use expressions here, because expressions won't be evaluated in
