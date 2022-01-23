@@ -430,6 +430,14 @@ config ATMEL_LCD_BGR555
 	help
 	  Use the BGR555 output mode.  Otherwise RGB565 is used.
 
+config VIDEO_BCM2835
+	bool "Display support for BCM2835"
+	help
+	  The graphics processor already sets up the display so this driver
+	  simply checks the resolution and then sets up the frame buffer with
+	  that same resolution (or as near as possible) and 32bpp depth, so
+	  that U-Boot can access it with full colour depth.
+
 config VIDEO_LCD_ORISETECH_OTM8009A
 	bool "OTM8009A DSI LCD panel support"
 	depends on DM_VIDEO
