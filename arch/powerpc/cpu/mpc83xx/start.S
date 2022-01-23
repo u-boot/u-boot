@@ -14,8 +14,6 @@
 #include <config.h>
 #include <mpc83xx.h>
 
-#define CONFIG_83XX	1		/* needed for Linux kernel header files*/
-
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 
@@ -115,9 +113,6 @@ disable_addr_trans:
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
 #endif /* CONFIG_DEFAULT_IMMR */
-#ifndef CONFIG_SYS_IMMR
-#define CONFIG_SYS_IMMR CONFIG_DEFAULT_IMMR
-#endif /* CONFIG_SYS_IMMR */
 
 /*
  * After configuration, a system reset exception is executed using the

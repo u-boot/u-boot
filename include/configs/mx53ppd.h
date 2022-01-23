@@ -11,8 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_FSL_CLK
-
 /* USB Configs */
 #define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
@@ -86,12 +84,6 @@
 		"run failbootcmd\0" \
 	"video-mode=" \
 		"lcd:800x480-24@60,monitor=lcd\0" \
-
-#define MMCBOOTCOMMAND \
-	"run doquiet; " \
-	"run tryboot; " \
-
-#define CONFIG_BOOTCOMMAND MMCBOOTCOMMAND
 
 #define CONFIG_ARP_TIMEOUT	200UL
 

@@ -16,6 +16,18 @@
 		serial2 = &uart2;
 		spi0 = &sfc;
 	};
+
+	dmc {
+		u-boot,dm-pre-reloc;
+		compatible = "rockchip,px30-dmc", "syscon";
+		reg = <0x0 0xff2a0000 0x0 0x1000>;
+	};
+
+	rng: rng@ff0b0000 {
+		compatible = "rockchip,cryptov2-rng";
+		reg = <0x0 0xff0b0000 0x0 0x4000>;
+		status = "okay";
+	};
 };
 
 /* U-Boot clk driver for px30 cannot set GPU_CLK */
@@ -30,10 +42,6 @@
 		<200000000>, <200000000>,
 		<150000000>, <150000000>,
 		<100000000>, <17000000>;
-};
-
-&dmc {
-	u-boot,dm-pre-reloc;
 };
 
 &gpio0 {
@@ -80,7 +88,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&{/sfc@ff3a0000/flash@0} {
+&{/spi@ff3a0000/flash@0} {
 	u-boot,dm-pre-reloc;
 };
 

@@ -14,8 +14,11 @@
 
 #include <linux/types.h>
 
-/* Avoid using CONFIG_EFI_STUB directly as we may boot from other loaders */
-#ifdef CONFIG_EFI_STUB
+/*
+ * In case of the EFI app the UEFI firmware provides the low-level
+ * initialisation.
+ */
+#ifdef CONFIG_EFI
 #define ll_boot_init()	false
 #else
 #include <asm/global_data.h>

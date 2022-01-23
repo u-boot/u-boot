@@ -80,8 +80,6 @@
  * Need to override existing one (smdk5420) with odroid so set_board_info will
  * use proper prefix when creating full board_name (SYS_BOARD + type)
  */
-#undef CONFIG_SYS_BOARD
-#define CONFIG_SYS_BOARD		"odroid"
 
 /* Define new extra env settings, including DFU settings */
 #undef CONFIG_EXTRA_ENV_SETTINGS

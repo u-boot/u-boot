@@ -275,13 +275,6 @@ static void rp_writel(struct tegra_pcie_port *port, unsigned long value,
 	writel(value, port->regs.start + offset);
 }
 
-static unsigned long tegra_pcie_conf_offset(pci_dev_t bdf, int where)
-{
-	return ((where & 0xf00) << 16) | (PCI_BUS(bdf) << 16) |
-	       (PCI_DEV(bdf) << 11) | (PCI_FUNC(bdf) << 8) |
-	       (where & 0xfc);
-}
-
 static int tegra_pcie_conf_address(struct tegra_pcie *pcie, pci_dev_t bdf,
 				   int where, unsigned long *address)
 {
@@ -305,7 +298,9 @@ static int tegra_pcie_conf_address(struct tegra_pcie *pcie, pci_dev_t bdf,
 			return -EFAULT;
 #endif
 
-		*address = pcie->cs.start + tegra_pcie_conf_offset(bdf, where);
+		*address = pcie->cs.start +
+			   (PCI_CONF1_EXT_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf),
+			    PCI_FUNC(bdf), where) & ~PCI_CONF1_ENABLE);
 		return 0;
 	}
 }

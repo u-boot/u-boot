@@ -74,33 +74,13 @@
 #define p4_in(addr)	(*addr)
 #define p4_out(data, addr) (*addr) = (data)
 
-static int sh7751_pci_addr_valid(pci_dev_t d, uint offset)
-{
-	if (PCI_FUNC(d))
-		return -EINVAL;
-
-	return 0;
-}
-
-static u32 get_bus_address(const struct udevice *dev, pci_dev_t bdf, u32 offset)
-{
-	return BIT(31) | (PCI_DEV(bdf) << 8) | (offset & ~3);
-}
-
 static int sh7751_pci_read_config(const struct udevice *dev, pci_dev_t bdf,
 				  uint offset, ulong *value,
 				  enum pci_size_t size)
 {
 	u32 addr, reg;
-	int ret;
 
-	ret = sh7751_pci_addr_valid(bdf, offset);
-	if (ret) {
-		*value = pci_get_ff(size);
-		return 0;
-	}
-
-	addr = get_bus_address(dev, bdf, offset);
+	addr = PCI_CONF1_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 	p4_out(addr, SH7751_PCIPAR);
 	reg = p4_in(SH7751_PCIPDR);
 	*value = pci_conv_32_to_size(reg, offset, size);
@@ -113,13 +93,8 @@ static int sh7751_pci_write_config(struct udevice *dev, pci_dev_t bdf,
 				      enum pci_size_t size)
 {
 	u32 addr, reg, old;
-	int ret;
 
-	ret = sh7751_pci_addr_valid(bdf, offset);
-	if (ret)
-		return ret;
-
-	addr = get_bus_address(dev, bdf, offset);
+	addr = PCI_CONF1_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 	p4_out(addr, SH7751_PCIPAR);
 	old = p4_in(SH7751_PCIPDR);
 	reg = pci_conv_size_to_32(old, value, offset, size);

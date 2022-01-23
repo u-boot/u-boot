@@ -55,11 +55,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootm_size=0x10000000\0"
 
-#define CONFIG_BOOTCOMMAND	\
-	"tftp 0x48080000 Image; " \
-	"tftp 0x48000000 Image-"CONFIG_DEFAULT_FDT_FILE"; " \
-	"booti 0x48080000 - 0x48000000"
-
 /* SPL support */
 #if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796) || defined(CONFIG_R8A77965)
 #define CONFIG_SPL_BSS_START_ADDR	0xe633f000

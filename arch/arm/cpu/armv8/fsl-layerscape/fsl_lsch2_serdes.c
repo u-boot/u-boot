@@ -249,7 +249,7 @@ int setup_serdes_volt(u32 svdd)
 
 	/*
 	 * If SVDD set failed, will not return directly, so that the
-	 * serdes lanes can complete reseting.
+	 * serdes lanes can complete resetting.
 	 */
 	ret = set_serdes_volt(svdd_tar);
 	if (ret)

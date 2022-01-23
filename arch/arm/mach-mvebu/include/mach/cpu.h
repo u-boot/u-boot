@@ -74,10 +74,11 @@ enum {
 /*
  * Default Device Address MAP BAR values
  */
+#define MBUS_PCI_MAX_PORTS	6
 #define MBUS_PCI_MEM_BASE	MVEBU_SDRAM_SIZE_MAX
-#define MBUS_PCI_MEM_SIZE	(128 << 20)
+#define MBUS_PCI_MEM_SIZE	((MBUS_PCI_MAX_PORTS * 128) << 20)
 #define MBUS_PCI_IO_BASE	0xF1100000
-#define MBUS_PCI_IO_SIZE	(64 << 10)
+#define MBUS_PCI_IO_SIZE	((MBUS_PCI_MAX_PORTS * 64) << 10)
 #define MBUS_SPI_BASE		0xF4000000
 #define MBUS_SPI_SIZE		(8 << 20)
 #define MBUS_DFX_BASE		0xF6000000

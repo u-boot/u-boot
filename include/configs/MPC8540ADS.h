@@ -26,8 +26,6 @@
 #define CONFIG_HAS_FEC		1	/* 8540 has FEC */
 #endif
 
-#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-
 /*
  * sysclk for MPC85xx
  *
@@ -45,10 +43,6 @@
  * 33MHz to accommodate, based on a PCI pin.
  * Note that PCI-X won't work at 33MHz.
  */
-
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	33000000
-#endif
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -90,9 +84,7 @@
 #define CONFIG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
 
 #define CONFIG_SYS_FLASH_BASE		0xff000000	/* start of FLASH 16M */
-#define CONFIG_SYS_BR0_PRELIM		0xff001801	/* port size 32bit */
 
-#define CONFIG_SYS_OR0_PRELIM		0xff006ff7	/* 16MB Flash */
 #define CONFIG_SYS_MAX_FLASH_BANKS	1		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	64		/* sectors per device */
 #undef	CONFIG_SYS_FLASH_CHECKSUM
@@ -131,8 +123,6 @@
  * FIXME: the top 17 bits of BR2.
  */
 
-#define CONFIG_SYS_BR2_PRELIM		0xf0001861
-
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
  *
@@ -146,8 +136,6 @@
  * 0    4    8    12   16   20   24   28
  * 1111 1100 0000 0000 0110 1001 0000 0001 = fc006901
  */
-
-#define CONFIG_SYS_OR2_PRELIM		0xfc006901
 
 #define CONFIG_SYS_LBC_LCRR		0x00030004    /* LB clock ratio reg */
 #define CONFIG_SYS_LBC_LBCR		0x00000000    /* LB config reg */
@@ -176,8 +164,6 @@
 /*
  * 32KB, 8-bit wide for ADS config reg
  */
-#define CONFIG_SYS_BR4_PRELIM          0xf8000801
-#define CONFIG_SYS_OR4_PRELIM		0xffffe1f1
 #define CONFIG_SYS_BCSR		(CONFIG_SYS_BR4_PRELIM & 0xffff8000)
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
@@ -274,8 +260,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-#undef CONFIG_WATCHDOG			/* watchdog disabled */
-
 /*
  * Miscellaneous configurable options
  */
@@ -316,24 +300,5 @@
    "ramdiskfile=your.ramdisk.u-boot\0"					\
    "fdtaddr=400000\0"							\
    "fdtfile=your.fdt.dtb\0"
-
-#define NFSBOOTCOMMAND	                                        \
-   "setenv bootargs root=/dev/nfs rw "                                  \
-      "nfsroot=$serverip:$rootpath "                                    \
-      "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-      "console=$consoledev,$baudrate $othbootargs;"                     \
-   "tftp $loadaddr $bootfile;"                                          \
-   "tftp $fdtaddr $fdtfile;"						\
-   "bootm $loadaddr - $fdtaddr"
-
-#define RAMBOOTCOMMAND \
-   "setenv bootargs root=/dev/ram rw "                                  \
-      "console=$consoledev,$baudrate $othbootargs;"                     \
-   "tftp $ramdiskaddr $ramdiskfile;"                                    \
-   "tftp $loadaddr $bootfile;"                                          \
-   "tftp $fdtaddr $fdtfile;"						\
-   "bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_BOOTCOMMAND  NFSBOOTCOMMAND
 
 #endif	/* __CONFIG_H */

@@ -57,24 +57,6 @@
 
 #ifndef CONFIG_RESTORE_FLASH
 /* set to negative value for no autoboot */
-
-#define CONFIG_BOOTCOMMAND \
-"if dfubutton; then " \
-	"run dfu_start; " \
-	"reset; " \
-"fi;" \
-"run nand_boot;" \
-"run nand_boot_backup;" \
-"reset;"
-
-#else
-
-#define CONFIG_BOOTCOMMAND			\
-	"setenv autoload no; "			\
-	"dhcp; "				\
-	"if tftp 80000000 debrick.scr; then "	\
-		"source 80000000; "		\
-	"fi"
 #endif
 #endif	/* CONFIG_SPL_BUILD */
 #endif	/* ! __CONFIG_RASTABAN_H */

@@ -549,3 +549,19 @@ void spl_board_prepare_for_linux(void)
 	dcache_disable();
 }
 #endif
+
+int misc_init_r(void)
+{
+	if (IS_ENABLED(CONFIG_TI_AM65_CPSW_NUSS)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC,
+						  DM_DRIVER_GET(am65_cpsw_nuss),
+						  &dev);
+		if (ret)
+			printf("Failed to probe am65_cpsw_nuss driver\n");
+	}
+
+	return 0;
+}

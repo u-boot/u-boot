@@ -159,8 +159,8 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 		struct spi_flash *ucode_flash;
 
 		addr = malloc(CONFIG_CORTINA_FW_LENGTH);
-		ucode_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
-									 CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
+		ucode_flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
+									 CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE);
 		if (!ucode_flash) {
 			puts("SF: probe for Cortina ucode failed\n");
 		} else {
@@ -212,8 +212,8 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 	struct spi_flash *ucode_flash;
 
 	addr = malloc(CONFIG_CORTINA_FW_LENGTH);
-	ucode_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
-				CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
+	ucode_flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
+				CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE);
 	if (!ucode_flash) {
 		puts("SF: probe for Cortina ucode failed\n");
 	} else {

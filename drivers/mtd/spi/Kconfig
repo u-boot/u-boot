@@ -57,7 +57,7 @@ config SF_DEFAULT_CS
 config SF_DEFAULT_MODE
 	hex "SPI Flash default mode (see include/spi.h)"
 	depends on SPI_FLASH || DM_SPI_FLASH
-	default 0
+	default 0x0
 	help
 	  The default mode may be provided by the platform
 	  to handle the common case when only a single serial
@@ -128,12 +128,6 @@ config SPI_FLASH_UNLOCK_ALL
 
 	 For legacy reasons, this option default to y. But if you intend to
 	 actually use the software protection bits you should say n here.
-
-config SF_DUAL_FLASH
-	bool "SPI DUAL flash memory support"
-	help
-	  Enable this option to support two flash memories connected to a single
-	  controller. Currently Xilinx Zynq qspi supports this.
 
 config SPI_FLASH_ATMEL
 	bool "Atmel SPI flash support"

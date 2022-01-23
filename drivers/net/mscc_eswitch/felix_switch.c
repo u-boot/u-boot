@@ -16,6 +16,7 @@
  */
 
 #include <dm/device_compat.h>
+#include <dm/of_extra.h>
 #include <linux/delay.h>
 #include <net/dsa.h>
 #include <asm/io.h>
@@ -39,7 +40,9 @@
 #define FELIX_IS2			0x060000
 #define FELIX_GMII(port)		(0x100000 + (port) * 0x10000)
 #define FELIX_QSYS			0x200000
-
+#define FELIX_DEVCPU_GCB		0x070000
+#define FELIX_DEVCPU_GCB_SOFT_RST	(FELIX_DEVCPU_GCB + 0x00000004)
+#define SOFT_SWC_RST			BIT(0)
 #define FELIX_SYS_SYSTEM		(FELIX_SYS + 0x00000E00)
 #define  FELIX_SYS_SYSTEM_EN		BIT(0)
 #define FELIX_SYS_RAM_CTRL		(FELIX_SYS + 0x00000F24)
@@ -210,17 +213,14 @@ static int felix_init_sxgmii(struct mii_dev *imdio, int pidx)
 static void felix_start_pcs(struct udevice *dev, int port,
 			    struct phy_device *phy, struct mii_dev *imdio)
 {
-	bool autoneg = true;
-
-	if (phy->phy_id == PHY_FIXED_ID ||
-	    phy->interface == PHY_INTERFACE_MODE_2500BASEX)
-		autoneg = false;
+	ofnode node = dsa_port_get_ofnode(dev, port);
+	bool inband_an = ofnode_eth_uses_inband_aneg(node);
 
 	switch (phy->interface) {
 	case PHY_INTERFACE_MODE_SGMII:
 	case PHY_INTERFACE_MODE_2500BASEX:
 	case PHY_INTERFACE_MODE_QSGMII:
-		felix_init_sgmii(imdio, port, autoneg);
+		felix_init_sgmii(imdio, port, inband_an);
 		break;
 	case PHY_INTERFACE_MODE_10GBASER:
 	case PHY_INTERFACE_MODE_USXGMII:
@@ -238,6 +238,15 @@ static void felix_init(struct udevice *dev)
 	struct felix_priv *priv = dev_get_priv(dev);
 	void *base = priv->regs_base;
 	int timeout = 100;
+
+	/* Switch core reset */
+	out_le32(base + FELIX_DEVCPU_GCB_SOFT_RST, SOFT_SWC_RST);
+	while (in_le32(base + FELIX_DEVCPU_GCB_SOFT_RST) & SOFT_SWC_RST &&
+	       --timeout)
+		udelay(10);
+	if (in_le32(base + FELIX_DEVCPU_GCB_SOFT_RST) & SOFT_SWC_RST)
+		dev_err(dev, "Timeout waiting for switch core reset\n");
+	timeout = 100;
 
 	/* Init core memories */
 	out_le32(base + FELIX_SYS_RAM_CTRL, FELIX_SYS_RAM_CTRL_INIT);

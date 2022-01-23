@@ -131,9 +131,9 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 	sysclk_path = fdt_get_alias(blob, "sysclk");
 	if (sysclk_path)
 		do_fixup_by_path_u32(blob, sysclk_path, "clock-frequency",
-				     CONFIG_SYS_CLK_FREQ, 1);
+				     get_board_sys_clk(), 1);
 	do_fixup_by_compat_u32(blob, "fsl,qoriq-sysclk-2.0",
-			       "clock-frequency", CONFIG_SYS_CLK_FREQ, 1);
+			       "clock-frequency", get_board_sys_clk(), 1);
 
 #if defined(CONFIG_DEEP_SLEEP) && defined(CONFIG_SD_BOOT)
 #define UBOOT_HEAD_LEN	0x1000
@@ -184,13 +184,13 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 	off = fdt_node_offset_by_compat_reg(blob, FSL_IFC_COMPAT,
 					    CONFIG_SYS_IFC_ADDR);
-	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED);
 #else
 	off = fdt_node_offset_by_compat_reg(blob, FSL_QSPI_COMPAT,
 					    QSPI0_BASE_ADDR);
-	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED);
 	off = fdt_node_offset_by_compat_reg(blob, FSL_DSPI_COMPAT,
 					    DSPI1_BASE_ADDR);
-	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED);
 #endif
 }

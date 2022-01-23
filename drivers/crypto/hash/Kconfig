@@ -14,3 +14,11 @@ config HASH_SOFTWARE
 	help
 	  Enable driver for hashing operations in software. Currently
 	  it support multiple hash algorithm including CRC/MD5/SHA.
+
+config HASH_ASPEED
+	bool "Enable Hash with ASPEED hash accelerator"
+	depends on DM_HASH
+	select ASPEED_HACE
+	help
+	  Enable this to support HW-assisted hashing operations using ASPEED Hash
+	  and Crypto engine - HACE

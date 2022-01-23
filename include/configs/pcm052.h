@@ -25,12 +25,6 @@
 #define PCM052_EXTRA_ENV_SETTINGS
 #endif
 
-/* if no target-specific boot command was defined by the target,
-   define an empty one */
-#ifndef PCM052_BOOTCOMMAND
-#define PCM052_BOOTCOMMAND
-#endif
-
 /* if no target-specific extra environment settings were defined by the
    target, define an empty one */
 #ifndef PCM052_NET_INIT
@@ -38,7 +32,6 @@
 #endif
 
 /* boot command, including the target-defined one if any */
-#define CONFIG_BOOTCOMMAND	PCM052_BOOTCOMMAND "run bootcmd_nand"
 
 /* Extra env settings (including the target-defined ones if any) */
 #define CONFIG_EXTRA_ENV_SETTINGS \

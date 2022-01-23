@@ -50,7 +50,7 @@ class Entry_intel_ifwi(Entry_blob_ext):
         self._ifwi_entries = OrderedDict()
 
     def ReadNode(self):
-        self._ReadSubnodes()
+        self.ReadEntries()
         super().ReadNode()
 
     def _BuildIfwi(self):
@@ -117,7 +117,7 @@ class Entry_intel_ifwi(Entry_blob_ext):
         same = orig_data == self.data
         return same
 
-    def _ReadSubnodes(self):
+    def ReadEntries(self):
         """Read the subnodes to find out what should go in this IFWI"""
         for node in self._node.subnodes:
             entry = Entry.Create(self.section, node)

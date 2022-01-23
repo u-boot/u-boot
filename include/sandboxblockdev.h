@@ -6,6 +6,9 @@
 #ifndef __SANDBOX_BLOCK_DEV__
 #define __SANDBOX_BLOCK_DEV__
 
+/* Maximum number of host devices - see drivers/block/sandbox.c */
+#define SANDBOX_HOST_MAX_DEVICES	4
+
 struct host_block_dev {
 #ifndef CONFIG_BLK
 	struct blk_desc blk_dev;

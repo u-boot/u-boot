@@ -65,5 +65,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply VIRTIO_BLK
 	imply MTD_NOR_FLASH
 	imply CFI_FLASH
+	imply OF_HAS_PRIOR_STAGE
 
 endif

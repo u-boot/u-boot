@@ -254,4 +254,39 @@ void board_init_f(ulong dummy)
 	/* DDR initialization */
 	spl_dram_init();
 }
+
+#define USDHC3_CD_GPIO		IMX_GPIO_NR(7, 0)
+
+#define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP |			\
+	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |		\
+	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+
+static struct fsl_esdhc_cfg usdhc_cfg[2] = {
+	{USDHC3_BASE_ADDR},
+};
+
+static const iomux_v3_cfg_t usdhc3_pads[] = {
+	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT5__GPIO7_IO00  | MUX_PAD_CTRL(NO_PAD_CTRL)),
+};
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	return !gpio_get_value(USDHC3_CD_GPIO);
+}
+
+int board_mmc_init(struct bd_info *bis)
+{
+	SETUP_IOMUX_PADS(usdhc3_pads);
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+	usdhc_cfg[0].max_bus_width = 4;
+	gpio_direction_input(USDHC3_CD_GPIO);
+
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+}
 #endif

@@ -344,7 +344,7 @@ void ddr3_check_ecc_int(u32 base)
 		puts("DDR3 ECC 2-bit error interrupted\n");
 
 		if (!ecc_test) {
-			puts("Reseting the device ...\n");
+			puts("Resetting the device ...\n");
 			reset_cpu();
 		}
 	}

@@ -1,5 +1,5 @@
 PUMA-RK3399
-M:	Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+M:	Quentin Schulz <quentin.schulz@theobroma-systems.com>
 M:	Klaus Goger <klaus.goger@theobroma-systems.com>
 S:	Maintained
 F:	board/theobroma-systems/puma_rk3399

@@ -58,7 +58,7 @@ static int bind_drivers_pass(struct udevice *parent, bool pre_reloc_only)
 	const int n_ents = ll_entry_count(struct driver_info, driver_info);
 	bool missing_parent = false;
 	int result = 0;
-	uint idx;
+	int idx;
 
 	/*
 	 * Do one iteration through the driver_info records. For of-platdata,

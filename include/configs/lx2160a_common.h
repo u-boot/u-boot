@@ -11,14 +11,12 @@
 #include <asm/arch/soc.h>
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_FSL_TZPC_BP147
 #define CONFIG_FSL_MEMAC
 
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_FLASH_BASE		0x20000000
 
 /* DDR */
-#define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
 #define CONFIG_SYS_FSL_DDR_INTLV_256B	/* force 256 byte interleaving */
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE		0x80000000UL
@@ -38,7 +36,6 @@
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD on I2C bus 0 */
 #define CONFIG_DIMM_SLOTS_PER_CTLR	2
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
-#define CONFIG_FSL_DDR_BIST	/* enable built-in memory test */
 #define CONFIG_SYS_MONITOR_LEN		(936 * 1024)
 
 /* Miscellaneous configurable options */
@@ -107,7 +104,6 @@
 
 /* PCI */
 #ifdef CONFIG_PCI
-#define CONFIG_SYS_PCI_64BIT
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
@@ -130,19 +126,7 @@
 #endif
 #endif
 
-/* GPIO */
-#ifdef CONFIG_DM_GPIO
-#ifndef CONFIG_MPC8XXX_GPIO
-#define CONFIG_MPC8XXX_GPIO
-#endif
-#endif
-
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
-#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
-#define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ / 4)
+#define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128

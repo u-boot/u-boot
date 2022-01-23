@@ -14,10 +14,7 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_FSL_CLK
-
 #ifdef CONFIG_VIDEO_FSL_DCU_FB
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_SYS_FSL_DCU_LE
 
@@ -68,8 +65,6 @@
 	"ubi read ${kernel_addr_r} kernel && " \
 	"ubi read ${fdt_addr_r} dtb && " \
 	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
-
-#define CONFIG_BOOTCOMMAND "run ubiboot || run distro_bootcmd;"
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \

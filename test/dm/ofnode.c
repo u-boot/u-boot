@@ -351,3 +351,99 @@ static int dm_test_ofnode_for_each_compatible_node(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_for_each_compatible_node, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_string(struct unit_test_state *uts)
+{
+	const char **val;
+	const char *out;
+	ofnode node;
+
+	node = ofnode_path("/a-test");
+	ut_assert(ofnode_valid(node));
+
+	/* single string */
+	ut_asserteq(1, ofnode_read_string_count(node, "str-value"));
+	ut_assertok(ofnode_read_string_index(node, "str-value", 0, &out));
+	ut_asserteq_str("test string", out);
+	ut_asserteq(0, ofnode_stringlist_search(node, "str-value",
+						"test string"));
+	ut_asserteq(1, ofnode_read_string_list(node, "str-value", &val));
+	ut_asserteq_str("test string", val[0]);
+	ut_assertnull(val[1]);
+	free(val);
+
+	/* list of strings */
+	ut_asserteq(5, ofnode_read_string_count(node, "mux-control-names"));
+	ut_assertok(ofnode_read_string_index(node, "mux-control-names", 0,
+					     &out));
+	ut_asserteq_str("mux0", out);
+	ut_asserteq(0, ofnode_stringlist_search(node, "mux-control-names",
+						"mux0"));
+	ut_asserteq(5, ofnode_read_string_list(node, "mux-control-names",
+					       &val));
+	ut_asserteq_str("mux0", val[0]);
+	ut_asserteq_str("mux1", val[1]);
+	ut_asserteq_str("mux2", val[2]);
+	ut_asserteq_str("mux3", val[3]);
+	ut_asserteq_str("mux4", val[4]);
+	ut_assertnull(val[5]);
+	free(val);
+
+	ut_assertok(ofnode_read_string_index(node, "mux-control-names", 4,
+					     &out));
+	ut_asserteq_str("mux4", out);
+	ut_asserteq(4, ofnode_stringlist_search(node, "mux-control-names",
+						"mux4"));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_string, 0);
+
+static int dm_test_ofnode_string_err(struct unit_test_state *uts)
+{
+	const char **val;
+	const char *out;
+	ofnode node;
+
+	/*
+	 * Test error codes only on livetree, as they are different with
+	 * flattree
+	 */
+	node = ofnode_path("/a-test");
+	ut_assert(ofnode_valid(node));
+
+	/* non-existent property */
+	ut_asserteq(-EINVAL, ofnode_read_string_count(node, "missing"));
+	ut_asserteq(-EINVAL, ofnode_read_string_index(node, "missing", 0,
+						      &out));
+	ut_asserteq(-EINVAL, ofnode_read_string_list(node, "missing", &val));
+
+	/* empty property */
+	ut_asserteq(-ENODATA, ofnode_read_string_count(node, "bool-value"));
+	ut_asserteq(-ENODATA, ofnode_read_string_index(node, "bool-value", 0,
+						       &out));
+	ut_asserteq(-ENODATA, ofnode_read_string_list(node, "bool-value",
+						     &val));
+
+	/* badly formatted string list */
+	ut_asserteq(-EILSEQ, ofnode_read_string_count(node, "int64-value"));
+	ut_asserteq(-EILSEQ, ofnode_read_string_index(node, "int64-value", 0,
+						       &out));
+	ut_asserteq(-EILSEQ, ofnode_read_string_list(node, "int64-value",
+						     &val));
+
+	/* out of range / not found */
+	ut_asserteq(-ENODATA, ofnode_read_string_index(node, "str-value", 1,
+						       &out));
+	ut_asserteq(-ENODATA, ofnode_stringlist_search(node, "str-value",
+						       "other"));
+
+	/* negative value for index is not allowed, so don't test for that */
+
+	ut_asserteq(-ENODATA, ofnode_read_string_index(node,
+						       "mux-control-names", 5,
+						       &out));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_string_err, UT_TESTF_LIVE_TREE);

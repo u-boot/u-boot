@@ -16,7 +16,6 @@
 
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
@@ -35,11 +34,6 @@
 		"if run loadfdt; then " \
 			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"fi;\0" \
-
-#define CONFIG_BOOTCOMMAND \
-	"if run loadimage; then " \
-		"run mmcboot; " \
-	"fi; " \
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

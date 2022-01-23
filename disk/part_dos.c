@@ -459,10 +459,12 @@ int layout_mbr_partitions(struct disk_partition *p, int count,
 			ext = &p[i];
 	}
 
-	if (i >= 4 && !ext) {
-		printf("%s: extended partition is needed for more than 4 partitions\n",
-		        __func__);
-		return -1;
+	if (count < 4)
+		return 0;
+
+	if (!ext) {
+		log_err("extended partition is needed for more than 4 partitions\n");
+		return -EINVAL;
 	}
 
 	/* calculate extended volumes start and size if needed */

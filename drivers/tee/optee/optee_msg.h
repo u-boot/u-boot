@@ -87,16 +87,6 @@
 #define OPTEE_MSG_ATTR_CACHE_PREDEFINED		0
 
 /*
- * Same values as TEE_LOGIN_* from TEE Internal API
- */
-#define OPTEE_MSG_LOGIN_PUBLIC			0x00000000
-#define OPTEE_MSG_LOGIN_USER			0x00000001
-#define OPTEE_MSG_LOGIN_GROUP			0x00000002
-#define OPTEE_MSG_LOGIN_APPLICATION		0x00000004
-#define OPTEE_MSG_LOGIN_APPLICATION_USER	0x00000005
-#define OPTEE_MSG_LOGIN_APPLICATION_GROUP	0x00000006
-
-/*
  * Page size used in non-contiguous buffer entries
  */
 #define OPTEE_MSG_NONCONTIG_PAGE_SIZE		4096
@@ -279,7 +269,7 @@ struct optee_msg_arg {
  * parameters to pass the following information:
  * param[0].u.value.a-b uuid of Trusted Application
  * param[1].u.value.a-b uuid of Client
- * param[1].u.value.c Login class of client OPTEE_MSG_LOGIN_*
+ * param[1].u.value.c Login class of client TEE_LOGIN_*
  *
  * OPTEE_MSG_CMD_INVOKE_COMMAND invokes a command a previously opened
  * session to a Trusted Application.  struct optee_msg_arg::func is Trusted

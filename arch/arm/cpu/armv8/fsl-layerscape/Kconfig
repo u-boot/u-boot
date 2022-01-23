@@ -41,6 +41,7 @@ config ARCH_LS1028A
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
 	select FSL_TZASC_1
+	select FSL_TZPC_BP147
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
@@ -59,6 +60,7 @@ config ARCH_LS1043A
 	bool
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873 if !TFABOOT
+	select FSL_IFC if TFABOOT || (!QSPI_BOOT && !SD_BOOT_QSPI)
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select GICV2
@@ -94,6 +96,7 @@ config ARCH_LS1043A
 config ARCH_LS1046A
 	bool
 	select ARMV8_SET_SMPEN
+	select FSL_IFC if TFABOOT || (!QSPI_BOOT && !SD_BOOT_QSPI)
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select GICV2
@@ -134,6 +137,7 @@ config ARCH_LS1088A
 	bool
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873 if !TFABOOT
+	select FSL_IFC
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select GICV3
@@ -182,6 +186,7 @@ config ARCH_LS2080A
 	select ARM_ERRATA_828024
 	select ARM_ERRATA_829520
 	select ARM_ERRATA_833471
+	select FSL_IFC
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select GICV3
@@ -233,8 +238,11 @@ config ARCH_LS2080A
 config ARCH_LX2162A
 	bool
 	select ARMV8_SET_SMPEN
+	select FSL_DDR_BIST
+	select FSL_DDR_INTERACTIVE
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select FSL_TZPC_BP147
 	select GICV3
 	select NXP_LSCH3_2
 	select SYS_HAS_SERDES
@@ -254,6 +262,7 @@ config ARCH_LX2162A
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
+	select SYS_PCI_64BIT if PCI
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
@@ -267,8 +276,11 @@ config ARCH_LX2162A
 config ARCH_LX2160A
 	bool
 	select ARMV8_SET_SMPEN
+	select FSL_DDR_BIST
+	select FSL_DDR_INTERACTIVE
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select FSL_TZPC_BP147
 	select GICV3
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select NXP_LSCH3_2
@@ -290,6 +302,7 @@ config ARCH_LX2160A
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_LE
+	select SYS_PCI_64BIT if PCI
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
@@ -516,10 +529,6 @@ endmenu
 
 menu "Layerscape clock tree configuration"
 	depends on FSL_LSCH2 || FSL_LSCH3
-
-config SYS_FSL_CLK
-	bool "Enable clock tree initialization"
-	default y
 
 config CLUSTER_CLK_FREQ
 	int "Reference clock of core cluster"

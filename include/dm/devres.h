@@ -51,7 +51,7 @@ void *_devres_alloc(dr_release_t release, size_t size, gfp_t gfp);
  * with @release.  The returned pointer can be passed to
  * other devres_*() functions.
  *
- * RETURNS:
+ * Return:
  * Pointer to allocated devres on success, NULL on failure.
  */
 #define devres_alloc(release, size, gfp) \
@@ -87,7 +87,7 @@ void devres_add(struct udevice *dev, void *res);
  * and for which @match returns 1.  If @match is NULL, it's considered
  * to match all.
  *
- * @return pointer to found devres, NULL if not found.
+ * Return: pointer to found devres, NULL if not found.
  */
 void *devres_find(struct udevice *dev, dr_release_t release,
 		  dr_match_t match, void *match_data);
@@ -103,7 +103,7 @@ void *devres_find(struct udevice *dev, dr_release_t release,
  * as @new_res and for which @match return 1.  If found, @new_res is
  * freed; otherwise, @new_res is added atomically.
  *
- * @return ointer to found or added devres.
+ * Return: pointer to found or added devres.
  */
 void *devres_get(struct udevice *dev, void *new_res,
 		 dr_match_t match, void *match_data);
@@ -120,7 +120,7 @@ void *devres_get(struct udevice *dev, void *new_res,
  * match all.  If found, the resource is removed atomically and
  * returned.
  *
- * @return ointer to removed devres on success, NULL if not found.
+ * Return: pointer to removed devres on success, NULL if not found.
  */
 void *devres_remove(struct udevice *dev, dr_release_t release,
 		    dr_match_t match, void *match_data);
@@ -140,7 +140,7 @@ void *devres_remove(struct udevice *dev, dr_release_t release,
  * only the devres-allocated data will be freed.  The caller becomes
  * responsible for freeing any other data.
  *
- * @return 0 if devres is found and freed, -ENOENT if not found.
+ * Return: 0 if devres is found and freed, -ENOENT if not found.
  */
 int devres_destroy(struct udevice *dev, dr_release_t release,
 		   dr_match_t match, void *match_data);
@@ -157,7 +157,7 @@ int devres_destroy(struct udevice *dev, dr_release_t release,
  * match all.  If found, the resource is removed atomically, the
  * release function called and the resource freed.
  *
- * @return 0 if devres is found and freed, -ENOENT if not found.
+ * Return: 0 if devres is found and freed, -ENOENT if not found.
  */
 int devres_release(struct udevice *dev, dr_release_t release,
 		   dr_match_t match, void *match_data);
@@ -173,7 +173,7 @@ int devres_release(struct udevice *dev, dr_release_t release,
  * automatically freed on driver detach.  Like all other devres
  * resources, guaranteed alignment is unsigned long long.
  *
- * @return pointer to allocated memory on success, NULL on failure.
+ * Return: pointer to allocated memory on success, NULL on failure.
  */
 void *devm_kmalloc(struct udevice *dev, size_t size, gfp_t gfp);
 static inline void *devm_kzalloc(struct udevice *dev, size_t size, gfp_t gfp)

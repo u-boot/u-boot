@@ -44,6 +44,9 @@ struct buf_info {
  * @stopping: true if audio will stop once it runs out of data
  * @texture: SDL texture to use for U-Boot display contents
  * @renderer: SDL renderer to use
+ * @screen: SDL window to use
+ * @src_depth: Number of bits per pixel in the source frame buffer (that we read
+ * from and render to SDL)
  */
 static struct sdl_info {
 	int width;
@@ -61,6 +64,8 @@ static struct sdl_info {
 	bool stopping;
 	SDL_Texture *texture;
 	SDL_Renderer *renderer;
+	SDL_Window *screen;
+	int src_depth;
 } sdl;
 
 static void sandbox_sdl_poll_events(void)
@@ -98,6 +103,23 @@ static int sandbox_sdl_ensure_init(void)
 	return 0;
 }
 
+int sandbox_sdl_remove_display(void)
+{
+	if (!sdl.renderer) {
+		printf("SDL renderer does not exist\n");
+		return -ENOENT;
+	}
+
+	SDL_DestroyTexture(sdl.texture);
+	SDL_DestroyRenderer(sdl.renderer);
+	SDL_DestroyWindow(sdl.screen);
+	sdl.texture = NULL;
+	sdl.renderer = NULL;
+	sdl.screen = NULL;
+
+	return 0;
+}
+
 int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 			     bool double_size)
 {
@@ -109,6 +131,9 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 	err = sandbox_sdl_ensure_init();
 	if (err)
 		return err;
+	if (sdl.renderer)
+		sandbox_sdl_remove_display();
+
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
 		printf("Unable to initialise SDL LCD: %s\n", SDL_GetError());
 		return -EPERM;
@@ -126,22 +151,20 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 	if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
 		printf("Unable to init hinting: %s", SDL_GetError());
 
+	sdl.src_depth = 1 << log2_bpp;
+	if (log2_bpp != 4 && log2_bpp != 5)
+		log2_bpp = 5;
 	sdl.depth = 1 << log2_bpp;
 	sdl.pitch = sdl.width * sdl.depth / 8;
-	SDL_Window *screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
-					      SDL_WINDOWPOS_UNDEFINED,
-					      sdl.vis_width, sdl.vis_height,
-					      SDL_WINDOW_RESIZABLE);
-	if (!screen) {
+	sdl.screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
+				      SDL_WINDOWPOS_UNDEFINED, sdl.vis_width,
+				      sdl.vis_height, SDL_WINDOW_RESIZABLE);
+	if (!sdl.screen) {
 		printf("Unable to initialise SDL screen: %s\n",
 		       SDL_GetError());
 		return -EIO;
 	}
-	if (log2_bpp != 4 && log2_bpp != 5) {
-		printf("U-Boot SDL does not support depth %d\n", log2_bpp);
-		return -EINVAL;
-	}
-	sdl.renderer = SDL_CreateRenderer(screen, -1,
+	sdl.renderer = SDL_CreateRenderer(sdl.screen, -1,
 					  SDL_RENDERER_ACCELERATED |
 					  SDL_RENDERER_PRESENTVSYNC);
 	if (!sdl.renderer) {
@@ -165,6 +188,55 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 	return 0;
 }
 
+static int copy_to_texture(void *lcd_base)
+{
+	char *dest;
+	int pitch, x, y;
+	int src_pitch;
+	void *pixels;
+	char *src;
+	int ret;
+
+	if (sdl.src_depth == sdl.depth) {
+		SDL_UpdateTexture(sdl.texture, NULL, lcd_base, sdl.pitch);
+		return 0;
+	}
+
+	/*
+	 * We only support copying from an 8bpp to a 32bpp texture since the
+	 * other cases are supported directly by the texture.
+	 */
+	if (sdl.depth != 32 && sdl.src_depth != 8) {
+		printf("Need depth 32bpp for copy\n");
+		return -EINVAL;
+	}
+
+	ret = SDL_LockTexture(sdl.texture, NULL, &pixels, &pitch);
+	if (ret) {
+		printf("SDL lock %d: %s\n", ret, SDL_GetError());
+		return ret;
+	}
+
+	/* Copy the pixels one by one */
+	src_pitch = sdl.width * sdl.src_depth / 8;
+	for (y = 0; y < sdl.height; y++) {
+		char val;
+
+		dest = pixels + y * pitch;
+		src = lcd_base + src_pitch * y;
+		for (x = 0; x < sdl.width; x++, dest += 4) {
+			val = *src++;
+			dest[0] = val;
+			dest[1] = val;
+			dest[2] = val;
+			dest[3] = 0;
+		}
+	}
+	SDL_UnlockTexture(sdl.texture);
+
+	return 0;
+}
+
 int sandbox_sdl_sync(void *lcd_base)
 {
 	struct SDL_Rect rect;
@@ -173,7 +245,11 @@ int sandbox_sdl_sync(void *lcd_base)
 	if (!sdl.texture)
 		return 0;
 	SDL_RenderClear(sdl.renderer);
-	SDL_UpdateTexture(sdl.texture, NULL, lcd_base, sdl.pitch);
+	ret = copy_to_texture(lcd_base);
+	if (ret) {
+		printf("copy_to_texture: %d: %s\n", ret, SDL_GetError());
+		return -EIO;
+	}
 	ret = SDL_RenderCopy(sdl.renderer, sdl.texture, NULL, NULL);
 	if (ret) {
 		printf("SDL copy %d: %s\n", ret, SDL_GetError());

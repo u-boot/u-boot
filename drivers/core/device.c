@@ -518,6 +518,14 @@ int device_probe(struct udevice *dev)
 
 	dev_or_flags(dev, DM_FLAG_ACTIVATED);
 
+	if (CONFIG_IS_ENABLED(POWER_DOMAIN) && dev->parent &&
+	    (device_get_uclass_id(dev) != UCLASS_POWER_DOMAIN) &&
+	    !(drv->flags & DM_FLAG_DEFAULT_PD_CTRL_OFF)) {
+		ret = dev_power_domain_on(dev);
+		if (ret)
+			goto fail;
+	}
+
 	/*
 	 * Process pinctrl for everything except the root device, and
 	 * continue regardless of the result of pinctrl. Don't process pinctrl
@@ -533,15 +541,11 @@ int device_probe(struct udevice *dev)
 	 * is set just above. However, the PCI bus' probe() method and
 	 * associated uclass methods have not yet been called.
 	 */
-	if (dev->parent && device_get_uclass_id(dev) != UCLASS_PINCTRL)
-		pinctrl_select_state(dev, "default");
-
-	if (CONFIG_IS_ENABLED(POWER_DOMAIN) && dev->parent &&
-	    (device_get_uclass_id(dev) != UCLASS_POWER_DOMAIN) &&
-	    !(drv->flags & DM_FLAG_DEFAULT_PD_CTRL_OFF)) {
-		ret = dev_power_domain_on(dev);
-		if (ret)
-			goto fail;
+	if (dev->parent && device_get_uclass_id(dev) != UCLASS_PINCTRL) {
+		ret = pinctrl_select_state(dev, "default");
+		if (ret && ret != -ENOSYS)
+			log_debug("Device '%s' failed to configure default pinctrl: %d (%s)\n",
+				  dev->name, ret, errno_str(ret));
 	}
 
 	if (CONFIG_IS_ENABLED(IOMMU) && dev->parent &&
@@ -586,8 +590,12 @@ int device_probe(struct udevice *dev)
 	if (ret)
 		goto fail_uclass;
 
-	if (dev->parent && device_get_uclass_id(dev) == UCLASS_PINCTRL)
-		pinctrl_select_state(dev, "default");
+	if (dev->parent && device_get_uclass_id(dev) == UCLASS_PINCTRL) {
+		ret = pinctrl_select_state(dev, "default");
+		if (ret && ret != -ENOSYS)
+			log_debug("Device '%s' failed to configure default pinctrl: %d (%s)\n",
+				  dev->name, ret, errno_str(ret));
+	}
 
 	return 0;
 fail_uclass:
@@ -727,6 +735,17 @@ int device_get_child_count(const struct udevice *parent)
 
 	list_for_each_entry(dev, &parent->child_head, sibling_node)
 		count++;
+
+	return count;
+}
+
+int device_get_decendent_count(const struct udevice *parent)
+{
+	const struct udevice *dev;
+	int count = 1;
+
+	list_for_each_entry(dev, &parent->child_head, sibling_node)
+		count += device_get_decendent_count(dev);
 
 	return count;
 }
@@ -902,21 +921,28 @@ int device_find_first_child_by_uclass(const struct udevice *parent,
 	return -ENODEV;
 }
 
-int device_find_child_by_name(const struct udevice *parent, const char *name,
-			      struct udevice **devp)
+int device_find_child_by_namelen(const struct udevice *parent, const char *name,
+				 int len, struct udevice **devp)
 {
 	struct udevice *dev;
 
 	*devp = NULL;
 
 	list_for_each_entry(dev, &parent->child_head, sibling_node) {
-		if (!strcmp(dev->name, name)) {
+		if (!strncmp(dev->name, name, len) &&
+		    strlen(dev->name) == len) {
 			*devp = dev;
 			return 0;
 		}
 	}
 
 	return -ENODEV;
+}
+
+int device_find_child_by_name(const struct udevice *parent, const char *name,
+			      struct udevice **devp)
+{
+	return device_find_child_by_namelen(parent, name, strlen(name), devp);
 }
 
 int device_first_child_err(struct udevice *parent, struct udevice **devp)

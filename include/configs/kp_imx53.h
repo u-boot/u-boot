@@ -10,8 +10,6 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_FSL_CLK
-
 /* USB Configs */
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
@@ -55,8 +53,6 @@
 	       "run loadusb; " \
 	       "bootm ${loadaddr}#${fit_config}\0" \
 	BOOTENV
-
-#define CONFIG_BOOTCOMMAND		"run usbupd; run distro_bootcmd"
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \

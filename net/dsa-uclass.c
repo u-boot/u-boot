@@ -44,6 +44,26 @@ int dsa_set_tagging(struct udevice *dev, ushort headroom, ushort tailroom)
 	return 0;
 }
 
+ofnode dsa_port_get_ofnode(struct udevice *dev, int port)
+{
+	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
+	struct dsa_port_pdata *port_pdata;
+	struct udevice *pdev;
+
+	if (port == pdata->cpu_port)
+		return pdata->cpu_port_node;
+
+	for (device_find_first_child(dev, &pdev);
+	     pdev;
+	     device_find_next_child(&pdev)) {
+		port_pdata = dev_get_parent_plat(pdev);
+		if (port_pdata->index == port)
+			return dev_ofnode(pdev);
+	}
+
+	return ofnode_null();
+}
+
 /* returns the DSA master Ethernet device */
 struct udevice *dsa_get_master(struct udevice *dev)
 {
@@ -250,7 +270,7 @@ static void dsa_port_set_hwaddr(struct udevice *pdev, struct udevice *master)
 		struct eth_ops *eth_ops = eth_get_ops(master);
 
 		if (eth_ops->set_promisc)
-			eth_ops->set_promisc(master, 1);
+			eth_ops->set_promisc(master, true);
 
 		return;
 	}
@@ -446,6 +466,8 @@ static int dsa_pre_probe(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct dsa_priv *priv = dev_get_uclass_priv(dev);
+	struct dsa_ops *ops = dsa_get_ops(dev);
+	int err;
 
 	priv->num_ports = pdata->num_ports;
 	priv->cpu_port = pdata->cpu_port;
@@ -457,6 +479,15 @@ static int dsa_pre_probe(struct udevice *dev)
 
 	uclass_find_device_by_ofnode(UCLASS_ETH, pdata->master_node,
 				     &priv->master_dev);
+
+	/* Simulate a probing event for the CPU port */
+	if (ops->port_probe) {
+		err = ops->port_probe(dev, priv->cpu_port,
+				      priv->cpu_port_fixed_phy);
+		if (err)
+			return err;
+	}
+
 	return 0;
 }
 

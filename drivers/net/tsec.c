@@ -156,6 +156,19 @@ static int tsec_mcast_addr(struct udevice *dev, const u8 *mcast_mac, int join)
 	return 0;
 }
 
+static int __maybe_unused tsec_set_promisc(struct udevice *dev, bool enable)
+{
+	struct tsec_private *priv = dev_get_priv(dev);
+	struct tsec __iomem *regs = priv->regs;
+
+	if (enable)
+		setbits_be32(&regs->rctrl, RCTRL_PROM);
+	else
+		clrbits_be32(&regs->rctrl, RCTRL_PROM);
+
+	return 0;
+}
+
 /*
  * Initialized required registers to appropriate values, zeroing
  * those we don't care about (unless zero is bad, in which case,
@@ -185,8 +198,6 @@ static void init_registers(struct tsec __iomem *regs)
 	out_be32(&regs->hash.gaddr5, 0);
 	out_be32(&regs->hash.gaddr6, 0);
 	out_be32(&regs->hash.gaddr7, 0);
-
-	out_be32(&regs->rctrl, 0x00000000);
 
 	/* Init RMON mib registers */
 	memset((void *)&regs->rmon, 0, sizeof(regs->rmon));
@@ -432,7 +443,7 @@ static void tsec_halt(struct udevice *dev)
  * of the eTSEC port initialization sequence,
  * the eTSEC Rx logic may not be properly initialized.
  */
-void redundant_init(struct tsec_private *priv)
+static void redundant_init(struct tsec_private *priv)
 {
 	struct tsec __iomem *regs = priv->regs;
 	uint t, count = 0;
@@ -454,7 +465,7 @@ void redundant_init(struct tsec_private *priv)
 		0x71, 0x72};
 
 	/* Enable promiscuous mode */
-	setbits_be32(&regs->rctrl, 0x8);
+	setbits_be32(&regs->rctrl, RCTRL_PROM);
 	/* Enable loopback mode */
 	setbits_be32(&regs->maccfg1, MACCFG1_LOOPBACK);
 	/* Enable transmit and receive */
@@ -506,7 +517,7 @@ void redundant_init(struct tsec_private *priv)
 	if (fail)
 		panic("eTSEC init fail!\n");
 	/* Disable promiscuous mode */
-	clrbits_be32(&regs->rctrl, 0x8);
+	clrbits_be32(&regs->rctrl, RCTRL_PROM);
 	/* Disable loopback mode */
 	clrbits_be32(&regs->maccfg1, MACCFG1_LOOPBACK);
 }
@@ -932,6 +943,7 @@ static const struct eth_ops tsec_ops = {
 	.free_pkt = tsec_free_pkt,
 	.stop = tsec_halt,
 	.mcast = tsec_mcast_addr,
+	.set_promisc = tsec_set_promisc,
 };
 
 static struct tsec_data etsec2_data = {

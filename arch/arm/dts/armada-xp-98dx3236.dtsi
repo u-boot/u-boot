@@ -85,6 +85,7 @@
 				marvell,pcie-port = <0>;
 				marvell,pcie-lane = <0>;
 				clocks = <&gateclk 5>;
+				resets = <&systemc 0 0>;
 				status = "disabled";
 			};
 		};
@@ -136,6 +137,7 @@
 			systemc: system-controller@18200 {
 				compatible = "marvell,armada-370-xp-system-controller";
 				reg = <0x18200 0x500>;
+				#reset-cells = <2>;
 			};
 
 			gateclk: clock-gating-control@18220 {

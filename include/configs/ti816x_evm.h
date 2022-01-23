@@ -17,11 +17,6 @@
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 
-#define CONFIG_BOOTCOMMAND			\
-	"mmc rescan;"				\
-	"fatload mmc 0 ${loadaddr} uImage;"	\
-	"bootm ${loadaddr}"			\
-
 /* Clock Defines */
 #define V_OSCK          24000000    /* Clock output from T2 */
 #define V_SCLK          (V_OSCK >> 1)
@@ -32,7 +27,6 @@
 /**
  * Platform/Board specific defs
  */
-#define CONFIG_SYS_CLK_FREQ     27000000
 #define CONFIG_SYS_TIMERBASE    0x4802E000
 #define CONFIG_SYS_PTV          2   /* Divisor: 2^(PTV+1) => 8 */
 

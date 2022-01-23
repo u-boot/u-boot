@@ -42,11 +42,6 @@
  * VIDEO_TSTC_FCT	      - keyboard_tstc function
  * VIDEO_GETC_FCT	      - keyboard_getc function
  *
- * CONFIG_VIDEO_LOGO	      - display Linux Logo in upper left corner.
- *				Use CONFIG_SPLASH_SCREEN_ALIGN with
- *				environment variable "splashpos" to place
- *				the logo on other position. In this case
- *				no CONSOLE_EXTRA_INFO is possible.
  * CONFIG_VIDEO_BMP_LOGO      - use bmp_logo instead of linux_logo
  * CONFIG_CONSOLE_EXTRA_INFO  - display additional board information
  *				strings that normaly goes to serial
@@ -127,34 +122,6 @@ void console_cursor(int state);
 #define CURSOR_SET video_set_cursor()
 #endif /* CONFIG_VIDEO_SW_CURSOR */
 
-#ifdef	CONFIG_VIDEO_LOGO
-#ifdef	CONFIG_VIDEO_BMP_LOGO
-#include <bmp_logo.h>
-#include <bmp_logo_data.h>
-#define VIDEO_LOGO_WIDTH	BMP_LOGO_WIDTH
-#define VIDEO_LOGO_HEIGHT	BMP_LOGO_HEIGHT
-#define VIDEO_LOGO_LUT_OFFSET	BMP_LOGO_OFFSET
-#define VIDEO_LOGO_COLORS	BMP_LOGO_COLORS
-
-#else  /* CONFIG_VIDEO_BMP_LOGO */
-#define LINUX_LOGO_WIDTH	80
-#define LINUX_LOGO_HEIGHT	80
-#define LINUX_LOGO_COLORS	214
-#define LINUX_LOGO_LUT_OFFSET	0x20
-#define __initdata
-#include <linux_logo.h>
-#define VIDEO_LOGO_WIDTH	LINUX_LOGO_WIDTH
-#define VIDEO_LOGO_HEIGHT	LINUX_LOGO_HEIGHT
-#define VIDEO_LOGO_LUT_OFFSET	LINUX_LOGO_LUT_OFFSET
-#define VIDEO_LOGO_COLORS	LINUX_LOGO_COLORS
-#endif /* CONFIG_VIDEO_BMP_LOGO */
-#define VIDEO_INFO_X		(VIDEO_LOGO_WIDTH)
-#define VIDEO_INFO_Y		(VIDEO_FONT_HEIGHT/2)
-#else  /* CONFIG_VIDEO_LOGO */
-#define VIDEO_LOGO_WIDTH	0
-#define VIDEO_LOGO_HEIGHT	0
-#endif /* CONFIG_VIDEO_LOGO */
-
 #define VIDEO_COLS		VIDEO_VISIBLE_COLS
 #define VIDEO_ROWS		VIDEO_VISIBLE_ROWS
 #ifndef VIDEO_LINE_LEN
@@ -163,11 +130,7 @@ void console_cursor(int state);
 #define VIDEO_SIZE		(VIDEO_ROWS * VIDEO_LINE_LEN)
 #define VIDEO_BURST_LEN		(VIDEO_COLS/8)
 
-#ifdef	CONFIG_VIDEO_LOGO
-#define CONSOLE_ROWS		((VIDEO_ROWS - video_logo_height) / VIDEO_FONT_HEIGHT)
-#else
 #define CONSOLE_ROWS		(VIDEO_ROWS / VIDEO_FONT_HEIGHT)
-#endif
 
 #define CONSOLE_COLS		(VIDEO_COLS / VIDEO_FONT_WIDTH)
 #define CONSOLE_ROW_SIZE	(VIDEO_FONT_HEIGHT * VIDEO_LINE_LEN)
@@ -214,7 +177,7 @@ static GraphicDevice *pGD;	/* Pointer to Graphic array */
 static void *video_fb_address;	/* frame buffer address */
 static void *video_console_address;	/* console buffer start address */
 
-static int video_logo_height = VIDEO_LOGO_HEIGHT;
+static int video_logo_height;		/* not supported anymore */
 
 static int __maybe_unused cursor_state;
 static int __maybe_unused old_col;
@@ -1667,292 +1630,6 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	if (cfb_do_flush_cache)
 		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 	return (0);
-}
-#endif
-
-
-#ifdef CONFIG_VIDEO_LOGO
-static int video_logo_xpos;
-static int video_logo_ypos;
-
-static void plot_logo_or_black(void *screen, int x, int y, int black);
-
-static void logo_plot(void *screen, int x, int y)
-{
-	plot_logo_or_black(screen, x, y, 0);
-}
-
-static void logo_black(void)
-{
-	plot_logo_or_black(video_fb_address, video_logo_xpos, video_logo_ypos,
-			1);
-}
-
-static int do_clrlogo(struct cmd_tbl *cmdtp, int flag, int argc,
-		      char *const argv[])
-{
-	if (argc != 1)
-		return cmd_usage(cmdtp);
-
-	logo_black();
-	return 0;
-}
-
-U_BOOT_CMD(
-	   clrlogo, 1, 0, do_clrlogo,
-	   "fill the boot logo area with black",
-	   " "
-	   );
-
-static void plot_logo_or_black(void *screen, int x, int y, int black)
-{
-
-	int xcount, i;
-	int skip = VIDEO_LINE_LEN - VIDEO_LOGO_WIDTH * VIDEO_PIXEL_SIZE;
-	int ycount = video_logo_height;
-	unsigned char r, g, b, *logo_red, *logo_blue, *logo_green;
-	unsigned char *source;
-	unsigned char *dest;
-
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-	if (x == BMP_ALIGN_CENTER)
-		x = max(0, (int)(VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH) / 2);
-	else if (x < 0)
-		x = max(0, (int)(VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH + x + 1));
-
-	if (y == BMP_ALIGN_CENTER)
-		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT) / 2);
-	else if (y < 0)
-		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT + y + 1));
-#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
-
-	dest = (unsigned char *)screen + y * VIDEO_LINE_LEN + x * VIDEO_PIXEL_SIZE;
-
-#ifdef CONFIG_VIDEO_BMP_LOGO
-	source = bmp_logo_bitmap;
-
-	/* Allocate temporary space for computing colormap */
-	logo_red = malloc(BMP_LOGO_COLORS);
-	logo_green = malloc(BMP_LOGO_COLORS);
-	logo_blue = malloc(BMP_LOGO_COLORS);
-	/* Compute color map */
-	for (i = 0; i < VIDEO_LOGO_COLORS; i++) {
-		logo_red[i] = (bmp_logo_palette[i] & 0x0f00) >> 4;
-		logo_green[i] = (bmp_logo_palette[i] & 0x00f0);
-		logo_blue[i] = (bmp_logo_palette[i] & 0x000f) << 4;
-	}
-#else
-	source = linux_logo;
-	logo_red = linux_logo_red;
-	logo_green = linux_logo_green;
-	logo_blue = linux_logo_blue;
-#endif
-
-	if (VIDEO_DATA_FORMAT == GDF__8BIT_INDEX) {
-		for (i = 0; i < VIDEO_LOGO_COLORS; i++) {
-			video_set_lut(i + VIDEO_LOGO_LUT_OFFSET,
-				      logo_red[i], logo_green[i],
-				      logo_blue[i]);
-		}
-	}
-
-	while (ycount--) {
-#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
-		int xpos = x;
-#endif
-		xcount = VIDEO_LOGO_WIDTH;
-		while (xcount--) {
-			if (black) {
-				r = 0x00;
-				g = 0x00;
-				b = 0x00;
-			} else {
-				r = logo_red[*source - VIDEO_LOGO_LUT_OFFSET];
-				g = logo_green[*source - VIDEO_LOGO_LUT_OFFSET];
-				b = logo_blue[*source - VIDEO_LOGO_LUT_OFFSET];
-			}
-
-			switch (VIDEO_DATA_FORMAT) {
-			case GDF__8BIT_INDEX:
-				*dest = *source;
-				break;
-			case GDF__8BIT_332RGB:
-				*dest = ((r >> 5) << 5) |
-					((g >> 5) << 2) |
-					 (b >> 6);
-				break;
-			case GDF_15BIT_555RGB:
-#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
-				fill_555rgb_pswap(dest, xpos++, r, g, b);
-#else
-				*(unsigned short *) dest =
-					SWAP16((unsigned short) (
-							((r >> 3) << 10) |
-							((g >> 3) <<  5) |
-							 (b >> 3)));
-#endif
-				break;
-			case GDF_16BIT_565RGB:
-				*(unsigned short *) dest =
-					SWAP16((unsigned short) (
-							((r >> 3) << 11) |
-							((g >> 2) <<  5) |
-							 (b >> 3)));
-				break;
-			case GDF_32BIT_X888RGB:
-				*(u32 *) dest =
-					SWAP32((u32) (
-							(r << 16) |
-							(g <<  8) |
-							 b));
-				break;
-			case GDF_24BIT_888RGB:
-#ifdef VIDEO_FB_LITTLE_ENDIAN
-				dest[0] = b;
-				dest[1] = g;
-				dest[2] = r;
-#else
-				dest[0] = r;
-				dest[1] = g;
-				dest[2] = b;
-#endif
-				break;
-			}
-			source++;
-			dest += VIDEO_PIXEL_SIZE;
-		}
-		dest += skip;
-	}
-#ifdef CONFIG_VIDEO_BMP_LOGO
-	free(logo_red);
-	free(logo_green);
-	free(logo_blue);
-#endif
-}
-
-static void *video_logo(void)
-{
-	char info[128];
-	__maybe_unused int y_off = 0;
-	__maybe_unused ulong addr;
-	__maybe_unused char *s;
-	__maybe_unused int len, ret, space;
-
-	splash_get_pos(&video_logo_xpos, &video_logo_ypos);
-
-#ifdef CONFIG_SPLASH_SCREEN
-	s = env_get("splashimage");
-	if (s != NULL) {
-		ret = splash_screen_prepare();
-		if (ret < 0)
-			return video_fb_address;
-		addr = hextoul(s, NULL);
-
-		if (video_display_bitmap(addr,
-					video_logo_xpos,
-					video_logo_ypos) == 0) {
-			video_logo_height = 0;
-			return ((void *) (video_fb_address));
-		}
-	}
-#endif /* CONFIG_SPLASH_SCREEN */
-
-	logo_plot(video_fb_address, video_logo_xpos, video_logo_ypos);
-
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-	/*
-	 * when using splashpos for video_logo, skip any info
-	 * output on video console if the logo is not at 0,0
-	 */
-	if (video_logo_xpos || video_logo_ypos) {
-		/*
-		 * video_logo_height is used in text and cursor offset
-		 * calculations. Since the console is below the logo,
-		 * we need to adjust the logo height
-		 */
-		if (video_logo_ypos == BMP_ALIGN_CENTER)
-			video_logo_height += max(0, (int)(VIDEO_VISIBLE_ROWS -
-						     VIDEO_LOGO_HEIGHT) / 2);
-		else if (video_logo_ypos > 0)
-			video_logo_height += video_logo_ypos;
-
-		return video_fb_address + video_logo_height * VIDEO_LINE_LEN;
-	}
-#endif
-	if (board_cfb_skip())
-		return 0;
-
-	sprintf(info, " %s", version_string);
-
-#ifndef CONFIG_HIDE_LOGO_VERSION
-	space = (VIDEO_COLS - VIDEO_INFO_X) / VIDEO_FONT_WIDTH;
-	len = strlen(info);
-
-	if (len > space) {
-		int xx = VIDEO_INFO_X, yy = VIDEO_INFO_Y;
-		uchar *p = (uchar *) info;
-
-		while (len) {
-			if (len > space) {
-				video_drawchars(xx, yy, p, space);
-				len -= space;
-
-				p = (uchar *)p + space;
-
-				if (!y_off) {
-					xx += VIDEO_FONT_WIDTH;
-					space--;
-				}
-				yy += VIDEO_FONT_HEIGHT;
-
-				y_off++;
-			} else {
-				video_drawchars(xx, yy, p, len);
-				len = 0;
-			}
-		}
-	} else
-		video_drawstring(VIDEO_INFO_X, VIDEO_INFO_Y, (uchar *) info);
-
-#ifdef CONFIG_CONSOLE_EXTRA_INFO
-	{
-		int i, n =
-			((video_logo_height -
-			  VIDEO_FONT_HEIGHT) / VIDEO_FONT_HEIGHT);
-
-		for (i = 1; i < n; i++) {
-			video_get_info_str(i, info);
-			if (!*info)
-				continue;
-
-			len = strlen(info);
-			if (len > space) {
-				video_drawchars(VIDEO_INFO_X,
-						VIDEO_INFO_Y +
-						(i + y_off) *
-							VIDEO_FONT_HEIGHT,
-						(uchar *) info, space);
-				y_off++;
-				video_drawchars(VIDEO_INFO_X +
-						VIDEO_FONT_WIDTH,
-						VIDEO_INFO_Y +
-							(i + y_off) *
-							VIDEO_FONT_HEIGHT,
-						(uchar *) info + space,
-						len - space);
-			} else {
-				video_drawstring(VIDEO_INFO_X,
-						 VIDEO_INFO_Y +
-						 (i + y_off) *
-							VIDEO_FONT_HEIGHT,
-						 (uchar *) info);
-			}
-		}
-	}
-#endif
-#endif
-
-	return (video_fb_address + video_logo_height * VIDEO_LINE_LEN);
 }
 #endif
 

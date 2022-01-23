@@ -175,7 +175,9 @@ u_boot_dtsi_options_raw = $(warning Automatic .dtsi inclusion: options: \
 
 # Uncomment for debugging
 # This shows all the files that were considered and the one that we chose.
-# u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
+ifdef DEVICE_TREE_DEBUG
+u_boot_dtsi_options_debug = $(warning $(u_boot_dtsi_options_raw))
+endif
 
 # We use the first match
 u_boot_dtsi = $(strip $(u_boot_dtsi_options_debug) \
@@ -371,6 +373,27 @@ cmd_S_ttf=						\
 
 $(obj)/%.S: $(src)/%.ttf
 	$(call cmd,S_ttf)
+
+# Splash logos
+# ---------------------------------------------------------------------------
+
+# Generate an assembly file to wrap the splash data
+quiet_cmd_S_splash= TTF     $@
+# Modified for U-Boot
+cmd_S_splash=						\
+(							\
+	echo '.section .rodata.splash.init,"a"';		\
+	echo '.balign 16';				\
+	echo '.global __splash_$(*F)_begin';		\
+	echo '__splash_$(*F)_begin:';			\
+	echo '.incbin "$<" ';				\
+	echo '__splash_$(*F)_end:';			\
+	echo '.global __splash_$(*F)_end';			\
+	echo '.balign 16';				\
+) > $@
+
+$(obj)/%.S: $(src)/%.bmp
+	$(call cmd,S_splash)
 
 # EFI applications
 # A Makefile target *.efi is built as EFI application.

@@ -32,8 +32,6 @@
 
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
 
-#define CONFIG_SYS_PCI_64BIT		1	/* enable 64-bit resources */
-
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	4
 
 /* Environment options */
@@ -72,10 +70,6 @@
 	"partitions=" PARTS_DEFAULT "\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	BOOTENV
-
-#define CONFIG_PREBOOT \
-	"setenv fdt_addr ${fdtcontroladdr};" \
-	"fdt addr ${fdtcontroladdr};"
 #endif /* CONFIG_SPL_BUILD */
 
 #define CONFIG_SYS_EEPROM_BUS_NUM		0

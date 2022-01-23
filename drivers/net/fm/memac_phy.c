@@ -64,7 +64,7 @@ static int memac_wait_until_done(struct memac_mdio_controller *regs)
 {
 	unsigned int timeout = MAX_NUM_RETRIES;
 
-	while ((memac_in_32(&regs->mdio_data) & MDIO_DATA_BSY) && timeout--)
+	while ((memac_in_32(&regs->mdio_stat) & MDIO_STAT_BSY) && timeout--)
 		;
 
 	if (!timeout) {

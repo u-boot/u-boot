@@ -9,7 +9,6 @@
 #define __CONFIG_H
 
 /* System configurations */
-#define CONFIG_KEYBOARD
 
 #include "mx6_common.h"
 
@@ -87,7 +86,6 @@
 #endif
 
 /* Video output */
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 

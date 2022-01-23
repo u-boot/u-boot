@@ -8,6 +8,7 @@
 #include <common.h>
 #include <efi_dt_fixup.h>
 #include <efi_loader.h>
+#include <efi_rng.h>
 #include <fdtdec.h>
 #include <mapmem.h>
 
@@ -38,6 +39,38 @@ static void efi_reserve_memory(u64 addr, u64 size, bool nomap)
 	if (ret != EFI_SUCCESS)
 		log_err("Reserved memory mapping failed addr %llx size %llx\n",
 			addr, size);
+}
+
+/**
+ * efi_try_purge_kaslr_seed() - Remove unused kaslr-seed
+ *
+ * Kernel's EFI STUB only relies on EFI_RNG_PROTOCOL for randomization
+ * and completely ignores the kaslr-seed for its own randomness needs
+ * (i.e the randomization of the physical placement of the kernel).
+ * Weed it out from the DTB we hand over, which would mess up our DTB
+ * TPM measurements as well.
+ *
+ * @fdt: Pointer to device tree
+ */
+void efi_try_purge_kaslr_seed(void *fdt)
+{
+	const efi_guid_t efi_guid_rng_protocol = EFI_RNG_PROTOCOL_GUID;
+	struct efi_handler *handler;
+	efi_status_t ret;
+	int nodeoff = 0;
+	int err = 0;
+
+	ret = efi_search_protocol(efi_root, &efi_guid_rng_protocol, &handler);
+	if (ret != EFI_SUCCESS)
+		return;
+
+	nodeoff = fdt_path_offset(fdt, "/chosen");
+	if (nodeoff < 0)
+		return;
+
+	err = fdt_delprop(fdt, nodeoff, "kaslr-seed");
+	if (err < 0 && err != -FDT_ERR_NOTFOUND)
+		log_err("Error deleting kaslr-seed\n");
 }
 
 /**

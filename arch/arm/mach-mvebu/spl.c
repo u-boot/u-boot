@@ -5,7 +5,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <debug_uart.h>
 #include <fdtdec.h>
 #include <hang.h>
 #include <image.h>
@@ -250,18 +249,6 @@ void board_init_f(ulong dummy)
 	 */
 	board_early_init_f();
 
-	/* Example code showing how to enable the debug UART on MVEBU */
-#ifdef EARLY_UART
-	/*
-	 * Debug UART can be used from here if required:
-	 *
-	 * debug_uart_init();
-	 * printch('a');
-	 * printhex8(0x1234);
-	 * printascii("string");
-	 */
-#endif
-
 	/*
 	 * Use special translation offset for SPL. This needs to be
 	 * configured *before* spl_init() is called as this function
@@ -273,7 +260,7 @@ void board_init_f(ulong dummy)
 
 	ret = spl_init();
 	if (ret) {
-		debug("spl_init() failed: %d\n", ret);
+		printf("spl_init() failed: %d\n", ret);
 		hang();
 	}
 
@@ -289,7 +276,7 @@ void board_init_f(ulong dummy)
 	/* Setup DDR */
 	ret = ddr3_init();
 	if (ret) {
-		debug("ddr3_init() failed: %d\n", ret);
+		printf("ddr3_init() failed: %d\n", ret);
 		hang();
 	}
 #endif

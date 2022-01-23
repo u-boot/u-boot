@@ -244,6 +244,10 @@ struct global_data {
 	 * @fdt_size: space reserved for relocated device space
 	 */
 	unsigned long fdt_size;
+	/**
+	 * @fdt_src: Source of FDT
+	 */
+	enum fdt_source_t fdt_src;
 #if CONFIG_IS_ENABLED(OF_LIVE)
 	/**
 	 * @of_root: root node of the live tree
@@ -510,6 +514,14 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_acpi_ctx()		gd->acpi_ctx
 #else
 #define gd_acpi_ctx()		NULL
+#endif
+
+#if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
+#define gd_multi_dtb_fit()	gd->multi_dtb_fit
+#define gd_set_multi_dtb_fit(_dtb)	gd->multi_dtb_fit = _dtb
+#else
+#define gd_multi_dtb_fit()	NULL
+#define gd_set_multi_dtb_fit(_dtb)
 #endif
 
 /**

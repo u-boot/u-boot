@@ -361,12 +361,18 @@ static u32 ddr3_init_main(void)
 	__maybe_unused u32 ddr_width = BUS_WIDTH;
 	__maybe_unused int status;
 	__maybe_unused u32 win_backup[16];
+	__maybe_unused struct udevice *udev;
+	__maybe_unused int ret;
 
 	/* SoC/Board special Initializtions */
 	fab_opt = ddr3_get_fab_opt();
 
 #ifdef CONFIG_SPD_EEPROM
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	ret = i2c_get_chip_for_busnum(0, BUS_WIDTH_ECC_TWSI_ADDR, 1, &udev);
+	if (ret) {
+		printf("Cannot find SPD EEPROM\n");
+		return MV_DDR3_TRAINING_ERR_BAD_DIMM_SETUP;
+	}
 #endif
 
 	ddr3_print_version();
@@ -438,7 +444,7 @@ static u32 ddr3_init_main(void)
 
 #if defined(ECC_SUPPORT) && defined(AUTO_DETECTION_SUPPORT)
 	ecc = 0;
-	if (ddr3_check_config(BUS_WIDTH_ECC_TWSI_ADDR, CONFIG_ECC))
+	if (ddr3_check_config(udev, CONFIG_ECC))
 		ecc = 1;
 #endif
 
@@ -483,7 +489,7 @@ static u32 ddr3_init_main(void)
 	 * Dynamically Set 32Bit and ECC for AXP (Relevant only for
 	 * Marvell DB boards)
 	 */
-	if (ddr3_check_config(BUS_WIDTH_ECC_TWSI_ADDR, CONFIG_BUS_WIDTH)) {
+	if (ddr3_check_config(udev, CONFIG_BUS_WIDTH)) {
 		ddr_width = 32;
 		DEBUG_INIT_S("DDR3 Training Sequence - DRAM bus width 32Bit\n");
 	}
@@ -904,7 +910,7 @@ void ddr3_static_mc_init(void)
  * Notes:    Only Available for ArmadaXP/Armada 370 DB boards
  * Returns:  None.
  */
-int ddr3_check_config(u32 twsi_addr, MV_CONFIG_TYPE config_type)
+int ddr3_check_config(struct udevice *udev, MV_CONFIG_TYPE config_type)
 {
 #ifdef AUTO_DETECTION_SUPPORT
 	u8 data = 0;
@@ -916,7 +922,7 @@ int ddr3_check_config(u32 twsi_addr, MV_CONFIG_TYPE config_type)
 	else
 		offset = 0;
 
-	ret = i2c_read(twsi_addr, offset, 1, (u8 *)&data, 1);
+	ret = dm_i2c_read(udev, offset, &data, 1);
 	if (!ret) {
 		switch (config_type) {
 		case CONFIG_ECC:
@@ -942,30 +948,6 @@ int ddr3_check_config(u32 twsi_addr, MV_CONFIG_TYPE config_type)
 
 	return 0;
 }
-
-#if defined(DB_88F78X60_REV2)
-/*
- * Name:     ddr3_get_eprom_fabric - Get Fabric configuration from EPROM
- * Desc:
- * Args:     twsi Address
- * Notes:    Only Available for ArmadaXP DB Rev2 boards
- * Returns:  None.
- */
-u8 ddr3_get_eprom_fabric(void)
-{
-#ifdef AUTO_DETECTION_SUPPORT
-	u8 data = 0;
-	int ret;
-
-	ret = i2c_read(NEW_FABRIC_TWSI_ADDR, 1, 1, (u8 *)&data, 1);
-	if (!ret)
-		return data & 0x1F;
-#endif
-
-	return 0;
-}
-
-#endif
 
 /*
  * Name:     ddr3_cl_to_valid_cl - this return register matching CL value

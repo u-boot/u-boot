@@ -4,13 +4,17 @@ menu "SuperH architecture"
 config CPU_SH4
 	bool
 
+config CPU_SH7751
+	bool
+	select CPU_SH4
+
 choice
 	prompt "Target select"
 	optional
 
 config TARGET_R2DPLUS
 	bool "Renesas R2D-PLUS"
-	select CPU_SH4
+	select CPU_SH7751
 
 endchoice
 

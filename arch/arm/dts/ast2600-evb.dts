@@ -177,3 +177,13 @@
 			  0x08 0x04
 			  0x08 0x04>;
 };
+
+&hace {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&acry {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};

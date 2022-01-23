@@ -78,18 +78,6 @@
 		"load mmc 1 ${fdtaddr} ${fdtfile} && " \
 		"bootz ${loadaddr} - ${fdtaddr}\0"
 
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev 0; " \
-	"if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"fi; " \
-	"fi; " \
-	"mmc dev 1; " \
-	"if mmc rescan; then " \
-		"run emmcboot; " \
-	"fi;"
-
 /* SPL defines. */
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + (128 << 20))
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)

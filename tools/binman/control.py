@@ -200,8 +200,24 @@ def ReadEntry(image_fname, entry_path, decomp=True):
     return entry.ReadData(decomp)
 
 
+def ShowAltFormats(image):
+    """Show alternative formats available for entries in the image
+
+    This shows a list of formats available.
+
+    Args:
+        image (Image): Image to check
+    """
+    alt_formats = {}
+    image.CheckAltFormats(alt_formats)
+    print('%-10s  %-20s  %s' % ('Flag (-F)', 'Entry type', 'Description'))
+    for name, val in alt_formats.items():
+        entry, helptext = val
+        print('%-10s  %-20s  %s' % (name, entry.etype, helptext))
+
+
 def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
-                   decomp=True):
+                   decomp=True, alt_format=None):
     """Extract the data from one or more entries and write it to files
 
     Args:
@@ -217,6 +233,10 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
     """
     image = Image.FromFile(image_fname)
 
+    if alt_format == 'list':
+        ShowAltFormats(image)
+        return
+
     # Output an entry to a single file, as a special case
     if output_fname:
         if not entry_paths:
@@ -224,7 +244,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
         if len(entry_paths) != 1:
             raise ValueError('Must specify exactly one entry path to write with -f')
         entry = image.FindEntryPath(entry_paths[0])
-        data = entry.ReadData(decomp)
+        data = entry.ReadData(decomp, alt_format)
         tools.WriteFile(output_fname, data)
         tout.Notice("Wrote %#x bytes to file '%s'" % (len(data), output_fname))
         return
@@ -236,7 +256,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
     tout.Notice('%d entries match and will be written' % len(einfos))
     for einfo in einfos:
         entry = einfo.entry
-        data = entry.ReadData(decomp)
+        data = entry.ReadData(decomp, alt_format)
         path = entry.GetPath()[1:]
         fname = os.path.join(outdir, path)
 
@@ -355,6 +375,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
     Returns:
         List of EntryInfo records that were written
     """
+    image_fname = os.path.abspath(image_fname)
     image = Image.FromFile(image_fname)
 
     # Replace an entry from a single file, as a special case
@@ -479,7 +500,8 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
 
 
 def ProcessImage(image, update_fdt, write_map, get_contents=True,
-                 allow_resize=True, allow_missing=False):
+                 allow_resize=True, allow_missing=False,
+                 allow_fake_blobs=False):
     """Perform all steps for this image, including checking and # writing it.
 
     This means that errors found with a later image will be reported after
@@ -495,12 +517,15 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
         allow_resize: True to allow entries to change size (this does a re-pack
             of the entries), False to raise an exception
         allow_missing: Allow blob_ext objects to be missing
+        allow_fake_blobs: Allow blob_ext objects to be faked with dummy files
 
     Returns:
-        True if one or more external blobs are missing, False if all are present
+        True if one or more external blobs are missing or faked,
+        False if all are present
     """
     if get_contents:
         image.SetAllowMissing(allow_missing)
+        image.SetAllowFakeBlob(allow_fake_blobs)
         image.GetEntryContents()
     image.GetEntryOffsets()
 
@@ -549,7 +574,15 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
         tout.Warning("Image '%s' is missing external blobs and is non-functional: %s" %
                      (image.name, ' '.join([e.name for e in missing_list])))
         _ShowHelpForMissingBlobs(missing_list)
-    return bool(missing_list)
+    faked_list = []
+    image.CheckFakedBlobs(faked_list)
+    if faked_list:
+        tout.Warning(
+            "Image '%s:%s' has faked external blobs and is non-functional: %s" %
+            (image.name, image.image_name,
+             ' '.join([os.path.basename(e.GetDefaultFilename())
+                       for e in faked_list])))
+    return bool(missing_list) or bool(faked_list)
 
 
 def Binman(args):
@@ -583,7 +616,7 @@ def Binman(args):
 
             if args.cmd == 'extract':
                 ExtractEntries(args.image, args.filename, args.outdir, args.paths,
-                               not args.uncompressed)
+                               not args.uncompressed, args.format)
 
             if args.cmd == 'replace':
                 ReplaceEntries(args.image, args.filename, args.indir, args.paths,
@@ -636,13 +669,15 @@ def Binman(args):
 
             images = PrepareImagesAndDtbs(dtb_fname, args.image,
                                           args.update_fdt, use_expanded)
+
             if args.test_section_timeout:
                 # Set the first image to timeout, used in testThreadTimeout()
                 images[list(images.keys())[0]].test_section_timeout = True
-            missing = False
+            invalid = False
             for image in images.values():
-                missing |= ProcessImage(image, args.update_fdt, args.map,
-                                        allow_missing=args.allow_missing)
+                invalid |= ProcessImage(image, args.update_fdt, args.map,
+                                       allow_missing=args.allow_missing,
+                                       allow_fake_blobs=args.fake_ext_blobs)
 
             # Write the updated FDTs to our output files
             for dtb_item in state.GetAllFdts():
@@ -652,7 +687,7 @@ def Binman(args):
                 data = state.GetFdtForEtype('u-boot-dtb').GetContents()
                 elf.UpdateFile(*elf_params, data)
 
-            if missing:
+            if invalid:
                 tout.Warning("\nSome images are invalid")
 
             # Use this to debug the time take to pack the image

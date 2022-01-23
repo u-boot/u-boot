@@ -125,7 +125,6 @@ struct sun4i_usb_phy_info {
 
 struct sun4i_usb_phy_plat {
 	void __iomem *pmu;
-	int power_on_count;
 	int gpio_vbus;
 	int gpio_vbus_det;
 	int gpio_id_det;
@@ -225,10 +224,6 @@ static int sun4i_usb_phy_power_on(struct phy *phy)
 		initial_usb_scan_delay = 0;
 	}
 
-	usb_phy->power_on_count++;
-	if (usb_phy->power_on_count != 1)
-		return 0;
-
 	if (usb_phy->gpio_vbus >= 0)
 		gpio_set_value(usb_phy->gpio_vbus, SUNXI_GPIO_PULL_UP);
 
@@ -239,10 +234,6 @@ static int sun4i_usb_phy_power_off(struct phy *phy)
 {
 	struct sun4i_usb_phy_data *data = dev_get_priv(phy->dev);
 	struct sun4i_usb_phy_plat *usb_phy = &data->usb_phy[phy->id];
-
-	usb_phy->power_on_count--;
-	if (usb_phy->power_on_count != 0)
-		return 0;
 
 	if (usb_phy->gpio_vbus >= 0)
 		gpio_set_value(usb_phy->gpio_vbus, SUNXI_GPIO_PULL_DISABLE);

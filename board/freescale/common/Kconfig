@@ -28,36 +28,67 @@ config FSL_USE_PCA9547_MUX
 	 This option enables the PCA9547 I2C mux on Freescale boards.
 
 config VID
-	depends on DM_I2C
 	bool "Enable Freescale VID"
+	depends on I2C || DM_I2C
 	help
 	 This option enables setting core voltage based on individual
 	 values saved in SoC fuses.
 
+config SPL_VID
+	bool "Enable Freescale VID in SPL"
+	depends on I2C || DM_I2C
+	help
+	 This option enables setting core voltage based on individual
+	 values saved in SoC fuses, in SPL.
+
+if VID || SPL_VID
+
+config VID_FLS_ENV
+	string "Environment variable for overriding VDD"
+	help
+	  This option allows for specifying the environment variable
+	  to check to override VDD information.
+
+config VOL_MONITOR_INA220
+	bool "Enable the INA220 voltage monitor read"
+	help
+	  This option enables INA220 voltage monitor read
+	  functionality. It is used by the common VID driver.
+
+config VOL_MONITOR_IR36021_READ
+	bool "Enable the IR36021 voltage monitor read"
+	help
+	 This option enables IR36021 voltage monitor read
+	 functionality. It is used by the common VID driver.
+
+config VOL_MONITOR_IR36021_SET
+	bool "Enable the IR36021 voltage monitor set"
+	help
+	 This option enables IR36021 voltage monitor set
+	 functionality. It is used by the common VID driver.
+
 config VOL_MONITOR_LTC3882_READ
-	depends on VID
 	bool "Enable the LTC3882 voltage monitor read"
 	help
 	 This option enables LTC3882 voltage monitor read
 	 functionality. It is used by the common VID driver.
 
 config VOL_MONITOR_LTC3882_SET
-	depends on VID
 	bool "Enable the LTC3882 voltage monitor set"
 	help
 	 This option enables LTC3882 voltage monitor set
 	 functionality. It is used by the common VID driver.
 
 config VOL_MONITOR_ISL68233_READ
-	depends on VID
 	bool "Enable the ISL68233 voltage monitor read"
 	help
 	 This option enables ISL68233 voltage monitor read
 	 functionality. It is used by the common VID driver.
 
 config VOL_MONITOR_ISL68233_SET
-	depends on VID
 	bool "Enable the ISL68233 voltage monitor set"
 	help
 	 This option enables ISL68233 voltage monitor set
 	 functionality. It is used by the common VID driver.
+
+endif

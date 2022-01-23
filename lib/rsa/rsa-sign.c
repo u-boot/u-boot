@@ -3,6 +3,8 @@
  * Copyright (c) 2013, Google Inc.
  */
 
+#define OPENSSL_API_COMPAT 0x10101000L
+
 #include "mkimage.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -626,7 +628,7 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 	if (ret)
 		goto err_get_pub_key;
 
-	rsa = EVP_PKEY_get0_RSA(pkey);
+	rsa = (RSA *)EVP_PKEY_get0_RSA(pkey);
 	ret = rsa_get_params(rsa, &exponent, &n0_inv, &modulus, &r_squared);
 	if (ret)
 		goto err_get_params;

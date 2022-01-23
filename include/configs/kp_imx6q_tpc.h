@@ -82,8 +82,6 @@
 	       "bootm ${loadaddr}#${fit_config}\0" \
 	BOOTENV
 
-#define CONFIG_BOOTCOMMAND		"run usbupd; run distro_bootcmd"
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \

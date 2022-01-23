@@ -194,7 +194,7 @@ int bcm2711_notify_vl805_reset(void)
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN,
 				     &msg_notify_vl805_reset->hdr);
 	if (ret) {
-		printf("bcm2711: Faild to load vl805's firmware, %d\n", ret);
+		printf("bcm2711: Failed to load vl805's firmware, %d\n", ret);
 		return -EIO;
 	}
 

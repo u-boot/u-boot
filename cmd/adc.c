@@ -81,8 +81,8 @@ static int do_adc_single(struct cmd_tbl *cmdtp, int flag, int argc,
 	ret = adc_channel_single_shot(argv[1], simple_strtol(argv[2], NULL, 0),
 				      &data);
 	if (ret) {
-		printf("Error getting single shot for device %s channel %s\n",
-		       argv[1], argv[2]);
+		printf("Error getting single shot for device %s channel %s (ret=%d)\n",
+		       argv[1], argv[2], ret);
 		return CMD_RET_FAILURE;
 	}
 

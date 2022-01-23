@@ -545,12 +545,20 @@ static int davinci_gpio_of_to_plat(struct udevice *dev)
 {
 	struct davinci_gpio_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
+	char name[18], *str;
 
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	plat->base = addr;
+
+	sprintf(name, "gpio@%4x_", (unsigned int)plat->base);
+	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
+	plat->port_name = str;
+
 	return 0;
 }
 

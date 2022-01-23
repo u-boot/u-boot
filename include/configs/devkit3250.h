@@ -28,7 +28,6 @@
 /*
  * GPIO
  */
-#define CONFIG_LPC32XX_GPIO
 
 /*
  * Ethernet
@@ -83,14 +82,6 @@
 /*
  * Environment
  */
-
-#define CONFIG_BOOTCOMMAND			\
-	"dhcp; "				\
-	"tftp ${loadaddr} ${serverip}:${tftpdir}/${bootfile}; "		\
-	"tftp ${dtbaddr} ${serverip}:${tftpdir}/devkit3250.dtb; "	\
-	"setenv nfsargs ip=dhcp root=/dev/nfs nfsroot=${serverip}:${nfsroot},tcp; "	\
-	"setenv bootargs ${bootargs} ${nfsargs} ${userargs}; "			\
-	"bootm ${loadaddr} - ${dtbaddr}"
 
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"autoload=no\0"				\

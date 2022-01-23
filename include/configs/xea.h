@@ -29,10 +29,6 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(SZ_32K / 0x200)
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	(SZ_1M / 0x200)
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SPI_FLASH_MTD
-#endif
-
 /* Memory configuration */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */
 #define PHYS_SDRAM_1_SIZE		0x10000000	/* Max 256 MB RAM */
@@ -42,7 +38,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_BOOTCOMMAND	"run ${bootpri} ; run ${bootsec}"
 
 /* Extra Environment */
 #define CONFIG_HOSTNAME		"xea"

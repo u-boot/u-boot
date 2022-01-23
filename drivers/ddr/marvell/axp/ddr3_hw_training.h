@@ -373,7 +373,6 @@ int ddr3_load_dqs_patterns(MV_DRAM_INFO *dram_info);
 
 void ddr3_static_training_init(void);
 
-u8 ddr3_get_eprom_fabric(void);
 void ddr3_set_performance_params(MV_DRAM_INFO *dram_info);
 int ddr3_dram_sram_burst(u32 src, u32 dst, u32 len);
 void ddr3_save_training(MV_DRAM_INFO *dram_info);

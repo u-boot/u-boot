@@ -54,9 +54,6 @@
 #endif
 
 /* JFFS2 */
-#ifdef CONFIG_CMD_JFFS2
-#define CONFIG_JFFS2_NAND
-#endif
 
 /* Ethernet */
 #define CONFIG_NET_RETRY_COUNT		20
@@ -66,7 +63,6 @@
 
 /* MMC */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_GENERIC_ATMEL_MCI
 #define CONFIG_SYS_MMC_CD_PIN		AT91_PIO_PORTC, 8
 #endif
 
@@ -118,9 +114,6 @@
 /* File systems */
 
 /* Boot command */
-#define CONFIG_BOOTCOMMAND	"sf probe 0:0; " \
-				"sf read 0x22000000 0xc6000 0x294000; " \
-				"bootm 0x22000000"
 
 /* Misc. u-boot settings */
 

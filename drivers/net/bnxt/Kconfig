@@ -1,0 +1,7 @@
+config BNXT_ETH
+	bool "BNXT PCI support"
+	depends on DM_ETH
+	select PCI_INIT_R
+	help
+	  This driver implements support for bnxt pci controller
+	  driver of ethernet class.

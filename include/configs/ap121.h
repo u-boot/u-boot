@@ -20,10 +20,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE - 1)
 
-#define CONFIG_BOOTCOMMAND              "sf probe;" \
-					"mtdparts default;" \
-					"bootm 0x9f650000"
-
 /* Miscellaneous configurable options */
 
 /*

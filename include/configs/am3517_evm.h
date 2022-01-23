@@ -90,25 +90,6 @@
 		"nand read ${fdtaddr} aa0000 80000; " \
 		"bootm ${loadaddr} - ${fdtaddr}\0" \
 
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"echo SD/MMC found on device $mmcdev; " \
-		"if run loadbootenv; then " \
-			"run importbootenv; " \
-		"fi; " \
-		"echo Checking if uenvcmd is set ...; " \
-		"if test -n $uenvcmd; then " \
-			"echo Running uenvcmd ...; " \
-			"run uenvcmd; " \
-		"fi; " \
-		"echo Running default loadimage ...; " \
-		"setenv bootfile zImage; " \
-		"if run loadimage; then " \
-			"run loadfdt; " \
-			"run mmcboot; " \
-		"fi; " \
-	"else run nandboot; fi"
-
 /* Miscellaneous configurable options */
 
 /* We set the max number of command args high to avoid HUSH bugs. */

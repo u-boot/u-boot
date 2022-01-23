@@ -45,9 +45,9 @@ struct scmi_msg {
 	}
 
 /**
- * scmi_send_and_process_msg() - send and process a SCMI message
+ * devm_scmi_process_msg() - Send and process an SCMI message
  *
- * Send a message to a SCMI server through a target SCMI agent device.
+ * Send a message to an SCMI server through a target SCMI agent device.
  * Caller sets scmi_msg::out_msg_sz to the output message buffer size.
  * On return, scmi_msg::out_msg_sz stores the response payload size.
  *

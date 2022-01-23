@@ -181,11 +181,6 @@ unsigned long get_serial_clock(unsigned long dummy)
 	return (gd->bus_clk / 2);
 }
 
-unsigned long get_board_sys_clk(unsigned long dummy)
-{
-	return 66666666;
-}
-
 int misc_init_f(void)
 {
 	/* configure QRIO pis for i2c deblocking */

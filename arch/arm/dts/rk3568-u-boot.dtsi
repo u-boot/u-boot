@@ -9,6 +9,10 @@
 		mmc1 = &sdmmc0;
 	};
 
+	chosen {
+		u-boot,spl-boot-order = &sdhci, &sdmmc0;
+	};
+
 	dmc: dmc {
 		compatible = "rockchip,rk3568-dmc";
 		u-boot,dm-pre-reloc;
@@ -35,3 +39,16 @@
 	u-boot,dm-pre-reloc;
 	status = "okay";
 };
+
+&sdmmc0 {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&sdhci {
+	bus-width = <8>;
+	u-boot,dm-spl;
+	mmc-hs200-1_8v;
+	status = "okay";
+};
+

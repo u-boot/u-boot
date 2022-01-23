@@ -71,6 +71,8 @@
 		spi0 = &spi0;
 		spi1 = &spi1;
 		ethernet0 = &eth0;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
 	};
 
 	memory {
@@ -156,6 +158,16 @@
 	};
 };
 
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
 &spi0 {
 	status = "okay";
 	u-boot,dm-pre-reloc;
@@ -202,5 +214,6 @@
 	pcie@9,0 {
 		/* Port 2, Lane 0 */
 		status = "okay";
+		num-lanes = <4>;
 	};
 };

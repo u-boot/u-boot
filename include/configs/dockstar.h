@@ -12,12 +12,6 @@
 #define _CONFIG_DOCKSTAR_H
 
 /*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
-#define CONFIG_KW88F6281	1	/* SOC Name */
-
-/*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
@@ -34,13 +28,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND \
-	"setenv bootargs ${console} ${mtdparts} ${bootargs_root}; "	\
-	"ubi part root; " \
-	"ubifsmount ubi:root; " \
-	"ubifsload 0x800000 ${kernel}; " \
-	"ubifsload 0x1100000 ${initrd}; " \
-	"bootm 0x800000 0x1100000"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0" \

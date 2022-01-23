@@ -18,9 +18,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
-/* input clock of PLL: has 24MHz input clock at S5PC110 */
-#define CONFIG_SYS_CLK_FREQ_C110	24000000
-
 /* DRAM Base */
 #define CONFIG_SYS_SDRAM_BASE		0x30000000
 
@@ -69,8 +66,6 @@
 	"name="PARTS_DATA",size=3GiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
 	"name="PARTS_CSC",size=150MiB,uuid=${uuid_gpt_"PARTS_CSC"};" \
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
-
-#define CONFIG_BOOTCOMMAND	"run mmcboot"
 
 #define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext4" \
 		" ${console} ${meminfo}"

@@ -20,6 +20,7 @@
 #include <spi_flash.h>
 #include <splash.h>
 #include <usb.h>
+#include <virtio.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -179,6 +180,16 @@ static inline int splash_init_sata(void)
 }
 #endif
 
+static int splash_init_virtio(void)
+{
+	if (!IS_ENABLED(CONFIG_VIRTIO)) {
+		printf("Cannot load splash image: no virtio support\n");
+		return -ENOSYS;
+	} else {
+		return virtio_init();
+	}
+}
+
 #ifdef CONFIG_CMD_UBIFS
 static int splash_mount_ubifs(struct splash_location *location)
 {
@@ -232,6 +243,9 @@ static int splash_load_fs(struct splash_location *location, u32 bmp_load_addr)
 
 	if (location->storage == SPLASH_STORAGE_SATA)
 		res = splash_init_sata();
+
+	if (location->storage == SPLASH_STORAGE_VIRTIO)
+		res = splash_init_virtio();
 
 	if (location->ubivol != NULL)
 		res = splash_mount_ubifs(location);

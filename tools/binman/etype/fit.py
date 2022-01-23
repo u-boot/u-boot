@@ -136,10 +136,10 @@ class Entry_fit(Entry):
                                                                   str)])[0]
 
     def ReadNode(self):
-        self._ReadSubnodes()
+        self.ReadEntries()
         super().ReadNode()
 
-    def _ReadSubnodes(self):
+    def ReadEntries(self):
         def _AddNode(base_node, depth, node):
             """Add a node to the FIT
 

@@ -1,6 +1,7 @@
 source "drivers/net/phy/Kconfig"
 source "drivers/net/pfe_eth/Kconfig"
 source "drivers/net/fsl-mc/Kconfig"
+source "drivers/net/bnxt/Kconfig"
 
 config ETH
 	def_bool y
@@ -554,6 +555,22 @@ config RTL8169
 	  This driver supports Realtek 8169 series gigabit ethernet family of
 	  PCI/PCIe chipsets/adapters.
 
+config SJA1105
+	bool "NXP SJA1105 Ethernet switch family driver"
+	depends on DM_DSA && DM_SPI
+	select BITREVERSE
+	help
+	  This is the driver for the NXP SJA1105 automotive Ethernet switch
+	  family. These are 5-port devices and are managed over an SPI
+	  interface. Probing is handled based on OF bindings. The driver
+	  supports the following revisions:
+	    - SJA1105E (Gen. 1, No TT-Ethernet)
+	    - SJA1105T (Gen. 1, TT-Ethernet)
+	    - SJA1105P (Gen. 2, No SGMII, No TT-Ethernet)
+	    - SJA1105Q (Gen. 2, No SGMII, TT-Ethernet)
+	    - SJA1105R (Gen. 2, SGMII, No TT-Ethernet)
+	    - SJA1105S (Gen. 2, SGMII, TT-Ethernet)
+
 config SMC911X
 	bool "SMSC LAN911x and LAN921x controller driver"
 
@@ -834,6 +851,13 @@ config FSL_LS_MDIO
 	help
 	  This driver supports the MDIO bus found on the Fman 10G Ethernet MACs and
 	  on the mEMAC (which supports both Clauses 22 and 45).
+
+config ASPEED_MDIO
+	bool "Aspeed MDIO interface support"
+	depends on DM_MDIO
+	help
+	  This driver supports the MDIO bus of Aspeed AST2600 SOC.  The driver
+	  currently supports Clause 22.
 
 config MDIO_MUX_MMIOREG
 	bool "MDIO MUX accessed as a MMIO register access"

@@ -21,7 +21,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_SYS_L2CACHE_OFF		/* pretend there is no L2 CACHE */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
@@ -75,7 +74,6 @@
  * Framebuffer
  */
 /* Video console */
-#define CONFIG_VIDEO_LOGO
 #define VIDEO_FB_16BPP_PIXEL_SWAP
 #define VIDEO_FB_16BPP_WORD_SWAP
 
@@ -166,12 +164,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"echo run sdboot - Boot from SD card slot.;" \
 	"echo run emmcboot - Boot internal eMMC memory.;" \
 	"echo run attachboot - Boot attached kernel image.;" \
-	"echo"
-
-#define CONFIG_BOOTCOMMAND \
-	"run sdboot;" \
-	"run emmcboot;" \
-	"run attachboot;" \
 	"echo"
 
 /*

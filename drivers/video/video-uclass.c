@@ -228,6 +228,20 @@ void video_sync_all(void)
 	}
 }
 
+bool video_is_active(void)
+{
+	struct udevice *dev;
+
+	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
+	     dev;
+	     uclass_find_next_device(&dev)) {
+		if (device_active(dev))
+			return true;
+	}
+
+	return false;
+}
+
 int video_get_xsize(struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
@@ -265,10 +279,10 @@ int video_sync_copy(struct udevice *dev, void *from, void *to)
 		 */
 		if (offset < -priv->fb_size || offset > 2 * priv->fb_size) {
 #ifdef DEBUG
-			char str[80];
+			char str[120];
 
 			snprintf(str, sizeof(str),
-				 "[sync_copy fb=%p, from=%p, to=%p, offset=%lx]",
+				 "[** FAULT sync_copy fb=%p, from=%p, to=%p, offset=%lx]",
 				 priv->fb, from, to, offset);
 			console_puts_select_stderr(true, str);
 #endif
@@ -305,23 +319,20 @@ int video_sync_copy_all(struct udevice *dev)
 
 #endif
 
-/* Set up the colour map */
-static int video_pre_probe(struct udevice *dev)
+#define SPLASH_DECL(_name) \
+	extern u8 __splash_ ## _name ## _begin[]; \
+	extern u8 __splash_ ## _name ## _end[]
+
+#define SPLASH_START(_name)	__splash_ ## _name ## _begin
+
+SPLASH_DECL(u_boot_logo);
+
+static int show_splash(struct udevice *dev)
 {
-	struct video_priv *priv = dev_get_uclass_priv(dev);
+	u8 *data = SPLASH_START(u_boot_logo);
+	int ret;
 
-	priv->cmap = calloc(256, sizeof(ushort));
-	if (!priv->cmap)
-		return -ENOMEM;
-
-	return 0;
-}
-
-static int video_pre_remove(struct udevice *dev)
-{
-	struct video_priv *priv = dev_get_uclass_priv(dev);
-
-	free(priv->cmap);
+	ret = video_bmp_display(dev, map_to_sysmem(data), -4, 4, true);
 
 	return 0;
 }
@@ -391,6 +402,14 @@ static int video_post_probe(struct udevice *dev)
 		return ret;
 	}
 
+	if (IS_ENABLED(CONFIG_VIDEO_LOGO) && !plat->hide_logo) {
+		ret = show_splash(dev);
+		if (ret) {
+			log_debug("Cannot show splash screen\n");
+			return ret;
+		}
+	}
+
 	return 0;
 };
 
@@ -433,9 +452,7 @@ UCLASS_DRIVER(video) = {
 	.name		= "video",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= video_post_bind,
-	.pre_probe	= video_pre_probe,
 	.post_probe	= video_post_probe,
-	.pre_remove	= video_pre_remove,
 	.priv_auto	= sizeof(struct video_uc_priv),
 	.per_device_auto	= sizeof(struct video_priv),
 	.per_device_plat_auto	= sizeof(struct video_uc_plat),

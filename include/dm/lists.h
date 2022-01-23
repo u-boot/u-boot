@@ -19,13 +19,14 @@
  * for binding a driver given its name and plat.
  *
  * @name: Name of driver to look up
- * @return pointer to driver, or NULL if not found
+ * Return: pointer to driver, or NULL if not found
  */
 struct driver *lists_driver_lookup_name(const char *name);
 
 /**
  * lists_uclass_lookup() - Return uclass_driver based on ID of the class
- * id:		ID of the class
+ *
+ * @id:		ID of the class
  *
  * This function returns the pointer to uclass_driver, which is the class's
  * base structure based on the ID of the class. Returns NULL on error.
@@ -56,7 +57,8 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only);
  * @drv: if non-NULL, force this driver to be bound
  * @pre_reloc_only: If true, bind only nodes with special devicetree properties,
  * or drivers with the DM_FLAG_PRE_RELOC flag. If false bind all drivers.
- * @return 0 if device was bound, -EINVAL if the device tree is invalid,
+ *
+ * Return: 0 if device was bound, -EINVAL if the device tree is invalid,
  * other -ve value on error
  */
 int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,

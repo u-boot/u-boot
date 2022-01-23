@@ -4,6 +4,7 @@
 
 import pytest
 
+@pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('blk')
 @pytest.mark.buildconfigspec('cmd_lsblk')
 def test_lsblk(u_boot_console):

@@ -8,12 +8,6 @@
 #ifndef _CONFIG_ICONNECT_H
 #define _CONFIG_ICONNECT_H
 
-/*
- * High level configuration options
- */
-#define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KW88F6281		/* SOC Name */
-
 #include "mv-common.h"
 
 /*
@@ -23,12 +17,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND \
-	"setenv bootargs ${console} ${mtdparts} ${bootargs_root}; "	\
-	"ubi part rootfs; "						\
-	"ubifsmount ubi:rootfs; "					\
-	"ubifsload 0x800000 ${kernel}; "				\
-	"bootm 0x800000"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0"	\

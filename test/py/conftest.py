@@ -226,7 +226,7 @@ def pytest_configure(config):
         import u_boot_console_exec_attach
         console = u_boot_console_exec_attach.ConsoleExecAttach(log, ubconfig)
 
-re_ut_test_list = re.compile(r'[^a-zA-Z0-9_]_u_boot_list_2_ut_(.*)_test_2_\1_test_(.*)\s*$')
+re_ut_test_list = re.compile(r'[^a-zA-Z0-9_]_u_boot_list_2_ut_(.*)_test_2_(.*)\s*$')
 def generate_ut_subtest(metafunc, fixture_name, sym_path):
     """Provide parametrization for a ut_subtest fixture.
 

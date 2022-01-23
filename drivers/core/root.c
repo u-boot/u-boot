@@ -26,6 +26,7 @@
 #include <dm/read.h>
 #include <dm/root.h>
 #include <dm/uclass.h>
+#include <dm/uclass-internal.h>
 #include <dm/util.h>
 #include <linux/list.h>
 
@@ -405,6 +406,12 @@ int dm_init_and_scan(bool pre_reloc_only)
 	}
 
 	return 0;
+}
+
+void dm_get_stats(int *device_countp, int *uclass_countp)
+{
+	*device_countp = device_get_decendent_count(gd->dm_root);
+	*uclass_countp = uclass_get_count();
 }
 
 #ifdef CONFIG_ACPIGEN

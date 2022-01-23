@@ -210,7 +210,7 @@ static inline size_t kwbheader_size(const void *header)
 		const struct main_hdr_v0 *hdr = header;
 
 		return sizeof(*hdr) +
-		       (hdr->ext & 0x1) ? sizeof(struct ext_hdr_v0) : 0;
+		       hdr->ext ? sizeof(struct ext_hdr_v0) : 0;
 	} else {
 		const struct main_hdr_v1 *hdr = header;
 
@@ -237,11 +237,11 @@ static inline int opt_hdr_v1_valid_size(const struct opt_hdr_v1 *ohdr,
 {
 	uint32_t ohdr_size;
 
-	if ((void *)(ohdr + 1) > mhdr_end)
+	if ((const void *)(ohdr + 1) > mhdr_end)
 		return 0;
 
 	ohdr_size = opt_hdr_v1_size(ohdr);
-	if (ohdr_size < 8 || (void *)((uint8_t *)ohdr + ohdr_size) > mhdr_end)
+	if (ohdr_size < 8 || (const void *)((const uint8_t *)ohdr + ohdr_size) > mhdr_end)
 		return 0;
 
 	return 1;
@@ -254,7 +254,7 @@ static inline struct opt_hdr_v1 *opt_hdr_v1_first(void *img) {
 		return NULL;
 
 	mhdr = img;
-	if (mhdr->ext & 0x1)
+	if (mhdr->ext)
 		return (struct opt_hdr_v1 *)(mhdr + 1);
 	else
 		return NULL;
@@ -274,7 +274,7 @@ static inline struct opt_hdr_v1 *_opt_hdr_v1_next(struct opt_hdr_v1 *cur)
 
 static inline struct opt_hdr_v1 *opt_hdr_v1_next(struct opt_hdr_v1 *cur)
 {
-	if (*opt_hdr_v1_ext(cur) & 0x1)
+	if (*opt_hdr_v1_ext(cur))
 		return _opt_hdr_v1_next(cur);
 	else
 		return NULL;

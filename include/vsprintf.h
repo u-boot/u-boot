@@ -308,6 +308,14 @@ char *strmhz(char *buf, unsigned long hz);
 void str_to_upper(const char *in, char *out, size_t len);
 
 /**
+ * vsscanf - Unformat a buffer into a list of arguments
+ * @buf:	input buffer
+ * @fmt:	format of buffer
+ * @args:	arguments
+ */
+int vsscanf(const char *inp, char const *fmt0, va_list ap);
+
+/**
  * sscanf - Unformat a buffer into a list of arguments
  * @buf:	input buffer
  * @fmt:	formatting of buffer

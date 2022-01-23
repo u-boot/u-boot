@@ -236,9 +236,9 @@ void part_print_efi(struct blk_desc *dev_desc)
 	printf("\tPartition GUID\n");
 
 	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
-		/* Stop at the first non valid PTE */
+		/* Skip invalid PTE */
 		if (!is_pte_valid(&gpt_pte[i]))
-			break;
+			continue;
 
 		printf("%3d\t0x%08llx\t0x%08llx\t\"%s\"\n", (i + 1),
 			le64_to_cpu(gpt_pte[i].starting_lba),

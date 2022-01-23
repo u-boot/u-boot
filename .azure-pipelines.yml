@@ -2,14 +2,16 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-18.04
   macos_vm: macOS-10.15
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20211006-14Nov2021
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20220105-10Jan2022
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
   container_option: -u 0
   work_dir: /u
 
-jobs:
+stages:
+- stage: testsuites
+  jobs:
   - job: tools_only_windows
     displayName: 'Ensure host tools build for Windows'
     pool:
@@ -48,6 +50,33 @@ jobs:
             HOSTLDFLAGS="-L/usr/local/opt/openssl@1.1/lib" \
             -j$(sysctl -n hw.logicalcpu)
         displayName: 'Perform tools-only build'
+
+  - job: check_for_migrated_symbols_in_board_header
+    displayName: 'Check for migrated symbols in board header'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          KSYMLST=`mktemp`
+          KUSEDLST=`mktemp`
+          cat `find . -name "Kconfig*"` | \
+             sed -n -e 's/^\s*config *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
+             -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
+             | sort -u > $KSYMLST
+          for CFG in `find include/configs -name "*.h"`; do
+             grep '#define[[:blank:]]CONFIG_' $CFG | \
+                sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' | \
+                sort -u > ${KUSEDLST} || true
+             NUM=`comm -12 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} | \
+                cut -d , -f 3`
+             if [[ $NUM -ne 0 ]]; then
+                echo "Unmigrated symbols found in $CFG"
+                exit 1
+             fi
+          done
 
   - job: cppcheck
     displayName: 'Static code analysis with cppcheck'
@@ -172,6 +201,8 @@ jobs:
           export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
 
+- stage: test_py
+  jobs:
   - job: test_py
     displayName: 'test.py'
     pool:
@@ -354,6 +385,8 @@ jobs:
           # Some tests using libguestfs-tools need the fuse device to run
           docker run "$@" --device /dev/fuse:/dev/fuse -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
 
+- stage: world_build
+  jobs:
   - job: build_the_world
     displayName: 'Build the World'
     pool:

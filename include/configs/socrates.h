@@ -38,10 +38,6 @@
  * in the README.mpc85xxads.
  */
 
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	66666666
-#endif
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
@@ -97,11 +93,6 @@
 #define CONFIG_SYS_LBC_FLASH_BASE	CONFIG_SYS_FLASH1	/* Localbus flash start	*/
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_LBC_FLASH_BASE /* start of FLASH	*/
 
-#define CONFIG_SYS_BR0_PRELIM		0xfe001001	/* port size 16bit	*/
-#define CONFIG_SYS_OR0_PRELIM		0xfe000030	/* 32MB Flash		*/
-#define CONFIG_SYS_BR1_PRELIM		0xfc001001	/* port size 16bit	*/
-#define CONFIG_SYS_OR1_PRELIM		0xfe000030	/* 32MB Flash		*/
-
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks	*/
 #define CONFIG_SYS_MAX_FLASH_SECT	256		/* sectors per device	*/
 #undef	CONFIG_SYS_FLASH_CHECKSUM
@@ -128,8 +119,6 @@
 #define CONFIG_SYS_FPGA_BASE		0xc0000000
 #define CONFIG_SYS_FPGA_SIZE		0x00100000	/* 1 MB		*/
 #define CONFIG_SYS_HMI_BASE		0xc0010000
-#define CONFIG_SYS_BR3_PRELIM		0xc0001881	/* UPMA, 32-bit */
-#define CONFIG_SYS_OR3_PRELIM		0xfff00000	/* 1 MB		*/
 
 #define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_FPGA_BASE + 0x70)
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -137,8 +126,6 @@
 /* LIME GDC */
 #define CONFIG_SYS_LIME_BASE		0xc8000000
 #define CONFIG_SYS_LIME_SIZE		0x04000000	/* 64 MB	*/
-#define CONFIG_SYS_BR2_PRELIM		0xc80018a1	/* UPMB, 32-bit	*/
-#define CONFIG_SYS_OR2_PRELIM		0xfc000000	/* 64 MB	*/
 
 #define CONFIG_SYS_SPD_BUS_NUM 0
 
@@ -189,8 +176,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-
-#undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 /*
  * Miscellaneous configurable options
@@ -258,7 +243,6 @@
 		"bootm ${kernel_addr_r} - ${fdt_addr};"			\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	""
-#define CONFIG_BOOTCOMMAND	"run boot_nor"
 
 /* pass open firmware flat tree */
 

@@ -31,7 +31,7 @@ Blobs
 While each blob in the bloblist can be of any length, bloblists are designed to
 hold small amounts of data, typically a few KB at most. It is not possible to
 change the length of a blob once it has been written. Each blob is normally
-created from a C structure which can beused to access its fields.
+created from a C structure which can be used to access its fields.
 
 
 Blob tags
@@ -59,6 +59,22 @@ Bloblist provides a fairly simple API which allows blobs to be created and
 found. All access is via the blob's tag. Blob records are zeroed when added.
 
 
+Placing the bloblist
+--------------------
+
+The bloblist is typically positioned at a fixed address by TPL, or SPL. This
+is controlled by `CONFIG_BLOBLIST_ADDR`. But in some cases it is preferable to
+allocate the bloblist in the malloc() space. Use the `CONFIG_BLOBLIST_ALLOC`
+option to enable this.
+
+The bloblist is automatically relocated as part of U-Boot relocation. Sometimes
+it is useful to expand the bloblist in U-Boot proper, since it may want to add
+information for use by Linux. Note that this does not mean that Linux needs to
+know anything about the bloblist format, just that it is convenient to use
+bloblist to place things contiguously in memory. Set
+`CONFIG_BLOBLIST_SIZE_RELOC` to define the expanded size, if needed.
+
+
 Finishing the bloblist
 ----------------------
 
@@ -75,6 +91,12 @@ Future work
 Bootstage has a mechanism to 'stash' its records for passing to the next part.
 This should move to using bloblist, to avoid having its own mechanism for
 passing information between U-Boot parts.
+
+
+API documentation
+-----------------
+
+.. kernel-doc:: include/bloblist.h
 
 
 Simon Glass

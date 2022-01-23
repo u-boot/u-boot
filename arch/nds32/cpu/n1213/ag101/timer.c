@@ -9,6 +9,7 @@
  */
 #ifndef CONFIG_TIMER
 #include <common.h>
+#include <clock_legacy.h>
 #include <init.h>
 #include <irq_func.h>
 #include <log.h>
@@ -76,7 +77,7 @@ void reset_timer_masked(void)
 	lastdec = readl(&tmr->timer3_counter) / (TIMER_CLOCK / CONFIG_SYS_HZ);
 #else
 	lastdec = readl(&tmr->timer3_counter) /
-			(CONFIG_SYS_CLK_FREQ / 2 / CONFIG_SYS_HZ);
+			(get_board_sys_clk() / 2 / CONFIG_SYS_HZ);
 #endif
 	timestamp = 0;		/* start "advancing" time stamp from 0 */
 
@@ -101,7 +102,7 @@ ulong get_timer_masked(void)
 	ulong now = readl(&tmr->timer3_counter) / (TIMER_CLOCK / CONFIG_SYS_HZ);
 #else
 	ulong now = readl(&tmr->timer3_counter) /
-			(CONFIG_SYS_CLK_FREQ / 2 / CONFIG_SYS_HZ);
+			(get_board_sys_clk() / 2 / CONFIG_SYS_HZ);
 #endif
 
 	debug("%s(): now = %lx, lastdec = %lx\n", __func__, now, lastdec);
@@ -155,7 +156,7 @@ void __udelay(unsigned long usec)
 #ifdef CONFIG_FTTMR010_EXT_CLK
 	long tmo = usec * (TIMER_CLOCK / 1000) / 1000;
 #else
-	long tmo = usec * ((CONFIG_SYS_CLK_FREQ / 2) / 1000) / 1000;
+	long tmo = usec * ((get_board_sys_clk() / 2) / 1000) / 1000;
 #endif
 	unsigned long now, last = readl(&tmr->timer3_counter);
 
@@ -190,7 +191,7 @@ ulong get_tbclk(void)
 #ifdef CONFIG_FTTMR010_EXT_CLK
 	return CONFIG_SYS_HZ;
 #else
-	return CONFIG_SYS_CLK_FREQ;
+	return get_board_sys_clk();
 #endif
 }
 #endif /* CONFIG_TIMER */

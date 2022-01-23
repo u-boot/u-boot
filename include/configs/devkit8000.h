@@ -46,15 +46,6 @@
 
 /* TWL4030 */
 
-/* Board NAND Info */
-#define CONFIG_JFFS2_NAND
-/* nand device jffs2 lives on */
-#define CONFIG_JFFS2_DEV		"nand0"
-/* start of jffs2 partition */
-#define CONFIG_JFFS2_PART_OFFSET	0x680000
-#define CONFIG_JFFS2_PART_SIZE		0xf980000	/* size of jffs2 */
-							/* partition */
-
 /* BOOTP/DHCP options */
 #define CONFIG_BOOTP_NISDOMAIN
 #define CONFIG_BOOTP_BOOTFILESIZE
@@ -125,8 +116,6 @@
 				"fi; " \
 			"fi; " \
 		"else run nandboot; fi\0"
-
-#define CONFIG_BOOTCOMMAND "run autoboot"
 
 /* Boot Argument Buffer Size */
 

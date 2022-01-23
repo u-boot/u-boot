@@ -45,7 +45,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE		BIT(22)
 #define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PD3
-#define CONFIG_SYS_NAND_DRIVER_ECC_LAYOUT
 #endif
 
 /* Ethernet */
@@ -54,16 +53,8 @@
 
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env in nandflash */
-
-#define CONFIG_BOOTCOMMAND						\
-	"nand read 0x70000000 0x200000 0x300000;"			\
-	"bootm 0x70000000"
 #elif CONFIG_SD_BOOT
 /* bootstrap + u-boot + env + linux in mmc */
-
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x71000000 dtb; " \
-				"fatload mmc 0:1 0x72000000 zImage; " \
-				"bootz 0x72000000 - 0x71000000"
 #endif
 
 /* Defines for SPL */

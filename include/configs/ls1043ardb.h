@@ -8,8 +8,6 @@
 
 #include "ls1043a_common.h"
 
-#define CONFIG_SYS_CLK_FREQ		100000000
-
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1

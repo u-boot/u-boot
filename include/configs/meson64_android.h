@@ -23,6 +23,10 @@
 #define CONTROL_PARTITION "misc"
 #endif
 
+#ifndef EXTRA_ANDROID_ENV_SETTINGS
+#define EXTRA_ANDROID_ENV_SETTINGS ""
+#endif
+
 #if defined(CONFIG_CMD_AVB)
 #define AVB_VERIFY_CHECK \
 	"if test \"${force_avb}\" -eq 1; then " \
@@ -100,6 +104,12 @@
 	"elif test $board_name = sei610; then " \
 		"echo \"  Reading DTB for sei610...\"; " \
 		"setenv dtb_index 1;" \
+	"elif test $board_name = vim3l; then " \
+		"echo \"  Reading DTB for vim3l...\"; " \
+		"setenv dtb_index 2;" \
+	"elif test $board_name = vim3; then " \
+		"echo \"  Reading DTB for vim3...\"; " \
+		"setenv dtb_index 3;" \
 	"else " \
 		"echo Error: Android boot is not supported for $board_name; " \
 		"exit; " \
@@ -113,6 +123,12 @@
 	"elif test $board_name = sei610; then " \
 		"echo \"  Reading DTBO for sei610...\"; " \
 		"setenv dtbo_index 1;" \
+	"elif test $board_name = vim3l; then " \
+		"echo \"  Reading DTBO for vim3l...\"; " \
+		"setenv dtbo_index 2;" \
+	"elif test $board_name = vim3; then " \
+		"echo \"  Reading DTBO for vim3...\"; " \
+		"setenv dtbo_index 3;" \
 	"else " \
 		"echo Error: Android boot is not supported for $board_name; " \
 		"exit; " \
@@ -264,6 +280,7 @@
 	"fi;"
 
 #define CONFIG_EXTRA_ENV_SETTINGS                                     \
+	EXTRA_ANDROID_ENV_SETTINGS                                    \
 	"partitions=" PARTS_DEFAULT "\0"                              \
 	"mmcdev=2\0"                                                  \
 	ANDROIDBOOT_GET_CURRENT_SLOT_CMD                              \

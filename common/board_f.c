@@ -293,7 +293,7 @@ static int setup_mon_len(void)
 static int setup_spl_handoff(void)
 {
 #if CONFIG_IS_ENABLED(HANDOFF)
-	gd->spl_handoff = bloblist_find(BLOBLISTT_SPL_HANDOFF,
+	gd->spl_handoff = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF,
 					sizeof(struct spl_handoff));
 	debug("Found SPL hand-off info %p\n", gd->spl_handoff);
 #endif
@@ -665,8 +665,14 @@ static int reloc_bootstage(void)
 static int reloc_bloblist(void)
 {
 #ifdef CONFIG_BLOBLIST
-	if (gd->flags & GD_FLG_SKIP_RELOC)
+	/*
+	 * Relocate only if we are supposed to send it
+	 */
+	if ((gd->flags & GD_FLG_SKIP_RELOC) &&
+	    CONFIG_BLOBLIST_SIZE == CONFIG_BLOBLIST_SIZE_RELOC) {
+		debug("Not relocating bloblist\n");
 		return 0;
+	}
 	if (gd->new_bloblist) {
 		int size = CONFIG_BLOBLIST_SIZE;
 

@@ -18,7 +18,6 @@
  * SoC Configuration
  */
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
-#define CONFIG_SYS_CLK_FREQ		clk_get(DAVINCI_ARM_CLKID)
 #define CONFIG_SYS_OSCIN_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
@@ -61,32 +60,6 @@
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_HWCONFIG		/* enable hwconfig */
 #define CONFIG_SETUP_INITRD_TAG
-#define CONFIG_BOOTCOMMAND \
-	"if mmc rescan; then " \
-		"if run loadbootscr; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadbootenv; then " \
-				"echo Loaded env from ${bootenvfile};" \
-				"run importbootenv;" \
-			"fi;" \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd...;" \
-				"run uenvcmd;" \
-			"fi;" \
-			"if run loadimage; then " \
-				"run mmcargs; " \
-				"if run loadfdt; then " \
-					"echo Using ${fdtfile}...;" \
-					"run fdtfixup; " \
-					"run fdtboot; "\
-				"fi; " \
-				"run mmcboot; " \
-			"fi; " \
-		"fi; " \
-	"fi; "\
-	"run flashargs; " \
-	"run flashboot"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootenvfile=uEnv.txt\0" \
 	"fdtfile=da850-lego-ev3.dtb\0" \

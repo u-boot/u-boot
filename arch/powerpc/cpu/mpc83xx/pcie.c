@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <pci.h>
 #include <mpc83xx.h>
 #include <asm/global_data.h>
@@ -46,7 +47,7 @@ int get_pcie_clk(int index)
 
 	clkin_div = ((im->clk.spmr & SPMR_CKID) >> SPMR_CKID_SHIFT);
 	sccr = im->clk.sccr;
-	pci_sync_in = CONFIG_SYS_CLK_FREQ / (1 + clkin_div);
+	pci_sync_in = get_board_sys_clk() / (1 + clkin_div);
 	spmf = (im->clk.spmr & SPMR_SPMF) >> SPMR_SPMF_SHIFT;
 	csb_clk = pci_sync_in * (1 + clkin_div) * spmf;
 

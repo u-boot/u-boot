@@ -9,20 +9,7 @@
 #ifndef _CONFIG_GURUPLUG_H
 #define _CONFIG_GURUPLUG_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-
-/*
- * Standard filesystems
- */
-
-/*
- * mv-plug-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
-#include "mv-plug-common.h"
+#include "mv-common.h"
 
 /*
  *  Environment variables configurations
@@ -40,15 +27,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND \
-	"setenv bootargs ${console} ${mtdparts} ${bootargs_root}; "	\
-	"ubi part root; "						\
-	"ubifsmount ubi:rootfs; "					\
-	"ubifsload 0x800000 ${kernel}; "				\
-	"ubifsload 0x700000 ${fdt}; "					\
-	"ubifsumount; "							\
-	"fdt addr 0x700000; fdt resize; fdt chosen; "			\
-	"bootz 0x800000 - 0x700000"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0"				\

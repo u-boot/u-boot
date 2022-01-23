@@ -19,9 +19,9 @@ DECLARE_GLOBAL_DATA_PTR;
 		UNIT_TEST(_name, _flags, bloblist_test)
 
 enum {
-	TEST_TAG		= 1,
-	TEST_TAG2		= 2,
-	TEST_TAG_MISSING	= 3,
+	TEST_TAG		= BLOBLISTT_U_BOOT_SPL_HANDOFF,
+	TEST_TAG2		= BLOBLISTT_VBOOT_CTX,
+	TEST_TAG_MISSING	= 0x10000,
 
 	TEST_SIZE		= 10,
 	TEST_SIZE2		= 20,
@@ -71,7 +71,9 @@ static int bloblist_test_init(struct unit_test_state *uts)
 
 	hdr = clear_bloblist();
 	ut_asserteq(-ENOENT, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
+	ut_asserteq_ptr(NULL, bloblist_check_magic(TEST_ADDR));
 	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	ut_asserteq_ptr(hdr, bloblist_check_magic(TEST_ADDR));
 	hdr->version++;
 	ut_asserteq(-EPROTONOSUPPORT, bloblist_check(TEST_ADDR,
 						     TEST_BLOBLIST_SIZE));
@@ -83,6 +85,11 @@ static int bloblist_test_init(struct unit_test_state *uts)
 	ut_asserteq(-EIO, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
 	ut_assertok(bloblist_finish());
 	ut_assertok(bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
+
+	hdr->magic++;
+	ut_asserteq_ptr(NULL, bloblist_check_magic(TEST_ADDR));
+	hdr->magic--;
+
 	hdr->flags++;
 	ut_asserteq(-EIO, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
 
@@ -100,6 +107,8 @@ static int bloblist_test_blob(struct unit_test_state *uts)
 	hdr = clear_bloblist();
 	ut_assertnull(bloblist_find(TEST_TAG, TEST_BLOBLIST_SIZE));
 	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+	ut_asserteq(TEST_BLOBLIST_SIZE, bloblist_get_size());
+	ut_asserteq(TEST_ADDR, bloblist_get_base());
 	ut_asserteq(map_to_sysmem(hdr), TEST_ADDR);
 
 	/* Add a record and check that we can find it */
@@ -281,10 +290,10 @@ static int bloblist_test_cmd_list(struct unit_test_state *uts)
 	ut_silence_console(uts);
 	console_record_reset();
 	run_command("bloblist list", 0);
-	ut_assert_nextline("Address       Size  Tag Name");
-	ut_assert_nextline("%08lx  %8x    1 EC host event",
+	ut_assert_nextline("Address       Size   Tag Name");
+	ut_assert_nextline("%08lx  %8x  8000 SPL hand-off",
 			   (ulong)map_to_sysmem(data), TEST_SIZE);
-	ut_assert_nextline("%08lx  %8x    2 SPL hand-off",
+	ut_assert_nextline("%08lx  %8x   106 Chrome OS vboot context",
 			   (ulong)map_to_sysmem(data2), TEST_SIZE2);
 	ut_assert_console_end();
 	ut_unsilence_console(uts);

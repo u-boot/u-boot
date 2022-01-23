@@ -134,6 +134,13 @@ int env_get_f(const char *name, char *buf, unsigned int len);
 int env_get_yesno(const char *var);
 
 /**
+ * env_get_autostart() - Check if autostart is enabled
+ *
+ * @return true if the "autostart" env var exists and is set to "yes"
+ */
+bool env_get_autostart(void);
+
+/**
  * env_set() - set an environment variable
  *
  * This sets or deletes the value of an environment variable. For setting the

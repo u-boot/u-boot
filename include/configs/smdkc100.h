@@ -22,7 +22,6 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 /* input clock of PLL: SMDKC100 has 12MHz input clock */
-#define CONFIG_SYS_CLK_FREQ		12000000
 
 /* DRAM Base */
 #define CONFIG_SYS_SDRAM_BASE		0x30000000
@@ -35,8 +34,6 @@
 
 /* PWM */
 #define CONFIG_PWM			1
-
-#define CONFIG_BOOTCOMMAND	"run ubifsboot"
 
 #define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext2" \
 				" console=ttySAC0,115200n8" \

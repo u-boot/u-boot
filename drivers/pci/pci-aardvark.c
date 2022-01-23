@@ -21,6 +21,7 @@
  *
  * Author: Victor Gu <xigu@marvell.com>
  *         Hezi Shahmoon <hezi.shahmoon@marvell.com>
+ *         Pali Rohár <pali@kernel.org>
  *
  */
 
@@ -164,16 +165,6 @@
 #define PCIE_CONFIG_RD_TYPE1			0x9
 #define PCIE_CONFIG_WR_TYPE0			0xa
 #define PCIE_CONFIG_WR_TYPE1			0xb
-
-/* PCI_BDF shifts 8bit, so we need extra 4bit shift */
-#define PCIE_BDF(b, d, f)			(PCI_BDF(b, d, f) << 4)
-#define PCIE_CONF_BUS(bus)			(((bus) & 0xff) << 20)
-#define PCIE_CONF_DEV(dev)			(((dev) & 0x1f) << 15)
-#define PCIE_CONF_FUNC(fun)			(((fun) & 0x7)	<< 12)
-#define PCIE_CONF_REG(reg)			((reg) & 0xffc)
-#define PCIE_CONF_ADDR(bus, devfn, where)	\
-	(PCIE_CONF_BUS(bus) | PCIE_CONF_DEV(PCI_SLOT(devfn))	| \
-	 PCIE_CONF_FUNC(PCI_FUNC(devfn)) | PCIE_CONF_REG(where))
 
 /* PCIe Retries & Timeout definitions */
 #define PIO_MAX_RETRIES				1500
@@ -467,7 +458,7 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 	advk_writel(pcie, reg, PIO_CTRL);
 
 	/* Program the address registers */
-	reg = PCIE_BDF(busno, PCI_DEV(bdf), PCI_FUNC(bdf)) | PCIE_CONF_REG(offset);
+	reg = PCIE_ECAM_OFFSET(busno, PCI_DEV(bdf), PCI_FUNC(bdf), (offset & ~0x3));
 	advk_writel(pcie, reg, PIO_ADDR_LS);
 	advk_writel(pcie, 0, PIO_ADDR_MS);
 
@@ -626,7 +617,7 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 	advk_writel(pcie, reg, PIO_CTRL);
 
 	/* Program the address registers */
-	reg = PCIE_BDF(busno, PCI_DEV(bdf), PCI_FUNC(bdf)) | PCIE_CONF_REG(offset);
+	reg = PCIE_ECAM_OFFSET(busno, PCI_DEV(bdf), PCI_FUNC(bdf), (offset & ~0x3));
 	advk_writel(pcie, reg, PIO_ADDR_LS);
 	advk_writel(pcie, 0, PIO_ADDR_MS);
 	dev_dbg(pcie->dev, "\tPIO req. - addr = 0x%08x\n", reg);

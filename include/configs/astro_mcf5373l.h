@@ -58,7 +58,6 @@
 #define CONFIG_MCFTMR
 
 /* I2C */
-#define CONFIG_SYS_IMMR			CONFIG_SYS_MBAR
 
 /*
  * Defines processor clock - important for correct timings concerning serial
@@ -91,7 +90,6 @@
  */
 
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT 3355	/* timeout in milliseconds */
 #endif
 
@@ -140,18 +138,6 @@
  * by external update.c; This is not included in mainline because
  * it needs non-blocking CFI routines.
  */
-#ifdef CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_BOOTCOMMAND	""	/* no autoboot in this case */
-#else
-#if ASTRO_V532
-#define CONFIG_BOOTCOMMAND	"protect off 0x80000 0x1ffffff;run env_check;"\
-				"run xilinxload&&run alteraload&&bootm 0x80000;"\
-				"update;reset"
-#else
-#define CONFIG_BOOTCOMMAND	"protect off 0x80000 0x1ffffff;run env_check;"\
-				"run xilinxload&&bootm 0x80000;update;reset"
-#endif
-#endif
 
 #define CONFIG_FPGA_COUNT	1
 #define CONFIG_SYS_FPGA_PROG_FEEDBACK

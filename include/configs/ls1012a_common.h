@@ -10,8 +10,6 @@
 #include <asm/arch/stream_id_lsch2.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_CLK_FREQ		125000000
-
 #ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_INIT_SP_ADDR                CONFIG_SYS_TEXT_BASE
 #else
@@ -45,11 +43,6 @@
 /* I2C */
 
 /* GPIO */
-#ifdef CONFIG_DM_GPIO
-#ifndef CONFIG_MPC8XXX_GPIO
-#define CONFIG_MPC8XXX_GPIO
-#endif
-#endif
 
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE     1
@@ -78,13 +71,8 @@
 	"kernel_size=0x2800000\0"		\
 	"bootm_size=0x10000000\0"		\
 
-#undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
 #define QSPI_NOR_BOOTCOMMAND	"sf probe 0:0; sf read $kernel_load "\
-				"$kernel_start $kernel_size && "\
-				"bootm $kernel_load"
-#else
-#define CONFIG_BOOTCOMMAND	"sf probe 0:0; sf read $kernel_load "\
 				"$kernel_start $kernel_size && "\
 				"bootm $kernel_load"
 #endif

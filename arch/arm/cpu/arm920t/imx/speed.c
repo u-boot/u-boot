@@ -7,13 +7,14 @@
 
 #include <common.h>
 #if defined (CONFIG_IMX)
+#include <clock_legacy.h>
 
 #include <asm/arch/imx-regs.h>
 
 /* ------------------------------------------------------------------------- */
 /* NOTE: This describes the proper use of this file.
  *
- * CONFIG_SYS_CLK_FREQ should be defined as the input frequency of the PLL.
+ * get_board_sys_clk() should be defined as the input frequency of the PLL.
  * SH FIXME: 16780000 in our case
  * get_FCLK(), get_HCLK(), get_PCLK() and get_UCLK() return the clock of
  * the specified bus in HZ.
@@ -45,7 +46,7 @@ ulong get_mcuPLLCLK(void)
 
 	mfi = mfi<=5 ? 5 : mfi;
 
-	return (2*(CONFIG_SYS_CLK_FREQ>>10)*( (mfi<<10) + (mfn<<10)/(mfd+1)))/(pd+1);
+	return (2*(get_board_sys_clk()>>10)*( (mfi<<10) + (mfn<<10)/(mfd+1)))/(pd+1);
 }
 
 ulong get_FCLK(void)

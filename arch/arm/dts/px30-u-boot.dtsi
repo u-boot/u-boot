@@ -13,15 +13,17 @@
 		u-boot,spl-boot-order = &emmc, &sdmmc;
 	};
 
+	dmc {
+		u-boot,dm-pre-reloc;
+		compatible = "rockchip,px30-dmc", "syscon";
+		reg = <0x0 0xff2a0000 0x0 0x1000>;
+	};
+
 	rng: rng@ff0b0000 {
 		compatible = "rockchip,cryptov2-rng";
 		reg = <0x0 0xff0b0000 0x0 0x4000>;
 		status = "disabled";
 	};
-};
-
-&dmc {
-	u-boot,dm-pre-reloc;
 };
 
 &uart2 {
@@ -62,10 +64,14 @@
 
 &cru {
 	u-boot,dm-pre-reloc;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-rates;
 };
 
 &pmucru {
 	u-boot,dm-pre-reloc;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-rates;
 };
 
 &saradc {

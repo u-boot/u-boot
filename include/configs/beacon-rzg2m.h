@@ -67,18 +67,4 @@
 			"booti; " \
 		"fi;\0"
 
-#undef CONFIG_BOOTCOMMAND
-
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-	   "if run loadbootscript; then " \
-		   "run bootscript; " \
-	   "else " \
-		   "if run loadimage; then " \
-			   "run mmcboot; " \
-		   "else run netboot; " \
-		   "fi; " \
-	   "fi; " \
-	"else booti ${loadaddr} - ${fdt_addr}; fi"
-
 #endif /* __BEACON_RZG2M_H */

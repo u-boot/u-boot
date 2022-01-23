@@ -14,12 +14,6 @@ config WARP7_ROOT_PART
 	  partition that is typically specified with root=/dev/sdaX or
 	  which gets converted into a root=PARTUUID=some_uuid.
 
-config SYS_FDT_ADDR
-	hex "FDT load address"
-	default 0x83000000
-	help
-	  The address the FDT file should be loaded to.
-
 config IMX_CONFIG
 	default "board/warp7/imximage.cfg"
 

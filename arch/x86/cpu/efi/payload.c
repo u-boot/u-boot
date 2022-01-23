@@ -7,6 +7,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <efi.h>
+#include <efi_api.h>
 #include <errno.h>
 #include <init.h>
 #include <log.h>
@@ -50,7 +51,7 @@ ulong board_get_usable_ram_top(ulong total_size)
 
 	end = (struct efi_mem_desc *)((ulong)map + size);
 	desc = map->desc;
-	for (; desc < end; desc = efi_get_next_mem_desc(map, desc)) {
+	for (; desc < end; desc = efi_get_next_mem_desc(desc, map->desc_size)) {
 		if (desc->type != EFI_CONVENTIONAL_MEMORY ||
 		    desc->physical_start >= 1ULL << 32)
 			continue;
@@ -88,7 +89,7 @@ int dram_init(void)
 	end = (struct efi_mem_desc *)((ulong)map + size);
 	gd->ram_size = 0;
 	desc = map->desc;
-	for (; desc < end; desc = efi_get_next_mem_desc(map, desc)) {
+	for (; desc < end; desc = efi_get_next_mem_desc(desc, map->desc_size)) {
 		if (desc->type < EFI_MMAP_IO)
 			gd->ram_size += desc->num_pages << EFI_PAGE_SHIFT;
 	}
@@ -113,7 +114,7 @@ int dram_init_banksize(void)
 	desc = map->desc;
 	for (num_banks = 0;
 	     desc < end && num_banks < CONFIG_NR_DRAM_BANKS;
-	     desc = efi_get_next_mem_desc(map, desc)) {
+	     desc = efi_get_next_mem_desc(desc, map->desc_size)) {
 		/*
 		 * We only use conventional memory and ignore
 		 * anything less than 1MB.
@@ -196,7 +197,7 @@ unsigned int install_e820_map(unsigned int max_entries,
 
 	end = (struct efi_mem_desc *)((ulong)map + size);
 	for (desc = map->desc; desc < end;
-	     desc = efi_get_next_mem_desc(map, desc)) {
+	     desc = efi_get_next_mem_desc(desc, map->desc_size)) {
 		if (desc->num_pages == 0)
 			continue;
 
@@ -296,8 +297,14 @@ void setup_efi_info(struct efi_info *efi_info)
 void efi_show_bdinfo(void)
 {
 	struct efi_entry_systable *table = NULL;
+	struct efi_system_table *sys_table;
 	int size, ret;
 
 	ret = efi_info_get(EFIET_SYS_TABLE, (void **)&table, &size);
-	bdinfo_print_num_l("efi_table", (ulong)table);
+	if (!ret) {
+		bdinfo_print_num_l("efi_table", table->sys_table);
+		sys_table = (struct efi_system_table *)(uintptr_t)
+			table->sys_table;
+		bdinfo_print_num_l(" revision", sys_table->fw_revision);
+	}
 }

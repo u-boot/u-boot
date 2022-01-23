@@ -98,3 +98,23 @@ Deadline: 2021.10
 The I2C subsystem has supported the driver model since early 2015.
 Maintainers should submit patches switching over to using CONFIG_DM_I2C and
 other base driver model options in time for inclusion in the 2021.10 release.
+
+CONFIG_KEYBOARD
+---------------
+Deadline: 2022.10
+
+This is a legacy option which has been replaced by driver model.
+Maintainers should submit patches switching over to using CONFIG_DM_KEYBOARD and
+other base driver model options in time for inclusion in the 2022.10 release.
+
+CONFIG_SYS_TIMER_RATE and CONFIG_SYS_TIMER_COUNTER
+--------------------------------------------------
+Deadline: 2023.01
+
+These are legacy options which have been replaced by driver model.
+Maintainers should submit patches switching over to using CONFIG_TIMER and
+other base driver model options in time for inclusion in the 2022.10 release.
+
+There is only one method to implement, unless you want to support bootstage,
+in which case you need an early timer also. For example drivers, see
+sandbox_timer.c and rockchip_timer.c

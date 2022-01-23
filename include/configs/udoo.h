@@ -28,7 +28,7 @@
 	"fdt_addr=0x18000000\0" \
 	"fdt_addr_r=0x18000000\0" \
 	"ip_dyn=yes\0" \
-	"mmcdev=0\0" \
+	"mmcdev=2\0" \
 	"mmcrootfstype=ext4\0" \
 	"findfdt="\
 		"if test ${board_rev} = MX6Q; then " \
@@ -44,7 +44,7 @@
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
+	func(MMC, mmc, 2) \
 	func(SATA, sata, 0) \
 	func(DHCP, dhcp, na)
 

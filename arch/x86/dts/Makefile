@@ -24,7 +24,7 @@ dtb-y += bayleybay.dtb \
 
 targets += $(dtb-y)
 
-DTC_FLAGS += -R 4 -p 0x1000
+DTC_FLAGS += -R 4 -p $(if $(CONFIG_EFI_APP),0x8000,0x1000)
 
 PHONY += dtbs
 dtbs: $(addprefix $(obj)/, $(dtb-y))

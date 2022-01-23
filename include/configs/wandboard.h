@@ -32,7 +32,6 @@
 #define CONFIG_MXC_USB_FLAGS		0
 
 /* Framebuffer */
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP

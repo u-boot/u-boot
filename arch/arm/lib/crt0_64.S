@@ -91,6 +91,10 @@ ENTRY(_main)
 	mov	x18, x0
 	bl	board_init_f_init_reserve
 
+#if defined(CONFIG_DEBUG_UART) && CONFIG_IS_ENABLED(SERIAL)
+	bl	debug_uart_init
+#endif
+
 	mov	x0, #0
 	bl	board_init_f
 

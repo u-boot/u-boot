@@ -56,16 +56,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
-#ifndef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND "if run check_em_pad; then " \
-	     "run recovery;" \
-	"else if test ${BOOT_FROM} = FACTORY; then " \
-	     "run factory_nfs;" \
-	"else " \
-	     "run boot_mmc;" \
-	"fi;fi"
-#endif
-
 #define PARTS_DEFAULT \
 	/* Linux partitions */ \
 	"partitions=" \
@@ -200,7 +190,6 @@
 	"altbootcmd=run recovery\0" \
 	"bootdelay=1\0" \
 	"baudrate=115200\0" \
-	"bootcmd=" CONFIG_BOOTCOMMAND "\0" \
 	"ethact=FEC\0" \
 	"netdev=eth0\0" \
 	"boot_os=y\0" \
@@ -324,13 +313,6 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-/* Watchdog */
-#if defined(CONFIG_SPL_BUILD)
-#undef CONFIG_WDT
-#undef CONFIG_WATCHDOG
-#define CONFIG_HW_WATCHDOG
-#endif
 
 /* ENV config */
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH

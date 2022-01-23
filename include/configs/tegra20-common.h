@@ -79,6 +79,4 @@
  */
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
 
-#define CONFIG_SYS_NAND_SELF_INIT
-
 #endif /* _TEGRA20_COMMON_H_ */

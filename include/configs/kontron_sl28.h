@@ -30,10 +30,6 @@
 /* early stack pointer */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xeff0)
 
-/* memtest command */
-#define CONFIG_SYS_MEMTEST_START        0x80000000
-#define CONFIG_SYS_MEMTEST_END          0x9fffffff
-
 /* SMP */
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 
@@ -46,8 +42,7 @@
 /* serial port */
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
 
-#define CONFIG_SYS_CLK_FREQ		100000000
-#define COUNTER_FREQUENCY_REAL		(CONFIG_SYS_CLK_FREQ / 4)
+#define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
 /* ethernet */
 #define CONFIG_SYS_RX_ETH_BUFFER	8

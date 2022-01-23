@@ -41,7 +41,6 @@
 
 /* Framebuffer support */
 #ifdef CONFIG_DM_VIDEO
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
 #endif
 
@@ -195,18 +194,6 @@
 		"else " \
 			"bootz; " \
 		"fi;\0"
-
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadimage; then " \
-				"run mmcboot; " \
-			"else run netboot; " \
-			"fi; " \
-		"fi; " \
-	"else run netboot; fi"
 
 /* The rest of the configuration is shared */
 #include <configs/mxs.h>

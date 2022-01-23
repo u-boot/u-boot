@@ -328,6 +328,7 @@
 				compatible = "marvell,armada-380-system-controller",
 					     "marvell,armada-370-xp-system-controller";
 				reg = <0x18200 0x100>;
+				#reset-cells = <2>;
 			};
 
 			gateclk: clock-gating-control@18220 {

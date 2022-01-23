@@ -13,8 +13,6 @@
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_MAX_SIZE				(124 * 1024)
 #define CONFIG_SYS_MONITOR_LEN				(1024 * 1024)
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0x800
 
 #define CONFIG_SPL_STACK		0x013E000
 #define CONFIG_SPL_BSS_START_ADDR	0x00128000
@@ -30,9 +28,6 @@
 #endif
 
 #define CONFIG_REMAKE_ELF
-
-/* Flat Device Tree Definitions */
-#define CONFIG_OF_BOARD_SETUP
 
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 #define USDHC1_BASE_ADDR                0x5B010000
@@ -58,7 +53,7 @@
 	"initrd_addr=0x83800000\0"		\
 	"initrd_high=0xffffffffffffffff\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
+	"mmcpart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} root=${mmcroot}\0 " \
@@ -119,32 +114,11 @@
 			"fi;" \
 		"fi;\0"
 
-#define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if test ${sec_boot} = yes; then " \
-				   "if run loadcntr; then " \
-					   "run mmcboot; " \
-				   "else run netboot; " \
-				   "fi; " \
-			    "else " \
-				   "if run loadimage; then " \
-					   "run mmcboot; " \
-				   "else run netboot; " \
-				   "fi; " \
-			 "fi; " \
-		   "fi; " \
-	   "else booti ${loadaddr} - ${fdt_addr}; fi"
-
 /* Link Definitions */
 
 #define CONFIG_SYS_INIT_SP_ADDR         0x80200000
 
 /* Default environment is in SD */
-
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 /* On LPDDR4 board, USDHC1 is for eMMC, USDHC2 is for SD on CPU board */
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */

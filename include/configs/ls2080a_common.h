@@ -61,11 +61,6 @@
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
 /* GPIO */
-#ifdef CONFIG_DM_GPIO
-#ifndef CONFIG_MPC8XXX_GPIO
-#define CONFIG_MPC8XXX_GPIO
-#endif
-#endif
 
 /* I2C */
 
@@ -73,9 +68,6 @@
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE     1
 #define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
-
-/* IFC */
-#define CONFIG_FSL_IFC
 
 /*
  * During booting, IFC is mapped at the region of 0x30000000.
@@ -169,19 +161,6 @@ unsigned long long get_qixis_addr(void);
 	"console=ttyAMA0,38400n8\0"		\
 	"mcinitcmd=fsl_mc start mc 0x580a00000"	\
 	" 0x580e00000 \0"
-
-#ifndef CONFIG_TFABOOT
-#ifdef CONFIG_SD_BOOT
-#define CONFIG_BOOTCOMMAND	"mmc read 0x80200000 0x6800 0x800;"\
-				" fsl_mc apply dpl 0x80200000 &&" \
-				" mmc read $kernel_load $kernel_start" \
-				" $kernel_size && bootm $kernel_load"
-#else
-#define CONFIG_BOOTCOMMAND	"fsl_mc apply dpl 0x580d00000 &&" \
-				" cp.b $kernel_start $kernel_load" \
-				" $kernel_size && bootm $kernel_load"
-#endif
-#endif
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */

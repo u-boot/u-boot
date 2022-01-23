@@ -12,7 +12,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"fitImage"
-#define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 
 /* Environment is in MMC */
 

@@ -10,6 +10,7 @@ import sys
 import unittest
 
 from binman import entry
+from binman.etype.blob import Entry_blob
 from dtoc import fdt
 from dtoc import fdt_util
 from patman import tools
@@ -99,6 +100,14 @@ class TestEntry(unittest.TestCase):
             entry.Entry.Create(None, self.GetNode(), 'missing', expanded=True)
         self.assertIn("Unknown entry type 'missing' in node '/binman/u-boot'",
                       str(e.exception))
+
+    def testMissingEtype(self):
+        """Test use of a blob etype when the requested one is not available"""
+        ent = entry.Entry.Create(None, self.GetNode(), 'missing',
+                                 missing_etype=True)
+        self.assertTrue(isinstance(ent, Entry_blob))
+        self.assertEquals('missing', ent.etype)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_FSL_CLK
-
 #include <asm/arch/imx-regs.h>
 
 /* U-Boot environment */
@@ -36,12 +34,6 @@
 
 /* Linux boot */
 #define CONFIG_HOSTNAME		"usbarmory"
-#define CONFIG_BOOTCOMMAND						\
-	"run distro_bootcmd; "						\
-	"setenv bootargs console=${console} ${bootargs_default}; "	\
-	"ext2load mmc 0:1 ${kernel_addr_r} /boot/zImage; "		\
-	"ext2load mmc 0:1 ${fdt_addr_r} /boot/${fdtfile}; "		\
-	"bootz ${kernel_addr_r} - ${fdt_addr_r}"
 
 #define BOOT_TARGET_DEVICES(func) func(MMC, mmc, 0)
 

@@ -9,22 +9,13 @@
 
 #define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
 
-#define CONFIG_SYS_FSL_CLK
-
 #define CONFIG_DEEP_SLEEP
 
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
-#ifndef __ASSEMBLY__
-unsigned long get_board_sys_clk(void);
-#endif
-
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_QIXIS_I2C_ACCESS
-#else
-#define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #endif
 
 #ifdef CONFIG_SD_BOOT
@@ -76,7 +67,6 @@ unsigned long get_board_sys_clk(void);
  * IFC Definitions
  */
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_FSL_IFC
 #define CONFIG_SYS_FLASH_BASE		0x60000000
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 
@@ -298,11 +288,6 @@ unsigned long get_board_sys_clk(void);
  */
 
 /* GPIO */
-#ifdef CONFIG_DM_GPIO
-#ifndef CONFIG_MPC8XXX_GPIO
-#define CONFIG_MPC8XXX_GPIO
-#endif
-#endif
 
 /* EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_NXID
@@ -323,7 +308,6 @@ unsigned long get_board_sys_clk(void);
  * Video
  */
 #ifdef CONFIG_VIDEO_FSL_DCU_FB
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 
 #define CONFIG_FSL_DIU_CH7301

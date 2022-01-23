@@ -17,7 +17,6 @@
 /*
  * SoC Configuration
  */
-#define CONFIG_SYS_CLK_FREQ		clk_get(DAVINCI_ARM_CLKID)
 #define CONFIG_SYS_OSCIN_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
@@ -161,9 +160,6 @@
  * Linux Information
  */
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
-#define CONFIG_BOOTCOMMAND \
-		"run envboot; " \
-		"run mmcboot; "
 
 #define DEFAULT_LINUX_BOOT_ENV \
 	"loadaddr=0xc0700000\0" \

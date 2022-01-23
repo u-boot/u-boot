@@ -37,7 +37,7 @@ class Entry_mkimage(Entry):
         self._args = fdt_util.GetString(self._node, 'args').split(' ')
         self._mkimage_entries = OrderedDict()
         self.align_default = None
-        self._ReadSubnodes()
+        self.ReadEntries()
 
     def ObtainContents(self):
         data = b''
@@ -55,9 +55,29 @@ class Entry_mkimage(Entry):
         self.SetContents(tools.ReadFile(output_fname))
         return True
 
-    def _ReadSubnodes(self):
+    def ReadEntries(self):
         """Read the subnodes to find out what should go in this image"""
         for node in self._node.subnodes:
             entry = Entry.Create(self, node)
             entry.ReadNode()
             self._mkimage_entries[entry.name] = entry
+
+    def SetAllowFakeBlob(self, allow_fake):
+        """Set whether the sub nodes allows to create a fake blob
+
+        Args:
+            allow_fake: True if allowed, False if not allowed
+        """
+        for entry in self._mkimage_entries.values():
+            entry.SetAllowFakeBlob(allow_fake)
+
+    def CheckFakedBlobs(self, faked_blobs_list):
+        """Check if any entries in this section have faked external blobs
+
+        If there are faked blobs, the entries are added to the list
+
+        Args:
+            faked_blobs_list: List of Entry objects to be added to
+        """
+        for entry in self._mkimage_entries.values():
+            entry.CheckFakedBlobs(faked_blobs_list)

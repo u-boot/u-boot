@@ -81,30 +81,19 @@ Building
 
    - Compile ATF
 
-     For Puma board.
+     => git clone https://github.com/ARM-software/arm-trusted-firmware.git
+     => cd arm-trusted-firmware
 
-	=> git clone git://git.theobroma-systems.com/arm-trusted-firmware.git
-	=> cd arm-trusted-firmware
-	=> make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
+     (export cross compiler path for Cortex-M0 MCU likely arm-none-eabi-)
+     => make realclean
+     => make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399
 
-	(export bl31.bin)
-	=> export BL31=/path/to/arm-trusted-firmware/build/rk3399/release/bl31/bl31.bin
-
-     For rest of rk3399 boards.
-
-	=> git clone https://github.com/ARM-software/arm-trusted-firmware.git
-	=> cd arm-trusted-firmware
-
-	(export cross compiler path for Cortex-M0 MCU likely arm-none-eabi-)
-	=> make realclean
-	=> make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399
-
-	(export bl31.elf)
-	=> export BL31=/path/to/arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf
+    (export bl31.elf)
+    => export BL31=/path/to/arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf
 
    - Compile PMU M0 firmware
 
-     This is optional for most of the rk3399 boards and required only for Puma board.
+     This is optional for most of the rk3399 boards.
 
      => git clone git://git.theobroma-systems.com/rk3399-cortex-m0.git
      => cd rk3399-cortex-m0

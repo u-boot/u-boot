@@ -9,6 +9,7 @@
 /dts-v1/;
 
 #include "imx8mq.dtsi"
+#include "imx8mq-u-boot.dtsi"
 
 / {
 	model = "TechNexion PICO-PI-8M";

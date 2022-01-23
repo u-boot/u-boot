@@ -9,23 +9,26 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <log.h>
+#include <malloc.h>
 #include <mmc.h>
+#include <os.h>
 #include <asm/test.h>
 
 struct sandbox_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
+	const char *fname;
 };
 
-#define MMC_CSIZE 0
-#define MMC_CMULT 8 /* 8 because the card is high-capacity */
-#define MMC_BL_LEN_SHIFT 10
-#define MMC_BL_LEN BIT(MMC_BL_LEN_SHIFT)
-#define MMC_CAPACITY (((MMC_CSIZE + 1) << (MMC_CMULT + 2)) \
-		      * MMC_BL_LEN) /* 1 MiB */
+#define MMC_CMULT		8 /* 8 because the card is high-capacity */
+#define MMC_BL_LEN_SHIFT	10
+#define MMC_BL_LEN		BIT(MMC_BL_LEN_SHIFT)
+#define SIZE_MULTIPLE		((1 << (MMC_CMULT + 2)) * MMC_BL_LEN)
 
 struct sandbox_mmc_priv {
-	u8 buf[MMC_CAPACITY];
+	char *buf;
+	int csize;	/* CSIZE value to report */
+	int size;
 };
 
 /**
@@ -60,8 +63,8 @@ static int sandbox_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	case MMC_CMD_SEND_CSD:
 		cmd->response[0] = 0;
 		cmd->response[1] = (MMC_BL_LEN_SHIFT << 16) |
-				   ((MMC_CSIZE >> 16) & 0x3f);
-		cmd->response[2] = (MMC_CSIZE & 0xffff) << 16;
+				   ((priv->csize >> 16) & 0x3f);
+		cmd->response[2] = (priv->csize & 0xffff) << 16;
 		cmd->response[3] = 0;
 		break;
 	case SD_CMD_SWITCH_FUNC: {
@@ -143,6 +146,8 @@ static int sandbox_mmc_of_to_plat(struct udevice *dev)
 	struct blk_desc *blk;
 	int ret;
 
+	plat->fname = dev_read_string(dev, "filename");
+
 	ret = mmc_of_parse(dev, cfg);
 	if (ret)
 		return ret;
@@ -156,8 +161,44 @@ static int sandbox_mmc_of_to_plat(struct udevice *dev)
 static int sandbox_mmc_probe(struct udevice *dev)
 {
 	struct sandbox_mmc_plat *plat = dev_get_plat(dev);
+	struct sandbox_mmc_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	if (plat->fname) {
+		ret = os_map_file(plat->fname, OS_O_RDWR | OS_O_CREAT,
+				  (void **)&priv->buf, &priv->size);
+		if (ret) {
+			log_err("%s: Unable to map file '%s'\n", dev->name,
+				plat->fname);
+			return ret;
+		}
+		priv->csize = priv->size / SIZE_MULTIPLE - 1;
+	} else {
+		priv->csize = 0;
+		priv->size = (priv->csize + 1) * SIZE_MULTIPLE; /* 1 MiB */
+
+		priv->buf = malloc(priv->size);
+		if (!priv->buf) {
+			log_err("%s: Not enough memory (%x bytes)\n",
+				dev->name, priv->size);
+			return -ENOMEM;
+		}
+	}
 
 	return mmc_init(&plat->mmc);
+}
+
+static int sandbox_mmc_remove(struct udevice *dev)
+{
+	struct sandbox_mmc_plat *plat = dev_get_plat(dev);
+	struct sandbox_mmc_priv *priv = dev_get_priv(dev);
+
+	if (plat->fname)
+		os_unmap(priv->buf, priv->size);
+	else
+		free(priv->buf);
+
+	return 0;
 }
 
 static int sandbox_mmc_bind(struct udevice *dev)
@@ -196,6 +237,7 @@ U_BOOT_DRIVER(mmc_sandbox) = {
 	.unbind		= sandbox_mmc_unbind,
 	.of_to_plat	= sandbox_mmc_of_to_plat,
 	.probe		= sandbox_mmc_probe,
+	.remove		= sandbox_mmc_remove,
 	.priv_auto = sizeof(struct sandbox_mmc_priv),
 	.plat_auto = sizeof(struct sandbox_mmc_plat),
 };

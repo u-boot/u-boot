@@ -35,15 +35,5 @@
 /*
  * Override CONFIG_BOOTCOMMAND in x86-common.h
  */
-#undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND						\
-	"if test ${bootdev} = \"usb\"; then ${bootdev} start; fi; "	\
-	"if test ${bootdev} = \"scsi\"; then ${bootdev} scan; fi; "	\
-	"${bootdev} info; "						\
-	"${bootfsload} ${bootdev} ${bootdevnum}:${bootdevpart} "	\
-	"${loadaddr} ${bootfile}; "					\
-	"${bootfsload} ${bootdev} ${bootdevnum}:${bootdevpart} "	\
-	"${ramdiskaddr} ${ramdiskfile}; "				\
-	"zboot ${loadaddr} 0 ${ramdiskaddr} ${filesize}"
 
 #endif /* __SLIMBOOTLOADER_CONFIG_H__ */

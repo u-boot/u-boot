@@ -47,8 +47,8 @@ optional_header:
 
 extra_header_fields:
 	.long	0				/* image_base */
-	.long	0x20				/* SectionAlignment */
-	.long	0x8				/* FileAlignment */
+	.long	0x200				/* SectionAlignment */
+	.long	0x200				/* FileAlignment */
 	.short	0				/* MajorOperatingSystemVersion */
 	.short	0				/* MinorOperatingSystemVersion */
 	.short	0				/* MajorImageVersion */
@@ -115,6 +115,7 @@ section_table:
 	.short	0		/* NumberOfLineNumbers  (0 for executables) */
 	.long	0xe0500020	/* Characteristics (section flags) */
 
+	.align		9
 _start:
 	stmfd		sp!, {r0-r2, lr}
 

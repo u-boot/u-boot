@@ -12,6 +12,4 @@
 		"stdout=serial,vidconsole\0" \
 		"stderr=serial,vidconsole\0"
 
-#define CONFIG_SUPPORT_EMMC_RPMB
-
 #endif

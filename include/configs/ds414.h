@@ -45,7 +45,7 @@
 
 /* SPL */
 /* Defines for SPL */
-#define CONFIG_SPL_MAX_SIZE		((128 << 10) - 0x4030)
+#define CONFIG_SPL_MAX_SIZE		((128 << 10) - (CONFIG_SPL_TEXT_BASE - 0x40000000))
 
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
 #define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)
@@ -58,11 +58,6 @@
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
 /* Default Environment */
-#define CONFIG_BOOTCOMMAND					\
-	"sf probe; "						\
-	"sf read ${loadaddr} 0xd0000 0x2d0000; "		\
-	"sf read ${ramdisk_addr_r} 0x3a0000 0x430000; "		\
-	"bootm ${loadaddr} ${ramdisk_addr_r}"
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"initrd_high=0xffffffff\0"				\

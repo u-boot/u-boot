@@ -19,8 +19,7 @@
 /* Keep L2 Cache Disabled */
 
 /* input clock of PLL: 24MHz input clock */
-#define CONFIG_SYS_CLK_FREQ		24000000
-#define COUNTER_FREQUENCY		CONFIG_SYS_CLK_FREQ
+#define COUNTER_FREQUENCY		24000000
 
 /* select serial console configuration */
 

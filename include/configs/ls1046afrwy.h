@@ -8,8 +8,6 @@
 
 #include "ls1046a_common.h"
 
-#define CONFIG_SYS_CLK_FREQ		100000000
-
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR     1
@@ -17,8 +15,6 @@
 
 #define CONFIG_SYS_UBOOT_BASE		0x40100000
 
-/* IFC */
-#define CONFIG_FSL_IFC
 /*
  * NAND Flash Definitions
  */
@@ -109,7 +105,6 @@
 
 #endif
 
-#undef CONFIG_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;;"
 #define SD_BOOTCOMMAND "run distro_bootcmd;run sd_bootcmd; "	\

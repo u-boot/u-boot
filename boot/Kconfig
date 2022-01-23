@@ -358,11 +358,27 @@ config SYS_TEXT_BASE
 	help
 	  The address in memory that U-Boot will be running from, initially.
 
-config SYS_CLK_FREQ
-	depends on ARC || ARCH_SUNXI || MPC83xx
-	int "CPU clock frequency"
+config DYNAMIC_SYS_CLK_FREQ
+	bool "Determine CPU clock frequency at run-time"
 	help
-	  TODO: Move CONFIG_SYS_CLK_FREQ for all the architecture
+	  Implement a get_board_sys_clk function that will determine the CPU
+	  clock frequency at run time, rather than define it statically.
+
+config SYS_CLK_FREQ
+	depends on !DYNAMIC_SYS_CLK_FREQ
+	int "CPU clock frequency"
+	default 125000000 if ARCH_LS1012A
+	default 100000000 if ARCH_P2020 || ARCH_T1024 || ARCH_T1042 || \
+			     ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3
+	default 66666666 if ARCH_P1010 || ARCH_P1020 || ARCH_T4240
+	default 66660000 if ARCH_T2080
+	default 33333333 if RCAR_GEN3
+	default 24000000 if ARCH_EXYNOS
+	default 20000000 if RCAR_GEN2
+	default 0
+	help
+	  A static value for the CPU frequency.  Note that if not required
+	  for a given SoC, this can be left at 0.
 
 config ARCH_FIXUP_FDT_MEMORY
 	bool "Enable arch_fixup_memory_banks() call"
@@ -761,6 +777,13 @@ config SD_BOOT
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via SD/EMMC. This is not a must, some SoCs need this,
 	  some not.
+
+config SD_BOOT_QSPI
+	bool "Support for booting from SD/EMMC and enable QSPI"
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via SD/EMMC while enabling QSPI on the platform as well. This
+	  is not a must, some SoCs need this, some not.
 
 config SPI_BOOT
 	bool "Support for booting from SPI flash"

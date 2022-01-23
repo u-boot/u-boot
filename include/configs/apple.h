@@ -3,10 +3,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_SDRAM_BASE	0x880000000
-
-#define CONFIG_LNX_KRNL_IMG_TEXT_OFFSET_BASE	CONFIG_SYS_TEXT_BASE
-
 /* Environment */
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial,usbkbd\0" \

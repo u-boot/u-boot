@@ -63,19 +63,16 @@
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	((768 << 10) - 0x2000)
 #define CONFIG_SYS_NAND_U_BOOT_DST	(0x00200000 - CONFIG_SPL_MAX_SIZE)
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0
 #else
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_NAND_INIT
 #define CONFIG_SPL_COMMON_INIT_DDR
 #define CONFIG_SPL_MAX_SIZE		(128 << 10)
-#define CONFIG_TPL_TEXT_BASE		0xD0001000
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(576 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	(0x11000000)
 #define CONFIG_SYS_NAND_U_BOOT_START	(0x11000000)
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	((128 + 128) << 10)
 #elif defined(CONFIG_SPL_BUILD)
 #define CONFIG_SPL_INIT_MINIMAL
 #define CONFIG_SPL_NAND_MINIMAL
@@ -84,7 +81,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(128 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0xD0000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0xD0000000
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	(128 << 10)
 #endif
 #define CONFIG_SPL_PAD_TO	0x20000
 #define CONFIG_TPL_PAD_TO	0x20000
@@ -102,7 +98,7 @@
 #endif
 
 #ifdef CONFIG_TPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_TPL_TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	0xD0001000
 #elif defined(CONFIG_SPL_BUILD)
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
 #else
@@ -110,12 +106,10 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_SYS_HAS_SERDES		/* common SERDES init code */
 
 #if defined(CONFIG_PCI)
 #define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2			/* PCIE controller 2 (slot 2) */
-#define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 /*
  * PCI Windows
@@ -151,8 +145,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif
-
-#define CONFIG_SYS_CLK_FREQ	66666666 /* SYSCLK for P1010 RDB */
 
 #define CONFIG_HWCONFIG
 /*
@@ -573,7 +565,6 @@ extern unsigned long get_sdram_size(void);
 #if defined(CONFIG_HAS_FSL_DR_USB)
 #ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_USB_EHCI_FSL
 #endif
 #endif
 
@@ -596,8 +587,6 @@ extern unsigned long get_sdram_size(void);
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
-
-#undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI_HCD) \
 		 || defined(CONFIG_FSL_SATA)
@@ -680,16 +669,6 @@ extern unsigned long get_sdram_size(void);
 	"boot_sd=i2c dev 0; i2c mw 18 1 f8; i2c mw 18 3 0;" \
 	"i2c mw 19 1 4; i2c mw 19 3 f3; reset\0"
 #endif
-
-#define RAMBOOTCOMMAND		\
-	"setenv bootargs root=/dev/ram rw "	\
-	"console=$consoledev,$baudrate $othbootargs; "	\
-	"tftp $ramdiskaddr $ramdiskfile;"	\
-	"tftp $loadaddr $bootfile;"		\
-	"tftp $fdtaddr $fdtfile;"		\
-	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_BOOTCOMMAND RAMBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
 

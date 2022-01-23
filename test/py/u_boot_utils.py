@@ -157,7 +157,7 @@ def wait_until_file_open_fails(fn, ignore_errors):
         return
     raise Exception('File can still be opened')
 
-def run_and_log(u_boot_console, cmd, ignore_errors=False):
+def run_and_log(u_boot_console, cmd, ignore_errors=False, stdin=None):
     """Run a command and log its output.
 
     Args:
@@ -169,6 +169,7 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
             will simply return if the command cannot be executed or exits with
             an error code, otherwise an exception will be raised if such
             problems occur.
+        stdin: Input string to pass to the command as stdin (or None)
 
     Returns:
         The output as a string.
@@ -176,7 +177,7 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False):
     if isinstance(cmd, str):
         cmd = cmd.split()
     runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
-    output = runner.run(cmd, ignore_errors=ignore_errors)
+    output = runner.run(cmd, ignore_errors=ignore_errors, stdin=stdin)
     runner.close()
     return output
 

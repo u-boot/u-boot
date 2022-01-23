@@ -11,12 +11,7 @@
 #ifndef _CONFIG_DREAMPLUG_H
 #define _CONFIG_DREAMPLUG_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-
-#include "mv-plug-common.h"
+#include "mv-common.h"
 
 /*
  *  Environment variables configurations
@@ -30,11 +25,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND		"setenv ethact ethernet-controller@72000; " \
-	"${x_bootcmd_ethernet}; setenv ethact ethernet-controller@76000; " \
-	"${x_bootcmd_ethernet}; ${x_bootcmd_usb}; ${x_bootcmd_kernel}; "\
-	"setenv bootargs ${x_bootargs} ${x_bootargs_root}; "	\
-	"bootm 0x6400000;"
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"x_bootcmd_ethernet=ping 192.168.2.1\0"	\

@@ -12,7 +12,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"fitImage"
-#define CONFIG_BOOTCOMMAND	"run selboot"
 #define CONFIG_SYS_BOOTM_LEN	0x2000000	/* 32 MiB */
 
 /* Extra Environment */

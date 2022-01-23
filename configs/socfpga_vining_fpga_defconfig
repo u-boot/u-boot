@@ -14,7 +14,7 @@ CONFIG_FIT=y
 CONFIG_BOOTDELAY=5
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200"
-# CONFIG_USE_BOOTCOMMAND is not set
+CONFIG_BOOTCOMMAND="run selboot"
 CONFIG_USE_PREBOOT=y
 CONFIG_PREBOOT="setenv hostname vining-${unit_serial} ; setenv PS1 \"${unit_ident} (${unit_serial}) => \" ; if gpio input 78 ; then setenv bootdelay 10 ; setenv boottype rcvr ; elif test -n \"$force_boottype\" ; then setenv bootdelay 1 ; setenv boottype \"$force_boottype\" ; setenv force_boottype ; saveenv ; else setenv bootdelay 5 ; setenv boottype norm ; fi"
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
@@ -76,7 +76,6 @@ CONFIG_I2C_EEPROM=y
 CONFIG_SYS_I2C_EEPROM_ADDR=0x50
 CONFIG_MMC_DW=y
 CONFIG_MTD=y
-CONFIG_SF_DEFAULT_MODE=0x0
 CONFIG_SF_DEFAULT_SPEED=40000000
 CONFIG_SPI_FLASH_SFDP_SUPPORT=y
 CONFIG_SPI_FLASH_SPANSION=y

@@ -27,15 +27,6 @@
 
 #define CONFIG_SYS_L2_PL310
 
-/*
- * By default the generated mvebu kwbimage.cfg is used
- * If for some board, different configuration file need to be used,
- * CONFIG_SYS_KWD_CONFIG should be defined in board specific header file
- */
-#ifndef CONFIG_SYS_KWD_CONFIG
-#define	CONFIG_SYS_KWD_CONFIG	arch/arm/mach-mvebu/kwbimage.cfg
-#endif /* CONFIG_SYS_KWD_CONFIG */
-
 /* end of 16M scrubbed by training in bootrom */
 #define CONFIG_SYS_INIT_SP_ADDR		0x00FF0000
 

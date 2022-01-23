@@ -461,7 +461,7 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	u32 max_hw_ep;
 	int pdata_hw_ep;
 
-	debug("Reseting OTG controller\n");
+	debug("Resetting OTG controller\n");
 
 	dflt_gusbcfg =
 		0<<15		/* PHY Low Power Clock sel*/
@@ -655,6 +655,7 @@ static int dwc2_ep_enable(struct usb_ep *_ep,
 		return -ESHUTDOWN;
 	}
 
+	_ep->desc = desc;
 	ep->stopped = 0;
 	ep->desc = desc;
 	ep->pio_irqs = 0;
@@ -695,6 +696,7 @@ static int dwc2_ep_disable(struct usb_ep *_ep)
 	/* Nuke all pending requests */
 	nuke(ep, -ESHUTDOWN);
 
+	_ep->desc = NULL;
 	ep->desc = 0;
 	ep->stopped = 1;
 

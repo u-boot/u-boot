@@ -1,12 +1,16 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0+ BSD-3-Clause
 /*
  * Copyright 2018 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_DEBUG
+#define LOG_CATEGORY	LOGC_BLOBLIST
+
 #include <common.h>
 #include <bloblist.h>
 #include <log.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <spl.h>
 #include <asm/global_data.h>
@@ -28,26 +32,39 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const char *const tag_name[] = {
-	[BLOBLISTT_NONE]		= "(none)",
-	[BLOBLISTT_EC_HOSTEVENT]	= "EC host event",
-	[BLOBLISTT_SPL_HANDOFF]		= "SPL hand-off",
-	[BLOBLISTT_VBOOT_CTX]		= "Chrome OS vboot context",
-	[BLOBLISTT_VBOOT_HANDOFF]	= "Chrome OS vboot hand-off",
-	[BLOBLISTT_ACPI_GNVS]		= "ACPI GNVS",
-	[BLOBLISTT_INTEL_VBT]		= "Intel Video-BIOS table",
-	[BLOBLISTT_TPM2_TCG_LOG]	= "TPM v2 log space",
-	[BLOBLISTT_TCPA_LOG]		= "TPM log space",
-	[BLOBLISTT_ACPI_TABLES]		= "ACPI tables for x86",
-	[BLOBLISTT_SMBIOS_TABLES]	= "SMBIOS tables for x86",
+static struct tag_name {
+	enum bloblist_tag_t tag;
+	const char *name;
+} tag_name[] = {
+	{ BLOBLISTT_NONE, "(none)" },
+
+	/* BLOBLISTT_AREA_FIRMWARE_TOP */
+
+	/* BLOBLISTT_AREA_FIRMWARE */
+	{ BLOBLISTT_ACPI_GNVS, "ACPI GNVS" },
+	{ BLOBLISTT_INTEL_VBT, "Intel Video-BIOS table" },
+	{ BLOBLISTT_TPM2_TCG_LOG, "TPM v2 log space" },
+	{ BLOBLISTT_TCPA_LOG, "TPM log space" },
+	{ BLOBLISTT_ACPI_TABLES, "ACPI tables for x86" },
+	{ BLOBLISTT_SMBIOS_TABLES, "SMBIOS tables for x86" },
+	{ BLOBLISTT_VBOOT_CTX, "Chrome OS vboot context" },
+
+	/* BLOBLISTT_PROJECT_AREA */
+	{ BLOBLISTT_U_BOOT_SPL_HANDOFF, "SPL hand-off" },
+
+	/* BLOBLISTT_VENDOR_AREA */
 };
 
 const char *bloblist_tag_name(enum bloblist_tag_t tag)
 {
-	if (tag < 0 || tag >= BLOBLISTT_COUNT)
-		return "invalid";
+	int i;
 
-	return tag_name[tag];
+	for (i = 0; i < ARRAY_SIZE(tag_name); i++) {
+		if (tag_name[i].tag == tag)
+			return tag_name[i].name;
+	}
+
+	return "invalid";
 }
 
 static struct bloblist_rec *bloblist_first_blob(struct bloblist_hdr *hdr)
@@ -119,9 +136,8 @@ static int bloblist_addrec(uint tag, int size, int align,
 	new_alloced = data_start + ALIGN(size, align);
 
 	if (new_alloced > hdr->size) {
-		log(LOGC_BLOBLIST, LOGL_ERR,
-		    "Failed to allocate %x bytes size=%x, need size=%x\n",
-		    size, hdr->size, new_alloced);
+		log_err("Failed to allocate %x bytes size=%x, need size=%x\n",
+			size, hdr->size, new_alloced);
 		return log_msg_ret("bloblist add", -ENOSPC);
 	}
 	rec = (void *)hdr + hdr->alloced;
@@ -235,14 +251,13 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 	expand_by = ALIGN(new_size - rec->size, BLOBLIST_ALIGN);
 	new_alloced = ALIGN(hdr->alloced + expand_by, BLOBLIST_ALIGN);
 	if (new_size < 0) {
-		log(LOGC_BLOBLIST, LOGL_DEBUG,
-		    "Attempt to shrink blob size below 0 (%x)\n", new_size);
+		log_debug("Attempt to shrink blob size below 0 (%x)\n",
+			  new_size);
 		return log_msg_ret("size", -EINVAL);
 	}
 	if (new_alloced > hdr->size) {
-		log(LOGC_BLOBLIST, LOGL_ERR,
-		    "Failed to allocate %x bytes size=%x, need size=%x\n",
-		    new_size, hdr->size, new_alloced);
+		log_err("Failed to allocate %x bytes size=%x, need size=%x\n",
+			new_size, hdr->size, new_alloced);
 		return log_msg_ret("alloc", -ENOSPC);
 	}
 
@@ -333,8 +348,7 @@ int bloblist_check(ulong addr, uint size)
 		return log_msg_ret("Bad size", -EFBIG);
 	chksum = bloblist_calc_chksum(hdr);
 	if (hdr->chksum != chksum) {
-		log(LOGC_BLOBLIST, LOGL_ERR, "Checksum %x != %x\n", hdr->chksum,
-		    chksum);
+		log_err("Checksum %x != %x\n", hdr->chksum, chksum);
 		return log_msg_ret("Bad checksum", -EIO);
 	}
 	gd->bloblist = hdr;
@@ -347,8 +361,22 @@ int bloblist_finish(void)
 	struct bloblist_hdr *hdr = gd->bloblist;
 
 	hdr->chksum = bloblist_calc_chksum(hdr);
+	log_debug("Finished bloblist size %lx at %lx\n", (ulong)hdr->size,
+		  (ulong)map_to_sysmem(hdr));
 
 	return 0;
+}
+
+ulong bloblist_get_base(void)
+{
+	return map_to_sysmem(gd->bloblist);
+}
+
+ulong bloblist_get_size(void)
+{
+	struct bloblist_hdr *hdr = gd->bloblist;
+
+	return hdr->size;
 }
 
 void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp)
@@ -382,10 +410,10 @@ void bloblist_show_list(void)
 	struct bloblist_hdr *hdr = gd->bloblist;
 	struct bloblist_rec *rec;
 
-	printf("%-8s  %8s  Tag Name\n", "Address", "Size");
+	printf("%-8s  %8s   Tag Name\n", "Address", "Size");
 	for (rec = bloblist_first_blob(hdr); rec;
 	     rec = bloblist_next_blob(hdr, rec)) {
-		printf("%08lx  %8x  %3d %s\n",
+		printf("%08lx  %8x  %4x %s\n",
 		       (ulong)map_to_sysmem((void *)rec + rec->hdr_size),
 		       rec->size, rec->tag, bloblist_tag_name(rec->tag));
 	}
@@ -402,8 +430,9 @@ void bloblist_reloc(void *to, uint to_size, void *from, uint from_size)
 
 int bloblist_init(void)
 {
-	bool expected;
 	int ret = -ENOENT;
+	ulong addr, size;
+	bool expected;
 
 	/**
 	 * Wed expect to find an existing bloblist in the first phase of U-Boot
@@ -412,16 +441,32 @@ int bloblist_init(void)
 	expected = !u_boot_first_phase();
 	if (spl_prev_phase() == PHASE_TPL && !IS_ENABLED(CONFIG_TPL_BLOBLIST))
 		expected = false;
-	if (expected)
-		ret = bloblist_check(CONFIG_BLOBLIST_ADDR,
-				     CONFIG_BLOBLIST_SIZE);
+	addr = bloblist_addr();
+	size = CONFIG_BLOBLIST_SIZE;
+	if (expected) {
+		ret = bloblist_check(addr, size);
+		if (ret) {
+			log_warning("Expected bloblist at %lx not found (err=%d)\n",
+				    addr, ret);
+		} else {
+			/* Get the real size, if it is not what we expected */
+			size = gd->bloblist->size;
+		}
+	}
 	if (ret) {
-		log(LOGC_BLOBLIST, expected ? LOGL_WARNING : LOGL_DEBUG,
-		    "Existing bloblist not found: creating new bloblist\n");
-		ret = bloblist_new(CONFIG_BLOBLIST_ADDR, CONFIG_BLOBLIST_SIZE,
-				   0);
+		if (CONFIG_IS_ENABLED(BLOBLIST_ALLOC)) {
+			void *ptr = memalign(BLOBLIST_ALIGN, size);
+
+			if (!ptr)
+				return log_msg_ret("alloc", -ENOMEM);
+			addr = map_to_sysmem(ptr);
+		}
+		log_debug("Creating new bloblist size %lx at %lx\n", size,
+			  addr);
+		ret = bloblist_new(addr, size, 0);
 	} else {
-		log(LOGC_BLOBLIST, LOGL_DEBUG, "Found existing bloblist\n");
+		log_debug("Found existing bloblist size %lx at %lx\n", size,
+			  addr);
 	}
 
 	return ret;

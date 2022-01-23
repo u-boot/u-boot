@@ -10,11 +10,15 @@
  */
 
 #include "skeleton.dtsi"
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/clk/at91.h>
+#include <dt-bindings/dma/at91.h>
 
 / {
 	model = "Microchip SAMA7G5 family SoC";
 	compatible = "microchip,sama7g5";
+	interrupt-parent = <&gic>;
 
 	clocks {
 		slow_rc_osc: slow_rc_osc {
@@ -91,6 +95,32 @@
 				#clock-cells = <1>;
 			};
 
+			qspi0: spi@e080c000 {
+				compatible = "microchip,sama7g5-ospi";
+				reg = <0xe080c000 0x400>, <0x20000000 0x10000000>;
+				reg-names = "qspi_base", "qspi_mmap";
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 78>, <&pmc PMC_TYPE_GCK 78>;
+				clock-names = "pclk", "gclk";
+				assigned-clocks = <&pmc PMC_TYPE_GCK 78>;
+				assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* sys pll div. */
+				#address-cells = <1>;
+				#size-cells = <0>;
+				status = "disabled";
+			};
+
+			qspi1: spi@e0810000 {
+				compatible = "microchip,sama7g5-qspi";
+				reg = <0xe0810000 0x400>, <0x30000000 0x10000000>;
+				reg-names = "qspi_base", "qspi_mmap";
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 79>, <&pmc PMC_TYPE_GCK 79>;
+				clock-names = "pclk", "gclk";
+				assigned-clocks = <&pmc PMC_TYPE_GCK 78>;
+				assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* sys pll div. */
+				#address-cells = <1>;
+				#size-cells = <0>;
+				status = "disabled";
+			};
+
 			sdmmc0: sdio-host@e1204000 {
 				compatible = "microchip,sama7g5-sdhci";
 				reg = <0xe1204000 0x300>;
@@ -164,6 +194,52 @@
 				clocks = <&pmc PMC_TYPE_PERIPHERAL 52>, <&pmc PMC_TYPE_PERIPHERAL 52>;
 				clock-names = "pclk", "hclk";
 				status = "disabled";
+			};
+
+			dma0: dma-controller@e2808000 {
+				compatible = "microchip,sama7g5-dma";
+				reg = <0xe2808000 0x1000>;
+				interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
+				#dma-cells = <1>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 22>;
+				clock-names = "dma_clk";
+				status = "disabled";
+			};
+
+			flx8: flexcom@e2818000 {
+				compatible = "atmel,sama5d2-flexcom";
+				reg = <0xe2818000 0x200>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 46>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				ranges = <0x0 0xe2818000 0x800>;
+				status = "disabled";
+
+				i2c8: i2c@600 {
+					compatible = "microchip,sama7g5-i2c", "microchip,sam9x60-i2c";
+					reg = <0x600 0x200>;
+					interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 46>;
+					atmel,fifo-size = <32>;
+					dmas = <&dma0 AT91_XDMAC_DT_PERID(21)>,
+						<&dma0 AT91_XDMAC_DT_PERID(22)>;
+					dma-names = "rx", "tx";
+					atmel,use-dma-rx;
+					atmel,use-dma-tx;
+					status = "disabled";
+				};
+			};
+
+			gic: interrupt-controller@e8c11000 {
+				compatible = "arm,cortex-a7-gic";
+				#interrupt-cells = <3>;
+				#address-cells = <0>;
+				interrupt-controller;
+				interrupt-parent;
+				reg = <0xe8c11000 0x1000>,
+					<0xe8c12000 0x2000>;
 			};
 		};
 	};

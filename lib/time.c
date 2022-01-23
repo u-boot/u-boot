@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <errno.h>

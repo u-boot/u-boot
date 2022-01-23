@@ -28,14 +28,7 @@ u32 spl_boot_device(void)
 
 struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
 {
-	/*
-	 * When boot from SPI, AST2600 already remap 0x00000000 ~ 0x0fffffff
-	 * to BMC SPI memory space 0x20000000 ~ 0x2fffffff. The next stage BL
-	 * has been located in SPI for XIP. In this case, the load buffer for
-	 * SPL image loading will be set to the remapped address of the next
-	 * BL instead of the DRAM space CONFIG_SYS_LOAD_ADDR
-	 */
-	return (struct image_header *)(CONFIG_SYS_TEXT_BASE);
+	return (struct image_header *)(CONFIG_SYS_LOAD_ADDR);
 }
 
 #ifdef CONFIG_SPL_OS_BOOT

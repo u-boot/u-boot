@@ -12,12 +12,6 @@
 #ifndef _CONFIG_POGO_E02_H
 #define _CONFIG_POGO_E02_H
 
-/*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KW88F6281		/* SOC Name */
-
 #include "mv-common.h"
 
 /*
@@ -27,10 +21,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND \
-	"setenv bootargs $(bootargs_console); " \
-	"run bootcmd_usb; " \
-	"bootm 0x00800000 0x01100000"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"mtdparts=mtdparts=orion_nand:1M(u-boot),4M(uImage)," \

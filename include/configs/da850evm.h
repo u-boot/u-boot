@@ -18,7 +18,6 @@
  * SoC Configuration
  */
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
-#define CONFIG_SYS_CLK_FREQ		clk_get(DAVINCI_ARM_CLKID)
 #define CONFIG_SYS_OSCIN_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
@@ -136,10 +135,6 @@
 				59, 60, 61, 62, 63 }
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	10
-
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_NAND_SELF_INIT
-#endif
 #endif
 
 /*
@@ -170,10 +165,6 @@
  */
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_HWCONFIG		/* enable hwconfig */
-
-#define CONFIG_BOOTCOMMAND \
-		"run envboot; " \
-		"run mmcboot; "
 
 #define DEFAULT_LINUX_BOOT_ENV \
 	"loadaddr=0xc0700000\0" \

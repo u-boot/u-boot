@@ -76,7 +76,7 @@ int nand_register(int devnum, struct mtd_info *mtd)
 	return 0;
 }
 
-#ifndef CONFIG_SYS_NAND_SELF_INIT
+#if !CONFIG_IS_ENABLED(SYS_NAND_SELF_INIT)
 static void nand_init_chip(int i)
 {
 	struct nand_chip *nand = &nand_chip[i];
@@ -155,7 +155,7 @@ void nand_init(void)
 		return;
 	initialized = 1;
 
-#ifdef CONFIG_SYS_NAND_SELF_INIT
+#if CONFIG_IS_ENABLED(SYS_NAND_SELF_INIT)
 	board_nand_init();
 #else
 	int i;

@@ -25,21 +25,12 @@
 	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 #endif
 
-/* NAND flash */
-
-/* SPI flash */
-#define CONFIG_SF_DEFAULT_SPEED		66000000
-
-#undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_SD_BOOT
 /* u-boot env in sd/mmc card */
 #define FAT_ENV_INTERFACE	"mmc"
 #define FAT_ENV_DEVICE_AND_PART	"0"
 #define FAT_ENV_FILE		"uboot.env"
 /* bootstrap + u-boot + env in sd card */
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 at91-sama5d2_icp.dtb; " \
-				"fatload mmc 0:1 0x22000000 zImage; " \
-				"bootz 0x22000000 - 0x21000000"
 #endif
 
 /* SPL */

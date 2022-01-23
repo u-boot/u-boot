@@ -2035,4 +2035,19 @@ struct efi_firmware_management_protocol {
 			const u16 *package_version_name);
 };
 
+#define EFI_DISK_IO_PROTOCOL_GUID	\
+	EFI_GUID(0xce345171, 0xba0b, 0x11d2, 0x8e, 0x4f, \
+		 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+
+struct efi_disk {
+	u64 revision;
+	efi_status_t (EFIAPI *read_disk)(struct efi_disk *this, u32 media_id,
+					 u64 offset, efi_uintn_t buffer_size,
+					 void *buffer);
+
+	efi_status_t (EFIAPI *write_disk)(struct efi_disk *this, u32 media_id,
+					  u64 offset, efi_uintn_t buffer_size,
+					  void *buffer);
+};
+
 #endif

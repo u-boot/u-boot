@@ -111,7 +111,7 @@ class RunAndLog(object):
         """Clean up any resources managed by this object."""
         pass
 
-    def run(self, cmd, cwd=None, ignore_errors=False):
+    def run(self, cmd, cwd=None, ignore_errors=False, stdin=None):
         """Run a command as a sub-process, and log the results.
 
         The output is available at self.output which can be useful if there is
@@ -125,6 +125,7 @@ class RunAndLog(object):
                 function will simply return if the command cannot be executed
                 or exits with an error code, otherwise an exception will be
                 raised if such problems occur.
+            stdin: Input string to pass to the command as stdin (or None)
 
         Returns:
             The output as a string.
@@ -137,8 +138,9 @@ class RunAndLog(object):
 
         try:
             p = subprocess.Popen(cmd, cwd=cwd,
-                stdin=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            (stdout, stderr) = p.communicate()
+                stdin=subprocess.PIPE if stdin else None,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            (stdout, stderr) = p.communicate(input=stdin)
             if stdout is not None:
                 stdout = stdout.decode('utf-8')
             if stderr is not None:
@@ -165,7 +167,7 @@ class RunAndLog(object):
         if output and not output.endswith('\n'):
             output += '\n'
         if exit_status and not exception and not ignore_errors:
-            exception = Exception('Exit code: ' + str(exit_status))
+            exception = ValueError('Exit code: ' + str(exit_status))
         if exception:
             output += str(exception) + '\n'
         self.logfile.write(self, output)

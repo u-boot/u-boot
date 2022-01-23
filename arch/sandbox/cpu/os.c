@@ -211,6 +211,16 @@ int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep)
 	return 0;
 }
 
+int os_unmap(void *buf, int size)
+{
+	if (munmap(buf, size)) {
+		printf("Can't unmap %p %x\n", buf, size);
+		return -EIO;
+	}
+
+	return 0;
+}
+
 /* Restore tty state when we exit */
 static struct termios orig_term;
 static bool term_setup;
@@ -614,7 +624,13 @@ const char *os_dirent_get_typename(enum os_dirent_t type)
 	return os_dirent_typename[OS_FILET_UNKNOWN];
 }
 
-int os_get_filesize(const char *fname, loff_t *size)
+/*
+ * For compatibility reasons avoid loff_t here.
+ * U-Boot defines loff_t as long long.
+ * But /usr/include/linux/types.h may not define it at all.
+ * Alpine Linux being one example.
+ */
+int os_get_filesize(const char *fname, long long *size)
 {
 	struct stat buf;
 	int ret;
@@ -628,7 +644,7 @@ int os_get_filesize(const char *fname, loff_t *size)
 
 void os_putc(int ch)
 {
-	putchar(ch);
+	fputc(ch, stdout);
 }
 
 void os_puts(const char *str)
@@ -657,7 +673,7 @@ int os_read_ram_buf(const char *fname)
 {
 	struct sandbox_state *state = state_get_current();
 	int fd, ret;
-	loff_t size;
+	long long size;
 
 	ret = os_get_filesize(fname, &size);
 	if (ret < 0)

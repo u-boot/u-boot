@@ -232,26 +232,6 @@ You can use other, more specific CONFIG options - see 'Automatic .dtsi
 inclusion' below.
 
 
-Using binman with OF_BOARD
---------------------------------------------
-
-Normally binman is used with a board configured with OF_SEPARATE or OF_EMBED.
-This is a typical scenario where a device tree source that contains the binman
-node is provided in the arch/<arch>/dts directory for a specific board.
-
-However for a board configured with OF_BOARD, no device tree blob is provided
-in the U-Boot build phase hence the binman node information is not available.
-In order to support such use case, a new Kconfig option BINMAN_STANDALONE_FDT
-is introduced, to tell the build system that a standalone device tree blob
-containing binman node is explicitly required.
-
-Note there is a Kconfig option BINMAN_FDT which enables U-Boot run time to
-access information about binman entries, stored in the device tree in a binman
-node. Generally speaking, this option makes sense for OF_SEPARATE or OF_EMBED.
-For the other OF_CONTROL methods, it's quite possible binman node is not
-available as binman is invoked during the build phase, thus this option is not
-turned on by default for these OF_CONTROL methods.
-
 Access to binman entry offsets at run time (symbols)
 ----------------------------------------------------
 
@@ -810,12 +790,14 @@ Binman will search for the following files in arch/<arch>/dts::
 
 U-Boot will only use the first one that it finds. If you need to include a
 more general file you can do that from the more specific file using #include.
-If you are having trouble figuring out what is going on, you can uncomment
-the 'warning' line in scripts/Makefile.lib to see what it has found::
+If you are having trouble figuring out what is going on, you can use
+`DEVICE_TREE_DEBUG=1` with your build::
 
-   # Uncomment for debugging
-   # This shows all the files that were considered and the one that we chose.
-   # u_boot_dtsi_options_debug = $(u_boot_dtsi_options_raw)
+   make DEVICE_TREE_DEBUG=1
+   scripts/Makefile.lib:334: Automatic .dtsi inclusion: options:
+     arch/arm/dts/juno-r2-u-boot.dtsi arch/arm/dts/-u-boot.dtsi
+     arch/arm/dts/armv8-u-boot.dtsi arch/arm/dts/armltd-u-boot.dtsi
+     arch/arm/dts/u-boot.dtsi ... found: "arch/arm/dts/juno-r2-u-boot.dtsi"
 
 
 Updating an ELF file
@@ -913,6 +895,11 @@ or with wildcards::
           u-boot-dtb        180   108  u-boot-dtb        80          3b5
       image-header          bf8     8  image-header     bf8
 
+If an older version of binman is used to list images created by a newer one, it
+is possible that it will contain entry types that are not supported. These still
+show with the correct type, but binman just sees them as blobs (plain binary
+data). Any special features of that etype are not supported by the old binman.
+
 
 Extracting files from images
 ----------------------------
@@ -937,12 +924,41 @@ or just a selection::
 
     $ binman extract -i image.bin "*u-boot*" -O outdir
 
+Some entry types have alternative formats, for example fdtmap which allows
+extracted just the devicetree binary without the fdtmap header::
+
+    $ binman extract -i /tmp/b/odroid-c4/image.bin -f out.dtb -F fdt fdtmap
+    $ fdtdump out.dtb
+    /dts-v1/;
+    // magic:               0xd00dfeed
+    // totalsize:           0x8ab (2219)
+    // off_dt_struct:       0x38
+    // off_dt_strings:      0x82c
+    // off_mem_rsvmap:      0x28
+    // version:             17
+    // last_comp_version:   2
+    // boot_cpuid_phys:     0x0
+    // size_dt_strings:     0x7f
+    // size_dt_struct:      0x7f4
+
+    / {
+        image-node = "binman";
+        image-pos = <0x00000000>;
+        size = <0x0011162b>;
+        ...
+
+Use `-F list` to see what alternative formats are available::
+
+    $ binman extract -i /tmp/b/odroid-c4/image.bin -F list
+    Flag (-F)   Entry type            Description
+    fdt         fdtmap                Extract the devicetree blob from the fdtmap
+
 
 Replacing files in an image
 ---------------------------
 
 You can replace files in an existing firmware image created by binman, provided
-that there is an 'fdtmap' entry in the image. For example:
+that there is an 'fdtmap' entry in the image. For example::
 
     $ binman replace -i image.bin section/cbfs/u-boot
 
@@ -1081,6 +1097,35 @@ the tool's output will be used for the target or for the host machine. If those
 aren't given, it will also try to derive target-specific versions from the
 CROSS_COMPILE environment variable during a cross-compilation.
 
+If the tool is not available in the path you can use BINMAN_TOOLPATHS to specify
+a space-separated list of paths to search, e.g.::
+
+   BINMAN_TOOLPATHS="/tools/g12a /tools/tegra" binman ...
+
+
+External blobs
+--------------
+
+Binary blobs, even if the source code is available, complicate building
+firmware. The instructions can involve multiple steps and the binaries may be
+hard to build or obtain. Binman at least provides a unified description of how
+to build the final image, no matter what steps are needed to get there.
+
+Binman also provides a `blob-ext` entry type that pulls in a binary blob from an
+external file. If the file is missing, binman can optionally complete the build
+and just report a warning. Use the `-M/--allow-missing` option to enble this.
+This is useful in CI systems which want to check that everything is correct but
+don't have access to the blobs.
+
+If the blobs are in a different directory, you can specify this with the `-I`
+option.
+
+For U-Boot, you can use set the BINMAN_INDIRS environment variable to provide a
+space-separated list of directories to search for binary blobs::
+
+   BINMAN_INDIRS="odroid-c4/fip/g12a \
+       odroid-c4/build/board/hardkernel/odroidc4/firmware \
+       odroid-c4/build/scp_task" binman ...
 
 Code coverage
 -------------

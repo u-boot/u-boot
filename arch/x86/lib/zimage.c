@@ -365,11 +365,14 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 			strcpy(cmd_line, (char *)cmdline_force);
 		else
 			build_command_line(cmd_line, auto_boot);
-		ret = bootm_process_cmdline(cmd_line, max_size, BOOTM_CL_ALL);
-		if (ret) {
-			printf("Cmdline setup failed (max_size=%x, bootproto=%x, err=%d)\n",
-			       max_size, bootproto, ret);
-			return ret;
+		if (IS_ENABLED(CONFIG_CMD_BOOTM)) {
+			ret = bootm_process_cmdline(cmd_line, max_size,
+						    BOOTM_CL_ALL);
+			if (ret) {
+				printf("Cmdline setup failed (max_size=%x, bootproto=%x, err=%d)\n",
+				       max_size, bootproto, ret);
+				return ret;
+			}
 		}
 		printf("Kernel command line: \"");
 		puts(cmd_line);

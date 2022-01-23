@@ -7,6 +7,7 @@
 import os
 import os.path
 from subprocess import call, check_call, CalledProcessError
+import tempfile
 
 import pytest
 import u_boot_utils
@@ -515,3 +516,109 @@ def test_env_ext4(state_test_env):
     finally:
         if fs_img:
             call('rm -f %s' % fs_img, shell=True)
+
+def test_env_text(u_boot_console):
+    """Test the script that converts the environment to a text file"""
+
+    def check_script(intext, expect_val):
+        """Check a test case
+
+        Args:
+            intext: Text to pass to the script
+            expect_val: Expected value of the CONFIG_EXTRA_ENV_TEXT string, or
+                None if we expect it not to be defined
+        """
+        with tempfile.TemporaryDirectory() as path:
+            fname = os.path.join(path, 'infile')
+            with open(fname, 'w') as inf:
+                print(intext, file=inf)
+            result = u_boot_utils.run_and_log(cons, ['awk', '-f', script, fname])
+            if expect_val is not None:
+                expect = '#define CONFIG_EXTRA_ENV_TEXT "%s"\n' % expect_val
+                assert result == expect
+            else:
+                assert result == ''
+
+    cons = u_boot_console
+    script = os.path.join(cons.config.source_dir, 'scripts', 'env2string.awk')
+
+    # simple script with a single var
+    check_script('fred=123', 'fred=123\\0')
+
+    # no vars
+    check_script('', None)
+
+    # two vars
+    check_script('''fred=123
+ernie=456''', 'fred=123\\0ernie=456\\0')
+
+    # blank lines
+    check_script('''fred=123
+
+
+ernie=456
+
+''', 'fred=123\\0ernie=456\\0')
+
+    # append
+    check_script('''fred=123
+ernie=456
+fred+= 456''', 'fred=123 456\\0ernie=456\\0')
+
+    # append from empty
+    check_script('''fred=
+ernie=456
+fred+= 456''', 'fred= 456\\0ernie=456\\0')
+
+    # variable with + in it
+    check_script('fred+ernie=123', 'fred+ernie=123\\0')
+
+    # ignores variables that are empty
+    check_script('''fred=
+fred+=
+ernie=456''', 'ernie=456\\0')
+
+    # single-character env name
+    check_script('''f=123
+e=456
+f+= 456''', 'e=456\\0f=123 456\\0')
+
+    # contains quotes
+    check_script('''fred="my var"
+ernie=another"''', 'fred=\\"my var\\"\\0ernie=another\\"\\0')
+
+    # variable name ending in +
+    check_script('''fred\\+=my var
+fred++= again''', 'fred+=my var again\\0')
+
+    # variable name containing +
+    check_script('''fred+jane=both
+fred+jane+=again
+ernie=456''', 'fred+jane=bothagain\\0ernie=456\\0')
+
+    # multi-line vars - new vars always start at column 1
+    check_script('''fred=first
+ second
+\tthird with tab
+
+   after blank
+ confusing=oops
+ernie=another"''', 'fred=first second third with tab after blank confusing=oops\\0ernie=another\\"\\0')
+
+    # real-world example
+    check_script('''ubifs_boot=
+	env exists bootubipart ||
+		env set bootubipart UBI;
+	env exists bootubivol ||
+		env set bootubivol boot;
+	if ubi part ${bootubipart} &&
+		ubifsmount ubi${devnum}:${bootubivol};
+	then
+		devtype=ubi;
+		run scan_dev_for_boot;
+	fi
+''',
+        'ubifs_boot=env exists bootubipart || env set bootubipart UBI; '
+        'env exists bootubivol || env set bootubivol boot; '
+        'if ubi part ${bootubipart} && ubifsmount ubi${devnum}:${bootubivol}; '
+        'then devtype=ubi; run scan_dev_for_boot; fi\\0')

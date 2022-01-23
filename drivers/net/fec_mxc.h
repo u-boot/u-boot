@@ -272,7 +272,7 @@ struct fec_priv {
 	struct clk clk_ref;
 	struct clk clk_ptp;
 	u32 clk_rate;
-	char promisc;
+	bool promisc;
 };
 
 /**

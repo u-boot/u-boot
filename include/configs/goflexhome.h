@@ -15,12 +15,6 @@
 #define _CONFIG_GOFLEXHOME_H
 
 /*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
-#define CONFIG_KW88F6281	1	/* SOC Name */
-
-/*
  * Default GPIO configuration and LED status
  */
 #define GOFLEXHOME_OE_LOW               (~(0))
@@ -49,12 +43,6 @@
 /*
  * Default environment variables
  */
-#define CONFIG_BOOTCOMMAND \
-	"setenv bootargs ${console} ${mtdparts} ${bootargs_root}; " \
-	"ubi part root; " \
-	"ubifsmount ubi:root; " \
-	"ubifsload 0x800000 ${kernel}; " \
-	"bootm 0x800000"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0" \

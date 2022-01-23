@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <hang.h>
@@ -45,7 +46,7 @@ void s_init(void)
 	writel(0xA5A5A500, &swdt->swtcsra);
 
 	/* CPU frequency setting. Set to 1.5GHz */
-	stc = ((1500 / CLK2MHZ(CONFIG_SYS_CLK_FREQ)) - 1) << PLL0_STC_BIT;
+	stc = ((1500 / CLK2MHZ(get_board_sys_clk())) - 1) << PLL0_STC_BIT;
 	clrsetbits_le32(PLL0CR, PLL0_STC_MASK, stc);
 
 	/* QoS */

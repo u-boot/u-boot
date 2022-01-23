@@ -8,12 +8,6 @@
 
 #include "lx2160a_common.h"
 
-/* VID */
-#define CONFIG_VID_FLS_ENV		"lx2160aqds_vdd_mv"
-#define CONFIG_VID
-#define CONFIG_VOL_MONITOR_LTC3882_SET
-#define CONFIG_VOL_MONITOR_LTC3882_READ
-
 /* RTC */
 #define CONFIG_SYS_RTC_BUS_NUM		0
 

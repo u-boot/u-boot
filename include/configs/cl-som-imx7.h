@@ -30,7 +30,6 @@
 
 #undef CONFIG_SYS_AUTOLOAD
 #undef CONFIG_EXTRA_ENV_SETTINGS
-#undef CONFIG_BOOTCOMMAND
 
 #define CONFIG_SYS_AUTOLOAD		"no"
 
@@ -50,7 +49,7 @@
 	"fdtaddr=0x83000000\0" \
 	"mmcdev_def="__stringify(CONFIG_SYS_MMC_DEV)"\0" \
 	"usbdev_def="__stringify(CONFIG_SYS_USB_DEV)"\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
+	"mmcpart=1\0" \
 	"usbpart=" __stringify(CONFIG_SYS_USB_IMG_LOAD_PART) "\0" \
 	"doboot=bootz ${loadaddr} - ${fdtaddr}\0" \
 	"mmc_config=mmc dev ${mmcdev}; mmc rescan\0" \
@@ -85,11 +84,6 @@
 	"sdboot=setenv mmcdev ${mmcdev_def}; setenv mmcblk 0; run mmcboot\0" \
 	"emmcbootscript=setenv mmcdev 1; setenv mmcblk 2; run mmcbootscript\0" \
 	"emmcboot=setenv mmcdev 1; setenv mmcblk 2; run mmcboot\0" \
-
-#define CONFIG_BOOTCOMMAND \
-	"echo SD boot attempt ...; run sdbootscript; run sdboot; " \
-	"echo eMMC boot attempt ...; run emmcbootscript; run emmcboot; " \
-	"echo USB boot attempt ...; run usbbootscript; "
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

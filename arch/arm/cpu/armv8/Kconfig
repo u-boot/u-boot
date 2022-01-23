@@ -102,7 +102,7 @@ config PSCI_RESET
 	bool "Use PSCI for reset and shutdown"
 	default y
 	select ARM_SMCCC if OF_CONTROL
-	depends on !ARCH_EXYNOS7 && !ARCH_BCM283X && \
+	depends on !ARCH_APPLE && !ARCH_BCM283X && !ARCH_EXYNOS7 && \
 		   !TARGET_LS2080AQDS && \
 		   !TARGET_LS2080ARDB && !TARGET_LS2080A_EMU && \
 		   !TARGET_LS1088ARDB && !TARGET_LS1088AQDS && \

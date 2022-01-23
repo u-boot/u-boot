@@ -92,6 +92,12 @@ pxe boot
      fdtoverlay_addr_r - location in RAM at which 'pxe boot' will temporarily store
      fdt overlay(s) before applying them to the fdt blob stored at 'fdt_addr_r'.
 
+     pxe_label_override - override label to be used, if exists, instead of the
+     default label. This will allow consumers to choose a pxe label at
+     runtime instead of having to prompt the user. If "pxe_label_override" is set
+     but does not exist in the pxe menu, pxe would fallback to the default label if
+     given, and no failure is returned but rather a warning message.
+
 pxe file format
 ===============
 The pxe file format is nearly a subset of the PXELINUX file format; see
