@@ -88,8 +88,3 @@ To run the bootmenu at startup add these additional settings::
     CONFIG_AUTOBOOT_KEYED=y
     CONFIG_BOOTDELAY=30
     CONFIG_AUTOBOOT_MENU_SHOW=y
-
-When you intend to use the bootmenu on a color frame buffer console,
-make sure to additionally define::
-
-    CONFIG_CFB_CONSOLE_ANSI=y
