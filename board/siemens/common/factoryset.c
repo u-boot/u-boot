@@ -276,13 +276,6 @@ int factoryset_read_eeprom(int i2c_addr)
 	printf("DFU USB: VID = 0x%4x, PID = 0x%4x\n", factory_dat.usb_vendor_id,
 	       factory_dat.usb_product_id);
 #endif
-#if defined(CONFIG_VIDEO)
-	if (0 <= get_factory_record_val(cp, size, (uchar *)"DISP1",
-					(uchar *)"name", factory_dat.disp_name,
-					MAX_STRING_LENGTH)) {
-		debug("display name: %s\n", factory_dat.disp_name);
-	}
-#endif
 	if (0 <= get_factory_record_val(cp, size, (uchar *)"DEV",
 					(uchar *)"num", factory_dat.serial,
 					MAX_STRING_LENGTH)) {
