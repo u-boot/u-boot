@@ -15,8 +15,8 @@
 #endif
 
 struct nx_display_dev {
-#if defined CONFIG_VIDEO || defined CONFIG_DM_VIDEO
-	GraphicDevice graphic_device;
+#if defined CONFIG_DM_VIDEO
+	/* GraphicDevice graphic_device;   -- not defined anymore */
 #elif defined CONFIG_LCD
 	vidinfo_t *panel_info;
 #endif
