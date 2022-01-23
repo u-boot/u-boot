@@ -69,7 +69,6 @@
 
 #if defined(CONFIG_VIDEO)
 #define CONFIG_VIDEO_DA8XX
-#define CONFIG_VIDEO_BMP_LOGO
 #define DA8XX_LCD_CNTL_BASE	LCD_CNTL_BASE
 
 #define BOARD_LCD_RESET		115	/* Bank 3 pin 19 */

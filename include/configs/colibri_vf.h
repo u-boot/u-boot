@@ -15,7 +15,6 @@
 #include <linux/sizes.h>
 
 #ifdef CONFIG_VIDEO_FSL_DCU_FB
-#define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_SYS_FSL_DCU_LE
 
 #define CONFIG_SYS_DCU_ADDR		DCU0_BASE_ADDR

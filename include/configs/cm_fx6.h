@@ -171,8 +171,6 @@
 /* Display */
 #define CONFIG_IMX_HDMI
 
-#define CONFIG_VIDEO_BMP_LOGO
-
 /* EEPROM */
 
 #endif	/* __CONFIG_CM_FX6_H */
