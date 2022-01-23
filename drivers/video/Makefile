@@ -46,7 +46,6 @@ obj-$(CONFIG_VIDEO_ARM_MALIDP) += mali_dp.o
 obj-$(CONFIG_VIDEO_BCM2835) += bcm2835.o
 obj-$(CONFIG_VIDEO_BROADWELL_IGD) += broadwell_igd.o
 obj-$(CONFIG_VIDEO_COREBOOT) += coreboot.o
-obj-$(CONFIG_VIDEO_DA8XX) += da8xx-fb.o videomodes.o
 obj-$(CONFIG_VIDEO_DW_HDMI) += dw_hdmi.o
 obj-$(CONFIG_VIDEO_DW_MIPI_DSI) += dw_mipi_dsi.o
 obj-$(CONFIG_VIDEO_EFI) += efi.o
