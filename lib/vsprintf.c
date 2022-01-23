@@ -279,7 +279,7 @@ static char *string(char *buf, char *end, const char *s, int field_width,
 static __maybe_unused char *string16(char *buf, char *end, u16 *s,
 				     int field_width, int precision, int flags)
 {
-	const u16 *str = s ? s : L"<NULL>";
+	const u16 *str = s ? s : u"<NULL>";
 	ssize_t i, len = utf16_strnlen(str, precision);
 
 	if (!(flags & LEFT))

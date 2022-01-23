@@ -299,17 +299,17 @@ static int unicode_test_utf8_utf16_strcpy(struct unit_test_state *uts)
 	pos = buf;
 	utf8_utf16_strcpy(&pos, j1);
 	ut_asserteq(4, pos - buf);
-	ut_assert(!unicode_test_u16_strcmp(buf, L"j1?l", SIZE_MAX));
+	ut_assert(!unicode_test_u16_strcmp(buf, u"j1?l", SIZE_MAX));
 
 	pos = buf;
 	utf8_utf16_strcpy(&pos, j2);
 	ut_asserteq(4, pos - buf);
-	ut_assert(!unicode_test_u16_strcmp(buf, L"j2?l", SIZE_MAX));
+	ut_assert(!unicode_test_u16_strcmp(buf, u"j2?l", SIZE_MAX));
 
 	pos = buf;
 	utf8_utf16_strcpy(&pos, j3);
 	ut_asserteq(3, pos - buf);
-	ut_assert(!unicode_test_u16_strcmp(buf, L"j3?", SIZE_MAX));
+	ut_assert(!unicode_test_u16_strcmp(buf, u"j3?", SIZE_MAX));
 
 	return 0;
 }
@@ -584,13 +584,13 @@ UNICODE_TEST(unicode_test_utf_to_upper);
 
 static int unicode_test_u16_strncmp(struct unit_test_state *uts)
 {
-	ut_assert(u16_strncmp(L"abc", L"abc", 3) == 0);
-	ut_assert(u16_strncmp(L"abcdef", L"abcghi", 3) == 0);
-	ut_assert(u16_strncmp(L"abcdef", L"abcghi", 6) < 0);
-	ut_assert(u16_strncmp(L"abcghi", L"abcdef", 6) > 0);
-	ut_assert(u16_strcmp(L"abc", L"abc") == 0);
-	ut_assert(u16_strcmp(L"abcdef", L"deghi") < 0);
-	ut_assert(u16_strcmp(L"deghi", L"abcdef") > 0);
+	ut_assert(u16_strncmp(u"abc", u"abc", 3) == 0);
+	ut_assert(u16_strncmp(u"abcdef", u"abcghi", 3) == 0);
+	ut_assert(u16_strncmp(u"abcdef", u"abcghi", 6) < 0);
+	ut_assert(u16_strncmp(u"abcghi", u"abcdef", 6) > 0);
+	ut_assert(u16_strcmp(u"abc", u"abc") == 0);
+	ut_assert(u16_strcmp(u"abcdef", u"deghi") < 0);
+	ut_assert(u16_strcmp(u"deghi", u"abcdef") > 0);
 	return 0;
 }
 UNICODE_TEST(unicode_test_u16_strncmp);
@@ -713,7 +713,7 @@ UNICODE_TEST(unicode_test_utf8_to_utf32_stream);
 static int unicode_test_efi_create_indexed_name(struct unit_test_state *uts)
 {
 	u16 buf[16];
-	u16 const expected[] = L"Capsule0AF9";
+	u16 const expected[] = u"Capsule0AF9";
 	u16 *pos;
 
 	memset(buf, 0xeb, sizeof(buf));
