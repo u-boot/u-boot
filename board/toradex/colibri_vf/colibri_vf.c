@@ -19,7 +19,6 @@
 #include <asm/io.h>
 #include <env.h>
 #include <fdt_support.h>
-#include <fsl_dcu_fb.h>
 #include <g_dnl.h>
 #include <jffs2/load_kernel.h>
 #include <mtd_node.h>
@@ -205,49 +204,6 @@ static void setup_iomux_gpio(void)
 }
 #endif
 
-#ifdef CONFIG_VIDEO_FSL_DCU_FB
-static void setup_iomux_fsl_dcu(void)
-{
-	static const iomux_v3_cfg_t dcu0_pads[] = {
-		VF610_PAD_PTE0__DCU0_HSYNC,
-		VF610_PAD_PTE1__DCU0_VSYNC,
-		VF610_PAD_PTE2__DCU0_PCLK,
-		VF610_PAD_PTE4__DCU0_DE,
-		VF610_PAD_PTE5__DCU0_R0,
-		VF610_PAD_PTE6__DCU0_R1,
-		VF610_PAD_PTE7__DCU0_R2,
-		VF610_PAD_PTE8__DCU0_R3,
-		VF610_PAD_PTE9__DCU0_R4,
-		VF610_PAD_PTE10__DCU0_R5,
-		VF610_PAD_PTE11__DCU0_R6,
-		VF610_PAD_PTE12__DCU0_R7,
-		VF610_PAD_PTE13__DCU0_G0,
-		VF610_PAD_PTE14__DCU0_G1,
-		VF610_PAD_PTE15__DCU0_G2,
-		VF610_PAD_PTE16__DCU0_G3,
-		VF610_PAD_PTE17__DCU0_G4,
-		VF610_PAD_PTE18__DCU0_G5,
-		VF610_PAD_PTE19__DCU0_G6,
-		VF610_PAD_PTE20__DCU0_G7,
-		VF610_PAD_PTE21__DCU0_B0,
-		VF610_PAD_PTE22__DCU0_B1,
-		VF610_PAD_PTE23__DCU0_B2,
-		VF610_PAD_PTE24__DCU0_B3,
-		VF610_PAD_PTE25__DCU0_B4,
-		VF610_PAD_PTE26__DCU0_B5,
-		VF610_PAD_PTE27__DCU0_B6,
-		VF610_PAD_PTE28__DCU0_B7,
-	};
-
-	imx_iomux_v3_setup_multiple_pads(dcu0_pads, ARRAY_SIZE(dcu0_pads));
-}
-
-static void setup_tcon(void)
-{
-	setbits_le32(TCON0_BASE_ADDR, (1 << 29));
-}
-#endif
-
 static inline int is_colibri_vf61(void)
 {
 	struct mscm *mscm = (struct mscm *)MSCM_BASE_ADDR;
@@ -353,11 +309,6 @@ static void clock_init(void)
 			CCM_CSCDR3_NFC_PRE_DIV(3));
 	clrsetbits_le32(&ccm->cscmr2, CCM_REG_CTRL_MASK,
 			CCM_CSCMR2_RMII_CLK_SEL(2));
-
-#ifdef CONFIG_VIDEO_FSL_DCU_FB
-		setbits_le32(&ccm->ccgr1, CCM_CCGR1_TCON0_CTRL_MASK);
-		setbits_le32(&ccm->ccgr3, CCM_CCGR3_DCU0_CTRL_MASK);
-#endif
 }
 
 static void mscm_init(void)
@@ -376,11 +327,6 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_VYBRID_GPIO
 	setup_iomux_gpio();
-#endif
-
-#ifdef CONFIG_VIDEO_FSL_DCU_FB
-	setup_tcon();
-	setup_iomux_fsl_dcu();
 #endif
 
 	return 0;
@@ -433,9 +379,6 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-#if defined(CONFIG_VIDEO_FSL_DCU_FB) && !defined(CONFIG_DM_VIDEO)
-	int ret = 0;
-#endif
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
 	static const struct node_info nodes[] = {
 		{ "fsl,vf610-nfc", MTD_DEV_TYPE_NAND, }, /* NAND flash */
@@ -444,11 +387,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	/* Update partition nodes using info from mtdparts env var */
 	puts("   Updating MTD partitions...\n");
 	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
-#endif
-#if defined(CONFIG_VIDEO_FSL_DCU_FB) && !defined(CONFIG_DM_VIDEO)
-	ret = fsl_dcu_fixedfb_setup(blob);
-	if (ret)
-		return ret;
 #endif
 
 	return ft_common_board_setup(blob, bd);

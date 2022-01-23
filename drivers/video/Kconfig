@@ -610,21 +610,6 @@ config VIDEO_IVYBRIDGE_IGD
 	  a special tool which configures the VGA ROM, but the graphics
 	  resolution can be selected in U-Boot.
 
-config VIDEO_FSL_DCU_FB
-	bool "Enable Freescale Display Control Unit"
-	depends on VIDEO || DM_VIDEO
-	help
-	 This enables support for Freescale Display Control Unit (DCU4)
-	 module found on Freescale Vybrid and QorIQ family of SoCs.
-
-config VIDEO_FSL_DCU_MAX_FB_SIZE_MB
-	int "Freescale DCU framebuffer size"
-	depends on VIDEO_FSL_DCU_FB
-	default 4194304
-	help
-	 Set maximum framebuffer size to be used for Freescale Display
-	 Controller Unit (DCU4).
-
 source "drivers/video/rockchip/Kconfig"
 
 config VIDEO_ARM_MALIDP
