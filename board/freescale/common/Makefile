@@ -44,8 +44,6 @@ ifndef CONFIG_RAMBOOT_PBL
 obj-$(CONFIG_FSL_FIXED_MMC_LOCATION)	+= sdhc_boot.o
 endif
 
-obj-$(CONFIG_FSL_DIU_CH7301)	+= diu_ch7301.o
-
 ifdef CONFIG_ARM
 obj-$(CONFIG_DEEP_SLEEP)		+= arm_sleep.o
 else

@@ -345,18 +345,6 @@
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
-#if defined(CONFIG_TARGET_T1042RDB_PI) || defined(CONFIG_TARGET_T1042D4RDB)
-/* Video */
-#define CONFIG_FSL_DIU_FB
-
-#ifdef CONFIG_FSL_DIU_FB
-#define CONFIG_FSL_DIU_CH7301
-#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
-#endif
-#endif
-
-/* I2C */
-
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
 #define I2C_MUX_CH_DEFAULT      0x8
@@ -558,18 +546,11 @@
 #define FDTFILE		"t1042rdb/t1042d4rdb.dtb"
 #endif
 
-#ifdef CONFIG_FSL_DIU_FB
-#define DIU_ENVIRONMENT "video-mode=fslfb:1024x768-32@60,monitor=dvi"
-#else
-#define DIU_ENVIRONMENT
-#endif
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:bank_intlv=cs0_cs1;"			\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) ";"\
 	"usb2:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
-	"video-mode=" __stringify(DIU_ENVIRONMENT) "\0"		\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
 	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
