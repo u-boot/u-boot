@@ -36,7 +36,7 @@
 
 			pinctrl-0 = <&fmc_pins>;
 			pinctrl-names = "default";
-			status = "disabled";
+			status = "okay";
 		};
 	};
 };
