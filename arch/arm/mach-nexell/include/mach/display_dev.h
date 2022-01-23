@@ -9,7 +9,6 @@
 #define _NX__DISPLAY_DEV_H_
 
 #if defined CONFIG_VIDEO || defined CONFIG_DM_VIDEO
-#include <video_fb.h>
 #elif defined CONFIG_LCD
 #include <lcd.h>
 #endif

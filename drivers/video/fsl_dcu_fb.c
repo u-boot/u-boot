@@ -17,7 +17,6 @@
 #include <linux/fb.h>
 #include <malloc.h>
 #include <video.h>
-#include <video_fb.h>
 #include "videomodes.h"
 
 /* Convert the X,Y resolution pair into a single number */

@@ -12,7 +12,6 @@
 #include <asm/io.h>
 
 #include "videomodes.h"
-#include <video_fb.h>
 #include <fsl_diu_fb.h>
 #include <linux/list.h>
 #include <linux/fb.h>

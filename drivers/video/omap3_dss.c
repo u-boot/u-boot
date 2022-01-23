@@ -28,7 +28,6 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/dss.h>
-#include <video_fb.h>
 
 /* Configure VENC for a given Mode (NTSC / PAL) */
 void omap3_dss_venc_config(const struct venc_regs *venc_cfg,

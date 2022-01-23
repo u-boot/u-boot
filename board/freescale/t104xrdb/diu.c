@@ -10,7 +10,6 @@
 #include <command.h>
 #include <fsl_diu_fb.h>
 #include <linux/ctype.h>
-#include <video_fb.h>
 
 #include "../common/diu_ch7301.h"
 
