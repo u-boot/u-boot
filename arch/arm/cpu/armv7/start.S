@@ -173,6 +173,17 @@ ENDPROC(switch_to_hypervisor)
  *
  *************************************************************************/
 ENTRY(cpu_init_cp15)
+
+#if CONFIG_IS_ENABLED(ARMV7_SET_CORTEX_SMPEN)
+	/*
+	 * The Arm Cortex-A7 TRM says this bit must be enabled before
+	 * "any cache or TLB maintenance operations are performed".
+	 */
+	mrc	p15, 0, r0, c1, c0, 1	@ read auxilary control register
+	orr	r0, r0, #1 << 6		@ set SMP bit to enable coherency
+	mcr	p15, 0, r0, c1, c0, 1	@ write auxilary control register
+#endif
+
 	/*
 	 * Invalidate L1 I/D
 	 */

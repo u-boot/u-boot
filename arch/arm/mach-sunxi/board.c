@@ -218,15 +218,6 @@ void s_init(void)
 	/* A83T BSP never modifies SUNXI_SRAMC_BASE + 0x44 */
 	/* No H3 BSP, boot0 seems to not modify SUNXI_SRAMC_BASE + 0x44 */
 #endif
-
-#if !defined(CONFIG_ARM_CORTEX_CPU_IS_UP) && !defined(CONFIG_ARM64)
-	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
-	asm volatile(
-		"mrc p15, 0, r0, c1, c0, 1\n"
-		"orr r0, r0, #1 << 6\n"
-		"mcr p15, 0, r0, c1, c0, 1\n"
-		::: "r0");
-#endif
 }
 
 #define SUNXI_INVALID_BOOT_SOURCE	-1

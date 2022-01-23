@@ -186,7 +186,6 @@ choice
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7A
-	select ARM_CORTEX_CPU_IS_UP
 	select PHY_SUN4I_USB
 	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
@@ -197,7 +196,6 @@ config MACH_SUN4I
 config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
 	select CPU_V7A
-	select ARM_CORTEX_CPU_IS_UP
 	select DRAM_SUN4I
 	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
@@ -212,6 +210,7 @@ config MACH_SUN6I
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select SPL_ARMV7_SET_CORTEX_SMPEN
 	select DRAM_SUN6I
 	select PHY_SUN4I_USB
 	select SPL_I2C
@@ -227,6 +226,7 @@ config MACH_SUN7I
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select SPL_ARMV7_SET_CORTEX_SMPEN
 	select DRAM_SUN4I
 	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
@@ -315,6 +315,7 @@ config MACH_SUN8I_V3S
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
 	select CPU_V7A
+	select SPL_ARMV7_SET_CORTEX_SMPEN
 	select DRAM_SUN9I
 	select SPL_I2C
 	select SUN6I_PRCM
@@ -365,6 +366,7 @@ endchoice
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
 config MACH_SUN8I
 	bool
+	select SPL_ARMV7_SET_CORTEX_SMPEN if !ARM64
 	select SUN6I_PRCM
 	default y if MACH_SUN8I_A23
 	default y if MACH_SUN8I_A33
