@@ -1,0 +1,162 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+Nokia RX-51 aka N900
+====================
+
+The ``nokia_rx51_defconfig`` configuration file results in a ``u-boot.bin``
+which can be chainloaded by the Nokia second stage bootloader (NOLO) in QEMU or
+on a real N900. It does very little hardware configuration because NOLO has
+already configured the board. It is only needed to enable the internal eMMC
+memory via the twl4030 regulator which is not enabled by NOLO.
+
+NOLO is expecting a kernel image and will treat any image it finds in
+OneNAND as such. This u-boot is intended to be flashed to the N900 like
+a kernel. In order to transparently boot the original kernel, it will be
+appended to ``u-boot.bin`` at 0x40000. NOLO will load the entire image into
+(random) memory and execute U-Boot, which saves hardware revision, boot reason
+and boot mode ATAGs set by NOLO. Then the bootscripts will attempt to load
+``uImage``, ``zImage`` or ``boot.scr`` file from a FAT or ext2/3/4 filesystem
+on external SD card or internal eMMC memory. If this fails or keyboard is
+closed then the appended kernel image will be booted using some generated
+and some stored ATAGs (see boot order).
+
+For generating combined image of U-Boot and kernel (either in uImage or zImage
+format) there is a simple script called ``u-boot-gen-combined``. It is available
+in following repository: https://github.com/pali/u-boot-maemo.
+
+To generate the ``combined.bin`` image from ``u-boot.bin`` and ``kernel.bin``
+(in either uImage or zImage format) use:
+
+.. code-block:: bash
+
+   sh u-boot-gen-combined u-boot.bin kernel.bin combined.bin
+
+The original Maemo Fremantle PR1.3 zImage kernel binary is available at:
+http://repository.maemo.org/pool/maemo5.0/free/k/kernel/kernel_2.6.28-20103103+0m5_armel.deb
+
+To unpack it (from DEB/AR, TAR and FIASCO) execute the following commands:
+
+.. code-block:: bash
+
+   ar x kernel_2.6.28-20103103+0m5_armel.deb data.tar.gz
+   tar -O -xf data.tar.gz ./boot/zImage-2.6.28-20103103+0m5.fiasco > kernel_2.6.28-20103103+0m5.fiasco
+   0xFFFF -M kernel_2.6.28-20103103+0m5.fiasco -u
+
+The flashed image must start with a 2 KiB ``NOLO!img`` header which contains
+size of the image. The header consists of the bytes
+``NOLO!img\x02\x00\x00\x00\x00\x00\x00\x00`` followed by the 4 byte little
+endian size of the image. The rest of the 2 KiB header just contains zero bytes.
+
+The Nokia proprietary flasher and also the open source 0xFFFF flasher
+automatically prepend the required ``NOLO!img`` header and both applications
+expect that the image does not contain a ``NOLO!img`` header. Adding a
+``NOLO!img`` header is required only in case of using the ``nandwrite`` tool for
+flashing.
+
+The open source 0xFFFF flasher is available in the following repository:
+https://github.com/pali/0xFFFF
+
+It is possible to load ``u-boot.bin`` via USB to the N900 RAM and boot it
+without needing to flash it. This is done via 0xFFFF running on the host PC:
+
+.. code-block:: bash
+
+   0xFFFF -m u-boot.bin -l -b
+
+0xFFFF also supports flashing a kernel image either via USB or directly on
+N900 device. Flashing u-boot/kernel/combined image is done as:
+
+.. code-block:: bash
+
+   0xFFFF -m combined.bin -f
+
+Via 0xFFFF it is also possible to generate a standard flashable image in
+Nokia FIASCO format which contains metadata information like device
+identification (RX-51) and version string (v2021.04):
+
+.. code-block:: bash
+
+   0xFFFF -m RX-51:v2021.04:kernel:u-boot.bin -g u-boot.fiasco
+
+There is support for the hardware watchdog. The hardware watchdog is started by
+NOLO so U-Boot must reset the watchdog to prevent rebooting the device (but not
+very often, max every 2 seconds). There is also support for framebuffer display
+output with ANSI escape codes and the N900 hardware keyboard input.
+
+When U-Boot is starting it sets the IBE bit in the Auxiliary Control Register,
+which is needed for Thumb-2 ISA support. This is a workaround for erratum
+430973.
+
+Default boot order
+------------------
+
+0. if keyboard is closed boot automatically attached kernel image
+1. try boot from external SD card
+2. try boot from internal eMMC memory
+3. try boot from attached kernel image
+
+Boot from SD or eMMC in this order:
+
+1. boot from FAT partition
+
+    a. find ``boot.scr`` on first FAT partition
+    b. find ``uImage`` on first FAT partition
+    c. find ``zImage`` on first FAT partition
+    d. same order for 2nd - 4th FAT partition
+
+2. same as 1. but for ext2/3/4 partition
+
+Available additional commands/variables
+---------------------------------------
+
+* run sdboot - Boot from external SD card (see boot order)
+* run emmcboot - Boot from internal eMMC memory (see boot order)
+* run attachboot - Boot attached kernel image (attached to U-Boot binary)
+
+\
+
+* run scriptload - Load boot script ``${mmcscriptfile}``
+* run scriptboot - Run loaded boot script
+* run kernload - Load kernel image ``${mmckernfile}``
+* run initrdload - Load initrd image ``${mmcinitrdfile}``
+* run kernboot - Boot loaded kernel image
+* run kerninitrdboot - Boot loaded kernel image with loaded initrd image
+
+\
+
+* run trymmcscriptboot - Try to load and boot script ``${mmcscriptfile}``
+* run trymmckernboot - Try to load and boot kernel image ``${mmckernfile}``
+* run trymmckerninitrdboot - Try to load and boot kernel image ``${mmckernfile}``
+  with initrd image ``${mmcinitrdfile}``
+
+Additional variables for loading files from mmc
+-----------------------------------------------
+
+* mmc ``${mmcnum}`` (0 - external, 1 - internal)
+* partition number ``${mmcpart}`` (1 - 4)
+* partition type ``${mmctype}`` (fat, ext2, ext4; ext2 is just alias for ext4)
+
+Additional variables for booting a kernel
+-----------------------------------------
+
+* ``setup_omap_atag`` - Add OMAP table into atags structure (needed for maemo kernel)
+* ``setup_console_atag`` - Enable serial console in OMAP table
+* ``setup_boot_reason_atag`` - Change boot reason in OMAP table
+* ``setup_boot_mode_atag`` - Change boot mode in OMAP table
+
+Variable ``setup_omap_atag`` is automatically set when booting attached kernel.
+When variable ``setup_omap_atag`` is set, variable ``setup_console_atag`` is unset
+and u-boot standard output is set to serial then ``setup_console_atag`` is
+automatically set to 1. So output from Maemo kernel would go to serial port.
+
+UBIFS support
+-------------
+
+UBIFS support is disabled, because U-Boot image is too big and cannot be
+flashed with attached kernel image to RX-51 kernel nand area. For enabling
+UBIFS support add following lines into file ``configs/nokia_rx51_defconfig``::
+
+    CONFIG_CMD_UBI=y
+    CONFIG_CMD_UBIFS=y
+    CONFIG_MTD_UBI_FASTMAP=y
+    CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT=1
