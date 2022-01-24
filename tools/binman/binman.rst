@@ -730,7 +730,7 @@ The above feature ensures that the devicetree is clearly separated from the
 U-Boot executable and can be updated separately by binman as needed. It can be
 disabled with the --no-expanded flag if required.
 
-The same applies for u-boot-spl and u-boot-spl. In those cases, the expansion
+The same applies for u-boot-spl and u-boot-tpl. In those cases, the expansion
 includes the BSS padding, so for example::
 
     spl {
