@@ -32,6 +32,10 @@ config TARGET_QC750
 	bool "Wexler QC750 board"
 	select BOARD_LATE_INIT
 
+config TARGET_SURFACE_RT
+	bool "Microsoft Tegra30 Surface RT board"
+	select BOARD_LATE_INIT
+
 config TARGET_TEC_NG
 	bool "Avionic Design TEC-NG board"
 	select BOARD_LATE_INIT
@@ -56,6 +60,7 @@ source "board/toradex/colibri_t30/Kconfig"
 source "board/htc/endeavoru/Kconfig"
 source "board/asus/grouper/Kconfig"
 source "board/wexler/qc750/Kconfig"
+source "board/microsoft/surface-rt/Kconfig"
 source "board/avionic-design/tec-ng/Kconfig"
 source "board/asus/transformer-t30/Kconfig"
 source "board/lg/x3-t30/Kconfig"

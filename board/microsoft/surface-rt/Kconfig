@@ -1,0 +1,12 @@
+if TARGET_SURFACE_RT
+
+config SYS_BOARD
+	default "surface-rt"
+
+config SYS_VENDOR
+	default "microsoft"
+
+config SYS_CONFIG_NAME
+	default "surface-rt"
+
+endif
