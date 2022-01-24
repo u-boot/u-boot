@@ -641,7 +641,7 @@ int clk_enable(struct clk *clk)
 				return 0;
 			}
 			if (clkp->dev->parent &&
-			    device_get_uclass_id(clkp->dev) == UCLASS_CLK) {
+			    device_get_uclass_id(clkp->dev->parent) == UCLASS_CLK) {
 				ret = clk_enable(dev_get_clk_ptr(clkp->dev->parent));
 				if (ret) {
 					printf("Enable %s failed\n",
@@ -715,7 +715,7 @@ int clk_disable(struct clk *clk)
 		}
 
 		if (clkp && clkp->dev->parent &&
-		    device_get_uclass_id(clkp->dev) == UCLASS_CLK) {
+		    device_get_uclass_id(clkp->dev->parent) == UCLASS_CLK) {
 			ret = clk_disable(dev_get_clk_ptr(clkp->dev->parent));
 			if (ret) {
 				printf("Disable %s failed\n",
