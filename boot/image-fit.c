@@ -191,7 +191,7 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 	const char *keyname;
 	uint8_t *value;
 	int value_len;
-	char *algo;
+	const char *algo;
 	const char *padding;
 	bool required;
 	int ret, i;
@@ -1063,11 +1063,11 @@ int fit_image_get_data_and_size(const void *fit, int noffset,
  *     0, on success
  *     -1, on failure
  */
-int fit_image_hash_get_algo(const void *fit, int noffset, char **algo)
+int fit_image_hash_get_algo(const void *fit, int noffset, const char **algo)
 {
 	int len;
 
-	*algo = (char *)fdt_getprop(fit, noffset, FIT_ALGO_PROP, &len);
+	*algo = (const char *)fdt_getprop(fit, noffset, FIT_ALGO_PROP, &len);
 	if (*algo == NULL) {
 		fit_get_debug(fit, noffset, FIT_ALGO_PROP, len);
 		return -1;
@@ -1265,7 +1265,7 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 {
 	uint8_t value[FIT_MAX_HASH_LEN];
 	int value_len;
-	char *algo;
+	const char *algo;
 	uint8_t *fit_value;
 	int fit_value_len;
 	int ignore;

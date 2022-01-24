@@ -1827,12 +1827,13 @@ config CMD_SLEEP
 	help
 	  Delay execution for some time
 
-config MP
-	bool "support for multiprocessor"
+config CMD_MP
+	bool "support for multiprocessor commands"
+	depends on MP
+	default y
 	help
-	  This provides an option to brinup
-	  different processors in multiprocessor
-	  cases.
+	  This enables commands to bringup different processors
+	  in multiprocessor cases.
 
 config CMD_TIMER
 	bool "timer"
