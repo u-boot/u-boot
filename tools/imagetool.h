@@ -275,11 +275,13 @@ int rockchip_copy_image(int fd, struct image_tool_params *mparams);
  *  b) we need a API call to get the respective section symbols */
 #if defined(__MACH__)
 #include <mach-o/getsect.h>
+#include <mach-o/dyld.h>
 
 #define INIT_SECTION(name)  do {					\
 		unsigned long name ## _len;				\
 		char *__cat(pstart_, name) = getsectdata("__DATA",	\
 			#name, &__cat(name, _len));			\
+		__cat(pstart_, name) += _dyld_get_image_vmaddr_slide(0);\
 		char *__cat(pstop_, name) = __cat(pstart_, name) +	\
 			__cat(name, _len);				\
 		__cat(__start_, name) = (void *)__cat(pstart_, name);	\
