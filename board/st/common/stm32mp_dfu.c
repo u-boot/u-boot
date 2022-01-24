@@ -57,7 +57,7 @@ static void board_get_alt_info_mmc(struct udevice *dev, char *buf)
 		first = false;
 	}
 
-	for (p = 1; p < MAX_SEARCH_PARTITIONS; p++) {
+	for (p = 1; p <= MAX_SEARCH_PARTITIONS; p++) {
 		if (part_get_info(desc, p, &info))
 			continue;
 		if (!first)

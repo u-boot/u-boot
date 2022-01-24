@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
 /*
+ * Copyright (C) Linaro Ltd 2019 - All Rights Reserved
+ * Author: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
  * Copyright (C) 2020 Marek Vasut <marex@denx.de>
  */
 
-#include "stm32mp15xx-dhcor-io3v3.dtsi"
-
 / {
-	/* Enpirion EP3A8LQI U2 on the 1V8 IO DHCOR */
+	/* Enpirion EP3A8LQI U2 on the DHCOR */
 	vdd_io: regulator-buck-io {
 		compatible = "regulator-fixed";
 		regulator-name = "buck-io";
@@ -20,5 +20,4 @@
 
 &pwr_regulators {
 	vdd-supply = <&vdd_io>;
-	vdd_3v3_usbfs-supply = <&vdd_usb>;
 };

@@ -137,7 +137,6 @@
 #endif
 
 #define STM32MP_EXTRA \
-	"altbootcmd=run bootcmd\0" \
 	"env_check=if env info -p -d -q; then env save; fi\0" \
 	"boot_net_usb_start=true\0"
 
