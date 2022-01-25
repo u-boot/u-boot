@@ -717,6 +717,7 @@ out:
 static int
 kwboot_bootmsg(int tty, void *msg)
 {
+	struct kwboot_block block;
 	int rc;
 	char c;
 	int count;
@@ -747,7 +748,40 @@ kwboot_bootmsg(int tty, void *msg)
 
 	kwboot_printv("\n");
 
-	return rc;
+	if (rc)
+		return rc;
+
+	/*
+	 * At this stage we have sent more boot message patterns and BootROM
+	 * (at least on Armada XP and 385) started interpreting sent bytes as
+	 * part of xmodem packets. If BootROM is expecting SOH byte as start of
+	 * a xmodem packet and it receives byte 0xff, then it throws it away and
+	 * sends a NAK reply to host. If BootROM does not receive any byte for
+	 * 2s when expecting some continuation of the xmodem packet, it throws
+	 * away the partially received xmodem data and sends NAK reply to host.
+	 *
+	 * Therefore for starting xmodem transfer we have two options: Either
+	 * wait 2s or send 132 0xff bytes (which is the size of xmodem packet)
+	 * to ensure that BootROM throws away any partially received data.
+	 */
+
+	/* flush output queue with remaining boot message patterns */
+	tcflush(tty, TCOFLUSH);
+
+	/* send one xmodem packet with 0xff bytes to force BootROM to re-sync */
+	memset(&block, 0xff, sizeof(block));
+	kwboot_tty_send(tty, &block, sizeof(block), 0);
+
+	/*
+	 * Sending 132 bytes via 115200B/8-N-1 takes 11.45 ms, reading 132 bytes
+	 * takes 11.45 ms, so waiting for 30 ms should be enough.
+	 */
+	usleep(30 * 1000);
+
+	/* flush remaining NAK replies from input queue */
+	tcflush(tty, TCIFLUSH);
+
+	return 0;
 }
 
 static int
