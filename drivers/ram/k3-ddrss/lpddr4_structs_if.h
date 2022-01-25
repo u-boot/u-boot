@@ -24,6 +24,7 @@ struct lpddr4_privatedata_s {
 	lpddr4_infocallback infohandler;
 	lpddr4_ctlcallback ctlinterrupthandler;
 	lpddr4_phyindepcallback phyindepinterrupthandler;
+	void *ddr_instance;
 };
 
 struct lpddr4_debuginfo_s {
