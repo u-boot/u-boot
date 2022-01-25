@@ -63,7 +63,6 @@ static unsigned char kwboot_msg_debug[] = {
 #define EOT	4	/* sender end of block transfer */
 #define ACK	6	/* target block ack */
 #define NAK	21	/* target block negative ack */
-#define CAN	24	/* target/sender transfer cancellation */
 
 #define KWBOOT_XM_BLKSZ	128 /* xmodem block size */
 
@@ -826,7 +825,7 @@ _now(void)
 static int
 _is_xm_reply(char c)
 {
-	return c == ACK || c == NAK || c == CAN;
+	return c == ACK || c == NAK;
 }
 
 static int
@@ -840,9 +839,6 @@ _xm_reply_to_error(int c)
 		break;
 	case NAK:
 		errno = EBADMSG;
-		break;
-	case CAN:
-		errno = ECANCELED;
 		break;
 	default:
 		errno = EPROTO;
@@ -966,7 +962,7 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 	do {
 		rc = kwboot_tty_send(fd, block, sizeof(*block), 1);
 		if (rc)
-			return rc;
+			goto err;
 
 		if (allow_non_xm && !*done_print) {
 			kwboot_progress(100, '.');
@@ -979,7 +975,7 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 					  allow_non_xm, &non_xm_print,
 					  baudrate, &baud_changed);
 		if (rc)
-			goto can;
+			goto err;
 
 		if (!allow_non_xm && c != ACK)
 			kwboot_progress(-1, '+');
@@ -990,15 +986,13 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 
 	if (allow_non_xm && baudrate && !baud_changed) {
 		fprintf(stderr, "Baudrate was not changed\n");
-		rc = -1;
 		errno = EPROTO;
-		goto can;
+		return -1;
 	}
 
 	return _xm_reply_to_error(c);
-can:
+err:
 	err = errno;
-	kwboot_tty_send_char(fd, CAN);
 	kwboot_printv("\n");
 	errno = err;
 	return rc;
