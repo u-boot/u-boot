@@ -75,7 +75,7 @@ struct kwboot_block {
 	uint8_t csum;
 } __packed;
 
-#define KWBOOT_BLK_RSP_TIMEO 1000 /* ms */
+#define KWBOOT_BLK_RSP_TIMEO 2000 /* ms */
 #define KWBOOT_HDR_RSP_TIMEO 10000 /* ms */
 
 /* ARM code to change baudrate */
