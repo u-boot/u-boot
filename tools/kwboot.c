@@ -1699,6 +1699,8 @@ main(int argc, char **argv)
 	size_t size;
 	size_t after_img_rsv;
 	int baudrate;
+	int prev_optind;
+	int c;
 
 	rv = 1;
 	tty = -1;
@@ -1716,22 +1718,32 @@ main(int argc, char **argv)
 	kwboot_verbose = isatty(STDOUT_FILENO);
 
 	do {
-		int c = getopt(argc, argv, "hb:ptaB:dD:q:s:o:");
+		prev_optind = optind;
+		c = getopt(argc, argv, "hbptaB:dD:q:s:o:");
 		if (c < 0)
 			break;
 
 		switch (c) {
 		case 'b':
+			if (imgpath || bootmsg || debugmsg)
+				goto usage;
 			bootmsg = kwboot_msg_boot;
-			imgpath = optarg;
+			if (prev_optind == optind)
+				goto usage;
+			if (argv[optind] && argv[optind][0] != '-')
+				imgpath = argv[optind++];
 			break;
 
 		case 'D':
+			if (imgpath || bootmsg || debugmsg)
+				goto usage;
 			bootmsg = NULL;
 			imgpath = optarg;
 			break;
 
 		case 'd':
+			if (imgpath || bootmsg || debugmsg)
+				goto usage;
 			debugmsg = kwboot_msg_debug;
 			break;
 
@@ -1774,10 +1786,10 @@ main(int argc, char **argv)
 	if (!bootmsg && !term && !debugmsg)
 		goto usage;
 
-	if (argc - optind < 1)
-		goto usage;
-
 	ttypath = argv[optind++];
+
+	if (optind != argc)
+		goto usage;
 
 	tty = kwboot_open_tty(ttypath, imgpath ? 115200 : baudrate);
 	if (tty < 0) {
