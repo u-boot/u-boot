@@ -1819,7 +1819,7 @@ main(int argc, char **argv)
 		}
 	} while (1);
 
-	if (!bootmsg && !term && !debugmsg)
+	if (!bootmsg && !term && !debugmsg && !imgpath)
 		goto usage;
 
 	ttypath = argv[optind++];
