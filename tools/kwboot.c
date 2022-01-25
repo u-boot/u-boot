@@ -975,8 +975,12 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 		if (rc)
 			goto err;
 
-		if (!allow_non_xm && c != ACK)
-			kwboot_progress(-1, '+');
+		if (!allow_non_xm && c != ACK) {
+			if (c == NAK && allow_retries && retries + 1 < 16)
+				kwboot_progress(-1, '+');
+			else
+				kwboot_progress(-1, 'E');
+		}
 	} while (c == NAK && allow_retries && retries++ < 16);
 
 	if (non_xm_print)
