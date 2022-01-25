@@ -946,7 +946,7 @@ kwboot_xm_recv_reply(int fd, char *c, int stop_on_non_xm,
 
 static int
 kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
-		    int *done_print, int baudrate)
+		    int *done_print, int baudrate, int allow_retries)
 {
 	int non_xm_print, baud_changed;
 	int rc, err, retries;
@@ -977,7 +977,7 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 
 		if (!allow_non_xm && c != ACK)
 			kwboot_progress(-1, '+');
-	} while (c == NAK && retries++ < 16);
+	} while (c == NAK && allow_retries && retries++ < 16);
 
 	if (non_xm_print)
 		kwboot_printv("\n");
@@ -1044,8 +1044,30 @@ kwboot_xmodem_one(int tty, int *pnum, int header, const uint8_t *data,
 
 		last_block = (left <= blksz);
 
+		/*
+		 * Handling of repeated xmodem packets is completely broken in
+		 * Armada 385 BootROM - it completely ignores xmodem packet
+		 * numbers, they are only used for checksum verification.
+		 * BootROM can handle a retry of the xmodem packet only during
+		 * the transmission of kwbimage header and only if BootROM
+		 * itself sent NAK response to previous attempt (it does it on
+		 * checksum failure). During the transmission of kwbimage data
+		 * part, BootROM always expects next xmodem packet, even if it
+		 * sent NAK to previous attempt - there is absolutely no way to
+		 * repair incorrectly transmitted xmodem packet during kwbimage
+		 * data part upload. Also, if kwboot receives non-ACK/NAK
+		 * response (meaning that original BootROM response was damaged
+		 * on UART) there is no way to detect if BootROM accepted xmodem
+		 * packet or not and no way to check if kwboot could repeat the
+		 * packet or not.
+		 *
+		 * Stop transfer and return failure if kwboot receives unknown
+		 * reply if non-xmodem reply is not allowed (for all xmodem
+		 * packets except the last header packet) or when non-ACK reply
+		 * is received during data part transfer.
+		 */
 		rc = kwboot_xm_sendblock(tty, &block, header && last_block,
-					 &done_print, baudrate);
+					 &done_print, baudrate, header);
 		if (rc)
 			goto out;
 
