@@ -880,6 +880,7 @@ kwboot_baud_magic_handle(int fd, char c, int baudrate)
 
 static int
 kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
+		     int ignore_nak_reply,
 		     int allow_non_xm, int *non_xm_print,
 		     int baudrate, int *baud_changed)
 {
@@ -899,8 +900,14 @@ kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
 		}
 
 		/* If received xmodem reply, end. */
-		if (_is_xm_reply(*c))
+		if (_is_xm_reply(*c)) {
+			if (*c == NAK && ignore_nak_reply) {
+				timeout = recv_until - _now();
+				if (timeout >= 0)
+					continue;
+			}
 			break;
+		}
 
 		/*
 		 * If receiving/printing non-xmodem text output is allowed and
@@ -968,6 +975,7 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 		}
 
 		rc = kwboot_xm_recv_reply(fd, &c, retries < 3,
+					  retries > 8,
 					  allow_non_xm, &non_xm_print,
 					  baudrate, &baud_changed);
 		if (rc)
@@ -1011,6 +1019,7 @@ kwboot_xm_finish(int fd)
 			return rc;
 
 		rc = kwboot_xm_recv_reply(fd, &c, retries < 3,
+					  retries > 8,
 					  0, NULL, 0, NULL);
 		if (rc)
 			return rc;
