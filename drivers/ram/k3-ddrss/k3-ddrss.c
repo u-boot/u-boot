@@ -33,6 +33,75 @@
 #define SINGLE_DDR_SUBSYSTEM	0x1
 #define MULTI_DDR_SUBSYSTEM	0x2
 
+#define MULTI_DDR_CFG0  0x00114100
+#define MULTI_DDR_CFG1  0x00114104
+#define DDR_CFG_LOAD    0x00114110
+
+enum intrlv_gran {
+	GRAN_128B,
+	GRAN_512B,
+	GRAN_2KB,
+	GRAN_4KB,
+	GRAN_16KB,
+	GRAN_32KB,
+	GRAN_512KB,
+	GRAN_1GB,
+	GRAN_1_5GB,
+	GRAN_2GB,
+	GRAN_3GB,
+	GRAN_4GB,
+	GRAN_6GB,
+	GRAN_8GB,
+	GRAN_16GB
+};
+
+enum intrlv_size {
+	SIZE_0,
+	SIZE_128MB,
+	SIZE_256MB,
+	SIZE_512MB,
+	SIZE_1GB,
+	SIZE_2GB,
+	SIZE_3GB,
+	SIZE_4GB,
+	SIZE_6GB,
+	SIZE_8GB,
+	SIZE_12GB,
+	SIZE_16GB,
+	SIZE_32GB
+};
+
+struct k3_ddrss_data {
+	u32 flags;
+};
+
+enum ecc_enable {
+	DISABLE_ALL = 0,
+	ENABLE_0,
+	ENABLE_1,
+	ENABLE_ALL
+};
+
+enum emif_config {
+	INTERLEAVE_ALL = 0,
+	SEPR0,
+	SEPR1
+};
+
+enum emif_active {
+	EMIF_0 = 1,
+	EMIF_1,
+	EMIF_ALL
+};
+
+struct k3_msmc {
+	enum intrlv_gran gran;
+	enum intrlv_size size;
+	enum ecc_enable enable;
+	enum emif_config config;
+	enum emif_active active;
+};
+
 struct k3_ddrss_desc {
 	struct udevice *dev;
 	void __iomem *ddrss_ss_cfg;
@@ -511,4 +580,93 @@ U_BOOT_DRIVER(k3_ddrss) = {
 	.ops			= &k3_ddrss_ops,
 	.probe			= k3_ddrss_probe,
 	.priv_auto		= sizeof(struct k3_ddrss_desc),
+};
+
+static int k3_msmc_set_config(struct k3_msmc *msmc)
+{
+	u32 ddr_cfg0 = 0;
+	u32 ddr_cfg1 = 0;
+
+	ddr_cfg0 |= msmc->gran << 24;
+	ddr_cfg0 |= msmc->size << 16;
+	/* heartbeat_per, bit[4:0] setting to 3 is advisable */
+	ddr_cfg0 |= 3;
+
+	/* Program MULTI_DDR_CFG0 */
+	writel(ddr_cfg0, MULTI_DDR_CFG0);
+
+	ddr_cfg1 |= msmc->enable << 16;
+	ddr_cfg1 |= msmc->config << 8;
+	ddr_cfg1 |= msmc->active;
+
+	/* Program MULTI_DDR_CFG1 */
+	writel(ddr_cfg1, MULTI_DDR_CFG1);
+
+	/* Program DDR_CFG_LOAD */
+	writel(0x60000000, DDR_CFG_LOAD);
+
+	return 0;
+}
+
+static int k3_msmc_probe(struct udevice *dev)
+{
+	struct k3_msmc *msmc = dev_get_priv(dev);
+	int ret = 0;
+
+	/* Read the granular size from DT */
+	ret = dev_read_u32(dev, "intrlv-gran", &msmc->gran);
+	if (ret) {
+		dev_err(dev, "missing intrlv-gran property");
+		return -EINVAL;
+	}
+
+	/* Read the interleave region from DT */
+	ret = dev_read_u32(dev, "intrlv-size", &msmc->size);
+	if (ret) {
+		dev_err(dev, "missing intrlv-size property");
+		return -EINVAL;
+	}
+
+	/* Read ECC enable config */
+	ret = dev_read_u32(dev, "ecc-enable", &msmc->enable);
+	if (ret) {
+		dev_err(dev, "missing ecc-enable property");
+		return -EINVAL;
+	}
+
+	/* Read EMIF configuration */
+	ret = dev_read_u32(dev, "emif-config", &msmc->config);
+	if (ret) {
+		dev_err(dev, "missing emif-config property");
+		return -EINVAL;
+	}
+
+	/* Read EMIF active */
+	ret = dev_read_u32(dev, "emif-active", &msmc->active);
+	if (ret) {
+		dev_err(dev, "missing emif-active property");
+		return -EINVAL;
+	}
+
+	ret = k3_msmc_set_config(msmc);
+	if (ret) {
+		dev_err(dev, "error setting msmc config");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static const struct udevice_id k3_msmc_ids[] = {
+	{ .compatible = "ti,j721s2-msmc"},
+	{}
+};
+
+U_BOOT_DRIVER(k3_msmc) = {
+	.name = "k3_msmc",
+	.of_match = k3_msmc_ids,
+	.id = UCLASS_MISC,
+	.probe = k3_msmc_probe,
+	.priv_auto = sizeof(struct k3_msmc),
+	.flags = DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };
