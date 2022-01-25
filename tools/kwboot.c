@@ -292,13 +292,15 @@ static int blk_rsp_timeo = KWBOOT_BLK_RSP_TIMEO;
 static ssize_t
 kwboot_write(int fd, const char *buf, size_t len)
 {
-	size_t tot = 0;
+	ssize_t tot = 0;
 
 	while (tot < len) {
 		ssize_t wr = write(fd, buf + tot, len - tot);
 
-		if (wr < 0)
-			return -1;
+		if (wr < 0 && errno == EINTR)
+			continue;
+		else if (wr < 0)
+			return wr;
 
 		tot += wr;
 	}
