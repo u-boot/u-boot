@@ -875,7 +875,7 @@ kwboot_baud_magic_handle(int fd, char c, int baudrate)
 }
 
 static int
-kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
+kwboot_xm_recv_reply(int fd, char *c, int stop_on_non_xm,
 		     int ignore_nak_reply,
 		     int allow_non_xm, int *non_xm_print,
 		     int baudrate, int *baud_changed)
@@ -931,10 +931,8 @@ kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
 				*non_xm_print = 1;
 			}
 		} else {
-			if (nak_on_non_xm) {
-				*c = NAK;
+			if (stop_on_non_xm)
 				break;
-			}
 			timeout = recv_until - _now();
 			if (timeout < 0) {
 				errno = ETIMEDOUT;
