@@ -1631,6 +1631,7 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 			 * baudrate (which should be 115200) and do not touch
 			 * UART MPP configuration.
 			 */
+			hdr->flags |= 0x1;
 			hdr->options &= ~0x1F;
 			hdr->options |= MAIN_HDR_V1_OPT_BAUD_DEFAULT;
 			hdr->options |= 0 << 3;
