@@ -1081,8 +1081,8 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 	 */
 	hdrsz += (KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ) % KWBOOT_XM_BLKSZ;
 
-	kwboot_printv("Waiting 2s and flushing tty\n");
-	sleep(2); /* flush isn't effective without it */
+	kwboot_printv("Waiting %d ms and flushing tty\n", blk_rsp_timeo);
+	usleep(blk_rsp_timeo * 1000);
 	tcflush(tty, TCIOFLUSH);
 
 	pnum = 1;
