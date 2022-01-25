@@ -409,15 +409,19 @@ kwboot_tty_recv(int fd, void *buf, size_t len, int timeo)
 
 	do {
 		nfds = select(fd + 1, &rfds, NULL, NULL, &tv);
-		if (nfds < 0)
+		if (nfds < 0 && errno == EINTR)
+			continue;
+		else if (nfds < 0)
 			goto out;
-		if (!nfds) {
+		else if (!nfds) {
 			errno = ETIMEDOUT;
 			goto out;
 		}
 
 		n = read(fd, buf, len);
-		if (n <= 0)
+		if (n < 0 && errno == EINTR)
+			continue;
+		else if (n <= 0)
 			goto out;
 
 		buf = (char *)buf + n;
