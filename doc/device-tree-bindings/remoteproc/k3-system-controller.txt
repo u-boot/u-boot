@@ -13,6 +13,9 @@ Required properties:
 			"rx" for Receive channel
 - mboxes:		Corresponding phandles to mailbox channels.
 
+Optional properties:
+--------------------
+- mbox-names:		"boot_notify" for Optional alternate boot notification channel.
 
 Example:
 --------
