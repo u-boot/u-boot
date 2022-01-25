@@ -521,7 +521,7 @@ env_h := include/generated/environment.h
 
 no-dot-config-targets := clean clobber mrproper distclean \
 			 help %docs check% coccicheck \
-			 ubootversion backup tests check qcheck tcheck
+			 ubootversion backup tests check qcheck tcheck pylint
 
 config-targets := 0
 mixed-targets  := 0
@@ -2257,6 +2257,48 @@ distclean: mrproper
 		-type f -print | xargs rm -f
 	@rm -f boards.cfg CHANGELOG
 
+# See doc/develop/python_cq.rst
+PHONY += pylint
+PYLINT_BASE := scripts/pylint.base
+PYLINT_CUR := pylint.cur
+PYLINT_DIFF := pylint.diff
+pylint:
+	$(Q)echo "Running pylint on all files (summary in $(PYLINT_CUR); output in pylint.out/)"
+	$(Q)mkdir -p pylint.out
+	$(Q)rm -f pylint.out/out*
+	$(Q)find tools test -name "*.py" \
+		| xargs -n1 -P$(shell nproc 2>/dev/null || echo 1) \
+			sh -c 'pylint --reports=y --exit-zero -f parseable --ignore-imports=yes $$@ > pylint.out/$$(echo $$@ | tr / _ | sed s/.py//)' _
+	$(Q)sed -n 's/Your code has been rated at \([-0-9.]*\).*/\1/p; s/\*\** Module \(.*\)/\1/p' pylint.out/* \
+		|sed '$!N;s/\n/ /' \
+		|sort > $(PYLINT_CUR)
+	$(Q)base=$$(mktemp) cur=$$(mktemp); cut -d' ' -f1 $(PYLINT_BASE) >$$base; \
+		cut -d' ' -f1 $(PYLINT_CUR) >$$cur; \
+		comm -3 $$base $$cur > $(PYLINT_DIFF); \
+		if [ -s $(PYLINT_DIFF) ]; then \
+			echo "Files have been added/removed. Try:\n\tcp $(PYLINT_CUR) $(PYLINT_BASE)"; \
+			echo; \
+			echo "Added files:"; \
+			comm -13 $$base $$cur; \
+			echo; \
+			echo "Removed files:"; \
+			comm -23 $$base $$cur; \
+			false; \
+		else \
+			rm $$base $$cur $(PYLINT_DIFF); \
+		fi
+	$(Q)bad=false; while read base_file base_val <&3 && read cur_file cur_val <&4; do \
+		if awk "BEGIN {exit !($$cur_val < $$base_val)}"; then \
+			echo "$$base_file: Score was $$base_val, now $$cur_val"; \
+			bad=true; fi; \
+		done 3<$(PYLINT_BASE) 4<$(PYLINT_CUR); \
+		if $$bad; then \
+			echo "Some files have regressed, please fix"; \
+			false; \
+		else \
+			echo "No pylint regressions"; \
+		fi
+
 backup:
 	F=`basename $(srctree)` ; cd .. ; \
 	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
@@ -2275,6 +2317,7 @@ help:
 	@echo  '  check           - Run all automated tests that use sandbox'
 	@echo  '  qcheck          - Run quick automated tests that use sandbox'
 	@echo  '  tcheck          - Run quick automated tests on tools'
+	@echo  '  pylint          - Run pylint on all Python files'
 	@echo  ''
 	@echo  'Other generic targets:'
 	@echo  '  all		  - Build all necessary images depending on configuration'
