@@ -41,6 +41,7 @@ from patman import test_util
 # Bring in the libfdt module
 sys.path.insert(2, 'scripts/dtc/pylibfdt')
 sys.path.insert(2, os.path.join(srctree, 'scripts/dtc/pylibfdt'))
+sys.path.insert(2, os.path.join(srctree, 'build-sandbox/scripts/dtc/pylibfdt'))
 sys.path.insert(2, os.path.join(srctree, 'build-sandbox_spl/scripts/dtc/pylibfdt'))
 
 # When running under python-coverage on Ubuntu 16.04, the dist-packages
