@@ -10,7 +10,7 @@
 		u-boot {
 		};
 		fit {
-			fit,external-offset = <0>;
+			fit,external-offset = <0x400>;
 			description = "test-desc";
 			#address-cells = <1>;
 

@@ -21,6 +21,8 @@
 #include <unistd.h>
 #include <u-boot/sha1.h>
 
+#include <image.h>
+
 #include "fdt_host.h"
 
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
@@ -84,6 +86,7 @@ struct image_tool_params {
 	int bl_len;		/* Block length in byte for external data */
 	const char *engine_id;	/* Engine to use for signing */
 	bool reset_timestamp;	/* Reset the timestamp on an existing image */
+	struct image_summary summary;	/* results of signing process */
 };
 
 /*

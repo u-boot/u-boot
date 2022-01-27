@@ -7,9 +7,9 @@ import glob
 import os
 import shlex
 import shutil
-import struct
 import sys
 import tempfile
+import urllib.request
 
 from patman import command
 from patman import tout
@@ -313,6 +313,93 @@ def GetTargetCompileTool(name, cross_compile=None):
         target_name = name
     return target_name, extra_args
 
+def get_env_with_path():
+    """Get an updated environment with the PATH variable set correctly
+
+    If there are any search paths set, these need to come first in the PATH so
+    that these override any other version of the tools.
+
+    Returns:
+        dict: New environment with PATH updated, or None if there are not search
+            paths
+    """
+    if tool_search_paths:
+        env = dict(os.environ)
+        env['PATH'] = ':'.join(tool_search_paths) + ':' + env['PATH']
+        return env
+
+def run_result(name, *args, **kwargs):
+    """Run a tool with some arguments
+
+    This runs a 'tool', which is a program used by binman to process files and
+    perhaps produce some output. Tools can be located on the PATH or in a
+    search path.
+
+    Args:
+        name: Command name to run
+        args: Arguments to the tool
+        for_host: True to resolve the command to the version for the host
+        for_target: False to run the command as-is, without resolving it
+                   to the version for the compile target
+        raise_on_error: Raise an error if the command fails (True by default)
+
+    Returns:
+        CommandResult object
+    """
+    try:
+        binary = kwargs.get('binary')
+        for_host = kwargs.get('for_host', False)
+        for_target = kwargs.get('for_target', not for_host)
+        raise_on_error = kwargs.get('raise_on_error', True)
+        env = get_env_with_path()
+        if for_target:
+            name, extra_args = GetTargetCompileTool(name)
+            args = tuple(extra_args) + args
+        elif for_host:
+            name, extra_args = GetHostCompileTool(name)
+            args = tuple(extra_args) + args
+        name = os.path.expanduser(name)  # Expand paths containing ~
+        all_args = (name,) + args
+        result = command.RunPipe([all_args], capture=True, capture_stderr=True,
+                                 env=env, raise_on_error=False, binary=binary)
+        if result.return_code:
+            if raise_on_error:
+                raise ValueError("Error %d running '%s': %s" %
+                                 (result.return_code,' '.join(all_args),
+                                  result.stderr or result.stdout))
+        return result
+    except ValueError:
+        if env and not PathHasFile(env['PATH'], name):
+            msg = "Please install tool '%s'" % name
+            package = packages.get(name)
+            if package:
+                 msg += " (e.g. from package '%s')" % package
+            raise ValueError(msg)
+        raise
+
+def tool_find(name):
+    """Search the current path for a tool
+
+    This uses both PATH and any value from SetToolPaths() to search for a tool
+
+    Args:
+        name (str): Name of tool to locate
+
+    Returns:
+        str: Full path to tool if found, else None
+    """
+    name = os.path.expanduser(name)  # Expand paths containing ~
+    paths = []
+    pathvar = os.environ.get('PATH')
+    if pathvar:
+        paths = pathvar.split(':')
+    if tool_search_paths:
+        paths += tool_search_paths
+    for path in paths:
+        fname = os.path.join(path, name)
+        if os.path.isfile(fname) and os.access(fname, os.X_OK):
+            return fname
+
 def Run(name, *args, **kwargs):
     """Run a tool with some arguments
 
@@ -330,37 +417,9 @@ def Run(name, *args, **kwargs):
     Returns:
         CommandResult object
     """
-    try:
-        binary = kwargs.get('binary')
-        for_host = kwargs.get('for_host', False)
-        for_target = kwargs.get('for_target', not for_host)
-        env = None
-        if tool_search_paths:
-            env = dict(os.environ)
-            env['PATH'] = ':'.join(tool_search_paths) + ':' + env['PATH']
-        if for_target:
-            name, extra_args = GetTargetCompileTool(name)
-            args = tuple(extra_args) + args
-        elif for_host:
-            name, extra_args = GetHostCompileTool(name)
-            args = tuple(extra_args) + args
-        name = os.path.expanduser(name)  # Expand paths containing ~
-        all_args = (name,) + args
-        result = command.RunPipe([all_args], capture=True, capture_stderr=True,
-                                 env=env, raise_on_error=False, binary=binary)
-        if result.return_code:
-            raise ValueError("Error %d running '%s': %s" %
-               (result.return_code,' '.join(all_args),
-                result.stderr))
+    result = run_result(name, *args, **kwargs)
+    if result is not None:
         return result.stdout
-    except:
-        if env and not PathHasFile(env['PATH'], name):
-            msg = "Please install tool '%s'" % name
-            package = packages.get(name)
-            if package:
-                 msg += " (e.g. from package '%s')" % package
-            raise ValueError(msg)
-        raise
 
 def Filename(fname):
     """Resolve a file path to an absolute path.
@@ -458,115 +517,6 @@ def ToString(bval):
     """
     return bval.decode('utf-8')
 
-def Compress(indata, algo, with_header=True):
-    """Compress some data using a given algorithm
-
-    Note that for lzma this uses an old version of the algorithm, not that
-    provided by xz.
-
-    This requires 'lz4' and 'lzma_alone' tools. It also requires an output
-    directory to be previously set up, by calling PrepareOutputDir().
-
-    Care is taken to use unique temporary files so that this function can be
-    called from multiple threads.
-
-    Args:
-        indata: Input data to compress
-        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
-
-    Returns:
-        Compressed data
-    """
-    if algo == 'none':
-        return indata
-    fname = tempfile.NamedTemporaryFile(prefix='%s.comp.tmp' % algo,
-                                        dir=outdir).name
-    WriteFile(fname, indata)
-    if algo == 'lz4':
-        data = Run('lz4', '--no-frame-crc', '-B4', '-5', '-c', fname,
-                   binary=True)
-    # cbfstool uses a very old version of lzma
-    elif algo == 'lzma':
-        outfname = tempfile.NamedTemporaryFile(prefix='%s.comp.otmp' % algo,
-                                               dir=outdir).name
-        Run('lzma_alone', 'e', fname, outfname, '-lc1', '-lp0', '-pb0', '-d8')
-        data = ReadFile(outfname)
-    elif algo == 'gzip':
-        data = Run('gzip', '-c', fname, binary=True)
-    else:
-        raise ValueError("Unknown algorithm '%s'" % algo)
-    if with_header:
-        hdr = struct.pack('<I', len(data))
-        data = hdr + data
-    return data
-
-def Decompress(indata, algo, with_header=True):
-    """Decompress some data using a given algorithm
-
-    Note that for lzma this uses an old version of the algorithm, not that
-    provided by xz.
-
-    This requires 'lz4' and 'lzma_alone' tools. It also requires an output
-    directory to be previously set up, by calling PrepareOutputDir().
-
-    Args:
-        indata: Input data to decompress
-        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
-
-    Returns:
-        Compressed data
-    """
-    if algo == 'none':
-        return indata
-    if with_header:
-        data_len = struct.unpack('<I', indata[:4])[0]
-        indata = indata[4:4 + data_len]
-    fname = GetOutputFilename('%s.decomp.tmp' % algo)
-    with open(fname, 'wb') as fd:
-        fd.write(indata)
-    if algo == 'lz4':
-        data = Run('lz4', '-dc', fname, binary=True)
-    elif algo == 'lzma':
-        outfname = GetOutputFilename('%s.decomp.otmp' % algo)
-        Run('lzma_alone', 'd', fname, outfname)
-        data = ReadFile(outfname, binary=True)
-    elif algo == 'gzip':
-        data = Run('gzip', '-cd', fname, binary=True)
-    else:
-        raise ValueError("Unknown algorithm '%s'" % algo)
-    return data
-
-CMD_CREATE, CMD_DELETE, CMD_ADD, CMD_REPLACE, CMD_EXTRACT = range(5)
-
-IFWITOOL_CMDS = {
-    CMD_CREATE: 'create',
-    CMD_DELETE: 'delete',
-    CMD_ADD: 'add',
-    CMD_REPLACE: 'replace',
-    CMD_EXTRACT: 'extract',
-    }
-
-def RunIfwiTool(ifwi_file, cmd, fname=None, subpart=None, entry_name=None):
-    """Run ifwitool with the given arguments:
-
-    Args:
-        ifwi_file: IFWI file to operation on
-        cmd: Command to execute (CMD_...)
-        fname: Filename of file to add/replace/extract/create (None for
-            CMD_DELETE)
-        subpart: Name of sub-partition to operation on (None for CMD_CREATE)
-        entry_name: Name of directory entry to operate on, or None if none
-    """
-    args = ['ifwitool', ifwi_file]
-    args.append(IFWITOOL_CMDS[cmd])
-    if fname:
-        args += ['-f', fname]
-    if subpart:
-        args += ['-n', subpart]
-    if entry_name:
-        args += ['-d', '-e', entry_name]
-    Run(*args)
-
 def ToHex(val):
     """Convert an integer value (or None) to a string
 
@@ -596,3 +546,51 @@ def PrintFullHelp(fname):
     if not pager:
         pager = ['more']
     command.Run(*pager, fname)
+
+def Download(url, tmpdir_pattern='.patman'):
+    """Download a file to a temporary directory
+
+    Args:
+        url (str): URL to download
+        tmpdir_pattern (str): pattern to use for the temporary directory
+
+    Returns:
+        Tuple:
+            Full path to the downloaded archive file in that directory,
+                or None if there was an error while downloading
+            Temporary directory name
+    """
+    print('- downloading: %s' % url)
+    leaf = url.split('/')[-1]
+    tmpdir = tempfile.mkdtemp(tmpdir_pattern)
+    response = urllib.request.urlopen(url)
+    fname = os.path.join(tmpdir, leaf)
+    fd = open(fname, 'wb')
+    meta = response.info()
+    size = int(meta.get('Content-Length'))
+    done = 0
+    block_size = 1 << 16
+    status = ''
+
+    # Read the file in chunks and show progress as we go
+    while True:
+        buffer = response.read(block_size)
+        if not buffer:
+            print(chr(8) * (len(status) + 1), '\r', end=' ')
+            break
+
+        done += len(buffer)
+        fd.write(buffer)
+        status = r'%10d MiB  [%3d%%]' % (done // 1024 // 1024,
+                                            done * 100 // size)
+        status = status + chr(8) * (len(status) + 1)
+        print(status, end=' ')
+        sys.stdout.flush()
+    print('\r', end='')
+    sys.stdout.flush()
+    fd.close()
+    if done != size:
+        print('Error, failed to download')
+        os.remove(fname)
+        fname = None
+    return fname, tmpdir

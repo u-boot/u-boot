@@ -20,6 +20,7 @@ import io
 import struct
 import sys
 
+from binman import comp_util
 from binman import elf
 from patman import command
 from patman import tools
@@ -240,9 +241,9 @@ class CbfsFile(object):
         """Handle decompressing data if necessary"""
         indata = self.data
         if self.compress == COMPRESS_LZ4:
-            data = tools.Decompress(indata, 'lz4', with_header=False)
+            data = comp_util.decompress(indata, 'lz4', with_header=False)
         elif self.compress == COMPRESS_LZMA:
-            data = tools.Decompress(indata, 'lzma', with_header=False)
+            data = comp_util.decompress(indata, 'lzma', with_header=False)
         else:
             data = indata
         self.memlen = len(data)
@@ -361,9 +362,9 @@ class CbfsFile(object):
         elif self.ftype == TYPE_RAW:
             orig_data = data
             if self.compress == COMPRESS_LZ4:
-                data = tools.Compress(orig_data, 'lz4', with_header=False)
+                data = comp_util.compress(orig_data, 'lz4', with_header=False)
             elif self.compress == COMPRESS_LZMA:
-                data = tools.Compress(orig_data, 'lzma', with_header=False)
+                data = comp_util.compress(orig_data, 'lzma', with_header=False)
             self.memlen = len(orig_data)
             self.data_len = len(data)
             attr = struct.pack(ATTR_COMPRESSION_FORMAT,
@@ -861,27 +862,3 @@ class CbfsReader(object):
                 val += data[:pos]
                 break
         return val.decode('utf-8')
-
-
-def cbfstool(fname, *cbfs_args, **kwargs):
-    """Run cbfstool with provided arguments
-
-    If the tool fails then this function raises an exception and prints out the
-    output and stderr.
-
-    Args:
-        fname: Filename of CBFS
-        *cbfs_args: List of arguments to pass to cbfstool
-
-    Returns:
-        CommandResult object containing the results
-    """
-    args = ['cbfstool', fname] + list(cbfs_args)
-    if kwargs.get('base') is not None:
-        args += ['-b', '%#x' % kwargs['base']]
-    result = command.RunPipe([args], capture=not VERBOSE,
-                             capture_stderr=not VERBOSE, raise_on_error=False)
-    if result.return_code:
-        print(result.stderr, file=sys.stderr)
-        raise Exception("Failed to run (error %d): '%s'" %
-                        (result.return_code, ' '.join(args)))

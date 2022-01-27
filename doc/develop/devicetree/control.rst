@@ -182,6 +182,24 @@ main file, in this order::
 Only one of these is selected but of course you can #include another one within
 that file, to create a hierarchy of shared files.
 
+
+External .dtsi fragments
+------------------------
+
+Apart from describing the hardware present, U-Boot also uses its
+control dtb for various configuration purposes. For example, the
+public key(s) used for Verified Boot are embedded in a specific format
+in a /signature node.
+
+As mentioned above, the U-Boot build system automatically includes a
+`*-u-boot.dtsi` file, if found, containing U-Boot specific
+quirks. However, some data, such as the mentioned public keys, are not
+appropriate for upstream U-Boot but are better kept and maintained
+outside the U-Boot repository. You can use CONFIG_DEVICE_TREE_INCLUDES
+to specify a list of .dtsi files that will also be included when
+building .dtb files.
+
+
 Relocation, SPL and TPL
 -----------------------
 

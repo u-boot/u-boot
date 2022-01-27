@@ -147,6 +147,15 @@ config DEFAULT_DEVICE_TREE
 	  It can be overridden from the command line:
 	  $ make DEVICE_TREE=<device-tree-name>
 
+config DEVICE_TREE_INCLUDES
+       string "Extra .dtsi files to include when building DT control"
+	depends on OF_CONTROL
+	help
+	  U-Boot's control .dtb is usually built from an in-tree .dts
+	  file, plus (if available) an in-tree U-Boot-specific .dtsi
+	  file. This option specifies a space-separated list of extra
+	  .dtsi files that will also be used.
+
 config OF_LIST
 	string "List of device tree files to include for DT control"
 	depends on SPL_LOAD_FIT || MULTI_DTB_FIT

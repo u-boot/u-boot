@@ -39,4 +39,27 @@ int mmap_fdt(const char *cmdname, const char *fname, size_t size_inc,
 	     void **blobp, struct stat *sbuf, bool delete_on_error,
 	     bool read_only);
 
+/**
+ * copyfile() - Copy a file
+ *
+ * This uses read()/write() to copy file @src to file @dst
+ *
+ * If @dst exists, it is overwritten and truncated to the correct size.
+ *
+ * @src: Filename to read from
+ * @dst: Filename to write to
+ * @return 0 if OK, -1 on error
+ */
+int copyfile(const char *src, const char *dst);
+
+/**
+ * summary_show() - Show summary information about the signing process
+ *
+ * @summary: Summary info to show
+ * @imagefile: Filename of the output image
+ * @keydest: Filename where the key information is written (NULL if none)
+ */
+void summary_show(struct image_summary *summary, const char *imagefile,
+		  const char *keydest);
+
 #endif /* _FIT_COMMON_H_ */

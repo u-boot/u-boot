@@ -27,7 +27,7 @@ void usage(char *cmdname)
 {
 	fprintf(stderr, "Usage: %s -f fit file -k key file -c config name\n"
 			 "          -f ==> set fit file which should be checked'\n"
-			 "          -k ==> set key file which contains the key'\n"
+			 "          -k ==> set key .dtb file which contains the key'\n"
 			 "          -c ==> set the configuration name'\n",
 		cmdname);
 	exit(EXIT_FAILURE);
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Signature check OK\n");
 	} else {
 		ret = EXIT_FAILURE;
-		fprintf(stderr, "Signature check Bad (error %d)\n", ret);
+		fprintf(stderr, "Signature check bad (error %d)\n", ret);
 	}
 
 	(void) munmap((void *)fit_blob, fsbuf.st_size);

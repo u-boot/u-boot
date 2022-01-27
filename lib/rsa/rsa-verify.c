@@ -79,14 +79,14 @@ int padding_pkcs_15_verify(struct image_sign_info *info,
 	struct checksum_algo *checksum = info->checksum;
 	int ret, pad_len = msg_len - checksum->checksum_len;
 
-	/* Check pkcs1.5 padding bytes. */
+	/* Check pkcs1.5 padding bytes */
 	ret = rsa_verify_padding(msg, pad_len, checksum);
 	if (ret) {
 		debug("In RSAVerify(): Padding check failed!\n");
 		return -EINVAL;
 	}
 
-	/* Check hash. */
+	/* Check hash */
 	if (memcmp((uint8_t *)msg + pad_len, hash, msg_len - pad_len)) {
 		debug("In RSAVerify(): Hash check failed!\n");
 		return -EACCES;
@@ -502,7 +502,8 @@ int rsa_verify_hash(struct image_sign_info *info,
 	if (CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY) && !info->fdt_blob) {
 		/* don't rely on fdt properties */
 		ret = rsa_verify_with_pkey(info, hash, sig, sig_len);
-
+		if (ret)
+			debug("%s: rsa_verify_with_pkey() failed\n", __func__);
 		return ret;
 	}
 
@@ -522,6 +523,9 @@ int rsa_verify_hash(struct image_sign_info *info,
 		if (info->required_keynode != -1) {
 			ret = rsa_verify_with_keynode(info, hash, sig, sig_len,
 						      info->required_keynode);
+			if (ret)
+				debug("%s: Failed to verify required_keynode\n",
+				      __func__);
 			return ret;
 		}
 
@@ -531,6 +535,8 @@ int rsa_verify_hash(struct image_sign_info *info,
 		ret = rsa_verify_with_keynode(info, hash, sig, sig_len, node);
 		if (!ret)
 			return ret;
+		debug("%s: Could not verify key '%s', trying all\n", __func__,
+		      name);
 
 		/* No luck, so try each of the keys in turn */
 		for (ndepth = 0, noffset = fdt_next_node(blob, sig_node,
@@ -546,6 +552,7 @@ int rsa_verify_hash(struct image_sign_info *info,
 			}
 		}
 	}
+	debug("%s: Failed to verify by any means\n", __func__);
 
 	return ret;
 }

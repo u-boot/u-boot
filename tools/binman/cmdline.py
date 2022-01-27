@@ -105,6 +105,8 @@ controlled by a description in the board device tree.'''
             help='Use fake device tree contents (for testing only)')
     build_parser.add_argument('--fake-ext-blobs', action='store_true',
             help='Create fake ext blobs with dummy content (for testing only)')
+    build_parser.add_argument('--force-missing-bintools', type=str,
+            help='Comma-separated list of bintools to consider missing (for testing)')
     build_parser.add_argument('-i', '--image', type=str, action='append',
             help='Image filename to build (if not specified, build all)')
     build_parser.add_argument('-I', '--indir', action='append',
@@ -126,6 +128,9 @@ controlled by a description in the board device tree.'''
         default=False, help='Update the binman node with offset/size info')
     build_parser.add_argument('--update-fdt-in-elf', type=str,
         help='Update an ELF file with the output dtb: infile,outfile,begin_sym,end_sym')
+
+    subparsers.add_parser(
+        'bintool-docs', help='Write out bintool documentation (see bintool.rst)')
 
     subparsers.add_parser(
         'entry-docs', help='Write out entry documentation (see entries.rst)')
@@ -166,5 +171,12 @@ controlled by a description in the board device tree.'''
              'name at the end of the command line')
     test_parser.add_argument('tests', nargs='*',
                              help='Test names to run (omit for all)')
+
+    tool_parser = subparsers.add_parser('tool', help='Check bintools')
+    tool_parser.add_argument('-l', '--list', action='store_true',
+                             help='List all known bintools')
+    tool_parser.add_argument('-f', '--fetch', action='store_true',
+                             help='fetch a bintool from a known location (or: all/missing)')
+    tool_parser.add_argument('bintools', type=str, nargs='*')
 
     return parser.parse_args(argv)

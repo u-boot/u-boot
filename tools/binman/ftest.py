@@ -17,9 +17,13 @@ import struct
 import sys
 import tempfile
 import unittest
+import unittest.mock
+import urllib.error
 
+from binman import bintool
 from binman import cbfs_util
 from binman import cmdline
+from binman import comp_util
 from binman import control
 from binman import elf
 from binman import elf_test
@@ -193,13 +197,7 @@ class TestFunctional(unittest.TestCase):
 
         TestFunctional._MakeInputFile('env.txt', ENV_DATA)
 
-        # Travis-CI may have an old lz4
-        cls.have_lz4 = True
-        try:
-            tools.Run('lz4', '--no-frame-crc', '-c',
-                      os.path.join(cls._indir, 'u-boot.bin'), binary=True)
-        except:
-            cls.have_lz4 = False
+        cls.have_lz4 = comp_util.HAVE_LZ4
 
     @classmethod
     def tearDownClass(cls):
@@ -312,7 +310,8 @@ class TestFunctional(unittest.TestCase):
                     entry_args=None, images=None, use_real_dtb=False,
                     use_expanded=False, verbosity=None, allow_missing=False,
                     allow_fake_blobs=False, extra_indirs=None, threads=None,
-                    test_section_timeout=False, update_fdt_in_elf=None):
+                    test_section_timeout=False, update_fdt_in_elf=None,
+                    force_missing_bintools=''):
         """Run binman with a given test file
 
         Args:
@@ -341,6 +340,8 @@ class TestFunctional(unittest.TestCase):
             test_section_timeout: True to force the first time to timeout, as
                 used in testThreadTimeout()
             update_fdt_in_elf: Value to pass with --update-fdt-in-elf=xxx
+            force_missing_tools (str): comma-separated list of bintools to
+                regard as missing
 
         Returns:
             int return code, 0 on success
@@ -375,6 +376,8 @@ class TestFunctional(unittest.TestCase):
             args.append('-M')
         if allow_fake_blobs:
             args.append('--fake-ext-blobs')
+        if force_missing_bintools:
+            args += ['--force-missing-bintools', force_missing_bintools]
         if update_fdt_in_elf:
             args += ['--update-fdt-in-elf', update_fdt_in_elf]
         if images:
@@ -1715,6 +1718,18 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Node '/binman/gbb': GBB must have a fixed size",
                       str(e.exception))
 
+    def testGbbMissing(self):
+        """Test that binman still produces an image if futility is missing"""
+        entry_args = {
+            'keydir': 'devkeys',
+        }
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('071_gbb.dts', force_missing_bintools='futility',
+                             entry_args=entry_args)
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: futility")
+
     def _HandleVblockCommand(self, pipe_list):
         """Fake calls to the futility utility
 
@@ -1799,6 +1814,19 @@ class TestFunctional(unittest.TestCase):
         m.update(expected_data)
         expected_hashval = m.digest()
         self.assertEqual(expected_hashval, hashval)
+
+    def testVblockMissing(self):
+        """Test that binman still produces an image if futility is missing"""
+        entry_args = {
+            'keydir': 'devkeys',
+        }
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('074_vblock.dts',
+                             force_missing_bintools='futility',
+                             entry_args=entry_args)
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: futility")
 
     def testTpl(self):
         """Test that an image with TPL and its device tree can be created"""
@@ -1923,7 +1951,7 @@ class TestFunctional(unittest.TestCase):
             self._ResetDtbs()
 
     def _decompress(self, data):
-        return tools.Decompress(data, 'lz4')
+        return comp_util.decompress(data, 'lz4')
 
     def testCompress(self):
         """Test compression of blobs"""
@@ -2311,8 +2339,8 @@ class TestFunctional(unittest.TestCase):
         # We expect to find the TPL wil in subpart IBBP entry IBBL
         image_fname = tools.GetOutputFilename('image.bin')
         tpl_fname = tools.GetOutputFilename('tpl.out')
-        tools.RunIfwiTool(image_fname, tools.CMD_EXTRACT, fname=tpl_fname,
-                          subpart='IBBP', entry_name='IBBL')
+        ifwitool = bintool.Bintool.create('ifwitool')
+        ifwitool.extract(image_fname, 'IBBP', 'IBBL', tpl_fname)
 
         tpl_data = tools.ReadFile(tpl_fname)
         self.assertEqual(U_BOOT_TPL_DATA, tpl_data[:len(U_BOOT_TPL_DATA)])
@@ -2336,6 +2364,16 @@ class TestFunctional(unittest.TestCase):
             data = self._DoReadFile('113_x86_rom_ifwi_nodata.dts')
         self.assertIn('Could not complete processing of contents',
                       str(e.exception))
+
+    def testIfwiMissing(self):
+        """Test that binman still produces an image if ifwitool is missing"""
+        self._SetupIfwi('fitimage.bin')
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('111_x86_rom_ifwi.dts',
+                             force_missing_bintools='ifwitool')
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: ifwitool")
 
     def testCbfsOffset(self):
         """Test a CBFS with files at particular offsets
@@ -2802,7 +2840,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractCbfsRaw(self):
         """Test extracting CBFS compressed data without decompressing it"""
         data = self._RunExtractCmd('section/cbfs/u-boot-dtb', decomp=False)
-        dtb = tools.Decompress(data, 'lzma', with_header=False)
+        dtb = comp_util.decompress(data, 'lzma', with_header=False)
         self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
 
     def testExtractBadEntry(self):
@@ -3616,6 +3654,15 @@ class TestFunctional(unittest.TestCase):
         # Just check that the data appears in the file somewhere
         self.assertIn(U_BOOT_SPL_DATA, data)
 
+    def testMkimageMissing(self):
+        """Test that binman still produces an image if mkimage is missing"""
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('156_mkimage.dts',
+                             force_missing_bintools='mkimage')
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: mkimage")
+
     def testExtblob(self):
         """Test an image with an external blob"""
         data = self._DoReadFile('157_blob_ext.dts')
@@ -3713,11 +3760,37 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('162_fit_external.dts')
         fit_data = data[len(U_BOOT_DATA):-2]  # _testing is 2 bytes
 
+        # Size of the external-data region as set up by mkimage
+        external_data_size = len(U_BOOT_DATA) + 2
+        expected_size = (len(U_BOOT_DATA) + 0x400 +
+                         tools.Align(external_data_size, 4) +
+                         len(U_BOOT_NODTB_DATA))
+
         # The data should be outside the FIT
         dtb = fdt.Fdt.FromData(fit_data)
         dtb.Scan()
         fnode = dtb.GetNode('/images/kernel')
         self.assertNotIn('data', fnode.props)
+        self.assertEqual(len(U_BOOT_DATA),
+                         fdt_util.fdt32_to_cpu(fnode.props['data-size'].value))
+        fit_pos = 0x400;
+        self.assertEqual(
+            fit_pos,
+            fdt_util.fdt32_to_cpu(fnode.props['data-position'].value))
+
+        self.assertEquals(expected_size, len(data))
+        actual_pos = len(U_BOOT_DATA) + fit_pos
+        self.assertEqual(U_BOOT_DATA + b'aa',
+                         data[actual_pos:actual_pos + external_data_size])
+
+    def testFitMissing(self):
+        """Test that binman still produces a FIT image if mkimage is missing"""
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('162_fit_external.dts',
+                             force_missing_bintools='mkimage')
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: mkimage")
 
     def testSectionIgnoreHashSignature(self):
         """Test that sections ignore hash, signature nodes for its data"""
@@ -4212,13 +4285,13 @@ class TestFunctional(unittest.TestCase):
 
         # Check compressed data
         section1 = self._decompress(rest)
-        expect1 = tools.Compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
+        expect1 = comp_util.compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
         self.assertEquals(expect1, rest[:len(expect1)])
         self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, section1)
         rest1 = rest[len(expect1):]
 
         section2 = self._decompress(rest1)
-        expect2 = tools.Compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
+        expect2 = comp_util.compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
         self.assertEquals(expect2, rest1[:len(expect2)])
         self.assertEquals(COMPRESS_DATA + COMPRESS_DATA, section2)
         rest2 = rest1[len(expect2):]
@@ -4964,6 +5037,68 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertRegex(
             err,
             "Image '.*' has faked external blobs and is non-functional: .*")
+
+    def testExtblobListFaked(self):
+        """Test an extblob with missing external blob that are faked"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('216_blob_ext_list_missing.dts',
+                             allow_fake_blobs=True)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'main-section'.*faked.*: blob-ext-list")
+
+    def testListBintools(self):
+        args = ['tool', '--list']
+        with test_util.capture_sys_output() as (stdout, _):
+            self._DoBinman(*args)
+        out = stdout.getvalue().splitlines()
+        self.assertTrue(len(out) >= 2)
+
+    def testFetchBintools(self):
+        def fail_download(url):
+            """Take the tools.Download() function by raising an exception"""
+            raise urllib.error.URLError('my error')
+
+        args = ['tool']
+        with self.assertRaises(ValueError) as e:
+            self._DoBinman(*args)
+        self.assertIn("Invalid arguments to 'tool' subcommand",
+                      str(e.exception))
+
+        args = ['tool', '--fetch']
+        with self.assertRaises(ValueError) as e:
+            self._DoBinman(*args)
+        self.assertIn('Please specify bintools to fetch', str(e.exception))
+
+        args = ['tool', '--fetch', '_testing']
+        with unittest.mock.patch.object(tools, 'Download',
+                                        side_effect=fail_download):
+            with test_util.capture_sys_output() as (stdout, _):
+                self._DoBinman(*args)
+        self.assertIn('failed to fetch with all methods', stdout.getvalue())
+
+    def testInvalidCompress(self):
+        with self.assertRaises(ValueError) as e:
+            comp_util.compress(b'', 'invalid')
+        self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
+
+        with self.assertRaises(ValueError) as e:
+            comp_util.decompress(b'1234', 'invalid')
+        self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
+
+    def testBintoolDocs(self):
+        """Test for creation of bintool documentation"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            control.write_bintool_docs(control.bintool.Bintool.get_tool_list())
+        self.assertTrue(len(stdout.getvalue()) > 0)
+
+    def testBintoolDocsMissing(self):
+        """Test handling of missing bintool documentation"""
+        with self.assertRaises(ValueError) as e:
+            with test_util.capture_sys_output() as (stdout, stderr):
+                control.write_bintool_docs(
+                    control.bintool.Bintool.get_tool_list(), 'mkimage')
+        self.assertIn('Documentation is missing for modules: mkimage',
+                      str(e.exception))
 
 
 if __name__ == "__main__":

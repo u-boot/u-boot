@@ -14,6 +14,7 @@ import re
 import sys
 from patman import tools
 
+from binman import bintool
 from binman import cbfs_util
 from binman import elf
 from patman import command
@@ -139,12 +140,24 @@ def WriteEntryDocs(modules, test_missing=None):
 
     Args:
         modules: List of Module objects to get docs for
-        test_missing: Used for testing only, to force an entry's documeentation
+        test_missing: Used for testing only, to force an entry's documentation
             to show as missing even if it is present. Should be set to None in
             normal use.
     """
     from binman.entry import Entry
     Entry.WriteDocs(modules, test_missing)
+
+
+def write_bintool_docs(modules, test_missing=None):
+    """Write out documentation for all bintools
+
+    Args:
+        modules: List of Module objects to get docs for
+        test_missing: Used for testing only, to force an entry's documentation
+            to show as missing even if it is present. Should be set to None in
+            normal use.
+    """
+    bintool.Bintool.WriteDocs(modules, test_missing)
 
 
 def ListEntries(image_fname, entry_paths):
@@ -487,6 +500,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     # without changing the device-tree size, thus ensuring that our
     # entry offsets remain the same.
     for image in images.values():
+        image.CollectBintools()
         image.ExpandEntries()
         if update_fdt:
             image.AddMissingProperties(True)
@@ -578,11 +592,17 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.CheckFakedBlobs(faked_list)
     if faked_list:
         tout.Warning(
-            "Image '%s:%s' has faked external blobs and is non-functional: %s" %
-            (image.name, image.image_name,
-             ' '.join([os.path.basename(e.GetDefaultFilename())
-                       for e in faked_list])))
-    return bool(missing_list) or bool(faked_list)
+            "Image '%s' has faked external blobs and is non-functional: %s" %
+            (image.name, ' '.join([os.path.basename(e.GetDefaultFilename())
+                                   for e in faked_list])))
+    missing_bintool_list = []
+    image.check_missing_bintools(missing_bintool_list)
+    if missing_bintool_list:
+        tout.Warning(
+            "Image '%s' has missing bintools and is non-functional: %s" %
+            (image.name, ' '.join([os.path.basename(bintool.name)
+                                   for bintool in missing_bintool_list])))
+    return any([missing_list, faked_list, missing_bintool_list])
 
 
 def Binman(args):
@@ -607,7 +627,7 @@ def Binman(args):
     from binman.image import Image
     from binman import state
 
-    if args.cmd in ['ls', 'extract', 'replace']:
+    if args.cmd in ['ls', 'extract', 'replace', 'tool']:
         try:
             tout.Init(args.verbosity)
             tools.PrepareOutputDir(None)
@@ -622,6 +642,19 @@ def Binman(args):
                 ReplaceEntries(args.image, args.filename, args.indir, args.paths,
                                do_compress=not args.compressed,
                                allow_resize=not args.fix_size, write_map=args.map)
+
+            if args.cmd == 'tool':
+                tools.SetToolPaths(args.toolpath)
+                if args.list:
+                    bintool.Bintool.list_all()
+                elif args.fetch:
+                    if not args.bintools:
+                        raise ValueError(
+                            "Please specify bintools to fetch or 'all' or 'missing'")
+                    bintool.Bintool.fetch_tools(bintool.FETCH_ANY,
+                                                args.bintools)
+                else:
+                    raise ValueError("Invalid arguments to 'tool' subcommand")
         except:
             raise
         finally:
@@ -674,6 +707,9 @@ def Binman(args):
                 # Set the first image to timeout, used in testThreadTimeout()
                 images[list(images.keys())[0]].test_section_timeout = True
             invalid = False
+            bintool.Bintool.set_missing_list(
+                args.force_missing_bintools.split(',') if
+                args.force_missing_bintools else None)
             for image in images.values():
                 invalid |= ProcessImage(image, args.update_fdt, args.map,
                                        allow_missing=args.allow_missing,

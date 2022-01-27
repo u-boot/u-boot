@@ -82,6 +82,7 @@ class Image(section.Entry_section):
         self.missing_etype = missing_etype
         self.use_expanded = use_expanded
         self.test_section_timeout = False
+        self.bintools = {}
         if not test:
             self.ReadNode()
 
@@ -394,3 +395,16 @@ class Image(section.Entry_section):
         self._CollectEntries(entries, entries_by_name, self)
         return self.LookupSymbol(sym_name, optional, msg, base_addr,
                                  entries_by_name)
+
+    def CollectBintools(self):
+        """Collect all the bintools used by this image
+
+        Returns:
+            Dict of bintools:
+                key: name of tool
+                value: Bintool object
+        """
+        bintools = {}
+        super().AddBintools(bintools)
+        self.bintools = bintools
+        return bintools
