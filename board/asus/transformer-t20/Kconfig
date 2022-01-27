@@ -1,0 +1,12 @@
+if TARGET_TRANSFORMER_T20
+
+config SYS_BOARD
+	default "transformer-t20"
+
+config SYS_VENDOR
+	default "asus"
+
+config SYS_CONFIG_NAME
+	default "transformer-t20"
+
+endif

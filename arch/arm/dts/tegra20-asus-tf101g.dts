@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra20-asus-transformer.dtsi"
+
+/ {
+	model = "ASUS EeePad Transformer TF101G";
+	compatible = "asus,tf101g", "nvidia,tegra20";
+};

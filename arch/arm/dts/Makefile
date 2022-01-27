@@ -94,7 +94,11 @@ dtb-$(CONFIG_ARCH_S5P4418) += \
 dtb-$(CONFIG_ARCH_MESON) += \
 	meson-a1-ad401.dtb
 
-dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
+dtb-$(CONFIG_ARCH_TEGRA) += \
+	tegra20-asus-sl101.dtb \
+	tegra20-asus-tf101.dtb \
+	tegra20-asus-tf101g.dtb \
+	tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
 	tegra20-paz00.dtb \
 	tegra20-plutux.dtb \

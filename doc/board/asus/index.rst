@@ -7,4 +7,5 @@ ASUS
    :maxdepth: 2
 
    grouper_common
+   transformer_t20
    transformer_t30
