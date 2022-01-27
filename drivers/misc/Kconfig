@@ -453,6 +453,15 @@ config FS_LOADER
 	  The consumer driver would then use this loader to program whatever,
 	  ie. the FPGA device.
 
+config SPL_FS_LOADER
+	bool "Enable loader driver for file system"
+	help
+	  This is file system generic loader which can be used to load
+	  the file image from the storage into target such as memory.
+
+	  The consumer driver would then use this loader to program whatever,
+	  ie. the FPGA device.
+
 config GDSYS_SOC
 	bool "Enable gdsys SOC driver"
 	depends on MISC
