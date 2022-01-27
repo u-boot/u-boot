@@ -299,6 +299,9 @@ config TRACE_EARLY_ADDR
 	  the size is too small then the message which says the amount of early
 	  data being coped will the the same as the
 
+config CIRCBUF
+	bool "Enable circular buffer support"
+
 source lib/dhry/Kconfig
 
 menu "Security support"

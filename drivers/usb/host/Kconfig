@@ -180,12 +180,13 @@ config USB_EHCI_MX7
 	  Enables support for the on-chip EHCI controller on i.MX7 SoCs.
 
 config USB_EHCI_MXS
-	bool "Support for i.MX23 EHCI USB controller"
-	depends on ARCH_MX23
+	bool "Support for i.MX23/i.MX28 EHCI USB controller"
+	depends on ARCH_MX23 || ARCH_MX28
 	default y
 	select USB_EHCI_IS_TDI
 	help
-	  Enables support for the on-chip EHCI controller on i.MX23 SoCs.
+	  Enables support for the on-chip EHCI controller on i.MX23 and
+	  i.MX28 SoCs.
 
 config USB_EHCI_OMAP
 	bool "Support for OMAP3+ on-chip EHCI USB controller"
