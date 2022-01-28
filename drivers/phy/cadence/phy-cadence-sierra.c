@@ -157,6 +157,11 @@
 #define SIERRA_PHY_PMA_COMMON_OFFSET			0xe000
 #define SIERRA_PHY_PMA_CMN_CTRL				0x0
 
+/* PHY PCS lane registers */
+#define SIERRA_PHY_PCS_LANE_CDB_OFFSET(ln, offset)	\
+					(0xD000 + ((ln) * (0x800 >> (3 - (offset)))))
+#define SIERRA_PHY_ISO_LINK_CTRL			0xB
+
 #define SIERRA_MACRO_ID					0x00007364
 #define SIERRA_MAX_LANES				16
 #define PLL_LOCK_TIME					100
@@ -181,6 +186,8 @@ static const struct reg_field pma_cmn_ready =
 				REG_FIELD(SIERRA_PHY_PMA_CMN_CTRL, 0, 0);
 static const struct reg_field pllctrl_lock =
 				REG_FIELD(SIERRA_PLLCTRL_STATUS_PREG, 0, 0);
+static const struct reg_field phy_iso_link_ctrl_1 =
+				REG_FIELD(SIERRA_PHY_ISO_LINK_CTRL, 1, 1);
 
 static const char * const clk_names[] = {
 	[CDNS_SIERRA_PLL_CMNLC] = "pll_cmnlc",
@@ -276,6 +283,7 @@ struct cdns_sierra_phy {
 	struct reset_control *phy_rst;
 	struct regmap *regmap_lane_cdb[SIERRA_MAX_LANES];
 	struct regmap *regmap_phy_pcs_common_cdb;
+	struct regmap *regmap_phy_pcs_lane_cdb[SIERRA_MAX_LANES];
 	struct regmap *regmap_phy_pma_common_cdb;
 	struct regmap *regmap_common_cdb;
 	struct regmap_field *macro_id_type;
@@ -286,6 +294,7 @@ struct cdns_sierra_phy {
 	struct regmap_field *cmn_refrcv_refclk_termen_preg[SIERRA_NUM_CMN_PLLC];
 	struct regmap_field *cmn_plllc_pfdclk1_sel_preg[SIERRA_NUM_CMN_PLLC];
 	struct clk *input_clks[CDNS_SIERRA_INPUT_CLOCKS];
+	struct regmap_field *phy_iso_link_ctrl_1[SIERRA_MAX_LANES];
 	int nsubnodes;
 	u32 num_lanes;
 	bool autoconf;
@@ -398,6 +407,15 @@ static int cdns_sierra_phy_on(struct phy *gphy)
 	if (ret) {
 		dev_err(dev, "Failed to take the PHY lane out of reset\n");
 		return ret;
+	}
+
+	if (ins->phy_type == TYPE_PCIE || ins->phy_type == TYPE_USB) {
+		ret = regmap_field_read_poll_timeout(sp->phy_iso_link_ctrl_1[ins->mlane],
+						     val, !val, 1000, PLL_LOCK_TIME);
+		if (ret) {
+			dev_err(dev, "Timeout waiting for PHY status ready\n");
+			return ret;
+		}
 	}
 
 	/*
@@ -666,7 +684,17 @@ static int cdns_regfield_init(struct cdns_sierra_phy *sp)
 			dev_err(dev, "P%d_ENABLE reg field init failed\n", i);
 			return PTR_ERR(field);
 		}
-		sp->pllctrl_lock[i] =  field;
+		sp->pllctrl_lock[i] = field;
+	}
+
+	for (i = 0; i < SIERRA_MAX_LANES; i++) {
+		regmap = sp->regmap_phy_pcs_lane_cdb[i];
+		field = devm_regmap_field_alloc(dev, regmap, phy_iso_link_ctrl_1);
+		if (IS_ERR(field)) {
+			dev_err(dev, "PHY_ISO_LINK_CTRL reg field init for lane %d failed\n", i);
+			return PTR_ERR(field);
+		}
+		sp->phy_iso_link_ctrl_1[i] = field;
 	}
 
 	return 0;
@@ -707,6 +735,17 @@ static int cdns_regmap_init_blocks(struct cdns_sierra_phy *sp,
 		return PTR_ERR(regmap);
 	}
 	sp->regmap_phy_pcs_common_cdb = regmap;
+
+	for (i = 0; i < SIERRA_MAX_LANES; i++) {
+		block_offset = SIERRA_PHY_PCS_LANE_CDB_OFFSET(i, reg_offset_shift);
+		regmap = cdns_regmap_init(dev, base, block_offset,
+					  block_offset_shift, reg_offset_shift);
+		if (IS_ERR(regmap)) {
+			dev_err(dev, "Failed to init PHY PCS lane CDB regmap\n");
+			return PTR_ERR(regmap);
+		}
+		sp->regmap_phy_pcs_lane_cdb[i] = regmap;
+	}
 
 	regmap = cdns_regmap_init(dev, base, SIERRA_PHY_PMA_COMMON_OFFSET,
 				  block_offset_shift, reg_offset_shift);
