@@ -7,7 +7,7 @@
 
 obj-y	:= cache.o cpu.o state.o
 extra-y	:= start.o os.o
-extra-$(CONFIG_SANDBOX_SDL)	+= sdl.o
+extra-$(CONFIG_SANDBOX_SDL)    += sdl.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
 obj-$(CONFIG_ETH_SANDBOX_RAW)	+= eth-raw-os.o
 
@@ -19,8 +19,6 @@ cmd_cc_os.o = $(CC) $(filter-out -nostdinc, \
 
 $(obj)/os.o: $(src)/os.c FORCE
 	$(call if_changed_dep,cc_os.o)
-$(obj)/sdl.o: $(src)/sdl.c FORCE
-	$(call if_changed_dep,cc_os.o)
 
 # eth-raw-os.c is built in the system env, so needs standard includes
 # CFLAGS_REMOVE_eth-raw-os.o cannot be used to drop header include path
@@ -30,3 +28,10 @@ cmd_cc_eth-raw-os.o = $(CC) $(filter-out -nostdinc, \
 
 $(obj)/eth-raw-os.o: $(src)/eth-raw-os.c FORCE
 	$(call if_changed_dep,cc_eth-raw-os.o)
+
+# sdl.c fails to build with -fshort-wchar using musl
+cmd_cc_sdl.o = $(CC) $(filter-out -nostdinc -fshort-wchar, \
+	$(patsubst -I%,-idirafter%,$(c_flags))) -fno-lto -c -o $@ $<
+
+$(obj)/sdl.o: $(src)/sdl.c FORCE
+	$(call if_changed_dep,cc_sdl.o)
