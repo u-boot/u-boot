@@ -192,6 +192,7 @@ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
 	void *hash = NULL;
 	size_t size = 0;
 	bool found = false;
+	bool hash_done = false;
 
 	EFI_PRINT("%s: Enter, %p, %p\n", __func__, regs, db);
 
@@ -214,10 +215,12 @@ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
 		if (guidcmp(&siglist->sig_type, &efi_guid_sha256))
 			continue;
 
-		if (!efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
+		if (!hash_done &&
+		    !efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
 			EFI_PRINT("Digesting an image failed\n");
 			break;
 		}
+		hash_done = true;
 
 		for (sig_data = siglist->sig_data_list; sig_data;
 		     sig_data = sig_data->next) {
