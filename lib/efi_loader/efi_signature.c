@@ -147,9 +147,34 @@ static bool efi_hash_regions(struct image_region *regs, int count,
 }
 
 /**
+ * hash_algo_supported - check if the requested hash algorithm is supported
+ * @guid: guid of the algorithm
+ *
+ * Return: true if supported false otherwise
+ */
+static bool hash_algo_supported(const efi_guid_t guid)
+{
+	int i;
+	const efi_guid_t unsupported_hashes[] = {
+		 EFI_CERT_SHA1_GUID,
+		 EFI_CERT_SHA224_GUID,
+		 EFI_CERT_SHA384_GUID,
+		 EFI_CERT_SHA512_GUID,
+	};
+
+	for (i = 0; i < ARRAY_SIZE(unsupported_hashes); i++) {
+		if (!guidcmp(&unsupported_hashes[i], &guid))
+			return false;
+	}
+
+	return true;
+}
+
+/**
  * efi_signature_lookup_digest - search for an image's digest in sigdb
  * @regs:	List of regions to be authenticated
  * @db:		Signature database for trusted certificates
+ * @dbx		Caller needs to set this to true if he is searching dbx
  *
  * A message digest of image pointed to by @regs is calculated and
  * its hash value is compared to entries in signature database pointed
@@ -158,7 +183,9 @@ static bool efi_hash_regions(struct image_region *regs, int count,
  * Return:	true if found, false if not
  */
 bool efi_signature_lookup_digest(struct efi_image_regions *regs,
-				 struct efi_signature_store *db)
+				 struct efi_signature_store *db,
+				 bool dbx)
+
 {
 	struct efi_signature_store *siglist;
 	struct efi_sig_data *sig_data;
@@ -172,12 +199,20 @@ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
 		goto out;
 
 	for (siglist = db; siglist; siglist = siglist->next) {
-		/* TODO: support other hash algorithms */
-		if (guidcmp(&siglist->sig_type, &efi_guid_sha256)) {
-			EFI_PRINT("Digest algorithm is not supported: %pUs\n",
-				  &siglist->sig_type);
-			break;
-		}
+		/*
+		 * if the hash algorithm is unsupported and we get an entry in
+		 * dbx reject the image
+		 */
+		if (dbx && !hash_algo_supported(siglist->sig_type)) {
+			found = true;
+			continue;
+		};
+		/*
+		 * Only support sha256 for now, that's what
+		 * hash-to-efi-sig-list produces
+		 */
+		if (guidcmp(&siglist->sig_type, &efi_guid_sha256))
+			continue;
 
 		if (!efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
 			EFI_PRINT("Digesting an image failed\n");

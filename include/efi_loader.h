@@ -912,7 +912,8 @@ struct x509_certificate;
 struct pkcs7_message;
 
 bool efi_signature_lookup_digest(struct efi_image_regions *regs,
-				 struct efi_signature_store *db);
+				 struct efi_signature_store *db,
+				 bool dbx);
 bool efi_signature_verify(struct efi_image_regions *regs,
 			  struct pkcs7_message *msg,
 			  struct efi_signature_store *db,
