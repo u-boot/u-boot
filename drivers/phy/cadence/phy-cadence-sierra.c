@@ -617,6 +617,8 @@ static int cdns_sierra_phy_remove(struct udevice *dev)
 	for (i = 0; i < phy->nsubnodes; i++)
 		reset_assert_bulk(phy->phys[i].lnk_rst);
 
+	clk_disable_unprepare(phy->input_clks[PHY_CLK]);
+
 	return 0;
 }
 
