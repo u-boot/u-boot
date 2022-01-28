@@ -168,6 +168,12 @@ config BOOTP_SERVERIP
 	  variable, not the BOOTP server. This affects the operation of both
 	  bootp and tftp.
 
+config BOOTP_MAX_ROOT_PATH_LEN
+	int "Option 17 root path length"
+	default 64
+	help
+	  Select maximal length of option 17 root path.
+
 endif   # if NET
 
 config SYS_RX_ETH_BUFFER
