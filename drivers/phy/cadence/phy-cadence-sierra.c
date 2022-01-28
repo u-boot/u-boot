@@ -13,6 +13,7 @@
  */
 #include <common.h>
 #include <clk.h>
+#include <linux/delay.h>
 #include <linux/clk-provider.h>
 #include <generic-phy.h>
 #include <reset.h>
@@ -27,6 +28,8 @@
 #include <dt-bindings/phy/phy.h>
 #include <dt-bindings/phy/phy-cadence.h>
 #include <regmap.h>
+
+#define usleep_range(a, b) udelay((b))
 
 #define NUM_SSC_MODE		3
 #define NUM_PHY_TYPE		4
@@ -336,6 +339,7 @@ struct cdns_sierra_phy {
 	int nsubnodes;
 	u32 num_lanes;
 	bool autoconf;
+	unsigned int already_configured;
 };
 
 static inline int cdns_reset_assert(struct reset_control *rst)
@@ -386,7 +390,7 @@ static int cdns_sierra_phy_init(struct phy *gphy)
 	int i, j;
 
 	/* Initialise the PHY registers, unless auto configured */
-	if (phy->autoconf || phy->nsubnodes > 1)
+	if (phy->autoconf || phy->already_configured || phy->nsubnodes > 1)
 		return 0;
 
 	clk_set_rate(phy->input_clks[CMN_REFCLK_DIG_DIV], 25000000);
@@ -446,6 +450,11 @@ static int cdns_sierra_phy_on(struct phy *gphy)
 	struct udevice *dev = gphy->dev;
 	u32 val;
 	int ret;
+
+	if (sp->already_configured) {
+		usleep_range(5000, 10000);
+		return 0;
+	}
 
 	if (sp->nsubnodes == 1) {
 		/* Take the PHY out of reset */
@@ -934,13 +943,6 @@ static int cdns_sierra_phy_get_clocks(struct cdns_sierra_phy *sp,
 	struct clk *clk;
 	int ret;
 
-	clk = devm_clk_get_optional(dev, "phy_clk");
-	if (IS_ERR(clk)) {
-		dev_err(dev, "failed to get clock phy_clk\n");
-		return PTR_ERR(clk);
-	}
-	sp->input_clks[PHY_CLK] = clk;
-
 	clk = devm_clk_get_optional(dev, "cmn_refclk_dig_div");
 	if (IS_ERR(clk)) {
 		dev_err(dev, "cmn_refclk_dig_div clock not found\n");
@@ -976,6 +978,25 @@ static int cdns_sierra_phy_get_clocks(struct cdns_sierra_phy *sp,
 	return 0;
 }
 
+static int cdns_sierra_phy_clk(struct cdns_sierra_phy *sp)
+{
+	struct udevice *dev = sp->dev;
+	struct clk *clk;
+	int ret;
+
+	clk = devm_clk_get_optional(dev, "phy_clk");
+	if (IS_ERR(clk)) {
+		dev_err(dev, "failed to get clock phy_clk\n");
+		return PTR_ERR(clk);
+	}
+	sp->input_clks[PHY_CLK] = clk;
+
+	ret = clk_prepare_enable(sp->input_clks[PHY_CLK]);
+	if (ret)
+		return ret;
+
+	return 0;
+}
 static int cdns_sierra_phy_get_resets(struct cdns_sierra_phy *sp,
 				      struct udevice *dev)
 {
@@ -1045,7 +1066,7 @@ static int cdns_sierra_link_probe(struct udevice *dev)
 	sp->num_lanes += inst->num_lanes;
 
 	/* If more than one subnode, configure the PHY as multilink */
-	if (!sp->autoconf && sp->nsubnodes > 1) {
+	if (!sp->autoconf && !sp->already_configured && sp->nsubnodes > 1) {
 		ret = cdns_sierra_phy_configure_multilink(sp);
 		if (ret)
 			return ret;
@@ -1098,13 +1119,17 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = cdns_sierra_phy_get_resets(sp, dev);
-	if (ret)
-		return ret;
+	regmap_field_read(sp->pma_cmn_ready, &sp->already_configured);
 
-	ret = clk_prepare_enable(sp->input_clks[PHY_CLK]);
-	if (ret)
-		return ret;
+	if (!sp->already_configured) {
+		ret = cdns_sierra_phy_clk(sp);
+		if (ret)
+			return ret;
+
+		ret = cdns_sierra_phy_get_resets(sp, dev);
+		if (ret)
+			return ret;
+	}
 
 	/* Check that PHY is present */
 	regmap_field_read(sp->macro_id_type, &id_value);
@@ -1125,7 +1150,8 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 	return 0;
 
 clk_disable:
-	clk_disable_unprepare(sp->input_clks[PHY_CLK]);
+	if (!sp->already_configured)
+		clk_disable_unprepare(sp->input_clks[PHY_CLK]);
 	return ret;
 }
 
