@@ -13,6 +13,7 @@
  */
 #include <common.h>
 #include <clk.h>
+#include <linux/clk-provider.h>
 #include <generic-phy.h>
 #include <reset.h>
 #include <dm/device.h>
@@ -24,11 +25,13 @@
 #include <dm/devres.h>
 #include <linux/io.h>
 #include <dt-bindings/phy/phy.h>
+#include <dt-bindings/phy/phy-cadence.h>
 #include <regmap.h>
 
 /* PHY register offsets */
 #define SIERRA_COMMON_CDB_OFFSET			0x0
 #define SIERRA_MACRO_ID_REG				0x0
+#define SIERRA_CMN_PLLLC_GEN_PREG			0x42
 #define SIERRA_CMN_PLLLC_MODE_PREG			0x48
 #define SIERRA_CMN_PLLLC_LF_COEFF_MODE1_PREG		0x49
 #define SIERRA_CMN_PLLLC_LF_COEFF_MODE0_PREG		0x4A
@@ -36,6 +39,9 @@
 #define SIERRA_CMN_PLLLC_BWCAL_MODE1_PREG		0x4F
 #define SIERRA_CMN_PLLLC_BWCAL_MODE0_PREG		0x50
 #define SIERRA_CMN_PLLLC_SS_TIME_STEPSIZE_MODE_PREG	0x62
+#define SIERRA_CMN_REFRCV_PREG				0x98
+#define SIERRA_CMN_REFRCV1_PREG				0xB8
+#define SIERRA_CMN_PLLLC1_GEN_PREG			0xC2
 
 #define SIERRA_LANE_CDB_OFFSET(ln, offset)	\
 				(0x4000 + ((ln) * (0x800 >> (2 - (offset)))))
@@ -147,12 +153,17 @@
 #define SIERRA_MAX_LANES				16
 #define PLL_LOCK_TIME					100
 
-#define CDNS_SIERRA_INPUT_CLOCKS			3
+#define CDNS_SIERRA_INPUT_CLOCKS			5
 enum cdns_sierra_clock_input {
 	PHY_CLK,
 	CMN_REFCLK_DIG_DIV,
 	CMN_REFCLK1_DIG_DIV,
+	PLL0_REFCLK,
+	PLL1_REFCLK,
 };
+
+#define SIERRA_NUM_CMN_PLLC				2
+#define SIERRA_NUM_CMN_PLLC_PARENTS			2
 
 static const struct reg_field macro_id_type =
 				REG_FIELD(SIERRA_MACRO_ID_REG, 0, 15);
@@ -160,6 +171,44 @@ static const struct reg_field phy_pll_cfg_1 =
 				REG_FIELD(SIERRA_PHY_PLL_CFG, 1, 1);
 static const struct reg_field pllctrl_lock =
 				REG_FIELD(SIERRA_PLLCTRL_STATUS_PREG, 0, 0);
+
+static const char * const clk_names[] = {
+	[CDNS_SIERRA_PLL_CMNLC] = "pll_cmnlc",
+	[CDNS_SIERRA_PLL_CMNLC1] = "pll_cmnlc1",
+};
+
+enum cdns_sierra_cmn_plllc {
+	CMN_PLLLC,
+	CMN_PLLLC1,
+};
+
+struct cdns_sierra_pll_mux_reg_fields {
+	struct reg_field	pfdclk_sel_preg;
+	struct reg_field	plllc1en_field;
+	struct reg_field	termen_field;
+};
+
+static const struct cdns_sierra_pll_mux_reg_fields cmn_plllc_pfdclk1_sel_preg[] = {
+	[CMN_PLLLC] = {
+		.pfdclk_sel_preg = REG_FIELD(SIERRA_CMN_PLLLC_GEN_PREG, 1, 1),
+		.plllc1en_field = REG_FIELD(SIERRA_CMN_REFRCV1_PREG, 8, 8),
+		.termen_field = REG_FIELD(SIERRA_CMN_REFRCV1_PREG, 0, 0),
+	},
+	[CMN_PLLLC1] = {
+		.pfdclk_sel_preg = REG_FIELD(SIERRA_CMN_PLLLC1_GEN_PREG, 1, 1),
+		.plllc1en_field = REG_FIELD(SIERRA_CMN_REFRCV_PREG, 8, 8),
+		.termen_field = REG_FIELD(SIERRA_CMN_REFRCV_PREG, 0, 0),
+	},
+};
+
+struct cdns_sierra_pll_mux {
+	struct cdns_sierra_phy  *sp;
+	struct clk              *clk;
+	struct clk              *parent_clks[2];
+	struct regmap_field     *pfdclk_sel_preg;
+	struct regmap_field     *plllc1en_field;
+	struct regmap_field     *termen_field;
+};
 
 #define reset_control_assert(rst) cdns_reset_assert(rst)
 #define reset_control_deassert(rst) cdns_reset_deassert(rst)
@@ -191,12 +240,6 @@ struct cdns_sierra_data {
 		struct cdns_reg_pairs *usb_ln_vals;
 };
 
-struct cdns_regmap_cdb_context {
-	struct udevice *dev;
-	void __iomem *base;
-	u8 reg_offset_shift;
-};
-
 struct cdns_sierra_phy {
 	struct udevice *dev;
 	void *base;
@@ -211,6 +254,9 @@ struct cdns_sierra_phy {
 	struct regmap_field *macro_id_type;
 	struct regmap_field *phy_pll_cfg_1;
 	struct regmap_field *pllctrl_lock[SIERRA_MAX_LANES];
+	struct regmap_field *cmn_refrcv_refclk_plllc1en_preg[SIERRA_NUM_CMN_PLLC];
+	struct regmap_field *cmn_refrcv_refclk_termen_preg[SIERRA_NUM_CMN_PLLC];
+	struct regmap_field *cmn_plllc_pfdclk1_sel_preg[SIERRA_NUM_CMN_PLLC];
 	struct clk *input_clks[CDNS_SIERRA_INPUT_CLOCKS];
 	int nsubnodes;
 	u32 num_lanes;
@@ -348,6 +394,116 @@ static const struct phy_ops ops = {
 	.reset		= cdns_sierra_phy_reset,
 };
 
+struct cdns_sierra_pll_mux_sel {
+	enum cdns_sierra_cmn_plllc	mux_sel;
+	u32				table[2];
+	const char			*node_name;
+	u32				num_parents;
+	u32				parents[2];
+};
+
+static struct cdns_sierra_pll_mux_sel pll_clk_mux_sel[] = {
+	{
+		.num_parents = 2,
+		.parents = { PLL0_REFCLK, PLL1_REFCLK },
+		.mux_sel = CMN_PLLLC,
+		.table = { 0, 1 },
+		.node_name = "pll_cmnlc",
+	},
+	{
+		.num_parents = 2,
+		.parents = { PLL1_REFCLK, PLL0_REFCLK },
+		.mux_sel = CMN_PLLLC1,
+		.table = { 1, 0 },
+		.node_name = "pll_cmnlc1",
+	},
+};
+
+static int cdns_sierra_pll_mux_set_parent(struct clk *clk, struct clk *parent)
+{
+	struct udevice *dev = clk->dev;
+	struct cdns_sierra_pll_mux *priv = dev_get_priv(dev);
+	struct cdns_sierra_pll_mux_sel *data = dev_get_plat(dev);
+	struct cdns_sierra_phy *sp = priv->sp;
+	int ret;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(priv->parent_clks); i++) {
+		if (parent->dev == priv->parent_clks[i]->dev)
+			break;
+	}
+
+	if (i == ARRAY_SIZE(priv->parent_clks))
+		return -EINVAL;
+
+	ret = regmap_field_write(sp->cmn_refrcv_refclk_plllc1en_preg[data[clk->id].mux_sel], i);
+	ret |= regmap_field_write(sp->cmn_refrcv_refclk_termen_preg[data[clk->id].mux_sel], i);
+	ret |= regmap_field_write(sp->cmn_plllc_pfdclk1_sel_preg[data[clk->id].mux_sel],
+				  data[clk->id].table[i]);
+
+	return ret;
+}
+
+static const struct clk_ops cdns_sierra_pll_mux_ops = {
+	.set_parent = cdns_sierra_pll_mux_set_parent,
+};
+
+int cdns_sierra_pll_mux_probe(struct udevice *dev)
+{
+	struct cdns_sierra_pll_mux *priv = dev_get_priv(dev);
+	struct cdns_sierra_phy *sp = dev_get_priv(dev->parent);
+	struct cdns_sierra_pll_mux_sel *data = dev_get_plat(dev);
+	struct clk *clk;
+	int i, j;
+
+	for (j = 0; j < SIERRA_NUM_CMN_PLLC; j++) {
+		for (i = 0; i < ARRAY_SIZE(priv->parent_clks); i++) {
+			clk = sp->input_clks[data[j].parents[i]];
+			if (IS_ERR_OR_NULL(clk)) {
+				dev_err(dev, "No parent clock for PLL mux clocks\n");
+				return IS_ERR(clk) ? PTR_ERR(clk) : -ENOENT;
+			}
+			priv->parent_clks[i] = clk;
+		}
+	}
+
+	priv->sp = dev_get_priv(dev->parent);
+
+	return 0;
+}
+
+U_BOOT_DRIVER(cdns_sierra_pll_mux_clk) = {
+	.name			= "cdns_sierra_mux_clk",
+	.id			= UCLASS_CLK,
+	.priv_auto		= sizeof(struct cdns_sierra_pll_mux),
+	.ops			= &cdns_sierra_pll_mux_ops,
+	.probe			= cdns_sierra_pll_mux_probe,
+	.plat_auto		= sizeof(struct cdns_sierra_pll_mux_sel) * SIERRA_NUM_CMN_PLLC,
+};
+
+static int cdns_sierra_pll_bind_of_clocks(struct cdns_sierra_phy *sp)
+{
+	struct udevice *dev = sp->dev;
+	struct driver *cdns_sierra_clk_drv;
+	struct cdns_sierra_pll_mux_sel *data = pll_clk_mux_sel;
+	int i, rc;
+
+	cdns_sierra_clk_drv = lists_driver_lookup_name("cdns_sierra_mux_clk");
+	if (!cdns_sierra_clk_drv) {
+		dev_err(dev, "Can not find driver 'cdns_sierra_mux_clk'\n");
+		return -ENOENT;
+	}
+
+	rc = device_bind(dev, cdns_sierra_clk_drv, "pll_mux_clk",
+			 data, dev_ofnode(dev), NULL);
+	if (rc) {
+		dev_err(dev, "cannot bind driver for clock %s\n",
+			clk_names[i]);
+	}
+
+	return 0;
+}
+
 static int cdns_sierra_get_optional(struct cdns_sierra_inst *inst,
 				    ofnode child)
 {
@@ -382,6 +538,7 @@ static int cdns_regfield_init(struct cdns_sierra_phy *sp)
 {
 	struct udevice *dev = sp->dev;
 	struct regmap_field *field;
+	struct reg_field reg_field;
 	struct regmap *regmap;
 	int i;
 
@@ -392,6 +549,32 @@ static int cdns_regfield_init(struct cdns_sierra_phy *sp)
 		return PTR_ERR(field);
 	}
 	sp->macro_id_type = field;
+
+	for (i = 0; i < SIERRA_NUM_CMN_PLLC; i++) {
+		reg_field = cmn_plllc_pfdclk1_sel_preg[i].pfdclk_sel_preg;
+		field = devm_regmap_field_alloc(dev, regmap, reg_field);
+		if (IS_ERR(field)) {
+			dev_err(dev, "PLLLC%d_PFDCLK1_SEL failed\n", i);
+			return PTR_ERR(field);
+		}
+		sp->cmn_plllc_pfdclk1_sel_preg[i] = field;
+
+		reg_field = cmn_plllc_pfdclk1_sel_preg[i].plllc1en_field;
+		field = devm_regmap_field_alloc(dev, regmap, reg_field);
+		if (IS_ERR(field)) {
+			dev_err(dev, "REFRCV%d_REFCLK_PLLLC1EN failed\n", i);
+			return PTR_ERR(field);
+		}
+		sp->cmn_refrcv_refclk_plllc1en_preg[i] = field;
+
+		reg_field = cmn_plllc_pfdclk1_sel_preg[i].termen_field;
+		field = devm_regmap_field_alloc(dev, regmap, reg_field);
+		if (IS_ERR(field)) {
+			dev_err(dev, "REFRCV%d_REFCLK_TERMEN failed\n", i);
+			return PTR_ERR(field);
+		}
+		sp->cmn_refrcv_refclk_termen_preg[i] = field;
+	}
 
 	regmap = sp->regmap_phy_config_ctrl;
 	field = devm_regmap_field_alloc(dev, regmap, phy_pll_cfg_1);
@@ -481,6 +664,22 @@ static int cdns_sierra_phy_get_clocks(struct cdns_sierra_phy *sp,
 		return ret;
 	}
 	sp->input_clks[CMN_REFCLK1_DIG_DIV] = clk;
+
+	clk = devm_clk_get_optional(dev, "pll0_refclk");
+	if (IS_ERR(clk)) {
+		dev_err(dev, "pll0_refclk clock not found\n");
+		ret = PTR_ERR(clk);
+		return ret;
+	}
+	sp->input_clks[PLL0_REFCLK] = clk;
+
+	clk = devm_clk_get_optional(dev, "pll1_refclk");
+	if (IS_ERR(clk)) {
+		dev_err(dev, "pll1_refclk clock not found\n");
+		ret = PTR_ERR(clk);
+		return ret;
+	}
+	sp->input_clks[PLL1_REFCLK] = clk;
 
 	return 0;
 }
@@ -572,7 +771,7 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 	struct cdns_sierra_phy *sp = dev_get_priv(dev);
 	struct cdns_sierra_data *data;
 	unsigned int id_value;
-	int ret, node = 0;
+	int ret;
 
 	sp->dev = dev;
 
@@ -600,11 +799,9 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	sp->phy_rst = devm_reset_control_get(dev, "sierra_reset");
-	if (IS_ERR(sp->phy_rst)) {
-		dev_err(dev, "failed to get reset\n");
-		return PTR_ERR(sp->phy_rst);
-	}
+	ret = cdns_sierra_pll_bind_of_clocks(sp);
+	if (ret)
+		return ret;
 
 	ret = cdns_sierra_phy_get_resets(sp, dev);
 	if (ret)
