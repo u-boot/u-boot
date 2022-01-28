@@ -296,6 +296,12 @@ static int cdns_sierra_phy_on(struct phy *gphy)
 	u32 val;
 	int ret;
 
+	ret = reset_control_deassert(sp->phy_rst);
+	if (ret) {
+		dev_err(dev, "Failed to take the PHY out of reset\n");
+		return ret;
+	}
+
 	/* Take the PHY lane group out of reset */
 	ret = reset_deassert_bulk(ins->lnk_rst);
 	if (ret) {
@@ -544,7 +550,6 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 	if (!sp->autoconf && sp->nsubnodes > 1)
 		regmap_field_write(sp->phy_pll_cfg_1, 0x1);
 
-	reset_control_deassert(sp->phy_rst);
 	dev_info(dev, "sierra probed\n");
 	return 0;
 
