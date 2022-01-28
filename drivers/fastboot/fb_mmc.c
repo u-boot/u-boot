@@ -104,23 +104,18 @@ static int part_get_info_by_name_or_alias(struct blk_desc **dev_desc,
 					  const char *name,
 					  struct disk_partition *info)
 {
-	int ret;
+	/* strlen("fastboot_partition_alias_") + PART_NAME_LEN + 1 */
+	char env_alias_name[25 + PART_NAME_LEN + 1];
+	char *aliased_part_name;
 
-	ret = do_get_part_info(dev_desc, name, info);
-	if (ret < 0) {
-		/* strlen("fastboot_partition_alias_") + PART_NAME_LEN + 1 */
-		char env_alias_name[25 + PART_NAME_LEN + 1];
-		char *aliased_part_name;
+	/* check for alias */
+	strlcpy(env_alias_name, "fastboot_partition_alias_", sizeof(env_alias_name));
+	strlcat(env_alias_name, name, sizeof(env_alias_name));
+	aliased_part_name = env_get(env_alias_name);
+	if (aliased_part_name)
+		name = aliased_part_name;
 
-		/* check for alias */
-		strcpy(env_alias_name, "fastboot_partition_alias_");
-		strlcat(env_alias_name, name, sizeof(env_alias_name));
-		aliased_part_name = env_get(env_alias_name);
-		if (aliased_part_name != NULL)
-			ret = do_get_part_info(dev_desc, aliased_part_name,
-					       info);
-	}
-	return ret;
+	return do_get_part_info(dev_desc, name, info);
 }
 
 /**
