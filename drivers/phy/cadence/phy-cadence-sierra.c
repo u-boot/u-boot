@@ -203,7 +203,7 @@ struct cdns_sierra_phy {
 	size_t size;
 	struct regmap *regmap;
 	struct cdns_sierra_data *init_data;
-	struct cdns_sierra_inst phys[SIERRA_MAX_LANES];
+	struct cdns_sierra_inst *phys[SIERRA_MAX_LANES];
 	struct reset_control *phy_rst;
 	struct regmap *regmap_lane_cdb[SIERRA_MAX_LANES];
 	struct regmap *regmap_phy_config_ctrl;
@@ -242,8 +242,8 @@ static inline struct cdns_sierra_inst *phy_get_drvdata(struct phy *phy)
 		return NULL;
 
 	for (index = 0; index < sp->nsubnodes; index++) {
-		if (phy->id == sp->phys[index].mlane)
-			return &sp->phys[index];
+		if (phy->id == sp->phys[index]->mlane)
+			return sp->phys[index];
 	}
 
 	return NULL;
@@ -500,13 +500,79 @@ static int cdns_sierra_phy_get_resets(struct cdns_sierra_phy *sp,
 	return 0;
 }
 
+static int cdns_sierra_bind_link_nodes(struct  cdns_sierra_phy *sp)
+{
+	struct udevice *dev = sp->dev;
+	struct driver *link_drv;
+	ofnode child;
+	int rc;
+
+	link_drv = lists_driver_lookup_name("sierra_phy_link");
+	if (!link_drv) {
+		dev_err(dev, "Cannot find driver 'sierra_phy_link'\n");
+		return -ENOENT;
+	}
+
+	ofnode_for_each_subnode(child, dev_ofnode(dev)) {
+		if (!(ofnode_name_eq(child, "phy") ||
+		      ofnode_name_eq(child, "link")))
+			continue;
+
+		rc = device_bind(dev, link_drv, "link", NULL, child, NULL);
+		if (rc) {
+			dev_err(dev, "cannot bind driver for link\n");
+			return rc;
+		}
+	}
+
+	return 0;
+}
+
+static int cdns_sierra_link_probe(struct udevice *dev)
+{
+	struct cdns_sierra_inst *inst = dev_get_priv(dev);
+	struct cdns_sierra_phy *sp = dev_get_priv(dev->parent);
+	struct reset_ctl_bulk *rst;
+	int ret, node;
+
+	rst = devm_reset_bulk_get_by_node(dev, dev_ofnode(dev));
+	if (IS_ERR(rst)) {
+		ret = PTR_ERR(rst);
+		dev_err(dev, "failed to get reset\n");
+		return ret;
+	}
+	inst->lnk_rst = rst;
+
+	ret = cdns_sierra_get_optional(inst, dev_ofnode(dev));
+	if (ret) {
+		dev_err(dev, "missing property in node\n");
+		return ret;
+	}
+	node = sp->nsubnodes;
+	sp->phys[node] = inst;
+	sp->nsubnodes += 1;
+	sp->num_lanes += inst->num_lanes;
+
+	/* If more than one subnode, configure the PHY as multilink */
+	if (!sp->autoconf && sp->nsubnodes > 1)
+		regmap_field_write(sp->phy_pll_cfg_1, 0x1);
+
+	return 0;
+}
+
+U_BOOT_DRIVER(sierra_phy_link) = {
+	.name		= "sierra_phy_link",
+	.id		= UCLASS_PHY,
+	.probe		= cdns_sierra_link_probe,
+	.priv_auto	= sizeof(struct cdns_sierra_inst),
+};
+
 static int cdns_sierra_phy_probe(struct udevice *dev)
 {
 	struct cdns_sierra_phy *sp = dev_get_priv(dev);
 	struct cdns_sierra_data *data;
 	unsigned int id_value;
 	int ret, node = 0;
-	ofnode child;
 
 	sp->dev = dev;
 
@@ -558,45 +624,13 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 	}
 
 	sp->autoconf = dev_read_bool(dev, "cdns,autoconf");
-
-	ofnode_for_each_subnode(child, dev_ofnode(dev)) {
-		if (!(ofnode_name_eq(child, "phy") ||
-		      ofnode_name_eq(child, "link")))
-			continue;
-
-		sp->phys[node].lnk_rst = devm_reset_bulk_get_by_node(dev,
-								     child);
-		if (IS_ERR(sp->phys[node].lnk_rst)) {
-			ret = PTR_ERR(sp->phys[node].lnk_rst);
-			dev_err(dev, "failed to get reset %s\n",
-				ofnode_get_name(child));
-			goto put_child2;
-		}
-
-		if (!sp->autoconf) {
-			ret = cdns_sierra_get_optional(&sp->phys[node], child);
-			if (ret) {
-				dev_err(dev, "missing property in node %s\n",
-					ofnode_get_name(child));
-				goto put_child;
-			}
-		}
-		sp->num_lanes += sp->phys[node].num_lanes;
-
-		node++;
-	}
-	sp->nsubnodes = node;
-
-	/* If more than one subnode, configure the PHY as multilink */
-	if (!sp->autoconf && sp->nsubnodes > 1)
-		regmap_field_write(sp->phy_pll_cfg_1, 0x1);
+	/* Binding link nodes as children to serdes */
+	ret = cdns_sierra_bind_link_nodes(sp);
+	if (ret)
+		goto clk_disable;
 
 	dev_info(dev, "sierra probed\n");
 	return 0;
-
-put_child:
-	node++;
-put_child2:
 
 clk_disable:
 	clk_disable_unprepare(sp->input_clks[PHY_CLK]);
@@ -615,7 +649,7 @@ static int cdns_sierra_phy_remove(struct udevice *dev)
 	 * Need to put the subnode resets here though.
 	 */
 	for (i = 0; i < phy->nsubnodes; i++)
-		reset_assert_bulk(phy->phys[i].lnk_rst);
+		reset_assert_bulk(phy->phys[i]->lnk_rst);
 
 	clk_disable_unprepare(phy->input_clks[PHY_CLK]);
 
