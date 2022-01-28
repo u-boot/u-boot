@@ -523,6 +523,10 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 	sp->autoconf = dev_read_bool(dev, "cdns,autoconf");
 
 	ofnode_for_each_subnode(child, dev_ofnode(dev)) {
+		if (!(ofnode_name_eq(child, "phy") ||
+		      ofnode_name_eq(child, "link")))
+			continue;
+
 		sp->phys[node].lnk_rst = devm_reset_bulk_get_by_node(dev,
 								     child);
 		if (IS_ERR(sp->phys[node].lnk_rst)) {
