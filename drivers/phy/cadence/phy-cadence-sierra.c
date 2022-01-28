@@ -480,6 +480,21 @@ static int cdns_sierra_phy_get_clocks(struct cdns_sierra_phy *sp,
 	return 0;
 }
 
+static int cdns_sierra_phy_get_resets(struct cdns_sierra_phy *sp,
+				      struct udevice *dev)
+{
+	struct reset_control *rst;
+
+	rst = devm_reset_control_get(dev, "sierra_reset");
+	if (IS_ERR(rst)) {
+		dev_err(dev, "failed to get reset\n");
+		return PTR_ERR(rst);
+	}
+	sp->phy_rst = rst;
+
+	return 0;
+}
+
 static int cdns_sierra_phy_probe(struct udevice *dev)
 {
 	struct cdns_sierra_phy *sp = dev_get_priv(dev);
@@ -519,6 +534,10 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 		dev_err(dev, "failed to get reset\n");
 		return PTR_ERR(sp->phy_rst);
 	}
+
+	ret = cdns_sierra_phy_get_resets(sp, dev);
+	if (ret)
+		return ret;
 
 	ret = clk_prepare_enable(sp->clk);
 	if (ret)
