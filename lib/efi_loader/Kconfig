@@ -369,4 +369,14 @@ config EFI_ESRT
 	help
 	  Enabling this option creates the ESRT UEFI system table.
 
+config EFI_RISCV_BOOT_PROTOCOL
+	bool "RISCV_EFI_BOOT_PROTOCOL support"
+	default y
+	depends on RISCV
+	help
+	  The EFI_RISCV_BOOT_PROTOCOL is used to transfer the boot hart ID
+	  to the next boot stage. It should be enabled as it is meant to
+	  replace the transfer via the device-tree. The latter is not
+	  possible on systems using ACPI.
+
 endif

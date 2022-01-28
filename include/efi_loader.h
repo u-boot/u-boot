@@ -527,6 +527,8 @@ efi_status_t efi_disk_register(void);
 efi_status_t efi_rng_register(void);
 /* Called by efi_init_obj_list() to install EFI_TCG2_PROTOCOL */
 efi_status_t efi_tcg2_register(void);
+/* Called by efi_init_obj_list() to install RISCV_EFI_BOOT_PROTOCOL */
+efi_status_t efi_riscv_register(void);
 /* Called by efi_init_obj_list() to do initial measurement */
 efi_status_t efi_tcg2_do_initial_measurement(void);
 /* measure the pe-coff image, extend PCR and add Event Log */
