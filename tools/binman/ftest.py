@@ -5100,6 +5100,24 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn('Documentation is missing for modules: mkimage',
                       str(e.exception))
 
+    def testListWithGenNode(self):
+        """Check handling of an FDT map when the section cannot be found"""
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+        }
+        data = self._DoReadFileDtb(
+            '219_fit_gennode.dts',
+            entry_args=entry_args,
+            use_real_dtb=True,
+            extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with test_util.capture_sys_output() as (stdout, stderr):
+                self._RunBinman('ls', '-i', updated_fname)
+        finally:
+            shutil.rmtree(tmpdir)
+
 
 if __name__ == "__main__":
     unittest.main()

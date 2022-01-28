@@ -67,9 +67,13 @@ class Image(section.Entry_section):
             does not exist in binman. This is useful if an image was created by
             binman a newer version of binman but we want to list it in an older
             version which does not support all the entry types.
+        generate: If true, generator nodes are processed. If false they are
+            ignored which is useful when an existing image is read back from a
+            file.
     """
     def __init__(self, name, node, copy_to_orig=True, test=False,
-                 ignore_missing=False, use_expanded=False, missing_etype=False):
+                 ignore_missing=False, use_expanded=False, missing_etype=False,
+                 generate=True):
         super().__init__(None, 'section', node, test=test)
         self.copy_to_orig = copy_to_orig
         self.name = 'main-section'
@@ -83,6 +87,7 @@ class Image(section.Entry_section):
         self.use_expanded = use_expanded
         self.test_section_timeout = False
         self.bintools = {}
+        self.generate = generate
         if not test:
             self.ReadNode()
 
@@ -131,7 +136,7 @@ class Image(section.Entry_section):
         # Return an Image with the associated nodes
         root = dtb.GetRoot()
         image = Image('image', root, copy_to_orig=False, ignore_missing=True,
-                      missing_etype=True)
+                      missing_etype=True, generate=False)
 
         image.image_node = fdt_util.GetString(root, 'image-node', 'image')
         image.fdtmap_dtb = dtb
