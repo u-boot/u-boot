@@ -8,6 +8,7 @@
 #include <common.h>
 #include <blk.h>
 #include <efi_loader.h>
+#include <malloc.h>
 
 #define MAC_OUTPUT_LEN 22
 #define UNKNOWN_OUTPUT_LEN 23
@@ -292,10 +293,18 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_FILE_PATH: {
 		struct efi_device_path_file_path *fp =
 			(struct efi_device_path_file_path *)dp;
-		int slen = (dp->length - sizeof(*dp)) / 2;
-		if (slen > MAX_NODE_LEN - 2)
-			slen = MAX_NODE_LEN - 2;
-		s += sprintf(s, "%-.*ls", slen, fp->str);
+		u16 *buffer;
+		int slen = dp->length - sizeof(*dp);
+
+		/* two bytes for \0, extra byte if dp->length is odd */
+		buffer = calloc(1, slen + 3);
+		if (!buffer) {
+			log_err("Out of memory\n");
+			return s;
+		}
+		memcpy(buffer, fp->str, dp->length - sizeof(*dp));
+		s += snprintf(s, MAX_NODE_LEN - 1, "%ls", buffer);
+		free(buffer);
 		break;
 	}
 	default:
