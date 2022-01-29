@@ -769,13 +769,8 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 static unsigned dp_part_size(struct blk_desc *desc, int part)
 {
 	unsigned dpsize;
-	struct udevice *dev;
-	int ret;
+	struct udevice *dev = desc->bdev;
 
-	ret = blk_find_device(desc->if_type, desc->devnum, &dev);
-
-	if (ret)
-		dev = desc->bdev->parent;
 	dpsize = dp_size(dev);
 
 	if (part == 0) /* the actual disk, not a partition */
@@ -866,13 +861,8 @@ static void *dp_part_node(void *buf, struct blk_desc *desc, int part)
  */
 static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 {
-	struct udevice *dev;
-	int ret;
+	struct udevice *dev = desc->bdev;
 
-	ret = blk_find_device(desc->if_type, desc->devnum, &dev);
-
-	if (ret)
-		dev = desc->bdev->parent;
 	buf = dp_fill(buf, dev);
 
 	if (part == 0) /* the actual disk, not a partition */
