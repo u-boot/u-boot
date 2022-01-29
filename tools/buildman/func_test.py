@@ -205,8 +205,8 @@ class TestFunctional(unittest.TestCase):
         self._test_branch = TEST_BRANCH
 
         # Avoid sending any output and clear all terminal output
-        terminal.SetPrintTestMode()
-        terminal.GetPrintTestLines()
+        terminal.set_print_test_mode()
+        terminal.get_print_test_lines()
 
     def tearDown(self):
         shutil.rmtree(self._base_dir)
@@ -438,7 +438,7 @@ class TestFunctional(unittest.TestCase):
         print(len(lines))
         for line in lines:
             print(line)
-        #self.print_lines(terminal.GetPrintTestLines())
+        #self.print_lines(terminal.get_print_test_lines())
 
     def testNoBoards(self):
         """Test that buildman aborts when there are no boards"""
@@ -450,7 +450,7 @@ class TestFunctional(unittest.TestCase):
         """Very simple test to invoke buildman on the current source"""
         self.setupToolchains();
         self._RunControl('-o', self._output_dir)
-        lines = terminal.GetPrintTestLines()
+        lines = terminal.get_print_test_lines()
         self.assertIn('Building current source for %d boards' % len(boards),
                       lines[0].text)
 
@@ -463,7 +463,7 @@ class TestFunctional(unittest.TestCase):
         """Test that missing toolchains are detected"""
         self.setupToolchains();
         ret_code = self._RunControl('-b', TEST_BRANCH, '-o', self._output_dir)
-        lines = terminal.GetPrintTestLines()
+        lines = terminal.get_print_test_lines()
 
         # Buildman always builds the upstream commit as well
         self.assertIn('Building %d commits for %d boards' %

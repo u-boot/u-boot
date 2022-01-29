@@ -148,7 +148,7 @@ class TestBuild(unittest.TestCase):
         self.toolchains.Add('gcc', test=False)
 
         # Avoid sending any output
-        terminal.SetPrintTestMode()
+        terminal.set_print_test_mode()
         self._col = terminal.Color()
 
         self.base_dir = tempfile.mkdtemp()
@@ -209,7 +209,7 @@ class TestBuild(unittest.TestCase):
         # associated with each. This calls our Make() to inject the fake output.
         build.BuildBoards(self.commits, board_selected, keep_outputs=False,
                           verbose=False)
-        lines = terminal.GetPrintTestLines()
+        lines = terminal.get_print_test_lines()
         count = 0
         for line in lines:
             if line.text.strip():
@@ -221,8 +221,8 @@ class TestBuild(unittest.TestCase):
         build.SetDisplayOptions(**kwdisplay_args);
         build.ShowSummary(self.commits, board_selected)
         if echo_lines:
-            terminal.EchoPrintTestLines()
-        return iter(terminal.GetPrintTestLines())
+            terminal.echo_print_test_lines()
+        return iter(terminal.get_print_test_lines())
 
     def _CheckOutput(self, lines, list_error_boards=False,
                      filter_dtb_warnings=False,

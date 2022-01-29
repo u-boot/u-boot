@@ -177,7 +177,7 @@ elif args.cmd == 'status':
                                  args.dest_branch, args.force,
                                  args.show_comments, args.patchwork_url)
     except Exception as e:
-        terminal.Tprint('patman: %s: %s' % (type(e).__name__, e),
+        terminal.tprint('patman: %s: %s' % (type(e).__name__, e),
                        colour=terminal.Color.RED)
         if args.debug:
             print()

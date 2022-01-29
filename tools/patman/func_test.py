@@ -45,7 +45,7 @@ class TestFunctional(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
-        terminal.SetPrintTestMode(False)
+        terminal.set_print_test_mode(False)
 
     @staticmethod
     def _get_path(fname):
@@ -907,10 +907,10 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
 
         series = Series()
         series.commits = [commit1, commit2]
-        terminal.SetPrintTestMode()
+        terminal.set_print_test_mode()
         status.check_patchwork_status(series, '1234', None, None, False, False,
                                       None, self._fake_patchwork2)
-        lines = iter(terminal.GetPrintTestLines())
+        lines = iter(terminal.get_print_test_lines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
                          next(lines))
@@ -1021,11 +1021,11 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         # 4 responses added from patchwork into new branch 'first2'
         # <unittest.result.TestResult run=8 errors=0 failures=0>
 
-        terminal.SetPrintTestMode()
+        terminal.set_print_test_mode()
         status.check_patchwork_status(series, '1234', branch, dest_branch,
                                       False, False, None, self._fake_patchwork3,
                                       repo)
-        lines = terminal.GetPrintTestLines()
+        lines = terminal.get_print_test_lines()
         self.assertEqual(12, len(lines))
         self.assertEqual(
             "4 responses added from patchwork into new branch 'first2'",
@@ -1223,10 +1223,10 @@ Reviewed-by: %s
 
         series = Series()
         series.commits = [commit1, commit2]
-        terminal.SetPrintTestMode()
+        terminal.set_print_test_mode()
         status.check_patchwork_status(series, '1234', None, None, False, True,
                                       None, self._fake_patchwork2)
-        lines = iter(terminal.GetPrintTestLines())
+        lines = iter(terminal.get_print_test_lines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
                          next(lines))

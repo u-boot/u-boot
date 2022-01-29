@@ -338,9 +338,9 @@ def show_responses(rtags, indent, is_new):
     for tag in sorted(rtags.keys()):
         people = rtags[tag]
         for who in sorted(people):
-            terminal.Tprint(indent + '%s %s: ' % ('+' if is_new else ' ', tag),
+            terminal.tprint(indent + '%s %s: ' % ('+' if is_new else ' ', tag),
                            newline=False, colour=col.GREEN, bright=is_new)
-            terminal.Tprint(who, colour=col.WHITE, bright=is_new)
+            terminal.tprint(who, colour=col.WHITE, bright=is_new)
             count += 1
     return count
 
@@ -455,7 +455,7 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
         patch = patch_for_commit.get(seq)
         if not patch:
             continue
-        terminal.Tprint('%3d %s' % (patch.seq, patch.subject[:50]),
+        terminal.tprint('%3d %s' % (patch.seq, patch.subject[:50]),
                        colour=col.BLUE)
         cmt = series.commits[seq]
         base_rtags = cmt.rtags
@@ -466,15 +466,15 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
         num_to_add += show_responses(new_rtags, indent, True)
         if show_comments:
             for review in review_list[seq]:
-                terminal.Tprint('Review: %s' % review.meta, colour=col.RED)
+                terminal.tprint('Review: %s' % review.meta, colour=col.RED)
                 for snippet in review.snippets:
                     for line in snippet:
                         quoted = line.startswith('>')
-                        terminal.Tprint('    %s' % line,
+                        terminal.tprint('    %s' % line,
                                        colour=col.MAGENTA if quoted else None)
-                    terminal.Tprint()
+                    terminal.tprint()
 
-    terminal.Tprint("%d new response%s available in patchwork%s" %
+    terminal.tprint("%d new response%s available in patchwork%s" %
                    (num_to_add, 's' if num_to_add != 1 else '',
                     '' if dest_branch
                     else ' (use -d to write them to a new branch)'))
@@ -482,6 +482,6 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
     if dest_branch:
         num_added = create_branch(series, new_rtag_list, branch,
                                   dest_branch, force, test_repo)
-        terminal.Tprint(
+        terminal.tprint(
             "%d response%s added from patchwork into new branch '%s'" %
             (num_added, 's' if num_added != 1 else '', dest_branch))
