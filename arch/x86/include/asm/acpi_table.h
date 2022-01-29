@@ -64,8 +64,6 @@ int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
  */
 int acpi_create_gnvs(struct acpi_global_nvs *gnvs);
 
-ulong write_acpi_tables(ulong start);
-
 /**
  * acpi_get_rsdp_addr() - get ACPI RSDP table address
  *
