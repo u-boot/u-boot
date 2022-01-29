@@ -1,6 +1,7 @@
 if ARCH_SUNXI
 
 config SPL_LDSCRIPT
+	default "arch/arm/cpu/arm926ejs/sunxi/u-boot-spl.lds" if MACH_SUNIV
 	default "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds" if !ARM64
 
 config IDENT_STRING
@@ -182,6 +183,12 @@ config SUNXI_DRAM_MAX_SIZE
 choice
 	prompt "Sunxi SoC Variant"
 	optional
+
+config MACH_SUNIV
+	bool "suniv (Allwinner F1C100s/F1C200s/F1C600/R6)"
+	select CPU_ARM926EJS
+	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
 
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
@@ -589,6 +596,7 @@ config DRAM_ODT_CORRECTION
 endif
 
 config SYS_CLK_FREQ
+	default 408000000 if MACH_SUNIV
 	default 1008000000 if MACH_SUN4I
 	default 1008000000 if MACH_SUN5I
 	default 1008000000 if MACH_SUN6I
@@ -600,6 +608,7 @@ config SYS_CLK_FREQ
 	default 1008000000 if MACH_SUN50I_H616
 
 config SYS_CONFIG_NAME
+	default "suniv" if MACH_SUNIV
 	default "sun4i" if MACH_SUN4I
 	default "sun5i" if MACH_SUN5I
 	default "sun6i" if MACH_SUN6I
@@ -817,7 +826,7 @@ config VIDEO_SUNXI
 
 config VIDEO_HDMI
 	bool "HDMI output support"
-	depends on VIDEO_SUNXI && !MACH_SUN8I
+	depends on VIDEO_SUNXI && !MACH_SUN8I && !MACH_SUNIV
 	default y
 	---help---
 	Say Y here to add support for outputting video over HDMI.
@@ -1017,6 +1026,7 @@ config GMAC_TX_DELAY
 	Set the GMAC Transmit Clock Delay Chain value.
 
 config SPL_STACK_R_ADDR
+	default 0x81e00000 if MACH_SUNIV
 	default 0x4fe00000 if MACH_SUN4I
 	default 0x4fe00000 if MACH_SUN5I
 	default 0x4fe00000 if MACH_SUN6I

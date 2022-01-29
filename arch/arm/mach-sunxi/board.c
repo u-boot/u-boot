@@ -87,7 +87,8 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(22), SUNXI_GPIO_INPUT);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUNXI_GPIO_INPUT);
 #endif
-#if defined(CONFIG_MACH_SUN8I) && !defined(CONFIG_MACH_SUN8I_R40)
+#if (defined(CONFIG_MACH_SUN8I) && !defined(CONFIG_MACH_SUN8I_R40)) || \
+    defined(CONFIG_MACH_SUNIV)
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUN8I_GPF_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUN8I_GPF_UART0);
 #else
@@ -95,6 +96,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUNXI_GPF_UART0);
 #endif
 	sunxi_gpio_set_pull(SUNXI_GPF(4), 1);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUNIV)
+	sunxi_gpio_set_cfgpin(SUNXI_GPE(0), SUNIV_GPE_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPE(1), SUNIV_GPE_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPE(1), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && (defined(CONFIG_MACH_SUN4I) || \
 				 defined(CONFIG_MACH_SUN7I) || \
 				 defined(CONFIG_MACH_SUN8I_R40))
@@ -271,10 +276,36 @@ unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 	return sector;
 }
 
+#ifdef CONFIG_MACH_SUNIV
+/*
+ * The suniv BROM does not pass the boot media type to SPL, so we try with the
+ * boot sequence in BROM: mmc0->spinor->fail.
+ * TODO: This has the slight chance of being wrong (invalid SPL signature,
+ * but valid U-Boot legacy image on the SD card), but this should be rare.
+ * It looks like we can deduce from some BROM state upon entering the SPL
+ * (registers, SP, or stack itself) where the BROM was coming from and use
+ * that here.
+ */
+void board_boot_order(u32 *spl_boot_list)
+{
+	/*
+	 * See the comments above in sunxi_get_boot_device() for information
+	 * about FEL boot.
+	 */
+	if (!is_boot0_magic(SPL_ADDR + 4)) {
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		return;
+	}
+
+	spl_boot_list[0] = BOOT_DEVICE_MMC1;
+	spl_boot_list[1] = BOOT_DEVICE_SPI;
+}
+#else
 u32 spl_boot_device(void)
 {
 	return sunxi_get_boot_device();
 }
+#endif
 
 __weak void sunxi_sram_init(void)
 {
