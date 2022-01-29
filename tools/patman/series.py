@@ -118,11 +118,11 @@ class Series(dict):
         # TODO: Colour the patches according to whether they passed checks
         for upto in range(len(args)):
             commit = self.commits[upto]
-            print(col.Color(col.GREEN, '   %s' % args[upto]))
+            print(col.build(col.GREEN, '   %s' % args[upto]))
             cc_list = list(self._generated_cc[commit.patch])
             for email in sorted(set(cc_list) - to_set - cc_set):
                 if email == None:
-                    email = col.Color(col.YELLOW, "<alias '%s' not found>"
+                    email = col.build(col.YELLOW, "<alias '%s' not found>"
                             % tag)
                 if email:
                     print('      Cc: ', email)
@@ -227,13 +227,13 @@ class Series(dict):
                 else:
                     if version > 1:
                         str = 'Change log missing for v%d' % version
-                        print(col.Color(col.RED, str))
+                        print(col.build(col.RED, str))
             for version in changes_copy:
                 str = 'Change log for unknown version v%d' % version
-                print(col.Color(col.RED, str))
+                print(col.build(col.RED, str))
         elif self.changes:
             str = 'Change log exists, but no version is set'
-            print(col.Color(col.RED, str))
+            print(col.build(col.RED, str))
 
     def MakeCcFile(self, process_tags, cover_fname, warn_on_error,
                    add_maintainers, limit):
@@ -271,7 +271,7 @@ class Series(dict):
                 dir_list = [os.path.join(gitutil.get_top_level(), 'scripts')]
                 cc += get_maintainer.get_maintainer(dir_list, commit.patch)
             for x in set(cc) & set(settings.bounces):
-                print(col.Color(col.YELLOW, 'Skipping "%s"' % x))
+                print(col.build(col.YELLOW, 'Skipping "%s"' % x))
             cc = list(set(cc) - set(settings.bounces))
             if limit is not None:
                 cc = cc[:limit]

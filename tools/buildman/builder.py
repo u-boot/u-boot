@@ -518,14 +518,14 @@ class Builder:
 
         # Display separate counts for ok, warned and fail
         ok = self.upto - self.warned - self.fail
-        line = '\r' + self.col.Color(self.col.GREEN, '%5d' % ok)
-        line += self.col.Color(self.col.YELLOW, '%5d' % self.warned)
-        line += self.col.Color(self.col.RED, '%5d' % self.fail)
+        line = '\r' + self.col.build(self.col.GREEN, '%5d' % ok)
+        line += self.col.build(self.col.YELLOW, '%5d' % self.warned)
+        line += self.col.build(self.col.RED, '%5d' % self.fail)
 
         line += ' /%-5d  ' % self.count
         remaining = self.count - self.upto
         if remaining:
-            line += self.col.Color(self.col.MAGENTA, ' -%-5d  ' % remaining)
+            line += self.col.build(self.col.MAGENTA, ' -%-5d  ' % remaining)
         else:
             line += ' ' * 8
 
@@ -933,9 +933,9 @@ class Builder:
                 arch = board_dict[target].arch
             else:
                 arch = 'unknown'
-            str = self.col.Color(color, ' ' + target)
+            str = self.col.build(color, ' ' + target)
             if not arch in done_arch:
-                str = ' %s  %s' % (self.col.Color(color, char), str)
+                str = ' %s  %s' % (self.col.build(color, char), str)
                 done_arch[arch] = True
             if not arch in arch_list:
                 arch_list[arch] = str
@@ -947,7 +947,7 @@ class Builder:
         color = self.col.RED if num > 0 else self.col.GREEN
         if num == 0:
             return '0'
-        return self.col.Color(color, str(num))
+        return self.col.build(color, str(num))
 
     def ResetResultSummary(self, board_selected):
         """Reset the results summary ready for use.
@@ -1010,7 +1010,7 @@ class Builder:
         args = [self.ColourNum(x) for x in args]
         indent = ' ' * 15
         Tprint('%s%s: add: %s/%s, grow: %s/%s bytes: %s/%s (%s)' %
-              tuple([indent, self.col.Color(self.col.YELLOW, fname)] + args))
+              tuple([indent, self.col.build(self.col.YELLOW, fname)] + args))
         Tprint('%s  %-38s %7s %7s %+7s' % (indent, 'function', 'old', 'new',
                                          'delta'))
         for diff, name in delta:
@@ -1324,12 +1324,12 @@ class Builder:
                     names = [board.target for board in line.boards]
                     board_str = ' '.join(names) if names else ''
                     if board_str:
-                        out = self.col.Color(colour, line.char + '(')
-                        out += self.col.Color(self.col.MAGENTA, board_str,
+                        out = self.col.build(colour, line.char + '(')
+                        out += self.col.build(self.col.MAGENTA, board_str,
                                               bright=False)
-                        out += self.col.Color(colour, ') %s' % line.errline)
+                        out += self.col.build(colour, ') %s' % line.errline)
                     else:
-                        out = self.col.Color(colour, line.char + line.errline)
+                        out = self.col.build(colour, line.char + line.errline)
                     out_list.append(out)
                 Tprint('\n'.join(out_list))
                 self._error_lines += 1

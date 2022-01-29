@@ -404,7 +404,7 @@ def check_suppress_cc_config():
     if suppresscc == 'all' or suppresscc == 'cccmd':
         col = terminal.Color()
 
-        print((col.Color(col.RED, "error") +
+        print((col.build(col.RED, "error") +
             ": git config sendemail.suppresscc set to %s\n"  % (suppresscc)) +
             "  patman needs --cc-cmd to be run to set the cc list.\n" +
             "  Please run:\n" +
@@ -577,14 +577,14 @@ def lookup_email(lookup_name, alias=None, warn_on_error=True, level=0):
         if warn_on_error:
             raise OSError(msg)
         else:
-            print(col.Color(col.RED, msg))
+            print(col.build(col.RED, msg))
             return out_list
 
     if lookup_name:
         if not lookup_name in alias:
             msg = "Alias '%s' not found" % lookup_name
             if warn_on_error:
-                print(col.Color(col.RED, msg))
+                print(col.build(col.RED, msg))
             return out_list
         for item in alias[lookup_name]:
             todo = lookup_email(item, alias, warn_on_error, level + 1)

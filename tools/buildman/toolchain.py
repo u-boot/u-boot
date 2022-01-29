@@ -381,7 +381,7 @@ class Toolchains:
     def List(self):
         """List out the selected toolchains for each architecture"""
         col = terminal.Color()
-        print(col.Color(col.BLUE, 'List of available toolchains (%d):' %
+        print(col.build(col.BLUE, 'List of available toolchains (%d):' %
                         len(self.toolchains)))
         if len(self.toolchains):
             for key, value in sorted(self.toolchains.items()):
@@ -559,7 +559,7 @@ class Toolchains:
         """
         # Fist get the URL for this architecture
         col = terminal.Color()
-        print(col.Color(col.BLUE, "Downloading toolchain for arch '%s'" % arch))
+        print(col.build(col.BLUE, "Downloading toolchain for arch '%s'" % arch))
         url = self.LocateArchUrl(arch)
         if not url:
             print(("Cannot find toolchain for arch '%s' - use 'list' to list" %
@@ -574,7 +574,7 @@ class Toolchains:
         tarfile, tmpdir = tools.download(url, '.buildman')
         if not tarfile:
             return 1
-        print(col.Color(col.GREEN, 'Unpacking to: %s' % dest), end=' ')
+        print(col.build(col.GREEN, 'Unpacking to: %s' % dest), end=' ')
         sys.stdout.flush()
         path = self.Unpack(tarfile, dest)
         os.remove(tarfile)
@@ -582,14 +582,14 @@ class Toolchains:
         print()
 
         # Check that the toolchain works
-        print(col.Color(col.GREEN, 'Testing'))
+        print(col.build(col.GREEN, 'Testing'))
         dirpath = os.path.join(dest, path)
         compiler_fname_list = self.ScanPath(dirpath, True)
         if not compiler_fname_list:
             print('Could not locate C compiler - fetch failed.')
             return 1
         if len(compiler_fname_list) != 1:
-            print(col.Color(col.RED, 'Warning, ambiguous toolchains: %s' %
+            print(col.build(col.RED, 'Warning, ambiguous toolchains: %s' %
                             ', '.join(compiler_fname_list)))
         toolchain = Toolchain(compiler_fname_list[0], True, True)
 

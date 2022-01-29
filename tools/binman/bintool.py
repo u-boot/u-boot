@@ -174,7 +174,7 @@ class Bintool:
                 res = self.fetch(meth)
             except urllib.error.URLError as uerr:
                 message = uerr.reason
-                print(col.Color(col.RED, f'- {message}'))
+                print(col.build(col.RED, f'- {message}'))
 
             except ValueError as exc:
                 print(f'Exception: {exc}')
@@ -182,7 +182,7 @@ class Bintool:
 
         if skip_present and self.is_present():
             return PRESENT
-        print(col.Color(col.YELLOW, 'Fetch: %s' % self.name))
+        print(col.build(col.YELLOW, 'Fetch: %s' % self.name))
         if method == FETCH_ANY:
             for try_method in range(1, FETCH_COUNT):
                 print(f'- trying method: {FETCH_NAMES[try_method]}')
@@ -216,7 +216,7 @@ class Bintool:
             True on success, False on failure
         """
         def show_status(color, prompt, names):
-            print(col.Color(
+            print(col.build(
                 color, f'{prompt}:%s{len(names):2}: %s' %
                 (' ' * (16 - len(prompt)), ' '.join(names))))
 
@@ -227,7 +227,7 @@ class Bintool:
             name_list = Bintool.get_tool_list()
             if names_to_fetch[0] == 'missing':
                 skip_present = True
-            print(col.Color(col.YELLOW,
+            print(col.build(col.YELLOW,
                             'Fetching tools:      %s' % ' '.join(name_list)))
         status = collections.defaultdict(list)
         for name in name_list:

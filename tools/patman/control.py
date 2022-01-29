@@ -50,7 +50,7 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff):
     if not count:
         str = 'No commits found to process - please use -c flag, or run:\n' \
               '  git branch --set-upstream-to remote/branch'
-        sys.exit(col.Color(col.RED, str))
+        sys.exit(col.build(col.RED, str))
 
     # Read the metadata from the commits
     to_do = count - end
@@ -143,13 +143,13 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
             cc_file, in_reply_to=in_reply_to, thread=thread,
             smtp_server=smtp_server)
     else:
-        print(col.Color(col.RED, "Not sending emails due to errors/warnings"))
+        print(col.build(col.RED, "Not sending emails due to errors/warnings"))
 
     # For a dry run, just show our actions as a sanity check
     if dry_run:
         series.ShowActions(patch_files, cmd, process_tags)
         if not its_a_go:
-            print(col.Color(col.RED, "Email would not be sent"))
+            print(col.build(col.RED, "Email would not be sent"))
 
     os.remove(cc_file)
 

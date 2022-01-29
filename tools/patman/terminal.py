@@ -64,7 +64,7 @@ def CalcAsciiLen(text):
         Length of text, after skipping ANSI sequences
 
     >>> col = Color(COLOR_ALWAYS)
-    >>> text = col.Color(Color.RED, 'abc')
+    >>> text = col.build(Color.RED, 'abc')
     >>> len(text)
     14
     >>> CalcAsciiLen(text)
@@ -73,7 +73,7 @@ def CalcAsciiLen(text):
     >>> text += 'def'
     >>> CalcAsciiLen(text)
     6
-    >>> text += col.Color(Color.RED, 'abc')
+    >>> text += col.build(Color.RED, 'abc')
     >>> CalcAsciiLen(text)
     9
     """
@@ -87,7 +87,7 @@ def TrimAsciiLen(text, size):
     calculation.
 
     >>> col = Color(COLOR_ALWAYS)
-    >>> text = col.Color(Color.RED, 'abc')
+    >>> text = col.build(Color.RED, 'abc')
     >>> len(text)
     14
     >>> CalcAsciiLen(TrimAsciiLen(text, 4))
@@ -97,7 +97,7 @@ def TrimAsciiLen(text, size):
     >>> text += 'def'
     >>> CalcAsciiLen(TrimAsciiLen(text, 4))
     4
-    >>> text += col.Color(Color.RED, 'ghi')
+    >>> text += col.build(Color.RED, 'ghi')
     >>> CalcAsciiLen(TrimAsciiLen(text, 7))
     7
     """
@@ -148,7 +148,7 @@ def Tprint(text='', newline=True, colour=None, limit_to_line=False, bright=True)
     else:
         if colour:
             col = Color()
-            text = col.Color(colour, text, bright=bright)
+            text = col.build(colour, text, bright=bright)
         if newline:
             print(text)
             last_print_len = None
@@ -191,7 +191,7 @@ def EchoPrintTestLines():
     for line in print_test_list:
         if line.colour:
             col = Color()
-            print(col.Color(line.colour, line.text), end='')
+            print(col.build(line.colour, line.text), end='')
         else:
             print(line.text, end='')
         if line.newline:
@@ -247,7 +247,7 @@ class Color(object):
             return self.RESET
         return ''
 
-    def Color(self, color, text, bright=True):
+    def build(self, color, text, bright=True):
         """Returns text with conditionally added color escape sequences.
 
         Keyword arguments:

@@ -64,7 +64,7 @@ def progress(msg, warning=False, trailer='...'):
         _progress = msg + trailer
         if stdout_is_tty:
             col = _color.YELLOW if warning else _color.GREEN
-            _stdout.write('\r' + _color.Color(col, _progress))
+            _stdout.write('\r' + _color.build(col, _progress))
             _stdout.flush()
             in_progress = True
         else:
@@ -82,7 +82,7 @@ def _output(level, msg, color=None):
     if verbose >= level:
         clear_progress()
         if color:
-            msg = _color.Color(color, msg)
+            msg = _color.build(color, msg)
         if level < NOTICE:
             print(msg, file=sys.stderr)
         else:

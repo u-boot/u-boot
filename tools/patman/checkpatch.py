@@ -228,11 +228,11 @@ def get_warning_msg(col, msg_type, fname, line, msg):
         msg: Message to report
     '''
     if msg_type == 'warning':
-        msg_type = col.Color(col.YELLOW, msg_type)
+        msg_type = col.build(col.YELLOW, msg_type)
     elif msg_type == 'error':
-        msg_type = col.Color(col.RED, msg_type)
+        msg_type = col.build(col.RED, msg_type)
     elif msg_type == 'check':
-        msg_type = col.Color(col.MAGENTA, msg_type)
+        msg_type = col.build(col.MAGENTA, msg_type)
     line_str = '' if line is None else '%d' % line
     return '%s:%s: %s: %s\n' % (fname, line_str, msg_type, msg)
 
@@ -248,7 +248,7 @@ def check_patches(verbose, args):
             warning_count += result.warnings
             check_count += result.checks
             print('%d errors, %d warnings, %d checks for %s:' % (result.errors,
-                    result.warnings, result.checks, col.Color(col.BLUE, fname)))
+                    result.warnings, result.checks, col.build(col.BLUE, fname)))
             if (len(result.problems) != result.errors + result.warnings +
                     result.checks):
                 print("Internal error: some problems lost")
@@ -266,6 +266,6 @@ def check_patches(verbose, args):
             color = col.YELLOW
         if error_count:
             color = col.RED
-        print(col.Color(color, str % (error_count, warning_count, check_count)))
+        print(col.build(color, str % (error_count, warning_count, check_count)))
         return False
     return True
