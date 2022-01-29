@@ -51,6 +51,7 @@ int timer_init(void)
 	struct sunxi_timer_reg *timers =
 		(struct sunxi_timer_reg *)SUNXI_TIMER_BASE;
 	struct sunxi_timer *timer = &timers->timer[TIMER_NUM];
+
 	writel(TIMER_LOAD_VAL, &timer->inter);
 	writel(TIMER_MODE | TIMER_DIV | TIMER_SRC | TIMER_RELOAD | TIMER_EN,
 	       &timer->ctl);
@@ -58,15 +59,14 @@ int timer_init(void)
 	return 0;
 }
 
-/* timer without interrupts */
 static ulong get_timer_masked(void)
 {
 	/* current tick value */
 	ulong now = TICKS_TO_HZ(read_timer());
 
-	if (now >= gd->arch.lastinc)	/* normal (non rollover) */
+	if (now >= gd->arch.lastinc) {	/* normal (non rollover) */
 		gd->arch.tbl += (now - gd->arch.lastinc);
-	else {
+	} else {
 		/* rollover */
 		gd->arch.tbl += (TICKS_TO_HZ(TIMER_LOAD_VAL)
 				- gd->arch.lastinc) + now;
@@ -76,6 +76,7 @@ static ulong get_timer_masked(void)
 	return gd->arch.tbl;
 }
 
+/* timer without interrupts */
 ulong get_timer(ulong base)
 {
 	return get_timer_masked() - base;
