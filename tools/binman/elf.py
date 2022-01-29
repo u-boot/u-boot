@@ -285,7 +285,7 @@ SECTIONS
     cc, args = tools.get_target_compile_tool('cc')
     args += ['-static', '-nostdlib', '-Wl,--build-id=none', '-m32', '-T',
             lds_file, '-o', elf_fname, s_file]
-    stdout = command.Output(cc, *args)
+    stdout = command.output(cc, *args)
     shutil.rmtree(outdir)
 
 def DecodeElf(data, location):

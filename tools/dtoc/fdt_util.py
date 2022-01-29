@@ -86,7 +86,7 @@ def EnsureCompiled(fname, tmpdir=None, capture_stderr=False):
     for path in search_paths:
         args.extend(['-I', path])
     args += ['-o', dts_input, fname]
-    command.Run(cc, *args)
+    command.run(cc, *args)
 
     # If we don't have a directory, put it in the tools tempdir
     search_list = []
@@ -97,7 +97,7 @@ def EnsureCompiled(fname, tmpdir=None, capture_stderr=False):
             '-W', 'no-unit_address_vs_reg']
     args.extend(search_list)
     args.append(dts_input)
-    command.Run(dtc, *args, capture_stderr=capture_stderr)
+    command.run(dtc, *args, capture_stderr=capture_stderr)
     return dtb_output
 
 def GetInt(node, propname, default=None):

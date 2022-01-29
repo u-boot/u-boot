@@ -99,7 +99,7 @@ class Toolchain:
         else:
             self.priority = priority
         if test:
-            result = command.RunPipe([cmd], capture=True, env=env,
+            result = command.run_pipe([cmd], capture=True, env=env,
                                      raise_on_error=False)
             self.ok = result.return_code == 0
             if verbose:
@@ -494,7 +494,7 @@ class Toolchains:
             else
                 URL containing this toolchain, if avaialble, else None
         """
-        arch = command.OutputOneLine('uname', '-m')
+        arch = command.output_one_line('uname', '-m')
         if arch == 'aarch64':
             arch = 'arm64'
         base = 'https://www.kernel.org/pub/tools/crosstool/files/bin'
@@ -525,7 +525,7 @@ class Toolchains:
             Directory name of the first entry in the archive, without the
             trailing /
         """
-        stdout = command.Output('tar', 'xvfJ', fname, '-C', dest)
+        stdout = command.output('tar', 'xvfJ', fname, '-C', dest)
         dirs = stdout.splitlines()[1].split('/')[:2]
         return '/'.join(dirs)
 

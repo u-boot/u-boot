@@ -32,7 +32,7 @@ class CommandResult:
         self.return_code = return_code
         self.exception = exception
 
-    def ToOutput(self, binary):
+    def to_output(self, binary):
         if not binary:
             self.stdout = self.stdout.decode('utf-8')
             self.stderr = self.stderr.decode('utf-8')
@@ -43,11 +43,11 @@ class CommandResult:
 # This permits interception of RunPipe for test purposes. If it is set to
 # a function, then that function is called with the pipe list being
 # executed. Otherwise, it is assumed to be a CommandResult object, and is
-# returned as the result for every RunPipe() call.
+# returned as the result for every run_pipe() call.
 # When this value is None, commands are executed as normal.
 test_result = None
 
-def RunPipe(pipe_list, infile=None, outfile=None,
+def run_pipe(pipe_list, infile=None, outfile=None,
             capture=False, capture_stderr=False, oneline=False,
             raise_on_error=True, cwd=None, binary=False,
             output_func=None, **kwargs):
@@ -104,7 +104,7 @@ def RunPipe(pipe_list, infile=None, outfile=None,
             if raise_on_error:
                 raise Exception("Error running '%s': %s" % (user_pipestr, str))
             result.return_code = 255
-            return result.ToOutput(binary)
+            return result.to_output(binary)
 
     if capture:
         result.stdout, result.stderr, result.combined = (
@@ -116,13 +116,13 @@ def RunPipe(pipe_list, infile=None, outfile=None,
         result.return_code = os.waitpid(last_pipe.pid, 0)[1]
     if raise_on_error and result.return_code:
         raise Exception("Error running '%s'" % user_pipestr)
-    return result.ToOutput(binary)
+    return result.to_output(binary)
 
-def Output(*cmd, **kwargs):
+def output(*cmd, **kwargs):
     kwargs['raise_on_error'] = kwargs.get('raise_on_error', True)
-    return RunPipe([cmd], capture=True, **kwargs).stdout
+    return run_pipe([cmd], capture=True, **kwargs).stdout
 
-def OutputOneLine(*cmd, **kwargs):
+def output_one_line(*cmd, **kwargs):
     """Run a command and output it as a single-line string
 
     The command us expected to produce a single line of output
@@ -131,15 +131,15 @@ def OutputOneLine(*cmd, **kwargs):
         String containing output of command
     """
     raise_on_error = kwargs.pop('raise_on_error', True)
-    result = RunPipe([cmd], capture=True, oneline=True,
+    result = run_pipe([cmd], capture=True, oneline=True,
                      raise_on_error=raise_on_error, **kwargs).stdout.strip()
     return result
 
-def Run(*cmd, **kwargs):
-    return RunPipe([cmd], **kwargs).stdout
+def run(*cmd, **kwargs):
+    return run_pipe([cmd], **kwargs).stdout
 
-def RunList(cmd):
-    return RunPipe([cmd], capture=True).stdout
+def run_list(cmd):
+    return run_pipe([cmd], capture=True).stdout
 
-def StopAll():
+def stop_all():
     cros_subprocess.stay_alive = False

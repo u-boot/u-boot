@@ -217,7 +217,7 @@ class TestFunctional(unittest.TestCase):
         self._toolchains.Add('gcc', test=False)
 
     def _RunBuildman(self, *args):
-        return command.RunPipe([[self._buildman_pathname] + list(args)],
+        return command.run_pipe([[self._buildman_pathname] + list(args)],
                 capture=True, capture_stderr=True)
 
     def _RunControl(self, *args, boards=None, clean_dir=False,
@@ -407,7 +407,7 @@ class TestFunctional(unittest.TestCase):
             stage: Stage that we are at (mrproper, config, build)
             cwd: Directory where make should be run
             args: Arguments to pass to make
-            kwargs: Arguments to pass to command.RunPipe()
+            kwargs: Arguments to pass to command.run_pipe()
         """
         self._make_calls += 1
         if stage == 'mrproper':

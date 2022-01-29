@@ -61,7 +61,7 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
            '--omit "%s" %s %s %s -P1' % (prefix, ','.join(glob_list),
                                          prog, extra_args or '', test_cmd))
     os.system(cmd)
-    stdout = command.Output('python3-coverage', 'report')
+    stdout = command.output('python3-coverage', 'report')
     lines = stdout.splitlines()
     if required:
         # Convert '/path/to/name.py' just the module name 'name'

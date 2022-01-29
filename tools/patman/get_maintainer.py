@@ -43,6 +43,6 @@ def GetMaintainer(dir_list, fname, verbose=False):
             print("WARNING: Couldn't find get_maintainer.pl")
         return []
 
-    stdout = command.Output(get_maintainer, '--norolestats', fname)
+    stdout = command.output(get_maintainer, '--norolestats', fname)
     lines = stdout.splitlines()
     return [ x.replace('"', '') for x in lines ]

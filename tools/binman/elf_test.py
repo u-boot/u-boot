@@ -195,7 +195,7 @@ class TestElf(unittest.TestCase):
         elf.MakeElf(elf_fname, expected_text, expected_data)
         objcopy, args = tools.get_target_compile_tool('objcopy')
         args += ['-O', 'binary', elf_fname, bin_fname]
-        stdout = command.Output(objcopy, *args)
+        stdout = command.output(objcopy, *args)
         with open(bin_fname, 'rb') as fd:
             data = fd.read()
         self.assertEqual(expected_text + expected_data, data)

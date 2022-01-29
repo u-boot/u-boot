@@ -213,7 +213,7 @@ def CheckPatch(fname, verbose=False, show_types=False):
     args = [chk, '--no-tree']
     if show_types:
         args.append('--show-types')
-    output = command.Output(*args, fname, raise_on_error=False)
+    output = command.output(*args, fname, raise_on_error=False)
 
     return CheckPatchParse(output, verbose)
 

@@ -453,7 +453,7 @@ class Builder:
             stage: Stage that we are at (mrproper, config, build)
             cwd: Directory where make should be run
             args: Arguments to pass to make
-            kwargs: Arguments to pass to command.RunPipe()
+            kwargs: Arguments to pass to command.run_pipe()
         """
 
         def check_output(stream, data):
@@ -476,7 +476,7 @@ class Builder:
         self._restarting_config = False
         self._terminated  = False
         cmd = [self.gnu_make] + list(args)
-        result = command.RunPipe([cmd], capture=True, capture_stderr=True,
+        result = command.run_pipe([cmd], capture=True, capture_stderr=True,
                 cwd=cwd, raise_on_error=False, infile='/dev/null',
                 output_func=check_output, **kwargs)
 

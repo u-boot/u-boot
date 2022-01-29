@@ -282,7 +282,7 @@ class TestFunctional(unittest.TestCase):
             Arguments to pass, as a list of strings
             kwargs: Arguments to pass to Command.RunPipe()
         """
-        result = command.RunPipe([[self._binman_pathname] + list(args)],
+        result = command.run_pipe([[self._binman_pathname] + list(args)],
                 capture=True, capture_stderr=True, raise_on_error=False)
         if result.return_code and kwargs.get('raise_on_error', True):
             raise Exception("Error running '%s': %s" % (' '.join(args),

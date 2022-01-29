@@ -360,7 +360,7 @@ def run_result(name, *args, **kwargs):
             args = tuple(extra_args) + args
         name = os.path.expanduser(name)  # Expand paths containing ~
         all_args = (name,) + args
-        result = command.RunPipe([all_args], capture=True, capture_stderr=True,
+        result = command.run_pipe([all_args], capture=True, capture_stderr=True,
                                  env=env, raise_on_error=False, binary=binary)
         if result.return_code:
             if raise_on_error:
@@ -545,7 +545,7 @@ def print_full_help(fname):
         pager = [lesspath] if lesspath else None
     if not pager:
         pager = ['more']
-    command.Run(*pager, fname)
+    command.run(*pager, fname)
 
 def download(url, tmpdir_pattern='.patman'):
     """Download a file to a temporary directory

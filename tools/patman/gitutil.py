@@ -67,7 +67,7 @@ def CountCommitsToBranch(branch):
     else:
         rev_range = '@{upstream}..'
     pipe = [LogCmd(rev_range, oneline=True)]
-    result = command.RunPipe(pipe, capture=True, capture_stderr=True,
+    result = command.run_pipe(pipe, capture=True, capture_stderr=True,
                              oneline=True, raise_on_error=False)
     if result.return_code:
         raise ValueError('Failed to determine upstream: %s' %
@@ -85,7 +85,7 @@ def NameRevision(commit_hash):
         Name of revision, if any, else None
     """
     pipe = ['git', 'name-rev', commit_hash]
-    stdout = command.RunPipe([pipe], capture=True, oneline=True).stdout
+    stdout = command.run_pipe([pipe], capture=True, oneline=True).stdout
 
     # We expect a commit, a space, then a revision name
     name = stdout.split(' ')[1].strip()
@@ -108,7 +108,7 @@ def GuessUpstream(git_dir, branch):
             Warning/error message, or None if none
     """
     pipe = [LogCmd(branch, git_dir=git_dir, oneline=True, count=100)]
-    result = command.RunPipe(pipe, capture=True, capture_stderr=True,
+    result = command.run_pipe(pipe, capture=True, capture_stderr=True,
                              raise_on_error=False)
     if result.return_code:
         return None, "Branch '%s' not found" % branch
@@ -134,9 +134,9 @@ def GetUpstream(git_dir, branch):
             Warning/error message, or None if none
     """
     try:
-        remote = command.OutputOneLine('git', '--git-dir', git_dir, 'config',
+        remote = command.output_one_line('git', '--git-dir', git_dir, 'config',
                                        'branch.%s.remote' % branch)
-        merge = command.OutputOneLine('git', '--git-dir', git_dir, 'config',
+        merge = command.output_one_line('git', '--git-dir', git_dir, 'config',
                                       'branch.%s.merge' % branch)
     except:
         upstream, msg = GuessUpstream(git_dir, branch)
@@ -179,7 +179,7 @@ def CountCommitsInRange(git_dir, range_expr):
         were found
     """
     pipe = [LogCmd(range_expr, git_dir=git_dir, oneline=True)]
-    result = command.RunPipe(pipe, capture=True, capture_stderr=True,
+    result = command.run_pipe(pipe, capture=True, capture_stderr=True,
                              raise_on_error=False)
     if result.return_code:
         return None, "Range '%s' not found or is invalid" % range_expr
@@ -211,7 +211,7 @@ def CountCommits(commit_range):
     """
     pipe = [LogCmd(commit_range, oneline=True),
             ['wc', '-l']]
-    stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
+    stdout = command.run_pipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)
     return patch_count
 
@@ -230,7 +230,7 @@ def Checkout(commit_hash, git_dir=None, work_tree=None, force=False):
     if force:
         pipe.append('-f')
     pipe.append(commit_hash)
-    result = command.RunPipe([pipe], capture=True, raise_on_error=False,
+    result = command.run_pipe([pipe], capture=True, raise_on_error=False,
                              capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git checkout (%s): %s' % (pipe, result.stderr))
@@ -242,7 +242,7 @@ def Clone(git_dir, output_dir):
         commit_hash: Commit hash to check out
     """
     pipe = ['git', 'clone', git_dir, '.']
-    result = command.RunPipe([pipe], capture=True, cwd=output_dir,
+    result = command.run_pipe([pipe], capture=True, cwd=output_dir,
                              capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git clone: %s' % result.stderr)
@@ -259,7 +259,7 @@ def Fetch(git_dir=None, work_tree=None):
     if work_tree:
         pipe.extend(['--work-tree', work_tree])
     pipe.append('fetch')
-    result = command.RunPipe([pipe], capture=True, capture_stderr=True)
+    result = command.run_pipe([pipe], capture=True, capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git fetch: %s' % result.stderr)
 
@@ -273,7 +273,7 @@ def CheckWorktreeIsAvailable(git_dir):
         True if git-worktree commands will work, False otherwise.
     """
     pipe = ['git', '--git-dir', git_dir, 'worktree', 'list']
-    result = command.RunPipe([pipe], capture=True, capture_stderr=True,
+    result = command.run_pipe([pipe], capture=True, capture_stderr=True,
                              raise_on_error=False)
     return result.return_code == 0
 
@@ -289,7 +289,7 @@ def AddWorktree(git_dir, output_dir, commit_hash=None):
     pipe = ['git', '--git-dir', git_dir, 'worktree', 'add', '.', '--detach']
     if commit_hash:
         pipe.append(commit_hash)
-    result = command.RunPipe([pipe], capture=True, cwd=output_dir,
+    result = command.run_pipe([pipe], capture=True, cwd=output_dir,
                              capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git worktree add: %s' % result.stderr)
@@ -301,7 +301,7 @@ def PruneWorktrees(git_dir):
         git_dir: The repository whose deleted worktrees should be pruned
     """
     pipe = ['git', '--git-dir', git_dir, 'worktree', 'prune']
-    result = command.RunPipe([pipe], capture=True, capture_stderr=True)
+    result = command.run_pipe([pipe], capture=True, capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git worktree prune: %s' % result.stderr)
 
@@ -336,7 +336,7 @@ def CreatePatches(branch, start, count, ignore_binary, series, signoff = True):
     brname = branch or 'HEAD'
     cmd += ['%s~%d..%s~%d' % (brname, start + count, brname, start)]
 
-    stdout = command.RunList(cmd)
+    stdout = command.run_list(cmd)
     files = stdout.splitlines()
 
     # We have an extra file if there is a cover letter
@@ -397,7 +397,7 @@ def CheckSuppressCCConfig():
     Returns:
         True if the option is configured correctly, False otherwise.
     """
-    suppresscc = command.OutputOneLine('git', 'config', 'sendemail.suppresscc',
+    suppresscc = command.output_one_line('git', 'config', 'sendemail.suppresscc',
                                        raise_on_error=False)
 
     # Other settings should be fine.
@@ -477,7 +477,7 @@ send --cc-cmd cc-fname" cover p1 p2'
     """
     to = BuildEmailList(series.get('to'), '--to', alias, warn_on_error)
     if not to:
-        git_config_to = command.Output('git', 'config', 'sendemail.to',
+        git_config_to = command.output('git', 'config', 'sendemail.to',
                                        raise_on_error=False)
         if not git_config_to:
             print("No recipient.\n"
@@ -606,7 +606,7 @@ def GetTopLevel():
             os.path.join(GetTopLevel(), 'tools', 'patman')
     True
     """
-    return command.OutputOneLine('git', 'rev-parse', '--show-toplevel')
+    return command.output_one_line('git', 'rev-parse', '--show-toplevel')
 
 def GetAliasFile():
     """Gets the name of the git alias file.
@@ -614,7 +614,7 @@ def GetAliasFile():
     Returns:
         Filename of git alias file, or None if none
     """
-    fname = command.OutputOneLine('git', 'config', 'sendemail.aliasesfile',
+    fname = command.output_one_line('git', 'config', 'sendemail.aliasesfile',
             raise_on_error=False)
     if not fname:
         return None
@@ -631,7 +631,7 @@ def GetDefaultUserName():
     Returns:
         User name found in .gitconfig file, or None if none
     """
-    uname = command.OutputOneLine('git', 'config', '--global', 'user.name')
+    uname = command.output_one_line('git', 'config', '--global', 'user.name')
     return uname
 
 def GetDefaultUserEmail():
@@ -640,7 +640,7 @@ def GetDefaultUserEmail():
     Returns:
         User's email found in .gitconfig file, or None if none
     """
-    uemail = command.OutputOneLine('git', 'config', '--global', 'user.email')
+    uemail = command.output_one_line('git', 'config', '--global', 'user.email')
     return uemail
 
 def GetDefaultSubjectPrefix():
@@ -649,7 +649,7 @@ def GetDefaultSubjectPrefix():
     Returns:
         Subject prefix found in local .git/config file, or None if none
     """
-    sub_prefix = command.OutputOneLine('git', 'config', 'format.subjectprefix',
+    sub_prefix = command.output_one_line('git', 'config', 'format.subjectprefix',
                  raise_on_error=False)
 
     return sub_prefix
@@ -663,7 +663,7 @@ def Setup():
     if alias_fname:
         settings.ReadGitAliases(alias_fname)
     cmd = LogCmd(None, count=0)
-    use_no_decorate = (command.RunPipe([cmd], raise_on_error=False)
+    use_no_decorate = (command.run_pipe([cmd], raise_on_error=False)
                        .return_code == 0)
 
 def GetHead():
@@ -672,7 +672,7 @@ def GetHead():
     Returns:
         Hash of HEAD
     """
-    return command.OutputOneLine('git', 'show', '-s', '--pretty=format:%H')
+    return command.output_one_line('git', 'show', '-s', '--pretty=format:%H')
 
 if __name__ == "__main__":
     import doctest
