@@ -82,7 +82,7 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
         return inname
 
     def run_checkpatch(self):
-        return checkpatch.CheckPatch(self.get_patch(), show_types=True)
+        return checkpatch.check_patch(self.get_patch(), show_types=True)
 
 
 class TestPatch(unittest.TestCase):
@@ -295,7 +295,7 @@ index 0000000..2234c87
     def testGood(self):
         """Test checkpatch operation"""
         inf = self.SetupData('good')
-        result = checkpatch.CheckPatch(inf)
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, True)
         self.assertEqual(result.problems, [])
         self.assertEqual(result.errors, 0)
@@ -306,7 +306,7 @@ index 0000000..2234c87
 
     def testNoSignoff(self):
         inf = self.SetupData('no-signoff')
-        result = checkpatch.CheckPatch(inf)
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, False)
         self.assertEqual(len(result.problems), 1)
         self.assertEqual(result.errors, 1)
@@ -317,7 +317,7 @@ index 0000000..2234c87
 
     def testNoLicense(self):
         inf = self.SetupData('no-license')
-        result = checkpatch.CheckPatch(inf)
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, False)
         self.assertEqual(len(result.problems), 1)
         self.assertEqual(result.errors, 0)
@@ -328,7 +328,7 @@ index 0000000..2234c87
 
     def testSpaces(self):
         inf = self.SetupData('spaces')
-        result = checkpatch.CheckPatch(inf)
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, False)
         self.assertEqual(len(result.problems), 3)
         self.assertEqual(result.errors, 0)
@@ -339,7 +339,7 @@ index 0000000..2234c87
 
     def testIndent(self):
         inf = self.SetupData('indent')
-        result = checkpatch.CheckPatch(inf)
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, False)
         self.assertEqual(len(result.problems), 1)
         self.assertEqual(result.errors, 0)

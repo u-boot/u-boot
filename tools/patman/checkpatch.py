@@ -20,7 +20,7 @@ RE_FILE = re.compile(r'#(\d+): (FILE: ([^:]*):(\d+):)?')
 RE_NOTE = re.compile(r'NOTE: (.*)')
 
 
-def FindCheckPatch():
+def find_check_patch():
     top_level = gitutil.GetTopLevel()
     try_list = [
         os.getcwd(),
@@ -47,7 +47,7 @@ def FindCheckPatch():
              '~/bin directory or use --no-check')
 
 
-def CheckPatchParseOneMessage(message):
+def check_patch_parse_one_message(message):
     """Parse one checkpatch message
 
     Args:
@@ -114,7 +114,7 @@ def CheckPatchParseOneMessage(message):
     return item
 
 
-def CheckPatchParse(checkpatch_output, verbose=False):
+def check_patch_parse(checkpatch_output, verbose=False):
     """Parse checkpatch.pl output
 
     Args:
@@ -179,14 +179,14 @@ def CheckPatchParse(checkpatch_output, verbose=False):
         elif re_bad.match(message):
             result.ok = False
         else:
-            problem = CheckPatchParseOneMessage(message)
+            problem = check_patch_parse_one_message(message)
             if problem:
                 result.problems.append(problem)
 
     return result
 
 
-def CheckPatch(fname, verbose=False, show_types=False):
+def check_patch(fname, verbose=False, show_types=False):
     """Run checkpatch.pl on a file and parse the results.
 
     Args:
@@ -209,16 +209,16 @@ def CheckPatch(fname, verbose=False, show_types=False):
             lines: Number of lines
             stdout: Full output of checkpatch
     """
-    chk = FindCheckPatch()
+    chk = find_check_patch()
     args = [chk, '--no-tree']
     if show_types:
         args.append('--show-types')
     output = command.output(*args, fname, raise_on_error=False)
 
-    return CheckPatchParse(output, verbose)
+    return check_patch_parse(output, verbose)
 
 
-def GetWarningMsg(col, msg_type, fname, line, msg):
+def get_warning_msg(col, msg_type, fname, line, msg):
     '''Create a message for a given file/line
 
     Args:
@@ -236,13 +236,13 @@ def GetWarningMsg(col, msg_type, fname, line, msg):
     line_str = '' if line is None else '%d' % line
     return '%s:%s: %s: %s\n' % (fname, line_str, msg_type, msg)
 
-def CheckPatches(verbose, args):
+def check_patches(verbose, args):
     '''Run the checkpatch.pl script on each patch'''
     error_count, warning_count, check_count = 0, 0, 0
     col = terminal.Color()
 
     for fname in args:
-        result = CheckPatch(fname, verbose)
+        result = check_patch(fname, verbose)
         if not result.ok:
             error_count += result.errors
             warning_count += result.warnings
@@ -254,7 +254,7 @@ def CheckPatches(verbose, args):
                 print("Internal error: some problems lost")
             for item in result.problems:
                 sys.stderr.write(
-                    GetWarningMsg(col, item.get('type', '<unknown>'),
+                    get_warning_msg(col, item.get('type', '<unknown>'),
                         item.get('file', '<unknown>'),
                         item.get('line', 0), item.get('msg', 'message')))
             print
