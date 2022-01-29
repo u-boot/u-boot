@@ -42,7 +42,7 @@ parser.add_argument('-e', '--end', type=int, default=0,
     help='Commits to skip at end of patch list')
 parser.add_argument('-D', '--debug', action='store_true',
     help='Enabling debugging (provides a full traceback on error)')
-parser.add_argument('-p', '--project', default=project.DetectProject(),
+parser.add_argument('-p', '--project', default=project.detect_project(),
                     help="Project name; affects default option values and "
                     "aliases [default: %(default)s]")
 parser.add_argument('-P', '--patchwork-url',

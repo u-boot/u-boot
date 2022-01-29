@@ -6,7 +6,7 @@ import os.path
 
 from patman import gitutil
 
-def DetectProject():
+def detect_project():
     """Autodetect the name of the current project.
 
     This looks for signature files/directories that are unlikely to exist except
