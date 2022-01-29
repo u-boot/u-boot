@@ -35,8 +35,6 @@
 #define CONFIG_POWER_PFUZE100_I2C_ADDR 0x08
 #endif
 
-#define CONFIG_REMAKE_ELF
-
 /* ENET Config */
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)

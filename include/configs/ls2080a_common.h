@@ -7,8 +7,6 @@
 #ifndef __LS2_COMMON_H
 #define __LS2_COMMON_H
 
-#define CONFIG_REMAKE_ELF
-
 #include <asm/arch/stream_id_lsch3.h>
 #include <asm/arch/config.h>
 

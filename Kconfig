@@ -353,6 +353,13 @@ config SPL_IMAGE
 	  used to generate a combined image with SPL and main U-Boot
 	  proper as one single image.
 
+config REMAKE_ELF
+	bool "Recreate an ELF image from raw U-Boot binary"
+	help
+	  Enable this to recreate an ELF image (u-boot.elf) from the raw
+	  U-Boot binary (u-boot.bin), which may already have been statically
+	  relocated and may already have a device-tree appended to it.
+
 config BUILD_TARGET
 	string "Build target special images"
 	default "u-boot-with-spl.sfp" if TARGET_SOCFPGA_ARRIA10

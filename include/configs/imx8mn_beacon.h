@@ -29,8 +29,6 @@
 
 #endif /* CONFIG_SPL_BUILD */
 
-#define CONFIG_REMAKE_ELF
-
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"script=boot.scr\0" \

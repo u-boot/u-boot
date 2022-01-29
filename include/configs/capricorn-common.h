@@ -32,8 +32,6 @@
 
 #define CONFIG_FACTORYSET
 
-#define CONFIG_REMAKE_ELF
-
 /* ENET Config */
 #define CONFIG_FEC_XCV_TYPE		RMII
 

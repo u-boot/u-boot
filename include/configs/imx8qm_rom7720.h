@@ -9,7 +9,6 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
-#define CONFIG_REMAKE_ELF
 
 #define CONFIG_SPL_MAX_SIZE		(124 * 1024)
 #define CONFIG_SPL_BSS_START_ADDR	0x00128000

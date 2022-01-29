@@ -10,7 +10,6 @@
 #include <asm/arch/config.h>
 #include <asm/arch/soc.h>
 
-#define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_MEMAC
 
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
