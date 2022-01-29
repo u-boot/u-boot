@@ -19,7 +19,7 @@
 #elif defined(CONFIG_SUN50I_GEN_H6)
 #include <asm/arch/clock_sun50i_h6.h>
 #elif defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I) || \
-      defined(CONFIG_MACH_SUN50I)
+      defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUNIV)
 #include <asm/arch/clock_sun6i.h>
 #elif defined(CONFIG_MACH_SUN9I)
 #include <asm/arch/clock_sun9i.h>
