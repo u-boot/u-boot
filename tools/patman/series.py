@@ -269,7 +269,7 @@ class Series(dict):
                 cc += add_maintainers
             elif add_maintainers:
                 dir_list = [os.path.join(gitutil.GetTopLevel(), 'scripts')]
-                cc += get_maintainer.GetMaintainer(dir_list, commit.patch)
+                cc += get_maintainer.get_maintainer(dir_list, commit.patch)
             for x in set(cc) & set(settings.bounces):
                 print(col.Color(col.YELLOW, 'Skipping "%s"' % x))
             cc = list(set(cc) - set(settings.bounces))
