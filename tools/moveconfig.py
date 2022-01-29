@@ -205,12 +205,12 @@ def show_diff(alines, blines, file_path, color_enabled):
                                 tofile=os.path.join('b', file_path))
 
     for line in diff:
-        if line[0] == '-' and line[1] != '-':
-            print(color_text(color_enabled, COLOR_RED, line), end=' ')
-        elif line[0] == '+' and line[1] != '+':
-            print(color_text(color_enabled, COLOR_GREEN, line), end=' ')
+        if line.startswith('-') and not line.startswith('--'):
+            print(color_text(color_enabled, COLOR_RED, line))
+        elif line.startswith('+') and not line.startswith('++'):
+            print(color_text(color_enabled, COLOR_GREEN, line))
         else:
-            print(line, end=' ')
+            print(line)
 
 def extend_matched_lines(lines, matched, pre_patterns, post_patterns,
                          extend_pre, extend_post):
@@ -368,7 +368,7 @@ def cleanup_one_header(header_path, patterns, args):
 
     matched = []
     for i, line in enumerate(lines):
-        if i - 1 in matched and lines[i - 1][-2:] == '\\\n':
+        if i - 1 in matched and lines[i - 1].endswith('\\'):
             matched.append(i)
             continue
         for pattern in patterns:
@@ -380,9 +380,9 @@ def cleanup_one_header(header_path, patterns, args):
         return
 
     # remove empty #ifdef ... #endif, successive blank lines
-    pattern_if = re.compile(r'#\s*if(def|ndef)?\W') #  #if, #ifdef, #ifndef
-    pattern_elif = re.compile(r'#\s*el(if|se)\W')   #  #elif, #else
-    pattern_endif = re.compile(r'#\s*endif\W')      #  #endif
+    pattern_if = re.compile(r'#\s*if(def|ndef)?\b') #  #if, #ifdef, #ifndef
+    pattern_elif = re.compile(r'#\s*el(if|se)\b')   #  #elif, #else
+    pattern_endif = re.compile(r'#\s*endif\b')      #  #endif
     pattern_blank = re.compile(r'^\s*$')            #  empty line
 
     while True:
@@ -424,8 +424,8 @@ def cleanup_headers(configs, args):
 
     patterns = []
     for config in configs:
-        patterns.append(re.compile(r'#\s*define\s+%s\W' % config))
-        patterns.append(re.compile(r'#\s*undef\s+%s\W' % config))
+        patterns.append(re.compile(r'#\s*define\s+%s\b' % config))
+        patterns.append(re.compile(r'#\s*undef\s+%s\b' % config))
 
     for dir in 'include', 'arch', 'board':
         for (dirpath, dirnames, filenames) in os.walk(dir):
@@ -451,7 +451,7 @@ def cleanup_one_extra_option(defconfig_path, configs, args):
     """
 
     start = 'CONFIG_SYS_EXTRA_OPTIONS="'
-    end = '"\n'
+    end = '"'
 
     lines = read_file(defconfig_path)
 
@@ -812,7 +812,7 @@ class KconfigParser:
         for (action, value) in self.results:
             if action != ACTION_MOVE:
                 continue
-            if not value + '\n' in defconfig_lines:
+            if not value in defconfig_lines:
                 log += color_text(self.args.color, COLOR_YELLOW,
                                   "'%s' was removed by savedefconfig.\n" %
                                   value)
