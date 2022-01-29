@@ -19,7 +19,7 @@ from binman import state
 from dtoc import fdt_util
 from patman import tools
 from patman import tout
-from patman.tools import ToHexSize
+from patman.tools import to_hex_size
 
 
 class Entry_section(Entry):
@@ -269,19 +269,19 @@ class Entry_section(Entry):
         data = bytearray()
         # Handle padding before the entry
         if entry.pad_before:
-            data += tools.GetBytes(self._pad_byte, entry.pad_before)
+            data += tools.get_bytes(self._pad_byte, entry.pad_before)
 
         # Add in the actual entry data
         data += entry_data
 
         # Handle padding after the entry
         if entry.pad_after:
-            data += tools.GetBytes(self._pad_byte, entry.pad_after)
+            data += tools.get_bytes(self._pad_byte, entry.pad_after)
 
         if entry.size:
-            data += tools.GetBytes(pad_byte, entry.size - len(data))
+            data += tools.get_bytes(pad_byte, entry.size - len(data))
 
-        self.Detail('GetPaddedDataForEntry: size %s' % ToHexSize(self.data))
+        self.Detail('GetPaddedDataForEntry: size %s' % to_hex_size(self.data))
 
         return data
 
@@ -316,7 +316,7 @@ class Entry_section(Entry):
             # Handle empty space before the entry
             pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
-                section_data += tools.GetBytes(self._pad_byte, pad)
+                section_data += tools.get_bytes(self._pad_byte, pad)
 
             # Add in the actual entry data
             section_data += data
@@ -709,14 +709,14 @@ class Entry_section(Entry):
         if not size:
             data = self.GetPaddedData(self.data)
             size = len(data)
-            size = tools.Align(size, self.align_size)
+            size = tools.align(size, self.align_size)
 
         if self.size and contents_size > self.size:
             self._Raise("contents size %#x (%d) exceeds section size %#x (%d)" %
                         (contents_size, contents_size, self.size, self.size))
         if not self.size:
             self.size = size
-        if self.size != tools.Align(self.size, self.align_size):
+        if self.size != tools.align(self.size, self.align_size):
             self._Raise("Size %#x (%d) does not match align-size %#x (%d)" %
                         (self.size, self.size, self.align_size,
                          self.align_size))

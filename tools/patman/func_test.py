@@ -338,7 +338,7 @@ Changes in v2:
             text (str): Text to put into the file
         """
         path = os.path.join(self.gitdir, fname)
-        tools.WriteFile(path, text, binary=False)
+        tools.write_file(path, text, binary=False)
         index = self.repo.index
         index.add(fname)
         author = pygit2.Signature('Test user', 'test@email.com')

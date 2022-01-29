@@ -422,7 +422,7 @@ class TestFunctional(unittest.TestCase):
                 if arg.startswith('O='):
                     out_dir = arg[2:]
             fname = os.path.join(cwd or '', out_dir, 'u-boot')
-            tools.WriteFile(fname, b'U-Boot')
+            tools.write_file(fname, b'U-Boot')
             if type(commit) is not str:
                 stderr = self._error.get((brd.target, commit.sequence))
             if stderr:

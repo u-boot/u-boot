@@ -92,8 +92,8 @@ class Entry_u_boot_ucode(Entry_blob):
             return True
 
         # Write it out to a file
-        self._pathname = tools.GetOutputFilename('u-boot-ucode.bin')
-        tools.WriteFile(self._pathname, fdt_entry.ucode_data)
+        self._pathname = tools.get_output_filename('u-boot-ucode.bin')
+        tools.write_file(self._pathname, fdt_entry.ucode_data)
 
         self.ReadBlobContents()
 

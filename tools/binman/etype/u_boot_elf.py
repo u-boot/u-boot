@@ -27,9 +27,9 @@ class Entry_u_boot_elf(Entry_blob):
     def ReadBlobContents(self):
         if self._strip:
             uniq = self.GetUniqueName()
-            out_fname = tools.GetOutputFilename('%s.stripped' % uniq)
-            tools.WriteFile(out_fname, tools.ReadFile(self._pathname))
-            tools.Run('strip', out_fname)
+            out_fname = tools.get_output_filename('%s.stripped' % uniq)
+            tools.write_file(out_fname, tools.read_file(self._pathname))
+            tools.run('strip', out_fname)
             self._pathname = out_fname
         super().ReadBlobContents()
         return True

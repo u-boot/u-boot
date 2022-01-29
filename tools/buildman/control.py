@@ -135,7 +135,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     global builder
 
     if options.full_help:
-        tools.PrintFullHelp(
+        tools.print_full_help(
             os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README')
         )
         return 0

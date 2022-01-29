@@ -258,7 +258,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
             raise ValueError('Must specify exactly one entry path to write with -f')
         entry = image.FindEntryPath(entry_paths[0])
         data = entry.ReadData(decomp, alt_format)
-        tools.WriteFile(output_fname, data)
+        tools.write_file(output_fname, data)
         tout.Notice("Wrote %#x bytes to file '%s'" % (len(data), output_fname))
         return
 
@@ -281,7 +281,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
             fname = os.path.join(fname, 'root')
         tout.Notice("Write entry '%s' size %x to '%s'" %
                     (entry.GetPath(), len(data), fname))
-        tools.WriteFile(fname, data)
+        tools.write_file(fname, data)
     return einfos
 
 
@@ -398,7 +398,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
         if len(entry_paths) != 1:
             raise ValueError('Must specify exactly one entry path to write with -f')
         entry = image.FindEntryPath(entry_paths[0])
-        data = tools.ReadFile(input_fname)
+        data = tools.read_file(input_fname)
         tout.Notice("Read %#x bytes from file '%s'" % (len(data), input_fname))
         WriteEntryToImage(image, entry, data, do_compress=do_compress,
                           allow_resize=allow_resize, write_map=write_map)
@@ -425,7 +425,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
         if os.path.exists(fname):
             tout.Notice("Write entry '%s' from file '%s'" %
                         (entry.GetPath(), fname))
-            data = tools.ReadFile(fname)
+            data = tools.read_file(fname)
             ReplaceOneEntry(image, entry, data, do_compress, allow_resize)
         else:
             tout.Warning("Skipping entry '%s' from missing file '%s'" %
@@ -468,8 +468,8 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     # output into a file in our output directly. Then scan it for use
     # in binman.
     dtb_fname = fdt_util.EnsureCompiled(dtb_fname)
-    fname = tools.GetOutputFilename('u-boot.dtb.out')
-    tools.WriteFile(fname, tools.ReadFile(dtb_fname))
+    fname = tools.get_output_filename('u-boot.dtb.out')
+    tools.write_file(fname, tools.read_file(dtb_fname))
     dtb = fdt.FdtScan(fname)
 
     node = _FindBinmanNode(dtb)
@@ -618,7 +618,7 @@ def Binman(args):
     global state
 
     if args.full_help:
-        tools.PrintFullHelp(
+        tools.print_full_help(
             os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README.rst')
         )
         return 0
@@ -630,7 +630,7 @@ def Binman(args):
     if args.cmd in ['ls', 'extract', 'replace', 'tool']:
         try:
             tout.Init(args.verbosity)
-            tools.PrepareOutputDir(None)
+            tools.prepare_output_dir(None)
             if args.cmd == 'ls':
                 ListEntries(args.image, args.paths)
 
@@ -644,7 +644,7 @@ def Binman(args):
                                allow_resize=not args.fix_size, write_map=args.map)
 
             if args.cmd == 'tool':
-                tools.SetToolPaths(args.toolpath)
+                tools.set_tool_paths(args.toolpath)
                 if args.list:
                     bintool.Bintool.list_all()
                 elif args.fetch:
@@ -658,7 +658,7 @@ def Binman(args):
         except:
             raise
         finally:
-            tools.FinaliseOutputDir()
+            tools.finalise_output_dir()
         return 0
 
     elf_params = None
@@ -694,9 +694,9 @@ def Binman(args):
         # runtime.
         use_expanded = not args.no_expanded
         try:
-            tools.SetInputDirs(args.indir)
-            tools.PrepareOutputDir(args.outdir, args.preserve)
-            tools.SetToolPaths(args.toolpath)
+            tools.set_input_dirs(args.indir)
+            tools.prepare_output_dir(args.outdir, args.preserve)
+            tools.set_tool_paths(args.toolpath)
             state.SetEntryArgs(args.entry_arg)
             state.SetThreads(args.threads)
 
@@ -717,7 +717,7 @@ def Binman(args):
 
             # Write the updated FDTs to our output files
             for dtb_item in state.GetAllFdts():
-                tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
+                tools.write_file(dtb_item._fname, dtb_item.GetContents())
 
             if elf_params:
                 data = state.GetFdtForEtype('u-boot-dtb').GetContents()
@@ -729,7 +729,7 @@ def Binman(args):
             # Use this to debug the time take to pack the image
             #state.TimingShow()
         finally:
-            tools.FinaliseOutputDir()
+            tools.finalise_output_dir()
     finally:
         tout.Uninit()
 

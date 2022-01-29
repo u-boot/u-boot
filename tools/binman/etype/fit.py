@@ -200,19 +200,19 @@ class Entry_fit(Entry):
                         for seq, fdt_fname in enumerate(self._fdts):
                             node_name = subnode.name[1:].replace('SEQ',
                                                                  str(seq + 1))
-                            fname = tools.GetInputFilename(fdt_fname + '.dtb')
+                            fname = tools.get_input_filename(fdt_fname + '.dtb')
                             with fsw.add_node(node_name):
                                 for pname, prop in subnode.props.items():
                                     val = prop.bytes.replace(
-                                        b'NAME', tools.ToBytes(fdt_fname))
+                                        b'NAME', tools.to_bytes(fdt_fname))
                                     val = val.replace(
-                                        b'SEQ', tools.ToBytes(str(seq + 1)))
+                                        b'SEQ', tools.to_bytes(str(seq + 1)))
                                     fsw.property(pname, val)
 
                                 # Add data for 'fdt' nodes (but not 'config')
                                 if depth == 1 and in_images:
                                     fsw.property('data',
-                                                 tools.ReadFile(fname))
+                                                 tools.read_file(fname))
                     else:
                         if self._fdts is None:
                             if self._fit_list_prop:
@@ -246,10 +246,10 @@ class Entry_fit(Entry):
         # self._BuildInput() either returns bytes or raises an exception.
         data = self._BuildInput(self._fdt)
         uniq = self.GetUniqueName()
-        input_fname = tools.GetOutputFilename('%s.itb' % uniq)
-        output_fname = tools.GetOutputFilename('%s.fit' % uniq)
-        tools.WriteFile(input_fname, data)
-        tools.WriteFile(output_fname, data)
+        input_fname = tools.get_output_filename('%s.itb' % uniq)
+        output_fname = tools.get_output_filename('%s.fit' % uniq)
+        tools.write_file(input_fname, data)
+        tools.write_file(output_fname, data)
 
         args = {}
         ext_offset = self._fit_props.get('fit,external-offset')
@@ -260,11 +260,11 @@ class Entry_fit(Entry):
                 }
         if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
                             **args) is not None:
-            self.SetContents(tools.ReadFile(output_fname))
+            self.SetContents(tools.read_file(output_fname))
         else:
             # Bintool is missing; just use empty data as the output
             self.record_missing_bintool(self.mkimage)
-            self.SetContents(tools.GetBytes(0, 1024))
+            self.SetContents(tools.get_bytes(0, 1024))
 
         return True
 

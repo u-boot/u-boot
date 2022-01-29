@@ -54,7 +54,7 @@ def GetSymbols(fname, patterns):
           key: Name of symbol
           value: Hex value of symbol
     """
-    stdout = tools.Run('objdump', '-t', fname)
+    stdout = tools.run('objdump', '-t', fname)
     lines = stdout.splitlines()
     if patterns:
         re_syms = re.compile('|'.join(patterns))
@@ -154,7 +154,7 @@ def LookupAndWriteSymbols(elf_fname, entry, section):
         entry: Entry to process
         section: Section which can be used to lookup symbol values
     """
-    fname = tools.GetInputFilename(elf_fname)
+    fname = tools.get_input_filename(elf_fname)
     syms = GetSymbols(fname, ['image', 'binman'])
     if not syms:
         return
@@ -282,7 +282,7 @@ SECTIONS
     #   text section at the start
     # -m32: Build for 32-bit x86
     # -T...: Specifies the link script, which sets the start address
-    cc, args = tools.GetTargetCompileTool('cc')
+    cc, args = tools.get_target_compile_tool('cc')
     args += ['-static', '-nostdlib', '-Wl,--build-id=none', '-m32', '-T',
             lds_file, '-o', elf_fname, s_file]
     stdout = command.Output(cc, *args)
@@ -363,9 +363,9 @@ def UpdateFile(infile, outfile, start_sym, end_sym, insert):
         raise ValueError("Not enough space in '%s' for data length %#x (%d); size is %#x (%d)" %
                          (infile, len(insert), len(insert), size, size))
 
-    data = tools.ReadFile(infile)
+    data = tools.read_file(infile)
     newdata = data[:syms[start_sym].offset]
-    newdata += insert + tools.GetBytes(0, size - len(insert))
+    newdata += insert + tools.get_bytes(0, size - len(insert))
     newdata += data[syms[end_sym].offset:]
-    tools.WriteFile(outfile, newdata)
+    tools.write_file(outfile, newdata)
     tout.Info('Written to offset %#x' % syms[start_sym].offset)

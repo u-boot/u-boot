@@ -174,7 +174,7 @@ class TestFunctional(unittest.TestCase):
 
         # ELF file with a '_dt_ucode_base_size' symbol
         TestFunctional._MakeInputFile('u-boot',
-            tools.ReadFile(cls.ElfTestFile('u_boot_ucode_ptr')))
+            tools.read_file(cls.ElfTestFile('u_boot_ucode_ptr')))
 
         # Intel flash descriptor file
         cls._SetupDescriptor()
@@ -236,7 +236,7 @@ class TestFunctional(unittest.TestCase):
         if self.preserve_outdirs:
             print('Preserving output dir: %s' % tools.outdir)
         else:
-            tools._FinaliseForTest()
+            tools._finalise_for_test()
 
     def setUp(self):
         # Enable this to turn on debugging output
@@ -262,10 +262,10 @@ class TestFunctional(unittest.TestCase):
                 Temporary directory to use
                 New image filename
         """
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         tmpdir = tempfile.mkdtemp(prefix='binman.')
         updated_fname = os.path.join(tmpdir, 'image-updated.bin')
-        tools.WriteFile(updated_fname, tools.ReadFile(image_fname))
+        tools.write_file(updated_fname, tools.read_file(image_fname))
         self._CleanupOutputDir()
         return tmpdir, updated_fname
 
@@ -492,14 +492,14 @@ class TestFunctional(unittest.TestCase):
                     use_expanded=use_expanded, extra_indirs=extra_indirs,
                     threads=threads)
             self.assertEqual(0, retcode)
-            out_dtb_fname = tools.GetOutputFilename('u-boot.dtb.out')
+            out_dtb_fname = tools.get_output_filename('u-boot.dtb.out')
 
             # Find the (only) image, read it and return its contents
             image = control.images['image']
-            image_fname = tools.GetOutputFilename('image.bin')
+            image_fname = tools.get_output_filename('image.bin')
             self.assertTrue(os.path.exists(image_fname))
             if map:
-                map_fname = tools.GetOutputFilename('image.map')
+                map_fname = tools.get_output_filename('image.map')
                 with open(map_fname) as fd:
                     map_data = fd.read()
             else:
@@ -578,7 +578,7 @@ class TestFunctional(unittest.TestCase):
             Filename of ELF file to use as SPL
         """
         TestFunctional._MakeInputFile('spl/u-boot-spl',
-            tools.ReadFile(cls.ElfTestFile(src_fname)))
+            tools.read_file(cls.ElfTestFile(src_fname)))
 
     @classmethod
     def _SetupTplElf(cls, src_fname='bss_data'):
@@ -588,7 +588,7 @@ class TestFunctional(unittest.TestCase):
             Filename of ELF file to use as TPL
         """
         TestFunctional._MakeInputFile('tpl/u-boot-tpl',
-            tools.ReadFile(cls.ElfTestFile(src_fname)))
+            tools.read_file(cls.ElfTestFile(src_fname)))
 
     @classmethod
     def _SetupDescriptor(cls):
@@ -756,7 +756,7 @@ class TestFunctional(unittest.TestCase):
 
         image = control.images['image1']
         self.assertEqual(len(U_BOOT_DATA), image.size)
-        fname = tools.GetOutputFilename('image1.bin')
+        fname = tools.get_output_filename('image1.bin')
         self.assertTrue(os.path.exists(fname))
         with open(fname, 'rb') as fd:
             data = fd.read()
@@ -764,13 +764,13 @@ class TestFunctional(unittest.TestCase):
 
         image = control.images['image2']
         self.assertEqual(3 + len(U_BOOT_DATA) + 5, image.size)
-        fname = tools.GetOutputFilename('image2.bin')
+        fname = tools.get_output_filename('image2.bin')
         self.assertTrue(os.path.exists(fname))
         with open(fname, 'rb') as fd:
             data = fd.read()
             self.assertEqual(U_BOOT_DATA, data[3:7])
-            self.assertEqual(tools.GetBytes(0, 3), data[:3])
-            self.assertEqual(tools.GetBytes(0, 5), data[7:])
+            self.assertEqual(tools.get_bytes(0, 3), data[:3])
+            self.assertEqual(tools.get_bytes(0, 5), data[7:])
 
     def testBadAlign(self):
         """Test that an invalid alignment value is detected"""
@@ -838,8 +838,8 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(3, entry.pad_before)
         self.assertEqual(3 + 5 + len(U_BOOT_DATA), entry.size)
         self.assertEqual(U_BOOT_DATA, entry.data)
-        self.assertEqual(tools.GetBytes(0, 3) + U_BOOT_DATA +
-                         tools.GetBytes(0, 5), data[:entry.size])
+        self.assertEqual(tools.get_bytes(0, 3) + U_BOOT_DATA +
+                         tools.get_bytes(0, 5), data[:entry.size])
         pos = entry.size
 
         # Second u-boot has an aligned size, but it has no effect
@@ -857,7 +857,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(pos, entry.offset)
         self.assertEqual(32, entry.size)
         self.assertEqual(U_BOOT_DATA, entry.data)
-        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 32 - len(U_BOOT_DATA)),
+        self.assertEqual(U_BOOT_DATA + tools.get_bytes(0, 32 - len(U_BOOT_DATA)),
                          data[pos:pos + entry.size])
         pos += entry.size
 
@@ -867,7 +867,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(48, entry.offset)
         self.assertEqual(16, entry.size)
         self.assertEqual(U_BOOT_DATA, entry.data[:len(U_BOOT_DATA)])
-        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 16 - len(U_BOOT_DATA)),
+        self.assertEqual(U_BOOT_DATA + tools.get_bytes(0, 16 - len(U_BOOT_DATA)),
                          data[pos:pos + entry.size])
         pos += entry.size
 
@@ -877,7 +877,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(64, entry.offset)
         self.assertEqual(64, entry.size)
         self.assertEqual(U_BOOT_DATA, entry.data[:len(U_BOOT_DATA)])
-        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 64 - len(U_BOOT_DATA)),
+        self.assertEqual(U_BOOT_DATA + tools.get_bytes(0, 64 - len(U_BOOT_DATA)),
                          data[pos:pos + entry.size])
 
         self.CheckNoGaps(entries)
@@ -997,7 +997,7 @@ class TestFunctional(unittest.TestCase):
         """Test that the image pad byte can be specified"""
         self._SetupSplElf()
         data = self._DoReadFile('021_image_pad.dts')
-        self.assertEqual(U_BOOT_SPL_DATA + tools.GetBytes(0xff, 1) +
+        self.assertEqual(U_BOOT_SPL_DATA + tools.get_bytes(0xff, 1) +
                          U_BOOT_DATA, data)
 
     def testImageName(self):
@@ -1005,11 +1005,11 @@ class TestFunctional(unittest.TestCase):
         retcode = self._DoTestFile('022_image_name.dts')
         self.assertEqual(0, retcode)
         image = control.images['image1']
-        fname = tools.GetOutputFilename('test-name')
+        fname = tools.get_output_filename('test-name')
         self.assertTrue(os.path.exists(fname))
 
         image = control.images['image2']
-        fname = tools.GetOutputFilename('test-name.xx')
+        fname = tools.get_output_filename('test-name.xx')
         self.assertTrue(os.path.exists(fname))
 
     def testBlobFilename(self):
@@ -1021,8 +1021,8 @@ class TestFunctional(unittest.TestCase):
         """Test that entries can be sorted"""
         self._SetupSplElf()
         data = self._DoReadFile('024_sorted.dts')
-        self.assertEqual(tools.GetBytes(0, 1) + U_BOOT_SPL_DATA +
-                         tools.GetBytes(0, 2) + U_BOOT_DATA, data)
+        self.assertEqual(tools.get_bytes(0, 1) + U_BOOT_SPL_DATA +
+                         tools.get_bytes(0, 2) + U_BOOT_DATA, data)
 
     def testPackZeroOffset(self):
         """Test that an entry at offset 0 is not given a new offset"""
@@ -1065,8 +1065,8 @@ class TestFunctional(unittest.TestCase):
         """Test that a basic x86 ROM can be created"""
         self._SetupSplElf()
         data = self._DoReadFile('029_x86_rom.dts')
-        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 3) + U_BOOT_SPL_DATA +
-                         tools.GetBytes(0, 2), data)
+        self.assertEqual(U_BOOT_DATA + tools.get_bytes(0, 3) + U_BOOT_SPL_DATA +
+                         tools.get_bytes(0, 2), data)
 
     def testPackX86RomMeNoDesc(self):
         """Test that an invalid Intel descriptor entry is detected"""
@@ -1090,7 +1090,7 @@ class TestFunctional(unittest.TestCase):
     def testPackX86RomMe(self):
         """Test that an x86 ROM with an ME region can be created"""
         data = self._DoReadFile('031_x86_rom_me.dts')
-        expected_desc = tools.ReadFile(self.TestFile('descriptor.bin'))
+        expected_desc = tools.read_file(self.TestFile('descriptor.bin'))
         if data[:0x1000] != expected_desc:
             self.fail('Expected descriptor binary at start of image')
         self.assertEqual(ME_DATA, data[0x1000:0x1000 + len(ME_DATA)])
@@ -1139,7 +1139,7 @@ class TestFunctional(unittest.TestCase):
             fdt_len = self.GetFdtLen(dtb_with_ucode)
             ucode_content = dtb_with_ucode[fdt_len:]
             ucode_pos = len(nodtb_data) + fdt_len
-        fname = tools.GetOutputFilename('test.dtb')
+        fname = tools.get_output_filename('test.dtb')
         with open(fname, 'wb') as fd:
             fd.write(dtb_with_ucode)
         dtb = fdt.FdtScan(fname)
@@ -1244,7 +1244,7 @@ class TestFunctional(unittest.TestCase):
         # ELF file without a '_dt_ucode_base_size' symbol
         try:
             TestFunctional._MakeInputFile('u-boot',
-                tools.ReadFile(self.ElfTestFile('u_boot_no_ucode_ptr')))
+                tools.read_file(self.ElfTestFile('u_boot_no_ucode_ptr')))
 
             with self.assertRaises(ValueError) as e:
                 self._RunPackUbootSingleMicrocode()
@@ -1254,7 +1254,7 @@ class TestFunctional(unittest.TestCase):
         finally:
             # Put the original file back
             TestFunctional._MakeInputFile('u-boot',
-                tools.ReadFile(self.ElfTestFile('u_boot_ucode_ptr')))
+                tools.read_file(self.ElfTestFile('u_boot_ucode_ptr')))
 
     def testMicrocodeNotInImage(self):
         """Test that microcode must be placed within the image"""
@@ -1267,7 +1267,7 @@ class TestFunctional(unittest.TestCase):
     def testWithoutMicrocode(self):
         """Test that we can cope with an image without microcode (e.g. qemu)"""
         TestFunctional._MakeInputFile('u-boot',
-            tools.ReadFile(self.ElfTestFile('u_boot_no_ucode_ptr')))
+            tools.read_file(self.ElfTestFile('u_boot_no_ucode_ptr')))
         data, dtb, _, _ = self._DoReadFileDtb('044_x86_optional_ucode.dts', True)
 
         # Now check the device tree has no microcode
@@ -1279,7 +1279,7 @@ class TestFunctional(unittest.TestCase):
 
         used_len = len(U_BOOT_NODTB_DATA) + fdt_len
         third = data[used_len:]
-        self.assertEqual(tools.GetBytes(0, 0x200 - used_len), third)
+        self.assertEqual(tools.get_bytes(0, 0x200 - used_len), third)
 
     def testUnknownPosSize(self):
         """Test that microcode must be placed within the image"""
@@ -1308,7 +1308,7 @@ class TestFunctional(unittest.TestCase):
         # ELF file with a '__bss_size' symbol
         self._SetupSplElf()
         data = self._DoReadFile('047_spl_bss_pad.dts')
-        self.assertEqual(U_BOOT_SPL_DATA + tools.GetBytes(0, 10) + U_BOOT_DATA,
+        self.assertEqual(U_BOOT_SPL_DATA + tools.get_bytes(0, 10) + U_BOOT_DATA,
                          data)
 
     def testSplBssPadMissing(self):
@@ -1404,7 +1404,7 @@ class TestFunctional(unittest.TestCase):
                                  u_boot_offset + len(U_BOOT_DATA),
                                  0x10 + u_boot_offset, 0x04)
         expected = (sym_values + base_data[20:] +
-                    tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
+                    tools.get_bytes(0xff, 1) + U_BOOT_DATA + sym_values +
                     base_data[20:])
         self.assertEqual(expected, data)
 
@@ -1426,9 +1426,9 @@ class TestFunctional(unittest.TestCase):
     def testSections(self):
         """Basic test of sections"""
         data = self._DoReadFile('055_sections.dts')
-        expected = (U_BOOT_DATA + tools.GetBytes(ord('!'), 12) +
-                    U_BOOT_DATA + tools.GetBytes(ord('a'), 12) +
-                    U_BOOT_DATA + tools.GetBytes(ord('&'), 4))
+        expected = (U_BOOT_DATA + tools.get_bytes(ord('!'), 12) +
+                    U_BOOT_DATA + tools.get_bytes(ord('a'), 12) +
+                    U_BOOT_DATA + tools.get_bytes(ord('&'), 4))
         self.assertEqual(expected, data)
 
     def testMap(self):
@@ -1593,9 +1593,9 @@ class TestFunctional(unittest.TestCase):
         }
         data, _, _, _ = self._DoReadFileDtb('066_text.dts',
                                             entry_args=entry_args)
-        expected = (tools.ToBytes(TEXT_DATA) +
-                    tools.GetBytes(0, 8 - len(TEXT_DATA)) +
-                    tools.ToBytes(TEXT_DATA2) + tools.ToBytes(TEXT_DATA3) +
+        expected = (tools.to_bytes(TEXT_DATA) +
+                    tools.get_bytes(0, 8 - len(TEXT_DATA)) +
+                    tools.to_bytes(TEXT_DATA2) + tools.to_bytes(TEXT_DATA3) +
                     b'some text' + b'more text')
         self.assertEqual(expected, data)
 
@@ -1617,8 +1617,8 @@ class TestFunctional(unittest.TestCase):
         """Basic test of generation of a flashrom fmap"""
         data = self._DoReadFile('067_fmap.dts')
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
-        expected = (U_BOOT_DATA + tools.GetBytes(ord('!'), 12) +
-                    U_BOOT_DATA + tools.GetBytes(ord('a'), 12))
+        expected = (U_BOOT_DATA + tools.get_bytes(ord('!'), 12) +
+                    U_BOOT_DATA + tools.get_bytes(ord('a'), 12))
         self.assertEqual(expected, data[:32])
         self.assertEqual(b'__FMAP__', fhdr.signature)
         self.assertEqual(1, fhdr.ver_major)
@@ -1670,7 +1670,7 @@ class TestFunctional(unittest.TestCase):
     def testFill(self):
         """Test for an fill entry type"""
         data = self._DoReadFile('069_fill.dts')
-        expected = tools.GetBytes(0xff, 8) + tools.GetBytes(0, 8)
+        expected = tools.get_bytes(0xff, 8) + tools.get_bytes(0, 8)
         self.assertEqual(expected, data)
 
     def testFillNoSize(self):
@@ -1700,8 +1700,8 @@ class TestFunctional(unittest.TestCase):
         data, _, _, _ = self._DoReadFileDtb('071_gbb.dts', entry_args=entry_args)
 
         # Since futility
-        expected = (GBB_DATA + GBB_DATA + tools.GetBytes(0, 8) +
-                    tools.GetBytes(0, 0x2180 - 16))
+        expected = (GBB_DATA + GBB_DATA + tools.get_bytes(0, 8) +
+                    tools.get_bytes(0, 0x2180 - 16))
         self.assertEqual(expected, data)
 
     def testGbbTooSmall(self):
@@ -1751,7 +1751,7 @@ class TestFunctional(unittest.TestCase):
                 if self._hash_data:
                     infile = pipe_list[0][11]
                     m = hashlib.sha256()
-                    data = tools.ReadFile(infile)
+                    data = tools.read_file(infile)
                     m.update(data)
                     fd.write(m.digest())
                 else:
@@ -1845,7 +1845,7 @@ class TestFunctional(unittest.TestCase):
     def testFillZero(self):
         """Test for an fill entry type with a size of 0"""
         data = self._DoReadFile('080_fill_empty.dts')
-        self.assertEqual(tools.GetBytes(0, 16), data)
+        self.assertEqual(tools.get_bytes(0, 16), data)
 
     def testTextMissing(self):
         """Test for a text entry type where there is no text"""
@@ -1875,8 +1875,8 @@ class TestFunctional(unittest.TestCase):
             else:
                 self.assertNotIn(expected, stdout.getvalue())
 
-            self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
-            self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
+            self.assertFalse(os.path.exists(tools.get_output_filename('image1.bin')))
+            self.assertTrue(os.path.exists(tools.get_output_filename('image2.bin')))
             self._CleanupOutputDir()
 
     def testUpdateFdtAll(self):
@@ -1933,8 +1933,8 @@ class TestFunctional(unittest.TestCase):
                           'tpl/u-boot-tpl.dtb.out']:
                 dtb = fdt.Fdt.FromData(data[start:])
                 size = dtb._fdt_obj.totalsize()
-                pathname = tools.GetOutputFilename(os.path.split(fname)[1])
-                outdata = tools.ReadFile(pathname)
+                pathname = tools.get_output_filename(os.path.split(fname)[1])
+                outdata = tools.read_file(pathname)
                 name = os.path.split(fname)[0]
 
                 if name:
@@ -2027,10 +2027,10 @@ class TestFunctional(unittest.TestCase):
         """Test an expanding entry"""
         data, _, map_data, _ = self._DoReadFileDtb('088_expand_size.dts',
                                                    map=True)
-        expect = (tools.GetBytes(ord('a'), 8) + U_BOOT_DATA +
-                  MRC_DATA + tools.GetBytes(ord('b'), 1) + U_BOOT_DATA +
-                  tools.GetBytes(ord('c'), 8) + U_BOOT_DATA +
-                  tools.GetBytes(ord('d'), 8))
+        expect = (tools.get_bytes(ord('a'), 8) + U_BOOT_DATA +
+                  MRC_DATA + tools.get_bytes(ord('b'), 1) + U_BOOT_DATA +
+                  tools.get_bytes(ord('c'), 8) + U_BOOT_DATA +
+                  tools.get_bytes(ord('d'), 8))
         self.assertEqual(expect, data)
         self.assertEqual('''ImagePos    Offset      Size  Name
 00000000  00000000  00000028  main-section
@@ -2085,7 +2085,7 @@ class TestFunctional(unittest.TestCase):
         hash_node = dtb.GetNode('/binman/section/hash').props['value']
         m = hashlib.sha256()
         m.update(U_BOOT_DATA)
-        m.update(tools.GetBytes(ord('a'), 16))
+        m.update(tools.get_bytes(ord('a'), 16))
         self.assertEqual(m.digest(), b''.join(hash_node.value))
 
     def testPackUBootTplMicrocode(self):
@@ -2107,7 +2107,7 @@ class TestFunctional(unittest.TestCase):
         """Basic test of generation of a flashrom fmap"""
         data = self._DoReadFile('094_fmap_x86.dts')
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
-        expected = U_BOOT_DATA + MRC_DATA + tools.GetBytes(ord('a'), 32 - 7)
+        expected = U_BOOT_DATA + MRC_DATA + tools.get_bytes(ord('a'), 32 - 7)
         self.assertEqual(expected, data[:32])
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
 
@@ -2129,7 +2129,7 @@ class TestFunctional(unittest.TestCase):
     def testFmapX86Section(self):
         """Basic test of generation of a flashrom fmap"""
         data = self._DoReadFile('095_fmap_x86_section.dts')
-        expected = U_BOOT_DATA + MRC_DATA + tools.GetBytes(ord('b'), 32 - 7)
+        expected = U_BOOT_DATA + MRC_DATA + tools.get_bytes(ord('b'), 32 - 7)
         self.assertEqual(expected, data[:32])
         fhdr, fentries = fmap_util.DecodeFmap(data[36:])
 
@@ -2177,14 +2177,14 @@ class TestFunctional(unittest.TestCase):
         with test_util.capture_sys_output() as (stdout, stderr):
             with self.assertRaises(ValueError) as e:
                 self._DoTestFile('014_pack_overlap.dts', map=True)
-        map_fname = tools.GetOutputFilename('image.map')
+        map_fname = tools.get_output_filename('image.map')
         self.assertEqual("Wrote map file '%s' to show errors\n" % map_fname,
                          stdout.getvalue())
 
         # We should not get an inmage, but there should be a map file
-        self.assertFalse(os.path.exists(tools.GetOutputFilename('image.bin')))
+        self.assertFalse(os.path.exists(tools.get_output_filename('image.bin')))
         self.assertTrue(os.path.exists(map_fname))
-        map_data = tools.ReadFile(map_fname, binary=False)
+        map_data = tools.read_file(map_fname, binary=False)
         self.assertEqual('''ImagePos    Offset      Size  Name
 <none>    00000000  00000008  main-section
 <none>     00000000  00000004  u-boot
@@ -2210,12 +2210,12 @@ class TestFunctional(unittest.TestCase):
 0000002c    00000000  00000004  u-boot
 ''', map_data)
         self.assertEqual(data,
-                         tools.GetBytes(0x26, 4) + U_BOOT_DATA +
-                             tools.GetBytes(0x21, 12) +
-                         tools.GetBytes(0x26, 4) + U_BOOT_DATA +
-                             tools.GetBytes(0x61, 12) +
-                         tools.GetBytes(0x26, 4) + U_BOOT_DATA +
-                             tools.GetBytes(0x26, 8))
+                         tools.get_bytes(0x26, 4) + U_BOOT_DATA +
+                             tools.get_bytes(0x21, 12) +
+                         tools.get_bytes(0x26, 4) + U_BOOT_DATA +
+                             tools.get_bytes(0x61, 12) +
+                         tools.get_bytes(0x26, 4) + U_BOOT_DATA +
+                             tools.get_bytes(0x26, 8))
 
     def testCbfsRaw(self):
         """Test base handling of a Coreboot Filesystem (CBFS)
@@ -2332,17 +2332,17 @@ class TestFunctional(unittest.TestCase):
         Args:
             data: Conents of output file
         """
-        expected_desc = tools.ReadFile(self.TestFile('descriptor.bin'))
+        expected_desc = tools.read_file(self.TestFile('descriptor.bin'))
         if data[:0x1000] != expected_desc:
             self.fail('Expected descriptor binary at start of image')
 
         # We expect to find the TPL wil in subpart IBBP entry IBBL
-        image_fname = tools.GetOutputFilename('image.bin')
-        tpl_fname = tools.GetOutputFilename('tpl.out')
+        image_fname = tools.get_output_filename('image.bin')
+        tpl_fname = tools.get_output_filename('tpl.out')
         ifwitool = bintool.Bintool.create('ifwitool')
         ifwitool.extract(image_fname, 'IBBP', 'IBBL', tpl_fname)
 
-        tpl_data = tools.ReadFile(tpl_fname)
+        tpl_data = tools.read_file(tpl_fname)
         self.assertEqual(U_BOOT_TPL_DATA, tpl_data[:len(U_BOOT_TPL_DATA)])
 
     def testPackX86RomIfwi(self):
@@ -2403,7 +2403,7 @@ class TestFunctional(unittest.TestCase):
         fdtmap_data = data[len(U_BOOT_DATA):]
         magic = fdtmap_data[:8]
         self.assertEqual(b'_FDTMAP_', magic)
-        self.assertEqual(tools.GetBytes(0, 8), fdtmap_data[8:16])
+        self.assertEqual(tools.get_bytes(0, 8), fdtmap_data[8:16])
 
         fdt_data = fdtmap_data[16:]
         dtb = fdt.Fdt.FromData(fdt_data)
@@ -2668,7 +2668,7 @@ class TestFunctional(unittest.TestCase):
         """Test reading an image and accessing its FDT map"""
         self._CheckLz4()
         data = self.data = self._DoReadFileRealDtb('128_decode_image.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         orig_image = control.images['image']
         image = Image.FromFile(image_fname)
         self.assertEqual(orig_image.GetEntries().keys(),
@@ -2684,7 +2684,7 @@ class TestFunctional(unittest.TestCase):
         """Test accessing an image's FDT map without an image header"""
         self._CheckLz4()
         data = self._DoReadFileRealDtb('129_decode_image_nohdr.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         image = Image.FromFile(image_fname)
         self.assertTrue(isinstance(image, Image))
         self.assertEqual('image', image.image_name[-5:])
@@ -2692,7 +2692,7 @@ class TestFunctional(unittest.TestCase):
     def testReadImageFail(self):
         """Test failing to read an image image's FDT map"""
         self._DoReadFile('005_simple.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         with self.assertRaises(ValueError) as e:
             image = Image.FromFile(image_fname)
         self.assertIn("Cannot find FDT map in image", str(e.exception))
@@ -2752,7 +2752,7 @@ class TestFunctional(unittest.TestCase):
         """
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         image = Image.FromFile(image_fname)
         lines = image.GetListEntries(paths)[1]
         files = [line[0].strip() for line in lines[1:]]
@@ -2798,7 +2798,7 @@ class TestFunctional(unittest.TestCase):
         """
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         return control.ReadEntry(image_fname, entry_name, decomp)
 
     def testExtractSimple(self):
@@ -2858,7 +2858,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractBadFile(self):
         """Test extracting an invalid file"""
         fname = os.path.join(self._indir, 'badfile')
-        tools.WriteFile(fname, b'')
+        tools.write_file(fname, b'')
         with self.assertRaises(ValueError) as e:
             control.ReadEntry(fname, 'name')
 
@@ -2874,17 +2874,17 @@ class TestFunctional(unittest.TestCase):
                                '-f', fname)
         finally:
             shutil.rmtree(tmpdir)
-        data = tools.ReadFile(fname)
+        data = tools.read_file(fname)
         self.assertEqual(U_BOOT_DATA, data)
 
     def testExtractOneEntry(self):
         """Test extracting a single entry fron an image """
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         fname = os.path.join(self._indir, 'output.extact')
         control.ExtractEntries(image_fname, fname, None, ['u-boot'])
-        data = tools.ReadFile(fname)
+        data = tools.read_file(fname)
         self.assertEqual(U_BOOT_DATA, data)
 
     def _CheckExtractOutput(self, decomp):
@@ -2906,7 +2906,7 @@ class TestFunctional(unittest.TestCase):
                 expect_size: Size of data to expect in file, or None to skip
             """
             path = os.path.join(outdir, entry_path)
-            data = tools.ReadFile(path)
+            data = tools.read_file(path)
             os.remove(path)
             if expect_data:
                 self.assertEqual(expect_data, data)
@@ -2926,7 +2926,7 @@ class TestFunctional(unittest.TestCase):
             os.rmdir(path)
 
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         outdir = os.path.join(self._indir, 'extract')
         einfos = control.ExtractEntries(image_fname, None, outdir, [], decomp)
 
@@ -2962,7 +2962,7 @@ class TestFunctional(unittest.TestCase):
         _CheckPresent('section/root', section.data)
         cbfs = section_entries['cbfs']
         _CheckPresent('section/cbfs/root', cbfs.data)
-        data = tools.ReadFile(image_fname)
+        data = tools.read_file(image_fname)
         _CheckPresent('root', data)
 
         # There should be no files left. Remove all the directories to check.
@@ -2987,7 +2987,7 @@ class TestFunctional(unittest.TestCase):
         """Test extracting some entries"""
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         outdir = os.path.join(self._indir, 'extract')
         einfos = control.ExtractEntries(image_fname, None, outdir,
                                         ['*cb*', '*head*'])
@@ -3002,7 +3002,7 @@ class TestFunctional(unittest.TestCase):
         """Test extracting some entries"""
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ExtractEntries(image_fname, 'fname', None, [])
         self.assertIn('Must specify an entry path to write with -f',
@@ -3012,7 +3012,7 @@ class TestFunctional(unittest.TestCase):
         """Test extracting some entries"""
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ExtractEntries(image_fname, 'fname', None, ['a', 'b'])
         self.assertIn('Must specify exactly one entry path to write with -f',
@@ -3113,9 +3113,9 @@ class TestFunctional(unittest.TestCase):
         orig_dtb_data = entries['u-boot-dtb'].data
         orig_fdtmap_data = entries['fdtmap'].data
 
-        image_fname = tools.GetOutputFilename('image.bin')
-        updated_fname = tools.GetOutputFilename('image-updated.bin')
-        tools.WriteFile(updated_fname, tools.ReadFile(image_fname))
+        image_fname = tools.get_output_filename('image.bin')
+        updated_fname = tools.get_output_filename('image-updated.bin')
+        tools.write_file(updated_fname, tools.read_file(image_fname))
         image = control.WriteEntry(updated_fname, entry_name, data, decomp,
                                    allow_resize)
         data = control.ReadEntry(updated_fname, entry_name, decomp)
@@ -3170,8 +3170,8 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFileDtb('133_replace_multi.dts', use_real_dtb=True,
                                    update_dtb=True)[0]
         expected = b'x' * len(U_BOOT_DATA)
-        updated_fname = tools.GetOutputFilename('image-updated.bin')
-        tools.WriteFile(updated_fname, data)
+        updated_fname = tools.get_output_filename('image-updated.bin')
+        tools.write_file(updated_fname, data)
         entry_name = 'u-boot'
         control.WriteEntry(updated_fname, entry_name, expected,
                            allow_resize=False)
@@ -3182,9 +3182,9 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('/binman/image', state.fdt_path_prefix)
 
         # Now check we can write the first image
-        image_fname = tools.GetOutputFilename('first-image.bin')
-        updated_fname = tools.GetOutputFilename('first-updated.bin')
-        tools.WriteFile(updated_fname, tools.ReadFile(image_fname))
+        image_fname = tools.get_output_filename('first-image.bin')
+        updated_fname = tools.get_output_filename('first-updated.bin')
+        tools.write_file(updated_fname, tools.read_file(image_fname))
         entry_name = 'u-boot'
         control.WriteEntry(updated_fname, entry_name, expected,
                            allow_resize=False)
@@ -3348,8 +3348,8 @@ class TestFunctional(unittest.TestCase):
         self._CheckLz4()
         expected = b'x' * len(U_BOOT_DATA)
         data = self._DoReadFileRealDtb('142_replace_cbfs.dts')
-        updated_fname = tools.GetOutputFilename('image-updated.bin')
-        tools.WriteFile(updated_fname, data)
+        updated_fname = tools.get_output_filename('image-updated.bin')
+        tools.write_file(updated_fname, data)
         entry_name = 'section/cbfs/u-boot'
         control.WriteEntry(updated_fname, entry_name, expected,
                            allow_resize=True)
@@ -3361,8 +3361,8 @@ class TestFunctional(unittest.TestCase):
         self._CheckLz4()
         expected = U_BOOT_DATA + b'x'
         data = self._DoReadFileRealDtb('142_replace_cbfs.dts')
-        updated_fname = tools.GetOutputFilename('image-updated.bin')
-        tools.WriteFile(updated_fname, data)
+        updated_fname = tools.get_output_filename('image-updated.bin')
+        tools.write_file(updated_fname, data)
         entry_name = 'section/cbfs/u-boot'
         control.WriteEntry(updated_fname, entry_name, expected,
                            allow_resize=True)
@@ -3383,23 +3383,23 @@ class TestFunctional(unittest.TestCase):
         """
         data = self._DoReadFileRealDtb('143_replace_all.dts')
 
-        updated_fname = tools.GetOutputFilename('image-updated.bin')
-        tools.WriteFile(updated_fname, data)
+        updated_fname = tools.get_output_filename('image-updated.bin')
+        tools.write_file(updated_fname, data)
 
         outdir = os.path.join(self._indir, 'extract')
         einfos = control.ExtractEntries(updated_fname, None, outdir, [])
 
         expected1 = b'x' + U_BOOT_DATA + b'y'
         u_boot_fname1 = os.path.join(outdir, 'u-boot')
-        tools.WriteFile(u_boot_fname1, expected1)
+        tools.write_file(u_boot_fname1, expected1)
 
         expected2 = b'a' + U_BOOT_DATA + b'b'
         u_boot_fname2 = os.path.join(outdir, 'u-boot2')
-        tools.WriteFile(u_boot_fname2, expected2)
+        tools.write_file(u_boot_fname2, expected2)
 
         expected_text = b'not the same text'
         text_fname = os.path.join(outdir, 'text')
-        tools.WriteFile(text_fname, expected_text)
+        tools.write_file(text_fname, expected_text)
 
         dtb_fname = os.path.join(outdir, 'u-boot-dtb')
         dtb = fdt.FdtScan(dtb_fname)
@@ -3475,10 +3475,10 @@ class TestFunctional(unittest.TestCase):
 
             fname = os.path.join(tmpdir, 'update-u-boot.bin')
             expected = b'x' * len(U_BOOT_DATA)
-            tools.WriteFile(fname, expected)
+            tools.write_file(fname, expected)
 
             self._DoBinman('replace', '-i', updated_fname, 'u-boot', '-f', fname)
-            data = tools.ReadFile(updated_fname)
+            data = tools.read_file(updated_fname)
             self.assertEqual(expected, data[:len(expected)])
             map_fname = os.path.join(tmpdir, 'image-updated.map')
             self.assertFalse(os.path.exists(map_fname))
@@ -3493,7 +3493,7 @@ class TestFunctional(unittest.TestCase):
         self._DoBinman('replace', '-i', updated_fname, '-I', outdir,
                        'u-boot2', 'text')
 
-        tools.PrepareOutputDir(None)
+        tools.prepare_output_dir(None)
         image = Image.FromFile(updated_fname)
         image.LoadData()
         entries = image.GetEntries()
@@ -3531,7 +3531,7 @@ class TestFunctional(unittest.TestCase):
 
             fname = os.path.join(self._indir, 'update-u-boot.bin')
             expected = b'x' * len(U_BOOT_DATA)
-            tools.WriteFile(fname, expected)
+            tools.write_file(fname, expected)
 
             self._DoBinman('replace', '-i', updated_fname, 'u-boot',
                            '-f', fname, '-m')
@@ -3543,7 +3543,7 @@ class TestFunctional(unittest.TestCase):
     def testReplaceNoEntryPaths(self):
         """Test replacing an entry without an entry path"""
         self._DoReadFileRealDtb('143_replace_all.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ReplaceEntries(image_fname, 'fname', None, [])
         self.assertIn('Must specify an entry path to read with -f',
@@ -3552,7 +3552,7 @@ class TestFunctional(unittest.TestCase):
     def testReplaceTooManyEntryPaths(self):
         """Test extracting some entries"""
         self._DoReadFileRealDtb('143_replace_all.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ReplaceEntries(image_fname, 'fname', None, ['a', 'b'])
         self.assertIn('Must specify exactly one entry path to write with -f',
@@ -3597,15 +3597,15 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile(dts)
         sym_values = struct.pack('<LQLL', *expected_vals)
         upto1 = 4 + len(U_BOOT_SPL_DATA)
-        expected1 = tools.GetBytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[20:]
+        expected1 = tools.get_bytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[20:]
         self.assertEqual(expected1, data[:upto1])
 
         upto2 = upto1 + 1 + len(U_BOOT_SPL_DATA)
-        expected2 = tools.GetBytes(0xff, 1) + sym_values + U_BOOT_SPL_DATA[20:]
+        expected2 = tools.get_bytes(0xff, 1) + sym_values + U_BOOT_SPL_DATA[20:]
         self.assertEqual(expected2, data[upto1:upto2])
 
         upto3 = 0x34 + len(U_BOOT_DATA)
-        expected3 = tools.GetBytes(0xff, 1) + U_BOOT_DATA
+        expected3 = tools.get_bytes(0xff, 1) + U_BOOT_DATA
         self.assertEqual(expected3, data[upto2:upto3])
 
         expected4 = sym_values + U_BOOT_TPL_DATA[20:]
@@ -3727,8 +3727,8 @@ class TestFunctional(unittest.TestCase):
         self.assertIn('data', fnode.props)
 
         fname = os.path.join(self._indir, 'fit_data.fit')
-        tools.WriteFile(fname, fit_data)
-        out = tools.Run('dumpimage', '-l', fname)
+        tools.write_file(fname, fit_data)
+        out = tools.run('dumpimage', '-l', fname)
 
         # Check a few features to make sure the plumbing works. We don't need
         # to test the operation of mkimage or dumpimage here. First convert the
@@ -3763,7 +3763,7 @@ class TestFunctional(unittest.TestCase):
         # Size of the external-data region as set up by mkimage
         external_data_size = len(U_BOOT_DATA) + 2
         expected_size = (len(U_BOOT_DATA) + 0x400 +
-                         tools.Align(external_data_size, 4) +
+                         tools.align(external_data_size, 4) +
                          len(U_BOOT_NODTB_DATA))
 
         # The data should be outside the FIT
@@ -3802,8 +3802,8 @@ class TestFunctional(unittest.TestCase):
         """Test pad-before, pad-after for entries in sections"""
         data, _, _, out_dtb_fname = self._DoReadFileDtb(
             '166_pad_in_sections.dts', update_dtb=True)
-        expected = (U_BOOT_DATA + tools.GetBytes(ord('!'), 12) +
-                    U_BOOT_DATA + tools.GetBytes(ord('!'), 6) +
+        expected = (U_BOOT_DATA + tools.get_bytes(ord('!'), 12) +
+                    U_BOOT_DATA + tools.get_bytes(ord('!'), 6) +
                     U_BOOT_DATA)
         self.assertEqual(expected, data)
 
@@ -3846,14 +3846,14 @@ class TestFunctional(unittest.TestCase):
         node = dtb.GetNode('/images/kernel')
         data = dtb.GetProps(node)["data"].bytes
         align_pad = 0x10 - (len(U_BOOT_SPL_DATA) % 0x10)
-        expected = (tools.GetBytes(0, 0x20) + U_BOOT_SPL_DATA +
-                    tools.GetBytes(0, align_pad) + U_BOOT_DATA)
+        expected = (tools.get_bytes(0, 0x20) + U_BOOT_SPL_DATA +
+                    tools.get_bytes(0, align_pad) + U_BOOT_DATA)
         self.assertEqual(expected, data)
 
         node = dtb.GetNode('/images/fdt-1')
         data = dtb.GetProps(node)["data"].bytes
-        expected = (U_BOOT_SPL_DTB_DATA + tools.GetBytes(0, 20) +
-                    tools.ToBytes(TEXT_DATA) + tools.GetBytes(0, 30) +
+        expected = (U_BOOT_SPL_DTB_DATA + tools.get_bytes(0, 20) +
+                    tools.to_bytes(TEXT_DATA) + tools.get_bytes(0, 30) +
                     U_BOOT_DTB_DATA)
         self.assertEqual(expected, data)
 
@@ -4069,8 +4069,8 @@ class TestFunctional(unittest.TestCase):
     def testSkipAtStartPad(self):
         """Test handling of skip-at-start section with padded entry"""
         data = self._DoReadFile('178_skip_at_start_pad.dts')
-        before = tools.GetBytes(0, 8)
-        after = tools.GetBytes(0, 4)
+        before = tools.get_bytes(0, 8)
+        after = tools.get_bytes(0, 4)
         all = before + U_BOOT_DATA + after
         self.assertEqual(all, data)
 
@@ -4089,8 +4089,8 @@ class TestFunctional(unittest.TestCase):
     def testSkipAtStartSectionPad(self):
         """Test handling of skip-at-start section with padding"""
         data = self._DoReadFile('179_skip_at_start_section_pad.dts')
-        before = tools.GetBytes(0, 8)
-        after = tools.GetBytes(0, 4)
+        before = tools.get_bytes(0, 8)
+        after = tools.get_bytes(0, 4)
         all = before + U_BOOT_DATA + after
         self.assertEqual(all, data)
 
@@ -4110,23 +4110,23 @@ class TestFunctional(unittest.TestCase):
     def testSectionPad(self):
         """Testing padding with sections"""
         data = self._DoReadFile('180_section_pad.dts')
-        expected = (tools.GetBytes(ord('&'), 3) +
-                    tools.GetBytes(ord('!'), 5) +
+        expected = (tools.get_bytes(ord('&'), 3) +
+                    tools.get_bytes(ord('!'), 5) +
                     U_BOOT_DATA +
-                    tools.GetBytes(ord('!'), 1) +
-                    tools.GetBytes(ord('&'), 2))
+                    tools.get_bytes(ord('!'), 1) +
+                    tools.get_bytes(ord('&'), 2))
         self.assertEqual(expected, data)
 
     def testSectionAlign(self):
         """Testing alignment with sections"""
         data = self._DoReadFileDtb('181_section_align.dts', map=True)[0]
         expected = (b'\0' +                         # fill section
-                    tools.GetBytes(ord('&'), 1) +   # padding to section align
+                    tools.get_bytes(ord('&'), 1) +   # padding to section align
                     b'\0' +                         # fill section
-                    tools.GetBytes(ord('!'), 3) +   # padding to u-boot align
+                    tools.get_bytes(ord('!'), 3) +   # padding to u-boot align
                     U_BOOT_DATA +
-                    tools.GetBytes(ord('!'), 4) +   # padding to u-boot size
-                    tools.GetBytes(ord('!'), 4))    # padding to section size
+                    tools.get_bytes(ord('!'), 4) +   # padding to u-boot size
+                    tools.get_bytes(ord('!'), 4))    # padding to section size
         self.assertEqual(expected, data)
 
     def testCompressImage(self):
@@ -4357,7 +4357,7 @@ class TestFunctional(unittest.TestCase):
             '188_image_entryarg.dts',use_real_dtb=True, update_dtb=True,
             entry_args=entry_args)
 
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         orig_image = control.images['image']
 
         # This should not generate an error about the missing 'cros-ec-rw-path'
@@ -4378,7 +4378,7 @@ class TestFunctional(unittest.TestCase):
     def testReadImageSkip(self):
         """Test reading an image and accessing its FDT map"""
         data = self.data = self._DoReadFileRealDtb('191_read_image_skip.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         orig_image = control.images['image']
         image = Image.FromFile(image_fname)
         self.assertEqual(orig_image.GetEntries().keys(),
@@ -4406,7 +4406,7 @@ class TestFunctional(unittest.TestCase):
         # ELF file with a '__bss_size' symbol
         self._SetupTplElf()
         data = self._DoReadFile('193_tpl_bss_pad.dts')
-        self.assertEqual(U_BOOT_TPL_DATA + tools.GetBytes(0, 10) + U_BOOT_DATA,
+        self.assertEqual(U_BOOT_TPL_DATA + tools.get_bytes(0, 10) + U_BOOT_DATA,
                          data)
 
     def testTplBssPadMissing(self):
@@ -4605,8 +4605,8 @@ class TestFunctional(unittest.TestCase):
         """Test a collection"""
         data = self._DoReadFile('198_collection.dts')
         self.assertEqual(U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA +
-                         tools.GetBytes(0xff, 2) + U_BOOT_NODTB_DATA +
-                         tools.GetBytes(0xfe, 3) + U_BOOT_DTB_DATA,
+                         tools.get_bytes(0xff, 2) + U_BOOT_NODTB_DATA +
+                         tools.get_bytes(0xfe, 3) + U_BOOT_DTB_DATA,
                          data)
 
     def testCollectionSection(self):
@@ -4617,21 +4617,21 @@ class TestFunctional(unittest.TestCase):
         # missing.
         data = self._DoReadFile('199_collection_section.dts')
         section = U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA
-        self.assertEqual(section + U_BOOT_DATA + tools.GetBytes(0xff, 2) +
-                         section + tools.GetBytes(0xfe, 3) + U_BOOT_DATA,
+        self.assertEqual(section + U_BOOT_DATA + tools.get_bytes(0xff, 2) +
+                         section + tools.get_bytes(0xfe, 3) + U_BOOT_DATA,
                          data)
 
     def testAlignDefault(self):
         """Test that default alignment works on sections"""
         data = self._DoReadFile('200_align_default.dts')
-        expected = (U_BOOT_DATA + tools.GetBytes(0, 8 - len(U_BOOT_DATA)) +
+        expected = (U_BOOT_DATA + tools.get_bytes(0, 8 - len(U_BOOT_DATA)) +
                     U_BOOT_DATA)
         # Special alignment for section
-        expected += tools.GetBytes(0, 32 - len(expected))
+        expected += tools.get_bytes(0, 32 - len(expected))
         # No alignment within the nested section
         expected += U_BOOT_DATA + U_BOOT_NODTB_DATA;
         # Now the final piece, which should be default-aligned
-        expected += tools.GetBytes(0, 88 - len(expected)) + U_BOOT_NODTB_DATA
+        expected += tools.get_bytes(0, 88 - len(expected)) + U_BOOT_NODTB_DATA
         self.assertEqual(expected, data)
 
     def testPackOpenSBI(self):
@@ -4642,9 +4642,9 @@ class TestFunctional(unittest.TestCase):
     def testSectionsSingleThread(self):
         """Test sections without multithreading"""
         data = self._DoReadFileDtb('055_sections.dts', threads=0)[0]
-        expected = (U_BOOT_DATA + tools.GetBytes(ord('!'), 12) +
-                    U_BOOT_DATA + tools.GetBytes(ord('a'), 12) +
-                    U_BOOT_DATA + tools.GetBytes(ord('&'), 4))
+        expected = (U_BOOT_DATA + tools.get_bytes(ord('!'), 12) +
+                    U_BOOT_DATA + tools.get_bytes(ord('a'), 12) +
+                    U_BOOT_DATA + tools.get_bytes(ord('&'), 4))
         self.assertEqual(expected, data)
 
     def testThreadTimeout(self):
@@ -4677,7 +4677,7 @@ class TestFunctional(unittest.TestCase):
         # definition in the correct place
         syms = elf.GetSymbolFileOffset(infile,
                                        ['dtb_embed_begin', 'dtb_embed_end'])
-        data = tools.ReadFile(outfile)
+        data = tools.read_file(outfile)
         dtb_data = data[syms['dtb_embed_begin'].offset:
                         syms['dtb_embed_end'].offset]
 
@@ -4756,7 +4756,7 @@ class TestFunctional(unittest.TestCase):
 
         # Set up a version file to make sure that works
         version = 'v2025.01-rc2'
-        tools.WriteFile(os.path.join(self._indir, 'version'), version,
+        tools.write_file(os.path.join(self._indir, 'version'), version,
                         binary=False)
         self.assertEqual(version, state.GetVersion(self._indir))
 
@@ -4780,7 +4780,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
             # Check that we can read it and it can be scanning, meaning it does
             # not have a 16-byte fdtmap header
-            data = tools.ReadFile(dtb)
+            data = tools.read_file(dtb)
             dtb = fdt.Fdt.FromData(data)
             dtb.Scan()
 
@@ -4788,7 +4788,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             fname = os.path.join(tmpdir, 'fdt.dtb')
             self._DoBinman('extract', '-i', updated_fname, '-F', 'dummy',
                            '-f', fname, 'u-boot')
-            data = tools.ReadFile(fname)
+            data = tools.read_file(fname)
             self.assertEqual(U_BOOT_DATA, data)
 
         finally:
@@ -4917,7 +4917,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         fdtmap_data = data[fdtmap.image_pos:fdtmap.image_pos + fdtmap.size]
         magic = fdtmap_data[:8]
         self.assertEqual(b'_FDTMAP_', magic)
-        self.assertEqual(tools.GetBytes(0, 8), fdtmap_data[8:16])
+        self.assertEqual(tools.get_bytes(0, 8), fdtmap_data[8:16])
 
         fdt_data = fdtmap_data[16:]
         dtb = fdt.Fdt.FromData(fdt_data)
@@ -4944,25 +4944,25 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testFipExtractOneEntry(self):
         """Test extracting a single entry fron an FIP"""
         self._DoReadFileRealDtb('207_fip_ls.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
+        image_fname = tools.get_output_filename('image.bin')
         fname = os.path.join(self._indir, 'output.extact')
         control.ExtractEntries(image_fname, fname, None, ['atf-fip/u-boot'])
-        data = tools.ReadFile(fname)
+        data = tools.read_file(fname)
         self.assertEqual(U_BOOT_DATA, data)
 
     def testFipReplace(self):
         """Test replacing a single file in a FIP"""
-        expected = U_BOOT_DATA + tools.GetBytes(0x78, 50)
+        expected = U_BOOT_DATA + tools.get_bytes(0x78, 50)
         data = self._DoReadFileRealDtb('208_fip_replace.dts')
-        updated_fname = tools.GetOutputFilename('image-updated.bin')
-        tools.WriteFile(updated_fname, data)
+        updated_fname = tools.get_output_filename('image-updated.bin')
+        tools.write_file(updated_fname, data)
         entry_name = 'atf-fip/u-boot'
         control.WriteEntry(updated_fname, entry_name, expected,
                            allow_resize=True)
         actual = control.ReadEntry(updated_fname, entry_name)
         self.assertEqual(expected, actual)
 
-        new_data = tools.ReadFile(updated_fname)
+        new_data = tools.read_file(updated_fname)
         hdr, fents = fip_util.decode_fip(new_data)
 
         self.assertEqual(2, len(fents))
@@ -4999,7 +4999,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(True, fent.valid)
 
         rest = data[0x60 + len(ATF_BL31_DATA):0x100]
-        self.assertEqual(tools.GetBytes(0xff, len(rest)), rest)
+        self.assertEqual(tools.get_bytes(0xff, len(rest)), rest)
 
     def testFipBadAlign(self):
         """Test that an invalid alignment value in a FIP is detected"""
@@ -5055,7 +5055,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFetchBintools(self):
         def fail_download(url):
-            """Take the tools.Download() function by raising an exception"""
+            """Take the tools.download() function by raising an exception"""
             raise urllib.error.URLError('my error')
 
         args = ['tool']
@@ -5070,7 +5070,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn('Please specify bintools to fetch', str(e.exception))
 
         args = ['tool', '--fetch', '_testing']
-        with unittest.mock.patch.object(tools, 'Download',
+        with unittest.mock.patch.object(tools, 'download',
                                         side_effect=fail_download):
             with test_util.capture_sys_output() as (stdout, _):
                 self._DoBinman(*args)

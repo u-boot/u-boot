@@ -37,7 +37,7 @@ class Entry_blob(Entry):
 
     def ObtainContents(self):
         self._filename = self.GetDefaultFilename()
-        self._pathname = tools.GetInputFilename(self._filename,
+        self._pathname = tools.get_input_filename(self._filename,
             self.external and self.section.GetAllowMissing())
         # Allow the file to be missing
         if not self._pathname:
@@ -68,7 +68,7 @@ class Entry_blob(Entry):
             bytes: Data read
         """
         state.TimingStart('read')
-        indata = tools.ReadFile(pathname)
+        indata = tools.read_file(pathname)
         state.TimingAccum('read')
         state.TimingStart('compress')
         data = self.CompressData(indata)

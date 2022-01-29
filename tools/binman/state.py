@@ -138,8 +138,8 @@ def GetFdtContents(etype='u-boot-dtb'):
         data = GetFdtForEtype(etype).GetContents()
     else:
         fname = output_fdt_info[etype][1]
-        pathname = tools.GetInputFilename(fname)
-        data = tools.ReadFile(pathname)
+        pathname = tools.get_input_filename(fname)
+        data = tools.read_file(pathname)
     return pathname, data
 
 def UpdateFdtContents(etype, data):
@@ -154,7 +154,7 @@ def UpdateFdtContents(etype, data):
     """
     dtb, fname = output_fdt_info[etype]
     dtb_fname = dtb.GetFilename()
-    tools.WriteFile(dtb_fname, data)
+    tools.write_file(dtb_fname, data)
     dtb = fdt.FdtScan(dtb_fname)
     output_fdt_info[etype] = [dtb, fname]
 
@@ -235,12 +235,12 @@ def Prepare(images, dtb):
     else:
         fdt_set = {}
         for etype, fname in DTB_TYPE_FNAME.items():
-            infile = tools.GetInputFilename(fname, allow_missing=True)
+            infile = tools.get_input_filename(fname, allow_missing=True)
             if infile and os.path.exists(infile):
                 fname_dtb = fdt_util.EnsureCompiled(infile)
-                out_fname = tools.GetOutputFilename('%s.out' %
+                out_fname = tools.get_output_filename('%s.out' %
                         os.path.split(fname)[1])
-                tools.WriteFile(out_fname, tools.ReadFile(fname_dtb))
+                tools.write_file(out_fname, tools.read_file(fname_dtb))
                 other_dtb = fdt.FdtScan(out_fname)
                 output_fdt_info[etype] = [other_dtb, out_fname]
 
@@ -271,13 +271,13 @@ def PrepareFromLoadedData(image):
     tout.Info("   Found device tree type 'fdtmap' '%s'" % image.fdtmap_dtb.name)
     for etype, value in image.GetFdts().items():
         entry, fname = value
-        out_fname = tools.GetOutputFilename('%s.dtb' % entry.etype)
+        out_fname = tools.get_output_filename('%s.dtb' % entry.etype)
         tout.Info("   Found device tree type '%s' at '%s' path '%s'" %
                   (etype, out_fname, entry.GetPath()))
         entry._filename = entry.GetDefaultFilename()
         data = entry.ReadData()
 
-        tools.WriteFile(out_fname, data)
+        tools.write_file(out_fname, data)
         dtb = fdt.Fdt(out_fname)
         dtb.Scan()
         image_node = dtb.GetNode('/binman')
@@ -529,7 +529,7 @@ def GetVersion(path=OUR_PATH):
     """
     version_fname = os.path.join(path, 'version')
     if os.path.exists(version_fname):
-        version = tools.ReadFile(version_fname, binary=False)
+        version = tools.read_file(version_fname, binary=False)
     else:
         version = '(unreleased)'
     return version

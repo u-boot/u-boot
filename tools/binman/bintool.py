@@ -327,9 +327,9 @@ class Bintool:
         """
         tmpdir = tempfile.mkdtemp(prefix='binmanf.')
         print(f"- clone git repo '{git_repo}' to '{tmpdir}'")
-        tools.Run('git', 'clone', '--depth', '1', git_repo, tmpdir)
+        tools.run('git', 'clone', '--depth', '1', git_repo, tmpdir)
         print(f"- build target '{make_target}'")
-        tools.Run('make', '-C', tmpdir, '-j', f'{multiprocessing.cpu_count()}',
+        tools.run('make', '-C', tmpdir, '-j', f'{multiprocessing.cpu_count()}',
                   make_target)
         fname = os.path.join(tmpdir, bintool_path)
         if not os.path.exists(fname):
@@ -349,8 +349,8 @@ class Bintool:
                 str: Filename of fetched file to copy to a suitable directory
                 str: Name of temp directory to remove, or None
         """
-        fname, tmpdir = tools.Download(url)
-        tools.Run('chmod', 'a+x', fname)
+        fname, tmpdir = tools.download(url)
+        tools.run('chmod', 'a+x', fname)
         return fname, tmpdir
 
     @classmethod
@@ -384,7 +384,7 @@ class Bintool:
         """
         args = ['sudo', 'apt', 'install', '-y', package]
         print('- %s' % ' '.join(args))
-        tools.Run(*args)
+        tools.run(*args)
         return True
 
     @staticmethod

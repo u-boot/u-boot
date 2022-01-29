@@ -74,11 +74,11 @@ class TestFdt(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        tools.PrepareOutputDir(None)
+        tools.prepare_output_dir(None)
 
     @classmethod
     def tearDownClass(cls):
-        tools.FinaliseOutputDir()
+        tools.finalise_output_dir()
 
     def setUp(self):
         self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))
@@ -152,11 +152,11 @@ class TestNode(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        tools.PrepareOutputDir(None)
+        tools.prepare_output_dir(None)
 
     @classmethod
     def tearDownClass(cls):
-        tools.FinaliseOutputDir()
+        tools.finalise_output_dir()
 
     def setUp(self):
         self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))
@@ -294,11 +294,11 @@ class TestProp(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        tools.PrepareOutputDir(None)
+        tools.prepare_output_dir(None)
 
     @classmethod
     def tearDownClass(cls):
-        tools.FinaliseOutputDir()
+        tools.finalise_output_dir()
 
     def setUp(self):
         self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))
@@ -370,7 +370,7 @@ class TestProp(unittest.TestCase):
         """Tests the GetEmpty() function for the various supported types"""
         self.assertEqual(True, fdt.Prop.GetEmpty(Type.BOOL))
         self.assertEqual(chr(0), fdt.Prop.GetEmpty(Type.BYTE))
-        self.assertEqual(tools.GetBytes(0, 4), fdt.Prop.GetEmpty(Type.INT))
+        self.assertEqual(tools.get_bytes(0, 4), fdt.Prop.GetEmpty(Type.INT))
         self.assertEqual('', fdt.Prop.GetEmpty(Type.STRING))
 
     def testGetOffset(self):
@@ -501,7 +501,7 @@ class TestProp(unittest.TestCase):
         self.node.AddString('string', val)
         self.dtb.Sync(auto_resize=True)
         data = self.fdt.getprop(self.node.Offset(), 'string')
-        self.assertEqual(tools.ToBytes(val) + b'\0', data)
+        self.assertEqual(tools.to_bytes(val) + b'\0', data)
 
         self.fdt.pack()
         self.node.SetString('string', val + 'x')
@@ -511,24 +511,24 @@ class TestProp(unittest.TestCase):
         self.node.SetString('string', val[:-1])
 
         prop = self.node.props['string']
-        prop.SetData(tools.ToBytes(val))
+        prop.SetData(tools.to_bytes(val))
         self.dtb.Sync(auto_resize=False)
         data = self.fdt.getprop(self.node.Offset(), 'string')
-        self.assertEqual(tools.ToBytes(val), data)
+        self.assertEqual(tools.to_bytes(val), data)
 
         self.node.AddEmptyProp('empty', 5)
         self.dtb.Sync(auto_resize=True)
         prop = self.node.props['empty']
-        prop.SetData(tools.ToBytes(val))
+        prop.SetData(tools.to_bytes(val))
         self.dtb.Sync(auto_resize=False)
         data = self.fdt.getprop(self.node.Offset(), 'empty')
-        self.assertEqual(tools.ToBytes(val), data)
+        self.assertEqual(tools.to_bytes(val), data)
 
         self.node.SetData('empty', b'123')
         self.assertEqual(b'123', prop.bytes)
 
         # Trying adding a lot of data at once
-        self.node.AddData('data', tools.GetBytes(65, 20000))
+        self.node.AddData('data', tools.get_bytes(65, 20000))
         self.dtb.Sync(auto_resize=True)
 
     def testFromData(self):
@@ -562,7 +562,7 @@ class TestProp(unittest.TestCase):
 
     def testGetFilename(self):
         """Test the dtb filename can be provided"""
-        self.assertEqual(tools.GetOutputFilename('source.dtb'),
+        self.assertEqual(tools.get_output_filename('source.dtb'),
                          self.dtb.GetFilename())
 
 
@@ -575,11 +575,11 @@ class TestFdtUtil(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        tools.PrepareOutputDir(None)
+        tools.prepare_output_dir(None)
 
     @classmethod
     def tearDownClass(cls):
-        tools.FinaliseOutputDir()
+        tools.finalise_output_dir()
 
     def setUp(self):
         self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))

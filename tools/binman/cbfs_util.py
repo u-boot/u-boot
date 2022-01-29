@@ -189,9 +189,9 @@ def _pack_string(instr):
     Returns:
         String with required padding (at least one 0x00 byte) at the end
     """
-    val = tools.ToBytes(instr)
+    val = tools.to_bytes(instr)
     pad_len = align_int(len(val) + 1, FILENAME_ALIGN)
-    return val + tools.GetBytes(0, pad_len - len(val))
+    return val + tools.get_bytes(0, pad_len - len(val))
 
 
 class CbfsFile(object):
@@ -371,7 +371,7 @@ class CbfsFile(object):
                                FILE_ATTR_TAG_COMPRESSION, ATTR_COMPRESSION_LEN,
                                self.compress, self.memlen)
         elif self.ftype == TYPE_EMPTY:
-            data = tools.GetBytes(self.erase_byte, self.size)
+            data = tools.get_bytes(self.erase_byte, self.size)
         else:
             raise ValueError('Unknown type %#x when writing\n' % self.ftype)
         if attr:
@@ -388,7 +388,7 @@ class CbfsFile(object):
                 # possible.
                 raise ValueError("Internal error: CBFS file '%s': Requested offset %#x but current output position is %#x" %
                                  (self.name, self.cbfs_offset, offset))
-            pad = tools.GetBytes(pad_byte, pad_len)
+            pad = tools.get_bytes(pad_byte, pad_len)
             hdr_len += pad_len
 
         # This is the offset of the start of the file's data,
@@ -414,7 +414,7 @@ class CbfsWriter(object):
     Usage is something like:
 
         cbw = CbfsWriter(size)
-        cbw.add_file_raw('u-boot', tools.ReadFile('u-boot.bin'))
+        cbw.add_file_raw('u-boot', tools.read_file('u-boot.bin'))
         ...
         data, cbfs_offset = cbw.get_data_and_offset()
 
@@ -482,7 +482,7 @@ class CbfsWriter(object):
         if fd.tell() > offset:
             raise ValueError('No space for data before offset %#x (current offset %#x)' %
                              (offset, fd.tell()))
-        fd.write(tools.GetBytes(self._erase_byte, offset - fd.tell()))
+        fd.write(tools.get_bytes(self._erase_byte, offset - fd.tell()))
 
     def _pad_to(self, fd, offset):
         """Write out pad bytes and/or an empty file until a given offset

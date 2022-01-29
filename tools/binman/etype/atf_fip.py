@@ -181,7 +181,7 @@ class Entry_atf_fip(Entry_section):
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._fip_flags = fdt_util.GetInt64(self._node, 'fip-hdr-flags', 0)
         self._fip_align = fdt_util.GetInt(self._node, 'fip-align', 1)
-        if tools.NotPowerOfTwo(self._fip_align):
+        if tools.not_power_of_two(self._fip_align):
             raise ValueError("Node '%s': FIP alignment %s must be a power of two" %
                              (self._node.path, self._fip_align))
         self.ReadEntries()

@@ -201,11 +201,11 @@ class Toolchain:
             # We'll use MakeArgs() to provide this
             pass
         elif full_path:
-            env[b'CROSS_COMPILE'] = tools.ToBytes(
+            env[b'CROSS_COMPILE'] = tools.to_bytes(
                 wrapper + os.path.join(self.path, self.cross))
         else:
-            env[b'CROSS_COMPILE'] = tools.ToBytes(wrapper + self.cross)
-            env[b'PATH'] = tools.ToBytes(self.path) + b':' + env[b'PATH']
+            env[b'CROSS_COMPILE'] = tools.to_bytes(wrapper + self.cross)
+            env[b'PATH'] = tools.to_bytes(self.path) + b':' + env[b'PATH']
 
         env[b'LC_ALL'] = b'C'
 
@@ -504,7 +504,7 @@ class Toolchains:
             url = '%s/%s/%s/' % (base, arch, version)
             print('Checking: %s' % url)
             response = urllib.request.urlopen(url)
-            html = tools.ToString(response.read())
+            html = tools.to_string(response.read())
             parser = MyHTMLParser(fetch_arch)
             parser.feed(html)
             if fetch_arch == 'list':
@@ -571,7 +571,7 @@ class Toolchains:
             os.mkdir(dest)
 
         # Download the tar file for this toolchain and unpack it
-        tarfile, tmpdir = tools.Download(url, '.buildman')
+        tarfile, tmpdir = tools.download(url, '.buildman')
         if not tarfile:
             return 1
         print(col.Color(col.GREEN, 'Unpacking to: %s' % dest), end=' ')

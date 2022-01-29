@@ -88,8 +88,8 @@ class Bintoollz4(bintool.Bintool):
             bytes: Compressed data
         """
         with tempfile.NamedTemporaryFile(prefix='comp.tmp',
-                                         dir=tools.GetOutputDir()) as tmp:
-            tools.WriteFile(tmp.name, indata)
+                                         dir=tools.get_output_dir()) as tmp:
+            tools.write_file(tmp.name, indata)
             args = ['--no-frame-crc', '-B4', '-5', '-c', tmp.name]
             return self.run_cmd(*args, binary=True)
 
@@ -103,8 +103,8 @@ class Bintoollz4(bintool.Bintool):
             bytes: Decompressed data
         """
         with tempfile.NamedTemporaryFile(prefix='decomp.tmp',
-                                         dir=tools.GetOutputDir()) as inf:
-            tools.WriteFile(inf.name, indata)
+                                         dir=tools.get_output_dir()) as inf:
+            tools.write_file(inf.name, indata)
             args = ['-cd', inf.name]
             return self.run_cmd(*args, binary=True)
 

@@ -23,7 +23,7 @@ preserve_outdir = False
 # Path to the Chrome OS chroot, if we know it
 chroot_path = None
 
-# Search paths to use for Filename(), used to find files
+# Search paths to use for filename(), used to find files
 search_paths = []
 
 tool_search_paths = []
@@ -36,7 +36,7 @@ packages = {
 # List of paths to use when looking for an input file
 indir = []
 
-def PrepareOutputDir(dirname, preserve=False):
+def prepare_output_dir(dirname, preserve=False):
     """Select an output directory, ensuring it exists.
 
     This either creates a temporary directory or checks that the one supplied
@@ -69,22 +69,22 @@ def PrepareOutputDir(dirname, preserve=False):
         outdir = tempfile.mkdtemp(prefix='binman.')
         tout.Debug("Using temporary directory '%s'" % outdir)
 
-def _RemoveOutputDir():
+def _remove_output_dir():
     global outdir
 
     shutil.rmtree(outdir)
     tout.Debug("Deleted temporary directory '%s'" % outdir)
     outdir = None
 
-def FinaliseOutputDir():
+def finalise_output_dir():
     global outdir, preserve_outdir
 
     """Tidy up: delete output directory if temporary and not preserved."""
     if outdir and not preserve_outdir:
-        _RemoveOutputDir()
+        _remove_output_dir()
         outdir = None
 
-def GetOutputFilename(fname):
+def get_output_filename(fname):
     """Return a filename within the output directory.
 
     Args:
@@ -95,7 +95,7 @@ def GetOutputFilename(fname):
     """
     return os.path.join(outdir, fname)
 
-def GetOutputDir():
+def get_output_dir():
     """Return the current output directory
 
     Returns:
@@ -103,15 +103,15 @@ def GetOutputDir():
     """
     return outdir
 
-def _FinaliseForTest():
+def _finalise_for_test():
     """Remove the output directory (for use by tests)"""
     global outdir
 
     if outdir:
-        _RemoveOutputDir()
+        _remove_output_dir()
         outdir = None
 
-def SetInputDirs(dirname):
+def set_input_dirs(dirname):
     """Add a list of input directories, where input files are kept.
 
     Args:
@@ -123,7 +123,7 @@ def SetInputDirs(dirname):
     indir = dirname
     tout.Debug("Using input directories %s" % indir)
 
-def GetInputFilename(fname, allow_missing=False):
+def get_input_filename(fname, allow_missing=False):
     """Return a filename for use as input.
 
     Args:
@@ -150,7 +150,7 @@ def GetInputFilename(fname, allow_missing=False):
     raise ValueError("Filename '%s' not found in input path (%s) (cwd='%s')" %
                      (fname, ','.join(indir), os.getcwd()))
 
-def GetInputFilenameGlob(pattern):
+def get_input_filename_glob(pattern):
     """Return a list of filenames for use as input.
 
     Args:
@@ -167,26 +167,26 @@ def GetInputFilenameGlob(pattern):
         files += glob.glob(pathname)
     return sorted(files)
 
-def Align(pos, align):
+def align(pos, align):
     if align:
         mask = align - 1
         pos = (pos + mask) & ~mask
     return pos
 
-def NotPowerOfTwo(num):
+def not_power_of_two(num):
     return num and (num & (num - 1))
 
-def SetToolPaths(toolpaths):
+def set_tool_paths(toolpaths):
     """Set the path to search for tools
 
     Args:
-        toolpaths: List of paths to search for tools executed by Run()
+        toolpaths: List of paths to search for tools executed by run()
     """
     global tool_search_paths
 
     tool_search_paths = toolpaths
 
-def PathHasFile(path_spec, fname):
+def path_has_file(path_spec, fname):
     """Check if a given filename is in the PATH
 
     Args:
@@ -201,7 +201,7 @@ def PathHasFile(path_spec, fname):
             return True
     return False
 
-def GetHostCompileTool(name):
+def get_host_compile_tool(name):
     """Get the host-specific version for a compile tool
 
     This checks the environment variables that specify which version of
@@ -244,7 +244,7 @@ def GetHostCompileTool(name):
         return host_name, extra_args
     return name, []
 
-def GetTargetCompileTool(name, cross_compile=None):
+def get_target_compile_tool(name, cross_compile=None):
     """Get the target-specific version for a compile tool
 
     This first checks the environment variables that specify which
@@ -298,7 +298,7 @@ def GetTargetCompileTool(name, cross_compile=None):
         target_name = cross_compile + name
     elif name == 'ld':
         try:
-            if Run(cross_compile + 'ld.bfd', '-v'):
+            if run(cross_compile + 'ld.bfd', '-v'):
                 target_name = cross_compile + 'ld.bfd'
         except:
             target_name = cross_compile + 'ld'
@@ -353,10 +353,10 @@ def run_result(name, *args, **kwargs):
         raise_on_error = kwargs.get('raise_on_error', True)
         env = get_env_with_path()
         if for_target:
-            name, extra_args = GetTargetCompileTool(name)
+            name, extra_args = get_target_compile_tool(name)
             args = tuple(extra_args) + args
         elif for_host:
-            name, extra_args = GetHostCompileTool(name)
+            name, extra_args = get_host_compile_tool(name)
             args = tuple(extra_args) + args
         name = os.path.expanduser(name)  # Expand paths containing ~
         all_args = (name,) + args
@@ -369,7 +369,7 @@ def run_result(name, *args, **kwargs):
                                   result.stderr or result.stdout))
         return result
     except ValueError:
-        if env and not PathHasFile(env['PATH'], name):
+        if env and not path_has_file(env['PATH'], name):
             msg = "Please install tool '%s'" % name
             package = packages.get(name)
             if package:
@@ -380,7 +380,7 @@ def run_result(name, *args, **kwargs):
 def tool_find(name):
     """Search the current path for a tool
 
-    This uses both PATH and any value from SetToolPaths() to search for a tool
+    This uses both PATH and any value from set_tool_paths() to search for a tool
 
     Args:
         name (str): Name of tool to locate
@@ -400,7 +400,7 @@ def tool_find(name):
         if os.path.isfile(fname) and os.access(fname, os.X_OK):
             return fname
 
-def Run(name, *args, **kwargs):
+def run(name, *args, **kwargs):
     """Run a tool with some arguments
 
     This runs a 'tool', which is a program used by binman to process files and
@@ -421,7 +421,7 @@ def Run(name, *args, **kwargs):
     if result is not None:
         return result.stdout
 
-def Filename(fname):
+def filename(fname):
     """Resolve a file path to an absolute path.
 
     If fname starts with ##/ and chroot is available, ##/ gets replaced with
@@ -455,7 +455,7 @@ def Filename(fname):
     # If not found, just return the standard, unchanged path
     return fname
 
-def ReadFile(fname, binary=True):
+def read_file(fname, binary=True):
     """Read and return the contents of a file.
 
     Args:
@@ -464,13 +464,13 @@ def ReadFile(fname, binary=True):
     Returns:
       data read from file, as a string.
     """
-    with open(Filename(fname), binary and 'rb' or 'r') as fd:
+    with open(filename(fname), binary and 'rb' or 'r') as fd:
         data = fd.read()
     #self._out.Info("Read file '%s' size %d (%#0x)" %
                    #(fname, len(data), len(data)))
     return data
 
-def WriteFile(fname, data, binary=True):
+def write_file(fname, data, binary=True):
     """Write data into a file.
 
     Args:
@@ -479,10 +479,10 @@ def WriteFile(fname, data, binary=True):
     """
     #self._out.Info("Write file '%s' size %d (%#0x)" %
                    #(fname, len(data), len(data)))
-    with open(Filename(fname), binary and 'wb' or 'w') as fd:
+    with open(filename(fname), binary and 'wb' or 'w') as fd:
         fd.write(data)
 
-def GetBytes(byte, size):
+def get_bytes(byte, size):
     """Get a string of bytes of a given size
 
     Args:
@@ -494,7 +494,7 @@ def GetBytes(byte, size):
     """
     return bytes([byte]) * size
 
-def ToBytes(string):
+def to_bytes(string):
     """Convert a str type into a bytes type
 
     Args:
@@ -505,7 +505,7 @@ def ToBytes(string):
     """
     return string.encode('utf-8')
 
-def ToString(bval):
+def to_string(bval):
     """Convert a bytes type into a str type
 
     Args:
@@ -517,7 +517,7 @@ def ToString(bval):
     """
     return bval.decode('utf-8')
 
-def ToHex(val):
+def to_hex(val):
     """Convert an integer value (or None) to a string
 
     Returns:
@@ -525,7 +525,7 @@ def ToHex(val):
     """
     return 'None' if val is None else '%#x' % val
 
-def ToHexSize(val):
+def to_hex_size(val):
     """Return the size of an object in hex
 
     Returns:
@@ -533,7 +533,7 @@ def ToHexSize(val):
     """
     return 'None' if val is None else '%#x' % len(val)
 
-def PrintFullHelp(fname):
+def print_full_help(fname):
     """Print the full help message for a tool using an appropriate pager.
 
     Args:
@@ -547,7 +547,7 @@ def PrintFullHelp(fname):
         pager = ['more']
     command.Run(*pager, fname)
 
-def Download(url, tmpdir_pattern='.patman'):
+def download(url, tmpdir_pattern='.patman'):
     """Download a file to a temporary directory
 
     Args:
