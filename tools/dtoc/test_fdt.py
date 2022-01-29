@@ -715,7 +715,7 @@ class TestFdtUtil(unittest.TestCase):
 
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
-    test_util.RunTestCoverage('tools/dtoc/test_fdt.py', None,
+    test_util.run_test_coverage('tools/dtoc/test_fdt.py', None,
             ['tools/patman/*.py', '*test_fdt.py'], options.build_dir)
 
 

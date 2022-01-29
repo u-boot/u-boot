@@ -135,12 +135,12 @@ if args.cmd == 'test':
     from patman import func_test
 
     result = unittest.TestResult()
-    test_util.RunTestSuites(
+    test_util.run_test_suites(
         result, False, False, False, None, None, None,
         [test_checkpatch.TestPatch, func_test.TestFunctional,
          'gitutil', 'settings', 'terminal'])
 
-    sys.exit(test_util.ReportResult('patman', args.testname, result))
+    sys.exit(test_util.report_result('patman', args.testname, result))
 
 # Process commits, produce patches files, check them, email them
 elif args.cmd == 'send':
