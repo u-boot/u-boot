@@ -4,5 +4,5 @@ S:	Maintained
 F:	board/nokia/rx51/
 F:	include/configs/nokia_rx51.h
 F:	configs/nokia_rx51_defconfig
-F:	doc/README.nokia_rx51
+F:	doc/board/nokia/rx51.rst
 F:	test/nokia_rx51_test.sh

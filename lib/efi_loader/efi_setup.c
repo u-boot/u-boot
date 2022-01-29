@@ -247,6 +247,12 @@ efi_status_t efi_init_obj_list(void)
 			goto out;
 	}
 
+	if (IS_ENABLED(CONFIG_EFI_RISCV_BOOT_PROTOCOL)) {
+		ret = efi_riscv_register();
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
+
 	/* Secure boot */
 	ret = efi_init_secure_boot();
 	if (ret != EFI_SUCCESS)

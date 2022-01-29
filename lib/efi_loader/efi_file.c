@@ -1084,7 +1084,7 @@ static const struct efi_file_handle efi_file_handle_protocol = {
  * efi_file_from_path() - open file via device path
  *
  * @fp:		device path
- * @return:	EFI_FILE_PROTOCOL for the file or NULL
+ * Return:	EFI_FILE_PROTOCOL for the file or NULL
  */
 struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 {

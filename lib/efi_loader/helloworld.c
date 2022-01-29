@@ -133,7 +133,7 @@ efi_status_t print_device_path(struct efi_device_path *device_path,
  *
  * @handle:	handle of the loaded image
  * @systab:	system table
- * @return:	status code
+ * Return:	status code
  */
 efi_status_t EFIAPI efi_main(efi_handle_t handle,
 			     struct efi_system_table *systab)

@@ -284,7 +284,7 @@ static struct efi_load_file_protocol lf2_prot = {load_file2};
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int efi_st_load_file_setup(const efi_handle_t handle,
 				  const struct efi_system_table *systable)
@@ -326,7 +326,7 @@ static int efi_st_load_file_setup(const efi_handle_t handle,
 /*
  * Tear down unit test.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int efi_st_load_file_teardown(void)
 {
@@ -377,7 +377,7 @@ static int efi_st_load_file_teardown(void)
  * Try loading an image via the EFI_LOAD_FILE_PROTOCOL and the
  * EFI_LOAD_FILE2_PROTOCOL. Finally execute the image.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int efi_st_load_file_execute(void)
 {

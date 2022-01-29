@@ -22,6 +22,7 @@ Board-specific doc
    intel/index
    kontron/index
    microchip/index
+   nokia/index
    nxp/index
    openpiton/index
    qualcomm/index

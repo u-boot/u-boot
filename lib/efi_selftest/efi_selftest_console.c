@@ -274,7 +274,7 @@ void efi_st_printc(int color, const char *fmt, ...)
 /*
  * Reads an Unicode character from the input device.
  *
- * @return: Unicode character
+ * Return: Unicode character
  */
 u16 efi_st_get_key(void)
 {
