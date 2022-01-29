@@ -219,7 +219,7 @@ class BuilderThread(threading.Thread):
                     commit = self.builder.commits[commit_upto]
                     if self.builder.checkout:
                         git_dir = os.path.join(work_dir, '.git')
-                        gitutil.Checkout(commit.hash, git_dir, work_dir,
+                        gitutil.checkout(commit.hash, git_dir, work_dir,
                                          force=True)
                 else:
                     commit = 'current'

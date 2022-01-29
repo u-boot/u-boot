@@ -16,7 +16,7 @@ def DetectProject():
         The name of the project, like "linux" or "u-boot".  Returns "unknown"
         if we can't detect the project.
     """
-    top_level = gitutil.GetTopLevel()
+    top_level = gitutil.get_top_level()
 
     if os.path.exists(os.path.join(top_level, "include", "u-boot")):
         return "u-boot"

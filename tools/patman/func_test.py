@@ -208,7 +208,7 @@ class TestFunctional(unittest.TestCase):
             cc_file = series.MakeCcFile(process_tags, cover_fname,
                                         not ignore_bad_tags, add_maintainers,
                                         None)
-            cmd = gitutil.EmailPatches(
+            cmd = gitutil.email_patches(
                 series, cover_fname, args, dry_run, not ignore_bad_tags,
                 cc_file, in_reply_to=in_reply_to, thread=None)
             series.ShowActions(args, cmd, process_tags)
@@ -466,7 +466,7 @@ complicated as possible''')
             os.chdir(self.gitdir)
 
             # Check that it can detect the current branch
-            self.assertEqual(2, gitutil.CountCommitsToBranch(None))
+            self.assertEqual(2, gitutil.count_commits_to_branch(None))
             col = terminal.Color()
             with capture_sys_output() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
@@ -476,7 +476,7 @@ complicated as possible''')
             self.assertEqual(2, len(patch_files))
 
             # Check that it can detect a different branch
-            self.assertEqual(3, gitutil.CountCommitsToBranch('second'))
+            self.assertEqual(3, gitutil.count_commits_to_branch('second'))
             with capture_sys_output() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
                     col, branch='second', count=-1, start=0, end=0,
@@ -622,7 +622,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             orig_dir = os.getcwd()
             os.chdir(self.gitdir)
             with self.assertRaises(ValueError) as exc:
-                gitutil.CountCommitsToBranch(None)
+                gitutil.count_commits_to_branch(None)
             self.assertIn(
                 "Failed to determine upstream: fatal: no upstream configured for branch 'base'",
                 str(exc.exception))

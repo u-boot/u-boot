@@ -105,8 +105,8 @@ class Series(dict):
             cmd: The git command we would have run
             process_tags: Process tags as if they were aliases
         """
-        to_set = set(gitutil.BuildEmailList(self.to));
-        cc_set = set(gitutil.BuildEmailList(self.cc));
+        to_set = set(gitutil.build_email_list(self.to));
+        cc_set = set(gitutil.build_email_list(self.cc));
 
         col = terminal.Color()
         print('Dry run, so not doing much. But I would do this:')
@@ -136,7 +136,7 @@ class Series(dict):
         print('Postfix:\t ', self.get('postfix'))
         if self.cover:
             print('Cover: %d lines' % len(self.cover))
-            cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
+            cover_cc = gitutil.build_email_list(self.get('cover_cc', ''))
             all_ccs = itertools.chain(cover_cc, *self._generated_cc.values())
             for email in sorted(set(all_ccs) - to_set - cc_set):
                     print('      Cc: ', email)
@@ -261,14 +261,14 @@ class Series(dict):
         for commit in self.commits:
             cc = []
             if process_tags:
-                cc += gitutil.BuildEmailList(commit.tags,
+                cc += gitutil.build_email_list(commit.tags,
                                                warn_on_error=warn_on_error)
-            cc += gitutil.BuildEmailList(commit.cc_list,
+            cc += gitutil.build_email_list(commit.cc_list,
                                            warn_on_error=warn_on_error)
             if type(add_maintainers) == type(cc):
                 cc += add_maintainers
             elif add_maintainers:
-                dir_list = [os.path.join(gitutil.GetTopLevel(), 'scripts')]
+                dir_list = [os.path.join(gitutil.get_top_level(), 'scripts')]
                 cc += get_maintainer.get_maintainer(dir_list, commit.patch)
             for x in set(cc) & set(settings.bounces):
                 print(col.Color(col.YELLOW, 'Skipping "%s"' % x))
@@ -280,7 +280,7 @@ class Series(dict):
             self._generated_cc[commit.patch] = cc
 
         if cover_fname:
-            cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
+            cover_cc = gitutil.build_email_list(self.get('cover_cc', ''))
             cover_cc = list(set(cover_cc + all_ccs))
             if limit is not None:
                 cover_cc = cover_cc[:limit]
@@ -309,7 +309,7 @@ class Series(dict):
         Return:
             Patch string, like 'RFC PATCH v5' or just 'PATCH'
         """
-        git_prefix = gitutil.GetDefaultSubjectPrefix()
+        git_prefix = gitutil.get_default_subject_prefix()
         if git_prefix:
             git_prefix = '%s][' % git_prefix
         else:

@@ -698,7 +698,7 @@ def get_list(commit_range, git_dir=None, count=None):
     Returns
         str: String containing the contents of the git log
     """
-    params = gitutil.LogCmd(commit_range, reverse=True, count=count,
+    params = gitutil.log_cmd(commit_range, reverse=True, count=count,
                             git_dir=git_dir)
     return command.run_pipe([params], capture=True).stdout
 

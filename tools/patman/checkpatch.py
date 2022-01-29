@@ -21,7 +21,7 @@ RE_NOTE = re.compile(r'NOTE: (.*)')
 
 
 def find_check_patch():
-    top_level = gitutil.GetTopLevel()
+    top_level = gitutil.get_top_level()
     try_list = [
         os.getcwd(),
         os.path.join(os.getcwd(), '..', '..'),

@@ -140,7 +140,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         )
         return 0
 
-    gitutil.Setup()
+    gitutil.setup()
     col = terminal.Color()
 
     options.git_dir = os.path.join(options.git, '.git')
@@ -236,10 +236,10 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             count = 1
         else:
             if has_range:
-                count, msg = gitutil.CountCommitsInRange(options.git_dir,
+                count, msg = gitutil.count_commits_in_range(options.git_dir,
                                                          options.branch)
             else:
-                count, msg = gitutil.CountCommitsInBranch(options.git_dir,
+                count, msg = gitutil.count_commits_in_branch(options.git_dir,
                                                           options.branch)
             if count is None:
                 sys.exit(col.Color(col.RED, msg))
@@ -276,9 +276,9 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             if has_range:
                 range_expr = options.branch
             else:
-                range_expr = gitutil.GetRangeInBranch(options.git_dir,
+                range_expr = gitutil.get_range_in_branch(options.git_dir,
                                                       options.branch)
-            upstream_commit = gitutil.GetUpstream(options.git_dir,
+            upstream_commit = gitutil.get_upstream(options.git_dir,
                                                   options.branch)
             series = patchstream.get_metadata_for_list(upstream_commit,
                 options.git_dir, 1, series=None, allow_overwrite=True)

@@ -442,7 +442,7 @@ class Builder:
         """
         self.commit = commit
         if checkout and self.checkout:
-            gitutil.Checkout(commit.hash)
+            gitutil.checkout(commit.hash)
 
     def Make(self, commit, brd, stage, cwd, *args, **kwargs):
         """Run make
@@ -1631,7 +1631,7 @@ class Builder:
                 # it but need to fetch from src_dir.
                 Print('\rFetching repo for thread %d' % thread_num,
                       newline=False)
-                gitutil.Fetch(git_dir, thread_dir)
+                gitutil.fetch(git_dir, thread_dir)
                 terminal.PrintClear()
             elif os.path.isfile(git_dir):
                 # This is a worktree of the src_dir repo, we don't need to
@@ -1645,12 +1645,12 @@ class Builder:
             elif setup_git == 'worktree':
                 Print('\rChecking out worktree for thread %d' % thread_num,
                       newline=False)
-                gitutil.AddWorktree(src_dir, thread_dir)
+                gitutil.add_worktree(src_dir, thread_dir)
                 terminal.PrintClear()
             elif setup_git == 'clone' or setup_git == True:
                 Print('\rCloning repo for thread %d' % thread_num,
                       newline=False)
-                gitutil.Clone(src_dir, thread_dir)
+                gitutil.clone(src_dir, thread_dir)
                 terminal.PrintClear()
             else:
                 raise ValueError("Can't setup git repo with %s." % setup_git)
@@ -1670,12 +1670,12 @@ class Builder:
         builderthread.Mkdir(self._working_dir)
         if setup_git and self.git_dir:
             src_dir = os.path.abspath(self.git_dir)
-            if gitutil.CheckWorktreeIsAvailable(src_dir):
+            if gitutil.check_worktree_is_available(src_dir):
                 setup_git = 'worktree'
                 # If we previously added a worktree but the directory for it
                 # got deleted, we need to prune its files from the repo so
                 # that we can check out another in its place.
-                gitutil.PruneWorktrees(src_dir)
+                gitutil.prune_worktrees(src_dir)
             else:
                 setup_git = 'clone'
 
