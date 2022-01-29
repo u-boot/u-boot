@@ -94,7 +94,7 @@ class Series(dict):
         Args:
             commit: Commit object to add
         """
-        commit.CheckTags()
+        commit.check_tags()
         self.commits.append(commit)
 
     def ShowActions(self, args, cmd, process_tags):
