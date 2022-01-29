@@ -595,6 +595,12 @@ U_BOOT_CRYPTO_ALGO(rsa2048) = {
 	.verify = rsa_verify,
 };
 
+U_BOOT_CRYPTO_ALGO(rsa3072) = {
+	.name = "rsa3072",
+	.key_len = RSA3072_BYTES,
+	.verify = rsa_verify,
+};
+
 U_BOOT_CRYPTO_ALGO(rsa4096) = {
 	.name = "rsa4096",
 	.key_len = RSA4096_BYTES,

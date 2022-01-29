@@ -560,6 +560,8 @@ int pci_auto_config_devices(struct udevice *bus)
 		if (pplat->class == (PCI_CLASS_DISPLAY_VGA << 8))
 			set_vga_bridge_bits(dev);
 	}
+	if (hose->last_busno < sub_bus)
+		hose->last_busno = sub_bus;
 	debug("%s: done\n", __func__);
 
 	return log_msg_ret("sub", sub_bus);

@@ -52,6 +52,16 @@ stages:
         genimage --inputpath . --config board/sifive/unleashed/genimage_spi-nor.cfg;
         cp images/spi-nor.img ${UBOOT_TRAVIS_BUILD_DIR}/;
       fi
+    - if [[ "${TEST_PY_BD}" == "coreboot" ]]; then
+        wget -O -
+          "https://drive.google.com/uc?id=1x6nrtWIyIRPLS2cQBwYTnT2TbOI8UjmM&export=download" |
+          xz -dc >${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom;
+        wget -O -
+          "https://drive.google.com/uc?id=149Cz-5SZXHNKpi9xg6R_5XITWohu348y&export=download" >
+          cbfstool;
+        chmod a+x cbfstool;
+        ./cbfstool ${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom add-flat-binary -f ${UBOOT_TRAVIS_BUILD_DIR}/u-boot.bin -n fallback/payload -c LZMA -l 0x1110000 -e 0x1110000;
+      fi
     - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
     - pip install -r test/py/requirements.txt
@@ -61,6 +71,10 @@ stages:
       ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID}
         ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
         --build-dir "$UBOOT_TRAVIS_BUILD_DIR"
+    # It seems that the files in /tmp go away, so copy out what we need
+    - if [[ "${TEST_PY_BD}" == "coreboot" ]]; then
+        cp -v /tmp/coreboot/*.{html,css} .;
+      fi
 
 build all 32bit ARM platforms:
   stage: world build
@@ -386,4 +400,16 @@ xtfpga test.py:
     TEST_PY_BD: "xtfpga"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
+  <<: *buildman_and_testpy_dfn
+
+coreboot test.py:
+  variables:
+    TEST_PY_BD: "coreboot"
+    TEST_PY_TEST_SPEC: "not sleep"
+    TEST_PY_ID: "--id qemu"
+  artifacts:
+    paths:
+      - "*.html"
+      - "*.css"
+    expire_in: 1 week
   <<: *buildman_and_testpy_dfn
