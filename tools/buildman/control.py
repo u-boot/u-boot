@@ -18,7 +18,7 @@ from patman import gitutil
 from patman import patchstream
 from patman import terminal
 from patman import tools
-from patman.terminal import Print
+from patman.terminal import Tprint
 
 def GetPlural(count):
     """Returns a plural 's' if count is not 1"""
@@ -362,7 +362,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         else:
             commits = None
 
-        Print(GetActionSummary(options.summary, commits, board_selected,
+        Tprint(GetActionSummary(options.summary, commits, board_selected,
                                options))
 
         # We can't show function sizes without board details at present

@@ -130,7 +130,7 @@ def TrimAsciiLen(text, size):
     return out
 
 
-def Print(text='', newline=True, colour=None, limit_to_line=False, bright=True):
+def Tprint(text='', newline=True, colour=None, limit_to_line=False, bright=True):
     """Handle a line of output to the terminal.
 
     In test mode this is recorded in a list. Otherwise it is output to the
@@ -175,7 +175,7 @@ def SetPrintTestMode(enable=True):
     GetPrintTestLines()
 
 def GetPrintTestLines():
-    """Get a list of all lines output through Print()
+    """Get a list of all lines output through Tprint()
 
     Returns:
         A list of PrintLine objects
