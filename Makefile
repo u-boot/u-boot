@@ -2270,9 +2270,10 @@ pylint:
 	$(Q)find tools test -name "*.py" \
 		| xargs -n1 -P$(shell nproc 2>/dev/null || echo 1) \
 			sh -c 'pylint --reports=y --exit-zero -f parseable --ignore-imports=yes $$@ > pylint.out/$$(echo $$@ | tr / _ | sed s/.py//)' _
-	$(Q)sed -n 's/Your code has been rated at \([-0-9.]*\).*/\1/p; s/\*\** Module \(.*\)/\1/p' pylint.out/* \
-		|sed '$!N;s/\n/ /' \
-		|sort > $(PYLINT_CUR)
+	$(Q)rm -f $(PYLINT_CUR)
+	$(Q)( cd pylint.out; for f in *; do \
+		sed -ne "s/Your code has been rated at \([-0-9.]*\).*/$$f \1/p" $$f; \
+	done ) | sort > $(PYLINT_CUR)
 	$(Q)base=$$(mktemp) cur=$$(mktemp); cut -d' ' -f1 $(PYLINT_BASE) >$$base; \
 		cut -d' ' -f1 $(PYLINT_CUR) >$$cur; \
 		comm -3 $$base $$cur > $(PYLINT_DIFF); \
