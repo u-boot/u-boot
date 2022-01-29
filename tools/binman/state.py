@@ -170,16 +170,16 @@ def SetEntryArgs(args):
     global entry_args
 
     entry_args = {}
-    tout.Debug('Processing entry args:')
+    tout.debug('Processing entry args:')
     if args:
         for arg in args:
             m = re.match('([^=]*)=(.*)', arg)
             if not m:
                 raise ValueError("Invalid entry arguemnt '%s'" % arg)
             name, value = m.groups()
-            tout.Debug('   %20s = %s' % (name, value))
+            tout.debug('   %20s = %s' % (name, value))
             entry_args[name] = value
-    tout.Debug('Processing entry args done')
+    tout.debug('Processing entry args done')
 
 def GetEntryArg(name):
     """Get the value of an entry argument
@@ -263,16 +263,16 @@ def PrepareFromLoadedData(image):
     """
     global output_fdt_info, main_dtb, fdt_path_prefix
 
-    tout.Info('Preparing device trees')
+    tout.info('Preparing device trees')
     output_fdt_info.clear()
     fdt_path_prefix = ''
     output_fdt_info['fdtmap'] = [image.fdtmap_dtb, 'u-boot.dtb']
     main_dtb = None
-    tout.Info("   Found device tree type 'fdtmap' '%s'" % image.fdtmap_dtb.name)
+    tout.info("   Found device tree type 'fdtmap' '%s'" % image.fdtmap_dtb.name)
     for etype, value in image.GetFdts().items():
         entry, fname = value
         out_fname = tools.get_output_filename('%s.dtb' % entry.etype)
-        tout.Info("   Found device tree type '%s' at '%s' path '%s'" %
+        tout.info("   Found device tree type '%s' at '%s' path '%s'" %
                   (etype, out_fname, entry.GetPath()))
         entry._filename = entry.GetDefaultFilename()
         data = entry.ReadData()
@@ -285,7 +285,7 @@ def PrepareFromLoadedData(image):
             image_node = dtb.GetNode('/binman/%s' % image.image_node)
         fdt_path_prefix = image_node.path
         output_fdt_info[etype] = [dtb, None]
-    tout.Info("   FDT path prefix '%s'" % fdt_path_prefix)
+    tout.info("   FDT path prefix '%s'" % fdt_path_prefix)
 
 
 def GetAllFdts():
@@ -384,7 +384,7 @@ def SetInt(node, prop, value, for_repack=False):
         for_repack: True is this property is only needed for repacking
     """
     for n in GetUpdateNodes(node, for_repack):
-        tout.Detail("File %s: Update node '%s' prop '%s' to %#x" %
+        tout.detail("File %s: Update node '%s' prop '%s' to %#x" %
                     (n.GetFdt().name, n.path, prop, value))
         n.SetInt(prop, value)
 

@@ -175,11 +175,11 @@ class Image(section.Entry_section):
     def BuildImage(self):
         """Write the image to a file"""
         fname = tools.get_output_filename(self._filename)
-        tout.Info("Writing image to '%s'" % fname)
+        tout.info("Writing image to '%s'" % fname)
         with open(fname, 'wb') as fd:
             data = self.GetPaddedData()
             fd.write(data)
-        tout.Info("Wrote %#x bytes" % len(data))
+        tout.info("Wrote %#x bytes" % len(data))
 
     def WriteMap(self):
         """Write a map of the image to a .map file
@@ -230,7 +230,7 @@ class Image(section.Entry_section):
         return entry
 
     def ReadData(self, decomp=True, alt_format=None):
-        tout.Debug("Image '%s' ReadData(), size=%#x" %
+        tout.debug("Image '%s' ReadData(), size=%#x" %
                    (self.GetPath(), len(self._data)))
         return self._data
 

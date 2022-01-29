@@ -240,7 +240,7 @@ class TestFunctional(unittest.TestCase):
 
     def setUp(self):
         # Enable this to turn on debugging output
-        # tout.Init(tout.DEBUG)
+        # tout.init(tout.DEBUG)
         command.test_result = None
 
     def tearDown(self):

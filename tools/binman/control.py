@@ -99,9 +99,9 @@ def _ReadMissingBlobHelp():
     return result
 
 def _ShowBlobHelp(path, text):
-    tout.Warning('\n%s:' % path)
+    tout.warning('\n%s:' % path)
     for line in text.splitlines():
-        tout.Warning('   %s' % line)
+        tout.warning('   %s' % line)
 
 def _ShowHelpForMissingBlobs(missing_list):
     """Show help for each missing blob to help the user take action
@@ -259,14 +259,14 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
         entry = image.FindEntryPath(entry_paths[0])
         data = entry.ReadData(decomp, alt_format)
         tools.write_file(output_fname, data)
-        tout.Notice("Wrote %#x bytes to file '%s'" % (len(data), output_fname))
+        tout.notice("Wrote %#x bytes to file '%s'" % (len(data), output_fname))
         return
 
     # Otherwise we will output to a path given by the entry path of each entry.
     # This means that entries will appear in subdirectories if they are part of
     # a sub-section.
     einfos = image.GetListEntries(entry_paths)[0]
-    tout.Notice('%d entries match and will be written' % len(einfos))
+    tout.notice('%d entries match and will be written' % len(einfos))
     for einfo in einfos:
         entry = einfo.entry
         data = entry.ReadData(decomp, alt_format)
@@ -279,7 +279,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
             if fname and not os.path.exists(fname):
                 os.makedirs(fname)
             fname = os.path.join(fname, 'root')
-        tout.Notice("Write entry '%s' size %x to '%s'" %
+        tout.notice("Write entry '%s' size %x to '%s'" %
                     (entry.GetPath(), len(data), fname))
         tools.write_file(fname, data)
     return einfos
@@ -328,7 +328,7 @@ def AfterReplace(image, allow_resize, write_map):
             of the entries), False to raise an exception
         write_map: True to write a map file
     """
-    tout.Info('Processing image')
+    tout.info('Processing image')
     ProcessImage(image, update_fdt=True, write_map=write_map,
                  get_contents=False, allow_resize=allow_resize)
 
@@ -336,7 +336,7 @@ def AfterReplace(image, allow_resize, write_map):
 def WriteEntryToImage(image, entry, data, do_compress=True, allow_resize=True,
                       write_map=False):
     BeforeReplace(image, allow_resize)
-    tout.Info('Writing data to %s' % entry.GetPath())
+    tout.info('Writing data to %s' % entry.GetPath())
     ReplaceOneEntry(image, entry, data, do_compress, allow_resize)
     AfterReplace(image, allow_resize=allow_resize, write_map=write_map)
 
@@ -361,7 +361,7 @@ def WriteEntry(image_fname, entry_path, data, do_compress=True,
     Returns:
         Image object that was updated
     """
-    tout.Info("Write entry '%s', file '%s'" % (entry_path, image_fname))
+    tout.info("Write entry '%s', file '%s'" % (entry_path, image_fname))
     image = Image.FromFile(image_fname)
     entry = image.FindEntryPath(entry_path)
     WriteEntryToImage(image, entry, data, do_compress=do_compress,
@@ -399,7 +399,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
             raise ValueError('Must specify exactly one entry path to write with -f')
         entry = image.FindEntryPath(entry_paths[0])
         data = tools.read_file(input_fname)
-        tout.Notice("Read %#x bytes from file '%s'" % (len(data), input_fname))
+        tout.notice("Read %#x bytes from file '%s'" % (len(data), input_fname))
         WriteEntryToImage(image, entry, data, do_compress=do_compress,
                           allow_resize=allow_resize, write_map=write_map)
         return
@@ -408,7 +408,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
     # This means that files must appear in subdirectories if they are part of
     # a sub-section.
     einfos = image.GetListEntries(entry_paths)[0]
-    tout.Notice("Replacing %d matching entries in image '%s'" %
+    tout.notice("Replacing %d matching entries in image '%s'" %
                 (len(einfos), image_fname))
 
     BeforeReplace(image, allow_resize)
@@ -416,19 +416,19 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
     for einfo in einfos:
         entry = einfo.entry
         if entry.GetEntries():
-            tout.Info("Skipping section entry '%s'" % entry.GetPath())
+            tout.info("Skipping section entry '%s'" % entry.GetPath())
             continue
 
         path = entry.GetPath()[1:]
         fname = os.path.join(indir, path)
 
         if os.path.exists(fname):
-            tout.Notice("Write entry '%s' from file '%s'" %
+            tout.notice("Write entry '%s' from file '%s'" %
                         (entry.GetPath(), fname))
             data = tools.read_file(fname)
             ReplaceOneEntry(image, entry, data, do_compress, allow_resize)
         else:
-            tout.Warning("Skipping entry '%s' from missing file '%s'" %
+            tout.warning("Skipping entry '%s' from missing file '%s'" %
                          (entry.GetPath(), fname))
 
     AfterReplace(image, allow_resize=allow_resize, write_map=write_map)
@@ -488,7 +488,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
             else:
                 skip.append(name)
         images = new_images
-        tout.Notice('Skipping images: %s' % ', '.join(skip))
+        tout.notice('Skipping images: %s' % ', '.join(skip))
 
     state.Prepare(images, dtb)
 
@@ -574,7 +574,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
         if sizes_ok:
             break
         image.ResetForPack()
-    tout.Info('Pack completed after %d pass(es)' % (pack_pass + 1))
+    tout.info('Pack completed after %d pass(es)' % (pack_pass + 1))
     if not sizes_ok:
         image.Raise('Entries changed size after packing (tried %s passes)' %
                     passes)
@@ -585,20 +585,20 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     missing_list = []
     image.CheckMissing(missing_list)
     if missing_list:
-        tout.Warning("Image '%s' is missing external blobs and is non-functional: %s" %
+        tout.warning("Image '%s' is missing external blobs and is non-functional: %s" %
                      (image.name, ' '.join([e.name for e in missing_list])))
         _ShowHelpForMissingBlobs(missing_list)
     faked_list = []
     image.CheckFakedBlobs(faked_list)
     if faked_list:
-        tout.Warning(
+        tout.warning(
             "Image '%s' has faked external blobs and is non-functional: %s" %
             (image.name, ' '.join([os.path.basename(e.GetDefaultFilename())
                                    for e in faked_list])))
     missing_bintool_list = []
     image.check_missing_bintools(missing_bintool_list)
     if missing_bintool_list:
-        tout.Warning(
+        tout.warning(
             "Image '%s' has missing bintools and is non-functional: %s" %
             (image.name, ' '.join([os.path.basename(bintool.name)
                                    for bintool in missing_bintool_list])))
@@ -629,7 +629,7 @@ def Binman(args):
 
     if args.cmd in ['ls', 'extract', 'replace', 'tool']:
         try:
-            tout.Init(args.verbosity)
+            tout.init(args.verbosity)
             tools.prepare_output_dir(None)
             if args.cmd == 'ls':
                 ListEntries(args.image, args.paths)
@@ -682,7 +682,7 @@ def Binman(args):
         args.indir.append(board_pathname)
 
     try:
-        tout.Init(args.verbosity)
+        tout.init(args.verbosity)
         elf.debug = args.debug
         cbfs_util.VERBOSE = args.verbosity > 2
         state.use_fake_dtb = args.fake_dtb
@@ -724,13 +724,13 @@ def Binman(args):
                 elf.UpdateFile(*elf_params, data)
 
             if invalid:
-                tout.Warning("\nSome images are invalid")
+                tout.warning("\nSome images are invalid")
 
             # Use this to debug the time take to pack the image
             #state.TimingShow()
         finally:
             tools.finalise_output_dir()
     finally:
-        tout.Uninit()
+        tout.uninit()
 
     return 0

@@ -245,7 +245,7 @@ def collect_patches(series, series_id, url, rest_api=call_rest_api):
     count = len(patch_dict)
     num_commits = len(series.commits)
     if count != num_commits:
-        tout.Warning('Warning: Patchwork reports %d patches, series has %d' %
+        tout.warning('Warning: Patchwork reports %d patches, series has %d' %
                      (count, num_commits))
 
     patches = []
@@ -257,7 +257,7 @@ def collect_patches(series, series_id, url, rest_api=call_rest_api):
         patch.parse_subject(pw_patch['name'])
         patches.append(patch)
     if warn_count > 1:
-        tout.Warning('   (total of %d warnings)' % warn_count)
+        tout.warning('   (total of %d warnings)' % warn_count)
 
     # Sort patches by patch number
     patches = sorted(patches, key=lambda x: x.seq)
@@ -437,7 +437,7 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
 
     patch_for_commit, _, warnings = compare_with_series(series, patches)
     for warn in warnings:
-        tout.Warning(warn)
+        tout.warning(warn)
 
     patch_list = [patch_for_commit.get(c) for c in range(len(series.commits))]
 

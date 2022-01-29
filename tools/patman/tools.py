@@ -64,16 +64,16 @@ def prepare_output_dir(dirname, preserve=False):
             except OSError as err:
                 raise CmdError("Cannot make output directory '%s': '%s'" %
                                 (outdir, err.strerror))
-        tout.Debug("Using output directory '%s'" % outdir)
+        tout.debug("Using output directory '%s'" % outdir)
     else:
         outdir = tempfile.mkdtemp(prefix='binman.')
-        tout.Debug("Using temporary directory '%s'" % outdir)
+        tout.debug("Using temporary directory '%s'" % outdir)
 
 def _remove_output_dir():
     global outdir
 
     shutil.rmtree(outdir)
-    tout.Debug("Deleted temporary directory '%s'" % outdir)
+    tout.debug("Deleted temporary directory '%s'" % outdir)
     outdir = None
 
 def finalise_output_dir():
@@ -121,7 +121,7 @@ def set_input_dirs(dirname):
     global indir
 
     indir = dirname
-    tout.Debug("Using input directories %s" % indir)
+    tout.debug("Using input directories %s" % indir)
 
 def get_input_filename(fname, allow_missing=False):
     """Return a filename for use as input.

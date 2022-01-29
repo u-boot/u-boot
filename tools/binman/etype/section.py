@@ -757,28 +757,28 @@ class Entry_section(Entry):
         return self._sort
 
     def ReadData(self, decomp=True, alt_format=None):
-        tout.Info("ReadData path='%s'" % self.GetPath())
+        tout.info("ReadData path='%s'" % self.GetPath())
         parent_data = self.section.ReadData(True, alt_format)
         offset = self.offset - self.section._skip_at_start
         data = parent_data[offset:offset + self.size]
-        tout.Info(
+        tout.info(
             '%s: Reading data from offset %#x-%#x (real %#x), size %#x, got %#x' %
                   (self.GetPath(), self.offset, self.offset + self.size, offset,
                    self.size, len(data)))
         return data
 
     def ReadChildData(self, child, decomp=True, alt_format=None):
-        tout.Debug(f"ReadChildData for child '{child.GetPath()}'")
+        tout.debug(f"ReadChildData for child '{child.GetPath()}'")
         parent_data = self.ReadData(True, alt_format)
         offset = child.offset - self._skip_at_start
-        tout.Debug("Extract for child '%s': offset %#x, skip_at_start %#x, result %#x" %
+        tout.debug("Extract for child '%s': offset %#x, skip_at_start %#x, result %#x" %
                    (child.GetPath(), child.offset, self._skip_at_start, offset))
         data = parent_data[offset:offset + child.size]
         if decomp:
             indata = data
             data = comp_util.decompress(indata, child.compress)
             if child.uncomp_size:
-                tout.Info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
+                tout.info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
                             (child.GetPath(), len(indata), child.compress,
                             len(data)))
         if alt_format:

@@ -267,7 +267,7 @@ class Bintool:
         name = os.path.expanduser(self.name)  # Expand paths containing ~
         all_args = (name,) + args
         env = tools.get_env_with_path()
-        tout.Detail(f"bintool: {' '.join(all_args)}")
+        tout.detail(f"bintool: {' '.join(all_args)}")
         result = command.run_pipe(
             [all_args], capture=True, capture_stderr=True, env=env,
             raise_on_error=False, binary=binary)
@@ -278,17 +278,17 @@ class Bintool:
             # try to run it (as above) since RunPipe() allows faking the tool's
             # output
             if not any([result.stdout, result.stderr, tools.tool_find(name)]):
-                tout.Info(f"bintool '{name}' not found")
+                tout.info(f"bintool '{name}' not found")
                 return None
             if raise_on_error:
-                tout.Info(f"bintool '{name}' failed")
+                tout.info(f"bintool '{name}' failed")
                 raise ValueError("Error %d running '%s': %s" %
                                 (result.return_code, ' '.join(all_args),
                                 result.stderr or result.stdout))
         if result.stdout:
-            tout.Debug(result.stdout)
+            tout.debug(result.stdout)
         if result.stderr:
-            tout.Debug(result.stderr)
+            tout.debug(result.stderr)
         return result
 
     def run_cmd(self, *args, binary=False):

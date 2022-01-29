@@ -172,7 +172,7 @@ class TestElf(unittest.TestCase):
     def testDebug(self):
         """Check that enabling debug in the elf module produced debug output"""
         try:
-            tout.Init(tout.DEBUG)
+            tout.init(tout.DEBUG)
             entry = FakeEntry(20)
             section = FakeSection()
             elf_fname = self.ElfTestFile('u_boot_binman_syms')
@@ -180,7 +180,7 @@ class TestElf(unittest.TestCase):
                 syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
             self.assertTrue(len(stdout.getvalue()) > 0)
         finally:
-            tout.Init(tout.WARNING)
+            tout.init(tout.WARNING)
 
     def testMakeElf(self):
         """Test for the MakeElf function"""

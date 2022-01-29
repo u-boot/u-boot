@@ -400,7 +400,7 @@ class Entry(object):
                 data += tools.get_bytes(0, self.contents_size - new_size)
 
         if not size_ok:
-            tout.Debug("Entry '%s' size change from %s to %s" % (
+            tout.debug("Entry '%s' size change from %s to %s" % (
                 self._node.path, to_hex(self.contents_size),
                 to_hex(new_size)))
         self.SetContents(data)
@@ -489,12 +489,12 @@ class Entry(object):
     def Info(self, msg):
         """Convenience function to log info referencing a node"""
         tag = "Info '%s'" % self._node.path
-        tout.Detail('%30s: %s' % (tag, msg))
+        tout.detail('%30s: %s' % (tag, msg))
 
     def Detail(self, msg):
         """Convenience function to log detail referencing a node"""
         tag = "Node '%s'" % self._node.path
-        tout.Detail('%30s: %s' % (tag, msg))
+        tout.detail('%30s: %s' % (tag, msg))
 
     def GetEntryArgsOrProps(self, props, required=False):
         """Return the values of a set of properties
@@ -841,7 +841,7 @@ features to produce new behaviours.
         """
         # Use True here so that we get an uncompressed section to work from,
         # although compressed sections are currently not supported
-        tout.Debug("ReadChildData section '%s', entry '%s'" %
+        tout.debug("ReadChildData section '%s', entry '%s'" %
                    (self.section.GetPath(), self.GetPath()))
         data = self.section.ReadChildData(self, decomp, alt_format)
         return data
@@ -1076,7 +1076,7 @@ features to produce new behaviours.
         Returns:
             True to use this entry type, False to use the original one
         """
-        tout.Info("Node '%s': etype '%s': %s selected" %
+        tout.info("Node '%s': etype '%s': %s selected" %
                   (node.path, etype, new_etype))
         return True
 
