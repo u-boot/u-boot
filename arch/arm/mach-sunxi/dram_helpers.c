@@ -26,7 +26,10 @@ void mctl_await_completion(u32 *reg, u32 mask, u32 val)
 
 /*
  * Test if memory at offset offset matches memory at begin of DRAM
+ *
+ * Note: dsb() is not available on ARMv5 in Thumb mode
  */
+#ifndef CONFIG_MACH_SUNIV
 bool mctl_mem_matches(u32 offset)
 {
 	/* Try to write different values to RAM at two addresses */
@@ -37,3 +40,4 @@ bool mctl_mem_matches(u32 offset)
 	return readl(CONFIG_SYS_SDRAM_BASE) ==
 	       readl((ulong)CONFIG_SYS_SDRAM_BASE + offset);
 }
+#endif
