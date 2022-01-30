@@ -1027,4 +1027,104 @@ void fwu_plat_get_bootidx(void *boot_idx)
 
 	*bootidx = readl(TAMP_BOOTCOUNT);
 }
+
+static int fill_gpt_partition_guids(struct blk_desc *desc,
+				    efi_guid_t **part_guid_arr)
+{
+	int i;
+	u32 part;
+	int alt_num;
+	struct dfu_entity *dfu;
+	struct disk_partition info;
+	efi_guid_t part_type_guid;
+	efi_guid_t null_guid = NULL_GUID;
+	efi_status_t ret = EFI_SUCCESS;
+
+	dfu_init_env_entities(NULL, NULL);
+
+	alt_num = 0;
+	list_for_each_entry(dfu, &dfu_list, list) {
+		++alt_num;
+	}
+
+	if (!alt_num) {
+		log_warning("Probably dfu_alt_info not defined\n");
+		ret = EFI_NOT_READY;
+		goto out;
+	}
+
+	*part_guid_arr = malloc(sizeof(efi_guid_t) * alt_num);
+	if (!*part_guid_arr) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+
+	for (i = 0; i < alt_num; i++)
+		guidcpy((*part_guid_arr + i), &null_guid);
+
+	for (i = 0, part = 1; i < alt_num; i++) {
+		dfu = dfu_get_entity(i);
+
+		if (!dfu)
+			continue;
+
+		/*
+		 * Currently, Multi Bank update
+		 * feature is being supported
+		 * only on GPT partitioned
+		 * MMC/SD devices.
+		 */
+		if (dfu->dev_type != DFU_DEV_MMC)
+			continue;
+
+		if (part_get_info(desc, part, &info)) {
+			part++;
+			continue;
+		}
+
+		uuid_str_to_bin(info.type_guid, part_type_guid.b,
+				UUID_STR_FORMAT_GUID);
+		guidcpy((*part_guid_arr + i), &part_type_guid);
+		part++;
+	}
+
+out:
+	dfu_free_entities();
+
+	return ret;
+}
+
+efi_status_t fill_image_type_guid_array(const efi_guid_t __always_unused
+					*default_guid,
+					efi_guid_t **part_guid_arr)
+{
+	int ret;
+	struct udevice *dev, *mdata_dev;
+	struct blk_desc *desc;
+
+	ret = uclass_get_device(UCLASS_FWU_MDATA, 0, &dev);
+	if (ret) {
+		log_err("Unable to get FWU metadata device\n");
+		return EFI_DEVICE_ERROR;
+	}
+
+	/*
+	 * Get the storage device on which the
+	 * FWU metadata has been stored
+	 */
+	ret = fwu_get_mdata_device(dev, &mdata_dev);
+	if (ret) {
+		log_err("Unable to get block device containing FWU Metadata\n");
+		return EFI_DEVICE_ERROR;
+	}
+
+	desc = dev_get_uclass_plat(mdata_dev);
+	if (!desc) {
+		log_err("Block device not found\n");
+		return EFI_DEVICE_ERROR;
+	}
+
+	return fill_gpt_partition_guids(desc, part_guid_arr);
+}
+
 #endif /* CONFIG_FWU_MULTI_BANK_UPDATE */
