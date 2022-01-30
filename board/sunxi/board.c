@@ -28,6 +28,7 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/prcm.h>
+#include <asm/arch/pmic_bus.h>
 #include <asm/arch/spl.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
@@ -602,6 +603,16 @@ void sunxi_board_init(void)
 	defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
 	power_failed = axp_init();
 
+	if (IS_ENABLED(CONFIG_AXP_DISABLE_BOOT_ON_POWERON) && !power_failed) {
+		u8 boot_reason;
+
+		pmic_bus_read(AXP_POWER_STATUS, &boot_reason);
+		if (boot_reason & AXP_POWER_STATUS_ALDO_IN) {
+			printf("Power on by plug-in, shutting down.\n");
+			pmic_bus_write(0x32, BIT(7));
+		}
+	}
+
 #if defined CONFIG_AXP221_POWER || defined CONFIG_AXP809_POWER || \
 	defined CONFIG_AXP818_POWER
 	power_failed |= axp_set_dcdc1(CONFIG_AXP_DCDC1_VOLT);
@@ -912,10 +923,12 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	int __maybe_unused r;
 
 	/*
-	 * Call setup_environment again in case the boot fdt has
-	 * ethernet aliases the u-boot copy does not have.
+	 * Call setup_environment and fdt_fixup_ethernet again
+	 * in case the boot fdt has ethernet aliases the u-boot
+	 * copy does not have.
 	 */
 	setup_environment(blob);
+	fdt_fixup_ethernet(blob);
 
 	bluetooth_dt_fixup(blob);
 
