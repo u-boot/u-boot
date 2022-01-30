@@ -21,6 +21,13 @@ void clock_init_safe(void)
 	clrbits_le32(&prcm->res_cal_ctrl, 1);
 	setbits_le32(&prcm->res_cal_ctrl, 1);
 
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H6)) {
+		/* set key field for ldo enable */
+		setbits_le32(&prcm->pll_ldo_cfg, 0xA7000000);
+		/* set PLL VDD LDO output to 1.14 V */
+		setbits_le32(&prcm->pll_ldo_cfg, 0x60000);
+	}
+
 	clock_set_pll1(408000000);
 
 	writel(CCM_PLL6_DEFAULT, &ccm->pll6_cfg);
