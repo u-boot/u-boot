@@ -194,7 +194,7 @@ class Entry_fit(Entry):
                     # the FIT (e.g. "/images/kernel/u-boot"), so don't call
                     # fsw.add_node() or _AddNode() for it.
                     pass
-                elif subnode.name.startswith('@'):
+                elif self.GetImage().generate and subnode.name.startswith('@'):
                     if self._fdts:
                         # Generate notes for each FDT
                         for seq, fdt_fname in enumerate(self._fdts):
