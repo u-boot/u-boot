@@ -351,11 +351,12 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 	dfu->data.mmc.dev_num = dectoul(devstr, NULL);
 
 	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
-		*parg = strsep(&s, " ");
+		*parg = strsep(&s, " \t");
 		if (*parg == NULL) {
 			pr_err("Invalid number of arguments.\n");
 			return -ENODEV;
 		}
+		s = skip_spaces(s);
 	}
 
 	entity_type = argv[0];
@@ -390,9 +391,11 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		 * specifying the mmc HW defined partition number
 		 */
 		if (s)
-			if (!strcmp(strsep(&s, " "), "mmcpart"))
+			if (!strcmp(strsep(&s, " \t"), "mmcpart")) {
+				s = skip_spaces(s);
 				dfu->data.mmc.hw_partition =
 					simple_strtoul(s, NULL, 0);
+			}
 
 	} else if (!strcmp(entity_type, "part")) {
 		struct disk_partition partinfo;
@@ -412,8 +415,10 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		 * specifying the mmc HW defined partition number
 		 */
 		if (s)
-			if (!strcmp(strsep(&s, " "), "offset"))
+			if (!strcmp(strsep(&s, " \t"), "offset")) {
+				s = skip_spaces(s);
 				offset = simple_strtoul(s, NULL, 0);
+			}
 
 		dfu->layout			= DFU_RAW_ADDR;
 		dfu->data.mmc.lba_start		= partinfo.start + offset;

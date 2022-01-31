@@ -13,6 +13,7 @@
 #include <spi_flash.h>
 #include <jffs2/load_kernel.h>
 #include <linux/mtd/mtd.h>
+#include <linux/ctype.h>
 
 static int dfu_get_medium_size_sf(struct dfu_entity *dfu, u64 *size)
 {
@@ -178,11 +179,14 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 	dfu->dev_type = DFU_DEV_SF;
 	dfu->max_buf_size = dfu->data.sf.dev->sector_size;
 
-	st = strsep(&s, " ");
+	st = strsep(&s, " \t");
+	s = skip_spaces(s);
 	if (!strcmp(st, "raw")) {
 		dfu->layout = DFU_RAW_ADDR;
 		dfu->data.sf.start = hextoul(s, &s);
-		s++;
+		if (!isspace(*s))
+			return -1;
+		s = skip_spaces(s);
 		dfu->data.sf.size = hextoul(s, &s);
 	} else if (CONFIG_IS_ENABLED(DFU_SF_PART) &&
 		   (!strcmp(st, "part") || !strcmp(st, "partubi"))) {
@@ -195,7 +199,9 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 		dfu->layout = DFU_RAW_ADDR;
 
 		dev = dectoul(s, &s);
-		s++;
+		if (!isspace(*s))
+			return -1;
+		s = skip_spaces(s);
 		part = dectoul(s, &s);
 
 		sprintf(mtd_id, "%s%d,%d", "nor", dev, part - 1);

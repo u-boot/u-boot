@@ -60,11 +60,12 @@ int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char *s)
 	const char **parg = argv;
 
 	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
-		*parg = strsep(&s, " ");
+		*parg = strsep(&s, " \t");
 		if (*parg == NULL) {
 			pr_err("Invalid number of arguments.\n");
 			return -ENODEV;
 		}
+		s = skip_spaces(s);
 	}
 
 	dfu->dev_type = DFU_DEV_RAM;

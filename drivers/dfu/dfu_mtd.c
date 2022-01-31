@@ -12,6 +12,7 @@
 #include <mtd.h>
 #include <jffs2/load_kernel.h>
 #include <linux/err.h>
+#include <linux/ctype.h>
 
 static bool mtd_is_aligned_with_block_size(struct mtd_info *mtd, u64 size)
 {
@@ -285,11 +286,14 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char *s)
 	dfu->data.mtd.info = mtd;
 	dfu->max_buf_size = mtd->erasesize;
 
-	st = strsep(&s, " ");
+	st = strsep(&s, " \t");
+	s = skip_spaces(s);
 	if (!strcmp(st, "raw")) {
 		dfu->layout = DFU_RAW_ADDR;
 		dfu->data.mtd.start = hextoul(s, &s);
-		s++;
+		if (!isspace(*s))
+			return -1;
+		s = skip_spaces(s);
 		dfu->data.mtd.size = hextoul(s, &s);
 	} else if ((!strcmp(st, "part")) || (!strcmp(st, "partubi"))) {
 		char mtd_id[32];

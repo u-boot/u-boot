@@ -123,9 +123,10 @@ int dfu_config_interfaces(char *env)
 	s = env;
 	while (s) {
 		ret = -EINVAL;
-		i = strsep(&s, " ");
+		i = strsep(&s, " \t");
 		if (!i)
 			break;
+		s = skip_spaces(s);
 		d = strsep(&s, "=");
 		if (!d)
 			break;
@@ -502,8 +503,9 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 	char *st;
 
 	debug("%s: %s interface: %s dev: %s\n", __func__, s, interface, devstr);
-	st = strsep(&s, " ");
+	st = strsep(&s, " \t");
 	strlcpy(dfu->name, st, DFU_NAME_SIZE);
+	s = skip_spaces(s);
 
 	dfu->alt = alt;
 	dfu->max_buf_size = 0;

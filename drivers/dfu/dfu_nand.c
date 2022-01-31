@@ -201,11 +201,14 @@ int dfu_fill_entity_nand(struct dfu_entity *dfu, char *devstr, char *s)
 
 	dfu->data.nand.ubi = 0;
 	dfu->dev_type = DFU_DEV_NAND;
-	st = strsep(&s, " ");
+	st = strsep(&s, " \t");
+	s = skip_spaces(s);
 	if (!strcmp(st, "raw")) {
 		dfu->layout = DFU_RAW_ADDR;
 		dfu->data.nand.start = hextoul(s, &s);
-		s++;
+		if (!isspace(*s))
+			return -1;
+		s = skip_spaces(s);
 		dfu->data.nand.size = hextoul(s, &s);
 	} else if ((!strcmp(st, "part")) || (!strcmp(st, "partubi"))) {
 		char mtd_id[32];
@@ -216,7 +219,9 @@ int dfu_fill_entity_nand(struct dfu_entity *dfu, char *devstr, char *s)
 		dfu->layout = DFU_RAW_ADDR;
 
 		dev = dectoul(s, &s);
-		s++;
+		if (!isspace(*s))
+			return -1;
+		s = skip_spaces(s);
 		part = dectoul(s, &s);
 
 		sprintf(mtd_id, "%s%d,%d", "nand", dev, part - 1);
