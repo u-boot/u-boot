@@ -1776,6 +1776,21 @@ config TARGET_SL28
 	help
 	  Support for Kontron SMARC-sAL28 board.
 
+config TARGET_TEN64
+	bool "Support ten64"
+	select ARCH_LS1088A
+	select ARCH_MISC_INIT
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
+	select BOARD_LATE_INIT
+	select SUPPORT_SPL
+	select FSL_DDR_INTERACTIVE if !SD_BOOT
+	select GPIO_EXTRA_HEADER
+	help
+	  Support for Traverse Technologies Ten64 board, based
+	  on NXP LS1088A.
+
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
 	select CPU_PXA27X
@@ -2225,6 +2240,7 @@ source "board/socionext/developerbox/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/tcl/sl50/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
+source "board/traverse/ten64/Kconfig"
 source "board/variscite/dart_6ul/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/phytium/durian/Kconfig"
