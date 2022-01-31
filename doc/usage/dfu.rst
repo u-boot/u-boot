@@ -113,9 +113,9 @@ mmc
     each element in *dfu_alt_info* being
 
     * <name> raw <offset> <size> [mmcpart <num>]   raw access to mmc device
-    * <name> part <dev> <part_id> [mmcpart <num>]  raw access to partition
-    * <name> fat <dev> <part_id> [mmcpart <num>]   file in FAT partition
-    * <name> ext4 <dev> <part_id> [mmcpart <num>]  file in EXT4 partition
+    * <name> part <dev> <part_id> [offset <byte>]  raw access to partition
+    * <name> fat <dev> <part_id>                   file in FAT partition
+    * <name> ext4 <dev> <part_id>                  file in EXT4 partition
     * <name> skip 0 0                              ignore flashed data
     * <name> script 0 0                            execute commands in shell
 
@@ -169,14 +169,20 @@ nand
 
     each element in *dfu_alt_info* being either of
 
-    * <name> raw <offset> <size>   raw access to mmc device
-    * <name> part <dev> <part_id>  raw acces to partition
-    * <name> partubi <dev> <part_id>  raw acces to ubi partition
+    * <name> raw <offset> <size>        raw access to nand device
+    * <name> part <dev_id> <part_id>     raw access to partition
+    * <name> partubi <dev_id> <part_id>  raw access to ubi partition
 
     with
 
-    partid
-        is the MTD partition index
+    offset
+        is the offset in the nand device (hexadecimal without "0x")
+    size
+        is the size of the access area (hexadecimal without "0x")
+    dev_id
+        is the NAND device index (decimal only)
+    part_id
+        is the NAND partition index (decimal only)
 
 ram
     raw access to ram::
@@ -190,6 +196,13 @@ ram
 
       <name> ram <offset> <size>  raw access to ram
 
+    with
+
+    offset
+        is the offset in the ram device (hexadecimal without "0x")
+    size
+        is the size of the access area (hexadecimal without "0x")
+
 sf
     serial flash : NOR::
 
@@ -198,13 +211,19 @@ sf
     each element in *dfu_alt_info* being either of:
 
     * <name> raw <offset> <size>  raw access to sf device
-    * <name> part <dev> <part_id>  raw acces to partition
-    * <name> partubi <dev> <part_id>  raw acces to ubi partition
+    * <name> part <dev_id> <part_id>  raw acces to partition
+    * <name> partubi <dev_id> <part_id>  raw acces to ubi partition
 
     with
 
-    partid
-        is the MTD partition index
+    offset
+        is the offset in the sf device (hexadecimal without "0x")
+    size
+        is the size of the access area (hexadecimal without "0x")
+    dev_id
+        is the sf device index (the device is "nor<dev_id>") (deximal only)
+    part_id
+        is the MTD partition index (decimal only)
 
 mtd
     all MTD device: NAND, SPI-NOR, SPI-NAND,...::
@@ -219,14 +238,18 @@ mtd
 
     each element in *dfu_alt_info* being either of:
 
-    * <name> raw <offset> <size> forraw access to mtd device
-    * <name> part <dev> <part_id> for raw acces to partition
-    * <name> partubi <dev> <part_id> for raw acces to ubi partition
+    * <name> raw <offset> <size>  for raw access to mtd device
+    * <name> part <part_id>       for raw access to partition
+    * <name> partubi <part_id>    for raw access to ubi partition
 
     with
 
-    partid
-        is the MTD partition index
+    offset
+        is the offset in the mtd device (hexadecimal without "0x")
+    size
+        is the size of the access area (hexadecimal without "0x")
+    part_id
+        is the MTD partition index (decimal only)
 
 virt
     virtual flash back end for DFU
