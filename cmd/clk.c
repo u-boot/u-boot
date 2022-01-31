@@ -120,6 +120,9 @@ static int do_clk_setfreq(struct cmd_tbl *cmdtp, int flag, int argc,
 	s32 freq;
 	struct udevice *dev;
 
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
 	freq = dectoul(argv[2], NULL);
 
 	dev = clk_lookup(argv[1]);
