@@ -9,6 +9,7 @@ config AHCI
 
 config SATA
 	bool "Support SATA controllers"
+	depends on BLK
 	select HAVE_BLOCK_DEVICE
 	help
 	  This enables support for SATA (Serial Advanced Technology
@@ -86,7 +87,6 @@ config FSL_SATA
 	bool "Enable Freescale SATA controller driver support"
 	select AHCI
 	select LIBATA
-	depends on BLK
 	help
 	  Enable this driver to support the SATA controller found in
 	  some Freescale PowerPC SoCs.
@@ -95,7 +95,6 @@ config SATA_MV
 	bool "Enable Marvell SATA controller driver support"
 	select AHCI
 	select LIBATA
-	depends on BLK
 	help
 	  Enable this driver to support the SATA controller found in
 	  some Marvell SoCs.
@@ -104,7 +103,6 @@ config SATA_SIL
 	bool "Enable Silicon Image SIL3131 / SIL3132 / SIL3124 SATA driver support"
 	select AHCI
 	select LIBATA
-	depends on BLK
 	help
 	  Enable this driver to support the SIL3131, SIL3132 and SIL3124
 	  SATA controllers.
