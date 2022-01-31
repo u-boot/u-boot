@@ -59,11 +59,11 @@ DECLARE_GLOBAL_DATA_PTR;
  * Memory Controller Registers
  *
  * Assembled based on public information:
- * https://gitlab.nic.cz/turris/mox-boot-builder/-/blob/master/wtmi/main.c#L332-336
+ * https://gitlab.nic.cz/turris/mox-boot-builder/-/blob/v2020.11.26/wtmi/main.c#L332-336
  * https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell/blob/mv_ddr-armada-18.12/drivers/mv_ddr_mc6.h#L309-L332
  *
  * And checked against the written register values for the various topologies:
- * https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell/blob/mv_ddr-armada-atf-mainline/a3700/mv_ddr_tim.h
+ * https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell/blob/master/a3700/mv_ddr_tim.h
  */
 #define A3700_CH0_MC_CTRL2_REG		MVEBU_REGISTER(0x002c4)
 #define A3700_MC_CTRL2_SDRAM_TYPE_MASK	0xf
