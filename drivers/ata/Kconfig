@@ -42,6 +42,8 @@ config AHCI_PCI
 	help
 	  Enables support for the PCI-based AHCI controller.
 
+if AHCI
+
 config SPL_AHCI_PCI
 	bool "Support for PCI-based AHCI controller for SPL"
 	depends on SPL
@@ -68,23 +70,19 @@ config DWC_AHSATA
 config DWC_AHSATA_AHCI
 	bool "Enable DWC AHSATA AHCI driver support"
 	depends on DWC_AHSATA
-	depends on AHCI
 	default y
 	help
 	  Enable this option unless you need your private ahci implementation
 
-config SUNXI_AHCI
-	bool "Enable Allwinner SATA driver support"
-	depends on AHCI
-	default y if ARCH_SUNXI
+config MTK_AHCI
+	bool "Enable Mediatek AHCI driver support"
 	help
-	  Enable this driver to support the SATA controllers found in the
-	  Allwinner A10, A20 and R40 SoCs.
+	  Enable this driver to support Sata devices through
+	  Mediatek AHCI controller (e.g. MT7622).
 
 config AHCI_MVEBU
 	bool "Marvell EBU AHCI SATA support"
 	depends on ARCH_MVEBU || ARCH_OCTEON
-	depends on AHCI
 	select SCSI_AHCI
 	select DM_SCSI
 	help
@@ -93,12 +91,14 @@ config AHCI_MVEBU
 
 	  If unsure, say N.
 
-config MTK_AHCI
-	bool "Enable Mediatek AHCI driver support"
-	depends on AHCI
+config SUNXI_AHCI
+	bool "Enable Allwinner SATA driver support"
+	default y if ARCH_SUNXI
 	help
-	  Enable this driver to support Sata devices through
-	  Mediatek AHCI controller (e.g. MT7622).
+	  Enable this driver to support the SATA controllers found in the
+	  Allwinner A10, A20 and R40 SoCs.
+
+endif # AHCI
 
 if SATA
 
