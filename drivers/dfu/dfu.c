@@ -503,7 +503,7 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 
 	debug("%s: %s interface: %s dev: %s\n", __func__, s, interface, devstr);
 	st = strsep(&s, " ");
-	strcpy(dfu->name, st);
+	strlcpy(dfu->name, st, DFU_NAME_SIZE);
 
 	dfu->alt = alt;
 	dfu->max_buf_size = 0;
