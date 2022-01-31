@@ -366,11 +366,13 @@ static void init_bandgap(void)
 	 *	111 - set REFTOP_VBGADJ[2:0] to 3b'111,
 	 */
 	if (is_mx6ull()) {
+		static const u32 map[] = {6, 1, 2, 3, 4, 5, 0, 7};
+
 		val = readl(&fuse->mem0);
 		val >>= OCOTP_MEM0_REFTOP_TRIM_SHIFT;
 		val &= 0x7;
 
-		writel(val << BM_ANADIG_ANA_MISC0_REFTOP_VBGADJ_SHIFT,
+		writel(map[val] << BM_ANADIG_ANA_MISC0_REFTOP_VBGADJ_SHIFT,
 		       &anatop->ana_misc0_set);
 	}
 }
