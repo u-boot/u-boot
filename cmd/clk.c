@@ -99,20 +99,6 @@ static int do_clk_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 #if CONFIG_IS_ENABLED(DM) && CONFIG_IS_ENABLED(CLK)
-struct udevice *clk_lookup(const char *name)
-{
-	int i = 0;
-	struct udevice *dev;
-
-	do {
-		uclass_get_device(UCLASS_CLK, i++, &dev);
-		if (!strcmp(name, dev->name))
-			return dev;
-	} while (dev);
-
-	return NULL;
-}
-
 static int do_clk_setfreq(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
@@ -125,9 +111,7 @@ static int do_clk_setfreq(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	freq = dectoul(argv[2], NULL);
 
-	dev = clk_lookup(argv[1]);
-
-	if (dev)
+	if (!uclass_get_device_by_name(UCLASS_CLK, argv[1], &dev))
 		clk = dev_get_clk_ptr(dev);
 
 	if (!clk) {
