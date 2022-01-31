@@ -116,7 +116,7 @@ static int do_clk_setfreq(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (!clk) {
 		printf("clock '%s' not found.\n", argv[1]);
-		return -EINVAL;
+		return CMD_RET_FAILURE;
 	}
 
 	freq = clk_set_rate(clk, freq);
