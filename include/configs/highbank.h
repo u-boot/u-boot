@@ -16,10 +16,6 @@
 
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
 
-#define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	5
-#define CONFIG_SYS_SCSI_MAX_LUN		1
-
 #define CONFIG_BOOT_RETRY_TIME		-1
 #define CONFIG_RESET_TO_RETRY
 

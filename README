@@ -732,14 +732,6 @@ The following options need to be configured:
 			When enabled, makes the IDE subsystem use 64bit sector addresses.
 			Default is 32bit.
 
-- SCSI Support:
-		CONFIG_SYS_SCSI_MAX_LUN [8] and CONFIG_SYS_SCSI_MAX_SCSI_ID [7]
-		can be adjusted to define the maximum numbers of LUNs and SCSI
-		IDs.
-
-		The environment variable 'scsidevs' is set to the number of
-		SCSI devices found during the last scan.
-
 - NETWORK Support (PCI):
 		CONFIG_E1000_SPI
 		Utility code for direct access to the SPI bus on Intel 8257x.

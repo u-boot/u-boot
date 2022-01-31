@@ -41,7 +41,6 @@
 	"initrd_high=0x10000000\0"
 
 /* SATA support */
-#define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_LBA48
 
 /* Enable LCD and reserve 512KB from top of memory*/

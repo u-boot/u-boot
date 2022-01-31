@@ -49,8 +49,4 @@
 
 #define CONSOLEDEV		"ttyS2"
 
-#define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
-#define CONFIG_SYS_SCSI_MAX_LUN		1
-
 #endif /* __CONFIG_OMAP5_EVM_H */

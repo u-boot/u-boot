@@ -30,9 +30,6 @@
 #define CONFIG_LBA48
 #if defined(CONFIG_NETSPACE_MAX_V2) || defined(CONFIG_D2NET_V2) || \
 	defined(CONFIG_NET2BIG_V2)
-#define CONFIG_SYS_SATA_MAX_DEVICE	2
-#else
-#define CONFIG_SYS_SATA_MAX_DEVICE	1
 #endif
 #endif /* CONFIG_SATA */
 

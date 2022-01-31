@@ -128,11 +128,7 @@ unsigned long long get_qixis_addr(void);
 
 /* SATA */
 #ifdef CONFIG_SCSI
-#define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SATA1		AHCI_BASE_ADDR1
-
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
-#define CONFIG_SYS_SCSI_MAX_LUN		1
 #endif
 
 /* Physical Memory Map */

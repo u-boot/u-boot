@@ -28,7 +28,6 @@
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 /* SATA support */
-#define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_LBA48
 
 /* PCIe support */

@@ -43,11 +43,6 @@
 #endif
 
 /*
- *  SATA Driver configuration
- */
-#define CONFIG_SYS_SATA_MAX_DEVICE	1
-
-/*
  * Support large disk for SATA and USB
  */
 #define CONFIG_SYS_64BIT_LBA

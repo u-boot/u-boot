@@ -135,6 +135,16 @@ config SATA_SIL
 	  Enable this driver to support the SIL3131, SIL3132 and SIL3124
 	  SATA controllers.
 
+config SYS_SATA_MAX_DEVICE
+	int "Maximum number of SATA devices"
+	depends on !AHCI || FSL_SATA || SATA_MV
+	help
+	  Sets the maximum number of SATA devices which can be supported
+	  by U-Boot.
+
+	  This is only partially converted to driver model. See sata_bread()
+	  for example, which shows where the conversion needs to be completed.
+
 endif # SATA
 
 endmenu

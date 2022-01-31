@@ -13,13 +13,6 @@
 /* I2C */
 #define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
 
-/*
- * SATA/SCSI/AHCI configuration
- */
-#define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
-#define CONFIG_SYS_SCSI_MAX_LUN		1
-
 /* Environment in SPI NOR flash */
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */

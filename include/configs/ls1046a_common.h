@@ -122,12 +122,7 @@
 
 /* SATA */
 #ifndef SPL_NO_SATA
-#define CONFIG_SCSI_AHCI_PLAT
-
 #define CONFIG_SYS_SATA				AHCI_BASE_ADDR
-
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID		1
-#define CONFIG_SYS_SCSI_MAX_LUN			1
 #endif
 
 /* FMan ucode */
