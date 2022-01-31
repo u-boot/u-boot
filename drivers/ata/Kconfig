@@ -48,16 +48,6 @@ config SPL_AHCI_PCI
 	depends on SPL_PCI
 	depends on SPL_SATA_SUPPORT && DM_SCSI
 
-config SATA_CEVA
-	bool "Ceva Sata controller"
-	depends on AHCI
-	depends on DM_SCSI
-	help
-	  This option enables Ceva Sata controller hard IP available on Xilinx
-	  ZynqMP. Support up to 2 external devices. Complient with SATA 3.1 and
-	  AHCI 1.3 specifications with hot-plug detect feature.
-
-
 config DWC_AHCI
 	bool "Enable Synopsys DWC AHCI driver support"
 	select SCSI_AHCI
@@ -82,30 +72,6 @@ config DWC_AHSATA_AHCI
 	default y
 	help
 	  Enable this option unless you need your private ahci implementation
-
-config FSL_SATA
-	bool "Enable Freescale SATA controller driver support"
-	select AHCI
-	select LIBATA
-	help
-	  Enable this driver to support the SATA controller found in
-	  some Freescale PowerPC SoCs.
-
-config SATA_MV
-	bool "Enable Marvell SATA controller driver support"
-	select AHCI
-	select LIBATA
-	help
-	  Enable this driver to support the SATA controller found in
-	  some Marvell SoCs.
-
-config SATA_SIL
-	bool "Enable Silicon Image SIL3131 / SIL3132 / SIL3124 SATA driver support"
-	select AHCI
-	select LIBATA
-	help
-	  Enable this driver to support the SIL3131, SIL3132 and SIL3124
-	  SATA controllers.
 
 config SUNXI_AHCI
 	bool "Enable Allwinner SATA driver support"
@@ -133,5 +99,42 @@ config MTK_AHCI
 	help
 	  Enable this driver to support Sata devices through
 	  Mediatek AHCI controller (e.g. MT7622).
+
+if SATA
+
+config SATA_CEVA
+	bool "Ceva Sata controller"
+	depends on AHCI
+	depends on DM_SCSI
+	help
+	  This option enables Ceva Sata controller hard IP available on Xilinx
+	  ZynqMP. Support up to 2 external devices. Compliant with SATA 3.1 and
+	  AHCI 1.3 specifications with hot-plug detect feature.
+
+config FSL_SATA
+	bool "Enable Freescale SATA controller driver support"
+	select AHCI
+	select LIBATA
+	help
+	  Enable this driver to support the SATA controller found in
+	  some Freescale PowerPC SoCs.
+
+config SATA_MV
+	bool "Enable Marvell SATA controller driver support"
+	select AHCI
+	select LIBATA
+	help
+	  Enable this driver to support the SATA controller found in
+	  some Marvell SoCs.
+
+config SATA_SIL
+	bool "Enable Silicon Image SIL3131 / SIL3132 / SIL3124 SATA driver support"
+	select AHCI
+	select LIBATA
+	help
+	  Enable this driver to support the SIL3131, SIL3132 and SIL3124
+	  SATA controllers.
+
+endif # SATA
 
 endmenu
