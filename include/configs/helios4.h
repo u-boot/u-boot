@@ -40,8 +40,6 @@
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
 #define CONFIG_SYS_SCSI_MAX_LUN		1
-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
-					CONFIG_SYS_SCSI_MAX_LUN)
 #endif
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */

@@ -733,11 +733,9 @@ The following options need to be configured:
 			Default is 32bit.
 
 - SCSI Support:
-		CONFIG_SYS_SCSI_MAX_LUN [8], CONFIG_SYS_SCSI_MAX_SCSI_ID [7] and
-		CONFIG_SYS_SCSI_MAX_DEVICE [CONFIG_SYS_SCSI_MAX_SCSI_ID *
-		CONFIG_SYS_SCSI_MAX_LUN] can be adjusted to define the
-		maximum numbers of LUNs, SCSI ID's and target
-		devices.
+		CONFIG_SYS_SCSI_MAX_LUN [8] and CONFIG_SYS_SCSI_MAX_SCSI_ID [7]
+		can be adjusted to define the maximum numbers of LUNs and SCSI
+		IDs.
 
 		The environment variable 'scsidevs' is set to the number of
 		SCSI devices found during the last scan.

@@ -133,8 +133,6 @@ unsigned long long get_qixis_addr(void);
 
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
 #define CONFIG_SYS_SCSI_MAX_LUN		1
-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
-					CONFIG_SYS_SCSI_MAX_LUN)
 #endif
 
 /* Physical Memory Map */
