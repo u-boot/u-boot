@@ -67,6 +67,8 @@ RUN apt-get update && apt-get install -y \
 	libgit2-dev \
 	libjson-glib-dev \
 	libguestfs-tools \
+	libgnutls28-dev \
+	libgnutls30 \
 	liblz4-tool \
 	libpixman-1-dev \
 	libpython3-dev \
