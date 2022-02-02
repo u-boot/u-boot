@@ -133,6 +133,10 @@ int get_testpin(void);
 
 int set_km_env(void);
 
+ulong early_bootcount_load(void);
+void early_bootcount_store(ulong ebootcount);
+void check_for_uboot_update(void);
+
 #define DELAY_ABORT_SEQ		62  /* @200kHz 9 clocks = 44us, 62us is ok */
 #define DELAY_HALF_PERIOD	(500 / (CONFIG_SYS_I2C_SPEED / 1000))
 

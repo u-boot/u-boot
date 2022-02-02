@@ -91,8 +91,10 @@ int board_early_init_f(void)
 	qrio_prstcfg(WCOM_CLIPS_RST, PRSTCFG_POWUP_UNIT_RST);
 	qrio_prst(WCOM_CLIPS_RST, false, false);
 #endif
+
+	/* deasset debug phy reset only if piggy is present */
 	qrio_prstcfg(KM_DBG_ETH_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
-	qrio_prst(KM_DBG_ETH_RST, false, false);
+	qrio_prst(KM_DBG_ETH_RST, !qrio_get_pgy_pres_pin(), false);
 
 	i2c_deblock_gpio_cfg();
 
@@ -104,6 +106,13 @@ int board_early_init_f(void)
 
 	arch_soc_init();
 
+	return 0;
+}
+
+int misc_init_f(void)
+{
+	if (IS_ENABLED(CONFIG_PG_WCOM_UBOOT_UPDATE_SUPPORTED))
+		check_for_uboot_update();
 	return 0;
 }
 
@@ -128,8 +137,7 @@ int board_late_init(void)
 
 int misc_init_r(void)
 {
-	if (IS_ENABLED(CONFIG_FSL_DEVICE_DISABLE))
-		device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
+	device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
 
 	ivm_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN,
 			CONFIG_PIGGY_MAC_ADDRESS_OFFSET);
@@ -150,24 +158,22 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #if defined(CONFIG_POST)
 int post_hotkeys_pressed(void)
 {
-	/* DIC26_SELFTEST: GPRTA0, GPA0 */
-	qrio_gpio_direction_input(QRIO_GPIO_A, 0);
-	return qrio_get_gpio(QRIO_GPIO_A, 0);
+	/* DIC26_SELFTEST: QRIO, SLFTEST */
+	return qrio_get_selftest_pin();
 }
+
+/* POST word is located in the unused SCRATCHRW4 register */
+#define CCSR_SCRATCHRW4_ADDR		0x1ee020c
 
 ulong post_word_load(void)
 {
-	/* POST word is located at the beginning of reserved physical RAM */
-	void *addr = (void *)(CONFIG_SYS_SDRAM_BASE +
-				gd->ram_size - CONFIG_KM_RESERVED_PRAM + 8);
+	void *addr = (void *)CCSR_SCRATCHRW4_ADDR;
 	return in_le32(addr);
 }
 
 void post_word_store(ulong value)
 {
-	/* POST word is located at the beginning of reserved physical RAM */
-	void *addr = (void *)(CONFIG_SYS_SDRAM_BASE +
-				gd->ram_size - CONFIG_KM_RESERVED_PRAM + 8);
+	void *addr = (void *)CCSR_SCRATCHRW4_ADDR;
 	out_le32(addr, value);
 }
 
