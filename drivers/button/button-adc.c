@@ -55,7 +55,7 @@ static int button_adc_of_to_plat(struct udevice *dev)
 	struct button_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct button_adc_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
-	u32 threshold, up_threshold, t;
+	u32 down_threshold = 0, up_threshold, voltage, t;
 	ofnode node;
 	int ret;
 
@@ -78,7 +78,7 @@ static int button_adc_of_to_plat(struct udevice *dev)
 		return ret;
 
 	ret = ofnode_read_u32(dev_ofnode(dev), "press-threshold-microvolt",
-			      &threshold);
+			      &voltage);
 	if (ret)
 		return ret;
 
@@ -87,13 +87,24 @@ static int button_adc_of_to_plat(struct udevice *dev)
 		if (ret)
 			return ret;
 
-		if (t > threshold)
+		if (t > voltage && t < up_threshold)
 			up_threshold = t;
+		else if (t < voltage && t > down_threshold)
+			down_threshold = t;
 	}
 
 	priv->channel = args.args[0];
-	priv->min = threshold;
-	priv->max = up_threshold;
+
+	/*
+	 * Define the voltage range such that the button is only pressed
+	 * when the voltage is closest to its own press-threshold-microvolt
+	 */
+	if (down_threshold == 0)
+		priv->min = 0;
+	else
+		priv->min = down_threshold + (voltage - down_threshold) / 2;
+
+	priv->max = voltage + (up_threshold - voltage) / 2;
 
 	return ret;
 }
