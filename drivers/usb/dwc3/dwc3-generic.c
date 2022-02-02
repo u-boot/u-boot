@@ -110,7 +110,12 @@ static int dwc3_generic_of_to_plat(struct udevice *dev)
 	struct dwc3_generic_plat *plat = dev_get_plat(dev);
 	ofnode node = dev_ofnode(dev);
 
-	plat->base = dev_read_addr(dev);
+	if (!strncmp(dev->name, "port", 4) || !strncmp(dev->name, "hub", 3)) {
+		/* This is a leaf so check the parent */
+		plat->base = dev_read_addr(dev->parent);
+	} else {
+		plat->base = dev_read_addr(dev);
+	}
 
 	plat->maximum_speed = usb_get_maximum_speed(node);
 	if (plat->maximum_speed == USB_SPEED_UNKNOWN) {
@@ -120,8 +125,13 @@ static int dwc3_generic_of_to_plat(struct udevice *dev)
 
 	plat->dr_mode = usb_get_dr_mode(node);
 	if (plat->dr_mode == USB_DR_MODE_UNKNOWN) {
-		pr_err("Invalid usb mode setup\n");
-		return -ENODEV;
+		/* might be a leaf so check the parent for mode */
+		node = dev_ofnode(dev->parent);
+		plat->dr_mode = usb_get_dr_mode(node);
+		if (plat->dr_mode == USB_DR_MODE_UNKNOWN) {
+			pr_err("Invalid usb mode setup\n");
+			return -ENODEV;
+		}
 	}
 
 	return 0;
@@ -301,16 +311,20 @@ static int dwc3_glue_bind(struct udevice *parent)
 {
 	ofnode node;
 	int ret;
+	enum usb_dr_mode dr_mode;
+
+	dr_mode = usb_get_dr_mode(dev_ofnode(parent));
 
 	ofnode_for_each_subnode(node, dev_ofnode(parent)) {
 		const char *name = ofnode_get_name(node);
-		enum usb_dr_mode dr_mode;
 		struct udevice *dev;
 		const char *driver = NULL;
 
 		debug("%s: subnode name: %s\n", __func__, name);
 
-		dr_mode = usb_get_dr_mode(node);
+		/* if the parent node doesn't have a mode check the leaf */
+		if (!dr_mode)
+			dr_mode = usb_get_dr_mode(node);
 
 		switch (dr_mode) {
 		case USB_DR_MODE_PERIPHERAL:
@@ -450,6 +464,7 @@ static const struct udevice_id dwc3_glue_ids[] = {
 	{ .compatible = "rockchip,rk3328-dwc3" },
 	{ .compatible = "rockchip,rk3399-dwc3" },
 	{ .compatible = "qcom,dwc3" },
+	{ .compatible = "fsl,imx8mq-dwc3" },
 	{ .compatible = "intel,tangier-dwc3" },
 	{ }
 };
