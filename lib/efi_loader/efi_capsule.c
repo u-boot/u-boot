@@ -1118,7 +1118,7 @@ efi_status_t efi_launch_capsules(void)
 			index = 0;
 		ret = efi_capsule_read_file(files[i], &capsule);
 		if (ret == EFI_SUCCESS) {
-			ret = EFI_CALL(efi_update_capsule(&capsule, 1, 0));
+			ret = efi_capsule_update_firmware(capsule);
 			if (ret != EFI_SUCCESS)
 				log_err("Applying capsule %ls failed\n",
 					files[i]);
