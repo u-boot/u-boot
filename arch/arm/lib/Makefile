@@ -35,7 +35,10 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o zimage.o
 else
 obj-$(CONFIG_$(SPL_TPL_)FRAMEWORK) += spl.o
-obj-$(CONFIG_SPL_FRAMEWORK) += zimage.o
+ifdef CONFIG_SPL_FRAMEWORK
+obj-$(CONFIG_CMD_BOOTI) += image.o
+obj-$(CONFIG_CMD_BOOTZ) += zimage.o
+endif
 obj-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
 endif
 ifdef CONFIG_ARM64
