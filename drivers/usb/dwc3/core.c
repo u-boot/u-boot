@@ -706,6 +706,14 @@ static void dwc3_gadget_run(struct dwc3 *dwc)
 	mdelay(100);
 }
 
+static void dwc3_core_stop(struct dwc3 *dwc)
+{
+	u32 reg;
+
+	reg = dwc3_readl(dwc->regs, DWC3_DCTL);
+	dwc3_writel(dwc->regs, DWC3_DCTL, reg & ~(DWC3_DCTL_RUN_STOP));
+}
+
 static void dwc3_core_exit_mode(struct dwc3 *dwc)
 {
 	switch (dwc->dr_mode) {
@@ -1128,6 +1136,7 @@ void dwc3_remove(struct dwc3 *dwc)
 	dwc3_core_exit_mode(dwc);
 	dwc3_event_buffers_cleanup(dwc);
 	dwc3_free_event_buffers(dwc);
+	dwc3_core_stop(dwc);
 	dwc3_core_exit(dwc);
 	kfree(dwc->mem);
 }
