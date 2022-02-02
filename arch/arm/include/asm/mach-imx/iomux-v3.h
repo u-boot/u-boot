@@ -243,6 +243,7 @@ typedef u64 iomux_v3_cfg_t;
 
 #endif
 
+#define IMX_PAD_SION		0x40000000
 #define IOMUX_CONFIG_SION	0x10
 
 #define GPIO_PIN_MASK		0x1f
