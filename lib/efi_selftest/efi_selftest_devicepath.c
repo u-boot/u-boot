@@ -319,7 +319,7 @@ static int execute(void)
 			{ DEVICE_PATH_TYPE_MEDIA_DEVICE,
 			  DEVICE_PATH_SUB_TYPE_FILE_PATH,
 			  sizeof(struct efi_device_path) + 12},
-			L"u-boot.bin",
+			u"u-boot.bin",
 		};
 	u16 *string;
 	efi_status_t ret;

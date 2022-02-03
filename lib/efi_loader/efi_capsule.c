@@ -56,10 +56,10 @@ static __maybe_unused unsigned int get_last_capsule(void)
 	int i;
 
 	size = sizeof(value16);
-	ret = efi_get_variable_int(L"CapsuleLast", &efi_guid_capsule_report,
+	ret = efi_get_variable_int(u"CapsuleLast", &efi_guid_capsule_report,
 				   NULL, &size, value16, NULL);
 	if (ret != EFI_SUCCESS || size != 22 ||
-	    u16_strncmp(value16, L"Capsule", 7))
+	    u16_strncmp(value16, u"Capsule", 7))
 		goto err;
 	for (i = 0; i < 4; ++i) {
 		u16 c = value16[i + 7];
@@ -113,14 +113,14 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
 	}
 
 	/* Variable CapsuleLast must not include terminating 0x0000 */
-	ret = efi_set_variable_int(L"CapsuleLast", &efi_guid_capsule_report,
+	ret = efi_set_variable_int(u"CapsuleLast", &efi_guid_capsule_report,
 				   EFI_VARIABLE_READ_ONLY |
 				   EFI_VARIABLE_NON_VOLATILE |
 				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
 				   EFI_VARIABLE_RUNTIME_ACCESS,
 				   22, variable_name16, false);
 	if (ret != EFI_SUCCESS)
-		log_err("Setting %ls failed\n", L"CapsuleLast");
+		log_err("Setting %ls failed\n", u"CapsuleLast");
 }
 
 #ifdef CONFIG_EFI_CAPSULE_FIRMWARE_MANAGEMENT
@@ -707,7 +707,7 @@ static efi_status_t find_boot_device(void)
 	/* find active boot device in BootNext */
 	bootnext = 0;
 	size = sizeof(bootnext);
-	ret = efi_get_variable_int(L"BootNext",
+	ret = efi_get_variable_int(u"BootNext",
 				   (efi_guid_t *)&efi_global_variable_guid,
 				   NULL, &size, &bootnext, NULL);
 	if (ret == EFI_SUCCESS || ret == EFI_BUFFER_TOO_SMALL) {
@@ -734,7 +734,7 @@ static efi_status_t find_boot_device(void)
 skip:
 	/* find active boot device in BootOrder */
 	size = 0;
-	ret = efi_get_variable_int(L"BootOrder", &efi_global_variable_guid,
+	ret = efi_get_variable_int(u"BootOrder", &efi_global_variable_guid,
 				   NULL, &size, NULL, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		boot_order = malloc(size);
@@ -743,7 +743,7 @@ skip:
 			goto out;
 		}
 
-		ret = efi_get_variable_int(L"BootOrder",
+		ret = efi_get_variable_int(u"BootOrder",
 					   &efi_global_variable_guid,
 					   NULL, &size, boot_order, NULL);
 	}
@@ -875,8 +875,8 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
 			break;
 
 		if (!(dirent->attribute & EFI_FILE_DIRECTORY) &&
-		    u16_strcmp(dirent->file_name, L".") &&
-		    u16_strcmp(dirent->file_name, L".."))
+		    u16_strcmp(dirent->file_name, u".") &&
+		    u16_strcmp(dirent->file_name, u".."))
 			tmp_files[count++] = u16_strdup(dirent->file_name);
 	}
 	/* ignore an error */
@@ -1052,7 +1052,7 @@ static efi_status_t check_run_capsules(void)
 	efi_status_t r;
 
 	size = sizeof(os_indications);
-	r = efi_get_variable_int(L"OsIndications", &efi_global_variable_guid,
+	r = efi_get_variable_int(u"OsIndications", &efi_global_variable_guid,
 				 NULL, &size, &os_indications, NULL);
 	if (r != EFI_SUCCESS || size != sizeof(os_indications))
 		return EFI_NOT_FOUND;
@@ -1061,7 +1061,7 @@ static efi_status_t check_run_capsules(void)
 	    EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED) {
 		os_indications &=
 			~EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED;
-		r = efi_set_variable_int(L"OsIndications",
+		r = efi_set_variable_int(u"OsIndications",
 					 &efi_global_variable_guid,
 					 EFI_VARIABLE_NON_VOLATILE |
 					 EFI_VARIABLE_BOOTSERVICE_ACCESS |

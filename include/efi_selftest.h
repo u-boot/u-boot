@@ -16,7 +16,7 @@
 
 #define EFI_ST_SUCCESS 0
 #define EFI_ST_FAILURE 1
-#define EFI_ST_SUCCESS_STR L"SUCCESS"
+#define EFI_ST_SUCCESS_STR u"SUCCESS"
 
 /**
  * efi_st_printf() - print a message
@@ -111,7 +111,7 @@ u16 *efi_st_translate_char(u16 code);
  * efi_st_translate_code() - translate a scan code to a human readable string
  *
  * This function translates the scan code returned by the simple text input
- * protocol to a human readable string, e.g. 0x04 is translated to L"Left".
+ * protocol to a human readable string, e.g. 0x04 is translated to u"Left".
  *
  * @code:	scan code
  * Return:	Unicode string

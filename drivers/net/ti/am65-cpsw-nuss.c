@@ -817,5 +817,5 @@ U_BOOT_DRIVER(am65_cpsw_nuss_port) = {
 	.ops	= &am65_cpsw_ops,
 	.priv_auto	= sizeof(struct am65_cpsw_priv),
 	.plat_auto	= sizeof(struct eth_pdata),
-	.flags = DM_FLAG_ALLOC_PRIV_DMA,
+	.flags = DM_FLAG_ALLOC_PRIV_DMA | DM_FLAG_OS_PREPARE,
 };

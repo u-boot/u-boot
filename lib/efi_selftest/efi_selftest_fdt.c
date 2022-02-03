@@ -199,7 +199,7 @@ static int execute(void)
 	char *str;
 	efi_status_t ret;
 
-	str = get_property(L"compatible", NULL);
+	str = get_property(u"compatible", NULL);
 	if (str) {
 		efi_st_printf("compatible: %s\n", str);
 		ret = boottime->free_pool(str);
@@ -211,7 +211,7 @@ static int execute(void)
 		efi_st_error("Missing property 'compatible'\n");
 		return EFI_ST_FAILURE;
 	}
-	str = get_property(L"serial-number", NULL);
+	str = get_property(u"serial-number", NULL);
 	if (str) {
 		efi_st_printf("serial-number: %s\n", str);
 		ret = boottime->free_pool(str);
@@ -220,7 +220,7 @@ static int execute(void)
 			return EFI_ST_FAILURE;
 		}
 	}
-	str = get_property(L"boot-hartid", L"chosen");
+	str = get_property(u"boot-hartid", u"chosen");
 	if (IS_ENABLED(CONFIG_RISCV)) {
 		if (str) {
 			efi_st_printf("boot-hartid: %u\n",

@@ -23,7 +23,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 	struct efi_simple_text_output_protocol *con_out = systable->con_out;
 
 	con_out->output_string(con_out,
-			       L"EFI application triggers exception.\n");
+			       u"EFI application triggers exception.\n");
 
 #if defined(CONFIG_ARM)
 	/*
@@ -38,6 +38,6 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 #elif defined(CONFIG_X86)
 	asm volatile (".word 0xffff\n");
 #endif
-	con_out->output_string(con_out, L"Exception not triggered.\n");
+	con_out->output_string(con_out, u"Exception not triggered.\n");
 	return EFI_ABORTED;
 }

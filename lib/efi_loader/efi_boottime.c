@@ -3778,7 +3778,7 @@ static struct efi_boot_services efi_boot_services = {
 	.create_event_ex = efi_create_event_ex,
 };
 
-static u16 __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
+static u16 __efi_runtime_data firmware_vendor[] = u"Das U-Boot";
 
 struct efi_system_table __efi_runtime_data systab = {
 	.hdr = {
