@@ -35,18 +35,19 @@ import vboot_evil
 # Only run the full suite on a few combinations, since it doesn't add any more
 # test coverage.
 TESTDATA = [
-    ['sha1-basic', 'sha1', '', None, False, True],
-    ['sha1-pad', 'sha1', '', '-E -p 0x10000', False, False],
-    ['sha1-pss', 'sha1', '-pss', None, False, False],
-    ['sha1-pss-pad', 'sha1', '-pss', '-E -p 0x10000', False, False],
-    ['sha256-basic', 'sha256', '', None, False, False],
-    ['sha256-pad', 'sha256', '', '-E -p 0x10000', False, False],
-    ['sha256-pss', 'sha256', '-pss', None, False, False],
-    ['sha256-pss-pad', 'sha256', '-pss', '-E -p 0x10000', False, False],
-    ['sha256-pss-required', 'sha256', '-pss', None, True, False],
-    ['sha256-pss-pad-required', 'sha256', '-pss', '-E -p 0x10000', True, True],
-    ['sha384-basic', 'sha384', '', None, False, False],
-    ['sha384-pad', 'sha384', '', '-E -p 0x10000', False, False],
+    ['sha1-basic', 'sha1', '', None, False, True, False],
+    ['sha1-pad', 'sha1', '', '-E -p 0x10000', False, False, False],
+    ['sha1-pss', 'sha1', '-pss', None, False, False, False],
+    ['sha1-pss-pad', 'sha1', '-pss', '-E -p 0x10000', False, False, False],
+    ['sha256-basic', 'sha256', '', None, False, False, False],
+    ['sha256-pad', 'sha256', '', '-E -p 0x10000', False, False, False],
+    ['sha256-pss', 'sha256', '-pss', None, False, False, False],
+    ['sha256-pss-pad', 'sha256', '-pss', '-E -p 0x10000', False, False, False],
+    ['sha256-pss-required', 'sha256', '-pss', None, True, False, False],
+    ['sha256-pss-pad-required', 'sha256', '-pss', '-E -p 0x10000', True, True, False],
+    ['sha384-basic', 'sha384', '', None, False, False, False],
+    ['sha384-pad', 'sha384', '', '-E -p 0x10000', False, False, False],
+    ['algo-arg', 'algo-arg', '', '-o sha256,rsa2048', False, False, True],
 ]
 
 @pytest.mark.boardspec('sandbox')
@@ -55,10 +56,10 @@ TESTDATA = [
 @pytest.mark.requiredtool('fdtget')
 @pytest.mark.requiredtool('fdtput')
 @pytest.mark.requiredtool('openssl')
-@pytest.mark.parametrize("name,sha_algo,padding,sign_options,required,full_test",
+@pytest.mark.parametrize("name,sha_algo,padding,sign_options,required,full_test,algo_arg",
                          TESTDATA)
 def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
-               full_test):
+               full_test, algo_arg):
     """Test verified boot signing with mkimage and verification with 'bootm'.
 
     This works using sandbox only as it needs to update the device tree used
@@ -219,7 +220,7 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Build the FIT, but don't sign anything yet
         cons.log.action('%s: Test FIT with signed images' % sha_algo)
         make_fit('sign-images-%s%s.its' % (sha_algo, padding))
-        run_bootm(sha_algo, 'unsigned images', 'dev-', True)
+        run_bootm(sha_algo, 'unsigned images', ' - OK' if algo_arg else 'dev-', True)
 
         # Sign images with our dev keys
         sign_fit(sha_algo, sign_options)
@@ -230,7 +231,7 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
 
         cons.log.action('%s: Test FIT with signed configuration' % sha_algo)
         make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
-        run_bootm(sha_algo, 'unsigned config', '%s+ OK' % sha_algo, True)
+        run_bootm(sha_algo, 'unsigned config', '%s+ OK' % ('sha256' if algo_arg else sha_algo), True)
 
         # Sign images with our dev keys
         sign_fit(sha_algo, sign_options)
