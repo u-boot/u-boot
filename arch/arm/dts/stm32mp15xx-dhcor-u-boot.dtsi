@@ -203,10 +203,6 @@
 	u-boot,dm-spl;
 };
 
-&vdd_io {
-	u-boot,dm-spl;
-};
-
 &vdd_usb {
 	u-boot,dm-spl;
 };
