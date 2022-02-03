@@ -163,7 +163,8 @@ struct int_queue;
  */
 enum usb_init_type {
 	USB_INIT_HOST,
-	USB_INIT_DEVICE
+	USB_INIT_DEVICE,
+	USB_INIT_UNKNOWN,
 };
 
 /**********************************************************************
